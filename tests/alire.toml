@@ -1,0 +1,21 @@
+name = "tests"
+description = ""
+version = "0.1.0-dev"
+
+authors = ["Bent Bracke"]
+maintainers = ["Bent Bracke <bent@bracke.dk>"]
+maintainers-logins = ["bracke"]
+licenses = "MIT"
+website = ""
+tags = []
+
+executables = ["tests"]
+
+[[depends-on]]
+editor = "*"
+
+[[pins]]
+editor = { path='..' }
+
+[[depends-on]]
+aunit = "^26.0.0"
