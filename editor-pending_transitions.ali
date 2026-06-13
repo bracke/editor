@@ -1,0 +1,272 @@
+V "GNAT Lib v15"
+A -gnat2022
+P SS ZX
+
+RN
+RV NO_EXCEPTION_HANDLERS
+RV NO_EXCEPTION_PROPAGATION
+RV NO_EXCEPTIONS
+RV NO_IMPLICIT_CONDITIONALS
+RV NO_NESTED_FINALIZATION
+RV NO_SECONDARY_STACK
+RV NO_STANDARD_STORAGE_POOLS
+RV NO_DEFAULT_INITIALIZATION
+RV NO_DYNAMIC_SIZED_OBJECTS
+RV NO_IMPLICIT_LOOPS
+
+U editor.pending_transitions%b  editor-pending_transitions.adb  a136d7fd NE OO PK
+W ada%s			ada.ads			ada.ali
+Z ada.exceptions%s	a-except.adb		a-except.ali
+W ada.strings%s		a-string.ads		a-string.ali
+W ada.strings.fixed%s	a-strfix.adb		a-strfix.ali
+Z ada.strings.text_buffers%s  a-sttebu.adb	a-sttebu.ali
+W ada.strings.unbounded%s  a-strunb.adb		a-strunb.ali
+W editor%s		editor.ads		editor.ali
+Z system%s		system.ads		system.ali
+Z system.concat_2%s	s-conca2.adb		s-conca2.ali
+Z system.concat_6%s	s-conca6.adb		s-conca6.ali
+Z system.concat_8%s	s-conca8.adb		s-conca8.ali
+Z system.finalization_primitives%s  s-finpri.adb  s-finpri.ali
+Z system.img_int%s	s-imgint.ads		s-imgint.ali
+Z system.return_stack%s	s-retsta.ads		s-retsta.ali
+Z system.secondary_stack%s  s-secsta.adb	s-secsta.ali
+Z system.soft_links%s	s-soflin.adb		s-soflin.ali
+Z system.standard_library%s  s-stalib.adb	s-stalib.ali
+
+U editor.pending_transitions%s  editor-pending_transitions.ads  091654d9 EE NE OO PK
+W ada%s			ada.ads			ada.ali
+Z ada.exceptions%s	a-except.adb		a-except.ali
+W ada.strings%s		a-string.ads		a-string.ali
+W ada.strings.unbounded%s  a-strunb.adb		a-strunb.ali
+Z ada.tags%s		a-tags.adb		a-tags.ali
+W editor%s		editor.ads		editor.ali
+W editor.dirty_guards%s	editor-dirty_guards.adb	editor-dirty_guards.ali
+Z system%s		system.ads		system.ali
+
+D ada.ads		20250808065140 76789da1 ada%s
+D a-charac.ads		20250808065140 2d3ec45b ada.characters%s
+D a-chlat1.ads		20250808065140 e0d72e76 ada.characters.latin_1%s
+D a-except.ads		20250808065140 e7970cd9 ada.exceptions%s
+D a-finali.ads		20250808065140 bf4f806b ada.finalization%s
+D a-stream.ads		20250808065140 17477cbd ada.streams%s
+D a-string.ads		20250808065140 90ac6797 ada.strings%s
+D a-strfix.ads		20250808065140 8648dedb ada.strings.fixed%s
+D a-strmap.ads		20250808065140 1f91ebb6 ada.strings.maps%s
+D a-strsea.ads		20250808065140 18c3c634 ada.strings.search%s
+D a-sttebu.ads		20250808065140 f1ad67a2 ada.strings.text_buffers%s
+D a-strunb.ads		20250808065140 b10770ab ada.strings.unbounded%s
+D a-stuten.ads		20250808065140 c6ced0ae ada.strings.utf_encoding%s
+D a-tags.ads		20250808065140 fbca0ad5 ada.tags%s
+D a-unccon.ads		20250808065140 0e9b276f ada.unchecked_conversion%s
+D editor.ads		20260612145959 16f844c2 editor%s
+D editor-dirty_guards.ads  20260612145959 2f2ee9d0 editor.dirty_guards%s
+D editor-pending_transitions.ads  20260612145959 81c78960 editor.pending_transitions%s
+D editor-pending_transitions.adb  20260612145959 17bef0ed editor.pending_transitions%b
+D interfac.ads		20250808065140 9111f9c1 interfaces%s
+D i-c.ads		20250808065140 e94c966a interfaces.c%s
+D system.ads		20250808065140 14286b0f system%s
+D s-atocou.ads		20250808065140 dc18efc3 system.atomic_counters%s
+D s-conca2.ads		20250808065140 b5fb73f7 system.concat_2%s
+D s-conca6.ads		20250808065140 8252f108 system.concat_6%s
+D s-conca8.ads		20250808065140 8d8f50c1 system.concat_8%s
+D s-exctab.ads		20250808065140 91bef6ef system.exception_table%s
+D s-finpri.ads		20250808065140 5970d55a system.finalization_primitives%s
+D s-finroo.ads		20250808065140 0a7c3ed4 system.finalization_root%s
+D s-imagei.ads		20250808065140 5e131ce0 system.image_i%s
+D s-imgint.ads		20250808065140 67e4edfb system.img_int%s
+D s-memory.ads		20250808065140 18949c1a system.memory%s
+D s-oscons.ads		20250827122531 068e1a91 system.os_constants%s
+D s-oslock.ads		20250808065140 13fa6b78 system.os_locks%s
+D s-parame.ads		20250808065140 3597fc11 system.parameters%s
+D s-putima.ads		20250808065140 17291fe4 system.put_images%s
+D s-retsta.ads		20250808065140 0f6b06cb system.return_stack%s
+D s-secsta.ads		20250808065140 578279f5 system.secondary_stack%s
+D s-soflin.ads		20250808065140 5d88fdea system.soft_links%s
+D s-stache.ads		20250808065140 0b81c1fe system.stack_checking%s
+D s-stalib.ads		20250808065140 1c9580f6 system.standard_library%s
+D s-stalib.adb		20250808065140 eb464a47 system.standard_library%b
+D s-stoele.ads		20250808065140 ccded4e8 system.storage_elements%s
+D s-stratt.ads		20250808065140 516607ae system.stream_attributes%s
+D s-traent.ads		20250808065140 c81cbf8c system.traceback_entries%s
+D s-unstyp.ads		20250808065140 fa2a7f59 system.unsigned_types%s
+D s-valspe.ads		20250808065140 f810d31c system.val_spec%s
+D s-vaispe.ads		20250808065140 8280550e system.value_i_spec%s
+D s-vauspe.ads		20250808065140 89269ba5 system.value_u_spec%s
+D s-vs_int.ads		20250808065140 06b6b724 system.vs_int%s
+D s-vs_uns.ads		20250808065140 e7f47a27 system.vs_uns%s
+G a e
+G c Z s b [clear editor__pending_transitions 65 14 none]
+G c Z s b [has_pending editor__pending_transitions 68 13 none]
+G c Z s b [target editor__pending_transitions 71 13 none]
+G c Z s b [target_kind editor__pending_transitions 74 13 none]
+G c Z s b [has_target_buffer editor__pending_transitions 77 13 none]
+G c Z s b [target_buffer_id editor__pending_transitions 80 13 none]
+G c Z s b [has_target_path editor__pending_transitions 84 13 none]
+G c Z s b [target_path editor__pending_transitions 87 13 none]
+G c Z s b [dirty_summary editor__pending_transitions 91 13 none]
+G c Z s b [set_pending editor__pending_transitions 95 14 none]
+G c Z s b [audit_pending_transition_boundary editor__pending_transitions 100 13 none]
+G c Z s b [display_text editor__pending_transitions 103 13 none]
+G c Z s s [pending_transition_targetDI editor__pending_transitions 20 9 none]
+G c Z s s [pending_transition_targetDA editor__pending_transitions 20 9 none]
+G c Z s s [pending_transition_targetDF editor__pending_transitions 20 9 none]
+G c Z s s [pending_transition_targetIP editor__pending_transitions 20 9 none]
+G c Z s s [pending_transition_boundary_auditIP editor__pending_transitions 44 9 none]
+G c Z s s [pending_transition_stateDI editor__pending_transitions 108 9 none]
+G c Z s s [pending_transition_stateDA editor__pending_transitions 108 9 none]
+G c Z s s [pending_transition_stateDF editor__pending_transitions 108 9 none]
+G c Z s s [pending_transition_stateIP editor__pending_transitions 108 9 none]
+G c Z b b [count_text editor__pending_transitions 6 13 none]
+G c Z b b [summary_text editor__pending_transitions 11 13 none]
+G c Z b b [confirmation_action_text editor__pending_transitions 113 13 none]
+G c Z b b [contains editor__pending_transitions 133 13 none]
+G c Z b b [contains_forbidden_pending_payload_marker editor__pending_transitions 139 13 none]
+G c Z b b [target_has_revalidation_key editor__pending_transitions 157 13 none]
+G r s dirty_buffer_summary [clear editor__pending_transitions 65 14 none] [dirty_buffer_summaryIP editor__dirty_guards 19 9 none]
+G r s dirty_buffer_summary [pending_transition_stateIP editor__pending_transitions 108 9 none] [dirty_buffer_summaryIP editor__dirty_guards 19 9 none]
+X 1 ada.ads
+18K9*Ada 22e8 18|1r6 22r21 23r9 24r21 25r9 29r21 30r9 38r35 39r9 19|1r6 1r33
+. 2r6 8r14 8r61 136r18
+X 7 a-string.ads
+16K13*Strings 35e16 18|1r10 22r25 23r13 24r25 25r13 29r25 30r13 38r39 39r13
+. 19|1r10 1r37 2r10 8r18 8r65 136r22
+33n37*Both{33E9} 19|8r73
+X 8 a-strfix.ads
+49K21*Fixed 1390e22 19|2w18 8r26 136r30
+252V13*Index{natural} 19|136s36
+1133V13*Trim{string} 19|8s32
+X 12 a-strunb.ads
+91K21*Unbounded 1641e26 18|1w18 22r33 23r21 24r33 25r21 29r33 30r21 38r47
+. 39r21 19|1w18 1r45
+105R9*Unbounded_String<5|43R9> 1620e15 18|22r43 24r43 29r43 38r57 19|242r16
+109r4*Null_Unbounded_String{105R9} 18|23r31 25r31 30r31 39r31 19|242r36
+111V13*Length{natural} 19|175s45 272s10
+122V13*To_Unbounded_String{105R9} 19|253s21 255s21 257s21 259s21 261s21 263s21
+. 265s21 267s21 269s21
+135V13*To_String{string} 19|89s17 215s39 221s39 273s44 274s21 278s44 279s21
+. 284s41
+X 16 editor.ads
+1K9*Editor 5e11 18|2r6 4r9 93r14 98r17 111r20 114r5 19|4r14 12r17 96r14 105r17
+. 288r5
+X 17 editor-dirty_guards.ads
+3K16*Dirty_Guards 62e24 18|2w13 93r21 98r24 111r27 19|12r24 96r21 105r24
+19R9*Dirty_Buffer_Summary 23e14 18|93r34 98r37 111r40 19|12r37 96r34 105r37
+20i7*Dirty_Count{natural} 19|15r18 18r37
+X 18 editor-pending_transitions.ads
+4K16*Pending_Transitions 16|1k9 18|108E9 114l12 114e31 19|4b21 288l12 288t31
+6E9*Pending_Transition_Kind 18e29 21r21 75r48 19|47r48
+7n7*No_Pending_Transition{6E9} 21r48 19|36r39 51r17 108r42 162r15 250r15
+8n7*Pending_Close_Buffer{6E9} 19|164r15 252r15
+9n7*Pending_Close_All_Buffers{6E9} 19|169r15 254r15
+10n7*Pending_Close_Other_Buffers{6E9} 19|165r15 256r15
+11n7*Pending_Reload_Active_Buffer{6E9} 19|124r15 166r15 258r15
+12n7*Pending_Revert_Active_Buffer{6E9} 19|125r15 167r15 260r15
+13n7*Pending_Close_Project{6E9} 19|176r15 262r15
+14n7*Pending_Open_Project{6E9} 19|171r15 266r15
+15n7*Pending_Switch_Project{6E9} 19|172r15 266r38
+16n7*Pending_Open_Recent_Project{6E9} 19|173r15 266r63
+17n7*Pending_Restore_Workspace{6E9} 19|174r15 268r15
+18n7*Pending_Clear_Project{6E9} 19|177r15 264r15
+20R9*Pending_Transition_Target 41e14 72r48 97r17 110r20 19|40r48 104r17 114r16
+. 158r16 189r25 241r25
+21e7*Kind{6E9} 19|36r31 53r27 108r34 123r19 161r19 249r19
+22r7*Path{12|105R9} 19|89r41 175r60 279r39
+24r7*Display{12|105R9} 19|272r25 274r39
+26i7*Buffer_Id{natural} 19|70r30
+27b7*Has_Buffer{boolean} 19|60r56 168r27 197r45
+28b7*Has_Path{boolean} 19|79r56 175r27 179r30 277r20
+29r7*Source_Path{12|105R9}
+31b7*Has_Source_Path{boolean} 19|178r27
+36i7*Observed_File_Status_Code{natural}
+37b7*Has_Observed_File_Status{boolean}
+38r7*Observed_File_Token_Label{12|105R9} 19|215r57 221r57
+40b7*Has_Observed_File_Token{boolean} 19|198r47 214r30 220r30
+44R9*Pending_Transition_Boundary_Audit 61e14 101r48 19|185r48 187r15
+45b7*Has_Pending{boolean} 19|191m13 192r20
+46b7*Has_Runtime_Buffer_Id{boolean} 19|197m13
+47b7*Has_File_Conflict_Token{boolean} 19|198m13
+48b7*Runtime_Buffer_Id_Is_Transient{boolean} 19|204m13
+49b7*Runtime_Buffer_Id_Not_Persisted{boolean} 19|205m13 226r15
+50b7*Runtime_Buffer_Id_Not_Command_Payload{boolean} 19|206m13 227r24
+51b7*Runtime_Buffer_Id_Not_Keybinding_Payload{boolean} 19|207m13 228r24
+52b7*Runtime_Buffer_Id_Not_Render_Payload{boolean} 19|208m13 229r24
+53b7*File_Conflict_Token_Is_Transient{boolean} 19|210m13
+54b7*File_Conflict_Token_Not_Persisted{boolean} 19|211m13 230r24
+55b7*File_Conflict_Token_Not_Rendered{boolean} 19|212m13 231r24
+56b7*Prompt_Display_Hides_Runtime_Buffer_Id{boolean} 19|216m13 232r24
+57b7*Prompt_Display_Hides_File_Conflict_Token{boolean} 19|218m13 233r24
+58b7*Pending_Target_Revalidation_Required{boolean} 19|222m13
+59b7*Pending_Target_Has_Revalidation_Key{boolean} 19|223m13 234r24
+60b7*Boundary_Safe{boolean} 19|193m16 225m13
+63R9*Pending_Transition_State 66r22 69r15 72r15 75r15 78r15 81r15 85r15 88r15
+. 92r15 96r24 101r15 104r15 108c9 112e14 19|23r22 32r15 40r15 47r15 57r15
+. 64r15 76r15 83r15 95r15 103r24 185r15 239r15
+65U14*Clear 66=7 19|22b14 29l8 29t13
+66r7 State{63R9} 19|23b7 26m7
+68V13*Has_Pending{boolean} 69>7 19|31b13 37l8 37t19 50s14 60s14 79s14 191s28
+. 245s14
+69r7 State{63R9} 19|32b7 35r14 36r18
+71V13*Target{20R9} 72>7 19|39b13 44l8 44t14
+72r7 State{63R9} 19|40b7 43r14
+74V13*Target_Kind{6E9} 75>7 19|46b13 54l8 54t19
+75r7 State{63R9} 19|47b7 50r27 53r14
+77V13*Has_Target_Buffer{boolean} 78>7 19|56b13 61l8 61t25 68s16
+78r7 State{63R9} 19|57b7 60r27 60r43
+80V13*Target_Buffer_Id{natural} 81>7 82<7 19|63b13 73l8 73t24
+81r7 State{63R9} 19|64b7 68r35 70r17
+82b7 Found{boolean} 19|65b7 68m7 69r10
+84V13*Has_Target_Path{boolean} 85>7 19|75b13 80l8 80t23 87s16
+85r7 State{63R9} 19|76b7 79r27 79r43
+87V13*Target_Path{string} 88>7 89<7 19|82b13 92l8 92t19
+88r7 State{63R9} 19|83b7 87r33 89r28
+89b7 Found{boolean} 19|84b7 87m7 88r10
+91V13*Dirty_Summary{17|19R9} 92>7 19|94b13 100l8 100t21
+92r7 State{63R9} 19|95b7 99r14
+95U14*Set_Pending 96=7 97>7 98>7 19|102b14 111l8 111t19
+96r7 State{63R9} 19|103b7 108m7 109m7 110m7
+97r7 Target{20R9} 19|104b7 108r27 109r23
+98r7 Summary{17|19R9} 19|105b7 110r24
+100V13*Audit_Pending_Transition_Boundary{44R9} 101>7 19|184b13 236l8 236t41
+101r7 State{63R9} 19|185b7 188r48 189r54 191r41
+103V13*Display_Text{string} 104>7 19|188s34 238b13 286l8 286t20
+104r7 State{63R9} 19|239b7 241r54 245r27 275r35 280r35 285r32
+109b7*Has_Target{boolean} 19|26m17 35r20 108m13
+110r7*Target{20R9} 19|36r24 43r20 53r20 60r49 70r23 79r49 89r34 109m13 189r60
+. 241r60
+111r7*Summary{17|19R9} 19|99r20 110m13 275r41 280r41 285r38
+X 19 editor-pending_transitions.adb
+6V13 Count_Text{string} 6b13 6>25 9l8 9t18 18s17
+6i25 Count{natural} 8r53
+11V13 Summary_Text{string} 11b13 12>7 20l8 20t20 275s21 280s21 285s18
+12r7 Summary{17|19R9} 15r10 18r29
+113V13 Confirmation_Action_Text{string} 113b13 114>7 130l8 130t32 243s36
+114r7 Target{18|20R9} 123r12
+133V13 Contains{boolean} 133b13 133>23 133>38 137l8 137t16 143s14 144s17
+. 145s17 146s17 147s17 148s17 149s17 150s17 151s17 152s17 153s17 154s17 215s23
+. 221s23
+133a23 Text{string} 136r43
+133a38 Pattern{string} 135r14 136r49
+139V13 Contains_Forbidden_Pending_Payload_Marker{boolean} 139b13 140>7 155l8
+. 155t49 209s13 213s13 217s13 219s13
+140a7 Text{string} 143r24 144r27 145r27 146r27 147r27 148r27 149r27 150r27
+. 151r27 152r27 153r27 154r27
+157V13 Target_Has_Revalidation_Key{boolean} 157b13 158>7 182l8 182t35 223s52
+158r7 Target{18|20R9} 161r12 168r20 175r20 175r53 178r20 179r23
+187r7 Audit{18|44R9} 191m7 192r14 193m10 194r17 197m7 198m7 204m7 205m7 206m7
+. 207m7 208m7 210m7 211m7 212m7 216m7 218m7 222m7 223m7 225m7 226r9 227r18
+. 228r18 229r18 230r18 231r18 232r18 233r18 234r18 235r14
+188a7 Text{string} 209r56 213r56 215r33 217r56 219r56 221r33
+189r7 Target{18|20R9} 197r38 198r40 214r23 215r50 220r23 221r50 223r81
+241r7 Target{18|20R9} 243r62 249r12 272r18 274r32 277r13 279r32
+242r7 What{12|105R9} 253m13 255m13 257m13 259m13 261m13 263m13 265m13 267m13
+. 269m13 273r55 278r55 284r52
+243a7 Actions{string} 276r25 281r25 285r60
+X 22 system.ads
+67M9*Address
+X 32 s-memory.ads
+51V13*Alloc{22|67M9} 101i<c,__gnat_malloc>22
+66U14*Free 102i<c,__gnat_free>22
+74V13*Realloc{22|67M9} 103i<c,__gnat_realloc>22
+X 42 s-stalib.adb
+87U14 Break_Start 88i<c,__gnat_break_start>22
+

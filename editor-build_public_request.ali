@@ -1,0 +1,343 @@
+V "GNAT Lib v15"
+A -gnat2022
+P SS ZX
+
+RN
+RV NO_DISPATCHING_CALLS
+RV NO_EXCEPTION_HANDLERS
+RV NO_EXCEPTION_PROPAGATION
+RV NO_EXCEPTIONS
+RV NO_IMPLICIT_CONDITIONALS
+RV NO_NESTED_FINALIZATION
+RV NO_SECONDARY_STACK
+RV NO_STANDARD_STORAGE_POOLS
+RV NO_DEFAULT_INITIALIZATION
+
+U editor.build_public_request%b  editor-build_public_request.adb  5acd2b14 NE OO PK
+W ada%s			ada.ads			ada.ali
+Z ada.exceptions%s	a-except.adb		a-except.ali
+W ada.strings%s		a-string.ads		a-string.ali
+W ada.strings.fixed%s	a-strfix.adb		a-strfix.ali
+Z ada.strings.text_buffers%s  a-sttebu.adb	a-sttebu.ali
+W ada.strings.unbounded%s  a-strunb.adb		a-strunb.ali
+Z ada.tags%s		a-tags.adb		a-tags.ali
+W editor%s		editor.ads		editor.ali
+W editor.build_working_context%s  editor-build_working_context.adb  editor-build_working_context.ali
+Z system%s		system.ads		system.ali
+Z system.finalization_primitives%s  s-finpri.adb  s-finpri.ali
+Z system.return_stack%s	s-retsta.ads		s-retsta.ali
+Z system.secondary_stack%s  s-secsta.adb	s-secsta.ali
+Z system.soft_links%s	s-soflin.adb		s-soflin.ali
+Z system.standard_library%s  s-stalib.adb	s-stalib.ali
+
+U editor.build_public_request%s  editor-build_public_request.ads  ee092e8c EE NE OO PK
+Z ada.exceptions%s	a-except.adb		a-except.ali
+W editor%s		editor.ads		editor.ali
+W editor.build_ui%s	editor-build_ui.adb	editor-build_ui.ali
+W editor.build_working_context%s  editor-build_working_context.adb  editor-build_working_context.ali
+W editor.external_producers%s  editor-external_producers.adb  editor-external_producers.ali
+Z system%s		system.ads		system.ali
+
+D ada.ads		20250808065140 76789da1 ada%s
+D a-charac.ads		20250808065140 2d3ec45b ada.characters%s
+D a-chlat1.ads		20250808065140 e0d72e76 ada.characters.latin_1%s
+D a-contai.ads		20250808065140 61e5e089 ada.containers%s
+D a-conhel.ads		20250808065140 46fe1ce3 ada.containers.helpers%s
+D a-convec.ads		20250808065140 91fb49f3 ada.containers.vectors%s
+D a-except.ads		20250808065140 e7970cd9 ada.exceptions%s
+D a-finali.ads		20250808065140 bf4f806b ada.finalization%s
+D a-iteint.ads		20250808065140 49a8bee2 ada.iterator_interfaces%s
+D a-stream.ads		20250808065140 17477cbd ada.streams%s
+D a-string.ads		20250808065140 90ac6797 ada.strings%s
+D a-strfix.ads		20250808065140 8648dedb ada.strings.fixed%s
+D a-strmap.ads		20250808065140 1f91ebb6 ada.strings.maps%s
+D a-strsea.ads		20250808065140 18c3c634 ada.strings.search%s
+D a-sttebu.ads		20250808065140 f1ad67a2 ada.strings.text_buffers%s
+D a-strunb.ads		20250808065140 b10770ab ada.strings.unbounded%s
+D a-stuten.ads		20250808065140 c6ced0ae ada.strings.utf_encoding%s
+D a-tags.ads		20250808065140 fbca0ad5 ada.tags%s
+D a-unccon.ads		20250808065140 0e9b276f ada.unchecked_conversion%s
+D editor.ads		20260612145959 16f844c2 editor%s
+D editor-build_candidates.ads  20260612145959 dc89ea7b editor.build_candidates%s
+D editor-build_output_details.ads  20260612145959 0f4ba402 editor.build_output_details%s
+D editor-build_public_request.ads  20260612145959 26105a15 editor.build_public_request%s
+D editor-build_public_request.adb  20260612161733 856b11d8 editor.build_public_request%b
+D editor-build_result_summary.ads  20260612145959 94fc95d2 editor.build_result_summary%s
+D editor-build_ui.ads	20260612152524 28a54496 editor.build_ui%s
+D editor-build_working_context.ads  20260612145959 cef9cea9 editor.build_working_context%s
+D editor-commands.ads	20260612173240 3b5e3f44 editor.commands%s
+D editor-cursors.ads	20260612145959 1f938cf3 editor.cursors%s
+D editor-external_producers.ads  20260612152524 38bdba64 editor.external_producers%s
+D editor-feature_diagnostics.ads  20260612145959 9dd4f8ea editor.feature_diagnostics%s
+D editor-feature_panel.ads  20260612145959 0bdf4cfc editor.feature_panel%s
+D editor-keybindings.ads  20260612145959 2657f44d editor.keybindings%s
+D editor-producer_contracts.ads  20260612145959 c3ee4501 editor.producer_contracts%s
+D editor-state.ads	20260612170622 4c537118 editor.state%s
+D editor-unicode.ads	20260612145959 552ff3cc editor.unicode%s
+D interfac.ads		20250808065140 9111f9c1 interfaces%s
+D i-c.ads		20250808065140 e94c966a interfaces.c%s
+D system.ads		20250808065140 14286b0f system%s
+D s-atocou.ads		20250808065140 dc18efc3 system.atomic_counters%s
+D s-exctab.ads		20250808065140 91bef6ef system.exception_table%s
+D s-finpri.ads		20250808065140 5970d55a system.finalization_primitives%s
+D s-finroo.ads		20250808065140 0a7c3ed4 system.finalization_root%s
+D s-memory.ads		20250808065140 18949c1a system.memory%s
+D s-oscons.ads		20250827122531 068e1a91 system.os_constants%s
+D s-oslock.ads		20250808065140 13fa6b78 system.os_locks%s
+D s-parame.ads		20250808065140 3597fc11 system.parameters%s
+D s-pooglo.ads		20250808065140 91708d21 system.pool_global%s
+D s-putima.ads		20250808065140 17291fe4 system.put_images%s
+D s-retsta.ads		20250808065140 0f6b06cb system.return_stack%s
+D s-secsta.ads		20250808065140 578279f5 system.secondary_stack%s
+D s-soflin.ads		20250808065140 5d88fdea system.soft_links%s
+D s-stache.ads		20250808065140 0b81c1fe system.stack_checking%s
+D s-stalib.ads		20250808065140 1c9580f6 system.standard_library%s
+D s-stalib.adb		20250808065140 eb464a47 system.standard_library%b
+D s-stoele.ads		20250808065140 ccded4e8 system.storage_elements%s
+D s-stopoo.ads		20250808065140 e9fa2dd8 system.storage_pools%s
+D s-stratt.ads		20250808065140 516607ae system.stream_attributes%s
+D s-traent.ads		20250808065140 c81cbf8c system.traceback_entries%s
+D s-unstyp.ads		20250808065140 fa2a7f59 system.unsigned_types%s
+G a e
+G c Z s b [build_public_request_from_ui_state editor__build_public_request 14 13 none]
+G c Z s b [assert_public_build_command_ux_foundation_coherent editor__build_public_request 18 13 none]
+G c Z s b [assert_public_build_working_context_foundation_coherent editor__build_public_request 21 13 none]
+G c Z s s [public_build_request_conversion_resultDI editor__build_public_request 7 9 none]
+G c Z s s [public_build_request_conversion_resultDA editor__build_public_request 7 9 none]
+G c Z s s [public_build_request_conversion_resultDF editor__build_public_request 7 9 none]
+G c Z s s [public_build_request_conversion_resultIP editor__build_public_request 7 9 none]
+G c Z b b [trimmed editor__build_public_request 11 13 none]
+G c Z b b [tool_to_build_tool editor__build_public_request 16 13 none]
+G c Z b b [program_label_for editor__build_public_request 33 13 none]
+G c Z b b [convert_arguments editor__build_public_request 47 13 none]
+G r c none [build_public_request_from_ui_state editor__build_public_request 14 13 none] [validate_build_ui_state editor__build_ui 341 13 none]
+G r s public_build_command_input [build_public_request_from_ui_state editor__build_public_request 14 13 none] [public_build_command_inputIP editor__external_producers 420 9 none]
+G r l public_build_command_input [build_public_request_from_ui_state editor__build_public_request 14 13 none] [public_build_command_inputDI editor__external_producers 420 9 none]
+G r k public_build_command_input [build_public_request_from_ui_state editor__build_public_request 14 13 none] [public_build_command_inputDF editor__external_producers 420 9 none]
+G r s build_run_request [build_public_request_from_ui_state editor__build_public_request 14 13 none] [build_run_requestIP editor__external_producers 228 9 none]
+G r l build_run_request [build_public_request_from_ui_state editor__build_public_request 14 13 none] [build_run_requestDI editor__external_producers 228 9 none]
+G r k build_run_request [build_public_request_from_ui_state editor__build_public_request 14 13 none] [build_run_requestDF editor__external_producers 228 9 none]
+G r c none [build_public_request_from_ui_state editor__build_public_request 14 13 none] [build_explicit_label_working_context editor__external_producers 1214 13 none]
+G r k build_working_context [build_public_request_from_ui_state editor__build_public_request 14 13 none] [build_working_contextDF editor__external_producers 353 9 none]
+G r j build_working_context [build_public_request_from_ui_state editor__build_public_request 14 13 none] [build_working_contextDA editor__external_producers 353 9 none]
+G r c none [build_public_request_from_ui_state editor__build_public_request 14 13 none] [build_working_context_display_label editor__build_working_context 83 13 none]
+G r k public_build_working_context_model [build_public_request_from_ui_state editor__build_public_request 14 13 none] [public_build_working_context_modelDF editor__external_producers 398 9 none]
+G r j public_build_working_context_model [build_public_request_from_ui_state editor__build_public_request 14 13 none] [public_build_working_context_modelDA editor__external_producers 398 9 none]
+G r c none [build_public_request_from_ui_state editor__build_public_request 14 13 none] [empty_process_arguments editor__external_producers 1196 13 none]
+G r c none [build_public_request_from_ui_state editor__build_public_request 14 13 none] [build_public_build_request_from_ui_state editor__external_producers 1472 13 none]
+G r j build_run_request [build_public_request_from_ui_state editor__build_public_request 14 13 none] [build_run_requestDA editor__external_producers 228 9 none]
+G r j public_build_command_input [build_public_request_from_ui_state editor__build_public_request 14 13 none] [public_build_command_inputDA editor__external_producers 420 9 none]
+G r c none [assert_public_build_command_ux_foundation_coherent editor__build_public_request 18 13 none] [validate_build_ui_state editor__build_ui 341 13 none]
+G r s public_build_command_input [assert_public_build_command_ux_foundation_coherent editor__build_public_request 18 13 none] [public_build_command_inputIP editor__external_producers 420 9 none]
+G r l public_build_command_input [assert_public_build_command_ux_foundation_coherent editor__build_public_request 18 13 none] [public_build_command_inputDI editor__external_producers 420 9 none]
+G r k public_build_command_input [assert_public_build_command_ux_foundation_coherent editor__build_public_request 18 13 none] [public_build_command_inputDF editor__external_producers 420 9 none]
+G r s build_run_request [assert_public_build_command_ux_foundation_coherent editor__build_public_request 18 13 none] [build_run_requestIP editor__external_producers 228 9 none]
+G r l build_run_request [assert_public_build_command_ux_foundation_coherent editor__build_public_request 18 13 none] [build_run_requestDI editor__external_producers 228 9 none]
+G r k build_run_request [assert_public_build_command_ux_foundation_coherent editor__build_public_request 18 13 none] [build_run_requestDF editor__external_producers 228 9 none]
+G r c none [assert_public_build_command_ux_foundation_coherent editor__build_public_request 18 13 none] [build_explicit_label_working_context editor__external_producers 1214 13 none]
+G r k build_working_context [assert_public_build_command_ux_foundation_coherent editor__build_public_request 18 13 none] [build_working_contextDF editor__external_producers 353 9 none]
+G r j build_working_context [assert_public_build_command_ux_foundation_coherent editor__build_public_request 18 13 none] [build_working_contextDA editor__external_producers 353 9 none]
+G r c none [assert_public_build_command_ux_foundation_coherent editor__build_public_request 18 13 none] [build_working_context_display_label editor__build_working_context 83 13 none]
+G r k public_build_working_context_model [assert_public_build_command_ux_foundation_coherent editor__build_public_request 18 13 none] [public_build_working_context_modelDF editor__external_producers 398 9 none]
+G r j public_build_working_context_model [assert_public_build_command_ux_foundation_coherent editor__build_public_request 18 13 none] [public_build_working_context_modelDA editor__external_producers 398 9 none]
+G r c none [assert_public_build_command_ux_foundation_coherent editor__build_public_request 18 13 none] [empty_process_arguments editor__external_producers 1196 13 none]
+G r c none [assert_public_build_command_ux_foundation_coherent editor__build_public_request 18 13 none] [build_public_build_request_from_ui_state editor__external_producers 1472 13 none]
+G r j build_run_request [assert_public_build_command_ux_foundation_coherent editor__build_public_request 18 13 none] [build_run_requestDA editor__external_producers 228 9 none]
+G r j public_build_command_input [assert_public_build_command_ux_foundation_coherent editor__build_public_request 18 13 none] [public_build_command_inputDA editor__external_producers 420 9 none]
+G r c none [assert_public_build_command_ux_foundation_coherent editor__build_public_request 18 13 none] [process_argument_count editor__external_producers 1202 13 none]
+G r c none [assert_public_build_command_ux_foundation_coherent editor__build_public_request 18 13 none] [argument_count editor__build_ui 252 13 none]
+G r c none [assert_public_build_command_ux_foundation_coherent editor__build_public_request 18 13 none] [assert_build_ui_state_is_transient editor__build_ui 377 13 none]
+G r c none [assert_public_build_working_context_foundation_coherent editor__build_public_request 21 13 none] [validate_build_ui_state editor__build_ui 341 13 none]
+G r s public_build_command_input [assert_public_build_working_context_foundation_coherent editor__build_public_request 21 13 none] [public_build_command_inputIP editor__external_producers 420 9 none]
+G r l public_build_command_input [assert_public_build_working_context_foundation_coherent editor__build_public_request 21 13 none] [public_build_command_inputDI editor__external_producers 420 9 none]
+G r k public_build_command_input [assert_public_build_working_context_foundation_coherent editor__build_public_request 21 13 none] [public_build_command_inputDF editor__external_producers 420 9 none]
+G r s build_run_request [assert_public_build_working_context_foundation_coherent editor__build_public_request 21 13 none] [build_run_requestIP editor__external_producers 228 9 none]
+G r l build_run_request [assert_public_build_working_context_foundation_coherent editor__build_public_request 21 13 none] [build_run_requestDI editor__external_producers 228 9 none]
+G r k build_run_request [assert_public_build_working_context_foundation_coherent editor__build_public_request 21 13 none] [build_run_requestDF editor__external_producers 228 9 none]
+G r c none [assert_public_build_working_context_foundation_coherent editor__build_public_request 21 13 none] [build_explicit_label_working_context editor__external_producers 1214 13 none]
+G r k build_working_context [assert_public_build_working_context_foundation_coherent editor__build_public_request 21 13 none] [build_working_contextDF editor__external_producers 353 9 none]
+G r j build_working_context [assert_public_build_working_context_foundation_coherent editor__build_public_request 21 13 none] [build_working_contextDA editor__external_producers 353 9 none]
+G r c none [assert_public_build_working_context_foundation_coherent editor__build_public_request 21 13 none] [build_working_context_display_label editor__build_working_context 83 13 none]
+G r k public_build_working_context_model [assert_public_build_working_context_foundation_coherent editor__build_public_request 21 13 none] [public_build_working_context_modelDF editor__external_producers 398 9 none]
+G r j public_build_working_context_model [assert_public_build_working_context_foundation_coherent editor__build_public_request 21 13 none] [public_build_working_context_modelDA editor__external_producers 398 9 none]
+G r c none [assert_public_build_working_context_foundation_coherent editor__build_public_request 21 13 none] [empty_process_arguments editor__external_producers 1196 13 none]
+G r c none [assert_public_build_working_context_foundation_coherent editor__build_public_request 21 13 none] [build_public_build_request_from_ui_state editor__external_producers 1472 13 none]
+G r j build_run_request [assert_public_build_working_context_foundation_coherent editor__build_public_request 21 13 none] [build_run_requestDA editor__external_producers 228 9 none]
+G r j public_build_command_input [assert_public_build_working_context_foundation_coherent editor__build_public_request 21 13 none] [public_build_command_inputDA editor__external_producers 420 9 none]
+G r c none [assert_public_build_working_context_foundation_coherent editor__build_public_request 21 13 none] [validate_build_working_context editor__build_working_context 79 13 none]
+G r c none [assert_public_build_working_context_foundation_coherent editor__build_public_request 21 13 none] [process_argument_count editor__external_producers 1202 13 none]
+G r c none [assert_public_build_working_context_foundation_coherent editor__build_public_request 21 13 none] [argument_count editor__build_ui 252 13 none]
+G r c none [assert_public_build_working_context_foundation_coherent editor__build_public_request 21 13 none] [assert_build_working_context_persistence_excluded editor__build_working_context 101 13 none]
+G r c none [assert_public_build_working_context_foundation_coherent editor__build_public_request 21 13 none] [assert_build_working_context_does_not_probe_filesystem editor__build_working_context 98 13 none]
+G r c none [assert_public_build_working_context_foundation_coherent editor__build_public_request 21 13 none] [assert_build_working_context_is_transient editor__build_working_context 95 13 none]
+G r c none [assert_public_build_working_context_foundation_coherent editor__build_public_request 21 13 none] [assert_build_working_context_is_structured editor__build_working_context 92 13 none]
+G r c none [assert_public_build_working_context_foundation_coherent editor__build_public_request 21 13 none] [assert_build_ui_state_is_transient editor__build_ui 377 13 none]
+G r j build_run_request [public_build_request_conversion_resultDA editor__build_public_request 7 9 none] [build_run_requestDA editor__external_producers 228 9 none]
+G r j public_build_command_input [public_build_request_conversion_resultDA editor__build_public_request 7 9 none] [public_build_command_inputDA editor__external_producers 420 9 none]
+G r k public_build_command_input [public_build_request_conversion_resultDF editor__build_public_request 7 9 none] [public_build_command_inputDF editor__external_producers 420 9 none]
+G r k build_run_request [public_build_request_conversion_resultDF editor__build_public_request 7 9 none] [build_run_requestDF editor__external_producers 228 9 none]
+G r s build_run_request [public_build_request_conversion_resultIP editor__build_public_request 7 9 none] [build_run_requestIP editor__external_producers 228 9 none]
+G r l build_run_request [public_build_request_conversion_resultIP editor__build_public_request 7 9 none] [build_run_requestDI editor__external_producers 228 9 none]
+G r s public_build_command_input [public_build_request_conversion_resultIP editor__build_public_request 7 9 none] [public_build_command_inputIP editor__external_producers 420 9 none]
+G r l public_build_command_input [public_build_request_conversion_resultIP editor__build_public_request 7 9 none] [public_build_command_inputDI editor__external_producers 420 9 none]
+G r k public_build_command_input [public_build_request_conversion_resultIP editor__build_public_request 7 9 none] [public_build_command_inputDF editor__external_producers 420 9 none]
+G r k build_run_request [public_build_request_conversion_resultIP editor__build_public_request 7 9 none] [build_run_requestDF editor__external_producers 228 9 none]
+G r c none [convert_arguments editor__build_public_request 47 13 none] [empty_process_arguments editor__external_producers 1196 13 none]
+X 1 ada.ads
+18K9*Ada 22e8 24|1r6 2r6 2r33 13r14 13r56
+X 6 a-convec.ads
+91R9*Vector<8|43R9>
+122r4*Empty_Vector{91R9[30|207]} 24|109r88[30|207]
+483U14*Append 24|55s17[30|207]
+X 9 a-iteint.ads
+24h9 Forward_Iterator
+32h9 Reversible_Iterator<24R9[6|119]>
+X 11 a-string.ads
+16K13*Strings 35e16 24|1r10 2r10 2r37 13r18 13r60
+33n37*Both{33E9} 24|13r68
+X 12 a-strfix.ads
+49K21*Fixed 1390e22 24|1w18 13r26
+1133V13*Trim{string} 24|13s32
+X 16 a-strunb.ads
+91K21*Unbounded 1641e26 24|2w18 2r45
+105R9*Unbounded_String<8|43R9> 1620e15 24|11r29
+109r4*Null_Unbounded_String{105R9} 24|106r30 107r30 108r26
+122V13*To_Unbounded_String{105R9} 24|71s30 77s19
+135V13*To_String{string} 24|13s38 153s18
+269V14*"="{boolean} 6|65i19
+X 20 editor.ads
+1K9*Editor 5e11 23|1r6 2r6 3r6 5r9 8r17 9r9 10r17 11r17 15r15 19r15 22r15
+. 24r5 24|3r6 5r14 7r13 8r13 9r13 17r14 18r14 22r15 23r20 24r15 25r20 26r15
+. 27r20 28r15 29r20 34r14 38r15 40r15 48r19 49r14 51r16 52r9 61r15 64r25
+. 65r9 66r15 67r17 69r23 73r32 76r20 78r13 84r13 86r13 90r16 92r16 99r19
+. 100r21 104r21 105r27 109r37 116r15 121r14 122r38 124r11 125r18 127r11 132r15
+. 136r33 137r9 140r14 141r18 143r18 145r18 147r18 149r35 150r38 152r11 154r18
+. 156r11 159r5
+X 23 editor-build_public_request.ads
+5K16*Build_Public_Request 20|1k9 23|24l12 24e32 24|5b21 159l12 159t32
+7R9*Public_Build_Request_Conversion_Result 12e14 16r14 24|62r14 118r29 134r29
+8e7*Status{26|167E9} 24|112m15 122r29 150r29
+10r7*Request{30|228R9} 24|112m33 123r29 126r23 151r29 153r40 155r23
+11r7*Input{30|420R9} 24|112m53
+14V13*Build_Public_Request_From_UI_State{7R9} 15>7 24|60b13 113l8 113t42
+. 119s9 135s9
+15r7 State{26|183R9} 24|61b7 65r50 70r41 72r29 74r19 79r16 81r45 83r13 89r16
+. 93r41 94r40 95r48 96r50 97r33
+18V13*Assert_Public_Build_Command_UX_Foundation_Coherent{boolean} 19>7 24|115b13
+. 128l8 128t58
+19r7 State{26|183R9} 24|116b7 119r45 121r66 127r43
+21V13*Assert_Public_Build_Working_Context_Foundation_Coherent{boolean} 22>7
+. 24|131b13 157l8 157t63
+22r7 State{26|183R9} 24|132b7 135r45 138r12 140r66 142r12 144r12 146r12 148r12
+. 156r43
+X 24 editor-build_public_request.adb
+11V13 Trimmed{string} 11b13 11>22 14l8 14t15 74s10
+11r22 Text{16|105R9} 13r49
+16V13 Tool_To_Build_Tool{30|214E9} 16b13 17>7 31l8 31t26 70s21
+17e7 Tool{26|154E9} 21r12
+33V13 Program_Label_For{string} 33b13 34>7 45l8 45t25 72s10
+34e7 Tool{26|154E9} 37r12
+47V13 Convert_Arguments{30|211R12} 47b13 48>7 58l8 58t25 81s26
+48r7 Arguments{26|20R12} 54r18
+51r7 Result{30|211R12} 55m10 55r10 57r14
+54r11 Arg{16|105R9} 55r25
+64e7 Status{26|167E9} 99r10 112r25
+66r7 Input{30|420R9} 69m7 70m7 71m7 73m7 75m7 81m7 82m7 87m7 97m7 101r13
+. 112r62
+67r7 Request{30|228R9} 100m10 100r10 103m10 103r10 112r44
+118r7 Conversion{23|7R9} 122r18 123r18 126r12
+134r7 Conversion{23|7R9} 150r18 151r18 153r29 155r12
+136e7 Working_Status{27|29E9} 149r18
+X 26 editor-build_ui.ads
+9K16*Build_UI 23|1w13 8r24 9r16 15r22 19r22 22r22 24|7r20 17r21 22r22 24r22
+. 26r22 28r22 34r21 38r22 40r22 48r26 61r22 64r32 65r16 99r26 116r22 121r21
+. 122r45 127r18 132r22 140r21 150r45 156r18 26|410e20
+20R12*Build_UI_Argument_Vector{6|91R9[16]} 24|48r35
+154E9*Public_Build_Tool_Selection 24|17r30 34r30 26|158e42
+155n7*Build_UI_No_Tool{154E9} 24|22r31
+156n7*Build_UI_GPRbuild{154E9} 24|24r31 38r31
+157n7*Build_UI_Alire{154E9} 24|26r31 40r31
+158n7*Build_UI_Custom_Disallowed_For_Now{154E9} 24|28r31
+167E9*Public_Build_UI_Validation_Status 23|8r33 24|7r29 64r41 26|181e52
+168n7*Build_UI_Valid{167E9} 24|99r35 122r54 150r54
+169n7*Build_UI_Rejected_Not_Visible{167E9} 23|9r25
+183R9*Public_Build_UI_State 23|15r31 19r31 22r31 24|61r31 116r31 132r31 26|244e14
+186e7*Selected_Build_Tool{154E9} 24|70r47 72r35
+189r7*Selected_Working_Context{27|43R9} 24|74r25 79r22 138r18 142r18 144r18
+. 146r18 148r18
+204r7*Structured_Arguments{20R12} 24|81r51 127r49 156r49
+208b7*Show_Diagnostics_On_Result{boolean} 24|97r39
+215b7*Consent_Acknowledged{boolean} 24|83r19 89r22 93r47 94r46 95r54 96r56
+252V13*Argument_Count{natural} 24|127s27 156s27
+341V13*Validate_Build_UI_State{167E9} 24|65s25
+377V13*Assert_Build_UI_State_Is_Transient{boolean} 24|121s30 140s30
+X 27 editor-build_working_context.ads
+3K16*Build_Working_Context 23|3w13 24|3w13 8r20 78r20 136r40 137r16 141r25
+. 143r25 145r25 147r25 149r42 27|104e33
+29E9*Build_Working_Context_Validation_Status 24|8r42 136r62 27|41e51
+30n7*Build_Working_Context_Valid{29E9} 24|149r64
+47r7*Canonical_Path_If_Available{16|105R9} 24|74r50
+79V13*Validate_Build_Working_Context{29E9} 24|137s38
+83V13*Build_Working_Context_Display_Label{string} 24|78s42
+92V13*Assert_Build_Working_Context_Is_Structured{boolean} 24|141s47
+95V13*Assert_Build_Working_Context_Is_Transient{boolean} 24|143s47
+98V13*Assert_Build_Working_Context_Does_Not_Probe_Filesystem{boolean} 24|145s47
+101V13*Assert_Build_Working_Context_Persistence_Excluded{boolean} 24|147s47
+X 30 editor-external_producers.ads
+10K16*External_Producers 23|2w13 10r24 11r24 24|9r20 18r21 23r27 25r27 27r27
+. 29r27 49r21 51r23 52r16 66r22 67r24 69r30 73r39 76r27 84r20 86r20 90r23
+. 92r23 100r28 104r28 105r34 109r44 124r18 125r25 152r18 154r25 30|1931e30
+207K12*Process_Argument_Vectors[6|74] 24|109r63
+211R12*Process_Argument_Vector{6|91R9[207]} 24|49r40 51r42
+214E9*Build_Tool_Kind 24|18r40 30|218e25
+215n7*No_Build_Tool{214E9} 24|23r46 104r47
+216n7*GPRbuild_Tool{214E9} 24|25r46
+217n7*Alire_Build_Tool{214E9} 24|27r46
+218n7*Custom_Build_Tool{214E9} 24|29r46
+220E9*Build_Request_Provenance 24|9r39 30|226e29
+224n7*Build_Request_From_User_Opt_In{220E9} 24|124r37 152r37
+226n7*Build_Request_Unknown{220E9} 24|105r53
+228R9*Build_Run_Request 23|10r43 24|67r43 30|239e14
+229e7*Tool{214E9} 24|104m13
+230e7*Provenance{220E9} 24|105m13 123r37 151r37
+231r7*Working_Label{16|105R9} 24|106m13
+233r7*Command_Label{16|105R9} 24|107m13
+235r7*Arguments{16|105R9} 24|108m13 153r48
+237r7*Structured_Arguments{211R12} 24|109m13 126r31 155r31
+340n7*Build_Consent_Not_Provided{339E9} 24|86r39
+342n7*Build_Consent_User_Confirmed{339E9} 24|84r39
+367n7*Public_Build_Consent_None{366E9} 24|92r42
+369n7*Public_Build_Consent_User_Form_Acknowledged{366E9} 24|90r42
+372e7*Source{366E9} 24|88m10
+373b7*User_Acknowledged_Execution{boolean} 24|93m10
+374b7*User_Acknowledged_No_Shell{boolean} 24|94m10
+375b7*User_Acknowledged_External_Process{boolean} 24|95m10
+376b7*User_Acknowledged_Diagnostics_Output{boolean} 24|96m10
+395n7*Public_Build_Working_Context_User_Form_Label{392E9} 24|76r46
+399e7*Source{392E9} 24|76m10
+401r7*Label{16|105R9} 24|77m10
+403b7*User_Acknowledged_Context{boolean} 24|80m10
+417n7*Public_Build_Input_User_Form{415E9} 24|69r49
+420R9*Public_Build_Command_Input 23|11r43 24|66r41 30|442e14
+421e7*Source{415E9} 24|69m13
+422e7*Tool{214E9} 24|70m13
+423r7*Program_Label{16|105R9} 24|71m13
+425r7*Working_Context{353R9} 24|73m13
+428r7*Working_Context_Model{398R9} 24|75m13
+432r7*Arguments{211R12} 24|81m13
+434e7*Consent{339E9} 24|82m13
+435r7*Consent_Model{371R9} 24|87m13
+441b7*Show_Diagnostics{boolean} 24|97m13
+1196V13*Empty_Process_Arguments{211R12} 24|52s35
+1202V13*Process_Argument_Count{natural} 24|125s44 154s44
+1214V13*Build_Explicit_Label_Working_Context{353R9} 24|73s58
+1472V13*Build_Public_Build_Request_From_UI_State{228R9} 24|100s47
+X 39 system.ads
+67M9*Address
+X 44 s-memory.ads
+51V13*Alloc{39|67M9} 101i<c,__gnat_malloc>22
+66U14*Free 102i<c,__gnat_free>22
+74V13*Realloc{39|67M9} 103i<c,__gnat_realloc>22
+X 55 s-stalib.adb
+87U14 Break_Start 88i<c,__gnat_break_start>22
+

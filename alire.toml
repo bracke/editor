@@ -9,4 +9,11 @@ licenses = "MIT"
 website = ""
 tags = ["editor"]
 
-executables = ["editor"]
+executables = ["editor_app"]
+project-files = ["editor.gpr"]
+
+[[depends-on]]
+textrender = "*"
+
+[[pins]]
+textrender = { path='../textrender' }

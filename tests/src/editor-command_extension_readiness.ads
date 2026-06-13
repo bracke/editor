@@ -1,0 +1,2 @@
+package Editor.Command_Extension_Readiness is
+end Editor.Command_Extension_Readiness;

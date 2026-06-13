@@ -1,0 +1,497 @@
+V "GNAT Lib v15"
+A -gnat2022
+P SS ZX
+
+RN
+RV NO_EXCEPTION_HANDLERS
+RV NO_EXCEPTIONS
+RV NO_NESTED_FINALIZATION
+RV NO_SECONDARY_STACK
+RV NO_STANDARD_STORAGE_POOLS
+RV NO_DYNAMIC_SIZED_OBJECTS
+RV NO_IMPLEMENTATION_PRAGMAS
+
+U editor.build_ui_actions%b  editor-build_ui_actions.adb  8f49817d NE OO PK
+W ada%s			ada.ads			ada.ali
+Z ada.exceptions%s	a-except.adb		a-except.ali
+W ada.strings%s		a-string.ads		a-string.ali
+Z ada.strings.text_buffers%s  a-sttebu.adb	a-sttebu.ali
+W ada.strings.unbounded%s  a-strunb.adb		a-strunb.ali
+W editor%s		editor.ads		editor.ali
+W editor.build_candidate_refresh%s  editor-build_candidate_refresh.adb  editor-build_candidate_refresh.ali
+W editor.build_command%s  editor-build_command.adb  editor-build_command.ali
+W editor.build_output_details%s  editor-build_output_details.adb  editor-build_output_details.ali
+W editor.build_result_summary%s  editor-build_result_summary.adb  editor-build_result_summary.ali
+W editor.build_ui%s	editor-build_ui.adb	editor-build_ui.ali
+W editor.build_working_context%s  editor-build_working_context.adb  editor-build_working_context.ali
+W editor.command_execution%s  editor-command_execution.adb  editor-command_execution.ali
+W editor.commands%s	editor-commands.adb	editor-commands.ali
+W editor.executor%s	editor-executor.adb	editor-executor.ali
+W editor.focus_management%s  editor-focus_management.adb  editor-focus_management.ali
+W editor.state%s	editor-state.adb	editor-state.ali
+Z system%s		system.ads		system.ali
+Z system.finalization_primitives%s  s-finpri.adb  s-finpri.ali
+Z system.return_stack%s	s-retsta.ads		s-retsta.ali
+Z system.secondary_stack%s  s-secsta.adb	s-secsta.ali
+Z system.soft_links%s	s-soflin.adb		s-soflin.ali
+Z system.standard_library%s  s-stalib.adb	s-stalib.ali
+
+U editor.build_ui_actions%s  editor-build_ui_actions.ads  801e91fc EE NE OO PK
+W editor%s		editor.ads		editor.ali
+W editor.build_candidate_refresh%s  editor-build_candidate_refresh.adb  editor-build_candidate_refresh.ali
+W editor.build_output_details%s  editor-build_output_details.adb  editor-build_output_details.ali
+W editor.build_result_summary%s  editor-build_result_summary.adb  editor-build_result_summary.ali
+W editor.build_ui%s	editor-build_ui.adb	editor-build_ui.ali
+W editor.build_working_context%s  editor-build_working_context.adb  editor-build_working_context.ali
+W editor.command_execution%s  editor-command_execution.adb  editor-command_execution.ali
+W editor.state%s	editor-state.adb	editor-state.ali
+
+D ada.ads		20250808065140 76789da1 ada%s
+D a-calend.ads		20250808065140 bf7f3cc9 ada.calendar%s
+D a-charac.ads		20250808065140 2d3ec45b ada.characters%s
+D a-chlat1.ads		20250808065140 e0d72e76 ada.characters.latin_1%s
+D a-contai.ads		20250808065140 61e5e089 ada.containers%s
+D a-conhel.ads		20250808065140 46fe1ce3 ada.containers.helpers%s
+D a-convec.ads		20250808065140 91fb49f3 ada.containers.vectors%s
+D a-except.ads		20250808065140 e7970cd9 ada.exceptions%s
+D a-finali.ads		20250808065140 bf4f806b ada.finalization%s
+D a-iteint.ads		20250808065140 49a8bee2 ada.iterator_interfaces%s
+D a-stream.ads		20250808065140 17477cbd ada.streams%s
+D a-string.ads		20250808065140 90ac6797 ada.strings%s
+D a-strmap.ads		20250808065140 1f91ebb6 ada.strings.maps%s
+D a-strsea.ads		20250808065140 18c3c634 ada.strings.search%s
+D a-sttebu.ads		20250808065140 f1ad67a2 ada.strings.text_buffers%s
+D a-strunb.ads		20250808065140 b10770ab ada.strings.unbounded%s
+D a-stuten.ads		20250808065140 c6ced0ae ada.strings.utf_encoding%s
+D a-tags.ads		20250808065140 fbca0ad5 ada.tags%s
+D a-unccon.ads		20250808065140 0e9b276f ada.unchecked_conversion%s
+D editor.ads		20260612145959 16f844c2 editor%s
+D editor-ada_language_model.ads  20260612145959 459f92c3 editor.ada_language_model%s
+D editor-ada_project_index.ads  20260612145959 3ad143b9 editor.ada_project_index%s
+D editor-ada_syntax_tree.ads  20260612145959 49a76ced editor.ada_syntax_tree%s
+D editor-bookmarks.ads	20260612145959 4e695f4d editor.bookmarks%s
+D editor-buffer_switcher.ads  20260612152524 fd053b33 editor.buffer_switcher%s
+D editor-buffer_types.ads  20260612151710 a555405e editor.buffer_types%s
+D editor-buffers.ads	20260612185530 1a6b6e4c editor.buffers%s
+D editor-build_candidate_discovery.ads  20260612145959 5fe98328 editor.build_candidate_discovery%s
+D editor-build_candidate_refresh.ads  20260612145959 d541c976 editor.build_candidate_refresh%s
+D editor-build_candidates.ads  20260612145959 dc89ea7b editor.build_candidates%s
+D editor-build_command.ads  20260612145959 a89b08fb editor.build_command%s
+D editor-build_output_details.ads  20260612145959 0f4ba402 editor.build_output_details%s
+D editor-build_process_control.ads  20260612145959 28661204 editor.build_process_control%s
+D editor-build_result_summary.ads  20260612145959 94fc95d2 editor.build_result_summary%s
+D editor-build_runner_policy.ads  20260612145959 623f26a9 editor.build_runner_policy%s
+D editor-build_ui.ads	20260612152524 28a54496 editor.build_ui%s
+D editor-build_ui_actions.ads  20260612145959 26d71ab5 editor.build_ui_actions%s
+D editor-build_ui_actions.adb  20260612145959 ed1678ef editor.build_ui_actions%b
+D editor-build_working_context.ads  20260612145959 cef9cea9 editor.build_working_context%s
+D editor-command_execution.ads  20260612145959 54c8cc0a editor.command_execution%s
+D editor-commands.ads	20260612173240 3b5e3f44 editor.commands%s
+D editor-cursors.ads	20260612145959 1f938cf3 editor.cursors%s
+D editor-diagnostics.ads  20260612145959 41767a50 editor.diagnostics%s
+D editor-dirty_guards.ads  20260612145959 2f2ee9d0 editor.dirty_guards%s
+D editor-dirty_lines.ads  20260612145959 fa543a8e editor.dirty_lines%s
+D editor-executor.ads	20260612164121 e287436f editor.executor%s
+D editor-external_producers.ads  20260612152524 38bdba64 editor.external_producers%s
+D editor-feature_diagnostics.ads  20260612145959 9dd4f8ea editor.feature_diagnostics%s
+D editor-feature_messages.ads  20260612145959 2c7a5943 editor.feature_messages%s
+D editor-feature_panel.ads  20260612145959 0bdf4cfc editor.feature_panel%s
+D editor-feature_search_results.ads  20260612152524 38c78314 editor.feature_search_results%s
+D editor-file_tree.ads	20260612145959 e6abdf66 editor.file_tree%s
+D editor-file_tree_view.ads  20260612145959 99db49c3 editor.file_tree_view%s
+D editor-focus_management.ads  20260612145959 34fc28d7 editor.focus_management%s
+D editor-folding.ads	20260612145959 860f30d0 editor.folding%s
+D editor-go_to_line.ads	20260612145959 c07ea03c editor.go_to_line%s
+D editor-guided_prompts.ads  20260612145959 34cab40b editor.guided_prompts%s
+D editor-gutter_markers.ads  20260612145959 304c4eae editor.gutter_markers%s
+D editor-history.ads	20260612145959 b546dbc4 editor.history%s
+D editor-input_field.ads  20260612145959 04b03a00 editor.input_field%s
+D editor-keybindings.ads  20260612145959 2657f44d editor.keybindings%s
+D editor-layout.ads	20260612145959 68c2e77a editor.layout%s
+D editor-messages.ads	20260612151413 205b1944 editor.messages%s
+D editor-navigation.ads	20260612145959 30defc5f editor.navigation%s
+D editor-navigation_history.ads  20260612145959 b0e3398a editor.navigation_history%s
+D editor-outline.ads	20260612152524 90a00201 editor.outline%s
+D editor-overlay_focus.ads  20260612145959 92ec945e editor.overlay_focus%s
+D editor-panel_focus.ads  20260612145959 a6c95284 editor.panel_focus%s
+D editor-panels.ads	20260612145959 66614da0 editor.panels%s
+D editor-pending_transitions.ads  20260612145959 81c78960 editor.pending_transitions%s
+D editor-problems.ads	20260612145959 a9a08157 editor.problems%s
+D editor-producer_contracts.ads  20260612145959 c3ee4501 editor.producer_contracts%s
+D editor-project.ads	20260612145959 f4d50f6d editor.project%s
+D editor-project_search.ads  20260612152451 857df5ab editor.project_search%s
+D editor-project_search_bar.ads  20260612145959 c5c12f77 editor.project_search_bar%s
+D editor-quick_open.ads	20260612151807 878ba83c editor.quick_open%s
+D editor-recent_buffers.ads  20260612145959 617e4612 editor.recent_buffers%s
+D editor-recent_projects.ads  20260612145959 ee1155f5 editor.recent_projects%s
+D editor-search.ads	20260612145959 dac0e204 editor.search%s
+D editor-search_results.ads  20260612145959 98eded1d editor.search_results%s
+D editor-selection.ads	20260612145959 37bfc5e9 editor.selection%s
+D editor-settings.ads	20260612145959 c2103809 editor.settings%s
+D editor-state.ads	20260612170622 4c537118 editor.state%s
+D editor-status_bar.ads	20260612145959 879f0640 editor.status_bar%s
+D editor-syntax.ads	20260612145959 d59b0303 editor.syntax%s
+D editor-syntax_cache.ads  20260612164742 637f2470 editor.syntax_cache%s
+D editor-syntax_semantics.ads  20260612145959 a499b10a editor.syntax_semantics%s
+D editor-tab_bar.ads	20260612151839 e26dca3d editor.tab_bar%s
+D editor-unicode.ads	20260612145959 552ff3cc editor.unicode%s
+D editor-view_types.ads	20260612152152 f3042ec7 editor.view_types%s
+D editor-workspace_persistence.ads  20260612145959 455ffd61 editor.workspace_persistence%s
+D editor-wrap.ads	20260612145959 87db665a editor.wrap%s
+D interfac.ads		20250808065140 9111f9c1 interfaces%s
+D i-c.ads		20250808065140 e94c966a interfaces.c%s
+D system.ads		20250808065140 14286b0f system%s
+D s-atocou.ads		20250808065140 dc18efc3 system.atomic_counters%s
+D s-exctab.ads		20250808065140 91bef6ef system.exception_table%s
+D s-finpri.ads		20250808065140 5970d55a system.finalization_primitives%s
+D s-finroo.ads		20250808065140 0a7c3ed4 system.finalization_root%s
+D s-memory.ads		20250808065140 18949c1a system.memory%s
+D s-oscons.ads		20250827122531 068e1a91 system.os_constants%s
+D s-oslock.ads		20250808065140 13fa6b78 system.os_locks%s
+D s-parame.ads		20250808065140 3597fc11 system.parameters%s
+D s-pooglo.ads		20250808065140 91708d21 system.pool_global%s
+D s-putima.ads		20250808065140 17291fe4 system.put_images%s
+D s-retsta.ads		20250808065140 0f6b06cb system.return_stack%s
+D s-secsta.ads		20250808065140 578279f5 system.secondary_stack%s
+D s-soflin.ads		20250808065140 5d88fdea system.soft_links%s
+D s-stache.ads		20250808065140 0b81c1fe system.stack_checking%s
+D s-stalib.ads		20250808065140 1c9580f6 system.standard_library%s
+D s-stalib.adb		20250808065140 eb464a47 system.standard_library%b
+D s-stoele.ads		20250808065140 ccded4e8 system.storage_elements%s
+D s-stopoo.ads		20250808065140 e9fa2dd8 system.storage_pools%s
+D s-stratt.ads		20250808065140 516607ae system.stream_attributes%s
+D s-traent.ads		20250808065140 c81cbf8c system.traceback_entries%s
+D s-unstyp.ads		20250808065140 fa2a7f59 system.unsigned_types%s
+D text_backend.ads	20260612145959 6d0030da text_backend%s
+D text_backend-rope_impl.ads  20260612145959 0f5d7663 text_backend.rope_impl%s
+D text_buffer.ads	20260612145959 bb9a4056 text_buffer%s
+G a e
+G c Z s b [show_build_ui editor__build_ui_actions 16 14 none]
+G c Z s b [hide_build_ui editor__build_ui_actions 17 14 none]
+G c Z s b [focus_build_ui editor__build_ui_actions 18 14 none]
+G c Z s b [toggle_build_ui editor__build_ui_actions 19 14 none]
+G c Z s b [build_ui_refresh_candidates editor__build_ui_actions 21 13 none]
+G c Z s b [build_ui_select_candidate editor__build_ui_actions 26 14 none]
+G c Z s b [build_ui_clear_selected_candidate editor__build_ui_actions 30 14 none]
+G c Z s b [build_ui_acknowledge_consent editor__build_ui_actions 33 14 none]
+G c Z s b [build_ui_clear_consent editor__build_ui_actions 36 14 none]
+G c Z s b [build_ui_select_next_candidate editor__build_ui_actions 39 14 none]
+G c Z s b [build_ui_select_previous_candidate editor__build_ui_actions 42 14 none]
+G c Z s b [build_ui_set_mode_default editor__build_ui_actions 45 14 none]
+G c Z s b [build_ui_set_mode_debug editor__build_ui_actions 48 14 none]
+G c Z s b [build_ui_set_mode_release editor__build_ui_actions 51 14 none]
+G c Z s b [build_ui_set_mode_validation editor__build_ui_actions 54 14 none]
+G c Z s b [build_ui_toggle_diagnostics_ingestion editor__build_ui_actions 57 14 none]
+G c Z s b [build_ui_cycle_output_limit editor__build_ui_actions 60 14 none]
+G c Z s b [build_ui_toggle_verbose_output editor__build_ui_actions 63 14 none]
+G c Z s b [build_ui_toggle_keep_going editor__build_ui_actions 66 14 none]
+G c Z s b [build_ui_run_build editor__build_ui_actions 69 13 none]
+G c Z s b [build_ui_reveal_diagnostics editor__build_ui_actions 73 13 none]
+G c Z s b [build_ui_operability_snapshot editor__build_ui_actions 77 13 none]
+G c Z s b [assert_build_ui_operable editor__build_ui_actions 80 13 none]
+G c Z s b [assert_build_ui_run_routes_through_executor editor__build_ui_actions 83 13 none]
+G c Z s b [assert_build_ui_does_not_persist_transient_state editor__build_ui_actions 88 13 none]
+G c Z s b [assert_public_build_ui_operability_coherent editor__build_ui_actions 91 13 none]
+G c Z s b [assert_build_ui_reveal_diagnostics_uses_existing_command editor__build_ui_actions 94 13 none]
+G c Z s b [assert_public_build_result_output_ui_coherent editor__build_ui_actions 99 13 none]
+G r c none [show_build_ui editor__build_ui_actions 16 14 none] [show editor__build_ui 256 14 none]
+G r c none [hide_build_ui editor__build_ui_actions 17 14 none] [effective_focus_owner editor__focus_management 26 13 none]
+G r c none [hide_build_ui editor__build_ui_actions 17 14 none] [hide editor__build_ui 258 14 none]
+G r c none [hide_build_ui editor__build_ui_actions 17 14 none] [restore_focus_to_editor editor__focus_management 103 14 none]
+G r c none [focus_build_ui editor__build_ui_actions 18 14 none] [set_focus_owner editor__focus_management 99 14 none]
+G r c none [toggle_build_ui editor__build_ui_actions 19 14 none] [effective_focus_owner editor__focus_management 26 13 none]
+G r c none [toggle_build_ui editor__build_ui_actions 19 14 none] [hide editor__build_ui 258 14 none]
+G r c none [toggle_build_ui editor__build_ui_actions 19 14 none] [restore_focus_to_editor editor__focus_management 103 14 none]
+G r c none [toggle_build_ui editor__build_ui_actions 19 14 none] [show editor__build_ui 256 14 none]
+G r c none [build_ui_refresh_candidates editor__build_ui_actions 21 13 none] [refresh_build_candidates editor__build_candidate_refresh 66 13 none]
+G r c none [build_ui_select_candidate editor__build_ui_actions 26 14 none] [select_build_candidate editor__build_ui 289 14 none]
+G r c none [build_ui_clear_selected_candidate editor__build_ui_actions 30 14 none] [clear_selected_build_candidate editor__build_ui 293 14 none]
+G r c none [build_ui_acknowledge_consent editor__build_ui_actions 33 14 none] [acknowledge_consent editor__build_ui 335 14 none]
+G r c none [build_ui_clear_consent editor__build_ui_actions 36 14 none] [clear_consent editor__build_ui 336 14 none]
+G r c none [build_ui_select_next_candidate editor__build_ui_actions 39 14 none] [select_build_candidate editor__build_ui 289 14 none]
+G r c none [build_ui_select_previous_candidate editor__build_ui_actions 42 14 none] [select_build_candidate editor__build_ui 289 14 none]
+G r c none [build_ui_set_mode_default editor__build_ui_actions 45 14 none] [set_build_mode editor__build_ui 306 14 none]
+G r c none [build_ui_set_mode_debug editor__build_ui_actions 48 14 none] [set_build_mode editor__build_ui 306 14 none]
+G r c none [build_ui_set_mode_release editor__build_ui_actions 51 14 none] [set_build_mode editor__build_ui 306 14 none]
+G r c none [build_ui_set_mode_validation editor__build_ui_actions 54 14 none] [set_build_mode editor__build_ui 306 14 none]
+G r c none [build_ui_toggle_diagnostics_ingestion editor__build_ui_actions 57 14 none] [toggle_diagnostics_ingestion editor__build_ui 310 14 none]
+G r c none [build_ui_cycle_output_limit editor__build_ui_actions 60 14 none] [cycle_output_capture_limit editor__build_ui 313 14 none]
+G r c none [build_ui_toggle_verbose_output editor__build_ui_actions 63 14 none] [toggle_verbose_output editor__build_ui 316 14 none]
+G r c none [build_ui_toggle_keep_going editor__build_ui_actions 66 14 none] [toggle_keep_going editor__build_ui 319 14 none]
+G r c none [build_ui_run_build editor__build_ui_actions 69 13 none] [execute_command_with_result editor__executor 110 13 none]
+G r c none [build_ui_reveal_diagnostics editor__build_ui_actions 73 13 none] [execute_command_with_result editor__executor 110 13 none]
+G r c none [build_ui_operability_snapshot editor__build_ui_actions 77 13 none] [build_run_availability editor__build_command 37 13 none]
+G r c none [build_ui_operability_snapshot editor__build_ui_actions 77 13 none] [build_render_snapshot editor__build_ui 368 13 none]
+G r c none [build_ui_operability_snapshot editor__build_ui_actions 77 13 none] [is_available editor__commands 611 13 none]
+G r c none [build_ui_operability_snapshot editor__build_ui_actions 77 13 none] [unavailable_reason editor__commands 614 13 none]
+G r j build_ui_render_snapshot [build_ui_operability_snapshot editor__build_ui_actions 77 13 none] [build_ui_render_snapshotDA editor__build_ui 129 9 none]
+G r c none [assert_build_ui_operable editor__build_ui_actions 80 13 none] [build_run_availability editor__build_command 37 13 none]
+G r c none [assert_build_ui_operable editor__build_ui_actions 80 13 none] [build_render_snapshot editor__build_ui 368 13 none]
+G r c none [assert_build_ui_operable editor__build_ui_actions 80 13 none] [is_available editor__commands 611 13 none]
+G r c none [assert_build_ui_operable editor__build_ui_actions 80 13 none] [unavailable_reason editor__commands 614 13 none]
+G r j build_ui_render_snapshot [assert_build_ui_operable editor__build_ui_actions 80 13 none] [build_ui_render_snapshotDA editor__build_ui 129 9 none]
+G r c none [assert_build_ui_operable editor__build_ui_actions 80 13 none] [assert_build_ui_render_snapshot_is_operable editor__build_ui 374 13 none]
+G r c none [assert_build_ui_run_routes_through_executor editor__build_ui_actions 83 13 none] [assert_build_ui_state_is_transient editor__build_ui 377 13 none]
+G r c none [assert_build_ui_does_not_persist_transient_state editor__build_ui_actions 88 13 none] [assert_build_output_details_persistence_excluded editor__build_output_details 256 13 none]
+G r c none [assert_build_ui_does_not_persist_transient_state editor__build_ui_actions 88 13 none] [assert_latest_build_result_summary_persistence_excluded editor__build_result_summary 217 13 none]
+G r c none [assert_build_ui_does_not_persist_transient_state editor__build_ui_actions 88 13 none] [assert_build_ui_state_is_transient editor__build_ui 377 13 none]
+G r c none [assert_public_build_ui_operability_coherent editor__build_ui_actions 91 13 none] [build_run_availability editor__build_command 37 13 none]
+G r c none [assert_public_build_ui_operability_coherent editor__build_ui_actions 91 13 none] [build_render_snapshot editor__build_ui 368 13 none]
+G r c none [assert_public_build_ui_operability_coherent editor__build_ui_actions 91 13 none] [is_available editor__commands 611 13 none]
+G r c none [assert_public_build_ui_operability_coherent editor__build_ui_actions 91 13 none] [unavailable_reason editor__commands 614 13 none]
+G r j build_ui_render_snapshot [assert_public_build_ui_operability_coherent editor__build_ui_actions 91 13 none] [build_ui_render_snapshotDA editor__build_ui 129 9 none]
+G r c none [assert_public_build_ui_operability_coherent editor__build_ui_actions 91 13 none] [assert_build_output_details_persistence_excluded editor__build_output_details 256 13 none]
+G r c none [assert_public_build_ui_operability_coherent editor__build_ui_actions 91 13 none] [assert_latest_build_result_summary_persistence_excluded editor__build_result_summary 217 13 none]
+G r c none [assert_public_build_ui_operability_coherent editor__build_ui_actions 91 13 none] [assert_build_ui_state_is_transient editor__build_ui 377 13 none]
+G r c none [assert_public_build_ui_operability_coherent editor__build_ui_actions 91 13 none] [assert_build_ui_render_snapshot_is_operable editor__build_ui 374 13 none]
+G r c none [assert_public_build_result_output_ui_coherent editor__build_ui_actions 99 13 none] [assert_build_output_details_persistence_excluded editor__build_output_details 256 13 none]
+G r c none [assert_public_build_result_output_ui_coherent editor__build_ui_actions 99 13 none] [assert_latest_build_result_summary_persistence_excluded editor__build_result_summary 217 13 none]
+G r c none [assert_public_build_result_output_ui_coherent editor__build_ui_actions 99 13 none] [assert_build_ui_state_is_transient editor__build_ui 377 13 none]
+G r c none [assert_public_build_result_output_ui_coherent editor__build_ui_actions 99 13 none] [assert_public_build_result_output_ui_coherent editor__build_ui 383 13 none]
+X 1 ada.ads
+18K9*Ada 22e8 38|1r6 1r33
+X 5 a-contai.ads
+22I9*Count_Type<integer>
+X 7 a-convec.ads
+81I12*Extended_Index{integer}
+91R9*Vector<9|43R9>
+175V13*Length{5|22I9} 38|98s72[30|57] 127s72[30|57]
+206V13*Element{30|36R9} 38|108s52[30|57] 121s49[30|57] 137s52[30|57] 150s49[30|57]
+560V13*First_Index{integer} 38|105s44[30|57] 110s58[30|57] 117s52[30|57]
+. 134s44[30|57] 138s48[30|57]
+570V13*Last_Index{81I12[30|57]} 38|106s37[30|57] 109s48[30|57] 135s37[30|57]
+. 139s62[30|57] 146s56[30|57]
+X 10 a-iteint.ads
+24h9 Forward_Iterator
+32h9 Reversible_Iterator<24R9[7|119]>
+X 12 a-string.ads
+16K13*Strings 35e16 38|1r10 1r37
+X 16 a-strunb.ads
+91K21*Unbounded 1641e26 38|1w18 1r45
+111V13*Length{natural} 38|260s18 298s18 299s18
+122V13*To_Unbounded_String{105R9} 38|242s45 244s45
+135V13*To_String{string} 38|99s37 108s13 121s10 128s37 137s13 150s10 312s18
+. 313s11 314s18 315s11 316s18 317s11
+269V14*"="{boolean} 7|65i19
+X 20 editor.ads
+1K9*Editor 5e11 37|1r6 2r6 3r6 4r6 5r6 6r6 7r6 9r9 16r40 17r40 18r41 19r42
+. 22r24 23r17 24r14 27r29 31r18 34r18 37r18 40r18 43r18 46r18 49r18 52r18
+. 55r18 58r18 61r18 64r18 67r18 70r18 71r14 74r18 75r14 78r11 78r43 81r11
+. 84r16 85r16 86r16 89r11 92r11 95r16 96r16 97r16 100r11 102r5 38|2r6 3r6
+. 4r6 5r6 6r6 7r6 8r6 9r6 10r6 11r6 12r6 14r14 16r13 17r13 19r40 21r7 24r40
+. 25r31 26r9 28r7 32r26 33r12 34r12 36r10 40r41 42r7 43r13 46r42 56r24 57r17
+. 58r14 61r14 66r29 70r7 74r18 77r7 81r18 84r7 88r18 91r7 96r18 119r7 125r18
+. 148r7 154r18 157r7 158r22 162r18 165r7 166r22 170r18 173r7 174r22 178r18
+. 181r7 182r22 186r18 189r7 193r18 196r7 200r18 203r7 207r18 210r7 214r18
+. 215r14 218r14 219r13 223r18 224r14 227r14 228r13 232r11 232r43 234r31 235r9
+. 236r18 237r9 240r33 245r13 253r11 255r27 258r14 264r16 265r16 266r16 270r31
+. 271r35 272r35 273r35 274r18 279r11 282r14 283r18 285r18 290r11 292r27 303r16
+. 304r16 305r16 308r31 309r35 310r43 311r43 321r11 324r14 329r5
+X 29 editor-build_candidate_refresh.ads
+7K16*Build_Candidate_Refresh 249e35 37|1w13 24r21 38|2w13 58r21 61r21
+29R9*Build_Candidate_Refresh_Result 40e14 37|24r45 38|58r45
+66V13*Refresh_Build_Candidates{29R9} 38|61s45
+X 30 editor-build_candidates.ads
+37r7*Candidate_Id{16|105R9} 38|108r64 121r70 137r64 150r74
+61R12*Build_Candidate_Vector{7|91R9[57]}
+X 31 editor-build_command.ads
+7K16*Build_Command 153e25 38|3w13 235r16
+37V13*Build_Run_Availability{41|577R9} 38|235s30
+X 32 editor-build_output_details.ads
+3K16*Build_Output_Details 347e32 37|2w13 38|4w13 285r25
+43r7*Stdout_Excerpt{16|105R9} 38|314r64 315r56
+45r7*Stderr_Excerpt{16|105R9} 38|316r64 317r56
+59b7*Build_Output_Details_Focused{boolean} 38|30m37
+256V13*Assert_Build_Output_Details_Persistence_Excluded{boolean} 38|285s46
+X 34 editor-build_result_summary.ads
+3K16*Build_Result_Summary 263e32 37|3w13 38|5w13 283r25
+69r7*Primary_Message{16|105R9} 38|312r56 313r48
+217V13*Assert_Latest_Build_Result_Summary_Persistence_Excluded{boolean} 38|283s46
+X 36 editor-build_ui.ads
+9K16*Build_UI 410e20 37|4w13 78r50 38|6w13 21r14 28r14 70r14 77r14 84r14
+. 91r14 119r14 148r14 157r14 158r29 165r14 166r29 173r14 174r29 181r14 182r29
+. 189r14 196r14 203r14 210r14 232r50 236r25 237r16 255r34 258r21 274r25 282r21
+. 292r34 324r21
+27n7*Build_UI_Build_Mode_Default{26E9} 38|158r38
+28n7*Build_UI_Build_Mode_Debug{26E9} 38|166r38
+29n7*Build_UI_Build_Mode_Release{26E9} 38|174r38
+30n7*Build_UI_Build_Mode_Validation{26E9} 38|182r38
+100r7*Consent_Label{16|105R9} 38|298r51
+102r7*Availability_Label{16|105R9} 38|247m32 299r51
+129R9*Build_UI_Render_Snapshot 152e14 37|78r59 38|232r59 236r34 255r43 292r43
+130b7*Visible{boolean} 38|297r27
+141r7*Request_Preview{78R9} 38|247m16 298r35 299r35
+146b7*Run_Available{boolean} 38|240m16 241r19
+147r7*Run_Availability_Label{16|105R9} 38|242m19 244m19 248r18 260r35
+184b7*Build_UI_Visible{boolean} 38|48r21
+223r7*Build_Candidates{30|61R12} 38|98r55 105r27 106r20 108r35 109r31 110r41
+. 117r35 121r32 127r55 134r27 135r20 137r35 138r31 139r45 146r39 150r32
+225r7*Selected_Build_Candidate_Id{16|105R9} 38|99r59 128r59
+256U14*Show 38|21s23
+258U14*Hide 38|28s23
+289U14*Select_Build_Candidate 38|70s23 119s23 148s23
+293U14*Clear_Selected_Build_Candidate 38|77s23
+306U14*Set_Build_Mode 38|157s23 165s23 173s23 181s23
+310U14*Toggle_Diagnostics_Ingestion 38|189s23
+313U14*Cycle_Output_Capture_Limit 38|196s23
+316U14*Toggle_Verbose_Output 38|203s23
+319U14*Toggle_Keep_Going 38|210s23
+335U14*Acknowledge_Consent 38|84s23
+336U14*Clear_Consent 38|91s23
+368V13*Build_Render_Snapshot{129R9} 38|237s25
+374V13*Assert_Build_UI_Render_Snapshot_Is_Operable{boolean} 38|258s30
+377V13*Assert_Build_UI_State_Is_Transient{boolean} 38|274s34 282s30
+383V13*Assert_Public_Build_Result_Output_UI_Coherent{boolean} 38|324s30
+X 37 editor-build_ui_actions.ads
+9K16*Build_UI_Actions 20|1k9 37|102l12 102e28 38|14b21 329l12 329t28
+16U14*Show_Build_UI 16=29 38|19b14 22l8 22t21 51s10
+16r29 S{83|115R9} 38|19b29 21m29 21r29
+17U14*Hide_Build_UI 17=29 38|24b14 38l8 38t21 49s10
+17r29 S{83|115R9} 38|24b29 26r56 28m29 28r29 29m7 30m7 36m59
+18U14*Focus_Build_UI 18=30 38|40b14 44l8 44t22
+18r30 S{83|115R9} 38|40b30 43m10
+19U14*Toggle_Build_UI 19=31 38|46b14 53l8 53t23
+19r31 S{83|115R9} 38|46b31 48r10 49m25 51m25
+21V13*Build_UI_Refresh_Candidates{29|29R9} 22=7 23>7 38|55b13 63l8 63t35
+22r7 S{83|115R9} 38|56b7 62m10 62r10
+23r7 Context{39|43R9} 38|57b7 62r22
+26U14*Build_UI_Select_Candidate 27=7 28>7 38|65b14 71l8 71t33
+27r7 S{83|115R9} 38|66b7 70m47 70r47
+28a7 Candidate_Id{string} 38|67b7 70r59
+30U14*Build_UI_Clear_Selected_Candidate 31=7 38|73b14 78l8 78t41
+31r7 S{83|115R9} 38|74b7 77m55 77r55
+33U14*Build_UI_Acknowledge_Consent 34=7 38|80b14 85l8 85t36
+34r7 S{83|115R9} 38|81b7 84m44 84r44
+36U14*Build_UI_Clear_Consent 37=7 38|87b14 92l8 92t30
+37r7 S{83|115R9} 38|88b7 91m38 91r38
+39U14*Build_UI_Select_Next_Candidate 40=7 38|95b14 122l8 122t38
+40r7 S{83|115R9} 38|96b7 98r44 99r48 105r16 106r9 108r24 109r20 110r30 117r24
+. 120m10 120r10 121r21
+42U14*Build_UI_Select_Previous_Candidate 43=7 38|124b14 151l8 151t42
+43r7 S{83|115R9} 38|125b7 127r44 128r48 134r16 135r9 137r24 138r20 139r34
+. 146r28 149m10 149r10 150r21
+45U14*Build_UI_Set_Mode_Default 46=7 38|153b14 159l8 159t33
+46r7 S{83|115R9} 38|154b7 158m10 158r10
+48U14*Build_UI_Set_Mode_Debug 49=7 38|161b14 167l8 167t31
+49r7 S{83|115R9} 38|162b7 166m10 166r10
+51U14*Build_UI_Set_Mode_Release 52=7 38|169b14 175l8 175t33
+52r7 S{83|115R9} 38|170b7 174m10 174r10
+54U14*Build_UI_Set_Mode_Validation 55=7 38|177b14 183l8 183t36
+55r7 S{83|115R9} 38|178b7 182m10 182r10
+57U14*Build_UI_Toggle_Diagnostics_Ingestion 58=7 38|185b14 190l8 190t45
+58r7 S{83|115R9} 38|186b7 189m53 189r53
+60U14*Build_UI_Cycle_Output_Limit 61=7 38|192b14 197l8 197t35
+61r7 S{83|115R9} 38|193b7 196m51 196r51
+63U14*Build_UI_Toggle_Verbose_Output 64=7 38|199b14 204l8 204t38
+64r7 S{83|115R9} 38|200b7 203m46 203r46
+66U14*Build_UI_Toggle_Keep_Going 67=7 38|206b14 211l8 211t34
+67r7 S{83|115R9} 38|207b7 210m42 210r42
+69V13*Build_UI_Run_Build{40|12R9} 70=7 38|213b13 220l8 220t26
+70r7 S{83|115R9} 38|214b7 219m10 219r10
+73V13*Build_UI_Reveal_Diagnostics{40|12R9} 74=7 38|222b13 229l8 229t35
+74r7 S{83|115R9} 38|223b7 228m10 228r10
+77V13*Build_UI_Operability_Snapshot{36|129R9} 78>7 38|231b13 250l8 250t37
+. 256s9 293s9
+78r7 S{83|115R9} 38|232b7 235r54 238r12 238r24 238r47
+80V13*Assert_Build_UI_Operable{boolean} 81>7 38|252b13 261l8 261t32 295s14
+81r7 S{83|115R9} 38|253b7 256r40
+83V13*Assert_Build_UI_Run_Routes_Through_Executor{boolean} 84>7 85>7 86>7
+. 38|263b13 276l8 276t51
+84r7 Before{83|115R9} 38|264b7 268r28
+85r7 After{83|115R9} 38|265b7 275r12
+86r7 Result{40|12R9} 38|266b7 270r14 271r19 272r19 273r19
+88V13*Assert_Build_UI_Does_Not_Persist_Transient_State{boolean} 89>7 38|278b13
+. 287l8 287t56 296s18 326s18
+89r7 S{83|115R9} 38|279b7 282r66 284r12 286r12
+91V13*Assert_Public_Build_UI_Operability_Coherent{boolean} 92>7 38|289b13
+. 300l8 300t51
+92r7 S{83|115R9} 38|290b7 293r40 295r40 296r68
+94V13*Assert_Build_UI_Reveal_Diagnostics_Uses_Existing_Command{boolean} 95>7
+. 96>7 97>7 38|302b13 318l8 318t64
+95r7 Before{83|115R9} 38|303b7 312r29 314r29 316r29
+96r7 After{83|115R9} 38|304b7 313r22 315r22 317r22
+97r7 Result{40|12R9} 38|305b7 308r14 309r19 310r27 311r27
+99V13*Assert_Public_Build_Result_Output_UI_Coherent{boolean} 100>7 38|320b13
+. 327l8 327t53
+100r7 S{83|115R9} 38|321b7 325r10 325r22 325r45 326r68
+X 38 editor-build_ui_actions.adb
+25e7 Owner_Before{54|6E9} 32r10
+98i7 Count{natural} 102r10
+99a7 Selected{string} 108r80
+100i7 Next_Index{natural} 110m16 112m16 116r10 117m10 121r58
+105i11 I{integer} 108r61 109r16 112r30
+127i7 Count{natural} 131r10
+128a7 Selected{string} 137r80
+129i7 Previous_Index{natural} 139m16 141m16 145r10 146m10 150r58
+134i11 I{integer} 137r61 138r16 141r34
+234r7 Availability{41|577R9} 240r63 245r49
+236r7 Snapshot{36|129R9} 240m7 241r10 242m10 244m10 247m7 248r9 249r14
+255r7 Snapshot{36|129R9} 259r12 260r26
+292r7 Snapshot{36|129R9} 297r18 298r26 299r26
+X 39 editor-build_working_context.ads
+3K16*Build_Working_Context 37|5w13 23r24 38|7w13 57r24 39|104e33
+43R9*Build_Working_Context_Record 37|23r46 38|57r46 39|54e14
+X 40 editor-command_execution.ads
+3K16*Command_Execution 37|6w13 71r21 75r21 86r23 97r23 38|8w13 16r20 215r21
+. 224r21 266r23 271r42 272r42 273r42 305r23 309r42 310r50 311r50 40|86e29
+5E9*Command_Execution_Status 38|16r38 40|10e21
+6n7*Command_Executed{5E9} 38|271r60 309r60
+7n7*Command_Unavailable{5E9} 38|272r60 310r68
+8n7*Command_Failed{5E9} 38|273r60
+10n7*Command_No_Op{5E9} 38|311r68
+12R9*Command_Execution_Result 37|71r39 75r39 86r41 97r41 38|215r39 224r39
+. 266r41 305r41 40|15e14
+13e7*Status{5E9} 38|271r26 272r26 273r26 309r26 310r34 311r34
+14e7*Command{41|11E9} 38|270r21 308r21
+X 41 editor-commands.ads
+6K16*Commands 38|9w13 17r20 219r20 228r20 234r38 240r40 245r20 270r38 308r38
+. 41|1740e20
+11E9*Command_Id 38|17r29 41|549e47
+504n7*Command_Diagnostics_Show{11E9} 38|228r29 308r47
+547n7*Command_Build_Run{11E9} 38|219r29 270r47
+577R9*Command_Availability 38|234r47 41|580e14
+611V13*Is_Available{boolean} 38|240s49
+614V13*Unavailable_Reason{string} 38|245s29
+X 46 editor-executor.ads
+21K16*Executor 38|10w13 218r21 227r21 46|1189e20
+110V13*Execute_Command_With_Result{26R12} 38|218s30 227s30
+X 54 editor-focus_management.ads
+4K16*Focus_Management 38|11w13 25r38 26r16 32r33 33r19 34r19 36r17 42r14
+. 43r20 54|138e28
+6E9*Focus_Owner 38|25r55 54|24e34
+18n7*Focus_Build_UI{6E9} 38|32r50 43r37
+19n7*Focus_Build_Result_Summary{6E9} 38|33r36
+20n7*Focus_Build_Output_Details{6E9} 38|34r36
+26V13*Effective_Focus_Owner{6E9} 38|26s33
+99U14*Set_Focus_Owner 38|42s31
+103U14*Restore_Focus_To_Editor 38|36s34
+X 83 editor-state.ads
+51K16*State 37|7w13 16r47 17r47 18r48 19r49 22r31 27r36 31r25 34r25 37r25
+. 40r25 43r25 46r25 49r25 52r25 55r25 58r25 61r25 64r25 67r25 70r25 74r25
+. 78r18 81r18 84r23 85r23 89r18 92r18 95r23 96r23 100r18 38|12w13 19r47 24r47
+. 40r48 46r49 56r31 66r36 74r25 81r25 88r25 96r25 125r25 154r25 162r25 170r25
+. 178r25 186r25 193r25 200r25 207r25 214r25 223r25 232r18 253r18 264r23 265r23
+. 279r18 290r18 303r23 304r23 321r18 83|610e17
+115R9*State_Type 37|16r53 17r53 18r54 19r55 22r37 27r42 31r31 34r31 37r31
+. 40r31 43r31 46r31 49r31 52r31 55r31 58r31 61r31 64r31 67r31 70r31 74r31
+. 78r24 81r24 84r29 85r29 89r24 92r24 95r29 96r29 100r24 38|19r53 24r53 40r54
+. 46r55 56r37 66r42 74r31 81r31 88r31 96r31 125r31 154r31 162r31 170r31 178r31
+. 186r31 193r31 200r31 207r31 214r31 223r31 232r24 253r24 264r29 265r29 279r24
+. 290r24 303r29 304r29 321r24 83|366e14
+310r7*Build_UI{36|183R9} 38|21m31 28m31 48r12 62m12 70m49 77m57 84m46 91m40
+. 98r46 99r50 105r18 106r11 108r26 109r22 110r32 117r26 120m12 121r23 127r46
+. 128r50 134r18 135r11 137r26 138r22 139r36 146r30 149m12 150r23 158m12 166m12
+. 174m12 182m12 189m55 196m53 203m48 210m44 238r14 275r18 282r68 325r12
+314r7*Latest_Build_Result{34|40R9} 38|238r26 284r14 312r36 313r28 325r24
+319b7*Latest_Build_Result_Focused{boolean} 38|29m9
+324r7*Latest_Build_Output_Details{32|36R9} 38|30m9 238r49 286r14 314r36 315r28
+. 316r36 317r28 325r47
+X 95 system.ads
+67M9*Address
+X 100 s-memory.ads
+51V13*Alloc{95|67M9} 101i<c,__gnat_malloc>22
+66U14*Free 102i<c,__gnat_free>22
+74V13*Realloc{95|67M9} 103i<c,__gnat_realloc>22
+X 111 s-stalib.adb
+87U14 Break_Start 88i<c,__gnat_break_start>22
+

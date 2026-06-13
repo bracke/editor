@@ -1,0 +1,67 @@
+V "GNAT Lib v15"
+A -gnat2022
+P ZX
+
+RN
+
+U editor.panel_focus%b	editor-panel_focus.adb	1b033f04 NE OO PK
+W editor%s		editor.ads		editor.ali
+
+U editor.panel_focus%s	editor-panel_focus.ads	b0311646 EE NE OO PK
+W editor%s		editor.ads		editor.ali
+
+D editor.ads		20260612145959 16f844c2 editor%s
+D editor-panel_focus.ads  20260612145959 a6c95284 editor.panel_focus%s
+D editor-panel_focus.adb  20260612145959 bdca6d80 editor.panel_focus%b
+D system.ads		20250808065140 14286b0f system%s
+G a e
+G c Z s b [clear editor__panel_focus 15 14 none]
+G c Z s b [target editor__panel_focus 18 13 none]
+G c Z s b [bottom_content editor__panel_focus 21 13 none]
+G c Z s b [editor_text_has_focus editor__panel_focus 24 13 none]
+G c Z s b [bottom_panel_has_focus editor__panel_focus 27 13 none]
+G c Z s b [file_tree_has_focus editor__panel_focus 30 13 none]
+G c Z s b [focus_editor_text editor__panel_focus 33 14 none]
+G c Z s b [focus_file_tree editor__panel_focus 36 14 none]
+G c Z s b [focus_bottom_panel editor__panel_focus 39 14 none]
+G c Z s b [clear_bottom_focus editor__panel_focus 43 14 none]
+G c Z s s [panel_focus_stateIP editor__panel_focus 47 9 none]
+X 1 editor.ads
+1K9*Editor 5e11 2|1r9 52r5 3|1r14 83r5
+X 2 editor-panel_focus.ads
+1K16*Panel_Focus 1|1k9 2|47E9 52l12 52e23 3|1b21 83l12 83t23
+3E9*Focus_Target 6e26 19r41 48r25 3|12r41
+4n7*Editor_Text_Focus{3E9} 48r41 3|7r31 29r37 51r31
+5n7*File_Tree_Focus{3E9} 3|44r37 59r31
+6n7*Bottom_Panel_Focus{3E9} 3|36r37 71r34
+8E9*Bottom_Focus_Content 11e28 22r41 41r17 49r25 3|19r41 65r17
+9n7*No_Bottom_Focus{8E9} 49r49 3|8r32 37r43 52r32 60r32 68r20
+10n7*Problems_Focus{8E9}
+11n7*Search_Results_Focus{8E9}
+13R9*Panel_Focus_State 16r22 19r15 22r15 25r15 28r15 31r15 34r22 37r22 40r24
+. 44r22 47c9 50e14 3|4r22 12r15 19r15 26r15 33r15 41r15 48r22 56r22 64r24
+. 77r22
+15U14*Clear 16=7 3|3b14 9l8 9t13
+16r7 State{13R9} 3|4b7 7m7 8m7
+18V13*Target{3E9} 19>7 3|11b13 16l8 16t14
+19r7 State{13R9} 3|12b7 15r14
+21V13*Bottom_Content{8E9} 22>7 3|18b13 23l8 23t22
+22r7 State{13R9} 3|19b7 22r14
+24V13*Editor_Text_Has_Focus{boolean} 25>7 3|25b13 30l8 30t29
+25r7 State{13R9} 3|26b7 29r14
+27V13*Bottom_Panel_Has_Focus{boolean} 28>7 3|32b13 38l8 38t30
+28r7 State{13R9} 3|33b7 36r14 37r18
+30V13*File_Tree_Has_Focus{boolean} 31>7 3|40b13 45l8 45t27
+31r7 State{13R9} 3|41b7 44r14
+33U14*Focus_Editor_Text 34=7 3|47b14 53l8 53t25 69s10 80s7
+34r7 State{13R9} 3|48b7 51m7 52m7
+36U14*Focus_File_Tree 37=7 3|55b14 61l8 61t23
+37r7 State{13R9} 3|56b7 59m7 60m7
+39U14*Focus_Bottom_Panel 40=7 41>7 3|63b14 74l8 74t26
+40r7 State{13R9} 3|64b7 69m29 71m10 72m10
+41e7 Content{8E9} 3|65b7 68r10 72r35
+43U14*Clear_Bottom_Focus 44=7 3|76b14 81l8 81t26
+44r7 State{13R9} 3|77b7 80m26
+48e7*Current_Target{3E9} 3|7m13 15r20 29r20 36r20 44r20 51m13 59m13 71m16
+49e7*Current_Content{8E9} 3|8m13 22r20 37r24 52m13 60m13 72m16
+

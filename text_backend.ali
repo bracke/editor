@@ -1,0 +1,16 @@
+V "GNAT Lib v15"
+A -gnat2022
+P ZX
+
+RN
+
+U text_backend%s	text_backend.ads	6d0030da NE OO PK
+
+D system.ads		20250808065140 14286b0f system%s
+D text_backend.ads	20260612145959 6d0030da text_backend%s
+G a e
+G c Z s s [bufferIP text_backend 6 9 none]
+X 2 text_backend.ads
+1K9*Text_Backend 6E9 10l5 10e17
+3R9*Buffer 6c9 8e14
+

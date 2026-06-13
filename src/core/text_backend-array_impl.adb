@@ -7,6 +7,20 @@ package body Text_Backend.Array_Impl is
 
    ------------------------------------------------------------------------
 
+
+   procedure Set_Text
+     (B    : in out Buffer_Type;
+      Text : String) is
+      N : constant Natural := Natural'Min (Text'Length, B.Data'Length);
+   begin
+      B.Last := N;
+      for I in 1 .. N loop
+         B.Data (I) := Text (Text'First + I - 1);
+      end loop;
+   end Set_Text;
+
+   ------------------------------------------------------------------------
+
    procedure Insert
   (B     : in out Buffer_Type;
    Index : Natural;
@@ -112,6 +126,38 @@ end Replace_Range;
    begin
       return B.Last;
    end Length;
+
+   ------------------------------------------------------------------------
+
+
+   procedure For_Each_Char
+     (B  : Buffer_Type;
+      Fn : not null access procedure (Ch : Character)) is
+   begin
+      for I in 1 .. B.Last loop
+         Fn (B.Data (I));
+      end loop;
+   end For_Each_Char;
+
+   ------------------------------------------------------------------------
+
+   procedure For_Each_Char_Range
+     (B     : Buffer_Type;
+      Start : Natural;
+      Stop  : Natural;
+      Fn    : not null access procedure (Ch : Character))
+   is
+      First : constant Natural := Natural'Min (Start + 1, B.Last + 1);
+      Last  : constant Natural := Natural'Min (Stop, B.Last);
+   begin
+      if Stop <= Start or else First > Last then
+         return;
+      end if;
+
+      for I in First .. Last loop
+         Fn (B.Data (I));
+      end loop;
+   end For_Each_Char_Range;
 
    ------------------------------------------------------------------------
 

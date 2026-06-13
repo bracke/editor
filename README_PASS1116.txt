@@ -1,0 +1,7 @@
+Pass1116 update
+
+Added Editor.Ada_Exception_Finalization_Legality, a widened semantic legality layer for Ada exception, raise, handler, propagation, cleanup/finalization, task termination, controlled primitive, and No_Return contexts.
+
+The pass consumes the widened semantic layers for control-flow legality, accessibility/lifetime legality, contract/aspect legality, elaboration/dependence legality, renaming/alias/visibility legality, and unit completion/order legality. It classifies legal raise statements, raise expressions, reraises, handlers, exception renamings, propagation metadata, finalization/cleanup, and No_Return contracts, plus unresolved/ambiguous/non-exception raise targets, reraise outside handler, handler choice errors, raise-expression result issues, invalid exception renaming targets, missing or mismatched controlled finalization primitives, finalization ordering/propagation/abort/master errors, No_Return violations, private/limited view barriers, and linked semantic blockers.
+
+Added Test_Ada_Exception_Finalization_Legality_Pass1116 and registered it in tests/src/core_suite.adb. The package remains snapshot-owned, deterministic, bounded, and non-mutating. It performs no rendering-side parsing, file save/reload, dirty-state mutation, command/keybinding/workspace/render mutation, external parser invocation, LSP invocation, shell-script integration, or compiler invocation.

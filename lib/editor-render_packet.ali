@@ -1,0 +1,579 @@
+V "GNAT Lib v15"
+A -gnatA
+A -gnat2022
+A -mtune=generic
+A -march=x86-64
+P SS ZX
+
+RN
+RV NO_EXCEPTION_HANDLERS
+RV NO_EXCEPTION_PROPAGATION
+RV NO_EXCEPTIONS
+RV NO_FLOATING_POINT
+RV NO_IMPLICIT_CONDITIONALS
+RV NO_NESTED_FINALIZATION
+RV NO_STANDARD_STORAGE_POOLS
+RV NO_DEFAULT_INITIALIZATION
+RV NO_DYNAMIC_SIZED_OBJECTS
+RV NO_IMPLEMENTATION_PRAGMAS
+RV NO_IMPLICIT_LOOPS
+RV NO_OBSOLESCENT_FEATURES
+
+U editor.render_packet%b  editor-render_packet.adb  38625ddc NE OO PK
+W ada%s			ada.ads			ada.ali
+W ada.containers%s	a-contai.ads		a-contai.ali
+Z ada.exceptions%s	a-except.adb		a-except.ali
+Z ada.strings.text_buffers%s  a-sttebu.adb	a-sttebu.ali
+W editor%s		editor.ads		editor.ali
+W editor.fonts%s	editor-fonts.adb	editor-fonts.ali
+W editor.input_bridge%s	editor-input_bridge.adb	editor-input_bridge.ali
+W editor.layout%s	editor-layout.adb	editor-layout.ali
+W editor.navigation%s	editor-navigation.adb	editor-navigation.ali
+W editor.render_layers%s  editor-render_layers.adb  editor-render_layers.ali
+W editor.render_model%s	editor-render_model.adb	editor-render_model.ali
+W editor.view%s		editor-view.adb		editor-view.ali
+W interfaces%s		interfac.ads		interfac.ali
+W interfaces.c%s	i-c.adb			i-c.ali
+Z system%s		system.ads		system.ali
+Z system.fat_flt%s	s-fatflt.ads		s-fatflt.ali
+Z system.finalization_primitives%s  s-finpri.adb  s-finpri.ali
+Z system.img_int%s	s-imgint.ads		s-imgint.ali
+Z system.soft_links%s	s-soflin.adb		s-soflin.ali
+Z system.standard_library%s  s-stalib.adb	s-stalib.ali
+
+U editor.render_packet%s  editor-render_packet.ads  bad039f1 EE NE OO PK
+W editor%s		editor.ads		editor.ali
+W editor.layout%s	editor-layout.adb	editor-layout.ali
+W editor.render_layers%s  editor-render_layers.adb  editor-render_layers.ali
+W interfaces%s		interfac.ads		interfac.ali
+W interfaces.c%s	i-c.adb			i-c.ali
+
+D ada.ads		20250808065140 76789da1 ada%s
+D a-charac.ads		20250808065140 2d3ec45b ada.characters%s
+D a-chlat1.ads		20250808065140 e0d72e76 ada.characters.latin_1%s
+D a-contai.ads		20250808065140 61e5e089 ada.containers%s
+D a-conhel.ads		20250808065140 46fe1ce3 ada.containers.helpers%s
+D a-convec.ads		20250808065140 91fb49f3 ada.containers.vectors%s
+D a-except.ads		20250808065140 e7970cd9 ada.exceptions%s
+D a-finali.ads		20250808065140 bf4f806b ada.finalization%s
+D a-iteint.ads		20250808065140 49a8bee2 ada.iterator_interfaces%s
+D a-stream.ads		20250808065140 17477cbd ada.streams%s
+D a-string.ads		20250808065140 90ac6797 ada.strings%s
+D a-strmap.ads		20250808065140 1f91ebb6 ada.strings.maps%s
+D a-strsea.ads		20250808065140 18c3c634 ada.strings.search%s
+D a-sttebu.ads		20250808065140 f1ad67a2 ada.strings.text_buffers%s
+D a-strunb.ads		20250808065140 b10770ab ada.strings.unbounded%s
+D a-stuten.ads		20250808065140 c6ced0ae ada.strings.utf_encoding%s
+D a-tags.ads		20250808065140 fbca0ad5 ada.tags%s
+D a-unccon.ads		20250808065140 0e9b276f ada.unchecked_conversion%s
+D editor.ads		20260406185230 16f844c2 editor%s
+D editor-commands.ads	20260425121135 91ba1af2 editor.commands%s
+D editor-cursors.ads	20260425100454 1f938cf3 editor.cursors%s
+D editor-fonts.ads	20260503165753 4b5bcabf editor.fonts%s
+D editor-input_bridge.ads  20260503175602 589fa0c2 editor.input_bridge%s
+D editor-layout.ads	20260507161022 c205967f editor.layout%s
+D editor-navigation.ads	20260423150640 b47a9aa7 editor.navigation%s
+D editor-render_layers.ads  20260507151952 102cb6cb editor.render_layers%s
+D editor-render_model.ads  20260506180927 199ac840 editor.render_model%s
+D editor-render_packet.ads  20260507152512 974dcbed editor.render_packet%s
+D editor-render_packet.adb  20260507172401 2b651741 editor.render_packet%b
+D editor-state.ads	20260503173758 d429238c editor.state%s
+D editor-view.ads	20260425171937 797427fd editor.view%s
+D interfac.ads		20250808065140 9111f9c1 interfaces%s
+D i-c.ads		20250808065140 e94c966a interfaces.c%s
+D system.ads		20250808065140 14286b0f system%s
+D s-atocou.ads		20250808065140 dc18efc3 system.atomic_counters%s
+D s-exctab.ads		20250808065140 91bef6ef system.exception_table%s
+D s-fatflt.ads		20250808065140 11beb392 system.fat_flt%s
+D s-fatgen.ads		20250808065140 d28c6cfe system.fat_gen%s
+D s-finpri.ads		20250808065140 5970d55a system.finalization_primitives%s
+D s-finroo.ads		20250808065140 0a7c3ed4 system.finalization_root%s
+D s-imagei.ads		20250808065140 5e131ce0 system.image_i%s
+D s-imgint.ads		20250808065140 67e4edfb system.img_int%s
+D s-memory.ads		20250808065140 18949c1a system.memory%s
+D s-oscons.ads		20250827122531 068e1a91 system.os_constants%s
+D s-oslock.ads		20250808065140 13fa6b78 system.os_locks%s
+D s-parame.ads		20250808065140 3597fc11 system.parameters%s
+D s-pooglo.ads		20250808065140 91708d21 system.pool_global%s
+D s-putima.ads		20250808065140 17291fe4 system.put_images%s
+D s-retsta.ads		20250808065140 0f6b06cb system.return_stack%s
+D s-secsta.ads		20250808065140 578279f5 system.secondary_stack%s
+D s-soflin.ads		20250808065140 5d88fdea system.soft_links%s
+D s-stache.ads		20250808065140 0b81c1fe system.stack_checking%s
+D s-stalib.ads		20250808065140 1c9580f6 system.standard_library%s
+D s-stalib.adb		20250808065140 eb464a47 system.standard_library%b
+D s-stoele.ads		20250808065140 ccded4e8 system.storage_elements%s
+D s-stopoo.ads		20250808065140 e9fa2dd8 system.storage_pools%s
+D s-stratt.ads		20250808065140 516607ae system.stream_attributes%s
+D s-traent.ads		20250808065140 c81cbf8c system.traceback_entries%s
+D s-unstyp.ads		20250808065140 fa2a7f59 system.unsigned_types%s
+D s-valspe.ads		20250808065140 f810d31c system.val_spec%s
+D s-vaispe.ads		20250808065140 8280550e system.value_i_spec%s
+D s-vauspe.ads		20250808065140 89269ba5 system.value_u_spec%s
+D s-vs_int.ads		20250808065140 06b6b724 system.vs_int%s
+D s-vs_uns.ads		20250808065140 e7f47a27 system.vs_uns%s
+D text_backend.ads	20260412181650 6d0030da text_backend%s
+D text_backend-rope_impl.ads  20260427194525 88d12c3a text_backend.rope_impl%s
+D text_buffer.ads	20260427153044 bb9a4056 text_buffer%s
+G a e
+G c Z s b [build_render_packet editor__render_packet 58 14 none]
+G c Z s b [digit_count editor__render_packet 61 13 none]
+G c Z s b [gutter_width_for_line_count editor__render_packet 63 13 none]
+G c Z s b [text_origin_x editor__render_packet 66 13 none]
+G c Z s b [text_viewport_left editor__render_packet 70 13 none]
+G c Z s b [text_viewport_right editor__render_packet 74 13 none]
+G c Z s b [text_viewport_top editor__render_packet 77 13 none]
+G c Z s b [text_viewport_bottom editor__render_packet 80 13 none]
+G c Z s b [gutter_viewport_left editor__render_packet 83 13 none]
+G c Z s b [gutter_viewport_right editor__render_packet 86 13 none]
+G c Z s b [text_left_padding editor__render_packet 90 13 none]
+G c Z s s [rect_commandIP editor__render_packet 13 9 none]
+G c Z s s [glyph_commandIP editor__render_packet 25 9 none]
+G c Z s s [Trect_arrayBIP editor__render_packet 41 4 none]
+G c Z s s [Tglyph_arrayBIP editor__render_packet 44 4 none]
+G c Z s s [render_packetIP editor__render_packet 47 9 none]
+G c Z b b [push_rect editor__render_packet 35 14 none]
+G c Z b b [push_glyph editor__render_packet 65 14 none]
+G r s render_snapshot [build_render_packet editor__render_packet 58 14 none] [render_snapshotIP editor__render_model 24 9 none]
+G r l render_snapshot [build_render_packet editor__render_packet 58 14 none] [render_snapshotDI editor__render_model 24 9 none]
+G r k render_snapshot [build_render_packet editor__render_packet 58 14 none] [render_snapshotDF editor__render_model 24 9 none]
+G r c none [build_render_packet editor__render_packet 58 14 none] [current editor__layout 14 13 none]
+G r c none [build_render_packet editor__render_packet 58 14 none] [get_render_snapshot editor__input_bridge 22 14 none]
+G r c none [build_render_packet editor__render_packet 58 14 none] [update_scroll_for_snapshot editor__view 33 14 none]
+G r c none [build_render_packet editor__render_packet 58 14 none] [scroll_x editor__view 37 13 none]
+G r c none [build_render_packet editor__render_packet 58 14 none] [scroll_y editor__view 38 13 none]
+G r c none [build_render_packet editor__render_packet 58 14 none] [viewport_height editor__view 21 13 none]
+G r c none [build_render_packet editor__render_packet 58 14 none] [viewport_width editor__view 20 13 none]
+G r c none [build_render_packet editor__render_packet 58 14 none] [caret_visible editor__view 28 13 none]
+G r c none [build_render_packet editor__render_packet 58 14 none] [ascent editor__fonts 37 13 none]
+G r c none [build_render_packet editor__render_packet 58 14 none] [descent editor__fonts 38 13 none]
+G r c none [build_render_packet editor__render_packet 58 14 none] [get_glyph editor__fonts 40 13 none]
+G r c none [build_render_packet editor__render_packet 58 14 none] [check_glyph_fits_cell editor__fonts 48 14 none]
+G r c none [build_render_packet editor__render_packet 58 14 none] [for_each_text_char_range editor__input_bridge 30 14 none]
+G r c none [text_viewport_right editor__render_packet 74 13 none] [viewport_width editor__view 20 13 none]
+G r c none [text_viewport_bottom editor__render_packet 80 13 none] [viewport_height editor__view 21 13 none]
+X 1 ada.ads
+18K9*Ada 22e8 29|2r6 2r26
+X 4 a-contai.ads
+16K13*Containers 28e19 29|2w10 2r30
+22I9*Count_Type<integer>
+X 6 a-convec.ads
+81I12*Extended_Index{integer}
+91R9*Vector<8|43R9>
+175V13*Length{4|22I9} 29|126s42[30|7] 171s48[30|7] 193s70[30|7] 228s30[30|7]
+. 244s30[30|7] 283s30[30|7] 416s66[30|7] 466s30[30|7] 467s54[30|7] 476s43[30|7]
+. 512s39[30|7] 563s48[30|7] 583s48[30|7] 618s33[30|7] 837s30[30|7]
+206V13*Element{integer} 29|236s34[30|7] 253s33[30|7] 255s41[30|7] 288s36[30|7]
+. 639s42[30|7] 655s48[30|7] 856s36[30|7] 871s42[30|7]
+570V13*Last_Index{81I12[30|7]} 29|232s43[30|7] 248s33[30|7] 254s42[30|7]
+. 635s55[30|7] 652s51[30|7] 847s49[30|7] 868s45[30|7]
+X 9 a-iteint.ads
+24h9 Forward_Iterator
+32h9 Reversible_Iterator<24R9[6|119]>
+X 19 editor.ads
+1K9*Editor 5e11 28|2r6 3r6 3r32 5r9 67r21 71r21 75r17 78r17 81r17 84r17 87r17
+. 91r17 93r5 29|1r6 4r6 5r6 6r6 7r6 8r6 9r6 9r31 10r6 10r32 12r14 55r20 105r16
+. 106r25 106r56 155r13 159r13 164r10 176r13 177r21 198r38 200r13 201r21 299r10
+. 299r32 307r12 320r16 332r16 384r23 386r22 387r22 442r7 444r37 448r7 450r19
+. 451r19 455r7 457r37 459r19 460r19 484r10 485r19 492r42 520r17 770r10 796r22
+. 796r44 899r32 908r34 909r34 940r25 953r18 961r14 965r26 969r14 976r14 980r26
+. 984r14 991r18 1001r17 1006r5
+X 21 editor-cursors.ads
+5I12*Cursor_Index{natural}
+X 22 editor-fonts.ads
+3K16*Fonts 53e17 29|4w13 299r17 299r39 307r19 320r23 332r23 384r30 386r29
+. 387r29 796r29 796r51 899r39 908r41 909r41
+20R9*Glyph_Metric 35e14 29|320r29 332r29 384r36 899r45
+21f7*W{float} 29|340r55 341r55 406r58 424r41 913r62
+22f7*H{float} 29|406r63 424r46 914r62
+24f7*U0{float} 29|425r33 924r52
+25f7*V0{float} 29|425r39 925r52
+26f7*U1{float} 29|425r45 926r52
+27f7*V1{float} 29|425r51 927r52
+29f7*Bearing_X{float} 29|336r34 401r49
+30f7*Bearing_Y{float} 29|323r38
+37V13*Ascent{float} 29|299s23 307s25 796s35
+38V13*Descent{float} 29|299s45 796s57
+40V13*Get_Glyph{boolean} 29|386s35 908s47
+48U14*Check_Glyph_Fits_Cell 29|387s35 909s47
+X 23 editor-input_bridge.ads
+15K16*Input_Bridge 35e24 29|5w13 442r14 455r14 940r32
+22U14*Get_Render_Snapshot 29|442s27 455s27
+30U14*For_Each_Text_Char_Range 29|940s45
+X 24 editor-layout.ads
+3K16*Layout 24e18 28|2w13 67r28 71r28 75r24 78r24 81r24 84r24 87r24 91r24
+. 29|7w13 55r27 106r32 106r63 953r25 961r21 969r21 976r21 984r21 991r25 1001r24
+5R9*Layout_Config 12e14 28|67r35 71r35 75r31 78r31 81r31 84r31 87r31 91r31
+. 29|55r34 106r39 953r32 961r28 969r28 976r28 984r28 991r32 1001r31
+6i7*Origin_X{natural} 29|58r21 216r18 411r48 489r49 965r15 987r28 996r15
+7i7*Origin_Y{natural} 29|133r31 195r48 198r27 490r49 515r24 972r28 980r15
+8i7*Cell_W{natural} 29|59r60 127r26 128r33 166r53 213r65 340r43 341r43 388r33
+. 397r71 472r108 476r59 693r72 744r68 753r66 909r80 997r60 1003r21
+9i7*Cell_H{natural} 29|133r53 134r44 302r24 388r48 418r48 572r33 586r33 694r70
+. 745r68 754r51 799r36 909r95
+11i7*Gutter_Width{natural} 29|108r49
+14V13*Current{5R9} 29|106s70
+X 25 editor-navigation.ads
+4K16*Navigation 49e22 29|1w13
+X 26 editor-render_layers.ads
+3K16*Render_Layers 19e25 28|3w13 3r39 29|10w13 10r39
+5E9*Render_Layer 11e19 29|37r15 67r15
+6n7*Background_Layer{5E9} 29|497r19
+7n7*Gutter_Layer{5E9} 29|423r31 524r13
+8n7*Current_Line_Layer{5E9} 29|410r34 591r25 601r25
+9n7*Selection_Layer{5E9} 29|699r40 750r37
+10n7*Text_Layer{5E9} 29|919r43
+11n7*Caret_Layer{5E9} 29|814r25
+X 27 editor-render_model.ads
+8K16*Render_Model 62e24 29|6w13 9w13 9r38 105r23 444r44 457r44
+14N4*Max_Visible_Chars 29|444r57 457r57
+16A9*Natural_Array(natural)<integer>
+18A9*Caret_Pos_Array(21|5I12)<integer>
+21A9*Selection_Pos_Array(21|5I12)<integer>
+24R9*Render_Snapshot 56e14 29|105r36
+28i7*Length{natural} 29|223r45 444r27 445r50 457r27
+30i7*Text_Base_Index{natural} 29|223r22 445r27 445r65
+35i7*Caret_Count{natural} 29|538r15 771r32 840r21
+36a7*Caret_Pos{18A9} 29|547r28 777r34 842r31
+37a7*Caret_Virtual_Column{16A9} 29|786r27 787r40
+39r7*Line_Starts{6|91R9[30|7]} 29|126r30 171r36 193r58 228r18 232r31 236r22
+. 244r18 248r21 253r21 254r30 255r29 283r18 288r24 416r54 466r18 467r42 476r31
+. 512r27 563r36 583r36 618r21 635r43 639r30 652r39 655r36 837r18 847r37 856r24
+. 868r33 871r30
+41i7*Visible_First_Row{natural} 29|139r22
+42i7*Visible_Last_Row{natural} 29|144r22
+52a7*Sel_End_Virtual_Column{16A9} 29|727r23
+53i7*Selection_Count{natural} 29|617r15 620r32 720r15 721r32
+54a7*Sel_Start{21A9} 29|623r30
+55a7*Sel_End{21A9} 29|625r30 724r32
+X 28 editor-render_packet.ads
+5K16*Render_Packet 19|1k9 28|93l12 93e25 29|12b21 1006l12 1006t25
+7F12*C_Float{33|101F9} 15r11 16r11 17r11 18r11 19r11 20r11 21r11 27r12 28r12
+. 29r12 30r12 31r12 32r12 33r12 34r12 35r12 36r12 37r12 29|43r36 44r36 45r36
+. 46r36 47r36 48r36 49r36 83r38 84r38 85r38 86r38 87r38 88r38 89r38 90r38
+. 91r38 92r38 93r38
+8I12*C_Int{33|62I9} 48r21 49r21
+10N4*Max_Rectangles 41r35 29|42r18
+11N4*Max_Glyphs 44r36 29|82r18
+13R9*Rect_Command 22e14 23r39 41r58
+14i7*Layer{33|62I9}
+15f7*X{7F12} 29|43m31
+16f7*Y{7F12} 29|44m31
+17f7*W{7F12} 29|45m31
+18f7*H{7F12} 29|46m31
+19f7*R{7F12} 29|47m31
+20f7*G{7F12} 29|48m31
+21f7*B{7F12} 29|49m31
+25R9*Glyph_Command 38e14 39r39 44r55
+26i7*Layer{33|62I9}
+27f7*X{7F12} 29|83m32
+28f7*Y{7F12} 29|84m32
+29f7*W{7F12} 29|85m32
+30f7*H{7F12} 29|86m32
+31f7*U0{7F12} 29|87m32
+32f7*V0{7F12} 29|88m32
+33f7*U1{7F12} 29|89m32
+34f7*V1{7F12} 29|90m32
+35f7*R{7F12} 29|91m32
+36f7*G{7F12} 29|92m32
+37f7*B{7F12} 29|93m32
+41A9*Rect_Array(13R9)<integer> 42r26 50r21
+44A9*Glyph_Array(25R9)<integer> 45r26 51r21
+47R9*Render_Packet 52e14 53r39 59r24 29|36r23 66r31 103r24 372r31
+48i7*Rect_Count{8I12} 29|40r51 50m17 50r38 439m18
+49i7*Glyph_Count{8I12} 29|72r51 94m17 94r39 440m18
+50a7*Rects{41A9} 29|43m17 44m17 45m17 46m17 47m17 48m17 49m17
+51a7*Glyphs{44A9} 29|83m17 84m17 85m17 86m17 87m17 88m17 89m17 90m17 91m17
+. 92m17 93m17
+58U14*Build_Render_Packet 59<7 29|102b14 950l8 950t27
+59r7 Out_Packet{47R9} 29|103b7 439m7 440m7 496m17 523m11 590m23 600m23 698m38
+. 749m35 813m23 849m20 918m41
+61V13*Digit_Count{natural} 61>26 29|17b13 27l8 27t19 32s15 470s15
+61i26 N{natural} 29|17b26 18r22
+63V13*Gutter_Width_For_Line_Count{natural} 64>8 64>30 29|29b13 33l8 33t35
+. 59s12 472s35 475s16 997s12
+64i8 Line_Count{natural} 29|30b8 32r28 472r64
+64i30 Cell_W{positive} 29|30b30 32r47 472r91
+66V13*Text_Origin_X{natural} 67>8 68>7 29|54b13 61l8 61t21 124s11 957s21
+67r8 Layout{24|5R9} 29|55b7 58r14 59r53 60r31
+68i7 Line_Count{natural} 29|56b7 59r41
+70V13*Text_Viewport_Left{float} 71>8 72>7 29|170s35 561s19 952b13 958l8 958t26
+71r8 Layout{24|5R9} 29|953b5 957r36
+72i7 Line_Count{natural} 29|954b7 957r44
+74V13*Text_Viewport_Right{float} 75>8 29|172s36 569s19 960b13 966l8 966t27
+75r8 Layout{24|5R9} 29|961b5 965r8
+77V13*Text_Viewport_Top{float} 78>8 29|173s34 968b13 973l8 973t25
+78r8 Layout{24|5R9} 29|969b5 972r21
+80V13*Text_Viewport_Bottom{float} 81>8 29|174s37 975b13 981l8 981t28
+81r8 Layout{24|5R9} 29|976b5 980r8
+83V13*Gutter_Viewport_Left{float} 84>8 29|190s35 417s39 575s19 983b13 988l8
+. 988t28
+84r8 Layout{24|5R9} 29|984b5 987r21
+86V13*Gutter_Viewport_Right{float} 87>8 88>7 29|193s13 414s35 510s10 581s19
+. 990b13 998l8 998t29
+87r8 Layout{24|5R9} 29|991b5 996r8 997r53
+88i7 Line_Count{natural} 29|992b7 997r41
+90V13*Text_Left_Padding{natural} 91>8 29|60s12 1000b13 1004l8 1004t25
+91r8 Layout{24|5R9} 29|1001b8 1003r14
+X 29 editor-render_packet.adb
+18i7 V{natural} 21r13 22m10 22r15
+19i7 C{natural} 23m10 23r15 26r14
+35U14 Push_Rect 35b14 36=7 37>7 38>7 38>10 38>13 38>16 38>19 38>22 38>25
+. 52l8 52t17 408s31 495s16 522s10 589s22 599s22 697s37 748s34 812s22
+36r7 Packet{28|47R9} 40r44 43m10 44m10 45m10 46m10 47m10 48m10 49m10 50m10
+. 50r31
+37e7 Layer{26|5E9}
+38f7 X{float} 43r45
+38f10 Y{float} 44r45
+38f13 W{float} 45r45
+38f16 H{float} 46r45
+38f19 R{float} 47r45
+38f22 G{float} 48r45
+38f25 B{float} 49r45
+40i7 Index{integer} 42r10 43r24 44r24 45r24 46r24 47r24 48r24 49r24
+65U14 Push_Glyph 65b14 66=7 67>7 68>7 68>10 68>13 68>16 69>7 69>11 69>15
+. 69>19 70>7 70>10 70>13 96l8 96t18 421s28 917s40
+66r7 Packet{28|47R9} 72r44 83m10 84m10 85m10 86m10 87m10 88m10 89m10 90m10
+. 91m10 92m10 93m10 94m10 94r32
+67e7 Layer{26|5E9}
+68f7 X{float} 83r47
+68f10 Y{float} 84r47
+68f13 W{float} 85r47
+68f16 H{float} 86r47
+69f7 U0{float} 87r47
+69f11 V0{float} 88r47
+69f15 U1{float} 89r47
+69f19 V1{float} 90r47
+70f7 R{float} 91r47
+70f10 G{float} 92r47
+70f13 B{float} 93r47
+72i7 Index{integer} 82r10 83r25 84r25 85r25 86r25 87r25 88r25 89r25 90r25
+. 91r25 92r25 93r25
+105r7 Snap{27|24R9} 126r25 139r17 144r17 171r31 193r53 223r17 223r40 228r13
+. 232r26 236r17 244r13 248r16 253r16 254r25 255r24 283r13 288r19 416r49 442m48
+. 444r22 445r22 445r45 445r60 448r47 455m48 457r22 466r13 467r37 476r26 512r22
+. 538r10 547r23 563r31 583r31 617r10 618r16 620r27 623r25 625r25 635r38 639r25
+. 652r34 655r31 720r10 721r27 724r27 727r18 771r27 777r29 786r22 787r35 837r13
+. 840r16 842r26 847r32 856r19 868r28 871r25
+106r7 Layout{24|5R9} 108r42 125r14 127r19 128r26 133r24 133r46 134r37 166r46
+. 171r14 172r57 173r53 174r59 190r57 193r36 195r41 198r20 213r58 216r11 302r17
+. 340r36 341r36 388r26 388r41 397r64 411r41 415r38 417r61 418r41 448r53 472r101
+. 476r52 489r42 490r42 511r14 515r17 562r23 569r40 572r26 575r41 582r23 586r26
+. 693r65 694r63 744r61 745r61 753r59 754r44 799r29 909r73 909r88
+108i7 Computed_Gutter_Width{natural} 159r43 164r39 217r15 472m10 474r14 486r19
+. 491r42
+110i7 Scroll_X{natural} 128r15 149r17 160r20 166r17 450m7 459m7
+111i7 Scroll_Y{natural} 134r26 451m7 460m7
+112f7 Caret_Width{float} 810r45
+113f7 Current_Line_R{float} 606r25
+114f7 Current_Line_G{float} 607r25
+115f7 Current_Line_B{float} 608r25
+121V16 Screen_X{float} 121b16 121>26 129l11 129t19 334s37 690s56 742s54 751s37
+. 793s45
+121i26 C{natural} 127r15
+131V16 Screen_Y{float} 131b16 131>26 135t10 305s10 412s34 566s19 578s19 691s56
+. 743s54 752s37 792s47
+131i26 R{natural} 133r42
+137V16 First_Visible_Row{natural} 137b16 140l11 140t28 543s45 627s48 734s29
+. 738s64 781s31 791s67 829s42
+142V16 Last_Visible_Row{natural} 142b16 145l11 145t27 544s45 628s48 735s38
+. 783s34 830s42
+147V16 First_Visible_Col{natural} 147b16 150l11 150t28 630s48 832s42
+152V16 Last_Visible_Col{natural} 152b16 167l11 167t27 631s48 833s42
+153i10 Text_Viewport_W{natural} 163m10 166r28
+169V16 In_Viewport{boolean} 169b16 169>29 169>32 169>35 169>38 186l11 186t22
+. 598s22 696s37 747s34 916s40
+169f29 X{float} 182r17 183r22
+169f32 Y{float} 184r22 185r22
+169f35 W{float} 182r21
+169f38 H{float} 184r26
+170f10 Left{float} 182r25
+172f10 Right{float} 183r26
+173f10 Top{float} 184r30
+174f10 Bottom{float} 185r26
+188V16 In_Gutter_Viewport{boolean} 188b16 189>8 189>11 189>14 189>17 210l11
+. 210t29 406s28 494s16 588s22
+189f8 X{float} 206r17 207r22
+189f11 Y{float} 208r22 209r22
+189f14 W{float} 206r21
+189f17 H{float} 208r26
+190f10 Left{float} 206r25
+192f10 Right{float} 207r26
+195f10 Top{float} 208r30
+197f10 Bottom{float} 209r26
+212V16 Line_Number_Right_Edge{float} 212b16 219l11 219t33 391s56
+213i10 Line_Number_Right_Padding{natural} 218r15
+221V16 Text_End_Index{natural} 221b16 224l11 224t25 233s20 641s46 665s38
+. 666s39 858s40 881s32 882s33
+226V16 Index_For_Row_Start{natural} 226b16 226>37 237l11 237t30
+226i37 Target_Row{natural} 232r13 236r43
+239V16 Row_For_Index{natural} 239b16 239>31 268l11 268t24 281s17
+239i31 Index{natural} 253r50 255r61
+240i10 Lo{natural} 250r16 251r21 260m16
+241i10 Hi{natural} 248m10 250r22 251r26 263m16
+242i10 Mid{natural} 251m13 253r42 254r19 255r50 257r26 260r22 262r26 263r22
+274U17 Row_Col_For_Index 274b17 275>8 276<10 277<10 295l11 295t28 546s13
+. 733s19 776s16 841s16
+275i8 Index{natural} 281r32 284r20 290r13 291r20
+276i10 Row{natural} 281m10 288r45
+277i10 Col{natural} 284m13 291m13 293m13
+279i10 Start{natural} 288m10 290r22 291r28
+297V16 Baseline_Y{float} 297b16 297>28 308l11 308t21 323s17
+297i28 Row{natural} 305r20
+298f10 Text_Height{float} 302r34
+301f10 Extra{float} 306r28
+318V16 Glyph_Y{float} 318b16 319>8 320>10 324l11 324t18 404s38 912s73
+319i8 Row{natural} 323r29
+320r10 M{22|20R9} 323r36
+330V16 Glyph_X{float} 330b16 331>10 332>10 345l11 345t18 911s60
+331i10 Col{natural} 334r47
+332r10 M{22|20R9} 336r32 340r53 341r53
+334f10 Cell_X{float} 336r23 338r17 339r20 340r20 341r20
+335f10 X{float} 338r13 340r16 343r20
+347f7 Gutter_Separator_R{float} 529r13
+348f7 Gutter_Separator_G{float} 530r13
+349f7 Gutter_Separator_B{float} 531r13
+351f7 Gutter_Background_R{float} 499r19
+352f7 Gutter_Background_G{float} 499r40
+353f7 Gutter_Background_B{float} 499r61
+355f7 Current_Gutter_Row_R{float} 419r34 596r25
+356f7 Current_Gutter_Row_G{float} 419r56 596r47
+357f7 Current_Gutter_Row_B{float} 419r78 596r69
+359f7 Current_Text_Row_R{float}
+360f7 Current_Text_Row_G{float}
+361f7 Current_Text_Row_B{float}
+363f7 Inactive_Line_Number_R{float} 426r78
+364f7 Inactive_Line_Number_G{float} 427r78
+365f7 Inactive_Line_Number_B{float} 428r78
+367f7 Current_Line_Number_R{float} 426r51
+368f7 Current_Line_Number_G{float} 427r51
+369f7 Current_Line_Number_B{float} 428r51
+371U17 Push_Gutter_Line_Number 371b17 372=11 373>11 374>11 375>11 437l11
+. 437t34 848s16
+372r11 Packet{28|47R9} 409m32 422m29
+373i11 Row{natural} 377r53
+374i11 Screen_Row{natural} 404r47 412r44
+375b11 Is_Current{boolean} 407r31 426r35 427r35 428r35
+377a10 Number{string} 381r19 382r16 386r46 393r25
+378f10 Line_Number_Left_Inset{float} 398r30
+379i10 Draw_Col{natural} 435m13 435r25
+381i14 I{integer} 382r24 386r54 393r39
+384r19 M{22|20R9} 386m58 386r58 388r23 401r47 404r59 406r56 406r61 424r39
+. 424r44 425r31 425r37 425r43 425r49
+391f25 Right_Edge{float} 396r28
+392i25 Digit_From_Right{natural} 397r37
+395f25 Cell_X{float} 401r38
+400f25 GX{float} 406r48 424r31
+403f25 GY{float} 406r52 424r35
+463i10 Total_Lines{natural} 467m13 470r28 472r78
+464i10 D{natural} 470m10
+489f13 X{float} 494r36 498r19
+490f13 Y{float} 494r39 498r22
+491f13 W{float} 494r42 498r25
+492f13 H{float} 494r45 498r28
+509f10 X{float} 525r13
+514f10 Y{float} 526r13
+517f10 W{float} 527r13
+519f10 H{float} 528r13
+540i13 Highlight_Row{natural} 548m16 553r16 554r25 558r19
+541i13 Highlight_Col{natural} 549m16 551r34
+543i13 First_Row{natural} 553r33 558r35
+544i13 Last_Row{natural} 554r42
+557i19 Screen_Row{natural} 566r29 578r29
+560f19 X{float} 569r50 598r35 602r25
+565f19 Y{float} 598r38 603r25
+568f19 W{float} 598r41 604r25
+571f19 H{float} 598r44 605r25
+574f19 GX{float} 583r59 588r42 592r25
+577f19 GY{float} 588r46 593r25
+580f19 GW{float} 588r50 594r25
+585f19 GH{float} 588r54 595r25
+620i14 SIdx{integer} 623r41 625r39
+622i16 Sel_Min{natural} 633r19 672r55
+624i16 Sel_Max{natural} 633r30 673r55
+627i16 First_Row{natural} 634r30 691r72
+628i16 Last_Row{natural} 634r43
+630i16 First_Col{natural} 682r65
+631i16 Last_Col{natural} 684r31 685r64
+634i23 Row{integer} 635r32 639r51 652r28 655r57 691r66
+638i25 Row_Start{natural} 657r47 660r45 672r64 676r57 677r55
+641i25 Row_End{natural} 658m34 660m34 665r28 666m28 673r64
+643i25 Sel_Row_Start{natural} 672m25 675r28 676r41
+644i25 Sel_Row_End{natural} 673m25 675r44 677r41
+646i25 Start_Col{natural} 676m28 682m28 682r54 688r31 690r66 693r52
+647i25 End_Col{natural} 677m28 685m31 685r55 688r43 693r42
+654i31 Next_Start{natural} 657r34 658r45
+690f34 X{float} 696r50 700r40
+691f34 Y{float} 696r53 701r40
+692f34 W{float} 696r56 702r40
+694f34 H{float} 696r59 703r40
+721i14 SIdx{integer} 724r41 727r47
+723i16 Sel_End{natural} 733r38
+726i16 VEnd{natural} 732r19 740r28 753r45
+729i16 Row{natural} 733m47 734r22 735r31 738r58
+730i16 Col{natural} 733m52 740r35 742r64 751r47 753r52
+738i25 Screen_Row{natural} 743r64 752r47
+742f31 GX{float} 747r47
+743f31 GY{float} 747r51
+744f31 GW{float} 747r55
+745f31 GH{float} 747r59
+771i14 CIdx{integer} 777r45 786r49 787r62
+773i16 Caret_Row{natural} 778m22 781r19 783r22 791r55
+774i16 Caret_Col{natural} 779m22 787m22 793r55
+791i22 Screen_Row{natural} 792r57
+792f22 GY_1{float} 803r26
+793f22 GX{float} 815r25
+795f22 Text_Height{float} 799r46 808r35
+798f22 Extra{float} 804r43
+801f22 GY{float} 816r25
+807f22 GH{float} 818r25
+810f22 GW{float} 817r25
+829i10 First_Row{natural} 838r19 846r24 851r28 854r58
+830i10 Last_Row{natural} 838r32 846r37
+832i10 First_Col{natural} 863r36 888r45
+833i10 Last_Col{natural} 890r22 893r60
+834i10 Current_Row{natural} 843m19 852r28
+835i10 Current_Col{natural} 844m19
+846i17 Row{integer} 847r26 850r22 851r22 852r22 854r52 856r45 868r22 871r51
+854i19 Screen_Row{natural} 912r82
+855i19 Row_Start{natural} 873r41 876r39 888r33 893r48
+858i19 Row_End{natural} 874m28 876m28 881r22 882m22 891r35 893r74
+860i19 Emit_Start{natural} 888m19 896r22 941r26
+861i19 Emit_Stop{natural} 891m22 893m22 896r35 942r28
+863i19 Col{natural} 911r69 937m28 937r35
+870i25 Next_Start{natural} 873r28 874r39
+898U35 Visit 898b35 898>42 938l29 938t34 943r28
+898e42 Ch{character} 901r31 902r37 903r37 908r58 933r67
+899r28 M{22|20R9} 908m62 908r62 909r70 911r74 912r94 913r60 914r60 924r50
+. 925r50 926r50 927r50
+911f37 GX{float} 916r53 920r43
+912f37 GY{float} 916r57 921r43
+913f37 GW{float} 916r61 922r43
+914f37 GH{float} 916r65 923r43
+X 31 editor-view.ads
+4K16*View 29|8w13 155r20 159r20 164r17 176r20 177r28 198r45 200r20 201r28
+. 448r14 450r26 451r26 459r26 460r26 484r17 485r26 492r49 520r24 770r17 965r33
+. 980r33 31|47e16
+20V13*Viewport_Width{natural} 29|155s25 159s25 164s22 176s25 200s25 484s22
+. 965s38
+21V13*Viewport_Height{natural} 29|177s33 198s50 201s33 485s31 492s54 520s29
+. 980s38
+28V13*Caret_Visible{boolean} 29|770s22
+33U14*Update_Scroll_For_Snapshot 29|448s19
+37V13*Scroll_X{natural} 29|450s31 459s31
+38V13*Scroll_Y{natural} 29|451s31 460s31
+X 32 interfac.ads
+47K9*Interfaces 28|1r6 7r23 8r23 14r15 26r15 29|3r6 3r24 32|247e15
+X 33 i-c.ads
+33K20*C 28|1w17 7r34 8r34 14r26 26r26 29|3w17 3r35 33|601e17
+62I9*int<integer> 28|8r36 14r28 26r28
+101F9*C_float<float> 28|7r36
+X 34 system.ads
+67M9*Address
+X 43 s-memory.ads
+51V13*Alloc{34|67M9} 101i<c,__gnat_malloc>22
+66U14*Free 102i<c,__gnat_free>22
+74V13*Realloc{34|67M9} 103i<c,__gnat_realloc>22
+X 54 s-stalib.adb
+87U14 Break_Start 88i<c,__gnat_break_start>22
+

@@ -1,0 +1,115 @@
+V "GNAT Lib v15"
+A -gnatA
+A -gnat2022
+A -mtune=generic
+A -march=x86-64
+P ZX
+
+RN
+RV NO_FLOATING_POINT
+RV NO_DEFAULT_INITIALIZATION
+RV NO_IMPLEMENTATION_PRAGMAS
+
+U editor.fonts%b	editor-fonts.adb	feb57da1 NE OO PK
+W editor%s		editor.ads		editor.ali
+W editor.fonts%s	editor-fonts.adb	editor-fonts.ali
+W editor.fonts.init%s	editor-fonts-init.adb	editor-fonts-init.ali
+Z system.fat_flt%s	s-fatflt.ads		s-fatflt.ali
+W textrender%s		textrender.adb		textrender.ali
+
+U editor.fonts%s	editor-fonts.ads	b4ef1817 EE NE OO PK
+W editor%s		editor.ads		editor.ali
+W interfaces%s		interfac.ads		interfac.ali
+W interfaces.c%s	i-c.adb			i-c.ali
+
+D ada.ads		20250808065140 76789da1 ada%s
+D a-unccon.ads		20250808065140 0e9b276f ada.unchecked_conversion%s
+D editor.ads		20260406185230 16f844c2 editor%s
+D editor-fonts.ads	20260503165753 4b5bcabf editor.fonts%s
+D editor-fonts.adb	20260503172949 bed0c005 editor.fonts%b
+D editor-fonts-init.ads	20260503172829 d7eea43c editor.fonts.init%s
+D interfac.ads		20250808065140 9111f9c1 interfaces%s
+D i-c.ads		20250808065140 e94c966a interfaces.c%s
+D system.ads		20250808065140 14286b0f system%s
+D s-exctab.ads		20250808065140 91bef6ef system.exception_table%s
+D s-fatflt.ads		20250808065140 11beb392 system.fat_flt%s
+D s-fatgen.ads		20250808065140 d28c6cfe system.fat_gen%s
+D s-parame.ads		20250808065140 3597fc11 system.parameters%s
+D s-stalib.ads		20250808065140 1c9580f6 system.standard_library%s
+D textrender.ads	20260503182052 dcd0d327 textrender%s
+G a e
+G c Z s b [ascent editor__fonts 37 13 none]
+G c Z s b [descent editor__fonts 38 13 none]
+G c Z s b [get_glyph editor__fonts 40 13 none]
+G c Z s b [monospace_cell_width editor__fonts 44 13 none]
+G c Z s b [font_is_monospace editor__fonts 46 13 none]
+G c Z s b [check_glyph_fits_cell editor__fonts 48 14 none]
+G c Z s s [glyph_metricIP editor__fonts 20 9 none]
+G r c none [ascent editor__fonts 37 13 none] [ascent textrender 178 13 none]
+G r c none [descent editor__fonts 38 13 none] [descent textrender 183 13 none]
+G r c none [get_glyph editor__fonts 40 13 none] [get_glyph textrender 207 13 none]
+G r c none [monospace_cell_width editor__fonts 44 13 none] [get_glyph textrender 207 13 none]
+G r c none [font_is_monospace editor__fonts 46 13 none] [get_glyph textrender 207 13 none]
+X 3 editor.ads
+1K9*Editor 5e11 4|3r9 53r5 5|2r6 4r14 18r22 138r5
+X 4 editor-fonts.ads
+3K16*Fonts 3|1k9 4|53l12 53e17 5|2r13 4b21 18r29 138l12 138t17
+20R9*Glyph_Metric 35e14 42r20 49r21 5|8r20 58r11 68r22 69r22 70r22 91r19
+21f7*W{float} 5|34m10 97r15 105r15
+22f7*H{float} 5|35m10 101r15 109r15
+24f7*U0{float} 5|36m10 113r15 113r41 129r27
+25f7*V0{float} 5|37m10 117r15 117r41 133r27
+26f7*U1{float} 5|38m10 121r15 121r41 129r15
+27f7*V1{float} 5|39m10 125r15 125r41 133r15
+29f7*Bearing_X{float} 5|40m10
+30f7*Bearing_Y{float} 5|41m10
+34f7*Advance_X{float} 5|42m10 61r34 86r28 86r49 87r36 87r57
+37V13*Ascent{float} 5|47b13 50l8 50t14
+38V13*Descent{float} 5|52b13 55l8 55t15
+40V13*Get_Glyph{boolean} 41>7 42<7 5|6b13 45l8 45t17 60s10 74s14 78s14 82s14
+41e7 Ch{character} 5|7b7 13r25 13r57 23r49
+42r7 Metric{20R9} 5|8b7 14m10 29m10 33m7
+44V13*Monospace_Cell_Width{float} 5|57b13 65l8 65t28
+46V13*Font_Is_Monospace{boolean} 5|67b13 88l8 88t25
+48U14*Check_Glyph_Fits_Cell 49>7 50>7 51>7 5|90b14 136l8 136t29
+49r7 Metric{20R9} 5|91b5 97r8 101r8 105r8 109r8 113r8 113r34 117r8 117r34
+. 121r8 121r34 125r8 125r34 129r8 129r20 133r8 133r20
+50i7 Cell_Width{positive} 5|92b7 105r27
+51i7 Cell_Height{positive} 5|93b7 109r27
+X 5 editor-fonts.adb
+10r7 M{15|116R9} 24m12 24r12 34r23 35r23 36r23 37r23 38r23 39r23 40r23 41r23
+. 42r23
+11e7 Status{15|96E9} 21m7 26r10 27r18
+58r7 M{4|20R9} 60m26 60r26 61r32
+68r7 I_Metric{4|20R9} 74m30 74r30 86r19
+69r7 M_Metric{4|20R9} 78m30 78r30 86r40 87r48
+70r7 Space_Metric{4|20R9} 82m30 82r30 87r23
+72f7 Epsilon{float} 86r63 87r71
+X 6 editor-fonts-init.ads
+1K22*Init 5|2w19 18r35 6|7e22
+5V13*Is_Initialized{boolean} 5|18s40
+X 7 interfac.ads
+47K9*Interfaces 4|1r6 7|247e15
+X 8 i-c.ads
+33K20*C 4|1w17 8|601e17
+X 15 textrender.ads
+87K9*Textrender 5|1w6 1r22 10r16 11r16 22r9 23r12 26r20 27r28 49r14 54r14
+. 15|252e15
+93I12*Codepoint{natural} 5|23r23
+96E9*Status_Code 5|11r27 15|102e21
+97n7*Success{96E9} 5|26r31
+100n7*Glyph_Missing{96E9} 5|27r39
+116R9*Glyph_Metric 5|10r27 15|141e14
+120f7*W{float} 5|34r25
+121f7*H{float} 5|35r25
+124f7*U0{float} 5|36r25
+125f7*V0{float} 5|37r25
+126f7*U1{float} 5|38r25
+127f7*V1{float} 5|39r25
+134f7*Advance_X{float} 5|42r25
+137f7*Bearing_X{float} 5|40r25
+140f7*Bearing_Y{float} 5|41r25
+178V13*Ascent{float} 5|49s25
+183V13*Descent{float} 5|54s25
+207V13*Get_Glyph{96E9} 5|22s20
+

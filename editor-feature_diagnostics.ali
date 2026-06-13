@@ -1,0 +1,1627 @@
+V "GNAT Lib v15"
+A -gnat2022
+P SS ZX
+
+RN
+RV NO_DISPATCHING_CALLS
+RV NO_ENUMERATION_MAPS
+RV NO_EXCEPTION_HANDLERS
+RV NO_EXCEPTION_PROPAGATION
+RV NO_EXCEPTIONS
+RV NO_IMPLICIT_CONDITIONALS
+RV NO_LOCAL_ALLOCATORS
+RV NO_NESTED_FINALIZATION
+RV NO_RECURSION
+RV NO_SECONDARY_STACK
+RV NO_STANDARD_STORAGE_POOLS
+RV NO_DEFAULT_INITIALIZATION
+RV NO_DYNAMIC_SIZED_OBJECTS
+RV NO_IMPLICIT_LOOPS
+RV NO_ELABORATION_CODE
+
+U editor.feature_diagnostics%b  editor-feature_diagnostics.adb  3060f71f NE OO PK
+W ada%s			ada.ads			ada.ali
+W ada.characters%s	a-charac.ads		a-charac.ali
+W ada.characters.handling%s  a-chahan.adb	a-chahan.ali
+Z ada.exceptions%s	a-except.adb		a-except.ali
+W ada.strings%s		a-string.ads		a-string.ali
+W ada.strings.fixed%s	a-strfix.adb		a-strfix.ali
+Z ada.strings.text_buffers%s  a-sttebu.adb	a-sttebu.ali
+W ada.strings.unbounded%s  a-strunb.adb		a-strunb.ali
+Z ada.tags%s		a-tags.adb		a-tags.ali
+W editor%s		editor.ads		editor.ali
+W editor.contextual_help%s  editor-contextual_help.adb  editor-contextual_help.ali
+Z system%s		system.ads		system.ali
+Z system.concat_2%s	s-conca2.adb		s-conca2.ali
+Z system.concat_3%s	s-conca3.adb		s-conca3.ali
+Z system.concat_5%s	s-conca5.adb		s-conca5.ali
+Z system.concat_8%s	s-conca8.adb		s-conca8.ali
+Z system.concat_9%s	s-conca9.adb		s-conca9.ali
+Z system.finalization_primitives%s  s-finpri.adb  s-finpri.ali
+Z system.img_int%s	s-imgint.ads		s-imgint.ali
+Z system.return_stack%s	s-retsta.ads		s-retsta.ali
+Z system.secondary_stack%s  s-secsta.adb	s-secsta.ali
+Z system.soft_links%s	s-soflin.adb		s-soflin.ali
+Z system.standard_library%s  s-stalib.adb	s-stalib.ali
+
+U editor.feature_diagnostics%s  editor-feature_diagnostics.ads  a00fc98c EE OO PF PK
+W ada%s			ada.ads			ada.ali
+W ada.containers%s	a-contai.ads		a-contai.ali
+Z ada.containers.generic_array_sort%s
+Z ada.containers.helpers%s  a-conhel.adb	a-conhel.ali
+W ada.containers.vectors%s
+Z ada.exceptions%s	a-except.adb		a-except.ali
+Z ada.finalization%s	a-finali.ads		a-finali.ali
+Z ada.iterator_interfaces%s
+Z ada.streams%s		a-stream.adb		a-stream.ali
+W ada.strings%s		a-string.ads		a-string.ali
+Z ada.strings.text_buffers%s  a-sttebu.adb	a-sttebu.ali
+W ada.strings.unbounded%s  a-strunb.adb		a-strunb.ali
+Z ada.tags%s		a-tags.adb		a-tags.ali
+Z ada.unchecked_deallocation%s
+W editor%s		editor.ads		editor.ali
+W editor.feature_panel%s  editor-feature_panel.adb  editor-feature_panel.ali
+Z system%s		system.ads		system.ali
+Z system.finalization_primitives%s  s-finpri.adb  s-finpri.ali
+Z system.pool_global%s	s-pooglo.adb		s-pooglo.ali
+Z system.put_images%s	s-putima.adb		s-putima.ali
+Z system.return_stack%s	s-retsta.ads		s-retsta.ali
+Z system.secondary_stack%s  s-secsta.adb	s-secsta.ali
+Z system.soft_links%s	s-soflin.adb		s-soflin.ali
+Z system.standard_library%s  s-stalib.adb	s-stalib.ali
+Z system.storage_elements%s  s-stoele.ads	s-stoele.ali
+Z system.storage_pools%s  s-stopoo.adb		s-stopoo.ali
+Z system.storage_pools.subpools%s  s-stposu.adb	s-stposu.ali
+Z system.stream_attributes%s  s-stratt.adb	s-stratt.ali
+Z system.strings.stream_ops%s  s-ststop.adb	s-ststop.ali
+Z system.wch_stw%s	s-wchstw.adb		s-wchstw.ali
+
+D ada.ads		20250808065140 76789da1 ada%s
+D a-charac.ads		20250808065140 2d3ec45b ada.characters%s
+D a-chahan.ads		20250808065140 bf752ff6 ada.characters.handling%s
+D a-chlat1.ads		20250808065140 e0d72e76 ada.characters.latin_1%s
+D a-contai.ads		20250808065140 61e5e089 ada.containers%s
+D a-cgarso.ads		20250808065140 9129bfa8 ada.containers.generic_array_sort%s
+D a-conhel.ads		20250808065140 46fe1ce3 ada.containers.helpers%s
+D a-conhel.adb		20250808065140 854d323e ada.containers.helpers%b
+D a-convec.ads		20250808065140 91fb49f3 ada.containers.vectors%s
+D a-convec.adb		20250808065140 b2ed0168 ada.containers.vectors%b
+D a-except.ads		20250808065140 e7970cd9 ada.exceptions%s
+D a-finali.ads		20250808065140 bf4f806b ada.finalization%s
+D a-iteint.ads		20250808065140 49a8bee2 ada.iterator_interfaces%s
+D a-stream.ads		20250808065140 17477cbd ada.streams%s
+D a-string.ads		20250808065140 90ac6797 ada.strings%s
+D a-strfix.ads		20250808065140 8648dedb ada.strings.fixed%s
+D a-strmap.ads		20250808065140 1f91ebb6 ada.strings.maps%s
+D a-strsea.ads		20250808065140 18c3c634 ada.strings.search%s
+D a-sttebu.ads		20250808065140 f1ad67a2 ada.strings.text_buffers%s
+D a-strunb.ads		20250808065140 b10770ab ada.strings.unbounded%s
+D a-stuten.ads		20250808065140 c6ced0ae ada.strings.utf_encoding%s
+D a-tags.ads		20250808065140 fbca0ad5 ada.tags%s
+D a-unccon.ads		20250808065140 0e9b276f ada.unchecked_conversion%s
+D a-uncdea.ads		20250808065140 c3a8ac65 ada.unchecked_deallocation%s
+D editor.ads		20260612145959 16f844c2 editor%s
+D editor-commands.ads	20260612173240 3b5e3f44 editor.commands%s
+D editor-contextual_help.ads  20260612145959 f0559507 editor.contextual_help%s
+D editor-cursors.ads	20260612145959 1f938cf3 editor.cursors%s
+D editor-feature_diagnostics.ads  20260612145959 9dd4f8ea editor.feature_diagnostics%s
+D editor-feature_diagnostics.adb  20260612154330 45777ce3 editor.feature_diagnostics%b
+D editor-feature_panel.ads  20260612145959 0bdf4cfc editor.feature_panel%s
+D editor-unicode.ads	20260612145959 552ff3cc editor.unicode%s
+D interfac.ads		20250808065140 9111f9c1 interfaces%s
+D i-c.ads		20250808065140 e94c966a interfaces.c%s
+D system.ads		20250808065140 14286b0f system%s
+D s-atocou.ads		20250808065140 dc18efc3 system.atomic_counters%s
+D s-atocou.adb		20250808065140 6fe685de system.atomic_counters%b
+D s-atopri.ads		20250808065140 e19c1d89 system.atomic_primitives%s
+D s-conca2.ads		20250808065140 b5fb73f7 system.concat_2%s
+D s-conca3.ads		20250808065140 8a7a19a2 system.concat_3%s
+D s-conca5.ads		20250808065140 4099d1db system.concat_5%s
+D s-conca8.ads		20250808065140 8d8f50c1 system.concat_8%s
+D s-conca9.ads		20250808065140 54efc86b system.concat_9%s
+D s-exctab.ads		20250808065140 91bef6ef system.exception_table%s
+D s-finpri.ads		20250808065140 5970d55a system.finalization_primitives%s
+D s-finroo.ads		20250808065140 0a7c3ed4 system.finalization_root%s
+D s-imagei.ads		20250808065140 5e131ce0 system.image_i%s
+D s-imgint.ads		20250808065140 67e4edfb system.img_int%s
+D s-memory.ads		20250808065140 18949c1a system.memory%s
+D s-oscons.ads		20250827122531 068e1a91 system.os_constants%s
+D s-oslock.ads		20250808065140 13fa6b78 system.os_locks%s
+D s-parame.ads		20250808065140 3597fc11 system.parameters%s
+D s-pooglo.ads		20250808065140 91708d21 system.pool_global%s
+D s-putima.ads		20250808065140 17291fe4 system.put_images%s
+D s-retsta.ads		20250808065140 0f6b06cb system.return_stack%s
+D s-secsta.ads		20250808065140 578279f5 system.secondary_stack%s
+D s-soflin.ads		20250808065140 5d88fdea system.soft_links%s
+D s-stache.ads		20250808065140 0b81c1fe system.stack_checking%s
+D s-stalib.ads		20250808065140 1c9580f6 system.standard_library%s
+D s-stalib.adb		20250808065140 eb464a47 system.standard_library%b
+D s-stoele.ads		20250808065140 ccded4e8 system.storage_elements%s
+D s-stopoo.ads		20250808065140 e9fa2dd8 system.storage_pools%s
+D s-stposu.ads		20250808065140 e0b9fefd system.storage_pools.subpools%s
+D s-stratt.ads		20250808065140 516607ae system.stream_attributes%s
+D s-string.ads		20250808065140 582aac7d system.strings%s
+D s-ststop.ads		20250808065140 c569db7c system.strings.stream_ops%s
+D s-traent.ads		20250808065140 c81cbf8c system.traceback_entries%s
+D s-unstyp.ads		20250808065140 fa2a7f59 system.unsigned_types%s
+D s-valspe.ads		20250808065140 f810d31c system.val_spec%s
+D s-vaispe.ads		20250808065140 8280550e system.value_i_spec%s
+D s-vauspe.ads		20250808065140 89269ba5 system.value_u_spec%s
+D s-vs_int.ads		20250808065140 06b6b724 system.vs_int%s
+D s-vs_uns.ads		20250808065140 e7f47a27 system.vs_uns%s
+D s-wchcon.ads		20250808065140 d9032363 system.wch_con%s
+D s-wchstw.ads		20250808065140 2d112c01 system.wch_stw%s
+G a e
+G c Z s b [clear_diagnostics editor__feature_diagnostics 44 14 none]
+G c Z s b [add_diagnostic editor__feature_diagnostics 50 14 none]
+G c Z s b [severity_label_for_display editor__feature_diagnostics 85 13 none]
+G c Z s b [source_kind_label_for_display editor__feature_diagnostics 88 13 none]
+G c Z s b [producer_label_for_display editor__feature_diagnostics 91 13 none]
+G c Z s b [item_source_display_label editor__feature_diagnostics 95 13 none]
+G c Z s b [item_target_unavailable_label editor__feature_diagnostics 99 13 none]
+G c Z s b [item_is_build_produced editor__feature_diagnostics 103 13 none]
+G c Z s b [count_by_severity editor__feature_diagnostics 107 13 none]
+G c Z s b [count_label editor__feature_diagnostics 110 13 none]
+G c Z s b [visible_count_label editor__feature_diagnostics 113 13 none]
+G c Z s s [diagnostics_file_groupDI editor__feature_diagnostics 116 9 none]
+G c Z s s [diagnostics_file_groupDA editor__feature_diagnostics 116 9 none]
+G c Z s s [diagnostics_file_groupDF editor__feature_diagnostics 116 9 none]
+G c Z s s [diagnostics_file_groupIP editor__feature_diagnostics 116 9 none]
+G c Z s s [has_element editor__feature_diagnostics__diagnostics_file_group_vectors 115 13 124_4]
+G c Z s s [empty editor__feature_diagnostics__diagnostics_file_group_vectors 125 13 124_4]
+G c Z s s [Oeq editor__feature_diagnostics__diagnostics_file_group_vectors 127 24 124_4]
+G c Z s s [to_vector editor__feature_diagnostics__diagnostics_file_group_vectors 136 13 124_4]
+G c Z s s [to_vector editor__feature_diagnostics__diagnostics_file_group_vectors 139 13 124_4]
+G c Z s s [Oconcat editor__feature_diagnostics__diagnostics_file_group_vectors 145 13 124_4]
+G c Z s s [Oconcat editor__feature_diagnostics__diagnostics_file_group_vectors 149 13 124_4]
+G c Z s s [Oconcat editor__feature_diagnostics__diagnostics_file_group_vectors 153 13 124_4]
+G c Z s s [Oconcat editor__feature_diagnostics__diagnostics_file_group_vectors 157 13 124_4]
+G c Z s s [capacity editor__feature_diagnostics__diagnostics_file_group_vectors 161 13 124_4]
+G c Z s s [reserve_capacity editor__feature_diagnostics__diagnostics_file_group_vectors 164 14 124_4]
+G c Z s s [length editor__feature_diagnostics__diagnostics_file_group_vectors 175 13 124_4]
+G c Z s s [set_length editor__feature_diagnostics__diagnostics_file_group_vectors 178 14 124_4]
+G c Z s s [is_empty editor__feature_diagnostics__diagnostics_file_group_vectors 187 13 124_4]
+G c Z s s [clear editor__feature_diagnostics__diagnostics_file_group_vectors 190 14 124_4]
+G c Z s s [to_cursor editor__feature_diagnostics__diagnostics_file_group_vectors 194 13 124_4]
+G c Z s s [to_index editor__feature_diagnostics__diagnostics_file_group_vectors 201 13 124_4]
+G c Z s s [element editor__feature_diagnostics__diagnostics_file_group_vectors 206 13 124_4]
+G c Z s s [element editor__feature_diagnostics__diagnostics_file_group_vectors 213 13 124_4]
+G c Z s s [replace_element editor__feature_diagnostics__diagnostics_file_group_vectors 217 14 124_4]
+G c Z s s [replace_element editor__feature_diagnostics__diagnostics_file_group_vectors 228 14 124_4]
+G c Z s s [query_element editor__feature_diagnostics__diagnostics_file_group_vectors 239 14 124_4]
+G c Z s s [query_element editor__feature_diagnostics__diagnostics_file_group_vectors 250 14 124_4]
+G c Z s s [update_element editor__feature_diagnostics__diagnostics_file_group_vectors 259 14 124_4]
+G c Z s s [update_element editor__feature_diagnostics__diagnostics_file_group_vectors 276 14 124_4]
+G c Z s s [constant_reference editor__feature_diagnostics__diagnostics_file_group_vectors 303 13 124_4]
+G c Z s s [reference editor__feature_diagnostics__diagnostics_file_group_vectors 308 13 124_4]
+G c Z s s [constant_reference editor__feature_diagnostics__diagnostics_file_group_vectors 313 13 124_4]
+G c Z s s [reference editor__feature_diagnostics__diagnostics_file_group_vectors 318 13 124_4]
+G c Z s s [assign editor__feature_diagnostics__diagnostics_file_group_vectors 323 14 124_4]
+G c Z s s [copy editor__feature_diagnostics__diagnostics_file_group_vectors 325 13 124_4]
+G c Z s s [move editor__feature_diagnostics__diagnostics_file_group_vectors 327 14 124_4]
+G c Z s s [new_vector editor__feature_diagnostics__diagnostics_file_group_vectors 333 13 124_4]
+G c Z s s [insert_vector editor__feature_diagnostics__diagnostics_file_group_vectors 337 14 124_4]
+G c Z s s [insert_vector editor__feature_diagnostics__diagnostics_file_group_vectors 361 14 124_4]
+G c Z s s [insert_vector editor__feature_diagnostics__diagnostics_file_group_vectors 378 14 124_4]
+G c Z s s [insert editor__feature_diagnostics__diagnostics_file_group_vectors 396 14 124_4]
+G c Z s s [insert editor__feature_diagnostics__diagnostics_file_group_vectors 404 14 124_4]
+G c Z s s [insert editor__feature_diagnostics__diagnostics_file_group_vectors 412 14 124_4]
+G c Z s s [insert editor__feature_diagnostics__diagnostics_file_group_vectors 421 14 124_4]
+G c Z s s [insert editor__feature_diagnostics__diagnostics_file_group_vectors 438 14 124_4]
+G c Z s s [prepend_vector editor__feature_diagnostics__diagnostics_file_group_vectors 449 14 124_4]
+G c Z s s [prepend editor__feature_diagnostics__diagnostics_file_group_vectors 459 14 124_4]
+G c Z s s [append_vector editor__feature_diagnostics__diagnostics_file_group_vectors 466 14 124_4]
+G c Z s s [append editor__feature_diagnostics__diagnostics_file_group_vectors 476 14 124_4]
+G c Z s s [append editor__feature_diagnostics__diagnostics_file_group_vectors 483 14 124_4]
+G c Z s s [insert_space editor__feature_diagnostics__diagnostics_file_group_vectors 486 14 124_4]
+G c Z s s [insert_space editor__feature_diagnostics__diagnostics_file_group_vectors 503 14 124_4]
+G c Z s s [delete editor__feature_diagnostics__diagnostics_file_group_vectors 514 14 124_4]
+G c Z s s [delete editor__feature_diagnostics__diagnostics_file_group_vectors 524 14 124_4]
+G c Z s s [delete_first editor__feature_diagnostics__diagnostics_file_group_vectors 533 14 124_4]
+G c Z s s [delete_last editor__feature_diagnostics__diagnostics_file_group_vectors 538 14 124_4]
+G c Z s s [reverse_elements editor__feature_diagnostics__diagnostics_file_group_vectors 546 14 124_4]
+G c Z s s [swap editor__feature_diagnostics__diagnostics_file_group_vectors 549 14 124_4]
+G c Z s s [swap editor__feature_diagnostics__diagnostics_file_group_vectors 554 14 124_4]
+G c Z s s [first_index editor__feature_diagnostics__diagnostics_file_group_vectors 560 13 124_4]
+G c Z s s [first editor__feature_diagnostics__diagnostics_file_group_vectors 563 13 124_4]
+G c Z s s [first_element editor__feature_diagnostics__diagnostics_file_group_vectors 567 13 124_4]
+G c Z s s [last_index editor__feature_diagnostics__diagnostics_file_group_vectors 570 13 124_4]
+G c Z s s [last editor__feature_diagnostics__diagnostics_file_group_vectors 574 13 124_4]
+G c Z s s [last_element editor__feature_diagnostics__diagnostics_file_group_vectors 578 13 124_4]
+G c Z s s [next editor__feature_diagnostics__diagnostics_file_group_vectors 581 13 124_4]
+G c Z s s [next editor__feature_diagnostics__diagnostics_file_group_vectors 587 14 124_4]
+G c Z s s [previous editor__feature_diagnostics__diagnostics_file_group_vectors 590 13 124_4]
+G c Z s s [previous editor__feature_diagnostics__diagnostics_file_group_vectors 596 14 124_4]
+G c Z s s [find_index editor__feature_diagnostics__diagnostics_file_group_vectors 599 13 124_4]
+G c Z s s [find editor__feature_diagnostics__diagnostics_file_group_vectors 609 13 124_4]
+G c Z s s [reverse_find_index editor__feature_diagnostics__diagnostics_file_group_vectors 623 13 124_4]
+G c Z s s [reverse_find editor__feature_diagnostics__diagnostics_file_group_vectors 635 13 124_4]
+G c Z s s [contains editor__feature_diagnostics__diagnostics_file_group_vectors 649 13 124_4]
+G c Z s s [iterate editor__feature_diagnostics__diagnostics_file_group_vectors 654 14 124_4]
+G c Z s s [reverse_iterate editor__feature_diagnostics__diagnostics_file_group_vectors 662 14 124_4]
+G c Z s s [iterate editor__feature_diagnostics__diagnostics_file_group_vectors 669 13 124_4]
+G c Z s s [iterate editor__feature_diagnostics__diagnostics_file_group_vectors 672 13 124_4]
+G c Z s s [adjust editor__feature_diagnostics__diagnostics_file_group_vectors__implementation 90 28 726_4_124_4]
+G c Z s s [finalize editor__feature_diagnostics__diagnostics_file_group_vectors__implementation 93 28 726_4_124_4]
+G c Z s s [zero_counts editor__feature_diagnostics__diagnostics_file_group_vectors__implementation 96 17 726_4_124_4]
+G c Z s s [busy editor__feature_diagnostics__diagnostics_file_group_vectors__implementation 100 17 726_4_124_4]
+G c Z s s [unbusy editor__feature_diagnostics__diagnostics_file_group_vectors__implementation 104 17 726_4_124_4]
+G c Z s s [lock editor__feature_diagnostics__diagnostics_file_group_vectors__implementation 108 17 726_4_124_4]
+G c Z s s [unlock editor__feature_diagnostics__diagnostics_file_group_vectors__implementation 112 17 726_4_124_4]
+G c Z s s [tc_check editor__feature_diagnostics__diagnostics_file_group_vectors__implementation 116 17 726_4_124_4]
+G c Z s s [te_check editor__feature_diagnostics__diagnostics_file_group_vectors__implementation 120 17 726_4_124_4]
+G c Z s s [is_busy editor__feature_diagnostics__diagnostics_file_group_vectors__implementation 136 16 726_4_124_4]
+G c Z s s [is_locked editor__feature_diagnostics__diagnostics_file_group_vectors__implementation 140 16 726_4_124_4]
+G c Z s s [initialize editor__feature_diagnostics__diagnostics_file_group_vectors__implementation 161 28 726_4_124_4]
+G c Z s s [finalize editor__feature_diagnostics__diagnostics_file_group_vectors__implementation 162 28 726_4_124_4]
+G c Z s s [initialize editor__feature_diagnostics__diagnostics_file_group_vectors__implementation 167 28 726_4_124_4]
+G c Z s s [finalize editor__feature_diagnostics__diagnostics_file_group_vectors__implementation 168 28 726_4_124_4]
+G c Z s s [reference_control_typeDA editor__feature_diagnostics__diagnostics_file_group_vectors__implementation 84 12 726_4_124_4]
+G c Z s s [reference_control_typeDF editor__feature_diagnostics__diagnostics_file_group_vectors__implementation 84 12 726_4_124_4]
+G c Z s s [reference_control_typeIP editor__feature_diagnostics__diagnostics_file_group_vectors__implementation 84 12 726_4_124_4]
+G c Z s s [with_busyDF editor__feature_diagnostics__diagnostics_file_group_vectors__implementation 158 12 726_4_124_4]
+G c Z s s [with_busyIP editor__feature_diagnostics__diagnostics_file_group_vectors__implementation 158 12 726_4_124_4]
+G c Z s s [with_lockDF editor__feature_diagnostics__diagnostics_file_group_vectors__implementation 164 12 726_4_124_4]
+G c Z s s [with_lockIP editor__feature_diagnostics__diagnostics_file_group_vectors__implementation 164 12 726_4_124_4]
+G c Z s s [put_image editor__feature_diagnostics__diagnostics_file_group_vectors 747 14 124_4]
+G c Z s s [adjust editor__feature_diagnostics__diagnostics_file_group_vectors 750 25 124_4]
+G c Z s s [finalize editor__feature_diagnostics__diagnostics_file_group_vectors 751 25 124_4]
+G c Z s s [write editor__feature_diagnostics__diagnostics_file_group_vectors 753 14 124_4]
+G c Z s s [read editor__feature_diagnostics__diagnostics_file_group_vectors 759 14 124_4]
+G c Z s s [read editor__feature_diagnostics__diagnostics_file_group_vectors 773 14 124_4]
+G c Z s s [write editor__feature_diagnostics__diagnostics_file_group_vectors 779 14 124_4]
+G c Z s s [write editor__feature_diagnostics__diagnostics_file_group_vectors 798 14 124_4]
+G c Z s s [read editor__feature_diagnostics__diagnostics_file_group_vectors 804 14 124_4]
+G c Z s s [write editor__feature_diagnostics__diagnostics_file_group_vectors 820 14 124_4]
+G c Z s s [read editor__feature_diagnostics__diagnostics_file_group_vectors 826 14 124_4]
+G c Z s s [pseudo_reference editor__feature_diagnostics__diagnostics_file_group_vectors 840 13 124_4]
+G c Z s s [get_element_access editor__feature_diagnostics__diagnostics_file_group_vectors 849 13 124_4]
+G c Z s s [cursorIP editor__feature_diagnostics__diagnostics_file_group_vectors 768 9 124_4]
+G c Z s s [vectorDA editor__feature_diagnostics__diagnostics_file_group_vectors 741 9 124_4]
+G c Z s s [vectorDF editor__feature_diagnostics__diagnostics_file_group_vectors 741 9 124_4]
+G c Z s s [vectorIP editor__feature_diagnostics__diagnostics_file_group_vectors 741 9 124_4]
+G c Z s s [finalize editor__feature_diagnostics__diagnostics_file_group_vectors 865 25 124_4]
+G c Z s s [first editor__feature_diagnostics__diagnostics_file_group_vectors 867 24 124_4]
+G c Z s s [last editor__feature_diagnostics__diagnostics_file_group_vectors 868 24 124_4]
+G c Z s s [next editor__feature_diagnostics__diagnostics_file_group_vectors 870 24 124_4]
+G c Z s s [previous editor__feature_diagnostics__diagnostics_file_group_vectors 874 24 124_4]
+G c Z s s [constant_reference_typeDI editor__feature_diagnostics__diagnostics_file_group_vectors 788 9 124_4]
+G c Z s s [constant_reference_typeDA editor__feature_diagnostics__diagnostics_file_group_vectors 788 9 124_4]
+G c Z s s [constant_reference_typeDF editor__feature_diagnostics__diagnostics_file_group_vectors 788 9 124_4]
+G c Z s s [constant_reference_typeIP editor__feature_diagnostics__diagnostics_file_group_vectors 788 9 124_4]
+G c Z s s [reference_typeDI editor__feature_diagnostics__diagnostics_file_group_vectors 810 9 124_4]
+G c Z s s [reference_typeDA editor__feature_diagnostics__diagnostics_file_group_vectors 810 9 124_4]
+G c Z s s [reference_typeDF editor__feature_diagnostics__diagnostics_file_group_vectors 810 9 124_4]
+G c Z s s [reference_typeIP editor__feature_diagnostics__diagnostics_file_group_vectors 810 9 124_4]
+G c Z s s [elements_arrayIP editor__feature_diagnostics__diagnostics_file_group_vectors 729 9 124_4]
+G c Z s s [elements_arrayDI editor__feature_diagnostics__diagnostics_file_group_vectors 729 9 124_4]
+G c Z s s [elements_arrayDA editor__feature_diagnostics__diagnostics_file_group_vectors 729 9 124_4]
+G c Z s s [elements_arrayDF editor__feature_diagnostics__diagnostics_file_group_vectors 729 9 124_4]
+G c Z s s [elements_typeDI editor__feature_diagnostics__diagnostics_file_group_vectors 732 9 124_4]
+G c Z s s [elements_typeDF editor__feature_diagnostics__diagnostics_file_group_vectors 732 9 124_4]
+G c Z s s [elements_typeIP editor__feature_diagnostics__diagnostics_file_group_vectors 732 9 124_4]
+G c Z s s [iteratorDF editor__feature_diagnostics__diagnostics_file_group_vectors 857 9 124_4]
+G c Z s s [iteratorIP editor__feature_diagnostics__diagnostics_file_group_vectors 857 9 124_4]
+G c Z s s [free editor__feature_diagnostics__diagnostics_file_group_vectors 44 14 124_4]
+G c Z s s [append_slow_path editor__feature_diagnostics__diagnostics_file_group_vectors 47 14 124_4]
+G c Z s b [visible_file_groups editor__feature_diagnostics 128 13 none]
+G c Z s b [file_group_count editor__feature_diagnostics 132 13 none]
+G c Z s b [file_group_label editor__feature_diagnostics 135 13 none]
+G c Z s b [filter_errors_only editor__feature_diagnostics 139 14 none]
+G c Z s b [filter_warnings_only editor__feature_diagnostics 142 14 none]
+G c Z s b [filter_info_and_notes_only editor__feature_diagnostics 145 14 none]
+G c Z s b [filter_build_produced editor__feature_diagnostics 148 14 none]
+G c Z s b [filter_source_label editor__feature_diagnostics 151 14 none]
+G c Z s b [item_is_stale editor__feature_diagnostics 155 13 none]
+G c Z s b [item_stale_label editor__feature_diagnostics 159 13 none]
+G c Z s b [mark_diagnostics_for_buffer_stale editor__feature_diagnostics 163 14 none]
+G c Z s b [mark_diagnostics_for_source_path_stale editor__feature_diagnostics 167 14 none]
+G c Z s b [clear_build_diagnostics editor__feature_diagnostics 172 13 none]
+G c Z s b [row_count editor__feature_diagnostics 175 13 none]
+G c Z s b [is_empty editor__feature_diagnostics 178 13 none]
+G c Z s b [item_id editor__feature_diagnostics 181 13 none]
+G c Z s b [item_severity editor__feature_diagnostics 185 13 none]
+G c Z s b [item_message editor__feature_diagnostics 189 13 none]
+G c Z s b [diagnostic_message_text_is_bounded editor__feature_diagnostics 193 13 none]
+G c Z s b [diagnostic_source_label_text_is_bounded editor__feature_diagnostics 196 13 none]
+G c Z s b [item_source_label editor__feature_diagnostics 199 13 none]
+G c Z s b [item_source_kind editor__feature_diagnostics 203 13 none]
+G c Z s b [item_display_label editor__feature_diagnostics 207 13 none]
+G c Z s b [header_text editor__feature_diagnostics 211 13 none]
+G c Z s b [visible_row_count editor__feature_diagnostics 214 13 none]
+G c Z s b [severity_is_visible editor__feature_diagnostics 217 13 none]
+G c Z s b [source_is_visible editor__feature_diagnostics 221 13 none]
+G c Z s b [filter_active editor__feature_diagnostics 225 13 none]
+G c Z s b [filter_text editor__feature_diagnostics 228 13 none]
+G c Z s b [set_filter_text editor__feature_diagnostics 231 14 none]
+G c Z s b [clear_filter editor__feature_diagnostics 235 14 none]
+G c Z s b [show_all editor__feature_diagnostics 238 14 none]
+G c Z s b [toggle_info_visible editor__feature_diagnostics 241 14 none]
+G c Z s b [toggle_warnings_visible editor__feature_diagnostics 244 14 none]
+G c Z s b [toggle_errors_visible editor__feature_diagnostics 247 14 none]
+G c Z s b [toggle_source_visible editor__feature_diagnostics 250 14 none]
+G c Z s b [next_diagnostic_id editor__feature_diagnostics 255 13 none]
+G c Z s b [item_has_target editor__feature_diagnostics 258 13 none]
+G c Z s b [item_target_buffer editor__feature_diagnostics 262 13 none]
+G c Z s b [item_target_line editor__feature_diagnostics 266 13 none]
+G c Z s b [item_target_column editor__feature_diagnostics 270 13 none]
+G c Z s b [map_diagnostic_id_to_item editor__feature_diagnostics 274 13 none]
+G c Z s b [diagnostic_id_is_live editor__feature_diagnostics 278 13 none]
+G c Z s b [validate_diagnostic_id_target editor__feature_diagnostics 282 13 none]
+G c Z s b [has_visible_diagnostic editor__feature_diagnostics 290 13 none]
+G c Z s b [has_selected_diagnostic editor__feature_diagnostics 293 13 none]
+G c Z s b [selected_diagnostic_has_target editor__feature_diagnostics 297 13 none]
+G c Z s b [selected_diagnostic_target_unavailable_label editor__feature_diagnostics 301 13 none]
+G c Z s b [selected_diagnostic_open_unavailable_reason editor__feature_diagnostics 305 13 none]
+G c Z s b [build_diagnostic_count editor__feature_diagnostics 309 13 none]
+G c Z s b [has_diagnostic_with_severity editor__feature_diagnostics 312 13 none]
+G c Z s b [has_info_or_note_diagnostic editor__feature_diagnostics 316 13 none]
+G c Z s b [has_build_diagnostic editor__feature_diagnostics 319 13 none]
+G c Z s b [selected_diagnostic_id editor__feature_diagnostics 322 13 none]
+G c Z s b [selected_diagnostic_text editor__feature_diagnostics 326 13 none]
+G c Z s b [selected_diagnostic_source_filter_label editor__feature_diagnostics 330 13 none]
+G c Z s b [select_next_diagnostic editor__feature_diagnostics 334 14 none]
+G c Z s b [select_previous_diagnostic editor__feature_diagnostics 338 14 none]
+G c Z s b [format_diagnostic_for_copy editor__feature_diagnostics 342 13 none]
+G c Z s b [clear_diagnostic_by_id editor__feature_diagnostics 346 13 none]
+G c Z s b [clear_selected_diagnostic editor__feature_diagnostics 350 13 none]
+G c Z s b [clear_diagnostics_by_severity editor__feature_diagnostics 354 13 none]
+G c Z s b [clear_info_and_note_diagnostics editor__feature_diagnostics 358 13 none]
+G c Z s b [clear_diagnostics_by_source editor__feature_diagnostics 361 13 none]
+G c Z s b [reconcile_diagnostics_selection_after_delete editor__feature_diagnostics 365 14 none]
+G c Z s b [project_rows editor__feature_diagnostics 371 14 none]
+G c Z s b [map_diagnostic_row_to_item editor__feature_diagnostics 375 13 none]
+G c Z s b [validate_diagnostic_target editor__feature_diagnostics 381 13 none]
+G c Z s b [validate_row_action editor__feature_diagnostics 386 13 none]
+G c Z s b [reset_diagnostics_for_buffer_close editor__feature_diagnostics 392 14 none]
+G c Z s b [reset_diagnostics_for_project_close editor__feature_diagnostics 396 14 none]
+G c Z s b [reset_diagnostics_for_workspace_close editor__feature_diagnostics 399 14 none]
+G c Z s b [assert_diagnostics_state_consistent editor__feature_diagnostics 402 14 none]
+G c Z s b [message_diagnostics_shown editor__feature_diagnostics 405 13 none]
+G c Z s b [message_diagnostics_cleared editor__feature_diagnostics 406 13 none]
+G c Z s b [message_no_diagnostics editor__feature_diagnostics 407 13 none]
+G c Z s b [message_no_target editor__feature_diagnostics 408 13 none]
+G c Z s b [message_target_unavailable editor__feature_diagnostics 409 13 none]
+G c Z s b [message_diagnostic_added editor__feature_diagnostics 410 13 none]
+G c Z s b [message_no_selected_diagnostic editor__feature_diagnostics 411 13 none]
+G c Z s b [message_no_visible_diagnostic editor__feature_diagnostics 412 13 none]
+G c Z s b [message_selected_diagnostic_cleared editor__feature_diagnostics 413 13 none]
+G c Z s b [message_selected_diagnostic_copied editor__feature_diagnostics 414 13 none]
+G c Z s b [message_info_cleared editor__feature_diagnostics 415 13 none]
+G c Z s b [message_warnings_cleared editor__feature_diagnostics 416 13 none]
+G c Z s b [message_errors_cleared editor__feature_diagnostics 417 13 none]
+G c Z s b [message_filter_cleared editor__feature_diagnostics 418 13 none]
+G c Z s b [message_no_filter_active editor__feature_diagnostics 419 13 none]
+G c Z s b [message_all_diagnostics_shown editor__feature_diagnostics 420 13 none]
+G c Z s b [message_info_hidden editor__feature_diagnostics 421 13 none]
+G c Z s b [message_info_shown editor__feature_diagnostics 422 13 none]
+G c Z s b [message_warnings_hidden editor__feature_diagnostics 423 13 none]
+G c Z s b [message_warnings_shown editor__feature_diagnostics 424 13 none]
+G c Z s b [message_errors_hidden editor__feature_diagnostics 425 13 none]
+G c Z s b [message_errors_shown editor__feature_diagnostics 426 13 none]
+G c Z s b [message_no_info_diagnostics editor__feature_diagnostics 428 13 none]
+G c Z s b [message_no_warning_diagnostics editor__feature_diagnostics 429 13 none]
+G c Z s b [message_no_error_diagnostics editor__feature_diagnostics 430 13 none]
+G c Z s b [message_no_build_diagnostics editor__feature_diagnostics 431 13 none]
+G c Z s b [message_build_diagnostics_cleared editor__feature_diagnostics 432 13 none]
+G c Z s b [message_filter_errors editor__feature_diagnostics 433 13 none]
+G c Z s b [message_filter_warnings editor__feature_diagnostics 434 13 none]
+G c Z s b [message_filter_info_notes editor__feature_diagnostics 435 13 none]
+G c Z s b [message_filter_selected_source editor__feature_diagnostics 436 13 none]
+G c Z s b [message_filter_selected_source_unavailable editor__feature_diagnostics 437 13 none]
+G c Z s b [message_filter_build editor__feature_diagnostics 438 13 none]
+G c Z s b [message_source_hidden editor__feature_diagnostics 440 13 none]
+G c Z s b [message_source_shown editor__feature_diagnostics 442 13 none]
+G c Z s b [reconcile_diagnostics_after_filter_change editor__feature_diagnostics 445 14 none]
+G c Z s b [reconcile_diagnostics_after_row_change editor__feature_diagnostics 449 14 none]
+G c Z s s [diagnostic_itemDI editor__feature_diagnostics 456 9 none]
+G c Z s s [diagnostic_itemDA editor__feature_diagnostics 456 9 none]
+G c Z s s [diagnostic_itemDF editor__feature_diagnostics 456 9 none]
+G c Z s s [diagnostic_itemIP editor__feature_diagnostics 456 9 none]
+G c Z s s [has_element editor__feature_diagnostics__diagnostic_row_vectors 115 13 470_4]
+G c Z s s [empty editor__feature_diagnostics__diagnostic_row_vectors 125 13 470_4]
+G c Z s s [Oeq editor__feature_diagnostics__diagnostic_row_vectors 127 24 470_4]
+G c Z s s [to_vector editor__feature_diagnostics__diagnostic_row_vectors 136 13 470_4]
+G c Z s s [to_vector editor__feature_diagnostics__diagnostic_row_vectors 139 13 470_4]
+G c Z s s [Oconcat editor__feature_diagnostics__diagnostic_row_vectors 145 13 470_4]
+G c Z s s [Oconcat editor__feature_diagnostics__diagnostic_row_vectors 149 13 470_4]
+G c Z s s [Oconcat editor__feature_diagnostics__diagnostic_row_vectors 153 13 470_4]
+G c Z s s [Oconcat editor__feature_diagnostics__diagnostic_row_vectors 157 13 470_4]
+G c Z s s [capacity editor__feature_diagnostics__diagnostic_row_vectors 161 13 470_4]
+G c Z s s [reserve_capacity editor__feature_diagnostics__diagnostic_row_vectors 164 14 470_4]
+G c Z s s [length editor__feature_diagnostics__diagnostic_row_vectors 175 13 470_4]
+G c Z s s [set_length editor__feature_diagnostics__diagnostic_row_vectors 178 14 470_4]
+G c Z s s [is_empty editor__feature_diagnostics__diagnostic_row_vectors 187 13 470_4]
+G c Z s s [clear editor__feature_diagnostics__diagnostic_row_vectors 190 14 470_4]
+G c Z s s [to_cursor editor__feature_diagnostics__diagnostic_row_vectors 194 13 470_4]
+G c Z s s [to_index editor__feature_diagnostics__diagnostic_row_vectors 201 13 470_4]
+G c Z s s [element editor__feature_diagnostics__diagnostic_row_vectors 206 13 470_4]
+G c Z s s [element editor__feature_diagnostics__diagnostic_row_vectors 213 13 470_4]
+G c Z s s [replace_element editor__feature_diagnostics__diagnostic_row_vectors 217 14 470_4]
+G c Z s s [replace_element editor__feature_diagnostics__diagnostic_row_vectors 228 14 470_4]
+G c Z s s [query_element editor__feature_diagnostics__diagnostic_row_vectors 239 14 470_4]
+G c Z s s [query_element editor__feature_diagnostics__diagnostic_row_vectors 250 14 470_4]
+G c Z s s [update_element editor__feature_diagnostics__diagnostic_row_vectors 259 14 470_4]
+G c Z s s [update_element editor__feature_diagnostics__diagnostic_row_vectors 276 14 470_4]
+G c Z s s [constant_reference editor__feature_diagnostics__diagnostic_row_vectors 303 13 470_4]
+G c Z s s [reference editor__feature_diagnostics__diagnostic_row_vectors 308 13 470_4]
+G c Z s s [constant_reference editor__feature_diagnostics__diagnostic_row_vectors 313 13 470_4]
+G c Z s s [reference editor__feature_diagnostics__diagnostic_row_vectors 318 13 470_4]
+G c Z s s [assign editor__feature_diagnostics__diagnostic_row_vectors 323 14 470_4]
+G c Z s s [copy editor__feature_diagnostics__diagnostic_row_vectors 325 13 470_4]
+G c Z s s [move editor__feature_diagnostics__diagnostic_row_vectors 327 14 470_4]
+G c Z s s [new_vector editor__feature_diagnostics__diagnostic_row_vectors 333 13 470_4]
+G c Z s s [insert_vector editor__feature_diagnostics__diagnostic_row_vectors 337 14 470_4]
+G c Z s s [insert_vector editor__feature_diagnostics__diagnostic_row_vectors 361 14 470_4]
+G c Z s s [insert_vector editor__feature_diagnostics__diagnostic_row_vectors 378 14 470_4]
+G c Z s s [insert editor__feature_diagnostics__diagnostic_row_vectors 396 14 470_4]
+G c Z s s [insert editor__feature_diagnostics__diagnostic_row_vectors 404 14 470_4]
+G c Z s s [insert editor__feature_diagnostics__diagnostic_row_vectors 412 14 470_4]
+G c Z s s [insert editor__feature_diagnostics__diagnostic_row_vectors 421 14 470_4]
+G c Z s s [insert editor__feature_diagnostics__diagnostic_row_vectors 438 14 470_4]
+G c Z s s [prepend_vector editor__feature_diagnostics__diagnostic_row_vectors 449 14 470_4]
+G c Z s s [prepend editor__feature_diagnostics__diagnostic_row_vectors 459 14 470_4]
+G c Z s s [append_vector editor__feature_diagnostics__diagnostic_row_vectors 466 14 470_4]
+G c Z s s [append editor__feature_diagnostics__diagnostic_row_vectors 476 14 470_4]
+G c Z s s [append editor__feature_diagnostics__diagnostic_row_vectors 483 14 470_4]
+G c Z s s [insert_space editor__feature_diagnostics__diagnostic_row_vectors 486 14 470_4]
+G c Z s s [insert_space editor__feature_diagnostics__diagnostic_row_vectors 503 14 470_4]
+G c Z s s [delete editor__feature_diagnostics__diagnostic_row_vectors 514 14 470_4]
+G c Z s s [delete editor__feature_diagnostics__diagnostic_row_vectors 524 14 470_4]
+G c Z s s [delete_first editor__feature_diagnostics__diagnostic_row_vectors 533 14 470_4]
+G c Z s s [delete_last editor__feature_diagnostics__diagnostic_row_vectors 538 14 470_4]
+G c Z s s [reverse_elements editor__feature_diagnostics__diagnostic_row_vectors 546 14 470_4]
+G c Z s s [swap editor__feature_diagnostics__diagnostic_row_vectors 549 14 470_4]
+G c Z s s [swap editor__feature_diagnostics__diagnostic_row_vectors 554 14 470_4]
+G c Z s s [first_index editor__feature_diagnostics__diagnostic_row_vectors 560 13 470_4]
+G c Z s s [first editor__feature_diagnostics__diagnostic_row_vectors 563 13 470_4]
+G c Z s s [first_element editor__feature_diagnostics__diagnostic_row_vectors 567 13 470_4]
+G c Z s s [last_index editor__feature_diagnostics__diagnostic_row_vectors 570 13 470_4]
+G c Z s s [last editor__feature_diagnostics__diagnostic_row_vectors 574 13 470_4]
+G c Z s s [last_element editor__feature_diagnostics__diagnostic_row_vectors 578 13 470_4]
+G c Z s s [next editor__feature_diagnostics__diagnostic_row_vectors 581 13 470_4]
+G c Z s s [next editor__feature_diagnostics__diagnostic_row_vectors 587 14 470_4]
+G c Z s s [previous editor__feature_diagnostics__diagnostic_row_vectors 590 13 470_4]
+G c Z s s [previous editor__feature_diagnostics__diagnostic_row_vectors 596 14 470_4]
+G c Z s s [find_index editor__feature_diagnostics__diagnostic_row_vectors 599 13 470_4]
+G c Z s s [find editor__feature_diagnostics__diagnostic_row_vectors 609 13 470_4]
+G c Z s s [reverse_find_index editor__feature_diagnostics__diagnostic_row_vectors 623 13 470_4]
+G c Z s s [reverse_find editor__feature_diagnostics__diagnostic_row_vectors 635 13 470_4]
+G c Z s s [contains editor__feature_diagnostics__diagnostic_row_vectors 649 13 470_4]
+G c Z s s [iterate editor__feature_diagnostics__diagnostic_row_vectors 654 14 470_4]
+G c Z s s [reverse_iterate editor__feature_diagnostics__diagnostic_row_vectors 662 14 470_4]
+G c Z s s [iterate editor__feature_diagnostics__diagnostic_row_vectors 669 13 470_4]
+G c Z s s [iterate editor__feature_diagnostics__diagnostic_row_vectors 672 13 470_4]
+G c Z s s [adjust editor__feature_diagnostics__diagnostic_row_vectors__implementation 90 28 726_4_470_4]
+G c Z s s [finalize editor__feature_diagnostics__diagnostic_row_vectors__implementation 93 28 726_4_470_4]
+G c Z s s [zero_counts editor__feature_diagnostics__diagnostic_row_vectors__implementation 96 17 726_4_470_4]
+G c Z s s [busy editor__feature_diagnostics__diagnostic_row_vectors__implementation 100 17 726_4_470_4]
+G c Z s s [unbusy editor__feature_diagnostics__diagnostic_row_vectors__implementation 104 17 726_4_470_4]
+G c Z s s [lock editor__feature_diagnostics__diagnostic_row_vectors__implementation 108 17 726_4_470_4]
+G c Z s s [unlock editor__feature_diagnostics__diagnostic_row_vectors__implementation 112 17 726_4_470_4]
+G c Z s s [tc_check editor__feature_diagnostics__diagnostic_row_vectors__implementation 116 17 726_4_470_4]
+G c Z s s [te_check editor__feature_diagnostics__diagnostic_row_vectors__implementation 120 17 726_4_470_4]
+G c Z s s [is_busy editor__feature_diagnostics__diagnostic_row_vectors__implementation 136 16 726_4_470_4]
+G c Z s s [is_locked editor__feature_diagnostics__diagnostic_row_vectors__implementation 140 16 726_4_470_4]
+G c Z s s [initialize editor__feature_diagnostics__diagnostic_row_vectors__implementation 161 28 726_4_470_4]
+G c Z s s [finalize editor__feature_diagnostics__diagnostic_row_vectors__implementation 162 28 726_4_470_4]
+G c Z s s [initialize editor__feature_diagnostics__diagnostic_row_vectors__implementation 167 28 726_4_470_4]
+G c Z s s [finalize editor__feature_diagnostics__diagnostic_row_vectors__implementation 168 28 726_4_470_4]
+G c Z s s [reference_control_typeDA editor__feature_diagnostics__diagnostic_row_vectors__implementation 84 12 726_4_470_4]
+G c Z s s [reference_control_typeDF editor__feature_diagnostics__diagnostic_row_vectors__implementation 84 12 726_4_470_4]
+G c Z s s [reference_control_typeIP editor__feature_diagnostics__diagnostic_row_vectors__implementation 84 12 726_4_470_4]
+G c Z s s [with_busyDF editor__feature_diagnostics__diagnostic_row_vectors__implementation 158 12 726_4_470_4]
+G c Z s s [with_busyIP editor__feature_diagnostics__diagnostic_row_vectors__implementation 158 12 726_4_470_4]
+G c Z s s [with_lockDF editor__feature_diagnostics__diagnostic_row_vectors__implementation 164 12 726_4_470_4]
+G c Z s s [with_lockIP editor__feature_diagnostics__diagnostic_row_vectors__implementation 164 12 726_4_470_4]
+G c Z s s [put_image editor__feature_diagnostics__diagnostic_row_vectors 747 14 470_4]
+G c Z s s [adjust editor__feature_diagnostics__diagnostic_row_vectors 750 25 470_4]
+G c Z s s [finalize editor__feature_diagnostics__diagnostic_row_vectors 751 25 470_4]
+G c Z s s [write editor__feature_diagnostics__diagnostic_row_vectors 753 14 470_4]
+G c Z s s [read editor__feature_diagnostics__diagnostic_row_vectors 759 14 470_4]
+G c Z s s [read editor__feature_diagnostics__diagnostic_row_vectors 773 14 470_4]
+G c Z s s [write editor__feature_diagnostics__diagnostic_row_vectors 779 14 470_4]
+G c Z s s [write editor__feature_diagnostics__diagnostic_row_vectors 798 14 470_4]
+G c Z s s [read editor__feature_diagnostics__diagnostic_row_vectors 804 14 470_4]
+G c Z s s [write editor__feature_diagnostics__diagnostic_row_vectors 820 14 470_4]
+G c Z s s [read editor__feature_diagnostics__diagnostic_row_vectors 826 14 470_4]
+G c Z s s [pseudo_reference editor__feature_diagnostics__diagnostic_row_vectors 840 13 470_4]
+G c Z s s [get_element_access editor__feature_diagnostics__diagnostic_row_vectors 849 13 470_4]
+G c Z s s [cursorIP editor__feature_diagnostics__diagnostic_row_vectors 768 9 470_4]
+G c Z s s [vectorDA editor__feature_diagnostics__diagnostic_row_vectors 741 9 470_4]
+G c Z s s [vectorDF editor__feature_diagnostics__diagnostic_row_vectors 741 9 470_4]
+G c Z s s [vectorIP editor__feature_diagnostics__diagnostic_row_vectors 741 9 470_4]
+G c Z s s [finalize editor__feature_diagnostics__diagnostic_row_vectors 865 25 470_4]
+G c Z s s [first editor__feature_diagnostics__diagnostic_row_vectors 867 24 470_4]
+G c Z s s [last editor__feature_diagnostics__diagnostic_row_vectors 868 24 470_4]
+G c Z s s [next editor__feature_diagnostics__diagnostic_row_vectors 870 24 470_4]
+G c Z s s [previous editor__feature_diagnostics__diagnostic_row_vectors 874 24 470_4]
+G c Z s s [constant_reference_typeDI editor__feature_diagnostics__diagnostic_row_vectors 788 9 470_4]
+G c Z s s [constant_reference_typeDA editor__feature_diagnostics__diagnostic_row_vectors 788 9 470_4]
+G c Z s s [constant_reference_typeDF editor__feature_diagnostics__diagnostic_row_vectors 788 9 470_4]
+G c Z s s [constant_reference_typeIP editor__feature_diagnostics__diagnostic_row_vectors 788 9 470_4]
+G c Z s s [reference_typeDI editor__feature_diagnostics__diagnostic_row_vectors 810 9 470_4]
+G c Z s s [reference_typeDA editor__feature_diagnostics__diagnostic_row_vectors 810 9 470_4]
+G c Z s s [reference_typeDF editor__feature_diagnostics__diagnostic_row_vectors 810 9 470_4]
+G c Z s s [reference_typeIP editor__feature_diagnostics__diagnostic_row_vectors 810 9 470_4]
+G c Z s s [elements_arrayIP editor__feature_diagnostics__diagnostic_row_vectors 729 9 470_4]
+G c Z s s [elements_arrayDI editor__feature_diagnostics__diagnostic_row_vectors 729 9 470_4]
+G c Z s s [elements_arrayDA editor__feature_diagnostics__diagnostic_row_vectors 729 9 470_4]
+G c Z s s [elements_arrayDF editor__feature_diagnostics__diagnostic_row_vectors 729 9 470_4]
+G c Z s s [elements_typeDI editor__feature_diagnostics__diagnostic_row_vectors 732 9 470_4]
+G c Z s s [elements_typeDF editor__feature_diagnostics__diagnostic_row_vectors 732 9 470_4]
+G c Z s s [elements_typeIP editor__feature_diagnostics__diagnostic_row_vectors 732 9 470_4]
+G c Z s s [iteratorDF editor__feature_diagnostics__diagnostic_row_vectors 857 9 470_4]
+G c Z s s [iteratorIP editor__feature_diagnostics__diagnostic_row_vectors 857 9 470_4]
+G c Z s s [free editor__feature_diagnostics__diagnostic_row_vectors 44 14 470_4]
+G c Z s s [append_slow_path editor__feature_diagnostics__diagnostic_row_vectors 47 14 470_4]
+G c Z s s [diagnostics_filter_stateDI editor__feature_diagnostics 474 9 none]
+G c Z s s [diagnostics_filter_stateDA editor__feature_diagnostics 474 9 none]
+G c Z s s [diagnostics_filter_stateDF editor__feature_diagnostics 474 9 none]
+G c Z s s [diagnostics_filter_stateIP editor__feature_diagnostics 474 9 none]
+G c Z s s [diagnostics_feature_stateDI editor__feature_diagnostics 491 9 none]
+G c Z s s [diagnostics_feature_stateDA editor__feature_diagnostics 491 9 none]
+G c Z s s [diagnostics_feature_stateDF editor__feature_diagnostics 491 9 none]
+G c Z s s [diagnostics_feature_stateIP editor__feature_diagnostics 491 9 none]
+G c Z s s [diagnostics_severity_countsIP editor__feature_diagnostics 70 9 none]
+G c Z b b [trim_image editor__feature_diagnostics 24 13 none]
+G c Z b b [severity_label editor__feature_diagnostics 29 13 none]
+G c Z b b [source_kind_label editor__feature_diagnostics 40 13 none]
+G c Z b b [is_build_produced_item editor__feature_diagnostics 65 13 none]
+G c Z b b [producer_label editor__feature_diagnostics 70 13 none]
+G c Z b b [target_unavailable_label editor__feature_diagnostics 85 13 none]
+G c Z b b [source_filter_label_for editor__feature_diagnostics 121 13 none]
+G c Z b b [source_display_label editor__feature_diagnostics 138 13 none]
+G c Z b b [refresh_filter_active editor__feature_diagnostics 180 14 none]
+G c Z b b [normalize_diagnostics_filter_text editor__feature_diagnostics 200 13 none]
+G c Z b b [bounded_text editor__feature_diagnostics 207 13 none]
+G c Z b b [normalize_message editor__feature_diagnostics 224 13 none]
+G c Z b b [normalize_source_label editor__feature_diagnostics 233 13 none]
+G c Z b b [panel_severity editor__feature_diagnostics 242 13 none]
+G c Z b b [item_at editor__feature_diagnostics 256 13 none]
+G c Z b b [stale_label editor__feature_diagnostics 267 13 none]
+G c Z b b [label_for editor__feature_diagnostics 276 13 none]
+G c Z b b [detail_for editor__feature_diagnostics 284 13 none]
+G c Z b b [contains_case_insensitive editor__feature_diagnostics 293 13 none]
+G c Z b b [diagnostic_matches_text_filter editor__feature_diagnostics 304 13 none]
+G c Z b b [diagnostic_matches_source_label_filter editor__feature_diagnostics 322 13 none]
+G c Z b b [diagnostic_matches_severity_filter editor__feature_diagnostics 340 13 none]
+G c Z b b [diagnostic_matches_source_filter editor__feature_diagnostics 354 13 none]
+G c Z b b [diagnostic_is_visible editor__feature_diagnostics 368 13 none]
+G c Z b b [group_label_for editor__feature_diagnostics 380 13 none]
+G c Z b b [severity_order editor__feature_diagnostics 382 13 none]
+G c Z b b [target_line_order editor__feature_diagnostics 393 13 none]
+G c Z b b [target_column_order editor__feature_diagnostics 406 13 none]
+G c Z b b [diagnostic_comes_before editor__feature_diagnostics 417 13 none]
+G c Z b b [ordered_visible_index_at editor__feature_diagnostics 441 13 none]
+G c Z b b [reset_exhausted_projection_predicates editor__feature_diagnostics 489 14 none]
+G c Z b b [evict_old_diagnostics_if_needed editor__feature_diagnostics 492 14 none]
+G c Z b b [index_for_id editor__feature_diagnostics 1137 13 none]
+G c Z b b [selected_diagnostic_source_index editor__feature_diagnostics 1331 13 none]
+G c Z b b [row_is_live_diagnostic editor__feature_diagnostics 1479 13 none]
+G c Z b b [normalized_diagnostic_path editor__feature_diagnostics 1956 13 none]
+G c Z b b [same_or_descendant_diagnostic_path editor__feature_diagnostics 1982 13 none]
+G r c none [has_selected_diagnostic editor__feature_diagnostics 293 13 none] [selected_row editor__feature_panel 424 13 none]
+G r c none [has_selected_diagnostic editor__feature_diagnostics 293 13 none] [row_is_selectable editor__feature_panel 362 13 none]
+G r c none [has_selected_diagnostic editor__feature_diagnostics 293 13 none] [projection_row_index_is_valid editor__feature_panel 348 13 none]
+G r c none [has_selected_diagnostic editor__feature_diagnostics 293 13 none] [active_feature editor__feature_panel 156 13 none]
+G r c none [has_selected_diagnostic editor__feature_diagnostics 293 13 none] [row_source_index editor__feature_panel 407 13 none]
+G r c none [has_selected_diagnostic editor__feature_diagnostics 293 13 none] [row_detail editor__feature_panel 485 13 none]
+G r c none [has_selected_diagnostic editor__feature_diagnostics 293 13 none] [row_label editor__feature_panel 477 13 none]
+G r c none [selected_diagnostic_has_target editor__feature_diagnostics 297 13 none] [selected_row editor__feature_panel 424 13 none]
+G r c none [selected_diagnostic_has_target editor__feature_diagnostics 297 13 none] [row_is_selectable editor__feature_panel 362 13 none]
+G r c none [selected_diagnostic_has_target editor__feature_diagnostics 297 13 none] [projection_row_index_is_valid editor__feature_panel 348 13 none]
+G r c none [selected_diagnostic_has_target editor__feature_diagnostics 297 13 none] [active_feature editor__feature_panel 156 13 none]
+G r c none [selected_diagnostic_has_target editor__feature_diagnostics 297 13 none] [row_source_index editor__feature_panel 407 13 none]
+G r c none [selected_diagnostic_has_target editor__feature_diagnostics 297 13 none] [row_detail editor__feature_panel 485 13 none]
+G r c none [selected_diagnostic_has_target editor__feature_diagnostics 297 13 none] [row_label editor__feature_panel 477 13 none]
+G r c none [selected_diagnostic_target_unavailable_label editor__feature_diagnostics 301 13 none] [selected_row editor__feature_panel 424 13 none]
+G r c none [selected_diagnostic_target_unavailable_label editor__feature_diagnostics 301 13 none] [row_is_selectable editor__feature_panel 362 13 none]
+G r c none [selected_diagnostic_target_unavailable_label editor__feature_diagnostics 301 13 none] [projection_row_index_is_valid editor__feature_panel 348 13 none]
+G r c none [selected_diagnostic_target_unavailable_label editor__feature_diagnostics 301 13 none] [active_feature editor__feature_panel 156 13 none]
+G r c none [selected_diagnostic_target_unavailable_label editor__feature_diagnostics 301 13 none] [row_source_index editor__feature_panel 407 13 none]
+G r c none [selected_diagnostic_target_unavailable_label editor__feature_diagnostics 301 13 none] [row_detail editor__feature_panel 485 13 none]
+G r c none [selected_diagnostic_target_unavailable_label editor__feature_diagnostics 301 13 none] [row_label editor__feature_panel 477 13 none]
+G r c none [selected_diagnostic_open_unavailable_reason editor__feature_diagnostics 305 13 none] [selected_row editor__feature_panel 424 13 none]
+G r c none [selected_diagnostic_open_unavailable_reason editor__feature_diagnostics 305 13 none] [row_is_selectable editor__feature_panel 362 13 none]
+G r c none [selected_diagnostic_open_unavailable_reason editor__feature_diagnostics 305 13 none] [projection_row_index_is_valid editor__feature_panel 348 13 none]
+G r c none [selected_diagnostic_open_unavailable_reason editor__feature_diagnostics 305 13 none] [active_feature editor__feature_panel 156 13 none]
+G r c none [selected_diagnostic_open_unavailable_reason editor__feature_diagnostics 305 13 none] [row_source_index editor__feature_panel 407 13 none]
+G r c none [selected_diagnostic_open_unavailable_reason editor__feature_diagnostics 305 13 none] [row_detail editor__feature_panel 485 13 none]
+G r c none [selected_diagnostic_open_unavailable_reason editor__feature_diagnostics 305 13 none] [row_label editor__feature_panel 477 13 none]
+G r c none [selected_diagnostic_id editor__feature_diagnostics 322 13 none] [selected_row editor__feature_panel 424 13 none]
+G r c none [selected_diagnostic_id editor__feature_diagnostics 322 13 none] [row_is_selectable editor__feature_panel 362 13 none]
+G r c none [selected_diagnostic_id editor__feature_diagnostics 322 13 none] [projection_row_index_is_valid editor__feature_panel 348 13 none]
+G r c none [selected_diagnostic_id editor__feature_diagnostics 322 13 none] [active_feature editor__feature_panel 156 13 none]
+G r c none [selected_diagnostic_id editor__feature_diagnostics 322 13 none] [row_source_index editor__feature_panel 407 13 none]
+G r c none [selected_diagnostic_id editor__feature_diagnostics 322 13 none] [row_detail editor__feature_panel 485 13 none]
+G r c none [selected_diagnostic_id editor__feature_diagnostics 322 13 none] [row_label editor__feature_panel 477 13 none]
+G r c none [selected_diagnostic_text editor__feature_diagnostics 326 13 none] [selected_row editor__feature_panel 424 13 none]
+G r c none [selected_diagnostic_text editor__feature_diagnostics 326 13 none] [row_is_selectable editor__feature_panel 362 13 none]
+G r c none [selected_diagnostic_text editor__feature_diagnostics 326 13 none] [projection_row_index_is_valid editor__feature_panel 348 13 none]
+G r c none [selected_diagnostic_text editor__feature_diagnostics 326 13 none] [active_feature editor__feature_panel 156 13 none]
+G r c none [selected_diagnostic_text editor__feature_diagnostics 326 13 none] [row_source_index editor__feature_panel 407 13 none]
+G r c none [selected_diagnostic_text editor__feature_diagnostics 326 13 none] [row_detail editor__feature_panel 485 13 none]
+G r c none [selected_diagnostic_text editor__feature_diagnostics 326 13 none] [row_label editor__feature_panel 477 13 none]
+G r c none [selected_diagnostic_source_filter_label editor__feature_diagnostics 330 13 none] [selected_row editor__feature_panel 424 13 none]
+G r c none [selected_diagnostic_source_filter_label editor__feature_diagnostics 330 13 none] [row_is_selectable editor__feature_panel 362 13 none]
+G r c none [selected_diagnostic_source_filter_label editor__feature_diagnostics 330 13 none] [projection_row_index_is_valid editor__feature_panel 348 13 none]
+G r c none [selected_diagnostic_source_filter_label editor__feature_diagnostics 330 13 none] [active_feature editor__feature_panel 156 13 none]
+G r c none [selected_diagnostic_source_filter_label editor__feature_diagnostics 330 13 none] [row_source_index editor__feature_panel 407 13 none]
+G r c none [selected_diagnostic_source_filter_label editor__feature_diagnostics 330 13 none] [row_detail editor__feature_panel 485 13 none]
+G r c none [selected_diagnostic_source_filter_label editor__feature_diagnostics 330 13 none] [row_label editor__feature_panel 477 13 none]
+G r c none [select_next_diagnostic editor__feature_diagnostics 334 14 none] [row_count editor__feature_panel 418 13 none]
+G r c none [select_next_diagnostic editor__feature_diagnostics 334 14 none] [selected_row editor__feature_panel 424 13 none]
+G r c none [select_next_diagnostic editor__feature_diagnostics 334 14 none] [active_feature editor__feature_panel 156 13 none]
+G r c none [select_next_diagnostic editor__feature_diagnostics 334 14 none] [select_row editor__feature_panel 437 14 none]
+G r c none [select_next_diagnostic editor__feature_diagnostics 334 14 none] [row_is_selectable editor__feature_panel 362 13 none]
+G r c none [select_next_diagnostic editor__feature_diagnostics 334 14 none] [projection_row_index_is_valid editor__feature_panel 348 13 none]
+G r c none [select_next_diagnostic editor__feature_diagnostics 334 14 none] [projection_generation_matches editor__feature_panel 334 13 none]
+G r c none [select_next_diagnostic editor__feature_diagnostics 334 14 none] [row_source_index editor__feature_panel 407 13 none]
+G r c none [select_previous_diagnostic editor__feature_diagnostics 338 14 none] [row_count editor__feature_panel 418 13 none]
+G r c none [select_previous_diagnostic editor__feature_diagnostics 338 14 none] [selected_row editor__feature_panel 424 13 none]
+G r c none [select_previous_diagnostic editor__feature_diagnostics 338 14 none] [active_feature editor__feature_panel 156 13 none]
+G r c none [select_previous_diagnostic editor__feature_diagnostics 338 14 none] [select_row editor__feature_panel 437 14 none]
+G r c none [select_previous_diagnostic editor__feature_diagnostics 338 14 none] [row_is_selectable editor__feature_panel 362 13 none]
+G r c none [select_previous_diagnostic editor__feature_diagnostics 338 14 none] [projection_row_index_is_valid editor__feature_panel 348 13 none]
+G r c none [select_previous_diagnostic editor__feature_diagnostics 338 14 none] [projection_generation_matches editor__feature_panel 334 13 none]
+G r c none [select_previous_diagnostic editor__feature_diagnostics 338 14 none] [row_source_index editor__feature_panel 407 13 none]
+G r c none [clear_selected_diagnostic editor__feature_diagnostics 350 13 none] [selected_row editor__feature_panel 424 13 none]
+G r c none [clear_selected_diagnostic editor__feature_diagnostics 350 13 none] [row_is_selectable editor__feature_panel 362 13 none]
+G r c none [clear_selected_diagnostic editor__feature_diagnostics 350 13 none] [projection_row_index_is_valid editor__feature_panel 348 13 none]
+G r c none [clear_selected_diagnostic editor__feature_diagnostics 350 13 none] [active_feature editor__feature_panel 156 13 none]
+G r c none [clear_selected_diagnostic editor__feature_diagnostics 350 13 none] [row_source_index editor__feature_panel 407 13 none]
+G r c none [clear_selected_diagnostic editor__feature_diagnostics 350 13 none] [row_detail editor__feature_panel 485 13 none]
+G r c none [clear_selected_diagnostic editor__feature_diagnostics 350 13 none] [row_label editor__feature_panel 477 13 none]
+G r c none [clear_selected_diagnostic editor__feature_diagnostics 350 13 none] [select_row editor__feature_panel 437 14 none]
+G r c none [clear_selected_diagnostic editor__feature_diagnostics 350 13 none] [forget_feature_view_state editor__feature_panel 176 14 none]
+G r c none [clear_selected_diagnostic editor__feature_diagnostics 350 13 none] [set_active_feature editor__feature_panel 189 13 none]
+G r c none [clear_selected_diagnostic editor__feature_diagnostics 350 13 none] [clear_rows editor__feature_panel 286 14 none]
+G r c none [clear_selected_diagnostic editor__feature_diagnostics 350 13 none] [set_header_text editor__feature_panel 289 14 none]
+G r c none [clear_selected_diagnostic editor__feature_diagnostics 350 13 none] [empty_diagnostics_detail editor__contextual_help 23 13 none]
+G r c none [clear_selected_diagnostic editor__feature_diagnostics 350 13 none] [append_row editor__feature_panel 302 14 none]
+G r c none [clear_selected_diagnostic editor__feature_diagnostics 350 13 none] [row_count editor__feature_panel 418 13 none]
+G r c none [reconcile_diagnostics_selection_after_delete editor__feature_diagnostics 365 14 none] [row_count editor__feature_panel 418 13 none]
+G r c none [reconcile_diagnostics_selection_after_delete editor__feature_diagnostics 365 14 none] [row_is_selectable editor__feature_panel 362 13 none]
+G r c none [reconcile_diagnostics_selection_after_delete editor__feature_diagnostics 365 14 none] [row_source_index editor__feature_panel 407 13 none]
+G r c none [reconcile_diagnostics_selection_after_delete editor__feature_diagnostics 365 14 none] [select_row editor__feature_panel 437 14 none]
+G r c none [project_rows editor__feature_diagnostics 371 14 none] [set_active_feature editor__feature_panel 189 13 none]
+G r c none [project_rows editor__feature_diagnostics 371 14 none] [selected_row editor__feature_panel 424 13 none]
+G r c none [project_rows editor__feature_diagnostics 371 14 none] [projection_row_index_is_valid editor__feature_panel 348 13 none]
+G r c none [project_rows editor__feature_diagnostics 371 14 none] [row_source_index editor__feature_panel 407 13 none]
+G r c none [project_rows editor__feature_diagnostics 371 14 none] [clear_rows editor__feature_panel 286 14 none]
+G r c none [project_rows editor__feature_diagnostics 371 14 none] [set_header_text editor__feature_panel 289 14 none]
+G r c none [project_rows editor__feature_diagnostics 371 14 none] [empty_diagnostics_detail editor__contextual_help 23 13 none]
+G r c none [project_rows editor__feature_diagnostics 371 14 none] [append_row editor__feature_panel 302 14 none]
+G r c none [project_rows editor__feature_diagnostics 371 14 none] [row_count editor__feature_panel 418 13 none]
+G r c none [project_rows editor__feature_diagnostics 371 14 none] [select_row editor__feature_panel 437 14 none]
+G r c none [map_diagnostic_row_to_item editor__feature_diagnostics 375 13 none] [row_is_selectable editor__feature_panel 362 13 none]
+G r c none [map_diagnostic_row_to_item editor__feature_diagnostics 375 13 none] [projection_row_index_is_valid editor__feature_panel 348 13 none]
+G r c none [map_diagnostic_row_to_item editor__feature_diagnostics 375 13 none] [projection_generation_matches editor__feature_panel 334 13 none]
+G r c none [map_diagnostic_row_to_item editor__feature_diagnostics 375 13 none] [active_feature editor__feature_panel 156 13 none]
+G r c none [map_diagnostic_row_to_item editor__feature_diagnostics 375 13 none] [row_source_index editor__feature_panel 407 13 none]
+G r c none [validate_row_action editor__feature_diagnostics 386 13 none] [row_is_selectable editor__feature_panel 362 13 none]
+G r c none [validate_row_action editor__feature_diagnostics 386 13 none] [projection_row_index_is_valid editor__feature_panel 348 13 none]
+G r c none [validate_row_action editor__feature_diagnostics 386 13 none] [projection_generation_matches editor__feature_panel 334 13 none]
+G r c none [validate_row_action editor__feature_diagnostics 386 13 none] [active_feature editor__feature_panel 156 13 none]
+G r c none [validate_row_action editor__feature_diagnostics 386 13 none] [row_source_index editor__feature_panel 407 13 none]
+G r c none [reconcile_diagnostics_after_filter_change editor__feature_diagnostics 445 14 none] [active_feature editor__feature_panel 156 13 none]
+G r c none [reconcile_diagnostics_after_filter_change editor__feature_diagnostics 445 14 none] [set_active_feature editor__feature_panel 189 13 none]
+G r c none [reconcile_diagnostics_after_filter_change editor__feature_diagnostics 445 14 none] [selected_row editor__feature_panel 424 13 none]
+G r c none [reconcile_diagnostics_after_filter_change editor__feature_diagnostics 445 14 none] [projection_row_index_is_valid editor__feature_panel 348 13 none]
+G r c none [reconcile_diagnostics_after_filter_change editor__feature_diagnostics 445 14 none] [row_source_index editor__feature_panel 407 13 none]
+G r c none [reconcile_diagnostics_after_filter_change editor__feature_diagnostics 445 14 none] [clear_rows editor__feature_panel 286 14 none]
+G r c none [reconcile_diagnostics_after_filter_change editor__feature_diagnostics 445 14 none] [set_header_text editor__feature_panel 289 14 none]
+G r c none [reconcile_diagnostics_after_filter_change editor__feature_diagnostics 445 14 none] [empty_diagnostics_detail editor__contextual_help 23 13 none]
+G r c none [reconcile_diagnostics_after_filter_change editor__feature_diagnostics 445 14 none] [append_row editor__feature_panel 302 14 none]
+G r c none [reconcile_diagnostics_after_filter_change editor__feature_diagnostics 445 14 none] [row_count editor__feature_panel 418 13 none]
+G r c none [reconcile_diagnostics_after_filter_change editor__feature_diagnostics 445 14 none] [select_row editor__feature_panel 437 14 none]
+G r c none [reconcile_diagnostics_after_row_change editor__feature_diagnostics 449 14 none] [forget_feature_view_state editor__feature_panel 176 14 none]
+G r c none [reconcile_diagnostics_after_row_change editor__feature_diagnostics 449 14 none] [active_feature editor__feature_panel 156 13 none]
+G r c none [reconcile_diagnostics_after_row_change editor__feature_diagnostics 449 14 none] [set_active_feature editor__feature_panel 189 13 none]
+G r c none [reconcile_diagnostics_after_row_change editor__feature_diagnostics 449 14 none] [selected_row editor__feature_panel 424 13 none]
+G r c none [reconcile_diagnostics_after_row_change editor__feature_diagnostics 449 14 none] [projection_row_index_is_valid editor__feature_panel 348 13 none]
+G r c none [reconcile_diagnostics_after_row_change editor__feature_diagnostics 449 14 none] [row_source_index editor__feature_panel 407 13 none]
+G r c none [reconcile_diagnostics_after_row_change editor__feature_diagnostics 449 14 none] [clear_rows editor__feature_panel 286 14 none]
+G r c none [reconcile_diagnostics_after_row_change editor__feature_diagnostics 449 14 none] [set_header_text editor__feature_panel 289 14 none]
+G r c none [reconcile_diagnostics_after_row_change editor__feature_diagnostics 449 14 none] [empty_diagnostics_detail editor__contextual_help 23 13 none]
+G r c none [reconcile_diagnostics_after_row_change editor__feature_diagnostics 449 14 none] [append_row editor__feature_panel 302 14 none]
+G r c none [reconcile_diagnostics_after_row_change editor__feature_diagnostics 449 14 none] [row_count editor__feature_panel 418 13 none]
+G r c none [reconcile_diagnostics_after_row_change editor__feature_diagnostics 449 14 none] [select_row editor__feature_panel 437 14 none]
+G r c none [reconcile_diagnostics_after_row_change editor__feature_diagnostics 449 14 none] [row_is_selectable editor__feature_panel 362 13 none]
+G r c none [selected_diagnostic_source_index editor__feature_diagnostics 1331 13 none] [selected_row editor__feature_panel 424 13 none]
+G r c none [selected_diagnostic_source_index editor__feature_diagnostics 1331 13 none] [row_is_selectable editor__feature_panel 362 13 none]
+G r c none [selected_diagnostic_source_index editor__feature_diagnostics 1331 13 none] [projection_row_index_is_valid editor__feature_panel 348 13 none]
+G r c none [selected_diagnostic_source_index editor__feature_diagnostics 1331 13 none] [active_feature editor__feature_panel 156 13 none]
+G r c none [selected_diagnostic_source_index editor__feature_diagnostics 1331 13 none] [row_source_index editor__feature_panel 407 13 none]
+G r c none [selected_diagnostic_source_index editor__feature_diagnostics 1331 13 none] [row_detail editor__feature_panel 485 13 none]
+G r c none [selected_diagnostic_source_index editor__feature_diagnostics 1331 13 none] [row_label editor__feature_panel 477 13 none]
+G r c none [row_is_live_diagnostic editor__feature_diagnostics 1479 13 none] [row_is_selectable editor__feature_panel 362 13 none]
+G r c none [row_is_live_diagnostic editor__feature_diagnostics 1479 13 none] [projection_row_index_is_valid editor__feature_panel 348 13 none]
+G r c none [row_is_live_diagnostic editor__feature_diagnostics 1479 13 none] [projection_generation_matches editor__feature_panel 334 13 none]
+G r c none [row_is_live_diagnostic editor__feature_diagnostics 1479 13 none] [active_feature editor__feature_panel 156 13 none]
+G r c none [row_is_live_diagnostic editor__feature_diagnostics 1479 13 none] [row_source_index editor__feature_panel 407 13 none]
+X 1 ada.ads
+18K9*Ada 22e8 29|1r6 2r6 117r26 124r50 459r23 460r23 470r42 476r23 477r23
+. 30|1r6 2r6 3r6 4r6 4r33 26r14 26r61 202r14 203r10 203r40 301r17
+X 2 a-charac.ads
+16K13*Characters 18e19 30|1r10 202r18
+X 3 a-chahan.ads
+43K24*Handling 454e28 30|1w21 202r29
+274V13*To_Lower{string} 30|202s38
+X 5 a-contai.ads
+16K13*Containers 28e19 29|1r10 124r54 470r46
+22I9*Count_Type<integer>
+X 9 a-convec.ads
+62I9 Index_Type 29|125r7 471r7
+63+9 Element_Type 29|126r7 472r7
+74k24*Vectors 878e27 29|1w21 124r65 470r57
+81I12*Extended_Index{integer} 30|1620r40[29|470] 1639r40[29|470] 1661r40[29|470]
+. 1822r34[29|470] 2038r40[29|470]
+91R9*Vector<12|43R9> 29|130r45[124] 492r40[470] 30|1008r45[29|124] 1010r47[29|124]
+. 1074r56[29|124]
+175V13*Length{5|22I9} 30|497s39[29|470] 632s40[29|470] 1067s57[29|124] 1078s52[29|124]
+187V13*Is_Empty{boolean} 30|1021s30[29|124] 1824s27[29|470]
+190U14*Clear 30|565s24[29|470]
+206V13*Element{29|41R9} 30|264s31[29|470] 457s73[29|470] 472s54[29|470] 519s65[29|470]
+. 532s36[29|470] 551s59[29|470] 668s41[29|470] 682s41[29|470] 768s66[29|470]
+. 920s65[29|470] 1015s67[29|470] 1024s69[29|124] 1081s23[29|124] 1182s54[29|470]
+. 1195s30[29|470] 1207s30[29|470] 1208s37[29|470] 1275s68[29|470] 1322s30[29|470]
+. 1586s46[29|470] 1623s30[29|470] 1642s30[29|470] 1643s37[29|470] 1664s30[29|470]
+. 1828s30[29|470] 1941s56[29|470] 2015s58[29|470] 2041s54[29|470]
+217U14*Replace_Element 30|1033s35[29|124] 1949s33[29|470] 2027s33[29|470]
+483U14*Append 30|602s24[29|470] 1041s26[29|124]
+514U14*Delete 30|1609s24[29|470] 1624s30[29|470] 1645s30[29|470] 1665s30[29|470]
+. 1830s30[29|470] 2042s30[29|470]
+533U14*Delete_First 30|498s27[29|470]
+560V13*First_Index{integer} 30|1022s35[29|124] 1620s75[29|470] 1639s75[29|470]
+. 1661s75[29|470] 1822s69[29|470] 2038s75[29|470]
+570V13*Last_Index{81I12[29|124]} 30|1022s57[29|124] 1622s35[29|470] 1641s35[29|470]
+. 1663s35[29|470] 1827s35[29|470] 2040s35[29|470]
+X 13 a-iteint.ads
+24h9 Forward_Iterator
+32h9 Reversible_Iterator<24R9[9|119]>
+X 15 a-string.ads
+16K13*Strings 35e16 29|2r10 117r30 459r27 460r27 476r27 477r27 30|2w10 3r10
+. 4r10 4r37 26r18 26r65 203r14 203r44 301r21
+33n37*Both{33E9} 30|26r73 203r52
+X 16 a-strfix.ads
+49K21*Fixed 1390e22 30|3w18 26r26 203r22 301r29
+252V13*Index{natural} 30|301s35
+1133V13*Trim{string} 30|26s32 203s28
+X 20 a-strunb.ads
+91K21*Unbounded 1641e26 29|2w18 117r38 459r35 460r35 476r35 477r35 30|4w18
+. 4r45
+105R9*Unbounded_String<12|43R9> 1620e15 29|117r48 459r45 460r45 476r45 477r45
+109r4*Null_Unbounded_String{105R9} 30|566r34 567r41 824r41 833r34 834r41
+. 1593r47 1923r34
+111V13*Length{natural} 30|90s18 185s9 186s17 523s28 525s16 528s16 1583s10
+122V13*To_Unbounded_String{105R9} 30|606s32 607s32 823s9 1043s44 1925s9
+135V13*To_String{string} 30|122s35 139s35 278s54 308s35 314s41 315s44 326s35
+. 660s14 668s13 682s13 695s14 814s14 982s35 1016s41 1026s28 1082s14 2016s41
+X 25 editor.ads
+1K9*Editor 5e11 29|3r6 5r9 295r21 299r21 303r21 307r21 324r21 328r21 332r21
+. 336r28 340r28 352r28 367r32 373r28 377r40 388r40 447r28 451r32 497r5 30|5r6
+. 7r14 22r13 243r46 248r20 250r20 252r20 1225r28 1232r14 1233r17 1238r10
+. 1239r18 1240r19 1242r25 1243r30 1246r7 1247r7 1250r10 1252r28 1254r28 1261r10
+. 1263r28 1278r19 1280r39 1292r35 1305r10 1307r10 1309r10 1333r21 1335r33
+. 1339r10 1339r57 1341r21 1342r21 1347r19 1360r13 1361r20 1371r21 1379r21
+. 1392r21 1402r21 1415r21 1451r21 1464r21 1481r21 1490r28 1492r37 1493r37
+. 1496r17 1497r11 1500r10 1507r16 1519r13 1527r28 1529r37 1530r37 1533r17
+. 1534r11 1537r10 1547r19 1562r16 1678r32 1686r23 1687r13 1689r47 1713r10
+. 1715r10 1717r10 1719r10 1725r28 1728r41 1735r10 1745r7 1746r17 1747r10
+. 1748r9 1751r19 1753r13 1757r19 1758r19 1763r13 1772r40 1778r10 1778r57
+. 1779r21 1781r21 1782r21 1786r19 1809r40 2060r28 2064r10 2064r56 2071r32
+. 2077r7 2078r17 2079r10 2079r56 2267r5
+X 27 editor-contextual_help.ads
+4K16*Contextual_Help 81e27 30|5w13 1254r35
+23V13*Empty_Diagnostics_Detail{string} 30|1254s51
+X 29 editor-feature_diagnostics.ads
+5K16*Feature_Diagnostics 25|1k9 29|456E9 497l12 497e31 30|7b21 2267l12 2267t31
+16I9*Diagnostic_Id<integer> 17r29 183r38 256r55 276r21 280r21 284r29 324r70
+. 348r21 368r25 452r25 457r23 493r17 30|522r88 600r25 619r32 620r33 644r38
+. 1104r55 1139r21 1143r21 1151r21 1159r29 1315r21 1352r44 1379r70 1602r21
+. 1679r25 1693r56 1696r33 1727r30 1790r41 2072r25
+17i4*No_Diagnostic{16I9} 452r42 457r40 30|87r20 516r45 521r39 1318r15 1384r17
+. 1443r60 1695r40 1800r25 2072r42 2081r28
+18i4*No_Buffer{natural} 57r34 463r34 30|91r39 96r40 104r39 112r34 126r35
+. 149r38 161r39 165r62 536r53 590r34 596r35 614r71 985r39 989r62 1054r55
+. 1802r41 1824r59 1935r25
+20i4*Max_Diagnostics{natural} 30|497r49 515r49
+21i4*Max_Diagnostic_Message_Text_Length{natural} 30|230r19 525r41 669r12
+22i4*Max_Diagnostic_Source_Label_Text_Length{natural} 30|239r24 528r46 683r12
+24E9*Diagnostic_Severity 29e26 52r22 86r18 187r38 219r21 314r21 356r21 458r23
+. 30|29r40 52r18 243r18 382r40 585r22 651r38 777r21 1191r21 1617r21
+25n7*Diagnostic_Info{24E9} 458r46 30|32r15 247r15 346r15 387r15 781r15 934r21
+. 1207r57 1642r53
+26n7*Diagnostic_Note{24E9} 30|33r15 247r33 347r15 388r15 782r15 939r21 1208r64
+. 1643r60
+27n7*Diagnostic_Warning{24E9} 30|34r15 249r15 348r15 386r15 783r15 929r21
+. 1030r50 1046r63
+28n7*Diagnostic_Error{24E9} 30|35r15 251r15 349r15 385r15 784r15 924r21 1028r47
+. 1045r63
+29n7*Diagnostic_Unknown{24E9} 30|36r15 247r51 350r15 389r15 785r15 944r21
+34E9*Diagnostic_Source_Kind 39e33 55r22 89r21 205r38 223r21 252r21 363r21
+. 441r21 443r21 461r23 30|40r46 59r21 588r22 700r38 791r21 892r21 1658r21
+. 2254r21 2261r21
+35n7*Editor_Diagnostic_Source{34E9} 30|43r15 77r15 360r15 795r15 896r15
+36n7*File_Diagnostic_Source{34E9} 30|44r15 78r15 361r15 796r15 898r15
+37n7*Project_Diagnostic_Source{34E9} 30|45r15 79r15 362r15 797r15 900r15
+38n7*External_Diagnostic_Source{34E9} 30|46r15 80r15 363r15 599r47 798r15
+. 902r15
+39n7*Unknown_Diagnostic_Source{34E9} 55r48 461r49 30|47r15 81r15 364r15 588r48
+. 799r15 904r15
+41R9*Diagnostic_Item 456c9 468e14 472r23 30|65r44 70r36 85r46 121r45 138r42
+. 258r38 267r33 276r31 284r32 306r21 324r21 342r21 356r21 370r21 380r37 393r39
+. 406r41 418r15 419r15 457r37 519r29 603r10 757r23 920r29 981r37 1015r31
+. 1275r32 1358r26 1441r23 1473r26 1798r23 1941r20 2015r22
+42R9*Diagnostics_Feature_State 45r28 48r28 51r29 92r21 96r21 100r21 104r21
+. 108r21 129r21 133r21 136r21 140r28 143r28 146r28 149r28 152r28 156r21 160r21
+. 164r29 168r28 173r28 176r21 179r21 182r21 186r21 190r21 194r21 197r21 200r21
+. 204r21 208r21 212r21 215r21 218r21 222r21 226r21 229r21 232r28 236r28 239r28
+. 242r28 245r28 248r28 251r28 256r21 259r21 263r21 267r21 271r21 275r21 279r21
+. 283r29 288r21 291r21 294r21 298r21 302r21 306r21 310r21 313r21 317r21 320r21
+. 323r21 327r21 331r21 335r21 339r21 343r21 347r28 351r28 355r28 359r28 362r28
+. 366r25 372r21 376r40 382r29 387r40 393r28 397r28 400r28 403r21 446r21 450r25
+. 491c9 495e14 30|181r28 257r21 305r21 323r21 341r21 355r21 369r21 442r21
+. 490r28 493r28 512r21 558r28 584r29 629r21 636r21 643r21 650r21 657r21 664r21
+. 678r21 692r21 699r21 706r21 714r21 722r21 730r21 738r21 746r21 754r21 763r21
+. 776r21 790r21 804r21 811r21 818r28 830r28 851r28 858r28 873r28 882r28 891r28
+. 912r21 1007r21 1064r21 1071r21 1088r21 1104r21 1110r21 1117r21 1124r21
+. 1131r21 1138r21 1142r21 1150r21 1158r29 1170r21 1177r21 1190r21 1203r21
+. 1217r21 1224r21 1314r21 1332r21 1370r21 1378r21 1391r21 1401r21 1414r21
+. 1438r21 1450r21 1463r21 1480r21 1489r21 1526r21 1571r28 1601r28 1616r28
+. 1636r28 1657r28 1677r25 1724r28 1771r40 1794r29 1808r40 1819r28 1840r28
+. 1848r28 1858r28 1875r28 1891r28 1908r28 1918r28 1931r29 2004r28 2035r28
+. 2059r21 2070r25
+44U14*Clear_Diagnostics 45=7 48r63 30|557b14 581l8 581t25 1843s7 1851s7
+45r7 Diagnostics{42R9} 30|558b7 565m7 565r7 566m7 567m7 568m7 569m7 570m7
+. 571m7 572m7 573m7 574m7 575m7 576m7 577m7 578m7 579m30 580r44
+47U14*Clear=48:63
+48r7 Diagnostics{42R9}
+50U14*Add_Diagnostic 51=7 52>7 53>7 54>7 55>7 56>7 57>7 58>7 59>7 60>7 30|583b14
+. 626l8 626t22
+51r7 Diagnostics{42R9} 30|584b7 600r42 602m7 602r7 619r10 620m10 622m10 622r33
+. 624m40 625r44
+52e7 Severity{24E9} 30|585b7 605r32
+53a7 Message{string} 30|586b7 606r72
+54a7 Source_Label{string} 30|587b7 607r77
+55e7 Source_Kind{34E9} 30|588b7 599r33 608r32
+56b7 Has_Target{boolean} 30|589b7 595r46 614r36 615r36
+57i7 Target_Buffer{natural} 30|590b7 596r18 614r52
+58i7 Target_Line{natural} 30|591b7 597r18 615r52
+59i7 Target_Column{natural} 30|592b7 616r58
+60b7 Build_Produced{boolean} 30|593b7 599r9
+70R9*Diagnostics_Severity_Counts 83e14 108r55 111r16 114r16 30|912r55 914r16
+. 956r16 968r16 1090r25
+71i7*Errors{natural} 30|925m26 925r43 959r46
+72i7*Warnings{natural} 30|930m26 930r45 960r46
+73i7*Info{natural} 30|935m26 935r41 961r42
+74i7*Notes{natural} 30|940m26 940r42 962r43
+75i7*Unknown{natural} 30|945m26 945r44 963r45
+76i7*Total{natural} 30|916m14 964r43 1092r17 1096r31
+77i7*Visible{natural} 30|917m14 976r51 1095r54
+78i7*Visible_Errors{natural} 30|927m29 927r54 971r54
+79i7*Visible_Warnings{natural} 30|932m29 932r56 972r54
+80i7*Visible_Info{natural} 30|937m29 937r52 973r50
+81i7*Visible_Notes{natural} 30|942m29 942r53 974r51
+82i7*Visible_Unknown{natural} 30|947m29 947r55 975r53
+85V13*Severity_Label_For_Display{string} 86>7 30|51b13 56l8 56t34
+86e7 Severity{24E9} 30|52b7 55r30
+88V13*Source_Kind_Label_For_Display{string} 89>7 30|58b13 63l8 63t37
+89e7 Source_Kind{34E9} 30|59b7 62r33
+91V13*Producer_Label_For_Display{string} 92>7 93>7 30|713b13 719l8 719t34
+92r7 Diagnostics{42R9} 30|714b7 718r39
+93i7 Index{positive} 30|715b7 718r52
+95V13*Item_Source_Display_Label{string} 96>7 97>7 30|721b13 727l8 727t33
+96r7 Diagnostics{42R9} 30|722b7 726r45
+97i7 Index{positive} 30|723b7 726r58
+99V13*Item_Target_Unavailable_Label{string} 100>7 101>7 30|729b13 735l8 735t37
+. 1409s17
+100r7 Diagnostics{42R9} 30|730b7 734r49
+101i7 Index{positive} 30|731b7 734r62
+103V13*Item_Is_Build_Produced{boolean} 104>7 105>7 30|753b13 760l8 760t30
+104r7 Diagnostics{42R9} 30|754b7 757r51
+105i7 Index{positive} 30|755b7 757r64
+107V13*Count_By_Severity{70R9} 108>7 30|911b13 953l8 953t25 1090s56
+108r7 Diagnostics{42R9} 30|912b7 916r34 917r44 918r32 920r48 921r69
+110V13*Count_Label{string} 111>7 30|955b13 965l8 965t19 1097s51 1099s35
+111r7 Counts{70R9} 30|956b7 959r39 960r39 961r35 962r36 963r38 964r36
+113V13*Visible_Count_Label{string} 114>7 30|967b13 977l8 977t27 1097s12
+114r7 Counts{70R9} 30|968b7 971r47 972r47 973r43 974r44 975r46 976r44
+116R9*Diagnostics_File_Group 122e14 126r23 30|1024r36 1042r22 1076r16
+117r7*Label{20|105R9} 30|1026r48 1043m24 1082r31
+118i7*Diagnostic_Count{natural} 30|1027m37 1027r66 1044m23 1082r65
+119i7*Error_Count{natural} 30|1029m40 1029r64 1045m23 1083r46
+120i7*Warning_Count{natural} 30|1031m40 1031r66 1046m23 1084r27
+121b7*Source_Less{boolean} 30|1052m23
+124K12*Diagnostics_File_Group_Vectors[9|74] 130r14 30|1008r14 1010r16 1074r25
+128V13*Visible_File_Groups{9|91R9[124]} 129>7 30|1006b13 1061l8 1061t27 1067s23
+. 1075s9
+129r7 Diagnostics{42R9} 30|1007b7 1012r47 1014r67 1015r50
+132V13*File_Group_Count{natural} 133>7 30|1063b13 1068l8 1068t24
+133r7 Diagnostics{42R9} 30|1064b7 1067r44
+135V13*File_Group_Label{string} 136>7 137>7 30|1070b13 1085l8 1085t24
+136r7 Diagnostics{42R9} 30|1071b7 1075r30
+137i7 Index{positive} 30|1072b7 1078r10 1078r28 1081r32
+139U14*Filter_Errors_Only 140=7 30|1857b14 1872l8 1872t26
+140r7 Diagnostics{42R9} 30|1858b7 1864m17 1865m7 1866m7 1867m7 1868m7 1869m7
+. 1870m30 1871r44
+142U14*Filter_Warnings_Only 143=7 30|1874b14 1888l8 1888t28
+143r7 Diagnostics{42R9} 30|1875b7 1880m17 1881m7 1882m7 1883m7 1884m7 1885m7
+. 1886m30 1887r44
+145U14*Filter_Info_And_Notes_Only 146=7 30|1890b14 1905l8 1905t34
+146r7 Diagnostics{42R9} 30|1891b7 1897m17 1898m7 1899m7 1900m7 1901m7 1902m7
+. 1903m30 1904r44
+148U14*Filter_Build_Produced 149=7 30|1907b14 1915l8 1915t29
+149r7 Diagnostics{42R9} 30|1908b7 1911m17 1912m7 1913m30 1914r44
+151U14*Filter_Source_Label 152=7 153>7 30|1917b14 1928l8 1928t27
+152r7 Diagnostics{42R9} 30|1918b7 1922m17 1923m7 1924m7 1926m30 1927r44
+153a7 Source_Text{string} 30|1919b7 1925r65
+155V13*Item_Is_Stale{boolean} 156>7 157>7 30|737b13 743l8 743t21
+156r7 Diagnostics{42R9} 30|738b7 742r23
+157i7 Index{positive} 30|739b7 742r36
+159V13*Item_Stale_Label{string} 160>7 161>7 30|745b13 751l8 751t24
+160r7 Diagnostics{42R9} 30|746b7 750r36
+161i7 Index{positive} 30|747b7 750r49
+163U14*Mark_Diagnostics_For_Buffer_Stale 164=7 165>7 30|1930b14 1954l8 1954t41
+164r7 Diagnostics{42R9} 30|1931b7 1939r32 1941r39 1949m16 1949r16 1953r44
+165i7 Buffer_Token{natural} 30|1932b7 1935r10 1943r37
+167U14*Mark_Diagnostics_For_Source_Path_Stale 168=7 169>7 170>7 30|2003b14
+. 2032l8 2032t46
+168r7 Diagnostics{42R9} 30|2004b7 2013r32 2015r41 2027m16 2027r16 2031r44
+169a7 Old_Path{string} 30|2005b7 2009r10 2018r60
+170a7 New_Path{string} 30|2006b7 2009r39 2019r67
+172V13*Clear_Build_Diagnostics{natural} 173=7 30|2034b13 2056l8 2056t31
+173r7 Diagnostics{42R9} 30|2035b7 2038r58 2040r18 2041r37 2042m13 2042r13
+. 2052m46 2054r44
+175V13*Row_Count{natural} 176>7 30|261s36 455s24 515s22 517s21 550s31 628b13
+. 633l8 633t17 639s14 667s21 681s21 767s21 916s23 918s21 1181s21 1194s21
+. 1206s21 1249s10 1321s21 1443s18 1584s24 1939s21 2013s21
+176r7 Diagnostics{42R9} 30|629b7 632r23
+178V13*Is_Empty{boolean} 179>7 30|635b13 640l8 640t16
+179r7 Diagnostics{42R9} 30|636b7 639r25
+181V13*Item_Id{16I9} 182>7 183>7 30|642b13 647l8 647t15 1386s17
+182r7 Diagnostics{42R9} 30|643b7 646r23
+183i7 Index{positive} 30|644b7 646r36
+185V13*Item_Severity{24E9} 186>7 187>7 30|649b13 654l8 654t21
+186r7 Diagnostics{42R9} 30|650b7 653r23
+187i7 Index{positive} 30|651b7 653r36
+189V13*Item_Message{string} 190>7 191>7 30|656b13 661l8 661t20
+190r7 Diagnostics{42R9} 30|657b7 660r34
+191i7 Index{positive} 30|658b7 660r47
+193V13*Diagnostic_Message_Text_Is_Bounded{boolean} 194>7 30|663b13 675l8
+. 675t42
+194r7 Diagnostics{42R9} 30|664b7 667r32 668r24
+196V13*Diagnostic_Source_Label_Text_Is_Bounded{boolean} 197>7 30|677b13 689l8
+. 689t47
+197r7 Diagnostics{42R9} 30|678b7 681r32 682r24
+199V13*Item_Source_Label{string} 200>7 201>7 30|691b13 696l8 696t25
+200r7 Diagnostics{42R9} 30|692b7 695r34
+201i7 Index{positive} 30|693b7 695r47
+203V13*Item_Source_Kind{34E9} 204>7 205>7 30|698b13 703l8 703t24
+204r7 Diagnostics{42R9} 30|699b7 702r23
+205i7 Index{positive} 30|700b7 702r36
+207V13*Item_Display_Label{string} 208>7 209>7 30|705b13 710l8 710t26
+208r7 Diagnostics{42R9} 30|706b7 709r34
+209i7 Index{positive} 30|707b7 709r47
+211V13*Header_Text{string} 212>7 30|1087b13 1101l8 1101t19 1247s52
+212r7 Diagnostics{42R9} 30|1088b7 1090r75 1094r28
+214V13*Visible_Row_Count{natural} 215>7 288r71 30|448s21 762b13 773l8 773t25
+. 917s25 1012s28 1173s14 1260s13 1272s31
+215r7 Diagnostics{42R9} 30|763b7 767r32 768r36 768r49
+217V13*Severity_Is_Visible{boolean} 218>7 219>7 30|775b13 787l8 787t27
+218r7 Diagnostics{42R9} 30|776b7 781r44 782r44 783r44 784r44 785r44
+219e7 Severity{24E9} 30|777b7 780r12
+221V13*Source_Is_Visible{boolean} 222>7 223>7 30|789b13 801l8 801t25
+222r7 Diagnostics{42R9} 30|790b7 795r52 796r52 797r52 798r52 799r52
+223e7 Source_Kind{34E9} 30|791b7 794r12
+225V13*Filter_Active{boolean} 226>7 30|803b13 808l8 808t21 1094s13
+226r7 Diagnostics{42R9} 30|804b7 807r14
+228V13*Filter_Text{string} 229>7 30|810b13 815l8 815t19
+229r7 Diagnostics{42R9} 30|811b7 814r25
+231U14*Set_Filter_Text 232=7 233>7 30|817b14 827l8 827t23
+232r7 Diagnostics{42R9} 30|818b7 822m7 824m7 825m30 826r44
+233a7 Text{string} 30|819b7 823r65
+235U14*Clear_Filter 236=7 30|850b14 855l8 855t20
+236r7 Diagnostics{42R9} 30|851b7 854m17
+238U14*Show_All 239=7 30|829b14 848l8 848t16 854s7 1844s7 1852s7 1864s7 1880s7
+. 1897s7 1911s7 1922s7
+239r7 Diagnostics{42R9} 30|830b7 833m7 834m7 835m7 836m7 837m7 838m7 839m7
+. 840m7 841m7 842m7 843m7 844m7 845m7 846m30 847r44
+241U14*Toggle_Info_Visible 242=7 30|857b14 870l8 870t27
+242r7 Diagnostics{42R9} 30|858b7 860r48 866m7 867m7 868m30 869r44
+244U14*Toggle_Warnings_Visible 245=7 30|872b14 879l8 879t31
+245r7 Diagnostics{42R9} 30|873b7 876m7 876r47 877m30 878r44
+247U14*Toggle_Errors_Visible 248=7 30|881b14 888l8 888t29
+248r7 Diagnostics{42R9} 30|882b7 885m7 885r45 886m30 887r44
+250U14*Toggle_Source_Visible 251=7 252>7 30|890b14 909l8 909t29
+251r7 Diagnostics{42R9} 30|891b7 897m13 897r51 899m13 899r49 901m13 901r52
+. 903m13 903r53 905m13 905r52 907m30 908r44
+252e7 Source_Kind{34E9} 30|892b7 895r12
+255V13*Next_Diagnostic_Id{16I9} 256>7 30|1103b13 1107l8 1107t26
+256r7 Diagnostics{42R9} 30|1104b7 1106r14
+258V13*Item_Has_Target{boolean} 259>7 260>7 30|1109b13 1114l8 1114t23 1397s18
+259r7 Diagnostics{42R9} 30|1110b7 1113r23
+260i7 Index{positive} 30|1111b7 1113r36
+262V13*Item_Target_Buffer{natural} 263>7 264>7 30|1116b13 1121l8 1121t26
+263r7 Diagnostics{42R9} 30|1117b7 1120r23
+264i7 Index{positive} 30|1118b7 1120r36
+266V13*Item_Target_Line{natural} 267>7 268>7 30|1123b13 1128l8 1128t24
+267r7 Diagnostics{42R9} 30|1124b7 1127r23
+268i7 Index{positive} 30|1125b7 1127r36
+270V13*Item_Target_Column{natural} 271>7 272>7 30|1130b13 1135l8 1135t26
+271r7 Diagnostics{42R9} 30|1131b7 1134r23
+272i7 Index{positive} 30|1132b7 1134r36
+274V13*Map_Diagnostic_Id_To_Item{natural} 275>7 276>7 30|1141b13 1147l8 1147t33
+. 1154s14 1162s35
+275r7 Diagnostics{42R9} 30|1142b7 1146r28
+276i7 Id{16I9} 30|1143b7 1146r41
+278V13*Diagnostic_Id_Is_Live{boolean} 279>7 280>7 30|1149b13 1155l8 1155t29
+279r7 Diagnostics{42R9} 30|1150b7 1154r41
+280i7 Id{16I9} 30|1151b7 1154r54
+282V13*Validate_Diagnostic_Id_Target{boolean} 283>7 284>7 285>7 30|1157b13
+. 1167l8 1167t37
+283r7 Diagnostics{42R9} 30|1158b7 1162r62 1166r12
+284i7 Id{16I9} 30|1159b7 1162r75
+285i7 Active_Buffer_Token{natural} 30|1160b7 1166r43
+287V13*Visible_Diagnostic_Count=288:71{natural}
+288r7 Diagnostics{42R9}
+290V13*Has_Visible_Diagnostic{boolean} 291>7 30|1169b13 1174l8 1174t30 1498s21
+. 1535s21
+291r7 Diagnostics{42R9} 30|1170b7 1173r33
+293V13*Has_Selected_Diagnostic{boolean} 294>7 295>7 30|1369b13 1375l8 1375t31
+294r7 Diagnostics{42R9} 30|1370b7 1374r48
+295r7 Panel{31|119R9} 30|1371b7 1374r61
+297V13*Selected_Diagnostic_Has_Target{boolean} 298>7 299>7 30|1390b13 1398l8
+. 1398t38
+298r7 Diagnostics{42R9} 30|1391b7 1394r70 1397r35
+299r7 Panel{31|119R9} 30|1392b7 1394r83
+301V13*Selected_Diagnostic_Target_Unavailable_Label{string} 302>7 303>7 30|1400b13
+. 1411l8 1411t52 1418s9
+302r7 Diagnostics{42R9} 30|1401b7 1404r70 1409r48
+303r7 Panel{31|119R9} 30|1402b7 1404r83
+305V13*Selected_Diagnostic_Open_Unavailable_Reason{string} 306>7 307>7 30|1413b13
+. 1435l8 1435t51
+306r7 Diagnostics{42R9} 30|1414b7 1418r55
+307r7 Panel{31|119R9} 30|1415b7 1418r68
+309V13*Build_Diagnostic_Count{natural} 310>7 30|1176b13 1187l8 1187t30 1220s14
+. 1579s49
+310r7 Diagnostics{42R9} 30|1177b7 1181r32 1182r37
+312V13*Has_Diagnostic_With_Severity{boolean} 313>7 314>7 30|1189b13 1200l8
+. 1200t36
+313r7 Diagnostics{42R9} 30|1190b7 1194r32 1195r13
+314e7 Severity{24E9} 30|1191b7 1195r57
+316V13*Has_Info_Or_Note_Diagnostic{boolean} 317>7 30|1202b13 1214l8 1214t35
+317r7 Diagnostics{42R9} 30|1203b7 1206r32 1207r13 1208r20
+319V13*Has_Build_Diagnostic{boolean} 320>7 30|1216b13 1221l8 1221t28
+320r7 Diagnostics{42R9} 30|1217b7 1220r38
+322V13*Selected_Diagnostic_Id{16I9} 323>7 324>7 30|1377b13 1388l8 1388t30
+. 1727s47
+323r7 Diagnostics{42R9} 30|1378b7 1381r70 1386r26
+324r7 Panel{31|119R9} 30|1379b7 1381r83
+326V13*Selected_Diagnostic_Text{string} 327>7 328>7 30|1449b13 1460l8 1460t32
+327r7 Diagnostics{42R9} 30|1450b7 1453r70 1458r45
+328r7 Panel{31|119R9} 30|1451b7 1453r83
+330V13*Selected_Diagnostic_Source_Filter_Label{string} 331>7 332>7 30|1462b13
+. 1477l8 1477t47
+331r7 Diagnostics{42R9} 30|1463b7 1466r70 1473r54
+332r7 Panel{31|119R9} 30|1464b7 1466r83
+334U14*Select_Next_Diagnostic 335>7 336=7 30|1488b14 1523l8 1523t30
+335r7 Diagnostics{42R9} 30|1489b7 1498r45 1506r40 1518r37
+336r7 Panel{31|119R9} 30|1490b7 1492r69 1493r72 1496r54 1500m43 1506r53 1507m49
+. 1518r50 1519m46
+338U14*Select_Previous_Diagnostic 339>7 340=7 30|1525b14 1567l8 1567t34
+339r7 Diagnostics{42R9} 30|1526b7 1535r45 1546r43 1561r40
+340r7 Panel{31|119R9} 30|1527b7 1529r69 1530r72 1533r54 1537m43 1546r56 1547m52
+. 1561r53 1562m49
+342V13*Format_Diagnostic_For_Copy{string} 343>7 344>7 30|1437b13 1447l8 1447t34
+. 1458s17
+343r7 Diagnostics{42R9} 30|1438b7 1441r51 1443r29
+344i7 Index{positive} 30|1439b7 1441r64 1443r10
+346V13*Clear_Diagnostic_By_Id{boolean} 347=7 348>7 30|1600b13 1613l8 1613t30
+. 1733s18
+347r7 Diagnostics{42R9} 30|1601b7 1604r49 1609m7 1609r7 1610m46 1611r44
+348i7 Id{16I9} 30|1602b7 1604r62
+350V13*Clear_Selected_Diagnostic{boolean} 351=7 352=7 30|1723b13 1768l8 1768t33
+351r7 Diagnostics{42R9} 30|1724b7 1727r71 1733m42 1733r42 1750r24 1766r44
+352r7 Panel{31|119R9} 30|1725b7 1727r84 1728r76 1735m43 1746m10 1747r47 1750m37
+. 1751r51 1753m46 1757r59 1758m52 1763m46
+354V13*Clear_Diagnostics_By_Severity{natural} 355=7 356>7 30|1615b13 1633l8
+. 1633t37
+355r7 Diagnostics{42R9} 30|1616b7 1620r58 1622r18 1623r13 1624m13 1624r13
+. 1630m46 1631r44
+356e7 Severity{24E9} 30|1617b7 1623r53
+358V13*Clear_Info_And_Note_Diagnostics{natural} 359=7 30|1635b13 1654l8 1654t39
+359r7 Diagnostics{42R9} 30|1636b7 1639r58 1641r18 1642r13 1643r20 1645m13
+. 1645r13 1651m46 1652r44
+361V13*Clear_Diagnostics_By_Source{natural} 362=7 363>7 30|1656b13 1674l8
+. 1674t35
+362r7 Diagnostics{42R9} 30|1657b7 1661r58 1663r18 1664r13 1665m13 1665r13
+. 1671m46 1672r44
+363e7 Source_Kind{34E9} 30|1658b7 1664r56
+365U14*Reconcile_Diagnostics_Selection_After_Delete 366>7 367=7 368>7 369>7
+. 30|1676b14 1721l8 1721t52 2082s13
+366r7 Diagnostics{42R9} 30|1677b7 1693r43
+367r7 Panel{31|119R9} 30|1678b7 1686r55 1687r53 1689r86 1713m43 1715m43 1717m43
+. 1719m43
+368i7 Previous_Id{16I9} 30|1679b7 1695r25 1696r60
+369i7 Previous_Source{natural} 30|1680b7 1699r28 1700r38 1702r40
+371U14*Project_Rows 372>7 373=7 30|1223b14 1311l8 1311t20 1750s10 2065s10
+. 2080s10
+372r7 Diagnostics{42R9} 30|1224b7 1247r65 1249r21 1260r32 1272r50 1274r69
+. 1275r51
+373r7 Panel{31|119R9} 30|1225b7 1233m10 1233r10 1238r45 1240r12 1240r54 1243r13
+. 1243r65 1246m40 1247m45 1251m13 1262m13 1279m22 1292r67 1305m43 1307m43
+. 1309m43
+375V13*Map_Diagnostic_Row_To_Item{natural} 376>7 377>7 378>7 379>7 30|1485s14
+. 1770b13 1791l8 1791t34 1814s14
+376r7 Diagnostics{42R9} 30|1771b7 1790r28
+377r7 Panel{31|119R9} 30|1772b7 1778r47 1780r12 1781r73 1782r61 1786r58
+378i7 Row{natural} 30|1773b7 1781r80 1782r78 1786r75
+379i7 Expected_Projection_Generation{natural} 30|1774b7 1780r19
+381V13*Validate_Diagnostic_Target{boolean} 382>7 383>7 384>7 30|1165s18 1793b13
+. 1805l8 1805t34
+382r7 Diagnostics{42R9} 30|1794b7 1798r51
+383i7 Index{positive} 30|1795b7 1798r64
+384i7 Active_Buffer_Token{natural} 30|1796b7 1802r18 1803r39
+386V13*Validate_Row_Action{boolean} 387>7 388>7 389>7 390>7 30|1807b13 1816l8
+. 1816t27
+387r7 Diagnostics{42R9} 30|1808b7 1815r10
+388r7 Panel{31|119R9} 30|1809b7 1815r23
+389i7 Row{natural} 30|1810b7 1815r30
+390i7 Expected_Projection_Generation{natural} 30|1811b7 1815r35
+392U14*Reset_Diagnostics_For_Buffer_Close 393=7 394>7 30|1818b14 1837l8 1837t42
+393r7 Diagnostics{42R9} 30|1819b7 1822r52 1824r10 1827r18 1828r13 1830m13
+. 1830r13 1835m46 1836r44
+394i7 Buffer_Token{natural} 30|1820b7 1824r44 1828r58
+396U14*Reset_Diagnostics_For_Project_Close 397=7 30|1839b14 1845l8 1845t43
+397r7 Diagnostics{42R9} 30|1840b7 1843m26 1844m17
+399U14*Reset_Diagnostics_For_Workspace_Close 400=7 30|1847b14 1855l8 1855t45
+400r7 Diagnostics{42R9} 30|1848b7 1851m26 1852m17 1853m7 1854r44
+402U14*Assert_Diagnostics_State_Consistent 403>7 30|511b14 555l8 555t43 580s7
+. 625s7 826s7 847s7 869s7 878s7 887s7 908s7 1611s7 1631s7 1652s7 1672s7 1766s7
+. 1836s7 1854s7 1871s7 1887s7 1904s7 1914s7 1927s7 1953s7 2031s7 2054s7 2063s7
+. 2076s7
+403r7 Diagnostics{42R9} 30|512b7 515r33 516r22 517r32 519r48 522r38 522r66
+. 532r19 550r42 551r42
+405V13*Message_Diagnostics_Shown{string} 30|2088b13 2091l8 2091t33
+406V13*Message_Diagnostics_Cleared{string} 30|2093b13 2096l8 2096t35
+407V13*Message_No_Diagnostics{string} 30|2098b13 2101l8 2101t30
+408V13*Message_No_Target{string} 30|2103b13 2106l8 2106t25
+409V13*Message_Target_Unavailable{string} 30|2108b13 2111l8 2111t34
+410V13*Message_Diagnostic_Added{string} 30|2113b13 2116l8 2116t32
+411V13*Message_No_Selected_Diagnostic{string} 30|2118b13 2121l8 2121t38
+412V13*Message_No_Visible_Diagnostic{string} 30|2123b13 2126l8 2126t37
+413V13*Message_Selected_Diagnostic_Cleared{string} 30|2128b13 2131l8 2131t43
+414V13*Message_Selected_Diagnostic_Copied{string} 30|2133b13 2136l8 2136t42
+415V13*Message_Info_Cleared{string} 30|2138b13 2141l8 2141t28
+416V13*Message_Warnings_Cleared{string} 30|2143b13 2146l8 2146t32
+417V13*Message_Errors_Cleared{string} 30|2148b13 2151l8 2151t30
+418V13*Message_Filter_Cleared{string} 30|2153b13 2156l8 2156t30
+419V13*Message_No_Filter_Active{string} 30|2158b13 2161l8 2161t32
+420V13*Message_All_Diagnostics_Shown{string} 30|2163b13 2166l8 2166t37
+421V13*Message_Info_Hidden{string} 30|2168b13 2171l8 2171t27
+422V13*Message_Info_Shown{string} 30|2173b13 2176l8 2176t26
+423V13*Message_Warnings_Hidden{string} 30|2178b13 2181l8 2181t31
+424V13*Message_Warnings_Shown{string} 30|2183b13 2186l8 2186t30
+425V13*Message_Errors_Hidden{string} 30|2188b13 2191l8 2191t29
+426V13*Message_Errors_Shown{string} 30|2193b13 2196l8 2196t28
+428V13*Message_No_Info_Diagnostics{string} 30|2198b13 2201l8 2201t35
+429V13*Message_No_Warning_Diagnostics{string} 30|2203b13 2206l8 2206t38
+430V13*Message_No_Error_Diagnostics{string} 30|2208b13 2211l8 2211t36
+431V13*Message_No_Build_Diagnostics{string} 30|2213b13 2216l8 2216t36
+432V13*Message_Build_Diagnostics_Cleared{string} 30|2218b13 2221l8 2221t41
+433V13*Message_Filter_Errors{string} 30|2223b13 2226l8 2226t29
+434V13*Message_Filter_Warnings{string} 30|2228b13 2231l8 2231t31
+435V13*Message_Filter_Info_Notes{string} 30|2233b13 2236l8 2236t33
+436V13*Message_Filter_Selected_Source{string} 30|2238b13 2241l8 2241t38
+437V13*Message_Filter_Selected_Source_Unavailable{string} 30|2243b13 2246l8
+. 2246t50
+438V13*Message_Filter_Build{string} 30|2248b13 2251l8 2251t28
+440V13*Message_Source_Hidden{string} 441>7 30|2253b13 2258l8 2258t29
+441e7 Source_Kind{34E9} 30|2254b7 2257r51
+442V13*Message_Source_Shown{string} 443>7 30|2260b13 2265l8 2265t28
+443e7 Source_Kind{34E9} 30|2261b7 2264r51
+445U14*Reconcile_Diagnostics_After_Filter_Change 446>7 447=7 30|2058b14 2067l8
+. 2067t49
+446r7 Diagnostics{42R9} 30|2059b7 2063r44 2065r24
+447r7 Panel{31|119R9} 30|2060b7 2064r47 2065m37
+449U14*Reconcile_Diagnostics_After_Row_Change 450>7 451=7 452>7 453>7 30|2069b14
+. 2086l8 2086t46
+450r7 Diagnostics{42R9} 30|2070b7 2076r44 2080r24 2083r16
+451r7 Panel{31|119R9} 30|2071b7 2078m10 2079r47 2080m37 2083m29
+452i7 Previous_Id{16I9} 30|2072b7 2081r13 2083r36
+453i7 Previous_Source{natural} 30|2073b7 2081r50 2083r49
+457i7*Id{16I9} 30|87r15 437r22 437r33 521r33 522r33 532r52 532r62 551r36
+. 551r75 604m12 646r43 1290r53 1296r76 1322r46 1443r55 1800r19
+458e7*Severity{24E9} 30|278r35 316r65 345r17 434r34 434r69 435r38 435r72
+. 605m11 653r43 923r23 1028r36 1030r39 1045r52 1046r52 1195r46 1207r46 1208r53
+. 1291r60 1623r42 1642r42 1643r49
+459r7*Message{20|105R9} 30|278r70 314r57 523r41 525r29 606m11 660r54 668r57
+460r7*Source_Label{20|105R9} 30|90r31 122r51 139r51 315r60 528r29 607m11
+. 682r57 695r54 982r51 1016r57 2016r57
+461e7*Source_Kind{34E9} 30|76r17 317r68 359r17 608m11 702r43 1664r42
+462b7*Has_Target{boolean} 30|89r22 95r22 103r22 108r22 154r15 535r21 609m11
+. 991r21 994r22 1053r43 1113r43 1284r44 1285r44 1287r44 1801r23
+463i7*Target_Buffer{natural} 30|91r23 96r23 104r23 112r18 126r18 132r46 149r21
+. 150r42 161r23 165r45 166r46 536r36 614m11 985r23 989r45 990r46 1054r39
+. 1120r43 1803r23 1828r42 1943r21
+464i7*Target_Line{natural} 30|92r23 97r23 105r23 110r18 141r18 142r30 143r21
+. 144r30 162r23 399r15 400r22 410r18 537r36 615m11 986r23 992r45 1055r39
+. 1127r43 1804r23
+465i7*Target_Column{natural} 30|141r48 142r68 408r15 409r22 548r36 616m11
+. 1134r43
+466b7*Is_Stale{boolean} 30|114r18 269r15 281r18 290r18 617m11 742r43 1948m21
+. 2026m21
+467b7*Is_Build_Produced{boolean} 30|67r19 618m11
+470K12 Diagnostic_Row_Vectors[9|74] 492r17 30|1620r17 1639r17 1661r17 1822r11
+. 2038r17
+474R9 Diagnostics_Filter_State 489e14 494r17
+475b7*Active{boolean} 30|184m26 807r33
+476r7*Text{20|105R9} 30|185r36 308r65 566m26 814r44 822m26 833m26 1923m26
+477r7*Source_Text{20|105R9} 30|186r44 326r65 567m26 824m26 834m26 1583r37
+. 1593m32 1924m26
+478b7*Show_Info{boolean} 30|187r40 346r63 568m26 781r63 835m26 860r67 866m26
+. 1865m26 1881m26 1898m26
+479b7*Show_Notes{boolean} 30|188r40 347r63 569m26 782r63 836m26 867m26 1866m26
+. 1882m26 1899m26
+480b7*Show_Warnings{boolean} 30|189r40 348r63 570m26 783r63 837m26 876m26
+. 876r66 1867m26 1883m26 1900m26
+481b7*Show_Errors{boolean} 30|190r40 349r63 571m26 784r63 838m26 885m26 885r64
+. 1868m26 1884m26 1901m26
+482b7*Show_Unknown_Severity{boolean} 30|191r40 350r63 572m26 785r63 839m26
+. 1869m26 1885m26 1902m26
+483b7*Show_Editor{boolean} 30|192r40 360r71 573m26 795r71 840m26 897m32 897r70
+484b7*Show_File{boolean} 30|193r40 361r71 574m26 796r71 841m26 899m32 899r68
+485b7*Show_Project{boolean} 30|194r40 362r71 575m26 797r71 842m26 901m32
+. 901r71
+486b7*Show_External{boolean} 30|195r40 363r71 576m26 798r71 843m26 903m32
+. 903r72
+487b7*Show_Unknown{boolean} 30|196r40 364r71 577m26 799r71 844m26 905m32
+. 905r71
+488b7*Build_Only{boolean} 30|197r36 377r42 578m26 845m26 1579r29 1580m29
+. 1912m26
+492r7*Rows{9|91R9[470]} 30|264r26 457r68 472r49 497r34 498m22 519r60 532r31
+. 551r54 565m19 602m19 632r35 668r36 682r36 768r61 920r60 1015r62 1182r49
+. 1195r25 1207r25 1208r32 1275r63 1322r25 1586r41 1609m19 1620r70 1622r30
+. 1623r25 1624m25 1639r70 1641r30 1642r25 1643r32 1645m25 1661r70 1663r30
+. 1664r25 1665m25 1822r64 1824r22 1827r30 1828r25 1830m25 1941r51 1949m28
+. 2015r53 2027m28 2038r70 2040r30 2041r49 2042m25
+493i7*Next_Id{16I9} 30|516r34 522r50 522r78 600r54 619r22 620m22 622m22 622r45
+. 1106r26 1853m19
+494r7*Filter{474R9} 30|184m19 185r29 186r37 187r33 188r33 189r33 190r33 191r33
+. 192r33 193r33 194r33 195r33 196r33 197r29 308r58 326r58 346r56 347r56 348r56
+. 349r56 350r56 360r64 361r64 362r64 363r64 364r64 377r35 566m19 567m19 568m19
+. 569m19 570m19 571m19 572m19 573m19 574m19 575m19 576m19 577m19 578m19 781r56
+. 782r56 783r56 784r56 785r56 795r64 796r64 797r64 798r64 799r64 807r26 814r37
+. 822m19 824m19 833m19 834m19 835m19 836m19 837m19 838m19 839m19 840m19 841m19
+. 842m19 843m19 844m19 845m19 860r60 866m19 867m19 876m19 876r59 885m19 885r57
+. 897m25 897r63 899m25 899r61 901m25 901r64 903m25 903r65 905m25 905r64 1579r22
+. 1580m22 1583r30 1593m25 1865m19 1866m19 1867m19 1868m19 1869m19 1881m19
+. 1882m19 1883m19 1884m19 1885m19 1898m19 1899m19 1900m19 1901m19 1902m19
+. 1912m19 1923m19 1924m19
+X 30 editor-feature_diagnostics.adb
+24V13 Trim_Image{string} 24b13 24>25 27l8 27t18 132s29 142s13 142s51 144s13
+. 150s25 166s29 959s27 960s27 961s23 962s24 963s26 964s24 971s35 972s35 973s31
+. 974s32 975s34 976s32 990s29 1082s47 1083s28 1084s9 1095s35 1096s12
+24i25 Value{natural} 26r53
+29V13 Severity_Label{string} 29b13 29>29 38l8 38t22 55s14 278s14 316s44
+29e29 Severity{29|24E9} 31r12
+40V13 Source_Kind_Label{string} 40b13 40>32 49l8 49t25 62s14 317s44 2257s32
+. 2264s32
+40e32 Source_Kind{29|34E9} 42r12
+65V13 Is_Build_Produced_Item{boolean} 65b13 65>37 68l8 68t30 72s10 377s61
+. 759s14 1182s13 2041s13
+65r37 Item{29|41R9} 67r14
+70V13 Producer_Label{string} 70b13 70>29 83l8 83t22 280s16 288s27 718s14
+70r29 Item{29|41R9} 72r34 76r12
+85V13 Target_Unavailable_Label{string} 85b13 85>39 119l8 119t32 168s22 174s53
+. 176s36 285s41 734s14 991s55 1000s36
+85r39 Item{29|41R9} 87r10 89r17 90r26 91r18 92r18 95r17 96r18 97r18 103r17
+. 104r18 105r18 108r17 110r13 112r13 114r13
+121V13 Source_Filter_Label_For{string} 121b13 121>38 136l8 136t31 337s41
+. 1475s17
+121r38 Item{29|41R9} 122r46 126r13 132r41
+122a7 Source{string} 124r10 125r17
+138V13 Source_Display_Label{string} 138b13 138>35 178l8 178t28 279s19 287s14
+. 726s14
+138r35 Item{29|41R9} 139r46 141r13 141r43 142r25 142r63 143r16 144r25 149r16
+. 150r37 154r10 161r18 162r18 165r40 166r41 168r48 174r79 176r62
+139a7 Source{string} 148r13 148r36 160r13 165r13 174r17 176r17
+140a7 Position{string} 156r20 158r42 167r16 167r47 169r13 174r32
+147a7 Target_Source{string} 155r13 158r20
+180U14 Refresh_Filter_Active 180b14 181=7 198l8 198t29 579s7 825s7 846s7
+. 868s7 877s7 886s7 907s7 1597s7 1870s7 1886s7 1903s7 1913s7 1926s7
+181r7 Diagnostics{29|42R9} 184m7 185r17 186r25 187r21 188r21 189r21 190r21
+. 191r21 192r21 193r21 194r21 195r21 196r21 197r17
+200V13 Normalize_Diagnostics_Filter_Text{string} 200b13 200>48 204l8 204t41
+. 297s44 298s44 823s30 1925s30
+200a48 Text{string} 203r34
+207V13 Bounded_Text{string} 207b13 208>7 209>7 210>7 222l8 222t20 229s14
+. 238s14
+208a7 Text{string} 213r39 213r77
+209i7 Maximum{natural} 215r26 217r13 218r53 220r53
+210a7 Empty_Value{string} 213r60
+212a7 Marker{string} 217r24 220r63 220r84
+213a7 Clean{string} 215r10 216r17 218r17 218r24 218r39 220r17 220r24 220r39
+224V13 Normalize_Message{string} 224b13 224>32 231l8 231t25 606s53
+224a32 Message{string} 230r10
+233V13 Normalize_Source_Label{string} 233b13 233>37 240l8 240t30 607s53
+233a37 Source_Label{string} 239r10
+242V13 Panel_Severity{31|72E9} 242b13 243>7 254l8 254t22 1291s39
+243e7 Severity{29|24E9} 246r12
+256V13 Item_At{29|41R9} 256b13 257>7 258>7 265l8 265t15 646s14 653s14 660s25
+. 695s25 702s14 709s25 718s30 726s36 734s40 742s14 750s27 757s42 1113s14
+. 1120s14 1127s14 1134s14 1358s45 1441s42 1473s45 1798s42
+257r7 Diagnostics{29|42R9} 261r47 264r14
+258i7 Index{positive} 261r10 261r28 264r40
+267V13 Stale_Label{string} 267b13 267>26 274l8 274t19 750s14
+267r26 Item{29|41R9} 269r10
+276V13 Label_For{string} 276b13 276>24 282l8 282t17 318s44 709s14 1281s39
+. 1360s71 1446s14
+276r24 Item{29|41R9} 278r30 278r65 279r41 280r32 281r13
+284V13 Detail_For{string} 284b13 284>25 291l8 291t18 319s44 1282s39 1361s79
+284r25 Item{29|41R9} 285r67 287r36 288r43 290r13
+285a7 Target_Label{string} 289r13 289r58
+293V13 Contains_Case_Insensitive{boolean} 293b13 294>7 295>7 302l8 302t33
+. 314s14 315s17 316s17 317s17 318s17 319s17 337s14
+294a7 Haystack{string} 297r79
+295a7 Needle{string} 298r79
+297a7 Normal_Haystack{string} 301r42
+298a7 Normal_Needle{string} 300r14 301r59
+304V13 Diagnostic_Matches_Text_Filter{boolean} 304b13 305>7 306>7 320l8 320t38
+. 373s14
+305r7 Diagnostics{29|42R9} 308r46
+306r7 Item{29|41R9} 314r52 315r55 316r60 317r63 318r55 319r56
+308a7 Needle{string} 310r10 314r67 315r75 316r76 317r82 318r62 319r63
+322V13 Diagnostic_Matches_Source_Label_Filter{boolean} 322b13 323>7 324>7
+. 338l8 338t46 374s18 1585s16
+323r7 Diagnostics{29|42R9} 326r46
+324r7 Item{29|41R9} 337r66
+326a7 Needle{string} 328r10 337r73
+340V13 Diagnostic_Matches_Severity_Filter{boolean} 340b13 341>7 342>7 352l8
+. 352t42 375s18
+341r7 Diagnostics{29|42R9} 346r44 347r44 348r44 349r44 350r44
+342r7 Item{29|41R9} 345r12
+354V13 Diagnostic_Matches_Source_Filter{boolean} 354b13 355>7 356>7 366l8
+. 366t40 376s18
+355r7 Diagnostics{29|42R9} 360r52 361r52 362r52 363r52 364r52
+356r7 Item{29|41R9} 359r12
+368V13 Diagnostic_Is_Visible{boolean} 368b13 369>7 370>7 378l8 378t29 460s19
+. 768s13 921s46
+369r7 Diagnostics{29|42R9} 373r46 374r58 375r54 376r52 377r23
+370r7 Item{29|41R9} 373r59 374r71 375r67 376r65 377r85
+380V13 Group_Label_For{string} 380>30 421s40 422s40 981b13 1004l8 1004t23
+. 1017s41
+380r30 Item{29|41R9} 981b30 982r46 985r18 986r18 989r40 990r41 991r16 991r81
+. 992r40 994r17 1000r62
+382V13 Severity_Order{natural} 382b13 382>29 391l8 391t22 434s13 434s47 435s17
+. 435s50
+382e29 Severity{29|24E9} 384r12
+393V13 Target_Line_Order{natural} 393b13 393>32 404l8 404t25 423s41 424s41
+393r32 Item{29|41R9} 399r10 400r17
+406V13 Target_Column_Order{natural} 406b13 406>34 415l8 415t27 425s41 426s42
+406r34 Item{29|41R9} 408r10 409r17 410r13
+417V13 Diagnostic_Comes_Before{boolean} 417b13 418>7 419>7 439l8 439t31 471s31
+418r7 Left{29|41R9} 421r57 423r60 425r62 434r29 435r33 437r17
+419r7 Right{29|41R9} 422r57 424r60 426r63 434r63 435r66 437r27
+421a7 Left_Group{string} 428r10 429r17
+422a7 Right_Group{string} 428r24 429r30
+423i7 Left_Line{natural} 430r13 431r17
+424i7 Right_Line{natural} 430r26 431r29
+425i7 Left_Column{natural} 432r13 433r17
+426i7 Right_Column{natural} 432r28 433r31
+441V13 Ordered_Visible_Index_At{natural} 441b13 442>7 443>7 463s32 487l8
+. 487t32 1014s41 1274s43
+442r7 Diagnostics{29|42R9} 448r40 455r35 457r56 460r42 463r58 472r37
+443i7 Position{positive} 448r10 452r24
+445i7 Best_Index{natural} 453m10 472r63 474m22 483r17
+446b7 Best_Set{boolean} 454m10 470r35 475m22 482r10
+452i11 Pick{integer} 461r22 462r40
+455i14 I{integer} 457r82 463r28 474r36
+457r16 Candidate{29|41R9} 460r55 472r26
+458b16 Already_Selected{boolean} 464m28 469r26
+462i26 Prior{integer} 463r71
+489U14 Reset_Exhausted_Projection_Predicates 490=7 507s10 1570b14 1598l8
+. 1598t45 1610s7 1630s7 1651s7 1671s7 1835s7 2052s7
+490r7 Diagnostics{29|42R9} 1571b7 1579r10 1579r73 1580m10 1583r18 1584r35
+. 1586r16 1586r29 1593m13 1597m30
+492U14 Evict_Old_Diagnostics_If_Needed 492b14 493=7 509l8 509t39 624s7
+493r7 Diagnostics{29|42R9} 497r22 498m10 498r10 507m49
+495b7 Removed{boolean} 499m10 502r10
+517i11 I{integer} 519r74 530r16 532r45 550r22
+519r13 Item{29|41R9} 521r28 522r28 523r36 525r24 528r24 532r57 535r16 536r31
+. 537r31 548r31 551r31
+550i17 J{integer} 551r68
+595b7 Effective_Target{boolean} 609r32 616r36
+598b7 Effective_Build_Produced{boolean} 618r32
+600i7 New_Id{29|16I9} 604r33
+667i11 I{integer} 668r50
+681i11 I{integer} 682r50
+757r7 Item{29|41R9} 759r38
+765i7 Count{natural} 769m13 769r22 772r14
+767i11 I{integer} 768r75
+860b7 New_Visibility{boolean} 866r39 867r40
+914r7 Counts{29|70R9} 916m7 917m7 925m19 925r36 927m22 927r47 930m19 930r38
+. 932m22 932r49 935m19 935r34 937m22 937r45 940m19 940r35 942m22 942r46 945m19
+. 945r37 947m22 947r48 952r14
+918i11 I{integer} 920r74
+920r13 Item{29|41R9} 921r82 923r18
+921b13 Is_Visible{boolean} 926r22 931r22 936r22 941r22 946r22
+982a7 Source{string} 984r10 989r13 992r13 1000r17 1002r17
+1010r7 Groups{9|91R9[29|124]} 1021r23 1022r28 1022r50 1024r62 1033m28 1033r28
+. 1041m19 1041r19 1060r14
+1012i11 Position{integer} 1014r80
+1014i13 I{natural} 1015r76 1020r16
+1015r13 Item{29|41R9} 1016r52 1017r58 1028r31 1030r34 1045r47 1046r47 1053r38
+. 1054r34 1055r34
+1016a13 Source{string} 1052r43
+1017a13 Label{string} 1026r57 1043r65
+1018b13 Found{boolean} 1034m28 1040r23
+1022i23 G{integer} 1024r78 1033r52
+1024r25 Existing{29|116R9} 1026r39 1027m28 1027r57 1029m31 1029r55 1031m31
+. 1031r57 1033r55
+1074r7 Groups{9|91R9[29|124]} 1078r45 1081r16
+1076r7 Group{29|116R9} 1081m7 1081r7 1082r25 1082r59 1083r40 1084r21
+1090r7 Counts{29|70R9} 1092r10 1095r47 1096r24 1097r33 1097r64 1099r48
+1137V13 Index_For_Id{natural} 1138>7 1139>7 1146s14 1313b13 1327l8 1327t20
+. 1352s17 1604s35 1693s29 1790s14
+1138r7 Diagnostics{29|42R9} 1314b7 1321r32 1322r13
+1139i7 Id{29|16I9} 1315b7 1318r10 1322r51
+1162i7 Index{natural} 1164r14 1166r35
+1179i7 Count{natural} 1183m13 1183r22 1186r14
+1181i11 I{integer} 1182r63
+1194i11 I{integer} 1195r39
+1206i11 I{integer} 1207r39 1208r46
+1227i7 Selected_Id{natural} 1242m10 1296r22 1296r48
+1228i7 First_Selectable_Row{natural} 1293r22 1294m22 1306r13 1307r50
+1229i7 Restored_Row{natural} 1297m22 1304r10 1305r50
+1230i7 Appended_Row{natural} 1292m19 1294r46 1297r38
+1272i14 Position{integer} 1274r82
+1274i16 I{natural} 1275r77 1277r19
+1275r16 Item{29|41R9} 1281r50 1282r51 1284r39 1285r39 1287r39 1290r48 1291r55
+. 1296r71
+1321i11 I{integer} 1322r39 1323r20
+1331V13 Selected_Diagnostic_Source_Index{natural} 1331b13 1332>7 1333>7 1367l8
+. 1367t40 1374s14 1381s36 1394s36 1404s36 1453s36 1466s36
+1332r7 Diagnostics{29|42R9} 1352r31 1358r54
+1333r7 Panel{31|119R9} 1335r68 1339r47 1341r73 1342r61 1347r58 1360r45 1361r53
+1335i7 Row{natural} 1340r17 1341r80 1342r68 1347r75 1360r62 1361r70
+1336i7 Id_Value{natural} 1347m7 1348r10 1352r59
+1337i7 Source{natural} 1352m7 1353r10 1358r77 1366r14
+1358r10 Item{29|41R9} 1360r82 1361r91
+1381i7 Source{natural} 1383r10 1386r49
+1394i7 Source{natural} 1396r14 1397r58
+1404i7 Source{natural} 1406r10 1409r71
+1417a7 Label{string} 1420r10 1422r13 1423r17 1426r13 1428r13 1430r13 1431r17
+1441r7 Item{29|41R9} 1443r50 1446r25
+1453i7 Source{natural} 1455r10 1458r68
+1466i7 Source{natural} 1468r10 1473r77
+1473r10 Item{29|41R9} 1475r42
+1479V13 Row_Is_Live_Diagnostic{boolean} 1479b13 1480>7 1481>7 1482>7 1486l8
+. 1486t30 1506s16 1518s13 1546s19 1561s16
+1480r7 Diagnostics{29|42R9} 1485r42
+1481r7 Panel{31|119R9} 1485r55
+1482i7 Row{natural} 1485r62
+1492i7 Count{natural} 1495r10 1504r20 1505r36 1516r23
+1493i7 Current{natural} 1504r10 1505r21 1517r20 1517r49
+1505i14 Row{integer} 1506r60 1507r56
+1516i11 Row{integer} 1517r42 1518r57 1519r53
+1529i7 Count{natural} 1532r10 1556r26 1558r39
+1530i7 Current{natural} 1541r10 1542r29 1544r42 1560r23 1560r52
+1542i14 Offset{integer} 1544r52
+1544i16 Row{natural} 1546r63 1547r59
+1556i11 Offset{integer} 1558r47
+1558i13 Row{natural} 1560r45 1561r60 1562r56
+1573i7 Source_Matches{natural} 1588m16 1588r34 1592r13
+1584i14 I{integer} 1586r55
+1604i7 Index{natural} 1606r10 1609r32
+1619i7 Removed{natural} 1625m13 1625r24 1632r14
+1620i7 I{9|81I12[29|470]} 1622r13 1623r39 1624r38 1627m13 1627r18
+1638i7 Removed{natural} 1646m13 1646r24 1653r14
+1639i7 I{9|81I12[29|470]} 1641r13 1642r39 1643r46 1645r38 1648m13 1648r18
+1660i7 Removed{natural} 1666m13 1666r24 1673r14
+1661i7 I{9|81I12[29|470]} 1663r13 1664r39 1665r38 1668m13 1668r18
+1682i7 Same_Row{natural} 1698m25 1712r10 1713r50
+1683i7 Next_Row{natural} 1700r63 1701m28 1714r13 1715r50
+1684i7 Previous_Row{natural} 1703m28 1716r13 1717r50
+1686i11 Row{integer} 1687r60 1689r93 1698r37 1701r40 1703r44
+1689i16 Id_Value{natural} 1692r19 1693r71 1696r48
+1690i16 Source{natural} 1693m19 1694r22 1700r28 1702r31
+1727i7 Id{29|16I9} 1733r55
+1728i7 Old_Row{natural} 1755r30 1755r52
+1729b7 Removed{boolean} 1733m7 1734r14
+1730i7 Candidate{natural} 1755m13 1756r19 1757r76 1758r59 1761m16 1761r29
+1731i7 Count{natural} 1751m10 1752r13 1755r41 1755r65
+1776i7 Id_Value{natural} 1786m7 1787r10 1790r56
+1798r7 Item{29|41R9} 1800r14 1801r18 1803r18 1804r18
+1822i7 I{9|81I12[29|470]} 1827r13 1828r39 1830r38 1832m13 1832r18
+1939i11 I{integer} 1941r65 1949r50
+1941r13 Item{29|41R9} 1943r16 1948m16 1949r57
+1956V13 Normalized_Diagnostic_Path{string} 1956b13 1956>41 1980l8 1980t34
+. 1986s30 1987s30
+1956a41 Path{string} 1958r24 1959r27 1961r10 1965r20 1966r19 1966r45 1971r16
+. 1972r13 1975r27 1979r22
+1958a7 Result{string} 1973m13 1975m13 1979r14
+1959i7 Last{integer} 1965r13 1966r25 1966r51 1968m10 1968r18 1971r30 1979r36
+1971i11 I{integer} 1972r19 1973r21 1975r21 1975r33
+1982V13 Same_Or_Descendant_Diagnostic_Path{boolean} 1982b13 1983>7 1984>7
+. 2001l8 2001t42 2018s16 2019s23
+1983a7 Path{string} 1986r58
+1984a7 Root{string} 1987r58
+1986a7 P{string} 1989r10 1991r13 1993r13 1994r18 1994r21 1994r32 1995r18
+. 1995r21
+1987a7 R{string} 1989r31 1991r17 1993r24 1994r42 1994r58 1995r31
+2013i11 I{integer} 2015r67 2027r50
+2015r13 Item{29|41R9} 2016r52 2026m16 2027r57
+2016a13 Source{string} 2018r52 2019r59
+2037i7 Removed{natural} 2043m13 2043r24 2055r14
+2038i7 I{9|81I12[29|470]} 2040r13 2041r63 2042r38 2045m13 2045r18
+X 31 editor-feature_panel.ads
+4K16*Feature_Panel 29|3w13 295r28 299r28 303r28 307r28 324r28 328r28 332r28
+. 336r35 340r35 352r35 367r39 373r35 377r47 388r47 447r35 451r39 30|22r20
+. 243r53 248r27 250r27 252r27 1225r35 1232r21 1233r24 1238r17 1239r25 1240r26
+. 1242r32 1243r37 1246r14 1247r14 1250r17 1252r35 1261r17 1263r35 1278r26
+. 1280r46 1292r42 1305r17 1307r17 1309r17 1333r28 1335r40 1339r17 1339r64
+. 1341r28 1342r28 1347r26 1360r20 1361r27 1371r28 1379r28 1392r28 1402r28
+. 1415r28 1451r28 1464r28 1481r28 1490r35 1492r44 1493r44 1496r24 1497r18
+. 1500r17 1507r23 1519r20 1527r35 1529r44 1530r44 1533r24 1534r18 1537r17
+. 1547r26 1562r23 1678r39 1686r30 1687r20 1689r54 1713r17 1715r17 1717r17
+. 1719r17 1725r35 1728r48 1735r17 1745r14 1746r24 1747r17 1748r16 1751r26
+. 1753r20 1757r26 1758r26 1763r20 1772r47 1778r17 1778r64 1779r28 1781r28
+. 1782r28 1786r26 1809r47 2060r35 2064r17 2064r63 2071r39 2077r14 2078r24
+. 2079r17 2079r63 31|696e25
+8E9*Feature_Id 30|22r34 31|13e27
+13n7*Diagnostics_Feature{8E9} 30|1233r38 1339r78 1497r32 1534r32 1746r38
+. 1748r30 1778r78 2064r77 2078r38 2079r77
+66n7*Feature_Row_Item{64E9} 30|1280r60
+67n7*Feature_Row_Empty_State{64E9} 30|1252r49 1263r49
+72E9*Feature_Row_Severity 30|243r67 31|76e34
+74n7*Feature_Row_Info_Severity{72E9} 30|248r41
+75n7*Feature_Row_Warning_Severity{72E9} 30|250r41
+76n7*Feature_Row_Error_Severity{72E9} 30|252r41
+119R9*Feature_Panel_State 29|295r42 299r42 303r42 307r42 324r42 328r42 332r42
+. 336r49 340r49 352r49 367r53 373r49 377r61 388r61 447r49 451r53 30|1225r49
+. 1333r42 1371r42 1379r42 1392r42 1402r42 1415r42 1451r42 1464r42 1481r42
+. 1490r49 1527r49 1678r53 1725r49 1772r61 1809r61 2060r49 2071r53 31|682e14
+156V13*Active_Feature{8E9} 30|1339s31 1496s38 1533s38 1747s31 1778s31 2064s31
+. 2079s31
+176U14*Forget_Feature_View_State 30|1745s28 2077s28
+189V13*Set_Active_Feature{boolean} 30|1232s35
+286U14*Clear_Rows 30|1246s28
+289U14*Set_Header_Text 30|1247s28
+302U14*Append_Row 30|1250s31 1261s31 1278s40
+304e7 Kind{64E9} 30|1252r13 1263r13 1280r22
+305a7 Label{string} 30|1253r13 1264r13 1281r22
+306a7 Detail{string} 30|1254r13 1265r13 1282r22
+308b7 Selectable{boolean} 30|1255r13 1266r13 1283r22
+309b7 Activatable{boolean} 30|1256r13 1267r13 1284r22
+310b7 Has_Target{boolean} 30|1257r13 1268r13 1285r22
+311b7 Is_Diagnostic{boolean} 30|1286r22
+312b7 Can_Open{boolean} 30|1258r13 1269r13 1287r22
+313b7 Can_Copy{boolean} 30|1288r22
+314b7 Can_Clear{boolean} 30|1289r22
+317i7 Source_Index{natural} 30|1259r13 1270r13 1290r22
+318e7 Severity{72E9} 30|1291r22
+334V13*Projection_Generation_Matches{boolean} 30|1779s42
+348V13*Projection_Row_Index_Is_Valid{boolean} 30|1239s39 1341s42 1781s42
+362V13*Row_Is_Selectable{boolean} 30|1342s42 1687s34 1757s40 1782s42
+407V13*Row_Source_Index{natural} 30|1242s46 1347s40 1689s68 1786s40
+418V13*Row_Count{natural} 30|1292s56 1492s58 1529s58 1686s44 1751s40
+424V13*Selected_Row{natural} 30|1238s31 1240s40 1243s51 1335s54 1493s58 1530s58
+. 1728s62
+437U14*Select_Row 30|1305s31 1307s31 1309s31 1500s31 1507s37 1519s34 1537s31
+. 1547s40 1562s37 1713s31 1715s31 1717s31 1719s31 1735s31 1753s34 1758s40
+. 1763s34
+477V13*Row_Label{string} 30|1360s34
+485V13*Row_Detail{string} 30|1361s41
+X 35 system.ads
+67M9*Address
+X 49 s-memory.ads
+51V13*Alloc{35|67M9} 101i<c,__gnat_malloc>22
+66U14*Free 102i<c,__gnat_free>22
+74V13*Realloc{35|67M9} 103i<c,__gnat_realloc>22
+X 60 s-stalib.adb
+87U14 Break_Start 88i<c,__gnat_break_start>22
+

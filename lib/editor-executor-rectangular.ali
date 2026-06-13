@@ -1,0 +1,198 @@
+V "GNAT Lib v15"
+A -gnatA
+A -gnat2022
+A -mtune=generic
+A -march=x86-64
+P SS ZX
+
+RN
+RV NO_EXCEPTION_HANDLERS
+RV NO_EXCEPTIONS
+RV NO_IMPLICIT_CONDITIONALS
+RV NO_STANDARD_STORAGE_POOLS
+RV NO_IMPLEMENTATION_PRAGMAS
+
+U editor.executor.rectangular%b  editor-executor-rectangular.adb  1f346466 NE OO PK
+W ada%s			ada.ads			ada.ali
+W ada.containers%s	a-contai.ads		a-contai.ali
+Z ada.exceptions%s	a-except.adb		a-except.ali
+Z ada.strings.text_buffers%s  a-sttebu.adb	a-sttebu.ali
+W editor%s		editor.ads		editor.ali
+W editor.commands%s	editor-commands.adb	editor-commands.ali
+W editor.cursors%s	editor-cursors.adb	editor-cursors.ali
+W editor.executor%s	editor-executor.adb	editor-executor.ali
+W editor.navigation%s	editor-navigation.adb	editor-navigation.ali
+W editor.state%s	editor-state.adb	editor-state.ali
+Z system%s		system.ads		system.ali
+Z system.finalization_primitives%s  s-finpri.adb  s-finpri.ali
+Z system.soft_links%s	s-soflin.adb		s-soflin.ali
+
+U editor.executor.rectangular%s  editor-executor-rectangular.ads  f1d2828c EE NE OO PK
+W editor%s		editor.ads		editor.ali
+W editor.commands%s	editor-commands.adb	editor-commands.ali
+W editor.cursors%s	editor-cursors.adb	editor-cursors.ali
+W editor.executor%s	editor-executor.adb	editor-executor.ali
+W editor.state%s	editor-state.adb	editor-state.ali
+
+D ada.ads		20250808065140 76789da1 ada%s
+D a-charac.ads		20250808065140 2d3ec45b ada.characters%s
+D a-chlat1.ads		20250808065140 e0d72e76 ada.characters.latin_1%s
+D a-contai.ads		20250808065140 61e5e089 ada.containers%s
+D a-conhel.ads		20250808065140 46fe1ce3 ada.containers.helpers%s
+D a-convec.ads		20250808065140 91fb49f3 ada.containers.vectors%s
+D a-except.ads		20250808065140 e7970cd9 ada.exceptions%s
+D a-finali.ads		20250808065140 bf4f806b ada.finalization%s
+D a-iteint.ads		20250808065140 49a8bee2 ada.iterator_interfaces%s
+D a-stream.ads		20250808065140 17477cbd ada.streams%s
+D a-string.ads		20250808065140 90ac6797 ada.strings%s
+D a-strmap.ads		20250808065140 1f91ebb6 ada.strings.maps%s
+D a-strsea.ads		20250808065140 18c3c634 ada.strings.search%s
+D a-sttebu.ads		20250808065140 f1ad67a2 ada.strings.text_buffers%s
+D a-strunb.ads		20250808065140 b10770ab ada.strings.unbounded%s
+D a-stuten.ads		20250808065140 c6ced0ae ada.strings.utf_encoding%s
+D a-tags.ads		20250808065140 fbca0ad5 ada.tags%s
+D a-unccon.ads		20250808065140 0e9b276f ada.unchecked_conversion%s
+D editor.ads		20260406185230 16f844c2 editor%s
+D editor-commands.ads	20260425121135 91ba1af2 editor.commands%s
+D editor-cursors.ads	20260425100454 1f938cf3 editor.cursors%s
+D editor-executor.ads	20260424193939 60525236 editor.executor%s
+D editor-executor-rectangular.ads  20260424191237 cb806537 editor.executor.rectangular%s
+D editor-executor-rectangular.adb  20260425103818 5b2bcef2 editor.executor.rectangular%b
+D editor-navigation.ads	20260423150640 b47a9aa7 editor.navigation%s
+D editor-state.ads	20260503173758 d429238c editor.state%s
+D interfac.ads		20250808065140 9111f9c1 interfaces%s
+D i-c.ads		20250808065140 e94c966a interfaces.c%s
+D system.ads		20250808065140 14286b0f system%s
+D s-atocou.ads		20250808065140 dc18efc3 system.atomic_counters%s
+D s-exctab.ads		20250808065140 91bef6ef system.exception_table%s
+D s-finpri.ads		20250808065140 5970d55a system.finalization_primitives%s
+D s-finroo.ads		20250808065140 0a7c3ed4 system.finalization_root%s
+D s-oscons.ads		20250827122531 068e1a91 system.os_constants%s
+D s-oslock.ads		20250808065140 13fa6b78 system.os_locks%s
+D s-parame.ads		20250808065140 3597fc11 system.parameters%s
+D s-pooglo.ads		20250808065140 91708d21 system.pool_global%s
+D s-putima.ads		20250808065140 17291fe4 system.put_images%s
+D s-retsta.ads		20250808065140 0f6b06cb system.return_stack%s
+D s-secsta.ads		20250808065140 578279f5 system.secondary_stack%s
+D s-soflin.ads		20250808065140 5d88fdea system.soft_links%s
+D s-stache.ads		20250808065140 0b81c1fe system.stack_checking%s
+D s-stalib.ads		20250808065140 1c9580f6 system.standard_library%s
+D s-stoele.ads		20250808065140 ccded4e8 system.storage_elements%s
+D s-stopoo.ads		20250808065140 e9fa2dd8 system.storage_pools%s
+D s-stratt.ads		20250808065140 516607ae system.stream_attributes%s
+D s-traent.ads		20250808065140 c81cbf8c system.traceback_entries%s
+D s-unstyp.ads		20250808065140 fa2a7f59 system.unsigned_types%s
+D text_backend.ads	20260412181650 6d0030da text_backend%s
+D text_backend-rope_impl.ads  20260427194525 88d12c3a text_backend.rope_impl%s
+D text_buffer.ads	20260427153044 bb9a4056 text_buffer%s
+G a e
+G c Z s b [execute editor__executor__rectangular 7 14 none]
+G c Z b b [safe_caret editor__executor__rectangular 9 13 none]
+G c Z b b [start_rectangle editor__executor__rectangular 19 14 none]
+G c Z b b [drag_rectangle editor__executor__rectangular 48 14 none]
+G r c none [execute editor__executor__rectangular 7 14 none] [index_for_point editor__navigation 30 13 none]
+G r c none [execute editor__executor__rectangular 7 14 none] [line_column_for_index editor__navigation 19 14 none]
+G r c none [execute editor__executor__rectangular 7 14 none] [has_row editor__navigation 11 13 none]
+G r c none [execute editor__executor__rectangular 7 14 none] [line_length editor__navigation 15 13 none]
+G r c none [execute editor__executor__rectangular 7 14 none] [index_for_line_column editor__navigation 25 13 none]
+G r c none [execute editor__executor__rectangular 7 14 none] [normalize_carets editor__state 43 14 none]
+G r c none [start_rectangle editor__executor__rectangular 19 14 none] [index_for_point editor__navigation 30 13 none]
+G r c none [start_rectangle editor__executor__rectangular 19 14 none] [line_column_for_index editor__navigation 19 14 none]
+G r c none [drag_rectangle editor__executor__rectangular 48 14 none] [index_for_point editor__navigation 30 13 none]
+G r c none [drag_rectangle editor__executor__rectangular 48 14 none] [line_column_for_index editor__navigation 19 14 none]
+G r c none [drag_rectangle editor__executor__rectangular 48 14 none] [has_row editor__navigation 11 13 none]
+G r c none [drag_rectangle editor__executor__rectangular 48 14 none] [line_length editor__navigation 15 13 none]
+G r c none [drag_rectangle editor__executor__rectangular 48 14 none] [index_for_line_column editor__navigation 25 13 none]
+G r c none [drag_rectangle editor__executor__rectangular 48 14 none] [normalize_carets editor__state 43 14 none]
+X 1 ada.ads
+18K9*Ada 22e8 24|5r6 5r29
+X 4 a-contai.ads
+16K13*Containers 28e19 24|5w10 5r33
+22I9*Count_Type<integer>
+X 6 a-convec.ads
+91R9*Vector<8|43R9>
+175V13*Length{4|22I9} 24|12s19[21|19] 112s19[21|19]
+190U14*Clear 24|36s16[21|19] 85s16[21|19]
+483U14*Append 24|37s16[21|19] 103s22[21|19] 113s19[21|19]
+560V13*First_Index{integer} 24|15s36[21|19]
+X 9 a-iteint.ads
+24h9 Forward_Iterator
+32h9 Reversible_Iterator<24R9[6|119]>
+X 19 editor.ads
+1K9*Editor 5e11 23|1r6 2r6 3r6 5r9 8r37 9r30 10r34 13r5 24|1r6 2r6 2r29 3r6
+. 3r29 4r6 4r29 7r14 10r11 20r37 49r37 121r7 128r37 129r30 137r15 145r15
+. 158r5
+X 20 editor-commands.ads
+5K16*Commands 75e20 23|2w13 9r37 24|2w13 2r36 129r37 137r22 145r22
+26n7*Start_Rectangle_Selection{10E9} 24|137r31
+27n7*Drag_Rectangle_To_Point{10E9} 24|145r31
+56R9*Command 71e14 23|9r46 24|129r46
+57e7*Kind{10E9} 24|136r16
+64i7*Click_X{natural} 24|140r44 148r44
+65i7*Click_Y{natural} 24|141r44 149r44
+X 21 editor-cursors.ads
+3K16*Cursors 35e19 23|3w13 10r41 24|3w13 3r36
+5I12*Cursor_Index{natural} 23|10r49 24|10r43 23r34 26r22 52r34 55r30 64r11
+. 65r11 90r15 97r15 130r34
+12R9*Caret_State 17e14 24|37r24 103r30 113r27
+13i7*Pos{5I12} 24|15r49 38m10 104m16 114m13
+14i7*Anchor{5I12} 24|39m10 105m16 115m13
+15i7*Virtual_Column{natural} 24|40m10 106m16 116m13
+16i7*Anchor_Virtual_Column{natural} 24|41m10 107m16 117m13
+X 22 editor-executor.ads
+7K16*Executor 19|1k9 22|26e20 23|5r16 13r12 24|7r21 158r12
+X 23 editor-executor-rectangular.ads
+5K25*Rectangular 22|7k16 23|13l21 13e32 24|7b30 158l21 158t32
+7U14*Execute 8=7 9>7 10<7 11<7 24|127b14 156l8 156t15
+8r7 S{26|11R9} 24|128b7 133r32 134r31 139m40 147m40
+9r7 Cmd{20|56R9} 24|129b7 136r12 140r40 141r40 148r40 149r40
+10i7 New_Caret{21|5I12} 24|130b7 133m7 142m40 150m40
+11i7 New_Preferred_Column{natural} 24|131b7 134m7 143m40 151m40
+X 24 editor-executor-rectangular.adb
+9V13 Safe_Caret{21|5I12} 9b13 10>7 17l8 17t18 123s20 133s20
+10r7 S{26|11R9} 12r10 15r17 15r27
+19U14 Start_Rectangle 19b14 20=7 21>7 22>7 23<7 24<7 46l8 46t23 68s10 138s13
+20r7 S{26|11R9} 26r55 30r30 32m7 33m7 34m7 36m7 36r7 37m7 37r7 69r13 139r16
+21i7 X{natural} 26r58 70r13 140r16
+22i7 Y{natural} 26r61 71r13 141r16
+23i7 New_Caret{21|5I12} 44m7 72r13 142r16
+24i7 New_Preferred_Column{natural} 45m7 73r13 143r16
+26i7 Pos{21|5I12} 30r42 38r17 39r20 44r20
+27i7 Row{natural} 30m48 33r28
+28i7 Col{natural} 30m53 34r28 45r31
+48U14 Drag_Rectangle 48b14 49=7 50>7 51>7 52<7 53<7 125l8 125t22 146s13
+49r7 S{26|11R9} 55r63 67r14 69m37 77r30 79r33 80r33 82r33 83r33 85m7 85r7
+. 88r22 92r21 94r57 99r21 101r58 103m13 103r13 112r10 113m10 113r10 121m38
+. 123r32 147r16
+50i7 X{natural} 55r66 70r37 148r16
+51i7 Y{natural} 55r69 71r37 149r16
+52i7 New_Caret{21|5I12} 72m37 123m7 150r16
+53i7 New_Preferred_Column{natural} 73m37 124m7 151r16
+55i7 Pos{21|5I12} 77r42 114r20 115r23
+56i7 Current_Row{natural} 77m48 79r52 80r52
+57i7 Current_Col{natural} 77m61 82r52 83r52 124r31
+59i7 First_Row{natural} 79m7 87r18
+60i7 Last_Row{natural} 80m7 87r31
+61i7 Left_Col{natural} 82m7 94r34
+62i7 Right_Col{natural} 83m7 101r34
+64i7 A{21|5I12} 89m13 105r26
+65i7 P{21|5I12} 96m13 104r23
+87i11 Row{integer} 88r25 93r21 94r60 100r21 101r61
+X 25 editor-navigation.ads
+4K16*Navigation 24|4w13 4r36 25|49e22
+11V13*Has_Row{boolean} 24|88s13
+15V13*Line_Length{natural} 24|94s44 101s45
+19U14*Line_Column_For_Index 24|30s7 77s7
+25V13*Index_For_Line_Column{natural} 24|91s18 98s18
+30V13*Index_For_Point{21|5I12} 24|26s38 55s46
+X 26 editor-state.ads
+5K16*State 23|1w13 8r44 24|1w13 10r18 20r44 49r44 121r14 128r44 26|47e17
+11R9*State_Type 23|8r50 24|10r24 20r50 49r50 128r50 26|19e14
+13r7*Carets{6|91R9[21|19]} 24|12r12 15r19 15r29 36m9 37m9 85m9 103m15 112r12
+. 113m12
+15i7*Preferred_Column{natural} 24|134r33
+16b7*Rect_Select_Active{boolean} 24|32m9 67r16
+17i7*Rect_Anchor_Row{natural} 24|33m9 79r35 80r35
+18i7*Rect_Anchor_Col{natural} 24|34m9 82r35 83r35
+43U14*Normalize_Carets 24|121s20
+

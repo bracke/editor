@@ -1,0 +1,93 @@
+V "GNAT Lib v15"
+A -gnatA
+A -gnat2022
+A -mtune=generic
+A -march=x86-64
+P SS ZX
+
+RN
+RV NO_IMPLEMENTATION_PRAGMAS
+
+U editor.engine%b	editor-engine.adb	32e3d055 NE OO PK
+Z ada.strings.text_buffers%s  a-sttebu.adb	a-sttebu.ali
+W editor%s		editor.ads		editor.ali
+W editor.executor%s	editor-executor.adb	editor-executor.ali
+
+U editor.engine%s	editor-engine.ads	390a229b EE NE OO PK
+W editor%s		editor.ads		editor.ali
+W editor.commands%s	editor-commands.adb	editor-commands.ali
+W editor.state%s	editor-state.adb	editor-state.ali
+
+D ada.ads		20250808065140 76789da1 ada%s
+D a-charac.ads		20250808065140 2d3ec45b ada.characters%s
+D a-chlat1.ads		20250808065140 e0d72e76 ada.characters.latin_1%s
+D a-contai.ads		20250808065140 61e5e089 ada.containers%s
+D a-conhel.ads		20250808065140 46fe1ce3 ada.containers.helpers%s
+D a-convec.ads		20250808065140 91fb49f3 ada.containers.vectors%s
+D a-except.ads		20250808065140 e7970cd9 ada.exceptions%s
+D a-finali.ads		20250808065140 bf4f806b ada.finalization%s
+D a-iteint.ads		20250808065140 49a8bee2 ada.iterator_interfaces%s
+D a-stream.ads		20250808065140 17477cbd ada.streams%s
+D a-string.ads		20250808065140 90ac6797 ada.strings%s
+D a-strmap.ads		20250808065140 1f91ebb6 ada.strings.maps%s
+D a-strsea.ads		20250808065140 18c3c634 ada.strings.search%s
+D a-sttebu.ads		20250808065140 f1ad67a2 ada.strings.text_buffers%s
+D a-strunb.ads		20250808065140 b10770ab ada.strings.unbounded%s
+D a-stuten.ads		20250808065140 c6ced0ae ada.strings.utf_encoding%s
+D a-tags.ads		20250808065140 fbca0ad5 ada.tags%s
+D a-unccon.ads		20250808065140 0e9b276f ada.unchecked_conversion%s
+D editor.ads		20260406185230 16f844c2 editor%s
+D editor-commands.ads	20260425121135 91ba1af2 editor.commands%s
+D editor-cursors.ads	20260425100454 1f938cf3 editor.cursors%s
+D editor-engine.ads	20260412150549 6a615f27 editor.engine%s
+D editor-engine.adb	20260418185358 38d0dd44 editor.engine%b
+D editor-executor.ads	20260424193939 60525236 editor.executor%s
+D editor-state.ads	20260503173758 d429238c editor.state%s
+D interfac.ads		20250808065140 9111f9c1 interfaces%s
+D i-c.ads		20250808065140 e94c966a interfaces.c%s
+D system.ads		20250808065140 14286b0f system%s
+D s-atocou.ads		20250808065140 dc18efc3 system.atomic_counters%s
+D s-exctab.ads		20250808065140 91bef6ef system.exception_table%s
+D s-finpri.ads		20250808065140 5970d55a system.finalization_primitives%s
+D s-finroo.ads		20250808065140 0a7c3ed4 system.finalization_root%s
+D s-oscons.ads		20250827122531 068e1a91 system.os_constants%s
+D s-oslock.ads		20250808065140 13fa6b78 system.os_locks%s
+D s-parame.ads		20250808065140 3597fc11 system.parameters%s
+D s-pooglo.ads		20250808065140 91708d21 system.pool_global%s
+D s-putima.ads		20250808065140 17291fe4 system.put_images%s
+D s-retsta.ads		20250808065140 0f6b06cb system.return_stack%s
+D s-secsta.ads		20250808065140 578279f5 system.secondary_stack%s
+D s-soflin.ads		20250808065140 5d88fdea system.soft_links%s
+D s-stache.ads		20250808065140 0b81c1fe system.stack_checking%s
+D s-stalib.ads		20250808065140 1c9580f6 system.standard_library%s
+D s-stoele.ads		20250808065140 ccded4e8 system.storage_elements%s
+D s-stopoo.ads		20250808065140 e9fa2dd8 system.storage_pools%s
+D s-stratt.ads		20250808065140 516607ae system.stream_attributes%s
+D s-traent.ads		20250808065140 c81cbf8c system.traceback_entries%s
+D s-unstyp.ads		20250808065140 fa2a7f59 system.unsigned_types%s
+D text_backend.ads	20260412181650 6d0030da text_backend%s
+D text_backend-rope_impl.ads  20260427194525 88d12c3a text_backend.rope_impl%s
+D text_buffer.ads	20260427153044 bb9a4056 text_buffer%s
+G a e
+G c Z s b [run_command editor__engine 6 14 none]
+G r c none [run_command editor__engine 6 14 none] [execute_no_log editor__executor 9 14 none]
+X 9 a-iteint.ads
+24h9 Forward_Iterator
+32h9 Reversible_Iterator<24R9[6|119]>
+X 19 editor.ads
+1K9*Editor 5e11 22|1r6 2r6 4r9 7r21 8r14 10r5 23|1r6 3r14 6r21 7r14 9r7 12r5
+X 20 editor-commands.ads
+5K16*Commands 75e20 22|2w13 8r21 23|7r21
+56R9*Command 71e14 22|8r30 23|7r30
+X 22 editor-engine.ads
+4K16*Engine 19|1k9 22|10l12 10e18 23|3b21 12l12 12t18
+6U14*Run_Command 7=7 8>7 23|5b14 10l8 10t19
+7r7 S{25|11R9} 23|6b7 9m39
+8r7 Cmd{20|56R9} 23|7b7 9r42
+X 24 editor-executor.ads
+7K16*Executor 23|1w13 9r14 24|26e20
+9U14*Execute_No_Log 23|9s23
+X 25 editor-state.ads
+5K16*State 22|1w13 7r28 23|6r28 25|47e17
+11R9*State_Type 22|7r34 23|6r34 25|19e14
+

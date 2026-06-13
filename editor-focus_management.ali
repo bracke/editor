@@ -1,0 +1,1101 @@
+V "GNAT Lib v15"
+A -gnat2022
+P SS ZX
+
+RN
+RV NO_SECONDARY_STACK
+RV NO_DYNAMIC_SIZED_OBJECTS
+RV NO_IMPLEMENTATION_PRAGMAS
+RV NO_IMPLICIT_LOOPS
+
+U editor.focus_management%b  editor-focus_management.adb  6b5dd3ff NE OO PK
+Z ada.strings.text_buffers%s  a-sttebu.adb	a-sttebu.ali
+W editor%s		editor.ads		editor.ali
+W editor.build_output_details%s  editor-build_output_details.adb  editor-build_output_details.ali
+W editor.build_ui%s	editor-build_ui.adb	editor-build_ui.ali
+W editor.feature_panel%s  editor-feature_panel.adb  editor-feature_panel.ali
+W editor.feature_search_results%s  editor-feature_search_results.adb  editor-feature_search_results.ali
+W editor.guided_prompts%s  editor-guided_prompts.adb  editor-guided_prompts.ali
+W editor.outline%s	editor-outline.adb	editor-outline.ali
+W editor.overlay_focus%s  editor-overlay_focus.adb  editor-overlay_focus.ali
+W editor.panel_focus%s	editor-panel_focus.adb	editor-panel_focus.ali
+W editor.panels%s	editor-panels.adb	editor-panels.ali
+W editor.pending_transitions%s  editor-pending_transitions.adb  editor-pending_transitions.ali
+W editor.project%s	editor-project.adb	editor-project.ali
+W editor.project_search_bar%s  editor-project_search_bar.adb  editor-project_search_bar.ali
+Z system.secondary_stack%s  s-secsta.adb	s-secsta.ali
+
+U editor.focus_management%s  editor-focus_management.ads  55092249 EE NE OO PK
+W editor%s		editor.ads		editor.ali
+W editor.commands%s	editor-commands.adb	editor-commands.ali
+W editor.state%s	editor-state.adb	editor-state.ali
+
+D ada.ads		20250808065140 76789da1 ada%s
+D a-calend.ads		20250808065140 bf7f3cc9 ada.calendar%s
+D a-charac.ads		20250808065140 2d3ec45b ada.characters%s
+D a-chlat1.ads		20250808065140 e0d72e76 ada.characters.latin_1%s
+D a-contai.ads		20250808065140 61e5e089 ada.containers%s
+D a-conhel.ads		20250808065140 46fe1ce3 ada.containers.helpers%s
+D a-convec.ads		20250808065140 91fb49f3 ada.containers.vectors%s
+D a-except.ads		20250808065140 e7970cd9 ada.exceptions%s
+D a-finali.ads		20250808065140 bf4f806b ada.finalization%s
+D a-iteint.ads		20250808065140 49a8bee2 ada.iterator_interfaces%s
+D a-stream.ads		20250808065140 17477cbd ada.streams%s
+D a-string.ads		20250808065140 90ac6797 ada.strings%s
+D a-strmap.ads		20250808065140 1f91ebb6 ada.strings.maps%s
+D a-strsea.ads		20250808065140 18c3c634 ada.strings.search%s
+D a-sttebu.ads		20250808065140 f1ad67a2 ada.strings.text_buffers%s
+D a-strunb.ads		20250808065140 b10770ab ada.strings.unbounded%s
+D a-stuten.ads		20250808065140 c6ced0ae ada.strings.utf_encoding%s
+D a-tags.ads		20250808065140 fbca0ad5 ada.tags%s
+D a-unccon.ads		20250808065140 0e9b276f ada.unchecked_conversion%s
+D editor.ads		20260612145959 16f844c2 editor%s
+D editor-ada_language_model.ads  20260612145959 459f92c3 editor.ada_language_model%s
+D editor-ada_project_index.ads  20260612145959 3ad143b9 editor.ada_project_index%s
+D editor-ada_syntax_tree.ads  20260612145959 49a76ced editor.ada_syntax_tree%s
+D editor-bookmarks.ads	20260612145959 4e695f4d editor.bookmarks%s
+D editor-buffer_switcher.ads  20260612152524 fd053b33 editor.buffer_switcher%s
+D editor-buffer_types.ads  20260612151710 a555405e editor.buffer_types%s
+D editor-buffers.ads	20260612185530 1a6b6e4c editor.buffers%s
+D editor-build_candidates.ads  20260612145959 dc89ea7b editor.build_candidates%s
+D editor-build_output_details.ads  20260612145959 0f4ba402 editor.build_output_details%s
+D editor-build_process_control.ads  20260612145959 28661204 editor.build_process_control%s
+D editor-build_result_summary.ads  20260612145959 94fc95d2 editor.build_result_summary%s
+D editor-build_runner_policy.ads  20260612145959 623f26a9 editor.build_runner_policy%s
+D editor-build_ui.ads	20260612152524 28a54496 editor.build_ui%s
+D editor-build_working_context.ads  20260612145959 cef9cea9 editor.build_working_context%s
+D editor-commands.ads	20260612173240 3b5e3f44 editor.commands%s
+D editor-cursors.ads	20260612145959 1f938cf3 editor.cursors%s
+D editor-diagnostics.ads  20260612145959 41767a50 editor.diagnostics%s
+D editor-dirty_guards.ads  20260612145959 2f2ee9d0 editor.dirty_guards%s
+D editor-dirty_lines.ads  20260612145959 fa543a8e editor.dirty_lines%s
+D editor-external_producers.ads  20260612152524 38bdba64 editor.external_producers%s
+D editor-feature_diagnostics.ads  20260612145959 9dd4f8ea editor.feature_diagnostics%s
+D editor-feature_messages.ads  20260612145959 2c7a5943 editor.feature_messages%s
+D editor-feature_panel.ads  20260612145959 0bdf4cfc editor.feature_panel%s
+D editor-feature_search_results.ads  20260612152524 38c78314 editor.feature_search_results%s
+D editor-file_tree.ads	20260612145959 e6abdf66 editor.file_tree%s
+D editor-file_tree_view.ads  20260612145959 99db49c3 editor.file_tree_view%s
+D editor-focus_management.ads  20260612145959 34fc28d7 editor.focus_management%s
+D editor-focus_management.adb  20260612160818 0daa405e editor.focus_management%b
+D editor-folding.ads	20260612145959 860f30d0 editor.folding%s
+D editor-go_to_line.ads	20260612145959 c07ea03c editor.go_to_line%s
+D editor-guided_prompts.ads  20260612145959 34cab40b editor.guided_prompts%s
+D editor-gutter_markers.ads  20260612145959 304c4eae editor.gutter_markers%s
+D editor-history.ads	20260612145959 b546dbc4 editor.history%s
+D editor-input_field.ads  20260612145959 04b03a00 editor.input_field%s
+D editor-keybindings.ads  20260612145959 2657f44d editor.keybindings%s
+D editor-layout.ads	20260612145959 68c2e77a editor.layout%s
+D editor-messages.ads	20260612151413 205b1944 editor.messages%s
+D editor-navigation_history.ads  20260612145959 b0e3398a editor.navigation_history%s
+D editor-outline.ads	20260612152524 90a00201 editor.outline%s
+D editor-overlay_focus.ads  20260612145959 92ec945e editor.overlay_focus%s
+D editor-panel_focus.ads  20260612145959 a6c95284 editor.panel_focus%s
+D editor-panels.ads	20260612145959 66614da0 editor.panels%s
+D editor-pending_transitions.ads  20260612145959 81c78960 editor.pending_transitions%s
+D editor-problems.ads	20260612145959 a9a08157 editor.problems%s
+D editor-producer_contracts.ads  20260612145959 c3ee4501 editor.producer_contracts%s
+D editor-project.ads	20260612145959 f4d50f6d editor.project%s
+D editor-project_search.ads  20260612152451 857df5ab editor.project_search%s
+D editor-project_search_bar.ads  20260612145959 c5c12f77 editor.project_search_bar%s
+D editor-quick_open.ads	20260612151807 878ba83c editor.quick_open%s
+D editor-recent_buffers.ads  20260612145959 617e4612 editor.recent_buffers%s
+D editor-recent_projects.ads  20260612145959 ee1155f5 editor.recent_projects%s
+D editor-search.ads	20260612145959 dac0e204 editor.search%s
+D editor-search_results.ads  20260612145959 98eded1d editor.search_results%s
+D editor-settings.ads	20260612145959 c2103809 editor.settings%s
+D editor-state.ads	20260612170622 4c537118 editor.state%s
+D editor-status_bar.ads	20260612145959 879f0640 editor.status_bar%s
+D editor-syntax.ads	20260612145959 d59b0303 editor.syntax%s
+D editor-syntax_cache.ads  20260612164742 637f2470 editor.syntax_cache%s
+D editor-syntax_semantics.ads  20260612145959 a499b10a editor.syntax_semantics%s
+D editor-tab_bar.ads	20260612151839 e26dca3d editor.tab_bar%s
+D editor-unicode.ads	20260612145959 552ff3cc editor.unicode%s
+D editor-view_types.ads	20260612152152 f3042ec7 editor.view_types%s
+D editor-workspace_persistence.ads  20260612145959 455ffd61 editor.workspace_persistence%s
+D editor-wrap.ads	20260612145959 87db665a editor.wrap%s
+D interfac.ads		20250808065140 9111f9c1 interfaces%s
+D i-c.ads		20250808065140 e94c966a interfaces.c%s
+D system.ads		20250808065140 14286b0f system%s
+D s-atocou.ads		20250808065140 dc18efc3 system.atomic_counters%s
+D s-exctab.ads		20250808065140 91bef6ef system.exception_table%s
+D s-finpri.ads		20250808065140 5970d55a system.finalization_primitives%s
+D s-finroo.ads		20250808065140 0a7c3ed4 system.finalization_root%s
+D s-oscons.ads		20250827122531 068e1a91 system.os_constants%s
+D s-oslock.ads		20250808065140 13fa6b78 system.os_locks%s
+D s-parame.ads		20250808065140 3597fc11 system.parameters%s
+D s-pooglo.ads		20250808065140 91708d21 system.pool_global%s
+D s-putima.ads		20250808065140 17291fe4 system.put_images%s
+D s-retsta.ads		20250808065140 0f6b06cb system.return_stack%s
+D s-secsta.ads		20250808065140 578279f5 system.secondary_stack%s
+D s-soflin.ads		20250808065140 5d88fdea system.soft_links%s
+D s-stache.ads		20250808065140 0b81c1fe system.stack_checking%s
+D s-stalib.ads		20250808065140 1c9580f6 system.standard_library%s
+D s-stoele.ads		20250808065140 ccded4e8 system.storage_elements%s
+D s-stopoo.ads		20250808065140 e9fa2dd8 system.storage_pools%s
+D s-stratt.ads		20250808065140 516607ae system.stream_attributes%s
+D s-traent.ads		20250808065140 c81cbf8c system.traceback_entries%s
+D s-unstyp.ads		20250808065140 fa2a7f59 system.unsigned_types%s
+D text_backend.ads	20260612145959 6d0030da text_backend%s
+D text_backend-rope_impl.ads  20260612145959 0f5d7663 text_backend.rope_impl%s
+D text_buffer.ads	20260612145959 bb9a4056 text_buffer%s
+G a e
+G c Z s b [effective_focus_owner editor__focus_management 26 13 none]
+G c Z s b [focus_owner_label editor__focus_management 29 13 none]
+G c Z s b [active_panel_label editor__focus_management 32 13 none]
+G c Z s b [input_mode_label editor__focus_management 35 13 none]
+G c Z s b [overlay_query_active editor__focus_management 38 13 none]
+G c Z s b [editor_text_can_edit editor__focus_management 41 13 none]
+G c Z s b [overlay_input_owns_text editor__focus_management 44 13 none]
+G c Z s b [panel_navigation_owns_arrows editor__focus_management 47 13 none]
+G c Z s b [pending_confirmation_owns_focus editor__focus_management 50 13 none]
+G c Z s b [focus_priority_rank editor__focus_management 53 13 none]
+G c Z s b [text_input_owner editor__focus_management 56 13 none]
+G c Z s b [navigation_panel_owner editor__focus_management 59 13 none]
+G c Z s b [global_keybindings_may_run editor__focus_management 62 13 none]
+G c Z s b [command_is_surface_entry editor__focus_management 65 13 none]
+G c Z s b [focus_target_for_surface_command editor__focus_management 68 13 none]
+G c Z s b [command_may_run_in_current_focus editor__focus_management 71 13 none]
+G c Z s b [activation_returns_focus_to_editor editor__focus_management 75 13 none]
+G c Z s b [escape_returns_focus_to_editor editor__focus_management 78 13 none]
+G c Z s b [escape_closes_overlay editor__focus_management 81 13 none]
+G c Z s b [command_is_panel_local_navigation editor__focus_management 84 13 none]
+G c Z s b [command_closes_focused_surface editor__focus_management 87 13 none]
+G c Z s b [command_returns_focus_to_editor editor__focus_management 90 13 none]
+G c Z s b [focus_state_is_persistable editor__focus_management 93 13 none]
+G c Z s b [focus_state_has_no_competing_owners editor__focus_management 96 13 none]
+G c Z s b [set_focus_owner editor__focus_management 99 14 none]
+G c Z s b [restore_focus_to_editor editor__focus_management 103 14 none]
+G c Z s b [clear_transient_focus_owners editor__focus_management 106 14 none]
+G c Z s b [restore_previous_focus_or_editor editor__focus_management 110 14 none]
+G c Z s b [command_focuses_surface_after_execution editor__focus_management 113 13 none]
+G c Z s b [apply_command_focus_result editor__focus_management 116 14 none]
+G c Z s b [command_closes_focus_owner editor__focus_management 121 13 none]
+G c Z s b [command_toggles_focus_owner editor__focus_management 125 13 none]
+G c Z s b [command_allowed_while_pending editor__focus_management 129 13 none]
+G c Z s b [command_is_conflicting_while_pending editor__focus_management 132 13 none]
+G c Z s b [assert_panel_focus_management_coherent editor__focus_management 135 13 none]
+G c Z b b [is_editor_text_command_id editor__focus_management 397 13 none]
+G c Z b b [is_quick_open_command_id editor__focus_management 465 13 none]
+G c Z b b [is_buffer_list_command_id editor__focus_management 478 13 none]
+G c Z b b [is_project_search_command_id editor__focus_management 491 13 none]
+G c Z b b [is_feature_search_query_command_id editor__focus_management 519 13 none]
+G c Z b b [is_file_tree_command_id editor__focus_management 551 13 none]
+G c Z b b [is_outline_command_id editor__focus_management 581 13 none]
+G c Z b b [is_diagnostics_command_id editor__focus_management 618 13 none]
+G c Z b b [is_build_command_id editor__focus_management 639 13 none]
+G c Z b b [is_recent_projects_command_id editor__focus_management 652 13 none]
+G c Z b b [is_workspace_prompt_command_id editor__focus_management 671 13 none]
+G c Z b b [is_overlay_local_command_id editor__focus_management 712 13 none]
+G c Z b b [overlay_focus_owner editor__focus_management 742 13 none]
+G c Z b b [is_status_message_command_id editor__focus_management 761 13 none]
+G c Z b b [is_safe_global_status_command_id editor__focus_management 786 13 none]
+G c Z b b [feature_search_input_has_valid_parent editor__focus_management 1185 13 none]
+G c Z b b [outline_filter_input_has_valid_parent editor__focus_management 1198 13 none]
+G c Z b b [clear_overlay_and_local_text_focus editor__focus_management 1261 14 none]
+G c Z b b [previous_focus_target_still_valid editor__focus_management 1313 13 none]
+G r c none [effective_focus_owner editor__focus_management 26 13 none] [has_pending editor__pending_transitions 68 13 none]
+G r c none [effective_focus_owner editor__focus_management 26 13 none] [is_active editor__guided_prompts 122 13 none]
+G r c none [effective_focus_owner editor__focus_management 26 13 none] [is_confirmation editor__guided_prompts 132 13 none]
+G r c none [effective_focus_owner editor__focus_management 26 13 none] [active_overlay editor__overlay_focus 34 13 none]
+G r c none [effective_focus_owner editor__focus_management 26 13 none] [active_field editor__project_search_bar 41 13 none]
+G r c none [effective_focus_owner editor__focus_management 26 13 none] [search_input_is_active editor__feature_search_results 36 13 none]
+G r c none [effective_focus_owner editor__focus_management 26 13 none] [filter_input_is_active editor__outline 289 13 none]
+G r c none [effective_focus_owner editor__focus_management 26 13 none] [is_focused editor__feature_panel 278 13 none]
+G r c none [effective_focus_owner editor__focus_management 26 13 none] [active_feature editor__feature_panel 156 13 none]
+G r c none [effective_focus_owner editor__focus_management 26 13 none] [target editor__panel_focus 18 13 none]
+G r c none [effective_focus_owner editor__focus_management 26 13 none] [bottom_content editor__panel_focus 21 13 none]
+G r c none [overlay_query_active editor__focus_management 38 13 none] [has_pending editor__pending_transitions 68 13 none]
+G r c none [overlay_query_active editor__focus_management 38 13 none] [is_active editor__guided_prompts 122 13 none]
+G r c none [overlay_query_active editor__focus_management 38 13 none] [is_confirmation editor__guided_prompts 132 13 none]
+G r c none [overlay_query_active editor__focus_management 38 13 none] [active_overlay editor__overlay_focus 34 13 none]
+G r c none [overlay_query_active editor__focus_management 38 13 none] [active_field editor__project_search_bar 41 13 none]
+G r c none [overlay_query_active editor__focus_management 38 13 none] [search_input_is_active editor__feature_search_results 36 13 none]
+G r c none [overlay_query_active editor__focus_management 38 13 none] [filter_input_is_active editor__outline 289 13 none]
+G r c none [overlay_query_active editor__focus_management 38 13 none] [is_focused editor__feature_panel 278 13 none]
+G r c none [overlay_query_active editor__focus_management 38 13 none] [active_feature editor__feature_panel 156 13 none]
+G r c none [overlay_query_active editor__focus_management 38 13 none] [target editor__panel_focus 18 13 none]
+G r c none [overlay_query_active editor__focus_management 38 13 none] [bottom_content editor__panel_focus 21 13 none]
+G r c none [editor_text_can_edit editor__focus_management 41 13 none] [has_pending editor__pending_transitions 68 13 none]
+G r c none [editor_text_can_edit editor__focus_management 41 13 none] [is_active editor__guided_prompts 122 13 none]
+G r c none [editor_text_can_edit editor__focus_management 41 13 none] [is_confirmation editor__guided_prompts 132 13 none]
+G r c none [editor_text_can_edit editor__focus_management 41 13 none] [active_overlay editor__overlay_focus 34 13 none]
+G r c none [editor_text_can_edit editor__focus_management 41 13 none] [active_field editor__project_search_bar 41 13 none]
+G r c none [editor_text_can_edit editor__focus_management 41 13 none] [search_input_is_active editor__feature_search_results 36 13 none]
+G r c none [editor_text_can_edit editor__focus_management 41 13 none] [filter_input_is_active editor__outline 289 13 none]
+G r c none [editor_text_can_edit editor__focus_management 41 13 none] [is_focused editor__feature_panel 278 13 none]
+G r c none [editor_text_can_edit editor__focus_management 41 13 none] [active_feature editor__feature_panel 156 13 none]
+G r c none [editor_text_can_edit editor__focus_management 41 13 none] [target editor__panel_focus 18 13 none]
+G r c none [editor_text_can_edit editor__focus_management 41 13 none] [bottom_content editor__panel_focus 21 13 none]
+G r c none [overlay_input_owns_text editor__focus_management 44 13 none] [filter_input_is_active editor__outline 289 13 none]
+G r c none [overlay_input_owns_text editor__focus_management 44 13 none] [search_input_is_active editor__feature_search_results 36 13 none]
+G r c none [overlay_input_owns_text editor__focus_management 44 13 none] [has_active_overlay editor__overlay_focus 37 13 none]
+G r c none [panel_navigation_owns_arrows editor__focus_management 47 13 none] [has_pending editor__pending_transitions 68 13 none]
+G r c none [panel_navigation_owns_arrows editor__focus_management 47 13 none] [is_active editor__guided_prompts 122 13 none]
+G r c none [panel_navigation_owns_arrows editor__focus_management 47 13 none] [is_confirmation editor__guided_prompts 132 13 none]
+G r c none [panel_navigation_owns_arrows editor__focus_management 47 13 none] [active_overlay editor__overlay_focus 34 13 none]
+G r c none [panel_navigation_owns_arrows editor__focus_management 47 13 none] [active_field editor__project_search_bar 41 13 none]
+G r c none [panel_navigation_owns_arrows editor__focus_management 47 13 none] [search_input_is_active editor__feature_search_results 36 13 none]
+G r c none [panel_navigation_owns_arrows editor__focus_management 47 13 none] [filter_input_is_active editor__outline 289 13 none]
+G r c none [panel_navigation_owns_arrows editor__focus_management 47 13 none] [is_focused editor__feature_panel 278 13 none]
+G r c none [panel_navigation_owns_arrows editor__focus_management 47 13 none] [active_feature editor__feature_panel 156 13 none]
+G r c none [panel_navigation_owns_arrows editor__focus_management 47 13 none] [target editor__panel_focus 18 13 none]
+G r c none [panel_navigation_owns_arrows editor__focus_management 47 13 none] [bottom_content editor__panel_focus 21 13 none]
+G r c none [pending_confirmation_owns_focus editor__focus_management 50 13 none] [has_pending editor__pending_transitions 68 13 none]
+G r c none [global_keybindings_may_run editor__focus_management 62 13 none] [has_pending editor__pending_transitions 68 13 none]
+G r c none [global_keybindings_may_run editor__focus_management 62 13 none] [is_active editor__guided_prompts 122 13 none]
+G r c none [global_keybindings_may_run editor__focus_management 62 13 none] [is_confirmation editor__guided_prompts 132 13 none]
+G r c none [global_keybindings_may_run editor__focus_management 62 13 none] [active_overlay editor__overlay_focus 34 13 none]
+G r c none [global_keybindings_may_run editor__focus_management 62 13 none] [active_field editor__project_search_bar 41 13 none]
+G r c none [global_keybindings_may_run editor__focus_management 62 13 none] [search_input_is_active editor__feature_search_results 36 13 none]
+G r c none [global_keybindings_may_run editor__focus_management 62 13 none] [filter_input_is_active editor__outline 289 13 none]
+G r c none [global_keybindings_may_run editor__focus_management 62 13 none] [is_focused editor__feature_panel 278 13 none]
+G r c none [global_keybindings_may_run editor__focus_management 62 13 none] [active_feature editor__feature_panel 156 13 none]
+G r c none [global_keybindings_may_run editor__focus_management 62 13 none] [target editor__panel_focus 18 13 none]
+G r c none [global_keybindings_may_run editor__focus_management 62 13 none] [bottom_content editor__panel_focus 21 13 none]
+G r c none [command_may_run_in_current_focus editor__focus_management 71 13 none] [has_pending editor__pending_transitions 68 13 none]
+G r c none [command_may_run_in_current_focus editor__focus_management 71 13 none] [is_active editor__guided_prompts 122 13 none]
+G r c none [command_may_run_in_current_focus editor__focus_management 71 13 none] [is_confirmation editor__guided_prompts 132 13 none]
+G r c none [command_may_run_in_current_focus editor__focus_management 71 13 none] [active_overlay editor__overlay_focus 34 13 none]
+G r c none [command_may_run_in_current_focus editor__focus_management 71 13 none] [active_field editor__project_search_bar 41 13 none]
+G r c none [command_may_run_in_current_focus editor__focus_management 71 13 none] [search_input_is_active editor__feature_search_results 36 13 none]
+G r c none [command_may_run_in_current_focus editor__focus_management 71 13 none] [filter_input_is_active editor__outline 289 13 none]
+G r c none [command_may_run_in_current_focus editor__focus_management 71 13 none] [is_focused editor__feature_panel 278 13 none]
+G r c none [command_may_run_in_current_focus editor__focus_management 71 13 none] [active_feature editor__feature_panel 156 13 none]
+G r c none [command_may_run_in_current_focus editor__focus_management 71 13 none] [target editor__panel_focus 18 13 none]
+G r c none [command_may_run_in_current_focus editor__focus_management 71 13 none] [bottom_content editor__panel_focus 21 13 none]
+G r c none [focus_state_has_no_competing_owners editor__focus_management 96 13 none] [has_pending editor__pending_transitions 68 13 none]
+G r c none [focus_state_has_no_competing_owners editor__focus_management 96 13 none] [is_active editor__guided_prompts 122 13 none]
+G r c none [focus_state_has_no_competing_owners editor__focus_management 96 13 none] [is_confirmation editor__guided_prompts 132 13 none]
+G r c none [focus_state_has_no_competing_owners editor__focus_management 96 13 none] [active_overlay editor__overlay_focus 34 13 none]
+G r c none [focus_state_has_no_competing_owners editor__focus_management 96 13 none] [active_field editor__project_search_bar 41 13 none]
+G r c none [focus_state_has_no_competing_owners editor__focus_management 96 13 none] [search_input_is_active editor__feature_search_results 36 13 none]
+G r c none [focus_state_has_no_competing_owners editor__focus_management 96 13 none] [filter_input_is_active editor__outline 289 13 none]
+G r c none [focus_state_has_no_competing_owners editor__focus_management 96 13 none] [is_focused editor__feature_panel 278 13 none]
+G r c none [focus_state_has_no_competing_owners editor__focus_management 96 13 none] [active_feature editor__feature_panel 156 13 none]
+G r c none [focus_state_has_no_competing_owners editor__focus_management 96 13 none] [target editor__panel_focus 18 13 none]
+G r c none [focus_state_has_no_competing_owners editor__focus_management 96 13 none] [bottom_content editor__panel_focus 21 13 none]
+G r c none [focus_state_has_no_competing_owners editor__focus_management 96 13 none] [has_active_overlay editor__overlay_focus 37 13 none]
+G r c none [focus_state_has_no_competing_owners editor__focus_management 96 13 none] [is_visible editor__feature_panel 264 13 none]
+G r c none [set_focus_owner editor__focus_management 99 14 none] [has_active_overlay editor__overlay_focus 37 13 none]
+G r c none [set_focus_owner editor__focus_management 99 14 none] [dismiss editor__overlay_focus 57 14 none]
+G r c none [set_focus_owner editor__focus_management 99 14 none] [search_input_is_active editor__feature_search_results 36 13 none]
+G r c none [set_focus_owner editor__focus_management 99 14 none] [deactivate_search_query_input editor__feature_search_results 33 14 none]
+G r c none [set_focus_owner editor__focus_management 99 14 none] [filter_input_is_active editor__outline 289 13 none]
+G r c none [set_focus_owner editor__focus_management 99 14 none] [deactivate_filter_input editor__outline 286 14 none]
+G r c none [set_focus_owner editor__focus_management 99 14 none] [set_focused editor__feature_panel 271 14 none]
+G r c none [set_focus_owner editor__focus_management 99 14 none] [focus_editor_text editor__panel_focus 33 14 none]
+G r c none [set_focus_owner editor__focus_management 99 14 none] [activate editor__overlay_focus 47 14 none]
+G r c none [set_focus_owner editor__focus_management 99 14 none] [focus_query_field editor__project_search_bar 42 14 none]
+G r c none [set_focus_owner editor__focus_management 99 14 none] [focus_replace_field editor__project_search_bar 43 14 none]
+G r c none [set_focus_owner editor__focus_management 99 14 none] [set_visible editor__panels 71 14 none]
+G r c none [set_focus_owner editor__focus_management 99 14 none] [focus_file_tree editor__panel_focus 36 14 none]
+G r c none [set_focus_owner editor__focus_management 99 14 none] [set_bottom_content editor__panels 115 14 none]
+G r c none [set_focus_owner editor__focus_management 99 14 none] [focus_bottom_panel editor__panel_focus 39 14 none]
+G r c none [set_focus_owner editor__focus_management 99 14 none] [set_active_feature editor__feature_panel 189 13 none]
+G r c none [set_focus_owner editor__focus_management 99 14 none] [set_visible editor__feature_panel 255 14 none]
+G r c none [set_focus_owner editor__focus_management 99 14 none] [activate_filter_input editor__outline 283 14 none]
+G r c none [set_focus_owner editor__focus_management 99 14 none] [focus editor__build_ui 257 14 none]
+G r c none [set_focus_owner editor__focus_management 99 14 none] [focus_output_details editor__build_output_details 199 14 none]
+G r c none [restore_focus_to_editor editor__focus_management 103 14 none] [has_active_overlay editor__overlay_focus 37 13 none]
+G r c none [restore_focus_to_editor editor__focus_management 103 14 none] [dismiss editor__overlay_focus 57 14 none]
+G r c none [restore_focus_to_editor editor__focus_management 103 14 none] [search_input_is_active editor__feature_search_results 36 13 none]
+G r c none [restore_focus_to_editor editor__focus_management 103 14 none] [deactivate_search_query_input editor__feature_search_results 33 14 none]
+G r c none [restore_focus_to_editor editor__focus_management 103 14 none] [filter_input_is_active editor__outline 289 13 none]
+G r c none [restore_focus_to_editor editor__focus_management 103 14 none] [deactivate_filter_input editor__outline 286 14 none]
+G r c none [restore_focus_to_editor editor__focus_management 103 14 none] [set_focused editor__feature_panel 271 14 none]
+G r c none [restore_focus_to_editor editor__focus_management 103 14 none] [focus_editor_text editor__panel_focus 33 14 none]
+G r c none [clear_transient_focus_owners editor__focus_management 106 14 none] [has_active_overlay editor__overlay_focus 37 13 none]
+G r c none [clear_transient_focus_owners editor__focus_management 106 14 none] [dismiss editor__overlay_focus 57 14 none]
+G r c none [clear_transient_focus_owners editor__focus_management 106 14 none] [search_input_is_active editor__feature_search_results 36 13 none]
+G r c none [clear_transient_focus_owners editor__focus_management 106 14 none] [deactivate_search_query_input editor__feature_search_results 33 14 none]
+G r c none [clear_transient_focus_owners editor__focus_management 106 14 none] [filter_input_is_active editor__outline 289 13 none]
+G r c none [clear_transient_focus_owners editor__focus_management 106 14 none] [deactivate_filter_input editor__outline 286 14 none]
+G r c none [restore_previous_focus_or_editor editor__focus_management 110 14 none] [previous_focus editor__overlay_focus 64 13 none]
+G r c none [restore_previous_focus_or_editor editor__focus_management 110 14 none] [has_active_overlay editor__overlay_focus 37 13 none]
+G r c none [restore_previous_focus_or_editor editor__focus_management 110 14 none] [dismiss editor__overlay_focus 57 14 none]
+G r c none [restore_previous_focus_or_editor editor__focus_management 110 14 none] [search_input_is_active editor__feature_search_results 36 13 none]
+G r c none [restore_previous_focus_or_editor editor__focus_management 110 14 none] [deactivate_search_query_input editor__feature_search_results 33 14 none]
+G r c none [restore_previous_focus_or_editor editor__focus_management 110 14 none] [filter_input_is_active editor__outline 289 13 none]
+G r c none [restore_previous_focus_or_editor editor__focus_management 110 14 none] [deactivate_filter_input editor__outline 286 14 none]
+G r c none [restore_previous_focus_or_editor editor__focus_management 110 14 none] [set_focused editor__feature_panel 271 14 none]
+G r c none [restore_previous_focus_or_editor editor__focus_management 110 14 none] [is_visible editor__panels 76 13 none]
+G r c none [restore_previous_focus_or_editor editor__focus_management 110 14 none] [has_project editor__project 73 13 none]
+G r c none [restore_previous_focus_or_editor editor__focus_management 110 14 none] [active_bottom_content editor__panels 119 13 none]
+G r c none [restore_previous_focus_or_editor editor__focus_management 110 14 none] [focus_editor_text editor__panel_focus 33 14 none]
+G r c none [restore_previous_focus_or_editor editor__focus_management 110 14 none] [focus_file_tree editor__panel_focus 36 14 none]
+G r c none [restore_previous_focus_or_editor editor__focus_management 110 14 none] [focus_bottom_panel editor__panel_focus 39 14 none]
+G r c none [apply_command_focus_result editor__focus_management 116 14 none] [has_pending editor__pending_transitions 68 13 none]
+G r c none [apply_command_focus_result editor__focus_management 116 14 none] [is_active editor__guided_prompts 122 13 none]
+G r c none [apply_command_focus_result editor__focus_management 116 14 none] [is_confirmation editor__guided_prompts 132 13 none]
+G r c none [apply_command_focus_result editor__focus_management 116 14 none] [active_overlay editor__overlay_focus 34 13 none]
+G r c none [apply_command_focus_result editor__focus_management 116 14 none] [active_field editor__project_search_bar 41 13 none]
+G r c none [apply_command_focus_result editor__focus_management 116 14 none] [search_input_is_active editor__feature_search_results 36 13 none]
+G r c none [apply_command_focus_result editor__focus_management 116 14 none] [filter_input_is_active editor__outline 289 13 none]
+G r c none [apply_command_focus_result editor__focus_management 116 14 none] [is_focused editor__feature_panel 278 13 none]
+G r c none [apply_command_focus_result editor__focus_management 116 14 none] [active_feature editor__feature_panel 156 13 none]
+G r c none [apply_command_focus_result editor__focus_management 116 14 none] [target editor__panel_focus 18 13 none]
+G r c none [apply_command_focus_result editor__focus_management 116 14 none] [bottom_content editor__panel_focus 21 13 none]
+G r c none [apply_command_focus_result editor__focus_management 116 14 none] [has_active_overlay editor__overlay_focus 37 13 none]
+G r c none [apply_command_focus_result editor__focus_management 116 14 none] [dismiss editor__overlay_focus 57 14 none]
+G r c none [apply_command_focus_result editor__focus_management 116 14 none] [deactivate_search_query_input editor__feature_search_results 33 14 none]
+G r c none [apply_command_focus_result editor__focus_management 116 14 none] [deactivate_filter_input editor__outline 286 14 none]
+G r c none [apply_command_focus_result editor__focus_management 116 14 none] [set_focused editor__feature_panel 271 14 none]
+G r c none [apply_command_focus_result editor__focus_management 116 14 none] [focus_editor_text editor__panel_focus 33 14 none]
+G r c none [apply_command_focus_result editor__focus_management 116 14 none] [previous_focus editor__overlay_focus 64 13 none]
+G r c none [apply_command_focus_result editor__focus_management 116 14 none] [is_visible editor__panels 76 13 none]
+G r c none [apply_command_focus_result editor__focus_management 116 14 none] [has_project editor__project 73 13 none]
+G r c none [apply_command_focus_result editor__focus_management 116 14 none] [active_bottom_content editor__panels 119 13 none]
+G r c none [apply_command_focus_result editor__focus_management 116 14 none] [focus_file_tree editor__panel_focus 36 14 none]
+G r c none [apply_command_focus_result editor__focus_management 116 14 none] [focus_bottom_panel editor__panel_focus 39 14 none]
+G r c none [apply_command_focus_result editor__focus_management 116 14 none] [activate editor__overlay_focus 47 14 none]
+G r c none [apply_command_focus_result editor__focus_management 116 14 none] [focus_query_field editor__project_search_bar 42 14 none]
+G r c none [apply_command_focus_result editor__focus_management 116 14 none] [focus_replace_field editor__project_search_bar 43 14 none]
+G r c none [apply_command_focus_result editor__focus_management 116 14 none] [set_visible editor__panels 71 14 none]
+G r c none [apply_command_focus_result editor__focus_management 116 14 none] [set_bottom_content editor__panels 115 14 none]
+G r c none [apply_command_focus_result editor__focus_management 116 14 none] [set_active_feature editor__feature_panel 189 13 none]
+G r c none [apply_command_focus_result editor__focus_management 116 14 none] [set_visible editor__feature_panel 255 14 none]
+G r c none [apply_command_focus_result editor__focus_management 116 14 none] [activate_filter_input editor__outline 283 14 none]
+G r c none [apply_command_focus_result editor__focus_management 116 14 none] [focus editor__build_ui 257 14 none]
+G r c none [apply_command_focus_result editor__focus_management 116 14 none] [focus_output_details editor__build_output_details 199 14 none]
+G r c none [assert_panel_focus_management_coherent editor__focus_management 135 13 none] [has_pending editor__pending_transitions 68 13 none]
+G r c none [assert_panel_focus_management_coherent editor__focus_management 135 13 none] [is_active editor__guided_prompts 122 13 none]
+G r c none [assert_panel_focus_management_coherent editor__focus_management 135 13 none] [is_confirmation editor__guided_prompts 132 13 none]
+G r c none [assert_panel_focus_management_coherent editor__focus_management 135 13 none] [active_overlay editor__overlay_focus 34 13 none]
+G r c none [assert_panel_focus_management_coherent editor__focus_management 135 13 none] [active_field editor__project_search_bar 41 13 none]
+G r c none [assert_panel_focus_management_coherent editor__focus_management 135 13 none] [search_input_is_active editor__feature_search_results 36 13 none]
+G r c none [assert_panel_focus_management_coherent editor__focus_management 135 13 none] [filter_input_is_active editor__outline 289 13 none]
+G r c none [assert_panel_focus_management_coherent editor__focus_management 135 13 none] [is_focused editor__feature_panel 278 13 none]
+G r c none [assert_panel_focus_management_coherent editor__focus_management 135 13 none] [active_feature editor__feature_panel 156 13 none]
+G r c none [assert_panel_focus_management_coherent editor__focus_management 135 13 none] [target editor__panel_focus 18 13 none]
+G r c none [assert_panel_focus_management_coherent editor__focus_management 135 13 none] [bottom_content editor__panel_focus 21 13 none]
+G r c none [assert_panel_focus_management_coherent editor__focus_management 135 13 none] [has_active_overlay editor__overlay_focus 37 13 none]
+G r c none [assert_panel_focus_management_coherent editor__focus_management 135 13 none] [is_visible editor__feature_panel 264 13 none]
+G r c none [assert_panel_focus_management_coherent editor__focus_management 135 13 none] [editor_text_has_focus editor__panel_focus 24 13 none]
+G r c none [feature_search_input_has_valid_parent editor__focus_management 1185 13 none] [active_feature editor__feature_panel 156 13 none]
+G r c none [feature_search_input_has_valid_parent editor__focus_management 1185 13 none] [is_focused editor__feature_panel 278 13 none]
+G r c none [feature_search_input_has_valid_parent editor__focus_management 1185 13 none] [is_visible editor__feature_panel 264 13 none]
+G r c none [feature_search_input_has_valid_parent editor__focus_management 1185 13 none] [search_input_is_active editor__feature_search_results 36 13 none]
+G r c none [outline_filter_input_has_valid_parent editor__focus_management 1198 13 none] [active_feature editor__feature_panel 156 13 none]
+G r c none [outline_filter_input_has_valid_parent editor__focus_management 1198 13 none] [is_focused editor__feature_panel 278 13 none]
+G r c none [outline_filter_input_has_valid_parent editor__focus_management 1198 13 none] [is_visible editor__feature_panel 264 13 none]
+G r c none [outline_filter_input_has_valid_parent editor__focus_management 1198 13 none] [filter_input_is_active editor__outline 289 13 none]
+G r c none [clear_overlay_and_local_text_focus editor__focus_management 1261 14 none] [has_active_overlay editor__overlay_focus 37 13 none]
+G r c none [clear_overlay_and_local_text_focus editor__focus_management 1261 14 none] [dismiss editor__overlay_focus 57 14 none]
+G r c none [clear_overlay_and_local_text_focus editor__focus_management 1261 14 none] [search_input_is_active editor__feature_search_results 36 13 none]
+G r c none [clear_overlay_and_local_text_focus editor__focus_management 1261 14 none] [deactivate_search_query_input editor__feature_search_results 33 14 none]
+G r c none [clear_overlay_and_local_text_focus editor__focus_management 1261 14 none] [filter_input_is_active editor__outline 289 13 none]
+G r c none [clear_overlay_and_local_text_focus editor__focus_management 1261 14 none] [deactivate_filter_input editor__outline 286 14 none]
+G r c none [previous_focus_target_still_valid editor__focus_management 1313 13 none] [is_visible editor__panels 76 13 none]
+G r c none [previous_focus_target_still_valid editor__focus_management 1313 13 none] [has_project editor__project 73 13 none]
+G r c none [previous_focus_target_still_valid editor__focus_management 1313 13 none] [active_bottom_content editor__panels 119 13 none]
+X 10 a-iteint.ads
+24h9 Forward_Iterator
+32h9 Reversible_Iterator<24R9[7|119]>
+X 16 a-strunb.ads
+269V14*"="{boolean} 7|65i19
+X 20 editor.ads
+1K9*Editor 5e11 47|1r6 2r6 4r9 27r11 39r11 42r11 45r11 48r11 51r11 63r11
+. 66r12 69r12 72r12 73r12 85r12 88r12 91r12 97r11 100r22 104r18 107r18 111r18
+. 114r12 117r29 118r22 122r15 126r15 130r12 133r12 136r11 138r5 48|1r6 2r6
+. 3r6 4r6 5r6 6r6 7r6 8r6 9r6 10r6 11r6 12r6 14r14 16r13 17r13 18r13 19r13
+. 20r13 21r13 22r13 25r11 28r14 32r11 35r14 36r17 38r17 42r11 47r13 52r13
+. 59r12 60r15 62r15 64r15 65r16 66r15 72r15 74r15 75r15 76r15 78r15 90r13
+. 94r13 96r13 97r15 98r18 100r18 102r18 109r12 110r15 112r15 114r15 115r18
+. 116r21 118r21 120r21 199r11 213r11 220r11 291r11 301r12 305r15 306r15 307r15
+. 308r15 309r15 310r15 311r15 312r15 313r15 314r15 315r15 316r15 317r15 318r15
+. 319r15 320r15 321r15 322r15 323r15 324r15 325r15 326r15 327r15 328r15 329r15
+. 330r15 331r15 332r15 333r15 334r15 335r15 343r12 347r15 349r15 350r15 352r15
+. 354r15 355r15 357r15 358r15 360r15 362r15 364r15 365r15 366r15 367r15 368r15
+. 370r15 372r15 373r15 374r15 376r15 377r15 378r15 380r15 382r15 383r15 384r15
+. 385r15 386r15 387r15 388r15 390r15 398r12 402r15 403r15 404r15 405r15 406r15
+. 407r15 408r15 409r15 410r15 411r15 412r15 413r15 414r15 415r15 416r15 417r15
+. 418r15 419r15 420r15 421r15 422r15 423r15 424r15 425r15 426r15 427r15 428r15
+. 429r15 430r15 431r15 432r15 433r15 434r15 435r15 436r15 437r15 438r15 439r15
+. 440r15 441r15 442r15 443r15 444r15 445r15 446r15 447r15 448r15 449r15 450r15
+. 451r15 452r15 453r15 454r15 455r15 456r15 457r15 458r15 466r12 470r15 471r16
+. 479r12 483r15 484r16 492r12 496r15 497r16 498r15 499r15 500r15 501r15 502r15
+. 503r15 504r15 505r15 506r15 507r15 508r15 509r15 510r15 511r15 512r15 520r12
+. 529r15 530r15 531r15 532r15 533r15 534r15 535r15 536r15 537r15 538r15 539r15
+. 540r15 541r15 542r15 543r15 544r15 552r12 556r15 557r15 558r15 559r15 560r15
+. 561r15 562r15 563r15 564r15 565r15 566r15 567r15 568r15 569r15 570r15 571r15
+. 572r15 573r15 574r15 582r12 586r15 587r15 588r15 589r15 590r15 591r15 592r15
+. 593r15 594r15 595r15 596r15 597r15 598r15 599r15 600r15 601r15 602r15 603r15
+. 604r15 605r15 606r15 607r15 608r15 609r15 610r15 611r15 619r12 623r15 624r15
+. 625r15 626r15 627r15 628r15 629r15 630r15 631r15 632r16 640r12 644r15 645r16
+. 653r12 657r15 658r15 659r15 660r15 661r15 662r15 663r15 672r12 676r15 677r15
+. 678r15 679r15 680r15 681r15 682r15 683r15 684r15 685r15 686r15 687r15 688r15
+. 689r15 690r15 691r15 692r15 693r15 694r15 695r15 696r15 697r15 698r15 699r15
+. 700r15 701r15 702r15 703r15 704r15 705r15 714r15 719r25 720r28 762r12 766r15
+. 767r15 768r15 769r15 770r15 771r15 772r15 773r15 774r15 775r15 776r15 777r15
+. 778r15 779r15 787r12 799r15 800r15 801r15 802r15 803r15 804r15 805r15 806r15
+. 807r15 808r15 809r15 810r15 811r15 812r15 813r15 814r15 815r15 816r15 817r15
+. 818r15 819r15 820r15 821r15 822r15 823r15 824r15 825r15 826r15 834r12 835r12
+. 845r18 846r18 856r22 857r21 861r25 887r25 888r28 991r12 995r15 996r15 997r15
+. 998r15 999r15 1000r15 1001r15 1002r15 1003r15 1004r15 1005r15 1006r15 1007r15
+. 1008r15 1009r15 1010r15 1011r15 1012r15 1013r15 1014r15 1015r15 1016r15
+. 1017r15 1018r15 1019r15 1020r15 1021r15 1022r15 1023r15 1024r15 1025r15
+. 1026r15 1027r15 1028r15 1029r15 1037r12 1041r15 1042r15 1043r15 1044r15
+. 1045r15 1046r15 1047r15 1048r15 1049r15 1050r15 1051r15 1052r15 1053r15
+. 1054r15 1055r15 1056r15 1057r15 1058r15 1059r15 1068r15 1073r15 1076r15
+. 1080r15 1084r15 1087r15 1092r15 1093r15 1094r15 1103r15 1112r15 1116r15
+. 1119r15 1122r15 1126r15 1127r15 1128r15 1131r15 1132r15 1136r15 1139r15
+. 1150r12 1154r15 1155r15 1156r15 1157r15 1158r15 1159r15 1160r15 1161r15
+. 1162r15 1163r15 1164r15 1165r15 1166r15 1167r15 1168r15 1169r15 1186r11
+. 1189r19 1192r12 1193r21 1194r21 1195r14 1199r11 1202r19 1204r12 1205r21
+. 1206r21 1207r14 1211r11 1230r14 1231r14 1233r14 1234r14 1235r22 1237r22
+. 1262r18 1265r10 1266r10 1267r30 1275r10 1278r10 1282r10 1283r10 1288r18
+. 1300r18 1304r7 1309r7 1314r16 1315r16 1319r15 1321r15 1322r20 1323r24 1324r28
+. 1325r15 1326r20 1327r28 1328r24 1329r17 1330r15 1331r20 1332r28 1333r24
+. 1334r17 1335r15 1341r18 1343r27 1344r9 1347r7 1350r10 1355r15 1356r13 1357r15
+. 1358r13 1359r31 1360r15 1361r13 1362r31 1363r15 1364r15 1365r13 1370r22
+. 1382r7 1386r13 1388r13 1390r16 1393r13 1395r16 1398r13 1399r13 1401r16
+. 1404r13 1405r13 1407r16 1410r13 1412r16 1415r13 1417r16 1420r13 1421r26
+. 1422r13 1424r13 1425r26 1426r13 1427r26 1428r13 1429r31 1431r13 1432r26
+. 1433r13 1434r26 1435r13 1436r31 1439r47 1440r36 1443r16 1444r16 1448r47
+. 1449r36 1452r16 1453r16 1454r16 1457r13 1465r13 1478r12 1486r15 1487r15
+. 1488r15 1489r15 1490r15 1491r15 1492r15 1493r15 1494r15 1495r15 1496r15
+. 1497r15 1498r15 1499r15 1500r15 1501r15 1502r15 1503r15 1504r15 1505r15
+. 1506r15 1507r15 1515r29 1516r22 1553r12 1557r15 1558r15 1559r15 1560r15
+. 1561r15 1569r12 1576r11 1594r13 1601r5
+X 29 editor-build_output_details.ads
+3K16*Build_Output_Details 347e32 48|1w13 1465r20
+59b7*Build_Output_Details_Focused{boolean} 48|82r40 1240r44 1272m37 1307m37
+199U14*Focus_Output_Details 48|1465s41
+X 33 editor-build_ui.ads
+9K16*Build_UI 410e20 48|2w13 1457r20
+185b7*Build_UI_Focused{boolean} 48|86r24 1238r25 1270m18 1305m18
+257U14*Focus 48|1457s29
+X 35 editor-commands.ads
+6K16*Commands 1740e20 47|1w13 66r19 69r19 73r19 85r19 88r19 91r19 114r19
+. 118r29 122r22 126r22 130r19 133r19 48|21r20 301r19 305r22 306r22 307r22
+. 308r22 309r22 310r22 311r22 312r22 313r22 314r22 315r22 316r22 317r22 318r22
+. 319r22 320r22 321r22 322r22 323r22 324r22 325r22 326r22 327r22 328r22 329r22
+. 330r22 331r22 332r22 333r22 334r22 335r22 343r19 347r22 349r22 350r22 352r22
+. 354r22 355r22 357r22 358r22 360r22 362r22 364r22 365r22 366r22 367r22 368r22
+. 370r22 372r22 373r22 374r22 376r22 377r22 378r22 380r22 382r22 383r22 384r22
+. 385r22 386r22 387r22 388r22 390r22 398r19 402r22 403r22 404r22 405r22 406r22
+. 407r22 408r22 409r22 410r22 411r22 412r22 413r22 414r22 415r22 416r22 417r22
+. 418r22 419r22 420r22 421r22 422r22 423r22 424r22 425r22 426r22 427r22 428r22
+. 429r22 430r22 431r22 432r22 433r22 434r22 435r22 436r22 437r22 438r22 439r22
+. 440r22 441r22 442r22 443r22 444r22 445r22 446r22 447r22 448r22 449r22 450r22
+. 451r22 452r22 453r22 454r22 455r22 456r22 457r22 458r22 466r19 470r22 471r23
+. 479r19 483r22 484r23 492r19 496r22 497r23 498r22 499r22 500r22 501r22 502r22
+. 503r22 504r22 505r22 506r22 507r22 508r22 509r22 510r22 511r22 512r22 520r19
+. 529r22 530r22 531r22 532r22 533r22 534r22 535r22 536r22 537r22 538r22 539r22
+. 540r22 541r22 542r22 543r22 544r22 552r19 556r22 557r22 558r22 559r22 560r22
+. 561r22 562r22 563r22 564r22 565r22 566r22 567r22 568r22 569r22 570r22 571r22
+. 572r22 573r22 574r22 582r19 586r22 587r22 588r22 589r22 590r22 591r22 592r22
+. 593r22 594r22 595r22 596r22 597r22 598r22 599r22 600r22 601r22 602r22 603r22
+. 604r22 605r22 606r22 607r22 608r22 609r22 610r22 611r22 619r19 623r22 624r22
+. 625r22 626r22 627r22 628r22 629r22 630r22 631r22 632r23 640r19 644r22 645r23
+. 653r19 657r22 658r22 659r22 660r22 661r22 662r22 663r22 672r19 676r22 677r22
+. 678r22 679r22 680r22 681r22 682r22 683r22 684r22 685r22 686r22 687r22 688r22
+. 689r22 690r22 691r22 692r22 693r22 694r22 695r22 696r22 697r22 698r22 699r22
+. 700r22 701r22 702r22 703r22 704r22 705r22 714r22 719r32 720r35 762r19 766r22
+. 767r22 768r22 769r22 770r22 771r22 772r22 773r22 774r22 775r22 776r22 777r22
+. 778r22 779r22 787r19 799r22 800r22 801r22 802r22 803r22 804r22 805r22 806r22
+. 807r22 808r22 809r22 810r22 811r22 812r22 813r22 814r22 815r22 816r22 817r22
+. 818r22 819r22 820r22 821r22 822r22 823r22 824r22 825r22 826r22 835r19 845r25
+. 846r25 887r32 888r35 991r19 995r22 996r22 997r22 998r22 999r22 1000r22
+. 1001r22 1002r22 1003r22 1004r22 1005r22 1006r22 1007r22 1008r22 1009r22
+. 1010r22 1011r22 1012r22 1013r22 1014r22 1015r22 1016r22 1017r22 1018r22
+. 1019r22 1020r22 1021r22 1022r22 1023r22 1024r22 1025r22 1026r22 1027r22
+. 1028r22 1029r22 1037r19 1041r22 1042r22 1043r22 1044r22 1045r22 1046r22
+. 1047r22 1048r22 1049r22 1050r22 1051r22 1052r22 1053r22 1054r22 1055r22
+. 1056r22 1057r22 1058r22 1059r22 1068r22 1073r22 1076r22 1080r22 1084r22
+. 1087r22 1092r22 1093r22 1094r22 1103r22 1112r22 1116r22 1119r22 1122r22
+. 1126r22 1127r22 1128r22 1131r22 1132r22 1136r22 1139r22 1150r19 1154r22
+. 1155r22 1156r22 1157r22 1158r22 1159r22 1160r22 1161r22 1162r22 1163r22
+. 1164r22 1165r22 1166r22 1167r22 1168r22 1169r22 1478r19 1486r22 1487r22
+. 1488r22 1489r22 1490r22 1491r22 1492r22 1493r22 1494r22 1495r22 1496r22
+. 1497r22 1498r22 1499r22 1500r22 1501r22 1502r22 1503r22 1504r22 1505r22
+. 1506r22 1507r22 1516r29 1553r19 1557r22 1558r22 1559r22 1560r22 1561r22
+. 1569r19
+11E9*Command_Id 549e47 47|66r28 69r28 73r28 85r28 88r28 91r28 114r28 118r38
+. 122r31 126r31 130r28 133r28 48|21r29 301r28 343r28 398r28 466r28 479r28
+. 492r28 520r28 552r28 582r28 619r28 640r28 653r28 672r28 714r31 762r28 787r28
+. 835r28 991r28 1037r28 1068r31 1103r31 1150r28 1478r28 1516r38 1553r28 1569r28
+12n7*No_Command{11E9} 48|799r31 845r34 1557r31
+13n7*Command_Move_Left{11E9} 48|402r31
+14n7*Command_Move_Right{11E9} 48|403r31
+15n7*Command_Move_Up{11E9} 48|404r31
+16n7*Command_Move_Down{11E9} 48|405r31
+17n7*Command_Move_Line_Start{11E9} 48|406r31
+18n7*Command_Move_Line_End{11E9} 48|407r31
+19n7*Command_Move_Document_Start{11E9} 48|408r31
+20n7*Command_Move_Document_End{11E9} 48|409r31
+21n7*Command_Move_Word_Left{11E9} 48|410r31
+22n7*Command_Move_Word_Right{11E9} 48|411r31
+23n7*Command_Page_Up{11E9} 48|412r31
+24n7*Command_Page_Down{11E9} 48|413r31
+25n7*Command_Select_Left{11E9} 48|414r31
+26n7*Command_Select_Right{11E9} 48|415r31
+27n7*Command_Select_Up{11E9} 48|416r31
+28n7*Command_Select_Down{11E9} 48|417r31
+29n7*Command_Select_Word_Left{11E9} 48|418r31
+30n7*Command_Select_Word_Right{11E9} 48|419r31
+31n7*Command_Select_Word{11E9} 48|420r31
+32n7*Command_Select_Line{11E9} 48|421r31
+33n7*Command_Start_Rectangular_Selection{11E9} 48|422r31
+34n7*Command_Clear_Rectangular_Selection{11E9} 48|423r31
+35n7*Command_Extend_Selection_Line_Up{11E9} 48|424r31
+36n7*Command_Extend_Selection_Line_Down{11E9} 48|425r31
+37n7*Command_Select_Line_Start{11E9} 48|426r31
+38n7*Command_Select_Line_End{11E9} 48|427r31
+39n7*Command_Select_Document_Start{11E9} 48|428r31
+40n7*Command_Select_Document_End{11E9} 48|429r31
+41n7*Command_Select_Page_Up{11E9} 48|430r31
+42n7*Command_Select_Page_Down{11E9} 48|431r31
+43n7*Command_Insert_Newline{11E9} 48|432r31
+44n7*Command_Undo{11E9} 48|433r31
+45n7*Command_Redo{11E9} 48|434r31
+46n7*Command_Edit_History_Clear{11E9} 48|435r31
+47n7*Command_Copy{11E9} 48|436r31
+48n7*Command_Cut{11E9} 48|437r31
+49n7*Command_Paste{11E9} 48|438r31
+50n7*Command_Clipboard_Clear{11E9} 48|439r31
+51n7*Command_Select_All{11E9} 48|440r31
+52n7*Command_Selection_Clear{11E9} 48|441r31
+53n7*Command_Selection_Delete{11E9} 48|442r31
+54n7*Command_Line_Delete{11E9} 48|443r31
+55n7*Command_Line_Duplicate{11E9} 48|444r31
+56n7*Command_Line_Move_Up{11E9} 48|445r31
+57n7*Command_Line_Move_Down{11E9} 48|446r31
+58n7*Command_Indent_Increase{11E9} 48|447r31
+59n7*Command_Indent_Decrease{11E9} 48|448r31
+60n7*Command_Comment_Line{11E9} 48|449r31
+61n7*Command_Uncomment_Line{11E9} 48|450r31
+62n7*Command_Toggle_Line_Comment{11E9} 48|451r31
+63n7*Command_Line_Join_Next{11E9} 48|452r31
+64n7*Command_Line_Split_At_Caret{11E9} 48|453r31
+65n7*Command_Trim_Trailing_Whitespace{11E9} 48|454r31
+66n7*Command_Char_Delete_Previous{11E9} 48|455r31
+67n7*Command_Char_Delete_Next{11E9} 48|456r31
+68n7*Command_Word_Delete_Previous{11E9} 48|457r31
+69n7*Command_Word_Delete_Next{11E9} 48|458r31
+83n7*Command_Open_Quick_Open{11E9} 48|306r31 349r31 470r31 803r31 1487r31
+84n7*Command_Close_Quick_Open{11E9} 48|1042r31 1116r31
+85n7*Command_Toggle_Quick_Open{11E9} 48|307r31 350r31 804r31 1043r31 1073r31
+86n7*Command_Accept_Quick_Open{11E9} 48|1154r31
+87n7*Command_Quick_Open_Next_Result{11E9} 48|995r31
+88n7*Command_Quick_Open_Previous_Result{11E9} 48|996r31
+100n7*Command_Quick_Open_Create_From_Query{11E9} 48|1156r31
+101n7*Command_Quick_Open_Create_With_Parents_From_Query{11E9} 48|1157r31
+103n7*Command_Quick_Open_Priority_Clear{11E9} 48|471r32
+104n7*Command_Open_Buffer_Switcher{11E9} 48|308r31 352r31 483r31 805r31 1488r31
+105n7*Command_Close_Buffer_Switcher{11E9} 48|1044r31 1119r31
+106n7*Command_Accept_Buffer_Switcher{11E9} 48|1158r31
+107n7*Command_Buffer_Switcher_Next_Result{11E9} 48|997r31
+108n7*Command_Buffer_Switcher_Previous_Result{11E9} 48|998r31
+216n7*Command_Buffer_Switcher_Mark_Summary{11E9} 48|484r32
+217n7*Command_Open_Command_Palette{11E9} 48|305r31 347r31 719r41 802r31 887r41
+. 1486r31
+218n7*Command_Palette_Show_Command_Help{11E9} 48|720r44 888r44
+222n7*Command_Cancel{11E9} 48|800r31 846r34 1041r31 1112r31 1558r31
+223n7*Command_Open_File{11E9} 48|1155r31
+226n7*Command_Show_Recent_Projects{11E9} 48|327r31 380r31 657r31 808r31 1502r31
+227n7*Command_Open_Selected_Recent_Project{11E9} 48|658r31 1166r31
+228n7*Command_Clear_Recent_Projects{11E9} 48|659r31
+229n7*Command_Remove_Selected_Recent_Project{11E9} 48|660r31
+230n7*Command_Remove_Missing_Recent_Projects{11E9} 48|661r31
+231n7*Command_Select_Next_Recent_Project{11E9} 48|662r31 1028r31
+232n7*Command_Select_Previous_Recent_Project{11E9} 48|663r31 1029r31
+235n7*Command_Refresh_File_Tree{11E9} 48|556r31
+236n7*Command_Refresh_Project_Files{11E9} 48|557r31
+237n7*Command_Project_Files_Summary{11E9} 48|558r31
+238n7*Command_Reveal_Active_File_In_Tree{11E9} 48|559r31
+265n7*Command_Cancel_Pending_Transition{11E9} 48|1559r31
+266n7*Command_Retry_Pending_Transition{11E9} 48|1560r31
+267n7*Command_Discard_Pending_Transition{11E9} 48|1561r31
+284n7*Command_Toggle_Problems_Panel{11E9} 48|322r31 373r31 623r31 815r31
+. 1051r31 1084r31
+307n7*Command_Goto_Line{11E9} 48|328r31 382r31 676r31 1503r31
+308n7*Command_Goto_Line_Toggle{11E9} 48|329r31 383r31 677r31 1059r31 1094r31
+309n7*Command_Goto_Line_Prefill_Current{11E9} 48|330r31 384r31 678r31 1504r31
+310n7*Command_Goto_Line_Query_Set{11E9} 48|679r31
+311n7*Command_Goto_Line_Query_Clear{11E9} 48|680r31
+315n7*Command_Close_Goto_Line{11E9} 48|681r31 1058r31 1128r31
+316n7*Command_Accept_Goto_Line{11E9} 48|682r31 1167r31
+317n7*Command_Find_Show{11E9} 48|331r31 385r31 683r31 1505r31
+318n7*Command_Find_Hide{11E9} 48|684r31 1054r31 1126r31
+319n7*Command_Find_Toggle{11E9} 48|332r31 386r31 685r31 1055r31 1092r31
+320n7*Command_Find_Query_Set{11E9} 48|686r31
+321n7*Command_Find_Query_Clear{11E9} 48|687r31
+322n7*Command_Find_Case_Toggle{11E9} 48|688r31
+323n7*Command_Find_Case_Clear{11E9} 48|689r31
+324n7*Command_Find_Whole_Word_Toggle{11E9} 48|690r31
+325n7*Command_Find_Whole_Word_Clear{11E9} 48|691r31
+326n7*Command_Find_From_Selection{11E9} 48|692r31
+327n7*Command_Find_From_Active_Word{11E9} 48|693r31
+328n7*Command_Active_Find_Next{11E9} 48|694r31
+329n7*Command_Active_Find_Previous{11E9} 48|695r31
+330n7*Command_Find_First{11E9} 48|696r31
+331n7*Command_Find_Last{11E9} 48|697r31
+332n7*Command_Find_Reveal_Current{11E9} 48|698r31
+333n7*Command_Replace_Show{11E9} 48|333r31 387r31 699r31 1506r31
+334n7*Command_Replace_Hide{11E9} 48|700r31 1056r31 1127r31
+335n7*Command_Replace_Toggle{11E9} 48|334r31 388r31 701r31 1057r31 1093r31
+336n7*Command_Replace_Text_Set{11E9} 48|702r31
+337n7*Command_Replace_Text_Clear{11E9} 48|703r31
+338n7*Command_Replace_Current{11E9} 48|704r31
+339n7*Command_Replace_All{11E9} 48|705r31
+340n7*Command_Run_Project_Search{11E9} 48|496r31
+342n7*Command_Open_Project_Search_Bar{11E9} 48|309r31 354r31 806r31 1489r31
+343n7*Command_Toggle_Project_Search_Bar{11E9} 48|310r31 355r31 807r31 1046r31
+. 1076r31
+344n7*Command_Close_Project_Search_Bar{11E9} 48|1045r31 1122r31
+350n7*Command_Open_Selected_Project_Search_Result{11E9} 48|1161r31
+351n7*Command_Move_Project_Search_Selection_Up{11E9} 48|1003r31
+352n7*Command_Move_Project_Search_Selection_Down{11E9} 48|1004r31
+353n7*Command_Next_Project_Search_Result{11E9} 48|1005r31
+354n7*Command_Previous_Project_Search_Result{11E9} 48|1006r31
+355n7*Command_First_Project_Search_Result{11E9} 48|1007r31
+356n7*Command_Last_Project_Search_Result{11E9} 48|1008r31
+384n7*Command_Project_Search_Replace_Clear_Preview{11E9} 48|497r32
+385n7*Command_Show_Search_Results_Panel{11E9} 48|311r31 357r31 498r31 811r31
+. 1490r31
+386n7*Command_Focus_Editor_Text{11E9} 48|335r31 390r31 801r31 1169r31 1507r31
+387n7*Command_Focus_Search_Results{11E9} 48|312r31 358r31 499r31 812r31 1491r31
+388n7*Command_Focus_Problems{11E9} 48|323r31 374r31 624r31 813r31 1499r31
+389n7*Command_Toggle_Bottom_Panel_Focus{11E9} 48|313r31 360r31 810r31
+390n7*Command_Search_Results_Move_Up{11E9} 48|500r31 535r31 999r31
+391n7*Command_Search_Results_Move_Down{11E9} 48|501r31 536r31 1000r31
+392n7*Command_Search_Results_Page_Up{11E9} 48|502r31 537r31 1001r31
+393n7*Command_Search_Results_Page_Down{11E9} 48|503r31 538r31 1002r31
+394n7*Command_Search_Results_Open_Selected{11E9} 48|504r31 539r31 1160r31
+395n7*Command_Problems_Move_Up{11E9} 48|625r31 1020r31
+396n7*Command_Problems_Move_Down{11E9} 48|626r31 1021r31
+397n7*Command_Problems_Page_Up{11E9} 48|627r31 1022r31
+398n7*Command_Problems_Page_Down{11E9} 48|628r31 1023r31
+399n7*Command_Problems_Open_Selected{11E9} 48|629r31 1164r31
+400n7*Command_Problems_Focus_Editor{11E9} 48|630r31 1168r31
+401n7*Command_Focus_File_Tree{11E9} 48|314r31 362r31 560r31 809r31 1492r31
+402n7*Command_File_Tree_Move_Up{11E9} 48|561r31 1009r31
+403n7*Command_File_Tree_Move_Down{11E9} 48|562r31 1010r31
+404n7*Command_File_Tree_Page_Up{11E9} 48|563r31 1011r31
+405n7*Command_File_Tree_Page_Down{11E9} 48|564r31 1012r31
+406n7*Command_File_Tree_Open_Selected{11E9} 48|565r31 1159r31
+407n7*Command_File_Tree_Create_File{11E9} 48|566r31
+408n7*Command_File_Tree_Create_Directory{11E9} 48|567r31
+409n7*Command_File_Tree_Rename_Selected{11E9} 48|568r31
+410n7*Command_File_Tree_Delete_Selected{11E9} 48|569r31
+411n7*Command_File_Tree_Expand_Selected{11E9} 48|570r31 1013r31
+412n7*Command_File_Tree_Collapse_Selected{11E9} 48|571r31 1014r31
+413n7*Command_File_Tree_Toggle_Selected{11E9} 48|572r31 1015r31
+414n7*Command_File_Tree_Collapse_All{11E9} 48|573r31
+415n7*Command_File_Tree_Expand_To_Active_File{11E9} 48|574r31
+448n7*Command_Toggle_Feature_Panel{11E9} 48|316r31 365r31 586r31 820r31 1048r31
+. 1080r31
+449n7*Command_Show_Feature_Panel{11E9} 48|315r31 364r31 587r31 819r31 1493r31
+450n7*Command_Hide_Feature_Panel{11E9} 48|588r31 1047r31 1131r31
+451n7*Command_Focus_Feature_Panel{11E9} 48|317r31 366r31 589r31 821r31 1494r31
+452n7*Command_Clear_Feature_Panel{11E9} 48|590r31 1049r31 1132r31
+453n7*Command_Feature_Panel_Select_Next{11E9} 48|542r31 591r31 1016r31
+454n7*Command_Feature_Panel_Select_Previous{11E9} 48|543r31 592r31 1017r31
+455n7*Command_Feature_Panel_Open_Selected{11E9} 48|544r31 593r31 1162r31
+456n7*Command_Refresh_Outline{11E9} 48|594r31
+465n7*Command_Clear_Outline{11E9} 48|595r31
+466n7*Command_Show_Outline{11E9} 48|318r31 367r31 596r31 822r31 1495r31
+467n7*Command_Focus_Outline{11E9} 48|319r31 368r31 597r31 823r31 1496r31
+468n7*Command_Open_Selected_Outline_Item{11E9} 48|598r31 1163r31
+469n7*Command_Select_Current_Outline_Symbol{11E9} 48|599r31
+470n7*Command_Reveal_Current_Outline_Symbol{11E9} 48|600r31
+471n7*Command_Next_Outline_Symbol{11E9} 48|601r31
+472n7*Command_Previous_Outline_Symbol{11E9} 48|602r31
+473n7*Command_Select_Next_Outline_Item{11E9} 48|603r31 1018r31
+474n7*Command_Select_Previous_Outline_Item{11E9} 48|604r31 1019r31
+475n7*Command_Focus_Outline_Filter{11E9} 48|320r31 370r31 605r31 1497r31
+476n7*Command_Filter_Outline{11E9} 48|606r31
+477n7*Command_Clear_Outline_Filter{11E9} 48|607r31
+478n7*Command_Toggle_Outline_Filter{11E9} 48|608r31
+479n7*Command_Outline_Filter_History_Previous{11E9} 48|609r31
+480n7*Command_Outline_Filter_History_Next{11E9} 48|610r31
+481n7*Command_Clear_Outline_Filter_History{11E9} 48|611r31
+482n7*Command_Show_Messages{11E9} 48|766r31 824r31
+483n7*Command_Clear_Messages{11E9} 48|767r31 825r31
+484n7*Command_Clear_Selected_Message{11E9} 48|768r31
+485n7*Command_Copy_Selected_Message_Text{11E9} 48|769r31
+486n7*Command_Clear_Info_Messages{11E9} 48|770r31
+487n7*Command_Clear_Warning_Messages{11E9} 48|771r31
+488n7*Command_Clear_Error_Messages{11E9} 48|772r31
+489n7*Command_Toggle_Message_Info{11E9} 48|773r31
+490n7*Command_Toggle_Message_Warnings{11E9} 48|774r31
+491n7*Command_Toggle_Message_Errors{11E9} 48|775r31
+492n7*Command_Show_All_Messages{11E9} 48|776r31
+493n7*Command_Clear_Message_Filter{11E9} 48|777r31
+494n7*Command_Dismiss_Latest_Message{11E9} 48|778r31 826r31
+495n7*Command_Dismiss_All_Messages{11E9} 48|779r31
+496n7*Command_Search_Results_Search_Active_Buffer{11E9} 48|505r31 529r31
+497n7*Command_Search_Results_Focus_Query{11E9} 48|506r31 530r31
+498n7*Command_Search_Results_Repeat_Active_Buffer{11E9} 48|507r31 531r31
+499n7*Command_Search_Results_Query_History_Previous{11E9} 48|508r31 532r31
+500n7*Command_Search_Results_Query_History_Next{11E9} 48|509r31 533r31
+501n7*Command_Search_Results_Toggle_Case_Sensitive{11E9} 48|510r31 534r31
+502n7*Command_Show_Search_Results_Feature{11E9} 48|511r31 540r31
+503n7*Command_Clear_Search_Results_Feature{11E9} 48|512r31 541r31 1050r31
+. 1136r31
+504n7*Command_Diagnostics_Show{11E9} 48|321r31 372r31 631r31 814r31 1498r31
+517n7*Command_Diagnostics_Open_Selected{11E9} 48|1165r31
+518n7*Command_Diagnostics_Select_Next{11E9} 48|1024r31
+519n7*Command_Diagnostics_Select_Previous{11E9} 48|1025r31
+529n7*Command_Diagnostics_Toggle_Unknown_Source{11E9} 48|632r32
+530n7*Command_Build_UI_Toggle{11E9} 48|325r31 377r31 644r31 817r31 1053r31
+. 1087r31
+531n7*Command_Build_UI_Show{11E9} 48|324r31 376r31 816r31 1500r31
+532n7*Command_Build_UI_Hide{11E9} 48|1052r31 1139r31
+533n7*Command_Build_UI_Focus{11E9} 48|326r31 378r31 818r31 1501r31
+534n7*Command_Build_Select_Next_Candidate{11E9} 48|1026r31
+535n7*Command_Build_Select_Previous_Candidate{11E9} 48|1027r31
+549n7*Command_Build_Run_User_Opt_In_Test_Seam{11E9} 48|645r32
+X 43 editor-feature_panel.ads
+4K16*Feature_Panel 696e25 48|3w13 19r20 96r20 97r22 98r25 100r25 102r25 1192r19
+. 1193r28 1194r28 1195r21 1204r19 1205r28 1206r28 1207r21 1234r21 1304r14
+. 1347r14 1382r14 1439r54 1440r43 1443r23 1444r23 1448r54 1449r43 1452r23
+. 1453r23
+8E9*Feature_Id 13e27 48|19r34
+10n7*Outline_Feature{8E9} 48|98r39 1207r35 1440r57 1449r57
+12n7*Search_Results_Feature{8E9} 48|102r39 1195r35
+13n7*Diagnostics_Feature{8E9} 48|100r39
+156V13*Active_Feature{8E9} 48|97s36 1194s42 1206s42
+189V13*Set_Active_Feature{boolean} 48|1439s68 1448s68
+255U14*Set_Visible 48|1443s37 1452s37
+264V13*Is_Visible{boolean} 48|1192s33 1204s33
+271U14*Set_Focused 48|1304s28 1347s28 1382s28 1444s37 1453s37
+278V13*Is_Focused{boolean} 48|96s34 1193s42 1205s42 1234s35
+X 44 editor-feature_search_results.ads
+7K16*Feature_Search_Results 327e34 48|4w13 36r24 90r20 861r32 1189r26 1231r21
+. 1235r29 1275r17 1278r17
+33U14*Deactivate_Search_Query_Input 48|1278s40
+36V13*Search_Input_Is_Active{boolean} 48|36s47 90s43 861s55 1189s49 1231s44
+. 1235s52 1275s40
+X 47 editor-focus_management.ads
+4K16*Focus_Management 20|1k9 47|138l12 138e28 48|14b21 1601l12 1601t28
+6E9*Focus_Owner 24e34 27r43 30r15 33r15 36r15 54r15 57r15 60r15 69r47 76r15
+. 79r15 82r15 94r15 101r15 119r22 123r15 127r15 48|42r43 127r15 153r15 178r15
+. 201r24 227r15 253r15 272r15 293r24 343r47 713r15 743r15 837r24 935r15 953r15
+. 973r15 1069r15 1104r15 1177r15 1371r15 1517r22 1519r25 1520r32 1578r24
+7n7*Focus_None{6E9} 119r37 48|121r26 131r15 173r15 191r21 248r15 295r51 393r20
+. 880r30 1385r15 1517r37 1521r28 1533r28
+8n7*Focus_Editor{6E9} 48|111r20 132r15 172r15 184r21 216r42 247r15 257r15
+. 295r22 391r20 880r15 1385r28 1587r26 1595r25 1597r26
+9n7*Focus_Command_Palette{6E9} 48|61r20 133r15 157r15 203r23 232r15 258r15
+. 348r20 718r15 747r15 883r15 977r15 1387r15
+10n7*Focus_Quick_Open{6E9} 48|63r20 134r15 158r15 204r11 233r15 259r15 351r20
+. 722r15 748r15 890r15 939r15 978r15 1074r28 1117r28 1392r15
+11n7*Focus_Project_Search_Query{6E9} 48|70r23 93r17 135r15 159r15 205r11
+. 234r15 260r15 356r20 728r15 749r15 853r28 896r15 979r15 1077r29 1123r29
+. 1397r15
+12n7*Focus_Project_Search_Results{6E9} 48|103r23 105r23 117r26 136r15 160r15
+. 242r15 279r15 359r20 361r20 898r15 941r15 958r15 1082r37 1134r37 1137r28
+. 1423r15
+13n7*Focus_Project_Replace_Input{6E9} 48|68r23 137r15 161r15 206r11 235r15
+. 261r15 728r44 750r15 854r21 897r15 980r15 1078r17 1124r17 1403r15
+14n7*Focus_File_Tree{6E9} 48|113r20 138r15 162r15 239r15 276r15 363r20 901r15
+. 940r15 957r15 1419r15
+15n7*Focus_Outline{6E9} 48|99r23 139r15 163r15 240r15 277r15 369r20 904r15
+. 942r15 959r15 1081r29 1133r29 1437r15
+16n7*Focus_Outline_Filter{6E9} 48|95r17 140r15 163r31 207r11 236r15 262r15
+. 371r20 731r15 751r15 904r31 981r15 1081r45 1133r45 1446r15
+17n7*Focus_Diagnostics{6E9} 48|101r23 119r26 141r15 164r15 241r15 278r15
+. 375r20 907r15 943r15 960r15 1082r17 1085r28 1134r17 1430r15
+18n7*Focus_Build_UI{6E9} 48|87r17 142r15 165r15 243r15 280r15 379r20 910r15
+. 961r15 1088r29 1140r29 1456r15 1588r22
+19n7*Focus_Build_Result_Summary{6E9} 48|85r17 143r15 166r15 244r15 281r15
+. 913r15 962r15 1089r17 1141r17 1458r15 1589r12
+20n7*Focus_Build_Output_Details{6E9} 48|83r17 144r15 167r15 245r15 282r15
+. 914r15 963r15 1090r17 1142r17 1464r15 1590r12
+21n7*Focus_Buffer_List{6E9} 48|73r20 145r15 168r15 209r11 238r15 264r15 353r20
+. 725r15 752r15 893r15 944r15 982r15 1120r28 1409r15
+22n7*Focus_Recent_Projects{6E9} 48|89r17 146r15 169r15 246r15 283r15 381r20
+. 918r15 945r15 964r15 1467r15 1591r12
+23n7*Focus_Workspace_Prompt{6E9} 48|55r20 77r20 147r15 170r15 208r11 237r15
+. 263r15 389r20 734r15 753r15 921r15 983r15 1095r28 1129r28 1414r15 1535r22
+24n7*Focus_Pending_Confirmation{6E9} 48|46r17 53r20 148r15 171r15 181r18
+. 231r15 839r18 929r15 1227r45 1374r18 1472r15 1585r25
+26V13*Effective_Focus_Owner{6E9} 27>7 48|41b13 124l8 124t29 201s39 216s14
+. 223s38 293s39 837s39 1227s17 1521s44 1578s39
+27r7 S{75|115R9} 48|42b7 45r43 47r46 52r52 59r49 65r56 82r10 84r13 86r13
+. 88r13 91r10 94r52 96r46 97r52 109r39 115r53
+29V13*Focus_Owner_Label{string} 30>7 48|126b13 150l8 150t25
+30e7 Owner{6E9} 48|127b7 130r12
+32V13*Active_Panel_Label{string} 33>7 48|152b13 175l8 175t26
+33e7 Owner{6E9} 48|153b7 156r12
+35V13*Input_Mode_Label{string} 36>7 48|177b13 196l8 196t24
+36e7 Owner{6E9} 48|178b7 181r10 183r31 184r13 189r37 191r13
+38V13*Overlay_Query_Active{boolean} 39>7 48|198b13 210l8 210t28
+39r7 S{75|115R9} 48|199b7 201r62
+41V13*Editor_Text_Can_Edit{boolean} 42>7 48|212b13 217l8 217t28
+42r7 S{75|115R9} 48|213b7 216r37
+44V13*Overlay_Input_Owns_Text{boolean} 45>7 48|31b13 39l8 39t31 1586s13
+45r7 S{75|115R9} 48|32b7 35r55 37r12 38r56
+47V13*Panel_Navigation_Owns_Arrows{boolean} 48>7 48|219b13 224l8 224t36
+48r7 S{75|115R9} 48|220b7 223r61
+50V13*Pending_Confirmation_Owns_Focus{boolean} 51>7 48|24b13 29l8 29t39 45s10
+. 1226s10 1584s10
+51r7 S{75|115R9} 48|25b7 28r54
+53V13*Focus_Priority_Rank{natural} 54>7 48|226b13 250l8 250t27
+54e7 Owner{6E9} 48|227b7 230r12
+56V13*Text_Input_Owner{boolean} 57>7 48|183s13 252b13 269l8 269t24
+57e7 Owner{6E9} 48|253b7 256r12
+59V13*Navigation_Panel_Owner{boolean} 60>7 48|189s13 223s14 271b13 288l8
+. 288t30
+60e7 Owner{6E9} 48|272b7 275r12
+62V13*Global_Keybindings_May_Run{boolean} 63>7 48|290b13 296l8 296t34
+63r7 S{75|115R9} 48|291b7 293r62
+65V13*Command_Is_Surface_Entry{boolean} 66>7 48|300b13 340l8 340t32 790s10
+66e7 Id{35|11E9} 48|301b7 304r12
+68V13*Focus_Target_For_Surface_Command{6E9} 69>7 48|342b13 395l8 395t40 1519s40
+69e7 Id{35|11E9} 48|343b7 346r12
+71V13*Command_May_Run_In_Current_Focus{boolean} 72>7 73>7 48|833b13 932l8
+. 932t40
+72r7 S{75|115R9} 48|834b7 837r62 856r59 862r22
+73e7 Id{35|11E9} 48|835b7 840r48 844r15 849r49 859r59 860r60 864r65 870r59
+. 871r54 875r44 887r20 888r23 891r46 894r47 899r50 902r45 905r43 908r47 911r41
+. 915r41 916r55 919r51 927r52 930r51
+75V13*Activation_Returns_Focus_To_Editor{boolean} 76>7 48|934b13 950l8 950t42
+76e7 Owner{6E9} 48|935b7 938r12
+78V13*Escape_Returns_Focus_To_Editor{boolean} 79>7 48|952b13 969l8 969t38
+. 1114s23 1527s13
+79e7 Owner{6E9} 48|953b7 956r12
+81V13*Escape_Closes_Overlay{boolean} 82>7 48|972b13 988l8 988t29 1113s20
+82e7 Owner{6E9} 48|973b7 976r12
+84V13*Command_Is_Panel_Local_Navigation{boolean} 85>7 48|990b13 1034l8 1034t41
+85e7 Id{35|11E9} 48|991b7 994r12
+87V13*Command_Closes_Focused_Surface{boolean} 88>7 48|1036b13 1064l8 1064t38
+88e7 Id{35|11E9} 48|1037b7 1040r12
+90V13*Command_Returns_Focus_To_Editor{boolean} 91>7 48|1149b13 1174l8 1174t39
+. 1524s10
+91e7 Id{35|11E9} 48|1150b7 1153r12
+93V13*Focus_State_Is_Persistable{boolean} 94>7 48|1176b13 1182l8 1182t34
+94e7 Owner{6E9} 48|1177b7 1179r28
+96V13*Focus_State_Has_No_Competing_Owners{boolean} 97>7 48|1210b13 1259l8
+. 1259t43 1580s14
+97r7 S{75|115R9} 48|1211b7 1226r43 1227r40 1230r55 1232r10 1233r53 1234r47
+. 1236r12 1237r61 1238r14 1239r14 1240r14 1241r14 1246r53 1250r53
+99U14*Set_Focus_Owner 100=7 101>7 48|1369b14 1475l8 1475t23 1547s13
+100r7 S{75|115R9} 48|1370b7 1381m43 1382m41 1382r41 1386m51 1386r51 1389m16
+. 1389r16 1391r16 1394m16 1394r16 1396r16 1398m58 1398r58 1400m16 1400r16
+. 1402r16 1404m60 1404r60 1406m16 1406r16 1408r16 1411m16 1411r16 1413r16
+. 1416m16 1416r16 1418r16 1421m16 1421r16 1422m49 1422r49 1425m16 1425r16
+. 1427m16 1427r16 1429m16 1429r16 1432m16 1432r16 1434m16 1434r16 1436m16
+. 1436r16 1440m19 1440r19 1443m50 1443r50 1444m50 1444r50 1449m19 1449r19
+. 1452m50 1452r50 1453m50 1453r50 1454m54 1454r54 1457m36 1457r36 1463m13
+. 1466m16 1466r16 1471m13
+101e7 Owner{6E9} 48|1371b7 1374r10 1384r12
+103U14*Restore_Focus_To_Editor 104=7 48|1299b14 1310l8 1310t31 1525s10 1528s13
+104r7 S{75|115R9} 48|1300b7 1303m43 1304m41 1304r41 1305m7 1306m7 1307m7
+. 1308m7 1309m45 1309r45
+106U14*Clear_Transient_Focus_Owners 107=7 48|1287b14 1297l8 1297t36
+107r7 S{75|115R9} 48|1288b7 1296m43
+110U14*Restore_Previous_Focus_Or_Editor 111=7 48|1340b14 1367l8 1367t40 1530s13
+111r7 S{75|115R9} 48|1341b7 1344r46 1346m43 1347m41 1347r41 1349r49 1350m48
+. 1350r48 1356m49 1356r49 1359m16 1359r16 1362m16 1362r16 1365m51 1365r51
+113V13*Command_Focuses_Surface_After_Execution{boolean} 114>7 48|1477b13
+. 1512l8 1512t47 1532s13
+114e7 Id{35|11E9} 48|1478b7 1485r12
+116U14*Apply_Command_Focus_Result 117=7 118>7 119>7 48|1514b14 1550l8 1550t34
+117r7 S{75|115R9} 48|1515b7 1521r67 1525m35 1528m38 1530m47 1547m30
+118e7 Id{35|11E9} 48|1516b7 1519r74 1524r43 1526r41 1532r54
+119e7 Owner_Before{6E9} 48|1517b7 1521r13 1522r15
+121V13*Command_Closes_Focus_Owner{boolean} 122>7 123>7 48|860s32 871s26 1102b13
+. 1147l8 1147t34 1526s13
+122e7 Id{35|11E9} 48|1103b7 1107r39 1111r12
+123e7 Owner{6E9} 48|1104b7 1107r43 1113r43 1114r55 1117r20 1120r20 1123r20
+. 1129r20 1133r20 1137r20 1140r20
+125V13*Command_Toggles_Focus_Owner{boolean} 126>7 127>7 48|1067b13 1100l8
+. 1100t35 1107s10
+126e7 Id{35|11E9} 48|1068b7 1072r12
+127e7 Owner{6E9} 48|1069b7 1074r20 1077r20 1081r20 1085r20 1088r20 1095r20
+129V13*Command_Allowed_While_Pending{boolean} 130>7 48|840s17 930s20 1552b13
+. 1566l8 1566t37 1572s18
+130e7 Id{35|11E9} 48|1553b7 1556r12 1564r50
+132V13*Command_Is_Conflicting_While_Pending{boolean} 133>7 48|1568b13 1573l8
+. 1573t44
+133e7 Id{35|11E9} 48|1569b7 1572r49
+135V13*Assert_Panel_Focus_Management_Coherent{boolean} 136>7 48|1575b13 1599l8
+. 1599t46
+136r7 S{75|115R9} 48|1576b7 1578r62 1580r51 1584r43 1586r38 1594r55
+X 48 editor-focus_management.adb
+201e7 Owner{47|6E9} 203r14
+293e7 Owner{47|6E9} 295r14 295r43
+397V13 Is_Editor_Text_Command_Id{boolean} 397b13 398>7 463l8 463t33 916s28
+398e7 Id{35|11E9} 401r12
+465V13 Is_Quick_Open_Command_Id{boolean} 465b13 466>7 476l8 476t32 723s20
+. 891s20
+466e7 Id{35|11E9} 469r12
+478V13 Is_Buffer_List_Command_Id{boolean} 478b13 479>7 489l8 489t33 726s20
+. 894s20
+479e7 Id{35|11E9} 482r12
+491V13 Is_Project_Search_Command_Id{boolean} 491b13 492>7 517l8 517t36 729s20
+. 859s29 899s20
+492e7 Id{35|11E9} 495r12
+519V13 Is_Feature_Search_Query_Command_Id{boolean} 519b13 520>7 549l8 549t42
+. 864s29
+520e7 Id{35|11E9} 528r12
+551V13 Is_File_Tree_Command_Id{boolean} 551b13 552>7 579l8 579t31 902s20
+552e7 Id{35|11E9} 555r12
+581V13 Is_Outline_Command_Id{boolean} 581b13 582>7 616l8 616t29 732s20 905s20
+582e7 Id{35|11E9} 585r12
+618V13 Is_Diagnostics_Command_Id{boolean} 618b13 619>7 637l8 637t33 908s20
+619e7 Id{35|11E9} 622r12
+639V13 Is_Build_Command_Id{boolean} 639b13 640>7 650l8 650t27 911s20 915s20
+640e7 Id{35|11E9} 643r12
+652V13 Is_Recent_Projects_Command_Id{boolean} 652b13 653>7 668l8 668t37 919s20
+653e7 Id{35|11E9} 656r12
+671V13 Is_Workspace_Prompt_Command_Id{boolean} 671b13 672>7 710l8 710t38
+. 735s20 927s20
+672e7 Id{35|11E9} 675r12
+712V13 Is_Overlay_Local_Command_Id{boolean} 712b13 713>7 714>7 740l8 740t35
+. 870s23
+713e7 Owner{47|6E9} 717r12
+714e7 Id{35|11E9} 719r20 720r23 723r46 726r47 729r50 732r43 735r52
+742V13 Overlay_Focus_Owner{boolean} 742b13 743>7 758l8 758t27 843s10
+743e7 Owner{47|6E9} 746r12
+761V13 Is_Status_Message_Command_Id{boolean} 761b13 762>7 784l8 784t36 794s10
+. 849s19 1564s20
+762e7 Id{35|11E9} 765r12
+786V13 Is_Safe_Global_Status_Command_Id{boolean} 786b13 787>7 831l8 831t40
+. 875s10
+787e7 Id{35|11E9} 790r36 794r40 798r12
+837e7 Owner{47|6E9} 839r10 843r31 853r19 860r64 870r52 871r58 879r12
+1185V13 Feature_Search_Input_Has_Valid_Parent{boolean} 1185b13 1186>7 1196l8
+. 1196t45 1246s14
+1186r7 S{75|115R9} 1190r12 1192r45 1193r54 1194r58
+1198V13 Outline_Filter_Input_Has_Valid_Parent{boolean} 1198b13 1199>7 1208l8
+. 1208t45 1250s14
+1199r7 S{75|115R9} 1202r58 1204r45 1205r54 1206r58
+1213i7 Explicit_Owner_Count{natural} 1218m13 1218r37 1258r14
+1215U17 Count 1215b17 1215>24 1220l11 1220t16 1230s7 1231s7 1233s7 1234s7
+. 1238s7 1239s7 1240s7 1241s7
+1215b24 Present{boolean} 1217r13
+1261U14 Clear_Overlay_And_Local_Text_Focus 1261b14 1262=7 1285l8 1285t42
+. 1296s7 1303s7 1346s7 1381s7
+1262r7 S{75|115R9} 1265r51 1267m13 1267r13 1270m7 1271m7 1272m7 1273m7 1276r10
+. 1279m13 1279r13 1282r49 1283m50 1283r50
+1313V13 Previous_Focus_Target_Still_Valid{boolean} 1313b13 1314>7 1315>7
+. 1338l8 1338t41 1349s14
+1314r7 S{75|115R9} 1322r48 1324r18 1327r18 1328r61 1332r18 1333r61
+1315e7 Target{60|22E9} 1318r12
+1343e7 Previous{60|22E9} 1349r52 1354r12
+1439b16 Accepted{boolean} 1442r37
+1448b16 Accepted{boolean} 1451r37
+1519e7 Target{47|6E9} 1533r18 1535r13 1547r33
+1520e7 Closing_Owner{47|6E9} 1526r45 1527r45
+1578e7 Owner{47|6E9} 1585r17 1587r17 1588r13 1595r17 1597r17
+X 51 editor-guided_prompts.ads
+6K16*Guided_Prompts 48|5w13 47r20 52r20 51|141e26
+122V13*Is_Active{boolean} 48|47s35
+132V13*Is_Confirmation{boolean} 48|52s35
+X 59 editor-outline.ads
+6K16*Outline 48|6w13 38r24 94r20 1202r26 1233r21 1237r29 1282r17 1283r17
+. 1454r23 59|760e19
+283U14*Activate_Filter_Input 48|1454s31
+286U14*Deactivate_Filter_Input 48|1283s25
+289V13*Filter_Input_Is_Active{boolean} 48|38s32 94s28 1202s34 1233s29 1237s37
+. 1282s25
+X 60 editor-overlay_focus.ads
+3K16*Overlay_Focus 48|7w13 16r20 35r21 59r19 60r22 62r22 64r22 72r22 74r22
+. 75r22 76r22 78r22 856r29 857r28 1230r21 1265r17 1266r17 1267r37 1315r23
+. 1319r22 1321r22 1325r22 1330r22 1335r22 1343r34 1344r16 1355r22 1357r22
+. 1360r22 1363r22 1364r22 1388r20 1390r23 1393r20 1395r23 1399r20 1401r23
+. 1405r20 1407r23 1410r20 1412r23 1415r20 1417r23 60|77e25
+5E9*Overlay_Target 48|16r34 60|13e34
+6n7*No_Overlay{5E9} 48|78r36
+7n7*Command_Palette_Overlay{5E9} 48|60r36 1390r37
+8n7*Quick_Open_Overlay{5E9} 48|62r36 1395r37
+9n7*Buffer_Switcher_Overlay{5E9} 48|72r36 1412r37
+10n7*Project_Search_Bar_Overlay{5E9} 48|64r36 857r42 1401r37 1407r37
+11n7*Active_Find_Prompt_Overlay{5E9} 48|74r36
+12n7*Go_To_Line_Overlay{5E9} 48|75r36
+13n7*File_Target_Prompt_Overlay{5E9} 48|76r36 1417r37
+20n7*Dismiss_Command{15E9} 48|1267r51
+22E9*Previous_Focus_Target 48|1315r37 1343r48 60|27e21
+23n7*Previous_Editor_Text{22E9} 48|1319r36 1363r36
+24n7*Previous_File_Tree{22E9} 48|1321r36 1355r36
+25n7*Previous_Search_Results{22E9} 48|1325r36 1357r36
+26n7*Previous_Problems{22E9} 48|1330r36 1360r36
+27n7*Previous_None{22E9} 48|1335r36 1364r36
+34V13*Active_Overlay{5E9} 48|59s33 856s43
+37V13*Has_Active_Overlay{boolean} 48|35s35 1230s35 1265s31
+47U14*Activate 48|1388s34 1393s34 1399s34 1405s34 1410s34 1415s34
+57U14*Dismiss 48|1266s31
+64V13*Previous_Focus{22E9} 48|1344s30
+X 61 editor-panel_focus.ads
+1K16*Panel_Focus 48|8w13 17r20 18r20 109r19 110r22 112r22 114r22 115r25 116r28
+. 118r28 120r28 1309r14 1350r17 1356r20 1358r20 1359r38 1361r20 1362r38 1365r20
+. 1386r20 1422r20 1428r20 1429r38 1435r20 1436r38 1594r20 61|52e23
+3E9*Focus_Target 48|17r32 61|6e26
+4n7*Editor_Text_Focus{3E9} 48|110r34
+5n7*File_Tree_Focus{3E9} 48|112r34
+6n7*Bottom_Panel_Focus{3E9} 48|114r34
+8E9*Bottom_Focus_Content 48|18r32 61|11e28
+9n7*No_Bottom_Focus{8E9} 48|120r40
+10n7*Problems_Focus{8E9} 48|118r40 1362r50 1436r50
+11n7*Search_Results_Focus{8E9} 48|116r40 1359r50 1429r50
+18V13*Target{3E9} 48|109s31
+21V13*Bottom_Content{8E9} 48|115s37
+24V13*Editor_Text_Has_Focus{boolean} 48|1594s32
+33U14*Focus_Editor_Text 48|1309s26 1350s29 1365s32 1386s32
+36U14*Focus_File_Tree 48|1356s32 1422s32
+39U14*Focus_Bottom_Panel 48|1358s32 1361s32 1428s32 1435s32
+X 62 editor-panels.ads
+1K16*Panels 48|9w13 22r20 1323r31 1324r35 1326r27 1327r35 1328r31 1329r24
+. 1331r27 1332r35 1333r31 1334r24 1420r20 1421r33 1424r20 1425r33 1426r20
+. 1427r33 1431r20 1432r33 1433r20 1434r33 62|133e18
+4n7*File_Tree_Panel{3E9} 48|1324r42 1421r40
+6n7*Bottom_Panel{3E9} 48|1327r42 1332r42 1427r40 1434r40
+18E9*Bottom_Panel_Content 48|22r27 62|20e30
+19n7*Problems_Content{18E9} 48|1334r31 1432r40
+20n7*Search_Results_Content{18E9} 48|1329r31 1425r40
+71U14*Set_Visible 48|1420s27 1426s27 1433s27
+76V13*Is_Visible{boolean} 48|1323s38 1326s34 1331s34
+115U14*Set_Bottom_Content 48|1424s27 1431s27
+119V13*Active_Bottom_Content{18E9} 48|1328s38 1333s38
+X 63 editor-pending_transitions.ads
+4K16*Pending_Transitions 48|10w13 28r21 63|114e31
+68V13*Has_Pending{boolean} 48|28s41
+X 66 editor-project.ads
+4K16*Project 48|12w13 1322r27 66|191e19
+73V13*Has_Project{boolean} 48|1322s35
+X 68 editor-project_search_bar.ads
+5K16*Project_Search_Bar 48|11w13 20r20 65r23 66r22 1398r20 1404r20 68|99e30
+37E9*Project_Search_Bar_Field 48|20r39 68|39e36
+39n7*Project_Search_Replace_Field{37E9} 48|66r41
+41V13*Active_Field{37E9} 48|65s42
+42U14*Focus_Query_Field 48|1398s39
+43U14*Focus_Replace_Field 48|1404s39
+X 75 editor-state.ads
+51K16*State 47|2w13 27r18 39r18 42r18 45r18 48r18 51r18 63r18 72r19 97r18
+. 100r29 104r25 107r25 111r25 117r36 136r18 48|25r18 32r18 42r18 199r18 213r18
+. 220r18 291r18 834r19 1186r18 1199r18 1211r18 1262r25 1288r25 1300r25 1314r23
+. 1341r25 1370r29 1515r36 1576r18 75|610e17
+115R9*State_Type 47|27r24 39r24 42r24 45r24 48r24 51r24 63r24 72r25 97r24
+. 100r35 104r31 107r31 111r31 117r42 136r24 48|25r24 32r24 42r24 199r24 213r24
+. 220r24 291r24 834r25 1186r24 1199r24 1211r24 1262r31 1288r31 1300r31 1314r29
+. 1341r31 1370r35 1515r42 1576r24 75|366e14
+146r7*Project{66|14R9} 48|1322r50
+153b7*Recent_Projects_Focused{boolean} 48|88r15 1241r16 1273m9 1308m9 1471m15
+155r7*Pending_Transitions{63|63R9} 48|28r56
+156r7*Feature_Panel{43|119R9} 48|96r48 97r54 1192r47 1193r56 1194r60 1204r47
+. 1205r56 1206r60 1234r49 1304m43 1347m43 1382m43 1440m21 1443m52 1444m52
+. 1449m21 1452m52 1453m52
+157r7*Outline{59|109R9} 48|38r58 94r54 1202r60 1233r55 1237r63 1282r51 1283m52
+. 1454m56
+159r7*Feature_Search_Results{44|25R9} 48|37r14 91r12 862r24 1190r14 1232r12
+. 1236r14 1276r12 1279m15
+170r7*Panels{62|46R9} 48|1324r20 1327r20 1328r63 1332r20 1333r63 1421m18
+. 1425m18 1427m18 1432m18 1434m18
+181r7*Project_Search_Bar{68|7R9} 48|65r58 1398m60 1404m62
+184r7*Panel_Focus{61|13R9} 48|109r41 115r55 1309m47 1350m50 1356m51 1359m18
+. 1362m18 1365m53 1386m53 1391r18 1396r18 1402r18 1408r18 1413r18 1418r18
+. 1422m51 1429m18 1436m18 1594r57
+185r7*Overlay_Focus{60|29R9} 48|35r57 59r51 856r61 1230r57 1265r53 1267m15
+. 1344r48 1389m18 1394m18 1400m18 1406m18 1411m18 1416m18
+310r7*Build_UI{33|183R9} 48|86r15 1238r16 1270m9 1305m9 1457m38
+319b7*Latest_Build_Result_Focused{boolean} 48|84r15 1239r16 1271m9 1306m9
+. 1463m15
+324r7*Latest_Build_Output_Details{29|36R9} 48|82r12 1240r16 1272m9 1307m9
+. 1466m18
+365r7*Guided_Prompt{51|47R9} 48|47r48 52r54
+

@@ -1,0 +1,264 @@
+V "GNAT Lib v13"
+M P W=b
+A -gnat2022
+P SS ZX
+
+RN
+RV NO_ENUMERATION_MAPS
+RV NO_EXCEPTION_HANDLERS
+RV NO_EXCEPTION_PROPAGATION
+RV NO_EXCEPTIONS
+RV NO_IO
+RV NO_IMPLICIT_CONDITIONALS
+RV NO_LOCAL_ALLOCATORS
+RV NO_NESTED_FINALIZATION
+RV NO_SECONDARY_STACK
+RV NO_STANDARD_STORAGE_POOLS
+RV NO_DEFAULT_INITIALIZATION
+RV NO_DYNAMIC_SIZED_OBJECTS
+RV NO_OBSOLESCENT_FEATURES
+
+U rect_debug%b		rect_debug.adb		328dbcd1 NE OO SU
+W ada%s			ada.ads			ada.ali
+Z ada.exceptions%s	a-except.adb		a-except.ali
+W ada.strings%s		a-string.ads		a-string.ali
+Z ada.strings.text_buffers%s  a-sttebu.adb	a-sttebu.ali
+W ada.strings.unbounded%s  a-strunb.adb		a-strunb.ali
+W ada.text_io%s		a-textio.adb		a-textio.ali
+W editor%s		editor.ads		editor.ali
+W editor.commands%s	editor-commands.adb	editor-commands.ali
+W editor.executor%s	editor-executor.adb	editor-executor.ali
+W editor.history%s	editor-history.adb	editor-history.ali
+W editor.state%s	editor-state.adb	editor-state.ali
+W editor.test_helper%s	editor-test_helper.adb	editor-test_helper.ali
+Z system.img_int%s	s-imgint.ads		s-imgint.ali
+Z system.return_stack%s	s-retsta.ads		s-retsta.ali
+Z system.secondary_stack%s  s-secsta.adb	s-secsta.ali
+Z system.soft_links%s	s-soflin.adb		s-soflin.ali
+Z system.standard_library%s  s-stalib.adb	s-stalib.ali
+W text_buffer%s		text_buffer.ads		text_buffer.ali
+
+D ada.ads		20240521074738 76789da1 ada%s
+D a-assert.ads		20240521074737 ba465f5c ada.assertions%s
+D a-calend.ads		20251218205951 e6961b4c ada.calendar%s
+D a-charac.ads		20240521074737 2d3ec45b ada.characters%s
+D a-chlat1.ads		20240521074737 e0d72e76 ada.characters.latin_1%s
+D a-contai.ads		20240521074737 61e5e089 ada.containers%s
+D a-conhel.ads		20240521074737 46fe1ce3 ada.containers.helpers%s
+D a-convec.ads		20240521074737 91fb49f3 ada.containers.vectors%s
+D a-except.ads		20240521074738 2a7d8d70 ada.exceptions%s
+D a-finali.ads		20240521074738 bf4f806b ada.finalization%s
+D a-ioexce.ads		20240521074738 40018c65 ada.io_exceptions%s
+D a-iteint.ads		20240521074738 49a8bee2 ada.iterator_interfaces%s
+D a-numeri.ads		20240521074738 84bea7a3 ada.numerics%s
+D a-nubinu.ads		20240521074738 93f1f3d1 ada.numerics.big_numbers%s
+D a-nbnbig.ads		20240521074738 711e0174 ada.numerics.big_numbers.big_integers_ghost%s
+D a-stream.ads		20240521074738 119b8fb3 ada.streams%s
+D a-string.ads		20240521074738 90ac6797 ada.strings%s
+D a-strmap.ads		20240521074738 ed8acfdb ada.strings.maps%s
+D a-sttebu.ads		20240521074738 f1ad67a2 ada.strings.text_buffers%s
+D a-strunb.ads		20240521074738 7bfb7010 ada.strings.unbounded%s
+D a-stuten.ads		20240521074738 c6ced0ae ada.strings.utf_encoding%s
+D a-tags.ads		20240521074738 9eaa38c6 ada.tags%s
+D a-textio.ads		20240521074738 5c2c6153 ada.text_io%s
+D a-unccon.ads		20240521074738 0e9b276f ada.unchecked_conversion%s
+D editor.ads		20260612145959 16f844c2 editor%s
+D editor-ada_language_model.ads  20260612145959 459f92c3 editor.ada_language_model%s
+D editor-ada_project_index.ads  20260612145959 3ad143b9 editor.ada_project_index%s
+D editor-ada_syntax_tree.ads  20260612145959 49a76ced editor.ada_syntax_tree%s
+D editor-bookmarks.ads	20260612145959 4e695f4d editor.bookmarks%s
+D editor-buffer_switcher.ads  20260612152524 fd053b33 editor.buffer_switcher%s
+D editor-buffer_types.ads  20260612151710 a555405e editor.buffer_types%s
+D editor-buffers.ads	20260612185530 1a6b6e4c editor.buffers%s
+D editor-build_candidates.ads  20260612145959 dc89ea7b editor.build_candidates%s
+D editor-build_output_details.ads  20260612145959 0f4ba402 editor.build_output_details%s
+D editor-build_process_control.ads  20260612145959 28661204 editor.build_process_control%s
+D editor-build_result_summary.ads  20260612145959 94fc95d2 editor.build_result_summary%s
+D editor-build_runner_policy.ads  20260612145959 623f26a9 editor.build_runner_policy%s
+D editor-build_ui.ads	20260612152524 28a54496 editor.build_ui%s
+D editor-build_working_context.ads  20260612145959 cef9cea9 editor.build_working_context%s
+D editor-command_execution.ads  20260612145959 54c8cc0a editor.command_execution%s
+D editor-commands.ads	20260612173240 3b5e3f44 editor.commands%s
+D editor-cursors.ads	20260612145959 1f938cf3 editor.cursors%s
+D editor-diagnostics.ads  20260612145959 41767a50 editor.diagnostics%s
+D editor-dirty_guards.ads  20260612145959 2f2ee9d0 editor.dirty_guards%s
+D editor-dirty_lines.ads  20260612145959 fa543a8e editor.dirty_lines%s
+D editor-executor.ads	20260612164121 e287436f editor.executor%s
+D editor-external_producers.ads  20260612152524 38bdba64 editor.external_producers%s
+D editor-feature_diagnostics.ads  20260612145959 9dd4f8ea editor.feature_diagnostics%s
+D editor-feature_messages.ads  20260612145959 2c7a5943 editor.feature_messages%s
+D editor-feature_panel.ads  20260612145959 0bdf4cfc editor.feature_panel%s
+D editor-feature_search_results.ads  20260612152524 38c78314 editor.feature_search_results%s
+D editor-file_tree.ads	20260612145959 e6abdf66 editor.file_tree%s
+D editor-file_tree_view.ads  20260612145959 99db49c3 editor.file_tree_view%s
+D editor-folding.ads	20260612145959 860f30d0 editor.folding%s
+D editor-go_to_line.ads	20260612145959 c07ea03c editor.go_to_line%s
+D editor-guided_prompts.ads  20260612145959 34cab40b editor.guided_prompts%s
+D editor-gutter_markers.ads  20260612145959 304c4eae editor.gutter_markers%s
+D editor-history.ads	20260612145959 b546dbc4 editor.history%s
+D editor-input_field.ads  20260612145959 04b03a00 editor.input_field%s
+D editor-keybindings.ads  20260612145959 2657f44d editor.keybindings%s
+D editor-layout.ads	20260612145959 68c2e77a editor.layout%s
+D editor-messages.ads	20260612151413 205b1944 editor.messages%s
+D editor-navigation.ads	20260612145959 30defc5f editor.navigation%s
+D editor-navigation_history.ads  20260612145959 b0e3398a editor.navigation_history%s
+D editor-outline.ads	20260612152524 90a00201 editor.outline%s
+D editor-overlay_focus.ads  20260612145959 92ec945e editor.overlay_focus%s
+D editor-panel_focus.ads  20260612145959 a6c95284 editor.panel_focus%s
+D editor-panels.ads	20260612145959 66614da0 editor.panels%s
+D editor-pending_transitions.ads  20260612145959 81c78960 editor.pending_transitions%s
+D editor-problems.ads	20260612145959 a9a08157 editor.problems%s
+D editor-producer_contracts.ads  20260612145959 c3ee4501 editor.producer_contracts%s
+D editor-project.ads	20260612145959 f4d50f6d editor.project%s
+D editor-project_search.ads  20260612152451 857df5ab editor.project_search%s
+D editor-project_search_bar.ads  20260612145959 c5c12f77 editor.project_search_bar%s
+D editor-quick_open.ads	20260612151807 878ba83c editor.quick_open%s
+D editor-recent_buffers.ads  20260612145959 617e4612 editor.recent_buffers%s
+D editor-recent_projects.ads  20260612145959 ee1155f5 editor.recent_projects%s
+D editor-search.ads	20260612145959 dac0e204 editor.search%s
+D editor-search_results.ads  20260612145959 98eded1d editor.search_results%s
+D editor-selection.ads	20260612145959 37bfc5e9 editor.selection%s
+D editor-settings.ads	20260612145959 c2103809 editor.settings%s
+D editor-state.ads	20260612170622 4c537118 editor.state%s
+D editor-status_bar.ads	20260612145959 879f0640 editor.status_bar%s
+D editor-syntax.ads	20260612145959 d59b0303 editor.syntax%s
+D editor-syntax_cache.ads  20260612164742 637f2470 editor.syntax_cache%s
+D editor-syntax_semantics.ads  20260612145959 a499b10a editor.syntax_semantics%s
+D editor-tab_bar.ads	20260612151839 e26dca3d editor.tab_bar%s
+D editor-test_helper.ads  20260612145959 d18049e6 editor.test_helper%s
+D editor-unicode.ads	20260612145959 552ff3cc editor.unicode%s
+D editor-view_types.ads	20260612152152 f3042ec7 editor.view_types%s
+D editor-workspace_persistence.ads  20260612145959 455ffd61 editor.workspace_persistence%s
+D editor-wrap.ads	20260612145959 87db665a editor.wrap%s
+D interfac.ads		20240521074738 15f799c2 interfaces%s
+D i-cstrea.ads		20240521074738 e53d8b8e interfaces.c_streams%s
+D rect_debug.adb	20260612191602 5f8c72d5 rect_debug%b
+D system.ads		20240521074738 426dafb8 system%s
+D s-assert.ads		20240521074738 9c4520c7 system.assertions%s
+D s-atocou.ads		20240521074738 dc18efc3 system.atomic_counters%s
+D s-casuti.ads		20240521074738 cf13d755 system.case_util%s
+D s-crtl.ads		20240521074738 8a0692f8 system.crtl%s
+D s-exctab.ads		20240521074738 91bef6ef system.exception_table%s
+D s-ficobl.ads		20240521074738 dc5161d4 system.file_control_block%s
+D s-finmas.ads		20240521074738 bd688734 system.finalization_masters%s
+D s-finroo.ads		20240521074738 4ff27390 system.finalization_root%s
+D s-imagei.ads		20240521074738 c707dfd0 system.image_i%s
+D s-imgint.ads		20240521074738 d4a52a9b system.img_int%s
+D s-memory.ads		20240521074738 5b8432d0 system.memory%s
+D s-parame.ads		20251218205951 1f39ba92 system.parameters%s
+D s-pooglo.ads		20240521074738 91708d21 system.pool_global%s
+D s-putima.ads		20240521074738 17291fe4 system.put_images%s
+D s-retsta.ads		20240521074738 0f6b06cb system.return_stack%s
+D s-secsta.ads		20240521074738 578279f5 system.secondary_stack%s
+D s-soflin.ads		20240521074738 df77073e system.soft_links%s
+D s-stache.ads		20240521074738 0b81c1fe system.stack_checking%s
+D s-stalib.ads		20240521074738 1c9580f6 system.standard_library%s
+D s-stalib.adb		20240521074738 eb464a47 system.standard_library%b
+D s-stoele.ads		20240521074738 ab5468e4 system.storage_elements%s
+D s-stoele.adb		20240521074738 8f5a9db6 system.storage_elements%b
+D s-stopoo.ads		20240521074738 e9fa2dd8 system.storage_pools%s
+D s-stratt.ads		20240521074738 f7dfd786 system.stream_attributes%s
+D s-traent.ads		20240521074738 c81cbf8c system.traceback_entries%s
+D s-unstyp.ads		20240521074738 fa2a7f59 system.unsigned_types%s
+D s-valint.ads		20240521074738 1f610d7a system.val_int%s
+D s-valuns.ads		20240521074738 e8a1f424 system.val_uns%s
+D s-valuti.ads		20240521074738 fcd603d8 system.val_util%s
+D s-valuei.ads		20240521074738 11081e09 system.value_i%s
+D s-vaispe.ads		20240521074738 44130d39 system.value_i_spec%s
+D s-valueu.ads		20240521074738 18770347 system.value_u%s
+D s-vauspe.ads		20240521074738 a67b2f28 system.value_u_spec%s
+D s-wchcon.ads		20240521074738 d9032363 system.wch_con%s
+D s-widuns.ads		20240521074738 866a5800 system.wid_uns%s
+D s-widthu.ads		20240521074738 b32f15e2 system.width_u%s
+D text_backend.ads	20260612145959 6d0030da text_backend%s
+D text_backend-rope_impl.ads  20260612145959 0f5d7663 text_backend.rope_impl%s
+D text_buffer.ads	20260612145959 bb9a4056 text_buffer%s
+G a e
+G c Z b b [rect_debug standard 10 11 none]
+G r s state_type [rect_debug standard 10 11 none] [state_typeIP editor__state 115 9 none]
+G r l state_type [rect_debug standard 10 11 none] [state_typeDI editor__state 115 9 none]
+G r k state_type [rect_debug standard 10 11 none] [state_typeDF editor__state 115 9 none]
+G r s command [rect_debug standard 10 11 none] [commandIP editor__commands 1711 9 none]
+G r l command [rect_debug standard 10 11 none] [commandDI editor__commands 1711 9 none]
+G r k command [rect_debug standard 10 11 none] [commandDF editor__commands 1711 9 none]
+G r c none [rect_debug standard 10 11 none] [init editor__state 529 14 none]
+G r c none [rect_debug standard 10 11 none] [length text_backend__rope_impl 69 13 none]
+G r c none [rect_debug standard 10 11 none] [utf8_text text_backend__rope_impl 123 13 none]
+G r j command [rect_debug standard 10 11 none] [commandDA editor__commands 1711 9 none]
+G r c none [rect_debug standard 10 11 none] [execute_no_log editor__executor 61 14 none]
+G r c none [rect_debug standard 10 11 none] [insert editor__test_helper 5 13 none]
+G r c none [rect_debug standard 10 11 none] [undo editor__test_helper 8 13 none]
+X 1 ada.ads
+16K9*Ada 20e8 95|1r6 1r23 2r6 2r33
+X 6 a-contai.ads
+22I9*Count_Type<integer>
+X 8 a-convec.ads
+91R9*Vector<10|43R9>
+175V13*Length{6|22I9} 95|26s78[58|54] 27s78[58|54] 28s63[42|19]
+X 12 a-iteint.ads
+24h9 Forward_Iterator
+32h9 Reversible_Iterator<24R9[8|119]>
+X 17 a-string.ads
+16K13*Strings 35e16 95|2r10 2r37
+X 20 a-strunb.ads
+85K21*Unbounded 766e26 95|2w18 2r45
+108V13*To_Unbounded_String{91R9} 95|18s17
+243V14*"="{boolean} 8|65i19
+X 23 a-textio.ads
+58K13*Text_IO 787e16 95|1w10 1r27
+566U14*Put_Line 95|24s7
+X 25 editor.ads
+1K9*Editor 5e11 95|3r6 4r6 5r6 6r6 7r6 11r10 12r10 14r42 15r11 17r17 26r52
+. 27r52 32r4 35r4 39r16 42r4 45r16 48r4 51r4 52r10 55r4 55r39
+X 41 editor-commands.ads
+6K16*Commands 1740e20 95|5w13 12r17 14r49 15r18 17r24 39r23 45r23
+1191n7*Start_Rectangle_Selection{1155E9} 95|39r32
+1193n7*Drag_Rectangle_To_Point{1155E9} 95|45r32
+1218n7*Paste_Text{1155E9} 95|17r33
+1711R9*Command 1731e14 95|12r26 14r58 15r27
+1712e7*Kind{1155E9} 95|17m9 39m8 45m8
+1721i7*Click_X{natural} 95|40m8 46m8
+1722i7*Click_Y{natural} 95|41m8 47m8
+1724r7*Text{20|91R9} 95|18m9
+X 46 editor-executor.ads
+21K16*Executor 1189e20 95|4w13 35r11 42r11 48r11 51r11 55r11
+61U14*Execute_No_Log 95|35s20 42s20 48s20 51s20 55s20
+X 58 editor-history.ads
+6K16*History 62e19 95|7w13 26r59 27r59
+59r4*Undo_Stack{8|91R9[54]} 95|26r67
+60r4*Redo_Stack{8|91R9[54]} 95|27r67
+X 82 editor-state.ads
+51K16*State 610e17 95|3w13 11r17 32r11
+115R9*State_Type 366e14 95|11r23
+116r7*Buffer{134|7R9} 95|24r72 25r54
+117r7*Carets{8|91R9[42|19]} 95|28r56
+123b7*Rect_Select_Active{boolean} 95|29r45
+529U14*Init 95|32s17
+X 88 editor-test_helper.ads
+3K16*Test_Helper 14e23 95|6w13 52r17 55r46
+5V13*Insert{41|1711R9} 95|52s29
+8V13*Undo{41|1711R9} 95|55s58
+X 95 rect_debug.adb
+10U11*Rect_Debug 10b11 57l5 57t15
+11r4 S{82|115R9} 24r70 25r52 28r54 29r43 32m23 36m7 36r7 42m36 42r36 48m36
+. 48r36 52m7 52r7 55m36 55r36
+12r4 Cmd{41|1711R9} 39m4 40m4 41m4 42r39 45m4 46m4 47m4 48r39
+14V13 Paste{41|1711R9} 14b13 14>20 20l8 20t13 36s10
+14a20 Text{string} 18r38
+15r7 C{41|1711R9} 17m7 18m7 19r14
+22U14 Dump 22b14 22>20 30l8 30t12 33s4 37s4 43s4 49s4 53s4 56s4
+22a20 Label{string} 24r17
+X 96 system.ads
+67M9*Address
+X 107 s-memory.ads
+51V13*Alloc{96|67M9} 101i<c,__gnat_malloc>22
+66U14*Free 102i<c,__gnat_free>22
+74V13*Realloc{96|67M9} 103i<c,__gnat_realloc>22
+X 116 s-stalib.adb
+87U14 Break_Start 88i<c,__gnat_break_start>22
+X 134 text_backend-rope_impl.ads
+69V13*Length{natural} 95|24s62
+123V13*UTF8_Text{string} 95|25s41
+X 135 text_buffer.ads
+26K9*Text_Buffer=26:42 95|8w6 24r50 25r29
+

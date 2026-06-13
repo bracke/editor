@@ -12,10 +12,4 @@ tags = []
 executables = ["tests"]
 
 [[depends-on]]
-editor = "*"
-
-[[pins]]
-editor = { path='..' }
-
-[[depends-on]]
 aunit = "^26.0.0"

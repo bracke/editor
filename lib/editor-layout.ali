@@ -1,0 +1,71 @@
+V "GNAT Lib v15"
+A -gnatA
+A -gnat2022
+A -mtune=generic
+A -march=x86-64
+P ZX
+
+RN
+RV NO_FLOATING_POINT
+RV NO_IMPLEMENTATION_PRAGMAS
+
+U editor.layout%b	editor-layout.adb	341357d7 NE OO PK
+W editor%s		editor.ads		editor.ali
+W editor.font_config%s	editor-font_config.ads	editor-font_config.ali
+W editor.fonts%s	editor-fonts.adb	editor-fonts.ali
+
+U editor.layout%s	editor-layout.ads	3db144d7 EE NE OO PK
+W editor%s		editor.ads		editor.ali
+W interfaces%s		interfac.ads		interfac.ali
+W interfaces.c%s	i-c.adb			i-c.ali
+
+D ada.ads		20250808065140 76789da1 ada%s
+D a-unccon.ads		20250808065140 0e9b276f ada.unchecked_conversion%s
+D editor.ads		20260406185230 16f844c2 editor%s
+D editor-font_config.ads  20260504170749 b1d49767 editor.font_config%s
+D editor-fonts.ads	20260503165753 4b5bcabf editor.fonts%s
+D editor-layout.ads	20260507161022 c205967f editor.layout%s
+D editor-layout.adb	20260507162107 0c999c70 editor.layout%b
+D interfac.ads		20250808065140 9111f9c1 interfaces%s
+D i-c.ads		20250808065140 e94c966a interfaces.c%s
+D system.ads		20250808065140 14286b0f system%s
+D s-exctab.ads		20250808065140 91bef6ef system.exception_table%s
+D s-parame.ads		20250808065140 3597fc11 system.parameters%s
+D s-stalib.ads		20250808065140 1c9580f6 system.standard_library%s
+G a e
+G c Z s b [current editor__layout 14 13 none]
+G c Z s s [layout_configIP editor__layout 5 9 none]
+G c Z s s [c_layout_configIP editor__layout 16 9 none]
+X 3 editor.ads
+1K9*Editor 5e11 6|3r9 24r5 7|1r6 2r6 4r14 10r22 11r22 12r26 15r10 19r35 25r5
+X 4 editor-font_config.ads
+1K16*Font_Config 16e23 7|2w13 10r29 11r29 12r33
+8i4*Cell_Width{positive} 7|10r41
+9i4*Cell_Height{positive} 7|11r41
+14i4*Gutter_Width{natural} 7|12r45
+X 5 editor-fonts.ads
+3K16*Fonts 53e17 7|1w13 15r17 19r42
+44V13*Monospace_Cell_Width{float} 7|19s48
+46V13*Font_Is_Monospace{boolean} 7|15s23
+X 6 editor-layout.ads
+3K16*Layout 3|1k9 6|24l12 24e18 7|4b21 25l12 25t18
+5R9*Layout_Config 12e14 14r28 7|6r28 7r25
+6i7*Origin_X{natural} 7|8m10
+7i7*Origin_Y{natural} 7|9m10
+8i7*Cell_W{natural} 7|10m10 19r24
+9i7*Cell_H{natural} 7|11m10
+11i7*Gutter_Width{natural} 7|12m10
+14V13*Current{5R9} 7|6b13 23l8 23t15
+16R9*C_Layout_Config 21e14 22r26
+17i7*Origin_X{9|62I9}
+18i7*Origin_Y{9|62I9}
+19i7*Cell_W{9|62I9}
+20i7*Cell_H{9|62I9}
+X 7 editor-layout.adb
+7r7 Result{6|5R9} 19r17 22r14
+X 8 interfac.ads
+47K9*Interfaces 6|1r6 17r20 18r20 19r20 20r20 8|247e15
+X 9 i-c.ads
+33K20*C 6|1w17 17r31 18r31 19r31 20r31 9|601e17
+62I9*int<integer> 6|17r33 18r33 19r33 20r33
+

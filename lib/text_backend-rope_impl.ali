@@ -1,0 +1,320 @@
+V "GNAT Lib v15"
+A -gnatA
+A -gnat2022
+A -mtune=generic
+A -march=x86-64
+P SS ZX
+
+RN
+RV NO_ACCESS_SUBPROGRAMS
+RV NO_ALLOCATORS
+RV NO_DISPATCHING_CALLS
+RV NO_EXCEPTION_HANDLERS
+RV NO_EXCEPTION_PROPAGATION
+RV NO_EXCEPTIONS
+RV NO_FINALIZATION
+RV NO_IMPLICIT_CONDITIONALS
+RV NO_LOCAL_ALLOCATORS
+RV NO_NESTED_FINALIZATION
+RV NO_RECURSION
+RV NO_SECONDARY_STACK
+RV NO_STANDARD_STORAGE_POOLS
+RV NO_UNCHECKED_DEALLOCATION
+RV NO_DEFAULT_INITIALIZATION
+RV NO_DYNAMIC_SIZED_OBJECTS
+RV NO_IMPLEMENTATION_ASPECT_SPECIFICATIONS
+RV NO_IMPLEMENTATION_PRAGMAS
+RV NO_ELABORATION_CODE
+
+U text_backend.rope_impl%b  text_backend-rope_impl.adb  9e6ce762 OO PK
+W ada%s			ada.ads			ada.ali
+Z ada.exceptions%s	a-except.adb		a-except.ali
+W ada.strings%s		a-string.ads		a-string.ali
+Z ada.strings.text_buffers%s  a-sttebu.adb	a-sttebu.ali
+W ada.strings.unbounded%s  a-strunb.adb		a-strunb.ali
+Z ada.tags%s		a-tags.adb		a-tags.ali
+W ada.unchecked_deallocation%s
+Z system%s		system.ads		system.ali
+Z system.concat_2%s	s-conca2.adb		s-conca2.ali
+Z system.finalization_primitives%s  s-finpri.adb  s-finpri.ali
+Z system.secondary_stack%s  s-secsta.adb	s-secsta.ali
+Z system.soft_links%s	s-soflin.adb		s-soflin.ali
+Z system.standard_library%s  s-stalib.adb	s-stalib.ali
+Z system.storage_elements%s  s-stoele.ads	s-stoele.ali
+Z system.storage_pools%s  s-stopoo.adb		s-stopoo.ali
+Z system.storage_pools.subpools%s  s-stposu.adb	s-stposu.ali
+W text_backend%s	text_backend.ads	text_backend.ali
+
+U text_backend.rope_impl%s  text_backend-rope_impl.ads  eb99ec20 EE OO PF PK
+W ada%s			ada.ads			ada.ali
+Z ada.exceptions%s	a-except.adb		a-except.ali
+W ada.finalization%s	a-finali.ads		a-finali.ali
+Z ada.streams%s		a-stream.adb		a-stream.ali
+W ada.strings%s		a-string.ads		a-string.ali
+Z ada.strings.text_buffers%s  a-sttebu.adb	a-sttebu.ali
+W ada.strings.unbounded%s  a-strunb.adb		a-strunb.ali
+Z ada.tags%s		a-tags.adb		a-tags.ali
+Z system%s		system.ads		system.ali
+Z system.finalization_primitives%s  s-finpri.adb  s-finpri.ali
+Z system.pool_global%s	s-pooglo.adb		s-pooglo.ali
+Z system.put_images%s	s-putima.adb		s-putima.ali
+Z system.return_stack%s	s-retsta.ads		s-retsta.ali
+Z system.secondary_stack%s  s-secsta.adb	s-secsta.ali
+Z system.soft_links%s	s-soflin.adb		s-soflin.ali
+Z system.standard_library%s  s-stalib.adb	s-stalib.ali
+Z system.stream_attributes%s  s-stratt.adb	s-stratt.ali
+W text_backend%s	text_backend.ads	text_backend.ali
+
+D ada.ads		20250808065140 76789da1 ada%s
+D a-charac.ads		20250808065140 2d3ec45b ada.characters%s
+D a-chlat1.ads		20250808065140 e0d72e76 ada.characters.latin_1%s
+D a-except.ads		20250808065140 e7970cd9 ada.exceptions%s
+D a-finali.ads		20250808065140 bf4f806b ada.finalization%s
+D a-stream.ads		20250808065140 17477cbd ada.streams%s
+D a-string.ads		20250808065140 90ac6797 ada.strings%s
+D a-strmap.ads		20250808065140 1f91ebb6 ada.strings.maps%s
+D a-strsea.ads		20250808065140 18c3c634 ada.strings.search%s
+D a-sttebu.ads		20250808065140 f1ad67a2 ada.strings.text_buffers%s
+D a-strunb.ads		20250808065140 b10770ab ada.strings.unbounded%s
+D a-stuten.ads		20250808065140 c6ced0ae ada.strings.utf_encoding%s
+D a-tags.ads		20250808065140 fbca0ad5 ada.tags%s
+D a-unccon.ads		20250808065140 0e9b276f ada.unchecked_conversion%s
+D a-uncdea.ads		20250808065140 c3a8ac65 ada.unchecked_deallocation%s
+D interfac.ads		20250808065140 9111f9c1 interfaces%s
+D i-c.ads		20250808065140 e94c966a interfaces.c%s
+D system.ads		20250808065140 14286b0f system%s
+D s-atocou.ads		20250808065140 dc18efc3 system.atomic_counters%s
+D s-conca2.ads		20250808065140 b5fb73f7 system.concat_2%s
+D s-exctab.ads		20250808065140 91bef6ef system.exception_table%s
+D s-finpri.ads		20250808065140 5970d55a system.finalization_primitives%s
+D s-finroo.ads		20250808065140 0a7c3ed4 system.finalization_root%s
+D s-memory.ads		20250808065140 18949c1a system.memory%s
+D s-oscons.ads		20250827122531 068e1a91 system.os_constants%s
+D s-oslock.ads		20250808065140 13fa6b78 system.os_locks%s
+D s-parame.ads		20250808065140 3597fc11 system.parameters%s
+D s-pooglo.ads		20250808065140 91708d21 system.pool_global%s
+D s-putima.ads		20250808065140 17291fe4 system.put_images%s
+D s-retsta.ads		20250808065140 0f6b06cb system.return_stack%s
+D s-secsta.ads		20250808065140 578279f5 system.secondary_stack%s
+D s-soflin.ads		20250808065140 5d88fdea system.soft_links%s
+D s-stache.ads		20250808065140 0b81c1fe system.stack_checking%s
+D s-stalib.ads		20250808065140 1c9580f6 system.standard_library%s
+D s-stalib.adb		20250808065140 eb464a47 system.standard_library%b
+D s-stoele.ads		20250808065140 ccded4e8 system.storage_elements%s
+D s-stopoo.ads		20250808065140 e9fa2dd8 system.storage_pools%s
+D s-stposu.ads		20250808065140 e0b9fefd system.storage_pools.subpools%s
+D s-stratt.ads		20250808065140 516607ae system.stream_attributes%s
+D s-traent.ads		20250808065140 c81cbf8c system.traceback_entries%s
+D s-unstyp.ads		20250808065140 fa2a7f59 system.unsigned_types%s
+D text_backend.ads	20260412181650 6d0030da text_backend%s
+D text_backend-rope_impl.ads  20260427194525 88d12c3a text_backend.rope_impl%s
+D text_backend-rope_impl.adb  20260427194447 64121796 text_backend.rope_impl%b
+G a e
+G c Z s b [adjust text_backend__rope_impl 8 25 none]
+G c Z s b [finalize text_backend__rope_impl 9 25 none]
+G c Z s b [clear text_backend__rope_impl 11 14 none]
+G c Z s b [insert text_backend__rope_impl 13 14 none]
+G c Z s b [insert_range text_backend__rope_impl 18 14 none]
+G c Z s b [delete text_backend__rope_impl 24 14 none]
+G c Z s b [delete_range text_backend__rope_impl 28 14 none]
+G c Z s b [replace_range text_backend__rope_impl 33 14 none]
+G c Z s b [length text_backend__rope_impl 39 13 none]
+G c Z s b [for_each_char text_backend__rope_impl 41 14 none]
+G c Z s b [for_each_char_range text_backend__rope_impl 45 14 none]
+G c Z s b [element text_backend__rope_impl 51 13 none]
+G c Z s s [buffer_typeDA text_backend__rope_impl 80 9 none]
+G c Z s s [buffer_typeDF text_backend__rope_impl 80 9 none]
+G c Z s s [buffer_typeIP text_backend__rope_impl 80 9 none]
+G c Z s s [rope_nodeDI text_backend__rope_impl 66 9 none]
+G c Z s s [rope_nodeDA text_backend__rope_impl 66 9 none]
+G c Z s s [rope_nodeDF text_backend__rope_impl 66 9 none]
+G c Z s s [rope_nodeIP text_backend__rope_impl 66 9 none]
+G c Z b b [free_node text_backend__rope_impl 6 14 none]
+G c Z b b [node_length text_backend__rope_impl 14 13 none]
+G c Z b b [make_leaf text_backend__rope_impl 23 13 none]
+G c Z b b [make_branch text_backend__rope_impl 35 13 none]
+G c Z b b [clone text_backend__rope_impl 54 13 none]
+G c Z b b [free_tree text_backend__rope_impl 74 14 none]
+G c Z b b [traverse_range text_backend__rope_impl 92 14 none]
+G c Z b b [char_at text_backend__rope_impl 174 13 none]
+G c Z b b [traverse text_backend__rope_impl 202 14 none]
+G c Z b b [split text_backend__rope_impl 239 14 none]
+G c Z b b [concat text_backend__rope_impl 300 13 none]
+X 1 ada.ads
+18K9*Ada 22e8 43|1r6 2r6 6r28 57r8 80r28 44|1r6 2r6 2r33 6r31
+X 5 a-finali.ads
+40K13*Finalization 68e21 43|1w10 6r32 80r32
+43H9*Controlled<23|40R9> 59e72 43|6r45 80r45
+46U14*Initialize<23|48p14>
+X 7 a-string.ads
+16K13*Strings 35e16 43|2r10 57r12 44|2r10 2r37
+X 11 a-strunb.ads
+91K21*Unbounded 1641e26 43|2w18 57r20 44|2w18 2r45
+105R9*Unbounded_String<5|43R9> 1620e15 43|71r20
+122V13*To_Unbounded_String{105R9} 44|32s20
+135V13*To_String{string} 44|109s39 190s18 214s39 266s39 316s37 317s37
+X 15 a-uncdea.ads
+20+9 Object 44|7r7
+21P9 Name(20+9) 44|8r7
+23u15*Unchecked_Deallocation 44|1w10 6r35
+X 18 system.ads
+67M9*Address
+X 24 s-memory.ads
+51V13*Alloc{18|67M9} 101i<c,__gnat_malloc>22
+66U14*Free 102i<c,__gnat_free>22
+74V13*Realloc{18|67M9} 103i<c,__gnat_realloc>22
+X 35 s-stalib.adb
+87U14 Break_Start 88i<c,__gnat_break_start>22
+X 42 text_backend.ads
+1K9*Text_Backend 10e17 43|4r9 85r5 44|4r14 455r5
+X 43 text_backend-rope_impl.ads
+4K22*Rope_Impl 42|1k9 43|59E4 85l18 85e27 44|4b27 455l18 455t27
+6R9*Buffer_Type<5|43R9> 5|46P14 43|8P25 8r46 9P25 9r46 11p14 11r32 13p14
+. 14r22 18p14 19r22 24p14 25r22 28p14 29r22 33p14 34r22 39p13 39r25 41p14
+. 42r12 45p14 46r15 51p13 52r15 80c9 83e14 44|146r13 159r44 164r46 228r10
+. 345r32 352r22 372r22 383r22 415r22 430r22 439r25 445r15
+8U25*Adjust<5|47p14> 8=35 44|159b25 162l8 162t14
+8r35 B{6R9} 44|159b33 161m7 161r24
+9U25*Finalize<5|48p14> 9=35 44|164b25 168l8 168t16
+9r35 B{6R9} 44|164b35 166m18 166r18 167m7
+11U14*Clear 11=21 44|345b14 349l8 349t13
+11r21 B{6R9} 44|345b21 347m18 347r18 348m7
+13U14*Insert 14=7 15>7 16>7 44|351b14 369l8 369t14 378s10 436s7
+14r7 B{6R9} 44|352b7 356r55 357r35 365m7 366m7 366r17
+15i7 Index{natural} 44|353b7 356r48
+16e7 Ch{character} 44|354b7 363r39
+18U14*Insert_Range 19=7 20>7 21>7 22>7 44|371b14 380l8 380t20
+19r7 B{6R9} 44|372b7 378m18
+20i7 Index{natural} 44|373b7 378r21
+21e7 Ch{character} 44|374b7 378r36
+22i7 Count{natural} 44|375b7 377r21
+24U14*Delete 25=7 26>7 44|382b14 412l8 412t14 425s10
+25r7 B{6R9} 44|383b7 387r35 393r10 397r19 398r17 406m7 407m7 407r17
+26i7 Index{natural} 44|384b7 397r10 400r17
+28U14*Delete_Range 29=7 30>7 31>7 44|414b14 427l8 427t20 435s7
+29r7 B{6R9} 44|415b7 424r29 425m18
+30i7 Start{natural} 44|416b7 424r20 425r21
+31i7 Span{natural} 44|417b7 419r10 423r21
+33U14*Replace_Range 34=7 35>7 36>7 37>7 44|429b14 437l8 437t21
+34r7 B{6R9} 44|430b7 435m21 436m15
+35i7 Start{natural} 44|431b7 435r24 436r18
+36i7 Span{natural} 44|432b7 435r31
+37e7 Ch{character} 44|433b7 436r25
+39V13*Length{natural} 39>21 44|439b13 442l8 442t14
+39r21 B{6R9} 44|439b21 441r14
+41U14*For_Each_Char 42>7 43^7 44|227b14 233l8 233t21
+42r7 B{6R9} 44|228b5 232r17
+43p7 Fn 44|229b7 232r25
+43e39 Ch{character}
+45U14*For_Each_Char_Range 46>7 47>7 48>7 49^7 44|145b14 153l8 153t27
+46r7 B{6R9} 44|146b5 152r23
+47i7 Start{natural} 44|147b7 152r34
+48i7 Stop{natural} 44|148b7 152r41
+49p7 Fn 44|149b7 152r47
+49e42 Ch{character}
+51V13*Element{character} 52>7 53>7 44|444b13 453l8 453t15
+52r7 B{6R9} 44|445b7 448r36 452r23
+53i7 Index{natural} 44|446b7 448r10 448r28 452r31
+59i4 Leaf_Size{natural} 44|313r46
+61E9 Node_Kind 61e46 66r27
+61n23 Leaf_Node{61E9} 66r40 70r15 44|30r20 61r15 63r26 81r15 107r15 185r15
+. 212r15 264r15 311r25 312r29
+61n34 Branch_Node{61E9} 73r15 44|46r23 67r15 84r15 120r15 193r15 221r15 272r15
+. 322r25 329r26
+63R9 Rope_Node 64r36 66c9 66d20 78e14 44|7r17 29r18 45r21 62r24
+64P9 Rope_Node_Access(63R9) 74r22 75r22 81r14 44|8r17 14r30 23r43 36r15 37r15
+. 37r40 54r24 54r49 74r36 93r14 175r15 203r10 240r15 242r19 243r19 275r24
+. 276r24 289r24 290r24 301r13 302r15 302r40 357r15 358r15 359r15 360r15 387r15
+. 388r15 389r15 390r15 391r15
+66e20*Kind{61E9} 69r12 44|30m10 46m13 60r14 63m16 80r14 105r14 184r14 211r14
+. 263r14 311r18 312r22 322r18 329r19
+67i7*Length{natural} 44|19r19 31m10 47m13 64m16 64r28 186r27 257r24 313r21
+. 313r36
+71r13*Text{11|105R9} 44|32m10 65m16 65r28 109r52 190r31 214r52 266r52 316r53
+. 317r54
+74p13*Left{64P9} 44|48m13 69r25 85m26 121r40 126r19 195r34 222r25 278r28
+. 284r34 293r50 323r34 326r16 333r31
+75p13*Right{64P9} 44|49m13 70r25 86m26 136r19 197r34 223r25 280r54 285r34
+. 292r28 327r26 330r35 334r19
+76i13*Weight{natural} 44|50m13 194r26 197r51 273r26 283r29 292r45
+81p7 Root{64P9} 44|152r25 161m9 161r26 166m20 232r19 347m20 357r37 365m9
+. 387r37 406m9 452r25
+82i7 Last{natural} 44|167m9 348m9 356r57 366m9 366r19 393r12 397r21 398r19
+. 407m9 407r19 424r31 441r16 448r38
+X 44 text_backend-rope_impl.adb
+6U14 Free_Node[15|23] 89s7
+14V13 Node_Length{natural} 14b13 14>26 21l8 21t19 47s23 47s44 50s23 121s25
+. 323s16 323s42 330s16 330s44
+14p26 N{43|64P9} 16r10 19r17
+23V13 Make_Leaf{43|64P9} 23b13 23>24 33l8 33t17 268s25 269s25 319s20 363s15
+23a24 S{string} 25r10 31r20 32r41
+35V13 Make_Branch{43|64P9} 35b13 36>7 37>7 52l8 52t19 68s20 280s28 293s28
+. 325s17 332s17 337s17
+36p7 Left{43|64P9} 40r10 43r17 47r36 48r23 50r36
+37p7 Right{43|64P9} 41r17 42r13 47r57 49r23
+54V13 Clone{43|64P9} 54b13 54>20 69s16 70s16 72l8 72t13 161s17 255s19 258s19
+. 280s45 284s25 285s25 293s41
+54p20 N{43|64P9} 56r10 60r12 64r26 65r26 69r23 70r23
+74U14 Free_Tree 74b14 74=25 85s13 86s13 90l8 90t17 166s7 347s7 368s7 409s7
+. 410s7 411s7
+74p25 N{43|64P9} 76r10 80r12 85r24 86r24 89m18
+92U14 Traverse_Range 92b14 93>5 94>7 95>7 96>7 97^7 125s16 135s16 143l8 143t22
+. 152s7
+93p5 N{43|64P9} 101r10 105r12 109r50 121r38 126r17 136r17
+94i7 Offset{natural} 112r58 113r56 124r24 127r19 134r23 137r19
+95i7 Start{natural} 101r27 112r50 124r16 128r19 138r19
+96i7 Stop{natural} 101r36 113r49 129r19 134r16 139r19
+97p7 Fn 116r19 130r19 140r19
+97e43 Ch{character}
+99i7 Left_Len{natural} 121m13 124r33 134r32 137r28
+109a16 S{string} 110r40 116r23
+110i16 L{natural} 113r46
+112i16 From{natural} 115r25
+113i16 To{natural} 115r33
+115i20 I{integer} 116r26
+149e42 Ch{character}
+174V13 Char_At{character} 174b13 175>7 176>7 195s23 197s23 200l8 200t15 452s14
+175p7 N{43|64P9} 180r10 184r12 186r25 190r29 194r24 195r32 197r32 197r49
+176i7 Index{natural} 186r16 190r38 190r51 194r16 195r40 197r41
+178a7 S{string} 190m13 191r20
+202U14 Traverse 202b14 203>5 204^7 222s13 223s13 225l8 225t16 232s7
+203p5 N{43|64P9} 207r10 211r12 214r50 222r23 223r23
+204p7 Fn 217r19 222r31 223r32
+204e39 Ch{character}
+214a16 S{string} 216r25 217r23
+216i20 I{integer} 217r26
+229e39 Ch{character}
+239U14 Split 239b14 240>7 241>7 242<7 243<7 278s19 292s19 298l8 298t13 362s7
+. 403s7 404s7
+240p7 N{43|64P9} 249r10 255r26 257r22 258r26 263r12 266r50 273r24 278r26
+. 280r52 283r27 284r32 285r32 292r26 292r43 293r48
+241i7 Index{natural} 253r10 257r13 268r60 269r49 273r16 278r34 283r19 292r35
+242p7 Left{43|64P9} 246m7 254m10 258m10 268m16 279m19 284m16 293m19
+243p7 Right{43|64P9} 247m7 255m10 259m10 269m16 280m19 285m16 294m19
+266a16 S{string} 268r36 268r39 268r50 269r36 269r39 269r58
+275p19 L1{43|64P9} 278m41 278r41 279r28
+276p19 L2{43|64P9} 278m45 278r45 280r41
+289p19 R1{43|64P9} 292m53 292r53 293r57
+290p19 R2{43|64P9} 292m57 292r57 294r28
+300V13 Concat{43|64P9} 300b13 301>5 302>7 327s13 333s11 339l8 339t14 365s17
+. 365s25 406s17
+301p5 Left{43|64P9} 305r10 309r17 311r13 313r16 316r48 322r13 323r29 326r11
+. 327r21 330r57 333r19 337r30
+302p7 Right{43|64P9} 306r17 308r13 312r16 313r30 317r48 323r55 327r33 329r13
+. 330r29 333r25 334r13 337r36
+316a13 Ls{string} 319r31
+317a13 Rs{string} 319r36
+356i7 Pos{natural} 362r19
+357p7 Old{43|64P9} 362r14 368m18 368r18
+358p7 L{43|64P9} 362m24 362r24 365r33
+359p7 R{43|64P9} 362m27 362r27 365r43
+360p7 Leaf{43|64P9} 363m7 365r36
+377i11 I{integer} 378r29
+386i7 Pos{natural} 398m10 400m10 403r19
+387p7 Old{43|64P9} 403r14 409m18 409r18
+388p7 L{43|64P9} 403m24 403r24 406r25
+389p7 Rest{43|64P9} 403m27 403r27 404r14 410m18 410r18
+390p7 Drop{43|64P9} 404m23 404r23 411m18 411r18
+391p7 R{43|64P9} 404m29 404r29 406r28
+423i11 I{integer}
+

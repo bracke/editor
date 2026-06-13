@@ -1,0 +1,122 @@
+V "GNAT Lib v15"
+A -gnatA
+A -gnat2022
+A -mtune=generic
+A -march=x86-64
+P SS ZX
+
+RN
+RV NO_STANDARD_STORAGE_POOLS
+RV NO_IMPLEMENTATION_PRAGMAS
+
+U editor.invariants%b	editor-invariants.adb	2aee8a4d NE OO PK
+W ada%s			ada.ads			ada.ali
+W ada.containers%s	a-contai.ads		a-contai.ali
+Z ada.strings.text_buffers%s  a-sttebu.adb	a-sttebu.ali
+W editor%s		editor.ads		editor.ali
+W editor.cursors%s	editor-cursors.adb	editor-cursors.ali
+W editor.state%s	editor-state.adb	editor-state.ali
+Z system%s		system.ads		system.ali
+Z system.finalization_primitives%s  s-finpri.adb  s-finpri.ali
+Z system.soft_links%s	s-soflin.adb		s-soflin.ali
+W text_buffer%s		text_buffer.ads		text_buffer.ali
+
+U editor.invariants%s	editor-invariants.ads	3bb45916 EE NE OO PK
+W editor%s		editor.ads		editor.ali
+W editor.state%s	editor-state.adb	editor-state.ali
+
+D ada.ads		20250808065140 76789da1 ada%s
+D a-charac.ads		20250808065140 2d3ec45b ada.characters%s
+D a-chlat1.ads		20250808065140 e0d72e76 ada.characters.latin_1%s
+D a-contai.ads		20250808065140 61e5e089 ada.containers%s
+D a-conhel.ads		20250808065140 46fe1ce3 ada.containers.helpers%s
+D a-convec.ads		20250808065140 91fb49f3 ada.containers.vectors%s
+D a-except.ads		20250808065140 e7970cd9 ada.exceptions%s
+D a-finali.ads		20250808065140 bf4f806b ada.finalization%s
+D a-iteint.ads		20250808065140 49a8bee2 ada.iterator_interfaces%s
+D a-stream.ads		20250808065140 17477cbd ada.streams%s
+D a-string.ads		20250808065140 90ac6797 ada.strings%s
+D a-strmap.ads		20250808065140 1f91ebb6 ada.strings.maps%s
+D a-strsea.ads		20250808065140 18c3c634 ada.strings.search%s
+D a-sttebu.ads		20250808065140 f1ad67a2 ada.strings.text_buffers%s
+D a-strunb.ads		20250808065140 b10770ab ada.strings.unbounded%s
+D a-stuten.ads		20250808065140 c6ced0ae ada.strings.utf_encoding%s
+D a-tags.ads		20250808065140 fbca0ad5 ada.tags%s
+D a-unccon.ads		20250808065140 0e9b276f ada.unchecked_conversion%s
+D editor.ads		20260406185230 16f844c2 editor%s
+D editor-cursors.ads	20260425100454 1f938cf3 editor.cursors%s
+D editor-invariants.ads	20260423150613 f9653e58 editor.invariants%s
+D editor-invariants.adb	20260425134120 c24ebbb5 editor.invariants%b
+D editor-state.ads	20260503173758 d429238c editor.state%s
+D interfac.ads		20250808065140 9111f9c1 interfaces%s
+D i-c.ads		20250808065140 e94c966a interfaces.c%s
+D system.ads		20250808065140 14286b0f system%s
+D s-atocou.ads		20250808065140 dc18efc3 system.atomic_counters%s
+D s-exctab.ads		20250808065140 91bef6ef system.exception_table%s
+D s-finpri.ads		20250808065140 5970d55a system.finalization_primitives%s
+D s-finroo.ads		20250808065140 0a7c3ed4 system.finalization_root%s
+D s-oscons.ads		20250827122531 068e1a91 system.os_constants%s
+D s-oslock.ads		20250808065140 13fa6b78 system.os_locks%s
+D s-parame.ads		20250808065140 3597fc11 system.parameters%s
+D s-pooglo.ads		20250808065140 91708d21 system.pool_global%s
+D s-putima.ads		20250808065140 17291fe4 system.put_images%s
+D s-retsta.ads		20250808065140 0f6b06cb system.return_stack%s
+D s-secsta.ads		20250808065140 578279f5 system.secondary_stack%s
+D s-soflin.ads		20250808065140 5d88fdea system.soft_links%s
+D s-stache.ads		20250808065140 0b81c1fe system.stack_checking%s
+D s-stalib.ads		20250808065140 1c9580f6 system.standard_library%s
+D s-stoele.ads		20250808065140 ccded4e8 system.storage_elements%s
+D s-stopoo.ads		20250808065140 e9fa2dd8 system.storage_pools%s
+D s-stratt.ads		20250808065140 516607ae system.stream_attributes%s
+D s-traent.ads		20250808065140 c81cbf8c system.traceback_entries%s
+D s-unstyp.ads		20250808065140 fa2a7f59 system.unsigned_types%s
+D text_backend.ads	20260412181650 6d0030da text_backend%s
+D text_backend-rope_impl.ads  20260427194525 88d12c3a text_backend.rope_impl%s
+D text_buffer.ads	20260427153044 bb9a4056 text_buffer%s
+G a e
+G c Z s b [check editor__invariants 5 14 none]
+G r c none [check editor__invariants 5 14 none] [length text_backend__rope_impl 39 13 none]
+X 1 ada.ads
+18K9*Ada 22e8 22|2r6 2r26
+X 4 a-contai.ads
+16K13*Containers 28e19 22|2w10 2r30
+22I9*Count_Type<integer>
+X 6 a-convec.ads
+81I12*Extended_Index{integer}
+91R9*Vector<8|43R9>
+175V13*Length{4|22I9} 22|16s19[20|19] 35s19[20|19]
+206V13*Element{20|12R9} 22|46s23[20|19] 46s53[20|19] 48s25[20|19] 48s70[20|19]
+560V13*First_Index{integer} 22|22s25[20|19] 36s28[20|19]
+570V13*Last_Index{81I12[20|19]} 22|22s49[20|19] 36s52[20|19]
+X 9 a-iteint.ads
+24h9 Forward_Iterator
+32h9 Reversible_Iterator<24R9[6|119]>
+X 19 editor.ads
+1K9*Editor 5e11 21|1r6 3r9 5r25 7r5 22|3r6 3r26 4r6 6r14 8r25 69r5
+X 20 editor-cursors.ads
+3K16*Cursors 35e19 22|3w13 3r33
+5I12*Cursor_Index{natural} 22|9r22 10r9
+13i7*Pos{5I12} 22|24r26 38r27 38r50 40r30 40r53 46r65
+14i7*Anchor{5I12} 22|28r26 46r35
+15i7*Virtual_Column{natural} 22|42r29 42r63 48r82
+16i7*Anchor_Virtual_Column{natural} 22|48r37
+X 21 editor-invariants.ads
+3K16*Invariants 19|1k9 21|7l12 7e22 22|6b21 69l12 69t22
+5U14*Check 5>21 22|8b14 67l8 67t13
+5r21 S{23|11R9} 22|8b21 10r43 16r10 22r16 22r40 24r13 28r13 35r10 36r19 36r43
+. 38r14 38r33 40r17 40r36 42r16 42r46 46r14 46r44 48r16 48r61
+X 22 editor-invariants.adb
+9i7 Len{20|5I12} 24r33 28r36
+22i11 I{integer} 24r23 28r23
+36i14 I{integer} 38r24 38r43 40r27 40r46 42r26 42r56 46r32 46r62 48r34 48r79
+X 23 editor-state.ads
+5K16*State 21|1w13 5r32 22|4w13 8r32 23|47e17
+11R9*State_Type 21|5r38 22|8r38 23|19e14
+12r7*Buffer{47|6R9} 22|10r45
+13r7*Carets{6|91R9[20|19]} 22|16r12 22r18 22r42 24r15 28r15 35r12 36r21 36r45
+. 38r16 38r35 40r19 40r38 42r18 42r48 46r16 46r46 48r18 48r63
+X 47 text_backend-rope_impl.ads
+39V13*Length{natural} 22|10s35
+X 48 text_buffer.ads
+4K9*Text_Buffer=4:42 22|1w6 10r23
+

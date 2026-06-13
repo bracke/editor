@@ -1,11 +1,14 @@
+with Ada.Strings.Unbounded; use Ada.Strings.Unbounded;
 package body Editor.Test_Helper is
 
    function Insert (Pos : Natural; Ch  : Character) return Command is
       C : Command;
    begin
-      C.Kind := Insert_Char;
+      C.Kind := Insert_Text_Input;
       C.Pos  := Pos;
+      C.Has_Position := True;
       C.Ch   := Ch;
+      C.Text := To_Unbounded_String (String'(1 => Ch));
       return C;
    end Insert;
 
@@ -14,6 +17,7 @@ package body Editor.Test_Helper is
    begin
       C.Kind := Delete_Char;
       C.Pos  := Pos;
+      C.Has_Position := True;
       return C;
    end Delete;
 

@@ -1,0 +1,69 @@
+V "GNAT Lib v15"
+A -gnatA
+A -gnat2022
+A -mtune=generic
+A -march=x86-64
+P ZX
+
+RN
+RV NO_IMPLEMENTATION_PRAGMAS
+
+U editor.fonts.init%b	editor-fonts-init.adb	1cb35541 NE OO PK
+W editor%s		editor.ads		editor.ali
+W editor.font_config%s	editor-font_config.ads	editor-font_config.ali
+W editor.fonts%s	editor-fonts.adb	editor-fonts.ali
+W textrender%s		textrender.adb		textrender.ali
+
+U editor.fonts.init%s	editor-fonts-init.ads	9cb56e83 EE NE OO PK
+W editor.fonts%s	editor-fonts.adb	editor-fonts.ali
+
+D ada.ads		20250808065140 76789da1 ada%s
+D a-unccon.ads		20250808065140 0e9b276f ada.unchecked_conversion%s
+D editor.ads		20260406185230 16f844c2 editor%s
+D editor-font_config.ads  20260504170749 b1d49767 editor.font_config%s
+D editor-fonts.ads	20260503165753 4b5bcabf editor.fonts%s
+D editor-fonts-init.ads	20260503172829 d7eea43c editor.fonts.init%s
+D editor-fonts-init.adb	20260503172848 a659b53d editor.fonts.init%b
+D interfac.ads		20250808065140 9111f9c1 interfaces%s
+D i-c.ads		20250808065140 e94c966a interfaces.c%s
+D system.ads		20250808065140 14286b0f system%s
+D s-exctab.ads		20250808065140 91bef6ef system.exception_table%s
+D s-parame.ads		20250808065140 3597fc11 system.parameters%s
+D s-stalib.ads		20250808065140 1c9580f6 system.standard_library%s
+D textrender.ads	20260503182052 dcd0d327 textrender%s
+G a e
+G c Z s b [initialize editor__fonts__init 3 14 none]
+G c Z s b [is_initialized editor__fonts__init 5 13 none]
+G r c none [initialize editor__fonts__init 3 14 none] [load_font textrender 161 13 none]
+X 3 editor.ads
+1K9*Editor 5e11 6|1r9 7r5 7|2r6 4r14 17r28 18r28 19r28 20r28 21r28 22r28
+. 36r5
+X 4 editor-font_config.ads
+1K16*Font_Config 16e23 7|2w13 17r35 18r35 19r35 20r35 21r35 22r35
+3a4*Font_Path{string} 7|17r47
+6i4*Pixel_Size{positive} 7|18r47
+8i4*Cell_Width{positive} 7|19r47
+9i4*Cell_Height{positive} 7|20r47
+11i4*Atlas_Width{positive} 7|21r47
+12i4*Atlas_Height{positive} 7|22r47
+X 5 editor-fonts.ads
+3K16*Fonts 3|1k9 5|53e17 6|1r16 7r12 7|4r21 36r12
+X 6 editor-fonts-init.ads
+1K22*Init 5|3k16 6|7l18 7e22 7|4b27 36l18 36t22
+3U14*Initialize 7|8b14 29l8 29t18
+5V13*Is_Initialized{boolean} 7|31b13 34l8 34t22
+X 7 editor-fonts-init.adb
+6b4 Initialized{boolean} 11r10 28m7 33r14
+9e7 Status{14|96E9} 15m7 25r10
+X 14 textrender.ads
+87K9*Textrender 7|1w6 1r22 9r16 16r9 25r19 14|252e15
+96E9*Status_Code 7|9r27 14|102e21
+97n7*Success{96E9} 7|25r30
+161V13*Load_Font{96E9} 7|16s20
+162a7 Path{string} 7|17r12
+163i7 Pixel_Size{positive} 7|18r12
+164i7 Cell_Width{positive} 7|19r12
+165i7 Cell_Height{positive} 7|20r12
+166i7 Atlas_Width{positive} 7|21r12
+167i7 Atlas_Height{positive} 7|22r12
+

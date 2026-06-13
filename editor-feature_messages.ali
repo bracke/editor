@@ -1,0 +1,978 @@
+V "GNAT Lib v15"
+A -gnat2022
+P SS ZX
+
+RN
+RV NO_DISPATCHING_CALLS
+RV NO_ENUMERATION_MAPS
+RV NO_EXCEPTION_HANDLERS
+RV NO_EXCEPTION_PROPAGATION
+RV NO_EXCEPTIONS
+RV NO_IMPLICIT_CONDITIONALS
+RV NO_LOCAL_ALLOCATORS
+RV NO_NESTED_FINALIZATION
+RV NO_SECONDARY_STACK
+RV NO_STANDARD_STORAGE_POOLS
+RV NO_DEFAULT_INITIALIZATION
+RV NO_DYNAMIC_SIZED_OBJECTS
+RV NO_IMPLICIT_LOOPS
+RV NO_ELABORATION_CODE
+
+U editor.feature_messages%b  editor-feature_messages.adb  1fca958c NE OO PK
+W ada%s			ada.ads			ada.ali
+W ada.characters%s	a-charac.ads		a-charac.ali
+W ada.characters.handling%s  a-chahan.adb	a-chahan.ali
+Z ada.exceptions%s	a-except.adb		a-except.ali
+W ada.strings%s		a-string.ads		a-string.ali
+W ada.strings.fixed%s	a-strfix.adb		a-strfix.ali
+Z ada.strings.text_buffers%s  a-sttebu.adb	a-sttebu.ali
+W ada.strings.unbounded%s  a-strunb.adb		a-strunb.ali
+Z ada.tags%s		a-tags.adb		a-tags.ali
+W editor%s		editor.ads		editor.ali
+W editor.contextual_help%s  editor-contextual_help.adb  editor-contextual_help.ali
+Z system%s		system.ads		system.ali
+Z system.concat_2%s	s-conca2.adb		s-conca2.ali
+Z system.concat_3%s	s-conca3.adb		s-conca3.ali
+Z system.concat_4%s	s-conca4.adb		s-conca4.ali
+Z system.concat_5%s	s-conca5.adb		s-conca5.ali
+Z system.concat_9%s	s-conca9.adb		s-conca9.ali
+Z system.finalization_primitives%s  s-finpri.adb  s-finpri.ali
+Z system.img_int%s	s-imgint.ads		s-imgint.ali
+Z system.return_stack%s	s-retsta.ads		s-retsta.ali
+Z system.secondary_stack%s  s-secsta.adb	s-secsta.ali
+Z system.soft_links%s	s-soflin.adb		s-soflin.ali
+Z system.standard_library%s  s-stalib.adb	s-stalib.ali
+
+U editor.feature_messages%s  editor-feature_messages.ads  11a16825 EE OO PF PK
+W ada%s			ada.ads			ada.ali
+W ada.containers%s	a-contai.ads		a-contai.ali
+Z ada.containers.generic_array_sort%s
+Z ada.containers.helpers%s  a-conhel.adb	a-conhel.ali
+W ada.containers.vectors%s
+Z ada.exceptions%s	a-except.adb		a-except.ali
+Z ada.finalization%s	a-finali.ads		a-finali.ali
+Z ada.iterator_interfaces%s
+Z ada.streams%s		a-stream.adb		a-stream.ali
+W ada.strings%s		a-string.ads		a-string.ali
+Z ada.strings.text_buffers%s  a-sttebu.adb	a-sttebu.ali
+W ada.strings.unbounded%s  a-strunb.adb		a-strunb.ali
+Z ada.tags%s		a-tags.adb		a-tags.ali
+Z ada.unchecked_deallocation%s
+W editor%s		editor.ads		editor.ali
+W editor.feature_panel%s  editor-feature_panel.adb  editor-feature_panel.ali
+Z system%s		system.ads		system.ali
+Z system.finalization_primitives%s  s-finpri.adb  s-finpri.ali
+Z system.pool_global%s	s-pooglo.adb		s-pooglo.ali
+Z system.put_images%s	s-putima.adb		s-putima.ali
+Z system.return_stack%s	s-retsta.ads		s-retsta.ali
+Z system.secondary_stack%s  s-secsta.adb	s-secsta.ali
+Z system.soft_links%s	s-soflin.adb		s-soflin.ali
+Z system.standard_library%s  s-stalib.adb	s-stalib.ali
+Z system.storage_elements%s  s-stoele.ads	s-stoele.ali
+Z system.storage_pools%s  s-stopoo.adb		s-stopoo.ali
+Z system.storage_pools.subpools%s  s-stposu.adb	s-stposu.ali
+Z system.stream_attributes%s  s-stratt.adb	s-stratt.ali
+Z system.strings.stream_ops%s  s-ststop.adb	s-ststop.ali
+Z system.wch_stw%s	s-wchstw.adb		s-wchstw.ali
+
+D ada.ads		20250808065140 76789da1 ada%s
+D a-charac.ads		20250808065140 2d3ec45b ada.characters%s
+D a-chahan.ads		20250808065140 bf752ff6 ada.characters.handling%s
+D a-chlat1.ads		20250808065140 e0d72e76 ada.characters.latin_1%s
+D a-contai.ads		20250808065140 61e5e089 ada.containers%s
+D a-cgarso.ads		20250808065140 9129bfa8 ada.containers.generic_array_sort%s
+D a-conhel.ads		20250808065140 46fe1ce3 ada.containers.helpers%s
+D a-conhel.adb		20250808065140 854d323e ada.containers.helpers%b
+D a-convec.ads		20250808065140 91fb49f3 ada.containers.vectors%s
+D a-convec.adb		20250808065140 b2ed0168 ada.containers.vectors%b
+D a-except.ads		20250808065140 e7970cd9 ada.exceptions%s
+D a-finali.ads		20250808065140 bf4f806b ada.finalization%s
+D a-iteint.ads		20250808065140 49a8bee2 ada.iterator_interfaces%s
+D a-stream.ads		20250808065140 17477cbd ada.streams%s
+D a-string.ads		20250808065140 90ac6797 ada.strings%s
+D a-strfix.ads		20250808065140 8648dedb ada.strings.fixed%s
+D a-strmap.ads		20250808065140 1f91ebb6 ada.strings.maps%s
+D a-strsea.ads		20250808065140 18c3c634 ada.strings.search%s
+D a-sttebu.ads		20250808065140 f1ad67a2 ada.strings.text_buffers%s
+D a-strunb.ads		20250808065140 b10770ab ada.strings.unbounded%s
+D a-stuten.ads		20250808065140 c6ced0ae ada.strings.utf_encoding%s
+D a-tags.ads		20250808065140 fbca0ad5 ada.tags%s
+D a-unccon.ads		20250808065140 0e9b276f ada.unchecked_conversion%s
+D a-uncdea.ads		20250808065140 c3a8ac65 ada.unchecked_deallocation%s
+D editor.ads		20260612145959 16f844c2 editor%s
+D editor-commands.ads	20260612173240 3b5e3f44 editor.commands%s
+D editor-contextual_help.ads  20260612145959 f0559507 editor.contextual_help%s
+D editor-cursors.ads	20260612145959 1f938cf3 editor.cursors%s
+D editor-feature_messages.ads  20260612145959 2c7a5943 editor.feature_messages%s
+D editor-feature_messages.adb  20260612145959 db73bfd9 editor.feature_messages%b
+D editor-feature_panel.ads  20260612145959 0bdf4cfc editor.feature_panel%s
+D editor-unicode.ads	20260612145959 552ff3cc editor.unicode%s
+D interfac.ads		20250808065140 9111f9c1 interfaces%s
+D i-c.ads		20250808065140 e94c966a interfaces.c%s
+D system.ads		20250808065140 14286b0f system%s
+D s-atocou.ads		20250808065140 dc18efc3 system.atomic_counters%s
+D s-atocou.adb		20250808065140 6fe685de system.atomic_counters%b
+D s-atopri.ads		20250808065140 e19c1d89 system.atomic_primitives%s
+D s-conca2.ads		20250808065140 b5fb73f7 system.concat_2%s
+D s-conca3.ads		20250808065140 8a7a19a2 system.concat_3%s
+D s-conca4.ads		20250808065140 33f85f3e system.concat_4%s
+D s-conca5.ads		20250808065140 4099d1db system.concat_5%s
+D s-conca9.ads		20250808065140 54efc86b system.concat_9%s
+D s-exctab.ads		20250808065140 91bef6ef system.exception_table%s
+D s-finpri.ads		20250808065140 5970d55a system.finalization_primitives%s
+D s-finroo.ads		20250808065140 0a7c3ed4 system.finalization_root%s
+D s-imagei.ads		20250808065140 5e131ce0 system.image_i%s
+D s-imgint.ads		20250808065140 67e4edfb system.img_int%s
+D s-memory.ads		20250808065140 18949c1a system.memory%s
+D s-oscons.ads		20250827122531 068e1a91 system.os_constants%s
+D s-oslock.ads		20250808065140 13fa6b78 system.os_locks%s
+D s-parame.ads		20250808065140 3597fc11 system.parameters%s
+D s-pooglo.ads		20250808065140 91708d21 system.pool_global%s
+D s-putima.ads		20250808065140 17291fe4 system.put_images%s
+D s-retsta.ads		20250808065140 0f6b06cb system.return_stack%s
+D s-secsta.ads		20250808065140 578279f5 system.secondary_stack%s
+D s-soflin.ads		20250808065140 5d88fdea system.soft_links%s
+D s-stache.ads		20250808065140 0b81c1fe system.stack_checking%s
+D s-stalib.ads		20250808065140 1c9580f6 system.standard_library%s
+D s-stalib.adb		20250808065140 eb464a47 system.standard_library%b
+D s-stoele.ads		20250808065140 ccded4e8 system.storage_elements%s
+D s-stopoo.ads		20250808065140 e9fa2dd8 system.storage_pools%s
+D s-stposu.ads		20250808065140 e0b9fefd system.storage_pools.subpools%s
+D s-stratt.ads		20250808065140 516607ae system.stream_attributes%s
+D s-string.ads		20250808065140 582aac7d system.strings%s
+D s-ststop.ads		20250808065140 c569db7c system.strings.stream_ops%s
+D s-traent.ads		20250808065140 c81cbf8c system.traceback_entries%s
+D s-unstyp.ads		20250808065140 fa2a7f59 system.unsigned_types%s
+D s-valspe.ads		20250808065140 f810d31c system.val_spec%s
+D s-vaispe.ads		20250808065140 8280550e system.value_i_spec%s
+D s-vauspe.ads		20250808065140 89269ba5 system.value_u_spec%s
+D s-vs_int.ads		20250808065140 06b6b724 system.vs_int%s
+D s-vs_uns.ads		20250808065140 e7f47a27 system.vs_uns%s
+D s-wchcon.ads		20250808065140 d9032363 system.wch_con%s
+D s-wchstw.ads		20250808065140 2d112c01 system.wch_stw%s
+G a e
+G c Z s b [clear editor__feature_messages 44 14 none]
+G c Z s b [add_message editor__feature_messages 47 14 none]
+G c Z s b [clear_messages editor__feature_messages 58 14 none]
+G c Z s b [set_filter_text editor__feature_messages 61 14 none]
+G c Z s b [clear_filter editor__feature_messages 65 14 none]
+G c Z s b [reconcile_messages_after_row_change editor__feature_messages 68 14 none]
+G c Z s b [assert_messages_state_consistent editor__feature_messages 74 14 none]
+G c Z s b [assert_messages_projection_consistent editor__feature_messages 77 14 none]
+G c Z s b [show_all editor__feature_messages 81 14 none]
+G c Z s b [toggle_info editor__feature_messages 84 14 none]
+G c Z s b [toggle_warnings editor__feature_messages 87 14 none]
+G c Z s b [toggle_errors editor__feature_messages 90 14 none]
+G c Z s b [filter_is_active editor__feature_messages 93 13 none]
+G c Z s b [visible_row_count editor__feature_messages 96 13 none]
+G c Z s b [severity_is_visible editor__feature_messages 99 13 none]
+G c Z s b [row_count editor__feature_messages 103 13 none]
+G c Z s b [is_empty editor__feature_messages 106 13 none]
+G c Z s b [item_id editor__feature_messages 109 13 none]
+G c Z s b [item_severity editor__feature_messages 113 13 none]
+G c Z s b [item_text editor__feature_messages 117 13 none]
+G c Z s b [item_source_label editor__feature_messages 121 13 none]
+G c Z s b [item_source_kind editor__feature_messages 125 13 none]
+G c Z s b [item_repeat_count editor__feature_messages 129 13 none]
+G c Z s b [item_has_target editor__feature_messages 133 13 none]
+G c Z s b [item_target_buffer editor__feature_messages 137 13 none]
+G c Z s b [item_target_line editor__feature_messages 141 13 none]
+G c Z s b [item_target_column editor__feature_messages 145 13 none]
+G c Z s b [has_selected_message editor__feature_messages 149 13 none]
+G c Z s b [selected_message_id editor__feature_messages 153 13 none]
+G c Z s b [selected_message_source_index editor__feature_messages 157 13 none]
+G c Z s b [selected_message_text editor__feature_messages 161 13 none]
+G c Z s b [format_message_for_copy editor__feature_messages 165 13 none]
+G c Z s b [clear_message_by_id editor__feature_messages 169 13 none]
+G c Z s b [clear_selected_message editor__feature_messages 173 13 none]
+G c Z s b [clear_messages_by_severity editor__feature_messages 177 13 none]
+G c Z s b [clear_messages_by_source_kind editor__feature_messages 181 13 none]
+G c Z s b [reconcile_messages_selection_after_delete editor__feature_messages 185 14 none]
+G c Z s b [severity_label editor__feature_messages 191 13 none]
+G c Z s b [source_kind_label editor__feature_messages 194 13 none]
+G c Z s b [max_retained_messages editor__feature_messages 197 13 none]
+G c Z s b [build_messages_header_text editor__feature_messages 199 13 none]
+G c Z s b [project_rows editor__feature_messages 203 14 none]
+G c Z s b [map_message_row_to_item editor__feature_messages 207 13 none]
+G c Z s b [validate_message_target editor__feature_messages 213 13 none]
+G c Z s b [reset_for_buffer_close editor__feature_messages 218 14 none]
+G c Z s b [reset_for_project_close editor__feature_messages 222 14 none]
+G c Z s b [reset_for_workspace_close editor__feature_messages 225 14 none]
+G c Z s b [validate_row_action editor__feature_messages 228 13 none]
+G c Z s b [message_messages_shown editor__feature_messages 234 13 none]
+G c Z s b [message_messages_cleared editor__feature_messages 235 13 none]
+G c Z s b [message_no_messages editor__feature_messages 236 13 none]
+G c Z s b [message_no_selected_message editor__feature_messages 237 13 none]
+G c Z s b [message_no_visible_message editor__feature_messages 238 13 none]
+G c Z s b [message_no_target editor__feature_messages 239 13 none]
+G c Z s b [message_target_unavailable editor__feature_messages 240 13 none]
+G c Z s b [message_filter_cleared editor__feature_messages 241 13 none]
+G c Z s b [message_all_severities_shown editor__feature_messages 242 13 none]
+G c Z s b [message_info_hidden editor__feature_messages 243 13 none]
+G c Z s b [message_info_shown editor__feature_messages 244 13 none]
+G c Z s b [message_warnings_hidden editor__feature_messages 245 13 none]
+G c Z s b [message_warnings_shown editor__feature_messages 246 13 none]
+G c Z s b [message_errors_hidden editor__feature_messages 247 13 none]
+G c Z s b [message_errors_shown editor__feature_messages 248 13 none]
+G c Z s b [message_message_cleared editor__feature_messages 249 13 none]
+G c Z s b [message_message_copied editor__feature_messages 250 13 none]
+G c Z s b [reason_no_message_rows editor__feature_messages 251 13 none]
+G c Z s s [message_itemDI editor__feature_messages 261 9 none]
+G c Z s s [message_itemDA editor__feature_messages 261 9 none]
+G c Z s s [message_itemDF editor__feature_messages 261 9 none]
+G c Z s s [message_itemIP editor__feature_messages 261 9 none]
+G c Z s s [has_element editor__feature_messages__message_row_vectors 115 13 274_4]
+G c Z s s [empty editor__feature_messages__message_row_vectors 125 13 274_4]
+G c Z s s [Oeq editor__feature_messages__message_row_vectors 127 24 274_4]
+G c Z s s [to_vector editor__feature_messages__message_row_vectors 136 13 274_4]
+G c Z s s [to_vector editor__feature_messages__message_row_vectors 139 13 274_4]
+G c Z s s [Oconcat editor__feature_messages__message_row_vectors 145 13 274_4]
+G c Z s s [Oconcat editor__feature_messages__message_row_vectors 149 13 274_4]
+G c Z s s [Oconcat editor__feature_messages__message_row_vectors 153 13 274_4]
+G c Z s s [Oconcat editor__feature_messages__message_row_vectors 157 13 274_4]
+G c Z s s [capacity editor__feature_messages__message_row_vectors 161 13 274_4]
+G c Z s s [reserve_capacity editor__feature_messages__message_row_vectors 164 14 274_4]
+G c Z s s [length editor__feature_messages__message_row_vectors 175 13 274_4]
+G c Z s s [set_length editor__feature_messages__message_row_vectors 178 14 274_4]
+G c Z s s [is_empty editor__feature_messages__message_row_vectors 187 13 274_4]
+G c Z s s [clear editor__feature_messages__message_row_vectors 190 14 274_4]
+G c Z s s [to_cursor editor__feature_messages__message_row_vectors 194 13 274_4]
+G c Z s s [to_index editor__feature_messages__message_row_vectors 201 13 274_4]
+G c Z s s [element editor__feature_messages__message_row_vectors 206 13 274_4]
+G c Z s s [element editor__feature_messages__message_row_vectors 213 13 274_4]
+G c Z s s [replace_element editor__feature_messages__message_row_vectors 217 14 274_4]
+G c Z s s [replace_element editor__feature_messages__message_row_vectors 228 14 274_4]
+G c Z s s [query_element editor__feature_messages__message_row_vectors 239 14 274_4]
+G c Z s s [query_element editor__feature_messages__message_row_vectors 250 14 274_4]
+G c Z s s [update_element editor__feature_messages__message_row_vectors 259 14 274_4]
+G c Z s s [update_element editor__feature_messages__message_row_vectors 276 14 274_4]
+G c Z s s [constant_reference editor__feature_messages__message_row_vectors 303 13 274_4]
+G c Z s s [reference editor__feature_messages__message_row_vectors 308 13 274_4]
+G c Z s s [constant_reference editor__feature_messages__message_row_vectors 313 13 274_4]
+G c Z s s [reference editor__feature_messages__message_row_vectors 318 13 274_4]
+G c Z s s [assign editor__feature_messages__message_row_vectors 323 14 274_4]
+G c Z s s [copy editor__feature_messages__message_row_vectors 325 13 274_4]
+G c Z s s [move editor__feature_messages__message_row_vectors 327 14 274_4]
+G c Z s s [new_vector editor__feature_messages__message_row_vectors 333 13 274_4]
+G c Z s s [insert_vector editor__feature_messages__message_row_vectors 337 14 274_4]
+G c Z s s [insert_vector editor__feature_messages__message_row_vectors 361 14 274_4]
+G c Z s s [insert_vector editor__feature_messages__message_row_vectors 378 14 274_4]
+G c Z s s [insert editor__feature_messages__message_row_vectors 396 14 274_4]
+G c Z s s [insert editor__feature_messages__message_row_vectors 404 14 274_4]
+G c Z s s [insert editor__feature_messages__message_row_vectors 412 14 274_4]
+G c Z s s [insert editor__feature_messages__message_row_vectors 421 14 274_4]
+G c Z s s [insert editor__feature_messages__message_row_vectors 438 14 274_4]
+G c Z s s [prepend_vector editor__feature_messages__message_row_vectors 449 14 274_4]
+G c Z s s [prepend editor__feature_messages__message_row_vectors 459 14 274_4]
+G c Z s s [append_vector editor__feature_messages__message_row_vectors 466 14 274_4]
+G c Z s s [append editor__feature_messages__message_row_vectors 476 14 274_4]
+G c Z s s [append editor__feature_messages__message_row_vectors 483 14 274_4]
+G c Z s s [insert_space editor__feature_messages__message_row_vectors 486 14 274_4]
+G c Z s s [insert_space editor__feature_messages__message_row_vectors 503 14 274_4]
+G c Z s s [delete editor__feature_messages__message_row_vectors 514 14 274_4]
+G c Z s s [delete editor__feature_messages__message_row_vectors 524 14 274_4]
+G c Z s s [delete_first editor__feature_messages__message_row_vectors 533 14 274_4]
+G c Z s s [delete_last editor__feature_messages__message_row_vectors 538 14 274_4]
+G c Z s s [reverse_elements editor__feature_messages__message_row_vectors 546 14 274_4]
+G c Z s s [swap editor__feature_messages__message_row_vectors 549 14 274_4]
+G c Z s s [swap editor__feature_messages__message_row_vectors 554 14 274_4]
+G c Z s s [first_index editor__feature_messages__message_row_vectors 560 13 274_4]
+G c Z s s [first editor__feature_messages__message_row_vectors 563 13 274_4]
+G c Z s s [first_element editor__feature_messages__message_row_vectors 567 13 274_4]
+G c Z s s [last_index editor__feature_messages__message_row_vectors 570 13 274_4]
+G c Z s s [last editor__feature_messages__message_row_vectors 574 13 274_4]
+G c Z s s [last_element editor__feature_messages__message_row_vectors 578 13 274_4]
+G c Z s s [next editor__feature_messages__message_row_vectors 581 13 274_4]
+G c Z s s [next editor__feature_messages__message_row_vectors 587 14 274_4]
+G c Z s s [previous editor__feature_messages__message_row_vectors 590 13 274_4]
+G c Z s s [previous editor__feature_messages__message_row_vectors 596 14 274_4]
+G c Z s s [find_index editor__feature_messages__message_row_vectors 599 13 274_4]
+G c Z s s [find editor__feature_messages__message_row_vectors 609 13 274_4]
+G c Z s s [reverse_find_index editor__feature_messages__message_row_vectors 623 13 274_4]
+G c Z s s [reverse_find editor__feature_messages__message_row_vectors 635 13 274_4]
+G c Z s s [contains editor__feature_messages__message_row_vectors 649 13 274_4]
+G c Z s s [iterate editor__feature_messages__message_row_vectors 654 14 274_4]
+G c Z s s [reverse_iterate editor__feature_messages__message_row_vectors 662 14 274_4]
+G c Z s s [iterate editor__feature_messages__message_row_vectors 669 13 274_4]
+G c Z s s [iterate editor__feature_messages__message_row_vectors 672 13 274_4]
+G c Z s s [adjust editor__feature_messages__message_row_vectors__implementation 90 28 726_4_274_4]
+G c Z s s [finalize editor__feature_messages__message_row_vectors__implementation 93 28 726_4_274_4]
+G c Z s s [zero_counts editor__feature_messages__message_row_vectors__implementation 96 17 726_4_274_4]
+G c Z s s [busy editor__feature_messages__message_row_vectors__implementation 100 17 726_4_274_4]
+G c Z s s [unbusy editor__feature_messages__message_row_vectors__implementation 104 17 726_4_274_4]
+G c Z s s [lock editor__feature_messages__message_row_vectors__implementation 108 17 726_4_274_4]
+G c Z s s [unlock editor__feature_messages__message_row_vectors__implementation 112 17 726_4_274_4]
+G c Z s s [tc_check editor__feature_messages__message_row_vectors__implementation 116 17 726_4_274_4]
+G c Z s s [te_check editor__feature_messages__message_row_vectors__implementation 120 17 726_4_274_4]
+G c Z s s [is_busy editor__feature_messages__message_row_vectors__implementation 136 16 726_4_274_4]
+G c Z s s [is_locked editor__feature_messages__message_row_vectors__implementation 140 16 726_4_274_4]
+G c Z s s [initialize editor__feature_messages__message_row_vectors__implementation 161 28 726_4_274_4]
+G c Z s s [finalize editor__feature_messages__message_row_vectors__implementation 162 28 726_4_274_4]
+G c Z s s [initialize editor__feature_messages__message_row_vectors__implementation 167 28 726_4_274_4]
+G c Z s s [finalize editor__feature_messages__message_row_vectors__implementation 168 28 726_4_274_4]
+G c Z s s [reference_control_typeDA editor__feature_messages__message_row_vectors__implementation 84 12 726_4_274_4]
+G c Z s s [reference_control_typeDF editor__feature_messages__message_row_vectors__implementation 84 12 726_4_274_4]
+G c Z s s [reference_control_typeIP editor__feature_messages__message_row_vectors__implementation 84 12 726_4_274_4]
+G c Z s s [with_busyDF editor__feature_messages__message_row_vectors__implementation 158 12 726_4_274_4]
+G c Z s s [with_busyIP editor__feature_messages__message_row_vectors__implementation 158 12 726_4_274_4]
+G c Z s s [with_lockDF editor__feature_messages__message_row_vectors__implementation 164 12 726_4_274_4]
+G c Z s s [with_lockIP editor__feature_messages__message_row_vectors__implementation 164 12 726_4_274_4]
+G c Z s s [put_image editor__feature_messages__message_row_vectors 747 14 274_4]
+G c Z s s [adjust editor__feature_messages__message_row_vectors 750 25 274_4]
+G c Z s s [finalize editor__feature_messages__message_row_vectors 751 25 274_4]
+G c Z s s [write editor__feature_messages__message_row_vectors 753 14 274_4]
+G c Z s s [read editor__feature_messages__message_row_vectors 759 14 274_4]
+G c Z s s [read editor__feature_messages__message_row_vectors 773 14 274_4]
+G c Z s s [write editor__feature_messages__message_row_vectors 779 14 274_4]
+G c Z s s [write editor__feature_messages__message_row_vectors 798 14 274_4]
+G c Z s s [read editor__feature_messages__message_row_vectors 804 14 274_4]
+G c Z s s [write editor__feature_messages__message_row_vectors 820 14 274_4]
+G c Z s s [read editor__feature_messages__message_row_vectors 826 14 274_4]
+G c Z s s [pseudo_reference editor__feature_messages__message_row_vectors 840 13 274_4]
+G c Z s s [get_element_access editor__feature_messages__message_row_vectors 849 13 274_4]
+G c Z s s [cursorIP editor__feature_messages__message_row_vectors 768 9 274_4]
+G c Z s s [vectorDA editor__feature_messages__message_row_vectors 741 9 274_4]
+G c Z s s [vectorDF editor__feature_messages__message_row_vectors 741 9 274_4]
+G c Z s s [vectorIP editor__feature_messages__message_row_vectors 741 9 274_4]
+G c Z s s [finalize editor__feature_messages__message_row_vectors 865 25 274_4]
+G c Z s s [first editor__feature_messages__message_row_vectors 867 24 274_4]
+G c Z s s [last editor__feature_messages__message_row_vectors 868 24 274_4]
+G c Z s s [next editor__feature_messages__message_row_vectors 870 24 274_4]
+G c Z s s [previous editor__feature_messages__message_row_vectors 874 24 274_4]
+G c Z s s [constant_reference_typeDI editor__feature_messages__message_row_vectors 788 9 274_4]
+G c Z s s [constant_reference_typeDA editor__feature_messages__message_row_vectors 788 9 274_4]
+G c Z s s [constant_reference_typeDF editor__feature_messages__message_row_vectors 788 9 274_4]
+G c Z s s [constant_reference_typeIP editor__feature_messages__message_row_vectors 788 9 274_4]
+G c Z s s [reference_typeDI editor__feature_messages__message_row_vectors 810 9 274_4]
+G c Z s s [reference_typeDA editor__feature_messages__message_row_vectors 810 9 274_4]
+G c Z s s [reference_typeDF editor__feature_messages__message_row_vectors 810 9 274_4]
+G c Z s s [reference_typeIP editor__feature_messages__message_row_vectors 810 9 274_4]
+G c Z s s [elements_arrayIP editor__feature_messages__message_row_vectors 729 9 274_4]
+G c Z s s [elements_arrayDI editor__feature_messages__message_row_vectors 729 9 274_4]
+G c Z s s [elements_arrayDA editor__feature_messages__message_row_vectors 729 9 274_4]
+G c Z s s [elements_arrayDF editor__feature_messages__message_row_vectors 729 9 274_4]
+G c Z s s [elements_typeDI editor__feature_messages__message_row_vectors 732 9 274_4]
+G c Z s s [elements_typeDF editor__feature_messages__message_row_vectors 732 9 274_4]
+G c Z s s [elements_typeIP editor__feature_messages__message_row_vectors 732 9 274_4]
+G c Z s s [iteratorDF editor__feature_messages__message_row_vectors 857 9 274_4]
+G c Z s s [iteratorIP editor__feature_messages__message_row_vectors 857 9 274_4]
+G c Z s s [free editor__feature_messages__message_row_vectors 44 14 274_4]
+G c Z s s [append_slow_path editor__feature_messages__message_row_vectors 47 14 274_4]
+G c Z s s [messages_filter_stateDI editor__feature_messages 254 9 none]
+G c Z s s [messages_filter_stateDA editor__feature_messages 254 9 none]
+G c Z s s [messages_filter_stateDF editor__feature_messages 254 9 none]
+G c Z s s [messages_filter_stateIP editor__feature_messages 254 9 none]
+G c Z s s [message_feature_stateDI editor__feature_messages 278 9 none]
+G c Z s s [message_feature_stateDA editor__feature_messages 278 9 none]
+G c Z s s [message_feature_stateDF editor__feature_messages 278 9 none]
+G c Z s s [message_feature_stateIP editor__feature_messages 278 9 none]
+G c Z b b [trim_image editor__feature_messages 14 13 none]
+G c Z b b [plural editor__feature_messages 19 13 none]
+G c Z b b [lower editor__feature_messages 28 13 none]
+G c Z b b [safe_message_text editor__feature_messages 33 13 none]
+G c Z b b [source_display_for editor__feature_messages 48 13 none]
+G c Z b b [panel_severity editor__feature_messages 119 13 none]
+G c Z b b [label_for editor__feature_messages 134 13 none]
+G c Z b b [detail_for editor__feature_messages 148 13 none]
+G c Z b b [message_matches_text_filter editor__feature_messages 193 13 none]
+G c Z b b [message_is_visible editor__feature_messages 208 13 none]
+G c Z b b [same_target editor__feature_messages 277 13 none]
+G c Z b b [same_dedup_key editor__feature_messages 293 13 none]
+G c Z b b [evict_old_messages_if_needed editor__feature_messages 305 14 none]
+G c Z b b [item_at editor__feature_messages 394 13 none]
+G c Z b b [find_message_index_by_id editor__feature_messages 485 13 none]
+G c Z b b [count_severities editor__feature_messages 730 14 none]
+G c Z b b [severity_summary editor__feature_messages 756 13 none]
+G r c none [reconcile_messages_after_row_change editor__feature_messages 68 14 none] [forget_feature_view_state editor__feature_panel 176 14 none]
+G r c none [reconcile_messages_after_row_change editor__feature_messages 68 14 none] [active_feature editor__feature_panel 156 13 none]
+G r c none [reconcile_messages_after_row_change editor__feature_messages 68 14 none] [set_active_feature editor__feature_panel 189 13 none]
+G r c none [reconcile_messages_after_row_change editor__feature_messages 68 14 none] [has_selection editor__feature_panel 456 13 none]
+G r c none [reconcile_messages_after_row_change editor__feature_messages 68 14 none] [selected_row editor__feature_panel 424 13 none]
+G r c none [reconcile_messages_after_row_change editor__feature_messages 68 14 none] [projection_row_index_is_valid editor__feature_panel 348 13 none]
+G r c none [reconcile_messages_after_row_change editor__feature_messages 68 14 none] [row_source_index editor__feature_panel 407 13 none]
+G r c none [reconcile_messages_after_row_change editor__feature_messages 68 14 none] [clear_rows editor__feature_panel 286 14 none]
+G r c none [reconcile_messages_after_row_change editor__feature_messages 68 14 none] [set_header_text editor__feature_panel 289 14 none]
+G r c none [reconcile_messages_after_row_change editor__feature_messages 68 14 none] [append_row editor__feature_panel 302 14 none]
+G r c none [reconcile_messages_after_row_change editor__feature_messages 68 14 none] [empty_messages_detail editor__contextual_help 22 13 none]
+G r c none [reconcile_messages_after_row_change editor__feature_messages 68 14 none] [row_count editor__feature_panel 418 13 none]
+G r c none [reconcile_messages_after_row_change editor__feature_messages 68 14 none] [select_row editor__feature_panel 437 14 none]
+G r c none [reconcile_messages_after_row_change editor__feature_messages 68 14 none] [row_is_selectable editor__feature_panel 362 13 none]
+G r c none [reconcile_messages_after_row_change editor__feature_messages 68 14 none] [row_label editor__feature_panel 477 13 none]
+G r c none [assert_messages_projection_consistent editor__feature_messages 77 14 none] [row_count editor__feature_panel 418 13 none]
+G r c none [assert_messages_projection_consistent editor__feature_messages 77 14 none] [row_label editor__feature_panel 477 13 none]
+G r c none [assert_messages_projection_consistent editor__feature_messages 77 14 none] [row_source_index editor__feature_panel 407 13 none]
+G r c none [has_selected_message editor__feature_messages 149 13 none] [selected_row editor__feature_panel 424 13 none]
+G r c none [has_selected_message editor__feature_messages 149 13 none] [row_is_selectable editor__feature_panel 362 13 none]
+G r c none [has_selected_message editor__feature_messages 149 13 none] [projection_row_index_is_valid editor__feature_panel 348 13 none]
+G r c none [has_selected_message editor__feature_messages 149 13 none] [row_label editor__feature_panel 477 13 none]
+G r c none [has_selected_message editor__feature_messages 149 13 none] [row_count editor__feature_panel 418 13 none]
+G r c none [has_selected_message editor__feature_messages 149 13 none] [row_source_index editor__feature_panel 407 13 none]
+G r c none [has_selected_message editor__feature_messages 149 13 none] [row_detail editor__feature_panel 485 13 none]
+G r c none [selected_message_id editor__feature_messages 153 13 none] [selected_row editor__feature_panel 424 13 none]
+G r c none [selected_message_id editor__feature_messages 153 13 none] [row_is_selectable editor__feature_panel 362 13 none]
+G r c none [selected_message_id editor__feature_messages 153 13 none] [projection_row_index_is_valid editor__feature_panel 348 13 none]
+G r c none [selected_message_id editor__feature_messages 153 13 none] [row_label editor__feature_panel 477 13 none]
+G r c none [selected_message_id editor__feature_messages 153 13 none] [row_count editor__feature_panel 418 13 none]
+G r c none [selected_message_id editor__feature_messages 153 13 none] [row_source_index editor__feature_panel 407 13 none]
+G r c none [selected_message_id editor__feature_messages 153 13 none] [row_detail editor__feature_panel 485 13 none]
+G r c none [selected_message_source_index editor__feature_messages 157 13 none] [selected_row editor__feature_panel 424 13 none]
+G r c none [selected_message_source_index editor__feature_messages 157 13 none] [row_is_selectable editor__feature_panel 362 13 none]
+G r c none [selected_message_source_index editor__feature_messages 157 13 none] [projection_row_index_is_valid editor__feature_panel 348 13 none]
+G r c none [selected_message_source_index editor__feature_messages 157 13 none] [row_label editor__feature_panel 477 13 none]
+G r c none [selected_message_source_index editor__feature_messages 157 13 none] [row_count editor__feature_panel 418 13 none]
+G r c none [selected_message_source_index editor__feature_messages 157 13 none] [row_source_index editor__feature_panel 407 13 none]
+G r c none [selected_message_source_index editor__feature_messages 157 13 none] [row_detail editor__feature_panel 485 13 none]
+G r c none [selected_message_text editor__feature_messages 161 13 none] [selected_row editor__feature_panel 424 13 none]
+G r c none [selected_message_text editor__feature_messages 161 13 none] [row_is_selectable editor__feature_panel 362 13 none]
+G r c none [selected_message_text editor__feature_messages 161 13 none] [projection_row_index_is_valid editor__feature_panel 348 13 none]
+G r c none [selected_message_text editor__feature_messages 161 13 none] [row_label editor__feature_panel 477 13 none]
+G r c none [selected_message_text editor__feature_messages 161 13 none] [row_count editor__feature_panel 418 13 none]
+G r c none [selected_message_text editor__feature_messages 161 13 none] [row_source_index editor__feature_panel 407 13 none]
+G r c none [selected_message_text editor__feature_messages 161 13 none] [row_detail editor__feature_panel 485 13 none]
+G r c none [clear_selected_message editor__feature_messages 173 13 none] [selected_row editor__feature_panel 424 13 none]
+G r c none [clear_selected_message editor__feature_messages 173 13 none] [row_is_selectable editor__feature_panel 362 13 none]
+G r c none [clear_selected_message editor__feature_messages 173 13 none] [projection_row_index_is_valid editor__feature_panel 348 13 none]
+G r c none [clear_selected_message editor__feature_messages 173 13 none] [row_label editor__feature_panel 477 13 none]
+G r c none [clear_selected_message editor__feature_messages 173 13 none] [row_count editor__feature_panel 418 13 none]
+G r c none [clear_selected_message editor__feature_messages 173 13 none] [row_source_index editor__feature_panel 407 13 none]
+G r c none [clear_selected_message editor__feature_messages 173 13 none] [row_detail editor__feature_panel 485 13 none]
+G r c none [clear_selected_message editor__feature_messages 173 13 none] [select_row editor__feature_panel 437 14 none]
+G r c none [clear_selected_message editor__feature_messages 173 13 none] [forget_feature_view_state editor__feature_panel 176 14 none]
+G r c none [clear_selected_message editor__feature_messages 173 13 none] [active_feature editor__feature_panel 156 13 none]
+G r c none [clear_selected_message editor__feature_messages 173 13 none] [set_active_feature editor__feature_panel 189 13 none]
+G r c none [clear_selected_message editor__feature_messages 173 13 none] [has_selection editor__feature_panel 456 13 none]
+G r c none [clear_selected_message editor__feature_messages 173 13 none] [clear_rows editor__feature_panel 286 14 none]
+G r c none [clear_selected_message editor__feature_messages 173 13 none] [set_header_text editor__feature_panel 289 14 none]
+G r c none [clear_selected_message editor__feature_messages 173 13 none] [append_row editor__feature_panel 302 14 none]
+G r c none [clear_selected_message editor__feature_messages 173 13 none] [empty_messages_detail editor__contextual_help 22 13 none]
+G r c none [reconcile_messages_selection_after_delete editor__feature_messages 185 14 none] [row_count editor__feature_panel 418 13 none]
+G r c none [reconcile_messages_selection_after_delete editor__feature_messages 185 14 none] [row_is_selectable editor__feature_panel 362 13 none]
+G r c none [reconcile_messages_selection_after_delete editor__feature_messages 185 14 none] [row_source_index editor__feature_panel 407 13 none]
+G r c none [reconcile_messages_selection_after_delete editor__feature_messages 185 14 none] [select_row editor__feature_panel 437 14 none]
+G r c none [project_rows editor__feature_messages 203 14 none] [set_active_feature editor__feature_panel 189 13 none]
+G r c none [project_rows editor__feature_messages 203 14 none] [has_selection editor__feature_panel 456 13 none]
+G r c none [project_rows editor__feature_messages 203 14 none] [selected_row editor__feature_panel 424 13 none]
+G r c none [project_rows editor__feature_messages 203 14 none] [projection_row_index_is_valid editor__feature_panel 348 13 none]
+G r c none [project_rows editor__feature_messages 203 14 none] [row_source_index editor__feature_panel 407 13 none]
+G r c none [project_rows editor__feature_messages 203 14 none] [clear_rows editor__feature_panel 286 14 none]
+G r c none [project_rows editor__feature_messages 203 14 none] [set_header_text editor__feature_panel 289 14 none]
+G r c none [project_rows editor__feature_messages 203 14 none] [append_row editor__feature_panel 302 14 none]
+G r c none [project_rows editor__feature_messages 203 14 none] [empty_messages_detail editor__contextual_help 22 13 none]
+G r c none [project_rows editor__feature_messages 203 14 none] [row_count editor__feature_panel 418 13 none]
+G r c none [project_rows editor__feature_messages 203 14 none] [select_row editor__feature_panel 437 14 none]
+G r c none [map_message_row_to_item editor__feature_messages 207 13 none] [projection_row_index_is_valid editor__feature_panel 348 13 none]
+G r c none [map_message_row_to_item editor__feature_messages 207 13 none] [projection_generation_matches editor__feature_panel 334 13 none]
+G r c none [map_message_row_to_item editor__feature_messages 207 13 none] [active_feature editor__feature_panel 156 13 none]
+G r c none [map_message_row_to_item editor__feature_messages 207 13 none] [row_source_index editor__feature_panel 407 13 none]
+G r c none [map_message_row_to_item editor__feature_messages 207 13 none] [row_label editor__feature_panel 477 13 none]
+G r c none [map_message_row_to_item editor__feature_messages 207 13 none] [row_count editor__feature_panel 418 13 none]
+G r c none [map_message_row_to_item editor__feature_messages 207 13 none] [row_detail editor__feature_panel 485 13 none]
+G r c none [validate_row_action editor__feature_messages 228 13 none] [projection_row_index_is_valid editor__feature_panel 348 13 none]
+G r c none [validate_row_action editor__feature_messages 228 13 none] [projection_generation_matches editor__feature_panel 334 13 none]
+G r c none [validate_row_action editor__feature_messages 228 13 none] [active_feature editor__feature_panel 156 13 none]
+G r c none [validate_row_action editor__feature_messages 228 13 none] [row_source_index editor__feature_panel 407 13 none]
+G r c none [validate_row_action editor__feature_messages 228 13 none] [row_label editor__feature_panel 477 13 none]
+G r c none [validate_row_action editor__feature_messages 228 13 none] [row_count editor__feature_panel 418 13 none]
+G r c none [validate_row_action editor__feature_messages 228 13 none] [row_detail editor__feature_panel 485 13 none]
+G r c none [validate_row_action editor__feature_messages 228 13 none] [row_is_selectable editor__feature_panel 362 13 none]
+X 1 ada.ads
+18K9*Ada 22e8 29|1r6 2r6 255r23 264r23 266r23 274r39 30|1r6 2r6 3r6 3r33
+. 5r6 16r14 16r61 30r14 35r9 35r39 51r35 52r41 205r17 236r10 236r40
+X 2 a-charac.ads
+16K13*Characters 18e19 30|1r10 30r18
+X 3 a-chahan.ads
+43K24*Handling 454e28 30|1w21 30r29
+274V13*To_Lower{string} 30|30s38
+X 5 a-contai.ads
+16K13*Containers 28e19 29|1r10 274r43
+22I9*Count_Type<integer>
+X 9 a-convec.ads
+62I9 Index_Type 29|275r7
+63+9 Element_Type 29|276r7
+74k24*Vectors 878e27 29|1w21 274r54
+81I12*Extended_Index{integer} 30|633r37[29|274] 652r37[29|274] 1016r31[29|274]
+91R9*Vector<12|43R9> 29|279r37[274]
+175V13*Length{5|22I9} 30|98s45[29|274] 309s36[29|274] 384s37[29|274]
+187V13*Is_Empty{boolean} 30|341s28[29|274] 1018s24[29|274]
+190U14*Clear 30|369s21[29|274]
+206V13*Element{29|41R9} 30|101s59[29|274] 113s56[29|274] 223s57[29|274] 344s56[29|274]
+. 402s28[29|274] 494s27[29|274] 523s56[29|274] 636s27[29|274] 655s27[29|274]
+. 743s59[29|274] 876s62[29|274] 946s75[29|274] 948s56[29|274] 950s57[29|274]
+. 984s58[29|274] 988s37[29|274] 990s38[29|274] 1023s27[29|274] 1024s35[29|274]
+217U14*Replace_Element 30|350s30[29|274]
+483U14*Append 30|357s21[29|274]
+514U14*Delete 30|310s24[29|274] 604s21[29|274] 637s27[29|274] 656s27[29|274]
+. 1026s27[29|274]
+560V13*First_Index{integer} 30|310s46[29|274] 633s69[29|274] 652s69[29|274]
+. 1016s63[29|274]
+570V13*Last_Index{81I12[29|274]} 30|343s69[29|274] 635s32[29|274] 654s32[29|274]
+. 1022s32[29|274]
+X 13 a-iteint.ads
+24h9 Forward_Iterator
+32h9 Reversible_Iterator<24R9[9|119]>
+X 15 a-string.ads
+16K13*Strings 35e16 29|2r10 255r27 264r27 266r27 30|2w10 3r10 3r37 5r10 16r18
+. 16r65 35r13 35r43 51r39 52r45 205r21 236r14 236r44
+33n37*Both{33E9} 30|16r73 35r51 52r53 236r52
+X 16 a-strfix.ads
+49K21*Fixed 1390e22 30|5w18 16r26 35r21 51r47 205r29 236r22
+252V13*Index{natural} 30|205s35
+1133V13*Trim{string} 30|16s32 35s27 51s53 236s28
+X 20 a-strunb.ads
+91K21*Unbounded 1641e26 29|2w18 255r35 264r35 266r35 30|3w18 3r45
+105R9*Unbounded_String<12|43R9> 1620e15 29|255r45 264r45 266r45 30|561r16
+. 761r16
+109r4*Null_Unbounded_String{105R9} 30|243r31 761r36
+111V13*Length{natural} 30|187s14 767s13 773s13
+122V13*To_Unbounded_String{105R9} 30|235s31 331s20 333s28 561s36
+135V13*To_String{string} 30|52s10 139s30 197s42 199s10 200s10 300s18 300s50
+. 301s18 301s42 426s14 434s14 563s31 579s14 778s14
+159U14*Append 30|570s10 571s10 575s10 576s10 577s10 764s10 768s13 770s10
+. 774s13 776s10
+X 25 editor.ads
+1K9*Editor 5e11 29|3r6 5r9 70r32 79r18 151r18 155r18 159r18 163r18 175r25
+. 187r32 205r25 209r37 230r37 284r5 30|4r6 7r14 9r13 121r14 126r20 128r20
+. 130r20 503r18 505r33 509r17 510r17 511r21 512r21 517r17 525r13 526r20 536r18
+. 544r18 584r18 611r25 619r10 668r32 676r23 677r13 679r45 699r10 701r10 703r10
+. 705r10 712r32 718r7 719r17 720r10 720r56 814r25 823r14 824r17 829r10 831r44
+. 834r16 835r26 844r7 845r7 846r7 848r24 854r10 856r30 858r30 864r10 866r30
+. 879r19 881r39 894r35 897r37 900r46 902r50 911r10 913r10 915r10 917r10 919r10
+. 926r18 929r10 933r10 937r22 938r23 940r42 943r35 947r31 949r31 958r37 964r10
+. 965r12 966r21 968r21 974r23 975r10 976r17 987r10 989r17 1052r37 1060r18
+. 1153r5
+X 27 editor-contextual_help.ads
+4K16*Contextual_Help 81e27 30|4w13 858r37
+22V13*Empty_Messages_Detail{string} 30|858s53
+X 29 editor-feature_messages.ads
+5K16*Feature_Messages 25|1k9 29|254E9 284l12 284e28 30|7b21 1153l12 1153t28
+21E9*Message_Severity 24e21 49r20 101r18 115r35 179r18 192r18 263r23 30|64r18
+. 120r18 173r18 316r20 415r35 630r18
+22n7*Info_Message{21E9} 263r43 30|68r15 125r15 177r15 749r24
+23n7*Warning_Message{21E9} 30|69r15 127r15 178r15 748r24
+24n7*Error_Message{21E9} 30|70r15 129r15 179r15 747r24
+29E9*Message_Source_Kind 35e22 56r21 127r35 183r18 195r14 265r23 30|75r14
+. 323r21 439r35 649r18
+30n7*Editor_Source{29E9} 30|79r15
+31n7*File_Source{29E9} 30|80r15
+32n7*Project_Source{29E9} 30|81r15
+33n7*Workspace_Source{29E9} 30|82r15
+34n7*Command_Source{29E9} 30|83r15
+35n7*Unknown_Source{29E9} 56r44 265r46 30|56r33 84r15 323r44
+37I9*Message_Id<integer> 38r26 71r25 111r35 155r67 171r18 188r25 262r23 280r17
+. 30|104r82 358r29 407r35 487r18 544r67 597r18 614r29 669r25 713r25 816r31
+38i4*No_Message{37I9} 71r39 262r37 30|103r39 490r15 549r17 565r57 682r37
+. 713r39 722r28 816r45 896r37 916r28
+39i4*No_Buffer{natural} 53r31 269r34 30|107r53 320r31 326r39 1006r40 1018r56
+41R9*Message_Item 261c9 272e14 276r23 30|49r14 101r29 135r14 149r14 195r18
+. 210r18 278r15 279r15 294r15 295r15 327r25 344r26 396r35 523r26 559r23 743r29
+. 876r32 1002r23
+42R9*Message_Feature_State 45r25 48r27 59r25 62r25 66r25 69r25 75r18 78r18
+. 82r25 85r25 88r25 91r25 94r18 97r18 100r18 104r18 107r18 110r18 114r18
+. 118r18 122r18 126r18 130r18 134r18 138r18 142r18 146r18 150r18 154r18 158r18
+. 162r18 166r18 170r25 174r25 178r25 182r25 186r25 200r18 204r18 208r37 214r29
+. 219r29 223r25 226r25 229r37 278c9 282e14 30|95r18 172r18 184r18 194r18
+. 209r18 218r18 231r25 240r25 250r25 257r25 264r25 271r25 306r25 315r27 366r25
+. 374r25 381r18 388r18 395r18 406r18 414r18 422r18 430r18 438r18 446r18 454r18
+. 462r18 470r18 478r18 486r18 502r18 535r18 543r18 556r18 583r18 596r25 610r25
+. 629r25 648r25 667r25 711r25 731r18 782r18 813r18 925r18 957r37 998r29 1013r29
+. 1035r25 1042r25 1051r37
+44U14*Clear 45=7 30|373b14 378l8 378t13
+45r7 Messages{42R9} 30|374b7 377m23
+47U14*Add_Message 48=7 49>7 50>7 51>7 52>7 53>7 54>7 55>7 56>7 30|314b14
+. 363l8 363t19
+48r7 Messages{42R9} 30|315b7 329r18 341r14 343r55 344r42 350m16 350r16 351r50
+. 357m7 357r7 358r10 359m10 359r30 361m37 362r41
+49e7 Severity{21E9} 30|316b7 330r24
+50a7 Text{string} 30|317b7 331r41
+51a7 Source{string} 30|318b7 333r49
+52b7 Has_Target{boolean} 30|319b7 326r9
+53i7 Buffer{natural} 30|320b7 326r29 336r32
+54i7 Line{natural} 30|321b7 326r58 337r30
+55i7 Column{natural} 30|322b7 326r76 338r32
+56e7 Source_Kind{29E9} 30|323b7 332r27
+58U14*Clear_Messages 59=7 30|365b14 371l8 371t22 377s7 1038s7 1045s7
+59r7 Messages{42R9} 30|366b7 369m7 369r7 370r41
+61U14*Set_Filter_Text 62=7 63>7 30|230b14 237l8 237t23
+62r7 Messages{42R9} 30|231b7 235m7
+63a7 Text{string} 30|232b7 236r34
+65U14*Clear_Filter 66=7 30|239b14 247l8 247t20 253s7 1046s7
+66r7 Messages{42R9} 30|240b7 243m7 244m7 245m7 246m7
+68U14*Reconcile_Messages_After_Row_Change 69>7 70=7 71>7 72>7 30|623s7 710b14
+. 728l8 728t43
+69r7 Messages{42R9} 30|711b7 717r41 721r24 724r16 726r49
+70r7 Panel{31|119R9} 30|712b7 719m10 720r47 721m34 724m26 726r59
+71i7 Previous_Id{37I9} 30|713b7 722r13 724r33
+72i7 Previous_Source{natural} 30|714b7 722r47 724r46
+74U14*Assert_Messages_State_Consistent 75>7 30|94b14 117l8 117t40 351s16
+. 362s7 370s7 605s7 643s7 662s7 717s7 1031s7
+75r7 Messages{42R9} 30|95b7 98r31 99r32 101r45 104r38 104r63 112r42 113r42
+77U14*Assert_Messages_Projection_Consistent 78>7 79>7 30|726s10 924b14 954l8
+. 954t45
+78r7 Messages{42R9} 30|925b7 945r52 946r51 946r61 948r42 950r43
+79r7 Panel{31|119R9} 30|926b7 929r42 933r42 937r62 938r55 940r81 943r76 947r63
+. 949r64
+81U14*Show_All 82=7 30|249b14 254l8 254t16
+82r7 Messages{42R9} 30|250b7 253m21
+84U14*Toggle_Info 85=7 30|256b14 261l8 261t19
+85r7 Messages{42R9} 30|257b7 260m7 260r40
+87U14*Toggle_Warnings 88=7 30|263b14 268l8 268t23
+88r7 Messages{42R9} 30|264b7 267m7 267r44
+90U14*Toggle_Errors 91=7 30|270b14 275l8 275t21
+91r7 Messages{42R9} 30|271b7 274m7 274r42
+93V13*Filter_Is_Active{boolean} 94>7 30|183b13 191l8 191t24 794s10
+94r7 Messages{42R9} 30|184b7 187r22 188r21 189r21 190r21
+96V13*Visible_Row_Count{natural} 97>7 30|217b13 228l8 228t25 788s43 863s13
+97r7 Messages{42R9} 30|218b7 222r32 223r33 223r43
+99V13*Severity_Is_Visible{boolean} 100>7 101>7 30|171b13 181l8 181t27 213s14
+100r7 Messages{42R9} 30|172b7 177r41 178r41 179r41
+101e7 Severity{21E9} 30|173b7 176r12
+103V13*Row_Count{natural} 104>7 30|99s21 112s31 222s21 380b13 385l8 385t17
+. 391s14 399s18 493s21 518s38 565s18 681s49 741s21 787s43 836s49 853s10 874s24
+. 945s41 981s50 1004s23
+104r7 Messages{42R9} 30|381b7 384r23
+106V13*Is_Empty{boolean} 107>7 30|387b13 392l8 392t16
+107r7 Messages{42R9} 30|388b7 391r25
+109V13*Item_Id{37I9} 110>7 111>7 30|405b13 411l8 411t15 551s17 683s30 838s34
+110r7 Messages{42R9} 30|406b7 410r23
+111i7 Index{positive} 30|407b7 410r33
+113V13*Item_Severity{21E9} 114>7 115>7 30|413b13 419l8 419t21
+114r7 Messages{42R9} 30|414b7 418r23
+115i7 Index{positive} 30|415b7 418r33
+117V13*Item_Text{string} 118>7 119>7 30|421b13 427l8 427t17
+118r7 Messages{42R9} 30|422b7 426r34
+119i7 Index{positive} 30|423b7 426r44
+121V13*Item_Source_Label{string} 122>7 123>7 30|429b13 435l8 435t25
+122r7 Messages{42R9} 30|430b7 434r34
+123i7 Index{positive} 30|431b7 434r44
+125V13*Item_Source_Kind{29E9} 126>7 127>7 30|437b13 443l8 443t24
+126r7 Messages{42R9} 30|438b7 442r23
+127i7 Index{positive} 30|439b7 442r33
+129V13*Item_Repeat_Count{positive} 130>7 131>7 30|445b13 451l8 451t25
+130r7 Messages{42R9} 30|446b7 450r23
+131i7 Index{positive} 30|447b7 450r33
+133V13*Item_Has_Target{boolean} 134>7 135>7 30|453b13 459l8 459t23
+134r7 Messages{42R9} 30|454b7 458r23
+135i7 Index{positive} 30|455b7 458r33
+137V13*Item_Target_Buffer{natural} 138>7 139>7 30|461b13 467l8 467t26
+138r7 Messages{42R9} 30|462b7 466r23
+139i7 Index{positive} 30|463b7 466r33
+141V13*Item_Target_Line{natural} 142>7 143>7 30|469b13 475l8 475t24
+142r7 Messages{42R9} 30|470b7 474r23
+143i7 Index{positive} 30|471b7 474r33
+145V13*Item_Target_Column{natural} 146>7 147>7 30|477b13 483l8 483t26
+146r7 Messages{42R9} 30|478b7 482r23
+147i7 Index{positive} 30|479b7 482r33
+149V13*Has_Selected_Message{boolean} 150>7 151>7 30|534b13 540l8 540t28
+150r7 Messages{42R9} 30|535b7 539r45
+151r7 Panel{31|119R9} 30|536b7 539r55
+153V13*Selected_Message_Id{37I9} 154>7 155>7 30|542b13 553l8 553t27 614s43
+154r7 Messages{42R9} 30|543b7 546r67 551r26
+155r7 Panel{31|119R9} 30|544b7 546r77
+157V13*Selected_Message_Source_Index{natural} 158>7 159>7 30|501b13 532l8
+. 532t37 539s14 546s36 586s36 613s40
+158r7 Messages{42R9} 30|502b7 518r49 523r42
+159r7 Panel{31|119R9} 30|503b7 505r68 509r49 510r49 511r73 512r61 517r56
+. 525r45 526r53
+161V13*Selected_Message_Text{string} 162>7 163>7 30|582b13 593l8 593t29
+162r7 Messages{42R9} 30|583b7 586r67 591r42
+163r7 Panel{31|119R9} 30|584b7 586r77
+165V13*Format_Message_For_Copy{string} 166>7 167>7 30|555b13 580l8 580t31
+. 591s17
+166r7 Messages{42R9} 30|556b7 559r48 565r29
+167i7 Index{positive} 30|557b7 559r58 565r10
+169V13*Clear_Message_By_Id{boolean} 170=7 171>7 30|595b13 607l8 607t27 617s18
+170r7 Messages{42R9} 30|596b7 599r61 604m7 604r7 605r41
+171i7 Id{37I9} 30|597b7 599r71
+173V13*Clear_Selected_Message{boolean} 174=7 175=7 30|609b13 626l8 626t30
+174r7 Messages{42R9} 30|610b7 613r71 614r64 617m39 617r39 624r10
+175r7 Panel{31|119R9} 30|611b7 613r81 614r74 619m43 624m20
+177V13*Clear_Messages_By_Severity{natural} 178=7 179>7 30|628b13 645l8 645t34
+178r7 Messages{42R9} 30|629b7 633r55 635r18 636r13 637m13 637r13 643r41
+179e7 Severity{21E9} 30|630b7 636r50
+181V13*Clear_Messages_By_Source_Kind{natural} 182=7 183>7 30|647b13 664l8
+. 664t37
+182r7 Messages{42R9} 30|648b7 652r55 654r18 655r13 656m13 656r13 662r41
+183e7 Kind{29E9} 30|649b7 655r53
+185U14*Reconcile_Messages_Selection_After_Delete 186>7 187=7 188>7 189>7
+. 30|666b14 707l8 707t49 723s13
+186r7 Messages{42R9} 30|667b7 681r60 683r39
+187r7 Panel{31|119R9} 30|668b7 676r55 677r53 679r84 699m43 701m43 703m43
+. 705m43
+188i7 Previous_Id{37I9} 30|669b7 682r22 683r70
+189i7 Previous_Source{natural} 30|670b7 686r25 687r35 689r37
+191V13*Severity_Label{string} 192>7 30|63b13 72l8 72t22 138s9 202s36 562s10
+192e7 Severity{21E9} 30|64b7 67r12
+194V13*Source_Kind_Label{string} 195>7 30|57s17 74b13 86l8 86t25 201s10
+195e7 Kind{29E9} 30|75b7 78r12
+197V13*Max_Retained_Messages{natural} 30|88b13 91l8 91t29
+199V13*Build_Messages_Header_Text{string} 200>7 30|781b13 809l8 809t34 845s52
+. 850s24
+200r7 Messages{42R9} 30|782b7 787r54 788r62 794r28 803r25
+203U14*Project_Rows 204>7 205=7 30|721s10 812b14 921l8 921t20
+204r7 Messages{42R9} 30|813b7 836r60 838r43 845r80 850r52 853r21 863r32 874r35
+. 876r48 878r39
+205r7 Panel{31|119R9} 30|814b7 824m10 824r10 829r46 831r79 834r68 835r65
+. 844m40 845m45 847m24 855m30 865m30 880m39 894r67 897r69 900r78 902r82 911m43
+. 913m43 915m43 917m43 919m43
+207V13*Map_Message_Row_To_Item{natural} 208>7 209>7 210>7 211>7 30|956b13
+. 995l8 995t31 1056s35
+208r7 Messages{42R9} 30|957b7 981r61 984r34 984r44 988r23 990r24
+209r7 Panel{31|119R9} 30|958b7 964r47 967r12 968r73 974r62 975r42 976r49
+. 987r42 989r50
+210i7 Row{natural} 30|959b7 968r80 969r17 974r79 987r59 989r67
+211i7 Expected_Projection_Generation{natural} 30|960b7 967r19
+213V13*Validate_Message_Target{boolean} 214>7 215>7 216>7 30|997b13 1010l8
+. 1010t31
+214r7 Messages{42R9} 30|998b7 1002r48 1004r34
+215i7 Index{positive} 30|999b7 1002r58 1004r14
+216i7 Active_Buffer_Token{natural} 30|1000b7 1007r39
+218U14*Reset_For_Buffer_Close 219=7 220>7 30|1012b14 1032l8 1032t30
+219r7 Messages{42R9} 30|1013b7 1016r49 1018r10 1022r18 1023r13 1024r21 1026m13
+. 1026r13 1031r41
+220i7 Buffer_Token{natural} 30|1014b7 1018r41 1024r63
+222U14*Reset_For_Project_Close 223=7 30|1034b14 1039l8 1039t31
+223r7 Messages{42R9} 30|1035b7 1038m23
+225U14*Reset_For_Workspace_Close 226=7 30|1041b14 1048l8 1048t33
+226r7 Messages{42R9} 30|1042b7 1045m23 1046m21 1047m7
+228V13*Validate_Row_Action{boolean} 229>7 230>7 231>7 232>7 30|1050b13 1061l8
+. 1061t27
+229r7 Messages{42R9} 30|1051b7 1057r10
+230r7 Panel{31|119R9} 30|1052b7 1057r20 1060r58
+231i7 Row{natural} 30|1053b7 1057r27 1060r75
+232i7 Expected_Projection_Generation{natural} 30|1054b7 1057r32
+234V13*Message_Messages_Shown{string} 30|1063b13 1066l8 1066t30
+235V13*Message_Messages_Cleared{string} 30|1068b13 1071l8 1071t32
+236V13*Message_No_Messages{string} 30|1073b13 1076l8 1076t27
+237V13*Message_No_Selected_Message{string} 30|1078b13 1081l8 1081t35
+238V13*Message_No_Visible_Message{string} 30|1083b13 1086l8 1086t34
+239V13*Message_No_Target{string} 30|1088b13 1091l8 1091t25
+240V13*Message_Target_Unavailable{string} 30|1093b13 1096l8 1096t34
+241V13*Message_Filter_Cleared{string} 30|1098b13 1101l8 1101t30
+242V13*Message_All_Severities_Shown{string} 30|1103b13 1106l8 1106t36
+243V13*Message_Info_Hidden{string} 30|1108b13 1111l8 1111t27
+244V13*Message_Info_Shown{string} 30|1113b13 1116l8 1116t26
+245V13*Message_Warnings_Hidden{string} 30|1118b13 1121l8 1121t31
+246V13*Message_Warnings_Shown{string} 30|1123b13 1126l8 1126t30
+247V13*Message_Errors_Hidden{string} 30|1128b13 1131l8 1131t29
+248V13*Message_Errors_Shown{string} 30|1133b13 1136l8 1136t28
+249V13*Message_Message_Cleared{string} 30|1138b13 1141l8 1141t31
+250V13*Message_Message_Copied{string} 30|1143b13 1146l8 1146t30
+251V13*Reason_No_Message_Rows{string} 30|1148b13 1151l8 1151t30
+254R9 Messages_Filter_State 259e14 281r17
+255r7*Text{20|105R9} 30|187r38 197r69 235m23 243m23
+256b7*Show_Info{boolean} 30|177r57 188r37 244m23 260m23 260r56
+257b7*Show_Warnings{boolean} 30|178r57 189r37 245m23 267m23 267r60
+258b7*Show_Errors{boolean} 30|179r57 190r37 246m23 274m23 274r58
+262i7*Id{37I9} 30|103r33 104r33 113r36 113r72 329m12 410r40 494r43 565r52
+. 896r62
+263e7*Severity{21E9} 30|138r30 202r57 213r50 298r19 298r36 330m12 418r40
+. 562r31 636r39 746r26 892r60
+264r7*Text{20|105R9} 30|139r46 199r26 301r34 301r59 331m12 426r51 563r47
+265e7*Source_Kind{29E9} 30|56r18 57r41 201r34 299r23 299r43 332m12 442r40
+. 655r39
+266r7*Source_Label{20|105R9} 30|52r26 200r26 300r34 300r67 333m12 434r51
+267i7*Repeat_Count{positive} 30|105r33 141r15 142r49 347r29 348m29 348r55
+. 450r40 574r15 576r43
+268b7*Has_Target{boolean} 30|106r21 153r46 155r18 282r15 282r35 284r22 334m12
+. 458r40 885r44 886r44 888r44 1005r23 1023r39
+269i7*Target_Buffer{natural} 30|107r36 287r22 287r44 336m15 466r40 1006r23
+. 1007r23 1024r47
+270i7*Target_Line{natural} 30|108r36 158r32 288r26 288r46 337m15 474r40 1008r23
+271i7*Target_Column{natural} 30|109r36 158r70 289r26 289r48 338m15 482r40
+. 1009r23
+274K12 Message_Row_Vectors[9|74] 279r17 30|633r17 652r17 1016r11
+279r7*Rows{9|91R9[274]} 30|98r40 101r54 113r51 223r52 309r31 310m19 310r41
+. 341r23 343r64 344r51 350m25 357m16 369m16 384r32 402r23 494r22 523r51 604m16
+. 633r64 635r27 636r22 637m22 652r64 654r27 655r22 656m22 743r54 876r57 946r70
+. 948r51 950r52 984r53 988r32 990r33 1016r58 1018r19 1022r27 1023r22 1024r30
+. 1026m22
+280i7*Next_Id{37I9} 30|104r47 104r72 329r27 358r19 359m19 359r39 1047m16
+281r7*Filter{254R9} 30|177r50 178r50 179r50 187r31 188r30 189r30 190r30 197r62
+. 235m16 243m16 244m16 245m16 246m16 260m16 260r49 267m16 267r53 274m16 274r51
+X 30 editor-feature_messages.adb
+11i4 Max_Retained_Message_Rows{natural} 90r14 98r56 309r46
+12i4 Max_Message_Label_Text_Length{natural} 39r31 43r46
+14V13 Trim_Image{string} 14b13 14>25 17l8 17t18 25s14 142s32 158s15 158s53
+. 576s26 798s35 799s15
+14i25 Value{natural} 16r53
+19V13 Plural{string} 19b13 20>7 21>7 22>7 26l8 26t14 764s26 770s26 776s26
+. 805s32
+20i7 Count{natural} 25r26 25r45
+21a7 Singular{string} 25r60
+22a7 Plural_Word{string} 25r74
+28V13 Lower{string} 28b13 28>20 31l8 31t13 197s35 198s35
+28a20 Value{string} 30r48
+33V13 Safe_Message_Text{string} 33b13 33>32 46l8 46t25 139s11 563s12
+33a32 Text{string} 35r33
+34a7 Trimmed{string} 37r10 39r13 40r17 42r17 43r13 43r30
+48V13 Source_Display_For{string} 48b13 49>7 61l8 61t26 151s35 560s35
+49r7 Item{29|41R9} 52r21 56r13 57r36
+51a7 Source{string} 54r10 55r17
+99i11 I{integer} 101r68 112r22
+101r13 Item{29|41R9} 103r28 104r28 105r28 106r16 107r31 108r31 109r31 113r31
+112i17 J{integer} 113r65
+119V13 Panel_Severity{31|72E9} 119b13 120>7 132l8 132t22 892s39
+120e7 Severity{29|21E9} 124r12
+134V13 Label_For{string} 134b13 135>7 146l8 146t17 525s71 882s39 948s31 988s12
+135r7 Item{29|41R9} 138r25 139r41 141r10 142r44
+137a7 Base=139:9{string} 142r17 144r17
+148V13 Detail_For{string} 148b13 149>7 169l8 169t18 202s10 526s79 883s39
+. 950s31 990s12
+149r7 Item{29|41R9} 151r55 153r41 155r13 158r27 158r65
+151a7 Source{string} 153r10 160r16 163r23 167r17
+157a13 Position=158:51{string} 161r23 163r38
+193V13 Message_Matches_Text_Filter{boolean} 193b13 194>7 195>7 206l8 206t35
+. 214s18
+194r7 Messages{29|42R9} 197r53
+195r7 Item{29|41R9} 199r21 200r21 201r29 202r22 202r52
+197a7 Needle{string} 204r14 205r47
+198a7 Hay{string} 205r42
+208V13 Message_Is_Visible{boolean} 208b13 209>7 210>7 215l8 215t26 223s13
+. 745s43 878s19 946s31 984s14
+209r7 Messages{29|42R9} 213r35 214r47
+210r7 Item{29|41R9} 213r45 214r57
+220i7 Count{natural} 224m13 224r22 227r14
+222i11 I{integer} 223r66
+277V13 Same_Target{boolean} 277b13 278>7 279>7 291l8 291t19 302s18
+278r7 Left{29|41R9} 282r10 284r17 287r17 288r21 289r21
+279r7 Right{29|41R9} 282r29 287r38 288r40 289r42
+293V13 Same_Dedup_Key{boolean} 293b13 294>7 295>7 303l8 303t22 346s16
+294r7 Left{29|41R9} 298r14 299r18 300r29 301r29 302r31
+295r7 Right{29|41R9} 298r30 299r37 300r61 301r53 302r37
+305U14 Evict_Old_Messages_If_Needed 305b14 306=7 312l8 312t36 361s7
+306r7 Messages{29|42R9} 309r22 310m10 310r10 310r32
+325b7 Target_Is_Valid{boolean} 334r26 335r10
+327r7 Item{29|41R9} 329m7 330m7 331m7 332m7 333m7 334m7 336m10 337m10 338m10
+. 346r43 357r29
+343i13 Last_Index{natural} 344r65 350r47
+344r13 Last_Item{29|41R9} 346r32 347r19 348m19 348r45 350r59
+394V13 Item_At{29|41R9} 394b13 395>7 396>7 403l8 403t15 410s14 418s14 426s25
+. 434s25 442s14 450s14 458s14 466s14 474s14 482s14 559s39 1002s39
+395r7 Messages{29|42R9} 399r29 402r14
+396i7 Index{positive} 399r10 402r37
+485V13 Find_Message_Index_By_Id{natural} 485b13 486>7 487>7 499l8 499t32
+. 599s35
+486r7 Messages{29|42R9} 493r32 494r13
+487i7 Id{29|37I9} 490r10 494r48
+493i11 I{integer} 494r36 495r20
+505i7 Row{natural} 508r10 511r80 512r78 517r73 525r62 526r70
+506i7 Source{natural} 517m7 518r10 518r29 523r65 531r14
+523r10 Item{29|41R9} 525r82 526r91
+546i7 Source{natural} 548r10 551r46
+559r7 Item{29|41R9} 560r55 562r26 563r42 565r47 574r10 576r38
+560a7 Source{string} 569r10 571r26
+561r7 Result{20|105R9} 570m18 570r18 571m18 571r18 575m18 575r18 576m18 576r18
+. 577m18 577r18 579r25
+586i7 Source{natural} 588r10 591r62
+599i7 Index{natural} 601r10 604r29
+613i7 Old_Source{natural} 624r31
+614i7 Id{29|37I9} 617r49 624r27
+615b7 Removed{boolean} 617m7 618r14
+632i7 Removed{natural} 638m13 638r24 644r14
+633i7 I{9|81I12[29|274]} 635r13 636r36 637r35 640m13 640r18
+651i7 Removed{natural} 657m13 657r24 663r14
+652i7 I{9|81I12[29|274]} 654r13 655r36 656r35 659m13 659r18
+672i7 Same_Row{natural} 685m22 698r10 699r50
+673i7 Next_Row{natural} 687r60 688m25 700r13 701r50
+674i7 Previous_Row{natural} 690m25 702r13 703r50
+676i11 Row{integer} 677r60 679r91 685r34 688r37 690r41
+679i16 Source{natural} 681r19 681r39 683r59 687r25 689r28
+730U14 Count_Severities 730b14 731>7 732>7 733<7 734<7 735<7 754l8 754t24
+. 803s7
+731r7 Messages{29|42R9} 741r32 743r45 745r63
+732b7 Visible_Only{boolean} 745r21
+733i7 Errors{natural} 738m7 747m43 747r53
+734i7 Warnings{natural} 739m7 748m43 748r55
+735i7 Info{natural} 740m7 749m43 749r51
+741i11 I{integer} 743r68
+743r13 Item{29|41R9} 745r73 746r21
+756V13 Severity_Summary{string} 756b13 757>7 758>7 759>7 779l8 779t24 807s32
+757i7 Errors{natural} 763r10 764r34
+758i7 Warnings{natural} 766r10 770r34
+759i7 Info{natural} 772r10 776r34
+761r7 Result{20|105R9} 764m18 764r18 767r21 768m21 768r21 770m18 770r18 773r21
+. 774m21 774r21 776m18 776r18 778r25
+784i7 Errors{natural} 803m42 804r10 807r50
+785i7 Warnings{natural} 803m50 804r30 807r58
+786i7 Info{natural} 803m60 804r52 807r68
+787i7 Count{natural} 790r10 799r27 804r59 805r40
+788i7 Visible_Count{natural} 795r13 798r47
+816i7 Previous_Id{29|37I9} 838m19 896r22 896r67 916r13
+817i7 Previous_Source_Index{natural} 837m19 898r25 899r30 901r32 912r13 914r13
+818i7 First_Row{natural} 893r22 894m22 916r48 917r50
+819i7 Matched_Row{natural} 897m22 910r10 911r50
+820i7 Fallback_Next_Row{natural} 899r61 900m25 912r49 913r50
+821i7 Fallback_Previous_Row{natural} 902m25 914r49 915r50
+831i13 Selected{natural} 834r75 835r82
+832i13 Source{natural} 835m16 836r19 836r39 837r44 838r63
+874i14 I{integer} 876r71 891r39 899r25 901r28
+876r16 Item{29|41R9} 878r49 882r50 883r51 885r39 886r39 888r39 892r55 896r57
+938i11 Row{integer} 940r88 943r83 947r70 949r71
+940i13 Source{natural} 942r16 945r31 946r84 948r65 950r66
+962i7 Source_Index{natural} 974m7 981r10 981r35 984r67 988r46 990r47 994r14
+1002r7 Item{29|41R9} 1005r18 1006r18 1007r18 1008r18 1009r18
+1016i7 I{9|81I12[29|274]} 1022r13 1023r36 1024r44 1026r35 1028m13 1028r18
+1056i7 Index{natural} 1059r14
+X 31 editor-feature_panel.ads
+4K16*Feature_Panel 29|3w13 70r39 79r25 151r25 155r25 159r25 163r25 175r32
+. 187r39 205r32 209r44 230r44 30|9r20 121r21 126r27 128r27 130r27 503r25
+. 505r40 509r24 510r24 511r28 512r28 517r24 525r20 526r27 536r25 544r25 584r25
+. 611r32 619r17 668r39 676r30 677r20 679r52 699r17 701r17 703r17 705r17 712r39
+. 718r14 719r24 720r17 720r63 814r32 823r21 824r24 829r17 831r51 834r23 835r33
+. 844r14 845r14 846r14 848r31 854r17 856r37 864r17 866r37 879r26 881r46 894r42
+. 897r44 900r53 902r57 911r17 913r17 915r17 917r17 919r17 926r25 929r17 933r17
+. 937r29 938r30 940r49 943r42 947r38 949r38 958r44 964r17 965r19 966r28 968r28
+. 974r30 975r17 976r24 987r17 989r24 1052r44 1060r25 31|696e25
+8E9*Feature_Id 30|9r34 31|13e27
+11n7*Messages_Feature{8E9} 30|719r38 720r77 824r38 965r33
+65n7*Feature_Row_Header{64E9} 30|848r45
+66n7*Feature_Row_Item{64E9} 30|881r60
+67n7*Feature_Row_Empty_State{64E9} 30|856r51 866r51
+72E9*Feature_Row_Severity 30|121r35 31|76e34
+74n7*Feature_Row_Info_Severity{72E9} 30|126r41
+75n7*Feature_Row_Warning_Severity{72E9} 30|128r41
+76n7*Feature_Row_Error_Severity{72E9} 30|130r41
+119R9*Feature_Panel_State 29|70r53 79r39 151r39 155r39 159r39 163r39 175r46
+. 187r53 205r46 209r58 230r58 30|503r39 536r39 544r39 584r39 611r46 668r53
+. 712r53 814r46 926r39 958r58 1052r58 31|682e14
+156V13*Active_Feature{8E9} 30|720s31 964s31
+176U14*Forget_Feature_View_State 30|718s28
+189V13*Set_Active_Feature{boolean} 30|823s35
+286U14*Clear_Rows 30|844s28
+289U14*Set_Header_Text 30|845s28
+302U14*Append_Row 30|846s28 854s31 864s31 879s40
+303r7 Panel{119R9} 30|847r10 855r13 865r13 880r22
+304e7 Kind{64E9} 30|848r10 856r13 866r13 881r22
+305a7 Label{string} 30|849r10 857r13 867r13 882r22
+306a7 Detail{string} 30|850r10 858r13 868r13 883r22
+308b7 Selectable{boolean} 30|851r10 859r13 869r13 884r22
+309b7 Activatable{boolean} 30|860r13 870r13 885r22
+310b7 Has_Target{boolean} 30|861r13 871r13 886r22
+311b7 Is_Diagnostic{boolean} 30|862r13 872r13 887r22
+312b7 Can_Open{boolean} 30|888r22
+313b7 Can_Copy{boolean} 30|889r22
+314b7 Can_Clear{boolean} 30|890r22
+317i7 Source_Index{natural} 30|891r22
+318e7 Severity{72E9} 30|892r22
+334V13*Projection_Generation_Matches{boolean} 30|966s42
+348V13*Projection_Row_Index_Is_Valid{boolean} 30|511s42 834s37 968s42
+362V13*Row_Is_Selectable{boolean} 30|512s42 677s34 937s43 1060s39
+369V13*Row_Is_Activatable{boolean} 30|943s56
+407V13*Row_Source_Index{natural} 30|517s38 679s66 835s47 940s63 974s44
+418V13*Row_Count{natural} 30|509s38 676s44 894s56 897s58 900s67 902s71 929s31
+. 938s44 975s31
+424V13*Selected_Row{natural} 30|505s54 831s65
+437U14*Select_Row 30|619s31 699s31 701s31 703s31 705s31 911s31 913s31 915s31
+. 917s31 919s31
+456V13*Has_Selection{boolean} 30|829s31
+477V13*Row_Label{string} 30|510s38 525s34 933s31 947s52 976s38 987s31
+485V13*Row_Detail{string} 30|526s41 949s52 989s38
+X 35 system.ads
+67M9*Address
+X 49 s-memory.ads
+51V13*Alloc{35|67M9} 101i<c,__gnat_malloc>22
+66U14*Free 102i<c,__gnat_free>22
+74V13*Realloc{35|67M9} 103i<c,__gnat_realloc>22
+X 60 s-stalib.adb
+87U14 Break_Start 88i<c,__gnat_break_start>22
+

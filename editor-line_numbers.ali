@@ -1,0 +1,77 @@
+V "GNAT Lib v15"
+A -gnat2022
+P SS ZX
+
+RN
+RV NO_SECONDARY_STACK
+RV NO_STANDARD_STORAGE_POOLS
+RV NO_DYNAMIC_SIZED_OBJECTS
+
+U editor.line_numbers%b	editor-line_numbers.adb	3471dee7 NE OO PK
+W editor%s		editor.ads		editor.ali
+Z system.img_int%s	s-imgint.ads		s-imgint.ali
+Z system.secondary_stack%s  s-secsta.adb	s-secsta.ali
+
+U editor.line_numbers%s	editor-line_numbers.ads	0e636677 EE NE OO PK
+W editor%s		editor.ads		editor.ali
+
+D editor.ads		20260612145959 16f844c2 editor%s
+D editor-line_numbers.ads  20260612145959 189b22b5 editor.line_numbers%s
+D editor-line_numbers.adb  20260612145959 2ceafc52 editor.line_numbers%b
+D system.ads		20250808065140 14286b0f system%s
+D s-imagei.ads		20250808065140 5e131ce0 system.image_i%s
+D s-imgint.ads		20250808065140 67e4edfb system.img_int%s
+D s-parame.ads		20250808065140 3597fc11 system.parameters%s
+D s-secsta.ads		20250808065140 578279f5 system.secondary_stack%s
+D s-stoele.ads		20250808065140 ccded4e8 system.storage_elements%s
+D s-unstyp.ads		20250808065140 fa2a7f59 system.unsigned_types%s
+D s-valspe.ads		20250808065140 f810d31c system.val_spec%s
+D s-vaispe.ads		20250808065140 8280550e system.value_i_spec%s
+D s-vauspe.ads		20250808065140 89269ba5 system.value_u_spec%s
+D s-vs_int.ads		20250808065140 06b6b724 system.vs_int%s
+D s-vs_uns.ads		20250808065140 e7f47a27 system.vs_uns%s
+G a e
+G c Z s b [current editor__line_numbers 14 13 none]
+G c Z s b [set_current editor__line_numbers 18 14 none]
+G c Z s b [reset editor__line_numbers 21 14 none]
+G c Z s b [line_number_mode_name editor__line_numbers 24 13 none]
+G c Z s b [line_number_mode_from_name editor__line_numbers 27 13 none]
+G c Z s b [toggle_mode editor__line_numbers 32 14 none]
+G c Z s b [display_text editor__line_numbers 42 13 none]
+G c Z s s [line_number_configIP editor__line_numbers 8 9 none]
+G c Z b b [trimmed_image editor__line_numbers 64 13 none]
+G c Z b b [distance editor__line_numbers 70 13 none]
+X 1 editor.ads
+1K9*Editor 5e11 2|1r9 47r5 3|1r14 108r5
+X 2 editor-line_numbers.ads
+1K16*Line_Numbers 1|1k9 2|47l12 47e24 3|1b21 108l12 108t24
+3E9*Line_Number_Mode 6e27 9r14 24r43 29r35 3|20r43 34r35
+4n7*Absolute_Line_Numbers{3E9} 9r34 3|3r43 17r25 23r15 39r17 48r17 55r15
+. 60r27 89r15
+5n7*Relative_Line_Numbers{3E9} 3|25r15 42r17 56r27 57r15 92r15
+6n7*Hybrid_Line_Numbers{3E9} 3|27r15 45r17 58r27 59r15 99r15
+8R9*Line_Number_Config 10e14 14r28 18r36 43r22 3|3r12 5r28 10r36 83r22
+9e7*Mode{3E9} 3|3m35 17m17 54r18 56m19 58m19 60m19 88r19
+14V13*Current{8R9} 3|5b13 8l8 8t15
+18U14*Set_Current 18>27 3|10b14 13l8 13t19
+18r27 Config{8R9} 3|10b27 12r16
+21U14*Reset 3|15b14 18l8 18t13
+24V13*Line_Number_Mode_Name{string} 24>36 3|20b13 30l8 30t29
+24e36 Mode{3E9} 3|20b36 22r12
+27V13*Line_Number_Mode_From_Name{3E9} 28>7 29<7 3|32b13 50l8 50t34
+28a7 Name{string} 3|33b7 37r10 40r13 43r13
+29b7 Found{boolean} 3|34b7 38m10 41m10 44m10 47m10
+32U14*Toggle_Mode 3|52b14 62l8 62t19
+42V13*Display_Text{string} 43>7 44>7 45>7 3|82b13 106l8 106t20
+43r7 Config{8R9} 3|83b7 88r12
+44i7 Document_Row{natural} 3|84b7 90r35 93r16 96r48 100r16 101r38 103r48
+45i7 Current_Row{natural} 3|85b7 93r31 96r62 100r31 103r62
+X 3 editor-line_numbers.adb
+3r4 State{2|8R9} 7r14 12m7 17m7 54r12 56m13 58m13 60m13
+64V13 Trimmed_Image{string} 64b13 64>28 68l8 68t21 90s20 96s23 101s23 103s23
+64i28 Value{natural} 65r49
+65a7 Image{string} 67r14 67r21 67r40
+70V13 Distance{natural} 70b13 71>7 72>7 80l8 80t16 96s38 103s38
+71i7 Left{natural} 75r10 76r17 78r25
+72i7 Right{natural} 75r18 76r24 78r17
+

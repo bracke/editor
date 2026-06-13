@@ -1,0 +1,586 @@
+V "GNAT Lib v15"
+A -gnat2022
+P SS ZX
+
+RN
+RV NO_DISPATCHING_CALLS
+RV NO_ENUMERATION_MAPS
+RV NO_EXCEPTION_HANDLERS
+RV NO_EXCEPTION_PROPAGATION
+RV NO_EXCEPTIONS
+RV NO_IMPLICIT_CONDITIONALS
+RV NO_LOCAL_ALLOCATORS
+RV NO_NESTED_FINALIZATION
+RV NO_SECONDARY_STACK
+RV NO_STANDARD_STORAGE_POOLS
+RV NO_DEFAULT_INITIALIZATION
+RV NO_DYNAMIC_SIZED_OBJECTS
+RV NO_IMPLICIT_LOOPS
+RV NO_ELABORATION_CODE
+RV NO_OBSOLESCENT_FEATURES
+
+U editor.messages%b	editor-messages.adb	85057130 NE OO PK
+W ada%s			ada.ads			ada.ali
+W ada.containers%s	a-contai.ads		a-contai.ali
+Z ada.exceptions%s	a-except.adb		a-except.ali
+W ada.strings%s		a-string.ads		a-string.ali
+Z ada.strings.text_buffers%s  a-sttebu.adb	a-sttebu.ali
+W ada.strings.unbounded%s  a-strunb.adb		a-strunb.ali
+Z ada.tags%s		a-tags.adb		a-tags.ali
+W editor%s		editor.ads		editor.ali
+Z system%s		system.ads		system.ali
+Z system.concat_2%s	s-conca2.adb		s-conca2.ali
+Z system.finalization_primitives%s  s-finpri.adb  s-finpri.ali
+Z system.return_stack%s	s-retsta.ads		s-retsta.ali
+Z system.secondary_stack%s  s-secsta.adb	s-secsta.ali
+Z system.soft_links%s	s-soflin.adb		s-soflin.ali
+Z system.standard_library%s  s-stalib.adb	s-stalib.ali
+
+U editor.messages%s	editor-messages.ads	165f64de EE OO PF PK
+W ada%s			ada.ads			ada.ali
+W ada.containers%s	a-contai.ads		a-contai.ali
+Z ada.containers.generic_array_sort%s
+Z ada.containers.helpers%s  a-conhel.adb	a-conhel.ali
+W ada.containers.vectors%s
+Z ada.exceptions%s	a-except.adb		a-except.ali
+Z ada.finalization%s	a-finali.ads		a-finali.ali
+Z ada.iterator_interfaces%s
+Z ada.streams%s		a-stream.adb		a-stream.ali
+W ada.strings%s		a-string.ads		a-string.ali
+Z ada.strings.text_buffers%s  a-sttebu.adb	a-sttebu.ali
+W ada.strings.unbounded%s  a-strunb.adb		a-strunb.ali
+Z ada.tags%s		a-tags.adb		a-tags.ali
+Z ada.unchecked_deallocation%s
+W editor%s		editor.ads		editor.ali
+Z system%s		system.ads		system.ali
+Z system.finalization_primitives%s  s-finpri.adb  s-finpri.ali
+Z system.pool_global%s	s-pooglo.adb		s-pooglo.ali
+Z system.put_images%s	s-putima.adb		s-putima.ali
+Z system.return_stack%s	s-retsta.ads		s-retsta.ali
+Z system.secondary_stack%s  s-secsta.adb	s-secsta.ali
+Z system.soft_links%s	s-soflin.adb		s-soflin.ali
+Z system.standard_library%s  s-stalib.adb	s-stalib.ali
+Z system.storage_elements%s  s-stoele.ads	s-stoele.ali
+Z system.storage_pools%s  s-stopoo.adb		s-stopoo.ali
+Z system.storage_pools.subpools%s  s-stposu.adb	s-stposu.ali
+Z system.stream_attributes%s  s-stratt.adb	s-stratt.ali
+Z system.strings.stream_ops%s  s-ststop.adb	s-ststop.ali
+Z system.wch_stw%s	s-wchstw.adb		s-wchstw.ali
+
+D ada.ads		20250808065140 76789da1 ada%s
+D a-charac.ads		20250808065140 2d3ec45b ada.characters%s
+D a-chlat1.ads		20250808065140 e0d72e76 ada.characters.latin_1%s
+D a-contai.ads		20250808065140 61e5e089 ada.containers%s
+D a-cgarso.ads		20250808065140 9129bfa8 ada.containers.generic_array_sort%s
+D a-conhel.ads		20250808065140 46fe1ce3 ada.containers.helpers%s
+D a-conhel.adb		20250808065140 854d323e ada.containers.helpers%b
+D a-convec.ads		20250808065140 91fb49f3 ada.containers.vectors%s
+D a-convec.adb		20250808065140 b2ed0168 ada.containers.vectors%b
+D a-except.ads		20250808065140 e7970cd9 ada.exceptions%s
+D a-finali.ads		20250808065140 bf4f806b ada.finalization%s
+D a-iteint.ads		20250808065140 49a8bee2 ada.iterator_interfaces%s
+D a-stream.ads		20250808065140 17477cbd ada.streams%s
+D a-string.ads		20250808065140 90ac6797 ada.strings%s
+D a-strmap.ads		20250808065140 1f91ebb6 ada.strings.maps%s
+D a-strsea.ads		20250808065140 18c3c634 ada.strings.search%s
+D a-sttebu.ads		20250808065140 f1ad67a2 ada.strings.text_buffers%s
+D a-strunb.ads		20250808065140 b10770ab ada.strings.unbounded%s
+D a-stuten.ads		20250808065140 c6ced0ae ada.strings.utf_encoding%s
+D a-tags.ads		20250808065140 fbca0ad5 ada.tags%s
+D a-unccon.ads		20250808065140 0e9b276f ada.unchecked_conversion%s
+D a-uncdea.ads		20250808065140 c3a8ac65 ada.unchecked_deallocation%s
+D editor.ads		20260612145959 16f844c2 editor%s
+D editor-messages.ads	20260612151413 205b1944 editor.messages%s
+D editor-messages.adb	20260612151323 75bcf856 editor.messages%b
+D interfac.ads		20250808065140 9111f9c1 interfaces%s
+D i-c.ads		20250808065140 e94c966a interfaces.c%s
+D system.ads		20250808065140 14286b0f system%s
+D s-atocou.ads		20250808065140 dc18efc3 system.atomic_counters%s
+D s-atocou.adb		20250808065140 6fe685de system.atomic_counters%b
+D s-atopri.ads		20250808065140 e19c1d89 system.atomic_primitives%s
+D s-conca2.ads		20250808065140 b5fb73f7 system.concat_2%s
+D s-exctab.ads		20250808065140 91bef6ef system.exception_table%s
+D s-finpri.ads		20250808065140 5970d55a system.finalization_primitives%s
+D s-finroo.ads		20250808065140 0a7c3ed4 system.finalization_root%s
+D s-memory.ads		20250808065140 18949c1a system.memory%s
+D s-oscons.ads		20250827122531 068e1a91 system.os_constants%s
+D s-oslock.ads		20250808065140 13fa6b78 system.os_locks%s
+D s-parame.ads		20250808065140 3597fc11 system.parameters%s
+D s-pooglo.ads		20250808065140 91708d21 system.pool_global%s
+D s-putima.ads		20250808065140 17291fe4 system.put_images%s
+D s-retsta.ads		20250808065140 0f6b06cb system.return_stack%s
+D s-secsta.ads		20250808065140 578279f5 system.secondary_stack%s
+D s-soflin.ads		20250808065140 5d88fdea system.soft_links%s
+D s-stache.ads		20250808065140 0b81c1fe system.stack_checking%s
+D s-stalib.ads		20250808065140 1c9580f6 system.standard_library%s
+D s-stalib.adb		20250808065140 eb464a47 system.standard_library%b
+D s-stoele.ads		20250808065140 ccded4e8 system.storage_elements%s
+D s-stopoo.ads		20250808065140 e9fa2dd8 system.storage_pools%s
+D s-stposu.ads		20250808065140 e0b9fefd system.storage_pools.subpools%s
+D s-stratt.ads		20250808065140 516607ae system.stream_attributes%s
+D s-string.ads		20250808065140 582aac7d system.strings%s
+D s-ststop.ads		20250808065140 c569db7c system.strings.stream_ops%s
+D s-traent.ads		20250808065140 c81cbf8c system.traceback_entries%s
+D s-unstyp.ads		20250808065140 fa2a7f59 system.unsigned_types%s
+D s-wchcon.ads		20250808065140 d9032363 system.wch_con%s
+D s-wchstw.ads		20250808065140 2d112c01 system.wch_stw%s
+G a e
+G c Z s b [clear editor__messages 49 14 none]
+G c Z s b [has_messages editor__messages 52 13 none]
+G c Z s b [is_empty editor__messages 55 13 none]
+G c Z s b [push editor__messages 58 14 none]
+G c Z s b [push_info editor__messages 65 14 none]
+G c Z s b [push_success editor__messages 71 14 none]
+G c Z s b [push_warning editor__messages 77 14 none]
+G c Z s b [push_error editor__messages 83 14 none]
+G c Z s b [push editor__messages 90 14 none]
+G c Z s b [push_info editor__messages 97 14 none]
+G c Z s b [push_success editor__messages 101 14 none]
+G c Z s b [push_warning editor__messages 105 14 none]
+G c Z s b [push_error editor__messages 109 14 none]
+G c Z s b [tick editor__messages 113 14 none]
+G c Z s b [tick editor__messages 117 14 none]
+G c Z s b [dismiss_latest editor__messages 120 14 none]
+G c Z s b [dismiss_all editor__messages 123 14 none]
+G c Z s b [visible_count editor__messages 126 13 none]
+G c Z s b [visible_message editor__messages 131 13 none]
+G c Z s b [id editor__messages 137 13 none]
+G c Z s b [text editor__messages 140 13 none]
+G c Z s b [severity editor__messages 143 13 none]
+G c Z s b [active_message editor__messages 146 13 none]
+G c Z s b [count editor__messages 150 13 none]
+G c Z s b [normalize_text editor__messages 153 13 none]
+G c Z s b [display_text editor__messages 157 13 none]
+G c Z s b [overlay_rect editor__messages 161 13 none]
+G c Z s b [overlay_rect editor__messages 167 13 none]
+G c Z s b [overlay_rect editor__messages 176 13 none]
+G c Z s b [is_in_overlay editor__messages 184 13 none]
+G c Z s s [message_recordDI editor__messages 23 9 none]
+G c Z s s [message_recordDA editor__messages 23 9 none]
+G c Z s s [message_recordDF editor__messages 23 9 none]
+G c Z s s [message_recordIP editor__messages 23 9 none]
+G c Z s s [has_element editor__messages__message_vectors 115 13 193_4]
+G c Z s s [empty editor__messages__message_vectors 125 13 193_4]
+G c Z s s [Oeq editor__messages__message_vectors 127 24 193_4]
+G c Z s s [to_vector editor__messages__message_vectors 136 13 193_4]
+G c Z s s [to_vector editor__messages__message_vectors 139 13 193_4]
+G c Z s s [Oconcat editor__messages__message_vectors 145 13 193_4]
+G c Z s s [Oconcat editor__messages__message_vectors 149 13 193_4]
+G c Z s s [Oconcat editor__messages__message_vectors 153 13 193_4]
+G c Z s s [Oconcat editor__messages__message_vectors 157 13 193_4]
+G c Z s s [capacity editor__messages__message_vectors 161 13 193_4]
+G c Z s s [reserve_capacity editor__messages__message_vectors 164 14 193_4]
+G c Z s s [length editor__messages__message_vectors 175 13 193_4]
+G c Z s s [set_length editor__messages__message_vectors 178 14 193_4]
+G c Z s s [is_empty editor__messages__message_vectors 187 13 193_4]
+G c Z s s [clear editor__messages__message_vectors 190 14 193_4]
+G c Z s s [to_cursor editor__messages__message_vectors 194 13 193_4]
+G c Z s s [to_index editor__messages__message_vectors 201 13 193_4]
+G c Z s s [element editor__messages__message_vectors 206 13 193_4]
+G c Z s s [element editor__messages__message_vectors 213 13 193_4]
+G c Z s s [replace_element editor__messages__message_vectors 217 14 193_4]
+G c Z s s [replace_element editor__messages__message_vectors 228 14 193_4]
+G c Z s s [query_element editor__messages__message_vectors 239 14 193_4]
+G c Z s s [query_element editor__messages__message_vectors 250 14 193_4]
+G c Z s s [update_element editor__messages__message_vectors 259 14 193_4]
+G c Z s s [update_element editor__messages__message_vectors 276 14 193_4]
+G c Z s s [constant_reference editor__messages__message_vectors 303 13 193_4]
+G c Z s s [reference editor__messages__message_vectors 308 13 193_4]
+G c Z s s [constant_reference editor__messages__message_vectors 313 13 193_4]
+G c Z s s [reference editor__messages__message_vectors 318 13 193_4]
+G c Z s s [assign editor__messages__message_vectors 323 14 193_4]
+G c Z s s [copy editor__messages__message_vectors 325 13 193_4]
+G c Z s s [move editor__messages__message_vectors 327 14 193_4]
+G c Z s s [new_vector editor__messages__message_vectors 333 13 193_4]
+G c Z s s [insert_vector editor__messages__message_vectors 337 14 193_4]
+G c Z s s [insert_vector editor__messages__message_vectors 361 14 193_4]
+G c Z s s [insert_vector editor__messages__message_vectors 378 14 193_4]
+G c Z s s [insert editor__messages__message_vectors 396 14 193_4]
+G c Z s s [insert editor__messages__message_vectors 404 14 193_4]
+G c Z s s [insert editor__messages__message_vectors 412 14 193_4]
+G c Z s s [insert editor__messages__message_vectors 421 14 193_4]
+G c Z s s [insert editor__messages__message_vectors 438 14 193_4]
+G c Z s s [prepend_vector editor__messages__message_vectors 449 14 193_4]
+G c Z s s [prepend editor__messages__message_vectors 459 14 193_4]
+G c Z s s [append_vector editor__messages__message_vectors 466 14 193_4]
+G c Z s s [append editor__messages__message_vectors 476 14 193_4]
+G c Z s s [append editor__messages__message_vectors 483 14 193_4]
+G c Z s s [insert_space editor__messages__message_vectors 486 14 193_4]
+G c Z s s [insert_space editor__messages__message_vectors 503 14 193_4]
+G c Z s s [delete editor__messages__message_vectors 514 14 193_4]
+G c Z s s [delete editor__messages__message_vectors 524 14 193_4]
+G c Z s s [delete_first editor__messages__message_vectors 533 14 193_4]
+G c Z s s [delete_last editor__messages__message_vectors 538 14 193_4]
+G c Z s s [reverse_elements editor__messages__message_vectors 546 14 193_4]
+G c Z s s [swap editor__messages__message_vectors 549 14 193_4]
+G c Z s s [swap editor__messages__message_vectors 554 14 193_4]
+G c Z s s [first_index editor__messages__message_vectors 560 13 193_4]
+G c Z s s [first editor__messages__message_vectors 563 13 193_4]
+G c Z s s [first_element editor__messages__message_vectors 567 13 193_4]
+G c Z s s [last_index editor__messages__message_vectors 570 13 193_4]
+G c Z s s [last editor__messages__message_vectors 574 13 193_4]
+G c Z s s [last_element editor__messages__message_vectors 578 13 193_4]
+G c Z s s [next editor__messages__message_vectors 581 13 193_4]
+G c Z s s [next editor__messages__message_vectors 587 14 193_4]
+G c Z s s [previous editor__messages__message_vectors 590 13 193_4]
+G c Z s s [previous editor__messages__message_vectors 596 14 193_4]
+G c Z s s [find_index editor__messages__message_vectors 599 13 193_4]
+G c Z s s [find editor__messages__message_vectors 609 13 193_4]
+G c Z s s [reverse_find_index editor__messages__message_vectors 623 13 193_4]
+G c Z s s [reverse_find editor__messages__message_vectors 635 13 193_4]
+G c Z s s [contains editor__messages__message_vectors 649 13 193_4]
+G c Z s s [iterate editor__messages__message_vectors 654 14 193_4]
+G c Z s s [reverse_iterate editor__messages__message_vectors 662 14 193_4]
+G c Z s s [iterate editor__messages__message_vectors 669 13 193_4]
+G c Z s s [iterate editor__messages__message_vectors 672 13 193_4]
+G c Z s s [adjust editor__messages__message_vectors__implementation 90 28 726_4_193_4]
+G c Z s s [finalize editor__messages__message_vectors__implementation 93 28 726_4_193_4]
+G c Z s s [zero_counts editor__messages__message_vectors__implementation 96 17 726_4_193_4]
+G c Z s s [busy editor__messages__message_vectors__implementation 100 17 726_4_193_4]
+G c Z s s [unbusy editor__messages__message_vectors__implementation 104 17 726_4_193_4]
+G c Z s s [lock editor__messages__message_vectors__implementation 108 17 726_4_193_4]
+G c Z s s [unlock editor__messages__message_vectors__implementation 112 17 726_4_193_4]
+G c Z s s [tc_check editor__messages__message_vectors__implementation 116 17 726_4_193_4]
+G c Z s s [te_check editor__messages__message_vectors__implementation 120 17 726_4_193_4]
+G c Z s s [is_busy editor__messages__message_vectors__implementation 136 16 726_4_193_4]
+G c Z s s [is_locked editor__messages__message_vectors__implementation 140 16 726_4_193_4]
+G c Z s s [initialize editor__messages__message_vectors__implementation 161 28 726_4_193_4]
+G c Z s s [finalize editor__messages__message_vectors__implementation 162 28 726_4_193_4]
+G c Z s s [initialize editor__messages__message_vectors__implementation 167 28 726_4_193_4]
+G c Z s s [finalize editor__messages__message_vectors__implementation 168 28 726_4_193_4]
+G c Z s s [reference_control_typeDA editor__messages__message_vectors__implementation 84 12 726_4_193_4]
+G c Z s s [reference_control_typeDF editor__messages__message_vectors__implementation 84 12 726_4_193_4]
+G c Z s s [reference_control_typeIP editor__messages__message_vectors__implementation 84 12 726_4_193_4]
+G c Z s s [with_busyDF editor__messages__message_vectors__implementation 158 12 726_4_193_4]
+G c Z s s [with_busyIP editor__messages__message_vectors__implementation 158 12 726_4_193_4]
+G c Z s s [with_lockDF editor__messages__message_vectors__implementation 164 12 726_4_193_4]
+G c Z s s [with_lockIP editor__messages__message_vectors__implementation 164 12 726_4_193_4]
+G c Z s s [put_image editor__messages__message_vectors 747 14 193_4]
+G c Z s s [adjust editor__messages__message_vectors 750 25 193_4]
+G c Z s s [finalize editor__messages__message_vectors 751 25 193_4]
+G c Z s s [write editor__messages__message_vectors 753 14 193_4]
+G c Z s s [read editor__messages__message_vectors 759 14 193_4]
+G c Z s s [read editor__messages__message_vectors 773 14 193_4]
+G c Z s s [write editor__messages__message_vectors 779 14 193_4]
+G c Z s s [write editor__messages__message_vectors 798 14 193_4]
+G c Z s s [read editor__messages__message_vectors 804 14 193_4]
+G c Z s s [write editor__messages__message_vectors 820 14 193_4]
+G c Z s s [read editor__messages__message_vectors 826 14 193_4]
+G c Z s s [pseudo_reference editor__messages__message_vectors 840 13 193_4]
+G c Z s s [get_element_access editor__messages__message_vectors 849 13 193_4]
+G c Z s s [cursorIP editor__messages__message_vectors 768 9 193_4]
+G c Z s s [vectorDA editor__messages__message_vectors 741 9 193_4]
+G c Z s s [vectorDF editor__messages__message_vectors 741 9 193_4]
+G c Z s s [vectorIP editor__messages__message_vectors 741 9 193_4]
+G c Z s s [finalize editor__messages__message_vectors 865 25 193_4]
+G c Z s s [first editor__messages__message_vectors 867 24 193_4]
+G c Z s s [last editor__messages__message_vectors 868 24 193_4]
+G c Z s s [next editor__messages__message_vectors 870 24 193_4]
+G c Z s s [previous editor__messages__message_vectors 874 24 193_4]
+G c Z s s [constant_reference_typeDI editor__messages__message_vectors 788 9 193_4]
+G c Z s s [constant_reference_typeDA editor__messages__message_vectors 788 9 193_4]
+G c Z s s [constant_reference_typeDF editor__messages__message_vectors 788 9 193_4]
+G c Z s s [constant_reference_typeIP editor__messages__message_vectors 788 9 193_4]
+G c Z s s [reference_typeDI editor__messages__message_vectors 810 9 193_4]
+G c Z s s [reference_typeDA editor__messages__message_vectors 810 9 193_4]
+G c Z s s [reference_typeDF editor__messages__message_vectors 810 9 193_4]
+G c Z s s [reference_typeIP editor__messages__message_vectors 810 9 193_4]
+G c Z s s [elements_arrayIP editor__messages__message_vectors 729 9 193_4]
+G c Z s s [elements_arrayDI editor__messages__message_vectors 729 9 193_4]
+G c Z s s [elements_arrayDA editor__messages__message_vectors 729 9 193_4]
+G c Z s s [elements_arrayDF editor__messages__message_vectors 729 9 193_4]
+G c Z s s [elements_typeDI editor__messages__message_vectors 732 9 193_4]
+G c Z s s [elements_typeDF editor__messages__message_vectors 732 9 193_4]
+G c Z s s [elements_typeIP editor__messages__message_vectors 732 9 193_4]
+G c Z s s [iteratorDF editor__messages__message_vectors 857 9 193_4]
+G c Z s s [iteratorIP editor__messages__message_vectors 857 9 193_4]
+G c Z s s [free editor__messages__message_vectors 44 14 193_4]
+G c Z s s [append_slow_path editor__messages__message_vectors 47 14 193_4]
+G c Z s s [message_configIP editor__messages 15 9 none]
+G c Z s s [message_stateDI editor__messages 197 9 none]
+G c Z s s [message_stateDA editor__messages 197 9 none]
+G c Z s s [message_stateDF editor__messages 197 9 none]
+G c Z s s [message_stateIP editor__messages 197 9 none]
+G c Z s s [message_layoutIP editor__messages 33 9 none]
+G c Z s s [message_rectIP editor__messages 41 9 none]
+G c Z b b [lifetime_for editor__messages 15 13 none]
+G c Z b b [expiry_time editor__messages 28 13 none]
+G c Z b b [is_visible editor__messages 40 13 none]
+G c Z b b [prune_expired editor__messages 48 14 none]
+G c Z b b [enforce_capacity editor__messages 86 14 none]
+X 1 ada.ads
+18K9*Ada 22e8 24|1r6 2r6 26r23 193r35 25|1r6 1r33 2r6 2r31
+X 4 a-contai.ads
+16K13*Containers 28e19 24|2r10 193r39 25|2w10 2r35
+22I9*Count_Type<integer> 25|2r46
+X 8 a-convec.ads
+62I9 Index_Type 24|194r7
+63+9 Element_Type 24|195r7
+74k24*Vectors 878e27 24|2w21 193r50
+81I12*Extended_Index{integer} 25|52r27[24|193]
+91R9*Vector<11|43R9> 24|198r38[193]
+175V13*Length{4|22I9} 25|98s34[24|193] 99s32[24|193] 285s22[24|193] 304s62[24|193]
+. 325s66[24|193] 389s35[24|193]
+190U14*Clear 25|93s22[24|193] 108s19[24|193]
+206V13*Element{24|23R9} 25|55s41[24|193] 144s57[24|193] 309s37[24|193] 335s56[24|193]
+217U14*Replace_Element 25|152s31[24|193]
+483U14*Append 25|165s19[24|193]
+514U14*Delete 25|56s25[24|193] 100s22[24|193] 286s22[24|193]
+560V13*First_Index{integer} 25|52s57[24|193] 100s42[24|193] 142s31[24|193]
+. 308s36[24|193] 333s36[24|193]
+570V13*Last_Index{81I12[24|193]} 25|54s30[24|193] 142s58[24|193] 286s42[24|193]
+. 308s63[24|193] 333s63[24|193]
+X 12 a-iteint.ads
+24h9 Forward_Iterator
+32h9 Reversible_Iterator<24R9[8|119]>
+X 14 a-string.ads
+16K13*Strings 35e16 24|1r10 26r27 25|1r10 1r37
+X 18 a-strunb.ads
+91K21*Unbounded 1641e26 24|1w18 26r35 25|1w18 1r45
+105R9*Unbounded_String<11|43R9> 1620e15 24|26r45
+109r4*Null_Unbounded_String{105R9} 25|328r26 348r23
+122V13*To_Unbounded_String{105R9} 25|162s23
+135V13*To_String{string} 25|148s27 364s14 397s30 429s19
+X 23 editor.ads
+1K9*Editor 5e11 24|4r9 203r5 25|4r14 523r5
+X 24 editor-messages.ads
+4K16*Messages 23|1k9 24|23E9 203l12 203e20 25|4b21 523l12 523t20
+6E9*Message_Severity 10e21 25r23 60r18 92r18 144r40 25|16r18 128r18 214r18
+. 368r40
+7n7*Info_Message{6E9} 25r43 25|21r15 179r20 235r20 327r30 347r27
+8n7*Success_Message{6E9} 25|21r30 189r20 243r20
+9n7*Warning_Message{6E9} 25|23r15 199r20 251r20
+10n7*Error_Message{6E9} 25|23r33 209r20 259r20
+12I9*Message_Id<integer> 13r26 24r23 138r40 199r22 25|166r26 354r40
+13i4*No_Message{12I9} 24r37 25|45r28 326r24 346r21 381r24 425r17
+15R9*Message_Config 21e14 63r18 69r16 75r16 81r16 87r16 129r16 135r16 174r25
+. 182r25 25|8r30 17r18 89r16 114r25 131r18 176r16 186r16 196r16 206r16 219r16
+. 300r16 321r16 407r25 477r25
+16i7*Default_Lifetime_Ms{natural} 25|9m7 22r27 224m17
+17i7*Error_Lifetime_Ms{natural} 25|10m7 24r27 222m17 225m17
+18i7*Max_Visible_Messages{natural} 25|11m7 92r17 98r51 304r17 311r39 325r25
+19i7*Max_Text_Columns{natural} 25|12m7 133r68 432r30
+20b7*Replace_Same_Category{boolean} 25|13m7 141r17
+23R9*Message_Record 29e14 30r30 135r39 138r17 141r17 144r17 195r23 25|41r17
+. 136r20 144r27 321r39 335r26 354r17 361r17 368r17 378r20 414r20
+24i7*Id{12I9} 25|45r22 160m15 326m18 346m15 357r22 381r18 425r12
+25e7*Severity{6E9} 25|147r36 161m15 327m18 347m15 371r22
+26r7*Text{18|105R9} 25|148r47 162m15 328m18 348m15 364r33 397r49 429r32
+27i7*Created_At_Ms{natural} 25|150m28 163m15 329m18 349m15
+28i7*Expires_At_Ms{natural} 25|45r65 151m28 164m15 330m18 350m15
+30R12*Editor_Message{23R9} 148r35 158r17 25|376r35 393r17
+31R9*Message_State 50r22 53r15 56r15 59r25 66r23 72r23 78r23 84r23 91r25
+. 98r22 102r22 106r22 110r22 114r23 118r22 121r22 124r22 127r16 132r16 147r15
+. 151r15 165r25 171r25 180r25 188r25 197c9 201e14 25|49r23 87r23 105r22 112r15
+. 120r15 127r25 173r23 183r23 193r23 203r23 213r25 231r22 239r22 247r22 255r22
+. 263r23 272r22 282r22 291r22 298r16 318r16 375r15 386r15 404r25 475r25 488r25
+. 499r25
+33R9*Message_Layout 39e14 162r25 168r25 177r25 185r25 25|401r25 472r25 485r25
+. 496r25
+34i7*Origin_X{natural} 25|441r22 443r22
+35i7*Origin_Y{natural} 25|446r37 449r27 451r27 461r28
+36i7*Cell_W{positive} 25|409r43
+37i7*Cell_H{positive} 25|410r43
+38i7*Status_Bar_Y{integer} 25|413r45
+41R9*Message_Rect 47e14 165r47 174r48 182r48 25|407r48 477r48 488r47 507r26
+42b7*Visible{boolean} 25|426m18 468m15 510r18
+43i7*X{natural} 25|426m36 468m32 511r40 513r39
+44i7*Y{natural} 25|426m44 468m40 512r40 514r39
+45i7*W{natural} 25|426m52 468m48 513r45
+46i7*H{natural} 25|426m60 468m60 514r45
+49U14*Clear 50=7 25|104b14 109l8 109t13 294s7
+50r7 State{31R9} 25|105b7 108m7 108r7
+52V13*Has_Messages{boolean} 53>7 25|111b13 117l8 117t20 123s18
+53r7 State{31R9} 25|112b7 116r29 116r36
+55V13*Is_Empty{boolean} 56>7 25|119b13 124l8 124t16
+56r7 State{31R9} 25|120b7 123r32
+58U14*Push 59=7 60>7 61>7 62>7 63>7 25|126b14 170l8 170t12 179s7 189s7 199s7
+. 209s7 227s7 259s7
+59r7 State{31R9} 25|127b7 138m7 139m22 142r19 142r46 144r45 152m19 152r19
+. 153m37 160r21 165m7 165r7 166r10 167m10 167r27 169m25
+60e7 Severity{6E9} 25|128b7 134r54 147r47 161r27
+61a7 Text{string} 25|129b7 133r55
+62i7 Now_Ms{natural} 25|130b7 135r53 138r32 139r29 146r41 150r45 153r44 163r32
+. 169r32
+63r7 Config{15R9} 25|131b7 133r61 134r64 141r10 153r52 169r40
+65U14*Push_Info 66=7 67>7 68>7 69>7 25|172b14 180l8 180t17
+66r7 State{31R9} 25|173b7 179m13
+67a7 Text{string} 25|174b7 179r34
+68i7 Now_Ms{natural} 25|175b7 179r40
+69r7 Config{15R9} 25|176b7 179r48
+71U14*Push_Success 72=7 73>7 74>7 75>7 25|182b14 190l8 190t20
+72r7 State{31R9} 25|183b7 189m13
+73a7 Text{string} 25|184b7 189r37
+74i7 Now_Ms{natural} 25|185b7 189r43
+75r7 Config{15R9} 25|186b7 189r51
+77U14*Push_Warning 78=7 79>7 80>7 81>7 25|192b14 200l8 200t20
+78r7 State{31R9} 25|193b7 199m13
+79a7 Text{string} 25|194b7 199r37
+80i7 Now_Ms{natural} 25|195b7 199r43
+81r7 Config{15R9} 25|196b7 199r51
+83U14*Push_Error 84=7 85>7 86>7 87>7 25|202b14 210l8 210t18
+84r7 State{31R9} 25|203b7 209m13
+85a7 Text{string} 25|204b7 209r35
+86i7 Now_Ms{natural} 25|205b7 209r41
+87r7 Config{15R9} 25|206b7 209r49
+90U14*Push 91=7 92>7 93>7 94>7 95>7 25|212b14 228l8 228t12 235s7 243s7 251s7
+91r7 State{31R9} 25|213b7 227m13 227r36
+92e7 Severity{6E9} 25|214b7 227r20
+93a7 Text{string} 25|215b7 227r30
+94i7 Ticks{natural} 25|216b7 224r40 225r38
+95b7 Sticky{boolean} 25|217b7 221r10
+97U14*Push_Info 98=7 99>7 25|230b14 236l8 236t17
+98r7 State{31R9} 25|231b7 235m13
+99a7 Text{string} 25|232b7 235r34
+101U14*Push_Success 102=7 103>7 25|238b14 244l8 244t20
+102r7 State{31R9} 25|239b7 243m13
+103a7 Text{string} 25|240b7 243r37
+105U14*Push_Warning 106=7 107>7 25|246b14 252l8 252t20
+106r7 State{31R9} 25|247b7 251m13
+107a7 Text{string} 25|248b7 251r37
+109U14*Push_Error 110=7 111>7 25|254b14 260l8 260t18
+110r7 State{31R9} 25|255b7 259m13 259r41
+111a7 Text{string} 25|256b7 259r35
+113U14*Tick 114=7 115>7 25|262b14 269l8 269t12
+114r7 State{31R9} 25|263b7 267m22 268m7
+115i7 Now_Ms{natural} 25|264b7 267r29 268r32
+117U14*Tick 118=7 25|271b14 279l8 279t12
+118r7 State{31R9} 25|272b7 275r10 276m10 276r35 278m22 278r29
+120U14*Dismiss_Latest 121=7 25|281b14 288l8 288t22
+121r7 State{31R9} 25|282b7 285r10 286m10 286r10 286r30
+123U14*Dismiss_All 124=7 25|290b14 295l8 295t19
+124r7 State{31R9} 25|291b7 294m14
+126V13*Visible_Count{natural} 127>7 128>7 129>7 25|116s14 297b13 315l8 315t21
+. 503s35
+127r7 State{31R9} 25|298b7 304r50 308r24 308r51 309r25
+128i7 Now_Ms{natural} 25|299b7 309r50
+129r7 Config{15R9} 25|300b7 304r10 311r32
+131V13*Visible_Message{23R9} 132>7 133>7 134>7 135>7 25|317b13 351l8 351t23
+. 379s9 415s9
+132r7 State{31R9} 25|318b7 325r54 333r24 333r51 335r44
+133i7 Index{positive} 25|319b7 325r10 339r26
+134i7 Now_Ms{natural} 25|320b7 337r31
+135r7 Config{15R9} 25|321b7 325r18
+137V13*Id{12I9} 138>7 25|353b13 358l8 358t10
+138r7 Message{23R9} 25|354b7 357r14
+140V13*Text{string} 141>7 25|360b13 365l8 365t12
+141r7 Message{23R9} 25|361b7 364r25
+143V13*Severity{6E9} 144>7 25|367b13 372l8 372t16
+144r7 Message{23R9} 25|368b7 371r14
+146V13*Active_Message{30R12} 147>7 148<7 25|374b13 383l8 383t22
+147r7 State{31R9} 25|375b7 379r26 379r36
+148b7 Found{boolean} 25|376b7 381m7
+150V13*Count{natural} 151>7 25|385b13 390l8 390t13
+151r7 State{31R9} 25|386b7 389r23
+153V13*Normalize_Text{string} 154>7 155>7 25|63b13 84l8 84t22 133s39 397s14
+154a7 Text{string} 25|64b7 67r23 67r38
+155i7 Max_Columns{natural} 25|65b7 75r10 77r29 79r13 80r23 82r53
+157V13*Display_Text{string} 158>7 159>7 25|392b13 398l8 398t20
+158r7 Message{30R12} 25|393b7 397r41
+159i7 Columns{natural} 25|394b7 397r56
+161V13*Overlay_Rect{41R9} 162>7 163>7 164>7 165>7 25|484b13 493l8 493t20
+162r7 Layout{33R9} 25|485b7 492r10
+163i7 Viewport_Width{natural} 25|486b7 492r18
+164i7 Viewport_Height{natural} 25|487b7 492r34
+165r7 State{31R9} 25|488b7 492r51 492r61
+167V13*Overlay_Rect{41R9} 168>7 169>7 170>7 171>7 172>7 173>7 174>7 25|400b13
+. 469l8 469t20 480s14 491s14 508s15
+168r7 Layout{33R9} 25|401b7 409r36 410r36 413r38 441r15 443r15 446r30 449r20
+. 451r20 461r21
+169i7 Viewport_Width{natural} 25|402b7 425r36 430r48 436r24 437r23 437r49
+. 437r75 440r10 441r33
+170i7 Viewport_Height{natural} 25|403b7 425r63 448r13 449r38
+171r7 State{31R9} 25|404b7 415r26
+172i7 Index{positive} 25|405b7 415r33 454r10 456r43
+173i7 Now_Ms{natural} 25|406b7 415r40
+174r7 Config{15R9} 25|407b7 415r48 432r23
+176V13*Overlay_Rect{41R9} 177>7 178>7 179>7 180>7 181>7 182>7 25|471b13 482l8
+. 482t20
+177r7 Layout{33R9} 25|472b7 481r10
+178i7 Viewport_Width{natural} 25|473b7 481r18
+179i7 Viewport_Height{natural} 25|474b7 481r34
+180r7 State{31R9} 25|475b7 481r51 481r65
+181i7 Index{positive} 25|476b7 481r58
+182r7 Config{15R9} 25|477b7 481r88
+184V13*Is_In_Overlay{boolean} 185>7 186>7 187>7 188>7 189>7 190>7 25|495b13
+. 521l8 521t21
+185r7 Layout{33R9} 25|496b7 508r29
+186i7 Viewport_Width{natural} 25|497b7 508r37
+187i7 Viewport_Height{natural} 25|498b7 508r53
+188r7 State{31R9} 25|499b7 503r50 503r57 508r70 508r80
+189i7 X{integer} 25|500b7 511r24 513r24
+190i7 Y{integer} 25|501b7 512r24 514r24
+193K12 Message_Vectors[8|74] 198r22 25|52r11
+198r7*Queue{8|91R9[193]} 25|52r51 54r24 55r35 56m19 93m16 98r28 99r26 100m16
+. 100r36 108m13 142r25 142r52 144r51 152m25 165m13 285r16 286m16 286r36 304r56
+. 308r30 308r57 309r31 325r60 333r30 333r57 335r50 389r29
+199i7*Next_Id{12I9} 25|160r27 166r16 167m16 167r33
+200i7*Current_Time_Ms{natural} 25|116r42 138m13 227r42 259r47 268m13 275r16
+. 276m16 276r41 278r35 379r42 481r71 492r67 503r63 508r86
+X 25 editor-messages.adb
+6i4 Horizontal_Padding_Cells{natural} 432r53 434r42
+7i4 Vertical_Padding_Rows{natural} 420r47
+8r4 Default_Config{24|15R9} 114r43 219r34 259r64 379r59 492r84 503r80 508r103
+15V13 Lifetime_For{natural} 15b13 16>7 17>7 26l8 26t20 134s40
+16e7 Severity{24|6E9} 20r12
+17r7 Config{24|15R9} 22r20 24r20
+28V13 Expiry_Time{natural} 28b13 29>7 30>7 38l8 38t19 135s40
+29i7 Now_Ms{natural} 33r25 36r17
+30i7 Lifetime{natural} 33r34 36r26
+40V13 Is_Visible{boolean} 40b13 41>7 42>7 46l8 46t18 55s17 146s19 309s13
+. 337s16
+41r7 Message{24|23R9} 45r14 45r57
+42i7 Now_Ms{natural} 45r48
+48U14 Prune_Expired 48b14 49=7 50>7 61l8 61t21 97s7 139s7 267s7 278s7
+49r7 State{24|31R9} 52r45 54r18 55r29 56m13 56r13
+50i7 Now_Ms{natural} 55r54
+52i7 I{8|81I12[24|193]} 54r13 55r50 56r33 58m13 58r18
+67a7 Clean{string} 69r16 70r13 70r42 70r71 71m13 77r13 78r17 82r17 82r24
+. 82r39
+69i11 I{integer} 70r20 70r49 70r78 71r20
+86U14 Enforce_Capacity 86b14 87=7 88>7 89>7 102l8 102t24 153s19 169s7
+87r7 State{24|31R9} 93m10 93r10 97m22 98r22 99r20 100m10 100r10 100r30
+88i7 Now_Ms{natural} 97r29
+89r7 Config{24|15R9} 92r10 98r44
+114r7 Config{24|15R9} 116r59
+133a7 Normalized{string} 148r55 162r44
+134i7 Lifetime{natural} 135r61
+135i7 Expires{natural} 151r45 164r32
+136r7 Message{24|23R9} 160m7 161m7 162m7 163m7 164m7 165r27
+142i14 I{integer} 144r66 152r48
+144r16 Existing{24|23R9} 146r31 147r27 148r38 150m19 151m19 152r51
+219r7 Config{24|15R9} 222m10 224m10 225m10 227r59
+302i7 Result{natural} 310m13 310r23 311r23 314r14
+308i11 I{integer} 309r46
+323i7 Seen{natural} 338m16 338r24 339r19
+333i11 I{integer} 335r65
+335r13 M{24|23R9} 337r28 340r26
+378r7 M{24|23R9} 381r16 382r14
+409i7 Cell_W{natural} 411r36 430r65 435r26
+410i7 Cell_H{natural} 412r36 420r29
+411i7 Pad{natural} 436r18 437r40 437r66 440r35 441r58 446r57 447r50 448r40
+. 449r65
+412i7 Gap{natural} 456r66
+413i7 Status_Y{integer} 446r10 447r29
+414r7 M{24|23R9} 425r10 429r30
+416i7 Text_Len{natural} 429m7 434r26
+417i7 Columns{natural} 431m7 435r16
+418i7 Max_Viewport_Columns{natural} 430m7 433r23
+419i7 Width{natural} 435m7 436r10 437m10 440r27 441r50 468r53
+420i7 Height{natural} 446r48 447r41 448r31 449r56 456r57 468r65
+421i7 X{natural} 441m10 443m10 468r37
+422i7 Y{natural} 459m16 461m16 465m10 468r45
+423i7 Base_Y{natural} 447m10 449m10 451m10 458r16 459r21 465r15
+456i13 Offset{natural} 458r25 459r30
+503i7 Count{natural} 505r21
+505i11 I{integer} 508r77
+507r13 R{24|41R9} 510r16 511r38 512r38 513r37 513r43 514r37 514r43
+X 28 system.ads
+67M9*Address
+X 36 s-memory.ads
+51V13*Alloc{28|67M9} 101i<c,__gnat_malloc>22
+66U14*Free 102i<c,__gnat_free>22
+74V13*Realloc{28|67M9} 103i<c,__gnat_realloc>22
+X 47 s-stalib.adb
+87U14 Break_Start 88i<c,__gnat_break_start>22
+

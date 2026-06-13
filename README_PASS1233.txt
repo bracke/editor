@@ -1,0 +1,7 @@
+Pass1233 adds Editor.Ada_Accessibility_Generic_Shared_State_Final_Legality.
+
+This pass connects final accessibility/master-scope evidence to the generic/shared-state semantic chain.  Accessibility conclusions for anonymous access values, access discriminants, allocators, conversions, return objects, generic access actuals, generic replay escapes, renamings, controlled finalization, private/full views, cross-unit lifetime paths, task/protected lifetimes, and representation-sensitive lifetimes are accepted only when the final accessibility row, cross-unit generic/shared-state closure, and any required elaboration, generic replay, overload, representation, tasking, and stabilized shared-state closure evidence all agree.
+
+The pass preserves blocker-family identity for missing or blocked final accessibility evidence, cross-unit generic/shared-state closure, elaboration/generic shared-state evidence, generic abstract-state replay, overload/generic shared-state evidence, representation/generic shared-state evidence, tasking/generic shared-state evidence, stabilized shared-state closure, access-level errors, master escapes, return-object lifetime errors, renaming lifetime errors, finalization master errors, private/full-view lifetime errors, cross-unit lifetime errors, task/protected lifetime errors, representation-sensitive lifetime errors, fingerprint mismatches, multiple blockers, and indeterminate states.
+
+Added AUnit regression: Test_Ada_Accessibility_Generic_Shared_State_Final_Legality_Pass1233.

@@ -1,0 +1,134 @@
+V "GNAT Lib v15"
+A -gnatA
+A -gnat2022
+A -mtune=generic
+A -march=x86-64
+P SS ZX
+
+RN
+RV NO_EXCEPTION_HANDLERS
+RV NO_EXCEPTIONS
+RV NO_NESTED_FINALIZATION
+RV NO_STANDARD_STORAGE_POOLS
+RV NO_DEFAULT_INITIALIZATION
+RV NO_IMPLEMENTATION_PRAGMAS
+
+U editor.state.caret_rules%b  editor-state-caret_rules.adb  bc9946ee NE OO PK
+W ada%s			ada.ads			ada.ali
+W ada.containers%s	a-contai.ads		a-contai.ali
+Z ada.exceptions%s	a-except.adb		a-except.ali
+Z ada.strings.text_buffers%s  a-sttebu.adb	a-sttebu.ali
+Z ada.tags%s		a-tags.adb		a-tags.ali
+W editor%s		editor.ads		editor.ali
+W editor.commands%s	editor-commands.adb	editor-commands.ali
+W editor.cursors%s	editor-cursors.adb	editor-cursors.ali
+W editor.state%s	editor-state.adb	editor-state.ali
+Z system%s		system.ads		system.ali
+Z system.finalization_primitives%s  s-finpri.adb  s-finpri.ali
+Z system.return_stack%s	s-retsta.ads		s-retsta.ali
+Z system.soft_links%s	s-soflin.adb		s-soflin.ali
+
+U editor.state.caret_rules%s  editor-state-caret_rules.ads  aa700da7 EE NE OO PK
+W editor%s		editor.ads		editor.ali
+W editor.commands%s	editor-commands.adb	editor-commands.ali
+W editor.cursors%s	editor-cursors.adb	editor-cursors.ali
+W editor.state%s	editor-state.adb	editor-state.ali
+
+D ada.ads		20250808065140 76789da1 ada%s
+D a-charac.ads		20250808065140 2d3ec45b ada.characters%s
+D a-chlat1.ads		20250808065140 e0d72e76 ada.characters.latin_1%s
+D a-contai.ads		20250808065140 61e5e089 ada.containers%s
+D a-conhel.ads		20250808065140 46fe1ce3 ada.containers.helpers%s
+D a-convec.ads		20250808065140 91fb49f3 ada.containers.vectors%s
+D a-except.ads		20250808065140 e7970cd9 ada.exceptions%s
+D a-finali.ads		20250808065140 bf4f806b ada.finalization%s
+D a-iteint.ads		20250808065140 49a8bee2 ada.iterator_interfaces%s
+D a-stream.ads		20250808065140 17477cbd ada.streams%s
+D a-string.ads		20250808065140 90ac6797 ada.strings%s
+D a-strmap.ads		20250808065140 1f91ebb6 ada.strings.maps%s
+D a-strsea.ads		20250808065140 18c3c634 ada.strings.search%s
+D a-sttebu.ads		20250808065140 f1ad67a2 ada.strings.text_buffers%s
+D a-strunb.ads		20250808065140 b10770ab ada.strings.unbounded%s
+D a-stuten.ads		20250808065140 c6ced0ae ada.strings.utf_encoding%s
+D a-tags.ads		20250808065140 fbca0ad5 ada.tags%s
+D a-unccon.ads		20250808065140 0e9b276f ada.unchecked_conversion%s
+D editor.ads		20260406185230 16f844c2 editor%s
+D editor-commands.ads	20260425121135 91ba1af2 editor.commands%s
+D editor-cursors.ads	20260425100454 1f938cf3 editor.cursors%s
+D editor-state.ads	20260503173758 d429238c editor.state%s
+D editor-state-caret_rules.ads  20260416185726 f070b82a editor.state.caret_rules%s
+D editor-state-caret_rules.adb  20260423162102 a325884c editor.state.caret_rules%b
+D interfac.ads		20250808065140 9111f9c1 interfaces%s
+D i-c.ads		20250808065140 e94c966a interfaces.c%s
+D system.ads		20250808065140 14286b0f system%s
+D s-atocou.ads		20250808065140 dc18efc3 system.atomic_counters%s
+D s-exctab.ads		20250808065140 91bef6ef system.exception_table%s
+D s-finpri.ads		20250808065140 5970d55a system.finalization_primitives%s
+D s-finroo.ads		20250808065140 0a7c3ed4 system.finalization_root%s
+D s-oscons.ads		20250827122531 068e1a91 system.os_constants%s
+D s-oslock.ads		20250808065140 13fa6b78 system.os_locks%s
+D s-parame.ads		20250808065140 3597fc11 system.parameters%s
+D s-pooglo.ads		20250808065140 91708d21 system.pool_global%s
+D s-putima.ads		20250808065140 17291fe4 system.put_images%s
+D s-retsta.ads		20250808065140 0f6b06cb system.return_stack%s
+D s-secsta.ads		20250808065140 578279f5 system.secondary_stack%s
+D s-soflin.ads		20250808065140 5d88fdea system.soft_links%s
+D s-stache.ads		20250808065140 0b81c1fe system.stack_checking%s
+D s-stalib.ads		20250808065140 1c9580f6 system.standard_library%s
+D s-stoele.ads		20250808065140 ccded4e8 system.storage_elements%s
+D s-stopoo.ads		20250808065140 e9fa2dd8 system.storage_pools%s
+D s-stratt.ads		20250808065140 516607ae system.stream_attributes%s
+D s-traent.ads		20250808065140 c81cbf8c system.traceback_entries%s
+D s-unstyp.ads		20250808065140 fa2a7f59 system.unsigned_types%s
+D text_backend.ads	20260412181650 6d0030da text_backend%s
+D text_backend-rope_impl.ads  20260427194525 88d12c3a text_backend.rope_impl%s
+D text_buffer.ads	20260427153044 bb9a4056 text_buffer%s
+G a e
+G c Z s b [transform_carets editor__state__caret_rules 6 13 none]
+X 1 ada.ads
+18K9*Ada 22e8 24|1r6 1r26
+X 4 a-contai.ads
+16K13*Containers 28e19 24|1w10 1r30
+X 6 a-convec.ads
+81I12*Extended_Index{integer}
+91R9*Vector<8|43R9> 23|7r28[21|19] 10r26[21|19] 24|8r31[21|19] 11r29[21|19]
+. 19r40[21|19] 41r40[21|19]
+217U14*Replace_Element 24|33s26[21|19] 55s26[21|19]
+560V13*First_Index{integer} 24|22s32[21|19] 44s32[21|19]
+570V13*Last_Index{81I12[21|19]} 24|22s54[21|19] 44s54[21|19]
+X 9 a-iteint.ads
+24h9 Forward_Iterator
+32h9 Reversible_Iterator<24R9[6|119]>
+X 19 editor.ads
+1K9*Editor 5e11 23|1r6 1r26 2r6 4r9 8r13 12r5 24|2r6 2r27 3r6 3r27 5r14 9r16
+. 17r15 39r15 66r5
+X 20 editor-commands.ads
+5K16*Commands 75e20 23|2w13 8r20 24|2w13 2r34 9r23 17r22 39r22
+11n7*Insert_Char{10E9} 24|17r31
+12n7*Delete_Char{10E9} 24|39r31
+56R9*Command 71e14 23|8r29 24|9r32
+57e7*Kind{10E9} 24|15r16
+59i7*Pos{21|5I12} 24|25r35 29r38 47r34 51r37
+X 21 editor-cursors.ads
+3K16*Cursors 35e19 23|1w13 1r33 24|3w13 3r34
+5I12*Cursor_Index{natural}
+12R9*Caret_State 17e14 24|20r25 42r25
+13i7*Pos{5I12} 24|25r24 26m24 26r33 47r24 48m24 48r33
+14i7*Anchor{5I12} 24|29r24 30m24 30r36 51r24 52m24 52r36
+19K12*Cursors_Vector[6|74] 23|7r13 10r11 24|8r16 11r14 19r25 41r25
+X 22 editor-state.ads
+5K16*State 19|1k9 22|47e17 23|4r16 12r12 24|5r21 66r12
+X 23 editor-state-caret_rules.ads
+4K22*Caret_Rules 22|5k16 23|12l18 12e29 24|5b27 66l18 66t29
+6V13*Transform_Carets{6|91R9[21|19]} 7>4 8>4 9>4 24|7b13 64l8 64t24
+7r4 Carets{6|91R9[21|19]} 24|8b7 19r50 41r50 62r20
+8r4 Cmd{20|56R9} 24|9b7 15r12 25r31 29r34 47r30 51r33
+9i4 Len{natural} 24|10b7 13r28
+X 24 editor-state-caret_rules.adb
+19r16 Result{6|91R9[21|19]} 22r25 22r47 23r24 33m19 33r19 36r23
+20r16 C{21|12R9} 23m19 25r22 26m22 26r31 29r22 30m22 30r34 33r46
+22i20 I{integer} 23r32 33r43
+41r16 Result{6|91R9[21|19]} 44r25 44r47 45r24 55m19 55r19 58r23
+42r16 C{21|12R9} 45m19 47r22 48m22 48r31 51r22 52m22 52r34 55r46
+44i20 I{integer} 45r32 55r43
+

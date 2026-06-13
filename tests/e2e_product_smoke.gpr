@@ -1,0 +1,22 @@
+with "config/tests_config.gpr";
+with "../editor_core.gpr";
+
+project E2E_Product_Smoke is
+
+   for Source_Dirs use ("e2e", "config");
+   for Object_Dir use "obj/e2e_product_smoke/" & Tests_Config.Build_Profile;
+   for Create_Missing_Dirs use "True";
+   for Exec_Dir use "bin";
+   for Main use ("editor_product_smoke.adb");
+   for Languages use ("Ada");
+
+   package Compiler is
+      for Default_Switches ("Ada") use
+        Tests_Config.Ada_Compiler_Switches & ("-gnat2022", "-gnatyM120", "-gnatX", "-gnata");
+   end Compiler;
+
+   package Binder is
+      for Switches ("Ada") use ("-Es");
+   end Binder;
+
+end E2E_Product_Smoke;

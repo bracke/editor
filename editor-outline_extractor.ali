@@ -1,0 +1,1875 @@
+V "GNAT Lib v15"
+A -gnat2022
+P SS ZX
+
+RN
+RV NO_ACCESS_SUBPROGRAMS
+RV NO_ALLOCATORS
+RV NO_DIRECT_BOOLEAN_OPERATORS
+RV NO_DISPATCH
+RV NO_DISPATCHING_CALLS
+RV NO_ENUMERATION_MAPS
+RV NO_EXCEPTION_HANDLERS
+RV NO_EXCEPTION_PROPAGATION
+RV NO_EXCEPTIONS
+RV NO_IMPLICIT_CONDITIONALS
+RV NO_LOCAL_ALLOCATORS
+RV NO_NESTED_FINALIZATION
+RV NO_SECONDARY_STACK
+RV NO_STANDARD_STORAGE_POOLS
+RV NO_STREAMS
+RV NO_UNCHECKED_ACCESS
+RV NO_DEFAULT_INITIALIZATION
+RV NO_DYNAMIC_SIZED_OBJECTS
+RV NO_IMPLEMENTATION_ASPECT_SPECIFICATIONS
+RV NO_IMPLEMENTATION_ATTRIBUTES
+RV NO_IMPLEMENTATION_PRAGMAS
+RV NO_IMPLICIT_ALIASING
+RV NO_IMPLICIT_LOOPS
+RV NO_ELABORATION_CODE
+
+U editor.outline_extractor%b  editor-outline_extractor.adb  56de4654 OO PF PK
+W ada%s			ada.ads			ada.ali
+W ada.characters%s	a-charac.ads		a-charac.ali
+W ada.characters.latin_1%s  a-chlat1.ads	a-chlat1.ali
+W ada.containers%s	a-contai.ads		a-contai.ali
+Z ada.containers.generic_array_sort%s
+Z ada.containers.helpers%s  a-conhel.adb	a-conhel.ali
+W ada.containers.vectors%s
+Z ada.exceptions%s	a-except.adb		a-except.ali
+Z ada.finalization%s	a-finali.ads		a-finali.ali
+Z ada.iterator_interfaces%s
+Z ada.streams%s		a-stream.adb		a-stream.ali
+W ada.strings%s		a-string.ads		a-string.ali
+W ada.strings.fixed%s	a-strfix.adb		a-strfix.ali
+W ada.strings.maps%s	a-strmap.adb		a-strmap.ali
+W ada.strings.maps.constants%s  a-stmaco.ads	a-stmaco.ali
+Z ada.strings.text_buffers%s  a-sttebu.adb	a-sttebu.ali
+W ada.strings.unbounded%s  a-strunb.adb		a-strunb.ali
+Z ada.tags%s		a-tags.adb		a-tags.ali
+Z ada.unchecked_deallocation%s
+W editor%s		editor.ads		editor.ali
+W editor.ada_declaration_parser%s  editor-ada_declaration_parser.adb  editor-ada_declaration_parser.ali
+W editor.ada_language_model%s  editor-ada_language_model.adb  editor-ada_language_model.ali
+W editor.ada_syntax_core%s  editor-ada_syntax_core.adb  editor-ada_syntax_core.ali
+Z system%s		system.ads		system.ali
+Z system.concat_2%s	s-conca2.adb		s-conca2.ali
+Z system.concat_3%s	s-conca3.adb		s-conca3.ali
+Z system.concat_4%s	s-conca4.adb		s-conca4.ali
+Z system.concat_7%s	s-conca7.adb		s-conca7.ali
+Z system.finalization_primitives%s  s-finpri.adb  s-finpri.ali
+Z system.img_int%s	s-imgint.ads		s-imgint.ali
+Z system.pool_global%s	s-pooglo.adb		s-pooglo.ali
+Z system.put_images%s	s-putima.adb		s-putima.ali
+Z system.return_stack%s	s-retsta.ads		s-retsta.ali
+Z system.secondary_stack%s  s-secsta.adb	s-secsta.ali
+Z system.soft_links%s	s-soflin.adb		s-soflin.ali
+Z system.standard_library%s  s-stalib.adb	s-stalib.ali
+Z system.storage_elements%s  s-stoele.ads	s-stoele.ali
+Z system.storage_pools%s  s-stopoo.adb		s-stopoo.ali
+Z system.storage_pools.subpools%s  s-stposu.adb	s-stposu.ali
+Z system.stream_attributes%s  s-stratt.adb	s-stratt.ali
+Z system.strings.stream_ops%s  s-ststop.adb	s-ststop.ali
+Z system.wch_stw%s	s-wchstw.adb		s-wchstw.ali
+
+U editor.outline_extractor%s  editor-outline_extractor.ads  38c597f2 EE OO PF PK
+W ada%s			ada.ads			ada.ali
+W ada.containers%s	a-contai.ads		a-contai.ali
+Z ada.containers.generic_array_sort%s
+Z ada.containers.helpers%s  a-conhel.adb	a-conhel.ali
+W ada.containers.vectors%s
+Z ada.exceptions%s	a-except.adb		a-except.ali
+Z ada.finalization%s	a-finali.ads		a-finali.ali
+Z ada.iterator_interfaces%s
+Z ada.streams%s		a-stream.adb		a-stream.ali
+W ada.strings%s		a-string.ads		a-string.ali
+Z ada.strings.text_buffers%s  a-sttebu.adb	a-sttebu.ali
+W ada.strings.unbounded%s  a-strunb.adb		a-strunb.ali
+Z ada.tags%s		a-tags.adb		a-tags.ali
+Z ada.unchecked_deallocation%s
+W editor%s		editor.ads		editor.ali
+W editor.outline%s	editor-outline.adb	editor-outline.ali
+Z system%s		system.ads		system.ali
+Z system.finalization_primitives%s  s-finpri.adb  s-finpri.ali
+Z system.pool_global%s	s-pooglo.adb		s-pooglo.ali
+Z system.put_images%s	s-putima.adb		s-putima.ali
+Z system.return_stack%s	s-retsta.ads		s-retsta.ali
+Z system.secondary_stack%s  s-secsta.adb	s-secsta.ali
+Z system.soft_links%s	s-soflin.adb		s-soflin.ali
+Z system.standard_library%s  s-stalib.adb	s-stalib.ali
+Z system.storage_elements%s  s-stoele.ads	s-stoele.ali
+Z system.storage_pools%s  s-stopoo.adb		s-stopoo.ali
+Z system.storage_pools.subpools%s  s-stposu.adb	s-stposu.ali
+Z system.stream_attributes%s  s-stratt.adb	s-stratt.ali
+Z system.strings.stream_ops%s  s-ststop.adb	s-ststop.ali
+Z system.wch_stw%s	s-wchstw.adb		s-wchstw.ali
+
+D ada.ads		20250808065140 76789da1 ada%s
+D a-charac.ads		20250808065140 2d3ec45b ada.characters%s
+D a-chlat1.ads		20250808065140 e0d72e76 ada.characters.latin_1%s
+D a-contai.ads		20250808065140 61e5e089 ada.containers%s
+D a-cgarso.ads		20250808065140 9129bfa8 ada.containers.generic_array_sort%s
+D a-conhel.ads		20250808065140 46fe1ce3 ada.containers.helpers%s
+D a-conhel.adb		20250808065140 854d323e ada.containers.helpers%b
+D a-convec.ads		20250808065140 91fb49f3 ada.containers.vectors%s
+D a-convec.adb		20250808065140 b2ed0168 ada.containers.vectors%b
+D a-except.ads		20250808065140 e7970cd9 ada.exceptions%s
+D a-finali.ads		20250808065140 bf4f806b ada.finalization%s
+D a-iteint.ads		20250808065140 49a8bee2 ada.iterator_interfaces%s
+D a-stream.ads		20250808065140 17477cbd ada.streams%s
+D a-string.ads		20250808065140 90ac6797 ada.strings%s
+D a-strfix.ads		20250808065140 8648dedb ada.strings.fixed%s
+D a-strmap.ads		20250808065140 1f91ebb6 ada.strings.maps%s
+D a-stmaco.ads		20250808065140 4b1f2a0b ada.strings.maps.constants%s
+D a-strsea.ads		20250808065140 18c3c634 ada.strings.search%s
+D a-sttebu.ads		20250808065140 f1ad67a2 ada.strings.text_buffers%s
+D a-strunb.ads		20250808065140 b10770ab ada.strings.unbounded%s
+D a-stuten.ads		20250808065140 c6ced0ae ada.strings.utf_encoding%s
+D a-tags.ads		20250808065140 fbca0ad5 ada.tags%s
+D a-unccon.ads		20250808065140 0e9b276f ada.unchecked_conversion%s
+D a-uncdea.ads		20250808065140 c3a8ac65 ada.unchecked_deallocation%s
+D editor.ads		20260612145959 16f844c2 editor%s
+D editor-ada_declaration_parser.ads  20260612145959 c44f83c1 editor.ada_declaration_parser%s
+D editor-ada_language_model.ads  20260612145959 459f92c3 editor.ada_language_model%s
+D editor-ada_syntax_core.ads  20260612145959 c8d2d8dd editor.ada_syntax_core%s
+D editor-ada_syntax_tree.ads  20260612145959 49a76ced editor.ada_syntax_tree%s
+D editor-feature_panel.ads  20260612145959 0bdf4cfc editor.feature_panel%s
+D editor-outline.ads	20260612152524 90a00201 editor.outline%s
+D editor-outline_extractor.ads  20260612154522 9e61e869 editor.outline_extractor%s
+D editor-outline_extractor.adb  20260612164332 1c6de38b editor.outline_extractor%b
+D editor-syntax.ads	20260612145959 d59b0303 editor.syntax%s
+D interfac.ads		20250808065140 9111f9c1 interfaces%s
+D i-c.ads		20250808065140 e94c966a interfaces.c%s
+D system.ads		20250808065140 14286b0f system%s
+D s-atocou.ads		20250808065140 dc18efc3 system.atomic_counters%s
+D s-atocou.adb		20250808065140 6fe685de system.atomic_counters%b
+D s-atopri.ads		20250808065140 e19c1d89 system.atomic_primitives%s
+D s-conca2.ads		20250808065140 b5fb73f7 system.concat_2%s
+D s-conca3.ads		20250808065140 8a7a19a2 system.concat_3%s
+D s-conca4.ads		20250808065140 33f85f3e system.concat_4%s
+D s-conca7.ads		20250808065140 09fd419f system.concat_7%s
+D s-exctab.ads		20250808065140 91bef6ef system.exception_table%s
+D s-finpri.ads		20250808065140 5970d55a system.finalization_primitives%s
+D s-finroo.ads		20250808065140 0a7c3ed4 system.finalization_root%s
+D s-imagei.ads		20250808065140 5e131ce0 system.image_i%s
+D s-imgint.ads		20250808065140 67e4edfb system.img_int%s
+D s-memory.ads		20250808065140 18949c1a system.memory%s
+D s-oscons.ads		20250827122531 068e1a91 system.os_constants%s
+D s-oslock.ads		20250808065140 13fa6b78 system.os_locks%s
+D s-parame.ads		20250808065140 3597fc11 system.parameters%s
+D s-pooglo.ads		20250808065140 91708d21 system.pool_global%s
+D s-putima.ads		20250808065140 17291fe4 system.put_images%s
+D s-retsta.ads		20250808065140 0f6b06cb system.return_stack%s
+D s-secsta.ads		20250808065140 578279f5 system.secondary_stack%s
+D s-soflin.ads		20250808065140 5d88fdea system.soft_links%s
+D s-stache.ads		20250808065140 0b81c1fe system.stack_checking%s
+D s-stalib.ads		20250808065140 1c9580f6 system.standard_library%s
+D s-stalib.adb		20250808065140 eb464a47 system.standard_library%b
+D s-stoele.ads		20250808065140 ccded4e8 system.storage_elements%s
+D s-stopoo.ads		20250808065140 e9fa2dd8 system.storage_pools%s
+D s-stposu.ads		20250808065140 e0b9fefd system.storage_pools.subpools%s
+D s-stratt.ads		20250808065140 516607ae system.stream_attributes%s
+D s-string.ads		20250808065140 582aac7d system.strings%s
+D s-ststop.ads		20250808065140 c569db7c system.strings.stream_ops%s
+D s-traent.ads		20250808065140 c81cbf8c system.traceback_entries%s
+D s-unstyp.ads		20250808065140 fa2a7f59 system.unsigned_types%s
+D s-valspe.ads		20250808065140 f810d31c system.val_spec%s
+D s-vaispe.ads		20250808065140 8280550e system.value_i_spec%s
+D s-vauspe.ads		20250808065140 89269ba5 system.value_u_spec%s
+D s-vs_int.ads		20250808065140 06b6b724 system.vs_int%s
+D s-vs_uns.ads		20250808065140 e7f47a27 system.vs_uns%s
+D s-wchcon.ads		20250808065140 d9032363 system.wch_con%s
+D s-wchstw.ads		20250808065140 2d112c01 system.wch_stw%s
+G a e
+G c Z s b [make_snapshot editor__outline_extractor 28 13 none]
+G c Z s b [make_snapshot editor__outline_extractor 31 13 none]
+G c Z s b [make_snapshot editor__outline_extractor 35 13 none]
+G c Z s b [make_snapshot editor__outline_extractor 42 13 none]
+G c Z s b [identity editor__outline_extractor 50 13 none]
+G c Z s b [extract editor__outline_extractor 76 13 none]
+G c Z s b [status editor__outline_extractor 79 13 none]
+G c Z s b [failure editor__outline_extractor 82 13 none]
+G c Z s b [item_count editor__outline_extractor 85 13 none]
+G c Z s b [identity editor__outline_extractor 88 13 none]
+G c Z s b [is_success editor__outline_extractor 97 13 none]
+G c Z s b [fingerprint editor__outline_extractor 105 13 none]
+G c Z s b [apply_to_outline editor__outline_extractor 114 14 none]
+G c Z s s [has_element editor__outline_extractor__outline_item_vectors 115 13 119_4]
+G c Z s s [empty editor__outline_extractor__outline_item_vectors 125 13 119_4]
+G c Z s s [Oeq editor__outline_extractor__outline_item_vectors 127 24 119_4]
+G c Z s s [to_vector editor__outline_extractor__outline_item_vectors 136 13 119_4]
+G c Z s s [to_vector editor__outline_extractor__outline_item_vectors 139 13 119_4]
+G c Z s s [Oconcat editor__outline_extractor__outline_item_vectors 145 13 119_4]
+G c Z s s [Oconcat editor__outline_extractor__outline_item_vectors 149 13 119_4]
+G c Z s s [Oconcat editor__outline_extractor__outline_item_vectors 153 13 119_4]
+G c Z s s [Oconcat editor__outline_extractor__outline_item_vectors 157 13 119_4]
+G c Z s s [capacity editor__outline_extractor__outline_item_vectors 161 13 119_4]
+G c Z s s [reserve_capacity editor__outline_extractor__outline_item_vectors 164 14 119_4]
+G c Z s s [length editor__outline_extractor__outline_item_vectors 175 13 119_4]
+G c Z s s [set_length editor__outline_extractor__outline_item_vectors 178 14 119_4]
+G c Z s s [is_empty editor__outline_extractor__outline_item_vectors 187 13 119_4]
+G c Z s s [clear editor__outline_extractor__outline_item_vectors 190 14 119_4]
+G c Z s s [to_cursor editor__outline_extractor__outline_item_vectors 194 13 119_4]
+G c Z s s [to_index editor__outline_extractor__outline_item_vectors 201 13 119_4]
+G c Z s s [element editor__outline_extractor__outline_item_vectors 206 13 119_4]
+G c Z s s [element editor__outline_extractor__outline_item_vectors 213 13 119_4]
+G c Z s s [replace_element editor__outline_extractor__outline_item_vectors 217 14 119_4]
+G c Z s s [replace_element editor__outline_extractor__outline_item_vectors 228 14 119_4]
+G c Z s s [query_element editor__outline_extractor__outline_item_vectors 239 14 119_4]
+G c Z s s [query_element editor__outline_extractor__outline_item_vectors 250 14 119_4]
+G c Z s s [update_element editor__outline_extractor__outline_item_vectors 259 14 119_4]
+G c Z s s [update_element editor__outline_extractor__outline_item_vectors 276 14 119_4]
+G c Z s s [constant_reference editor__outline_extractor__outline_item_vectors 303 13 119_4]
+G c Z s s [reference editor__outline_extractor__outline_item_vectors 308 13 119_4]
+G c Z s s [constant_reference editor__outline_extractor__outline_item_vectors 313 13 119_4]
+G c Z s s [reference editor__outline_extractor__outline_item_vectors 318 13 119_4]
+G c Z s s [assign editor__outline_extractor__outline_item_vectors 323 14 119_4]
+G c Z s s [copy editor__outline_extractor__outline_item_vectors 325 13 119_4]
+G c Z s s [move editor__outline_extractor__outline_item_vectors 327 14 119_4]
+G c Z s s [new_vector editor__outline_extractor__outline_item_vectors 333 13 119_4]
+G c Z s s [insert_vector editor__outline_extractor__outline_item_vectors 337 14 119_4]
+G c Z s s [insert_vector editor__outline_extractor__outline_item_vectors 361 14 119_4]
+G c Z s s [insert_vector editor__outline_extractor__outline_item_vectors 378 14 119_4]
+G c Z s s [insert editor__outline_extractor__outline_item_vectors 396 14 119_4]
+G c Z s s [insert editor__outline_extractor__outline_item_vectors 404 14 119_4]
+G c Z s s [insert editor__outline_extractor__outline_item_vectors 412 14 119_4]
+G c Z s s [insert editor__outline_extractor__outline_item_vectors 421 14 119_4]
+G c Z s s [insert editor__outline_extractor__outline_item_vectors 438 14 119_4]
+G c Z s s [prepend_vector editor__outline_extractor__outline_item_vectors 449 14 119_4]
+G c Z s s [prepend editor__outline_extractor__outline_item_vectors 459 14 119_4]
+G c Z s s [append_vector editor__outline_extractor__outline_item_vectors 466 14 119_4]
+G c Z s s [append editor__outline_extractor__outline_item_vectors 476 14 119_4]
+G c Z s s [append editor__outline_extractor__outline_item_vectors 483 14 119_4]
+G c Z s s [insert_space editor__outline_extractor__outline_item_vectors 486 14 119_4]
+G c Z s s [insert_space editor__outline_extractor__outline_item_vectors 503 14 119_4]
+G c Z s s [delete editor__outline_extractor__outline_item_vectors 514 14 119_4]
+G c Z s s [delete editor__outline_extractor__outline_item_vectors 524 14 119_4]
+G c Z s s [delete_first editor__outline_extractor__outline_item_vectors 533 14 119_4]
+G c Z s s [delete_last editor__outline_extractor__outline_item_vectors 538 14 119_4]
+G c Z s s [reverse_elements editor__outline_extractor__outline_item_vectors 546 14 119_4]
+G c Z s s [swap editor__outline_extractor__outline_item_vectors 549 14 119_4]
+G c Z s s [swap editor__outline_extractor__outline_item_vectors 554 14 119_4]
+G c Z s s [first_index editor__outline_extractor__outline_item_vectors 560 13 119_4]
+G c Z s s [first editor__outline_extractor__outline_item_vectors 563 13 119_4]
+G c Z s s [first_element editor__outline_extractor__outline_item_vectors 567 13 119_4]
+G c Z s s [last_index editor__outline_extractor__outline_item_vectors 570 13 119_4]
+G c Z s s [last editor__outline_extractor__outline_item_vectors 574 13 119_4]
+G c Z s s [last_element editor__outline_extractor__outline_item_vectors 578 13 119_4]
+G c Z s s [next editor__outline_extractor__outline_item_vectors 581 13 119_4]
+G c Z s s [next editor__outline_extractor__outline_item_vectors 587 14 119_4]
+G c Z s s [previous editor__outline_extractor__outline_item_vectors 590 13 119_4]
+G c Z s s [previous editor__outline_extractor__outline_item_vectors 596 14 119_4]
+G c Z s s [find_index editor__outline_extractor__outline_item_vectors 599 13 119_4]
+G c Z s s [find editor__outline_extractor__outline_item_vectors 609 13 119_4]
+G c Z s s [reverse_find_index editor__outline_extractor__outline_item_vectors 623 13 119_4]
+G c Z s s [reverse_find editor__outline_extractor__outline_item_vectors 635 13 119_4]
+G c Z s s [contains editor__outline_extractor__outline_item_vectors 649 13 119_4]
+G c Z s s [iterate editor__outline_extractor__outline_item_vectors 654 14 119_4]
+G c Z s s [reverse_iterate editor__outline_extractor__outline_item_vectors 662 14 119_4]
+G c Z s s [iterate editor__outline_extractor__outline_item_vectors 669 13 119_4]
+G c Z s s [iterate editor__outline_extractor__outline_item_vectors 672 13 119_4]
+G c Z s s [adjust editor__outline_extractor__outline_item_vectors__implementation 90 28 726_4_119_4]
+G c Z s s [finalize editor__outline_extractor__outline_item_vectors__implementation 93 28 726_4_119_4]
+G c Z s s [zero_counts editor__outline_extractor__outline_item_vectors__implementation 96 17 726_4_119_4]
+G c Z s s [busy editor__outline_extractor__outline_item_vectors__implementation 100 17 726_4_119_4]
+G c Z s s [unbusy editor__outline_extractor__outline_item_vectors__implementation 104 17 726_4_119_4]
+G c Z s s [lock editor__outline_extractor__outline_item_vectors__implementation 108 17 726_4_119_4]
+G c Z s s [unlock editor__outline_extractor__outline_item_vectors__implementation 112 17 726_4_119_4]
+G c Z s s [tc_check editor__outline_extractor__outline_item_vectors__implementation 116 17 726_4_119_4]
+G c Z s s [te_check editor__outline_extractor__outline_item_vectors__implementation 120 17 726_4_119_4]
+G c Z s s [is_busy editor__outline_extractor__outline_item_vectors__implementation 136 16 726_4_119_4]
+G c Z s s [is_locked editor__outline_extractor__outline_item_vectors__implementation 140 16 726_4_119_4]
+G c Z s s [initialize editor__outline_extractor__outline_item_vectors__implementation 161 28 726_4_119_4]
+G c Z s s [finalize editor__outline_extractor__outline_item_vectors__implementation 162 28 726_4_119_4]
+G c Z s s [initialize editor__outline_extractor__outline_item_vectors__implementation 167 28 726_4_119_4]
+G c Z s s [finalize editor__outline_extractor__outline_item_vectors__implementation 168 28 726_4_119_4]
+G c Z s s [reference_control_typeDA editor__outline_extractor__outline_item_vectors__implementation 84 12 726_4_119_4]
+G c Z s s [reference_control_typeDF editor__outline_extractor__outline_item_vectors__implementation 84 12 726_4_119_4]
+G c Z s s [reference_control_typeIP editor__outline_extractor__outline_item_vectors__implementation 84 12 726_4_119_4]
+G c Z s s [with_busyDF editor__outline_extractor__outline_item_vectors__implementation 158 12 726_4_119_4]
+G c Z s s [with_busyIP editor__outline_extractor__outline_item_vectors__implementation 158 12 726_4_119_4]
+G c Z s s [with_lockDF editor__outline_extractor__outline_item_vectors__implementation 164 12 726_4_119_4]
+G c Z s s [with_lockIP editor__outline_extractor__outline_item_vectors__implementation 164 12 726_4_119_4]
+G c Z s s [put_image editor__outline_extractor__outline_item_vectors 747 14 119_4]
+G c Z s s [adjust editor__outline_extractor__outline_item_vectors 750 25 119_4]
+G c Z s s [finalize editor__outline_extractor__outline_item_vectors 751 25 119_4]
+G c Z s s [write editor__outline_extractor__outline_item_vectors 753 14 119_4]
+G c Z s s [read editor__outline_extractor__outline_item_vectors 759 14 119_4]
+G c Z s s [read editor__outline_extractor__outline_item_vectors 773 14 119_4]
+G c Z s s [write editor__outline_extractor__outline_item_vectors 779 14 119_4]
+G c Z s s [write editor__outline_extractor__outline_item_vectors 798 14 119_4]
+G c Z s s [read editor__outline_extractor__outline_item_vectors 804 14 119_4]
+G c Z s s [write editor__outline_extractor__outline_item_vectors 820 14 119_4]
+G c Z s s [read editor__outline_extractor__outline_item_vectors 826 14 119_4]
+G c Z s s [pseudo_reference editor__outline_extractor__outline_item_vectors 840 13 119_4]
+G c Z s s [get_element_access editor__outline_extractor__outline_item_vectors 849 13 119_4]
+G c Z s s [cursorIP editor__outline_extractor__outline_item_vectors 768 9 119_4]
+G c Z s s [vectorDA editor__outline_extractor__outline_item_vectors 741 9 119_4]
+G c Z s s [vectorDF editor__outline_extractor__outline_item_vectors 741 9 119_4]
+G c Z s s [vectorIP editor__outline_extractor__outline_item_vectors 741 9 119_4]
+G c Z s s [finalize editor__outline_extractor__outline_item_vectors 865 25 119_4]
+G c Z s s [first editor__outline_extractor__outline_item_vectors 867 24 119_4]
+G c Z s s [last editor__outline_extractor__outline_item_vectors 868 24 119_4]
+G c Z s s [next editor__outline_extractor__outline_item_vectors 870 24 119_4]
+G c Z s s [previous editor__outline_extractor__outline_item_vectors 874 24 119_4]
+G c Z s s [constant_reference_typeDI editor__outline_extractor__outline_item_vectors 788 9 119_4]
+G c Z s s [constant_reference_typeDA editor__outline_extractor__outline_item_vectors 788 9 119_4]
+G c Z s s [constant_reference_typeDF editor__outline_extractor__outline_item_vectors 788 9 119_4]
+G c Z s s [constant_reference_typeIP editor__outline_extractor__outline_item_vectors 788 9 119_4]
+G c Z s s [reference_typeDI editor__outline_extractor__outline_item_vectors 810 9 119_4]
+G c Z s s [reference_typeDA editor__outline_extractor__outline_item_vectors 810 9 119_4]
+G c Z s s [reference_typeDF editor__outline_extractor__outline_item_vectors 810 9 119_4]
+G c Z s s [reference_typeIP editor__outline_extractor__outline_item_vectors 810 9 119_4]
+G c Z s s [elements_arrayIP editor__outline_extractor__outline_item_vectors 729 9 119_4]
+G c Z s s [elements_arrayDI editor__outline_extractor__outline_item_vectors 729 9 119_4]
+G c Z s s [elements_arrayDA editor__outline_extractor__outline_item_vectors 729 9 119_4]
+G c Z s s [elements_arrayDF editor__outline_extractor__outline_item_vectors 729 9 119_4]
+G c Z s s [elements_typeDI editor__outline_extractor__outline_item_vectors 732 9 119_4]
+G c Z s s [elements_typeDF editor__outline_extractor__outline_item_vectors 732 9 119_4]
+G c Z s s [elements_typeIP editor__outline_extractor__outline_item_vectors 732 9 119_4]
+G c Z s s [iteratorDF editor__outline_extractor__outline_item_vectors 857 9 119_4]
+G c Z s s [iteratorIP editor__outline_extractor__outline_item_vectors 857 9 119_4]
+G c Z s s [free editor__outline_extractor__outline_item_vectors 44 14 119_4]
+G c Z s s [append_slow_path editor__outline_extractor__outline_item_vectors 47 14 119_4]
+G c Z s s [buffer_text_snapshotDI editor__outline_extractor 123 9 none]
+G c Z s s [buffer_text_snapshotDA editor__outline_extractor 123 9 none]
+G c Z s s [buffer_text_snapshotDF editor__outline_extractor 123 9 none]
+G c Z s s [buffer_text_snapshotIP editor__outline_extractor 123 9 none]
+G c Z s s [extraction_resultDI editor__outline_extractor 129 9 none]
+G c Z s s [extraction_resultDA editor__outline_extractor 129 9 none]
+G c Z s s [extraction_resultDF editor__outline_extractor 129 9 none]
+G c Z s s [extraction_resultIP editor__outline_extractor 129 9 none]
+G c Z b b [has_element editor__outline_extractor__line_vectors 115 13 15_4]
+G c Z b b [empty editor__outline_extractor__line_vectors 125 13 15_4]
+G c Z b b [Oeq editor__outline_extractor__line_vectors 127 24 15_4]
+G c Z b b [to_vector editor__outline_extractor__line_vectors 136 13 15_4]
+G c Z b b [to_vector editor__outline_extractor__line_vectors 139 13 15_4]
+G c Z b b [Oconcat editor__outline_extractor__line_vectors 145 13 15_4]
+G c Z b b [Oconcat editor__outline_extractor__line_vectors 149 13 15_4]
+G c Z b b [Oconcat editor__outline_extractor__line_vectors 153 13 15_4]
+G c Z b b [Oconcat editor__outline_extractor__line_vectors 157 13 15_4]
+G c Z b b [capacity editor__outline_extractor__line_vectors 161 13 15_4]
+G c Z b b [reserve_capacity editor__outline_extractor__line_vectors 164 14 15_4]
+G c Z b b [length editor__outline_extractor__line_vectors 175 13 15_4]
+G c Z b b [set_length editor__outline_extractor__line_vectors 178 14 15_4]
+G c Z b b [is_empty editor__outline_extractor__line_vectors 187 13 15_4]
+G c Z b b [clear editor__outline_extractor__line_vectors 190 14 15_4]
+G c Z b b [to_cursor editor__outline_extractor__line_vectors 194 13 15_4]
+G c Z b b [to_index editor__outline_extractor__line_vectors 201 13 15_4]
+G c Z b b [element editor__outline_extractor__line_vectors 206 13 15_4]
+G c Z b b [element editor__outline_extractor__line_vectors 213 13 15_4]
+G c Z b b [replace_element editor__outline_extractor__line_vectors 217 14 15_4]
+G c Z b b [replace_element editor__outline_extractor__line_vectors 228 14 15_4]
+G c Z b b [query_element editor__outline_extractor__line_vectors 239 14 15_4]
+G c Z b b [query_element editor__outline_extractor__line_vectors 250 14 15_4]
+G c Z b b [update_element editor__outline_extractor__line_vectors 259 14 15_4]
+G c Z b b [update_element editor__outline_extractor__line_vectors 276 14 15_4]
+G c Z b b [constant_reference editor__outline_extractor__line_vectors 303 13 15_4]
+G c Z b b [reference editor__outline_extractor__line_vectors 308 13 15_4]
+G c Z b b [constant_reference editor__outline_extractor__line_vectors 313 13 15_4]
+G c Z b b [reference editor__outline_extractor__line_vectors 318 13 15_4]
+G c Z b b [assign editor__outline_extractor__line_vectors 323 14 15_4]
+G c Z b b [copy editor__outline_extractor__line_vectors 325 13 15_4]
+G c Z b b [move editor__outline_extractor__line_vectors 327 14 15_4]
+G c Z b b [new_vector editor__outline_extractor__line_vectors 333 13 15_4]
+G c Z b b [insert_vector editor__outline_extractor__line_vectors 337 14 15_4]
+G c Z b b [insert_vector editor__outline_extractor__line_vectors 361 14 15_4]
+G c Z b b [insert_vector editor__outline_extractor__line_vectors 378 14 15_4]
+G c Z b b [insert editor__outline_extractor__line_vectors 396 14 15_4]
+G c Z b b [insert editor__outline_extractor__line_vectors 404 14 15_4]
+G c Z b b [insert editor__outline_extractor__line_vectors 412 14 15_4]
+G c Z b b [insert editor__outline_extractor__line_vectors 421 14 15_4]
+G c Z b b [insert editor__outline_extractor__line_vectors 438 14 15_4]
+G c Z b b [prepend_vector editor__outline_extractor__line_vectors 449 14 15_4]
+G c Z b b [prepend editor__outline_extractor__line_vectors 459 14 15_4]
+G c Z b b [append_vector editor__outline_extractor__line_vectors 466 14 15_4]
+G c Z b b [append editor__outline_extractor__line_vectors 476 14 15_4]
+G c Z b b [append editor__outline_extractor__line_vectors 483 14 15_4]
+G c Z b b [insert_space editor__outline_extractor__line_vectors 486 14 15_4]
+G c Z b b [insert_space editor__outline_extractor__line_vectors 503 14 15_4]
+G c Z b b [delete editor__outline_extractor__line_vectors 514 14 15_4]
+G c Z b b [delete editor__outline_extractor__line_vectors 524 14 15_4]
+G c Z b b [delete_first editor__outline_extractor__line_vectors 533 14 15_4]
+G c Z b b [delete_last editor__outline_extractor__line_vectors 538 14 15_4]
+G c Z b b [reverse_elements editor__outline_extractor__line_vectors 546 14 15_4]
+G c Z b b [swap editor__outline_extractor__line_vectors 549 14 15_4]
+G c Z b b [swap editor__outline_extractor__line_vectors 554 14 15_4]
+G c Z b b [first_index editor__outline_extractor__line_vectors 560 13 15_4]
+G c Z b b [first editor__outline_extractor__line_vectors 563 13 15_4]
+G c Z b b [first_element editor__outline_extractor__line_vectors 567 13 15_4]
+G c Z b b [last_index editor__outline_extractor__line_vectors 570 13 15_4]
+G c Z b b [last editor__outline_extractor__line_vectors 574 13 15_4]
+G c Z b b [last_element editor__outline_extractor__line_vectors 578 13 15_4]
+G c Z b b [next editor__outline_extractor__line_vectors 581 13 15_4]
+G c Z b b [next editor__outline_extractor__line_vectors 587 14 15_4]
+G c Z b b [previous editor__outline_extractor__line_vectors 590 13 15_4]
+G c Z b b [previous editor__outline_extractor__line_vectors 596 14 15_4]
+G c Z b b [find_index editor__outline_extractor__line_vectors 599 13 15_4]
+G c Z b b [find editor__outline_extractor__line_vectors 609 13 15_4]
+G c Z b b [reverse_find_index editor__outline_extractor__line_vectors 623 13 15_4]
+G c Z b b [reverse_find editor__outline_extractor__line_vectors 635 13 15_4]
+G c Z b b [contains editor__outline_extractor__line_vectors 649 13 15_4]
+G c Z b b [iterate editor__outline_extractor__line_vectors 654 14 15_4]
+G c Z b b [reverse_iterate editor__outline_extractor__line_vectors 662 14 15_4]
+G c Z b b [iterate editor__outline_extractor__line_vectors 669 13 15_4]
+G c Z b b [iterate editor__outline_extractor__line_vectors 672 13 15_4]
+G c Z b b [adjust editor__outline_extractor__line_vectors__implementation 90 28 726_4_15_4]
+G c Z b b [finalize editor__outline_extractor__line_vectors__implementation 93 28 726_4_15_4]
+G c Z b b [zero_counts editor__outline_extractor__line_vectors__implementation 96 17 726_4_15_4]
+G c Z b b [busy editor__outline_extractor__line_vectors__implementation 100 17 726_4_15_4]
+G c Z b b [unbusy editor__outline_extractor__line_vectors__implementation 104 17 726_4_15_4]
+G c Z b b [lock editor__outline_extractor__line_vectors__implementation 108 17 726_4_15_4]
+G c Z b b [unlock editor__outline_extractor__line_vectors__implementation 112 17 726_4_15_4]
+G c Z b b [tc_check editor__outline_extractor__line_vectors__implementation 116 17 726_4_15_4]
+G c Z b b [te_check editor__outline_extractor__line_vectors__implementation 120 17 726_4_15_4]
+G c Z b b [is_busy editor__outline_extractor__line_vectors__implementation 136 16 726_4_15_4]
+G c Z b b [is_locked editor__outline_extractor__line_vectors__implementation 140 16 726_4_15_4]
+G c Z b b [initialize editor__outline_extractor__line_vectors__implementation 161 28 726_4_15_4]
+G c Z b b [finalize editor__outline_extractor__line_vectors__implementation 162 28 726_4_15_4]
+G c Z b b [initialize editor__outline_extractor__line_vectors__implementation 167 28 726_4_15_4]
+G c Z b b [finalize editor__outline_extractor__line_vectors__implementation 168 28 726_4_15_4]
+G c Z b b [reference_control_typeDA editor__outline_extractor__line_vectors__implementation 84 12 726_4_15_4]
+G c Z b b [reference_control_typeDF editor__outline_extractor__line_vectors__implementation 84 12 726_4_15_4]
+G c Z b b [reference_control_typeIP editor__outline_extractor__line_vectors__implementation 84 12 726_4_15_4]
+G c Z b b [with_busyDF editor__outline_extractor__line_vectors__implementation 158 12 726_4_15_4]
+G c Z b b [with_busyIP editor__outline_extractor__line_vectors__implementation 158 12 726_4_15_4]
+G c Z b b [with_lockDF editor__outline_extractor__line_vectors__implementation 164 12 726_4_15_4]
+G c Z b b [with_lockIP editor__outline_extractor__line_vectors__implementation 164 12 726_4_15_4]
+G c Z b b [put_image editor__outline_extractor__line_vectors 747 14 15_4]
+G c Z b b [adjust editor__outline_extractor__line_vectors 750 25 15_4]
+G c Z b b [finalize editor__outline_extractor__line_vectors 751 25 15_4]
+G c Z b b [write editor__outline_extractor__line_vectors 753 14 15_4]
+G c Z b b [read editor__outline_extractor__line_vectors 759 14 15_4]
+G c Z b b [read editor__outline_extractor__line_vectors 773 14 15_4]
+G c Z b b [write editor__outline_extractor__line_vectors 779 14 15_4]
+G c Z b b [write editor__outline_extractor__line_vectors 798 14 15_4]
+G c Z b b [read editor__outline_extractor__line_vectors 804 14 15_4]
+G c Z b b [write editor__outline_extractor__line_vectors 820 14 15_4]
+G c Z b b [read editor__outline_extractor__line_vectors 826 14 15_4]
+G c Z b b [pseudo_reference editor__outline_extractor__line_vectors 840 13 15_4]
+G c Z b b [get_element_access editor__outline_extractor__line_vectors 849 13 15_4]
+G c Z b b [cursorIP editor__outline_extractor__line_vectors 768 9 15_4]
+G c Z b b [vectorDA editor__outline_extractor__line_vectors 741 9 15_4]
+G c Z b b [vectorDF editor__outline_extractor__line_vectors 741 9 15_4]
+G c Z b b [vectorIP editor__outline_extractor__line_vectors 741 9 15_4]
+G c Z b b [finalize editor__outline_extractor__line_vectors 865 25 15_4]
+G c Z b b [first editor__outline_extractor__line_vectors 867 24 15_4]
+G c Z b b [last editor__outline_extractor__line_vectors 868 24 15_4]
+G c Z b b [next editor__outline_extractor__line_vectors 870 24 15_4]
+G c Z b b [previous editor__outline_extractor__line_vectors 874 24 15_4]
+G c Z b b [constant_reference_typeDI editor__outline_extractor__line_vectors 788 9 15_4]
+G c Z b b [constant_reference_typeDA editor__outline_extractor__line_vectors 788 9 15_4]
+G c Z b b [constant_reference_typeDF editor__outline_extractor__line_vectors 788 9 15_4]
+G c Z b b [constant_reference_typeIP editor__outline_extractor__line_vectors 788 9 15_4]
+G c Z b b [reference_typeDI editor__outline_extractor__line_vectors 810 9 15_4]
+G c Z b b [reference_typeDA editor__outline_extractor__line_vectors 810 9 15_4]
+G c Z b b [reference_typeDF editor__outline_extractor__line_vectors 810 9 15_4]
+G c Z b b [reference_typeIP editor__outline_extractor__line_vectors 810 9 15_4]
+G c Z b b [elements_arrayIP editor__outline_extractor__line_vectors 729 9 15_4]
+G c Z b b [elements_arrayDI editor__outline_extractor__line_vectors 729 9 15_4]
+G c Z b b [elements_arrayDA editor__outline_extractor__line_vectors 729 9 15_4]
+G c Z b b [elements_arrayDF editor__outline_extractor__line_vectors 729 9 15_4]
+G c Z b b [elements_typeDI editor__outline_extractor__line_vectors 732 9 15_4]
+G c Z b b [elements_typeDF editor__outline_extractor__line_vectors 732 9 15_4]
+G c Z b b [elements_typeIP editor__outline_extractor__line_vectors 732 9 15_4]
+G c Z b b [iteratorDF editor__outline_extractor__line_vectors 857 9 15_4]
+G c Z b b [iteratorIP editor__outline_extractor__line_vectors 857 9 15_4]
+G c Z b b [free editor__outline_extractor__line_vectors 44 14 15_4]
+G c Z b b [append_slow_path editor__outline_extractor__line_vectors 47 14 15_4]
+G c Z b b [structure_stack_entryDI editor__outline_extractor 19 9 none]
+G c Z b b [structure_stack_entryDA editor__outline_extractor 19 9 none]
+G c Z b b [structure_stack_entryDF editor__outline_extractor 19 9 none]
+G c Z b b [structure_stack_entryIP editor__outline_extractor 19 9 none]
+G c Z b b [has_element editor__outline_extractor__structure_stack_vectors 115 13 26_4]
+G c Z b b [empty editor__outline_extractor__structure_stack_vectors 125 13 26_4]
+G c Z b b [Oeq editor__outline_extractor__structure_stack_vectors 127 24 26_4]
+G c Z b b [to_vector editor__outline_extractor__structure_stack_vectors 136 13 26_4]
+G c Z b b [to_vector editor__outline_extractor__structure_stack_vectors 139 13 26_4]
+G c Z b b [Oconcat editor__outline_extractor__structure_stack_vectors 145 13 26_4]
+G c Z b b [Oconcat editor__outline_extractor__structure_stack_vectors 149 13 26_4]
+G c Z b b [Oconcat editor__outline_extractor__structure_stack_vectors 153 13 26_4]
+G c Z b b [Oconcat editor__outline_extractor__structure_stack_vectors 157 13 26_4]
+G c Z b b [capacity editor__outline_extractor__structure_stack_vectors 161 13 26_4]
+G c Z b b [reserve_capacity editor__outline_extractor__structure_stack_vectors 164 14 26_4]
+G c Z b b [length editor__outline_extractor__structure_stack_vectors 175 13 26_4]
+G c Z b b [set_length editor__outline_extractor__structure_stack_vectors 178 14 26_4]
+G c Z b b [is_empty editor__outline_extractor__structure_stack_vectors 187 13 26_4]
+G c Z b b [clear editor__outline_extractor__structure_stack_vectors 190 14 26_4]
+G c Z b b [to_cursor editor__outline_extractor__structure_stack_vectors 194 13 26_4]
+G c Z b b [to_index editor__outline_extractor__structure_stack_vectors 201 13 26_4]
+G c Z b b [element editor__outline_extractor__structure_stack_vectors 206 13 26_4]
+G c Z b b [element editor__outline_extractor__structure_stack_vectors 213 13 26_4]
+G c Z b b [replace_element editor__outline_extractor__structure_stack_vectors 217 14 26_4]
+G c Z b b [replace_element editor__outline_extractor__structure_stack_vectors 228 14 26_4]
+G c Z b b [query_element editor__outline_extractor__structure_stack_vectors 239 14 26_4]
+G c Z b b [query_element editor__outline_extractor__structure_stack_vectors 250 14 26_4]
+G c Z b b [update_element editor__outline_extractor__structure_stack_vectors 259 14 26_4]
+G c Z b b [update_element editor__outline_extractor__structure_stack_vectors 276 14 26_4]
+G c Z b b [constant_reference editor__outline_extractor__structure_stack_vectors 303 13 26_4]
+G c Z b b [reference editor__outline_extractor__structure_stack_vectors 308 13 26_4]
+G c Z b b [constant_reference editor__outline_extractor__structure_stack_vectors 313 13 26_4]
+G c Z b b [reference editor__outline_extractor__structure_stack_vectors 318 13 26_4]
+G c Z b b [assign editor__outline_extractor__structure_stack_vectors 323 14 26_4]
+G c Z b b [copy editor__outline_extractor__structure_stack_vectors 325 13 26_4]
+G c Z b b [move editor__outline_extractor__structure_stack_vectors 327 14 26_4]
+G c Z b b [new_vector editor__outline_extractor__structure_stack_vectors 333 13 26_4]
+G c Z b b [insert_vector editor__outline_extractor__structure_stack_vectors 337 14 26_4]
+G c Z b b [insert_vector editor__outline_extractor__structure_stack_vectors 361 14 26_4]
+G c Z b b [insert_vector editor__outline_extractor__structure_stack_vectors 378 14 26_4]
+G c Z b b [insert editor__outline_extractor__structure_stack_vectors 396 14 26_4]
+G c Z b b [insert editor__outline_extractor__structure_stack_vectors 404 14 26_4]
+G c Z b b [insert editor__outline_extractor__structure_stack_vectors 412 14 26_4]
+G c Z b b [insert editor__outline_extractor__structure_stack_vectors 421 14 26_4]
+G c Z b b [insert editor__outline_extractor__structure_stack_vectors 438 14 26_4]
+G c Z b b [prepend_vector editor__outline_extractor__structure_stack_vectors 449 14 26_4]
+G c Z b b [prepend editor__outline_extractor__structure_stack_vectors 459 14 26_4]
+G c Z b b [append_vector editor__outline_extractor__structure_stack_vectors 466 14 26_4]
+G c Z b b [append editor__outline_extractor__structure_stack_vectors 476 14 26_4]
+G c Z b b [append editor__outline_extractor__structure_stack_vectors 483 14 26_4]
+G c Z b b [insert_space editor__outline_extractor__structure_stack_vectors 486 14 26_4]
+G c Z b b [insert_space editor__outline_extractor__structure_stack_vectors 503 14 26_4]
+G c Z b b [delete editor__outline_extractor__structure_stack_vectors 514 14 26_4]
+G c Z b b [delete editor__outline_extractor__structure_stack_vectors 524 14 26_4]
+G c Z b b [delete_first editor__outline_extractor__structure_stack_vectors 533 14 26_4]
+G c Z b b [delete_last editor__outline_extractor__structure_stack_vectors 538 14 26_4]
+G c Z b b [reverse_elements editor__outline_extractor__structure_stack_vectors 546 14 26_4]
+G c Z b b [swap editor__outline_extractor__structure_stack_vectors 549 14 26_4]
+G c Z b b [swap editor__outline_extractor__structure_stack_vectors 554 14 26_4]
+G c Z b b [first_index editor__outline_extractor__structure_stack_vectors 560 13 26_4]
+G c Z b b [first editor__outline_extractor__structure_stack_vectors 563 13 26_4]
+G c Z b b [first_element editor__outline_extractor__structure_stack_vectors 567 13 26_4]
+G c Z b b [last_index editor__outline_extractor__structure_stack_vectors 570 13 26_4]
+G c Z b b [last editor__outline_extractor__structure_stack_vectors 574 13 26_4]
+G c Z b b [last_element editor__outline_extractor__structure_stack_vectors 578 13 26_4]
+G c Z b b [next editor__outline_extractor__structure_stack_vectors 581 13 26_4]
+G c Z b b [next editor__outline_extractor__structure_stack_vectors 587 14 26_4]
+G c Z b b [previous editor__outline_extractor__structure_stack_vectors 590 13 26_4]
+G c Z b b [previous editor__outline_extractor__structure_stack_vectors 596 14 26_4]
+G c Z b b [find_index editor__outline_extractor__structure_stack_vectors 599 13 26_4]
+G c Z b b [find editor__outline_extractor__structure_stack_vectors 609 13 26_4]
+G c Z b b [reverse_find_index editor__outline_extractor__structure_stack_vectors 623 13 26_4]
+G c Z b b [reverse_find editor__outline_extractor__structure_stack_vectors 635 13 26_4]
+G c Z b b [contains editor__outline_extractor__structure_stack_vectors 649 13 26_4]
+G c Z b b [iterate editor__outline_extractor__structure_stack_vectors 654 14 26_4]
+G c Z b b [reverse_iterate editor__outline_extractor__structure_stack_vectors 662 14 26_4]
+G c Z b b [iterate editor__outline_extractor__structure_stack_vectors 669 13 26_4]
+G c Z b b [iterate editor__outline_extractor__structure_stack_vectors 672 13 26_4]
+G c Z b b [adjust editor__outline_extractor__structure_stack_vectors__implementation 90 28 726_4_26_4]
+G c Z b b [finalize editor__outline_extractor__structure_stack_vectors__implementation 93 28 726_4_26_4]
+G c Z b b [zero_counts editor__outline_extractor__structure_stack_vectors__implementation 96 17 726_4_26_4]
+G c Z b b [busy editor__outline_extractor__structure_stack_vectors__implementation 100 17 726_4_26_4]
+G c Z b b [unbusy editor__outline_extractor__structure_stack_vectors__implementation 104 17 726_4_26_4]
+G c Z b b [lock editor__outline_extractor__structure_stack_vectors__implementation 108 17 726_4_26_4]
+G c Z b b [unlock editor__outline_extractor__structure_stack_vectors__implementation 112 17 726_4_26_4]
+G c Z b b [tc_check editor__outline_extractor__structure_stack_vectors__implementation 116 17 726_4_26_4]
+G c Z b b [te_check editor__outline_extractor__structure_stack_vectors__implementation 120 17 726_4_26_4]
+G c Z b b [is_busy editor__outline_extractor__structure_stack_vectors__implementation 136 16 726_4_26_4]
+G c Z b b [is_locked editor__outline_extractor__structure_stack_vectors__implementation 140 16 726_4_26_4]
+G c Z b b [initialize editor__outline_extractor__structure_stack_vectors__implementation 161 28 726_4_26_4]
+G c Z b b [finalize editor__outline_extractor__structure_stack_vectors__implementation 162 28 726_4_26_4]
+G c Z b b [initialize editor__outline_extractor__structure_stack_vectors__implementation 167 28 726_4_26_4]
+G c Z b b [finalize editor__outline_extractor__structure_stack_vectors__implementation 168 28 726_4_26_4]
+G c Z b b [reference_control_typeDA editor__outline_extractor__structure_stack_vectors__implementation 84 12 726_4_26_4]
+G c Z b b [reference_control_typeDF editor__outline_extractor__structure_stack_vectors__implementation 84 12 726_4_26_4]
+G c Z b b [reference_control_typeIP editor__outline_extractor__structure_stack_vectors__implementation 84 12 726_4_26_4]
+G c Z b b [with_busyDF editor__outline_extractor__structure_stack_vectors__implementation 158 12 726_4_26_4]
+G c Z b b [with_busyIP editor__outline_extractor__structure_stack_vectors__implementation 158 12 726_4_26_4]
+G c Z b b [with_lockDF editor__outline_extractor__structure_stack_vectors__implementation 164 12 726_4_26_4]
+G c Z b b [with_lockIP editor__outline_extractor__structure_stack_vectors__implementation 164 12 726_4_26_4]
+G c Z b b [put_image editor__outline_extractor__structure_stack_vectors 747 14 26_4]
+G c Z b b [adjust editor__outline_extractor__structure_stack_vectors 750 25 26_4]
+G c Z b b [finalize editor__outline_extractor__structure_stack_vectors 751 25 26_4]
+G c Z b b [write editor__outline_extractor__structure_stack_vectors 753 14 26_4]
+G c Z b b [read editor__outline_extractor__structure_stack_vectors 759 14 26_4]
+G c Z b b [read editor__outline_extractor__structure_stack_vectors 773 14 26_4]
+G c Z b b [write editor__outline_extractor__structure_stack_vectors 779 14 26_4]
+G c Z b b [write editor__outline_extractor__structure_stack_vectors 798 14 26_4]
+G c Z b b [read editor__outline_extractor__structure_stack_vectors 804 14 26_4]
+G c Z b b [write editor__outline_extractor__structure_stack_vectors 820 14 26_4]
+G c Z b b [read editor__outline_extractor__structure_stack_vectors 826 14 26_4]
+G c Z b b [pseudo_reference editor__outline_extractor__structure_stack_vectors 840 13 26_4]
+G c Z b b [get_element_access editor__outline_extractor__structure_stack_vectors 849 13 26_4]
+G c Z b b [cursorIP editor__outline_extractor__structure_stack_vectors 768 9 26_4]
+G c Z b b [vectorDA editor__outline_extractor__structure_stack_vectors 741 9 26_4]
+G c Z b b [vectorDF editor__outline_extractor__structure_stack_vectors 741 9 26_4]
+G c Z b b [vectorIP editor__outline_extractor__structure_stack_vectors 741 9 26_4]
+G c Z b b [finalize editor__outline_extractor__structure_stack_vectors 865 25 26_4]
+G c Z b b [first editor__outline_extractor__structure_stack_vectors 867 24 26_4]
+G c Z b b [last editor__outline_extractor__structure_stack_vectors 868 24 26_4]
+G c Z b b [next editor__outline_extractor__structure_stack_vectors 870 24 26_4]
+G c Z b b [previous editor__outline_extractor__structure_stack_vectors 874 24 26_4]
+G c Z b b [constant_reference_typeDI editor__outline_extractor__structure_stack_vectors 788 9 26_4]
+G c Z b b [constant_reference_typeDA editor__outline_extractor__structure_stack_vectors 788 9 26_4]
+G c Z b b [constant_reference_typeDF editor__outline_extractor__structure_stack_vectors 788 9 26_4]
+G c Z b b [constant_reference_typeIP editor__outline_extractor__structure_stack_vectors 788 9 26_4]
+G c Z b b [reference_typeDI editor__outline_extractor__structure_stack_vectors 810 9 26_4]
+G c Z b b [reference_typeDA editor__outline_extractor__structure_stack_vectors 810 9 26_4]
+G c Z b b [reference_typeDF editor__outline_extractor__structure_stack_vectors 810 9 26_4]
+G c Z b b [reference_typeIP editor__outline_extractor__structure_stack_vectors 810 9 26_4]
+G c Z b b [elements_arrayIP editor__outline_extractor__structure_stack_vectors 729 9 26_4]
+G c Z b b [elements_arrayDI editor__outline_extractor__structure_stack_vectors 729 9 26_4]
+G c Z b b [elements_arrayDA editor__outline_extractor__structure_stack_vectors 729 9 26_4]
+G c Z b b [elements_arrayDF editor__outline_extractor__structure_stack_vectors 729 9 26_4]
+G c Z b b [elements_typeDI editor__outline_extractor__structure_stack_vectors 732 9 26_4]
+G c Z b b [elements_typeDF editor__outline_extractor__structure_stack_vectors 732 9 26_4]
+G c Z b b [elements_typeIP editor__outline_extractor__structure_stack_vectors 732 9 26_4]
+G c Z b b [iteratorDF editor__outline_extractor__structure_stack_vectors 857 9 26_4]
+G c Z b b [iteratorIP editor__outline_extractor__structure_stack_vectors 857 9 26_4]
+G c Z b b [free editor__outline_extractor__structure_stack_vectors 44 14 26_4]
+G c Z b b [append_slow_path editor__outline_extractor__structure_stack_vectors 47 14 26_4]
+G c Z b b [scan_stateDI editor__outline_extractor 32 9 none]
+G c Z b b [scan_stateDA editor__outline_extractor 32 9 none]
+G c Z b b [scan_stateDF editor__outline_extractor 32 9 none]
+G c Z b b [scan_stateIP editor__outline_extractor 32 9 none]
+G c Z b b [hash_string editor__outline_extractor 161 13 none]
+G c Z b b [first_non_blank_column editor__outline_extractor 197 13 none]
+G c Z b b [starts_with editor__outline_extractor 208 13 none]
+G c Z b b [ends_with editor__outline_extractor 217 13 none]
+G c Z b b [kind_for_label editor__outline_extractor 226 13 none]
+G c Z b b [has_file_extension editor__outline_extractor 302 13 none]
+G c Z b b [is_word_char editor__outline_extractor 315 13 none]
+G c Z b b [starts_with_word editor__outline_extractor 324 13 none]
+G c Z b b [starts_with_keyword editor__outline_extractor 338 13 none]
+G c Z b b [starts_with_phrase editor__outline_extractor 352 13 none]
+G c Z b b [declaration_target_column editor__outline_extractor 364 13 none]
+G c Z b b [looks_like_ada_line editor__outline_extractor 440 13 none]
+G c Z b b [looks_like_ada_buffer editor__outline_extractor 448 13 none]
+G c Z b b [is_name_character editor__outline_extractor 517 13 none]
+G c Z b b [read_name editor__outline_extractor 525 13 none]
+G c Z b b [read_function_name editor__outline_extractor 555 13 none]
+G c Z b b [remember_declaration_line editor__outline_extractor 585 14 none]
+G c Z b b [has_code_character editor__outline_extractor 602 13 none]
+G c Z b b [has_token editor__outline_extractor 617 13 none]
+G c Z b b [has_token_is editor__outline_extractor 621 13 none]
+G c Z b b [has_is_followed_by editor__outline_extractor 655 13 none]
+G c Z b b [has_renames editor__outline_extractor 698 13 none]
+G c Z b b [has_is_followed_by_open_paren editor__outline_extractor 704 13 none]
+G c Z b b [looks_like_expression_function editor__outline_extractor 733 13 none]
+G c Z b b [looks_like_enumeration_type_line editor__outline_extractor 740 13 none]
+G c Z b b [declaration_header_ends editor__outline_extractor 770 13 none]
+G c Z b b [declaration_waits_for_record_end editor__outline_extractor 777 13 none]
+G c Z b b [declaration_waits_for_instantiation_end editor__outline_extractor 794 13 none]
+G c Z b b [pending_declaration_ends_with_is editor__outline_extractor 806 13 none]
+G c Z b b [declaration_could_be_split_instantiation editor__outline_extractor 812 13 none]
+G c Z b b [line_ends_record editor__outline_extractor 825 13 none]
+G c Z b b [pending_type_record_still_open editor__outline_extractor 832 13 none]
+G c Z b b [declaration_opens_block editor__outline_extractor 843 13 none]
+G c Z b b [is_generic_formal_line editor__outline_extractor 855 13 none]
+G c Z b b [strip_overriding_prefix editor__outline_extractor 873 13 none]
+G c Z b b [strip_abstract_prefix editor__outline_extractor 890 13 none]
+G c Z b b [strip_private_package_prefix editor__outline_extractor 912 13 none]
+G c Z b b [leading_block_label editor__outline_extractor 929 13 none]
+G c Z b b [strip_leading_block_label editor__outline_extractor 983 13 none]
+G c Z b b [normalize_structure_line editor__outline_extractor 1017 13 none]
+G c Z b b [declaration_form editor__outline_extractor 1037 13 none]
+G c Z b b [line_closes_block editor__outline_extractor 1149 13 none]
+G c Z b b [detail_text editor__outline_extractor 1170 13 none]
+G c Z b b [label_text editor__outline_extractor 1182 13 none]
+G c Z b b [append_item editor__outline_extractor 1227 14 none]
+G c Z b b [update_item_form editor__outline_extractor 1256 14 none]
+G c Z b b [append_marker_line editor__outline_extractor 1337 13 none]
+G c Z b b [apply_pending_generic editor__outline_extractor 1371 14 none]
+G c Z b b [looks_like_record_field_line editor__outline_extractor 1385 13 none]
+G c Z b b [record_field_name editor__outline_extractor 1443 13 none]
+G c Z b b [append_record_field_line editor__outline_extractor 1464 14 none]
+G c Z b b [first_colon editor__outline_extractor 1484 13 none]
+G c Z b b [declaration_name_list_before_colon editor__outline_extractor 1497 13 none]
+G c Z b b [generic_formal_prefix editor__outline_extractor 1527 13 none]
+G c Z b b [generic_formal_name editor__outline_extractor 1543 13 none]
+G c Z b b [append_generic_formal_line editor__outline_extractor 1560 14 none]
+G c Z b b [looks_like_exception_declaration editor__outline_extractor 1591 13 none]
+G c Z b b [looks_like_constant_declaration editor__outline_extractor 1612 13 none]
+G c Z b b [looks_like_object_declaration editor__outline_extractor 1636 13 none]
+G c Z b b [first_enumeration_list_column editor__outline_extractor 1666 13 none]
+G c Z b b [append_discriminants_from_type_line editor__outline_extractor 1677 14 none]
+G c Z b b [append_enumeration_literals_from_line editor__outline_extractor 1740 14 none]
+G c Z b b [append_marker_source_line editor__outline_extractor 1803 14 none]
+G c Z b b [numeric_suffix editor__outline_extractor 1814 13 none]
+G c Z b b [detail_start_line editor__outline_extractor 1829 13 none]
+G c Z b b [end_line_detail editor__outline_extractor 1841 13 none]
+G c Z b b [detail_form editor__outline_extractor 1862 13 none]
+G c Z b b [build_line_vector editor__outline_extractor 1894 14 none]
+G c Z b b [is_code_line_open editor__outline_extractor 1947 13 none]
+G c Z b b [is_code_line_begin editor__outline_extractor 1975 13 none]
+G c Z b b [open_line_needs_body_begin editor__outline_extractor 1981 13 none]
+G c Z b b [declaration_header_starts_construct editor__outline_extractor 2005 13 none]
+G c Z b b [header_start_needs_body_begin editor__outline_extractor 2026 13 none]
+G c Z b b [is_code_line_inline_balanced_open editor__outline_extractor 2040 13 none]
+G c Z b b [form_needs_body_begin editor__outline_extractor 2092 13 none]
+G c Z b b [last_label_word editor__outline_extractor 2098 13 none]
+G c Z b b [lowercase_text editor__outline_extractor 2127 13 none]
+G c Z b b [closing_line_name editor__outline_extractor 2133 13 none]
+G c Z b b [closing_line_qualifier editor__outline_extractor 2171 13 none]
+G c Z b b [root_end_matches editor__outline_extractor 2227 13 none]
+G c Z b b [expected_end_keyword editor__outline_extractor 2266 13 none]
+G c Z b b [is_structure_end_keyword editor__outline_extractor 2290 13 none]
+G c Z b b [structure_close_keyword_for_open editor__outline_extractor 2305 13 none]
+G c Z b b [structure_name_for_open editor__outline_extractor 2344 13 none]
+G c Z b b [stack_end_matches editor__outline_extractor 2393 13 none]
+G c Z b b [is_separate_body_stub editor__outline_extractor 2441 13 none]
+G c Z b b [is_code_line_close editor__outline_extractor 2487 13 none]
+G c Z b b [closing_line_for editor__outline_extractor 2497 13 none]
+G c Z b b [item_may_have_structure_range editor__outline_extractor 2643 13 none]
+G c Z b b [annotate_local_structure_ranges editor__outline_extractor 2670 14 none]
+G c Z b b [outline_kind_for_symbol editor__outline_extractor 2710 13 none]
+G c Z b b [type_label_prefix editor__outline_extractor 2756 13 none]
+G c Z b b [formal_type_label_prefix editor__outline_extractor 2788 13 none]
+G c Z b b [symbol_label editor__outline_extractor 2812 13 none]
+G c Z b b [symbol_detail editor__outline_extractor 2909 13 none]
+G c Z b b [append_analysis_result editor__outline_extractor 3034 14 none]
+G r c none [extract editor__outline_extractor 76 13 none] [parse editor__ada_declaration_parser 9 13 none]
+G r c none [extract editor__outline_extractor 76 13 none] [symbol_count editor__ada_language_model 828 13 none]
+G r c none [extract editor__outline_extractor 76 13 none] [symbol_at editor__ada_language_model 1094 13 none]
+G r c none [extract editor__outline_extractor 76 13 none] [strip_comment_safely editor__ada_syntax_core 19 13 none]
+G r c none [extract editor__outline_extractor 76 13 none] [sanitize_line editor__ada_syntax_core 9 13 none]
+G r c none [extract editor__outline_extractor 76 13 none] [strip_separate_prefix editor__ada_syntax_core 47 13 none]
+G r c none [apply_to_outline editor__outline_extractor 114 14 none] [snapshot_is_current editor__outline 194 13 none]
+G r c none [apply_to_outline editor__outline_extractor 114 14 none] [mark_stale_result editor__outline 199 14 none]
+G r c none [apply_to_outline editor__outline_extractor 114 14 none] [mark_extraction_failed editor__outline 204 14 none]
+G r c none [apply_to_outline editor__outline_extractor 114 14 none] [mark_unsupported editor__outline 209 14 none]
+G r c none [apply_to_outline editor__outline_extractor 114 14 none] [message_outline_no_symbols editor__outline 683 13 none]
+G r s outline_item_array [apply_to_outline editor__outline_extractor 114 14 none] [outline_item_arrayIP editor__outline 107 9 none]
+G r l outline_item_array [apply_to_outline editor__outline_extractor 114 14 none] [outline_item_arrayDI editor__outline 107 9 none]
+G r k outline_item_array [apply_to_outline editor__outline_extractor 114 14 none] [outline_item_arrayDF editor__outline 107 9 none]
+G r k outline_item [apply_to_outline editor__outline_extractor 114 14 none] [outline_itemDF editor__outline 96 9 none]
+G r j outline_item [apply_to_outline editor__outline_extractor 114 14 none] [outline_itemDA editor__outline 96 9 none]
+G r c none [apply_to_outline editor__outline_extractor 114 14 none] [replace_items editor__outline 268 14 none]
+G r s outline_snapshot_identity [buffer_text_snapshotIP editor__outline_extractor 123 9 none] [outline_snapshot_identityIP editor__outline 74 9 none]
+G r s outline_snapshot_identity [extraction_resultIP editor__outline_extractor 129 9 none] [outline_snapshot_identityIP editor__outline 74 9 none]
+G r c none [looks_like_ada_line editor__outline_extractor 440 13 none] [looks_like_ada_declaration_line editor__ada_syntax_core 43 13 none]
+G r c none [looks_like_ada_buffer editor__outline_extractor 448 13 none] [is_ada_source_label editor__ada_syntax_core 23 13 none]
+G r c none [looks_like_ada_buffer editor__outline_extractor 448 13 none] [strip_comment_safely editor__ada_syntax_core 19 13 none]
+G r c none [looks_like_ada_buffer editor__outline_extractor 448 13 none] [looks_like_ada_declaration_line editor__ada_syntax_core 43 13 none]
+G r c none [has_code_character editor__outline_extractor 602 13 none] [sanitize_line editor__ada_syntax_core 9 13 none]
+G r c none [has_token editor__outline_extractor 617 13 none] [sanitize_line editor__ada_syntax_core 9 13 none]
+G r c none [has_token_is editor__outline_extractor 621 13 none] [sanitize_line editor__ada_syntax_core 9 13 none]
+G r c none [has_is_followed_by editor__outline_extractor 655 13 none] [sanitize_line editor__ada_syntax_core 9 13 none]
+G r c none [has_renames editor__outline_extractor 698 13 none] [sanitize_line editor__ada_syntax_core 9 13 none]
+G r c none [has_is_followed_by_open_paren editor__outline_extractor 704 13 none] [sanitize_line editor__ada_syntax_core 9 13 none]
+G r c none [looks_like_expression_function editor__outline_extractor 733 13 none] [sanitize_line editor__ada_syntax_core 9 13 none]
+G r c none [looks_like_enumeration_type_line editor__outline_extractor 740 13 none] [sanitize_line editor__ada_syntax_core 9 13 none]
+G r c none [declaration_header_ends editor__outline_extractor 770 13 none] [sanitize_line editor__ada_syntax_core 9 13 none]
+G r c none [declaration_waits_for_record_end editor__outline_extractor 777 13 none] [sanitize_line editor__ada_syntax_core 9 13 none]
+G r c none [declaration_waits_for_instantiation_end editor__outline_extractor 794 13 none] [sanitize_line editor__ada_syntax_core 9 13 none]
+G r c none [declaration_could_be_split_instantiation editor__outline_extractor 812 13 none] [sanitize_line editor__ada_syntax_core 9 13 none]
+G r c none [line_ends_record editor__outline_extractor 825 13 none] [sanitize_line editor__ada_syntax_core 9 13 none]
+G r c none [pending_type_record_still_open editor__outline_extractor 832 13 none] [sanitize_line editor__ada_syntax_core 9 13 none]
+G r c none [declaration_opens_block editor__outline_extractor 843 13 none] [sanitize_line editor__ada_syntax_core 9 13 none]
+G r c none [normalize_structure_line editor__outline_extractor 1017 13 none] [sanitize_line editor__ada_syntax_core 9 13 none]
+G r c none [normalize_structure_line editor__outline_extractor 1017 13 none] [strip_separate_prefix editor__ada_syntax_core 47 13 none]
+G r c none [declaration_form editor__outline_extractor 1037 13 none] [sanitize_line editor__ada_syntax_core 9 13 none]
+G r c none [line_closes_block editor__outline_extractor 1149 13 none] [sanitize_line editor__ada_syntax_core 9 13 none]
+G r s outline_item [update_item_form editor__outline_extractor 1256 14 none] [outline_itemIP editor__outline 96 9 none]
+G r l outline_item [update_item_form editor__outline_extractor 1256 14 none] [outline_itemDI editor__outline 96 9 none]
+G r k outline_item [update_item_form editor__outline_extractor 1256 14 none] [outline_itemDF editor__outline 96 9 none]
+G r j outline_item [update_item_form editor__outline_extractor 1256 14 none] [outline_itemDA editor__outline 96 9 none]
+G r c none [looks_like_record_field_line editor__outline_extractor 1385 13 none] [sanitize_line editor__ada_syntax_core 9 13 none]
+G r c none [append_record_field_line editor__outline_extractor 1464 14 none] [sanitize_line editor__ada_syntax_core 9 13 none]
+G r c none [append_generic_formal_line editor__outline_extractor 1560 14 none] [sanitize_line editor__ada_syntax_core 9 13 none]
+G r c none [looks_like_exception_declaration editor__outline_extractor 1591 13 none] [sanitize_line editor__ada_syntax_core 9 13 none]
+G r c none [looks_like_constant_declaration editor__outline_extractor 1612 13 none] [sanitize_line editor__ada_syntax_core 9 13 none]
+G r c none [looks_like_object_declaration editor__outline_extractor 1636 13 none] [sanitize_line editor__ada_syntax_core 9 13 none]
+G r c none [append_discriminants_from_type_line editor__outline_extractor 1677 14 none] [sanitize_line editor__ada_syntax_core 9 13 none]
+G r c none [append_enumeration_literals_from_line editor__outline_extractor 1740 14 none] [sanitize_line editor__ada_syntax_core 9 13 none]
+G r c none [append_enumeration_literals_from_line editor__outline_extractor 1740 14 none] [looks_like_simple_character_literal editor__ada_syntax_core 29 13 none]
+G r c none [is_code_line_open editor__outline_extractor 1947 13 none] [sanitize_line editor__ada_syntax_core 9 13 none]
+G r c none [open_line_needs_body_begin editor__outline_extractor 1981 13 none] [sanitize_line editor__ada_syntax_core 9 13 none]
+G r c none [declaration_header_starts_construct editor__outline_extractor 2005 13 none] [sanitize_line editor__ada_syntax_core 9 13 none]
+G r c none [is_code_line_inline_balanced_open editor__outline_extractor 2040 13 none] [sanitize_line editor__ada_syntax_core 9 13 none]
+G r c none [structure_close_keyword_for_open editor__outline_extractor 2305 13 none] [sanitize_line editor__ada_syntax_core 9 13 none]
+G r c none [structure_name_for_open editor__outline_extractor 2344 13 none] [sanitize_line editor__ada_syntax_core 9 13 none]
+G r c none [is_separate_body_stub editor__outline_extractor 2441 13 none] [strip_comment_safely editor__ada_syntax_core 19 13 none]
+G r c none [is_separate_body_stub editor__outline_extractor 2441 13 none] [sanitize_line editor__ada_syntax_core 9 13 none]
+G r c none [is_code_line_close editor__outline_extractor 2487 13 none] [sanitize_line editor__ada_syntax_core 9 13 none]
+G r c none [closing_line_for editor__outline_extractor 2497 13 none] [strip_comment_safely editor__ada_syntax_core 19 13 none]
+G r c none [closing_line_for editor__outline_extractor 2497 13 none] [sanitize_line editor__ada_syntax_core 9 13 none]
+G r c none [closing_line_for editor__outline_extractor 2497 13 none] [strip_separate_prefix editor__ada_syntax_core 47 13 none]
+G r c none [annotate_local_structure_ranges editor__outline_extractor 2670 14 none] [strip_comment_safely editor__ada_syntax_core 19 13 none]
+G r c none [annotate_local_structure_ranges editor__outline_extractor 2670 14 none] [sanitize_line editor__ada_syntax_core 9 13 none]
+G r c none [annotate_local_structure_ranges editor__outline_extractor 2670 14 none] [strip_separate_prefix editor__ada_syntax_core 47 13 none]
+G r c none [append_analysis_result editor__outline_extractor 3034 14 none] [symbol_count editor__ada_language_model 828 13 none]
+G r c none [append_analysis_result editor__outline_extractor 3034 14 none] [symbol_at editor__ada_language_model 1094 13 none]
+X 1 ada.ads
+18K9*Ada 22e8 32|1r6 2r6 119r40 124r27 125r27 33|1r6 2r6 3r6 4r6 5r6 6r6
+. 6r33 15r32 26r43 201r50 228r34 229r17 368r41 369r16 376r56 452r40 453r24
+. 468r24 473r45 480r51 481r102 499r34 505r48 506r99 534r53 564r53 676r59
+. 719r59 868r17 869r17 931r36 931r66 942r59 954r59 985r36 985r66 995r59 1005r59
+. 1020r38 1021r21 1034r14 1034r48 1342r36 1342r70 1346r41 1347r73 1422r38
+. 1423r57 1433r33 1460r14 1461r42 1506r38 1507r45 1517r33 1605r36 1606r56
+. 1629r36 1630r56 1692r45 1693r45 1783r51 1784r28 1846r39 1847r38 1848r39
+. 1849r36 1882r57 1907r24 1912r45 1934r34 2108r61 2119r39 2129r14 2130r16
+. 2145r65 2158r36 2183r65 2195r36 2201r65 2214r36 2458r42 2458r72 2459r42
+. 2460r25 2482r17 2483r20 2522r42 2522r72 2523r42 2524r25 2913r38 2914r57
+. 3087r24 3092r45 3115r34
+X 2 a-charac.ads
+16K13*Characters 18e19 33|1r10 201r54 376r60 468r28 473r49 499r38 534r57
+. 564r57 676r63 719r63 942r63 954r63 995r63 1005r63 1433r37 1517r37 1882r61
+. 1907r28 1912r49 1934r38 2108r65 2119r43 2145r69 2158r40 2183r69 2195r40
+. 2201r69 2214r40 3087r28 3092r49 3115r38
+X 3 a-chlat1.ads
+16K24*Latin_1 294e27 33|1w21 201r65 376r71 468r39 473r60 499r49 534r68 564r68
+. 676r74 719r74 942r74 954r74 995r74 1005r74 1433r48 1517r48 1882r72 1907r39
+. 1912r60 1934r49 2108r76 2119r54 2145r80 2158r51 2183r80 2195r51 2201r80
+. 2214r51 3087r39 3092r60 3115r49
+32e4*HT{character} 33|201r73 376r79 534r76 564r76 676r82 719r82 942r82 954r82
+. 995r82 1005r82 1433r56 1517r56 1882r80 2108r84 2119r62 2145r88 2158r59
+. 2183r88 2195r59 2201r88 2214r59
+33e4*LF{character} 33|468r47 1907r47 3087r47
+36e4*CR{character} 33|473r68 499r57 1912r68 1934r57 3092r68 3115r57
+X 4 a-contai.ads
+16K13*Containers 28e19 32|1r10 119r44 33|2r10 15r36 26r47
+22I9*Count_Type<integer>
+X 8 a-convec.ads
+62I9 Index_Type 32|120r7 33|16r7 27r7
+63+9 Element_Type 32|121r7 33|17r7 28r7
+74k24*Vectors 878e27 32|1w21 119r55 33|2w21 15r47 26r58
+81I12*Extended_Index{integer}
+91R9*Vector<11|43R9> 32|133r46[119] 33|1896r35[15] 2442r33[15] 2498r45[15]
+. 2504r39[26] 2674r28[15]
+122r4*Empty_Vector{91R9[32|119]} 33|3066r50[32|119] 3137r53[32|119]
+175V13*Length{4|22I9} 33|144s36[32|119] 2447s37[15] 2517s49[15] 2530s37[26]
+. 2581s37[26] 2690s53[15]
+187V13*Is_Empty{boolean} 33|1265s30[32|119] 2449s39[15] 2506s39[15] 2545s32[26]
+. 2572s32[26] 2589s32[26] 2677s16[15] 2677s46[32|119]
+190U14*Clear 33|1901s13[15]
+206V13*Element{31|96R9} 33|1272s28[32|119] 2683s70[32|119]
+217U14*Replace_Element 33|1334s20[32|119] 2553s28[26] 2597s31[26] 2702s32[32|119]
+483U14*Append 33|1244s20[32|119] 1354s26[32|119] 1918s25[15] 1920s25[15]
+. 1939s22[15] 1941s22[15] 2510s13[26] 2563s25[26] 2600s28[26] 2610s25[26]
+. 2623s25[26] 3044s26[32|119]
+538U14*Delete_Last 33|2542s31[26] 2587s25[26]
+560V13*First_Index{integer} 33|1266s38[32|119] 2681s33[32|119]
+570V13*Last_Index{81I12[32|119]} 33|1267s38[32|119] 2553s51[26] 2597s54[26]
+. 2681s61[32|119]
+578V13*Last_Element{33|19R9} 33|2539s42[26] 2540s42[26] 2546s33[26] 2550s61[26]
+. 2573s33[26] 2582s33[26] 2590s36[26] 2593s64[26]
+X 12 a-iteint.ads
+24h9 Forward_Iterator
+32h9 Reversible_Iterator<24R9[8|119]>
+X 14 a-string.ads
+16K13*Strings 35e16 32|2r10 124r31 125r31 33|3w10 4r10 5r10 6r10 6r37 228r38
+. 229r21 368r45 369r20 452r44 453r28 480r55 481r106 505r52 506r103 868r21
+. 869r21 931r40 931r70 985r40 985r70 1020r42 1021r25 1034r18 1034r52 1342r40
+. 1342r74 1346r45 1347r77 1422r42 1423r61 1460r18 1461r46 1506r42 1507r49
+. 1605r40 1606r60 1629r40 1630r60 1692r49 1693r49 1783r55 1784r32 1846r43
+. 1847r42 1848r43 1849r40 2129r18 2130r20 2458r46 2458r76 2459r46 2460r29
+. 2482r21 2483r24 2522r46 2522r76 2523r46 2524r29 2913r42 2914r61
+33n37*Both{33E9} 33|481r114 506r111 931r78 985r78 1021r33 1034r60 1342r82
+. 1347r85 1423r69 1461r54 1507r57 1606r68 1630r68 1693r57 1847r50 1849r48
+. 2458r84 2522r84 2914r69
+X 15 a-strfix.ads
+49K21*Fixed 1390e22 33|4w18 228r46 368r53 452r52 480r63 505r60 868r29 869r29
+. 931r48 985r48 1020r50 1034r26 1342r48 1346r53 1422r50 1460r26 1506r50 1605r48
+. 1629r48 1692r57 1783r63 1846r51 1848r51 2129r26 2458r54 2459r54 2482r29
+. 2483r32 2522r54 2523r54 2913r50
+252V13*Index{natural} 33|868s35 869s35 2482s35 2483s38
+748V13*Translate{string} 33|228s52 368s59 452s58 1783s69 2129s32 2459s60
+. 2523s60
+1133V13*Trim{string} 33|480s69 505s66 931s54 985s54 1020s56 1034s32 1342s54
+. 1346s59 1422s56 1460s32 1506s56 1605s54 1629s54 1692s63 1846s57 1848s57
+. 2458s60 2522s60 2913s56
+X 16 a-strmap.ads
+51K21*Maps 650e21 33|5r18 229r29 369r28 453r36 1784r40 2130r28 2460r37 2524r37
+259A9*Character_Mapping(character)
+X 17 a-stmaco.ads
+38K26*Constants 915e31 33|5w23 229r34 369r33 453r41 1784r45 2130r33 2460r42
+. 2524r42
+54a4*Lower_Case_Map{16|259A9} 33|229r44 369r43 453r51 1784r55 2130r43 2460r52
+. 2524r52
+X 20 a-strunb.ads
+91K21*Unbounded 1641e26 32|2w18 124r39 125r39 33|6w18 6r45
+105R9*Unbounded_String<11|43R9> 1620e15 32|124r49 125r49 33|17r23 22r32 23r32
+. 37r32 1262r15 1373r28 2445r18
+109r4*Null_Unbounded_String{105R9} 33|22r52 23r52 1920r33 1941r30 2604r52
+122V13*To_Unbounded_String{105R9} 33|54s31 55s31 70s31 71s31 89s31 90s31
+. 109s31 110s31 592s39 594s39 1247s26 1248s26 1273s22 1279s27 1283s27 1286s27
+. 1290s27 1293s27 1297s27 1300s27 1302s27 1305s27 1308s27 1311s27 1316s27
+. 1319s27 1322s27 1325s27 1328s27 1357s32 1358s32 1377s20 1918s33 1939s30
+. 2514s37 2515s37 2568s25 2571s25 2605s52 2615s25 2618s25 2628s25 2631s25
+. 2700s34 3047s33 3048s33
+135V13*To_String{string} 33|185s31 186s31 589s37 1276s39 1377s54 2455s42
+. 2480s36 2519s42 2539s25 2540s25 2646s35 2684s65 2686s58 2697s58 2816s33
+. 2915s36 3061s40 3077s21
+159U14*Append 33|2467s16 2468s16
+269V14*"="{boolean} 8|65i19
+X 25 editor.ads
+1K9*Editor 5e11 32|3r6 4r10 6r9 52r14 90r14 116r24 121r23 126r27 132r25 136r5
+. 33|7r6 8r6 9r6 11r14 13r13 120r47 148r42 183r35 188r35 226r52 232r17 234r17
+. 236r17 238r17 240r17 242r17 244r17 246r17 248r17 250r17 252r17 254r17 256r17
+. 258r17 260r17 262r17 264r17 266r17 268r17 270r17 272r17 274r17 276r17 278r17
+. 280r17 282r17 284r17 286r17 288r17 290r17 292r17 294r17 296r17 298r17 443r14
+. 456r10 481r25 506r22 606r33 631r33 659r33 706r33 779r20 782r21 796r20 799r22
+. 800r30 801r30 814r20 817r22 818r30 819r30 835r24 838r29 1019r38 1026r19
+. 1039r20 1044r20 1046r20 1052r20 1053r24 1054r24 1056r20 1062r23 1068r23
+. 1073r23 1082r20 1090r20 1098r20 1100r20 1108r20 1110r20 1112r20 1124r20
+. 1229r21 1245r10 1250r27 1261r14 1355r16 1360r33 1479r21 1585r18 1587r40
+. 1683r39 1698r30 1747r33 1754r21 1767r27 1788r33 2267r14 2273r25 2274r29
+. 2277r25 2279r25 2281r25 2283r25 2456r42 2457r42 2520r42 2521r42 2644r14
+. 2649r22 2650r29 2651r29 2657r25 2659r25 2660r29 2663r25 2683r26 2711r14
+. 2712r14 2714r11 2718r20 2720r20 2722r20 2724r20 2726r20 2728r20 2730r20
+. 2736r20 2738r20 2740r20 2742r20 2744r20 2746r20 2749r20 2751r20 2757r16
+. 2789r16 2813r16 2815r11 2910r16 2912r11 3036r18 3039r25 3041r31 3042r15
+. 3045r16 3050r33 3075r30 3076r12 3079r13 3142r24 3145r14 3148r10 3153r10
+. 3160r10 3165r10 3166r22 3169r21 3176r13 3181r5
+X 26 editor-ada_declaration_parser.ads
+3K16*Ada_Declaration_Parser 13e34 33|8w13 3076r19
+9V13*Parse{27|811R9} 33|3076s42
+X 27 editor-ada_language_model.ads
+6K16*Ada_Language_Model 1285e30 33|9w13 2711r21 2714r18 2757r23 2789r23 2813r23
+. 2815r18 2910r23 2912r18 3036r25 3039r32 3041r38 3042r22 3075r37 3079r20
+8E9*Symbol_Kind 35e22 33|2711r40
+9n7*Symbol_Package{8E9} 33|2717r15 2822r15
+10n7*Symbol_Package_Body{8E9} 33|2719r15 2824r15 2921r18
+11n7*Symbol_Procedure{8E9} 33|2721r15 2826r15
+12n7*Symbol_Function{8E9} 33|2723r15 2832r15
+13n7*Symbol_Operator_Function{8E9} 33|2723r33 2838r15
+14n7*Symbol_Type{8E9} 33|2725r15 2866r15
+15n7*Symbol_Subtype{8E9} 33|2725r29 2864r15 2920r18
+16n7*Symbol_Record_Type{8E9} 33|2725r46 2850r15 2918r18
+17n7*Symbol_Record_Component{8E9} 33|2737r15 2868r15 2935r18
+18n7*Symbol_Discriminant{8E9} 33|2739r15 2870r15 2936r18
+19n7*Symbol_Enumeration_Literal{8E9} 33|2741r15 2872r15 2937r18
+20n7*Symbol_Object{8E9} 33|2745r15 2874r15
+21n7*Symbol_Constant{8E9} 33|2745r31 2876r15 2938r18
+22n7*Symbol_Exception{8E9} 33|2743r15 2878r15 2939r18
+23n7*Symbol_Task{8E9} 33|2727r15 2880r15
+24n7*Symbol_Protected{8E9} 33|2729r15 2882r15
+25n7*Symbol_Entry{8E9} 33|2731r15 2884r15
+26n7*Symbol_Generic_Package{8E9} 33|2717r32 2820r15 2924r18
+27n7*Symbol_Generic_Subprogram{8E9} 33|2721r34 2844r15 2924r43
+28n7*Symbol_Generic_Formal_Type{8E9} 33|2747r15 2890r15 2933r18
+29n7*Symbol_Generic_Formal_Object{8E9} 33|2747r44 2892r15 2934r18
+30n7*Symbol_Generic_Formal_Subprogram{8E9} 33|2748r15 2894r15 2932r18
+31n7*Symbol_Generic_Formal_Package{8E9} 33|2748r50 2896r15 2925r18
+32n7*Symbol_Rename{8E9} 33|2717r57 2898r15 2922r18
+33n7*Symbol_Instantiation{8E9} 33|2717r73 2900r15 2923r18
+34n7*Symbol_Separate_Body{8E9} 33|2731r30 2902r15
+190i7*Start_Line{positive} 33|2914r44 3052r52
+191i7*Start_Column{positive} 33|3053r52
+198b7*Is_Abstract{boolean} 33|2944r26
+199b7*Is_Overriding{boolean} 33|2947r29
+200b7*Is_Not_Overriding{boolean} 33|2946r26
+202b7*Is_Rename{boolean} 33|2817r59 2942r26
+205b7*Is_Body{boolean} 33|2827r29 2833r29 2839r29 2845r29
+206b7*Has_Representation_Clause{boolean} 33|2950r26
+207b7*Has_Aspect_Specification{boolean} 33|2952r26
+208b7*Has_Pragma_Metadata{boolean} 33|2954r26
+209b7*Has_Null_Exclusion{boolean} 33|2956r26
+210b7*Has_Aliased_Metadata{boolean} 33|2958r26
+211b7*Has_Limited_Metadata{boolean} 33|2960r26
+212b7*Has_Tagged_Metadata{boolean} 33|2781r26 2962r26
+213b7*Has_Interface_Metadata{boolean} 33|2776r26 2802r26 2964r26
+214b7*Has_Synchronized_Metadata{boolean} 33|2966r26
+215b7*Has_Task_Interface_Metadata{boolean} 33|2777r30 2803r30 2968r26
+216b7*Has_Protected_Interface_Metadata{boolean} 33|2778r30 2804r30 2970r26
+217b7*Has_Task_Type_Metadata{boolean} 33|2972r26
+218b7*Has_Protected_Type_Metadata{boolean} 33|2974r26
+219b7*Has_Access_Metadata{boolean} 33|2766r26 2796r26 2976r26
+220b7*Has_Access_All_Metadata{boolean} 33|2978r26
+221b7*Has_Access_Constant_Metadata{boolean} 33|2980r26
+222b7*Has_Class_Wide_Metadata{boolean} 33|2982r26
+223b7*Has_Access_Subprogram_Metadata{boolean} 33|2764r26 2794r26 2984r26
+224b7*Has_Access_Protected_Metadata{boolean} 33|2986r26
+225b7*Has_Array_Metadata{boolean} 33|2762r26 2792r23 2988r26
+226b7*Has_Derived_Metadata{boolean} 33|2770r26 2774r26 2800r26 2855r32 2859r32
+. 2990r26
+227b7*Has_Range_Metadata{boolean} 33|2992r26
+228b7*Has_Modular_Metadata{boolean} 33|2994r26
+229b7*Has_Digits_Metadata{boolean} 33|2996r26
+230b7*Has_Delta_Metadata{boolean} 33|2998r26
+231b7*Has_Variant_Record_Metadata{boolean} 33|2760r23 2851r29 2919r32 3000r26
+232b7*Has_Default_Expression_Metadata{boolean} 33|3002r26
+233b7*Has_Entry_Family_Metadata{boolean} 33|2885r29 3004r26
+234b7*Has_Incomplete_Type_Metadata{boolean} 33|3006r26
+235b7*Has_Profile_Mode_Metadata{boolean} 33|3008r26
+236b7*Has_Entry_Barrier_Metadata{boolean} 33|3010r26
+237b7*Has_Box_Metadata{boolean} 33|2928r35 3012r26
+238b7*Has_Private_Extension_Metadata{boolean} 33|2768r26 2798r26 2853r32
+. 3013r26
+239b7*Has_Named_Number_Metadata{boolean} 33|3014r26
+240b7*Has_Deferred_Constant_Metadata{boolean} 33|3015r26
+241b7*Has_Null_Subprogram_Metadata{boolean} 33|3016r26
+242b7*Has_Expression_Function_Metadata{boolean} 33|3017r26
+243b7*Has_Null_Record_Metadata{boolean} 33|2771r31 2856r37 3018r26
+244b7*Has_Discriminant_Part_Metadata{boolean} 33|3020r26
+245b7*Has_Body_Stub_Metadata{boolean} 33|3022r26
+246b7*Has_Constraint_Metadata{boolean} 33|3024r26
+247b7*Has_Child_Unit_Metadata{boolean} 33|3025r26
+248b7*Has_Generic_Actual_Part_Metadata{boolean} 33|2926r32 3026r26
+251R9*Symbol_Info 266e14 33|2757r42 2789r42 2813r42 2910r42 3041r57
+253r7*Name{20|105R9} 33|2816r51
+255e7*Kind{8E9} 33|2819r19 2917r22 3046r60
+256r7*Source_Span{189R9} 33|2914r32 3052r40 3053r40
+261i7*Depth{natural} 33|3049r40
+262r7*Profile_Summary{20|105R9} 33|2915r54
+263r7*Flags{196R9} 33|2760r17 2762r20 2764r20 2766r20 2768r20 2770r20 2771r25
+. 2774r20 2776r20 2777r24 2778r24 2781r20 2792r17 2794r20 2796r20 2798r20
+. 2800r20 2802r20 2803r24 2804r24 2817r53 2827r23 2833r23 2839r23 2845r23
+. 2851r23 2853r26 2855r26 2856r31 2859r26 2885r23 2919r26 2926r26 2928r29
+. 2942r20 2944r20 2946r20 2947r23 2950r20 2952r20 2954r20 2956r20 2958r20
+. 2960r20 2962r20 2964r20 2966r20 2968r20 2970r20 2972r20 2974r20 2976r20
+. 2978r20 2980r20 2982r20 2984r20 2986r20 2988r20 2990r20 2992r20 2994r20
+. 2996r20 2998r20 3000r20 3002r20 3004r20 3006r20 3008r20 3010r20 3012r20
+. 3013r20 3014r20 3015r20 3016r20 3017r20 3018r20 3020r20 3022r20 3024r20
+. 3025r20 3026r20
+811R9*Analysis_Result 1283e14 33|3036r44 3075r56
+828V13*Symbol_Count{natural} 33|3039s51 3079s39
+1094V13*Symbol_At{251R9} 33|3042s41
+X 28 editor-ada_syntax_core.ads
+1K16*Ada_Syntax_Core 49e27 33|7w13 443r21 456r17 481r32 506r29 606r40 631r40
+. 659r40 706r40 1019r45 1026r26 1683r46 1747r40 1754r28 2456r49 2457r49 2520r49
+. 2521r49
+9V13*Sanitize_Line{string} 33|606s56 631s56 659s56 706s56 1019s61 1683s62
+. 1747s56 2457s65 2521s65
+19V13*Strip_Comment_Safely{string} 33|481s48 506s45 2456s65 2520s65
+23V13*Is_Ada_Source_Label{boolean} 33|456s33
+29V13*Looks_Like_Simple_Character_Literal{boolean} 33|1754s44
+43V13*Looks_Like_Ada_Declaration_Line{boolean} 33|443s37
+47V13*Strip_Separate_Prefix{string} 33|1026s42
+X 31 editor-outline.ads
+6K16*Outline 760e19 32|3w13 4r17 52r21 90r21 116r31 121r30 126r34 132r32
+. 33|13r20 120r54 148r49 183r42 188r42 226r59 232r24 234r24 236r24 238r24
+. 240r24 242r24 244r24 246r24 248r24 250r24 252r24 254r24 256r24 258r24 260r24
+. 262r24 264r24 266r24 268r24 270r24 272r24 274r24 276r24 278r24 280r24 282r24
+. 284r24 286r24 288r24 290r24 292r24 294r24 296r24 298r24 779r27 782r28 796r27
+. 799r29 800r37 801r37 814r27 817r29 818r37 819r37 835r31 838r36 1039r27
+. 1044r27 1046r27 1052r27 1053r31 1054r31 1056r27 1062r30 1068r30 1073r30
+. 1082r27 1090r27 1098r27 1100r27 1108r27 1110r27 1112r27 1124r27 1229r28
+. 1245r17 1250r34 1261r21 1355r23 1360r40 1479r28 1585r25 1587r47 1698r37
+. 1767r34 1788r40 2267r21 2273r32 2274r36 2277r32 2279r32 2281r32 2283r32
+. 2644r21 2649r29 2650r36 2651r36 2657r32 2659r32 2660r36 2663r32 2683r33
+. 2712r21 2718r27 2720r27 2722r27 2724r27 2726r27 2728r27 2730r27 2736r27
+. 2738r27 2740r27 2742r27 2744r27 2746r27 2749r27 2751r27 3045r23 3050r40
+. 3142r31 3145r21 3148r17 3153r17 3160r17 3165r17 3166r29 3169r28 3176r20
+22E9*Outline_Item_Kind 39e23 33|13r28 183r50 226r67 779r35 796r35 814r35
+. 835r39 1039r35 1229r36 2712r29
+24n7*Outline_Package{22E9} 33|236r32 250r32 799r37 817r37 1046r35 2273r40
+. 2657r40 2718r35
+25n7*Outline_Package_Body{22E9} 33|248r32 1044r35 2274r44 2649r37 2720r35
+26n7*Outline_Type{22E9} 33|232r32 252r32 254r32 256r32 258r32 782r36 838r44
+. 1124r35 2663r40 2726r35
+27n7*Outline_Subprogram{22E9} 33|234r32 284r32 1054r39 1073r38 2736r35
+28n7*Outline_Procedure{22E9} 33|238r32 240r32 260r32 262r32 800r45 818r45
+. 1052r35 1062r38 2281r40 2659r40 2722r35
+29n7*Outline_Function{22E9} 33|242r32 244r32 246r32 264r32 266r32 268r32
+. 801r45 819r45 1053r39 1056r35 1068r38 2283r40 2660r44 2724r35
+30n7*Outline_Task{22E9} 33|270r32 272r32 274r32 1082r35 2277r40 2650r44 2728r35
+31n7*Outline_Protected{22E9} 33|276r32 278r32 280r32 1090r35 2279r40 2651r44
+. 2730r35
+32n7*Outline_Field{22E9} 33|286r32 1479r36 2738r35
+33n7*Outline_Discriminant{22E9} 33|288r32 1108r35 1698r45 2740r35
+34n7*Outline_Enum_Literal{22E9} 33|290r32 1110r35 1767r42 1788r48 2742r35
+35n7*Outline_Exception{22E9} 33|292r32 1098r35 2744r35
+36n7*Outline_Object{22E9} 33|294r32 1100r35 2746r35
+37n7*Outline_Generic_Formal{22E9} 33|296r32 1112r35 1585r33 1587r55 2749r35
+38n7*Outline_Section{22E9} 33|282r32
+39n7*Outline_Unknown{22E9} 33|298r32 2751r35
+41E9*Outline_Target_Kind 44e27 33|188r50
+43n7*Buffer_Position_Target{41E9} 33|1250r42 1360r48 3050r48
+74R9*Outline_Snapshot_Identity 80e14 32|52r29 90r29 126r42 132r40 33|120r62
+. 148r57
+75i7*Active_Buffer_Token{natural} 33|57m13 73m13 92m13 112m13 1251r50 1361r56
+. 3051r56
+76i7*Buffer_Revision{natural} 33|58m13 74m13 93m13 113m13
+77i7*Lifecycle_Generation{natural} 33|59m13 75m13 94m13 114m13
+78i7*Text_Length{natural} 33|60m13 76m13 95m13 115m13
+79i7*Request_Token{natural} 33|61m13 77m13 96m13 116m13 3156r36
+96R9*Outline_Item 105e14 32|4r25 121r38 33|1245r25 1261r29 1355r31 2267r29
+. 2644r29 2683r41 3045r31
+97e7*Kind{22E9} 33|183r78 1246m12 1356m12 2273r18 2274r22 2277r18 2279r18
+. 2281r18 2283r18 2649r15 2650r22 2651r22 2657r18 2659r18 2660r22 2663r18
+. 3046m12
+98r7*Label{20|105R9} 33|185r47 1247m11 1274r21 1279m18 1283m18 1286m18 1290m18
+. 1293m18 1297m18 1300m18 1302m18 1305m18 1308m18 1311m18 1316m18 1319m18
+. 1322m18 1325m18 1328m18 1357m17 2697r74 3047m17
+99r7*Detail{20|105R9} 33|186r47 1248m11 1273m12 1358m17 2646r51 2684r81 2686r74
+. 2700m24 3048m17
+100i7*Depth{natural} 33|187r31 1249m11 1359m17 3049m17
+101e7*Target_Kind{41E9} 33|188r80 1250m11 1360m17 3050m17
+102i7*Buffer_Token{natural} 33|190r31 1251m11 1361m17 3051m17
+103i7*Line{natural} 33|191r31 1252m11 1273r71 1362m17 3052m17
+104i7*Column{natural} 33|192r31 1253m11 1363m17 3053m17
+107A9*Outline_Item_Array(96R9)<integer> 33|3169r36
+109R9*Outline_State 758e14 32|116r39 33|3142r39
+194V13*Snapshot_Is_Current{boolean} 33|3145s29
+199U14*Mark_Stale_Result 33|3148s25
+204U14*Mark_Extraction_Failed 33|3153s25
+209U14*Mark_Unsupported 33|3160s25 3165s25
+268U14*Replace_Items 33|3176s28
+683V13*Message_Outline_No_Symbols{string} 33|3166s37
+X 32 editor-outline_extractor.ads
+6K16*Outline_Extractor 25|1k9 32|119E12 136l12 136e29 33|11b21 3181l12 3181t29
+8E9*Extraction_Status 11e25 80r42 130r25 33|127r42 177r19
+9n7*Extraction_Ok{8E9} 33|158r37 3063r29
+10n7*Extraction_Unavailable{8E9} 130r46 33|3155r36
+11n7*Extraction_Failed{8E9} 33|3134r32 3152r33
+13E9*Extraction_Failure_Kind 17e32 83r42 131r25 33|134r42 178r20
+14n7*No_Failure{13E9} 33|3064r29
+15n7*Empty_Buffer{13E9}
+16n7*Unsupported_Content{13E9} 131r52
+17n7*Extractor_Internal_Error{13E9} 33|3135r32
+19R9*Buffer_Text_Snapshot 29r29 33r37 40r47 48r47 51r18 77r18 123c9 127e14
+. 33|50r29 66r37 85r46 105r46 120r18 3059r18
+20R9*Extraction_Result 77r47 80r16 83r16 86r16 89r16 98r16 106r16 115r17
+. 129c9 134e14 33|127r16 134r16 141r16 148r16 155r16 174r16 1228r28 1257r23
+. 1338r28 1465r28 1561r28 1678r28 1741r28 1804r28 2671r23 3035r25 3059r47
+. 3062r21 3141r17
+28V13*Make_Snapshot{19R9} 29>7 33|49b13 62l8 62t21
+29a7 Text{string} 33|50b7 54r52 60r37
+31V13*Make_Snapshot{19R9} 32>7 33>7 33|64b13 78l8 78t21
+32a7 Text{string} 33|65b7 70r52 76r37
+33a7 Buffer_Label{string} 33|66b7 71r52
+35V13*Make_Snapshot{19R9} 36>7 37>7 38>7 39>7 40>7 33|80b13 97l8 97t21
+36a7 Text{string} 33|81b7 89r52 95r37
+37i7 Active_Buffer_Token{natural} 33|82b7 92r37
+38i7 Buffer_Revision{natural} 33|83b7 93r37
+39i7 Lifecycle_Generation{natural} 33|84b7 94r37
+40i7 Request_Token{natural} 33|85b7 96r37
+42V13*Make_Snapshot{19R9} 43>7 44>7 45>7 46>7 47>7 48>7 33|99b13 117l8 117t21
+43a7 Text{string} 33|100b7 109r52 115r37
+44a7 Buffer_Label{string} 33|101b7 110r52
+45i7 Active_Buffer_Token{natural} 33|102b7 112r37
+46i7 Buffer_Revision{natural} 33|103b7 113r37
+47i7 Lifecycle_Generation{natural} 33|104b7 114r37
+48i7 Request_Token{natural} 33|105b7 116r37
+50V13*Identity{31|74R9} 51>7 33|119b13 124l8 124t16
+51r7 Snapshot{19R9} 33|120b7 123r14
+76V13*Extract{20R9} 77>7 33|3058b13 3138l8 3138t15
+77r7 Snapshot{19R9} 33|3059b7 3061r51 3065r29 3077r32 3136r32
+79V13*Status{8E9} 80>7 33|126b13 131l8 131t14
+80r7 Result{20R9} 33|127b7 130r14
+82V13*Failure{13E9} 83>7 33|133b13 138l8 138t15
+83r7 Result{20R9} 33|134b7 137r14
+85V13*Item_Count{natural} 86>7 33|140b13 145l8 145t18 181s23 3164s10 3169s61
+86r7 Result{20R9} 33|141b7 144r23
+88V13*Identity{31|74R9} 89>7 33|147b13 152l8 152t16
+89r7 Result{20R9} 33|148b7 151r14
+97V13*Is_Success{boolean} 98>7 33|154b13 159l8 159t18
+98r7 Result{20R9} 33|155b7 158r14
+105V13*Fingerprint{natural} 106>7 33|173b13 195l8 195t19
+106r7 Result{20R9} 33|174b7 177r42 178r49 181r35 182r19
+114U14*Apply_To_Outline 115>7 116=7 33|3140b14 3179l8 3179t24
+115r7 Result{20R9} 33|3141b7 3146r19 3152r10 3155r13 3156r13 3164r22 3169r73
+. 3172r25
+116r7 Outline{31|109R9} 33|3142b7 3146r10 3148m44 3153m49 3160m43 3166m13
+. 3176m43
+119K12 Outline_Item_Vectors[8|74] 133r25 33|3066r29 3137r32
+124r7*Text{20|105R9} 33|54m10 70m10 89m10 109m10 3061r60
+125r7*Buffer_Label{20|105R9} 33|55m10 71m10 90m10 110m10 3077r41
+126r7*Snapshot_Identity{31|74R9} 33|56m10 72m10 91m10 111m10 123r23 3065r38
+. 3136r41
+130e7*Result_Status{8E9} 33|130r21 158r21 177r49 3063m10 3134m13 3152r17
+. 3155r20
+131e7*Failure_Kind{13E9} 33|137r21 178r56 3064m10 3135m13
+132r7*Result_Identity{31|74R9} 33|151r21 1251r34 1361r40 3051r40 3065m10
+. 3136m13 3146r26 3156r20
+133r7*Items{8|91R9[119]} 33|144r30 182r26 1244m14 1265r24 1266r32 1267r32
+. 1272r22 1334m14 1354m20 2677r40 2681r27 2681r55 2683r64 2702m26 3044m20
+. 3066m10 3137m13 3172r32
+X 33 editor-outline_extractor.adb
+15K12 Line_Vectors[8|74] 1896r22 2442r20 2498r32 2674r15
+19R9 Structure_Stack_Entry 24e14 28r23 2511r10 2550r30 2564r22 2593r33 2601r25
+. 2611r22 2624r22
+20b7*Needs_Body_Begin{boolean} 2512m12 2565m12 2573r46 2590r49 2595m31 2602m12
+. 2612m12 2625m12
+21b7*Pending_Header{boolean} 2513m11 2546r46 2552m28 2566m23 2582r46 2596m31
+. 2603m26 2613m23 2626m23
+22r7*Expected_Close_Keyword{20|105R9} 2514m11 2539r55 2567m23 2604m26 2614m23
+. 2627m23
+23r7*Expected_Name{20|105R9} 2515m11 2540r55 2570m23 2605m26 2617m23 2630m23
+26K12 Structure_Stack_Vectors[8|74] 2504r15
+30a4 Marker{string} 1344r32 1347r41
+32R9 Scan_State 47e14 586r22 1372r28 1466r21 1562r21
+33b7*Pending_Generic{boolean} 1376r16 1378m16
+34b7*In_Declaration{boolean}
+35b7*Pending_Item{boolean}
+36i7*Pending_Item_Index{natural}
+37r7*Pending_Declaration{20|105R9} 589r54 592m16 594m16
+38b7*In_Generic_Formal{boolean} 1379m16
+39b7*Pending_Separate{boolean}
+40b7*Instantiation_Candidate{boolean}
+41i7*Instantiation_Candidate_Index{natural}
+42b7*Separate_Body_Candidate{boolean}
+43i7*Separate_Body_Candidate_Index{natural}
+44b7*In_Record_Type{boolean} 1474r16
+45b7*In_Enumeration_Type{boolean}
+46i7*Depth{natural} 1480r42 1586r39
+161V13 Hash_String{natural} 161b13 162>7 163>7 171l8 171t19 185s15 186s15
+162i7 Seed{natural} 165r22
+163a7 Text{string} 167r16
+165i7 H{natural} 168m10 168r16 170r14
+167e11 C=167:16{character} 168r41
+176i7 H{natural} 180m7 180r12 181m7 181r13 183m10 183r16 185m10 185r28 186m10
+. 186r28 187m10 187r16 188m10 188r16 190m10 190r16 191m10 191r16 192m10 192r16
+. 194r14
+182r11 Item{31|96R9} 183r73 185r42 186r42 187r26 188r75 190r26 191r26 192r26
+197V13 First_Non_Blank_Column{natural} 197b13 197>37 206l8 206t30 366s42
+197a37 Line{string} 200r16 201r13 201r38 202r24
+200i11 I{integer} 201r19 201r44 202r20
+208V13 Starts_With{boolean} 208b13 209>7 210>7 215l8 215t19 231s10 233s13
+. 235s13 237s13 239s13 241s13 243s13 245s13 247s13 249s13 251s13 253s13 255s13
+. 257s13 259s13 261s13 263s13 265s13 267s13 269s13 271s13 273s13 275s13 277s13
+. 279s13 281s13 283s13 285s13 287s13 289s13 291s13 293s13 295s13 330s14 344s14
+. 357s14 867s17 1278s36 1282s39 1285s39 1289s39 1292s45 1296s45 1301s41 1304s46
+. 1307s40 1310s41 1314s21 1318s48 1321s48 1324s48 1327s48 1344s10 1579s17
+. 1832s10 1834s13 1866s10 1868s13
+209a7 Text{string} 213r14 214r18 214r24 214r38
+210a7 Prefix{string} 213r29 214r51 214r72
+217V13 Ends_With{boolean} 217b13 218>7 219>7 224l8 224t17 809s40
+218a7 Text{string} 222r14 223r18 223r24 223r57
+219a7 Suffix{string} 222r29 223r36 223r70
+226V13 Kind_For_Label{31|22E9} 226b13 226>29 300l8 300t22 1356s27
+226a29 Label{string} 229r10
+228a7 Lower{string} 231r23 233r26 235r26 237r26 239r26 241r26 243r26 245r26
+. 247r26 249r26 251r26 253r26 255r26 257r26 259r26 261r26 263r26 265r26 267r26
+. 269r26 271r26 273r26 275r26 277r26 279r26 281r26 283r26 285r26 287r26 289r26
+. 291r26 293r26 295r26
+302V13 Has_File_Extension{boolean} 302b13 302>33 313l8 313t26 459s13
+302a33 Text{string} 305r24 306r13 307r24 308r16 308r39
+305i11 I{integer} 306r19 307r20 308r22 308r45
+315V13 Is_Word_Char{boolean} 315b13 315>27 322l8 322t20 335s50 349s50 522s14
+. 641s49 643s34 671s49 672s52 683s52 685s37 714s49 715s52 1430s21 1514s21
+. 1777s46
+315e27 C{character} 318r15 318r33 319r18 319r36 320r18 320r36 321r17
+324V13 Starts_With_Word{boolean} 324b13 325>7 326>7 336l8 336t24 386s10 744s14
+. 783s18 858s14 859s17 860s17 861s17 862s17 864s17 865s17 866s17 969s13 970s20
+. 971s20 972s20 973s20 974s20 1113s13 1125s13 1152s14 1390s17 1391s17 1392s17
+. 1393s17 1394s17 1395s17 1396s17 1397s17 1398s17 1399s17 1400s17 1401s17
+. 1402s17 1530s10 1572s17 1573s17 1574s17 1576s17 1577s17 1578s17 1598s17
+. 1599s17 1608s17 1619s17 1620s17 1621s17 1622s17 1623s17 1632s17 1643s17
+. 1644s17 1645s17 1646s17 1647s17 1648s17 1649s17 1650s17 1651s17 1652s17
+. 1653s17 1654s17 1655s17 1656s17 1657s17 1658s17 1956s18 1959s18 1961s18
+. 1963s17 1964s19 1965s27 1967s17 1968s17 1969s18 1971s18 1978s14 1984s10
+. 1989s17 1992s14 1993s22 2010s17 2017s14 2018s17 2019s17 2020s17 2021s17
+. 2022s17 2023s17 2031s17 2032s17 2035s17 2036s17 2045s17 2057s10 2062s13
+. 2067s14 2068s24 2069s32 2074s13 2078s13 2139s14 2177s14 2308s10 2310s13
+. 2312s13 2313s17 2314s17 2317s13 2321s13 2323s13 2325s13 2327s13 2329s13
+. 2331s13 2333s13 2335s13 2336s17 2349s10 2351s13 2359s13 2471s26 2490s14
+. 2555s22
+325a7 Lower_Line{string} 330r27 334r16 335r22 335r64
+326a7 Word{string} 330r39 334r35
+328i7 After{natural} 334m7 335r14 335r76
+338V13 Starts_With_Keyword{boolean} 338b13 339>7 340>7 350l8 350t27 828s14
+. 1157s17 1158s17 1159s17 1160s17 1161s17 1163s31 1164s31 1165s31 1166s31
+. 1167s31 1958s31
+339a7 Lower_Line{string} 344r27 348r16 349r22 349r64
+340a7 Keyword{string} 344r39 348r35
+342i7 After{natural} 348m7 349r14 349r76
+352V13 Starts_With_Phrase{boolean} 352b13 353>7 354>7 358l8 358t26 403s18
+. 408s18 415s18 420s18 427s18 863s17 876s10 880s13 899s10 903s13 920s10 1083s13
+. 1085s16 1091s13 1093s16 1115s16 1117s16 1119s16 1532s13 1534s13 1536s13
+. 1575s17 1986s13 1987s17 1988s17 2030s14 2033s17 2034s17 2369s18 2373s13
+. 2375s16 2379s13 2381s16
+353a7 Lower_Line{string} 357r27
+354a7 Phrase{string} 357r39
+364V13 Declaration_Target_Column{natural} 364b13 364>40 438l8 438t33 1253s27
+. 1363s33
+364a40 Line{string} 366r66 367r42 369r10 375r21 376r22 376r45 382r10 382r48
+. 386r50 387r34 388r16 394r40 402r15 403r50 407r18 408r50 414r15 415r50 419r18
+. 420r50 426r15 427r50 433r15 434r21
+366i7 First_Column{natural} 367r55 383r17 395r20 437r14
+367i7 First_Index{natural} 371r33 382r34 386r35 387r19
+368a7 Lower{string} 386r28 403r38 408r38 415r38 420r38 427r38
+370i7 Close{natural} 389m16 394r13 394r31 398r15
+371i7 I{natural} 375r16 376r28 376r51 378m13 378r18 398m10 402r10 403r45
+. 405m10 405r15 407r13 408r45 410m10 410r15 414r10 415r45 417m10 417r15 419r13
+. 420r45 422m10 422r15 426r10 427r45 429m10 429r15 433r10 434r17
+373U17 Skip_Blanks 373b17 380l11 380t22 399s10 406s10 411s10 418s10 423s10
+. 430s10
+387i14 J{integer} 388r22 389r25
+440V13 Looks_Like_Ada_Line{boolean} 440b13 440>34 444l8 444t27 483s25 508s26
+440a34 Trimmed{string} 443r70
+448V13 Looks_Like_Ada_Buffer{boolean} 448b13 449>7 450>7 515l8 515t29
+449a7 Text{string} 454r33 463r10 467r16 468r13 473r27 481r70 489r20 495r24
+. 497r35 499r16 506r67
+450a7 Buffer_Label{string} 453r10 456r54
+452a7 Lower_Label{string} 459r33
+454i7 Line_Start{positive} 472r31 478r31 481r76 490m16 495r10 503r28 506r73
+467i11 I{integer} 468r19 470r38 489r16 490r30
+470i16 Line_End{natural} 472r19 473r33 475m19 475r31 478r19 481r90
+480a22 Trimmed{string} 483r46
+497i13 Line_End{natural} 499r22 500m16 500r28 503r16 506r87
+505a19 Trimmed{string} 508r47
+517V13 Is_Name_Character{boolean} 517b13 518>7 519>7 523l8 523t25 547s37
+518e7 C{character} 522r28 522r59
+519b7 Allow_Dot{boolean} 522r40
+525V13 Read_Name{string} 525b13 526>7 527>7 528>7 552l8 552t17 582s14 933s36
+. 987s36 1548s17 1550s17 1552s17 2350s17 2352s17 2361s20 2389s17
+526a7 Text{string} 533r18 534r19 534r42 539r14 540r23 540r48 541r31 541r56
+. 547r18 547r56 551r14
+527i7 Start{positive} 530r22
+528b7 Allow_Dot{boolean} 547r66
+530i7 I{natural} 533r13 534r25 534r48 536m10 536r15 539r10 540r29 540r54
+. 541r37 541r62 546r12 551r20
+531i7 J{natural} 546m7 547r13 547r62 548m10 548r15 551r25
+555V13 Read_Function_Name{string} 555b13 556>7 557>7 558>7 583l8 583t26 1554s17
+. 2387s17
+556a7 Text{string} 563r18 564r19 564r42 569r15 569r34 571r21 571r40 575r18
+. 576r20 582r25
+557i7 Start{positive} 560r22 582r31
+558b7 Allow_Dot{boolean} 582r38
+560i7 I{natural} 563r13 564r25 564r48 566m10 566r15 569r10 569r40 570r15
+. 575r41 576r26
+561i7 J{natural} 570m10 571r16 571r46 572m13 572r18 575r13 575r37 576r31
+585U14 Remember_Declaration_Line 585b14 586=7 587>7 597l8 597t33
+586r7 State{32R9} 589r48 592m10 594m10
+587a7 Lower{string} 592r60 593r31 595r30
+589a7 Existing{string} 591r10 593r13 595r13
+602V13 Has_Code_Character{boolean} 602b13 603>7 604>7 615l8 615t26 737s18
+. 773s14 785s22 791s22 803s22 821s22 829s18 850s22 1162s18 1403s21 1597s21
+. 1618s21 1642s21 2012s17 2046s21 2470s19 2494s14 2583s27
+603a7 Lower_Line{string} 606r71
+604e7 Target{character} 609r24
+606a7 Code{string} 608r16 609r13
+608i11 I{integer} 609r19
+617V13 Has_Token{boolean} 618>7 619>7 624s14 627b13 652l8 652t17 701s14 746s17
+. 747s17 748s17 749s17 750s17 751s17 752s17 753s17 786s22 787s22 788s22 789s22
+. 790s22 839s18 1101s13 1127s16 1128s21 1131s16 1133s16 1137s16 1139s16 1957s27
+. 1960s27 1962s27 1966s27 1970s27 2047s21 2058s18 2059s18 2063s18 2064s18
+. 2070s32 2071s18 2075s18 2079s18 2084s18 2318s18
+618a7 Lower_Line{string} 628b7 631r71
+619a7 Token{string} 629b7 634r10 639r17 640r36 640r56 642r26 643r58
+621V13 Has_Token_Is{boolean} 621b13 621>27 625l8 625t20 745s21 774s17 784s18
+. 846s14 1063s21 1069s21 1972s27 1994s18 2011s17 2547s27 2574s27
+621a27 Lower_Line{string} 624r25
+631a7 Code{string} 632r25 638r18 639r37 640r21 641r26 641r63 642r41 643r48
+632i7 I{natural} 638r13 639r13 640r27 640r32 641r22 641r69 642r22 643r54
+. 647m13 647r18
+655V13 Has_Is_Followed_By{boolean} 655b13 656>7 657>7 696l8 696t26 802s18
+. 822s22 847s22 848s22 849s22 1047s13 1060s16 1064s22 1065s30 1070s21 1995s22
+. 1996s22
+656a7 Lower_Line{string} 659r71
+657a7 Token{string} 663r10 681r20 682r39 682r59 684r29 685r61
+659a7 Code{string} 660r25 667r18 668r22 669r21 670r21 671r26 671r63 672r30
+. 672r66 675r24 676r25 676r48 681r40 682r24 683r29 683r66 684r44 685r51
+660i7 I{natural} 667r13 668r13 669r27 670r27 671r22 671r69 672r22 672r72
+. 674r18 689m13 689r18 691m13 691r18
+661i7 J{natural} 674m13 675r19 676r31 676r54 678m16 678r21 681r16 682r30
+. 682r35 683r25 683r72 684r25 685r57
+698V13 Has_Renames{boolean} 698b13 698>26 702l8 702t19 852s22 1042s10 1103s16
+698a26 Lower_Line{string} 701r25
+704V13 Has_Is_Followed_By_Open_Paren{boolean} 704b13 704>44 731l8 731t37
+. 736s14
+704a44 Lower_Line{string} 706r71
+706a7 Code{string} 707r25 710r18 711r22 712r21 713r21 714r26 714r63 715r30
+. 715r66 718r24 719r25 719r48 724r25 724r44
+707i7 I{natural} 710r13 711r13 712r27 713r27 714r22 714r69 715r22 715r72
+. 717r18 726m13 726r18
+708i7 J{natural} 717m13 718r19 719r31 719r54 721m16 721r21 724r20 724r50
+733V13 Looks_Like_Expression_Function{boolean} 733b13 733>45 738l8 738t38
+. 851s22 1057s21
+733a45 Lower_Line{string} 736r45 737r38
+740V13 Looks_Like_Enumeration_Type_Line{boolean} 740b13 740>47 768l8 768t40
+. 1135s16
+740a47 Lower_Line{string} 744r32 745r35 746r28 747r28 748r28 749r28 750r28
+. 751r28 752r28 753r28 758r16 759r13 762r16
+742i7 Open_Paren{natural} 760m13 767r14
+758i11 I{integer} 759r25 760r27 762r28
+770V13 Declaration_Header_Ends{boolean} 770b13 770>38 775l8 775t31 1077s16
+770a38 Lower_Line{string} 773r34 774r31
+777V13 Declaration_Waits_For_Record_End{boolean} 777b13 778>7 779>7 792l8
+. 792t40
+778a7 Lower_Line{string} 783r36 784r32 785r42 786r33 787r33 788r33 789r33
+. 790r33 791r42
+779e7 Kind{31|22E9} 782r14
+794V13 Declaration_Waits_For_Instantiation_End{boolean} 794b13 795>7 796>7
+. 804l8 804t47
+795a7 Lower_Line{string} 802r38 803r42
+796e7 Kind{31|22E9} 799r15 800r23 801r23
+806V13 Pending_Declaration_Ends_With_Is{boolean} 806b13 806>47 810l8 810t40
+. 820s18
+806a47 Lower_Line{string} 809r14 809r51
+812V13 Declaration_Could_Be_Split_Instantiation{boolean} 812b13 813>7 814>7
+. 823l8 823t48
+813a7 Lower_Line{string} 820r52 821r42 822r42
+814e7 Kind{31|22E9} 817r15 818r23 819r23
+825V13 Line_Ends_Record{boolean} 825b13 825>31 830l8 830t24 840s22
+825a31 Lower_Line{string} 828r35 829r38
+832V13 Pending_Type_Record_Still_Open{boolean} 832b13 833>7 834>7 835>7 841l8
+. 841t38
+833a7 Combined_Lower{string} 839r29
+834a7 Lower_Line{string} 840r40
+835e7 Pending_Kind{31|22E9} 838r14
+843V13 Declaration_Opens_Block{boolean} 843b13 843>38 853l8 853t31 1075s16
+. 1955s14 2082s13
+843a38 Lower_Line{string} 846r28 847r42 848r42 849r42 850r42 851r54 852r35
+855V13 Is_Generic_Formal_Line{boolean} 855b13 855>37 870l8 870t30
+855a37 Lower_Line{string} 858r32 859r35 860r35 861r35 862r35 863r37 864r35
+. 865r35 866r35 867r30 868r42 869r42
+873V13 Strip_Overriding_Prefix{string} 873b13 873>38 887l8 887t31 1025s16
+873a38 Line{string} 876r30 877r18 879r17 879r23 879r42 880r33 881r18 883r17
+. 883r23 883r42 885r17
+890V13 Strip_Abstract_Prefix{string} 890b13 890>36 910l8 910t29 1024s13
+890a36 Line{string} 899r30 900r18 902r17 902r23 902r41 903r33 904r18 906r17
+. 906r23 906r41 908r17
+912V13 Strip_Private_Package_Prefix{string} 912b13 912>43 927l8 927t36 1023s10
+912a43 Line{string} 920r30 921r18 923r17 923r23 923r41 925r17
+929V13 Leading_Block_Label{string} 929b13 929>34 981l8 981t27 989s34 2526s50
+929a34 Line{string} 931r60
+931a7 Trimmed{string} 932r28 933r47 933r56 940r12 941r18 942r19 942r45 947r14
+. 947r35 953r18 954r19 954r45 959r14 967r36 967r50
+932i7 I{natural} 940m7 941r13 942r28 942r54 944m10 944r15 947r10 947r44 951r16
+. 952m7 953r13 954r28 954r54 956m10 956r15 959r10 967r45
+933a7 Name{string} 936r10 940r28 976r20
+934i7 Colon{natural} 951m7 952r12
+967a10 Rest{string} 969r31 970r38 971r38 972r38 973r38 974r38
+983V13 Strip_Leading_Block_Label{string} 983b13 983>40 1015l8 1015t33 1022s38
+983a40 Line{string} 985r60 990r17 1013r17
+985a7 Trimmed{string} 986r28 987r47 987r56 989r55 993r12 994r18 995r19 995r45
+. 1000r15 1000r37 1004r18 1005r19 1005r45 1010r15 1011r17 1011r31
+986i7 I{natural} 993m7 994r13 995r28 995r54 997m10 997r15 1000r10 1000r46
+. 1001m10 1001r15 1004r13 1005r28 1005r54 1007m10 1007r15 1010r10 1011r26
+987a7 Name{string} 989r10 993r28
+1017V13 Normalize_Structure_Line{string} 1017b13 1017>39 1035l8 1035t32 2525s50
+1017a39 Lower_Line{string} 1019r76
+1019a7 Code_Only{string} 1021r10
+1020a7 Trimmed{string} 1026r65
+1022a7 Stripped{string} 1034r38
+1037V13 Declaration_Form{string} 1037b13 1038>7 1039>7 1147l8 1147t24 1587s10
+1038a7 Lower_Line{string} 1042r23 1047r33 1057r53 1060r36 1063r35 1064r42
+. 1065r50 1069r35 1070r41 1075r41 1077r41 1083r33 1085r36 1091r33 1093r36
+. 1101r24 1103r29 1113r31 1115r36 1117r36 1119r36 1125r31 1127r27 1128r32
+. 1131r27 1133r27 1135r50 1137r27 1139r27
+1039e7 Kind{31|22E9} 1044r13 1046r13 1052r13 1053r17 1054r17 1056r13 1062r16
+. 1068r16 1073r16 1082r13 1090r13 1098r13 1100r13 1108r13 1110r13 1112r13
+. 1124r13
+1149V13 Line_Closes_Block{boolean} 1149b13 1149>32 1168l8 1168t25
+1149a32 Lower_Line{string} 1152r32 1156r14 1157r38 1158r38 1159r38 1160r38
+. 1161r38 1162r38 1163r52 1164r52 1165r52 1166r52 1167r52
+1170V13 Detail_Text{string} 1170b13 1171>7 1172>7 1180l8 1180t19 1237s35
+. 1273s43
+1171i7 Line_Number{positive} 1176r41 1179r38
+1172a7 Form{string} 1175r10 1179r59
+1182V13 Label_Text{string} 1182b13 1183>7 1184>7 1185>7 1225l8 1225t18 1238s35
+1183a7 Prefix{string} 1189r17 1190r42 1192r42 1194r36 1196r36 1198r36 1200r36
+. 1202r38 1204r43 1206r37 1208r38 1211r18 1214r36 1216r36 1218r36 1220r36
+. 1223r17
+1184a7 Name{string} 1189r32 1191r42 1193r50 1195r37 1197r45 1199r36 1201r44
+. 1203r34 1205r32 1207r33 1209r34 1213r35 1215r32 1217r32 1219r37 1221r37
+. 1223r32
+1185a7 Form{string} 1188r10 1190r13 1192r13 1194r13 1196r13 1198r13 1200r13
+. 1202r13 1204r13 1206r13 1208r13 1210r14 1210r39 1214r13 1216r13 1218r13
+. 1220r13
+1227U14 Append_Item 1227b14 1228=7 1229>7 1230>7 1231>7 1232>7 1233>7 1234>7
+. 1235>7 1254l8 1254t19 1478s10 1584s7 1697s19 1766s16 1787s22
+1228r7 Result{32|20R9} 1244m7 1244r7 1251r27
+1229e7 Kind{31|22E9} 1246r27
+1230a7 Prefix{string} 1238r47
+1231a7 Name{string} 1238r55 1240r10
+1232a7 Raw_Line{string} 1253r54
+1233i7 Line_Number{positive} 1237r48 1252r27
+1234i7 Depth{natural} 1249r27
+1235a7 Form{string} 1237r61 1238r61
+1237a7 Detail{string} 1248r47
+1238a7 Label{string} 1247r47
+1256U14 Update_Item_Form 1256b14 1257=7 1258>7 1259>7 1335l8 1335t24
+1257r7 Result{32|20R9} 1265r17 1266r25 1267r25 1272r15 1334m7 1334r7
+1258i7 Index{natural} 1266r17 1267r17 1272r37 1334r37
+1259a7 Form{string} 1264r10 1273r78 1278r13 1282r16 1285r16 1289r16 1292r16
+. 1296r16 1299r16 1301r16 1304r16 1307r16 1310r16 1313r17 1313r42 1318r16
+. 1321r16 1324r16 1327r16 1330r16
+1261r7 Item{31|96R9} 1272m7 1272r7 1273m7 1273r66 1274r16 1279m13 1283m13
+. 1286m13 1290m13 1293m13 1297m13 1300m13 1302m13 1305m13 1308m13 1311m13
+. 1316m13 1319m13 1322m13 1325m13 1328m13 1334r44
+1262r7 Label{20|105R9} 1274m7 1276r50
+1276a10 Current{string} 1278r49 1281r16 1281r25 1281r47 1282r52 1284r36 1284r45
+. 1284r67 1285r52 1288r16 1288r25 1288r47 1289r52 1291r35 1291r44 1291r65
+. 1292r58 1295r16 1295r25 1295r47 1296r58 1298r41 1298r50 1298r71 1300r48
+. 1301r54 1303r33 1303r42 1303r63 1304r59 1306r31 1306r40 1306r61 1307r53
+. 1309r32 1309r41 1309r62 1310r54 1312r33 1312r42 1312r63 1314r34 1317r34
+. 1317r43 1317r64 1318r61 1320r39 1320r48 1320r70 1321r61 1323r31 1323r40
+. 1323r62 1324r61 1326r38 1326r47 1326r69 1327r61 1329r30 1329r39 1329r61
+1337V13 Append_Marker_Line{boolean} 1337b13 1338=7 1339>7 1340>7 1369l8 1369t26
+. 1808s37
+1338r7 Result{32|20R9} 1354m13 1354r13 1361r33
+1339a7 Raw_Line{string} 1342r60 1363r60
+1340i7 Line_Number{positive} 1348r65 1362r33
+1342a7 Trimmed{string} 1344r23 1347r16 1347r25 1347r58
+1346a13 Label{string} 1350r16 1356r43 1357r53
+1348a13 Detail{string} 1358r53
+1371U14 Apply_Pending_Generic 1371b14 1372=7 1373=7 1381l8 1381t29
+1372r7 State{32R9} 1376r10 1378m10 1379m10
+1373r7 Prefix{20|105R9} 1377m10 1377r65
+1385V13 Looks_Like_Record_Field_Line{boolean} 1385b13 1385>43 1441l8 1441t36
+. 1475s18
+1385a43 Lower_Line{string} 1389r10 1390r35 1391r35 1392r35 1393r35 1394r35
+. 1395r35 1396r35 1397r35 1398r35 1399r35 1400r35 1401r35 1402r35 1403r41
+. 1408r16 1409r13 1412r16 1417r36 1423r13 1423r25
+1387i7 Colon{natural} 1410m13 1417r10 1417r28 1423r45
+1408i11 I{integer} 1409r25 1410r22 1412r28
+1422a10 Prefix{string} 1425r13 1429r19
+1429e14 C=1429:19{character} 1430r35 1431r29 1432r29 1433r29
+1443V13 Record_Field_Name{string} 1443b13 1443>32 1462l8 1462t25 1472s33
+1443a32 Line{string} 1447r16 1448r13 1451r16 1456r36 1461r10 1461r16
+1445i7 Colon{natural} 1449m13 1456r10 1456r28 1461r30
+1447i11 I{integer} 1448r19 1449r22 1451r22
+1464U14 Append_Record_Field_Line 1464b14 1465=7 1466>7 1467>7 1468>7 1469>7
+. 1470>7 1482l8 1482t32
+1465r7 Result{32|20R9} 1479m13
+1466r7 State{32R9} 1474r10 1480r36
+1467a7 Raw_Line{string} 1480r13
+1468i7 Line_Number{positive} 1480r23
+1469a7 Lower_Line{string} 1475r48
+1470a7 Trimmed{string} 1472r52
+1472a7 Name{string} 1476r18 1479r60
+1484V13 First_Colon{natural} 1484b13 1484>26 1495l8 1495t19 1499s35 1593s35
+. 1614s35 1638s35
+1484a26 Line{string} 1487r16 1488r13 1490r16
+1487i11 I{integer} 1488r19 1489r20 1490r22
+1497V13 Declaration_Name_List_Before_Colon{string} 1497b13 1497>49 1525l8
+. 1525t42 1556s17 1663s14 1694s42
+1497a49 Line{string} 1499r48 1501r36 1507r13 1507r19
+1499i7 Colon{natural} 1501r10 1501r28 1507r33
+1506a10 Prefix{string} 1509r13 1513r19 1523r17
+1513e14 C=1513:19{character} 1514r35 1515r29 1516r29 1517r29
+1527V13 Generic_Formal_Prefix{string} 1527b13 1527>36 1541l8 1541t29 1545s35
+. 1568s35
+1527a36 Lower_Line{string} 1530r28 1532r33 1534r33 1536r33
+1543V13 Generic_Formal_Name{string} 1543b13 1543>34 1543>52 1558l8 1558t27
+. 1569s35
+1543a34 Trimmed{string} 1548r28 1548r37 1550r28 1550r37 1552r28 1552r37 1554r37
+. 1554r46 1556r53
+1543a52 Lower_Line{string} 1545r58
+1545a7 Prefix{string} 1547r10 1549r13 1551r13 1553r13
+1560U14 Append_Generic_Formal_Line 1560b14 1561=7 1562>7 1563>7 1564>7 1565>7
+. 1566>7 1588l8 1588t34
+1561r7 Result{32|20R9} 1585m10
+1562r7 State{32R9} 1586r33
+1563a7 Raw_Line{string} 1586r10
+1564i7 Line_Number{positive} 1586r20
+1565a7 Lower_Line{string} 1568r58 1569r65 1572r35 1573r35 1574r35 1575r37
+. 1576r35 1577r35 1578r35 1579r30 1587r28
+1566a7 Trimmed{string} 1569r56
+1568a7 Prefix{string} 1585r57
+1569a7 Name{string} 1571r10 1585r65
+1591V13 Looks_Like_Exception_Declaration{boolean} 1591b13 1591>47 1610l8
+. 1610t40
+1591a47 Lower_Line{string} 1593r48 1596r26 1597r41 1598r35 1599r35 1606r13
+. 1606r38
+1593i7 Colon{natural} 1595r10 1596r17 1606r25
+1605a10 Tail{string} 1608r35
+1612V13 Looks_Like_Constant_Declaration{boolean} 1612b13 1612>46 1634l8 1634t39
+1612a46 Lower_Line{string} 1614r48 1617r26 1618r41 1619r35 1620r35 1621r35
+. 1622r35 1623r35 1630r13 1630r38
+1614i7 Colon{natural} 1616r10 1617r17 1630r25
+1629a10 Tail{string} 1632r35
+1636V13 Looks_Like_Object_Declaration{boolean} 1636b13 1636>44 1664l8 1664t37
+1636a44 Lower_Line{string} 1638r48 1641r26 1642r41 1643r35 1644r35 1645r35
+. 1646r35 1647r35 1648r35 1649r35 1650r35 1651r35 1652r35 1653r35 1654r35
+. 1655r35 1656r35 1657r35 1658r35 1663r50
+1638i7 Colon{natural} 1640r10 1641r17
+1666V13 First_Enumeration_List_Column{natural} 1666b13 1666>44 1675l8 1675t37
+1666a44 Line{string} 1669r16 1670r13 1674r14
+1669i11 I{integer} 1670r19 1671r20
+1677U14 Append_Discriminants_From_Type_Line 1677b14 1678=7 1679>7 1680>7
+. 1681>7 1738l8 1738t43
+1678r7 Result{32|20R9} 1698m22
+1679a7 Raw_Line{string} 1683r77 1693r19 1699r44
+1680i7 Line_Number{positive} 1699r54
+1681i7 Depth{natural} 1699r67
+1683a7 Code{string} 1706r16 1707r13 1710r16 1719r34 1720r13 1732r13
+1684i7 Open_Paren{natural} 1708m13 1715r10 1719r16 1726r49 1730r24 1731r16
+1685i7 Close_Paren{natural} 1721m13 1726r10 1726r34 1731r34 1737r38
+1686i7 Segment_Start{natural} 1730m7 1733r29 1734m13 1737r23
+1688U17 Append_Segment 1688b17 1688>33 1688>50 1704l11 1704t25 1733s13 1737s7
+1688i33 First{natural} 1690r13 1693r29
+1688i50 Last{natural} 1690r22 1693r38
+1692a16 Segment{string} 1694r78
+1694a16 Name{string} 1696r19 1699r38
+1706i11 I{integer} 1707r19 1708r27 1710r22
+1719i11 I{integer} 1720r19 1721r28
+1731i11 I{integer} 1732r19 1733r44 1734r30
+1740U14 Append_Enumeration_Literals_From_Line 1740b14 1741=7 1742>7 1743>7
+. 1744>7 1745>7 1798l8 1798t45
+1741r7 Result{32|20R9} 1767m19 1788m25
+1742a7 Raw_Line{string} 1747r71 1754r81 1758r31 1759r30 1760r30 1761r30 1764r42
+. 1768r36 1782r45 1789r42
+1743i7 Line_Number{positive} 1768r46 1789r52
+1744i7 Depth{natural} 1768r59 1789r65
+1745i7 Start_At{natural} 1748r29 1748r57
+1747a7 Code{string} 1748r41 1748r71 1750r18 1751r13 1751r36 1753r16 1771r17
+. 1771r42 1772r21 1772r46 1777r27 1777r60
+1748i7 I{natural} 1750r13 1751r19 1751r42 1753r22 1754r91 1758r22 1759r40
+. 1760r40 1761r40 1762r24 1763r24 1764r52 1769m16 1771r23 1771r48 1772r27
+. 1772r52 1775r31 1782r55 1792m16 1795m13 1795r18
+1757i16 Literal_Last{natural} 1764r57 1769r21
+1764a16 Name{string} 1768r30
+1775i16 J{natural} 1777r22 1777r66 1778m19 1778r24 1782r60 1792r21
+1782a19 Name{string} 1784r22 1789r36
+1783a19 Lower_Name{string} 1786r22 1786r50
+1803U14 Append_Marker_Source_Line 1803b14 1804=7 1805>7 1806>7 1811l8 1811t33
+. 3098s19 3101s19 3120s16 3123s16
+1804r7 Result{32|20R9} 1808m57 1808r57
+1805a7 Raw_Line{string} 1808r65
+1806i7 Line_Number{positive} 1808r75
+1808b7 Ignored{boolean}
+1814V13 Numeric_Suffix{natural} 1814b13 1814>29 1814>44 1827l8 1827t22 1833s17
+. 1835s17
+1814a29 Text{string} 1819r18 1820r18 1821r18 1823r47
+1814i44 Start{positive} 1817r26
+1816i7 Value{natural} 1823m10 1823r19 1826r14
+1817i7 I{natural} 1819r13 1820r24 1821r24 1823r53 1824m10 1824r15
+1829V13 Detail_Start_Line{natural} 1829b13 1829>32 1839l8 1839t25 2684s46
+1829a32 Detail{string} 1832r23 1833r33 1833r41 1834r26 1835r33 1835r41
+1841V13 End_Line_Detail{string} 1841b13 1842>7 1843>7 1844>7 1860l8 1860t23
+. 2701s22
+1842i7 Start_Line{natural} 1847r25 1851r24
+1843i7 End_Line{natural} 1849r25 1851r13
+1844a7 Form{string} 1855r10 1858r32
+1846a7 Start_Text{string} 1852r26 1853r25
+1848a7 End_Text{string} 1852r45
+1850a7 Prefix{string} 1856r17 1858r17
+1862V13 Detail_Form{string} 1862b13 1862>26 1892l8 1892t19 2647s35 2686s45
+1862a26 Detail{string} 1864r22 1866r23 1867r15 1868r26 1869r15 1874r18 1875r20
+. 1875r47 1876r27 1881r18 1882r19 1882r44 1887r15 1888r17 1888r30
+1864i7 I{natural} 1867m10 1869m10 1874r13 1875r28 1875r55 1876r35 1878m10
+. 1878r15 1881r13 1882r27 1882r52 1884m10 1884r15 1887r10 1888r25
+1894U14 Build_Line_Vector 1894b14 1895>7 1896=7 1945l8 1945t25 2676s7
+1895a7 Text{string} 1898r33 1902r10 1906r16 1907r13 1912r27 1918r54 1923r20
+. 1930r24 1932r35 1934r16 1939r51
+1896r7 Lines{8|91R9[15]} 1901m7 1901r7 1918m19 1918r19 1920m19 1920r19 1939m16
+. 1939r16 1941m16 1941r16
+1898i7 Line_Start{positive} 1911r31 1917r31 1918r60 1924m16 1930r10 1938r28
+. 1939r57
+1899i7 Line_Number{natural} 1926m13 1926r28
+1906i11 I{integer} 1907r19 1909r38 1923r16 1924r30
+1909i16 Line_End{natural} 1911r19 1912r33 1914m19 1914r31 1917r19 1918r74
+1932i13 Line_End{natural} 1934r22 1935m16 1935r28 1938r16 1939r71
+1947V13 Is_Code_Line_Open{boolean} 1947b13 1948>7 1973l8 1973t25 2556s27
+. 2609s22
+1948a7 Lower_Line{string} 1951r10 1955r39 1956r36 1957r38 1958r52 1959r36
+. 1960r38 1961r36 1962r38 1963r35 1964r37 1965r45 1966r38 1967r35 1968r35
+. 1969r36 1970r38 1971r36 1972r41
+1975V13 Is_Code_Line_Begin{boolean} 1975b13 1975>33 1979l8 1979t26 2588s22
+1975a33 Lower_Line{string} 1978r32
+1981V13 Open_Line_Needs_Body_Begin{boolean} 1981b13 1981>41 2002l8 2002t34
+. 2083s18 2565s38 2612s38
+1981a41 Lower_Line{string} 1984r28 1986r33 1987r37 1988r37 1989r35 1992r32
+. 1993r40 1994r32 1995r42 1996r42
+2005V13 Declaration_Header_Starts_Construct{boolean} 2005b13 2006>7 2024l8
+. 2024t43 2622s22
+2006a7 Lower_Line{string} 2009r10 2010r35 2011r31 2012r37 2017r32 2018r35
+. 2019r35 2020r35 2021r35 2022r35 2023r35
+2026V13 Header_Start_Needs_Body_Begin{boolean} 2026b13 2027>7 2037l8 2037t37
+. 2625s38
+2027a7 Lower_Line{string} 2030r34 2031r35 2032r35 2033r37 2034r37 2035r35
+. 2036r35
+2040V13 Is_Code_Line_Inline_Balanced_Open{boolean} 2040b13 2041>7 2090l8
+. 2090t41 2607s22
+2041a7 Lower_Line{string} 2044r10 2045r35 2046r41 2047r32 2057r28 2058r29
+. 2059r29 2062r31 2063r29 2064r29 2067r32 2068r42 2069r50 2070r43 2071r29
+. 2074r31 2075r29 2078r31 2079r29 2082r38 2083r46 2084r29
+2092V13 Form_Needs_Body_Begin{boolean} 2092b13 2092>36 2096l8 2096t29 2512s38
+2092a36 Form{string} 2095r14
+2098V13 Last_Label_Word{string} 2098b13 2098>30 2125l8 2125t23 2697s41
+2098a30 Label{string} 2100r26 2101r26 2103r10 2107r21 2108r19 2108r46 2110r20
+. 2117r21 2118r18 2119r18 2124r14
+2100i7 Stop{natural} 2107r13 2108r26 2108r53 2110r13 2113m10 2113r18 2116r16
+. 2124r30
+2101i7 Start{natural} 2116m7 2117r13 2118r25 2119r25 2121m10 2121r19 2124r21
+2127V13 Lowercase_Text{string} 2127b13 2127>29 2131l8 2131t22 2697s25
+2127a29 Text{string} 2130r10
+2133V13 Closing_Line_Name{string} 2133b13 2133>32 2169l8 2169t25 2232s33
+. 2398s33
+2133a32 Lower_Line{string} 2135r26 2139r32 2143r12 2144r18 2145r19 2145r48
+. 2150r14 2150r38 2155r18 2156r18 2157r18 2158r18 2168r14
+2135i7 I{natural} 2143m7 2144r13 2145r31 2145r60 2147m10 2147r15 2150r10
+. 2150r50 2154r16 2155r13 2156r30 2157r30 2158r30 2160m10 2160r15 2163r15
+2136i7 First{natural} 2154m7 2164r17 2168r26
+2137i7 Last{natural} 2163m7 2164r10 2168r35
+2171V13 Closing_Line_Qualifier{string} 2171b13 2171>37 2225l8 2225t30 2254s44
+. 2410s47
+2171a37 Lower_Line{string} 2173r26 2177r32 2181r12 2182r18 2183r19 2183r48
+. 2192r18 2193r18 2194r18 2195r18 2200r18 2201r19 2201r48 2206r14 2206r38
+. 2211r18 2212r18 2213r18 2214r18 2224r14
+2173i7 I{natural} 2181m7 2182r13 2183r31 2183r60 2185m10 2185r15 2192r13
+. 2193r30 2194r30 2195r30 2197m10 2197r15 2200r13 2201r31 2201r60 2203m10
+. 2203r15 2206r10 2206r50 2210r16 2211r13 2212r30 2213r30 2214r30 2216m10
+. 2216r15 2219r15
+2174i7 First{natural} 2210m7 2220r17 2224r26
+2175i7 Last{natural} 2219m7 2220r10 2224r35
+2227V13 Root_End_Matches{boolean} 2227b13 2228>7 2229>7 2230>7 2264l8 2264t24
+. 2531s25
+2228a7 Lower_Line{string} 2232r52 2254r68
+2229a7 Expected_Lowercase{string} 2241r10 2241r56 2257r24 2258r45 2262r14
+2230a7 Expected_Close_Keyword{string} 2250r10 2251r25 2263r18
+2232a7 Name{string} 2236r10 2241r49 2251r18
+2254a13 Qualifier{string} 2256r20 2258r33
+2266V13 Expected_End_Keyword{string} 2266b13 2267>7 2268>7 2288l8 2288t28
+. 2698s19
+2267r7 Item{31|96R9} 2273r13 2274r17 2277r13 2279r13 2281r13 2283r13
+2268a7 Form{string} 2271r10
+2290V13 Is_Structure_End_Keyword{boolean} 2290b13 2290>39 2303l8 2303t32
+. 2436s21
+2290a39 Name{string} 2293r14 2294r17 2295r17 2296r17 2297r17 2298r17 2299r17
+. 2300r17 2301r17 2302r17
+2305V13 Structure_Close_Keyword_For_Open{string} 2305b13 2305>47 2342l8 2342t40
+. 2346s36 2569s28 2616s28 2629s28
+2305a47 Lower_Line{string} 2308r28 2310r31 2312r31 2313r35 2314r35 2317r31
+. 2318r29 2321r31 2323r31 2325r31 2327r31 2329r31 2331r31 2333r31 2335r31
+. 2336r35
+2344V13 Structure_Name_For_Open{string} 2344b13 2344>38 2391l8 2391t31 2571s46
+. 2621s34 2634s34
+2344a38 Lower_Line{string} 2346r70 2347r29 2349r28 2350r28 2350r40 2351r31
+. 2352r28 2352r40 2359r31 2360r22 2361r31 2367r16 2369r38 2371r19 2373r33
+. 2374r22 2375r36 2376r22 2379r33 2380r22 2381r36 2382r22 2387r37 2389r28
+2346a7 Keyword{string} 2353r13 2354r17 2355r17 2356r17 2357r17 2367r35 2368r10
+. 2372r13 2378r13 2386r10
+2347i7 Start{positive} 2360m13 2361r43 2367m7 2371m10 2374m13 2376m13 2380m13
+. 2382m13 2387r49 2389r40
+2393V13 Stack_End_Matches{boolean} 2393b13 2394>7 2395>7 2396>7 2438l8 2438t25
+. 2537s25
+2394a7 Lower_Line{string} 2398r52 2410r71
+2395a7 Expected_Close_Keyword{string} 2400r10 2401r17 2402r17 2403r17 2404r17
+. 2406r21 2422r10 2431r41
+2396a7 Expected_Name{string} 2408r16 2412r64 2423r18 2433r13 2434r24
+2398a7 Name{string} 2406r13 2425r17 2431r10 2431r34 2434r17 2436r47
+2410a16 Qualifier{string} 2412r23 2412r52
+2441V13 Is_Separate_Body_Stub{boolean} 2441b13 2442>7 2443>7 2485l8 2485t29
+. 2692s38
+2442r7 Lines{8|91R9[15]} 2447r31 2449r33 2455r53
+2443i7 Start_Line{natural} 2447r46 2449r10 2453r16
+2445r7 Combined{20|105R9} 2467m24 2467r24 2468m24 2468r24 2480r47
+2446i7 Limit{natural} 2453r30
+2453i11 L{integer} 2455r60
+2455a13 Raw{string} 2456r87
+2456a13 Clean{string} 2457r80
+2457a13 Code{string} 2458r66
+2458a13 Trimmed{string} 2460r16
+2459a13 Lower{string} 2462r16 2464r19 2468r34 2470r39 2471r44
+2480a10 Text{string} 2482r42 2483r45
+2487V13 Is_Code_Line_Close{boolean} 2487b13 2487>33 2495l8 2495t26 2529s19
+2487a33 Lower_Line{string} 2490r32 2494r34
+2497V13 Closing_Line_For{natural} 2497b13 2498>7 2499>7 2500>7 2501>7 2502>7
+. 2641l8 2641t24 2694s28
+2498r7 Lines{8|91R9[15]} 2506r33 2517r43 2519r53
+2499i7 Start_Line{natural} 2506r10 2517r16
+2500a7 Form{string} 2512r61
+2501a7 Expected_Lower_Name{string} 2515r58 2532r42
+2502a7 Expected_Close_Keyword{string} 2514r58 2532r63
+2504r7 Stack{8|91R9[26]} 2510m7 2510r7 2530r31 2539r36 2540r36 2542m25 2542r25
+. 2545r26 2546r27 2550r55 2553m22 2553r22 2553r45 2563m19 2563r19 2572r26
+. 2573r27 2581r31 2582r27 2587m19 2587r19 2589r26 2590r30 2593r58 2597m25
+. 2597r25 2597r48 2600m22 2600r22 2610m19 2610r19 2623m19 2623r19
+2517i11 L{integer} 2519r60 2534r32
+2519a13 Raw{string} 2520r87
+2520a13 Clean{string} 2521r80
+2521a13 Code{string} 2522r66
+2522a13 Trimmed{string} 2524r16
+2523a13 Lower{string} 2525r76 2526r71
+2525a13 Structure_Lower{string} 2528r16 2529r39 2532r25 2538r25 2547r41 2555r40
+. 2556r46 2565r66 2569r62 2571r71 2574r41 2583r47 2588r42 2607r57 2609r41
+. 2612r66 2616r62 2621r59 2622r59 2625r69 2629r62 2634r59
+2526a13 Block_Label{string} 2605r73 2619r32 2620r34 2632r32 2633r34
+2550r22 Frame{19R9} 2552m22 2553r63
+2593r25 Frame{19R9} 2595m25 2596m25 2597r66
+2643V13 Item_May_Have_Structure_Range{boolean} 2643b13 2644>7 2668l8 2668t37
+. 2688s16
+2644r7 Item{31|96R9} 2646r46 2649r10 2650r17 2651r17 2657r13 2659r13 2660r17
+. 2663r13
+2646a7 Detail{string} 2647r48
+2647a7 Form{string} 2653r17 2654r20 2655r20 2656r20 2658r17 2662r17 2664r17
+2670U14 Annotate_Local_Structure_Ranges 2670b14 2671=7 2672>7 2707l8 2707t39
+. 3081s13
+2671r7 Result{32|20R9} 2677r33 2681r20 2681r48 2683r57 2702m19 2702r19
+2672a7 Text{string} 2676r26
+2674r7 Lines{8|91R9[15]} 2676m32 2676r32 2677r10 2690r47 2692r61 2695r19
+2681i11 Index{integer} 2683r79 2702r49
+2683r13 Item{31|96R9} 2684r76 2686r69 2688r47 2697r69 2698r41 2700m19 2702r56
+2684i13 Start_Line{natural} 2689r24 2690r24 2692r68 2695r26 2699r30 2701r39
+2685i13 End_Line{natural} 2694m16 2699r19 2701r51
+2686a13 Form{string} 2691r29 2695r38 2696r23 2698r47 2701r61
+2710V13 Outline_Kind_For_Symbol{31|22E9} 2710b13 2711>7 2753l8 2753t31 3046s28
+2711e7 Kind{27|8E9} 2716r12
+2756V13 Type_Label_Prefix{string} 2756b13 2757>7 2786l8 2786t25 2867s20
+2757r7 Symbol{27|251R9} 2760r10 2762r13 2764r13 2766r13 2768r13 2770r13 2771r18
+. 2774r13 2776r13 2777r17 2778r17 2781r13
+2788V13 Formal_Type_Label_Prefix{string} 2788b13 2789>7 2810l8 2810t32 2891s20
+2789r7 Symbol{27|251R9} 2792r10 2794r13 2796r13 2798r13 2800r13 2802r13 2803r17
+. 2804r17
+2812V13 Symbol_Label{string} 2812b13 2813>7 2907l8 2907t20 3047s54
+2813r7 Symbol{27|251R9} 2816r44 2817r46 2819r12 2827r16 2833r16 2839r16 2845r16
+. 2851r16 2853r19 2855r19 2856r24 2859r19 2867r39 2885r16 2891r46
+2816a7 Name{string} 2821r41 2823r33 2825r38 2828r43 2830r38 2834r42 2836r37
+. 2840r42 2842r37 2846r52 2848r47 2852r48 2854r51 2858r48 2860r50 2862r40
+. 2865r33 2867r49 2869r31 2871r38 2873r33 2875r32 2877r34 2879r35 2881r30
+. 2883r35 2886r41 2888r34 2891r56 2893r39 2895r43 2897r40 2899r33 2901r33
+. 2903r39 2905r20
+2817a7 Rename_Suffix{string} 2821r48 2823r40 2825r45 2830r45 2836r44 2842r44
+2909V13 Symbol_Detail{string} 2909b13 2910>7 3032l8 3032t21 3048s54
+2910r7 Symbol{27|251R9} 2914r25 2915r47 2917r15 2919r19 2926r19 2928r22 2942r13
+. 2944r13 2946r13 2947r16 2950r13 2952r13 2954r13 2956r13 2958r13 2960r13
+. 2962r13 2964r13 2966r13 2968r13 2970r13 2972r13 2974r13 2976r13 2978r13
+. 2980r13 2982r13 2984r13 2986r13 2988r13 2990r13 2992r13 2994r13 2996r13
+. 2998r13 3000r13 3002r13 3004r13 3006r13 3008r13 3010r13 3012r13 3013r13
+. 3014r13 3015r13 3016r13 3017r13 3018r13 3020r13 3022r13 3024r13 3025r13
+. 3026r13
+2913a7 Line_Text{string} 3029r27 3031r24
+2915a7 Profile{string} 3028r10 3029r856
+2916a7 Base_Form{string} 2942r57
+2941a7 Form{string} 3029r39 3031r36
+2943a7 Abstract_Metadata{string} 3029r46 3031r43
+2945a7 Overriding_Metadata{string} 3029r66 3031r63
+2949a7 Representation{string} 3029r88 3031r85
+2951a7 Aspect{string} 3029r105 3031r102
+2953a7 Pragma_Metadata{string} 3029r114 3031r111
+2955a7 Null_Exclusion{string} 3029r132 3031r129
+2957a7 Aliased_Metadata{string} 3029r149 3031r146
+2959a7 Limited_Metadata{string} 3029r168 3031r165
+2961a7 Tagged_Metadata{string} 3029r187 3031r184
+2963a7 Interface_Metadata{string} 3029r205 3031r202
+2965a7 Synchronized_Metadata{string} 3029r226 3031r223
+2967a7 Task_Interface_Metadata{string} 3029r250 3031r247
+2969a7 Protected_Interface_Metadata{string} 3029r276 3031r273
+2971a7 Task_Type_Metadata{string} 3029r307 3031r304
+2973a7 Protected_Type_Metadata{string} 3029r328 3031r325
+2975a7 Access_Metadata{string} 3029r354 3031r351
+2977a7 Access_All_Metadata{string} 3029r372 3031r369
+2979a7 Access_Constant_Metadata{string} 3029r394 3031r391
+2981a7 Class_Wide_Metadata{string} 3029r421 3031r418
+2983a7 Access_Subprogram_Metadata{string} 3029r443 3031r440
+2985a7 Access_Protected_Metadata{string} 3029r472 3031r469
+2987a7 Array_Metadata{string} 3029r500 3031r497
+2989a7 Derived_Metadata{string} 3029r517 3031r514
+2991a7 Range_Metadata{string} 3029r536 3031r533
+2993a7 Modular_Metadata{string} 3029r553 3031r550
+2995a7 Digits_Metadata{string} 3029r572 3031r569
+2997a7 Delta_Metadata{string} 3029r590 3031r587
+2999a7 Variant_Record_Metadata{string} 3029r607 3031r604
+3001a7 Default_Expression_Metadata{string} 3029r633 3031r630
+3003a7 Entry_Family_Metadata{string} 3029r663 3031r660
+3005a7 Incomplete_Type_Metadata{string} 3029r687 3031r684
+3007a7 Profile_Mode_Metadata{string} 3029r714 3031r711
+3009a7 Entry_Barrier_Metadata{string} 3029r738 3031r735
+3011a7 Box_Metadata=3017:96{string} 3029r763 3031r760
+3019a7 Discriminant_Part_Metadata{string} 3029r778 3031r775
+3021a7 Body_Stub_Metadata{string} 3029r807 3031r804
+3023a7 Constraint_Metadata=3025:78{string} 3029r828 3031r825
+3034U14 Append_Analysis_Result 3034b14 3035=7 3036>7 3056l8 3056t30 3080s13
+3035r7 Result{32|20R9} 3044m13 3044r13 3051r33
+3036r7 Analysis{27|811R9} 3039r65 3042r52
+3039i11 Index{integer} 3042r62
+3041r13 Symbol{27|251R9} 3046r53 3047r68 3048r69 3049r33 3052r33 3053r33
+3061a7 Text{string} 3067r33 3070r10 3077r15 3081r54 3086r16 3087r13 3092r27
+. 3099r30 3104r20 3111r24 3113r35 3115r16 3121r27
+3062r7 Result{32|20R9} 3071r17 3080m37 3080r37 3081m46 3081r46 3082r20 3099m22
+. 3099r22 3101m46 3101r46 3121m19 3121r19 3123m43 3123r43 3130r14
+3067i7 Line_Start{positive} 3091r31 3097r31 3099r36 3105m16 3111r10 3119r28
+. 3121r33
+3068i7 Line_Number{positive} 3099r61 3101r58 3107m13 3107r28 3121r58 3123r55
+3075r10 Analysis{27|811R9} 3079r53 3080r45
+3086i11 I{integer} 3087r19 3089r38 3104r16 3105r30
+3089i16 Line_End{natural} 3091r19 3092r33 3094m19 3094r31 3097r19 3099r50
+3113i13 Line_End{natural} 3115r22 3116m16 3116r28 3119r16 3121r47
+3169a13 Items{31|107A9} 3170r33 3173m16 3176r52
+3170i13 J{positive} 3173r23 3174m16 3174r21
+3172r17 Item{31|96R9} 3173r29
+X 37 system.ads
+67M9*Address
+X 50 s-memory.ads
+51V13*Alloc{37|67M9} 101i<c,__gnat_malloc>22
+66U14*Free 102i<c,__gnat_free>22
+74V13*Realloc{37|67M9} 103i<c,__gnat_realloc>22
+X 61 s-stalib.adb
+87U14 Break_Start 88i<c,__gnat_break_start>22
+

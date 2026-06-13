@@ -1,0 +1,79 @@
+V "GNAT Lib v15"
+A -gnatA
+A -gnat2022
+A -mtune=generic
+A -march=x86-64
+P ZX
+
+RN
+RV NO_IMPLEMENTATION_PRAGMAS
+
+U text_backend.array_impl%b  text_backend-array_impl.adb  e8c12d28 NE OO PK
+W text_backend%s	text_backend.ads	text_backend.ali
+
+U text_backend.array_impl%s  text_backend-array_impl.ads  543cdd0a EE NE OO PK
+W text_backend%s	text_backend.ads	text_backend.ali
+
+D system.ads		20250808065140 14286b0f system%s
+D text_backend.ads	20260412181650 6d0030da text_backend%s
+D text_backend-array_impl.ads  20260412175142 393cedd0 text_backend.array_impl%s
+D text_backend-array_impl.adb  20260415191929 d1fdc0f8 text_backend.array_impl%b
+G a e
+G c Z s b [clear text_backend__array_impl 5 14 none]
+G c Z s b [insert text_backend__array_impl 7 14 none]
+G c Z s b [insert_range text_backend__array_impl 12 14 none]
+G c Z s b [delete text_backend__array_impl 18 14 none]
+G c Z s b [delete_range text_backend__array_impl 22 14 none]
+G c Z s b [replace_range text_backend__array_impl 24 14 none]
+G c Z s b [length text_backend__array_impl 30 13 none]
+G c Z s b [element text_backend__array_impl 32 13 none]
+G c Z s s [char_arrayIP text_backend__array_impl 40 9 none]
+G c Z s s [buffer_typeIP text_backend__array_impl 42 9 none]
+X 2 text_backend.ads
+1K9*Text_Backend 10e17 3|1r9 47r5 4|1r14 129r5
+X 3 text_backend-array_impl.ads
+1K22*Array_Impl 2|1k9 3|38E12 47l18 47e28 4|1b27 129l18 129t28
+3R9*Buffer_Type 5r32 8r22 13r23 19r22 22r39 25r22 30r25 33r15 42c9 45e14
+. 4|3r32 11r19 41r20 54r19 80r19 100r19 111r25 119r15
+5U14*Clear 5=21 4|3b14 6l8 6t13
+5r21 B{3R9} 4|3b21 5m7
+7U14*Insert 8=7 9>7 10>7 4|10b14 36l5 36t11 47s10 106s4
+8r7 B{3R9} 4|11b4 16r7 16r16 21r16 22m7 22r17 23m7 23r15 30r26 31m7 31r25
+. 34m4 35m4 35r14
+9i7 Index{natural} 4|12b4 21r7 28r9
+10e7 Ch{character} 4|13b4 23r26 34r18
+12U14*Insert_Range 13=8 14>7 15>7 16>7 4|40b14 49l8 49t20
+13r8 B{3R9} 4|41b5 47m18
+14i7 Index{natural} 4|42b7 47r21
+15e7 Ch{character} 4|43b7 47r32
+16i7 Count{natural} 4|44b7 46r21
+18U14*Delete 19=7 20>7 4|53b11 75l5 75t11 93s7
+19r7 B{3R9} 4|54b4 58r7 62r16 64m7 64r17 70r18 71m7 71r21 74m4 74r14
+20i7 Index{natural} 4|55b4 62r7 68r9
+22U14*Delete_Range 22=28 22>52 22>59 4|79b11 95l5 95t17 105s4
+22r28 B{3R9} 4|80b4 92r26 93m15
+22i52 Start{natural} 4|81b4 92r17 93r18
+22i59 Span{natural} 4|82b4 84r7 91r18
+24U14*Replace_Range 25=8 26>7 27>7 28>7 4|99b11 107l5 107t18
+25r8 B{3R9} 4|100b4 105m18 106m12
+26i7 Start{natural} 4|101b4 105r21 106r15
+27i7 Span{natural} 4|102b4 105r28
+28e7 Ch{character} 4|103b4 106r22
+30V13*Length{natural} 30>21 4|111b13 114l8 114t14
+30r21 B{3R9} 4|111b21 113r14
+32V13*Element{character} 33>7 34>7 4|118b13 127l8 127t15
+33r7 B{3R9} 4|119b7 122r36 126r14
+34i7 Index{natural} 4|120b7 122r10 122r28 126r22
+38I12 Buffer_Index{natural}
+40A9 Char_Array(character)<integer> 43r14
+43a7*Data{40A9} 4|16r18 23m9 31m9 31r27 34m6 71m9 71r23 126r16
+44i7*Last{natural} 4|5m9 16r9 21r18 22m9 22r19 23r17 30r28 35m6 35r16 58r9
+. 62r18 64m9 64r19 70r20 74m6 74r16 92r28 113r16 122r38
+X 4 text_backend-array_impl.adb
+14i4 I{positive} 28m4 30r21 34r12
+30i8 J{integer} 31r15 31r33
+46i11 I{integer}
+56i4 I{positive} 68m4 70r13
+70i8 J{integer} 71r15 71r29
+91i8 I{integer}
+

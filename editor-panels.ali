@@ -1,0 +1,164 @@
+V "GNAT Lib v15"
+A -gnat2022
+P ZX
+
+RN
+RV NO_DEFAULT_INITIALIZATION
+RV NO_IMPLICIT_LOOPS
+RV NO_ELABORATION_CODE
+
+U editor.panels%b	editor-panels.adb	627f9e96 OO PK
+W editor%s		editor.ads		editor.ali
+
+U editor.panels%s	editor-panels.ads	70990962 EE NE OO PK
+W editor%s		editor.ads		editor.ali
+
+D editor.ads		20260612145959 16f844c2 editor%s
+D editor-panels.ads	20260612145959 66614da0 editor.panels%s
+D editor-panels.adb	20260612145959 041ed336 editor.panels%b
+D system.ads		20250808065140 14286b0f system%s
+G a e
+G c Z s b [initialize_defaults editor__panels 48 14 none]
+G c Z s b [default_set editor__panels 51 13 none]
+G c Z s b [current editor__panels 53 13 none]
+G c Z s b [set_current editor__panels 55 14 none]
+G c Z s b [config editor__panels 58 13 none]
+G c Z s b [set_config editor__panels 62 14 none]
+G c Z s b [state editor__panels 67 13 none]
+G c Z s b [set_visible editor__panels 71 14 none]
+G c Z s b [is_visible editor__panels 76 13 none]
+G c Z s b [current_size editor__panels 80 13 none]
+G c Z s b [set_current_size editor__panels 84 14 none]
+G c Z s b [clamp_size editor__panels 89 13 none]
+G c Z s b [resize_state editor__panels 93 13 none]
+G c Z s b [begin_resize editor__panels 96 14 none]
+G c Z s b [update_resize editor__panels 102 14 none]
+G c Z s b [end_resize editor__panels 109 14 none]
+G c Z s b [resize_active editor__panels 112 13 none]
+G c Z s b [set_bottom_content editor__panels 115 14 none]
+G c Z s b [active_bottom_content editor__panels 119 13 none]
+G c Z s s [panel_configIP editor__panels 22 9 none]
+G c Z s s [panel_stateIP editor__panels 33 9 none]
+G c Z s s [panel_resize_stateIP editor__panels 38 9 none]
+G c Z s s [Tconfig_arrayBIP editor__panels 123 4 none]
+G c Z s s [Tstate_arrayBIP editor__panels 124 4 none]
+G c Z s s [panel_setIP editor__panels 126 9 none]
+X 1 editor.ads
+1K9*Editor 5e11 2|1r9 133r5 3|1r14 264r5
+X 2 editor-panels.ads
+1K16*Panels 1|1k9 2|123E9 133l12 133e18 3|1b21 264l12 264t18
+3E9*Panel_Id 6e20 40r23 60r16 64r16 69r16 73r17 78r16 82r16 86r16 98r17 123r32
+. 124r31 3|75r16 83r16 97r16 105r17 114r16 122r16 146r16 162r17
+4n7*File_Tree_Panel{3E9} 40r35 3|24r23 25r22
+5n7*Right_Sidebar_Panel{3E9} 3|29r23 38r22
+6n7*Bottom_Panel{3E9} 3|41r23 50r22
+8E9*Panel_Side 11e19 24r30
+9n7*Left_Side{8E9} 24r44 3|7r31 200r15
+10n7*Right_Side{8E9} 3|31r34 202r15
+11n7*Bottom_Side{8E9} 3|43r34 204r15
+13E9*Panel_Size_Unit 16e14 29r30
+14n7*Columns{13E9} 29r49 3|12r31 36r34 209r15
+15n7*Rows{13E9} 3|48r34 215r15
+16n7*Pixels{13E9} 3|221r15
+18E9*Bottom_Panel_Content 20e30 117r17 120r34 130r24 3|249r17 256r34
+19n7*Problems_Content{18E9} 130r48 3|22r32
+20n7*Search_Results_Content{18E9}
+22R9*Panel_Config 31e14 60r33 65r16 90r16 123r45 3|5r40 75r33 84r16 129r16
+. 188r22
+23b7*Enabled{boolean} 3|6m7 30m10 42m10 90r21 109r74 117r34
+24e7*Side{8E9} 3|7m7 31m10 43m10 199r16
+25i7*Default_Size{natural} 3|8m7 27r51 32m10 44m10
+26i7*Minimum_Size{natural} 3|9m7 33m10 45m10 133r50 137r27 138r24
+27i7*Maximum_Size{natural} 3|10m7 34m10 46m10 133r17 133r72 134r24 135r20
+. 135r60 136r24
+28i7*Splitter_Size_Pixels{natural} 3|11m7 35m10 47m10
+29e7*Size_Unit{13E9} 3|12m7 36m10 48m10 208r16
+30b7*Resizable{boolean} 3|13m7 37m10 49m10 167r70
+33R9*Panel_State 36e14 69r33 124r44 3|97r33
+34b7*Visible{boolean} 3|26m10 39m10 51m10 91m29 109m26 117r70
+35i7*Current_Size{natural} 3|27m10 39m28 51m28 88m26 89r37 125r33 150m26
+. 177r46
+38R9*Panel_Resize_State 44e14 94r34 129r17 3|154r34 187r31
+39b7*Active{boolean} 3|168m24 173m10 193r21 237m21 244r28
+40e7*Panel{3E9} 3|174m10 197r37 227r43 229r43
+41i7*Start_Mouse_X{integer} 3|175m10 201r46 203r36
+42i7*Start_Mouse_Y{integer} 3|176m10 205r36
+43i7*Start_Size{natural} 3|177m10 225r36
+46R9*Panel_Set 49r23 51r32 53r28 56r16 59r16 63r23 68r16 72r24 77r16 81r16
+. 85r23 94r16 97r24 103r28 110r23 113r16 116r24 120r16 126c9 131e14 3|3r21
+. 16r23 54r32 55r16 61r28 67r16 74r16 82r23 96r16 104r24 113r16 121r16 145r23
+. 154r16 161r24 181r28 234r23 241r16 248r24 256r16
+48U14*Initialize_Defaults 49=7 3|15b14 52l8 52t27 57s7 263s4
+49r7 Panels{46R9} 3|16b7 19m7 20m7 21m7 22m7 24m7 25m7 29m7 38m7 41m7 50m7
+51V13*Default_Set{46R9} 3|54b13 59l8 59t19
+53V13*Current{46R9} 3|61b13 64l8 64t15
+55U14*Set_Current 56>7 3|66b14 71l8 71t19
+56r7 Panels{46R9} 3|67b7 70r25
+58V13*Config{22R9} 59>7 60>7 3|73b13 79l8 79t14
+59r7 Panels{46R9} 3|74b7 78r14
+60e7 Id{3E9} 3|75b7 78r30
+62U14*Set_Config 63=7 64>7 65>7 3|81b14 93l8 93t18
+63r7 Panels{46R9} 3|82b7 87m7 88m7 89r18 91m10
+64e7 Id{3E9} 3|83b7 87r23 88r22 89r33 91r25
+65r7 Config{22R9} 3|84b7 87r30 89r10 90r14
+67V13*State{33R9} 68>7 69>7 3|95b13 101l8 101t13
+68r7 Panels{46R9} 3|96b7 100r14
+69e7 Id{3E9} 3|97b7 100r29
+71U14*Set_Visible 72=7 73>7 74>7 3|103b14 110l8 110t19
+72r7 Panels{46R9} 3|104b7 109m7 109r54
+73e7 Id{3E9} 3|105b7 109r22 109r70
+74b7 Visible{boolean} 3|106b7 109r37
+76V13*Is_Visible{boolean} 77>7 78>7 3|112b13 118l8 118t18 167s14
+77r7 Panels{46R9} 3|113b7 117r14 117r51
+78e7 Id{3E9} 3|114b7 117r30 117r66
+80V13*Current_Size{natural} 81>7 82>7 3|120b13 126l8 126t20
+81r7 Panels{46R9} 3|121b7 125r14
+82e7 Id{3E9} 3|122b7 125r29
+84U14*Set_Current_Size 85=7 86>7 87>7 3|144b14 151l8 151t24 227s10 229s10
+85r7 Panels{46R9} 3|145b7 150m7 150r54
+86e7 Id{3E9} 3|146b7 150r22 150r70
+87i7 Size{natural} 3|147b7 150r75
+89V13*Clamp_Size{natural} 90>7 91>7 3|88s42 128b13 142l8 142t18 150s42
+90r7 Config{22R9} 3|129b7 133r10 133r43 133r65 134r17 135r13 135r53 136r17
+. 137r20 138r17
+91i7 Size{natural} 3|130b7 135r46 137r13 140r17
+93V13*Resize_State{38R9} 94>7 3|153b13 158l8 158t20
+94r7 Panels{46R9} 3|154b7 157r14
+96U14*Begin_Resize 97=7 98>7 99>7 100>7 3|160b14 178l8 178t20
+97r7 Panels{46R9} 3|161b7 167r26 167r50 168m10 172m7 177r27
+98e7 Id{3E9} 3|162b7 167r34 167r66 174r27 177r42
+99i7 Mouse_X{integer} 3|163b7 175r27
+100i7 Mouse_Y{integer} 3|164b7 176r27
+102U14*Update_Resize 103=7 104>7 105>7 106>7 107>7 3|180b14 231l8 231t21
+103r7 Panels{46R9} 3|181b7 187r53 197r14 227m28 229m28
+104i7 Mouse_X{integer} 3|182b7 201r29 203r52
+105i7 Mouse_Y{integer} 3|183b7 205r52
+106i7 Cell_Width{natural} 3|184b7 210r16 213r54
+107i7 Cell_Height{natural} 3|185b7 216r16 219r54
+109U14*End_Resize 110=7 3|233b14 238l8 238t18
+110r7 Panels{46R9} 3|234b7 237m7
+112V13*Resize_Active{boolean} 113>7 3|240b13 245l8 245t21
+113r7 Panels{46R9} 3|241b7 244r14
+115U14*Set_Bottom_Content 116=7 117>7 3|247b14 253l8 253t26
+116r7 Panels{46R9} 3|248b7 252m7
+117e7 Content{18E9} 3|249b7 252r32
+119V13*Active_Bottom_Content{18E9} 120>7 3|255b13 260l8 260t29
+120r7 Panels{46R9} 3|256b7 259r14
+123A9 Config_Array(22R9)<3E9> 127r17
+124A9 State_Array(33R9)<3E9> 128r17
+127a7*Configs{123A9} 3|19m14 24m14 29m14 41m14 78r21 87m14 109r61 117r21
+. 150r61 167r57 197r21
+128a7*States{124A9} 3|20m14 25m14 38m14 50m14 88m14 89r25 91m17 100r21 109m14
+. 117r58 125r21 150m14 177r34
+129r7*Resize{38R9} 3|21m14 157r21 168m17 172m14 187r60 237m14 244r21
+130e7*Bottom_Content{18E9} 3|22m14 252m14 259r21
+X 3 editor-panels.adb
+3r4 Current_Panels{2|46R9} 63r14 70m7 263m25 263r25
+5r4 Default_File_Tree_Config{2|22R9} 24r43 27r26
+55r7 Result{2|46R9} 57m28 57r28 58r14
+187r7 Resize{2|38R9} 193r14 197r30 201r39 203r29 205r29 225r29 227r36 229r36
+188r7 Cfg{2|22R9} 197m7 199r12 208r12
+189i7 Delta_Pixels{integer} 201m13 203m13 205m13 213r30 219r30 222r27
+190i7 Delta_Size{integer} 211m16 213m16 217m16 219m16 222m13 225r50
+191i7 Requested{integer} 225m7 226r10 229r59
+

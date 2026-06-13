@@ -1,0 +1,32 @@
+V "GNAT Lib v13"
+A -gnat2022
+P ZX
+
+RN
+
+U editor.unicode%b	editor-unicode.adb	f53a542a NE OO PK
+W editor%s		editor.ads		editor.ali
+
+U editor.unicode%s	editor-unicode.ads	43d7b70e EE NE OO PK
+W editor%s		editor.ads		editor.ali
+
+D editor.ads		20260612145959 16f844c2 editor%s
+D editor-unicode.ads	20260612145959 552ff3cc editor.unicode%s
+D editor-unicode.adb	20260612145959 a015a7e6 editor.unicode%b
+D system.ads		20240521074738 426dafb8 system%s
+G a e
+G c Z s b [is_valid_scalar editor__unicode 6 13 none]
+G c Z s b [is_newline editor__unicode 7 13 none]
+X 1 editor.ads
+1K9*Editor 5e11 2|1r9 8r5 3|1r14 12r5
+X 2 editor-unicode.ads
+1K16*Unicode 1|1k9 2|8l12 8e19 3|1b21 12l12 12t19
+2E12*Code_Point{wide_wide_character} 4r37 6r34 7r29 3|2r34 8r29
+4e4*Replacement_Character{2E12}
+6V13*Is_Valid_Scalar{boolean} 6>30 3|2b13 6l8 6t23
+6e30 C{2E12} 3|2b30 3r56
+7V13*Is_Newline{boolean} 7>25 3|8b13 11l8 11t18
+7e25 C{2E12} 3|8b25 10r14
+X 3 editor-unicode.adb
+3i7 V{natural} 5r14 5r44
+

@@ -1,0 +1,1155 @@
+V "GNAT Lib v15"
+A -gnat2022
+P SS ZX
+
+RN
+RV NO_EXCEPTION_HANDLERS
+RV NO_EXCEPTION_PROPAGATION
+RV NO_EXCEPTIONS
+RV NO_IMPLICIT_CONDITIONALS
+RV NO_NESTED_FINALIZATION
+RV NO_SECONDARY_STACK
+RV NO_STANDARD_STORAGE_POOLS
+RV NO_DEFAULT_INITIALIZATION
+RV NO_DYNAMIC_SIZED_OBJECTS
+RV NO_IMPLICIT_LOOPS
+RV NO_ELABORATION_CODE
+
+U editor.configuration_recovery%b  editor-configuration_recovery.adb  35022318 OO PK
+W ada%s			ada.ads			ada.ali
+Z ada.exceptions%s	a-except.adb		a-except.ali
+W ada.strings%s		a-string.ads		a-string.ali
+Z ada.strings.text_buffers%s  a-sttebu.adb	a-sttebu.ali
+W ada.strings.unbounded%s  a-strunb.adb		a-strunb.ali
+Z ada.tags%s		a-tags.adb		a-tags.ali
+W editor%s		editor.ads		editor.ali
+W editor.commands%s	editor-commands.adb	editor-commands.ali
+Z system%s		system.ads		system.ali
+Z system.concat_2%s	s-conca2.adb		s-conca2.ali
+Z system.concat_3%s	s-conca3.adb		s-conca3.ali
+Z system.finalization_primitives%s  s-finpri.adb  s-finpri.ali
+Z system.img_int%s	s-imgint.ads		s-imgint.ali
+Z system.return_stack%s	s-retsta.ads		s-retsta.ali
+Z system.secondary_stack%s  s-secsta.adb	s-secsta.ali
+Z system.soft_links%s	s-soflin.adb		s-soflin.ali
+Z system.standard_library%s  s-stalib.adb	s-stalib.ali
+
+U editor.configuration_recovery%s  editor-configuration_recovery.ads  50488b40 EE NE OO PK
+W ada%s			ada.ads			ada.ali
+Z ada.exceptions%s	a-except.adb		a-except.ali
+W ada.strings%s		a-string.ads		a-string.ali
+W ada.strings.unbounded%s  a-strunb.adb		a-strunb.ali
+Z ada.tags%s		a-tags.adb		a-tags.ali
+W editor%s		editor.ads		editor.ali
+W editor.keybinding_config%s  editor-keybinding_config.adb  editor-keybinding_config.ali
+W editor.recent_projects%s  editor-recent_projects.adb  editor-recent_projects.ali
+W editor.settings%s	editor-settings.adb	editor-settings.ali
+W editor.workspace_persistence%s  editor-workspace_persistence.adb  editor-workspace_persistence.ali
+Z system%s		system.ads		system.ali
+Z system.soft_links%s	s-soflin.adb		s-soflin.ali
+Z system.standard_library%s  s-stalib.adb	s-stalib.ali
+
+D ada.ads		20250808065140 76789da1 ada%s
+D a-charac.ads		20250808065140 2d3ec45b ada.characters%s
+D a-chlat1.ads		20250808065140 e0d72e76 ada.characters.latin_1%s
+D a-contai.ads		20250808065140 61e5e089 ada.containers%s
+D a-conhel.ads		20250808065140 46fe1ce3 ada.containers.helpers%s
+D a-convec.ads		20250808065140 91fb49f3 ada.containers.vectors%s
+D a-except.ads		20250808065140 e7970cd9 ada.exceptions%s
+D a-finali.ads		20250808065140 bf4f806b ada.finalization%s
+D a-iteint.ads		20250808065140 49a8bee2 ada.iterator_interfaces%s
+D a-stream.ads		20250808065140 17477cbd ada.streams%s
+D a-string.ads		20250808065140 90ac6797 ada.strings%s
+D a-strmap.ads		20250808065140 1f91ebb6 ada.strings.maps%s
+D a-strsea.ads		20250808065140 18c3c634 ada.strings.search%s
+D a-sttebu.ads		20250808065140 f1ad67a2 ada.strings.text_buffers%s
+D a-strunb.ads		20250808065140 b10770ab ada.strings.unbounded%s
+D a-stuten.ads		20250808065140 c6ced0ae ada.strings.utf_encoding%s
+D a-tags.ads		20250808065140 fbca0ad5 ada.tags%s
+D a-unccon.ads		20250808065140 0e9b276f ada.unchecked_conversion%s
+D editor.ads		20260612145959 16f844c2 editor%s
+D editor-commands.ads	20260612173240 3b5e3f44 editor.commands%s
+D editor-configuration_recovery.ads  20260612145959 987b1c3b editor.configuration_recovery%s
+D editor-configuration_recovery.adb  20260612160501 272070cc editor.configuration_recovery%b
+D editor-cursors.ads	20260612145959 1f938cf3 editor.cursors%s
+D editor-keybinding_config.ads  20260612145959 0692338f editor.keybinding_config%s
+D editor-keybindings.ads  20260612145959 2657f44d editor.keybindings%s
+D editor-recent_projects.ads  20260612145959 ee1155f5 editor.recent_projects%s
+D editor-settings.ads	20260612145959 c2103809 editor.settings%s
+D editor-unicode.ads	20260612145959 552ff3cc editor.unicode%s
+D editor-workspace_persistence.ads  20260612145959 455ffd61 editor.workspace_persistence%s
+D interfac.ads		20250808065140 9111f9c1 interfaces%s
+D i-c.ads		20250808065140 e94c966a interfaces.c%s
+D system.ads		20250808065140 14286b0f system%s
+D s-atocou.ads		20250808065140 dc18efc3 system.atomic_counters%s
+D s-conca2.ads		20250808065140 b5fb73f7 system.concat_2%s
+D s-conca3.ads		20250808065140 8a7a19a2 system.concat_3%s
+D s-exctab.ads		20250808065140 91bef6ef system.exception_table%s
+D s-finpri.ads		20250808065140 5970d55a system.finalization_primitives%s
+D s-finroo.ads		20250808065140 0a7c3ed4 system.finalization_root%s
+D s-imagei.ads		20250808065140 5e131ce0 system.image_i%s
+D s-imgint.ads		20250808065140 67e4edfb system.img_int%s
+D s-memory.ads		20250808065140 18949c1a system.memory%s
+D s-oscons.ads		20250827122531 068e1a91 system.os_constants%s
+D s-oslock.ads		20250808065140 13fa6b78 system.os_locks%s
+D s-parame.ads		20250808065140 3597fc11 system.parameters%s
+D s-pooglo.ads		20250808065140 91708d21 system.pool_global%s
+D s-putima.ads		20250808065140 17291fe4 system.put_images%s
+D s-retsta.ads		20250808065140 0f6b06cb system.return_stack%s
+D s-secsta.ads		20250808065140 578279f5 system.secondary_stack%s
+D s-soflin.ads		20250808065140 5d88fdea system.soft_links%s
+D s-stache.ads		20250808065140 0b81c1fe system.stack_checking%s
+D s-stalib.ads		20250808065140 1c9580f6 system.standard_library%s
+D s-stalib.adb		20250808065140 eb464a47 system.standard_library%b
+D s-stoele.ads		20250808065140 ccded4e8 system.storage_elements%s
+D s-stopoo.ads		20250808065140 e9fa2dd8 system.storage_pools%s
+D s-stratt.ads		20250808065140 516607ae system.stream_attributes%s
+D s-traent.ads		20250808065140 c81cbf8c system.traceback_entries%s
+D s-unstyp.ads		20250808065140 fa2a7f59 system.unsigned_types%s
+D s-valspe.ads		20250808065140 f810d31c system.val_spec%s
+D s-vaispe.ads		20250808065140 8280550e system.value_i_spec%s
+D s-vauspe.ads		20250808065140 89269ba5 system.value_u_spec%s
+D s-vs_int.ads		20250808065140 06b6b724 system.vs_int%s
+D s-vs_uns.ads		20250808065140 e7f47a27 system.vs_uns%s
+G a e
+G c Z s b [domain_label editor__configuration_recovery 164 13 none]
+G c Z s b [load_status_label editor__configuration_recovery 165 13 none]
+G c Z s b [recovery_action_label editor__configuration_recovery 166 13 none]
+G c Z s b [recovery_command_stable_name editor__configuration_recovery 168 13 none]
+G c Z s b [recovery_command_availability_for editor__configuration_recovery 171 13 none]
+G c Z s b [request_reset_all_confirmation editor__configuration_recovery 176 14 none]
+G c Z s b [clear_reset_all_confirmation editor__configuration_recovery 177 14 none]
+G c Z s b [has_pending_reset_all_confirmation editor__configuration_recovery 178 13 none]
+G c Z s b [build_recovery_command_catalog editor__configuration_recovery 180 13 none]
+G c Z s b [status_from_settings editor__configuration_recovery 182 13 none]
+G c Z s b [status_from_keybindings editor__configuration_recovery 185 13 none]
+G c Z s b [status_from_workspace editor__configuration_recovery 188 13 none]
+G c Z s b [status_from_recent_projects editor__configuration_recovery 192 13 none]
+G c Z s b [normalize_recovery_status editor__configuration_recovery 195 14 none]
+G c Z s b [recovery_message_is_bounded editor__configuration_recovery 198 13 none]
+G c Z s b [normalize_recovery_summary editor__configuration_recovery 201 14 none]
+G c Z s b [append editor__configuration_recovery 204 14 none]
+G c Z s b [summary_label editor__configuration_recovery 208 13 none]
+G c Z s b [domain_has_recovery_issue editor__configuration_recovery 211 13 none]
+G c Z s b [build_startup_recovery_summary editor__configuration_recovery 214 13 none]
+G c Z s b [build_surface_snapshot editor__configuration_recovery 220 13 none]
+G c Z s b [record_recovery_summary editor__configuration_recovery 224 14 none]
+G c Z s b [has_recorded_recovery_summary editor__configuration_recovery 227 13 none]
+G c Z s b [current_recovery_summary editor__configuration_recovery 229 13 none]
+G c Z s b [clear_recorded_recovery_summary editor__configuration_recovery 231 14 none]
+G c Z s b [clear_recovery_runtime_state editor__configuration_recovery 233 14 none]
+G c Z s b [recovery_summary_has_only_clean_domains editor__configuration_recovery 235 13 none]
+G c Z s b [append_domain_local_status editor__configuration_recovery 238 14 none]
+G c Z s b [load_all_domains_safely editor__configuration_recovery 242 14 none]
+G c Z s b [reset_settings_domain editor__configuration_recovery 253 14 none]
+G c Z s b [reset_keybindings_domain editor__configuration_recovery 257 14 none]
+G c Z s b [reset_workspace_domain editor__configuration_recovery 261 14 none]
+G c Z s b [reset_recent_projects_domain editor__configuration_recovery 265 14 none]
+G c Z s b [reset_all_domains editor__configuration_recovery 271 14 none]
+G c Z s b [save_clean_settings editor__configuration_recovery 279 14 none]
+G c Z s b [save_clean_keybindings editor__configuration_recovery 284 14 none]
+G c Z s b [save_clean_workspace editor__configuration_recovery 289 14 none]
+G c Z s b [save_clean_recent_projects editor__configuration_recovery 294 14 none]
+G c Z s b [assert_configuration_domains_load_independently editor__configuration_recovery 299 13 none]
+G c Z s b [assert_safe_defaults_are_always_available editor__configuration_recovery 300 13 none]
+G c Z s b [assert_recovery_commands_do_not_cross_write_domains editor__configuration_recovery 301 13 none]
+G c Z s b [assert_reset_all_requires_confirmation editor__configuration_recovery 303 13 none]
+G c Z s b [assert_recovery_command_catalog_is_payload_free editor__configuration_recovery 304 13 none]
+G c Z s b [assert_load_all_domains_contains_failures editor__configuration_recovery 305 13 none]
+G c Z s b [assert_surface_contains_actionable_domain_details editor__configuration_recovery 306 13 none]
+G c Z s b [assert_save_clean_status_is_domain_local editor__configuration_recovery 307 13 none]
+G c Z s b [assert_recovery_command_availability_is_domain_local editor__configuration_recovery 308 13 none]
+G c Z s b [assert_recovery_summary_overflow_is_bounded editor__configuration_recovery 309 13 none]
+G c Z s b [assert_settings_recovery_counts_are_actionable editor__configuration_recovery 310 13 none]
+G c Z s b [assert_recent_projects_partial_load_is_preserved editor__configuration_recovery 311 13 none]
+G c Z s b [assert_configuration_recovery_render_is_side_effect_free editor__configuration_recovery 312 13 none]
+G c Z s b [assert_recovery_state_not_persisted editor__configuration_recovery 313 13 none]
+G c Z s b [assert_recorded_recovery_summary_is_transient editor__configuration_recovery 314 13 none]
+G c Z s b [assert_recovery_runtime_state_clear_is_local editor__configuration_recovery 315 13 none]
+G c Z s b [assert_clean_summary_disables_reset_and_save_clean editor__configuration_recovery 316 13 none]
+G c Z s b [assert_domain_local_status_record_is_bounded editor__configuration_recovery 317 13 none]
+G c Z s b [assert_save_clean_failure_status_is_exception_contained editor__configuration_recovery 318 13 none]
+G c Z s b [assert_recovery_messages_are_bounded editor__configuration_recovery 319 13 none]
+G c Z s b [assert_recovery_availability_blocks_domain_mutation_while_pending editor__configuration_recovery 320 13 none]
+G c Z s b [assert_reset_all_keybinding_failure_status_is_not_fabricated editor__configuration_recovery 321 13 none]
+G c Z s b [assert_recovery_keybindings_have_no_payloads editor__configuration_recovery 322 13 none]
+G c Z s b [assert_configuration_recovery_coherent editor__configuration_recovery 323 13 none]
+G c Z s s [recovery_command_availabilityDI editor__configuration_recovery 57 9 none]
+G c Z s s [recovery_command_availabilityDA editor__configuration_recovery 57 9 none]
+G c Z s s [recovery_command_availabilityDF editor__configuration_recovery 57 9 none]
+G c Z s s [recovery_command_availabilityIP editor__configuration_recovery 57 9 none]
+G c Z s s [recovery_command_rowDI editor__configuration_recovery 63 9 none]
+G c Z s s [recovery_command_rowDA editor__configuration_recovery 63 9 none]
+G c Z s s [recovery_command_rowDF editor__configuration_recovery 63 9 none]
+G c Z s s [recovery_command_rowIP editor__configuration_recovery 63 9 none]
+G c Z s s [Trecovery_command_row_arrayBIP editor__configuration_recovery 81 4 none]
+G c Z s s [Trecovery_command_row_arrayBDI editor__configuration_recovery 81 4 none]
+G c Z s s [Trecovery_command_row_arrayBDA editor__configuration_recovery 81 4 none]
+G c Z s s [Trecovery_command_row_arrayBDF editor__configuration_recovery 81 4 none]
+G c Z s s [recovery_command_catalogDI editor__configuration_recovery 84 9 none]
+G c Z s s [recovery_command_catalogDA editor__configuration_recovery 84 9 none]
+G c Z s s [recovery_command_catalogDF editor__configuration_recovery 84 9 none]
+G c Z s s [recovery_command_catalogIP editor__configuration_recovery 84 9 none]
+G c Z s s [domain_recovery_statusDI editor__configuration_recovery 94 9 none]
+G c Z s s [domain_recovery_statusDA editor__configuration_recovery 94 9 none]
+G c Z s s [domain_recovery_statusDF editor__configuration_recovery 94 9 none]
+G c Z s s [domain_recovery_statusIP editor__configuration_recovery 94 9 none]
+G c Z s s [Tdomain_recovery_status_arrayBIP editor__configuration_recovery 116 4 none]
+G c Z s s [Tdomain_recovery_status_arrayBDI editor__configuration_recovery 116 4 none]
+G c Z s s [Tdomain_recovery_status_arrayBDA editor__configuration_recovery 116 4 none]
+G c Z s s [Tdomain_recovery_status_arrayBDF editor__configuration_recovery 116 4 none]
+G c Z s s [configuration_recovery_summaryDI editor__configuration_recovery 119 9 none]
+G c Z s s [configuration_recovery_summaryDA editor__configuration_recovery 119 9 none]
+G c Z s s [configuration_recovery_summaryDF editor__configuration_recovery 119 9 none]
+G c Z s s [configuration_recovery_summaryIP editor__configuration_recovery 119 9 none]
+G c Z s s [configuration_recovery_row_snapshotDI editor__configuration_recovery 129 9 none]
+G c Z s s [configuration_recovery_row_snapshotDA editor__configuration_recovery 129 9 none]
+G c Z s s [configuration_recovery_row_snapshotDF editor__configuration_recovery 129 9 none]
+G c Z s s [configuration_recovery_row_snapshotIP editor__configuration_recovery 129 9 none]
+G c Z s s [Tconfiguration_recovery_row_arrayBIP editor__configuration_recovery 151 4 none]
+G c Z s s [Tconfiguration_recovery_row_arrayBDI editor__configuration_recovery 151 4 none]
+G c Z s s [Tconfiguration_recovery_row_arrayBDA editor__configuration_recovery 151 4 none]
+G c Z s s [Tconfiguration_recovery_row_arrayBDF editor__configuration_recovery 151 4 none]
+G c Z s s [configuration_recovery_surface_snapshotDI editor__configuration_recovery 154 9 none]
+G c Z s s [configuration_recovery_surface_snapshotDA editor__configuration_recovery 154 9 none]
+G c Z s s [configuration_recovery_surface_snapshotDF editor__configuration_recovery 154 9 none]
+G c Z s s [configuration_recovery_surface_snapshotIP editor__configuration_recovery 154 9 none]
+G c Z b b [count_image editor__configuration_recovery 15 13 none]
+G c Z b b [bounded_text editor__configuration_recovery 21 13 none]
+G c Z b b [summary_has_domain_issue editor__configuration_recovery 102 13 none]
+G c Z b b [summary_has_any_domain_issue editor__configuration_recovery 118 13 none]
+G c Z b b [recovery_command_row_for editor__configuration_recovery 223 13 none]
+G c Z b b [issue_row editor__configuration_recovery 318 13 none]
+G r c none [status_from_settings editor__configuration_recovery 182 13 none] [last_load_defaulted_count editor__settings 123 13 none]
+G r c none [status_from_settings editor__configuration_recovery 182 13 none] [last_load_ignored_count editor__settings 122 13 none]
+G r c none [status_from_keybindings editor__configuration_recovery 185 13 none] [last_load_ignored_count editor__keybinding_config 42 13 none]
+G r c none [status_from_keybindings editor__configuration_recovery 185 13 none] [last_load_diagnostic_count editor__keybinding_config 49 13 none]
+G r c none [status_from_recent_projects editor__configuration_recovery 192 13 none] [last_load_ignored_count editor__recent_projects 81 13 none]
+G r c none [load_all_domains_safely editor__configuration_recovery 242 14 none] [load_from_file editor__settings 222 14 none]
+G r c none [load_all_domains_safely editor__configuration_recovery 242 14 none] [set_defaults editor__settings 131 14 none]
+G r c none [load_all_domains_safely editor__configuration_recovery 242 14 none] [last_load_defaulted_count editor__settings 123 13 none]
+G r c none [load_all_domains_safely editor__configuration_recovery 242 14 none] [last_load_ignored_count editor__settings 122 13 none]
+G r c none [load_all_domains_safely editor__configuration_recovery 242 14 none] [load_from_file editor__keybinding_config 161 14 none]
+G r c none [load_all_domains_safely editor__configuration_recovery 242 14 none] [set_defaults editor__keybinding_config 65 14 none]
+G r c none [load_all_domains_safely editor__configuration_recovery 242 14 none] [last_load_ignored_count editor__keybinding_config 42 13 none]
+G r c none [load_all_domains_safely editor__configuration_recovery 242 14 none] [last_load_diagnostic_count editor__keybinding_config 49 13 none]
+G r c none [load_all_domains_safely editor__configuration_recovery 242 14 none] [load_from_file editor__workspace_persistence 243 14 none]
+G r c none [load_all_domains_safely editor__configuration_recovery 242 14 none] [clear editor__workspace_persistence 71 14 none]
+G r c none [load_all_domains_safely editor__configuration_recovery 242 14 none] [diagnostic_count editor__workspace_persistence 215 13 none]
+G r c none [load_all_domains_safely editor__configuration_recovery 242 14 none] [load_from_file editor__recent_projects 96 14 none]
+G r c none [load_all_domains_safely editor__configuration_recovery 242 14 none] [clear editor__recent_projects 29 14 none]
+G r c none [load_all_domains_safely editor__configuration_recovery 242 14 none] [last_load_ignored_count editor__recent_projects 81 13 none]
+G r c none [reset_settings_domain editor__configuration_recovery 253 14 none] [set_defaults editor__settings 131 14 none]
+G r c none [reset_keybindings_domain editor__configuration_recovery 257 14 none] [set_defaults editor__keybinding_config 65 14 none]
+G r c none [reset_workspace_domain editor__configuration_recovery 261 14 none] [clear editor__workspace_persistence 71 14 none]
+G r c none [reset_recent_projects_domain editor__configuration_recovery 265 14 none] [clear editor__recent_projects 29 14 none]
+G r c none [reset_all_domains editor__configuration_recovery 271 14 none] [set_defaults editor__settings 131 14 none]
+G r c none [reset_all_domains editor__configuration_recovery 271 14 none] [set_defaults editor__keybinding_config 65 14 none]
+G r c none [reset_all_domains editor__configuration_recovery 271 14 none] [clear editor__workspace_persistence 71 14 none]
+G r c none [reset_all_domains editor__configuration_recovery 271 14 none] [clear editor__recent_projects 29 14 none]
+G r j settings_model [save_clean_settings editor__configuration_recovery 279 14 none] [settings_modelDA editor__settings 230 9 none]
+G r c none [save_clean_settings editor__configuration_recovery 279 14 none] [normalize editor__settings 188 14 none]
+G r c none [save_clean_settings editor__configuration_recovery 279 14 none] [save_to_file editor__settings 214 14 none]
+G r c none [save_clean_settings editor__configuration_recovery 279 14 none] [last_load_defaulted_count editor__settings 123 13 none]
+G r c none [save_clean_settings editor__configuration_recovery 279 14 none] [last_load_ignored_count editor__settings 122 13 none]
+G r c none [save_clean_keybindings editor__configuration_recovery 284 14 none] [normalize editor__keybinding_config 116 14 none]
+G r c none [save_clean_keybindings editor__configuration_recovery 284 14 none] [save_to_file editor__keybinding_config 149 14 none]
+G r c none [save_clean_keybindings editor__configuration_recovery 284 14 none] [last_load_ignored_count editor__keybinding_config 42 13 none]
+G r c none [save_clean_keybindings editor__configuration_recovery 284 14 none] [last_load_diagnostic_count editor__keybinding_config 49 13 none]
+G r j workspace_snapshot [save_clean_workspace editor__configuration_recovery 289 14 none] [workspace_snapshotDA editor__workspace_persistence 262 9 none]
+G r c none [save_clean_workspace editor__configuration_recovery 289 14 none] [normalize editor__workspace_persistence 182 14 none]
+G r c none [save_clean_workspace editor__configuration_recovery 289 14 none] [save_to_file_atomically editor__workspace_persistence 238 14 none]
+G r j recent_project_list [save_clean_recent_projects editor__configuration_recovery 294 14 none] [recent_project_listDA editor__recent_projects 117 9 none]
+G r c none [save_clean_recent_projects editor__configuration_recovery 294 14 none] [normalize editor__recent_projects 87 14 none]
+G r c none [save_clean_recent_projects editor__configuration_recovery 294 14 none] [save_to_file editor__recent_projects 91 14 none]
+G r c none [save_clean_recent_projects editor__configuration_recovery 294 14 none] [last_load_ignored_count editor__recent_projects 81 13 none]
+G r s settings_model [assert_configuration_domains_load_independently editor__configuration_recovery 299 13 none] [settings_modelIP editor__settings 230 9 none]
+G r l settings_model [assert_configuration_domains_load_independently editor__configuration_recovery 299 13 none] [settings_modelDI editor__settings 230 9 none]
+G r k settings_model [assert_configuration_domains_load_independently editor__configuration_recovery 299 13 none] [settings_modelDF editor__settings 230 9 none]
+G r s keybinding_config_model [assert_configuration_domains_load_independently editor__configuration_recovery 299 13 none] [keybinding_config_modelIP editor__keybinding_config 178 9 none]
+G r s workspace_snapshot [assert_configuration_domains_load_independently editor__configuration_recovery 299 13 none] [workspace_snapshotIP editor__workspace_persistence 262 9 none]
+G r l workspace_snapshot [assert_configuration_domains_load_independently editor__configuration_recovery 299 13 none] [workspace_snapshotDI editor__workspace_persistence 262 9 none]
+G r k workspace_snapshot [assert_configuration_domains_load_independently editor__configuration_recovery 299 13 none] [workspace_snapshotDF editor__workspace_persistence 262 9 none]
+G r s recent_project_list [assert_configuration_domains_load_independently editor__configuration_recovery 299 13 none] [recent_project_listIP editor__recent_projects 117 9 none]
+G r l recent_project_list [assert_configuration_domains_load_independently editor__configuration_recovery 299 13 none] [recent_project_listDI editor__recent_projects 117 9 none]
+G r k recent_project_list [assert_configuration_domains_load_independently editor__configuration_recovery 299 13 none] [recent_project_listDF editor__recent_projects 117 9 none]
+G r c none [assert_configuration_domains_load_independently editor__configuration_recovery 299 13 none] [load_from_file editor__settings 222 14 none]
+G r c none [assert_configuration_domains_load_independently editor__configuration_recovery 299 13 none] [set_defaults editor__settings 131 14 none]
+G r c none [assert_configuration_domains_load_independently editor__configuration_recovery 299 13 none] [last_load_defaulted_count editor__settings 123 13 none]
+G r c none [assert_configuration_domains_load_independently editor__configuration_recovery 299 13 none] [last_load_ignored_count editor__settings 122 13 none]
+G r c none [assert_configuration_domains_load_independently editor__configuration_recovery 299 13 none] [load_from_file editor__keybinding_config 161 14 none]
+G r c none [assert_configuration_domains_load_independently editor__configuration_recovery 299 13 none] [set_defaults editor__keybinding_config 65 14 none]
+G r c none [assert_configuration_domains_load_independently editor__configuration_recovery 299 13 none] [last_load_ignored_count editor__keybinding_config 42 13 none]
+G r c none [assert_configuration_domains_load_independently editor__configuration_recovery 299 13 none] [last_load_diagnostic_count editor__keybinding_config 49 13 none]
+G r c none [assert_configuration_domains_load_independently editor__configuration_recovery 299 13 none] [load_from_file editor__workspace_persistence 243 14 none]
+G r c none [assert_configuration_domains_load_independently editor__configuration_recovery 299 13 none] [clear editor__workspace_persistence 71 14 none]
+G r c none [assert_configuration_domains_load_independently editor__configuration_recovery 299 13 none] [diagnostic_count editor__workspace_persistence 215 13 none]
+G r c none [assert_configuration_domains_load_independently editor__configuration_recovery 299 13 none] [load_from_file editor__recent_projects 96 14 none]
+G r c none [assert_configuration_domains_load_independently editor__configuration_recovery 299 13 none] [clear editor__recent_projects 29 14 none]
+G r c none [assert_configuration_domains_load_independently editor__configuration_recovery 299 13 none] [last_load_ignored_count editor__recent_projects 81 13 none]
+G r s settings_model [assert_safe_defaults_are_always_available editor__configuration_recovery 300 13 none] [settings_modelIP editor__settings 230 9 none]
+G r l settings_model [assert_safe_defaults_are_always_available editor__configuration_recovery 300 13 none] [settings_modelDI editor__settings 230 9 none]
+G r k settings_model [assert_safe_defaults_are_always_available editor__configuration_recovery 300 13 none] [settings_modelDF editor__settings 230 9 none]
+G r s keybinding_config_model [assert_safe_defaults_are_always_available editor__configuration_recovery 300 13 none] [keybinding_config_modelIP editor__keybinding_config 178 9 none]
+G r s workspace_snapshot [assert_safe_defaults_are_always_available editor__configuration_recovery 300 13 none] [workspace_snapshotIP editor__workspace_persistence 262 9 none]
+G r l workspace_snapshot [assert_safe_defaults_are_always_available editor__configuration_recovery 300 13 none] [workspace_snapshotDI editor__workspace_persistence 262 9 none]
+G r k workspace_snapshot [assert_safe_defaults_are_always_available editor__configuration_recovery 300 13 none] [workspace_snapshotDF editor__workspace_persistence 262 9 none]
+G r s recent_project_list [assert_safe_defaults_are_always_available editor__configuration_recovery 300 13 none] [recent_project_listIP editor__recent_projects 117 9 none]
+G r l recent_project_list [assert_safe_defaults_are_always_available editor__configuration_recovery 300 13 none] [recent_project_listDI editor__recent_projects 117 9 none]
+G r k recent_project_list [assert_safe_defaults_are_always_available editor__configuration_recovery 300 13 none] [recent_project_listDF editor__recent_projects 117 9 none]
+G r c none [assert_safe_defaults_are_always_available editor__configuration_recovery 300 13 none] [set_defaults editor__settings 131 14 none]
+G r c none [assert_safe_defaults_are_always_available editor__configuration_recovery 300 13 none] [set_defaults editor__keybinding_config 65 14 none]
+G r c none [assert_safe_defaults_are_always_available editor__configuration_recovery 300 13 none] [clear editor__workspace_persistence 71 14 none]
+G r c none [assert_safe_defaults_are_always_available editor__configuration_recovery 300 13 none] [clear editor__recent_projects 29 14 none]
+G r c none [assert_safe_defaults_are_always_available editor__configuration_recovery 300 13 none] [open_file_count editor__workspace_persistence 91 13 none]
+G r c none [assert_safe_defaults_are_always_available editor__configuration_recovery 300 13 none] [count editor__recent_projects 32 13 none]
+G r s settings_model [assert_recovery_commands_do_not_cross_write_domains editor__configuration_recovery 301 13 none] [settings_modelIP editor__settings 230 9 none]
+G r l settings_model [assert_recovery_commands_do_not_cross_write_domains editor__configuration_recovery 301 13 none] [settings_modelDI editor__settings 230 9 none]
+G r k settings_model [assert_recovery_commands_do_not_cross_write_domains editor__configuration_recovery 301 13 none] [settings_modelDF editor__settings 230 9 none]
+G r s keybinding_config_model [assert_recovery_commands_do_not_cross_write_domains editor__configuration_recovery 301 13 none] [keybinding_config_modelIP editor__keybinding_config 178 9 none]
+G r s workspace_snapshot [assert_recovery_commands_do_not_cross_write_domains editor__configuration_recovery 301 13 none] [workspace_snapshotIP editor__workspace_persistence 262 9 none]
+G r l workspace_snapshot [assert_recovery_commands_do_not_cross_write_domains editor__configuration_recovery 301 13 none] [workspace_snapshotDI editor__workspace_persistence 262 9 none]
+G r k workspace_snapshot [assert_recovery_commands_do_not_cross_write_domains editor__configuration_recovery 301 13 none] [workspace_snapshotDF editor__workspace_persistence 262 9 none]
+G r s recent_project_list [assert_recovery_commands_do_not_cross_write_domains editor__configuration_recovery 301 13 none] [recent_project_listIP editor__recent_projects 117 9 none]
+G r l recent_project_list [assert_recovery_commands_do_not_cross_write_domains editor__configuration_recovery 301 13 none] [recent_project_listDI editor__recent_projects 117 9 none]
+G r k recent_project_list [assert_recovery_commands_do_not_cross_write_domains editor__configuration_recovery 301 13 none] [recent_project_listDF editor__recent_projects 117 9 none]
+G r c none [assert_recovery_commands_do_not_cross_write_domains editor__configuration_recovery 301 13 none] [set_defaults editor__settings 131 14 none]
+G r c none [assert_recovery_commands_do_not_cross_write_domains editor__configuration_recovery 301 13 none] [set_defaults editor__keybinding_config 65 14 none]
+G r c none [assert_recovery_commands_do_not_cross_write_domains editor__configuration_recovery 301 13 none] [clear editor__workspace_persistence 71 14 none]
+G r j workspace_snapshot [assert_recovery_commands_do_not_cross_write_domains editor__configuration_recovery 301 13 none] [workspace_snapshotDA editor__workspace_persistence 262 9 none]
+G r c none [assert_recovery_commands_do_not_cross_write_domains editor__configuration_recovery 301 13 none] [clear editor__recent_projects 29 14 none]
+G r j recent_project_list [assert_recovery_commands_do_not_cross_write_domains editor__configuration_recovery 301 13 none] [recent_project_listDA editor__recent_projects 117 9 none]
+G r c none [assert_recovery_commands_do_not_cross_write_domains editor__configuration_recovery 301 13 none] [count editor__recent_projects 32 13 none]
+G r c none [assert_recovery_commands_do_not_cross_write_domains editor__configuration_recovery 301 13 none] [equivalent editor__workspace_persistence 185 13 none]
+G r c none [assert_recovery_commands_do_not_cross_write_domains editor__configuration_recovery 301 13 none] [equivalent editor__keybinding_config 120 13 none]
+G r c none [assert_recovery_commands_do_not_cross_write_domains editor__configuration_recovery 301 13 none] [equivalent editor__settings 191 13 none]
+G r s settings_model [assert_reset_all_requires_confirmation editor__configuration_recovery 303 13 none] [settings_modelIP editor__settings 230 9 none]
+G r l settings_model [assert_reset_all_requires_confirmation editor__configuration_recovery 303 13 none] [settings_modelDI editor__settings 230 9 none]
+G r k settings_model [assert_reset_all_requires_confirmation editor__configuration_recovery 303 13 none] [settings_modelDF editor__settings 230 9 none]
+G r s keybinding_config_model [assert_reset_all_requires_confirmation editor__configuration_recovery 303 13 none] [keybinding_config_modelIP editor__keybinding_config 178 9 none]
+G r s workspace_snapshot [assert_reset_all_requires_confirmation editor__configuration_recovery 303 13 none] [workspace_snapshotIP editor__workspace_persistence 262 9 none]
+G r l workspace_snapshot [assert_reset_all_requires_confirmation editor__configuration_recovery 303 13 none] [workspace_snapshotDI editor__workspace_persistence 262 9 none]
+G r k workspace_snapshot [assert_reset_all_requires_confirmation editor__configuration_recovery 303 13 none] [workspace_snapshotDF editor__workspace_persistence 262 9 none]
+G r s recent_project_list [assert_reset_all_requires_confirmation editor__configuration_recovery 303 13 none] [recent_project_listIP editor__recent_projects 117 9 none]
+G r l recent_project_list [assert_reset_all_requires_confirmation editor__configuration_recovery 303 13 none] [recent_project_listDI editor__recent_projects 117 9 none]
+G r k recent_project_list [assert_reset_all_requires_confirmation editor__configuration_recovery 303 13 none] [recent_project_listDF editor__recent_projects 117 9 none]
+G r c none [assert_reset_all_requires_confirmation editor__configuration_recovery 303 13 none] [set_defaults editor__settings 131 14 none]
+G r c none [assert_reset_all_requires_confirmation editor__configuration_recovery 303 13 none] [set_defaults editor__keybinding_config 65 14 none]
+G r c none [assert_reset_all_requires_confirmation editor__configuration_recovery 303 13 none] [clear editor__workspace_persistence 71 14 none]
+G r c none [assert_reset_all_requires_confirmation editor__configuration_recovery 303 13 none] [clear editor__recent_projects 29 14 none]
+G r s settings_model [assert_load_all_domains_contains_failures editor__configuration_recovery 305 13 none] [settings_modelIP editor__settings 230 9 none]
+G r l settings_model [assert_load_all_domains_contains_failures editor__configuration_recovery 305 13 none] [settings_modelDI editor__settings 230 9 none]
+G r k settings_model [assert_load_all_domains_contains_failures editor__configuration_recovery 305 13 none] [settings_modelDF editor__settings 230 9 none]
+G r s keybinding_config_model [assert_load_all_domains_contains_failures editor__configuration_recovery 305 13 none] [keybinding_config_modelIP editor__keybinding_config 178 9 none]
+G r s workspace_snapshot [assert_load_all_domains_contains_failures editor__configuration_recovery 305 13 none] [workspace_snapshotIP editor__workspace_persistence 262 9 none]
+G r l workspace_snapshot [assert_load_all_domains_contains_failures editor__configuration_recovery 305 13 none] [workspace_snapshotDI editor__workspace_persistence 262 9 none]
+G r k workspace_snapshot [assert_load_all_domains_contains_failures editor__configuration_recovery 305 13 none] [workspace_snapshotDF editor__workspace_persistence 262 9 none]
+G r s recent_project_list [assert_load_all_domains_contains_failures editor__configuration_recovery 305 13 none] [recent_project_listIP editor__recent_projects 117 9 none]
+G r l recent_project_list [assert_load_all_domains_contains_failures editor__configuration_recovery 305 13 none] [recent_project_listDI editor__recent_projects 117 9 none]
+G r k recent_project_list [assert_load_all_domains_contains_failures editor__configuration_recovery 305 13 none] [recent_project_listDF editor__recent_projects 117 9 none]
+G r c none [assert_load_all_domains_contains_failures editor__configuration_recovery 305 13 none] [load_from_file editor__settings 222 14 none]
+G r c none [assert_load_all_domains_contains_failures editor__configuration_recovery 305 13 none] [set_defaults editor__settings 131 14 none]
+G r c none [assert_load_all_domains_contains_failures editor__configuration_recovery 305 13 none] [last_load_defaulted_count editor__settings 123 13 none]
+G r c none [assert_load_all_domains_contains_failures editor__configuration_recovery 305 13 none] [last_load_ignored_count editor__settings 122 13 none]
+G r c none [assert_load_all_domains_contains_failures editor__configuration_recovery 305 13 none] [load_from_file editor__keybinding_config 161 14 none]
+G r c none [assert_load_all_domains_contains_failures editor__configuration_recovery 305 13 none] [set_defaults editor__keybinding_config 65 14 none]
+G r c none [assert_load_all_domains_contains_failures editor__configuration_recovery 305 13 none] [last_load_ignored_count editor__keybinding_config 42 13 none]
+G r c none [assert_load_all_domains_contains_failures editor__configuration_recovery 305 13 none] [last_load_diagnostic_count editor__keybinding_config 49 13 none]
+G r c none [assert_load_all_domains_contains_failures editor__configuration_recovery 305 13 none] [load_from_file editor__workspace_persistence 243 14 none]
+G r c none [assert_load_all_domains_contains_failures editor__configuration_recovery 305 13 none] [clear editor__workspace_persistence 71 14 none]
+G r c none [assert_load_all_domains_contains_failures editor__configuration_recovery 305 13 none] [diagnostic_count editor__workspace_persistence 215 13 none]
+G r c none [assert_load_all_domains_contains_failures editor__configuration_recovery 305 13 none] [load_from_file editor__recent_projects 96 14 none]
+G r c none [assert_load_all_domains_contains_failures editor__configuration_recovery 305 13 none] [clear editor__recent_projects 29 14 none]
+G r c none [assert_load_all_domains_contains_failures editor__configuration_recovery 305 13 none] [last_load_ignored_count editor__recent_projects 81 13 none]
+G r c none [assert_save_clean_status_is_domain_local editor__configuration_recovery 307 13 none] [last_load_defaulted_count editor__settings 123 13 none]
+G r c none [assert_save_clean_status_is_domain_local editor__configuration_recovery 307 13 none] [last_load_ignored_count editor__settings 122 13 none]
+G r c none [assert_save_clean_status_is_domain_local editor__configuration_recovery 307 13 none] [last_load_ignored_count editor__keybinding_config 42 13 none]
+G r c none [assert_save_clean_status_is_domain_local editor__configuration_recovery 307 13 none] [last_load_diagnostic_count editor__keybinding_config 49 13 none]
+G r c none [assert_save_clean_status_is_domain_local editor__configuration_recovery 307 13 none] [last_load_ignored_count editor__recent_projects 81 13 none]
+G r c none [assert_settings_recovery_counts_are_actionable editor__configuration_recovery 310 13 none] [last_load_defaulted_count editor__settings 123 13 none]
+G r c none [assert_settings_recovery_counts_are_actionable editor__configuration_recovery 310 13 none] [last_load_ignored_count editor__settings 122 13 none]
+G r c none [assert_recent_projects_partial_load_is_preserved editor__configuration_recovery 311 13 none] [last_load_ignored_count editor__recent_projects 81 13 none]
+G r s settings_model [assert_recorded_recovery_summary_is_transient editor__configuration_recovery 314 13 none] [settings_modelIP editor__settings 230 9 none]
+G r l settings_model [assert_recorded_recovery_summary_is_transient editor__configuration_recovery 314 13 none] [settings_modelDI editor__settings 230 9 none]
+G r k settings_model [assert_recorded_recovery_summary_is_transient editor__configuration_recovery 314 13 none] [settings_modelDF editor__settings 230 9 none]
+G r s keybinding_config_model [assert_recorded_recovery_summary_is_transient editor__configuration_recovery 314 13 none] [keybinding_config_modelIP editor__keybinding_config 178 9 none]
+G r s workspace_snapshot [assert_recorded_recovery_summary_is_transient editor__configuration_recovery 314 13 none] [workspace_snapshotIP editor__workspace_persistence 262 9 none]
+G r l workspace_snapshot [assert_recorded_recovery_summary_is_transient editor__configuration_recovery 314 13 none] [workspace_snapshotDI editor__workspace_persistence 262 9 none]
+G r k workspace_snapshot [assert_recorded_recovery_summary_is_transient editor__configuration_recovery 314 13 none] [workspace_snapshotDF editor__workspace_persistence 262 9 none]
+G r s recent_project_list [assert_recorded_recovery_summary_is_transient editor__configuration_recovery 314 13 none] [recent_project_listIP editor__recent_projects 117 9 none]
+G r l recent_project_list [assert_recorded_recovery_summary_is_transient editor__configuration_recovery 314 13 none] [recent_project_listDI editor__recent_projects 117 9 none]
+G r k recent_project_list [assert_recorded_recovery_summary_is_transient editor__configuration_recovery 314 13 none] [recent_project_listDF editor__recent_projects 117 9 none]
+G r c none [assert_recorded_recovery_summary_is_transient editor__configuration_recovery 314 13 none] [load_from_file editor__settings 222 14 none]
+G r c none [assert_recorded_recovery_summary_is_transient editor__configuration_recovery 314 13 none] [set_defaults editor__settings 131 14 none]
+G r c none [assert_recorded_recovery_summary_is_transient editor__configuration_recovery 314 13 none] [last_load_defaulted_count editor__settings 123 13 none]
+G r c none [assert_recorded_recovery_summary_is_transient editor__configuration_recovery 314 13 none] [last_load_ignored_count editor__settings 122 13 none]
+G r c none [assert_recorded_recovery_summary_is_transient editor__configuration_recovery 314 13 none] [load_from_file editor__keybinding_config 161 14 none]
+G r c none [assert_recorded_recovery_summary_is_transient editor__configuration_recovery 314 13 none] [set_defaults editor__keybinding_config 65 14 none]
+G r c none [assert_recorded_recovery_summary_is_transient editor__configuration_recovery 314 13 none] [last_load_ignored_count editor__keybinding_config 42 13 none]
+G r c none [assert_recorded_recovery_summary_is_transient editor__configuration_recovery 314 13 none] [last_load_diagnostic_count editor__keybinding_config 49 13 none]
+G r c none [assert_recorded_recovery_summary_is_transient editor__configuration_recovery 314 13 none] [load_from_file editor__workspace_persistence 243 14 none]
+G r c none [assert_recorded_recovery_summary_is_transient editor__configuration_recovery 314 13 none] [clear editor__workspace_persistence 71 14 none]
+G r c none [assert_recorded_recovery_summary_is_transient editor__configuration_recovery 314 13 none] [diagnostic_count editor__workspace_persistence 215 13 none]
+G r c none [assert_recorded_recovery_summary_is_transient editor__configuration_recovery 314 13 none] [load_from_file editor__recent_projects 96 14 none]
+G r c none [assert_recorded_recovery_summary_is_transient editor__configuration_recovery 314 13 none] [clear editor__recent_projects 29 14 none]
+G r c none [assert_recorded_recovery_summary_is_transient editor__configuration_recovery 314 13 none] [last_load_ignored_count editor__recent_projects 81 13 none]
+G r c none [assert_save_clean_failure_status_is_exception_contained editor__configuration_recovery 318 13 none] [last_load_defaulted_count editor__settings 123 13 none]
+G r c none [assert_save_clean_failure_status_is_exception_contained editor__configuration_recovery 318 13 none] [last_load_ignored_count editor__settings 122 13 none]
+G r c none [assert_save_clean_failure_status_is_exception_contained editor__configuration_recovery 318 13 none] [last_load_ignored_count editor__keybinding_config 42 13 none]
+G r c none [assert_save_clean_failure_status_is_exception_contained editor__configuration_recovery 318 13 none] [last_load_diagnostic_count editor__keybinding_config 49 13 none]
+G r c none [assert_save_clean_failure_status_is_exception_contained editor__configuration_recovery 318 13 none] [last_load_ignored_count editor__recent_projects 81 13 none]
+G r c none [assert_reset_all_keybinding_failure_status_is_not_fabricated editor__configuration_recovery 321 13 none] [last_load_ignored_count editor__keybinding_config 42 13 none]
+G r c none [assert_reset_all_keybinding_failure_status_is_not_fabricated editor__configuration_recovery 321 13 none] [last_load_diagnostic_count editor__keybinding_config 49 13 none]
+G r c none [assert_recovery_keybindings_have_no_payloads editor__configuration_recovery 322 13 none] [keybinding_value_has_unsupported_payload editor__keybinding_config 55 13 none]
+G r c none [assert_configuration_recovery_coherent editor__configuration_recovery 323 13 none] [keybinding_value_has_unsupported_payload editor__keybinding_config 55 13 none]
+G r c none [assert_configuration_recovery_coherent editor__configuration_recovery 323 13 none] [last_load_ignored_count editor__keybinding_config 42 13 none]
+G r c none [assert_configuration_recovery_coherent editor__configuration_recovery 323 13 none] [last_load_diagnostic_count editor__keybinding_config 49 13 none]
+G r c none [assert_configuration_recovery_coherent editor__configuration_recovery 323 13 none] [last_load_defaulted_count editor__settings 123 13 none]
+G r c none [assert_configuration_recovery_coherent editor__configuration_recovery 323 13 none] [last_load_ignored_count editor__settings 122 13 none]
+G r c none [assert_configuration_recovery_coherent editor__configuration_recovery 323 13 none] [last_load_ignored_count editor__recent_projects 81 13 none]
+G r s settings_model [assert_configuration_recovery_coherent editor__configuration_recovery 323 13 none] [settings_modelIP editor__settings 230 9 none]
+G r l settings_model [assert_configuration_recovery_coherent editor__configuration_recovery 323 13 none] [settings_modelDI editor__settings 230 9 none]
+G r k settings_model [assert_configuration_recovery_coherent editor__configuration_recovery 323 13 none] [settings_modelDF editor__settings 230 9 none]
+G r s keybinding_config_model [assert_configuration_recovery_coherent editor__configuration_recovery 323 13 none] [keybinding_config_modelIP editor__keybinding_config 178 9 none]
+G r s workspace_snapshot [assert_configuration_recovery_coherent editor__configuration_recovery 323 13 none] [workspace_snapshotIP editor__workspace_persistence 262 9 none]
+G r l workspace_snapshot [assert_configuration_recovery_coherent editor__configuration_recovery 323 13 none] [workspace_snapshotDI editor__workspace_persistence 262 9 none]
+G r k workspace_snapshot [assert_configuration_recovery_coherent editor__configuration_recovery 323 13 none] [workspace_snapshotDF editor__workspace_persistence 262 9 none]
+G r s recent_project_list [assert_configuration_recovery_coherent editor__configuration_recovery 323 13 none] [recent_project_listIP editor__recent_projects 117 9 none]
+G r l recent_project_list [assert_configuration_recovery_coherent editor__configuration_recovery 323 13 none] [recent_project_listDI editor__recent_projects 117 9 none]
+G r k recent_project_list [assert_configuration_recovery_coherent editor__configuration_recovery 323 13 none] [recent_project_listDF editor__recent_projects 117 9 none]
+G r c none [assert_configuration_recovery_coherent editor__configuration_recovery 323 13 none] [load_from_file editor__settings 222 14 none]
+G r c none [assert_configuration_recovery_coherent editor__configuration_recovery 323 13 none] [set_defaults editor__settings 131 14 none]
+G r c none [assert_configuration_recovery_coherent editor__configuration_recovery 323 13 none] [load_from_file editor__keybinding_config 161 14 none]
+G r c none [assert_configuration_recovery_coherent editor__configuration_recovery 323 13 none] [set_defaults editor__keybinding_config 65 14 none]
+G r c none [assert_configuration_recovery_coherent editor__configuration_recovery 323 13 none] [load_from_file editor__workspace_persistence 243 14 none]
+G r c none [assert_configuration_recovery_coherent editor__configuration_recovery 323 13 none] [clear editor__workspace_persistence 71 14 none]
+G r c none [assert_configuration_recovery_coherent editor__configuration_recovery 323 13 none] [diagnostic_count editor__workspace_persistence 215 13 none]
+G r c none [assert_configuration_recovery_coherent editor__configuration_recovery 323 13 none] [load_from_file editor__recent_projects 96 14 none]
+G r c none [assert_configuration_recovery_coherent editor__configuration_recovery 323 13 none] [clear editor__recent_projects 29 14 none]
+G r j workspace_snapshot [assert_configuration_recovery_coherent editor__configuration_recovery 323 13 none] [workspace_snapshotDA editor__workspace_persistence 262 9 none]
+G r j recent_project_list [assert_configuration_recovery_coherent editor__configuration_recovery 323 13 none] [recent_project_listDA editor__recent_projects 117 9 none]
+G r c none [assert_configuration_recovery_coherent editor__configuration_recovery 323 13 none] [count editor__recent_projects 32 13 none]
+G r c none [assert_configuration_recovery_coherent editor__configuration_recovery 323 13 none] [equivalent editor__workspace_persistence 185 13 none]
+G r c none [assert_configuration_recovery_coherent editor__configuration_recovery 323 13 none] [equivalent editor__keybinding_config 120 13 none]
+G r c none [assert_configuration_recovery_coherent editor__configuration_recovery 323 13 none] [equivalent editor__settings 191 13 none]
+G r c none [assert_configuration_recovery_coherent editor__configuration_recovery 323 13 none] [open_file_count editor__workspace_persistence 91 13 none]
+X 1 ada.ads
+18K9*Ada 22e8 21|1r6 59r19 60r9 64r31 65r9 66r31 67r9 109r33 110r9 130r27
+. 131r9 132r27 133r9 134r27 135r9 146r27 147r9 159r23 160r9 22|1r6 1r33
+X 9 a-iteint.ads
+24h9 Forward_Iterator
+32h9 Reversible_Iterator<24R9[6|119]>
+X 11 a-string.ads
+16K13*Strings 35e16 21|1r10 59r23 60r13 64r35 65r13 66r35 67r13 109r37 110r13
+. 130r31 131r13 132r31 133r13 134r31 135r13 146r31 147r13 159r27 160r13 22|1r10
+. 1r37
+X 15 a-strunb.ads
+91K21*Unbounded 1641e26 21|1w18 59r31 60r21 64r43 65r21 66r43 67r21 109r45
+. 110r21 130r39 131r21 132r39 133r21 134r39 135r21 146r39 147r21 159r35 160r21
+. 22|1w18 1r45
+105R9*Unbounded_String<8|43R9> 1620e15 21|59r41 64r53 66r53 109r55 130r49
+. 132r49 134r49 146r49 159r45 22|21r49
+109r4*Null_Unbounded_String{105R9} 21|60r31 65r31 67r31 110r31 131r31 133r31
+. 135r31 147r31 160r31
+111V13*Length{natural} 22|521s14
+122V13*To_Unbounded_String{105R9} 22|24s17 26s17 28s17 144s33 151s33 156s33
+. 161s33 166s33 171s33 176s33 181s33 186s33 193s36 195s36 202s33 235s25 236s26
+. 633s31 636s12 638s12 640s12 914s46 920s46 938s46 945s46 964s46 971s46 989s46
+. 996s46 1482s37 1529s37
+135V13*To_String{string} 22|514s23 1087s18 1088s18 1092s18 1143s18 1145s18
+. 1210s18 1327s39 1443s18 1444s18 1445s18 1516s18 1518s18 1537s18
+X 19 editor.ads
+1K9*Editor 5e11 21|2r6 3r6 4r6 5r6 7r9 183r16 186r16 189r21 193r16 247r30
+. 248r30 249r30 250r30 254r25 258r28 262r26 266r23 272r26 273r28 274r26 275r26
+. 280r18 285r21 290r19 295r16 325r5 22|2r6 4r14 6r13 7r13 8r13 9r13 344r16
+. 349r15 353r15 358r15 359r15 364r15 369r15 373r15 377r45 378r43 389r16 391r38
+. 395r15 399r15 403r15 404r15 408r15 412r15 416r15 423r15 424r18 430r21 436r15
+. 440r15 445r15 446r15 451r15 456r15 460r15 471r16 476r15 480r15 485r15 490r15
+. 495r15 499r15 503r43 504r43 730r30 731r30 732r30 733r30 736r28 736r63 737r28
+. 738r9 739r28 740r9 741r28 742r9 747r10 750r13 751r32 753r29 754r37 756r10
+. 766r10 770r13 771r35 773r32 774r40 776r10 781r10 785r13 786r33 788r30 789r38
+. 791r10 795r10 798r10 801r13 802r30 804r27 805r35 807r10 821r25 825r7 833r28
+. 837r7 844r26 848r7 856r23 860r7 869r26 870r28 871r26 872r26 902r18 906r22
+. 907r22 910r10 911r10 913r28 919r45 926r21 930r22 931r22 934r10 935r10 937r28
+. 944r16 951r19 955r22 956r22 959r10 960r10 963r28 970r16 977r16 981r22 982r22
+. 985r10 986r10 988r28 995r16 1002r11 1003r11 1004r11 1005r11 1026r11 1027r11
+. 1028r11 1029r11 1040r18 1041r18 1045r16 1046r16 1047r16 1048r16 1051r7
+. 1052r7 1053r7 1055r7 1057r7 1061r14 1062r21 1063r17 1063r54 1069r14 1070r18
+. 1071r18 1071r54 1098r10 1100r10 1102r10 1104r10 1167r10 1178r10 1216r10
+. 1218r10 1220r10 1222r10 1250r14 1252r22 1258r11 1259r11 1260r11 1261r11
+. 1266r7 1267r7 1268r7 1269r7 1345r11 1346r11 1347r11 1348r11 1370r11 1371r11
+. 1372r11 1373r11 1527r10 1568r5
+X 20 editor-commands.ads
+6K16*Commands 1740e20 22|2w13
+X 21 editor-configuration_recovery.ads
+7K16*Configuration_Recovery 19|1k9 21|325l12 325e34 22|4b21 1568l12 1568t34
+9E9*Configuration_Domain 15e31 69r31 95r33 164r36 22|33r36 104r17 226r31
+. 319r21
+10n7*Settings_Domain{9E9} 69r55 95r57 22|36r15 149r68 169r68 276r63 282r60
+. 303r70 351r16 355r16 361r16 366r16 371r16 375r16 827r10 1015r44 1106r25
+. 1124r10 1169r27 1193r10 1224r25 1304r44 1402r10 1426r10 1457r10 1464r44
+. 1476r10 1502r10
+11n7*Keybindings_Domain{9E9} 22|37r15 154r68 174r68 285r66 306r76 397r16
+. 401r16 406r16 410r16 414r16 418r16 839r10 1016r44 1080r10 1107r29 1127r10
+. 1225r29 1305r44 1336r40 1429r10 1532r27
+12n7*Workspace_Domain{9E9} 22|38r15 159r68 179r68 288r62 309r72 438r16 442r16
+. 448r16 453r16 458r16 462r16 850r10 1017r44 1108r29 1226r29 1306r44
+13n7*Recent_Projects_Domain{9E9} 22|39r15 164r68 184r68 291r74 312r84 478r16
+. 482r16 487r16 492r16 497r16 501r16 862r10 1018r44 1109r29 1180r27 1227r29
+. 1307r44
+14n7*Command_Routes_Domain{9E9} 22|40r15 279r57 611r10 717r25 812r10 1363r44
+15n7*Runtime_Defaults_Domain{9E9} 22|41r15 294r72 297r88 300r86 614r10 718r32
+. 815r10 881r13 896r10 1155r13 1364r44 1454r10
+17E9*Domain_Load_Status 27e30 96r33 97r33 165r41 22|45r41 320r21
+18n7*Domain_Ok{17E9} 96r55 97r55 22|48r15 351r33 397r36 438r34 478r40 558r39
+. 584r33 585r42 611r33 614r35 812r33 815r35 1127r30 1155r38 1426r27 1429r30
+. 1454r35
+19n7*Domain_Missing{17E9} 22|49r15 335r44 355r33 401r36 442r34 482r40
+20n7*Domain_Unreadable{17E9} 22|50r15 336r47 366r33 410r36 453r34 492r40
+21n7*Domain_Malformed{17E9} 22|51r15 337r46 361r33 406r36 448r34 487r40
+22n7*Domain_Loaded_With_Warnings{17E9} 22|52r15 1476r27
+23n7*Domain_Loaded_With_Defaults{17E9} 22|53r15 339r31 375r33 827r27 839r30
+. 850r28 862r34 896r35 1124r27 1193r27 1402r27 1457r27 1502r27
+24n7*Domain_Partially_Loaded{17E9} 22|54r15 418r36 462r34 501r40 1080r30
+. 1181r36
+25n7*Domain_Ignored_Unsupported_Fields{17E9} 22|55r15
+26n7*Domain_Reset_Required{17E9} 22|56r15 881r38 1273r49
+27n7*Domain_Reset_Available{17E9} 22|57r15 371r33 414r36 458r34 497r40 1533r36
+29E9*Recovery_Action 39e35 98r33 166r45 22|61r45 321r21
+30n7*No_Recovery_Action{29E9} 98r52 22|66r15 351r44 397r47 438r45 478r51
+. 611r44 614r46 812r44 815r46 1127r41 1155r49 1426r38 1429r41 1454r46
+31n7*Use_Safe_Defaults{29E9} 22|67r15 338r47 355r49 361r51 366r52 401r52
+. 406r54 410r55 827r56 839r59 896r64 1124r56 1193r56 1402r56 1457r56 1502r56
+32n7*Keep_Valid_Entries{29E9} 22|68r15 418r61 1080r55
+33n7*Ignore_Invalid_Entries{29E9} 22|69r15 462r59 501r65 1182r31
+34n7*Ignore_Unsupported_Fields{29E9} 22|70r15 1476r56
+35n7*Clear_Structural_State{29E9} 22|71r15 442r50 448r52 453r53 850r57
+36n7*Clear_Recent_Project_List{29E9} 22|72r15 482r56 487r58 492r59 862r63
+37n7*Reset_Domain_Available{29E9} 22|73r15
+38n7*Save_Clean_Available{29E9} 22|74r15 371r57 375r62 414r60 458r58 497r64
+. 1110r29 1111r29 1112r29 1113r29 1170r31 1232r29 1233r29 1234r29 1235r29
+. 1534r31
+39n7*Explicit_Reset_All_Required{29E9} 22|75r15 881r61 1274r44
+42E9*Recovery_Command_Action 55e50 68r31 169r16 172r31 22|82r16 133r31 224r31
+43n7*Recovery_Action_Show{42E9} 68r58 22|86r15 141r15 276r10 1510r10
+44n7*Recovery_Action_Audit{42E9} 22|87r15 146r15 279r10
+45n7*Recovery_Action_Reset_Settings{42E9} 22|88r15 148r15 282r10 1131r10
+. 1433r10 1506r10
+46n7*Recovery_Action_Reset_Keybindings{42E9} 22|89r15 153r15 285r10 1133r10
+47n7*Recovery_Action_Reset_Workspace{42E9} 22|90r15 158r15 288r10
+48n7*Recovery_Action_Reset_Recent_Projects{42E9} 22|91r15 163r15 291r10
+49n7*Recovery_Action_Reset_All{42E9} 22|92r15 188r15 294r10 1282r10 1289r10
+. 1437r10
+50n7*Recovery_Action_Confirm_Reset_All{42E9} 22|93r15 198r15 297r10 1137r10
+. 1280r10 1292r10 1512r10
+51n7*Recovery_Action_Cancel_Reset_All{42E9} 22|94r15 199r15 300r10
+52n7*Recovery_Action_Save_Clean_Settings{42E9} 22|95r15 168r15 303r10 1135r10
+. 1435r10 1508r10
+53n7*Recovery_Action_Save_Clean_Keybindings{42E9} 22|96r15 173r15 306r10
+54n7*Recovery_Action_Save_Clean_Workspace{42E9} 22|97r15 178r15 309r10
+55n7*Recovery_Action_Save_Clean_Recent_Projects{42E9} 22|98r15 183r15 312r10
+57R9*Recovery_Command_Availability 61e14 174r57 22|135r57 137r16 1118r24
+. 1119r27 1120r23 1121r27 1263r17 1264r17 1421r24 1422r24 1423r24 1496r24
+. 1497r24 1498r24 1499r24
+58b7*Available{boolean} 22|142m20 143r27 147m20 149m20 150r27 154m20 155r27
+. 159m20 160r27 164m20 165r27 169m20 170r27 174m20 175r27 179m20 180r27 184m20
+. 185r27 189m20 191r27 200m20 201r27 1140r29 1141r32 1142r40 1144r40 1283r17
+. 1283r47 1294r17 1294r47 1440r37 1441r36 1442r32 1514r33 1515r36 1520r32
+. 1521r30
+59r7*Reason{15|105R9} 22|144m23 151m23 156m23 161m23 166m23 171m23 176m23
+. 181m23 186m23 193m26 195m26 202m23 1143r47 1145r47 1443r44 1444r43 1445r39
+. 1516r44 1518r43
+63R9*Recovery_Command_Row 77e14 82r63 22|231r56 252r31 1326r28
+64r7*Stable_Name{15|105R9} 22|235m10 1327r54
+66r7*Display_Name{15|105R9} 22|236m10
+68e7*Action{42E9} 22|237m10
+69e7*Domain{9E9} 22|238m10 1336r31
+70b7*Domain_Specific{boolean} 22|239m10
+71b7*Requires_Confirmation{boolean} 22|240m10 264r17 1333r37
+72b7*Confirmation_Action{boolean} 22|241m10 264r51
+73b7*Save_Clean_Action{boolean} 22|242m10 261r17 1335r50
+74b7*Reset_Action{boolean} 22|243m10 258r17 1333r72
+75b7*No_Payload{boolean} 22|244m10 267r21 1246r34 1329r48
+76b7*Mutates_Only_Domain{boolean} 22|245m10 270r21
+79i4*Max_Recovery_Command_Rows{natural} 82r33 22|254r32 1315r31
+81A9*Recovery_Command_Row_Array(63R9)<integer> 91r32
+84R9*Recovery_Command_Catalog 92e14 180r51 22|248r51 250r16 1243r26 1311r26
+85i7*Row_Count{natural} 22|254r20 255m20 255r40 256r33 1245r29 1315r18 1324r29
+86i7*Reset_Count{natural} 22|259m20 259r42 1317r25
+87i7*Save_Clean_Count{natural} 22|262m20 262r47 1318r25
+88i7*Confirmation_Count{natural} 22|265m20 265r49 1319r25
+89i7*Payload_Command_Count{natural} 22|268m20 268r52 1316r25
+90i7*Cross_Domain_Command_Count{natural} 22|271m20 271r57
+91a7*Rows{81A9} 22|256m20 1246r25 1326r60
+94R9*Domain_Recovery_Status 111e14 117r58 183r56 186r74 190r42 193r69 196r23
+. 199r16 206r17 212r13 215r25 216r25 217r25 218r25 240r17 255r22 259r25 263r23
+. 267r20 282r22 287r25 292r23 297r20 22|324r42 326r16 344r56 346r16 389r74
+. 392r18 431r42 433r16 471r69 473r16 510r23 518r16 541r17 543r16 581r13 599r25
+. 600r25 601r25 602r25 710r17 712r15 759r34 822r22 834r25 845r23 857r20 876r13
+. 904r22 928r25 953r23 979r20 1030r24 1049r13 1077r17 1097r20 1099r20 1101r20
+. 1103r20 1166r22 1177r22 1215r20 1217r20 1219r20 1221r20 1450r21 1451r22
+. 1471r19 1526r13
+95e7*Domain{9E9} 22|109r38 328m14 636r64 717r16 718r23 1015r35 1016r35 1017r35
+. 1018r35 1106r16 1107r20 1108r20 1109r20 1169r18 1180r18 1224r16 1225r20
+. 1226r20 1227r20 1304r35 1305r35 1306r35 1307r35 1363r35 1364r35 1464r35
+. 1532r18
+96e7*Load_Status{17E9} 22|329m14 558r24 584r18 638r69 1181r22 1201r35 1201r65
+. 1273r34 1533r22
+97e7*Validation_Status{17E9} 22|330m14 585r21
+98e7*Action{29E9} 22|331m14 640r73 1110r20 1111r20 1112r20 1113r20 1170r22
+. 1182r22 1232r20 1233r20 1234r20 1235r20 1274r34 1534r22
+99i7*Ignored_Field_Count{natural} 22|378m20 380r31 422m20 464m20 504m20 588r21
+. 643r66 1173r31
+100i7*Invalid_Entry_Count{natural} 22|421m20 465m20 503m20 589r21 644r66
+. 1083m11
+101i7*Defaulted_Value_Count{natural} 22|357m20 363m20 368m20 377m20 379r23
+. 382m23 590r21 645r68 829m14 1172r23
+102i7*Rejected_Entry_Count{natural} 22|420m20 591r21 646r67 1082m11
+103i7*Warning_Count{natural} 22|332m14 552r63 557r17 586r21 641r60 1171r22
+. 1183r22
+104i7*Error_Count{natural} 22|333m14 553r59 557r50 587r21 642r58 1228r20
+. 1229r20 1230r20 1231r20 1535r22
+105b7*Missing_File{boolean} 22|335m14 592r21 647r59 1359r35 1360r35 1361r35
+. 1362r35
+106b7*Unreadable_File{boolean} 22|336m14 593r21 648r62
+107b7*Malformed_File{boolean} 22|337m14 594r21 649r61
+108b7*Safe_Defaults_Active{boolean} 22|338m14 444m20 450m20 455m20 484m20
+. 489m20 494m20 554r17 595r21 650r67 852m14 864m14 1019r35 1020r35 1021r35
+. 1022r35 1036r17 1037r21 1038r21 1039r21 1236r24 1237r24 1238r24 1239r24
+. 1536r26
+109r7*User_Action_Suggestion{15|105R9} 22|334m14 513m14 514r41 521r29 651r64
+. 914m20 920m20 938m20 945m20 964m20 971m20 989m20 996m20 1482m11 1529m11
+. 1537r33
+113i4*Max_Recovery_Domains{natural} 117r33 152r33 22|108r18 123r18 529r17
+. 530r18 546r33 626r17 627r18 632r74 699r18 1014r37 1153r21 1159r37 1161r38
+. 1357r37
+114i4*Max_Recovery_Message_Length{natural} 22|23r25 25r13 26r71 29r46 521r56
+. 1469r41
+116A9*Domain_Recovery_Status_Array(94R9)<integer> 126r37
+119R9*Configuration_Recovery_Summary 127e14 173r31 202r24 205r24 209r17 218r56
+. 221r24 225r17 229r45 236r17 239r24 251r30 277r23 22|12r37 103r17 119r17
+. 134r31 525r24 540r24 565r17 602r56 604r16 620r24 659r17 661r15 673r45 691r17
+. 709r24 734r30 874r23 1006r17 1075r17 1117r17 1150r17 1187r17 1188r17 1262r17
+. 1349r17 1369r17 1399r17 1420r17 1449r17 1472r19 1473r19 1495r17
+120i7*Domain_Count{natural} 22|107r29 122r29 142r41 527r33 546r18 547m18
+. 547r42 548r32 624r35 632r58 694r18 698r29 1014r22 1159r22 1199r26 1199r48
+. 1272r18 1303r22 1357r22 1388r42 1388r66 1395r43 1416r43 1463r22 1490r23
+121i7*Warning_Count{natural} 22|552m15 552r40 568r51 576r35 630r39 1200r26
+. 1200r49
+122i7*Error_Count{natural} 22|553m15 553r38 568r18 570r21 631r37
+123i7*Domains_With_Defaults_Count{natural} 22|555m18 555r57 1358r26
+124i7*Domains_With_Issues_Count{natural} 22|560m18 560r55 572r35
+125b7*Bounded{boolean} 22|531m18 550m18 632r33 1160r30 1465r26
+126a7*Rows{116A9} 22|109r29 110r56 124r56 535m45 548m18 636r55 638r60 640r64
+. 641r51 642r49 643r57 644r57 645r59 646r58 647r50 648r53 649r52 650r58 651r55
+. 700r56 1015r26 1016r26 1017r26 1018r26 1019r26 1020r26 1021r26 1022r26
+. 1201r26 1201r56 1273r25 1274r25 1304r26 1305r26 1306r26 1307r26 1359r26
+. 1360r26 1361r26 1362r26 1363r26 1364r26 1464r26 1484r51 1491r56
+129R9*Configuration_Recovery_Row_Snapshot 149e14 152r58
+130r7*Domain_Label{15|105R9} 22|635m26 1087r46
+132r7*Status_Label{15|105R9} 22|637m26 1088r46
+134r7*Action_Label{15|105R9} 22|639m26 1092r46
+136i7*Warning_Count{natural} 22|641m26 1089r35
+137i7*Error_Count{natural} 22|642m26
+138i7*Ignored_Field_Count{natural} 22|643m26
+139i7*Invalid_Entry_Count{natural} 22|644m26 1091r35
+140i7*Defaulted_Value_Count{natural} 22|645m26
+141i7*Rejected_Entry_Count{natural} 22|646m26 1090r35
+142b7*Missing_File{boolean} 22|647m26
+143b7*Unreadable_File{boolean} 22|648m26
+144b7*Malformed_File{boolean} 22|649m26
+145b7*Safe_Defaults_Active{boolean} 22|650m26
+146r7*Action_Suggestion{15|105R9} 22|651m26
+148b7*Selected{boolean} 22|652m26 1093r35 1198r35
+151A9*Configuration_Recovery_Row_Array(129R9)<integer> 161r23
+154R9*Configuration_Recovery_Surface_Snapshot 162e14 222r45 22|621r45 623r16
+. 1076r17 1151r17 1189r17 1205r26
+155i7*Row_Count{natural} 22|629m14 1086r22 1161r26 1197r22 1208r22
+156i7*Warning_Count{natural} 22|630m14
+157i7*Error_Count{natural} 22|631m14
+158b7*Bounded{boolean} 22|632m14 1162r30 1209r26
+159r7*Summary_Label{15|105R9} 22|633m14 1210r37
+161a7*Rows{151A9} 22|635m17 637m17 639m17 641m17 642m17 643m17 644m17 645m17
+. 646m17 647m17 648m17 649m17 650m17 651m17 652m17 1087r37 1088r37 1089r26
+. 1090r26 1091r26 1092r37 1093r26 1198r26
+164V13*Domain_Label{string} 164>27 22|33b13 43l8 43t20 636s33
+164e27 Domain{9E9} 22|33b27 35r12
+165V13*Load_Status_Label{string} 165>32 22|45b13 59l8 59t25 638s33
+165e32 Status{17E9} 22|45b32 47r12
+166V13*Recovery_Action_Label{string} 166>36 22|61b13 77l8 77t29 640s33
+166e36 Action{29E9} 22|61b36 65r12
+168V13*Recovery_Command_Stable_Name{string} 169>7 22|81b13 100l8 100t36 235s46
+169e7 Action{42E9} 22|82b7 85r12
+171V13*Recovery_Command_Availability_For{57R9} 172>7 173>7 174>7 22|132b13
+. 206l8 206t41 1130s25 1132s28 1134s24 1136s28 1279s17 1281s18 1288s17 1291s18
+. 1432s25 1434s24 1436s20 1505s25 1507s24 1509s24 1511s22
+172e7 Action{42E9} 22|133b7 140r12
+173r7 Summary{119R9} 22|134b7 142r33 149r59 154r59 159r59 164r59 169r59 174r59
+. 179r59 184r59 189r63
+174b7 Reset_All_Confirmation{boolean} 22|135b7 190r28 192r19 200r33 1138r10
+. 1280r54 1282r46 1290r10 1293r10 1506r51 1508r56 1510r41 1512r54
+176U14*Request_Reset_All_Confirmation 22|208b14 211l8 211t38 1287s7 1405s7
+177U14*Clear_Reset_All_Confirmation 22|213b14 216l8 216t36 686s7 1297s10
+. 1300s7
+178V13*Has_Pending_Reset_All_Confirmation{boolean} 22|218b13 221l8 221t42
+. 1290s36 1293s36 1295s21 1408s21 1415s22
+180V13*Build_Recovery_Command_Catalog{84R9} 22|248b13 315l8 315t38 1243s54
+. 1311s54
+182V13*Status_From_Settings{94R9} 183>7 22|343b13 386l8 386t28 760s12 912s20
+. 919s23 1097s46 1166s48 1215s46
+183e7 Status{27|5E9} 22|344b7 348r12
+185V13*Status_From_Keybindings{94R9} 186>7 22|388b13 427l8 427t31 778s24
+. 936s20 943s23 1099s46 1217s46 1526s39
+186e7 Status{24|6E9} 22|389b7 394r12
+188V13*Status_From_Workspace{94R9} 189>7 190>7 22|429b13 468l8 468t29 793s24
+. 962s20 969s23 1101s46 1219s46
+189e7 Status{29|5E9} 22|430b7 435r12
+190i7 Diagnostics{natural} 22|431b7 464r43 465r43
+192V13*Status_From_Recent_Projects{94R9} 193>7 22|470b13 507l8 507t35 809s24
+. 987s20 994s23 1103s46 1177s48 1221s46
+193e7 Status{26|6E9} 22|471b7 475r12
+195U14*Normalize_Recovery_Status 196=7 22|509b14 515l8 515t33 535s10 545s7
+196r7 Status{94R9} 22|510b7 513m7 514r34
+198V13*Recovery_Message_Is_Bounded{boolean} 199>7 22|517b13 522l8 522t35
+. 1478s14 1484s14 1491s18
+199r7 Status{94R9} 22|518b7 521r22
+201U14*Normalize_Recovery_Summary 202=7 22|524b14 537l8 537t34 663s7
+202r7 Summary{119R9} 22|525b7 527r25 531m10 535m37 535r37
+204U14*Append 205=7 206>7 22|539b14 562l8 562t14 606s7 607s7 608s7 609s7
+. 610s7 613s7 722s7 762s10 778s7 793s7 809s7 811s7 814s7 880s10 888s7 890s7
+. 892s7 894s7 895s7 1084s7 1123s7 1126s7 1154s10 1192s7 1401s7 1425s7 1428s7
+. 1483s7 1501s7
+205r7 Summary{119R9} 22|540b7 546r10 547m10 547r34 548m10 548r24 550m10 552m7
+. 552r32 553m7 553r30 555m10 555r49 560m10 560r47
+206r7 Row{94R9} 22|541b7 543r42
+208V13*Summary_Label{string} 209>7 22|564b13 578l8 578t21 633s52
+209r7 Summary{119R9} 22|565b7 568r10 568r43 570r13 572r27 576r27
+211V13*Domain_Has_Recovery_Issue{boolean} 212>7 22|110s21 124s21 580b13 596l8
+. 596t33 700s21
+212r7 Row{94R9} 22|581b7 584r14 585r17 586r17 587r17 588r17 589r17 590r17
+. 591r17 592r17 593r17 594r17 595r17
+214V13*Build_Startup_Recovery_Summary{119R9} 215>7 216>7 217>7 218>7 22|598b13
+. 617l8 617t38
+215r7 Settings_Row{94R9} 22|599b7 606r23
+216r7 Keybindings_Row{94R9} 22|600b7 607r23
+217r7 Workspace_Row{94R9} 22|601b7 608r23
+218r7 Recent_Row{94R9} 22|602b7 609r23
+220V13*Build_Surface_Snapshot{154R9} 221>7 222>7 22|619b13 655l8 655t30 1085s18
+. 1158s18 1196s18 1206s9
+221r7 Summary{119R9} 22|620b7 624r27 630r31 631r29 632r25 632r50 633r67 636r47
+. 638r52 640r56 641r43 642r41 643r49 644r49 645r51 646r50 647r42 648r45 649r44
+. 650r50 651r47
+222i7 Selected_Index{natural} 22|621b7 652r38
+224U14*Record_Recovery_Summary 225>7 22|658b14 666l8 666t31 817s7 883s10
+. 898s7 1404s7 1488s7
+225r7 Summary{119R9} 22|659b7 661r49
+227V13*Has_Recorded_Recovery_Summary{boolean} 22|668b13 671l8 671t37 1376s10
+. 1387s14 1394s18 1407s14 1414s18
+229V13*Current_Recovery_Summary{119R9} 22|673b13 676l8 676t32 1388s17 1395s18
+. 1416s18 1489s19
+231U14*Clear_Recorded_Recovery_Summary 22|678b14 682l8 682t39 687s7 1375s7
+. 1393s7
+233U14*Clear_Recovery_Runtime_State 22|684b14 688l8 688t36 1413s7
+235V13*Recovery_Summary_Has_Only_Clean_Domains{boolean} 236>7 22|690b13 706l8
+. 706t47 1439s14
+236r7 Summary{119R9} 22|691b7 694r10 698r21 700r48
+238U14*Append_Domain_Local_Status 239=7 240>7 22|708b14 723l8 723t34 1460s7
+. 1461s7
+239r7 Summary{119R9} 22|709b7 722m15
+240r7 Status{94R9} 22|710b7 712r41
+242U14*Load_All_Domains_Safely 243>7 244>7 245>7 246>7 247<7 248<7 249<7
+. 250<7 251<7 22|725b14 818l8 818t31 1008s7 1351s7 1380s7
+243a7 Settings_Path{string} 22|726b7 747r42
+244a7 Keybindings_Path{string} 22|727b7 767r13
+245a7 Workspace_Path{string} 22|728b7 782r13
+246a7 Recent_Path{string} 22|729b7 798r49
+247r7 Settings{27|40R9} 22|730b7 747m57 750m43 756m40
+248r7 Keybindings{24|26R9} 22|731b7 767m31 770m52 776m49
+249r7 Workspace{29|69R9} 22|732b7 782m29 785m49 791m46 795r57
+250r7 Recent{26|21R9} 22|733b7 798m62 801m43 807m40
+251r7 Summary{119R9} 22|734b7 744m7 762m18 778m15 793m15 809m15 811m15 814m15
+. 817r32
+253U14*Reset_Settings_Domain 254=7 255<7 22|820b14 830l8 830t29 887s7 1032s7
+. 1060s7
+254r7 Settings{27|40R9} 22|821b7 825m37
+255r7 Status{94R9} 22|822b7 826m7 829m7
+257U14*Reset_Keybindings_Domain 258=7 259<7 22|832b14 841l8 841t32 889s7
+. 1033s7 1068s7
+258r7 Keybindings{24|26R9} 22|833b7 837m46
+259r7 Status{94R9} 22|834b7 838m7
+261U14*Reset_Workspace_Domain 262=7 263<7 22|843b14 853l8 853t30 891s7 1034s7
+262r7 Workspace{29|69R9} 22|844b7 848m43
+263r7 Status{94R9} 22|845b7 849m7 852m7
+265U14*Reset_Recent_Projects_Domain 266=7 267<7 22|855b14 865l8 865t36 893s7
+. 1035s7
+266r7 Recent{26|21R9} 22|856b7 860m37
+267r7 Status{94R9} 22|857b7 861m7 864m7
+271U14*Reset_All_Domains 272=7 273=7 274=7 275=7 276>7 277<7 22|868b14 899l8
+. 899t25 1271s7 1302s7
+272r7 Settings{27|40R9} 22|869b7 887m30
+273r7 Keybindings{24|26R9} 22|870b7 889m33
+274r7 Workspace{29|69R9} 22|871b7 891m31
+275r7 Recent{26|21R9} 22|872b7 893m37
+276b7 Confirmed{boolean} 22|873b7 879r14
+277r7 Summary{119R9} 22|874b7 878m7 880m18 883r35 888m15 890m15 892m15 894m15
+. 895m15 898r32
+279U14*Save_Clean_Settings 280>7 281>7 282<7 22|901b14 923l8 923t27
+280r7 Settings{27|40R9} 22|902b7 907r56
+281a7 Path{string} 22|903b7 911r47
+282r7 Status{94R9} 22|904b7 912m10 914m13 919m13 920m13
+284U14*Save_Clean_Keybindings 285>7 286>7 287<7 22|925b14 948l8 948t30
+285r7 Keybindings{24|26R9} 22|926b7 931r74
+286a7 Path{string} 22|927b7 935r56
+287r7 Status{94R9} 22|928b7 936m10 938m13 943m13 945m13
+289U14*Save_Clean_Workspace 290>7 291>7 292<7 22|950b14 974l8 974t28
+290r7 Workspace{29|69R9} 22|951b7 956r73
+291a7 Path{string} 22|952b7 961r20
+292r7 Status{94R9} 22|953b7 962m10 964m13 969m13 971m13
+294U14*Save_Clean_Recent_Projects 295>7 296>7 297<7 22|976b14 999l8 999t34
+295r7 Recent{26|21R9} 22|977b7 982r68
+296a7 Path{string} 22|978b7 986r54
+297r7 Status{94R9} 22|979b7 987m10 989m13 994m13 996m13
+299V13*Assert_Configuration_Domains_Load_Independently{boolean} 22|1001b13
+. 1023l8 1023t55 1543s14
+300V13*Assert_Safe_Defaults_Are_Always_Available{boolean} 22|1025b13 1042l8
+. 1042t49 1544s18
+301V13*Assert_Recovery_Commands_Do_Not_Cross_Write_Domains{boolean} 22|1044b13
+. 1072l8 1072t59 1545s18
+303V13*Assert_Reset_All_Requires_Confirmation{boolean} 22|1257b13 1308l8
+. 1308t46 1546s18
+304V13*Assert_Recovery_Command_Catalog_Is_Payload_Free{boolean} 22|1310b13
+. 1342l8 1342t55 1547s18
+305V13*Assert_Load_All_Domains_Contains_Failures{boolean} 22|1344b13 1365l8
+. 1365t49 1548s18
+306V13*Assert_Surface_Contains_Actionable_Domain_Details{boolean} 22|1074b13
+. 1094l8 1094t57 1549s18
+307V13*Assert_Save_Clean_Status_Is_Domain_Local{boolean} 22|1096b13 1114l8
+. 1114t48 1550s18
+308V13*Assert_Recovery_Command_Availability_Is_Domain_Local{boolean} 22|1116b13
+. 1147l8 1147t60 1551s18
+309V13*Assert_Recovery_Summary_Overflow_Is_Bounded{boolean} 22|1149b13 1163l8
+. 1163t51 1552s18
+310V13*Assert_Settings_Recovery_Counts_Are_Actionable{boolean} 22|1165b13
+. 1174l8 1174t54 1553s18
+311V13*Assert_Recent_Projects_Partial_Load_Is_Preserved{boolean} 22|1176b13
+. 1184l8 1184t56 1554s18
+312V13*Assert_Configuration_Recovery_Render_Is_Side_Effect_Free{boolean}
+. 22|1186b13 1202l8 1202t64 1555s18
+313V13*Assert_Recovery_State_Not_Persisted{boolean} 22|1204b13 1211l8 1211t43
+. 1556s18
+314V13*Assert_Recorded_Recovery_Summary_Is_Transient{boolean} 22|1368b13
+. 1396l8 1396t53 1557s18
+315V13*Assert_Recovery_Runtime_State_Clear_Is_Local{boolean} 22|1398b13 1417l8
+. 1417t52 1558s18
+316V13*Assert_Clean_Summary_Disables_Reset_And_Save_Clean{boolean} 22|1419b13
+. 1446l8 1446t58 1559s18
+317V13*Assert_Domain_Local_Status_Record_Is_Bounded{boolean} 22|1448b13 1466l8
+. 1466t52 1560s18
+318V13*Assert_Save_Clean_Failure_Status_Is_Exception_Contained{boolean} 22|1214b13
+. 1240l8 1240t63 1561s18
+319V13*Assert_Recovery_Messages_Are_Bounded{boolean} 22|1468b13 1492l8 1492t44
+. 1562s18
+320V13*Assert_Recovery_Availability_Blocks_Domain_Mutation_While_Pending{boolean}
+. 22|1494b13 1522l8 1522t73 1563s18
+321V13*Assert_Reset_All_Keybinding_Failure_Status_Is_Not_Fabricated{boolean}
+. 22|1525b13 1538l8 1538t68 1564s18
+322V13*Assert_Recovery_Keybindings_Have_No_Payloads{boolean} 22|1242b13 1254l8
+. 1254t52 1565s18
+323V13*Assert_Configuration_Recovery_Coherent{boolean} 22|1541b13 1566l8
+. 1566t46
+X 22 editor-configuration_recovery.adb
+11b4 Pending_Reset_All_Confirmation{boolean} 210m7 215m7 220r14
+12r4 Recorded_Recovery_Summary{21|119R9} 664m7 664r7 675r14 680m7 680r7
+13b4 Recorded_Recovery_Summary_Set{boolean} 665m7 670r14 681m7
+15V13 Count_Image{string} 15b13 15>26 19l8 19t19 572s14 576s14
+15i26 Value{natural} 16r47
+16a7 Raw{string} 18r14 18r19 18r36
+21V13 Bounded_Text{15|105R9} 21b13 21>27 31l8 31t20 334s40 514s9
+21a27 Text{string} 23r10 24r38 26r38 26r44 26r58 29r13 29r19 29r33
+102V13 Summary_Has_Domain_Issue{boolean} 102b13 103>7 104>7 116l8 116t32
+. 149s33 154s33 159s33 164s33 169s33 174s33 179s33 184s33
+103r7 Summary{21|119R9} 107r21 109r21 110r48
+104e7 Domain{21|9E9} 109r47
+107i11 I{integer} 108r13 109r35 110r62
+118V13 Summary_Has_Any_Domain_Issue{boolean} 118b13 119>7 130l8 130t36 189s33
+119r7 Summary{21|119R9} 122r21 124r48
+122i11 I{integer} 123r13 124r62
+137r7 Result{21|57R9} 142m13 143r20 144m16 147m13 149m13 150r20 151m16 154m13
+. 155r20 156m16 159m13 160r20 161m16 164m13 165r20 166m16 169m13 170r20 171m16
+. 174m13 175r20 176m16 179m13 180r20 181m16 184m13 185r20 186m16 189m13 191r20
+. 193m19 195m19 200m13 201r20 202m16 205r14
+223V13 Recovery_Command_Row_For{21|63R9} 223b13 224>7 225>7 226>7 227>7 228>7
+. 229>7 230>7 231>7 246l8 246t32 275s15 278s15 281s15 284s15 287s15 290s15
+. 293s15 296s15 299s15 302s15 305s15 308s15 311s15
+224e7 Action{21|42E9} 235r76 237r20
+225a7 Display{string} 236r47
+226e7 Domain{21|9E9} 238r20
+227b7 Domain_Specific{boolean} 239r29 277r10 280r10 295r10 298r10 301r10
+228b7 Requires_Confirmation{boolean} 240r35 295r36
+229b7 Confirmation_Action{boolean} 241r33 298r36 301r36
+230b7 Save_Clean_Action{boolean} 242r31 304r10 307r10 310r10 313r10
+231b7 Reset_Action{boolean} 243r26 283r10 286r10 289r10 292r10 295r67
+250r7 Result{21|84R9} 254r13 255m13 255r33 256m13 256r26 259m13 259r35 262m13
+. 262r40 265m13 265r42 268m13 268r45 271m13 271r50 314r14
+252U17 Append 252b17 252>25 273l11 273t17 275s7 278s7 281s7 284s7 287s7 290s7
+. 293s7 296s7 299s7 302s7 305s7 308s7 311s7
+252r25 Row{21|63R9} 256r47 258r13 261r13 264r13 264r47 267r17 270r17
+318V13 Issue_Row{21|94R9} 318b13 319>7 320>7 321>7 322>7 323>7 324>7 341l8
+. 341t17 350s23 354s23 360s23 365s23 370s23 374s23 396s23 400s23 405s23 409s23
+. 413s23 417s23 437s23 441s23 447s23 452s23 457s23 461s23 477s23 481s23 486s23
+. 491s23 496s23 500s23 610s23 613s23 811s24 814s24 826s17 838s17 849s17 861s17
+. 880s27 895s24 1079s14 1123s24 1126s24 1154s27 1192s24 1401s24 1425s24 1428s24
+. 1453s22 1456s23 1475s14 1501s24
+319e7 Domain{21|9E9} 328r24
+320e7 Load_Status{21|17E9} 329r29 330r35 335r30 336r33 337r32 339r17
+321e7 Action{21|29E9} 331r24 338r38
+322a7 Suggestion{string} 334r54
+323i7 Warnings{natural} 332r31 356r45 376r74 402r47 419r70 443r50 463r90
+. 483r47 502r84 882r58 1081r64 1125r39 1194r39 1403r39 1458r41 1477r21 1503r39
+324i7 Errors{natural} 333r29 362r60 367r61 372r84 407r75 411r76 415r90 449r69
+. 454r70 459r94 488r65 493r66 498r98
+326r7 Result{21|94R9} 328m7 329m7 330m7 331m7 332m7 333m7 334m7 335m7 336m7
+. 337m7 338m7 340r14
+346r7 Result{21|94R9} 350m13 350r13 354m13 354r13 357m13 360m13 360r13 363m13
+. 365m13 365r13 368m13 370m13 370r13 374m13 374r13 377m13 378m13 379r16 380r24
+. 382m16 385r14
+391i7 Rejected{natural} 420r44 421r43
+392r7 Result{21|94R9} 396m13 396r13 400m13 400r13 405m13 405r13 409m13 409r13
+. 413m13 413r13 417m13 417r13 420m13 421m13 422m13 426r14
+433r7 Result{21|94R9} 437m13 437r13 441m13 441r13 444m13 447m13 447r13 450m13
+. 452m13 452r13 455m13 457m13 457r13 461m13 461r13 464m13 465m13 467r14
+473r7 Result{21|94R9} 477m13 477r13 481m13 481r13 484m13 486m13 486r13 489m13
+. 491m13 491r13 494m13 496m13 496r13 500m13 500r13 503m13 504m13 506r14
+527i7 Last{natural} 529r10 530m10 534r21
+534i11 I{integer} 535r51
+543r7 Stored{21|94R9} 545m34 545r34 548r49 552r56 553r52 554r10 557r10 557r43
+. 558r17
+604r7 Result{21|119R9} 606m15 606r15 607m15 607r15 608m15 608r15 609m15 609r15
+. 610m15 610r15 613m15 613r15 616r14
+623r7 Result{21|154R9} 629m7 630m7 631m7 632m7 633m7 635m10 637m10 639m10
+. 641m10 642m10 643m10 644m10 645m10 646m10 647m10 648m10 649m10 650m10 651m10
+. 652m10 654r14
+624i7 Last{natural} 626r10 627m10 629r27 634r21
+634i11 I{integer} 635r23 636r61 637r23 638r66 639r23 640r70 641r23 641r57
+. 642r23 642r55 643r23 643r63 644r23 644r63 645r23 645r65 646r23 646r64 647r23
+. 647r56 648r23 648r59 649r23 649r58 650r23 650r64 651r23 651r61 652r23 652r55
+661r7 Clean{21|119R9} 663m35 663r35 664r36
+698i11 I{integer} 699r13 700r62
+712r7 Local{21|94R9} 717r10 718r17 722r24
+736e7 Settings_Status{27|5E9} 747m67 751m13 753r10 754r18 760r34
+737e7 Keybindings_Status{24|6E9} 767m44 771m13 773r10 774r18 778r49
+739e7 Workspace_Status{29|5E9} 782m40 786m13 788r10 789r18 794r10
+741e7 Recent_Status{26|6E9} 798m70 802m13 804r10 805r18 809r53
+759r10 Settings_Row{21|94R9} 762r27
+876r7 Row{21|94R9} 887m40 888r24 889m46 890r24 891m42 892r24 893m45 894r24
+906e7 Write_Status{27|5E9} 911m53 912r42 913r13
+907r7 Clean{27|40R9} 910m37 910r37 911r40
+930e7 Write_Status{24|6E9} 935m62 936r45 937r13
+931r7 Clean{24|26R9} 934m46 934r46 935r49
+955e7 Write_Status{29|5E9} 961m26 962r43 963r13
+956r7 Clean{29|69R9} 959m50 959r50 961r13
+981e7 Write_Status{26|6E9} 986m60 987r49 988r13
+982r7 Clean{26|21R9} 985m44 985r44 986r47
+1002r7 S{27|40R9} 1013m10
+1003r7 K{24|26R9} 1013m13
+1004r7 W{29|69R9} 1013m16
+1005r7 R{26|21R9} 1013m19
+1006r7 Summary{21|119R9} 1013m22 1014r14 1015r18 1016r18 1017r18 1018r18
+. 1019r18 1020r18 1021r18 1022r18
+1026r7 S{27|40R9} 1032m30 1032r30
+1027r7 K{24|26R9} 1033m33 1033r33
+1028r7 W{29|69R9} 1034m31 1034r31 1041r64
+1029r7 R{26|21R9} 1035m37 1035r37 1040r48
+1030r7 RS{21|94R9} 1032m33 1036r14
+1030r11 RK{21|94R9} 1033m36 1037r18
+1030r15 RW{21|94R9} 1034m34 1038r18
+1030r19 RR{21|94R9} 1035m40 1039r18
+1045r7 S1{27|40R9} 1051m37 1051r37 1060m30 1060r30 1069r42
+1045r11 S2{27|40R9} 1052m37 1052r37 1069r46
+1046r7 K1{24|26R9} 1053m46 1053r46 1054r13 1061r51 1068m33 1068r33
+1046r11 K2{24|26R9} 1054m7 1061r55
+1047r7 W1{29|69R9} 1055m43 1055r43 1056r13 1062r62 1070r59
+1047r11 W2{29|69R9} 1056m7 1056r7 1062r66 1070r63
+1048r7 R1{26|21R9} 1057m37 1057r37 1058r13 1063r47 1071r48
+1048r11 R2{26|21R9} 1058m7 1058r7 1063r84 1071r84
+1049r7 Row{21|94R9} 1060m34 1068m37
+1075r7 Summary{21|119R9} 1084m15 1084r15 1085r42
+1076r7 Surface{21|154R9} 1085m7 1085r7 1086r14 1087r29 1088r29 1089r18 1090r18
+. 1091r18 1092r29 1093r18
+1077r7 Row{21|94R9} 1079m7 1079r7 1082m7 1083m7 1084r24
+1097r7 S{21|94R9} 1106r14 1110r18
+1099r7 K{21|94R9} 1107r18 1111r18
+1101r7 W{21|94R9} 1108r18 1112r18
+1103r7 R{21|94R9} 1109r18 1113r18
+1117r7 Summary{21|119R9} 1123m15 1123r15 1126m15 1126r15 1131r42 1133r45
+. 1135r47 1137r45
+1118r7 Settings_Reset{21|57R9} 1130m7 1130r7 1140r14
+1119r7 Keybindings_Reset{21|57R9} 1132m7 1132r7 1142r22 1143r29
+1120r7 Settings_Save{21|57R9} 1134m7 1134r7 1141r18
+1121r7 Confirm_Reset_All{21|57R9} 1136m7 1136r7 1144r22 1145r29
+1150r7 Summary{21|119R9} 1154m18 1154r18 1158r42 1159r14 1160r22
+1151r7 Surface{21|154R9} 1158m7 1158r7 1161r18 1162r22
+1153i11 I{integer}
+1166r7 Row{21|94R9} 1169r14 1170r18 1171r18 1172r19 1173r27
+1177r7 Row{21|94R9} 1180r14 1181r18 1182r18 1183r18
+1187r7 Summary{21|119R9} 1191m7 1191r7 1192m15 1192r15 1195r17 1196r42 1199r18
+. 1200r18 1201r18
+1188r7 Before{21|119R9} 1195m7 1195r7 1199r41 1200r42 1201r49
+1189r7 Surface{21|154R9} 1196m7 1196r7 1197r14 1198r18
+1205r7 Surface{21|154R9} 1208r14 1209r18 1210r29
+1215r7 S{21|94R9} 1224r14 1228r18 1232r18 1236r22
+1217r7 K{21|94R9} 1225r18 1229r18 1233r18 1237r22
+1219r7 W{21|94R9} 1226r18 1230r18 1234r18 1238r22
+1221r7 R{21|94R9} 1227r18 1231r18 1235r18 1239r22
+1243r7 Catalog{21|84R9} 1245r21 1246r17
+1245i11 I{integer} 1246r31
+1258r7 S{27|40R9} 1266m37 1266r37 1271m26 1271r26 1302m26 1302r26
+1259r7 K{24|26R9} 1267m46 1267r46 1271m29 1271r29 1302m29 1302r29
+1260r7 W{29|69R9} 1268m43 1268r43 1271m32 1271r32 1302m32 1302r32
+1261r7 R{26|21R9} 1269m37 1269r37 1271m35 1271r35 1302m35 1302r35
+1262r7 Summary{21|119R9} 1271m45 1272r10 1273r17 1274r17 1280r45 1282r37
+. 1289r37 1292r45 1302m44 1303r14 1304r18 1305r18 1306r18 1307r18
+1263r7 Denied{21|57R9} 1279m7 1279r7 1283r10 1288m7 1288r7 1294r10
+1264r7 Allowed{21|57R9} 1281m7 1281r7 1283r39 1291m7 1291r7 1294r39
+1311r7 Catalog{21|84R9} 1315r10 1316r17 1317r17 1318r17 1319r17 1324r21 1326r52
+1312b7 Saw_Reset_All{boolean} 1333m16 1341r14
+1313b7 Saw_Save_Clean_Keybindings{boolean} 1335m16 1341r37
+1324i11 I{integer} 1326r66
+1326r13 Row{21|63R9} 1327r50 1329r44 1333r33 1333r68 1335r46 1336r27
+1327a13 Name{string} 1329r16 1332r16 1334r19
+1345r7 S{27|40R9} 1356m10
+1346r7 K{24|26R9} 1356m13
+1347r7 W{29|69R9} 1356m16
+1348r7 R{26|21R9} 1356m19
+1349r7 Summary{21|119R9} 1356m22 1357r14 1358r18 1359r18 1360r18 1361r18
+. 1362r18 1363r18 1364r18
+1369r7 Summary{21|119R9} 1385m22 1388r58
+1370r7 S{27|40R9} 1385m10
+1371r7 K{24|26R9} 1385m13
+1372r7 W{29|69R9} 1385m16
+1373r7 R{26|21R9} 1385m19
+1399r7 Summary{21|119R9} 1401m15 1401r15 1404r32
+1420r7 Summary{21|119R9} 1425m15 1425r15 1428m15 1428r15 1433r42 1435r47
+. 1437r37 1439r55
+1421r7 Reset_Settings{21|57R9} 1432m7 1432r7 1440r22 1443r29
+1422r7 Save_Settings{21|57R9} 1434m7 1434r7 1441r22 1444r29
+1423r7 Reset_All{21|57R9} 1436m7 1436r7 1442r22 1445r29
+1449r7 Summary{21|119R9} 1460m35 1460r35 1461m35 1461r35 1463r14 1464r18
+. 1465r18
+1450r7 Runtime_Row{21|94R9} 1453m7 1453r7 1460r44
+1451r7 Settings_Row{21|94R9} 1456m7 1456r7 1461r44
+1469a7 Long_Text{string} 1477r10 1482r58
+1471r7 Row{21|94R9} 1475m7 1475r7 1478r43 1482m7 1483r24
+1472r7 Summary{21|119R9} 1483m15 1483r15 1484r43 1488r32
+1473r7 Recorded{21|119R9} 1489m7 1489r7 1490r14 1491r47
+1495r7 Summary{21|119R9} 1501m15 1501r15 1506r42 1508r47 1510r32 1512r45
+1496r7 Reset_Settings{21|57R9} 1505m7 1505r7 1514r18 1516r29
+1497r7 Save_Settings{21|57R9} 1507m7 1507r7 1515r22 1518r29
+1498r7 Show_Recovery{21|57R9} 1509m7 1509r7 1520r18
+1499r7 Confirm_All{21|57R9} 1511m7 1511r7 1521r18
+1526r7 Row{21|94R9} 1529m7 1532r14 1533r18 1534r18 1535r18 1536r22 1537r29
+X 24 editor-keybinding_config.ads
+4K16*Keybinding_Config 21|2w13 186r23 248r37 258r35 273r35 285r28 22|7r20
+. 389r23 391r45 395r22 399r22 403r22 404r22 408r22 412r22 416r22 423r22 424r25
+. 731r37 737r35 738r16 766r17 770r20 771r42 773r39 774r47 776r17 833r35 837r14
+. 870r35 926r28 930r29 931r29 934r17 935r17 937r35 944r23 1003r18 1027r18
+. 1046r23 1053r14 1061r21 1100r17 1218r17 1250r21 1252r29 1259r18 1267r14
+. 1346r18 1371r18 1527r17 24|183e29
+6E9*Keybinding_Config_Status 21|186r41 22|7r38 389r41 737r53 930r47 24|13e38
+7n7*Keybinding_Config_Ok{6E9} 22|395r40 738r34 773r57 937r53
+8n7*Keybinding_Config_Not_Found{6E9} 22|399r40
+9n7*Keybinding_Config_Invalid_Format{6E9} 22|403r40
+10n7*Keybinding_Config_Unsupported_Version{6E9} 22|404r40
+11n7*Keybinding_Config_Read_Error{6E9} 22|408r40 771r60
+12n7*Keybinding_Config_Write_Error{6E9} 22|412r40 944r41 1100r35 1218r35
+. 1527r35
+13n7*Keybinding_Config_Partial_Load{6E9} 22|416r40 774r65
+21n7*Unsupported_Payload{15E9} 22|424r43
+26R9*Keybinding_Config_Model 21|248r55 258r53 273r53 285r46 22|731r55 833r53
+. 870r53 926r46 931r47 1003r36 1027r36 1046r41 1259r36 1346r36 1371r36 24|181e14
+42V13*Last_Load_Ignored_Count{natural} 22|391s63
+49V13*Last_Load_Diagnostic_Count{natural} 22|423s40
+55V13*Keybinding_Value_Has_Unsupported_Payload{boolean} 22|1250s39 1252s47
+65U14*Set_Defaults 22|770s38 776s35 837s32 1053s32 1267s32
+116U14*Normalize 22|934s35
+120V13*Equivalent{boolean} 22|1061s39
+149U14*Save_To_File 22|935s35
+161U14*Load_From_File 22|766s35
+X 26 editor-recent_projects.ads
+4K16*Recent_Projects 21|3w13 193r23 250r37 266r30 275r33 295r23 22|9r20 471r23
+. 476r22 480r22 485r22 490r22 495r22 499r22 503r50 504r50 733r37 741r35 742r16
+. 798r17 801r20 802r37 804r34 805r42 807r17 856r30 860r14 872r33 977r23 981r29
+. 982r29 985r17 986r17 988r35 995r23 1005r18 1029r18 1040r25 1048r23 1057r14
+. 1063r24 1063r61 1071r25 1071r61 1104r17 1178r17 1222r17 1261r18 1269r14
+. 1348r18 1373r18 26|121e27
+6E9*Recent_Project_Status 21|193r39 22|9r36 471r39 741r51 981r45 26|12e35
+7n7*Recent_Project_Ok{6E9} 22|476r38 742r32 804r50 988r51
+8n7*Recent_Project_Not_Found{6E9} 22|480r38
+9n7*Recent_Project_Invalid_Format{6E9} 22|485r38
+10n7*Recent_Project_Read_Error{6E9} 22|490r38 802r53
+11n7*Recent_Project_Write_Error{6E9} 22|495r38 995r39 1104r33 1222r33
+12n7*Recent_Project_Partial_Load{6E9} 22|499r38 805r58 1178r33
+21R9*Recent_Project_List 21|250r53 266r46 275r49 295r39 22|733r53 856r46
+. 872r49 977r39 982r45 1005r34 1029r34 1048r39 1261r34 1348r34 1373r34 26|119e14
+29U14*Clear 22|801s36 807s33 860s30 1057s30 1269s30
+32V13*Count{natural} 22|1040s41 1063s40 1063s77 1071s41 1071s77
+81V13*Last_Load_Ignored_Count{natural} 22|503s66 504s66
+87U14*Normalize 22|985s33
+91U14*Save_To_File 22|986s33
+96U14*Load_From_File 22|798s33
+X 27 editor-settings.ads
+3K16*Settings 21|4w13 183r23 247r37 254r32 272r33 280r25 22|6r20 344r23 349r22
+. 353r22 358r22 359r22 364r22 369r22 373r22 377r52 378r50 730r37 736r35 736r70
+. 747r17 750r20 751r39 753r36 754r44 756r17 821r32 825r14 869r33 902r25 906r29
+. 907r29 910r17 911r17 913r35 919r52 1002r18 1026r18 1045r23 1051r14 1052r14
+. 1069r21 1098r17 1167r17 1216r17 1258r18 1266r14 1345r18 1370r18 27|245e20
+5E9*Settings_Status 21|183r32 22|6r29 344r32 736r44 906r38 27|12e29
+6n7*Settings_Ok{5E9} 22|349r31 736r79 753r45 913r44
+7n7*Settings_Not_Found{5E9} 22|353r31
+8n7*Settings_Invalid_Format{5E9} 22|358r31
+9n7*Settings_Unsupported_Version{5E9} 22|359r31
+10n7*Settings_Read_Error{5E9} 22|364r31 751r48
+11n7*Settings_Write_Error{5E9} 22|369r31 919r61 1098r26 1216r26
+12n7*Settings_Partial_Load{5E9} 22|373r31 754r53 1167r26
+40R9*Settings_Model 21|247r46 254r41 272r42 280r34 22|730r46 821r41 869r42
+. 902r34 907r38 1002r27 1026r27 1045r32 1258r27 1345r27 1370r27 27|243e14
+122V13*Last_Load_Ignored_Count{natural} 22|378s59
+123V13*Last_Load_Defaulted_Count{natural} 22|377s61
+131U14*Set_Defaults 22|750s29 756s26 825s23 1051s23 1052s23 1266s23
+188U14*Normalize 22|910s26
+191V13*Equivalent{boolean} 22|1069s30
+214U14*Save_To_File 22|911s26
+222U14*Load_From_File 22|747s26
+X 29 editor-workspace_persistence.ads
+4K16*Workspace_Persistence 21|5w13 189r28 249r37 262r33 274r33 290r26 22|8r20
+. 430r28 436r22 440r22 445r22 446r22 451r22 456r22 460r22 732r37 739r35 740r16
+. 781r17 785r20 786r40 788r37 789r45 791r17 795r17 844r33 848r14 871r33 951r26
+. 955r29 956r29 959r17 960r17 963r35 970r23 1004r18 1028r18 1041r25 1047r23
+. 1055r14 1062r28 1070r25 1102r17 1220r17 1260r18 1268r14 1347r18 1372r18
+. 29|278e33
+5E9*Workspace_Persistence_Status 21|189r50 22|8r42 430r50 739r57 955r51 29|12e45
+6n7*Workspace_Persistence_Ok{5E9} 22|436r44 740r38 788r59 963r57
+7n7*Workspace_Persistence_Not_Found{5E9} 22|440r44
+8n7*Workspace_Persistence_Invalid_Format{5E9} 22|445r44
+9n7*Workspace_Persistence_Unsupported_Version{5E9} 22|446r44
+10n7*Workspace_Persistence_Read_Error{5E9} 22|451r44 786r62
+11n7*Workspace_Persistence_Write_Error{5E9} 22|456r44 970r45 1102r39 1220r39
+12n7*Workspace_Persistence_Partial_Restore{5E9} 22|460r44 789r67
+69R9*Workspace_Snapshot 21|249r59 262r55 274r55 290r48 22|732r59 844r55 871r55
+. 951r48 956r51 1004r40 1028r40 1047r45 1260r40 1347r40 1372r40 29|277e14
+71U14*Clear 22|785s42 791s39 848s36 1055s36 1268s36
+91V13*Open_File_Count{natural} 22|1041s47
+182U14*Normalize 22|959s39
+185V13*Equivalent{boolean} 22|1062s50 1070s47
+215V13*Diagnostic_Count{natural} 22|795s39
+238U14*Save_To_File_Atomically 22|960s39
+243U14*Load_From_File 22|781s39
+X 32 system.ads
+67M9*Address
+X 41 s-memory.ads
+51V13*Alloc{32|67M9} 101i<c,__gnat_malloc>22
+66U14*Free 102i<c,__gnat_free>22
+74V13*Realloc{32|67M9} 103i<c,__gnat_realloc>22
+X 52 s-stalib.adb
+87U14 Break_Start 88i<c,__gnat_break_start>22
+

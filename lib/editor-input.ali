@@ -1,0 +1,167 @@
+V "GNAT Lib v15"
+A -gnatA
+A -gnat2022
+A -mtune=generic
+A -march=x86-64
+P SS ZX
+
+RN
+RV NO_EXCEPTION_HANDLERS
+RV NO_EXCEPTION_PROPAGATION
+RV NO_EXCEPTIONS
+RV NO_NESTED_FINALIZATION
+RV NO_STANDARD_STORAGE_POOLS
+RV NO_DEFAULT_INITIALIZATION
+RV NO_DYNAMIC_SIZED_OBJECTS
+RV NO_IMPLEMENTATION_PRAGMAS
+RV NO_IMPLICIT_LOOPS
+RV NO_OBSOLESCENT_FEATURES
+
+U editor.input%b	editor-input.adb	0eb3b74e NE OO PK
+Z ada.exceptions%s	a-except.adb		a-except.ali
+Z ada.strings.text_buffers%s  a-sttebu.adb	a-sttebu.ali
+W editor%s		editor.ads		editor.ali
+W editor.commands%s	editor-commands.adb	editor-commands.ali
+Z system%s		system.ads		system.ali
+Z system.finalization_primitives%s  s-finpri.adb  s-finpri.ali
+Z system.return_stack%s	s-retsta.ads		s-retsta.ali
+Z system.soft_links%s	s-soflin.adb		s-soflin.ali
+Z system.standard_library%s  s-stalib.adb	s-stalib.ali
+
+U editor.input%s	editor-input.ads	52160587 EE NE OO PK
+W editor%s		editor.ads		editor.ali
+W editor.commands%s	editor-commands.adb	editor-commands.ali
+
+D ada.ads		20250808065140 76789da1 ada%s
+D a-charac.ads		20250808065140 2d3ec45b ada.characters%s
+D a-chlat1.ads		20250808065140 e0d72e76 ada.characters.latin_1%s
+D a-contai.ads		20250808065140 61e5e089 ada.containers%s
+D a-conhel.ads		20250808065140 46fe1ce3 ada.containers.helpers%s
+D a-convec.ads		20250808065140 91fb49f3 ada.containers.vectors%s
+D a-except.ads		20250808065140 e7970cd9 ada.exceptions%s
+D a-finali.ads		20250808065140 bf4f806b ada.finalization%s
+D a-iteint.ads		20250808065140 49a8bee2 ada.iterator_interfaces%s
+D a-stream.ads		20250808065140 17477cbd ada.streams%s
+D a-string.ads		20250808065140 90ac6797 ada.strings%s
+D a-strmap.ads		20250808065140 1f91ebb6 ada.strings.maps%s
+D a-strsea.ads		20250808065140 18c3c634 ada.strings.search%s
+D a-sttebu.ads		20250808065140 f1ad67a2 ada.strings.text_buffers%s
+D a-strunb.ads		20250808065140 b10770ab ada.strings.unbounded%s
+D a-stuten.ads		20250808065140 c6ced0ae ada.strings.utf_encoding%s
+D a-tags.ads		20250808065140 fbca0ad5 ada.tags%s
+D a-unccon.ads		20250808065140 0e9b276f ada.unchecked_conversion%s
+D editor.ads		20260406185230 16f844c2 editor%s
+D editor-commands.ads	20260425121135 91ba1af2 editor.commands%s
+D editor-cursors.ads	20260425100454 1f938cf3 editor.cursors%s
+D editor-input.ads	20260420165552 d5545bb7 editor.input%s
+D editor-input.adb	20260419140449 4a5df60b editor.input%b
+D interfac.ads		20250808065140 9111f9c1 interfaces%s
+D i-c.ads		20250808065140 e94c966a interfaces.c%s
+D system.ads		20250808065140 14286b0f system%s
+D s-atocou.ads		20250808065140 dc18efc3 system.atomic_counters%s
+D s-exctab.ads		20250808065140 91bef6ef system.exception_table%s
+D s-finpri.ads		20250808065140 5970d55a system.finalization_primitives%s
+D s-finroo.ads		20250808065140 0a7c3ed4 system.finalization_root%s
+D s-memory.ads		20250808065140 18949c1a system.memory%s
+D s-oscons.ads		20250827122531 068e1a91 system.os_constants%s
+D s-oslock.ads		20250808065140 13fa6b78 system.os_locks%s
+D s-parame.ads		20250808065140 3597fc11 system.parameters%s
+D s-pooglo.ads		20250808065140 91708d21 system.pool_global%s
+D s-putima.ads		20250808065140 17291fe4 system.put_images%s
+D s-retsta.ads		20250808065140 0f6b06cb system.return_stack%s
+D s-secsta.ads		20250808065140 578279f5 system.secondary_stack%s
+D s-soflin.ads		20250808065140 5d88fdea system.soft_links%s
+D s-stache.ads		20250808065140 0b81c1fe system.stack_checking%s
+D s-stalib.ads		20250808065140 1c9580f6 system.standard_library%s
+D s-stalib.adb		20250808065140 eb464a47 system.standard_library%b
+D s-stoele.ads		20250808065140 ccded4e8 system.storage_elements%s
+D s-stopoo.ads		20250808065140 e9fa2dd8 system.storage_pools%s
+D s-stratt.ads		20250808065140 516607ae system.stream_attributes%s
+D s-traent.ads		20250808065140 c81cbf8c system.traceback_entries%s
+D s-unstyp.ads		20250808065140 fa2a7f59 system.unsigned_types%s
+G a e
+G c Z s b [to_command editor__input 31 13 none]
+G c Z s s [input_eventIP editor__input 21 9 none]
+G r s command [to_command editor__input 31 13 none] [commandIP editor__commands 56 9 none]
+G r l command [to_command editor__input 31 13 none] [commandDI editor__commands 56 9 none]
+G r k command [to_command editor__input 31 13 none] [commandDF editor__commands 56 9 none]
+G r j command [to_command editor__input 31 13 none] [commandDA editor__commands 56 9 none]
+X 9 a-iteint.ads
+24h9 Forward_Iterator
+32h9 Reversible_Iterator<24R9[6|119]>
+X 19 editor.ads
+1K9*Editor 5e11 22|1r6 3r9 33r29 35r5 23|1r6 1r27 3r14 7r29 9r11 85r5
+X 20 editor-commands.ads
+5K16*Commands 75e20 22|1w13 33r36 23|1w13 1r34 7r36 9r18
+11n7*Insert_Char{10E9} 23|19r23
+12n7*Delete_Char{10E9} 23|26r26
+13n7*Forward_Delete_Char{10E9} 23|33r26
+14n7*Delete_Word_Left{10E9} 23|24r26
+15n7*Delete_Word_Right{10E9} 23|31r26
+16n7*Move_Left{10E9} 23|40r26
+17n7*Move_Right{10E9} 23|47r26
+18n7*Move_Up{10E9} 23|51r23
+19n7*Move_Down{10E9} 23|54r23
+20n7*Move_Home{10E9} 23|57r23
+21n7*Move_End{10E9} 23|60r23
+22n7*Move_Page_Up{10E9} 23|63r23
+23n7*Move_Page_Down{10E9} 23|66r23
+24n7*Move_To_Point{10E9} 23|69r23
+32n7*Move_Word_Left{10E9} 23|38r26
+33n7*Move_Word_Right{10E9} 23|45r26
+34n7*Undo{10E9} 23|74r23
+35n7*Redo{10E9} 23|78r23
+56R9*Command 71e14 22|33r45 23|7r45 9r27
+57e7*Kind{10E9} 23|19m15 24m18 26m18 31m18 33m18 38m18 40m18 45m18 47m18
+. 51m15 54m15 57m15 60m15 63m15 66m15 69m15 74m15 78m15
+59i7*Pos{21|5I12} 23|11m9
+60e7*Ch{character} 23|12m9 20m15
+61b7*Shift{boolean} 23|13m9 75m15 79m15
+62b7*Ctrl{boolean} 23|14m9
+63b7*Alt{boolean} 23|15m9
+64i7*Click_X{natural} 23|70m15
+65i7*Click_Y{natural} 23|71m15
+X 21 editor-cursors.ads
+5I12*Cursor_Index{natural}
+X 22 editor-input.ads
+3K16*Input 19|1k9 22|35l12 35e17 23|3b21 85l12 85t17
+5E9*Key_Type 19e16 22r15
+6n7*Key_Insert_Char{5E9} 22r29 23|18r15
+7n7*Key_Delete_Char{5E9} 23|22r15
+8n7*Key_Forward_Delete_Char{5E9} 23|29r15
+9n7*Key_Move_Left{5E9} 23|36r15
+10n7*Key_Move_Right{5E9} 23|43r15
+11n7*Key_Move_Up{5E9} 23|50r15
+12n7*Key_Move_Down{5E9} 23|53r15
+13n7*Key_Home{5E9} 23|56r15
+14n7*Key_End{5E9} 23|59r15
+15n7*Key_Page_Up{5E9} 23|62r15
+16n7*Key_Page_Down{5E9} 23|65r15
+17n7*Key_Mouse_Left{5E9} 23|68r15
+18n7*Key_Undo{5E9} 23|73r15
+19n7*Key_Redo{5E9} 23|77r15
+21R9*Input_Event 29e14 32r13 23|6r13
+22e7*Key{5E9} 23|17r14
+23e7*Ch{character} 23|20r25
+24b7*Shift{boolean} 23|13r21
+25b7*Ctrl{boolean} 23|14r21 23r18 30r18 37r18 44r18
+26b7*Alt{boolean} 23|15r21
+27i7*X{natural} 23|70r28
+28i7*Y{natural} 23|71r28
+31V13*To_Command{20|56R9} 32>7 33>7 23|5b13 83l8 83t18
+32r7 E{21R9} 23|6b7 13r19 14r19 15r19 17r12 20r23 23r16 30r16 37r16 44r16
+. 70r26 71r26
+33i7 Pos{natural} 23|7b7 11r19
+X 23 editor-input.adb
+9r7 C{20|56R9} 11m7 12m7 13m7 14m7 15m7 19m13 20m13 24m16 26m16 31m16 33m16
+. 38m16 40m16 45m16 47m16 51m13 54m13 57m13 60m13 63m13 66m13 69m13 70m13
+. 71m13 74m13 75m13 78m13 79m13 82r14
+X 26 system.ads
+67M9*Address
+X 31 s-memory.ads
+51V13*Alloc{26|67M9} 101i<c,__gnat_malloc>22
+66U14*Free 102i<c,__gnat_free>22
+74V13*Realloc{26|67M9} 103i<c,__gnat_realloc>22
+X 42 s-stalib.adb
+87U14 Break_Start 88i<c,__gnat_break_start>22
+

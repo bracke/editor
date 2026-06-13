@@ -1,0 +1,337 @@
+V "GNAT Lib v13"
+A -gnat2022
+P SS ZX
+
+RN
+RV NO_EXCEPTION_HANDLERS
+RV NO_EXCEPTION_PROPAGATION
+RV NO_EXCEPTIONS
+RV NO_STANDARD_STORAGE_POOLS
+RV NO_DEFAULT_INITIALIZATION
+RV NO_ELABORATION_CODE
+
+U editor.history%b	editor-history.adb	14f9c52a NE OO PK
+W ada%s			ada.ads			ada.ali
+W ada.strings%s		a-string.ads		a-string.ali
+Z ada.strings.text_buffers%s  a-sttebu.adb	a-sttebu.ali
+W ada.strings.unbounded%s  a-strunb.adb		a-strunb.ali
+W editor%s		editor.ads		editor.ali
+W editor.commands%s	editor-commands.adb	editor-commands.ali
+W editor.cursors%s	editor-cursors.adb	editor-cursors.ali
+
+U editor.history%s	editor-history.ads	6d731552 EE OO PF PK
+W ada%s			ada.ads			ada.ali
+W ada.containers%s	a-contai.ads		a-contai.ali
+Z ada.containers.generic_array_sort%s
+Z ada.containers.helpers%s  a-conhel.adb	a-conhel.ali
+W ada.containers.vectors%s
+Z ada.exceptions%s	a-except.adb		a-except.ali
+Z ada.finalization%s	a-finali.ads		a-finali.ali
+Z ada.iterator_interfaces%s
+Z ada.streams%s		a-stream.adb		a-stream.ali
+W ada.strings%s		a-string.ads		a-string.ali
+Z ada.strings.text_buffers%s  a-sttebu.adb	a-sttebu.ali
+W ada.strings.unbounded%s  a-strunb.adb		a-strunb.ali
+Z ada.tags%s		a-tags.adb		a-tags.ali
+Z ada.unchecked_deallocation%s
+W editor%s		editor.ads		editor.ali
+W editor.commands%s	editor-commands.adb	editor-commands.ali
+W editor.cursors%s	editor-cursors.adb	editor-cursors.ali
+Z system%s		system.ads		system.ali
+Z system.finalization_masters%s  s-finmas.adb	s-finmas.ali
+Z system.img_char%s	s-imgcha.adb		s-imgcha.ali
+Z system.img_wchar%s	s-imgwch.adb		s-imgwch.ali
+Z system.pool_global%s	s-pooglo.adb		s-pooglo.ali
+Z system.put_images%s	s-putima.adb		s-putima.ali
+Z system.return_stack%s	s-retsta.ads		s-retsta.ali
+Z system.secondary_stack%s  s-secsta.adb	s-secsta.ali
+Z system.soft_links%s	s-soflin.adb		s-soflin.ali
+Z system.standard_library%s  s-stalib.adb	s-stalib.ali
+Z system.storage_elements%s  s-stoele.adb	s-stoele.ali
+Z system.storage_pools%s  s-stopoo.adb		s-stopoo.ali
+Z system.storage_pools.subpools%s  s-stposu.adb	s-stposu.ali
+Z system.stream_attributes%s  s-stratt.adb	s-stratt.ali
+Z system.strings.stream_ops%s  s-ststop.adb	s-ststop.ali
+Z system.wch_stw%s	s-wchstw.adb		s-wchstw.ali
+
+D ada.ads		20240521074738 76789da1 ada%s
+D a-charac.ads		20240521074737 2d3ec45b ada.characters%s
+D a-chlat1.ads		20240521074737 e0d72e76 ada.characters.latin_1%s
+D a-contai.ads		20240521074737 61e5e089 ada.containers%s
+D a-cgarso.ads		20240521074737 9129bfa8 ada.containers.generic_array_sort%s
+D a-conhel.ads		20240521074737 46fe1ce3 ada.containers.helpers%s
+D a-conhel.adb		20240521074737 854d323e ada.containers.helpers%b
+D a-convec.ads		20240521074737 91fb49f3 ada.containers.vectors%s
+D a-convec.adb		20240521074737 b2ed0168 ada.containers.vectors%b
+D a-except.ads		20240521074738 2a7d8d70 ada.exceptions%s
+D a-finali.ads		20240521074738 bf4f806b ada.finalization%s
+D a-iteint.ads		20240521074738 49a8bee2 ada.iterator_interfaces%s
+D a-stream.ads		20240521074738 119b8fb3 ada.streams%s
+D a-string.ads		20240521074738 90ac6797 ada.strings%s
+D a-strmap.ads		20240521074738 ed8acfdb ada.strings.maps%s
+D a-sttebu.ads		20240521074738 f1ad67a2 ada.strings.text_buffers%s
+D a-strunb.ads		20240521074738 7bfb7010 ada.strings.unbounded%s
+D a-stuten.ads		20240521074738 c6ced0ae ada.strings.utf_encoding%s
+D a-tags.ads		20240521074738 9eaa38c6 ada.tags%s
+D a-unccon.ads		20240521074738 0e9b276f ada.unchecked_conversion%s
+D a-uncdea.ads		20240521074738 c3a8ac65 ada.unchecked_deallocation%s
+D editor.ads		20260612145959 16f844c2 editor%s
+D editor-commands.ads	20260612173240 3b5e3f44 editor.commands%s
+D editor-cursors.ads	20260612145959 1f938cf3 editor.cursors%s
+D editor-history.ads	20260612145959 b546dbc4 editor.history%s
+D editor-history.adb	20260612145959 fe89dd49 editor.history%b
+D editor-unicode.ads	20260612145959 552ff3cc editor.unicode%s
+D interfac.ads		20240521074738 15f799c2 interfaces%s
+D i-c.ads		20240521074738 5c5a6c17 interfaces.c%s
+D system.ads		20240521074738 426dafb8 system%s
+D s-atocou.ads		20240521074738 dc18efc3 system.atomic_counters%s
+D s-atocou.adb		20240521074738 6fe685de system.atomic_counters%b
+D s-atopri.ads		20240521074738 1b132436 system.atomic_primitives%s
+D s-exctab.ads		20240521074738 91bef6ef system.exception_table%s
+D s-finmas.ads		20240521074738 bd688734 system.finalization_masters%s
+D s-finroo.ads		20240521074738 4ff27390 system.finalization_root%s
+D s-imgcha.ads		20240521074738 9c3458e7 system.img_char%s
+D s-imgwch.ads		20240521074738 f25362ad system.img_wchar%s
+D s-memory.ads		20240521074738 5b8432d0 system.memory%s
+D s-parame.ads		20251218205951 1f39ba92 system.parameters%s
+D s-pooglo.ads		20240521074738 91708d21 system.pool_global%s
+D s-putima.ads		20240521074738 17291fe4 system.put_images%s
+D s-retsta.ads		20240521074738 0f6b06cb system.return_stack%s
+D s-secsta.ads		20240521074738 578279f5 system.secondary_stack%s
+D s-soflin.ads		20240521074738 df77073e system.soft_links%s
+D s-stache.ads		20240521074738 0b81c1fe system.stack_checking%s
+D s-stalib.ads		20240521074738 1c9580f6 system.standard_library%s
+D s-stalib.adb		20240521074738 eb464a47 system.standard_library%b
+D s-stoele.ads		20240521074738 ab5468e4 system.storage_elements%s
+D s-stoele.adb		20240521074738 8f5a9db6 system.storage_elements%b
+D s-stopoo.ads		20240521074738 e9fa2dd8 system.storage_pools%s
+D s-stposu.ads		20240521074738 e251976f system.storage_pools.subpools%s
+D s-stratt.ads		20240521074738 f7dfd786 system.stream_attributes%s
+D s-string.ads		20240521074738 582aac7d system.strings%s
+D s-ststop.ads		20240521074738 c569db7c system.strings.stream_ops%s
+D s-traent.ads		20240521074738 c81cbf8c system.traceback_entries%s
+D s-unstyp.ads		20240521074738 fa2a7f59 system.unsigned_types%s
+D s-wchcon.ads		20240521074738 d9032363 system.wch_con%s
+D s-wchstw.ads		20240521074738 2d112c01 system.wch_stw%s
+G a e
+G c Z s b [Oeq editor__history 52 13 none]
+G c Z s s [history_entryDI editor__history 14 9 none]
+G c Z s s [history_entryDA editor__history 14 9 none]
+G c Z s s [history_entryDF editor__history 14 9 none]
+G c Z s s [history_entryIP editor__history 14 9 none]
+G c Z s s [has_element editor__history__history_vector 115 13 54_4]
+G c Z s s [empty editor__history__history_vector 125 13 54_4]
+G c Z s s [Oeq editor__history__history_vector 127 24 54_4]
+G c Z s s [to_vector editor__history__history_vector 136 13 54_4]
+G c Z s s [to_vector editor__history__history_vector 139 13 54_4]
+G c Z s s [Oconcat editor__history__history_vector 145 13 54_4]
+G c Z s s [Oconcat editor__history__history_vector 149 13 54_4]
+G c Z s s [Oconcat editor__history__history_vector 153 13 54_4]
+G c Z s s [Oconcat editor__history__history_vector 157 13 54_4]
+G c Z s s [capacity editor__history__history_vector 161 13 54_4]
+G c Z s s [reserve_capacity editor__history__history_vector 164 14 54_4]
+G c Z s s [length editor__history__history_vector 175 13 54_4]
+G c Z s s [set_length editor__history__history_vector 178 14 54_4]
+G c Z s s [is_empty editor__history__history_vector 187 13 54_4]
+G c Z s s [clear editor__history__history_vector 190 14 54_4]
+G c Z s s [to_cursor editor__history__history_vector 194 13 54_4]
+G c Z s s [to_index editor__history__history_vector 201 13 54_4]
+G c Z s s [element editor__history__history_vector 206 13 54_4]
+G c Z s s [element editor__history__history_vector 213 13 54_4]
+G c Z s s [replace_element editor__history__history_vector 217 14 54_4]
+G c Z s s [replace_element editor__history__history_vector 228 14 54_4]
+G c Z s s [query_element editor__history__history_vector 239 14 54_4]
+G c Z s s [query_element editor__history__history_vector 250 14 54_4]
+G c Z s s [update_element editor__history__history_vector 259 14 54_4]
+G c Z s s [update_element editor__history__history_vector 276 14 54_4]
+G c Z s s [constant_reference editor__history__history_vector 303 13 54_4]
+G c Z s s [reference editor__history__history_vector 308 13 54_4]
+G c Z s s [constant_reference editor__history__history_vector 313 13 54_4]
+G c Z s s [reference editor__history__history_vector 318 13 54_4]
+G c Z s s [assign editor__history__history_vector 323 14 54_4]
+G c Z s s [copy editor__history__history_vector 325 13 54_4]
+G c Z s s [move editor__history__history_vector 327 14 54_4]
+G c Z s s [new_vector editor__history__history_vector 333 13 54_4]
+G c Z s s [insert_vector editor__history__history_vector 337 14 54_4]
+G c Z s s [insert_vector editor__history__history_vector 361 14 54_4]
+G c Z s s [insert_vector editor__history__history_vector 378 14 54_4]
+G c Z s s [insert editor__history__history_vector 396 14 54_4]
+G c Z s s [insert editor__history__history_vector 404 14 54_4]
+G c Z s s [insert editor__history__history_vector 412 14 54_4]
+G c Z s s [insert editor__history__history_vector 421 14 54_4]
+G c Z s s [insert editor__history__history_vector 438 14 54_4]
+G c Z s s [prepend_vector editor__history__history_vector 449 14 54_4]
+G c Z s s [prepend editor__history__history_vector 459 14 54_4]
+G c Z s s [append_vector editor__history__history_vector 466 14 54_4]
+G c Z s s [append editor__history__history_vector 476 14 54_4]
+G c Z s s [append editor__history__history_vector 483 14 54_4]
+G c Z s s [insert_space editor__history__history_vector 486 14 54_4]
+G c Z s s [insert_space editor__history__history_vector 503 14 54_4]
+G c Z s s [delete editor__history__history_vector 514 14 54_4]
+G c Z s s [delete editor__history__history_vector 524 14 54_4]
+G c Z s s [delete_first editor__history__history_vector 533 14 54_4]
+G c Z s s [delete_last editor__history__history_vector 538 14 54_4]
+G c Z s s [reverse_elements editor__history__history_vector 546 14 54_4]
+G c Z s s [swap editor__history__history_vector 549 14 54_4]
+G c Z s s [swap editor__history__history_vector 554 14 54_4]
+G c Z s s [first_index editor__history__history_vector 560 13 54_4]
+G c Z s s [first editor__history__history_vector 563 13 54_4]
+G c Z s s [first_element editor__history__history_vector 567 13 54_4]
+G c Z s s [last_index editor__history__history_vector 570 13 54_4]
+G c Z s s [last editor__history__history_vector 574 13 54_4]
+G c Z s s [last_element editor__history__history_vector 578 13 54_4]
+G c Z s s [next editor__history__history_vector 581 13 54_4]
+G c Z s s [next editor__history__history_vector 587 14 54_4]
+G c Z s s [previous editor__history__history_vector 590 13 54_4]
+G c Z s s [previous editor__history__history_vector 596 14 54_4]
+G c Z s s [find_index editor__history__history_vector 599 13 54_4]
+G c Z s s [find editor__history__history_vector 609 13 54_4]
+G c Z s s [reverse_find_index editor__history__history_vector 623 13 54_4]
+G c Z s s [reverse_find editor__history__history_vector 635 13 54_4]
+G c Z s s [contains editor__history__history_vector 649 13 54_4]
+G c Z s s [iterate editor__history__history_vector 654 14 54_4]
+G c Z s s [reverse_iterate editor__history__history_vector 662 14 54_4]
+G c Z s s [iterate editor__history__history_vector 669 13 54_4]
+G c Z s s [iterate editor__history__history_vector 672 13 54_4]
+G c Z s s [adjust editor__history__history_vector__implementation 90 28 726_4_54_4]
+G c Z s s [finalize editor__history__history_vector__implementation 93 28 726_4_54_4]
+G c Z s s [zero_counts editor__history__history_vector__implementation 96 17 726_4_54_4]
+G c Z s s [busy editor__history__history_vector__implementation 100 17 726_4_54_4]
+G c Z s s [unbusy editor__history__history_vector__implementation 104 17 726_4_54_4]
+G c Z s s [lock editor__history__history_vector__implementation 108 17 726_4_54_4]
+G c Z s s [unlock editor__history__history_vector__implementation 112 17 726_4_54_4]
+G c Z s s [tc_check editor__history__history_vector__implementation 116 17 726_4_54_4]
+G c Z s s [te_check editor__history__history_vector__implementation 120 17 726_4_54_4]
+G c Z s s [is_busy editor__history__history_vector__implementation 136 16 726_4_54_4]
+G c Z s s [is_locked editor__history__history_vector__implementation 140 16 726_4_54_4]
+G c Z s s [initialize editor__history__history_vector__implementation 161 28 726_4_54_4]
+G c Z s s [finalize editor__history__history_vector__implementation 162 28 726_4_54_4]
+G c Z s s [initialize editor__history__history_vector__implementation 167 28 726_4_54_4]
+G c Z s s [finalize editor__history__history_vector__implementation 168 28 726_4_54_4]
+G c Z s s [reference_control_typeDA editor__history__history_vector__implementation 84 12 726_4_54_4]
+G c Z s s [reference_control_typeDF editor__history__history_vector__implementation 84 12 726_4_54_4]
+G c Z s s [reference_control_typeIP editor__history__history_vector__implementation 84 12 726_4_54_4]
+G c Z s s [with_busyDF editor__history__history_vector__implementation 158 12 726_4_54_4]
+G c Z s s [with_busyIP editor__history__history_vector__implementation 158 12 726_4_54_4]
+G c Z s s [with_lockDF editor__history__history_vector__implementation 164 12 726_4_54_4]
+G c Z s s [with_lockIP editor__history__history_vector__implementation 164 12 726_4_54_4]
+G c Z s s [put_image editor__history__history_vector 747 14 54_4]
+G c Z s s [adjust editor__history__history_vector 750 25 54_4]
+G c Z s s [finalize editor__history__history_vector 751 25 54_4]
+G c Z s s [write editor__history__history_vector 753 14 54_4]
+G c Z s s [read editor__history__history_vector 759 14 54_4]
+G c Z s s [read editor__history__history_vector 773 14 54_4]
+G c Z s s [write editor__history__history_vector 779 14 54_4]
+G c Z s s [write editor__history__history_vector 798 14 54_4]
+G c Z s s [read editor__history__history_vector 804 14 54_4]
+G c Z s s [write editor__history__history_vector 820 14 54_4]
+G c Z s s [read editor__history__history_vector 826 14 54_4]
+G c Z s s [pseudo_reference editor__history__history_vector 840 13 54_4]
+G c Z s s [get_element_access editor__history__history_vector 849 13 54_4]
+G c Z s s [cursorIP editor__history__history_vector 768 9 54_4]
+G c Z s s [vectorDA editor__history__history_vector 741 9 54_4]
+G c Z s s [vectorDF editor__history__history_vector 741 9 54_4]
+G c Z s s [vectorIP editor__history__history_vector 741 9 54_4]
+G c Z s s [finalize editor__history__history_vector 865 25 54_4]
+G c Z s s [first editor__history__history_vector 867 24 54_4]
+G c Z s s [last editor__history__history_vector 868 24 54_4]
+G c Z s s [next editor__history__history_vector 870 24 54_4]
+G c Z s s [previous editor__history__history_vector 874 24 54_4]
+G c Z s s [constant_reference_typeDI editor__history__history_vector 788 9 54_4]
+G c Z s s [constant_reference_typeDA editor__history__history_vector 788 9 54_4]
+G c Z s s [constant_reference_typeDF editor__history__history_vector 788 9 54_4]
+G c Z s s [constant_reference_typeIP editor__history__history_vector 788 9 54_4]
+G c Z s s [reference_typeDI editor__history__history_vector 810 9 54_4]
+G c Z s s [reference_typeDA editor__history__history_vector 810 9 54_4]
+G c Z s s [reference_typeDF editor__history__history_vector 810 9 54_4]
+G c Z s s [reference_typeIP editor__history__history_vector 810 9 54_4]
+G c Z s s [elements_arrayIP editor__history__history_vector 729 9 54_4]
+G c Z s s [elements_arrayDI editor__history__history_vector 729 9 54_4]
+G c Z s s [elements_arrayDA editor__history__history_vector 729 9 54_4]
+G c Z s s [elements_arrayDF editor__history__history_vector 729 9 54_4]
+G c Z s s [elements_typeDI editor__history__history_vector 732 9 54_4]
+G c Z s s [elements_typeDF editor__history__history_vector 732 9 54_4]
+G c Z s s [elements_typeIP editor__history__history_vector 732 9 54_4]
+G c Z s s [iteratorDF editor__history__history_vector 857 9 54_4]
+G c Z s s [iteratorIP editor__history__history_vector 857 9 54_4]
+G c Z s s [free editor__history__history_vector 44 14 54_4]
+G c Z s s [append_slow_path editor__history__history_vector 47 14 54_4]
+G r c none [Oeq editor__history 52 13 none] [Oeq editor__commands 1738 13 none]
+G r j command [history_entryDA editor__history 14 9 none] [commandDA editor__commands 1711 9 none]
+G r k command [history_entryDF editor__history 14 9 none] [commandDF editor__commands 1711 9 none]
+G r s command [history_entryIP editor__history 14 9 none] [commandIP editor__commands 1711 9 none]
+G r l command [history_entryIP editor__history 14 9 none] [commandDI editor__commands 1711 9 none]
+G r k command [history_entryIP editor__history 14 9 none] [commandDF editor__commands 1711 9 none]
+X 1 ada.ads
+16K9*Ada 20e8 25|1r6 2r6 22r21 23r21 54r34 26|1r6 1r33
+X 4 a-contai.ads
+16K13*Containers 28e19 25|1r10 54r38
+X 8 a-convec.ads
+62I9 Index_Type 25|55r7
+63+9 Element_Type 25|56r7
+65V19 "="{boolean} 25|57r8
+74k24*Vectors 878e27 25|1w21 54r49
+91R9*Vector<11|43R9> 25|25r37[24|19] 26r37[24|19] 59r32[54] 60r32[54]
+127V25*"="{boolean} 26|13s34[24|19] 14s33[24|19]
+X 12 a-iteint.ads
+24h9 Forward_Iterator
+32h9 Reversible_Iterator<24R9[8|119]>
+X 14 a-string.ads
+16K13*Strings 35e16 25|2r10 22r25 23r25 26|1r10 1r37
+X 17 a-strunb.ads
+85K21*Unbounded 766e26 25|2w18 22r33 23r33 26|1w18 1r45
+91R9*Unbounded_String<11|43R9> 745e15 25|22r43 23r43
+243V14*"="{boolean} 26|11s32 12s31
+X 22 editor.ads
+1K9*Editor 5e11 25|3r6 4r6 6r9 8r34 15r17 16r17 62r5 26|2r6 2r27 3r6 3r26
+. 4r14 30r5
+X 23 editor-commands.ads
+6K16*Commands 1740e20 25|3w13 15r24 16r24 26|2w13 2r34
+1711R9*Command 1731e14 25|15r33 16r33
+1738V14*"="{boolean} 26|9s24 10s28
+X 24 editor-cursors.ads
+3K16*Cursors 35e19 25|4w13 8r41 26|3w13 3r33
+19K12*Cursors_Vector[8|74] 25|8r49
+X 25 editor-history.ads
+6K16*History 22|1k9 25|62l12 62e19 26|4b21 30l12 30t19
+8K12*Caret_Vectors=8:49 25r23 26r23 26|6r8
+10E9*History_Group_Kind 12e20 49r20
+11n7*No_Group{10E9} 49r42
+12n7*Typing_Group{10E9}
+14R9*History_Entry 50e14 52r25 56r23 26|7r25
+15r7*Forward{23|1711R9} 26|9r16 9r28
+16r7*Inverse{23|1711R9} 26|10r20 10r32
+22r7*Before_Text{17|91R9} 26|11r20 11r36
+23r7*After_Text{17|91R9} 26|12r20 12r35
+25r7*Before_Carets{8|91R9[24|19]} 26|13r20 13r38
+26r7*After_Carets{8|91R9[24|19]} 26|14r20 14r37
+28i7*Before_Preferred_Column{natural} 26|15r20 15r48
+29i7*After_Preferred_Column{natural} 26|16r20 16r47
+31b7*Before_Rect_Select_Active{boolean} 26|17r20 17r50
+32b7*After_Rect_Select_Active{boolean} 26|18r20 18r49
+33i7*Before_Rect_Anchor_Row{natural} 26|19r20 19r47
+34i7*Before_Rect_Anchor_Col{natural} 26|20r20 20r47
+35i7*After_Rect_Anchor_Row{natural} 26|21r20 21r46
+36i7*After_Rect_Anchor_Col{natural} 26|22r20 22r46
+38b7*Before_Dirty{boolean} 26|23r20 23r37
+39b7*After_Dirty{boolean} 26|24r20 24r36
+46i7*Owner_Buffer_Token{natural} 26|25r20 25r43
+47i7*Owner_Lifecycle_Generation{natural} 26|26r20 26r51
+49e7*Group_Kind{10E9} 26|27r20 27r35
+52V14*"="{boolean} 52>18 52>21 57r24 26|7b14 28l9 28t11
+52r18 L{14R9} 26|7b18 9r14 10r18 11r18 12r18 13r18 14r18 15r18 16r18 17r18
+. 18r18 19r18 20r18 21r18 22r18 23r18 24r18 25r18 26r18 27r18
+52r21 R{14R9} 26|7b21 9r26 10r30 11r34 12r33 13r36 14r35 15r46 16r45 17r48
+. 18r47 19r45 20r45 21r44 22r44 23r35 24r34 25r41 26r49 27r33
+54K12*History_Vector[8|74] 59r17 60r17
+59r4*Undo_Stack{8|91R9[54]}
+60r4*Redo_Stack{8|91R9[54]}
+X 30 system.ads
+67M9*Address
+X 39 s-memory.ads
+51V13*Alloc{30|67M9} 101i<c,__gnat_malloc>22
+66U14*Free 102i<c,__gnat_free>22
+74V13*Realloc{30|67M9} 103i<c,__gnat_realloc>22
+X 48 s-stalib.adb
+87U14 Break_Start 88i<c,__gnat_break_start>22
+

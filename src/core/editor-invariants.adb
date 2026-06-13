@@ -1,35 +1,68 @@
-with Ada.Assertions;
 with Text_Buffer;
+with Ada.Containers; use Ada.Containers;
 with Editor.Cursors; use Editor.Cursors;
 with Editor.State;
-with Ada.Containers; use Ada.Containers;
+
 package body Editor.Invariants is
 
    procedure Check (S : Editor.State.State_Type) is
-      L : constant Cursor_Index := Cursor_Index (Text_Buffer.Length (S.Buffer));
-      C : Cursor_Index := 0;
+      Len : constant Cursor_Index :=
+        Cursor_Index (Text_Buffer.Length (S.Buffer));
    begin
-      pragma Assert (S.Carets.Length = 1, "Exactly one caret required in Stage 1");
+      ---------------------------------------------------------------------
+      -- There must always be at least one caret
+      ---------------------------------------------------------------------
+      pragma Assert
+        (S.Carets.Length > 0,
+         "Invariant: state must always contain at least one caret");
 
-      if S.Carets.Length > 0 then
-         C := S.Carets (S.Carets.First_Index);
+      ---------------------------------------------------------------------
+      -- Caret positions and anchors must be in bounds
+      ---------------------------------------------------------------------
+      for I in S.Carets.First_Index .. S.Carets.Last_Index loop
+         pragma Assert
+           (S.Carets (I).Pos <= Len,
+            "Invariant: caret position out of bounds");
+
+         pragma Assert
+           (S.Carets (I).Anchor <= Len,
+            "Invariant: caret anchor out of bounds");
+      end loop;
+
+      ---------------------------------------------------------------------
+      -- Carets must be strictly increasing by position
+      ---------------------------------------------------------------------
+      if S.Carets.Length > 1 then
+         for I in S.Carets.First_Index .. S.Carets.Last_Index - 1 loop
+            pragma Assert
+            (S.Carets (I).Pos < S.Carets (I + 1).Pos
+               or else
+               (S.Carets (I).Pos = S.Carets (I + 1).Pos
+               and then
+               S.Carets (I).Virtual_Column < S.Carets (I + 1).Virtual_Column),
+               "Invariant: caret ordering must consider virtual column");
+
+            --  Phase 23 allows Shift navigation to extend selections across
+            --  multiple carets in normal selection mode.  Ordering and bounds
+            --  remain invariant-enforced above; selection ownership is no longer
+            --  restricted to rectangle mode only.
+
+            --  pragma Assert
+            --     (S.Carets.Element (I).Virtual_Column = 0
+            --        or else S.Carets.Element (I).Pos = Cursor_Index (Text_Buffer.Length (S.Buffer))
+            --        or else (
+            --           (declare
+            --              Row : Natural := 0;
+            --              Col : Natural := 0;
+            --           begin
+            --              Line_Column_For_Index (S, Natural (S.Carets.Element (I).Pos), Row, Col);
+            --              Col := Line_Length (S, Row);
+            --           end)),
+            --        "Invariant: virtual column only allowed at EOL");
+         end loop;
       end if;
 
-      pragma Assert (C >= 0, "Caret must be non-negative");
-      pragma Assert (C <= L + 1, "Caret must be <= Length + 1");
 
-      pragma Assert (S.Selection.Start_Pos >= 0, "Selection start must be non-negative");
-      pragma Assert (S.Selection.Start_Pos <= L + 1, "Selection start out of bounds");
-
-      pragma Assert (S.Selection.End_Pos >= 0, "Selection end must be non-negative");
-      pragma Assert (S.Selection.End_Pos <= L + 1, "Selection end out of bounds");
-
-      if not S.Selection.Active then
-         pragma Assert (S.Selection.Start_Pos = C,
-                        "Inactive selection start must equal caret");
-         pragma Assert (S.Selection.End_Pos = C,
-                        "Inactive selection end must equal caret");
-      end if;
    end Check;
 
 end Editor.Invariants;

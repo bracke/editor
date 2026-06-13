@@ -1,0 +1,540 @@
+V "GNAT Lib v15"
+A -gnat2022
+P SS ZX
+
+RN
+RV NO_EXCEPTION_HANDLERS
+RV NO_EXCEPTION_PROPAGATION
+RV NO_EXCEPTIONS
+RV NO_IMPLICIT_CONDITIONALS
+RV NO_LOCAL_ALLOCATORS
+RV NO_NESTED_FINALIZATION
+RV NO_RECURSION
+RV NO_SECONDARY_STACK
+RV NO_STANDARD_STORAGE_POOLS
+RV NO_DEFAULT_INITIALIZATION
+RV NO_DYNAMIC_SIZED_OBJECTS
+RV NO_IMPLICIT_LOOPS
+RV NO_OBSOLESCENT_FEATURES
+
+U editor.syntax_semantics%b  editor-syntax_semantics.adb  903bc743 NE OO PK
+W ada%s			ada.ads			ada.ali
+W ada.characters%s	a-charac.ads		a-charac.ali
+W ada.characters.handling%s  a-chahan.adb	a-chahan.ali
+Z ada.exceptions%s	a-except.adb		a-except.ali
+W ada.strings%s		a-string.ads		a-string.ali
+Z ada.strings.text_buffers%s  a-sttebu.adb	a-sttebu.ali
+W ada.strings.unbounded%s  a-strunb.adb		a-strunb.ali
+Z ada.tags%s		a-tags.adb		a-tags.ali
+W editor%s		editor.ads		editor.ali
+W editor.ada_language_model%s  editor-ada_language_model.adb  editor-ada_language_model.ali
+W editor.ada_symbol_resolver%s  editor-ada_symbol_resolver.adb  editor-ada_symbol_resolver.ali
+W editor.ada_syntax_core%s  editor-ada_syntax_core.adb  editor-ada_syntax_core.ali
+W editor.outline%s	editor-outline.adb	editor-outline.ali
+W editor.syntax%s	editor-syntax.adb	editor-syntax.ali
+Z system%s		system.ads		system.ali
+Z system.concat_2%s	s-conca2.adb		s-conca2.ali
+Z system.finalization_primitives%s  s-finpri.adb  s-finpri.ali
+Z system.secondary_stack%s  s-secsta.adb	s-secsta.ali
+Z system.soft_links%s	s-soflin.adb		s-soflin.ali
+Z system.standard_library%s  s-stalib.adb	s-stalib.ali
+
+U editor.syntax_semantics%s  editor-syntax_semantics.ads  b2c56609 EE NE OO PK
+W editor%s		editor.ads		editor.ali
+W editor.ada_language_model%s  editor-ada_language_model.adb  editor-ada_language_model.ali
+W editor.outline%s	editor-outline.adb	editor-outline.ali
+W editor.syntax%s	editor-syntax.adb	editor-syntax.ali
+
+D ada.ads		20250808065140 76789da1 ada%s
+D a-charac.ads		20250808065140 2d3ec45b ada.characters%s
+D a-chahan.ads		20250808065140 bf752ff6 ada.characters.handling%s
+D a-chlat1.ads		20250808065140 e0d72e76 ada.characters.latin_1%s
+D a-contai.ads		20250808065140 61e5e089 ada.containers%s
+D a-conhel.ads		20250808065140 46fe1ce3 ada.containers.helpers%s
+D a-convec.ads		20250808065140 91fb49f3 ada.containers.vectors%s
+D a-except.ads		20250808065140 e7970cd9 ada.exceptions%s
+D a-finali.ads		20250808065140 bf4f806b ada.finalization%s
+D a-iteint.ads		20250808065140 49a8bee2 ada.iterator_interfaces%s
+D a-stream.ads		20250808065140 17477cbd ada.streams%s
+D a-string.ads		20250808065140 90ac6797 ada.strings%s
+D a-strmap.ads		20250808065140 1f91ebb6 ada.strings.maps%s
+D a-strsea.ads		20250808065140 18c3c634 ada.strings.search%s
+D a-sttebu.ads		20250808065140 f1ad67a2 ada.strings.text_buffers%s
+D a-strunb.ads		20250808065140 b10770ab ada.strings.unbounded%s
+D a-stuten.ads		20250808065140 c6ced0ae ada.strings.utf_encoding%s
+D a-tags.ads		20250808065140 fbca0ad5 ada.tags%s
+D a-unccon.ads		20250808065140 0e9b276f ada.unchecked_conversion%s
+D editor.ads		20260612145959 16f844c2 editor%s
+D editor-ada_language_model.ads  20260612145959 459f92c3 editor.ada_language_model%s
+D editor-ada_symbol_resolver.ads  20260612154933 18b3466f editor.ada_symbol_resolver%s
+D editor-ada_syntax_core.ads  20260612145959 c8d2d8dd editor.ada_syntax_core%s
+D editor-ada_syntax_tree.ads  20260612145959 49a76ced editor.ada_syntax_tree%s
+D editor-feature_panel.ads  20260612145959 0bdf4cfc editor.feature_panel%s
+D editor-outline.ads	20260612152524 90a00201 editor.outline%s
+D editor-syntax.ads	20260612145959 d59b0303 editor.syntax%s
+D editor-syntax_semantics.ads  20260612145959 a499b10a editor.syntax_semantics%s
+D editor-syntax_semantics.adb  20260612154933 ea152467 editor.syntax_semantics%b
+D interfac.ads		20250808065140 9111f9c1 interfaces%s
+D i-c.ads		20250808065140 e94c966a interfaces.c%s
+D system.ads		20250808065140 14286b0f system%s
+D s-atocou.ads		20250808065140 dc18efc3 system.atomic_counters%s
+D s-conca2.ads		20250808065140 b5fb73f7 system.concat_2%s
+D s-exctab.ads		20250808065140 91bef6ef system.exception_table%s
+D s-finpri.ads		20250808065140 5970d55a system.finalization_primitives%s
+D s-finroo.ads		20250808065140 0a7c3ed4 system.finalization_root%s
+D s-memory.ads		20250808065140 18949c1a system.memory%s
+D s-oscons.ads		20250827122531 068e1a91 system.os_constants%s
+D s-oslock.ads		20250808065140 13fa6b78 system.os_locks%s
+D s-parame.ads		20250808065140 3597fc11 system.parameters%s
+D s-pooglo.ads		20250808065140 91708d21 system.pool_global%s
+D s-putima.ads		20250808065140 17291fe4 system.put_images%s
+D s-retsta.ads		20250808065140 0f6b06cb system.return_stack%s
+D s-secsta.ads		20250808065140 578279f5 system.secondary_stack%s
+D s-soflin.ads		20250808065140 5d88fdea system.soft_links%s
+D s-stache.ads		20250808065140 0b81c1fe system.stack_checking%s
+D s-stalib.ads		20250808065140 1c9580f6 system.standard_library%s
+D s-stalib.adb		20250808065140 eb464a47 system.standard_library%b
+D s-stoele.ads		20250808065140 ccded4e8 system.storage_elements%s
+D s-stopoo.ads		20250808065140 e9fa2dd8 system.storage_pools%s
+D s-stratt.ads		20250808065140 516607ae system.stream_attributes%s
+D s-traent.ads		20250808065140 c81cbf8c system.traceback_entries%s
+D s-unstyp.ads		20250808065140 fa2a7f59 system.unsigned_types%s
+G a e
+G c Z s b [clear editor__syntax_semantics 11 14 none]
+G c Z s b [learn_declarations_from_line editor__syntax_semantics 16 14 none]
+G c Z s b [build_map_from_outline editor__syntax_semantics 24 14 none]
+G c Z s b [build_map_from_outline_state editor__syntax_semantics 28 14 none]
+G c Z s b [build_map_from_analysis editor__syntax_semantics 36 14 none]
+G c Z s b [kind_for_identifier editor__syntax_semantics 40 13 none]
+G c Z s b [kind_for_identifier_in_scope editor__syntax_semantics 49 13 none]
+G c Z s b [symbol_count editor__syntax_semantics 56 13 none]
+G c Z s b [symbol_cap_reached editor__syntax_semantics 62 13 none]
+G c Z s s [symbol_entryIP editor__syntax_semantics 68 9 none]
+G c Z s s [Tsymbol_arrayBIP editor__syntax_semantics 75 4 none]
+G c Z s s [semantic_mapIP editor__syntax_semantics 77 9 none]
+G c Z b b [lower editor__syntax_semantics 14 13 none]
+G c Z b b [is_name_char editor__syntax_semantics 23 13 none]
+G c Z b b [add editor__syntax_semantics 32 14 none]
+G c Z b b [add_with_qualified_leaf editor__syntax_semantics 74 14 none]
+G c Z b b [has_substring editor__syntax_semantics 94 13 none]
+G c Z b b [is_recovered_partial_name editor__syntax_semantics 111 13 none]
+G c Z b b [is_recovered_unresolved_binding editor__syntax_semantics 123 13 none]
+G c Z b b [word_after editor__syntax_semantics 142 13 none]
+G c Z b b [code_prefix editor__syntax_semantics 207 13 none]
+G c Z b b [outline_label_name editor__syntax_semantics 250 13 none]
+G r c none [learn_declarations_from_line editor__syntax_semantics 16 14 none] [sanitize_line editor__ada_syntax_core 9 13 none]
+G r c none [build_map_from_outline_state editor__syntax_semantics 28 14 none] [item_count editor__outline 553 13 none]
+G r c none [build_map_from_outline_state editor__syntax_semantics 28 14 none] [item_kind editor__outline 589 13 none]
+G r c none [build_map_from_outline_state editor__syntax_semantics 28 14 none] [item_label editor__outline 574 13 none]
+G r c none [build_map_from_analysis editor__syntax_semantics 36 14 none] [symbol_count editor__ada_language_model 828 13 none]
+G r c none [build_map_from_analysis editor__syntax_semantics 36 14 none] [symbol_at editor__ada_language_model 1094 13 none]
+G r c none [build_map_from_analysis editor__syntax_semantics 36 14 none] [kind_to_syntax_kind editor__ada_language_model 1188 13 none]
+G r c none [build_map_from_analysis editor__syntax_semantics 36 14 none] [context_clause_count editor__ada_language_model 1140 13 none]
+G r c none [build_map_from_analysis editor__syntax_semantics 36 14 none] [context_clause_at editor__ada_language_model 1143 13 none]
+G r c none [build_map_from_analysis editor__syntax_semantics 36 14 none] [use_clause_count editor__ada_language_model 1147 13 none]
+G r c none [build_map_from_analysis editor__syntax_semantics 36 14 none] [use_clause_at editor__ada_language_model 1151 13 none]
+G r c none [build_map_from_analysis editor__syntax_semantics 36 14 none] [generic_formal_type_metadata_count editor__ada_language_model 935 13 none]
+G r c none [build_map_from_analysis editor__syntax_semantics 36 14 none] [generic_formal_type_metadata_at editor__ada_language_model 939 13 none]
+G r c none [build_map_from_analysis editor__syntax_semantics 36 14 none] [profile_parameter_count editor__ada_language_model 909 13 none]
+G r c none [build_map_from_analysis editor__syntax_semantics 36 14 none] [profile_parameter_at editor__ada_language_model 913 13 none]
+G r c none [build_map_from_analysis editor__syntax_semantics 36 14 none] [pragma_metadata_count editor__ada_language_model 954 13 none]
+G r c none [build_map_from_analysis editor__syntax_semantics 36 14 none] [pragma_metadata_at editor__ada_language_model 959 13 none]
+G r c none [build_map_from_analysis editor__syntax_semantics 36 14 none] [representation_clause_count editor__ada_language_model 977 13 none]
+G r c none [build_map_from_analysis editor__syntax_semantics 36 14 none] [representation_clause_at editor__ada_language_model 981 13 none]
+G r c none [build_map_from_analysis editor__syntax_semantics 36 14 none] [symbol editor__ada_language_model 1093 13 none]
+G r c none [build_map_from_analysis editor__syntax_semantics 36 14 none] [executable_binding_count editor__ada_language_model 1082 13 none]
+G r c none [build_map_from_analysis editor__syntax_semantics 36 14 none] [executable_binding_at editor__ada_language_model 1087 13 none]
+G r c none [build_map_from_analysis editor__syntax_semantics 36 14 none] [overflowed editor__ada_language_model 1156 13 none]
+G r s resolution_result [kind_for_identifier_in_scope editor__syntax_semantics 49 13 none] [resolution_resultIP editor__ada_symbol_resolver 11 9 none]
+G r l resolution_result [kind_for_identifier_in_scope editor__syntax_semantics 49 13 none] [resolution_resultDI editor__ada_symbol_resolver 11 9 none]
+G r k resolution_result [kind_for_identifier_in_scope editor__syntax_semantics 49 13 none] [resolution_resultDF editor__ada_symbol_resolver 11 9 none]
+G r c none [kind_for_identifier_in_scope editor__syntax_semantics 49 13 none] [resolve_in_scope editor__ada_symbol_resolver 21 13 none]
+G r j resolution_result [kind_for_identifier_in_scope editor__syntax_semantics 49 13 none] [resolution_resultDA editor__ada_symbol_resolver 11 9 none]
+G r c none [kind_for_identifier_in_scope editor__syntax_semantics 49 13 none] [symbol editor__ada_language_model 1093 13 none]
+G r c none [kind_for_identifier_in_scope editor__syntax_semantics 49 13 none] [kind_to_syntax_kind editor__ada_language_model 1188 13 none]
+G r c none [code_prefix editor__syntax_semantics 207 13 none] [sanitize_line editor__ada_syntax_core 9 13 none]
+X 1 ada.ads
+18K9*Ada 22e8 29|6r6 6r33 7r6 18r24 386r30
+X 2 a-charac.ads
+16K13*Characters 18e19 29|7r10 18r28
+X 3 a-chahan.ads
+43K24*Handling 454e28 29|7w21 18r39
+209V13*To_Lower{character} 29|18s48
+X 7 a-convec.ads
+91R9*Vector<9|43R9>
+187V13*Is_Empty{boolean} 29|695s20[22|7]
+567V13*First_Element{21|183I9} 29|701s33[22|7]
+X 10 a-iteint.ads
+24h9 Forward_Iterator
+32h9 Reversible_Iterator<24R9[7|119]>
+X 12 a-string.ads
+16K13*Strings 35e16 29|6r10 6r37 386r34
+X 16 a-strunb.ads
+91K21*Unbounded 1641e26 29|6w18 6r45 386r42
+105R9*Unbounded_String<9|43R9> 1620e15 29|386r52
+135V13*To_String{string} 29|126s38 127s38 324s56 390s36 429s36 628s49
+269V14*"="{boolean} 7|65i19
+X 20 editor.ads
+1K9*Editor 5e11 28|1r6 2r6 3r6 5r9 26r15 30r17 38r18 42r29 50r20 52r20 53r14
+. 72r14 72r42 82r5 29|1r6 2r6 3r6 4r6 5r6 9r14 11r13 12r13 35r14 77r14 124r17
+. 129r35 212r14 222r19 235r30 236r25 237r27 238r26 239r25 240r22 241r27 242r22
+. 243r32 244r27 245r23 295r15 298r17 298r58 302r18 303r18 304r23 305r18 306r18
+. 307r18 308r23 309r18 310r18 311r18 312r23 313r18 314r23 316r23 323r26 326r21
+. 335r17 338r17 338r58 342r18 343r18 344r23 345r18 346r18 347r18 348r23 349r18
+. 350r18 351r18 352r23 353r18 354r23 356r23 361r25 363r26 364r30 366r35 368r21
+. 378r18 382r52 387r30 394r27 423r25 425r26 426r15 427r26 428r15 431r21 445r25
+. 447r26 448r15 450r40 454r25 456r26 457r15 458r28 461r21 462r46 463r21 464r21
+. 465r46 472r25 474r26 475r15 476r28 478r40 482r25 484r26 485r15 486r28 488r40
+. 492r25 494r26 495r15 497r40 498r47 507r25 509r26 510r15 511r28 512r27 512r55
+. 514r35 515r31 516r19 523r21 524r56 525r21 526r56 528r56 540r25 542r26 543r15
+. 544r17 544r45 546r35 547r21 548r19 552r24 553r24 554r24 555r24 556r24 557r24
+. 558r27 560r24 561r24 562r24 563r27 565r24 566r24 567r24 568r24 569r24 570r24
+. 571r24 572r24 573r24 574r24 575r24 576r24 577r24 578r24 579r24 580r24 581r24
+. 582r24 583r24 584r24 585r24 586r24 587r24 588r24 589r24 590r24 591r24 592r24
+. 593r24 594r24 595r24 596r24 597r27 599r24 600r24 601r24 602r24 603r24 604r24
+. 605r24 606r24 607r24 608r24 609r24 610r24 611r24 612r24 613r24 614r24 615r24
+. 616r24 617r24 618r27 623r21 626r21 627r38 636r10 643r29 649r17 656r17 668r14
+. 672r20 674r20 675r14 677r11 680r17 689r17 692r12 696r17 699r14 700r10 724r5
+X 21 editor-ada_language_model.ads
+6K16*Ada_Language_Model 1285e30 28|3w13 38r25 50r27 52r27 29|4w13 11r20 124r24
+. 129r42 378r25 423r32 425r33 426r22 428r22 445r32 447r33 448r22 454r32 456r33
+. 457r22 458r35 461r28 463r28 464r28 472r32 474r33 475r22 476r35 482r32 484r33
+. 485r22 486r35 492r32 494r33 495r22 507r32 509r33 510r22 511r35 514r42 515r38
+. 516r26 523r28 525r28 540r32 542r33 543r22 546r42 547r28 548r26 552r31 553r31
+. 554r31 555r31 556r31 557r31 560r31 561r31 562r31 565r31 566r31 567r31 568r31
+. 569r31 570r31 571r31 572r31 573r31 574r31 575r31 576r31 577r31 578r31 579r31
+. 580r31 581r31 582r31 583r31 584r31 585r31 586r31 587r31 588r31 589r31 590r31
+. 591r31 592r31 593r31 594r31 595r31 596r31 599r31 600r31 601r31 602r31 603r31
+. 604r31 605r31 606r31 607r31 608r31 609r31 610r31 611r31 612r31 613r31 614r31
+. 615r31 616r31 617r31 627r45 636r17 672r27 674r27 699r21 700r17
+183I9*Symbol_Id<integer> 28|52r46 29|11r39 674r46
+184I9*Scope_Id<integer> 29|458r54
+186i4*No_Symbol{183I9} 29|129r61 476r54 486r54 511r54 514r61 546r61 627r64
+251R9*Symbol_Info 266e14 29|425r52
+253r7*Name{16|105R9} 29|429r49
+255e7*Kind{8E9} 29|428r64 517r49 549r49 701r48
+272n7*Binding_Any{271E9} 29|617r50
+273n7*Binding_Loop_Parameter{271E9} 29|565r50
+274n7*Binding_Declare_Object{271E9} 29|567r50
+275n7*Binding_Exception_Handler_Choice{271E9} 29|591r50
+276n7*Binding_Exception_Occurrence{271E9} 29|592r50
+277n7*Binding_Assignment_Target{271E9} 29|566r50
+278n7*Binding_Call_Target{271E9} 29|552r50
+279n7*Binding_Call_Selected_Prefix{271E9} 29|600r50
+280n7*Binding_Call_Selected_Operation{271E9} 29|553r50
+281n7*Binding_Call_Dispatching_Prefix{271E9} 29|601r50
+282n7*Binding_Call_Indexed_Prefix{271E9} 29|602r50
+283n7*Binding_Call_Entry_Family_Candidate{271E9} 29|554r50
+284n7*Binding_Named_Actual{271E9} 29|608r50
+285n7*Binding_Generic_Actual_Selector{271E9} 29|609r50
+286n7*Binding_Aggregate_Component_Selector{271E9} 29|611r50
+287n7*Binding_Selected_Component{271E9} 29|599r50
+288n7*Binding_Array_Index{271E9} 29|603r50
+289n7*Binding_Array_Slice{271E9} 29|604r50
+290n7*Binding_Range_Bound{271E9} 29|605r50
+291n7*Binding_Pragma_Argument{271E9} 29|571r50
+292n7*Binding_Aspect_Expression{271E9} 29|572r50
+293n7*Binding_Quantified_Parameter{271E9} 29|570r50
+294n7*Binding_Quantified_Source{271E9} 29|606r50
+295n7*Binding_Dereference{271E9} 29|607r50
+296n7*Binding_Allocator{271E9} 29|562r50
+297n7*Binding_Aggregate_Component{271E9} 29|610r50
+298n7*Binding_Qualified_Expression_Target{271E9} 29|560r50
+299n7*Binding_Type_Conversion_Target{271E9} 29|561r50
+300n7*Binding_Attribute_Prefix{271E9} 29|613r50
+301n7*Binding_Return_Target{271E9} 29|614r50
+302n7*Binding_Return_Object{271E9} 29|568r50
+303n7*Binding_Return_Object_Defining_Name{271E9} 29|569r50
+304n7*Binding_Delay_Target{271E9} 29|580r50
+305n7*Binding_Abort_Target{271E9} 29|581r50
+306n7*Binding_Condition_Target{271E9} 29|615r50
+307n7*Binding_Iteration_Source{271E9} 29|616r50
+308n7*Binding_Iteration_Filter{271E9} 29|583r50
+309n7*Binding_Select_Guard{271E9} 29|584r50
+310n7*Binding_Select_Entry_Call{271E9} 29|555r50
+311n7*Binding_Select_Delay_Target{271E9} 29|585r50
+312n7*Binding_Select_Terminate{271E9} 29|586r50
+313n7*Binding_Select_Abort{271E9} 29|587r50
+314n7*Binding_Entry_Barrier{271E9} 29|588r50
+315n7*Binding_Raise_Target{271E9} 29|578r50
+316n7*Binding_Raise_Expression_Target{271E9} 29|579r50
+317n7*Binding_Delta_Aggregate_Base{271E9} 29|582r50
+318n7*Binding_Delta_Aggregate_Component{271E9} 29|612r50
+319n7*Binding_Requeue_Target{271E9} 29|556r50
+320n7*Binding_Accept_Entry{271E9} 29|557r50
+321n7*Binding_Accept_Parameter{271E9} 29|589r50
+322n7*Binding_Entry_Family_Index{271E9} 29|590r50
+323n7*Binding_Exit_Target{271E9} 29|595r50
+324n7*Binding_Block_Label{271E9} 29|593r50
+325n7*Binding_Case_Choice{271E9} 29|573r50
+326n7*Binding_Case_Expression_Selector{271E9} 29|574r50
+327n7*Binding_Case_Expression_Choice{271E9} 29|575r50
+328n7*Binding_Conditional_Expression_Condition{271E9} 29|576r50
+329n7*Binding_Conditional_Expression_Branch{271E9} 29|577r50
+330n7*Binding_Label_Declaration{271E9} 29|594r50
+331n7*Binding_Goto_Target{271E9} 29|596r50
+333R9*Executable_Binding_Info 342e14 29|124r43 542r52
+334e7*Kind{271E9} 29|551r23
+335r7*Name{16|105R9} 29|126r57 628r62 630r40
+337r7*Expression_Text{16|105R9} 29|127r57
+339i7*Target_Symbol{183I9} 29|129r18 546r18 549r34 627r21
+348n7*Visibility_Use_Package_Clause{344E9} 29|461r47
+349n7*Visibility_Use_Type_Clause{344E9} 29|463r47
+350n7*Visibility_Use_All_Type_Clause{344E9} 29|464r47
+352R9*Visibility_Clause_Info 362e14 29|447r52 456r52
+353e7*Kind{344E9} 29|460r20
+354r7*Name{16|105R9} 29|450r34 462r40 465r40
+381R9*Profile_Parameter_Info 399e14 29|484r52
+384r7*Name{16|105R9} 29|488r34
+416R9*Generic_Formal_Type_Info 434e14 29|474r52
+418r7*Name{16|105R9} 29|478r34
+442R9*Pragma_Info 453e14 29|494r52
+443r7*Name{16|105R9} 29|497r34
+447r7*Target_Name{16|105R9} 29|498r34
+458n7*Representation_Source_Aspect{456E9} 29|523r47
+459n7*Representation_Source_Pragma{456E9} 29|525r47
+621R9*Representation_Clause_Info 634e14 29|509r52
+622i7*Target_Symbol{183I9} 29|514r18 517r34
+623r7*Target_Name{16|105R9} 29|520r34
+626r7*Attribute_Name{16|105R9} 29|524r40 526r40 528r40
+628e7*Source_Form{456E9} 29|522r20
+811R9*Analysis_Result 1283e14 28|38r44 50r46 29|378r44 672r46
+828V13*Symbol_Count{natural} 29|423s51
+909V13*Profile_Parameter_Count{natural} 29|482s51
+913V13*Profile_Parameter_At{381R9} 29|485s41
+935V13*Generic_Formal_Type_Metadata_Count{natural} 29|472s51
+939V13*Generic_Formal_Type_Metadata_At{416R9} 29|475s41
+954V13*Pragma_Metadata_Count{natural} 29|492s51
+959V13*Pragma_Metadata_At{442R9} 29|495s41
+977V13*Representation_Clause_Count{natural} 29|507s51
+981V13*Representation_Clause_At{621R9} 29|510s41
+1082V13*Executable_Binding_Count{natural} 29|540s51
+1087V13*Executable_Binding_At{333R9} 29|543s41
+1093V13*Symbol{251R9} 29|516s45 548s45 700s36
+1094V13*Symbol_At{251R9} 29|426s41
+1140V13*Context_Clause_Count{natural} 29|445s51
+1143V13*Context_Clause_At{352R9} 29|448s41
+1147V13*Use_Clause_Count{natural} 29|454s51
+1151V13*Use_Clause_At{352R9} 29|457s41
+1156V13*Overflowed{boolean} 29|636s36
+1188V13*Kind_To_Syntax_Kind{27|27E12} 29|428s41 515s57 547s47 699s40
+X 22 editor-ada_symbol_resolver.ads
+5K16*Ada_Symbol_Resolver 77e31 29|5w13 677r18 692r19
+11R9*Resolution_Result 14e14 29|677r38
+12r7*Matches{7|91R9[7]} 29|695r12 701r25
+21V13*Resolve_In_Scope{11R9} 29|692s39
+X 23 editor-ada_syntax_core.ads
+1K16*Ada_Syntax_Core 49e27 29|3w13 212r21
+9V13*Sanitize_Line{string} 29|212s37
+X 26 editor-outline.ads
+6K16*Outline 760e19 28|2w13 26r22 30r24 29|2w13 295r22 298r24 302r25 303r25
+. 305r25 306r25 307r25 309r25 310r25 311r25 313r25 335r24 338r24 342r25 343r25
+. 345r25 346r25 347r25 349r25 350r25 351r25 353r25 361r32 364r37 366r42
+22E9*Outline_Item_Kind 39e23 29|298r32 338r32
+24n7*Outline_Package{22E9} 29|302r33 342r33
+25n7*Outline_Package_Body{22E9} 29|303r33 343r33
+26n7*Outline_Type{22E9} 29|305r33 345r33
+27n7*Outline_Subprogram{22E9} 29|309r33 349r33
+28n7*Outline_Procedure{22E9} 29|310r33 350r33
+29n7*Outline_Function{22E9} 29|311r33 351r33
+30n7*Outline_Task{22E9} 29|306r33 346r33
+31n7*Outline_Protected{22E9} 29|307r33 347r33
+37n7*Outline_Generic_Formal{22E9} 29|313r33 353r33
+97e7*Kind{22E9} 29|323r74
+98r7*Label{16|105R9} 29|324r72
+107A9*Outline_Item_Array(96R9)<integer> 28|26r30 29|295r30
+109R9*Outline_State 758e14 28|30r32 29|335r32
+553V13*Item_Count{natural} 29|361s40
+574V13*Item_Label{string} 29|366s50
+589V13*Item_Kind{22E9} 29|364s45
+X 27 editor-syntax.ads
+1K16*Syntax 81e18 28|1w13 42r36 53r21 72r21 72r49 29|1w13 12r20 35r21 77r21
+. 222r26 235r37 236r32 237r34 238r33 239r32 240r29 241r34 242r29 243r39 244r34
+. 245r30 298r65 304r30 308r30 312r30 314r30 316r30 323r33 326r28 338r65 344r30
+. 348r30 352r30 354r30 356r30 363r33 368r28 382r59 387r37 394r34 427r33 431r28
+. 450r47 462r53 465r53 478r47 488r47 497r47 498r54 512r34 512r62 524r63 526r63
+. 528r63 544r24 544r52 558r34 563r34 597r34 618r34 623r28 626r28 643r36 649r24
+. 656r24 668r21 675r21 680r24 689r24 696r24
+3E9*Syntax_Kind 24e25 29|12r27
+6n7*Identifier{3E9} 28|72r56 29|316r37 326r35 356r37 368r35 382r66 394r41
+. 431r35 544r59 618r41 623r35 626r35 649r31 656r31 668r28 680r31 689r31 696r31
+7n7*Type_Identifier{3E9} 29|239r39 240r36 241r41 242r36 243r46 244r41 308r37
+. 348r37 465r60 563r41
+8n7*Subprogram_Identifier{3E9} 29|237r41 238r40 245r37 312r37 352r37 558r41
+9n7*Package_Identifier{3E9} 29|235r44 236r39 304r37 344r37 450r54 462r60
+10n7*Parameter_Identifier{3E9} 29|488r54 498r61 512r69 597r41
+17n7*Attribute{3E9} 29|528r70
+18n7*Aspect_Name{3E9} 29|524r70
+19n7*Pragma_Name{3E9} 29|497r54 526r70
+20n7*Generic_Formal{3E9} 29|314r37 354r37 478r54
+27E12*Token_Kind{3E9} 28|42r43 53r28 72r28 29|35r28 77r28 222r33 298r72 323r40
+. 338r72 363r40 387r44 427r40 512r41 544r31 643r43 675r28
+X 28 editor-syntax_semantics.ads
+5K16*Syntax_Semantics 20|1k9 28|66E12 82l12 82e28 29|9b21 724l12 724t28
+7i4*Max_Local_Symbols{positive} 75r52
+9R9*Semantic_Map 11r34 17r21 25r22 29r24 37r25 41r14 57r13 63r13 77c9 80e14
+. 29|33r21 75r21 201r34 216r21 294r22 334r24 377r25 642r14 705r13 718r13
+11U14*Clear 11=21 29|201b14 205l8 205t13 320s7 360s7 422s7
+11r21 Map{9R9} 29|201b21 203m7 204m7
+16U14*Learn_Declarations_From_Line 17=7 18>7 29|215b14 246l8 246t36
+17r7 Map{9R9} 29|216b7 228m38
+18a7 Line{string} 29|217b7 219r46
+24U14*Build_Map_From_Outline 25=7 26>7 29|293b14 331l8 331t30
+25r7 Map{9R9} 29|294b7 320m14 327m41
+26a7 Items{26|107A9} 29|295b7 321r19
+28U14*Build_Map_From_Outline_State 29=7 30>7 29|333b14 373l8 373t36
+29r7 Map{9R9} 29|334b7 360m14 369m41
+30r7 Outline{26|109R9} 29|335b7 361r52 364r56 366r62
+36U14*Build_Map_From_Analysis 37=7 38>7 29|376b14 639l8 639t31
+37r7 Map{9R9} 29|377b7 382r38 399m38 404m18 418m18 422m14 432m41 628m44 637m10
+38r7 Analysis{21|811R9} 29|378b7 423r65 426r52 445r73 448r60 454r69 458r18
+. 472r87 476r18 482r76 486r18 492r74 495r61 507r80 511r18 517r22 540r77 543r64
+. 549r22 636r48
+40V13*Kind_For_Identifier{27|27E12} 41>7 42>7 29|382s17 641b13 669l8 669t27
+41r7 Map{9R9} 29|642b7 659r16 660r13 661r21 662r21 664r20
+42a7 Name{string} 29|643b7 645r39
+49V13*Kind_For_Identifier_In_Scope{27|27E12} 50>7 51>7 52>7 29|671b13 702l8
+. 702t36
+50r7 Analysis{21|811R9} 29|672b7 693r10 701r13
+51a7 Name{string} 29|673b7 679r10 681r13 693r20
+52i7 From_Scope{21|183I9} 29|674b7 693r26
+56V13*Symbol_Count{natural} 57>7 29|704b13 715l8 715t20
+57r7 Map{9R9} 29|705b7 709r16 710r13
+62V13*Symbol_Cap_Reached{boolean} 63>7 29|717b13 722l8 722t26
+63r7 Map{9R9} 29|718b7 721r14
+66A12 Stored_Name{string}<integer> 71r14 29|38r58 42r26 646r58 650r26 681r27
+68R9 Symbol_Entry 73e14 75r74
+69b7*Used{boolean} 29|52r29 62r33 63m29 660r29 710r29
+70i7*Len{natural} 29|53r37 64m29 661r37
+71a7*Name{66A12} 29|54r37 65m29 662r37
+72e7*Kind{27|27E12} 29|56m29 66m29 664r36
+75A9 Symbol_Array(68R9)<integer> 78r17
+78a7*Symbols{75A9} 29|51r20 52r17 53r25 54r25 56m17 61r20 62r21 63m17 64m17
+. 65m17 66m17 203m11 659r20 660r17 661r25 662r25 664r24 709r20 710r17
+79b7*Symbol_Overflow{boolean} 29|47m14 71m11 204m11 637m14 721r18
+X 29 editor-syntax_semantics.adb
+14V13 Lower{string} 14b13 14>20 21l8 21t13 37s32 143s39 144s41 273s39 645s32
+14a20 S{string} 15r24 17r16 18r58
+15a7 Result{string} 18m10 20r14
+17i11 I{integer} 18r18 18r61
+23V13 Is_Name_Char{boolean} 23b13 23>27 30l8 30t20 184s14 192s22
+23e27 Ch{character} 25r15 25r34 26r18 26r37 27r18 27r37 28r17 29r32
+32U14 Add 32b14 33=7 34>7 35>7 72l8 72t11 81s7 90s10 404s13 418s13
+33r7 Map{28|9R9} 47m10 51r16 52r13 53r21 54r21 56m13 61r16 62r17 63m13 64m13
+. 65m13 66m13 71m7
+34a7 Name{string} 37r39
+35e7 Kind{27|27E12} 56r37 66r37
+37a7 Key{string} 38r46 42r13 54r55 54r60 54r73 65r48 65r53 65r66
+38i7 Len{natural} 40r10 53r43 54r48 54r85 64r36 65r40 65r78
+51i11 I{integer} 52r26 53r34 54r34 56r26
+61i11 I{integer} 62r30 63r26 64r26 65r26 66r26
+74U14 Add_With_Qualified_Leaf 74b14 75=7 76>7 77>7 92l8 92t31 228s13 327s16
+. 369s16 399s13 432s16 628s19
+75r7 Map{28|9R9} 81m12 90m15
+76a7 Name{string} 81r17 82r24 83r13 89r34 90r20 90r37
+77e7 Kind{27|27E12} 81r23 90r49
+79i7 Dot{natural} 84m13 89r10 89r28 90r26
+82i11 I{integer} 83r19 84r20
+94V13 Has_Substring{boolean} 94b13 94>28 94>43 109l8 109t21 120s17 137s14
+. 139s27
+94a28 Text{string} 98r13 102r16 102r30 103r13
+94a43 Pattern{string} 96r10 98r27 102r42 103r28 103r50
+102i11 I{integer} 103r19 103r24
+111V13 Is_Recovered_Partial_Name{boolean} 111b13 111>40 121l8 121t33 131s13
+. 395s20
+111a40 Text{string} 118r14 119r17 119r23 120r32
+123V13 Is_Recovered_Unresolved_Binding{boolean} 123b13 124>7 140l8 140t39
+. 622s16
+124r7 Binding{21|333R9} 126r49 127r49 129r10
+126a7 Name_Text{string} 131r40 138r18 139r53
+127a7 Expr_Text{string} 133r13 137r29 139r42
+142V13 Word_After{string} 142b13 142>25 142>40 199l8 199t18 225s36
+142a25 Line{string} 143r46 162r22 162r42 162r69 166r18 170r10 174r27 174r46
+. 177r24 178r23 184r28 191r28 192r36 193r30 197r17
+142a40 Marker{string} 144r48
+143a7 Lower_Line{string} 147r10 151r16 151r36 152r13
+144a7 Lower_Marker{string} 147r30 151r54 152r34 152r61 153r26
+145i7 Start{natural} 153m13 158r10 162r13 162r48 162r75 163m10 163r19 166r10
+. 170r16 172r31 177r50 178r29 184r34 189r28 197r23
+151i11 I{integer} 152r25 152r30 153r22
+172i13 Stop{natural} 174r19 174r52 175m16 175r24 177r16 177r43 178r38
+189i10 Stop{natural} 191r16 192r42 193r36 195m13 195r21 197r32
+207V13 Code_Prefix{string} 207b13 207>26 213l8 213t19 219s33
+207a26 Line{string} 212r52
+219a7 Code{string} 225r48
+220U17 Learn 220b17 221>10 222>10 223=10 231l11 231t16 235s7 236s7 237s7
+. 238s7 239s7 240s7 241s7 242s7 243s7 244s7 245s7
+221a10 Marker{string} 225r54
+222e10 Kind{27|27E12} 228r49
+223b10 Done{boolean} 227r17 229m13
+225a10 Name{string} 227r31 228r43
+233b7 Done{boolean} 235m64 235r64 236m59 236r59 237m64 237r64 238m63 238r63
+. 239m56 239r56 240m53 240r53 241m58 241r58 242m53 242r53 243m63 243r63 244m58
+. 244r58 245m60 245r60
+250V13 Outline_Label_Name{string} 250b13 250>33 278s20 291l8 291t26 324s36
+. 366s15
+250a33 Label{string} 251r26 252r26 254r10 258r21 259r19 259r46 261r20 272r39
+. 272r46 283r21 284r18 285r18 290r14
+251i7 Stop{natural} 258r13 259r26 259r53 261r13 264m10 264r18 272r61 282r16
+. 290r30
+252i7 Start{natural} 282m7 283r13 284r25 285r25 287m10 287r19 290r21
+272a10 Trimmed{string} 273r46 278r40 278r49 278r66
+273a10 Lowered{string} 275r13 276r21 276r30 276r50
+297V16 Kind_For_Item{27|27E12} 297b16 298>10 318l11 318t24 323s54
+298e10 Kind{26|22E9} 301r15
+321r11 Item=321:19{26|96R9} 323r69 324r67
+323e13 K{27|27E12} 326r16 327r49
+324a13 L{string} 327r46
+337V16 Kind_For_Item{27|27E12} 337b16 338>10 358l11 358t24 364s15
+338e10 Kind{26|22E9} 341r15
+361i11 Index{integer} 364r65 366r71
+363e13 K{27|27E12} 368r16 369r49
+365a13 L{string} 369r46
+380V16 Has_Metadata_Name{boolean} 380b16 380>35 383l11 383t28 403s17 416s25
+380a35 Name{string} 382r43
+385U17 Add_Metadata_Name 385b17 386>10 387>10 388>10 420l11 420t28 450s13
+. 462s19 465s19 478s13 488s13 497s13 498s13 520s13 524s19 526s19 528s19 630s19
+386r10 Name{16|105R9} 390r47
+387e10 Kind{27|27E12} 394r20 399r49 404r29 418r52
+388b10 Preserve_Existing{boolean} 398r20 450r74 462r80 465r77 478r70 488r76
+. 497r67 498r83 520r60 524r83 526r83 528r81 630r49
+390a10 Text{string} 393r13 395r47 399r43 403r36 404r23 407r27 408r16 415r27
+. 416r44 416r61 418r23 418r40
+391i10 Dot{natural} 409m16 414r13 415r21 416r50 418r29
+407i14 I{integer} 408r22 409r23
+423i11 Index{integer} 426r62
+425r13 S{21|251R9} 428r62 429r47
+427e13 K{27|27E12} 431r16 432r49
+429a13 N{string} 432r46
+445i11 Index{integer} 448r70
+447r13 C{21|352R9} 450r32
+454i11 Index{integer} 458r69
+456r13 U{21|352R9} 460r18 462r38 465r38
+472i11 Index{integer} 476r65
+474r13 F{21|416R9} 478r32
+482i11 Index{integer} 486r65
+484r13 P{21|381R9} 488r32
+492i11 Index{integer} 495r71
+494r13 P{21|442R9} 497r32 498r32
+507i11 Index{integer} 511r65
+509r13 R{21|621R9} 514r16 517r32 520r32 522r18 524r38 526r38 528r38
+512e13 Target_Kind{27|27E12} 515m16 520r47
+540i11 Index{integer} 543r74
+542r13 B{21|333R9} 546r16 549r32 551r21 622r49 627r19 628r60 630r38
+544e13 K{27|27E12} 547m16 558m22 563m22 597m22 618m22 623m16 626r16 628r69
+. 630r46
+645a7 Key{string} 646r46 650r13 662r55 662r60 662r73
+646i7 Len{natural} 648r10 661r43 662r48 662r85
+659i11 I{integer} 660r26 661r34 662r34 664r33
+677r7 R{22|11R9} 692m7 692r7 695r10 701r23
+707i7 Count{natural} 711m13 711r22 714r14
+709i11 I{integer} 710r26
+X 32 system.ads
+67M9*Address
+X 38 s-memory.ads
+51V13*Alloc{32|67M9} 101i<c,__gnat_malloc>22
+66U14*Free 102i<c,__gnat_free>22
+74V13*Realloc{32|67M9} 103i<c,__gnat_realloc>22
+X 49 s-stalib.adb
+87U14 Break_Start 88i<c,__gnat_break_start>22
+

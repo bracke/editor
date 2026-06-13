@@ -1,22 +1,32 @@
-with "config/editor_config.gpr";
+with "editor_core.gpr";
+
 project Editor is
 
-   for Source_Dirs use ("src/", "src/core/", "src/runtime/", "config/");
-   for Object_Dir use "obj/" & Editor_Config.Build_Profile;
-   for Create_Missing_Dirs use "True";
+   for Source_Dirs use ("src/runtime");
+   for Object_Dir use "obj/app";
    for Exec_Dir use "bin";
-   for Main use ("main.adb");
+   for Create_Missing_Dirs use "True";
+   for Main use ("main.c");
+
+   for Languages use ("C");
+
+   package Builder is
+      for Executable ("main.c") use "editor_app";
+   end Builder;
 
    package Compiler is
-      for Default_Switches ("Ada") use Editor_Config.Ada_Compiler_Switches  & ("-gnat2022","-gnatyM120","-gnatX", "-gnata");
+      for Default_Switches ("Ada") use ("-gnat2022", "-gnatyM120", "-gnatX", "-gnata");
+      for Default_Switches ("C") use
+        ("-O0", "-g", "-Isrc/runtime", "-Isrc/third_party");
    end Compiler;
 
-   package Binder is
-      for Switches ("Ada") use ("-Es"); --  Symbolic traceback
-   end Binder;
+   package Linker is
+      for Default_Switches ("C") use
+        ("-lglfw", "-lvulkan", "-ldl", "-lpthread", "-lm");
+   end Linker;
 
    package Install is
-      for Artifacts (".") use ("share");
+      for Artifacts ("share/editor") use ("src/runtime/shaders");
    end Install;
 
 end Editor;

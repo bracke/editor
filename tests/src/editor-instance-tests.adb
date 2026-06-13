@@ -3,8 +3,12 @@ with AUnit.Assertions; use AUnit.Assertions;
 with Editor.Commands; use Editor.Commands;
 with Text_Buffer;
 with Editor.Test_Helper;
+with Editor.Fonts.Init;
+with Editor.Buffers;
 
 package body Editor.Instance.Tests is
+
+   use type Editor.Buffers.Buffer_Id;
 
    overriding function Name (T : Instance_Test_Case) return AUnit.Message_String is
    begin
@@ -67,6 +71,37 @@ package body Editor.Instance.Tests is
          "Replay content mismatch");
    end Test_Replay_Determinism;
 
+   procedure Test_Init_Initializes_Fonts
+   (T : in out AUnit.Test_Cases.Test_Case'Class) is
+      pragma Unreferenced (T);
+
+      E : Editor.Instance.Editor_Instance;
+   begin
+      Editor.Instance.Init (E);
+
+      Assert
+      (Editor.Fonts.Init.Is_Initialized,
+         "Editor.Instance.Init must initialize fonts");
+   end Test_Init_Initializes_Fonts;
+
+
+
+   procedure Test_Init_Creates_One_Active_Buffer
+   (T : in out AUnit.Test_Cases.Test_Case'Class) is
+      pragma Unreferenced (T);
+
+      E : Editor.Instance.Editor_Instance;
+   begin
+      Editor.Buffers.Reset_Global_For_Test;
+      Editor.Instance.Init (E);
+
+      Assert (Editor.Buffers.Global_Count = 1,
+        "Editor.Instance.Init must create one buffer in the registry");
+      Assert (Editor.Buffers.Global_Active_Buffer /= Editor.Buffers.No_Buffer,
+        "Editor.Instance.Init must select an active buffer");
+   end Test_Init_Creates_One_Active_Buffer;
+
+
    overriding procedure Register_Tests (T : in out Instance_Test_Case) is
    begin
       AUnit.Test_Cases.Registration.Register_Routine
@@ -77,6 +112,13 @@ package body Editor.Instance.Tests is
 
       AUnit.Test_Cases.Registration.Register_Routine
         (T, Test_Replay_Determinism'Access, "Replay Determinism");
+
+      AUnit.Test_Cases.Registration.Register_Routine
+        (T, Test_Init_Initializes_Fonts'Access, "Init Initializes Fonts");
+
+      AUnit.Test_Cases.Registration.Register_Routine
+        (T, Test_Init_Creates_One_Active_Buffer'Access,
+         "Init Creates One Active Buffer");
    end Register_Tests;
 
 end Editor.Instance.Tests;

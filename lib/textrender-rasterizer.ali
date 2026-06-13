@@ -1,0 +1,985 @@
+V "GNAT Lib v15"
+A -gnatA
+A -gnat2022
+A -mtune=generic
+A -march=x86-64
+P SS ZX
+
+RN
+RV NO_ACCESS_SUBPROGRAMS
+RV NO_ALLOCATORS
+RV NO_DIRECT_BOOLEAN_OPERATORS
+RV NO_DISPATCH
+RV NO_DISPATCHING_CALLS
+RV NO_ENUMERATION_MAPS
+RV NO_EXCEPTION_HANDLERS
+RV NO_EXCEPTION_PROPAGATION
+RV NO_EXCEPTIONS
+RV NO_FLOATING_POINT
+RV NO_IMPLICIT_CONDITIONALS
+RV NO_LOCAL_ALLOCATORS
+RV NO_NESTED_FINALIZATION
+RV NO_RECURSION
+RV NO_SECONDARY_STACK
+RV NO_STANDARD_STORAGE_POOLS
+RV NO_STREAMS
+RV NO_UNCHECKED_ACCESS
+RV NO_DEFAULT_INITIALIZATION
+RV NO_DYNAMIC_SIZED_OBJECTS
+RV NO_IMPLEMENTATION_ASPECT_SPECIFICATIONS
+RV NO_IMPLEMENTATION_ATTRIBUTES
+RV NO_IMPLEMENTATION_PRAGMAS
+RV NO_IMPLICIT_ALIASING
+RV NO_IMPLICIT_LOOPS
+RV NO_ELABORATION_CODE
+
+U textrender.rasterizer%b  textrender-rasterizer.adb  0108bc76 OO PF PK
+W ada%s			ada.ads			ada.ali
+W ada.containers%s	a-contai.ads		a-contai.ali
+Z ada.containers.generic_array_sort%s
+Z ada.containers.helpers%s  a-conhel.adb	a-conhel.ali
+W ada.containers.vectors%s
+Z ada.exceptions%s	a-except.adb		a-except.ali
+Z ada.finalization%s	a-finali.ads		a-finali.ali
+Z ada.iterator_interfaces%s
+Z ada.streams%s		a-stream.adb		a-stream.ali
+W ada.strings%s		a-string.ads		a-string.ali
+Z ada.strings.text_buffers%s  a-sttebu.adb	a-sttebu.ali
+Z ada.tags%s		a-tags.adb		a-tags.ali
+Z ada.unchecked_deallocation%s
+Z system%s		system.ads		system.ali
+Z system.finalization_primitives%s  s-finpri.adb  s-finpri.ali
+Z system.img_flt%s	s-imgflt.ads		s-imgflt.ali
+Z system.put_images%s	s-putima.adb		s-putima.ali
+Z system.return_stack%s	s-retsta.ads		s-retsta.ali
+Z system.secondary_stack%s  s-secsta.adb	s-secsta.ali
+Z system.soft_links%s	s-soflin.adb		s-soflin.ali
+Z system.standard_library%s  s-stalib.adb	s-stalib.ali
+Z system.storage_elements%s  s-stoele.ads	s-stoele.ali
+Z system.storage_pools%s  s-stopoo.adb		s-stopoo.ali
+Z system.storage_pools.subpools%s  s-stposu.adb	s-stposu.ali
+Z system.stream_attributes%s  s-stratt.adb	s-stratt.ali
+Z system.wch_stw%s	s-wchstw.adb		s-wchstw.ali
+W textrender%s		textrender.adb		textrender.ali
+W textrender.fonts%s	textrender-fonts.adb	textrender-fonts.ali
+
+U textrender.rasterizer%s  textrender-rasterizer.ads  d65c2735 EE NE OO PK
+W textrender%s		textrender.adb		textrender.ali
+W textrender.atlases%s	textrender-atlases.adb	textrender-atlases.ali
+W textrender.fonts%s	textrender-fonts.adb	textrender-fonts.ali
+
+D ada.ads		20250808065140 76789da1 ada%s
+D a-contai.ads		20250808065140 61e5e089 ada.containers%s
+D a-cgarso.ads		20250808065140 9129bfa8 ada.containers.generic_array_sort%s
+D a-conhel.ads		20250808065140 46fe1ce3 ada.containers.helpers%s
+D a-conhel.adb		20250808065140 854d323e ada.containers.helpers%b
+D a-convec.ads		20250808065140 91fb49f3 ada.containers.vectors%s
+D a-convec.adb		20250808065140 b2ed0168 ada.containers.vectors%b
+D a-except.ads		20250808065140 e7970cd9 ada.exceptions%s
+D a-finali.ads		20250808065140 bf4f806b ada.finalization%s
+D a-iteint.ads		20250808065140 49a8bee2 ada.iterator_interfaces%s
+D a-stream.ads		20250808065140 17477cbd ada.streams%s
+D a-string.ads		20250808065140 90ac6797 ada.strings%s
+D a-sttebu.ads		20250808065140 f1ad67a2 ada.strings.text_buffers%s
+D a-stuten.ads		20250808065140 c6ced0ae ada.strings.utf_encoding%s
+D a-tags.ads		20250808065140 fbca0ad5 ada.tags%s
+D a-unccon.ads		20250808065140 0e9b276f ada.unchecked_conversion%s
+D a-uncdea.ads		20250808065140 c3a8ac65 ada.unchecked_deallocation%s
+D interfac.ads		20250808065140 9111f9c1 interfaces%s
+D i-c.ads		20250808065140 e94c966a interfaces.c%s
+D system.ads		20250808065140 14286b0f system%s
+D s-atocou.ads		20250808065140 dc18efc3 system.atomic_counters%s
+D s-atocou.adb		20250808065140 6fe685de system.atomic_counters%b
+D s-atopri.ads		20250808065140 e19c1d89 system.atomic_primitives%s
+D s-exctab.ads		20250808065140 91bef6ef system.exception_table%s
+D s-finpri.ads		20250808065140 5970d55a system.finalization_primitives%s
+D s-finroo.ads		20250808065140 0a7c3ed4 system.finalization_root%s
+D s-imager.ads		20250808065140 45c7157d system.image_r%s
+D s-imageu.ads		20250808065140 b0b50650 system.image_u%s
+D s-imgflt.ads		20250808065140 d12816b5 system.img_flt%s
+D s-imguns.ads		20250808065140 c4e23690 system.img_uns%s
+D s-memory.ads		20250808065140 18949c1a system.memory%s
+D s-oscons.ads		20250827122531 068e1a91 system.os_constants%s
+D s-oslock.ads		20250808065140 13fa6b78 system.os_locks%s
+D s-parame.ads		20250808065140 3597fc11 system.parameters%s
+D s-powflt.ads		20250808065140 a51ab9b8 system.powten_flt%s
+D s-putima.ads		20250808065140 17291fe4 system.put_images%s
+D s-retsta.ads		20250808065140 0f6b06cb system.return_stack%s
+D s-secsta.ads		20250808065140 578279f5 system.secondary_stack%s
+D s-soflin.ads		20250808065140 5d88fdea system.soft_links%s
+D s-stache.ads		20250808065140 0b81c1fe system.stack_checking%s
+D s-stalib.ads		20250808065140 1c9580f6 system.standard_library%s
+D s-stalib.adb		20250808065140 eb464a47 system.standard_library%b
+D s-stoele.ads		20250808065140 ccded4e8 system.storage_elements%s
+D s-stopoo.ads		20250808065140 e9fa2dd8 system.storage_pools%s
+D s-stposu.ads		20250808065140 e0b9fefd system.storage_pools.subpools%s
+D s-stratt.ads		20250808065140 516607ae system.stream_attributes%s
+D s-traent.ads		20250808065140 c81cbf8c system.traceback_entries%s
+D s-unstyp.ads		20250808065140 fa2a7f59 system.unsigned_types%s
+D s-valspe.ads		20250808065140 f810d31c system.val_spec%s
+D s-vauspe.ads		20250808065140 89269ba5 system.value_u_spec%s
+D s-vs_uns.ads		20250808065140 e7f47a27 system.vs_uns%s
+D s-wchcon.ads		20250808065140 d9032363 system.wch_con%s
+D s-wchstw.ads		20250808065140 2d112c01 system.wch_stw%s
+D textrender.ads	20260503182052 dcd0d327 textrender%s
+D textrender-atlases.ads  20260429173859 d8716a4e textrender.atlases%s
+D textrender-fonts.ads	20260430180842 65fdcaf5 textrender.fonts%s
+D textrender-rasterizer.ads  20260429170628 b70054a9 textrender.rasterizer%s
+D textrender-rasterizer.adb  20260430175100 23eb8b50 textrender.rasterizer%b
+G a e
+G c Z s s [glyph_transformIP textrender__rasterizer 6 9 none]
+G c Z s b [rasterize_glyph textrender__rasterizer 23 13 none]
+G c Z b b [has_element textrender__rasterizer__natural_vectors 115 13 24_4]
+G c Z b b [empty textrender__rasterizer__natural_vectors 125 13 24_4]
+G c Z b b [Oeq textrender__rasterizer__natural_vectors 127 24 24_4]
+G c Z b b [to_vector textrender__rasterizer__natural_vectors 136 13 24_4]
+G c Z b b [to_vector textrender__rasterizer__natural_vectors 139 13 24_4]
+G c Z b b [Oconcat textrender__rasterizer__natural_vectors 145 13 24_4]
+G c Z b b [Oconcat textrender__rasterizer__natural_vectors 149 13 24_4]
+G c Z b b [Oconcat textrender__rasterizer__natural_vectors 153 13 24_4]
+G c Z b b [Oconcat textrender__rasterizer__natural_vectors 157 13 24_4]
+G c Z b b [capacity textrender__rasterizer__natural_vectors 161 13 24_4]
+G c Z b b [reserve_capacity textrender__rasterizer__natural_vectors 164 14 24_4]
+G c Z b b [length textrender__rasterizer__natural_vectors 175 13 24_4]
+G c Z b b [set_length textrender__rasterizer__natural_vectors 178 14 24_4]
+G c Z b b [is_empty textrender__rasterizer__natural_vectors 187 13 24_4]
+G c Z b b [clear textrender__rasterizer__natural_vectors 190 14 24_4]
+G c Z b b [to_cursor textrender__rasterizer__natural_vectors 194 13 24_4]
+G c Z b b [to_index textrender__rasterizer__natural_vectors 201 13 24_4]
+G c Z b b [element textrender__rasterizer__natural_vectors 206 13 24_4]
+G c Z b b [element textrender__rasterizer__natural_vectors 213 13 24_4]
+G c Z b b [replace_element textrender__rasterizer__natural_vectors 217 14 24_4]
+G c Z b b [replace_element textrender__rasterizer__natural_vectors 228 14 24_4]
+G c Z b b [query_element textrender__rasterizer__natural_vectors 239 14 24_4]
+G c Z b b [query_element textrender__rasterizer__natural_vectors 250 14 24_4]
+G c Z b b [update_element textrender__rasterizer__natural_vectors 259 14 24_4]
+G c Z b b [update_element textrender__rasterizer__natural_vectors 276 14 24_4]
+G c Z b b [constant_reference textrender__rasterizer__natural_vectors 303 13 24_4]
+G c Z b b [reference textrender__rasterizer__natural_vectors 308 13 24_4]
+G c Z b b [constant_reference textrender__rasterizer__natural_vectors 313 13 24_4]
+G c Z b b [reference textrender__rasterizer__natural_vectors 318 13 24_4]
+G c Z b b [assign textrender__rasterizer__natural_vectors 323 14 24_4]
+G c Z b b [copy textrender__rasterizer__natural_vectors 325 13 24_4]
+G c Z b b [move textrender__rasterizer__natural_vectors 327 14 24_4]
+G c Z b b [new_vector textrender__rasterizer__natural_vectors 333 13 24_4]
+G c Z b b [insert_vector textrender__rasterizer__natural_vectors 337 14 24_4]
+G c Z b b [insert_vector textrender__rasterizer__natural_vectors 361 14 24_4]
+G c Z b b [insert_vector textrender__rasterizer__natural_vectors 378 14 24_4]
+G c Z b b [insert textrender__rasterizer__natural_vectors 396 14 24_4]
+G c Z b b [insert textrender__rasterizer__natural_vectors 404 14 24_4]
+G c Z b b [insert textrender__rasterizer__natural_vectors 412 14 24_4]
+G c Z b b [insert textrender__rasterizer__natural_vectors 421 14 24_4]
+G c Z b b [insert textrender__rasterizer__natural_vectors 438 14 24_4]
+G c Z b b [prepend_vector textrender__rasterizer__natural_vectors 449 14 24_4]
+G c Z b b [prepend textrender__rasterizer__natural_vectors 459 14 24_4]
+G c Z b b [append_vector textrender__rasterizer__natural_vectors 466 14 24_4]
+G c Z b b [append textrender__rasterizer__natural_vectors 476 14 24_4]
+G c Z b b [append textrender__rasterizer__natural_vectors 483 14 24_4]
+G c Z b b [insert_space textrender__rasterizer__natural_vectors 486 14 24_4]
+G c Z b b [insert_space textrender__rasterizer__natural_vectors 503 14 24_4]
+G c Z b b [delete textrender__rasterizer__natural_vectors 514 14 24_4]
+G c Z b b [delete textrender__rasterizer__natural_vectors 524 14 24_4]
+G c Z b b [delete_first textrender__rasterizer__natural_vectors 533 14 24_4]
+G c Z b b [delete_last textrender__rasterizer__natural_vectors 538 14 24_4]
+G c Z b b [reverse_elements textrender__rasterizer__natural_vectors 546 14 24_4]
+G c Z b b [swap textrender__rasterizer__natural_vectors 549 14 24_4]
+G c Z b b [swap textrender__rasterizer__natural_vectors 554 14 24_4]
+G c Z b b [first_index textrender__rasterizer__natural_vectors 560 13 24_4]
+G c Z b b [first textrender__rasterizer__natural_vectors 563 13 24_4]
+G c Z b b [first_element textrender__rasterizer__natural_vectors 567 13 24_4]
+G c Z b b [last_index textrender__rasterizer__natural_vectors 570 13 24_4]
+G c Z b b [last textrender__rasterizer__natural_vectors 574 13 24_4]
+G c Z b b [last_element textrender__rasterizer__natural_vectors 578 13 24_4]
+G c Z b b [next textrender__rasterizer__natural_vectors 581 13 24_4]
+G c Z b b [next textrender__rasterizer__natural_vectors 587 14 24_4]
+G c Z b b [previous textrender__rasterizer__natural_vectors 590 13 24_4]
+G c Z b b [previous textrender__rasterizer__natural_vectors 596 14 24_4]
+G c Z b b [find_index textrender__rasterizer__natural_vectors 599 13 24_4]
+G c Z b b [find textrender__rasterizer__natural_vectors 609 13 24_4]
+G c Z b b [reverse_find_index textrender__rasterizer__natural_vectors 623 13 24_4]
+G c Z b b [reverse_find textrender__rasterizer__natural_vectors 635 13 24_4]
+G c Z b b [contains textrender__rasterizer__natural_vectors 649 13 24_4]
+G c Z b b [iterate textrender__rasterizer__natural_vectors 654 14 24_4]
+G c Z b b [reverse_iterate textrender__rasterizer__natural_vectors 662 14 24_4]
+G c Z b b [iterate textrender__rasterizer__natural_vectors 669 13 24_4]
+G c Z b b [iterate textrender__rasterizer__natural_vectors 672 13 24_4]
+G c Z b b [adjust textrender__rasterizer__natural_vectors__implementation 90 28 726_4_24_4]
+G c Z b b [finalize textrender__rasterizer__natural_vectors__implementation 93 28 726_4_24_4]
+G c Z b b [zero_counts textrender__rasterizer__natural_vectors__implementation 96 17 726_4_24_4]
+G c Z b b [busy textrender__rasterizer__natural_vectors__implementation 100 17 726_4_24_4]
+G c Z b b [unbusy textrender__rasterizer__natural_vectors__implementation 104 17 726_4_24_4]
+G c Z b b [lock textrender__rasterizer__natural_vectors__implementation 108 17 726_4_24_4]
+G c Z b b [unlock textrender__rasterizer__natural_vectors__implementation 112 17 726_4_24_4]
+G c Z b b [tc_check textrender__rasterizer__natural_vectors__implementation 116 17 726_4_24_4]
+G c Z b b [te_check textrender__rasterizer__natural_vectors__implementation 120 17 726_4_24_4]
+G c Z b b [is_busy textrender__rasterizer__natural_vectors__implementation 136 16 726_4_24_4]
+G c Z b b [is_locked textrender__rasterizer__natural_vectors__implementation 140 16 726_4_24_4]
+G c Z b b [initialize textrender__rasterizer__natural_vectors__implementation 161 28 726_4_24_4]
+G c Z b b [finalize textrender__rasterizer__natural_vectors__implementation 162 28 726_4_24_4]
+G c Z b b [initialize textrender__rasterizer__natural_vectors__implementation 167 28 726_4_24_4]
+G c Z b b [finalize textrender__rasterizer__natural_vectors__implementation 168 28 726_4_24_4]
+G c Z b b [reference_control_typeDA textrender__rasterizer__natural_vectors__implementation 84 12 726_4_24_4]
+G c Z b b [reference_control_typeDF textrender__rasterizer__natural_vectors__implementation 84 12 726_4_24_4]
+G c Z b b [reference_control_typeIP textrender__rasterizer__natural_vectors__implementation 84 12 726_4_24_4]
+G c Z b b [with_busyDF textrender__rasterizer__natural_vectors__implementation 158 12 726_4_24_4]
+G c Z b b [with_busyIP textrender__rasterizer__natural_vectors__implementation 158 12 726_4_24_4]
+G c Z b b [with_lockDF textrender__rasterizer__natural_vectors__implementation 164 12 726_4_24_4]
+G c Z b b [with_lockIP textrender__rasterizer__natural_vectors__implementation 164 12 726_4_24_4]
+G c Z b b [put_image textrender__rasterizer__natural_vectors 747 14 24_4]
+G c Z b b [adjust textrender__rasterizer__natural_vectors 750 25 24_4]
+G c Z b b [finalize textrender__rasterizer__natural_vectors 751 25 24_4]
+G c Z b b [write textrender__rasterizer__natural_vectors 753 14 24_4]
+G c Z b b [read textrender__rasterizer__natural_vectors 759 14 24_4]
+G c Z b b [read textrender__rasterizer__natural_vectors 773 14 24_4]
+G c Z b b [write textrender__rasterizer__natural_vectors 779 14 24_4]
+G c Z b b [write textrender__rasterizer__natural_vectors 798 14 24_4]
+G c Z b b [read textrender__rasterizer__natural_vectors 804 14 24_4]
+G c Z b b [write textrender__rasterizer__natural_vectors 820 14 24_4]
+G c Z b b [read textrender__rasterizer__natural_vectors 826 14 24_4]
+G c Z b b [pseudo_reference textrender__rasterizer__natural_vectors 840 13 24_4]
+G c Z b b [get_element_access textrender__rasterizer__natural_vectors 849 13 24_4]
+G c Z b b [cursorIP textrender__rasterizer__natural_vectors 768 9 24_4]
+G c Z b b [vectorDA textrender__rasterizer__natural_vectors 741 9 24_4]
+G c Z b b [vectorDF textrender__rasterizer__natural_vectors 741 9 24_4]
+G c Z b b [vectorIP textrender__rasterizer__natural_vectors 741 9 24_4]
+G c Z b b [finalize textrender__rasterizer__natural_vectors 865 25 24_4]
+G c Z b b [first textrender__rasterizer__natural_vectors 867 24 24_4]
+G c Z b b [last textrender__rasterizer__natural_vectors 868 24 24_4]
+G c Z b b [next textrender__rasterizer__natural_vectors 870 24 24_4]
+G c Z b b [previous textrender__rasterizer__natural_vectors 874 24 24_4]
+G c Z b b [constant_reference_typeDI textrender__rasterizer__natural_vectors 788 9 24_4]
+G c Z b b [constant_reference_typeDA textrender__rasterizer__natural_vectors 788 9 24_4]
+G c Z b b [constant_reference_typeDF textrender__rasterizer__natural_vectors 788 9 24_4]
+G c Z b b [constant_reference_typeIP textrender__rasterizer__natural_vectors 788 9 24_4]
+G c Z b b [reference_typeDI textrender__rasterizer__natural_vectors 810 9 24_4]
+G c Z b b [reference_typeDA textrender__rasterizer__natural_vectors 810 9 24_4]
+G c Z b b [reference_typeDF textrender__rasterizer__natural_vectors 810 9 24_4]
+G c Z b b [reference_typeIP textrender__rasterizer__natural_vectors 810 9 24_4]
+G c Z b b [elements_arrayIP textrender__rasterizer__natural_vectors 729 9 24_4]
+G c Z b b [elements_typeIP textrender__rasterizer__natural_vectors 732 9 24_4]
+G c Z b b [iteratorDF textrender__rasterizer__natural_vectors 857 9 24_4]
+G c Z b b [iteratorIP textrender__rasterizer__natural_vectors 857 9 24_4]
+G c Z b b [free textrender__rasterizer__natural_vectors 44 14 24_4]
+G c Z b b [append_slow_path textrender__rasterizer__natural_vectors 47 14 24_4]
+G c Z b b [has_element textrender__rasterizer__integer_vectors 115 13 28_4]
+G c Z b b [empty textrender__rasterizer__integer_vectors 125 13 28_4]
+G c Z b b [Oeq textrender__rasterizer__integer_vectors 127 24 28_4]
+G c Z b b [to_vector textrender__rasterizer__integer_vectors 136 13 28_4]
+G c Z b b [to_vector textrender__rasterizer__integer_vectors 139 13 28_4]
+G c Z b b [Oconcat textrender__rasterizer__integer_vectors 145 13 28_4]
+G c Z b b [Oconcat textrender__rasterizer__integer_vectors 149 13 28_4]
+G c Z b b [Oconcat textrender__rasterizer__integer_vectors 153 13 28_4]
+G c Z b b [Oconcat textrender__rasterizer__integer_vectors 157 13 28_4]
+G c Z b b [capacity textrender__rasterizer__integer_vectors 161 13 28_4]
+G c Z b b [reserve_capacity textrender__rasterizer__integer_vectors 164 14 28_4]
+G c Z b b [length textrender__rasterizer__integer_vectors 175 13 28_4]
+G c Z b b [set_length textrender__rasterizer__integer_vectors 178 14 28_4]
+G c Z b b [is_empty textrender__rasterizer__integer_vectors 187 13 28_4]
+G c Z b b [clear textrender__rasterizer__integer_vectors 190 14 28_4]
+G c Z b b [to_cursor textrender__rasterizer__integer_vectors 194 13 28_4]
+G c Z b b [to_index textrender__rasterizer__integer_vectors 201 13 28_4]
+G c Z b b [element textrender__rasterizer__integer_vectors 206 13 28_4]
+G c Z b b [element textrender__rasterizer__integer_vectors 213 13 28_4]
+G c Z b b [replace_element textrender__rasterizer__integer_vectors 217 14 28_4]
+G c Z b b [replace_element textrender__rasterizer__integer_vectors 228 14 28_4]
+G c Z b b [query_element textrender__rasterizer__integer_vectors 239 14 28_4]
+G c Z b b [query_element textrender__rasterizer__integer_vectors 250 14 28_4]
+G c Z b b [update_element textrender__rasterizer__integer_vectors 259 14 28_4]
+G c Z b b [update_element textrender__rasterizer__integer_vectors 276 14 28_4]
+G c Z b b [constant_reference textrender__rasterizer__integer_vectors 303 13 28_4]
+G c Z b b [reference textrender__rasterizer__integer_vectors 308 13 28_4]
+G c Z b b [constant_reference textrender__rasterizer__integer_vectors 313 13 28_4]
+G c Z b b [reference textrender__rasterizer__integer_vectors 318 13 28_4]
+G c Z b b [assign textrender__rasterizer__integer_vectors 323 14 28_4]
+G c Z b b [copy textrender__rasterizer__integer_vectors 325 13 28_4]
+G c Z b b [move textrender__rasterizer__integer_vectors 327 14 28_4]
+G c Z b b [new_vector textrender__rasterizer__integer_vectors 333 13 28_4]
+G c Z b b [insert_vector textrender__rasterizer__integer_vectors 337 14 28_4]
+G c Z b b [insert_vector textrender__rasterizer__integer_vectors 361 14 28_4]
+G c Z b b [insert_vector textrender__rasterizer__integer_vectors 378 14 28_4]
+G c Z b b [insert textrender__rasterizer__integer_vectors 396 14 28_4]
+G c Z b b [insert textrender__rasterizer__integer_vectors 404 14 28_4]
+G c Z b b [insert textrender__rasterizer__integer_vectors 412 14 28_4]
+G c Z b b [insert textrender__rasterizer__integer_vectors 421 14 28_4]
+G c Z b b [insert textrender__rasterizer__integer_vectors 438 14 28_4]
+G c Z b b [prepend_vector textrender__rasterizer__integer_vectors 449 14 28_4]
+G c Z b b [prepend textrender__rasterizer__integer_vectors 459 14 28_4]
+G c Z b b [append_vector textrender__rasterizer__integer_vectors 466 14 28_4]
+G c Z b b [append textrender__rasterizer__integer_vectors 476 14 28_4]
+G c Z b b [append textrender__rasterizer__integer_vectors 483 14 28_4]
+G c Z b b [insert_space textrender__rasterizer__integer_vectors 486 14 28_4]
+G c Z b b [insert_space textrender__rasterizer__integer_vectors 503 14 28_4]
+G c Z b b [delete textrender__rasterizer__integer_vectors 514 14 28_4]
+G c Z b b [delete textrender__rasterizer__integer_vectors 524 14 28_4]
+G c Z b b [delete_first textrender__rasterizer__integer_vectors 533 14 28_4]
+G c Z b b [delete_last textrender__rasterizer__integer_vectors 538 14 28_4]
+G c Z b b [reverse_elements textrender__rasterizer__integer_vectors 546 14 28_4]
+G c Z b b [swap textrender__rasterizer__integer_vectors 549 14 28_4]
+G c Z b b [swap textrender__rasterizer__integer_vectors 554 14 28_4]
+G c Z b b [first_index textrender__rasterizer__integer_vectors 560 13 28_4]
+G c Z b b [first textrender__rasterizer__integer_vectors 563 13 28_4]
+G c Z b b [first_element textrender__rasterizer__integer_vectors 567 13 28_4]
+G c Z b b [last_index textrender__rasterizer__integer_vectors 570 13 28_4]
+G c Z b b [last textrender__rasterizer__integer_vectors 574 13 28_4]
+G c Z b b [last_element textrender__rasterizer__integer_vectors 578 13 28_4]
+G c Z b b [next textrender__rasterizer__integer_vectors 581 13 28_4]
+G c Z b b [next textrender__rasterizer__integer_vectors 587 14 28_4]
+G c Z b b [previous textrender__rasterizer__integer_vectors 590 13 28_4]
+G c Z b b [previous textrender__rasterizer__integer_vectors 596 14 28_4]
+G c Z b b [find_index textrender__rasterizer__integer_vectors 599 13 28_4]
+G c Z b b [find textrender__rasterizer__integer_vectors 609 13 28_4]
+G c Z b b [reverse_find_index textrender__rasterizer__integer_vectors 623 13 28_4]
+G c Z b b [reverse_find textrender__rasterizer__integer_vectors 635 13 28_4]
+G c Z b b [contains textrender__rasterizer__integer_vectors 649 13 28_4]
+G c Z b b [iterate textrender__rasterizer__integer_vectors 654 14 28_4]
+G c Z b b [reverse_iterate textrender__rasterizer__integer_vectors 662 14 28_4]
+G c Z b b [iterate textrender__rasterizer__integer_vectors 669 13 28_4]
+G c Z b b [iterate textrender__rasterizer__integer_vectors 672 13 28_4]
+G c Z b b [adjust textrender__rasterizer__integer_vectors__implementation 90 28 726_4_28_4]
+G c Z b b [finalize textrender__rasterizer__integer_vectors__implementation 93 28 726_4_28_4]
+G c Z b b [zero_counts textrender__rasterizer__integer_vectors__implementation 96 17 726_4_28_4]
+G c Z b b [busy textrender__rasterizer__integer_vectors__implementation 100 17 726_4_28_4]
+G c Z b b [unbusy textrender__rasterizer__integer_vectors__implementation 104 17 726_4_28_4]
+G c Z b b [lock textrender__rasterizer__integer_vectors__implementation 108 17 726_4_28_4]
+G c Z b b [unlock textrender__rasterizer__integer_vectors__implementation 112 17 726_4_28_4]
+G c Z b b [tc_check textrender__rasterizer__integer_vectors__implementation 116 17 726_4_28_4]
+G c Z b b [te_check textrender__rasterizer__integer_vectors__implementation 120 17 726_4_28_4]
+G c Z b b [is_busy textrender__rasterizer__integer_vectors__implementation 136 16 726_4_28_4]
+G c Z b b [is_locked textrender__rasterizer__integer_vectors__implementation 140 16 726_4_28_4]
+G c Z b b [initialize textrender__rasterizer__integer_vectors__implementation 161 28 726_4_28_4]
+G c Z b b [finalize textrender__rasterizer__integer_vectors__implementation 162 28 726_4_28_4]
+G c Z b b [initialize textrender__rasterizer__integer_vectors__implementation 167 28 726_4_28_4]
+G c Z b b [finalize textrender__rasterizer__integer_vectors__implementation 168 28 726_4_28_4]
+G c Z b b [reference_control_typeDA textrender__rasterizer__integer_vectors__implementation 84 12 726_4_28_4]
+G c Z b b [reference_control_typeDF textrender__rasterizer__integer_vectors__implementation 84 12 726_4_28_4]
+G c Z b b [reference_control_typeIP textrender__rasterizer__integer_vectors__implementation 84 12 726_4_28_4]
+G c Z b b [with_busyDF textrender__rasterizer__integer_vectors__implementation 158 12 726_4_28_4]
+G c Z b b [with_busyIP textrender__rasterizer__integer_vectors__implementation 158 12 726_4_28_4]
+G c Z b b [with_lockDF textrender__rasterizer__integer_vectors__implementation 164 12 726_4_28_4]
+G c Z b b [with_lockIP textrender__rasterizer__integer_vectors__implementation 164 12 726_4_28_4]
+G c Z b b [put_image textrender__rasterizer__integer_vectors 747 14 28_4]
+G c Z b b [adjust textrender__rasterizer__integer_vectors 750 25 28_4]
+G c Z b b [finalize textrender__rasterizer__integer_vectors 751 25 28_4]
+G c Z b b [write textrender__rasterizer__integer_vectors 753 14 28_4]
+G c Z b b [read textrender__rasterizer__integer_vectors 759 14 28_4]
+G c Z b b [read textrender__rasterizer__integer_vectors 773 14 28_4]
+G c Z b b [write textrender__rasterizer__integer_vectors 779 14 28_4]
+G c Z b b [write textrender__rasterizer__integer_vectors 798 14 28_4]
+G c Z b b [read textrender__rasterizer__integer_vectors 804 14 28_4]
+G c Z b b [write textrender__rasterizer__integer_vectors 820 14 28_4]
+G c Z b b [read textrender__rasterizer__integer_vectors 826 14 28_4]
+G c Z b b [pseudo_reference textrender__rasterizer__integer_vectors 840 13 28_4]
+G c Z b b [get_element_access textrender__rasterizer__integer_vectors 849 13 28_4]
+G c Z b b [cursorIP textrender__rasterizer__integer_vectors 768 9 28_4]
+G c Z b b [vectorDA textrender__rasterizer__integer_vectors 741 9 28_4]
+G c Z b b [vectorDF textrender__rasterizer__integer_vectors 741 9 28_4]
+G c Z b b [vectorIP textrender__rasterizer__integer_vectors 741 9 28_4]
+G c Z b b [finalize textrender__rasterizer__integer_vectors 865 25 28_4]
+G c Z b b [first textrender__rasterizer__integer_vectors 867 24 28_4]
+G c Z b b [last textrender__rasterizer__integer_vectors 868 24 28_4]
+G c Z b b [next textrender__rasterizer__integer_vectors 870 24 28_4]
+G c Z b b [previous textrender__rasterizer__integer_vectors 874 24 28_4]
+G c Z b b [constant_reference_typeDI textrender__rasterizer__integer_vectors 788 9 28_4]
+G c Z b b [constant_reference_typeDA textrender__rasterizer__integer_vectors 788 9 28_4]
+G c Z b b [constant_reference_typeDF textrender__rasterizer__integer_vectors 788 9 28_4]
+G c Z b b [constant_reference_typeIP textrender__rasterizer__integer_vectors 788 9 28_4]
+G c Z b b [reference_typeDI textrender__rasterizer__integer_vectors 810 9 28_4]
+G c Z b b [reference_typeDA textrender__rasterizer__integer_vectors 810 9 28_4]
+G c Z b b [reference_typeDF textrender__rasterizer__integer_vectors 810 9 28_4]
+G c Z b b [reference_typeIP textrender__rasterizer__integer_vectors 810 9 28_4]
+G c Z b b [elements_arrayIP textrender__rasterizer__integer_vectors 729 9 28_4]
+G c Z b b [elements_typeIP textrender__rasterizer__integer_vectors 732 9 28_4]
+G c Z b b [iteratorDF textrender__rasterizer__integer_vectors 857 9 28_4]
+G c Z b b [iteratorIP textrender__rasterizer__integer_vectors 857 9 28_4]
+G c Z b b [free textrender__rasterizer__integer_vectors 44 14 28_4]
+G c Z b b [append_slow_path textrender__rasterizer__integer_vectors 47 14 28_4]
+G c Z b b [glyph_pointIP textrender__rasterizer 7 9 none]
+G c Z b b [has_element textrender__rasterizer__glyph_point_vectors 115 13 32_4]
+G c Z b b [empty textrender__rasterizer__glyph_point_vectors 125 13 32_4]
+G c Z b b [Oeq textrender__rasterizer__glyph_point_vectors 127 24 32_4]
+G c Z b b [to_vector textrender__rasterizer__glyph_point_vectors 136 13 32_4]
+G c Z b b [to_vector textrender__rasterizer__glyph_point_vectors 139 13 32_4]
+G c Z b b [Oconcat textrender__rasterizer__glyph_point_vectors 145 13 32_4]
+G c Z b b [Oconcat textrender__rasterizer__glyph_point_vectors 149 13 32_4]
+G c Z b b [Oconcat textrender__rasterizer__glyph_point_vectors 153 13 32_4]
+G c Z b b [Oconcat textrender__rasterizer__glyph_point_vectors 157 13 32_4]
+G c Z b b [capacity textrender__rasterizer__glyph_point_vectors 161 13 32_4]
+G c Z b b [reserve_capacity textrender__rasterizer__glyph_point_vectors 164 14 32_4]
+G c Z b b [length textrender__rasterizer__glyph_point_vectors 175 13 32_4]
+G c Z b b [set_length textrender__rasterizer__glyph_point_vectors 178 14 32_4]
+G c Z b b [is_empty textrender__rasterizer__glyph_point_vectors 187 13 32_4]
+G c Z b b [clear textrender__rasterizer__glyph_point_vectors 190 14 32_4]
+G c Z b b [to_cursor textrender__rasterizer__glyph_point_vectors 194 13 32_4]
+G c Z b b [to_index textrender__rasterizer__glyph_point_vectors 201 13 32_4]
+G c Z b b [element textrender__rasterizer__glyph_point_vectors 206 13 32_4]
+G c Z b b [element textrender__rasterizer__glyph_point_vectors 213 13 32_4]
+G c Z b b [replace_element textrender__rasterizer__glyph_point_vectors 217 14 32_4]
+G c Z b b [replace_element textrender__rasterizer__glyph_point_vectors 228 14 32_4]
+G c Z b b [query_element textrender__rasterizer__glyph_point_vectors 239 14 32_4]
+G c Z b b [query_element textrender__rasterizer__glyph_point_vectors 250 14 32_4]
+G c Z b b [update_element textrender__rasterizer__glyph_point_vectors 259 14 32_4]
+G c Z b b [update_element textrender__rasterizer__glyph_point_vectors 276 14 32_4]
+G c Z b b [constant_reference textrender__rasterizer__glyph_point_vectors 303 13 32_4]
+G c Z b b [reference textrender__rasterizer__glyph_point_vectors 308 13 32_4]
+G c Z b b [constant_reference textrender__rasterizer__glyph_point_vectors 313 13 32_4]
+G c Z b b [reference textrender__rasterizer__glyph_point_vectors 318 13 32_4]
+G c Z b b [assign textrender__rasterizer__glyph_point_vectors 323 14 32_4]
+G c Z b b [copy textrender__rasterizer__glyph_point_vectors 325 13 32_4]
+G c Z b b [move textrender__rasterizer__glyph_point_vectors 327 14 32_4]
+G c Z b b [new_vector textrender__rasterizer__glyph_point_vectors 333 13 32_4]
+G c Z b b [insert_vector textrender__rasterizer__glyph_point_vectors 337 14 32_4]
+G c Z b b [insert_vector textrender__rasterizer__glyph_point_vectors 361 14 32_4]
+G c Z b b [insert_vector textrender__rasterizer__glyph_point_vectors 378 14 32_4]
+G c Z b b [insert textrender__rasterizer__glyph_point_vectors 396 14 32_4]
+G c Z b b [insert textrender__rasterizer__glyph_point_vectors 404 14 32_4]
+G c Z b b [insert textrender__rasterizer__glyph_point_vectors 412 14 32_4]
+G c Z b b [insert textrender__rasterizer__glyph_point_vectors 421 14 32_4]
+G c Z b b [insert textrender__rasterizer__glyph_point_vectors 438 14 32_4]
+G c Z b b [prepend_vector textrender__rasterizer__glyph_point_vectors 449 14 32_4]
+G c Z b b [prepend textrender__rasterizer__glyph_point_vectors 459 14 32_4]
+G c Z b b [append_vector textrender__rasterizer__glyph_point_vectors 466 14 32_4]
+G c Z b b [append textrender__rasterizer__glyph_point_vectors 476 14 32_4]
+G c Z b b [append textrender__rasterizer__glyph_point_vectors 483 14 32_4]
+G c Z b b [insert_space textrender__rasterizer__glyph_point_vectors 486 14 32_4]
+G c Z b b [insert_space textrender__rasterizer__glyph_point_vectors 503 14 32_4]
+G c Z b b [delete textrender__rasterizer__glyph_point_vectors 514 14 32_4]
+G c Z b b [delete textrender__rasterizer__glyph_point_vectors 524 14 32_4]
+G c Z b b [delete_first textrender__rasterizer__glyph_point_vectors 533 14 32_4]
+G c Z b b [delete_last textrender__rasterizer__glyph_point_vectors 538 14 32_4]
+G c Z b b [reverse_elements textrender__rasterizer__glyph_point_vectors 546 14 32_4]
+G c Z b b [swap textrender__rasterizer__glyph_point_vectors 549 14 32_4]
+G c Z b b [swap textrender__rasterizer__glyph_point_vectors 554 14 32_4]
+G c Z b b [first_index textrender__rasterizer__glyph_point_vectors 560 13 32_4]
+G c Z b b [first textrender__rasterizer__glyph_point_vectors 563 13 32_4]
+G c Z b b [first_element textrender__rasterizer__glyph_point_vectors 567 13 32_4]
+G c Z b b [last_index textrender__rasterizer__glyph_point_vectors 570 13 32_4]
+G c Z b b [last textrender__rasterizer__glyph_point_vectors 574 13 32_4]
+G c Z b b [last_element textrender__rasterizer__glyph_point_vectors 578 13 32_4]
+G c Z b b [next textrender__rasterizer__glyph_point_vectors 581 13 32_4]
+G c Z b b [next textrender__rasterizer__glyph_point_vectors 587 14 32_4]
+G c Z b b [previous textrender__rasterizer__glyph_point_vectors 590 13 32_4]
+G c Z b b [previous textrender__rasterizer__glyph_point_vectors 596 14 32_4]
+G c Z b b [find_index textrender__rasterizer__glyph_point_vectors 599 13 32_4]
+G c Z b b [find textrender__rasterizer__glyph_point_vectors 609 13 32_4]
+G c Z b b [reverse_find_index textrender__rasterizer__glyph_point_vectors 623 13 32_4]
+G c Z b b [reverse_find textrender__rasterizer__glyph_point_vectors 635 13 32_4]
+G c Z b b [contains textrender__rasterizer__glyph_point_vectors 649 13 32_4]
+G c Z b b [iterate textrender__rasterizer__glyph_point_vectors 654 14 32_4]
+G c Z b b [reverse_iterate textrender__rasterizer__glyph_point_vectors 662 14 32_4]
+G c Z b b [iterate textrender__rasterizer__glyph_point_vectors 669 13 32_4]
+G c Z b b [iterate textrender__rasterizer__glyph_point_vectors 672 13 32_4]
+G c Z b b [adjust textrender__rasterizer__glyph_point_vectors__implementation 90 28 726_4_32_4]
+G c Z b b [finalize textrender__rasterizer__glyph_point_vectors__implementation 93 28 726_4_32_4]
+G c Z b b [zero_counts textrender__rasterizer__glyph_point_vectors__implementation 96 17 726_4_32_4]
+G c Z b b [busy textrender__rasterizer__glyph_point_vectors__implementation 100 17 726_4_32_4]
+G c Z b b [unbusy textrender__rasterizer__glyph_point_vectors__implementation 104 17 726_4_32_4]
+G c Z b b [lock textrender__rasterizer__glyph_point_vectors__implementation 108 17 726_4_32_4]
+G c Z b b [unlock textrender__rasterizer__glyph_point_vectors__implementation 112 17 726_4_32_4]
+G c Z b b [tc_check textrender__rasterizer__glyph_point_vectors__implementation 116 17 726_4_32_4]
+G c Z b b [te_check textrender__rasterizer__glyph_point_vectors__implementation 120 17 726_4_32_4]
+G c Z b b [is_busy textrender__rasterizer__glyph_point_vectors__implementation 136 16 726_4_32_4]
+G c Z b b [is_locked textrender__rasterizer__glyph_point_vectors__implementation 140 16 726_4_32_4]
+G c Z b b [initialize textrender__rasterizer__glyph_point_vectors__implementation 161 28 726_4_32_4]
+G c Z b b [finalize textrender__rasterizer__glyph_point_vectors__implementation 162 28 726_4_32_4]
+G c Z b b [initialize textrender__rasterizer__glyph_point_vectors__implementation 167 28 726_4_32_4]
+G c Z b b [finalize textrender__rasterizer__glyph_point_vectors__implementation 168 28 726_4_32_4]
+G c Z b b [reference_control_typeDA textrender__rasterizer__glyph_point_vectors__implementation 84 12 726_4_32_4]
+G c Z b b [reference_control_typeDF textrender__rasterizer__glyph_point_vectors__implementation 84 12 726_4_32_4]
+G c Z b b [reference_control_typeIP textrender__rasterizer__glyph_point_vectors__implementation 84 12 726_4_32_4]
+G c Z b b [with_busyDF textrender__rasterizer__glyph_point_vectors__implementation 158 12 726_4_32_4]
+G c Z b b [with_busyIP textrender__rasterizer__glyph_point_vectors__implementation 158 12 726_4_32_4]
+G c Z b b [with_lockDF textrender__rasterizer__glyph_point_vectors__implementation 164 12 726_4_32_4]
+G c Z b b [with_lockIP textrender__rasterizer__glyph_point_vectors__implementation 164 12 726_4_32_4]
+G c Z b b [put_image textrender__rasterizer__glyph_point_vectors 747 14 32_4]
+G c Z b b [adjust textrender__rasterizer__glyph_point_vectors 750 25 32_4]
+G c Z b b [finalize textrender__rasterizer__glyph_point_vectors 751 25 32_4]
+G c Z b b [write textrender__rasterizer__glyph_point_vectors 753 14 32_4]
+G c Z b b [read textrender__rasterizer__glyph_point_vectors 759 14 32_4]
+G c Z b b [read textrender__rasterizer__glyph_point_vectors 773 14 32_4]
+G c Z b b [write textrender__rasterizer__glyph_point_vectors 779 14 32_4]
+G c Z b b [write textrender__rasterizer__glyph_point_vectors 798 14 32_4]
+G c Z b b [read textrender__rasterizer__glyph_point_vectors 804 14 32_4]
+G c Z b b [write textrender__rasterizer__glyph_point_vectors 820 14 32_4]
+G c Z b b [read textrender__rasterizer__glyph_point_vectors 826 14 32_4]
+G c Z b b [pseudo_reference textrender__rasterizer__glyph_point_vectors 840 13 32_4]
+G c Z b b [get_element_access textrender__rasterizer__glyph_point_vectors 849 13 32_4]
+G c Z b b [cursorIP textrender__rasterizer__glyph_point_vectors 768 9 32_4]
+G c Z b b [vectorDA textrender__rasterizer__glyph_point_vectors 741 9 32_4]
+G c Z b b [vectorDF textrender__rasterizer__glyph_point_vectors 741 9 32_4]
+G c Z b b [vectorIP textrender__rasterizer__glyph_point_vectors 741 9 32_4]
+G c Z b b [finalize textrender__rasterizer__glyph_point_vectors 865 25 32_4]
+G c Z b b [first textrender__rasterizer__glyph_point_vectors 867 24 32_4]
+G c Z b b [last textrender__rasterizer__glyph_point_vectors 868 24 32_4]
+G c Z b b [next textrender__rasterizer__glyph_point_vectors 870 24 32_4]
+G c Z b b [previous textrender__rasterizer__glyph_point_vectors 874 24 32_4]
+G c Z b b [constant_reference_typeDI textrender__rasterizer__glyph_point_vectors 788 9 32_4]
+G c Z b b [constant_reference_typeDA textrender__rasterizer__glyph_point_vectors 788 9 32_4]
+G c Z b b [constant_reference_typeDF textrender__rasterizer__glyph_point_vectors 788 9 32_4]
+G c Z b b [constant_reference_typeIP textrender__rasterizer__glyph_point_vectors 788 9 32_4]
+G c Z b b [reference_typeDI textrender__rasterizer__glyph_point_vectors 810 9 32_4]
+G c Z b b [reference_typeDA textrender__rasterizer__glyph_point_vectors 810 9 32_4]
+G c Z b b [reference_typeDF textrender__rasterizer__glyph_point_vectors 810 9 32_4]
+G c Z b b [reference_typeIP textrender__rasterizer__glyph_point_vectors 810 9 32_4]
+G c Z b b [elements_arrayIP textrender__rasterizer__glyph_point_vectors 729 9 32_4]
+G c Z b b [elements_typeIP textrender__rasterizer__glyph_point_vectors 732 9 32_4]
+G c Z b b [iteratorDF textrender__rasterizer__glyph_point_vectors 857 9 32_4]
+G c Z b b [iteratorIP textrender__rasterizer__glyph_point_vectors 857 9 32_4]
+G c Z b b [free textrender__rasterizer__glyph_point_vectors 44 14 32_4]
+G c Z b b [append_slow_path textrender__rasterizer__glyph_point_vectors 47 14 32_4]
+G c Z b b [segmentIP textrender__rasterizer 13 9 none]
+G c Z b b [has_element textrender__rasterizer__segment_vectors 115 13 36_4]
+G c Z b b [empty textrender__rasterizer__segment_vectors 125 13 36_4]
+G c Z b b [Oeq textrender__rasterizer__segment_vectors 127 24 36_4]
+G c Z b b [to_vector textrender__rasterizer__segment_vectors 136 13 36_4]
+G c Z b b [to_vector textrender__rasterizer__segment_vectors 139 13 36_4]
+G c Z b b [Oconcat textrender__rasterizer__segment_vectors 145 13 36_4]
+G c Z b b [Oconcat textrender__rasterizer__segment_vectors 149 13 36_4]
+G c Z b b [Oconcat textrender__rasterizer__segment_vectors 153 13 36_4]
+G c Z b b [Oconcat textrender__rasterizer__segment_vectors 157 13 36_4]
+G c Z b b [capacity textrender__rasterizer__segment_vectors 161 13 36_4]
+G c Z b b [reserve_capacity textrender__rasterizer__segment_vectors 164 14 36_4]
+G c Z b b [length textrender__rasterizer__segment_vectors 175 13 36_4]
+G c Z b b [set_length textrender__rasterizer__segment_vectors 178 14 36_4]
+G c Z b b [is_empty textrender__rasterizer__segment_vectors 187 13 36_4]
+G c Z b b [clear textrender__rasterizer__segment_vectors 190 14 36_4]
+G c Z b b [to_cursor textrender__rasterizer__segment_vectors 194 13 36_4]
+G c Z b b [to_index textrender__rasterizer__segment_vectors 201 13 36_4]
+G c Z b b [element textrender__rasterizer__segment_vectors 206 13 36_4]
+G c Z b b [element textrender__rasterizer__segment_vectors 213 13 36_4]
+G c Z b b [replace_element textrender__rasterizer__segment_vectors 217 14 36_4]
+G c Z b b [replace_element textrender__rasterizer__segment_vectors 228 14 36_4]
+G c Z b b [query_element textrender__rasterizer__segment_vectors 239 14 36_4]
+G c Z b b [query_element textrender__rasterizer__segment_vectors 250 14 36_4]
+G c Z b b [update_element textrender__rasterizer__segment_vectors 259 14 36_4]
+G c Z b b [update_element textrender__rasterizer__segment_vectors 276 14 36_4]
+G c Z b b [constant_reference textrender__rasterizer__segment_vectors 303 13 36_4]
+G c Z b b [reference textrender__rasterizer__segment_vectors 308 13 36_4]
+G c Z b b [constant_reference textrender__rasterizer__segment_vectors 313 13 36_4]
+G c Z b b [reference textrender__rasterizer__segment_vectors 318 13 36_4]
+G c Z b b [assign textrender__rasterizer__segment_vectors 323 14 36_4]
+G c Z b b [copy textrender__rasterizer__segment_vectors 325 13 36_4]
+G c Z b b [move textrender__rasterizer__segment_vectors 327 14 36_4]
+G c Z b b [new_vector textrender__rasterizer__segment_vectors 333 13 36_4]
+G c Z b b [insert_vector textrender__rasterizer__segment_vectors 337 14 36_4]
+G c Z b b [insert_vector textrender__rasterizer__segment_vectors 361 14 36_4]
+G c Z b b [insert_vector textrender__rasterizer__segment_vectors 378 14 36_4]
+G c Z b b [insert textrender__rasterizer__segment_vectors 396 14 36_4]
+G c Z b b [insert textrender__rasterizer__segment_vectors 404 14 36_4]
+G c Z b b [insert textrender__rasterizer__segment_vectors 412 14 36_4]
+G c Z b b [insert textrender__rasterizer__segment_vectors 421 14 36_4]
+G c Z b b [insert textrender__rasterizer__segment_vectors 438 14 36_4]
+G c Z b b [prepend_vector textrender__rasterizer__segment_vectors 449 14 36_4]
+G c Z b b [prepend textrender__rasterizer__segment_vectors 459 14 36_4]
+G c Z b b [append_vector textrender__rasterizer__segment_vectors 466 14 36_4]
+G c Z b b [append textrender__rasterizer__segment_vectors 476 14 36_4]
+G c Z b b [append textrender__rasterizer__segment_vectors 483 14 36_4]
+G c Z b b [insert_space textrender__rasterizer__segment_vectors 486 14 36_4]
+G c Z b b [insert_space textrender__rasterizer__segment_vectors 503 14 36_4]
+G c Z b b [delete textrender__rasterizer__segment_vectors 514 14 36_4]
+G c Z b b [delete textrender__rasterizer__segment_vectors 524 14 36_4]
+G c Z b b [delete_first textrender__rasterizer__segment_vectors 533 14 36_4]
+G c Z b b [delete_last textrender__rasterizer__segment_vectors 538 14 36_4]
+G c Z b b [reverse_elements textrender__rasterizer__segment_vectors 546 14 36_4]
+G c Z b b [swap textrender__rasterizer__segment_vectors 549 14 36_4]
+G c Z b b [swap textrender__rasterizer__segment_vectors 554 14 36_4]
+G c Z b b [first_index textrender__rasterizer__segment_vectors 560 13 36_4]
+G c Z b b [first textrender__rasterizer__segment_vectors 563 13 36_4]
+G c Z b b [first_element textrender__rasterizer__segment_vectors 567 13 36_4]
+G c Z b b [last_index textrender__rasterizer__segment_vectors 570 13 36_4]
+G c Z b b [last textrender__rasterizer__segment_vectors 574 13 36_4]
+G c Z b b [last_element textrender__rasterizer__segment_vectors 578 13 36_4]
+G c Z b b [next textrender__rasterizer__segment_vectors 581 13 36_4]
+G c Z b b [next textrender__rasterizer__segment_vectors 587 14 36_4]
+G c Z b b [previous textrender__rasterizer__segment_vectors 590 13 36_4]
+G c Z b b [previous textrender__rasterizer__segment_vectors 596 14 36_4]
+G c Z b b [find_index textrender__rasterizer__segment_vectors 599 13 36_4]
+G c Z b b [find textrender__rasterizer__segment_vectors 609 13 36_4]
+G c Z b b [reverse_find_index textrender__rasterizer__segment_vectors 623 13 36_4]
+G c Z b b [reverse_find textrender__rasterizer__segment_vectors 635 13 36_4]
+G c Z b b [contains textrender__rasterizer__segment_vectors 649 13 36_4]
+G c Z b b [iterate textrender__rasterizer__segment_vectors 654 14 36_4]
+G c Z b b [reverse_iterate textrender__rasterizer__segment_vectors 662 14 36_4]
+G c Z b b [iterate textrender__rasterizer__segment_vectors 669 13 36_4]
+G c Z b b [iterate textrender__rasterizer__segment_vectors 672 13 36_4]
+G c Z b b [adjust textrender__rasterizer__segment_vectors__implementation 90 28 726_4_36_4]
+G c Z b b [finalize textrender__rasterizer__segment_vectors__implementation 93 28 726_4_36_4]
+G c Z b b [zero_counts textrender__rasterizer__segment_vectors__implementation 96 17 726_4_36_4]
+G c Z b b [busy textrender__rasterizer__segment_vectors__implementation 100 17 726_4_36_4]
+G c Z b b [unbusy textrender__rasterizer__segment_vectors__implementation 104 17 726_4_36_4]
+G c Z b b [lock textrender__rasterizer__segment_vectors__implementation 108 17 726_4_36_4]
+G c Z b b [unlock textrender__rasterizer__segment_vectors__implementation 112 17 726_4_36_4]
+G c Z b b [tc_check textrender__rasterizer__segment_vectors__implementation 116 17 726_4_36_4]
+G c Z b b [te_check textrender__rasterizer__segment_vectors__implementation 120 17 726_4_36_4]
+G c Z b b [is_busy textrender__rasterizer__segment_vectors__implementation 136 16 726_4_36_4]
+G c Z b b [is_locked textrender__rasterizer__segment_vectors__implementation 140 16 726_4_36_4]
+G c Z b b [initialize textrender__rasterizer__segment_vectors__implementation 161 28 726_4_36_4]
+G c Z b b [finalize textrender__rasterizer__segment_vectors__implementation 162 28 726_4_36_4]
+G c Z b b [initialize textrender__rasterizer__segment_vectors__implementation 167 28 726_4_36_4]
+G c Z b b [finalize textrender__rasterizer__segment_vectors__implementation 168 28 726_4_36_4]
+G c Z b b [reference_control_typeDA textrender__rasterizer__segment_vectors__implementation 84 12 726_4_36_4]
+G c Z b b [reference_control_typeDF textrender__rasterizer__segment_vectors__implementation 84 12 726_4_36_4]
+G c Z b b [reference_control_typeIP textrender__rasterizer__segment_vectors__implementation 84 12 726_4_36_4]
+G c Z b b [with_busyDF textrender__rasterizer__segment_vectors__implementation 158 12 726_4_36_4]
+G c Z b b [with_busyIP textrender__rasterizer__segment_vectors__implementation 158 12 726_4_36_4]
+G c Z b b [with_lockDF textrender__rasterizer__segment_vectors__implementation 164 12 726_4_36_4]
+G c Z b b [with_lockIP textrender__rasterizer__segment_vectors__implementation 164 12 726_4_36_4]
+G c Z b b [put_image textrender__rasterizer__segment_vectors 747 14 36_4]
+G c Z b b [adjust textrender__rasterizer__segment_vectors 750 25 36_4]
+G c Z b b [finalize textrender__rasterizer__segment_vectors 751 25 36_4]
+G c Z b b [write textrender__rasterizer__segment_vectors 753 14 36_4]
+G c Z b b [read textrender__rasterizer__segment_vectors 759 14 36_4]
+G c Z b b [read textrender__rasterizer__segment_vectors 773 14 36_4]
+G c Z b b [write textrender__rasterizer__segment_vectors 779 14 36_4]
+G c Z b b [write textrender__rasterizer__segment_vectors 798 14 36_4]
+G c Z b b [read textrender__rasterizer__segment_vectors 804 14 36_4]
+G c Z b b [write textrender__rasterizer__segment_vectors 820 14 36_4]
+G c Z b b [read textrender__rasterizer__segment_vectors 826 14 36_4]
+G c Z b b [pseudo_reference textrender__rasterizer__segment_vectors 840 13 36_4]
+G c Z b b [get_element_access textrender__rasterizer__segment_vectors 849 13 36_4]
+G c Z b b [cursorIP textrender__rasterizer__segment_vectors 768 9 36_4]
+G c Z b b [vectorDA textrender__rasterizer__segment_vectors 741 9 36_4]
+G c Z b b [vectorDF textrender__rasterizer__segment_vectors 741 9 36_4]
+G c Z b b [vectorIP textrender__rasterizer__segment_vectors 741 9 36_4]
+G c Z b b [finalize textrender__rasterizer__segment_vectors 865 25 36_4]
+G c Z b b [first textrender__rasterizer__segment_vectors 867 24 36_4]
+G c Z b b [last textrender__rasterizer__segment_vectors 868 24 36_4]
+G c Z b b [next textrender__rasterizer__segment_vectors 870 24 36_4]
+G c Z b b [previous textrender__rasterizer__segment_vectors 874 24 36_4]
+G c Z b b [constant_reference_typeDI textrender__rasterizer__segment_vectors 788 9 36_4]
+G c Z b b [constant_reference_typeDA textrender__rasterizer__segment_vectors 788 9 36_4]
+G c Z b b [constant_reference_typeDF textrender__rasterizer__segment_vectors 788 9 36_4]
+G c Z b b [constant_reference_typeIP textrender__rasterizer__segment_vectors 788 9 36_4]
+G c Z b b [reference_typeDI textrender__rasterizer__segment_vectors 810 9 36_4]
+G c Z b b [reference_typeDA textrender__rasterizer__segment_vectors 810 9 36_4]
+G c Z b b [reference_typeDF textrender__rasterizer__segment_vectors 810 9 36_4]
+G c Z b b [reference_typeIP textrender__rasterizer__segment_vectors 810 9 36_4]
+G c Z b b [elements_arrayIP textrender__rasterizer__segment_vectors 729 9 36_4]
+G c Z b b [elements_typeIP textrender__rasterizer__segment_vectors 732 9 36_4]
+G c Z b b [iteratorDF textrender__rasterizer__segment_vectors 857 9 36_4]
+G c Z b b [iteratorIP textrender__rasterizer__segment_vectors 857 9 36_4]
+G c Z b b [free textrender__rasterizer__segment_vectors 44 14 36_4]
+G c Z b b [append_slow_path textrender__rasterizer__segment_vectors 47 14 36_4]
+G c Z b b [prepare_buffers textrender__rasterizer 48 17 none]
+G c Z b b [bit_set textrender__rasterizer 87 13 none]
+G c Z b b [apply textrender__rasterizer 95 13 none]
+G c Z b b [add_segment textrender__rasterizer 107 14 none]
+G c Z b b [add_quadratic textrender__rasterizer 122 17 none]
+G c Z b b [rasterize_simple_glyph textrender__rasterizer 160 13 none]
+G r c none [rasterize_glyph textrender__rasterizer 23 13 none] [num_glyphs textrender__fonts 56 13 none]
+G r c none [rasterize_glyph textrender__rasterizer 23 13 none] [glyph_data_range textrender__fonts 58 13 none]
+G r c none [rasterize_glyph textrender__rasterizer 23 13 none] [has_bytes textrender__fonts 64 13 none]
+G r c none [rasterize_glyph textrender__rasterizer 23 13 none] [i16 textrender__fonts 77 13 none]
+G r c none [rasterize_glyph textrender__rasterizer 23 13 none] [units_per_em textrender__fonts 41 13 none]
+G r c none [rasterize_glyph textrender__rasterizer 23 13 none] [u16 textrender__fonts 73 13 none]
+G r c none [rasterize_glyph textrender__rasterizer 23 13 none] [byte_at textrender__fonts 69 13 none]
+G r c none [rasterize_glyph textrender__rasterizer 23 13 none] [height textrender__atlases 17 13 none]
+G r c none [rasterize_glyph textrender__rasterizer 23 13 none] [width textrender__atlases 16 13 none]
+G r c none [rasterize_glyph textrender__rasterizer 23 13 none] [blend_max textrender__atlases 37 14 none]
+G r c none [rasterize_simple_glyph textrender__rasterizer 160 13 none] [units_per_em textrender__fonts 41 13 none]
+G r c none [rasterize_simple_glyph textrender__rasterizer 160 13 none] [num_glyphs textrender__fonts 56 13 none]
+G r c none [rasterize_simple_glyph textrender__rasterizer 160 13 none] [glyph_data_range textrender__fonts 58 13 none]
+G r c none [rasterize_simple_glyph textrender__rasterizer 160 13 none] [has_bytes textrender__fonts 64 13 none]
+G r c none [rasterize_simple_glyph textrender__rasterizer 160 13 none] [i16 textrender__fonts 77 13 none]
+G r c none [rasterize_simple_glyph textrender__rasterizer 160 13 none] [u16 textrender__fonts 73 13 none]
+G r c none [rasterize_simple_glyph textrender__rasterizer 160 13 none] [byte_at textrender__fonts 69 13 none]
+G r c none [rasterize_simple_glyph textrender__rasterizer 160 13 none] [height textrender__atlases 17 13 none]
+G r c none [rasterize_simple_glyph textrender__rasterizer 160 13 none] [width textrender__atlases 16 13 none]
+G r c none [rasterize_simple_glyph textrender__rasterizer 160 13 none] [blend_max textrender__atlases 37 14 none]
+X 1 ada.ads
+18K9*Ada 22e8 58|2r6 2r26 3r6 20r40 21r40 22r40 24r35 28r35 32r39 36r35 470r32
+. 471r32 472r32 473r32
+X 2 a-contai.ads
+16K13*Containers 28e19 58|2w10 2r30 3r10 20r44 21r44 22r44 24r39 28r39 32r43
+. 36r39 470r36 471r36 472r36 473r36
+22I9*Count_Type<integer> 58|20r55 21r55 22r55 470r47 471r47 472r47 473r47
+X 6 a-convec.ads
+62I9 Index_Type 58|25r7 29r7 33r7 37r7
+63+9 Element_Type 58|26r7 30r7 34r7 38r7
+74k24*Vectors 878e27 58|3w21 24r50 28r50 32r54 36r50
+81I12*Extended_Index{integer}
+91R9*Vector<9|43R9> 58|40r43[24] 41r43[24] 42r43[28] 43r43[28] 44r47[32]
+. 45r43[36] 46r45[24] 108r41[36] 123r41[36] 180r40[24] 181r40[24] 182r40[28]
+. 183r40[28] 184r44[32] 185r40[36] 186r41[24]
+161V13*Capacity{2|22I9} 58|58s28[24] 62s23[24] 66s20[28] 70s20[28] 74s24[32]
+. 78s26[36] 82s33[24]
+164U14*Reserve_Capacity 58|59s28[24] 63s23[24] 67s20[28] 71s20[28] 75s24[32]
+. 79s26[36] 83s33[24] 470s13[24] 471s10[28] 472s10[28] 473s14[32]
+187V13*Is_Empty{boolean} 58|325s22[36] 364s29[24]
+190U14*Clear 58|50s25[24] 51s20[24] 52s17[28] 53s17[28] 54s21[32] 55s23[36]
+. 56s30[24] 323s26[24]
+483U14*Append 58|115s16[36] 337s35[24] 449s21[24] 475s19[24] 476s16[28] 477s16[28]
+. 478s20[32]
+560V13*First_Index{integer} 58|329s28[36] 368s35[24]
+570V13*Last_Index{81I12[58|36]} 58|329s52[36] 368s66[24]
+X 10 a-iteint.ads
+24h9 Forward_Iterator
+32h9 Reversible_Iterator<24R9[6|119]>
+X 20 system.ads
+67M9*Address
+X 31 s-memory.ads
+51V13*Alloc{20|67M9} 101i<c,__gnat_malloc>22
+66U14*Free 102i<c,__gnat_free>22
+74V13*Realloc{20|67M9} 103i<c,__gnat_realloc>22
+X 42 s-stalib.adb
+87U14 Break_Start 88i<c,__gnat_break_start>22
+X 54 textrender.ads
+87K9*Textrender 252e15 57|1r6 2r6 4r9 24r21 25r28 38r5 58|1r6 5r14 161r21
+. 162r28 209r37 405r25 409r14 424r14 428r29 442r14 450r11 460r24 483r17 487r24
+. 494r20 498r25 514r20 519r31 521r32 529r23 533r22 544r20 549r31 551r32 559r23
+. 563r22 645r37 646r46 648r22 653r25 669r21 670r28 706r25 710r14 725r14 729r29
+. 751r17 755r29 756r29 772r20 776r21 777r21 780r20 785r41 786r41 813r23 817r30
+. 822r23 826r30 827r30 831r23 835r30 836r30 837r30 838r30 889r5
+108M9*Alpha
+X 55 textrender-atlases.ads
+1K20*Atlases 58e23 57|1w17 25r39 58|162r39 645r48 646r57 648r33 653r36 670r39
+3M12*Alpha{54|108M9} 58|653r44
+7R9*Atlas 56e14 57|25r47 58|162r47 670r47
+16V13*Width{positive} 58|645s56
+17V13*Height{positive} 58|646s65
+37U14*Blend_Max 58|648s41
+38r7 A{7R9} 58|649r23
+39i7 X{natural} 58|650r25
+40i7 Y{natural} 58|651r25
+41m7 Value{3M12} 58|652r25
+X 56 textrender-fonts.ads
+1K20*Fonts 115e21 57|2w17 24r32 58|1w17 161r32 209r48 405r36 409r25 424r25
+. 428r40 442r25 450r22 460r35 483r28 487r35 494r31 498r36 514r31 519r42 521r43
+. 529r34 533r33 544r31 549r42 551r43 559r34 563r33 669r32 706r36 710r25 725r25
+. 729r40 751r28 755r40 756r40 772r31 776r32 777r32 780r31 785r52 786r52 813r34
+. 817r41 822r34 826r41 827r41 831r34 835r41 836r41 837r41 838r41
+5R9*Font 113e14 57|24r38 58|161r38 669r38
+41V13*Units_Per_Em{positive} 58|209s54
+56V13*Num_Glyphs{natural} 58|405s42 706s42
+58V13*Glyph_Data_Range{boolean} 58|409s31 710s31
+59r7 F{5R9} 58|410r10 711r10
+60i7 Glyph_Index{natural} 58|411r10 712r10
+61i7 First{natural} 58|412r10 713r10
+62i7 Last{natural} 58|413r10 714r10
+64V13*Has_Bytes{boolean} 58|424s31 442s31 483s34 494s37 514s37 529s40 544s37
+. 559s40 725s31 751s34 772s37 780s37 813s40 822s40 831s40
+69V13*Byte_At{natural} 58|487s41 498s42 519s48 521s49 549s48 551s49 785s58
+. 786s58
+73V13*U16{natural} 58|450s28 460s41 755s46 756s46
+77V13*I16{integer} 58|428s46 533s39 563s39 729s46 776s38 777s38 817s47 826s47
+. 827s47 835s47 836s47 837s47 838s47
+X 57 textrender-rasterizer.ads
+4K20*Rasterizer 54|87k9 57|38l16 38e26 58|5b25 889l16 889t26
+6R9*Glyph_Transform 13e14 15r34 36r21 58|96r11 173r21 681r21 704r29
+7f7*XX{float} 16m7 58|102r24 842m33 843r25 846r25 855r25
+8f7*XY{float} 17m7 58|102r35 843r46 845m33 846r46 856r27
+9f7*YX{float} 18m7 58|103r24 848m33 849r25 852r25 860r25
+10f7*YY{float} 19m7 58|103r35 849r46 851m33 852r46 861r27
+11f7*DX{float} 20m7 58|102r46 854m33 857r27
+12f7*DY{float} 21m7 58|103r46 859m33 862r27
+15r4*Identity_Transform{6R9} 36r40 58|681r40
+23V13*Rasterize_Glyph{boolean} 24>7 25=7 26>7 27>7 28>7 29>7 30>7 31>7 32>7
+. 33>7 34>7 35>7 36>7 58|668b13 865s17 887l8 887t23
+24r7 F{56|5R9} 58|669b7 706r54 711r25 725r42 729r51 733r28 751r45 755r51
+. 756r51 772r48 776r43 777r43 780r48 785r67 786r67 813r51 817r52 822r51 826r52
+. 827r52 831r51 835r52 836r52 837r52 838r52 866r13 866r28
+25r7 A{55|7R9} 58|670b7 734m28 734r28 867r13 867m28 867r28
+26i7 Glyph_Index{natural} 58|671b7 706r10 712r25 735r28 868r13
+27i7 Atlas_X{natural} 58|672b7 736r28 869r13 869r28
+28i7 Atlas_Y{natural} 58|673b7 737r28 870r13 870r28
+29i7 Glyph_W{positive} 58|674b7 738r28 871r13 871r28
+30i7 Glyph_H{positive} 58|675b7 739r28 872r13 872r28
+31i7 X_Min{integer} 58|676b7 740r28 873r13 873r28
+32i7 Y_Min{integer} 58|677b7 741r28 874r13 874r28
+33i7 X_Max{integer} 58|678b7 742r28 875r13 875r28
+34i7 Y_Max{integer} 58|679b7 743r28 876r13 876r28
+35i7 Pixel_Size{positive} 58|680b7 744r28 877r13 877r28
+36r7 Transform{6R9} 58|681b7 745r28 804r33 843r15 843r36 846r15 846r36 849r15
+. 849r36 852r15 852r36 855r15 856r17 857r17 860r15 861r17 862r17 878r13
+X 58 textrender-rasterizer.adb
+7R9 Glyph_Point 11e14 34r23 98r25 212r14 213r14 213r34 226r24 227r24 228r24
+. 229r24 290r41 478r28 576r27
+8f7*X{float} 102m10 217m13 217r28 217r34 255r39 257r36 273r42 275r39 277r40
+. 294r45 296r42 298r45 309r21 309r38 312r36 314r40 478m41 583m16 583r31
+9f7*Y{float} 103m10 218m13 218r28 218r34 256r39 258r36 274r42 276r39 278r40
+. 295r45 297r42 299r45 309r56 309r73 313r36 315r40 478m51 584m16 584r31
+10b7*On_Curve{boolean} 104m10 219m13 233r28 238r30 252r21 270r25 478m61 585m16
+13R9 Segment 18e14 38r23 116r10 331r29 370r29
+14f7*X0{float} 116m19 374r30 386r30
+15f7*Y0{float} 117m11 333r22 335r22 372r21 375r30 384r24 387r30
+16f7*X1{float} 118m11 376r30 388r30
+17f7*Y1{float} 119m11 333r48 335r47 372r41 377r30 384r43 389r30
+20i4 Initial_Contour_Capacity{2|22I9} 58r39 59r46
+21i4 Initial_Point_Capacity{2|22I9} 62r34 63r41 66r31 67r38 70r31 71r38 74r35
+. 75r42
+22i4 Initial_Segment_Capacity{2|22I9} 78r37 79r44 82r44 83r51
+24K12 Natural_Vectors[6|74] 40r27 41r27 46r29 180r24 181r24 186r25
+28K12 Integer_Vectors[6|74] 42r27 43r27 182r24 183r24
+32K12 Glyph_Point_Vectors[6|74] 44r27 184r24
+36K12 Segment_Vectors[6|74] 45r27 108r25 123r25 185r24
+40r4 End_Points_Buffer{6|91R9[24]} 50m7 50r7 58r10 59m10 59r10 180m55 180r55
+41r4 Flags_Buffer{6|91R9[24]} 51m7 51r7 62r10 63m10 63r10 181m55 181r55
+42r4 Xs_Buffer{6|91R9[28]} 52m7 52r7 66r10 67m10 67r10 182m55 182r55
+43r4 Ys_Buffer{6|91R9[28]} 53m7 53r7 70r10 71m10 71r10 183m55 183r55
+44r4 Points_Buffer{6|91R9[32]} 54m7 54r7 74r10 75m10 75r10 184m59 184r59
+45r4 Segments_Buffer{6|91R9[36]} 55m7 55r7 78r10 79m10 79r10 185m55 185r55
+46r4 Active_Segments_Buffer{6|91R9[24]} 56m7 56r7 82r10 83m10 83r10 186m56
+. 186r56
+48U17 Prepare_Buffers 48b17 85l8 85t23 403s7
+87V13 Bit_Set{boolean} 87b13 88>7 89>7 93l8 93t15 493s13 513s13 518s16 526s16
+. 543s13 548s16 556s16 585s28 759s29 760s29 761s29 763s26 764s26 765s26
+88i7 Value{natural} 92r15
+89i7 Mask{natural} 92r23
+95V13 Apply{7R9} 95b13 96>7 97>7 98>7 105l8 105t13 577s15
+96r7 T{57|6R9} 102r22 102r33 102r44 103r22 103r33 103r44 578r18
+97f7 X{float} 102r29 103r29 579r18
+98f7 Y{float} 102r40 103r40 580r18
+107U14 Add_Segment 107b14 108=7 109>7 110>7 111>7 112>7 120l8 120t19 148s10
+. 253s16 310s13
+108r7 Segments{6|91R9[36]} 115m7 115r7 149r13 254r19 311r16
+109f7 X0{float} 116r25 150r13 255r19 312r16
+110f7 Y0{float} 117r17 151r13 256r19 313r16
+111f7 X1{float} 118r17 152r13 257r19 314r16
+112f7 Y1{float} 119r17 153r13 258r19 315r16
+122U17 Add_Quadratic 122b17 123=7 124>7 125>7 126>7 127>7 128>7 129>7 158l8
+. 158t21 271s19 292s22
+123r7 Segments{6|91R9[36]} 149m25 272r22 293r25
+124f7 X0{float} 133r25 145r26 273r22 294r25
+125f7 Y0{float} 134r25 146r26 274r22 295r25
+126f7 CX{float} 145r46 275r22 296r25
+127f7 CY{float} 146r46 276r22 297r25
+128f7 X1{float} 145r59 277r22 298r25
+129f7 Y1{float} 146r59 278r22 299r25
+131i7 Steps{positive} 141r21 142r35
+133f7 Prev_X{float} 150r25 155m10
+134f7 Prev_Y{float} 151r25 156m10
+136f7 T{float} 142m10 143r22 145r42 145r51 145r55 146r42 146r51 146r55
+137f7 MT{float} 143m10 145r16 145r21 145r37 146r16 146r21 146r37
+138f7 NX{float} 145m10 152r25 155r20
+139f7 NY{float} 146m10 153r25 156r20
+141i11 I{integer} 142r23
+160V13 Rasterize_Simple_Glyph{boolean} 160b13 161>7 162=7 163>7 164>7 165>7
+. 166>7 167>7 168>7 169>7 170>7 171>7 172>7 173>7 666l8 666t30 732s17
+161r7 F{56|5R9} 209r68 405r54 410r25 424r42 428r51 443r10 450r33 460r46 483r45
+. 487r50 494r48 498r51 514r48 519r57 521r58 529r51 533r44 544r48 549r57 551r58
+. 559r51 563r44 733r13
+162r7 A{55|7R9} 645r63 646r73 649m32 734r13
+163i7 Glyph_Index{natural} 405r10 411r25 735r13
+164i7 Atlas_X{natural} 645r22 650r34 736r13
+165i7 Atlas_Y{natural} 646r31 651r34 737r13
+166i7 Glyph_W{positive} 609r28 738r13
+167i7 Glyph_H{positive} 608r25 739r13
+168i7 X_Min{integer} 629r40 740r13
+169i7 Y_Min{integer} 741r13
+170i7 X_Max{integer} 742r13
+171i7 Y_Max{integer} 616r34 743r13
+172i7 Pixel_Size{positive} 209r16 744r13
+173r7 Transform{57|6R9} 578r23 745r13
+175i7 G0{natural} 412m25 412r25 418r16 420r18 424r45 428r54 440r25
+176i7 G1{natural} 413m25 413r25 418r11 420r13 466r16
+178i7 Number_Of_Contours{integer} 428m7 430r10 434r10 438r33
+180r7 End_Points=180:55{6|91R9[24]} 449r10 453r22 595r25 597r22
+181r7 Flags=181:55{6|91R9[24]} 470r7 475r13 490r10 506r16 513r22 518r25 526r25
+. 543r22 548r25 556r25 585r37
+182r7 Xs=182:55{6|91R9[28]} 471r7 476r13 539r10 574r39
+183r7 Ys=183:55{6|91R9[28]} 472r7 477r13 569r10 575r39
+184r7 Points=184:59{6|91R9[32]} 233r13 234r28 235r28 238r16 239r31 240r31
+. 242r41 242r56 250r21 267r28 473r7 478r13 582r13
+185r7 Segments=185:55{6|91R9[36]} 254r31 272r34 293r37 311r28 325r13 329r19
+. 329r43 331r40 370r40
+186r7 Active_Segments=186:56{6|91R9[24]} 323r10 337r19 364r13 368r19 368r50
+. 370r50
+188i7 Segment_Count{natural} 601r8
+190i7 End_Points_Off{natural} 440m7 443r13 450r36 459r24
+191i7 Instr_Len_Off{natural} 459m7 460r49 464r24
+192i7 Instr_Len{natural} 460m7 461r10 464r44
+193i7 P{natural} 480m7 482r13 490r17 491m10 491r15 502r19 506r23 507m16 507r21
+194i7 Off{natural} 464m7 466r10 483r48 487r53 488m10 488r17 494r51 498r54
+. 499m13 499r20 514r51 519r60 521r61 524m13 524r20 529r54 533r47 534m16 534r23
+. 544r51 549r60 551r61 554m13 554r20 559r54 563r47 564m16 564r23
+196i7 Flag_Value{natural} 487m10 490r23 493r22 506r29
+197i7 Repeat_N{natural} 498m13 501r27
+199i7 DX{integer} 519m16 521m16 527m16 533m16 538r19
+200i7 DY{integer} 549m16 551m16 557m16 563m16 568r19
+202i7 X{integer} 538m10 538r15 539r20
+203i7 Y{integer} 568m10 568r15 569r20
+205i7 Point_Count{natural} 453m7 455r10 470r59 471r59 472r59 473r59 474r21
+. 482r17 502r24 512r21 542r21 572r21
+206i7 Contour_Count{natural} 438m7 443r29 448r21 453r34 459r41 592r24
+208f7 Scale{float} 620r31 633r37
+211V16 Midpoint{7R9} 211b16 212>10 213>10 220l11 220t19 242s31 290s56
+212r10 A{7R9} 217r26 218r26
+213r10 B{7R9} 217r32 218r32
+222U17 Build_Contour 222b17 223>10 224>10 317l11 317t24 593s13
+223i10 First{natural} 233r21 234r36 235r36 236r18 242r64 246r18 594r16
+224i10 Last{natural} 238r24 239r39 240r39 242r49 249r21 264r23 282r26 283r27
+. 595r16
+226r10 Start_Point{7R9} 234m13 239m16 242m16 243r31 265r28 309r26 309r61
+. 314r28 315r28
+227r10 Current{7R9} 235m13 240m16 243m16 255r31 256r31 260m16 273r34 274r34
+. 280m19 294r37 295r37 301m22 309r13 309r48 312r28 313r28
+228r10 Next{7R9} 250m13 252r16 257r31 258r31 260r27 275r34 276r34 290r66
+. 296r37 297r37
+229r10 After{7R9} 265m19 267m19 270r19 277r34 278r34 280r30 290r72
+231i10 I{natural} 236m13 246m13 249r16 250r29 261m16 261r21 264r19 267r36
+. 282r22 283m22 285m22 285r27 302m22 302r27
+290r22 Implied{7R9} 298r37 299r37 301r33
+319U17 Build_Active_Segments 319b17 320>10 341l11 341t32 623s25
+320f10 Sample_Y{float} 333r28 333r53 335r27 335r53 623r48
+329i14 I{integer} 331r50 337r43
+331r16 S{13R9} 333r20 333r46 335r20 335r45
+343V16 Inside_Active{boolean} 343b16 344>10 345>10 400l11 400t24 635s34
+344f10 PX{float} 378r28 390r28 636r35
+345f10 PY{float} 372r27 372r46 379r28 384r29 384r49 391r28 637r35
+347i10 Winding{integer} 381m22 381r33 393m22 393r33 399r17
+349V19 Is_Left{float} 349b19 350>13 351>13 352>13 353>13 354>13 355>13 361l14
+. 361t21 373s22 385s22
+350f13 X0{float} 359r21 360r23 374r22 386r22
+351f13 Y0{float} 359r33 360r35 375r22 387r22
+352f13 X1{float} 359r16 376r22 388r22
+353f13 Y1{float} 360r30 377r22 389r22
+354f13 X2{float} 360r18 378r22 390r22
+355f13 Y2{float} 359r28 379r22 391r22
+368i14 A{integer} 370r67
+370r16 S{13R9} 372r19 372r39 374r28 375r28 376r28 377r28 384r22 384r41 386r28
+. 387r28 388r28 389r28
+448i11 I{integer} 450r53
+474i11 I{integer}
+501i17 R{integer}
+512i11 I{integer} 513r29 518r32 526r32 539r14
+542i11 I{integer} 543r29 548r32 556r32 569r14
+572i11 I{integer} 574r43 575r43 582r21 585r44
+574i13 aXs{integer} 579r30
+575i13 aYs{integer} 580r30
+576r13 P2{7R9} 583r28 584r28
+590i10 First{natural} 594r25 597m13
+592i14 C{integer} 595r37 597r34
+604i10 Samples_Per_Axis{positive} 606r12 606r31 613r34 619r41 626r40 632r47
+605i10 Total_Samples{positive} 654r47
+608i14 PY{integer} 617r37 646r41 651r44
+609i17 PX{integer} 630r43 645r32 650r44
+611i19 Covered{natural} 639m34 639r45 654r30
+613i23 SY{integer} 618r40
+615f25 Font_Y{float} 623r60 637r41
+626i29 SX{integer} 631r46
+628f31 Font_X{float} 636r41
+683i7 G0{natural} 713m25 713r25 719r15 721r18 725r45 729r54 748r14
+684i7 G1{natural} 714m25 714r25 719r10 721r13
+686i7 Number_Of_Contours{integer} 729m7 731r10
+688i7 Flags{natural} 755m10 759r38 760r38 761r38 763r35 764r35 765r35
+689i7 Component_Glyph{natural} 756m10 868r28
+691i7 Off{natural} 748m7 751r48 755r54 756r54 757m10 757r17 772r51 776r46
+. 777r46 778m13 778r20 780r51 785r70 786r70 801m13 801r20 813r54 817r55 819m16
+. 819r23 822r54 826r55 827r55 828m16 828r23 831r54 835r55 836r55 837r55 838r55
+. 839m16 839r23
+693i7 Arg1{integer} 776m13 789m19 791m19 855r37 860r37
+694i7 Arg2{integer} 777m13 795m19 797m19 856r39 861r39
+696b7 Args_Are_Words{boolean} 759m10 771r13
+697b7 Args_Are_XY{boolean} 760m10 767r17
+698b7 More_Components{boolean} 761m10 883r24
+700b7 Has_Scale{boolean} 763m10 812r16
+701b7 Has_XY_Scale{boolean} 764m10 821r19
+702b7 Has_2x2{boolean} 765m10 830r19
+704r7 Component_Transform{57|6R9} 804m10 842m13 845m13 848m13 851m13 854m13
+. 859m13 878r28
+785i16 B1{natural} 788r19 789r36 791r36
+786i16 B2{natural} 794r19 795r36 797r36
+807f13 M00{float} 817m16 818r23 826m16 835m16 843r30 849r30
+808f13 M01{float} 836m16 846r30 852r30
+809f13 M10{float} 837m16 843r51 849r51
+810f13 M11{float} 818m16 827m16 838m16 846r51 852r51
+

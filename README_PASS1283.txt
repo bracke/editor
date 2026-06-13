@@ -1,0 +1,5 @@
+Pass1283 implements Editor.Ada_RM_Completion_Closure_Consumer_Stabilized_Search_Index.
+
+This pass adds a blocker-family-aware semantic search index over Pass1282 stabilized direct RM-completion closure-consumer provenance.  It indexes provenance status, diagnostic status, blocker family, diagnostic family, closure family, provenance stage, syntax node, source span, source/substitution/provenance fingerprints, chain linkage, emitted/withheld/recheck state, and downstream-blocking state.
+
+The pass does not add UI/projection/status churn.  It is a semantic lookup structure for compiler-grade consumers and diagnostics that need to locate the exact stabilized direct-consumer blocker without losing family identity.  Cross-unit, elaboration, accessibility/lifetime, exception/finalization, overload/type, representation/freezing, tasking/protected, dataflow/initialization, predicate/invariant, AST/coverage, generic-substitution, fingerprint, multiple-prerequisite, recheck-required, and indeterminate blockers remain distinct.

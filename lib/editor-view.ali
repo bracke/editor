@@ -1,0 +1,219 @@
+V "GNAT Lib v15"
+A -gnatA
+A -gnat2022
+A -mtune=generic
+A -march=x86-64
+P SS ZX
+
+RN
+RV NO_FIXED_POINT
+RV NO_IO
+RV NO_IMPLICIT_CONDITIONALS
+RV NO_IMPLEMENTATION_PRAGMAS
+
+U editor.view%b		editor-view.adb		38281a84 NE OO PK
+W ada%s			ada.ads			ada.ali
+W ada.containers%s	a-contai.ads		a-contai.ali
+Z ada.strings.text_buffers%s  a-sttebu.adb	a-sttebu.ali
+W ada.text_io%s		a-textio.adb		a-textio.ali
+W editor%s		editor.ads		editor.ali
+W editor.layout%s	editor-layout.adb	editor-layout.ali
+W editor.render_model%s	editor-render_model.adb	editor-render_model.ali
+Z interfaces%s		interfac.ads		interfac.ali
+Z system.arith_64%s	s-arit64.adb		s-arit64.ali
+
+U editor.view%s		editor-view.ads		b4133d00 EE NE OO PK
+W editor%s		editor.ads		editor.ali
+W editor.layout%s	editor-layout.adb	editor-layout.ali
+W editor.render_model%s	editor-render_model.adb	editor-render_model.ali
+
+D ada.ads		20250808065140 76789da1 ada%s
+D a-assert.ads		20250808065140 ba465f5c ada.assertions%s
+D a-charac.ads		20250808065140 2d3ec45b ada.characters%s
+D a-chlat1.ads		20250808065140 e0d72e76 ada.characters.latin_1%s
+D a-contai.ads		20250808065140 61e5e089 ada.containers%s
+D a-conhel.ads		20250808065140 46fe1ce3 ada.containers.helpers%s
+D a-convec.ads		20250808065140 91fb49f3 ada.containers.vectors%s
+D a-except.ads		20250808065140 e7970cd9 ada.exceptions%s
+D a-finali.ads		20250808065140 bf4f806b ada.finalization%s
+D a-ioexce.ads		20250808065140 40018c65 ada.io_exceptions%s
+D a-iteint.ads		20250808065140 49a8bee2 ada.iterator_interfaces%s
+D a-numeri.ads		20250808065140 84bea7a3 ada.numerics%s
+D a-nubinu.ads		20250808065140 93f1f3d1 ada.numerics.big_numbers%s
+D a-nbnbig.ads		20250808065140 31ff4aa1 ada.numerics.big_numbers.big_integers_ghost%s
+D a-stream.ads		20250808065140 17477cbd ada.streams%s
+D a-string.ads		20250808065140 90ac6797 ada.strings%s
+D a-strmap.ads		20250808065140 1f91ebb6 ada.strings.maps%s
+D a-strsea.ads		20250808065140 18c3c634 ada.strings.search%s
+D a-sttebu.ads		20250808065140 f1ad67a2 ada.strings.text_buffers%s
+D a-strunb.ads		20250808065140 b10770ab ada.strings.unbounded%s
+D a-stuten.ads		20250808065140 c6ced0ae ada.strings.utf_encoding%s
+D a-tags.ads		20250808065140 fbca0ad5 ada.tags%s
+D a-textio.ads		20250808065140 34ef47de ada.text_io%s
+D a-unccon.ads		20250808065140 0e9b276f ada.unchecked_conversion%s
+D editor.ads		20260406185230 16f844c2 editor%s
+D editor-cursors.ads	20260425100454 1f938cf3 editor.cursors%s
+D editor-layout.ads	20260507161022 c205967f editor.layout%s
+D editor-render_model.ads  20260506180927 199ac840 editor.render_model%s
+D editor-state.ads	20260503173758 d429238c editor.state%s
+D editor-view.ads	20260425171937 797427fd editor.view%s
+D editor-view.adb	20260504161812 cfc9c411 editor.view%b
+D interfac.ads		20250808065140 9111f9c1 interfaces%s
+D i-c.ads		20250808065140 e94c966a interfaces.c%s
+D i-cstrea.ads		20250808065140 ffd01b9d interfaces.c_streams%s
+D system.ads		20250808065140 14286b0f system%s
+D s-arit64.ads		20250808065140 e45973b2 system.arith_64%s
+D s-assert.ads		20250808065140 9c4520c7 system.assertions%s
+D s-atocou.ads		20250808065140 dc18efc3 system.atomic_counters%s
+D s-crtl.ads		20250808065140 beb39b9e system.crtl%s
+D s-exctab.ads		20250808065140 91bef6ef system.exception_table%s
+D s-ficobl.ads		20250808065140 dc5161d4 system.file_control_block%s
+D s-finpri.ads		20250808065140 5970d55a system.finalization_primitives%s
+D s-finroo.ads		20250808065140 0a7c3ed4 system.finalization_root%s
+D s-oscons.ads		20250827122531 068e1a91 system.os_constants%s
+D s-oslock.ads		20250808065140 13fa6b78 system.os_locks%s
+D s-parame.ads		20250808065140 3597fc11 system.parameters%s
+D s-pooglo.ads		20250808065140 91708d21 system.pool_global%s
+D s-putima.ads		20250808065140 17291fe4 system.put_images%s
+D s-retsta.ads		20250808065140 0f6b06cb system.return_stack%s
+D s-secsta.ads		20250808065140 578279f5 system.secondary_stack%s
+D s-soflin.ads		20250808065140 5d88fdea system.soft_links%s
+D s-stache.ads		20250808065140 0b81c1fe system.stack_checking%s
+D s-stalib.ads		20250808065140 1c9580f6 system.standard_library%s
+D s-stoele.ads		20250808065140 ccded4e8 system.storage_elements%s
+D s-stopoo.ads		20250808065140 e9fa2dd8 system.storage_pools%s
+D s-stratt.ads		20250808065140 516607ae system.stream_attributes%s
+D s-traent.ads		20250808065140 c81cbf8c system.traceback_entries%s
+D s-unstyp.ads		20250808065140 fa2a7f59 system.unsigned_types%s
+D s-wchcon.ads		20250808065140 d9032363 system.wch_con%s
+D text_backend.ads	20260412181650 6d0030da text_backend%s
+D text_backend-rope_impl.ads  20260427194525 88d12c3a text_backend.rope_impl%s
+D text_buffer.ads	20260427153044 bb9a4056 text_buffer%s
+G a e
+G c Z s b [reset editor__view 9 14 none]
+G c Z s b [reset_scroll editor__view 11 14 none]
+G c Z s b [set_viewport editor__view 16 14 none]
+G c Z s b [viewport_width editor__view 20 13 none]
+G c Z s b [viewport_height editor__view 21 13 none]
+G c Z s b [current_time_seconds editor__view 26 13 none]
+G c Z s b [set_time_seconds editor__view 27 14 none]
+G c Z s b [caret_visible editor__view 28 13 none]
+G c Z s b [update_scroll_for_snapshot editor__view 33 14 none]
+G c Z s b [scroll_x editor__view 37 13 none]
+G c Z s b [scroll_y editor__view 38 13 none]
+G c Z s b [set_scroll editor__view 40 14 none]
+G c Z s b [auto_scroll_for_point editor__view 42 14 none]
+G c Z b b [caret_row_col editor__view 91 14 none]
+X 1 ada.ads
+18K9*Ada 22e8 31|3r6 3r26 4r6
+X 5 a-contai.ads
+16K13*Containers 28e19 31|3w10 3r30
+22I9*Count_Type<integer>
+X 7 a-convec.ads
+81I12*Extended_Index{integer}
+91R9*Vector<9|43R9>
+175V13*Length{5|22I9} 31|111s27[29|7] 238s33[29|7] 284s33[29|7] 285s56[29|7]
+206V13*Element{integer} 31|122s30[29|7] 124s38[29|7] 138s45[29|7] 240s45[29|7]
+. 243s47[29|7]
+560V13*First_Index{integer} 31|239s44[29|7]
+570V13*Last_Index{81I12[29|7]} 31|117s30[29|7] 123s39[29|7] 239s76[29|7]
+. 242s45[29|7]
+X 11 a-iteint.ads
+24h9 Forward_Iterator
+32h9 Reversible_Iterator<24R9[7|119]>
+X 23 a-textio.ads
+58K13*Text_IO 785e16 31|4w10
+X 25 editor.ads
+1K9*Editor 5e11 30|1r6 2r6 4r9 34r16 35r16 45r16 47r5 31|1r6 2r6 6r14 92r12
+. 150r16 151r16 318r16 357r5
+X 26 editor-cursors.ads
+5I12*Cursor_Index{natural}
+X 27 editor-layout.ads
+3K16*Layout 24e18 30|1w13 35r23 45r23 31|1w13 151r23 318r23
+5R9*Layout_Config 12e14 30|35r30 45r30 31|151r30 318r30
+6i7*Origin_X{natural} 31|320r49
+7i7*Origin_Y{natural} 31|321r49
+8i7*Cell_W{natural} 31|166r17 167r54 273r39
+9i7*Cell_H{natural} 31|170r17 171r54 289r42
+X 28 editor-render_model.ads
+8K16*Render_Model 62e24 30|2w13 34r23 31|2w13 92r19 150r23
+16A9*Natural_Array(natural)<integer>
+18A9*Caret_Pos_Array(26|5I12)<integer>
+24R9*Render_Snapshot 56e14 30|34r36 31|92r32 150r36
+28i7*Length{natural} 31|251r30 252r37
+30i7*Text_Base_Index{natural} 31|251r44 252r51
+35i7*Caret_Count{natural} 31|103r15 263r21
+36a7*Caret_Pos{18A9} 31|109r36
+37a7*Caret_Virtual_Column{16A9} 31|140r15 141r22 264r27 269r24
+39r7*Line_Starts{7|91R9[29|7]} 31|111r15 117r18 122r18 123r27 124r26 138r33
+. 238r21 239r32 239r64 240r33 242r33 243r35 284r21 285r44
+X 30 editor-view.ads
+4K16*View 25|1k9 30|47l12 47e16 31|6b21 357l12 357t16
+9U14*Reset 31|24b14 31l8 31t13
+11U14*Reset_Scroll 31|39b14 42l8 42t20
+16U14*Set_Viewport 17>7 18>7 31|47b14 53l8 53t20
+17i7 Width{natural} 31|48b6 51r29
+18i7 Height{natural} 31|49b6 52r29
+20V13*Viewport_Width{natural} 31|55b13 58l8 58t22
+21V13*Viewport_Height{natural} 31|60b13 63l8 63t23
+26V13*Current_Time_Seconds{duration} 31|70b13 73l8 73t28
+27U14*Set_Time_Seconds 27>32 31|75b14 78l8 78t24
+27o32 Now{duration} 31|75b32 77r23
+28V13*Caret_Visible{boolean} 31|80b13 83l8 83t21
+33U14*Update_Scroll_For_Snapshot 34>7 35>7 31|149b14 295l8 295t34
+34r7 Snap{28|24R9} 31|150b7 178r22 238r16 239r27 239r59 240r28 242r28 243r30
+. 251r25 251r39 252r32 252r46 263r16 264r22 269r19 284r16 285r39
+35r7 Layout{27|5R9} 31|151b7 166r10 167r47 170r10 171r47 273r32 289r35
+37V13*Scroll_X{natural} 31|301b13 304l8 304t16
+38V13*Scroll_Y{natural} 31|306b13 309l8 309t16
+40U14*Set_Scroll 40>26 40>29 31|33b14 37l8 37t18 41s7
+40i26 X{natural} 31|33b26 35r27
+40i29 Y{natural} 31|33b29 36r27
+42U14*Auto_Scroll_For_Point 43>7 44>7 45>7 31|315b14 355l8 355t29
+43i7 X{natural} 31|316b7 331r10 338r13
+44i7 Y{natural} 31|317b7 345r10 352r13
+45r7 Layout{27|5R9} 31|318b7 320r42 321r42
+X 31 editor-view.adb
+12i4 Current_Scroll_X{natural} 26m7 35m7 185r25 187m16 189m16 192r29 194m16
+. 231r10 275m16 303r14 332r13 333m13 333r33 335m13 339m10 339r30
+13i4 Current_Scroll_Y{natural} 27m7 36m7 208r28 209m16 211r32 212m16 217r28
+. 219m19 221m19 224r32 225m16 280r10 291m16 308r14 346r13 347m13 347r33 349m13
+. 353m10 353r30
+15i4 Current_Viewport_W{natural} 28m7 51m7 57r14 167r26 272r16 273r49 322r42
+16i4 Current_Viewport_H{natural} 29m7 52m7 62r14 171r26 288r16 289r52 323r42
+18o4 Current_Time{duration} 30m7 72r14 77m7 82r23
+91U14 Caret_Row_Col 91b14 92>5 93<7 94<7 143l8 143t21 178s7
+92r5 Snap{28|24R9} 103r10 109r31 111r10 117r13 122r13 123r22 124r21 138r28
+. 140r10 141r17
+93i7 Row{natural} 104m10 112m10 137m7
+94i7 Col{natural} 105m10 113m10 138m7 141m10
+96i7 Caret_Index{natural} 109m7 113r17 122r47 124r58 138r14
+98i7 Lo{natural} 119r13 120r18 130m13
+99i7 Hi{natural} 117m7 119r19 120r23 133m13
+100i7 Mid{natural} 120m10 122r39 123r16 124r47 126r25 130r19 132r23 133r19
+101i7 Found{natural} 126m16 137r14 138r54
+153i7 Caret_Row{natural} 178m28 208r16 209r36 211r19 212r36 217r16 218r19
+. 219r39 224r19 226r16
+154i7 Caret_Col{natural} 178m39 185r13 186r16 187r36 192r16 195r18
+156i7 Margin_Cols{natural} 185r44 186r28 187r48 192r63 193r31 195r46
+157i7 Margin_Rows{natural} 205r29 217r47 218r31 219r51 224r66 226r44
+159i7 Visible_Cols{natural} 167m10 184r10 192r48 193r16 195r31
+160i7 Visible_Rows{natural} 171m10 204r10 205r13 211r51 212r48 224r51 226r29
+233i13 Max_Col{natural} 258m19 258r43 266m16 268r20 273r22
+234i13 Start{natural} 240m19 245r32 246r39 251r63 252r69
+235i13 Next{natural} 243m22 245r25 246r32
+236i13 Len{natural} 246m25 248m25 252m25 254m25 258r52
+239i20 Row{integer} 240r54 242r22 243r56
+282i13 Total_Rows{natural} 285m16 289r22
+320i7 Left_Edge{natural} 331r14
+321i7 Top_Edge{natural} 345r14
+322i7 Right_Edge{natural} 338r18
+323i7 Bottom_Edge{natural} 352r18
+325i7 Scroll_Step_X{natural} 332r32 333r52 339r49
+326i7 Scroll_Step_Y{natural} 346r32 347r52 353r49
+X 32 interfac.ads
+68I9*Integer_64<long_long_integer>
+X 36 s-arit64.ads
+59I12*Int64{32|68I9}
+108V13*Multiply_With_Ovflo_Check64{59I12} 112i<c,__gnat_mulv64>22
+

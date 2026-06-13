@@ -1,0 +1,9 @@
+Pass1229 adds Editor.Ada_Representation_Generic_Shared_State_Final_Legality.
+
+This pass adds one compiler-grade building block for representation/freezing legality across generic replay and shared-state evidence.  It consumes final representation/freezing hard-case rows, representation/shared-state final rows, generic abstract-state replay, overload/generic shared-state final rows, volatile/atomic representation consumers, and stabilized shared-state closure.  Representation conclusions become accepted only when all required generic, overload, volatile/atomic, shared-state, closure, and fingerprint prerequisites agree.
+
+The pass classifies accepted rows for private/full-view freezing, generic formal freezing, generic instance representation, stream attributes, operational attributes, variant layouts, volatile/atomic record layouts, independent component layouts, protected/task object representation, and dispatching representation effects.  It preserves blockers for final representation evidence, representation/shared-state evidence, generic abstract-state replay, overload/generic shared-state evidence, volatile/atomic representation, stabilized shared-state closure, private-view freezing, generic formal freezing, stream/operational attribute effects, variant layout, independent components, task/protected representation, source fingerprint mismatches, substitution fingerprint mismatches, multiple blockers, and indeterminate states.
+
+AUnit coverage is added in Test_Ada_Representation_Generic_Shared_State_Final_Legality_Pass1229 and registered in tests/src/core_suite.adb.
+
+Full compiler-grade Ada analysis remains incomplete until the remaining Ada legality, overload/type resolution, generic, representation/freezing, accessibility/lifetime, flow, tasking/protected, parser/AST coverage, abstract/refined state, volatile/atomic/shared-state, and cross-unit semantic closure layers are fully integrated.

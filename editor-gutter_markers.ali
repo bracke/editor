@@ -1,0 +1,430 @@
+V "GNAT Lib v15"
+A -gnat2022
+P SS ZX
+
+RN
+RV NO_DISPATCHING_CALLS
+RV NO_ENUMERATION_MAPS
+RV NO_EXCEPTION_HANDLERS
+RV NO_EXCEPTION_PROPAGATION
+RV NO_EXCEPTIONS
+RV NO_IMPLICIT_CONDITIONALS
+RV NO_NESTED_FINALIZATION
+RV NO_SECONDARY_STACK
+RV NO_STANDARD_STORAGE_POOLS
+RV NO_DEFAULT_INITIALIZATION
+RV NO_DYNAMIC_SIZED_OBJECTS
+RV NO_IMPLICIT_LOOPS
+RV NO_ELABORATION_CODE
+
+U editor.gutter_markers%b  editor-gutter_markers.adb  a36a86cf NE OO PK
+Z ada.exceptions%s	a-except.adb		a-except.ali
+Z ada.strings.text_buffers%s  a-sttebu.adb	a-sttebu.ali
+Z ada.tags%s		a-tags.adb		a-tags.ali
+W editor%s		editor.ads		editor.ali
+Z system%s		system.ads		system.ali
+Z system.finalization_primitives%s  s-finpri.adb  s-finpri.ali
+Z system.secondary_stack%s  s-secsta.adb	s-secsta.ali
+Z system.soft_links%s	s-soflin.adb		s-soflin.ali
+
+U editor.gutter_markers%s  editor-gutter_markers.ads  b74f439f EE OO PF PK
+W ada%s			ada.ads			ada.ali
+W ada.containers%s	a-contai.ads		a-contai.ali
+Z ada.containers.generic_array_sort%s
+Z ada.containers.helpers%s  a-conhel.adb	a-conhel.ali
+W ada.containers.vectors%s
+Z ada.exceptions%s	a-except.adb		a-except.ali
+Z ada.finalization%s	a-finali.ads		a-finali.ali
+Z ada.iterator_interfaces%s
+Z ada.streams%s		a-stream.adb		a-stream.ali
+W ada.strings%s		a-string.ads		a-string.ali
+Z ada.strings.text_buffers%s  a-sttebu.adb	a-sttebu.ali
+Z ada.tags%s		a-tags.adb		a-tags.ali
+Z ada.unchecked_deallocation%s
+W editor%s		editor.ads		editor.ali
+Z system%s		system.ads		system.ali
+Z system.finalization_primitives%s  s-finpri.adb  s-finpri.ali
+Z system.put_images%s	s-putima.adb		s-putima.ali
+Z system.return_stack%s	s-retsta.ads		s-retsta.ali
+Z system.secondary_stack%s  s-secsta.adb	s-secsta.ali
+Z system.soft_links%s	s-soflin.adb		s-soflin.ali
+Z system.standard_library%s  s-stalib.adb	s-stalib.ali
+Z system.storage_elements%s  s-stoele.ads	s-stoele.ali
+Z system.storage_pools%s  s-stopoo.adb		s-stopoo.ali
+Z system.storage_pools.subpools%s  s-stposu.adb	s-stposu.ali
+Z system.stream_attributes%s  s-stratt.adb	s-stratt.ali
+Z system.wch_stw%s	s-wchstw.adb		s-wchstw.ali
+
+D ada.ads		20250808065140 76789da1 ada%s
+D a-contai.ads		20250808065140 61e5e089 ada.containers%s
+D a-cgarso.ads		20250808065140 9129bfa8 ada.containers.generic_array_sort%s
+D a-conhel.ads		20250808065140 46fe1ce3 ada.containers.helpers%s
+D a-conhel.adb		20250808065140 854d323e ada.containers.helpers%b
+D a-convec.ads		20250808065140 91fb49f3 ada.containers.vectors%s
+D a-convec.adb		20250808065140 b2ed0168 ada.containers.vectors%b
+D a-except.ads		20250808065140 e7970cd9 ada.exceptions%s
+D a-finali.ads		20250808065140 bf4f806b ada.finalization%s
+D a-iteint.ads		20250808065140 49a8bee2 ada.iterator_interfaces%s
+D a-stream.ads		20250808065140 17477cbd ada.streams%s
+D a-string.ads		20250808065140 90ac6797 ada.strings%s
+D a-sttebu.ads		20250808065140 f1ad67a2 ada.strings.text_buffers%s
+D a-stuten.ads		20250808065140 c6ced0ae ada.strings.utf_encoding%s
+D a-tags.ads		20250808065140 fbca0ad5 ada.tags%s
+D a-unccon.ads		20250808065140 0e9b276f ada.unchecked_conversion%s
+D a-uncdea.ads		20250808065140 c3a8ac65 ada.unchecked_deallocation%s
+D editor.ads		20260612145959 16f844c2 editor%s
+D editor-gutter_markers.ads  20260612145959 304c4eae editor.gutter_markers%s
+D editor-gutter_markers.adb  20260612145959 9326c861 editor.gutter_markers%b
+D interfac.ads		20250808065140 9111f9c1 interfaces%s
+D i-c.ads		20250808065140 e94c966a interfaces.c%s
+D system.ads		20250808065140 14286b0f system%s
+D s-atocou.ads		20250808065140 dc18efc3 system.atomic_counters%s
+D s-atocou.adb		20250808065140 6fe685de system.atomic_counters%b
+D s-atopri.ads		20250808065140 e19c1d89 system.atomic_primitives%s
+D s-exctab.ads		20250808065140 91bef6ef system.exception_table%s
+D s-finpri.ads		20250808065140 5970d55a system.finalization_primitives%s
+D s-finroo.ads		20250808065140 0a7c3ed4 system.finalization_root%s
+D s-memory.ads		20250808065140 18949c1a system.memory%s
+D s-oscons.ads		20250827122531 068e1a91 system.os_constants%s
+D s-oslock.ads		20250808065140 13fa6b78 system.os_locks%s
+D s-parame.ads		20250808065140 3597fc11 system.parameters%s
+D s-putima.ads		20250808065140 17291fe4 system.put_images%s
+D s-retsta.ads		20250808065140 0f6b06cb system.return_stack%s
+D s-secsta.ads		20250808065140 578279f5 system.secondary_stack%s
+D s-soflin.ads		20250808065140 5d88fdea system.soft_links%s
+D s-stache.ads		20250808065140 0b81c1fe system.stack_checking%s
+D s-stalib.ads		20250808065140 1c9580f6 system.standard_library%s
+D s-stalib.adb		20250808065140 eb464a47 system.standard_library%b
+D s-stoele.ads		20250808065140 ccded4e8 system.storage_elements%s
+D s-stopoo.ads		20250808065140 e9fa2dd8 system.storage_pools%s
+D s-stposu.ads		20250808065140 e0b9fefd system.storage_pools.subpools%s
+D s-stratt.ads		20250808065140 516607ae system.stream_attributes%s
+D s-traent.ads		20250808065140 c81cbf8c system.traceback_entries%s
+D s-unstyp.ads		20250808065140 fa2a7f59 system.unsigned_types%s
+D s-wchcon.ads		20250808065140 d9032363 system.wch_con%s
+D s-wchstw.ads		20250808065140 2d112c01 system.wch_stw%s
+G a e
+G c Z s b [clear editor__gutter_markers 32 14 none]
+G c Z s b [add_marker editor__gutter_markers 35 14 none]
+G c Z s b [remove_marker editor__gutter_markers 40 14 none]
+G c Z s b [toggle_bookmark editor__gutter_markers 45 14 none]
+G c Z s b [bookmark_count editor__gutter_markers 49 13 none]
+G c Z s b [has_bookmarks editor__gutter_markers 52 13 none]
+G c Z s b [first_bookmark editor__gutter_markers 55 13 none]
+G c Z s b [last_bookmark editor__gutter_markers 59 13 none]
+G c Z s b [next_bookmark_after editor__gutter_markers 63 13 none]
+G c Z s b [previous_bookmark_before editor__gutter_markers 69 13 none]
+G c Z s b [clear_bookmarks editor__gutter_markers 75 14 none]
+G c Z s b [prune_bookmarks_at_or_after editor__gutter_markers 78 14 none]
+G c Z s b [has_marker editor__gutter_markers 82 13 none]
+G c Z s b [action_for_marker editor__gutter_markers 87 13 none]
+G c Z s b [dominant_marker_for_row editor__gutter_markers 90 13 none]
+G c Z s s [Tmarker_bitsBIP editor__gutter_markers 97 4 none]
+G c Z s s [row_marker_stateIP editor__gutter_markers 99 9 none]
+G c Z s s [has_element editor__gutter_markers__row_marker_vectors 115 13 104_4]
+G c Z s s [empty editor__gutter_markers__row_marker_vectors 125 13 104_4]
+G c Z s s [Oeq editor__gutter_markers__row_marker_vectors 127 24 104_4]
+G c Z s s [to_vector editor__gutter_markers__row_marker_vectors 136 13 104_4]
+G c Z s s [to_vector editor__gutter_markers__row_marker_vectors 139 13 104_4]
+G c Z s s [Oconcat editor__gutter_markers__row_marker_vectors 145 13 104_4]
+G c Z s s [Oconcat editor__gutter_markers__row_marker_vectors 149 13 104_4]
+G c Z s s [Oconcat editor__gutter_markers__row_marker_vectors 153 13 104_4]
+G c Z s s [Oconcat editor__gutter_markers__row_marker_vectors 157 13 104_4]
+G c Z s s [capacity editor__gutter_markers__row_marker_vectors 161 13 104_4]
+G c Z s s [reserve_capacity editor__gutter_markers__row_marker_vectors 164 14 104_4]
+G c Z s s [length editor__gutter_markers__row_marker_vectors 175 13 104_4]
+G c Z s s [set_length editor__gutter_markers__row_marker_vectors 178 14 104_4]
+G c Z s s [is_empty editor__gutter_markers__row_marker_vectors 187 13 104_4]
+G c Z s s [clear editor__gutter_markers__row_marker_vectors 190 14 104_4]
+G c Z s s [to_cursor editor__gutter_markers__row_marker_vectors 194 13 104_4]
+G c Z s s [to_index editor__gutter_markers__row_marker_vectors 201 13 104_4]
+G c Z s s [element editor__gutter_markers__row_marker_vectors 206 13 104_4]
+G c Z s s [element editor__gutter_markers__row_marker_vectors 213 13 104_4]
+G c Z s s [replace_element editor__gutter_markers__row_marker_vectors 217 14 104_4]
+G c Z s s [replace_element editor__gutter_markers__row_marker_vectors 228 14 104_4]
+G c Z s s [query_element editor__gutter_markers__row_marker_vectors 239 14 104_4]
+G c Z s s [query_element editor__gutter_markers__row_marker_vectors 250 14 104_4]
+G c Z s s [update_element editor__gutter_markers__row_marker_vectors 259 14 104_4]
+G c Z s s [update_element editor__gutter_markers__row_marker_vectors 276 14 104_4]
+G c Z s s [constant_reference editor__gutter_markers__row_marker_vectors 303 13 104_4]
+G c Z s s [reference editor__gutter_markers__row_marker_vectors 308 13 104_4]
+G c Z s s [constant_reference editor__gutter_markers__row_marker_vectors 313 13 104_4]
+G c Z s s [reference editor__gutter_markers__row_marker_vectors 318 13 104_4]
+G c Z s s [assign editor__gutter_markers__row_marker_vectors 323 14 104_4]
+G c Z s s [copy editor__gutter_markers__row_marker_vectors 325 13 104_4]
+G c Z s s [move editor__gutter_markers__row_marker_vectors 327 14 104_4]
+G c Z s s [new_vector editor__gutter_markers__row_marker_vectors 333 13 104_4]
+G c Z s s [insert_vector editor__gutter_markers__row_marker_vectors 337 14 104_4]
+G c Z s s [insert_vector editor__gutter_markers__row_marker_vectors 361 14 104_4]
+G c Z s s [insert_vector editor__gutter_markers__row_marker_vectors 378 14 104_4]
+G c Z s s [insert editor__gutter_markers__row_marker_vectors 396 14 104_4]
+G c Z s s [insert editor__gutter_markers__row_marker_vectors 404 14 104_4]
+G c Z s s [insert editor__gutter_markers__row_marker_vectors 412 14 104_4]
+G c Z s s [insert editor__gutter_markers__row_marker_vectors 421 14 104_4]
+G c Z s s [insert editor__gutter_markers__row_marker_vectors 438 14 104_4]
+G c Z s s [prepend_vector editor__gutter_markers__row_marker_vectors 449 14 104_4]
+G c Z s s [prepend editor__gutter_markers__row_marker_vectors 459 14 104_4]
+G c Z s s [append_vector editor__gutter_markers__row_marker_vectors 466 14 104_4]
+G c Z s s [append editor__gutter_markers__row_marker_vectors 476 14 104_4]
+G c Z s s [append editor__gutter_markers__row_marker_vectors 483 14 104_4]
+G c Z s s [insert_space editor__gutter_markers__row_marker_vectors 486 14 104_4]
+G c Z s s [insert_space editor__gutter_markers__row_marker_vectors 503 14 104_4]
+G c Z s s [delete editor__gutter_markers__row_marker_vectors 514 14 104_4]
+G c Z s s [delete editor__gutter_markers__row_marker_vectors 524 14 104_4]
+G c Z s s [delete_first editor__gutter_markers__row_marker_vectors 533 14 104_4]
+G c Z s s [delete_last editor__gutter_markers__row_marker_vectors 538 14 104_4]
+G c Z s s [reverse_elements editor__gutter_markers__row_marker_vectors 546 14 104_4]
+G c Z s s [swap editor__gutter_markers__row_marker_vectors 549 14 104_4]
+G c Z s s [swap editor__gutter_markers__row_marker_vectors 554 14 104_4]
+G c Z s s [first_index editor__gutter_markers__row_marker_vectors 560 13 104_4]
+G c Z s s [first editor__gutter_markers__row_marker_vectors 563 13 104_4]
+G c Z s s [first_element editor__gutter_markers__row_marker_vectors 567 13 104_4]
+G c Z s s [last_index editor__gutter_markers__row_marker_vectors 570 13 104_4]
+G c Z s s [last editor__gutter_markers__row_marker_vectors 574 13 104_4]
+G c Z s s [last_element editor__gutter_markers__row_marker_vectors 578 13 104_4]
+G c Z s s [next editor__gutter_markers__row_marker_vectors 581 13 104_4]
+G c Z s s [next editor__gutter_markers__row_marker_vectors 587 14 104_4]
+G c Z s s [previous editor__gutter_markers__row_marker_vectors 590 13 104_4]
+G c Z s s [previous editor__gutter_markers__row_marker_vectors 596 14 104_4]
+G c Z s s [find_index editor__gutter_markers__row_marker_vectors 599 13 104_4]
+G c Z s s [find editor__gutter_markers__row_marker_vectors 609 13 104_4]
+G c Z s s [reverse_find_index editor__gutter_markers__row_marker_vectors 623 13 104_4]
+G c Z s s [reverse_find editor__gutter_markers__row_marker_vectors 635 13 104_4]
+G c Z s s [contains editor__gutter_markers__row_marker_vectors 649 13 104_4]
+G c Z s s [iterate editor__gutter_markers__row_marker_vectors 654 14 104_4]
+G c Z s s [reverse_iterate editor__gutter_markers__row_marker_vectors 662 14 104_4]
+G c Z s s [iterate editor__gutter_markers__row_marker_vectors 669 13 104_4]
+G c Z s s [iterate editor__gutter_markers__row_marker_vectors 672 13 104_4]
+G c Z s s [adjust editor__gutter_markers__row_marker_vectors__implementation 90 28 726_4_104_4]
+G c Z s s [finalize editor__gutter_markers__row_marker_vectors__implementation 93 28 726_4_104_4]
+G c Z s s [zero_counts editor__gutter_markers__row_marker_vectors__implementation 96 17 726_4_104_4]
+G c Z s s [busy editor__gutter_markers__row_marker_vectors__implementation 100 17 726_4_104_4]
+G c Z s s [unbusy editor__gutter_markers__row_marker_vectors__implementation 104 17 726_4_104_4]
+G c Z s s [lock editor__gutter_markers__row_marker_vectors__implementation 108 17 726_4_104_4]
+G c Z s s [unlock editor__gutter_markers__row_marker_vectors__implementation 112 17 726_4_104_4]
+G c Z s s [tc_check editor__gutter_markers__row_marker_vectors__implementation 116 17 726_4_104_4]
+G c Z s s [te_check editor__gutter_markers__row_marker_vectors__implementation 120 17 726_4_104_4]
+G c Z s s [is_busy editor__gutter_markers__row_marker_vectors__implementation 136 16 726_4_104_4]
+G c Z s s [is_locked editor__gutter_markers__row_marker_vectors__implementation 140 16 726_4_104_4]
+G c Z s s [initialize editor__gutter_markers__row_marker_vectors__implementation 161 28 726_4_104_4]
+G c Z s s [finalize editor__gutter_markers__row_marker_vectors__implementation 162 28 726_4_104_4]
+G c Z s s [initialize editor__gutter_markers__row_marker_vectors__implementation 167 28 726_4_104_4]
+G c Z s s [finalize editor__gutter_markers__row_marker_vectors__implementation 168 28 726_4_104_4]
+G c Z s s [reference_control_typeDA editor__gutter_markers__row_marker_vectors__implementation 84 12 726_4_104_4]
+G c Z s s [reference_control_typeDF editor__gutter_markers__row_marker_vectors__implementation 84 12 726_4_104_4]
+G c Z s s [reference_control_typeIP editor__gutter_markers__row_marker_vectors__implementation 84 12 726_4_104_4]
+G c Z s s [with_busyDF editor__gutter_markers__row_marker_vectors__implementation 158 12 726_4_104_4]
+G c Z s s [with_busyIP editor__gutter_markers__row_marker_vectors__implementation 158 12 726_4_104_4]
+G c Z s s [with_lockDF editor__gutter_markers__row_marker_vectors__implementation 164 12 726_4_104_4]
+G c Z s s [with_lockIP editor__gutter_markers__row_marker_vectors__implementation 164 12 726_4_104_4]
+G c Z s s [put_image editor__gutter_markers__row_marker_vectors 747 14 104_4]
+G c Z s s [adjust editor__gutter_markers__row_marker_vectors 750 25 104_4]
+G c Z s s [finalize editor__gutter_markers__row_marker_vectors 751 25 104_4]
+G c Z s s [write editor__gutter_markers__row_marker_vectors 753 14 104_4]
+G c Z s s [read editor__gutter_markers__row_marker_vectors 759 14 104_4]
+G c Z s s [read editor__gutter_markers__row_marker_vectors 773 14 104_4]
+G c Z s s [write editor__gutter_markers__row_marker_vectors 779 14 104_4]
+G c Z s s [write editor__gutter_markers__row_marker_vectors 798 14 104_4]
+G c Z s s [read editor__gutter_markers__row_marker_vectors 804 14 104_4]
+G c Z s s [write editor__gutter_markers__row_marker_vectors 820 14 104_4]
+G c Z s s [read editor__gutter_markers__row_marker_vectors 826 14 104_4]
+G c Z s s [pseudo_reference editor__gutter_markers__row_marker_vectors 840 13 104_4]
+G c Z s s [get_element_access editor__gutter_markers__row_marker_vectors 849 13 104_4]
+G c Z s s [cursorIP editor__gutter_markers__row_marker_vectors 768 9 104_4]
+G c Z s s [vectorDA editor__gutter_markers__row_marker_vectors 741 9 104_4]
+G c Z s s [vectorDF editor__gutter_markers__row_marker_vectors 741 9 104_4]
+G c Z s s [vectorIP editor__gutter_markers__row_marker_vectors 741 9 104_4]
+G c Z s s [finalize editor__gutter_markers__row_marker_vectors 865 25 104_4]
+G c Z s s [first editor__gutter_markers__row_marker_vectors 867 24 104_4]
+G c Z s s [last editor__gutter_markers__row_marker_vectors 868 24 104_4]
+G c Z s s [next editor__gutter_markers__row_marker_vectors 870 24 104_4]
+G c Z s s [previous editor__gutter_markers__row_marker_vectors 874 24 104_4]
+G c Z s s [constant_reference_typeDI editor__gutter_markers__row_marker_vectors 788 9 104_4]
+G c Z s s [constant_reference_typeDA editor__gutter_markers__row_marker_vectors 788 9 104_4]
+G c Z s s [constant_reference_typeDF editor__gutter_markers__row_marker_vectors 788 9 104_4]
+G c Z s s [constant_reference_typeIP editor__gutter_markers__row_marker_vectors 788 9 104_4]
+G c Z s s [reference_typeDI editor__gutter_markers__row_marker_vectors 810 9 104_4]
+G c Z s s [reference_typeDA editor__gutter_markers__row_marker_vectors 810 9 104_4]
+G c Z s s [reference_typeDF editor__gutter_markers__row_marker_vectors 810 9 104_4]
+G c Z s s [reference_typeIP editor__gutter_markers__row_marker_vectors 810 9 104_4]
+G c Z s s [elements_arrayIP editor__gutter_markers__row_marker_vectors 729 9 104_4]
+G c Z s s [elements_typeIP editor__gutter_markers__row_marker_vectors 732 9 104_4]
+G c Z s s [iteratorDF editor__gutter_markers__row_marker_vectors 857 9 104_4]
+G c Z s s [iteratorIP editor__gutter_markers__row_marker_vectors 857 9 104_4]
+G c Z s s [free editor__gutter_markers__row_marker_vectors 44 14 104_4]
+G c Z s s [append_slow_path editor__gutter_markers__row_marker_vectors 47 14 104_4]
+G c Z s s [gutter_markerIP editor__gutter_markers 13 9 none]
+G c Z s s [gutter_marker_hover_stateIP editor__gutter_markers 24 9 none]
+G c Z s s [gutter_marker_stateDI editor__gutter_markers 108 9 none]
+G c Z s s [gutter_marker_stateDA editor__gutter_markers 108 9 none]
+G c Z s s [gutter_marker_stateDF editor__gutter_markers 108 9 none]
+G c Z s s [gutter_marker_stateIP editor__gutter_markers 108 9 none]
+G c Z b b [priority editor__gutter_markers 3 13 none]
+G c Z b b [find_row_index editor__gutter_markers 23 13 none]
+X 1 ada.ads
+18K9*Ada 22e8 19|1r6 104r38
+X 2 a-contai.ads
+16K13*Containers 28e19 19|1r10 104r42
+X 6 a-convec.ads
+62I9 Index_Type 19|105r7
+63+9 Element_Type 19|106r7
+74k24*Vectors 878e27 19|1w21 104r53
+81I12*Extended_Index{integer}
+91R9*Vector<9|43R9> 19|109r33[104]
+187V13*Is_Empty{boolean} 20|29s21[19|104] 125s21[19|104] 152s21[19|104] 177s21[19|104]
+. 206s21[19|104] 238s21[19|104] 268s21[19|104] 289s27[19|104] 305s21[19|104]
+. 330s30[19|104]
+190U14*Clear 20|49s18[19|104]
+206V13*Element{19|99R9} 20|35s24[19|104] 64s29[19|104] 91s26[19|104] 274s29[19|104]
+. 311s29[19|104] 349s40[19|104] 389s26[19|104]
+217U14*Replace_Element 20|66s21[19|104] 101s21[19|104] 285s24[19|104] 326s27[19|104]
+483U14*Append 20|71s21[19|104]
+514U14*Delete 20|103s21[19|104] 288s24[19|104] 329s27[19|104]
+560V13*First_Index{integer} 20|34s31[19|104] 272s27[19|104] 309s27[19|104]
+570V13*Last_Index{81I12[19|104]} 20|34s57[19|104] 273s33[19|104] 310s33[19|104]
+X 10 a-iteint.ads
+24h9 Forward_Iterator
+32h9 Reversible_Iterator<24R9[6|119]>
+X 18 editor.ads
+1K9*Editor 5e11 19|3r9 112r5 20|1r14 404r5
+X 19 editor-gutter_markers.ads
+3K16*Gutter_Markers 18|1k9 19|97E9 112l12 112e26 20|1b21 404l12 404t26
+5E9*Gutter_Marker_Kind 11e25 15r14 27r16 38r15 43r15 85r15 88r14 93r35 97r31
+. 20|4r14 55r15 78r15 94r28 278r22 319r25 343r15 353r14 374r35 379r23 391r19
+6n7*Diagnostic_Error_Marker{5E9} 20|8r15 357r15
+7n7*Diagnostic_Warning_Marker{5E9} 20|10r15 358r15
+8n7*Bookmark_Marker{5E9} 20|12r15 112r34 113r37 115r34 130r27 157r27 182r27
+. 211r27 243r27 275r24 314r35 316r27 366r15
+9n7*Added_Line_Marker{5E9} 20|14r15 361r15
+10n7*Modified_Line_Marker{5E9} 20|16r15 362r15
+11n7*Dirty_Line_Marker{5E9} 27r38 20|18r15 363r15 379r45 386r17
+13R9*Gutter_Marker 16e14
+14i7*Row{natural}
+15e7*Kind{5E9}
+18E9*Gutter_Marker_Action 22e37 88r41 20|353r41
+19n7*No_Marker_Action{18E9}
+20n7*Toggle_Bookmark_Action{18E9} 20|367r20
+21n7*Select_Diagnostic_Action{18E9} 20|359r20
+22n7*Acknowledge_Dirty_Line_Action{18E9} 20|364r20
+24R9*Gutter_Marker_Hover_State 28e14
+25b7*Active{boolean}
+26i7*Row{natural}
+27e7*Kind{5E9}
+30R9*Gutter_Marker_State 33r22 36r22 41r22 46r22 50r15 53r15 56r15 60r15
+. 64r15 70r15 76r22 79r34 83r15 91r15 108c9 110e14 20|24r15 46r22 53r22 76r22
+. 108r22 121r15 139r15 146r15 171r15 198r15 230r15 262r22 298r34 341r15 372r15
+32U14*Clear 33=7 20|45b14 50l8 50t13
+33r7 State{30R9} 20|46b7 49m7 49r7
+35U14*Add_Marker 36=7 37>7 38>7 20|52b14 73l8 73t18 115s10
+36r7 State{30R9} 20|53b7 61r32 64r18 66m10 66r10 71m10 71r10
+37i7 Row{natural} 20|54b7 61r39 68r22
+38e7 Kind{5E9} 20|55b7 65r24 70r24
+40U14*Remove_Marker 41=7 42>7 43>7 20|75b14 105l8 105t21 113s10
+41r7 State{30R9} 20|76b7 85r32 91r15 101m10 101r10 103m10 103r10
+42i7 Row{natural} 20|77b7 85r39
+43e7 Kind{5E9} 20|78b7 92r21
+45U14*Toggle_Bookmark 46=7 47>7 20|107b14 117l8 117t23
+46r7 State{30R9} 20|108b7 112r22 113m25 115m22
+47i7 Row{natural} 20|109b7 112r29 113r32 115r29
+49V13*Bookmark_Count{natural} 50>7 20|120b13 136l8 136t22 142s14
+50r7 State{30R9} 20|121b7 125r10 129r19
+52V13*Has_Bookmarks{boolean} 53>7 20|138b13 143l8 143t21
+53r7 State{30R9} 20|139b7 142r30
+55V13*First_Bookmark{natural} 56>7 57<7 20|145b13 168l8 168t22 223s17
+56r7 State{30R9} 20|146b7 152r10 156r19
+57b7 Found{boolean} 20|147b7 151m7 159m13 163r10
+59V13*Last_Bookmark{natural} 60>7 61<7 20|170b13 195l8 195t21 255s17
+60r7 State{30R9} 20|171b7 177r10 181r19
+61b7 Found{boolean} 20|172b7 176m7 183r26 186m13 190r10
+63V13*Next_Bookmark_After{natural} 64>7 65>7 66>7 67<7 20|197b13 227l8 227t27
+64r7 State{30R9} 20|198b7 206r10 210r19 223r33
+65i7 Row{natural} 20|199b7 212r32
+66b7 Wrap{boolean} 20|200b7 222r13
+67b7 Found{boolean} 20|201b7 205m7 216m13 220r10 223m40 223r40
+69V13*Previous_Bookmark_Before{natural} 70>7 71>7 72>7 73<7 20|229b13 259l8
+. 259t32
+70r7 State{30R9} 20|230b7 238r10 242r19 255r32
+71i7 Row{natural} 20|231b7 244r32
+72b7 Wrap{boolean} 20|232b7 254r13
+73b7 Found{boolean} 20|233b7 237m7 245r26 248m13 252r10 255m39 255r39
+75U14*Clear_Bookmarks 76=7 20|261b14 294l8 294t23
+76r7 State{30R9} 20|262b7 268r10 272r16 273r22 274r18 285m13 285r13 288m13
+. 288r13 289r16
+78U14*Prune_Bookmarks_At_Or_After 79=7 80>7 20|297b14 338l8 338t35
+79r7 State{30R9} 20|298b7 305r10 309r16 310r22 311r18 326m16 326r16 329m16
+. 329r16 330r19
+80i7 First_Invalid_Row{natural} 20|299b7 313r25
+82V13*Has_Marker{boolean} 83>7 84>7 85>7 20|112s10 340b13 350l8 350t18
+83r7 State{30R9} 20|341b7 348r32 349r29
+84i7 Row{natural} 20|342b7 348r39
+85e7 Kind{5E9} 20|343b7 349r65
+87V13*Action_For_Marker{18E9} 88>7 20|352b13 369l8 369t25
+88e7 Kind{5E9} 20|353b7 356r12
+90V13*Dominant_Marker_For_Row{5E9} 91>7 92>7 93<7 20|371b13 402l8 402t31
+91r7 State{30R9} 20|372b7 383r32 389r15
+92i7 Row{natural} 20|373b7 383r39
+93b7 Found{boolean} 20|374b7 382m7 397m13
+97A9 Marker_Bits(boolean)<5E9> 101r17
+99R9 Row_Marker_State 102e14 106r23 20|59r15 82r21 265r21 302r21 378r23
+100i7*Row{natural} 20|35r40 68m15 157r58 158r26 183r45 185r26 212r26 213r26
+. 215r26 244r26 245r45 247r26 313r18
+101a7*Markers{97A9} 20|65m15 69m15 70m15 92m12 95r18 130r18 157r18 182r18
+. 211r18 243r18 275m15 279r21 314r26 316m18 320r24 349r56 392r18
+104K12 Row_Marker_Vectors[6|74] 109r14
+109r7*Rows{6|91R9[104]} 20|29r16 34r26 34r52 35r19 49m13 64r24 66m16 71m16
+. 91r21 101m16 103m16 125r16 129r25 152r16 156r25 177r16 181r25 206r16 210r25
+. 238r16 242r25 268r16 272r22 273r28 274r24 285m19 288m19 289r22 305r16 309r22
+. 310r28 311r24 326m22 329m22 330r25 349r35 389r21
+X 20 editor-gutter_markers.adb
+3V13 Priority{natural} 3b13 4>7 21l8 21t16 393s21 396s30
+4e7 Kind{19|5E9} 7r12
+23V13 Find_Row_Index{natural} 23b13 24>7 25>7 26<7 43l8 43t22 61s16 85s16
+. 348s16 383s16
+24r7 State{19|30R9} 29r10 34r20 34r46 35r13
+25i7 Row{natural} 35r46
+26b7 Found{boolean} 30m10 36m13 41m7
+34i11 Index{integer} 35r33 37r20
+57b7 Found{boolean} 61m44 61r44 63r10
+58i7 Index{natural} 61m7 64r38 66r38
+59r7 Item{19|99R9} 64m10 65m10 66r45 68m10 69m10 70m10 71r29
+80b7 Found{boolean} 85m44 85r44 87r14
+81i7 Index{natural} 85m7 91r35 101r38 103r29
+82r7 Item{19|99R9} 91m7 92m7 95r13 101r45
+83b7 Any_Remains{boolean} 96m13 100r10
+94e11 Existing_Kind{19|5E9} 95r27
+123i7 Count{natural} 131m13 131r22 135r14
+129r11 Item{19|99R9} 130r13
+149i7 Best{natural} 157r64 158m13 164r17
+156r11 Item{19|99R9} 157r13 157r53 158r21
+174i7 Best{natural} 183r51 185m13 191r17
+181r11 Item{19|99R9} 182r13 183r40 185r21
+203i7 Best{natural} 213r32 215m13 221r17
+210r11 Item{19|99R9} 211r13 212r21 213r21 215r21
+235i7 Best{natural} 245r51 247m13 253r17
+242r11 Item{19|99R9} 243r13 244r21 245r40 247r21
+264i7 Index{natural} 272m7 273r13 274r38 285r41 286m13 286r22 288r32
+265r7 Item{19|99R9} 274m10 275m10 279r16 285r48
+266b7 Any_Remains{boolean} 276m10 280m16 284r13
+278e14 Kind{19|5E9} 279r30
+301i7 Index{natural} 309m7 310r13 311r38 326r44 327m16 327r25 329r35 335m13
+. 335r22
+302r7 Item{19|99R9} 311m10 313r13 314r21 316m13 320r19 326r51
+303b7 Any_Remains{boolean} 317m13 321m19 325r16
+319e17 Kind{19|5E9} 320r33
+345b7 Found{boolean} 348m44 348r44 349r14
+346i7 Index{natural} 348m7 349r49
+376b7 Row_Found{boolean} 383m44 383r44 385r14
+377i7 Index{natural} 383m7 389r35
+378r7 Item{19|99R9} 389m7 392r13
+379e7 Best_Kind{19|5E9} 395m13 401r14
+380i7 Best_Priority{natural} 393r39 396m13
+391e11 Kind{19|5E9} 392r27 393r31 395r30 396r40
+X 23 system.ads
+67M9*Address
+X 30 s-memory.ads
+51V13*Alloc{23|67M9} 101i<c,__gnat_malloc>22
+66U14*Free 102i<c,__gnat_free>22
+74V13*Realloc{23|67M9} 103i<c,__gnat_realloc>22
+X 40 s-stalib.adb
+87U14 Break_Start 88i<c,__gnat_break_start>22
+

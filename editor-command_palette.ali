@@ -1,0 +1,1464 @@
+V "GNAT Lib v15"
+A -gnat2022
+P SS ZX
+
+RN
+RV NO_DISPATCHING_CALLS
+RV NO_ENUMERATION_MAPS
+RV NO_EXCEPTION_HANDLERS
+RV NO_EXCEPTION_PROPAGATION
+RV NO_EXCEPTIONS
+RV NO_IMPLICIT_CONDITIONALS
+RV NO_NESTED_FINALIZATION
+RV NO_SECONDARY_STACK
+RV NO_STANDARD_STORAGE_POOLS
+RV NO_DEFAULT_INITIALIZATION
+RV NO_DYNAMIC_SIZED_OBJECTS
+RV NO_IMPLEMENTATION_PRAGMAS
+RV NO_IMPLICIT_LOOPS
+RV NO_ELABORATION_CODE
+
+U editor.command_palette%b  editor-command_palette.adb  43565506 OO PK
+W ada%s			ada.ads			ada.ali
+W ada.characters%s	a-charac.ads		a-charac.ali
+W ada.characters.handling%s  a-chahan.adb	a-chahan.ali
+W ada.containers%s	a-contai.ads		a-contai.ali
+Z ada.exceptions%s	a-except.adb		a-except.ali
+W ada.strings%s		a-string.ads		a-string.ali
+W ada.strings.fixed%s	a-strfix.adb		a-strfix.ali
+Z ada.strings.text_buffers%s  a-sttebu.adb	a-sttebu.ali
+W ada.strings.unbounded%s  a-strunb.adb		a-strunb.ali
+Z ada.tags%s		a-tags.adb		a-tags.ali
+W editor%s		editor.ads		editor.ali
+W editor.contextual_help%s  editor-contextual_help.adb  editor-contextual_help.ali
+W editor.input_field%s	editor-input_field.adb	editor-input_field.ali
+W editor.keybindings%s	editor-keybindings.adb	editor-keybindings.ali
+Z system%s		system.ads		system.ali
+Z system.concat_2%s	s-conca2.adb		s-conca2.ali
+Z system.concat_3%s	s-conca3.adb		s-conca3.ali
+Z system.finalization_primitives%s  s-finpri.adb  s-finpri.ali
+Z system.return_stack%s	s-retsta.ads		s-retsta.ali
+Z system.secondary_stack%s  s-secsta.adb	s-secsta.ali
+Z system.soft_links%s	s-soflin.adb		s-soflin.ali
+Z system.standard_library%s  s-stalib.adb	s-stalib.ali
+
+U editor.command_palette%s  editor-command_palette.ads  5a553889 EE OO PF PK
+W ada%s			ada.ads			ada.ali
+W ada.containers%s	a-contai.ads		a-contai.ali
+Z ada.containers.generic_array_sort%s
+Z ada.containers.helpers%s  a-conhel.adb	a-conhel.ali
+W ada.containers.vectors%s
+Z ada.exceptions%s	a-except.adb		a-except.ali
+Z ada.finalization%s	a-finali.ads		a-finali.ali
+Z ada.iterator_interfaces%s
+Z ada.streams%s		a-stream.adb		a-stream.ali
+W ada.strings%s		a-string.ads		a-string.ali
+Z ada.strings.text_buffers%s  a-sttebu.adb	a-sttebu.ali
+W ada.strings.unbounded%s  a-strunb.adb		a-strunb.ali
+Z ada.tags%s		a-tags.adb		a-tags.ali
+Z ada.unchecked_deallocation%s
+W editor%s		editor.ads		editor.ali
+W editor.commands%s	editor-commands.adb	editor-commands.ali
+W editor.input_field%s	editor-input_field.adb	editor-input_field.ali
+Z system%s		system.ads		system.ali
+Z system.finalization_primitives%s  s-finpri.adb  s-finpri.ali
+Z system.pool_global%s	s-pooglo.adb		s-pooglo.ali
+Z system.put_images%s	s-putima.adb		s-putima.ali
+Z system.return_stack%s	s-retsta.ads		s-retsta.ali
+Z system.secondary_stack%s  s-secsta.adb	s-secsta.ali
+Z system.soft_links%s	s-soflin.adb		s-soflin.ali
+Z system.standard_library%s  s-stalib.adb	s-stalib.ali
+Z system.storage_elements%s  s-stoele.ads	s-stoele.ali
+Z system.storage_pools%s  s-stopoo.adb		s-stopoo.ali
+Z system.storage_pools.subpools%s  s-stposu.adb	s-stposu.ali
+Z system.stream_attributes%s  s-stratt.adb	s-stratt.ali
+Z system.strings.stream_ops%s  s-ststop.adb	s-ststop.ali
+Z system.wch_stw%s	s-wchstw.adb		s-wchstw.ali
+
+D ada.ads		20250808065140 76789da1 ada%s
+D a-charac.ads		20250808065140 2d3ec45b ada.characters%s
+D a-chahan.ads		20250808065140 bf752ff6 ada.characters.handling%s
+D a-chlat1.ads		20250808065140 e0d72e76 ada.characters.latin_1%s
+D a-contai.ads		20250808065140 61e5e089 ada.containers%s
+D a-cgarso.ads		20250808065140 9129bfa8 ada.containers.generic_array_sort%s
+D a-conhel.ads		20250808065140 46fe1ce3 ada.containers.helpers%s
+D a-conhel.adb		20250808065140 854d323e ada.containers.helpers%b
+D a-convec.ads		20250808065140 91fb49f3 ada.containers.vectors%s
+D a-convec.adb		20250808065140 b2ed0168 ada.containers.vectors%b
+D a-except.ads		20250808065140 e7970cd9 ada.exceptions%s
+D a-finali.ads		20250808065140 bf4f806b ada.finalization%s
+D a-iteint.ads		20250808065140 49a8bee2 ada.iterator_interfaces%s
+D a-stream.ads		20250808065140 17477cbd ada.streams%s
+D a-string.ads		20250808065140 90ac6797 ada.strings%s
+D a-strfix.ads		20250808065140 8648dedb ada.strings.fixed%s
+D a-strmap.ads		20250808065140 1f91ebb6 ada.strings.maps%s
+D a-strsea.ads		20250808065140 18c3c634 ada.strings.search%s
+D a-sttebu.ads		20250808065140 f1ad67a2 ada.strings.text_buffers%s
+D a-strunb.ads		20250808065140 b10770ab ada.strings.unbounded%s
+D a-stuten.ads		20250808065140 c6ced0ae ada.strings.utf_encoding%s
+D a-tags.ads		20250808065140 fbca0ad5 ada.tags%s
+D a-unccon.ads		20250808065140 0e9b276f ada.unchecked_conversion%s
+D a-uncdea.ads		20250808065140 c3a8ac65 ada.unchecked_deallocation%s
+D editor.ads		20260612145959 16f844c2 editor%s
+D editor-command_palette.ads  20260612145959 53bf4057 editor.command_palette%s
+D editor-command_palette.adb  20260612160626 2b842f14 editor.command_palette%b
+D editor-commands.ads	20260612173240 3b5e3f44 editor.commands%s
+D editor-contextual_help.ads  20260612145959 f0559507 editor.contextual_help%s
+D editor-cursors.ads	20260612145959 1f938cf3 editor.cursors%s
+D editor-feature_panel.ads  20260612145959 0bdf4cfc editor.feature_panel%s
+D editor-input_field.ads  20260612145959 04b03a00 editor.input_field%s
+D editor-keybindings.ads  20260612145959 2657f44d editor.keybindings%s
+D editor-unicode.ads	20260612145959 552ff3cc editor.unicode%s
+D interfac.ads		20250808065140 9111f9c1 interfaces%s
+D i-c.ads		20250808065140 e94c966a interfaces.c%s
+D system.ads		20250808065140 14286b0f system%s
+D s-atocou.ads		20250808065140 dc18efc3 system.atomic_counters%s
+D s-atocou.adb		20250808065140 6fe685de system.atomic_counters%b
+D s-atopri.ads		20250808065140 e19c1d89 system.atomic_primitives%s
+D s-conca2.ads		20250808065140 b5fb73f7 system.concat_2%s
+D s-conca3.ads		20250808065140 8a7a19a2 system.concat_3%s
+D s-exctab.ads		20250808065140 91bef6ef system.exception_table%s
+D s-finpri.ads		20250808065140 5970d55a system.finalization_primitives%s
+D s-finroo.ads		20250808065140 0a7c3ed4 system.finalization_root%s
+D s-memory.ads		20250808065140 18949c1a system.memory%s
+D s-oscons.ads		20250827122531 068e1a91 system.os_constants%s
+D s-oslock.ads		20250808065140 13fa6b78 system.os_locks%s
+D s-parame.ads		20250808065140 3597fc11 system.parameters%s
+D s-pooglo.ads		20250808065140 91708d21 system.pool_global%s
+D s-putima.ads		20250808065140 17291fe4 system.put_images%s
+D s-retsta.ads		20250808065140 0f6b06cb system.return_stack%s
+D s-secsta.ads		20250808065140 578279f5 system.secondary_stack%s
+D s-soflin.ads		20250808065140 5d88fdea system.soft_links%s
+D s-stache.ads		20250808065140 0b81c1fe system.stack_checking%s
+D s-stalib.ads		20250808065140 1c9580f6 system.standard_library%s
+D s-stalib.adb		20250808065140 eb464a47 system.standard_library%b
+D s-stoele.ads		20250808065140 ccded4e8 system.storage_elements%s
+D s-stopoo.ads		20250808065140 e9fa2dd8 system.storage_pools%s
+D s-stposu.ads		20250808065140 e0b9fefd system.storage_pools.subpools%s
+D s-stratt.ads		20250808065140 516607ae system.stream_attributes%s
+D s-string.ads		20250808065140 582aac7d system.strings%s
+D s-ststop.ads		20250808065140 c569db7c system.strings.stream_ops%s
+D s-traent.ads		20250808065140 c81cbf8c system.traceback_entries%s
+D s-unstyp.ads		20250808065140 fa2a7f59 system.unsigned_types%s
+D s-wchcon.ads		20250808065140 d9032363 system.wch_con%s
+D s-wchstw.ads		20250808065140 2d112c01 system.wch_stw%s
+G a e
+G c b b b [b editor__command_palette 9 1 none]
+G c Z s s [related_command_help_itemDI editor__command_palette 49 9 none]
+G c Z s s [related_command_help_itemDA editor__command_palette 49 9 none]
+G c Z s s [related_command_help_itemDF editor__command_palette 49 9 none]
+G c Z s s [related_command_help_itemIP editor__command_palette 49 9 none]
+G c Z s b [current editor__command_palette 136 13 none]
+G c Z s b [current_config editor__command_palette 139 13 none]
+G c Z s b [set_current_config editor__command_palette 142 14 none]
+G c Z s b [set_show_unavailable_commands editor__command_palette 144 14 none]
+G c Z s b [set_show_keybindings editor__command_palette 145 14 none]
+G c Z s b [set_show_help_row editor__command_palette 146 14 none]
+G c Z s b [toggle_show_help_row editor__command_palette 147 14 none]
+G c Z s b [clear_transient_filters editor__command_palette 151 14 none]
+G c Z s b [transient_state_clear editor__command_palette 156 13 none]
+G c Z s b [set_availability_filter editor__command_palette 157 14 none]
+G c Z s b [current_availability_filter editor__command_palette 159 13 none]
+G c Z s b [set_category_filter_label editor__command_palette 161 14 none]
+G c Z s b [clear_category_filter editor__command_palette 162 14 none]
+G c Z s b [has_category_filter editor__command_palette 163 13 none]
+G c Z s b [current_category_filter_label editor__command_palette 164 13 none]
+G c Z s b [set_destructive_filter editor__command_palette 165 14 none]
+G c Z s b [destructive_filter_enabled editor__command_palette 166 13 none]
+G c Z s b [set_keybinding_filter editor__command_palette 167 14 none]
+G c Z s b [current_keybinding_filter editor__command_palette 169 13 none]
+G c Z s b [reset editor__command_palette 171 14 none]
+G c Z s b [open editor__command_palette 172 14 none]
+G c Z s b [open_with_command editor__command_palette 177 14 none]
+G c Z s b [close editor__command_palette 180 14 none]
+G c Z s b [toggle editor__command_palette 181 14 none]
+G c Z s b [is_open editor__command_palette 183 13 none]
+G c Z s b [append_character editor__command_palette 185 14 none]
+G c Z s b [insert_text editor__command_palette 188 14 none]
+G c Z s b [move_cursor_left editor__command_palette 191 14 none]
+G c Z s b [move_cursor_right editor__command_palette 192 14 none]
+G c Z s b [move_cursor_start editor__command_palette 193 14 none]
+G c Z s b [move_cursor_end editor__command_palette 194 14 none]
+G c Z s b [select_all editor__command_palette 195 14 none]
+G c Z s b [set_cursor_from_visible_column editor__command_palette 197 14 none]
+G c Z s b [query_cursor editor__command_palette 201 13 none]
+G c Z s b [backspace editor__command_palette 203 14 none]
+G c Z s b [delete_forward editor__command_palette 204 14 none]
+G c Z s b [query_snapshot editor__command_palette 206 13 none]
+G c Z s b [move_selection_up editor__command_palette 209 14 none]
+G c Z s b [move_selection_down editor__command_palette 210 14 none]
+G c Z s b [move_selection_by editor__command_palette 211 14 none]
+G c Z s b [move_selection_by_candidates editor__command_palette 217 14 none]
+G c Z s b [select_first editor__command_palette 220 14 none]
+G c Z s b [select_last editor__command_palette 221 14 none]
+G c Z s b [filtered_commands editor__command_palette 223 14 none]
+G c Z s b [selected_command editor__command_palette 226 13 none]
+G c Z s b [has_selected_command editor__command_palette 228 13 none]
+G c Z s b [match_score editor__command_palette 230 13 none]
+G c Z s b [candidate_passes_transient_filters editor__command_palette 239 13 none]
+G c Z s b [candidate_is_currently_visible editor__command_palette 246 13 none]
+G c Z s b [visible_candidates editor__command_palette 252 14 none]
+G c Z s b [descriptor_passes_transient_metadata_filters editor__command_palette 259 13 none]
+G c Z s b [metadata_match_score editor__command_palette 266 13 none]
+G c Z s b [build_command_help editor__command_palette 277 13 none]
+G c Z s b [related_command_is_activation_safe editor__command_palette 281 13 none]
+G c Z s b [related_command_is_canonical_descriptor_projection editor__command_palette 284 13 none]
+G c Z s b [assert_related_command_help_is_phase570_coherent editor__command_palette 287 13 none]
+G c Z s b [descriptor_registry_order editor__command_palette 290 13 none]
+G c Z s b [sort_candidates editor__command_palette 293 14 none]
+G c Z s b [reconcile_selection editor__command_palette 296 14 none]
+G c Z s b [build_snapshot editor__command_palette 301 13 none]
+G c Z s b [truncate_with_ellipsis editor__command_palette 312 13 none]
+G c Z s b [layout_command_row editor__command_palette 327 13 none]
+G c Z s b [project_command_row_layout editor__command_palette 344 13 none]
+G c Z s b [row_count editor__command_palette 349 13 none]
+G c Z s b [row editor__command_palette 352 13 none]
+G c Z s b [candidate_count editor__command_palette 356 13 none]
+G c Z s b [candidate editor__command_palette 359 13 none]
+G c Z s b [candidate_for_row editor__command_palette 363 13 none]
+G c Z s b [row_for_candidate editor__command_palette 368 13 none]
+G c Z s b [ensure_selected_row_visible editor__command_palette 373 14 none]
+G c Z s b [clamp_viewport editor__command_palette 377 14 none]
+G c Z s b [scroll_by editor__command_palette 381 14 none]
+G c Z s s [command_palette_rowDI editor__command_palette 100 9 none]
+G c Z s s [command_palette_rowDA editor__command_palette 100 9 none]
+G c Z s s [command_palette_rowDF editor__command_palette 100 9 none]
+G c Z s s [command_palette_rowIP editor__command_palette 100 9 none]
+G c Z s s [has_element editor__command_palette__command_palette_row_vectors 115 13 388_4]
+G c Z s s [empty editor__command_palette__command_palette_row_vectors 125 13 388_4]
+G c Z s s [Oeq editor__command_palette__command_palette_row_vectors 127 24 388_4]
+G c Z s s [to_vector editor__command_palette__command_palette_row_vectors 136 13 388_4]
+G c Z s s [to_vector editor__command_palette__command_palette_row_vectors 139 13 388_4]
+G c Z s s [Oconcat editor__command_palette__command_palette_row_vectors 145 13 388_4]
+G c Z s s [Oconcat editor__command_palette__command_palette_row_vectors 149 13 388_4]
+G c Z s s [Oconcat editor__command_palette__command_palette_row_vectors 153 13 388_4]
+G c Z s s [Oconcat editor__command_palette__command_palette_row_vectors 157 13 388_4]
+G c Z s s [capacity editor__command_palette__command_palette_row_vectors 161 13 388_4]
+G c Z s s [reserve_capacity editor__command_palette__command_palette_row_vectors 164 14 388_4]
+G c Z s s [length editor__command_palette__command_palette_row_vectors 175 13 388_4]
+G c Z s s [set_length editor__command_palette__command_palette_row_vectors 178 14 388_4]
+G c Z s s [is_empty editor__command_palette__command_palette_row_vectors 187 13 388_4]
+G c Z s s [clear editor__command_palette__command_palette_row_vectors 190 14 388_4]
+G c Z s s [to_cursor editor__command_palette__command_palette_row_vectors 194 13 388_4]
+G c Z s s [to_index editor__command_palette__command_palette_row_vectors 201 13 388_4]
+G c Z s s [element editor__command_palette__command_palette_row_vectors 206 13 388_4]
+G c Z s s [element editor__command_palette__command_palette_row_vectors 213 13 388_4]
+G c Z s s [replace_element editor__command_palette__command_palette_row_vectors 217 14 388_4]
+G c Z s s [replace_element editor__command_palette__command_palette_row_vectors 228 14 388_4]
+G c Z s s [query_element editor__command_palette__command_palette_row_vectors 239 14 388_4]
+G c Z s s [query_element editor__command_palette__command_palette_row_vectors 250 14 388_4]
+G c Z s s [update_element editor__command_palette__command_palette_row_vectors 259 14 388_4]
+G c Z s s [update_element editor__command_palette__command_palette_row_vectors 276 14 388_4]
+G c Z s s [constant_reference editor__command_palette__command_palette_row_vectors 303 13 388_4]
+G c Z s s [reference editor__command_palette__command_palette_row_vectors 308 13 388_4]
+G c Z s s [constant_reference editor__command_palette__command_palette_row_vectors 313 13 388_4]
+G c Z s s [reference editor__command_palette__command_palette_row_vectors 318 13 388_4]
+G c Z s s [assign editor__command_palette__command_palette_row_vectors 323 14 388_4]
+G c Z s s [copy editor__command_palette__command_palette_row_vectors 325 13 388_4]
+G c Z s s [move editor__command_palette__command_palette_row_vectors 327 14 388_4]
+G c Z s s [new_vector editor__command_palette__command_palette_row_vectors 333 13 388_4]
+G c Z s s [insert_vector editor__command_palette__command_palette_row_vectors 337 14 388_4]
+G c Z s s [insert_vector editor__command_palette__command_palette_row_vectors 361 14 388_4]
+G c Z s s [insert_vector editor__command_palette__command_palette_row_vectors 378 14 388_4]
+G c Z s s [insert editor__command_palette__command_palette_row_vectors 396 14 388_4]
+G c Z s s [insert editor__command_palette__command_palette_row_vectors 404 14 388_4]
+G c Z s s [insert editor__command_palette__command_palette_row_vectors 412 14 388_4]
+G c Z s s [insert editor__command_palette__command_palette_row_vectors 421 14 388_4]
+G c Z s s [insert editor__command_palette__command_palette_row_vectors 438 14 388_4]
+G c Z s s [prepend_vector editor__command_palette__command_palette_row_vectors 449 14 388_4]
+G c Z s s [prepend editor__command_palette__command_palette_row_vectors 459 14 388_4]
+G c Z s s [append_vector editor__command_palette__command_palette_row_vectors 466 14 388_4]
+G c Z s s [append editor__command_palette__command_palette_row_vectors 476 14 388_4]
+G c Z s s [append editor__command_palette__command_palette_row_vectors 483 14 388_4]
+G c Z s s [insert_space editor__command_palette__command_palette_row_vectors 486 14 388_4]
+G c Z s s [insert_space editor__command_palette__command_palette_row_vectors 503 14 388_4]
+G c Z s s [delete editor__command_palette__command_palette_row_vectors 514 14 388_4]
+G c Z s s [delete editor__command_palette__command_palette_row_vectors 524 14 388_4]
+G c Z s s [delete_first editor__command_palette__command_palette_row_vectors 533 14 388_4]
+G c Z s s [delete_last editor__command_palette__command_palette_row_vectors 538 14 388_4]
+G c Z s s [reverse_elements editor__command_palette__command_palette_row_vectors 546 14 388_4]
+G c Z s s [swap editor__command_palette__command_palette_row_vectors 549 14 388_4]
+G c Z s s [swap editor__command_palette__command_palette_row_vectors 554 14 388_4]
+G c Z s s [first_index editor__command_palette__command_palette_row_vectors 560 13 388_4]
+G c Z s s [first editor__command_palette__command_palette_row_vectors 563 13 388_4]
+G c Z s s [first_element editor__command_palette__command_palette_row_vectors 567 13 388_4]
+G c Z s s [last_index editor__command_palette__command_palette_row_vectors 570 13 388_4]
+G c Z s s [last editor__command_palette__command_palette_row_vectors 574 13 388_4]
+G c Z s s [last_element editor__command_palette__command_palette_row_vectors 578 13 388_4]
+G c Z s s [next editor__command_palette__command_palette_row_vectors 581 13 388_4]
+G c Z s s [next editor__command_palette__command_palette_row_vectors 587 14 388_4]
+G c Z s s [previous editor__command_palette__command_palette_row_vectors 590 13 388_4]
+G c Z s s [previous editor__command_palette__command_palette_row_vectors 596 14 388_4]
+G c Z s s [find_index editor__command_palette__command_palette_row_vectors 599 13 388_4]
+G c Z s s [find editor__command_palette__command_palette_row_vectors 609 13 388_4]
+G c Z s s [reverse_find_index editor__command_palette__command_palette_row_vectors 623 13 388_4]
+G c Z s s [reverse_find editor__command_palette__command_palette_row_vectors 635 13 388_4]
+G c Z s s [contains editor__command_palette__command_palette_row_vectors 649 13 388_4]
+G c Z s s [iterate editor__command_palette__command_palette_row_vectors 654 14 388_4]
+G c Z s s [reverse_iterate editor__command_palette__command_palette_row_vectors 662 14 388_4]
+G c Z s s [iterate editor__command_palette__command_palette_row_vectors 669 13 388_4]
+G c Z s s [iterate editor__command_palette__command_palette_row_vectors 672 13 388_4]
+G c Z s s [adjust editor__command_palette__command_palette_row_vectors__implementation 90 28 726_4_388_4]
+G c Z s s [finalize editor__command_palette__command_palette_row_vectors__implementation 93 28 726_4_388_4]
+G c Z s s [zero_counts editor__command_palette__command_palette_row_vectors__implementation 96 17 726_4_388_4]
+G c Z s s [busy editor__command_palette__command_palette_row_vectors__implementation 100 17 726_4_388_4]
+G c Z s s [unbusy editor__command_palette__command_palette_row_vectors__implementation 104 17 726_4_388_4]
+G c Z s s [lock editor__command_palette__command_palette_row_vectors__implementation 108 17 726_4_388_4]
+G c Z s s [unlock editor__command_palette__command_palette_row_vectors__implementation 112 17 726_4_388_4]
+G c Z s s [tc_check editor__command_palette__command_palette_row_vectors__implementation 116 17 726_4_388_4]
+G c Z s s [te_check editor__command_palette__command_palette_row_vectors__implementation 120 17 726_4_388_4]
+G c Z s s [is_busy editor__command_palette__command_palette_row_vectors__implementation 136 16 726_4_388_4]
+G c Z s s [is_locked editor__command_palette__command_palette_row_vectors__implementation 140 16 726_4_388_4]
+G c Z s s [initialize editor__command_palette__command_palette_row_vectors__implementation 161 28 726_4_388_4]
+G c Z s s [finalize editor__command_palette__command_palette_row_vectors__implementation 162 28 726_4_388_4]
+G c Z s s [initialize editor__command_palette__command_palette_row_vectors__implementation 167 28 726_4_388_4]
+G c Z s s [finalize editor__command_palette__command_palette_row_vectors__implementation 168 28 726_4_388_4]
+G c Z s s [reference_control_typeDA editor__command_palette__command_palette_row_vectors__implementation 84 12 726_4_388_4]
+G c Z s s [reference_control_typeDF editor__command_palette__command_palette_row_vectors__implementation 84 12 726_4_388_4]
+G c Z s s [reference_control_typeIP editor__command_palette__command_palette_row_vectors__implementation 84 12 726_4_388_4]
+G c Z s s [with_busyDF editor__command_palette__command_palette_row_vectors__implementation 158 12 726_4_388_4]
+G c Z s s [with_busyIP editor__command_palette__command_palette_row_vectors__implementation 158 12 726_4_388_4]
+G c Z s s [with_lockDF editor__command_palette__command_palette_row_vectors__implementation 164 12 726_4_388_4]
+G c Z s s [with_lockIP editor__command_palette__command_palette_row_vectors__implementation 164 12 726_4_388_4]
+G c Z s s [put_image editor__command_palette__command_palette_row_vectors 747 14 388_4]
+G c Z s s [adjust editor__command_palette__command_palette_row_vectors 750 25 388_4]
+G c Z s s [finalize editor__command_palette__command_palette_row_vectors 751 25 388_4]
+G c Z s s [write editor__command_palette__command_palette_row_vectors 753 14 388_4]
+G c Z s s [read editor__command_palette__command_palette_row_vectors 759 14 388_4]
+G c Z s s [read editor__command_palette__command_palette_row_vectors 773 14 388_4]
+G c Z s s [write editor__command_palette__command_palette_row_vectors 779 14 388_4]
+G c Z s s [write editor__command_palette__command_palette_row_vectors 798 14 388_4]
+G c Z s s [read editor__command_palette__command_palette_row_vectors 804 14 388_4]
+G c Z s s [write editor__command_palette__command_palette_row_vectors 820 14 388_4]
+G c Z s s [read editor__command_palette__command_palette_row_vectors 826 14 388_4]
+G c Z s s [pseudo_reference editor__command_palette__command_palette_row_vectors 840 13 388_4]
+G c Z s s [get_element_access editor__command_palette__command_palette_row_vectors 849 13 388_4]
+G c Z s s [cursorIP editor__command_palette__command_palette_row_vectors 768 9 388_4]
+G c Z s s [vectorDA editor__command_palette__command_palette_row_vectors 741 9 388_4]
+G c Z s s [vectorDF editor__command_palette__command_palette_row_vectors 741 9 388_4]
+G c Z s s [vectorIP editor__command_palette__command_palette_row_vectors 741 9 388_4]
+G c Z s s [finalize editor__command_palette__command_palette_row_vectors 865 25 388_4]
+G c Z s s [first editor__command_palette__command_palette_row_vectors 867 24 388_4]
+G c Z s s [last editor__command_palette__command_palette_row_vectors 868 24 388_4]
+G c Z s s [next editor__command_palette__command_palette_row_vectors 870 24 388_4]
+G c Z s s [previous editor__command_palette__command_palette_row_vectors 874 24 388_4]
+G c Z s s [constant_reference_typeDI editor__command_palette__command_palette_row_vectors 788 9 388_4]
+G c Z s s [constant_reference_typeDA editor__command_palette__command_palette_row_vectors 788 9 388_4]
+G c Z s s [constant_reference_typeDF editor__command_palette__command_palette_row_vectors 788 9 388_4]
+G c Z s s [constant_reference_typeIP editor__command_palette__command_palette_row_vectors 788 9 388_4]
+G c Z s s [reference_typeDI editor__command_palette__command_palette_row_vectors 810 9 388_4]
+G c Z s s [reference_typeDA editor__command_palette__command_palette_row_vectors 810 9 388_4]
+G c Z s s [reference_typeDF editor__command_palette__command_palette_row_vectors 810 9 388_4]
+G c Z s s [reference_typeIP editor__command_palette__command_palette_row_vectors 810 9 388_4]
+G c Z s s [elements_arrayIP editor__command_palette__command_palette_row_vectors 729 9 388_4]
+G c Z s s [elements_arrayDI editor__command_palette__command_palette_row_vectors 729 9 388_4]
+G c Z s s [elements_arrayDA editor__command_palette__command_palette_row_vectors 729 9 388_4]
+G c Z s s [elements_arrayDF editor__command_palette__command_palette_row_vectors 729 9 388_4]
+G c Z s s [elements_typeDI editor__command_palette__command_palette_row_vectors 732 9 388_4]
+G c Z s s [elements_typeDF editor__command_palette__command_palette_row_vectors 732 9 388_4]
+G c Z s s [elements_typeIP editor__command_palette__command_palette_row_vectors 732 9 388_4]
+G c Z s s [iteratorDF editor__command_palette__command_palette_row_vectors 857 9 388_4]
+G c Z s s [iteratorIP editor__command_palette__command_palette_row_vectors 857 9 388_4]
+G c Z s s [free editor__command_palette__command_palette_row_vectors 44 14 388_4]
+G c Z s s [append_slow_path editor__command_palette__command_palette_row_vectors 47 14 388_4]
+G c Z s s [palette_stateDI editor__command_palette 10 9 none]
+G c Z s s [palette_stateDA editor__command_palette 10 9 none]
+G c Z s s [palette_stateDF editor__command_palette 10 9 none]
+G c Z s s [palette_stateIP editor__command_palette 10 9 none]
+G c Z s s [command_palette_configIP editor__command_palette 19 9 none]
+G c Z s s [Trelated_command_help_arrayBIP editor__command_palette 59 4 none]
+G c Z s s [Trelated_command_help_arrayBDI editor__command_palette 59 4 none]
+G c Z s s [Trelated_command_help_arrayBDA editor__command_palette 59 4 none]
+G c Z s s [Trelated_command_help_arrayBDF editor__command_palette 59 4 none]
+G c Z s s [command_help_snapshotDI editor__command_palette 66 9 none]
+G c Z s s [command_help_snapshotDA editor__command_palette 66 9 none]
+G c Z s s [command_help_snapshotDF editor__command_palette 66 9 none]
+G c Z s s [command_help_snapshotIP editor__command_palette 66 9 none]
+G c Z s s [command_palette_row_layoutDI editor__command_palette 117 9 none]
+G c Z s s [command_palette_row_layoutDA editor__command_palette 117 9 none]
+G c Z s s [command_palette_row_layoutDF editor__command_palette 117 9 none]
+G c Z s s [command_palette_row_layoutIP editor__command_palette 117 9 none]
+G c Z s s [command_palette_snapshotDI editor__command_palette 393 9 none]
+G c Z s s [command_palette_snapshotDA editor__command_palette 393 9 none]
+G c Z s s [command_palette_snapshotDF editor__command_palette 393 9 none]
+G c Z s s [command_palette_snapshotIP editor__command_palette 393 9 none]
+G c Z b b [sync_query editor__command_palette 26 14 none]
+G c Z b b [clamp_selection editor__command_palette 31 14 none]
+G c Z b b [lower editor__command_palette 156 13 none]
+G c Z b b [product_facing_classification_label editor__command_palette 161 13 none]
+G c Z b b [starts_with editor__command_palette 311 13 none]
+G c Z b b [word_initial_or_subsequence_match editor__command_palette 317 13 none]
+G c Z b b [fit_text editor__command_palette 390 13 none]
+G c Z b b [related_command_from_descriptor editor__command_palette 524 13 none]
+G c Z b b [add_related_command editor__command_palette 552 14 none]
+G c Z b b [add_related_commands_for editor__command_palette 578 14 none]
+G c Z b b [candidate_less editor__command_palette 767 13 none]
+G c Z b b [phase578_common_user_term_score editor__command_palette 820 13 none]
+G c Z b b [descriptor_match_score editor__command_palette 916 13 none]
+G c Z b b [matches_query editor__command_palette 933 13 none]
+G c Z b b [set_selected_from_descriptor_vector editor__command_palette 941 14 none]
+G c Z b b [set_selected_from_candidate_vector editor__command_palette 957 14 none]
+G r s input_field_state [b editor__command_palette 9 1 none] [input_field_stateIP editor__input_field 96 9 none]
+G r l input_field_state [b editor__command_palette 9 1 none] [input_field_stateDI editor__input_field 96 9 none]
+G r k input_field_state [b editor__command_palette 9 1 none] [input_field_stateDF editor__input_field 96 9 none]
+G r c none [transient_state_clear editor__command_palette 156 13 none] [text editor__input_field 31 13 none]
+G r c none [set_availability_filter editor__command_palette 157 14 none] [palette_commands editor__commands 1153 13 none]
+G r c none [set_availability_filter editor__command_palette 157 14 none] [primary_binding_for_command editor__keybindings 123 13 none]
+G r c none [set_availability_filter editor__command_palette 157 14 none] [stable_command_name editor__commands 969 13 none]
+G r c none [set_availability_filter editor__command_palette 157 14 none] [discoverability_category_label editor__commands 842 13 none]
+G r c none [set_availability_filter editor__command_palette 157 14 none] [is_destructive_command editor__commands 1061 13 none]
+G r s command_palette_candidate [set_availability_filter editor__command_palette 157 14 none] [command_palette_candidateIP editor__commands 640 9 none]
+G r l command_palette_candidate [set_availability_filter editor__command_palette 157 14 none] [command_palette_candidateDI editor__commands 640 9 none]
+G r k command_palette_candidate [set_availability_filter editor__command_palette 157 14 none] [command_palette_candidateDF editor__commands 640 9 none]
+G r j command_palette_candidate [set_availability_filter editor__command_palette 157 14 none] [command_palette_candidateDA editor__commands 640 9 none]
+G r c none [set_availability_filter editor__command_palette 157 14 none] [descriptor editor__commands 815 13 none]
+G r c none [set_category_filter_label editor__command_palette 161 14 none] [palette_commands editor__commands 1153 13 none]
+G r c none [set_category_filter_label editor__command_palette 161 14 none] [primary_binding_for_command editor__keybindings 123 13 none]
+G r c none [set_category_filter_label editor__command_palette 161 14 none] [stable_command_name editor__commands 969 13 none]
+G r c none [set_category_filter_label editor__command_palette 161 14 none] [discoverability_category_label editor__commands 842 13 none]
+G r c none [set_category_filter_label editor__command_palette 161 14 none] [is_destructive_command editor__commands 1061 13 none]
+G r s command_palette_candidate [set_category_filter_label editor__command_palette 161 14 none] [command_palette_candidateIP editor__commands 640 9 none]
+G r l command_palette_candidate [set_category_filter_label editor__command_palette 161 14 none] [command_palette_candidateDI editor__commands 640 9 none]
+G r k command_palette_candidate [set_category_filter_label editor__command_palette 161 14 none] [command_palette_candidateDF editor__commands 640 9 none]
+G r j command_palette_candidate [set_category_filter_label editor__command_palette 161 14 none] [command_palette_candidateDA editor__commands 640 9 none]
+G r c none [set_category_filter_label editor__command_palette 161 14 none] [descriptor editor__commands 815 13 none]
+G r c none [clear_category_filter editor__command_palette 162 14 none] [palette_commands editor__commands 1153 13 none]
+G r c none [clear_category_filter editor__command_palette 162 14 none] [primary_binding_for_command editor__keybindings 123 13 none]
+G r c none [clear_category_filter editor__command_palette 162 14 none] [stable_command_name editor__commands 969 13 none]
+G r c none [clear_category_filter editor__command_palette 162 14 none] [discoverability_category_label editor__commands 842 13 none]
+G r c none [clear_category_filter editor__command_palette 162 14 none] [is_destructive_command editor__commands 1061 13 none]
+G r s command_palette_candidate [clear_category_filter editor__command_palette 162 14 none] [command_palette_candidateIP editor__commands 640 9 none]
+G r l command_palette_candidate [clear_category_filter editor__command_palette 162 14 none] [command_palette_candidateDI editor__commands 640 9 none]
+G r k command_palette_candidate [clear_category_filter editor__command_palette 162 14 none] [command_palette_candidateDF editor__commands 640 9 none]
+G r j command_palette_candidate [clear_category_filter editor__command_palette 162 14 none] [command_palette_candidateDA editor__commands 640 9 none]
+G r c none [clear_category_filter editor__command_palette 162 14 none] [descriptor editor__commands 815 13 none]
+G r c none [set_destructive_filter editor__command_palette 165 14 none] [palette_commands editor__commands 1153 13 none]
+G r c none [set_destructive_filter editor__command_palette 165 14 none] [primary_binding_for_command editor__keybindings 123 13 none]
+G r c none [set_destructive_filter editor__command_palette 165 14 none] [stable_command_name editor__commands 969 13 none]
+G r c none [set_destructive_filter editor__command_palette 165 14 none] [discoverability_category_label editor__commands 842 13 none]
+G r c none [set_destructive_filter editor__command_palette 165 14 none] [is_destructive_command editor__commands 1061 13 none]
+G r s command_palette_candidate [set_destructive_filter editor__command_palette 165 14 none] [command_palette_candidateIP editor__commands 640 9 none]
+G r l command_palette_candidate [set_destructive_filter editor__command_palette 165 14 none] [command_palette_candidateDI editor__commands 640 9 none]
+G r k command_palette_candidate [set_destructive_filter editor__command_palette 165 14 none] [command_palette_candidateDF editor__commands 640 9 none]
+G r j command_palette_candidate [set_destructive_filter editor__command_palette 165 14 none] [command_palette_candidateDA editor__commands 640 9 none]
+G r c none [set_destructive_filter editor__command_palette 165 14 none] [descriptor editor__commands 815 13 none]
+G r c none [set_keybinding_filter editor__command_palette 167 14 none] [palette_commands editor__commands 1153 13 none]
+G r c none [set_keybinding_filter editor__command_palette 167 14 none] [primary_binding_for_command editor__keybindings 123 13 none]
+G r c none [set_keybinding_filter editor__command_palette 167 14 none] [stable_command_name editor__commands 969 13 none]
+G r c none [set_keybinding_filter editor__command_palette 167 14 none] [discoverability_category_label editor__commands 842 13 none]
+G r c none [set_keybinding_filter editor__command_palette 167 14 none] [is_destructive_command editor__commands 1061 13 none]
+G r s command_palette_candidate [set_keybinding_filter editor__command_palette 167 14 none] [command_palette_candidateIP editor__commands 640 9 none]
+G r l command_palette_candidate [set_keybinding_filter editor__command_palette 167 14 none] [command_palette_candidateDI editor__commands 640 9 none]
+G r k command_palette_candidate [set_keybinding_filter editor__command_palette 167 14 none] [command_palette_candidateDF editor__commands 640 9 none]
+G r j command_palette_candidate [set_keybinding_filter editor__command_palette 167 14 none] [command_palette_candidateDA editor__commands 640 9 none]
+G r c none [set_keybinding_filter editor__command_palette 167 14 none] [descriptor editor__commands 815 13 none]
+G r c none [reset editor__command_palette 171 14 none] [clear editor__input_field 28 14 none]
+G r c none [open editor__command_palette 172 14 none] [clear editor__input_field 28 14 none]
+G r s command_descriptor [open_with_command editor__command_palette 177 14 none] [command_descriptorIP editor__commands 617 9 none]
+G r l command_descriptor [open_with_command editor__command_palette 177 14 none] [command_descriptorDI editor__commands 617 9 none]
+G r k command_descriptor [open_with_command editor__command_palette 177 14 none] [command_descriptorDF editor__commands 617 9 none]
+G r c none [open_with_command editor__command_palette 177 14 none] [clear editor__input_field 28 14 none]
+G r c none [open_with_command editor__command_palette 177 14 none] [descriptor editor__commands 815 13 none]
+G r j command_descriptor [open_with_command editor__command_palette 177 14 none] [command_descriptorDA editor__commands 617 9 none]
+G r c none [open_with_command editor__command_palette 177 14 none] [stable_command_name editor__commands 969 13 none]
+G r c none [open_with_command editor__command_palette 177 14 none] [insert_text editor__input_field 69 14 none]
+G r c none [close editor__command_palette 180 14 none] [clear editor__input_field 28 14 none]
+G r c none [toggle editor__command_palette 181 14 none] [clear editor__input_field 28 14 none]
+G r c none [append_character editor__command_palette 185 14 none] [insert_text editor__input_field 69 14 none]
+G r c none [append_character editor__command_palette 185 14 none] [text editor__input_field 31 13 none]
+G r c none [append_character editor__command_palette 185 14 none] [palette_commands editor__commands 1153 13 none]
+G r c none [append_character editor__command_palette 185 14 none] [primary_binding_for_command editor__keybindings 123 13 none]
+G r c none [append_character editor__command_palette 185 14 none] [stable_command_name editor__commands 969 13 none]
+G r c none [append_character editor__command_palette 185 14 none] [discoverability_category_label editor__commands 842 13 none]
+G r c none [append_character editor__command_palette 185 14 none] [is_destructive_command editor__commands 1061 13 none]
+G r s command_palette_candidate [append_character editor__command_palette 185 14 none] [command_palette_candidateIP editor__commands 640 9 none]
+G r l command_palette_candidate [append_character editor__command_palette 185 14 none] [command_palette_candidateDI editor__commands 640 9 none]
+G r k command_palette_candidate [append_character editor__command_palette 185 14 none] [command_palette_candidateDF editor__commands 640 9 none]
+G r j command_palette_candidate [append_character editor__command_palette 185 14 none] [command_palette_candidateDA editor__commands 640 9 none]
+G r c none [append_character editor__command_palette 185 14 none] [descriptor editor__commands 815 13 none]
+G r c none [insert_text editor__command_palette 188 14 none] [insert_text editor__input_field 69 14 none]
+G r c none [insert_text editor__command_palette 188 14 none] [text editor__input_field 31 13 none]
+G r c none [insert_text editor__command_palette 188 14 none] [palette_commands editor__commands 1153 13 none]
+G r c none [insert_text editor__command_palette 188 14 none] [primary_binding_for_command editor__keybindings 123 13 none]
+G r c none [insert_text editor__command_palette 188 14 none] [stable_command_name editor__commands 969 13 none]
+G r c none [insert_text editor__command_palette 188 14 none] [discoverability_category_label editor__commands 842 13 none]
+G r c none [insert_text editor__command_palette 188 14 none] [is_destructive_command editor__commands 1061 13 none]
+G r s command_palette_candidate [insert_text editor__command_palette 188 14 none] [command_palette_candidateIP editor__commands 640 9 none]
+G r l command_palette_candidate [insert_text editor__command_palette 188 14 none] [command_palette_candidateDI editor__commands 640 9 none]
+G r k command_palette_candidate [insert_text editor__command_palette 188 14 none] [command_palette_candidateDF editor__commands 640 9 none]
+G r j command_palette_candidate [insert_text editor__command_palette 188 14 none] [command_palette_candidateDA editor__commands 640 9 none]
+G r c none [insert_text editor__command_palette 188 14 none] [descriptor editor__commands 815 13 none]
+G r c none [move_cursor_left editor__command_palette 191 14 none] [move_cursor_left editor__input_field 53 14 none]
+G r c none [move_cursor_right editor__command_palette 192 14 none] [move_cursor_right editor__input_field 57 14 none]
+G r c none [move_cursor_start editor__command_palette 193 14 none] [move_cursor_start editor__input_field 61 14 none]
+G r c none [move_cursor_end editor__command_palette 194 14 none] [move_cursor_end editor__input_field 65 14 none]
+G r c none [select_all editor__command_palette 195 14 none] [select_all editor__input_field 79 14 none]
+G r c none [set_cursor_from_visible_column editor__command_palette 197 14 none] [set_cursor_from_visible_column editor__input_field 48 14 none]
+G r c none [query_cursor editor__command_palette 201 13 none] [cursor_column editor__input_field 41 13 none]
+G r c none [backspace editor__command_palette 203 14 none] [backspace editor__input_field 73 14 none]
+G r c none [backspace editor__command_palette 203 14 none] [text editor__input_field 31 13 none]
+G r c none [backspace editor__command_palette 203 14 none] [palette_commands editor__commands 1153 13 none]
+G r c none [backspace editor__command_palette 203 14 none] [primary_binding_for_command editor__keybindings 123 13 none]
+G r c none [backspace editor__command_palette 203 14 none] [stable_command_name editor__commands 969 13 none]
+G r c none [backspace editor__command_palette 203 14 none] [discoverability_category_label editor__commands 842 13 none]
+G r c none [backspace editor__command_palette 203 14 none] [is_destructive_command editor__commands 1061 13 none]
+G r s command_palette_candidate [backspace editor__command_palette 203 14 none] [command_palette_candidateIP editor__commands 640 9 none]
+G r l command_palette_candidate [backspace editor__command_palette 203 14 none] [command_palette_candidateDI editor__commands 640 9 none]
+G r k command_palette_candidate [backspace editor__command_palette 203 14 none] [command_palette_candidateDF editor__commands 640 9 none]
+G r j command_palette_candidate [backspace editor__command_palette 203 14 none] [command_palette_candidateDA editor__commands 640 9 none]
+G r c none [backspace editor__command_palette 203 14 none] [descriptor editor__commands 815 13 none]
+G r c none [delete_forward editor__command_palette 204 14 none] [delete_forward editor__input_field 76 14 none]
+G r c none [delete_forward editor__command_palette 204 14 none] [text editor__input_field 31 13 none]
+G r c none [delete_forward editor__command_palette 204 14 none] [palette_commands editor__commands 1153 13 none]
+G r c none [delete_forward editor__command_palette 204 14 none] [primary_binding_for_command editor__keybindings 123 13 none]
+G r c none [delete_forward editor__command_palette 204 14 none] [stable_command_name editor__commands 969 13 none]
+G r c none [delete_forward editor__command_palette 204 14 none] [discoverability_category_label editor__commands 842 13 none]
+G r c none [delete_forward editor__command_palette 204 14 none] [is_destructive_command editor__commands 1061 13 none]
+G r s command_palette_candidate [delete_forward editor__command_palette 204 14 none] [command_palette_candidateIP editor__commands 640 9 none]
+G r l command_palette_candidate [delete_forward editor__command_palette 204 14 none] [command_palette_candidateDI editor__commands 640 9 none]
+G r k command_palette_candidate [delete_forward editor__command_palette 204 14 none] [command_palette_candidateDF editor__commands 640 9 none]
+G r j command_palette_candidate [delete_forward editor__command_palette 204 14 none] [command_palette_candidateDA editor__commands 640 9 none]
+G r c none [delete_forward editor__command_palette 204 14 none] [descriptor editor__commands 815 13 none]
+G r c none [query_snapshot editor__command_palette 206 13 none] [snapshot editor__input_field 91 13 none]
+G r c none [move_selection_up editor__command_palette 209 14 none] [palette_commands editor__commands 1153 13 none]
+G r c none [move_selection_up editor__command_palette 209 14 none] [primary_binding_for_command editor__keybindings 123 13 none]
+G r c none [move_selection_up editor__command_palette 209 14 none] [stable_command_name editor__commands 969 13 none]
+G r c none [move_selection_up editor__command_palette 209 14 none] [discoverability_category_label editor__commands 842 13 none]
+G r c none [move_selection_up editor__command_palette 209 14 none] [is_destructive_command editor__commands 1061 13 none]
+G r s command_palette_candidate [move_selection_up editor__command_palette 209 14 none] [command_palette_candidateIP editor__commands 640 9 none]
+G r l command_palette_candidate [move_selection_up editor__command_palette 209 14 none] [command_palette_candidateDI editor__commands 640 9 none]
+G r k command_palette_candidate [move_selection_up editor__command_palette 209 14 none] [command_palette_candidateDF editor__commands 640 9 none]
+G r j command_palette_candidate [move_selection_up editor__command_palette 209 14 none] [command_palette_candidateDA editor__commands 640 9 none]
+G r c none [move_selection_up editor__command_palette 209 14 none] [descriptor editor__commands 815 13 none]
+G r c none [move_selection_down editor__command_palette 210 14 none] [palette_commands editor__commands 1153 13 none]
+G r c none [move_selection_down editor__command_palette 210 14 none] [primary_binding_for_command editor__keybindings 123 13 none]
+G r c none [move_selection_down editor__command_palette 210 14 none] [stable_command_name editor__commands 969 13 none]
+G r c none [move_selection_down editor__command_palette 210 14 none] [discoverability_category_label editor__commands 842 13 none]
+G r c none [move_selection_down editor__command_palette 210 14 none] [is_destructive_command editor__commands 1061 13 none]
+G r s command_palette_candidate [move_selection_down editor__command_palette 210 14 none] [command_palette_candidateIP editor__commands 640 9 none]
+G r l command_palette_candidate [move_selection_down editor__command_palette 210 14 none] [command_palette_candidateDI editor__commands 640 9 none]
+G r k command_palette_candidate [move_selection_down editor__command_palette 210 14 none] [command_palette_candidateDF editor__commands 640 9 none]
+G r j command_palette_candidate [move_selection_down editor__command_palette 210 14 none] [command_palette_candidateDA editor__commands 640 9 none]
+G r c none [move_selection_down editor__command_palette 210 14 none] [descriptor editor__commands 815 13 none]
+G r c none [move_selection_by editor__command_palette 211 14 none] [palette_commands editor__commands 1153 13 none]
+G r c none [move_selection_by editor__command_palette 211 14 none] [primary_binding_for_command editor__keybindings 123 13 none]
+G r c none [move_selection_by editor__command_palette 211 14 none] [stable_command_name editor__commands 969 13 none]
+G r c none [move_selection_by editor__command_palette 211 14 none] [discoverability_category_label editor__commands 842 13 none]
+G r c none [move_selection_by editor__command_palette 211 14 none] [is_destructive_command editor__commands 1061 13 none]
+G r s command_palette_candidate [move_selection_by editor__command_palette 211 14 none] [command_palette_candidateIP editor__commands 640 9 none]
+G r l command_palette_candidate [move_selection_by editor__command_palette 211 14 none] [command_palette_candidateDI editor__commands 640 9 none]
+G r k command_palette_candidate [move_selection_by editor__command_palette 211 14 none] [command_palette_candidateDF editor__commands 640 9 none]
+G r j command_palette_candidate [move_selection_by editor__command_palette 211 14 none] [command_palette_candidateDA editor__commands 640 9 none]
+G r c none [move_selection_by editor__command_palette 211 14 none] [descriptor editor__commands 815 13 none]
+G r c none [move_selection_by_candidates editor__command_palette 217 14 none] [is_destructive_command editor__commands 1061 13 none]
+G r c none [move_selection_by_candidates editor__command_palette 217 14 none] [descriptor editor__commands 815 13 none]
+G r c none [select_first editor__command_palette 220 14 none] [palette_commands editor__commands 1153 13 none]
+G r c none [select_first editor__command_palette 220 14 none] [primary_binding_for_command editor__keybindings 123 13 none]
+G r c none [select_first editor__command_palette 220 14 none] [stable_command_name editor__commands 969 13 none]
+G r c none [select_first editor__command_palette 220 14 none] [discoverability_category_label editor__commands 842 13 none]
+G r c none [select_first editor__command_palette 220 14 none] [is_destructive_command editor__commands 1061 13 none]
+G r s command_palette_candidate [select_first editor__command_palette 220 14 none] [command_palette_candidateIP editor__commands 640 9 none]
+G r l command_palette_candidate [select_first editor__command_palette 220 14 none] [command_palette_candidateDI editor__commands 640 9 none]
+G r k command_palette_candidate [select_first editor__command_palette 220 14 none] [command_palette_candidateDF editor__commands 640 9 none]
+G r j command_palette_candidate [select_first editor__command_palette 220 14 none] [command_palette_candidateDA editor__commands 640 9 none]
+G r c none [select_first editor__command_palette 220 14 none] [descriptor editor__commands 815 13 none]
+G r c none [select_last editor__command_palette 221 14 none] [palette_commands editor__commands 1153 13 none]
+G r c none [select_last editor__command_palette 221 14 none] [primary_binding_for_command editor__keybindings 123 13 none]
+G r c none [select_last editor__command_palette 221 14 none] [stable_command_name editor__commands 969 13 none]
+G r c none [select_last editor__command_palette 221 14 none] [discoverability_category_label editor__commands 842 13 none]
+G r c none [select_last editor__command_palette 221 14 none] [is_destructive_command editor__commands 1061 13 none]
+G r s command_palette_candidate [select_last editor__command_palette 221 14 none] [command_palette_candidateIP editor__commands 640 9 none]
+G r l command_palette_candidate [select_last editor__command_palette 221 14 none] [command_palette_candidateDI editor__commands 640 9 none]
+G r k command_palette_candidate [select_last editor__command_palette 221 14 none] [command_palette_candidateDF editor__commands 640 9 none]
+G r j command_palette_candidate [select_last editor__command_palette 221 14 none] [command_palette_candidateDA editor__commands 640 9 none]
+G r c none [select_last editor__command_palette 221 14 none] [descriptor editor__commands 815 13 none]
+G r c none [filtered_commands editor__command_palette 223 14 none] [palette_commands editor__commands 1153 13 none]
+G r c none [filtered_commands editor__command_palette 223 14 none] [primary_binding_for_command editor__keybindings 123 13 none]
+G r c none [filtered_commands editor__command_palette 223 14 none] [stable_command_name editor__commands 969 13 none]
+G r c none [filtered_commands editor__command_palette 223 14 none] [discoverability_category_label editor__commands 842 13 none]
+G r c none [filtered_commands editor__command_palette 223 14 none] [is_destructive_command editor__commands 1061 13 none]
+G r s command_palette_candidate [filtered_commands editor__command_palette 223 14 none] [command_palette_candidateIP editor__commands 640 9 none]
+G r l command_palette_candidate [filtered_commands editor__command_palette 223 14 none] [command_palette_candidateDI editor__commands 640 9 none]
+G r k command_palette_candidate [filtered_commands editor__command_palette 223 14 none] [command_palette_candidateDF editor__commands 640 9 none]
+G r j command_palette_candidate [filtered_commands editor__command_palette 223 14 none] [command_palette_candidateDA editor__commands 640 9 none]
+G r c none [filtered_commands editor__command_palette 223 14 none] [descriptor editor__commands 815 13 none]
+G r c none [selected_command editor__command_palette 226 13 none] [palette_commands editor__commands 1153 13 none]
+G r c none [selected_command editor__command_palette 226 13 none] [primary_binding_for_command editor__keybindings 123 13 none]
+G r c none [selected_command editor__command_palette 226 13 none] [stable_command_name editor__commands 969 13 none]
+G r c none [selected_command editor__command_palette 226 13 none] [discoverability_category_label editor__commands 842 13 none]
+G r c none [selected_command editor__command_palette 226 13 none] [is_destructive_command editor__commands 1061 13 none]
+G r s command_palette_candidate [selected_command editor__command_palette 226 13 none] [command_palette_candidateIP editor__commands 640 9 none]
+G r l command_palette_candidate [selected_command editor__command_palette 226 13 none] [command_palette_candidateDI editor__commands 640 9 none]
+G r k command_palette_candidate [selected_command editor__command_palette 226 13 none] [command_palette_candidateDF editor__commands 640 9 none]
+G r j command_palette_candidate [selected_command editor__command_palette 226 13 none] [command_palette_candidateDA editor__commands 640 9 none]
+G r c none [selected_command editor__command_palette 226 13 none] [descriptor editor__commands 815 13 none]
+G r c none [has_selected_command editor__command_palette 228 13 none] [palette_commands editor__commands 1153 13 none]
+G r c none [has_selected_command editor__command_palette 228 13 none] [primary_binding_for_command editor__keybindings 123 13 none]
+G r c none [has_selected_command editor__command_palette 228 13 none] [stable_command_name editor__commands 969 13 none]
+G r c none [has_selected_command editor__command_palette 228 13 none] [discoverability_category_label editor__commands 842 13 none]
+G r c none [has_selected_command editor__command_palette 228 13 none] [is_destructive_command editor__commands 1061 13 none]
+G r s command_palette_candidate [has_selected_command editor__command_palette 228 13 none] [command_palette_candidateIP editor__commands 640 9 none]
+G r l command_palette_candidate [has_selected_command editor__command_palette 228 13 none] [command_palette_candidateDI editor__commands 640 9 none]
+G r k command_palette_candidate [has_selected_command editor__command_palette 228 13 none] [command_palette_candidateDF editor__commands 640 9 none]
+G r j command_palette_candidate [has_selected_command editor__command_palette 228 13 none] [command_palette_candidateDA editor__commands 640 9 none]
+G r c none [has_selected_command editor__command_palette 228 13 none] [descriptor editor__commands 815 13 none]
+G r c none [candidate_passes_transient_filters editor__command_palette 239 13 none] [is_destructive_command editor__commands 1061 13 none]
+G r c none [candidate_passes_transient_filters editor__command_palette 239 13 none] [descriptor editor__commands 815 13 none]
+G r c none [candidate_is_currently_visible editor__command_palette 246 13 none] [is_destructive_command editor__commands 1061 13 none]
+G r c none [candidate_is_currently_visible editor__command_palette 246 13 none] [descriptor editor__commands 815 13 none]
+G r c none [visible_candidates editor__command_palette 252 14 none] [is_destructive_command editor__commands 1061 13 none]
+G r c none [visible_candidates editor__command_palette 252 14 none] [descriptor editor__commands 815 13 none]
+G r c none [descriptor_passes_transient_metadata_filters editor__command_palette 259 13 none] [primary_binding_for_command editor__keybindings 123 13 none]
+G r c none [descriptor_passes_transient_metadata_filters editor__command_palette 259 13 none] [discoverability_category_label editor__commands 842 13 none]
+G r c none [descriptor_passes_transient_metadata_filters editor__command_palette 259 13 none] [is_destructive_command editor__commands 1061 13 none]
+G r c none [build_command_help editor__command_palette 277 13 none] [descriptor editor__commands 815 13 none]
+G r c none [build_command_help editor__command_palette 277 13 none] [stable_command_name editor__commands 969 13 none]
+G r c none [build_command_help editor__command_palette 277 13 none] [discoverability_category_label editor__commands 842 13 none]
+G r c none [build_command_help editor__command_palette 277 13 none] [binding_count_for_command editor__keybindings 129 13 none]
+G r c none [build_command_help editor__command_palette 277 13 none] [binding_for_command editor__keybindings 136 13 none]
+G r c none [build_command_help editor__command_palette 277 13 none] [format_chord editor__keybindings 218 13 none]
+G r c none [build_command_help editor__command_palette 277 13 none] [classification_label editor__commands 851 13 none]
+G r c none [build_command_help editor__command_palette 277 13 none] [surface_relevance_label editor__commands 858 13 none]
+G r c none [build_command_help editor__command_palette 277 13 none] [guard_label editor__commands 863 13 none]
+G r s command_descriptor [build_command_help editor__command_palette 277 13 none] [command_descriptorIP editor__commands 617 9 none]
+G r l command_descriptor [build_command_help editor__command_palette 277 13 none] [command_descriptorDI editor__commands 617 9 none]
+G r k command_descriptor [build_command_help editor__command_palette 277 13 none] [command_descriptorDF editor__commands 617 9 none]
+G r j command_descriptor [build_command_help editor__command_palette 277 13 none] [command_descriptorDA editor__commands 617 9 none]
+G r c none [related_command_is_activation_safe editor__command_palette 281 13 none] [command_id_from_stable_name editor__commands 976 13 none]
+G r c none [related_command_is_activation_safe editor__command_palette 281 13 none] [descriptor editor__commands 815 13 none]
+G r c none [related_command_is_canonical_descriptor_projection editor__command_palette 284 13 none] [command_id_from_stable_name editor__commands 976 13 none]
+G r c none [related_command_is_canonical_descriptor_projection editor__command_palette 284 13 none] [descriptor editor__commands 815 13 none]
+G r c none [related_command_is_canonical_descriptor_projection editor__command_palette 284 13 none] [stable_command_name editor__commands 969 13 none]
+G r s command_descriptor [related_command_is_canonical_descriptor_projection editor__command_palette 284 13 none] [command_descriptorIP editor__commands 617 9 none]
+G r l command_descriptor [related_command_is_canonical_descriptor_projection editor__command_palette 284 13 none] [command_descriptorDI editor__commands 617 9 none]
+G r k command_descriptor [related_command_is_canonical_descriptor_projection editor__command_palette 284 13 none] [command_descriptorDF editor__commands 617 9 none]
+G r j command_descriptor [related_command_is_canonical_descriptor_projection editor__command_palette 284 13 none] [command_descriptorDA editor__commands 617 9 none]
+G r c none [assert_related_command_help_is_phase570_coherent editor__command_palette 287 13 none] [command_id_from_stable_name editor__commands 976 13 none]
+G r c none [assert_related_command_help_is_phase570_coherent editor__command_palette 287 13 none] [descriptor editor__commands 815 13 none]
+G r c none [assert_related_command_help_is_phase570_coherent editor__command_palette 287 13 none] [stable_command_name editor__commands 969 13 none]
+G r s command_descriptor [assert_related_command_help_is_phase570_coherent editor__command_palette 287 13 none] [command_descriptorIP editor__commands 617 9 none]
+G r l command_descriptor [assert_related_command_help_is_phase570_coherent editor__command_palette 287 13 none] [command_descriptorDI editor__commands 617 9 none]
+G r k command_descriptor [assert_related_command_help_is_phase570_coherent editor__command_palette 287 13 none] [command_descriptorDF editor__commands 617 9 none]
+G r j command_descriptor [assert_related_command_help_is_phase570_coherent editor__command_palette 287 13 none] [command_descriptorDA editor__commands 617 9 none]
+G r s command_palette_candidate [sort_candidates editor__command_palette 293 14 none] [command_palette_candidateIP editor__commands 640 9 none]
+G r l command_palette_candidate [sort_candidates editor__command_palette 293 14 none] [command_palette_candidateDI editor__commands 640 9 none]
+G r k command_palette_candidate [sort_candidates editor__command_palette 293 14 none] [command_palette_candidateDF editor__commands 640 9 none]
+G r j command_palette_candidate [sort_candidates editor__command_palette 293 14 none] [command_palette_candidateDA editor__commands 640 9 none]
+G r c none [reconcile_selection editor__command_palette 296 14 none] [is_destructive_command editor__commands 1061 13 none]
+G r c none [reconcile_selection editor__command_palette 296 14 none] [descriptor editor__commands 815 13 none]
+G r c none [build_snapshot editor__command_palette 301 13 none] [is_destructive_command editor__commands 1061 13 none]
+G r c none [build_snapshot editor__command_palette 301 13 none] [descriptor editor__commands 815 13 none]
+G r c none [build_snapshot editor__command_palette 301 13 none] [command_palette_no_match_detail editor__contextual_help 31 13 none]
+G r c none [build_snapshot editor__command_palette 301 13 none] [stable_command_name editor__commands 969 13 none]
+G r c none [build_snapshot editor__command_palette 301 13 none] [discoverability_category_label editor__commands 842 13 none]
+G r c none [build_snapshot editor__command_palette 301 13 none] [binding_count_for_command editor__keybindings 129 13 none]
+G r c none [build_snapshot editor__command_palette 301 13 none] [binding_for_command editor__keybindings 136 13 none]
+G r c none [build_snapshot editor__command_palette 301 13 none] [format_chord editor__keybindings 218 13 none]
+G r c none [build_snapshot editor__command_palette 301 13 none] [classification_label editor__commands 851 13 none]
+G r c none [build_snapshot editor__command_palette 301 13 none] [surface_relevance_label editor__commands 858 13 none]
+G r c none [build_snapshot editor__command_palette 301 13 none] [guard_label editor__commands 863 13 none]
+G r s command_descriptor [build_snapshot editor__command_palette 301 13 none] [command_descriptorIP editor__commands 617 9 none]
+G r l command_descriptor [build_snapshot editor__command_palette 301 13 none] [command_descriptorDI editor__commands 617 9 none]
+G r k command_descriptor [build_snapshot editor__command_palette 301 13 none] [command_descriptorDF editor__commands 617 9 none]
+G r j command_descriptor [build_snapshot editor__command_palette 301 13 none] [command_descriptorDA editor__commands 617 9 none]
+G r c none [sync_query editor__command_palette 26 14 none] [text editor__input_field 31 13 none]
+G r c none [clamp_selection editor__command_palette 31 14 none] [palette_commands editor__commands 1153 13 none]
+G r c none [clamp_selection editor__command_palette 31 14 none] [primary_binding_for_command editor__keybindings 123 13 none]
+G r c none [clamp_selection editor__command_palette 31 14 none] [stable_command_name editor__commands 969 13 none]
+G r c none [clamp_selection editor__command_palette 31 14 none] [discoverability_category_label editor__commands 842 13 none]
+G r c none [clamp_selection editor__command_palette 31 14 none] [is_destructive_command editor__commands 1061 13 none]
+G r s command_palette_candidate [clamp_selection editor__command_palette 31 14 none] [command_palette_candidateIP editor__commands 640 9 none]
+G r l command_palette_candidate [clamp_selection editor__command_palette 31 14 none] [command_palette_candidateDI editor__commands 640 9 none]
+G r k command_palette_candidate [clamp_selection editor__command_palette 31 14 none] [command_palette_candidateDF editor__commands 640 9 none]
+G r j command_palette_candidate [clamp_selection editor__command_palette 31 14 none] [command_palette_candidateDA editor__commands 640 9 none]
+G r c none [clamp_selection editor__command_palette 31 14 none] [descriptor editor__commands 815 13 none]
+G r c none [related_command_from_descriptor editor__command_palette 524 13 none] [stable_command_name editor__commands 969 13 none]
+G r s command_descriptor [related_command_from_descriptor editor__command_palette 524 13 none] [command_descriptorIP editor__commands 617 9 none]
+G r l command_descriptor [related_command_from_descriptor editor__command_palette 524 13 none] [command_descriptorDI editor__commands 617 9 none]
+G r k command_descriptor [related_command_from_descriptor editor__command_palette 524 13 none] [command_descriptorDF editor__commands 617 9 none]
+G r c none [related_command_from_descriptor editor__command_palette 524 13 none] [descriptor editor__commands 815 13 none]
+G r j command_descriptor [related_command_from_descriptor editor__command_palette 524 13 none] [command_descriptorDA editor__commands 617 9 none]
+G r c none [add_related_command editor__command_palette 552 14 none] [stable_command_name editor__commands 969 13 none]
+G r s command_descriptor [add_related_command editor__command_palette 552 14 none] [command_descriptorIP editor__commands 617 9 none]
+G r l command_descriptor [add_related_command editor__command_palette 552 14 none] [command_descriptorDI editor__commands 617 9 none]
+G r k command_descriptor [add_related_command editor__command_palette 552 14 none] [command_descriptorDF editor__commands 617 9 none]
+G r c none [add_related_command editor__command_palette 552 14 none] [descriptor editor__commands 815 13 none]
+G r j command_descriptor [add_related_command editor__command_palette 552 14 none] [command_descriptorDA editor__commands 617 9 none]
+G r c none [add_related_commands_for editor__command_palette 578 14 none] [stable_command_name editor__commands 969 13 none]
+G r s command_descriptor [add_related_commands_for editor__command_palette 578 14 none] [command_descriptorIP editor__commands 617 9 none]
+G r l command_descriptor [add_related_commands_for editor__command_palette 578 14 none] [command_descriptorDI editor__commands 617 9 none]
+G r k command_descriptor [add_related_commands_for editor__command_palette 578 14 none] [command_descriptorDF editor__commands 617 9 none]
+G r c none [add_related_commands_for editor__command_palette 578 14 none] [descriptor editor__commands 815 13 none]
+G r j command_descriptor [add_related_commands_for editor__command_palette 578 14 none] [command_descriptorDA editor__commands 617 9 none]
+G r c none [descriptor_match_score editor__command_palette 916 13 none] [primary_binding_for_command editor__keybindings 123 13 none]
+G r c none [descriptor_match_score editor__command_palette 916 13 none] [stable_command_name editor__commands 969 13 none]
+G r c none [descriptor_match_score editor__command_palette 916 13 none] [discoverability_category_label editor__commands 842 13 none]
+G r c none [matches_query editor__command_palette 933 13 none] [primary_binding_for_command editor__keybindings 123 13 none]
+G r c none [matches_query editor__command_palette 933 13 none] [stable_command_name editor__commands 969 13 none]
+G r c none [matches_query editor__command_palette 933 13 none] [discoverability_category_label editor__commands 842 13 none]
+X 1 ada.ads
+18K9*Ada 22e8 26|1r6 2r6 12r33 51r21 52r9 53r21 54r9 67r31 68r9 69r31 70r9
+. 71r31 72r9 73r31 74r9 75r31 76r9 81r31 82r9 83r31 84r9 85r31 86r9 87r31
+. 88r9 89r31 90r9 91r33 92r9 93r31 94r9 105r32 106r9 107r32 108r9 109r32
+. 110r9 119r38 120r9 122r35 123r9 389r6 27|1r6 2r6 2r31 3r6 4r6 4r33 158r14
+. 173r10 176r10 179r10 182r10 185r10 188r10 191r10 194r10 361r13 365r13 367r13
+. 619r17 620r17 621r17 622r17 623r17 624r17 838r13 844r13 880r38
+X 2 a-charac.ads
+16K13*Characters 18e19 27|1r10 158r18
+X 3 a-chahan.ads
+43K24*Handling 454e28 27|1w21 158r29
+274V13*To_Lower{string} 27|158s38
+X 5 a-contai.ads
+16K13*Containers 28e19 26|1r10 389r10 27|2w10 2r35
+22I9*Count_Type<integer> 27|2r46
+X 9 a-convec.ads
+62I9 Index_Type 26|390r9
+63+9 Element_Type 26|391r9
+74k24*Vectors 878e27 26|1w21 389r21
+91R9*Vector<12|43R9> 26|218r70[28|657] 224r63[28|662] 253r70[28|657] 254r74[28|657]
+. 294r77[28|657] 297r82[28|657] 302r70[28|657] 394r70[28|657] 395r48[388]
+. 27|263r70[28|657] 264r74[28|657] 799r77[28|657] 942r64[28|662] 958r70[28|657]
+. 974r82[28|657] 982r67[28|657] 1015r61[28|662] 1206r61[28|662] 1237r70[28|657]
+. 1240r67[28|657] 1272r64[28|662] 1280r61[28|662] 1292r63[28|662] 1294r74[28|662]
+. 1297r70[28|657] 1345r61[28|662] 1358r61[28|662] 1366r70[28|657] 1370r78[28|657]
+175V13*Length{5|22I9} 27|804s21[28|657] 808s41[28|657] 946s22[28|662] 946s71[28|662]
+. 962s21[28|657] 962s69[28|657] 986s18[28|657] 994s41[28|657] 1003s41[28|657]
+. 1020s19[28|662] 1026s42[28|662] 1034s51[28|662] 1036s41[28|662] 1211s19[28|662]
+. 1216s33[28|662] 1245s18[28|657] 1250s32[28|657] 1252s41[28|657] 1283s19[28|662]
+. 1287s41[28|662] 1348s19[28|662] 1350s54[28|662] 1351s53[28|662] 1361s23[28|662]
+. 1362s58[28|662] 1417s29[28|657] 1419s55[28|657] 1429s66[28|657] 1432s70[28|657]
+. 1438s29[28|657] 1488s49[28|657] 1572s22[26|388] 1605s37[26|388] 1620s43[28|657]
+. 1657s44[26|388] 1687s44[26|388]
+190U14*Clear 27|267s14[28|657] 1304s14[28|662]
+206V13*Element{28|640R9} 27|809s26[28|657] 811s61[28|657] 812s55[28|657]
+. 953s51[28|662] 969s50[28|657] 995s24[28|657] 1004s24[28|657] 1027s25[28|662]
+. 1253s24[28|657] 1351s26[28|662] 1353s26[28|662] 1420s38[28|657] 1490s90[28|657]
+. 1614s28[26|388] 1629s34[28|657] 1644s60[26|388] 1659s63[26|388] 1689s63[26|388]
+217U14*Replace_Element 27|812s24[28|657] 815s21[28|657]
+483U14*Append 27|270s20[28|657] 1314s30[28|657] 1339s17[28|662] 1411s32[28|657]
+. 1446s25[26|388] 1473s25[26|388] 1500s31[26|388] 1516s28[26|388] 1555s34[26|388]
+. 1580s25[26|388]
+X 13 a-iteint.ads
+24h9 Forward_Iterator
+32h9 Reversible_Iterator<24R9[9|119]>
+X 15 a-string.ads
+16K13*Strings 35e16 26|2r10 12r37 51r25 52r13 53r25 54r13 67r35 68r13 69r35
+. 70r13 71r35 72r13 73r35 74r13 75r35 76r13 81r35 82r13 83r35 84r13 85r35
+. 86r13 87r35 88r13 89r35 90r13 91r37 92r13 93r35 94r13 105r36 106r13 107r36
+. 108r13 109r36 110r13 119r42 120r13 122r39 123r13 27|3r10 4r10 4r37 173r14
+. 176r14 179r14 182r14 185r14 188r14 191r14 194r14 361r17 365r17 367r17 619r21
+. 620r21 621r21 622r21 623r21 624r21 838r17 844r17 880r42
+X 16 a-strfix.ads
+49K21*Fixed 1390e22 27|3w18 173r22 176r22 179r22 182r22 185r22 188r22 191r22
+. 194r22 361r25 365r25 367r25 838r25 844r25 880r50
+252V13*Index{natural} 27|173s28 176s28 179s28 182s28 185s28 188s28 191s28
+. 194s28 361s31 365s31 367s31 838s31 844s31 880s56
+X 20 a-strunb.ads
+91K21*Unbounded 1641e26 26|2w18 12r45 51r33 52r21 53r33 54r21 67r43 68r21
+. 69r43 70r21 71r43 72r21 73r43 74r21 75r43 76r21 81r43 82r21 83r43 84r21
+. 85r43 86r21 87r43 88r21 89r43 90r21 91r45 92r21 93r43 94r21 105r44 106r21
+. 107r44 108r21 109r44 110r21 119r50 120r21 122r47 123r21 27|4w18 4r45 619r29
+. 620r29 621r29 622r29 623r29 624r29
+105R9*Unbounded_String<12|43R9> 1620e15 26|12r55 51r43 53r43 67r53 69r53
+. 71r53 73r53 75r53 81r53 83r53 85r53 87r53 89r53 91r55 93r53 105r54 107r54
+. 109r54 119r60 122r57 27|21r34 163r16 503r14 701r47 702r18 1371r29 1379r82
+. 1391r16 1440r35 1470r34 1493r34 1533r46 1538r49 1542r43 1549r45 1574r35
+109r4*Null_Unbounded_String{105R9} 26|52r31 54r31 68r31 70r31 72r31 74r31
+. 76r31 82r31 84r31 86r31 88r31 90r31 92r31 94r31 106r31 108r31 110r31 120r31
+. 123r31 27|21r54 74r38 119r38 163r36 503r34 702r38 748r38 1050r22 1063r22
+. 1104r22 1323r45 1371r49 1382r20 1398r20 1457r43 1479r43 1480r43 1494r61
+. 1506r49 1507r49 1524r81 1537r30 1562r52 1591r43
+111V13*Length{natural} 27|82s18 91s18 167s13 197s10 488s19 492s22 705s16
+. 749s16 1383s16 1534s28 1550s28
+122V13*To_Unbounded_String{105R9} 27|28s22 112s38 506s18 517s36 546s29 619s46
+. 620s46 621s46 622s46 623s46 624s46 717s29 719s32 729s15 733s15 734s15 736s9
+. 738s9 742s38 746s9 750s15 751s41 753s29 1090s22 1320s45 1386s20 1441s15
+. 1453s19 1471s15 1535s30 1541s30 1575s15 1587s19
+135V13*To_String{string} 27|130s14 200s14 206s42 222s50 284s50 481s39 484s15
+. 489s21 493s15 567s20 568s14 613s37 634s18 635s11 654s18 654s54 655s18 655s48
+. 676s23 677s17 771s36 772s36 773s45 774s45 924s28 928s28 929s28 1092s53
+. 1296s30 1373s39
+159U14*Append 27|168s13 170s10 706s16 708s13
+177V14*"&"{105R9} 27|1536s27 1544s24 1545s24 1546s24 1547s24 1548s24 1551s57
+. 1552s37 1553s57
+185V14*"&"{105R9} 27|511s23 512s12 1543s41 1544s46 1545s42 1546s50 1551s47
+. 1552s27 1553s47
+269V14*"="{boolean} 27|1498s53
+378V13*Index{natural} 27|619s39 620s39 621s39 622s39 623s39 624s39
+X 25 editor.ads
+1K9*Editor 5e11 26|3r6 4r6 6r9 15r34 15r64 50r21 50r51 103r32 104r9 178r17
+. 207r41 218r20 224r20 226r37 240r19 247r19 253r20 254r24 260r20 278r19 291r12
+. 294r27 297r32 298r32 298r62 302r20 345r21 361r34 394r20 398r5 27|5r6 6r6
+. 7r6 9r14 11r13 12r13 13r13 17r19 28r43 83r18 86r46 204r19 228r22 242r29
+. 243r18 255r19 263r20 264r24 276r20 278r26 279r9 281r9 290r22 477r21 525r17
+. 527r35 528r16 530r20 536r12 537r26 554r17 580r14 584r15 585r40 586r40 587r15
+. 588r40 589r40 590r40 591r15 592r40 593r40 594r15 595r40 596r40 597r40 598r15
+. 599r40 600r40 601r15 602r40 612r18 612r48 617r32 629r19 632r18 633r11 635r22
+. 694r19 697r20 698r9 704r24 710r16 711r19 718r10 720r10 723r9 740r18 741r18
+. 744r13 752r10 754r10 760r12 763r14 764r11 764r43 768r15 769r15 789r17 790r14
+. 799r27 802r11 917r20 920r26 921r9 925r28 926r28 934r20 942r21 949r39 958r20
+. 965r39 974r32 975r32 975r62 978r28 979r34 982r17 989r39 993r23 1015r18
+. 1016r28 1025r23 1051r7 1054r36 1064r7 1067r36 1074r17 1076r11 1078r20 1083r12
+. 1084r26 1090r43 1091r7 1092r7 1105r7 1108r36 1133r10 1142r7 1149r7 1156r7
+. 1162r41 1164r14 1169r7 1174r7 1179r7 1184r7 1189r7 1196r7 1202r14 1206r18
+. 1237r20 1240r17 1251r39 1272r21 1280r18 1292r20 1294r31 1295r9 1297r20
+. 1311r38 1312r21 1315r22 1321r26 1339r25 1344r37 1345r18 1349r17 1358r18
+. 1366r20 1370r28 1379r32 1390r40 1403r14 1418r42 1450r43 1455r28 1456r28
+. 1477r43 1490r26 1584r43 1589r28 1590r28 1625r34 1775r5
+X 26 editor-command_palette.ads
+6K16*Command_Palette 25|1k9 26|100E9 398l12 398e27 27|9b21 1775l12 1775t27
+8i4*Max_Visible_Items{natural}
+10R9*Palette_State 17e14 136r28 27|15r12 1042r28
+11b7*Open{boolean} 27|81r25 1049m13 1062m13 1089m13 1103m13 1116r16 1125r20
+12r7*Query{20|105R9} 27|28m13 82r32 1050m13 1063m13 1090m13 1092r70 1104m13
+. 1296r47 1373r56
+13i7*Selected_Item{natural} 27|84r24 947m16 951m16 963m16 967m16 987m16 1034r16
+. 1038r63 1052m13 1065m13 1093m13 1106m13 1217r30 1254m22 1260r30 1350r19
+. 1353r41 1362r24 1429r22 1430r48 1678r45
+14i7*Selected_Candidate_Index{natural} 27|85r24 948m16 952m16 964m16 968m16
+. 988m16 1053m13 1066m13 1094m13 1107m13
+15e7*Selected_Command_Id{28|11E9} 27|86r24 949m16 953m16 965m16 969m16 981r21
+. 989m16 1016r64 1054m13 1067m13 1095m13 1108m13 1251r16 1253r47 1418r19
+. 1420r61
+16i7*Top_Row{natural} 27|87r24 1055m13 1068m13 1096m13 1109m13 1700m16 1710m16
+. 1710r46 1711m16 1711r46 1715r28 1716m16 1717r32 1718m16 1721m13 1721r43
+. 1722m13 1722r43 1733m16 1741r16 1742m16 1743r19 1744m16 1755r43 1758m16
+. 1772m13
+19R9*Command_Palette_Config 28e14 139r35 142r43 303r20 27|16r19 33r35 38r43
+. 1367r20
+20i7*Max_Visible_Rows{natural} 27|1467r25
+21i7*Overlay_Width_In_Columns{natural}
+22b7*Show_Unavailable_Commands{boolean} 27|52m20 259r32 1406r29
+23b7*Group_Empty_Query_By_Category{boolean} 27|1375r68
+24b7*Show_Selected_Reason{boolean} 27|1393r45
+25b7*Show_Selected_Description{boolean} 27|1395r44
+26b7*Show_Keybindings{boolean} 27|57m20 728r30 901r33 1524r33 1525r53 1539r35
+27b7*Show_Help_Row{boolean} 27|47m20 62m20 67m20 67r54 88r35 1069m20 1097m20
+. 1110m20 1466r41 1530r44
+30E9*Command_Palette_Availability_Filter 33e32 158r16 160r14 27|18r32 97r16
+. 104r14
+31n7*Palette_All_Commands{30E9} 27|19r6 72r36 89r46 209r15
+32n7*Palette_Available_Only{30E9} 27|211r15
+33n7*Palette_Unavailable_Only{30E9} 27|215r15
+35E9*Command_Palette_Keybinding_Filter 38e46 168r16 169r46 27|23r30 145r16
+. 151r46
+36n7*Palette_All_Keybinding_States{35E9} 27|24r6 76r34 93r44 234r15 296r15
+37n7*Palette_Bound_Commands_Only{35E9} 27|236r15 298r15
+38n7*Palette_Unbound_Bindable_Commands_Only{35E9} 27|240r15 302r15
+40i4*Max_Related_Command_Help_Items{natural} 60r33 27|560r47 663r39 684r50
+42E9*Command_Palette_Row_Kind 47e33 101r32
+43n7*Command_Palette_Header_Row{42E9} 27|1502r44
+44n7*Command_Palette_Command_Row{42E9} 27|1518r44 1646r28 1661r25 1691r25
+45n7*Command_Palette_Detail_Row{42E9}
+46n7*Command_Palette_Help_Row{42E9} 27|1475r44 1557r44
+47n7*Command_Palette_Empty_Row{42E9} 101r60 27|1448r44 1582r44
+49R9*Related_Command_Help_Item 57e14 61r11 63r47 282r14 285r14 27|525r52
+. 556r23 609r14 639r14 641r19
+50e7*Command{28|11E9} 27|545m10 566r39 617r22 631r34 632r51 635r55 651r58
+. 653r28 653r43 675r42 675r78
+51r7*Stable_Name{20|105R9} 27|546m10 567r57 568r30 613r53 654r39 654r70 676r60
+. 677r54
+53r7*Title{20|105R9} 27|547m10 634r34 655r39 655r64
+55b7*Visible{boolean} 27|548m10 559r19 615r19 643r19 652r24
+56b7*Carries_Payload{boolean} 27|549m10 616r22 656r28 656r51
+59A9*Related_Command_Help_Array(49R9)<integer> 96r31
+63r4*Empty_Related_Command_Help_Item{49R9} 97r20 27|533r17 538r17 644r24
+. 685r42
+66R9*Command_Help_Snapshot 98e14 279r14 288r14 27|553r24 579r21 660r14 695r14
+. 699r16 1532r38
+67r7*Title{20|105R9} 27|716m14
+69r7*Stable_Name{20|105R9} 27|717m14 1543r29
+71r7*Category_Label{20|105R9} 27|719m14 1544r31
+73r7*Description{20|105R9} 27|721m14 1551r35 1553r35
+75r7*Keybinding_Label{20|105R9} 27|727m14 1540r35
+77b7*Has_Active_Keybinding{boolean} 27|724m14 725r65 730r23
+78i7*Active_Keybinding_Count{natural} 27|722m14 724r46
+79b7*Unbound_Bindable{boolean} 27|725m14
+80b7*Non_Bindable_Command{boolean} 27|726m14
+81r7*Bindability_Label{20|105R9} 27|735m14
+83r7*Visibility_Label{20|105R9} 27|737m14
+85r7*Classification_Label{20|105R9} 27|742m14 1547r31
+87r7*Availability_Label{20|105R9} 27|745m14 1546r31
+89r7*Unavailable_Reason{20|105R9} 27|747m14 1550r41 1551r64
+91r7*Surface_Relevance_Label{20|105R9} 27|751m14 1534r41 1536r34
+93r7*Guard_Label{20|105R9} 27|753m14 1552r44 1553r64
+95i7*Related_Command_Count{natural} 27|560r22 565r26 574m12 574r42 575r35
+. 663r15 667r26 674r33 684r21
+96a7*Related_Commands{59A9} 27|566r18 567r36 575m12 669r18 675r21 675r57
+. 676r39 677r33 685r18
+100R9*Command_Palette_Row 115e14 354r35 391r25 27|1447r16 1474r16 1501r16
+. 1517r16 1556r16 1581r16 1610r35 1644r23 1659r26 1689r26
+101e7*Kind{42E9} 27|1448m18 1475m18 1502m18 1518m18 1557m18 1582m18 1646r21
+. 1661r18 1691r18
+102i7*Candidate_Index{natural} 27|1449m17 1476m17 1503m23 1519m20 1558m26
+. 1583m17 1647r19 1662r26 1692r40
+103e7*Category{28|551E9} 27|1450m17 1477m17 1504m23 1520m20 1559m26 1584m17
+105r7*Primary_Text{20|105R9} 27|1451m17 1478m17 1505m23 1521m20 1560m35 1585m17
+107r7*Secondary_Text{20|105R9} 27|1452m17 1479m17 1506m23 1522m20 1561m26
+. 1586m17
+109r7*Keybinding_Text{20|105R9} 27|1457m17 1480m17 1507m23 1523m20 1562m26
+. 1591m17
+111b7*Has_Keybinding{boolean} 27|1458m17 1481m17 1508m23 1525m20 1563m26
+. 1592m17
+112b7*Is_Selected{boolean} 27|1459m17 1482m17 1509m23 1526m20 1564m26 1593m17
+. 1691r64
+113b7*Is_Available{boolean} 27|1460m17 1483m17 1510m23 1527m20 1565m26 1594m17
+114b7*Is_Detail_For_Selected{boolean} 27|1461m17 1484m17 1511m23 1528m20
+. 1566m26 1595m17
+117R9*Command_Palette_Row_Layout 132e14 333r43 347r37 27|404r43 407r16 479r37
+. 495r16
+119r7*Visible_Text{20|105R9} 27|515m14
+121b7*Show_Keybinding{boolean} 27|417m14 421r17 516r17
+122r7*Keybinding_Text{20|105R9} 27|517m17
+124i7*Keybinding_Column{natural} 27|423m17
+125i7*Label_Start_Column{natural} 27|428m14
+126i7*Label_Columns{natural} 27|443m23 447m23 451m23 458r25 466m23 470m17
+. 505r17 507r56
+127i7*Secondary_Start_Column{natural} 27|444m23 448m23 457m23 460r40 465m23
+128i7*Secondary_Columns{natural} 27|445m23 449m23 459m23 463r23 512r61
+129i7*Keybinding_Start_Column{natural} 27|422m17 423r45 425r33
+130i7*Keybinding_Columns{natural} 27|424m17
+131b7*Show_Secondary{boolean} 27|440m20 464m23 510r17
+134R9*Command_Palette_Snapshot 303r51 350r18 353r18 357r18 360r18 364r19
+. 369r25 374r27 378r27 382r27 393c9 396e14 27|1367r51 1369r16 1603r18 1609r18
+. 1618r18 1624r18 1633r19 1652r25 1674r27 1726r27 1749r27
+136V13*Current{10R9} 27|1042b13 1045l8 1045t15
+139V13*Current_Config{19R9} 27|33b13 36l8 36t22 901s18
+142U14*Set_Current_Config 142>34 27|38b14 48l8 48t26
+142r34 Config{19R9} 27|38b34 40r23
+144U14*Set_Show_Unavailable_Commands 144>45 27|50b14 53l8 53t37
+144b45 Enabled{boolean} 27|50b45 52r49
+145U14*Set_Show_Keybindings 145>36 27|55b14 58l8 58t28
+145b36 Enabled{boolean} 27|55b36 57r40
+146U14*Set_Show_Help_Row 146>33 27|60b14 63l8 63t25
+146b33 Enabled{boolean} 27|60b33 62r37
+147U14*Toggle_Show_Help_Row 27|65b14 68l8 68t28
+151U14*Clear_Transient_Filters 27|70b14 77l8 77t31 1057s7 1070s7 1098s7 1111s7
+156V13*Transient_State_Clear{boolean} 27|79b13 94l8 94t29
+157U14*Set_Availability_Filter 158>7 27|96b14 101l8 101t31
+158e7 Filter{30E9} 27|97b7 99r36
+159V13*Current_Availability_Filter{30E9} 27|103b13 107l8 107t35
+161U14*Set_Category_Filter_Label 161>41 27|109b14 114l8 114t33
+161a41 Label{string} 27|109b41 111r33 112r59
+162U14*Clear_Category_Filter 27|116b14 121l8 121t29
+163V13*Has_Category_Filter{boolean} 27|123b13 126l8 126t27
+164V13*Current_Category_Filter_Label{string} 27|128b13 131l8 131t37
+165U14*Set_Destructive_Filter 165>38 27|133b14 137l8 137t30
+165b38 Enabled{boolean} 27|133b38 135r35
+166V13*Destructive_Filter_Enabled{boolean} 27|139b13 142l8 142t34
+167U14*Set_Keybinding_Filter 168>7 27|144b14 149l8 149t29
+168e7 Filter{35E9} 27|145b7 147r34
+169V13*Current_Keybinding_Filter{35E9} 27|151b13 154l8 154t33
+171U14*Reset 27|1047b14 1058l8 1058t13
+172U14*Open 27|1060b14 1071l8 1071t12 1079s10 1085s10 1119s10
+177U14*Open_With_Command 178>7 27|1073b14 1099l8 1099t25
+178e7 Command{28|11E9} 27|1074b7 1078r10 1083r40 1090r80 1095r36
+180U14*Close 27|1101b14 1112l8 1112t13 1117s10
+181U14*Toggle 27|1114b14 1121l8 1121t14
+183V13*Is_Open{boolean} 27|1123b13 1126l8 1126t15
+185U14*Append_Character 186>7 27|1128b14 1137l8 1137t24
+186e7 Ch{character} 27|1129b7 1132r10 1132r29 1133r69
+188U14*Insert_Text 189>7 27|1139b14 1145l8 1145t19
+189a7 Text{string} 27|1140b7 1142r53
+191U14*Move_Cursor_Left 27|1167b14 1170l8 1170t24
+192U14*Move_Cursor_Right 27|1172b14 1175l8 1175t25
+193U14*Move_Cursor_Start 27|1177b14 1180l8 1180t25
+194U14*Move_Cursor_End 27|1182b14 1185l8 1185t23
+195U14*Select_All 27|1187b14 1190l8 1190t18
+197U14*Set_Cursor_From_Visible_Column 198>7 199>7 27|1192b14 1198l8 1198t38
+198i7 Visible_Column{natural} 27|1193b7 1197r24
+199i7 Visible_Columns{natural} 27|1194b7 1197r40
+201V13*Query_Cursor{natural} 27|1200b13 1203l8 1203t20
+203U14*Backspace 27|1147b14 1152l8 1152t17
+204U14*Delete_Forward 27|1154b14 1159l8 1159t22
+206V13*Query_Snapshot{32|17R9} 207>7 27|1161b13 1165l8 1165t22
+207i7 Visible_Columns{natural} 27|1162b7 1164r57
+209U14*Move_Selection_Up 27|1226b14 1229l8 1229t25
+210U14*Move_Selection_Down 27|1231b14 1234l8 1234t27
+211U14*Move_Selection_By 211>33 27|1205b14 1224l8 1224t25 1228s7 1233s7
+211i33 Amount{integer} 27|1205b33 1217r47
+217U14*Move_Selection_By_Candidates 218>7 219>7 27|1236b14 1267l8 1267t36
+218r7 Candidates{9|91R9[28|657]} 27|1237b7 1244r27
+219i7 Amount{integer} 27|1238b7 1260r47
+220U14*Select_First 27|1269b14 1277l8 1277t20 1284s10
+221U14*Select_Last 27|1279b14 1289l8 1289t19
+223U14*Filtered_Commands 224<7 27|1018s7 1210s7 1274s10 1282s7 1291b14 1342l8
+. 1342t25 1347s7 1360s7
+224r7 Result{9|91R9[28|662]} 27|1292b7 1304m7 1304r7 1339m10 1339r10
+226V13*Selected_Command{28|11E9} 27|1344b13 1355l8 1355t24
+228V13*Has_Selected_Command{boolean} 27|1357b13 1363l8 1363t28
+230V13*Match_Score{natural} 231>7 232>7 233>7 234>7 27|344b13 372l8 372t19
+. 897s9 899s9 905s18
+231a7 Label{string} 27|345b7 350r37
+232a7 Category_Label{string} 27|346b7 351r37
+233a7 Description{string} 27|347b7 352r37
+234a7 Query{string} 27|348b7 353r37
+239V13*Candidate_Passes_Transient_Filters{boolean} 240>7 27|203b13 252l8
+. 252t42 258s14 1405s17
+240r7 Candidate{28|640R9} 27|204b7 206r53 212r20 216r16 228r62 237r20 243r46
+. 245r44
+246V13*Candidate_Is_Currently_Visible{boolean} 247>7 27|254b13 260l8 260t38
+. 269s13
+247r7 Candidate{28|640R9} 27|255b7 258r50 259r66
+252U14*Visible_Candidates 253>7 254<7 27|262b14 273l8 273t26 984s7 1244s7
+253r7 Candidates{9|91R9[28|657]} 27|263b7 268r16
+254r7 Result{9|91R9[28|657]} 27|264b7 267m7 267r7 270m13 270r13
+259V13*Descriptor_Passes_Transient_Metadata_Filters{boolean} 260>7 27|275b13
+. 309l8 309t52 1309s35
+260r7 Descriptor{28|617R9} 27|276b7 279r57 281r57 290r62 299r21 303r21
+266V13*Metadata_Match_Score{natural} 267>7 268>7 269>7 270>7 271>7 272>7
+. 27|888b13 914l8 914t28 923s14
+267a7 Label{string} 27|889b7 897r22 924r10
+268a7 Stable_Name{string} 27|890b7 899r22 908r12 925r10
+269a7 Category_Label{string} 27|891b7 897r29 908r25 926r10
+270a7 Description{string} 27|892b7 897r45 928r10
+271a7 Keybinding{string} 27|893b7 902r20 905r31 929r10
+272a7 Query{string} 27|894b7 897r58 899r43 905r51 908r41 930r10
+277V13*Build_Command_Help{66R9} 278>7 27|693b13 757l8 757t26 1532s63
+278r7 Candidate{28|640R9} 27|694b7 698r37 704r70 711r59 718r47 720r58 723r55
+. 744r51 746r34 748r13 749r24 749r51 752r51 754r39 755r41
+281V13*Related_Command_Is_Activation_Safe{boolean} 282>7 27|608b13 636l8
+. 636t42 647s14
+282r7 Item{49R9} 27|609b7 613r48 615r14 616r17 617r17 631r29 632r46 634r29
+. 635r50
+284V13*Related_Command_Is_Canonical_Descriptor_Projection{boolean} 285>7
+. 27|638b13 657l8 657t58 668s17
+285r7 Item{49R9} 27|639b7 643r14 644r17 647r50 651r53 653r38 654r65 655r59
+. 656r46
+287V13*Assert_Related_Command_Help_Is_Phase570_Coherent{boolean} 288>7 27|659b13
+. 691l8 691t56
+288r7 Help{66R9} 27|660b7 663r10 667r21 669r13 674r28 675r16 675r52 676r34
+. 677r28 684r16 685r13
+290V13*Descriptor_Registry_Order{natural} 291>7 27|759b13 765l8 765t33 1330s45
+291e7 Id{28|11E9} 27|760b7 763r46
+293U14*Sort_Candidates 294=7 27|798b14 817l8 817t23 1336s7
+294r7 Candidates{9|91R9[28|657]} 27|799b7 804r10 808r30 809r15 811r50 812m13
+. 812r13 812r44 815m10 815r10
+296U14*Reconcile_Selection 297>7 298>7 299>7 27|973b14 1012l8 1012t27
+297r7 Candidates{9|91R9[28|657]} 27|974b7 984r27
+298e7 Preferred_Command{28|11E9} 27|975b7 979r13 980r15
+299b7 Prefer_First_Available{boolean} 27|976b7 1002r10
+301V13*Build_Snapshot{134R9} 302>7 303>7 27|1365b13 1600l8 1600t22
+302r7 Candidates{9|91R9[28|657]} 27|1366b7 1409r16
+303r7 Config{19R9} 27|1367b7 1375r61 1393r38 1395r37 1406r22 1466r34 1467r18
+. 1524r26 1525r46 1530r37 1539r28
+312V13*Truncate_With_Ellipsis{string} 313>7 314>7 27|374b13 388l8 388t30
+. 395s14 507s13 512s14
+313a7 Text{string} 27|375b7 381r13 382r17 386r17 386r23 386r37
+314i7 Max_Columns{natural} 27|376b7 379r10 381r28 383r13 386r50
+327V13*Layout_Command_Row{117R9} 328>7 329>7 330>7 331>7 332>7 333>7 27|398b13
+. 474l8 474t26 496s9
+328i7 Row_Width_Columns{natural} 27|399b7 410r33 413r10 419r18 422r44 497r12
+329i7 Label_Length{natural} 27|400b7 436r55 438r19 443r40 446r19 447r40 455r24
+. 466r53 470r47 498r12
+330i7 Secondary_Length{natural} 27|401b7 411r66 442r38 445r44 499r12
+331i7 Keybinding_Length{natural} 27|402b7 418r9 419r39 422r64 424r39 500r12
+332b7 Is_Selected{boolean} 27|403b7 411r45 501r12
+333b7 Is_Available{boolean} 27|404b7 406r28 502r12
+344V13*Project_Command_Row_Layout{117R9} 345>7 346>7 347>7 27|476b13 521l8
+. 521t34
+345r7 Candidate{28|640R9} 27|477b7 481r50 483r13 484r26 487r38 488r27 489r32
+. 491r37 492r30 493r26 502r33
+346b7 Is_Selected{boolean} 27|478b7 487r13 491r16 501r33
+347i7 Row_Columns{natural} 27|479b7 497r33
+349V13*Row_Count{natural} 350>7 27|1602b13 1606l8 1606t17 1612s31 1638s44
+. 1699s10 1705s13 1706s15 1729s37 1753s37
+350r7 Snapshot{134R9} 27|1603b7 1605r23
+352V13*Row{100R9} 353>7 354>7 27|1608b13 1615l8 1615t11
+353r7 Snapshot{134R9} 27|1609b7 1612r42 1614r14
+354i7 Index{positive} 27|1610b7 1612r22 1614r37
+356V13*Candidate_Count{natural} 357>7 27|1617b13 1621l8 1621t23 1627s30
+357r7 Snapshot{134R9} 27|1618b7 1620r23
+359V13*Candidate{28|640R9} 360>7 361>7 27|1623b13 1630l8 1630t17
+360r7 Snapshot{134R9} 27|1624b7 1627r47 1629r14
+361i7 Index{natural} 27|1625b7 1627r22 1629r43
+363V13*Candidate_For_Row{natural} 364>7 365>7 366<7 27|1632b13 1649l8 1649t25
+364r7 Snapshot{134R9} 27|1633b7 1638r55 1644r46
+365i7 Row_Index{natural} 27|1634b7 1638r10 1638r32 1644r69
+366b7 Found{boolean} 27|1635b7 1639m10 1646m10
+368V13*Row_For_Candidate{natural} 369>7 370>7 371<7 27|1651b13 1671l8 1671t25
+. 1698s20
+369r7 Snapshot{134R9} 27|1652b7 1657r30 1659r49
+370i7 Candidate_Index{natural} 27|1653b7 1662r44
+371b7 Found{boolean} 27|1654b7 1664m16 1669m7
+373U14*Ensure_Selected_Row_Visible 374>7 375>7 27|1673b14 1723l8 1723t35
+374r7 Snapshot{134R9} 27|1674b7 1687r30 1689r49 1698r39 1699r21 1705r24 1706r26
+375i7 Visible_Row_Count{natural} 27|1675b7 1699r43 1705r36 1706r38 1717r42
+. 1718r39
+377U14*Clamp_Viewport 378>7 379>7 27|1725b14 1746l8 1746t22
+378r7 Snapshot{134R9} 27|1726b7 1729r48
+379i7 Visible_Row_Count{natural} 27|1727b7 1732r28 1737r18 1738r29
+381U14*Scroll_By 382>7 383>7 384>7 27|1748b14 1773l8 1773t17
+382r7 Snapshot{134R9} 27|1749b7 1753r48
+383i7 Visible_Row_Count{natural} 27|1750b7 1757r28 1762r18 1763r29
+384i7 Step_Delta{integer} 27|1751b7 1755r54
+388K12 Command_Palette_Row_Vectors[9|74] 395r20
+394r7*Candidates{9|91R9[28|657]} 27|1415m14 1620r32 1629r23
+395r7*Rows{9|91R9[388]} 27|1446m20 1473m20 1500m26 1516m23 1555m29 1572r17
+. 1580m20 1605r32 1614r23 1644r55 1657r39 1659r58 1687r39 1689r58
+X 27 editor-command_palette.adb
+15r4 State{26|10R9} 28m7 81r19 82r26 84r18 85r18 86r18 87r18 947m10 948m10
+. 949m10 951m10 952m10 953m10 963m10 964m10 965m10 967m10 968m10 969m10 981r15
+. 987m10 988m10 989m10 1016r58 1034r10 1038r57 1044r14 1049m7 1050m7 1052m7
+. 1053m7 1054m7 1055m7 1062m7 1063m7 1065m7 1066m7 1067m7 1068m7 1089m7 1090m7
+. 1092r64 1093m7 1094m7 1095m7 1096m7 1103m7 1104m7 1106m7 1107m7 1108m7
+. 1109m7 1116r10 1125r14 1217r24 1251r10 1253r41 1254m16 1260r24 1296r41
+. 1350r13 1353r35 1362r18 1373r50 1418r13 1420r55 1429r16 1430r42 1678r39
+. 1700m10 1710m10 1710r40 1711m10 1711r40 1715r22 1716m10 1717r26 1718m10
+. 1721m7 1721r37 1722m7 1722r37 1733m10 1741r10 1742m10 1743r13 1744m10 1755r37
+. 1758m10 1772m7
+16r4 Config_State{26|19R9} 35r14 40m7 47m7 52m7 57m7 62m7 67m7 67r41 88r22
+. 259r19 728r17 1056m7 1069m7 1097m7 1110m7
+17r4 Filter_Field{32|5R9} 28r68 83r43 1051m33 1051r33 1064m33 1064r33 1091m33
+. 1091r33 1092m39 1092r39 1105m33 1105r33 1133m42 1133r42 1142m39 1142r39
+. 1149m37 1149r37 1156m42 1156r42 1164r43 1169m44 1169r44 1174m45 1174r45
+. 1179m45 1179r45 1184m43 1184r43 1189m38 1189r38 1197m10 1197r10 1202r48
+18e4 Availability_Filter_State{26|30E9} 72m7 89r18 99m7 106r14 208r12
+20b4 Category_Filter_Active{boolean} 73m7 90r22 111m7 118m7 125r14 221r10
+. 283r10
+21r4 Category_Filter_Label_State{20|105R9} 74m7 91r26 112m7 119m7 130r25
+. 222r61 284r61
+22b4 Destructive_Filter_State{boolean} 75m7 92r22 135m7 141r14 227r10 289r10
+23e4 Keybinding_Filter_State{26|35E9} 76m7 93r18 147m7 153r14 233r12 295r12
+26U14 Sync_Query 26b14 29l8 29t18 1134s10 1143s7 1150s7 1157s7
+31U14 Clamp_Selection 100s7 113s7 120s7 136s7 148s7 1014b14 1040l8 1040t23
+. 1135s10 1144s7 1151s7 1158s7
+156V13 Lower{string} 156b13 156>20 159l8 159t13 162s35 222s18 222s43 284s18
+. 284s43 350s30 351s30 352s30 353s30 825s35 826s35 827s35
+156a20 S{string} 158r48
+161V13 Product_Facing_Classification_Label{string} 161b13 161>50 201l8 201t43
+. 743s10
+161a50 Text{string} 162r42
+162a7 Source{string} 173r35 176r35 179r35 182r35 185r35 188r35 191r35 194r35
+163r7 Result{20|105R9} 167r21 168m21 168r21 170m18 170r18 197r18 200r25
+165U17 Add 165b17 165>22 171l11 171t14 174s10 177s10 180s10 183s10 186s10
+. 189s10 192s10 195s10 198s10
+165a22 Item{string} 170r26
+206a7 Category_Text{string} 222r25
+242r16 D{28|617R9} 245r24
+268r11 C{28|640R9} 269r45 270r28
+278r7 Binding{33|56R9} 299r54 303r50
+280a7 Category_Text{string} 284r25
+311V13 Starts_With{boolean} 311b13 311>26 311>32 315l8 315t19 359s13
+311a26 Text{string} 313r31 314r18 314r24 314r38
+311a32 Prefix{string} 313r14 314r51 314r72
+317V13 Word_Initial_Or_Subsequence_Match{boolean} 317b13 317>48 317>54 342l8
+. 342t41 363s13
+317a48 Text{string} 326r16 327r55 331r38 338r21 338r44 338r67
+317a54 Query{string} 318r30 322r10 327r35 327r66 331r18 331r49 333r20 341r32
+318i7 J{natural} 327r30 327r73 331r13 331r56 332m13 332r18 333r16
+319b7 At_Word{boolean} 327r13 338m10
+320b7 Hit_Word{boolean} 328m13 341r14
+326i11 I{integer} 327r61 331r44 338r27 338r50 338r73
+350a7 L{string} 357r13 359r26 361r38 363r48
+351a7 C{string} 365r38
+352a7 D{string} 367r38
+353a7 Q{string} 355r10 357r17 359r29 361r41 363r51 365r41 367r41
+390V13 Fit_Text{string} 390b13 391>7 392>7 396l8 396t16
+391a7 Text{string} 395r38
+392i7 Max_Columns{natural} 395r44
+407r7 Result{26|117R9} 414r17 417m7 421r10 422m10 423m10 423r38 424m10 425r26
+. 428m7 431r17 440m13 443m16 444m16 445m16 447m16 448m16 449m16 451m16 457m16
+. 458r18 459m16 460r33 463r16 464m16 465m16 466m16 470m10 473r14
+408i7 Binding_Gap{natural} 419r59 425r59
+409i7 Secondary_Gap{natural} 434r50 436r70 446r34 456r39 458r41
+410i7 Main_Columns{natural} 425m10 430r10 434r35 442r58 446r50 449r44 456r24
+. 460r18 466r67 470r61
+411b7 Wants_Secondary{boolean} 434r10
+436i13 Full_Label_With_Gap{natural} 442r16 444r49 448r49 449r59
+437i13 Minimum_Label{natural} 453r21
+481a7 Label_Text{string} 498r33 507r37
+482a7 Binding_Text{string} 500r33 517r57
+486a7 Secondary_Text{string} 499r33 512r38
+495r7 Result{26|117R9} 505r10 507r49 510r10 512r54 515m7 516r10 517m10 520r14
+503r7 Main{20|105R9} 506m10 511m10 511r18 515r30
+524V13 Related_Command_From_Descriptor{26|49R9} 524b13 525>7 550l8 550t39
+. 557s9 651s20
+525e7 Command{28|11E9} 527r72 530r10 536r40 545r29
+527a7 Stable{string} 531r17 546r50
+528r7 D{28|617R9} 536m7 536r7 537r10 547r29
+552U14 Add_Related_Command 552b14 553=7 554>7 576l8 576t27 585s13 586s13
+. 588s13 589s13 590s13 592s13 593s13 595s13 596s13 597s13 599s13 600s13 602s13
+553r7 Help{26|66R9} 560r17 565r21 566r13 567r31 574m7 574r37 575m7 575r30
+554e7 Command{28|11E9} 557r42 566r49
+556r7 Item{26|49R9} 559r14 568r25 575r61
+565i11 I{integer} 566r36 567r54
+578U14 Add_Related_Commands_For 578b14 579=7 580>7 606l8 606t32 755s7
+579r7 Help{26|66R9} 585m34 586m34 588m34 589m34 590m34 592m34 593m34 595m34
+. 596m34 597m34 599m34 600m34 602m34
+580e7 Id{28|11E9} 583r12
+611b7 Found{boolean} 629m70 629r70 630r14
+612e7 Resolved{28|11E9} 629m7 631r18
+613a7 Name{string} 618r17 619r67 620r67 621r67 622r67 623r67 624r67 629r64
+641r7 Canonical{26|49R9} 651m7 651r7 652r14 653r18 654r29 655r29 656r18
+667i11 I{integer} 669r36 674r19 675r39 676r57
+674i14 J{integer} 675r75 677r51
+684i11 I{integer} 685r36
+697r7 D{28|617R9} 716r23 721r29 725r34 726r42 732r16 736r34 739r18
+699r7 Result{26|66R9} 716m7 717m7 719m7 721m7 722m7 724m7 724r39 725m7 725r58
+. 726m7 727m7 730r16 735m7 737m7 742m7 745m7 747m7 751m7 753m7 755m33 755r33
+. 756r14
+701V16 Active_Keybinding_Label{20|105R9} 701b16 714l11 714t34 731s15
+702r10 Label{20|105R9} 705r24 706m24 706r24 709m16 709r16 713r17
+704i14 I{integer} 711r73
+767V13 Candidate_Less{boolean} 767b13 768>7 769>7 796l8 796t22 811s31
+768r7 Left{28|640R9} 771r47 773r56 776r10 777r17 778r13 784r13 785r17 788r13
+. 789r55 791r13 792r17
+769r7 Right{28|640R9} 772r47 774r56 776r30 777r36 784r31 788r30 790r52 791r36
+. 792r39
+771a7 L_Label{string} 794r17
+772a7 R_Label{string} 794r27
+773a7 L_Category_Label{string} 778r43 783r17 786r13 787r17
+774a7 R_Category_Label{string} 778r63 783r36 786r33 787r36
+801i7 J{natural} 810m10 811r16 811r70 812r41 812r64 813m13 813r18 815r38
+802r7 V{28|640R9} 809m10 809r10 811r47 815r41
+808i11 I{integer} 809r35 810r15
+820V13 Phase578_Common_User_Term_Score{natural} 820b13 821>7 822>7 823>7
+. 886l8 886t39 907s9
+821a7 Stable_Name{string} 825r42
+822a7 Category_Label{string} 826r42
+823a7 Query{string} 827r42
+825a7 Stable{string} 838r38 839r33 844r38 848r26 852r26 853r33 859r26 865r26
+. 866r33 871r26 872r20 880r63
+826a7 Cat{string} 848r52 854r20 859r54 873r20 880r13
+827a7 Q{string} 835r10 837r13 843r13 847r13 851r13 851r34 858r13 858r35 858r56
+. 862r13 862r38 863r17 863r39 870r13 870r34 877r13 877r35 878r17 878r42
+829V16 Starts_With{boolean} 829b16 829>29 829>35 833l11 833t22 839s20 848s13
+. 852s13 853s20 859s13 865s13 866s20 871s13
+829a29 Text{string} 831r34 832r21 832r27 832r41
+829a35 Prefix{string} 831r17 832r54 832r75
+896i7 Label_Score{natural} 912r26
+898i7 Stable_Id_Score{natural} 912r39
+900i7 Keybinding_Score{natural} 912r57
+906i7 Common_User_Term_Score{natural} 913r10
+916V13 Descriptor_Match_Score{natural} 916b13 917>7 918>7 931l8 931t30 938s14
+. 1307s41
+917r7 Descriptor{28|617R9} 921r57 924r39 925r65 927r13 928r39
+918a7 Query{string} 930r28
+920r7 Binding{33|56R9} 929r39
+933V13 Matches_Query{boolean} 933b13 934>7 935>7 939l8 939t21
+934r7 Descriptor{28|617R9} 938r38
+935a7 Query{string} 938r50
+941U14 Set_Selected_From_Descriptor_Vector 941b14 942>7 943>7 955l8 955t43
+. 1021s10 1028s16 1035s10 1038s10 1212s10 1223s7 1275s10 1286s10
+942r7 Descriptors{9|91R9[28|662]} 946r10 946r59 953r39
+943i7 Index{natural} 946r41 951r33 952r44 953r60
+957U14 Set_Selected_From_Candidate_Vector 957b14 958>7 959>7 971l8 971t42
+. 996s16 1005s16 1011s7 1246s10 1266s7
+958r7 Candidates{9|91R9[28|657]} 962r10 962r58 969r39
+959i7 Index{natural} 962r40 967r33 968r44 969r59
+978e7 Preferred{28|11E9} 993r10 995r41
+982r7 Visible{9|91R9[28|657]} 984m39 986r10 994r33 995r16 996r52 1003r33
+. 1004r16 1005r52 1011r43
+994i14 I{integer} 995r33 996r61
+1003i14 I{integer} 1004r33 1005r61
+1015r7 Filtered{9|91R9[28|662]} 1018m26 1020r10 1021r47 1026r33 1027r16 1028r53
+. 1034r42 1036r13 1036r32 1038r47
+1016e7 Preferred{28|11E9} 1025r10 1027r42
+1026i14 I{integer} 1027r34 1028r63
+1076r7 D{28|617R9} 1083m7 1083r7 1084r10
+1206r7 Filtered{9|91R9[28|662]} 1210m26 1211r10 1212r47 1216r24 1223r44
+1207i7 Last{natural} 1216m7 1220r29 1221r27
+1208i7 Next{integer} 1217m7 1218r10 1219m10 1220r13 1221m10 1223r63
+1240r7 Visible{9|91R9[28|657]} 1244m39 1245r10 1246r46 1250r24 1252r33 1253r16
+. 1266r43
+1241i7 Last{natural} 1250m7 1263r29 1264r27
+1242i7 Next{integer} 1260m7 1261r10 1262m10 1263r13 1264m10 1266r61
+1252i14 I{integer} 1253r33 1254r39
+1272r10 Filtered{9|91R9[28|662]} 1274m29 1275r47
+1280r7 Filtered{9|91R9[28|662]} 1282m26 1283r10 1287r13 1287r32
+1294r7 All_Commands{9|91R9[28|662]} 1305r16
+1296a7 Q{string} 1307r68
+1297r7 Candidates{9|91R9[28|657]} 1314m19 1314r19 1336m24 1336r24 1338r16
+1305r11 D{28|617R9} 1307r65 1309r81 1312r69 1316r46 1317r45 1318r45 1319r45
+. 1321r74 1324r45 1326r45 1327r45 1328r48 1330r72
+1307i13 Score{natural} 1309r16 1329r45
+1311r19 Binding{33|56R9} 1324r65 1325r45
+1338r11 C{28|640R9} 1339r53
+1345r7 Filtered{9|91R9[28|662]} 1347m26 1348r10 1350r45 1351r17 1351r44 1353r17
+1358r7 Filtered{9|91R9[28|662]} 1360m26 1361r14 1362r49
+1369r7 Result{26|134R9} 1415m7 1446m13 1446r13 1463r17 1473m13 1473r13 1500m19
+. 1500r19 1516m16 1516r16 1555m22 1555r22 1572r10 1580m13 1580r13 1599r14
+1370r7 Visible_Candidates{9|91R9[28|657]} 1411m13 1411r13 1415r28 1417r10
+. 1419r36 1420r19 1429r47 1432r51 1438r10 1488r30 1490r71
+1371r7 Last_Category_Label{20|105R9} 1498r56 1512m19
+1372b7 Have_Category{boolean} 1497r32 1513m19
+1373a7 Query_Text{string} 1374r44 1444r53 1578r63
+1374b7 Query_Is_Empty{boolean} 1375r37 1442r22 1454r26 1466r10 1576r22 1588r26
+1375b7 Grouped{boolean} 1496r16
+1376i7 Selected_Visible_Index{natural} 1421m19 1430m16 1432m16 1492r56
+1377b7 Have_Selected_Visible_Index{boolean} 1422m19 1428r17 1434m13 1492r15
+1379V16 Reason_For{20|105R9} 1379b16 1379>28 1388l11 1388t21 1394s20
+1379r28 C{28|640R9} 1381r13 1383r24 1384r20
+1390V16 Selected_Secondary{20|105R9} 1390b16 1390>36 1400l11 1400t29 1494s33
+1390r36 C{28|640R9} 1393r17 1394r32 1395r16 1396r20
+1402V16 Candidate_Visible_For_Config{boolean} 1402b16 1403>10 1407l11 1407t39
+. 1410s13
+1403r10 C{28|640R9} 1405r53 1406r63
+1409r11 C{28|640R9} 1410r43 1411r40
+1419i17 I{integer} 1420r47 1421r45
+1440r13 Empty_Text{20|105R9} 1451r43
+1470r13 Help_Text{20|105R9} 1478r43
+1488i11 I{integer} 1490r99 1492r52 1519r46 1558r52
+1490r13 C{28|640R9} 1494r53 1498r36 1504r49 1505r49 1512r42 1520r46 1521r46
+. 1524r55 1525r79 1527r46 1532r83 1559r52 1565r52
+1491b13 Selected{boolean} 1494r19 1526r46 1530r19
+1493r13 Secondary{20|105R9} 1522r46
+1532r22 Help{26|66R9} 1534r36 1536r29 1540r30 1543r24 1544r26 1546r26 1547r26
+. 1550r36 1551r30 1551r59 1552r39 1553r30 1553r59
+1533r22 Surface_Text{20|105R9} 1548r26
+1538r22 Keybinding_Text{20|105R9} 1545r26
+1542r22 Help_Text{20|105R9} 1560r61
+1549r22 Help_Detail{20|105R9} 1561r52
+1574r13 Empty_Text{20|105R9} 1585r43
+1644r10 R{26|100R9} 1646r19 1647r17
+1657i11 I{integer} 1659r72 1665r23
+1659r13 R{26|100R9} 1661r16 1662r24
+1677b7 Found{boolean} 1698m69 1698r69 1709r14
+1678i7 Selected_Candidate{natural} 1692m16 1698r49
+1679i7 Row_Index{natural} 1698m7 1715r10 1716r27 1717r13 1718r27
+1680i7 Max_Top{natural} 1704m7 1710r55 1721r52
+1687i11 I{integer} 1689r72
+1689r13 R{26|100R9} 1691r16 1691r62 1692r38
+1729i7 Count{natural} 1732r10 1737r10 1738r21
+1730i7 Max_Top{natural} 1738m10 1743r29 1744r27
+1753i7 Count{natural} 1757r10 1762r10 1763r21
+1754i7 Max_Top{natural} 1763m10 1768r32 1769r30
+1755i7 Desired{integer} 1766r10 1767m10 1768r13 1769m10 1772r33
+X 28 editor-commands.ads
+6K16*Commands 26|3w13 15r41 15r71 50r28 50r58 103r39 104r16 178r24 218r27
+. 224r27 226r44 240r26 247r26 253r27 254r31 260r27 278r26 291r19 294r34 297r39
+. 298r39 298r69 302r27 345r28 361r41 394r27 27|11r20 12r20 13r20 86r53 204r26
+. 228r29 242r36 243r25 255r26 263r27 264r31 276r27 281r16 290r29 477r28 525r24
+. 527r42 528r23 530r27 536r19 537r33 554r24 580r21 584r22 585r47 586r47 587r22
+. 588r47 589r47 590r47 591r22 592r47 593r47 594r22 595r47 596r47 597r47 598r22
+. 599r47 600r47 601r22 602r47 612r25 612r55 617r39 629r26 632r25 633r18 635r29
+. 694r26 697r27 698r16 718r17 720r17 740r25 741r25 744r20 752r17 754r17 760r19
+. 763r21 764r18 764r50 768r22 769r22 789r24 790r21 799r34 802r18 917r27 925r35
+. 926r35 934r27 942r28 949r46 958r27 965r46 974r39 975r39 975r69 978r35 979r41
+. 982r24 989r46 993r30 1015r25 1016r35 1025r30 1054r43 1067r43 1074r24 1076r18
+. 1078r27 1083r19 1084r33 1090r50 1108r43 1206r25 1237r27 1240r24 1251r46
+. 1272r28 1280r25 1292r27 1294r38 1295r16 1297r27 1315r29 1321r33 1339r32
+. 1344r44 1345r25 1349r24 1358r25 1366r27 1370r35 1379r39 1390r47 1403r21
+. 1418r49 1450r50 1477r50 1490r33 1584r50 1625r41 28|1740e20
+11E9*Command_Id 26|15r50 50r37 178r33 226r53 291r28 298r48 27|11r29 525r33
+. 554r33 580r30 612r34 760r28 763r30 764r27 764r59 975r48 978r44 1016r44
+. 1074r33 1344r53 28|549e47
+12n7*No_Command{11E9} 26|15r80 50r67 298r78 27|86r62 530r36 612r64 617r48
+. 949r55 965r55 975r78 979r50 989r55 993r39 1025r39 1054r52 1067r52 1078r36
+. 1108r52 1251r55 1349r33 1418r58
+224n7*Command_Open_Project{11E9} 27|584r31
+226n7*Command_Show_Recent_Projects{11E9} 27|585r56
+285n7*Command_Next_Diagnostic{11E9} 27|595r56
+286n7*Command_Previous_Diagnostic{11E9} 27|596r56
+418n7*Command_Reset_Settings_To_Defaults{11E9} 27|601r31
+424n7*Command_Keybindings_Assign_Selected{11E9} 27|598r31
+425n7*Command_Keybindings_Remove_Selected{11E9} 27|599r56
+426n7*Command_Keybindings_Reset_To_Defaults{11E9} 27|600r56
+433n7*Command_Configuration_Audit{11E9} 27|602r56
+446n7*Command_Restore_Workspace_State{11E9} 27|586r56
+456n7*Command_Refresh_Outline{11E9} 27|591r31
+470n7*Command_Reveal_Current_Outline_Symbol{11E9} 27|592r56
+477n7*Command_Clear_Outline_Filter{11E9} 27|593r56
+505n7*Command_Diagnostics_Clear{11E9} 27|597r56
+517n7*Command_Diagnostics_Open_Selected{11E9} 27|594r31
+531n7*Command_Build_UI_Show{11E9} 27|590r56
+533n7*Command_Build_UI_Focus{11E9} 27|588r56
+545n7*Command_Build_Acknowledge_Consent{11E9} 27|589r56
+547n7*Command_Build_Run{11E9} 27|587r31
+551E9*Command_Category 26|103r48 27|12r29 789r33 790r30 28|567e25
+567n7*Internal_Category{551E9} 26|104r25 27|1450r59 1477r59 1584r59
+569E9*Command_Visibility 27|13r29 28|571e23
+570n7*Hidden_Command{569E9} 27|741r34
+571n7*Palette_Command{569E9} 27|537r42 633r27 740r34 1084r42
+617R9*Command_Descriptor 26|260r36 27|242r45 276r36 528r32 697r36 917r36
+. 934r36 1076r27 28|638e14
+618e7*Id{11E9} 27|279r68 281r68 290r73 921r68 925r76 927r24 953r67 1027r37
+. 1312r71 1316r48 1321r76 1330r74 1351r66 1353r56
+619r7*Name{20|105R9} 27|547r31 635r64 716r25 924r50 1317r47
+620r7*Description{20|105R9} 27|721r31 928r50 1318r47
+621e7*Category{551E9} 27|1319r47
+622e7*Visibility{569E9} 27|537r12 632r60 739r20 1084r12
+623b7*Bindable{boolean} 27|245r26 299r32 303r32 725r36 726r44 732r18 736r36
+. 1324r47
+627r7*Summary{20|105R9} 27|1326r47
+636e7*Family{582E9} 27|1327r47
+637e7*Effect_Classification{586E9} 27|1328r50
+640R9*Command_Palette_Candidate 26|240r35 247r35 278r35 345r37 361r50 27|204r35
+. 255r35 477r37 694r35 768r31 769r31 802r27 1315r38 1379r48 1390r56 1403r30
+. 1490r42 1625r50 28|655e14
+641e7*Id{11E9} 27|228r72 243r56 698r47 704r80 711r69 718r57 720r68 723r65
+. 744r61 752r61 754r49 755r51 969r66 995r36 1253r36 1316m24 1339r55 1420r50
+642r7*Label{20|105R9} 27|481r60 771r52 772r53 1317m23 1521r48
+643r7*Description{20|105R9} 27|492r40 493r36 1318m23 1396r22
+644e7*Category{551E9} 27|788r18 788r36 789r60 790r58 1319m23 1504r51 1520r48
+. 1559r54
+645r7*Category_Label{20|105R9} 27|206r63 773r61 774r62 1320m23 1498r38 1505r51
+. 1512r44
+646b7*Available{boolean} 27|212r30 216r26 259r76 487r48 491r47 502r43 746r44
+. 748r23 784r18 784r37 785r22 1004r36 1322m23 1381r15 1393r19 1395r18 1406r65
+. 1527r48 1565r54
+647r7*Reason{20|105R9} 27|488r37 489r42 749r34 749r61 1323m23 1383r26 1384r22
+648b7*Has_Keybinding{boolean} 27|237r30 245r54 483r23 1324m23 1525r81
+649r7*Keybinding_Display{20|105R9} 27|484r36 1325m23 1524r57
+650r7*Reference_Summary{20|105R9} 27|1326m23
+651e7*Family{582E9} 27|1327m23
+652e7*Effect_Classification{586E9} 27|1328m23
+653i7*Match_Score{natural} 27|776r15 776r36 777r22 777r42 778r18 1329m23
+654i7*Registry_Order{natural} 27|791r18 791r42 792r22 792r45 1330m23
+657K12*Command_Palette_Candidate_Vectors[9|74] 26|218r36 253r36 254r40 294r43
+. 297r48 302r36 394r36 27|263r36 264r40 799r43 958r36 974r48 982r33 1237r36
+. 1240r33 1297r36 1366r36 1370r44
+662K12*Command_Descriptor_Vectors[9|74] 26|224r36 27|942r37 1015r34 1206r34
+. 1272r37 1280r34 1292r36 1294r47 1345r34 1358r34
+815V13*Descriptor{617R9} 27|243s34 536s28 632s34 635s38 698s25 1083s28 1339s41
+842V13*Discoverability_Category_Label{string} 27|281s25 720s26 926s44 1321s42
+851V13*Classification_Label{string} 27|744s29
+858V13*Surface_Relevance_Label{string} 27|752s26
+863V13*Guard_Label{string} 27|754s26
+969V13*Stable_Command_Name{string} 27|527s51 718s26 925s44 1090s59
+976V13*Command_Id_From_Stable_Name{11E9} 27|629s35
+1061V13*Is_Destructive_Command{boolean} 27|228s38 290s38
+1153V13*Palette_Commands{9|91R9[662]} 27|1295s25
+X 29 editor-contextual_help.ads
+4K16*Contextual_Help 27|5w13 1455r35 1456r35 1589r35 1590r35 29|81e27
+31V13*Command_Palette_No_Match_Detail{string} 27|1455s51 1456s51 1589s51
+. 1590s51
+X 32 editor-input_field.ads
+3K16*Input_Field 26|4w13 207r48 27|6w13 17r26 28r50 83r25 1051r14 1064r14
+. 1091r14 1092r14 1105r14 1133r17 1142r14 1149r14 1156r14 1162r48 1164r21
+. 1169r14 1174r14 1179r14 1184r14 1189r14 1196r14 1202r21 32|106e23
+5R9*Input_Field_State 27|17r38 32|104e14
+17R9*Field_Snapshot 26|207r60 27|1162r60 32|26e14
+28U14*Clear 27|1051s26 1064s26 1091s26 1105s26
+31V13*Text{string} 27|28s62 83s37
+41V13*Cursor_Column{natural} 27|1202s33
+48U14*Set_Cursor_From_Visible_Column 27|1196s26
+53U14*Move_Cursor_Left 27|1169s26
+57U14*Move_Cursor_Right 27|1174s26
+61U14*Move_Cursor_Start 27|1179s26
+65U14*Move_Cursor_End 27|1184s26
+69U14*Insert_Text 27|1092s26 1133s29 1142s26
+73U14*Backspace 27|1149s26
+76U14*Delete_Forward 27|1156s26
+79U14*Select_All 27|1189s26
+91V13*Snapshot{17R9} 27|1164s33
+X 33 editor-keybindings.ads
+4K16*Keybindings 27|7w13 278r33 279r16 704r31 710r23 711r26 723r16 920r33
+. 921r16 1311r45 1312r28 33|230e23
+56R9*Command_Keybinding_Info 27|278r45 920r45 1311r57 33|60e14
+57b7*Has_Binding{boolean} 27|299r62 303r58 1324r73
+58r7*Display{20|105R9} 27|929r47 1325r53
+123V13*Primary_Binding_For_Command{56R9} 27|279s28 921s28 1312s40
+129V13*Binding_Count_For_Command{natural} 27|704s43 723s28
+136V13*Binding_For_Command{47R9} 27|711s38
+218V13*Format_Chord{string} 27|710s35
+X 37 system.ads
+67M9*Address
+X 46 s-memory.ads
+51V13*Alloc{37|67M9} 101i<c,__gnat_malloc>22
+66U14*Free 102i<c,__gnat_free>22
+74V13*Realloc{37|67M9} 103i<c,__gnat_realloc>22
+X 57 s-stalib.adb
+87U14 Break_Start 88i<c,__gnat_break_start>22
+

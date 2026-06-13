@@ -1,0 +1,2329 @@
+V "GNAT Lib v15"
+A -gnat2022
+P SS ZX
+
+RN
+RV NO_ACCESS_SUBPROGRAMS
+RV NO_ALLOCATORS
+RV NO_DIRECT_BOOLEAN_OPERATORS
+RV NO_DISPATCH
+RV NO_DISPATCHING_CALLS
+RV NO_ENUMERATION_MAPS
+RV NO_EXCEPTION_HANDLERS
+RV NO_EXCEPTION_PROPAGATION
+RV NO_EXCEPTIONS
+RV NO_FLOATING_POINT
+RV NO_IO
+RV NO_IMPLICIT_CONDITIONALS
+RV NO_LOCAL_TAGGED_TYPES
+RV NO_LOCAL_ALLOCATORS
+RV NO_NESTED_FINALIZATION
+RV NO_SECONDARY_STACK
+RV NO_STANDARD_STORAGE_POOLS
+RV NO_STREAMS
+RV NO_UNCHECKED_ACCESS
+RV NO_UNCHECKED_DEALLOCATION
+RV NO_DEFAULT_INITIALIZATION
+RV NO_DYNAMIC_SIZED_OBJECTS
+RV NO_IMPLEMENTATION_ASPECT_SPECIFICATIONS
+RV NO_IMPLEMENTATION_ATTRIBUTES
+RV NO_IMPLEMENTATION_PRAGMAS
+RV NO_IMPLICIT_ALIASING
+RV NO_IMPLICIT_LOOPS
+RV NO_ELABORATION_CODE
+RV STATIC_DISPATCH_TABLES
+
+U editor.buffers%b	editor-buffers.adb	cd6bc7b9 OO PF PK
+W ada%s			ada.ads			ada.ali
+W ada.containers%s	a-contai.ads		a-contai.ali
+Z ada.containers.generic_array_sort%s
+Z ada.containers.helpers%s  a-conhel.adb	a-conhel.ali
+W ada.containers.vectors%s
+W ada.directories%s	a-direct.adb		a-direct.ali
+Z ada.exceptions%s	a-except.adb		a-except.ali
+Z ada.finalization%s	a-finali.ads		a-finali.ali
+Z ada.iterator_interfaces%s
+Z ada.streams%s		a-stream.adb		a-stream.ali
+W ada.strings%s		a-string.ads		a-string.ali
+W ada.strings.fixed%s	a-strfix.adb		a-strfix.ali
+Z ada.strings.text_buffers%s  a-sttebu.adb	a-sttebu.ali
+W ada.strings.unbounded%s  a-strunb.adb		a-strunb.ali
+Z ada.tags%s		a-tags.adb		a-tags.ali
+W ada.unchecked_deallocation%s
+W editor%s		editor.ads		editor.ali
+W editor.buffer_switcher%s  editor-buffer_switcher.adb  editor-buffer_switcher.ali
+W editor.dirty_guards%s	editor-dirty_guards.adb	editor-dirty_guards.ali
+W editor.feature_diagnostics%s  editor-feature_diagnostics.adb  editor-feature_diagnostics.ali
+W editor.feature_messages%s  editor-feature_messages.adb  editor-feature_messages.ali
+W editor.feature_panel%s  editor-feature_panel.adb  editor-feature_panel.ali
+W editor.feature_search_results%s  editor-feature_search_results.adb  editor-feature_search_results.ali
+W editor.file_tree%s	editor-file_tree.adb	editor-file_tree.ali
+W editor.file_tree_view%s  editor-file_tree_view.adb  editor-file_tree_view.ali
+W editor.gutter_markers%s  editor-gutter_markers.adb  editor-gutter_markers.ali
+W editor.input_field%s	editor-input_field.adb	editor-input_field.ali
+W editor.messages%s	editor-messages.adb	editor-messages.ali
+W editor.navigation_history%s  editor-navigation_history.adb  editor-navigation_history.ali
+W editor.outline%s	editor-outline.adb	editor-outline.ali
+W editor.overlay_focus%s  editor-overlay_focus.adb  editor-overlay_focus.ali
+W editor.panel_focus%s	editor-panel_focus.adb	editor-panel_focus.ali
+W editor.panels%s	editor-panels.adb	editor-panels.ali
+W editor.pending_transitions%s  editor-pending_transitions.adb  editor-pending_transitions.ali
+W editor.problems%s	editor-problems.adb	editor-problems.ali
+W editor.project%s	editor-project.adb	editor-project.ali
+W editor.project_search%s  editor-project_search.adb  editor-project_search.ali
+W editor.project_search_bar%s  editor-project_search_bar.adb  editor-project_search_bar.ali
+W editor.quick_open%s	editor-quick_open.adb	editor-quick_open.ali
+W editor.recent_buffers%s  editor-recent_buffers.adb  editor-recent_buffers.ali
+W editor.render_cache%s	editor-render_cache.adb	editor-render_cache.ali
+W editor.search%s	editor-search.adb	editor-search.ali
+W editor.search_results%s  editor-search_results.adb  editor-search_results.ali
+W editor.state%s	editor-state.adb	editor-state.ali
+W editor.view%s		editor-view.adb		editor-view.ali
+Z system%s		system.ads		system.ali
+Z system.concat_2%s	s-conca2.adb		s-conca2.ali
+Z system.concat_3%s	s-conca3.adb		s-conca3.ali
+Z system.concat_4%s	s-conca4.adb		s-conca4.ali
+Z system.finalization_primitives%s  s-finpri.adb  s-finpri.ali
+Z system.img_address_64%s  s-imad64.ads		s-imad64.ali
+Z system.img_int%s	s-imgint.ads		s-imgint.ali
+Z system.pool_global%s	s-pooglo.adb		s-pooglo.ali
+Z system.put_images%s	s-putima.adb		s-putima.ali
+Z system.return_stack%s	s-retsta.ads		s-retsta.ali
+Z system.secondary_stack%s  s-secsta.adb	s-secsta.ali
+Z system.soft_links%s	s-soflin.adb		s-soflin.ali
+Z system.standard_library%s  s-stalib.adb	s-stalib.ali
+Z system.storage_elements%s  s-stoele.ads	s-stoele.ali
+Z system.storage_pools%s  s-stopoo.adb		s-stopoo.ali
+Z system.storage_pools.subpools%s  s-stposu.adb	s-stposu.ali
+Z system.stream_attributes%s  s-stratt.adb	s-stratt.ali
+Z system.strings.stream_ops%s  s-ststop.adb	s-ststop.ali
+
+U editor.buffers%s	editor-buffers.ads	58d0312e EE OO PF PK
+W ada%s			ada.ads			ada.ali
+W ada.containers%s	a-contai.ads		a-contai.ali
+Z ada.containers.generic_array_sort%s
+Z ada.containers.helpers%s  a-conhel.adb	a-conhel.ali
+W ada.containers.vectors%s
+Z ada.exceptions%s	a-except.adb		a-except.ali
+Z ada.finalization%s	a-finali.ads		a-finali.ali
+Z ada.iterator_interfaces%s
+Z ada.streams%s		a-stream.adb		a-stream.ali
+W ada.strings%s		a-string.ads		a-string.ali
+Z ada.strings.text_buffers%s  a-sttebu.adb	a-sttebu.ali
+W ada.strings.unbounded%s  a-strunb.adb		a-strunb.ali
+Z ada.tags%s		a-tags.adb		a-tags.ali
+Z ada.unchecked_deallocation%s
+W editor%s		editor.ads		editor.ali
+W editor.buffer_types%s	editor-buffer_types.ads	editor-buffer_types.ali
+W editor.dirty_guards%s	editor-dirty_guards.adb	editor-dirty_guards.ali
+W editor.history%s	editor-history.adb	editor-history.ali
+W editor.project%s	editor-project.adb	editor-project.ali
+Y editor.state%s	editor-state.adb	editor-state.ali
+W editor.view_types%s	editor-view_types.ads	editor-view_types.ali
+Z system%s		system.ads		system.ali
+Z system.finalization_primitives%s  s-finpri.adb  s-finpri.ali
+Z system.img_flt%s	s-imgflt.ads		s-imgflt.ali
+Z system.pool_global%s	s-pooglo.adb		s-pooglo.ali
+Z system.put_images%s	s-putima.adb		s-putima.ali
+Z system.return_stack%s	s-retsta.ads		s-retsta.ali
+Z system.secondary_stack%s  s-secsta.adb	s-secsta.ali
+Z system.soft_links%s	s-soflin.adb		s-soflin.ali
+Z system.standard_library%s  s-stalib.adb	s-stalib.ali
+Z system.storage_elements%s  s-stoele.ads	s-stoele.ali
+Z system.storage_pools%s  s-stopoo.adb		s-stopoo.ali
+Z system.storage_pools.subpools%s  s-stposu.adb	s-stposu.ali
+Z system.stream_attributes%s  s-stratt.adb	s-stratt.ali
+Z system.strings.stream_ops%s  s-ststop.adb	s-ststop.ali
+Z system.wch_stw%s	s-wchstw.adb		s-wchstw.ali
+
+D ada.ads		20250808065140 76789da1 ada%s
+D a-calend.ads		20250808065140 bf7f3cc9 ada.calendar%s
+D a-charac.ads		20250808065140 2d3ec45b ada.characters%s
+D a-chlat1.ads		20250808065140 e0d72e76 ada.characters.latin_1%s
+D a-contai.ads		20250808065140 61e5e089 ada.containers%s
+D a-cgarso.ads		20250808065140 9129bfa8 ada.containers.generic_array_sort%s
+D a-conhel.ads		20250808065140 46fe1ce3 ada.containers.helpers%s
+D a-conhel.adb		20250808065140 854d323e ada.containers.helpers%b
+D a-convec.ads		20250808065140 91fb49f3 ada.containers.vectors%s
+D a-convec.adb		20250808065140 b2ed0168 ada.containers.vectors%b
+D a-direct.ads		20250808065140 467e87a1 ada.directories%s
+D a-except.ads		20250808065140 e7970cd9 ada.exceptions%s
+D a-finali.ads		20250808065140 bf4f806b ada.finalization%s
+D a-ioexce.ads		20250808065140 40018c65 ada.io_exceptions%s
+D a-iteint.ads		20250808065140 49a8bee2 ada.iterator_interfaces%s
+D a-stream.ads		20250808065140 17477cbd ada.streams%s
+D a-string.ads		20250808065140 90ac6797 ada.strings%s
+D a-strfix.ads		20250808065140 8648dedb ada.strings.fixed%s
+D a-strmap.ads		20250808065140 1f91ebb6 ada.strings.maps%s
+D a-strsea.ads		20250808065140 18c3c634 ada.strings.search%s
+D a-sttebu.ads		20250808065140 f1ad67a2 ada.strings.text_buffers%s
+D a-strunb.ads		20250808065140 b10770ab ada.strings.unbounded%s
+D a-stuten.ads		20250808065140 c6ced0ae ada.strings.utf_encoding%s
+D a-tags.ads		20250808065140 fbca0ad5 ada.tags%s
+D a-unccon.ads		20250808065140 0e9b276f ada.unchecked_conversion%s
+D a-uncdea.ads		20250808065140 c3a8ac65 ada.unchecked_deallocation%s
+D editor.ads		20260612145959 16f844c2 editor%s
+D editor-ada_language_model.ads  20260612145959 459f92c3 editor.ada_language_model%s
+D editor-ada_project_index.ads  20260612145959 3ad143b9 editor.ada_project_index%s
+D editor-ada_syntax_tree.ads  20260612145959 49a76ced editor.ada_syntax_tree%s
+D editor-bookmarks.ads	20260612145959 4e695f4d editor.bookmarks%s
+D editor-buffer_switcher.ads  20260612152524 fd053b33 editor.buffer_switcher%s
+D editor-buffer_types.ads  20260612151710 a555405e editor.buffer_types%s
+D editor-buffers.ads	20260612185530 1a6b6e4c editor.buffers%s
+D editor-buffers.adb	20260612185530 bf4b2e27 editor.buffers%b
+D editor-build_candidates.ads  20260612145959 dc89ea7b editor.build_candidates%s
+D editor-build_output_details.ads  20260612145959 0f4ba402 editor.build_output_details%s
+D editor-build_process_control.ads  20260612145959 28661204 editor.build_process_control%s
+D editor-build_result_summary.ads  20260612145959 94fc95d2 editor.build_result_summary%s
+D editor-build_runner_policy.ads  20260612145959 623f26a9 editor.build_runner_policy%s
+D editor-build_ui.ads	20260612152524 28a54496 editor.build_ui%s
+D editor-build_working_context.ads  20260612145959 cef9cea9 editor.build_working_context%s
+D editor-command_execution.ads  20260612145959 54c8cc0a editor.command_execution%s
+D editor-commands.ads	20260612173240 3b5e3f44 editor.commands%s
+D editor-cursors.ads	20260612145959 1f938cf3 editor.cursors%s
+D editor-diagnostics.ads  20260612145959 41767a50 editor.diagnostics%s
+D editor-dirty_guards.ads  20260612145959 2f2ee9d0 editor.dirty_guards%s
+D editor-dirty_lines.ads  20260612145959 fa543a8e editor.dirty_lines%s
+D editor-empty_state_guidance.ads  20260612145959 3343db6a editor.empty_state_guidance%s
+D editor-executor.ads	20260612164121 e287436f editor.executor%s
+D editor-external_producers.ads  20260612152524 38bdba64 editor.external_producers%s
+D editor-feature_diagnostics.ads  20260612145959 9dd4f8ea editor.feature_diagnostics%s
+D editor-feature_messages.ads  20260612145959 2c7a5943 editor.feature_messages%s
+D editor-feature_panel.ads  20260612145959 0bdf4cfc editor.feature_panel%s
+D editor-feature_search_results.ads  20260612152524 38c78314 editor.feature_search_results%s
+D editor-file_tree.ads	20260612145959 e6abdf66 editor.file_tree%s
+D editor-file_tree_view.ads  20260612145959 99db49c3 editor.file_tree_view%s
+D editor-folding.ads	20260612145959 860f30d0 editor.folding%s
+D editor-go_to_line.ads	20260612145959 c07ea03c editor.go_to_line%s
+D editor-guided_prompts.ads  20260612145959 34cab40b editor.guided_prompts%s
+D editor-gutter_markers.ads  20260612145959 304c4eae editor.gutter_markers%s
+D editor-history.ads	20260612145959 b546dbc4 editor.history%s
+D editor-input_field.ads  20260612145959 04b03a00 editor.input_field%s
+D editor-keybinding_management.ads  20260612145959 81e1c626 editor.keybinding_management%s
+D editor-keybindings.ads  20260612145959 2657f44d editor.keybindings%s
+D editor-layout.ads	20260612145959 68c2e77a editor.layout%s
+D editor-line_numbers.ads  20260612145959 189b22b5 editor.line_numbers%s
+D editor-messages.ads	20260612151413 205b1944 editor.messages%s
+D editor-minimap.ads	20260612145959 eeb32e87 editor.minimap%s
+D editor-navigation.ads	20260612145959 30defc5f editor.navigation%s
+D editor-navigation_history.ads  20260612145959 b0e3398a editor.navigation_history%s
+D editor-outline.ads	20260612152524 90a00201 editor.outline%s
+D editor-overlay_focus.ads  20260612145959 92ec945e editor.overlay_focus%s
+D editor-panel_focus.ads  20260612145959 a6c95284 editor.panel_focus%s
+D editor-panels.ads	20260612145959 66614da0 editor.panels%s
+D editor-pending_transitions.ads  20260612145959 81c78960 editor.pending_transitions%s
+D editor-problems.ads	20260612145959 a9a08157 editor.problems%s
+D editor-producer_contracts.ads  20260612145959 c3ee4501 editor.producer_contracts%s
+D editor-project.ads	20260612145959 f4d50f6d editor.project%s
+D editor-project_search.ads  20260612152451 857df5ab editor.project_search%s
+D editor-project_search_bar.ads  20260612145959 c5c12f77 editor.project_search_bar%s
+D editor-quick_open.ads	20260612151807 878ba83c editor.quick_open%s
+D editor-recent_buffers.ads  20260612145959 617e4612 editor.recent_buffers%s
+D editor-recent_projects.ads  20260612145959 ee1155f5 editor.recent_projects%s
+D editor-render_cache.ads  20260612145959 951d8d8f editor.render_cache%s
+D editor-render_layers.ads  20260612145959 e75e95d2 editor.render_layers%s
+D editor-render_model.ads  20260612145959 bd0252b2 editor.render_model%s
+D editor-render_packet.ads  20260612145959 ab21aa24 editor.render_packet%s
+D editor-search.ads	20260612145959 dac0e204 editor.search%s
+D editor-search_results.ads  20260612145959 98eded1d editor.search_results%s
+D editor-selection.ads	20260612145959 37bfc5e9 editor.selection%s
+D editor-settings.ads	20260612145959 c2103809 editor.settings%s
+D editor-settings_management.ads  20260612145959 cf741a5b editor.settings_management%s
+D editor-state.ads	20260612170622 4c537118 editor.state%s
+D editor-status_bar.ads	20260612145959 879f0640 editor.status_bar%s
+D editor-syntax.ads	20260612145959 d59b0303 editor.syntax%s
+D editor-syntax_cache.ads  20260612164742 637f2470 editor.syntax_cache%s
+D editor-syntax_semantics.ads  20260612145959 a499b10a editor.syntax_semantics%s
+D editor-tab_bar.ads	20260612151839 e26dca3d editor.tab_bar%s
+D editor-unicode.ads	20260612145959 552ff3cc editor.unicode%s
+D editor-view.ads	20260612152152 12b5fbb1 editor.view%s
+D editor-view_types.ads	20260612152152 f3042ec7 editor.view_types%s
+D editor-workspace_persistence.ads  20260612145959 455ffd61 editor.workspace_persistence%s
+D editor-wrap.ads	20260612145959 87db665a editor.wrap%s
+D interfac.ads		20250808065140 9111f9c1 interfaces%s
+D i-c.ads		20250808065140 e94c966a interfaces.c%s
+D system.ads		20250808065140 14286b0f system%s
+D s-atocou.ads		20250808065140 dc18efc3 system.atomic_counters%s
+D s-atocou.adb		20250808065140 6fe685de system.atomic_counters%b
+D s-atopri.ads		20250808065140 e19c1d89 system.atomic_primitives%s
+D s-conca2.ads		20250808065140 b5fb73f7 system.concat_2%s
+D s-conca3.ads		20250808065140 8a7a19a2 system.concat_3%s
+D s-conca4.ads		20250808065140 33f85f3e system.concat_4%s
+D s-exctab.ads		20250808065140 91bef6ef system.exception_table%s
+D s-finpri.ads		20250808065140 5970d55a system.finalization_primitives%s
+D s-finroo.ads		20250808065140 0a7c3ed4 system.finalization_root%s
+D s-imagea.ads		20250808065140 c875d703 system.image_a%s
+D s-imagei.ads		20250808065140 5e131ce0 system.image_i%s
+D s-imager.ads		20250808065140 45c7157d system.image_r%s
+D s-imageu.ads		20250808065140 b0b50650 system.image_u%s
+D s-imad64.ads		20250808065140 41fa65e5 system.img_address_64%s
+D s-imgflt.ads		20250808065140 d12816b5 system.img_flt%s
+D s-imgint.ads		20250808065140 67e4edfb system.img_int%s
+D s-imguns.ads		20250808065140 c4e23690 system.img_uns%s
+D s-memory.ads		20250808065140 18949c1a system.memory%s
+D s-oscons.ads		20250827122531 068e1a91 system.os_constants%s
+D s-oslock.ads		20250808065140 13fa6b78 system.os_locks%s
+D s-parame.ads		20250808065140 3597fc11 system.parameters%s
+D s-pooglo.ads		20250808065140 91708d21 system.pool_global%s
+D s-powflt.ads		20250808065140 a51ab9b8 system.powten_flt%s
+D s-putima.ads		20250808065140 17291fe4 system.put_images%s
+D s-retsta.ads		20250808065140 0f6b06cb system.return_stack%s
+D s-secsta.ads		20250808065140 578279f5 system.secondary_stack%s
+D s-soflin.ads		20250808065140 5d88fdea system.soft_links%s
+D s-stache.ads		20250808065140 0b81c1fe system.stack_checking%s
+D s-stalib.ads		20250808065140 1c9580f6 system.standard_library%s
+D s-stalib.adb		20250808065140 eb464a47 system.standard_library%b
+D s-stoele.ads		20250808065140 ccded4e8 system.storage_elements%s
+D s-stopoo.ads		20250808065140 e9fa2dd8 system.storage_pools%s
+D s-stposu.ads		20250808065140 e0b9fefd system.storage_pools.subpools%s
+D s-stratt.ads		20250808065140 516607ae system.stream_attributes%s
+D s-string.ads		20250808065140 582aac7d system.strings%s
+D s-ststop.ads		20250808065140 c569db7c system.strings.stream_ops%s
+D s-traent.ads		20250808065140 c81cbf8c system.traceback_entries%s
+D s-unstyp.ads		20250808065140 fa2a7f59 system.unsigned_types%s
+D s-valspe.ads		20250808065140 f810d31c system.val_spec%s
+D s-vaispe.ads		20250808065140 8280550e system.value_i_spec%s
+D s-vauspe.ads		20250808065140 89269ba5 system.value_u_spec%s
+D s-vs_int.ads		20250808065140 06b6b724 system.vs_int%s
+D s-vs_uns.ads		20250808065140 e7f47a27 system.vs_uns%s
+D s-wchcon.ads		20250808065140 d9032363 system.wch_con%s
+D s-wchstw.ads		20250808065140 2d112c01 system.wch_stw%s
+D text_backend.ads	20260612145959 6d0030da text_backend%s
+D text_backend-rope_impl.ads  20260612145959 0f5d7663 text_backend.rope_impl%s
+D text_buffer.ads	20260612145959 bb9a4056 text_buffer%s
+G a e
+G c Z s s [has_element editor__buffers__buffer_id_vectors 115 13 16_4]
+G c Z s s [empty editor__buffers__buffer_id_vectors 125 13 16_4]
+G c Z s s [Oeq editor__buffers__buffer_id_vectors 127 24 16_4]
+G c Z s s [to_vector editor__buffers__buffer_id_vectors 136 13 16_4]
+G c Z s s [to_vector editor__buffers__buffer_id_vectors 139 13 16_4]
+G c Z s s [Oconcat editor__buffers__buffer_id_vectors 145 13 16_4]
+G c Z s s [Oconcat editor__buffers__buffer_id_vectors 149 13 16_4]
+G c Z s s [Oconcat editor__buffers__buffer_id_vectors 153 13 16_4]
+G c Z s s [Oconcat editor__buffers__buffer_id_vectors 157 13 16_4]
+G c Z s s [capacity editor__buffers__buffer_id_vectors 161 13 16_4]
+G c Z s s [reserve_capacity editor__buffers__buffer_id_vectors 164 14 16_4]
+G c Z s s [length editor__buffers__buffer_id_vectors 175 13 16_4]
+G c Z s s [set_length editor__buffers__buffer_id_vectors 178 14 16_4]
+G c Z s s [is_empty editor__buffers__buffer_id_vectors 187 13 16_4]
+G c Z s s [clear editor__buffers__buffer_id_vectors 190 14 16_4]
+G c Z s s [to_cursor editor__buffers__buffer_id_vectors 194 13 16_4]
+G c Z s s [to_index editor__buffers__buffer_id_vectors 201 13 16_4]
+G c Z s s [element editor__buffers__buffer_id_vectors 206 13 16_4]
+G c Z s s [element editor__buffers__buffer_id_vectors 213 13 16_4]
+G c Z s s [replace_element editor__buffers__buffer_id_vectors 217 14 16_4]
+G c Z s s [replace_element editor__buffers__buffer_id_vectors 228 14 16_4]
+G c Z s s [query_element editor__buffers__buffer_id_vectors 239 14 16_4]
+G c Z s s [query_element editor__buffers__buffer_id_vectors 250 14 16_4]
+G c Z s s [update_element editor__buffers__buffer_id_vectors 259 14 16_4]
+G c Z s s [update_element editor__buffers__buffer_id_vectors 276 14 16_4]
+G c Z s s [constant_reference editor__buffers__buffer_id_vectors 303 13 16_4]
+G c Z s s [reference editor__buffers__buffer_id_vectors 308 13 16_4]
+G c Z s s [constant_reference editor__buffers__buffer_id_vectors 313 13 16_4]
+G c Z s s [reference editor__buffers__buffer_id_vectors 318 13 16_4]
+G c Z s s [assign editor__buffers__buffer_id_vectors 323 14 16_4]
+G c Z s s [copy editor__buffers__buffer_id_vectors 325 13 16_4]
+G c Z s s [move editor__buffers__buffer_id_vectors 327 14 16_4]
+G c Z s s [new_vector editor__buffers__buffer_id_vectors 333 13 16_4]
+G c Z s s [insert_vector editor__buffers__buffer_id_vectors 337 14 16_4]
+G c Z s s [insert_vector editor__buffers__buffer_id_vectors 361 14 16_4]
+G c Z s s [insert_vector editor__buffers__buffer_id_vectors 378 14 16_4]
+G c Z s s [insert editor__buffers__buffer_id_vectors 396 14 16_4]
+G c Z s s [insert editor__buffers__buffer_id_vectors 404 14 16_4]
+G c Z s s [insert editor__buffers__buffer_id_vectors 412 14 16_4]
+G c Z s s [insert editor__buffers__buffer_id_vectors 421 14 16_4]
+G c Z s s [insert editor__buffers__buffer_id_vectors 438 14 16_4]
+G c Z s s [prepend_vector editor__buffers__buffer_id_vectors 449 14 16_4]
+G c Z s s [prepend editor__buffers__buffer_id_vectors 459 14 16_4]
+G c Z s s [append_vector editor__buffers__buffer_id_vectors 466 14 16_4]
+G c Z s s [append editor__buffers__buffer_id_vectors 476 14 16_4]
+G c Z s s [append editor__buffers__buffer_id_vectors 483 14 16_4]
+G c Z s s [insert_space editor__buffers__buffer_id_vectors 486 14 16_4]
+G c Z s s [insert_space editor__buffers__buffer_id_vectors 503 14 16_4]
+G c Z s s [delete editor__buffers__buffer_id_vectors 514 14 16_4]
+G c Z s s [delete editor__buffers__buffer_id_vectors 524 14 16_4]
+G c Z s s [delete_first editor__buffers__buffer_id_vectors 533 14 16_4]
+G c Z s s [delete_last editor__buffers__buffer_id_vectors 538 14 16_4]
+G c Z s s [reverse_elements editor__buffers__buffer_id_vectors 546 14 16_4]
+G c Z s s [swap editor__buffers__buffer_id_vectors 549 14 16_4]
+G c Z s s [swap editor__buffers__buffer_id_vectors 554 14 16_4]
+G c Z s s [first_index editor__buffers__buffer_id_vectors 560 13 16_4]
+G c Z s s [first editor__buffers__buffer_id_vectors 563 13 16_4]
+G c Z s s [first_element editor__buffers__buffer_id_vectors 567 13 16_4]
+G c Z s s [last_index editor__buffers__buffer_id_vectors 570 13 16_4]
+G c Z s s [last editor__buffers__buffer_id_vectors 574 13 16_4]
+G c Z s s [last_element editor__buffers__buffer_id_vectors 578 13 16_4]
+G c Z s s [next editor__buffers__buffer_id_vectors 581 13 16_4]
+G c Z s s [next editor__buffers__buffer_id_vectors 587 14 16_4]
+G c Z s s [previous editor__buffers__buffer_id_vectors 590 13 16_4]
+G c Z s s [previous editor__buffers__buffer_id_vectors 596 14 16_4]
+G c Z s s [find_index editor__buffers__buffer_id_vectors 599 13 16_4]
+G c Z s s [find editor__buffers__buffer_id_vectors 609 13 16_4]
+G c Z s s [reverse_find_index editor__buffers__buffer_id_vectors 623 13 16_4]
+G c Z s s [reverse_find editor__buffers__buffer_id_vectors 635 13 16_4]
+G c Z s s [contains editor__buffers__buffer_id_vectors 649 13 16_4]
+G c Z s s [iterate editor__buffers__buffer_id_vectors 654 14 16_4]
+G c Z s s [reverse_iterate editor__buffers__buffer_id_vectors 662 14 16_4]
+G c Z s s [iterate editor__buffers__buffer_id_vectors 669 13 16_4]
+G c Z s s [iterate editor__buffers__buffer_id_vectors 672 13 16_4]
+G c Z s s [adjust editor__buffers__buffer_id_vectors__implementation 90 28 726_4_16_4]
+G c Z s s [finalize editor__buffers__buffer_id_vectors__implementation 93 28 726_4_16_4]
+G c Z s s [zero_counts editor__buffers__buffer_id_vectors__implementation 96 17 726_4_16_4]
+G c Z s s [busy editor__buffers__buffer_id_vectors__implementation 100 17 726_4_16_4]
+G c Z s s [unbusy editor__buffers__buffer_id_vectors__implementation 104 17 726_4_16_4]
+G c Z s s [lock editor__buffers__buffer_id_vectors__implementation 108 17 726_4_16_4]
+G c Z s s [unlock editor__buffers__buffer_id_vectors__implementation 112 17 726_4_16_4]
+G c Z s s [tc_check editor__buffers__buffer_id_vectors__implementation 116 17 726_4_16_4]
+G c Z s s [te_check editor__buffers__buffer_id_vectors__implementation 120 17 726_4_16_4]
+G c Z s s [is_busy editor__buffers__buffer_id_vectors__implementation 136 16 726_4_16_4]
+G c Z s s [is_locked editor__buffers__buffer_id_vectors__implementation 140 16 726_4_16_4]
+G c Z s s [initialize editor__buffers__buffer_id_vectors__implementation 161 28 726_4_16_4]
+G c Z s s [finalize editor__buffers__buffer_id_vectors__implementation 162 28 726_4_16_4]
+G c Z s s [initialize editor__buffers__buffer_id_vectors__implementation 167 28 726_4_16_4]
+G c Z s s [finalize editor__buffers__buffer_id_vectors__implementation 168 28 726_4_16_4]
+G c Z s s [reference_control_typeDA editor__buffers__buffer_id_vectors__implementation 84 12 726_4_16_4]
+G c Z s s [reference_control_typeDF editor__buffers__buffer_id_vectors__implementation 84 12 726_4_16_4]
+G c Z s s [reference_control_typeIP editor__buffers__buffer_id_vectors__implementation 84 12 726_4_16_4]
+G c Z s s [with_busyDF editor__buffers__buffer_id_vectors__implementation 158 12 726_4_16_4]
+G c Z s s [with_busyIP editor__buffers__buffer_id_vectors__implementation 158 12 726_4_16_4]
+G c Z s s [with_lockDF editor__buffers__buffer_id_vectors__implementation 164 12 726_4_16_4]
+G c Z s s [with_lockIP editor__buffers__buffer_id_vectors__implementation 164 12 726_4_16_4]
+G c Z s s [put_image editor__buffers__buffer_id_vectors 747 14 16_4]
+G c Z s s [adjust editor__buffers__buffer_id_vectors 750 25 16_4]
+G c Z s s [finalize editor__buffers__buffer_id_vectors 751 25 16_4]
+G c Z s s [write editor__buffers__buffer_id_vectors 753 14 16_4]
+G c Z s s [read editor__buffers__buffer_id_vectors 759 14 16_4]
+G c Z s s [read editor__buffers__buffer_id_vectors 773 14 16_4]
+G c Z s s [write editor__buffers__buffer_id_vectors 779 14 16_4]
+G c Z s s [write editor__buffers__buffer_id_vectors 798 14 16_4]
+G c Z s s [read editor__buffers__buffer_id_vectors 804 14 16_4]
+G c Z s s [write editor__buffers__buffer_id_vectors 820 14 16_4]
+G c Z s s [read editor__buffers__buffer_id_vectors 826 14 16_4]
+G c Z s s [pseudo_reference editor__buffers__buffer_id_vectors 840 13 16_4]
+G c Z s s [get_element_access editor__buffers__buffer_id_vectors 849 13 16_4]
+G c Z s s [cursorIP editor__buffers__buffer_id_vectors 768 9 16_4]
+G c Z s s [vectorDA editor__buffers__buffer_id_vectors 741 9 16_4]
+G c Z s s [vectorDF editor__buffers__buffer_id_vectors 741 9 16_4]
+G c Z s s [vectorIP editor__buffers__buffer_id_vectors 741 9 16_4]
+G c Z s s [finalize editor__buffers__buffer_id_vectors 865 25 16_4]
+G c Z s s [first editor__buffers__buffer_id_vectors 867 24 16_4]
+G c Z s s [last editor__buffers__buffer_id_vectors 868 24 16_4]
+G c Z s s [next editor__buffers__buffer_id_vectors 870 24 16_4]
+G c Z s s [previous editor__buffers__buffer_id_vectors 874 24 16_4]
+G c Z s s [constant_reference_typeDI editor__buffers__buffer_id_vectors 788 9 16_4]
+G c Z s s [constant_reference_typeDA editor__buffers__buffer_id_vectors 788 9 16_4]
+G c Z s s [constant_reference_typeDF editor__buffers__buffer_id_vectors 788 9 16_4]
+G c Z s s [constant_reference_typeIP editor__buffers__buffer_id_vectors 788 9 16_4]
+G c Z s s [reference_typeDI editor__buffers__buffer_id_vectors 810 9 16_4]
+G c Z s s [reference_typeDA editor__buffers__buffer_id_vectors 810 9 16_4]
+G c Z s s [reference_typeDF editor__buffers__buffer_id_vectors 810 9 16_4]
+G c Z s s [reference_typeIP editor__buffers__buffer_id_vectors 810 9 16_4]
+G c Z s s [elements_arrayIP editor__buffers__buffer_id_vectors 729 9 16_4]
+G c Z s s [elements_typeIP editor__buffers__buffer_id_vectors 732 9 16_4]
+G c Z s s [iteratorDF editor__buffers__buffer_id_vectors 857 9 16_4]
+G c Z s s [iteratorIP editor__buffers__buffer_id_vectors 857 9 16_4]
+G c Z s s [free editor__buffers__buffer_id_vectors 44 14 16_4]
+G c Z s s [append_slow_path editor__buffers__buffer_id_vectors 47 14 16_4]
+G c Z s b [create_untitled_buffer editor__buffers 153 13 none]
+G c Z s b [add_buffer_from_file editor__buffers 156 13 none]
+G c Z s b [contains editor__buffers 162 13 none]
+G c Z s b [active_buffer editor__buffers 166 13 none]
+G c Z s b [set_active_buffer editor__buffers 169 14 none]
+G c Z s b [count editor__buffers 173 13 none]
+G c Z s b [buffer_count editor__buffers 176 13 none]
+G c Z s b [summary_at editor__buffers 179 13 none]
+G c Z s b [summary_for editor__buffers 183 13 none]
+G c Z s b [metadata_for editor__buffers 187 13 none]
+G c Z s b [classify_buffer_ownership editor__buffers 199 13 none]
+G c Z s b [ownership_label editor__buffers 204 13 none]
+G c Z s b [dirty_category_label editor__buffers 206 13 none]
+G c Z s b [close_eligibility_label editor__buffers 208 13 none]
+G c Z s b [workspace_persistability_label editor__buffers 210 13 none]
+G c Z s b [metadata_label_max_length editor__buffers 213 13 none]
+G c Z s b [audit_buffers editor__buffers 215 13 none]
+G c Z s b [buffer_metadata_lifecycle_audit_coherent editor__buffers 220 13 none]
+G c Z s b [project_lifecycle_buffer_sets editor__buffers 230 13 none]
+G c Z s b [project_owned_buffer_count editor__buffers 234 13 none]
+G c Z s b [outside_project_buffer_count editor__buffers 238 13 none]
+G c Z s b [scratch_buffer_count editor__buffers 242 13 none]
+G c Z s b [project_owned_dirty_buffer_count editor__buffers 245 13 none]
+G c Z s b [outside_project_dirty_buffer_count editor__buffers 249 13 none]
+G c Z s b [scratch_dirty_buffer_count editor__buffers 253 13 none]
+G c Z s b [categorized_dirty_buffer_summary editor__buffers 262 13 none]
+G c Z s b [project_lifecycle_dirty_buffer_summary editor__buffers 267 13 none]
+G c Z s b [is_empty editor__buffers 273 13 none]
+G c Z s b [current editor__buffers 276 13 none]
+G c Z s b [current_access editor__buffers 279 13 none]
+G c Z s b [buffer editor__buffers 282 13 none]
+G c Z s b [buffer_access editor__buffers 286 13 none]
+G c Z s b [close_buffer editor__buffers 290 14 none]
+G c Z s b [find_by_path editor__buffers 296 13 none]
+G c Z s b [first_buffer editor__buffers 301 13 none]
+G c Z s b [last_buffer editor__buffers 304 13 none]
+G c Z s b [next_buffer editor__buffers 307 13 none]
+G c Z s b [previous_buffer editor__buffers 311 13 none]
+G c Z s b [next_buffer editor__buffers 315 13 none]
+G c Z s b [previous_buffer editor__buffers 318 13 none]
+G c Z s b [display_name editor__buffers 321 13 none]
+G c Z s b [display_label editor__buffers 325 13 none]
+G c Z s b [is_dirty editor__buffers 329 13 none]
+G c Z s b [is_file_backed editor__buffers 333 13 none]
+G c Z s b [is_buffer_pinned editor__buffers 340 13 none]
+G c Z s b [has_buffer_label editor__buffers 344 13 none]
+G c Z s b [buffer_label editor__buffers 348 13 none]
+G c Z s b [set_buffer_label editor__buffers 352 14 none]
+G c Z s b [clear_buffer_label editor__buffers 357 14 none]
+G c Z s b [has_buffer_note editor__buffers 361 13 none]
+G c Z s b [buffer_note editor__buffers 365 13 none]
+G c Z s b [set_buffer_note editor__buffers 369 14 none]
+G c Z s b [clear_buffer_note editor__buffers 374 14 none]
+G c Z s b [has_buffer_group editor__buffers 378 13 none]
+G c Z s b [buffer_group editor__buffers 382 13 none]
+G c Z s b [assign_buffer_group editor__buffers 386 14 none]
+G c Z s b [clear_buffer_group editor__buffers 391 14 none]
+G c Z s b [has_buffer_groups editor__buffers 395 13 none]
+G c Z s b [has_active_buffer_group editor__buffers 398 13 none]
+G c Z s b [active_buffer_group editor__buffers 401 13 none]
+G c Z s b [first_buffer_in_group editor__buffers 404 13 none]
+G c Z s b [set_active_buffer_group editor__buffers 408 14 none]
+G c Z s b [clear_active_buffer_group editor__buffers 412 14 none]
+G c Z s b [cycle_active_buffer_group editor__buffers 415 14 none]
+G c Z s b [closeable_unpinned_clean_outside_active_group_count editor__buffers 419 13 none]
+G c Z s b [pin_buffer editor__buffers 422 14 none]
+G c Z s b [unpin_buffer editor__buffers 426 14 none]
+G c Z s b [toggle_buffer_pin editor__buffers 430 14 none]
+G c Z s b [unpinned_clean_buffer_count editor__buffers 434 13 none]
+G c Z s b [dirty_buffer_count editor__buffers 437 13 none]
+G c Z s b [dirty_file_backed_buffer_count editor__buffers 440 13 none]
+G c Z s b [dirty_untitled_buffer_count editor__buffers 443 13 none]
+G c Z s b [clean_buffer_count editor__buffers 446 13 none]
+G c Z s b [dirty_buffer_display_name editor__buffers 449 13 none]
+G c Z s b [dirty_buffer_summary editor__buffers 453 13 none]
+G c Z s b [mark_global_provisional_active editor__buffers 461 14 none]
+G c Z s b [ensure_global_registry editor__buffers 463 14 none]
+G c Z s b [global_registry_current_for editor__buffers 466 13 none]
+G c Z s b [sync_global_active_from_state editor__buffers 469 14 none]
+G c Z s b [load_global_active_into_state editor__buffers 472 14 none]
+G c Z s b [global_count editor__buffers 475 13 none]
+G c Z s b [global_registry_for_ui editor__buffers 476 13 none]
+G c Z s b [global_summary_at editor__buffers 477 13 none]
+G c Z s b [global_summary_for editor__buffers 479 13 none]
+G c Z s b [global_metadata_for editor__buffers 482 13 none]
+G c Z s b [global_audit_buffers editor__buffers 487 13 none]
+G c Z s b [global_buffer_metadata_lifecycle_audit_coherent editor__buffers 491 13 none]
+G c Z s b [global_active_buffer editor__buffers 495 13 none]
+G c Z s b [global_contains editor__buffers 496 13 none]
+G c Z s b [global_find_by_path editor__buffers 497 13 none]
+G c Z s b [global_file_is_dirty editor__buffers 505 13 none]
+G c Z s b [global_next_buffer editor__buffers 508 13 none]
+G c Z s b [global_previous_buffer editor__buffers 509 13 none]
+G c Z s b [global_current_file editor__buffers 511 13 none]
+G c Z s b [global_display_name editor__buffers 513 13 none]
+G c Z s b [global_is_buffer_pinned editor__buffers 516 13 none]
+G c Z s b [global_has_buffer_label editor__buffers 517 13 none]
+G c Z s b [global_buffer_label editor__buffers 518 13 none]
+G c Z s b [global_set_buffer_label editor__buffers 519 14 none]
+G c Z s b [global_clear_buffer_label editor__buffers 520 14 none]
+G c Z s b [global_has_buffer_note editor__buffers 521 13 none]
+G c Z s b [global_buffer_note editor__buffers 522 13 none]
+G c Z s b [global_set_buffer_note editor__buffers 523 14 none]
+G c Z s b [global_clear_buffer_note editor__buffers 524 14 none]
+G c Z s b [global_has_buffer_group editor__buffers 525 13 none]
+G c Z s b [global_buffer_group editor__buffers 526 13 none]
+G c Z s b [global_assign_buffer_group editor__buffers 527 14 none]
+G c Z s b [global_clear_buffer_group editor__buffers 528 14 none]
+G c Z s b [global_has_buffer_groups editor__buffers 529 13 none]
+G c Z s b [global_has_active_buffer_group editor__buffers 530 13 none]
+G c Z s b [global_active_buffer_group editor__buffers 531 13 none]
+G c Z s b [global_first_buffer_in_group editor__buffers 532 13 none]
+G c Z s b [global_set_active_buffer_group editor__buffers 533 14 none]
+G c Z s b [global_clear_active_buffer_group editor__buffers 534 14 none]
+G c Z s b [global_cycle_active_buffer_group editor__buffers 535 14 none]
+G c Z s b [global_closeable_unpinned_clean_outside_active_group_count editor__buffers 536 13 none]
+G c Z s b [global_pin_buffer editor__buffers 537 14 none]
+G c Z s b [global_unpin_buffer editor__buffers 538 14 none]
+G c Z s b [global_toggle_buffer_pin editor__buffers 539 14 none]
+G c Z s b [global_unpinned_clean_buffer_count editor__buffers 540 13 none]
+G c Z s b [global_dirty_buffer_count editor__buffers 542 13 none]
+G c Z s b [global_dirty_file_backed_buffer_count editor__buffers 543 13 none]
+G c Z s b [global_dirty_untitled_buffer_count editor__buffers 544 13 none]
+G c Z s b [global_clean_buffer_count editor__buffers 545 13 none]
+G c Z s b [global_dirty_buffer_summary editor__buffers 547 13 none]
+G c Z s b [global_categorized_dirty_buffer_summary editor__buffers 550 13 none]
+G c Z s b [global_project_lifecycle_dirty_buffer_summary editor__buffers 554 13 none]
+G c Z s b [global_project_lifecycle_buffer_sets editor__buffers 558 13 none]
+G c Z s b [global_bookmark_count editor__buffers 561 13 none]
+G c Z s b [global_has_bookmarks editor__buffers 563 13 none]
+G c Z s b [global_clear_all_bookmarks editor__buffers 565 14 none]
+G c Z s b [global_prune_stale_bookmarks editor__buffers 567 14 none]
+G c Z s b [global_clear_all_edit_history editor__buffers 569 14 none]
+G c Z s b [reset_global_for_test editor__buffers 571 14 none]
+G c Z s b [global_add_file_buffer editor__buffers 573 14 none]
+G c Z s b [global_add_untitled_buffer editor__buffers 579 14 none]
+G c Z s b [global_set_active_buffer editor__buffers 582 14 none]
+G c Z s b [global_close_buffer editor__buffers 585 14 none]
+G c Z s b [global_force_close_buffer editor__buffers 589 14 none]
+G c Z s b [global_has_dirty_file_under_path editor__buffers 595 13 none]
+G c Z s b [global_has_file_under_path editor__buffers 602 13 none]
+G c Z s b [global_rebase_clean_file_paths editor__buffers 607 14 none]
+G c Z s b [global_close_clean_file_paths_under editor__buffers 614 14 none]
+G c Z s b [global_set_blocked_close_surfaced editor__buffers 618 14 none]
+G c Z s b [global_clear_clean_reopen_lifecycle editor__buffers 623 14 none]
+G c Z s b [Oeq editor__buffers 644 13 none]
+G c Z s s [buffer_recordDI editor__buffers 629 9 none]
+G c Z s s [buffer_recordDA editor__buffers 629 9 none]
+G c Z s s [buffer_recordDF editor__buffers 629 9 none]
+G c Z s s [buffer_recordIP editor__buffers 629 9 none]
+G c Z s s [has_element editor__buffers__buffer_record_vectors 115 13 646_4]
+G c Z s s [empty editor__buffers__buffer_record_vectors 125 13 646_4]
+G c Z s s [Oeq editor__buffers__buffer_record_vectors 127 24 646_4]
+G c Z s s [to_vector editor__buffers__buffer_record_vectors 136 13 646_4]
+G c Z s s [to_vector editor__buffers__buffer_record_vectors 139 13 646_4]
+G c Z s s [Oconcat editor__buffers__buffer_record_vectors 145 13 646_4]
+G c Z s s [Oconcat editor__buffers__buffer_record_vectors 149 13 646_4]
+G c Z s s [Oconcat editor__buffers__buffer_record_vectors 153 13 646_4]
+G c Z s s [Oconcat editor__buffers__buffer_record_vectors 157 13 646_4]
+G c Z s s [capacity editor__buffers__buffer_record_vectors 161 13 646_4]
+G c Z s s [reserve_capacity editor__buffers__buffer_record_vectors 164 14 646_4]
+G c Z s s [length editor__buffers__buffer_record_vectors 175 13 646_4]
+G c Z s s [set_length editor__buffers__buffer_record_vectors 178 14 646_4]
+G c Z s s [is_empty editor__buffers__buffer_record_vectors 187 13 646_4]
+G c Z s s [clear editor__buffers__buffer_record_vectors 190 14 646_4]
+G c Z s s [to_cursor editor__buffers__buffer_record_vectors 194 13 646_4]
+G c Z s s [to_index editor__buffers__buffer_record_vectors 201 13 646_4]
+G c Z s s [element editor__buffers__buffer_record_vectors 206 13 646_4]
+G c Z s s [element editor__buffers__buffer_record_vectors 213 13 646_4]
+G c Z s s [replace_element editor__buffers__buffer_record_vectors 217 14 646_4]
+G c Z s s [replace_element editor__buffers__buffer_record_vectors 228 14 646_4]
+G c Z s s [query_element editor__buffers__buffer_record_vectors 239 14 646_4]
+G c Z s s [query_element editor__buffers__buffer_record_vectors 250 14 646_4]
+G c Z s s [update_element editor__buffers__buffer_record_vectors 259 14 646_4]
+G c Z s s [update_element editor__buffers__buffer_record_vectors 276 14 646_4]
+G c Z s s [constant_reference editor__buffers__buffer_record_vectors 303 13 646_4]
+G c Z s s [reference editor__buffers__buffer_record_vectors 308 13 646_4]
+G c Z s s [constant_reference editor__buffers__buffer_record_vectors 313 13 646_4]
+G c Z s s [reference editor__buffers__buffer_record_vectors 318 13 646_4]
+G c Z s s [assign editor__buffers__buffer_record_vectors 323 14 646_4]
+G c Z s s [copy editor__buffers__buffer_record_vectors 325 13 646_4]
+G c Z s s [move editor__buffers__buffer_record_vectors 327 14 646_4]
+G c Z s s [new_vector editor__buffers__buffer_record_vectors 333 13 646_4]
+G c Z s s [insert_vector editor__buffers__buffer_record_vectors 337 14 646_4]
+G c Z s s [insert_vector editor__buffers__buffer_record_vectors 361 14 646_4]
+G c Z s s [insert_vector editor__buffers__buffer_record_vectors 378 14 646_4]
+G c Z s s [insert editor__buffers__buffer_record_vectors 396 14 646_4]
+G c Z s s [insert editor__buffers__buffer_record_vectors 404 14 646_4]
+G c Z s s [insert editor__buffers__buffer_record_vectors 412 14 646_4]
+G c Z s s [insert editor__buffers__buffer_record_vectors 421 14 646_4]
+G c Z s s [insert editor__buffers__buffer_record_vectors 438 14 646_4]
+G c Z s s [prepend_vector editor__buffers__buffer_record_vectors 449 14 646_4]
+G c Z s s [prepend editor__buffers__buffer_record_vectors 459 14 646_4]
+G c Z s s [append_vector editor__buffers__buffer_record_vectors 466 14 646_4]
+G c Z s s [append editor__buffers__buffer_record_vectors 476 14 646_4]
+G c Z s s [append editor__buffers__buffer_record_vectors 483 14 646_4]
+G c Z s s [insert_space editor__buffers__buffer_record_vectors 486 14 646_4]
+G c Z s s [insert_space editor__buffers__buffer_record_vectors 503 14 646_4]
+G c Z s s [delete editor__buffers__buffer_record_vectors 514 14 646_4]
+G c Z s s [delete editor__buffers__buffer_record_vectors 524 14 646_4]
+G c Z s s [delete_first editor__buffers__buffer_record_vectors 533 14 646_4]
+G c Z s s [delete_last editor__buffers__buffer_record_vectors 538 14 646_4]
+G c Z s s [reverse_elements editor__buffers__buffer_record_vectors 546 14 646_4]
+G c Z s s [swap editor__buffers__buffer_record_vectors 549 14 646_4]
+G c Z s s [swap editor__buffers__buffer_record_vectors 554 14 646_4]
+G c Z s s [first_index editor__buffers__buffer_record_vectors 560 13 646_4]
+G c Z s s [first editor__buffers__buffer_record_vectors 563 13 646_4]
+G c Z s s [first_element editor__buffers__buffer_record_vectors 567 13 646_4]
+G c Z s s [last_index editor__buffers__buffer_record_vectors 570 13 646_4]
+G c Z s s [last editor__buffers__buffer_record_vectors 574 13 646_4]
+G c Z s s [last_element editor__buffers__buffer_record_vectors 578 13 646_4]
+G c Z s s [next editor__buffers__buffer_record_vectors 581 13 646_4]
+G c Z s s [next editor__buffers__buffer_record_vectors 587 14 646_4]
+G c Z s s [previous editor__buffers__buffer_record_vectors 590 13 646_4]
+G c Z s s [previous editor__buffers__buffer_record_vectors 596 14 646_4]
+G c Z s s [find_index editor__buffers__buffer_record_vectors 599 13 646_4]
+G c Z s s [find editor__buffers__buffer_record_vectors 609 13 646_4]
+G c Z s s [reverse_find_index editor__buffers__buffer_record_vectors 623 13 646_4]
+G c Z s s [reverse_find editor__buffers__buffer_record_vectors 635 13 646_4]
+G c Z s s [contains editor__buffers__buffer_record_vectors 649 13 646_4]
+G c Z s s [iterate editor__buffers__buffer_record_vectors 654 14 646_4]
+G c Z s s [reverse_iterate editor__buffers__buffer_record_vectors 662 14 646_4]
+G c Z s s [iterate editor__buffers__buffer_record_vectors 669 13 646_4]
+G c Z s s [iterate editor__buffers__buffer_record_vectors 672 13 646_4]
+G c Z s s [adjust editor__buffers__buffer_record_vectors__implementation 90 28 726_4_646_4]
+G c Z s s [finalize editor__buffers__buffer_record_vectors__implementation 93 28 726_4_646_4]
+G c Z s s [zero_counts editor__buffers__buffer_record_vectors__implementation 96 17 726_4_646_4]
+G c Z s s [busy editor__buffers__buffer_record_vectors__implementation 100 17 726_4_646_4]
+G c Z s s [unbusy editor__buffers__buffer_record_vectors__implementation 104 17 726_4_646_4]
+G c Z s s [lock editor__buffers__buffer_record_vectors__implementation 108 17 726_4_646_4]
+G c Z s s [unlock editor__buffers__buffer_record_vectors__implementation 112 17 726_4_646_4]
+G c Z s s [tc_check editor__buffers__buffer_record_vectors__implementation 116 17 726_4_646_4]
+G c Z s s [te_check editor__buffers__buffer_record_vectors__implementation 120 17 726_4_646_4]
+G c Z s s [is_busy editor__buffers__buffer_record_vectors__implementation 136 16 726_4_646_4]
+G c Z s s [is_locked editor__buffers__buffer_record_vectors__implementation 140 16 726_4_646_4]
+G c Z s s [initialize editor__buffers__buffer_record_vectors__implementation 161 28 726_4_646_4]
+G c Z s s [finalize editor__buffers__buffer_record_vectors__implementation 162 28 726_4_646_4]
+G c Z s s [initialize editor__buffers__buffer_record_vectors__implementation 167 28 726_4_646_4]
+G c Z s s [finalize editor__buffers__buffer_record_vectors__implementation 168 28 726_4_646_4]
+G c Z s s [reference_control_typeDA editor__buffers__buffer_record_vectors__implementation 84 12 726_4_646_4]
+G c Z s s [reference_control_typeDF editor__buffers__buffer_record_vectors__implementation 84 12 726_4_646_4]
+G c Z s s [reference_control_typeIP editor__buffers__buffer_record_vectors__implementation 84 12 726_4_646_4]
+G c Z s s [with_busyDF editor__buffers__buffer_record_vectors__implementation 158 12 726_4_646_4]
+G c Z s s [with_busyIP editor__buffers__buffer_record_vectors__implementation 158 12 726_4_646_4]
+G c Z s s [with_lockDF editor__buffers__buffer_record_vectors__implementation 164 12 726_4_646_4]
+G c Z s s [with_lockIP editor__buffers__buffer_record_vectors__implementation 164 12 726_4_646_4]
+G c Z s s [put_image editor__buffers__buffer_record_vectors 747 14 646_4]
+G c Z s s [adjust editor__buffers__buffer_record_vectors 750 25 646_4]
+G c Z s s [finalize editor__buffers__buffer_record_vectors 751 25 646_4]
+G c Z s s [write editor__buffers__buffer_record_vectors 753 14 646_4]
+G c Z s s [read editor__buffers__buffer_record_vectors 759 14 646_4]
+G c Z s s [read editor__buffers__buffer_record_vectors 773 14 646_4]
+G c Z s s [write editor__buffers__buffer_record_vectors 779 14 646_4]
+G c Z s s [write editor__buffers__buffer_record_vectors 798 14 646_4]
+G c Z s s [read editor__buffers__buffer_record_vectors 804 14 646_4]
+G c Z s s [write editor__buffers__buffer_record_vectors 820 14 646_4]
+G c Z s s [read editor__buffers__buffer_record_vectors 826 14 646_4]
+G c Z s s [pseudo_reference editor__buffers__buffer_record_vectors 840 13 646_4]
+G c Z s s [get_element_access editor__buffers__buffer_record_vectors 849 13 646_4]
+G c Z s s [cursorIP editor__buffers__buffer_record_vectors 768 9 646_4]
+G c Z s s [vectorDA editor__buffers__buffer_record_vectors 741 9 646_4]
+G c Z s s [vectorDF editor__buffers__buffer_record_vectors 741 9 646_4]
+G c Z s s [vectorIP editor__buffers__buffer_record_vectors 741 9 646_4]
+G c Z s s [finalize editor__buffers__buffer_record_vectors 865 25 646_4]
+G c Z s s [first editor__buffers__buffer_record_vectors 867 24 646_4]
+G c Z s s [last editor__buffers__buffer_record_vectors 868 24 646_4]
+G c Z s s [next editor__buffers__buffer_record_vectors 870 24 646_4]
+G c Z s s [previous editor__buffers__buffer_record_vectors 874 24 646_4]
+G c Z s s [constant_reference_typeDI editor__buffers__buffer_record_vectors 788 9 646_4]
+G c Z s s [constant_reference_typeDA editor__buffers__buffer_record_vectors 788 9 646_4]
+G c Z s s [constant_reference_typeDF editor__buffers__buffer_record_vectors 788 9 646_4]
+G c Z s s [constant_reference_typeIP editor__buffers__buffer_record_vectors 788 9 646_4]
+G c Z s s [reference_typeDI editor__buffers__buffer_record_vectors 810 9 646_4]
+G c Z s s [reference_typeDA editor__buffers__buffer_record_vectors 810 9 646_4]
+G c Z s s [reference_typeDF editor__buffers__buffer_record_vectors 810 9 646_4]
+G c Z s s [reference_typeIP editor__buffers__buffer_record_vectors 810 9 646_4]
+G c Z s s [elements_arrayIP editor__buffers__buffer_record_vectors 729 9 646_4]
+G c Z s s [elements_arrayDI editor__buffers__buffer_record_vectors 729 9 646_4]
+G c Z s s [elements_arrayDA editor__buffers__buffer_record_vectors 729 9 646_4]
+G c Z s s [elements_arrayDF editor__buffers__buffer_record_vectors 729 9 646_4]
+G c Z s s [elements_typeDI editor__buffers__buffer_record_vectors 732 9 646_4]
+G c Z s s [elements_typeDF editor__buffers__buffer_record_vectors 732 9 646_4]
+G c Z s s [elements_typeIP editor__buffers__buffer_record_vectors 732 9 646_4]
+G c Z s s [iteratorDF editor__buffers__buffer_record_vectors 857 9 646_4]
+G c Z s s [iteratorIP editor__buffers__buffer_record_vectors 857 9 646_4]
+G c Z s s [free editor__buffers__buffer_record_vectors 44 14 646_4]
+G c Z s s [append_slow_path editor__buffers__buffer_record_vectors 47 14 646_4]
+G c Z s s [buffer_registryDI editor__buffers 651 9 none]
+G c Z s s [buffer_registryDA editor__buffers 651 9 none]
+G c Z s s [buffer_registryDF editor__buffers 651 9 none]
+G c Z s s [buffer_registryIP editor__buffers 651 9 none]
+G c Z s s [buffer_metadata_snapshotDI editor__buffers 57 9 none]
+G c Z s s [buffer_metadata_snapshotDA editor__buffers 57 9 none]
+G c Z s s [buffer_metadata_snapshotDF editor__buffers 57 9 none]
+G c Z s s [buffer_metadata_snapshotIP editor__buffers 57 9 none]
+G c Z s s [buffer_project_lifecycle_setsDI editor__buffers 86 9 none]
+G c Z s s [buffer_project_lifecycle_setsDA editor__buffers 86 9 none]
+G c Z s s [buffer_project_lifecycle_setsDF editor__buffers 86 9 none]
+G c Z s s [buffer_project_lifecycle_setsIP editor__buffers 86 9 none]
+G c Z s s [buffer_audit_summaryDI editor__buffers 96 9 none]
+G c Z s s [buffer_audit_summaryDA editor__buffers 96 9 none]
+G c Z s s [buffer_audit_summaryDF editor__buffers 96 9 none]
+G c Z s s [buffer_audit_summaryIP editor__buffers 96 9 none]
+G c Z b b [free_buffer_state editor__buffers 39 14 none]
+G c Z b b [bounded_metadata_label editor__buffers 55 13 none]
+G c Z b b [reset_registry editor__buffers 66 14 none]
+G c Z b b [clear_buffer_messages editor__buffers 92 14 none]
+G c Z b b [strip_global_ui_state editor__buffers 98 14 none]
+G c Z b b [index_of editor__buffers 132 13 none]
+G c Z b b [group_exists editor__buffers 150 13 none]
+G c Z b b [normalize_active_buffer_group editor__buffers 152 14 none]
+G c Z b b [name_in_use editor__buffers 159 13 none]
+G c Z b b [parent_name_of editor__buffers 176 13 none]
+G c Z b b [duplicate_display_name editor__buffers 202 13 none]
+G c Z b b [untitled_name editor__buffers 222 13 none]
+G c Z b b [lifecycle_display_label editor__buffers 336 13 none]
+G c Z b b [pure_normalize_path editor__buffers 393 13 none]
+G c Z b b [pure_same_or_descendant_path editor__buffers 470 13 none]
+G c Z b b [pure_relative_path editor__buffers 490 13 none]
+G c Z b b [lifecycle_status_label_for editor__buffers 606 13 none]
+G c Z b b [counted_label editor__buffers 787 13 none]
+G c Z b b [trim_count_label editor__buffers 800 13 none]
+G c Z b b [normalize_for_buffer_path_compare editor__buffers 1332 13 none]
+G c Z b b [canonical_for_compare editor__buffers 1355 13 none]
+G c Z b b [same_or_descendant_path editor__buffers 1373 13 none]
+G c Z b b [rebase_path editor__buffers 1394 13 none]
+G c Z b b [trimmed_group_name editor__buffers 1609 13 none]
+G c Z b b [trimmed_buffer_label editor__buffers 1614 13 none]
+G c Z b b [trimmed_buffer_note editor__buffers 1670 13 none]
+G r s state_type [create_untitled_buffer editor__buffers 153 13 none] [state_typeIP editor__state 115 9 none]
+G r l state_type [create_untitled_buffer editor__buffers 153 13 none] [state_typeDI editor__state 115 9 none]
+G r k state_type [create_untitled_buffer editor__buffers 153 13 none] [state_typeDF editor__state 115 9 none]
+G r s view_state [create_untitled_buffer editor__buffers 153 13 none] [view_stateIP editor__view_types 5 9 none]
+G r c none [create_untitled_buffer editor__buffers 153 13 none] [init editor__state 529 14 none]
+G r c none [create_untitled_buffer editor__buffers 153 13 none] [clear editor__messages 49 14 none]
+G r c none [create_untitled_buffer editor__buffers 153 13 none] [snapshot editor__view 10 13 none]
+G r s state_type [add_buffer_from_file editor__buffers 156 13 none] [state_typeIP editor__state 115 9 none]
+G r l state_type [add_buffer_from_file editor__buffers 156 13 none] [state_typeDI editor__state 115 9 none]
+G r k state_type [add_buffer_from_file editor__buffers 156 13 none] [state_typeDF editor__state 115 9 none]
+G r s view_state [add_buffer_from_file editor__buffers 156 13 none] [view_stateIP editor__view_types 5 9 none]
+G r c none [add_buffer_from_file editor__buffers 156 13 none] [snapshot editor__view 10 13 none]
+G r c none [add_buffer_from_file editor__buffers 156 13 none] [init editor__state 529 14 none]
+G r c none [add_buffer_from_file editor__buffers 156 13 none] [replace_buffer_contents editor__state 459 14 none]
+G r c none [add_buffer_from_file editor__buffers 156 13 none] [current_buffer_revision editor__state 470 13 none]
+G r c none [add_buffer_from_file editor__buffers 156 13 none] [clear editor__messages 49 14 none]
+G r j file_state [summary_at editor__buffers 179 13 none] [file_stateDA editor__state 88 9 none]
+G r j file_state [summary_for editor__buffers 183 13 none] [file_stateDA editor__state 88 9 none]
+G r j file_state [metadata_for editor__buffers 187 13 none] [file_stateDA editor__state 88 9 none]
+G r c none [metadata_for editor__buffers 187 13 none] [has_project editor__project 73 13 none]
+G r c none [metadata_for editor__buffers 187 13 none] [root_path editor__project 79 13 none]
+G r c none [classify_buffer_ownership editor__buffers 199 13 none] [has_project editor__project 73 13 none]
+G r c none [classify_buffer_ownership editor__buffers 199 13 none] [root_path editor__project 79 13 none]
+G r j file_state [audit_buffers editor__buffers 215 13 none] [file_stateDA editor__state 88 9 none]
+G r c none [audit_buffers editor__buffers 215 13 none] [has_project editor__project 73 13 none]
+G r c none [audit_buffers editor__buffers 215 13 none] [root_path editor__project 79 13 none]
+G r j file_state [buffer_metadata_lifecycle_audit_coherent editor__buffers 220 13 none] [file_stateDA editor__state 88 9 none]
+G r c none [buffer_metadata_lifecycle_audit_coherent editor__buffers 220 13 none] [has_project editor__project 73 13 none]
+G r c none [buffer_metadata_lifecycle_audit_coherent editor__buffers 220 13 none] [root_path editor__project 79 13 none]
+G r j file_state [project_lifecycle_buffer_sets editor__buffers 230 13 none] [file_stateDA editor__state 88 9 none]
+G r c none [project_lifecycle_buffer_sets editor__buffers 230 13 none] [has_project editor__project 73 13 none]
+G r c none [project_lifecycle_buffer_sets editor__buffers 230 13 none] [root_path editor__project 79 13 none]
+G r j file_state [project_owned_buffer_count editor__buffers 234 13 none] [file_stateDA editor__state 88 9 none]
+G r c none [project_owned_buffer_count editor__buffers 234 13 none] [has_project editor__project 73 13 none]
+G r c none [project_owned_buffer_count editor__buffers 234 13 none] [root_path editor__project 79 13 none]
+G r j file_state [outside_project_buffer_count editor__buffers 238 13 none] [file_stateDA editor__state 88 9 none]
+G r c none [outside_project_buffer_count editor__buffers 238 13 none] [has_project editor__project 73 13 none]
+G r c none [outside_project_buffer_count editor__buffers 238 13 none] [root_path editor__project 79 13 none]
+G r j file_state [project_owned_dirty_buffer_count editor__buffers 245 13 none] [file_stateDA editor__state 88 9 none]
+G r c none [project_owned_dirty_buffer_count editor__buffers 245 13 none] [has_project editor__project 73 13 none]
+G r c none [project_owned_dirty_buffer_count editor__buffers 245 13 none] [root_path editor__project 79 13 none]
+G r j file_state [outside_project_dirty_buffer_count editor__buffers 249 13 none] [file_stateDA editor__state 88 9 none]
+G r c none [outside_project_dirty_buffer_count editor__buffers 249 13 none] [has_project editor__project 73 13 none]
+G r c none [outside_project_dirty_buffer_count editor__buffers 249 13 none] [root_path editor__project 79 13 none]
+G r j file_state [scratch_dirty_buffer_count editor__buffers 253 13 none] [file_stateDA editor__state 88 9 none]
+G r c none [scratch_dirty_buffer_count editor__buffers 253 13 none] [has_project editor__project 73 13 none]
+G r c none [scratch_dirty_buffer_count editor__buffers 253 13 none] [root_path editor__project 79 13 none]
+G r j file_state [categorized_dirty_buffer_summary editor__buffers 262 13 none] [file_stateDA editor__state 88 9 none]
+G r c none [categorized_dirty_buffer_summary editor__buffers 262 13 none] [has_project editor__project 73 13 none]
+G r c none [categorized_dirty_buffer_summary editor__buffers 262 13 none] [root_path editor__project 79 13 none]
+G r j file_state [project_lifecycle_dirty_buffer_summary editor__buffers 267 13 none] [file_stateDA editor__state 88 9 none]
+G r c none [project_lifecycle_dirty_buffer_summary editor__buffers 267 13 none] [has_project editor__project 73 13 none]
+G r c none [project_lifecycle_dirty_buffer_summary editor__buffers 267 13 none] [root_path editor__project 79 13 none]
+G r j state_type [current editor__buffers 276 13 none] [state_typeDA editor__state 115 9 none]
+G r j state_type [buffer editor__buffers 282 13 none] [state_typeDA editor__state 115 9 none]
+G r k state_type [close_buffer editor__buffers 290 14 none] [state_typeDF editor__state 115 9 none]
+G r s view_state [ensure_global_registry editor__buffers 463 14 none] [view_stateIP editor__view_types 5 9 none]
+G r j state_type [ensure_global_registry editor__buffers 463 14 none] [state_typeDA editor__state 115 9 none]
+G r k state_type [ensure_global_registry editor__buffers 463 14 none] [state_typeDF editor__state 115 9 none]
+G r c none [ensure_global_registry editor__buffers 463 14 none] [clear editor__messages 49 14 none]
+G r c none [ensure_global_registry editor__buffers 463 14 none] [clear editor__project 67 14 none]
+G r c none [ensure_global_registry editor__buffers 463 14 none] [clear editor__file_tree 50 14 none]
+G r c none [ensure_global_registry editor__buffers 463 14 none] [clear_view editor__file_tree_view 73 14 none]
+G r c none [ensure_global_registry editor__buffers 463 14 none] [clear editor__input_field 28 14 none]
+G r c none [ensure_global_registry editor__buffers 463 14 none] [clear editor__quick_open 120 14 none]
+G r c none [ensure_global_registry editor__buffers 463 14 none] [clear editor__buffer_switcher 228 14 none]
+G r c none [ensure_global_registry editor__buffers 463 14 none] [clear editor__recent_buffers 10 14 none]
+G r c none [ensure_global_registry editor__buffers 463 14 none] [clear editor__project_search 109 14 none]
+G r c none [ensure_global_registry editor__buffers 463 14 none] [clear editor__project_search_bar 32 14 none]
+G r c none [ensure_global_registry editor__buffers 463 14 none] [clear_view editor__problems 46 14 none]
+G r c none [ensure_global_registry editor__buffers 463 14 none] [initialize_defaults editor__panels 48 14 none]
+G r c none [ensure_global_registry editor__buffers 463 14 none] [clear editor__panel_focus 15 14 none]
+G r c none [ensure_global_registry editor__buffers 463 14 none] [clear editor__overlay_focus 31 14 none]
+G r c none [ensure_global_registry editor__buffers 463 14 none] [clear editor__pending_transitions 65 14 none]
+G r c none [ensure_global_registry editor__buffers 463 14 none] [clear editor__navigation_history 46 14 none]
+G r c none [ensure_global_registry editor__buffers 463 14 none] [clear editor__feature_panel 239 14 none]
+G r c none [ensure_global_registry editor__buffers 463 14 none] [clear editor__outline 140 14 none]
+G r c none [ensure_global_registry editor__buffers 463 14 none] [clear editor__feature_messages 44 14 none]
+G r c none [ensure_global_registry editor__buffers 463 14 none] [clear editor__feature_search_results 27 14 none]
+G r c none [ensure_global_registry editor__buffers 463 14 none] [clear_diagnostics editor__feature_diagnostics 44 14 none]
+G r c none [ensure_global_registry editor__buffers 463 14 none] [snapshot editor__view 10 13 none]
+G r j state_type [sync_global_active_from_state editor__buffers 469 14 none] [state_typeDA editor__state 115 9 none]
+G r c none [sync_global_active_from_state editor__buffers 469 14 none] [clear editor__messages 49 14 none]
+G r c none [sync_global_active_from_state editor__buffers 469 14 none] [clear editor__project 67 14 none]
+G r c none [sync_global_active_from_state editor__buffers 469 14 none] [clear editor__file_tree 50 14 none]
+G r c none [sync_global_active_from_state editor__buffers 469 14 none] [clear_view editor__file_tree_view 73 14 none]
+G r c none [sync_global_active_from_state editor__buffers 469 14 none] [clear editor__input_field 28 14 none]
+G r c none [sync_global_active_from_state editor__buffers 469 14 none] [clear editor__quick_open 120 14 none]
+G r c none [sync_global_active_from_state editor__buffers 469 14 none] [clear editor__buffer_switcher 228 14 none]
+G r c none [sync_global_active_from_state editor__buffers 469 14 none] [clear editor__recent_buffers 10 14 none]
+G r c none [sync_global_active_from_state editor__buffers 469 14 none] [clear editor__project_search 109 14 none]
+G r c none [sync_global_active_from_state editor__buffers 469 14 none] [clear editor__project_search_bar 32 14 none]
+G r c none [sync_global_active_from_state editor__buffers 469 14 none] [clear_view editor__problems 46 14 none]
+G r c none [sync_global_active_from_state editor__buffers 469 14 none] [initialize_defaults editor__panels 48 14 none]
+G r c none [sync_global_active_from_state editor__buffers 469 14 none] [clear editor__panel_focus 15 14 none]
+G r c none [sync_global_active_from_state editor__buffers 469 14 none] [clear editor__overlay_focus 31 14 none]
+G r c none [sync_global_active_from_state editor__buffers 469 14 none] [clear editor__pending_transitions 65 14 none]
+G r c none [sync_global_active_from_state editor__buffers 469 14 none] [clear editor__navigation_history 46 14 none]
+G r c none [sync_global_active_from_state editor__buffers 469 14 none] [clear editor__feature_panel 239 14 none]
+G r c none [sync_global_active_from_state editor__buffers 469 14 none] [clear editor__outline 140 14 none]
+G r c none [sync_global_active_from_state editor__buffers 469 14 none] [clear editor__feature_messages 44 14 none]
+G r c none [sync_global_active_from_state editor__buffers 469 14 none] [clear editor__feature_search_results 27 14 none]
+G r c none [sync_global_active_from_state editor__buffers 469 14 none] [clear_diagnostics editor__feature_diagnostics 44 14 none]
+G r k state_type [sync_global_active_from_state editor__buffers 469 14 none] [state_typeDF editor__state 115 9 none]
+G r c none [sync_global_active_from_state editor__buffers 469 14 none] [snapshot editor__view 10 13 none]
+G r j message_state [load_global_active_into_state editor__buffers 472 14 none] [message_stateDA editor__messages 197 9 none]
+G r j feature_panel_state [load_global_active_into_state editor__buffers 472 14 none] [feature_panel_stateDA editor__feature_panel 669 9 none]
+G r j outline_state [load_global_active_into_state editor__buffers 472 14 none] [outline_stateDA editor__outline 728 9 none]
+G r j message_feature_state [load_global_active_into_state editor__buffers 472 14 none] [message_feature_stateDA editor__feature_messages 278 9 none]
+G r j search_results_feature_state [load_global_active_into_state editor__buffers 472 14 none] [search_results_feature_stateDA editor__feature_search_results 310 9 none]
+G r j diagnostics_feature_state [load_global_active_into_state editor__buffers 472 14 none] [diagnostics_feature_stateDA editor__feature_diagnostics 491 9 none]
+G r j project_state [load_global_active_into_state editor__buffers 472 14 none] [project_stateDA editor__project 182 9 none]
+G r j file_tree_state [load_global_active_into_state editor__buffers 472 14 none] [file_tree_stateDA editor__file_tree 239 9 none]
+G r j input_field_state [load_global_active_into_state editor__buffers 472 14 none] [input_field_stateDA editor__input_field 96 9 none]
+G r j quick_open_state [load_global_active_into_state editor__buffers 472 14 none] [quick_open_stateDA editor__quick_open 331 9 none]
+G r j buffer_switcher_state [load_global_active_into_state editor__buffers 472 14 none] [buffer_switcher_stateDA editor__buffer_switcher 638 9 none]
+G r j recent_buffer_state [load_global_active_into_state editor__buffers 472 14 none] [recent_buffer_stateDA editor__recent_buffers 51 9 none]
+G r j project_search_state [load_global_active_into_state editor__buffers 472 14 none] [project_search_stateDA editor__project_search 515 9 none]
+G r j project_search_bar_state [load_global_active_into_state editor__buffers 472 14 none] [project_search_bar_stateDA editor__project_search_bar 92 9 none]
+G r j navigation_history_state [load_global_active_into_state editor__buffers 472 14 none] [navigation_history_stateDA editor__navigation_history 41 9 none]
+G r j Treopen_candidate_arrayB [load_global_active_into_state editor__buffers 472 14 none] [Treopen_candidate_arrayBDA editor__state 112 4 none]
+G r k state_type [load_global_active_into_state editor__buffers 472 14 none] [state_typeDF editor__state 115 9 none]
+G r j state_type [load_global_active_into_state editor__buffers 472 14 none] [state_typeDA editor__state 115 9 none]
+G r k project_state [load_global_active_into_state editor__buffers 472 14 none] [project_stateDF editor__project 182 9 none]
+G r k file_tree_state [load_global_active_into_state editor__buffers 472 14 none] [file_tree_stateDF editor__file_tree 239 9 none]
+G r k message_state [load_global_active_into_state editor__buffers 472 14 none] [message_stateDF editor__messages 197 9 none]
+G r k feature_panel_state [load_global_active_into_state editor__buffers 472 14 none] [feature_panel_stateDF editor__feature_panel 669 9 none]
+G r k outline_state [load_global_active_into_state editor__buffers 472 14 none] [outline_stateDF editor__outline 728 9 none]
+G r k message_feature_state [load_global_active_into_state editor__buffers 472 14 none] [message_feature_stateDF editor__feature_messages 278 9 none]
+G r k search_results_feature_state [load_global_active_into_state editor__buffers 472 14 none] [search_results_feature_stateDF editor__feature_search_results 310 9 none]
+G r k diagnostics_feature_state [load_global_active_into_state editor__buffers 472 14 none] [diagnostics_feature_stateDF editor__feature_diagnostics 491 9 none]
+G r k input_field_state [load_global_active_into_state editor__buffers 472 14 none] [input_field_stateDF editor__input_field 96 9 none]
+G r k quick_open_state [load_global_active_into_state editor__buffers 472 14 none] [quick_open_stateDF editor__quick_open 331 9 none]
+G r k buffer_switcher_state [load_global_active_into_state editor__buffers 472 14 none] [buffer_switcher_stateDF editor__buffer_switcher 638 9 none]
+G r k recent_buffer_state [load_global_active_into_state editor__buffers 472 14 none] [recent_buffer_stateDF editor__recent_buffers 51 9 none]
+G r k project_search_state [load_global_active_into_state editor__buffers 472 14 none] [project_search_stateDF editor__project_search 515 9 none]
+G r k project_search_bar_state [load_global_active_into_state editor__buffers 472 14 none] [project_search_bar_stateDF editor__project_search_bar 92 9 none]
+G r k navigation_history_state [load_global_active_into_state editor__buffers 472 14 none] [navigation_history_stateDF editor__navigation_history 41 9 none]
+G r c none [load_global_active_into_state editor__buffers 472 14 none] [set_text editor__input_field 34 14 none]
+G r c none [load_global_active_into_state editor__buffers 472 14 none] [clear editor__input_field 28 14 none]
+G r c none [load_global_active_into_state editor__buffers 472 14 none] [restore editor__view 12 14 none]
+G r c none [load_global_active_into_state editor__buffers 472 14 none] [clear_gutter_marker_hover editor__state 579 14 none]
+G r c none [load_global_active_into_state editor__buffers 472 14 none] [invalidate_all editor__render_cache 8 14 none]
+G r j file_state [global_summary_at editor__buffers 477 13 none] [file_stateDA editor__state 88 9 none]
+G r j file_state [global_summary_for editor__buffers 479 13 none] [file_stateDA editor__state 88 9 none]
+G r j file_state [global_metadata_for editor__buffers 482 13 none] [file_stateDA editor__state 88 9 none]
+G r c none [global_metadata_for editor__buffers 482 13 none] [has_project editor__project 73 13 none]
+G r c none [global_metadata_for editor__buffers 482 13 none] [root_path editor__project 79 13 none]
+G r j file_state [global_audit_buffers editor__buffers 487 13 none] [file_stateDA editor__state 88 9 none]
+G r c none [global_audit_buffers editor__buffers 487 13 none] [has_project editor__project 73 13 none]
+G r c none [global_audit_buffers editor__buffers 487 13 none] [root_path editor__project 79 13 none]
+G r j file_state [global_buffer_metadata_lifecycle_audit_coherent editor__buffers 491 13 none] [file_stateDA editor__state 88 9 none]
+G r c none [global_buffer_metadata_lifecycle_audit_coherent editor__buffers 491 13 none] [has_project editor__project 73 13 none]
+G r c none [global_buffer_metadata_lifecycle_audit_coherent editor__buffers 491 13 none] [root_path editor__project 79 13 none]
+G r j state_type [global_current_file editor__buffers 511 13 none] [state_typeDA editor__state 115 9 none]
+G r j file_state [global_current_file editor__buffers 511 13 none] [file_stateDA editor__state 88 9 none]
+G r j file_state [global_categorized_dirty_buffer_summary editor__buffers 550 13 none] [file_stateDA editor__state 88 9 none]
+G r c none [global_categorized_dirty_buffer_summary editor__buffers 550 13 none] [has_project editor__project 73 13 none]
+G r c none [global_categorized_dirty_buffer_summary editor__buffers 550 13 none] [root_path editor__project 79 13 none]
+G r j file_state [global_project_lifecycle_dirty_buffer_summary editor__buffers 554 13 none] [file_stateDA editor__state 88 9 none]
+G r c none [global_project_lifecycle_dirty_buffer_summary editor__buffers 554 13 none] [has_project editor__project 73 13 none]
+G r c none [global_project_lifecycle_dirty_buffer_summary editor__buffers 554 13 none] [root_path editor__project 79 13 none]
+G r j file_state [global_project_lifecycle_buffer_sets editor__buffers 558 13 none] [file_stateDA editor__state 88 9 none]
+G r c none [global_project_lifecycle_buffer_sets editor__buffers 558 13 none] [has_project editor__project 73 13 none]
+G r c none [global_project_lifecycle_buffer_sets editor__buffers 558 13 none] [root_path editor__project 79 13 none]
+G r c none [global_bookmark_count editor__buffers 561 13 none] [bookmark_count editor__gutter_markers 49 13 none]
+G r c none [global_has_bookmarks editor__buffers 563 13 none] [bookmark_count editor__gutter_markers 49 13 none]
+G r c none [global_clear_all_bookmarks editor__buffers 565 14 none] [clear_bookmarks editor__gutter_markers 75 14 none]
+G r c none [global_prune_stale_bookmarks editor__buffers 567 14 none] [line_count editor__state 489 13 none]
+G r c none [global_prune_stale_bookmarks editor__buffers 567 14 none] [prune_bookmarks_at_or_after editor__gutter_markers 78 14 none]
+G r k state_type [reset_global_for_test editor__buffers 571 14 none] [state_typeDF editor__state 115 9 none]
+G r c none [reset_global_for_test editor__buffers 571 14 none] [reset editor__view 19 14 none]
+G r s state_type [global_add_file_buffer editor__buffers 573 14 none] [state_typeIP editor__state 115 9 none]
+G r l state_type [global_add_file_buffer editor__buffers 573 14 none] [state_typeDI editor__state 115 9 none]
+G r k state_type [global_add_file_buffer editor__buffers 573 14 none] [state_typeDF editor__state 115 9 none]
+G r s view_state [global_add_file_buffer editor__buffers 573 14 none] [view_stateIP editor__view_types 5 9 none]
+G r c none [global_add_file_buffer editor__buffers 573 14 none] [snapshot editor__view 10 13 none]
+G r c none [global_add_file_buffer editor__buffers 573 14 none] [init editor__state 529 14 none]
+G r c none [global_add_file_buffer editor__buffers 573 14 none] [replace_buffer_contents editor__state 459 14 none]
+G r c none [global_add_file_buffer editor__buffers 573 14 none] [current_buffer_revision editor__state 470 13 none]
+G r c none [global_add_file_buffer editor__buffers 573 14 none] [clear editor__messages 49 14 none]
+G r s state_type [global_add_untitled_buffer editor__buffers 579 14 none] [state_typeIP editor__state 115 9 none]
+G r l state_type [global_add_untitled_buffer editor__buffers 579 14 none] [state_typeDI editor__state 115 9 none]
+G r k state_type [global_add_untitled_buffer editor__buffers 579 14 none] [state_typeDF editor__state 115 9 none]
+G r s view_state [global_add_untitled_buffer editor__buffers 579 14 none] [view_stateIP editor__view_types 5 9 none]
+G r c none [global_add_untitled_buffer editor__buffers 579 14 none] [init editor__state 529 14 none]
+G r c none [global_add_untitled_buffer editor__buffers 579 14 none] [clear editor__messages 49 14 none]
+G r c none [global_add_untitled_buffer editor__buffers 579 14 none] [snapshot editor__view 10 13 none]
+G r k state_type [global_close_buffer editor__buffers 585 14 none] [state_typeDF editor__state 115 9 none]
+G r k state_type [global_force_close_buffer editor__buffers 589 14 none] [state_typeDF editor__state 115 9 none]
+G r k state_type [global_close_clean_file_paths_under editor__buffers 614 14 none] [state_typeDF editor__state 115 9 none]
+G r s view_state [buffer_recordIP editor__buffers 629 9 none] [view_stateIP editor__view_types 5 9 none]
+G r k state_type [reset_registry editor__buffers 66 14 none] [state_typeDF editor__state 115 9 none]
+G r c none [clear_buffer_messages editor__buffers 92 14 none] [clear editor__messages 49 14 none]
+G r c none [strip_global_ui_state editor__buffers 98 14 none] [clear editor__messages 49 14 none]
+G r c none [strip_global_ui_state editor__buffers 98 14 none] [clear editor__project 67 14 none]
+G r c none [strip_global_ui_state editor__buffers 98 14 none] [clear editor__file_tree 50 14 none]
+G r c none [strip_global_ui_state editor__buffers 98 14 none] [clear_view editor__file_tree_view 73 14 none]
+G r c none [strip_global_ui_state editor__buffers 98 14 none] [clear editor__input_field 28 14 none]
+G r c none [strip_global_ui_state editor__buffers 98 14 none] [clear editor__quick_open 120 14 none]
+G r c none [strip_global_ui_state editor__buffers 98 14 none] [clear editor__buffer_switcher 228 14 none]
+G r c none [strip_global_ui_state editor__buffers 98 14 none] [clear editor__recent_buffers 10 14 none]
+G r c none [strip_global_ui_state editor__buffers 98 14 none] [clear editor__project_search 109 14 none]
+G r c none [strip_global_ui_state editor__buffers 98 14 none] [clear editor__project_search_bar 32 14 none]
+G r c none [strip_global_ui_state editor__buffers 98 14 none] [clear_view editor__problems 46 14 none]
+G r c none [strip_global_ui_state editor__buffers 98 14 none] [initialize_defaults editor__panels 48 14 none]
+G r c none [strip_global_ui_state editor__buffers 98 14 none] [clear editor__panel_focus 15 14 none]
+G r c none [strip_global_ui_state editor__buffers 98 14 none] [clear editor__overlay_focus 31 14 none]
+G r c none [strip_global_ui_state editor__buffers 98 14 none] [clear editor__pending_transitions 65 14 none]
+G r c none [strip_global_ui_state editor__buffers 98 14 none] [clear editor__navigation_history 46 14 none]
+G r c none [strip_global_ui_state editor__buffers 98 14 none] [clear editor__feature_panel 239 14 none]
+G r c none [strip_global_ui_state editor__buffers 98 14 none] [clear editor__outline 140 14 none]
+G r c none [strip_global_ui_state editor__buffers 98 14 none] [clear editor__feature_messages 44 14 none]
+G r c none [strip_global_ui_state editor__buffers 98 14 none] [clear editor__feature_search_results 27 14 none]
+G r c none [strip_global_ui_state editor__buffers 98 14 none] [clear_diagnostics editor__feature_diagnostics 44 14 none]
+G r j file_state [lifecycle_display_label editor__buffers 336 13 none] [file_stateDA editor__state 88 9 none]
+X 1 ada.ads
+18K9*Ada 22e8 34|1r6 2r6 16r37 59r34 59r76 61r34 61r76 63r34 63r76 65r34
+. 65r76 67r36 67r78 79r34 79r76 80r34 80r76 129r43 129r85 130r45 130r87 131r41
+. 131r83 132r43 132r85 133r48 133r90 134r52 134r94 637r19 637r61 639r19 639r61
+. 641r19 641r61 646r41 656r26 656r68 35|1r6 1r33 2r6 3r6 4r6 5r6 5r31 6r6
+. 9r6 39r39 394r35 1362r35 1364r13 1415r17 1611r14 1611r44 1616r14 1616r45
+. 1672r14 1672r44 1867r35 2761r18
+X 5 a-contai.ads
+16K13*Containers 28e19 34|1r10 16r41 646r45 35|5w10 5r35 6r10 394r39 1867r39
+22I9*Count_Type<integer> 35|5r46
+X 9 a-convec.ads
+62I9 Index_Type 34|17r7 647r7 35|395r10 1868r10
+63+9 Element_Type 34|18r7 648r7 35|396r10 1868r33
+65V19 "="{boolean} 34|649r8
+74k24*Vectors 878e27 34|1w21 16r52 646r56 35|6w21 394r50 1867r50
+81I12 Extended_Index{integer}
+91R9*Vector<13|43R9> 34|87r57[16] 88r57[16] 89r57[16] 90r57[16] 91r57[16]
+. 92r57[16] 93r57[16] 632r49[62|54] 633r49[62|54] 654r39[646] 35|398r31[394]
+. 1869r28[1867]
+175V13*Length{5|22I9} 35|326s38[34|646] 947s68[34|16] 948s72[34|16] 949s56[34|16]
+. 951s49[34|16] 953s51[34|16] 954s80[34|16] 955s80[34|16] 1296s45[34|646]
+. 1487s28[34|646] 1504s28[34|646]
+187V13*Is_Empty{boolean} 35|68s29[34|646] 137s25[34|646] 409s29[394] 412s29[394]
+. 447s20[394] 748s25[34|646] 818s62[34|646] 823s29[34|646] 1203s25[34|646]
+. 1238s29[34|646] 1321s25[34|646] 1431s25[34|646] 1461s25[34|646] 1472s25[34|646]
+. 1485s25[34|646] 1502s25[34|646] 1890s16[1867] 2073s32[34|646] 2093s39[34|646]
+. 2130s32[34|646] 2310s32[34|646] 2354s32[34|646] 2562s32[34|646] 2584s32[34|646]
+. 2601s32[34|646] 2616s36[34|646] 2673s32[34|646] 2685s32[34|646] 2695s32[34|646]
+. 2717s32[34|646] 2742s32[34|646] 2775s32[34|646] 2780s39[34|646]
+190U14*Clear 35|80s22[34|646] 2091s36[62|54] 2092s36[62|54] 2228s36[89|30]
+. 2242s36[89|30] 2618s44[62|54] 2619s44[62|54] 2623s33[62|54] 2624s33[62|54]
+. 2633s33[62|54] 2634s33[62|54]
+206V13 Element{22|105R9} 35|452s46[394]
+483U14*Append 35|255s22[34|646] 291s22[34|646] 417s22[394] 420s19[394] 760s43[34|16]
+. 761s52[34|16] 763s52[34|16] 765s52[34|16] 769s45[34|16] 770s54[34|16] 773s37[34|16]
+. 774s54[34|16] 1885s25[1867] 2109s29[34|646]
+514U14*Delete 35|1318s22[34|646]
+538U14 Delete_Last 35|410s25[394] 415s22[394]
+560V13*First_Index{integer} 35|69s34[34|646] 141s31[34|646] 448s25[394] 1204s45[34|646]
+. 1297s32[34|646] 1326s60[34|646] 1465s45[34|646] 1490s48[34|646] 1506s32[34|646]
+. 1893s22[1867] 1899s48[1867] 1902s51[1867] 1907s35[1867] 2566s38[34|646]
+. 2588s38[34|646] 2605s38[34|646] 2617s41[34|646] 2746s38[34|646] 2779s34[34|646]
+570V13*Last_Index{81I12[34|646]} 35|69s64[34|646] 141s61[34|646] 448s46[394]
+. 1205s45[34|646] 1299s35[34|646] 1476s45[34|646] 1489s32[34|646] 1507s48[34|646]
+. 1893s43[1867] 1901s35[1867] 1908s51[1867] 2566s75[34|646] 2588s75[34|646]
+. 2605s75[34|646] 2617s78[34|646] 2746s75[34|646] 2781s45[34|646]
+578V13 Last_Element{22|105R9} 35|413s41[394]
+X 11 a-direct.ads
+76K13*Directories 524e20 35|4w10 1362r39 1364r17 1415r21 2761r22
+239V13*Full_Name{string} 35|1364s29
+245V13*Simple_Name{string} 35|2761s34
+275V13*Compose{string} 35|1415s33
+310V13*Exists{boolean} 35|1362s51
+X 15 a-iteint.ads
+24h9 Forward_Iterator
+32h9 Reversible_Iterator<24R9[9|119]>
+X 17 a-string.ads
+16K13*Strings 35e16 34|2r10 59r38 59r80 61r38 61r80 63r38 63r80 65r38 65r80
+. 67r40 67r82 79r38 79r80 80r38 80r80 129r47 129r89 130r49 130r91 131r45
+. 131r87 132r47 132r89 133r52 133r94 134r56 134r98 637r23 637r65 639r23 639r65
+. 641r23 641r65 656r30 656r72 35|1r10 1r37 2r10 3w10 1611r18 1611r48 1616r18
+. 1616r49 1672r18 1672r48
+33n37*Both{33E9} 35|1611r56 1616r57 1672r56
+X 18 a-strfix.ads
+49K21*Fixed 1390e22 35|2w18 1611r26 1616r26 1672r26
+1133V13*Trim{string} 35|1611s32 1616s32 1672s32
+X 22 a-strunb.ads
+91K21*Unbounded 1641e26 34|2w18 59r46 59r88 61r46 61r88 63r46 63r88 65r46
+. 65r88 67r48 67r90 79r46 79r88 80r46 80r88 129r55 129r97 130r57 130r99 131r53
+. 131r95 132r55 132r97 133r60 133r102 134r64 134r106 637r31 637r73 639r31
+. 639r73 641r31 641r73 656r38 656r80 35|1w18 1r45
+105R9*Unbounded_String<13|43R9> 1620e15 34|59r56 61r56 63r56 65r56 67r58
+. 79r56 80r56 129r65 130r67 131r63 132r65 133r70 134r74 637r41 639r41 641r41
+. 656r48 35|351r25 396r26 399r18 425r16 1868r49 2163r37 2165r38 2180r40 2181r41
+. 2739r18
+109r4*Null_Unbounded_String{105R9} 34|59r98 61r98 63r98 65r98 67r100 79r98
+. 80r98 129r107 130r109 131r105 132r107 133r112 134r116 637r83 639r83 641r83
+. 656r90 35|82r32 108r36 109r45 128r38 129r39 399r38 422r19 425r36 663r33
+. 1151r34 1155r34 1166r45 1168r45 1170r45 1209r34 1213r34 1224r45 1226r45
+. 1228r45 1666r38 1722r37 1769r38 1820r35 1860r32 2236r42 2238r48 2241r37
+. 2247r39 2248r48 2356r26 2370r38
+111V13*Length{natural} 35|449s16 456s10 2230s37
+122V13*To_Unbounded_String{105R9} 35|249s39 276s31 277s39 351s45 656s34 660s33
+. 665s37 669s45 673s50 691s36 692s43 958s51 964s53 970s45 976s51 982s56 994s60
+. 1174s31 1653s41 1709s40 1757s38 1851s35 2357s34 2753s25 2760s15
+135V13*To_String{string} 35|166s21 210s21 354s49 360s49 363s45 367s23 369s23
+. 371s23 376s23 378s23 380s23 382s23 384s23 386s23 403s33 413s24 449s45 452s29
+. 464s14 650s42 1441s18 1537s14 1552s12 1559s18 1637s14 1693s14 1744s14 1800s14
+. 1807s37 1817s46 1835s37 1876s42 1880s22 1894s13 1929s49 2054s23 2227s38
+. 2704s15 2725s15 2751s15 2755s19 2761s47 2787s15
+159U14*Append 35|354s16 357s16 360s16 363s16 444s10 450s16 452s13
+168U14*Append 35|438s13
+269V14*"="{boolean} 9|65i19
+X 26 a-uncdea.ads
+20+9 Object 35|40r7
+21P9 Name(20+9) 35|41r7
+23u15*Unchecked_Deallocation 35|9w10 39r43
+X 27 editor.ads
+1K9*Editor 5e11 34|3r6 4r10 5r6 7r6 8r6 9r6 11r9 13r25 14r38 20r29 21r28
+. 151r30 189r20 202r18 217r21 222r21 232r18 236r18 240r18 247r18 251r18 255r18
+. 264r18 265r14 269r18 270r14 455r14 464r22 467r15 470r15 473r22 483r21 488r21
+. 492r21 548r14 551r17 552r14 555r17 556r14 559r17 632r19 633r19 634r19 659r5
+. 35|7r6 8r6 10r6 11r6 12r6 13r6 14r6 15r6 16r6 17r6 18r6 19r6 20r6 21r6
+. 22r6 23r6 24r6 25r6 26r6 27r6 28r6 29r6 30r6 31r6 32r6 33r6 34r6 35r6 37r14
+. 103r7 104r7 105r7 106r7 110r7 111r7 112r7 113r7 114r7 116r7 117r7 118r7
+. 119r7 120r7 121r7 122r7 123r7 124r7 125r7 126r7 156r7 247r7 254r19 270r25
+. 270r51 272r7 274r7 280r43 515r18 517r41 519r30 634r21 647r44 649r33 744r18
+. 811r21 1046r21 1061r18 1069r18 1088r18 1096r18 1104r18 1112r18 1113r14
+. 1132r18 1133r14 2063r14 2082r22 2091r10 2092r10 2106r19 2107r19 2108r19
+. 2118r15 2125r15 2142r41 2143r41 2144r41 2148r22 2151r27 2152r32 2153r26
+. 2154r35 2155r41 2156r38 2157r27 2158r28 2159r33 2160r27 2161r36 2166r29
+. 2167r34 2168r33 2169r33 2170r37 2171r38 2172r32 2173r30 2174r32 2175r37
+. 2177r41 2178r42 2226r10 2229r37 2240r10 2243r37 2251r7 2252r7 2253r7 2254r7
+. 2255r7 2283r21 2292r21 2300r21 2529r14 2536r17 2537r14 2544r17 2545r14
+. 2552r17 2568r30 2590r13 2607r27 2608r13 2623r7 2624r7 2633r7 2634r7 2635r7
+. 2831r5
+X 32 editor-buffer_switcher.ads
+11K16*Buffer_Switcher 665e27 35|22w13 111r14 2167r41
+13R9*Buffer_Switcher_State 663e14 35|2167r57
+228U14*Clear 35|111s30
+X 33 editor-buffer_types.ads
+3K16*Buffer_Types 32e24 34|3w13 4r17 13r32 14r45 151r37
+5I9*Buffer_Id<integer> 34|4r30 13r45
+6i4*No_Buffer{5I9} 34|14r58
+8R9*Buffer_Summary 30e14 34|151r50
+9i7*Id{5I9} 35|1150m18 1173m15 1208m18
+10r7*Display_Name{22|105R9} 35|1151m18 1174m15 1209m18
+11b7*Is_Dirty{boolean} 35|1152m18 1176m15 1210m18
+12b7*Is_Active{boolean} 35|1153m18 1177m15 1211m18
+13b7*Has_Path{boolean} 35|1154m18 1178m15 1212m18
+14r7*Path{22|105R9} 35|1155m18 1179m15 1213m18
+15b7*Last_Save_Failed{boolean} 35|1156m18 1180m15 1214m18
+16b7*Last_Reload_Failed{boolean} 35|1157m18 1181m15 1215m18
+17b7*Last_Revert_Failed{boolean} 35|1158m18 1182m15 1216m18
+18b7*Missing_Target_Surfaced{boolean} 35|1159m18 1183m15 1217m18
+19b7*Unreadable_Target_Surfaced{boolean} 35|1160m18 1184m15 1218m18
+20b7*Unwritable_Target_Surfaced{boolean} 35|1161m18 1185m15 1219m18
+21b7*External_Change_Surfaced{boolean} 35|1162m18 1186m15 1220m18
+22b7*Blocked_Close_Surfaced{boolean} 35|1163m18 1187m15 1221m18
+23b7*Is_Pinned{boolean} 35|1164m18 1188m15 1222m18
+24b7*Has_Group{boolean} 35|1165m18 1189m15 1223m18
+25r7*Group_Name{22|105R9} 35|1166m18 1190m15 1224m18
+26b7*Has_Label{boolean} 35|1167m18 1191m15 1225m18
+27r7*Label_Text{22|105R9} 35|1168m18 1192m15 1226m18
+28b7*Has_Note{boolean} 35|1169m18 1193m15 1227m18
+29r7*Note_Text{22|105R9} 35|1170m18 1194m15 1228m18
+X 34 editor-buffers.ads
+11K16*Buffers 27|1k9 34|627E9 659l12 659e19 35|37b21 2831l12 2831t19
+13I12*Buffer_Id{33|5I9} 14r25 18r23 58r34 154r49 160r37 164r18 167r42 171r18
+. 185r18 190r20 191r21 218r21 223r21 284r18 288r18 292r18 299r38 302r42 305r42
+. 309r18 309r36 313r18 313r36 316r42 319r42 323r18 327r18 331r18 335r18 342r18
+. 346r18 350r18 354r18 359r18 363r18 367r18 371r18 376r18 380r18 384r18 388r18
+. 393r18 406r33 424r18 428r18 432r18 480r12 484r21 485r21 489r21 493r21 495r41
+. 496r35 499r35 508r39 509r43 514r12 516r43 517r43 518r39 519r44 520r46 521r42
+. 522r38 523r43 524r45 525r43 526r39 527r47 528r46 532r65 537r38 538r40 539r45
+. 577r26 580r20 583r12 586r16 590r16 619r12 624r12 630r19 652r17 653r17 35|46r37
+. 134r18 240r49 242r25 265r37 267r25 299r18 306r42 314r18 338r18 635r21 636r21
+. 812r21 1047r21 1145r18 1257r18 1267r18 1279r18 1285r20 1426r38 1458r42
+. 1469r42 1481r18 1481r36 1498r18 1498r36 1514r42 1521r42 1529r18 1542r18
+. 1569r44 1576r18 1589r18 1602r18 1621r18 1630r18 1642r18 1660r18 1677r18
+. 1686r18 1698r18 1716r18 1728r18 1737r18 1749r18 1763r18 1826r33 1939r18
+. 1950r18 1961r18 2084r16 2276r12 2284r21 2285r21 2293r21 2301r21 2308r41
+. 2320r35 2327r35 2337r24 2342r39 2347r43 2376r12 2383r43 2388r43 2393r39
+. 2398r44 2403r46 2408r42 2413r38 2418r43 2423r45 2428r43 2433r39 2438r47
+. 2443r46 2463r65 2488r38 2493r40 2498r45 2642r26 2652r20 2661r12 2668r16
+. 2680r16 2802r12 2812r12
+14i4*No_Buffer{13I12} 58r47 191r34 218r34 223r34 485r34 489r34 493r34 630r32
+. 653r30 35|46r50 84r26 636r34 812r34 818r28 821r23 1047r34 1150r34 1208r34
+. 1285r33 1322r29 1323r27 1432r17 1454r14 1462r17 1473r17 1486r17 1503r17
+. 1831r17 1840r14 2074r43 2113r39 2285r34 2293r34 2301r34 2311r43 2632r39
+. 2648r39 2657r39 2675r42 2687r42
+16K12*Buffer_Id_Vectors[9|74] 87r39 88r39 89r39 90r39 91r39 92r39 93r39
+20R12*File_Identity{94|88R9} 511r40 35|348r26 607r14 646r32 2352r40
+21R12*Buffer_State{94|115R9} 277r42 280r56 284r36 288r43 627r39 35|40r17
+. 92r52 99r22 154r52 243r52 268r52 1242r42 1249r56 1257r36 1267r43 2086r16
+. 2105r24 2128r14
+23R9*Buffer_Registry 154r25 157r29 163r18 167r18 170r25 174r18 177r18 180r18
+. 184r18 188r20 216r21 221r21 231r18 235r18 239r18 243r18 246r18 250r18 254r18
+. 263r18 268r18 274r18 277r18 280r25 283r18 287r25 291r25 297r18 302r18 305r18
+. 308r18 312r18 316r18 319r18 322r18 326r18 330r18 334r18 341r18 345r18 349r18
+. 353r25 358r25 362r18 366r18 370r25 375r25 379r18 383r18 387r25 392r25 396r18
+. 399r18 402r18 405r18 409r25 413r25 416r25 420r18 423r25 427r25 431r25 435r18
+. 438r18 441r18 444r18 447r18 450r18 454r18 476r43 651c9 657e14 35|43r37
+. 66r48 133r18 150r38 152r63 160r18 203r18 222r39 240r25 262r29 298r18 306r18
+. 313r25 323r18 330r18 337r18 633r21 743r18 810r21 1045r21 1060r18 1068r18
+. 1075r46 1087r18 1095r18 1103r18 1111r18 1131r18 1144r18 1198r18 1235r18
+. 1242r18 1249r25 1256r18 1266r25 1278r25 1424r18 1458r18 1469r18 1480r18
+. 1497r18 1514r18 1521r18 1528r18 1541r18 1575r18 1588r18 1601r18 1620r18
+. 1629r18 1641r25 1659r25 1676r18 1685r18 1697r25 1715r25 1727r18 1736r18
+. 1748r25 1762r25 1775r18 1787r18 1794r18 1803r38 1814r63 1825r18 1844r25
+. 1856r25 1864r25 1917r18 1938r25 1949r25 1960r25 1971r18 1987r18 2000r18
+. 2016r18 2032r18 2045r18 2062r18 2263r43
+26E9*Buffer_Ownership_Kind 31e34 78r34 202r55 204r37 35|515r55 534r37 651r32
+27n7*Buffer_Project_Owned{26E9} 35|528r17 537r15 653r55 704r35 759r24 830r24
+. 857r33 876r24
+28n7*Buffer_Outside_Project{26E9} 35|530r17 539r15 768r24 832r24 860r36 882r24
+29n7*Buffer_Scratch_Unbacked{26E9} 35|522r17 541r15 772r24 834r24 861r40
+. 888r24
+30n7*Buffer_Missing_Project_Context{26E9} 78r59 35|526r17 543r15 776r24
+31n7*Buffer_Unknown_File_Backed{26E9} 35|524r17 545r15 777r24
+33E9*Buffer_Dirty_Category 40e36 81r34 206r42 35|550r42
+34n7*Buffer_Not_Dirty{33E9} 81r59 35|553r15 695r38 929r24
+35n7*Buffer_Dirty_Project_File{33E9} 35|555r15 705r38 917r24
+36n7*Buffer_Dirty_Outside_Project_File{33E9} 35|557r15 707r38 919r24
+37n7*Buffer_Dirty_Scratch{33E9} 35|559r15 703r38 921r24
+38n7*Buffer_Dirty_Missing_File{33E9} 35|561r15 697r38 923r24
+39n7*Buffer_Dirty_Conflicted_File{33E9} 35|563r15 699r38 925r24
+40n7*Buffer_Dirty_Unwritable_File{33E9} 35|565r15 701r38 927r24
+42E9*Buffer_Close_Eligibility 48e29 82r34 208r45 35|570r45
+43n7*Buffer_Closable_Clean{42E9} 35|573r15 713r41 899r24
+44n7*Buffer_Requires_Dirty_Confirmation{42E9} 35|575r15 725r41 901r24
+45n7*Buffer_Requires_Save_As_Or_Discard{42E9} 35|577r15 723r41 904r24
+46n7*Buffer_Requires_Conflict_Resolution_Or_Discard{42E9} 35|579r15 715r41
+. 907r24
+47n7*Buffer_Blocked_By_Pending_Confirmation{42E9} 35|581r15 711r41 910r24
+48n7*Buffer_Not_A_Real_Row{42E9} 82r62 35|583r15 912r24
+50E9*Buffer_Workspace_Persistability 55e41 83r34 211r14 35|589r14
+51n7*Buffer_Persistable_File_Reference{50E9} 35|593r15 729r48 933r48
+52n7*Buffer_Not_Persistable_Scratch{50E9} 35|595r15 731r48
+53n7*Buffer_Not_Persistable_Invalid_Path{50E9} 35|597r15 733r48
+54n7*Buffer_Not_Persistable_Runtime_Only_Id{50E9} 83r69 35|599r15
+55n7*Buffer_Not_Persistable_Dirty_Text{50E9} 35|601r15
+57R9*Buffer_Metadata_Snapshot 84e14 191r52 485r52 35|636r52 639r16 755r29
+. 826r29 2285r52
+58i7*Id{13I12} 35|655m17
+59r7*Display_Label{22|105R9} 35|656m17
+60b7*Has_File_Path{boolean} 35|658m17
+61r7*File_Path{22|105R9} 35|660m20 663m20
+62b7*Has_Scratch_Label{boolean} 35|664m20
+63r7*Scratch_Label{22|105R9} 35|665m20
+64b7*Has_Project_Relative_Path{boolean} 35|667m17
+65r7*Project_Relative_Path{22|105R9} 35|669m20
+66b7*Has_Outside_Project_Path_Label{boolean} 35|672m20
+67r7*Outside_Project_Path_Label{22|105R9} 35|673m20
+68b7*Is_Active{boolean} 35|676m17
+69b7*Is_Selected{boolean} 35|677m17
+70b7*Is_Dirty{boolean} 35|678m17 762r27 877r27 883r27 889r27
+71b7*Is_Clean{boolean} 35|679m17
+72b7*Is_Scratch{boolean} 35|680m17
+73b7*Missing_Backing_File{boolean} 35|681m17 840r21 849r21
+74b7*External_Conflict{boolean} 35|682m17 840r52 850r28
+75b7*Stale_Backing_State{boolean} 35|683m17 844r21
+76b7*Unreadable{boolean} 35|685m17 851r28 867r21
+77b7*Unwritable{boolean} 35|688m17 852r28 871r21
+78e7*Ownership{26E9} 35|690m17 691r81 704r23 758r23 829r23 857r21 860r24
+. 861r28 875r23
+79r7*Ownership_Label{22|105R9} 35|691m17
+80r7*Lifecycle_Status_Label{22|105R9} 35|692m17
+81e7*Dirty_Category{33E9} 35|695m20 697m20 699m20 701m20 703m20 705m20 707m20
+. 916r23
+82e7*Close_Eligibility{42E9} 35|711m20 713m20 715m20 723m20 725m20 898r23
+83e7*Workspace_Persistability{50E9} 35|729m20 731m20 733m20 933r21
+86R9*Buffer_Project_Lifecycle_Sets 94e14 232r55 559r54 35|744r55 746r16 944r26
+. 2552r54
+87r7*Project_Owned{9|91R9[16]} 35|760m29 947r54
+88r7*Project_Owned_Dirty{9|91R9[16]} 35|763m32 954r60
+89r7*Project_Owned_Clean{9|91R9[16]} 35|765m32 955r60
+90r7*Outside_Project{9|91R9[16]} 35|769m29 948r56
+91r7*Scratch{9|91R9[16]} 35|773m29 949r48
+92r7*Project_Close_Affected{9|91R9[16]} 35|761m29 951r26
+93r7*Project_Close_Unaffected{9|91R9[16]} 35|770m29 774m29 953r26
+96R9*Buffer_Audit_Summary 149e14 218r52 489r52 35|812r52 814r16 1049r24 1115r24
+. 1135r24 2293r52
+97i7*Buffer_Count{natural} 35|816m14 1026r49 1028r61
+98b7*Active_Buffer_Valid{boolean} 35|817m14 1020r16
+99b7*Selected_Buffer_Valid{boolean} 35|820m14 1021r25
+100i7*Project_Owned_Count{natural} 35|831m29 831r59 947m17 1064r48
+101i7*Outside_Project_Count{natural} 35|833m29 833r61 948m17 1072r48
+102i7*Scratch_Count{natural} 35|835m29 835r53 949m17
+103i7*Missing_Or_Conflicted_Count{natural} 35|841m26 841r64
+104i7*Stale_Backing_State_Count{natural} 35|845m26 846r28
+105i7*Lifecycle_Problem_Count{natural} 35|854m26 854r60
+106i7*Project_Close_Affected_Count{natural} 35|858m26 859r28 950m17 997r21
+107i7*Project_Close_Unaffected_Count{natural} 35|863m26 864r28 952m17 1003r24
+108i7*Unreadable_Count{natural} 35|868m26 868r53
+109i7*Unwritable_Count{natural} 35|872m26 872r53
+110i7*Project_Owned_Clean_Count{natural} 35|880m32 880r68 955m17
+111i7*Project_Owned_Dirty_Count{natural} 35|878m32 878r68 954m17 961r21 1091r48
+. 1138r37 1140r37
+112i7*Outside_Project_Clean_Count{natural} 35|886m32 886r70
+113i7*Outside_Project_Dirty_Count{natural} 35|884m32 884r70 967r21 1099r48
+114i7*Scratch_Clean_Count{natural} 35|892m32 892r62
+115i7*Scratch_Dirty_Count{natural} 35|890m32 890r62 973r21 1107r48
+116i7*Close_Direct_Count{natural} 35|900m29 900r58 1022r26
+117i7*Close_Needs_Confirmation_Count{natural} 35|902m29 903r31 1023r20
+118i7*Close_Needs_Save_As_Count{natural} 35|905m29 906r31 1024r20
+119i7*Close_Needs_Conflict_Count{natural} 35|908m29 909r31 1025r20
+120i7*Close_Blocked_Count{natural} 35|911m29 911r59 1026r20
+121i7*Dirty_Project_File_Count{natural} 35|918m29 918r64 1117r15
+122i7*Dirty_Outside_Project_Count{natural} 35|920m29 920r67 1118r17
+123i7*Dirty_Scratch_Count{natural} 35|922m29 922r59 1119r17 1126r37 1127r45
+124i7*Dirty_Missing_Count{natural} 35|924m29 924r59 979r21 1120r17
+125i7*Dirty_Conflicted_Count{natural} 35|926m29 926r62 979r50 1121r17
+126i7*Dirty_Unwritable_Count{natural} 35|928m29 928r62 1122r17
+127i7*Workspace_Persistable_Count{natural} 35|934m26 934r64 985r21 1027r26
+128i7*Workspace_Not_Persistable_Count{natural} 35|936m26 937r28 991r24 1028r20
+129r7*Dirty_Project_Files_Summary_Label{22|105R9} 35|958m14
+130r7*Dirty_Outside_Project_Summary_Label{22|105R9} 35|964m14
+131r7*Dirty_Scratch_Summary_Label{22|105R9} 35|970m14
+132r7*Dirty_File_Conflict_Summary_Label{22|105R9} 35|976m14
+133r7*Workspace_Persistability_Summary_Label{22|105R9} 35|982m14
+134r7*Project_Lifecycle_Buffer_Set_Summary_Label{22|105R9} 35|994m14
+135b7*Active_Runtime_Id_Persisted{boolean} 35|1010m14 1030r20
+136b7*Selected_Runtime_Id_Persisted{boolean} 35|1011m14 1031r29
+137b7*Buffer_List_State_Persisted{boolean} 35|1012m14 1032r29
+138b7*Dirty_Text_Persisted{boolean} 35|1013m14 1033r29
+139b7*Scratch_Text_Persisted{boolean} 35|1014m14 1034r29
+140b7*Conflict_Token_Persisted{boolean} 35|1015m14 1035r29
+141b7*Runtime_Buffer_Id_Persisted{boolean} 35|1016m14 1036r29
+142b7*Command_Or_Keybinding_Payload{boolean} 35|1017m14 1038r20
+143b7*Render_Mutation_Route{boolean} 35|1018m14 1039r49
+144b7*Metadata_Projection_Coherent{boolean} 35|1019m14 1052r20
+145b7*Workspace_Persistence_Safe{boolean} 35|1029m14 1053r24
+146b7*Command_Keybinding_Payloads_Clear{boolean} 35|1037m14 1054r24
+147b7*Render_Boundary_Safe{boolean} 35|1039m14 1055r24
+148b7*Audit_Side_Effect_Free{boolean} 35|1040m14 1056r24
+151R12*Buffer_Summary{33|8R9} 181r35 185r36 478r32 480r30 35|1145r36 1199r35
+. 2269r32 2276r30
+153V13*Create_Untitled_Buffer{13I12} 154=7 35|239b13 259l8 259t30 2655s17
+154r7 Registry{23R9} 35|240b7 242r38 244r50 255m7 255r7 256m7 256r27 257m7
+156V13*Add_Buffer_From_File{13I12} 157=7 158>7 159>7 160>7 35|261b13 295l8
+. 295t28 2645s17
+157r7 Registry{23R9} 35|262b7 267r38 291m7 291r7 292m7 292r27 293m7
+158a7 Path{string} 35|263b7 276r52
+159a7 Display_Name{string} 35|264b7 277r60
+160a7 Contents{string} 35|265b7 274r56
+162V13*Contains{boolean} 163>7 164>7 35|297b13 303l8 303t16 317s10 819s17
+. 821s41 2322s14
+163r7 Registry{23R9} 35|298b7 302r24
+164i7 Id{13I12} 35|299b7 302r34
+166V13*Active_Buffer{13I12} 167>7 35|305b13 310l8 310t21 2317s14
+167r7 Registry{23R9} 35|306b7 309r14
+169U14*Set_Active_Buffer 170=7 171>7 35|312b14 320l8 320t25 2664s7
+170r7 Registry{23R9} 35|313b7 317r20 318m10
+171i7 Id{13I12} 35|314b7 317r30 318r29
+173V13*Count{natural} 174>7 35|322b13 327l8 327t13 333s14 816s30 2260s14
+174r7 Registry{23R9} 35|323b7 326r23
+176V13*Buffer_Count{natural} 177>7 35|329b13 334l8 334t20
+177r7 Registry{23R9} 35|330b7 333r21
+179V13*Summary_At{151R12} 180>7 181>7 35|1197b13 1232l8 1232t18 2272s14
+180r7 Registry{23R9} 35|1198b7 1203r10 1204r30 1205r30 1206r17 1231r27 1231r37
+181i7 Index{positive} 35|1199b7 1201r40
+183V13*Summary_For{151R12} 184>7 185>7 35|1143b13 1195l8 1195t19 1231s14
+. 2279s14
+184r7 Registry{23R9} 35|1144b7 1147r41 1149r35 1173r31 1175r43 1175r53 1176r31
+. 1177r31 1177r55 1178r31 1179r31 1180r35 1181r37 1182r37 1183r42 1184r45
+. 1185r45 1186r43 1187r42 1188r42 1189r42 1190r42 1191r42 1192r42 1193r42
+. 1194r42
+185i7 Id{13I12} 35|1145b7 1147r51
+187V13*Metadata_For{57R9} 188>7 189>7 190>7 191>7 35|632b13 738l8 738t20
+. 756s18 827s18 2288s14
+188r7 Registry{23R9} 35|633b7 638r41 641r35 646r49 655r23 657r62 676r30 676r54
+. 677r32
+189r7 Project{79|14R9} 35|634b7 647r72 649r59 652r60
+190i7 Id{13I12} 35|635b7 638r51 657r72
+191i7 Selected_Id{13I12} 35|636b7 677r56
+199V13*Classify_Buffer_Ownership{26E9} 200>7 201>7 202>7 35|512b13 532l8
+. 532t33 652s12
+200b7 Has_Path{boolean} 35|513b7 521r14
+201a7 Path{string} 35|514b7 523r13 527r43
+202r7 Project{79|14R9} 35|515b7 517r69 519r56
+204V13*Ownership_Label{string} 204>30 35|534b13 548l8 548t23 691s57
+204e30 Kind{26E9} 35|534b30 536r12
+206V13*Dirty_Category_Label{string} 206>35 35|550b13 568l8 568t28
+206e35 Kind{33E9} 35|550b35 552r12
+208V13*Close_Eligibility_Label{string} 208>38 35|570b13 586l8 586t31
+208e38 Kind{42E9} 35|570b38 572r12
+210V13*Workspace_Persistability_Label{string} 211>7 35|588b13 604l8 604t38
+211e7 Kind{50E9} 35|589b7 592r12
+213V13*Metadata_Label_Max_Length{positive} 35|50b13 53l8 53t33
+215V13*Audit_Buffers{96R9} 216>7 217>7 218>7 35|809b13 1042l8 1042t21 1050s9
+. 1064s14 1072s14 1091s14 1099s14 1107s14 1115s48 1135s48 2296s14
+216r7 Registry{23R9} 35|810b7 816r37 818r10 818r47 819r27 819r37 821r51 823r14
+. 824r22 827r32 945r43
+217r7 Project{79|14R9} 35|811b7 827r42 945r53
+218i7 Selected_Id{13I12} 35|812b7 821r9 821r61 827r60
+220V13*Buffer_Metadata_Lifecycle_Audit_Coherent{boolean} 221>7 222>7 223>7
+. 35|1044b13 1057l8 1057t48 2304s14
+221r7 Registry{23R9} 35|1045b7 1050r24
+222r7 Project{79|14R9} 35|1046b7 1050r34
+223i7 Selected_Id{13I12} 35|1047b7 1050r43
+230V13*Project_Lifecycle_Buffer_Sets{86R9} 231>7 232>7 35|742b13 785l8 785t37
+. 945s12 2555s14
+231r7 Registry{23R9} 35|743b7 748r10 752r19 756r32
+232r7 Project{79|14R9} 35|744b7 756r42
+234V13*Project_Owned_Buffer_Count{natural} 235>7 236>7 35|1059b13 1065l8
+. 1065t34
+235r7 Registry{23R9} 35|1060b7 1064r29
+236r7 Project{79|14R9} 35|1061b7 1064r39
+238V13*Outside_Project_Buffer_Count{natural} 239>7 240>7 35|1067b13 1073l8
+. 1073t36
+239r7 Registry{23R9} 35|1068b7 1072r29
+240r7 Project{79|14R9} 35|1069b7 1072r39
+242V13*Scratch_Buffer_Count{natural} 243>7 35|1075b13 1084l8 1084t28
+243r7 Registry{23R9} 35|1075b35 1078r19
+245V13*Project_Owned_Dirty_Buffer_Count{natural} 246>7 247>7 35|1086b13 1092l8
+. 1092t40
+246r7 Registry{23R9} 35|1087b7 1091r29
+247r7 Project{79|14R9} 35|1088b7 1091r39
+249V13*Outside_Project_Dirty_Buffer_Count{natural} 250>7 251>7 35|1094b13
+. 1100l8 1100t42
+250r7 Registry{23R9} 35|1095b7 1099r29
+251r7 Project{79|14R9} 35|1096b7 1099r39
+253V13*Scratch_Dirty_Buffer_Count{natural} 254>7 255>7 35|1102b13 1108l8
+. 1108t34
+254r7 Registry{23R9} 35|1103b7 1107r29
+255r7 Project{79|14R9} 35|1104b7 1107r39
+262V13*Categorized_Dirty_Buffer_Summary{47|19R9} 263>7 264>7 35|1110b13 1128l8
+. 1128t40 2540s14
+263r7 Registry{23R9} 35|1111b7 1115r63
+264r7 Project{79|14R9} 35|1112b7 1115r73
+267V13*Project_Lifecycle_Dirty_Buffer_Summary{47|19R9} 268>7 269>7 35|1130b13
+. 1141l8 1141t46 2548s14
+268r7 Registry{23R9} 35|1131b7 1135r63
+269r7 Project{79|14R9} 35|1132b7 1135r73
+273V13*Is_Empty{boolean} 274>7 35|1234b13 1239l8 1239t16
+274r7 Registry{23R9} 35|1235b7 1238r14
+276V13*Current{21R12} 277>7 35|1241b13 1246l8 1246t15 2372s14
+277r7 Registry{23R9} 35|1242b7 1245r22 1245r32
+279V13*Current_Access(21R12) 280=7 35|1248b13 1253l8 1253t22
+280r7 Registry{23R9} 35|1249b7 1252m29 1252r29 1252r39
+282V13*Buffer{21R12} 283>7 284>7 35|1245s14 1255b13 1263l8 1263t14
+283r7 Registry{23R9} 35|1256b7 1259r41 1262r14
+284i7 Id{13I12} 35|1257b7 1259r51
+286V13*Buffer_Access(21R12) 287=7 288>7 35|1252s14 1265b13 1275l8 1275t21
+287r7 Registry{23R9} 35|1266b7 1269r41 1274r14
+288i7 Id{13I12} 35|1267b7 1269r51
+290U14*Close_Buffer 291=7 292>7 293<7 294>7 35|1277b14 1330l8 1330t20 2672s7
+. 2684s7 2789s13
+291r7 Registry{23R9} 35|1278b7 1283r50 1284r40 1292r10 1296r30 1297r17 1298r27
+. 1299r20 1300r27 1303r24 1307r49 1318m7 1318r7 1321r10 1322m10 1324m10 1326m10
+. 1326r29 1326r45 1329m38
+292i7 Id{13I12} 35|1279b7 1283r60 1284r58
+293b7 Closed{boolean} 35|1280b7 1287m7 1319m7
+294b7 Force{boolean} 35|1281b7 1292r64 2684r50
+296V13*Find_By_Path{13I12} 297>7 298>7 299<7 35|1423b13 1455l8 1455t20 2330s14
+297r7 Registry{23R9} 35|1424b7 1431r10 1435r19
+298a7 Path{string} 35|1425b7 1428r62 1443r33
+299b7 Found{boolean} 35|1426b7 1430m7 1447m19
+301V13*First_Buffer{13I12} 302>7 35|1457b13 1466l8 1466t20
+302r7 Registry{23R9} 35|1458b7 1461r10 1465r14 1465r30
+304V13*Last_Buffer{13I12} 305>7 35|1468b13 1477l8 1477t19
+305r7 Registry{23R9} 35|1469b7 1472r10 1476r14 1476r30
+307V13*Next_Buffer{13I12} 308>7 309>7 35|1479b13 1494l8 1494t19 1517s14
+308r7 Registry{23R9} 35|1480b7 1483r41 1485r10 1487r13 1489r17 1490r17 1490r33
+. 1492r17
+309i7 Id{13I12} 35|1481b7 1483r51 1488r17
+311V13*Previous_Buffer{13I12} 312>7 313>7 35|1496b13 1511l8 1511t23 1524s14
+312r7 Registry{23R9} 35|1497b7 1500r41 1502r10 1504r13 1506r17 1507r17 1507r33
+. 1509r17
+313i7 Id{13I12} 35|1498b7 1500r51 1505r17
+315V13*Next_Buffer{13I12} 316>7 35|1513b13 1518l8 1518t19 2344s14
+316r7 Registry{23R9} 35|1514b7 1517r27 1517r37
+318V13*Previous_Buffer{13I12} 319>7 35|1520b13 1525l8 1525t23 2349s14
+319r7 Registry{23R9} 35|1521b7 1524r31 1524r41
+321V13*Display_Name{string} 322>7 323>7 35|1527b13 1538l8 1538t20 2380s14
+322r7 Registry{23R9} 35|1528b7 1531r41 1533r35 1537r25
+323i7 Id{13I12} 35|1529b7 1531r51
+325V13*Display_Label{string} 326>7 327>7 35|341s33 1540b13 1572l8 1572t21
+326r7 Registry{23R9} 35|1541b7 1544r41 1546r35 1552r23 1554r41 1556r16 1559r29
+327i7 Id{13I12} 35|1542b7 1544r51 1569r61
+329V13*Is_Dirty{boolean} 330>7 331>7 35|1574b13 1585l8 1585t16 2339s29
+330r7 Registry{23R9} 35|1575b7 1578r41 1580r35 1584r14
+331i7 Id{13I12} 35|1576b7 1578r51
+333V13*Is_File_Backed{boolean} 334>7 335>7 35|1587b13 1598l8 1598t22
+334r7 Registry{23R9} 35|1588b7 1591r41 1593r35 1597r14
+335i7 Id{13I12} 35|1589b7 1591r51
+337i4*Max_Buffer_Note_Length{natural} 35|1707r34
+338i4*Max_Buffer_Label_Length{natural} 35|1651r34
+340V13*Is_Buffer_Pinned{boolean} 341>7 342>7 35|1600b13 1607l8 1607t24 2385s14
+341r7 Registry{23R9} 35|1601b7 1604r41 1606r41
+342i7 Id{13I12} 35|1602b7 1604r51
+344V13*Has_Buffer_Label{boolean} 345>7 346>7 35|1619b13 1626l8 1626t24 2390s14
+345r7 Registry{23R9} 35|1620b7 1623r41 1625r41
+346i7 Id{13I12} 35|1621b7 1623r51
+348V13*Buffer_Label{string} 349>7 350>7 35|1628b13 1638l8 1638t20 2395s14
+349r7 Registry{23R9} 35|1629b7 1632r41 1634r39 1637r25
+350i7 Id{13I12} 35|1630b7 1632r51
+352U14*Set_Buffer_Label 353=7 354>7 355>7 35|1640b14 1656l8 1656t24 2400s7
+353r7 Registry{23R9} 35|1641b7 1645r41 1650m33 1652m13 1653m13
+354i7 Id{13I12} 35|1642b7 1645r51 1650r43
+355a7 Label{string} 35|1643b7 1646r58
+357U14*Clear_Buffer_Label 358=7 359>7 35|1650s13 1658b14 1668l8 1668t26 2405s7
+358r7 Registry{23R9} 35|1659b7 1662r41 1665m10 1666m10
+359i7 Id{13I12} 35|1660b7 1662r51
+361V13*Has_Buffer_Note{boolean} 362>7 363>7 35|1675b13 1682l8 1682t23 2410s14
+362r7 Registry{23R9} 35|1676b7 1679r41 1681r41
+363i7 Id{13I12} 35|1677b7 1679r51
+365V13*Buffer_Note{string} 366>7 367>7 35|1684b13 1694l8 1694t19 2415s14
+366r7 Registry{23R9} 35|1685b7 1688r41 1690r39 1693r25
+367i7 Id{13I12} 35|1686b7 1688r51
+369U14*Set_Buffer_Note 370=7 371>7 372>7 35|1696b14 1712l8 1712t23 2420s7
+370r7 Registry{23R9} 35|1697b7 1701r41 1706m32 1708m13 1709m13
+371i7 Id{13I12} 35|1698b7 1701r51 1706r42
+372a7 Note{string} 35|1699b7 1702r57
+374U14*Clear_Buffer_Note 375=7 376>7 35|1706s13 1714b14 1724l8 1724t25 2425s7
+375r7 Registry{23R9} 35|1715b7 1718r41 1721m10 1722m10
+376i7 Id{13I12} 35|1716b7 1718r51
+378V13*Has_Buffer_Group{boolean} 379>7 380>7 35|1726b13 1733l8 1733t24 2430s14
+379r7 Registry{23R9} 35|1727b7 1730r41 1732r41
+380i7 Id{13I12} 35|1728b7 1730r51
+382V13*Buffer_Group{string} 383>7 384>7 35|1735b13 1745l8 1745t20 2435s14
+383r7 Registry{23R9} 35|1736b7 1739r41 1741r39 1744r25
+384i7 Id{13I12} 35|1737b7 1739r51
+386U14*Assign_Buffer_Group 387=7 388>7 389>7 35|1747b14 1759l8 1759t27 2440s7
+387r7 Registry{23R9} 35|1748b7 1752r41 1756m10 1757m10
+388i7 Id{13I12} 35|1749b7 1752r51
+389a7 Name{string} 35|1750b7 1753r56
+391U14*Clear_Buffer_Group 392=7 393>7 35|1761b14 1772l8 1772t26 2445s7
+392r7 Registry{23R9} 35|1762b7 1765r41 1768m10 1769m10 1770m41
+393i7 Id{13I12} 35|1763b7 1765r51
+395V13*Has_Buffer_Groups{boolean} 396>7 35|1774b13 1784l8 1784t25 2450s14
+396r7 Registry{23R9} 35|1775b7 1778r19
+398V13*Has_Active_Buffer_Group{boolean} 399>7 35|1786b13 1791l8 1791t31 2455s14
+399r7 Registry{23R9} 35|1787b7 1790r14
+401V13*Active_Buffer_Group{string} 402>7 35|1793b13 1801l8 1801t27 1870s36
+. 1920s34 2460s14
+402r7 Registry{23R9} 35|1794b7 1797r14 1800r25
+404V13*First_Buffer_In_Group{13I12} 405>7 406>7 35|1824b13 1841l8 1841t29
+. 2465s14
+405r7 Registry{23R9} 35|1825b7 1834r19
+406a7 Name{string} 35|1826b7 1828r56
+408U14*Set_Active_Buffer_Group 409=7 410>7 35|1843b14 1853l8 1853t31 2470s7
+409r7 Registry{23R9} 35|1844b7 1849r52 1850m10 1851m10
+410a7 Name{string} 35|1845b7 1847r56
+412U14*Clear_Active_Buffer_Group 413=7 35|1855b14 1861l8 1861t33 2475s7
+413r7 Registry{23R9} 35|1856b7 1859m7 1860m7
+415U14*Cycle_Active_Buffer_Group 416=7 417>7 35|1863b14 1914l8 1914t33 2480s7
+416r7 Registry{23R9} 35|1864b7 1870r57 1873r19 1899m10 1902m13 1904m13 1908m13
+. 1910m13 1913m7
+417b7 Forward{boolean} 35|1865b7 1900r13
+419V13*Closeable_Unpinned_Clean_Outside_Active_Group_Count{natural} 420>7
+. 35|1916b13 1935l8 1935t59 2485s14
+420r7 Registry{23R9} 35|1917b7 1920r55 1922r14 1925r19
+422U14*Pin_Buffer 423=7 424>7 35|1937b14 1946l8 1946t18 2490s7
+423r7 Registry{23R9} 35|1938b7 1941r41 1944m10
+424i7 Id{13I12} 35|1939b7 1941r51
+426U14*Unpin_Buffer 427=7 428>7 35|1948b14 1957l8 1957t20 2495s7
+427r7 Registry{23R9} 35|1949b7 1952r41 1955m10
+428i7 Id{13I12} 35|1950b7 1952r51
+430U14*Toggle_Buffer_Pin 431=7 432>7 35|1959b14 1968l8 1968t25 2500s7
+431r7 Registry{23R9} 35|1960b7 1963r41 1966m10 1966r43
+432i7 Id{13I12} 35|1961b7 1963r51
+434V13*Unpinned_Clean_Buffer_Count{natural} 435>7 35|1970b13 1984l8 1984t35
+. 2505s14
+435r7 Registry{23R9} 35|1971b7 1975r19
+437V13*Dirty_Buffer_Count{natural} 438>7 35|1986b13 1997l8 1997t26 2066s36
+. 2510s14
+438r7 Registry{23R9} 35|1987b7 1991r19
+440V13*Dirty_File_Backed_Buffer_Count{natural} 441>7 35|1999b13 2013l8 2013t38
+. 2068s36 2515s14
+441r7 Registry{23R9} 35|2000b7 2004r19
+443V13*Dirty_Untitled_Buffer_Count{natural} 444>7 35|2015b13 2029l8 2029t35
+. 2067s36 2520s14
+444r7 Registry{23R9} 35|2016b7 2020r19
+446V13*Clean_Buffer_Count{natural} 447>7 35|2031b13 2042l8 2042t26 2525s14
+447r7 Registry{23R9} 35|2032b7 2036r19
+449V13*Dirty_Buffer_Display_Name{string} 450>7 451>7 35|2044b13 2059l8 2059t33
+450r7 Registry{23R9} 35|2045b7 2050r19
+451i7 Index{positive} 35|2046b7 2053r23
+453V13*Dirty_Buffer_Summary{47|19R9} 454>7 35|2061b13 2069l8 2069t28 2532s14
+454r7 Registry{23R9} 35|2062b7 2066r56 2067r65 2068r68
+461U14*Mark_Global_Provisional_Active 35|2071b14 2079l8 2079t38
+463U14*Ensure_Global_Registry 464=7 35|2081b14 2115l8 2115t30
+464+7 State 35|2082b7 2086r32 2088r10 2090r32 2095r13 2114m7
+466V13*Global_Registry_Current_For{boolean} 467>7 35|2117b13 2122l8 2122t35
+467+7 State 35|2118b7 2121r14
+469U14*Sync_Global_Active_From_State 470>7 35|2124b14 2145l8 2145t37
+470+7 State 35|2125b7 2128r30
+472U14*Load_Global_Active_Into_State 473=7 35|2147b14 2256l8 2256t37
+473+7 State 35|2148b7 2151r60 2152r76 2153r58 2154r84 2155r103 2156r94 2157r59
+. 2158r64 2159r79 2160r54 2161r76 2162r48 2163r57 2164r51 2165r58 2166r67
+. 2167r82 2168r78 2169r79 2170r91 2171r89 2172r71 2173r70 2174r76 2175r91
+. 2176r52 2177r80 2178r81 2179r50 2180r60 2181r61 2182r41 2188m7 2189m7 2190m7
+. 2191m7 2192m7 2193m7 2194m7 2195m7 2196m7 2197m7 2198m7 2199m7 2200m7 2201m7
+. 2202m7 2203m7 2204m7 2205m7 2206m7 2207m7 2208m7 2209m7 2210m7 2211m7 2212m7
+. 2213m7 2214m7 2215m7 2216m7 2217m7 2218m7 2224r10 2225m10 2227m13 2227r13
+. 2227r49 2228m10 2228r10 2229m10 2230m10 2230r45 2231m10 2232m10 2234m13
+. 2236m13 2238m10 2240m36 2240r36 2241m10 2242m10 2242r10 2243m10 2244m10
+. 2245m10 2246m10 2247m10 2248m10 2254m47
+475V13*Global_Count{natural} 35|2258b13 2261l8 2261t20
+476V13*Global_Registry_For_UI{23R9} 35|2263b13 2266l8 2266t30
+477V13*Global_Summary_At{151R12} 478>7 35|2268b13 2273l8 2273t25
+478i7 Index{positive} 35|2269b7 2272r43
+479V13*Global_Summary_For{151R12} 480>7 35|2275b13 2280l8 2280t26
+480i7 Id{13I12} 35|2276b7 2279r44
+482V13*Global_Metadata_For{57R9} 483>7 484>7 485>7 35|2282b13 2289l8 2289t27
+483r7 Project{79|14R9} 35|2283b7 2288r45
+484i7 Id{13I12} 35|2284b7 2288r54
+485i7 Selected_Id{13I12} 35|2285b7 2288r58
+487V13*Global_Audit_Buffers{96R9} 488>7 489>7 35|2291b13 2297l8 2297t28
+488r7 Project{79|14R9} 35|2292b7 2296r46
+489i7 Selected_Id{13I12} 35|2293b7 2296r55
+491V13*Global_Buffer_Metadata_Lifecycle_Audit_Coherent{boolean} 492>7 493>7
+. 35|2299b13 2306l8 2306t55
+492r7 Project{79|14R9} 35|2300b7 2305r27
+493i7 Selected_Id{13I12} 35|2301b7 2305r36
+495V13*Global_Active_Buffer{13I12} 35|2308b13 2318l8 2318t28
+496V13*Global_Contains{boolean} 496>30 35|2320b13 2323l8 2323t23
+496i30 Id{13I12} 35|2320b30 2322r41
+497V13*Global_Find_By_Path{13I12} 498>7 499<7 35|2325b13 2331l8 2331t27 2337s37
+498a7 Path{string} 35|2326b7 2330r45
+499b7 Found{boolean} 35|2327b7 2330m51 2330r51
+505V13*Global_File_Is_Dirty{boolean} 506>7 35|2333b13 2340l8 2340t28
+506a7 Path{string} 35|2334b7 2337r58
+508V13*Global_Next_Buffer{13I12} 35|2342b13 2345l8 2345t26
+509V13*Global_Previous_Buffer{13I12} 35|2347b13 2350l8 2350t30
+511V13*Global_Current_File{20R12} 35|2352b13 2373l8 2373t27
+513V13*Global_Display_Name{string} 514>7 35|2375b13 2381l8 2381t27
+514i7 Id{13I12} 35|2376b7 2378r58 2380r45
+516V13*Global_Is_Buffer_Pinned{boolean} 516>38 35|2383b13 2386l8 2386t31
+516i38 Id{13I12} 35|2383b38 2385r49
+517V13*Global_Has_Buffer_Label{boolean} 517>38 35|2388b13 2391l8 2391t31
+517i38 Id{13I12} 35|2388b38 2390r49
+518V13*Global_Buffer_Label{string} 518>34 35|2393b13 2396l8 2396t27
+518i34 Id{13I12} 35|2393b34 2395r45
+519U14*Global_Set_Buffer_Label 519>39 519>55 35|2398b14 2401l8 2401t31
+519i39 Id{13I12} 35|2398b39 2400r42
+519a55 Label{string} 35|2398b55 2400r46
+520U14*Global_Clear_Buffer_Label 520>41 35|2403b14 2406l8 2406t33
+520i41 Id{13I12} 35|2403b41 2405r44
+521V13*Global_Has_Buffer_Note{boolean} 521>37 35|2408b13 2411l8 2411t30
+521i37 Id{13I12} 35|2408b37 2410r48
+522V13*Global_Buffer_Note{string} 522>33 35|2413b13 2416l8 2416t26
+522i33 Id{13I12} 35|2413b33 2415r44
+523U14*Global_Set_Buffer_Note 523>38 523>54 35|2418b14 2421l8 2421t30
+523i38 Id{13I12} 35|2418b38 2420r41
+523a54 Note{string} 35|2418b54 2420r45
+524U14*Global_Clear_Buffer_Note 524>40 35|2423b14 2426l8 2426t32
+524i40 Id{13I12} 35|2423b40 2425r43
+525V13*Global_Has_Buffer_Group{boolean} 525>38 35|2428b13 2431l8 2431t31
+525i38 Id{13I12} 35|2428b38 2430r49
+526V13*Global_Buffer_Group{string} 526>34 35|2433b13 2436l8 2436t27
+526i34 Id{13I12} 35|2433b34 2435r45
+527U14*Global_Assign_Buffer_Group 527>42 527>58 35|2438b14 2441l8 2441t34
+527i42 Id{13I12} 35|2438b42 2440r45
+527a58 Name{string} 35|2438b58 2440r49
+528U14*Global_Clear_Buffer_Group 528>41 35|2443b14 2446l8 2446t33
+528i41 Id{13I12} 35|2443b41 2445r44
+529V13*Global_Has_Buffer_Groups{boolean} 35|2448b13 2451l8 2451t32
+530V13*Global_Has_Active_Buffer_Group{boolean} 35|2453b13 2456l8 2456t38
+531V13*Global_Active_Buffer_Group{string} 35|2458b13 2461l8 2461t34
+532V13*Global_First_Buffer_In_Group{13I12} 532>43 35|2463b13 2466l8 2466t36
+532a43 Name{string} 35|2463b43 2465r54
+533U14*Global_Set_Active_Buffer_Group 533>46 35|2468b14 2471l8 2471t38
+533a46 Name{string} 35|2468b46 2470r49
+534U14*Global_Clear_Active_Buffer_Group 35|2473b14 2476l8 2476t40
+535U14*Global_Cycle_Active_Buffer_Group 535>48 35|2478b14 2481l8 2481t40
+535b48 Forward{boolean} 35|2478b48 2480r51
+536V13*Global_Closeable_Unpinned_Clean_Outside_Active_Group_Count{natural}
+. 35|2483b13 2486l8 2486t66
+537U14*Global_Pin_Buffer 537>33 35|2488b14 2491l8 2491t25
+537i33 Id{13I12} 35|2488b33 2490r36
+538U14*Global_Unpin_Buffer 538>35 35|2493b14 2496l8 2496t27
+538i35 Id{13I12} 35|2493b35 2495r38
+539U14*Global_Toggle_Buffer_Pin 539>40 35|2498b14 2501l8 2501t32
+539i40 Id{13I12} 35|2498b40 2500r43
+540V13*Global_Unpinned_Clean_Buffer_Count{natural} 35|2503b13 2506l8 2506t42
+542V13*Global_Dirty_Buffer_Count{natural} 35|2508b13 2511l8 2511t33
+543V13*Global_Dirty_File_Backed_Buffer_Count{natural} 35|2513b13 2516l8 2516t45
+544V13*Global_Dirty_Untitled_Buffer_Count{natural} 35|2518b13 2521l8 2521t42
+545V13*Global_Clean_Buffer_Count{natural} 35|2523b13 2526l8 2526t33
+547V13*Global_Dirty_Buffer_Summary{47|19R9} 35|2528b13 2533l8 2533t35
+550V13*Global_Categorized_Dirty_Buffer_Summary{47|19R9} 551>7 35|2535b13
+. 2541l8 2541t47
+551r7 Project{79|14R9} 35|2536b7 2540r65
+554V13*Global_Project_Lifecycle_Dirty_Buffer_Summary{47|19R9} 555>7 35|2543b13
+. 2549l8 2549t53
+555r7 Project{79|14R9} 35|2544b7 2548r71
+558V13*Global_Project_Lifecycle_Buffer_Sets{86R9} 559>7 35|2551b13 2556l8
+. 2556t44
+559r7 Project{79|14R9} 35|2552b7 2555r62
+561V13*Global_Bookmark_Count{natural} 35|2558b13 2574l8 2574t29 2578s14
+563V13*Global_Has_Bookmarks{boolean} 35|2576b13 2579l8 2579t28
+565U14*Global_Clear_All_Bookmarks 35|2581b14 2594l8 2594t34
+567U14*Global_Prune_Stale_Bookmarks 35|2597b14 2612l8 2612t36
+569U14*Global_Clear_All_Edit_History 35|2614b14 2625l8 2625t37
+571U14*Reset_Global_For_Test 35|2627b14 2636l8 2636t29
+573U14*Global_Add_File_Buffer 574>7 575>7 576>7 577<7 35|2638b14 2649l8 2649t30
+574a7 Path{string} 35|2639b7 2646r27
+575a7 Display_Name{string} 35|2640b7 2646r33
+576a7 Contents{string} 35|2641b7 2646r47
+577i7 New_Id{13I12} 35|2642b7 2645m7
+579U14*Global_Add_Untitled_Buffer 580<7 35|2651b14 2658l8 2658t34
+580i7 New_Id{13I12} 35|2652b7 2655m7
+582U14*Global_Set_Active_Buffer 583>7 35|2660b14 2665l8 2665t32
+583i7 Id{13I12} 35|2661b7 2664r43
+585U14*Global_Close_Buffer 586>7 587<7 35|2667b14 2677l8 2677t27
+586i7 Id{13I12} 35|2668b7 2672r38
+587b7 Closed{boolean} 35|2669b7 2672m42
+589U14*Global_Force_Close_Buffer 590>7 591<7 35|2679b14 2689l8 2689t33
+590i7 Id{13I12} 35|2680b7 2684r38
+591b7 Closed{boolean} 35|2681b7 2684m42
+595V13*Global_Has_Dirty_File_Under_Path{boolean} 596>7 35|2691b13 2711l8
+. 2711t40
+596a7 Path{string} 35|2692b7 2704r54
+602V13*Global_Has_File_Under_Path{boolean} 603>7 35|2713b13 2732l8 2732t34
+603a7 Path{string} 35|2714b7 2725r54
+607U14*Global_Rebase_Clean_File_Paths 608>7 609>7 610<7 35|2734b14 2765l8
+. 2765t38
+608a7 Old_Root{string} 35|2735b7 2751r75 2756r19
+609a7 New_Root{string} 35|2736b7 2757r19
+610i7 Rebased_Count{natural} 35|2737b7 2741m7 2762m13 2762r30
+614U14*Global_Close_Clean_File_Paths_Under 615>7 616<7 35|2767b14 2799l8
+. 2799t43
+615a7 Path{string} 35|2768b7 2787r75
+616i7 Closed_Count{natural} 35|2769b7 2774m7 2791m16 2791r32
+618U14*Global_Set_Blocked_Close_Surfaced 619>7 35|2801b14 2809l8 2809t41
+619i7 Id{13I12} 35|2802b7 2804r58
+623U14*Global_Clear_Clean_Reopen_Lifecycle 624>7 35|2811b14 2829l8 2829t43
+624i7 Id{13I12} 35|2812b7 2814r58
+627P9 Buffer_State_Access(21R12) 631r19 35|41r17 71r32 243r25 268r25 1307r26
+629R9 Buffer_Record 642e14 644r32 648r23 35|87r32 245r16 269r16 2085r16
+630i7*Id{13I12} 35|89r19 89r30 142r32 252m11 283m11 655r42 676r49 677r51
+. 756r56 760r56 761r65 763r65 765r65 769r58 770r67 773r50 774r67 827r56 1173r50
+. 1175r72 1177r50 1231r65 1298r50 1300r50 1326r73 1448r31 1465r58 1476r57
+. 1490r61 1492r40 1507r60 1509r40 1836r25 2104m11 2789r70
+631p7*State{627P9} 35|71r74 165r18 166r37 209r18 210r37 253m11 284m11 343r54
+. 348r62 641r54 646r68 753r18 1079r18 1079r50 1149r54 1176r50 1178r50 1179r50
+. 1180r54 1181r56 1182r56 1183r61 1184r64 1185r64 1186r62 1187r61 1206r45
+. 1262r33 1274r33 1292r29 1307r68 1436r18 1437r26 1441r34 1533r54 1537r44
+. 1546r54 1552r42 1556r35 1559r48 1580r54 1584r33 1593r54 1597r33 1926r18
+. 1928r30 1976r18 1978r30 1992r18 1992r46 2005r18 2006r26 2007r26 2021r18
+. 2022r26 2023r30 2037r18 2037r50 2051r18 2051r46 2054r39 2105m11 2141r33
+. 2188r42 2567r39 2569r42 2589r39 2591m42 2606r39 2607r78 2609m42 2700r18
+. 2701r26 2702r26 2704r31 2722r18 2723r26 2725r31 2747r39 2748r47 2749r51
+. 2751r52 2755r56 2758r39 2759r39 2783r39 2784r47 2785r51 2787r52 2806r63
+. 2807r36 2817r44 2818r48 2820r36 2821r36 2822r36 2823r36 2824r36 2825r36
+. 2826r36 2827r36
+632r7*Undo{9|91R9[62|54]} 35|2106m11 2142m33 2251r62 2618m39
+633r7*Redo{9|91R9[62|54]} 35|2107m11 2143m33 2252r62 2619m39
+634r7*View{102|5R9} 35|254m11 285m11 2108m11 2144m33 2253r54
+635b7*Pinned{boolean} 35|356r35 1188r61 1606r60 1927r30 1944m29 1955m29 1966m29
+. 1966r62 1977r30
+636b7*Has_Group{boolean} 35|359r35 1189r61 1732r60 1741r58 1756m29 1768m29
+. 1779r18 1807r18 1835r18 1874r18 1929r31
+637r7*Group{22|105R9} 35|360r79 1190r61 1744r44 1757m29 1769m29 1807r53 1835r53
+. 1876r58 1885r38 1929r65
+638b7*Has_Label{boolean} 35|353r35 1191r61 1625r60 1634r58 1652m32 1665m29
+639r7*Label{22|105R9} 35|354r79 1192r61 1637r44 1653m32 1666m29
+640b7*Has_Note{boolean} 35|362r35 1193r61 1681r60 1690r58 1708m32 1721m29
+641r7*Note{22|105R9} 35|363r75 1194r61 1693r44 1709m32 1722m29
+644V14 "="{boolean} 644>18 644>24 649r24 35|87b14 90l9 90t11
+644r18 Left{629R9} 35|87b18 89r14
+644r24 Right{629R9} 35|87b24 89r24
+646K12 Buffer_Record_Vectors[9|74] 654r17
+652i7*Next_Id{13I12} 35|83m16 242r47 256m16 256r36 267r47 292m16 292r36 2077r58
+. 2102r29 2110m23 2110r50
+653i7*Active{13I12} 35|84m16 257m16 293m16 309r23 318m19 676r63 818r19 819r46
+. 1177r64 1245r41 1252r48 1284r49 1303r33 1322m19 1324m19 1326m19 1517r46
+. 1524r50 2074r34 2111m23 2134r55 2139r60 2150r81 2190r61 2311r34
+654r7*Items{9|91R9[646]} 35|68r23 69r28 69r58 71r64 80m16 137r19 141r25 141r55
+. 142r22 164r28 208r28 255m16 291m16 326r32 343r44 348r52 353r25 354r69 356r25
+. 359r25 360r69 362r25 363r65 641r44 646r58 655r32 676r39 677r41 748r19 752r28
+. 818r56 823r23 824r31 1078r28 1149r44 1173r40 1175r62 1176r40 1177r40 1178r40
+. 1179r40 1180r44 1181r46 1182r46 1183r51 1184r54 1185r54 1186r52 1187r51
+. 1188r51 1189r51 1190r51 1191r51 1192r51 1193r51 1194r51 1203r19 1204r39
+. 1205r39 1206r26 1231r46 1238r23 1262r23 1274r23 1292r19 1296r39 1297r26
+. 1298r36 1299r29 1300r36 1307r58 1318m16 1321r19 1326r38 1326r54 1431r19
+. 1435r28 1461r19 1465r23 1465r39 1472r19 1476r23 1476r39 1485r19 1487r22
+. 1489r26 1490r26 1490r42 1492r26 1502r19 1504r22 1506r26 1507r26 1507r42
+. 1509r26 1533r44 1537r34 1546r44 1552r32 1556r25 1559r38 1580r44 1584r23
+. 1593r44 1597r23 1606r50 1625r50 1634r48 1637r34 1652m22 1653m22 1665m19
+. 1666m19 1681r50 1690r48 1693r34 1708m22 1709m22 1721m19 1722m19 1732r50
+. 1741r48 1744r34 1756m19 1757m19 1768m19 1769m19 1778r28 1806r28 1834r28
+. 1873r28 1925r28 1944m19 1955m19 1966m19 1966r52 1975r28 1991r28 2004r28
+. 2020r28 2036r28 2050r28 2073r26 2093r33 2109m23 2130r26 2141m23 2142m23
+. 2143m23 2144m23 2188r32 2251r52 2252r52 2253r44 2310r26 2354r26 2562r26
+. 2566r32 2566r69 2567r29 2569r32 2584r26 2588r32 2588r69 2589r29 2591m32
+. 2601r26 2605r32 2605r69 2606r29 2607r68 2609m32 2616r30 2617r35 2617r72
+. 2618m29 2619m29 2673r26 2685r26 2695r26 2699r35 2717r26 2721r35 2742r26
+. 2746r32 2746r69 2747r29 2748r37 2749r41 2751r42 2755r46 2758m29 2759m29
+. 2775r26 2779r28 2780r33 2781r39 2783r29 2784r37 2785r41 2787r42 2789r60
+. 2806r53 2807m26 2817r34 2818r38 2820m26 2821m26 2822m26 2823m26 2824m26
+. 2825m26 2826m26 2827m26
+655b7*Has_Active_Group{boolean} 35|81m16 1790r23 1797r23 1816r19 1819m19
+. 1850m19 1859m16 1913m16 1922r23
+656r7*Active_Group{22|105R9} 35|82m16 1800r34 1817r66 1820m19 1851m19 1860m16
+. 1899m19 1902m22 1904m22 1908m22 1910m22
+X 35 editor-buffers.adb
+39U14 Free_Buffer_State[26|23] 74s19 1314s13
+43r4 Global_Registry{34|23R9} 2073r10 2074r18 2077r42 2089m26 2089r26 2093r17
+. 2102r13 2109m7 2109r7 2110m7 2110r34 2111m7 2130r10 2134r22 2134r39 2139r44
+. 2141r7 2142m7 2143m7 2144m7 2150r48 2150r65 2188r16 2190r45 2251r36 2252r36
+. 2253r28 2260r21 2265r14 2272r26 2279r27 2288r28 2296r29 2305r10 2310r10
+. 2311r18 2317r29 2322r24 2330r28 2339r39 2344r27 2349r31 2354r10 2372r23
+. 2378r41 2380r28 2385r32 2390r32 2395r28 2400m25 2400r25 2405m27 2405r27
+. 2410r31 2415r27 2420m24 2420r24 2425m26 2425r26 2430r32 2435r28 2440m28
+. 2440r28 2445m27 2445r27 2450r33 2455r39 2460r35 2465r37 2470m32 2470r32
+. 2475m34 2475r34 2480m34 2480r34 2485r67 2490m19 2490r19 2495m21 2495r21
+. 2500m26 2500r26 2505r43 2510r34 2515r46 2520r43 2525r34 2532r36 2540r48
+. 2548r54 2555r45 2562r10 2566r16 2566r53 2567r13 2569r16 2584r10 2588r16
+. 2588r53 2589r13 2591r16 2601r10 2605r16 2605r53 2606r13 2607r52 2609r16
+. 2616r14 2617r19 2617r56 2618r13 2619r13 2629m23 2629r23 2646m10 2646r10
+. 2655m41 2655r41 2664m26 2664r26 2672m21 2672r21 2673r10 2684m21 2684r21
+. 2685r10 2695r10 2699r19 2717r10 2721r19 2742r10 2746r16 2746r53 2747r13
+. 2748r21 2749r25 2751r26 2755r30 2758m13 2759m13 2775r10 2779r12 2780r17
+. 2781r23 2783r13 2784r21 2785r25 2787r26 2789m27 2789r27 2789r44 2804r41
+. 2806r37 2807m10 2814r41 2817r18 2818r22 2820m10 2821m10 2822m10 2823m10
+. 2824m10 2825m10 2826m10 2827m10
+44i4 Global_Owner_Token{natural} 2088r34 2090m10 2121r37 2630m7
+45b4 Global_Provisional_Active{boolean} 2076m10 2112m7 2312r18 2631m7 2647m7
+. 2656m7 2674m10 2686m10
+46i4 Global_Provisional_Active_Id{34|13I12} 2077m10 2113m7 2314r17 2632m7
+. 2648m7 2657m7 2675m10 2687m10
+48i4 Metadata_Label_Max{positive} 52r14 57r26 59r13 60r53 62r53
+55V13 Bounded_Metadata_Label{string} 55b13 55>37 64l8 64t30 657s13 661s16
+. 670s16 674s16
+55a37 Value{string} 57r10 58r17 60r17 60r24 60r39 62r17 62r24 62r39
+66U14 Reset_Registry 66b14 66=30 85l8 85t22 2089s10 2629s7
+66r30 Registry{34|23R9} 68r14 69r19 69r49 71r55 80m7 80r7 81m7 82m7 83m7
+. 84m7
+69i14 I{integer} 71r71
+71p16 State_To_Free{34|627P9} 73r19 74m38 74r38
+92U14 Clear_Buffer_Messages 92=37 102s7 154b14 157l8 157t29 250s7 281s7
+92r37 State{34|21R12} 154b37 156m30 156r30
+98U14 Strip_Global_UI_State 98b14 99=7 130l8 130t29 2103s7 2140s7
+99r7 State{34|21R12} 102m30 103m29 103r29 104m31 104r31 105m41 105r41 106m33
+. 106r33 107m7 108m7 109m7 110m32 110r32 111m37 111r37 112m36 112r36 113m36
+. 113r36 114m40 114r40 115m7 116m35 116r35 117m42 117r42 118m33 118r33 119m35
+. 119r35 120m41 120r41 121m40 121r40 122m35 122r35 123m29 123r29 124m38 124r38
+. 125m44 125r44 126m41 126r41 127m7 128m7 129m7
+132V13 Index_Of{natural} 132b13 133>7 134>7 148l8 148t16 302s14 340s31 638s31
+. 1147s31 1259s31 1269s31 1283s40 1483s31 1500s31 1531s31 1544s31 1578s31
+. 1591s31 1604s31 1623s31 1632s31 1645s31 1662s31 1679s31 1688s31 1701s31
+. 1718s31 1730s31 1739s31 1752s31 1765s31 1941s31 1952s31 1963s31 2134s12
+. 2150s38 2378s31 2804s31 2814s31
+133r7 Registry{34|23R9} 137r10 141r16 141r46 142r13
+134i7 Id{34|13I12} 142r37
+141i11 I{integer} 142r29 143r20
+150V13 Group_Exists{boolean} 150>27 150>55 1803b13 1812l8 1812t20 1817s22
+. 1849s38
+150r27 Registry{34|23R9} 1803b27 1806r19
+150a55 Name{string} 1803b55 1804r56
+152U14 Normalize_Active_Buffer_Group 152=45 1329s7 1770s10 1814b14 1822l8
+. 1822t37
+152r45 Registry{34|23R9} 1814b45 1816r10 1817r36 1817r57 1819m10 1820m10
+159V13 Name_In_Use{boolean} 159b13 160>7 161>7 173l8 173t19 231s20
+160r7 Registry{34|23R9} 164r19
+161a7 Name{string} 166r69
+164r11 Item{34|629R9} 165r13 166r32
+176V13 Parent_Name_Of{string} 176b13 176>29 200l8 200t22 1560s44
+176a29 Path{string} 180r16 181r13 181r36 190r26 193r20 193r26 196r17
+177i7 Last_Slash{natural} 182r27 183m13 187r10 190r13 193r40 195r31 196r41
+178i7 Prev_Slash{natural} 182m13 189r13 195r13 196r23
+180i11 I{integer} 181r19 181r42 183r27
+202V13 Duplicate_Display_Name{boolean} 202b13 203>7 204>7 220l8 220t30 1554s17
+203r7 Registry{34|23R9} 208r19
+204a7 Name{string} 210r69
+206i7 Seen{natural} 212m13 212r21 213r16
+208r11 Item{34|629R9} 209r13 210r32
+222V13 Untitled_Name{string} 222b13 222>28 237l8 237t21 244s35
+222r28 Registry{34|23R9} 231r33
+223i7 Candidate{natural} 228r19 229r49 235m10 235r23
+227a13 Name{string} 231r43 232r23
+242i7 Id{34|13I12} 248r45 252r17 257r26 258r14
+243p7 State{34|627P9} 247r26 248r7 249r7 250r30 253r20
+244a7 Name{string} 249r60
+245r7 Rec{34|629R9} 252m7 253m7 254m7 255r30
+267i7 Id{34|13I12} 273r45 283r17 293r26 294r14
+268p7 State{34|627P9} 272r26 273r7 274r45 275r7 276r7 277r7 278r7 279r7 280r7
+. 280r81 281r30 284r20
+269r7 Rec{34|629R9} 283m7 284m7 285m7 291r30
+270r7 Snap{101|8R12} 290r36
+336V13 Lifecycle_Display_Label{string} 336b13 337>7 338>7 390l8 390t31 657s37
+. 1175s18
+337r7 Registry{34|23R9} 340r41 341r48 343r35 348r43 353r16 354r60 356r16
+. 359r16 360r60 362r16 363r56
+338i7 Id{34|13I12} 340r51 341r58
+340i7 I{natural} 343r10 343r51 348r59 353r32 354r76 356r32 359r32 360r76
+. 362r32 363r72
+341a7 Base{string} 344r17 351r66
+348r10 File{34|20R12} 366r16 368r19 368r58 370r19 372r19 373r23 374r23 377r19
+. 379r19 379r39 379r70 381r19 383r23
+351r13 Decorated{22|105R9} 354m24 354r24 357m24 357r24 360m24 360r24 363m24
+. 363r24 367r34 369r34 371r34 376r34 378r34 380r34 382r34 384r34 386r34
+393V13 Pure_Normalize_Path{string} 393b13 393>34 468l8 468t27 474s30 475s30
+. 494s30 495s30 661s40 674s40
+393a34 Path{string} 427r10 431r19 431r25 432r17 432r23 434r16 435r13 435r36
+. 438r28 467r17
+394K15 Part_Vectors[9|74] 398r18
+398r7 Parts{9|91R9[394]} 409r23 410m19 410r19 412r23 413r35 415m16 415r16
+. 417m16 417r16 420m13 420r13 447r14 448r19 448r40 452r40
+399r7 Token{22|105R9} 403r44 417r30 420r27 422m10 438m21 438r21
+400b7 Absolute{boolean} 408r16 431m7 443r10 457r13
+402U17 Flush_Token 402b17 423l11 423t22 436s13 441s7
+403a10 T{string} 405r13 405r34 407r16
+425r7 Result{22|105R9} 444m18 444r18 449r24 449r56 450m24 450r24 452m21 452r21
+. 456r18 464r25
+434i11 I{integer} 435r19 435r42 438r34
+448i14 I{integer} 452r55
+470V13 Pure_Same_Or_Descendant_Path{boolean} 470b13 471>7 472>7 488l8 488t36
+. 500s17 527s13
+471a7 Path{string} 474r51
+472a7 Root{string} 475r51
+474a7 P{string} 477r10 479r34 482r17 482r20 482r31 483r21 483r24
+475a7 R{string} 477r14 478r17 479r13 479r46 482r41 482r57 483r34
+490V13 Pure_Relative_Path{string} 490b13 491>7 492>7 510l8 510t26 670s40
+491a7 Path{string} 494r51 501r17 509r17
+492a7 Root{string} 495r51
+494a7 P{string} 496r26 498r10 500r47 502r22 503r17 503r29
+495a7 R{string} 496r36 498r14 500r50
+496i7 Start{integer} 502r13 503r20
+517b7 Has_Project{boolean} 519r13 525r17
+518a7 Root{string} 527r49
+606V13 Lifecycle_Status_Label_For{string} 606b13 607>7 630l8 630t34 692s64
+607r7 File{34|20R12} 610r10 612r13 612r52 614r13 616r13 617r17 618r17 621r13
+. 623r17 625r13
+638i7 I{natural} 641r10 641r51 646r65 655r39 676r46 677r48
+639r7 Result{34|57R9} 642r17 655m10 656m10 658m10 660m13 663m13 664m13 665m13
+. 667m10 669m13 672m13 673m13 676m10 677m10 678m10 679m10 680m10 681m10 682m10
+. 683m10 685m10 688m10 690m10 691m10 691r74 692m10 695m13 697m13 699m13 701m13
+. 703m13 704r16 705m13 707m13 711m13 713m13 715m13 723m13 725m13 729m13 731m13
+. 733m13 737r14
+646r10 File{34|20R12} 650r53 652r39 658r34 659r13 671r16 678r29 679r33 680r35
+. 681r41 682r38 683r40 684r20 685r31 686r20 687r20 688r31 688r71 692r92 694r17
+. 696r16 698r16 700r16 700r56 702r20 710r13 712r20 714r16 714r53 716r21 717r20
+. 718r20 719r20 720r20 721r20 728r13 728r65 730r20
+647b10 Has_Project{boolean} 649r16 671r39
+648a10 Root{string} 670r66
+650a10 Path{string} 652r54 661r61 670r60 671r60 674r61 728r36
+651e10 Ownership{34|26E9} 653r43 690r30
+653b10 In_Project{boolean} 667r46 668r13
+746r7 Result{34|86R9} 749r17 760m22 760r22 761m22 761r22 763m25 763r25 765m25
+. 765r25 769m22 769r22 770m22 770r22 773m22 773r22 774m22 774r22 784r14
+752r11 Item{34|629R9} 753r13 756r51 760r51 761r60 763r60 765r60 769r53 770r62
+. 773r45 774r62
+755r16 M{34|57R9} 758r21 762r25
+787V13 Counted_Label{string} 787b13 788>7 789>7 790>7 798l8 798t21 960s12
+. 966s12 972s12 978s12 984s12 990s15 996s12 1002s15
+788i7 Count{natural} 793r10 794r32 796r32
+789a7 Singular{string} 794r47
+790a7 Plural{string} 796r47
+800V13 Trim_Count_Label{string} 800b13 800>31 807l8 807t24 959s10 965s10
+. 971s10 977s10 983s10 989s12 995s10 1001s12
+800a31 Value{string} 802r10 802r36 802r43 803r17 803r24 803r43 805r17
+814r7 Result{34|96R9} 816m7 817m7 820m7 831m22 831r52 833m22 833r54 835m22
+. 835r46 841m19 841r57 845m19 846r21 854m19 854r53 858m19 859r21 863m19 864r21
+. 868m19 868r46 872m19 872r46 878m25 878r61 880m25 880r61 884m25 884r63 886m25
+. 886r63 890m25 890r55 892m25 892r55 900m22 900r51 902m22 903r24 905m22 906r24
+. 908m22 909r24 911m22 911r52 918m22 918r57 920m22 920r60 922m22 922r52 924m22
+. 924r52 926m22 926r55 928m22 928r55 934m19 934r57 936m19 937r21 947m10 948m10
+. 949m10 950m10 952m10 954m10 955m10 958m7 961r14 964m7 967r14 970m7 973r14
+. 976m7 979r14 979r43 982m7 985r14 991r17 994m7 997r14 1003r17 1010m7 1011m7
+. 1012m7 1013m7 1014m7 1015m7 1016m7 1017m7 1018m7 1019m7 1020r9 1021r18
+. 1022r19 1023r13 1024r13 1025r13 1026r13 1026r42 1027r19 1028r13 1028r54
+. 1029m7 1030r13 1031r22 1032r22 1033r22 1034r22 1035r22 1036r22 1037m7 1038r13
+. 1039m7 1039r42 1040m7 1041r14
+824r14 Item{34|629R9} 827r51
+826r16 M{34|57R9} 829r21 840r19 840r50 844r19 849r19 850r26 851r26 852r26
+. 857r19 860r22 861r26 867r19 871r19 875r21 877r25 883r25 889r25 898r21 916r21
+. 933r19
+944r10 Sets{34|86R9} 947r49 948r51 949r43 951r21 953r21 954r55 955r55
+1049r7 Audit{34|96R9} 1052r14 1053r18 1054r18 1055r18 1056r18
+1076i7 Result{natural} 1080m13 1080r23 1083r14
+1078r11 Item{34|629R9} 1079r13 1079r45
+1115r7 Audit{34|96R9} 1117r9 1118r11 1119r11 1120r11 1121r11 1122r11 1126r31
+. 1127r39
+1116i7 Dirty{natural} 1125r31 1127r31
+1135r7 Audit{34|96R9} 1138r31 1140r31
+1147i7 I{natural} 1149r10 1149r51 1173r47 1175r69 1176r47 1177r47 1178r47
+. 1179r47 1180r51 1181r53 1182r53 1183r58 1184r61 1185r61 1186r59 1187r58
+. 1188r58 1189r58 1190r58 1191r58 1192r58 1193r58 1194r58
+1201i7 Zero_Index{natural} 1204r17 1205r17 1206r33 1231r53
+1259i7 I{natural} 1261r22 1262r30
+1269i7 I{natural} 1271r10 1274r30
+1283i7 I{natural} 1288r10 1292r26 1297r13 1298r43 1299r16 1300r43 1307r65
+. 1318r30
+1284b7 Was_Active{boolean} 1296r10 1302r17
+1285i7 New_Active{34|13I12} 1298m13 1300m13 1303m10 1323r13 1324r29
+1307p10 State_To_Free{34|627P9} 1313r13 1314m32 1314r32
+1332V13 Normalize_For_Buffer_Path_Compare{string} 1332b13 1332>48 1353l8
+. 1353t41 1363s17 1366s17 1370s17
+1332a48 Path{string} 1333r27 1334r24 1336r10 1337r17 1340r16 1341r13 1344r27
+1333i7 Last{integer} 1348r13 1348r50 1349m10 1349r18 1352r38
+1334a7 Result{string} 1342m13 1344m13 1348r20 1348r42 1352r14 1352r22
+1340i11 I{integer} 1341r19 1342r21 1344r21 1344r33
+1355V13 Canonical_For_Compare{string} 1355b13 1355>36 1371l8 1371t29 1377s30
+. 1378s30 1399s30 1400s30 1428s39 1445s26
+1355a36 Path{string} 1362r10 1362r59 1364r40 1366r52 1370r52
+1373V13 Same_Or_Descendant_Path{boolean} 1373b13 1374>7 1375>7 1392l8 1392t31
+. 2703s21 2724s21 2750s21 2786s21
+1374a7 Path{string} 1377r53
+1375a7 Root{string} 1378r53
+1377a7 P{string} 1380r10 1382r34 1385r17 1385r20 1385r31 1386r22 1386r25
+. 1387r30 1387r33
+1378a7 R{string} 1380r14 1382r13 1382r46 1385r41 1385r57 1386r35 1387r43
+1394V13 Rebase_Path{string} 1394b13 1395>7 1396>7 1397>7 1421l8 1421t19 2754s16
+1395a7 Path{string} 1399r53 1406r17 1408r17 1412r17 1420r17
+1396a7 Old_Root{string} 1400r53
+1397a7 New_Root{string} 1404r17 1416r13
+1399a7 P{string} 1401r33 1403r10 1405r34 1407r13 1407r16 1407r27 1409r13
+. 1409r16 1410r18 1410r21 1414r26 1416r23 1416r42
+1400a7 R{string} 1401r43 1403r14 1405r13 1405r46 1407r37 1407r54 1409r26
+. 1410r31 1414r36
+1401i7 Suffix_Start{integer} 1414m10 1416r26
+1428a7 Query_Path{string} 1444r40 1445r64
+1435r11 Item{34|629R9} 1436r13 1437r21 1441r29 1448r26
+1440a16 Stored_Path{string} 1443r19 1444r26 1445r49
+1483i7 I{natural} 1485r42 1489r13 1492r33
+1500i7 I{natural} 1502r42 1506r13 1509r33
+1531i7 I{natural} 1533r10 1533r51 1537r41
+1544i7 I{natural} 1546r10 1546r51 1552r39 1556r32 1559r45
+1551a10 Name{string} 1554r51 1555r20 1563r26 1565r26 1569r20
+1558a16 Path{string} 1560r60 1565r43
+1560a16 Parent{string} 1562r19 1563r43
+1578i7 I{natural} 1580r10 1580r51 1584r30
+1591i7 I{natural} 1593r10 1593r51 1597r30
+1604i7 I{natural} 1606r14 1606r57
+1609V13 Trimmed_Group_Name{string} 1609b13 1609>33 1612l8 1612t26 1753s36
+. 1804s36 1828s36 1847s36
+1609a33 Name{string} 1611r38
+1614V13 Trimmed_Buffer_Label{string} 1614b13 1614>35 1617l8 1617t28 1646s36
+1614a35 Label{string} 1616r38
+1623i7 I{natural} 1625r14 1625r57
+1632i7 I{natural} 1634r10 1634r55 1637r41
+1645i7 I{natural} 1648r10 1652r29 1653r29
+1646a7 Trimmed{string} 1649r13 1651r16 1653r62
+1662i7 I{natural} 1664r10 1665r26 1666r26
+1670V13 Trimmed_Buffer_Note{string} 1670b13 1670>34 1673l8 1673t27 1702s36
+1670a34 Note{string} 1672r38
+1679i7 I{natural} 1681r14 1681r57
+1688i7 I{natural} 1690r10 1690r55 1693r41
+1701i7 I{natural} 1704r10 1708r29 1709r29
+1702a7 Trimmed{string} 1705r13 1707r16 1709r61
+1718i7 I{natural} 1720r10 1721r26 1722r26
+1730i7 I{natural} 1732r14 1732r57
+1739i7 I{natural} 1741r10 1741r55 1744r41
+1752i7 I{natural} 1755r10 1756r26 1757r26
+1753a7 Trimmed{string} 1755r37 1757r59
+1765i7 I{natural} 1767r10 1768r26 1769r26
+1778r11 Item{34|629R9} 1779r13
+1804a7 Trimmed{string} 1807r62
+1806r11 Item{34|629R9} 1807r13 1807r48
+1828a7 Trimmed{string} 1830r10 1835r62
+1834r11 Item{34|629R9} 1835r13 1835r48 1836r20
+1847a7 Trimmed{string} 1849r10 1849r62 1851r56
+1867K15 Name_Vectors[9|74] 1869r15
+1869r7 Names{9|91R9[1867]} 1879r32 1885m19 1885r19 1890r10 1893r16 1893r37
+. 1894r24 1899r35 1899r42 1901r29 1902r38 1902r45 1904r38 1907r29 1908r38
+. 1908r45 1910r38
+1870a7 Current{string} 1894r37
+1871i7 Current_Index{natural} 1895m13 1898r10 1901r13 1904r45 1907r13 1910r45
+1873r11 Item{34|629R9} 1874r13 1876r53 1885r33
+1876a16 Name{string} 1880r45
+1877b16 Seen{boolean} 1881m22 1884r23
+1879r20 Existing{22|105R9} 1880r33
+1893i11 I{integer} 1894r31 1895r30
+1919i7 Result{natural} 1931m13 1931r23 1934r14
+1920a7 Group{string} 1929r75
+1925r11 Item{34|629R9} 1926r13 1927r25 1928r25 1929r26 1929r60
+1941i7 I{natural} 1943r10 1944r26
+1952i7 I{natural} 1954r10 1955r26
+1963i7 I{natural} 1965r10 1966r26 1966r59
+1973i7 Result{natural} 1980m13 1980r23 1983r14
+1975r11 Item{34|629R9} 1976r13 1977r25 1978r25
+1989i7 Result{natural} 1993m13 1993r23 1996r14
+1991r11 Item{34|629R9} 1992r13 1992r41
+2002i7 Result{natural} 2009m13 2009r23 2012r14
+2004r11 Item{34|629R9} 2005r13 2006r21 2007r21
+2018i7 Result{natural} 2025m13 2025r23 2028r14
+2020r11 Item{34|629R9} 2021r13 2022r21 2023r25
+2034i7 Result{natural} 2038m13 2038r23 2041r14
+2036r11 Item{34|629R9} 2037r13 2037r45
+2048i7 Seen{natural} 2052m13 2052r21 2053r16
+2050r11 Item{34|629R9} 2051r13 2051r41 2054r34
+2084i7 Id{34|13I12} 2102m7 2104r17 2111r33 2114r45
+2085r7 Rec{34|629R9} 2104m7 2105m7 2106m7 2107m7 2108m7 2109r37
+2086r7 Copy{34|21R12} 2103m30 2103r30 2105r38
+2127i7 I{natural} 2134m7 2135r10 2141r30 2142r30 2143r30 2144r30
+2128r7 Copy{34|21R12} 2139m7 2140m30 2140r30 2141r46
+2150i7 I{natural} 2184r10 2188r39 2251r59 2252r59 2253r51
+2151r7 Messages{68|31R9} 2195r25
+2152r7 Feature_Panel{54|119R9} 2196r30
+2153r7 Outline{72|109R9} 2197r24
+2154r7 Feature_Messages{53|42R9} 2198r33
+2155r7 Feature_Search_Results{55|25R9} 2199r39
+2156r7 Feature_Diagnostics{52|42R9} 2200r36
+2157r7 Project{79|14R9} 2191r24
+2158r7 File_Tree{56|39R9} 2192r26
+2159r7 File_Tree_View{57|18R9} 2193r31
+2160r7 Panels{75|46R9} 2194r23
+2161r7 Active_Find_Input{63|5R9} 2201r34
+2162b7 Active_Find_Prompt{boolean} 2202r35
+2163r7 Active_Find_Query{22|105R9} 2225r37
+2164b7 Active_Replace_Prompt{boolean} 2232r41 2233r13
+2165r7 Active_Replace_Text{22|105R9} 2234r42
+2166r7 Quick_Open{82|11R9} 2203r27
+2167r7 Buffer_Switcher{32|13R9} 2204r32
+2168r7 Recent_Buffers{83|8R9} 2205r31
+2169r7 Project_Search{80|107R9} 2206r31
+2170r7 Project_Search_Bar{81|7R9} 2207r35
+2171r7 Search_Results_View{90|59R9} 2208r36
+2172r7 Problems_View{77|35R9} 2209r30
+2173r7 Panel_Focus{74|13R9} 2210r28
+2174r7 Overlay_Focus{73|29R9} 2211r30
+2175r7 Navigation_History{71|41R9} 2212r35
+2176i7 Reopen_Candidate_Count{natural} 2213r39
+2177a7 Reopen_Candidate_Paths{94|112A9} 2214r39
+2178a7 Reopen_Candidate_Labels{94|112A9} 2215r40
+2179b7 Has_Reopen_Candidate{boolean} 2216r37
+2180r7 Reopen_Candidate_Path{22|105R9} 2217r38
+2181r7 Reopen_Candidate_Label{22|105R9} 2218r39
+2182i7 Owner_Token{natural} 2189r31
+2336b7 Found{boolean} 2337m64 2337r64 2339r14
+2337i7 Id{34|13I12} 2339r56
+2378i7 I{natural}
+2560i7 Total{natural} 2568m13 2568r22 2573r14
+2566i11 I{integer} 2567r36 2569r39
+2588i11 I{integer} 2589r36 2591r39
+2599i7 Line_Count{natural} 2607m13 2609r64
+2605i11 I{integer} 2606r36 2607r75 2609r39
+2617i14 I{integer} 2618r36 2619r36
+2699r11 Item{34|629R9} 2700r13 2701r21 2702r21 2704r26
+2721r11 Item{34|629R9} 2722r13 2723r21 2725r26
+2739r7 New_Path{22|105R9} 2753m13 2758r63 2761r58
+2746i11 I{integer} 2747r36 2748r44 2749r48 2751r49 2755r53 2758r36 2759r36
+2771i7 I{natural} 2779m7 2781r18 2783r36 2784r44 2785r48 2787r49 2789r67
+. 2793m16 2793r21 2796m13 2796r18
+2772b7 Closed{boolean} 2789m74 2790r16
+2804i7 I{natural} 2806r10 2806r60 2807r33
+2814i7 I{natural} 2816r10 2817r41 2818r45 2820r33 2821r33 2822r33 2823r33
+. 2824r33 2825r33 2826r33 2827r33
+X 47 editor-dirty_guards.ads
+3K16*Dirty_Guards 34|8w13 265r21 270r21 455r21 548r21 552r21 556r21 35|32w13
+. 1113r21 1133r21 2063r21 2529r21 2537r21 2545r21 47|62e24
+19R9*Dirty_Buffer_Summary 34|265r34 270r34 455r34 548r34 552r34 556r34 35|1113r34
+. 1133r34 2063r34 2529r34 2537r34 2545r34 47|23e14
+20i7*Dirty_Count{natural} 35|1125m10 1138m10 2066m15
+21i7*Untitled_Count{natural} 35|1126m10 1139m10 2067m15
+22i7*File_Backed_Count{natural} 35|1127m10 1140m10 2068m15
+X 52 editor-feature_diagnostics.ads
+5K16*Feature_Diagnostics 35|14w13 126r14 2156r45 52|497e31
+42R9*Diagnostics_Feature_State 35|2156r65 52|495e14
+47U14*Clear=48:63 35|126s34
+X 53 editor-feature_messages.ads
+5K16*Feature_Messages 35|11w13 124r14 2154r42 53|284e28
+42R9*Message_Feature_State 35|2154r59 53|282e14
+44U14*Clear 35|124s31
+X 54 editor-feature_panel.ads
+4K16*Feature_Panel 35|12w13 122r14 2152r39 54|696e25
+119R9*Feature_Panel_State 35|2152r53 54|682e14
+239U14*Clear 35|122s28
+X 55 editor-feature_search_results.ads
+7K16*Feature_Search_Results 35|13w13 125r14 2155r48 55|327e34
+25R9*Search_Results_Feature_State 35|2155r71 55|325e14
+27U14*Clear 35|125s37
+X 56 editor-file_tree.ads
+4K16*File_Tree 35|17w13 104r14 2158r35 56|247e21
+39R9*File_Tree_State 35|2158r45 56|245e14
+50U14*Clear 35|104s24
+X 57 editor-file_tree_view.ads
+4K16*File_Tree_View 35|31w13 105r14 2159r40 57|222e26
+18R9*File_Tree_View_State 35|2159r55 57|22e14
+73U14*Clear_View 35|105s29
+X 61 editor-gutter_markers.ads
+3K16*Gutter_Markers 35|35w13 2568r37 2590r20 2608r20 61|112e26
+49V13*Bookmark_Count{natural} 35|2568s52
+75U14*Clear_Bookmarks 35|2590s35
+78U14*Prune_Bookmarks_At_Or_After 35|2608s35
+X 62 editor-history.ads
+6K16*History 34|5w13 632r26 633r26 35|2091r17 2092r17 2106r26 2107r26 2142r48
+. 2143r48 2251m14 2252m14 2623r14 2624r14 2633r14 2634r14 62|62e19
+54K12*History_Vector[9|74] 34|632r34 633r34
+59r4*Undo_Stack{9|91R9[54]} 35|2091m25 2091r25 2106r34 2142r56 2251m22 2623m22
+. 2623r22 2633m22 2633r22
+60r4*Redo_Stack{9|91R9[54]} 35|2092m25 2092r25 2107r34 2143r56 2252m22 2624m22
+. 2624r22 2634m22 2634r22
+X 63 editor-input_field.ads
+3K16*Input_Field 35|19w13 106r14 2161r43 2226r17 2240r17 63|106e23
+5R9*Input_Field_State 35|2161r55 63|104e14
+28U14*Clear 35|106s26 2240s29
+34U14*Set_Text 35|2226s29
+X 68 editor-messages.ads
+4K16*Messages 35|10w13 156r14 2151r34 68|203e20
+31R9*Message_State 35|2151r43 68|201e14
+49U14*Clear 35|156s23
+X 71 editor-navigation_history.ads
+4K16*Navigation_History 35|34w13 121r14 2175r44 71|101e30
+41R9*Navigation_History_State 35|2175r63 71|44e14
+46U14*Clear 35|121s33
+X 72 editor-outline.ads
+6K16*Outline 35|15w13 123r14 2153r33 72|760e19
+109R9*Outline_State 35|2153r41 72|758e14
+140U14*Clear 35|123s22
+X 73 editor-overlay_focus.ads
+3K16*Overlay_Focus 35|30w13 119r14 2174r39 73|77e25
+29R9*Overlay_Focus_State 35|2174r53 73|75e14
+31U14*Clear 35|119s28
+X 74 editor-panel_focus.ads
+1K16*Panel_Focus 35|29w13 118r14 2173r37 74|52e23
+13R9*Panel_Focus_State 35|2173r49 74|50e14
+15U14*Clear 35|118s26
+X 75 editor-panels.ads
+1K16*Panels 35|28w13 117r14 2160r34 75|133e18
+46R9*Panel_Set 35|2160r41 75|131e14
+48U14*Initialize_Defaults 35|117s21
+X 76 editor-pending_transitions.ads
+4K16*Pending_Transitions 35|33w13 120r14 76|114e31
+65U14*Clear 35|120s34
+X 77 editor-problems.ads
+6K16*Problems 35|27w13 116r14 2172r39 77|171e20
+35R9*Problems_View_State 35|2172r48 77|38e14
+46U14*Clear_View 35|116s23
+X 79 editor-project.ads
+4K16*Project 34|9w13 189r27 202r25 217r28 222r28 232r25 236r25 240r25 247r25
+. 251r25 255r25 264r25 269r25 483r28 488r28 492r28 551r24 555r24 559r24 35|16w13
+. 103r14 515r25 517r48 519r37 634r28 647r51 649r40 744r25 811r28 1046r28
+. 1061r25 1069r25 1088r25 1096r25 1104r25 1112r25 1132r25 2157r34 2283r28
+. 2292r28 2300r28 2536r24 2544r24 2552r24 79|191e19
+14R9*Project_State 34|189r35 202r33 217r36 222r36 232r33 236r33 240r33 247r33
+. 251r33 255r33 264r33 269r33 483r36 488r36 492r36 551r32 555r32 559r32 35|515r33
+. 634r36 744r33 811r36 1046r36 1061r33 1069r33 1088r33 1096r33 1104r33 1112r33
+. 1132r33 2157r42 2283r36 2292r36 2300r36 2536r32 2544r32 2552r32 79|189e14
+67U14*Clear 35|103s22
+73V13*Has_Project{boolean} 35|517s56 647s59
+79V13*Root_Path{string} 35|519s45 649s48
+X 80 editor-project_search.ads
+6K16*Project_Search 35|24w13 113r14 2169r40 80|549e26
+107R9*Project_Search_State 35|2169r55 80|547e14
+109U14*Clear 35|113s29
+X 81 editor-project_search_bar.ads
+5K16*Project_Search_Bar 35|25w13 114r14 2170r44 81|99e30
+7R9*Project_Search_Bar_State 35|2170r63 81|97e14
+32U14*Clear 35|114s33
+X 82 editor-quick_open.ads
+9K16*Quick_Open 35|21w13 110r14 2166r36 82|347e22
+11R9*Quick_Open_State 35|2166r47 82|345e14
+120U14*Clear 35|110s25
+X 83 editor-recent_buffers.ads
+3K16*Recent_Buffers 35|23w13 112r14 2168r40 83|58e26
+8R9*Recent_Buffer_State 35|2168r55 83|56e14
+10U14*Clear 35|112s29
+X 85 editor-render_cache.ads
+5K16*Render_Cache 35|18w13 2255r14 85|61e24
+8U14*Invalidate_All 35|2255s27
+X 89 editor-search.ads
+6K16*Search 35|20w13 2229r44 2243r44 89|133e18
+42r4*No_Match{20R9} 35|2229r51 2243r51
+X 90 editor-search_results.ads
+7K16*Search_Results 35|26w13 2171r45 90|178e26
+59R9*Search_Results_View_State 35|2171r60 90|61e14
+60i7*Top_Row{natural} 35|115m37
+X 94 editor-state.ads
+51K16*State 34|20r36 21r35 464r29 467r22 470r22 473r29 35|7w13 247r14 272r14
+. 274r14 280r50 2082r29 2118r22 2125r22 2148r29 2177r48 2178r49 2254r14 2607r34
+. 94|610e17
+89b7*Has_Path{boolean} 35|275m23 379r75 383r28 623r22 652r44 658r39 659r18
+. 671r21 680r40 702r25 716r26 728r18 730r25 1079r66 1178r66 1437r42 1556r51
+. 1597r49 2007r42 2023r46 2355m18 2701r42 2723r42 2748r63 2784r63
+90r7*Path{22|105R9} 35|276m23 650r58 1179r66 1441r50 1559r64 2356m18 2704r47
+. 2725r47 2751r68 2755r72 2758m55 2787r68
+92r7*Display_Name{22|105R9} 35|166r53 210r53 249m23 277m23 1537r60 1552r58
+. 2054r55 2357m18 2759m55
+94b7*Dirty{boolean} 35|278m23 368r63 379r24 612r57 625r18 678r34 679r38 694r22
+. 712r25 1176r66 1292r45 1584r49 1928r46 1978r46 1992r62 2006r42 2022r42
+. 2037r66 2051r62 2358m18 2702r42 2749r67 2785r67 2818r64
+95b7*Baseline_Valid{boolean} 35|279m23 2359m18
+96i7*Saved_Generation{natural} 35|280m23 2360m18
+97b7*Last_Save_Failed{boolean} 35|379r44 688r76 700r61 718r25 1180r70 2361m18
+. 2820m52
+98b7*Last_Reload_Failed{boolean} 35|373r28 617r22 686r25 720r25 1181r72 2362m18
+. 2821m52
+99b7*Last_Revert_Failed{boolean} 35|374r28 618r22 687r25 721r25 1182r72 2363m18
+. 2822m52
+100b7*Missing_Target_Surfaced{boolean} 35|366r21 610r15 681r46 684r25 696r21
+. 714r21 728r70 1183r77 2364m18 2823m52
+101b7*Unreadable_Target_Surfaced{boolean} 35|372r24 616r18 685r36 719r25
+. 1184r80 2365m18 2824m52
+102b7*Unwritable_Target_Surfaced{boolean} 35|377r24 621r18 688r36 700r21
+. 717r25 1185r80 2366m18 2825m52
+103b7*External_Change_Surfaced{boolean} 35|368r24 370r24 612r18 614r18 682r43
+. 683r45 698r21 714r58 1186r78 2367m18 2826m52
+104b7*Blocked_Close_Surfaced{boolean} 35|381r24 710r18 1187r77 2368m18 2807m52
+. 2827m52
+105b7*File_Token_Known{boolean} 35|2369m18
+106r7*File_Token_Label{22|105R9} 35|2370m18
+112A9*Reopen_Candidate_Array(22|105R9)<integer> 35|2177r54 2178r55
+115R9*State_Type 35|2082r35 2118r28 2125r28 2148r35 94|366e14
+128r7*Active_Find_Query{22|105R9} 35|2163r63 2225m16 2227r55 2230r51 2241m16
+129r7*Active_Find_Matches{9|91R9[89|30]} 35|2228m16 2242m16
+130r7*Active_Find_Match{89|20R9} 35|2229m16 2243m16
+131b7*Active_Find_Stale{boolean} 35|2230m16 2244m16
+134i7*Active_Find_Source_Buffer_Token{natural} 35|2231m16 2245m16
+137r7*Active_Replace_Text{22|105R9} 35|108m13 2165r64 2234m19 2236m19 2247m16
+139r7*Active_Replace_Error_Message{22|105R9} 35|109m13 2238m16 2248m16
+141b7*Active_Replace_Prompt{boolean} 35|107m13 2164r57 2232m16 2246m16
+144r7*Gutter_Markers{61|30R9} 35|2569r48 2591m48 2609m48
+146r7*Project{79|14R9} 35|103m35 2157r65 2191m13
+155r7*Pending_Transitions{76|63R9} 35|120m47
+156r7*Feature_Panel{54|119R9} 35|122m41 2152r82 2196m13
+157r7*Outline{72|109R9} 35|123m35 2153r64 2197m13
+158r7*Feature_Messages{53|42R9} 35|124m44 2154r90 2198m13
+159r7*Feature_Search_Results{55|25R9} 35|125m50 2155r109 2199m13
+160r7*Feature_Diagnostics{52|42R9} 35|126m47 2156r100 2200m13
+168r7*File_Tree{56|39R9} 35|104m37 2158r70 2192m13
+169r7*File_Tree_View{57|18R9} 35|105m47 2159r85 2193m13
+170r7*Panels{75|46R9} 35|117m48 2160r60 2194m13
+171r7*Messages{68|31R9} 35|156m36 2151r66 2195m13
+172r7*Active_Find_Input{63|5R9} 35|106m39 2161r82 2201m13 2227m19 2240m42
+173b7*Active_Find_Prompt{boolean} 35|2162r54 2202m13 2224r16
+174r7*Quick_Open{82|11R9} 35|110m38 2166r73 2203m13
+175r7*Buffer_Switcher{32|13R9} 35|111m43 2167r88 2204m13
+177r7*Navigation_History{71|41R9} 35|121m46 2175r97 2212m13
+178r7*Recent_Buffers{83|8R9} 35|112m42 2168r84 2205m13
+179r7*Project_Search{80|107R9} 35|113m42 2169r85 2206m13
+181r7*Project_Search_Bar{81|7R9} 35|114m46 2170r97 2207m13
+182r7*Search_Results_View{90|59R9} 35|115m13 2171r95 2208m13
+183r7*Problems_View{77|35R9} 35|116m41 2172r77 2209m13
+184r7*Panel_Focus{74|13R9} 35|118m39 2173r76 2210m13
+185r7*Overlay_Focus{73|29R9} 35|119m41 2174r82 2211m13
+188r7*File_Info{88R9} 35|166r43 210r43 249m13 275m13 276m13 277m13 278m13
+. 279m13 280m13 348r68 646r74 1079r56 1176r56 1178r56 1179r56 1180r60 1181r62
+. 1182r62 1183r67 1184r70 1185r70 1186r68 1187r67 1292r35 1437r32 1441r40
+. 1537r50 1552r48 1556r41 1559r54 1584r39 1597r39 1928r36 1978r36 1992r52
+. 2006r32 2007r32 2022r32 2023r36 2037r56 2051r52 2054r45 2372r40 2701r32
+. 2702r32 2704r37 2723r32 2725r37 2748r53 2749r57 2751r58 2755r62 2758m45
+. 2759m45 2784r53 2785r57 2787r58 2807m42 2818r54 2820m42 2821m42 2822m42
+. 2823m42 2824m42 2825m42 2826m42 2827m42
+195i7*Reopen_Candidate_Count{natural} 35|2176r58 2213m13
+196a7*Reopen_Candidate_Paths{112A9} 35|2177r86 2214m13
+198a7*Reopen_Candidate_Labels{112A9} 35|2178r87 2215m13
+200b7*Has_Reopen_Candidate{boolean} 35|127m13 2179r56 2216m13
+201r7*Reopen_Candidate_Path{22|105R9} 35|128m13 2180r66 2217m13
+203r7*Reopen_Candidate_Label{22|105R9} 35|129m13 2181r67 2218m13
+205i7*Registry_Token{natural} 35|2088r16 2090r38 2121r20 2182r47 2189m13
+206i7*Active_Buffer_Token{natural} 35|248m13 273m13 2095r19 2114m13 2139m12
+. 2190m13
+459U14*Replace_Buffer_Contents 35|274s20
+470V13*Current_Buffer_Revision{natural} 35|280s56
+489V13*Line_Count{natural} 35|2607s40
+529U14*Init 35|247s20 272s20
+579U14*Clear_Gutter_Marker_Hover 35|2254s20
+X 101 editor-view.ads
+6K16*View 35|8w13 254r26 270r32 270r58 2108r26 2144r48 2253r14 2635r14 101|97e16
+8R12*View_State{102|5R9} 35|270r37
+10V13*Snapshot{8R12} 35|254s31 270s63 2108s31 2144s53
+12U14*Restore 35|2253s19
+14b7 Snap_Visual_To_Target{boolean} 35|2253r60
+19U14*Reset 35|2635s19
+X 102 editor-view_types.ads
+3K16*View_Types 34|7w13 634r26 102|14e22
+5R9*View_State 34|634r37 102|12e14
+6i7*Scroll_X{natural} 35|285m20
+7i7*Scroll_Y{natural} 35|286m23
+8f7*Visual_Scroll_X{float} 35|287m23
+9f7*Visual_Scroll_Y{float} 35|288m23
+10b7*User_Scroll_Y_Override{boolean} 35|289m23
+11e7*Wrap_Mode{104|4E9} 35|290m23 290r41
+X 107 system.ads
+67M9*Address
+X 125 s-memory.ads
+51V13*Alloc{107|67M9} 101i<c,__gnat_malloc>22
+66U14*Free 102i<c,__gnat_free>22
+74V13*Realloc{107|67M9} 103i<c,__gnat_realloc>22
+X 137 s-stalib.adb
+87U14 Break_Start 88i<c,__gnat_break_start>22
+

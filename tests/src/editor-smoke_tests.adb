@@ -50,7 +50,7 @@ package body Editor.Smoke_Tests is
       Editor.Executor.Execute_No_Log (S, Editor.Test_Helper.Insert (1, 'b'));
       Editor.Executor.Execute_No_Log (S, Editor.Test_Helper.Insert (2, 'c'));
 
-      --  Caret should now be at end. Select back over "bc".
+      --  Select back over "bc"
       Editor.Executor.Execute_No_Log
         (S, Editor.Test_Helper.Move_Left (Shift => True));
       Editor.Executor.Execute_No_Log
@@ -62,7 +62,7 @@ package body Editor.Smoke_Tests is
       Assert (Text_Buffer.Length (S.Buffer) = 2,
               "Smoke replace must shrink buffer to 2");
 
-      Assert (not S.Selection.Active,
+      Assert (S.Carets (0).Anchor = S.Carets (0).Pos,
               "Smoke replace must collapse selection");
    end Test_Select_And_Replace;
 
@@ -86,12 +86,22 @@ package body Editor.Smoke_Tests is
       Editor.Executor.Execute_No_Log (S, Editor.Test_Helper.Undo);
 
       Assert (Text_Buffer.Length (S.Buffer) = 1,
-              "Undo must remove one step");
+              "Undo must remove the last typing step");
+
+      Editor.Executor.Execute_No_Log (S, Editor.Test_Helper.Undo);
+
+      Assert (Text_Buffer.Length (S.Buffer) = 0,
+              "Second undo must remove the first typing step");
+
+      Editor.Executor.Execute_No_Log (S, Editor.Test_Helper.Redo);
+
+      Assert (Text_Buffer.Length (S.Buffer) = 1,
+              "Redo must restore the first typing step");
 
       Editor.Executor.Execute_No_Log (S, Editor.Test_Helper.Redo);
 
       Assert (Text_Buffer.Length (S.Buffer) = 2,
-              "Redo must restore removed step");
+              "Second redo must restore the last typing step");
    end Test_Undo_Redo_Roundtrip;
 
    -------------------------------------------------------------------------
@@ -109,10 +119,8 @@ package body Editor.Smoke_Tests is
       Editor.Instance.Execute (I, Editor.Test_Helper.Insert (1, 'b'));
       Editor.Instance.Execute (I, Editor.Test_Helper.Insert (2, 'c'));
 
-      Editor.Instance.Rebuild (I);
-
       Assert (Text_Buffer.Length (I.State.Buffer) = 3,
-              "Smoke replay must rebuild the same buffer");
+              "Smoke instance commands must produce the same buffer");
    end Test_Instance_Replay;
 
    overriding procedure Register_Tests

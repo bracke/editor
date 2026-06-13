@@ -1,0 +1,673 @@
+V "GNAT Lib v15"
+A -gnat2022
+P SS ZX
+
+RN
+RV NO_FLOATING_POINT
+RV NO_RECURSION
+RV NO_SECONDARY_STACK
+RV NO_DYNAMIC_SIZED_OBJECTS
+RV NO_IMPLICIT_LOOPS
+
+U editor.theme%b	editor-theme.adb	1aec6afc NE OO PK
+Z ada.strings.text_buffers%s  a-sttebu.adb	a-sttebu.ali
+W editor%s		editor.ads		editor.ali
+W editor.diagnostics%s	editor-diagnostics.adb	editor-diagnostics.ali
+W editor.syntax%s	editor-syntax.adb	editor-syntax.ali
+Z system.secondary_stack%s  s-secsta.adb	s-secsta.ali
+
+U editor.theme%s	editor-theme.ads	6bef067f EE NE OO PK
+W editor%s		editor.ads		editor.ali
+W editor.diagnostics%s	editor-diagnostics.adb	editor-diagnostics.ali
+W editor.syntax%s	editor-syntax.adb	editor-syntax.ali
+
+D ada.ads		20250808065140 76789da1 ada%s
+D a-charac.ads		20250808065140 2d3ec45b ada.characters%s
+D a-chlat1.ads		20250808065140 e0d72e76 ada.characters.latin_1%s
+D a-contai.ads		20250808065140 61e5e089 ada.containers%s
+D a-conhel.ads		20250808065140 46fe1ce3 ada.containers.helpers%s
+D a-convec.ads		20250808065140 91fb49f3 ada.containers.vectors%s
+D a-except.ads		20250808065140 e7970cd9 ada.exceptions%s
+D a-finali.ads		20250808065140 bf4f806b ada.finalization%s
+D a-iteint.ads		20250808065140 49a8bee2 ada.iterator_interfaces%s
+D a-stream.ads		20250808065140 17477cbd ada.streams%s
+D a-string.ads		20250808065140 90ac6797 ada.strings%s
+D a-strmap.ads		20250808065140 1f91ebb6 ada.strings.maps%s
+D a-strsea.ads		20250808065140 18c3c634 ada.strings.search%s
+D a-sttebu.ads		20250808065140 f1ad67a2 ada.strings.text_buffers%s
+D a-strunb.ads		20250808065140 b10770ab ada.strings.unbounded%s
+D a-stuten.ads		20250808065140 c6ced0ae ada.strings.utf_encoding%s
+D a-tags.ads		20250808065140 fbca0ad5 ada.tags%s
+D a-unccon.ads		20250808065140 0e9b276f ada.unchecked_conversion%s
+D editor.ads		20260612145959 16f844c2 editor%s
+D editor-cursors.ads	20260612145959 1f938cf3 editor.cursors%s
+D editor-diagnostics.ads  20260612145959 41767a50 editor.diagnostics%s
+D editor-syntax.ads	20260612145959 d59b0303 editor.syntax%s
+D editor-theme.ads	20260612145959 e9fa3bee editor.theme%s
+D editor-theme.adb	20260612145959 67fb2841 editor.theme%b
+D interfac.ads		20250808065140 9111f9c1 interfaces%s
+D i-c.ads		20250808065140 e94c966a interfaces.c%s
+D system.ads		20250808065140 14286b0f system%s
+D s-atocou.ads		20250808065140 dc18efc3 system.atomic_counters%s
+D s-exctab.ads		20250808065140 91bef6ef system.exception_table%s
+D s-finpri.ads		20250808065140 5970d55a system.finalization_primitives%s
+D s-finroo.ads		20250808065140 0a7c3ed4 system.finalization_root%s
+D s-oscons.ads		20250827122531 068e1a91 system.os_constants%s
+D s-oslock.ads		20250808065140 13fa6b78 system.os_locks%s
+D s-parame.ads		20250808065140 3597fc11 system.parameters%s
+D s-pooglo.ads		20250808065140 91708d21 system.pool_global%s
+D s-putima.ads		20250808065140 17291fe4 system.put_images%s
+D s-retsta.ads		20250808065140 0f6b06cb system.return_stack%s
+D s-secsta.ads		20250808065140 578279f5 system.secondary_stack%s
+D s-soflin.ads		20250808065140 5d88fdea system.soft_links%s
+D s-stache.ads		20250808065140 0b81c1fe system.stack_checking%s
+D s-stalib.ads		20250808065140 1c9580f6 system.standard_library%s
+D s-stoele.ads		20250808065140 ccded4e8 system.storage_elements%s
+D s-stopoo.ads		20250808065140 e9fa2dd8 system.storage_pools%s
+D s-stratt.ads		20250808065140 516607ae system.stream_attributes%s
+D s-traent.ads		20250808065140 c81cbf8c system.traceback_entries%s
+D s-unstyp.ads		20250808065140 fa2a7f59 system.unsigned_types%s
+G a e
+G c Z s b [rgb editor__theme 17 13 none]
+G c Z s b [active_theme_id editor__theme 20 13 none]
+G c Z s b [is_valid_theme_id editor__theme 23 13 none]
+G c Z s b [set_theme_by_id editor__theme 26 14 none]
+G c Z s b [toggle_theme editor__theme 29 14 none]
+G c Z s b [color editor__theme 156 13 none]
+G c Z s b [editor_background editor__theme 159 13 none]
+G c Z s b [gutter_background editor__theme 160 13 none]
+G c Z s b [gutter_separator editor__theme 161 13 none]
+G c Z s b [current_gutter_row editor__theme 162 13 none]
+G c Z s b [inactive_line_number editor__theme 163 13 none]
+G c Z s b [current_line_number editor__theme 164 13 none]
+G c Z s b [current_text_row editor__theme 165 13 none]
+G c Z s b [selection_background editor__theme 166 13 none]
+G c Z s b [cursor_color editor__theme 167 13 none]
+G c Z s b [text_default editor__theme 168 13 none]
+G c Z s b [syntax_color editor__theme 174 13 none]
+G c Z s b [diagnostic_color editor__theme 177 13 none]
+G c Z s b [active_find_inactive_match editor__theme 180 13 none]
+G c Z s b [active_find_match editor__theme 181 13 none]
+G c Z s b [minimap_background editor__theme 182 13 none]
+G c Z s b [minimap_content editor__theme 183 13 none]
+G c Z s b [minimap_viewport editor__theme 184 13 none]
+G c Z s b [scrollbar_track editor__theme 185 13 none]
+G c Z s b [scrollbar_thumb editor__theme 186 13 none]
+G c Z s b [fold_marker_color editor__theme 187 13 none]
+G c Z s b [folded_line_ellipsis_color editor__theme 188 13 none]
+G c Z s b [gutter_diagnostic_error editor__theme 189 13 none]
+G c Z s b [gutter_diagnostic_warning editor__theme 190 13 none]
+G c Z s b [gutter_dirty_line editor__theme 191 13 none]
+G c Z s b [gutter_added_line editor__theme 192 13 none]
+G c Z s b [gutter_modified_line editor__theme 193 13 none]
+G c Z s b [gutter_deleted_line editor__theme 194 13 none]
+G c Z s b [gutter_bookmark editor__theme 195 13 none]
+G c Z s b [gutter_marker_hover_background editor__theme 196 13 none]
+G c Z s b [gutter_marker_hover_outline editor__theme 197 13 none]
+G c Z s b [scrollbar_thumb_hover editor__theme 198 13 none]
+G c Z s b [scrollbar_thumb_active editor__theme 199 13 none]
+G c Z s b [palette_background editor__theme 200 13 none]
+G c Z s b [palette_text editor__theme 201 13 none]
+G c Z s b [palette_muted_text editor__theme 202 13 none]
+G c Z s b [palette_selected_row editor__theme 203 13 none]
+G c Z s b [command_palette_disabled_foreground editor__theme 204 13 none]
+G c Z s b [command_palette_disabled_selected_background editor__theme 205 13 none]
+G c Z s b [command_palette_reason_foreground editor__theme 206 13 none]
+G c Z s b [command_palette_detail_foreground editor__theme 207 13 none]
+G c Z s b [command_palette_help_foreground editor__theme 208 13 none]
+G c Z s b [command_palette_secondary_foreground editor__theme 209 13 none]
+G c Z s b [command_palette_keybinding_foreground editor__theme 210 13 none]
+G c Z s b [command_palette_keybinding_selected_foreground editor__theme 211 13 none]
+G c Z s b [command_palette_keybinding_disabled_foreground editor__theme 212 13 none]
+G c Z s b [status_bar_background editor__theme 213 13 none]
+G c Z s b [status_bar_foreground editor__theme 214 13 none]
+G c Z s b [status_bar_separator editor__theme 215 13 none]
+G c Z s b [status_bar_dirty editor__theme 216 13 none]
+G c Z s b [tab_bar_background editor__theme 217 13 none]
+G c Z s b [tab_bar_active_background editor__theme 218 13 none]
+G c Z s b [tab_bar_inactive_background editor__theme 219 13 none]
+G c Z s b [tab_bar_active_foreground editor__theme 220 13 none]
+G c Z s b [tab_bar_inactive_foreground editor__theme 221 13 none]
+G c Z s b [tab_bar_dirty editor__theme 222 13 none]
+G c Z s b [tab_bar_border editor__theme 223 13 none]
+G c Z s b [tab_bar_close editor__theme 224 13 none]
+G c Z s b [panel_background editor__theme 225 13 none]
+G c Z s b [panel_splitter editor__theme 226 13 none]
+G c Z s b [panel_splitter_active editor__theme 227 13 none]
+G c Z s b [file_tree_background editor__theme 228 13 none]
+G c Z s b [file_tree_foreground editor__theme 229 13 none]
+G c Z s b [file_tree_directory_foreground editor__theme 230 13 none]
+G c Z s b [file_tree_active_background editor__theme 231 13 none]
+G c Z s b [file_tree_active_foreground editor__theme 232 13 none]
+G c Z s b [file_tree_selected_active_background editor__theme 233 13 none]
+G c Z s b [file_tree_selected_active_foreground editor__theme 234 13 none]
+G c Z s b [file_tree_selected_inactive_background editor__theme 235 13 none]
+G c Z s b [file_tree_selected_inactive_foreground editor__theme 236 13 none]
+G c Z s b [file_tree_focused_border editor__theme 237 13 none]
+G c Z s b [file_tree_separator editor__theme 238 13 none]
+G c Z s b [file_tree_splitter editor__theme 239 13 none]
+G c Z s b [file_tree_splitter_active editor__theme 240 13 none]
+G c Z s b [file_tree_indent_guide editor__theme 241 13 none]
+G c Z s b [message_info_background editor__theme 242 13 none]
+G c Z s b [message_info_foreground editor__theme 243 13 none]
+G c Z s b [message_success_background editor__theme 244 13 none]
+G c Z s b [message_success_foreground editor__theme 245 13 none]
+G c Z s b [message_warning_background editor__theme 246 13 none]
+G c Z s b [message_warning_foreground editor__theme 247 13 none]
+G c Z s b [message_error_background editor__theme 248 13 none]
+G c Z s b [message_error_foreground editor__theme 249 13 none]
+G c Z s b [pending_transition_background editor__theme 250 13 none]
+G c Z s b [pending_transition_foreground editor__theme 251 13 none]
+G c Z s b [pending_transition_accent editor__theme 252 13 none]
+G c Z s b [pending_transition_action_foreground editor__theme 253 13 none]
+G c Z s b [pending_transition_action_disabled_foreground editor__theme 254 13 none]
+G c Z s b [pending_transition_destructive_foreground editor__theme 255 13 none]
+G c Z s b [problems_background editor__theme 256 13 none]
+G c Z s b [problems_header_background editor__theme 257 13 none]
+G c Z s b [problems_foreground editor__theme 258 13 none]
+G c Z s b [problems_error editor__theme 259 13 none]
+G c Z s b [problems_warning editor__theme 260 13 none]
+G c Z s b [problems_info editor__theme 261 13 none]
+G c Z s b [problems_hint editor__theme 262 13 none]
+G c Z s b [problems_row_alternate_background editor__theme 263 13 none]
+G c Z s b [problems_active_row_background editor__theme 264 13 none]
+G c Z s b [problems_active_row_foreground editor__theme 265 13 none]
+G c Z s b [problems_selected_active_background editor__theme 266 13 none]
+G c Z s b [problems_selected_active_foreground editor__theme 267 13 none]
+G c Z s b [problems_selected_inactive_background editor__theme 268 13 none]
+G c Z s b [problems_selected_inactive_foreground editor__theme 269 13 none]
+G c Z s b [problems_focused_border editor__theme 270 13 none]
+G c Z s b [problems_separator editor__theme 271 13 none]
+G c Z s b [active_find_prompt_background editor__theme 273 13 none]
+G c Z s b [active_find_prompt_foreground editor__theme 274 13 none]
+G c Z s b [active_find_prompt_field_background editor__theme 275 13 none]
+G c Z s b [active_find_prompt_field_foreground editor__theme 276 13 none]
+G c Z s b [active_find_prompt_field_active_border editor__theme 277 13 none]
+G c Z s b [active_find_prompt_button_background editor__theme 278 13 none]
+G c Z s b [active_find_prompt_button_foreground editor__theme 279 13 none]
+G c Z s b [active_find_prompt_no_match_foreground editor__theme 280 13 none]
+G c Z s b [active_find_prompt_caret editor__theme 281 13 none]
+G c Z s b [quick_open_background editor__theme 282 13 none]
+G c Z s b [quick_open_foreground editor__theme 283 13 none]
+G c Z s b [quick_open_border editor__theme 284 13 none]
+G c Z s b [quick_open_field_background editor__theme 285 13 none]
+G c Z s b [quick_open_field_foreground editor__theme 286 13 none]
+G c Z s b [quick_open_selected_background editor__theme 287 13 none]
+G c Z s b [quick_open_selected_foreground editor__theme 288 13 none]
+G c Z s b [quick_open_match_foreground editor__theme 289 13 none]
+G c Z s b [quick_open_secondary_foreground editor__theme 290 13 none]
+G c Z s b [quick_open_caret editor__theme 291 13 none]
+G c Z s b [project_search_bar_background editor__theme 292 13 none]
+G c Z s b [project_search_bar_foreground editor__theme 293 13 none]
+G c Z s b [project_search_bar_border editor__theme 294 13 none]
+G c Z s b [project_search_bar_field_background editor__theme 295 13 none]
+G c Z s b [project_search_bar_field_foreground editor__theme 296 13 none]
+G c Z s b [project_search_bar_field_active_border editor__theme 297 13 none]
+G c Z s b [project_search_bar_button_background editor__theme 298 13 none]
+G c Z s b [project_search_bar_button_foreground editor__theme 299 13 none]
+G c Z s b [project_search_bar_status_foreground editor__theme 300 13 none]
+G c Z s b [project_search_bar_caret editor__theme 301 13 none]
+G c Z s b [search_results_background editor__theme 302 13 none]
+G c Z s b [search_results_header_background editor__theme 303 13 none]
+G c Z s b [search_results_foreground editor__theme 304 13 none]
+G c Z s b [search_results_file_foreground editor__theme 305 13 none]
+G c Z s b [search_results_path_foreground editor__theme 306 13 none]
+G c Z s b [search_results_match_foreground editor__theme 307 13 none]
+G c Z s b [search_results_selected_background editor__theme 308 13 none]
+G c Z s b [search_results_selected_foreground editor__theme 309 13 none]
+G c Z s b [search_results_selected_active_background editor__theme 310 13 none]
+G c Z s b [search_results_selected_active_foreground editor__theme 311 13 none]
+G c Z s b [search_results_selected_inactive_background editor__theme 312 13 none]
+G c Z s b [search_results_selected_inactive_foreground editor__theme 313 13 none]
+G c Z s b [panel_focus_border editor__theme 314 13 none]
+G c Z s b [search_results_secondary_foreground editor__theme 315 13 none]
+G c Z s b [diagnostic_underline_height editor__theme 323 13 none]
+G c Z s b [diagnostic_underline_bottom_padding editor__theme 324 13 none]
+G c Z s b [minimap_content_padding editor__theme 326 13 none]
+G c Z s b [minimap_min_line_width editor__theme 327 13 none]
+G c Z s b [minimap_content_line_height editor__theme 328 13 none]
+G c Z s b [minimap_max_line_length_for_scale editor__theme 329 13 none]
+G c Z s b [palette_margin editor__theme 331 13 none]
+G c Z s b [palette_max_width editor__theme 332 13 none]
+G c Z s b [palette_top_min_offset editor__theme 333 13 none]
+G c Z s b [palette_top_fraction editor__theme 334 13 none]
+G c Z s b [palette_outer_padding_y editor__theme 335 13 none]
+G c Z s b [palette_text_padding_x editor__theme 336 13 none]
+G c Z s b [palette_text_padding_y editor__theme 337 13 none]
+G c Z s b [palette_selected_row_inset_x editor__theme 338 13 none]
+G c Z s b [palette_selected_row_offset_y editor__theme 339 13 none]
+G c Z s b [active_find_inactive_match_color editor__theme 342 13 none]
+G c Z s b [active_find_match_color editor__theme 343 13 none]
+G c Z s b [palette_background_color editor__theme 344 13 none]
+G c Z s b [palette_text_color editor__theme 345 13 none]
+G c Z s b [palette_selected_row_color editor__theme 346 13 none]
+G c Z s b [palette_muted_text_color editor__theme 347 13 none]
+G c Z s s [color_rgbIP editor__theme 10 9 none]
+G c Z b b [set_active_id editor__theme 9 14 none]
+X 9 a-iteint.ads
+24h9 Forward_Iterator
+32h9 Reversible_Iterator<24R9[6|119]>
+X 19 editor.ads
+1K9*Editor 5e11 23|1r6 2r6 4r9 175r14 178r18 349r5 24|1r6 2r6 4r14 346r14
+. 349r15 351r15 353r15 355r15 357r15 359r15 361r15 363r15 365r15 367r15 369r15
+. 371r15 373r15 375r15 377r15 379r15 381r15 383r15 385r15 387r15 389r15 395r18
+. 398r15 400r15 402r15 404r15 406r15 408r15 1198r5
+X 21 editor-diagnostics.ads
+5K16*Diagnostics 110e23 23|2w13 178r25 24|2w13 395r25 398r22 400r22 402r22
+. 404r22 406r22 408r22
+7E9*Diagnostic_Severity 13e15 23|178r37 24|395r37
+8n7*Hint{7E9} 24|398r34
+9n7*Information{7E9} 24|400r34
+10n7*Note{7E9} 24|402r34
+11n7*Warning{7E9} 24|406r34
+12n7*Error{7E9} 24|408r34
+13n7*Unknown{7E9} 24|404r34
+X 22 editor-syntax.ads
+1K16*Syntax 81e18 23|1w13 175r21 24|1w13 346r21 349r22 351r22 353r22 355r22
+. 357r22 359r22 361r22 363r22 365r22 367r22 369r22 371r22 373r22 375r22 377r22
+. 379r22 381r22 383r22 385r22 387r22 389r22
+4n7*Plain_Text{3E9} 24|349r29
+5n7*Keyword{3E9} 24|351r29
+6n7*Identifier{3E9} 24|353r29
+7n7*Type_Identifier{3E9} 24|355r29
+8n7*Subprogram_Identifier{3E9} 24|357r29
+9n7*Package_Identifier{3E9} 24|359r29
+10n7*Parameter_Identifier{3E9} 24|361r29
+11n7*Number_Literal{3E9} 24|363r29
+12n7*String_Literal{3E9} 24|365r29
+13n7*Character_Literal{3E9} 24|367r29
+14n7*Comment{3E9} 24|369r29
+15n7*Operator{3E9} 24|371r29
+16n7*Punctuation{3E9} 24|373r29
+17n7*Attribute{3E9} 24|375r29
+18n7*Aspect_Name{3E9} 24|377r29
+19n7*Pragma_Name{3E9} 24|379r29
+20n7*Generic_Formal{3E9} 24|381r29
+21n7*Diagnostic_Error{3E9} 24|383r29
+22n7*Diagnostic_Warning{3E9} 24|385r29
+23n7*Search_Match{3E9} 24|387r29
+24n7*Selection_Overlay{3E9} 24|389r29
+27E12*Token_Kind{3E9} 23|175r28 24|346r28
+X 23 editor-theme.ads
+4K16*Theme 19|1k9 23|349l12 349e17 24|4b21 1198l12 1198t17
+10R9*Color_RGB 14e14 17r42 157r34 159r38 160r38 161r37 162r39 163r41 164r40
+. 165r37 166r41 167r33 168r33 175r47 178r65 180r47 181r38 182r39 183r36 184r37
+. 185r36 186r36 187r38 188r47 189r44 190r46 191r38 192r38 193r41 194r40 195r36
+. 196r51 197r48 198r42 199r43 200r39 201r33 202r39 203r41 204r56 205r65 206r54
+. 207r54 208r52 209r57 210r58 211r67 212r67 213r42 214r42 215r41 216r37 217r39
+. 218r46 219r48 220r46 221r48 222r34 223r35 224r34 225r37 226r35 227r42 228r41
+. 229r41 230r51 231r48 232r48 233r57 234r57 235r59 236r59 237r45 238r40 239r39
+. 240r46 241r43 242r44 243r44 244r47 245r47 246r47 247r47 248r45 249r45 250r50
+. 251r50 252r46 253r57 254r66 255r62 256r40 257r47 258r40 259r35 260r37 261r34
+. 262r34 263r54 264r51 265r51 266r56 267r56 268r58 269r58 270r44 271r39 273r50
+. 274r50 275r56 276r56 277r59 278r57 279r57 280r59 281r45 282r42 283r42 284r38
+. 285r48 286r48 287r51 288r51 289r48 290r52 291r37 292r50 293r50 294r46 295r56
+. 296r56 297r59 298r57 299r57 300r57 301r45 302r46 303r53 304r46 305r51 306r51
+. 307r52 308r55 309r55 310r62 311r62 312r64 313r64 314r39 315r56 342r53 343r44
+. 344r45 345r39 346r47 347r45 24|16r42 54r34 295r38 300r38 305r37 310r39
+. 315r41 320r40 325r37 330r41 335r33 340r33 346r47 395r65 413r47 418r38 423r39
+. 428r36 433r37 438r36 443r36 448r38 453r47 458r44 463r46 468r38 473r38 478r41
+. 483r40 488r36 493r51 498r48 503r42 508r43 513r39 518r33 523r39 528r41 533r56
+. 538r65 543r54 548r54 553r52 558r57 563r58 568r67 573r67 578r42 583r42 588r41
+. 593r37 598r39 603r46 608r48 613r46 618r48 623r34 628r35 633r34 639r37 644r35
+. 649r42 654r41 659r41 664r51 669r48 674r48 679r57 684r57 689r59 694r59 699r45
+. 704r40 709r39 714r46 719r43 724r44 729r44 734r47 739r47 744r47 749r47 754r45
+. 759r45 764r50 769r50 774r46 779r57 784r66 789r62 795r40 800r47 805r40 810r35
+. 815r37 820r34 825r34 830r54 835r51 840r51 845r56 850r56 855r58 860r58 865r44
+. 870r39 876r50 881r50 886r56 891r56 896r59 901r57 906r57 911r59 916r45 921r42
+. 926r42 931r38 936r48 941r48 946r51 951r51 956r48 961r52 966r37 973r50 978r50
+. 983r46 988r56 993r56 998r59 1003r57 1008r57 1013r57 1018r45 1023r46 1028r53
+. 1033r46 1038r51 1043r51 1048r52 1053r55 1058r55 1063r62 1068r62 1073r64
+. 1078r64 1083r39 1088r56 1168r53 1173r44 1178r45 1183r39 1188r47 1193r45
+11f7*R{float} 24|18m15
+12f7*G{float} 24|18m23
+13f7*B{float} 24|18m31
+17V13*RGB{10R9} 17>18 17>21 17>24 24|16b13 19l8 19t11 59s20 61s20 63s20 65s20
+. 67s20 69s20 71s20 73s20 75s20 77s20 79s20 81s20 83s20 85s20 87s20 89s20
+. 91s20 93s20 95s20 97s20 99s20 101s20 103s20 105s20 107s20 109s20 111s20
+. 113s20 115s20 117s20 119s20 121s20 123s20 125s20 127s20 129s20 131s20 133s20
+. 135s20 137s20 139s20 141s20 143s20 145s20 147s20 149s20 151s20 153s20 155s20
+. 157s20 159s20 161s20 163s20 165s20 167s20 169s20 171s20 173s20 175s20 177s20
+. 179s20 181s20 183s20 185s20 187s20 189s20 191s20 193s20 195s20 197s20 205s20
+. 211s20 213s20 215s20 217s20 219s20 221s20 223s20 225s20 227s20 229s20 231s20
+. 233s20 235s20 237s20 239s20 241s20 243s20 245s20 247s20 249s20 251s20 253s20
+. 255s20 257s20 259s20 261s20 263s20 265s20 267s20 269s20 271s20 273s20 275s20
+. 277s20 279s20 281s20 283s20
+17f18 R{float} 24|16b18 18r20
+17f21 G{float} 24|16b21 18r28
+17f24 B{float} 24|16b24 18r36
+20V13*Active_Theme_Id{string} 24|21b13 24l8 24t23 46s10
+23V13*Is_Valid_Theme_Id{boolean} 23>32 24|26b13 29l8 29t25 33s16
+23a32 Id{string} 24|26b32 28r14 28r34 28r55
+26U14*Set_Theme_By_Id 26>31 26<44 24|31b14 41l8 41t23 47s10 49s10
+26a31 Id{string} 24|31b31 33r35 35r13 38r28
+26b44 Found{boolean} 24|31b44 33m7 34r10
+29U14*Toggle_Theme 24|43b14 51l8 51t20
+36E9*Theme_Color 153e27 157r14 24|54r14
+37n7*TC_Editor_Background{36E9} 24|58r15 297r21 888r21 938r21
+38n7*TC_Gutter_Background{36E9} 24|60r15 302r21
+39n7*TC_Gutter_Separator{36E9} 24|62r15 307r21
+40n7*TC_Current_Text_Row{36E9} 24|64r15 327r21
+41n7*TC_Current_Gutter_Row{36E9} 24|66r15 312r21
+42n7*TC_Active_Find_Inactive_Match_Background{36E9} 24|68r15 415r21
+43n7*TC_Active_Find_Match_Background{36E9} 24|70r15 289r27 420r21 898r21
+. 958r21
+44n7*TC_Selection_Background{36E9} 24|72r15 291r27 332r21
+45n7*TC_Caret_Color{36E9} 24|74r15 337r21 918r21 968r21
+46n7*TC_Text_Default{36E9} 24|76r15 342r21 893r21 943r21
+47n7*TC_Line_Number_Inactive{36E9} 24|78r15 317r21 450r21 455r21
+48n7*TC_Line_Number_Current{36E9} 24|80r15 322r21
+49n7*TC_Diagnostic_Hint{36E9} 24|82r15 399r27
+50n7*TC_Diagnostic_Information{36E9} 24|84r15 401r27 403r27 405r27
+51n7*TC_Diagnostic_Warning{36E9} 24|86r15 203r27 287r27 407r27
+52n7*TC_Diagnostic_Error{36E9} 24|88r15 209r27 285r27 409r27 913r21
+53n7*TC_Gutter_Diagnostic_Error{36E9} 24|90r15 460r21
+54n7*TC_Gutter_Diagnostic_Warning{36E9} 24|92r15 465r21
+55n7*TC_Gutter_Dirty_Line{36E9} 24|94r15 470r21
+56n7*TC_Gutter_Added_Line{36E9} 24|96r15 475r21
+57n7*TC_Gutter_Modified_Line{36E9} 24|98r15 480r21
+58n7*TC_Gutter_Deleted_Line{36E9} 24|100r15 485r21
+59n7*TC_Gutter_Bookmark{36E9} 24|102r15 490r21
+60n7*TC_Gutter_Marker_Hover_Background{36E9} 24|104r15 495r21
+61n7*TC_Gutter_Marker_Hover_Outline{36E9} 24|106r15 500r21
+62n7*TC_Minimap_Background{36E9} 24|108r15 425r21
+63n7*TC_Minimap_Text_Density{36E9} 24|110r15 430r21
+64n7*TC_Minimap_Viewport{36E9} 24|112r15 435r21
+65n7*TC_Scrollbar_Track{36E9} 24|114r15 440r21
+66n7*TC_Scrollbar_Thumb{36E9} 24|116r15 445r21
+67n7*TC_Scrollbar_Thumb_Hover{36E9} 24|118r15 505r21
+68n7*TC_Scrollbar_Thumb_Active{36E9} 24|120r15 510r21
+69n7*TC_Palette_Background{36E9} 24|122r15 515r21 878r21 923r21
+70n7*TC_Palette_Text{36E9} 24|124r15 520r21 570r21 883r21 908r21 928r21 953r21
+71n7*TC_Palette_Selected_Row{36E9} 24|126r15 530r21 540r21 903r21 948r21
+72n7*TC_Palette_Muted_Text{36E9} 24|128r15 207r27 525r21 535r21 545r21 550r21
+. 555r21 560r21 565r21 575r21 963r21
+73n7*TC_Status_Bar_Background{36E9} 24|130r15 580r21
+74n7*TC_Status_Bar_Foreground{36E9} 24|132r15 585r21
+75n7*TC_Status_Bar_Separator{36E9} 24|134r15 590r21
+76n7*TC_Status_Bar_Dirty{36E9} 24|136r15 595r21
+77n7*TC_Tab_Bar_Background{36E9} 24|138r15 600r21
+78n7*TC_Tab_Bar_Active_Background{36E9} 24|140r15 605r21
+79n7*TC_Tab_Bar_Inactive_Background{36E9} 24|142r15 610r21
+80n7*TC_Tab_Bar_Active_Foreground{36E9} 24|144r15 615r21
+81n7*TC_Tab_Bar_Inactive_Foreground{36E9} 24|146r15 620r21
+82n7*TC_Tab_Bar_Dirty{36E9} 24|148r15 625r21
+83n7*TC_Tab_Bar_Border{36E9} 24|150r15 630r21 933r21
+84n7*TC_Tab_Bar_Close{36E9} 24|152r15 635r21
+85n7*TC_File_Tree_Background{36E9} 24|154r15 641r21 656r21
+86n7*TC_File_Tree_Foreground{36E9} 24|156r15 661r21
+87n7*TC_File_Tree_Directory_Foreground{36E9} 24|158r15 666r21
+88n7*TC_File_Tree_Active_Background{36E9} 24|160r15 671r21
+89n7*TC_File_Tree_Active_Foreground{36E9} 24|162r15 676r21
+90n7*TC_File_Tree_Selected_Active_Background{36E9} 24|164r15 681r21
+91n7*TC_File_Tree_Selected_Active_Foreground{36E9} 24|166r15 686r21
+92n7*TC_File_Tree_Selected_Inactive_Background{36E9} 24|168r15 691r21
+93n7*TC_File_Tree_Selected_Inactive_Foreground{36E9} 24|170r15 696r21
+94n7*TC_File_Tree_Focused_Border{36E9} 24|172r15 701r21
+95n7*TC_File_Tree_Separator{36E9} 24|174r15 706r21
+96n7*TC_File_Tree_Splitter{36E9} 24|176r15 646r21 711r21
+97n7*TC_File_Tree_Splitter_Active{36E9} 24|178r15 651r21 716r21
+98n7*TC_File_Tree_Indent_Guide{36E9} 24|180r15 721r21
+99n7*TC_Message_Info_Background{36E9} 24|182r15 726r21
+100n7*TC_Message_Info_Foreground{36E9} 24|184r15 731r21
+101n7*TC_Message_Success_Background{36E9} 24|186r15 736r21
+102n7*TC_Message_Success_Foreground{36E9} 24|188r15 741r21
+103n7*TC_Message_Warning_Background{36E9} 24|190r15 199r27 746r21
+104n7*TC_Message_Warning_Foreground{36E9} 24|192r15 201r27 751r21
+105n7*TC_Message_Error_Background{36E9} 24|194r15 756r21
+106n7*TC_Message_Error_Foreground{36E9} 24|196r15 761r21
+107n7*TC_Pending_Transition_Background{36E9} 24|198r15 766r21
+108n7*TC_Pending_Transition_Foreground{36E9} 24|200r15 771r21
+109n7*TC_Pending_Transition_Accent{36E9} 24|202r15 776r21
+110n7*TC_Pending_Transition_Action_Foreground{36E9} 24|204r15 781r21
+111n7*TC_Pending_Transition_Action_Disabled_Foreground{36E9} 24|206r15 786r21
+112n7*TC_Pending_Transition_Destructive_Foreground{36E9} 24|208r15 791r21
+113n7*TC_Problems_Background{36E9} 24|210r15 797r21
+114n7*TC_Problems_Header_Background{36E9} 24|212r15 802r21
+115n7*TC_Problems_Foreground{36E9} 24|214r15 807r21
+116n7*TC_Problems_Error{36E9} 24|216r15 812r21
+117n7*TC_Problems_Warning{36E9} 24|218r15 817r21
+118n7*TC_Problems_Info{36E9} 24|220r15 822r21
+119n7*TC_Problems_Hint{36E9} 24|222r15 827r21
+120n7*TC_Problems_Row_Alternate_Background{36E9} 24|224r15 832r21
+121n7*TC_Problems_Active_Row_Background{36E9} 24|226r15 837r21 1075r21
+122n7*TC_Problems_Active_Row_Foreground{36E9} 24|228r15 842r21
+123n7*TC_Problems_Separator{36E9} 24|230r15 872r21
+124n7*TC_Search_Results_Background{36E9} 24|232r15 1025r21
+125n7*TC_Search_Results_Header_Background{36E9} 24|234r15 1030r21
+126n7*TC_Search_Results_Foreground{36E9} 24|236r15 1035r21 1080r21
+127n7*TC_Search_Results_File_Foreground{36E9} 24|238r15 1040r21
+128n7*TC_Search_Results_Path_Foreground{36E9} 24|240r15 1045r21
+129n7*TC_Search_Results_Match_Foreground{36E9} 24|242r15 1050r21
+130n7*TC_Search_Results_Selected_Background{36E9} 24|244r15 1055r21
+131n7*TC_Search_Results_Selected_Foreground{36E9} 24|246r15 1060r21
+132n7*TC_Search_Results_Secondary_Foreground{36E9} 24|248r15 1090r21
+133n7*TC_Syntax_Plain_Text{36E9} 24|250r15 350r27
+134n7*TC_Syntax_Keyword{36E9} 24|252r15 352r27
+135n7*TC_Syntax_Identifier{36E9} 24|254r15 354r27
+136n7*TC_Syntax_Type_Identifier{36E9} 24|256r15 356r27
+137n7*TC_Syntax_Subprogram_Identifier{36E9} 24|258r15 358r27
+138n7*TC_Syntax_Package_Identifier{36E9} 24|260r15 360r27
+139n7*TC_Syntax_Parameter_Identifier{36E9} 24|262r15 362r27
+140n7*TC_Syntax_Number_Literal{36E9} 24|264r15 364r27
+141n7*TC_Syntax_String_Literal{36E9} 24|266r15 366r27
+142n7*TC_Syntax_Character_Literal{36E9} 24|268r15 368r27
+143n7*TC_Syntax_Comment{36E9} 24|270r15 370r27
+144n7*TC_Syntax_Operator{36E9} 24|272r15 372r27
+145n7*TC_Syntax_Punctuation{36E9} 24|274r15 374r27
+146n7*TC_Syntax_Attribute{36E9} 24|276r15 376r27
+147n7*TC_Syntax_Aspect_Name{36E9} 24|278r15 378r27
+148n7*TC_Syntax_Pragma_Name{36E9} 24|280r15 380r27
+149n7*TC_Syntax_Generic_Formal{36E9} 24|282r15 382r27
+150n7*TC_Syntax_Diagnostic_Error{36E9} 24|284r15 384r27
+151n7*TC_Syntax_Diagnostic_Warning{36E9} 24|286r15 386r27
+152n7*TC_Syntax_Search_Match{36E9} 24|288r15 388r27
+153n7*TC_Syntax_Selection{36E9} 24|290r15 390r27
+156V13*Color{10R9} 157>7 24|53b13 199s20 201s20 203s20 207s20 209s20 285s20
+. 287s20 289s20 291s20 293l8 293t13 297s14 302s14 307s14 312s14 317s14 322s14
+. 327s14 332s14 337s14 342s14 350s20 352s20 354s20 356s20 358s20 360s20 362s20
+. 364s20 366s20 368s20 370s20 372s20 374s20 376s20 378s20 380s20 382s20 384s20
+. 386s20 388s20 390s20 399s20 401s20 403s20 405s20 407s20 409s20 415s14 420s14
+. 425s14 430s14 435s14 440s14 445s14 450s14 455s14 460s14 465s14 470s14 475s14
+. 480s14 485s14 490s14 495s14 500s14 505s14 510s14 515s14 520s14 525s14 530s14
+. 535s14 540s14 545s14 550s14 555s14 560s14 565s14 570s14 575s14 580s14 585s14
+. 590s14 595s14 600s14 605s14 610s14 615s14 620s14 625s14 630s14 635s14 641s14
+. 646s14 651s14 656s14 661s14 666s14 671s14 676s14 681s14 686s14 691s14 696s14
+. 701s14 706s14 711s14 716s14 721s14 726s14 731s14 736s14 741s14 746s14 751s14
+. 756s14 761s14 766s14 771s14 776s14 781s14 786s14 791s14 797s14 802s14 807s14
+. 812s14 817s14 822s14 827s14 832s14 837s14 842s14 872s14 878s14 883s14 888s14
+. 893s14 898s14 903s14 908s14 913s14 918s14 923s14 928s14 933s14 938s14 943s14
+. 948s14 953s14 958s14 963s14 968s14 1025s14 1030s14 1035s14 1040s14 1045s14
+. 1050s14 1055s14 1060s14 1075s14 1080s14 1090s14
+157e7 Kind{36E9} 24|54b7 57r12
+159V13*Editor_Background{10R9} 24|295b13 298l8 298t25
+160V13*Gutter_Background{10R9} 24|300b13 303l8 303t25
+161V13*Gutter_Separator{10R9} 24|305b13 308l8 308t24
+162V13*Current_Gutter_Row{10R9} 24|310b13 313l8 313t26
+163V13*Inactive_Line_Number{10R9} 24|315b13 318l8 318t28
+164V13*Current_Line_Number{10R9} 24|320b13 323l8 323t27
+165V13*Current_Text_Row{10R9} 24|325b13 328l8 328t24
+166V13*Selection_Background{10R9} 24|330b13 333l8 333t28
+167V13*Cursor_Color{10R9} 24|335b13 338l8 338t20
+168V13*Text_Default{10R9} 24|340b13 343l8 343t20
+174V13*Syntax_Color{10R9} 175>7 24|345b13 392l8 392t20
+175e7 Kind{22|27E12} 24|346b7 348r12
+177V13*Diagnostic_Color{10R9} 178>7 24|394b13 411l8 411t24
+178e7 Severity{21|7E9} 24|395b7 397r12
+180V13*Active_Find_Inactive_Match{10R9} 24|413b13 416l8 416t34 1170s14
+181V13*Active_Find_Match{10R9} 24|418b13 421l8 421t25 1175s14
+182V13*Minimap_Background{10R9} 24|423b13 426l8 426t26
+183V13*Minimap_Content{10R9} 24|428b13 431l8 431t23
+184V13*Minimap_Viewport{10R9} 24|433b13 436l8 436t24
+185V13*Scrollbar_Track{10R9} 24|438b13 441l8 441t23
+186V13*Scrollbar_Thumb{10R9} 24|443b13 446l8 446t23
+187V13*Fold_Marker_Color{10R9} 24|448b13 451l8 451t25
+188V13*Folded_Line_Ellipsis_Color{10R9} 24|453b13 456l8 456t34
+189V13*Gutter_Diagnostic_Error{10R9} 24|458b13 461l8 461t31
+190V13*Gutter_Diagnostic_Warning{10R9} 24|463b13 466l8 466t33
+191V13*Gutter_Dirty_Line{10R9} 24|468b13 471l8 471t25
+192V13*Gutter_Added_Line{10R9} 24|473b13 476l8 476t25
+193V13*Gutter_Modified_Line{10R9} 24|478b13 481l8 481t28
+194V13*Gutter_Deleted_Line{10R9} 24|483b13 486l8 486t27
+195V13*Gutter_Bookmark{10R9} 24|488b13 491l8 491t23
+196V13*Gutter_Marker_Hover_Background{10R9} 24|493b13 496l8 496t38
+197V13*Gutter_Marker_Hover_Outline{10R9} 24|498b13 501l8 501t35
+198V13*Scrollbar_Thumb_Hover{10R9} 24|503b13 506l8 506t29
+199V13*Scrollbar_Thumb_Active{10R9} 24|508b13 511l8 511t30
+200V13*Palette_Background{10R9} 24|513b13 516l8 516t26 1180s14
+201V13*Palette_Text{10R9} 24|518b13 521l8 521t20 1185s14
+202V13*Palette_Muted_Text{10R9} 24|523b13 526l8 526t26 1195s14
+203V13*Palette_Selected_Row{10R9} 24|528b13 531l8 531t28 1190s14
+204V13*Command_Palette_Disabled_Foreground{10R9} 24|533b13 536l8 536t43
+205V13*Command_Palette_Disabled_Selected_Background{10R9} 24|538b13 541l8
+. 541t52
+206V13*Command_Palette_Reason_Foreground{10R9} 24|543b13 546l8 546t41
+207V13*Command_Palette_Detail_Foreground{10R9} 24|548b13 551l8 551t41
+208V13*Command_Palette_Help_Foreground{10R9} 24|553b13 556l8 556t39
+209V13*Command_Palette_Secondary_Foreground{10R9} 24|558b13 561l8 561t44
+210V13*Command_Palette_Keybinding_Foreground{10R9} 24|563b13 566l8 566t45
+211V13*Command_Palette_Keybinding_Selected_Foreground{10R9} 24|568b13 571l8
+. 571t54
+212V13*Command_Palette_Keybinding_Disabled_Foreground{10R9} 24|573b13 576l8
+. 576t54
+213V13*Status_Bar_Background{10R9} 24|578b13 581l8 581t29
+214V13*Status_Bar_Foreground{10R9} 24|583b13 586l8 586t29
+215V13*Status_Bar_Separator{10R9} 24|588b13 591l8 591t28
+216V13*Status_Bar_Dirty{10R9} 24|593b13 596l8 596t24
+217V13*Tab_Bar_Background{10R9} 24|598b13 601l8 601t26
+218V13*Tab_Bar_Active_Background{10R9} 24|603b13 606l8 606t33
+219V13*Tab_Bar_Inactive_Background{10R9} 24|608b13 611l8 611t35
+220V13*Tab_Bar_Active_Foreground{10R9} 24|613b13 616l8 616t33
+221V13*Tab_Bar_Inactive_Foreground{10R9} 24|618b13 621l8 621t35
+222V13*Tab_Bar_Dirty{10R9} 24|623b13 626l8 626t21
+223V13*Tab_Bar_Border{10R9} 24|628b13 631l8 631t22
+224V13*Tab_Bar_Close{10R9} 24|633b13 636l8 636t21
+225V13*Panel_Background{10R9} 24|639b13 642l8 642t24
+226V13*Panel_Splitter{10R9} 24|644b13 647l8 647t22
+227V13*Panel_Splitter_Active{10R9} 24|649b13 652l8 652t29
+228V13*File_Tree_Background{10R9} 24|654b13 657l8 657t28
+229V13*File_Tree_Foreground{10R9} 24|659b13 662l8 662t28
+230V13*File_Tree_Directory_Foreground{10R9} 24|664b13 667l8 667t38
+231V13*File_Tree_Active_Background{10R9} 24|669b13 672l8 672t35
+232V13*File_Tree_Active_Foreground{10R9} 24|674b13 677l8 677t35
+233V13*File_Tree_Selected_Active_Background{10R9} 24|679b13 682l8 682t44
+234V13*File_Tree_Selected_Active_Foreground{10R9} 24|684b13 687l8 687t44
+235V13*File_Tree_Selected_Inactive_Background{10R9} 24|689b13 692l8 692t46
+236V13*File_Tree_Selected_Inactive_Foreground{10R9} 24|694b13 697l8 697t46
+237V13*File_Tree_Focused_Border{10R9} 24|699b13 702l8 702t32
+238V13*File_Tree_Separator{10R9} 24|704b13 707l8 707t27
+239V13*File_Tree_Splitter{10R9} 24|709b13 712l8 712t26
+240V13*File_Tree_Splitter_Active{10R9} 24|714b13 717l8 717t33
+241V13*File_Tree_Indent_Guide{10R9} 24|719b13 722l8 722t30
+242V13*Message_Info_Background{10R9} 24|724b13 727l8 727t31
+243V13*Message_Info_Foreground{10R9} 24|729b13 732l8 732t31
+244V13*Message_Success_Background{10R9} 24|734b13 737l8 737t34
+245V13*Message_Success_Foreground{10R9} 24|739b13 742l8 742t34
+246V13*Message_Warning_Background{10R9} 24|744b13 747l8 747t34
+247V13*Message_Warning_Foreground{10R9} 24|749b13 752l8 752t34
+248V13*Message_Error_Background{10R9} 24|754b13 757l8 757t32
+249V13*Message_Error_Foreground{10R9} 24|759b13 762l8 762t32
+250V13*Pending_Transition_Background{10R9} 24|764b13 767l8 767t37
+251V13*Pending_Transition_Foreground{10R9} 24|769b13 772l8 772t37
+252V13*Pending_Transition_Accent{10R9} 24|774b13 777l8 777t33
+253V13*Pending_Transition_Action_Foreground{10R9} 24|779b13 782l8 782t44
+254V13*Pending_Transition_Action_Disabled_Foreground{10R9} 24|784b13 787l8
+. 787t53
+255V13*Pending_Transition_Destructive_Foreground{10R9} 24|789b13 792l8 792t49
+256V13*Problems_Background{10R9} 24|795b13 798l8 798t27
+257V13*Problems_Header_Background{10R9} 24|800b13 803l8 803t34
+258V13*Problems_Foreground{10R9} 24|805b13 808l8 808t27 862s14
+259V13*Problems_Error{10R9} 24|810b13 813l8 813t22
+260V13*Problems_Warning{10R9} 24|815b13 818l8 818t24
+261V13*Problems_Info{10R9} 24|820b13 823l8 823t21
+262V13*Problems_Hint{10R9} 24|825b13 828l8 828t21
+263V13*Problems_Row_Alternate_Background{10R9} 24|830b13 833l8 833t41 857s14
+264V13*Problems_Active_Row_Background{10R9} 24|835b13 838l8 838t38 847s14
+265V13*Problems_Active_Row_Foreground{10R9} 24|840b13 843l8 843t38 852s14
+266V13*Problems_Selected_Active_Background{10R9} 24|845b13 848l8 848t43
+267V13*Problems_Selected_Active_Foreground{10R9} 24|850b13 853l8 853t43
+268V13*Problems_Selected_Inactive_Background{10R9} 24|855b13 858l8 858t45
+269V13*Problems_Selected_Inactive_Foreground{10R9} 24|860b13 863l8 863t45
+270V13*Problems_Focused_Border{10R9} 24|865b13 868l8 868t31
+271V13*Problems_Separator{10R9} 24|870b13 873l8 873t26
+273V13*Active_Find_Prompt_Background{10R9} 24|876b13 879l8 879t37
+274V13*Active_Find_Prompt_Foreground{10R9} 24|881b13 884l8 884t37
+275V13*Active_Find_Prompt_Field_Background{10R9} 24|886b13 889l8 889t43
+276V13*Active_Find_Prompt_Field_Foreground{10R9} 24|891b13 894l8 894t43
+277V13*Active_Find_Prompt_Field_Active_Border{10R9} 24|896b13 899l8 899t46
+. 1000s14
+278V13*Active_Find_Prompt_Button_Background{10R9} 24|901b13 904l8 904t44
+. 1005s14
+279V13*Active_Find_Prompt_Button_Foreground{10R9} 24|906b13 909l8 909t44
+. 1010s14
+280V13*Active_Find_Prompt_No_Match_Foreground{10R9} 24|911b13 914l8 914t46
+281V13*Active_Find_Prompt_Caret{10R9} 24|916b13 919l8 919t32
+282V13*Quick_Open_Background{10R9} 24|921b13 924l8 924t29 975s14
+283V13*Quick_Open_Foreground{10R9} 24|926b13 929l8 929t29 980s14
+284V13*Quick_Open_Border{10R9} 24|931b13 934l8 934t25 985s14
+285V13*Quick_Open_Field_Background{10R9} 24|936b13 939l8 939t35 990s14
+286V13*Quick_Open_Field_Foreground{10R9} 24|941b13 944l8 944t35 995s14
+287V13*Quick_Open_Selected_Background{10R9} 24|946b13 949l8 949t38
+288V13*Quick_Open_Selected_Foreground{10R9} 24|951b13 954l8 954t38
+289V13*Quick_Open_Match_Foreground{10R9} 24|956b13 959l8 959t35
+290V13*Quick_Open_Secondary_Foreground{10R9} 24|961b13 964l8 964t39 1015s14
+291V13*Quick_Open_Caret{10R9} 24|966b13 969l8 969t24 1020s14
+292V13*Project_Search_Bar_Background{10R9} 24|973b13 976l8 976t37
+293V13*Project_Search_Bar_Foreground{10R9} 24|978b13 981l8 981t37
+294V13*Project_Search_Bar_Border{10R9} 24|983b13 986l8 986t33
+295V13*Project_Search_Bar_Field_Background{10R9} 24|988b13 991l8 991t43
+296V13*Project_Search_Bar_Field_Foreground{10R9} 24|993b13 996l8 996t43
+297V13*Project_Search_Bar_Field_Active_Border{10R9} 24|998b13 1001l8 1001t46
+. 1085s14
+298V13*Project_Search_Bar_Button_Background{10R9} 24|1003b13 1006l8 1006t44
+299V13*Project_Search_Bar_Button_Foreground{10R9} 24|1008b13 1011l8 1011t44
+300V13*Project_Search_Bar_Status_Foreground{10R9} 24|1013b13 1016l8 1016t44
+301V13*Project_Search_Bar_Caret{10R9} 24|1018b13 1021l8 1021t32
+302V13*Search_Results_Background{10R9} 24|1023b13 1026l8 1026t33
+303V13*Search_Results_Header_Background{10R9} 24|1028b13 1031l8 1031t40
+304V13*Search_Results_Foreground{10R9} 24|1033b13 1036l8 1036t33
+305V13*Search_Results_File_Foreground{10R9} 24|1038b13 1041l8 1041t38
+306V13*Search_Results_Path_Foreground{10R9} 24|1043b13 1046l8 1046t38
+307V13*Search_Results_Match_Foreground{10R9} 24|1048b13 1051l8 1051t39
+308V13*Search_Results_Selected_Background{10R9} 24|1053b13 1056l8 1056t42
+. 1065s14
+309V13*Search_Results_Selected_Foreground{10R9} 24|1058b13 1061l8 1061t42
+. 1070s14
+310V13*Search_Results_Selected_Active_Background{10R9} 24|1063b13 1066l8
+. 1066t49
+311V13*Search_Results_Selected_Active_Foreground{10R9} 24|1068b13 1071l8
+. 1071t49
+312V13*Search_Results_Selected_Inactive_Background{10R9} 24|1073b13 1076l8
+. 1076t51
+313V13*Search_Results_Selected_Inactive_Foreground{10R9} 24|1078b13 1081l8
+. 1081t51
+314V13*Panel_Focus_Border{10R9} 24|867s14 1083b13 1086l8 1086t26
+315V13*Search_Results_Secondary_Foreground{10R9} 24|1088b13 1091l8 1091t43
+323V13*Diagnostic_Underline_Height{float} 24|1093b13 1096l8 1096t35
+324V13*Diagnostic_Underline_Bottom_Padding{float} 24|1098b13 1101l8 1101t43
+326V13*Minimap_Content_Padding{float} 24|1103b13 1106l8 1106t31
+327V13*Minimap_Min_Line_Width{float} 24|1108b13 1111l8 1111t30
+328V13*Minimap_Content_Line_Height{float} 24|1113b13 1116l8 1116t35
+329V13*Minimap_Max_Line_Length_For_Scale{natural} 24|1118b13 1121l8 1121t41
+331V13*Palette_Margin{natural} 24|1123b13 1126l8 1126t22
+332V13*Palette_Max_Width{natural} 24|1128b13 1131l8 1131t25
+333V13*Palette_Top_Min_Offset{float} 24|1133b13 1136l8 1136t30
+334V13*Palette_Top_Fraction{float} 24|1138b13 1141l8 1141t28
+335V13*Palette_Outer_Padding_Y{natural} 24|1143b13 1146l8 1146t31
+336V13*Palette_Text_Padding_X{float} 24|1148b13 1151l8 1151t30
+337V13*Palette_Text_Padding_Y{float} 24|1153b13 1156l8 1156t30
+338V13*Palette_Selected_Row_Inset_X{float} 24|1158b13 1161l8 1161t36
+339V13*Palette_Selected_Row_Offset_Y{float} 24|1163b13 1166l8 1166t37
+342V13*Active_Find_Inactive_Match_Color{10R9} 24|1168b13 1171l8 1171t40
+343V13*Active_Find_Match_Color{10R9} 24|1173b13 1176l8 1176t31
+344V13*Palette_Background_Color{10R9} 24|1178b13 1181l8 1181t32
+345V13*Palette_Text_Color{10R9} 24|1183b13 1186l8 1186t26
+346V13*Palette_Selected_Row_Color{10R9} 24|1188b13 1191l8 1191t34
+347V13*Palette_Muted_Text_Color{10R9} 24|1193b13 1196l8 1196t32
+X 24 editor-theme.adb
+6a4 Active_Id{string} 11m7 12m7 23r14
+7i4 Active_Len{natural} 13m7 23r30
+9U14 Set_Active_Id 9b14 9>29 14l8 14t21 36s13 38s13
+9a29 Id{string} 12r23 12r37 13r21
+44b7 Found{boolean} 47m36 49m35
+

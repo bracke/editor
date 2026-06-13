@@ -1,0 +1,219 @@
+V "GNAT Lib v15"
+A -gnat2022
+P SS ZX
+
+RN
+RV NO_FLOATING_POINT
+RV NO_IMPLICIT_CONDITIONALS
+RV NO_DEFAULT_INITIALIZATION
+
+U editor.scrollbars%b	editor-scrollbars.adb	bb0b508a NE OO PK
+Z ada.strings.text_buffers%s  a-sttebu.adb	a-sttebu.ali
+W editor%s		editor.ads		editor.ali
+
+U editor.scrollbars%s	editor-scrollbars.ads	e5028ce7 EE NE OO PK
+W editor%s		editor.ads		editor.ali
+W editor.layout%s	editor-layout.adb	editor-layout.ali
+
+D ada.ads		20250808065140 76789da1 ada%s
+D a-charac.ads		20250808065140 2d3ec45b ada.characters%s
+D a-chlat1.ads		20250808065140 e0d72e76 ada.characters.latin_1%s
+D a-contai.ads		20250808065140 61e5e089 ada.containers%s
+D a-conhel.ads		20250808065140 46fe1ce3 ada.containers.helpers%s
+D a-convec.ads		20250808065140 91fb49f3 ada.containers.vectors%s
+D a-except.ads		20250808065140 e7970cd9 ada.exceptions%s
+D a-finali.ads		20250808065140 bf4f806b ada.finalization%s
+D a-iteint.ads		20250808065140 49a8bee2 ada.iterator_interfaces%s
+D a-stream.ads		20250808065140 17477cbd ada.streams%s
+D a-string.ads		20250808065140 90ac6797 ada.strings%s
+D a-strmap.ads		20250808065140 1f91ebb6 ada.strings.maps%s
+D a-strsea.ads		20250808065140 18c3c634 ada.strings.search%s
+D a-sttebu.ads		20250808065140 f1ad67a2 ada.strings.text_buffers%s
+D a-strunb.ads		20250808065140 b10770ab ada.strings.unbounded%s
+D a-stuten.ads		20250808065140 c6ced0ae ada.strings.utf_encoding%s
+D a-tags.ads		20250808065140 fbca0ad5 ada.tags%s
+D a-unccon.ads		20250808065140 0e9b276f ada.unchecked_conversion%s
+D editor.ads		20260612145959 16f844c2 editor%s
+D editor-buffer_types.ads  20260612151710 a555405e editor.buffer_types%s
+D editor-file_tree.ads	20260612145959 e6abdf66 editor.file_tree%s
+D editor-file_tree_view.ads  20260612145959 99db49c3 editor.file_tree_view%s
+D editor-layout.ads	20260612145959 68c2e77a editor.layout%s
+D editor-panels.ads	20260612145959 66614da0 editor.panels%s
+D editor-scrollbars.ads	20260612145959 9b382f5f editor.scrollbars%s
+D editor-scrollbars.adb	20260612145959 20337fd5 editor.scrollbars%b
+D editor-status_bar.ads	20260612145959 879f0640 editor.status_bar%s
+D editor-tab_bar.ads	20260612151839 e26dca3d editor.tab_bar%s
+D interfac.ads		20250808065140 9111f9c1 interfaces%s
+D i-c.ads		20250808065140 e94c966a interfaces.c%s
+D system.ads		20250808065140 14286b0f system%s
+D s-atocou.ads		20250808065140 dc18efc3 system.atomic_counters%s
+D s-exctab.ads		20250808065140 91bef6ef system.exception_table%s
+D s-finpri.ads		20250808065140 5970d55a system.finalization_primitives%s
+D s-finroo.ads		20250808065140 0a7c3ed4 system.finalization_root%s
+D s-oscons.ads		20250827122531 068e1a91 system.os_constants%s
+D s-oslock.ads		20250808065140 13fa6b78 system.os_locks%s
+D s-parame.ads		20250808065140 3597fc11 system.parameters%s
+D s-pooglo.ads		20250808065140 91708d21 system.pool_global%s
+D s-putima.ads		20250808065140 17291fe4 system.put_images%s
+D s-retsta.ads		20250808065140 0f6b06cb system.return_stack%s
+D s-secsta.ads		20250808065140 578279f5 system.secondary_stack%s
+D s-soflin.ads		20250808065140 5d88fdea system.soft_links%s
+D s-stache.ads		20250808065140 0b81c1fe system.stack_checking%s
+D s-stalib.ads		20250808065140 1c9580f6 system.standard_library%s
+D s-stoele.ads		20250808065140 ccded4e8 system.storage_elements%s
+D s-stopoo.ads		20250808065140 e9fa2dd8 system.storage_pools%s
+D s-stratt.ads		20250808065140 516607ae system.stream_attributes%s
+D s-traent.ads		20250808065140 c81cbf8c system.traceback_entries%s
+D s-unstyp.ads		20250808065140 fa2a7f59 system.unsigned_types%s
+G a e
+G c Z s b [current editor__scrollbars 33 13 none]
+G c Z s b [set_current editor__scrollbars 35 14 none]
+G c Z s b [reset editor__scrollbars 38 14 none]
+G c Z s b [set_enabled editor__scrollbars 40 14 none]
+G c Z s b [enabled editor__scrollbars 43 13 none]
+G c Z s b [reserved_right editor__scrollbars 45 13 none]
+G c Z s b [reserved_bottom editor__scrollbars 48 13 none]
+G c Z s b [effective_viewport_width editor__scrollbars 51 13 none]
+G c Z s b [effective_viewport_height editor__scrollbars 55 13 none]
+G c Z s b [vertical_geometry editor__scrollbars 59 13 none]
+G c Z s b [horizontal_geometry editor__scrollbars 68 13 none]
+G c Z s b [hit_test editor__scrollbars 78 13 none]
+G c Z s b [scroll_y_for_thumb_y editor__scrollbars 83 13 none]
+G c Z s b [scroll_x_for_thumb_x editor__scrollbars 89 13 none]
+G c Z s s [scrollbar_configIP editor__scrollbars 9 9 none]
+G c Z s s [scrollbar_rectIP editor__scrollbars 15 9 none]
+G c Z s s [scrollbar_geometryIP editor__scrollbars 22 9 none]
+G c Z b b [clamp_thumb_size editor__scrollbars 88 13 none]
+G c Z b b [contains editor__scrollbars 219 13 none]
+G r c none [vertical_geometry editor__scrollbars 59 13 none] [text_viewport_y editor__layout 215 13 none]
+G r c none [horizontal_geometry editor__scrollbars 68 13 none] [text_viewport_y editor__layout 215 13 none]
+X 9 a-iteint.ads
+24h9 Forward_Iterator
+32h9 Reversible_Iterator<24R9[6|119]>
+X 19 editor.ads
+1K9*Editor 5e11 25|1r6 3r9 60r25 69r25 95r5 26|1r14 113r25 156r22 168r25
+. 208r22 308r5
+X 23 editor-layout.ads
+6K16*Layout 279e18 25|1w13 60r32 69r32 26|113r32 156r29 168r32 208r29
+8R9*Layout_Config 18e14 25|60r39 69r39 26|113r39 168r39
+9i7*Origin_X{natural} 26|155r29
+215V13*Text_Viewport_Y{integer} 26|156s36 208s36
+X 25 editor-scrollbars.ads
+3K16*Scrollbars 19|1k9 25|95l12 95e22 26|1b21 308l12 308t22
+5E9*Scrollbar_Orientation 7e28
+6n7*Vertical_Scrollbar{5E9}
+7n7*Horizontal_Scrollbar{5E9}
+9R9*Scrollbar_Config 13e14 33r28 36r16 46r16 49r16 53r24 57r25 66r25 76r25
+. 26|3r27 8r28 14r16 41r16 52r16 64r24 77r25 92r24 119r25 175r25
+10b7*Enabled{boolean} 26|4m7 23m10 32m28 37r35 44r17 55r17 128r21 184r21
+11i7*Thickness{natural} 26|5m7 24m10 45r24 56r24 129r42 130r43 137r43 155r64
+. 157r29 185r43 208r97 210r29
+12i7*Min_Thumb_Size{natural} 26|6m7 25m10 109r30
+15R9*Scrollbar_Rect 20e14 24r17 25r17 26|220r14
+16f7*X{float} 26|155m10 160m10 160r28 207m10 212m10 212r28 225r32 226r35
+. 284r53
+17f7*Y{float} 26|156m10 161m10 161r28 208m10 213m10 213r28 227r36 228r35
+. 254r53
+18f7*W{float} 26|157m10 162m10 162r28 209m10 214m10 226r44 285r53 286r53
+19f7*H{float} 26|158m10 163m10 210m10 215m10 215r28 228r44 255r53 256r53
+22R9*Scrollbar_Geometry 26e14 66r50 76r50 79r18 84r24 90r25 26|119r50 121r21
+. 175r50 177r22 232r18 249r25 279r25
+23b7*Visible{boolean} 26|153m14 205m14 237r23 261r23 291r23
+24r7*Track{15R9} 26|154m14 160r22 161r22 162r22 206m14 212r22 213r22 215r22
+. 241r32 254r47 255r47 284r47 285r47
+25r7*Thumb{15R9} 26|159m14 211m14 239r32 256r47 286r47
+28E9*Scrollbar_Hit 31e27 81r34 26|234r34
+29n7*No_Scrollbar_Hit{28E9} 26|238r17 244r17
+30n7*Scrollbar_Track_Hit{28E9} 26|242r17
+31n7*Scrollbar_Thumb_Hit{28E9} 26|240r17
+33V13*Current{9R9} 26|8b13 11l8 11t15
+35U14*Set_Current 36>7 26|13b14 18l8 18t19
+36r7 Config{9R9} 26|14b7 17r31
+38U14*Reset 26|20b14 26l8 26t13
+40U14*Set_Enabled 41>7 26|28b14 33l8 33t19
+41b7 Enabled{boolean} 26|29b7 32r39
+43V13*Enabled{boolean} 26|35b13 38l8 38t15
+45V13*Reserved_Right{natural} 46>7 26|40b13 49l8 49t22 66s38
+46r7 Config{9R9} 26|41b7 44r10 45r17
+48V13*Reserved_Bottom{natural} 49>7 26|51b13 60l8 60t23 79s38
+49r7 Config{9R9} 26|52b7 55r10 56r17
+51V13*Effective_Viewport_Width{natural} 52>7 53>7 26|62b13 73l8 73t32
+52i7 Viewport_Width{natural} 26|63b7 68r10 71r17
+53r7 Config{9R9} 26|64b7 66r54
+55V13*Effective_Viewport_Height{natural} 56>7 57>7 26|75b13 86l8 86t33
+56i7 Viewport_Height{natural} 26|76b7 81r10 84r17
+57r7 Config{9R9} 26|77b7 79r55
+59V13*Vertical_Geometry{22R9} 60>7 61>7 62>7 63>7 64>7 65>7 66>7 26|112b13
+. 165l8 165t25
+60r7 Layout{23|8R9} 26|113b7 155r22 156r53
+61i7 Viewport_Width{natural} 26|114b7 129r17 155r40
+62i7 Viewport_Height{natural} 26|115b7 130r17 137r18
+63i7 Total_Rows{natural} 26|116b7 132r17 142r59 143r21
+64i7 Visible_Rows{natural} 26|117b7 131r17 132r31 142r45 143r34
+65i7 Scroll_Y{natural} 26|118b7 149r35
+66r7 Config{9R9} 26|119b7 128r14 129r35 130r36 137r36 142r71 155r57 157r22
+68V13*Horizontal_Geometry{22R9} 69>7 70>7 71>7 72>7 73>7 74>7 75>7 76>7 26|167b13
+. 217l8 217t27
+69r7 Layout{23|8R9} 26|168b7 208r53
+70i7 Text_Left{natural} 26|169b7 207r22
+71i7 Text_Width{natural} 26|170b7 186r17 193r18
+72i7 Viewport_Height{natural} 26|171b7 185r17 208r72
+73i7 Total_Cols{natural} 26|172b7 188r17 194r59 195r21
+74i7 Visible_Cols{natural} 26|173b7 187r17 188r31 194r45 195r34
+75i7 Scroll_X{natural} 26|174b7 201r35
+76r7 Config{9R9} 26|175b7 184r14 185r36 194r71 208r90 210r22
+78V13*Hit_Test{28E9} 79>7 80>7 81>7 26|231b13 246l8 246t16
+79r7 Geometry{22R9} 26|232b7 237r14 239r23 241r23
+80i7 X{natural} 26|233b7 239r39 241r39
+81i7 Y{natural} 26|234b7 239r42 241r42
+83V13*Scroll_Y_For_Thumb_Y{natural} 84>7 85>7 86>7 87>7 26|248b13 276l8 276t28
+84r7 Geometry{22R9} 26|249b7 254r38 255r38 256r38 261r14
+85i7 Total_Rows{natural} 26|250b7 261r39 265r21
+86i7 Visible_Rows{natural} 26|251b7 261r53 265r34
+87i7 Desired_Thumb_Y{natural} 26|252b7 271r24
+89V13*Scroll_X_For_Thumb_X{natural} 90>7 91>7 92>7 93>7 26|278b13 306l8 306t28
+90r7 Geometry{22R9} 26|279b7 284r38 285r38 286r38 291r14
+91i7 Total_Cols{natural} 26|280b7 291r39 295r21
+92i7 Visible_Cols{natural} 26|281b7 291r53 295r34
+93i7 Desired_Thumb_X{natural} 26|282b7 301r24
+X 26 editor-scrollbars.adb
+3r4 Current_Config_Value{25|9R9} 10r14 17m7 22m7 32m7 37r14
+66i7 Reserved{natural} 68r28 71r34
+79i7 Reserved{natural} 81r29 84r35
+88V13 Clamp_Thumb_Size{natural} 88b13 89>7 90>7 91>7 92>7 110l8 110t24 142s18
+. 194s18
+89i7 Track_Size{natural} 96r10 103r20 108r10
+90i7 Visible_Amount{natural} 104r22
+91i7 Total_Amount{natural} 96r33 105r22
+92r7 Config{25|9R9} 109r23
+94i7 Raw_Size{natural} 100m7 109r46
+121r7 Result{25|22R9} 134r17 139r17 153m7 154m7 159m7 160r15 161r15 162r15
+. 164r14
+122i7 Track_H{natural} 137m7 138r10 142r36 144r17 158r22
+123i7 Thumb_H{natural} 142m7 144r27 163r22
+124i7 Max_Scroll{natural} 143m7 146r10 149r45 150r22
+125i7 Travel{natural} 144m7 146r34 148r20
+126i7 Thumb_Offset{natural} 147m10 161r39
+177r7 Result{25|22R9} 190r17 205m7 206m7 211m7 212r15 213r15 215r15 216r14
+178i7 Track_W{natural} 193m7 194r36 196r17 209r22
+179i7 Thumb_W{natural} 194m7 196r27 214r22
+180i7 Max_Scroll{natural} 195m7 198r10 201r45 202r22
+181i7 Travel{natural} 196m7 198r34 200r20
+182i7 Thumb_Offset{natural} 199m10 212r39
+219V13 Contains{boolean} 219b13 220>7 221>7 222>7 229l8 229t16 239s13 241s13
+220r7 Rect{25|15R9} 225r27 226r30 226r39 227r31 228r30 228r39
+221i7 X{natural} 225r21 226r25
+222i7 Y{natural} 227r25 228r25
+254f7 Track_Top{float} 271r43
+255f7 Track_H{float} 266r33
+256f7 Thumb_H{float} 266r43
+257i7 Max_Scroll{natural} 265m7 274r10 275r35
+258f7 Travel{float} 266m7 267r10 272r44 275r49
+259f7 Offset{float} 271m7 272m7 272r52 275r19
+284f7 Track_Left{float} 301r43
+285f7 Track_W{float} 296r33
+286f7 Thumb_W{float} 296r43
+287i7 Max_Scroll{natural} 295m7 304r10 305r35
+288f7 Travel{float} 296m7 297r10 302r44 305r49
+289f7 Offset{float} 301m7 302m7 302r52 305r19
+

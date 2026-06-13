@@ -1,0 +1,280 @@
+V "GNAT Lib v15"
+A -gnat2022
+P SS ZX
+
+RN
+RV NO_SECONDARY_STACK
+RV NO_STANDARD_STORAGE_POOLS
+RV NO_DYNAMIC_SIZED_OBJECTS
+RV NO_IMPLEMENTATION_PRAGMAS
+
+U editor.message_producers%b  editor-message_producers.adb  a9159388 NE OO PK
+Z ada.strings.text_buffers%s  a-sttebu.adb	a-sttebu.ali
+W editor%s		editor.ads		editor.ali
+W editor.feature_messages%s  editor-feature_messages.adb  editor-feature_messages.ali
+W editor.feature_panel%s  editor-feature_panel.adb  editor-feature_panel.ali
+W editor.feature_targets%s  editor-feature_targets.adb  editor-feature_targets.ali
+W editor.producer_contracts%s  editor-producer_contracts.adb  editor-producer_contracts.ali
+Z system.secondary_stack%s  s-secsta.adb	s-secsta.ali
+
+U editor.message_producers%s  editor-message_producers.ads  a68365e9 EE NE OO PK
+W editor%s		editor.ads		editor.ali
+W editor.feature_messages%s  editor-feature_messages.adb  editor-feature_messages.ali
+W editor.producer_contracts%s  editor-producer_contracts.adb  editor-producer_contracts.ali
+W editor.state%s	editor-state.adb	editor-state.ali
+
+D ada.ads		20250808065140 76789da1 ada%s
+D a-calend.ads		20250808065140 bf7f3cc9 ada.calendar%s
+D a-charac.ads		20250808065140 2d3ec45b ada.characters%s
+D a-chlat1.ads		20250808065140 e0d72e76 ada.characters.latin_1%s
+D a-contai.ads		20250808065140 61e5e089 ada.containers%s
+D a-conhel.ads		20250808065140 46fe1ce3 ada.containers.helpers%s
+D a-convec.ads		20250808065140 91fb49f3 ada.containers.vectors%s
+D a-except.ads		20250808065140 e7970cd9 ada.exceptions%s
+D a-finali.ads		20250808065140 bf4f806b ada.finalization%s
+D a-iteint.ads		20250808065140 49a8bee2 ada.iterator_interfaces%s
+D a-stream.ads		20250808065140 17477cbd ada.streams%s
+D a-string.ads		20250808065140 90ac6797 ada.strings%s
+D a-strmap.ads		20250808065140 1f91ebb6 ada.strings.maps%s
+D a-strsea.ads		20250808065140 18c3c634 ada.strings.search%s
+D a-sttebu.ads		20250808065140 f1ad67a2 ada.strings.text_buffers%s
+D a-strunb.ads		20250808065140 b10770ab ada.strings.unbounded%s
+D a-stuten.ads		20250808065140 c6ced0ae ada.strings.utf_encoding%s
+D a-tags.ads		20250808065140 fbca0ad5 ada.tags%s
+D a-unccon.ads		20250808065140 0e9b276f ada.unchecked_conversion%s
+D editor.ads		20260612145959 16f844c2 editor%s
+D editor-ada_language_model.ads  20260612145959 459f92c3 editor.ada_language_model%s
+D editor-ada_project_index.ads  20260612145959 3ad143b9 editor.ada_project_index%s
+D editor-ada_syntax_tree.ads  20260612145959 49a76ced editor.ada_syntax_tree%s
+D editor-bookmarks.ads	20260612145959 4e695f4d editor.bookmarks%s
+D editor-buffer_switcher.ads  20260612152524 fd053b33 editor.buffer_switcher%s
+D editor-buffer_types.ads  20260612151710 a555405e editor.buffer_types%s
+D editor-buffers.ads	20260612185530 1a6b6e4c editor.buffers%s
+D editor-build_candidates.ads  20260612145959 dc89ea7b editor.build_candidates%s
+D editor-build_output_details.ads  20260612145959 0f4ba402 editor.build_output_details%s
+D editor-build_process_control.ads  20260612145959 28661204 editor.build_process_control%s
+D editor-build_result_summary.ads  20260612145959 94fc95d2 editor.build_result_summary%s
+D editor-build_runner_policy.ads  20260612145959 623f26a9 editor.build_runner_policy%s
+D editor-build_ui.ads	20260612152524 28a54496 editor.build_ui%s
+D editor-build_working_context.ads  20260612145959 cef9cea9 editor.build_working_context%s
+D editor-commands.ads	20260612173240 3b5e3f44 editor.commands%s
+D editor-cursors.ads	20260612145959 1f938cf3 editor.cursors%s
+D editor-diagnostics.ads  20260612145959 41767a50 editor.diagnostics%s
+D editor-dirty_guards.ads  20260612145959 2f2ee9d0 editor.dirty_guards%s
+D editor-dirty_lines.ads  20260612145959 fa543a8e editor.dirty_lines%s
+D editor-external_producers.ads  20260612152524 38bdba64 editor.external_producers%s
+D editor-feature_diagnostics.ads  20260612145959 9dd4f8ea editor.feature_diagnostics%s
+D editor-feature_messages.ads  20260612145959 2c7a5943 editor.feature_messages%s
+D editor-feature_panel.ads  20260612145959 0bdf4cfc editor.feature_panel%s
+D editor-feature_search_results.ads  20260612152524 38c78314 editor.feature_search_results%s
+D editor-feature_targets.ads  20260612145959 c8e21703 editor.feature_targets%s
+D editor-file_tree.ads	20260612145959 e6abdf66 editor.file_tree%s
+D editor-file_tree_view.ads  20260612145959 99db49c3 editor.file_tree_view%s
+D editor-folding.ads	20260612145959 860f30d0 editor.folding%s
+D editor-go_to_line.ads	20260612145959 c07ea03c editor.go_to_line%s
+D editor-guided_prompts.ads  20260612145959 34cab40b editor.guided_prompts%s
+D editor-gutter_markers.ads  20260612145959 304c4eae editor.gutter_markers%s
+D editor-history.ads	20260612145959 b546dbc4 editor.history%s
+D editor-input_field.ads  20260612145959 04b03a00 editor.input_field%s
+D editor-keybindings.ads  20260612145959 2657f44d editor.keybindings%s
+D editor-layout.ads	20260612145959 68c2e77a editor.layout%s
+D editor-message_producers.ads  20260612145959 13bc4c71 editor.message_producers%s
+D editor-message_producers.adb  20260612145959 96009844 editor.message_producers%b
+D editor-messages.ads	20260612151413 205b1944 editor.messages%s
+D editor-navigation_history.ads  20260612145959 b0e3398a editor.navigation_history%s
+D editor-outline.ads	20260612152524 90a00201 editor.outline%s
+D editor-overlay_focus.ads  20260612145959 92ec945e editor.overlay_focus%s
+D editor-panel_focus.ads  20260612145959 a6c95284 editor.panel_focus%s
+D editor-panels.ads	20260612145959 66614da0 editor.panels%s
+D editor-pending_transitions.ads  20260612145959 81c78960 editor.pending_transitions%s
+D editor-problems.ads	20260612145959 a9a08157 editor.problems%s
+D editor-producer_contracts.ads  20260612145959 c3ee4501 editor.producer_contracts%s
+D editor-project.ads	20260612145959 f4d50f6d editor.project%s
+D editor-project_search.ads  20260612152451 857df5ab editor.project_search%s
+D editor-project_search_bar.ads  20260612145959 c5c12f77 editor.project_search_bar%s
+D editor-quick_open.ads	20260612151807 878ba83c editor.quick_open%s
+D editor-recent_buffers.ads  20260612145959 617e4612 editor.recent_buffers%s
+D editor-recent_projects.ads  20260612145959 ee1155f5 editor.recent_projects%s
+D editor-search.ads	20260612145959 dac0e204 editor.search%s
+D editor-search_results.ads  20260612145959 98eded1d editor.search_results%s
+D editor-settings.ads	20260612145959 c2103809 editor.settings%s
+D editor-state.ads	20260612170622 4c537118 editor.state%s
+D editor-status_bar.ads	20260612145959 879f0640 editor.status_bar%s
+D editor-syntax.ads	20260612145959 d59b0303 editor.syntax%s
+D editor-syntax_cache.ads  20260612164742 637f2470 editor.syntax_cache%s
+D editor-syntax_semantics.ads  20260612145959 a499b10a editor.syntax_semantics%s
+D editor-tab_bar.ads	20260612151839 e26dca3d editor.tab_bar%s
+D editor-unicode.ads	20260612145959 552ff3cc editor.unicode%s
+D editor-view_types.ads	20260612152152 f3042ec7 editor.view_types%s
+D editor-workspace_persistence.ads  20260612145959 455ffd61 editor.workspace_persistence%s
+D editor-wrap.ads	20260612145959 87db665a editor.wrap%s
+D interfac.ads		20250808065140 9111f9c1 interfaces%s
+D i-c.ads		20250808065140 e94c966a interfaces.c%s
+D system.ads		20250808065140 14286b0f system%s
+D s-atocou.ads		20250808065140 dc18efc3 system.atomic_counters%s
+D s-exctab.ads		20250808065140 91bef6ef system.exception_table%s
+D s-finpri.ads		20250808065140 5970d55a system.finalization_primitives%s
+D s-finroo.ads		20250808065140 0a7c3ed4 system.finalization_root%s
+D s-oscons.ads		20250827122531 068e1a91 system.os_constants%s
+D s-oslock.ads		20250808065140 13fa6b78 system.os_locks%s
+D s-parame.ads		20250808065140 3597fc11 system.parameters%s
+D s-pooglo.ads		20250808065140 91708d21 system.pool_global%s
+D s-putima.ads		20250808065140 17291fe4 system.put_images%s
+D s-retsta.ads		20250808065140 0f6b06cb system.return_stack%s
+D s-secsta.ads		20250808065140 578279f5 system.secondary_stack%s
+D s-soflin.ads		20250808065140 5d88fdea system.soft_links%s
+D s-stache.ads		20250808065140 0b81c1fe system.stack_checking%s
+D s-stalib.ads		20250808065140 1c9580f6 system.standard_library%s
+D s-stoele.ads		20250808065140 ccded4e8 system.storage_elements%s
+D s-stopoo.ads		20250808065140 e9fa2dd8 system.storage_pools%s
+D s-stratt.ads		20250808065140 516607ae system.stream_attributes%s
+D s-traent.ads		20250808065140 c81cbf8c system.traceback_entries%s
+D s-unstyp.ads		20250808065140 fa2a7f59 system.unsigned_types%s
+D text_backend.ads	20260612145959 6d0030da text_backend%s
+D text_backend-rope_impl.ads  20260612145959 0f5d7663 text_backend.rope_impl%s
+D text_buffer.ads	20260612145959 bb9a4056 text_buffer%s
+G a e
+G c Z s b [normalize_message_source editor__message_producers 12 13 none]
+G c Z s b [post_message_with_result editor__message_producers 14 13 none]
+G c Z s b [post_targeted_message_with_result editor__message_producers 22 13 none]
+G c Z s b [post_message editor__message_producers 32 14 none]
+G c Z s b [post_targeted_message editor__message_producers 39 14 none]
+G c Z b b [reproject_if_active editor__message_producers 13 14 none]
+G r c none [normalize_message_source editor__message_producers 12 13 none] [normalize_producer_source editor__producer_contracts 45 13 none]
+G r c none [post_message_with_result editor__message_producers 14 13 none] [normalize_producer_text editor__producer_contracts 43 13 none]
+G r c none [post_message_with_result editor__message_producers 14 13 none] [normalize_producer_source editor__producer_contracts 45 13 none]
+G r c none [post_message_with_result editor__message_producers 14 13 none] [rejected_empty_text editor__producer_contracts 39 13 none]
+G r c none [post_message_with_result editor__message_producers 14 13 none] [add_message editor__feature_messages 47 14 none]
+G r c none [post_message_with_result editor__message_producers 14 13 none] [reconcile_messages_after_row_change editor__feature_messages 68 14 none]
+G r c none [post_message_with_result editor__message_producers 14 13 none] [accepted_untargeted editor__producer_contracts 37 13 none]
+G r c none [post_targeted_message_with_result editor__message_producers 22 13 none] [normalize_producer_text editor__producer_contracts 43 13 none]
+G r c none [post_targeted_message_with_result editor__message_producers 22 13 none] [normalize_producer_source editor__producer_contracts 45 13 none]
+G r c none [post_targeted_message_with_result editor__message_producers 22 13 none] [validate_buffer_target_for_feature_row editor__feature_targets 12 13 none]
+G r c none [post_targeted_message_with_result editor__message_producers 22 13 none] [rejected_empty_text editor__producer_contracts 39 13 none]
+G r c none [post_targeted_message_with_result editor__message_producers 22 13 none] [add_message editor__feature_messages 47 14 none]
+G r c none [post_targeted_message_with_result editor__message_producers 22 13 none] [reconcile_messages_after_row_change editor__feature_messages 68 14 none]
+G r c none [post_targeted_message_with_result editor__message_producers 22 13 none] [accepted editor__producer_contracts 35 13 none]
+G r c none [post_targeted_message_with_result editor__message_producers 22 13 none] [accepted_untargeted editor__producer_contracts 37 13 none]
+G r c none [post_message editor__message_producers 32 14 none] [normalize_producer_text editor__producer_contracts 43 13 none]
+G r c none [post_message editor__message_producers 32 14 none] [normalize_producer_source editor__producer_contracts 45 13 none]
+G r c none [post_message editor__message_producers 32 14 none] [rejected_empty_text editor__producer_contracts 39 13 none]
+G r c none [post_message editor__message_producers 32 14 none] [add_message editor__feature_messages 47 14 none]
+G r c none [post_message editor__message_producers 32 14 none] [reconcile_messages_after_row_change editor__feature_messages 68 14 none]
+G r c none [post_message editor__message_producers 32 14 none] [accepted_untargeted editor__producer_contracts 37 13 none]
+G r c none [post_targeted_message editor__message_producers 39 14 none] [normalize_producer_text editor__producer_contracts 43 13 none]
+G r c none [post_targeted_message editor__message_producers 39 14 none] [normalize_producer_source editor__producer_contracts 45 13 none]
+G r c none [post_targeted_message editor__message_producers 39 14 none] [validate_buffer_target_for_feature_row editor__feature_targets 12 13 none]
+G r c none [post_targeted_message editor__message_producers 39 14 none] [rejected_empty_text editor__producer_contracts 39 13 none]
+G r c none [post_targeted_message editor__message_producers 39 14 none] [add_message editor__feature_messages 47 14 none]
+G r c none [post_targeted_message editor__message_producers 39 14 none] [reconcile_messages_after_row_change editor__feature_messages 68 14 none]
+G r c none [post_targeted_message editor__message_producers 39 14 none] [accepted editor__producer_contracts 35 13 none]
+G r c none [post_targeted_message editor__message_producers 39 14 none] [accepted_untargeted editor__producer_contracts 37 13 none]
+G r c none [reproject_if_active editor__message_producers 13 14 none] [reconcile_messages_after_row_change editor__feature_messages 68 14 none]
+X 10 a-iteint.ads
+24h9 Forward_Iterator
+32h9 Reversible_Iterator<24R9[7|119]>
+X 16 a-strunb.ads
+269V14*"="{boolean} 7|65i19
+X 20 editor.ads
+1K9*Editor 5e11 56|1r6 2r6 3r6 5r9 7r32 8r35 9r31 10r38 15r25 19r41 23r25
+. 33r25 37r41 40r25 49r5 57|1r6 2r6 3r6 4r6 6r14 10r14 14r22 17r7 22r25 26r41
+. 30r9 34r17 37r7 44r14 48r25 58r9 60r31 61r9 65r17 68r7 80r17 82r17 87r25
+. 91r41 101r25 118r5
+X 42 editor-feature_messages.ads
+5K16*Feature_Messages 284e28 56|1w13 7r39 8r42 19r48 37r48 57|3w13 17r14
+. 26r48 37r14 68r14 91r48
+21E9*Message_Severity 24e21 56|7r56
+29E9*Message_Source_Kind 35e22 56|8r59
+35n7*Unknown_Source{29E9} 56|19r65 37r65 57|26r65 91r65
+47U14*Add_Message 57|37s31 68s31
+48r7 Messages{42R9} 57|38r10 69r10
+49e7 Severity{21E9} 57|39r10 70r10
+50a7 Text{string} 57|40r10 71r10
+51a7 Source{string} 57|41r10 72r10
+52b7 Has_Target{boolean} 57|73r10
+53i7 Buffer{natural} 57|74r10
+54i7 Line{natural} 57|75r10
+55i7 Column{natural} 57|76r10
+56e7 Source_Kind{29E9} 57|42r10 77r10
+68U14*Reconcile_Messages_After_Row_Change 57|17s31
+X 43 editor-feature_panel.ads
+4K16*Feature_Panel 696e25 57|2w13
+X 45 editor-feature_targets.ads
+3K16*Feature_Targets 23e27 57|1w13 60r38 61r16
+5R9*Feature_Row_Target_Validation 10e14 57|60r54
+6b7*Valid{boolean} 57|73r32 79r17
+7i7*Buffer{natural} 57|74r32
+8i7*Line{natural} 57|75r32
+9i7*Column{natural} 57|76r32
+12V13*Validate_Buffer_Target_For_Feature_Row{5R9} 57|61s32
+X 56 editor-message_producers.ads
+5K16*Message_Producers 20|1k9 56|49l12 49e29 57|6b21 118l12 118t29
+7E12*Message_Severity{42|21E9} 16r18 24r18 34r18 41r18 57|23r18 49r18 88r18
+. 102r18
+8E12*Message_Source_Kind{42|29E9} 19r18 27r18 37r18 44r18 57|26r18 52r18
+. 91r18 105r18
+9R12*Producer_Result{66|29R9} 20r14 30r34 57|27r14 55r34 93r25 110r25
+10E12*Producer_Result_Status{66|23E9}
+12V13*Normalize_Message_Source{string} 12>39 57|8b13 11l8 11t32 31s41 59s41
+12a39 Source{string} 57|8b39 10r67
+14V13*Post_Message_With_Result{9R12} 15=7 16>7 17>7 18>7 19>7 57|21b13 45l8
+. 45t32 94s9
+15r7 State{76|115R9} 57|22b7 38m25 38r25 43m28
+16e7 Severity{7E12} 57|23b7 39r25
+17a7 Text{string} 57|24b7 30r60
+18a7 Source{string} 57|25b7 31r67
+19e7 Kind{8E12} 57|26b7 42r25
+22V13*Post_Targeted_Message_With_Result{9R12} 23=7 24>7 25>7 26>7 27>7 28>7
+. 29>7 30>7 57|47b13 84l8 84t41 111s9
+23r7 State{76|115R9} 57|48b7 62r12 69m25 69r25 78m28
+24e7 Severity{7E12} 57|49b7 70r25
+25a7 Text{string} 57|50b7 58r60
+26a7 Source{string} 57|51b7 59r67
+27e7 Kind{8E12} 57|52b7 77r25
+28i7 Buffer{natural} 57|53b7 62r19
+29i7 Line{natural} 57|54b7 62r27
+30i7 Column{natural} 57|55b7 62r33
+32U14*Post_Message 33=7 34>7 35>7 36>7 37>7 57|86b14 98l8 98t20
+33r7 State{76|115R9} 57|87b7 94m35 94r35
+34e7 Severity{7E12} 57|88b7 94r42
+35a7 Text{string} 57|89b7 94r52
+36a7 Source{string} 57|90b7 94r58
+37e7 Kind{8E12} 57|91b7 94r66
+39U14*Post_Targeted_Message 40=7 41>7 42>7 43>7 44>7 45>7 46>7 47>7 57|100b14
+. 116l8 116t29
+40r7 State{76|115R9} 57|101b7 112m12 112r12
+41e7 Severity{7E12} 57|102b7 112r19
+42a7 Text{string} 57|103b7 112r29
+43a7 Source{string} 57|104b7 112r35
+44e7 Kind{8E12} 57|105b7 112r43
+45i7 Buffer{natural} 57|106b7 112r49
+46i7 Line{natural} 57|107b7 112r57
+47i7 Column{natural} 57|108b7 112r63
+X 57 editor-message_producers.adb
+13U14 Reproject_If_Active 13b14 14=7 19l8 19t27 43s7 78s7
+14r7 State{76|115R9} 18r10 18m34 18r34
+29a7 Clean_Text{string} 33r10 40r25
+31a7 Clean_Source{string} 41r25
+57a7 Clean_Text{string} 64r10 71r25
+59a7 Clean_Source{string} 72r25
+60r7 Target{45|5R9} 73r25 74r25 75r25 76r25 79r10
+93r7 Result{56|9R12} 95r28
+110r7 Result{56|9R12} 113r28
+X 66 editor-producer_contracts.ads
+1K16*Producer_Contracts 56|2w13 9r38 10r45 57|4w13 10r21 30r16 34r24 44r21
+. 58r16 65r24 80r24 82r24 66|47e30
+23E9*Producer_Result_Status 56|10r64 66|27e39
+29R9*Producer_Result 56|9r57 66|33e14
+35V13*Accepted{29R9} 57|80s43
+37V13*Accepted_Untargeted{29R9} 57|44s40 82s43
+39V13*Rejected_Empty_Text{29R9} 57|34s43 65s43
+43V13*Normalize_Producer_Text{string} 57|30s35 58s35
+45V13*Normalize_Producer_Source{string} 57|10s40
+X 76 editor-state.ads
+51K16*State 56|3w13 15r32 23r32 33r32 40r32 57|14r29 22r32 48r32 87r32 101r32
+. 76|610e17
+115R9*State_Type 56|15r38 23r38 33r38 40r38 57|14r35 22r38 48r38 87r38 101r38
+. 76|366e14
+156r7*Feature_Panel{43|119R9} 57|18m40
+158r7*Feature_Messages{42|42R9} 57|18r16 38m31 69m31
+

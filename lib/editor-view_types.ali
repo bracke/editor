@@ -1,0 +1,37 @@
+V "GNAT Lib v15"
+A -gnatA
+A -gnat2022
+A -mtune=generic
+A -march=x86-64
+P ZX
+
+RN
+RV NO_FLOATING_POINT
+RV NO_IMPLEMENTATION_PRAGMAS
+
+U editor.view_types%s	editor-view_types.ads	62270c5f NE OO PK
+W editor%s		editor.ads		editor.ali
+W editor.wrap%s		editor-wrap.adb		editor-wrap.ali
+
+D editor.ads		20260612145959 16f844c2 editor%s
+D editor-view_types.ads	20260612152152 f3042ec7 editor.view_types%s
+D editor-wrap.ads	20260612145959 87db665a editor.wrap%s
+D system.ads		20250808065140 14286b0f system%s
+G a e
+G c Z s s [view_stateIP editor__view_types 5 9 none]
+X 1 editor.ads
+1K9*Editor 5e11 2|1r6 3r9 11r25 11r50 14r5
+X 2 editor-view_types.ads
+3K16*View_Types 1|1k9 2|14l12 14e22
+5R9*View_State 12e14
+6i7*Scroll_X{natural}
+7i7*Scroll_Y{natural}
+8f7*Visual_Scroll_X{float}
+9f7*Visual_Scroll_Y{float}
+10b7*User_Scroll_Y_Override{boolean}
+11e7*Wrap_Mode{3|4E9}
+X 3 editor-wrap.ads
+1K16*Wrap 2|1w13 11r32 11r57 3|65e16
+4E9*Wrap_Mode 2|11r37 3|6e24
+5n7*Wrap_None{4E9} 2|11r62
+

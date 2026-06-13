@@ -1,0 +1,76 @@
+V "GNAT Lib v15"
+A -gnatA
+A -gnat2022
+A -mtune=generic
+A -march=x86-64
+P ZX
+
+RN
+RV NO_IMPLEMENTATION_PRAGMAS
+
+U editor.font_bridge%b	editor-font_bridge.adb	a5cabddd NE OO PK
+W editor%s		editor.ads		editor.ali
+W interfaces%s		interfac.ads		interfac.ali
+W interfaces.c%s	i-c.adb			i-c.ali
+Z system%s		system.ads		system.ali
+W textrender%s		textrender.adb		textrender.ali
+
+U editor.font_bridge%s	editor-font_bridge.ads	58347531 EE NE OO PK
+W editor%s		editor.ads		editor.ali
+W interfaces%s		interfac.ads		interfac.ali
+W interfaces.c%s	i-c.adb			i-c.ali
+W system%s		system.ads		system.ali
+
+D ada.ads		20250808065140 76789da1 ada%s
+D a-unccon.ads		20250808065140 0e9b276f ada.unchecked_conversion%s
+D editor.ads		20260406185230 16f844c2 editor%s
+D editor-font_bridge.ads  20260501115143 b3a8cc96 editor.font_bridge%s
+D editor-font_bridge.adb  20260501121046 23fe3406 editor.font_bridge%b
+D interfac.ads		20250808065140 9111f9c1 interfaces%s
+D i-c.ads		20250808065140 e94c966a interfaces.c%s
+D system.ads		20250808065140 14286b0f system%s
+D s-exctab.ads		20250808065140 91bef6ef system.exception_table%s
+D s-parame.ads		20250808065140 3597fc11 system.parameters%s
+D s-stalib.ads		20250808065140 1c9580f6 system.standard_library%s
+D textrender.ads	20260503182052 dcd0d327 textrender%s
+G a e
+G c Z s b [atlas_width editor__font_bridge 6 13 none]
+G c Z s b [atlas_height editor__font_bridge 9 13 none]
+G c Z s b [atlas_pixels editor__font_bridge 12 13 none]
+G c Z s b [atlas_dirty editor__font_bridge 15 13 none]
+G c Z s b [clear_atlas_dirty editor__font_bridge 18 14 none]
+G r c none [atlas_width editor__font_bridge 6 13 none] [atlas_width textrender 223 13 none]
+G r c none [atlas_height editor__font_bridge 9 13 none] [atlas_height textrender 226 13 none]
+G r c none [atlas_pixels editor__font_bridge 12 13 none] [atlas_pixels textrender 235 13 none]
+G r c none [atlas_dirty editor__font_bridge 15 13 none] [atlas_dirty textrender 238 13 none]
+G r c none [clear_atlas_dirty editor__font_bridge 18 14 none] [clear_atlas_dirty textrender 241 14 none]
+X 3 editor.ads
+1K9*Editor 5e11 4|4r9 21r5 5|4r14 35r5
+X 4 editor-font_bridge.ads
+4K16*Font_Bridge 3|1k9 4|21l12 21e23 5|4b21 35l12 35t23
+6V13*Atlas_Width{7|62I9} 7i<c,editor_font_atlas_width>22 5|6b13 9l8 9t19
+9V13*Atlas_Height{7|62I9} 10i<c,editor_font_atlas_height>22 5|11b13 14l8
+. 14t20
+12V13*Atlas_Pixels{8|67M9} 13i<c,editor_font_atlas_pixels>22 5|16b13 19l8
+. 19t20
+15V13*Atlas_Dirty{7|62I9} 16i<c,editor_font_atlas_dirty>22 5|21b13 28l8 28t19
+18U14*Clear_Atlas_Dirty 19i<c,editor_font_clear_atlas_dirty>22 5|30b14 33l8
+. 33t25
+X 6 interfac.ads
+47K9*Interfaces 4|1r6 6r32 9r33 15r32 5|1r6 6r32 8r14 11r33 13r14 21r32 6|247e15
+X 7 i-c.ads
+33K20*C 4|1w17 6r43 9r44 15r43 5|1w17 6r43 8r25 11r44 13r25 21r43 7|601e17
+62I9*int<integer> 4|6r45 9r46 15r45 5|6r45 8r27 11r46 13r27 21r45
+X 8 system.ads
+37K9*System 4|2w6 12r33 5|16r33 8|155e11
+67M9*Address 4|12r40 5|16r40
+X 12 textrender.ads
+87K9*Textrender 5|2w6 8r32 13r32 18r14 23r10 32r7 12|252e15
+108M9*Alpha
+113A9*Alpha_Buffer(108M9)<integer>
+223V13*Atlas_Width{positive} 5|8s43
+226V13*Atlas_Height{positive} 5|13s43
+235V13*Atlas_Pixels(113A9) 5|18s25
+238V13*Atlas_Dirty{boolean} 5|23s21
+241U14*Clear_Atlas_Dirty 5|32s18
+

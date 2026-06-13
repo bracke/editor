@@ -1,0 +1,71 @@
+V "GNAT Lib v15"
+A -gnat2022
+P ZX
+
+RN
+RV NO_STANDARD_STORAGE_POOLS
+RV NO_DYNAMIC_SIZED_OBJECTS
+RV NO_IMPLICIT_LOOPS
+
+U editor.producer_contracts%b  editor-producer_contracts.adb  bfd7a24f NE OO PK
+W ada%s			ada.ads			ada.ali
+W ada.strings%s		a-string.ads		a-string.ali
+W ada.strings.fixed%s	a-strfix.adb		a-strfix.ali
+W editor%s		editor.ads		editor.ali
+
+U editor.producer_contracts%s  editor-producer_contracts.ads  d51601c3 EE NE OO PK
+W editor%s		editor.ads		editor.ali
+
+D ada.ads		20250808065140 76789da1 ada%s
+D a-charac.ads		20250808065140 2d3ec45b ada.characters%s
+D a-chlat1.ads		20250808065140 e0d72e76 ada.characters.latin_1%s
+D a-string.ads		20250808065140 90ac6797 ada.strings%s
+D a-strfix.ads		20250808065140 8648dedb ada.strings.fixed%s
+D a-strmap.ads		20250808065140 1f91ebb6 ada.strings.maps%s
+D a-strsea.ads		20250808065140 18c3c634 ada.strings.search%s
+D a-unccon.ads		20250808065140 0e9b276f ada.unchecked_conversion%s
+D editor.ads		20260612145959 16f844c2 editor%s
+D editor-producer_contracts.ads  20260612145959 c3ee4501 editor.producer_contracts%s
+D editor-producer_contracts.adb  20260612145959 6add5e02 editor.producer_contracts%b
+D system.ads		20250808065140 14286b0f system%s
+D s-exctab.ads		20250808065140 91bef6ef system.exception_table%s
+D s-stalib.ads		20250808065140 1c9580f6 system.standard_library%s
+D s-unstyp.ads		20250808065140 fa2a7f59 system.unsigned_types%s
+G a e
+G c Z s b [accepted editor__producer_contracts 35 13 none]
+G c Z s b [accepted_untargeted editor__producer_contracts 37 13 none]
+G c Z s b [rejected_empty_text editor__producer_contracts 39 13 none]
+G c Z s b [rejected_invalid_state editor__producer_contracts 41 13 none]
+G c Z s b [normalize_producer_text editor__producer_contracts 43 13 none]
+G c Z s b [normalize_producer_source editor__producer_contracts 45 13 none]
+G c Z s s [producer_resultIP editor__producer_contracts 29 9 none]
+X 1 ada.ads
+18K9*Ada 22e8 11|1r6 1r23 2r6 36r14 41r14
+X 4 a-string.ads
+16K13*Strings 35e16 11|1w10 1r27 2r10 36r18 41r18
+33n37*Both{33E9} 11|36r44 41r46
+X 5 a-strfix.ads
+49K21*Fixed 1390e22 11|2w18 36r26 41r26
+1133V13*Trim{string} 11|36s32 41s32
+X 9 editor.ads
+1K9*Editor 5e11 10|1r9 47r5 11|4r14 44r5
+X 10 editor-producer_contracts.ads
+1K16*Producer_Contracts 9|1k9 10|47l12 47e30 11|4b21 44l12 44t30
+23E9*Producer_Result_Status 27e39 30r22
+24n7*Producer_Accepted{23E9} 11|8r31
+25n7*Producer_Accepted_Untargeted{23E9} 11|15r31
+26n7*Producer_Rejected_Empty_Text{23E9} 11|22r31
+27n7*Producer_Rejected_Invalid_State{23E9} 30r48 11|29r31
+29R9*Producer_Result 33e14 35r29 37r40 39r40 41r43 11|6r29 13r40 20r40 27r43
+30e7*Status{23E9} 11|8m15 15m15 22m15 29m15
+31b7*Row_Accepted{boolean} 11|9m15 16m15 23m15 30m15
+32b7*Target_Kept{boolean} 11|10m15 17m15 24m15 31m15
+35V13*Accepted{29R9} 11|6b13 11l8 11t16
+37V13*Accepted_Untargeted{29R9} 11|13b13 18l8 18t27
+39V13*Rejected_Empty_Text{29R9} 11|20b13 25l8 25t27
+41V13*Rejected_Invalid_State{29R9} 11|27b13 32l8 32t30
+43V13*Normalize_Producer_Text{string} 43>38 11|34b13 37l8 37t31
+43a38 Text{string} 11|34b38 36r38
+45V13*Normalize_Producer_Source{string} 45>40 11|39b13 42l8 42t33
+45a40 Source{string} 11|39b40 41r38
+

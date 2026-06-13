@@ -1,0 +1,1129 @@
+V "GNAT Lib v15"
+A -gnat2022
+P SS ZX
+
+RN
+RV NO_DISPATCHING_CALLS
+RV NO_ENUMERATION_MAPS
+RV NO_EXCEPTION_HANDLERS
+RV NO_EXCEPTION_PROPAGATION
+RV NO_EXCEPTIONS
+RV NO_IMPLICIT_CONDITIONALS
+RV NO_NESTED_FINALIZATION
+RV NO_SECONDARY_STACK
+RV NO_STANDARD_STORAGE_POOLS
+RV NO_DEFAULT_INITIALIZATION
+RV NO_DYNAMIC_SIZED_OBJECTS
+RV NO_IMPLEMENTATION_PRAGMAS
+RV NO_IMPLICIT_LOOPS
+RV NO_ELABORATION_CODE
+
+U editor.feature_panel%b  editor-feature_panel.adb  2b8835de OO PK
+W ada%s			ada.ads			ada.ali
+W ada.containers%s	a-contai.ads		a-contai.ali
+Z ada.exceptions%s	a-except.adb		a-except.ali
+W ada.strings%s		a-string.ads		a-string.ali
+Z ada.strings.text_buffers%s  a-sttebu.adb	a-sttebu.ali
+W ada.strings.unbounded%s  a-strunb.adb		a-strunb.ali
+Z ada.tags%s		a-tags.adb		a-tags.ali
+W editor%s		editor.ads		editor.ali
+Z system%s		system.ads		system.ali
+Z system.finalization_primitives%s  s-finpri.adb  s-finpri.ali
+Z system.img_int%s	s-imgint.ads		s-imgint.ali
+Z system.return_stack%s	s-retsta.ads		s-retsta.ali
+Z system.secondary_stack%s  s-secsta.adb	s-secsta.ali
+Z system.soft_links%s	s-soflin.adb		s-soflin.ali
+Z system.standard_library%s  s-stalib.adb	s-stalib.ali
+Z system.storage_elements%s  s-stoele.ads	s-stoele.ali
+
+U editor.feature_panel%s  editor-feature_panel.ads  3ddb3166 EE OO PF PK
+W ada%s			ada.ads			ada.ali
+W ada.containers%s	a-contai.ads		a-contai.ali
+Z ada.containers.generic_array_sort%s
+Z ada.containers.helpers%s  a-conhel.adb	a-conhel.ali
+W ada.containers.vectors%s
+Z ada.exceptions%s	a-except.adb		a-except.ali
+Z ada.finalization%s	a-finali.ads		a-finali.ali
+Z ada.iterator_interfaces%s
+Z ada.streams%s		a-stream.adb		a-stream.ali
+W ada.strings%s		a-string.ads		a-string.ali
+Z ada.strings.text_buffers%s  a-sttebu.adb	a-sttebu.ali
+W ada.strings.unbounded%s  a-strunb.adb		a-strunb.ali
+Z ada.tags%s		a-tags.adb		a-tags.ali
+Z ada.unchecked_deallocation%s
+W editor%s		editor.ads		editor.ali
+Z system%s		system.ads		system.ali
+Z system.finalization_primitives%s  s-finpri.adb  s-finpri.ali
+Z system.pool_global%s	s-pooglo.adb		s-pooglo.ali
+Z system.put_images%s	s-putima.adb		s-putima.ali
+Z system.return_stack%s	s-retsta.ads		s-retsta.ali
+Z system.secondary_stack%s  s-secsta.adb	s-secsta.ali
+Z system.soft_links%s	s-soflin.adb		s-soflin.ali
+Z system.standard_library%s  s-stalib.adb	s-stalib.ali
+Z system.storage_elements%s  s-stoele.ads	s-stoele.ali
+Z system.storage_pools%s  s-stopoo.adb		s-stopoo.ali
+Z system.storage_pools.subpools%s  s-stposu.adb	s-stposu.ali
+Z system.stream_attributes%s  s-stratt.adb	s-stratt.ali
+Z system.strings.stream_ops%s  s-ststop.adb	s-ststop.ali
+Z system.wch_stw%s	s-wchstw.adb		s-wchstw.ali
+
+D ada.ads		20250808065140 76789da1 ada%s
+D a-charac.ads		20250808065140 2d3ec45b ada.characters%s
+D a-chlat1.ads		20250808065140 e0d72e76 ada.characters.latin_1%s
+D a-contai.ads		20250808065140 61e5e089 ada.containers%s
+D a-cgarso.ads		20250808065140 9129bfa8 ada.containers.generic_array_sort%s
+D a-conhel.ads		20250808065140 46fe1ce3 ada.containers.helpers%s
+D a-conhel.adb		20250808065140 854d323e ada.containers.helpers%b
+D a-convec.ads		20250808065140 91fb49f3 ada.containers.vectors%s
+D a-convec.adb		20250808065140 b2ed0168 ada.containers.vectors%b
+D a-except.ads		20250808065140 e7970cd9 ada.exceptions%s
+D a-finali.ads		20250808065140 bf4f806b ada.finalization%s
+D a-iteint.ads		20250808065140 49a8bee2 ada.iterator_interfaces%s
+D a-stream.ads		20250808065140 17477cbd ada.streams%s
+D a-string.ads		20250808065140 90ac6797 ada.strings%s
+D a-strmap.ads		20250808065140 1f91ebb6 ada.strings.maps%s
+D a-strsea.ads		20250808065140 18c3c634 ada.strings.search%s
+D a-sttebu.ads		20250808065140 f1ad67a2 ada.strings.text_buffers%s
+D a-strunb.ads		20250808065140 b10770ab ada.strings.unbounded%s
+D a-stuten.ads		20250808065140 c6ced0ae ada.strings.utf_encoding%s
+D a-tags.ads		20250808065140 fbca0ad5 ada.tags%s
+D a-unccon.ads		20250808065140 0e9b276f ada.unchecked_conversion%s
+D a-uncdea.ads		20250808065140 c3a8ac65 ada.unchecked_deallocation%s
+D editor.ads		20260612145959 16f844c2 editor%s
+D editor-feature_panel.ads  20260612145959 0bdf4cfc editor.feature_panel%s
+D editor-feature_panel.adb  20260612145959 f0b5e900 editor.feature_panel%b
+D interfac.ads		20250808065140 9111f9c1 interfaces%s
+D i-c.ads		20250808065140 e94c966a interfaces.c%s
+D system.ads		20250808065140 14286b0f system%s
+D s-atocou.ads		20250808065140 dc18efc3 system.atomic_counters%s
+D s-atocou.adb		20250808065140 6fe685de system.atomic_counters%b
+D s-atopri.ads		20250808065140 e19c1d89 system.atomic_primitives%s
+D s-exctab.ads		20250808065140 91bef6ef system.exception_table%s
+D s-finpri.ads		20250808065140 5970d55a system.finalization_primitives%s
+D s-finroo.ads		20250808065140 0a7c3ed4 system.finalization_root%s
+D s-imagei.ads		20250808065140 5e131ce0 system.image_i%s
+D s-imgint.ads		20250808065140 67e4edfb system.img_int%s
+D s-memory.ads		20250808065140 18949c1a system.memory%s
+D s-oscons.ads		20250827122531 068e1a91 system.os_constants%s
+D s-oslock.ads		20250808065140 13fa6b78 system.os_locks%s
+D s-parame.ads		20250808065140 3597fc11 system.parameters%s
+D s-pooglo.ads		20250808065140 91708d21 system.pool_global%s
+D s-putima.ads		20250808065140 17291fe4 system.put_images%s
+D s-retsta.ads		20250808065140 0f6b06cb system.return_stack%s
+D s-secsta.ads		20250808065140 578279f5 system.secondary_stack%s
+D s-soflin.ads		20250808065140 5d88fdea system.soft_links%s
+D s-stache.ads		20250808065140 0b81c1fe system.stack_checking%s
+D s-stalib.ads		20250808065140 1c9580f6 system.standard_library%s
+D s-stalib.adb		20250808065140 eb464a47 system.standard_library%b
+D s-stoele.ads		20250808065140 ccded4e8 system.storage_elements%s
+D s-stopoo.ads		20250808065140 e9fa2dd8 system.storage_pools%s
+D s-stposu.ads		20250808065140 e0b9fefd system.storage_pools.subpools%s
+D s-stratt.ads		20250808065140 516607ae system.stream_attributes%s
+D s-string.ads		20250808065140 582aac7d system.strings%s
+D s-ststop.ads		20250808065140 c569db7c system.strings.stream_ops%s
+D s-traent.ads		20250808065140 c81cbf8c system.traceback_entries%s
+D s-unstyp.ads		20250808065140 fa2a7f59 system.unsigned_types%s
+D s-valspe.ads		20250808065140 f810d31c system.val_spec%s
+D s-vaispe.ads		20250808065140 8280550e system.value_i_spec%s
+D s-vauspe.ads		20250808065140 89269ba5 system.value_u_spec%s
+D s-vs_int.ads		20250808065140 06b6b724 system.vs_int%s
+D s-vs_uns.ads		20250808065140 e7f47a27 system.vs_uns%s
+D s-wchcon.ads		20250808065140 d9032363 system.wch_con%s
+D s-wchstw.ads		20250808065140 2d112c01 system.wch_stw%s
+G a e
+G c Z s b [is_known_feature editor__feature_panel 142 13 none]
+G c Z s b [feature_descriptor_count editor__feature_panel 144 13 none]
+G c Z s b [descriptor_id editor__feature_panel 146 13 none]
+G c Z s b [feature_stable_name editor__feature_panel 148 13 none]
+G c Z s b [feature_display_label editor__feature_panel 150 13 none]
+G c Z s b [feature_supports_rows editor__feature_panel 152 13 none]
+G c Z s b [feature_can_clear editor__feature_panel 154 13 none]
+G c Z s b [active_feature editor__feature_panel 156 13 none]
+G c Z s b [save_active_feature_view_state editor__feature_panel 163 14 none]
+G c Z s b [restore_active_feature_view_state editor__feature_panel 170 14 none]
+G c Z s b [forget_feature_view_state editor__feature_panel 176 14 none]
+G c Z s b [forget_active_feature_view_state editor__feature_panel 180 14 none]
+G c Z s b [clear_visible_selection_for_feature_switch editor__feature_panel 187 14 none]
+G c Z s b [set_active_feature editor__feature_panel 189 13 none]
+G c Z s b [build_feature_projection_token editor__feature_panel 193 13 none]
+G c Z s b [validate_feature_projection_token editor__feature_panel 196 13 none]
+G c Z s b [invariant_holds editor__feature_panel 204 13 none]
+G c Z s b [summary editor__feature_panel 210 13 none]
+G c Z s b [fingerprint editor__feature_panel 218 13 none]
+G c Z s b [is_selected_row editor__feature_panel 226 13 none]
+G c Z s b [debug_summary editor__feature_panel 234 13 none]
+G c Z s b [clear editor__feature_panel 239 14 none]
+G c Z s b [reset_for_project_close editor__feature_panel 248 14 none]
+G c Z s b [set_visible editor__feature_panel 255 14 none]
+G c Z s b [is_visible editor__feature_panel 264 13 none]
+G c Z s b [set_focused editor__feature_panel 271 14 none]
+G c Z s b [is_focused editor__feature_panel 278 13 none]
+G c Z s b [clear_rows editor__feature_panel 286 14 none]
+G c Z s b [set_header_text editor__feature_panel 289 14 none]
+G c Z s b [header_text editor__feature_panel 293 13 none]
+G c Z s b [append_row editor__feature_panel 302 14 none]
+G c Z s b [projection_generation editor__feature_panel 323 13 none]
+G c Z s b [projection_generation_matches editor__feature_panel 334 13 none]
+G c Z s b [projection_token_matches editor__feature_panel 338 13 none]
+G c Z s b [projection_row_index_is_valid editor__feature_panel 348 13 none]
+G c Z s b [reveal_row_index_is_valid editor__feature_panel 358 13 none]
+G c Z s b [row_is_selectable editor__feature_panel 362 13 none]
+G c Z s b [has_selectable_row editor__feature_panel 366 13 none]
+G c Z s b [row_is_activatable editor__feature_panel 369 13 none]
+G c Z s b [row_has_target editor__feature_panel 373 13 none]
+G c Z s b [row_is_diagnostic editor__feature_panel 377 13 none]
+G c Z s b [row_can_open editor__feature_panel 381 13 none]
+G c Z s b [row_can_copy editor__feature_panel 385 13 none]
+G c Z s b [row_can_clear editor__feature_panel 389 13 none]
+G c Z s b [has_clearable_row editor__feature_panel 396 13 none]
+G c Z s b [row_can_reveal editor__feature_panel 399 13 none]
+G c Z s b [row_actions editor__feature_panel 403 13 none]
+G c Z s b [row_source_index editor__feature_panel 407 13 none]
+G c Z s b [row_severity editor__feature_panel 411 13 none]
+G c Z s b [row_count editor__feature_panel 418 13 none]
+G c Z s b [selected_row editor__feature_panel 424 13 none]
+G c Z s b [select_first editor__feature_panel 430 14 none]
+G c Z s b [select_row editor__feature_panel 437 14 none]
+G c Z s b [select_next editor__feature_panel 444 14 none]
+G c Z s b [select_previous editor__feature_panel 450 14 none]
+G c Z s b [has_selection editor__feature_panel 456 13 none]
+G c Z s b [empty_message editor__feature_panel 462 13 none]
+G c Z s b [row_kind editor__feature_panel 469 13 none]
+G c Z s b [row_label editor__feature_panel 477 13 none]
+G c Z s b [row_detail editor__feature_panel 485 13 none]
+G c Z s b [row_is_current_symbol editor__feature_panel 492 13 none]
+G c Z s b [request_reveal_row editor__feature_panel 499 14 none]
+G c Z s b [request_reveal_row editor__feature_panel 503 14 none]
+G c Z s b [requested_reveal_row editor__feature_panel 510 13 none]
+G c Z s b [clear_reveal_request editor__feature_panel 514 14 none]
+G c Z s b [set_visible_row_count editor__feature_panel 519 14 none]
+G c Z s b [visible_row_count editor__feature_panel 523 13 none]
+G c Z s b [first_visible_row editor__feature_panel 526 13 none]
+G c Z s b [visible_row_to_row_index editor__feature_panel 532 13 none]
+G c Z s b [reveal_row editor__feature_panel 540 14 none]
+G c Z s b [clamp_viewport editor__feature_panel 546 14 none]
+G c Z s b [scroll_by editor__feature_panel 551 14 none]
+G c Z s b [apply_pending_reveal editor__feature_panel 557 14 none]
+G c Z s b [build_render_snapshot editor__feature_panel 565 13 none]
+G c Z s b [snapshot_is_visible editor__feature_panel 569 13 none]
+G c Z s b [snapshot_is_focused editor__feature_panel 573 13 none]
+G c Z s b [snapshot_header_text editor__feature_panel 576 13 none]
+G c Z s b [snapshot_projection_generation editor__feature_panel 579 13 none]
+G c Z s b [snapshot_first_visible_row editor__feature_panel 582 13 none]
+G c Z s b [snapshot_visible_row_count editor__feature_panel 585 13 none]
+G c Z s b [snapshot_row_count editor__feature_panel 589 13 none]
+G c Z s b [snapshot_empty_message editor__feature_panel 593 13 none]
+G c Z s b [snapshot_row_selected editor__feature_panel 597 13 none]
+G c Z s b [snapshot_row_is_current_symbol editor__feature_panel 601 13 none]
+G c Z s b [snapshot_row_label editor__feature_panel 606 13 none]
+G c Z s b [snapshot_row_detail editor__feature_panel 611 13 none]
+G c Z s b [snapshot_row_severity editor__feature_panel 615 13 none]
+G c Z s b [snapshot_row_can_open editor__feature_panel 619 13 none]
+G c Z s b [snapshot_row_can_copy editor__feature_panel 623 13 none]
+G c Z s b [snapshot_row_can_clear editor__feature_panel 627 13 none]
+G c Z s b [snapshot_row_can_reveal editor__feature_panel 631 13 none]
+G c Z s b [message_feature_panel_shown editor__feature_panel 638 13 none]
+G c Z s b [message_feature_panel_hidden editor__feature_panel 639 13 none]
+G c Z s b [message_feature_panel_focused editor__feature_panel 640 13 none]
+G c Z s b [message_feature_panel_cleared editor__feature_panel 641 13 none]
+G c Z s b [message_feature_panel_row_has_no_target editor__feature_panel 642 13 none]
+G c Z s b [reason_feature_panel_hidden editor__feature_panel 646 13 none]
+G c Z s b [reason_feature_panel_already_shown editor__feature_panel 647 13 none]
+G c Z s b [reason_feature_panel_already_focused editor__feature_panel 648 13 none]
+G c Z s b [reason_no_feature_panel_rows editor__feature_panel 649 13 none]
+G c Z s b [reason_no_feature_panel_row_selected editor__feature_panel 650 13 none]
+G c Z s s [feature_panel_rowDI editor__feature_panel 78 9 none]
+G c Z s s [feature_panel_rowDA editor__feature_panel 78 9 none]
+G c Z s s [feature_panel_rowDF editor__feature_panel 78 9 none]
+G c Z s s [feature_panel_rowIP editor__feature_panel 78 9 none]
+G c Z s s [has_element editor__feature_panel__row_vectors 115 13 661_4]
+G c Z s s [empty editor__feature_panel__row_vectors 125 13 661_4]
+G c Z s s [Oeq editor__feature_panel__row_vectors 127 24 661_4]
+G c Z s s [to_vector editor__feature_panel__row_vectors 136 13 661_4]
+G c Z s s [to_vector editor__feature_panel__row_vectors 139 13 661_4]
+G c Z s s [Oconcat editor__feature_panel__row_vectors 145 13 661_4]
+G c Z s s [Oconcat editor__feature_panel__row_vectors 149 13 661_4]
+G c Z s s [Oconcat editor__feature_panel__row_vectors 153 13 661_4]
+G c Z s s [Oconcat editor__feature_panel__row_vectors 157 13 661_4]
+G c Z s s [capacity editor__feature_panel__row_vectors 161 13 661_4]
+G c Z s s [reserve_capacity editor__feature_panel__row_vectors 164 14 661_4]
+G c Z s s [length editor__feature_panel__row_vectors 175 13 661_4]
+G c Z s s [set_length editor__feature_panel__row_vectors 178 14 661_4]
+G c Z s s [is_empty editor__feature_panel__row_vectors 187 13 661_4]
+G c Z s s [clear editor__feature_panel__row_vectors 190 14 661_4]
+G c Z s s [to_cursor editor__feature_panel__row_vectors 194 13 661_4]
+G c Z s s [to_index editor__feature_panel__row_vectors 201 13 661_4]
+G c Z s s [element editor__feature_panel__row_vectors 206 13 661_4]
+G c Z s s [element editor__feature_panel__row_vectors 213 13 661_4]
+G c Z s s [replace_element editor__feature_panel__row_vectors 217 14 661_4]
+G c Z s s [replace_element editor__feature_panel__row_vectors 228 14 661_4]
+G c Z s s [query_element editor__feature_panel__row_vectors 239 14 661_4]
+G c Z s s [query_element editor__feature_panel__row_vectors 250 14 661_4]
+G c Z s s [update_element editor__feature_panel__row_vectors 259 14 661_4]
+G c Z s s [update_element editor__feature_panel__row_vectors 276 14 661_4]
+G c Z s s [constant_reference editor__feature_panel__row_vectors 303 13 661_4]
+G c Z s s [reference editor__feature_panel__row_vectors 308 13 661_4]
+G c Z s s [constant_reference editor__feature_panel__row_vectors 313 13 661_4]
+G c Z s s [reference editor__feature_panel__row_vectors 318 13 661_4]
+G c Z s s [assign editor__feature_panel__row_vectors 323 14 661_4]
+G c Z s s [copy editor__feature_panel__row_vectors 325 13 661_4]
+G c Z s s [move editor__feature_panel__row_vectors 327 14 661_4]
+G c Z s s [new_vector editor__feature_panel__row_vectors 333 13 661_4]
+G c Z s s [insert_vector editor__feature_panel__row_vectors 337 14 661_4]
+G c Z s s [insert_vector editor__feature_panel__row_vectors 361 14 661_4]
+G c Z s s [insert_vector editor__feature_panel__row_vectors 378 14 661_4]
+G c Z s s [insert editor__feature_panel__row_vectors 396 14 661_4]
+G c Z s s [insert editor__feature_panel__row_vectors 404 14 661_4]
+G c Z s s [insert editor__feature_panel__row_vectors 412 14 661_4]
+G c Z s s [insert editor__feature_panel__row_vectors 421 14 661_4]
+G c Z s s [insert editor__feature_panel__row_vectors 438 14 661_4]
+G c Z s s [prepend_vector editor__feature_panel__row_vectors 449 14 661_4]
+G c Z s s [prepend editor__feature_panel__row_vectors 459 14 661_4]
+G c Z s s [append_vector editor__feature_panel__row_vectors 466 14 661_4]
+G c Z s s [append editor__feature_panel__row_vectors 476 14 661_4]
+G c Z s s [append editor__feature_panel__row_vectors 483 14 661_4]
+G c Z s s [insert_space editor__feature_panel__row_vectors 486 14 661_4]
+G c Z s s [insert_space editor__feature_panel__row_vectors 503 14 661_4]
+G c Z s s [delete editor__feature_panel__row_vectors 514 14 661_4]
+G c Z s s [delete editor__feature_panel__row_vectors 524 14 661_4]
+G c Z s s [delete_first editor__feature_panel__row_vectors 533 14 661_4]
+G c Z s s [delete_last editor__feature_panel__row_vectors 538 14 661_4]
+G c Z s s [reverse_elements editor__feature_panel__row_vectors 546 14 661_4]
+G c Z s s [swap editor__feature_panel__row_vectors 549 14 661_4]
+G c Z s s [swap editor__feature_panel__row_vectors 554 14 661_4]
+G c Z s s [first_index editor__feature_panel__row_vectors 560 13 661_4]
+G c Z s s [first editor__feature_panel__row_vectors 563 13 661_4]
+G c Z s s [first_element editor__feature_panel__row_vectors 567 13 661_4]
+G c Z s s [last_index editor__feature_panel__row_vectors 570 13 661_4]
+G c Z s s [last editor__feature_panel__row_vectors 574 13 661_4]
+G c Z s s [last_element editor__feature_panel__row_vectors 578 13 661_4]
+G c Z s s [next editor__feature_panel__row_vectors 581 13 661_4]
+G c Z s s [next editor__feature_panel__row_vectors 587 14 661_4]
+G c Z s s [previous editor__feature_panel__row_vectors 590 13 661_4]
+G c Z s s [previous editor__feature_panel__row_vectors 596 14 661_4]
+G c Z s s [find_index editor__feature_panel__row_vectors 599 13 661_4]
+G c Z s s [find editor__feature_panel__row_vectors 609 13 661_4]
+G c Z s s [reverse_find_index editor__feature_panel__row_vectors 623 13 661_4]
+G c Z s s [reverse_find editor__feature_panel__row_vectors 635 13 661_4]
+G c Z s s [contains editor__feature_panel__row_vectors 649 13 661_4]
+G c Z s s [iterate editor__feature_panel__row_vectors 654 14 661_4]
+G c Z s s [reverse_iterate editor__feature_panel__row_vectors 662 14 661_4]
+G c Z s s [iterate editor__feature_panel__row_vectors 669 13 661_4]
+G c Z s s [iterate editor__feature_panel__row_vectors 672 13 661_4]
+G c Z s s [adjust editor__feature_panel__row_vectors__implementation 90 28 726_4_661_4]
+G c Z s s [finalize editor__feature_panel__row_vectors__implementation 93 28 726_4_661_4]
+G c Z s s [zero_counts editor__feature_panel__row_vectors__implementation 96 17 726_4_661_4]
+G c Z s s [busy editor__feature_panel__row_vectors__implementation 100 17 726_4_661_4]
+G c Z s s [unbusy editor__feature_panel__row_vectors__implementation 104 17 726_4_661_4]
+G c Z s s [lock editor__feature_panel__row_vectors__implementation 108 17 726_4_661_4]
+G c Z s s [unlock editor__feature_panel__row_vectors__implementation 112 17 726_4_661_4]
+G c Z s s [tc_check editor__feature_panel__row_vectors__implementation 116 17 726_4_661_4]
+G c Z s s [te_check editor__feature_panel__row_vectors__implementation 120 17 726_4_661_4]
+G c Z s s [is_busy editor__feature_panel__row_vectors__implementation 136 16 726_4_661_4]
+G c Z s s [is_locked editor__feature_panel__row_vectors__implementation 140 16 726_4_661_4]
+G c Z s s [initialize editor__feature_panel__row_vectors__implementation 161 28 726_4_661_4]
+G c Z s s [finalize editor__feature_panel__row_vectors__implementation 162 28 726_4_661_4]
+G c Z s s [initialize editor__feature_panel__row_vectors__implementation 167 28 726_4_661_4]
+G c Z s s [finalize editor__feature_panel__row_vectors__implementation 168 28 726_4_661_4]
+G c Z s s [reference_control_typeDA editor__feature_panel__row_vectors__implementation 84 12 726_4_661_4]
+G c Z s s [reference_control_typeDF editor__feature_panel__row_vectors__implementation 84 12 726_4_661_4]
+G c Z s s [reference_control_typeIP editor__feature_panel__row_vectors__implementation 84 12 726_4_661_4]
+G c Z s s [with_busyDF editor__feature_panel__row_vectors__implementation 158 12 726_4_661_4]
+G c Z s s [with_busyIP editor__feature_panel__row_vectors__implementation 158 12 726_4_661_4]
+G c Z s s [with_lockDF editor__feature_panel__row_vectors__implementation 164 12 726_4_661_4]
+G c Z s s [with_lockIP editor__feature_panel__row_vectors__implementation 164 12 726_4_661_4]
+G c Z s s [put_image editor__feature_panel__row_vectors 747 14 661_4]
+G c Z s s [adjust editor__feature_panel__row_vectors 750 25 661_4]
+G c Z s s [finalize editor__feature_panel__row_vectors 751 25 661_4]
+G c Z s s [write editor__feature_panel__row_vectors 753 14 661_4]
+G c Z s s [read editor__feature_panel__row_vectors 759 14 661_4]
+G c Z s s [read editor__feature_panel__row_vectors 773 14 661_4]
+G c Z s s [write editor__feature_panel__row_vectors 779 14 661_4]
+G c Z s s [write editor__feature_panel__row_vectors 798 14 661_4]
+G c Z s s [read editor__feature_panel__row_vectors 804 14 661_4]
+G c Z s s [write editor__feature_panel__row_vectors 820 14 661_4]
+G c Z s s [read editor__feature_panel__row_vectors 826 14 661_4]
+G c Z s s [pseudo_reference editor__feature_panel__row_vectors 840 13 661_4]
+G c Z s s [get_element_access editor__feature_panel__row_vectors 849 13 661_4]
+G c Z s s [cursorIP editor__feature_panel__row_vectors 768 9 661_4]
+G c Z s s [vectorDA editor__feature_panel__row_vectors 741 9 661_4]
+G c Z s s [vectorDF editor__feature_panel__row_vectors 741 9 661_4]
+G c Z s s [vectorIP editor__feature_panel__row_vectors 741 9 661_4]
+G c Z s s [finalize editor__feature_panel__row_vectors 865 25 661_4]
+G c Z s s [first editor__feature_panel__row_vectors 867 24 661_4]
+G c Z s s [last editor__feature_panel__row_vectors 868 24 661_4]
+G c Z s s [next editor__feature_panel__row_vectors 870 24 661_4]
+G c Z s s [previous editor__feature_panel__row_vectors 874 24 661_4]
+G c Z s s [constant_reference_typeDI editor__feature_panel__row_vectors 788 9 661_4]
+G c Z s s [constant_reference_typeDA editor__feature_panel__row_vectors 788 9 661_4]
+G c Z s s [constant_reference_typeDF editor__feature_panel__row_vectors 788 9 661_4]
+G c Z s s [constant_reference_typeIP editor__feature_panel__row_vectors 788 9 661_4]
+G c Z s s [reference_typeDI editor__feature_panel__row_vectors 810 9 661_4]
+G c Z s s [reference_typeDA editor__feature_panel__row_vectors 810 9 661_4]
+G c Z s s [reference_typeDF editor__feature_panel__row_vectors 810 9 661_4]
+G c Z s s [reference_typeIP editor__feature_panel__row_vectors 810 9 661_4]
+G c Z s s [elements_arrayIP editor__feature_panel__row_vectors 729 9 661_4]
+G c Z s s [elements_arrayDI editor__feature_panel__row_vectors 729 9 661_4]
+G c Z s s [elements_arrayDA editor__feature_panel__row_vectors 729 9 661_4]
+G c Z s s [elements_arrayDF editor__feature_panel__row_vectors 729 9 661_4]
+G c Z s s [elements_typeDI editor__feature_panel__row_vectors 732 9 661_4]
+G c Z s s [elements_typeDF editor__feature_panel__row_vectors 732 9 661_4]
+G c Z s s [elements_typeIP editor__feature_panel__row_vectors 732 9 661_4]
+G c Z s s [iteratorDF editor__feature_panel__row_vectors 857 9 661_4]
+G c Z s s [iteratorIP editor__feature_panel__row_vectors 857 9 661_4]
+G c Z s s [free editor__feature_panel__row_vectors 44 14 661_4]
+G c Z s s [append_slow_path editor__feature_panel__row_vectors 47 14 661_4]
+G c Z s s [feature_panel_render_rowDI editor__feature_panel 100 9 none]
+G c Z s s [feature_panel_render_rowDA editor__feature_panel 100 9 none]
+G c Z s s [feature_panel_render_rowDF editor__feature_panel 100 9 none]
+G c Z s s [feature_panel_render_rowIP editor__feature_panel 100 9 none]
+G c Z s s [has_element editor__feature_panel__render_row_vectors 115 13 665_4]
+G c Z s s [empty editor__feature_panel__render_row_vectors 125 13 665_4]
+G c Z s s [Oeq editor__feature_panel__render_row_vectors 127 24 665_4]
+G c Z s s [to_vector editor__feature_panel__render_row_vectors 136 13 665_4]
+G c Z s s [to_vector editor__feature_panel__render_row_vectors 139 13 665_4]
+G c Z s s [Oconcat editor__feature_panel__render_row_vectors 145 13 665_4]
+G c Z s s [Oconcat editor__feature_panel__render_row_vectors 149 13 665_4]
+G c Z s s [Oconcat editor__feature_panel__render_row_vectors 153 13 665_4]
+G c Z s s [Oconcat editor__feature_panel__render_row_vectors 157 13 665_4]
+G c Z s s [capacity editor__feature_panel__render_row_vectors 161 13 665_4]
+G c Z s s [reserve_capacity editor__feature_panel__render_row_vectors 164 14 665_4]
+G c Z s s [length editor__feature_panel__render_row_vectors 175 13 665_4]
+G c Z s s [set_length editor__feature_panel__render_row_vectors 178 14 665_4]
+G c Z s s [is_empty editor__feature_panel__render_row_vectors 187 13 665_4]
+G c Z s s [clear editor__feature_panel__render_row_vectors 190 14 665_4]
+G c Z s s [to_cursor editor__feature_panel__render_row_vectors 194 13 665_4]
+G c Z s s [to_index editor__feature_panel__render_row_vectors 201 13 665_4]
+G c Z s s [element editor__feature_panel__render_row_vectors 206 13 665_4]
+G c Z s s [element editor__feature_panel__render_row_vectors 213 13 665_4]
+G c Z s s [replace_element editor__feature_panel__render_row_vectors 217 14 665_4]
+G c Z s s [replace_element editor__feature_panel__render_row_vectors 228 14 665_4]
+G c Z s s [query_element editor__feature_panel__render_row_vectors 239 14 665_4]
+G c Z s s [query_element editor__feature_panel__render_row_vectors 250 14 665_4]
+G c Z s s [update_element editor__feature_panel__render_row_vectors 259 14 665_4]
+G c Z s s [update_element editor__feature_panel__render_row_vectors 276 14 665_4]
+G c Z s s [constant_reference editor__feature_panel__render_row_vectors 303 13 665_4]
+G c Z s s [reference editor__feature_panel__render_row_vectors 308 13 665_4]
+G c Z s s [constant_reference editor__feature_panel__render_row_vectors 313 13 665_4]
+G c Z s s [reference editor__feature_panel__render_row_vectors 318 13 665_4]
+G c Z s s [assign editor__feature_panel__render_row_vectors 323 14 665_4]
+G c Z s s [copy editor__feature_panel__render_row_vectors 325 13 665_4]
+G c Z s s [move editor__feature_panel__render_row_vectors 327 14 665_4]
+G c Z s s [new_vector editor__feature_panel__render_row_vectors 333 13 665_4]
+G c Z s s [insert_vector editor__feature_panel__render_row_vectors 337 14 665_4]
+G c Z s s [insert_vector editor__feature_panel__render_row_vectors 361 14 665_4]
+G c Z s s [insert_vector editor__feature_panel__render_row_vectors 378 14 665_4]
+G c Z s s [insert editor__feature_panel__render_row_vectors 396 14 665_4]
+G c Z s s [insert editor__feature_panel__render_row_vectors 404 14 665_4]
+G c Z s s [insert editor__feature_panel__render_row_vectors 412 14 665_4]
+G c Z s s [insert editor__feature_panel__render_row_vectors 421 14 665_4]
+G c Z s s [insert editor__feature_panel__render_row_vectors 438 14 665_4]
+G c Z s s [prepend_vector editor__feature_panel__render_row_vectors 449 14 665_4]
+G c Z s s [prepend editor__feature_panel__render_row_vectors 459 14 665_4]
+G c Z s s [append_vector editor__feature_panel__render_row_vectors 466 14 665_4]
+G c Z s s [append editor__feature_panel__render_row_vectors 476 14 665_4]
+G c Z s s [append editor__feature_panel__render_row_vectors 483 14 665_4]
+G c Z s s [insert_space editor__feature_panel__render_row_vectors 486 14 665_4]
+G c Z s s [insert_space editor__feature_panel__render_row_vectors 503 14 665_4]
+G c Z s s [delete editor__feature_panel__render_row_vectors 514 14 665_4]
+G c Z s s [delete editor__feature_panel__render_row_vectors 524 14 665_4]
+G c Z s s [delete_first editor__feature_panel__render_row_vectors 533 14 665_4]
+G c Z s s [delete_last editor__feature_panel__render_row_vectors 538 14 665_4]
+G c Z s s [reverse_elements editor__feature_panel__render_row_vectors 546 14 665_4]
+G c Z s s [swap editor__feature_panel__render_row_vectors 549 14 665_4]
+G c Z s s [swap editor__feature_panel__render_row_vectors 554 14 665_4]
+G c Z s s [first_index editor__feature_panel__render_row_vectors 560 13 665_4]
+G c Z s s [first editor__feature_panel__render_row_vectors 563 13 665_4]
+G c Z s s [first_element editor__feature_panel__render_row_vectors 567 13 665_4]
+G c Z s s [last_index editor__feature_panel__render_row_vectors 570 13 665_4]
+G c Z s s [last editor__feature_panel__render_row_vectors 574 13 665_4]
+G c Z s s [last_element editor__feature_panel__render_row_vectors 578 13 665_4]
+G c Z s s [next editor__feature_panel__render_row_vectors 581 13 665_4]
+G c Z s s [next editor__feature_panel__render_row_vectors 587 14 665_4]
+G c Z s s [previous editor__feature_panel__render_row_vectors 590 13 665_4]
+G c Z s s [previous editor__feature_panel__render_row_vectors 596 14 665_4]
+G c Z s s [find_index editor__feature_panel__render_row_vectors 599 13 665_4]
+G c Z s s [find editor__feature_panel__render_row_vectors 609 13 665_4]
+G c Z s s [reverse_find_index editor__feature_panel__render_row_vectors 623 13 665_4]
+G c Z s s [reverse_find editor__feature_panel__render_row_vectors 635 13 665_4]
+G c Z s s [contains editor__feature_panel__render_row_vectors 649 13 665_4]
+G c Z s s [iterate editor__feature_panel__render_row_vectors 654 14 665_4]
+G c Z s s [reverse_iterate editor__feature_panel__render_row_vectors 662 14 665_4]
+G c Z s s [iterate editor__feature_panel__render_row_vectors 669 13 665_4]
+G c Z s s [iterate editor__feature_panel__render_row_vectors 672 13 665_4]
+G c Z s s [adjust editor__feature_panel__render_row_vectors__implementation 90 28 726_4_665_4]
+G c Z s s [finalize editor__feature_panel__render_row_vectors__implementation 93 28 726_4_665_4]
+G c Z s s [zero_counts editor__feature_panel__render_row_vectors__implementation 96 17 726_4_665_4]
+G c Z s s [busy editor__feature_panel__render_row_vectors__implementation 100 17 726_4_665_4]
+G c Z s s [unbusy editor__feature_panel__render_row_vectors__implementation 104 17 726_4_665_4]
+G c Z s s [lock editor__feature_panel__render_row_vectors__implementation 108 17 726_4_665_4]
+G c Z s s [unlock editor__feature_panel__render_row_vectors__implementation 112 17 726_4_665_4]
+G c Z s s [tc_check editor__feature_panel__render_row_vectors__implementation 116 17 726_4_665_4]
+G c Z s s [te_check editor__feature_panel__render_row_vectors__implementation 120 17 726_4_665_4]
+G c Z s s [is_busy editor__feature_panel__render_row_vectors__implementation 136 16 726_4_665_4]
+G c Z s s [is_locked editor__feature_panel__render_row_vectors__implementation 140 16 726_4_665_4]
+G c Z s s [initialize editor__feature_panel__render_row_vectors__implementation 161 28 726_4_665_4]
+G c Z s s [finalize editor__feature_panel__render_row_vectors__implementation 162 28 726_4_665_4]
+G c Z s s [initialize editor__feature_panel__render_row_vectors__implementation 167 28 726_4_665_4]
+G c Z s s [finalize editor__feature_panel__render_row_vectors__implementation 168 28 726_4_665_4]
+G c Z s s [reference_control_typeDA editor__feature_panel__render_row_vectors__implementation 84 12 726_4_665_4]
+G c Z s s [reference_control_typeDF editor__feature_panel__render_row_vectors__implementation 84 12 726_4_665_4]
+G c Z s s [reference_control_typeIP editor__feature_panel__render_row_vectors__implementation 84 12 726_4_665_4]
+G c Z s s [with_busyDF editor__feature_panel__render_row_vectors__implementation 158 12 726_4_665_4]
+G c Z s s [with_busyIP editor__feature_panel__render_row_vectors__implementation 158 12 726_4_665_4]
+G c Z s s [with_lockDF editor__feature_panel__render_row_vectors__implementation 164 12 726_4_665_4]
+G c Z s s [with_lockIP editor__feature_panel__render_row_vectors__implementation 164 12 726_4_665_4]
+G c Z s s [put_image editor__feature_panel__render_row_vectors 747 14 665_4]
+G c Z s s [adjust editor__feature_panel__render_row_vectors 750 25 665_4]
+G c Z s s [finalize editor__feature_panel__render_row_vectors 751 25 665_4]
+G c Z s s [write editor__feature_panel__render_row_vectors 753 14 665_4]
+G c Z s s [read editor__feature_panel__render_row_vectors 759 14 665_4]
+G c Z s s [read editor__feature_panel__render_row_vectors 773 14 665_4]
+G c Z s s [write editor__feature_panel__render_row_vectors 779 14 665_4]
+G c Z s s [write editor__feature_panel__render_row_vectors 798 14 665_4]
+G c Z s s [read editor__feature_panel__render_row_vectors 804 14 665_4]
+G c Z s s [write editor__feature_panel__render_row_vectors 820 14 665_4]
+G c Z s s [read editor__feature_panel__render_row_vectors 826 14 665_4]
+G c Z s s [pseudo_reference editor__feature_panel__render_row_vectors 840 13 665_4]
+G c Z s s [get_element_access editor__feature_panel__render_row_vectors 849 13 665_4]
+G c Z s s [cursorIP editor__feature_panel__render_row_vectors 768 9 665_4]
+G c Z s s [vectorDA editor__feature_panel__render_row_vectors 741 9 665_4]
+G c Z s s [vectorDF editor__feature_panel__render_row_vectors 741 9 665_4]
+G c Z s s [vectorIP editor__feature_panel__render_row_vectors 741 9 665_4]
+G c Z s s [finalize editor__feature_panel__render_row_vectors 865 25 665_4]
+G c Z s s [first editor__feature_panel__render_row_vectors 867 24 665_4]
+G c Z s s [last editor__feature_panel__render_row_vectors 868 24 665_4]
+G c Z s s [next editor__feature_panel__render_row_vectors 870 24 665_4]
+G c Z s s [previous editor__feature_panel__render_row_vectors 874 24 665_4]
+G c Z s s [constant_reference_typeDI editor__feature_panel__render_row_vectors 788 9 665_4]
+G c Z s s [constant_reference_typeDA editor__feature_panel__render_row_vectors 788 9 665_4]
+G c Z s s [constant_reference_typeDF editor__feature_panel__render_row_vectors 788 9 665_4]
+G c Z s s [constant_reference_typeIP editor__feature_panel__render_row_vectors 788 9 665_4]
+G c Z s s [reference_typeDI editor__feature_panel__render_row_vectors 810 9 665_4]
+G c Z s s [reference_typeDA editor__feature_panel__render_row_vectors 810 9 665_4]
+G c Z s s [reference_typeDF editor__feature_panel__render_row_vectors 810 9 665_4]
+G c Z s s [reference_typeIP editor__feature_panel__render_row_vectors 810 9 665_4]
+G c Z s s [elements_arrayIP editor__feature_panel__render_row_vectors 729 9 665_4]
+G c Z s s [elements_arrayDI editor__feature_panel__render_row_vectors 729 9 665_4]
+G c Z s s [elements_arrayDA editor__feature_panel__render_row_vectors 729 9 665_4]
+G c Z s s [elements_arrayDF editor__feature_panel__render_row_vectors 729 9 665_4]
+G c Z s s [elements_typeDI editor__feature_panel__render_row_vectors 732 9 665_4]
+G c Z s s [elements_typeDF editor__feature_panel__render_row_vectors 732 9 665_4]
+G c Z s s [elements_typeIP editor__feature_panel__render_row_vectors 732 9 665_4]
+G c Z s s [iteratorDF editor__feature_panel__render_row_vectors 857 9 665_4]
+G c Z s s [iteratorIP editor__feature_panel__render_row_vectors 857 9 665_4]
+G c Z s s [free editor__feature_panel__render_row_vectors 44 14 665_4]
+G c Z s s [append_slow_path editor__feature_panel__render_row_vectors 47 14 665_4]
+G c Z s s [feature_descriptorDI editor__feature_panel 15 9 none]
+G c Z s s [feature_descriptorDA editor__feature_panel 15 9 none]
+G c Z s s [feature_descriptorDF editor__feature_panel 15 9 none]
+G c Z s s [feature_descriptorIP editor__feature_panel 15 9 none]
+G c Z s s [feature_row_actionsIP editor__feature_panel 23 9 none]
+G c Z s s [feature_projection_tokenIP editor__feature_panel 31 9 none]
+G c Z s s [saved_feature_view_stateIP editor__feature_panel 653 9 none]
+G c Z s s [Tsaved_feature_view_state_tableBIP editor__feature_panel 659 4 none]
+G c Z s s [feature_panel_stateDI editor__feature_panel 669 9 none]
+G c Z s s [feature_panel_stateDA editor__feature_panel 669 9 none]
+G c Z s s [feature_panel_stateDF editor__feature_panel 669 9 none]
+G c Z s s [feature_panel_stateIP editor__feature_panel 669 9 none]
+G c Z s s [feature_panel_render_snapshotDI editor__feature_panel 684 9 none]
+G c Z s s [feature_panel_render_snapshotDA editor__feature_panel 684 9 none]
+G c Z s s [feature_panel_render_snapshotDF editor__feature_panel 684 9 none]
+G c Z s s [feature_panel_render_snapshotIP editor__feature_panel 684 9 none]
+G c Z s s [feature_panel_summaryIP editor__feature_panel 122 9 none]
+G c Z s s [feature_panel_fingerprintIP editor__feature_panel 132 9 none]
+G c Z b b [feature_descriptor_tableIP editor__feature_panel 6 9 none]
+G c Z b b [feature_descriptor_tableDI editor__feature_panel 6 9 none]
+G c Z b b [feature_descriptor_tableDA editor__feature_panel 6 9 none]
+G c Z b b [feature_descriptor_tableDF editor__feature_panel 6 9 none]
+G c Z b b [descriptor_for editor__feature_panel 44 13 none]
+G c Z b b [to_row editor__feature_panel 95 13 none]
+G c Z b b [to_render_row editor__feature_panel 132 13 none]
+G c Z b b [bump_projection_generation editor__feature_panel 156 14 none]
+G c Z b b [assert_invariant editor__feature_panel 159 14 none]
+G c Z b b [clamp_visible_viewport_only editor__feature_panel 185 14 none]
+G c Z b b [hash_string editor__feature_panel 389 13 none]
+G c Z b b [clamp_selection editor__feature_panel 455 14 none]
+G c Z b b [first_selectable_row editor__feature_panel 826 13 none]
+G c Z b b [last_selectable_row editor__feature_panel 838 13 none]
+G c Z b b [next_selectable_row editor__feature_panel 850 13 none]
+G c Z b b [previous_selectable_row editor__feature_panel 866 13 none]
+G c Z b b [reveal_selected_row editor__feature_panel 882 14 none]
+X 1 ada.ads
+18K9*Ada 22e8 24|1r6 2r6 2r33 17r23 18r23 80r27 81r27 102r27 103r27 661r31
+. 665r38 677r27 678r9 687r23 688r23 25|1r6 1r31 2r6 2r33
+X 4 a-contai.ads
+16K13*Containers 28e19 24|1r10 661r35 665r42 25|1w10 1r35
+22I9*Count_Type<integer> 25|1r46
+X 8 a-convec.ads
+62I9 Index_Type 24|662r7 666r7
+63+9 Element_Type 24|663r7 667r7
+74k24*Vectors 878e27 24|1w21 661r46 665r53
+91R9*Vector<11|43R9> 24|672r39[661] 693r42[665]
+175V13*Length{4|22I9} 25|348s55[24|661] 382s51[24|661] 436s58[24|661] 458s55[24|661]
+. 557s20[24|661] 810s34[24|661] 1266s37[24|665]
+190U14*Clear 25|562s18[24|661]
+206V13*Element{24|78R9} 25|665s25[24|661] 688s25[24|661] 699s25[24|661] 710s25[24|661]
+. 721s25[24|661] 732s25[24|661] 743s25[24|661] 766s25[24|661] 777s40[24|661]
+. 778s40[24|661] 779s40[24|661] 780s40[24|661] 781s40[24|661] 792s25[24|661]
+. 803s25[24|661] 994s25[24|661] 1005s36[24|661] 1016s36[24|661] 1027s25[24|661]
+. 1214s27[24|661] 1284s28[24|665] 1295s28[24|665] 1306s39[24|665] 1317s39[24|665]
+. 1328s28[24|665] 1339s28[24|665] 1350s28[24|665] 1361s28[24|665] 1372s28[24|665]
+483U14*Append 25|609s18[24|661] 1212s24[24|665]
+X 12 a-iteint.ads
+24h9 Forward_Iterator
+32h9 Reversible_Iterator<24R9[8|119]>
+X 14 a-string.ads
+16K13*Strings 35e16 24|2r10 2r37 17r27 18r27 80r31 81r31 102r31 103r31 677r31
+. 678r13 687r27 688r27 25|2r10 2r37
+X 18 a-strunb.ads
+91K21*Unbounded 1641e26 24|2w18 2r45 17r35 18r35 80r39 81r39 102r39 103r39
+. 677r39 678r21 687r35 688r35 25|2w18 2r45
+105R9*Unbounded_String<11|43R9> 1620e15 24|17r45 18r45 80r49 81r49 102r49
+. 103r49 677r49 687r45 688r45
+109r4*Null_Unbounded_String{105R9} 25|39r24 40r24
+122V13*To_Unbounded_String{105R9} 24|678s31 25|14s27 15s27 20s27 21s27 26s27
+. 27s27 32s27 33s27 115s31 116s31 321s23 578s26 1205s33
+135V13*To_String{string} 25|76s14 81s14 577s10 587s14 1005s14 1016s14 1238s14
+. 1273s14 1306s14 1317s14
+X 23 editor.ads
+1K9*Editor 5e11 24|4r9 696r5 25|4r14 1426r5
+X 24 editor-feature_panel.ads
+4K16*Feature_Panel 23|1k9 24|653E9 696l12 696e25 25|4b21 1426l12 1426t25
+8E9*Feature_Id 13e27 16r23 32r20 142r41 146r53 148r44 150r46 152r46 154r42
+. 156r65 178r17 191r17 659r50 680r31 690r31 25|44r39 55r41 65r53 74r44 79r46
+. 84r46 89r42 163r65 174r26 223r26 276r17 308r17
+9n7*Unknown_Feature{8E9} 16r37 32r34 690r45 25|38r24 57r45 71r14
+10n7*Outline_Feature{8E9} 680r45 25|13r27 168r14 504r34
+11n7*Messages_Feature{8E9} 25|19r27
+12n7*Search_Results_Feature{8E9} 25|25r27
+13n7*Diagnostics_Feature{8E9} 25|31r27
+15R9*Feature_Descriptor 21e14 25|6r66 37r34 44r58
+16e7*Id{8E9} 25|13m10 19m10 25m10 31m10 38m7 47r24 57r39 68r45
+17r7*Stable_Name{18|105R9} 25|14m10 20m10 26m10 32m10 39m7 76r50
+18r7*Display_Label{18|105R9} 25|15m10 21m10 27m10 33m10 40m7 81r50
+19b7*Supports_Rows{boolean} 25|16m10 22m10 28m10 34m10 41m7 86r39
+20b7*Can_Clear{boolean} 25|17m10 23m10 29m10 35m10 42m7 91r39
+23R9*Feature_Row_Actions 29e14 405r32 25|771r32
+24b7*Can_Select{boolean} 25|777m15
+25b7*Can_Open{boolean} 25|778m15
+26b7*Can_Copy{boolean} 25|779m15
+27b7*Can_Clear{boolean} 25|780m15
+28b7*Can_Reveal{boolean} 25|781m15
+31R9*Feature_Projection_Token 34e14 194r43 198r15 340r15 505r15 25|327r43
+. 336r15 635r15 1045r15
+32e7*Feature{8E9} 25|330m15 339r38 340r24
+33i7*Generation{natural} 25|331m15 341r24 342r24
+64E9*Feature_Panel_Row_Kind 67e31 79r27 101r27 304r27 471r32 25|96r27 592r27
+. 988r32
+65n7*Feature_Row_Header{64E9}
+66n7*Feature_Row_Item{64E9} 79r53 101r53
+67n7*Feature_Row_Empty_State{64E9} 25|992r17
+69I9*Feature_Action_Id<integer> 70r33 95r27 114r27 316r27 25|108r27 604r27
+70i4*No_Feature_Action{69I9} 95r48 114r48 316r48 25|108r48 604r48
+72E9*Feature_Row_Severity 76e34 97r27 116r27 318r27 413r32 617r35 25|110r27
+. 606r27 797r32 1322r35
+73n7*Feature_Row_No_Severity{72E9} 97r51 116r51 318r51 25|110r51 606r51 801r17
+. 1326r17
+74n7*Feature_Row_Info_Severity{72E9}
+75n7*Feature_Row_Warning_Severity{72E9}
+76n7*Feature_Row_Error_Severity{72E9}
+78R9*Feature_Panel_Row 98e14 663r23 25|110r83 133r18
+79e7*Kind{64E9} 25|114m10 138r35 994r45
+80r7*Label{18|105R9} 25|115m10 139r35 1005r56
+81r7*Detail{18|105R9} 25|116m10 140r35 1016r56
+82b7*Is_Current_Symbol{boolean} 25|117m10 142r35 1027r45
+83b7*Selectable{boolean} 25|118m10 143r35 665r45 777r60
+84b7*Activatable{boolean} 25|119m10 144r35 688r45
+85b7*Has_Target{boolean} 25|120m10 145r35 699r45
+89b7*Is_Diagnostic{boolean} 25|121m10 146r35 710r45
+90b7*Can_Open{boolean} 25|122m10 147r35 721r45 778r60
+91b7*Can_Copy{boolean} 25|123m10 148r35 732r45 779r60
+92b7*Can_Clear{boolean} 25|124m10 149r35 743r45 780r60
+93b7*Can_Reveal{boolean} 25|125m10 150r35 766r45 781r60
+94b7*Is_Selected{boolean} 25|126m10
+95i7*Action_Id{69I9} 25|127m10 151r35
+96i7*Source_Index{natural} 25|128m10 152r35 792r45
+97e7*Severity{72E9} 25|129m10 153r35 803r45
+100R9*Feature_Panel_Render_Row 117e14 667r23 25|134r34
+101e7*Kind{64E9} 25|138m10
+102r7*Label{18|105R9} 25|139m10 1306r59
+103r7*Detail{18|105R9} 25|140m10 1317r59
+104b7*Selected{boolean} 25|141m10 1284r48
+105b7*Is_Current_Symbol{boolean} 25|142m10 1295r48
+106b7*Selectable{boolean} 25|143m10
+107b7*Activatable{boolean} 25|144m10
+108b7*Has_Target{boolean} 25|145m10
+109b7*Is_Diagnostic{boolean} 25|146m10
+110b7*Can_Open{boolean} 25|147m10 1339r48
+111b7*Can_Copy{boolean} 25|148m10 1350r48
+112b7*Can_Clear{boolean} 25|149m10 1361r48
+113b7*Can_Reveal{boolean} 25|150m10 1372r48
+114i7*Action_Id{69I9} 25|151m10
+115i7*Source_Index{natural} 25|152m10
+116e7*Severity{72E9} 25|153m10 1328r48
+119R9*Feature_Panel_State 156r37 164r22 171r22 177r24 181r22 188r22 190r24
+. 194r15 197r15 205r15 211r15 219r15 227r15 235r15 240r22 249r22 256r24 265r15
+. 272r24 279r15 287r22 290r22 294r15 303r34 324r15 335r18 339r15 349r15 359r15
+. 363r15 367r15 370r15 374r15 378r15 382r15 386r15 390r15 397r15 400r15 404r15
+. 408r15 412r15 419r15 425r15 431r22 438r22 445r22 451r22 457r15 463r15 470r15
+. 478r15 486r15 493r15 500r22 504r22 511r15 515r22 520r22 524r15 527r15 533r21
+. 541r22 547r22 552r22 558r22 566r15 669c9 682e14 25|157r22 160r17 163r37
+. 172r22 186r22 221r22 275r24 289r22 297r22 307r24 327r15 335r15 346r15 375r15
+. 402r15 423r15 431r15 445r17 456r22 488r22 499r22 510r22 519r24 531r15 538r24
+. 547r15 554r22 573r22 584r15 591r34 619r15 626r18 634r15 642r15 650r15 658r15
+. 669r15 681r15 692r15 703r15 714r15 725r15 736r15 747r15 759r15 770r15 785r15
+. 796r15 807r15 814r15 827r15 839r15 851r15 867r16 883r22 907r22 916r22 933r22
+. 953r22 972r15 979r15 987r15 998r15 1009r15 1020r15 1031r22 1044r22 1058r15
+. 1068r22 1076r22 1086r15 1093r15 1103r21 1125r22 1149r22 1157r22 1185r22
+. 1198r15
+120R9*Feature_Panel_Render_Snapshot 566r43 570r18 574r18 577r18 580r18 583r18
+. 586r18 590r18 594r18 598r18 602r18 607r18 612r18 616r18 620r18 624r18 628r18
+. 632r18 684c9 694e14 25|1198r43 1200r18 1221r18 1228r18 1235r18 1242r18
+. 1249r18 1256r18 1263r18 1270r18 1277r18 1288r18 1299r18 1310r18 1321r18
+. 1332r18 1343r18 1354r18 1365r18
+122R9*Feature_Panel_Summary 130e14 211r43 25|375r43 404r20
+123b7*Visible{boolean} 25|380m10 413r32
+124b7*Focused{boolean} 25|381m10 414r32
+125i7*Row_Count{natural} 25|382m10 415r32
+126b7*Has_Selection{boolean} 25|383m10 416r32
+127i7*Selected_Row{natural} 25|384m10 417r32
+128i7*First_Visible_Row{natural} 25|385m10
+129i7*Visible_Row_Count{natural} 25|386m10
+132R9*Feature_Panel_Fingerprint 140e14 219r43 25|402r43
+133b7*Visible{boolean} 25|413m10
+134b7*Focused{boolean} 25|414m10
+135i7*Row_Count{natural} 25|415m10
+136b7*Has_Selection{boolean} 25|416m10
+137i7*Selected_Row{natural} 25|417m10
+138i7*Row_Labels_Hash{natural} 25|418m10
+139i7*Row_Details_Hash{natural} 25|419m10
+142V13*Is_Known_Feature{boolean} 142>31 25|55b13 58l8 58t24 165s10 176s10
+. 228s14 279s10 311s14 339s14 350s14
+142e31 Feature{8E9} 25|55b31 57r30
+144V13*Feature_Descriptor_Count{natural} 25|60b13 63l8 63t32
+146V13*Descriptor_Id{8E9} 146>28 25|65b13 72l8 72t21
+146i28 Index{positive} 25|65b28 67r10 68r38
+148V13*Feature_Stable_Name{string} 148>34 25|74b13 77l8 77t27
+148e34 Feature{8E9} 25|74b34 76r41
+150V13*Feature_Display_Label{string} 150>36 25|79b13 82l8 82t29 321s44
+150e36 Feature{8E9} 25|79b36 81r41
+152V13*Feature_Supports_Rows{boolean} 152>36 25|84b13 87l8 87t29
+152e36 Feature{8E9} 25|84b36 86r30
+154V13*Feature_Can_Clear{boolean} 154>32 25|89b13 92l8 92t25
+154e32 Feature{8E9} 25|89b32 91r30
+156V13*Active_Feature{8E9} 156>29 25|163b13 169l8 169t22 174s40 223s40 292s41
+. 330s26 340s34 1208s38
+156r29 Panel{119R9} 25|163b29 165r28 166r17
+163U14*Save_Active_Feature_View_State 164=7 25|171b14 183l8 183t38 316s10
+164r7 Panel{119R9} 25|172b7 174r56 177m10 179r48 180r53 182r25
+170U14*Restore_Active_Feature_View_State 171=7 25|220b14 272l8 272t41
+171r7 Panel{119R9} 25|221b7 223r56 225r48 229r28 233r16 235m39 236r28 241m10
+. 242m10 243m10 247r40 249m13 251m13 254r21 255r33 259m13 261m13 263m13 266r13
+. 267m13 271r25
+176U14*Forget_Feature_View_State 177=7 178>7 25|274b14 286l8 286t33 292s7
+177r7 Panel{119R9} 25|275b7 280m10 285r25
+178e7 Feature{8E9} 25|276b7 279r28 280r34
+180U14*Forget_Active_Feature_View_State 181=7 25|288b14 294l8 294t40
+181r7 Panel{119R9} 25|289b7 292m34 292r57 293r25
+187U14*Clear_Visible_Selection_For_Feature_Switch 188=7 25|296b14 304l8 304t50
+. 318s10
+188r7 Panel{119R9} 25|297b7 300m7 301m7 302m7 303r25
+189V13*Set_Active_Feature{boolean} 190=7 191>7 25|306b13 324l8 324t26
+190r7 Panel{119R9} 25|307b7 315r10 316m42 317m10 318m54 319m38 321m7 322r25
+191e7 Feature{8E9} 25|308b7 311r32 315r37 317r37 321r67
+193V13*Build_Feature_Projection_Token{31R9} 194>7 25|326b13 332l8 332t38
+194r7 Panel{119R9} 25|327b7 330r42 331r52
+196V13*Validate_Feature_Projection_Token{boolean} 197>7 198>7 25|334b13 343l8
+. 343t41 638s14 1049s10
+197r7 Panel{119R9} 25|335b7 340r50 342r60
+198r7 Token{31R9} 25|336b7 339r32 340r18 341r18 342r18
+204V13*Invariant_Holds{boolean} 205>7 25|345b13 372l8 372t23 441s43 450s10
+205r7 Panel{119R9} 25|346b7 348r44 350r32 354r10 354r37 358r10 363r17 364r21
+. 365r21 368r14 369r18 370r18 371r18
+210V13*Summary{122R9} 211>7 25|374b13 387l8 387t15 404s45
+211r7 Panel{119R9} 25|375b7 377r52 380r27 381r27 381r50 382r40 385r31 386r31
+218V13*Fingerprint{132R9} 219>7 25|401b13 420l8 420t19
+219r7 Panel{119R9} 25|402b7 404r54 408r32 409r52 410r55
+226V13*Is_Selected_Row{boolean} 227>7 228>7 25|422b13 428l8 428t23
+227r7 Panel{119R9} 25|423b7 427r28
+228i7 Index{positive} 25|424b7 427r37
+234V13*Debug_Summary{string} 235>7 25|430b13 442l8 442t21 452s12
+235r7 Panel{119R9} 25|431b7 434r42 435r41 436r47 437r42 438r40 439r47 440r47
+. 441r60
+239U14*Clear 240=7 25|498b14 507l8 507t13
+240r7 Panel{119R9} 25|499b7 502m7 503m7 504m7 505m19 506r25
+248U14*Reset_For_Project_Close 249=7 25|509b14 516l8 516t31
+249r7 Panel{119R9} 25|510b7 513m19 514m7 515r25
+255U14*Set_Visible 256=7 257>7 25|518b14 528l8 528t19
+256r7 Panel{119R9} 25|519b7 523m7 525m10 527r25
+257b7 Visible{boolean} 25|520b7 523r24 524r14
+264V13*Is_Visible{boolean} 265>7 25|530b13 535l8 535t18
+265r7 Panel{119R9} 25|531b7 534r14
+271U14*Set_Focused 272=7 273>7 25|537b14 544l8 544t19
+272r7 Panel{119R9} 25|538b7 542m7 542r41 543r25
+273b7 Focused{boolean} 25|539b7 542r24
+278V13*Is_Focused{boolean} 279>7 25|546b13 551l8 551t18
+279r7 Panel{119R9} 25|547b7 550r14 550r37
+286U14*Clear_Rows 287=7 25|505s7 513s7 553b14 570l8 570t18
+287r7 Panel{119R9} 25|554b7 557r9 558r17 559r17 560r17 562m7 562r7 563m7
+. 564m7 565m7 567m38 569r25
+289U14*Set_Header_Text 290=7 291>7 25|572b14 581l8 581t23
+290r7 Panel{119R9} 25|573b7 577r21 578m10 580r25
+291a7 Text{string} 25|574b7 577r38 578r47
+293V13*Header_Text{string} 294>7 25|583b13 588l8 588t19
+294r7 Panel{119R9} 25|584b7 587r25
+302U14*Append_Row 303=7 304>7 305>7 306>7 307>7 308>7 309>7 310>7 311>7 312>7
+. 313>7 314>7 315>7 316>7 317>7 318>7 25|590b14 616l8 616t18
+303r7 Panel{119R9} 25|591b7 609m7 609r7 614m35 615r25
+304e7 Kind{64E9} 25|592b7 611r13
+305a7 Label{string} 25|593b7 611r19
+306a7 Detail{string} 25|594b7 611r26
+307b7 Is_Current_Symbol{boolean} 25|595b7 611r34
+308b7 Selectable{boolean} 25|596b7 611r53
+309b7 Activatable{boolean} 25|597b7 612r13
+310b7 Has_Target{boolean} 25|598b7 612r26
+311b7 Is_Diagnostic{boolean} 25|599b7 612r38
+312b7 Can_Open{boolean} 25|600b7 612r53
+313b7 Can_Copy{boolean} 25|601b7 612r63
+314b7 Can_Clear{boolean} 25|602b7 612r73
+315b7 Can_Reveal{boolean} 25|603b7 613r13
+316i7 Action_Id{69I9} 25|604b7 613r25
+317i7 Source_Index{natural} 25|605b7 613r36
+318e7 Severity{72E9} 25|606b7 613r50
+323V13*Projection_Generation{natural} 324>7 25|331s29 342s37 618b13 623l8
+. 623t29 630s46
+324r7 Panel{119R9} 25|619b7 622r14
+334V13*Projection_Generation_Matches{boolean} 335>7 336>7 25|625b13 631l8
+. 631t37
+335r7 Panel{119R9} 25|626b7 630r69
+336i7 Expected{natural} 25|627b7 630r14 630r35
+338V13*Projection_Token_Matches{boolean} 339>7 340>7 25|633b13 639l8 639t32
+339r7 Panel{119R9} 25|634b7 638r49
+340r7 Token{31R9} 25|635b7 638r56
+348V13*Projection_Row_Index_Is_Valid{boolean} 349>7 350>7 25|641b13 647l8
+. 647t37 654s14
+349r7 Panel{119R9} 25|642b7 646r50
+350i7 Row{natural} 25|643b7 646r14 646r32
+358V13*Reveal_Row_Index_Is_Valid{boolean} 359>7 360>7 25|649b13 655l8 655t33
+. 1035s10 1061s10 1130s14
+359r7 Panel{119R9} 25|650b7 654r45
+360i7 Row{natural} 25|651b7 654r52
+362V13*Row_Is_Selectable{boolean} 363>7 364>7 25|200s31 247s21 465s31 657b13
+. 666l8 666t25 673s13 819s18 831s13 843s13 859s13 875s13 922s18
+363r7 Panel{119R9} 25|658b7 662r29 665r14
+364i7 Index{positive} 25|659b7 662r10 665r34
+366V13*Has_Selectable_Row{boolean} 367>7 25|668b13 678l8 678t26
+367r7 Panel{119R9} 25|669b7 672r32 673r32
+369V13*Row_Is_Activatable{boolean} 370>7 371>7 25|680b13 689l8 689t26
+370r7 Panel{119R9} 25|681b7 685r29 688r14
+371i7 Index{positive} 25|682b7 685r10 688r34
+373V13*Row_Has_Target{boolean} 374>7 375>7 25|691b13 700l8 700t22
+374r7 Panel{119R9} 25|692b7 696r29 699r14
+375i7 Index{positive} 25|693b7 696r10 699r34
+377V13*Row_Is_Diagnostic{boolean} 378>7 379>7 25|702b13 711l8 711t25
+378r7 Panel{119R9} 25|703b7 707r29 710r14
+379i7 Index{positive} 25|704b7 707r10 710r34
+381V13*Row_Can_Open{boolean} 382>7 383>7 25|713b13 722l8 722t20
+382r7 Panel{119R9} 25|714b7 718r29 721r14
+383i7 Index{positive} 25|715b7 718r10 721r34
+385V13*Row_Can_Copy{boolean} 386>7 387>7 25|724b13 733l8 733t20
+386r7 Panel{119R9} 25|725b7 729r29 732r14
+387i7 Index{positive} 25|726b7 729r10 732r34
+389V13*Row_Can_Clear{boolean} 390>7 391>7 25|735b13 744l8 744t21 751s13
+390r7 Panel{119R9} 25|736b7 740r29 743r14
+391i7 Index{positive} 25|737b7 740r10 743r34
+396V13*Has_Clearable_Row{boolean} 397>7 25|746b13 756l8 756t25
+397r7 Panel{119R9} 25|747b7 750r32 751r28
+399V13*Row_Can_Reveal{boolean} 400>7 401>7 25|758b13 767l8 767t22
+400r7 Panel{119R9} 25|759b7 763r29 766r14
+401i7 Index{positive} 25|760b7 763r10 766r34
+403V13*Row_Actions{23R9} 404>7 405>7 25|769b13 782l8 782t19
+404r7 Panel{119R9} 25|770b7 774r29 777r29 778r29 779r29 780r29 781r29
+405i7 Index{positive} 25|771b7 774r10 777r49 778r49 779r49 780r49 781r49
+407V13*Row_Source_Index{natural} 408>7 409>7 25|784b13 793l8 793t24
+408r7 Panel{119R9} 25|785b7 789r29 792r14
+409i7 Index{positive} 25|786b7 789r10 792r34
+411V13*Row_Severity{72E9} 412>7 413>7 25|795b13 804l8 804t20
+412r7 Panel{119R9} 25|796b7 800r29 803r14
+413i7 Index{positive} 25|797b7 800r10 803r34
+418V13*Row_Count{natural} 419>7 25|188s38 225s37 408s21 646s39 662s18 672s21
+. 685s18 696s18 707s18 718s18 729s18 740s18 750s21 763s18 774s18 789s18 800s18
+. 806b13 811l8 811t17 818s36 830s21 842s29 855s19 858s29 921s27 935s35 957s10
+. 991s18 1002s18 1013s18 1024s18 1096s10 1108s34 1117s16 1160s38 1211s21
+419r7 Panel{119R9} 25|807b7 810r23
+424V13*Selected_Row{natural} 425>7 25|179s34 377s38 427s14 813b13 824l8 824t20
+. 940s13 943s46 959s13 962s54 975s14 1201s38
+425r7 Panel{119R9} 25|814b7 817r10 818r18 818r47 819r37 819r54 821r17
+430U14*Select_First 431=7 25|906b14 913l8 913t20
+431r7 Panel{119R9} 25|907b7 910m7 910r47 911m28 912r25
+437U14*Select_Row 438=7 439>7 25|915b14 930l8 930t18
+438r7 Panel{119R9} 25|916b7 921r38 922r37 924m10 926m10 928m28 929r25
+439i7 Index{natural} 25|917b7 920r10 921r18 922r54 924r28
+444U14*Select_Next 445=7 25|932b14 950l8 950t19
+445r7 Panel{119R9} 25|933b7 935r46 939m10 940r27 941m10 941r50 943r39 943r60
+. 945m13 948m28 949r25
+450U14*Select_Previous 451=7 25|952b14 969l8 969t23
+451r7 Panel{119R9} 25|953b7 957r21 958m10 959r27 960m10 960r49 962r47 962r68
+. 964m13 967m28 968r25
+456V13*Has_Selection{boolean} 457>7 25|971b13 976l8 976t21
+457r7 Panel{119R9} 25|972b7 975r28
+462V13*Empty_Message{string} 463>7 25|978b13 984l8 984t21 1205s54
+463r7 Panel{119R9} 25|979b7 981r28
+469V13*Row_Kind{64E9} 470>7 471>7 25|986b13 995l8 995t16
+470r7 Panel{119R9} 25|987b7 991r29 994r14
+471i7 Index{positive} 25|988b7 991r10 994r34
+477V13*Row_Label{string} 478>7 479>7 25|409s41 997b13 1006l8 1006t17
+478r7 Panel{119R9} 25|998b7 1002r29 1005r25
+479i7 Index{positive} 25|999b7 1002r10 1005r45
+485V13*Row_Detail{string} 486>7 487>7 25|410s43 1008b13 1017l8 1017t18
+486r7 Panel{119R9} 25|1009b7 1013r29 1016r25
+487i7 Index{positive} 25|1010b7 1013r10 1016r45
+492V13*Row_Is_Current_Symbol{boolean} 493>7 494>7 25|1019b13 1028l8 1028t29
+493r7 Panel{119R9} 25|1020b7 1024r29 1027r14
+494i7 Index{positive} 25|1021b7 1024r10 1027r34
+499U14*Request_Reveal_Row 500=7 501>7 25|1030b14 1041l8 1041t26 1050s10
+500r7 Panel{119R9} 25|1031b7 1035r37 1036m10 1038m10 1040r25
+501i7 Index{natural} 25|1032b7 1035r44 1036r30
+503U14*Request_Reveal_Row 504=7 505>7 506>7 25|1043b14 1055l8 1055t26
+504r7 Panel{119R9} 25|1044b7 1049r45 1050m30 1052m10 1053r28
+505r7 Token{31R9} 25|1045b7 1049r52
+506i7 Index{natural} 25|1046b7 1050r37
+510V13*Requested_Reveal_Row{natural} 511>7 25|1057b13 1065l8 1065t28 1187s33
+511r7 Panel{119R9} 25|1058b7 1061r37 1061r44 1062r17
+514U14*Clear_Reveal_Request 515=7 25|1067b14 1073l8 1073t28 1190s10 1193s10
+515r7 Panel{119R9} 25|1068b7 1071m7 1072r25
+519U14*Set_Visible_Row_Count 520=7 521>7 25|1075b14 1083l8 1083t29
+520r7 Panel{119R9} 25|1076b7 1080m7 1081m24 1082r25
+521i7 Count{natural} 25|1077b7 1080r47
+523V13*Visible_Row_Count{natural} 524>7 25|1085b13 1090l8 1090t25
+524r7 Panel{119R9} 25|1086b7 1089r14
+526V13*First_Visible_Row{natural} 527>7 25|180s34 1092b13 1100l8 1100t25
+527r7 Panel{119R9} 25|1093b7 1096r21 1099r14
+532V13*Visible_Row_To_Row_Index{natural} 533>7 534>7 25|1102b13 1122l8 1122t32
+533r7 Panel{119R9} 25|1103b7 1108r45 1112r24 1116r14 1117r27
+534i7 Visible_Row{natural} 25|1104b7 1108r10 1112r10 1116r40
+540U14*Reveal_Row 541=7 542>7 25|1124b14 1146l8 1146t18 1192s10
+541r7 Panel{119R9} 25|1125b7 1130r41 1131m10 1132r28 1136m24 1137r23 1137r49
+. 1139r16 1140m10 1142m10 1142r43 1145r25
+542i7 Row{natural} 25|1126b7 1130r48 1139r10 1140r37 1141r13 1142r37
+546U14*Clamp_Viewport 547=7 25|1148b14 1154l8 1154t22
+547r7 Panel{119R9} 25|1149b7 1152m24 1153r25
+551U14*Scroll_By 552=7 553>7 25|1156b14 1182l8 1182t17
+552r7 Panel{119R9} 25|1157b7 1160r49 1162r38 1165m10 1166r28 1170r18 1171r30
+. 1180m7 1181r25
+553i7 Step_Delta{integer} 25|1158b7 1162r65
+557U14*Apply_Pending_Reveal 558=7 25|1184b14 1195l8 1195t28
+558r7 Panel{119R9} 25|1185b7 1187r55 1190m32 1192m22 1193m32
+565V13*Build_Render_Snapshot{120R9} 566>7 25|1197b13 1218l8 1218t29
+566r7 Panel{119R9} 25|1198b7 1201r52 1203r27 1204r27 1204r50 1205r69 1206r26
+. 1207r41 1208r54 1209r37 1210r37 1211r32 1214r16
+569V13*Snapshot_Is_Visible{boolean} 570>7 25|1220b13 1225l8 1225t27
+570r7 Snapshot{120R9} 25|1221b7 1224r14
+573V13*Snapshot_Is_Focused{boolean} 574>7 25|1227b13 1232l8 1232t27
+574r7 Snapshot{120R9} 25|1228b7 1231r14 1231r40
+576V13*Snapshot_Header_Text{string} 577>7 25|1234b13 1239l8 1239t28
+577r7 Snapshot{120R9} 25|1235b7 1238r25
+579V13*Snapshot_Projection_Generation{natural} 580>7 25|1241b13 1246l8 1246t38
+580r7 Snapshot{120R9} 25|1242b7 1245r14
+582V13*Snapshot_First_Visible_Row{natural} 583>7 25|1248b13 1253l8 1253t34
+583r7 Snapshot{120R9} 25|1249b7 1252r14
+585V13*Snapshot_Visible_Row_Count{natural} 586>7 25|1255b13 1260l8 1260t34
+586r7 Snapshot{120R9} 25|1256b7 1259r14
+589V13*Snapshot_Row_Count{natural} 590>7 25|1262b13 1267l8 1267t26 1281s18
+. 1292s18 1303s18 1314s18 1325s18 1336s18 1347s18 1358s18 1369s18
+590r7 Snapshot{120R9} 25|1263b7 1266r23
+593V13*Snapshot_Empty_Message{string} 594>7 25|1269b13 1274l8 1274t30
+594r7 Snapshot{120R9} 25|1270b7 1273r25
+597V13*Snapshot_Row_Selected{boolean} 598>7 599>7 25|1276b13 1285l8 1285t29
+598r7 Snapshot{120R9} 25|1277b7 1281r38 1284r14
+599i7 Index{positive} 25|1278b7 1281r10 1284r37
+601V13*Snapshot_Row_Is_Current_Symbol{boolean} 602>7 603>7 25|1287b13 1296l8
+. 1296t38
+602r7 Snapshot{120R9} 25|1288b7 1292r38 1295r14
+603i7 Index{positive} 25|1289b7 1292r10 1295r37
+606V13*Snapshot_Row_Label{string} 607>7 608>7 25|1298b13 1307l8 1307t26
+607r7 Snapshot{120R9} 25|1299b7 1303r38 1306r25
+608i7 Index{positive} 25|1300b7 1303r10 1306r48
+611V13*Snapshot_Row_Detail{string} 612>7 613>7 25|1309b13 1318l8 1318t27
+612r7 Snapshot{120R9} 25|1310b7 1314r38 1317r25
+613i7 Index{positive} 25|1311b7 1314r10 1317r48
+615V13*Snapshot_Row_Severity{72E9} 616>7 617>7 25|1320b13 1329l8 1329t29
+616r7 Snapshot{120R9} 25|1321b7 1325r38 1328r14
+617i7 Index{positive} 25|1322b7 1325r10 1328r37
+619V13*Snapshot_Row_Can_Open{boolean} 620>7 621>7 25|1331b13 1340l8 1340t29
+620r7 Snapshot{120R9} 25|1332b7 1336r38 1339r14
+621i7 Index{positive} 25|1333b7 1336r10 1339r37
+623V13*Snapshot_Row_Can_Copy{boolean} 624>7 625>7 25|1342b13 1351l8 1351t29
+624r7 Snapshot{120R9} 25|1343b7 1347r38 1350r14
+625i7 Index{positive} 25|1344b7 1347r10 1350r37
+627V13*Snapshot_Row_Can_Clear{boolean} 628>7 629>7 25|1353b13 1362l8 1362t30
+628r7 Snapshot{120R9} 25|1354b7 1358r38 1361r14
+629i7 Index{positive} 25|1355b7 1358r10 1361r37
+631V13*Snapshot_Row_Can_Reveal{boolean} 632>7 633>7 25|1364b13 1373l8 1373t31
+632r7 Snapshot{120R9} 25|1365b7 1369r38 1372r14
+633i7 Index{positive} 25|1366b7 1369r10 1372r37
+638V13*Message_Feature_Panel_Shown{string} 25|1376b13 1379l8 1379t35
+639V13*Message_Feature_Panel_Hidden{string} 25|1381b13 1384l8 1384t36
+640V13*Message_Feature_Panel_Focused{string} 25|1386b13 1389l8 1389t37
+641V13*Message_Feature_Panel_Cleared{string} 25|1391b13 1394l8 1394t37
+642V13*Message_Feature_Panel_Row_Has_No_Target{string} 25|1396b13 1399l8
+. 1399t47
+646V13*Reason_Feature_Panel_Hidden{string} 25|1401b13 1404l8 1404t35
+647V13*Reason_Feature_Panel_Already_Shown{string} 25|1406b13 1409l8 1409t42
+648V13*Reason_Feature_Panel_Already_Focused{string} 25|1411b13 1414l8 1414t44
+649V13*Reason_No_Feature_Panel_Rows{string} 25|1416b13 1419l8 1419t36
+650V13*Reason_No_Feature_Panel_Row_Selected{string} 25|1421b13 1424l8 1424t44
+653R9 Saved_Feature_View_State 657e14 659r65 25|224r17
+654b7*Has_State{boolean} 25|178m13 234r20 281m13
+655i7*Selected_Row{natural} 25|179m13 245r19 246r27 247r63 249r37 282m13
+656i7*First_Visible_Row{natural} 25|180m13 258r19 260r22 263r46 283m13
+659A9 Saved_Feature_View_State_Table(653R9)<8E9> 681r30
+661K12 Row_Vectors[8|74] 672r27
+665K12 Render_Row_Vectors[8|74] 693r23
+670b7*Visible{boolean} 25|354r43 380r33 381r56 434r48 502m13 523m13 534r20
+. 542r47 550r43 1203r33 1204r56
+671b7*Focused{boolean} 25|354r16 381r33 435r47 503m13 514m13 525m16 542m13
+. 550r20 1204r33
+672r7*Rows{8|91R9[661]} 25|348r50 382r46 436r53 458r50 557r15 562m13 609m13
+. 665r20 688r20 699r20 710r20 721r20 732r20 743r20 766r20 777r35 778r35 779r35
+. 780r35 781r35 792r20 803r20 810r29 994r20 1005r31 1016r31 1027r20 1214r22
+673i7*Selected{natural} 25|192m16 198r16 199r24 200r73 202m16 241m16 249m19
+. 251m19 300m13 363r23 368r20 437r48 462m16 463r19 464r24 465r73 467m16 558r23
+. 563m13 817r16 818r24 819r60 821r23 885r44 894r16 899r16 900r43 901r19 902r43
+. 910m13 924m16 926m16 939m16 941m16 945m19 958m16 960m16 964m19
+674i7*Reveal_Row{natural} 25|193m16 205r16 206m16 243m16 266r19 267m19 301m13
+. 364r27 369r24 438r46 470r16 471m16 559r23 564m13 1036m16 1038m16 1052m16
+. 1061r50 1062r23 1071m13 1131m16
+675i7*First_Visible_Row{natural} 25|194m16 213r16 214m16 215r19 216m16 242m16
+. 259m19 261m19 263m19 302m13 365r27 370r24 371r24 385r37 439r53 479m16 480r19
+. 481m16 482r19 483m16 560r23 565m13 898r29 899r33 900m16 902m16 1099r20
+. 1116r20 1137r29 1139r22 1140m16 1142m16 1162r44 1165m16 1180m13 1209r43
+676i7*Visible_Row_Count{natural} 25|209r24 210r36 254r27 255r39 358r16 386r37
+. 440r53 474r24 475r36 898r55 902r60 1080m13 1089r20 1112r30 1137r55 1142r49
+. 1170r24 1171r36 1210r43
+677r7*Header{18|105R9} 25|321m13 577r27 578m16 587r31 1206r32
+679i7*Projection_Generation{natural} 25|491r16 492m16 494m16 494r47 622r20
+. 1207r47
+680e7*Active_Feature_Id{8E9} 25|165r34 166r23 315r16 317m16 350r38 504m13
+681a7*Saved_View_State{659A9} 25|177m16 233r22 280m16
+685b7*Visible{boolean} 25|1203m16 1224r23 1231r49
+686b7*Focused{boolean} 25|1204m16 1231r23
+687r7*Empty_Message{18|105R9} 25|1205m16 1273r34
+688r7*Header{18|105R9} 25|1206m16 1238r34
+689i7*Projection_Generation{natural} 25|1207m16 1245r23
+690e7*Projection_Feature{8E9} 25|1208m16
+691i7*First_Visible_Row{natural} 25|1209m16 1252r23
+692i7*Visible_Row_Count{natural} 25|1210m16 1259r23
+693r7*Rows{8|91R9[665]} 25|1212m19 1266r32 1284r23 1295r23 1306r34 1317r34
+. 1328r23 1339r23 1350r23 1361r23 1372r23
+X 25 editor-feature_panel.adb
+6A9 Feature_Descriptor_Table(24|15R9)<integer> 11r35
+11a4 Feature_Descriptors{6A9} 46r25 62r14 67r19 68r17
+37r4 Unknown_Descriptor{24|15R9} 52r14
+44V13 Descriptor_For{24|15R9} 44b13 44>29 53l8 53t22 57s14 76s25 81s25 86s14
+. 91s14
+44e29 Feature{24|8E9} 47r29
+46r11 Descriptor=46:25{24|15R9} 47r13 48r20
+95V13 To_Row{24|78R9} 95b13 96>7 97>7 98>7 99>7 100>7 101>7 102>7 103>7 104>7
+. 105>7 106>7 107>7 108>7 109>7 110>7 130l8 130t14 610s10
+96e7 Kind{24|64E9} 114r31
+97a7 Label{string} 115r52
+98a7 Detail{string} 116r52
+99b7 Is_Current_Symbol{boolean} 117r31
+100b7 Selectable{boolean} 118r31
+101b7 Activatable{boolean} 119r31
+102b7 Has_Target{boolean} 120r31
+103b7 Is_Diagnostic{boolean} 121r31
+104b7 Can_Open{boolean} 122r31
+105b7 Can_Copy{boolean} 123r31
+106b7 Can_Clear{boolean} 124r31
+107b7 Can_Reveal{boolean} 125r31
+108i7 Action_Id{24|69I9} 127r31
+109i7 Source_Index{natural} 128r31
+110e7 Severity{24|72E9} 129r31
+132V13 To_Render_Row{24|100R9} 132b13 133>7 134>7 154l8 154t21 1213s13
+133r7 Row{24|78R9} 138r31 139r31 140r31 142r31 143r31 144r31 145r31 146r31
+. 147r31 148r31 149r31 150r31 151r31 152r31 153r31
+134b7 Selected{boolean} 141r31
+156U14 Bump_Projection_Generation 157=7 319s10 487b14 496l8 496t34 567s10
+. 614s7
+157r7 Panel{24|119R9} 488b7 491r10 492m10 494m10 494r41
+159U14 Assert_Invariant 160>7 161>7 182s7 229s10 236s10 271s7 285s7 293s7
+. 303s7 322s7 444b14 453l8 453t24 506s7 515s7 527s7 543s7 569s7 580s7 615s7
+. 912s7 929s7 949s7 968s7 1040s7 1053s10 1072s7 1082s7 1132s10 1145s7 1153s7
+. 1166s10 1181s7
+160r7 Panel{24|119R9} 445b7 450r27 452r27
+161a7 Context{string} 446b7 451r52
+174e7 Feature{24|8E9} 176r28 177r34
+185U14 Clamp_Visible_Viewport_Only 185b14 186=7 218l8 218t35 235s10
+186r7 Panel{24|119R9} 188r49 192m10 193m10 194m10 198r10 199r18 200r50 200r67
+. 202m10 205r10 206m10 209r18 210r30 213r10 214m10 215r13 216m10
+188i7 Count{natural} 191r10 198r27 205r29 209r10 210r22
+189i7 Last_Top{natural} 210m10 215r39 216r37
+223e7 Feature{24|8E9} 228r32 233r40
+224r7 Saved{24|653R9} 233m7 234r14 245r13 246r21 247r57 249r31 258r13 260r16
+. 263r40
+225i7 Count{natural} 240r10 246r43 254r13 255r25 266r32
+226i7 Last_Top{natural} 255m13 260r42 261r40
+348i7 Count{natural} 362r10 368r32 369r38 371r45
+377i7 Selected{natural} 383r31 384r31
+389V13 Hash_String{natural} 389b13 390>7 391>7 399l8 399t19 409s20 410s21
+390i7 Seed{natural} 393r22
+391a7 Text{string} 395r16
+393i7 H{natural} 396m10 396r16 398r14
+395e11 C=395:16{character} 396r41
+404r7 S{24|122R9} 413r30 414r30 415r30 416r30 417r30
+405i7 Labels{natural} 409m10 409r33 418r30
+406i7 Details{natural} 410m10 410r34 419r30
+408i11 I{integer} 409r59 410r62
+455U14 Clamp_Selection 455b14 456=7 485l8 485t23 889s10 893s7 1081s7 1136s7
+. 1152s7
+456r7 Panel{24|119R9} 458r44 462m10 463r13 464r18 465r50 465r67 467m10 470r10
+. 471m10 474r18 475r30 479m10 480r13 481m10 482r13 483m10
+458i7 Count{natural} 461r10 463r30 470r29 474r10 475r22 478r10
+459i7 Last_Top{natural} 475m10 482r39 483r37
+556b7 Changed{boolean} 566r10
+672i11 I{integer} 673r39
+750i11 I{integer} 751r35
+826V13 First_Selectable_Row{natural} 826b13 827>7 836l8 836t28 910s25 941s28
+827r7 Panel{24|119R9} 830r32 831r32
+830i11 I{integer} 831r39 832r20
+838V13 Last_Selectable_Row{natural} 838b13 839>7 848l8 848t27 960s28
+839r7 Panel{24|119R9} 842r40 843r32
+842i11 I{integer} 843r39 844r20
+850V13 Next_Selectable_Row{natural} 850b13 851>7 852>7 864l8 864t27 943s18
+851r7 Panel{24|119R9} 855r30 858r40 859r32
+852i7 After{natural} 855r10 858r16
+858i11 I{integer} 859r39 860r20
+866V13 Previous_Selectable_Row{natural} 866b13 867>7 868>7 880l8 880t31 962s22
+867r7 Panel{24|119R9} 875r32
+868i7 Before{natural} 871r10 874r29
+874i11 I{integer} 875r39 876r20
+882U14 Reveal_Selected_Row 882b14 883=7 904l8 904t27 911s7 928s7 948s7 967s7
+883r7 Panel{24|119R9} 885r38 889m27 893m24 894r10 898r23 898r49 899r10 899r27
+. 900m10 900r37 901r13 902m10 902r37 902r54
+885i7 Selected{natural} 888r10
+886i7 Last_Visible{natural} 898m7 901r30
+935i7 Count{natural} 938r10
+936i7 Next{natural} 943m10 944r13 945r31
+955i7 Previous{natural} 962m10 963r13 964r31
+1106i7 Row{natural} 1116m7 1117r10 1121r14
+1128i7 Last_Visible{natural} 1137m7 1141r19
+1160i7 Count{natural} 1164r10 1170r10 1171r22
+1161i7 Last_Top{natural} 1171m10 1176r32 1177r30
+1162i7 Desired{integer} 1174r10 1175m10 1176r13 1177m10 1180r43
+1187i7 Row{natural} 1189r10 1192r29
+1200r7 Snapshot{24|120R9} 1203m7 1204m7 1205m7 1206m7 1207m7 1208m7 1209m7
+. 1210m7 1212m10 1212r10 1217r14
+1201i7 Selected{natural} 1215r16 1215r43
+1211i11 I{integer} 1214r36 1215r39
+X 28 system.ads
+67M9*Address
+X 37 s-memory.ads
+51V13*Alloc{28|67M9} 101i<c,__gnat_malloc>22
+66U14*Free 102i<c,__gnat_free>22
+74V13*Realloc{28|67M9} 103i<c,__gnat_realloc>22
+X 48 s-stalib.adb
+87U14 Break_Start 88i<c,__gnat_break_start>22
+

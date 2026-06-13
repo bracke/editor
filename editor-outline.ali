@@ -1,0 +1,1732 @@
+V "GNAT Lib v15"
+A -gnat2022
+P SS ZX
+
+RN
+RV NO_DISPATCHING_CALLS
+RV NO_ENUMERATION_MAPS
+RV NO_EXCEPTION_HANDLERS
+RV NO_EXCEPTION_PROPAGATION
+RV NO_EXCEPTIONS
+RV NO_IMPLICIT_CONDITIONALS
+RV NO_LOCAL_ALLOCATORS
+RV NO_NESTED_FINALIZATION
+RV NO_SECONDARY_STACK
+RV NO_STANDARD_STORAGE_POOLS
+RV NO_DEFAULT_INITIALIZATION
+RV NO_DYNAMIC_SIZED_OBJECTS
+RV NO_IMPLEMENTATION_PRAGMAS
+RV NO_IMPLICIT_LOOPS
+RV NO_ELABORATION_CODE
+
+U editor.outline%b	editor-outline.adb	e942ffa5 NE OO PK
+W ada%s			ada.ads			ada.ali
+W ada.characters%s	a-charac.ads		a-charac.ali
+W ada.characters.handling%s  a-chahan.adb	a-chahan.ali
+Z ada.exceptions%s	a-except.adb		a-except.ali
+W ada.strings%s		a-string.ads		a-string.ali
+W ada.strings.fixed%s	a-strfix.adb		a-strfix.ali
+Z ada.strings.text_buffers%s  a-sttebu.adb	a-sttebu.ali
+W ada.strings.unbounded%s  a-strunb.adb		a-strunb.ali
+Z ada.tags%s		a-tags.adb		a-tags.ali
+W editor%s		editor.ads		editor.ali
+W editor.contextual_help%s  editor-contextual_help.adb  editor-contextual_help.ali
+Z system%s		system.ads		system.ali
+Z system.concat_2%s	s-conca2.adb		s-conca2.ali
+Z system.concat_3%s	s-conca3.adb		s-conca3.ali
+Z system.concat_7%s	s-conca7.adb		s-conca7.ali
+Z system.finalization_primitives%s  s-finpri.adb  s-finpri.ali
+Z system.img_int%s	s-imgint.ads		s-imgint.ali
+Z system.return_stack%s	s-retsta.ads		s-retsta.ali
+Z system.secondary_stack%s  s-secsta.adb	s-secsta.ali
+Z system.soft_links%s	s-soflin.adb		s-soflin.ali
+Z system.standard_library%s  s-stalib.adb	s-stalib.ali
+
+U editor.outline%s	editor-outline.ads	ad7b3367 EE OO PF PK
+W ada%s			ada.ads			ada.ali
+W ada.containers%s	a-contai.ads		a-contai.ali
+Z ada.containers.generic_array_sort%s
+Z ada.containers.helpers%s  a-conhel.adb	a-conhel.ali
+W ada.containers.vectors%s
+Z ada.exceptions%s	a-except.adb		a-except.ali
+Z ada.finalization%s	a-finali.ads		a-finali.ali
+Z ada.iterator_interfaces%s
+Z ada.streams%s		a-stream.adb		a-stream.ali
+W ada.strings%s		a-string.ads		a-string.ali
+Z ada.strings.text_buffers%s  a-sttebu.adb	a-sttebu.ali
+W ada.strings.unbounded%s  a-strunb.adb		a-strunb.ali
+Z ada.tags%s		a-tags.adb		a-tags.ali
+Z ada.unchecked_deallocation%s
+W editor%s		editor.ads		editor.ali
+W editor.feature_panel%s  editor-feature_panel.adb  editor-feature_panel.ali
+Z system%s		system.ads		system.ali
+Z system.finalization_primitives%s  s-finpri.adb  s-finpri.ali
+Z system.pool_global%s	s-pooglo.adb		s-pooglo.ali
+Z system.put_images%s	s-putima.adb		s-putima.ali
+Z system.return_stack%s	s-retsta.ads		s-retsta.ali
+Z system.secondary_stack%s  s-secsta.adb	s-secsta.ali
+Z system.soft_links%s	s-soflin.adb		s-soflin.ali
+Z system.standard_library%s  s-stalib.adb	s-stalib.ali
+Z system.storage_elements%s  s-stoele.ads	s-stoele.ali
+Z system.storage_pools%s  s-stopoo.adb		s-stopoo.ali
+Z system.storage_pools.subpools%s  s-stposu.adb	s-stposu.ali
+Z system.stream_attributes%s  s-stratt.adb	s-stratt.ali
+Z system.strings.stream_ops%s  s-ststop.adb	s-ststop.ali
+Z system.wch_stw%s	s-wchstw.adb		s-wchstw.ali
+
+D ada.ads		20250808065140 76789da1 ada%s
+D a-charac.ads		20250808065140 2d3ec45b ada.characters%s
+D a-chahan.ads		20250808065140 bf752ff6 ada.characters.handling%s
+D a-chlat1.ads		20250808065140 e0d72e76 ada.characters.latin_1%s
+D a-contai.ads		20250808065140 61e5e089 ada.containers%s
+D a-cgarso.ads		20250808065140 9129bfa8 ada.containers.generic_array_sort%s
+D a-conhel.ads		20250808065140 46fe1ce3 ada.containers.helpers%s
+D a-conhel.adb		20250808065140 854d323e ada.containers.helpers%b
+D a-convec.ads		20250808065140 91fb49f3 ada.containers.vectors%s
+D a-convec.adb		20250808065140 b2ed0168 ada.containers.vectors%b
+D a-except.ads		20250808065140 e7970cd9 ada.exceptions%s
+D a-finali.ads		20250808065140 bf4f806b ada.finalization%s
+D a-iteint.ads		20250808065140 49a8bee2 ada.iterator_interfaces%s
+D a-stream.ads		20250808065140 17477cbd ada.streams%s
+D a-string.ads		20250808065140 90ac6797 ada.strings%s
+D a-strfix.ads		20250808065140 8648dedb ada.strings.fixed%s
+D a-strmap.ads		20250808065140 1f91ebb6 ada.strings.maps%s
+D a-strsea.ads		20250808065140 18c3c634 ada.strings.search%s
+D a-sttebu.ads		20250808065140 f1ad67a2 ada.strings.text_buffers%s
+D a-strunb.ads		20250808065140 b10770ab ada.strings.unbounded%s
+D a-stuten.ads		20250808065140 c6ced0ae ada.strings.utf_encoding%s
+D a-tags.ads		20250808065140 fbca0ad5 ada.tags%s
+D a-unccon.ads		20250808065140 0e9b276f ada.unchecked_conversion%s
+D a-uncdea.ads		20250808065140 c3a8ac65 ada.unchecked_deallocation%s
+D editor.ads		20260612145959 16f844c2 editor%s
+D editor-commands.ads	20260612173240 3b5e3f44 editor.commands%s
+D editor-contextual_help.ads  20260612145959 f0559507 editor.contextual_help%s
+D editor-cursors.ads	20260612145959 1f938cf3 editor.cursors%s
+D editor-feature_panel.ads  20260612145959 0bdf4cfc editor.feature_panel%s
+D editor-outline.ads	20260612152524 90a00201 editor.outline%s
+D editor-outline.adb	20260612165149 91218eb2 editor.outline%b
+D editor-unicode.ads	20260612145959 552ff3cc editor.unicode%s
+D interfac.ads		20250808065140 9111f9c1 interfaces%s
+D i-c.ads		20250808065140 e94c966a interfaces.c%s
+D system.ads		20250808065140 14286b0f system%s
+D s-atocou.ads		20250808065140 dc18efc3 system.atomic_counters%s
+D s-atocou.adb		20250808065140 6fe685de system.atomic_counters%b
+D s-atopri.ads		20250808065140 e19c1d89 system.atomic_primitives%s
+D s-conca2.ads		20250808065140 b5fb73f7 system.concat_2%s
+D s-conca3.ads		20250808065140 8a7a19a2 system.concat_3%s
+D s-conca7.ads		20250808065140 09fd419f system.concat_7%s
+D s-exctab.ads		20250808065140 91bef6ef system.exception_table%s
+D s-finpri.ads		20250808065140 5970d55a system.finalization_primitives%s
+D s-finroo.ads		20250808065140 0a7c3ed4 system.finalization_root%s
+D s-imagei.ads		20250808065140 5e131ce0 system.image_i%s
+D s-imgint.ads		20250808065140 67e4edfb system.img_int%s
+D s-memory.ads		20250808065140 18949c1a system.memory%s
+D s-oscons.ads		20250827122531 068e1a91 system.os_constants%s
+D s-oslock.ads		20250808065140 13fa6b78 system.os_locks%s
+D s-parame.ads		20250808065140 3597fc11 system.parameters%s
+D s-pooglo.ads		20250808065140 91708d21 system.pool_global%s
+D s-putima.ads		20250808065140 17291fe4 system.put_images%s
+D s-retsta.ads		20250808065140 0f6b06cb system.return_stack%s
+D s-secsta.ads		20250808065140 578279f5 system.secondary_stack%s
+D s-soflin.ads		20250808065140 5d88fdea system.soft_links%s
+D s-stache.ads		20250808065140 0b81c1fe system.stack_checking%s
+D s-stalib.ads		20250808065140 1c9580f6 system.standard_library%s
+D s-stalib.adb		20250808065140 eb464a47 system.standard_library%b
+D s-stoele.ads		20250808065140 ccded4e8 system.storage_elements%s
+D s-stopoo.ads		20250808065140 e9fa2dd8 system.storage_pools%s
+D s-stposu.ads		20250808065140 e0b9fefd system.storage_pools.subpools%s
+D s-stratt.ads		20250808065140 516607ae system.stream_attributes%s
+D s-string.ads		20250808065140 582aac7d system.strings%s
+D s-ststop.ads		20250808065140 c569db7c system.strings.stream_ops%s
+D s-traent.ads		20250808065140 c81cbf8c system.traceback_entries%s
+D s-unstyp.ads		20250808065140 fa2a7f59 system.unsigned_types%s
+D s-valspe.ads		20250808065140 f810d31c system.val_spec%s
+D s-vaispe.ads		20250808065140 8280550e system.value_i_spec%s
+D s-vauspe.ads		20250808065140 89269ba5 system.value_u_spec%s
+D s-vs_int.ads		20250808065140 06b6b724 system.vs_int%s
+D s-vs_uns.ads		20250808065140 e7f47a27 system.vs_uns%s
+D s-wchcon.ads		20250808065140 d9032363 system.wch_con%s
+D s-wchstw.ads		20250808065140 2d112c01 system.wch_stw%s
+G a e
+G c Z s b [invariant_holds editor__outline 124 13 none]
+G c Z s b [debug_summary editor__outline 131 13 none]
+G c Z s b [clear editor__outline 140 14 none]
+G c Z s b [reset_outline_for_buffer_close editor__outline 152 14 none]
+G c Z s b [reset_outline_for_project_close editor__outline 156 14 none]
+G c Z s b [reset_outline_for_workspace_close editor__outline 159 14 none]
+G c Z s b [reset_outline_for_unsupported_content editor__outline 162 14 none]
+G c Z s b [reset_outline_for_extraction_failure editor__outline 165 14 none]
+G c Z s b [mark_no_active_buffer editor__outline 173 14 none]
+G c Z s b [assert_outline_state_consistent editor__outline 176 14 none]
+G c Z s b [begin_extraction editor__outline 183 14 none]
+G c Z s b [next_request_token editor__outline 189 13 none]
+G c Z s b [snapshot_is_current editor__outline 194 13 none]
+G c Z s b [mark_stale_result editor__outline 199 14 none]
+G c Z s b [mark_extraction_failed editor__outline 204 14 none]
+G c Z s b [mark_unsupported editor__outline 209 14 none]
+G c Z s b [reset_for_project_close editor__outline 215 14 none]
+G c Z s b [reset_for_buffer_change editor__outline 220 14 none]
+G c Z s b [mark_for_buffer_change editor__outline 226 14 none]
+G c Z s b [is_current_for_buffer editor__outline 231 13 none]
+G c Z s b [is_stale_for_buffer editor__outline 236 13 none]
+G c Z s b [freshness_for_active_buffer editor__outline 241 13 none]
+G c Z s b [source_buffer_token editor__outline 246 13 none]
+G c Z s b [source_buffer_revision editor__outline 249 13 none]
+G c Z s b [refresh editor__outline 258 13 none]
+G c Z s b [replace_items editor__outline 268 14 none]
+G c Z s b [select_item editor__outline 276 14 none]
+G c Z s b [selected_index editor__outline 280 13 none]
+G c Z s b [activate_filter_input editor__outline 283 14 none]
+G c Z s b [deactivate_filter_input editor__outline 286 14 none]
+G c Z s b [filter_input_is_active editor__outline 289 13 none]
+G c Z s b [filter_caret editor__outline 292 13 none]
+G c Z s b [apply_filter editor__outline 295 14 none]
+G c Z s b [insert_filter_character editor__outline 299 14 none]
+G c Z s b [insert_filter_text editor__outline 303 14 none]
+G c Z s b [delete_filter_character_backward editor__outline 307 14 none]
+G c Z s b [delete_filter_character_forward editor__outline 310 14 none]
+G c Z s b [move_filter_caret_left editor__outline 313 14 none]
+G c Z s b [move_filter_caret_right editor__outline 316 14 none]
+G c Z s b [move_filter_caret_start editor__outline 319 14 none]
+G c Z s b [move_filter_caret_end editor__outline 322 14 none]
+G c Z s b [clear_filter_text editor__outline 325 14 none]
+G c Z s b [clear_filter editor__outline 328 14 none]
+G c Z s b [reset_filter_state_for_lifecycle editor__outline 331 14 none]
+G c Z s b [commit_filter_to_history editor__outline 334 14 none]
+G c Z s b [filter_history_count editor__outline 337 13 none]
+G c Z s b [filter_history_entry editor__outline 340 13 none]
+G c Z s b [select_previous_filter_history_entry editor__outline 345 13 none]
+G c Z s b [select_next_filter_history_entry editor__outline 348 13 none]
+G c Z s b [clear_filter_history editor__outline 351 14 none]
+G c Z s b [remember_filter_for_buffer editor__outline 354 14 none]
+G c Z s b [restore_filter_for_buffer editor__outline 358 13 none]
+G c Z s b [forget_filter_for_buffer editor__outline 362 14 none]
+G c Z s b [clear_all_remembered_filters editor__outline 366 14 none]
+G c Z s b [remembered_filter_count editor__outline 369 13 none]
+G c Z s b [filter_is_active editor__outline 372 13 none]
+G c Z s b [filter_text editor__outline 375 13 none]
+G c Z s b [filtered_row_count editor__outline 378 13 none]
+G c Z s b [rows_generation editor__outline 381 13 none]
+G c Z s b [filter_generation editor__outline 384 13 none]
+G c Z s b [projection_generation editor__outline 387 13 none]
+G c Z s b [visible_row_for_outline_row editor__outline 390 13 none]
+G c Z s b [outline_row_for_visible_row editor__outline 394 13 none]
+G c Z s b [has_selected_item editor__outline 398 13 none]
+G c Z s b [clear_current_symbol editor__outline 405 14 none]
+G c Z s b [set_current_symbol_index editor__outline 408 14 none]
+G c Z s b [current_symbol_index editor__outline 412 13 none]
+G c Z s b [has_current_symbol editor__outline 415 13 none]
+G c Z s b [current_symbol_label editor__outline 418 13 none]
+G c Z s b [current_symbol_line editor__outline 421 13 none]
+G c Z s b [find_current_symbol_for_cursor editor__outline 424 13 none]
+G c Z s b [update_current_symbol_for_cursor editor__outline 430 14 none]
+G c Z s b [outline_header_text editor__outline 436 13 none]
+G c Z s b [outline_empty_state_label editor__outline 443 13 none]
+G c Z s b [is_current_symbol_row editor__outline 446 13 none]
+G c Z s b [is_selectable_target_row editor__outline 451 13 none]
+G c Z s b [has_selectable_filter_match editor__outline 460 13 none]
+G c Z s b [navigable_symbol_count editor__outline 467 13 none]
+G c Z s b [filtered_navigable_symbol_count editor__outline 473 13 none]
+G c Z s b [can_reveal_current_symbol editor__outline 479 13 none]
+G c Z s b [same_outline_target editor__outline 484 13 none]
+G c Z s b [same_outline_symbol editor__outline 487 13 none]
+G c Z s b [outline_buffer_identity_matches editor__outline 494 13 none]
+G c Z s b [has_navigable_symbol_for_buffer editor__outline 501 13 none]
+G c Z s b [selection_preservation_score editor__outline 505 13 none]
+G c Z s b [find_nearest_item_for_position editor__outline 508 13 none]
+G c Z s b [find_next_symbol_for_position editor__outline 518 13 none]
+G c Z s b [find_previous_symbol_for_position editor__outline 529 13 none]
+G c Z s b [select_next_selectable editor__outline 536 13 none]
+G c Z s b [select_previous_selectable editor__outline 539 13 none]
+G c Z s b [set_rows_from_outline editor__outline 548 14 none]
+G c Z s b [item_count editor__outline 553 13 none]
+G c Z s b [has_items editor__outline 556 13 none]
+G c Z s b [source_class editor__outline 559 13 none]
+G c Z s b [last_extraction_source_class editor__outline 562 13 none]
+G c Z s b [last_extraction_message editor__outline 565 13 none]
+G c Z s b [last_extraction_buffer_label editor__outline 568 13 none]
+G c Z s b [last_extraction_item_count editor__outline 571 13 none]
+G c Z s b [item_label editor__outline 574 13 none]
+G c Z s b [item_detail editor__outline 579 13 none]
+G c Z s b [item_depth editor__outline 584 13 none]
+G c Z s b [item_kind editor__outline 589 13 none]
+G c Z s b [item_target_kind editor__outline 602 13 none]
+G c Z s b [item_buffer_token editor__outline 607 13 none]
+G c Z s b [item_line editor__outline 612 13 none]
+G c Z s b [item_column editor__outline 617 13 none]
+G c Z s b [feature_row_maps_to_item editor__outline 633 13 none]
+G c Z s b [map_panel_row_to_outline_row editor__outline 642 13 none]
+G c Z s b [validate_outline_row_for_selection editor__outline 648 13 none]
+G c Z s b [validate_outline_row_for_activation editor__outline 654 13 none]
+G c Z s b [summary editor__outline 662 13 none]
+G c Z s b [fingerprint editor__outline 670 13 none]
+G c Z s b [message_outline_refreshed editor__outline 673 13 none]
+G c Z s b [message_outline_cleared editor__outline 674 13 none]
+G c Z s b [message_outline_shown editor__outline 675 13 none]
+G c Z s b [message_outline_focused editor__outline 676 13 none]
+G c Z s b [message_outline_item_has_no_target editor__outline 677 13 none]
+G c Z s b [message_outline_refresh_failed editor__outline 678 13 none]
+G c Z s b [message_outline_no_current_symbol editor__outline 679 13 none]
+G c Z s b [message_outline_current_symbol_revealed editor__outline 680 13 none]
+G c Z s b [message_outline_no_active_buffer editor__outline 681 13 none]
+G c Z s b [message_outline_unsupported_buffer editor__outline 682 13 none]
+G c Z s b [message_outline_no_symbols editor__outline 683 13 none]
+G c Z s b [message_outline_no_matching_symbols editor__outline 684 13 none]
+G c Z s b [message_outline_no_selected_symbol editor__outline 685 13 none]
+G c Z s b [message_outline_stale_result_discarded editor__outline 686 13 none]
+G c Z s b [projection_invariant_holds editor__outline 693 13 none]
+G c Z s b [assert_outline_projection_consistent editor__outline 697 14 none]
+G c Z s b [reason_no_active_buffer editor__outline 701 13 none]
+G c Z s b [reason_no_outline_items editor__outline 702 13 none]
+G c Z s b [reason_no_outline_item_selected editor__outline 703 13 none]
+G c Z s b [reason_outline_belongs_to_another_buffer editor__outline 704 13 none]
+G c Z s b [reason_feature_panel_hidden editor__outline 705 13 none]
+G c Z s b [reason_feature_panel_already_shown editor__outline 706 13 none]
+G c Z s b [reason_feature_panel_already_focused editor__outline 707 13 none]
+G c Z s s [outline_itemDI editor__outline 96 9 none]
+G c Z s s [outline_itemDA editor__outline 96 9 none]
+G c Z s s [outline_itemDF editor__outline 96 9 none]
+G c Z s s [outline_itemIP editor__outline 96 9 none]
+G c Z s s [has_element editor__outline__outline_item_vectors 115 13 710_4]
+G c Z s s [empty editor__outline__outline_item_vectors 125 13 710_4]
+G c Z s s [Oeq editor__outline__outline_item_vectors 127 24 710_4]
+G c Z s s [to_vector editor__outline__outline_item_vectors 136 13 710_4]
+G c Z s s [to_vector editor__outline__outline_item_vectors 139 13 710_4]
+G c Z s s [Oconcat editor__outline__outline_item_vectors 145 13 710_4]
+G c Z s s [Oconcat editor__outline__outline_item_vectors 149 13 710_4]
+G c Z s s [Oconcat editor__outline__outline_item_vectors 153 13 710_4]
+G c Z s s [Oconcat editor__outline__outline_item_vectors 157 13 710_4]
+G c Z s s [capacity editor__outline__outline_item_vectors 161 13 710_4]
+G c Z s s [reserve_capacity editor__outline__outline_item_vectors 164 14 710_4]
+G c Z s s [length editor__outline__outline_item_vectors 175 13 710_4]
+G c Z s s [set_length editor__outline__outline_item_vectors 178 14 710_4]
+G c Z s s [is_empty editor__outline__outline_item_vectors 187 13 710_4]
+G c Z s s [clear editor__outline__outline_item_vectors 190 14 710_4]
+G c Z s s [to_cursor editor__outline__outline_item_vectors 194 13 710_4]
+G c Z s s [to_index editor__outline__outline_item_vectors 201 13 710_4]
+G c Z s s [element editor__outline__outline_item_vectors 206 13 710_4]
+G c Z s s [element editor__outline__outline_item_vectors 213 13 710_4]
+G c Z s s [replace_element editor__outline__outline_item_vectors 217 14 710_4]
+G c Z s s [replace_element editor__outline__outline_item_vectors 228 14 710_4]
+G c Z s s [query_element editor__outline__outline_item_vectors 239 14 710_4]
+G c Z s s [query_element editor__outline__outline_item_vectors 250 14 710_4]
+G c Z s s [update_element editor__outline__outline_item_vectors 259 14 710_4]
+G c Z s s [update_element editor__outline__outline_item_vectors 276 14 710_4]
+G c Z s s [constant_reference editor__outline__outline_item_vectors 303 13 710_4]
+G c Z s s [reference editor__outline__outline_item_vectors 308 13 710_4]
+G c Z s s [constant_reference editor__outline__outline_item_vectors 313 13 710_4]
+G c Z s s [reference editor__outline__outline_item_vectors 318 13 710_4]
+G c Z s s [assign editor__outline__outline_item_vectors 323 14 710_4]
+G c Z s s [copy editor__outline__outline_item_vectors 325 13 710_4]
+G c Z s s [move editor__outline__outline_item_vectors 327 14 710_4]
+G c Z s s [new_vector editor__outline__outline_item_vectors 333 13 710_4]
+G c Z s s [insert_vector editor__outline__outline_item_vectors 337 14 710_4]
+G c Z s s [insert_vector editor__outline__outline_item_vectors 361 14 710_4]
+G c Z s s [insert_vector editor__outline__outline_item_vectors 378 14 710_4]
+G c Z s s [insert editor__outline__outline_item_vectors 396 14 710_4]
+G c Z s s [insert editor__outline__outline_item_vectors 404 14 710_4]
+G c Z s s [insert editor__outline__outline_item_vectors 412 14 710_4]
+G c Z s s [insert editor__outline__outline_item_vectors 421 14 710_4]
+G c Z s s [insert editor__outline__outline_item_vectors 438 14 710_4]
+G c Z s s [prepend_vector editor__outline__outline_item_vectors 449 14 710_4]
+G c Z s s [prepend editor__outline__outline_item_vectors 459 14 710_4]
+G c Z s s [append_vector editor__outline__outline_item_vectors 466 14 710_4]
+G c Z s s [append editor__outline__outline_item_vectors 476 14 710_4]
+G c Z s s [append editor__outline__outline_item_vectors 483 14 710_4]
+G c Z s s [insert_space editor__outline__outline_item_vectors 486 14 710_4]
+G c Z s s [insert_space editor__outline__outline_item_vectors 503 14 710_4]
+G c Z s s [delete editor__outline__outline_item_vectors 514 14 710_4]
+G c Z s s [delete editor__outline__outline_item_vectors 524 14 710_4]
+G c Z s s [delete_first editor__outline__outline_item_vectors 533 14 710_4]
+G c Z s s [delete_last editor__outline__outline_item_vectors 538 14 710_4]
+G c Z s s [reverse_elements editor__outline__outline_item_vectors 546 14 710_4]
+G c Z s s [swap editor__outline__outline_item_vectors 549 14 710_4]
+G c Z s s [swap editor__outline__outline_item_vectors 554 14 710_4]
+G c Z s s [first_index editor__outline__outline_item_vectors 560 13 710_4]
+G c Z s s [first editor__outline__outline_item_vectors 563 13 710_4]
+G c Z s s [first_element editor__outline__outline_item_vectors 567 13 710_4]
+G c Z s s [last_index editor__outline__outline_item_vectors 570 13 710_4]
+G c Z s s [last editor__outline__outline_item_vectors 574 13 710_4]
+G c Z s s [last_element editor__outline__outline_item_vectors 578 13 710_4]
+G c Z s s [next editor__outline__outline_item_vectors 581 13 710_4]
+G c Z s s [next editor__outline__outline_item_vectors 587 14 710_4]
+G c Z s s [previous editor__outline__outline_item_vectors 590 13 710_4]
+G c Z s s [previous editor__outline__outline_item_vectors 596 14 710_4]
+G c Z s s [find_index editor__outline__outline_item_vectors 599 13 710_4]
+G c Z s s [find editor__outline__outline_item_vectors 609 13 710_4]
+G c Z s s [reverse_find_index editor__outline__outline_item_vectors 623 13 710_4]
+G c Z s s [reverse_find editor__outline__outline_item_vectors 635 13 710_4]
+G c Z s s [contains editor__outline__outline_item_vectors 649 13 710_4]
+G c Z s s [iterate editor__outline__outline_item_vectors 654 14 710_4]
+G c Z s s [reverse_iterate editor__outline__outline_item_vectors 662 14 710_4]
+G c Z s s [iterate editor__outline__outline_item_vectors 669 13 710_4]
+G c Z s s [iterate editor__outline__outline_item_vectors 672 13 710_4]
+G c Z s s [adjust editor__outline__outline_item_vectors__implementation 90 28 726_4_710_4]
+G c Z s s [finalize editor__outline__outline_item_vectors__implementation 93 28 726_4_710_4]
+G c Z s s [zero_counts editor__outline__outline_item_vectors__implementation 96 17 726_4_710_4]
+G c Z s s [busy editor__outline__outline_item_vectors__implementation 100 17 726_4_710_4]
+G c Z s s [unbusy editor__outline__outline_item_vectors__implementation 104 17 726_4_710_4]
+G c Z s s [lock editor__outline__outline_item_vectors__implementation 108 17 726_4_710_4]
+G c Z s s [unlock editor__outline__outline_item_vectors__implementation 112 17 726_4_710_4]
+G c Z s s [tc_check editor__outline__outline_item_vectors__implementation 116 17 726_4_710_4]
+G c Z s s [te_check editor__outline__outline_item_vectors__implementation 120 17 726_4_710_4]
+G c Z s s [is_busy editor__outline__outline_item_vectors__implementation 136 16 726_4_710_4]
+G c Z s s [is_locked editor__outline__outline_item_vectors__implementation 140 16 726_4_710_4]
+G c Z s s [initialize editor__outline__outline_item_vectors__implementation 161 28 726_4_710_4]
+G c Z s s [finalize editor__outline__outline_item_vectors__implementation 162 28 726_4_710_4]
+G c Z s s [initialize editor__outline__outline_item_vectors__implementation 167 28 726_4_710_4]
+G c Z s s [finalize editor__outline__outline_item_vectors__implementation 168 28 726_4_710_4]
+G c Z s s [reference_control_typeDA editor__outline__outline_item_vectors__implementation 84 12 726_4_710_4]
+G c Z s s [reference_control_typeDF editor__outline__outline_item_vectors__implementation 84 12 726_4_710_4]
+G c Z s s [reference_control_typeIP editor__outline__outline_item_vectors__implementation 84 12 726_4_710_4]
+G c Z s s [with_busyDF editor__outline__outline_item_vectors__implementation 158 12 726_4_710_4]
+G c Z s s [with_busyIP editor__outline__outline_item_vectors__implementation 158 12 726_4_710_4]
+G c Z s s [with_lockDF editor__outline__outline_item_vectors__implementation 164 12 726_4_710_4]
+G c Z s s [with_lockIP editor__outline__outline_item_vectors__implementation 164 12 726_4_710_4]
+G c Z s s [put_image editor__outline__outline_item_vectors 747 14 710_4]
+G c Z s s [adjust editor__outline__outline_item_vectors 750 25 710_4]
+G c Z s s [finalize editor__outline__outline_item_vectors 751 25 710_4]
+G c Z s s [write editor__outline__outline_item_vectors 753 14 710_4]
+G c Z s s [read editor__outline__outline_item_vectors 759 14 710_4]
+G c Z s s [read editor__outline__outline_item_vectors 773 14 710_4]
+G c Z s s [write editor__outline__outline_item_vectors 779 14 710_4]
+G c Z s s [write editor__outline__outline_item_vectors 798 14 710_4]
+G c Z s s [read editor__outline__outline_item_vectors 804 14 710_4]
+G c Z s s [write editor__outline__outline_item_vectors 820 14 710_4]
+G c Z s s [read editor__outline__outline_item_vectors 826 14 710_4]
+G c Z s s [pseudo_reference editor__outline__outline_item_vectors 840 13 710_4]
+G c Z s s [get_element_access editor__outline__outline_item_vectors 849 13 710_4]
+G c Z s s [cursorIP editor__outline__outline_item_vectors 768 9 710_4]
+G c Z s s [vectorDA editor__outline__outline_item_vectors 741 9 710_4]
+G c Z s s [vectorDF editor__outline__outline_item_vectors 741 9 710_4]
+G c Z s s [vectorIP editor__outline__outline_item_vectors 741 9 710_4]
+G c Z s s [finalize editor__outline__outline_item_vectors 865 25 710_4]
+G c Z s s [first editor__outline__outline_item_vectors 867 24 710_4]
+G c Z s s [last editor__outline__outline_item_vectors 868 24 710_4]
+G c Z s s [next editor__outline__outline_item_vectors 870 24 710_4]
+G c Z s s [previous editor__outline__outline_item_vectors 874 24 710_4]
+G c Z s s [constant_reference_typeDI editor__outline__outline_item_vectors 788 9 710_4]
+G c Z s s [constant_reference_typeDA editor__outline__outline_item_vectors 788 9 710_4]
+G c Z s s [constant_reference_typeDF editor__outline__outline_item_vectors 788 9 710_4]
+G c Z s s [constant_reference_typeIP editor__outline__outline_item_vectors 788 9 710_4]
+G c Z s s [reference_typeDI editor__outline__outline_item_vectors 810 9 710_4]
+G c Z s s [reference_typeDA editor__outline__outline_item_vectors 810 9 710_4]
+G c Z s s [reference_typeDF editor__outline__outline_item_vectors 810 9 710_4]
+G c Z s s [reference_typeIP editor__outline__outline_item_vectors 810 9 710_4]
+G c Z s s [elements_arrayIP editor__outline__outline_item_vectors 729 9 710_4]
+G c Z s s [elements_arrayDI editor__outline__outline_item_vectors 729 9 710_4]
+G c Z s s [elements_arrayDA editor__outline__outline_item_vectors 729 9 710_4]
+G c Z s s [elements_arrayDF editor__outline__outline_item_vectors 729 9 710_4]
+G c Z s s [elements_typeDI editor__outline__outline_item_vectors 732 9 710_4]
+G c Z s s [elements_typeDF editor__outline__outline_item_vectors 732 9 710_4]
+G c Z s s [elements_typeIP editor__outline__outline_item_vectors 732 9 710_4]
+G c Z s s [iteratorDF editor__outline__outline_item_vectors 857 9 710_4]
+G c Z s s [iteratorIP editor__outline__outline_item_vectors 857 9 710_4]
+G c Z s s [free editor__outline__outline_item_vectors 44 14 710_4]
+G c Z s s [append_slow_path editor__outline__outline_item_vectors 47 14 710_4]
+G c Z s s [has_element editor__outline__filter_text_vectors 115 13 714_4]
+G c Z s s [empty editor__outline__filter_text_vectors 125 13 714_4]
+G c Z s s [Oeq editor__outline__filter_text_vectors 127 24 714_4]
+G c Z s s [to_vector editor__outline__filter_text_vectors 136 13 714_4]
+G c Z s s [to_vector editor__outline__filter_text_vectors 139 13 714_4]
+G c Z s s [Oconcat editor__outline__filter_text_vectors 145 13 714_4]
+G c Z s s [Oconcat editor__outline__filter_text_vectors 149 13 714_4]
+G c Z s s [Oconcat editor__outline__filter_text_vectors 153 13 714_4]
+G c Z s s [Oconcat editor__outline__filter_text_vectors 157 13 714_4]
+G c Z s s [capacity editor__outline__filter_text_vectors 161 13 714_4]
+G c Z s s [reserve_capacity editor__outline__filter_text_vectors 164 14 714_4]
+G c Z s s [length editor__outline__filter_text_vectors 175 13 714_4]
+G c Z s s [set_length editor__outline__filter_text_vectors 178 14 714_4]
+G c Z s s [is_empty editor__outline__filter_text_vectors 187 13 714_4]
+G c Z s s [clear editor__outline__filter_text_vectors 190 14 714_4]
+G c Z s s [to_cursor editor__outline__filter_text_vectors 194 13 714_4]
+G c Z s s [to_index editor__outline__filter_text_vectors 201 13 714_4]
+G c Z s s [element editor__outline__filter_text_vectors 206 13 714_4]
+G c Z s s [element editor__outline__filter_text_vectors 213 13 714_4]
+G c Z s s [replace_element editor__outline__filter_text_vectors 217 14 714_4]
+G c Z s s [replace_element editor__outline__filter_text_vectors 228 14 714_4]
+G c Z s s [query_element editor__outline__filter_text_vectors 239 14 714_4]
+G c Z s s [query_element editor__outline__filter_text_vectors 250 14 714_4]
+G c Z s s [update_element editor__outline__filter_text_vectors 259 14 714_4]
+G c Z s s [update_element editor__outline__filter_text_vectors 276 14 714_4]
+G c Z s s [constant_reference editor__outline__filter_text_vectors 303 13 714_4]
+G c Z s s [reference editor__outline__filter_text_vectors 308 13 714_4]
+G c Z s s [constant_reference editor__outline__filter_text_vectors 313 13 714_4]
+G c Z s s [reference editor__outline__filter_text_vectors 318 13 714_4]
+G c Z s s [assign editor__outline__filter_text_vectors 323 14 714_4]
+G c Z s s [copy editor__outline__filter_text_vectors 325 13 714_4]
+G c Z s s [move editor__outline__filter_text_vectors 327 14 714_4]
+G c Z s s [new_vector editor__outline__filter_text_vectors 333 13 714_4]
+G c Z s s [insert_vector editor__outline__filter_text_vectors 337 14 714_4]
+G c Z s s [insert_vector editor__outline__filter_text_vectors 361 14 714_4]
+G c Z s s [insert_vector editor__outline__filter_text_vectors 378 14 714_4]
+G c Z s s [insert editor__outline__filter_text_vectors 396 14 714_4]
+G c Z s s [insert editor__outline__filter_text_vectors 404 14 714_4]
+G c Z s s [insert editor__outline__filter_text_vectors 412 14 714_4]
+G c Z s s [insert editor__outline__filter_text_vectors 421 14 714_4]
+G c Z s s [insert editor__outline__filter_text_vectors 438 14 714_4]
+G c Z s s [prepend_vector editor__outline__filter_text_vectors 449 14 714_4]
+G c Z s s [prepend editor__outline__filter_text_vectors 459 14 714_4]
+G c Z s s [append_vector editor__outline__filter_text_vectors 466 14 714_4]
+G c Z s s [append editor__outline__filter_text_vectors 476 14 714_4]
+G c Z s s [append editor__outline__filter_text_vectors 483 14 714_4]
+G c Z s s [insert_space editor__outline__filter_text_vectors 486 14 714_4]
+G c Z s s [insert_space editor__outline__filter_text_vectors 503 14 714_4]
+G c Z s s [delete editor__outline__filter_text_vectors 514 14 714_4]
+G c Z s s [delete editor__outline__filter_text_vectors 524 14 714_4]
+G c Z s s [delete_first editor__outline__filter_text_vectors 533 14 714_4]
+G c Z s s [delete_last editor__outline__filter_text_vectors 538 14 714_4]
+G c Z s s [reverse_elements editor__outline__filter_text_vectors 546 14 714_4]
+G c Z s s [swap editor__outline__filter_text_vectors 549 14 714_4]
+G c Z s s [swap editor__outline__filter_text_vectors 554 14 714_4]
+G c Z s s [first_index editor__outline__filter_text_vectors 560 13 714_4]
+G c Z s s [first editor__outline__filter_text_vectors 563 13 714_4]
+G c Z s s [first_element editor__outline__filter_text_vectors 567 13 714_4]
+G c Z s s [last_index editor__outline__filter_text_vectors 570 13 714_4]
+G c Z s s [last editor__outline__filter_text_vectors 574 13 714_4]
+G c Z s s [last_element editor__outline__filter_text_vectors 578 13 714_4]
+G c Z s s [next editor__outline__filter_text_vectors 581 13 714_4]
+G c Z s s [next editor__outline__filter_text_vectors 587 14 714_4]
+G c Z s s [previous editor__outline__filter_text_vectors 590 13 714_4]
+G c Z s s [previous editor__outline__filter_text_vectors 596 14 714_4]
+G c Z s s [find_index editor__outline__filter_text_vectors 599 13 714_4]
+G c Z s s [find editor__outline__filter_text_vectors 609 13 714_4]
+G c Z s s [reverse_find_index editor__outline__filter_text_vectors 623 13 714_4]
+G c Z s s [reverse_find editor__outline__filter_text_vectors 635 13 714_4]
+G c Z s s [contains editor__outline__filter_text_vectors 649 13 714_4]
+G c Z s s [iterate editor__outline__filter_text_vectors 654 14 714_4]
+G c Z s s [reverse_iterate editor__outline__filter_text_vectors 662 14 714_4]
+G c Z s s [iterate editor__outline__filter_text_vectors 669 13 714_4]
+G c Z s s [iterate editor__outline__filter_text_vectors 672 13 714_4]
+G c Z s s [adjust editor__outline__filter_text_vectors__implementation 90 28 726_4_714_4]
+G c Z s s [finalize editor__outline__filter_text_vectors__implementation 93 28 726_4_714_4]
+G c Z s s [zero_counts editor__outline__filter_text_vectors__implementation 96 17 726_4_714_4]
+G c Z s s [busy editor__outline__filter_text_vectors__implementation 100 17 726_4_714_4]
+G c Z s s [unbusy editor__outline__filter_text_vectors__implementation 104 17 726_4_714_4]
+G c Z s s [lock editor__outline__filter_text_vectors__implementation 108 17 726_4_714_4]
+G c Z s s [unlock editor__outline__filter_text_vectors__implementation 112 17 726_4_714_4]
+G c Z s s [tc_check editor__outline__filter_text_vectors__implementation 116 17 726_4_714_4]
+G c Z s s [te_check editor__outline__filter_text_vectors__implementation 120 17 726_4_714_4]
+G c Z s s [is_busy editor__outline__filter_text_vectors__implementation 136 16 726_4_714_4]
+G c Z s s [is_locked editor__outline__filter_text_vectors__implementation 140 16 726_4_714_4]
+G c Z s s [initialize editor__outline__filter_text_vectors__implementation 161 28 726_4_714_4]
+G c Z s s [finalize editor__outline__filter_text_vectors__implementation 162 28 726_4_714_4]
+G c Z s s [initialize editor__outline__filter_text_vectors__implementation 167 28 726_4_714_4]
+G c Z s s [finalize editor__outline__filter_text_vectors__implementation 168 28 726_4_714_4]
+G c Z s s [reference_control_typeDA editor__outline__filter_text_vectors__implementation 84 12 726_4_714_4]
+G c Z s s [reference_control_typeDF editor__outline__filter_text_vectors__implementation 84 12 726_4_714_4]
+G c Z s s [reference_control_typeIP editor__outline__filter_text_vectors__implementation 84 12 726_4_714_4]
+G c Z s s [with_busyDF editor__outline__filter_text_vectors__implementation 158 12 726_4_714_4]
+G c Z s s [with_busyIP editor__outline__filter_text_vectors__implementation 158 12 726_4_714_4]
+G c Z s s [with_lockDF editor__outline__filter_text_vectors__implementation 164 12 726_4_714_4]
+G c Z s s [with_lockIP editor__outline__filter_text_vectors__implementation 164 12 726_4_714_4]
+G c Z s s [put_image editor__outline__filter_text_vectors 747 14 714_4]
+G c Z s s [adjust editor__outline__filter_text_vectors 750 25 714_4]
+G c Z s s [finalize editor__outline__filter_text_vectors 751 25 714_4]
+G c Z s s [write editor__outline__filter_text_vectors 753 14 714_4]
+G c Z s s [read editor__outline__filter_text_vectors 759 14 714_4]
+G c Z s s [read editor__outline__filter_text_vectors 773 14 714_4]
+G c Z s s [write editor__outline__filter_text_vectors 779 14 714_4]
+G c Z s s [write editor__outline__filter_text_vectors 798 14 714_4]
+G c Z s s [read editor__outline__filter_text_vectors 804 14 714_4]
+G c Z s s [write editor__outline__filter_text_vectors 820 14 714_4]
+G c Z s s [read editor__outline__filter_text_vectors 826 14 714_4]
+G c Z s s [pseudo_reference editor__outline__filter_text_vectors 840 13 714_4]
+G c Z s s [get_element_access editor__outline__filter_text_vectors 849 13 714_4]
+G c Z s s [cursorIP editor__outline__filter_text_vectors 768 9 714_4]
+G c Z s s [vectorDA editor__outline__filter_text_vectors 741 9 714_4]
+G c Z s s [vectorDF editor__outline__filter_text_vectors 741 9 714_4]
+G c Z s s [vectorIP editor__outline__filter_text_vectors 741 9 714_4]
+G c Z s s [finalize editor__outline__filter_text_vectors 865 25 714_4]
+G c Z s s [first editor__outline__filter_text_vectors 867 24 714_4]
+G c Z s s [last editor__outline__filter_text_vectors 868 24 714_4]
+G c Z s s [next editor__outline__filter_text_vectors 870 24 714_4]
+G c Z s s [previous editor__outline__filter_text_vectors 874 24 714_4]
+G c Z s s [constant_reference_typeDI editor__outline__filter_text_vectors 788 9 714_4]
+G c Z s s [constant_reference_typeDA editor__outline__filter_text_vectors 788 9 714_4]
+G c Z s s [constant_reference_typeDF editor__outline__filter_text_vectors 788 9 714_4]
+G c Z s s [constant_reference_typeIP editor__outline__filter_text_vectors 788 9 714_4]
+G c Z s s [reference_typeDI editor__outline__filter_text_vectors 810 9 714_4]
+G c Z s s [reference_typeDA editor__outline__filter_text_vectors 810 9 714_4]
+G c Z s s [reference_typeDF editor__outline__filter_text_vectors 810 9 714_4]
+G c Z s s [reference_typeIP editor__outline__filter_text_vectors 810 9 714_4]
+G c Z s s [elements_arrayIP editor__outline__filter_text_vectors 729 9 714_4]
+G c Z s s [elements_arrayDI editor__outline__filter_text_vectors 729 9 714_4]
+G c Z s s [elements_arrayDA editor__outline__filter_text_vectors 729 9 714_4]
+G c Z s s [elements_arrayDF editor__outline__filter_text_vectors 729 9 714_4]
+G c Z s s [elements_typeDI editor__outline__filter_text_vectors 732 9 714_4]
+G c Z s s [elements_typeDF editor__outline__filter_text_vectors 732 9 714_4]
+G c Z s s [elements_typeIP editor__outline__filter_text_vectors 732 9 714_4]
+G c Z s s [iteratorDF editor__outline__filter_text_vectors 857 9 714_4]
+G c Z s s [iteratorIP editor__outline__filter_text_vectors 857 9 714_4]
+G c Z s s [free editor__outline__filter_text_vectors 44 14 714_4]
+G c Z s s [append_slow_path editor__outline__filter_text_vectors 47 14 714_4]
+G c Z s s [remembered_filterDI editor__outline 718 9 none]
+G c Z s s [remembered_filterDA editor__outline 718 9 none]
+G c Z s s [remembered_filterDF editor__outline 718 9 none]
+G c Z s s [remembered_filterIP editor__outline 718 9 none]
+G c Z s s [has_element editor__outline__remembered_filter_vectors 115 13 724_4]
+G c Z s s [empty editor__outline__remembered_filter_vectors 125 13 724_4]
+G c Z s s [Oeq editor__outline__remembered_filter_vectors 127 24 724_4]
+G c Z s s [to_vector editor__outline__remembered_filter_vectors 136 13 724_4]
+G c Z s s [to_vector editor__outline__remembered_filter_vectors 139 13 724_4]
+G c Z s s [Oconcat editor__outline__remembered_filter_vectors 145 13 724_4]
+G c Z s s [Oconcat editor__outline__remembered_filter_vectors 149 13 724_4]
+G c Z s s [Oconcat editor__outline__remembered_filter_vectors 153 13 724_4]
+G c Z s s [Oconcat editor__outline__remembered_filter_vectors 157 13 724_4]
+G c Z s s [capacity editor__outline__remembered_filter_vectors 161 13 724_4]
+G c Z s s [reserve_capacity editor__outline__remembered_filter_vectors 164 14 724_4]
+G c Z s s [length editor__outline__remembered_filter_vectors 175 13 724_4]
+G c Z s s [set_length editor__outline__remembered_filter_vectors 178 14 724_4]
+G c Z s s [is_empty editor__outline__remembered_filter_vectors 187 13 724_4]
+G c Z s s [clear editor__outline__remembered_filter_vectors 190 14 724_4]
+G c Z s s [to_cursor editor__outline__remembered_filter_vectors 194 13 724_4]
+G c Z s s [to_index editor__outline__remembered_filter_vectors 201 13 724_4]
+G c Z s s [element editor__outline__remembered_filter_vectors 206 13 724_4]
+G c Z s s [element editor__outline__remembered_filter_vectors 213 13 724_4]
+G c Z s s [replace_element editor__outline__remembered_filter_vectors 217 14 724_4]
+G c Z s s [replace_element editor__outline__remembered_filter_vectors 228 14 724_4]
+G c Z s s [query_element editor__outline__remembered_filter_vectors 239 14 724_4]
+G c Z s s [query_element editor__outline__remembered_filter_vectors 250 14 724_4]
+G c Z s s [update_element editor__outline__remembered_filter_vectors 259 14 724_4]
+G c Z s s [update_element editor__outline__remembered_filter_vectors 276 14 724_4]
+G c Z s s [constant_reference editor__outline__remembered_filter_vectors 303 13 724_4]
+G c Z s s [reference editor__outline__remembered_filter_vectors 308 13 724_4]
+G c Z s s [constant_reference editor__outline__remembered_filter_vectors 313 13 724_4]
+G c Z s s [reference editor__outline__remembered_filter_vectors 318 13 724_4]
+G c Z s s [assign editor__outline__remembered_filter_vectors 323 14 724_4]
+G c Z s s [copy editor__outline__remembered_filter_vectors 325 13 724_4]
+G c Z s s [move editor__outline__remembered_filter_vectors 327 14 724_4]
+G c Z s s [new_vector editor__outline__remembered_filter_vectors 333 13 724_4]
+G c Z s s [insert_vector editor__outline__remembered_filter_vectors 337 14 724_4]
+G c Z s s [insert_vector editor__outline__remembered_filter_vectors 361 14 724_4]
+G c Z s s [insert_vector editor__outline__remembered_filter_vectors 378 14 724_4]
+G c Z s s [insert editor__outline__remembered_filter_vectors 396 14 724_4]
+G c Z s s [insert editor__outline__remembered_filter_vectors 404 14 724_4]
+G c Z s s [insert editor__outline__remembered_filter_vectors 412 14 724_4]
+G c Z s s [insert editor__outline__remembered_filter_vectors 421 14 724_4]
+G c Z s s [insert editor__outline__remembered_filter_vectors 438 14 724_4]
+G c Z s s [prepend_vector editor__outline__remembered_filter_vectors 449 14 724_4]
+G c Z s s [prepend editor__outline__remembered_filter_vectors 459 14 724_4]
+G c Z s s [append_vector editor__outline__remembered_filter_vectors 466 14 724_4]
+G c Z s s [append editor__outline__remembered_filter_vectors 476 14 724_4]
+G c Z s s [append editor__outline__remembered_filter_vectors 483 14 724_4]
+G c Z s s [insert_space editor__outline__remembered_filter_vectors 486 14 724_4]
+G c Z s s [insert_space editor__outline__remembered_filter_vectors 503 14 724_4]
+G c Z s s [delete editor__outline__remembered_filter_vectors 514 14 724_4]
+G c Z s s [delete editor__outline__remembered_filter_vectors 524 14 724_4]
+G c Z s s [delete_first editor__outline__remembered_filter_vectors 533 14 724_4]
+G c Z s s [delete_last editor__outline__remembered_filter_vectors 538 14 724_4]
+G c Z s s [reverse_elements editor__outline__remembered_filter_vectors 546 14 724_4]
+G c Z s s [swap editor__outline__remembered_filter_vectors 549 14 724_4]
+G c Z s s [swap editor__outline__remembered_filter_vectors 554 14 724_4]
+G c Z s s [first_index editor__outline__remembered_filter_vectors 560 13 724_4]
+G c Z s s [first editor__outline__remembered_filter_vectors 563 13 724_4]
+G c Z s s [first_element editor__outline__remembered_filter_vectors 567 13 724_4]
+G c Z s s [last_index editor__outline__remembered_filter_vectors 570 13 724_4]
+G c Z s s [last editor__outline__remembered_filter_vectors 574 13 724_4]
+G c Z s s [last_element editor__outline__remembered_filter_vectors 578 13 724_4]
+G c Z s s [next editor__outline__remembered_filter_vectors 581 13 724_4]
+G c Z s s [next editor__outline__remembered_filter_vectors 587 14 724_4]
+G c Z s s [previous editor__outline__remembered_filter_vectors 590 13 724_4]
+G c Z s s [previous editor__outline__remembered_filter_vectors 596 14 724_4]
+G c Z s s [find_index editor__outline__remembered_filter_vectors 599 13 724_4]
+G c Z s s [find editor__outline__remembered_filter_vectors 609 13 724_4]
+G c Z s s [reverse_find_index editor__outline__remembered_filter_vectors 623 13 724_4]
+G c Z s s [reverse_find editor__outline__remembered_filter_vectors 635 13 724_4]
+G c Z s s [contains editor__outline__remembered_filter_vectors 649 13 724_4]
+G c Z s s [iterate editor__outline__remembered_filter_vectors 654 14 724_4]
+G c Z s s [reverse_iterate editor__outline__remembered_filter_vectors 662 14 724_4]
+G c Z s s [iterate editor__outline__remembered_filter_vectors 669 13 724_4]
+G c Z s s [iterate editor__outline__remembered_filter_vectors 672 13 724_4]
+G c Z s s [adjust editor__outline__remembered_filter_vectors__implementation 90 28 726_4_724_4]
+G c Z s s [finalize editor__outline__remembered_filter_vectors__implementation 93 28 726_4_724_4]
+G c Z s s [zero_counts editor__outline__remembered_filter_vectors__implementation 96 17 726_4_724_4]
+G c Z s s [busy editor__outline__remembered_filter_vectors__implementation 100 17 726_4_724_4]
+G c Z s s [unbusy editor__outline__remembered_filter_vectors__implementation 104 17 726_4_724_4]
+G c Z s s [lock editor__outline__remembered_filter_vectors__implementation 108 17 726_4_724_4]
+G c Z s s [unlock editor__outline__remembered_filter_vectors__implementation 112 17 726_4_724_4]
+G c Z s s [tc_check editor__outline__remembered_filter_vectors__implementation 116 17 726_4_724_4]
+G c Z s s [te_check editor__outline__remembered_filter_vectors__implementation 120 17 726_4_724_4]
+G c Z s s [is_busy editor__outline__remembered_filter_vectors__implementation 136 16 726_4_724_4]
+G c Z s s [is_locked editor__outline__remembered_filter_vectors__implementation 140 16 726_4_724_4]
+G c Z s s [initialize editor__outline__remembered_filter_vectors__implementation 161 28 726_4_724_4]
+G c Z s s [finalize editor__outline__remembered_filter_vectors__implementation 162 28 726_4_724_4]
+G c Z s s [initialize editor__outline__remembered_filter_vectors__implementation 167 28 726_4_724_4]
+G c Z s s [finalize editor__outline__remembered_filter_vectors__implementation 168 28 726_4_724_4]
+G c Z s s [reference_control_typeDA editor__outline__remembered_filter_vectors__implementation 84 12 726_4_724_4]
+G c Z s s [reference_control_typeDF editor__outline__remembered_filter_vectors__implementation 84 12 726_4_724_4]
+G c Z s s [reference_control_typeIP editor__outline__remembered_filter_vectors__implementation 84 12 726_4_724_4]
+G c Z s s [with_busyDF editor__outline__remembered_filter_vectors__implementation 158 12 726_4_724_4]
+G c Z s s [with_busyIP editor__outline__remembered_filter_vectors__implementation 158 12 726_4_724_4]
+G c Z s s [with_lockDF editor__outline__remembered_filter_vectors__implementation 164 12 726_4_724_4]
+G c Z s s [with_lockIP editor__outline__remembered_filter_vectors__implementation 164 12 726_4_724_4]
+G c Z s s [put_image editor__outline__remembered_filter_vectors 747 14 724_4]
+G c Z s s [adjust editor__outline__remembered_filter_vectors 750 25 724_4]
+G c Z s s [finalize editor__outline__remembered_filter_vectors 751 25 724_4]
+G c Z s s [write editor__outline__remembered_filter_vectors 753 14 724_4]
+G c Z s s [read editor__outline__remembered_filter_vectors 759 14 724_4]
+G c Z s s [read editor__outline__remembered_filter_vectors 773 14 724_4]
+G c Z s s [write editor__outline__remembered_filter_vectors 779 14 724_4]
+G c Z s s [write editor__outline__remembered_filter_vectors 798 14 724_4]
+G c Z s s [read editor__outline__remembered_filter_vectors 804 14 724_4]
+G c Z s s [write editor__outline__remembered_filter_vectors 820 14 724_4]
+G c Z s s [read editor__outline__remembered_filter_vectors 826 14 724_4]
+G c Z s s [pseudo_reference editor__outline__remembered_filter_vectors 840 13 724_4]
+G c Z s s [get_element_access editor__outline__remembered_filter_vectors 849 13 724_4]
+G c Z s s [cursorIP editor__outline__remembered_filter_vectors 768 9 724_4]
+G c Z s s [vectorDA editor__outline__remembered_filter_vectors 741 9 724_4]
+G c Z s s [vectorDF editor__outline__remembered_filter_vectors 741 9 724_4]
+G c Z s s [vectorIP editor__outline__remembered_filter_vectors 741 9 724_4]
+G c Z s s [finalize editor__outline__remembered_filter_vectors 865 25 724_4]
+G c Z s s [first editor__outline__remembered_filter_vectors 867 24 724_4]
+G c Z s s [last editor__outline__remembered_filter_vectors 868 24 724_4]
+G c Z s s [next editor__outline__remembered_filter_vectors 870 24 724_4]
+G c Z s s [previous editor__outline__remembered_filter_vectors 874 24 724_4]
+G c Z s s [constant_reference_typeDI editor__outline__remembered_filter_vectors 788 9 724_4]
+G c Z s s [constant_reference_typeDA editor__outline__remembered_filter_vectors 788 9 724_4]
+G c Z s s [constant_reference_typeDF editor__outline__remembered_filter_vectors 788 9 724_4]
+G c Z s s [constant_reference_typeIP editor__outline__remembered_filter_vectors 788 9 724_4]
+G c Z s s [reference_typeDI editor__outline__remembered_filter_vectors 810 9 724_4]
+G c Z s s [reference_typeDA editor__outline__remembered_filter_vectors 810 9 724_4]
+G c Z s s [reference_typeDF editor__outline__remembered_filter_vectors 810 9 724_4]
+G c Z s s [reference_typeIP editor__outline__remembered_filter_vectors 810 9 724_4]
+G c Z s s [elements_arrayIP editor__outline__remembered_filter_vectors 729 9 724_4]
+G c Z s s [elements_arrayDI editor__outline__remembered_filter_vectors 729 9 724_4]
+G c Z s s [elements_arrayDA editor__outline__remembered_filter_vectors 729 9 724_4]
+G c Z s s [elements_arrayDF editor__outline__remembered_filter_vectors 729 9 724_4]
+G c Z s s [elements_typeDI editor__outline__remembered_filter_vectors 732 9 724_4]
+G c Z s s [elements_typeDF editor__outline__remembered_filter_vectors 732 9 724_4]
+G c Z s s [elements_typeIP editor__outline__remembered_filter_vectors 732 9 724_4]
+G c Z s s [iteratorDF editor__outline__remembered_filter_vectors 857 9 724_4]
+G c Z s s [iteratorIP editor__outline__remembered_filter_vectors 857 9 724_4]
+G c Z s s [free editor__outline__remembered_filter_vectors 44 14 724_4]
+G c Z s s [append_slow_path editor__outline__remembered_filter_vectors 47 14 724_4]
+G c Z s s [outline_snapshot_identityIP editor__outline 74 9 none]
+G c Z s s [outline_refresh_resultIP editor__outline 89 9 none]
+G c Z s s [outline_item_arrayIP editor__outline 107 9 none]
+G c Z s s [outline_item_arrayDI editor__outline 107 9 none]
+G c Z s s [outline_item_arrayDA editor__outline 107 9 none]
+G c Z s s [outline_item_arrayDF editor__outline 107 9 none]
+G c Z s s [outline_stateDI editor__outline 728 9 none]
+G c Z s s [outline_stateDA editor__outline 728 9 none]
+G c Z s s [outline_stateDF editor__outline 728 9 none]
+G c Z s s [outline_stateIP editor__outline 728 9 none]
+G c Z s s [outline_summaryIP editor__outline 111 9 none]
+G c Z b b [to_item editor__outline 14 13 none]
+G c Z b b [kind_text editor__outline 37 13 none]
+G c Z b b [normalize_filter_text editor__outline 60 13 none]
+G c Z b b [normalize_history_filter_text editor__outline 66 13 none]
+G c Z b b [reset_filter_history_cursor editor__outline 71 14 none]
+G c Z b b [next_generation editor__outline 76 13 none]
+G c Z b b [bump_rows_generation editor__outline 84 14 none]
+G c Z b b [bump_filter_generation editor__outline 90 14 none]
+G c Z b b [invalidate_extraction_token editor__outline 96 14 none]
+G c Z b b [clear_outline_selection editor__outline 101 14 none]
+G c Z b b [clear_visible_outline_rows editor__outline 106 14 none]
+G c Z b b [clear_filtered_projection editor__outline 114 14 none]
+G c Z b b [row_matches_filter editor__outline 123 13 none]
+G c Z b b [first_visible_selectable_row editor__outline 140 13 none]
+G c Z b b [compute_filtered_count editor__outline 152 13 none]
+G c Z b b [reconcile_filtered_selection editor__outline 163 14 none]
+G c Z b b [set_diagnostics editor__outline 177 14 none]
+G c Z b b [set_filter_text_normalized editor__outline 874 14 none]
+G c Z b b [detail_range_end_line editor__outline 1446 13 none]
+G c Z b b [find_enclosing_ranged_item_for_position editor__outline 1479 13 none]
+G c Z b b [position_is_after editor__outline 1905 13 none]
+G c Z b b [position_is_before editor__outline 1916 13 none]
+G c Z b b [candidate_is_before_best editor__outline 1927 13 none]
+G c Z b b [candidate_is_after_best editor__outline 1949 13 none]
+G c Z b b [valid_index editor__outline 2086 13 none]
+G c Z b b [hash_string editor__outline 2335 13 none]
+G r c none [can_reveal_current_symbol editor__outline 479 13 none] [row_count editor__feature_panel 418 13 none]
+G r c none [can_reveal_current_symbol editor__outline 479 13 none] [row_is_current_symbol editor__feature_panel 492 13 none]
+G r c none [can_reveal_current_symbol editor__outline 479 13 none] [row_kind editor__feature_panel 469 13 none]
+G r c none [can_reveal_current_symbol editor__outline 479 13 none] [row_source_index editor__feature_panel 407 13 none]
+G r c none [can_reveal_current_symbol editor__outline 479 13 none] [row_detail editor__feature_panel 485 13 none]
+G r c none [can_reveal_current_symbol editor__outline 479 13 none] [row_label editor__feature_panel 477 13 none]
+G r c none [set_rows_from_outline editor__outline 548 14 none] [set_active_feature editor__feature_panel 189 13 none]
+G r c none [set_rows_from_outline editor__outline 548 14 none] [clear_rows editor__feature_panel 286 14 none]
+G r c none [set_rows_from_outline editor__outline 548 14 none] [set_header_text editor__feature_panel 289 14 none]
+G r c none [set_rows_from_outline editor__outline 548 14 none] [empty_outline_detail editor__contextual_help 26 13 none]
+G r c none [set_rows_from_outline editor__outline 548 14 none] [append_row editor__feature_panel 302 14 none]
+G r c none [set_rows_from_outline editor__outline 548 14 none] [select_row editor__feature_panel 437 14 none]
+G r c none [feature_row_maps_to_item editor__outline 633 13 none] [row_count editor__feature_panel 418 13 none]
+G r c none [feature_row_maps_to_item editor__outline 633 13 none] [row_kind editor__feature_panel 469 13 none]
+G r c none [feature_row_maps_to_item editor__outline 633 13 none] [row_source_index editor__feature_panel 407 13 none]
+G r c none [feature_row_maps_to_item editor__outline 633 13 none] [row_detail editor__feature_panel 485 13 none]
+G r c none [feature_row_maps_to_item editor__outline 633 13 none] [row_label editor__feature_panel 477 13 none]
+G r c none [map_panel_row_to_outline_row editor__outline 642 13 none] [projection_generation_matches editor__feature_panel 334 13 none]
+G r c none [map_panel_row_to_outline_row editor__outline 642 13 none] [active_feature editor__feature_panel 156 13 none]
+G r c none [map_panel_row_to_outline_row editor__outline 642 13 none] [projection_row_index_is_valid editor__feature_panel 348 13 none]
+G r c none [map_panel_row_to_outline_row editor__outline 642 13 none] [row_count editor__feature_panel 418 13 none]
+G r c none [map_panel_row_to_outline_row editor__outline 642 13 none] [row_kind editor__feature_panel 469 13 none]
+G r c none [map_panel_row_to_outline_row editor__outline 642 13 none] [row_source_index editor__feature_panel 407 13 none]
+G r c none [map_panel_row_to_outline_row editor__outline 642 13 none] [row_detail editor__feature_panel 485 13 none]
+G r c none [map_panel_row_to_outline_row editor__outline 642 13 none] [row_label editor__feature_panel 477 13 none]
+G r c none [validate_outline_row_for_selection editor__outline 648 13 none] [projection_generation_matches editor__feature_panel 334 13 none]
+G r c none [validate_outline_row_for_selection editor__outline 648 13 none] [active_feature editor__feature_panel 156 13 none]
+G r c none [validate_outline_row_for_selection editor__outline 648 13 none] [projection_row_index_is_valid editor__feature_panel 348 13 none]
+G r c none [validate_outline_row_for_selection editor__outline 648 13 none] [row_count editor__feature_panel 418 13 none]
+G r c none [validate_outline_row_for_selection editor__outline 648 13 none] [row_kind editor__feature_panel 469 13 none]
+G r c none [validate_outline_row_for_selection editor__outline 648 13 none] [row_source_index editor__feature_panel 407 13 none]
+G r c none [validate_outline_row_for_selection editor__outline 648 13 none] [row_detail editor__feature_panel 485 13 none]
+G r c none [validate_outline_row_for_selection editor__outline 648 13 none] [row_label editor__feature_panel 477 13 none]
+G r c none [validate_outline_row_for_selection editor__outline 648 13 none] [row_is_selectable editor__feature_panel 362 13 none]
+G r c none [validate_outline_row_for_activation editor__outline 654 13 none] [projection_generation_matches editor__feature_panel 334 13 none]
+G r c none [validate_outline_row_for_activation editor__outline 654 13 none] [active_feature editor__feature_panel 156 13 none]
+G r c none [validate_outline_row_for_activation editor__outline 654 13 none] [projection_row_index_is_valid editor__feature_panel 348 13 none]
+G r c none [validate_outline_row_for_activation editor__outline 654 13 none] [row_count editor__feature_panel 418 13 none]
+G r c none [validate_outline_row_for_activation editor__outline 654 13 none] [row_kind editor__feature_panel 469 13 none]
+G r c none [validate_outline_row_for_activation editor__outline 654 13 none] [row_source_index editor__feature_panel 407 13 none]
+G r c none [validate_outline_row_for_activation editor__outline 654 13 none] [row_detail editor__feature_panel 485 13 none]
+G r c none [validate_outline_row_for_activation editor__outline 654 13 none] [row_label editor__feature_panel 477 13 none]
+G r c none [validate_outline_row_for_activation editor__outline 654 13 none] [row_has_target editor__feature_panel 373 13 none]
+G r c none [validate_outline_row_for_activation editor__outline 654 13 none] [row_is_activatable editor__feature_panel 369 13 none]
+G r c none [validate_outline_row_for_activation editor__outline 654 13 none] [row_is_selectable editor__feature_panel 362 13 none]
+G r c none [projection_invariant_holds editor__outline 693 13 none] [selected_row editor__feature_panel 424 13 none]
+G r c none [projection_invariant_holds editor__outline 693 13 none] [row_kind editor__feature_panel 469 13 none]
+G r c none [projection_invariant_holds editor__outline 693 13 none] [row_count editor__feature_panel 418 13 none]
+G r c none [projection_invariant_holds editor__outline 693 13 none] [row_source_index editor__feature_panel 407 13 none]
+G r c none [projection_invariant_holds editor__outline 693 13 none] [row_detail editor__feature_panel 485 13 none]
+G r c none [projection_invariant_holds editor__outline 693 13 none] [row_label editor__feature_panel 477 13 none]
+G r c none [projection_invariant_holds editor__outline 693 13 none] [row_is_current_symbol editor__feature_panel 492 13 none]
+G r c none [projection_invariant_holds editor__outline 693 13 none] [row_is_selectable editor__feature_panel 362 13 none]
+X 1 ada.ads
+18K9*Ada 22e8 30|1r6 2r6 3r10 98r21 99r21 710r40 714r39 716r23 720r22 721r9
+. 724r45 735r34 736r9 737r34 738r9 742r34 743r9 755r34 756r9 31|1r6 2r6 3r6
+. 4r6 4r33 62r14 63r10 63r40 129r35 130r35 135r17 136r17 137r17 1452r10
+X 2 a-charac.ads
+16K13*Characters 18e19 31|1r10 62r18 129r39 130r39
+X 3 a-chahan.ads
+43K24*Handling 454e28 31|1w21 62r29 129r50 130r50
+274V13*To_Lower{string} 31|62s38 129s59 130s59
+X 5 a-contai.ads
+16K13*Containers 28e19 30|1r10 710r44 714r43 724r49
+22I9*Count_Type<integer>
+X 9 a-convec.ads
+62I9 Index_Type 30|711r7 715r7 725r7
+63+9 Element_Type 30|712r7 716r7 726r7
+74k24*Vectors 878e27 30|1w21 710r55 714r54 724r60
+81I12*Extended_Index{integer}
+91R9*Vector<12|43R9> 30|729r55[710] 749r54[714] 751r60[724]
+175V13*Length{5|22I9} 31|541s50[30|710] 590s58[30|710] 1090s45[30|714] 1101s46[30|714]
+. 1285s50[30|724] 2091s46[30|710] 2098s37[30|710]
+187V13*Is_Empty{boolean} 31|108s28[30|710] 1073s37[30|714] 1187s41[30|724]
+. 1227s41[30|724] 1262s41[30|724]
+190U14*Clear 31|109s24[30|710] 1172s30[30|714] 1278s34[30|724]
+217U14*Replace_Element 31|1206s37[30|724]
+396U14*Insert 31|1088s30[30|714]
+483U14*Append 31|536s27[30|710] 1210s37[30|724]
+514U14*Delete 31|1085s33[30|714] 1200s40[30|724] 1267s43[30|724]
+538U14*Delete_Last 31|1091s33[30|714]
+560V13*First_Index{integer} 31|1074s42[30|714] 1188s46[30|724] 1228s46[30|724]
+. 1263s54[30|724]
+570V13*Last_Index{81I12[30|714]} 31|1075s35[30|714] 1189s39[30|724] 1229s39[30|724]
+. 1264s39[30|724]
+X 13 a-iteint.ads
+24h9 Forward_Iterator
+32h9 Reversible_Iterator<24R9[9|119]>
+X 15 a-string.ads
+16K13*Strings 35e16 30|2r10 3r14 98r25 99r25 716r27 720r26 721r13 735r38
+. 736r13 737r38 738r13 742r38 743r13 755r38 756r13 31|2w10 3r10 4r10 4r37
+. 63r14 63r44 135r21 136r21 137r21 1452r14
+33n37*Both{33E9} 31|63r52
+X 16 a-strfix.ads
+49K21*Fixed 1390e22 31|3w18 63r22 135r29 136r29 137r29 1452r22
+252V13*Index{natural} 31|135s35 136s35 137s35 1452s28
+1133V13*Trim{string} 31|63s28
+X 20 a-strunb.ads
+91K21*Unbounded 1641e26 30|2w18 3r22 98r33 99r33 716r35 720r34 721r21 735r46
+. 736r21 737r46 738r21 742r46 743r21 755r46 756r21 31|4w18 4r45
+105R9*Unbounded_String<12|43R9> 1620e15 30|3r32 98r43 99r43 716r45 720r44
+. 735r56 737r56 742r56 755r56 31|1220r15
+109r4*Null_Unbounded_String{105R9} 31|1220r35
+111V13*Length{natural} 31|677s42 690s27 895s40 926s40 1012s42 1028s40 1132s32
+. 1134s40 1156s35 1158s43 1245s32 1247s40
+122V13*To_Unbounded_String{105R9} 30|721s31 736s31 738s31 743s31 756s31 31|27s25
+. 28s25 117s36 185s42 568s39 880s36 1036s36 1088s41 1208s52 1212s53 1379s32
+135V13*To_String{string} 31|127s34 129s69 130s69 641s17 941s36 957s36 980s36
+. 1065s40 1077s16 1109s14 1180s34 1299s14 1430s17 1501s41 1586s16 1607s16
+. 1613s16 1759s18 1759s43 1812s39 1813s39 2127s14 2134s14 2150s14 2159s14
+269V14*"="{boolean} 9|65i19
+X 25 editor.ads
+1K9*Editor 5e11 30|4r6 6r9 481r29 550r24 635r17 644r35 650r35 656r35 695r17
+. 699r17 760r5 31|5r6 7r14 9r13 10r13 725r17 730r17 731r21 732r14 733r21
+. 734r13 746r28 753r24 760r15 767r10 773r24 778r17 788r24 790r14 792r14 793r17
+. 797r7 798r7 800r10 802r28 804r28 816r24 818r24 820r13 833r7 1714r29 1731r43
+. 1737r21 2218r17 2224r23 2232r13 2233r12 2237r13 2238r9 2243r10 2244r18
+. 2249r14 2251r18 2258r35 2263r10 2264r12 2265r21 2271r14 2284r35 2296r14
+. 2302r35 2315r14 2316r18 2317r18 2482r5
+X 27 editor-contextual_help.ads
+4K16*Contextual_Help 81e27 31|5w13 804r35
+26V13*Empty_Outline_Detail{string} 31|804s51
+X 29 editor-feature_panel.ads
+4K16*Feature_Panel 696e25 30|4w13 481r36 550r31 635r24 644r42 650r42 656r42
+. 695r24 699r24 31|9r20 10r20 725r24 730r24 731r28 732r21 733r28 734r20 746r35
+. 753r31 760r22 767r17 773r31 778r24 788r31 790r21 792r21 793r24 797r14 798r14
+. 800r17 802r35 816r31 818r31 820r20 833r14 1714r36 1731r50 1737r28 2218r24
+. 2224r30 2232r20 2233r19 2237r20 2238r16 2243r17 2244r25 2249r21 2251r25
+. 2258r42 2263r17 2264r19 2265r28 2271r21 2284r42 2296r21 2302r42 2315r21
+. 2316r25 2317r25
+8E9*Feature_Id 13e27 31|9r34
+10n7*Outline_Feature{8E9} 31|793r38 2264r33
+64E9*Feature_Panel_Row_Kind 67e31 31|10r34 790r35
+65n7*Feature_Row_Header{64E9} 31|816r45 2233r33
+66n7*Feature_Row_Item{64E9} 31|818r45 2238r30
+67n7*Feature_Row_Empty_State{64E9} 31|732r35 802r49
+119R9*Feature_Panel_State 682e14 30|481r50 550r45 635r38 644r56 650r56 656r56
+. 695r38 699r38 31|725r38 778r38 788r45 1714r50 2218r38 2258r56 2284r56 2302r56
+156V13*Active_Feature{8E9} 31|2263s31
+189V13*Set_Active_Feature{boolean} 31|792s35
+286U14*Clear_Rows 31|797s28
+289U14*Set_Header_Text 31|798s28
+302U14*Append_Row 31|800s31 820s34
+303r7 Panel{119R9} 31|821r16
+304e7 Kind{64E9} 31|802r13 822r16
+305a7 Label{string} 31|803r13 823r16
+306a7 Detail{string} 31|804r13 824r16
+307b7 Is_Current_Symbol{boolean} 31|825r16
+308b7 Selectable{boolean} 31|805r13 826r16
+309b7 Activatable{boolean} 31|806r13 827r16
+310b7 Has_Target{boolean} 31|807r13 828r16
+311b7 Is_Diagnostic{boolean} 31|829r16
+312b7 Can_Open{boolean} 31|808r13
+317i7 Source_Index{natural} 31|809r13 830r16
+334V13*Projection_Generation_Matches{boolean} 31|2265s42
+348V13*Projection_Row_Index_Is_Valid{boolean} 31|2271s35
+362V13*Row_Is_Selectable{boolean} 31|760s36 2296s35 2315s35
+369V13*Row_Is_Activatable{boolean} 31|2316s39
+373V13*Row_Has_Target{boolean} 31|2317s39
+407V13*Row_Source_Index{natural} 31|2243s31 2244s39
+418V13*Row_Count{natural} 31|730s38 734s34 773s45 1731s64 2224s44
+424V13*Selected_Row{natural} 31|733s42 767s31
+437U14*Select_Row 31|833s28
+469V13*Row_Kind{64E9} 31|731s42 2232s34 2237s34
+477V13*Row_Label{string} 31|2249s35
+485V13*Row_Detail{string} 31|2251s39
+492V13*Row_Is_Current_Symbol{boolean} 31|746s49 753s45 1737s42
+X 30 editor-outline.ads
+6K16*Outline 25|1k9 30|96E9 760l12 760e19 31|7b21 2482l12 2482t19
+22E9*Outline_Item_Kind 39e23 97r21 591r34 31|15r21 37r31 2173r34 2357r22
+23n7*Outline_Header{22E9} 31|40r15 813r41 1647r35 2229r56
+24n7*Outline_Package{22E9} 31|41r15
+25n7*Outline_Package_Body{22E9} 31|42r15
+26n7*Outline_Type{22E9} 31|43r15
+27n7*Outline_Subprogram{22E9} 31|44r15
+28n7*Outline_Procedure{22E9} 31|45r15
+29n7*Outline_Function{22E9} 31|46r15
+30n7*Outline_Task{22E9} 31|47r15
+31n7*Outline_Protected{22E9} 31|48r15
+32n7*Outline_Field{22E9} 31|49r15
+33n7*Outline_Discriminant{22E9} 31|50r15
+34n7*Outline_Enum_Literal{22E9} 31|51r15
+35n7*Outline_Exception{22E9} 31|52r15
+36n7*Outline_Object{22E9} 31|53r15
+37n7*Outline_Generic_Formal{22E9} 31|54r15
+38n7*Outline_Section{22E9} 31|55r15 814r48 1647r52 2230r63
+39n7*Outline_Unknown{22E9} 97r42 31|56r15
+41E9*Outline_Target_Kind 44e27 101r22 604r34 31|19r22 2182r34 2360r22
+42n7*No_Target{41E9} 101r45 31|19r45
+43n7*Buffer_Position_Target{41E9} 31|654r36 661r36 1644r37 1745r33 1746r38
+. 1815r34 1816r42 2320r66
+44n7*Project_Path_Target{41E9}
+52E9*Outline_Refresh_Source 54e40 260r17 31|502r17
+53n7*Outline_Source_Buffer_Extractor{52E9} 31|506r15
+54n7*Outline_Source_Project_Extractor{52E9} 31|506r49
+56E9*Outline_Refresh_Status 60e29 90r22
+57n7*Outline_Refresh_Ok{56E9}
+58n7*Outline_Refresh_Unavailable{56E9} 90r48 31|508r32
+59n7*Outline_Refresh_Failed{56E9}
+60n7*Outline_Refresh_Stale{56E9}
+62E9*Outline_Source_Class 67e25 93r22 115r22 560r39 563r39 730r34 734r34
+. 31|179r22 704r25 2110r39 2117r39 2352r21
+63n7*No_Outline{62E9} 93r46 115r46 730r58 734r58 31|199r25 201r33 301r25
+. 304r19 565r28 572r36 598r36 681r28 687r28 1595r15 1606r15
+64n7*Extracted_Outline{62E9} 31|447r35 448r51 574r28 577r22 593r46 625r31
+. 1563r15 1622r15 1643r31 1654r28 1676r28 1695r28 1721r35 1770r35
+65n7*Stale_Extracted_Outline{62E9} 31|258r31 263r19 432r19 463r52 1564r49
+. 1593r15 1620r15 1655r50 1677r50 1696r50 1722r50 1771r50
+66n7*Unsupported_Content{62E9} 31|238r43 257r35 322r25 324r33 598r49 681r41
+. 687r41 1585r15 1612r15
+67n7*Extraction_Failed{62E9} 31|238r65 257r57 281r25 283r33 599r13 681r63
+. 687r63 1591r15 1618r15
+69E9*Outline_Freshness 72e21 244r41 31|470r41
+70n7*Outline_Unavailable{69E9} 31|474r17 482r17
+71n7*Outline_Current{69E9} 31|476r17
+72n7*Outline_Stale{69E9} 31|480r17
+74R9*Outline_Snapshot_Identity 80e14 185r18 196r18 731r34 732r34 31|215r18
+. 217r16 233r18
+75i7*Active_Buffer_Token{natural} 31|350r35 449r48 462r48 477r43 490r44
+76i7*Buffer_Revision{natural} 31|450r48 464r49 497r44
+77i7*Lifecycle_Generation{natural}
+78i7*Text_Length{natural}
+79i7*Request_Token{natural} 31|219r17 220m17 236r19 237r42 559r35
+82E9*Outline_Refresh_Failure_Kind 87e24 91r22
+83n7*No_Failure{82E9}
+84n7*No_Active_Buffer{82E9}
+85n7*Unsupported_Buffer_Kind{82E9}
+86n7*Extractor_Not_Available{82E9} 91r54 31|509r32
+87n7*Extractor_Failed{82E9}
+89R9*Outline_Refresh_Result 94e14 260r48 31|502r48
+90e7*Status{56E9} 31|508m16
+91e7*Failure_Kind{82E9} 31|509m16
+92i7*Item_Count{natural} 31|510m16
+93e7*Source_Class{62E9} 31|511m16
+96R9*Outline_Item 105e14 107r60 485r21 488r21 506r29 712r23 31|22r43 128r24
+. 523r30 648r29 1641r23 1742r21 1754r21 1809r29
+97e7*Kind{22E9} 31|26m10 131r51 1647r23 1758r23 1758r36 1832r19 1832r36 2177r40
+98r7*Label{20|105R9} 31|27m10 129r85 1396r61 1759r34 1759r60 1812r59 1813r60
+. 2150r51
+99r7*Detail{20|105R9} 31|28m10 130r85 1501r74 2159r51
+100i7*Depth{natural} 31|29m10 1760r23 1760r37 2168r40
+101e7*Target_Kind{41E9} 31|30m10 654r21 661r21 1644r23 1745r19 1746r24 1815r19
+. 1816r27 2186r40
+102i7*Buffer_Token{natural} 31|31m10 344r35 360r64 367r58 637r56 655r29 1645r23
+. 1747r23 1748r23 1748r44 1817r26 1818r26 1818r52 2195r40
+103i7*Line{natural} 31|32m10 650r21 662r29 1397r60 1646r23 1749r23 1749r36
+. 1819r27 1833r22 1833r39 1835r29 1835r46 1836r31 1836r48 1837r32 1837r48
+. 1845r20 1845r37 1847r53 1847r70 2204r40
+104i7*Column{natural} 31|33m10 650r44 1750r23 1750r38 2213r40
+107A9*Outline_Item_Array(96R9)<integer> 270r17 31|518r17
+109R9*Outline_State 125r17 132r17 141r24 153r29 157r24 160r24 163r24 166r24
+. 174r24 177r17 184r25 190r17 195r18 200r24 205r24 210r24 216r24 221r24 227r24
+. 232r25 237r25 242r25 247r17 250r17 259r24 269r24 277r24 281r17 284r24 287r24
+. 290r17 293r17 296r24 300r24 304r24 308r24 311r24 314r24 317r24 320r24 323r24
+. 326r24 329r24 332r24 335r24 338r17 341r17 346r24 349r24 352r24 355r29 359r29
+. 363r29 367r24 370r17 373r17 376r17 379r17 382r17 385r17 388r17 391r27 395r27
+. 399r17 406r24 409r24 413r17 416r17 419r17 422r17 425r22 431r29 437r17 444r17
+. 447r17 452r17 461r17 468r17 474r17 480r29 495r22 502r22 509r22 519r22 530r22
+. 537r24 540r24 549r17 554r17 557r17 560r17 563r17 566r17 569r17 572r17 575r17
+. 580r17 585r17 590r17 603r17 608r17 613r17 618r17 634r17 643r35 649r35 655r35
+. 663r17 671r17 694r17 698r17 728c9 758e14 31|71r60 84r53 90r55 96r60 101r56
+. 106r59 114r58 124r17 140r53 152r47 163r61 178r29 190r24 207r17 214r25 232r18
+. 245r24 271r24 292r24 312r24 332r29 377r24 387r24 394r24 401r24 409r24 416r24
+. 424r24 441r25 455r25 468r25 487r17 494r17 501r24 517r24 588r17 700r17 715r17
+. 724r17 777r17 787r17 841r24 857r17 867r17 875r24 891r24 900r24 907r17 914r17
+. 921r24 930r24 938r24 955r24 978r24 1000r24 1009r24 1018r24 1025r24 1032r24
+. 1044r24 1052r24 1062r24 1098r17 1105r17 1113r24 1140r24 1169r24 1177r29
+. 1217r29 1254r29 1275r24 1282r17 1289r17 1296r17 1303r17 1313r17 1320r17
+. 1327r17 1334r27 1354r27 1374r24 1384r24 1406r17 1419r17 1426r17 1436r17
+. 1480r22 1529r22 1546r29 1557r17 1602r17 1628r17 1638r17 1651r17 1672r17
+. 1691r17 1713r29 1764r22 1789r22 1859r22 1928r19 1950r19 1972r22 2006r22
+. 2040r24 2066r24 2087r17 2095r17 2102r17 2110r17 2117r17 2124r17 2131r17
+. 2138r17 2145r17 2154r17 2163r17 2172r17 2181r17 2190r17 2199r17 2208r17
+. 2217r17 2257r35 2283r35 2301r35 2325r17 2348r17
+111R9*Outline_Summary 116e14 663r39 31|2325r39
+112i7*Item_Count{natural} 31|2329m10
+113b7*Has_Items{boolean} 31|2330m10
+114i7*Fingerprint{natural} 31|2331m10
+115e7*Source_Class{62E9} 31|2332m10
+124V13*Invariant_Holds{boolean} 125>7 31|265s10 285s10 306s10 326s10 435s10
+. 583s10 587b13 697l8 697t23 711s43 719s10 851s10 1400s10
+125r7 Outline{109R9} 31|588b7 590r44 593r29 598r18 604r10 608r10 609r43 609r62
+. 613r13 614r45 614r64 620r10 621r13 621r48 625r13 629r13 633r43 633r62 637r13
+. 637r28 640r13 640r49 641r28 648r45 667r36 673r10 677r10 677r50 681r10 682r19
+. 682r49 687r10 688r19 689r27 690r35 691r27
+131V13*Debug_Summary{string} 132>7 31|267s12 287s12 308s12 328s12 437s12
+. 584s61 699b13 712l8 712t21 720s43 783s48 853s12 1402s12
+132r7 Outline{109R9} 31|700b7 703r52 704r53 705r54 706r63 707r58 708r66 709r70
+. 710r78 711r60
+140U14*Clear 141=7 31|189b14 203l8 203t13 355s10 380s7 420s7
+141r7 Outline{109R9} 31|190b7 193m35 194m32 195m7 196m34 197m36 198m29 199m7
+. 200m36 201m24 202r40
+152U14*Reset_Outline_For_Buffer_Close 153=7 154>7 31|331b14 374l8 374t38
+153r7 Outline{109R9} 31|332b7 341m33 343r33 344r13 350r10 351m39 355m17 357r13
+. 358r21 358r59 359r21 360r21 360r36 362m35 365r13 365r45 366r21 367r21 367r36
+. 369m38 373r40
+154i7 Buffer_Token{natural} 31|333b7 337r10 341r42 344r50 350r57 360r79 367r73
+156U14*Reset_Outline_For_Project_Close 157=7 31|376b14 384l8 384t39 390s7
+. 412s7
+157r7 Outline{109R9} 31|377b7 380m14 381m29 382m37 383r40
+159U14*Reset_Outline_For_Workspace_Close 160=7 31|386b14 391l8 391t41
+160r7 Outline{109R9} 31|387b7 390m40
+162U14*Reset_Outline_For_Unsupported_Content 163=7 31|393b14 398l8 398t45
+163r7 Outline{109R9} 31|394b7 397m25
+165U14*Reset_Outline_For_Extraction_Failure 166=7 167>7 31|400b14 406l8 406t44
+166r7 Outline{109R9} 31|401b7 405m31
+167a7 Message{string} 31|402b7 405r40
+173U14*Mark_No_Active_Buffer 174=7 31|291b14 309l8 309t29
+174r7 Outline{109R9} 31|292b7 295m35 296m32 297m7 298m34 299m36 300m29 301m7
+. 302m36 304m10 306r27 308r27
+176U14*Assert_Outline_State_Consistent 177>7 31|202s7 373s7 383s7 714b14
+. 721l8 721t39
+177r7 Outline{109R9} 31|715b7 719r27 720r58
+183U14*Begin_Extraction 184=7 185>7 31|213b14 229l8 229t24
+184r7 Outline{109R9} 31|214b7 220r34 223m7 224r10 225m10 227m10 227r34
+185r7 Snapshot{74R9} 31|215b7 217r45
+189V13*Next_Request_Token{natural} 190>7 31|206b13 211l8 211t26
+190r7 Outline{109R9} 31|207b7 210r14
+194V13*Snapshot_Is_Current{boolean} 195>7 196>7 31|231b13 242l8 242t27
+195r7 Outline{109R9} 31|232b7 237r17 238r21 241r25
+196r7 Snapshot{74R9} 31|233b7 236r10 241r14
+199U14*Mark_Stale_Result 200=7 201>7 31|244b14 268l8 268t25
+200r7 Outline{109R9} 31|245b7 255r22 256m32 257r13 258m13 263m10 263r65 265r27
+. 267r27
+201a7 Message{string} 31|246b7 263r44
+204U14*Mark_Extraction_Failed 205=7 206>7 31|270b14 288l8 288t30 405s7
+205r7 Outline{109R9} 31|271b7 275m35 276m32 277m7 278m34 279m36 280m29 281m7
+. 282m36 283m24 285r27 287r27
+206a7 Message{string} 31|272b7 283r52
+209U14*Mark_Unsupported 210=7 211>7 31|311b14 329l8 329t24 397s7
+210r7 Outline{109R9} 31|312b7 316m35 317m32 318m7 319m34 320m36 321m29 322m7
+. 323m36 324m24 326r27 328r27
+211a7 Message{string} 31|313b7 324r54
+215U14*Reset_For_Project_Close 216=7 31|408b14 413l8 413t31
+216r7 Outline{109R9} 31|409b7 412m40
+220U14*Reset_For_Buffer_Change 221=7 31|415b14 421l8 421t31
+221r7 Outline{109R9} 31|416b7 419m41 420m14
+226U14*Mark_For_Buffer_Change 227=7 31|423b14 438l8 438t30
+227r7 Outline{109R9} 31|424b7 427r22 432m10 433r62 435r27 437r27
+231V13*Is_Current_For_Buffer{boolean} 232>7 233>7 234>7 31|440b13 452l8 452t29
+. 475s13
+232r7 Outline{109R9} 31|441b7 447r18 448r18 449r18 450r18 451r51
+233i7 Buffer_Token{natural} 31|442b7 446r14 449r70 451r60
+234i7 Buffer_Revision{natural} 31|443b7 450r66
+236V13*Is_Stale_For_Buffer{boolean} 237>7 238>7 239>7 31|454b13 465l8 465t27
+237r7 Outline{109R9} 31|455b7 460r26 462r18 463r19 464r19
+238i7 Buffer_Token{natural} 31|456b7 461r18 462r70
+239i7 Buffer_Revision{natural} 31|457b7 464r68
+241V13*Freshness_For_Active_Buffer{69E9} 242>7 243>7 244>7 31|467b13 484l8
+. 484t35
+242r7 Outline{109R9} 31|468b7 473r47 475r36 477r13 478r50
+243i7 Buffer_Token{natural} 31|469b7 473r10 475r45 477r65 478r59
+244i7 Buffer_Revision{natural} 31|470b7 475r59
+246V13*Source_Buffer_Token{natural} 247>7 31|486b13 491l8 491t27
+247r7 Outline{109R9} 31|487b7 490r14
+249V13*Source_Buffer_Revision{natural} 250>7 31|493b13 498l8 498t30
+250r7 Outline{109R9} 31|494b7 497r14
+258V13*Refresh{89R9} 259=7 260>7 31|500b13 513l8 513t15
+259r7 Outline{109R9} 31|501b7 510r44 511r46
+260e7 Source{52E9} 31|502b7 505r12
+268U14*Replace_Items 269=7 270>7 31|516b14 585l8 585t21
+269r7 Outline{109R9} 31|517b7 522r66 529r30 532m38 533m35 534m32 536m13 536r13
+. 538m32 541r36 545r39 555m16 559r10 560m10 560r43 561m39 564r22 565m10 566m10
+. 567m10 568m10 569m10 570m10 571m40 572m27 574m10 575m40 577m13 578r63 580r25
+. 583r27 584r76
+270a7 Items{107A9} 31|518b7 535r22
+276U14*Select_Item 277=7 278>7 31|840b14 854l8 854t19 2047s13 2056s16 2077s16
+277r7 Outline{109R9} 31|841b7 845r48 846m10 848m10 851r27 853r27
+278i7 Index{natural} 31|842b7 845r10 845r28 848r30
+280V13*Selected_Index{natural} 281>7 31|522s50 707s42 768s47 834s55 856b13
+. 864l8 864t22 870s14 2042s35 2069s13 2071s15
+281r7 Outline{109R9} 31|857b7 860r10 860r42 861r17
+283U14*Activate_Filter_Input 284=7 31|890b14 897l8 897t29
+284r7 Outline{109R9} 31|891b7 894m7 895m7 895r48 896m37
+286U14*Deactivate_Filter_Input 287=7 31|899b14 904l8 904t31
+287r7 Outline{109R9} 31|900b7 903m7
+289V13*Filter_Input_Is_Active{boolean} 290>7 31|906b13 911l8 911t30
+290r7 Outline{109R9} 31|907b7 910r14
+292V13*Filter_Caret{natural} 293>7 31|913b13 918l8 918t20
+293r7 Outline{109R9} 31|914b7 917r14
+295U14*Apply_Filter 296=7 297>7 31|920b14 927l8 927t20
+296r7 Outline{109R9} 31|921b7 925m35 926m7 926r48
+297a7 Text{string} 31|922b7 925r44
+299U14*Insert_Filter_Character 300=7 301>7 31|929b14 935l8 935t31
+300r7 Outline{109R9} 31|930b7 934m27
+301e7 Ch{character} 31|931b7 934r49
+303U14*Insert_Filter_Text 304=7 305>7 31|934s7 937b14 952l8 952t26
+304r7 Outline{109R9} 31|938b7 941r47 942r50 949m35 950m7 951m7
+305a7 Text{string} 31|939b7 944r28 945r54 946r70 951r48
+307U14*Delete_Filter_Character_Backward 308=7 31|954b14 975l8 975t40
+308r7 Outline{109R9} 31|955b7 957r47 958r50 971m38 972m10 973m10
+310U14*Delete_Filter_Character_Forward 311=7 31|977b14 997l8 997t39
+311r7 Outline{109R9} 31|978b7 980r47 981r50 993m38 994m10 995m10
+313U14*Move_Filter_Caret_Left 314=7 31|999b14 1006l8 1006t30
+314r7 Outline{109R9} 31|1000b7 1003r10 1004m10 1004r43
+316U14*Move_Filter_Caret_Right 317=7 31|1008b14 1015l8 1015t31
+317r7 Outline{109R9} 31|1009b7 1012r10 1012r50 1013m10 1013r43
+319U14*Move_Filter_Caret_Start 320=7 31|1017b14 1022l8 1022t31
+320r7 Outline{109R9} 31|1018b7 1021m7
+322U14*Move_Filter_Caret_End 323=7 31|1024b14 1029l8 1029t29
+323r7 Outline{109R9} 31|1025b7 1028m7 1028r48
+325U14*Clear_Filter_Text 326=7 31|1031b14 1041l8 1041t25 1048s7
+326r7 Outline{109R9} 31|1032b7 1035m7 1036m7 1037m7 1038m31 1039m36 1040m37
+328U14*Clear_Filter 329=7 31|1043b14 1049l8 1049t20
+329r7 Outline{109R9} 31|1044b7 1047m7 1048m26
+331U14*Reset_Filter_State_For_Lifecycle 332=7 31|419s7 1051b14 1059l8 1059t40
+332r7 Outline{109R9} 31|1052b7 1055m7 1056m34 1057m36 1058m37
+334U14*Commit_Filter_To_History 335=7 31|1061b14 1095l8 1095t32
+335r7 Outline{109R9} 31|1062b7 1065r51 1069m39 1073r14 1074r19 1075r12 1077r27
+. 1085m10 1085r10 1088m7 1088r7 1090r22 1091m10 1091r10 1094m36
+337V13*Filter_History_Count{natural} 338>7 343s28 31|1097b13 1102l8 1102t28
+. 1115s35 1142s35
+338r7 Outline{109R9} 31|1098b7 1101r23
+340V13*Filter_History_Entry{string} 341>7 342>7 31|1104b13 1110l8 1110t28
+341r7 Outline{109R9} 343r50 31|1105b7 1109r25
+342i7 Index{positive} 343r19 31|1106b7 1109r49
+345V13*Select_Previous_Filter_History_Entry{boolean} 346=7 31|1112b13 1137l8
+. 1137t44
+346r7 Outline{109R9} 31|1113b7 1115r57 1118r14 1122r10 1124r13 1125r18 1130m7
+. 1131m7 1131r36 1132m7 1132r40 1133m31 1134m7 1134r48 1135m37
+348V13*Select_Next_Filter_History_Entry{boolean} 349=7 31|1139b13 1166l8
+. 1166t40
+349r7 Outline{109R9} 31|1140b7 1142r57 1145r14 1147r17 1152r10 1153r18 1154m10
+. 1155m10 1155r39 1156m10 1156r43 1157m34 1158m10 1158r51 1160m10 1161m37
+. 1164m37
+351U14*Clear_Filter_History 352=7 31|381s7 1168b14 1174l8 1174t28
+352r7 Outline{109R9} 31|1169b7 1172m7 1172r7 1173m36
+354U14*Remember_Filter_For_Buffer 355=7 356>7 31|1176b14 1214l8 1214t34
+355r7 Outline{109R9} 31|1177b7 1180r45 1187r14 1188r19 1189r12 1191r16 1200m13
+. 1200r13 1206m10 1206r10 1210m10 1210r10
+356i7 Buffer_Token{natural} 31|1178b7 1183r10 1191r62 1208r30 1212r31
+358V13*Restore_Filter_For_Buffer{boolean} 359=7 360>7 31|1216b13 1251l8 1251t33
+359r7 Outline{109R9} 31|1217b7 1223r47 1227r14 1228r19 1229r12 1231r16 1232r24
+. 1243m7 1244m7 1245m7 1246m31 1247m7 1248m36 1249m37 1250r14
+360i7 Buffer_Token{natural} 31|1218b7 1223r56 1231r62
+362U14*Forget_Filter_For_Buffer 363=7 364>7 31|341s7 1253b14 1272l8 1272t32
+363r7 Outline{109R9} 31|1254b7 1262r14 1263r27 1264r12 1266r16 1267m16 1267r16
+364i7 Buffer_Token{natural} 31|1255b7 1258r10 1266r62
+366U14*Clear_All_Remembered_Filters 367=7 31|382s7 1274b14 1279l8 1279t36
+367r7 Outline{109R9} 31|1275b7 1278m7 1278r7
+369V13*Remembered_Filter_Count{natural} 370>7 31|1281b13 1286l8 1286t31
+370r7 Outline{109R9} 31|1282b7 1285r23
+372V13*Filter_Is_Active{boolean} 373>7 31|1288b13 1293l8 1293t24
+373r7 Outline{109R9} 31|1289b7 1292r14
+375V13*Filter_Text{string} 376>7 31|1295b13 1300l8 1300t19 1568s49 1570s49
+376r7 Outline{109R9} 31|1296b7 1299r25
+378V13*Filtered_Row_Count{natural} 379>7 31|729s10 734s55 1302b13 1310l8
+. 1310t26
+379r7 Outline{109R9} 31|1303b7 1306r10 1307r17 1309r26
+381V13*Rows_Generation{natural} 382>7 31|708s49 1312b13 1317l8 1317t23
+382r7 Outline{109R9} 31|1313b7 1316r14
+384V13*Filter_Generation{natural} 385>7 31|709s51 1319b13 1324l8 1324t25
+385r7 Outline{109R9} 31|1320b7 1323r14
+387V13*Projection_Generation{natural} 388>7 31|710s55 1326b13 1331l8 1331t29
+388r7 Outline{109R9} 31|1327b7 1330r14
+390V13*Visible_Row_For_Outline_Row{natural} 391>7 392>7 31|768s9 834s17 1333b13
+. 1351l8 1351t35 1729s40
+391r7 Outline{109R9} 31|1334b7 1339r72 1343r33 1347r30
+392i7 Outline_Row_Index{natural} 31|1335b7 1339r10 1339r40 1342r21 1347r49
+394V13*Outline_Row_For_Visible_Row{natural} 395>7 396>7 31|1353b13 1371l8
+. 1371t35 2221s41 2279s14
+395r7 Outline{109R9} 31|1354b7 1362r33 1363r33
+396i7 Visible_Row_Index{natural} 31|1355b7 1359r10 1365r26
+398V13*Has_Selected_Item{boolean} 399>7 31|866b13 871l8 871t25
+399r7 Outline{109R9} 31|867b7 870r30
+405U14*Clear_Current_Symbol 406=7 31|198s7 256s10 280s7 300s7 321s7 362s13
+. 534s10 1373b14 1381l8 1381t28 1392s10
+406r7 Outline{109R9} 31|1374b7 1377m7 1378m7 1379m7 1380m7
+408U14*Set_Current_Symbol_Index 409=7 410>7 31|1383b14 1403l8 1403t32 1552s7
+409r7 Outline{109R9} 31|1384b7 1389r37 1390r47 1392m32 1394m10 1395m10 1396m10
+. 1396r35 1397m10 1397r34 1400r27 1402r27
+410i7 Index{natural} 31|1385b7 1388r10 1389r17 1390r66 1394r36 1396r50 1397r49
+412V13*Current_Symbol_Index{natural} 413>7 31|706s41 1405b13 1416l8 1416t28
+. 1422s14 1633s18 1717s35
+413r7 Outline{109R9} 31|1406b7 1409r10 1410r18 1411r18 1411r56 1413r17
+415V13*Has_Current_Symbol{boolean} 416>7 31|1418b13 1423l8 1423t26 1429s10
+. 1439s10 1576s19 1632s14
+416r7 Outline{109R9} 31|1419b7 1422r36
+418V13*Current_Symbol_Label{string} 419>7 31|1425b13 1433l8 1433t28 1577s37
+419r7 Outline{109R9} 31|1426b7 1429r30 1430r28
+421V13*Current_Symbol_Line{natural} 422>7 31|1435b13 1443l8 1443t27
+422r7 Outline{109R9} 31|1436b7 1439r30 1440r17
+424V13*Find_Current_Symbol_For_Cursor{natural} 425>7 426>7 427>7 428>7 31|1528b13
+. 1543l8 1543t38 1553s19
+425r7 Outline{109R9} 31|1529b7 1536r12 1542r46
+426i7 Buffer_Token{natural} 31|1530b7 1536r21 1542r55
+427i7 Line{positive} 31|1531b7 1536r35 1542r69
+428i7 Column{natural} 31|1532b7 1536r41 1542r75
+430U14*Update_Current_Symbol_For_Cursor 431=7 432>7 433>7 434>7 31|1545b14
+. 1554l8 1554t40
+431r7 Outline{109R9} 31|1546b7 1553m10 1553r51
+432i7 Buffer_Token{natural} 31|1547b7 1553r60
+433i7 Line{positive} 31|1548b7 1553r74
+434i7 Column{natural} 31|1549b7 1553r80
+436V13*Outline_Header_Text{string} 437>7 31|798s52 1556b13 1598l8 1598t27
+437r7 Outline{109R9} 31|1557b7 1559r68 1560r77 1562r12 1564r16 1566r19 1566r49
+. 1567r47 1568r62 1569r22 1570r62 1576r39 1577r59 1586r27
+443V13*Outline_Empty_State_Label{string} 444>7 31|803s28 1601b13 1625l8 1625t33
+444r7 Outline{109R9} 31|1602b7 1605r12 1607r27 1613r27
+446V13*Is_Current_Symbol_Row{boolean} 447>7 448>7 31|745s16 752s20 825s37
+. 1627b13 1635l8 1635t29
+447r7 Outline{109R9} 449r40 31|1628b7 1632r34 1633r40 1634r44
+448i7 Index{positive} 449r19 31|1629b7 1633r51 1634r53
+451V13*Is_Selectable_Target_Row{boolean} 452>7 453>7 31|144s21 169s18 609s17
+. 633s17 759s16 826s37 827s37 828s37 829s41 1390s21 1495s13 1634s18 1637b13
+. 1648l8 1648t32 1662s21 1683s13 1703s21 1734s17 1777s13 1798s13 1874s13
+. 1986s13 2020s13 2046s21 2055s24 2076s24 2297s18 2318s18
+452r7 Outline{109R9} 454r40 31|1638b7 1641r39 1643r14
+453i7 Index{positive} 454r19 31|1639b7 1641r54
+460V13*Has_Selectable_Filter_Match{boolean} 461>7 31|1650b13 1669l8 1669t35
+461r7 Outline{109R9} 31|1651b7 1654r10 1655r17 1660r33 1661r33 1662r47
+467V13*Navigable_Symbol_Count{natural} 468>7 31|1559s44 1671b13 1688l8 1688t30
+468r7 Outline{109R9} 31|1672b7 1676r10 1677r17 1682r33 1683r39
+473V13*Filtered_Navigable_Symbol_Count{natural} 474>7 31|1560s44 1690b13
+. 1709l8 1709t39
+474r7 Outline{109R9} 31|1691b7 1695r10 1696r17 1701r33 1702r33 1703r47
+479V13*Can_Reveal_Current_Symbol{boolean} 480>7 481>7 482>7 31|1712b13 1739l8
+. 1739t33
+480r7 Outline{109R9} 31|1713b7 1717r57 1721r17 1722r17 1723r37 1729r69 1734r43
+. 1735r40 1736r47
+481r7 Panel{29|119R9} 31|1714b7 1731r75 1736r56 1737r65
+482i7 Active_Buffer_Token{natural} 31|1715b7 1720r17 1735r69
+484V13*Same_Outline_Target{boolean} 485>7 485>13 31|1741b13 1751l8 1751t27
+. 1757s14 1828s10
+485r7 Left{96R9} 31|1742b7 1745r14 1747r18 1748r18 1749r18 1750r18
+485r13 Right{96R9} 31|1742b13 1746r18 1748r38 1749r30 1750r32
+487V13*Same_Outline_Symbol{boolean} 488>7 488>13 31|1753b13 1761l8 1761t27
+. 1824s10
+488r7 Left{96R9} 31|1754b7 1757r35 1758r18 1759r29 1760r18
+488r13 Right{96R9} 31|1754b13 1757r41 1758r30 1759r54 1760r31
+494V13*Outline_Buffer_Identity_Matches{boolean} 495>7 496>7 31|451s18 478s17
+. 1223s14 1490s14 1763b13 1786l8 1786t39 1793s14 1869s14 1981s14 2015s14
+495r7 Outline{109R9} 31|1764b7 1770r17 1771r17 1776r33 1777r39 1779r35
+496i7 Buffer_Token{natural} 31|1765b7 1769r10 1779r50
+501V13*Has_Navigable_Symbol_For_Buffer{boolean} 502>7 503>7 31|1788b13 1806l8
+. 1806t39
+502r7 Outline{109R9} 31|1789b7 1793r47 1797r33 1798r39 1799r40
+503i7 Buffer_Token{natural} 31|1790b7 1793r56 1799r54
+505V13*Selection_Preservation_Score{natural} 506>7 506>17 31|544s21 1808b13
+. 1856l8 1856t36
+506r7 Previous{96R9} 31|1809b7 1812r50 1815r10 1817r17 1818r17 1824r31 1828r31
+. 1832r10 1833r13 1835r20 1836r22 1837r39 1845r28 1847r44
+506r17 Candidate{96R9} 31|1809b17 1813r50 1816r17 1818r42 1819r17 1824r41
+. 1828r41 1832r26 1833r29 1835r36 1836r38 1837r22 1845r10 1847r60
+508V13*Find_Nearest_Item_For_Position{natural} 509>7 510>7 511>7 512>7 31|1542s14
+. 1858b13 1903l8 1903t38
+509r7 Outline{109R9} 31|1859b7 1869r47 1873r33 1874r39 1875r40 1876r32 1877r33
+. 1878r43 1881r65 1882r67 1883r66
+510i7 Buffer_Token{natural} 31|1860b7 1869r56 1875r54
+511i7 Line{positive} 31|1861b7 1876r47 1877r47
+512i7 Column{natural} 31|1862b7 1878r58
+518V13*Find_Next_Symbol_For_Position{natural} 519>7 520>7 521>7 522>7 523>7
+. 31|1971b13 2003l8 2003t37
+519r7 Outline{109R9} 31|1972b7 1981r47 1985r33 1986r39 1987r40 1989r46 1989r72
+. 1990r50 1993r59
+520i7 Buffer_Token{natural} 31|1973b7 1981r56 1987r54
+521i7 Line{positive} 31|1974b7 1989r85
+522i7 Column{natural} 31|1975b7 1989r91
+523b7 Wrap{boolean} 31|1976b7 1993r19
+529V13*Find_Previous_Symbol_For_Position{natural} 530>7 531>7 532>7 533>7
+. 534>7 31|2005b13 2037l8 2037t41
+530r7 Outline{109R9} 31|2006b7 2015r47 2019r33 2020r39 2021r40 2023r47 2023r73
+. 2024r49 2027r58
+531i7 Buffer_Token{natural} 31|2007b7 2015r56 2021r54
+532i7 Line{positive} 31|2008b7 2023r86
+533i7 Column{natural} 31|2009b7 2023r92
+534b7 Wrap{boolean} 31|2010b7 2027r19
+536V13*Select_Next_Selectable{boolean} 537=7 31|2039b13 2063l8 2063t30
+537r7 Outline{109R9} 31|2040b7 2042r51 2044r41 2045r33 2046r47 2047m26 2053r36
+. 2054r36 2055r50 2056m29
+539V13*Select_Previous_Selectable{boolean} 540=7 31|2065b13 2084l8 2084t34
+540r7 Outline{109R9} 31|2066b7 2069r29 2070r27 2071r31 2075r36 2076r50 2077m29
+548U14*Set_Rows_From_Outline 549>7 550=7 31|786b14 836l8 836t29
+549r7 Outline{109R9} 31|787b7 798r73 799r22 803r55 811r33 812r33 813r27 814r34
+. 823r49 824r50 825r60 826r63 827r63 828r63 829r67 834r46 834r71 835r45
+550r7 Panel{29|119R9} 31|788b7 793m10 793r10 797m40 798m45 801m13 821m26
+. 834m10 835r54
+553V13*Item_Count{natural} 449s28 454s28 554>7 577s28 582s28 587s28 592s28
+. 605s28 610s28 615s28 620s28 31|142s21 155s21 167s38 255s10 263s53 343s21
+. 358s47 365s33 427s10 433s50 460s14 473s35 510s32 564s10 578s51 580s13 703s40
+. 738s21 799s10 811s21 845s36 860s30 1309s14 1339s60 1362s21 1389s25 1411s44
+. 1494s21 1660s21 1682s21 1701s21 1723s25 1776s21 1797s21 1873s21 1985s21
+. 2019s21 2044s29 2053s24 2070s15 2094b13 2099l8 2099t18 2105s14 2329s26
+. 2351s20 2355s21
+554r7 Outline{109R9} 31|2095b7 2098r23
+556V13*Has_Items{boolean} 557>7 31|705s43 2101b13 2106l8 2106t17 2330s26
+557r7 Outline{109R9} 31|2102b7 2105r26
+559V13*Source_Class{62E9} 560>7 31|511s32 2109b13 2114l8 2114t20
+560r7 Outline{109R9} 31|2110b7 2113r14
+562V13*Last_Extraction_Source_Class{62E9} 563>7 31|2116b13 2121l8 2121t36
+563r7 Outline{109R9} 31|2117b7 2120r14
+565V13*Last_Extraction_Message{string} 566>7 31|2123b13 2128l8 2128t31
+566r7 Outline{109R9} 31|2124b7 2127r25
+568V13*Last_Extraction_Buffer_Label{string} 569>7 31|2130b13 2135l8 2135t36
+569r7 Outline{109R9} 31|2131b7 2134r25
+571V13*Last_Extraction_Item_Count{natural} 572>7 31|2137b13 2142l8 2142t34
+572r7 Outline{109R9} 31|2138b7 2141r14
+574V13*Item_Label{string} 575>7 576>7 31|823s37 2144b13 2151l8 2151t18 2250s11
+. 2371s31
+575r7 Outline{109R9} 577r40 31|2145b7 2149r35 2150r25
+576i7 Index{positive} 577r19 31|2146b7 2149r44 2150r40
+579V13*Item_Detail{string} 580>7 581>7 31|824s37 2153b13 2160l8 2160t19 2252s11
+. 2372s31
+580r7 Outline{109R9} 582r40 31|2154b7 2158r35 2159r25
+581i7 Index{positive} 582r19 31|2155b7 2158r44 2159r40
+584V13*Item_Depth{natural} 585>7 586>7 31|1509s50 1883s54 2162b13 2169l8
+. 2169t18 2366s22
+585r7 Outline{109R9} 587r40 31|2163b7 2167r35 2168r14
+586i7 Index{positive} 587r19 31|2164b7 2167r44 2168r29
+589V13*Item_Kind{22E9} 590>7 591>7 31|813s16 814s23 2171b13 2178l8 2178t17
+. 2229s10 2230s17 2357s45
+590r7 Outline{109R9} 592r40 31|2172b7 2176r35 2177r14
+591i7 Index{positive} 592r19 31|2173b7 2176r44 2177r29
+602V13*Item_Target_Kind{41E9} 603>7 604>7 31|2180b13 2187l8 2187t24 2320s18
+. 2361s16
+603r7 Outline{109R9} 605r40 31|2181b7 2185r35 2186r14
+604i7 Index{positive} 605r19 31|2182b7 2185r44 2186r29
+607V13*Item_Buffer_Token{natural} 608>7 609>7 31|1496s21 1735s21 1779s16
+. 1799s21 1875s21 1987s21 2021s21 2189b13 2196l8 2196t25 2319s18 2364s22
+608r7 Outline{109R9} 610r40 31|2190b7 2194r35 2195r14
+609i7 Index{positive} 610r19 31|2191b7 2194r44 2195r29
+612V13*Item_Line{natural} 613>7 614>7 31|1499s49 1876s21 1877s22 1881s54
+. 1937s14 1937s47 1939s12 1939s45 1943s12 1943s45 1959s14 1959s47 1961s12
+. 1961s45 1965s12 1965s45 1989s35 2023s36 2198b13 2205l8 2205t17 2321s18
+. 2368s22
+613r7 Outline{109R9} 615r40 31|2199b7 2203r35 2204r14
+614i7 Index{positive} 615r19 31|2200b7 2203r44 2204r29
+617V13*Item_Column{natural} 618>7 619>7 31|1878s30 1882s54 1940s21 1941s14
+. 1944s21 1945s14 1962s21 1963s14 1966s21 1967s14 1989s59 2023s60 2207b13
+. 2214l8 2214t19 2370s22
+618r7 Outline{109R9} 620r40 31|2208b7 2212r35 2213r14
+619i7 Index{positive} 620r19 31|2209b7 2212r44 2213r29
+633V13*Feature_Row_Maps_To_Item{boolean} 634>7 635>7 636>7 31|741s20 1736s21
+. 2216b13 2253l8 2253t32 2275s14
+634r7 Outline{109R9} 31|2217b7 2221r70 2229r21 2230r28 2250r23 2252r24
+635r7 Panel{29|119R9} 31|2218b7 2224r55 2232r44 2237r44 2243r49 2244r57 2249r46
+. 2251r51
+636i7 Row{positive} 31|2219b7 2221r79 2224r17 2232r51 2237r51 2243r56 2244r64
+. 2249r53 2251r58
+642V13*Map_Panel_Row_To_Outline_Row{natural} 643>7 644>7 645>7 646>7 31|2256b13
+. 2280l8 2280t36 2289s9 2308s9
+643r7 Outline{109R9} 31|2257b7 2275r40 2279r43
+644r7 Panel{29|119R9} 31|2258b7 2263r47 2266r12 2271r66 2275r49
+645i7 Row{natural} 31|2259b7 2271r73 2275r66 2279r52
+646i7 Expected_Panel_Generation{natural} 31|2260b7 2266r19
+648V13*Validate_Outline_Row_For_Selection{boolean} 649>7 650>7 651>7 652>7
+. 31|2282b13 2298l8 2298t42
+649r7 Outline{109R9} 31|2283b7 2290r12 2297r44
+650r7 Panel{29|119R9} 31|2284b7 2290r21 2296r54
+651i7 Row{natural} 31|2285b7 2290r28 2296r71
+652i7 Expected_Panel_Generation{natural} 31|2286b7 2290r33
+654V13*Validate_Outline_Row_For_Activation{boolean} 655>7 656>7 657>7 658>7
+. 659>7 31|2300b13 2322l8 2322t43
+655r7 Outline{109R9} 31|2301b7 2309r12 2318r44 2319r37 2320r36 2321r29
+656r7 Panel{29|119R9} 31|2302b7 2309r21 2315r54 2316r59 2317r55
+657i7 Row{natural} 31|2303b7 2309r28 2315r71 2316r76 2317r72
+658i7 Active_Buffer_Token{natural} 31|2304b7 2311r29 2319r67
+659i7 Expected_Panel_Generation{natural} 31|2305b7 2309r33
+662V13*Summary{111R9} 663>7 31|2324b13 2333l8 2333t15
+663r7 Outline{109R9} 31|2325b7 2329r38 2330r37 2331r39 2332r26
+670V13*Fingerprint{natural} 671>7 31|2331s26 2347b13 2375l8 2375t19
+671r7 Outline{109R9} 31|2348b7 2351r32 2352r47 2355r33 2357r56 2361r34 2364r41
+. 2366r34 2368r33 2370r35 2371r43 2372r44
+673V13*Message_Outline_Refreshed{string} 31|2377b13 2380l8 2380t33
+674V13*Message_Outline_Cleared{string} 31|2382b13 2385l8 2385t31
+675V13*Message_Outline_Shown{string} 31|2387b13 2390l8 2390t29
+676V13*Message_Outline_Focused{string} 31|2392b13 2395l8 2395t31
+677V13*Message_Outline_Item_Has_No_Target{string} 31|2397b13 2400l8 2400t42
+678V13*Message_Outline_Refresh_Failed{string} 31|2402b13 2405l8 2405t38
+679V13*Message_Outline_No_Current_Symbol{string} 31|2407b13 2410l8 2410t41
+680V13*Message_Outline_Current_Symbol_Revealed{string} 31|2412b13 2415l8
+. 2415t47
+681V13*Message_Outline_No_Active_Buffer{string} 31|304s31 1607s62 2417b13
+. 2420l8 2420t40
+682V13*Message_Outline_Unsupported_Buffer{string} 31|2422b13 2425l8 2425t42
+683V13*Message_Outline_No_Symbols{string} 31|1586s62 1613s62 2427b13 2430l8
+. 2430t34
+684V13*Message_Outline_No_Matching_Symbols{string} 31|2432b13 2435l8 2435t43
+685V13*Message_Outline_No_Selected_Symbol{string} 31|2399s14 2437b13 2440l8
+. 2440t42
+686V13*Message_Outline_Stale_Result_Discarded{string} 31|2442b13 2445l8 2445t46
+693V13*Projection_Invariant_Holds{boolean} 694>7 695>7 31|723b13 774l8 774t34
+. 782s10
+694r7 Outline{109R9} 31|724b7 729r30 734r75 738r33 739r33 741r46 745r39 752r43
+. 759r42 768r38 768r63
+695r7 Panel{29|119R9} 31|725b7 730r49 731r52 733r56 734r45 741r55 747r18
+. 754r18 760r55 767r45 773r56
+697U14*Assert_Outline_Projection_Consistent 698>7 699>7 31|776b14 784l8 784t44
+. 835s7
+698r7 Outline{109R9} 31|777b7 782r38 783r63
+699r7 Panel{29|119R9} 31|778b7 782r47
+701V13*Reason_No_Active_Buffer{string} 31|2447b13 2450l8 2450t31
+702V13*Reason_No_Outline_Items{string} 31|2452b13 2455l8 2455t31
+703V13*Reason_No_Outline_Item_Selected{string} 31|2457b13 2460l8 2460t39
+704V13*Reason_Outline_Belongs_To_Another_Buffer{string} 31|2462b13 2465l8
+. 2465t48
+705V13*Reason_Feature_Panel_Hidden{string} 31|2467b13 2470l8 2470t35
+706V13*Reason_Feature_Panel_Already_Shown{string} 31|2472b13 2475l8 2475t42
+707V13*Reason_Feature_Panel_Already_Focused{string} 31|2477b13 2480l8 2480t44
+710K12 Outline_Item_Vectors[9|74] 729r34
+714K12 Filter_Text_Vectors[9|74] 749r34
+718R9 Remembered_Filter 722e14 726r23 31|1211r13
+719i7*Buffer_Token{natural} 31|1191r47 1208m14 1212m15 1231r47 1266r47
+720r7*Text{20|105R9} 31|1208m44 1212m45 1232r55
+724K12 Remembered_Filter_Vectors[9|74] 751r34
+729r7*Items{9|91R9[710]} 31|108r22 109m18 128r48 344r21 360r29 367r29 529r38
+. 536m21 541r44 545r47 590r52 637r21 648r53 1396r43 1397r42 1501r60 1641r47
+. 2091r40 2098r31 2150r33 2159r33 2168r22 2177r22 2186r22 2195r22 2204r22
+. 2213r22
+730e7*Source{62E9} 31|199m15 238r29 257r21 258m21 281m15 301m15 322m15 447r26
+. 565m18 574m18 593r37 598r26 625r21 681r18 687r18 704r61 1562r20 1605r20
+. 1643r22 1654r18 1676r18 1695r18 1721r25 1770r25 2113r22 2332r34 2352r55
+731r7*Pending_Snapshot{74R9} 31|98m15 223m15 237r25 241r33 350r18 559r18
+. 560r51
+732r7*Last_Applied_Snapshot{74R9} 31|449r26 450r26 462r26 464r27 477r21 490r22
+. 497r22 560m18
+733i7*Next_Request{natural} 31|210r22 220r42 224r18 225m18 227m18 227r42
+734e7*Last_Extraction_Source{62E9} 31|184m15 448r26 463r27 1564r24 1655r25
+. 1677r25 1696r25 1722r25 1771r25 2120r22
+735r7*Last_Extraction_Message{20|105R9} 31|185m15 1586r35 1607r35 1613r35
+. 2127r33
+737r7*Last_Extraction_Buffer{20|105R9} 31|2134r33
+739i7*Last_Extraction_Count{natural} 31|186m15 2141r22
+740b7*Filter_Input_Active{boolean} 31|195m15 277m15 297m15 318m15 566m18
+. 688r27 894m15 903m15 910r22 950m15 972m18 994m18 1047m15 1055m15 1118r22
+. 1145r22 1243m15 1566r57
+741b7*Filter_Active{boolean} 31|116m15 133r27 567m18 613r21 689r35 881m15
+. 1035m15 1132m15 1156m18 1245m15 1250r22 1292r22 1306r18 1566r27 1567r55
+. 1569r30
+742r7*Filter_Text_Value{20|105R9} 31|117m15 127r53 568m18 677r58 690r43 880m15
+. 895r56 926r56 941r55 957r55 980r55 1012r58 1028r56 1036m15 1065r59 1131m15
+. 1132r48 1134r56 1155m18 1156r51 1158r59 1180r53 1244m15 1299r33
+744i7*Filter_Caret_Position{natural} 31|118m15 569m18 677r18 883r18 884m18
+. 895m15 917r22 926m15 942r58 951m15 958r58 973m18 981r58 995m18 1003r18
+. 1004m18 1004r51 1012r18 1013m18 1013r51 1021m15 1028m15 1037m15 1134m15
+. 1158m18 1247m15
+745i7*Filtered_Count{natural} 31|119m15 165m15 570m18 673r18 691r35 1307r25
+746i7*Rows_Generation{natural} 31|86m15 86r59 1316r22
+747i7*Filter_Generation{natural} 31|92m15 92r61 1323r22
+748i7*Projection_Generation{natural} 31|87m15 87r65 93m15 93r65 1330r22
+749r7*Recent_Filters{9|91R9[714]} 31|1073r22 1074r27 1075r20 1077r35 1085m18
+. 1088m15 1090r30 1091m18 1101r31 1109r33 1131r44 1155r47 1172m15
+750i7*Filter_History_Cursor{natural} 31|73m15 1122r18 1124r21 1125r26 1130m15
+. 1147r25 1152r18 1153r26 1154m18 1160m18
+751r7*Remembered_Filters{9|91R9[724]} 31|1187r22 1188r27 1189r20 1191r24
+. 1200m21 1206m18 1210m18 1227r22 1228r27 1229r20 1231r24 1232r32 1262r22
+. 1263r35 1264r20 1266r24 1267m24 1278m15 1285r31
+752i7*Selected{natural} 31|103m15 166r18 167r26 168r65 169r71 173m15 365r21
+. 366r29 367r44 555m24 604r18 608r18 609r70 614r72 682r27 846m18 848m18 860r18
+. 861r25
+753i7*Current_Symbol{natural} 31|358r29 359r29 360r44 621r21 621r56 633r70
+. 637r36 640r21 1377m15 1394m18 1410r26 1411r26 1413r25
+754b7*Has_Current{boolean} 31|357r21 620r18 682r57 1378m15 1395m18 1409r18
+755r7*Current_Label{20|105R9} 31|641r36 1379m15 1396m18 1430r36
+757i7*Current_Line{natural} 31|629r21 640r57 1380m15 1397m18 1440r25
+X 31 editor-outline.adb
+12i4 Max_Filter_History{natural} 1090r55
+14V13 To_Item{30|96R9} 14b13 15>7 16>7 17>7 18>7 19>7 20>7 21>7 22>7 34l8
+. 34t15
+15e7 Kind{30|22E9} 26r25
+16a7 Label{string} 27r46
+17a7 Detail{string} 28r46
+18i7 Depth{natural} 29r25
+19e7 Target_Kind{30|41E9} 30r26
+20i7 Buffer_Token{natural} 31r26
+21i7 Line{natural} 32r26
+22i7 Column{natural} 33r26
+37V13 Kind_Text{string} 37b13 37>24 58l8 58t17 131s35
+37e24 Kind{30|22E9} 39r12
+60V13 Normalize_Filter_Text{string} 60b13 60>36 64l8 64t29 68s14 878s39
+60a36 Text{string} 63r34
+66V13 Normalize_History_Filter_Text{string} 66b13 66>44 69l8 69t37 1065s9
+66a44 Text{string} 68r37
+71U14 Reset_Filter_History_Cursor 71b14 71=43 74l8 74t35 197s7 279s7 299s7
+. 320s7 886s7 1039s7 1057s7 1069s10 1094s7 1173s7 1248s7
+71r43 Outline{30|109R9} 73m7
+76V13 Next_Generation{natural} 76b13 76>30 82l8 82t23 86s34 87s40 92s36 93s40
+76i30 Value{natural} 78r10 81r14
+84U14 Bump_Rows_Generation 84b14 84=36 88l8 88t28 111s7 538s10
+84r36 Outline{30|109R9} 86m7 86r51 87m7 87r57
+90U14 Bump_Filter_Generation 90b14 90=38 94l8 94t30 120s7 882s7 1038s7 1133s7
+. 1157s10 1246s7
+90r38 Outline{30|109R9} 92m7 92r53 93m7 93r57
+96U14 Invalidate_Extraction_Token 96b14 96=43 99l8 99t35 200s7 282s7 302s7
+. 323s7 351s10 561s10
+96r43 Outline{30|109R9} 98m7
+101U14 Clear_Outline_Selection 101b14 101=39 104l8 104t31 194s7 276s7 296s7
+. 317s7 369s13 533s10
+101r39 Outline{30|109R9} 103m7
+106U14 Clear_Visible_Outline_Rows 106b14 106=42 112l8 112t34 193s7 275s7
+. 295s7 316s7 532s10
+106r42 Outline{30|109R9} 108r14 109m10 109r10 111m29
+114U14 Clear_Filtered_Projection 114b14 114=41 121l8 121t33 196s7 278s7 298s7
+. 319s7 1056s7 1161s10
+114r41 Outline{30|109R9} 116m7 117m7 118m7 119m7 120m31
+123V13 Row_Matches_Filter{boolean} 123b13 124>7 125>7 138l8 138t26 143s13
+. 156s13 168s18 614s25 667s16 739s13 812s13 1343s13 1347s10 1363s13 1661s13
+. 1702s13 2045s13 2054s16 2075s16
+124r7 Outline{30|109R9} 127r45 128r40 133r19
+125i7 Index{positive} 128r55
+127a7 Query{string} 134r17 135r49 136r50 137r48
+128r7 Item{30|96R9} 129r80 130r80 131r46
+129a7 Label{string} 135r42
+130a7 Detail{string} 136r42
+131a7 Kind{string} 137r42
+140V13 First_Visible_Selectable_Row{natural} 140b13 140>43 150l8 150t36 173s27
+140r43 Outline{30|109R9} 142r33 143r33 144r47
+142i11 I{integer} 143r42 144r56 146r20
+152V13 Compute_Filtered_Count{natural} 152b13 152>37 161l8 161t30 165s33
+152r37 Outline{30|109R9} 155r33 156r33
+153i7 Count{natural} 157m13 157r22 160r14
+155i11 I{integer} 156r42
+163U14 Reconcile_Filtered_Selection 163b14 163=44 174l8 174t36 571s10 575s10
+. 887s7 896s7 1040s7 1058s7 1135s7 1164s7 1249s7
+163r44 Outline{30|109R9} 165m7 165r57 166r10 167r18 167r50 168r38 168r57
+. 169r44 169r63 173m7 173r57
+177U14 Set_Diagnostics 177b14 178=7 179>7 180>7 181>7 187l8 187t23 201s7
+. 262s7 283s7 303s7 324s7 431s7 572s10 576s10
+178r7 Outline{30|109R9} 184m7 185m7 186m7
+179e7 Source_Class{30|62E9} 184r41
+180a7 Message{string} 185r63
+181i7 Item_Count{natural} 186r40
+217r7 Stored{30|74R9} 219r10 220m10 223r35
+335b7 Owns_Visible_Rows{boolean} 345m13 354r10
+343i11 I{integer} 344r28
+522i10 Previous_Selected{natural} 524r50 529r45
+523r10 Previous_Item{30|96R9} 529m13 529r13 545r24
+524b10 Had_Previous{boolean} 528r13 540r13
+525i10 Best_Index{natural} 549m22 554r16 555r36
+526i10 Best_Score{natural} 547r30 548m22
+535r14 Item=535:22{30|96R9} 536r35
+541i17 I{integer} 545r54 549r36
+543i19 Score{natural} 547r22 548r36
+590i7 Count{natural} 593r10 597r10 604r29 621r73 646r21
+591i7 Expected_Filtered_Count{natural} 668m16 668r43 673r36
+646i11 I{integer} 648r60 667r45
+648r13 Item{30|96R9} 650r16 650r39 654r16 655r24 661r16 662r24
+727i7 Visible{natural} 740m13 740r24 741r72 747r35 754r35 760r72 773r14
+738i11 I{integer} 739r42 745r48 752r52 759r51
+790e7 Kind{29|64E9} 816m16 818m16 822r26
+811i11 I{integer} 812r42 813r36 814r43 823r58 824r59 825r69 826r72 827r72
+. 828r72 829r76 830r37
+874U14 Set_Filter_Text_Normalized 874b14 875=7 876>7 888l8 888t34 925s7 949s7
+. 971s10 993s10
+875r7 Outline{30|109R9} 880m7 881m7 882m31 883r10 884m10 886m36 887m37
+876a7 Text{string} 878r62
+878a7 Normalized{string} 880r57 881r32 883r42 884r43
+941a7 Current{string} 942r81 944r35 945r24 945r44 946r15 946r24 946r41 947r15
+. 947r24 947r49
+942i7 Caret{natural} 944r13 945r16 946r57 947r40 951r40
+943a7 Next{string} 949r44
+957a7 Current{string} 958r81 960r28 966r20 966r52 966r61 966r82 967r27 967r47
+. 967r56 967r73 968r18 968r27 968r44 969r18 969r27 969r52
+958i7 Caret{natural} 960r10 965r16 967r19 968r60 969r43 973r43
+964a10 Next{string} 971r47
+980a7 Current{string} 981r81 983r19 988r16 989r34 989r43 989r64 990r18 990r27
+. 990r44 991r18 991r27 991r56
+981i7 Caret{natural} 983r10 989r19 990r60 991r43 995r43
+987a10 Next{string} 993r47
+1064a7 Normalized{string} 1068r10 1077r57 1088r62
+1066i7 Found{natural} 1078m16 1084r10 1085r41
+1074i14 I{integer} 1077r51 1078r25
+1115i7 Count{natural} 1118r50 1124r45
+1116i7 Next{natural} 1123m10 1125m10 1130r40 1131r60
+1142i7 Count{natural} 1146r17
+1143i7 Next{natural} 1153m10 1154r43 1155r63
+1180a7 Text{string} 1198r10 1208r73 1212r74
+1181i7 Found{natural} 1192m16 1199r13 1200r48 1205r10 1207r13
+1188i14 I{integer} 1191r44 1192r25
+1220r7 Text{20|105R9} 1232m16 1244r36 1245r40 1247r48
+1221b7 Found{boolean} 1233m16 1239r14
+1228i14 I{integer} 1231r44 1232r52
+1263i14 I{integer} 1266r44 1267r51
+1337i7 Visible{natural} 1344m13 1344r24 1348r17
+1342i11 I{integer} 1343r42
+1357i7 Visible{natural} 1364m13 1364r24 1365r16
+1362i11 I{integer} 1363r42 1366r23
+1446V13 Detail_Range_End_Line{natural} 1446b13 1446>36 1477l8 1477t29 1501s18
+1446a36 Detail{string} 1452r35 1452r56 1456r16 1457r13 1463r34 1468r18 1469r18
+. 1470r18 1472r47
+1448i7 Dash{natural} 1458m13 1463r10 1463r27 1467r12
+1449i7 Value{natural} 1472m10 1472r19 1476r14
+1450i7 I{natural} 1467m7 1468r13 1469r26 1470r26 1472r55 1473m10 1473r15
+1456i11 J{integer} 1457r21 1458r21
+1479V13 Find_Enclosing_Ranged_Item_For_Position{natural} 1479b13 1480>7 1481>7
+. 1482>7 1483>7 1526l8 1526t47 1535s9
+1480r7 Outline{30|109R9} 1490r47 1494r33 1495r39 1496r40 1499r60 1501r52
+. 1509r62
+1481i7 Buffer_Token{natural} 1490r56 1496r54
+1482i7 Line{positive} 1504r41 1505r27
+1483i7 Column{natural} 1485r28
+1486i7 Best{natural} 1511r25 1515m25 1525r14
+1487i7 Best_Span{natural} 1512r39 1513r40 1516m25
+1488i7 Best_Depth{natural} 1513r67 1517m25
+1494i11 I{integer} 1495r48 1496r49 1499r69 1501r67 1509r71 1515r33
+1499i16 Start_Line{natural} 1503r30 1504r27 1508r61
+1500i16 End_Line{natural} 1503r19 1505r35 1508r50
+1508i22 Span{natural} 1512r32 1513r33 1516r38
+1509i22 Depth{natural} 1513r59 1517r39
+1534i7 Ranged{natural} 1538r10 1539r17
+1559i7 Count{natural} 1572r44 1574r64 1578r19 1580r19 1583r51
+1560i7 Filtered_Count{natural} 1567r19 1571r36
+1641r7 Item{30|96R9} 1644r18 1645r18 1646r18 1647r18
+1660i11 I{integer} 1661r42 1662r56
+1674i7 Count{natural} 1684m13 1684r22 1687r14
+1682i11 I{integer} 1683r48
+1693i7 Count{natural} 1705m13 1705r22 1708r14
+1701i11 I{integer} 1702r42 1703r56
+1717i7 Index{natural} 1719r10 1723r17 1729r78 1734r62 1735r59
+1729i10 Visible{natural} 1731r13 1731r33 1736r73 1737r82
+1767b7 Saw_Navigable{boolean} 1778m13 1785r14
+1776i11 I{integer} 1777r48 1779r44
+1797i11 I{integer} 1798r48 1799r49
+1811i7 Score{natural} 1829m10 1834m13 1834r35 1839m13 1839r35 1841m13 1841r35
+. 1850m16 1850r38 1855r14
+1812a7 Prev_Label{string} 1832r50
+1813a7 Cand_Label{string} 1832r63
+1847i13 Distance{natural} 1849r16 1850r51
+1864i7 Best{natural} 1885r19 1893m19 1902r14
+1865i7 Best_Line{natural} 1886r43 1887r44 1889r44 1894m19
+1866i7 Best_Col{natural} 1888r52 1890r52 1895m19
+1867i7 Best_Depth{natural} 1891r54 1896m19
+1873i11 I{integer} 1874r48 1875r49 1876r41 1877r42 1878r52 1881r74 1882r76
+. 1883r75 1893r27
+1881i16 Candidate_Line{natural} 1886r26 1887r27 1889r27 1894r32
+1882i16 Candidate_Col{natural} 1888r36 1890r36 1895r31
+1883i16 Candidate_Depth{natural} 1891r36 1896r33
+1905V13 Position_Is_After{boolean} 1905b13 1906>7 1907>7 1908>7 1909>7 1914l8
+. 1914t25 1989s16
+1906i7 Candidate_Line{natural} 1912r14 1913r18
+1907i7 Candidate_Column{natural} 1913r49
+1908i7 Line{positive} 1912r31 1913r35
+1909i7 Column{natural} 1913r68
+1916V13 Position_Is_Before{boolean} 1916b13 1917>7 1918>7 1919>7 1920>7 1925l8
+. 1925t26 2023s16
+1917i7 Candidate_Line{natural} 1923r14 1924r18
+1918i7 Candidate_Column{natural} 1924r49
+1919i7 Line{positive} 1923r31 1924r35
+1920i7 Column{natural} 1924r68
+1927V13 Candidate_Is_Before_Best{boolean} 1927b13 1928>7 1929>7 1930>7 1947l8
+. 1947t32 1990s24 1993s33
+1928r7 Outline{30|109R9} 1937r25 1937r58 1939r23 1939r56 1940r34 1941r27
+. 1943r23 1943r56 1944r34 1945r27
+1929i7 Candidate{positive} 1937r34 1939r32 1940r43 1943r32 1944r43 1946r21
+1930i7 Best{natural} 1933r10 1937r77 1939r75 1941r46 1943r75 1945r46 1946r33
+1949V13 Candidate_Is_After_Best{boolean} 1949b13 1950>7 1951>7 1952>7 1969l8
+. 1969t31 2024s24 2027s33
+1950r7 Outline{30|109R9} 1959r25 1959r58 1961r23 1961r56 1962r34 1963r27
+. 1965r23 1965r56 1966r34 1967r27
+1951i7 Candidate{positive} 1959r34 1961r32 1962r43 1965r32 1966r43 1968r21
+1952i7 Best{natural} 1955r10 1959r77 1961r75 1963r46 1965r75 1967r46 1968r33
+1978i7 Best{natural} 1990r62 1992m16 1999r10 2000r17
+1979i7 Wrap_Best{natural} 1993r71 1994m16 2002r14
+1985i11 I{integer} 1986r48 1987r49 1989r55 1989r81 1990r59 1992r24 1993r68
+. 1994r29
+2012i7 Best{natural} 2024r61 2026m16 2033r10 2034r17
+2013i7 Wrap_Best{natural} 2027r70 2028m16 2036r14
+2019i11 I{integer} 2020r48 2021r49 2023r56 2023r82 2024r58 2026r24 2027r67
+. 2028r29
+2042i7 Start{natural} 2044r16 2052r10
+2044i11 I{integer} 2045r42 2046r56 2047r35
+2053i14 I{integer} 2054r45 2055r59 2056r38
+2068i7 Start{natural} 2073r10 2074r32
+2074i14 I{integer} 2075r45 2076r59 2077r38
+2086V13 Valid_Index{boolean} 2086b13 2087>7 2088>7 2092l8 2092t19 2149s22
+. 2158s22 2167s22 2176s22 2185s22 2194s22 2203s22 2212s22
+2087r7 Outline{30|109R9} 2091r32
+2088i7 Index{positive} 2091r14
+2221i7 Outline_Row{natural} 2223r10 2229r40 2230r47 2244r72 2250r42 2252r43
+2288i7 Mapped{natural} 2292r10 2297r63
+2307i7 Mapped{natural} 2311r10 2318r63 2319r56 2320r55 2321r48
+2335V13 Hash_String{natural} 2335b13 2336>7 2337>7 2345l8 2345t19 2371s15
+. 2372s15
+2336i7 Seed{natural} 2339r22
+2337a7 Text{string} 2341r16
+2339i7 H{natural} 2342m10 2342r16 2344r14
+2341e11 C=2341:16{character} 2342r41
+2350i7 H{natural} 2356m10 2357r13 2359m10 2360r13 2363m10 2364r13 2365m10
+. 2366r13 2367m10 2368r13 2369m10 2370r13 2371m10 2371r28 2372m10 2372r28
+. 2374r14
+2355i11 I{integer} 2357r65 2361r43 2364r50 2366r43 2368r42 2370r44 2371r52
+. 2372r53
+X 35 system.ads
+67M9*Address
+X 47 s-memory.ads
+51V13*Alloc{35|67M9} 101i<c,__gnat_malloc>22
+66U14*Free 102i<c,__gnat_free>22
+74V13*Realloc{35|67M9} 103i<c,__gnat_realloc>22
+X 58 s-stalib.adb
+87U14 Break_Start 88i<c,__gnat_break_start>22
+

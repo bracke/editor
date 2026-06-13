@@ -4,6 +4,10 @@ package Text_Backend.Array_Impl is
 
    procedure Clear (B : in out Buffer_Type);
 
+   procedure Set_Text
+     (B    : in out Buffer_Type;
+      Text : String);
+
    procedure Insert
      (B     : in out Buffer_Type;
       Index : Natural;
@@ -28,6 +32,16 @@ package Text_Backend.Array_Impl is
       Ch    : Character);
 
    function Length (B : Buffer_Type) return Natural;
+
+   procedure For_Each_Char
+     (B  : Buffer_Type;
+      Fn : not null access procedure (Ch : Character));
+
+   procedure For_Each_Char_Range
+     (B     : Buffer_Type;
+      Start : Natural;
+      Stop  : Natural;
+      Fn    : not null access procedure (Ch : Character));
 
    function Element
      (B     : Buffer_Type;

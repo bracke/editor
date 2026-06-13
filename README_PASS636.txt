@@ -1,0 +1,1 @@
+Pass636: Address attribute-definition clauses now also emit address-clause grammar structure, so `for X'Address use ...;` retains both its attribute-definition shape and its address-clause classification while recovering into later declarations.

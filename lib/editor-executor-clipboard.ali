@@ -1,0 +1,166 @@
+V "GNAT Lib v15"
+A -gnatA
+A -gnat2022
+A -mtune=generic
+A -march=x86-64
+P SS ZX
+
+RN
+RV NO_DISPATCHING_CALLS
+RV NO_EXCEPTION_HANDLERS
+RV NO_EXCEPTIONS
+RV NO_IMPLICIT_CONDITIONALS
+RV NO_NESTED_FINALIZATION
+RV NO_SECONDARY_STACK
+RV NO_STANDARD_STORAGE_POOLS
+RV NO_IMPLEMENTATION_PRAGMAS
+RV NO_OBSOLESCENT_FEATURES
+
+U editor.executor.clipboard%b  editor-executor-clipboard.adb  c5d36aaa NE OO PK
+W ada%s			ada.ads			ada.ali
+Z ada.exceptions%s	a-except.adb		a-except.ali
+W ada.strings%s		a-string.ads		a-string.ali
+Z ada.strings.text_buffers%s  a-sttebu.adb	a-sttebu.ali
+W ada.strings.unbounded%s  a-strunb.adb		a-strunb.ali
+Z ada.tags%s		a-tags.adb		a-tags.ali
+W editor%s		editor.ads		editor.ali
+W editor.clipboard%s	editor-clipboard.adb	editor-clipboard.ali
+W editor.commands%s	editor-commands.adb	editor-commands.ali
+W editor.cursors%s	editor-cursors.adb	editor-cursors.ali
+W editor.executor%s	editor-executor.adb	editor-executor.ali
+W editor.state%s	editor-state.adb	editor-state.ali
+Z system%s		system.ads		system.ali
+Z system.finalization_primitives%s  s-finpri.adb  s-finpri.ali
+Z system.return_stack%s	s-retsta.ads		s-retsta.ali
+Z system.secondary_stack%s  s-secsta.adb	s-secsta.ali
+Z system.soft_links%s	s-soflin.adb		s-soflin.ali
+W text_buffer%s		text_buffer.ads		text_buffer.ali
+
+U editor.executor.clipboard%s  editor-executor-clipboard.ads  fdda9fa0 EE NE OO PK
+W editor%s		editor.ads		editor.ali
+W editor.commands%s	editor-commands.adb	editor-commands.ali
+W editor.executor%s	editor-executor.adb	editor-executor.ali
+W editor.state%s	editor-state.adb	editor-state.ali
+
+D ada.ads		20250808065140 76789da1 ada%s
+D a-charac.ads		20250808065140 2d3ec45b ada.characters%s
+D a-chlat1.ads		20250808065140 e0d72e76 ada.characters.latin_1%s
+D a-contai.ads		20250808065140 61e5e089 ada.containers%s
+D a-conhel.ads		20250808065140 46fe1ce3 ada.containers.helpers%s
+D a-convec.ads		20250808065140 91fb49f3 ada.containers.vectors%s
+D a-except.ads		20250808065140 e7970cd9 ada.exceptions%s
+D a-finali.ads		20250808065140 bf4f806b ada.finalization%s
+D a-iteint.ads		20250808065140 49a8bee2 ada.iterator_interfaces%s
+D a-stream.ads		20250808065140 17477cbd ada.streams%s
+D a-string.ads		20250808065140 90ac6797 ada.strings%s
+D a-strmap.ads		20250808065140 1f91ebb6 ada.strings.maps%s
+D a-strsea.ads		20250808065140 18c3c634 ada.strings.search%s
+D a-sttebu.ads		20250808065140 f1ad67a2 ada.strings.text_buffers%s
+D a-strunb.ads		20250808065140 b10770ab ada.strings.unbounded%s
+D a-stuten.ads		20250808065140 c6ced0ae ada.strings.utf_encoding%s
+D a-tags.ads		20250808065140 fbca0ad5 ada.tags%s
+D a-unccon.ads		20250808065140 0e9b276f ada.unchecked_conversion%s
+D editor.ads		20260406185230 16f844c2 editor%s
+D editor-clipboard.ads	20260425115545 d49d0ea5 editor.clipboard%s
+D editor-commands.ads	20260425121135 91ba1af2 editor.commands%s
+D editor-cursors.ads	20260425100454 1f938cf3 editor.cursors%s
+D editor-executor.ads	20260424193939 60525236 editor.executor%s
+D editor-executor-clipboard.ads  20260425115651 d81bf4e8 editor.executor.clipboard%s
+D editor-executor-clipboard.adb  20260425115725 99c81597 editor.executor.clipboard%b
+D editor-state.ads	20260503173758 d429238c editor.state%s
+D interfac.ads		20250808065140 9111f9c1 interfaces%s
+D i-c.ads		20250808065140 e94c966a interfaces.c%s
+D system.ads		20250808065140 14286b0f system%s
+D s-atocou.ads		20250808065140 dc18efc3 system.atomic_counters%s
+D s-exctab.ads		20250808065140 91bef6ef system.exception_table%s
+D s-finpri.ads		20250808065140 5970d55a system.finalization_primitives%s
+D s-finroo.ads		20250808065140 0a7c3ed4 system.finalization_root%s
+D s-oscons.ads		20250827122531 068e1a91 system.os_constants%s
+D s-oslock.ads		20250808065140 13fa6b78 system.os_locks%s
+D s-parame.ads		20250808065140 3597fc11 system.parameters%s
+D s-pooglo.ads		20250808065140 91708d21 system.pool_global%s
+D s-putima.ads		20250808065140 17291fe4 system.put_images%s
+D s-retsta.ads		20250808065140 0f6b06cb system.return_stack%s
+D s-secsta.ads		20250808065140 578279f5 system.secondary_stack%s
+D s-soflin.ads		20250808065140 5d88fdea system.soft_links%s
+D s-stache.ads		20250808065140 0b81c1fe system.stack_checking%s
+D s-stalib.ads		20250808065140 1c9580f6 system.standard_library%s
+D s-stoele.ads		20250808065140 ccded4e8 system.storage_elements%s
+D s-stopoo.ads		20250808065140 e9fa2dd8 system.storage_pools%s
+D s-stratt.ads		20250808065140 516607ae system.stream_attributes%s
+D s-traent.ads		20250808065140 c81cbf8c system.traceback_entries%s
+D s-unstyp.ads		20250808065140 fa2a7f59 system.unsigned_types%s
+D text_backend.ads	20260412181650 6d0030da text_backend%s
+D text_backend-rope_impl.ads  20260427194525 88d12c3a text_backend.rope_impl%s
+D text_buffer.ads	20260427153044 bb9a4056 text_buffer%s
+G a e
+G c Z s b [execute editor__executor__clipboard 6 14 none]
+G c Z b b [extract_text editor__executor__clipboard 11 13 none]
+G c Z b b [has_selection editor__executor__clipboard 29 13 none]
+G r c none [execute editor__executor__clipboard 6 14 none] [element text_backend__rope_impl 51 13 none]
+G r c none [execute editor__executor__clipboard 6 14 none] [set_text editor__clipboard 5 14 none]
+G r c none [extract_text editor__executor__clipboard 11 13 none] [element text_backend__rope_impl 51 13 none]
+X 1 ada.ads
+18K9*Ada 22e8 25|1r6 1r33
+X 6 a-convec.ads
+91R9*Vector<8|43R9>
+X 9 a-iteint.ads
+24h9 Forward_Iterator
+32h9 Reversible_Iterator<24R9[6|119]>
+X 11 a-string.ads
+16K13*Strings 35e16 25|1r10 1r37
+X 15 a-strunb.ads
+91K21*Unbounded 1641e26 25|1w18 1r45
+105R9*Unbounded_String<8|43R9> 1620e15 25|14r37 16r16 41r16
+109r4*Null_Unbounded_String{105R9} 25|16r36 41r36
+149U14*Append 25|54s16
+168U14*Append 25|23s10 51s19
+X 19 editor.ads
+1K9*Editor 5e11 24|1r6 2r6 4r9 7r13 8r13 10r5 25|4r6 5r6 6r6 6r26 7r6 9r14
+. 36r13 37r13 60r7 63r5
+X 20 editor-clipboard.ads
+3K16*Clipboard 13e21 25|7w13 60r14
+5U14*Set_Text 25|60s24
+X 21 editor-commands.ads
+5K16*Commands 75e20 24|2w13 8r20 25|5w13 37r20
+56R9*Command 71e14 24|8r29 25|37r29
+X 22 editor-cursors.ads
+3K16*Cursors 35e19 25|6w13 6r33
+5I12*Cursor_Index{natural} 25|13r16 14r16 47r29 47r45 48r29 48r45
+12R9*Caret_State 17e14 25|29r32
+13i7*Pos{5I12} 25|31r16 47r65 48r65
+14i7*Anchor{5I12} 25|31r25 47r72 48r72
+15i7*Virtual_Column{natural} 25|32r19
+16i7*Anchor_Virtual_Column{natural} 25|32r39
+X 23 editor-executor.ads
+7K16*Executor 19|1k9 23|26e20 24|4r16 10r12 25|9r21 63r12
+X 24 editor-executor-clipboard.ads
+4K25*Clipboard 23|7k16 24|10l21 10e30 25|9b30 63l21 63t30
+6U14*Execute 7>7 8>7 25|35b14 61l8 61t15
+7r7 S{26|11R9} 25|36b7 44r16 54r46
+8r7 Cmd{21|56R9} 25|37b7 39r28
+X 25 editor-executor-clipboard.adb
+11V13 Extract_Text{15|105R9} 11b13 12>7 13>7 14>7 27l8 27t20 54s32
+12r7 Buffer{50|6R9} 23r47
+13i7 L{22|5I12} 18r15 22r25
+14i7 H{22|5I12} 18r10 22r40
+16r7 Result{15|105R9} 19r17 23m18 23r18 26r14
+22i11 I{integer} 23r55
+29V13 Has_Selection{boolean} 29b13 29>28 33l8 33t21 45s13
+29r28 C{22|12R9} 31r14 31r23 32r17 32r37
+41r7 Result{15|105R9} 51m27 51r27 54m24 54r24 60r34
+42b7 First{boolean} 50r23 55m16
+44r11 C{22|12R9} 45r28 47r63 47r70 48r63 48r70
+47i16 L{22|5I12} 54r56
+48i16 H{22|5I12} 54r59
+X 26 editor-state.ads
+5K16*State 24|1w13 7r20 25|4w13 36r20 26|47e17
+11R9*State_Type 24|7r26 25|36r26 26|19e14
+12r7*Buffer{50|6R9} 25|54r48
+13r7*Carets{6|91R9[22|19]} 25|44r18
+X 50 text_backend-rope_impl.ads
+6R9*Buffer_Type<8|43R9> 25|12r28 50|83e14
+51V13*Element{character} 25|23s38
+X 51 text_buffer.ads
+4K9*Text_Buffer=4:42 25|3w6 12r16 23r26
+

@@ -1,0 +1,376 @@
+V "GNAT Lib v15"
+A -gnat2022
+P SS ZX
+
+RN
+
+U editor.feature_panel_controller%b  editor-feature_panel_controller.adb  b10fb3ea NE OO PK
+Z ada.strings.text_buffers%s  a-sttebu.adb	a-sttebu.ali
+W editor%s		editor.ads		editor.ali
+W editor.feature_diagnostics%s  editor-feature_diagnostics.adb  editor-feature_diagnostics.ali
+W editor.feature_messages%s  editor-feature_messages.adb  editor-feature_messages.ali
+W editor.feature_search_results%s  editor-feature_search_results.adb  editor-feature_search_results.ali
+W editor.outline%s	editor-outline.adb	editor-outline.ali
+
+U editor.feature_panel_controller%s  editor-feature_panel_controller.ads  1678f208 EE NE OO PK
+W editor%s		editor.ads		editor.ali
+W editor.feature_panel%s  editor-feature_panel.adb  editor-feature_panel.ali
+W editor.state%s	editor-state.adb	editor-state.ali
+
+D ada.ads		20250808065140 76789da1 ada%s
+D a-calend.ads		20250808065140 bf7f3cc9 ada.calendar%s
+D a-charac.ads		20250808065140 2d3ec45b ada.characters%s
+D a-chlat1.ads		20250808065140 e0d72e76 ada.characters.latin_1%s
+D a-contai.ads		20250808065140 61e5e089 ada.containers%s
+D a-conhel.ads		20250808065140 46fe1ce3 ada.containers.helpers%s
+D a-convec.ads		20250808065140 91fb49f3 ada.containers.vectors%s
+D a-except.ads		20250808065140 e7970cd9 ada.exceptions%s
+D a-finali.ads		20250808065140 bf4f806b ada.finalization%s
+D a-iteint.ads		20250808065140 49a8bee2 ada.iterator_interfaces%s
+D a-stream.ads		20250808065140 17477cbd ada.streams%s
+D a-string.ads		20250808065140 90ac6797 ada.strings%s
+D a-strmap.ads		20250808065140 1f91ebb6 ada.strings.maps%s
+D a-strsea.ads		20250808065140 18c3c634 ada.strings.search%s
+D a-sttebu.ads		20250808065140 f1ad67a2 ada.strings.text_buffers%s
+D a-strunb.ads		20250808065140 b10770ab ada.strings.unbounded%s
+D a-stuten.ads		20250808065140 c6ced0ae ada.strings.utf_encoding%s
+D a-tags.ads		20250808065140 fbca0ad5 ada.tags%s
+D a-unccon.ads		20250808065140 0e9b276f ada.unchecked_conversion%s
+D editor.ads		20260612145959 16f844c2 editor%s
+D editor-ada_language_model.ads  20260612145959 459f92c3 editor.ada_language_model%s
+D editor-ada_project_index.ads  20260612145959 3ad143b9 editor.ada_project_index%s
+D editor-ada_syntax_tree.ads  20260612145959 49a76ced editor.ada_syntax_tree%s
+D editor-bookmarks.ads	20260612145959 4e695f4d editor.bookmarks%s
+D editor-buffer_switcher.ads  20260612152524 fd053b33 editor.buffer_switcher%s
+D editor-buffer_types.ads  20260612151710 a555405e editor.buffer_types%s
+D editor-buffers.ads	20260612185530 1a6b6e4c editor.buffers%s
+D editor-build_candidates.ads  20260612145959 dc89ea7b editor.build_candidates%s
+D editor-build_output_details.ads  20260612145959 0f4ba402 editor.build_output_details%s
+D editor-build_process_control.ads  20260612145959 28661204 editor.build_process_control%s
+D editor-build_result_summary.ads  20260612145959 94fc95d2 editor.build_result_summary%s
+D editor-build_runner_policy.ads  20260612145959 623f26a9 editor.build_runner_policy%s
+D editor-build_ui.ads	20260612152524 28a54496 editor.build_ui%s
+D editor-build_working_context.ads  20260612145959 cef9cea9 editor.build_working_context%s
+D editor-commands.ads	20260612173240 3b5e3f44 editor.commands%s
+D editor-cursors.ads	20260612145959 1f938cf3 editor.cursors%s
+D editor-diagnostics.ads  20260612145959 41767a50 editor.diagnostics%s
+D editor-dirty_guards.ads  20260612145959 2f2ee9d0 editor.dirty_guards%s
+D editor-dirty_lines.ads  20260612145959 fa543a8e editor.dirty_lines%s
+D editor-external_producers.ads  20260612152524 38bdba64 editor.external_producers%s
+D editor-feature_diagnostics.ads  20260612145959 9dd4f8ea editor.feature_diagnostics%s
+D editor-feature_messages.ads  20260612145959 2c7a5943 editor.feature_messages%s
+D editor-feature_panel.ads  20260612145959 0bdf4cfc editor.feature_panel%s
+D editor-feature_panel_controller.ads  20260612145959 470c8b2e editor.feature_panel_controller%s
+D editor-feature_panel_controller.adb  20260612145959 efca1878 editor.feature_panel_controller%b
+D editor-feature_search_results.ads  20260612152524 38c78314 editor.feature_search_results%s
+D editor-file_tree.ads	20260612145959 e6abdf66 editor.file_tree%s
+D editor-file_tree_view.ads  20260612145959 99db49c3 editor.file_tree_view%s
+D editor-folding.ads	20260612145959 860f30d0 editor.folding%s
+D editor-go_to_line.ads	20260612145959 c07ea03c editor.go_to_line%s
+D editor-guided_prompts.ads  20260612145959 34cab40b editor.guided_prompts%s
+D editor-gutter_markers.ads  20260612145959 304c4eae editor.gutter_markers%s
+D editor-history.ads	20260612145959 b546dbc4 editor.history%s
+D editor-input_field.ads  20260612145959 04b03a00 editor.input_field%s
+D editor-keybindings.ads  20260612145959 2657f44d editor.keybindings%s
+D editor-layout.ads	20260612145959 68c2e77a editor.layout%s
+D editor-messages.ads	20260612151413 205b1944 editor.messages%s
+D editor-navigation_history.ads  20260612145959 b0e3398a editor.navigation_history%s
+D editor-outline.ads	20260612152524 90a00201 editor.outline%s
+D editor-overlay_focus.ads  20260612145959 92ec945e editor.overlay_focus%s
+D editor-panel_focus.ads  20260612145959 a6c95284 editor.panel_focus%s
+D editor-panels.ads	20260612145959 66614da0 editor.panels%s
+D editor-pending_transitions.ads  20260612145959 81c78960 editor.pending_transitions%s
+D editor-problems.ads	20260612145959 a9a08157 editor.problems%s
+D editor-producer_contracts.ads  20260612145959 c3ee4501 editor.producer_contracts%s
+D editor-project.ads	20260612145959 f4d50f6d editor.project%s
+D editor-project_search.ads  20260612152451 857df5ab editor.project_search%s
+D editor-project_search_bar.ads  20260612145959 c5c12f77 editor.project_search_bar%s
+D editor-quick_open.ads	20260612151807 878ba83c editor.quick_open%s
+D editor-recent_buffers.ads  20260612145959 617e4612 editor.recent_buffers%s
+D editor-recent_projects.ads  20260612145959 ee1155f5 editor.recent_projects%s
+D editor-search.ads	20260612145959 dac0e204 editor.search%s
+D editor-search_results.ads  20260612145959 98eded1d editor.search_results%s
+D editor-settings.ads	20260612145959 c2103809 editor.settings%s
+D editor-state.ads	20260612170622 4c537118 editor.state%s
+D editor-status_bar.ads	20260612145959 879f0640 editor.status_bar%s
+D editor-syntax.ads	20260612145959 d59b0303 editor.syntax%s
+D editor-syntax_cache.ads  20260612164742 637f2470 editor.syntax_cache%s
+D editor-syntax_semantics.ads  20260612145959 a499b10a editor.syntax_semantics%s
+D editor-tab_bar.ads	20260612151839 e26dca3d editor.tab_bar%s
+D editor-unicode.ads	20260612145959 552ff3cc editor.unicode%s
+D editor-view_types.ads	20260612152152 f3042ec7 editor.view_types%s
+D editor-workspace_persistence.ads  20260612145959 455ffd61 editor.workspace_persistence%s
+D editor-wrap.ads	20260612145959 87db665a editor.wrap%s
+D interfac.ads		20250808065140 9111f9c1 interfaces%s
+D i-c.ads		20250808065140 e94c966a interfaces.c%s
+D system.ads		20250808065140 14286b0f system%s
+D s-atocou.ads		20250808065140 dc18efc3 system.atomic_counters%s
+D s-exctab.ads		20250808065140 91bef6ef system.exception_table%s
+D s-finpri.ads		20250808065140 5970d55a system.finalization_primitives%s
+D s-finroo.ads		20250808065140 0a7c3ed4 system.finalization_root%s
+D s-oscons.ads		20250827122531 068e1a91 system.os_constants%s
+D s-oslock.ads		20250808065140 13fa6b78 system.os_locks%s
+D s-parame.ads		20250808065140 3597fc11 system.parameters%s
+D s-pooglo.ads		20250808065140 91708d21 system.pool_global%s
+D s-putima.ads		20250808065140 17291fe4 system.put_images%s
+D s-retsta.ads		20250808065140 0f6b06cb system.return_stack%s
+D s-secsta.ads		20250808065140 578279f5 system.secondary_stack%s
+D s-soflin.ads		20250808065140 5d88fdea system.soft_links%s
+D s-stache.ads		20250808065140 0b81c1fe system.stack_checking%s
+D s-stalib.ads		20250808065140 1c9580f6 system.standard_library%s
+D s-stoele.ads		20250808065140 ccded4e8 system.storage_elements%s
+D s-stopoo.ads		20250808065140 e9fa2dd8 system.storage_pools%s
+D s-stratt.ads		20250808065140 516607ae system.stream_attributes%s
+D s-traent.ads		20250808065140 c81cbf8c system.traceback_entries%s
+D s-unstyp.ads		20250808065140 fa2a7f59 system.unsigned_types%s
+D text_backend.ads	20260612145959 6d0030da text_backend%s
+D text_backend-rope_impl.ads  20260612145959 0f5d7663 text_backend.rope_impl%s
+D text_buffer.ads	20260612145959 bb9a4056 text_buffer%s
+G a e
+G c Z s b [show_feature editor__feature_panel_controller 6 13 none]
+G c Z s b [rebuild_active_feature_projection editor__feature_panel_controller 10 14 none]
+G c Z s b [dispatch_active_feature_clear editor__feature_panel_controller 13 13 none]
+G c Z s b [has_projection_dispatch editor__feature_panel_controller 16 13 none]
+G c Z s b [has_clear_dispatch editor__feature_panel_controller 19 13 none]
+G c Z s b [has_open_dispatch editor__feature_panel_controller 22 13 none]
+G c Z s b [has_row_action_dispatch editor__feature_panel_controller 25 13 none]
+G c Z s b [has_lifecycle_dispatch editor__feature_panel_controller 28 13 none]
+G c Z s b [feature_dispatch_covers_all_features editor__feature_panel_controller 31 13 none]
+G c Z s b [reset_all_features_for_buffer_close editor__feature_panel_controller 33 14 none]
+G c Z s b [reset_all_features_for_project_close editor__feature_panel_controller 37 14 none]
+G c Z s b [reset_all_features_for_workspace_close editor__feature_panel_controller 40 14 none]
+G c Z s b [assert_feature_panel_state_consistent editor__feature_panel_controller 43 13 none]
+G c Z b b [reset_feature_for_buffer_close editor__feature_panel_controller 200 14 none]
+G c Z b b [reset_feature_for_project_close editor__feature_panel_controller 235 14 none]
+G c Z b b [reset_feature_for_workspace_close editor__feature_panel_controller 267 14 none]
+G r c none [show_feature editor__feature_panel_controller 6 13 none] [active_feature editor__feature_panel 156 13 none]
+G r c none [show_feature editor__feature_panel_controller 6 13 none] [set_active_feature editor__feature_panel 189 13 none]
+G r c none [show_feature editor__feature_panel_controller 6 13 none] [set_rows_from_outline editor__outline 548 14 none]
+G r c none [show_feature editor__feature_panel_controller 6 13 none] [project_rows editor__feature_messages 203 14 none]
+G r c none [show_feature editor__feature_panel_controller 6 13 none] [project_rows editor__feature_search_results 118 14 none]
+G r c none [show_feature editor__feature_panel_controller 6 13 none] [project_rows editor__feature_diagnostics 371 14 none]
+G r c none [show_feature editor__feature_panel_controller 6 13 none] [clear_rows editor__feature_panel 286 14 none]
+G r c none [show_feature editor__feature_panel_controller 6 13 none] [restore_active_feature_view_state editor__feature_panel 170 14 none]
+G r c none [show_feature editor__feature_panel_controller 6 13 none] [set_visible editor__feature_panel 255 14 none]
+G r c none [show_feature editor__feature_panel_controller 6 13 none] [is_known_feature editor__feature_panel 142 13 none]
+G r c none [show_feature editor__feature_panel_controller 6 13 none] [invariant_holds editor__feature_panel 204 13 none]
+G r c none [rebuild_active_feature_projection editor__feature_panel_controller 10 14 none] [active_feature editor__feature_panel 156 13 none]
+G r c none [rebuild_active_feature_projection editor__feature_panel_controller 10 14 none] [set_rows_from_outline editor__outline 548 14 none]
+G r c none [rebuild_active_feature_projection editor__feature_panel_controller 10 14 none] [project_rows editor__feature_messages 203 14 none]
+G r c none [rebuild_active_feature_projection editor__feature_panel_controller 10 14 none] [project_rows editor__feature_search_results 118 14 none]
+G r c none [rebuild_active_feature_projection editor__feature_panel_controller 10 14 none] [project_rows editor__feature_diagnostics 371 14 none]
+G r c none [rebuild_active_feature_projection editor__feature_panel_controller 10 14 none] [clear_rows editor__feature_panel 286 14 none]
+G r c none [dispatch_active_feature_clear editor__feature_panel_controller 13 13 none] [active_feature editor__feature_panel 156 13 none]
+G r c none [dispatch_active_feature_clear editor__feature_panel_controller 13 13 none] [feature_can_clear editor__feature_panel 154 13 none]
+G r c none [dispatch_active_feature_clear editor__feature_panel_controller 13 13 none] [forget_feature_view_state editor__feature_panel 176 14 none]
+G r c none [dispatch_active_feature_clear editor__feature_panel_controller 13 13 none] [clear editor__outline 140 14 none]
+G r c none [dispatch_active_feature_clear editor__feature_panel_controller 13 13 none] [set_rows_from_outline editor__outline 548 14 none]
+G r c none [dispatch_active_feature_clear editor__feature_panel_controller 13 13 none] [clear editor__feature_messages 44 14 none]
+G r c none [dispatch_active_feature_clear editor__feature_panel_controller 13 13 none] [reconcile_messages_after_row_change editor__feature_messages 68 14 none]
+G r c none [dispatch_active_feature_clear editor__feature_panel_controller 13 13 none] [clear editor__feature_search_results 27 14 none]
+G r c none [dispatch_active_feature_clear editor__feature_panel_controller 13 13 none] [project_rows editor__feature_search_results 118 14 none]
+G r c none [dispatch_active_feature_clear editor__feature_panel_controller 13 13 none] [clear_diagnostics editor__feature_diagnostics 44 14 none]
+G r c none [dispatch_active_feature_clear editor__feature_panel_controller 13 13 none] [reconcile_diagnostics_after_row_change editor__feature_diagnostics 449 14 none]
+G r c none [feature_dispatch_covers_all_features editor__feature_panel_controller 31 13 none] [feature_descriptor_count editor__feature_panel 144 13 none]
+G r c none [feature_dispatch_covers_all_features editor__feature_panel_controller 31 13 none] [descriptor_id editor__feature_panel 146 13 none]
+G r c none [feature_dispatch_covers_all_features editor__feature_panel_controller 31 13 none] [is_known_feature editor__feature_panel 142 13 none]
+G r c none [reset_all_features_for_buffer_close editor__feature_panel_controller 33 14 none] [feature_descriptor_count editor__feature_panel 144 13 none]
+G r c none [reset_all_features_for_buffer_close editor__feature_panel_controller 33 14 none] [descriptor_id editor__feature_panel 146 13 none]
+G r c none [reset_all_features_for_buffer_close editor__feature_panel_controller 33 14 none] [reset_outline_for_buffer_close editor__outline 152 14 none]
+G r c none [reset_all_features_for_buffer_close editor__feature_panel_controller 33 14 none] [reset_for_buffer_close editor__feature_messages 218 14 none]
+G r c none [reset_all_features_for_buffer_close editor__feature_panel_controller 33 14 none] [reset_search_results_for_buffer_close editor__feature_search_results 247 14 none]
+G r c none [reset_all_features_for_buffer_close editor__feature_panel_controller 33 14 none] [reset_diagnostics_for_buffer_close editor__feature_diagnostics 392 14 none]
+G r c none [reset_all_features_for_buffer_close editor__feature_panel_controller 33 14 none] [active_feature editor__feature_panel 156 13 none]
+G r c none [reset_all_features_for_buffer_close editor__feature_panel_controller 33 14 none] [set_rows_from_outline editor__outline 548 14 none]
+G r c none [reset_all_features_for_buffer_close editor__feature_panel_controller 33 14 none] [project_rows editor__feature_messages 203 14 none]
+G r c none [reset_all_features_for_buffer_close editor__feature_panel_controller 33 14 none] [project_rows editor__feature_search_results 118 14 none]
+G r c none [reset_all_features_for_buffer_close editor__feature_panel_controller 33 14 none] [project_rows editor__feature_diagnostics 371 14 none]
+G r c none [reset_all_features_for_buffer_close editor__feature_panel_controller 33 14 none] [clear_rows editor__feature_panel 286 14 none]
+G r c none [reset_all_features_for_project_close editor__feature_panel_controller 37 14 none] [feature_descriptor_count editor__feature_panel 144 13 none]
+G r c none [reset_all_features_for_project_close editor__feature_panel_controller 37 14 none] [descriptor_id editor__feature_panel 146 13 none]
+G r c none [reset_all_features_for_project_close editor__feature_panel_controller 37 14 none] [reset_for_project_close editor__outline 215 14 none]
+G r c none [reset_all_features_for_project_close editor__feature_panel_controller 37 14 none] [reset_for_project_close editor__feature_messages 222 14 none]
+G r c none [reset_all_features_for_project_close editor__feature_panel_controller 37 14 none] [reset_search_results_for_project_close editor__feature_search_results 257 14 none]
+G r c none [reset_all_features_for_project_close editor__feature_panel_controller 37 14 none] [reset_diagnostics_for_project_close editor__feature_diagnostics 396 14 none]
+G r c none [reset_all_features_for_project_close editor__feature_panel_controller 37 14 none] [reset_for_project_close editor__feature_panel 248 14 none]
+G r c none [reset_all_features_for_workspace_close editor__feature_panel_controller 40 14 none] [feature_descriptor_count editor__feature_panel 144 13 none]
+G r c none [reset_all_features_for_workspace_close editor__feature_panel_controller 40 14 none] [descriptor_id editor__feature_panel 146 13 none]
+G r c none [reset_all_features_for_workspace_close editor__feature_panel_controller 40 14 none] [forget_feature_view_state editor__feature_panel 176 14 none]
+G r c none [reset_all_features_for_workspace_close editor__feature_panel_controller 40 14 none] [clear editor__outline 140 14 none]
+G r c none [reset_all_features_for_workspace_close editor__feature_panel_controller 40 14 none] [reset_for_workspace_close editor__feature_messages 225 14 none]
+G r c none [reset_all_features_for_workspace_close editor__feature_panel_controller 40 14 none] [reset_search_results_for_workspace_close editor__feature_search_results 263 14 none]
+G r c none [reset_all_features_for_workspace_close editor__feature_panel_controller 40 14 none] [reset_diagnostics_for_workspace_close editor__feature_diagnostics 399 14 none]
+G r c none [reset_all_features_for_workspace_close editor__feature_panel_controller 40 14 none] [clear editor__feature_panel 239 14 none]
+G r c none [assert_feature_panel_state_consistent editor__feature_panel_controller 43 13 none] [active_feature editor__feature_panel 156 13 none]
+G r c none [assert_feature_panel_state_consistent editor__feature_panel_controller 43 13 none] [is_known_feature editor__feature_panel 142 13 none]
+G r c none [assert_feature_panel_state_consistent editor__feature_panel_controller 43 13 none] [invariant_holds editor__feature_panel 204 13 none]
+G r c none [reset_feature_for_buffer_close editor__feature_panel_controller 200 14 none] [reset_outline_for_buffer_close editor__outline 152 14 none]
+G r c none [reset_feature_for_buffer_close editor__feature_panel_controller 200 14 none] [reset_for_buffer_close editor__feature_messages 218 14 none]
+G r c none [reset_feature_for_buffer_close editor__feature_panel_controller 200 14 none] [reset_search_results_for_buffer_close editor__feature_search_results 247 14 none]
+G r c none [reset_feature_for_buffer_close editor__feature_panel_controller 200 14 none] [reset_diagnostics_for_buffer_close editor__feature_diagnostics 392 14 none]
+G r c none [reset_feature_for_project_close editor__feature_panel_controller 235 14 none] [reset_for_project_close editor__outline 215 14 none]
+G r c none [reset_feature_for_project_close editor__feature_panel_controller 235 14 none] [reset_for_project_close editor__feature_messages 222 14 none]
+G r c none [reset_feature_for_project_close editor__feature_panel_controller 235 14 none] [reset_search_results_for_project_close editor__feature_search_results 257 14 none]
+G r c none [reset_feature_for_project_close editor__feature_panel_controller 235 14 none] [reset_diagnostics_for_project_close editor__feature_diagnostics 396 14 none]
+G r c none [reset_feature_for_workspace_close editor__feature_panel_controller 267 14 none] [forget_feature_view_state editor__feature_panel 176 14 none]
+G r c none [reset_feature_for_workspace_close editor__feature_panel_controller 267 14 none] [clear editor__outline 140 14 none]
+G r c none [reset_feature_for_workspace_close editor__feature_panel_controller 267 14 none] [reset_for_workspace_close editor__feature_messages 225 14 none]
+G r c none [reset_feature_for_workspace_close editor__feature_panel_controller 267 14 none] [reset_search_results_for_workspace_close editor__feature_search_results 263 14 none]
+G r c none [reset_feature_for_workspace_close editor__feature_panel_controller 267 14 none] [reset_diagnostics_for_workspace_close editor__feature_diagnostics 399 14 none]
+X 10 a-iteint.ads
+24h9 Forward_Iterator
+32h9 Reversible_Iterator<24R9[7|119]>
+X 16 a-strunb.ads
+269V14*"="{boolean} 7|65i19
+X 20 editor.ads
+1K9*Editor 5e11 44|1r6 2r6 4r9 7r24 8r17 11r18 14r18 17r17 20r17 23r17 26r17
+. 29r17 34r29 38r18 41r18 44r11 46r5 45|1r6 2r6 3r6 4r6 6r14 8r13 12r17 16r15
+. 18r15 20r15 22r15 24r15 30r17 34r15 36r15 38r15 40r15 42r15 48r17 52r15
+. 54r15 56r15 58r15 60r15 66r17 73r15 75r15 77r15 79r15 81r15 87r17 91r15
+. 93r15 95r15 97r15 99r15 106r17 108r21 109r21 110r17 125r18 128r12 129r15
+. 130r13 131r15 132r13 133r15 134r13 136r15 137r13 139r15 140r13 145r24 146r17
+. 148r35 149r9 152r14 157r10 159r7 164r18 166r26 167r9 169r14 173r7 176r15
+. 177r13 178r13 180r15 181r13 182r13 185r15 186r13 187r13 190r15 191r13 192r13
+. 195r15 201r29 202r22 207r15 208r13 209r15 210r13 212r15 213r13 215r15 216r13
+. 218r15 224r29 228r21 230r16 236r24 237r17 241r15 242r13 243r15 244r13 245r15
+. 246r13 248r15 249r13 251r15 257r18 260r21 262r16 264r7 268r24 269r17 272r7
+. 275r15 276r13 277r15 278r13 279r15 280r13 282r15 283r13 285r15 291r18 294r21
+. 296r16 298r7 302r11 305r14 306r18 307r12 310r5
+X 41 editor-feature_diagnostics.ads
+5K16*Feature_Diagnostics 497e31 45|4w13 137r20 191r20 192r20 216r20 249r20
+. 283r20
+44U14*Clear_Diagnostics 45|191s40
+371U14*Project_Rows 45|137s40
+392U14*Reset_Diagnostics_For_Buffer_Close 45|216s40
+396U14*Reset_Diagnostics_For_Project_Close 45|249s40
+399U14*Reset_Diagnostics_For_Workspace_Close 45|283s40
+449U14*Reconcile_Diagnostics_After_Row_Change 45|192s40
+X 42 editor-feature_messages.ads
+5K16*Feature_Messages 284e28 45|2w13 132r20 181r20 182r20 210r20 244r20 278r20
+44U14*Clear 45|181s37
+68U14*Reconcile_Messages_After_Row_Change 45|182s37
+203U14*Project_Rows 45|132s37
+218U14*Reset_For_Buffer_Close 45|210s37
+222U14*Reset_For_Project_Close 45|244s37
+225U14*Reset_For_Workspace_Close 45|278s37
+X 43 editor-feature_panel.ads
+4K16*Feature_Panel 696e25 44|2w13 8r24 17r24 20r24 23r24 26r24 29r24 45|8r20
+. 12r24 16r22 18r22 20r22 22r22 24r22 30r24 34r22 36r22 38r22 40r22 42r22
+. 48r24 52r22 54r22 56r22 58r22 60r22 66r24 73r22 75r22 77r22 79r22 81r22
+. 87r24 91r22 93r22 95r22 97r22 99r22 106r24 108r28 109r28 110r24 128r19
+. 129r22 131r22 133r22 136r22 139r22 140r20 146r24 148r42 149r16 152r21 157r17
+. 159r14 166r33 167r16 169r21 173r14 176r22 180r22 185r22 190r22 195r22 202r29
+. 207r22 209r22 212r22 215r22 218r22 228r28 230r23 237r24 241r22 243r22 245r22
+. 248r22 251r22 260r28 262r23 264r14 269r24 272r14 275r22 277r22 279r22 282r22
+. 285r22 294r28 296r23 298r14 305r21 306r25 307r19
+8E9*Feature_Id 13e27 44|8r38 17r38 20r38 23r38 26r38 29r38 45|8r34 12r38
+. 30r38 48r38 66r38 87r38 106r38 146r38 148r56 166r47 202r43 237r38 269r38
+9n7*Unknown_Feature{8E9} 45|24r36 42r36 60r36 81r36 99r36 139r36 195r36 218r36
+. 251r36 285r36
+10n7*Outline_Feature{8E9} 45|16r36 34r36 52r36 73r36 91r36 129r36 176r36
+. 207r36 241r36 275r36
+11n7*Messages_Feature{8E9} 45|18r36 36r36 54r36 75r36 93r36 131r36 180r36
+. 209r36 243r36 277r36
+12n7*Search_Results_Feature{8E9} 45|20r36 38r36 56r36 77r36 95r36 133r36
+. 185r36 212r36 245r36 279r36
+13n7*Diagnostics_Feature{8E9} 45|22r36 40r36 58r36 79r36 97r36 136r36 190r36
+. 215r36 248r36 282r36
+142V13*Is_Known_Feature{boolean} 45|110s38 306s39
+144V13*Feature_Descriptor_Count{natural} 45|108s42 228s42 260s42 294s42
+146V13*Descriptor_Id{8E9} 45|109s42 230s37 262s37 296s37
+154V13*Feature_Can_Clear{boolean} 45|169s35
+156V13*Active_Feature{8E9} 45|128s33 149s30 167s30 307s33
+170U14*Restore_Active_Feature_View_State 45|157s31
+176U14*Forget_Feature_View_State 45|173s28 272s28
+189V13*Set_Active_Feature{boolean} 45|152s35
+204V13*Invariant_Holds{boolean} 45|305s35
+239U14*Clear 45|298s28
+248U14*Reset_For_Project_Close 45|264s28
+255U14*Set_Visible 45|159s28
+286U14*Clear_Rows 45|140s34
+X 44 editor-feature_panel_controller.ads
+4K16*Feature_Panel_Controller 20|1k9 44|46l12 46e36 45|6b21 310l12 310t36
+6V13*Show_Feature{boolean} 7=7 8>7 45|144b13 161l8 161t20
+7r7 S{75|115R9} 45|145b7 149r46 152m55 152r55 155m42 157m66 157r66 159m41
+. 159r41 160r53
+8e7 Feature{43|8E9} 45|146b7 150r65 152r72
+10U14*Rebuild_Active_Feature_Projection 11=7 45|124b14 142l8 142t41 155s7
+. 232s7
+11r7 S{75|115R9} 45|125b7 128r49 130r51 130m62 130r62 132r51 132m71 132r71
+. 135r16 135m42 135r42 138r16 138m39 138r39 140m46 140r46
+13V13*Dispatch_Active_Feature_Clear{boolean} 14=7 45|163b13 198l8 198t37
+14r7 S{75|115R9} 45|164b7 167r46 173m55 173r55 177m35 177r35 178r51 178m62
+. 178r62 181m44 181r44 183r16 183m36 183r36 186m50 186r50 188r16 188m42 188r42
+. 191m59 191r59 193r16 193m39 193r39
+16V13*Has_Projection_Dispatch{boolean} 17>7 45|11b13 27l8 27t31 111s24
+17e7 Feature{43|8E9} 45|12b7 15r12
+19V13*Has_Clear_Dispatch{boolean} 20>7 45|29b13 45l8 45t26 112s24
+20e7 Feature{43|8E9} 45|30b7 33r12
+22V13*Has_Open_Dispatch{boolean} 23>7 45|47b13 63l8 63t25 113s24
+23e7 Feature{43|8E9} 45|48b7 51r12
+25V13*Has_Row_Action_Dispatch{boolean} 26>7 45|65b13 84l8 84t31 114s24
+26e7 Feature{43|8E9} 45|66b7 72r12
+28V13*Has_Lifecycle_Dispatch{boolean} 29>7 45|86b13 102l8 102t30 115s24
+29e7 Feature{43|8E9} 45|87b7 90r12
+31V13*Feature_Dispatch_Covers_All_Features{boolean} 45|104b13 122l8 122t44
+33U14*Reset_All_Features_For_Buffer_Close 34=7 35>7 45|223b14 233l8 233t43
+34r7 S{75|115R9} 45|224b7 230m13 232m42
+35i7 Buffer_Token{natural} 45|225b7 230r56
+37U14*Reset_All_Features_For_Project_Close 38=7 45|256b14 265l8 265t44
+38r7 S{75|115R9} 45|257b7 262m13 264m53 264r53
+40U14*Reset_All_Features_For_Workspace_Close 41=7 45|290b14 299l8 299t46
+41r7 S{75|115R9} 45|291b7 296m13 298m35 298r35
+43V13*Assert_Feature_Panel_State_Consistent{boolean} 44>7 45|160s14 301b13
+. 308l8 308t45
+44r7 S{75|115R9} 45|302b7 305r52 307r49
+X 45 editor-feature_panel_controller.adb
+106e7 Feature{43|8E9} 109m10 110r56 111r49 112r44 113r43 114r49 115r48
+108i11 I{integer} 109r57
+148e7 Previous_Feature{43|8E9} 150r45
+150b7 Feature_Changed{boolean} 156r10
+166e7 Feature{43|8E9} 169r54 173r72 175r12
+200U14 Reset_Feature_For_Buffer_Close 200b14 201=7 202>7 203>7 221l8 221t38
+. 229s10
+201r7 S{75|115R9} 208m60 208r60 211m16 211r16 214m16 214r16 217m16 217r16
+202e7 Feature{43|8E9} 206r12
+203i7 Buffer_Token{natural} 208r71 211r36 214r42 217r39
+228i11 I{integer} 230r52
+235U14 Reset_Feature_For_Project_Close 235b14 236=7 237>7 254l8 254t39 261s10
+236r7 S{75|115R9} 242m53 242r53 244m62 244r62 247m16 247r16 250m16 250r16
+237e7 Feature{43|8E9} 240r12
+260i11 I{integer} 262r52
+267U14 Reset_Feature_For_Workspace_Close 267b14 268=7 269>7 288l8 288t41
+. 295s10
+268r7 S{75|115R9} 272m55 272r55 276m35 276r35 278m64 278r64 281m16 281r16
+. 284m16 284r16
+269e7 Feature{43|8E9} 272r72 274r12
+294i11 I{integer} 296r52
+X 46 editor-feature_search_results.ads
+7K16*Feature_Search_Results 45|3w13 134r20 186r20 187r20 213r20 246r20 280r20
+. 46|327e34
+27U14*Clear 45|186s43
+118U14*Project_Rows 45|134s43 187s43
+247U14*Reset_Search_Results_For_Buffer_Close 45|213s43
+257U14*Reset_Search_Results_For_Project_Close 45|246s43
+263U14*Reset_Search_Results_For_Workspace_Close 45|280s43
+X 59 editor-outline.ads
+6K16*Outline 45|1w13 130r20 177r20 178r20 208r20 242r20 276r20 59|760e19
+140U14*Clear 45|177s28 276s28
+152U14*Reset_Outline_For_Buffer_Close 45|208s28
+215U14*Reset_For_Project_Close 45|242s28
+548U14*Set_Rows_From_Outline 45|130s28 178s28
+X 75 editor-state.ads
+51K16*State 44|1w13 7r31 11r25 14r25 34r36 38r25 41r25 44r18 45|125r25 145r31
+. 164r25 201r36 224r36 236r31 257r25 268r31 291r25 302r18 75|610e17
+115R9*State_Type 44|7r37 11r31 14r31 34r42 38r31 41r31 44r24 45|125r31 145r37
+. 164r31 201r42 224r42 236r37 257r31 268r37 291r31 302r24 75|366e14
+156r7*Feature_Panel{43|119R9} 45|128r51 130m64 132m73 135m44 138m41 140m48
+. 149r48 152m57 157m68 159m43 167r48 173m57 178m64 183m38 188m44 193m41 264m55
+. 272m57 298m37 305r54 307r51
+157r7*Outline{59|109R9} 45|130r53 177m37 178r53 208m62 242m55 276m37
+158r7*Feature_Messages{42|42R9} 45|132r53 181m46 183r18 211m18 244m64 278m66
+159r7*Feature_Search_Results{46|25R9} 45|135r18 186m52 188r18 214m18 247m18
+. 281m18
+160r7*Feature_Diagnostics{41|42R9} 45|138r18 191m61 193r18 217m18 250m18
+. 284m18
+

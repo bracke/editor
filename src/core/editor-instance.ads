@@ -16,7 +16,15 @@ package Editor.Instance is
       State    : Editor.State.State_Type;
    end record;
 
+   --  Initializes the editor instance, including document state and
+   --  editor-level services required by rendering.
+   --
+   --  This is the correct startup entry point for the interactive editor.
    procedure Init (E : in out Editor_Instance);
+
+   procedure Load_Text
+     (E    : in out Editor_Instance;
+      Text : String);
 
    procedure Execute
      (E   : in out Editor_Instance;
@@ -25,7 +33,5 @@ package Editor.Instance is
    procedure Undo (E : in out Editor_Instance);
 
    procedure Redo (E : in out Editor_Instance);
-
-   procedure Rebuild (E : in out Editor_Instance);
 
 end Editor.Instance;

@@ -1,0 +1,98 @@
+V "GNAT Lib v15"
+A -gnat2022
+P SS ZX
+
+RN
+RV NO_ELABORATION_CODE
+
+U editor.clipboard%b	editor-clipboard.adb	42e371cb OO PK
+W ada%s			ada.ads			ada.ali
+W ada.strings%s		a-string.ads		a-string.ali
+Z ada.strings.text_buffers%s  a-sttebu.adb	a-sttebu.ali
+W ada.strings.unbounded%s  a-strunb.adb		a-strunb.ali
+Z ada.tags%s		a-tags.adb		a-tags.ali
+W editor%s		editor.ads		editor.ali
+Z system.return_stack%s	s-retsta.ads		s-retsta.ali
+Z system.soft_links%s	s-soflin.adb		s-soflin.ali
+Z system.standard_library%s  s-stalib.adb	s-stalib.ali
+
+U editor.clipboard%s	editor-clipboard.ads	a6ec2594 EE NE OO PK
+W ada%s			ada.ads			ada.ali
+W ada.strings%s		a-string.ads		a-string.ali
+W ada.strings.unbounded%s  a-strunb.adb		a-strunb.ali
+W editor%s		editor.ads		editor.ali
+
+D ada.ads		20250808065140 76789da1 ada%s
+D a-charac.ads		20250808065140 2d3ec45b ada.characters%s
+D a-chlat1.ads		20250808065140 e0d72e76 ada.characters.latin_1%s
+D a-except.ads		20250808065140 e7970cd9 ada.exceptions%s
+D a-finali.ads		20250808065140 bf4f806b ada.finalization%s
+D a-stream.ads		20250808065140 17477cbd ada.streams%s
+D a-string.ads		20250808065140 90ac6797 ada.strings%s
+D a-strmap.ads		20250808065140 1f91ebb6 ada.strings.maps%s
+D a-strsea.ads		20250808065140 18c3c634 ada.strings.search%s
+D a-sttebu.ads		20250808065140 f1ad67a2 ada.strings.text_buffers%s
+D a-strunb.ads		20250808065140 b10770ab ada.strings.unbounded%s
+D a-stuten.ads		20250808065140 c6ced0ae ada.strings.utf_encoding%s
+D a-tags.ads		20250808065140 fbca0ad5 ada.tags%s
+D a-unccon.ads		20250808065140 0e9b276f ada.unchecked_conversion%s
+D editor.ads		20260612145959 16f844c2 editor%s
+D editor-clipboard.ads	20260612145959 011311fd editor.clipboard%s
+D editor-clipboard.adb	20260612145959 f2f7109d editor.clipboard%b
+D interfac.ads		20250808065140 9111f9c1 interfaces%s
+D i-c.ads		20250808065140 e94c966a interfaces.c%s
+D system.ads		20250808065140 14286b0f system%s
+D s-atocou.ads		20250808065140 dc18efc3 system.atomic_counters%s
+D s-exctab.ads		20250808065140 91bef6ef system.exception_table%s
+D s-finpri.ads		20250808065140 5970d55a system.finalization_primitives%s
+D s-finroo.ads		20250808065140 0a7c3ed4 system.finalization_root%s
+D s-memory.ads		20250808065140 18949c1a system.memory%s
+D s-oscons.ads		20250827122531 068e1a91 system.os_constants%s
+D s-oslock.ads		20250808065140 13fa6b78 system.os_locks%s
+D s-parame.ads		20250808065140 3597fc11 system.parameters%s
+D s-putima.ads		20250808065140 17291fe4 system.put_images%s
+D s-retsta.ads		20250808065140 0f6b06cb system.return_stack%s
+D s-secsta.ads		20250808065140 578279f5 system.secondary_stack%s
+D s-soflin.ads		20250808065140 5d88fdea system.soft_links%s
+D s-stache.ads		20250808065140 0b81c1fe system.stack_checking%s
+D s-stalib.ads		20250808065140 1c9580f6 system.standard_library%s
+D s-stalib.adb		20250808065140 eb464a47 system.standard_library%b
+D s-stoele.ads		20250808065140 ccded4e8 system.storage_elements%s
+D s-stratt.ads		20250808065140 516607ae system.stream_attributes%s
+D s-traent.ads		20250808065140 c81cbf8c system.traceback_entries%s
+D s-unstyp.ads		20250808065140 fa2a7f59 system.unsigned_types%s
+G a e
+G c Z s b [set_text editor__clipboard 9 14 none]
+G c Z s b [get_text editor__clipboard 12 13 none]
+G c Z s b [has_text editor__clipboard 15 13 none]
+G c Z s b [clear editor__clipboard 17 14 none]
+X 1 ada.ads
+18K9*Ada 22e8 16|1r6 10r14 13r13 17|1r6 1r33
+X 7 a-string.ads
+16K13*Strings 35e16 16|1r10 10r18 13r17 17|1r10 1r37
+X 11 a-strunb.ads
+91K21*Unbounded 1641e26 16|1w18 10r26 13r25 17|1w18 1r45
+105R9*Unbounded_String<5|43R9> 1620e15 16|10r36 13r35 17|5r25 8r31 18r29
+109r4*Null_Unbounded_String{105R9} 17|5r45 23r17 34r25
+111V13*Length{natural} 17|10s10
+X 15 editor.ads
+1K9*Editor 5e11 16|3r9 19r5 17|3r14 38r5
+X 16 editor-clipboard.ads
+3K16*Clipboard 15|1k9 16|19l12 19e21 17|3b21 38l12 38t21
+9U14*Set_Text 10>7 17|8b14 16l8 16t16
+10r7 Text{11|105R9} 17|8b24 10r18 13r28
+12V13*Get_Text{11|105R9} 17|18b13 25l8 25t16
+15V13*Has_Text{boolean} 17|27b13 30l8 30t16
+17U14*Clear 17|11s10 32b14 36l8 36t13
+X 17 editor-clipboard.adb
+5r4 Clipboard_Text{11|105R9} 13m10 21r17 34m7
+6b4 Clipboard_Has_Text{boolean} 14m10 20r10 29r14 35m7
+X 20 system.ads
+67M9*Address
+X 25 s-memory.ads
+51V13*Alloc{20|67M9} 101i<c,__gnat_malloc>22
+66U14*Free 102i<c,__gnat_free>22
+74V13*Realloc{20|67M9} 103i<c,__gnat_realloc>22
+X 35 s-stalib.adb
+87U14 Break_Start 88i<c,__gnat_break_start>22
+

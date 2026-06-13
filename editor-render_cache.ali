@@ -1,0 +1,239 @@
+V "GNAT Lib v15"
+A -gnat2022
+P SS ZX
+
+RN
+RV NO_DEFAULT_INITIALIZATION
+RV NO_IMPLICIT_LOOPS
+RV NO_ELABORATION_CODE
+
+U editor.render_cache%b	editor-render_cache.adb	24ddee72 OO PK
+Z ada.strings.text_buffers%s  a-sttebu.adb	a-sttebu.ali
+W editor%s		editor.ads		editor.ali
+W editor.layout%s	editor-layout.adb	editor-layout.ali
+W editor.line_numbers%s	editor-line_numbers.adb	editor-line_numbers.ali
+W editor.wrap%s		editor-wrap.adb		editor-wrap.ali
+
+U editor.render_cache%s	editor-render_cache.ads	b7842786 EE NE OO PK
+W editor%s		editor.ads		editor.ali
+W editor.line_numbers%s	editor-line_numbers.adb	editor-line_numbers.ali
+W editor.render_packet%s  editor-render_packet.adb  editor-render_packet.ali
+W editor.wrap%s		editor-wrap.adb		editor-wrap.ali
+
+D ada.ads		20250808065140 76789da1 ada%s
+D a-charac.ads		20250808065140 2d3ec45b ada.characters%s
+D a-chlat1.ads		20250808065140 e0d72e76 ada.characters.latin_1%s
+D a-contai.ads		20250808065140 61e5e089 ada.containers%s
+D a-conhel.ads		20250808065140 46fe1ce3 ada.containers.helpers%s
+D a-convec.ads		20250808065140 91fb49f3 ada.containers.vectors%s
+D a-except.ads		20250808065140 e7970cd9 ada.exceptions%s
+D a-finali.ads		20250808065140 bf4f806b ada.finalization%s
+D a-iteint.ads		20250808065140 49a8bee2 ada.iterator_interfaces%s
+D a-stream.ads		20250808065140 17477cbd ada.streams%s
+D a-string.ads		20250808065140 90ac6797 ada.strings%s
+D a-strmap.ads		20250808065140 1f91ebb6 ada.strings.maps%s
+D a-strsea.ads		20250808065140 18c3c634 ada.strings.search%s
+D a-sttebu.ads		20250808065140 f1ad67a2 ada.strings.text_buffers%s
+D a-strunb.ads		20250808065140 b10770ab ada.strings.unbounded%s
+D a-stuten.ads		20250808065140 c6ced0ae ada.strings.utf_encoding%s
+D a-tags.ads		20250808065140 fbca0ad5 ada.tags%s
+D a-unccon.ads		20250808065140 0e9b276f ada.unchecked_conversion%s
+D editor.ads		20260612145959 16f844c2 editor%s
+D editor-buffer_types.ads  20260612151710 a555405e editor.buffer_types%s
+D editor-file_tree.ads	20260612145959 e6abdf66 editor.file_tree%s
+D editor-file_tree_view.ads  20260612145959 99db49c3 editor.file_tree_view%s
+D editor-layout.ads	20260612145959 68c2e77a editor.layout%s
+D editor-line_numbers.ads  20260612145959 189b22b5 editor.line_numbers%s
+D editor-panels.ads	20260612145959 66614da0 editor.panels%s
+D editor-render_cache.ads  20260612145959 951d8d8f editor.render_cache%s
+D editor-render_cache.adb  20260612154832 4642c068 editor.render_cache%b
+D editor-render_layers.ads  20260612145959 e75e95d2 editor.render_layers%s
+D editor-render_packet.ads  20260612145959 ab21aa24 editor.render_packet%s
+D editor-status_bar.ads	20260612145959 879f0640 editor.status_bar%s
+D editor-tab_bar.ads	20260612151839 e26dca3d editor.tab_bar%s
+D editor-wrap.ads	20260612145959 87db665a editor.wrap%s
+D interfac.ads		20250808065140 9111f9c1 interfaces%s
+D i-c.ads		20250808065140 e94c966a interfaces.c%s
+D system.ads		20250808065140 14286b0f system%s
+D s-atocou.ads		20250808065140 dc18efc3 system.atomic_counters%s
+D s-exctab.ads		20250808065140 91bef6ef system.exception_table%s
+D s-finpri.ads		20250808065140 5970d55a system.finalization_primitives%s
+D s-finroo.ads		20250808065140 0a7c3ed4 system.finalization_root%s
+D s-oscons.ads		20250827122531 068e1a91 system.os_constants%s
+D s-oslock.ads		20250808065140 13fa6b78 system.os_locks%s
+D s-parame.ads		20250808065140 3597fc11 system.parameters%s
+D s-pooglo.ads		20250808065140 91708d21 system.pool_global%s
+D s-putima.ads		20250808065140 17291fe4 system.put_images%s
+D s-retsta.ads		20250808065140 0f6b06cb system.return_stack%s
+D s-secsta.ads		20250808065140 578279f5 system.secondary_stack%s
+D s-soflin.ads		20250808065140 5d88fdea system.soft_links%s
+D s-stache.ads		20250808065140 0b81c1fe system.stack_checking%s
+D s-stalib.ads		20250808065140 1c9580f6 system.standard_library%s
+D s-stoele.ads		20250808065140 ccded4e8 system.storage_elements%s
+D s-stopoo.ads		20250808065140 e9fa2dd8 system.storage_pools%s
+D s-stratt.ads		20250808065140 516607ae system.stream_attributes%s
+D s-traent.ads		20250808065140 c81cbf8c system.traceback_entries%s
+D s-unstyp.ads		20250808065140 fa2a7f59 system.unsigned_types%s
+G a e
+G c b b b [b editor__render_cache 7 1 none]
+G c Z s b [reset editor__render_cache 7 14 none]
+G c Z s b [invalidate_all editor__render_cache 8 14 none]
+G c Z s b [invalidate_row editor__render_cache 9 14 none]
+G c Z s b [invalidate_range editor__render_cache 11 14 none]
+G c Z s b [row_is_valid editor__render_cache 15 13 none]
+G c Z s b [store_row editor__render_cache 30 14 none]
+G c Z s b [emit_row editor__render_cache 48 14 none]
+G c Z s b [cache_hits editor__render_cache 57 13 none]
+G c Z s b [cache_misses editor__render_cache 58 13 none]
+G c Z s b [rows_invalidated editor__render_cache 59 13 none]
+G c Z b b [Trow_glyph_arrayBIP editor__render_cache 17 4 none]
+G c Z b b [row_entryIP editor__render_cache 20 9 none]
+G c Z b b [TentriesBIP editor__render_cache 42 4 none]
+G c Z b b [slot_for editor__render_cache 48 13 none]
+G r s glyph_command [b editor__render_cache 7 1 none] [glyph_commandIP editor__render_packet 24 9 none]
+G r c none [row_is_valid editor__render_cache 15 13 none] [cell_h editor__layout 23 13 none]
+G r c none [row_is_valid editor__render_cache 15 13 none] [cell_w editor__layout 22 13 none]
+G r c none [store_row editor__render_cache 30 14 none] [cell_w editor__layout 22 13 none]
+G r c none [store_row editor__render_cache 30 14 none] [cell_h editor__layout 23 13 none]
+G r s glyph_command [Trow_glyph_arrayBIP editor__render_cache 17 4 none] [glyph_commandIP editor__render_packet 24 9 none]
+G r s glyph_command [row_entryIP editor__render_cache 20 9 none] [glyph_commandIP editor__render_packet 24 9 none]
+G r s glyph_command [TentriesBIP editor__render_cache 42 4 none] [glyph_commandIP editor__render_packet 24 9 none]
+X 9 a-iteint.ads
+24h9 Forward_Iterator
+32h9 Reversible_Iterator<24R9[6|119]>
+X 19 editor.ads
+1K9*Editor 5e11 26|1r6 2r6 3r6 5r9 24r22 27r26 39r22 42r26 44r22 53r22 55r29
+. 61r5 27|1r6 2r6 3r6 4r10 5r10 7r14 9r13 18r33 30r21 30r46 35r26 36r9 122r22
+. 125r26 142r29 143r29 166r22 169r26 171r22 194r19 195r19 215r22 217r29 237r32
+. 260r5
+X 23 editor-layout.ads
+6K16*Layout 279e18 27|1w13 142r36 143r36 194r26 195r26
+22V13*Cell_W{positive} 27|142s43 194s33
+23V13*Cell_H{positive} 27|143s43 195s33
+X 24 editor-line_numbers.ads
+1K16*Line_Numbers 47e24 26|1w13 27r33 42r33 27|2w13 4r17 35r33 36r16 125r33
+. 169r33
+3E9*Line_Number_Mode 6e27 26|27r46 42r46 27|4r30 35r46 125r46 169r46
+4n7*Absolute_Line_Numbers{3E9} 27|36r29
+X 26 editor-render_cache.ads
+5K16*Render_Cache 19|1k9 26|61l12 61e24 27|7b21 260l12 260t24
+7U14*Reset 27|59b14 69l8 69t13
+8U14*Invalidate_All 27|71b14 79l8 79t22 104s10
+9U14*Invalidate_Row 10>7 27|81b14 92l8 92t22 109s10
+10i7 Row{natural} 27|82b7 86r58
+11U14*Invalidate_Range 12>7 13>7 27|94b14 111l8 111t24
+12i7 First_Row{natural} 27|95b7 99r21 103r21 108r18
+13i7 Last_Row{natural} 27|96b7 99r10 103r10 108r31
+15V13*Row_Is_Valid{boolean} 16>7 17>7 18>7 19>7 20>7 21>7 22>7 23>7 24>7
+. 25>7 26>7 27>7 28>7 27|113b13 155l8 155t20
+16i7 Row{natural} 27|114b7 128r48 132r26
+17i7 Screen_Row{natural} 27|115b7 128r64 133r33
+18i7 Row_Start{natural} 27|116b7 128r53 134r32
+19i7 Row_End{natural} 27|117b7 135r30
+20i7 Line_Count{natural} 27|118b7 136r33
+21i7 Scroll_X{natural} 27|119b7 137r31
+22i7 Viewport_W{natural} 27|120b7 138r33
+23i7 Viewport_H{natural} 27|121b7 139r33
+24e7 Wrap_Mode{32|4E9} 27|122b7 140r32
+25i7 Wrap_Col{positive} 27|123b7 141r31
+26b7 Is_Current{boolean} 27|124b7 144r33
+27e7 Line_Number_Mode{24|3E9} 27|125b7 145r39
+28i7 Line_Number_Current_Row{natural} 27|126b7 146r46
+30U14*Store_Row 31>7 32>7 33>7 34>7 35>7 36>7 37>7 38>7 39>7 40>7 41>7 42>7
+. 43>7 44>7 45>7 46>7 27|157b14 208l8 208t17
+31i7 Row{natural} 27|158b7 175r48 184r16
+32i7 Screen_Row{natural} 27|159b7 175r64 185r23
+33i7 Row_Start{natural} 27|160b7 175r53 186r22
+34i7 Row_End{natural} 27|161b7 187r20
+35i7 Line_Count{natural} 27|162b7 188r23
+36i7 Scroll_X{natural} 27|163b7 189r21
+37i7 Viewport_W{natural} 27|164b7 190r23
+38i7 Viewport_H{natural} 27|165b7 191r23
+39e7 Wrap_Mode{32|4E9} 27|166b7 192r22
+40i7 Wrap_Col{positive} 27|167b7 193r21
+41b7 Is_Current{boolean} 27|168b7 196r23
+42e7 Line_Number_Mode{24|3E9} 27|169b7 197r29
+43i7 Line_Number_Current_Row{natural} 27|170b7 198r36
+44r7 Packet{29|46R9} 27|171b7 203r29
+45i7 First_Glyph{natural} 27|172b7 203r53
+46i7 Glyph_Count{natural} 27|173b7 178r10 199r24 201r10 202r24
+48U14*Emit_Row 49>7 50>7 51>7 52>7 53>7 54>7 55=7 27|210b14 243l8 243t16
+49i7 Row{natural} 27|211b7 219r49 224r26
+50i7 Screen_Row{natural} 27|212b7 219r65 225r33
+51i7 Row_Start{natural} 27|213b7 219r54 226r32
+52i7 Row_End{natural} 27|214b7 227r30
+53e7 Wrap_Mode{32|4E9} 27|215b7 228r32
+54i7 Wrap_Col{positive} 27|216b7 229r31
+55r7 Packet{29|46R9} 27|217b7 236r31 239m13 240m13 240r35
+57V13*Cache_Hits{natural} 27|245b13 248l8 248t18
+58V13*Cache_Misses{natural} 27|250b13 253l8 253t20
+59V13*Rows_Invalidated{natural} 27|255b13 258l8 258t24
+X 27 editor-render_cache.adb
+11N4 Max_Cached_Rows 14r46 54r20 55r28 56r29 56r51 103r38
+12N4 Max_Cached_Row_Glyphs 15r50 178r24
+14I12 Cache_Index{natural} 42r21 51r41 53r14 128r23 175r23 219r24
+15I12 Row_Glyph_Index{natural} 18r13
+17A9 Row_Glyph_Array(29|24R9)<integer> 39r21
+20R9 Row_Entry 40e14 42r37 129r14 176r14 220r15
+21b7*Valid{boolean} 62m22 74r25 75m25 86r25 87m25 131r11 179m12 207m9 223r16
+22i7*Row{natural} 86r52 132r20 184m9 224r19
+23i7*Screen_Row{natural} 133r20 185m9 225r19
+24i7*Row_Start{natural} 134r20 186m9 226r19
+25i7*Row_End{natural} 135r20 187m9 227r19
+26i7*Line_Count{natural} 136r20 188m9
+27i7*Scroll_X{natural} 137r20 189m9
+28i7*Viewport_W{natural} 138r20 190m9
+29i7*Viewport_H{natural} 139r20 191m9
+30e7*Wrap_Mode{32|4E9} 140r20 192m9 228r19
+31i7*Wrap_Col{positive} 141r20 193m9 229r19
+32i7*Cell_W{natural} 142r20 194m9
+33i7*Cell_H{natural} 143r20 195m9
+34b7*Is_Current{boolean} 144r20 196m9
+35e7*Line_Number_Mode{24|3E9} 145r20 197m9
+37i7*Line_Number_Current_Row{natural} 146r20 198m9
+38i7*Glyph_Count{natural} 63m22 88m25 180m12 199m9 234r12 235r26
+39a7*Glyphs{17A9} 203m15 239r50
+42a4 Entries(20R9) 61r16 62m10 63m10 73r16 74r13 75m13 85r16 86r13 86r40
+. 87m13 88m13 129r32 176m32 176r32 220r33
+44i4 Hit_Count{natural} 66m7 149m10 149r23 247r14
+45i4 Miss_Count{natural} 67m7 151m10 151r24 252r14
+46i4 Invalidated_Count{natural} 68m7 76m13 76r34 89m13 89r34 257r14
+48V13 Slot_For{14I12} 48b13 49>7 50>7 51>7 57l8 57t16 128s38 175s38 219s39
+49i7 Row{natural} 54r12
+50i7 Row_Start{natural} 55r14
+51i7 Screen_Row{natural} 56r14
+61i11 I{integer} 62r19 63r19
+73i11 I{integer} 74r22 75r22
+85i11 I{integer} 86r22 86r49 87r22 88r22
+108i11 Row{integer} 109r26
+128i7 Slot{14I12} 129r41
+129r7 E=129:32{20R9} 131r9 132r18 133r18 134r18 135r18 136r18 137r18 138r18
+. 139r18 140r18 141r18 142r18 143r18 144r18 145r18 146r18
+130b7 OK{boolean} 148r10 154r14
+175i7 Slot{14I12} 176r41
+176r7 E=176:32{20R9} 179r10 180r10 184r7 185r7 186r7 187r7 188r7 189r7 190r7
+. 191r7 192r7 193r7 194r7 195r7 196r7 197r7 198r7 199r7 203r13 207r7
+202i14 I{integer} 203r23 203r67
+219i7 Slot{14I12} 220r42
+220r7 E=220:33{20R9} 223r14 224r17 225r17 226r17 227r17 228r17 229r17 234r10
+. 235r24 239r48
+221i7 Index{natural} 236m13 237r23 239r37
+235i14 I{integer} 239r58
+X 29 editor-render_packet.ads
+4K16*Render_Packet 26|2w13 44r29 55r36 27|9r20 18r40 171r29 217r36 237r39
+. 29|85e25
+7I12*C_Int{34|62I9} 27|9r34
+10N4*Max_Glyphs 27|237r53
+24R9*Glyph_Command 27|18r54 29|37e14
+43A9*Glyph_Array(24R9)<integer>
+46R9*Render_Packet 26|44r43 55r50 27|171r43 217r50 29|51e14
+48i7*Glyph_Count{7I12} 27|236r38 240m20 240r42
+50a7*Glyphs{43A9} 27|203r36 239m20
+X 32 editor-wrap.ads
+1K16*Wrap 26|3w13 24r29 39r29 53r29 27|3w13 5r17 30r28 30r53 122r29 166r29
+. 215r29 32|65e16
+4E9*Wrap_Mode 26|24r34 39r34 53r34 27|5r22 30r33 122r34 166r34 215r34 32|6e24
+5n7*Wrap_None{4E9} 27|30r58
+X 34 i-c.ads
+62I9*int<integer>
+

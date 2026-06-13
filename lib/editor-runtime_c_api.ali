@@ -1,0 +1,155 @@
+V "GNAT Lib v15"
+A -gnatA
+A -gnat2022
+A -mtune=generic
+A -march=x86-64
+P ZX
+
+RN
+RV NO_FLOATING_POINT
+RV NO_IMPLICIT_CONDITIONALS
+RV NO_DEFAULT_INITIALIZATION
+RV NO_IMPLEMENTATION_PRAGMAS
+RV NO_IMPLICIT_LOOPS
+
+U editor.runtime_c_api%b  editor-runtime_c_api.adb  dc23e4e3 NE OO PK
+W editor%s		editor.ads		editor.ali
+W interfaces%s		interfac.ads		interfac.ali
+W interfaces.c%s	i-c.adb			i-c.ali
+Z system%s		system.ads		system.ali
+
+U editor.runtime_c_api%s  editor-runtime_c_api.ads  cfcd47e7 EB NE OO PK
+W editor%s		editor.ads		editor.ali
+W interfaces%s		interfac.ads		interfac.ali
+W interfaces.c%s	i-c.adb			i-c.ali
+W system%s		system.ads		system.ali
+
+D ada.ads		20250808065140 76789da1 ada%s
+D a-unccon.ads		20250808065140 0e9b276f ada.unchecked_conversion%s
+D editor.ads		20260612145959 16f844c2 editor%s
+D editor-runtime_c_api.ads  20260612145959 2451fe40 editor.runtime_c_api%s
+D editor-runtime_c_api.adb  20260612145959 113e8cc9 editor.runtime_c_api%b
+D interfac.ads		20250808065140 9111f9c1 interfaces%s
+D i-c.ads		20250808065140 e94c966a interfaces.c%s
+D system.ads		20250808065140 14286b0f system%s
+D s-exctab.ads		20250808065140 91bef6ef system.exception_table%s
+D s-parame.ads		20250808065140 3597fc11 system.parameters%s
+D s-stalib.ads		20250808065140 1c9580f6 system.standard_library%s
+G a e
+G c Z s b [editor_init editor__runtime_c_api 68 14 none]
+G c Z s b [editor_handle_platform_event editor__runtime_c_api 71 14 none]
+G c Z s b [editor_should_quit editor__runtime_c_api 74 13 none]
+G c Z s b [editor_set_viewport_size editor__runtime_c_api 77 14 none]
+G c Z s b [editor_set_time_seconds editor__runtime_c_api 80 14 none]
+G c Z s b [editor_tick editor__runtime_c_api 83 14 none]
+G c Z s b [editor_get_render_packet editor__runtime_c_api 86 14 none]
+G c Z s b [font_atlas_width editor__runtime_c_api 89 13 none]
+G c Z s b [font_atlas_height editor__runtime_c_api 92 13 none]
+G c Z s b [font_atlas_pixels editor__runtime_c_api 95 13 none]
+G c Z s b [font_atlas_dirty editor__runtime_c_api 98 13 none]
+G c Z s b [font_clear_atlas_dirty editor__runtime_c_api 101 14 none]
+G c Z s s [platform_eventIP editor__runtime_c_api 13 9 none]
+G c Z s s [rect_commandIP editor__runtime_c_api 26 9 none]
+G c Z s s [glyph_commandIP editor__runtime_c_api 38 9 none]
+G c Z s s [Trect_arrayBIP editor__runtime_c_api 54 4 none]
+G c Z s s [Tglyph_arrayBIP editor__runtime_c_api 57 4 none]
+G c Z s s [render_packetIP editor__runtime_c_api 60 9 none]
+G c Z b b [Tatlas_bytesBIP editor__runtime_c_api 9 4 none]
+X 3 editor.ads
+1K9*Editor 5e11 4|4r9 103r5 5|4r14 109r5
+X 4 editor-runtime_c_api.ads
+4K16*Runtime_C_API 3|1k9 4|103l12 103e25 5|4b21 109l12 109t25
+7F12*C_Float{7|101F9} 28r15 29r15 30r15 31r15 32r15 33r15 34r15 40r15 41r15
+. 42r15 43r15 44r15 45r15 46r15 47r15 48r15 49r15 50r15 5|55r25 55r36 56r25
+. 56r36
+8I12*C_Int{7|62I9} 14r17 16r17 17r17 18r17 19r17 20r17 21r17 22r17 27r15
+. 39r15 61r21 62r21 74r39 77r47 89r37 92r38 98r37 5|5r17 6r17 28r39 33r47
+. 85r37 90r38 100r37
+10N4*Max_Rectangles 54r35
+11N4*Max_Glyphs 57r36
+13R9*Platform_Event 23e14 24r39 71r49 5|22r49
+14i7*Kind{8I12}
+15m7*Ch{7|71M9}
+16i7*Shift{8I12}
+17i7*Ctrl{8I12}
+18i7*Alt{8I12}
+19i7*X{8I12}
+20i7*Y{8I12}
+21i7*Wheel_X{8I12}
+22i7*Wheel_Y{8I12}
+26R9*Rect_Command 35e14 36r39 54r58
+27i7*Layer{8I12} 5|61m10
+28f7*X{7F12} 5|62m10
+29f7*Y{7F12} 5|63m10
+30f7*W{7F12} 5|64m10
+31f7*H{7F12} 5|65m10
+32f7*R{7F12} 5|66m10
+33f7*G{7F12} 5|67m10
+34f7*B{7F12} 5|68m10
+38R9*Glyph_Command 51e14 52r39 57r55
+39i7*Layer{8I12} 5|71m10
+40f7*X{7F12} 5|72m10
+41f7*Y{7F12} 5|73m10
+42f7*W{7F12} 5|74m10
+43f7*H{7F12} 5|75m10
+44f7*U0{7F12} 5|76m10
+45f7*V0{7F12} 5|77m10
+46f7*U1{7F12} 5|78m10
+47f7*V1{7F12} 5|79m10
+48f7*R{7F12} 5|80m10
+49f7*G{7F12} 5|81m10
+50f7*B{7F12} 5|82m10
+54A9*Rect_Array(26R9)<integer> 55r26 63r21
+57A9*Glyph_Array(38R9)<integer> 58r26 64r21
+60R9*Render_Packet 65e14 66r39 86r53 5|54r53
+61i7*Rect_Count{8I12} 5|59m14
+62i7*Glyph_Count{8I12} 5|69m14
+63a7*Rects{54A9} 5|60m14
+64a7*Glyphs{57A9} 5|70m14
+68U14*Editor_Init 69i<c,editor_init>22 5|15b14 20l8 20t19
+71U14*Editor_Handle_Platform_Event 71>44 72i<c,editor_handle_platform_event>22
+. 5|22b14 26l8 26t36
+71r44 Ev{13R9} 5|22b44 23r28
+74V13*Editor_Should_Quit{8I12} 75i<c,editor_should_quit>22 5|28b13 31l8 31t26
+77U14*Editor_Set_Viewport_Size 77>40 77>43 78i<c,editor_set_viewport_size>22
+. 5|33b14 41l8 41t32
+77i40 W{8I12} 5|33b40 35r19 36r24
+77i43 H{8I12} 5|33b43 38r19 39r24
+80U14*Editor_Set_Time_Seconds 80>39 81i<c,editor_set_time_seconds>22 5|43b14
+. 47l8 47t31
+80f39 T{7|102F9} 5|43b39 44r28
+83U14*Editor_Tick 84i<c,editor_tick>22 5|49b14 52l8 52t19
+86U14*Editor_Get_Render_Packet 86<40 87i<c,editor_get_render_packet>22 5|54b14
+. 83l8 83t32
+86r40 Packet{60R9} 5|54b40 58m7 59m7 60m7 69m7 70m7
+89V13*Font_Atlas_Width{8I12} 90i<c,editor_font_atlas_width>22 5|85b13 88l8
+. 88t24
+92V13*Font_Atlas_Height{8I12} 93i<c,editor_font_atlas_height>22 5|90b13 93l8
+. 93t25
+95V13*Font_Atlas_Pixels{8|67M9} 96i<c,editor_font_atlas_pixels>22 5|95b13
+. 98l8 98t25
+98V13*Font_Atlas_Dirty{8I12} 99i<c,editor_font_atlas_dirty>22 5|100b13 103l8
+. 103t24
+101U14*Font_Clear_Atlas_Dirty 102i<c,editor_font_clear_atlas_dirty>22 5|105b14
+. 108l8 108t30
+X 5 editor-runtime_c_api.adb
+5i4 Viewport_W{4|8I12} 17m7 36m10 55r45
+6i4 Viewport_H{4|8I12} 18m7 39m10 56r45
+7b4 Atlas_Is_Dirty{boolean} 19m7 102r18 107m7
+9A9 Atlas_Bytes(7|76M9)<integer> 10r26 12r29
+12a4 Atlas{9A9} 97r14
+55f7 Width{4|7F12} 64r19
+56f7 Height{4|7F12} 65r19
+X 6 interfac.ads
+47K9*Interfaces 4|1r6 7r23 8r21 15r17 80r43 5|1r6 9r50 43r43 6|247e15
+X 7 i-c.ads
+33K20*C 4|1w17 7r34 8r32 15r28 80r54 5|1w17 9r61 43r54 7|601e17
+62I9*int<integer> 4|8r34
+71M9*unsigned 4|15r30
+76M9*unsigned_char 5|9r63
+101F9*C_float<float> 4|7r36
+102F9*double<long_float> 4|80r56 5|43r56
+X 8 system.ads
+37K9*System 4|2w6 95r38 5|95r38 8|155e11
+67M9*Address 4|95r45 5|95r45
+

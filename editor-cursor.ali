@@ -1,0 +1,72 @@
+V "GNAT Lib v15"
+A -gnat2022
+P ZX
+
+RN
+RV NO_FLOATING_POINT
+
+U editor.cursor%b	editor-cursor.adb	7683115a NE OO PK
+W editor%s		editor.ads		editor.ali
+Z system.fat_flt%s	s-fatflt.ads		s-fatflt.ali
+
+U editor.cursor%s	editor-cursor.ads	d8ceb62c EE NE OO PK
+W editor%s		editor.ads		editor.ali
+
+D editor.ads		20260612145959 16f844c2 editor%s
+D editor-cursor.ads	20260612145959 ce36f2ee editor.cursor%s
+D editor-cursor.adb	20260612145959 b8b5e3b4 editor.cursor%b
+D system.ads		20250808065140 14286b0f system%s
+D s-fatflt.ads		20250808065140 11beb392 system.fat_flt%s
+D s-fatgen.ads		20250808065140 d28c6cfe system.fat_gen%s
+G a e
+G c Z s b [current editor__cursor 36 13 none]
+G c Z s b [set_current editor__cursor 39 14 none]
+G c Z s b [current_blink editor__cursor 43 13 none]
+G c Z s b [set_blink editor__cursor 46 14 none]
+G c Z s b [set_blink_enabled editor__cursor 50 14 none]
+G c Z s b [notify_input editor__cursor 54 14 none]
+G c Z s b [visible editor__cursor 58 13 none]
+G c Z s s [cursor_configIP editor__cursor 17 9 none]
+G c Z s s [blink_configIP editor__cursor 28 9 none]
+G c Z b b [positive_mod editor__cursor 14 13 none]
+X 1 editor.ads
+1K9*Editor 5e11 2|1r9 61r5 3|1r14 107r5
+X 2 editor-cursor.ads
+1K16*Cursor 1|1k9 2|61l12 61e18 3|1b21 107l12 107t18
+7E9*Cursor_Style 10e24 18r21
+8n7*Bar_Cursor{7E9} 18r37 3|4r22
+9n7*Block_Cursor{7E9}
+10n7*Underline_Cursor{7E9}
+17R9*Cursor_Config 21e14 36r28 40r16 3|3r21 36r28 42r16
+18e7*Style{7E9} 3|4m7
+19i7*Bar_Width{positive} 3|5m7
+20i7*Underline_H{positive} 3|6m7
+28R9*Blink_Config 33e14 43r34 47r16 3|8r27 47r34 53r16
+29b7*Blink_Enabled{boolean} 3|9m7 61m28 77r35
+30f7*Blink_Period_Sec{float} 3|10m7 73r55
+31f7*Blink_Duty_Cycle{float} 3|11m7 74r55
+32f7*Last_Input_Time_Sec{float} 3|12m7 67m28 95r42 101r43
+36V13*Current{17R9} 3|36b13 39l8 39t15
+39U14*Set_Current 40>7 3|41b14 45l8 45t19
+40r7 Config{17R9} 3|42b7 44r25
+43V13*Current_Blink{28R9} 3|47b13 50l8 50t21
+46U14*Set_Blink 47>7 3|52b14 56l8 56t17
+47r7 Config{28R9} 3|53b7 55r31
+50U14*Set_Blink_Enabled 51>7 3|58b14 62l8 62t25
+51b7 Enabled{boolean} 3|59b7 61r45
+54U14*Notify_Input 55>7 3|64b14 68l8 68t20
+55f7 Now_Sec{float} 3|65b7 67r51
+58V13*Visible{boolean} 59>7 3|70b13 105l8 105t15
+59f7 Now_Sec{float} 3|71b7 95r10 101r12
+X 3 editor-cursor.adb
+3r4 Current_Config{2|17R9} 38r14 44m7
+8r4 Current_Blink_Config{2|28R9} 49r14 55m7 61m7 67m7 73r34 74r34 77r14 95r21
+. 101r22
+14V13 Positive_Mod{float} 14b13 15>7 16>7 34l8 34t20 100s9
+15f7 Value{float} 25r9 25r37
+16f7 Modulus{float} 20r10 25r45 25r57 27r20 30r26
+18f7 Result{float} 24m7 27r10 29r13 30r17 32r17
+73f7 Period{float} 81r10 102r12 104r22
+74f7 Duty{float} 85r10 87r13 104r31
+75f7 Phase{float} 99m7 104r14
+

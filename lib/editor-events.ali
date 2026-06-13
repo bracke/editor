@@ -1,0 +1,52 @@
+V "GNAT Lib v15"
+A -gnatA
+A -gnat2022
+A -mtune=generic
+A -march=x86-64
+P ZX
+
+RN
+RV NO_DYNAMIC_SIZED_OBJECTS
+RV NO_IMPLEMENTATION_PRAGMAS
+RV NO_IMPLICIT_LOOPS
+RV NO_OBSOLESCENT_FEATURES
+
+U editor.events%s	editor-events.ads	0f6064fd NE OO PK
+W editor%s		editor.ads		editor.ali
+
+D editor.ads		20260406185230 16f844c2 editor%s
+D editor-events.ads	20260420165530 1998203f editor.events%s
+D system.ads		20250808065140 14286b0f system%s
+G a e
+G c Z s s [eventIP editor__events 22 9 none]
+X 1 editor.ads
+1K9*Editor 5e11 2|1r9 33r5
+X 2 editor-events.ads
+1K16*Events 1|1k9 2|33l12 33e18
+3E9*Event_Type 4e17 23r15
+4n7*Key_Press{3E9} 23r29
+6E9*Key_Code 20e16 24r15
+7n7*Key_Character{6E9} 24r29
+8n7*Key_Left{6E9}
+9n7*Key_Right{6E9}
+10n7*Key_Up{6E9}
+11n7*Key_Down{6E9}
+12n7*Key_Home{6E9}
+13n7*Key_End{6E9}
+14n7*Key_Page_Up{6E9}
+15n7*Key_Page_Down{6E9}
+16n7*Key_Mouse_Left{6E9}
+17n7*Key_Backspace{6E9}
+18n7*Key_Delete{6E9}
+19n7*Key_Undo{6E9}
+20n7*Key_Redo{6E9}
+22R9*Event 31e14
+23e7*Kind{3E9}
+24e7*Key{6E9}
+25e7*Ch{character}
+26b7*Shift{boolean}
+27b7*Ctrl{boolean}
+28b7*Alt{boolean}
+29i7*X{natural}
+30i7*Y{natural}
+
