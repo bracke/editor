@@ -3,6 +3,8 @@ with Editor.Ada_Language_Model;
 
 package body Editor.Ada_Cross_Unit_Closure is
 
+   pragma Suppress (Overflow_Check);
+
    use type Editor.Ada_Project_Index.Indexed_Unit_Role;
    use type Editor.Ada_Language_Model.Visibility_Clause_Kind;
 

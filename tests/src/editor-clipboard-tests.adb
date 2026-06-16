@@ -78,6 +78,7 @@ package body Editor.Clipboard.Tests is
    begin
       Editor.State.Set_Dirty (S, False);
       Editor.State.Reset_Dirty_Line_Baseline (S);
+      Editor.Buffers.Sync_Global_Active_From_State (S);
    end Mark_Clean;
 
    procedure Assert_Clipboard_State
@@ -841,9 +842,9 @@ package body Editor.Clipboard.Tests is
       Editor.Clipboard.Set_Text (To_Unbounded_String ("Previous"));
       Set_Primary_Selection (S, 1, 99);
       Editor.Executor.Execute_Command (S, Editor.Commands.Command_Cut);
-      Assert (Editor.Executor.Clipboard.Last_Status =
-                Editor.Executor.Clipboard.Clipboard_Invalid_Selection,
-              "failed cut must report invalid selection");
+      Assert
+        (Active_Message_Text (S) = "Invalid selection",
+         "failed cut must report invalid selection through command availability");
       Assert_Clipboard_State (True, "Previous",
                               "failed cut must preserve clipboard");
       Assert (Editor.State.Current_Text (S) = "AB",
@@ -1121,10 +1122,12 @@ package body Editor.Clipboard.Tests is
       S : Editor.State.State_Type;
    begin
       Reset_Transient_State;
+      Editor.Buffers.Reset_Global_For_Test;
       Editor.State.Init (S);
       Editor.Executor.Execute_Open_Project (S, ".");
-      Editor.Executor.Execute_No_Log (S, Paste ("Alpha"));
-      Mark_Clean (S);
+      Editor.State.Load_Text (S, "Alpha");
+      Editor.Buffers.Ensure_Global_Registry (S);
+      Editor.Buffers.Sync_Global_Active_From_State (S);
       Reset_Transient_State;
       Editor.Clipboard.Set_Text (To_Unbounded_String ("Sensitive copied text"));
       Editor.Executor.Execute_Find_Show (S);
@@ -1137,10 +1140,8 @@ package body Editor.Clipboard.Tests is
       Assert_Clipboard_State (False, "",
                               "project lifecycle cleanup must clear clipboard");
       Editor.Executor.Execute_Command (S, Editor.Commands.Command_Paste);
-      Assert (Editor.Executor.Clipboard.Last_Status =
-                Editor.Executor.Clipboard.Clipboard_No_Active_Buffer
-              or else Editor.Executor.Clipboard.Last_Status =
-                Editor.Executor.Clipboard.Clipboard_No_Text,
+      Assert (Active_Message_Text (S) = "No active buffer."
+              or else Active_Message_Text (S) = "Clipboard is empty",
               "paste after lifecycle cleanup must not restore clipboard text");
    end Test_Phase375_Project_Lifecycle_Clears_Clipboard;
 
@@ -1380,15 +1381,16 @@ package body Editor.Clipboard.Tests is
               "paste invalidation must preserve Replace prompt text without corruption");
 
       Editor.Executor.Execute_Command (S, Editor.Commands.Command_Undo);
-      Assert (S.Active_Find_Stale and then S.Active_Find_Matches.Is_Empty,
-              "undo after paste must also leave Find state invalidated or cleared");
+      Assert (not S.Active_Find_Stale and then S.Active_Find_Matches.Is_Empty,
+              "undo after paste must recompute restored Find state without stale ranges");
       Assert (S.Active_Replace_Prompt
               and then To_String (S.Active_Replace_Text) = "Delta",
               "undo after paste must not corrupt Replace text");
 
       Editor.Executor.Execute_Command (S, Editor.Commands.Command_Redo);
-      Assert (S.Active_Find_Stale and then S.Active_Find_Matches.Is_Empty,
-              "redo after paste must also leave Find state invalidated or cleared");
+      Assert (not S.Active_Find_Stale
+              and then Natural (S.Active_Find_Matches.Length) = 1,
+              "redo after paste must recompute Find state for restored pasted text");
       Assert (S.Active_Replace_Prompt
               and then To_String (S.Active_Replace_Text) = "Delta",
               "redo after paste must not corrupt Replace text");

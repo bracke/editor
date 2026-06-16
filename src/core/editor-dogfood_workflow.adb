@@ -487,13 +487,13 @@ package body Editor.Dogfood_Workflow is
          when Stale_Target_Quick_Open =>
             return "Target no longer exists.";
          when Stale_Target_Project_Search =>
-            return "Target is stale; refresh required.";
+            return "Search result is stale.";
          when Stale_Target_Outline =>
             return "Target no longer exists.";
          when Stale_Target_Diagnostics =>
             return "Target no longer exists.";
          when Stale_Target_Build =>
-            return "Build: No project open.";
+            return "Build unavailable: no project open.";
       end case;
    end Stale_Target_Activation_Label;
 
@@ -1123,7 +1123,7 @@ package body Editor.Dogfood_Workflow is
             return "persists valid project identity and active target only after success";
          when Product_Open_File_From_File_Tree | Product_Open_File_From_Quick_Open
             | Product_Navigate_Search_Result | Product_Switch_Buffers =>
-            return "may update active buffer target; does not persist transient panel rows";
+            return "may update active buffer target; does not persist temporary panel rows";
          when Product_Save_Buffer =>
             return "persists file contents on disk; workspace keeps active file only";
          when Product_Create_File | Product_Create_Directory
@@ -1135,7 +1135,7 @@ package body Editor.Dogfood_Workflow is
             return "restores only valid project, buffers, selection, and focus";
          when Product_Run_Build | Product_Inspect_Build_Output | Product_Inspect_Diagnostics
             | Product_Search_Project | Product_View_Outline =>
-            return "keeps result rows transient unless already owned by an explicit persistence feature";
+            return "keeps result rows temporary unless already owned by an explicit persistence feature";
          when others =>
             return "no persistence change";
       end case;

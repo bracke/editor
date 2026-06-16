@@ -2,6 +2,8 @@ with Ada.Strings.Unbounded; use Ada.Strings.Unbounded;
 
 package body Editor.Ada_Cross_Unit_Generic_Shared_State_RM_Completion_Closure_Legality is
 
+   pragma Suppress (Overflow_Check);
+
    use type AST_Repair.Coverage_Proven_AST_Repair_Id;
    use type AST_Repair.Coverage_Proven_AST_Repair_Status;
    use type Editor.Ada_Syntax_Tree.Node_Id;

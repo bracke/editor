@@ -6,6 +6,8 @@ with Editor.Ada_Subtype_Compatibility;
 
 package body Editor.Ada_View_Aware_Compatibility is
 
+   pragma Suppress (Overflow_Check);
+
    use type Editor.Ada_Expression_Types.Expression_Type_Id;
    use type Editor.Ada_Expression_Types.Expression_Type_Status;
    use type Editor.Ada_Selected_Name_Resolution.Selected_Name_Status;

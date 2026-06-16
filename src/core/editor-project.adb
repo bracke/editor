@@ -358,7 +358,35 @@ package body Editor.Project is
       elsif Rel'Length = 0 then
          return Root;
       else
-         return Ada.Directories.Compose (Root, Rel);
+         declare
+            Result        : Unbounded_String := To_Unbounded_String (Root);
+            Segment_Start : Positive := Rel'First;
+
+            procedure Append_Segment (Segment : String) is
+            begin
+               if Segment'Length = 0 then
+                  return;
+               end if;
+
+               Result := To_Unbounded_String
+                 (Ada.Directories.Compose (To_String (Result), Segment));
+            end Append_Segment;
+         begin
+            for I in Rel'Range loop
+               if Rel (I) = '/' then
+                  if I > Segment_Start then
+                     Append_Segment (Rel (Segment_Start .. I - 1));
+                  end if;
+                  Segment_Start := I + 1;
+               end if;
+            end loop;
+
+            if Segment_Start <= Rel'Last then
+               Append_Segment (Rel (Segment_Start .. Rel'Last));
+            end if;
+
+            return To_String (Result);
+         end;
       end if;
    end Absolute_Project_File_Path;
 

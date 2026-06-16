@@ -1,5 +1,7 @@
 V "GNAT Lib v13"
 A -gnat2022
+A -gnatX
+A -gnata
 P SS ZX
 
 RN
@@ -9,6 +11,7 @@ RV NO_EXCEPTION_PROPAGATION
 RV NO_EXCEPTIONS
 RV NO_IMPLICIT_CONDITIONALS
 RV NO_LOCAL_ALLOCATORS
+RV NO_LONG_LONG_INTEGERS
 RV NO_NESTED_FINALIZATION
 RV NO_RECURSION
 RV NO_SECONDARY_STACK
@@ -18,7 +21,7 @@ RV NO_DYNAMIC_SIZED_OBJECTS
 RV NO_IMPLICIT_LOOPS
 RV NO_ELABORATION_CODE
 
-U editor.ada_project_index%b  editor-ada_project_index.adb  d771a668 NE OO PK
+U editor.ada_project_index%b  editor-ada_project_index.adb  34edd49c NE OO PK
 W ada%s			ada.ads			ada.ali
 Z ada.exceptions%s	a-except.adb		a-except.ali
 W ada.strings%s		a-string.ads		a-string.ali
@@ -39,7 +42,7 @@ Z system.secondary_stack%s  s-secsta.adb	s-secsta.ali
 Z system.soft_links%s	s-soflin.adb		s-soflin.ali
 Z system.standard_library%s  s-stalib.adb	s-stalib.ali
 
-U editor.ada_project_index%s  editor-ada_project_index.ads  83b6ac5b EE OO PF PK
+U editor.ada_project_index%s  editor-ada_project_index.ads  b3d8c451 EE OO PF PK
 W ada%s			ada.ads			ada.ali
 W ada.containers%s	a-contai.ads		a-contai.ali
 Z ada.containers.generic_array_sort%s
@@ -57,6 +60,7 @@ Z ada.unchecked_deallocation%s
 W editor%s		editor.ads		editor.ali
 W editor.ada_language_model%s  editor-ada_language_model.adb  editor-ada_language_model.ali
 Z system%s		system.ads		system.ali
+Z system.assertions%s	s-assert.adb		s-assert.ali
 Z system.finalization_masters%s  s-finmas.adb	s-finmas.ali
 Z system.pool_global%s	s-pooglo.adb		s-pooglo.ali
 Z system.put_images%s	s-putima.adb		s-putima.ali
@@ -99,9 +103,9 @@ D a-tags.ads		20240521074738 9eaa38c6 ada.tags%s
 D a-unccon.ads		20240521074738 0e9b276f ada.unchecked_conversion%s
 D a-uncdea.ads		20240521074738 c3a8ac65 ada.unchecked_deallocation%s
 D editor.ads		20260612145959 16f844c2 editor%s
-D editor-ada_language_model.ads  20260612145959 459f92c3 editor.ada_language_model%s
+D editor-ada_language_model.ads  20260613110624 75f1fac9 editor.ada_language_model%s
 D editor-ada_project_index.ads  20260612145959 3ad143b9 editor.ada_project_index%s
-D editor-ada_project_index.adb  20260612153758 9beb43d1 editor.ada_project_index%b
+D editor-ada_project_index.adb  20260614162713 4819592f editor.ada_project_index%b
 D editor-ada_syntax_tree.ads  20260612145959 49a76ced editor.ada_syntax_tree%s
 D editor-syntax.ads	20260612145959 d59b0303 editor.syntax%s
 D interfac.ads		20240521074738 15f799c2 interfaces%s
@@ -637,29 +641,32 @@ G c Z s s [navigation_candidate_resultDI editor__ada_project_index 154 9 none]
 G c Z s s [navigation_candidate_resultDA editor__ada_project_index 154 9 none]
 G c Z s s [navigation_candidate_resultDF editor__ada_project_index 154 9 none]
 G c Z s s [navigation_candidate_resultIP editor__ada_project_index 154 9 none]
-G c Z b b [hash_string editor__ada_project_index 10 13 none]
-G c Z b b [trim_image editor__ada_project_index 20 13 none]
-G c Z b b [symbol_kind_label editor__ada_project_index 25 13 none]
-G c Z b b [leaf_name editor__ada_project_index 55 13 none]
-G c Z b b [has_dot editor__ada_project_index 70 13 none]
-G c Z b b [qualified_name editor__ada_project_index 81 13 none]
-G c Z b b [qualified_name editor__ada_project_index 144 13 none]
-G c Z b b [symbol_matches editor__ada_project_index 155 13 none]
-G c Z b b [unit_role_for editor__ada_project_index 189 13 none]
-G c Z b b [is_unit_symbol editor__ada_project_index 231 13 none]
-G c Z b b [is_library_unit_symbol editor__ada_project_index 238 13 none]
-G c Z b b [role_matches editor__ada_project_index 255 13 none]
-G c Z b b [unit_name_for editor__ada_project_index 270 13 none]
-G c Z b b [parent_unit_name editor__ada_project_index 284 13 none]
-G c Z b b [append_unit editor__ada_project_index 302 14 none]
-G c Z b b [rebuild_units editor__ada_project_index 329 14 none]
-G c Z b b [recompute editor__ada_project_index 353 14 none]
-G c Z b b [same_path editor__ada_project_index 434 13 none]
-G c Z b b [same_or_descendant_path editor__ada_project_index 436 13 none]
-G c Z b b [key_is_current editor__ada_project_index 630 13 none]
-G c Z b b [stamp_navigation_candidate_status editor__ada_project_index 800 14 none]
-G c Z b b [unit_name_for_target editor__ada_project_index 1154 13 none]
-G c Z b b [is_direct_child_unit editor__ada_project_index 1407 13 none]
+G c Z b b [natural_addend_arrayIP editor__ada_project_index 14 9 none]
+G c Z b b [hash_mix editor__ada_project_index 16 13 none]
+G c Z b b [hash_mix editor__ada_project_index 26 13 none]
+G c Z b b [hash_string editor__ada_project_index 39 13 none]
+G c Z b b [trim_image editor__ada_project_index 49 13 none]
+G c Z b b [symbol_kind_label editor__ada_project_index 54 13 none]
+G c Z b b [leaf_name editor__ada_project_index 84 13 none]
+G c Z b b [has_dot editor__ada_project_index 99 13 none]
+G c Z b b [qualified_name editor__ada_project_index 110 13 none]
+G c Z b b [qualified_name editor__ada_project_index 173 13 none]
+G c Z b b [symbol_matches editor__ada_project_index 184 13 none]
+G c Z b b [unit_role_for editor__ada_project_index 218 13 none]
+G c Z b b [is_unit_symbol editor__ada_project_index 260 13 none]
+G c Z b b [is_library_unit_symbol editor__ada_project_index 267 13 none]
+G c Z b b [role_matches editor__ada_project_index 284 13 none]
+G c Z b b [unit_name_for editor__ada_project_index 299 13 none]
+G c Z b b [parent_unit_name editor__ada_project_index 313 13 none]
+G c Z b b [append_unit editor__ada_project_index 331 14 none]
+G c Z b b [rebuild_units editor__ada_project_index 358 14 none]
+G c Z b b [recompute editor__ada_project_index 382 14 none]
+G c Z b b [same_path editor__ada_project_index 468 13 none]
+G c Z b b [same_or_descendant_path editor__ada_project_index 470 13 none]
+G c Z b b [key_is_current editor__ada_project_index 664 13 none]
+G c Z b b [stamp_navigation_candidate_status editor__ada_project_index 834 14 none]
+G c Z b b [unit_name_for_target editor__ada_project_index 1188 13 none]
+G c Z b b [is_direct_child_unit editor__ada_project_index 1441 13 none]
 G r j symbol_info [indexed_unitDA editor__ada_project_index 29 9 none] [symbol_infoDA editor__ada_language_model 251 9 none]
 G r k symbol_info [indexed_unitDF editor__ada_project_index 29 9 none] [symbol_infoDF editor__ada_language_model 251 9 none]
 G r s symbol_info [indexed_unitIP editor__ada_project_index 29 9 none] [symbol_infoIP editor__ada_language_model 251 9 none]
@@ -670,239 +677,239 @@ G r k symbol_info [indexed_symbolDF editor__ada_project_index 47 9 none] [symbol
 G r s symbol_info [indexed_symbolIP editor__ada_project_index 47 9 none] [symbol_infoIP editor__ada_language_model 251 9 none]
 G r l symbol_info [indexed_symbolIP editor__ada_project_index 47 9 none] [symbol_infoDI editor__ada_language_model 251 9 none]
 G r k symbol_info [indexed_symbolIP editor__ada_project_index 47 9 none] [symbol_infoDF editor__ada_language_model 251 9 none]
-G r c none [put_analysis editor__ada_project_index 64 14 none] [fingerprint editor__ada_language_model 1185 13 none]
-G r k analysis_result [put_analysis editor__ada_project_index 64 14 none] [analysis_resultDF editor__ada_language_model 1259 9 none]
-G r j analysis_result [put_analysis editor__ada_project_index 64 14 none] [analysis_resultDA editor__ada_language_model 1259 9 none]
-G r c none [put_analysis editor__ada_project_index 64 14 none] [symbol_count editor__ada_language_model 828 13 none]
-G r c none [put_analysis editor__ada_project_index 64 14 none] [symbol_at editor__ada_language_model 1094 13 none]
-G r c none [put_analysis editor__ada_project_index 64 14 none] [symbol editor__ada_language_model 1093 13 none]
-G r c none [put_analysis editor__ada_project_index 64 14 none] [is_declaration_owner editor__ada_language_model 1191 13 none]
-G r c none [put_analysis editor__ada_project_index 64 14 none] [normalize_name editor__ada_language_model 1187 13 none]
+G r c none [put_analysis editor__ada_project_index 64 14 none] [fingerprint editor__ada_language_model 1196 13 none]
+G r k analysis_result [put_analysis editor__ada_project_index 64 14 none] [analysis_resultDF editor__ada_language_model 1270 9 none]
+G r j analysis_result [put_analysis editor__ada_project_index 64 14 none] [analysis_resultDA editor__ada_language_model 1270 9 none]
+G r c none [put_analysis editor__ada_project_index 64 14 none] [symbol_count editor__ada_language_model 831 13 none]
+G r c none [put_analysis editor__ada_project_index 64 14 none] [symbol_at editor__ada_language_model 1105 13 none]
+G r c none [put_analysis editor__ada_project_index 64 14 none] [symbol editor__ada_language_model 1104 13 none]
+G r c none [put_analysis editor__ada_project_index 64 14 none] [is_declaration_owner editor__ada_language_model 1202 13 none]
+G r c none [put_analysis editor__ada_project_index 64 14 none] [normalize_name editor__ada_language_model 1198 13 none]
 G r j symbol_info [put_analysis editor__ada_project_index 64 14 none] [symbol_infoDA editor__ada_language_model 251 9 none]
 G r k symbol_info [put_analysis editor__ada_project_index 64 14 none] [symbol_infoDF editor__ada_language_model 251 9 none]
-G r k analysis_result [invalidate_path editor__ada_project_index 72 14 none] [analysis_resultDF editor__ada_language_model 1259 9 none]
-G r c none [invalidate_path editor__ada_project_index 72 14 none] [symbol_count editor__ada_language_model 828 13 none]
-G r c none [invalidate_path editor__ada_project_index 72 14 none] [symbol_at editor__ada_language_model 1094 13 none]
-G r c none [invalidate_path editor__ada_project_index 72 14 none] [symbol editor__ada_language_model 1093 13 none]
-G r c none [invalidate_path editor__ada_project_index 72 14 none] [is_declaration_owner editor__ada_language_model 1191 13 none]
-G r c none [invalidate_path editor__ada_project_index 72 14 none] [normalize_name editor__ada_language_model 1187 13 none]
+G r k analysis_result [invalidate_path editor__ada_project_index 72 14 none] [analysis_resultDF editor__ada_language_model 1270 9 none]
+G r c none [invalidate_path editor__ada_project_index 72 14 none] [symbol_count editor__ada_language_model 831 13 none]
+G r c none [invalidate_path editor__ada_project_index 72 14 none] [symbol_at editor__ada_language_model 1105 13 none]
+G r c none [invalidate_path editor__ada_project_index 72 14 none] [symbol editor__ada_language_model 1104 13 none]
+G r c none [invalidate_path editor__ada_project_index 72 14 none] [is_declaration_owner editor__ada_language_model 1202 13 none]
+G r c none [invalidate_path editor__ada_project_index 72 14 none] [normalize_name editor__ada_language_model 1198 13 none]
 G r j symbol_info [invalidate_path editor__ada_project_index 72 14 none] [symbol_infoDA editor__ada_language_model 251 9 none]
 G r k symbol_info [invalidate_path editor__ada_project_index 72 14 none] [symbol_infoDF editor__ada_language_model 251 9 none]
-G r k analysis_result [invalidate_path_subtree editor__ada_project_index 73 14 none] [analysis_resultDF editor__ada_language_model 1259 9 none]
-G r c none [invalidate_path_subtree editor__ada_project_index 73 14 none] [symbol_count editor__ada_language_model 828 13 none]
-G r c none [invalidate_path_subtree editor__ada_project_index 73 14 none] [symbol_at editor__ada_language_model 1094 13 none]
-G r c none [invalidate_path_subtree editor__ada_project_index 73 14 none] [symbol editor__ada_language_model 1093 13 none]
-G r c none [invalidate_path_subtree editor__ada_project_index 73 14 none] [is_declaration_owner editor__ada_language_model 1191 13 none]
-G r c none [invalidate_path_subtree editor__ada_project_index 73 14 none] [normalize_name editor__ada_language_model 1187 13 none]
+G r k analysis_result [invalidate_path_subtree editor__ada_project_index 73 14 none] [analysis_resultDF editor__ada_language_model 1270 9 none]
+G r c none [invalidate_path_subtree editor__ada_project_index 73 14 none] [symbol_count editor__ada_language_model 831 13 none]
+G r c none [invalidate_path_subtree editor__ada_project_index 73 14 none] [symbol_at editor__ada_language_model 1105 13 none]
+G r c none [invalidate_path_subtree editor__ada_project_index 73 14 none] [symbol editor__ada_language_model 1104 13 none]
+G r c none [invalidate_path_subtree editor__ada_project_index 73 14 none] [is_declaration_owner editor__ada_language_model 1202 13 none]
+G r c none [invalidate_path_subtree editor__ada_project_index 73 14 none] [normalize_name editor__ada_language_model 1198 13 none]
 G r j symbol_info [invalidate_path_subtree editor__ada_project_index 73 14 none] [symbol_infoDA editor__ada_language_model 251 9 none]
 G r k symbol_info [invalidate_path_subtree editor__ada_project_index 73 14 none] [symbol_infoDF editor__ada_language_model 251 9 none]
-G r k analysis_result [invalidate_buffer editor__ada_project_index 74 14 none] [analysis_resultDF editor__ada_language_model 1259 9 none]
-G r c none [invalidate_buffer editor__ada_project_index 74 14 none] [symbol_count editor__ada_language_model 828 13 none]
-G r c none [invalidate_buffer editor__ada_project_index 74 14 none] [symbol_at editor__ada_language_model 1094 13 none]
-G r c none [invalidate_buffer editor__ada_project_index 74 14 none] [symbol editor__ada_language_model 1093 13 none]
-G r c none [invalidate_buffer editor__ada_project_index 74 14 none] [is_declaration_owner editor__ada_language_model 1191 13 none]
-G r c none [invalidate_buffer editor__ada_project_index 74 14 none] [normalize_name editor__ada_language_model 1187 13 none]
+G r k analysis_result [invalidate_buffer editor__ada_project_index 74 14 none] [analysis_resultDF editor__ada_language_model 1270 9 none]
+G r c none [invalidate_buffer editor__ada_project_index 74 14 none] [symbol_count editor__ada_language_model 831 13 none]
+G r c none [invalidate_buffer editor__ada_project_index 74 14 none] [symbol_at editor__ada_language_model 1105 13 none]
+G r c none [invalidate_buffer editor__ada_project_index 74 14 none] [symbol editor__ada_language_model 1104 13 none]
+G r c none [invalidate_buffer editor__ada_project_index 74 14 none] [is_declaration_owner editor__ada_language_model 1202 13 none]
+G r c none [invalidate_buffer editor__ada_project_index 74 14 none] [normalize_name editor__ada_language_model 1198 13 none]
 G r j symbol_info [invalidate_buffer editor__ada_project_index 74 14 none] [symbol_infoDA editor__ada_language_model 251 9 none]
 G r k symbol_info [invalidate_buffer editor__ada_project_index 74 14 none] [symbol_infoDF editor__ada_language_model 251 9 none]
-G r k analysis_result [invalidate_lifecycle editor__ada_project_index 75 14 none] [analysis_resultDF editor__ada_language_model 1259 9 none]
-G r c none [invalidate_lifecycle editor__ada_project_index 75 14 none] [symbol_count editor__ada_language_model 828 13 none]
-G r c none [invalidate_lifecycle editor__ada_project_index 75 14 none] [symbol_at editor__ada_language_model 1094 13 none]
-G r c none [invalidate_lifecycle editor__ada_project_index 75 14 none] [symbol editor__ada_language_model 1093 13 none]
-G r c none [invalidate_lifecycle editor__ada_project_index 75 14 none] [is_declaration_owner editor__ada_language_model 1191 13 none]
-G r c none [invalidate_lifecycle editor__ada_project_index 75 14 none] [normalize_name editor__ada_language_model 1187 13 none]
+G r k analysis_result [invalidate_lifecycle editor__ada_project_index 75 14 none] [analysis_resultDF editor__ada_language_model 1270 9 none]
+G r c none [invalidate_lifecycle editor__ada_project_index 75 14 none] [symbol_count editor__ada_language_model 831 13 none]
+G r c none [invalidate_lifecycle editor__ada_project_index 75 14 none] [symbol_at editor__ada_language_model 1105 13 none]
+G r c none [invalidate_lifecycle editor__ada_project_index 75 14 none] [symbol editor__ada_language_model 1104 13 none]
+G r c none [invalidate_lifecycle editor__ada_project_index 75 14 none] [is_declaration_owner editor__ada_language_model 1202 13 none]
+G r c none [invalidate_lifecycle editor__ada_project_index 75 14 none] [normalize_name editor__ada_language_model 1198 13 none]
 G r j symbol_info [invalidate_lifecycle editor__ada_project_index 75 14 none] [symbol_infoDA editor__ada_language_model 251 9 none]
 G r k symbol_info [invalidate_lifecycle editor__ada_project_index 75 14 none] [symbol_infoDF editor__ada_language_model 251 9 none]
-G r k analysis_result [contains_path editor__ada_project_index 78 13 none] [analysis_resultDF editor__ada_language_model 1259 9 none]
-G r c none [resolve editor__ada_project_index 102 13 none] [overflowed editor__ada_language_model 1156 13 none]
-G r c none [resolve editor__ada_project_index 102 13 none] [symbol_count editor__ada_language_model 828 13 none]
-G r c none [resolve editor__ada_project_index 102 13 none] [symbol_at editor__ada_language_model 1094 13 none]
-G r c none [resolve editor__ada_project_index 102 13 none] [normalize_name editor__ada_language_model 1187 13 none]
-G r c none [resolve editor__ada_project_index 102 13 none] [symbol editor__ada_language_model 1093 13 none]
-G r c none [resolve editor__ada_project_index 102 13 none] [is_declaration_owner editor__ada_language_model 1191 13 none]
+G r k analysis_result [contains_path editor__ada_project_index 78 13 none] [analysis_resultDF editor__ada_language_model 1270 9 none]
+G r c none [resolve editor__ada_project_index 102 13 none] [overflowed editor__ada_language_model 1167 13 none]
+G r c none [resolve editor__ada_project_index 102 13 none] [symbol_count editor__ada_language_model 831 13 none]
+G r c none [resolve editor__ada_project_index 102 13 none] [symbol_at editor__ada_language_model 1105 13 none]
+G r c none [resolve editor__ada_project_index 102 13 none] [normalize_name editor__ada_language_model 1198 13 none]
+G r c none [resolve editor__ada_project_index 102 13 none] [symbol editor__ada_language_model 1104 13 none]
+G r c none [resolve editor__ada_project_index 102 13 none] [is_declaration_owner editor__ada_language_model 1202 13 none]
 G r j symbol_info [resolve editor__ada_project_index 102 13 none] [symbol_infoDA editor__ada_language_model 251 9 none]
 G r k symbol_info [resolve editor__ada_project_index 102 13 none] [symbol_infoDF editor__ada_language_model 251 9 none]
-G r c none [resolve_current editor__ada_project_index 106 13 none] [overflowed editor__ada_language_model 1156 13 none]
-G r c none [resolve_current editor__ada_project_index 106 13 none] [symbol_count editor__ada_language_model 828 13 none]
-G r c none [resolve_current editor__ada_project_index 106 13 none] [symbol_at editor__ada_language_model 1094 13 none]
-G r c none [resolve_current editor__ada_project_index 106 13 none] [normalize_name editor__ada_language_model 1187 13 none]
-G r c none [resolve_current editor__ada_project_index 106 13 none] [symbol editor__ada_language_model 1093 13 none]
-G r c none [resolve_current editor__ada_project_index 106 13 none] [is_declaration_owner editor__ada_language_model 1191 13 none]
+G r c none [resolve_current editor__ada_project_index 106 13 none] [overflowed editor__ada_language_model 1167 13 none]
+G r c none [resolve_current editor__ada_project_index 106 13 none] [symbol_count editor__ada_language_model 831 13 none]
+G r c none [resolve_current editor__ada_project_index 106 13 none] [symbol_at editor__ada_language_model 1105 13 none]
+G r c none [resolve_current editor__ada_project_index 106 13 none] [normalize_name editor__ada_language_model 1198 13 none]
+G r c none [resolve_current editor__ada_project_index 106 13 none] [symbol editor__ada_language_model 1104 13 none]
+G r c none [resolve_current editor__ada_project_index 106 13 none] [is_declaration_owner editor__ada_language_model 1202 13 none]
 G r j symbol_info [resolve_current editor__ada_project_index 106 13 none] [symbol_infoDA editor__ada_language_model 251 9 none]
 G r k symbol_info [resolve_current editor__ada_project_index 106 13 none] [symbol_infoDF editor__ada_language_model 251 9 none]
 G r s symbol_info [first_match editor__ada_project_index 115 13 none] [symbol_infoIP editor__ada_language_model 251 9 none]
 G r l symbol_info [first_match editor__ada_project_index 115 13 none] [symbol_infoDI editor__ada_language_model 251 9 none]
-G r c none [first_match editor__ada_project_index 115 13 none] [overflowed editor__ada_language_model 1156 13 none]
-G r c none [first_match editor__ada_project_index 115 13 none] [symbol_count editor__ada_language_model 828 13 none]
-G r c none [first_match editor__ada_project_index 115 13 none] [symbol_at editor__ada_language_model 1094 13 none]
-G r c none [first_match editor__ada_project_index 115 13 none] [normalize_name editor__ada_language_model 1187 13 none]
-G r c none [first_match editor__ada_project_index 115 13 none] [symbol editor__ada_language_model 1093 13 none]
-G r c none [first_match editor__ada_project_index 115 13 none] [is_declaration_owner editor__ada_language_model 1191 13 none]
+G r c none [first_match editor__ada_project_index 115 13 none] [overflowed editor__ada_language_model 1167 13 none]
+G r c none [first_match editor__ada_project_index 115 13 none] [symbol_count editor__ada_language_model 831 13 none]
+G r c none [first_match editor__ada_project_index 115 13 none] [symbol_at editor__ada_language_model 1105 13 none]
+G r c none [first_match editor__ada_project_index 115 13 none] [normalize_name editor__ada_language_model 1198 13 none]
+G r c none [first_match editor__ada_project_index 115 13 none] [symbol editor__ada_language_model 1104 13 none]
+G r c none [first_match editor__ada_project_index 115 13 none] [is_declaration_owner editor__ada_language_model 1202 13 none]
 G r j symbol_info [first_match editor__ada_project_index 115 13 none] [symbol_infoDA editor__ada_language_model 251 9 none]
 G r k symbol_info [first_match editor__ada_project_index 115 13 none] [symbol_infoDF editor__ada_language_model 251 9 none]
-G r c none [has_match editor__ada_project_index 119 13 none] [overflowed editor__ada_language_model 1156 13 none]
-G r c none [has_match editor__ada_project_index 119 13 none] [symbol_count editor__ada_language_model 828 13 none]
-G r c none [has_match editor__ada_project_index 119 13 none] [symbol_at editor__ada_language_model 1094 13 none]
-G r c none [has_match editor__ada_project_index 119 13 none] [normalize_name editor__ada_language_model 1187 13 none]
-G r c none [has_match editor__ada_project_index 119 13 none] [symbol editor__ada_language_model 1093 13 none]
-G r c none [has_match editor__ada_project_index 119 13 none] [is_declaration_owner editor__ada_language_model 1191 13 none]
+G r c none [has_match editor__ada_project_index 119 13 none] [overflowed editor__ada_language_model 1167 13 none]
+G r c none [has_match editor__ada_project_index 119 13 none] [symbol_count editor__ada_language_model 831 13 none]
+G r c none [has_match editor__ada_project_index 119 13 none] [symbol_at editor__ada_language_model 1105 13 none]
+G r c none [has_match editor__ada_project_index 119 13 none] [normalize_name editor__ada_language_model 1198 13 none]
+G r c none [has_match editor__ada_project_index 119 13 none] [symbol editor__ada_language_model 1104 13 none]
+G r c none [has_match editor__ada_project_index 119 13 none] [is_declaration_owner editor__ada_language_model 1202 13 none]
 G r j symbol_info [has_match editor__ada_project_index 119 13 none] [symbol_infoDA editor__ada_language_model 251 9 none]
 G r k symbol_info [has_match editor__ada_project_index 119 13 none] [symbol_infoDF editor__ada_language_model 251 9 none]
 G r s symbol_info [first_current_match editor__ada_project_index 123 13 none] [symbol_infoIP editor__ada_language_model 251 9 none]
 G r l symbol_info [first_current_match editor__ada_project_index 123 13 none] [symbol_infoDI editor__ada_language_model 251 9 none]
-G r c none [first_current_match editor__ada_project_index 123 13 none] [overflowed editor__ada_language_model 1156 13 none]
-G r c none [first_current_match editor__ada_project_index 123 13 none] [symbol_count editor__ada_language_model 828 13 none]
-G r c none [first_current_match editor__ada_project_index 123 13 none] [symbol_at editor__ada_language_model 1094 13 none]
-G r c none [first_current_match editor__ada_project_index 123 13 none] [normalize_name editor__ada_language_model 1187 13 none]
-G r c none [first_current_match editor__ada_project_index 123 13 none] [symbol editor__ada_language_model 1093 13 none]
-G r c none [first_current_match editor__ada_project_index 123 13 none] [is_declaration_owner editor__ada_language_model 1191 13 none]
+G r c none [first_current_match editor__ada_project_index 123 13 none] [overflowed editor__ada_language_model 1167 13 none]
+G r c none [first_current_match editor__ada_project_index 123 13 none] [symbol_count editor__ada_language_model 831 13 none]
+G r c none [first_current_match editor__ada_project_index 123 13 none] [symbol_at editor__ada_language_model 1105 13 none]
+G r c none [first_current_match editor__ada_project_index 123 13 none] [normalize_name editor__ada_language_model 1198 13 none]
+G r c none [first_current_match editor__ada_project_index 123 13 none] [symbol editor__ada_language_model 1104 13 none]
+G r c none [first_current_match editor__ada_project_index 123 13 none] [is_declaration_owner editor__ada_language_model 1202 13 none]
 G r j symbol_info [first_current_match editor__ada_project_index 123 13 none] [symbol_infoDA editor__ada_language_model 251 9 none]
 G r k symbol_info [first_current_match editor__ada_project_index 123 13 none] [symbol_infoDF editor__ada_language_model 251 9 none]
-G r c none [has_current_match editor__ada_project_index 132 13 none] [overflowed editor__ada_language_model 1156 13 none]
-G r c none [has_current_match editor__ada_project_index 132 13 none] [symbol_count editor__ada_language_model 828 13 none]
-G r c none [has_current_match editor__ada_project_index 132 13 none] [symbol_at editor__ada_language_model 1094 13 none]
-G r c none [has_current_match editor__ada_project_index 132 13 none] [normalize_name editor__ada_language_model 1187 13 none]
-G r c none [has_current_match editor__ada_project_index 132 13 none] [symbol editor__ada_language_model 1093 13 none]
-G r c none [has_current_match editor__ada_project_index 132 13 none] [is_declaration_owner editor__ada_language_model 1191 13 none]
+G r c none [has_current_match editor__ada_project_index 132 13 none] [overflowed editor__ada_language_model 1167 13 none]
+G r c none [has_current_match editor__ada_project_index 132 13 none] [symbol_count editor__ada_language_model 831 13 none]
+G r c none [has_current_match editor__ada_project_index 132 13 none] [symbol_at editor__ada_language_model 1105 13 none]
+G r c none [has_current_match editor__ada_project_index 132 13 none] [normalize_name editor__ada_language_model 1198 13 none]
+G r c none [has_current_match editor__ada_project_index 132 13 none] [symbol editor__ada_language_model 1104 13 none]
+G r c none [has_current_match editor__ada_project_index 132 13 none] [is_declaration_owner editor__ada_language_model 1202 13 none]
 G r j symbol_info [has_current_match editor__ada_project_index 132 13 none] [symbol_infoDA editor__ada_language_model 251 9 none]
 G r k symbol_info [has_current_match editor__ada_project_index 132 13 none] [symbol_infoDF editor__ada_language_model 251 9 none]
-G r c none [resolve_navigation_candidates editor__ada_project_index 159 13 none] [overflowed editor__ada_language_model 1156 13 none]
-G r c none [resolve_navigation_candidates editor__ada_project_index 159 13 none] [symbol_count editor__ada_language_model 828 13 none]
-G r c none [resolve_navigation_candidates editor__ada_project_index 159 13 none] [symbol_at editor__ada_language_model 1094 13 none]
-G r c none [resolve_navigation_candidates editor__ada_project_index 159 13 none] [normalize_name editor__ada_language_model 1187 13 none]
-G r c none [resolve_navigation_candidates editor__ada_project_index 159 13 none] [symbol editor__ada_language_model 1093 13 none]
-G r c none [resolve_navigation_candidates editor__ada_project_index 159 13 none] [is_declaration_owner editor__ada_language_model 1191 13 none]
+G r c none [resolve_navigation_candidates editor__ada_project_index 159 13 none] [overflowed editor__ada_language_model 1167 13 none]
+G r c none [resolve_navigation_candidates editor__ada_project_index 159 13 none] [symbol_count editor__ada_language_model 831 13 none]
+G r c none [resolve_navigation_candidates editor__ada_project_index 159 13 none] [symbol_at editor__ada_language_model 1105 13 none]
+G r c none [resolve_navigation_candidates editor__ada_project_index 159 13 none] [normalize_name editor__ada_language_model 1198 13 none]
+G r c none [resolve_navigation_candidates editor__ada_project_index 159 13 none] [symbol editor__ada_language_model 1104 13 none]
+G r c none [resolve_navigation_candidates editor__ada_project_index 159 13 none] [is_declaration_owner editor__ada_language_model 1202 13 none]
 G r j symbol_info [resolve_navigation_candidates editor__ada_project_index 159 13 none] [symbol_infoDA editor__ada_language_model 251 9 none]
 G r k symbol_info [resolve_navigation_candidates editor__ada_project_index 159 13 none] [symbol_infoDF editor__ada_language_model 251 9 none]
-G r c none [resolve_navigation_candidates editor__ada_project_index 159 13 none] [is_subprogram editor__ada_language_model 1189 13 none]
-G r c none [resolve_related_unit_candidates editor__ada_project_index 170 13 none] [symbol_count editor__ada_language_model 828 13 none]
-G r c none [resolve_related_unit_candidates editor__ada_project_index 170 13 none] [symbol editor__ada_language_model 1093 13 none]
-G r c none [resolve_related_unit_candidates editor__ada_project_index 170 13 none] [is_declaration_owner editor__ada_language_model 1191 13 none]
-G r c none [resolve_related_unit_candidates editor__ada_project_index 170 13 none] [normalize_name editor__ada_language_model 1187 13 none]
-G r c none [resolve_related_unit_candidates editor__ada_project_index 170 13 none] [overflowed editor__ada_language_model 1156 13 none]
+G r c none [resolve_navigation_candidates editor__ada_project_index 159 13 none] [is_subprogram editor__ada_language_model 1200 13 none]
+G r c none [resolve_related_unit_candidates editor__ada_project_index 170 13 none] [symbol_count editor__ada_language_model 831 13 none]
+G r c none [resolve_related_unit_candidates editor__ada_project_index 170 13 none] [symbol editor__ada_language_model 1104 13 none]
+G r c none [resolve_related_unit_candidates editor__ada_project_index 170 13 none] [is_declaration_owner editor__ada_language_model 1202 13 none]
+G r c none [resolve_related_unit_candidates editor__ada_project_index 170 13 none] [normalize_name editor__ada_language_model 1198 13 none]
+G r c none [resolve_related_unit_candidates editor__ada_project_index 170 13 none] [overflowed editor__ada_language_model 1167 13 none]
 G r j symbol_info [resolve_related_unit_candidates editor__ada_project_index 170 13 none] [symbol_infoDA editor__ada_language_model 251 9 none]
-G r c none [resolve_related_unit_candidates editor__ada_project_index 170 13 none] [is_separate_body_parent_target editor__ada_language_model 1192 13 none]
+G r c none [resolve_related_unit_candidates editor__ada_project_index 170 13 none] [is_separate_body_parent_target editor__ada_language_model 1203 13 none]
 G r k symbol_info [resolve_related_unit_candidates editor__ada_project_index 170 13 none] [symbol_infoDF editor__ada_language_model 251 9 none]
-G r c none [resolve_unit_family_targets editor__ada_project_index 175 13 none] [symbol_count editor__ada_language_model 828 13 none]
-G r c none [resolve_unit_family_targets editor__ada_project_index 175 13 none] [symbol editor__ada_language_model 1093 13 none]
-G r c none [resolve_unit_family_targets editor__ada_project_index 175 13 none] [is_declaration_owner editor__ada_language_model 1191 13 none]
-G r c none [resolve_unit_family_targets editor__ada_project_index 175 13 none] [normalize_name editor__ada_language_model 1187 13 none]
-G r c none [resolve_unit_family_targets editor__ada_project_index 175 13 none] [overflowed editor__ada_language_model 1156 13 none]
+G r c none [resolve_unit_family_targets editor__ada_project_index 175 13 none] [symbol_count editor__ada_language_model 831 13 none]
+G r c none [resolve_unit_family_targets editor__ada_project_index 175 13 none] [symbol editor__ada_language_model 1104 13 none]
+G r c none [resolve_unit_family_targets editor__ada_project_index 175 13 none] [is_declaration_owner editor__ada_language_model 1202 13 none]
+G r c none [resolve_unit_family_targets editor__ada_project_index 175 13 none] [normalize_name editor__ada_language_model 1198 13 none]
+G r c none [resolve_unit_family_targets editor__ada_project_index 175 13 none] [overflowed editor__ada_language_model 1167 13 none]
 G r j symbol_info [resolve_unit_family_targets editor__ada_project_index 175 13 none] [symbol_infoDA editor__ada_language_model 251 9 none]
 G r k symbol_info [resolve_unit_family_targets editor__ada_project_index 175 13 none] [symbol_infoDF editor__ada_language_model 251 9 none]
 G r s symbol_info [resolve_unique_navigation_target editor__ada_project_index 186 13 none] [symbol_infoIP editor__ada_language_model 251 9 none]
 G r l symbol_info [resolve_unique_navigation_target editor__ada_project_index 186 13 none] [symbol_infoDI editor__ada_language_model 251 9 none]
 G r k symbol_info [resolve_unique_navigation_target editor__ada_project_index 186 13 none] [symbol_infoDF editor__ada_language_model 251 9 none]
-G r c none [resolve_unique_navigation_target editor__ada_project_index 186 13 none] [overflowed editor__ada_language_model 1156 13 none]
-G r c none [resolve_unique_navigation_target editor__ada_project_index 186 13 none] [symbol_count editor__ada_language_model 828 13 none]
-G r c none [resolve_unique_navigation_target editor__ada_project_index 186 13 none] [symbol_at editor__ada_language_model 1094 13 none]
-G r c none [resolve_unique_navigation_target editor__ada_project_index 186 13 none] [normalize_name editor__ada_language_model 1187 13 none]
-G r c none [resolve_unique_navigation_target editor__ada_project_index 186 13 none] [symbol editor__ada_language_model 1093 13 none]
-G r c none [resolve_unique_navigation_target editor__ada_project_index 186 13 none] [is_declaration_owner editor__ada_language_model 1191 13 none]
+G r c none [resolve_unique_navigation_target editor__ada_project_index 186 13 none] [overflowed editor__ada_language_model 1167 13 none]
+G r c none [resolve_unique_navigation_target editor__ada_project_index 186 13 none] [symbol_count editor__ada_language_model 831 13 none]
+G r c none [resolve_unique_navigation_target editor__ada_project_index 186 13 none] [symbol_at editor__ada_language_model 1105 13 none]
+G r c none [resolve_unique_navigation_target editor__ada_project_index 186 13 none] [normalize_name editor__ada_language_model 1198 13 none]
+G r c none [resolve_unique_navigation_target editor__ada_project_index 186 13 none] [symbol editor__ada_language_model 1104 13 none]
+G r c none [resolve_unique_navigation_target editor__ada_project_index 186 13 none] [is_declaration_owner editor__ada_language_model 1202 13 none]
 G r j symbol_info [resolve_unique_navigation_target editor__ada_project_index 186 13 none] [symbol_infoDA editor__ada_language_model 251 9 none]
-G r c none [resolve_unique_navigation_target editor__ada_project_index 186 13 none] [is_subprogram editor__ada_language_model 1189 13 none]
-G r c none [resolve_unit editor__ada_project_index 197 13 none] [normalize_name editor__ada_language_model 1187 13 none]
-G r c none [resolve_unit editor__ada_project_index 197 13 none] [overflowed editor__ada_language_model 1156 13 none]
+G r c none [resolve_unique_navigation_target editor__ada_project_index 186 13 none] [is_subprogram editor__ada_language_model 1200 13 none]
+G r c none [resolve_unit editor__ada_project_index 197 13 none] [normalize_name editor__ada_language_model 1198 13 none]
+G r c none [resolve_unit editor__ada_project_index 197 13 none] [overflowed editor__ada_language_model 1167 13 none]
 G r s symbol_info [resolve_unique_unit_target editor__ada_project_index 202 13 none] [symbol_infoIP editor__ada_language_model 251 9 none]
 G r l symbol_info [resolve_unique_unit_target editor__ada_project_index 202 13 none] [symbol_infoDI editor__ada_language_model 251 9 none]
 G r k symbol_info [resolve_unique_unit_target editor__ada_project_index 202 13 none] [symbol_infoDF editor__ada_language_model 251 9 none]
-G r c none [resolve_unique_unit_target editor__ada_project_index 202 13 none] [normalize_name editor__ada_language_model 1187 13 none]
-G r c none [resolve_unique_unit_target editor__ada_project_index 202 13 none] [overflowed editor__ada_language_model 1156 13 none]
+G r c none [resolve_unique_unit_target editor__ada_project_index 202 13 none] [normalize_name editor__ada_language_model 1198 13 none]
+G r c none [resolve_unique_unit_target editor__ada_project_index 202 13 none] [overflowed editor__ada_language_model 1167 13 none]
 G r j symbol_info [resolve_unique_unit_target editor__ada_project_index 202 13 none] [symbol_infoDA editor__ada_language_model 251 9 none]
-G r c none [resolve_related_unit_target editor__ada_project_index 207 13 none] [symbol_count editor__ada_language_model 828 13 none]
-G r c none [resolve_related_unit_target editor__ada_project_index 207 13 none] [symbol editor__ada_language_model 1093 13 none]
-G r c none [resolve_related_unit_target editor__ada_project_index 207 13 none] [is_declaration_owner editor__ada_language_model 1191 13 none]
+G r c none [resolve_related_unit_target editor__ada_project_index 207 13 none] [symbol_count editor__ada_language_model 831 13 none]
+G r c none [resolve_related_unit_target editor__ada_project_index 207 13 none] [symbol editor__ada_language_model 1104 13 none]
+G r c none [resolve_related_unit_target editor__ada_project_index 207 13 none] [is_declaration_owner editor__ada_language_model 1202 13 none]
 G r s symbol_info [resolve_related_unit_target editor__ada_project_index 207 13 none] [symbol_infoIP editor__ada_language_model 251 9 none]
 G r l symbol_info [resolve_related_unit_target editor__ada_project_index 207 13 none] [symbol_infoDI editor__ada_language_model 251 9 none]
 G r k symbol_info [resolve_related_unit_target editor__ada_project_index 207 13 none] [symbol_infoDF editor__ada_language_model 251 9 none]
-G r c none [resolve_related_unit_target editor__ada_project_index 207 13 none] [normalize_name editor__ada_language_model 1187 13 none]
-G r c none [resolve_related_unit_target editor__ada_project_index 207 13 none] [overflowed editor__ada_language_model 1156 13 none]
+G r c none [resolve_related_unit_target editor__ada_project_index 207 13 none] [normalize_name editor__ada_language_model 1198 13 none]
+G r c none [resolve_related_unit_target editor__ada_project_index 207 13 none] [overflowed editor__ada_language_model 1167 13 none]
 G r j symbol_info [resolve_related_unit_target editor__ada_project_index 207 13 none] [symbol_infoDA editor__ada_language_model 251 9 none]
-G r c none [resolve_related_unit_target editor__ada_project_index 207 13 none] [is_separate_body_parent_target editor__ada_language_model 1192 13 none]
+G r c none [resolve_related_unit_target editor__ada_project_index 207 13 none] [is_separate_body_parent_target editor__ada_language_model 1203 13 none]
 G r s symbol_info [resolve_separate_parent_target editor__ada_project_index 212 13 none] [symbol_infoIP editor__ada_language_model 251 9 none]
 G r l symbol_info [resolve_separate_parent_target editor__ada_project_index 212 13 none] [symbol_infoDI editor__ada_language_model 251 9 none]
 G r k symbol_info [resolve_separate_parent_target editor__ada_project_index 212 13 none] [symbol_infoDF editor__ada_language_model 251 9 none]
-G r c none [resolve_separate_parent_target editor__ada_project_index 212 13 none] [normalize_name editor__ada_language_model 1187 13 none]
-G r c none [resolve_separate_parent_target editor__ada_project_index 212 13 none] [overflowed editor__ada_language_model 1156 13 none]
+G r c none [resolve_separate_parent_target editor__ada_project_index 212 13 none] [normalize_name editor__ada_language_model 1198 13 none]
+G r c none [resolve_separate_parent_target editor__ada_project_index 212 13 none] [overflowed editor__ada_language_model 1167 13 none]
 G r j symbol_info [resolve_separate_parent_target editor__ada_project_index 212 13 none] [symbol_infoDA editor__ada_language_model 251 9 none]
-G r c none [resolve_separate_parent_target editor__ada_project_index 212 13 none] [is_separate_body_parent_target editor__ada_language_model 1192 13 none]
-G r c none [resolve_parent_unit_target editor__ada_project_index 216 13 none] [symbol_count editor__ada_language_model 828 13 none]
-G r c none [resolve_parent_unit_target editor__ada_project_index 216 13 none] [symbol editor__ada_language_model 1093 13 none]
-G r c none [resolve_parent_unit_target editor__ada_project_index 216 13 none] [is_declaration_owner editor__ada_language_model 1191 13 none]
+G r c none [resolve_separate_parent_target editor__ada_project_index 212 13 none] [is_separate_body_parent_target editor__ada_language_model 1203 13 none]
+G r c none [resolve_parent_unit_target editor__ada_project_index 216 13 none] [symbol_count editor__ada_language_model 831 13 none]
+G r c none [resolve_parent_unit_target editor__ada_project_index 216 13 none] [symbol editor__ada_language_model 1104 13 none]
+G r c none [resolve_parent_unit_target editor__ada_project_index 216 13 none] [is_declaration_owner editor__ada_language_model 1202 13 none]
 G r s symbol_info [resolve_parent_unit_target editor__ada_project_index 216 13 none] [symbol_infoIP editor__ada_language_model 251 9 none]
 G r l symbol_info [resolve_parent_unit_target editor__ada_project_index 216 13 none] [symbol_infoDI editor__ada_language_model 251 9 none]
 G r k symbol_info [resolve_parent_unit_target editor__ada_project_index 216 13 none] [symbol_infoDF editor__ada_language_model 251 9 none]
 G r j symbol_info [resolve_parent_unit_target editor__ada_project_index 216 13 none] [symbol_infoDA editor__ada_language_model 251 9 none]
-G r c none [resolve_parent_unit_target editor__ada_project_index 216 13 none] [normalize_name editor__ada_language_model 1187 13 none]
-G r c none [resolve_parent_unit_target editor__ada_project_index 216 13 none] [overflowed editor__ada_language_model 1156 13 none]
-G r c none [resolve_child_units editor__ada_project_index 220 13 none] [symbol_count editor__ada_language_model 828 13 none]
-G r c none [resolve_child_units editor__ada_project_index 220 13 none] [symbol editor__ada_language_model 1093 13 none]
-G r c none [resolve_child_units editor__ada_project_index 220 13 none] [is_declaration_owner editor__ada_language_model 1191 13 none]
-G r c none [resolve_child_units editor__ada_project_index 220 13 none] [overflowed editor__ada_language_model 1156 13 none]
-G r c none [resolve_child_units editor__ada_project_index 220 13 none] [normalize_name editor__ada_language_model 1187 13 none]
-G r c none [resolve_unit_family editor__ada_project_index 225 13 none] [symbol_count editor__ada_language_model 828 13 none]
-G r c none [resolve_unit_family editor__ada_project_index 225 13 none] [symbol editor__ada_language_model 1093 13 none]
-G r c none [resolve_unit_family editor__ada_project_index 225 13 none] [is_declaration_owner editor__ada_language_model 1191 13 none]
-G r c none [resolve_unit_family editor__ada_project_index 225 13 none] [normalize_name editor__ada_language_model 1187 13 none]
-G r c none [resolve_unit_family editor__ada_project_index 225 13 none] [overflowed editor__ada_language_model 1156 13 none]
-G r s analysis_result [file_analysis_at editor__ada_project_index 236 13 none] [analysis_resultIP editor__ada_language_model 1259 9 none]
-G r l analysis_result [file_analysis_at editor__ada_project_index 236 13 none] [analysis_resultDI editor__ada_language_model 1259 9 none]
-G r k analysis_result [file_analysis_at editor__ada_project_index 236 13 none] [analysis_resultDF editor__ada_language_model 1259 9 none]
-G r j analysis_result [file_analysis_at editor__ada_project_index 236 13 none] [analysis_resultDA editor__ada_language_model 1259 9 none]
+G r c none [resolve_parent_unit_target editor__ada_project_index 216 13 none] [normalize_name editor__ada_language_model 1198 13 none]
+G r c none [resolve_parent_unit_target editor__ada_project_index 216 13 none] [overflowed editor__ada_language_model 1167 13 none]
+G r c none [resolve_child_units editor__ada_project_index 220 13 none] [symbol_count editor__ada_language_model 831 13 none]
+G r c none [resolve_child_units editor__ada_project_index 220 13 none] [symbol editor__ada_language_model 1104 13 none]
+G r c none [resolve_child_units editor__ada_project_index 220 13 none] [is_declaration_owner editor__ada_language_model 1202 13 none]
+G r c none [resolve_child_units editor__ada_project_index 220 13 none] [overflowed editor__ada_language_model 1167 13 none]
+G r c none [resolve_child_units editor__ada_project_index 220 13 none] [normalize_name editor__ada_language_model 1198 13 none]
+G r c none [resolve_unit_family editor__ada_project_index 225 13 none] [symbol_count editor__ada_language_model 831 13 none]
+G r c none [resolve_unit_family editor__ada_project_index 225 13 none] [symbol editor__ada_language_model 1104 13 none]
+G r c none [resolve_unit_family editor__ada_project_index 225 13 none] [is_declaration_owner editor__ada_language_model 1202 13 none]
+G r c none [resolve_unit_family editor__ada_project_index 225 13 none] [normalize_name editor__ada_language_model 1198 13 none]
+G r c none [resolve_unit_family editor__ada_project_index 225 13 none] [overflowed editor__ada_language_model 1167 13 none]
+G r s analysis_result [file_analysis_at editor__ada_project_index 236 13 none] [analysis_resultIP editor__ada_language_model 1270 9 none]
+G r l analysis_result [file_analysis_at editor__ada_project_index 236 13 none] [analysis_resultDI editor__ada_language_model 1270 9 none]
+G r k analysis_result [file_analysis_at editor__ada_project_index 236 13 none] [analysis_resultDF editor__ada_language_model 1270 9 none]
+G r j analysis_result [file_analysis_at editor__ada_project_index 236 13 none] [analysis_resultDA editor__ada_language_model 1270 9 none]
 G r s symbol_info [unit_at editor__ada_project_index 240 13 none] [symbol_infoIP editor__ada_language_model 251 9 none]
 G r l symbol_info [unit_at editor__ada_project_index 240 13 none] [symbol_infoDI editor__ada_language_model 251 9 none]
 G r j symbol_info [unit_at editor__ada_project_index 240 13 none] [symbol_infoDA editor__ada_language_model 251 9 none]
-G r c none [symbol_count editor__ada_project_index 248 13 none] [symbol_count editor__ada_language_model 828 13 none]
-G r c none [overflowed editor__ada_project_index 249 13 none] [overflowed editor__ada_language_model 1156 13 none]
-G r j analysis_result [indexed_fileDA editor__ada_project_index 253 9 none] [analysis_resultDA editor__ada_language_model 1259 9 none]
-G r k analysis_result [indexed_fileDF editor__ada_project_index 253 9 none] [analysis_resultDF editor__ada_language_model 1259 9 none]
-G r s analysis_result [indexed_fileIP editor__ada_project_index 253 9 none] [analysis_resultIP editor__ada_language_model 1259 9 none]
-G r l analysis_result [indexed_fileIP editor__ada_project_index 253 9 none] [analysis_resultDI editor__ada_language_model 1259 9 none]
-G r k analysis_result [indexed_fileIP editor__ada_project_index 253 9 none] [analysis_resultDF editor__ada_language_model 1259 9 none]
+G r c none [symbol_count editor__ada_project_index 248 13 none] [symbol_count editor__ada_language_model 831 13 none]
+G r c none [overflowed editor__ada_project_index 249 13 none] [overflowed editor__ada_language_model 1167 13 none]
+G r j analysis_result [indexed_fileDA editor__ada_project_index 253 9 none] [analysis_resultDA editor__ada_language_model 1270 9 none]
+G r k analysis_result [indexed_fileDF editor__ada_project_index 253 9 none] [analysis_resultDF editor__ada_language_model 1270 9 none]
+G r s analysis_result [indexed_fileIP editor__ada_project_index 253 9 none] [analysis_resultIP editor__ada_language_model 1270 9 none]
+G r l analysis_result [indexed_fileIP editor__ada_project_index 253 9 none] [analysis_resultDI editor__ada_language_model 1270 9 none]
+G r k analysis_result [indexed_fileIP editor__ada_project_index 253 9 none] [analysis_resultDF editor__ada_language_model 1270 9 none]
 G r j symbol_info [unique_target_resultDA editor__ada_project_index 141 9 none] [symbol_infoDA editor__ada_language_model 251 9 none]
 G r k symbol_info [unique_target_resultDF editor__ada_project_index 141 9 none] [symbol_infoDF editor__ada_language_model 251 9 none]
 G r s symbol_info [unique_target_resultIP editor__ada_project_index 141 9 none] [symbol_infoIP editor__ada_language_model 251 9 none]
 G r l symbol_info [unique_target_resultIP editor__ada_project_index 141 9 none] [symbol_infoDI editor__ada_language_model 251 9 none]
 G r k symbol_info [unique_target_resultIP editor__ada_project_index 141 9 none] [symbol_infoDF editor__ada_language_model 251 9 none]
-G r c none [qualified_name editor__ada_project_index 81 13 none] [symbol_count editor__ada_language_model 828 13 none]
-G r c none [qualified_name editor__ada_project_index 81 13 none] [symbol editor__ada_language_model 1093 13 none]
-G r c none [qualified_name editor__ada_project_index 81 13 none] [is_declaration_owner editor__ada_language_model 1191 13 none]
-G r c none [qualified_name editor__ada_project_index 144 13 none] [symbol_count editor__ada_language_model 828 13 none]
-G r c none [qualified_name editor__ada_project_index 144 13 none] [symbol editor__ada_language_model 1093 13 none]
-G r c none [qualified_name editor__ada_project_index 144 13 none] [is_declaration_owner editor__ada_language_model 1191 13 none]
-G r c none [symbol_matches editor__ada_project_index 155 13 none] [normalize_name editor__ada_language_model 1187 13 none]
-G r c none [symbol_matches editor__ada_project_index 155 13 none] [symbol_count editor__ada_language_model 828 13 none]
-G r c none [symbol_matches editor__ada_project_index 155 13 none] [symbol editor__ada_language_model 1093 13 none]
-G r c none [symbol_matches editor__ada_project_index 155 13 none] [is_declaration_owner editor__ada_language_model 1191 13 none]
-G r c none [unit_name_for editor__ada_project_index 270 13 none] [symbol_count editor__ada_language_model 828 13 none]
-G r c none [unit_name_for editor__ada_project_index 270 13 none] [symbol editor__ada_language_model 1093 13 none]
-G r c none [unit_name_for editor__ada_project_index 270 13 none] [is_declaration_owner editor__ada_language_model 1191 13 none]
-G r c none [append_unit editor__ada_project_index 302 14 none] [symbol_count editor__ada_language_model 828 13 none]
-G r c none [append_unit editor__ada_project_index 302 14 none] [symbol editor__ada_language_model 1093 13 none]
-G r c none [append_unit editor__ada_project_index 302 14 none] [is_declaration_owner editor__ada_language_model 1191 13 none]
-G r c none [append_unit editor__ada_project_index 302 14 none] [normalize_name editor__ada_language_model 1187 13 none]
-G r j symbol_info [append_unit editor__ada_project_index 302 14 none] [symbol_infoDA editor__ada_language_model 251 9 none]
-G r k symbol_info [append_unit editor__ada_project_index 302 14 none] [symbol_infoDF editor__ada_language_model 251 9 none]
-G r c none [rebuild_units editor__ada_project_index 329 14 none] [symbol_count editor__ada_language_model 828 13 none]
-G r c none [rebuild_units editor__ada_project_index 329 14 none] [symbol_at editor__ada_language_model 1094 13 none]
-G r c none [rebuild_units editor__ada_project_index 329 14 none] [symbol editor__ada_language_model 1093 13 none]
-G r c none [rebuild_units editor__ada_project_index 329 14 none] [is_declaration_owner editor__ada_language_model 1191 13 none]
-G r c none [rebuild_units editor__ada_project_index 329 14 none] [normalize_name editor__ada_language_model 1187 13 none]
-G r j symbol_info [rebuild_units editor__ada_project_index 329 14 none] [symbol_infoDA editor__ada_language_model 251 9 none]
-G r k symbol_info [rebuild_units editor__ada_project_index 329 14 none] [symbol_infoDF editor__ada_language_model 251 9 none]
-G r c none [recompute editor__ada_project_index 353 14 none] [symbol_count editor__ada_language_model 828 13 none]
-G r c none [recompute editor__ada_project_index 353 14 none] [symbol_at editor__ada_language_model 1094 13 none]
-G r c none [recompute editor__ada_project_index 353 14 none] [symbol editor__ada_language_model 1093 13 none]
-G r c none [recompute editor__ada_project_index 353 14 none] [is_declaration_owner editor__ada_language_model 1191 13 none]
-G r c none [recompute editor__ada_project_index 353 14 none] [normalize_name editor__ada_language_model 1187 13 none]
-G r j symbol_info [recompute editor__ada_project_index 353 14 none] [symbol_infoDA editor__ada_language_model 251 9 none]
-G r k symbol_info [recompute editor__ada_project_index 353 14 none] [symbol_infoDF editor__ada_language_model 251 9 none]
-G r c none [unit_name_for_target editor__ada_project_index 1154 13 none] [symbol_count editor__ada_language_model 828 13 none]
-G r c none [unit_name_for_target editor__ada_project_index 1154 13 none] [symbol editor__ada_language_model 1093 13 none]
-G r c none [unit_name_for_target editor__ada_project_index 1154 13 none] [is_declaration_owner editor__ada_language_model 1191 13 none]
-G r c none [is_direct_child_unit editor__ada_project_index 1407 13 none] [normalize_name editor__ada_language_model 1187 13 none]
+G r c none [qualified_name editor__ada_project_index 110 13 none] [symbol_count editor__ada_language_model 831 13 none]
+G r c none [qualified_name editor__ada_project_index 110 13 none] [symbol editor__ada_language_model 1104 13 none]
+G r c none [qualified_name editor__ada_project_index 110 13 none] [is_declaration_owner editor__ada_language_model 1202 13 none]
+G r c none [qualified_name editor__ada_project_index 173 13 none] [symbol_count editor__ada_language_model 831 13 none]
+G r c none [qualified_name editor__ada_project_index 173 13 none] [symbol editor__ada_language_model 1104 13 none]
+G r c none [qualified_name editor__ada_project_index 173 13 none] [is_declaration_owner editor__ada_language_model 1202 13 none]
+G r c none [symbol_matches editor__ada_project_index 184 13 none] [normalize_name editor__ada_language_model 1198 13 none]
+G r c none [symbol_matches editor__ada_project_index 184 13 none] [symbol_count editor__ada_language_model 831 13 none]
+G r c none [symbol_matches editor__ada_project_index 184 13 none] [symbol editor__ada_language_model 1104 13 none]
+G r c none [symbol_matches editor__ada_project_index 184 13 none] [is_declaration_owner editor__ada_language_model 1202 13 none]
+G r c none [unit_name_for editor__ada_project_index 299 13 none] [symbol_count editor__ada_language_model 831 13 none]
+G r c none [unit_name_for editor__ada_project_index 299 13 none] [symbol editor__ada_language_model 1104 13 none]
+G r c none [unit_name_for editor__ada_project_index 299 13 none] [is_declaration_owner editor__ada_language_model 1202 13 none]
+G r c none [append_unit editor__ada_project_index 331 14 none] [symbol_count editor__ada_language_model 831 13 none]
+G r c none [append_unit editor__ada_project_index 331 14 none] [symbol editor__ada_language_model 1104 13 none]
+G r c none [append_unit editor__ada_project_index 331 14 none] [is_declaration_owner editor__ada_language_model 1202 13 none]
+G r c none [append_unit editor__ada_project_index 331 14 none] [normalize_name editor__ada_language_model 1198 13 none]
+G r j symbol_info [append_unit editor__ada_project_index 331 14 none] [symbol_infoDA editor__ada_language_model 251 9 none]
+G r k symbol_info [append_unit editor__ada_project_index 331 14 none] [symbol_infoDF editor__ada_language_model 251 9 none]
+G r c none [rebuild_units editor__ada_project_index 358 14 none] [symbol_count editor__ada_language_model 831 13 none]
+G r c none [rebuild_units editor__ada_project_index 358 14 none] [symbol_at editor__ada_language_model 1105 13 none]
+G r c none [rebuild_units editor__ada_project_index 358 14 none] [symbol editor__ada_language_model 1104 13 none]
+G r c none [rebuild_units editor__ada_project_index 358 14 none] [is_declaration_owner editor__ada_language_model 1202 13 none]
+G r c none [rebuild_units editor__ada_project_index 358 14 none] [normalize_name editor__ada_language_model 1198 13 none]
+G r j symbol_info [rebuild_units editor__ada_project_index 358 14 none] [symbol_infoDA editor__ada_language_model 251 9 none]
+G r k symbol_info [rebuild_units editor__ada_project_index 358 14 none] [symbol_infoDF editor__ada_language_model 251 9 none]
+G r c none [recompute editor__ada_project_index 382 14 none] [symbol_count editor__ada_language_model 831 13 none]
+G r c none [recompute editor__ada_project_index 382 14 none] [symbol_at editor__ada_language_model 1105 13 none]
+G r c none [recompute editor__ada_project_index 382 14 none] [symbol editor__ada_language_model 1104 13 none]
+G r c none [recompute editor__ada_project_index 382 14 none] [is_declaration_owner editor__ada_language_model 1202 13 none]
+G r c none [recompute editor__ada_project_index 382 14 none] [normalize_name editor__ada_language_model 1198 13 none]
+G r j symbol_info [recompute editor__ada_project_index 382 14 none] [symbol_infoDA editor__ada_language_model 251 9 none]
+G r k symbol_info [recompute editor__ada_project_index 382 14 none] [symbol_infoDF editor__ada_language_model 251 9 none]
+G r c none [unit_name_for_target editor__ada_project_index 1188 13 none] [symbol_count editor__ada_language_model 831 13 none]
+G r c none [unit_name_for_target editor__ada_project_index 1188 13 none] [symbol editor__ada_language_model 1104 13 none]
+G r c none [unit_name_for_target editor__ada_project_index 1188 13 none] [is_declaration_owner editor__ada_language_model 1202 13 none]
+G r c none [is_direct_child_unit editor__ada_project_index 1441 13 none] [normalize_name editor__ada_language_model 1198 13 none]
 X 1 ada.ads
 16K9*Ada 20e8 30|1r6 2r6 11r30 30r30 31r30 33r30 38r40 48r16 53r42 258r32
-. 31|1r6 1r23 2r6 3r6 3r33 22r14
+. 31|1r6 1r23 2r6 3r6 3r33 51r14
 X 5 a-contai.ads
 16K13*Containers 28e19 30|1r10 38r44 53r46 258r36
 22I9*Count_Type<integer>
@@ -912,639 +919,651 @@ X 9 a-convec.ads
 74k24*Vectors 878e27 30|1w21 38r55 53r57 258r47
 81I12*Extended_Index{integer}
 91R9*Vector<12|43R9> 30|43r39[38] 58r41[53] 156r43[53] 263r28[258] 264r36[38]
-175V13*Length{5|22I9} 31|314s31[30|38] 416s42[30|258] 424s31[30|258] 486s39[30|258]
-. 501s39[30|258] 519s42[30|258] 531s39[30|258] 546s39[30|258] 804s62[30|53]
-. 1553s35[30|258] 1587s35[30|38]
-187V13*Is_Empty{boolean} 31|736s20[30|53] 748s28[30|53] 775s20[30|53] 795s28[30|53]
-. 1052s22[30|53] 1128s22[30|38] 1542s22[30|38] 1561s22[30|258] 1576s22[30|258]
-190U14*Clear 31|336s19[30|38] 394s19[30|258] 395s19[30|38]
-206V13*Element{30|253R9} 31|417s36[30|258] 487s47[30|258] 503s39[30|258]
-. 520s47[30|258] 532s25[30|258] 547s25[30|258]
-217U14*Replace_Element 31|418s25[30|258]
-483U14*Append 31|319s19[30|38] 430s19[30|258] 667s34[30|53] 707s37[30|53]
-. 958s34[30|53] 1107s28[30|38] 1206s37[30|53] 1476s28[30|38] 1525s31[30|53]
-514U14*Delete 31|488s25[30|258] 505s25[30|258] 533s25[30|258] 553s25[30|258]
-560V13*First_Index{integer} 31|950s28[30|53] 1056s28[30|53] 1132s28[30|38]
-. 1199s31[30|38] 1299s28[30|38] 1521s28[30|38] 1543s40[30|38] 1562s40[30|258]
-. 1577s40[30|258]
-567V13*First_Element{30|47R9} 31|739s24[30|53] 778s24[30|53]
-570V13*Last_Index{81I12[30|53]} 31|950s55[30|53] 1056s55[30|53] 1132s55[30|38]
-. 1199s58[30|38] 1299s55[30|38] 1521s55[30|38] 1544s40[30|38] 1563s40[30|258]
-. 1578s40[30|258]
+175V13*Length{5|22I9} 31|343s31[30|38] 450s42[30|258] 458s31[30|258] 520s39[30|258]
+. 535s39[30|258] 553s42[30|258] 565s39[30|258] 580s39[30|258] 838s62[30|53]
+. 1587s35[30|258] 1621s35[30|38]
+187V13*Is_Empty{boolean} 31|770s20[30|53] 782s28[30|53] 809s20[30|53] 829s28[30|53]
+. 1086s22[30|53] 1162s22[30|38] 1576s22[30|38] 1595s22[30|258] 1610s22[30|258]
+190U14*Clear 31|365s19[30|38] 428s19[30|258] 429s19[30|38]
+206V13*Element{30|253R9} 31|451s36[30|258] 521s47[30|258] 537s39[30|258]
+. 554s47[30|258] 566s25[30|258] 581s25[30|258]
+217U14*Replace_Element 31|452s25[30|258]
+483U14*Append 31|348s19[30|38] 464s19[30|258] 701s34[30|53] 741s37[30|53]
+. 992s34[30|53] 1141s28[30|38] 1240s37[30|53] 1510s28[30|38] 1559s31[30|53]
+514U14*Delete 31|522s25[30|258] 539s25[30|258] 567s25[30|258] 587s25[30|258]
+560V13*First_Index{integer} 31|984s28[30|53] 1090s28[30|53] 1166s28[30|38]
+. 1233s31[30|38] 1333s28[30|38] 1555s28[30|38] 1577s40[30|38] 1596s40[30|258]
+. 1611s40[30|258]
+567V13*First_Element{30|47R9} 31|773s24[30|53] 812s24[30|53]
+570V13*Last_Index{81I12[30|53]} 31|984s55[30|53] 1090s55[30|53] 1166s55[30|38]
+. 1233s58[30|38] 1333s55[30|38] 1555s55[30|38] 1578s40[30|38] 1597s40[30|258]
+. 1612s40[30|258]
 X 13 a-iteint.ads
 24h9 Forward_Iterator
 32h9 Reversible_Iterator<24R9[9|119]>
 X 18 a-string.ads
 16K13*Strings 35e16 30|2r10 11r34 30r34 31r34 33r34 48r20 31|1w10 1r27 2r10
-. 3r10 3r37 22r18
-33n37*Both{33E9} 31|22r61
+. 3r10 3r37 51r18
+33n37*Both{33E9} 31|51r61
 X 19 a-strfix.ads
-49K21*Fixed 1433e22 31|2w18 22r26
-1156V13*Trim{string} 31|22s32
+49K21*Fixed 1433e22 31|2w18 51r26
+1156V13*Trim{string} 31|51s32
 X 23 a-strunb.ads
 85K21*Unbounded 766e26 30|2w18 11r42 30r42 31r42 33r42 48r28 31|3w18 3r45
-91R9*Unbounded_String<12|43R9> 745e15 30|11r52 30r52 31r52 33r52 48r38 31|89r16
-. 850r16
-97V13*Length{natural} 31|132s10 276s18 1170s10
-108V13*To_Unbounded_String{91R9} 31|120s20 320s48 321s35 410s34 725s34 731s20
-. 761s34 767s20 851s9
-121V13*To_String{string} 31|88s34 135s14 162s40 166s62 174s19 278s17 364s31
-. 384s31 417s13 487s24 503s16 520s24 571s24 595s24 595s48 622s25 639s25 822s37
-. 823s37 824s37 849s35 872s14 932s13 1026s13 1104s13 1160s24 1160s48 1171s17
-. 1174s14 1222s34 1262s40 1287s40 1474s28
-140U14*Append 31|854s10 857s10 860s10 863s10 866s10 869s10 870s10
+91R9*Unbounded_String<12|43R9> 745e15 30|11r52 30r52 31r52 33r52 48r38 31|118r16
+. 884r16
+97V13*Length{natural} 31|161s10 305s18 1204s10
+108V13*To_Unbounded_String{91R9} 31|149s20 349s48 350s35 444s34 759s34 765s20
+. 795s34 801s20 885s9
+121V13*To_String{string} 31|117s34 164s14 191s40 195s62 203s19 307s17 393s31
+. 417s31 451s13 521s24 537s16 554s24 605s24 629s24 629s48 656s25 673s25 856s37
+. 857s37 858s37 883s35 906s14 966s13 1060s13 1138s13 1194s24 1194s48 1205s17
+. 1208s14 1256s34 1296s40 1321s40 1508s28
+140U14*Append 31|888s10 891s10 894s10 897s10 900s10 903s10 904s10
 X 28 editor.ads
 1K9*Editor 5e11 30|3r6 5r9 35r30 50r16 70r30 162r37 189r37 238r35 245r16
-. 255r18 270r5 31|4r6 5r10 7r14 26r14 28r11 82r19 83r19 87r11 109r28 110r12
-. 112r17 145r18 146r18 151r28 156r18 157r18 160r40 161r40 164r9 166r9 190r16
-. 192r11 225r16 232r16 239r16 241r11 271r18 272r18 275r24 305r18 322r14 340r24
-. 342r29 343r18 407r30 414r34 659r20 661r24 663r29 664r18 699r23 701r27 703r32
-. 704r21 878r37 886r11 972r37 980r11 1094r35 1100r20 1183r11 1285r11 1328r11
-. 1412r9 1414r9 1464r20 1572r35 1574r15 1594r27 1612r13 1625r5
+. 255r18 270r5 31|4r6 5r10 7r14 55r14 57r11 111r19 112r19 116r11 138r28 139r12
+. 141r17 174r18 175r18 180r28 185r18 186r18 189r40 190r40 193r9 195r9 219r16
+. 221r11 254r16 261r16 268r16 270r11 300r18 301r18 304r24 334r18 351r14 369r24
+. 371r29 372r18 441r30 448r34 693r20 695r24 697r29 698r18 733r23 735r27 737r32
+. 738r21 912r37 920r11 1006r37 1014r11 1128r35 1134r20 1217r11 1319r11 1362r11
+. 1446r9 1448r9 1498r20 1606r35 1608r15 1628r27 1646r13 1659r5
 X 29 editor-ada_language_model.ads
-6K16*Ada_Language_Model 1285e30 30|3w13 35r37 50r23 70r37 162r44 189r44 238r42
-. 245r23 255r25 31|4w13 5r17 26r21 28r18 82r26 83r26 87r18 109r35 110r19
-. 112r24 145r25 146r25 151r35 156r25 157r25 160r47 161r47 164r16 166r16 190r23
-. 192r18 225r23 232r23 239r23 241r18 271r25 272r25 275r31 305r25 322r21 340r31
-. 342r36 343r25 407r37 414r41 659r27 661r31 663r36 664r25 699r30 701r34 703r39
-. 704r28 878r44 886r18 972r44 980r18 1094r42 1100r27 1183r18 1285r18 1328r18
-. 1412r16 1414r16 1464r27 1572r42 1574r22 1594r34 1612r20
-8E9*Symbol_Kind 35e22 30|162r63 189r63 31|5r36 26r40 878r63 972r63
-9n7*Symbol_Package{8E9} 31|31r15 195r15 895r28 918r30 989r28 1012r30
-10n7*Symbol_Package_Body{8E9} 31|32r15 204r15 916r27 1010r27
-11n7*Symbol_Procedure{8E9} 31|33r15 207r15 900r28 994r28
-12n7*Symbol_Function{8E9} 31|34r15 207r34 905r28 999r28
-13n7*Symbol_Operator_Function{8E9} 31|35r15 207r52 906r35 1000r35
-14n7*Symbol_Type{8E9} 31|36r15
-15n7*Symbol_Subtype{8E9} 31|37r15
-16n7*Symbol_Record_Type{8E9} 31|38r15
-20n7*Symbol_Object{8E9} 31|39r15
-21n7*Symbol_Constant{8E9} 31|40r15
-22n7*Symbol_Exception{8E9} 31|41r15
-23n7*Symbol_Task{8E9} 31|42r15
-24n7*Symbol_Protected{8E9} 31|43r15
-25n7*Symbol_Entry{8E9} 31|44r15 208r43
-26n7*Symbol_Generic_Package{8E9} 31|45r15 195r32 896r35 919r34 990r35 1013r34
-27n7*Symbol_Generic_Subprogram{8E9} 31|46r15 208r15 901r35 995r35
-32n7*Symbol_Rename{8E9} 31|47r15
-33n7*Symbol_Instantiation{8E9} 31|48r15
-34n7*Symbol_Separate_Body{8E9} 31|49r15 215r15 275r50 1220r29 1292r39 1333r29
+6K16*Ada_Language_Model 1296e30 30|3w13 35r37 50r23 70r37 162r44 189r44 238r42
+. 245r23 255r25 31|4w13 5r17 55r21 57r18 111r26 112r26 116r18 138r35 139r19
+. 141r24 174r25 175r25 180r35 185r25 186r25 189r47 190r47 193r16 195r16 219r23
+. 221r18 254r23 261r23 268r23 270r18 300r25 301r25 304r31 334r25 351r21 369r31
+. 371r36 372r25 441r37 448r41 693r27 695r31 697r36 698r25 733r30 735r34 737r39
+. 738r28 912r44 920r18 1006r44 1014r18 1128r42 1134r27 1217r18 1319r18 1362r18
+. 1446r16 1448r16 1498r27 1606r42 1608r22 1628r34 1646r20
+8E9*Symbol_Kind 35e22 30|162r63 189r63 31|5r36 55r40 912r63 1006r63
+9n7*Symbol_Package{8E9} 31|60r15 224r15 929r28 952r30 1023r28 1046r30
+10n7*Symbol_Package_Body{8E9} 31|61r15 233r15 950r27 1044r27
+11n7*Symbol_Procedure{8E9} 31|62r15 236r15 934r28 1028r28
+12n7*Symbol_Function{8E9} 31|63r15 236r34 939r28 1033r28
+13n7*Symbol_Operator_Function{8E9} 31|64r15 236r52 940r35 1034r35
+14n7*Symbol_Type{8E9} 31|65r15
+15n7*Symbol_Subtype{8E9} 31|66r15
+16n7*Symbol_Record_Type{8E9} 31|67r15
+20n7*Symbol_Object{8E9} 31|68r15
+21n7*Symbol_Constant{8E9} 31|69r15
+22n7*Symbol_Exception{8E9} 31|70r15
+23n7*Symbol_Task{8E9} 31|71r15
+24n7*Symbol_Protected{8E9} 31|72r15
+25n7*Symbol_Entry{8E9} 31|73r15 237r43
+26n7*Symbol_Generic_Package{8E9} 31|74r15 224r32 930r35 953r34 1024r35 1047r34
+27n7*Symbol_Generic_Subprogram{8E9} 31|75r15 237r15 935r35 1029r35
+32n7*Symbol_Rename{8E9} 31|76r15
+33n7*Symbol_Instantiation{8E9} 31|77r15
+34n7*Symbol_Separate_Body{8E9} 31|78r15 244r15 304r50 1254r29 1326r39 1367r29
 183I9*Symbol_Id<integer>
 184I9*Scope_Id<integer>
-186i4*No_Symbol{183I9} 31|91r33 251r41
-187i4*Root_Scope{184I9} 31|252r43
-190i7*Start_Line{positive} 31|826r50
-191i7*Start_Column{positive} 31|827r50
-197b7*Is_Private{boolean} 31|198r32
-201b7*Is_Generic{boolean} 31|856r33
-202b7*Is_Rename{boolean} 31|859r33
-203b7*Is_Instantiation{boolean} 31|862r33
-204b7*Is_Separate{boolean} 31|865r33
-205b7*Is_Body{boolean} 31|196r29 209r29 853r33 923r33 1017r33
-251R9*Symbol_Info 266e14 30|35r56 50r42 245r42 31|83r45 109r54 146r44 157r44
-. 190r42 225r42 232r42 239r42 272r44 305r44 342r55 663r55 703r58 890r39 914r44
-. 929r42 984r39 1008r44 1023r42
-253r7*Name{23|91R9} 31|88r52 166r80 174r37 823r65 1174r39
-254r7*Normalized_Name{23|91R9} 31|162r58
-255e7*Kind{8E9} 31|112r72 194r19 275r17 836r72 839r72 842r72 851r66 892r20
-. 896r28 901r28 906r28 916r20 918r23 919r27 922r38 986r20 990r28 995r28 1000r28
-. 1010r20 1012r23 1013r27 1016r38 1220r22 1292r31 1333r22
-256r7*Source_Span{189R9} 31|826r38 827r38
-259i7*Enclosing_Scope{184I9} 31|252r25
-260i7*Parent_Symbol{183I9} 31|91r17 96r33 110r63 251r25
-262r7*Profile_Summary{23|91R9} 31|824r65 932r31 1026r31
-263r7*Flags{196R9} 31|196r23 198r26 209r23 853r27 856r27 859r27 862r27 865r27
-. 923r27 1017r27
-264r7*Target_Name{23|91R9} 31|276r33 278r35 849r63 1170r32 1171r42 1222r57
-. 1262r63 1287r72
-811R9*Analysis_Result 1283e14 30|70r56 238r61 255r44 31|82r45 145r44 156r44
-. 271r44 407r56 1572r61 1574r41
-828V13*Symbol_Count{natural} 31|96s50 151s54 340s50 661s50 701s53 1594s53
-1093V13*Symbol{251R9} 31|110s38
-1094V13*Symbol_At{251R9} 31|343s44 664s44 704s47
-1156V13*Overflowed{boolean} 31|659s46 699s49 1100s46 1464s46 1612s39
-1185V13*Fingerprint{natural} 31|414s60
-1187V13*Normalize_Name{string} 31|160s66 161s66 164s35 166s35 322s40 930s49
-. 931s49 1024s49 1025s49 1094s61 1412s35 1414s35
-1189V13*Is_Subprogram{boolean} 31|922s16 1016s16
-1191V13*Is_Declaration_Owner{boolean} 31|112s43
-1192V13*Is_Separate_Body_Parent_Target{boolean} 31|1204s26 1307s16
+186i4*No_Symbol{183I9} 31|120r33 280r41
+187i4*Root_Scope{184I9} 31|281r43
+190i7*Start_Line{positive} 31|860r50
+191i7*Start_Column{positive} 31|861r50
+197b7*Is_Private{boolean} 31|227r32
+201b7*Is_Generic{boolean} 31|890r33
+202b7*Is_Rename{boolean} 31|893r33
+203b7*Is_Instantiation{boolean} 31|896r33
+204b7*Is_Separate{boolean} 31|899r33
+205b7*Is_Body{boolean} 31|225r29 238r29 887r33 957r33 1051r33
+251R9*Symbol_Info 266e14 30|35r56 50r42 245r42 31|112r45 138r54 175r44 186r44
+. 219r42 254r42 261r42 268r42 301r44 334r44 371r55 697r55 737r58 924r39 948r44
+. 963r42 1018r39 1042r44 1057r42
+253r7*Name{23|91R9} 31|117r52 195r80 203r37 857r65 1208r39
+254r7*Normalized_Name{23|91R9} 31|191r58
+255e7*Kind{8E9} 31|141r72 223r19 304r17 870r72 873r72 876r72 885r66 926r20
+. 930r28 935r28 940r28 950r20 952r23 953r27 956r38 1020r20 1024r28 1029r28
+. 1034r28 1044r20 1046r23 1047r27 1050r38 1254r22 1326r31 1367r22
+256r7*Source_Span{189R9} 31|860r38 861r38
+259i7*Enclosing_Scope{184I9} 31|281r25
+260i7*Parent_Symbol{183I9} 31|120r17 125r33 139r63 280r25
+262r7*Profile_Summary{23|91R9} 31|858r65 966r31 1060r31
+263r7*Flags{196R9} 31|225r23 227r26 238r23 887r27 890r27 893r27 896r27 899r27
+. 957r27 1051r27
+264r7*Target_Name{23|91R9} 31|305r33 307r35 883r63 1204r32 1205r42 1256r57
+. 1296r63 1321r72
+814R9*Analysis_Result 1294e14 30|70r56 238r61 255r44 31|111r45 174r44 185r44
+. 300r44 441r56 1606r61 1608r41
+831V13*Symbol_Count{natural} 31|125s50 180s54 369s50 695s50 735s53 1628s53
+1104V13*Symbol{251R9} 31|139s38
+1105V13*Symbol_At{251R9} 31|372s44 698s44 738s47
+1167V13*Overflowed{boolean} 31|693s46 733s49 1134s46 1498s46 1646s39
+1196V13*Fingerprint{natural} 31|448s60
+1198V13*Normalize_Name{string} 31|189s66 190s66 193s35 195s35 351s40 964s49
+. 965s49 1058s49 1059s49 1128s61 1446s35 1448s35
+1200V13*Is_Subprogram{boolean} 31|956s16 1050s16
+1202V13*Is_Declaration_Owner{boolean} 31|141s43
+1203V13*Is_Separate_Body_Parent_Target{boolean} 31|1238s26 1341s16
 X 30 editor-ada_project_index.ads
-5K16*Ada_Project_Index 28|1k9 30|253E9 270l12 270e29 31|7b21 1625l12 1625t29
-7i4*Max_Index_Files{positive} 31|424r42
-8i4*Max_Index_Units{positive} 31|314r42
-10R9*Indexed_File_Key 16e14 34r30 49r16 92r15 96r30 234r35 254r18 31|409r22
-. 586r15 611r30 631r30 724r28 760r28 1558r35
-11r7*Path{23|91R9} 31|324r48 364r48 410m10 417r52 487r63 503r55 520r63 571r41
-. 595r41 595r63 622r40 639r40 668r54 708r57 725m10 761m10 1160r41 1160r70
-12i7*Buffer_Token{natural} 31|365r32 411m10 532r41 572r27 596r27 596r46 618r14
-. 623r22 640r22 726m10 762m10 1161r27 1161r53
-13i7*Buffer_Revision{natural} 31|365r53 412m10 573r27 597r27 597r49 624r22
-. 641r22 727m10 763m10 1162r27 1162r56
-14i7*Lifecycle_Generation{natural} 31|366r24 413m10 547r41 574r27 598r27
-. 598r54 625r22 642r22 728m10 764m10 1163r27 1163r61
-15i7*Fingerprint{natural} 31|366r53 385r65 414m10 575r27 599r27 599r45 643r22
-. 729m10 765m10 1164r27 1164r52
+5K16*Ada_Project_Index 28|1k9 30|253E9 270l12 270e29 31|7b21 1659l12 1659t29
+7i4*Max_Index_Files{positive} 31|458r42
+8i4*Max_Index_Units{positive} 31|343r42
+10R9*Indexed_File_Key 16e14 34r30 49r16 92r15 96r30 234r35 254r18 31|443r22
+. 620r15 645r30 665r30 758r28 794r28 1592r35
+11r7*Path{23|91R9} 31|353r48 393r48 444m10 451r52 521r63 537r55 554r63 605r41
+. 629r41 629r63 656r40 673r40 702r54 742r57 759m10 795m10 1194r41 1194r70
+12i7*Buffer_Token{natural} 31|396r20 445m10 566r41 606r27 630r27 630r46 652r14
+. 657r22 674r22 760m10 796m10 1195r27 1195r53
+13i7*Buffer_Revision{natural} 31|397r20 446m10 607r27 631r27 631r49 658r22
+. 675r22 761m10 797m10 1196r27 1196r56
+14i7*Lifecycle_Generation{natural} 31|398r20 447m10 581r41 608r27 632r27
+. 632r54 659r22 676r22 762m10 798m10 1197r27 1197r61
+15i7*Fingerprint{natural} 31|399r20 420r62 448m10 609r27 633r27 633r45 677r22
+. 763m10 799m10 1198r27 1198r52
 18R9*Index_State 62r36 65r37 72r46 73r54 74r48 76r22 79r15 83r30 91r15 95r30
 . 103r15 107r30 116r15 120r15 124r30 133r30 160r37 171r19 176r15 187r37 198r19
 . 203r19 208r19 213r23 217r15 221r16 226r15 230r33 233r15 237r15 241r15 247r33
-. 248r35 249r33 250r34 262c9 268e14 31|303r25 329r44 353r40 392r36 402r37
-. 477r46 497r22 515r15 528r48 542r22 562r30 585r15 610r30 648r15 680r30 721r15
-. 743r15 752r30 782r30 876r37 970r37 1089r19 1115r19 1155r16 1179r19 1282r23
-. 1324r19 1385r15 1442r16 1484r15 1509r15 1538r15 1551r33 1557r15 1571r15
-. 1585r33 1590r35 1599r33 1620r34
+. 248r35 249r33 250r34 262c9 268e14 31|332r25 358r44 382r40 426r36 436r37
+. 511r46 531r22 549r15 562r48 576r22 596r30 619r15 644r30 682r15 714r30 755r15
+. 777r15 786r30 816r30 910r37 1004r37 1123r19 1149r19 1189r16 1213r19 1316r23
+. 1358r19 1419r15 1476r16 1518r15 1543r15 1572r15 1585r33 1591r15 1605r15
+. 1619r33 1624r35 1633r33 1654r34
 20E9*Indexed_Unit_Role 27e26 32r30 178r15 200r19 205r19 223r16 228r15 245r62
-. 31|190r62 225r62 256r19 257r19 308r23 385r26 1091r19 1117r19 1185r28 1187r19
-. 1329r28 1331r19 1444r16 1486r15 1511r15
-21n7*Unit_Any{20E9} 32r51 178r36 200r40 205r40 223r37 228r36 31|219r20 235r40
-. 260r19 310r17 1091r40 1117r40 1187r40 1222r71 1262r77 1268r15 1288r82 1331r40
-. 1373r15 1397r40 1444r37 1454r42 1486r36 1497r40 1511r36
-22n7*Unit_Package_Spec{20E9} 31|201r23 262r22 263r29 1229r15 1233r26 1240r26
-. 1338r15 1342r26 1349r26 1404r30
-23n7*Unit_Private_Package_Spec{20E9} 31|199r23 264r32 1229r35 1338r35
-24n7*Unit_Package_Body{20E9} 31|197r23 205r20 1231r26 1236r15 1238r26 1340r26
-. 1345r15 1347r26
-25n7*Unit_Subprogram_Spec{20E9} 31|212r23 1243r15 1247r26 1254r26 1352r15
-. 1356r26 1363r26
-26n7*Unit_Subprogram_Body{20E9} 31|210r23 1245r26 1250r15 1252r26 1354r26
-. 1359r15 1361r26
-27n7*Unit_Separate_Body{20E9} 31|216r20 1257r15 1259r26 1366r15 1368r26
-29R9*Indexed_Unit 36e14 40r23 242r35 31|320r10 1134r26 1201r29 1301r26 1523r26
-. 1539r35
-30r7*Unit_Name{23|91R9} 31|320m24 1474r41
-31r7*Normalized_Unit_Name{23|91R9} 31|321m11 384r44 1104r26
-32e7*Role{20E9} 31|323m11 385r51 1105r37 1472r29
-33r7*Path{23|91R9} 31|324m11 1136r28 1207r50 1303r28 1526r44
-34r7*Key{10R9} 31|325m11 385r61 1137r28 1208r35 1304r28 1527r29
-35r7*Symbol{29|251R9} 31|326m11 1138r28 1204r60 1209r35 1305r28 1307r50 1528r29
+. 31|219r62 254r62 285r19 286r19 337r23 420r23 1125r19 1151r19 1219r28 1221r19
+. 1363r28 1365r19 1478r16 1520r15 1545r15
+21n7*Unit_Any{20E9} 32r51 178r36 200r40 205r40 223r37 228r36 31|248r20 264r40
+. 289r19 339r17 1125r40 1151r40 1221r40 1256r71 1296r77 1302r15 1322r82 1365r40
+. 1407r15 1431r40 1478r37 1488r42 1520r36 1531r40 1545r36
+22n7*Unit_Package_Spec{20E9} 31|230r23 291r22 292r29 1263r15 1267r26 1274r26
+. 1372r15 1376r26 1383r26 1438r30
+23n7*Unit_Private_Package_Spec{20E9} 31|228r23 293r32 1263r35 1372r35
+24n7*Unit_Package_Body{20E9} 31|226r23 234r20 1265r26 1270r15 1272r26 1374r26
+. 1379r15 1381r26
+25n7*Unit_Subprogram_Spec{20E9} 31|241r23 1277r15 1281r26 1288r26 1386r15
+. 1390r26 1397r26
+26n7*Unit_Subprogram_Body{20E9} 31|239r23 1279r26 1284r15 1286r26 1388r26
+. 1393r15 1395r26
+27n7*Unit_Separate_Body{20E9} 31|245r20 1291r15 1293r26 1400r15 1402r26
+29R9*Indexed_Unit 36e14 40r23 242r35 31|349r10 1168r26 1235r29 1335r26 1557r26
+. 1573r35
+30r7*Unit_Name{23|91R9} 31|349m24 1508r41
+31r7*Normalized_Unit_Name{23|91R9} 31|350m11 417r44 1138r26
+32e7*Role{20E9} 31|352m11 420r48 1139r37 1506r29
+33r7*Path{23|91R9} 31|353m11 1170r28 1241r50 1337r28 1560r44
+34r7*Key{10R9} 31|354m11 420r58 1171r28 1242r35 1338r28 1561r29
+35r7*Symbol{29|251R9} 31|355m11 1172r28 1238r60 1243r35 1339r28 1341r50 1562r29
 38K12*Indexed_Unit_Vectors[9|74] 43r18 264r15
-42R9*Unit_Resolution_Result 45e14 200r57 223r54 228r53 31|1091r57 1093r16
-. 1120r25 1190r35 1288r22 1444r54 1446r21 1486r53 1488r19 1514r25
-43r7*Matches{9|91R9[38]} 31|1107m20 1128r14 1132r20 1132r47 1134r46 1199r23
-. 1199r50 1201r49 1299r20 1299r47 1301r46 1476m20 1521r20 1521r47 1523r46
-44b7*Overflow{boolean} 31|1096m14 1099m17 1099r36 1122r30 1124r14 1194r17
-. 1290r30 1294r21 1460m14 1463m17 1463r36 1467r17 1516r14
+42R9*Unit_Resolution_Result 45e14 200r57 223r54 228r53 31|1125r57 1127r16
+. 1154r25 1224r35 1322r22 1478r54 1480r21 1520r53 1522r19 1548r25
+43r7*Matches{9|91R9[38]} 31|1141m20 1162r14 1166r20 1166r47 1168r46 1233r23
+. 1233r50 1235r49 1333r20 1333r47 1335r46 1510m20 1555r20 1555r47 1557r46
+44b7*Overflow{boolean} 31|1130m14 1133m17 1133r36 1156r30 1158r14 1228r17
+. 1324r30 1328r21 1494m14 1497m17 1497r36 1501r17 1550r14
 47R9*Indexed_Symbol 51e14 55r23 117r30 130r46 145r19 172r19 177r15 181r19
-. 184r19 209r19 214r23 218r15 222r16 227r15 31|668r22 708r25 722r30 730r24
-. 758r46 766r24 820r19 847r19 952r30 1058r30 1135r26 1156r16 1180r19 1207r22
-. 1283r23 1302r26 1325r19 1386r15 1443r16 1485r15 1510r15 1526r16
-48r7*Path{23|91R9} 31|668m38 708m41 731m10 767m10 822r58 1136m16 1207m38
-. 1303m16 1526m32
-49r7*Key{10R9} 31|669m23 709m26 732m10 768m10 1137m16 1160r66 1161r49 1162r52
-. 1163r57 1164r48 1208m23 1304m16 1527m17
-50r7*Symbol{29|251R9} 31|670m23 710m26 823r58 824r58 826r31 827r31 836r65
-. 839r65 842r65 849r56 851r59 853r20 856r20 859r20 862r20 865r20 954r36 955r49
-. 956r47 1060r36 1061r49 1062r47 1138m16 1166r54 1170r25 1171r35 1174r32
-. 1185r69 1209m23 1220r15 1222r50 1262r56 1287r65 1292r24 1305m16 1329r69
-. 1333r15 1397r30 1454r32 1497r30 1528m17
+. 184r19 209r19 214r23 218r15 222r16 227r15 31|702r22 742r25 756r30 764r24
+. 792r46 800r24 854r19 881r19 986r30 1092r30 1169r26 1190r16 1214r19 1241r22
+. 1317r23 1336r26 1359r19 1420r15 1477r16 1519r15 1544r15 1560r16
+48r7*Path{23|91R9} 31|702m38 742m41 765m10 801m10 856r58 1170m16 1241m38
+. 1337m16 1560m32
+49r7*Key{10R9} 31|703m23 743m26 766m10 802m10 1171m16 1194r66 1195r49 1196r52
+. 1197r57 1198r48 1242m23 1338m16 1561m17
+50r7*Symbol{29|251R9} 31|704m23 744m26 857r58 858r58 860r31 861r31 870r65
+. 873r65 876r65 883r56 885r59 887r20 890r20 893r20 896r20 899r20 988r36 989r49
+. 990r47 1094r36 1095r49 1096r47 1172m16 1200r54 1204r25 1205r35 1208r32
+. 1219r69 1243m23 1254r15 1256r50 1296r56 1321r65 1326r24 1339m16 1363r69
+. 1367r15 1431r30 1488r32 1531r30 1562m17
 53K12*Indexed_Symbol_Vectors[9|74] 58r18 156r20
-57R9*Index_Resolution_Result 60e14 104r30 113r46 31|649r30 651r16 686r46
-. 688r16 734r20 746r20 770r20 790r20 888r25 982r25
-58r7*Matches{9|91R9[53]} 31|667m26 707m29 736r12 739r16 748r20 775r12 778r16
-. 795r20 950r20 950r47 952r52 1052r14 1056r20 1056r47 1058r52
-59b7*Overflow{boolean} 31|658m17 658r36 675m14 675r33 698m20 698r39 716m14
-. 716r33 945r14 1039r30 1041r14
-62U14*Clear 62=21 31|392b14 399l8 399t13
-62r21 Index{18R9} 31|392b21 394m7 394r7 395m7 395r7 396m7 397m7 398m7
-64U14*Put_Analysis 65=7 66>7 67>7 68>7 69>7 70>7 31|401b14 432l8 432t20
-65r7 Index{18R9} 31|402b7 416r30 417r24 418m13 418r13 419m24 424r19 425m10
-. 426m21 430m7 430r7 431m18
-66a7 Path{string} 31|403b7 410r55 417r60
-67i7 Buffer_Token{natural} 31|404b7 411r34
-68i7 Buffer_Revision{natural} 31|405b7 412r34
-69i7 Lifecycle_Generation{natural} 31|406b7 413r34
-70r7 Analysis{29|811R9} 31|407b7 414r73 418r70 430r65
-72U14*Invalidate_Path 72=31 72>59 31|477b14 494l8 494t23
-72r31 Index{18R9} 31|477b31 486r27 487r35 488m13 488r13 493m18
-72a59 Path{string} 31|477b59 487r70
-73U14*Invalidate_Path_Subtree 73=39 73>67 31|496b14 511l8 511t31
-73r39 Index{18R9} 31|497b7 501r27 503r27 505m13 505r13 510m18
-73a67 Root_Path{string} 31|497b35 503r62
-74U14*Invalidate_Buffer 74=33 74>61 31|528b14 539l8 539t25
-74r33 Index{18R9} 31|528b33 531r27 532r13 533m13 533r13 538m18
-74i61 Buffer_Token{natural} 31|528b61 532r56
-75U14*Invalidate_Lifecycle 76=7 76>35 31|541b14 559l8 559t28
-76r7 Index{18R9} 31|542b7 546r27 547r13 553m13 553r13 558m18
-76i35 Lifecycle_Generation{natural} 31|542b35 547r64
-78V13*Contains_Path{boolean} 79>7 80>7 31|514b13 526l8 526t21
-79r7 Index{18R9} 31|515b7 519r30 520r35
-80a7 Path{string} 31|516b7 520r70
-82V13*Contains_Current{boolean} 83>7 84>7 85>7 86>7 87>7 88>7 31|561b13 581l8
-. 581t24
-83r7 Index{18R9} 31|562b7 570r16
-84a7 Path{string} 31|563b7 571r48
-85i7 Buffer_Token{natural} 31|564b7 572r42
-86i7 Buffer_Revision{natural} 31|565b7 573r45
-87i7 Lifecycle_Generation{natural} 31|566b7 574r50
-88i7 Analysis_Fingerprint{natural} 31|567b7 575r41
-90V13*Contains_Key{boolean} 91>7 92>7 31|584b13 606l8 606t20 626s18
-91r7 Index{18R9} 31|585b7 594r16
-92r7 Key{10R9} 31|586b7 595r59 596r42 597r45 598r50 599r41
-94V13*Contains_Open_Buffer_Key{boolean} 95>7 96>7 97>7 98>7 99>7 100>7 31|609b13
-. 627l8 627t32
-95r7 Index{18R9} 31|610b7 626r32
-96r7 Key{10R9} 31|611b7 618r10 622r36 623r18 624r18 625r18 626r39
-97a7 Path{string} 31|612b7 622r47
-98i7 Buffer_Token{natural} 31|613b7 623r37
-99i7 Buffer_Revision{natural} 31|614b7 624r40
-100i7 Lifecycle_Generation{natural} 31|615b7 625r45
-102V13*Resolve{57R9} 103>7 104>7 31|647b13 677l8 677t15 734s47 746s47 888s52
-. 982s52
-103r7 Index{18R9} 31|648b7 653r16 675r50
-104a7 Name{string} 31|649b7 666r50
-106V13*Resolve_Current{57R9} 107>7 108>7 109>7 110>7 111>7 112>7 113>7 31|679b13
-. 718l8 718t23 771s9 791s9
-107r7 Index{18R9} 31|680b7 690r16 716r50
-108a7 Name{string} 31|681b7 706r53
-109a7 Path{string} 31|682b7 692r23
-110i7 Buffer_Token{natural} 31|683b7 692r29
-111i7 Buffer_Revision{natural} 31|684b7 692r43
-112i7 Lifecycle_Generation{natural} 31|685b7 693r16
-113i7 Analysis_Fingerprint{natural} 31|686b7 693r38
-115V13*First_Match{47R9} 116>7 117>7 31|720b13 740l8 740t19
-116r7 Index{18R9} 31|721b7 734r56
-117a7 Name{string} 31|722b7 734r63
-119V13*Has_Match{boolean} 120>7 121>7 31|742b13 749l8 749t17
-120r7 Index{18R9} 31|743b7 746r56
-121a7 Name{string} 31|744b7 746r63
+57R9*Index_Resolution_Result 60e14 104r30 113r46 31|683r30 685r16 720r46
+. 722r16 768r20 780r20 804r20 824r20 922r25 1016r25
+58r7*Matches{9|91R9[53]} 31|701m26 741m29 770r12 773r16 782r20 809r12 812r16
+. 829r20 984r20 984r47 986r52 1086r14 1090r20 1090r47 1092r52
+59b7*Overflow{boolean} 31|692m17 692r36 709m14 709r33 732m20 732r39 750m14
+. 750r33 979r14 1073r30 1075r14
+62U14*Clear 62=21 31|426b14 433l8 433t13
+62r21 Index{18R9} 31|426b21 428m7 428r7 429m7 429r7 430m7 431m7 432m7
+64U14*Put_Analysis 65=7 66>7 67>7 68>7 69>7 70>7 31|435b14 466l8 466t20
+65r7 Index{18R9} 31|436b7 450r30 451r24 452m13 452r13 453m24 458r19 459m10
+. 460m21 464m7 464r7 465m18
+66a7 Path{string} 31|437b7 444r55 451r60
+67i7 Buffer_Token{natural} 31|438b7 445r34
+68i7 Buffer_Revision{natural} 31|439b7 446r34
+69i7 Lifecycle_Generation{natural} 31|440b7 447r34
+70r7 Analysis{29|814R9} 31|441b7 448r73 452r70 464r65
+72U14*Invalidate_Path 72=31 72>59 31|511b14 528l8 528t23
+72r31 Index{18R9} 31|511b31 520r27 521r35 522m13 522r13 527m18
+72a59 Path{string} 31|511b59 521r70
+73U14*Invalidate_Path_Subtree 73=39 73>67 31|530b14 545l8 545t31
+73r39 Index{18R9} 31|531b7 535r27 537r27 539m13 539r13 544m18
+73a67 Root_Path{string} 31|531b35 537r62
+74U14*Invalidate_Buffer 74=33 74>61 31|562b14 573l8 573t25
+74r33 Index{18R9} 31|562b33 565r27 566r13 567m13 567r13 572m18
+74i61 Buffer_Token{natural} 31|562b61 566r56
+75U14*Invalidate_Lifecycle 76=7 76>35 31|575b14 593l8 593t28
+76r7 Index{18R9} 31|576b7 580r27 581r13 587m13 587r13 592m18
+76i35 Lifecycle_Generation{natural} 31|576b35 581r64
+78V13*Contains_Path{boolean} 79>7 80>7 31|548b13 560l8 560t21
+79r7 Index{18R9} 31|549b7 553r30 554r35
+80a7 Path{string} 31|550b7 554r70
+82V13*Contains_Current{boolean} 83>7 84>7 85>7 86>7 87>7 88>7 31|595b13 615l8
+. 615t24
+83r7 Index{18R9} 31|596b7 604r16
+84a7 Path{string} 31|597b7 605r48
+85i7 Buffer_Token{natural} 31|598b7 606r42
+86i7 Buffer_Revision{natural} 31|599b7 607r45
+87i7 Lifecycle_Generation{natural} 31|600b7 608r50
+88i7 Analysis_Fingerprint{natural} 31|601b7 609r41
+90V13*Contains_Key{boolean} 91>7 92>7 31|618b13 640l8 640t20 660s18
+91r7 Index{18R9} 31|619b7 628r16
+92r7 Key{10R9} 31|620b7 629r59 630r42 631r45 632r50 633r41
+94V13*Contains_Open_Buffer_Key{boolean} 95>7 96>7 97>7 98>7 99>7 100>7 31|643b13
+. 661l8 661t32
+95r7 Index{18R9} 31|644b7 660r32
+96r7 Key{10R9} 31|645b7 652r10 656r36 657r18 658r18 659r18 660r39
+97a7 Path{string} 31|646b7 656r47
+98i7 Buffer_Token{natural} 31|647b7 657r37
+99i7 Buffer_Revision{natural} 31|648b7 658r40
+100i7 Lifecycle_Generation{natural} 31|649b7 659r45
+102V13*Resolve{57R9} 103>7 104>7 31|681b13 711l8 711t15 768s47 780s47 922s52
+. 1016s52
+103r7 Index{18R9} 31|682b7 687r16 709r50
+104a7 Name{string} 31|683b7 700r50
+106V13*Resolve_Current{57R9} 107>7 108>7 109>7 110>7 111>7 112>7 113>7 31|713b13
+. 752l8 752t23 805s9 825s9
+107r7 Index{18R9} 31|714b7 724r16 750r50
+108a7 Name{string} 31|715b7 740r53
+109a7 Path{string} 31|716b7 726r23
+110i7 Buffer_Token{natural} 31|717b7 726r29
+111i7 Buffer_Revision{natural} 31|718b7 726r43
+112i7 Lifecycle_Generation{natural} 31|719b7 727r16
+113i7 Analysis_Fingerprint{natural} 31|720b7 727r38
+115V13*First_Match{47R9} 116>7 117>7 31|754b13 774l8 774t19
+116r7 Index{18R9} 31|755b7 768r56
+117a7 Name{string} 31|756b7 768r63
+119V13*Has_Match{boolean} 120>7 121>7 31|776b13 783l8 783t17
+120r7 Index{18R9} 31|777b7 780r56
+121a7 Name{string} 31|778b7 780r63
 123V13*First_Current_Match{47R9} 124>7 125>7 126>7 127>7 128>7 129>7 130>7
-. 31|751b13 779l8 779t27
-124r7 Index{18R9} 31|752b7 772r12
-125a7 Name{string} 31|753b7 772r19
-126a7 Path{string} 31|754b7 772r25
-127i7 Buffer_Token{natural} 31|755b7 772r31
-128i7 Buffer_Revision{natural} 31|756b7 772r45
-129i7 Lifecycle_Generation{natural} 31|757b7 773r12
-130i7 Analysis_Fingerprint{natural} 31|758b7 773r34
+. 31|785b13 813l8 813t27
+124r7 Index{18R9} 31|786b7 806r12
+125a7 Name{string} 31|787b7 806r19
+126a7 Path{string} 31|788b7 806r25
+127i7 Buffer_Token{natural} 31|789b7 806r31
+128i7 Buffer_Revision{natural} 31|790b7 806r45
+129i7 Lifecycle_Generation{natural} 31|791b7 807r12
+130i7 Analysis_Fingerprint{natural} 31|792b7 807r34
 132V13*Has_Current_Match{boolean} 133>7 134>7 135>7 136>7 137>7 138>7 139>7
-. 31|781b13 796l8 796t25
-133r7 Index{18R9} 31|782b7 792r12
-134a7 Name{string} 31|783b7 792r19
-135a7 Path{string} 31|784b7 792r25
-136i7 Buffer_Token{natural} 31|785b7 792r31
-137i7 Buffer_Revision{natural} 31|786b7 792r45
-138i7 Lifecycle_Generation{natural} 31|787b7 793r12
-139i7 Analysis_Fingerprint{natural} 31|788b7 793r34
-141R9*Unique_Target_Result 146e14 195r62 205r57 210r35 214r46 218r38 31|978r62
-. 981r16 1117r57 1119r16 1283r46 1286r16 1326r35 1375r24 1386r38 1390r21
-142b7*Available{boolean} 31|1064r26 1071m26 1076m23 1140r23 1141m23 1146m20
-. 1308r26 1309m26 1314m23
-143b7*Ambiguous{boolean} 31|1072m26 1142m23 1310m26
-144b7*Overflow{boolean} 31|1039m14 1122m14 1290m14
-145r7*Target{47R9} 31|1077m23 1147m20 1315m23
+. 31|815b13 830l8 830t25
+133r7 Index{18R9} 31|816b7 826r12
+134a7 Name{string} 31|817b7 826r19
+135a7 Path{string} 31|818b7 826r25
+136i7 Buffer_Token{natural} 31|819b7 826r31
+137i7 Buffer_Revision{natural} 31|820b7 826r45
+138i7 Lifecycle_Generation{natural} 31|821b7 827r12
+139i7 Analysis_Fingerprint{natural} 31|822b7 827r34
+141R9*Unique_Target_Result 146e14 195r62 205r57 210r35 214r46 218r38 31|1012r62
+. 1015r16 1151r57 1153r16 1317r46 1320r16 1360r35 1409r24 1420r38 1424r21
+142b7*Available{boolean} 31|1098r26 1105m26 1110m23 1174r23 1175m23 1180m20
+. 1342r26 1343m26 1348m23
+143b7*Ambiguous{boolean} 31|1106m26 1176m23 1344m26
+144b7*Overflow{boolean} 31|1073m14 1156m14 1324m14
+145r7*Target{47R9} 31|1111m23 1181m20 1349m23
 148E9*Navigation_Target_Status 152e34 155r20
-149n7*Navigation_Target_Unavailable{148E9} 155r48 31|811r27
-150n7*Navigation_Target_Unique{148E9} 31|813r27
-151n7*Navigation_Target_Ambiguous{148E9} 31|815r27
-152n7*Navigation_Target_Overflow{148E9} 31|806r26 809r27
-154R9*Navigation_Candidate_Result 157e14 168r62 173r35 178r53 31|801r25 884r62
-. 887r16 1181r35 1184r19 1511r53 1513r16
-155e7*Status{148E9} 31|806r17 809m17 811m17 813m17 815m17
-156r7*Candidates{9|91R9[53]} 31|804r51 958m23 1206m26 1525m20
+149n7*Navigation_Target_Unavailable{148E9} 155r48 31|845r27
+150n7*Navigation_Target_Unique{148E9} 31|847r27
+151n7*Navigation_Target_Ambiguous{148E9} 31|849r27
+152n7*Navigation_Target_Overflow{148E9} 31|840r26 843r27
+154R9*Navigation_Candidate_Result 157e14 168r62 173r35 178r53 31|835r25 918r62
+. 921r16 1215r35 1218r19 1545r53 1547r16
+155e7*Status{148E9} 31|840r17 843m17 845m17 847m17 849m17
+156r7*Candidates{9|91R9[53]} 31|838r51 992m23 1240m26 1559m20
 159V13*Resolve_Navigation_Candidates{154R9} 160>7 161>7 162>7 163>7 164>7
-. 165>7 166>7 167>7 168>7 31|875b13 965l8 965t37
-160r7 Index{18R9} 31|876b7 888r61
-161a7 Name{string} 31|877b7 888r68
-162e7 Kind{29|8E9} 31|878b7 892r27 895r21 900r21 905r21
-163b7 Want_Body{boolean} 31|879b7 917r20 921r24 923r43
-164a7 Profile_Summary{string} 31|880b7 930r65
-165b7 Require_Profile{boolean} 31|881b7 934r17
-166b7 Accept_Generic_Package_Spec{boolean} 31|882b7 894r16
-167b7 Accept_Generic_Subprogram{boolean} 31|883b7 899r16
-168b7 Accept_Operator_Function{boolean} 31|884b7 904r16
-170V13*Resolve_Related_Unit_Candidates{154R9} 171>7 172>7 173>7 31|1178b13
-. 1279l8 1279t39
-171r7 Index{18R9} 31|1179b7 1186r60 1222r27 1262r33 1274r45
-172r7 From{47R9} 31|1180b7 1185r64 1186r67 1220r10 1222r45 1262r51
-173b7 Want_Body{boolean} 31|1181b7 1220r63 1230r16 1237r16 1244r16 1251r16
-. 1258r16
-175V13*Resolve_Unit_Family_Targets{154R9} 176>7 177>7 178>7 31|1508b13 1534l8
-. 1534t35
-176r7 Index{18R9} 31|1509b7 1514r72
-177r7 From{47R9} 31|1510b7 1514r79
-178e7 Role{20E9} 31|1511b7 1514r85
-180V13*Navigation_Candidate_Display_Label{string} 181>7 31|819b13 844l8 844t42
-181r7 Candidate{47R9} 31|820b7 822r48 823r48 824r48 826r21 827r21 836r55
-. 839r55 842r55
-183V13*Navigation_Candidate_Detail_Label{string} 184>7 31|846b13 873l8 873t41
-184r7 Candidate{47R9} 31|847b7 849r46 851r49 853r10 856r10 859r10 862r10
-. 865r10
+. 165>7 166>7 167>7 168>7 31|909b13 999l8 999t37
+160r7 Index{18R9} 31|910b7 922r61
+161a7 Name{string} 31|911b7 922r68
+162e7 Kind{29|8E9} 31|912b7 926r27 929r21 934r21 939r21
+163b7 Want_Body{boolean} 31|913b7 951r20 955r24 957r43
+164a7 Profile_Summary{string} 31|914b7 964r65
+165b7 Require_Profile{boolean} 31|915b7 968r17
+166b7 Accept_Generic_Package_Spec{boolean} 31|916b7 928r16
+167b7 Accept_Generic_Subprogram{boolean} 31|917b7 933r16
+168b7 Accept_Operator_Function{boolean} 31|918b7 938r16
+170V13*Resolve_Related_Unit_Candidates{154R9} 171>7 172>7 173>7 31|1212b13
+. 1313l8 1313t39
+171r7 Index{18R9} 31|1213b7 1220r60 1256r27 1296r33 1308r45
+172r7 From{47R9} 31|1214b7 1219r64 1220r67 1254r10 1256r45 1296r51
+173b7 Want_Body{boolean} 31|1215b7 1254r63 1264r16 1271r16 1278r16 1285r16
+. 1292r16
+175V13*Resolve_Unit_Family_Targets{154R9} 176>7 177>7 178>7 31|1542b13 1568l8
+. 1568t35
+176r7 Index{18R9} 31|1543b7 1548r72
+177r7 From{47R9} 31|1544b7 1548r79
+178e7 Role{20E9} 31|1545b7 1548r85
+180V13*Navigation_Candidate_Display_Label{string} 181>7 31|853b13 878l8 878t42
+181r7 Candidate{47R9} 31|854b7 856r48 857r48 858r48 860r21 861r21 870r55
+. 873r55 876r55
+183V13*Navigation_Candidate_Detail_Label{string} 184>7 31|880b13 907l8 907t41
+184r7 Candidate{47R9} 31|881b7 883r46 885r49 887r10 890r10 893r10 896r10
+. 899r10
 186V13*Resolve_Unique_Navigation_Target{141R9} 187>7 188>7 189>7 190>7 191>7
-. 192>7 193>7 194>7 195>7 31|969b13 1083l8 1083t40
-187r7 Index{18R9} 31|970b7 982r61
-188a7 Name{string} 31|971b7 982r68
-189e7 Kind{29|8E9} 31|972b7 986r27 989r21 994r21 999r21
-190b7 Want_Body{boolean} 31|973b7 1011r20 1015r24 1017r43
-191a7 Profile_Summary{string} 31|974b7 1024r65
-192b7 Require_Profile{boolean} 31|975b7 1028r17
-193b7 Accept_Generic_Package_Spec{boolean} 31|976b7 988r16
-194b7 Accept_Generic_Subprogram{boolean} 31|977b7 993r16
-195b7 Accept_Operator_Function{boolean} 31|978b7 998r16
-197V13*Resolve_Unit{42R9} 198>7 199>7 200>7 31|1088b13 1112l8 1112t20 1120s51
-. 1222s13 1262s19 1274s31 1288s48 1503s17
-198r7 Index{18R9} 31|1089b7 1096r26 1096r55 1098r16 1103r16
-199a7 Unit_Name{string} 31|1090b7 1094r77
-200e7 Role{20E9} 31|1091b7 1105r43
-202V13*Resolve_Unique_Unit_Target{141R9} 203>7 204>7 205>7 31|1114b13 1152l8
-. 1152t34 1381s14 1403s14
-203r7 Index{18R9} 31|1115b7 1120r65
-204a7 Unit_Name{string} 31|1116b7 1120r72
-205e7 Role{20E9} 31|1117b7 1120r83
-207V13*Resolve_Related_Unit_Target{141R9} 208>7 209>7 210>7 31|1323b13 1382l8
-. 1382t35
-208r7 Index{18R9} 31|1324b7 1330r60 1334r49 1370r55 1381r42
-209r7 From{47R9} 31|1325b7 1329r64 1330r67 1333r10 1334r56 1370r62
-210b7 Want_Body{boolean} 31|1326b7 1333r63 1339r16 1346r16 1353r16 1360r16
-. 1367r16
-212V13*Resolve_Separate_Parent_Target{141R9} 213>7 214>7 31|1281b13 1321l8
-. 1321t38 1334s17 1370s23
-213r7 Index{18R9} 31|1282b7 1288r62
-214r7 Separate_Body{47R9} 31|1283b7 1287r51 1292r10
-216V13*Resolve_Parent_Unit_Target{141R9} 217>7 218>7 31|1384b13 1405l8 1405t34
-217r7 Index{18R9} 31|1385b7 1388r62 1404r10
-218r7 From{47R9} 31|1386b7 1388r69 1397r25
-220V13*Resolve_Child_Units{42R9} 221>7 222>7 223>7 31|1441b13 1481l8 1481t27
-221r7 Index{18R9} 31|1442b7 1447r62 1460r26 1460r55 1462r16 1471r16
-222r7 Parent{47R9} 31|1443b7 1447r69 1454r25
-223e7 Role{20E9} 31|1444b7 1472r35
-225V13*Resolve_Unit_Family{42R9} 226>7 227>7 228>7 31|1483b13 1505l8 1505t27
-. 1514s51
-226r7 Index{18R9} 31|1484b7 1489r60 1503r31
-227r7 From{47R9} 31|1485b7 1489r67 1497r25
-228e7 Role{20E9} 31|1486b7 1503r49
-230V13*File_Count{natural} 230>25 31|1551b13 1554l8 1554t18
-230r25 Index{18R9} 31|1551b25 1553r23
-232V13*File_Key_At{10R9} 233>7 234>7 31|1556b13 1568l8 1568t19
-233r7 Index{18R9} 31|1557b7 1561r10 1562r28 1563r28 1567r14
-234i7 Position{positive} 31|1558b7 1562r17 1563r17 1567r27
-236V13*File_Analysis_At{29|811R9} 237>7 238>7 31|1570b13 1583l8 1583t24
-237r7 Index{18R9} 31|1571b7 1576r10 1577r28 1578r28 1582r14
-238i7 Position{positive} 31|1572b7 1577r17 1578r17 1582r27
-240V13*Unit_At{29R9} 241>7 242>7 31|1537b13 1549l8 1549t15
-241r7 Index{18R9} 31|1538b7 1542r10 1543r28 1544r28 1548r14
-242i7 Position{positive} 31|1539b7 1543r17 1544r17 1548r27
-244V13*Unit_Role_For_Symbol{20E9} 245>7 31|224b13 229l8 229t28
-245r7 Symbol{29|251R9} 31|225b7 228r29
-247V13*Unit_Count{natural} 247>25 31|1585b13 1588l8 1588t18
-247r25 Index{18R9} 31|1585b25 1587r23
-248V13*Symbol_Count{natural} 248>27 31|1590b13 1597l8 1597t20
-248r27 Index{18R9} 31|1590b27 1593r16
-249V13*Overflowed{boolean} 249>25 31|1599b13 1618l8 1618t18
-249r25 Index{18R9} 31|1599b25 1607r10 1607r39 1611r16
-250V13*Fingerprint{natural} 250>26 31|1620b13 1623l8 1623t19
-250r26 Index{18R9} 31|1620b26 1622r14
-253R9 Indexed_File 256e14 260r23 31|304r18 430r27
-254r7*Key{10R9} 31|324r44 325r44 364r44 365r28 365r49 366r20 366r49 417r48
-. 418m46 430m41 487r59 503r51 520r59 532r37 547r37 571r37 572r23 573r23 574r23
-. 575r23 595r37 596r23 597r23 598r23 599r23 668r50 669r35 692r18 708r53 709r38
-. 1160r37 1161r23 1162r23 1163r23 1164r23 1567r37
-255r7*Analysis{29|811R9} 31|307r57 340r66 343r57 418m58 430m53 659r60 661r66
-. 664r57 666r37 699r63 701r69 704r60 706r40 1100r60 1166r37 1464r60 1582r37
-. 1594r69 1612r53
+. 192>7 193>7 194>7 195>7 31|1003b13 1117l8 1117t40
+187r7 Index{18R9} 31|1004b7 1016r61
+188a7 Name{string} 31|1005b7 1016r68
+189e7 Kind{29|8E9} 31|1006b7 1020r27 1023r21 1028r21 1033r21
+190b7 Want_Body{boolean} 31|1007b7 1045r20 1049r24 1051r43
+191a7 Profile_Summary{string} 31|1008b7 1058r65
+192b7 Require_Profile{boolean} 31|1009b7 1062r17
+193b7 Accept_Generic_Package_Spec{boolean} 31|1010b7 1022r16
+194b7 Accept_Generic_Subprogram{boolean} 31|1011b7 1027r16
+195b7 Accept_Operator_Function{boolean} 31|1012b7 1032r16
+197V13*Resolve_Unit{42R9} 198>7 199>7 200>7 31|1122b13 1146l8 1146t20 1154s51
+. 1256s13 1296s19 1308s31 1322s48 1537s17
+198r7 Index{18R9} 31|1123b7 1130r26 1130r55 1132r16 1137r16
+199a7 Unit_Name{string} 31|1124b7 1128r77
+200e7 Role{20E9} 31|1125b7 1139r43
+202V13*Resolve_Unique_Unit_Target{141R9} 203>7 204>7 205>7 31|1148b13 1186l8
+. 1186t34 1415s14 1437s14
+203r7 Index{18R9} 31|1149b7 1154r65
+204a7 Unit_Name{string} 31|1150b7 1154r72
+205e7 Role{20E9} 31|1151b7 1154r83
+207V13*Resolve_Related_Unit_Target{141R9} 208>7 209>7 210>7 31|1357b13 1416l8
+. 1416t35
+208r7 Index{18R9} 31|1358b7 1364r60 1368r49 1404r55 1415r42
+209r7 From{47R9} 31|1359b7 1363r64 1364r67 1367r10 1368r56 1404r62
+210b7 Want_Body{boolean} 31|1360b7 1367r63 1373r16 1380r16 1387r16 1394r16
+. 1401r16
+212V13*Resolve_Separate_Parent_Target{141R9} 213>7 214>7 31|1315b13 1355l8
+. 1355t38 1368s17 1404s23
+213r7 Index{18R9} 31|1316b7 1322r62
+214r7 Separate_Body{47R9} 31|1317b7 1321r51 1326r10
+216V13*Resolve_Parent_Unit_Target{141R9} 217>7 218>7 31|1418b13 1439l8 1439t34
+217r7 Index{18R9} 31|1419b7 1422r62 1438r10
+218r7 From{47R9} 31|1420b7 1422r69 1431r25
+220V13*Resolve_Child_Units{42R9} 221>7 222>7 223>7 31|1475b13 1515l8 1515t27
+221r7 Index{18R9} 31|1476b7 1481r62 1494r26 1494r55 1496r16 1505r16
+222r7 Parent{47R9} 31|1477b7 1481r69 1488r25
+223e7 Role{20E9} 31|1478b7 1506r35
+225V13*Resolve_Unit_Family{42R9} 226>7 227>7 228>7 31|1517b13 1539l8 1539t27
+. 1548s51
+226r7 Index{18R9} 31|1518b7 1523r60 1537r31
+227r7 From{47R9} 31|1519b7 1523r67 1531r25
+228e7 Role{20E9} 31|1520b7 1537r49
+230V13*File_Count{natural} 230>25 31|1585b13 1588l8 1588t18
+230r25 Index{18R9} 31|1585b25 1587r23
+232V13*File_Key_At{10R9} 233>7 234>7 31|1590b13 1602l8 1602t19
+233r7 Index{18R9} 31|1591b7 1595r10 1596r28 1597r28 1601r14
+234i7 Position{positive} 31|1592b7 1596r17 1597r17 1601r27
+236V13*File_Analysis_At{29|814R9} 237>7 238>7 31|1604b13 1617l8 1617t24
+237r7 Index{18R9} 31|1605b7 1610r10 1611r28 1612r28 1616r14
+238i7 Position{positive} 31|1606b7 1611r17 1612r17 1616r27
+240V13*Unit_At{29R9} 241>7 242>7 31|1571b13 1583l8 1583t15
+241r7 Index{18R9} 31|1572b7 1576r10 1577r28 1578r28 1582r14
+242i7 Position{positive} 31|1573b7 1577r17 1578r17 1582r27
+244V13*Unit_Role_For_Symbol{20E9} 245>7 31|253b13 258l8 258t28
+245r7 Symbol{29|251R9} 31|254b7 257r29
+247V13*Unit_Count{natural} 247>25 31|1619b13 1622l8 1622t18
+247r25 Index{18R9} 31|1619b25 1621r23
+248V13*Symbol_Count{natural} 248>27 31|1624b13 1631l8 1631t20
+248r27 Index{18R9} 31|1624b27 1627r16
+249V13*Overflowed{boolean} 249>25 31|1633b13 1652l8 1652t18
+249r25 Index{18R9} 31|1633b25 1641r10 1641r39 1645r16
+250V13*Fingerprint{natural} 250>26 31|1654b13 1657l8 1657t19
+250r26 Index{18R9} 31|1654b26 1656r14
+253R9 Indexed_File 256e14 260r23 31|333r18 464r27
+254r7*Key{10R9} 31|353r44 354r44 393r44 396r16 397r16 398r16 399r16 451r48
+. 452m46 464m41 521r59 537r51 554r59 566r37 581r37 605r37 606r23 607r23 608r23
+. 609r23 629r37 630r23 631r23 632r23 633r23 702r50 703r35 726r18 742r53 743r38
+. 1194r37 1195r23 1196r23 1197r23 1198r23 1601r37
+255r7*Analysis{29|814R9} 31|336r57 369r66 372r57 452m58 464m53 693r60 695r66
+. 698r57 700r37 733r63 735r69 738r60 740r40 1134r60 1200r37 1498r60 1616r37
+. 1628r69 1646r53
 258K12 File_Vectors[9|74] 263r15
-263r7*Files{9|91R9[258]} 31|339r22 358r22 394m13 416r36 417r30 418m19 424r25
-. 430m13 486r33 487r41 488m19 501r33 503r33 505m19 519r36 520r41 531r33 532r19
-. 533m19 546r33 547r19 553m19 570r22 594r22 653r22 690r22 1098r22 1159r22
-. 1462r22 1553r29 1561r16 1562r34 1563r34 1567r20 1576r16 1577r34 1578r34
-. 1582r20 1593r22 1611r22
-264r7*Units{9|91R9[38]} 31|314r25 319m13 336m13 383r22 395m13 1103r22 1471r22
-. 1542r16 1543r34 1544r34 1548r20 1587r29
-265b7*Index_Overflow{boolean} 31|375r16 396m13 425m16 675r56 716r56 1096r32
-. 1460r32 1607r16
-266b7*Unit_Overflow{boolean} 31|315m16 337m13 379r16 397m13 1096r61 1460r61
-. 1607r45
-267i7*Index_Fingerprint{natural} 31|389m13 398m13 1622r20
+263r7*Files{9|91R9[258]} 31|368r22 387r22 428m13 450r36 451r30 452m19 458r25
+. 464m13 520r33 521r41 522m19 535r33 537r33 539m19 553r36 554r41 565r33 566r19
+. 567m19 580r33 581r19 587m19 604r22 628r22 687r22 724r22 1132r22 1193r22
+. 1496r22 1587r29 1595r16 1596r34 1597r34 1601r20 1610r16 1611r34 1612r34
+. 1616r20 1627r22 1645r22
+264r7*Units{9|91R9[38]} 31|343r25 348m13 365m13 416r22 429m13 1137r22 1505r22
+. 1576r16 1577r34 1578r34 1582r20 1621r29
+265b7*Index_Overflow{boolean} 31|408r16 430m13 459m16 709r56 750r56 1130r32
+. 1494r32 1641r16
+266b7*Unit_Overflow{boolean} 31|344m16 366m13 412r16 431m13 1130r61 1494r61
+. 1641r45
+267i7*Index_Fingerprint{natural} 31|423m13 432m13 1656r20
 X 31 editor-ada_project_index.adb
-10V13 Hash_String{natural} 10b13 10>26 10>42 17l8 17t19 364s15 384s15
-10i26 Seed{natural} 11r22
-10a42 Text{string} 13r16
-11i7 H{natural} 14m10 14r16 16r14
-13e11 C=13:16{character} 14r41
-20V13 Trim_Image{string} 20b13 20>25 23l8 23t18 826s9 827s9
-20i25 Value{natural} 22r53
-25V13 Symbol_Kind_Label{string} 25b13 26>7 52l8 52t25 836s36 839s36 842s36
-. 851s30
-26e7 Kind{29|8E9} 30r12
-55V13 Leaf_Name{string} 55b13 55>24 68l8 68t17 161s82 166s51
-55a24 Name{string} 58r24 59r13 64r34 65r17 65r34 67r14
-56i7 Dot{natural} 60m13 64r10 64r28 65r23
-58i11 I{integer} 59r19 60r20
-70V13 Has_Dot{boolean} 70b13 70>22 78l8 78t15 168s10 174s10
-70a22 Name{string} 72r16
-72e11 C=72:16{character} 73r13
-81V13 Qualified_Name{string} 81b13 82>7 83>7 84>7 85=7 121s13 142l8 142t22
-. 150s14
-82r7 Analysis{29|811R9} 96r64 110r46 122r16
-83r7 Symbol{29|251R9} 88r45 91r10 96r26 110r56
-84i7 Remaining{natural} 95r10 124r16
-85b7 Truncated{boolean} 104m10 116m13 125m16 125r16 128r10 140m10
-88a7 Local{string} 92r17 105r17 117r20 129r17 133r17 135r41 141r17
-89r7 Prefix{23|91R9} 120m10 132r18 135r25
-109r10 Parent{29|251R9} 112r65 123r16
-144V13 Qualified_Name{string} 144b13 145>7 146>7 153l8 153t22 164s51 281s14
-145r7 Analysis{29|811R9} 151r10 151r68
-146r7 Symbol{29|251R9} 151r20
-148b7 Truncated{boolean} 152m10 152r10
-155V13 Symbol_Matches{boolean} 155b13 156>7 157>7 158>7 185l8 185t22 666s19
-. 706s22
-156r7 Analysis{29|811R9} 164r67
-157r7 Symbol{29|251R9} 162r51 164r77 166r73 174r30
-158a7 Name{string} 160r82 161r93 168r19
-160a7 Wanted{string} 171r31 171r65 181r31 184r28
-161a7 Wanted_Leaf{string} 184r57
-162a7 Symbol_Name{string} 171r17 181r17 184r14
-163a7 Symbol_Qualified{string} 171r46
-165a7 Symbol_Leaf{string} 184r43
-189V13 Unit_Role_For{30|20E9} 189b13 190>7 221l8 221t21 228s14 235s14 308s44
-. 1185s49 1329s49 1397s10 1454s10 1497s10
-190r7 Symbol{29|251R9} 194r12 196r16 198r19 209r16
-231V13 Is_Unit_Symbol{boolean} 231b13 232>7 236l8 236t22 250s14
-232r7 Symbol{29|251R9} 235r29
-238V13 Is_Library_Unit_Symbol{boolean} 238b13 239>7 253l8 253t30 345s19
-239r7 Symbol{29|251R9} 250r30 251r18 252r18
-255V13 Role_Matches{boolean} 255b13 256>7 257>7 268l8 268t20 1105s21 1472s13
-256e7 Candidate{30|20E9} 263r17 264r20 266r17
-257e7 Wanted{30|20E9} 260r10 262r13 266r29
-270V13 Unit_Name_For{string} 270b13 271>7 272>7 282l8 282t21 307s33 1166s20
-271r7 Analysis{29|811R9} 281r30
-272r7 Symbol{29|251R9} 275r10 276r26 278r28 281r40
-284V13 Parent_Unit_Name{string} 284b13 284>31 299l8 299t24 1389s40
-284a31 Unit_Name{string} 287r24 288r13 294r33 298r14 298r25
-285i7 Dot{natural} 289m13 294r10 294r26 298r44
-287i11 I{integer} 288r24 289r20
-302U14 Append_Unit 302b14 303=7 304>7 305>7 327l8 327t19 346s19
-303r7 Index{30|18R9} 314r19 315m10 319m7 319r7
-304r7 File_Row{30|253R9} 307r48 324r35 325r35
-305r7 Symbol{29|251R9} 307r67 308r59 326r35
-307a7 Name{string} 310r34 320r69 322r56
-308e7 Role{30|20E9} 310r10 323r35
-329U14 Rebuild_Units 329b14 329=29 351l8 351t21 356s7
-329r29 Index{30|18R9} 336m7 336r7 337m7 339r16 346m32
-339r11 F{30|253R9} 340r64 343r55 346r39
-340i14 I{integer} 343r67
-342r16 S{29|251R9} 345r43 346r42
-353U14 Recompute 353b14 353=25 390l8 390t17 419s13 426s10 431s7 493s7 510s7
-. 538s7 558s7
-353r25 Index{30|18R9} 356m22 358r16 375r10 379r10 383r16 389m7
-354i7 H{natural} 364m10 364r28 365m10 365r16 376m10 376r16 380m10 380r16
-. 384m10 384r28 385m10 385r16 389r34
-358r11 F{30|253R9} 364r42 365r26 365r47 366r18 366r47
-383r11 U{30|29R9} 384r42 385r49 385r59
-409r7 Key{30|10R9} 418r53 430r48
-416i11 I{integer} 417r45 418r42
-434V13 Same_Path{boolean} 434>24 434>39 471b13 475l8 475t17 487s13 520s13
-. 571s13 595s13 622s14 639s14 1160s13
-434a24 Left{string} 471b24 473r39 474r50
-434a39 Right{string} 471b39 473r45 474r43
-436V13 Same_Or_Descendant_Path{boolean} 436b13 436>38 436>53 469l8 469t31
-. 473s14 474s18 502s13
-436a38 Path{string} 458r42
-436a53 Root_Path{string} 459r42
-437V16 Normalized{string} 437b16 437>28 456l11 456t21 458s30 459s30
-437a28 Text{string} 438r29 439r30
-438a10 Result{string} 441r19 442r31 443m16 447r24 447r46 451r20 455r17 455r25
-439i10 Last{integer} 447r16 447r54 448m13 448r21 451r13 455r41
-441i14 I{integer} 442r39 443r24
-458a7 P{string} 461r10 463r34 467r14 467r17 467r28 468r18 468r21
-459a7 R{string} 461r14 463r13 463r46 467r38 467r54 468r31
-478i7 I{positive} 486r13 487r56 488r33 490m13 490r18
-499i7 I{positive} 501r13 503r48 505r33 507m13 507r18
-519i11 I{integer} 520r56
-529i7 I{positive} 531r13 532r34 533r33 535m13 535r18
-544i7 I{positive} 546r13 547r34 553r33 555m13 555r18
-570r11 F{30|253R9} 571r35 572r21 573r21 574r21 575r21
-594r11 F{30|253R9} 595r35 596r21 597r21 598r21 599r21
-630V13 Key_Is_Current{boolean} 630b13 631>7 632>7 633>7 634>7 635>7 636>7
-. 644l8 644t22 691s13
-631r7 Key{30|10R9} 639r36 640r18 641r18 642r18 643r18
-632a7 Path{string} 639r47
-633i7 Buffer_Token{natural} 640r37
-634i7 Buffer_Revision{natural} 641r40
-635i7 Lifecycle_Generation{natural} 642r45
-636i7 Analysis_Fingerprint{natural} 643r36
-651r7 Result{30|57R9} 658m10 658r29 667m19 667r19 675m7 675r26 676r14
-653r11 F{30|253R9} 659r58 661r64 664r55 666r35 668r48 669r33
-661i14 I{integer} 664r67
-663r16 S{29|251R9} 666r47 670r33
-688r7 Result{30|57R9} 698m13 698r32 707m22 707r22 716m7 716r26 717r14
-690r11 F{30|253R9} 692r16 699r61 701r67 704r58 706r38 708r51 709r36
-701i17 I{integer} 704r70
-703r19 S{29|251R9} 706r50 710r36
-724r7 Empty_Key{30|10R9} 732r20
-730r7 Empty{30|47R9} 737r17
-734r7 R{30|57R9} 736r10 739r14
-746r7 R{30|57R9} 748r18
-760r7 Empty_Key{30|10R9} 768r20
-766r7 Empty{30|47R9} 776r17
-770r7 R{30|57R9} 775r10 778r14
-790r7 R{30|57R9} 795r18
-800U14 Stamp_Navigation_Candidate_Status 800b14 801=7 802>7 817l8 817t41
-. 946s10 963s7 1195s13 1224s10 1264s16 1269s13 1277s7 1517s10 1532s7
-801r7 Result{30|154R9} 804r44 806r10 809m10 811m10 813m10 815m10
-802b7 Overflow{boolean} 806r66 808r13 946r53 1195r56 1517r53
-804i7 Count{natural} 810r13 812r13
-822a7 Path{string} 829r13 829r48
-823a7 Name{string} 837r18 838r13 840r18
-824a7 Profile{string} 835r10 837r31
-825a7 Position=826:68{string} 829r34 829r61
-828a7 Prefix{string} 836r17 839r17 842r17
-849a7 Target{string} 868r10 870r26
-850r7 Detail{23|91R9} 854m18 854r18 857m18 857r18 860m18 860r18 863m18 863r18
-. 866m18 866r18 869m18 869r18 870m18 870r18 872r25
-887r7 Result{30|154R9} 946m45 946r45 947r17 958m16 958r16 963m42 963r42 964r14
-888r7 Res{30|57R9} 945r10 950r16 950r43 952r48
-890V16 Kind_Matches{boolean} 890b16 890>30 912l11 912t23 954s16
-890r30 Symbol{29|251R9} 892r13 896r21 901r21 906r21
-914V16 Body_Side_Matches{boolean} 914b16 914>35 927l11 927t28 955s24
-914r35 Symbol{29|251R9} 916r13 918r16 919r20 922r31 923r20
-929V16 Profile_Matches{boolean} 929b16 929>33 943l11 943t26 956s24
-929r33 Symbol{29|251R9} 932r24
-930a10 Wanted_Profile{string} 936r16 942r37
-931a10 Candidate_Profile{string} 938r16 942r17
-950i11 I{integer} 952r61
-952r13 Match{30|47R9} 954r30 955r43 956r41 958r42
-981r7 Result{30|141R9} 1039m7 1049r17 1053r17 1064r19 1071m19 1072m19 1073r26
-. 1076m16 1077m16 1082r14
-982r7 Res{30|57R9} 1039r26 1041r10 1052r10 1056r16 1056r43 1058r48
-984V16 Kind_Matches{boolean} 984b16 984>30 1006l11 1006t23 1060s16
-984r30 Symbol{29|251R9} 986r13 990r21 995r21 1000r21
-1008V16 Body_Side_Matches{boolean} 1008b16 1008>35 1021l11 1021t28 1061s24
-1008r35 Symbol{29|251R9} 1010r13 1012r16 1013r20 1016r31 1017r20
-1023V16 Profile_Matches{boolean} 1023b16 1023>33 1037l11 1037t26 1062s24
-1023r33 Symbol{29|251R9} 1026r24
-1024a10 Wanted_Profile{string} 1030r16 1036r37
-1025a10 Candidate_Profile{string} 1032r16 1036r17
-1056i11 I{integer} 1058r61
-1058r13 Match{30|47R9} 1060r30 1061r43 1062r41 1077r33
-1093r7 Result{30|42R9} 1096m7 1099m10 1099r29 1107m13 1107r13 1111r14
-1094a7 Wanted{string} 1104r50
-1098r11 F{30|253R9} 1100r58
-1103r11 U{30|29R9} 1104r24 1105r35 1107r36
-1119r7 Result{30|141R9} 1122m7 1125r17 1129r17 1140r16 1141m16 1142m16 1143r23
-. 1146m13 1147m13 1151r14
-1120r7 Res{30|42R9} 1122r26 1124r10 1128r10 1132r16 1132r43 1134r42
-1132i11 I{integer} 1134r55
-1134r13 U{30|29R9} 1136r26 1137r26 1138r26
-1135r13 S{30|47R9} 1147r30
-1154V13 Unit_Name_For_Target{string} 1154b13 1155>7 1156>7 1175l8 1175t28
-. 1186s38 1330s38 1388s40 1447s40 1489s38
-1155r7 Index{30|18R9} 1159r16
-1156r7 Target{30|47R9} 1160r59 1161r42 1162r45 1163r50 1164r41 1166r47 1170r18
-. 1171r28 1174r25
-1159r11 F{30|253R9} 1160r35 1161r21 1162r21 1163r21 1164r21 1166r35
-1184r7 Result{30|154R9} 1195m48 1195r48 1206m19 1206r19 1224m45 1224r45 1225r17
-. 1264m51 1264r51 1265r23 1269m48 1269r48 1270r20 1277m42 1277r42 1278r14
-1185e7 From_Role{30|20E9} 1228r12
-1186a7 Unit_Name{string} 1273r10 1274r52
-1187e7 Wanted{30|20E9} 1231m16 1233m16 1238m16 1240m16 1245m16 1247m16 1252m16
-. 1254m16 1259m16 1274r63
-1189U17 Append_Unit_Matches 1189b17 1190>10 1191>10 1213l11 1213t30 1221s10
-. 1261s16 1274s10
-1190r10 Res{30|42R9} 1194r13 1199r19 1199r46 1201r45
-1191b10 Require_Separate_Parent{boolean} 1203r24 1223r13 1263r19
-1199i14 I{integer} 1201r58
-1201r16 U{30|29R9} 1204r58 1207r48 1208r33 1209r33
-1286r7 Result{30|141R9} 1290m7 1296r17 1308r19 1309m19 1310m19 1311r26 1314m16
-. 1315m16 1320r14
-1287a7 Parent_Name{string} 1288r69 1293r17
-1288r7 Res{30|42R9} 1290r26 1294r17 1299r16 1299r43 1301r42
-1299i11 I{integer} 1301r55
-1301r13 U{30|29R9} 1303r26 1304r26 1305r26 1307r48
-1302r13 S{30|47R9} 1315r33
-1329e7 From_Role{30|20E9} 1337r12
-1330a7 Unit_Name{string} 1381r49
-1331e7 Wanted{30|20E9} 1340m16 1342m16 1347m16 1349m16 1354m16 1356m16 1361m16
-. 1363m16 1368m16 1381r60
-1375r16 Empty{30|141R9} 1377r23
-1388a7 Unit_Name{string} 1389r58
-1389a7 Parent_Name{string} 1398r17 1404r17
-1390r7 Empty{30|141R9} 1400r17
-1407V13 Is_Direct_Child_Unit{boolean} 1407b13 1408>7 1409>7 1439l8 1439t28
-. 1473s21
-1408a7 Parent_Name{string} 1412r51
-1409a7 Candidate_Name{string} 1414r51
-1411a7 Parent_Normalized{string} 1415r35 1418r10
-1413a7 Candidate_Normalized{string} 1419r17 1424r10 1425r13 1425r43 1431r23
-. 1432r32 1433r13
-1415a7 Prefix=1415:53{string} 1419r48 1425r72 1426r13 1431r52
-1416i7 Suffix_First{natural} 1431m7 1432r16
-1432i11 I{integer} 1433r35
-1446r7 Result{30|42R9} 1457r17 1460m7 1463m10 1463r29 1467r10 1468r17 1476m13
-. 1476r13 1480r14
-1447a7 Parent_Name{string} 1455r17 1474r15
-1462r11 F{30|253R9} 1464r58
-1471r11 U{30|29R9} 1472r27 1474r39 1476r36
-1488r7 Result{30|42R9} 1500r17 1503m7 1503r7 1504r14
-1489a7 Unit_Name{string} 1498r17 1503r38
-1513r7 Result{30|154R9} 1517m45 1517r45 1518r17 1525m13 1525r13 1532m42 1532r42
-. 1533r14
-1514r7 Res{30|42R9} 1516r10 1521r16 1521r43 1523r42
-1521i11 I{integer} 1523r55
-1523r13 U{30|29R9} 1526r42 1527r27 1528r27
-1574r7 Empty{29|811R9} 1580r17
-1591i7 Count{natural} 1594m10 1594r19 1596r14
-1593r11 F{30|253R9} 1594r67
-1611r11 F{30|253R9} 1612r51
+12i4 Fingerprint_Modulus{long_long_integer} 23r63 36r31
+14A9 Natural_Addend_Array(natural)<integer> 28r20
+16V13 Hash_Mix{natural} 16b13 17>7 18>7 19>7 24l8 24t16 43s15 409s15 413s15
+17i7 Seed{natural} 23r30
+18i7 Addend{long_long_integer} 23r51
+19i7 Multiplier{long_long_integer} 23r38
+26V13 Hash_Mix{natural} 26b13 27>7 28>7 29>7 37l8 37t16 394s15 418s15
+27i7 Seed{natural} 31r53
+28a7 Addends{14A9} 33r21
+29i7 Multiplier{long_long_integer} 31r61
+31i7 Acc{long_long_integer} 34m10 34r17 36r23
+33i11 Addend=33:21{natural} 34r42
+39V13 Hash_String{natural} 39b13 39>26 39>42 46l8 46t19 393s15 417s15
+39i26 Seed{natural} 40r22
+39a42 Text{string} 42r16
+40i7 H{natural} 43m10 43r25 45r14
+42e11 C=42:16{character} 43r62
+49V13 Trim_Image{string} 49b13 49>25 52l8 52t18 860s9 861s9
+49i25 Value{natural} 51r53
+54V13 Symbol_Kind_Label{string} 54b13 55>7 81l8 81t25 870s36 873s36 876s36
+. 885s30
+55e7 Kind{29|8E9} 59r12
+84V13 Leaf_Name{string} 84b13 84>24 97l8 97t17 190s82 195s51
+84a24 Name{string} 87r24 88r13 93r34 94r17 94r34 96r14
+85i7 Dot{natural} 89m13 93r10 93r28 94r23
+87i11 I{integer} 88r19 89r20
+99V13 Has_Dot{boolean} 99b13 99>22 107l8 107t15 197s10 203s10
+99a22 Name{string} 101r16
+101e11 C=101:16{character} 102r13
+110V13 Qualified_Name{string} 110b13 111>7 112>7 113>7 114=7 150s13 171l8
+. 171t22 179s14
+111r7 Analysis{29|814R9} 125r64 139r46 151r16
+112r7 Symbol{29|251R9} 117r45 120r10 125r26 139r56
+113i7 Remaining{natural} 124r10 153r16
+114b7 Truncated{boolean} 133m10 145m13 154m16 154r16 157r10 169m10
+117a7 Local{string} 121r17 134r17 146r20 158r17 162r17 164r41 170r17
+118r7 Prefix{23|91R9} 149m10 161r18 164r25
+138r10 Parent{29|251R9} 141r65 152r16
+173V13 Qualified_Name{string} 173b13 174>7 175>7 182l8 182t22 193s51 310s14
+174r7 Analysis{29|814R9} 180r10 180r68
+175r7 Symbol{29|251R9} 180r20
+177b7 Truncated{boolean} 181m10 181r10
+184V13 Symbol_Matches{boolean} 184b13 185>7 186>7 187>7 214l8 214t22 700s19
+. 740s22
+185r7 Analysis{29|814R9} 193r67
+186r7 Symbol{29|251R9} 191r51 193r77 195r73 203r30
+187a7 Name{string} 189r82 190r93 197r19
+189a7 Wanted{string} 200r31 200r65 210r31 213r28
+190a7 Wanted_Leaf{string} 213r57
+191a7 Symbol_Name{string} 200r17 210r17 213r14
+192a7 Symbol_Qualified{string} 200r46
+194a7 Symbol_Leaf{string} 213r43
+218V13 Unit_Role_For{30|20E9} 218b13 219>7 250l8 250t21 257s14 264s14 337s44
+. 1219s49 1363s49 1431s10 1488s10 1531s10
+219r7 Symbol{29|251R9} 223r12 225r16 227r19 238r16
+260V13 Is_Unit_Symbol{boolean} 260b13 261>7 265l8 265t22 279s14
+261r7 Symbol{29|251R9} 264r29
+267V13 Is_Library_Unit_Symbol{boolean} 267b13 268>7 282l8 282t30 374s19
+268r7 Symbol{29|251R9} 279r30 280r18 281r18
+284V13 Role_Matches{boolean} 284b13 285>7 286>7 297l8 297t20 1139s21 1506s13
+285e7 Candidate{30|20E9} 292r17 293r20 295r17
+286e7 Wanted{30|20E9} 289r10 291r13 295r29
+299V13 Unit_Name_For{string} 299b13 300>7 301>7 311l8 311t21 336s33 1200s20
+300r7 Analysis{29|814R9} 310r30
+301r7 Symbol{29|251R9} 304r10 305r26 307r28 310r40
+313V13 Parent_Unit_Name{string} 313b13 313>31 328l8 328t24 1423s40
+313a31 Unit_Name{string} 316r24 317r13 323r33 327r14 327r25
+314i7 Dot{natural} 318m13 323r10 323r26 327r44
+316i11 I{integer} 317r24 318r20
+331U14 Append_Unit 331b14 332=7 333>7 334>7 356l8 356t19 375s19
+332r7 Index{30|18R9} 343r19 344m10 348m7 348r7
+333r7 File_Row{30|253R9} 336r48 353r35 354r35
+334r7 Symbol{29|251R9} 336r67 337r59 355r35
+336a7 Name{string} 339r34 349r69 351r56
+337e7 Role{30|20E9} 339r10 352r35
+358U14 Rebuild_Units 358b14 358=29 380l8 380t21 385s7
+358r29 Index{30|18R9} 365m7 365r7 366m7 368r16 375m32
+368r11 F{30|253R9} 369r64 372r55 375r39
+369i14 I{integer} 372r67
+371r16 S{29|251R9} 374r43 375r42
+382U14 Recompute 382b14 382=25 424l8 424t17 453s13 460s10 465s7 527s7 544s7
+. 572s7 592s7
+382r25 Index{30|18R9} 385m22 387r16 408r10 412r10 416r16 423m7
+383i7 H{natural} 393m10 393r28 394m10 395r13 409m10 409r25 413m10 413r25
+. 417m10 417r28 418m10 419r13 423r34
+387r11 F{30|253R9} 393r42 396r14 397r14 398r14 399r14
+416r11 U{30|29R9} 417r42 420r46 420r56
+443r7 Key{30|10R9} 452r53 464r48
+450i11 I{integer} 451r45 452r42
+468V13 Same_Path{boolean} 468>24 468>39 505b13 509l8 509t17 521s13 554s13
+. 605s13 629s13 656s14 673s14 1194s13
+468a24 Left{string} 505b24 507r39 508r50
+468a39 Right{string} 505b39 507r45 508r43
+470V13 Same_Or_Descendant_Path{boolean} 470b13 470>38 470>53 503l8 503t31
+. 507s14 508s18 536s13
+470a38 Path{string} 492r42
+470a53 Root_Path{string} 493r42
+471V16 Normalized{string} 471b16 471>28 490l11 490t21 492s30 493s30
+471a28 Text{string} 472r29 473r30
+472a10 Result{string} 475r19 476r31 477m16 481r24 481r46 485r20 489r17 489r25
+473i10 Last{integer} 481r16 481r54 482m13 482r21 485r13 489r41
+475i14 I{integer} 476r39 477r24
+492a7 P{string} 495r10 497r34 501r14 501r17 501r28 502r18 502r21
+493a7 R{string} 495r14 497r13 497r46 501r38 501r54 502r31
+512i7 I{positive} 520r13 521r56 522r33 524m13 524r18
+533i7 I{positive} 535r13 537r48 539r33 541m13 541r18
+553i11 I{integer} 554r56
+563i7 I{positive} 565r13 566r34 567r33 569m13 569r18
+578i7 I{positive} 580r13 581r34 587r33 589m13 589r18
+604r11 F{30|253R9} 605r35 606r21 607r21 608r21 609r21
+628r11 F{30|253R9} 629r35 630r21 631r21 632r21 633r21
+664V13 Key_Is_Current{boolean} 664b13 665>7 666>7 667>7 668>7 669>7 670>7
+. 678l8 678t22 725s13
+665r7 Key{30|10R9} 673r36 674r18 675r18 676r18 677r18
+666a7 Path{string} 673r47
+667i7 Buffer_Token{natural} 674r37
+668i7 Buffer_Revision{natural} 675r40
+669i7 Lifecycle_Generation{natural} 676r45
+670i7 Analysis_Fingerprint{natural} 677r36
+685r7 Result{30|57R9} 692m10 692r29 701m19 701r19 709m7 709r26 710r14
+687r11 F{30|253R9} 693r58 695r64 698r55 700r35 702r48 703r33
+695i14 I{integer} 698r67
+697r16 S{29|251R9} 700r47 704r33
+722r7 Result{30|57R9} 732m13 732r32 741m22 741r22 750m7 750r26 751r14
+724r11 F{30|253R9} 726r16 733r61 735r67 738r58 740r38 742r51 743r36
+735i17 I{integer} 738r70
+737r19 S{29|251R9} 740r50 744r36
+758r7 Empty_Key{30|10R9} 766r20
+764r7 Empty{30|47R9} 771r17
+768r7 R{30|57R9} 770r10 773r14
+780r7 R{30|57R9} 782r18
+794r7 Empty_Key{30|10R9} 802r20
+800r7 Empty{30|47R9} 810r17
+804r7 R{30|57R9} 809r10 812r14
+824r7 R{30|57R9} 829r18
+834U14 Stamp_Navigation_Candidate_Status 834b14 835=7 836>7 851l8 851t41
+. 980s10 997s7 1229s13 1258s10 1298s16 1303s13 1311s7 1551s10 1566s7
+835r7 Result{30|154R9} 838r44 840r10 843m10 845m10 847m10 849m10
+836b7 Overflow{boolean} 840r66 842r13 980r53 1229r56 1551r53
+838i7 Count{natural} 844r13 846r13
+856a7 Path{string} 863r13 863r48
+857a7 Name{string} 871r18 872r13 874r18
+858a7 Profile{string} 869r10 871r31
+859a7 Position=860:68{string} 863r34 863r61
+862a7 Prefix{string} 870r17 873r17 876r17
+883a7 Target{string} 902r10 904r26
+884r7 Detail{23|91R9} 888m18 888r18 891m18 891r18 894m18 894r18 897m18 897r18
+. 900m18 900r18 903m18 903r18 904m18 904r18 906r25
+921r7 Result{30|154R9} 980m45 980r45 981r17 992m16 992r16 997m42 997r42 998r14
+922r7 Res{30|57R9} 979r10 984r16 984r43 986r48
+924V16 Kind_Matches{boolean} 924b16 924>30 946l11 946t23 988s16
+924r30 Symbol{29|251R9} 926r13 930r21 935r21 940r21
+948V16 Body_Side_Matches{boolean} 948b16 948>35 961l11 961t28 989s24
+948r35 Symbol{29|251R9} 950r13 952r16 953r20 956r31 957r20
+963V16 Profile_Matches{boolean} 963b16 963>33 977l11 977t26 990s24
+963r33 Symbol{29|251R9} 966r24
+964a10 Wanted_Profile{string} 970r16 976r37
+965a10 Candidate_Profile{string} 972r16 976r17
+984i11 I{integer} 986r61
+986r13 Match{30|47R9} 988r30 989r43 990r41 992r42
+1015r7 Result{30|141R9} 1073m7 1083r17 1087r17 1098r19 1105m19 1106m19 1107r26
+. 1110m16 1111m16 1116r14
+1016r7 Res{30|57R9} 1073r26 1075r10 1086r10 1090r16 1090r43 1092r48
+1018V16 Kind_Matches{boolean} 1018b16 1018>30 1040l11 1040t23 1094s16
+1018r30 Symbol{29|251R9} 1020r13 1024r21 1029r21 1034r21
+1042V16 Body_Side_Matches{boolean} 1042b16 1042>35 1055l11 1055t28 1095s24
+1042r35 Symbol{29|251R9} 1044r13 1046r16 1047r20 1050r31 1051r20
+1057V16 Profile_Matches{boolean} 1057b16 1057>33 1071l11 1071t26 1096s24
+1057r33 Symbol{29|251R9} 1060r24
+1058a10 Wanted_Profile{string} 1064r16 1070r37
+1059a10 Candidate_Profile{string} 1066r16 1070r17
+1090i11 I{integer} 1092r61
+1092r13 Match{30|47R9} 1094r30 1095r43 1096r41 1111r33
+1127r7 Result{30|42R9} 1130m7 1133m10 1133r29 1141m13 1141r13 1145r14
+1128a7 Wanted{string} 1138r50
+1132r11 F{30|253R9} 1134r58
+1137r11 U{30|29R9} 1138r24 1139r35 1141r36
+1153r7 Result{30|141R9} 1156m7 1159r17 1163r17 1174r16 1175m16 1176m16 1177r23
+. 1180m13 1181m13 1185r14
+1154r7 Res{30|42R9} 1156r26 1158r10 1162r10 1166r16 1166r43 1168r42
+1166i11 I{integer} 1168r55
+1168r13 U{30|29R9} 1170r26 1171r26 1172r26
+1169r13 S{30|47R9} 1181r30
+1188V13 Unit_Name_For_Target{string} 1188b13 1189>7 1190>7 1209l8 1209t28
+. 1220s38 1364s38 1422s40 1481s40 1523s38
+1189r7 Index{30|18R9} 1193r16
+1190r7 Target{30|47R9} 1194r59 1195r42 1196r45 1197r50 1198r41 1200r47 1204r18
+. 1205r28 1208r25
+1193r11 F{30|253R9} 1194r35 1195r21 1196r21 1197r21 1198r21 1200r35
+1218r7 Result{30|154R9} 1229m48 1229r48 1240m19 1240r19 1258m45 1258r45 1259r17
+. 1298m51 1298r51 1299r23 1303m48 1303r48 1304r20 1311m42 1311r42 1312r14
+1219e7 From_Role{30|20E9} 1262r12
+1220a7 Unit_Name{string} 1307r10 1308r52
+1221e7 Wanted{30|20E9} 1265m16 1267m16 1272m16 1274m16 1279m16 1281m16 1286m16
+. 1288m16 1293m16 1308r63
+1223U17 Append_Unit_Matches 1223b17 1224>10 1225>10 1247l11 1247t30 1255s10
+. 1295s16 1308s10
+1224r10 Res{30|42R9} 1228r13 1233r19 1233r46 1235r45
+1225b10 Require_Separate_Parent{boolean} 1237r24 1257r13 1297r19
+1233i14 I{integer} 1235r58
+1235r16 U{30|29R9} 1238r58 1241r48 1242r33 1243r33
+1320r7 Result{30|141R9} 1324m7 1330r17 1342r19 1343m19 1344m19 1345r26 1348m16
+. 1349m16 1354r14
+1321a7 Parent_Name{string} 1322r69 1327r17
+1322r7 Res{30|42R9} 1324r26 1328r17 1333r16 1333r43 1335r42
+1333i11 I{integer} 1335r55
+1335r13 U{30|29R9} 1337r26 1338r26 1339r26 1341r48
+1336r13 S{30|47R9} 1349r33
+1363e7 From_Role{30|20E9} 1371r12
+1364a7 Unit_Name{string} 1415r49
+1365e7 Wanted{30|20E9} 1374m16 1376m16 1381m16 1383m16 1388m16 1390m16 1395m16
+. 1397m16 1402m16 1415r60
+1409r16 Empty{30|141R9} 1411r23
+1422a7 Unit_Name{string} 1423r58
+1423a7 Parent_Name{string} 1432r17 1438r17
+1424r7 Empty{30|141R9} 1434r17
+1441V13 Is_Direct_Child_Unit{boolean} 1441b13 1442>7 1443>7 1473l8 1473t28
+. 1507s21
+1442a7 Parent_Name{string} 1446r51
+1443a7 Candidate_Name{string} 1448r51
+1445a7 Parent_Normalized{string} 1449r35 1452r10
+1447a7 Candidate_Normalized{string} 1453r17 1458r10 1459r13 1459r43 1465r23
+. 1466r32 1467r13
+1449a7 Prefix=1449:53{string} 1453r48 1459r72 1460r13 1465r52
+1450i7 Suffix_First{natural} 1465m7 1466r16
+1466i11 I{integer} 1467r35
+1480r7 Result{30|42R9} 1491r17 1494m7 1497m10 1497r29 1501r10 1502r17 1510m13
+. 1510r13 1514r14
+1481a7 Parent_Name{string} 1489r17 1508r15
+1496r11 F{30|253R9} 1498r58
+1505r11 U{30|29R9} 1506r27 1508r39 1510r36
+1522r7 Result{30|42R9} 1534r17 1537m7 1537r7 1538r14
+1523a7 Unit_Name{string} 1532r17 1537r38
+1547r7 Result{30|154R9} 1551m45 1551r45 1552r17 1559m13 1559r13 1566m42 1566r42
+. 1567r14
+1548r7 Res{30|42R9} 1550r10 1555r16 1555r43 1557r42
+1555i11 I{integer} 1557r55
+1557r13 U{30|29R9} 1560r42 1561r27 1562r27
+1608r7 Empty{29|814R9} 1614r17
+1625i7 Count{natural} 1628m10 1628r19 1630r14
+1627r11 F{30|253R9} 1628r67
+1645r11 F{30|253R9} 1646r51
 X 36 system.ads
 67M9*Address
 X 51 s-memory.ads

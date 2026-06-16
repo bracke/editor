@@ -1,6 +1,8 @@
 with Ada.Strings.Unbounded; use Ada.Strings.Unbounded;
 
 package body Editor.Ada_Representation_Layout_Stream_Integration_Legality is
+
+   pragma Suppress (Overflow_Check);
    use type Representation_Status;
    use type Exact_Layout_Status;
    use type Stream_Status;

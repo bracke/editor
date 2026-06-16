@@ -13,3 +13,9 @@ executables = ["tests"]
 
 [[depends-on]]
 aunit = "^26.0.0"
+
+[[depends-on]]
+textrender = "*"
+
+[[pins]]
+textrender = { path="../../textrender" }

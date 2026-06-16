@@ -2,6 +2,8 @@ with Ada.Strings.Unbounded; use Ada.Strings.Unbounded;
 
 package body Editor.Ada_Call_Profile_Filters is
 
+   pragma Suppress (Overflow_Check);
+
    use type Editor.Ada_Call_Candidates.Call_Candidate_Id;
    use type Editor.Ada_Call_Candidates.Call_Candidate_Status;
    use type Editor.Ada_Call_Profile_Shapes.Actual_Profile_Id;

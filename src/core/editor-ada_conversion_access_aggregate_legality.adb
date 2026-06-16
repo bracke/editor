@@ -2,6 +2,8 @@ with Ada.Strings.Unbounded; use Ada.Strings.Unbounded;
 
 package body Editor.Ada_Conversion_Access_Aggregate_Legality is
 
+   pragma Suppress (Overflow_Check);
+
    use type Editor.Ada_Syntax_Tree.Node_Id;
    use type Editor.Ada_Static_Expressions.Static_Value_Status;
    use type Editor.Ada_View_Aware_Compatibility.View_Compatibility_Status;

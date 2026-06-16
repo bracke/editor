@@ -2,6 +2,12 @@ with Ada.Strings.Unbounded; use Ada.Strings.Unbounded;
 
 package body Editor.Ada_Tasking_Protected_Precision_Legality is
 
+   pragma Suppress (Overflow_Check);
+   use type Editor.Ada_Dataflow_Global_Depends_Legality.Dataflow_Legality_Status;
+   use type Editor.Ada_Elaboration_Precision_Legality.Elaboration_Precision_Status;
+   use type Editor.Ada_Syntax_Tree.Node_Id;
+
+
    function Mix (Seed, Value : Natural) return Natural is
       Hash : constant Long_Long_Integer :=
         (Long_Long_Integer (Seed) * 131 +

@@ -2,6 +2,21 @@ with Ada.Strings.Unbounded; use Ada.Strings.Unbounded;
 
 package body Editor.Ada_Renaming_Generic_Shared_State_Final_Legality is
 
+   pragma Suppress (Overflow_Check);
+   use type Renaming_Base.Renaming_Legality_Id;
+   use type Cross_Generic.Cross_Unit_Generic_Final_Row_Id;
+   use type Elab_Generic.Elaboration_Generic_Final_Row_Id;
+   use type Generic_Replay.Generic_Abstract_Replay_Row_Id;
+   use type Overload_Generic.Overload_Generic_Final_Row_Id;
+   use type Rep_Generic.Representation_Generic_Final_Row_Id;
+   use type Tasking_Generic.Tasking_Generic_Final_Row_Id;
+   use type Access_Generic.Accessibility_Generic_Final_Row_Id;
+   use type Disc_Generic.Discriminant_Generic_Final_Row_Id;
+   use type Closure.Shared_State_Stabilized_Closure_Id;
+   use type Closure.Shared_State_Stabilized_Closure_Status;
+   use type Editor.Ada_Syntax_Tree.Node_Id;
+
+
    function Mix (Left, Right : Natural) return Natural is
    begin
       return (Left * 131 + Right * 17 + 23) mod 2_147_483_647;

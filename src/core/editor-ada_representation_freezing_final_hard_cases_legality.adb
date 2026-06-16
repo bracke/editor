@@ -2,6 +2,8 @@ with Ada.Strings.Unbounded; use Ada.Strings.Unbounded;
 
 package body Editor.Ada_Representation_Freezing_Final_Hard_Cases_Legality is
 
+   pragma Suppress (Overflow_Check);
+
    use type Access_Final.Master_Scope_Final_Status;
    use type Cross_Final.Cross_Unit_Final_Status;
    use type Disc_Consumer.Discriminant_Consumer_Status;

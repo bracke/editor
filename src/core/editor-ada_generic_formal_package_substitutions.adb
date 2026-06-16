@@ -5,6 +5,8 @@ with Ada.Strings.Unbounded; use Ada.Strings.Unbounded;
 
 package body Editor.Ada_Generic_Formal_Package_Substitutions is
 
+   pragma Suppress (Overflow_Check);
+
    use type Editor.Ada_Generic_Contracts.Generic_Instance_Id;
    use type Editor.Ada_Generic_Contracts.Generic_Formal_Id;
    use type Editor.Ada_Generic_Formal_Package_Nested_Conformance.Formal_Package_Nested_Status;
@@ -252,9 +254,13 @@ package body Editor.Ada_Generic_Formal_Package_Substitutions is
 
    function Substitution_At
      (Model : Formal_Package_Substitution_Model;
-      Index : Positive) return Formal_Package_Substitution_Info is
+      Index : Natural) return Formal_Package_Substitution_Info is
    begin
-      return Model.Entries (Index);
+      if Index = 0 or else Index > Natural (Model.Entries.Length) then
+         return (others => <>);
+      end if;
+
+      return Model.Entries.Element (Positive (Index));
    end Substitution_At;
 
    function First_For_Formal

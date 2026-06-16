@@ -2,6 +2,10 @@ with Ada.Strings.Unbounded; use Ada.Strings.Unbounded;
 
 package body Editor.Ada_Semantic_Consumer_Enforcement_Audit_Pass1340 is
 
+   pragma Suppress (Overflow_Check);
+   use type Remediation.Remediation_State;
+
+
    procedure Add_Consumer_Row
      (Input : in out Consumer_Input;
       Row : Consumer_Row) is

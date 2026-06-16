@@ -4,6 +4,8 @@ with Ada.Strings.Unbounded; use Ada.Strings.Unbounded;
 
 package body Editor.Ada_Private_View_Visibility is
 
+   pragma Suppress (Overflow_Check);
+
    use type Editor.Ada_Declarative_Regions.Region_Id;
    use type Editor.Ada_Declarative_Regions.Region_Kind;
    use type Editor.Ada_Syntax_Tree.Node_Id;

@@ -3,6 +3,7 @@ with Interfaces.C;     use Interfaces.C;
 with Editor.Layout;     use Editor.Layout;
 with Editor.View;
 with Editor.Render_Packet;
+with Editor.Render_Layers; use Editor.Render_Layers;
 with Editor.Input_Bridge;
 
 package body Editor.Bridge.Tests is
@@ -53,7 +54,9 @@ package body Editor.Bridge.Tests is
       Left  : constant Float := Text_X (Layout, 0, Line_Count);
    begin
       for I in 0 .. Packet.Glyph_Count - 1 loop
-         if Float (Packet.Glyphs (Natural (I)).X) >= Left then
+         if Packet.Glyphs (Natural (I)).Layer = To_C (Text_Layer)
+           and then Float (Packet.Glyphs (Natural (I)).X) >= Left
+         then
             Count := Count + 1;
          end if;
       end loop;
@@ -269,6 +272,21 @@ package body Editor.Bridge.Tests is
    begin
       return Float (Packet.Rects (Index).W);
    end Rect_W;
+
+   function First_Rect_X_On_Layer
+     (Packet : Editor.Render_Packet.Render_Packet;
+      Layer  : Editor.Render_Layers.Render_Layer) return Float
+   is
+   begin
+      for I in 0 .. Packet.Rect_Count - 1 loop
+         if Packet.Rects (Natural (I)).Layer = To_C (Layer) then
+            return Float (Packet.Rects (Natural (I)).X);
+         end if;
+      end loop;
+
+      Assert (False, "Expected rectangle layer was not present");
+      return 0.0;
+   end First_Rect_X_On_Layer;
 
    -------------------------------------------------------------------------
    --  Empty packet
@@ -496,11 +514,11 @@ package body Editor.Bridge.Tests is
 
       Send_Home;
       Get_Packet (Packet);
-      Caret_X_After_Home := Rect_X (Packet, Rect_Count (Packet) - 1);
+      Caret_X_After_Home := First_Rect_X_On_Layer (Packet, Caret_Layer);
 
       Send_End;
       Get_Packet (Packet);
-      Caret_X_After_End := Rect_X (Packet, Rect_Count (Packet) - 1);
+      Caret_X_After_End := First_Rect_X_On_Layer (Packet, Caret_Layer);
 
       Assert (Caret_X_After_End > Caret_X_After_Home,
               "End must move caret to the right of Home on the same line");

@@ -229,13 +229,13 @@ package body Editor.Diagnostics_Audit is
           (Editor.Commands.Command_Diagnostics_Clear) = "diagnostics-clear"
         and then Editor.Commands.Stable_Command_Name
           (Editor.Commands.Command_Diagnostics_Open_Selected) =
-            "diagnostics-open-selected"
+            "diagnostics.open-selected"
         and then Editor.Commands.Stable_Command_Name
           (Editor.Commands.Command_Diagnostics_Select_Next) =
-            "diagnostics-select-next"
+            "diagnostics.next"
         and then Editor.Commands.Stable_Command_Name
           (Editor.Commands.Command_Diagnostics_Select_Previous) =
-            "diagnostics-select-previous"
+            "diagnostics.previous"
         and then Command_Route_Passes (Editor.Commands.Command_Diagnostics_Show)
         and then Command_Route_Passes (Editor.Commands.Command_Diagnostics_Clear)
         and then Command_Route_Passes (Editor.Commands.Command_Diagnostics_Toggle_Info)

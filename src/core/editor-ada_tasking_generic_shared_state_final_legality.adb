@@ -2,9 +2,21 @@ with Ada.Strings.Unbounded; use Ada.Strings.Unbounded;
 
 package body Editor.Ada_Tasking_Generic_Shared_State_Final_Legality is
 
+   pragma Suppress (Overflow_Check);
+   use type Closure.Shared_State_Stabilized_Closure_Status;
+   use type Tasking_Deep.Deep_Tasking_Row_Id;
+   use type Tasking_Shared.Tasking_Shared_State_Row_Id;
+   use type Generic_Replay.Generic_Abstract_Replay_Row_Id;
+   use type Overload_Generic.Overload_Generic_Final_Row_Id;
+   use type Rep_Generic.Representation_Generic_Final_Row_Id;
+   use type Abstract_Consumers.Abstract_State_Consumer_Row_Id;
+   use type Closure.Shared_State_Stabilized_Closure_Id;
+   use type Editor.Ada_Syntax_Tree.Node_Id;
+
+
    function Mix (Left, Right : Natural) return Natural is
    begin
-      return (Left * 131) xor (Right + 16#9E37#);
+      return ((Left * 131) + Right + 16#9E37#) mod 2_147_483_647;
    end Mix;
 
    function Deep_Tasking_Accepted (Status : Tasking_Deep.Deep_Tasking_Status) return Boolean is

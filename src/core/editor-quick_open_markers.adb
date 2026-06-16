@@ -209,6 +209,20 @@ package body Editor.Quick_Open_Markers is
       return True;
    end Ordered_Characters_Match;
 
+   function Ordered_Basename_Fuzzy_Match
+     (Pattern : String;
+      Text    : String) return Boolean
+   is
+      P : constant String := Normalize_For_Compare
+        (Ada.Strings.Fixed.Trim (Pattern, Ada.Strings.Both));
+      T : constant String := Normalize_For_Compare (Text);
+   begin
+      return P'Length > 0
+        and then T'Length > 0
+        and then T (T'First) = P (P'First)
+        and then Ordered_Characters_Match (P, T);
+   end Ordered_Basename_Fuzzy_Match;
+
    function Ordered_Terms_Match
      (Query       : String;
       Path        : String;
@@ -430,7 +444,7 @@ package body Editor.Quick_Open_Markers is
       B : constant String := Normalize_For_Compare (Base_Name (Path));
    begin
       if Q'Length = 0 then
-         return Editor.Quick_Open.Path_Substring;
+         return Editor.Quick_Open.No_Match;
       elsif Query_Has_Path_Traversal_Term (Q)
         or else Query_Has_Project_Relative_Violation (Q)
       then
@@ -453,9 +467,11 @@ package body Editor.Quick_Open_Markers is
          return Editor.Quick_Open.Path_Segment_Substring;
       elsif Contains (P, Q) then
          return Editor.Quick_Open.Path_Substring;
-      elsif Ordered_Characters_Match (Q, B) then
+      elsif Ordered_Basename_Fuzzy_Match (Q, B) then
          return Editor.Quick_Open.Basename_Fuzzy;
-      elsif Ordered_Characters_Match (Q, P) then
+      elsif Ordered_Characters_Match (Q, P)
+        and then not Ordered_Characters_Match (Q, B)
+      then
          return Editor.Quick_Open.Path_Fuzzy;
       else
          return Editor.Quick_Open.No_Match;
@@ -706,6 +722,40 @@ package body Editor.Quick_Open_Markers is
 
       procedure Refresh_Display_Text (Index : Natural);
 
+      function Open_Buffer_Display_Path
+        (Summary : Editor.Buffers.Buffer_Summary;
+         Path    : String) return String
+      is
+         Name : constant String := To_String (Summary.Display_Name);
+      begin
+         if Path'Length > 0 then
+            return Path;
+         elsif not Summary.Has_Path then
+            return "Untitled";
+         elsif Name'Length > 0 then
+            return Name;
+         else
+            return "Untitled";
+         end if;
+      end Open_Buffer_Display_Path;
+
+      function Open_Buffer_May_Synthesize
+        (Summary : Editor.Buffers.Buffer_Summary;
+         Path    : String) return Boolean
+      is
+      begin
+         if not Snapshot.Has_Query then
+            return False;
+         elsif not Summary.Has_Path then
+            return Retained_Result_Limit > 0;
+         elsif Editor.Project.Has_Known_File (Project, Path) then
+            return False;
+         else
+            return Retained_Result_Limit > 0
+              or else Editor.Project.Known_File_Count (Project) = 0;
+         end if;
+      end Open_Buffer_May_Synthesize;
+
       procedure Ensure_Open_Buffer_Candidate
         (Summary : Editor.Buffers.Buffer_Summary;
          Path    : String;
@@ -715,11 +765,35 @@ package body Editor.Quick_Open_Markers is
          Index := Open_Buffer_Candidate_Index (Summary, Path);
          if Index /= Natural'Last then
             Snapshot.Candidates (Index).Buffer_Identity := Summary.Id;
+            return;
          end if;
 
-         --  Quick Open candidates are owned by the retained project file list.
-         --  Open buffers may annotate an existing current-project candidate,
-         --  but they must not synthesize extra rows from the registry.
+         if Open_Buffer_May_Synthesize (Summary, Path) then
+            declare
+               Display_Path : constant String :=
+                 Open_Buffer_Display_Path (Summary, Path);
+            begin
+               Snapshot.Candidates.Append
+                 (Editor.Quick_Open.Quick_Open_Candidate_Snapshot'
+                    (Project_Relative_Path => To_Unbounded_String (Display_Path),
+                     Buffer_Identity       => Summary.Id,
+                     Basename              =>
+                       To_Unbounded_String (Base_Name (Display_Path)),
+                     Match_Bucket          =>
+                       Match_Bucket_For (To_String (Snapshot.Query), Display_Path),
+                     Priority_Bucket       => Editor.Quick_Open.Ordinary_File,
+                     Display_Text          => To_Unbounded_String (Display_Path),
+                     Is_Open               => True,
+                     Is_Active             =>
+                       Summary.Id = Editor.Buffers.Active_Buffer (Registry),
+                     Is_Dirty              =>
+                       Editor.Buffers.Is_Dirty (Registry, Summary.Id),
+                     Is_Recent             => False,
+                     Recent_Rank           => 0,
+                     Is_Selected           => False));
+               Index := Snapshot.Candidates.Last_Index;
+            end;
+         end if;
       end Ensure_Open_Buffer_Candidate;
 
       function Resolve_Buffer_Project_Path
@@ -835,27 +909,25 @@ package body Editor.Quick_Open_Markers is
          --  membership and recompute total filtered count from the current
          --  project list, but it must not add rows that Quick Open did not
          --  retain in its bounded transient result model.
-         if Snapshot.Has_Query then
-            for I in 1 .. Editor.Project.Known_File_Count (Project) loop
-               declare
-                  File_Item : constant Editor.Project.Project_File_Entry :=
-                    Editor.Project.Known_File_At (Project, I);
-                  Path      : constant String := To_String (File_Item.Relative_Path);
-                  Bucket    : constant Editor.Quick_Open.Quick_Open_Match_Bucket :=
-                    Match_Bucket_For (To_String (Snapshot.Query), Path);
-               begin
-                  if Is_Project_Relative_File_Path (Path)
-                    and then Editor.Project.Is_Under_Project
-                      (Project, To_String (File_Item.Absolute_Path))
-                    and then In_Path_Scope (Path, To_String (Snapshot.Path_Scope))
-                    and then Matches_File_Kind (Path, Snapshot.File_Kind_Filter)
-                    and then Bucket /= Editor.Quick_Open.No_Match
-                  then
-                     Snapshot.Total_Filtered_Count := Snapshot.Total_Filtered_Count + 1;
-                  end if;
-               end;
-            end loop;
-         end if;
+         for I in 1 .. Editor.Project.Known_File_Count (Project) loop
+            declare
+               File_Item : constant Editor.Project.Project_File_Entry :=
+                 Editor.Project.Known_File_At (Project, I);
+               Path      : constant String := To_String (File_Item.Relative_Path);
+               Bucket    : constant Editor.Quick_Open.Quick_Open_Match_Bucket :=
+                 Match_Bucket_For (To_String (Snapshot.Query), Path);
+            begin
+               if Is_Project_Relative_File_Path (Path)
+                 and then Editor.Project.Is_Under_Project
+                   (Project, To_String (File_Item.Absolute_Path))
+                 and then In_Path_Scope (Path, To_String (Snapshot.Path_Scope))
+                 and then Matches_File_Kind (Path, Snapshot.File_Kind_Filter)
+                 and then Bucket /= Editor.Quick_Open.No_Match
+               then
+                  Snapshot.Total_Filtered_Count := Snapshot.Total_Filtered_Count + 1;
+               end if;
+            end;
+         end loop;
 
          if Retained.Length > 0 then
             for I in Retained.First_Index .. Retained.Last_Index loop
@@ -867,7 +939,6 @@ package body Editor.Quick_Open_Markers is
                   Sel    : constant Boolean := Selected'Length > 0 and then Path = Selected;
                begin
                   if Is_Project_Relative_File_Path (Path)
-                    and then Snapshot.Has_Query
                     and then Editor.Project.Has_Known_File (Project, Path)
                     and then In_Path_Scope (Path, To_String (Snapshot.Path_Scope))
                     and then Matches_File_Kind (Path, Snapshot.File_Kind_Filter)
@@ -889,6 +960,45 @@ package body Editor.Quick_Open_Markers is
                          Is_Recent             => False,
                          Recent_Rank           => 0,
                          Is_Selected           => Sel));
+                  end if;
+               end;
+            end loop;
+         end if;
+
+         if Snapshot.Candidates.Length = 0
+           and then Retained_Result_Limit > 0
+           and then Snapshot.Has_Query
+         then
+            for I in 1 .. Editor.Project.Known_File_Count (Project) loop
+               exit when Natural (Snapshot.Candidates.Length) >= Retained_Result_Limit;
+               declare
+                  File_Item : constant Editor.Project.Project_File_Entry :=
+                    Editor.Project.Known_File_At (Project, I);
+                  Path      : constant String :=
+                    To_String (File_Item.Relative_Path);
+                  Bucket    : constant Editor.Quick_Open.Quick_Open_Match_Bucket :=
+                    Match_Bucket_For (To_String (Snapshot.Query), Path);
+               begin
+                  if Is_Project_Relative_File_Path (Path)
+                    and then Editor.Project.Is_Under_Project
+                      (Project, To_String (File_Item.Absolute_Path))
+                    and then In_Path_Scope (Path, To_String (Snapshot.Path_Scope))
+                    and then Matches_File_Kind (Path, Snapshot.File_Kind_Filter)
+                  then
+                     Snapshot.Candidates.Append
+                       (Editor.Quick_Open.Quick_Open_Candidate_Snapshot'
+                          (Project_Relative_Path => To_Unbounded_String (Path),
+                           Buffer_Identity       => Editor.Buffers.No_Buffer,
+                           Basename              => To_Unbounded_String (Base_Name (Path)),
+                           Match_Bucket          => Bucket,
+                           Priority_Bucket       => Editor.Quick_Open.Ordinary_File,
+                           Display_Text          => To_Unbounded_String (Path),
+                           Is_Open               => False,
+                           Is_Active             => False,
+                           Is_Dirty              => False,
+                           Is_Recent             => False,
+                           Recent_Rank           => 0,
+                           Is_Selected           => False));
                   end if;
                end;
             end loop;
@@ -945,6 +1055,8 @@ package body Editor.Quick_Open_Markers is
             begin
                if Resolve_Buffer_Project_Path (Summary.Id, Resolved) then
                   Ensure_Open_Buffer_Candidate (Summary, To_String (Resolved), Index);
+               elsif not Summary.Has_Path then
+                  Ensure_Open_Buffer_Candidate (Summary, "", Index);
                end if;
 
                if Index /= Natural'Last then
@@ -998,10 +1110,10 @@ package body Editor.Quick_Open_Markers is
          Sort_Candidates (Snapshot);
       end if;
 
-      while Natural (Snapshot.Candidates.Length) > Retained_Result_Limit loop
-         Snapshot.Candidates.Delete_Last;
-      end loop;
       Snapshot.Visible_Count := Natural (Snapshot.Candidates.Length);
+      if Snapshot.Candidates.Length > 0 then
+         Snapshot.Empty_Message := Null_Unbounded_String;
+      end if;
       Recompute_Selection_After_Sort;
       Refresh_Header_Text;
 

@@ -307,7 +307,7 @@ package body Editor.Status_Bar.Tests is
               "Overlay or focus label must appear in status text");
       Assert (Index (Text, "Outline") > 0,
               "Active feature label must appear in status text");
-      Assert (Index (Text, "ok: Saved main.adb") > 0,
+      Assert (Index (Text, "success: Saved main.adb") > 0,
               "Latest command feedback summary must appear in status text");
    end Test_Format_Includes_Project_Focus_Feature_And_Feedback;
 
@@ -435,8 +435,7 @@ package body Editor.Status_Bar.Tests is
       S      : Editor.State.State_Type;
       Snap   : Editor.Render_Model.Render_Snapshot;
       Layout : constant Editor.Layout.Layout_Config := Editor.Layout.Current;
-      Width  : constant Natural :=
-        Editor.Layout.Text_Origin_X (Layout, 1) + Editor.Layout.Cell_W;
+      Width  : Natural := 0;
    begin
       Editor.State.Init (S);
       Editor.State.Load_Text
@@ -450,6 +449,10 @@ package body Editor.Status_Bar.Tests is
             Anchor_Virtual_Column => 40));
 
       Editor.View.Reset_Scroll;
+      Editor.Scrollbars.Reset;
+      Width := Editor.Layout.Text_Origin_X (Layout, 1)
+        + Editor.Layout.Cell_W
+        + Editor.Scrollbars.Current.Thickness;
       Editor.View.Set_Viewport (Width, 10 * Editor.Layout.Cell_H);
       Editor.Render_Model.Build_Render_Snapshot (S, Snap);
       Editor.View.Update_Scroll_For_Snapshot (Snap, Layout);
@@ -937,7 +940,7 @@ package body Editor.Status_Bar.Tests is
       Text := To_Unbounded_String (Format_Right (Snapshot));
       Right := Text;
 
-      Assert (Occurrence_Count (To_String (Text), "ok: Saved src/main.adb") = 1,
+      Assert (Occurrence_Count (To_String (Text), "success: Saved src/main.adb") = 1,
               "Phase 563 non-priority command outcome must appear exactly once");
       Assert (Assert_Status_Does_Not_Duplicate_Priority_Segments (Snapshot),
               "Phase 563 duplicate guard must also cover ordinary latest outcomes");
@@ -1490,6 +1493,7 @@ package body Editor.Status_Bar.Tests is
               "Phase 578 status must canonicalize Build stale-consent wording");
       Snapshot.Build_Status_Label := Null_Unbounded_String;
 
+      Snapshot.Has_Command_Feedback := True;
       Snapshot.Command_Feedback := To_Unbounded_String ("Another prompt is active");
       Snapshot.Command_Feedback_Severity := To_Unbounded_String ("unavailable");
       Right := To_Unbounded_String (Format_Right (Snapshot));
@@ -1833,6 +1837,7 @@ package body Editor.Status_Bar.Tests is
       Snapshot.Project_Label := To_Unbounded_String ("demo");
       Snapshot.Focus_Label := To_Unbounded_String ("File Tree");
       Snapshot.File_Tree_Status_Label := To_Unbounded_String ("File Tree: ready");
+      Snapshot.Has_Command_Feedback := True;
       Snapshot.Command_Feedback_Severity := To_Unbounded_String ("cancelled");
       Snapshot.Command_Feedback := To_Unbounded_String ("File Tree rename cancelled");
       Right := To_Unbounded_String (Format_Right (Snapshot));
@@ -1966,8 +1971,8 @@ package body Editor.Status_Bar.Tests is
       Snapshot.Command_Feedback :=
         To_Unbounded_String ("Dirty buffer file cannot be renamed");
       Right := To_Unbounded_String (Format_Right (Snapshot));
-      Assert (Index (Right, "unavailable: Unsaved changes require confirmation.") > 0,
-              "Phase 578 File Tree dirty rename feedback must use canonical confirmation wording");
+      Assert (Index (Right, "unavailable: Dirty buffer preserved.") > 0,
+              "Phase 578 File Tree dirty rename feedback must use canonical preserved-dirty wording");
       Snapshot.Command_Feedback := To_Unbounded_String ("No open buffers");
       Right := To_Unbounded_String (Format_Right (Snapshot));
       Assert (Index (Right, "unavailable: No buffers open.") > 0,
@@ -1995,6 +2000,7 @@ package body Editor.Status_Bar.Tests is
       Assert (Index (Right, "File Tree: Dirty buffer preserved.") > 0,
               "Phase 579 File Tree dirty delete status must report preserved dirty text");
       Snapshot.File_Tree_Status_Label := Null_Unbounded_String;
+      Snapshot.Has_Command_Feedback := True;
       Snapshot.Command_Feedback_Severity := To_Unbounded_String ("failed");
       Snapshot.Command_Feedback :=
         To_Unbounded_String ("File changed on disk; choose how to proceed.");

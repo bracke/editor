@@ -6,6 +6,8 @@ with Editor.Ada_Declarative_Regions;
 
 package body Editor.Ada_Generic_Formal_Type_Conformance is
 
+   pragma Suppress (Overflow_Check);
+
    use type Editor.Ada_Type_Graph.Type_Id;
 
    function Mix (Left, Right : Natural) return Natural is

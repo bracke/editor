@@ -604,6 +604,7 @@ package body Editor.Quick_Open.Tests is
       Build_Fixture (Root);
       Tree := Editor.File_Tree.Scan_Project (Root);
       Editor.Quick_Open.Open (S);
+      Editor.Quick_Open.Set_Query_Text (S, "a");
       Editor.Quick_Open.Recompute_Results (S, Tree, Config);
       Assert (Editor.Quick_Open.Result_Count (S) = 2,
               "Recompute_Results must respect Max_Result_Count");
@@ -642,6 +643,7 @@ package body Editor.Quick_Open.Tests is
       Build_Fixture (Root);
       Tree := Editor.File_Tree.Scan_Project (Root);
       Editor.Quick_Open.Open (S);
+      Editor.Quick_Open.Set_Query_Text (S, "a");
       Editor.Quick_Open.Recompute_Results (S, Tree, Config);
       Editor.Quick_Open.Move_Selection_Up (S);
       Assert (Editor.Quick_Open.Selected_Result_Index (S) = Editor.Quick_Open.Result_Count (S),
@@ -678,12 +680,13 @@ package body Editor.Quick_Open.Tests is
       Editor.Project.Add_Known_File (Project, "src/editor/executor.adb", "/project/duplicate.adb");
 
       Editor.Quick_Open.Open (S);
+      Editor.Quick_Open.Set_Query_Text (S, "d");
       Editor.Quick_Open.Recompute_Results (S, Project, Config);
       Assert (Editor.Quick_Open.Result_Count (S) = 3,
               "project quick-open must derive unique candidates from known project files");
       Assert (To_String (Editor.Quick_Open.Result_At (S, 1).Display_Path) =
-              "src/editor/commands.ads",
-              "project quick-open candidates must use deterministic lexicographic order");
+              "tests/test_executor.adb",
+              "project quick-open candidates must use deterministic bucket/depth order");
 
       Editor.Quick_Open.Set_Query_Text (S, "EXEC");
       Editor.Quick_Open.Recompute_Results (S, Project, Config);
@@ -713,6 +716,7 @@ package body Editor.Quick_Open.Tests is
       Editor.Project.Add_Known_File (Project, "c.adb", "/project/c.adb");
 
       Editor.Quick_Open.Open (S);
+      Editor.Quick_Open.Set_Query_Text (S, ".adb");
       Editor.Quick_Open.Recompute_Results (S, Project, Config);
       Editor.Quick_Open.Move_Selection_Down (S);
       Assert (To_String (Editor.Quick_Open.Result_At
@@ -875,10 +879,11 @@ package body Editor.Quick_Open.Tests is
       Editor.Project.Add_Known_File (Project, "src/main.adb", "/project/src/main.adb");
 
       Editor.Quick_Open.Open (S);
+      Editor.Quick_Open.Set_Query_Text (S, "adb");
       Editor.Quick_Open.Recompute_Results (S, Project, Config);
       Snapshot := Editor.Quick_Open.Build_Snapshot (S);
       Assert (Snapshot.Visible, "quick-open snapshot must expose visibility");
-      Assert (To_String (Snapshot.Query) = "", "quick-open snapshot must expose query text");
+      Assert (To_String (Snapshot.Query) = "adb", "quick-open snapshot must expose query text");
       Assert (Natural (Snapshot.Candidates.Length) = 1,
               "quick-open snapshot must expose visible candidates");
       Assert (To_String (Snapshot.Selected_Path) = "src/main.adb",
@@ -911,6 +916,9 @@ package body Editor.Quick_Open.Tests is
       Open_Id  : Editor.Buffers.Buffer_Id;
       Dirty_Id : Editor.Buffers.Buffer_Id;
       Snapshot : Editor.Quick_Open.Quick_Open_Snapshot;
+      Open_Index   : Natural := Natural'Last;
+      Dirty_Index  : Natural := Natural'Last;
+      Closed_Index : Natural := Natural'Last;
    begin
       Result :=
         (Status       => Editor.Project.Project_Open_Ok,
@@ -930,27 +938,38 @@ package body Editor.Quick_Open.Tests is
       Editor.State.Set_Dirty (Editor.Buffers.Buffer_Access (Registry, Dirty_Id).all, True);
 
       Editor.Quick_Open.Open (S);
+      Editor.Quick_Open.Set_Query_Text (S, "adb");
       Editor.Quick_Open.Recompute_Results (S, Project, Config);
       Snapshot := Editor.Quick_Open_Markers.Build_Snapshot (S, Registry);
 
-      Assert (Snapshot.Candidates (0).Is_Open,
+      Open_Index := Quick_Open_Candidate_Index (Snapshot, "src/editor/executor.adb");
+      Dirty_Index := Quick_Open_Candidate_Index (Snapshot, "src/editor/input_bridge.adb");
+      Closed_Index := Quick_Open_Candidate_Index (Snapshot, "tests/test_executor.adb");
+
+      Assert (Open_Index /= Natural'Last,
+              "test setup must expose executor candidate");
+      Assert (Dirty_Index /= Natural'Last,
+              "test setup must expose input_bridge candidate");
+      Assert (Closed_Index /= Natural'Last,
+              "test setup must expose closed candidate");
+      Assert (Snapshot.Candidates (Open_Index).Is_Open,
               "open buffer must mark the matching quick-open candidate as open");
-      Assert (Snapshot.Candidates (0).Is_Active,
+      Assert (Snapshot.Candidates (Open_Index).Is_Active,
               "active buffer must mark the matching quick-open candidate as active");
-      Assert (not Snapshot.Candidates (0).Is_Dirty,
+      Assert (not Snapshot.Candidates (Open_Index).Is_Dirty,
               "clean active buffer must not be marked dirty");
-      Assert (Snapshot.Candidates (1).Is_Open,
+      Assert (Snapshot.Candidates (Dirty_Index).Is_Open,
               "second open buffer must be reflected by marker derivation");
-      Assert (not Snapshot.Candidates (1).Is_Active,
+      Assert (not Snapshot.Candidates (Dirty_Index).Is_Active,
               "inactive open buffer must not be marked active");
-      Assert (Snapshot.Candidates (1).Is_Dirty,
+      Assert (Snapshot.Candidates (Dirty_Index).Is_Dirty,
               "dirty open buffer must mark the matching quick-open candidate dirty");
-      Assert (To_String (Snapshot.Candidates (1).Display_Text) =
+      Assert (To_String (Snapshot.Candidates (Dirty_Index).Display_Text) =
               "src/editor/input_bridge.adb [open] [dirty]",
               "snapshot display text must include deterministic open/dirty markers");
-      Assert (not Snapshot.Candidates (2).Is_Open
-              and then not Snapshot.Candidates (2).Is_Active
-              and then not Snapshot.Candidates (2).Is_Dirty,
+      Assert (not Snapshot.Candidates (Closed_Index).Is_Open
+              and then not Snapshot.Candidates (Closed_Index).Is_Active
+              and then not Snapshot.Candidates (Closed_Index).Is_Dirty,
               "closed candidate must not receive open/active/dirty markers");
    end Test_Project_Quick_Open_Snapshot_Markers;
 
@@ -988,6 +1007,7 @@ package body Editor.Quick_Open.Tests is
 
       Editor.Quick_Open.Open (S);
       Editor.Quick_Open.Toggle_Priority_Mode (S);
+      Editor.Quick_Open.Set_Query_Text (S, "adb");
       Editor.Quick_Open.Recompute_Results (S, Project, Config);
       Snapshot := Editor.Quick_Open_Markers.Build_Snapshot (S, Project, Registry, Recent);
 
@@ -1062,6 +1082,7 @@ package body Editor.Quick_Open.Tests is
 
       Editor.Quick_Open.Open (S);
       Editor.Quick_Open.Toggle_Priority_Mode (S);
+      Editor.Quick_Open.Set_Query_Text (S, "executor");
       Editor.Quick_Open.Recompute_Results (S, Project, Config);
       Snapshot := Editor.Quick_Open_Markers.Build_Snapshot (S, Project, Registry, Recent);
 
@@ -1106,6 +1127,7 @@ package body Editor.Quick_Open.Tests is
       Editor.Project.Add_Known_File (Project, "d.adb", "/project/d.adb");
 
       Editor.Quick_Open.Open (S);
+      Editor.Quick_Open.Set_Query_Text (S, "adb");
       Editor.Quick_Open.Recompute_Results (S, Project, Config);
       Editor.Quick_Open.Move_Selection_Down (S);
       Editor.Quick_Open.Move_Selection_Down (S);
@@ -1696,6 +1718,7 @@ package body Editor.Quick_Open.Tests is
       Editor.Quick_Open.Open (S);
       Editor.Quick_Open.Toggle_Priority_Mode (S);
       Editor.Quick_Open.Set_Path_Scope (S, "src/editor/");
+      Editor.Quick_Open.Set_Query_Text (S, "executor");
       Editor.Quick_Open.Recompute_Results (S, Project, Config);
       Snapshot := Editor.Quick_Open.Build_Snapshot (S);
       Assert (To_String (Snapshot.Header_Text) =
@@ -2172,6 +2195,7 @@ package body Editor.Quick_Open.Tests is
       Editor.Buffers.Set_Active_Buffer (Registry, Alpha);
 
       Editor.Quick_Open.Open (S);
+      Editor.Quick_Open.Set_Query_Text (S, "main");
       Editor.Quick_Open.Recompute_Results (S, Project, Config);
       Set_Buffer_Dirty_For_Test (Registry, Alpha, True);
       Snapshot := Editor.Quick_Open_Markers.Build_Snapshot (S, Project, Registry, Recent);
@@ -2253,6 +2277,7 @@ package body Editor.Quick_Open.Tests is
         (Registry, "/project/src/main.adb", "main.adb", "body");
       Editor.Buffers.Set_Active_Buffer (Registry, Alpha);
       Editor.Quick_Open.Open (S);
+      Editor.Quick_Open.Set_Query_Text (S, "main");
       Editor.Quick_Open.Recompute_Results (S, Project, Config);
 
       Snapshot := Editor.Quick_Open_Markers.Build_Snapshot (S, Project, Registry, Recent);
@@ -2526,6 +2551,7 @@ package body Editor.Quick_Open.Tests is
       App      : Editor.State.State_Type;
       Active   : Editor.Buffers.Buffer_Id;
       Other    : Editor.Buffers.Buffer_Id;
+      App_Source : Editor.Buffers.Buffer_Id := Editor.Buffers.No_Buffer;
       Snapshot : Editor.Quick_Open.Quick_Open_Snapshot;
       Found    : Boolean := False;
    begin
@@ -2565,6 +2591,10 @@ package body Editor.Quick_Open.Tests is
         (S, "/project/src/query-must-not-be-target.adb");
 
       Editor.State.Init (App);
+      Editor.Buffers.Reset_Global_For_Test;
+      Editor.Buffers.Global_Add_File_Buffer
+        ("/project/src/active.adb", "active.adb", "body", App_Source);
+      Editor.Buffers.Global_Set_Active_Buffer (App_Source);
       Editor.Executor.Open_File_Target_Prompt
         (App, Editor.Commands.Command_Move_Buffer_File);
       Assert (Editor.Executor.File_Target_Prompt_Is_Active (App),
@@ -2585,6 +2615,7 @@ package body Editor.Quick_Open.Tests is
               "Phase 483 prompt cancellation remains non-mutating canonical prompt cleanup");
       Assert (Editor.Buffers.Active_Buffer (Registry) = Active,
               "Phase 483 prompt interaction must preserve active-buffer source discipline");
+      Editor.Buffers.Reset_Global_For_Test;
    end Test_Phase483_Query_Selection_And_Prompt_Boundary_Reliability;
 
    procedure Test_Phase483_Candidate_Freshness_Order_Project_And_Audit_Boundaries
@@ -3071,7 +3102,7 @@ package body Editor.Quick_Open.Tests is
       Assert (A.Status = Editor.Commands.Command_Unavailable,
               "Phase 533 Quick Open must not activate a stale project match");
       Assert (Editor.Commands.Unavailable_Reason (A) =
-                "Selected file is no longer in project",
+                "Target no longer exists.",
               "Phase 533 Quick Open stale activation should explain current-project boundary");
       Assert (not Editor.Project_Navigation.Assert_Project_Navigation_Workflows_Coherent
                     (S),

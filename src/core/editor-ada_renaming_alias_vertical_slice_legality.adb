@@ -2,6 +2,8 @@ with Ada.Strings.Unbounded; use Ada.Strings.Unbounded;
 
 package body Editor.Ada_Renaming_Alias_Vertical_Slice_Legality is
 
+   pragma Suppress (Overflow_Check);
+
    function Mix (A, B : Natural) return Natural is
    begin
       return ((A * 65599) + (B * 1009) + 1309) mod 1_000_000_007;
@@ -180,7 +182,7 @@ package body Editor.Ada_Renaming_Alias_Vertical_Slice_Legality is
    begin
       Model.Items.Append (Info);
       Model.Result_Fingerprint := Mix (Model.Result_Fingerprint, Natural (Info.Id));
-      Model.Result_Fingerprint := Mix (Model.Result_Fingerprint, Natural (Info.Kind'Pos));
+      Model.Result_Fingerprint := Mix (Model.Result_Fingerprint, Natural (Rename_Kind'Pos (Info.Kind)));
       Model.Result_Fingerprint := Mix (Model.Result_Fingerprint, Info.Source_Fingerprint);
       Model.Result_Fingerprint := Mix (Model.Result_Fingerprint, Info.AST_Fingerprint);
       Model.Result_Fingerprint := Mix (Model.Result_Fingerprint, Info.Substitution_Fingerprint);
@@ -290,8 +292,8 @@ package body Editor.Ada_Renaming_Alias_Vertical_Slice_Legality is
             R.Status := Status_For (R, Info);
             R.Message := To_Unbounded_String (Legality_Status'Image (R.Status));
             R.Detail := Info.Source_Name;
-            R.Fingerprint := Mix (Natural (R.Id), Natural (R.Status'Pos));
-            R.Fingerprint := Mix (R.Fingerprint, Natural (R.Kind'Pos));
+            R.Fingerprint := Mix (Natural (R.Id), Natural (Legality_Status'Pos (R.Status)));
+            R.Fingerprint := Mix (R.Fingerprint, Natural (Rename_Kind'Pos (R.Kind)));
             R.Fingerprint := Mix (R.Fingerprint, R.Source_Fingerprint);
             R.Fingerprint := Mix (R.Fingerprint, R.AST_Fingerprint);
             R.Fingerprint := Mix (R.Fingerprint, R.Substitution_Fingerprint);

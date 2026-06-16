@@ -2,6 +2,10 @@ with Ada.Strings.Unbounded; use Ada.Strings.Unbounded;
 
 package body Editor.Ada_Representation_Operational_AST_Repair_Legality is
 
+   pragma Suppress (Overflow_Check);
+   use type Editor.Ada_Syntax_Tree.Node_Id;
+
+
    function Mix (A, B : Natural) return Natural is
    begin
       return ((A * 131) + B + 17) mod 2_147_483_647;
@@ -215,7 +219,7 @@ package body Editor.Ada_Representation_Operational_AST_Repair_Legality is
       C : Representation_Operational_AST_Repair_Context_Info := Context;
    begin
       if C.Id = No_Representation_Operational_AST_Repair_Row then
-         C.Id := Representation_Operational_AST_Repair_Row_Id (Model.Contexts.Length + 1);
+         C.Id := Representation_Operational_AST_Repair_Row_Id (Natural (Model.Contexts.Length) + 1);
       end if;
       if C.Construct = Representation_Operational_AST_Unknown then
          C.Construct := Map_Construct (C.Audit_Construct);
@@ -311,7 +315,7 @@ package body Editor.Ada_Representation_Operational_AST_Repair_Legality is
                   declare
                      C : Representation_Operational_AST_Repair_Context_Info;
                   begin
-                     C.Id := Representation_Operational_AST_Repair_Row_Id (Contexts.Contexts.Length + 1);
+                     C.Id := Representation_Operational_AST_Repair_Row_Id (Natural (Contexts.Contexts.Length) + 1);
                      C.Construct := Map_Construct (Row.Construct);
                      C.Audit_Construct := Row.Construct;
                      C.Consumer := Row.Consumer;

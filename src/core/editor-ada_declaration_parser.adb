@@ -8,6 +8,8 @@ with Editor.Ada_Syntax_Tree;
 
 package body Editor.Ada_Declaration_Parser is
 
+   pragma Suppress (Overflow_Check);
+
    use Editor.Ada_Language_Model;
 
    function Lower (S : String) return String is
@@ -173,6 +175,36 @@ package body Editor.Ada_Declaration_Parser is
       return False;
    end Has_Code_Char;
 
+   function Declaration_Colon_Position (Line : String) return Natural is
+      Code    : constant String := Editor.Ada_Syntax_Core.Sanitize_Line (Line);
+      Nesting : Natural := 0;
+   begin
+      for I in Code'Range loop
+         if Code (I) = '(' then
+            Nesting := Nesting + 1;
+         elsif Code (I) = ')' then
+            if Nesting > 0 then
+               Nesting := Nesting - 1;
+            end if;
+         elsif Code (I) = ';' and then Nesting = 0 then
+            return 0;
+         elsif Code (I) = ':' and then Nesting = 0 then
+            if I < Code'Last and then Code (I + 1) = '=' then
+               null;
+            else
+               return I;
+            end if;
+         end if;
+      end loop;
+
+      return 0;
+   end Declaration_Colon_Position;
+
+   function Has_Declaration_Colon (Line : String) return Boolean is
+   begin
+      return Declaration_Colon_Position (Line) /= 0;
+   end Has_Declaration_Colon;
+
    function Has_Token (Line, Token : String) return Boolean is
       Code : constant String := Editor.Ada_Syntax_Core.Sanitize_Line (Line);
       I    : Natural := Code'First;
@@ -192,6 +224,30 @@ package body Editor.Ada_Declaration_Parser is
       end loop;
       return False;
    end Has_Token;
+
+   function Token_Source_Position (Line, Token : String) return Natural is
+      Code : constant String := Lower (Editor.Ada_Syntax_Core.Sanitize_Line (Line));
+      I    : Natural := Code'First;
+   begin
+      if Token'Length = 0 then
+         return 0;
+      end if;
+
+      while I <= Code'Last loop
+         if I + Token'Length - 1 <= Code'Last
+           and then Code (I .. I + Token'Length - 1) = Token
+           and then (I = Code'First or else not Is_Word_Char (Code (I - 1)))
+           and then (I + Token'Length > Code'Last
+                     or else not Is_Word_Char (Code (I + Token'Length)))
+         then
+            return Line'First + (I - Code'First);
+         end if;
+         I := I + 1;
+      end loop;
+
+      return 0;
+   end Token_Source_Position;
+
 
    function Has_Token_Pair (Line, First_Token, Second_Token : String) return Boolean is
       Code : constant String := Editor.Ada_Syntax_Core.Sanitize_Line (Line);
@@ -237,6 +293,43 @@ package body Editor.Ada_Declaration_Parser is
       end loop;
       return False;
    end Has_Token_Pair;
+
+   function Has_Object_Constant_Qualifier (Line : String) return Boolean is
+      Code  : constant String := Lower (Editor.Ada_Syntax_Core.Sanitize_Line (Line));
+      Colon : constant Natural := Ada.Strings.Fixed.Index (Code, ":");
+      I     : Natural;
+
+      procedure Skip_Blanks is
+      begin
+         while I <= Code'Last
+           and then (Code (I) = ' ' or else Code (I) = Ada.Characters.Latin_1.HT)
+         loop
+            I := I + 1;
+         end loop;
+      end Skip_Blanks;
+
+      function Token_At (Token : String) return Boolean is
+      begin
+         return I + Token'Length - 1 <= Code'Last
+           and then Code (I .. I + Token'Length - 1) = Token
+           and then (I = Code'First or else not Is_Word_Char (Code (I - 1)))
+           and then (I + Token'Length > Code'Last
+                     or else not Is_Word_Char (Code (I + Token'Length)));
+      end Token_At;
+   begin
+      if Colon = 0 or else Colon >= Code'Last then
+         return False;
+      end if;
+
+      I := Colon + 1;
+      Skip_Blanks;
+      if I <= Code'Last and then Token_At ("aliased") then
+         I := I + 7;
+         Skip_Blanks;
+      end if;
+
+      return I <= Code'Last and then Token_At ("constant");
+   end Has_Object_Constant_Qualifier;
 
 
    function Has_Access_Subprogram_Metadata (Line : String) return Boolean is
@@ -904,8 +997,7 @@ package body Editor.Ada_Declaration_Parser is
       --  Aspect specifications are declaration metadata.  Detect top-level
       --  ``with`` aspect introducers while deliberately ignoring Ada grammar
       --  uses of ``with`` that are declarations themselves or type syntax:
-      --     with Ada.Text_IO;
-      --     with procedure P;
+      --           --     with procedure P;
       --     type T is new Parent with record ...
       --     type T is new Parent with private;
       --  This keeps the parser bounded and conservative while preserving
@@ -988,7 +1080,11 @@ package body Editor.Ada_Declaration_Parser is
       end if;
 
       declare
-         Raw_Target : constant String := Trim (Code (For_Pos + 3 .. Use_Pos - 1));
+         Raw_Start  : constant Natural :=
+           Code'First + (For_Pos - Lowered'First) + 3;
+         Raw_Stop   : constant Natural :=
+           Code'First + (Use_Pos - Lowered'First) - 1;
+         Raw_Target : constant String := Trim (Code (Raw_Start .. Raw_Stop));
       begin
          if Raw_Target'Length = 0 then
             return "";
@@ -2636,26 +2732,78 @@ package body Editor.Ada_Declaration_Parser is
       Start     : Positive;
       Allow_Dot : Boolean := True) return String
    is
-      I : Natural := Start;
-      J : Natural;
+      I      : Natural := Start;
+      K      : Natural;
+      Len    : Natural := 0;
+      Result : String (1 .. 256) := (others => ' ');
+
+      procedure Append (C : Character) is
+      begin
+         if Len < Result'Length then
+            Len := Len + 1;
+            Result (Len) := C;
+         end if;
+      end Append;
    begin
-      while I <= Text'Last and then (Text (I) = ' ' or else Text (I) = Ada.Characters.Latin_1.HT) loop
+      while I <= Text'Last
+        and then (Text (I) = ' ' or else Text (I) = Ada.Characters.Latin_1.HT)
+      loop
          I := I + 1;
       end loop;
+
       if I > Text'Last
         or else not ((Text (I) >= 'A' and then Text (I) <= 'Z')
                      or else (Text (I) >= 'a' and then Text (I) <= 'z'))
       then
          return "";
       end if;
-      J := I;
-      while J <= Text'Last
-        and then (Is_Word_Char (Text (J)) or else (Allow_Dot and then Text (J) = '.'))
+
       loop
-         J := J + 1;
+         if I > Text'Last
+           or else not ((Text (I) >= 'A' and then Text (I) <= 'Z')
+                        or else (Text (I) >= 'a' and then Text (I) <= 'z'))
+         then
+            exit;
+         end if;
+
+         while I <= Text'Last and then Is_Word_Char (Text (I)) loop
+            Append (Text (I));
+            I := I + 1;
+         end loop;
+
+         exit when not Allow_Dot;
+
+         K := I;
+         while K <= Text'Last
+           and then (Text (K) = ' ' or else Text (K) = Ada.Characters.Latin_1.HT)
+         loop
+            K := K + 1;
+         end loop;
+
+         exit when K > Text'Last or else Text (K) /= '.';
+
+         K := K + 1;
+         while K <= Text'Last
+           and then (Text (K) = ' ' or else Text (K) = Ada.Characters.Latin_1.HT)
+         loop
+            K := K + 1;
+         end loop;
+
+         exit when K > Text'Last
+           or else not ((Text (K) >= 'A' and then Text (K) <= 'Z')
+                        or else (Text (K) >= 'a' and then Text (K) <= 'z'));
+
+         Append ('.');
+         I := K;
       end loop;
-      return Text (I .. J - 1);
+
+      if Len = 0 then
+         return "";
+      else
+         return Result (1 .. Len);
+      end if;
    end Read_Name;
+
 
    function Read_Function_Name
      (Text      : String;
@@ -2680,6 +2828,45 @@ package body Editor.Ada_Declaration_Parser is
       end if;
       return Read_Name (Text, Start, Allow_Dot);
    end Read_Function_Name;
+
+   function Declaration_Name_Position
+     (Text          : String;
+      Declared_Name : String) return Natural
+   is
+      Source : constant String := Lower (Text);
+      Needle : constant String := Lower (Declared_Name);
+
+      function Boundary_Before (Pos : Natural) return Boolean is
+      begin
+         return Pos = Source'First
+           or else not (Is_Word_Char (Source (Pos - 1))
+                        or else Source (Pos - 1) = '.');
+      end Boundary_Before;
+
+      function Boundary_After (Pos : Natural) return Boolean is
+      begin
+         return Pos > Source'Last
+           or else not (Is_Word_Char (Source (Pos))
+                        or else Source (Pos) = '.'
+                        or else Source (Pos) = Character'Val (16#27#));
+      end Boundary_After;
+   begin
+      if Needle'Length = 0 or else Source'Length < Needle'Length then
+         return 0;
+      end if;
+
+      for I in Source'First .. Source'Last - Needle'Length + 1 loop
+         if Source (I .. I + Needle'Length - 1) = Needle
+           and then (Needle (Needle'First) = '"'
+                     or else (Boundary_Before (I)
+                              and then Boundary_After (I + Needle'Length)))
+         then
+            return Text'First + (I - Source'First);
+         end if;
+      end loop;
+
+      return 0;
+   end Declaration_Name_Position;
 
    function Read_Subtype_Mark
      (Text      : String;
@@ -2735,7 +2922,7 @@ package body Editor.Ada_Declaration_Parser is
          return "";
       end if;
 
-      Name_Pos := Ada.Strings.Fixed.Index (Lower (Line), Lower (Declared_Name));
+      Name_Pos := Declaration_Name_Position (Line, Declared_Name);
       if Name_Pos = 0 then
          return "";
       end if;
@@ -2751,9 +2938,18 @@ package body Editor.Ada_Declaration_Parser is
          return "";
       end if;
 
+      if Starts_With_Word (L (Start .. L'Last), "is")
+        or else Starts_With_Word (L (Start .. L'Last), "renames")
+        or else Starts_With_Word (L (Start .. L'Last), "with")
+        or else Starts_With_Word (L (Start .. L'Last), "when")
+      then
+         return "";
+      end if;
+
       Stop := Line'Last;
       declare
-         function Index_From_Profile_Start (Pattern : String) return Natural is
+         function Top_Level_Index_From_Profile_Start (Pattern : String) return Natural is
+            Depth : Natural := 0;
          begin
             if Pattern'Length = 0
               or else Pattern'Length > L'Length
@@ -2770,20 +2966,49 @@ package body Editor.Ada_Declaration_Parser is
                end if;
 
                for I in Start .. Last_Start loop
-                  if L (I .. I + Pattern'Length - 1) = Pattern then
+                  if L (I) = '(' then
+                     Depth := Depth + 1;
+                  elsif L (I) = ')' then
+                     if Depth > 0 then
+                        Depth := Depth - 1;
+                     end if;
+                  elsif Depth = 0
+                    and then L (I .. I + Pattern'Length - 1) = Pattern
+                  then
                      return I;
                   end if;
                end loop;
             end;
 
             return 0;
-         end Index_From_Profile_Start;
+         end Top_Level_Index_From_Profile_Start;
 
-         Semi     : constant Natural := Index_From_Profile_Start (";");
-         Is_Pos   : constant Natural := Index_From_Profile_Start (" is");
-         Ren_Pos  : constant Natural := Index_From_Profile_Start (" renames");
-         When_Pos : constant Natural := Index_From_Profile_Start (" when ");
-         With_Pos : constant Natural := Index_From_Profile_Start (" with ");
+         function Top_Level_Semicolon_From_Profile_Start return Natural is
+            Depth : Natural := 0;
+         begin
+            if Start > L'Last then
+               return 0;
+            end if;
+
+            for I in Start .. L'Last loop
+               if L (I) = '(' then
+                  Depth := Depth + 1;
+               elsif L (I) = ')' then
+                  if Depth > 0 then
+                     Depth := Depth - 1;
+                  end if;
+               elsif L (I) = ';' and then Depth = 0 then
+                  return I;
+               end if;
+            end loop;
+            return 0;
+         end Top_Level_Semicolon_From_Profile_Start;
+
+         Semi     : constant Natural := Top_Level_Semicolon_From_Profile_Start;
+         Is_Pos   : constant Natural := Top_Level_Index_From_Profile_Start (" is");
+         Ren_Pos  : constant Natural := Top_Level_Index_From_Profile_Start (" renames");
+         When_Pos : constant Natural := Top_Level_Index_From_Profile_Start (" when ");
+         With_Pos : constant Natural := Top_Level_Index_From_Profile_Start (" with ");
       begin
          if Semi /= 0 then
             Stop := Natural'Min (Stop, Semi - 1);
@@ -2817,6 +3042,51 @@ package body Editor.Ada_Declaration_Parser is
       return Trim (Line (Start .. Stop));
    end Profile_From;
 
+   function Profile_Continuation_From_Line (Line : String) return String is
+      Clean : constant String := Trim (Editor.Ada_Syntax_Core.Sanitize_Line (Line));
+      L     : constant String := Lower (Clean);
+      Stop  : Natural := Clean'Last;
+      Depth : Natural := 0;
+      Seen_Close : Boolean := False;
+   begin
+      if Clean'Length = 0 or else Clean (Clean'First) /= '(' then
+         return "";
+      end if;
+
+      for I in Clean'Range loop
+         if L (I) = '(' then
+            Depth := Depth + 1;
+         elsif L (I) = ')' then
+            if Depth > 0 then
+               Depth := Depth - 1;
+            end if;
+            if Depth = 0 then
+               Seen_Close := True;
+            end if;
+         elsif Depth = 0 then
+            if L (I) = ';' then
+               Stop := I - 1;
+               exit;
+            elsif I + 2 <= L'Last and then L (I .. I + 2) = " is" then
+               Stop := I - 1;
+               exit;
+            elsif I + 5 <= L'Last and then L (I .. I + 5) = " with " then
+               Stop := I - 1;
+               exit;
+            elsif I + 7 <= L'Last and then L (I .. I + 7) = " renames" then
+               Stop := I - 1;
+               exit;
+            end if;
+         end if;
+      end loop;
+
+      if not Seen_Close or else Stop < Clean'First then
+         return "";
+      end if;
+
+      return Trim (Clean (Clean'First .. Stop));
+   end Profile_Continuation_From_Line;
+
    function Strip_Prefixes (Line : String) return String is
       S : constant String := Trim (Editor.Ada_Syntax_Core.Strip_Separate_Prefix (Line));
    begin
@@ -2845,7 +3115,7 @@ package body Editor.Ada_Declaration_Parser is
       if P = 0 then
          return "";
       end if;
-      Start := P + Marker'Length;
+      Start := Line'First + (P - L'First) + Marker'Length;
       return Read_Function_Name (Line, Positive (Start), True);
    end Target_After;
 
@@ -3071,15 +3341,15 @@ package body Editor.Ada_Declaration_Parser is
 
 
    function Subtype_Target_After_Is (Line : String) return String is
-      L     : constant String := Lower (Line);
+      L      : constant String := Lower (Editor.Ada_Syntax_Core.Sanitize_Line (Line));
       Is_Pos : constant Natural := Ada.Strings.Fixed.Index (L, " is");
-      Start : Natural;
+      Start  : Natural;
    begin
       if Is_Pos = 0 then
          return "";
       end if;
 
-      Start := Is_Pos + 3;
+      Start := Line'First + (Is_Pos - L'First) + 3;
       while Start <= Line'Last
         and then (Line (Start) = ' ' or else Line (Start) = Ada.Characters.Latin_1.HT)
       loop
@@ -3226,7 +3496,7 @@ package body Editor.Ada_Declaration_Parser is
    end Skip_Component_Qualifiers;
 
    function Array_Element_Target (Line : String) return String is
-      L      : constant String := Lower (Line);
+      L      : constant String := Lower (Editor.Ada_Syntax_Core.Sanitize_Line (Line));
       Of_Pos : constant Natural := Ada.Strings.Fixed.Index (L, " of ");
       Start  : Natural;
    begin
@@ -3234,7 +3504,8 @@ package body Editor.Ada_Declaration_Parser is
          return "";
       end if;
 
-      Start := Skip_Component_Qualifiers (Line, Of_Pos + 4);
+      Start := Skip_Component_Qualifiers
+        (Line, Line'First + (Of_Pos - L'First) + 4);
       if Start > Line'Last then
          return "";
       end if;
@@ -3260,13 +3531,40 @@ package body Editor.Ada_Declaration_Parser is
       --  "protected" as a target subtype.  Preserve the protected prefix as
       --  profile metadata and still keep anonymous profile parameters out of
       --  the language-model symbol tree.
-      L          : constant String := Lower (Line);
-      Access_Pos : constant Natural := Ada.Strings.Fixed.Index (L, "access");
+      L          : constant String := Lower (Editor.Ada_Syntax_Core.Sanitize_Line (Line));
+      Access_Pos : constant Natural := Token_Source_Position (Line, "access");
       Start      : Natural := 0;
+
+      function Top_Level_Semicolon (First, Last : Natural) return Natural is
+         Nesting : Natural := 0;
+      begin
+         if First > Last then
+            return 0;
+         end if;
+
+         for I in First .. Last loop
+            declare
+               Code_Pos : constant Natural := L'First + (I - Line'First);
+               Ch       : constant Character := L (Code_Pos);
+            begin
+               if Ch = '(' then
+                  Nesting := Nesting + 1;
+               elsif Ch = ')' then
+                  if Nesting > 0 then
+                     Nesting := Nesting - 1;
+                  end if;
+               elsif Ch = ';' and then Nesting = 0 then
+                  return I;
+               end if;
+            end;
+         end loop;
+
+         return 0;
+      end Top_Level_Semicolon;
    begin
       if Access_Pos /= 0 then
          declare
-            After_Access : constant Natural := Access_Pos + 6;
+            After_Access : constant Natural := L'First + (Access_Pos - Line'First) + 6;
          begin
             if After_Access <= L'Last then
                declare
@@ -3294,25 +3592,47 @@ package body Editor.Ada_Declaration_Parser is
          end;
       else
          declare
-            Trimmed_Line : constant String := Trim (Line);
-            Lower_Trimmed : constant String := Lower (Trimmed_Line);
+            Source_First : Natural := Line'First;
+            Source_Last  : Natural := Line'Last;
          begin
-            if Starts_With_Word (Lower_Trimmed, "procedure")
-              or else Starts_With_Word (Lower_Trimmed, "function")
-              or else Starts_With_Word (Lower_Trimmed, "protected procedure")
-              or else Starts_With_Word (Lower_Trimmed, "protected function")
-            then
+            while Source_First <= Source_Last
+              and then (Line (Source_First) = ' '
+                        or else Line (Source_First) = Ada.Characters.Latin_1.HT)
+            loop
+               Source_First := Source_First + 1;
+            end loop;
+
+            while Source_Last >= Source_First
+              and then (Line (Source_Last) = ' '
+                        or else Line (Source_Last) = Ada.Characters.Latin_1.HT)
+            loop
+               Source_Last := Source_Last - 1;
+            end loop;
+
+            if Source_First <= Source_Last then
                declare
-                  Stop : Natural := Trimmed_Line'Last;
-                  Semi : constant Natural := Ada.Strings.Fixed.Index (Trimmed_Line, ";");
+                  Trimmed_Line  : constant String := Line (Source_First .. Source_Last);
+                  Lower_Trimmed : constant String := Lower (Trimmed_Line);
                begin
-                  if Semi /= 0 then
-                     Stop := Semi - 1;
+                  if Starts_With_Word (Lower_Trimmed, "procedure")
+                    or else Starts_With_Word (Lower_Trimmed, "function")
+                    or else Starts_With_Word (Lower_Trimmed, "protected procedure")
+                    or else Starts_With_Word (Lower_Trimmed, "protected function")
+                  then
+                     declare
+                        Stop : Natural := Source_Last;
+                        Semi : constant Natural :=
+                          Top_Level_Semicolon (Source_First, Source_Last);
+                     begin
+                        if Semi /= 0 then
+                           Stop := Semi - 1;
+                        end if;
+                        if Stop < Source_First then
+                           return "";
+                        end if;
+                        return Trim (Line (Source_First .. Stop));
+                     end;
                   end if;
-                  if Stop < Trimmed_Line'First then
-                     return "";
-                  end if;
-                  return Trim (Trimmed_Line (Trimmed_Line'First .. Stop));
                end;
             end if;
          end;
@@ -3323,26 +3643,32 @@ package body Editor.Ada_Declaration_Parser is
       end if;
 
       declare
-         Stop : Natural := Line'Last;
-         Semi : constant Natural := Ada.Strings.Fixed.Index (Line (Start .. Line'Last), ";");
-         With_Pos : constant Natural := Ada.Strings.Fixed.Index (Lower (Line (Start .. Line'Last)), " with ");
+         Source_Start : constant Natural := Line'First + (Start - L'First);
+         Stop         : Natural := Line'Last;
+         Semi         : constant Natural :=
+           Top_Level_Semicolon (Source_Start, Line'Last);
+         With_Pos     : constant Natural :=
+           Ada.Strings.Fixed.Index
+             (Lower (Editor.Ada_Syntax_Core.Sanitize_Line
+                (Line (Source_Start .. Line'Last))), " with ");
       begin
          if Semi /= 0 then
             Stop := Natural'Min (Stop, Semi - 1);
          end if;
          if With_Pos /= 0 then
-            Stop := Natural'Min (Stop, With_Pos - 1);
+            Stop := Natural'Min
+              (Stop, Source_Start + (With_Pos - 1) - 1);
          end if;
-         if Stop < Start then
+         if Stop < Source_Start then
             return "";
          end if;
-         return Trim (Line (Start .. Stop));
+         return Trim (Line (Source_Start .. Stop));
       end;
    end Access_Subprogram_Profile;
 
    function Access_Object_Target (Line : String) return String is
-      L          : constant String := Lower (Line);
-      Access_Pos : constant Natural := Ada.Strings.Fixed.Index (L, "access");
+      L          : constant String := Lower (Editor.Ada_Syntax_Core.Sanitize_Line (Line));
+      Access_Pos : constant Natural := Token_Source_Position (Line, "access");
       Start      : Natural;
    begin
       if Access_Pos = 0
@@ -3536,11 +3862,14 @@ package body Editor.Ada_Declaration_Parser is
          end if;
       end loop;
 
-      if Colon = 0 or else Colon >= Line'Last then
+      if Colon = 0
+        or else Line'First + (Colon - Code'First) >= Line'Last
+      then
          return "";
       end if;
 
-      Start := Skip_Component_Qualifiers (Line, Colon + 1);
+      Start := Skip_Component_Qualifiers
+        (Line, Line'First + (Colon - Code'First) + 1);
       if Start > Line'Last then
          return "";
       end if;
@@ -3563,6 +3892,16 @@ package body Editor.Ada_Declaration_Parser is
                return Mark (1 .. Len);
             end;
          elsif Candidate_Lower = "access" then
+            if Has_Token (Lower (Line), "procedure")
+              or else Has_Token (Lower (Line), "function")
+            then
+               --  Anonymous access-to-subprogram declarations carry their
+               --  callable profile in Profile_Summary.  Do not expose
+               --  "protected", "procedure", or "function" as a subtype
+               --  target for protected callback objects/parameters.
+               return "";
+            end if;
+
             declare
                Designated_Target : constant String := Access_Object_Target (Line);
             begin
@@ -3576,6 +3915,11 @@ package body Editor.Ada_Declaration_Parser is
                    (Designated_Target'First .. Designated_Target'First + Len - 1);
                return Mark (1 .. Len);
             end;
+         elsif Candidate_Lower = "protected"
+           and then (Has_Token (Lower (Line), "procedure")
+                     or else Has_Token (Lower (Line), "function"))
+         then
+            return "";
          end if;
 
          if Candidate'Length = 0
@@ -3670,20 +4014,12 @@ package body Editor.Ada_Declaration_Parser is
       Flags           : Declaration_Flags := (others => False))
    is
       Code  : constant String := Editor.Ada_Syntax_Core.Sanitize_Line (Raw_Line);
-      Colon : Natural := 0;
+      Colon : constant Natural := Declaration_Colon_Position (Raw_Line);
       Start : Natural;
       Stop  : Natural;
       Type_Target : constant String :=
         (if Kind = Symbol_Exception then "" else Object_Target_After_Colon (Raw_Line));
    begin
-      for I in Code'Range loop
-         if Code (I) = ':' then
-            Colon := I;
-            exit;
-         elsif Code (I) = ';' then
-            return;
-         end if;
-      end loop;
       if Colon = 0 then
          return;
       end if;
@@ -3828,7 +4164,7 @@ package body Editor.Ada_Declaration_Parser is
 
          if Ada.Strings.Fixed.Index (Segment_Lower, ": exception") /= 0 then
             Segment_Kind := Symbol_Exception;
-         elsif Has_Token (Segment_Lower, "constant") then
+         elsif Has_Object_Constant_Qualifier (Raw_Line (First .. Last)) then
             Segment_Kind := Symbol_Constant;
          end if;
 
@@ -3839,11 +4175,9 @@ package body Editor.Ada_Declaration_Parser is
             Flags => (Is_Rename => True, others => False),
             Collected => Owners, Collected_Count => Count);
 
-         if Rename_Target'Length /= 0 then
-            for I in 1 .. Count loop
-               Set_Symbol_Target (Analysis, Owners (I), Rename_Target);
-            end loop;
-         end if;
+         for I in 1 .. Count loop
+            Set_Symbol_Target (Analysis, Owners (I), Rename_Target);
+         end loop;
       end Add_Rename_Segment;
    begin
       --  Object/exception renamings can appear as multiple declarations on
@@ -3899,18 +4233,32 @@ package body Editor.Ada_Declaration_Parser is
          if Kind /= Symbol_Generic_Formal_Object then
             if Ada.Strings.Fixed.Index (Segment_Lower, ": exception") /= 0 then
                Segment_Kind := Symbol_Exception;
-            elsif Has_Token (Segment_Lower, "constant") then
+            elsif Has_Object_Constant_Qualifier (Raw_Line (First .. Last)) then
                Segment_Kind := Symbol_Constant;
             else
                Segment_Kind := Symbol_Object;
             end if;
          end if;
 
-         Add_Object_Names
-           (Analysis, Raw_Line (First .. Last), Line_Number,
-            Depth, Parent, Segment_Kind,
-            Column_Base => First - Raw_Line'First,
-            Flags => Flags);
+         declare
+            Owners  : Collected_Symbol_List := (others => No_Symbol);
+            Count   : Natural := 0;
+            Segment : constant String := Raw_Line (First .. Last);
+            Profile : constant String := Access_Subprogram_Profile (Segment);
+         begin
+            Add_Object_Names_Collecting
+              (Analysis, Segment, Line_Number,
+               Depth, Parent, Segment_Kind,
+               Column_Base => First - Raw_Line'First,
+               Flags => Flags,
+               Collected => Owners, Collected_Count => Count);
+
+            if Profile'Length /= 0 then
+               for I in 1 .. Count loop
+                  Set_Symbol_Profile (Analysis, Owners (I), Profile);
+               end loop;
+            end if;
+         end;
       end Add_Declaration_Segment;
    begin
       --  Multiple ordinary object/constant/exception declarations may share
@@ -3996,11 +4344,13 @@ package body Editor.Ada_Declaration_Parser is
          if Close /= 0 and then Close > Open + 1 then
             Add_Object_Name_Groups
               (Analysis, Raw_Line (Open + 1 .. Close - 1), Line_Number,
-               Depth, Parent, Symbol_Discriminant, Column_Base => Open);
+               Depth, Parent, Symbol_Discriminant,
+               Column_Base => Open - Raw_Line'First + 1);
          elsif Open < Raw_Line'Last then
             Add_Object_Name_Groups
               (Analysis, Raw_Line (Open + 1 .. Raw_Line'Last), Line_Number,
-               Depth, Parent, Symbol_Discriminant, Column_Base => Open);
+               Depth, Parent, Symbol_Discriminant,
+               Column_Base => Open - Raw_Line'First + 1);
          end if;
       else
          Add_Object_Name_Groups
@@ -4063,10 +4413,21 @@ package body Editor.Ada_Declaration_Parser is
          end if;
 
          if Start_Pos <= Last then
-            Add_Object_Names
-              (Analysis, Raw_Line (Start_Pos .. Last), Line_Number,
-               Depth, Parent, Symbol_Record_Component,
-               Column_Base => Start_Pos - Raw_Line'First);
+            declare
+               Segment_Flags : Declaration_Flags := (others => False);
+            begin
+               Segment_Flags.Has_Null_Exclusion :=
+                 Has_Null_Exclusion (Raw_Line (Start_Pos .. Last));
+               Segment_Flags.Has_Aliased_Metadata :=
+                 Has_Aliased_Metadata (Raw_Line (Start_Pos .. Last));
+               Mark_Declaration_Form_Metadata
+                 (Segment_Flags, Raw_Line (Start_Pos .. Last));
+               Add_Object_Names
+                 (Analysis, Raw_Line (Start_Pos .. Last), Line_Number,
+                  Depth, Parent, Symbol_Record_Component,
+                  Column_Base => Start_Pos - Raw_Line'First,
+                  Flags => Segment_Flags);
+            end;
          end if;
       end Add_Component_Segment;
    begin
@@ -4249,7 +4610,7 @@ package body Editor.Ada_Declaration_Parser is
       Pending_Profile_Access_Target_Count  : in out Natural)
    is
       Code         : constant String := Editor.Ada_Syntax_Core.Sanitize_Line (Raw_Line);
-      Name_Pos     : constant Natural := Ada.Strings.Fixed.Index (Lower (Code), Lower (Declared_Name));
+      Name_Pos     : constant Natural := Declaration_Name_Position (Raw_Line, Declared_Name);
       Search_Start : Natural := 0;
       Group_Index  : Natural := 0;
 
@@ -4595,7 +4956,7 @@ package body Editor.Ada_Declaration_Parser is
       Declared_Name : String) return Boolean
    is
       Code     : constant String := Editor.Ada_Syntax_Core.Sanitize_Line (Raw_Line);
-      Name_Pos : constant Natural := Ada.Strings.Fixed.Index (Lower (Code), Lower (Declared_Name));
+      Name_Pos : constant Natural := Declaration_Name_Position (Raw_Line, Declared_Name);
       Open     : Natural := 0;
       Nesting  : Natural := 0;
    begin
@@ -4649,6 +5010,7 @@ package body Editor.Ada_Declaration_Parser is
       Code          : constant String := Editor.Ada_Syntax_Core.Sanitize_Line (Raw_Line);
       Nesting       : Natural := 0;
       Segment_Start : Natural := Raw_Line'First;
+      Group_Index   : Natural := 0;
 
       function Only_Blanks_Before (Pos : Natural) return Boolean is
       begin
@@ -4664,28 +5026,178 @@ package body Editor.Ada_Declaration_Parser is
       end Only_Blanks_Before;
 
       procedure Add_Segment (First, Last : Natural) is
+         function First_Colon (Segment : String) return Natural is
+            Local_Nesting : Natural := 0;
+         begin
+            for P in Segment'Range loop
+               if Segment (P) = '(' then
+                  Local_Nesting := Local_Nesting + 1;
+               elsif Segment (P) = ')' then
+                  if Local_Nesting > 0 then
+                     Local_Nesting := Local_Nesting - 1;
+                  end if;
+               elsif Segment (P) = ':' and then Local_Nesting = 0 then
+                  return P;
+               end if;
+            end loop;
+            return 0;
+         end First_Colon;
+
+         function Top_Level_Default (Segment : String) return Natural is
+            Local_Nesting : Natural := 0;
+         begin
+            if Segment'Length < 2 then
+               return 0;
+            end if;
+
+            for P in Segment'First .. Segment'Last - 1 loop
+               if Segment (P) = '(' then
+                  Local_Nesting := Local_Nesting + 1;
+               elsif Segment (P) = ')' then
+                  if Local_Nesting > 0 then
+                     Local_Nesting := Local_Nesting - 1;
+                  end if;
+               elsif Segment (P) = ':'
+                 and then Segment (P + 1) = '='
+                 and then Local_Nesting = 0
+               then
+                  return P;
+               end if;
+            end loop;
+            return 0;
+         end Top_Level_Default;
+
+         function Starts_With_Local_Word
+           (Text  : String;
+            Start : Natural;
+            Word  : String) return Boolean
+         is
+         begin
+            return Start >= Text'First
+              and then Start + Word'Length - 1 <= Text'Last
+              and then Lower (Text (Start .. Start + Word'Length - 1)) = Word
+              and then (Start = Text'First or else not Is_Word_Char (Text (Start - 1)))
+              and then (Start + Word'Length > Text'Last
+                        or else not Is_Word_Char (Text (Start + Word'Length)));
+         end Starts_With_Local_Word;
+
+         procedure Skip_Blanks (Text : String; Pos : in out Natural) is
+         begin
+            while Pos <= Text'Last
+              and then (Text (Pos) = ' ' or else Text (Pos) = Ada.Characters.Latin_1.HT)
+            loop
+               Pos := Pos + 1;
+            end loop;
+         end Skip_Blanks;
+
+         procedure Skip_Word
+           (Text : String;
+            Pos  : in out Natural;
+            Word : String)
+         is
+         begin
+            Skip_Blanks (Text, Pos);
+            if Starts_With_Local_Word (Text, Pos, Word) then
+               Pos := Pos + Word'Length;
+            end if;
+         end Skip_Word;
+
+         function Parameter_Mode_For (Segment : String) return Profile_Parameter_Mode is
+            Colon : constant Natural := First_Colon (Segment);
+            Pos   : Natural := (if Colon = 0 then Segment'Last + 1 else Colon + 1);
+         begin
+            if Colon = 0 then
+               return Profile_Parameter_Default_In;
+            end if;
+
+            Skip_Word (Segment, Pos, "aliased");
+            Skip_Blanks (Segment, Pos);
+            if Starts_With_Local_Word (Segment, Pos, "in") then
+               Pos := Pos + 2;
+               Skip_Blanks (Segment, Pos);
+               if Starts_With_Local_Word (Segment, Pos, "out") then
+                  return Profile_Parameter_In_Out;
+               end if;
+               return Profile_Parameter_In;
+            elsif Starts_With_Local_Word (Segment, Pos, "out") then
+               return Profile_Parameter_Out;
+            end if;
+
+            return Profile_Parameter_Default_In;
+         end Parameter_Mode_For;
+
+         function Default_Text_For (Segment : String) return String is
+            Default_Pos : constant Natural := Top_Level_Default (Segment);
+         begin
+            if Default_Pos = 0 or else Default_Pos + 2 > Segment'Last then
+               return "";
+            end if;
+            return Trim (Segment (Default_Pos + 2 .. Segment'Last));
+         end Default_Text_For;
       begin
          if Last >= First then
             declare
                Owners  : Collected_Symbol_List := (others => No_Symbol);
                Count   : Natural := 0;
-               Profile : constant String :=
-                 Access_Subprogram_Profile (Raw_Line (First .. Last));
+               Segment : constant String := Raw_Line (First .. Last);
+               Segment_Lower : constant String := Lower (Segment);
+               Profile : constant String := Access_Subprogram_Profile (Segment);
+               Mode : constant Profile_Parameter_Mode :=
+                 Parameter_Mode_For (Segment);
+               Type_Target : constant String := Object_Target_After_Colon (Segment);
+               Default_Text : constant String := Default_Text_For (Segment);
+               Has_Access : constant Boolean := Has_Token (Segment_Lower, "access");
+               Has_Aliased : constant Boolean := Has_Token (Segment_Lower, "aliased");
+               Has_Default : constant Boolean := Default_Text'Length /= 0;
             begin
                Add_Object_Names_Collecting
-                 (Analysis, Raw_Line (First .. Last), Line_Number, Depth,
+                 (Analysis, Segment, Line_Number, Depth,
                   Parent, Symbol_Object, Column_Base => First - 1,
                   Collected => Owners, Collected_Count => Count);
+
+               if Count > 0 then
+                  Group_Index := Group_Index + 1;
+                  for I in 1 .. Count loop
+                     declare
+                        Info : constant Symbol_Info := Symbol (Analysis, Owners (I));
+                        Flags : Declaration_Flags := (others => False);
+                     begin
+                        Flags.Has_Profile_Mode_Metadata :=
+                          Mode /= Profile_Parameter_Default_In or else Has_Access;
+                        Flags.Has_Access_Metadata := Has_Access;
+                        Flags.Has_Access_Subprogram_Metadata := Profile'Length /= 0;
+                        Flags.Has_Aliased_Metadata := Has_Aliased;
+                        Flags.Has_Default_Expression_Metadata := Has_Default;
+                        Merge_Symbol_Flags (Analysis, Owners (I), Flags);
+                        Add_Profile_Parameter_Metadata
+                          (Analysis,
+                           Owner_Symbol => Parent,
+                           Parameter_Symbol => Owners (I),
+                           Name => To_String (Info.Name),
+                           Mode => Mode,
+                           Type_Text => Type_Target,
+                           Has_Aliased => Has_Aliased,
+                           Has_Access_Definition => Has_Access,
+                           Has_Access_Subprogram_Profile => Profile'Length /= 0,
+                           Has_Default_Expression => Has_Default,
+                           Default_Text => Default_Text,
+                           Group_Index => Group_Index,
+                           Group_Position => I,
+                           Group_Name_Count => Count,
+                           Source_Span => Info.Source_Span);
+                     end;
+                  end loop;
+               end if;
 
                if Profile'Length /= 0 then
                   for I in 1 .. Count loop
                      Set_Symbol_Profile (Analysis, Owners (I), Profile);
                   end loop;
                elsif Count > 0
-                 and then Has_Token (Lower (Raw_Line (First .. Last)), "access")
-                 and then not Has_Token (Lower (Raw_Line (First .. Last)), "procedure")
-                 and then not Has_Token (Lower (Raw_Line (First .. Last)), "function")
-                 and then Access_Object_Target (Raw_Line (First .. Last)) = ""
+                 and then Has_Token (Segment_Lower, "access")
+                 and then not Has_Token (Segment_Lower, "procedure")
+                 and then not Has_Token (Segment_Lower, "function")
+                 and then Access_Object_Target (Segment) = ""
                  and then Pending_Profile_Access_Target_Count = 0
                then
                   for I in 1 .. Count loop
@@ -4794,6 +5306,7 @@ package body Editor.Ada_Declaration_Parser is
       Trimmed    : constant String := Trim (No_Comment);
       Lower_Line : constant String := Lower (Trimmed);
       Decl       : constant String := Strip_Prefixes (Trimmed);
+      Raw_Decl   : constant String := Strip_Prefixes (Trim (Raw_Line));
       Decl_Lower : constant String := Lower (Decl);
       Name       : String (1 .. 256) := (others => ' ');
       Name_Len   : Natural := 0;
@@ -4827,6 +5340,43 @@ package body Editor.Ada_Declaration_Parser is
             Profile (1 .. Profile_Len) := S (S'First .. S'First + Profile_Len - 1);
          end if;
       end Set_Profile;
+
+      function Has_Header_Discriminant_Part return Boolean is
+         Open_Pos  : constant Natural := Ada.Strings.Fixed.Index (Decl_Lower, "(");
+         Colon_Pos : constant Natural := Ada.Strings.Fixed.Index (Decl_Lower, ":");
+         Close_Pos : constant Natural := Ada.Strings.Fixed.Index (Decl_Lower, ")");
+         Is_Pos    : constant Natural := Ada.Strings.Fixed.Index (Decl_Lower, " is");
+      begin
+         return Open_Pos /= 0
+           and then (Is_Pos = 0 or else Open_Pos < Is_Pos)
+           and then (Colon_Pos > Open_Pos
+                     or else (Colon_Pos = 0
+                              and then Close_Pos = 0
+                              and then not Has_Token (Decl_Lower, "access")));
+      end Has_Header_Discriminant_Part;
+
+      function Starts_With_Declaration_Or_Metadata return Boolean is
+      begin
+         return Starts_With_Word (Decl_Lower, "package")
+           or else Starts_With_Word (Decl_Lower, "procedure")
+           or else Starts_With_Word (Decl_Lower, "function")
+           or else Starts_With_Word (Decl_Lower, "type")
+           or else Starts_With_Word (Decl_Lower, "subtype")
+           or else Starts_With_Word (Decl_Lower, "task")
+           or else Starts_With_Word (Decl_Lower, "protected")
+           or else Starts_With_Word (Decl_Lower, "entry")
+           or else Starts_With_Word (Decl_Lower, "generic")
+           or else Starts_With_Word (Decl_Lower, "with")
+           or else Starts_With_Word (Decl_Lower, "use")
+           or else Starts_With_Word (Decl_Lower, "pragma")
+           or else Starts_With_Word (Decl_Lower, "private")
+           or else Starts_With_Word (Decl_Lower, "separate")
+           or else Starts_With_Word (Decl_Lower, "overriding")
+           or else Starts_With_Word (Decl_Lower, "not overriding")
+           or else Starts_With_Word (Decl_Lower, "end")
+           or else (Starts_With_Word (Decl_Lower, "for")
+                    and then Has_Token (Decl_Lower, "use"));
+      end Starts_With_Declaration_Or_Metadata;
 
       procedure Set_Pending_Separate_Target (S : String) is
       begin
@@ -5586,6 +6136,15 @@ package body Editor.Ada_Declaration_Parser is
       begin
          if not Starts_With_Package_Segment (Raw_Line, Pending_Generic) then
             return False;
+         elsif Has_Token (Decl_Lower, "is")
+           and then not Has_Token (Decl_Lower, "new")
+           and then not Has_Token (Decl_Lower, "renames")
+         then
+            --  A compact package/package-body declaration owns a tail that
+            --  must be parsed under that package.  The same-line package group
+            --  splitter is only for independent package declarations, renames,
+            --  instantiations, and generic formal package declarations.
+            return False;
          end if;
 
          for I in Code'Range loop
@@ -5921,7 +6480,7 @@ package body Editor.Ada_Declaration_Parser is
 
       procedure Parse_Compact_Scope_Tail (Owner : Symbol_Id) is
          Code       : constant String := Editor.Ada_Syntax_Core.Sanitize_Line (Raw_Line);
-         Lower_Code : constant String := Lower (Code);
+         Lower_Code : constant String (Code'Range) := Lower (Code);
          Nesting    : Natural := 0;
          Is_Start   : Natural := 0;
          Is_End     : Natural := 0;
@@ -6114,7 +6673,7 @@ package body Editor.Ada_Declaration_Parser is
                  (others => False);
                Tail_Code     : constant String :=
                  Editor.Ada_Syntax_Core.Sanitize_Line (Tail_Line);
-               Tail_Lower    : constant String := Lower (Tail_Code);
+               Tail_Lower    : constant String (Tail_Code'Range) := Lower (Tail_Code);
 
                function Tail_Token_At
                  (Pos   : Natural;
@@ -6575,6 +7134,72 @@ package body Editor.Ada_Declaration_Parser is
                   end if;
                end Compact_Callable_Name_At;
 
+               function Owner_Is_Callable return Boolean is
+               begin
+                  if Owner = No_Symbol then
+                     return False;
+                  end if;
+
+                  declare
+                     Info : constant Symbol_Info := Symbol (Analysis, Owner);
+                  begin
+                     return Info.Kind in Symbol_Procedure | Symbol_Function | Symbol_Operator_Function;
+                  end;
+               end Owner_Is_Callable;
+
+               procedure Emit_Local_Compact_Callable (Pos : Natural) is
+                  Is_Function : constant Boolean := Tail_Token_At (Pos, "function");
+                  Name_Text   : constant String :=
+                    (if Is_Function then Read_Function_Name (Tail_Line, Pos + 8, True)
+                     else Read_Name (Tail_Line, Pos + 9, True));
+                  Kind        : constant Symbol_Kind :=
+                    (if Is_Function then
+                       (if Name_Text'Length > 0 and then Name_Text (Name_Text'First) = '"' then
+                          Symbol_Operator_Function
+                        else
+                          Symbol_Function)
+                     else
+                       Symbol_Procedure);
+                  Name_Pos    : constant Natural :=
+                    (if Name_Text'Length = 0 then 0
+                     else Ada.Strings.Fixed.Index (Tail_Line (Pos .. Tail_Line'Last), Name_Text));
+                  Col         : constant Positive :=
+                    (if Name_Pos = 0 then Positive (Pos - Raw_Line'First + 1)
+                     else Positive (Name_Pos - Raw_Line'First + 1));
+                  Local_Flags : Declaration_Flags :=
+                    (Is_Private => Local_Private_Stack (Local_Depth),
+                     Is_Body    => True,
+                     others     => False);
+                  Profile_Text : constant String :=
+                    (if Name_Text'Length = 0 then ""
+                     else Profile_From (Tail_Line, Name_Text));
+                  Target_Text  : constant String :=
+                    (if Is_Function then Function_Return_Target (Tail_Line (Pos .. Tail_Line'Last))
+                     else "");
+                  New_Id       : Symbol_Id;
+               begin
+                  if Name_Text'Length = 0 then
+                     return;
+                  end if;
+
+                  New_Id := Add_Symbol
+                    (Analysis, Name_Text, Kind,
+                     (Line_Number, Col, Line_Number,
+                      Positive'Max (Col, Col + Name_Text'Length - 1)),
+                     Col, Enclosing_Scope => Scope_Id (Natural (Owner)),
+                     Parent_Symbol => Owner, Depth => Local_Depth,
+                     Profile_Summary => Profile_Text,
+                     Flags => Local_Flags,
+                     Target_Name => Target_Text);
+
+                  if New_Id /= No_Symbol then
+                     Add_Profile_Parameter_Names
+                       (Analysis, Tail_Line, Line_Number, Local_Depth + 1, New_Id,
+                        Name_Text, Local_Pending_Profile_Access_Target_Owners,
+                        Local_Pending_Profile_Access_Target_Count);
+                  end if;
+               end Emit_Local_Compact_Callable;
+
                procedure Push_Compact_Callable_Name (Name : String) is
                   Store_Len : constant Natural :=
                     Natural'Min (Name'Length, Max_Compact_Callable_Name_Length);
@@ -6965,6 +7590,8 @@ package body Editor.Ada_Declaration_Parser is
                   elsif Tail_Nesting = 0
                     and then Anonymous_Block_Nesting > 0
                     and then Tail_Token_At (I, "end")
+                    and then (End_Is_Metadata_Or_Control (I)
+                              or else End_Matches_Anonymous_Block (I))
                   then
                      --  Pass 119: compact anonymous ``declare`` blocks and
                      --  ``accept ... do`` bodies can contain control statements
@@ -6977,12 +7604,11 @@ package body Editor.Ada_Declaration_Parser is
                      --  anonymous declare/accept bodies so a local compact
                      --  callable end such as ``end Local_Run;`` inside the
                      --  anonymous block cannot spend the anonymous block's own
-                     --  later ``end;`` marker.
-                     if not End_Is_Metadata_Or_Control (I)
-                     then
-                        if End_Matches_Anonymous_Block (I) then
-                           Pop_Anonymous_Block_Name;
-                        end if;
+                     --  later ``end;`` marker.  Pass 129 lets mismatched named
+                     --  ends fall through so compact local callable ends still
+                     --  close the callable stack.
+                     if not End_Is_Metadata_Or_Control (I) then
+                        Pop_Anonymous_Block_Name;
                      end if;
                   elsif Tail_Nesting = 0
                     and then Record_Nesting > 0
@@ -6999,6 +7625,8 @@ package body Editor.Ada_Declaration_Parser is
                   elsif Tail_Nesting = 0
                     and then Compact_Scope_Nesting > 0
                     and then Tail_Token_At (I, "end")
+                    and then (End_Is_Metadata_Or_Control (I)
+                              or else End_Matches_Compact_Scope (I))
                   then
                      --  Pass 109: a compact nested package can contain its
                      --  own compact callable/concurrent bodies or named block
@@ -7006,9 +7634,7 @@ package body Editor.Ada_Declaration_Parser is
                      --  merely because an inner declaration says ``end Run;``;
                      --  resume the enclosing package splitter only at an
                      --  anonymous end or at the package's matching named end.
-                     if not End_Is_Metadata_Or_Control (I)
-                       and then End_Matches_Compact_Scope (I)
-                     then
+                     if not End_Is_Metadata_Or_Control (I) then
                         if Compact_Scope_Nesting <= Max_Compact_Callable_Nesting then
                            Compact_Scope_Name_Lengths (Compact_Scope_Nesting) := 0;
                            Compact_Scope_Begin_Seen (Compact_Scope_Nesting) := False;
@@ -7065,6 +7691,7 @@ package body Editor.Ada_Declaration_Parser is
                     and then Callable_Body_Nesting > 0
                     and then Concurrent_Scope_Nesting = 0
                     and then Compact_Scope_Nesting = 0
+                    and then Anonymous_Block_Nesting = 0
                     and then Tail_Token_At (I, "begin")
                   then
                      --  Pass 120: after a compact callable body's own begin
@@ -7089,6 +7716,7 @@ package body Editor.Ada_Declaration_Parser is
                   elsif Tail_Nesting = 0
                     and then Concurrent_Scope_Nesting > 0
                     and then Compact_Scope_Nesting = 0
+                    and then Anonymous_Block_Nesting = 0
                     and then Tail_Token_At (I, "begin")
                   then
                      --  Pass 122: compact protected/task bodies can contain
@@ -7110,6 +7738,7 @@ package body Editor.Ada_Declaration_Parser is
                      end if;
                   elsif Tail_Nesting = 0
                     and then Compact_Scope_Nesting > 0
+                    and then Anonymous_Block_Nesting = 0
                     and then Tail_Token_At (I, "begin")
                   then
                      --  Pass 122: compact nested package bodies can likewise
@@ -7152,6 +7781,14 @@ package body Editor.Ada_Declaration_Parser is
                   elsif Tail_Nesting = 0
                     and then Has_Nested_Compact_Callable_Body_Opener (I)
                   then
+                     if Owner_Is_Callable
+                       and then Callable_Body_Nesting = 0
+                       and then Concurrent_Scope_Nesting = 0
+                       and then Compact_Scope_Nesting = 0
+                     then
+                        Emit_Local_Compact_Callable (I);
+                     end if;
+
                      Callable_Body_Nesting := Callable_Body_Nesting + 1;
                      Push_Compact_Callable_Name (Compact_Callable_Name_At (I));
                   elsif Tail_Nesting = 0
@@ -7190,13 +7827,15 @@ package body Editor.Ada_Declaration_Parser is
          End_Start    : Natural := 0;
 
          function Token_At (Pos : Natural; Token : String) return Boolean is
-            Last_Pos : constant Natural := Pos + Token'Length - 1;
+            Lower_Pos : constant Natural := Lower_Code'First + (Pos - Code'First);
+            Last_Pos  : constant Natural := Lower_Pos + Token'Length - 1;
          begin
-            return Pos in Lower_Code'Range
+            return Pos in Code'Range
+              and then Lower_Pos in Lower_Code'Range
               and then Last_Pos <= Lower_Code'Last
-              and then Lower_Code (Pos .. Last_Pos) = Token
-              and then (Pos = Lower_Code'First
-                        or else not Is_Word_Char (Lower_Code (Pos - 1)))
+              and then Lower_Code (Lower_Pos .. Last_Pos) = Token
+              and then (Lower_Pos = Lower_Code'First
+                        or else not Is_Word_Char (Lower_Code (Lower_Pos - 1)))
               and then (Last_Pos = Lower_Code'Last
                         or else not Is_Word_Char (Lower_Code (Last_Pos + 1)));
          end Token_At;
@@ -7215,7 +7854,7 @@ package body Editor.Ada_Declaration_Parser is
             end if;
          end loop;
 
-         if Record_Start = 0 or else Record_End >= Raw_Line'Last then
+         if Record_Start = 0 or else Record_End >= Code'Last then
             return;
          end if;
 
@@ -7253,15 +7892,26 @@ package body Editor.Ada_Declaration_Parser is
 
          declare
             Tail_Line : String := Raw_Line;
+
+            function Source_Position (Code_Position : Natural) return Natural is
+            begin
+               return Raw_Line'First + (Code_Position - Code'First);
+            end Source_Position;
+
+            Record_End_Source : constant Natural := Source_Position (Record_End);
          begin
-            for I in Tail_Line'First .. Record_End loop
+            for I in Tail_Line'First .. Record_End_Source loop
                Tail_Line (I) := ' ';
             end loop;
 
             if End_Start /= 0 then
-               for I in End_Start .. Tail_Line'Last loop
-                  Tail_Line (I) := ' ';
-               end loop;
+               declare
+                  End_Start_Source : constant Natural := Source_Position (End_Start);
+               begin
+                  for I in End_Start_Source .. Tail_Line'Last loop
+                     Tail_Line (I) := ' ';
+                  end loop;
+               end;
             end if;
 
             if Trim (Editor.Ada_Syntax_Core.Sanitize_Line (Tail_Line))'Length = 0 then
@@ -7500,7 +8150,7 @@ package body Editor.Ada_Declaration_Parser is
       function Looks_Like_Code_Statement return Boolean is
          Code       : constant String := Editor.Ada_Syntax_Core.Sanitize_Line (Statement_Raw);
          Semi       : constant Natural := Ada.Strings.Fixed.Index (Code, ";");
-         Quote_Pos  : constant Natural := Ada.Strings.Fixed.Index (Code, "'");
+         Tick_Open  : constant Natural := Ada.Strings.Fixed.Index (Code, "'(");
          Open_Paren : constant Natural := Ada.Strings.Fixed.Index (Code, "(");
       begin
          --  Ada code statements are qualified expressions used as statements,
@@ -7512,10 +8162,9 @@ package body Editor.Ada_Declaration_Parser is
          --  delimiter after it, while still rejecting declaration/metadata
          --  lines and assignments.
          return Semi /= 0
-           and then Quote_Pos /= 0
-           and then Quote_Pos < Semi
+           and then Tick_Open /= 0
+           and then Tick_Open < Semi
            and then Open_Paren /= 0
-           and then Open_Paren > Quote_Pos
            and then Open_Paren < Semi
            and then not Is_Declaration_Or_Metadata_Line
            and then Ada.Strings.Fixed.Index (Code, ":=") = 0;
@@ -7751,16 +8400,29 @@ package body Editor.Ada_Declaration_Parser is
 
          declare
             Target : constant String := Trim (Code (Code'First .. Assign - 1));
-            Dot    : constant Natural := Ada.Strings.Fixed.Index (Target, ".");
             Open   : constant Natural := Ada.Strings.Fixed.Index (Target, "(");
             Close  : constant Natural := Ada.Strings.Fixed.Index (Target, ")");
             Range_Op : constant Natural := Ada.Strings.Fixed.Index (Target, "..");
+
+            function Has_Selected_Dot return Boolean is
+            begin
+               for I in Target'Range loop
+                  if Target (I) = '.'
+                    and then (I = Target'First or else Target (I - 1) /= '.')
+                    and then (I = Target'Last or else Target (I + 1) /= '.')
+                  then
+                     return True;
+                  end if;
+               end loop;
+
+               return False;
+            end Has_Selected_Dot;
          begin
             if Target'Length = 0 then
                return;
             end if;
 
-            if Dot /= 0 then
+            if Has_Selected_Dot then
                Mark_Statement_Kind
                  (Analysis, Statement_Assignment_Selected_Target);
             end if;
@@ -7962,7 +8624,9 @@ package body Editor.Ada_Declaration_Parser is
          --     if Ready then Worker.Deliver (Item); end if;
          --  Preserve that visible action shape as bounded statement metadata
          --  without creating nested AST nodes or declaration/navigation symbols.
-         if Then_Pos = 0 then
+         if Then_Pos = 0
+           or else Starts_With_Word (Statement_Line, "select")
+         then
             return;
          end if;
 
@@ -8202,7 +8866,9 @@ package body Editor.Ada_Declaration_Parser is
          --     if Failed then Recover; else Cleanup (Reason => Timeout); end if;
          --  Preserve that visible else-action shape as bounded statement
          --  metadata without learning declarations or building a nested AST.
-         if Else_Pos = 0 then
+         if Else_Pos = 0
+           or else Starts_With_Word (Statement_Line, "select")
+         then
             return;
          end if;
 
@@ -8590,8 +9256,13 @@ package body Editor.Ada_Declaration_Parser is
          Mark_Compact_Elsif_Action_Details;
          Mark_Compact_Else_Action_Details;
 
-         if Ada.Strings.Fixed.Index (Statement_Line, " null;") /= 0
-           or else Ada.Strings.Fixed.Index (Statement_Line, "=> null;") /= 0
+         if (Ada.Strings.Fixed.Index (Statement_Line, " null;") /= 0
+             or else Ada.Strings.Fixed.Index (Statement_Line, "=> null;") /= 0)
+           and then not Starts_With_Word (Statement_Line, "if")
+           and then not Starts_With_Word (Statement_Line, "elsif")
+           and then not Starts_With_Word (Statement_Line, "while")
+           and then not Starts_With_Word (Statement_Line, "for")
+           and then not Starts_With_Word (Statement_Line, "loop")
          then
             Mark_Statement_Kind (Analysis, Statement_Null);
          end if;
@@ -9591,6 +10262,18 @@ package body Editor.Ada_Declaration_Parser is
       Mark_Source_Awareness (Analysis, Raw_Line);
 
       if Trimmed'Length = 0 then
+         if Pending_Enumeration then
+            Add_Enumeration_Literals_Continuation
+              (Analysis, Raw_Line, Line_Number, Depth + 1,
+               (if Pending_Enumeration_Owner /= No_Symbol then
+                   Pending_Enumeration_Owner
+                else
+                   Scope_Stack (Natural'Min (Depth, Max_Scope_Nesting))));
+            if Ada.Strings.Fixed.Index (Lower (Raw_Line), ")") /= 0 then
+               Pending_Enumeration := False;
+               Pending_Enumeration_Owner := No_Symbol;
+            end if;
+         end if;
          return;
       end if;
 
@@ -9618,7 +10301,9 @@ package body Editor.Ada_Declaration_Parser is
                Pending_Aspect_Owner := No_Symbol;
             end if;
             return;
-         elsif Ada.Strings.Fixed.Index (Lower_Line, "=>") /= 0 then
+         elsif Ada.Strings.Fixed.Index (Lower_Line, "=>") /= 0
+           and then not Starts_With_Declaration_Or_Metadata
+         then
             Editor.Ada_Language_Model.Mark_Symbol_Aspect_Specification
               (Analysis, Pending_Aspect_Owner);
             if Has_Code_Char (Lower_Line, ';') then
@@ -9681,37 +10366,70 @@ package body Editor.Ada_Declaration_Parser is
                   --  then reparse the tail with absolute source columns
                   --  preserved by blanking the consumed prefix.
                   Private_Stack (Natural'Min (Depth, Max_Scope_Nesting)) := True;
-                  Parse_Line
-                    (Analysis, Tail_Line, Line_Number, Depth, Scope_Stack,
-                     Pending_Generic, In_Record, Pending_Discriminants,
-                     Pending_Discriminant_Owner, Pending_Type_Header_Owner,
-                     Pending_Record_After_Is_Owner,
-                     Pending_Concurrent_Header_Owner,
-                     Pending_Array_Target_Owner,
-                     Pending_Access_Target_Owner,
-                     Pending_Access_Subprogram_Profile_Owner,
-                     Pending_Return_Target_Owner,
-                     Pending_Return_Access_Target_Owner,
-                     Pending_Subtype_Target_Owner,
-                     Pending_Derived_Target_Owner,
-                     Pending_Interface_Target_Owner,
-                     Pending_Declaration_Target_Owner,
-                     Pending_Generic_Formal_Package_Target_Owner,
-                     Pending_Generic_Formal_Subprogram_Target_Owner,
-                     Pending_Object_Array_Target_Owners,
-                     Pending_Object_Array_Target_Count,
-                     Pending_Object_Access_Target_Owners,
-                     Pending_Object_Access_Target_Count,
-                     Pending_Object_Access_Subprogram_Profile_Owners,
-                     Pending_Object_Access_Subprogram_Profile_Count,
-                     Pending_Generic_Formal_Object_Target_Owners,
-                     Pending_Generic_Formal_Object_Target_Count,
-                     Pending_Profile_Access_Target_Owners,
-                     Pending_Profile_Access_Target_Count,
-                     Pending_Enumeration, Pending_Enumeration_Owner,
-                     Pending_Profile, Pending_Profile_Owner, Pending_Body_Owner,
-                     Private_Stack, Pending_Separate_Target,
-                     Pending_Separate_Target_Len, Pending_Aspect_Owner);
+                  declare
+                     Segment_Start : Natural := Private_End + 1;
+                     Nesting       : Natural := 0;
+
+                     procedure Parse_Private_Segment (First, Last : Natural) is
+                        Segment_Line : String := (Raw_Line'Range => ' ');
+                     begin
+                        if First > Last then
+                           return;
+                        end if;
+                        Segment_Line (First .. Last) := Raw_Line (First .. Last);
+                        if Trim (Editor.Ada_Syntax_Core.Sanitize_Line (Segment_Line))'Length = 0 then
+                           return;
+                        end if;
+                        Parse_Line
+                          (Analysis, Segment_Line, Line_Number, Depth, Scope_Stack,
+                           Pending_Generic, In_Record, Pending_Discriminants,
+                           Pending_Discriminant_Owner, Pending_Type_Header_Owner,
+                           Pending_Record_After_Is_Owner,
+                           Pending_Concurrent_Header_Owner,
+                           Pending_Array_Target_Owner,
+                           Pending_Access_Target_Owner,
+                           Pending_Access_Subprogram_Profile_Owner,
+                           Pending_Return_Target_Owner,
+                           Pending_Return_Access_Target_Owner,
+                           Pending_Subtype_Target_Owner,
+                           Pending_Derived_Target_Owner,
+                           Pending_Interface_Target_Owner,
+                           Pending_Declaration_Target_Owner,
+                           Pending_Generic_Formal_Package_Target_Owner,
+                           Pending_Generic_Formal_Subprogram_Target_Owner,
+                           Pending_Object_Array_Target_Owners,
+                           Pending_Object_Array_Target_Count,
+                           Pending_Object_Access_Target_Owners,
+                           Pending_Object_Access_Target_Count,
+                           Pending_Object_Access_Subprogram_Profile_Owners,
+                           Pending_Object_Access_Subprogram_Profile_Count,
+                           Pending_Generic_Formal_Object_Target_Owners,
+                           Pending_Generic_Formal_Object_Target_Count,
+                           Pending_Profile_Access_Target_Owners,
+                           Pending_Profile_Access_Target_Count,
+                           Pending_Enumeration, Pending_Enumeration_Owner,
+                           Pending_Profile, Pending_Profile_Owner, Pending_Body_Owner,
+                           Private_Stack, Pending_Separate_Target,
+                           Pending_Separate_Target_Len, Pending_Aspect_Owner);
+                     end Parse_Private_Segment;
+                  begin
+                     for I in Segment_Start .. Code'Last loop
+                        if Code (I) = '(' then
+                           Nesting := Nesting + 1;
+                        elsif Code (I) = ')' then
+                           if Nesting > 0 then
+                              Nesting := Nesting - 1;
+                           end if;
+                        elsif Code (I) = ';' and then Nesting = 0 then
+                           Parse_Private_Segment (Segment_Start, I);
+                           Segment_Start := I + 1;
+                        end if;
+                     end loop;
+
+                     if Segment_Start <= Raw_Line'Last then
+                        Parse_Private_Segment (Segment_Start, Raw_Line'Last);
+                     end if;
+                  end;
                   return;
                end if;
             end;
@@ -9875,26 +10593,51 @@ package body Editor.Ada_Declaration_Parser is
          declare
             Target  : constant String := Access_Target_From_Line_Start (Raw_Line);
             Profile : constant String := Access_Subprogram_Profile (Raw_Line);
+            Owner   : constant Symbol_Id := Pending_Return_Access_Target_Owner;
+
+            procedure Clear_Pending_Profile_For_Owner is
+            begin
+               if Pending_Profile_Owner = Owner then
+                  Pending_Profile := False;
+                  Pending_Profile_Owner := No_Symbol;
+               end if;
+            end Clear_Pending_Profile_For_Owner;
          begin
             if Target'Length /= 0 then
                Set_Symbol_Target
-                 (Analysis, Pending_Return_Access_Target_Owner, Target);
-               if Pending_Return_Target_Owner = Pending_Return_Access_Target_Owner then
+                 (Analysis, Owner, Target);
+               if Pending_Return_Target_Owner = Owner then
                   Pending_Return_Target_Owner := No_Symbol;
+               end if;
+               Clear_Pending_Profile_For_Owner;
+               if Pending_Body_Owner = Owner
+                 and then Has_Code_Char (Lower_Line, ';')
+               then
+                  Pending_Body_Owner := No_Symbol;
                end if;
                Pending_Return_Access_Target_Owner := No_Symbol;
                return;
             elsif Profile'Length /= 0 then
                Set_Symbol_Profile
-                 (Analysis, Pending_Return_Access_Target_Owner, Profile);
-               if Pending_Return_Target_Owner = Pending_Return_Access_Target_Owner then
+                 (Analysis, Owner, Profile);
+               if Pending_Return_Target_Owner = Owner then
                   Pending_Return_Target_Owner := No_Symbol;
+               end if;
+               Clear_Pending_Profile_For_Owner;
+               if Pending_Body_Owner = Owner
+                 and then Has_Code_Char (Lower_Line, ';')
+               then
+                  Pending_Body_Owner := No_Symbol;
                end if;
                Pending_Return_Access_Target_Owner := No_Symbol;
                return;
             elsif Has_Code_Char (Lower_Line, ';') then
-               if Pending_Return_Target_Owner = Pending_Return_Access_Target_Owner then
+               if Pending_Return_Target_Owner = Owner then
                   Pending_Return_Target_Owner := No_Symbol;
+               end if;
+               Clear_Pending_Profile_For_Owner;
+               if Pending_Body_Owner = Owner then
+                  Pending_Body_Owner := No_Symbol;
                end if;
                Pending_Return_Access_Target_Owner := No_Symbol;
                return;
@@ -9915,9 +10658,16 @@ package body Editor.Ada_Declaration_Parser is
       if Pending_Return_Target_Owner /= No_Symbol and then not Pending_Profile then
          declare
             Target : constant String := Return_Target_From_Line_Start (Raw_Line);
+            Owner  : constant Symbol_Id := Pending_Return_Target_Owner;
          begin
-            if Target'Length /= 0 then
-               Set_Symbol_Target (Analysis, Pending_Return_Target_Owner, Target);
+            if Ada.Strings.Fixed.Index (Lower_Line, "return") /= 0
+              and then Has_Token (Lower_Line, "access")
+              and then not Has_Code_Char (Lower_Line, ';')
+            then
+               Pending_Return_Access_Target_Owner := Owner;
+               return;
+            elsif Target'Length /= 0 then
+               Set_Symbol_Target (Analysis, Owner, Target);
                Pending_Return_Target_Owner := No_Symbol;
                if Has_Code_Char (Lower_Line, ';') then
                   return;
@@ -9959,12 +10709,26 @@ package body Editor.Ada_Declaration_Parser is
       if Pending_Declaration_Target_Owner /= No_Symbol then
          declare
             Target : constant String := Declaration_Target_From_Line_Start (Raw_Line);
+            Owner  : constant Symbol_Id := Pending_Declaration_Target_Owner;
+
+            procedure Clear_Pending_Profile_For_Owner is
+            begin
+               if Pending_Profile_Owner = Owner then
+                  Pending_Profile := False;
+                  Pending_Profile_Owner := No_Symbol;
+               end if;
+               if Pending_Body_Owner = Owner then
+                  Pending_Body_Owner := No_Symbol;
+               end if;
+            end Clear_Pending_Profile_For_Owner;
          begin
             if Target'Length /= 0 then
-               Set_Symbol_Target (Analysis, Pending_Declaration_Target_Owner, Target);
+               Set_Symbol_Target (Analysis, Owner, Target);
+               Clear_Pending_Profile_For_Owner;
                Pending_Declaration_Target_Owner := No_Symbol;
                return;
             elsif Has_Code_Char (Lower_Line, ';') then
+               Clear_Pending_Profile_For_Owner;
                Pending_Declaration_Target_Owner := No_Symbol;
                return;
             else
@@ -10130,18 +10894,18 @@ package body Editor.Ada_Declaration_Parser is
             Target  : constant String := Object_Target_From_Line_Start (Raw_Line);
             Profile : constant String := Access_Subprogram_Profile (Raw_Line);
          begin
-            if Target'Length /= 0 then
+            if Profile'Length /= 0 then
                for I in 1 .. Pending_Generic_Formal_Object_Target_Count loop
-                  Set_Symbol_Target
-                    (Analysis, Pending_Generic_Formal_Object_Target_Owners (I), Target);
+                  Set_Symbol_Profile
+                    (Analysis, Pending_Generic_Formal_Object_Target_Owners (I), Profile);
                end loop;
                Pending_Generic_Formal_Object_Target_Owners := (others => No_Symbol);
                Pending_Generic_Formal_Object_Target_Count := 0;
                return;
-            elsif Profile'Length /= 0 then
+            elsif Target'Length /= 0 then
                for I in 1 .. Pending_Generic_Formal_Object_Target_Count loop
-                  Set_Symbol_Profile
-                    (Analysis, Pending_Generic_Formal_Object_Target_Owners (I), Profile);
+                  Set_Symbol_Target
+                    (Analysis, Pending_Generic_Formal_Object_Target_Owners (I), Target);
                end loop;
                Pending_Generic_Formal_Object_Target_Owners := (others => No_Symbol);
                Pending_Generic_Formal_Object_Target_Count := 0;
@@ -10277,7 +11041,7 @@ package body Editor.Ada_Declaration_Parser is
             Pending_Discriminants := False;
             Pending_Discriminant_Owner := No_Symbol;
             return;
-         elsif Has_Code_Char (Lower_Line, ';') then
+         elsif Has_Code_Char (Lower_Line, ';') and then not Pending_Discriminants then
             Pending_Type_Header_Owner := No_Symbol;
             Pending_Discriminants := False;
             Pending_Discriminant_Owner := No_Symbol;
@@ -10332,6 +11096,10 @@ package body Editor.Ada_Declaration_Parser is
          end if;
          if Ada.Strings.Fixed.Index (Lower_Line, ")") /= 0 then
             if Has_Token (Lower_Line, "record") then
+               if Pending_Discriminant_Owner /= No_Symbol then
+                  Set_Symbol_Kind
+                    (Analysis, Pending_Discriminant_Owner, Symbol_Record_Type);
+               end if;
                In_Record := True;
                if Pending_Discriminant_Owner /= No_Symbol and then Depth < Max_Scope_Nesting then
                   Depth := Depth + 1;
@@ -10347,39 +11115,49 @@ package body Editor.Ada_Declaration_Parser is
 
       if Pending_Body_Owner /= No_Symbol then
          declare
+            Owner         : constant Symbol_Id := Pending_Body_Owner;
             Return_Target : constant String := Return_Target_From_Line_Start (Raw_Line);
          begin
             if Return_Target'Length /= 0 then
-               Set_Symbol_Target (Analysis, Pending_Body_Owner, Return_Target);
-               if Pending_Return_Target_Owner = Pending_Body_Owner then
+               Set_Symbol_Target (Analysis, Owner, Return_Target);
+               if Pending_Return_Target_Owner = Owner then
                   Pending_Return_Target_Owner := No_Symbol;
                end if;
             end if;
-         end;
 
-         if Has_Token (Lower_Line, "is")
-           and then not Has_Code_Char (Lower_Line, ';')
-         then
-            --  A split callable body may close its parameter profile, put a
-            --  function return subtype/aspect-like line next, and only then
-            --  place the body-opening "is" on a later line.  Keep the
-            --  callable owner alive until that "is" so local declarations are
-            --  parented to the callable instead of the enclosing package.
-            if Depth < Max_Scope_Nesting then
-               Depth := Depth + 1;
-               Scope_Stack (Depth) := Pending_Body_Owner;
-               Private_Stack (Depth) := Private_Stack (Depth - 1);
+            if Ada.Strings.Fixed.Index (Lower_Line, "return") /= 0
+              and then Has_Token (Lower_Line, "access")
+              and then not Has_Code_Char (Lower_Line, ';')
+            then
+               Pending_Return_Access_Target_Owner := Owner;
+               return;
+            elsif Has_Token (Lower_Line, "is")
+              and then not Has_Code_Char (Lower_Line, ';')
+            then
+               --  A split callable body may close its parameter profile, put
+               --  a function return subtype/aspect-like line next, and only
+               --  then place the body-opening "is" on a later line.
+               if Depth < Max_Scope_Nesting then
+                  Depth := Depth + 1;
+                  Scope_Stack (Depth) := Owner;
+                  Private_Stack (Depth) := Private_Stack (Depth - 1);
+               end if;
+               Pending_Body_Owner := No_Symbol;
+               return;
+            elsif Has_Code_Char (Lower_Line, ';') then
+               Pending_Body_Owner := No_Symbol;
+               return;
+            elsif Return_Target'Length /= 0 then
+               return;
+            elsif Starts_With_Declaration_Or_Metadata then
+               Pending_Body_Owner := No_Symbol;
+            else
+               --  Return subtype, aspects, or other continuation metadata
+               --  before the body-opening "is".  These are metadata for the
+               --  callable, not declarations in the enclosing scope.
+               return;
             end if;
-            Pending_Body_Owner := No_Symbol;
-            return;
-         elsif Has_Code_Char (Lower_Line, ';') then
-            Pending_Body_Owner := No_Symbol;
-         else
-            --  Return subtype, aspects, or other continuation metadata before
-            --  the body-opening "is".  These are metadata for the callable,
-            --  not declarations in the enclosing scope.
-            return;
-         end if;
+         end;
       end if;
 
       if Pending_Enumeration then
@@ -10429,10 +11207,16 @@ package body Editor.Ada_Declaration_Parser is
 
             if Owner /= No_Symbol then
                declare
+                  Continuation_Profile : constant String :=
+                    Profile_Continuation_From_Line (Raw_Line);
                   Return_Target : constant String := Return_Target_From_Line_Start (Raw_Line);
                   Formal_Default_Target : constant String :=
                     Generic_Formal_Subprogram_Default_After_Is (Raw_Line);
                begin
+                  if Continuation_Profile'Length /= 0 then
+                     Set_Symbol_Profile (Analysis, Owner, Continuation_Profile);
+                  end if;
+
                   if Return_Target'Length /= 0 then
                      Set_Symbol_Target (Analysis, Owner, Return_Target);
                      if Pending_Return_Target_Owner = Owner then
@@ -10454,12 +11238,17 @@ package body Editor.Ada_Declaration_Parser is
 
             if Closed_Profile
               or else Has_Token (Lower_Line, "is")
-              or else Has_Code_Char (Lower_Line, ';')
+              or else (Has_Code_Char (Lower_Line, ';')
+                       and then Ada.Strings.Fixed.Index (Lower_Line, ":") = 0
+                       and then Ada.Strings.Fixed.Index (Lower_Line, "(") = 0
+                       and then Ada.Strings.Fixed.Index (Lower_Line, ")") = 0)
             then
                if Owner /= No_Symbol
                  and then Closed_Profile
                  and then not Has_Token (Lower_Line, "is")
                  and then not Has_Code_Char (Lower_Line, ';')
+                 and then not Symbol (Analysis, Owner).Flags.Is_Rename
+                 and then not Symbol (Analysis, Owner).Flags.Is_Instantiation
                then
                   Pending_Body_Owner := Owner;
                end if;
@@ -10500,7 +11289,7 @@ package body Editor.Ada_Declaration_Parser is
             --  Learn the component from the owning declaration line and
             --  leave the continuation as metadata-only.
             Add_Record_Component_Names
-              (Analysis, Raw_Line, Line_Number, Depth + 1,
+              (Analysis, Raw_Line, Line_Number, Depth,
                Scope_Stack (Natural'Min (Depth, Max_Scope_Nesting)));
             return;
          end if;
@@ -10550,7 +11339,7 @@ package body Editor.Ada_Declaration_Parser is
                     Compact_Generic_Unit_Name_Length_Array :=
                     (others => 0);
                   Saw_Segment   : Boolean := False;
-                  Tail_Lower    : constant String := Lower (Tail_Code);
+                  Tail_Lower    : constant String (Tail_Code'Range) := Lower (Tail_Code);
 
                   procedure Parse_Generic_Segment
                     (First : Natural;
@@ -11210,6 +11999,8 @@ package body Editor.Ada_Declaration_Parser is
                      elsif Nesting = 0
                        and then Generic_Anonymous_Block_Nesting > 0
                        and then Tail_Token_At (I, "end")
+                       and then (Generic_End_Is_Metadata_Or_Control (I)
+                                 or else Generic_End_Matches_Anonymous_Block (I))
                      then
                         --  Pass 119: mirror compact package-tail anonymous
                         --  block handling for same-line ``generic;`` tails.
@@ -11220,15 +12011,14 @@ package body Editor.Ada_Declaration_Parser is
                         --  anonymous block name stack here, so local compact
                         --  callables inside named generic declare blocks cannot
                         --  consume the enclosing anonymous block's own end.
-                        if not Generic_End_Is_Metadata_Or_Control (I)
-                        then
-                           if Generic_End_Matches_Anonymous_Block (I) then
-                              Pop_Generic_Anonymous_Block_Name;
-                           end if;
+                        if not Generic_End_Is_Metadata_Or_Control (I) then
+                           Pop_Generic_Anonymous_Block_Name;
                         end if;
                      elsif Nesting = 0
                        and then Compact_Unit_Nesting > 0
                        and then Tail_Token_At (I, "end")
+                       and then (Generic_End_Is_Metadata_Or_Control (I)
+                                 or else End_Matches_Compact_Generic_Unit (I))
                      then
                         --  Pass 114: compact generic unit tails can contain
                         --  nested callable/concurrent bodies or record/variant
@@ -11241,9 +12031,7 @@ package body Editor.Ada_Declaration_Parser is
                            Is_Metadata_Or_Statement_End : constant Boolean :=
                              Generic_End_Is_Metadata_Or_Control (I);
                         begin
-                           if not Is_Metadata_Or_Statement_End
-                             and then End_Matches_Compact_Generic_Unit (I)
-                           then
+                           if not Is_Metadata_Or_Statement_End then
                               if Compact_Unit_Nesting <= Max_Compact_Generic_Unit_Nesting then
                                  Compact_Unit_Name_Lengths (Compact_Unit_Nesting) := 0;
                                  Compact_Unit_Begin_Seen (Compact_Unit_Nesting) := False;
@@ -11253,6 +12041,7 @@ package body Editor.Ada_Declaration_Parser is
                         end;
                      elsif Nesting = 0
                        and then Compact_Unit_Nesting > 0
+                       and then Generic_Anonymous_Block_Nesting = 0
                        and then Tail_Token_At (I, "begin")
                      then
                         --  Pass 121: mirror compact package-tail bare-block
@@ -11471,15 +12260,31 @@ package body Editor.Ada_Declaration_Parser is
             Set_Target (Target_After (Decl, " is "));
          elsif Starts_With (Decl_Lower, "with function ") then
             Kind := Symbol_Generic_Formal_Subprogram;
-            Set_Name (Read_Function_Name (Decl, Decl'First + 14, True));
+            declare
+               Code_F : constant String :=
+                 Read_Function_Name (Decl, Decl'First + 14, True);
+               Raw_F  : constant String :=
+                 Read_Function_Name (Raw_Decl, Raw_Decl'First + 14, True);
+            begin
+               Set_Name
+                 ((if Raw_F'Length > 0 and then Raw_F (Raw_F'First) = '"' then Raw_F
+                   elsif Code_F'Length /= 0 then Code_F
+                   else Raw_F));
+            end;
             if Name_Len > 0 then
-               Set_Profile (Profile_From (Decl, Name (1 .. Name_Len)));
+               Set_Profile (Profile_From (Raw_Decl, Name (1 .. Name_Len)));
             end if;
-            Set_Target (Function_Return_Target (Decl));
-            if Target_Len = 0 then
-               Set_Target (Target_After (Decl, " is "));
-            end if;
-         elsif Ada.Strings.Fixed.Index (Decl_Lower, ":") /= 0 then
+            declare
+               Default_Target : constant String :=
+                 Generic_Formal_Subprogram_Default_After_Is (Decl);
+            begin
+               if Default_Target = "<>" then
+                  Set_Target (Default_Target);
+               else
+                  Set_Target (Function_Return_Target (Decl));
+               end if;
+            end;
+         elsif Has_Declaration_Colon (Decl_Lower) then
             declare
                Formal_Start : Natural := Decl'First + 4;
             begin
@@ -11523,6 +12328,7 @@ package body Editor.Ada_Declaration_Parser is
                                   Has_Variant_Record_Metadata => Has_Token (Decl_Lower, "record") and then Has_Token (Decl_Lower, "case"),
                                   Has_Default_Expression_Metadata => Has_Default_Expression_Metadata (Decl),
                                   Has_Constraint_Metadata => Has_Constraint_Metadata (Decl),
+                                  Has_Box_Metadata => Ada.Strings.Fixed.Index (Decl_Lower, "<>") /= 0,
                                   others => False),
                         Collected => Pending_Generic_Formal_Object_Target_Owners,
                         Collected_Count => Pending_Generic_Formal_Object_Target_Count);
@@ -11563,6 +12369,7 @@ package body Editor.Ada_Declaration_Parser is
                                   Has_Variant_Record_Metadata => Has_Token (Decl_Lower, "record") and then Has_Token (Decl_Lower, "case"),
                                   Has_Default_Expression_Metadata => Has_Default_Expression_Metadata (Decl),
                                   Has_Constraint_Metadata => Has_Constraint_Metadata (Decl),
+                                  Has_Box_Metadata => Ada.Strings.Fixed.Index (Decl_Lower, "<>") /= 0,
                                   others => False),
                            Collected => Owners, Collected_Count => Count);
                         if Profile'Length /= 0 then
@@ -11606,16 +12413,13 @@ package body Editor.Ada_Declaration_Parser is
             --  "and"; keep that as bounded target metadata.
             Set_Target (Interface_Parent_Target (Decl));
          end if;
-         if Ada.Strings.Fixed.Index (Decl_Lower, "(") /= 0
-           and then Ada.Strings.Fixed.Index (Decl_Lower, ":") /= 0
+         if Has_Header_Discriminant_Part
            and then Ada.Strings.Fixed.Index (Decl_Lower, ")") /= 0
-           and then not Has_Token (Decl_Lower, "access")
          then
             Pending_Discriminants := True;
-         elsif Ada.Strings.Fixed.Index (Decl_Lower, "(") /= 0
+         elsif Has_Header_Discriminant_Part
            and then Ada.Strings.Fixed.Index (Decl_Lower, ")") = 0
            and then not Has_Token (Decl_Lower, "is")
-           and then not Has_Token (Decl_Lower, "access")
          then
             Pending_Discriminants := True;
          end if;
@@ -11656,7 +12460,14 @@ package body Editor.Ada_Declaration_Parser is
             Flags.Has_Generic_Actual_Part_Metadata := Has_Generic_Actual_Part_Metadata (Decl);
          end if;
          declare
-            F : constant String := Read_Function_Name (Decl, Decl'First + 8, True);
+            Code_F : constant String :=
+              Read_Function_Name (Decl, Decl'First + 8, True);
+            Raw_F  : constant String :=
+              Read_Function_Name (Raw_Decl, Raw_Decl'First + 8, True);
+            F      : constant String :=
+              (if Raw_F'Length > 0 and then Raw_F (Raw_F'First) = '"' then Raw_F
+               elsif Code_F'Length /= 0 then Code_F
+               else Raw_F);
          begin
             Kind := (if F'Length > 0 and then F (F'First) = '"' then Symbol_Operator_Function else Symbol_Function);
             if Flags.Is_Instantiation then
@@ -11664,7 +12475,7 @@ package body Editor.Ada_Declaration_Parser is
             end if;
             Set_Name (F);
             if Name_Len > 0 then
-               Set_Profile (Profile_From (Decl, Name (1 .. Name_Len)));
+               Set_Profile (Profile_From (Raw_Decl, Name (1 .. Name_Len)));
             end if;
             if Flags.Is_Rename then
                Set_Target (Target_After (Decl, "renames"));
@@ -11673,7 +12484,6 @@ package body Editor.Ada_Declaration_Parser is
             elsif Target_Len = 0 then
                Set_Target (Function_Return_Target (Decl));
                if Target_Len = 0
-                 and then Profile_Len = 0
                  and then Ada.Strings.Fixed.Index (Decl_Lower, " return ") /= 0
                  and then (Ada.Strings.Fixed.Index
                              (Decl_Lower, " access procedure") /= 0
@@ -11685,9 +12495,9 @@ package body Editor.Ada_Declaration_Parser is
                              (Decl_Lower, " access protected function") /= 0)
                then
                   --  A function can return an anonymous access-to-subprogram
-                  --  value.  When the function itself has no formal profile,
-                  --  retain the result callable profile as bounded metadata
-                  --  instead of treating its anonymous parameters as symbols.
+                  --  value.  Retain the result callable profile as bounded
+                  --  metadata instead of treating its anonymous parameters as
+                  --  symbols or preserving the syntactic "return access" text.
                   Set_Profile (Access_Subprogram_Profile (Decl));
                end if;
             end if;
@@ -11735,16 +12545,13 @@ package body Editor.Ada_Declaration_Parser is
            and then not Has_Code_Char (Decl_Lower, ';')
          then
             Pending_Discriminants := False;
-         elsif Ada.Strings.Fixed.Index (Decl_Lower, "(") /= 0
-           and then Ada.Strings.Fixed.Index (Decl_Lower, ":") /= 0
+         elsif Has_Header_Discriminant_Part
            and then Ada.Strings.Fixed.Index (Decl_Lower, ")") /= 0
-           and then not Has_Token (Decl_Lower, "access")
          then
             Pending_Discriminants := True;
-         elsif Ada.Strings.Fixed.Index (Decl_Lower, "(") /= 0
+         elsif Has_Header_Discriminant_Part
            and then Ada.Strings.Fixed.Index (Decl_Lower, ")") = 0
            and then not Has_Token (Decl_Lower, "is")
-           and then not Has_Token (Decl_Lower, "access")
          then
             Pending_Discriminants := True;
          end if;
@@ -11772,8 +12579,11 @@ package body Editor.Ada_Declaration_Parser is
          Kind := Symbol_Entry;
          Flags.Has_Entry_Family_Metadata := Has_Entry_Family_Metadata (Decl);
          Set_Name (Read_Name (Decl, Decl'First + 5, True));
+         if Name_Len > 0 then
+            Set_Profile (Profile_From (Decl, Name (1 .. Name_Len)));
+         end if;
       elsif Flags.Is_Rename
-        and then Ada.Strings.Fixed.Index (Decl_Lower, ":") /= 0
+        and then Has_Declaration_Colon (Decl_Lower)
         and then Has_Code_Char (Decl_Lower, ';')
       then
          --  Object/exception renamings are still value-like declarations,
@@ -11787,7 +12597,7 @@ package body Editor.Ada_Declaration_Parser is
             Scope_Stack (Natural'Min (Depth, Max_Scope_Nesting)));
          return;
       elsif Flags.Is_Rename
-        and then Ada.Strings.Fixed.Index (Decl_Lower, ":") /= 0
+        and then Has_Declaration_Colon (Decl_Lower)
         and then not Has_Code_Char (Decl_Lower, ';')
       then
          --  Split object/exception renamings must not fall through to the
@@ -11798,7 +12608,7 @@ package body Editor.Ada_Declaration_Parser is
          --  from the following line.
          if Ada.Strings.Fixed.Index (Decl_Lower, ": exception") /= 0 then
             Kind := Symbol_Exception;
-         elsif Has_Token (Decl_Lower, "constant") then
+         elsif Has_Object_Constant_Qualifier (Decl) then
             Kind := Symbol_Constant;
          else
             Kind := Symbol_Object;
@@ -11806,7 +12616,7 @@ package body Editor.Ada_Declaration_Parser is
          Set_Name (Read_Name (Decl, Decl'First, True));
          Set_Target (Target_After (Decl, "renames"));
       elsif Pending_Generic
-        and then Ada.Strings.Fixed.Index (Decl_Lower, ":") /= 0
+        and then Has_Declaration_Colon (Decl_Lower)
         and then Has_Code_Char (Decl_Lower, ';')
       then
          Add_Object_Declaration_Groups
@@ -11840,9 +12650,10 @@ package body Editor.Ada_Declaration_Parser is
                       Has_Default_Expression_Metadata => Flags.Has_Default_Expression_Metadata,
                       Has_Entry_Family_Metadata => Flags.Has_Entry_Family_Metadata,
                       Has_Constraint_Metadata => Flags.Has_Constraint_Metadata,
+                      Has_Box_Metadata => Flags.Has_Box_Metadata,
                       others => False));
          return;
-      elsif Ada.Strings.Fixed.Index (Decl_Lower, ":") /= 0
+      elsif Has_Declaration_Colon (Decl_Lower)
         and then Has_Token (Decl_Lower, "array")
         and then not Has_Code_Char (Decl_Lower, ';')
       then
@@ -11857,12 +12668,12 @@ package body Editor.Ada_Declaration_Parser is
          Add_Object_Names_Collecting
            (Analysis, Raw_Line, Line_Number, Depth,
             Scope_Stack (Natural'Min (Depth, Max_Scope_Nesting)),
-            (if Has_Token (Decl_Lower, "constant") then Symbol_Constant else Symbol_Object),
+            (if Has_Object_Constant_Qualifier (Decl) then Symbol_Constant else Symbol_Object),
             Flags => Flags,
             Collected => Pending_Object_Array_Target_Owners,
             Collected_Count => Pending_Object_Array_Target_Count);
          return;
-      elsif Ada.Strings.Fixed.Index (Decl_Lower, ":") /= 0
+      elsif Has_Declaration_Colon (Decl_Lower)
         and then Has_Token (Decl_Lower, "access")
         and then (Has_Token (Decl_Lower, "procedure")
                   or else Has_Token (Decl_Lower, "function"))
@@ -11879,12 +12690,12 @@ package body Editor.Ada_Declaration_Parser is
          Add_Object_Names_Collecting
            (Analysis, Raw_Line, Line_Number, Depth,
             Scope_Stack (Natural'Min (Depth, Max_Scope_Nesting)),
-            (if Has_Token (Decl_Lower, "constant") then Symbol_Constant else Symbol_Object),
+            (if Has_Object_Constant_Qualifier (Decl) then Symbol_Constant else Symbol_Object),
             Flags => Flags,
             Collected => Pending_Object_Access_Subprogram_Profile_Owners,
             Collected_Count => Pending_Object_Access_Subprogram_Profile_Count);
          return;
-      elsif Ada.Strings.Fixed.Index (Decl_Lower, ":") /= 0
+      elsif Has_Declaration_Colon (Decl_Lower)
         and then Has_Token (Decl_Lower, "access")
         and then not Has_Token (Decl_Lower, "procedure")
         and then not Has_Token (Decl_Lower, "function")
@@ -11901,12 +12712,12 @@ package body Editor.Ada_Declaration_Parser is
          Add_Object_Names_Collecting
            (Analysis, Raw_Line, Line_Number, Depth,
             Scope_Stack (Natural'Min (Depth, Max_Scope_Nesting)),
-            (if Has_Token (Decl_Lower, "constant") then Symbol_Constant else Symbol_Object),
+            (if Has_Object_Constant_Qualifier (Decl) then Symbol_Constant else Symbol_Object),
             Flags => Flags,
             Collected => Pending_Object_Access_Target_Owners,
             Collected_Count => Pending_Object_Access_Target_Count);
          return;
-      elsif Ada.Strings.Fixed.Index (Decl_Lower, ":") /= 0
+      elsif Has_Declaration_Colon (Decl_Lower)
         and then not Has_Code_Char (Decl_Lower, ';')
       then
          --  Ordinary object declarations can split initialization/aspect
@@ -11919,34 +12730,22 @@ package body Editor.Ada_Declaration_Parser is
          Add_Object_Names
            (Analysis, Raw_Line, Line_Number, Depth,
             Scope_Stack (Natural'Min (Depth, Max_Scope_Nesting)),
-            (if Has_Token (Decl_Lower, "constant") then Symbol_Constant else Symbol_Object),
+            (if Has_Object_Constant_Qualifier (Decl) then Symbol_Constant else Symbol_Object),
             Flags => Flags);
          return;
-      elsif Ada.Strings.Fixed.Index (Decl_Lower, ":") /= 0
+      elsif Has_Declaration_Colon (Decl_Lower)
         and then Has_Token (Decl_Lower, "access")
         and then (Has_Token (Decl_Lower, "procedure")
                   or else Has_Token (Decl_Lower, "function"))
         and then Has_Code_Char (Decl_Lower, ';')
       then
-         declare
-            Owners : Collected_Symbol_List := (others => No_Symbol);
-            Count  : Natural := 0;
-            Profile : constant String := Access_Subprogram_Profile (Raw_Line);
-         begin
-            Add_Object_Names_Collecting
-              (Analysis, Raw_Line, Line_Number, Depth,
-               Scope_Stack (Natural'Min (Depth, Max_Scope_Nesting)),
-               (if Has_Token (Decl_Lower, "constant") then Symbol_Constant else Symbol_Object),
-               Flags => Flags,
-               Collected => Owners, Collected_Count => Count);
-            if Profile'Length /= 0 then
-               for I in 1 .. Count loop
-                  Set_Symbol_Profile (Analysis, Owners (I), Profile);
-               end loop;
-            end if;
-         end;
+         Add_Object_Declaration_Groups
+           (Analysis, Raw_Line, Line_Number, Depth,
+            Scope_Stack (Natural'Min (Depth, Max_Scope_Nesting)),
+            (if Has_Object_Constant_Qualifier (Decl) then Symbol_Constant else Symbol_Object),
+            Flags => Flags);
          return;
-      elsif Ada.Strings.Fixed.Index (Decl_Lower, ":") /= 0 and then Has_Code_Char (Decl_Lower, ';') then
+      elsif Has_Declaration_Colon (Decl_Lower) and then Has_Code_Char (Decl_Lower, ';') then
          if Ada.Strings.Fixed.Index (Decl_Lower, ": exception") /= 0 then
             Add_Object_Declaration_Groups
               (Analysis, Raw_Line, Line_Number, Depth,
@@ -11954,7 +12753,7 @@ package body Editor.Ada_Declaration_Parser is
                Symbol_Exception,
                Flags => Flags);
             return;
-         elsif Has_Token (Decl_Lower, "constant") then
+         elsif Has_Object_Constant_Qualifier (Decl) then
             Add_Object_Declaration_Groups
               (Analysis, Raw_Line, Line_Number, Depth,
                Scope_Stack (Natural'Min (Depth, Max_Scope_Nesting)),
@@ -11989,13 +12788,21 @@ package body Editor.Ada_Declaration_Parser is
          end if;
 
          if Name_Len > 0
-           and then Kind /= Symbol_Operator_Function
            and then Is_Invalid_Compact_Owner_Name (Name (1 .. Name_Len))
          then
             --  Pass 130: keep malformed/in-progress declarations from
             --  learning Ada reserved words as real language-model symbols in
             --  the fallback declaration path as well as in compact tail
-            --  splitters.
+            --  splitters.  If the malformed declaration was the generic unit
+            --  following a same-line ``generic;`` marker, consume that marker
+            --  so later independent declarations are not misclassified as the
+            --  generic unit.
+            if Pending_Generic
+              and then Kind in Symbol_Package | Symbol_Package_Body |
+                Symbol_Procedure | Symbol_Function | Symbol_Operator_Function
+            then
+               Pending_Generic := False;
+            end if;
             return;
          end if;
 
@@ -12322,6 +13129,7 @@ package body Editor.Ada_Declaration_Parser is
             if Has_Token (Decl_Lower, "is") and then not Has_Code_Char (Decl_Lower, ';')
            and then not Flags.Is_Instantiation and then not Flags.Is_Rename
            and then Kind /= Symbol_Type and then Kind /= Symbol_Subtype
+           and then Kind /= Symbol_Generic_Formal_Subprogram
          then
                if Depth < Max_Scope_Nesting then
                   Depth := Depth + 1;
@@ -12599,6 +13407,12 @@ package body Editor.Ada_Declaration_Parser is
          return False;
       end Has_Ancestor_Kind;
 
+      function Has_Direct_Generic_Parent (N : Node_Info) return Boolean is
+      begin
+         return N.Parent /= No_Node
+           and then Node (Tree, N.Parent).Kind = Node_Generic_Declaration;
+      end Has_Direct_Generic_Parent;
+
       function Pragma_Metadata_Name (Text : String) return String is
          Clean : constant String := Trim (Text);
          Low   : constant String := Lower (Clean);
@@ -12679,16 +13493,26 @@ package body Editor.Ada_Declaration_Parser is
       begin
          case N.Kind is
             when Node_Package_Declaration =>
-               return Symbol_Package;
+               if Has_Token (L, "new") then
+                  return Symbol_Instantiation;
+               elsif Has_Direct_Generic_Parent (N) then
+                  return Symbol_Generic_Package;
+               else
+                  return Symbol_Package;
+               end if;
             when Node_Package_Body =>
                return Symbol_Package_Body;
+            when Node_Formal_Subprogram_Declaration =>
+               return Symbol_Generic_Formal_Subprogram;
             when Node_Subprogram_Declaration
                | Node_Abstract_Subprogram_Declaration
                | Node_Null_Procedure_Declaration
                | Node_Expression_Function_Declaration
                | Node_Subprogram_Body
-               | Node_Formal_Subprogram_Declaration
                | Node_Body_Stub =>
+               if Has_Direct_Generic_Parent (N) then
+                  return Symbol_Generic_Subprogram;
+               end if;
                if Starts_With_Word (L, "function") then
                   declare
                      Name : constant String := First_Child_Label (N.Id, Node_Declaration_Name);
@@ -12701,10 +13525,11 @@ package body Editor.Ada_Declaration_Parser is
                else
                   return Symbol_Procedure;
                end if;
+            when Node_Formal_Type_Declaration =>
+               return Symbol_Generic_Formal_Type;
             when Node_Type_Declaration
                | Node_Incomplete_Type_Declaration
-               | Node_Private_Extension_Declaration
-               | Node_Formal_Type_Declaration =>
+               | Node_Private_Extension_Declaration =>
                if Has_Token (L, "record") or else Has_Child_Kind (N.Id, Node_Variant_Part) then
                   return Symbol_Record_Type;
                else
@@ -12720,7 +13545,9 @@ package body Editor.Ada_Declaration_Parser is
                return Symbol_Enumeration_Literal;
             when Node_Constant_Declaration | Node_Deferred_Constant_Declaration =>
                return Symbol_Constant;
-            when Node_Number_Declaration | Node_Object_Declaration | Node_Formal_Object_Declaration =>
+            when Node_Formal_Object_Declaration =>
+               return Symbol_Generic_Formal_Object;
+            when Node_Number_Declaration | Node_Object_Declaration =>
                return Symbol_Object;
             when Node_Exception_Declaration =>
                return Symbol_Exception;
@@ -12778,6 +13605,12 @@ package body Editor.Ada_Declaration_Parser is
                Flags.Is_Rename := True;
             when Node_Instantiation =>
                Flags.Is_Instantiation := True;
+            when Node_Package_Declaration =>
+               if Has_Token (Lower (To_String (N.Label)), "new") then
+                  Flags.Is_Instantiation := True;
+                  Flags.Has_Generic_Actual_Part_Metadata :=
+                    Has_Child_Kind (N.Id, Node_Generic_Actual_Part);
+               end if;
             when Node_Separate_Body =>
                Flags.Is_Separate := True;
             when Node_Task_Type_Declaration =>
@@ -12802,6 +13635,16 @@ package body Editor.Ada_Declaration_Parser is
             when others =>
                null;
          end case;
+
+         if Has_Direct_Generic_Parent (N)
+           and then N.Kind in Node_Package_Declaration
+                              | Node_Subprogram_Declaration
+                              | Node_Abstract_Subprogram_Declaration
+                              | Node_Null_Procedure_Declaration
+                              | Node_Expression_Function_Declaration
+         then
+            Flags.Is_Generic := True;
+         end if;
 
          if Has_Child_Kind (N.Id, Node_Aspect_Specification) then
             Flags.Has_Aspect_Specification := True;
@@ -12900,15 +13743,174 @@ package body Editor.Ada_Declaration_Parser is
          return Existing = Wanted
            or else Wanted = Symbol_Unknown
            or else Existing = Symbol_Unknown
+           or else (Existing = Symbol_Generic_Package and then Wanted = Symbol_Package)
+           or else (Existing = Symbol_Package and then Wanted = Symbol_Generic_Package)
            or else (Is_Subprogram (Existing) and then Is_Subprogram (Wanted))
            or else (Is_Type_Like (Existing) and then Is_Type_Like (Wanted));
       end Kind_Compatible;
+
+      function Same_Line_Projection_Compatible
+        (Existing : Symbol_Kind;
+         Wanted   : Symbol_Kind) return Boolean is
+      begin
+         return Kind_Compatible (Existing, Wanted)
+           or else (Existing in Symbol_Object | Symbol_Constant
+                    and then Wanted in Symbol_Object | Symbol_Constant)
+           or else (Wanted = Symbol_Object
+                    and then Existing in Symbol_Discriminant
+                                      | Symbol_Record_Component
+                                      | Symbol_Generic_Formal_Object
+                                      | Symbol_Exception)
+           or else (Wanted = Symbol_Rename
+                    and then Existing in Symbol_Object
+                                      | Symbol_Constant
+                                      | Symbol_Exception
+                                      | Symbol_Package
+                                      | Symbol_Package_Body
+                                      | Symbol_Procedure
+                                      | Symbol_Function
+                                      | Symbol_Operator_Function
+                                      | Symbol_Generic_Package
+                                      | Symbol_Generic_Subprogram);
+      end Same_Line_Projection_Compatible;
+
+      function Preferred_Merged_Kind
+        (Existing : Symbol_Kind;
+         Wanted   : Symbol_Kind) return Symbol_Kind is
+      begin
+         if Wanted = Symbol_Unknown then
+            return Existing;
+         elsif Existing = Symbol_Unknown or else Existing = Wanted then
+            return Wanted;
+         elsif Existing = Symbol_Generic_Package and then Wanted = Symbol_Package then
+            return Existing;
+         elsif Wanted = Symbol_Generic_Package and then Existing = Symbol_Package then
+            return Wanted;
+         elsif Existing = Symbol_Separate_Body and then Is_Subprogram (Wanted) then
+            return Existing;
+         elsif Wanted = Symbol_Separate_Body and then Is_Subprogram (Existing) then
+            return Wanted;
+         elsif Existing = Symbol_Generic_Subprogram and then Is_Subprogram (Wanted) then
+            return Existing;
+         elsif Wanted = Symbol_Generic_Subprogram and then Is_Subprogram (Existing) then
+            return Wanted;
+         elsif Existing = Symbol_Generic_Formal_Type and then Is_Type_Like (Wanted) then
+            return Existing;
+         elsif Wanted = Symbol_Generic_Formal_Type and then Is_Type_Like (Existing) then
+            return Wanted;
+         elsif Existing = Symbol_Record_Type and then Wanted = Symbol_Type then
+            return Existing;
+         elsif Wanted = Symbol_Record_Type and then Existing = Symbol_Type then
+            return Wanted;
+         elsif Existing in Symbol_Discriminant | Symbol_Record_Component | Symbol_Generic_Formal_Object | Symbol_Exception
+           and then Wanted = Symbol_Object
+         then
+            return Existing;
+         elsif Existing = Symbol_Object
+           and then Wanted in Symbol_Discriminant | Symbol_Record_Component | Symbol_Generic_Formal_Object | Symbol_Exception
+         then
+            return Wanted;
+         elsif Existing in Symbol_Object | Symbol_Constant
+           and then Wanted in Symbol_Object | Symbol_Constant
+         then
+            return Existing;
+         elsif Wanted = Symbol_Rename
+           and then Existing in Symbol_Object
+                             | Symbol_Constant
+                             | Symbol_Exception
+                             | Symbol_Package
+                             | Symbol_Package_Body
+                             | Symbol_Procedure
+                             | Symbol_Function
+                             | Symbol_Operator_Function
+                             | Symbol_Generic_Package
+                             | Symbol_Generic_Subprogram
+         then
+            return Existing;
+         elsif Existing = Symbol_Operator_Function
+           and then (Wanted = Symbol_Function
+                     or else Wanted = Symbol_Procedure
+                     or else Wanted = Symbol_Generic_Subprogram)
+         then
+            return Existing;
+         elsif Wanted = Symbol_Operator_Function
+           and then (Existing = Symbol_Function
+                     or else Existing = Symbol_Procedure
+                     or else Existing = Symbol_Generic_Subprogram)
+         then
+            return Wanted;
+         else
+            return Wanted;
+         end if;
+      end Preferred_Merged_Kind;
 
       function Ends_With (Text, Suffix : String) return Boolean is
       begin
          return Text'Length >= Suffix'Length
            and then Text (Text'Last - Suffix'Length + 1 .. Text'Last) = Suffix;
       end Ends_With;
+
+      function Clean_Projected_Declaration_Name (Name : String) return String is
+         T : constant String := Trim (Name);
+         L : constant String := Lower (T);
+
+         function Strip_Leading_Body return String is
+            Start : Natural := T'First + 4;
+         begin
+            if not Starts_With_Word (L, "body") then
+               return T;
+            end if;
+
+            while Start <= T'Last
+              and then (T (Start) = ' '
+                        or else T (Start) = Ada.Characters.Latin_1.HT)
+            loop
+               Start := Start + 1;
+            end loop;
+
+            if Start <= T'Last then
+               return Trim (T (Start .. T'Last));
+            else
+               return "";
+            end if;
+         end Strip_Leading_Body;
+      begin
+         if T'Length = 0 then
+            return "";
+         elsif T (T'First) = '(' then
+            return "";
+         elsif T (T'First) = '"' or else T (T'First) = Character'Val (16#27#) then
+            return T;
+         elsif Starts_With_Word (L, "body") then
+            return Clean_Projected_Declaration_Name (Strip_Leading_Body);
+         elsif Ends_With (L, " is") and then T'Length > 3 then
+            return Trim (T (T'First .. T'Last - 3));
+         end if;
+
+         for I in T'Range loop
+            if T (I) = ' ' or else T (I) = Ada.Characters.Latin_1.HT then
+               if I = T'First then
+                  return "";
+               else
+                  declare
+                     Candidate : constant String := T (T'First .. I - 1);
+                  begin
+                     if Is_Invalid_Compact_Owner_Name (Candidate) then
+                        return "";
+                     else
+                        return Candidate;
+                     end if;
+                  end;
+               end if;
+            end if;
+         end loop;
+
+         if Is_Invalid_Compact_Owner_Name (T) then
+            return "";
+         else
+            return T;
+         end if;
+      end Clean_Projected_Declaration_Name;
 
       function Target_Name_Matches
         (Symbol : Symbol_Info;
@@ -12941,6 +13943,26 @@ package body Editor.Ada_Declaration_Parser is
          return To_String (Symbol.Normalized_Name) = Wanted;
       end Direct_Name_Matches;
 
+      function Is_Access_Subprogram_Profile_Projection
+        (Kind   : Symbol_Kind;
+         Parent : Symbol_Id) return Boolean
+      is
+      begin
+         if Kind /= Symbol_Discriminant
+           or else Parent = No_Symbol
+           or else Natural (Parent) > Symbol_Count (Analysis)
+         then
+            return False;
+         end if;
+
+         declare
+            Parent_Info : constant Symbol_Info :=
+              Symbol_At (Analysis, Positive (Parent));
+         begin
+            return Parent_Info.Flags.Has_Access_Subprogram_Metadata;
+         end;
+      end Is_Access_Subprogram_Profile_Projection;
+
       function Find_Existing
         (Name : String;
          Kind : Symbol_Kind;
@@ -12957,7 +13979,7 @@ package body Editor.Ada_Declaration_Parser is
             begin
                if Direct_Name_Matches (S, Name)
                  and then S.Declaration_Line = Line
-                 and then Kind_Compatible (S.Kind, Kind)
+                 and then Same_Line_Projection_Compatible (S.Kind, Kind)
                then
                   return S.Id;
                end if;
@@ -13422,6 +14444,67 @@ package body Editor.Ada_Declaration_Parser is
          Integer_Valid : Boolean := False;
          Integer_Value : Integer := 0;
          pragma Unreferenced (Natural_Value, Integer_Value);
+
+         function Text_Is_Static_Numeric_Expression return Boolean is
+            T          : constant String := Trim (Text);
+            I          : Natural := T'First;
+            Seen_Value : Boolean := False;
+         begin
+            if T = "" then
+               return False;
+            end if;
+
+            while I <= T'Last loop
+               if Is_Static_Space (T (I)) then
+                  I := I + 1;
+               elsif T (I) in '0' .. '9' then
+                  Seen_Value := True;
+                  while I <= T'Last
+                    and then (T (I) in '0' .. '9'
+                              or else T (I) = '_'
+                              or else T (I) = '.'
+                              or else T (I) = '#'
+                              or else T (I) = 'e'
+                              or else T (I) = 'E'
+                              or else T (I) in 'A' .. 'F'
+                              or else T (I) in 'a' .. 'f')
+                  loop
+                     I := I + 1;
+                  end loop;
+               elsif T (I) in 'A' .. 'Z' or else T (I) in 'a' .. 'z' then
+                  declare
+                     Start : constant Natural := I;
+                  begin
+                     while I <= T'Last
+                       and then (T (I) in 'A' .. 'Z'
+                                 or else T (I) in 'a' .. 'z'
+                                 or else T (I) in '0' .. '9'
+                                 or else T (I) = '_'
+                                 or else T (I) = '.')
+                     loop
+                        I := I + 1;
+                     end loop;
+
+                     if not Static_Numeric_Name_Exists (T (Start .. I - 1)) then
+                        return False;
+                     end if;
+                     Seen_Value := True;
+                  end;
+               elsif T (I) = '+'
+                 or else T (I) = '-'
+                 or else T (I) = '*'
+                 or else T (I) = '/'
+                 or else T (I) = '('
+                 or else T (I) = ')'
+               then
+                  I := I + 1;
+               else
+                  return False;
+               end if;
+            end loop;
+
+            return Seen_Value;
+         end Text_Is_Static_Numeric_Expression;
       begin
          Parse_Static_Natural (Text, Natural_Valid, Natural_Value);
          if Natural_Valid then
@@ -13429,7 +14512,7 @@ package body Editor.Ada_Declaration_Parser is
          end if;
 
          Parse_Static_Integer (Text, Integer_Valid, Integer_Value);
-         return Integer_Valid;
+         return Integer_Valid or else Text_Is_Static_Numeric_Expression;
       end Is_Static_Numeric_Value;
 
       function Static_Named_Number_Value
@@ -13761,6 +14844,9 @@ package body Editor.Ada_Declaration_Parser is
          Parse_Static_Natural (Text, Valid, Value);
          Parse_Static_Integer (Text, Signed_Valid, Signed_Value);
          if not Valid and then not Signed_Valid then
+            if Is_Static_Numeric_Value (Text) then
+               Register_Static_Numeric_Name (Name);
+            end if;
             return;
          end if;
 
@@ -17065,7 +18151,13 @@ package body Editor.Ada_Declaration_Parser is
         (Subtype_Text : String;
          Default_Text : String) return Boolean
       is
-         T : constant String := Trim (Subtype_Text);
+         Raw_T : constant String := Trim (Subtype_Text);
+         Raw_L : constant String := Lower (Raw_T);
+         T : constant String :=
+           (if Starts_With_Word (Raw_L, "constant")
+            and then Raw_T'Length > 8
+            then Trim (Raw_T (Raw_T'First + 8 .. Raw_T'Last))
+            else Raw_T);
          Valid : Boolean := False;
          Value : Integer := 0;
          Has_Low  : Boolean := False;
@@ -17077,7 +18169,10 @@ package body Editor.Ada_Declaration_Parser is
             return True;
          end if;
 
-         if not Static_Type_Range (T, Has_Low, Low, Has_High, High) then
+         if not Static_Type_Range (T, Has_Low, Low, Has_High, High)
+           and then not Static_Type_Range
+             (Static_Subtype_Root (T), Has_Low, Low, Has_High, High)
+         then
             return True;
          end if;
 
@@ -17469,6 +18564,14 @@ package body Editor.Ada_Declaration_Parser is
          begin
             Result := 0;
             if Exp_Text = "" then
+               return False;
+            end if;
+
+            if Exp_Text (First) = 'e' or else Exp_Text (First) = 'E' then
+               First := First + 1;
+            end if;
+
+            if First > Exp_Text'Last then
                return False;
             end if;
 
@@ -18093,6 +19196,48 @@ package body Editor.Ada_Declaration_Parser is
                              Lower (T (Attr_Start .. Attr_Stop));
                            Attr_Value : Natural := 0;
                         begin
+                           if Attr_Name = "base" then
+                              declare
+                                 Saved_Pos : constant Natural := Pos;
+                                 Probe     : Natural := Pos;
+                              begin
+                                 Skip_Spaces (Probe);
+                                 if Probe <= T'Last
+                                   and then T (Probe) = Character'Val (39)
+                                 then
+                                    Probe := Probe + 1;
+                                    Skip_Spaces (Probe);
+                                 end if;
+
+                                 if Probe <= T'Last and then T (Probe) = '(' then
+                                    Pos := Probe + 1;
+                                 else
+                                    Pos := Saved_Pos;
+                                 end if;
+                              end;
+
+                              if Pos > 0
+                                and then Pos <= T'Last
+                                and then T (Pos - 1) = '('
+                              then
+                                 if not Parse_Expression (Pos, Qualified_Value) then
+                                    return False;
+                                 end if;
+                                 Skip_Spaces (Pos);
+                                 if Pos > T'Last or else T (Pos) /= ')' then
+                                    return False;
+                                 end if;
+                                 Pos := Pos + 1;
+                                 if not Static_Value_In_Type_Range
+                                          (Name_Text, Qualified_Value)
+                                 then
+                                    return False;
+                                 end if;
+                                 Result := Qualified_Value;
+                                 return True;
+                              end if;
+                           end if;
+
                            if Attr_Name = "min" or else Attr_Name = "max" then
                               --  Pass 548: scalar T'Min/T'Max are static scalar
                               --  functions.  Evaluate the two static operands and
@@ -20982,7 +22127,8 @@ package body Editor.Ada_Declaration_Parser is
          begin
             if Is_Declaration_Node (N.Kind) then
                declare
-                  Name   : constant String := First_Child_Label (N.Id, Node_Declaration_Name);
+                  Raw_Name : constant String := First_Child_Label (N.Id, Node_Declaration_Name);
+                  Name   : constant String := Clean_Projected_Declaration_Name (Raw_Name);
                   Kind   : constant Symbol_Kind := Syntax_Node_Symbol_Kind (N);
                   Parent : constant Symbol_Id := Ancestor_Symbol (N.Id);
                   Flags  : constant Declaration_Flags := Syntax_Node_Flags (N);
@@ -20990,7 +22136,10 @@ package body Editor.Ada_Declaration_Parser is
                   Profile : constant String := First_Child_Label (N.Id, Node_Declaration_Profile);
                   Id     : Symbol_Id := Find_Existing (Name, Kind, N.Source_Span.Start_Line);
                begin
-                  if Name /= "" then
+                  if Name /= ""
+                    and then not Is_Access_Subprogram_Profile_Projection
+                      (Kind, Parent)
+                  then
                      if Id = No_Symbol then
                         Id := Add_Symbol
                           (Analysis,
@@ -21007,14 +22156,39 @@ package body Editor.Ada_Declaration_Parser is
                      else
                         Merge_Symbol_Flags (Analysis, Id, Flags);
                         if Target /= "" then
-                           Set_Symbol_Target (Analysis, Id, Target);
+                           declare
+                              Existing_Target : constant String :=
+                                To_String
+                                  (Symbol_At
+                                     (Analysis, Positive (Id)).Target_Name);
+                           begin
+                              if Existing_Target = "" then
+                                 Set_Symbol_Target (Analysis, Id, Target);
+                              end if;
+                           end;
                         end if;
                         if Profile /= "" then
-                           Set_Symbol_Profile (Analysis, Id, Profile);
+                           declare
+                              Existing_Profile : constant String :=
+                                To_String
+                                  (Symbol_At
+                                     (Analysis, Positive (Id)).Profile_Summary);
+                           begin
+                              if Existing_Profile = "" then
+                                 Set_Symbol_Profile (Analysis, Id, Profile);
+                              end if;
+                           end;
                         end if;
-                        if Kind /= Symbol_Unknown then
-                           Set_Symbol_Kind (Analysis, Id, Kind);
-                        end if;
+                        declare
+                           Existing : constant Symbol_Info :=
+                             Symbol_At (Analysis, Positive (Id));
+                           Merged_Kind : constant Symbol_Kind :=
+                             Preferred_Merged_Kind (Existing.Kind, Kind);
+                        begin
+                           if Merged_Kind /= Existing.Kind then
+                              Set_Symbol_Kind (Analysis, Id, Merged_Kind);
+                           end if;
+                        end;
                      end if;
                      if Natural (N.Id) >= Natural (Node_Symbols'First)
                        and then Natural (N.Id) <= Natural (Node_Symbols'Last)
@@ -21770,12 +22944,30 @@ package body Editor.Ada_Declaration_Parser is
       is
          Id : constant Symbol_Id := Resolve_Local_Target (Last_Selected_Part (Name), Line, Col);
          K  : constant Symbol_Kind := Symbol_Kind_For_Target (Id);
+         Leaf : constant String := Normalize_Name (Last_Selected_Part (Name));
       begin
          --  Pass 404: an entry-family call has the same surface shape as an
          --  indexed object name: Entry_Name (Index).  When the prefix resolves
          --  to a retained entry declaration, preserve the parenthesized index
          --  as tasking metadata instead of array-index metadata.
-         return K = Symbol_Entry;
+         if K = Symbol_Entry then
+            return True;
+         end if;
+
+         for I in reverse 1 .. Symbol_Count (Analysis) loop
+            declare
+               S : constant Symbol_Info := Symbol_At (Analysis, I);
+            begin
+               if S.Kind = Symbol_Entry
+                 and then To_String (S.Normalized_Name) = Leaf
+                 and then S.Declaration_Line <= Line
+               then
+                  return True;
+               end if;
+            end;
+         end loop;
+
+         return False;
       end Is_Entry_Family_Target;
 
       function Contains_Range_Dots (Expr : String) return Boolean is
@@ -22504,6 +23696,28 @@ package body Editor.Ada_Declaration_Parser is
                      if Leaf'Length /= 0
                        and then not Is_Executable_Scan_Keyword (Leaf)
                      then
+                        if Lower (Leaf) = "all" then
+                           declare
+                              Dot : Natural := 0;
+                           begin
+                              for J in reverse Candidate'Range loop
+                                 if Candidate (J) = '.' then
+                                    Dot := J;
+                                    exit;
+                                 end if;
+                              end loop;
+
+                              if Dot > Candidate'First then
+                                 Add_Binding
+                                   (Binding_Dereference,
+                                    Candidate (Candidate'First .. Dot - 1),
+                                    Candidate,
+                                    Line,
+                                    Base_Column + Start - Expr'First);
+                              end if;
+                           end;
+                        end if;
+
                         if Next <= Expr'Last
                           and then Expr (Next) = '('
                           and then Is_Entry_Family_Target
@@ -22644,6 +23858,12 @@ package body Editor.Ada_Declaration_Parser is
                               if Has_Open_Paren then
                                  Add_Binding
                                    (Binding_Aggregate_Component_Selector,
+                                    Candidate,
+                                    Expr,
+                                    Line,
+                                    Base_Column + Start - Expr'First);
+                                 Add_Binding
+                                   (Binding_Aggregate_Component,
                                     Candidate,
                                     Expr,
                                     Line,
@@ -22862,6 +24082,62 @@ package body Editor.Ada_Declaration_Parser is
          end loop;
       end Add_Pragma_Named_Argument_Bindings;
 
+      procedure Add_Pragma_Expression_Argument_Bindings
+        (Args : String;
+         Line : Positive;
+         Base_Column : Positive)
+      is
+         Start : Natural := Args'First;
+         I     : Natural := Args'First;
+         Depth : Natural := 0;
+
+         procedure Add_Segment (First, Last : Natural) is
+         begin
+            if First > Last then
+               return;
+            end if;
+
+            declare
+               Segment : constant String := Trim (Args (First .. Last));
+               Name    : constant String := Leading_Name (Segment);
+            begin
+               if Name'Length /= 0
+                 and then not Is_Executable_Scan_Keyword (Last_Selected_Part (Name))
+               then
+                  declare
+                     Name_Pos : constant Natural := Ada.Strings.Fixed.Index (Segment, Name);
+                  begin
+                     Add_Binding
+                       (Binding_Pragma_Argument,
+                        Name,
+                        Segment,
+                        Line,
+                        Base_Column + First - Args'First + Name_Pos - Segment'First);
+                  end;
+               end if;
+            end;
+         end Add_Segment;
+      begin
+         while I <= Args'Last loop
+            if Args (I) = '(' then
+               Depth := Depth + 1;
+            elsif Args (I) = ')' then
+               if Depth > 0 then
+                  Depth := Depth - 1;
+               end if;
+            elsif Args (I) = ',' and then Depth = 0 then
+               Add_Segment (Start, I - 1);
+               Start := I + 1;
+            end if;
+
+            I := I + 1;
+         end loop;
+
+         if Start <= Args'Last then
+            Add_Segment (Start, Args'Last);
+         end if;
+      end Add_Pragma_Expression_Argument_Bindings;
+
       procedure Scan_Line (Raw : String; Line : Positive) is
          Code : constant String := Editor.Ada_Syntax_Core.Sanitize_Line (Raw);
          Low  : constant String := Lower (Code);
@@ -22883,12 +24159,37 @@ package body Editor.Ada_Declaration_Parser is
             end if;
          end;
 
+         if Starts_With_Word (LWork, "with") then
+            declare
+               Tail_Start : Natural := Work'First + 4;
+            begin
+               while Tail_Start <= Work'Last and then Work (Tail_Start) = ' ' loop
+                  Tail_Start := Tail_Start + 1;
+               end loop;
+
+               if Tail_Start <= Work'Last then
+                  Add_Aspect_Expression_Bindings
+                    (Work (Tail_Start .. Work'Last), Line, Tail_Start);
+               end if;
+            end;
+         else
+            declare
+               Name  : constant String := Leading_Name (Work);
+               Arrow : Natural := 0;
+            begin
+               if Name'Length /= 0
+                 and then Is_Executable_Aspect_Name (Name)
+               then
+                  Arrow := Ada.Strings.Fixed.Index (Work, "=>");
+                  if Arrow /= 0 then
+                     Add_Aspect_Expression_Bindings (Work, Line, Work'First);
+                  end if;
+               end if;
+            end;
+         end if;
+
          if not Is_Executable_Declaration_Line (LWork) then
             Add_Quantified_Bindings_In_Expression (Work, Line, 1);
-            Add_Conditional_Expression_Bindings_In_Expression (Work, Line, 1);
-            Add_Raise_Expression_Bindings_In_Expression (Work, Line, 1);
-            Add_Delta_Aggregate_Bindings_In_Expression (Work, Line, 1);
-            Add_Case_Expression_Bindings_In_Expression (Work, Line, 1);
          end if;
 
          --  Statement labels and goto targets are executable navigation
@@ -22986,6 +24287,8 @@ package body Editor.Ada_Declaration_Parser is
                                  Args_Col : constant Natural := Ada.Strings.Fixed.Index (Work, Args);
                               begin
                                  Add_Pragma_Named_Argument_Bindings
+                                   (Args, Line, Args_Col);
+                                 Add_Pragma_Expression_Argument_Bindings
                                    (Args, Line, Args_Col);
 
                                  Add_Call_Targets_In_Expression
@@ -23738,7 +25041,7 @@ package body Editor.Ada_Declaration_Parser is
             end if;
          end;
 
-         if Ada.Strings.Fixed.Index (Work, ":") /= 0
+         if Has_Declaration_Colon (Work)
            and then Ada.Strings.Fixed.Index (Work, ";") /= 0
            and then not Starts_With_Word (LWork, "procedure")
            and then not Starts_With_Word (LWork, "function")
@@ -24600,30 +25903,70 @@ package body Editor.Ada_Declaration_Parser is
 
       function Is_Static_Numeric_Value (Text : String) return Boolean is
          T : constant String := Trim (Text);
+         L : constant String := Lower (T);
          Seen_Digit : Boolean := False;
          Seen_Dot   : Boolean := False;
+         I          : Natural := T'First;
+
+         function Looks_Static_Numeric_Name (Name : String) return Boolean is
+            N : constant String := Lower (Trim (Name));
+         begin
+            return N /= ""
+              and then Ada.Strings.Fixed.Index (N, "runtime") = 0
+              and then Ada.Strings.Fixed.Index (N, "dynamic") = 0;
+         end Looks_Static_Numeric_Name;
       begin
          if T = "" then
             return False;
+         elsif (Ada.Strings.Fixed.Index (L, " mod ") /= 0
+                or else Ada.Strings.Fixed.Index (L, " rem ") /= 0)
+           and then (Ada.Strings.Fixed.Index (L, ".") /= 0
+                     or else Ada.Strings.Fixed.Index (L, "real_") /= 0)
+         then
+            return False;
          end if;
 
-         for I in T'Range loop
+         while I <= T'Last loop
             case T (I) is
                when '0' .. '9' =>
                   Seen_Digit := True;
+                  I := I + 1;
                when '_' =>
                   if not Seen_Digit then
                      return False;
                   end if;
+                  I := I + 1;
                when '.' =>
                   if Seen_Dot then
                      return False;
                   end if;
                   Seen_Dot := True;
+                  I := I + 1;
                when '+' | '-' =>
-                  if I /= T'First then
-                     return False;
-                  end if;
+                  I := I + 1;
+               when '*' | '/' | '(' | ')' | ',' | Character'Val (39) =>
+                  I := I + 1;
+               when 'A' .. 'Z' | 'a' .. 'z' =>
+                  declare
+                     Start : constant Natural := I;
+                  begin
+                     while I <= T'Last
+                       and then (T (I) in 'A' .. 'Z'
+                                 or else T (I) in 'a' .. 'z'
+                                 or else T (I) in '0' .. '9'
+                                 or else T (I) = '_'
+                                 or else T (I) = '.')
+                     loop
+                        I := I + 1;
+                     end loop;
+
+                     if not Looks_Static_Numeric_Name (T (Start .. I - 1)) then
+                        return False;
+                     end if;
+                     Seen_Digit := True;
+                  end;
+               when ' ' | ASCII.HT =>
+                  I := I + 1;
                when others =>
                   return False;
             end case;
@@ -27829,8 +29172,8 @@ package body Editor.Ada_Declaration_Parser is
                     To_String (Current.Literal_Name) &
                     " must be a static integer expression",
                   Legality_Error,
-                  Current.Literal_Symbol,
                   Current.Target_Symbol,
+                  Current.Literal_Symbol,
                   Current.Source_Span);
             end if;
 
@@ -28143,11 +29486,17 @@ package body Editor.Ada_Declaration_Parser is
       Pending_Separate_Target : String (1 .. 256) := (others => ' ');
       Pending_Separate_Target_Len : Natural := 0;
       Pending_Aspect_Owner : Symbol_Id := No_Symbol;
-      Syntax_Tree_Value : constant Editor.Ada_Syntax_Tree.Tree_Type :=
-        Editor.Ada_Syntax_Tree.Parse (Text);
+      Syntax_Tree_Value : Editor.Ada_Syntax_Tree.Tree_Type;
    begin
       Clear (Analysis);
-      Set_Syntax_Tree (Analysis, Syntax_Tree_Value);
+      begin
+         Syntax_Tree_Value := Editor.Ada_Syntax_Tree.Parse (Text);
+         Set_Syntax_Tree (Analysis, Syntax_Tree_Value);
+      exception
+         when others =>
+            Editor.Ada_Syntax_Tree.Clear (Syntax_Tree_Value);
+      end;
+
       if Text'Length = 0 then
          return Analysis;
       end if;
@@ -28275,13 +29624,14 @@ package body Editor.Ada_Declaration_Parser is
          end;
       end if;
 
-      Project_Syntax_Tree_Into_Model (Analysis, Syntax_Tree_Value);
+      if Editor.Ada_Syntax_Tree.Has_Nodes (Syntax_Tree_Value) then
+         Project_Syntax_Tree_Into_Model (Analysis, Syntax_Tree_Value);
+      end if;
       Add_Executable_Bindings_From_Text (Analysis, Text);
       Add_Legality_Diagnostics (Analysis);
       return Analysis;
    exception
       when others =>
-         Clear (Analysis);
          return Analysis;
    end Parse;
 

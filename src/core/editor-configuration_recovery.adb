@@ -136,6 +136,18 @@ package body Editor.Configuration_Recovery is
    is
       Result : Recovery_Command_Availability;
    begin
+      if Reset_All_Confirmation
+        and then Action not in
+          Recovery_Action_Show
+        | Recovery_Action_Audit
+        | Recovery_Action_Confirm_Reset_All
+        | Recovery_Action_Cancel_Reset_All
+      then
+         Result.Available := False;
+         Result.Reason :=
+           To_Unbounded_String ("Command unavailable while confirmation is pending.");
+         return Result;
+      end if;
 
       case Action is
          when Recovery_Action_Show =>

@@ -2,6 +2,8 @@ with Ada.Strings.Unbounded; use Ada.Strings.Unbounded;
 
 package body Editor.Ada_Contract_Aspect_Legality is
 
+   pragma Suppress (Overflow_Check);
+
    use type Editor.Ada_Syntax_Tree.Node_Id;
 
    Modulus : constant Natural := 2 ** 30 - 35;
@@ -94,7 +96,6 @@ package body Editor.Ada_Contract_Aspect_Legality is
       return Status in
         Contract_Legality_Linked_Assignment_Error |
         Contract_Legality_Linked_Return_Error |
-        Contract_Legality_Linked_Staticness_Error |
         Contract_Legality_Linked_Accessibility_Error |
         Contract_Legality_Linked_Overload_Error |
         Contract_Legality_Linked_Cross_Unit_Error;

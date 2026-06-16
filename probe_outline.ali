@@ -1,0 +1,243 @@
+V "GNAT Lib v15"
+M P W=b
+A -gnat2022
+A -gnatX
+A -gnata
+P SS ZX
+
+RN
+RV NO_ENUMERATION_MAPS
+RV NO_EXCEPTION_HANDLERS
+RV NO_EXCEPTION_PROPAGATION
+RV NO_EXCEPTIONS
+RV NO_IO
+RV NO_IMPLICIT_CONDITIONALS
+RV NO_LOCAL_ALLOCATORS
+RV NO_NESTED_FINALIZATION
+RV NO_SECONDARY_STACK
+RV NO_STANDARD_STORAGE_POOLS
+RV NO_DEFAULT_INITIALIZATION
+RV NO_DYNAMIC_SIZED_OBJECTS
+RV NO_OBSOLESCENT_FEATURES
+
+U probe_outline%b	probe_outline.adb	c57ea5e3 NE OO SU
+W ada%s			ada.ads			ada.ali
+Z ada.exceptions%s	a-except.adb		a-except.ali
+Z ada.strings.text_buffers%s  a-sttebu.adb	a-sttebu.ali
+W ada.text_io%s		a-textio.adb		a-textio.ali
+W editor%s		editor.ads		editor.ali
+W editor.commands%s	editor-commands.adb	editor-commands.ali
+W editor.executor%s	editor-executor.adb	editor-executor.ali
+W editor.feature_panel%s  editor-feature_panel.adb  editor-feature_panel.ali
+W editor.messages%s	editor-messages.adb	editor-messages.ali
+W editor.outline%s	editor-outline.adb	editor-outline.ali
+W editor.state%s	editor-state.adb	editor-state.ali
+Z system%s		system.ads		system.ali
+Z system.concat_2%s	s-conca2.adb		s-conca2.ali
+Z system.concat_3%s	s-conca3.adb		s-conca3.ali
+Z system.finalization_primitives%s  s-finpri.adb  s-finpri.ali
+Z system.secondary_stack%s  s-secsta.adb	s-secsta.ali
+Z system.soft_links%s	s-soflin.adb		s-soflin.ali
+Z system.standard_library%s  s-stalib.adb	s-stalib.ali
+
+D ada.ads		20250808065140 76789da1 ada%s
+D a-calend.ads		20250808065140 bf7f3cc9 ada.calendar%s
+D a-charac.ads		20250808065140 2d3ec45b ada.characters%s
+D a-chlat1.ads		20250808065140 e0d72e76 ada.characters.latin_1%s
+D a-contai.ads		20250808065140 61e5e089 ada.containers%s
+D a-conhel.ads		20250808065140 46fe1ce3 ada.containers.helpers%s
+D a-convec.ads		20250808065140 91fb49f3 ada.containers.vectors%s
+D a-except.ads		20250808065140 e7970cd9 ada.exceptions%s
+D a-finali.ads		20250808065140 bf4f806b ada.finalization%s
+D a-ioexce.ads		20250808065140 40018c65 ada.io_exceptions%s
+D a-iteint.ads		20250808065140 49a8bee2 ada.iterator_interfaces%s
+D a-stream.ads		20250808065140 17477cbd ada.streams%s
+D a-string.ads		20250808065140 90ac6797 ada.strings%s
+D a-strmap.ads		20250808065140 1f91ebb6 ada.strings.maps%s
+D a-strsea.ads		20250808065140 18c3c634 ada.strings.search%s
+D a-sttebu.ads		20250808065140 f1ad67a2 ada.strings.text_buffers%s
+D a-strunb.ads		20250808065140 b10770ab ada.strings.unbounded%s
+D a-stuten.ads		20250808065140 c6ced0ae ada.strings.utf_encoding%s
+D a-tags.ads		20250808065140 fbca0ad5 ada.tags%s
+D a-textio.ads		20250808065140 34ef47de ada.text_io%s
+D a-unccon.ads		20250808065140 0e9b276f ada.unchecked_conversion%s
+D editor.ads		20260612145959 16f844c2 editor%s
+D editor-ada_language_model.ads  20260613110624 75f1fac9 editor.ada_language_model%s
+D editor-ada_project_index.ads  20260612145959 3ad143b9 editor.ada_project_index%s
+D editor-ada_syntax_tree.ads  20260612145959 49a76ced editor.ada_syntax_tree%s
+D editor-bookmarks.ads	20260612145959 4e695f4d editor.bookmarks%s
+D editor-buffer_switcher.ads  20260612152524 fd053b33 editor.buffer_switcher%s
+D editor-buffer_types.ads  20260612151710 a555405e editor.buffer_types%s
+D editor-buffers.ads	20260612185530 1a6b6e4c editor.buffers%s
+D editor-build_candidates.ads  20260612145959 dc89ea7b editor.build_candidates%s
+D editor-build_output_details.ads  20260613095501 1d7c9af2 editor.build_output_details%s
+D editor-build_process_control.ads  20260612145959 28661204 editor.build_process_control%s
+D editor-build_result_summary.ads  20260613095501 5b952273 editor.build_result_summary%s
+D editor-build_runner_policy.ads  20260612145959 623f26a9 editor.build_runner_policy%s
+D editor-build_ui.ads	20260612152524 28a54496 editor.build_ui%s
+D editor-build_working_context.ads  20260612145959 cef9cea9 editor.build_working_context%s
+D editor-command_execution.ads  20260612145959 54c8cc0a editor.command_execution%s
+D editor-commands.ads	20260612173240 3b5e3f44 editor.commands%s
+D editor-cursors.ads	20260612145959 1f938cf3 editor.cursors%s
+D editor-diagnostics.ads  20260612145959 41767a50 editor.diagnostics%s
+D editor-dirty_guards.ads  20260612145959 2f2ee9d0 editor.dirty_guards%s
+D editor-dirty_lines.ads  20260612145959 fa543a8e editor.dirty_lines%s
+D editor-executor.ads	20260612164121 e287436f editor.executor%s
+D editor-external_producers.ads  20260612152524 38bdba64 editor.external_producers%s
+D editor-feature_diagnostics.ads  20260612145959 9dd4f8ea editor.feature_diagnostics%s
+D editor-feature_messages.ads  20260612145959 2c7a5943 editor.feature_messages%s
+D editor-feature_panel.ads  20260612145959 0bdf4cfc editor.feature_panel%s
+D editor-feature_search_results.ads  20260612152524 38c78314 editor.feature_search_results%s
+D editor-file_tree.ads	20260612145959 e6abdf66 editor.file_tree%s
+D editor-file_tree_view.ads  20260612145959 99db49c3 editor.file_tree_view%s
+D editor-folding.ads	20260612145959 860f30d0 editor.folding%s
+D editor-go_to_line.ads	20260612145959 c07ea03c editor.go_to_line%s
+D editor-guided_prompts.ads  20260612145959 34cab40b editor.guided_prompts%s
+D editor-gutter_markers.ads  20260612145959 304c4eae editor.gutter_markers%s
+D editor-history.ads	20260612145959 b546dbc4 editor.history%s
+D editor-input_field.ads  20260612145959 04b03a00 editor.input_field%s
+D editor-keybindings.ads  20260612145959 2657f44d editor.keybindings%s
+D editor-layout.ads	20260612145959 68c2e77a editor.layout%s
+D editor-messages.ads	20260612151413 205b1944 editor.messages%s
+D editor-navigation.ads	20260612145959 30defc5f editor.navigation%s
+D editor-navigation_history.ads  20260612145959 b0e3398a editor.navigation_history%s
+D editor-outline.ads	20260612152524 90a00201 editor.outline%s
+D editor-overlay_focus.ads  20260612145959 92ec945e editor.overlay_focus%s
+D editor-panel_focus.ads  20260612145959 a6c95284 editor.panel_focus%s
+D editor-panels.ads	20260612145959 66614da0 editor.panels%s
+D editor-pending_transitions.ads  20260612145959 81c78960 editor.pending_transitions%s
+D editor-problems.ads	20260612145959 a9a08157 editor.problems%s
+D editor-producer_contracts.ads  20260612145959 c3ee4501 editor.producer_contracts%s
+D editor-project.ads	20260612145959 f4d50f6d editor.project%s
+D editor-project_search.ads  20260612195704 b7cf3cc2 editor.project_search%s
+D editor-project_search_bar.ads  20260612145959 c5c12f77 editor.project_search_bar%s
+D editor-quick_open.ads	20260614175339 b8f14db6 editor.quick_open%s
+D editor-recent_buffers.ads  20260612145959 617e4612 editor.recent_buffers%s
+D editor-recent_projects.ads  20260612145959 ee1155f5 editor.recent_projects%s
+D editor-search.ads	20260612145959 dac0e204 editor.search%s
+D editor-search_results.ads  20260612145959 98eded1d editor.search_results%s
+D editor-selection.ads	20260612145959 37bfc5e9 editor.selection%s
+D editor-settings.ads	20260612145959 c2103809 editor.settings%s
+D editor-state.ads	20260613081313 1982bcb9 editor.state%s
+D editor-status_bar.ads	20260612145959 879f0640 editor.status_bar%s
+D editor-syntax.ads	20260612145959 d59b0303 editor.syntax%s
+D editor-syntax_cache.ads  20260612164742 637f2470 editor.syntax_cache%s
+D editor-syntax_semantics.ads  20260612145959 a499b10a editor.syntax_semantics%s
+D editor-tab_bar.ads	20260612151839 e26dca3d editor.tab_bar%s
+D editor-unicode.ads	20260612145959 552ff3cc editor.unicode%s
+D editor-view_types.ads	20260612152152 f3042ec7 editor.view_types%s
+D editor-workspace_persistence.ads  20260612202240 a037efc2 editor.workspace_persistence%s
+D editor-wrap.ads	20260612145959 87db665a editor.wrap%s
+D interfac.ads		20250808065140 9111f9c1 interfaces%s
+D i-c.ads		20250808065140 e94c966a interfaces.c%s
+D i-cstrea.ads		20250808065140 ffd01b9d interfaces.c_streams%s
+D probe_outline.adb	20260615203342 8aee7516 probe_outline%b
+D system.ads		20250808065140 14286b0f system%s
+D s-atocou.ads		20250808065140 dc18efc3 system.atomic_counters%s
+D s-conca2.ads		20250808065140 b5fb73f7 system.concat_2%s
+D s-conca3.ads		20250808065140 8a7a19a2 system.concat_3%s
+D s-crtl.ads		20250808065140 beb39b9e system.crtl%s
+D s-exctab.ads		20250808065140 91bef6ef system.exception_table%s
+D s-ficobl.ads		20250808065140 dc5161d4 system.file_control_block%s
+D s-finpri.ads		20250808065140 5970d55a system.finalization_primitives%s
+D s-finroo.ads		20250808065140 0a7c3ed4 system.finalization_root%s
+D s-memory.ads		20250808065140 18949c1a system.memory%s
+D s-oscons.ads		20250827122531 068e1a91 system.os_constants%s
+D s-oslock.ads		20250808065140 13fa6b78 system.os_locks%s
+D s-parame.ads		20250808065140 3597fc11 system.parameters%s
+D s-pooglo.ads		20250808065140 91708d21 system.pool_global%s
+D s-putima.ads		20250808065140 17291fe4 system.put_images%s
+D s-retsta.ads		20250808065140 0f6b06cb system.return_stack%s
+D s-secsta.ads		20250808065140 578279f5 system.secondary_stack%s
+D s-soflin.ads		20250808065140 5d88fdea system.soft_links%s
+D s-stache.ads		20250808065140 0b81c1fe system.stack_checking%s
+D s-stalib.ads		20250808065140 1c9580f6 system.standard_library%s
+D s-stalib.adb		20250808065140 eb464a47 system.standard_library%b
+D s-stoele.ads		20250808065140 ccded4e8 system.storage_elements%s
+D s-stopoo.ads		20250808065140 e9fa2dd8 system.storage_pools%s
+D s-stratt.ads		20250808065140 516607ae system.stream_attributes%s
+D s-traent.ads		20250808065140 c81cbf8c system.traceback_entries%s
+D s-unstyp.ads		20250808065140 fa2a7f59 system.unsigned_types%s
+D s-wchcon.ads		20250808065140 d9032363 system.wch_con%s
+D text_backend.ads	20260612145959 6d0030da text_backend%s
+D text_backend-rope_impl.ads  20260612145959 0f5d7663 text_backend.rope_impl%s
+D text_buffer.ads	20260612145959 bb9a4056 text_buffer%s
+G a e
+G c Z b b [probe_outline standard 9 11 none]
+G r s state_type [probe_outline standard 9 11 none] [state_typeIP editor__state 115 9 none]
+G r l state_type [probe_outline standard 9 11 none] [state_typeDI editor__state 115 9 none]
+G r k state_type [probe_outline standard 9 11 none] [state_typeDF editor__state 115 9 none]
+G r s message_record [probe_outline standard 9 11 none] [message_recordIP editor__messages 23 9 none]
+G r l message_record [probe_outline standard 9 11 none] [message_recordDI editor__messages 23 9 none]
+G r k message_record [probe_outline standard 9 11 none] [message_recordDF editor__messages 23 9 none]
+G r c none [probe_outline standard 9 11 none] [init editor__state 530 14 none]
+G r c none [probe_outline standard 9 11 none] [load_text editor__state 446 14 none]
+G r c none [probe_outline standard 9 11 none] [execute_command editor__executor 98 14 none]
+G r c none [probe_outline standard 9 11 none] [select_first editor__feature_panel 430 14 none]
+G r c none [probe_outline standard 9 11 none] [clear editor__outline 140 14 none]
+G r c none [probe_outline standard 9 11 none] [execute_command_with_result editor__executor 110 13 none]
+G r c none [probe_outline standard 9 11 none] [active_message editor__messages 146 13 none]
+G r j message_record [probe_outline standard 9 11 none] [message_recordDA editor__messages 23 9 none]
+G r c none [probe_outline standard 9 11 none] [text editor__messages 140 13 none]
+G r c none [probe_outline standard 9 11 none] [reason_no_outline_item_selected editor__outline 703 13 none]
+X 1 ada.ads
+18K9*Ada 22e8 92|1r6 22r4 26r7 28r7 30r4
+X 11 a-iteint.ads
+24h9 Forward_Iterator
+32h9 Reversible_Iterator<24R9[7|119]>
+X 17 a-strunb.ads
+269V14*"="{boolean} 7|65i19
+X 20 a-textio.ads
+58K13*Text_IO 785e16 92|1w10 22r8 26r11 28r11 30r8
+565U14*Put_Line 92|22s16 26s19 28s19 30s16
+X 22 editor.ads
+1K9*Editor 5e11 92|2r6 3r6 4r6 5r6 6r6 7r6 10r13 11r13 13r13 15r4 16r4 17r4
+. 17r40 18r4 19r4 20r14 21r10 23r19 24r11 26r43 31r20
+X 37 editor-command_execution.ads
+13e7*Status{5E9} 92|23r74
+X 38 editor-commands.ads
+6K16*Commands 1740e20 92|2w13 17r47 21r17
+456n7*Command_Refresh_Outline{11E9} 92|17r56
+468n7*Command_Open_Selected_Outline_Item{11E9} 92|21r26
+X 43 editor-executor.ads
+21K16*Executor 1189e20 92|3w13 11r20 17r11 20r21 23r26
+24E12*Command_Execution_Status{37|5E9} 92|23r35
+26R12*Command_Execution_Result{37|12R9} 92|11r29
+98U14*Execute_Command 92|17s20
+110V13*Execute_Command_With_Result{26R12} 92|20s30
+X 47 editor-feature_panel.ads
+4K16*Feature_Panel 696e25 92|4w13 18r11
+430U14*Select_First 92|18s25
+X 59 editor-messages.ads
+4K16*Messages 203e20 92|5w13 13r20 24r18 26r50
+30R12*Editor_Message{23R9} 92|13r29
+140V13*Text{string} 92|26s59
+146V13*Active_Message{30R12} 92|24s27
+X 62 editor-outline.ads
+6K16*Outline 760e19 92|6w13 19r11 31r27
+140U14*Clear 92|19s19
+703V13*Reason_No_Outline_Item_Selected{string} 92|31s35
+X 79 editor-state.ads
+51K16*State 611e17 92|7w13 10r20 15r11 16r11
+115R9*State_Type 367e14 92|10r26
+157r7*Feature_Panel{47|119R9} 92|18m41
+158r7*Outline{62|109R9} 92|19m28
+172r7*Messages{59|31R9} 92|24r45
+446U14*Load_Text 92|16s17
+530U14*Init 92|15s17
+X 92 probe_outline.adb
+9U11*Probe_Outline 9b11 32l5 32t18
+10r4 S{79|115R9} 15m23 16m28 16r28 17m37 17r37 18m39 18r39 19m26 19r26 21m7
+. 21r7 24r43
+11r4 Result{43|26R12} 20m4 23r67
+12b4 Found{boolean} 24m55 24r55 25r7
+13r4 Msg{59|30R12} 24m4 24r4 26r65
+X 93 system.ads
+67M9*Address
+X 102 s-memory.ads
+51V13*Alloc{93|67M9} 101i<c,__gnat_malloc>22
+66U14*Free 102i<c,__gnat_free>22
+74V13*Realloc{93|67M9} 103i<c,__gnat_realloc>22
+X 113 s-stalib.adb
+87U14 Break_Start 88i<c,__gnat_break_start>22
+

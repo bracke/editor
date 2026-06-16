@@ -1,5 +1,7 @@
 package body Editor.Ada_RM_Coverage_Matrix_Audit_Pass1338 is
 
+   pragma Suppress (Overflow_Check);
+
    procedure Add_Coverage_Claim (Matrix : in out Coverage_Matrix; Claim : Coverage_Claim) is
    begin
       Matrix.Claims.Append (Claim);

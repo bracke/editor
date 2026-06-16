@@ -161,7 +161,7 @@ package body Editor.Build_Diagnostics_Review.Tests is
       Assert
         (Editor.Commands.Stable_Command_Name
            (Editor.Commands.Command_Diagnostics_Open_Selected) =
-           "diagnostics-open-selected",
+           "diagnostics.open-selected",
          "open selected route is Diagnostics-owned");
       Assert
         (Editor.Commands.Stable_Command_Name
@@ -783,7 +783,7 @@ package body Editor.Build_Diagnostics_Review.Tests is
         (S, Editor.Commands.Command_Diagnostics_Open_Selected);
 
       Assert
-        (Result.Status = Editor.Command_Execution.Command_No_Op,
+        (Result.Status = Editor.Command_Execution.Command_Unavailable,
          "invalid build diagnostic target fails through Diagnostics open-selected");
       Assert
         (Active_Caret_Line (S) = 1,
@@ -921,7 +921,7 @@ package body Editor.Build_Diagnostics_Review.Tests is
       Assert
         (Editor.Commands.Stable_Command_Name
            (Editor.Commands.Command_Diagnostics_Open_Selected) =
-           "diagnostics-open-selected",
+           "diagnostics.open-selected",
          "Diagnostics open-selected remains the canonical navigation command");
       Assert
         (not Contains

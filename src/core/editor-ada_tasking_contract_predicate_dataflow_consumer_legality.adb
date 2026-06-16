@@ -2,6 +2,8 @@ with Ada.Strings.Unbounded; use Ada.Strings.Unbounded;
 
 package body Editor.Ada_Tasking_Contract_Predicate_Dataflow_Consumer_Legality is
 
+   pragma Suppress (Overflow_Check);
+
    use type Editor.Ada_Syntax_Tree.Node_Id;
    use type Elab_Predicate.Elaboration_Contract_Predicate_Row_Id;
    use type Task_Effects.Tasking_Effect_Status;

@@ -6,6 +6,8 @@ with Editor.Ada_Declarative_Regions;
 
 package body Editor.Ada_Generic_Formal_Package_Nested_Conformance is
 
+   pragma Suppress (Overflow_Check);
+
    function Mix (Left, Right : Natural) return Natural is
       type Hash_Value is mod 2 ** 32;
       Mixed : constant Hash_Value :=

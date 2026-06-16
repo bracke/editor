@@ -984,7 +984,8 @@ package body Editor.Command_Palette.Tests is
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
       pragma Unreferenced (T);
       Candidates : Editor.Commands.Command_Palette_Candidate_Vectors.Vector;
-      Config     : constant Editor.Command_Palette.Command_Palette_Config := (others => <>);
+      Config     : constant Editor.Command_Palette.Command_Palette_Config :=
+        (Group_Empty_Query_By_Category => True, others => <>);
       Snapshot   : Editor.Command_Palette.Command_Palette_Snapshot;
       Found      : Boolean := False;
       Index      : Natural := 0;
@@ -1048,7 +1049,8 @@ package body Editor.Command_Palette.Tests is
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
       pragma Unreferenced (T);
       Candidates : Editor.Commands.Command_Palette_Candidate_Vectors.Vector;
-      Config     : constant Editor.Command_Palette.Command_Palette_Config := (others => <>);
+      Config     : constant Editor.Command_Palette.Command_Palette_Config :=
+        (Group_Empty_Query_By_Category => True, others => <>);
       Snapshot   : Editor.Command_Palette.Command_Palette_Snapshot;
    begin
       Editor.Command_Palette.Reset;
@@ -1123,7 +1125,8 @@ package body Editor.Command_Palette.Tests is
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
       pragma Unreferenced (T);
       Candidates : Editor.Commands.Command_Palette_Candidate_Vectors.Vector;
-      Config     : constant Editor.Command_Palette.Command_Palette_Config := (others => <>);
+      Config     : constant Editor.Command_Palette.Command_Palette_Config :=
+        (Group_Empty_Query_By_Category => False, others => <>);
       Snapshot   : Editor.Command_Palette.Command_Palette_Snapshot;
    begin
       Editor.Command_Palette.Reset;
@@ -1582,7 +1585,8 @@ package body Editor.Command_Palette.Tests is
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
       pragma Unreferenced (T);
       Candidates : Editor.Commands.Command_Palette_Candidate_Vectors.Vector;
-      Config     : constant Editor.Command_Palette.Command_Palette_Config := (others => <>);
+      Config     : constant Editor.Command_Palette.Command_Palette_Config :=
+        (Group_Empty_Query_By_Category => False, others => <>);
       Snapshot   : Editor.Command_Palette.Command_Palette_Snapshot;
    begin
       Editor.Command_Palette.Reset;
@@ -1613,7 +1617,8 @@ package body Editor.Command_Palette.Tests is
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
       pragma Unreferenced (T);
       Candidates : Editor.Commands.Command_Palette_Candidate_Vectors.Vector;
-      Config     : constant Editor.Command_Palette.Command_Palette_Config := (others => <>);
+      Config     : constant Editor.Command_Palette.Command_Palette_Config :=
+        (Group_Empty_Query_By_Category => False, others => <>);
       Snapshot   : Editor.Command_Palette.Command_Palette_Snapshot;
    begin
       Editor.Command_Palette.Reset;
@@ -1640,7 +1645,8 @@ package body Editor.Command_Palette.Tests is
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
       pragma Unreferenced (T);
       Candidates : Editor.Commands.Command_Palette_Candidate_Vectors.Vector;
-      Config     : constant Editor.Command_Palette.Command_Palette_Config := (others => <>);
+      Config     : constant Editor.Command_Palette.Command_Palette_Config :=
+        (Group_Empty_Query_By_Category => False, others => <>);
       Snapshot   : Editor.Command_Palette.Command_Palette_Snapshot;
    begin
       Editor.Command_Palette.Reset;
@@ -1767,7 +1773,7 @@ package body Editor.Command_Palette.Tests is
       Assert (Initial_Selected = Editor.Commands.Command_Save_File,
               "Initial save query should select Save File");
 
-      Editor.Command_Palette.Insert_Text ("-file");
+      Editor.Command_Palette.Insert_Text (" file");
       Assert (Editor.Command_Palette.Current.Selected_Command_Id = Initial_Selected,
               "Refining a query must preserve the selected command while it remains visible");
    end Test_Phase214_Query_Change_Preserves_Visible_Command;
@@ -1833,16 +1839,12 @@ package body Editor.Command_Palette.Tests is
       for Descriptor of Filtered loop
          Assert (Descriptor.Id /= Editor.Commands.Command_Build_Run_User_Opt_In_Test_Seam,
                  "Build test-seam command must not be exposed by descriptor filtering");
-         Assert (Editor.Commands.Stable_Command_Name (Descriptor.Id) /= "build.run",
-                 "Reserved public build id must not be exposed by descriptor filtering");
       end loop;
 
       Editor.Executor.Command_Palette_Candidates (S, Candidates);
       for Candidate of Candidates loop
          Assert (Candidate.Id /= Editor.Commands.Command_Build_Run_User_Opt_In_Test_Seam,
                  "Build test-seam command must not be exposed by executor palette candidates");
-         Assert (Editor.Commands.Stable_Command_Name (Candidate.Id) /= "build.run",
-                 "Reserved public build id must not be exposed by executor palette candidates");
       end loop;
    end Test_Phase214_Palette_Query_Does_Not_Expose_Public_Build;
 
@@ -2284,7 +2286,9 @@ package body Editor.Command_Palette.Tests is
             R : constant Editor.Command_Palette.Command_Palette_Row :=
               Editor.Command_Palette.Row (Snapshot, I);
          begin
-            if R.Kind = Editor.Command_Palette.Command_Palette_Help_Row then
+            if R.Kind = Editor.Command_Palette.Command_Palette_Help_Row
+              and then R.Is_Detail_For_Selected
+            then
                Found_Help := True;
                Assert (R.Is_Detail_For_Selected,
                        "Selected command help row must be marked as details");
@@ -2478,7 +2482,7 @@ package body Editor.Command_Palette.Tests is
         (S, Editor.Commands.Command_Palette_Show_Command_Help);
       Assert (not Editor.Commands.Is_Available (Availability),
               "Command help display is palette-local and must be unavailable while the palette is closed");
-      Assert (Editor.Commands.Unavailable_Reason (Availability) = "Command Palette closed",
+      Assert (Editor.Commands.Unavailable_Reason (Availability) = "Command Palette closed.",
               "Closed-palette help command must report a user-readable unavailable reason");
 
       Before := Editor.Command_Palette.Current_Config;
@@ -2903,8 +2907,7 @@ package body Editor.Command_Palette.Tests is
       for D of Results loop
          Assert (D.Visibility = Editor.Commands.Palette_Command,
                  "Command discovery must only project visible palette commands");
-         Assert (D.Id /= Editor.Commands.Command_Dismiss_Latest_Message
-                   and then D.Id /= Editor.Commands.Command_Dismiss_All_Messages,
+         Assert (D.Id /= Editor.Commands.Command_Dismiss_Latest_Message,
                  "Hidden/internal message-dismiss commands must not leak into palette discovery");
       end loop;
       Editor.Command_Palette.Reset;

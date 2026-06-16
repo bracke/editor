@@ -1,6 +1,8 @@
 with Ada.Strings.Unbounded; use Ada.Strings.Unbounded;
 
 package body Editor.Ada_Predicate_Invariant_Propagation_Legality is
+
+   pragma Suppress (Overflow_Check);
    use type Editor.Ada_Flow_Effect_Graph_Legality.Flow_Effect_Graph_Status;
    use type Editor.Ada_Predicate_Invariant_Use_Site_Legality.Predicate_Use_Legality_Status;
 

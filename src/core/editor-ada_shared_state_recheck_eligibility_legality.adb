@@ -2,6 +2,11 @@ with Ada.Strings.Unbounded; use Ada.Strings.Unbounded;
 
 package body Editor.Ada_Shared_State_Recheck_Eligibility_Legality is
 
+   pragma Suppress (Overflow_Check);
+   use type Shared_State_Recheck_Family;
+   use type Editor.Ada_Syntax_Tree.Node_Id;
+
+
    function Mix (Left, Right : Natural) return Natural is
    begin
       return (Left * 16_777_619 + Right + 2_191) mod 2_147_483_647;

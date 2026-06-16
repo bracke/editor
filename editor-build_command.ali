@@ -1,5 +1,7 @@
 V "GNAT Lib v15"
 A -gnat2022
+A -gnatX
+A -gnata
 P SS ZX
 
 RN
@@ -19,17 +21,18 @@ RV NO_SELECT_STATEMENTS
 RV NO_STANDARD_STORAGE_POOLS
 RV NO_TASK_HIERARCHY
 RV NO_TASKING
+RV NO_TERMINATE_ALTERNATIVES
 RV NO_DEFAULT_INITIALIZATION
 RV NO_DYNAMIC_SIZED_OBJECTS
 RV NO_IMPLEMENTATION_PRAGMAS
 RV NO_IMPLICIT_LOOPS
 RV NO_ELABORATION_CODE
-RV MAX_SELECT_ALTERNATIVES=3
+RV MAX_SELECT_ALTERNATIVES=4
 RV MAX_TASK_ENTRIES=3
 RV MAX_TASKS=8+
 RV MAX_ENTRY_QUEUE_LENGTH=1+
 
-U editor.build_command%b  editor-build_command.adb  1bce2d12 OO PF PK
+U editor.build_command%b  editor-build_command.adb  c4bed8de OO PF PK
 W ada%s			ada.ads			ada.ali
 Z ada.calendar.delays%s	a-caldel.adb		a-caldel.ali
 W ada.directories%s	a-direct.adb		a-direct.ali
@@ -69,7 +72,7 @@ Z system.tasking.protected_objects%s  s-taprob.adb  s-taprob.ali
 Z system.tasking.rendezvous%s  s-tasren.adb	s-tasren.ali
 Z system.tasking.stages%s  s-tassta.adb		s-tassta.ali
 
-U editor.build_command%s  editor-build_command.ads  d6fe0e07 EE NE OO PK
+U editor.build_command%s  editor-build_command.ads  9118fd56 EE NE OO PK
 W editor%s		editor.ads		editor.ali
 W editor.build_output_details%s  editor-build_output_details.adb  editor-build_output_details.ali
 W editor.build_process_control%s  editor-build_process_control.adb  editor-build_process_control.ali
@@ -102,7 +105,7 @@ D a-stuten.ads		20250808065140 c6ced0ae ada.strings.utf_encoding%s
 D a-tags.ads		20250808065140 fbca0ad5 ada.tags%s
 D a-unccon.ads		20250808065140 0e9b276f ada.unchecked_conversion%s
 D editor.ads		20260612145959 16f844c2 editor%s
-D editor-ada_language_model.ads  20260612145959 459f92c3 editor.ada_language_model%s
+D editor-ada_language_model.ads  20260613110624 75f1fac9 editor.ada_language_model%s
 D editor-ada_project_index.ads  20260612145959 3ad143b9 editor.ada_project_index%s
 D editor-ada_syntax_tree.ads  20260612145959 49a76ced editor.ada_syntax_tree%s
 D editor-bookmarks.ads	20260612145959 4e695f4d editor.bookmarks%s
@@ -111,12 +114,12 @@ D editor-buffer_types.ads  20260612151710 a555405e editor.buffer_types%s
 D editor-buffers.ads	20260612185530 1a6b6e4c editor.buffers%s
 D editor-build_candidates.ads  20260612145959 dc89ea7b editor.build_candidates%s
 D editor-build_command.ads  20260612145959 a89b08fb editor.build_command%s
-D editor-build_command.adb  20260612161045 9c8b24d2 editor.build_command%b
+D editor-build_command.adb  20260614130729 9ea5584f editor.build_command%b
 D editor-build_diagnostics.ads  20260612145959 79fb5682 editor.build_diagnostics%s
-D editor-build_output_details.ads  20260612145959 0f4ba402 editor.build_output_details%s
+D editor-build_output_details.ads  20260613095501 1d7c9af2 editor.build_output_details%s
 D editor-build_process_control.ads  20260612145959 28661204 editor.build_process_control%s
 D editor-build_public_request.ads  20260612145959 26105a15 editor.build_public_request%s
-D editor-build_result_summary.ads  20260612145959 94fc95d2 editor.build_result_summary%s
+D editor-build_result_summary.ads  20260613095501 5b952273 editor.build_result_summary%s
 D editor-build_runner_policy.ads  20260612145959 623f26a9 editor.build_runner_policy%s
 D editor-build_ui.ads	20260612152524 28a54496 editor.build_ui%s
 D editor-build_working_context.ads  20260612145959 cef9cea9 editor.build_working_context%s
@@ -150,15 +153,15 @@ D editor-pending_transitions.ads  20260612145959 81c78960 editor.pending_transit
 D editor-problems.ads	20260612145959 a9a08157 editor.problems%s
 D editor-producer_contracts.ads  20260612145959 c3ee4501 editor.producer_contracts%s
 D editor-project.ads	20260612145959 f4d50f6d editor.project%s
-D editor-project_search.ads  20260612152451 857df5ab editor.project_search%s
+D editor-project_search.ads  20260612195704 b7cf3cc2 editor.project_search%s
 D editor-project_search_bar.ads  20260612145959 c5c12f77 editor.project_search_bar%s
-D editor-quick_open.ads	20260612151807 878ba83c editor.quick_open%s
+D editor-quick_open.ads	20260614175339 b8f14db6 editor.quick_open%s
 D editor-recent_buffers.ads  20260612145959 617e4612 editor.recent_buffers%s
 D editor-recent_projects.ads  20260612145959 ee1155f5 editor.recent_projects%s
 D editor-search.ads	20260612145959 dac0e204 editor.search%s
 D editor-search_results.ads  20260612145959 98eded1d editor.search_results%s
 D editor-settings.ads	20260612145959 c2103809 editor.settings%s
-D editor-state.ads	20260612170622 4c537118 editor.state%s
+D editor-state.ads	20260613081313 1982bcb9 editor.state%s
 D editor-status_bar.ads	20260612145959 879f0640 editor.status_bar%s
 D editor-syntax.ads	20260612145959 d59b0303 editor.syntax%s
 D editor-syntax_cache.ads  20260612164742 637f2470 editor.syntax_cache%s
@@ -166,7 +169,7 @@ D editor-syntax_semantics.ads  20260612145959 a499b10a editor.syntax_semantics%s
 D editor-tab_bar.ads	20260612151839 e26dca3d editor.tab_bar%s
 D editor-unicode.ads	20260612145959 552ff3cc editor.unicode%s
 D editor-view_types.ads	20260612152152 f3042ec7 editor.view_types%s
-D editor-workspace_persistence.ads  20260612145959 455ffd61 editor.workspace_persistence%s
+D editor-workspace_persistence.ads  20260612202240 a037efc2 editor.workspace_persistence%s
 D editor-wrap.ads	20260612145959 87db665a editor.wrap%s
 D interfac.ads		20250808065140 9111f9c1 interfaces%s
 D i-c.ads		20250808065140 e94c966a interfaces.c%s
@@ -339,18 +342,18 @@ G c Z b b [stop editor__build_command__public_build_worker 307 13 none]
 G c Z b b [P355bIP editor__build_command 305 7 none]
 G c Z b b [P358bIP editor__build_command 306 7 none]
 G c Z b b [public_build_workerVIP editor__build_command 304 4 none]
-G c Z b b [Tpublic_build_worker_arrayBIP editor__build_command 349 4 none]
-G c Z b b [summary_kind_for editor__build_command 352 13 none]
-G c Z b b [summary_tool_for editor__build_command 376 13 none]
-G c Z b b [summary_mode_for editor__build_command 393 13 none]
-G c Z b b [summary_diagnostics_for editor__build_command 416 13 none]
-G c Z b b [runner_status_label editor__build_command 445 13 none]
-G c Z b b [output_runner_status_for editor__build_command 462 13 none]
-G c Z b b [output_details_from_result editor__build_command 489 13 none]
-G c Z b b [summary_from_result editor__build_command 513 13 none]
-G c Z b b [selected_candidate_preflight_status editor__build_command 565 13 none]
-G c Z b b [map_ui_status editor__build_command 601 13 none]
-G c Z b b [async_test_request editor__build_command 1698 13 none]
+G c Z b b [Tpublic_build_worker_arrayBIP editor__build_command 351 4 none]
+G c Z b b [summary_kind_for editor__build_command 354 13 none]
+G c Z b b [summary_tool_for editor__build_command 378 13 none]
+G c Z b b [summary_mode_for editor__build_command 395 13 none]
+G c Z b b [summary_diagnostics_for editor__build_command 418 13 none]
+G c Z b b [runner_status_label editor__build_command 447 13 none]
+G c Z b b [output_runner_status_for editor__build_command 464 13 none]
+G c Z b b [output_details_from_result editor__build_command 491 13 none]
+G c Z b b [summary_from_result editor__build_command 515 13 none]
+G c Z b b [selected_candidate_preflight_status editor__build_command 567 13 none]
+G c Z b b [map_ui_status editor__build_command 603 13 none]
+G c Z b b [async_test_request editor__build_command 1712 13 none]
 G r s state_type [b editor__build_command 17 1 none] [state_typeIP editor__state 115 9 none]
 G r l state_type [b editor__build_command 17 1 none] [state_typeDI editor__state 115 9 none]
 G r k state_type [b editor__build_command 17 1 none] [state_typeDF editor__state 115 9 none]
@@ -393,10 +396,10 @@ G r c none [request_public_build_cancel editor__build_command 60 13 none] [activ
 G r c none [request_public_build_cancel editor__build_command 60 13 none] [is_active editor__build_process_control 23 13 none]
 G r c none [request_public_build_cancel editor__build_command 60 13 none] [request_active_cancel editor__build_process_control 45 13 none]
 G r c none [request_public_build_cancel editor__build_command 60 13 none] [request_cancel editor__build_process_control 47 13 none]
-G r c none [request_public_build_cancel editor__build_command 60 13 none] [build_summary editor__build_result_summary 124 13 none]
-G r c none [request_public_build_cancel editor__build_command 60 13 none] [replace_latest_build_result_summary editor__build_result_summary 119 13 none]
-G r k latest_build_result_summary [request_public_build_cancel editor__build_command 60 13 none] [latest_build_result_summaryDF editor__build_result_summary 40 9 none]
-G r j latest_build_result_summary [request_public_build_cancel editor__build_command 60 13 none] [latest_build_result_summaryDA editor__build_result_summary 40 9 none]
+G r c none [request_public_build_cancel editor__build_command 60 13 none] [build_summary editor__build_result_summary 127 13 none]
+G r c none [request_public_build_cancel editor__build_command 60 13 none] [replace_latest_build_result_summary editor__build_result_summary 122 13 none]
+G r k latest_build_result_summary [request_public_build_cancel editor__build_command 60 13 none] [latest_build_result_summaryDF editor__build_result_summary 43 9 none]
+G r j latest_build_result_summary [request_public_build_cancel editor__build_command 60 13 none] [latest_build_result_summaryDA editor__build_result_summary 43 9 none]
 G r c none [request_public_build_cancel editor__build_command 60 13 none] [build_output_details_from_captured_output editor__build_output_details 145 13 none]
 G r c none [request_public_build_cancel editor__build_command 60 13 none] [replace_latest_build_output_details editor__build_output_details 187 13 none]
 G r k latest_build_output_details [request_public_build_cancel editor__build_command 60 13 none] [latest_build_output_detailsDF editor__build_output_details 36 9 none]
@@ -459,10 +462,10 @@ G r c none [drain_public_build_worker_for_shutdown editor__build_command 69 13 n
 G r c none [drain_public_build_worker_for_shutdown editor__build_command 69 13 none] [ingest_build_diagnostics_through_diagnostics editor__build_diagnostics 44 13 none]
 G r k diagnostic_line_command_result [drain_public_build_worker_for_shutdown editor__build_command 69 13 none] [diagnostic_line_command_resultDF editor__external_producers 194 9 none]
 G r c none [drain_public_build_worker_for_shutdown editor__build_command 69 13 none] [build_gated_build_command_feedback editor__external_producers 1769 13 none]
-G r c none [drain_public_build_worker_for_shutdown editor__build_command 69 13 none] [build_summary editor__build_result_summary 124 13 none]
-G r c none [drain_public_build_worker_for_shutdown editor__build_command 69 13 none] [replace_latest_build_result_summary editor__build_result_summary 119 13 none]
-G r k latest_build_result_summary [drain_public_build_worker_for_shutdown editor__build_command 69 13 none] [latest_build_result_summaryDF editor__build_result_summary 40 9 none]
-G r j latest_build_result_summary [drain_public_build_worker_for_shutdown editor__build_command 69 13 none] [latest_build_result_summaryDA editor__build_result_summary 40 9 none]
+G r c none [drain_public_build_worker_for_shutdown editor__build_command 69 13 none] [build_summary editor__build_result_summary 127 13 none]
+G r c none [drain_public_build_worker_for_shutdown editor__build_command 69 13 none] [replace_latest_build_result_summary editor__build_result_summary 122 13 none]
+G r k latest_build_result_summary [drain_public_build_worker_for_shutdown editor__build_command 69 13 none] [latest_build_result_summaryDF editor__build_result_summary 43 9 none]
+G r j latest_build_result_summary [drain_public_build_worker_for_shutdown editor__build_command 69 13 none] [latest_build_result_summaryDA editor__build_result_summary 43 9 none]
 G r c none [drain_public_build_worker_for_shutdown editor__build_command 69 13 none] [build_result_output_stream editor__external_producers 1497 13 none]
 G r c none [drain_public_build_worker_for_shutdown editor__build_command 69 13 none] [build_output_details_from_captured_output editor__build_output_details 145 13 none]
 G r s state_type [stop_public_build_workers_for_application_exit editor__build_command 74 14 none] [state_typeIP editor__state 115 9 none]
@@ -514,11 +517,11 @@ G r c none [execute_public_build_run editor__build_command 94 13 none] [build_bu
 G r j build_run_result [execute_public_build_run editor__build_command 94 13 none] [build_run_resultDA editor__external_producers 637 9 none]
 G r j diagnostic_line_command_result [execute_public_build_run editor__build_command 94 13 none] [diagnostic_line_command_resultDA editor__external_producers 194 9 none]
 G r j build_command_result [execute_public_build_run editor__build_command 94 13 none] [build_command_resultDA editor__external_producers 653 9 none]
-G r c none [execute_public_build_run editor__build_command 94 13 none] [retain_pre_run_unavailable_summary editor__build_result_summary 106 13 none]
-G r c none [execute_public_build_run editor__build_command 94 13 none] [summary_from_unavailable_message editor__build_result_summary 152 13 none]
-G r c none [execute_public_build_run editor__build_command 94 13 none] [replace_latest_build_result_summary editor__build_result_summary 119 13 none]
-G r k latest_build_result_summary [execute_public_build_run editor__build_command 94 13 none] [latest_build_result_summaryDF editor__build_result_summary 40 9 none]
-G r j latest_build_result_summary [execute_public_build_run editor__build_command 94 13 none] [latest_build_result_summaryDA editor__build_result_summary 40 9 none]
+G r c none [execute_public_build_run editor__build_command 94 13 none] [retain_pre_run_unavailable_summary editor__build_result_summary 109 13 none]
+G r c none [execute_public_build_run editor__build_command 94 13 none] [summary_from_unavailable_message editor__build_result_summary 155 13 none]
+G r c none [execute_public_build_run editor__build_command 94 13 none] [replace_latest_build_result_summary editor__build_result_summary 122 13 none]
+G r k latest_build_result_summary [execute_public_build_run editor__build_command 94 13 none] [latest_build_result_summaryDF editor__build_result_summary 43 9 none]
+G r j latest_build_result_summary [execute_public_build_run editor__build_command 94 13 none] [latest_build_result_summaryDA editor__build_result_summary 43 9 none]
 G r c none [execute_public_build_run editor__build_command 94 13 none] [build_unavailable_output_details editor__build_output_details 158 13 none]
 G r c none [execute_public_build_run editor__build_command 94 13 none] [replace_latest_build_output_details editor__build_output_details 187 13 none]
 G r k latest_build_output_details [execute_public_build_run editor__build_command 94 13 none] [latest_build_output_detailsDF editor__build_output_details 36 9 none]
@@ -536,7 +539,7 @@ G r c none [execute_public_build_run editor__build_command 94 13 none] [finish_b
 G r c none [execute_public_build_run editor__build_command 94 13 none] [ingest_build_diagnostics_through_diagnostics editor__build_diagnostics 44 13 none]
 G r k diagnostic_line_command_result [execute_public_build_run editor__build_command 94 13 none] [diagnostic_line_command_resultDF editor__external_producers 194 9 none]
 G r c none [execute_public_build_run editor__build_command 94 13 none] [build_gated_build_command_feedback editor__external_producers 1769 13 none]
-G r c none [execute_public_build_run editor__build_command 94 13 none] [build_summary editor__build_result_summary 124 13 none]
+G r c none [execute_public_build_run editor__build_command 94 13 none] [build_summary editor__build_result_summary 127 13 none]
 G r c none [execute_public_build_run editor__build_command 94 13 none] [build_result_output_stream editor__external_producers 1497 13 none]
 G r c none [execute_public_build_run editor__build_command 94 13 none] [build_output_details_from_captured_output editor__build_output_details 145 13 none]
 G r c none [start_public_build_run_asynchronously editor__build_command 98 13 none] [build_public_request_from_ui_state editor__build_public_request 14 13 none]
@@ -544,6 +547,15 @@ G r c none [start_public_build_run_asynchronously editor__build_command 98 13 no
 G r c none [start_public_build_run_asynchronously editor__build_command 98 13 none] [has_project editor__project 73 13 none]
 G r c none [start_public_build_run_asynchronously editor__build_command 98 13 none] [validate_candidate editor__build_candidates 93 13 none]
 G r c none [start_public_build_run_asynchronously editor__build_command 98 13 none] [validate_build_run_request_status editor__external_producers 1159 13 none]
+G r c none [start_public_build_run_asynchronously editor__build_command 98 13 none] [retain_pre_run_unavailable_summary editor__build_result_summary 109 13 none]
+G r c none [start_public_build_run_asynchronously editor__build_command 98 13 none] [summary_from_unavailable_message editor__build_result_summary 155 13 none]
+G r c none [start_public_build_run_asynchronously editor__build_command 98 13 none] [replace_latest_build_result_summary editor__build_result_summary 122 13 none]
+G r k latest_build_result_summary [start_public_build_run_asynchronously editor__build_command 98 13 none] [latest_build_result_summaryDF editor__build_result_summary 43 9 none]
+G r j latest_build_result_summary [start_public_build_run_asynchronously editor__build_command 98 13 none] [latest_build_result_summaryDA editor__build_result_summary 43 9 none]
+G r c none [start_public_build_run_asynchronously editor__build_command 98 13 none] [build_unavailable_output_details editor__build_output_details 158 13 none]
+G r c none [start_public_build_run_asynchronously editor__build_command 98 13 none] [replace_latest_build_output_details editor__build_output_details 187 13 none]
+G r k latest_build_output_details [start_public_build_run_asynchronously editor__build_command 98 13 none] [latest_build_output_detailsDF editor__build_output_details 36 9 none]
+G r j latest_build_output_details [start_public_build_run_asynchronously editor__build_command 98 13 none] [latest_build_output_detailsDA editor__build_output_details 36 9 none]
 G r c none [start_public_build_run_asynchronously editor__build_command 98 13 none] [build_build_run_result editor__external_producers 1721 13 none]
 G r j build_run_result [start_public_build_run_asynchronously editor__build_command 98 13 none] [build_run_resultDA editor__external_producers 637 9 none]
 G r j diagnostic_line_command_result [start_public_build_run_asynchronously editor__build_command 98 13 none] [diagnostic_line_command_resultDA editor__external_producers 194 9 none]
@@ -571,8 +583,6 @@ G r k build_command_result [start_public_build_run_asynchronously editor__build_
 G r c none [start_public_build_run_asynchronously editor__build_command 98 13 none] [run_build_command_with_gate editor__external_producers 1795 13 none]
 G r j build_command_result [start_public_build_run_asynchronously editor__build_command 98 13 none] [build_command_resultDA editor__external_producers 653 9 none]
 G r c none [start_public_build_run_asynchronously editor__build_command 98 13 none] [build_output_details_from_stream editor__build_output_details 125 13 none]
-G r k latest_build_output_details [start_public_build_run_asynchronously editor__build_command 98 13 none] [latest_build_output_detailsDF editor__build_output_details 36 9 none]
-G r j latest_build_output_details [start_public_build_run_asynchronously editor__build_command 98 13 none] [latest_build_output_detailsDA editor__build_output_details 36 9 none]
 G r c none [poll_public_build_run_completion editor__build_command 102 13 none] [empty_diagnostic_line_command_result editor__external_producers 1131 13 none]
 G r j diagnostic_line_command_result [poll_public_build_run_completion editor__build_command 102 13 none] [diagnostic_line_command_resultDA editor__external_producers 194 9 none]
 G r s state_type [poll_public_build_run_completion editor__build_command 102 13 none] [state_typeIP editor__state 115 9 none]
@@ -603,10 +613,10 @@ G r c none [poll_public_build_run_completion editor__build_command 102 13 none] 
 G r c none [poll_public_build_run_completion editor__build_command 102 13 none] [ingest_build_diagnostics_through_diagnostics editor__build_diagnostics 44 13 none]
 G r k diagnostic_line_command_result [poll_public_build_run_completion editor__build_command 102 13 none] [diagnostic_line_command_resultDF editor__external_producers 194 9 none]
 G r c none [poll_public_build_run_completion editor__build_command 102 13 none] [build_gated_build_command_feedback editor__external_producers 1769 13 none]
-G r c none [poll_public_build_run_completion editor__build_command 102 13 none] [build_summary editor__build_result_summary 124 13 none]
-G r c none [poll_public_build_run_completion editor__build_command 102 13 none] [replace_latest_build_result_summary editor__build_result_summary 119 13 none]
-G r k latest_build_result_summary [poll_public_build_run_completion editor__build_command 102 13 none] [latest_build_result_summaryDF editor__build_result_summary 40 9 none]
-G r j latest_build_result_summary [poll_public_build_run_completion editor__build_command 102 13 none] [latest_build_result_summaryDA editor__build_result_summary 40 9 none]
+G r c none [poll_public_build_run_completion editor__build_command 102 13 none] [build_summary editor__build_result_summary 127 13 none]
+G r c none [poll_public_build_run_completion editor__build_command 102 13 none] [replace_latest_build_result_summary editor__build_result_summary 122 13 none]
+G r k latest_build_result_summary [poll_public_build_run_completion editor__build_command 102 13 none] [latest_build_result_summaryDF editor__build_result_summary 43 9 none]
+G r j latest_build_result_summary [poll_public_build_run_completion editor__build_command 102 13 none] [latest_build_result_summaryDA editor__build_result_summary 43 9 none]
 G r c none [poll_public_build_run_completion editor__build_command 102 13 none] [build_result_output_stream editor__external_producers 1497 13 none]
 G r c none [poll_public_build_run_completion editor__build_command 102 13 none] [build_output_details_from_captured_output editor__build_output_details 145 13 none]
 G r c none [poll_public_build_run_completion editor__build_command 102 13 none] [replace_latest_build_output_details editor__build_output_details 187 13 none]
@@ -622,11 +632,11 @@ G r c none [execute_public_build_run_with_supplied_result editor__build_command 
 G r j build_run_result [execute_public_build_run_with_supplied_result editor__build_command 114 13 none] [build_run_resultDA editor__external_producers 637 9 none]
 G r j diagnostic_line_command_result [execute_public_build_run_with_supplied_result editor__build_command 114 13 none] [diagnostic_line_command_resultDA editor__external_producers 194 9 none]
 G r j build_command_result [execute_public_build_run_with_supplied_result editor__build_command 114 13 none] [build_command_resultDA editor__external_producers 653 9 none]
-G r c none [execute_public_build_run_with_supplied_result editor__build_command 114 13 none] [retain_pre_run_unavailable_summary editor__build_result_summary 106 13 none]
-G r c none [execute_public_build_run_with_supplied_result editor__build_command 114 13 none] [summary_from_unavailable_message editor__build_result_summary 152 13 none]
-G r c none [execute_public_build_run_with_supplied_result editor__build_command 114 13 none] [replace_latest_build_result_summary editor__build_result_summary 119 13 none]
-G r k latest_build_result_summary [execute_public_build_run_with_supplied_result editor__build_command 114 13 none] [latest_build_result_summaryDF editor__build_result_summary 40 9 none]
-G r j latest_build_result_summary [execute_public_build_run_with_supplied_result editor__build_command 114 13 none] [latest_build_result_summaryDA editor__build_result_summary 40 9 none]
+G r c none [execute_public_build_run_with_supplied_result editor__build_command 114 13 none] [retain_pre_run_unavailable_summary editor__build_result_summary 109 13 none]
+G r c none [execute_public_build_run_with_supplied_result editor__build_command 114 13 none] [summary_from_unavailable_message editor__build_result_summary 155 13 none]
+G r c none [execute_public_build_run_with_supplied_result editor__build_command 114 13 none] [replace_latest_build_result_summary editor__build_result_summary 122 13 none]
+G r k latest_build_result_summary [execute_public_build_run_with_supplied_result editor__build_command 114 13 none] [latest_build_result_summaryDF editor__build_result_summary 43 9 none]
+G r j latest_build_result_summary [execute_public_build_run_with_supplied_result editor__build_command 114 13 none] [latest_build_result_summaryDA editor__build_result_summary 43 9 none]
 G r c none [execute_public_build_run_with_supplied_result editor__build_command 114 13 none] [build_unavailable_output_details editor__build_output_details 158 13 none]
 G r c none [execute_public_build_run_with_supplied_result editor__build_command 114 13 none] [replace_latest_build_output_details editor__build_output_details 187 13 none]
 G r k latest_build_output_details [execute_public_build_run_with_supplied_result editor__build_command 114 13 none] [latest_build_output_detailsDF editor__build_output_details 36 9 none]
@@ -640,7 +650,7 @@ G r c none [execute_public_build_run_with_supplied_result editor__build_command 
 G r c none [execute_public_build_run_with_supplied_result editor__build_command 114 13 none] [ingest_build_diagnostics_through_diagnostics editor__build_diagnostics 44 13 none]
 G r k diagnostic_line_command_result [execute_public_build_run_with_supplied_result editor__build_command 114 13 none] [diagnostic_line_command_resultDF editor__external_producers 194 9 none]
 G r c none [execute_public_build_run_with_supplied_result editor__build_command 114 13 none] [build_gated_build_command_feedback editor__external_producers 1769 13 none]
-G r c none [execute_public_build_run_with_supplied_result editor__build_command 114 13 none] [build_summary editor__build_result_summary 124 13 none]
+G r c none [execute_public_build_run_with_supplied_result editor__build_command 114 13 none] [build_summary editor__build_result_summary 127 13 none]
 G r c none [execute_public_build_run_with_supplied_result editor__build_command 114 13 none] [build_result_output_stream editor__external_producers 1497 13 none]
 G r c none [execute_public_build_run_with_supplied_result editor__build_command 114 13 none] [build_output_details_from_captured_output editor__build_output_details 145 13 none]
 G r c none [assert_build_run_descriptor_stable editor__build_command 119 13 none] [descriptor editor__commands 815 13 none]
@@ -704,7 +714,7 @@ G r s build_command_result [assert_async_build_cancel_handoff_behavior editor__b
 G r l build_command_result [assert_async_build_cancel_handoff_behavior editor__build_command 134 13 none] [build_command_resultDI editor__external_producers 653 9 none]
 G r k build_command_result [assert_async_build_cancel_handoff_behavior editor__build_command 134 13 none] [build_command_resultDF editor__external_producers 653 9 none]
 G r c none [assert_async_build_cancel_handoff_behavior editor__build_command 134 13 none] [build_test_fixture_execution_gate editor__external_producers 1540 13 none]
-G r c none [assert_async_build_cancel_handoff_behavior editor__build_command 134 13 none] [initialize editor__state 419 14 none]
+G r c none [assert_async_build_cancel_handoff_behavior editor__build_command 134 13 none] [initialize editor__state 420 14 none]
 G r c none [assert_async_build_cancel_handoff_behavior editor__build_command 134 13 none] [no_process_handle editor__build_process_control 16 13 none]
 G r c none [assert_async_build_cancel_handoff_behavior editor__build_command 134 13 none] [begin_build_output_stream editor__build_output_details 115 14 none]
 G r c none [assert_async_build_cancel_handoff_behavior editor__build_command 134 13 none] [empty_process_arguments editor__external_producers 1196 13 none]
@@ -723,10 +733,10 @@ G r c none [assert_async_build_cancel_handoff_behavior editor__build_command 134
 G r c none [assert_async_build_cancel_handoff_behavior editor__build_command 134 13 none] [is_active editor__build_process_control 23 13 none]
 G r c none [assert_async_build_cancel_handoff_behavior editor__build_command 134 13 none] [request_active_cancel editor__build_process_control 45 13 none]
 G r c none [assert_async_build_cancel_handoff_behavior editor__build_command 134 13 none] [request_cancel editor__build_process_control 47 13 none]
-G r c none [assert_async_build_cancel_handoff_behavior editor__build_command 134 13 none] [build_summary editor__build_result_summary 124 13 none]
-G r c none [assert_async_build_cancel_handoff_behavior editor__build_command 134 13 none] [replace_latest_build_result_summary editor__build_result_summary 119 13 none]
-G r k latest_build_result_summary [assert_async_build_cancel_handoff_behavior editor__build_command 134 13 none] [latest_build_result_summaryDF editor__build_result_summary 40 9 none]
-G r j latest_build_result_summary [assert_async_build_cancel_handoff_behavior editor__build_command 134 13 none] [latest_build_result_summaryDA editor__build_result_summary 40 9 none]
+G r c none [assert_async_build_cancel_handoff_behavior editor__build_command 134 13 none] [build_summary editor__build_result_summary 127 13 none]
+G r c none [assert_async_build_cancel_handoff_behavior editor__build_command 134 13 none] [replace_latest_build_result_summary editor__build_result_summary 122 13 none]
+G r k latest_build_result_summary [assert_async_build_cancel_handoff_behavior editor__build_command 134 13 none] [latest_build_result_summaryDF editor__build_result_summary 43 9 none]
+G r j latest_build_result_summary [assert_async_build_cancel_handoff_behavior editor__build_command 134 13 none] [latest_build_result_summaryDA editor__build_result_summary 43 9 none]
 G r c none [assert_async_build_cancel_handoff_behavior editor__build_command 134 13 none] [build_output_details_from_captured_output editor__build_output_details 145 13 none]
 G r c none [assert_async_build_cancel_handoff_behavior editor__build_command 134 13 none] [replace_latest_build_output_details editor__build_output_details 187 13 none]
 G r k latest_build_output_details [assert_async_build_cancel_handoff_behavior editor__build_command 134 13 none] [latest_build_output_detailsDF editor__build_output_details 36 9 none]
@@ -756,7 +766,7 @@ G r s build_output_stream_state [assert_async_build_output_snapshot_handoff_beha
 G r l build_output_stream_state [assert_async_build_output_snapshot_handoff_behavior editor__build_command 135 13 none] [build_output_stream_stateDI editor__build_output_details 65 9 none]
 G r k build_output_stream_state [assert_async_build_output_snapshot_handoff_behavior editor__build_command 135 13 none] [build_output_stream_stateDF editor__build_output_details 65 9 none]
 G r c none [assert_async_build_output_snapshot_handoff_behavior editor__build_command 135 13 none] [build_test_fixture_execution_gate editor__external_producers 1540 13 none]
-G r c none [assert_async_build_output_snapshot_handoff_behavior editor__build_command 135 13 none] [initialize editor__state 419 14 none]
+G r c none [assert_async_build_output_snapshot_handoff_behavior editor__build_command 135 13 none] [initialize editor__state 420 14 none]
 G r c none [assert_async_build_output_snapshot_handoff_behavior editor__build_command 135 13 none] [no_process_handle editor__build_process_control 16 13 none]
 G r c none [assert_async_build_output_snapshot_handoff_behavior editor__build_command 135 13 none] [begin_build_output_stream editor__build_output_details 115 14 none]
 G r c none [assert_async_build_output_snapshot_handoff_behavior editor__build_command 135 13 none] [empty_process_arguments editor__external_producers 1196 13 none]
@@ -784,10 +794,10 @@ G r c none [assert_async_build_output_snapshot_handoff_behavior editor__build_co
 G r c none [assert_async_build_output_snapshot_handoff_behavior editor__build_command 135 13 none] [ingest_build_diagnostics_through_diagnostics editor__build_diagnostics 44 13 none]
 G r k diagnostic_line_command_result [assert_async_build_output_snapshot_handoff_behavior editor__build_command 135 13 none] [diagnostic_line_command_resultDF editor__external_producers 194 9 none]
 G r c none [assert_async_build_output_snapshot_handoff_behavior editor__build_command 135 13 none] [build_gated_build_command_feedback editor__external_producers 1769 13 none]
-G r c none [assert_async_build_output_snapshot_handoff_behavior editor__build_command 135 13 none] [build_summary editor__build_result_summary 124 13 none]
-G r c none [assert_async_build_output_snapshot_handoff_behavior editor__build_command 135 13 none] [replace_latest_build_result_summary editor__build_result_summary 119 13 none]
-G r k latest_build_result_summary [assert_async_build_output_snapshot_handoff_behavior editor__build_command 135 13 none] [latest_build_result_summaryDF editor__build_result_summary 40 9 none]
-G r j latest_build_result_summary [assert_async_build_output_snapshot_handoff_behavior editor__build_command 135 13 none] [latest_build_result_summaryDA editor__build_result_summary 40 9 none]
+G r c none [assert_async_build_output_snapshot_handoff_behavior editor__build_command 135 13 none] [build_summary editor__build_result_summary 127 13 none]
+G r c none [assert_async_build_output_snapshot_handoff_behavior editor__build_command 135 13 none] [replace_latest_build_result_summary editor__build_result_summary 122 13 none]
+G r k latest_build_result_summary [assert_async_build_output_snapshot_handoff_behavior editor__build_command 135 13 none] [latest_build_result_summaryDF editor__build_result_summary 43 9 none]
+G r j latest_build_result_summary [assert_async_build_output_snapshot_handoff_behavior editor__build_command 135 13 none] [latest_build_result_summaryDA editor__build_result_summary 43 9 none]
 G r c none [assert_async_build_output_snapshot_handoff_behavior editor__build_command 135 13 none] [build_result_output_stream editor__external_producers 1497 13 none]
 G r c none [assert_async_build_output_snapshot_handoff_behavior editor__build_command 135 13 none] [build_output_details_from_captured_output editor__build_output_details 145 13 none]
 G r c none [assert_async_build_output_snapshot_handoff_behavior editor__build_command 135 13 none] [replace_latest_build_output_details editor__build_output_details 187 13 none]
@@ -801,7 +811,7 @@ G r s build_output_stream_state [assert_async_build_partial_stdout_stderr_before
 G r l build_output_stream_state [assert_async_build_partial_stdout_stderr_before_completion editor__build_command 136 13 none] [build_output_stream_stateDI editor__build_output_details 65 9 none]
 G r k build_output_stream_state [assert_async_build_partial_stdout_stderr_before_completion editor__build_command 136 13 none] [build_output_stream_stateDF editor__build_output_details 65 9 none]
 G r c none [assert_async_build_partial_stdout_stderr_before_completion editor__build_command 136 13 none] [build_test_fixture_execution_gate editor__external_producers 1540 13 none]
-G r c none [assert_async_build_partial_stdout_stderr_before_completion editor__build_command 136 13 none] [initialize editor__state 419 14 none]
+G r c none [assert_async_build_partial_stdout_stderr_before_completion editor__build_command 136 13 none] [initialize editor__state 420 14 none]
 G r c none [assert_async_build_partial_stdout_stderr_before_completion editor__build_command 136 13 none] [no_process_handle editor__build_process_control 16 13 none]
 G r c none [assert_async_build_partial_stdout_stderr_before_completion editor__build_command 136 13 none] [begin_build_output_stream editor__build_output_details 115 14 none]
 G r c none [assert_async_build_partial_stdout_stderr_before_completion editor__build_command 136 13 none] [empty_process_arguments editor__external_producers 1196 13 none]
@@ -829,10 +839,10 @@ G r c none [assert_async_build_partial_stdout_stderr_before_completion editor__b
 G r c none [assert_async_build_partial_stdout_stderr_before_completion editor__build_command 136 13 none] [ingest_build_diagnostics_through_diagnostics editor__build_diagnostics 44 13 none]
 G r k diagnostic_line_command_result [assert_async_build_partial_stdout_stderr_before_completion editor__build_command 136 13 none] [diagnostic_line_command_resultDF editor__external_producers 194 9 none]
 G r c none [assert_async_build_partial_stdout_stderr_before_completion editor__build_command 136 13 none] [build_gated_build_command_feedback editor__external_producers 1769 13 none]
-G r c none [assert_async_build_partial_stdout_stderr_before_completion editor__build_command 136 13 none] [build_summary editor__build_result_summary 124 13 none]
-G r c none [assert_async_build_partial_stdout_stderr_before_completion editor__build_command 136 13 none] [replace_latest_build_result_summary editor__build_result_summary 119 13 none]
-G r k latest_build_result_summary [assert_async_build_partial_stdout_stderr_before_completion editor__build_command 136 13 none] [latest_build_result_summaryDF editor__build_result_summary 40 9 none]
-G r j latest_build_result_summary [assert_async_build_partial_stdout_stderr_before_completion editor__build_command 136 13 none] [latest_build_result_summaryDA editor__build_result_summary 40 9 none]
+G r c none [assert_async_build_partial_stdout_stderr_before_completion editor__build_command 136 13 none] [build_summary editor__build_result_summary 127 13 none]
+G r c none [assert_async_build_partial_stdout_stderr_before_completion editor__build_command 136 13 none] [replace_latest_build_result_summary editor__build_result_summary 122 13 none]
+G r k latest_build_result_summary [assert_async_build_partial_stdout_stderr_before_completion editor__build_command 136 13 none] [latest_build_result_summaryDF editor__build_result_summary 43 9 none]
+G r j latest_build_result_summary [assert_async_build_partial_stdout_stderr_before_completion editor__build_command 136 13 none] [latest_build_result_summaryDA editor__build_result_summary 43 9 none]
 G r c none [assert_async_build_partial_stdout_stderr_before_completion editor__build_command 136 13 none] [build_result_output_stream editor__external_producers 1497 13 none]
 G r c none [assert_async_build_partial_stdout_stderr_before_completion editor__build_command 136 13 none] [build_output_details_from_captured_output editor__build_output_details 145 13 none]
 G r c none [assert_async_build_partial_stdout_stderr_before_completion editor__build_command 136 13 none] [replace_latest_build_output_details editor__build_output_details 187 13 none]
@@ -860,7 +870,7 @@ G r j build_run_result [assert_async_build_real_process_cancel_integration edito
 G r j diagnostic_line_command_result [assert_async_build_real_process_cancel_integration editor__build_command 138 13 none] [diagnostic_line_command_resultDA editor__external_producers 194 9 none]
 G r j build_command_result [assert_async_build_real_process_cancel_integration editor__build_command 138 13 none] [build_command_resultDA editor__external_producers 653 9 none]
 G r c none [assert_async_build_real_process_cancel_integration editor__build_command 138 13 none] [build_build_run_result editor__external_producers 1721 13 none]
-G r c none [assert_async_build_real_process_cancel_integration editor__build_command 138 13 none] [initialize editor__state 419 14 none]
+G r c none [assert_async_build_real_process_cancel_integration editor__build_command 138 13 none] [initialize editor__state 420 14 none]
 G r c none [assert_async_build_real_process_cancel_integration editor__build_command 138 13 none] [append_process_argument editor__external_producers 1198 14 none]
 G r j process_run_request [assert_async_build_real_process_cancel_integration editor__build_command 138 13 none] [process_run_requestDA editor__external_producers 294 9 none]
 G r c none [assert_async_build_real_process_cancel_integration editor__build_command 138 13 none] [no_process_handle editor__build_process_control 16 13 none]
@@ -886,10 +896,10 @@ G r c none [assert_async_build_real_process_cancel_integration editor__build_com
 G r c none [assert_async_build_real_process_cancel_integration editor__build_command 138 13 none] [ingest_build_diagnostics_through_diagnostics editor__build_diagnostics 44 13 none]
 G r k diagnostic_line_command_result [assert_async_build_real_process_cancel_integration editor__build_command 138 13 none] [diagnostic_line_command_resultDF editor__external_producers 194 9 none]
 G r c none [assert_async_build_real_process_cancel_integration editor__build_command 138 13 none] [build_gated_build_command_feedback editor__external_producers 1769 13 none]
-G r c none [assert_async_build_real_process_cancel_integration editor__build_command 138 13 none] [build_summary editor__build_result_summary 124 13 none]
-G r c none [assert_async_build_real_process_cancel_integration editor__build_command 138 13 none] [replace_latest_build_result_summary editor__build_result_summary 119 13 none]
-G r k latest_build_result_summary [assert_async_build_real_process_cancel_integration editor__build_command 138 13 none] [latest_build_result_summaryDF editor__build_result_summary 40 9 none]
-G r j latest_build_result_summary [assert_async_build_real_process_cancel_integration editor__build_command 138 13 none] [latest_build_result_summaryDA editor__build_result_summary 40 9 none]
+G r c none [assert_async_build_real_process_cancel_integration editor__build_command 138 13 none] [build_summary editor__build_result_summary 127 13 none]
+G r c none [assert_async_build_real_process_cancel_integration editor__build_command 138 13 none] [replace_latest_build_result_summary editor__build_result_summary 122 13 none]
+G r k latest_build_result_summary [assert_async_build_real_process_cancel_integration editor__build_command 138 13 none] [latest_build_result_summaryDF editor__build_result_summary 43 9 none]
+G r j latest_build_result_summary [assert_async_build_real_process_cancel_integration editor__build_command 138 13 none] [latest_build_result_summaryDA editor__build_result_summary 43 9 none]
 G r c none [assert_async_build_real_process_cancel_integration editor__build_command 138 13 none] [build_result_output_stream editor__external_producers 1497 13 none]
 G r c none [assert_async_build_real_process_cancel_integration editor__build_command 138 13 none] [build_output_details_from_captured_output editor__build_output_details 145 13 none]
 G r c none [assert_async_build_real_process_cancel_integration editor__build_command 138 13 none] [replace_latest_build_output_details editor__build_output_details 187 13 none]
@@ -903,7 +913,7 @@ G r c none [assert_async_build_lifecycle_shutdown_handoff_behavior editor__build
 G r s build_command_result [assert_async_build_lifecycle_shutdown_handoff_behavior editor__build_command 140 13 none] [build_command_resultIP editor__external_producers 653 9 none]
 G r l build_command_result [assert_async_build_lifecycle_shutdown_handoff_behavior editor__build_command 140 13 none] [build_command_resultDI editor__external_producers 653 9 none]
 G r k build_command_result [assert_async_build_lifecycle_shutdown_handoff_behavior editor__build_command 140 13 none] [build_command_resultDF editor__external_producers 653 9 none]
-G r c none [assert_async_build_lifecycle_shutdown_handoff_behavior editor__build_command 140 13 none] [initialize editor__state 419 14 none]
+G r c none [assert_async_build_lifecycle_shutdown_handoff_behavior editor__build_command 140 13 none] [initialize editor__state 420 14 none]
 G r c none [assert_async_build_lifecycle_shutdown_handoff_behavior editor__build_command 140 13 none] [no_process_handle editor__build_process_control 16 13 none]
 G r c none [assert_async_build_lifecycle_shutdown_handoff_behavior editor__build_command 140 13 none] [begin_build_output_stream editor__build_output_details 115 14 none]
 G r j state_type [assert_async_build_lifecycle_shutdown_handoff_behavior editor__build_command 140 13 none] [state_typeDA editor__state 115 9 none]
@@ -936,7 +946,7 @@ G r c none [assert_async_build_worker_shutdown_drain_behavior editor__build_comm
 G r s build_command_result [assert_async_build_worker_shutdown_drain_behavior editor__build_command 142 13 none] [build_command_resultIP editor__external_producers 653 9 none]
 G r l build_command_result [assert_async_build_worker_shutdown_drain_behavior editor__build_command 142 13 none] [build_command_resultDI editor__external_producers 653 9 none]
 G r k build_command_result [assert_async_build_worker_shutdown_drain_behavior editor__build_command 142 13 none] [build_command_resultDF editor__external_producers 653 9 none]
-G r c none [assert_async_build_worker_shutdown_drain_behavior editor__build_command 142 13 none] [initialize editor__state 419 14 none]
+G r c none [assert_async_build_worker_shutdown_drain_behavior editor__build_command 142 13 none] [initialize editor__state 420 14 none]
 G r c none [assert_async_build_worker_shutdown_drain_behavior editor__build_command 142 13 none] [no_process_handle editor__build_process_control 16 13 none]
 G r c none [assert_async_build_worker_shutdown_drain_behavior editor__build_command 142 13 none] [begin_build_output_stream editor__build_output_details 115 14 none]
 G r c none [assert_async_build_worker_shutdown_drain_behavior editor__build_command 142 13 none] [empty_process_arguments editor__external_producers 1196 13 none]
@@ -970,17 +980,17 @@ G r c none [assert_async_build_worker_shutdown_drain_behavior editor__build_comm
 G r c none [assert_async_build_worker_shutdown_drain_behavior editor__build_command 142 13 none] [ingest_build_diagnostics_through_diagnostics editor__build_diagnostics 44 13 none]
 G r k diagnostic_line_command_result [assert_async_build_worker_shutdown_drain_behavior editor__build_command 142 13 none] [diagnostic_line_command_resultDF editor__external_producers 194 9 none]
 G r c none [assert_async_build_worker_shutdown_drain_behavior editor__build_command 142 13 none] [build_gated_build_command_feedback editor__external_producers 1769 13 none]
-G r c none [assert_async_build_worker_shutdown_drain_behavior editor__build_command 142 13 none] [build_summary editor__build_result_summary 124 13 none]
-G r c none [assert_async_build_worker_shutdown_drain_behavior editor__build_command 142 13 none] [replace_latest_build_result_summary editor__build_result_summary 119 13 none]
-G r k latest_build_result_summary [assert_async_build_worker_shutdown_drain_behavior editor__build_command 142 13 none] [latest_build_result_summaryDF editor__build_result_summary 40 9 none]
-G r j latest_build_result_summary [assert_async_build_worker_shutdown_drain_behavior editor__build_command 142 13 none] [latest_build_result_summaryDA editor__build_result_summary 40 9 none]
+G r c none [assert_async_build_worker_shutdown_drain_behavior editor__build_command 142 13 none] [build_summary editor__build_result_summary 127 13 none]
+G r c none [assert_async_build_worker_shutdown_drain_behavior editor__build_command 142 13 none] [replace_latest_build_result_summary editor__build_result_summary 122 13 none]
+G r k latest_build_result_summary [assert_async_build_worker_shutdown_drain_behavior editor__build_command 142 13 none] [latest_build_result_summaryDF editor__build_result_summary 43 9 none]
+G r j latest_build_result_summary [assert_async_build_worker_shutdown_drain_behavior editor__build_command 142 13 none] [latest_build_result_summaryDA editor__build_result_summary 43 9 none]
 G r c none [assert_async_build_worker_shutdown_drain_behavior editor__build_command 142 13 none] [build_result_output_stream editor__external_producers 1497 13 none]
 G r c none [assert_async_build_worker_shutdown_drain_behavior editor__build_command 142 13 none] [build_output_details_from_captured_output editor__build_output_details 145 13 none]
 G r s state_type [assert_async_build_state_slots_are_isolated editor__build_command 144 13 none] [state_typeIP editor__state 115 9 none]
 G r l state_type [assert_async_build_state_slots_are_isolated editor__build_command 144 13 none] [state_typeDI editor__state 115 9 none]
 G r k state_type [assert_async_build_state_slots_are_isolated editor__build_command 144 13 none] [state_typeDF editor__state 115 9 none]
 G r c none [assert_async_build_state_slots_are_isolated editor__build_command 144 13 none] [build_test_fixture_execution_gate editor__external_producers 1540 13 none]
-G r c none [assert_async_build_state_slots_are_isolated editor__build_command 144 13 none] [initialize editor__state 419 14 none]
+G r c none [assert_async_build_state_slots_are_isolated editor__build_command 144 13 none] [initialize editor__state 420 14 none]
 G r c none [assert_async_build_state_slots_are_isolated editor__build_command 144 13 none] [no_process_handle editor__build_process_control 16 13 none]
 G r c none [assert_async_build_state_slots_are_isolated editor__build_command 144 13 none] [begin_build_output_stream editor__build_output_details 115 14 none]
 G r c none [assert_async_build_state_slots_are_isolated editor__build_command 144 13 none] [empty_process_arguments editor__external_producers 1196 13 none]
@@ -990,7 +1000,7 @@ G r j build_run_request [assert_async_build_state_slots_are_isolated editor__bui
 G r s state_type [assert_async_build_slot_id_is_stable_per_state editor__build_command 146 13 none] [state_typeIP editor__state 115 9 none]
 G r l state_type [assert_async_build_slot_id_is_stable_per_state editor__build_command 146 13 none] [state_typeDI editor__state 115 9 none]
 G r k state_type [assert_async_build_slot_id_is_stable_per_state editor__build_command 146 13 none] [state_typeDF editor__state 115 9 none]
-G r c none [assert_async_build_slot_id_is_stable_per_state editor__build_command 146 13 none] [initialize editor__state 419 14 none]
+G r c none [assert_async_build_slot_id_is_stable_per_state editor__build_command 146 13 none] [initialize editor__state 420 14 none]
 G r c none [assert_async_build_slot_id_is_stable_per_state editor__build_command 146 13 none] [no_process_handle editor__build_process_control 16 13 none]
 G r c none [assert_async_build_slot_id_is_stable_per_state editor__build_command 146 13 none] [begin_build_output_stream editor__build_output_details 115 14 none]
 G r c none [assert_async_build_slot_id_is_stable_per_state editor__build_command 146 13 none] [clear_active_process editor__build_process_control 32 14 none]
@@ -999,7 +1009,7 @@ G r s state_type [assert_async_build_slot_pool_exhaustion_is_rejected editor__bu
 G r l state_type [assert_async_build_slot_pool_exhaustion_is_rejected editor__build_command 148 13 none] [state_typeDI editor__state 115 9 none]
 G r k state_type [assert_async_build_slot_pool_exhaustion_is_rejected editor__build_command 148 13 none] [state_typeDF editor__state 115 9 none]
 G r c none [assert_async_build_slot_pool_exhaustion_is_rejected editor__build_command 148 13 none] [build_test_fixture_execution_gate editor__external_producers 1540 13 none]
-G r c none [assert_async_build_slot_pool_exhaustion_is_rejected editor__build_command 148 13 none] [initialize editor__state 419 14 none]
+G r c none [assert_async_build_slot_pool_exhaustion_is_rejected editor__build_command 148 13 none] [initialize editor__state 420 14 none]
 G r c none [assert_async_build_slot_pool_exhaustion_is_rejected editor__build_command 148 13 none] [no_process_handle editor__build_process_control 16 13 none]
 G r c none [assert_async_build_slot_pool_exhaustion_is_rejected editor__build_command 148 13 none] [begin_build_output_stream editor__build_output_details 115 14 none]
 G r c none [assert_async_build_slot_pool_exhaustion_is_rejected editor__build_command 148 13 none] [empty_process_arguments editor__external_producers 1196 13 none]
@@ -1127,41 +1137,41 @@ G r j state_type [public_build_worker editor__build_command 304 14 none] [state_
 G r j build_run_request [public_build_worker editor__build_command 304 14 none] [build_run_requestDA editor__external_producers 228 9 none]
 G r c none [public_build_worker editor__build_command 304 14 none] [run_build_command_with_gate editor__external_producers 1795 13 none]
 G r j build_command_result [public_build_worker editor__build_command 304 14 none] [build_command_resultDA editor__external_producers 653 9 none]
-G r c none [output_details_from_result editor__build_command 489 13 none] [build_result_output_stream editor__external_producers 1497 13 none]
-G r c none [output_details_from_result editor__build_command 489 13 none] [build_output_details_from_captured_output editor__build_output_details 145 13 none]
-G r j build_run_result [summary_from_result editor__build_command 513 13 none] [build_run_resultDA editor__external_producers 637 9 none]
-G r c none [summary_from_result editor__build_command 513 13 none] [build_summary editor__build_result_summary 124 13 none]
-G r c none [selected_candidate_preflight_status editor__build_command 565 13 none] [validate_candidate editor__build_candidates 93 13 none]
-G r c none [async_test_request editor__build_command 1698 13 none] [empty_process_arguments editor__external_producers 1196 13 none]
+G r c none [output_details_from_result editor__build_command 491 13 none] [build_result_output_stream editor__external_producers 1497 13 none]
+G r c none [output_details_from_result editor__build_command 491 13 none] [build_output_details_from_captured_output editor__build_output_details 145 13 none]
+G r j build_run_result [summary_from_result editor__build_command 515 13 none] [build_run_resultDA editor__external_producers 637 9 none]
+G r c none [summary_from_result editor__build_command 515 13 none] [build_summary editor__build_result_summary 127 13 none]
+G r c none [selected_candidate_preflight_status editor__build_command 567 13 none] [validate_candidate editor__build_candidates 93 13 none]
+G r c none [async_test_request editor__build_command 1712 13 none] [empty_process_arguments editor__external_producers 1196 13 none]
 X 1 ada.ads
-18K9*Ada 22e8 35|1r6 2r6 3r6 3r33 1587r18 1588r18 1589r18 1882r17 1911r21
-. 1914r21 2033r14 2044r55
+18K9*Ada 22e8 35|1r6 2r6 3r6 3r33 1601r18 1602r18 1603r18 1896r17 1925r21
+. 1928r21 2047r14 2058r55
 X 8 a-convec.ads
 91R9*Vector<11|43R9>
 X 9 a-direct.ads
-76K13*Directories 524e20 35|1w10 2033r18 2044r59
-82V13*Current_Directory{string} 35|2044s71
-310V13*Exists{boolean} 35|2033s30
+76K13*Directories 524e20 35|1w10 2047r18 2058r59
+82V13*Current_Directory{string} 35|2058s71
+310V13*Exists{boolean} 35|2047s30
 X 13 a-iteint.ads
 24h9 Forward_Iterator
 32h9 Reversible_Iterator<24R9[8|119]>
 X 16 a-string.ads
-16K13*Strings 35e16 35|2r10 3r10 3r37 1587r22 1588r22 1589r22 1882r21 1911r25
-. 1914r25
+16K13*Strings 35e16 35|2r10 3r10 3r37 1601r22 1602r22 1603r22 1896r21 1925r25
+. 1928r25
 X 17 a-strfix.ads
-49K21*Fixed 1390e22 35|2w18 1587r30 1588r30 1589r30 1882r29 1911r33 1914r33
-252V13*Index{natural} 35|1587s36 1588s36 1589s36 1882s35 1911s39 1914s39
+49K21*Fixed 1390e22 35|2w18 1601r30 1602r30 1603r30 1896r29 1925r33 1928r33
+252V13*Index{natural} 35|1601s36 1602s36 1603s36 1896s35 1925s39 1928s39
 X 21 a-strunb.ads
 91K21*Unbounded 1641e26 35|3w18 3r45
-109r4*Null_Unbounded_String{105R9} 35|783r39 1705r23 2045r34
-111V13*Length{natural} 35|398s10
-122V13*To_Unbounded_String{105R9} 35|751s39 818s34 836s34 862s40 898s21 908s21
-. 961s34 1008s34 1016s34 1037s34 1229s37 1236s34 1243s34 1270s37 1295s34
-. 1318s34 1347s34 1369s33 1413s37 1464s36 1505s37 1550s36 1703s27 1704s27
-. 1763s30 1876s43 1903s46 1990s15 2004s36 2043s34 2044s34 2070s48
-135V13*To_String{string} 35|536s35 538s29 568s40 576s13 871s49 920s40 1260s20
-. 1449s41 1574s33 1575s40 1657s33 1883s12 1912s15 1915s15
-269V14*"="{boolean} 8|65i19 35|1876s40 1903s44 2070s45
+109r4*Null_Unbounded_String{105R9} 35|785r39 1719r23 2059r34
+111V13*Length{natural} 35|400s10
+122V13*To_Unbounded_String{105R9} 35|753s39 820s34 838s34 864s40 900s21 910s21
+. 963s34 1010s34 1018s34 1039s34 1243s37 1250s34 1257s34 1284s37 1309s34
+. 1332s34 1361s34 1383s33 1427s37 1478s36 1519s37 1564s36 1717s27 1718s27
+. 1777s30 1890s43 1917s46 2004s15 2018s36 2057s34 2058s34 2084s48
+135V13*To_String{string} 35|538s35 540s29 570s40 578s13 873s49 922s40 1274s20
+. 1463s41 1588s33 1589s40 1671s33 1897s12 1926s15 1929s15
+269V14*"="{boolean} 8|65i19 35|1890s40 1917s44 2084s45
 X 25 editor.ads
 1K9*Editor 5e11 34|1r6 2r6 3r6 4r6 5r6 7r9 32r15 38r15 38r47 41r15 44r15
 . 44r47 47r22 51r23 52r16 55r22 58r22 61r22 62r14 65r23 67r14 70r23 72r14
@@ -1172,237 +1182,238 @@ X 25 editor.ads
 . 50r88 51r85 52r87 109r27 110r27 111r27 112r27 117r31 118r31 119r31 123r27
 . 124r27 137r31 141r31 142r31 143r31 144r31 161r27 162r27 163r27 164r27 186r31
 . 187r31 188r31 199r27 200r27 226r12 271r31 282r31 283r31 284r31 285r31 311r22
-. 312r24 313r28 314r23 326r15 353r16 354r14 358r15 359r20 360r15 361r15 362r15
-. 363r20 364r15 365r15 366r20 367r15 368r20 369r15 370r20 371r15 372r20 377r14
-. 378r14 382r15 383r20 384r15 385r20 386r15 387r20 388r15 389r20 394r17 395r14
-. 399r17 403r15 404r20 405r15 406r20 407r15 408r15 409r15 410r20 411r15 412r20
-. 417r16 419r14 423r17 427r15 430r26 432r26 435r23 437r15 438r15 439r20 440r15
-. 441r20 446r16 450r15 451r15 452r15 453r15 454r15 455r15 456r15 457r15 458r15
-. 463r16 464r14 468r15 469r20 470r15 471r20 472r15 473r20 474r15 475r20 476r15
-. 477r20 478r15 479r20 480r15 481r20 482r15 483r20 484r15 485r20 490r15 491r14
-. 494r14 504r18 505r20 506r18 507r20 508r18 509r20 510r18 514r17 515r17 517r14
-. 519r24 523r9 527r11 528r11 529r11 531r14 541r38 542r38 544r27 566r15 579r34
-. 580r18 583r24 585r24 602r16 607r15 609r15 611r15 612r15 614r15 616r15 618r15
-. 620r15 622r15 624r15 626r15 628r15 630r15 632r15 638r15 640r28 641r9 647r17
-. 651r23 656r15 657r15 659r15 714r15 714r47 719r17 721r14 725r15 732r15 732r47
-. 736r17 738r14 742r22 753r9 755r9 756r7 761r23 762r16 771r22 775r17 779r22
-. 785r9 786r7 787r7 795r9 798r12 801r12 806r22 807r14 809r36 810r9 811r16
-. 815r34 816r16 823r22 825r22 826r12 829r12 832r34 833r16 841r19 842r16 845r18
-. 846r35 847r16 848r19 849r18 850r18 853r18 855r18 859r40 860r22 864r18 866r21
-. 867r32 869r37 870r40 877r18 879r21 881r26 889r18 890r18 892r18 894r40 895r22
-. 900r18 902r18 904r40 905r22 913r9 915r12 916r23 918r28 919r31 926r9 928r12
-. 930r17 941r23 943r14 945r16 946r23 947r9 948r36 949r9 958r34 959r16 965r9
-. 972r10 973r10 975r27 976r13 980r12 985r19 988r10 995r9 997r12 999r15 1002r26
-. 1004r34 1005r16 1012r34 1013r16 1023r23 1025r14 1027r16 1028r21 1029r36
-. 1030r9 1034r34 1035r16 1059r7 1085r22 1086r23 1094r7 1097r9 1099r12 1101r32
-. 1106r22 1107r23 1112r7 1115r9 1117r12 1126r15 1128r29 1129r9 1135r17 1139r31
-. 1144r15 1145r15 1147r15 1160r10 1161r33 1170r15 1171r14 1175r26 1177r15
-. 1178r15 1181r15 1182r15 1183r20 1184r15 1185r20 1187r18 1191r18 1196r18
-. 1203r15 1211r22 1212r14 1214r29 1215r9 1216r36 1217r9 1226r37 1227r19 1233r34
-. 1234r16 1240r34 1241r16 1248r26 1250r38 1267r37 1268r19 1285r12 1287r15
-. 1291r34 1292r16 1300r22 1301r20 1303r36 1304r9 1305r19 1307r22 1308r23
-. 1310r27 1311r21 1315r34 1316r16 1328r12 1329r10 1338r12 1340r15 1343r34
-. 1344r16 1361r9 1370r10 1377r9 1384r9 1394r22 1395r14 1397r29 1398r9 1399r36
-. 1400r9 1401r16 1410r37 1411r19 1414r16 1416r18 1418r21 1421r18 1423r21
-. 1431r26 1433r38 1441r22 1450r20 1456r23 1465r13 1472r12 1477r12 1485r32
-. 1486r25 1487r14 1489r29 1490r9 1491r36 1492r9 1493r16 1502r37 1503r19 1506r16
-. 1508r18 1510r21 1513r18 1515r21 1523r26 1525r38 1533r22 1536r20 1542r23
-. 1551r13 1558r12 1563r12 1572r20 1573r9 1573r37 1577r14 1578r12 1579r18
-. 1580r12 1581r33 1582r31 1593r15 1595r20 1597r28 1598r9 1600r18 1602r18
-. 1603r12 1603r60 1607r15 1616r15 1619r20 1620r9 1620r37 1625r29 1626r18
-. 1627r12 1632r23 1633r9 1634r12 1637r22 1638r12 1642r15 1645r14 1646r22
-. 1647r22 1648r18 1650r18 1655r20 1656r9 1656r37 1659r14 1660r12 1661r18
-. 1662r12 1663r33 1664r31 1670r15 1672r14 1674r13 1678r18 1682r15 1693r18
-. 1698r39 1701r18 1702r24 1706r34 1710r11 1711r22 1712r16 1713r21 1715r23
-. 1716r9 1719r23 1721r7 1728r7 1729r10 1733r10 1738r40 1740r11 1741r21 1744r10
-. 1750r9 1753r10 1759r27 1760r14 1762r32 1768r11 1772r11 1773r22 1774r12
-. 1778r10 1783r11 1784r16 1786r16 1787r23 1788r9 1791r23 1793r7 1801r7 1803r7
-. 1805r10 1807r7 1809r10 1811r7 1816r11 1820r10 1833r10 1839r10 1846r11 1847r16
-. 1849r16 1850r23 1851r9 1854r23 1858r7 1866r7 1868r7 1870r10 1872r7 1889r10
-. 1893r7 1895r10 1897r7 1907r14 1922r10 1928r10 1935r16 1936r16 1939r11 1940r21
-. 1941r23 1943r14 1944r9 1945r25 1946r24 1947r22 1948r25 1949r38 1955r23
-. 1956r9 1961r23 1968r25 1977r12 1981r15 1982r18 1985r15 1988r15 1992r24
-. 2000r33 2001r20 2003r19 2012r16 2013r16 2040r7 2041r7 2058r32 2059r15 2064r10
-. 2075r32 2076r15 2081r10 2086r47 2087r21 2090r32 2091r15 2096r10 2102r32
-. 2103r15 2108r10 2115r11 2117r11 2120r22 2121r12 2125r32 2126r15 2131r10
-. 2139r12 2140r12 2141r15 2142r15 2143r23 2144r9 2148r7 2149r7 2176r14 2178r14
-. 2199r11 2205r7 2240r12 2241r12 2242r12 2243r12 2244r12 2245r12 2246r12
-. 2247r12 2248r12 2249r23 2250r9 2254r44 2256r10 2263r44 2280r7 2316r11 2317r23
-. 2318r9 2321r26 2323r16 2324r22 2326r7 2337r40 2339r11 2341r11 2346r10 2356r10
-. 2364r11 2365r23 2366r9 2369r16 2372r7 2394r22 2395r12 2399r10 2425r5
+. 312r24 313r28 314r23 326r15 355r16 356r14 360r15 361r20 362r15 363r15 364r15
+. 365r20 366r15 367r15 368r20 369r15 370r20 371r15 372r20 373r15 374r20 379r14
+. 380r14 384r15 385r20 386r15 387r20 388r15 389r20 390r15 391r20 396r17 397r14
+. 401r17 405r15 406r20 407r15 408r20 409r15 410r15 411r15 412r20 413r15 414r20
+. 419r16 421r14 425r17 429r15 432r26 434r26 437r23 439r15 440r15 441r20 442r15
+. 443r20 448r16 452r15 453r15 454r15 455r15 456r15 457r15 458r15 459r15 460r15
+. 465r16 466r14 470r15 471r20 472r15 473r20 474r15 475r20 476r15 477r20 478r15
+. 479r20 480r15 481r20 482r15 483r20 484r15 485r20 486r15 487r20 492r15 493r14
+. 496r14 506r18 507r20 508r18 509r20 510r18 511r20 512r18 516r17 517r17 519r14
+. 521r24 525r9 529r11 530r11 531r11 533r14 543r38 544r38 546r27 568r15 581r34
+. 582r18 585r24 587r24 604r16 609r15 611r15 613r15 614r15 616r15 618r15 620r15
+. 622r15 624r15 626r15 628r15 630r15 632r15 634r15 640r15 642r28 643r9 649r17
+. 653r23 658r15 659r15 661r15 716r15 716r47 721r17 723r14 727r15 734r15 734r47
+. 738r17 740r14 744r22 755r9 757r9 758r7 763r23 764r16 773r22 777r17 781r22
+. 787r9 788r7 789r7 797r9 800r12 803r12 808r22 809r14 811r36 812r9 813r16
+. 817r34 818r16 825r22 827r22 828r12 831r12 834r34 835r16 843r19 844r16 847r18
+. 848r35 849r16 850r19 851r18 852r18 855r18 857r18 861r40 862r22 866r18 868r21
+. 869r32 871r37 872r40 879r18 881r21 883r26 891r18 892r18 894r18 896r40 897r22
+. 902r18 904r18 906r40 907r22 915r9 917r12 918r23 920r28 921r31 928r9 930r12
+. 932r17 943r23 945r14 947r16 948r23 949r9 950r36 951r9 960r34 961r16 967r9
+. 974r10 975r10 977r27 978r13 982r12 987r19 990r10 997r9 999r12 1001r15 1004r26
+. 1006r34 1007r16 1014r34 1015r16 1025r23 1027r14 1029r16 1030r21 1031r36
+. 1032r9 1036r34 1037r16 1061r7 1087r22 1088r23 1096r7 1099r9 1101r12 1103r32
+. 1108r22 1109r23 1114r7 1117r9 1119r12 1128r15 1130r29 1131r9 1137r17 1141r31
+. 1146r15 1147r15 1149r15 1162r10 1163r33 1172r15 1173r14 1177r26 1179r15
+. 1180r15 1183r15 1184r15 1185r20 1186r15 1187r20 1189r18 1193r18 1198r18
+. 1205r15 1213r22 1214r14 1216r29 1217r9 1218r36 1219r9 1227r16 1229r18 1231r21
+. 1234r18 1236r21 1240r37 1241r19 1247r34 1248r16 1254r34 1255r16 1262r26
+. 1264r38 1281r37 1282r19 1299r12 1301r15 1305r34 1306r16 1314r22 1315r20
+. 1317r36 1318r9 1319r19 1321r22 1322r23 1324r27 1325r21 1329r34 1330r16
+. 1342r12 1343r10 1352r12 1354r15 1357r34 1358r16 1375r9 1384r10 1391r9 1398r9
+. 1408r22 1409r14 1411r29 1412r9 1413r36 1414r9 1415r16 1424r37 1425r19 1428r16
+. 1430r18 1432r21 1435r18 1437r21 1445r26 1447r38 1455r22 1464r20 1470r23
+. 1479r13 1486r12 1491r12 1499r32 1500r25 1501r14 1503r29 1504r9 1505r36
+. 1506r9 1507r16 1516r37 1517r19 1520r16 1522r18 1524r21 1527r18 1529r21
+. 1537r26 1539r38 1547r22 1550r20 1556r23 1565r13 1572r12 1577r12 1586r20
+. 1587r9 1587r37 1591r14 1592r12 1593r18 1594r12 1595r33 1596r31 1607r15
+. 1609r20 1611r28 1612r9 1614r18 1616r18 1617r12 1617r60 1621r15 1630r15
+. 1633r20 1634r9 1634r37 1639r29 1640r18 1641r12 1646r23 1647r9 1648r12 1651r22
+. 1652r12 1656r15 1659r14 1660r22 1661r22 1662r18 1664r18 1669r20 1670r9
+. 1670r37 1673r14 1674r12 1675r18 1676r12 1677r33 1678r31 1684r15 1686r14
+. 1688r13 1692r18 1696r15 1707r18 1712r39 1715r18 1716r24 1720r34 1724r11
+. 1725r22 1726r16 1727r21 1729r23 1730r9 1733r23 1735r7 1742r7 1743r10 1747r10
+. 1752r40 1754r11 1755r21 1758r10 1764r9 1767r10 1773r27 1774r14 1776r32
+. 1782r11 1786r11 1787r22 1788r12 1792r10 1797r11 1798r16 1800r16 1801r23
+. 1802r9 1805r23 1807r7 1815r7 1817r7 1819r10 1821r7 1823r10 1825r7 1830r11
+. 1834r10 1847r10 1853r10 1860r11 1861r16 1863r16 1864r23 1865r9 1868r23
+. 1872r7 1880r7 1882r7 1884r10 1886r7 1903r10 1907r7 1909r10 1911r7 1921r14
+. 1936r10 1942r10 1949r16 1950r16 1953r11 1954r21 1955r23 1957r14 1958r9
+. 1959r25 1960r24 1961r22 1962r25 1963r38 1969r23 1970r9 1975r23 1982r25
+. 1991r12 1995r15 1996r18 1999r15 2002r15 2006r24 2014r33 2015r20 2017r19
+. 2026r16 2027r16 2054r7 2055r7 2072r32 2073r15 2078r10 2089r32 2090r15 2095r10
+. 2100r47 2101r21 2104r32 2105r15 2110r10 2116r32 2117r15 2122r10 2129r11
+. 2131r11 2134r22 2135r12 2139r32 2140r15 2145r10 2153r12 2154r12 2155r15
+. 2156r15 2157r23 2158r9 2162r7 2163r7 2190r14 2192r14 2213r11 2219r7 2254r12
+. 2255r12 2256r12 2257r12 2258r12 2259r12 2260r12 2261r12 2262r12 2263r23
+. 2264r9 2268r44 2270r10 2277r44 2294r7 2330r11 2331r23 2332r9 2335r26 2337r16
+. 2338r22 2340r7 2351r40 2353r11 2355r11 2360r10 2370r10 2378r11 2379r23
+. 2380r9 2383r16 2386r7 2408r22 2409r12 2413r10 2439r5
 X 33 editor-build_candidates.ads
-6K16*Build_Candidates 125e28 35|8w13 23r20 579r41 580r25 583r31 585r31
-25E9*Build_Candidate_Validation_Status 31e48 35|23r37 579r58
-26n7*Build_Candidate_Valid{25E9} 35|583r48
-27n7*Build_Candidate_Unavailable{25E9} 35|585r48
-37r7*Candidate_Id{21|105R9} 35|576r34
+6K16*Build_Candidates 125e28 35|8w13 23r20 581r41 582r25 585r31 587r31
+25E9*Build_Candidate_Validation_Status 31e48 35|23r37 581r58
+26n7*Build_Candidate_Valid{25E9} 35|585r48
+27n7*Build_Candidate_Unavailable{25E9} 35|587r48
+37r7*Candidate_Id{21|105R9} 35|578r34
 61R12*Build_Candidate_Vector{8|91R9[57]}
-93V13*Validate_Candidate{25E9} 35|580s42
+93V13*Validate_Candidate{25E9} 35|582s42
 X 34 editor-build_command.ads
-7K16*Build_Command 25|1k9 34|153l12 153e25 35|17b21 2425l12 2425t25
-14E9*Build_Run_Readiness_Status 29e46 32r47 35r16 88r47 35|29r13 566r47 603r14
-. 638r47 664r38 676r16 716r25 1126r47 1152r38 1218r28 1402r28 1494r28 1609r25
-. 1610r25
-15n7*Build_Run_Readiness_Ready{14E9} 35|584r29 608r20 667r33 672r14 680r15
-. 718r19 1155r33 1166r14 1174r49 1221r23 1405r23 1497r23 1694r59
-16n7*Build_Run_Readiness_No_Project_Open{14E9} 35|648r17 682r15 1136r17
-17n7*Build_Run_Readiness_No_Candidate_Selected{14E9} 35|572r17 615r20 684r15
-18n7*Build_Run_Readiness_Selected_Candidate_Stale{14E9} 35|588r29 595r17
-. 598r14 617r20 686r15
-19n7*Build_Run_Readiness_Candidate_File_Missing{14E9} 35|586r29 688r15
-20n7*Build_Run_Readiness_Request_Incomplete{14E9} 35|610r20 621r20 690r15
-. 1163r17
-21n7*Build_Run_Readiness_Tool_Required{14E9} 35|613r20 692r15
-22n7*Build_Run_Readiness_Arguments_Invalid{14E9} 35|619r20 694r15
-23n7*Build_Run_Readiness_Working_Context_Required{14E9} 35|623r20 696r15
-24n7*Build_Run_Readiness_Working_Context_Unavailable{14E9} 35|625r20 698r15
-25n7*Build_Run_Readiness_Working_Context_Invalid{14E9} 35|627r20 700r15
-26n7*Build_Run_Readiness_Consent_Required{14E9} 35|629r20 702r15
-27n7*Build_Run_Readiness_Consent_Stale{14E9} 35|631r20 704r15
-28n7*Build_Run_Readiness_Execution_Backend_Disabled{14E9} 35|633r20 658r20
-. 706r15 1146r20
-29n7*Build_Run_Readiness_Job_Already_Active{14E9} 35|646r17 708r15 1134r17
-31V13*Build_Run_Readiness{14E9} 32>7 35|637b13 673l8 673t27 716s55 1609s55
-. 1610s55
-32r7 State{82|115R9} 35|638b7 641r50 643r10 644r17 647r45 655r12 665r49
-34V13*Build_Run_Unavailable_Reason{string} 35>7 35|675b13 711l8 711t36 721s43
-. 1223s42 1407s42 1499s42
-35e7 Status{14E9} 35|676b7 679r12
-37V13*Build_Run_Availability{44|577R9} 38>7 35|713b13 722l8 722t30 1596s9
-38r7 State{82|115R9} 35|714b7 716r76
-40V13*Has_Active_Public_Build_Job{boolean} 41>7 35|724b13 729l8 729t35
-41r7 State{82|115R9} 35|725b7 728r14
-43V13*Build_Cancel_Availability{44|577R9} 44>7 35|731b13 739l8 739t33 1674s43
-. 1678s48
-44r7 State{82|115R9} 35|732b7 735r10
-46U14*Begin_Public_Build_Job 47=7 48>7 35|741b14 758l8 758t30 1259s10 1449s10
-. 1676s7 1722s7 1794s7 1859s7 2048s7 2150s7 2151s7 2207s7 2219s7 2257s10
-. 2281s7 2327s7 2373s7
-47r7 State{82|115R9} 35|742b7 746m7 747m7 747r36 748r10 749m48 749r48 751m7
-. 752m7 754m7 757m10 757r10 757r44
-48a7 Label{string} 35|743b7 751r60
-50U14*Register_Public_Build_Process 51=7 52>7 35|760b14 768l8 768t37 774s7
-51r7 State{82|115R9} 35|761b7 765r10 766m10
-52r7 Handle{38|8R9} 35|762b7 766r47
-54U14*Register_Public_Build_Test_Process 55=7 35|770b14 776l8 776t42
-55r7 State{82|115R9} 35|771b7 775m10
-57U14*Complete_Public_Build_Job 58=7 35|778b14 803l8 803t33 1265s13 1356s7
-. 1454s10 2210s7 2222s7 2268s10 2351s7
-58r7 State{82|115R9} 35|779b7 782m7 783m7 784m7 788m10 788r10 794r10 797m10
-. 800m10
-60V13*Request_Public_Build_Cancel{49|653R9} 61=7 35|805b13 937l8 937t35 1737s17
-. 2085s24
-61r7 State{82|115R9} 35|806b7 813r14 822r10 824r12 828m10 830r57 843r19 844r18
-. 854m16 856r63 857m16 863m16 865r21 871r60 876m16 878r21 882r39 883r39 884r44
-. 885r44 891m16 901m16 912m7 914r12 920r51 925m7 927r12 931r30 932r30 933r35
-. 934r35
-64V13*Request_Public_Build_Lifecycle_Shutdown{49|653R9} 65=7 66>7 35|940b13
-. 1019l8 1019t47 1040s17 2334s17
-65r7 State{82|115R9} 35|941b7 956r14 964m7 967r10 969r13 977r10 981m15 981r15
-. 990m13 994m7 996r12 998r15
-66a7 Reason{string} 35|942b7 951r13 954r54 1009r57
-69V13*Drain_Public_Build_Worker_For_Shutdown{49|653R9} 70=7 71>7 35|1022b13
-. 1067l8 1067t46 2383s17
-70r7 State{82|115R9} 35|1023b7 1032r14 1040m58 1040r58 1042r10 1044r29 1045r15
-. 1048r39 1051m49 1051r49 1060r10 1061r22 1063r35
-71a7 Reason{string} 35|1024b7 1040r65
-74U14*Stop_Public_Build_Workers_For_Application_Exit 35|1071b14 1082l8 1082t54
-. 2415s7
-76U14*Append_Public_Build_Output_Chunk 77=7 78>7 79>7 35|1084b14 1103l8 1103t40
-77r7 State{82|115R9} 35|1085b7 1090r14 1095m10 1095r10 1096m7 1098r12 1100r15
-78e7 Output_Stream{37|20E9} 35|1086b7 1095r44
-79a7 Text{string} 35|1087b7 1095r59
-81U14*Complete_Public_Build_Output_Stream 82=7 83>7 84>7 85>7 35|1105b14
-. 1123l8 1123t43
-82r7 State{82|115R9} 35|1106b7 1113m10 1113r10 1114m7 1116r12 1118r15
-83e7 Runner_Status{37|25E9} 35|1107b7 1119r32
-84i7 Exit_Code{integer} 35|1108b7 1121r28
-85b7 Has_Exit_Code{boolean} 35|1109b7 1122r32
-87V13*Validate_Build_Run_Invocation{14E9} 88>7 35|1125b13 1167l8 1167t37
-. 1174s9 1219s9 1403s9 1495s9 1694s18
-88r7 State{82|115R9} 35|1126b7 1129r73 1131r10 1132r17 1135r45 1143r12 1153r49
-90V13*Build_Run_Execution_Gate{49|669R9} 91>7 35|1169b13 1200l8 1200t32 1249s12
-. 1432s12 1524s12
-91r7 State{82|115R9} 35|1170b7 1174r40 1180r12 1189r21 1193r21 1197r21
-94V13*Execute_Public_Build_Run{49|653R9} 95=7 35|1393b13 1482l8 1482t32
-95r7 State{82|115R9} 35|1394b7 1398r73 1403r40 1415m16 1417r21 1420m16 1422r21
-. 1432r38 1449m34 1451m13 1451r13 1454m37 1457m13 1457r13 1461r13 1471m10
-. 1473r15 1476m10 1478r15
-98V13*Start_Public_Build_Run_Asynchronously{49|653R9} 99=7 35|1210b13 1297l8
-. 1297t45
-99r7 State{82|115R9} 35|1211b7 1215r73 1219r40 1238r13 1249r38 1260m13 1263r13
-. 1265m40 1274m10 1275m10 1277r13 1277r47 1281r13 1282r48 1282r90 1284m10
-. 1286r15
-102V13*Poll_Public_Build_Run_Completion{boolean} 103=7 104<7 35|1051s15 1299b13
-. 1390l8 1390t40 1765s20 1813s20 1874s20 1899s20 2068s20 2112s20 2386s23
-103r7 State{82|115R9} 35|1300b7 1313r43 1325r46 1326r52 1327m10 1332m13 1334m13
-. 1337m10 1339r15 1352r10 1353m7 1356m34 1357m7 1358m7 1362m12 1362r12 1366r12
-. 1376m7 1378r12 1383m7 1385r12 1388r32
-104r7 Result{49|653R9} 35|1301b7 1314m10 1342m10 1352m90 1364r12 1368m7 1369m7
-. 1371r13 1381r15 1386r40
-106V13*Has_Queued_Public_Build_Job{boolean} 107>7 35|1048s10 1202b13 1208l8
-. 1208t35 1313s14 1731s14
-107r7 State{82|115R9} 35|1203b7 1206r14 1207r45 1207r79
+7K16*Build_Command 25|1k9 34|153l12 153e25 35|17b21 2439l12 2439t25
+14E9*Build_Run_Readiness_Status 29e46 32r47 35r16 88r47 35|29r13 568r47 605r14
+. 640r47 666r38 678r16 718r25 1128r47 1154r38 1220r28 1416r28 1508r28 1623r25
+. 1624r25
+15n7*Build_Run_Readiness_Ready{14E9} 35|586r29 610r20 669r33 674r14 682r15
+. 720r19 1157r33 1168r14 1176r49 1223r23 1419r23 1511r23 1708r59
+16n7*Build_Run_Readiness_No_Project_Open{14E9} 35|650r17 684r15 1138r17
+17n7*Build_Run_Readiness_No_Candidate_Selected{14E9} 35|574r17 617r20 686r15
+18n7*Build_Run_Readiness_Selected_Candidate_Stale{14E9} 35|590r29 597r17
+. 600r14 619r20 688r15
+19n7*Build_Run_Readiness_Candidate_File_Missing{14E9} 35|588r29 690r15
+20n7*Build_Run_Readiness_Request_Incomplete{14E9} 35|612r20 623r20 692r15
+. 1165r17
+21n7*Build_Run_Readiness_Tool_Required{14E9} 35|615r20 694r15
+22n7*Build_Run_Readiness_Arguments_Invalid{14E9} 35|621r20 696r15
+23n7*Build_Run_Readiness_Working_Context_Required{14E9} 35|625r20 698r15
+24n7*Build_Run_Readiness_Working_Context_Unavailable{14E9} 35|627r20 700r15
+25n7*Build_Run_Readiness_Working_Context_Invalid{14E9} 35|629r20 702r15
+26n7*Build_Run_Readiness_Consent_Required{14E9} 35|631r20 704r15
+27n7*Build_Run_Readiness_Consent_Stale{14E9} 35|633r20 706r15
+28n7*Build_Run_Readiness_Execution_Backend_Disabled{14E9} 35|635r20 660r20
+. 708r15 1148r20
+29n7*Build_Run_Readiness_Job_Already_Active{14E9} 35|648r17 710r15 1136r17
+31V13*Build_Run_Readiness{14E9} 32>7 35|639b13 675l8 675t27 718s55 1623s55
+. 1624s55
+32r7 State{82|115R9} 35|640b7 643r50 645r10 646r17 649r45 657r12 667r49
+34V13*Build_Run_Unavailable_Reason{string} 35>7 35|677b13 713l8 713t36 723s43
+. 1225s42 1421s42 1513s42
+35e7 Status{14E9} 35|678b7 681r12
+37V13*Build_Run_Availability{44|577R9} 38>7 35|715b13 724l8 724t30 1610s9
+38r7 State{82|115R9} 35|716b7 718r76
+40V13*Has_Active_Public_Build_Job{boolean} 41>7 35|726b13 731l8 731t35
+41r7 State{82|115R9} 35|727b7 730r14
+43V13*Build_Cancel_Availability{44|577R9} 44>7 35|733b13 741l8 741t33 1688s43
+. 1692s48
+44r7 State{82|115R9} 35|734b7 737r10
+46U14*Begin_Public_Build_Job 47=7 48>7 35|743b14 760l8 760t30 1273s10 1463s10
+. 1690s7 1736s7 1808s7 1873s7 2062s7 2164s7 2165s7 2221s7 2233s7 2271s10
+. 2295s7 2341s7 2387s7
+47r7 State{82|115R9} 35|744b7 748m7 749m7 749r36 750r10 751m48 751r48 753m7
+. 754m7 756m7 759m10 759r10 759r44
+48a7 Label{string} 35|745b7 753r60
+50U14*Register_Public_Build_Process 51=7 52>7 35|762b14 770l8 770t37 776s7
+51r7 State{82|115R9} 35|763b7 767r10 768m10
+52r7 Handle{38|8R9} 35|764b7 768r47
+54U14*Register_Public_Build_Test_Process 55=7 35|772b14 778l8 778t42
+55r7 State{82|115R9} 35|773b7 777m10
+57U14*Complete_Public_Build_Job 58=7 35|780b14 805l8 805t33 1279s13 1370s7
+. 1468s10 2224s7 2236s7 2282s10 2365s7
+58r7 State{82|115R9} 35|781b7 784m7 785m7 786m7 790m10 790r10 796r10 799m10
+. 802m10
+60V13*Request_Public_Build_Cancel{49|653R9} 61=7 35|807b13 939l8 939t35 1751s17
+. 2099s24
+61r7 State{82|115R9} 35|808b7 815r14 824r10 826r12 830m10 832r57 845r19 846r18
+. 856m16 858r63 859m16 865m16 867r21 873r60 878m16 880r21 884r39 885r39 886r44
+. 887r44 893m16 903m16 914m7 916r12 922r51 927m7 929r12 933r30 934r30 935r35
+. 936r35
+64V13*Request_Public_Build_Lifecycle_Shutdown{49|653R9} 65=7 66>7 35|942b13
+. 1021l8 1021t47 1042s17 2348s17
+65r7 State{82|115R9} 35|943b7 958r14 966m7 969r10 971r13 979r10 983m15 983r15
+. 992m13 996m7 998r12 1000r15
+66a7 Reason{string} 35|944b7 953r13 956r54 1011r57
+69V13*Drain_Public_Build_Worker_For_Shutdown{49|653R9} 70=7 71>7 35|1024b13
+. 1069l8 1069t46 2397s17
+70r7 State{82|115R9} 35|1025b7 1034r14 1042m58 1042r58 1044r10 1046r29 1047r15
+. 1050r39 1053m49 1053r49 1062r10 1063r22 1065r35
+71a7 Reason{string} 35|1026b7 1042r65
+74U14*Stop_Public_Build_Workers_For_Application_Exit 35|1073b14 1084l8 1084t54
+. 2429s7
+76U14*Append_Public_Build_Output_Chunk 77=7 78>7 79>7 35|1086b14 1105l8 1105t40
+77r7 State{82|115R9} 35|1087b7 1092r14 1097m10 1097r10 1098m7 1100r12 1102r15
+78e7 Output_Stream{37|20E9} 35|1088b7 1097r44
+79a7 Text{string} 35|1089b7 1097r59
+81U14*Complete_Public_Build_Output_Stream 82=7 83>7 84>7 85>7 35|1107b14
+. 1125l8 1125t43
+82r7 State{82|115R9} 35|1108b7 1115m10 1115r10 1116m7 1118r12 1120r15
+83e7 Runner_Status{37|25E9} 35|1109b7 1121r32
+84i7 Exit_Code{integer} 35|1110b7 1123r28
+85b7 Has_Exit_Code{boolean} 35|1111b7 1124r32
+87V13*Validate_Build_Run_Invocation{14E9} 88>7 35|1127b13 1169l8 1169t37
+. 1176s9 1221s9 1417s9 1509s9 1708s18
+88r7 State{82|115R9} 35|1128b7 1131r73 1133r10 1134r17 1137r45 1145r12 1155r49
+90V13*Build_Run_Execution_Gate{49|669R9} 91>7 35|1171b13 1202l8 1202t32 1263s12
+. 1446s12 1538s12
+91r7 State{82|115R9} 35|1172b7 1176r40 1182r12 1191r21 1195r21 1199r21
+94V13*Execute_Public_Build_Run{49|653R9} 95=7 35|1407b13 1496l8 1496t32
+95r7 State{82|115R9} 35|1408b7 1412r73 1417r40 1429m16 1431r21 1434m16 1436r21
+. 1446r38 1463m34 1465m13 1465r13 1468m37 1471m13 1471r13 1475r13 1485m10
+. 1487r15 1490m10 1492r15
+98V13*Start_Public_Build_Run_Asynchronously{49|653R9} 99=7 35|1212b13 1311l8
+. 1311t45
+99r7 State{82|115R9} 35|1213b7 1217r73 1221r40 1228m16 1230r21 1233m16 1235r21
+. 1252r13 1263r38 1274m13 1277r13 1279m40 1288m10 1289m10 1291r13 1291r47
+. 1295r13 1296r48 1296r90 1298m10 1300r15
+102V13*Poll_Public_Build_Run_Completion{boolean} 103=7 104<7 35|1053s15 1313b13
+. 1404l8 1404t40 1779s20 1827s20 1888s20 1913s20 2082s20 2126s20 2400s23
+103r7 State{82|115R9} 35|1314b7 1327r43 1339r46 1340r52 1341m10 1346m13 1348m13
+. 1351m10 1353r15 1366r10 1367m7 1370m34 1371m7 1372m7 1376m12 1376r12 1380r12
+. 1390m7 1392r12 1397m7 1399r12 1402r32
+104r7 Result{49|653R9} 35|1315b7 1328m10 1356m10 1366m90 1378r12 1382m7 1383m7
+. 1385r13 1395r15 1400r40
+106V13*Has_Queued_Public_Build_Job{boolean} 107>7 35|1050s10 1204b13 1210l8
+. 1210t35 1327s14 1745s14
+107r7 State{82|115R9} 35|1205b7 1208r14 1209r45 1209r79
 114V13*Execute_Public_Build_Run_With_Supplied_Result{49|653R9} 115=7 116>7
-. 35|1484b13 1568l8 1568t53
-115r7 State{82|115R9} 35|1485b7 1490r73 1495r40 1507m16 1509r21 1512m16 1514r21
-. 1524r38 1537m13 1537r13 1543m13 1543r13 1547r13 1557m10 1559r15 1562m10
-. 1564r15
-116r7 Supplied_Result{49|612R9} 35|1486b7 1540r13
-119V13*Assert_Build_Run_Descriptor_Stable{boolean} 35|1570b13 1590l8 1590t42
-. 1685s14
-120V13*Assert_Build_Run_Routes_Through_Executor{boolean} 121>7 35|1592b13
-. 1604l8 1604t48 1686s18
-121r7 State{82|115R9} 35|1593b7 1596r33 1598r77
-122V13*Assert_Build_Run_Availability_Side_Effect_Free{boolean} 123>7 35|1606b13
-. 1613l8 1613t54 1687s18
-123r7 State{82|115R9} 35|1607b7 1609r76 1610r76
-124V13*Assert_Build_Cancel_Command_Descriptor_Stable{boolean} 35|1653b13
-. 1667l8 1667t53 1691s18
-125V13*Assert_Build_Cancel_Requires_Active_Job{boolean} 126>7 35|1669b13
-. 1679l8 1679t47 1692s18
-126r7 State{82|115R9} 35|1670b7 1672r41
-127V13*Assert_Build_Run_Command_Palette_Boundary{boolean} 128>7 35|1615b13
-. 1628l8 1628t49 1688s18
-128r7 State{82|115R9} 35|1616b7 1618r28
-129V13*Assert_Build_Run_Keybinding_Boundary{boolean} 35|1630b13 1639l8 1639t44
-. 1689s18
-130V13*Assert_Build_Run_Persistence_Excluded{boolean} 131>7 35|1641b13 1651l8
-. 1651t45 1690s18
-131r7 State{82|115R9} 35|1642b7 1645r66 1646r67 1647r68 1649r12
-132V13*Assert_Public_Build_Command_Registration_Coherent{boolean} 133>7 35|1681b13
-. 1695l8 1695t57
-133r7 State{82|115R9} 35|1682b7 1686r60 1687r66 1688r61 1690r57 1692r59 1694r49
-134V13*Assert_Async_Build_Cancel_Handoff_Behavior{boolean} 35|1709b13 1780l8
-. 1780t50
-135V13*Assert_Async_Build_Output_Snapshot_Handoff_Behavior{boolean} 35|1782b13
-. 1841l8 1841t59
+. 35|1498b13 1582l8 1582t53
+115r7 State{82|115R9} 35|1499b7 1504r73 1509r40 1521m16 1523r21 1526m16 1528r21
+. 1538r38 1551m13 1551r13 1557m13 1557r13 1561r13 1571m10 1573r15 1576m10
+. 1578r15
+116r7 Supplied_Result{49|612R9} 35|1500b7 1554r13
+119V13*Assert_Build_Run_Descriptor_Stable{boolean} 35|1584b13 1604l8 1604t42
+. 1699s14
+120V13*Assert_Build_Run_Routes_Through_Executor{boolean} 121>7 35|1606b13
+. 1618l8 1618t48 1700s18
+121r7 State{82|115R9} 35|1607b7 1610r33 1612r77
+122V13*Assert_Build_Run_Availability_Side_Effect_Free{boolean} 123>7 35|1620b13
+. 1627l8 1627t54 1701s18
+123r7 State{82|115R9} 35|1621b7 1623r76 1624r76
+124V13*Assert_Build_Cancel_Command_Descriptor_Stable{boolean} 35|1667b13
+. 1681l8 1681t53 1705s18
+125V13*Assert_Build_Cancel_Requires_Active_Job{boolean} 126>7 35|1683b13
+. 1693l8 1693t47 1706s18
+126r7 State{82|115R9} 35|1684b7 1686r41
+127V13*Assert_Build_Run_Command_Palette_Boundary{boolean} 128>7 35|1629b13
+. 1642l8 1642t49 1702s18
+128r7 State{82|115R9} 35|1630b7 1632r28
+129V13*Assert_Build_Run_Keybinding_Boundary{boolean} 35|1644b13 1653l8 1653t44
+. 1703s18
+130V13*Assert_Build_Run_Persistence_Excluded{boolean} 131>7 35|1655b13 1665l8
+. 1665t45 1704s18
+131r7 State{82|115R9} 35|1656b7 1659r66 1660r67 1661r68 1663r12
+132V13*Assert_Public_Build_Command_Registration_Coherent{boolean} 133>7 35|1695b13
+. 1709l8 1709t57
+133r7 State{82|115R9} 35|1696b7 1700r60 1701r66 1702r61 1704r57 1706r59 1708r49
+134V13*Assert_Async_Build_Cancel_Handoff_Behavior{boolean} 35|1723b13 1794l8
+. 1794t50
+135V13*Assert_Async_Build_Output_Snapshot_Handoff_Behavior{boolean} 35|1796b13
+. 1855l8 1855t59
 136V13*Assert_Async_Build_Partial_Stdout_Stderr_Before_Completion{boolean}
-. 35|1843b13 1930l8 1930t66
-138V13*Assert_Async_Build_Real_Process_Cancel_Integration{boolean} 35|1932b13
-. 2133l8 2133t58
-140V13*Assert_Async_Build_Lifecycle_Shutdown_Handoff_Behavior{boolean} 35|2313b13
-. 2358l8 2358t62
-142V13*Assert_Async_Build_Worker_Shutdown_Drain_Behavior{boolean} 35|2361b13
-. 2401l8 2401t57
-144V13*Assert_Async_Build_State_Slots_Are_Isolated{boolean} 35|2136b13 2193l8
-. 2193t51
-146V13*Assert_Async_Build_Slot_Id_Is_Stable_Per_State{boolean} 35|2196b13
-. 2234l8 2234t54
-148V13*Assert_Async_Build_Slot_Pool_Exhaustion_Is_Rejected{boolean} 35|2237b13
-. 2310l8 2310t59
-150V13*Assert_Async_Build_Worker_Stop_Terminates_Pool_Behavior{boolean} 35|2404b13
-. 2422l8 2422t63
+. 35|1857b13 1944l8 1944t66
+138V13*Assert_Async_Build_Real_Process_Cancel_Integration{boolean} 35|1946b13
+. 2147l8 2147t58
+140V13*Assert_Async_Build_Lifecycle_Shutdown_Handoff_Behavior{boolean} 35|2327b13
+. 2372l8 2372t62
+142V13*Assert_Async_Build_Worker_Shutdown_Drain_Behavior{boolean} 35|2375b13
+. 2415l8 2415t57
+144V13*Assert_Async_Build_State_Slots_Are_Isolated{boolean} 35|2150b13 2207l8
+. 2207t51
+146V13*Assert_Async_Build_Slot_Id_Is_Stable_Per_State{boolean} 35|2210b13
+. 2248l8 2248t54
+148V13*Assert_Async_Build_Slot_Pool_Exhaustion_Is_Rejected{boolean} 35|2251b13
+. 2324l8 2324t59
+150V13*Assert_Async_Build_Worker_Stop_Terminates_Pool_Behavior{boolean} 35|2418b13
+. 2436l8 2436t63
 X 35 editor-build_command.adb
-19e4 Public_Build_Run_Diagnostics_Ingestion_Policy{36|13E9} 1188r21 1192r21
-. 1365r12 1460r13 1546r13
+19e4 Public_Build_Run_Diagnostics_Ingestion_Policy{36|13E9} 1190r21 1194r21
+. 1379r12 1474r13 1560r13
 35i4 Max_Public_Build_Async_Slots{positive} 36r65 44r29
 36I12 Public_Build_Async_Slot_Index{positive} 38r55 41r17 43r14 47r48 48r48
 . 49r46 50r54 51r51 52r53 167r27 190r27 202r27 213r27 222r27 231r27 243r27
-. 251r27 257r27 263r27 273r27 287r27 349r45 1078r19
+. 251r27 257r27 263r27 273r27 287r27 351r45 1080r19
 38V13 Slot_Index_For{36I12} 38b13 38>29 45l8 45t22 167s60 190s60 202s60 213s60
-. 222s60 231s60 243s60 251s60 257s60 263s60 273s60 287s60 1044s13 1282s32
-. 2381s29
+. 222s60 231s60 243s60 251s60 257s60 263s60 273s60 287s60 1046s13 1296s32
+. 2395s29
 38i29 Slot_Id{natural} 40r10 44r12
 47A9 Boolean_By_Public_Build_Slot(boolean)<integer> 146r23 147r23 148r23
 48A9 Natural_By_Public_Build_Slot(natural)<integer> 149r24 150r23
@@ -1410,22 +1421,22 @@ X 35 editor-build_command.adb
 50A9 Build_Request_By_Public_Build_Slot(49|228R9)<integer> 152r24
 51A9 Build_Gate_By_Public_Build_Slot(49|669R9)<integer> 153r28 154r28
 52A9 Build_Result_By_Public_Build_Slot(49|653R9)<integer> 155r23
-54w14 Public_Build_Slot_Allocator 60b19 70l8 70t35 749r10
-55U17 Allocate 55<27 61b17 69l11 69t19 749s38
+54w14 Public_Build_Slot_Allocator 60b19 70l8 70t35 751r10
+55U17 Allocate 55<27 61b17 69l11 69t19 751s38
 55i27 Slot_Id{natural} 61b27 68m10
 57i7 Next_Slot_Id=61:7{natural} 63r13 64r13 66r13 66r29 68r21
-73w14 Public_Build_Worker_Lifecycle 83b19 104l8 104t37 1073r10 1077r7 1081r7
-. 1231r13 2411r10 2417r14 2418r18
-74U17 Request_Stop 84b17 87l11 87t23 1077s37
-75U17 Mark_Stopped 89b17 93l11 93t23 1081s37
-76V16 Stop_Requested{boolean} 95b16 98l11 98t25 1231s43 2418s48
-77V16 Stopped{boolean} 100b16 103l11 103t18 1073s40 2411s40 2417s44
+73w14 Public_Build_Worker_Lifecycle 83b19 104l8 104t37 1075r10 1079r7 1083r7
+. 1245r13 2425r10 2431r14 2432r18
+74U17 Request_Stop 84b17 87l11 87t23 1079s37
+75U17 Mark_Stopped 89b17 93l11 93t23 1083s37
+76V16 Stop_Requested{boolean} 95b16 98l11 98t25 1245s43 2432s48
+77V16 Stopped{boolean} 100b16 103l11 103t18 1075s40 2425s40 2431s44
 79b7 Stop_Requested_Flag{boolean} 86r10 91r10 97r17
 80b7 Stopped_Flag{boolean} 92r10 102r17
 106W19 Public_Build_Job_Registry 146E7 156l8 156e33 158b19 296l8 296t33 298r24
 107U17 Store_Queued 108>10 109>10 110>10 111>10 112>10 113>10 159b17 182l11
-. 182t23 1276s28 1725s25 1797s25 1862s25 2051s25 2162s25 2164s25 2258s28
-. 2330s25 2376s25
+. 182t23 1290s28 1739s25 1811s25 1876s25 2065s25 2176s25 2178s25 2272s28
+. 2344s25 2390s25
 108i10 Slot_Id{natural} 160b10 167r76 169r65 173r36
 109r10 State_Snapshot{82|115R9} 161b10 174r34
 110r10 Request{49|228R9} 162b10 175r36
@@ -1438,37 +1449,37 @@ X 35 editor-build_command.adb
 118r10 Request{49|228R9} 187b10 193m10
 119r10 Runner_Gate{49|669R9} 188b10 194m10
 121U17 Store_Worker_Result 122>10 123>10 124>10 197b17 210l11 210t30 328s31
-. 1757s25 1995s28 1998s31
+. 1771s25 2009s28 2012s31
 122i10 Slot_Id{natural} 198b10 202r76 204r13
 123r10 State_Snapshot{82|115R9} 199b10 205r37
 124r10 Result{49|653R9} 200b10 206r38
-126U17 Mark_Worker_Running 126>38 212b17 219l11 219t30 324s31 1727s25 1799s25
-. 1864s25 1974s28 2166s25 2167s25 2332s25
+126U17 Mark_Worker_Running 126>38 212b17 219l11 219t30 324s31 1741s25 1813s25
+. 1878s25 1988s28 2180s25 2181s25 2346s25
 126i38 Slot_Id{natural} 212b38 213r76 215r13
-127U17 Mark_Cancellation_Requested 127>46 221b17 228l11 228t38 830s28 856s34
-. 968s28 2168s25
+127U17 Mark_Cancellation_Requested 127>46 221b17 228l11 228t38 832s28 858s34
+. 970s28 2182s25
 127i46 Slot_Id{natural} 221b46 222r76 224r13
-128U17 Clear 128>24 230b17 240l11 240t16 1063s28 1388s25 1732s28 1743s28
-. 1752s28 1777s28 1819s28 1832s28 1838s28 1888s28 1921s28 1927s28 2063s28
-. 2080s28 2095s28 2107s28 2130s28 2184s28 2185s28 2190s28 2191s28 2232s28
-. 2266s31 2345s28 2350s25 2355s28 2398s28
+128U17 Clear 128>24 230b17 240l11 240t16 1065s28 1402s25 1746s28 1757s28
+. 1766s28 1791s28 1833s28 1846s28 1852s28 1902s28 1935s28 1941s28 2077s28
+. 2094s28 2109s28 2121s28 2144s28 2198s28 2199s28 2204s28 2205s28 2246s28
+. 2280s31 2359s28 2364s25 2369s28 2412s28
 128i24 Slot_Id{natural} 230b24 231r76 233r13
-130V16 Has_Job{boolean} 130>25 130>44 242b16 248l11 248t18 1207s36 2179s39
-. 2181s39
+130V16 Has_Job{boolean} 130>25 130>44 242b16 248l11 248t18 1209s36 2193s39
+. 2195s39
 130i25 Slot_Id{natural} 242b25 243r76 246r46
 130i44 Job_Id{natural} 242b44 247r45
-131V16 Result_Ready{boolean} 131>30 250b16 254l11 254t23 1325s32 2025s34
+131V16 Result_Ready{boolean} 131>30 250b16 254l11 254t23 1339s32 2039s34
 131i30 Slot_Id{natural} 250b30 251r76 253r40
 132V16 Worker_Running{boolean} 132>32 256b16 260l11 260t25
 132i32 Slot_Id{natural} 256b32 257r76 259r42
-133V16 Slot_Available_For{boolean} 133>36 262b16 267l11 267t29 1262s35 2285s34
+133V16 Slot_Available_For{boolean} 133>36 262b16 267l11 267t29 1276s35 2299s34
 133i36 Slot_Id{natural} 262b36 263r76 265r17 266r76
-135U17 Snapshot_While_Running 136>10 137<10 269b17 278l11 278t33 1326s28
-. 1748s25 1975s28 2170s25 2171s25 2335s25
+135U17 Snapshot_While_Running 136>10 137<10 269b17 278l11 278t33 1340s28
+. 1762s25 1989s28 2184s25 2185s25 2349s25
 136i10 Slot_Id{natural} 270b10 273r76 275r13
 137r10 State_Snapshot{82|115R9} 271b10 276m13
 139U17 Final_Result 140>10 141<10 142<10 143<10 144<10 280b17 295l11 295t23
-. 1351s25
+. 1365s25
 140i10 Slot_Id{natural} 281b10 287r76 289r13
 141r10 State_Snapshot{82|115R9} 282b10 290m13
 142r10 Request{49|228R9} 283b10 291m13
@@ -1498,20 +1509,20 @@ X 35 editor-build_command.adb
 263i10 Index{36I12} 266r36 266r67
 273i10 Index{36I12} 275r39 276r45
 287i10 Index{36I12} 289r39 290r45 291r40 292r48 293r38
-298w4 Public_Build_Jobs{106W19} 322r13 324r13 328r13 830r10 856r16 968r10
-. 1063r10 1207r18 1262r17 1276r10 1325r14 1326r10 1351r7 1388r7 1725r7 1727r7
-. 1732r10 1743r10 1748r7 1752r10 1757r7 1777r10 1797r7 1799r7 1819r10 1832r10
-. 1838r10 1862r7 1864r7 1888r10 1921r10 1927r10 1974r10 1975r10 1995r10 1998r13
-. 2025r16 2051r7 2063r10 2080r10 2095r10 2107r10 2130r10 2162r7 2164r7 2166r7
-. 2167r7 2168r7 2170r7 2171r7 2179r21 2181r21 2184r10 2185r10 2190r10 2191r10
-. 2232r10 2258r10 2266r13 2285r16 2330r7 2332r7 2335r7 2345r10 2350r7 2355r10
-. 2376r7 2398r10
-304T14 Public_Build_Worker 308l8 308e27 310b14 347l8 347t27 349r79
-305Y13 Start 305>20 319b20 321l17 321t22 1282s83 2381s76
+298w4 Public_Build_Jobs{106W19} 322r13 324r13 328r13 832r10 858r16 970r10
+. 1065r10 1209r18 1276r17 1290r10 1339r14 1340r10 1365r7 1402r7 1739r7 1741r7
+. 1746r10 1757r10 1762r7 1766r10 1771r7 1791r10 1811r7 1813r7 1833r10 1846r10
+. 1852r10 1876r7 1878r7 1902r10 1935r10 1941r10 1988r10 1989r10 2009r10 2012r13
+. 2039r16 2065r7 2077r10 2094r10 2109r10 2121r10 2144r10 2176r7 2178r7 2180r7
+. 2181r7 2182r7 2184r7 2185r7 2193r21 2195r21 2198r10 2199r10 2204r10 2205r10
+. 2246r10 2272r10 2280r13 2299r16 2344r7 2346r7 2349r7 2359r10 2364r7 2369r10
+. 2390r7 2412r10
+304T14 Public_Build_Worker 308l8 308e27 310b14 349l8 349t27 351r79
+305Y13 Start 305>20 319b20 321l17 321t22 1296s83 2395s76
 305i20 Slot_Id{natural} 320r34
-306Y13 Drain 306>20 335b20 337l17 337t22 1044s64
+306Y13 Drain 306>20 335b20 337l17 337t22 1046s64
 306i20 Slot_Id{natural} 336r34
-307Y13 Stop 343b20 1079s38
+307Y13 Stop 343b20 1081s38
 311r7 Worker_State{82|115R9} 323m32 327m18 327r18 329r32
 312r7 Worker_Request{49|228R9} 323m46 327r32
 313r7 Worker_Runner_Gate{49|669R9} 323m62 327r48
@@ -1519,731 +1530,732 @@ X 35 editor-build_command.adb
 315i7 Worker_Slot_Id{natural} 320m16 323r16 324r52 329r16 336m16
 319i27 Slot_Id{natural}
 335i27 Slot_Id{natural}
-349A9 Public_Build_Worker_Array(304T14)<integer> 350r27
-350a4 Public_Build_Workers{349A9} 1043r10 1079r10 1282r10 2381r7
-352V13 Summary_Kind_For{40|11E9} 352b13 353>7 374l8 374t24 532s18
-353e7 Status{49|626E9} 357r12
-376V13 Summary_Tool_For{40|26E9} 376b13 377>7 391l8 391t24 534s23
-377e7 Tool{49|214E9} 381r12
-393V13 Summary_Mode_For{40|20E9} 393b13 394>7 414l8 414t24 535s26
-394r7 Request{49|228R9} 398r18 402r12
-416V13 Summary_Diagnostics_For{40|32E9} 416b13 417>7 418>7 443l8 443t31 524s11
-417r7 Result{49|194R9} 426r12 428r16 429r19
-418b7 Allowed{boolean} 422r14
-445V13 Runner_Status_Label{string} 445b13 446>7 460l8 460t27 537s33
-446e7 Status{49|626E9} 449r12
-462V13 Output_Runner_Status_For{37|25E9} 462b13 463>7 487l8 487t32 495s27
-463e7 Status{49|626E9} 467r12
-489V13 Output_Details_From_Result{37|36R9} 489b13 490>7 511l8 511t34 1386s12
-. 1479s15 1565s15
-490r7 Build{49|637R9} 495r53 496r25 497r25 498r30 499r30 500r28 501r23 502r27
-. 504r72
-513V13 Summary_From_Result{40|40R9} 513b13 514>7 515>7 516>7 562l8 562t27
-. 1379s12 1474s15 1560s15
-514r7 Request{49|228R9} 534r41 535r44 536r46
-515r7 Result{49|653R9} 519r70 521r9 524r36 538r40 552r12 554r12 556r12 558r12
-. 560r12
-516b7 Diagnostics_Allowed{boolean} 524r62
-519r7 Build{49|637R9} 532r36 537r54 539r23 540r27 541r23 542r23 544r12 545r30
-. 546r30 547r28
-520i7 Count{natural} 549r31 561r45
-522e7 Diagnostics_Status{40|32E9} 526r9 548r42
-525b7 Has_Count{boolean} 550r35
-565V13 Selected_Candidate_Preflight_Status{34|14E9} 565b13 566>7 599l8 599t43
-. 665s12 1153s12
-566r7 State{82|115R9} 568r51 575r24
-568a7 Selected_Id{string} 571r10 576r50
-569b7 Found{boolean} 577m13 594r14
-575r11 Candidate{33|36R9} 576r24 580r62
-579e16 Status{33|25E9} 582r21
-601V13 Map_UI_Status{34|14E9} 601b13 602>7 635l8 635t21 652s17 1140s17
-602e7 Status{42|167E9} 606r12
-640e7 UI_Status{42|167E9} 651r10 652r32
-664e10 Candidate_Status{34|14E9} 667r13 668r20
-716e7 Status{34|14E9} 718r10 721r73
-809r7 Empty_Diagnostics{49|194R9} 817r34 835r34 861r40 896r40 906r40
-811r7 Result{49|653R9} 814m10 814r10 819r17 858m16 858r16 887r23 893m16 893r16
-. 903m16 903r16 936r14
-841r10 Handle{38|8R9} 850m63 850r63 857r53
-846e10 Cancel_Result{38|10E9} 852r15
-945r7 Result{49|653R9} 1003m10 1003r10 1011m10 1011r10 1018r14
-946e7 Cancel_Result{38|10E9} 975m10 979m10 1002r10
-948r7 Empty_Diagnostics{49|194R9} 960r34 1007r34 1015r34
-950a7 Message{string} 1016r55
-985r10 Stream{37|65R9} 988m61 990r49
-986b10 Available{boolean} 988m69 989r13
-1027r7 Result{49|653R9} 1040m7 1040r7 1054m16 1054r16 1066r14
-1028r7 Poll_Result{49|653R9} 1051m56 1051r56 1054r26
-1029r7 Empty_Diagnostics{49|194R9} 1036r34
-1050b13 Completed{boolean} 1053r16
-1078i11 Slot{36I12} 1079r32
-1128r7 Conversion{39|7R9} 1139r10 1140r32 1161r10
-1152e10 Candidate_Status{34|14E9} 1155r13 1156r20
-1173b7 Ready_To_Run{boolean} 1176r13
-1175e7 Consent{49|339E9} 1198r47
-1214r7 Conversion{39|7R9} 1260r31 1278r13
-1216r7 Empty_Diagnostics{49|194R9} 1228r37 1235r34 1242r34 1269r37 1294r34
-1218e7 Readiness{34|14E9} 1221r10 1223r72
-1223a13 Message{string} 1229r58
-1248r10 Gate{49|669R9} 1251r48 1252r48 1253r48 1254r48 1255r48 1280r13
-1250r10 Runner_Only_Gate{49|669R9} 1279r13
-1303r7 Empty_Diagnostics{49|194R9} 1306r9 1317r34 1346r34
-1305r7 Ingestion{49|194R9} 1360m7 1360r7 1368r35 1372r13
-1307r7 Worker_State{82|115R9} 1326m86 1335r15 1352m44 1354r9
-1308r7 Active_Stream{37|65R9} 1330m13 1332r49
-1309b7 Active_Stream_Available{boolean} 1330m28 1331r13
-1310r7 Completed_Request{49|228R9} 1352m58 1363r12 1380r15
-1311r7 Result_Gate{49|669R9} 1352m77 1373r13 1374r13 1382r15
-1397r7 Conversion{39|7R9} 1449r52 1452r13 1458r13 1475r18
-1399r7 Empty_Diagnostics{49|194R9} 1412r37 1442r12
-1401r7 Result{49|653R9} 1409m13 1409r13 1426r20 1450m10 1450r10 1459r13 1463m10
-. 1464m10 1466r16 1475r38 1479r43 1480r17
-1402e7 Readiness{34|14E9} 1405r10 1407r72
-1407a13 Message{string} 1413r58 1419r24 1424r24
-1431r10 Gate{49|669R9} 1434r48 1435r48 1436r48 1437r48 1438r48 1468r16 1469r16
-. 1475r46
-1433r10 Runner_Only_Gate{49|669R9} 1453r13
-1441r10 Ingestion{49|194R9} 1456m10 1456r10 1463r38 1467r16
-1489r7 Conversion{39|7R9} 1538r13 1544r13 1561r18
-1491r7 Empty_Diagnostics{49|194R9} 1504r37 1534r12
-1493r7 Result{49|653R9} 1501m13 1501r13 1518r20 1536m10 1536r10 1545r13 1549m10
-. 1550m10 1552r16 1561r38 1565r43 1566r17
-1494e7 Readiness{34|14E9} 1497r10 1499r72
-1499a13 Message{string} 1505r58 1511r24 1516r24
-1523r10 Gate{49|669R9} 1526r48 1527r48 1528r48 1529r48 1530r48 1554r16 1555r16
-. 1561r46
-1525r10 Runner_Only_Gate{49|669R9} 1539r13
-1533r10 Ingestion{49|194R9} 1542m10 1542r10 1549r38 1553r16
-1572r7 D{44|617R9} 1574r44 1575r51 1581r18 1582r18 1583r22
-1574a7 Name{string} 1584r18
-1575a7 Description{string} 1585r18 1586r18 1587r43 1588r43 1589r43
-1595r7 A{44|577R9} 1600r48
-1597r7 Readiness{49|728R9} 1601r18
-1609e7 Before{34|14E9} 1612r14
-1610e7 After{34|14E9} 1612r23
-1619r7 D{44|617R9} 1625r14
-1632r7 Info{62|56R9} 1636r18
-1655r7 D{44|617R9} 1657r44 1663r18 1664r18 1665r22
-1657a7 Name{string} 1666r18
-1672r7 Copy{82|115R9} 1674r70 1676m31 1676r31 1678r75
-1673b7 No_Job_Available{boolean} 1677r14
-1698V13 Async_Test_Request{49|228R9} 1698b13 1707l8 1707t26 1726s43 1798s43
-. 1863s43 1986s18 2052s43 2163s45 2165s45 2259s46 2322s9 2377s43
-1710r7 S{82|115R9} 1721m32 1722m31 1722r31 1723m7 1724m7 1726r10 1726r40
-. 1726r75 1727r46 1731r43 1732r35 1737m46 1737r46 1739r17 1743r35 1748r49
-. 1752r35 1758r10 1765m54 1765r54 1769r22 1770r22 1771r18 1777r35
-1711r7 Worker_State{82|115R9} 1748m79 1749r10 1758r40
-1712r7 Result{49|653R9} 1737m7 1737r7 1738r10
-1713r7 Poll_Result{49|653R9} 1765m57 1765r57 1767r18
-1714b7 Completed{boolean} 1765m7 1766r14
-1715r7 Gate{49|669R9} 1726r63 1726r69
-1783r7 S{82|115R9} 1793m32 1794m31 1794r31 1795m7 1796m7 1798r10 1798r40
-. 1798r75 1799r46 1802r18 1813m54 1813r54 1819r35 1826r12 1827r21 1828r21
-. 1829r21 1830r21 1832r35 1838r35
-1784r7 Result{49|653R9} 1813m57 1813r57 1815r17 1817r21
-1785b7 Completed{boolean} 1813m7 1814r10
-1786r7 Stream{37|65R9} 1802m10 1802r10 1804m10 1804r10 1808m10 1808r10 1811r66
-1787r7 Gate{49|669R9} 1798r63 1798r69
-1825b10 OK{boolean} 1834r17
-1846r7 S{82|115R9} 1858m32 1859m31 1859r31 1860m7 1861m7 1863r10 1863r40
-. 1863r75 1864r46 1867r18 1874m54 1874r54 1877r21 1878r17 1879r21 1880r21
-. 1881r17 1883r23 1885r21 1886r21 1888r35 1899m54 1899r54 1904r21 1905r21
-. 1906r21 1908r21 1909r21 1910r21 1912r26 1915r26 1917r21 1918r21 1919r25
-. 1921r35 1927r35
-1847r7 Result{49|653R9} 1874m57 1874r57 1876r17 1899m57 1899r57 1903r21
-1848b7 Completed{boolean} 1874m7 1875r10 1899m7 1902r17
-1849r7 Stream{37|65R9} 1867m10 1867r10 1869m10 1869r10 1872r66 1894m10 1894r10
-. 1897r66
-1850r7 Gate{49|669R9} 1863r63 1863r69
-1855a7 Stdout_Marker{string} 1871r10 1884r12 1913r15
-1856a7 Stderr_Marker{string} 1896r10 1916r15
-1901b10 OK{boolean} 1923r17
-1938a7 Sleep_Path{string} 2033r38 2043r55
-1939r7 S{82|115R9} 2025r48 2040m32 2048m31 2048r31 2049m7 2050m7 2052r10
-. 2052r40 2052r75 2054r21 2063r35 2068m54 2068r54 2071r21 2072r21 2080r35
-. 2085m53 2085r53 2095r35 2107r35 2112m54 2112r54 2118r22 2119r22 2130r35
-1940r7 Poll_Result{49|653R9} 2068m57 2068r57 2070r17 2112m57 2112r57 2114r18
-1941r7 Cancel_Result{49|653R9} 2085m7 2085r7 2086r10
-1942b7 Completed{boolean} 2068m7 2069r10 2112m7 2113r14
-1943r7 Args{49|211R12} 2041m58 2041r58 2046r34
-1945r7 Process_Request{49|294R9} 1979r15 2042m7 2042r7
-1946r7 Process_Result{49|612R9} 1976m10 1976r10 1986r38 1991r22 2116r18
-1947r7 Build_Result{49|653R9} 1983m10 1983r10 1995r76
-1948r7 Policy{49|602R9} 1980r15
-1955r7 Gate{49|669R9} 2052r63 2052r69
-1963T17 Real_Process_Cancel_Worker 1965l11 1965e37 1967b17 2005l11 2005t37
-. 2007r16
-1964Y16 Start 1964>23 1971b17 1973l14 1973t19 2054s14
-1964i23 Slot_Id{natural} 1972r28
-1968r10 Worker_State{82|115R9} 1975m65 1978m15 1978r15 1995r62 1999r29
-1969i10 Worker_Slot{natural} 1972m13 1974r49 1975r52 1995r49 1999r16
-1971i24 Slot_Id{natural}
-2007t7 Worker{1963T17} 2054r7
-2009V16 Wait_For_Active_Process{boolean} 2009b16 2020l11 2020t34 2056s14
-2011i14 Attempt{integer}
-2022V16 Wait_For_Final_Result{boolean} 2022b16 2031l11 2031t32 2100s14
-2024i14 Attempt{integer}
-2058e13 Ignored{38|10E9}
-2075e13 Ignored{38|10E9}
-2090e13 Ignored{38|10E9}
-2102e13 Ignored{38|10E9}
-2125e13 Ignored{38|10E9}
-2139r7 S1{82|115R9} 2148m32 2150m31 2150r31 2153r10 2155r17 2160m7 2163r10
-. 2163r41 2163r77 2166r46 2168r54 2170r49 2180r15 2180r46 2184r35 2190r35
-2140r7 S2{82|115R9} 2149m32 2151m31 2151r31 2154r17 2155r49 2161m7 2165r10
-. 2165r41 2165r77 2167r46 2171r49 2182r15 2182r46 2185r35 2191r35
-2141r7 Snap1{82|115R9} 2170m80 2175r12
-2142r7 Snap2{82|115R9} 2171m80 2177r21
-2143r7 Gate{49|669R9} 2163r65 2163r71 2165r65 2165r71
-2174b10 OK{boolean} 2186r17
-2199r7 S{82|115R9} 2205m32 2207m31 2207r31 2208r21 2209r20 2210m34 2210r34
-. 2213r17 2214r17 2219m31 2219r31 2220r22 2221r21 2222m34 2222r34 2226r18
-. 2227r22 2228r22 2229r22 2232r35
-2200i7 First_Slot{natural} 2208m7 2212r10 2213r49 2224r28 2226r49
-2201i7 First_Job{natural} 2209m7 2225r31
-2202i7 Second_Slot{natural} 2220m7 2224r14
-2203i7 Second_Job{natural} 2221m7 2225r18
-2240r7 S1{82|115R9} 2271m23 2271r23 2287m26 2287r26 2300m26 2300r26
-2241r7 S2{82|115R9} 2272m23 2272r23 2288m26 2288r26 2301m26 2301r26
-2242r7 S3{82|115R9} 2273m23 2273r23 2289m26 2289r26 2302m26 2302r26
-2243r7 S4{82|115R9} 2274m23 2274r23 2290m26 2290r26 2303m26 2303r26
-2244r7 S5{82|115R9} 2275m23 2275r23 2291m26 2291r26 2304m26 2304r26
-2245r7 S6{82|115R9} 2276m23 2276r23 2292m26 2292r26 2305m26 2305r26
-2246r7 S7{82|115R9} 2277m23 2277r23 2293m26 2293r26 2306m26 2306r26
-2247r7 S8{82|115R9} 2278m23 2278r23 2294m26 2294r26 2307m26 2307r26
-2248r7 S9{82|115R9} 2280m32 2281m31 2281r31 2285r54 2295m26 2295r26 2308m26
-. 2308r26
-2249r7 Gate{49|669R9} 2259r66 2259r72
-2254U17 Queue_Test_Job 2254b17 2254=33 2254>69 2261l11 2261t25 2271s7 2272s7
-. 2273s7 2274s7 2275s7 2276s7 2277s7 2278s7
-2254r33 S{82|115R9} 2256m35 2257m34 2259r13 2259r43 2260r13
-2254a69 Label{string} 2257r37
-2263U17 Clear_Test_Job 2263b17 2263=33 2269l11 2269t25 2287s10 2288s10 2289s10
-. 2290s10 2291s10 2292s10 2293s10 2294s10 2295s10 2300s10 2301s10 2302s10
-. 2303s10 2304s10 2305s10 2306s10 2307s10 2308s10
-2263r33 S{82|115R9} 2265r13 2266r38 2268m37
-2284b10 Rejected{boolean} 2296r17
-2316r7 S{82|115R9} 2326m32 2327m31 2327r31 2328m7 2329m7 2331r10 2331r40
-. 2331r64 2332r46 2334m58 2334r58 2335r49 2338r17 2342r21 2343r21 2345r35
-. 2350r32 2351m34 2351r34 2355r35
-2317r7 Gate{49|669R9} 2331r52 2331r58
-2321r7 Request{49|228R9} 2331r43
-2323r7 Result{49|653R9} 2334m7 2334r7 2337r10
-2324r7 Worker_State{82|115R9} 2335m79 2340r17
-2364r7 S{82|115R9} 2372m32 2373m31 2373r31 2374m7 2375m7 2377r10 2377r40
-. 2377r75 2381r45 2382r10 2383m57 2383r57 2385r10 2386m57 2386r57 2392r22
-. 2393r22 2398r35
-2365r7 Gate{49|669R9} 2377r63 2377r69
-2369r7 Result{49|653R9} 2383m7 2383r7 2386m60 2386r60
-2370b7 Completed{boolean} 2386m10 2388m10 2391r14
+351A9 Public_Build_Worker_Array(304T14)<integer> 352r27
+352a4 Public_Build_Workers{351A9} 1045r10 1081r10 1296r10 2395r7
+354V13 Summary_Kind_For{40|11E9} 354b13 355>7 376l8 376t24 534s18
+355e7 Status{49|626E9} 359r12
+378V13 Summary_Tool_For{40|29E9} 378b13 379>7 393l8 393t24 536s23
+379e7 Tool{49|214E9} 383r12
+395V13 Summary_Mode_For{40|20E9} 395b13 396>7 416l8 416t24 537s26
+396r7 Request{49|228R9} 400r18 404r12
+418V13 Summary_Diagnostics_For{40|35E9} 418b13 419>7 420>7 445l8 445t31 526s11
+419r7 Result{49|194R9} 428r12 430r16 431r19
+420b7 Allowed{boolean} 424r14
+447V13 Runner_Status_Label{string} 447b13 448>7 462l8 462t27 539s33
+448e7 Status{49|626E9} 451r12
+464V13 Output_Runner_Status_For{37|25E9} 464b13 465>7 489l8 489t32 497s27
+465e7 Status{49|626E9} 469r12
+491V13 Output_Details_From_Result{37|36R9} 491b13 492>7 513l8 513t34 1400s12
+. 1493s15 1579s15
+492r7 Build{49|637R9} 497r53 498r25 499r25 500r30 501r30 502r28 503r23 504r27
+. 506r72
+515V13 Summary_From_Result{40|43R9} 515b13 516>7 517>7 518>7 564l8 564t27
+. 1393s12 1488s15 1574s15
+516r7 Request{49|228R9} 536r41 537r44 538r46
+517r7 Result{49|653R9} 521r70 523r9 526r36 540r40 554r12 556r12 558r12 560r12
+. 562r12
+518b7 Diagnostics_Allowed{boolean} 526r62
+521r7 Build{49|637R9} 534r36 539r54 541r23 542r27 543r23 544r23 546r12 547r30
+. 548r30 549r28
+522i7 Count{natural} 551r31 563r45
+524e7 Diagnostics_Status{40|35E9} 528r9 550r42
+527b7 Has_Count{boolean} 552r35
+567V13 Selected_Candidate_Preflight_Status{34|14E9} 567b13 568>7 601l8 601t43
+. 667s12 1155s12
+568r7 State{82|115R9} 570r51 577r24
+570a7 Selected_Id{string} 573r10 578r50
+571b7 Found{boolean} 579m13 596r14
+577r11 Candidate{33|36R9} 578r24 582r62
+581e16 Status{33|25E9} 584r21
+603V13 Map_UI_Status{34|14E9} 603b13 604>7 637l8 637t21 654s17 1142s17
+604e7 Status{42|167E9} 608r12
+642e7 UI_Status{42|167E9} 653r10 654r32
+666e10 Candidate_Status{34|14E9} 669r13 670r20
+718e7 Status{34|14E9} 720r10 723r73
+811r7 Empty_Diagnostics{49|194R9} 819r34 837r34 863r40 898r40 908r40
+813r7 Result{49|653R9} 816m10 816r10 821r17 860m16 860r16 889r23 895m16 895r16
+. 905m16 905r16 938r14
+843r10 Handle{38|8R9} 852m63 852r63 859r53
+848e10 Cancel_Result{38|10E9} 854r15
+947r7 Result{49|653R9} 1005m10 1005r10 1013m10 1013r10 1020r14
+948e7 Cancel_Result{38|10E9} 977m10 981m10 1004r10
+950r7 Empty_Diagnostics{49|194R9} 962r34 1009r34 1017r34
+952a7 Message{string} 1018r55
+987r10 Stream{37|65R9} 990m61 992r49
+988b10 Available{boolean} 990m69 991r13
+1029r7 Result{49|653R9} 1042m7 1042r7 1056m16 1056r16 1068r14
+1030r7 Poll_Result{49|653R9} 1053m56 1053r56 1056r26
+1031r7 Empty_Diagnostics{49|194R9} 1038r34
+1052b13 Completed{boolean} 1055r16
+1080i11 Slot{36I12} 1081r32
+1130r7 Conversion{39|7R9} 1141r10 1142r32 1163r10
+1154e10 Candidate_Status{34|14E9} 1157r13 1158r20
+1175b7 Ready_To_Run{boolean} 1178r13
+1177e7 Consent{49|339E9} 1200r47
+1216r7 Conversion{39|7R9} 1274r31 1292r13
+1218r7 Empty_Diagnostics{49|194R9} 1242r37 1249r34 1256r34 1283r37 1308r34
+1220e7 Readiness{34|14E9} 1223r10 1225r72
+1225a13 Message{string} 1232r24 1237r24 1243r58
+1262r10 Gate{49|669R9} 1265r48 1266r48 1267r48 1268r48 1269r48 1294r13
+1264r10 Runner_Only_Gate{49|669R9} 1293r13
+1317r7 Empty_Diagnostics{49|194R9} 1320r9 1331r34 1360r34
+1319r7 Ingestion{49|194R9} 1374m7 1374r7 1382r35 1386r13
+1321r7 Worker_State{82|115R9} 1340m86 1349r15 1366m44 1368r9
+1322r7 Active_Stream{37|65R9} 1344m13 1346r49
+1323b7 Active_Stream_Available{boolean} 1344m28 1345r13
+1324r7 Completed_Request{49|228R9} 1366m58 1377r12 1394r15
+1325r7 Result_Gate{49|669R9} 1366m77 1387r13 1388r13 1396r15
+1411r7 Conversion{39|7R9} 1463r52 1466r13 1472r13 1489r18
+1413r7 Empty_Diagnostics{49|194R9} 1426r37 1456r12
+1415r7 Result{49|653R9} 1423m13 1423r13 1440r20 1464m10 1464r10 1473r13 1477m10
+. 1478m10 1480r16 1489r38 1493r43 1494r17
+1416e7 Readiness{34|14E9} 1419r10 1421r72
+1421a13 Message{string} 1427r58 1433r24 1438r24
+1445r10 Gate{49|669R9} 1448r48 1449r48 1450r48 1451r48 1452r48 1482r16 1483r16
+. 1489r46
+1447r10 Runner_Only_Gate{49|669R9} 1467r13
+1455r10 Ingestion{49|194R9} 1470m10 1470r10 1477r38 1481r16
+1503r7 Conversion{39|7R9} 1552r13 1558r13 1575r18
+1505r7 Empty_Diagnostics{49|194R9} 1518r37 1548r12
+1507r7 Result{49|653R9} 1515m13 1515r13 1532r20 1550m10 1550r10 1559r13 1563m10
+. 1564m10 1566r16 1575r38 1579r43 1580r17
+1508e7 Readiness{34|14E9} 1511r10 1513r72
+1513a13 Message{string} 1519r58 1525r24 1530r24
+1537r10 Gate{49|669R9} 1540r48 1541r48 1542r48 1543r48 1544r48 1568r16 1569r16
+. 1575r46
+1539r10 Runner_Only_Gate{49|669R9} 1553r13
+1547r10 Ingestion{49|194R9} 1556m10 1556r10 1563r38 1567r16
+1586r7 D{44|617R9} 1588r44 1589r51 1595r18 1596r18 1597r22
+1588a7 Name{string} 1598r18
+1589a7 Description{string} 1599r18 1600r18 1601r43 1602r43 1603r43
+1609r7 A{44|577R9} 1614r48
+1611r7 Readiness{49|728R9} 1615r18
+1623e7 Before{34|14E9} 1626r14
+1624e7 After{34|14E9} 1626r23
+1633r7 D{44|617R9} 1639r14
+1646r7 Info{62|56R9} 1650r18
+1669r7 D{44|617R9} 1671r44 1677r18 1678r18 1679r22
+1671a7 Name{string} 1680r18
+1686r7 Copy{82|115R9} 1688r70 1690m31 1690r31 1692r75
+1687b7 No_Job_Available{boolean} 1691r14
+1712V13 Async_Test_Request{49|228R9} 1712b13 1721l8 1721t26 1740s43 1812s43
+. 1877s43 2000s18 2066s43 2177s45 2179s45 2273s46 2336s9 2391s43
+1724r7 S{82|115R9} 1735m32 1736m31 1736r31 1737m7 1738m7 1740r10 1740r40
+. 1740r75 1741r46 1745r43 1746r35 1751m46 1751r46 1753r17 1757r35 1762r49
+. 1766r35 1772r10 1779m54 1779r54 1783r22 1784r22 1785r18 1791r35
+1725r7 Worker_State{82|115R9} 1762m79 1763r10 1772r40
+1726r7 Result{49|653R9} 1751m7 1751r7 1752r10
+1727r7 Poll_Result{49|653R9} 1779m57 1779r57 1781r18
+1728b7 Completed{boolean} 1779m7 1780r14
+1729r7 Gate{49|669R9} 1740r63 1740r69
+1797r7 S{82|115R9} 1807m32 1808m31 1808r31 1809m7 1810m7 1812r10 1812r40
+. 1812r75 1813r46 1816r18 1827m54 1827r54 1833r35 1840r12 1841r21 1842r21
+. 1843r21 1844r21 1846r35 1852r35
+1798r7 Result{49|653R9} 1827m57 1827r57 1829r17 1831r21
+1799b7 Completed{boolean} 1827m7 1828r10
+1800r7 Stream{37|65R9} 1816m10 1816r10 1818m10 1818r10 1822m10 1822r10 1825r66
+1801r7 Gate{49|669R9} 1812r63 1812r69
+1839b10 OK{boolean} 1848r17
+1860r7 S{82|115R9} 1872m32 1873m31 1873r31 1874m7 1875m7 1877r10 1877r40
+. 1877r75 1878r46 1881r18 1888m54 1888r54 1891r21 1892r17 1893r21 1894r21
+. 1895r17 1897r23 1899r21 1900r21 1902r35 1913m54 1913r54 1918r21 1919r21
+. 1920r21 1922r21 1923r21 1924r21 1926r26 1929r26 1931r21 1932r21 1933r25
+. 1935r35 1941r35
+1861r7 Result{49|653R9} 1888m57 1888r57 1890r17 1913m57 1913r57 1917r21
+1862b7 Completed{boolean} 1888m7 1889r10 1913m7 1916r17
+1863r7 Stream{37|65R9} 1881m10 1881r10 1883m10 1883r10 1886r66 1908m10 1908r10
+. 1911r66
+1864r7 Gate{49|669R9} 1877r63 1877r69
+1869a7 Stdout_Marker{string} 1885r10 1898r12 1927r15
+1870a7 Stderr_Marker{string} 1910r10 1930r15
+1915b10 OK{boolean} 1937r17
+1952a7 Sleep_Path{string} 2047r38 2057r55
+1953r7 S{82|115R9} 2039r48 2054m32 2062m31 2062r31 2063m7 2064m7 2066r10
+. 2066r40 2066r75 2068r21 2077r35 2082m54 2082r54 2085r21 2086r21 2094r35
+. 2099m53 2099r53 2109r35 2121r35 2126m54 2126r54 2132r22 2133r22 2144r35
+1954r7 Poll_Result{49|653R9} 2082m57 2082r57 2084r17 2126m57 2126r57 2128r18
+1955r7 Cancel_Result{49|653R9} 2099m7 2099r7 2100r10
+1956b7 Completed{boolean} 2082m7 2083r10 2126m7 2127r14
+1957r7 Args{49|211R12} 2055m58 2055r58 2060r34
+1959r7 Process_Request{49|294R9} 1993r15 2056m7 2056r7
+1960r7 Process_Result{49|612R9} 1990m10 1990r10 2000r38 2005r22 2130r18
+1961r7 Build_Result{49|653R9} 1997m10 1997r10 2009r76
+1962r7 Policy{49|602R9} 1994r15
+1969r7 Gate{49|669R9} 2066r63 2066r69
+1977T17 Real_Process_Cancel_Worker 1979l11 1979e37 1981b17 2019l11 2019t37
+. 2021r16
+1978Y16 Start 1978>23 1985b17 1987l14 1987t19 2068s14
+1978i23 Slot_Id{natural} 1986r28
+1982r10 Worker_State{82|115R9} 1989m65 1992m15 1992r15 2009r62 2013r29
+1983i10 Worker_Slot{natural} 1986m13 1988r49 1989r52 2009r49 2013r16
+1985i24 Slot_Id{natural}
+2021t7 Worker{1977T17} 2068r7
+2023V16 Wait_For_Active_Process{boolean} 2023b16 2034l11 2034t34 2070s14
+2025i14 Attempt{integer}
+2036V16 Wait_For_Final_Result{boolean} 2036b16 2045l11 2045t32 2114s14
+2038i14 Attempt{integer}
+2072e13 Ignored{38|10E9}
+2089e13 Ignored{38|10E9}
+2104e13 Ignored{38|10E9}
+2116e13 Ignored{38|10E9}
+2139e13 Ignored{38|10E9}
+2153r7 S1{82|115R9} 2162m32 2164m31 2164r31 2167r10 2169r17 2174m7 2177r10
+. 2177r41 2177r77 2180r46 2182r54 2184r49 2194r15 2194r46 2198r35 2204r35
+2154r7 S2{82|115R9} 2163m32 2165m31 2165r31 2168r17 2169r49 2175m7 2179r10
+. 2179r41 2179r77 2181r46 2185r49 2196r15 2196r46 2199r35 2205r35
+2155r7 Snap1{82|115R9} 2184m80 2189r12
+2156r7 Snap2{82|115R9} 2185m80 2191r21
+2157r7 Gate{49|669R9} 2177r65 2177r71 2179r65 2179r71
+2188b10 OK{boolean} 2200r17
+2213r7 S{82|115R9} 2219m32 2221m31 2221r31 2222r21 2223r20 2224m34 2224r34
+. 2227r17 2228r17 2233m31 2233r31 2234r22 2235r21 2236m34 2236r34 2240r18
+. 2241r22 2242r22 2243r22 2246r35
+2214i7 First_Slot{natural} 2222m7 2226r10 2227r49 2238r28 2240r49
+2215i7 First_Job{natural} 2223m7 2239r31
+2216i7 Second_Slot{natural} 2234m7 2238r14
+2217i7 Second_Job{natural} 2235m7 2239r18
+2254r7 S1{82|115R9} 2285m23 2285r23 2301m26 2301r26 2314m26 2314r26
+2255r7 S2{82|115R9} 2286m23 2286r23 2302m26 2302r26 2315m26 2315r26
+2256r7 S3{82|115R9} 2287m23 2287r23 2303m26 2303r26 2316m26 2316r26
+2257r7 S4{82|115R9} 2288m23 2288r23 2304m26 2304r26 2317m26 2317r26
+2258r7 S5{82|115R9} 2289m23 2289r23 2305m26 2305r26 2318m26 2318r26
+2259r7 S6{82|115R9} 2290m23 2290r23 2306m26 2306r26 2319m26 2319r26
+2260r7 S7{82|115R9} 2291m23 2291r23 2307m26 2307r26 2320m26 2320r26
+2261r7 S8{82|115R9} 2292m23 2292r23 2308m26 2308r26 2321m26 2321r26
+2262r7 S9{82|115R9} 2294m32 2295m31 2295r31 2299r54 2309m26 2309r26 2322m26
+. 2322r26
+2263r7 Gate{49|669R9} 2273r66 2273r72
+2268U17 Queue_Test_Job 2268b17 2268=33 2268>69 2275l11 2275t25 2285s7 2286s7
+. 2287s7 2288s7 2289s7 2290s7 2291s7 2292s7
+2268r33 S{82|115R9} 2270m35 2271m34 2273r13 2273r43 2274r13
+2268a69 Label{string} 2271r37
+2277U17 Clear_Test_Job 2277b17 2277=33 2283l11 2283t25 2301s10 2302s10 2303s10
+. 2304s10 2305s10 2306s10 2307s10 2308s10 2309s10 2314s10 2315s10 2316s10
+. 2317s10 2318s10 2319s10 2320s10 2321s10 2322s10
+2277r33 S{82|115R9} 2279r13 2280r38 2282m37
+2298b10 Rejected{boolean} 2310r17
+2330r7 S{82|115R9} 2340m32 2341m31 2341r31 2342m7 2343m7 2345r10 2345r40
+. 2345r64 2346r46 2348m58 2348r58 2349r49 2352r17 2356r21 2357r21 2359r35
+. 2364r32 2365m34 2365r34 2369r35
+2331r7 Gate{49|669R9} 2345r52 2345r58
+2335r7 Request{49|228R9} 2345r43
+2337r7 Result{49|653R9} 2348m7 2348r7 2351r10
+2338r7 Worker_State{82|115R9} 2349m79 2354r17
+2378r7 S{82|115R9} 2386m32 2387m31 2387r31 2388m7 2389m7 2391r10 2391r40
+. 2391r75 2395r45 2396r10 2397m57 2397r57 2399r10 2400m57 2400r57 2406r22
+. 2407r22 2412r35
+2379r7 Gate{49|669R9} 2391r63 2391r69
+2383r7 Result{49|653R9} 2397m7 2397r7 2400m60 2400r60
+2384b7 Completed{boolean} 2400m10 2402m10 2405r14
 X 36 editor-build_diagnostics.ads
-4K16*Build_Diagnostics 35|9w13 20r13 21r15 1187r25 1191r25 1361r16 1456r30
-. 1542r30 1650r25 1693r25 36|69e29
+4K16*Build_Diagnostics 35|9w13 20r13 21r15 1189r25 1193r25 1375r16 1470r30
+. 1556r30 1664r25 1707r25 36|69e29
 13E9*Build_Diagnostics_Ingestion_Policy 35|20r31 36|16e56
 15n7*Build_Diagnostics_Ingestion_On_Request{13E9} 35|21r33
-20V13*Build_Diagnostics_Ingestion_Allowed{boolean} 35|1187s43
-24V13*Build_Diagnostics_Show_Diagnostics_Allowed{boolean} 35|1191s43
-44V13*Ingest_Build_Diagnostics_Through_Diagnostics{49|194R9} 35|1361s34 1456s48
-. 1542s48
-54V13*Assert_Build_Diagnostics_Not_Persisted{boolean} 35|1650s43
+20V13*Build_Diagnostics_Ingestion_Allowed{boolean} 35|1189s43
+24V13*Build_Diagnostics_Show_Diagnostics_Allowed{boolean} 35|1193s43
+44V13*Ingest_Build_Diagnostics_Through_Diagnostics{49|194R9} 35|1375s34 1470s48
+. 1556s48
+54V13*Assert_Build_Diagnostics_Not_Persisted{boolean} 35|1664s43
 66V13*Assert_Public_Build_Diagnostics_Ingestion_Foundation_Coherent{boolean}
-. 35|1693s43
+. 35|1707s43
 X 37 editor-build_output_details.ads
-3K16*Build_Output_Details 34|3w13 78r30 83r30 35|11w13 33r20 464r21 469r27
-. 471r27 473r27 475r27 477r27 479r27 481r27 483r27 485r27 491r21 494r21 506r25
-. 508r25 510r25 756r14 787r14 877r25 879r28 881r33 926r16 928r19 930r24 985r26
-. 995r16 997r19 999r22 1086r30 1094r14 1097r16 1099r19 1101r39 1107r30 1112r14
-. 1115r16 1117r19 1285r19 1287r22 1308r30 1338r19 1340r22 1384r16 1421r25
-. 1423r28 1477r19 1513r25 1515r28 1563r19 1786r23 1801r14 1803r14 1805r17
-. 1807r14 1809r17 1849r23 1866r14 1868r14 1870r17 1893r14 1895r17 1907r21
-. 37|347e32
+3K16*Build_Output_Details 34|3w13 78r30 83r30 35|11w13 33r20 466r21 471r27
+. 473r27 475r27 477r27 479r27 481r27 483r27 485r27 487r27 493r21 496r21 508r25
+. 510r25 512r25 758r14 789r14 879r25 881r28 883r33 928r16 930r19 932r24 987r26
+. 997r16 999r19 1001r22 1088r30 1096r14 1099r16 1101r19 1103r39 1109r30 1114r14
+. 1117r16 1119r19 1234r25 1236r28 1299r19 1301r22 1322r30 1352r19 1354r22
+. 1398r16 1435r25 1437r28 1491r19 1527r25 1529r28 1577r19 1800r23 1815r14
+. 1817r14 1819r17 1821r14 1823r17 1863r23 1880r14 1882r14 1884r17 1907r14
+. 1909r17 1921r21 37|349e32
 13E9*Build_Output_Details_Kind 35|33r41 37|18e36
-18n7*Build_Output_Details_Partial{13E9} 35|1907r42
-20E9*Build_Output_Stream_Selection 34|78r51 35|1086r51 37|23e34
-21n7*Build_Output_Stream_Stdout{20E9} 35|506r46 1805r38 1870r38
-22n7*Build_Output_Stream_Stderr{20E9} 35|508r46 1809r38 1895r38
-23n7*Build_Output_Stream_Merged{20E9} 35|510r46
-25E9*Build_Output_Runner_Status 34|83r51 35|464r42 1107r51 37|34e44
-26n7*Build_Output_Runner_Succeeded{25E9} 35|469r48 1101r60 1287r43 1340r43
-27n7*Build_Output_Runner_Failed{25E9} 35|471r48
-28n7*Build_Output_Runner_Not_Available{25E9} 35|473r48
-29n7*Build_Output_Runner_Rejected{25E9} 35|475r48
-30n7*Build_Output_Runner_Execution_Error{25E9} 35|477r48
-31n7*Build_Output_Runner_Timed_Out{25E9} 35|479r48
-32n7*Build_Output_Runner_Cancelled{25E9} 35|481r48 881r54 999r43
-33n7*Build_Output_Runner_Cancellation_Unsupported{25E9} 35|483r48 930r45
-34n7*Build_Output_Runner_Output_Truncated{25E9} 35|485r48
-36R9*Latest_Build_Output_Details 35|491r42 37|62e14
-38e7*Kind{13E9} 35|1906r51
-41b7*Stdout_Available{boolean} 35|1829r51 1880r51 1909r51
-42b7*Stderr_Available{boolean} 35|1830r51 1881r47 1910r51
-43r7*Stdout_Excerpt{21|105R9} 35|1883r53 1912r56
-45r7*Stderr_Excerpt{21|105R9} 35|1915r56
-51b7*Output_Partial{boolean} 35|1828r51 1879r51 1908r51
-65R9*Build_Output_Stream_State 35|985r47 1308r51 1786r44 1849r44 37|77e14
-66b7*Active{boolean} 35|1826r41 1877r50 1904r50
-68r7*Stdout_Text{21|105R9} 35|882r72 931r63
-70r7*Stderr_Text{21|105R9} 35|883r72 932r63
-72b7*Stdout_Truncated{boolean} 35|884r77 933r68
-73b7*Stderr_Truncated{boolean} 35|885r77 934r68
-74i7*Chunk_Count{natural} 35|1827r50 1878r46 1905r50
-115U14*Begin_Build_Output_Stream 35|756s35 1801s35 1866s35
-120U14*Append_Build_Output_Stream_Chunk 35|1094s35 1803s35 1807s35 1868s35
-. 1893s35
-125V13*Build_Output_Details_From_Stream{36R9} 35|997s40 1099s40 1117s40 1285s40
-. 1338s40
-127e7 Runner_Status{25E9} 35|1101r15 1119r15
-128b7 Output_Partial{boolean} 35|1000r15 1102r15 1120r15 1288r15 1341r15
-129i7 Exit_Code{integer} 35|1121r15
-130b7 Has_Exit_Code{boolean} 35|1122r15
-133U14*Finish_Build_Output_Stream 35|787s35 1112s35
-145V13*Build_Output_Details_From_Captured_Output{36R9} 35|494s42 879s49 928s40
-146e7 Runner_Status{25E9} 35|495r10 880r24 929r15
-147r7 Stdout_Text{21|105R9} 35|496r10 882r24 931r15
-148r7 Stderr_Text{21|105R9} 35|497r10 883r24 932r15
-149b7 Stdout_Truncated{boolean} 35|498r10 884r24 933r15
-150b7 Stderr_Truncated{boolean} 35|499r10 885r24 934r15
-151b7 Output_Partial{boolean} 35|500r10 886r24 935r15
-152i7 Exit_Code{integer} 35|501r10
-153b7 Has_Exit_Code{boolean} 35|502r10
-154e7 Output_Stream{20E9} 35|503r10
-158V13*Build_Unavailable_Output_Details{36R9} 35|1423s49 1515s49
-187V13*Replace_Latest_Build_Output_Details{36R9} 35|877s46 926s37 995s37
-. 1097s37 1115s37 1384s37 1421s46 1477s40 1513s46 1563s40
+18n7*Build_Output_Details_Partial{13E9} 35|1921r42
+20E9*Build_Output_Stream_Selection 34|78r51 35|1088r51 37|23e34
+21n7*Build_Output_Stream_Stdout{20E9} 35|508r46 1819r38 1884r38
+22n7*Build_Output_Stream_Stderr{20E9} 35|510r46 1823r38 1909r38
+23n7*Build_Output_Stream_Merged{20E9} 35|512r46
+25E9*Build_Output_Runner_Status 34|83r51 35|466r42 1109r51 37|34e44
+26n7*Build_Output_Runner_Succeeded{25E9} 35|471r48 1103r60 1301r43 1354r43
+27n7*Build_Output_Runner_Failed{25E9} 35|473r48
+28n7*Build_Output_Runner_Not_Available{25E9} 35|475r48
+29n7*Build_Output_Runner_Rejected{25E9} 35|477r48
+30n7*Build_Output_Runner_Execution_Error{25E9} 35|479r48
+31n7*Build_Output_Runner_Timed_Out{25E9} 35|481r48
+32n7*Build_Output_Runner_Cancelled{25E9} 35|483r48 883r54 1001r43
+33n7*Build_Output_Runner_Cancellation_Unsupported{25E9} 35|485r48 932r45
+34n7*Build_Output_Runner_Output_Truncated{25E9} 35|487r48
+36R9*Latest_Build_Output_Details 35|493r42 37|62e14
+38e7*Kind{13E9} 35|1920r51
+41b7*Stdout_Available{boolean} 35|1843r51 1894r51 1923r51
+42b7*Stderr_Available{boolean} 35|1844r51 1895r47 1924r51
+43r7*Stdout_Excerpt{21|105R9} 35|1897r53 1926r56
+45r7*Stderr_Excerpt{21|105R9} 35|1929r56
+51b7*Output_Partial{boolean} 35|1842r51 1893r51 1922r51
+65R9*Build_Output_Stream_State 35|987r47 1322r51 1800r44 1863r44 37|77e14
+66b7*Active{boolean} 35|1840r41 1891r50 1918r50
+68r7*Stdout_Text{21|105R9} 35|884r72 933r63
+70r7*Stderr_Text{21|105R9} 35|885r72 934r63
+72b7*Stdout_Truncated{boolean} 35|886r77 935r68
+73b7*Stderr_Truncated{boolean} 35|887r77 936r68
+74i7*Chunk_Count{natural} 35|1841r50 1892r46 1919r50
+115U14*Begin_Build_Output_Stream 35|758s35 1815s35 1880s35
+120U14*Append_Build_Output_Stream_Chunk 35|1096s35 1817s35 1821s35 1882s35
+. 1907s35
+125V13*Build_Output_Details_From_Stream{36R9} 35|999s40 1101s40 1119s40 1299s40
+. 1352s40
+127e7 Runner_Status{25E9} 35|1103r15 1121r15
+128b7 Output_Partial{boolean} 35|1002r15 1104r15 1122r15 1302r15 1355r15
+129i7 Exit_Code{integer} 35|1123r15
+130b7 Has_Exit_Code{boolean} 35|1124r15
+133U14*Finish_Build_Output_Stream 35|789s35 1114s35
+145V13*Build_Output_Details_From_Captured_Output{36R9} 35|496s42 881s49 930s40
+146e7 Runner_Status{25E9} 35|497r10 882r24 931r15
+147r7 Stdout_Text{21|105R9} 35|498r10 884r24 933r15
+148r7 Stderr_Text{21|105R9} 35|499r10 885r24 934r15
+149b7 Stdout_Truncated{boolean} 35|500r10 886r24 935r15
+150b7 Stderr_Truncated{boolean} 35|501r10 887r24 936r15
+151b7 Output_Partial{boolean} 35|502r10 888r24 937r15
+152i7 Exit_Code{integer} 35|503r10
+153b7 Has_Exit_Code{boolean} 35|504r10
+154e7 Output_Stream{20E9} 35|505r10
+158V13*Build_Unavailable_Output_Details{36R9} 35|1236s49 1437s49 1529s49
+187V13*Replace_Latest_Build_Output_Details{36R9} 35|879s46 928s37 997s37
+. 1099s37 1117s37 1234s46 1398s37 1435s46 1491s40 1527s46 1577s40
 X 38 editor-build_process_control.ads
-3K16*Build_Process_Control 34|4w13 52r23 35|12w13 32r20 755r16 762r23 775r24
-. 785r16 786r14 823r29 825r29 826r19 841r26 842r23 845r25 846r42 847r23 848r26
-. 849r25 850r25 853r25 889r25 890r25 900r25 946r30 947r16 972r17 973r17 975r34
-. 976r20 980r19 988r17 1002r33 1059r14 1328r19 1329r17 1728r14 1729r17 1733r17
-. 1741r28 1744r17 1753r17 1773r29 1774r19 1778r17 1811r14 1820r17 1833r17
-. 1839r17 1872r14 1889r17 1897r14 1922r17 1928r17 1936r23 2012r23 2013r23
-. 2058r39 2059r22 2064r17 2075r39 2076r22 2081r17 2087r28 2090r39 2091r22
-. 2096r17 2102r39 2103r22 2108r17 2120r29 2121r19 2125r39 2126r22 2131r17
-. 2346r17 2356r17 2394r29 2395r19 2399r17 38|59e33
-8R9*Build_Process_Handle 34|52r45 35|762r45 841r48 38|57e14
-10E9*Build_Process_Cancel_Result 35|32r42 846r64 946r52 1936r45 2058r61 2075r61
-. 2090r61 2102r61 2125r61 38|14e35
-11n7*Build_Process_Cancel_Sent{10E9} 35|853r47
-12n7*Build_Process_Cancel_Not_Active{10E9} 35|889r47 947r38
-13n7*Build_Process_Cancel_Not_Cancellable{10E9} 35|890r47
-14n7*Build_Process_Cancel_Failed{10E9} 35|900r47 1002r55
-16V13*No_Process_Handle{8R9} 35|755s38 785s38
-21V13*Test_Cancellable_Handle{8R9} 35|775s46 1729s39
-23V13*Is_Active{boolean} 35|823s51 825s51 842s45 847s45 972s39 976s42 1773s51
-. 2012s45 2120s51 2394s51
-29U14*Publish_Active_Process 35|1728s36
-32U14*Clear_Active_Process 35|786s36 1059s36 1733s39 1744s39 1753s39 1778s39
-. 1820s39 1833s39 1839s39 1889s39 1922s39 1928s39 2064s39 2081s39 2096s39
-. 2108s39 2131s39 2346s39 2356s39 2399s39
-34V13*Active_Process_Handle{8R9} 35|826s41 845s47 848s48 973s39 1328s41 1774s41
-. 2013s45 2121s41 2395s41
-36U14*Publish_Active_Output_Stream 35|1811s36 1872s36 1897s36
-39U14*Active_Output_Stream 35|988s39 1329s39
-43V13*Active_Cancel_Requested{boolean} 35|1741s50 2087s50
-45V13*Request_Active_Cancel{10E9} 35|849s47 975s56 2059s44 2076s44 2091s44
-. 2103s44 2126s44
-47V13*Request_Cancel{10E9} 35|850s47 980s41
+3K16*Build_Process_Control 34|4w13 52r23 35|12w13 32r20 757r16 764r23 777r24
+. 787r16 788r14 825r29 827r29 828r19 843r26 844r23 847r25 848r42 849r23 850r26
+. 851r25 852r25 855r25 891r25 892r25 902r25 948r30 949r16 974r17 975r17 977r34
+. 978r20 982r19 990r17 1004r33 1061r14 1342r19 1343r17 1742r14 1743r17 1747r17
+. 1755r28 1758r17 1767r17 1787r29 1788r19 1792r17 1825r14 1834r17 1847r17
+. 1853r17 1886r14 1903r17 1911r14 1936r17 1942r17 1950r23 2026r23 2027r23
+. 2072r39 2073r22 2078r17 2089r39 2090r22 2095r17 2101r28 2104r39 2105r22
+. 2110r17 2116r39 2117r22 2122r17 2134r29 2135r19 2139r39 2140r22 2145r17
+. 2360r17 2370r17 2408r29 2409r19 2413r17 38|59e33
+8R9*Build_Process_Handle 34|52r45 35|764r45 843r48 38|57e14
+10E9*Build_Process_Cancel_Result 35|32r42 848r64 948r52 1950r45 2072r61 2089r61
+. 2104r61 2116r61 2139r61 38|14e35
+11n7*Build_Process_Cancel_Sent{10E9} 35|855r47
+12n7*Build_Process_Cancel_Not_Active{10E9} 35|891r47 949r38
+13n7*Build_Process_Cancel_Not_Cancellable{10E9} 35|892r47
+14n7*Build_Process_Cancel_Failed{10E9} 35|902r47 1004r55
+16V13*No_Process_Handle{8R9} 35|757s38 787s38
+21V13*Test_Cancellable_Handle{8R9} 35|777s46 1743s39
+23V13*Is_Active{boolean} 35|825s51 827s51 844s45 849s45 974s39 978s42 1787s51
+. 2026s45 2134s51 2408s51
+29U14*Publish_Active_Process 35|1742s36
+32U14*Clear_Active_Process 35|788s36 1061s36 1747s39 1758s39 1767s39 1792s39
+. 1834s39 1847s39 1853s39 1903s39 1936s39 1942s39 2078s39 2095s39 2110s39
+. 2122s39 2145s39 2360s39 2370s39 2413s39
+34V13*Active_Process_Handle{8R9} 35|828s41 847s47 850s48 975s39 1342s41 1788s41
+. 2027s45 2135s41 2409s41
+36U14*Publish_Active_Output_Stream 35|1825s36 1886s36 1911s36
+39U14*Active_Output_Stream 35|990s39 1343s39
+43V13*Active_Cancel_Requested{boolean} 35|1755s50 2101s50
+45V13*Request_Active_Cancel{10E9} 35|851s47 977s56 2073s44 2090s44 2105s44
+. 2117s44 2140s44
+47V13*Request_Cancel{10E9} 35|852s47 982s41
 X 39 editor-build_public_request.ads
-5K16*Build_Public_Request 35|4w13 1128r36 1129r16 1214r36 1215r16 1397r36
-. 1398r16 1489r36 1490r16 39|24e32
-7R9*Public_Build_Request_Conversion_Result 35|1128r57 1214r57 1397r57 1489r57
+5K16*Build_Public_Request 35|4w13 1130r36 1131r16 1216r36 1217r16 1411r36
+. 1412r16 1503r36 1504r16 39|24e32
+7R9*Public_Build_Request_Conversion_Result 35|1130r57 1216r57 1411r57 1503r57
 . 39|12e14
-8e7*Status{42|167E9} 35|1139r21 1140r43
-10r7*Request{49|228R9} 35|1161r21 1260r42 1278r24 1449r63 1452r24 1458r24
-. 1475r29 1538r24 1544r24 1561r29
-14V13*Build_Public_Request_From_UI_State{7R9} 35|1129s37 1215s37 1398s37
-. 1490s37
+8e7*Status{42|167E9} 35|1141r21 1142r43
+10r7*Request{49|228R9} 35|1163r21 1274r42 1292r24 1463r63 1466r24 1472r24
+. 1489r29 1552r24 1558r24 1575r29
+14V13*Build_Public_Request_From_UI_State{7R9} 35|1131s37 1217s37 1412s37
+. 1504s37
 X 40 editor-build_result_summary.ads
-3K16*Build_Result_Summary 35|10w13 354r21 359r27 363r27 366r27 368r27 370r27
-. 372r27 378r21 383r27 385r27 387r27 389r27 395r21 399r24 404r27 406r27 410r27
-. 412r27 419r21 423r24 430r33 432r33 435r30 439r27 441r27 517r21 523r16 527r18
-. 528r18 529r18 531r21 864r25 866r28 867r39 869r44 870r47 913r16 915r19 916r30
-. 918r35 919r38 1377r16 1414r23 1416r25 1418r28 1472r19 1506r23 1508r25 1510r28
-. 1558r19 40|263e32
-11E9*Build_Result_Summary_Kind 35|354r42 40|18e45
-13n7*Build_Result_Summary_Succeeded{11E9} 35|359r48
-14n7*Build_Result_Summary_Failed{11E9} 35|363r48
-15n7*Build_Result_Summary_Unavailable{11E9} 35|366r48 916r51
-16n7*Build_Result_Summary_Timed_Out{11E9} 35|368r48
-17n7*Build_Result_Summary_Cancelled{11E9} 35|370r48 867r60
-18n7*Build_Result_Summary_Output_Truncated{11E9} 35|372r48
-20E9*Build_Result_Request_Mode 35|395r42 40|24e45
-21n7*Build_Result_Request_None{20E9} 35|412r48
-22n7*Build_Result_Request_Manual{20E9} 35|404r48
-23n7*Build_Result_Request_Candidate_Derived{20E9} 35|399r45 406r48
-24n7*Build_Result_Request_Test_Or_Internal{20E9} 35|410r48 870r68 919r59
-26E9*Build_Result_Tool_Kind 35|378r42 40|30e32
-27n7*Build_Result_No_Tool{26E9} 35|389r48 869r65 918r56
-28n7*Build_Result_GPRbuild_Tool{26E9} 35|383r48
-29n7*Build_Result_Alire_Tool{26E9} 35|385r48
-30n7*Build_Result_Custom_Tool{26E9} 35|387r48
-32E9*Diagnostics_Ingestion_Summary_Status 35|419r42 523r37 40|38e36
-34n7*Diagnostics_Ingestion_Disabled{32E9} 35|423r45
-35n7*Diagnostics_Ingestion_Succeeded{32E9} 35|432r54 527r39
-36n7*Diagnostics_Ingestion_No_Diagnostics{32E9} 35|435r51 439r48 529r39
-37n7*Diagnostics_Ingestion_Parse_Partial{32E9} 35|430r54 528r39
-38n7*Diagnostics_Ingestion_Failed{32E9} 35|441r48
-40R9*Latest_Build_Result_Summary 35|517r42 40|71e14
-106V13*Retain_Pre_Run_Unavailable_Summary{boolean} 35|1414s44 1506s44
-119V13*Replace_Latest_Build_Result_Summary{40R9} 35|864s46 913s37 1377s37
-. 1416s46 1472s40 1508s46 1558s40
-124V13*Build_Summary{40R9} 35|531s42 866s49 915s40
-125e7 Kind{11E9} 35|532r10 867r24 916r15
-126a7 Invocation_Label{string} 35|533r10 868r24 917r15
-127e7 Tool_Kind{26E9} 35|534r10 869r24 918r15
-128e7 Request_Mode{20E9} 35|535r10 870r24 919r15
-129a7 Working_Context_Label{string} 35|536r10 871r24 920r15
-130a7 Runner_Status_Label{string} 35|537r10 872r24 921r15
-131a7 Primary_Message{string} 35|538r10 873r24 922r15
-132i7 Exit_Code{integer} 35|539r10
-133b7 Has_Exit_Code{boolean} 35|540r10
-134b7 Timed_Out{boolean} 35|541r10
-135b7 Cancelled{boolean} 35|542r10 874r24
-136b7 Cancellation_Unsupported{boolean} 35|543r10 923r15
-137b7 Stdout_Truncated{boolean} 35|545r10
-138b7 Stderr_Truncated{boolean} 35|546r10
-139b7 Output_Partial{boolean} 35|547r10 875r24 924r15
-140e7 Diagnostics_Ingestion_Status{32E9} 35|548r10
-142i7 Diagnostics_Count{natural} 35|549r10
-143b7 Has_Diagnostics_Count{boolean} 35|550r10
-144i7 Diagnostics_Error_Count{natural} 35|551r10
-145i7 Diagnostics_Warning_Count{natural} 35|553r10
-146i7 Diagnostics_Info_Count{natural} 35|555r10
-147i7 Diagnostics_Note_Count{natural} 35|557r10
-148i7 Diagnostics_Unknown_Count{natural} 35|559r10
-149b7 Has_Diagnostics_Severity_Counts{boolean} 35|561r10
-152V13*Summary_From_Unavailable_Message{40R9} 35|1418s49 1510s49
+3K16*Build_Result_Summary 35|10w13 356r21 361r27 365r27 368r27 370r27 372r27
+. 374r27 380r21 385r27 387r27 389r27 391r27 397r21 401r24 406r27 408r27 412r27
+. 414r27 421r21 425r24 432r33 434r33 437r30 441r27 443r27 519r21 525r16 529r18
+. 530r18 531r18 533r21 866r25 868r28 869r39 871r44 872r47 915r16 917r19 918r30
+. 920r35 921r38 1227r23 1229r25 1231r28 1391r16 1428r23 1430r25 1432r28 1486r19
+. 1520r23 1522r25 1524r28 1572r19 40|266e32
+11E9*Build_Result_Summary_Kind 35|356r42 40|18e45
+13n7*Build_Result_Summary_Succeeded{11E9} 35|361r48
+14n7*Build_Result_Summary_Failed{11E9} 35|365r48
+15n7*Build_Result_Summary_Unavailable{11E9} 35|368r48 918r51
+16n7*Build_Result_Summary_Timed_Out{11E9} 35|370r48
+17n7*Build_Result_Summary_Cancelled{11E9} 35|372r48 869r60
+18n7*Build_Result_Summary_Output_Truncated{11E9} 35|374r48
+20E9*Build_Result_Request_Mode 35|397r42 40|24e45
+21n7*Build_Result_Request_None{20E9} 35|414r48
+22n7*Build_Result_Request_Manual{20E9} 35|406r48
+23n7*Build_Result_Request_Candidate_Derived{20E9} 35|401r45 408r48
+24n7*Build_Result_Request_Test_Or_Internal{20E9} 35|412r48 872r68 921r59
+29E9*Build_Result_Tool_Kind 35|380r42 40|33e32
+30n7*Build_Result_No_Tool{29E9} 35|391r48 871r65 920r56
+31n7*Build_Result_GPRbuild_Tool{29E9} 35|385r48
+32n7*Build_Result_Alire_Tool{29E9} 35|387r48
+33n7*Build_Result_Custom_Tool{29E9} 35|389r48
+35E9*Diagnostics_Ingestion_Summary_Status 35|421r42 525r37 40|41e36
+37n7*Diagnostics_Ingestion_Disabled{35E9} 35|425r45
+38n7*Diagnostics_Ingestion_Succeeded{35E9} 35|434r54 529r39
+39n7*Diagnostics_Ingestion_No_Diagnostics{35E9} 35|437r51 441r48 531r39
+40n7*Diagnostics_Ingestion_Parse_Partial{35E9} 35|432r54 530r39
+41n7*Diagnostics_Ingestion_Failed{35E9} 35|443r48
+43R9*Latest_Build_Result_Summary 35|519r42 40|74e14
+109V13*Retain_Pre_Run_Unavailable_Summary{boolean} 35|1227s44 1428s44 1520s44
+122V13*Replace_Latest_Build_Result_Summary{43R9} 35|866s46 915s37 1229s46
+. 1391s37 1430s46 1486s40 1522s46 1572s40
+127V13*Build_Summary{43R9} 35|533s42 868s49 917s40
+128e7 Kind{11E9} 35|534r10 869r24 918r15
+129a7 Invocation_Label{string} 35|535r10 870r24 919r15
+130e7 Tool_Kind{29E9} 35|536r10 871r24 920r15
+131e7 Request_Mode{20E9} 35|537r10 872r24 921r15
+132a7 Working_Context_Label{string} 35|538r10 873r24 922r15
+133a7 Runner_Status_Label{string} 35|539r10 874r24 923r15
+134a7 Primary_Message{string} 35|540r10 875r24 924r15
+135i7 Exit_Code{integer} 35|541r10
+136b7 Has_Exit_Code{boolean} 35|542r10
+137b7 Timed_Out{boolean} 35|543r10
+138b7 Cancelled{boolean} 35|544r10 876r24
+139b7 Cancellation_Unsupported{boolean} 35|545r10 925r15
+140b7 Stdout_Truncated{boolean} 35|547r10
+141b7 Stderr_Truncated{boolean} 35|548r10
+142b7 Output_Partial{boolean} 35|549r10 877r24 926r15
+143e7 Diagnostics_Ingestion_Status{35E9} 35|550r10
+145i7 Diagnostics_Count{natural} 35|551r10
+146b7 Has_Diagnostics_Count{boolean} 35|552r10
+147i7 Diagnostics_Error_Count{natural} 35|553r10
+148i7 Diagnostics_Warning_Count{natural} 35|555r10
+149i7 Diagnostics_Info_Count{natural} 35|557r10
+150i7 Diagnostics_Note_Count{natural} 35|559r10
+151i7 Diagnostics_Unknown_Count{natural} 35|561r10
+152b7 Has_Diagnostics_Severity_Counts{boolean} 35|563r10
+155V13*Summary_From_Unavailable_Message{43R9} 35|1231s49 1432s49 1524s49
 X 41 editor-build_runner_policy.ads
-1K16*Build_Runner_Policy 35|7w13 30r20 31r20 226r19 656r22 657r22 659r22
-. 753r16 795r16 798r19 801r19 829r19 855r25 892r25 902r25 965r16 1144r22
-. 1145r22 1147r22 1181r22 1182r22 1184r22 1740r18 1750r16 1772r18 2176r21
-. 2178r21 2339r18 2341r18 41|31e31
+1K16*Build_Runner_Policy 35|7w13 30r20 31r20 226r19 658r22 659r22 661r22
+. 755r16 797r16 800r19 803r19 831r19 857r25 894r25 904r25 967r16 1146r22
+. 1147r22 1149r22 1183r22 1184r22 1186r22 1754r18 1764r16 1786r18 2190r21
+. 2192r21 2353r18 2355r18 41|31e31
 7E9*Build_Execution_Policy 35|30r40 41|10e39
-8n7*Build_Execution_Disabled{7E9} 35|656r42 1144r42 1181r42
-9n7*Build_Execution_Stub_Only{7E9} 35|657r42 1145r42 1182r42
-10n7*Build_Execution_Bounded_Process{7E9} 35|659r42 1147r42 1184r42
+8n7*Build_Execution_Disabled{7E9} 35|658r42 1146r42 1183r42
+9n7*Build_Execution_Stub_Only{7E9} 35|659r42 1147r42 1184r42
+10n7*Build_Execution_Bounded_Process{7E9} 35|661r42 1149r42 1186r42
 25E9*Build_Cancellation_State 35|31r40 41|29e32
-26n7*No_Cancellation_Requested{25E9} 35|753r36 801r39 2178r41
-27n7*Cancellation_Requested{25E9} 35|226r39 795r36 829r39 855r45 965r36 1740r38
-. 1750r36 2176r41 2339r38 2341r38
-28n7*Cancellation_Acknowledged{25E9} 35|798r39 1772r38
-29n7*Cancellation_Unsupported{25E9} 35|892r45 902r45
+26n7*No_Cancellation_Requested{25E9} 35|755r36 803r39 2192r41
+27n7*Cancellation_Requested{25E9} 35|226r39 797r36 831r39 857r45 967r36 1754r38
+. 1764r36 2190r41 2353r38 2355r38
+28n7*Cancellation_Acknowledged{25E9} 35|800r39 1786r38
+29n7*Cancellation_Unsupported{25E9} 35|894r45 904r45
 X 42 editor-build_ui.ads
-9K16*Build_UI 35|5w13 24r20 602r23 607r22 609r22 611r22 612r22 614r22 616r22
-. 618r22 620r22 622r22 624r22 626r22 628r22 630r22 632r22 640r35 641r16 651r30
-. 1139r38 1196r25 1645r21 1646r29 1647r29 42|410e20
-167E9*Public_Build_UI_Validation_Status 35|24r29 602r32 640r44 42|181e52
-168n7*Build_UI_Valid{167E9} 35|607r31 651r39 1139r47
-169n7*Build_UI_Rejected_Not_Visible{167E9} 35|609r31
-170n7*Build_UI_Rejected_No_Tool{167E9} 35|611r31
-171n7*Build_UI_Rejected_Custom_Tool{167E9} 35|612r31
-172n7*Build_UI_Rejected_No_Candidate_Selected{167E9} 35|614r31
-173n7*Build_UI_Rejected_Selected_Candidate_Stale{167E9} 35|616r31
-174n7*Build_UI_Rejected_Missing_Consent{167E9} 35|628r31
-175n7*Build_UI_Rejected_Unsafe_Arguments{167E9} 35|618r31
-176n7*Build_UI_Rejected_Unsupported_Request_Option{167E9} 35|620r31
-177n7*Build_UI_Rejected_Working_Context_Required{167E9} 35|622r31
-178n7*Build_UI_Rejected_Working_Context_Unavailable{167E9} 35|624r31
-179n7*Build_UI_Rejected_Unsafe_Working_Context{167E9} 35|626r31
-180n7*Build_UI_Rejected_Stale_Consent{167E9} 35|630r31
-181n7*Build_UI_Rejected_Execution_Backend_Disabled{167E9} 35|632r31
-189r7*Selected_Working_Context{43|43R9} 35|1649r27
-208b7*Show_Diagnostics_On_Result{boolean} 35|1189r36 1193r36 1366r27 1461r28
-. 1547r28
-209e7*Output_Capture_Limit{32E9} 35|1197r36
-223r7*Build_Candidates{33|61R12} 35|575r39
-225r7*Selected_Build_Candidate_Id{21|105R9} 35|568r66
-332V13*Output_Capture_Limit_Bytes{natural} 35|1196s34
-341V13*Validate_Build_UI_State{167E9} 35|641s25
-347V13*Has_Raw_Shell_Command_Field{boolean} 35|1646s38
-356V13*Has_Remembered_Consent_Field{boolean} 35|1647s38
-377V13*Assert_Build_UI_State_Is_Transient{boolean} 35|1645s30
+9K16*Build_UI 35|5w13 24r20 604r23 609r22 611r22 613r22 614r22 616r22 618r22
+. 620r22 622r22 624r22 626r22 628r22 630r22 632r22 634r22 642r35 643r16 653r30
+. 1141r38 1198r25 1659r21 1660r29 1661r29 42|410e20
+167E9*Public_Build_UI_Validation_Status 35|24r29 604r32 642r44 42|181e52
+168n7*Build_UI_Valid{167E9} 35|609r31 653r39 1141r47
+169n7*Build_UI_Rejected_Not_Visible{167E9} 35|611r31
+170n7*Build_UI_Rejected_No_Tool{167E9} 35|613r31
+171n7*Build_UI_Rejected_Custom_Tool{167E9} 35|614r31
+172n7*Build_UI_Rejected_No_Candidate_Selected{167E9} 35|616r31
+173n7*Build_UI_Rejected_Selected_Candidate_Stale{167E9} 35|618r31
+174n7*Build_UI_Rejected_Missing_Consent{167E9} 35|630r31
+175n7*Build_UI_Rejected_Unsafe_Arguments{167E9} 35|620r31
+176n7*Build_UI_Rejected_Unsupported_Request_Option{167E9} 35|622r31
+177n7*Build_UI_Rejected_Working_Context_Required{167E9} 35|624r31
+178n7*Build_UI_Rejected_Working_Context_Unavailable{167E9} 35|626r31
+179n7*Build_UI_Rejected_Unsafe_Working_Context{167E9} 35|628r31
+180n7*Build_UI_Rejected_Stale_Consent{167E9} 35|632r31
+181n7*Build_UI_Rejected_Execution_Backend_Disabled{167E9} 35|634r31
+189r7*Selected_Working_Context{43|43R9} 35|1663r27
+208b7*Show_Diagnostics_On_Result{boolean} 35|1191r36 1195r36 1380r27 1475r28
+. 1561r28
+209e7*Output_Capture_Limit{32E9} 35|1199r36
+223r7*Build_Candidates{33|61R12} 35|577r39
+225r7*Selected_Build_Candidate_Id{21|105R9} 35|570r66
+332V13*Output_Capture_Limit_Bytes{natural} 35|1198s34
+341V13*Validate_Build_UI_State{167E9} 35|643s25
+347V13*Has_Raw_Shell_Command_Field{boolean} 35|1660s38
+356V13*Has_Remembered_Consent_Field{boolean} 35|1661s38
+377V13*Assert_Build_UI_State_Is_Transient{boolean} 35|1659s30
 X 43 editor-build_working_context.ads
-3K16*Build_Working_Context 35|6w13 1648r25 43|104e33
-101V13*Assert_Build_Working_Context_Persistence_Excluded{boolean} 35|1648s47
+3K16*Build_Working_Context 35|6w13 1662r25 43|104e33
+101V13*Assert_Build_Working_Context_Persistence_Excluded{boolean} 35|1662s47
 X 44 editor-commands.ads
-6K16*Commands 34|1w13 38r54 44r54 35|27r20 28r20 714r54 719r24 721r21 732r54
-. 736r24 738r21 1572r27 1573r16 1573r44 1577r21 1578r19 1579r25 1580r19 1581r40
-. 1582r38 1595r27 1600r25 1602r25 1603r19 1603r67 1619r27 1620r16 1620r44
-. 1625r36 1626r25 1627r19 1634r19 1637r29 1638r19 1655r27 1656r16 1656r44
-. 1659r21 1660r19 1661r25 1662r19 1663r40 1664r38 1674r20 1678r25 44|1740e20
-547n7*Command_Build_Run{11E9} 35|1573r53 1578r28 1580r28 1603r28 1620r53
-. 1627r28 1634r28 1638r28
-548n7*Command_Build_Cancel{11E9} 35|1656r53 1660r28 1662r28
+6K16*Commands 34|1w13 38r54 44r54 35|27r20 28r20 716r54 721r24 723r21 734r54
+. 738r24 740r21 1586r27 1587r16 1587r44 1591r21 1592r19 1593r25 1594r19 1595r40
+. 1596r38 1609r27 1614r25 1616r25 1617r19 1617r67 1633r27 1634r16 1634r44
+. 1639r36 1640r25 1641r19 1648r19 1651r29 1652r19 1669r27 1670r16 1670r44
+. 1673r21 1674r19 1675r25 1676r19 1677r40 1678r38 1688r20 1692r25 44|1740e20
+547n7*Command_Build_Run{11E9} 35|1587r53 1592r28 1594r28 1617r28 1634r53
+. 1641r28 1648r28 1652r28
+548n7*Command_Build_Cancel{11E9} 35|1670r53 1674r28 1676r28
 551E9*Command_Category 35|28r29 44|567e25
-553n7*Project_Category{551E9} 35|1582r47 1664r47
+553n7*Project_Category{551E9} 35|1596r47 1678r47
 569E9*Command_Visibility 35|27r29 44|571e23
-571n7*Palette_Command{569E9} 35|1581r49 1603r76 1625r45 1663r49
-577R9*Command_Availability 34|38r63 44r63 35|714r63 732r63 1595r36 44|580e14
-599V13*Available{577R9} 35|719s33 736s33
-601V13*Unavailable{577R9} 35|721s30 738s30
-611V13*Is_Available{boolean} 35|1600s34 1674s29 1678s34
-617R9*Command_Descriptor 35|1572r36 1619r36 1655r36 44|638e14
-619r7*Name{21|105R9} 35|1574r46 1657r46
-620r7*Description{21|105R9} 35|1575r53
-621e7*Category{551E9} 35|1582r20 1664r20
-622e7*Visibility{569E9} 35|1581r20 1603r47 1625r16 1663r20
-623b7*Bindable{boolean} 35|1583r24 1638r47 1665r24
-815V13*Descriptor{617R9} 35|1573s25 1602s34 1620s25 1637s38 1656s25
-947V13*Is_Public_Build_Command{boolean} 35|1579s34 1661s34
-969V13*Stable_Command_Name{string} 35|1577s30 1626s34 1659s30
+571n7*Palette_Command{569E9} 35|1595r49 1617r76 1639r45 1677r49
+577R9*Command_Availability 34|38r63 44r63 35|716r63 734r63 1609r36 44|580e14
+599V13*Available{577R9} 35|721s33 738s33
+601V13*Unavailable{577R9} 35|723s30 740s30
+611V13*Is_Available{boolean} 35|1614s34 1688s29 1692s34
+617R9*Command_Descriptor 35|1586r36 1633r36 1669r36 44|638e14
+619r7*Name{21|105R9} 35|1588r46 1671r46
+620r7*Description{21|105R9} 35|1589r53
+621e7*Category{551E9} 35|1596r20 1678r20
+622e7*Visibility{569E9} 35|1595r20 1617r47 1639r16 1677r20
+623b7*Bindable{boolean} 35|1597r24 1652r47 1679r24
+815V13*Descriptor{617R9} 35|1587s25 1616s34 1634s25 1651s38 1670s25
+947V13*Is_Public_Build_Command{boolean} 35|1593s34 1675s34
+969V13*Stable_Command_Name{string} 35|1591s30 1640s34 1673s30
 X 49 editor-external_producers.ads
 10K16*External_Producers 34|2w13 62r21 67r21 72r21 92r21 96r21 100r21 104r27
 . 116r32 117r21 35|13w13 25r20 26r20 50r95 51r92 52r94 110r34 111r34 112r34
 . 118r38 119r38 124r34 142r38 143r38 144r38 162r34 163r34 164r34 187r38 188r38
-. 200r34 283r38 284r38 285r38 312r31 313r35 314r30 326r22 353r23 358r22 360r22
-. 361r22 362r22 364r22 365r22 367r22 369r22 371r22 377r21 382r22 384r22 386r22
-. 388r22 394r24 403r22 405r22 407r22 408r22 409r22 411r22 417r23 427r22 437r22
-. 438r22 440r22 446r23 450r22 451r22 452r22 453r22 454r22 455r22 456r22 457r22
-. 458r22 463r23 468r22 470r22 472r22 474r22 476r22 478r22 480r22 482r22 484r22
-. 490r22 504r25 505r27 507r27 509r27 514r24 515r24 519r31 541r45 542r45 544r34
-. 807r21 809r43 810r16 811r23 815r41 816r23 832r41 833r23 859r47 860r29 894r47
-. 895r29 904r47 905r29 943r21 945r23 948r43 949r16 958r41 959r23 1004r41
-. 1005r23 1012r41 1013r23 1025r21 1027r23 1028r28 1029r43 1030r16 1034r41
-. 1035r23 1160r17 1161r40 1171r21 1175r33 1177r22 1178r22 1183r27 1185r27
-. 1212r21 1216r43 1217r16 1226r44 1227r26 1233r41 1234r23 1240r41 1241r23
-. 1248r33 1250r45 1267r44 1268r26 1291r41 1292r23 1301r27 1303r43 1304r16
-. 1305r26 1310r34 1311r28 1315r41 1316r23 1343r41 1344r23 1370r17 1395r21
-. 1399r43 1400r16 1401r23 1410r44 1411r26 1431r33 1433r45 1441r29 1450r27
-. 1465r20 1486r32 1487r21 1491r43 1492r16 1493r23 1502r44 1503r26 1523r33
-. 1525r45 1533r29 1536r27 1551r20 1597r35 1598r16 1698r46 1701r25 1702r31
-. 1706r41 1712r23 1713r28 1715r30 1716r16 1719r30 1738r47 1759r34 1760r21
-. 1762r39 1768r18 1784r23 1787r30 1788r16 1791r30 1816r18 1847r23 1850r30
-. 1851r16 1854r30 1935r23 1940r28 1941r30 1943r21 1944r16 1945r32 1946r31
-. 1947r29 1948r32 1949r45 1955r30 1956r16 1961r30 1977r19 1981r22 1982r25
-. 1985r22 1988r22 1992r31 2000r40 2001r27 2003r26 2041r14 2086r54 2115r18
-. 2117r18 2143r30 2144r16 2249r30 2250r16 2317r30 2318r16 2321r33 2323r23
-. 2337r47 2365r30 2366r16 2369r23 49|1931e30
-166i7*Accepted_Count{natural} 35|428r50 521r61
-178i7*Parse_Rejected_Malformed_Count{natural} 35|429r36
-180i7*Parsed_Error_Count{natural} 35|552r47
-181i7*Parsed_Warning_Count{natural} 35|554r47
-182i7*Parsed_Info_Count{natural} 35|556r47
-183i7*Parsed_Note_Count{natural} 35|558r47
-184i7*Parsed_Unknown_Count{natural} 35|560r47
-185r7*Ingestion_Result{165R9} 35|428r33 521r44
-189n7*Diagnostic_Line_Command_Succeeded{188E9} 35|427r41
-190n7*Diagnostic_Line_Command_No_Input{188E9} 35|437r41
-191n7*Diagnostic_Line_Command_No_Diagnostics{188E9} 35|438r41
-192n7*Diagnostic_Line_Command_Malformed_Only{188E9} 35|440r41
-194R9*Diagnostic_Line_Command_Result 35|417r42 809r62 948r62 1029r62 1216r62
-. 1303r62 1305r45 1399r62 1441r48 1491r62 1533r48 49|201e14
-195r7*Ingestion{173R9} 35|428r23 429r26 521r34 552r37 554r37 556r37 558r37
-. 560r37
-199e7*Outcome{188E9} 35|426r19
-211R12*Process_Argument_Vector{8|91R9[207]} 35|1943r40
-214E9*Build_Tool_Kind 35|377r40 49|218e25
-215n7*No_Build_Tool{214E9} 35|388r41
-216n7*GPRbuild_Tool{214E9} 35|382r41 1701r44
-217n7*Alire_Build_Tool{214E9} 35|384r41
-218n7*Custom_Build_Tool{214E9} 35|386r41
-221n7*Build_Request_From_Test{220E9} 35|407r41 1702r50
-222n7*Build_Request_From_Fixture{220E9} 35|408r41
-223n7*Build_Request_From_Internal_Command{220E9} 35|409r41
-224n7*Build_Request_From_User_Opt_In{220E9} 35|403r41
-225n7*Build_Request_From_Project_Metadata{220E9} 35|405r41
-226n7*Build_Request_Unknown{220E9} 35|411r41
+. 200r34 283r38 284r38 285r38 312r31 313r35 314r30 326r22 355r23 360r22 362r22
+. 363r22 364r22 366r22 367r22 369r22 371r22 373r22 379r21 384r22 386r22 388r22
+. 390r22 396r24 405r22 407r22 409r22 410r22 411r22 413r22 419r23 429r22 439r22
+. 440r22 442r22 448r23 452r22 453r22 454r22 455r22 456r22 457r22 458r22 459r22
+. 460r22 465r23 470r22 472r22 474r22 476r22 478r22 480r22 482r22 484r22 486r22
+. 492r22 506r25 507r27 509r27 511r27 516r24 517r24 521r31 543r45 544r45 546r34
+. 809r21 811r43 812r16 813r23 817r41 818r23 834r41 835r23 861r47 862r29 896r47
+. 897r29 906r47 907r29 945r21 947r23 950r43 951r16 960r41 961r23 1006r41
+. 1007r23 1014r41 1015r23 1027r21 1029r23 1030r28 1031r43 1032r16 1036r41
+. 1037r23 1162r17 1163r40 1173r21 1177r33 1179r22 1180r22 1185r27 1187r27
+. 1214r21 1218r43 1219r16 1240r44 1241r26 1247r41 1248r23 1254r41 1255r23
+. 1262r33 1264r45 1281r44 1282r26 1305r41 1306r23 1315r27 1317r43 1318r16
+. 1319r26 1324r34 1325r28 1329r41 1330r23 1357r41 1358r23 1384r17 1409r21
+. 1413r43 1414r16 1415r23 1424r44 1425r26 1445r33 1447r45 1455r29 1464r27
+. 1479r20 1500r32 1501r21 1505r43 1506r16 1507r23 1516r44 1517r26 1537r33
+. 1539r45 1547r29 1550r27 1565r20 1611r35 1612r16 1712r46 1715r25 1716r31
+. 1720r41 1726r23 1727r28 1729r30 1730r16 1733r30 1752r47 1773r34 1774r21
+. 1776r39 1782r18 1798r23 1801r30 1802r16 1805r30 1830r18 1861r23 1864r30
+. 1865r16 1868r30 1949r23 1954r28 1955r30 1957r21 1958r16 1959r32 1960r31
+. 1961r29 1962r32 1963r45 1969r30 1970r16 1975r30 1991r19 1995r22 1996r25
+. 1999r22 2002r22 2006r31 2014r40 2015r27 2017r26 2055r14 2100r54 2129r18
+. 2131r18 2157r30 2158r16 2263r30 2264r16 2331r30 2332r16 2335r33 2337r23
+. 2351r47 2379r30 2380r16 2383r23 49|1931e30
+166i7*Accepted_Count{natural} 35|430r50 523r61
+178i7*Parse_Rejected_Malformed_Count{natural} 35|431r36
+180i7*Parsed_Error_Count{natural} 35|554r47
+181i7*Parsed_Warning_Count{natural} 35|556r47
+182i7*Parsed_Info_Count{natural} 35|558r47
+183i7*Parsed_Note_Count{natural} 35|560r47
+184i7*Parsed_Unknown_Count{natural} 35|562r47
+185r7*Ingestion_Result{165R9} 35|430r33 523r44
+189n7*Diagnostic_Line_Command_Succeeded{188E9} 35|429r41
+190n7*Diagnostic_Line_Command_No_Input{188E9} 35|439r41
+191n7*Diagnostic_Line_Command_No_Diagnostics{188E9} 35|440r41
+192n7*Diagnostic_Line_Command_Malformed_Only{188E9} 35|442r41
+194R9*Diagnostic_Line_Command_Result 35|419r42 811r62 950r62 1031r62 1218r62
+. 1317r62 1319r45 1413r62 1455r48 1505r62 1547r48 49|201e14
+195r7*Ingestion{173R9} 35|430r23 431r26 523r34 554r37 556r37 558r37 560r37
+. 562r37
+199e7*Outcome{188E9} 35|428r19
+211R12*Process_Argument_Vector{8|91R9[207]} 35|1957r40
+214E9*Build_Tool_Kind 35|379r40 49|218e25
+215n7*No_Build_Tool{214E9} 35|390r41
+216n7*GPRbuild_Tool{214E9} 35|384r41 1715r44
+217n7*Alire_Build_Tool{214E9} 35|386r41
+218n7*Custom_Build_Tool{214E9} 35|388r41
+221n7*Build_Request_From_Test{220E9} 35|409r41 1716r50
+222n7*Build_Request_From_Fixture{220E9} 35|410r41
+223n7*Build_Request_From_Internal_Command{220E9} 35|411r41
+224n7*Build_Request_From_User_Opt_In{220E9} 35|405r41
+225n7*Build_Request_From_Project_Metadata{220E9} 35|407r41
+226n7*Build_Request_Unknown{220E9} 35|413r41
 228R9*Build_Run_Request 35|50r114 110r53 118r57 142r57 162r53 187r57 283r57
-. 312r50 394r43 514r43 1310r53 1698r65 2321r52 49|239e14
-229e7*Tool{214E9} 35|534r49 1701m10
-230e7*Provenance{220E9} 35|402r20 1702m10
-231r7*Working_Label{21|105R9} 35|536r54 1703m10
-233r7*Command_Label{21|105R9} 35|398r26 1260r50 1449r71 1704m10
-235r7*Arguments{21|105R9} 35|1705m10
-237r7*Structured_Arguments{211R12} 35|1706m10
+. 312r50 396r43 516r43 1324r53 1712r65 2335r52 49|239e14
+229e7*Tool{214E9} 35|536r49 1715m10
+230e7*Provenance{220E9} 35|404r20 1716m10
+231r7*Working_Label{21|105R9} 35|538r54 1717m10
+233r7*Command_Label{21|105R9} 35|400r26 1274r50 1463r71 1718m10
+235r7*Arguments{21|105R9} 35|1719m10
+237r7*Structured_Arguments{211R12} 35|1720m10
 254E9*Build_Request_Validation_Status 35|25r39 49|262e38
-255n7*Build_Request_Valid{254E9} 35|1161r59
-269E9*Process_Run_Status 35|1935r42 49|278e36
-272n7*Process_Run_Not_Available{269E9} 35|1982r44
-276n7*Process_Run_Cancelled{269E9} 35|1992r50 2117r37
-286n7*Process_Output_Stdout{285E9} 35|505r46
-287n7*Process_Output_Stderr{285E9} 35|507r46
-288n7*Process_Output_Merged{285E9} 35|509r46
-294R9*Process_Run_Request 35|1945r51 49|305e14
-295r7*Program_Label{21|105R9} 35|2043m10
-297r7*Working_Label{21|105R9} 35|2044m10
-301r7*Arguments{21|105R9} 35|2045m10
-303r7*Structured_Arguments{211R12} 35|2046m10
-321n7*Process_Execution_Real_Allowed{317E9} 35|1949r64
-339E9*Build_Execution_Consent 35|1175r52 49|342e36
-340n7*Build_Consent_Not_Provided{339E9} 35|1178r41
-341n7*Build_Consent_Test_Only{339E9} 35|1719r49 1791r49 1854r49
-342n7*Build_Consent_User_Confirmed{339E9} 35|1177r41 1961r49
-602R9*Process_Execution_Policy 35|1948r51 49|610e14
-603e7*Mode{317E9} 35|1949m10
-605b7*Allow_Real_Execution{boolean} 35|1950m10
-606b7*Allow_Shell{boolean} 35|1951m10
-607i7*Max_Output_Bytes{natural} 35|1952m10
-608b7*Require_Absolute_Program{boolean} 35|1953m10
-609i7*Timeout_Milliseconds{natural} 35|1954m10
-612R9*Process_Run_Result 34|116r51 35|1486r51 1946r50 49|624e14
-613e7*Status{269E9} 35|1991r37 2116r33
-626E9*Build_Run_Status 35|26r39 353r42 446r42 463r42 49|635e34
-627n7*Build_Run_Succeeded{626E9} 35|358r41 450r41 468r41 1292r42 1344r42
-. 1816r37
-628n7*Build_Run_Failed{626E9} 35|360r41 451r41 470r41
-629n7*Build_Run_Not_Available{626E9} 35|364r41 452r41 472r41 816r42 959r42
-. 1035r42 1227r45 1234r42 1241r42 1268r45 1316r42 1411r45 1503r45
-630n7*Build_Run_Rejected{626E9} 35|361r41 453r41 474r41
-631n7*Build_Run_Execution_Error{626E9} 35|362r41 454r41 476r41 905r48 2001r46
-632n7*Build_Run_Timed_Out{626E9} 35|367r41 455r41 478r41 541r64
-633n7*Build_Run_Cancelled{626E9} 35|369r41 456r41 480r41 542r64 833r42 860r48
-. 1005r42 1013r42 1738r66 1760r40 1768r37 2086r73 2115r37 2337r66
-634n7*Build_Run_Cancellation_Unsupported{626E9} 35|365r41 457r41 482r41 544r53
-. 895r48
-635n7*Build_Run_Output_Truncated{626E9} 35|371r41 458r41 484r41
-637R9*Build_Run_Result 35|490r41 519r50 49|651e14
-638e7*Status{626E9} 35|495r59 532r42 537r60 541r29 542r29 544r18 1738r30
-. 1767r43 1815r37 2086r37 2114r43 2337r30
-641i7*Exit_Code{integer} 35|501r29 539r29
-642b7*Has_Exit_Code{boolean} 35|502r33 540r33
-643r7*Stdout_Text{21|105R9} 35|496r31
-645r7*Stderr_Text{21|105R9} 35|497r31
-647b7*Stdout_Truncated{boolean} 35|498r36 545r36
-648b7*Stderr_Truncated{boolean} 35|499r36 546r36
-649b7*Output_Partial{boolean} 35|500r34 547r34 1817r41
+255n7*Build_Request_Valid{254E9} 35|1163r59
+269E9*Process_Run_Status 35|1949r42 49|278e36
+272n7*Process_Run_Not_Available{269E9} 35|1996r44
+276n7*Process_Run_Cancelled{269E9} 35|2006r50 2131r37
+286n7*Process_Output_Stdout{285E9} 35|507r46
+287n7*Process_Output_Stderr{285E9} 35|509r46
+288n7*Process_Output_Merged{285E9} 35|511r46
+294R9*Process_Run_Request 35|1959r51 49|305e14
+295r7*Program_Label{21|105R9} 35|2057m10
+297r7*Working_Label{21|105R9} 35|2058m10
+301r7*Arguments{21|105R9} 35|2059m10
+303r7*Structured_Arguments{211R12} 35|2060m10
+321n7*Process_Execution_Real_Allowed{317E9} 35|1963r64
+339E9*Build_Execution_Consent 35|1177r52 49|342e36
+340n7*Build_Consent_Not_Provided{339E9} 35|1180r41
+341n7*Build_Consent_Test_Only{339E9} 35|1733r49 1805r49 1868r49
+342n7*Build_Consent_User_Confirmed{339E9} 35|1179r41 1975r49
+602R9*Process_Execution_Policy 35|1962r51 49|610e14
+603e7*Mode{317E9} 35|1963m10
+605b7*Allow_Real_Execution{boolean} 35|1964m10
+606b7*Allow_Shell{boolean} 35|1965m10
+607i7*Max_Output_Bytes{natural} 35|1966m10
+608b7*Require_Absolute_Program{boolean} 35|1967m10
+609i7*Timeout_Milliseconds{natural} 35|1968m10
+612R9*Process_Run_Result 34|116r51 35|1500r51 1960r50 49|624e14
+613e7*Status{269E9} 35|2005r37 2130r33
+626E9*Build_Run_Status 35|26r39 355r42 448r42 465r42 49|635e34
+627n7*Build_Run_Succeeded{626E9} 35|360r41 452r41 470r41 1306r42 1358r42
+. 1830r37
+628n7*Build_Run_Failed{626E9} 35|362r41 453r41 472r41
+629n7*Build_Run_Not_Available{626E9} 35|366r41 454r41 474r41 818r42 961r42
+. 1037r42 1241r45 1248r42 1255r42 1282r45 1330r42 1425r45 1517r45
+630n7*Build_Run_Rejected{626E9} 35|363r41 455r41 476r41
+631n7*Build_Run_Execution_Error{626E9} 35|364r41 456r41 478r41 907r48 2015r46
+632n7*Build_Run_Timed_Out{626E9} 35|369r41 457r41 480r41 543r64
+633n7*Build_Run_Cancelled{626E9} 35|371r41 458r41 482r41 544r64 835r42 862r48
+. 1007r42 1015r42 1752r66 1774r40 1782r37 2100r73 2129r37 2351r66
+634n7*Build_Run_Cancellation_Unsupported{626E9} 35|367r41 459r41 484r41 546r53
+. 897r48
+635n7*Build_Run_Output_Truncated{626E9} 35|373r41 460r41 486r41
+637R9*Build_Run_Result 35|492r41 521r50 49|651e14
+638e7*Status{626E9} 35|497r59 534r42 539r60 543r29 544r29 546r18 1752r30
+. 1781r43 1829r37 2100r37 2128r43 2351r30
+641i7*Exit_Code{integer} 35|503r29 541r29
+642b7*Has_Exit_Code{boolean} 35|504r33 542r33
+643r7*Stdout_Text{21|105R9} 35|498r31
+645r7*Stderr_Text{21|105R9} 35|499r31
+647b7*Stdout_Truncated{boolean} 35|500r36 547r36
+648b7*Stderr_Truncated{boolean} 35|501r36 548r36
+649b7*Output_Partial{boolean} 35|502r34 549r34 1831r41
 653R9*Build_Command_Result 34|62r40 67r40 72r40 96r40 100r40 104r46 117r40
-. 35|52r113 124r53 144r57 200r53 285r57 314r49 515r43 807r40 811r42 943r40
-. 945r42 1025r40 1027r42 1028r47 1212r40 1301r46 1395r40 1401r42 1487r40
-. 1493r42 1712r42 1713r47 1784r42 1847r42 1940r47 1941r49 1947r48 2323r42
-. 2369r42 49|658e14
-654r7*Build_Result{637R9} 35|519r77 815m13 832m13 859m19 894m19 904m19 958m13
-. 1004m13 1012m13 1034m13 1226m16 1233m13 1240m13 1267m16 1291m13 1315m13
-. 1343m13 1364r19 1371r20 1386r47 1410m16 1459r20 1466r23 1479r50 1502m16
-. 1545r20 1552r23 1565r50 1738r17 1759m11 1767r30 1815r24 1817r28 1984m13
-. 2000m17 2086r24 2114r30 2337r17
-655r7*Diagnostic_Result{194R9} 35|521r16 524r43 552r19 554r19 556r19 558r19
-. 560r19 817m13 835m13 861m19 896m19 906m19 960m13 1007m13 1015m13 1036m13
-. 1228m16 1235m13 1242m13 1269m16 1294m13 1317m13 1346m13 1368m14 1412m16
-. 1463m17 1504m16 1549m17 1762m11 1987m13 2002m17
-656r7*Command_Message{21|105R9} 35|538r47 818m13 836m13 862m19 897m19 907m19
-. 961m13 1008m13 1016m13 1037m13 1229m16 1236m13 1243m13 1270m16 1295m13
-. 1318m13 1347m13 1369m14 1413m16 1464m17 1505m16 1550m17 1763m11 1876r24
-. 1903r28 1989m13 2004m17 2070r29
+. 35|52r113 124r53 144r57 200r53 285r57 314r49 517r43 809r40 813r42 945r40
+. 947r42 1027r40 1029r42 1030r47 1214r40 1315r46 1409r40 1415r42 1501r40
+. 1507r42 1726r42 1727r47 1798r42 1861r42 1954r47 1955r49 1961r48 2337r42
+. 2383r42 49|658e14
+654r7*Build_Result{637R9} 35|521r77 817m13 834m13 861m19 896m19 906m19 960m13
+. 1006m13 1014m13 1036m13 1240m16 1247m13 1254m13 1281m16 1305m13 1329m13
+. 1357m13 1378r19 1385r20 1400r47 1424m16 1473r20 1480r23 1493r50 1516m16
+. 1559r20 1566r23 1579r50 1752r17 1773m11 1781r30 1829r24 1831r28 1998m13
+. 2014m17 2100r24 2128r30 2351r17
+655r7*Diagnostic_Result{194R9} 35|523r16 526r43 554r19 556r19 558r19 560r19
+. 562r19 819m13 837m13 863m19 898m19 908m19 962m13 1009m13 1017m13 1038m13
+. 1242m16 1249m13 1256m13 1283m16 1308m13 1331m13 1360m13 1382m14 1426m16
+. 1477m17 1518m16 1563m17 1776m11 2001m13 2016m17
+656r7*Command_Message{21|105R9} 35|540r47 820m13 838m13 864m19 899m19 909m19
+. 963m13 1010m13 1018m13 1039m13 1243m16 1250m13 1257m13 1284m16 1309m13
+. 1332m13 1361m13 1383m14 1427m16 1478m17 1519m16 1564m17 1777m11 1890r24
+. 1917r28 2003m13 2018m17 2084r29
 669R9*Build_Execution_Gate 34|92r40 35|51r111 111r53 112r53 119r57 143r57
-. 163r53 164r53 188r57 284r57 313r54 1171r40 1248r52 1250r64 1311r47 1431r52
-. 1433r64 1523r52 1525r64 1715r49 1787r49 1850r49 1955r49 2143r49 2249r49
-. 2317r49 2365r49 49|678e14
-670r7*Process_Policy{602R9} 35|1251m13 1251r53 1434m13 1434r53 1526m13 1526r53
-671b7*Allow_Build_Run{boolean} 35|1252m13 1252r53 1435m13 1435r53 1527m13
-. 1527r53
-672b7*Allow_Real_Build_Tool_Execution{boolean} 35|1253m13 1253r53 1436m13
-. 1436r53 1528m13 1528r53
-673b7*Allow_Real_Build_Tool_Fixture{boolean} 35|1254m13 1254r53 1437m13 1437r53
-. 1529m13 1529r53
-674e7*Consent{339E9} 35|1255m13 1255r53 1438m13 1438r53 1530m13 1530r53
-676b7*Allow_Diagnostics_Ingestion{boolean} 35|1256m13 1373r25 1374r25 1382r27
-. 1439m13 1468r21 1469r21 1475r51 1531m13 1554r21 1555r21 1561r51
-677b7*Show_Diagnostics{boolean} 35|1257m13 1440m13 1532m13
-728R9*Public_Build_Command_Readiness_Audit_Result 35|1597r54 49|784e14
-781b7*Routes_Through_Executor{boolean} 35|1601r28
-1131V13*Empty_Diagnostic_Line_Command_Result{194R9} 35|810s35 949s35 1030s35
-. 1217s35 1304s35 1400s35 1492s35 1762s58 1988s41 2003s45
-1159V13*Validate_Build_Run_Request_Status{254E9} 35|1160s36
-1182V13*Build_Process_Run_Result{612R9} 35|1981s41
-1196V13*Empty_Process_Arguments{211R12} 35|1706s60 1944s35
-1198U14*Append_Process_Argument 35|2041s33
-1497V13*Build_Result_Output_Stream{285E9} 35|504s44
-1538V13*Build_Default_Execution_Gate{669R9} 35|1183s46
-1540V13*Build_Test_Fixture_Execution_Gate{669R9} 35|1716s35 1788s35 1851s35
-. 2144s35 2250s35 2318s35 2366s35
-1541b7 Allow_Diagnostics_Ingestion{boolean} 35|1717r12 1789r12 1852r12 2145r12
-. 2251r12 2319r12 2367r12
-1542b7 Show_Diagnostics{boolean} 35|1718r12 1790r12 1853r12 2146r12 2252r12
-. 2320r12 2368r12
-1544e7 Consent{339E9} 35|1719r12 1791r12 1854r12
-1554V13*Build_Real_Execution_Gate{669R9} 35|1185s46 1956s35
-1555b7 Allow_Diagnostics_Ingestion{boolean} 35|1186r16 1957r12
-1556b7 Show_Diagnostics{boolean} 35|1190r16 1958r12
-1557b7 Require_Absolute_Program{boolean} 35|1194r16 1959r12
-1558i7 Max_Output_Bytes{natural} 35|1195r16 1960r12
-1559e7 Consent{339E9} 35|1198r16 1961r12
-1686V13*Execute_Process_Request_Gated_With_State{612R9} 35|1977s38
-1705V13*Build_Result_From_Process_Result{637R9} 35|1985s41
-1721V13*Build_Build_Run_Result{637R9} 35|815s60 832s60 859s66 894s66 904s66
-. 958s60 1004s60 1012s60 1034s60 1226s63 1233s60 1240s60 1267s63 1291s60
-. 1315s60 1343s60 1410s63 1502s63 1759s53 2000s59
-1729b7 Output_Partial{boolean} 35|834r16 1006r16 1014r16 1293r16 1345r16
-. 1761r14
-1769V13*Build_Gated_Build_Command_Feedback{string} 35|1370s36 1465s39 1551s39
-1795V13*Run_Build_Command_With_Gate{653R9} 35|326s41 1450s46 1536s46
-1865V13*Run_Public_Build_Command_Readiness_Audit{728R9} 35|1598s35
+. 163r53 164r53 188r57 284r57 313r54 1173r40 1262r52 1264r64 1325r47 1445r52
+. 1447r64 1537r52 1539r64 1729r49 1801r49 1864r49 1969r49 2157r49 2263r49
+. 2331r49 2379r49 49|678e14
+670r7*Process_Policy{602R9} 35|1265m13 1265r53 1448m13 1448r53 1540m13 1540r53
+671b7*Allow_Build_Run{boolean} 35|1266m13 1266r53 1449m13 1449r53 1541m13
+. 1541r53
+672b7*Allow_Real_Build_Tool_Execution{boolean} 35|1267m13 1267r53 1450m13
+. 1450r53 1542m13 1542r53
+673b7*Allow_Real_Build_Tool_Fixture{boolean} 35|1268m13 1268r53 1451m13 1451r53
+. 1543m13 1543r53
+674e7*Consent{339E9} 35|1269m13 1269r53 1452m13 1452r53 1544m13 1544r53
+676b7*Allow_Diagnostics_Ingestion{boolean} 35|1270m13 1387r25 1388r25 1396r27
+. 1453m13 1482r21 1483r21 1489r51 1545m13 1568r21 1569r21 1575r51
+677b7*Show_Diagnostics{boolean} 35|1271m13 1454m13 1546m13
+728R9*Public_Build_Command_Readiness_Audit_Result 35|1611r54 49|784e14
+781b7*Routes_Through_Executor{boolean} 35|1615r28
+1131V13*Empty_Diagnostic_Line_Command_Result{194R9} 35|812s35 951s35 1032s35
+. 1219s35 1318s35 1414s35 1506s35 1776s58 2002s41 2017s45
+1159V13*Validate_Build_Run_Request_Status{254E9} 35|1162s36
+1182V13*Build_Process_Run_Result{612R9} 35|1995s41
+1196V13*Empty_Process_Arguments{211R12} 35|1720s60 1958s35
+1198U14*Append_Process_Argument 35|2055s33
+1497V13*Build_Result_Output_Stream{285E9} 35|506s44
+1538V13*Build_Default_Execution_Gate{669R9} 35|1185s46
+1540V13*Build_Test_Fixture_Execution_Gate{669R9} 35|1730s35 1802s35 1865s35
+. 2158s35 2264s35 2332s35 2380s35
+1541b7 Allow_Diagnostics_Ingestion{boolean} 35|1731r12 1803r12 1866r12 2159r12
+. 2265r12 2333r12 2381r12
+1542b7 Show_Diagnostics{boolean} 35|1732r12 1804r12 1867r12 2160r12 2266r12
+. 2334r12 2382r12
+1544e7 Consent{339E9} 35|1733r12 1805r12 1868r12
+1554V13*Build_Real_Execution_Gate{669R9} 35|1187s46 1970s35
+1555b7 Allow_Diagnostics_Ingestion{boolean} 35|1188r16 1971r12
+1556b7 Show_Diagnostics{boolean} 35|1192r16 1972r12
+1557b7 Require_Absolute_Program{boolean} 35|1196r16 1973r12
+1558i7 Max_Output_Bytes{natural} 35|1197r16 1974r12
+1559e7 Consent{339E9} 35|1200r16 1975r12
+1686V13*Execute_Process_Request_Gated_With_State{612R9} 35|1991s38
+1705V13*Build_Result_From_Process_Result{637R9} 35|1999s41
+1721V13*Build_Build_Run_Result{637R9} 35|817s60 834s60 861s66 896s66 906s66
+. 960s60 1006s60 1014s60 1036s60 1240s63 1247s60 1254s60 1281s63 1305s60
+. 1329s60 1357s60 1424s63 1516s63 1773s53 2014s59
+1729b7 Output_Partial{boolean} 35|836r16 1008r16 1016r16 1307r16 1359r16
+. 1775r14
+1769V13*Build_Gated_Build_Command_Feedback{string} 35|1384s36 1479s39 1565s39
+1795V13*Run_Build_Command_With_Gate{653R9} 35|326s41 1464s46 1550s46
+1865V13*Run_Public_Build_Command_Readiness_Audit{728R9} 35|1612s35
 X 62 editor-keybindings.ads
-4K16*Keybindings 35|14w13 1632r30 1633r16 62|230e23
-56R9*Command_Keybinding_Info 35|1632r42 62|60e14
-57b7*Has_Binding{boolean} 35|1636r23
-123V13*Primary_Binding_For_Command{56R9} 35|1633s28
+4K16*Keybindings 35|14w13 1646r30 1647r16 62|230e23
+56R9*Command_Keybinding_Info 35|1646r42 62|60e14
+57b7*Has_Binding{boolean} 35|1650r23
+123V13*Primary_Binding_For_Command{56R9} 35|1647s28
 X 73 editor-project.ads
-4K16*Project 35|15w13 647r24 1135r24 73|191e19
-73V13*Has_Project{boolean} 35|647s32 1135s32
+4K16*Project 35|15w13 649r24 1137r24 73|191e19
+73V13*Has_Project{boolean} 35|649s32 1137s32
 X 82 editor-state.ads
 51K16*State 34|5w13 32r22 38r22 41r22 44r22 47r29 51r30 55r29 58r29 61r29
 . 65r30 70r30 77r29 82r29 88r22 91r22 95r29 99r29 103r29 107r22 115r39 121r22
 . 123r22 126r22 128r22 131r22 133r22 35|49r87 109r34 117r38 123r34 137r38
-. 141r38 161r34 186r38 199r34 271r38 282r38 311r29 566r22 638r22 714r22 725r22
-. 732r22 742r29 761r30 771r29 779r29 806r29 941r30 1023r30 1085r29 1106r29
-. 1126r22 1170r22 1203r22 1211r29 1300r29 1307r29 1394r29 1485r39 1593r22
-. 1607r22 1616r22 1642r22 1670r22 1672r21 1682r22 1710r18 1711r29 1721r14
-. 1783r18 1793r14 1846r18 1858r14 1939r18 1968r32 2040r14 2139r19 2140r19
-. 2141r22 2142r22 2148r14 2149r14 2199r18 2205r14 2240r19 2241r19 2242r19
-. 2243r19 2244r19 2245r19 2246r19 2247r19 2248r19 2254r51 2256r17 2263r51
-. 2280r14 2316r18 2324r29 2326r14 2364r18 2372r14 82|610e17
+. 141r38 161r34 186r38 199r34 271r38 282r38 311r29 568r22 640r22 716r22 727r22
+. 734r22 744r29 763r30 773r29 781r29 808r29 943r30 1025r30 1087r29 1108r29
+. 1128r22 1172r22 1205r22 1213r29 1314r29 1321r29 1408r29 1499r39 1607r22
+. 1621r22 1630r22 1656r22 1684r22 1686r21 1696r22 1724r18 1725r29 1735r14
+. 1797r18 1807r14 1860r18 1872r14 1953r18 1982r32 2054r14 2153r19 2154r19
+. 2155r22 2156r22 2162r14 2163r14 2213r18 2219r14 2254r19 2255r19 2256r19
+. 2257r19 2258r19 2259r19 2260r19 2261r19 2262r19 2268r51 2270r17 2277r51
+. 2294r14 2330r18 2338r29 2340r14 2378r18 2386r14 82|611e17
 115R9*State_Type 34|32r28 38r28 41r28 44r28 47r35 51r36 55r35 58r35 61r35
 . 65r36 70r36 77r35 82r35 88r28 91r28 95r35 99r35 103r35 107r28 115r45 121r28
 . 123r28 126r28 128r28 131r28 133r28 35|49r93 109r40 117r44 123r40 137r44
-. 141r44 161r40 186r44 199r40 271r44 282r44 311r35 566r28 638r28 714r28 725r28
-. 732r28 742r35 761r36 771r35 779r35 806r35 941r36 1023r36 1085r35 1106r35
-. 1126r28 1170r28 1203r28 1211r35 1300r35 1307r35 1394r35 1485r45 1593r28
-. 1607r28 1616r28 1642r28 1670r28 1672r27 1682r28 1710r24 1711r35 1783r24
-. 1846r24 1939r24 1968r38 2139r25 2140r25 2141r28 2142r28 2199r24 2240r25
-. 2241r25 2242r25 2243r25 2244r25 2245r25 2246r25 2247r25 2248r25 2254r57
-. 2263r57 2316r24 2324r35 2364r24 82|366e14
-146r7*Project{73|14R9} 35|647r51 1135r51
-310r7*Build_UI{42|183R9} 35|568r57 575r30 641r56 1129r79 1189r27 1193r27
-. 1197r27 1215r79 1366r18 1398r79 1461r19 1490r79 1547r19 1645r72 1646r73
-. 1647r74 1649r18
-314r7*Latest_Build_Result{40|40R9} 35|863m22 865r27 912m13 914r18 1376m13
-. 1378r18 1415m22 1417r27 1471m16 1473r21 1507m22 1509r27 1557m16 1559r21
-324r7*Latest_Build_Output_Details{37|36R9} 35|876m22 878r27 925m13 927r18
-. 994m13 996r18 1096m13 1098r18 1114m13 1116r18 1284m16 1337m16 1383m13 1385r18
-. 1420m22 1422r27 1476m16 1478r21 1512m22 1514r27 1562m16 1564r21 1828r23
-. 1829r23 1830r23 1879r23 1880r23 1881r19 1883r25 1906r23 1908r23 1909r23
-. 1910r23 1912r28 1915r28
-329e7*Public_Build_Execution_Policy{41|7E9} 35|655r18 1143r18 1180r18
-336b7*Public_Build_Job_Active{boolean} 35|643r16 728r20 735r16 746m13 765r16
-. 782m13 813r20 956r20 1032r20 1090r20 1131r16 1238r19 1769r24 1885r23 1917r23
-. 2071r23 2118r24 2214r19 2227r24 2342r23 2392r24
-337i7*Public_Build_Job_Id{natural} 35|747m13 747r42 757r50 1207r85 1281r19
-. 1726r77 1798r77 1802r20 1863r77 1867r20 2052r77 2163r80 2165r80 2180r49
-. 2182r49 2209r22 2221r23 2260r15 2331r66 2377r77
-338r7*Public_Build_Job_Label{21|105R9} 35|751m13 783m13 871r66 920r57
-340e7*Public_Build_Job_Cancellation{41|25E9} 35|225m34 752m13 794r16 797m16
-. 800m16 828m16 854m22 891m22 901m22 964m13 1739r19 1749r23 1771r20 2175r18
-. 2177r27 2338r19 2340r30
-343r7*Public_Build_Process_Handle{38|8R9} 35|754m13 766m16 784m13 824r18
-. 843r25 844r24 857m22 977r16 981m21 1327m16
-352i7*Public_Build_Async_Slot_Id{natural} 35|748r16 749m54 830r63 856r69
-. 969r19 1042r16 1044r35 1045r21 1060r16 1063r41 1207r51 1263r19 1277r19
-. 1282r54 1282r96 1325r52 1326r58 1352r16 1388r38 1726r12 1727r48 1732r37
-. 1743r37 1748r51 1752r37 1758r12 1777r37 1798r12 1799r48 1819r37 1832r37
-. 1838r37 1863r12 1864r48 1888r37 1921r37 1927r37 2025r50 2052r12 2054r23
-. 2063r37 2080r37 2095r37 2107r37 2130r37 2153r13 2154r20 2155r20 2155r52
-. 2163r13 2165r13 2166r49 2167r49 2168r57 2170r52 2171r52 2180r18 2182r18
-. 2184r38 2185r38 2190r38 2191r38 2208r23 2213r19 2220r24 2226r20 2232r37
-. 2259r15 2265r15 2266r40 2285r57 2331r12 2332r48 2335r51 2345r37 2350r34
-. 2355r37 2377r12 2381r47 2382r12 2398r37
-353b7*Public_Build_Async_Job_Queued{boolean} 35|644r23 822r16 967r16 1061r28
-. 1132r23 1206r20 1274m16 1357m13 1723m9 1770r24 1795m9 1860m9 1886r23 1918r23
-. 2049m9 2072r23 2119r24 2160m10 2161m10 2228r24 2328m9 2343r23 2374m9 2385r12
-. 2393r24
-354b7*Public_Build_Async_Job_Result_Pending{boolean} 35|1275m16 1358m13 1724m9
-. 1796m9 1861m9 1919r27 2050m9 2229r24 2329m9 2375m9
-358r7*Public_Build_Output_Stream{37|65R9} 35|757m16 788m16 882r45 883r45
-. 884r50 885r50 931r36 932r36 933r41 934r41 990m19 998r21 1095m16 1100r21
-. 1113m16 1118r21 1286r21 1332m19 1334m19 1335r28 1339r21 1353m13 1354r22
-. 1826r14 1827r23 1877r23 1878r19 1904r23 1905r23
-419U14*Initialize 35|1721s20 1793s20 1858s20 2040s20 2148s20 2149s20 2205s20
-. 2256s23 2280s20 2326s20 2372s20
+. 141r44 161r40 186r44 199r40 271r44 282r44 311r35 568r28 640r28 716r28 727r28
+. 734r28 744r35 763r36 773r35 781r35 808r35 943r36 1025r36 1087r35 1108r35
+. 1128r28 1172r28 1205r28 1213r35 1314r35 1321r35 1408r35 1499r45 1607r28
+. 1621r28 1630r28 1656r28 1684r28 1686r27 1696r28 1724r24 1725r35 1797r24
+. 1860r24 1953r24 1982r38 2153r25 2154r25 2155r28 2156r28 2213r24 2254r25
+. 2255r25 2256r25 2257r25 2258r25 2259r25 2260r25 2261r25 2262r25 2268r57
+. 2277r57 2330r24 2338r35 2378r24 82|367e14
+147r7*Project{73|14R9} 35|649r51 1137r51
+311r7*Build_UI{42|183R9} 35|570r57 577r30 643r56 1131r79 1191r27 1195r27
+. 1199r27 1217r79 1380r18 1412r79 1475r19 1504r79 1561r19 1659r72 1660r73
+. 1661r74 1663r18
+315r7*Latest_Build_Result{40|43R9} 35|865m22 867r27 914m13 916r18 1228m22
+. 1230r27 1390m13 1392r18 1429m22 1431r27 1485m16 1487r21 1521m22 1523r27
+. 1571m16 1573r21
+325r7*Latest_Build_Output_Details{37|36R9} 35|878m22 880r27 927m13 929r18
+. 996m13 998r18 1098m13 1100r18 1116m13 1118r18 1233m22 1235r27 1298m16 1351m16
+. 1397m13 1399r18 1434m22 1436r27 1490m16 1492r21 1526m22 1528r27 1576m16
+. 1578r21 1842r23 1843r23 1844r23 1893r23 1894r23 1895r19 1897r25 1920r23
+. 1922r23 1923r23 1924r23 1926r28 1929r28
+330e7*Public_Build_Execution_Policy{41|7E9} 35|657r18 1145r18 1182r18
+337b7*Public_Build_Job_Active{boolean} 35|645r16 730r20 737r16 748m13 767r16
+. 784m13 815r20 958r20 1034r20 1092r20 1133r16 1252r19 1783r24 1899r23 1931r23
+. 2085r23 2132r24 2228r19 2241r24 2356r23 2406r24
+338i7*Public_Build_Job_Id{natural} 35|749m13 749r42 759r50 1209r85 1295r19
+. 1740r77 1812r77 1816r20 1877r77 1881r20 2066r77 2177r80 2179r80 2194r49
+. 2196r49 2223r22 2235r23 2274r15 2345r66 2391r77
+339r7*Public_Build_Job_Label{21|105R9} 35|753m13 785m13 873r66 922r57
+341e7*Public_Build_Job_Cancellation{41|25E9} 35|225m34 754m13 796r16 799m16
+. 802m16 830m16 856m22 893m22 903m22 966m13 1753r19 1763r23 1785r20 2189r18
+. 2191r27 2352r19 2354r30
+344r7*Public_Build_Process_Handle{38|8R9} 35|756m13 768m16 786m13 826r18
+. 845r25 846r24 859m22 979r16 983m21 1341m16
+353i7*Public_Build_Async_Slot_Id{natural} 35|750r16 751m54 832r63 858r69
+. 971r19 1044r16 1046r35 1047r21 1062r16 1065r41 1209r51 1277r19 1291r19
+. 1296r54 1296r96 1339r52 1340r58 1366r16 1402r38 1740r12 1741r48 1746r37
+. 1757r37 1762r51 1766r37 1772r12 1791r37 1812r12 1813r48 1833r37 1846r37
+. 1852r37 1877r12 1878r48 1902r37 1935r37 1941r37 2039r50 2066r12 2068r23
+. 2077r37 2094r37 2109r37 2121r37 2144r37 2167r13 2168r20 2169r20 2169r52
+. 2177r13 2179r13 2180r49 2181r49 2182r57 2184r52 2185r52 2194r18 2196r18
+. 2198r38 2199r38 2204r38 2205r38 2222r23 2227r19 2234r24 2240r20 2246r37
+. 2273r15 2279r15 2280r40 2299r57 2345r12 2346r48 2349r51 2359r37 2364r34
+. 2369r37 2391r12 2395r47 2396r12 2412r37
+354b7*Public_Build_Async_Job_Queued{boolean} 35|646r23 824r16 969r16 1063r28
+. 1134r23 1208r20 1288m16 1371m13 1737m9 1784r24 1809m9 1874m9 1900r23 1932r23
+. 2063m9 2086r23 2133r24 2174m10 2175m10 2242r24 2342m9 2357r23 2388m9 2399r12
+. 2407r24
+355b7*Public_Build_Async_Job_Result_Pending{boolean} 35|1289m16 1372m13 1738m9
+. 1810m9 1875m9 1933r27 2064m9 2243r24 2343m9 2389m9
+359r7*Public_Build_Output_Stream{37|65R9} 35|759m16 790m16 884r45 885r45
+. 886r50 887r50 933r36 934r36 935r41 936r41 992m19 1000r21 1097m16 1102r21
+. 1115m16 1120r21 1300r21 1346m19 1348m19 1349r28 1353r21 1367m13 1368r22
+. 1840r14 1841r23 1891r23 1892r19 1918r23 1919r23
+420U14*Initialize 35|1735s20 1807s20 1872s20 2054s20 2162s20 2163s20 2219s20
+. 2270s23 2294s20 2340s20 2386s20
 X 94 system.ads
 67M9*Address
 X 105 s-memory.ads

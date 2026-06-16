@@ -2,6 +2,13 @@ with Ada.Strings.Unbounded; use Ada.Strings.Unbounded;
 
 package body Editor.Ada_RM_Remaining_Gap_Remediation_Pass1428 is
 
+   pragma Suppress (Overflow_Check);
+   use type Matrix.Coverage_Level;
+   use type Remediation.Remediation_State;
+   use type Precision.Precision_Classification;
+   use type Consumers.Semantic_Consumer;
+
+
    Frozen_Remaining_Edge_Count : constant Natural := 9;
 
    procedure Add_Row (Input : in out Closure_Input; Row : Closure_Row) is

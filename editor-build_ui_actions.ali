@@ -1,5 +1,7 @@
 V "GNAT Lib v15"
 A -gnat2022
+A -gnatX
+A -gnata
 P SS ZX
 
 RN
@@ -11,7 +13,7 @@ RV NO_STANDARD_STORAGE_POOLS
 RV NO_DYNAMIC_SIZED_OBJECTS
 RV NO_IMPLEMENTATION_PRAGMAS
 
-U editor.build_ui_actions%b  editor-build_ui_actions.adb  8f49817d NE OO PK
+U editor.build_ui_actions%b  editor-build_ui_actions.adb  07c6c58d NE OO PK
 W ada%s			ada.ads			ada.ali
 Z ada.exceptions%s	a-except.adb		a-except.ali
 W ada.strings%s		a-string.ads		a-string.ali
@@ -36,7 +38,7 @@ Z system.secondary_stack%s  s-secsta.adb	s-secsta.ali
 Z system.soft_links%s	s-soflin.adb		s-soflin.ali
 Z system.standard_library%s  s-stalib.adb	s-stalib.ali
 
-U editor.build_ui_actions%s  editor-build_ui_actions.ads  801e91fc EE NE OO PK
+U editor.build_ui_actions%s  editor-build_ui_actions.ads  0891d50c EE NE OO PK
 W editor%s		editor.ads		editor.ali
 W editor.build_candidate_refresh%s  editor-build_candidate_refresh.adb  editor-build_candidate_refresh.ali
 W editor.build_output_details%s  editor-build_output_details.adb  editor-build_output_details.ali
@@ -66,7 +68,7 @@ D a-stuten.ads		20250808065140 c6ced0ae ada.strings.utf_encoding%s
 D a-tags.ads		20250808065140 fbca0ad5 ada.tags%s
 D a-unccon.ads		20250808065140 0e9b276f ada.unchecked_conversion%s
 D editor.ads		20260612145959 16f844c2 editor%s
-D editor-ada_language_model.ads  20260612145959 459f92c3 editor.ada_language_model%s
+D editor-ada_language_model.ads  20260613110624 75f1fac9 editor.ada_language_model%s
 D editor-ada_project_index.ads  20260612145959 3ad143b9 editor.ada_project_index%s
 D editor-ada_syntax_tree.ads  20260612145959 49a76ced editor.ada_syntax_tree%s
 D editor-bookmarks.ads	20260612145959 4e695f4d editor.bookmarks%s
@@ -77,9 +79,9 @@ D editor-build_candidate_discovery.ads  20260612145959 5fe98328 editor.build_can
 D editor-build_candidate_refresh.ads  20260612145959 d541c976 editor.build_candidate_refresh%s
 D editor-build_candidates.ads  20260612145959 dc89ea7b editor.build_candidates%s
 D editor-build_command.ads  20260612145959 a89b08fb editor.build_command%s
-D editor-build_output_details.ads  20260612145959 0f4ba402 editor.build_output_details%s
+D editor-build_output_details.ads  20260613095501 1d7c9af2 editor.build_output_details%s
 D editor-build_process_control.ads  20260612145959 28661204 editor.build_process_control%s
-D editor-build_result_summary.ads  20260612145959 94fc95d2 editor.build_result_summary%s
+D editor-build_result_summary.ads  20260613095501 5b952273 editor.build_result_summary%s
 D editor-build_runner_policy.ads  20260612145959 623f26a9 editor.build_runner_policy%s
 D editor-build_ui.ads	20260612152524 28a54496 editor.build_ui%s
 D editor-build_ui_actions.ads  20260612145959 26d71ab5 editor.build_ui_actions%s
@@ -119,16 +121,16 @@ D editor-pending_transitions.ads  20260612145959 81c78960 editor.pending_transit
 D editor-problems.ads	20260612145959 a9a08157 editor.problems%s
 D editor-producer_contracts.ads  20260612145959 c3ee4501 editor.producer_contracts%s
 D editor-project.ads	20260612145959 f4d50f6d editor.project%s
-D editor-project_search.ads  20260612152451 857df5ab editor.project_search%s
+D editor-project_search.ads  20260612195704 b7cf3cc2 editor.project_search%s
 D editor-project_search_bar.ads  20260612145959 c5c12f77 editor.project_search_bar%s
-D editor-quick_open.ads	20260612151807 878ba83c editor.quick_open%s
+D editor-quick_open.ads	20260614175339 b8f14db6 editor.quick_open%s
 D editor-recent_buffers.ads  20260612145959 617e4612 editor.recent_buffers%s
 D editor-recent_projects.ads  20260612145959 ee1155f5 editor.recent_projects%s
 D editor-search.ads	20260612145959 dac0e204 editor.search%s
 D editor-search_results.ads  20260612145959 98eded1d editor.search_results%s
 D editor-selection.ads	20260612145959 37bfc5e9 editor.selection%s
 D editor-settings.ads	20260612145959 c2103809 editor.settings%s
-D editor-state.ads	20260612170622 4c537118 editor.state%s
+D editor-state.ads	20260613081313 1982bcb9 editor.state%s
 D editor-status_bar.ads	20260612145959 879f0640 editor.status_bar%s
 D editor-syntax.ads	20260612145959 d59b0303 editor.syntax%s
 D editor-syntax_cache.ads  20260612164742 637f2470 editor.syntax_cache%s
@@ -136,7 +138,7 @@ D editor-syntax_semantics.ads  20260612145959 a499b10a editor.syntax_semantics%s
 D editor-tab_bar.ads	20260612151839 e26dca3d editor.tab_bar%s
 D editor-unicode.ads	20260612145959 552ff3cc editor.unicode%s
 D editor-view_types.ads	20260612152152 f3042ec7 editor.view_types%s
-D editor-workspace_persistence.ads  20260612145959 455ffd61 editor.workspace_persistence%s
+D editor-workspace_persistence.ads  20260612202240 a037efc2 editor.workspace_persistence%s
 D editor-wrap.ads	20260612145959 87db665a editor.wrap%s
 D interfac.ads		20250808065140 9111f9c1 interfaces%s
 D i-c.ads		20250808065140 e94c966a interfaces.c%s
@@ -233,7 +235,7 @@ G r j build_ui_render_snapshot [assert_build_ui_operable editor__build_ui_action
 G r c none [assert_build_ui_operable editor__build_ui_actions 80 13 none] [assert_build_ui_render_snapshot_is_operable editor__build_ui 374 13 none]
 G r c none [assert_build_ui_run_routes_through_executor editor__build_ui_actions 83 13 none] [assert_build_ui_state_is_transient editor__build_ui 377 13 none]
 G r c none [assert_build_ui_does_not_persist_transient_state editor__build_ui_actions 88 13 none] [assert_build_output_details_persistence_excluded editor__build_output_details 256 13 none]
-G r c none [assert_build_ui_does_not_persist_transient_state editor__build_ui_actions 88 13 none] [assert_latest_build_result_summary_persistence_excluded editor__build_result_summary 217 13 none]
+G r c none [assert_build_ui_does_not_persist_transient_state editor__build_ui_actions 88 13 none] [assert_latest_build_result_summary_persistence_excluded editor__build_result_summary 220 13 none]
 G r c none [assert_build_ui_does_not_persist_transient_state editor__build_ui_actions 88 13 none] [assert_build_ui_state_is_transient editor__build_ui 377 13 none]
 G r c none [assert_public_build_ui_operability_coherent editor__build_ui_actions 91 13 none] [build_run_availability editor__build_command 37 13 none]
 G r c none [assert_public_build_ui_operability_coherent editor__build_ui_actions 91 13 none] [build_render_snapshot editor__build_ui 368 13 none]
@@ -241,11 +243,11 @@ G r c none [assert_public_build_ui_operability_coherent editor__build_ui_actions
 G r c none [assert_public_build_ui_operability_coherent editor__build_ui_actions 91 13 none] [unavailable_reason editor__commands 614 13 none]
 G r j build_ui_render_snapshot [assert_public_build_ui_operability_coherent editor__build_ui_actions 91 13 none] [build_ui_render_snapshotDA editor__build_ui 129 9 none]
 G r c none [assert_public_build_ui_operability_coherent editor__build_ui_actions 91 13 none] [assert_build_output_details_persistence_excluded editor__build_output_details 256 13 none]
-G r c none [assert_public_build_ui_operability_coherent editor__build_ui_actions 91 13 none] [assert_latest_build_result_summary_persistence_excluded editor__build_result_summary 217 13 none]
+G r c none [assert_public_build_ui_operability_coherent editor__build_ui_actions 91 13 none] [assert_latest_build_result_summary_persistence_excluded editor__build_result_summary 220 13 none]
 G r c none [assert_public_build_ui_operability_coherent editor__build_ui_actions 91 13 none] [assert_build_ui_state_is_transient editor__build_ui 377 13 none]
 G r c none [assert_public_build_ui_operability_coherent editor__build_ui_actions 91 13 none] [assert_build_ui_render_snapshot_is_operable editor__build_ui 374 13 none]
 G r c none [assert_public_build_result_output_ui_coherent editor__build_ui_actions 99 13 none] [assert_build_output_details_persistence_excluded editor__build_output_details 256 13 none]
-G r c none [assert_public_build_result_output_ui_coherent editor__build_ui_actions 99 13 none] [assert_latest_build_result_summary_persistence_excluded editor__build_result_summary 217 13 none]
+G r c none [assert_public_build_result_output_ui_coherent editor__build_ui_actions 99 13 none] [assert_latest_build_result_summary_persistence_excluded editor__build_result_summary 220 13 none]
 G r c none [assert_public_build_result_output_ui_coherent editor__build_ui_actions 99 13 none] [assert_build_ui_state_is_transient editor__build_ui 377 13 none]
 G r c none [assert_public_build_result_output_ui_coherent editor__build_ui_actions 99 13 none] [assert_public_build_result_output_ui_coherent editor__build_ui 383 13 none]
 X 1 ada.ads
@@ -298,15 +300,15 @@ X 31 editor-build_command.ads
 7K16*Build_Command 153e25 38|3w13 235r16
 37V13*Build_Run_Availability{41|577R9} 38|235s30
 X 32 editor-build_output_details.ads
-3K16*Build_Output_Details 347e32 37|2w13 38|4w13 285r25
+3K16*Build_Output_Details 349e32 37|2w13 38|4w13 285r25
 43r7*Stdout_Excerpt{16|105R9} 38|314r64 315r56
 45r7*Stderr_Excerpt{16|105R9} 38|316r64 317r56
 59b7*Build_Output_Details_Focused{boolean} 38|30m37
 256V13*Assert_Build_Output_Details_Persistence_Excluded{boolean} 38|285s46
 X 34 editor-build_result_summary.ads
-3K16*Build_Result_Summary 263e32 37|3w13 38|5w13 283r25
-69r7*Primary_Message{16|105R9} 38|312r56 313r48
-217V13*Assert_Latest_Build_Result_Summary_Persistence_Excluded{boolean} 38|283s46
+3K16*Build_Result_Summary 266e32 37|3w13 38|5w13 283r25
+72r7*Primary_Message{16|105R9} 38|312r56 313r48
+220V13*Assert_Latest_Build_Result_Summary_Persistence_Excluded{boolean} 38|283s46
 X 36 editor-build_ui.ads
 9K16*Build_UI 410e20 37|4w13 78r50 38|6w13 21r14 28r14 70r14 77r14 84r14
 . 91r14 119r14 148r14 157r14 158r29 165r14 166r29 173r14 174r29 181r14 182r29
@@ -471,20 +473,20 @@ X 83 editor-state.ads
 . 78r18 81r18 84r23 85r23 89r18 92r18 95r23 96r23 100r18 38|12w13 19r47 24r47
 . 40r48 46r49 56r31 66r36 74r25 81r25 88r25 96r25 125r25 154r25 162r25 170r25
 . 178r25 186r25 193r25 200r25 207r25 214r25 223r25 232r18 253r18 264r23 265r23
-. 279r18 290r18 303r23 304r23 321r18 83|610e17
+. 279r18 290r18 303r23 304r23 321r18 83|611e17
 115R9*State_Type 37|16r53 17r53 18r54 19r55 22r37 27r42 31r31 34r31 37r31
 . 40r31 43r31 46r31 49r31 52r31 55r31 58r31 61r31 64r31 67r31 70r31 74r31
 . 78r24 81r24 84r29 85r29 89r24 92r24 95r29 96r29 100r24 38|19r53 24r53 40r54
 . 46r55 56r37 66r42 74r31 81r31 88r31 96r31 125r31 154r31 162r31 170r31 178r31
 . 186r31 193r31 200r31 207r31 214r31 223r31 232r24 253r24 264r29 265r29 279r24
-. 290r24 303r29 304r29 321r24 83|366e14
-310r7*Build_UI{36|183R9} 38|21m31 28m31 48r12 62m12 70m49 77m57 84m46 91m40
+. 290r24 303r29 304r29 321r24 83|367e14
+311r7*Build_UI{36|183R9} 38|21m31 28m31 48r12 62m12 70m49 77m57 84m46 91m40
 . 98r46 99r50 105r18 106r11 108r26 109r22 110r32 117r26 120m12 121r23 127r46
 . 128r50 134r18 135r11 137r26 138r22 139r36 146r30 149m12 150r23 158m12 166m12
 . 174m12 182m12 189m55 196m53 203m48 210m44 238r14 275r18 282r68 325r12
-314r7*Latest_Build_Result{34|40R9} 38|238r26 284r14 312r36 313r28 325r24
-319b7*Latest_Build_Result_Focused{boolean} 38|29m9
-324r7*Latest_Build_Output_Details{32|36R9} 38|30m9 238r49 286r14 314r36 315r28
+315r7*Latest_Build_Result{34|43R9} 38|238r26 284r14 312r36 313r28 325r24
+320b7*Latest_Build_Result_Focused{boolean} 38|29m9
+325r7*Latest_Build_Output_Details{32|36R9} 38|30m9 238r49 286r14 314r36 315r28
 . 316r36 317r28 325r47
 X 95 system.ads
 67M9*Address

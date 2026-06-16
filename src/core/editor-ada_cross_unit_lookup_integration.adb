@@ -3,6 +3,8 @@ with Ada.Strings.Unbounded; use Ada.Strings.Unbounded;
 
 package body Editor.Ada_Cross_Unit_Lookup_Integration is
 
+   pragma Suppress (Overflow_Check);
+
    function Normalize (S : String) return String is
    begin
       return Ada.Characters.Handling.To_Lower (S);
@@ -10,7 +12,9 @@ package body Editor.Ada_Cross_Unit_Lookup_Integration is
 
    function Mix (A, B : Natural) return Natural is
    begin
-      return ((A * 191) + B + 127) mod 1_000_000_007;
+      return Natural
+        ((Long_Long_Integer (A) * 191 + Long_Long_Integer (B) + 127)
+         mod 1_000_000_007);
    end Mix;
 
    procedure Mix_Text (Value : in out Natural; Text : String) is

@@ -167,7 +167,7 @@ package body Editor.Commands is
         or else Trimmed = "File Tree unavailable: no item selected"
         or else Trimmed = "File Tree unavailable: no item selected."
       then
-         return "No File Tree node selected";
+         return "No file selected.";
       elsif Trimmed = "No diagnostic selected"
         or else Trimmed = "No diagnostic selected."
       then
@@ -176,6 +176,16 @@ package body Editor.Commands is
         or else Trimmed = "No search result selected."
       then
          return "No search result selected.";
+      elsif Trimmed = "No outline item selected"
+        or else Trimmed = "No outline item selected."
+      then
+         return "No outline item selected.";
+      elsif Trimmed = "No outline items item selected"
+        or else Trimmed = "No outline items item selected."
+        or else Trimmed = "Outline unavailable: no item selected"
+        or else Trimmed = "Outline unavailable: no item selected."
+      then
+         return "No file selected.";
       elsif Trimmed = "No file selected"
         or else Trimmed = "No file selected."
         or else Trimmed = "No Quick Open selection"
@@ -188,10 +198,6 @@ package body Editor.Commands is
         or else Trimmed = "No result selected."
         or else Trimmed = "Search Results: no selected result"
         or else Trimmed = "Search Results: no selected result."
-        or else Trimmed = "No outline item selected"
-        or else Trimmed = "No outline item selected."
-        or else Trimmed = "No outline items item selected"
-        or else Trimmed = "No outline items item selected."
         or else Trimmed = "No item selected"
         or else Trimmed = "No item selected."
         or else Trimmed = "No replacement selected"
@@ -200,8 +206,6 @@ package body Editor.Commands is
         or else Trimmed = "Quick Open unavailable: no item selected."
         or else Trimmed = "Project Search unavailable: no item selected"
         or else Trimmed = "Project Search unavailable: no item selected."
-        or else Trimmed = "Outline unavailable: no item selected"
-        or else Trimmed = "Outline unavailable: no item selected."
         or else Trimmed = "Diagnostics unavailable: no item selected"
         or else Trimmed = "Diagnostics unavailable: no item selected."
       then
@@ -326,8 +330,6 @@ package body Editor.Commands is
         or else Trimmed = "Search target line is unavailable."
         or else Trimmed = "Diagnostic target line is unavailable"
         or else Trimmed = "Diagnostic target line is unavailable."
-        or else Trimmed = "Diagnostic target line is outside the buffer"
-        or else Trimmed = "Diagnostic target line is outside the buffer."
         or else Trimmed = "Diagnostic target column is outside the line"
         or else Trimmed = "Diagnostic target column is outside the line."
       then
@@ -358,6 +360,10 @@ package body Editor.Commands is
         or else Trimmed = "Backing file missing."
       then
          return "Backing file missing.";
+      elsif Trimmed = "Save As required before saving this buffer"
+        or else Trimmed = "Save As required before saving this buffer."
+      then
+         return "Buffer has no file path.";
       elsif Trimmed = "Parent directory is unavailable"
         or else Trimmed = "Parent directory is unavailable."
         or else Trimmed = "Parent directory unavailable"
@@ -389,7 +395,7 @@ package body Editor.Commands is
       elsif Trimmed = "Replacement text must be single-line"
         or else Trimmed = "Replacement text must be single-line."
       then
-         return "Replacement text must be single-line";
+         return "Replacement text must be single-line.";
       elsif Trimmed = "Could not open file for replacement"
         or else Trimmed = "Could not open file for replacement."
       then
@@ -969,7 +975,7 @@ package body Editor.Commands is
       elsif Trimmed = "No command selected"
         or else Trimmed = "No command selected."
       then
-         return "No command selected";
+         return "No command selected.";
       elsif Trimmed = "No keybinding selected"
         or else Trimmed = "No keybinding selected."
       then
@@ -2265,11 +2271,11 @@ package body Editor.Commands is
          when Command_Reopen_Closed_Buffer =>
             return
               (Summary => To_Unbounded_String ("Reopens the latest safe closed-buffer file reference through canonical file-open behavior."),
-               Availability_Summary => To_Unbounded_String ("Requires a safe recently closed file to reopen."),
-               Mutation_Summary => To_Unbounded_String ("Reopens the recent file through normal open behavior and creates or activates the reopened buffer."),
+               Availability_Summary => To_Unbounded_String ("Requires a safe transient reopen candidate for a recently closed file."),
+               Mutation_Summary => To_Unbounded_String ("Uses the safe reopen candidate through normal open behavior and creates or activates the reopened buffer."),
                Filesystem_Effect_Summary => To_Unbounded_String ("Reads the reopen candidate through canonical file-open behavior."),
                State_Preservation_Summary => To_Unbounded_String ("Uses normal open behavior and does not restore command-reference or operation-history state."),
-               Non_Goal_Summary => To_Unbounded_String ("Does not restore unsaved closed-buffer text, watch files, repair missing files, or remember reopen history."),
+               Non_Goal_Summary => To_Unbounded_String ("Does not restore unsaved closed-buffer memory, watch files, repair missing files, or remember reopen history."),
                Family => File_Lifecycle_Family,
                Effect_Classification => Reopens_Safe_File_Reference);
          when Command_Reload_Active_Buffer =>
@@ -2329,7 +2335,7 @@ package body Editor.Commands is
             return
               (Summary => To_Unbounded_String ("Copies the active clean associated backing file to an explicit target path without changing association."),
                Availability_Summary => To_Unbounded_String ("Requires an active clean associated buffer and a valid explicit target path that does not already exist."),
-               Mutation_Summary => To_Unbounded_String ("Does not mutate association; preserves active buffer association, text, saved baseline, dirty state, and open-buffer collection on success."),
+               Mutation_Summary => To_Unbounded_String ("Does not mutate association; Preserves active buffer association, text, saved baseline, dirty state, and open-buffer collection on success."),
                Filesystem_Effect_Summary => To_Unbounded_String ("Copies the current associated backing file to the explicit target path."),
                State_Preservation_Summary => To_Unbounded_String ("Preserves active association, text, saved baseline, dirty state, open-buffer identity, and unrelated buffers."),
                Non_Goal_Summary => To_Unbounded_String ("Does not overwrite targets, copy dirty buffers, adopt the target, or open the copied file."),
@@ -2546,6 +2552,22 @@ package body Editor.Commands is
      (Id : Command_Id) return Boolean
    is
    begin
+      case Id is
+         when Command_Save_File
+            | Command_Save_File_As
+            | Command_Close_Active_Buffer
+            | Command_Reopen_Closed_Buffer
+            | Command_Reload_Active_Buffer
+            | Command_Revert_Active_Buffer
+            | Command_Rename_Buffer_File
+            | Command_Delete_Buffer_File
+            | Command_Copy_Buffer_File
+            | Command_Move_Buffer_File =>
+            null;
+         when others =>
+            return False;
+      end case;
+
       return Is_File_Lifecycle_Command (Id)
         and then Command_Family (Id) = File_Lifecycle_Family
         and then Command_Effect_Classification (Id) /= No_Command_Effect
@@ -2691,7 +2713,7 @@ package body Editor.Commands is
          (Command_Save_File_As, To_Unbounded_String ("file.save-as"), True, True, To_Unbounded_String ("Save As target")),
          (Command_Close_Active_Buffer, To_Unbounded_String ("file.close-buffer"), False, False, Null_Unbounded_String),
          (Command_Reopen_Closed_Buffer, To_Unbounded_String ("file.reopen-closed-buffer"), False, False, Null_Unbounded_String),
-         (Command_Reload_Active_Buffer, To_Unbounded_String ("file.reload-from-disk"), False, False, Null_Unbounded_String),
+         (Command_Reload_Active_Buffer, To_Unbounded_String ("file.reload-buffer"), False, False, Null_Unbounded_String),
          (Command_Revert_Active_Buffer, To_Unbounded_String ("file.revert-buffer"), False, False, Null_Unbounded_String),
          (Command_File_Conflict_Keep_Buffer, To_Unbounded_String ("file-conflict.keep-buffer"), False, False, Null_Unbounded_String),
          (Command_File_Conflict_Reload_From_Disk, To_Unbounded_String ("file-conflict.reload-from-disk"), False, False, Null_Unbounded_String),
@@ -2850,7 +2872,8 @@ package body Editor.Commands is
          Description   => Effective_Description,
          Category      => Category,
          Visible       => Visibility = Palette_Command,
-         Bindable      => Id /= No_Command,
+         Bindable      => Id /= No_Command
+           and then not Is_Public_Build_Command (Id),
          Destructive   => Is_Destructive_Command (Id),
          Lifecycle     => Is_Lifecycle_Command (Id),
          Configuration => Is_Configuration_Command (Id));
@@ -2928,16 +2951,16 @@ package body Editor.Commands is
             return Make_Descriptor
               (Id          => Id,
                Name        => "Move Word Left",
-               Description => "",
+               Description => "Move the caret to the previous word boundary",
                Category    => Navigation_Category,
-               Visibility  => Hidden_Command);
+               Visibility  => Palette_Command);
          when Command_Move_Word_Right =>
             return Make_Descriptor
               (Id          => Id,
                Name        => "Move Word Right",
-               Description => "",
+               Description => "Move the caret to the next word boundary",
                Category    => Navigation_Category,
-               Visibility  => Hidden_Command);
+               Visibility  => Palette_Command);
          when Command_Page_Up =>
             return Make_Descriptor
               (Id          => Id,
@@ -5599,15 +5622,15 @@ package body Editor.Commands is
          when Command_Goto_Body =>
             return Make_Descriptor
               (Id          => Id,
-               Name        => "Go to Body_Info",
-               Description => "Open the body target for the selected Outline symbol when indexed metadata provides one.",
+               Name        => "Go to Body",
+               Description => "Open the body target for the selected Outline symbol when available.",
                Category    => Navigation_Category,
                Visibility  => Palette_Command);
          when Command_Goto_Spec =>
             return Make_Descriptor
               (Id          => Id,
                Name        => "Go to Spec",
-               Description => "Open the spec target for the selected Outline symbol when indexed metadata provides one.",
+               Description => "Open the spec target for the selected Outline symbol when available.",
                Category    => Navigation_Category,
                Visibility  => Palette_Command);
          when Command_Semantic_Refresh_Buffer =>
@@ -5628,14 +5651,14 @@ package body Editor.Commands is
             return Make_Descriptor
               (Id          => Id,
                Name        => "Clear Language Index",
-               Description => "Clear the transient Ada language index without changing files or buffers.",
+               Description => "Clear the Ada language index without changing files or buffers.",
                Category    => Panel_Category,
                Visibility  => Palette_Command);
          when Command_Language_Index_Status =>
             return Make_Descriptor
               (Id          => Id,
                Name        => "Language Index Status",
-               Description => "Show the transient Ada language index file count, symbol count, overflow state, and fingerprint.",
+               Description => "Show the Ada language index file count, symbol count, overflow state, and fingerprint.",
                Category    => Panel_Category,
                Visibility  => Palette_Command);
          when Command_Clear_Outline =>
@@ -5739,14 +5762,14 @@ package body Editor.Commands is
          when Command_Outline_Filter_History_Previous =>
             return Make_Descriptor
               (Id          => Id,
-               Name        => "Previous Outline Filter",
+               Name        => "Outline: Previous Filter",
                Description => "Replace the active outline filter with the previous session-local filter history entry.",
                Category    => Panel_Category,
                Visibility  => Palette_Command);
          when Command_Outline_Filter_History_Next =>
             return Make_Descriptor
               (Id          => Id,
-               Name        => "Next Outline Filter",
+               Name        => "Outline: Next Filter",
                Description => "Replace the active outline filter with the next session-local filter history entry.",
                Category    => Panel_Category,
                Visibility  => Palette_Command);
@@ -6887,6 +6910,8 @@ package body Editor.Commands is
             | Command_Clear_All_Bookmarks
             | Command_Bookmark_Clear_All
             | Command_Clear_Project_Search
+            | Command_File_Conflict_Reload_From_Disk
+            | Command_File_Conflict_Overwrite_Disk
             | Command_Buffer_Switcher_Selected_Close =>
             return True;
          when others =>
@@ -7502,6 +7527,8 @@ package body Editor.Commands is
    begin
       if Id = Command_Palette_Show_Command_Help then
          return "command-palette.show-command-help";
+      elsif Id = Command_Open_Project then
+         return "project.open";
       elsif Id = Command_Refresh_Outline then
          return "outline.refresh";
       elsif Id = Command_Refresh_Outline_Project_Index then
@@ -7646,6 +7673,12 @@ package body Editor.Commands is
          return "diagnostics.filter-producer-build";
       elsif Id = Command_Diagnostics_Clear_Build then
          return "diagnostics.clear-build";
+      elsif Id = Command_Diagnostics_Open_Selected then
+         return "diagnostics.open-selected";
+      elsif Id = Command_Diagnostics_Select_Next then
+         return "diagnostics.next";
+      elsif Id = Command_Diagnostics_Select_Previous then
+         return "diagnostics.previous";
       elsif Id = Command_Navigation_Back then
          return "navigation.back";
       elsif Id = Command_Navigation_Forward then
@@ -7735,7 +7768,7 @@ package body Editor.Commands is
       elsif Id = Command_Save_All then
          return "file.save-all";
       elsif Id = Command_Reload_Active_Buffer then
-         return "file.reload-from-disk";
+         return "file.reload-buffer";
       elsif Id = Command_Revert_Active_Buffer then
          return "file.revert-buffer";
       elsif Id = Command_File_Conflict_Keep_Buffer then
@@ -8250,6 +8283,12 @@ package body Editor.Commands is
          return "outline.filter.focus";
       elsif Id = Command_Clear_Outline_Filter then
          return "outline.filter.clear";
+      elsif Id = Command_Toggle_Outline_Filter then
+         return "outline.filter.toggle";
+      elsif Id = Command_Outline_Filter_History_Previous then
+         return "outline.filter.history.previous";
+      elsif Id = Command_Outline_Filter_History_Next then
+         return "outline.filter.history.next";
       elsif Id = Command_Next_Recent_Buffer then
          return "buffers.recent.next";
       elsif Id = Command_Close_Other_Buffers then
@@ -8334,7 +8373,7 @@ package body Editor.Commands is
       then
          Found := True;
          return Command_Palette_Show_Command_Help;
-      elsif N = "project.open" then
+      elsif N = "project.open" or else N = "open-project" then
          Found := True;
          return Command_Open_Project;
       elsif N = "project.close" then
@@ -8989,6 +9028,120 @@ package body Editor.Commands is
       elsif N = "project.search.exclude.set" then
          Found := True;
          return Command_Project_Search_Exclude_Filter_Set;
+      elsif N = "project.search.run" then
+         Found := True;
+         return Command_Run_Project_Search;
+      elsif N = "project.search.show" then
+         Found := True;
+         return Command_Open_Project_Search_Bar;
+      elsif N = "project.search.toggle" then
+         Found := True;
+         return Command_Toggle_Project_Search_Bar;
+      elsif N = "project.search.hide" then
+         Found := True;
+         return Command_Close_Project_Search_Bar;
+      elsif N = "project.search.query.set" then
+         Found := True;
+         return Command_Run_Project_Search_From_Bar;
+      elsif N = "project.search.from-selection" then
+         Found := True;
+         return Command_Project_Search_From_Selection;
+      elsif N = "project.search.from-active-word" then
+         Found := True;
+         return Command_Project_Search_From_Active_Word;
+      elsif N = "project.search.active-directory" then
+         Found := True;
+         return Command_Project_Search_Active_Directory;
+      elsif N = "project.search.query.clear" then
+         Found := True;
+         return Command_Clear_Project_Search;
+      elsif N = "project.search.open-selected" then
+         Found := True;
+         return Command_Open_Selected_Project_Search_Result;
+      elsif N = "project.search.next" then
+         Found := True;
+         return Command_Next_Project_Search_Result;
+      elsif N = "project.search.previous" then
+         Found := True;
+         return Command_Previous_Project_Search_Result;
+      elsif N = "project.search.first" then
+         Found := True;
+         return Command_First_Project_Search_Result;
+      elsif N = "project.search.last" then
+         Found := True;
+         return Command_Last_Project_Search_Result;
+      elsif N = "project.search.reveal-active-result" then
+         Found := True;
+         return Command_Reveal_Active_Project_Search_Result;
+      elsif N = "project.search.scope.selected-directory" then
+         Found := True;
+         return Command_Project_Search_Scope_Selected_Directory;
+      elsif N = "project.search.kind.next" then
+         Found := True;
+         return Command_Project_Search_Kind_Next;
+      elsif N = "project.search.kind.previous" then
+         Found := True;
+         return Command_Project_Search_Kind_Previous;
+      elsif N = "project.search.kind.clear" then
+         Found := True;
+         return Command_Project_Search_Kind_Clear;
+      elsif N = "project.search.scope.set" then
+         Found := True;
+         return Command_Project_Search_Scope_Set;
+      elsif N = "project.search.scope.clear" then
+         Found := True;
+         return Command_Project_Search_Scope_Clear;
+      elsif N = "project.search.case.toggle" then
+         Found := True;
+         return Command_Project_Search_Case_Toggle;
+      elsif N = "project.search.case.clear" then
+         Found := True;
+         return Command_Project_Search_Case_Clear;
+      elsif N = "project.search.whole-word.toggle" then
+         Found := True;
+         return Command_Project_Search_Whole_Word_Toggle;
+      elsif N = "project.search.whole-word.clear" then
+         Found := True;
+         return Command_Project_Search_Whole_Word_Clear;
+      elsif N = "project.search.include.clear" then
+         Found := True;
+         return Command_Project_Search_Include_Filter_Clear;
+      elsif N = "project.search.exclude.clear" then
+         Found := True;
+         return Command_Project_Search_Exclude_Filter_Clear;
+      elsif N = "project.search.replace.preview" then
+         Found := True;
+         return Command_Project_Search_Replace_Preview;
+      elsif N = "project.search.replace.toggle-selected" then
+         Found := True;
+         return Command_Project_Search_Replace_Toggle_Selected;
+      elsif N = "project.search.replace.include-selected" then
+         Found := True;
+         return Command_Project_Search_Replace_Include_Selected;
+      elsif N = "project.search.replace.exclude-selected" then
+         Found := True;
+         return Command_Project_Search_Replace_Exclude_Selected;
+      elsif N = "project.search.replace.include-file" then
+         Found := True;
+         return Command_Project_Search_Replace_Include_File;
+      elsif N = "project.search.replace.exclude-file" then
+         Found := True;
+         return Command_Project_Search_Replace_Exclude_File;
+      elsif N = "project.search.replace.include-all" then
+         Found := True;
+         return Command_Project_Search_Replace_Include_All;
+      elsif N = "project.search.replace.exclude-all" then
+         Found := True;
+         return Command_Project_Search_Replace_Exclude_All;
+      elsif N = "project.search.replace.selected" then
+         Found := True;
+         return Command_Project_Search_Replace_Selected;
+      elsif N = "project.search.replace.all-included" then
+         Found := True;
+         return Command_Project_Search_Replace_All_Included;
+      elsif N = "project.search.replace.clear-preview" then
+         Found := True;
+         return Command_Project_Search_Replace_Clear_Preview;
       elsif N = "outline.next-symbol" then
          Found := True;
          return Command_Next_Outline_Symbol;
@@ -8998,64 +9151,77 @@ package body Editor.Commands is
       elsif N = "outline.reveal-current-symbol" then
          Found := True;
          return Command_Reveal_Current_Outline_Symbol;
-      elsif N = "outline.filter.focus" then
+      elsif N = "outline.filter.focus" or else N = "focus-outline-filter" then
          Found := True;
          return Command_Focus_Outline_Filter;
-      elsif N = "outline.filter.clear" then
+      elsif N = "outline.filter.clear" or else N = "clear-outline-filter" then
          Found := True;
          return Command_Clear_Outline_Filter;
+      elsif N = "outline.filter.toggle" or else N = "toggle-outline-filter" then
+         Found := True;
+         return Command_Toggle_Outline_Filter;
+      elsif N = "outline.filter.history.previous"
+        or else N = "outline-filter-history-previous"
+      then
+         Found := True;
+         return Command_Outline_Filter_History_Previous;
+      elsif N = "outline.filter.history.next"
+        or else N = "outline-filter-history-next"
+      then
+         Found := True;
+         return Command_Outline_Filter_History_Next;
       elsif N = "outline.filter.next-match" then
          Found := True;
          return Command_Select_Next_Outline_Item;
       elsif N = "outline.filter.previous-match" then
          Found := True;
          return Command_Select_Previous_Outline_Item;
-      elsif N = "open-quick-open" then
+      elsif N = "open-quick-open" or else N = "project.quick-open.show" then
          Found := True;
          return Command_Open_Quick_Open;
-      elsif N = "close-quick-open" then
+      elsif N = "close-quick-open" or else N = "project.quick-open.hide" then
          Found := True;
          return Command_Close_Quick_Open;
-      elsif N = "toggle-quick-open" then
+      elsif N = "toggle-quick-open" or else N = "project.quick-open.toggle" then
          Found := True;
          return Command_Toggle_Quick_Open;
-      elsif N = "accept-quick-open" then
+      elsif N = "accept-quick-open" or else N = "project.quick-open.open-selected" then
          Found := True;
          return Command_Accept_Quick_Open;
-      elsif N = "quick-open-next-result" then
+      elsif N = "quick-open-next-result" or else N = "project.quick-open.next" then
          Found := True;
          return Command_Quick_Open_Next_Result;
-      elsif N = "quick-open-previous-result" then
+      elsif N = "quick-open-previous-result" or else N = "project.quick-open.previous" then
          Found := True;
          return Command_Quick_Open_Previous_Result;
-      elsif N = "quick-open-query-set" then
+      elsif N = "quick-open-query-set" or else N = "project.quick-open.query.set" then
          Found := True;
          return Command_Quick_Open_Query_Set;
-      elsif N = "quick-open-query-clear" then
+      elsif N = "quick-open-query-clear" or else N = "project.quick-open.query.clear" then
          Found := True;
          return Command_Quick_Open_Query_Clear;
-      elsif N = "quick-open-kind-next" then
+      elsif N = "quick-open-kind-next" or else N = "project.quick-open.kind.next" then
          Found := True;
          return Command_Quick_Open_Kind_Next;
-      elsif N = "quick-open-kind-previous" then
+      elsif N = "quick-open-kind-previous" or else N = "project.quick-open.kind.previous" then
          Found := True;
          return Command_Quick_Open_Kind_Previous;
-      elsif N = "quick-open-kind-clear" then
+      elsif N = "quick-open-kind-clear" or else N = "project.quick-open.kind.clear" then
          Found := True;
          return Command_Quick_Open_Kind_Clear;
-      elsif N = "quick-open-scope-set" then
+      elsif N = "quick-open-scope-set" or else N = "project.quick-open.scope.set" then
          Found := True;
          return Command_Quick_Open_Scope_Set;
-      elsif N = "quick-open-scope-clear" then
+      elsif N = "quick-open-scope-clear" or else N = "project.quick-open.scope.clear" then
          Found := True;
          return Command_Quick_Open_Scope_Clear;
-      elsif N = "quick-open-scope-from-selected" then
+      elsif N = "quick-open-scope-from-selected" or else N = "project.quick-open.scope.from-selected" then
          Found := True;
          return Command_Quick_Open_Scope_From_Selected;
-      elsif N = "quick-open-scope-parent" then
+      elsif N = "quick-open-scope-parent" or else N = "project.quick-open.scope.parent" then
          Found := True;
          return Command_Quick_Open_Scope_Parent;
-      elsif N = "quick-open-reveal-active" then
+      elsif N = "quick-open-reveal-active" or else N = "project.quick-open.reveal-active" then
          Found := True;
          return Command_Quick_Open_Reveal_Active;
       elsif N = "quick-open-scope-active-directory"
@@ -9279,7 +9445,7 @@ package body Editor.Commands is
             when Ambiguous_Save_Command =>
                return "ambiguous save command classification";
             when Route_Bypasses_Executor =>
-               return "command bypasses Executor";
+               return "route bypasses Executor";
             when Unexpected_Domain_Mutation =>
                return "unexpected side-effect domain mutation";
          end case;

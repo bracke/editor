@@ -1,6 +1,8 @@
 with Ada.Strings.Unbounded; use Ada.Strings.Unbounded;
 
 package body Editor.Ada_Overload_Type_Final_RM_Consumer_Legality is
+
+   pragma Suppress (Overflow_Check);
    use type Access_AST.Access_Definition_AST_Repair_Status;
    use type Backmap.Generic_Backmap_Status;
    use type Edge.Overload_Type_Edge_Status;

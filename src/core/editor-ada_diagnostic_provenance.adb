@@ -2,6 +2,8 @@ with Ada.Strings.Unbounded; use Ada.Strings.Unbounded;
 
 package body Editor.Ada_Diagnostic_Provenance is
 
+   pragma Suppress (Overflow_Check);
+
    use type Editor.Ada_Semantic_Diagnostic_Index.Semantic_Diagnostic_Index_Id;
 
    use type Editor.Ada_Overload_Ranking_Provenance.Overload_Ranking_Provenance_Id;

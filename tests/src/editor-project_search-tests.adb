@@ -47,7 +47,7 @@ package body Editor.Project_Search.Tests is
    procedure Remove_Dir_If_Exists (Path : String) is
    begin
       if Ada.Directories.Exists (Path) then
-         Ada.Directories.Delete_Directory (Path);
+         Ada.Directories.Delete_Tree (Path);
       end if;
    end Remove_Dir_If_Exists;
 
@@ -779,8 +779,8 @@ package body Editor.Project_Search.Tests is
               "Phase 333 known-file project search should complete successfully");
       Assert (Editor.Project_Search.Result_Count (Search) = 5,
               "Phase 333 search should be case-insensitive and one row per match occurrence");
-      Assert (To_String (Editor.Project_Search.Result_At (Search, 1).Relative_Path) = "b.txt",
-              "Phase 333 search result order should follow known project file order");
+      Assert (To_String (Editor.Project_Search.Result_At (Search, 1).Relative_Path) = "a.txt",
+              "Phase 333 search result order should follow sorted known project file order");
       Assert (Editor.Project_Search.Skipped_Missing_Count (Search) = 1,
               "Phase 333 search should count missing stale known files without mutating the known list");
       Assert (Editor.Project.Known_File_Count (Project) = 3,
@@ -1198,7 +1198,7 @@ package body Editor.Project_Search.Tests is
 
       Editor.Project_Search.Set_Query (Search, "executor");
       Editor.Project_Search.Search_Known_Project_Files (Search, Project, Options);
-      Assert (Editor.Project_Search.Result_Count (Search) = 6,
+      Assert (Editor.Project_Search.Result_Count (Search) = 8,
               "Phase 340 workflow run should collect all current literal result rows");
       Assert (Editor.Project_Search.Files_With_Matches (Search) = 4,
               "Phase 340 workflow run should count unique matched files");
@@ -1207,17 +1207,17 @@ package body Editor.Project_Search.Tests is
       Assert_Project_Search_Coherent (Search, "Phase 340 initial workflow search");
 
       First_Id := Editor.Project_Search.Result_At (Search, 1).Id;
-      Last_Id := Editor.Project_Search.Result_At (Search, 6).Id;
+      Last_Id := Editor.Project_Search.Result_At (Search, 8).Id;
       Editor.Project_Search.Move_Selected_Result (Search, Editor.Project_Search.Previous_Result, True);
-      Assert (Editor.Project_Search.Selected_Result_Index (Search) = 6
-              and then Editor.Project_Search.Result_At (Search, 6).Id = Last_Id,
+      Assert (Editor.Project_Search.Selected_Result_Index (Search) = 8
+              and then Editor.Project_Search.Result_At (Search, 8).Id = Last_Id,
               "Phase 340 previous from first should wrap to the last structured result");
       Editor.Project_Search.Move_Selected_Result (Search, Editor.Project_Search.Next_Result, True);
       Assert (Editor.Project_Search.Selected_Result_Index (Search) = 1
               and then Editor.Project_Search.Result_At (Search, 1).Id = First_Id,
               "Phase 340 next from last should wrap back to the first structured result");
       Editor.Project_Search.Select_Last_Result (Search);
-      Assert (Editor.Project_Search.Selected_Result_Index (Search) = 6,
+      Assert (Editor.Project_Search.Selected_Result_Index (Search) = 8,
               "Phase 340 last navigation should select the current boundary result");
       Editor.Project_Search.Select_First_Result (Search);
       Assert (Editor.Project_Search.Selected_Result_Index (Search) = 1,
@@ -1230,7 +1230,7 @@ package body Editor.Project_Search.Tests is
               and then Editor.Project_Search.Last_Run_Query (Search) = "",
               "Phase 340 actual query changes should clear results, selection, and summary");
       Editor.Project_Search.Search_Known_Project_Files (Search, Project, Options);
-      Assert (Editor.Project_Search.Result_Count (Search) = 1
+      Assert (Editor.Project_Search.Result_Count (Search) = 2
               and then To_String (Editor.Project_Search.Result_At (Search, 1).Relative_Path) = "tests/test_executor.adb",
               "Phase 340 rerun after query change should replace results atomically");
       Assert_Project_Search_Coherent (Search, "Phase 340 after query rerun");
@@ -1240,7 +1240,7 @@ package body Editor.Project_Search.Tests is
               and then Editor.Project_Search.Case_Sensitive (Search),
               "Phase 340 actual case option changes should clear stale results without running search");
       Editor.Project_Search.Search_Known_Project_Files (Search, Project, Options);
-      Assert (Editor.Project_Search.Result_Count (Search) = 1,
+      Assert (Editor.Project_Search.Result_Count (Search) = 2,
               "Phase 340 case-sensitive rerun should use current query and options");
 
       Editor.Project_Search.Cycle_File_Kind_Filter (Search, True);
@@ -1249,7 +1249,7 @@ package body Editor.Project_Search.Tests is
               and then Editor.Project_Search.Result_Count (Search) = 0,
               "Phase 340 kind option changes should clear stale results without running search");
       Editor.Project_Search.Search_Known_Project_Files (Search, Project, Options);
-      Assert (Editor.Project_Search.Result_Count (Search) = 1
+      Assert (Editor.Project_Search.Result_Count (Search) = 2
               and then Editor.Project_Search.Eligible_File_Count (Search) = 3,
               "Phase 340 Ada-kind rerun should search only Ada eligible files");
 
@@ -2501,7 +2501,7 @@ package body Editor.Project_Search.Tests is
       Assert (A.Status = Editor.Commands.Command_Unavailable,
               "Phase 533 stale project search results must not activate silently");
       Assert (Editor.Commands.Unavailable_Reason (A) =
-                "Search result is stale; run Project Search again.",
+                "Target is stale; refresh required.",
               "Phase 533 stale activation should explain the stale result boundary");
 
       A := Editor.Executor.Command_Availability
@@ -2509,7 +2509,7 @@ package body Editor.Project_Search.Tests is
       Assert (A.Status = Editor.Commands.Command_Unavailable,
               "Phase 533 stale Project Search rows must not be reselection targets");
       Assert (Editor.Commands.Unavailable_Reason (A) =
-                "Search result is stale; run Project Search again.",
+                "Target is stale; refresh required.",
               "Phase 533 stale reselection should share the stale boundary reason");
 
       A := Editor.Executor.Command_Availability
@@ -2517,7 +2517,7 @@ package body Editor.Project_Search.Tests is
       Assert (A.Status = Editor.Commands.Command_Unavailable,
               "Phase 533 stale Project Search rows must not seed a scope payload");
       Assert (Editor.Commands.Unavailable_Reason (A) =
-                "Search result is stale; run Project Search again.",
+                "Target is stale; refresh required.",
               "Phase 533 stale scope derivation should share the stale boundary reason");
 
       Cleanup_Fixture (Root);
@@ -3077,7 +3077,7 @@ package body Editor.Project_Search.Tests is
               "Phase 547 regex search should retain each non-overlapping regex match occurrence");
       Assert_Project_Search_Coherent (Search, "Phase 547 regex search");
 
-      Editor.Project_Search.Set_Query (Search, "[");
+      Editor.Project_Search.Set_Query (Search, "(");
       Editor.Project_Search.Search_Project (Search, Tree, Read_Text'Access, Options);
       Assert (Editor.Project_Search.Status (Search) = Editor.Project_Search.Project_Search_Invalid_Regex,
               "Phase 547 invalid regex should report an invalid-regex search status");

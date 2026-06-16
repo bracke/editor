@@ -2,6 +2,8 @@ with Ada.Strings.Unbounded; use Ada.Strings.Unbounded;
 
 package body Editor.Ada_Generic_Abstract_State_Replay_Legality is
 
+   pragma Suppress (Overflow_Check);
+
    use type Abstract_Consumers.Abstract_State_Consumer_Row_Id;
    use type Backmap.Generic_Backmap_Row_Id;
    use type Closure.Shared_State_Stabilized_Closure_Id;

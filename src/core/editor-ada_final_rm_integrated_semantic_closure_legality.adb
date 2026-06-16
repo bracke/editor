@@ -2,6 +2,8 @@ with Ada.Strings.Unbounded; use Ada.Strings.Unbounded;
 
 package body Editor.Ada_Final_RM_Integrated_Semantic_Closure_Legality is
 
+   pragma Suppress (Overflow_Check);
+
    use type AST_Repair.Remaining_RM_Edge_AST_Repair_Status;
    use type Consumers.RM_Closure_Consumer_Stabilized_Closure_Status;
    use type Editor.Ada_Syntax_Tree.Node_Id;

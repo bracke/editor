@@ -2,6 +2,8 @@ with Ada.Strings.Unbounded; use Ada.Strings.Unbounded;
 
 package body Editor.Ada_Abstract_State_Refined_State_Consumer_Integration_Legality is
 
+   pragma Suppress (Overflow_Check);
+
    use type Stabilized_State.Shared_State_Stabilized_Closure_Status;
    use type States.Abstract_State_Row_Id;
    use type Shared.Shared_State_Row_Id;

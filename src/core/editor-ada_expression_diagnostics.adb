@@ -5,6 +5,8 @@ with Editor.Ada_Overload_Ranking;
 
 package body Editor.Ada_Expression_Diagnostics is
 
+   pragma Suppress (Overflow_Check);
+
    use type Editor.Ada_Syntax_Tree.Node_Id;
    use type Editor.Ada_Dispatching_Call_Legality.Dispatching_Legality_Status;
    use type Editor.Ada_Overload_Ranking.Overload_Ranking_Status;

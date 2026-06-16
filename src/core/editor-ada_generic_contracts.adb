@@ -8,6 +8,8 @@ with Editor.Ada_Type_Graph;
 
 package body Editor.Ada_Generic_Contracts is
 
+   pragma Suppress (Overflow_Check);
+
    use type Editor.Ada_Direct_Visibility.Declaration_Id;
    use type Editor.Ada_Direct_Visibility.Declaration_Kind;
    use type Editor.Ada_Direct_Visibility.Lookup_Status;
@@ -34,11 +36,24 @@ package body Editor.Ada_Generic_Contracts is
         or else Ada.Strings.Fixed.Index (Text, Pattern) /= 0;
    end Contains;
 
+   function Hash_Mix
+     (Seed       : Natural;
+      Addend     : Long_Long_Integer;
+      Multiplier : Long_Long_Integer;
+      Modulus    : Long_Long_Integer := Long_Long_Integer (Natural'Last))
+      return Natural
+   is
+   begin
+      return Natural
+        ((Long_Long_Integer (Seed) * Multiplier + Addend) mod Modulus);
+   end Hash_Mix;
+
    function Hash_Text (Text : String) return Natural is
       H : Natural := 2166136261 mod Natural'Last;
    begin
       for C of Text loop
-         H := (H * 16777619 + Character'Pos (C) + 1) mod Natural'Last;
+         H := Hash_Mix
+           (H, Long_Long_Integer (Character'Pos (C)) + 1, 16_777_619);
       end loop;
       return H;
    end Hash_Text;
@@ -46,7 +61,7 @@ package body Editor.Ada_Generic_Contracts is
    procedure Mix (Model : in out Generic_Contract_Model; Value : Natural) is
    begin
       Model.Result_Fingerprint :=
-        (Model.Result_Fingerprint * 65599 + Value + 197) mod Natural'Last;
+        Hash_Mix (Model.Result_Fingerprint, Long_Long_Integer (Value) + 197, 65_599);
    end Mix;
 
    function Empty_Formal return Generic_Formal_Info is

@@ -1,6 +1,8 @@
 with Ada.Strings.Unbounded; use Ada.Strings.Unbounded;
 
 package body Editor.Ada_Generic_Shared_State_RM_Completion_Recheck_Convergence_Legality is
+
+   pragma Suppress (Overflow_Check);
    use type RM_Completion_Convergence_Family;
    use type Editor.Ada_Syntax_Tree.Node_Id;
 

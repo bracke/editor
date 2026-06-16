@@ -43,7 +43,7 @@ package body Editor.File_Tree.Tests is
    procedure Remove_Dir_If_Exists (Path : String) is
    begin
       if Ada.Directories.Exists (Path) then
-         Ada.Directories.Delete_Directory (Path);
+         Ada.Directories.Delete_Tree (Path);
       end if;
    end Remove_Dir_If_Exists;
 
@@ -1419,7 +1419,8 @@ package body Editor.File_Tree.Tests is
       Assert (Ada.Directories.Exists (File_Path),
               "Phase 572 path-fragment rename execution must leave source intact");
       Assert (not Ada.Directories.Exists
-                (Ada.Directories.Compose (Root, "src/renamed.adb")),
+                (Ada.Directories.Compose
+                  (Ada.Directories.Compose (Root, "src"), "renamed.adb")),
               "Phase 572 path-fragment rename execution must not create a target");
 
       Cleanup_Fixture (Root);
@@ -1464,8 +1465,9 @@ package body Editor.File_Tree.Tests is
       Editor.File_Tree_View.Set_Selected_Row_Index (S.File_Tree_View, 1);
 
       Editor.Quick_Open.Set_Query_Text (S.Quick_Open, "a");
-      Editor.Quick_Open.Recompute_Results (S.Quick_Open, S.File_Tree, Config);
       Editor.Quick_Open.Open (S.Quick_Open);
+      Editor.Quick_Open.Set_Query_Text (S.Quick_Open, "a");
+      Editor.Quick_Open.Recompute_Results (S.Quick_Open, S.File_Tree, Config);
       Assert (not Editor.Quick_Open.Results_Are_Stale (S.Quick_Open),
               "Phase 572 setup should start with fresh Quick Open results");
       Assert (Editor.Quick_Open.Result_Count (S.Quick_Open) > 0,

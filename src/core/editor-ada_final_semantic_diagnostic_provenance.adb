@@ -3,6 +3,8 @@ with Editor.Ada_Syntax_Tree;
 
 package body Editor.Ada_Final_Semantic_Diagnostic_Provenance is
 
+   pragma Suppress (Overflow_Check);
+
    use type Base_Prov.Diagnostic_Provenance_Id;
    use type Editor.Ada_Syntax_Tree.Node_Id;
    use type Feed.Semantic_Diagnostic_Feed_Id;

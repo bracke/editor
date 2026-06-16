@@ -3,6 +3,8 @@ with Ada.Strings.Unbounded; use Ada.Strings.Unbounded;
 
 package body Editor.Ada_Dataflow_Global_Depends_Legality is
 
+   pragma Suppress (Overflow_Check);
+
    package CA renames Editor.Ada_Contract_Aspect_Legality;
    package DIF renames Editor.Ada_Definite_Initialization_Flow_Legality;
 

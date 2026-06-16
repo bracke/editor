@@ -8,9 +8,15 @@ package body Editor.Fonts is
      (Ch     : Character;
       Metric : out Glyph_Metric) return Boolean
    is
+      Pos : constant Natural := Character'Pos (Ch);
    begin
+      if Pos < Character'Pos (' ') or else Pos > Character'Pos ('~') then
+         Metric := (others => 0.0);
+         return False;
+      end if;
+
       return Get_Glyph
-        (Editor.Unicode.Code_Point'Val (Character'Pos (Ch)), Metric);
+        (Editor.Unicode.Code_Point'Val (Pos), Metric);
    end Get_Glyph;
 
    function Get_Glyph
@@ -126,13 +132,10 @@ package body Editor.Fonts is
         (Metric.H > 0.0,
          "Glyph height must be > 0 unless the glyph is empty");
 
-      pragma Assert
-      (Metric.W <= Float (Cell_Width),
-         "Glyph width exceeds cell width — violates monospaced grid invariant");
-
-      pragma Assert
-      (Metric.H <= Float (Cell_Height),
-         "Glyph height exceeds cell height — violates monospaced grid invariant");
+      --  Bitmap bounds can overhang a fixed cell slightly even when the
+      --  monospace advance fits.  Layout is cell/advance based, so render
+      --  packet construction must not abort on that diagnostic condition.
+      pragma Unreferenced (Cell_Width, Cell_Height);
 
       pragma Assert
       (Metric.U0 >= 0.0 and then Metric.U0 <= 1.0,

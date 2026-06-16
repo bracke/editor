@@ -1,6 +1,8 @@
 with Ada.Strings.Unbounded; use Ada.Strings.Unbounded;
 
 package body Editor.Ada_Representation_Tasking_Elaboration_Flow_Consumer_Legality is
+
+   pragma Suppress (Overflow_Check);
    use type Freezing.Freezing_Propagation_Status;
    use type Tasking_Flow.Tasking_Elab_Contract_Row_Id;
    use type Editor.Ada_Syntax_Tree.Node_Id;

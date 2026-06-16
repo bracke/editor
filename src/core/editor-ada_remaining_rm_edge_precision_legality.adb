@@ -1,6 +1,8 @@
 with Ada.Strings.Unbounded; use Ada.Strings.Unbounded;
 
 package body Editor.Ada_Remaining_RM_Edge_Precision_Legality is
+
+   pragma Suppress (Overflow_Check);
    use type Application.RM_Closure_Consumer_Application_Id;
    use type Editor.Ada_Syntax_Tree.Node_Id;
 

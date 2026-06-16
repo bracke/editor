@@ -3,6 +3,8 @@ with Ada.Strings.Unbounded; use Ada.Strings.Unbounded;
 
 package body Editor.Ada_Generic_Instance_Body_Semantic_Expansion is
 
+   pragma Suppress (Overflow_Check);
+
    package GA renames Editor.Ada_Generic_Instantiated_Body_Analysis;
    package OA renames Editor.Ada_Overload_Resolution_Legality;
    package AA renames Editor.Ada_Accessibility_Lifetime_Legality;

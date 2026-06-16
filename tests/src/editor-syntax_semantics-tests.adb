@@ -2415,14 +2415,14 @@ package body Editor.Syntax_Semantics.Tests is
       Assert (To_String (Package_Info.Target_Name) = "Ada.Text_IO",
               "package rename should retain renamed package target");
 
-      Assert (Procedure_Info.Kind = Editor.Ada_Language_Model.Symbol_Separate_Body,
+      Assert (Procedure_Info.Kind = Editor.Ada_Language_Model.Symbol_Procedure,
               "procedure rename should keep callable semantic kind");
       Assert (Procedure_Info.Flags.Is_Rename,
               "procedure rename should retain rename flag");
       Assert (To_String (Procedure_Info.Target_Name) = "Run",
               "procedure rename should retain target metadata");
 
-      Assert (Function_Info.Kind = Editor.Ada_Language_Model.Symbol_Separate_Body,
+      Assert (Function_Info.Kind = Editor.Ada_Language_Model.Symbol_Function,
               "function rename should keep callable semantic kind");
       Assert (Function_Info.Flags.Is_Rename,
               "function rename should retain rename flag");
@@ -2502,7 +2502,8 @@ package body Editor.Syntax_Semantics.Tests is
               "function aspect specification should be retained as declaration metadata");
       Assert (To_String (Imported_Info.Profile_Summary) = "(Count : Natural)",
               "procedure profile summary should stop before aspect clause");
-      Assert (To_String (Compute_Info.Profile_Summary) = "return Boolean",
+      Assert (To_String (Compute_Info.Profile_Summary) =
+                "(Value : Integer) return Boolean",
               "function profile summary should stop before aspect clause");
       Assert (Count_Info.Parent_Symbol = Imported_Id,
               "procedure parameter should still be parented under aspected declaration");
@@ -15232,8 +15233,8 @@ package body Editor.Syntax_Semantics.Tests is
          "assignment statements are retained without treating object declarations as assignments");
       Assert
         (Editor.Ada_Language_Model.Statement_Count
-           (Analysis, Editor.Ada_Language_Model.Statement_Call) = 1,
-         "procedure-call statements are retained as statement metadata");
+           (Analysis, Editor.Ada_Language_Model.Statement_Call) = 3,
+         "procedure-call statements in branch bodies are retained as statement metadata");
       Assert
         (Editor.Ada_Language_Model.Statement_Count
            (Analysis, Editor.Ada_Language_Model.Statement_Return) = 1,

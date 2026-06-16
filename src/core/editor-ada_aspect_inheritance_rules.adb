@@ -3,6 +3,8 @@ with Ada.Strings.Unbounded; use Ada.Strings.Unbounded;
 
 package body Editor.Ada_Aspect_Inheritance_Rules is
 
+   pragma Suppress (Overflow_Check);
+
    use type Editor.Ada_Language_Model.Representation_Clause_Kind;
    use type Editor.Ada_Syntax_Tree.Node_Id;
 

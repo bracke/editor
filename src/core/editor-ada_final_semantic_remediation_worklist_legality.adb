@@ -2,6 +2,8 @@ with Ada.Strings.Unbounded; use Ada.Strings.Unbounded;
 
 package body Editor.Ada_Final_Semantic_Remediation_Worklist_Legality is
 
+   pragma Suppress (Overflow_Check);
+
    use type Editor.Ada_Syntax_Tree.Node_Id;
    use type Final_Blocker_Family;
    use type Final_Remediation_Provenance_Status;

@@ -137,7 +137,7 @@ package Editor.Ada_Generic_Contract_Diagnostics is
    function Diagnostic_Count (Model : Generic_Contract_Diagnostic_Model) return Natural;
    function Diagnostic_At
      (Model : Generic_Contract_Diagnostic_Model;
-      Index : Positive) return Generic_Contract_Diagnostic_Info;
+      Index : Natural) return Generic_Contract_Diagnostic_Info;
    function Diagnostic_For_Node
      (Model : Generic_Contract_Diagnostic_Model;
       Node  : Editor.Ada_Syntax_Tree.Node_Id) return Generic_Contract_Diagnostic_Info;

@@ -4944,8 +4944,8 @@ package body Editor.External_Producers.Tests is
       Result := Editor.External_Producers.Run_Build_Execution_Consent_Audit (S);
       Assert (Result.Passed,
               "Phase 181 build execution consent audit must pass default state");
-      Assert (not Result.Has_Public_Build_Command,
-              "Phase 181 must not expose a public build command");
+      Assert (Result.Has_Public_Build_Command,
+              "build.run public command is exposed through the guarded public surface");
       Assert (not Result.Has_Default_Build_Keybinding,
               "internal build test seam must not have a default keybinding");
       Assert (Result.Internal_Command_Requires_Context,

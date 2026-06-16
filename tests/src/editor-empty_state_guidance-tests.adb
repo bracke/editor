@@ -200,7 +200,7 @@ package body Editor.Empty_State_Guidance.Tests is
       Editor.Diagnostics.Add
         (S.Diagnostics,
          Start_Index => Editor.Cursors.Cursor_Index (1),
-         End_Index   => Editor.Cursors.Cursor_Index (1),
+         End_Index   => Editor.Cursors.Cursor_Index (2),
          Severity    => Editor.Diagnostics.Warning,
          Message     => "source-less warning");
       S.Active_Diagnostic :=

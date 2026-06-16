@@ -9,6 +9,9 @@ package Editor.Render_Model.Tests is
      (T : Render_Model_Test_Case)
       return AUnit.Message_String;
 
+   overriding procedure Set_Up
+     (T : in out Render_Model_Test_Case);
+
    overriding procedure Register_Tests
      (T : in out Render_Model_Test_Case);
 

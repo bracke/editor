@@ -2,6 +2,8 @@ with Ada.Strings.Unbounded; use Ada.Strings.Unbounded;
 
 package body Editor.Ada_Cross_Unit_Diagnostics is
 
+   pragma Suppress (Overflow_Check);
+
    function Mix (Left, Right : Natural) return Natural is
       type Hash_Value is mod 2 ** 32;
       Mixed : constant Hash_Value :=

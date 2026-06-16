@@ -3,6 +3,8 @@ with Editor.Ada_Widened_Legality_Coverage_Gate_Enforcement;
 
 package body Editor.Ada_Refined_Global_Depends_Conformance_Legality is
 
+   pragma Suppress (Overflow_Check);
+
    package Engines renames Editor.Ada_Widened_Legality_Coverage_Gate_Enforcement;
 
    use type DGL.Global_Mode;

@@ -1,5 +1,7 @@
 package body Editor.Ada_RM_Completion_Closure_Consumer_Stabilized_Search_Index is
 
+   pragma Suppress (Overflow_Check);
+
    use type Prov.RM_Closure_Consumer_Stabilized_Provenance_Status;
    use type Prov.RM_Closure_Consumer_Stabilized_Provenance_Stage;
    use type Prov.RM_Closure_Consumer_Stabilized_Provenance_Blocker;
@@ -105,7 +107,7 @@ package body Editor.Ada_RM_Completion_Closure_Consumer_Stabilized_Search_Index i
       Feed_Item : RM_Closure_Consumer_Stabilized_Search_Entry) is
    begin
       Set.Results.Append
-        ((Index_Row        => Index,
+        (RM_Closure_Consumer_Stabilized_Search_Result'(Index_Row        => Index,
           Provenance_Index => Feed_Item.Provenance_Index,
           Feed_Item            => Feed_Item));
       Set.Fingerprint := Mix (Set.Fingerprint, Feed_Item.Fingerprint + Index + 1);

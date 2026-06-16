@@ -3,6 +3,8 @@ with Ada.Strings.Unbounded; use Ada.Strings.Unbounded;
 
 package body Editor.Ada_Nested_Body_Spec_Conformance is
 
+   pragma Suppress (Overflow_Check);
+
    use type Editor.Ada_Language_Model.Symbol_Id;
    use type Editor.Ada_Language_Model.Scope_Id;
 

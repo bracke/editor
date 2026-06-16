@@ -3472,6 +3472,8 @@ package body Editor.Missing_Stale_Recovery is
    begin
       if Result.State = Target_Available then
          return True;
+      elsif Result.State = Target_Command_Pending then
+         return False;
       end if;
 
       return Recovery_Command_Is_Explicit (Command)

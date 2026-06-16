@@ -5,6 +5,8 @@ with Ada.Strings.Unbounded;
 
 package body Editor.Ada_Expected_Type_Contexts is
 
+   pragma Suppress (Overflow_Check);
+
    use type Editor.Ada_Call_Resolution.Call_Resolution_Id;
    use type Editor.Ada_Declarative_Regions.Region_Id;
    use type Editor.Ada_Syntax_Tree.Node_Id;

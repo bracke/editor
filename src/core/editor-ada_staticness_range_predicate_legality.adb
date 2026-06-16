@@ -3,6 +3,8 @@ with Ada.Strings.Unbounded; use Ada.Strings.Unbounded;
 
 package body Editor.Ada_Staticness_Range_Predicate_Legality is
 
+   pragma Suppress (Overflow_Check);
+
    use type Editor.Ada_Syntax_Tree.Node_Id;
    use type Editor.Ada_Assignment_Legality.Assignment_Legality_Id;
    use type Editor.Ada_Assignment_Legality.Assignment_Legality_Status;

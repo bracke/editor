@@ -2,6 +2,8 @@ with Ada.Strings.Unbounded; use Ada.Strings.Unbounded;
 
 package body Editor.Ada_AST_Coverage_Repair_Legality is
 
+   pragma Suppress (Overflow_Check);
+
    use type Audit.Coverage_Status;
    use type Gates.Gate_Status;
    use type Editor.Ada_Syntax_Tree.Node_Id;

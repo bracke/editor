@@ -2,6 +2,20 @@ with Ada.Strings.Unbounded; use Ada.Strings.Unbounded;
 
 package body Editor.Ada_Remaining_RM_Edge_Stabilized_Closure_Diagnostic_Provenance is
 
+   pragma Suppress (Overflow_Check);
+   use type Diagnostics.Remaining_RM_Edge_Stabilized_Closure_Diagnostic_Status;
+   use type Diagnostics.Remaining_RM_Edge_Stabilized_Closure_Diagnostic_Severity;
+   use type Diagnostics.Remaining_RM_Edge_Stabilized_Closure_Diagnostic_Family;
+   use type Diagnostics.Remaining_RM_Edge_Stabilized_Closure_Id;
+   use type Closure.Gate.Remaining_RM_Edge_Stabilization_Gate_Id;
+   use type Closure.Gate.Conv.Remaining_RM_Edge_Convergence_Id;
+   use type Closure.Gate.Conv.Apply.Remaining_RM_Edge_Application_Id;
+   use type Closure.Gate.Conv.Apply.Recheck.Remaining_RM_Edge_Recheck_Id;
+   use type Closure.Gate.Conv.Apply.Recheck.Worklist.Remaining_RM_Edge_Worklist_Id;
+   use type Closure.Diagnostics.Remaining_RM_Edge_Stabilized_Diagnostic_Id;
+   use type Editor.Ada_Syntax_Tree.Node_Id;
+
+
    function Mix (A, B : Natural) return Natural is
    begin
       return (A * 131 + B + 17) mod 2_147_483_647;

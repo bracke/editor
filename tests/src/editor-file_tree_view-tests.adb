@@ -7,6 +7,7 @@ with Ada.Streams.Stream_IO;
 with Editor.File_Tree;
 with Editor.File_Tree_View;
 with Editor.Layout;
+with Editor.Panels;
 
 package body Editor.File_Tree_View.Tests is
 
@@ -16,6 +17,22 @@ package body Editor.File_Tree_View.Tests is
    use type Editor.File_Tree_View.File_Tree_Action;
 
    package Stream_IO renames Ada.Streams.Stream_IO;
+
+   procedure Disable_File_Tree_Panel
+     (Layout : in out Editor.Layout.Layout_Config)
+   is
+      Panels : Editor.Panels.Panel_Set := Layout.Panels;
+      Config : Editor.Panels.Panel_Config :=
+        Editor.Panels.Config (Panels, Editor.Panels.File_Tree_Panel);
+   begin
+      Config.Enabled := False;
+      Editor.Panels.Set_Config
+        (Panels, Editor.Panels.File_Tree_Panel, Config);
+      Editor.Panels.Set_Visible
+        (Panels, Editor.Panels.File_Tree_Panel, False);
+      Layout.Panels := Panels;
+      Layout.File_Tree_View.Enabled := False;
+   end Disable_File_Tree_Panel;
 
    function Temp_Path (Name : String) return String is
    begin
@@ -221,17 +238,17 @@ package body Editor.File_Tree_View.Tests is
          Has_Children  => True);
       File : Editor.File_Tree.File_Tree_Node_Summary := Dir;
    begin
-      Assert (Editor.File_Tree_View.Format_Row_Text (Config, Dir, 12) = "  - src",
+      Assert (Editor.File_Tree_View.Format_Row_Text (Config, Dir, 24) = "  - [dir] src",
               "expanded directory row must include indentation and '-' marker");
 
       Dir.Is_Expanded := False;
-      Assert (Editor.File_Tree_View.Format_Row_Text (Config, Dir, 12) = "  + src",
+      Assert (Editor.File_Tree_View.Format_Row_Text (Config, Dir, 24) = "  + [dir] src",
               "collapsed directory row must include indentation and '+' marker");
 
       File.Kind := Editor.File_Tree.File_Node;
       File.Name := To_Unbounded_String ("main.adb");
       File.Depth := 2;
-      Assert (Editor.File_Tree_View.Format_Row_Text (Config, File, 16) = "      main.adb",
+      Assert (Editor.File_Tree_View.Format_Row_Text (Config, File, 24) = "      [file] main.adb",
               "file row must reserve marker spacing and respect indentation");
    end Test_Format_Row_Text;
 
@@ -268,7 +285,7 @@ package body Editor.File_Tree_View.Tests is
    begin
       Assert (Editor.Layout.File_Tree_Width (Layout) > 0,
               "default layout must reserve a file tree sidebar");
-      Layout.File_Tree_View.Enabled := False;
+      Disable_File_Tree_Panel (Layout);
       Assert (Editor.Layout.File_Tree_Width (Layout) = 0,
               "disabled file tree view must reserve zero layout width");
    end Test_Layout_Disabled_Width;
@@ -302,7 +319,7 @@ package body Editor.File_Tree_View.Tests is
                 (Layout, Splitter_X, Splitter_Y, Viewport_Height),
               "splitter must be hit-testable inside its rectangle");
 
-      Layout.File_Tree_View.Enabled := False;
+      Disable_File_Tree_Panel (Layout);
       Assert (Editor.Layout.File_Tree_Splitter_Width (Layout) = 0,
               "disabled file tree must have zero splitter width");
       Assert (not Editor.Layout.Is_In_File_Tree_Splitter
@@ -630,9 +647,9 @@ package body Editor.File_Tree_View.Tests is
               "empty directory labels must use a safe fallback");
       Assert (Editor.File_Tree_View.Safe_Display_Label (File) = "<unnamed file>",
               "empty file labels must use a safe fallback");
-      Assert (Editor.File_Tree_View.Format_Row_Text (Config, Folder, 20) = "+ <unnamed folder>",
+      Assert (Editor.File_Tree_View.Format_Row_Text (Config, Folder, 32) = "+ [dir] <unnamed folder>",
               "formatted empty directory row must include the safe folder fallback");
-      Assert (Editor.File_Tree_View.Format_Row_Text (Config, File, 18) = "  <unnamed file>",
+      Assert (Editor.File_Tree_View.Format_Row_Text (Config, File, 32) = "  [file] <unnamed file>",
               "formatted empty file row must include the safe file fallback");
    end Test_Phase212_Safe_Display_Label_And_Empty_State;
 

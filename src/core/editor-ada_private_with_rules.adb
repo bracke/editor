@@ -3,6 +3,8 @@ with Ada.Strings.Unbounded; use Ada.Strings.Unbounded;
 
 package body Editor.Ada_Private_With_Rules is
 
+   pragma Suppress (Overflow_Check);
+
    function Normalize (S : String) return String is
    begin
       return Ada.Characters.Handling.To_Lower (S);

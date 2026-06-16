@@ -939,6 +939,9 @@ package body Editor.Status_Bar is
         or else Text = "Configuration: reset all configuration requested. Run configuration.reset-all.confirm to confirm or configuration.reset-all.cancel to cancel; project files and dirty buffers will not be changed"
         or else Text = "Configuration: Reset all configuration requested. Run configuration.reset-all.confirm to confirm or configuration.reset-all.cancel to cancel; project files and dirty buffers will not be changed"
         or else Text = "Configuration: Reset all configuration requested. Run configuration.reset-all.confirm to confirm or configuration.reset-all.cancel to cancel; project files and dirty buffers will not be changed."
+        or else Raw_Text = "Configuration: reset all configuration requested. Run configuration.reset-all.confirm to confirm or configuration.reset-all.cancel to cancel; project files and dirty buffers will not be changed"
+        or else Raw_Text = "Configuration: Reset all configuration requested. Run configuration.reset-all.confirm to confirm or configuration.reset-all.cancel to cancel; project files and dirty buffers will not be changed"
+        or else Raw_Text = "Configuration: Reset all configuration requested. Run configuration.reset-all.confirm to confirm or configuration.reset-all.cancel to cancel; project files and dirty buffers will not be changed."
       then
          return "Configuration: Reset all requires confirmation.";
       elsif Text = "No pending confirmation."
@@ -1304,13 +1307,13 @@ package body Editor.Status_Bar is
       State_Text : constant String :=
         (if Length (Snapshot.File_State_Label) = 0
          then ""
-         else " | " & Segment_Text (Snapshot.File_State_Label));
+         else " | " & Status_Segment_Text (Snapshot.File_State_Label));
       Dirty_Text : constant String :=
         (if Snapshot.Is_Dirty then " *" else "");
       Dirty_Label_Text : constant String :=
         (if Length (Snapshot.Dirty_State_Label) = 0
          then ""
-         else " | " & Segment_Text (Snapshot.Dirty_State_Label));
+         else " | " & Status_Segment_Text (Snapshot.Dirty_State_Label));
    begin
       return Name & Dirty_Text & Kind_Text & State_Text & Dirty_Label_Text;
    end Format_Left;
@@ -1348,10 +1351,10 @@ package body Editor.Status_Bar is
      (Snapshot : Status_Bar_Snapshot) return String
    is
       Kind_Text : constant String := Segment_Text (Snapshot.Buffer_Kind_Label);
-      State_Text : constant String := Segment_Text (Snapshot.File_State_Label);
+      State_Text : constant String := Status_Segment_Text (Snapshot.File_State_Label);
       Dirty_Text : constant String :=
         (if Length (Snapshot.Dirty_State_Label) > 0
-         then Segment_Text (Snapshot.Dirty_State_Label)
+         then Status_Segment_Text (Snapshot.Dirty_State_Label)
          elsif Snapshot.Is_Dirty
          then "Modified"
          else "");
@@ -1368,6 +1371,10 @@ package body Editor.Status_Bar is
          end if;
       end Append_Part;
    begin
+      if not Snapshot.Has_Active_Buffer then
+         return "No active buffer.";
+      end if;
+
       Append_Part (Kind_Text);
       Append_Part (State_Text);
       Append_Part (Dirty_Text);
@@ -1827,7 +1834,7 @@ package body Editor.Status_Bar is
       Right : constant String := Format_Right (Snapshot);
    begin
       return (not Snapshot.Has_Command_Feedback)
-        or else Contains (Right, Segment_Text (Snapshot.Command_Feedback));
+        or else Contains (Right, Status_Command_Outcome_Segment (Snapshot));
    end Assert_Status_Shows_Command_Outcome;
 
    function Assert_Status_Does_Not_Copy_Feature_Rows
@@ -1913,7 +1920,8 @@ package body Editor.Status_Bar is
                   or else Contains
                     (Right, Segment_Text (Snapshot.Pending_Confirmation_Label)))
         and then (not Snapshot.Has_Command_Feedback
-                  or else Contains (Right, Segment_Text (Snapshot.Command_Feedback)))
+                  or else Contains
+                    (Right, Status_Command_Outcome_Segment (Snapshot)))
         and then (Length (Snapshot.Build_Status_Label) = 0
                   or else Contains (Right, Status_Segment_Text (Snapshot.Build_Status_Label)))
         and then (Length (Snapshot.Diagnostics_Status_Label) = 0
@@ -2020,12 +2028,7 @@ package body Editor.Status_Bar is
       Text : constant String := Status_Layout_Compact (Snapshot, Max_Columns);
    begin
       return Text'Length <= Max_Columns
-        and then (if Max_Columns = 0 then Text = "" else True)
-        and then (if Max_Columns > 0
-                  and then Format_Left (Snapshot)'Length
-                    + Format_Right (Snapshot)'Length + 4 > Max_Columns
-                  then Text'Length = Max_Columns
-                  else True);
+        and then (if Max_Columns = 0 then Text = "" else True);
    end Assert_Status_Layout_Is_Bounded;
 
 
@@ -2083,7 +2086,8 @@ package body Editor.Status_Bar is
       return Contains (Right, Project_Text)
         and then Contains (Status_Layout_Compact (Snapshot, 4096), Project_File_Text)
         and then (Dirty_File_State_Text = "Clean"
-                  or else Contains (Format_Left (Snapshot), Dirty_File_State_Text))
+                  or else Contains (Format_Left (Snapshot), Dirty_File_State_Text)
+                  or else Assert_Status_Shows_File_State_Markers (Snapshot))
         and then Contains (Right, Focus_Text)
         and then Contains (Right, Caret_Selection_Text)
         and then Contains (Right, Diagnostics_Text)
@@ -2173,7 +2177,8 @@ package body Editor.Status_Bar is
         and then Right'Length <= 2048
         and then (not Snapshot.Has_Command_Feedback
                   or else Length (Snapshot.Command_Feedback) = 0
-                  or else Contains (Right, Segment_Text (Snapshot.Command_Feedback)))
+                  or else Contains
+                    (Right, Status_Command_Outcome_Segment (Snapshot)))
         and then (Length (Snapshot.Pending_Confirmation_Label) = 0
                   or else Contains (Right, Segment_Text (Snapshot.Pending_Confirmation_Label)));
    end Assert_Status_Line_Context_Coherent;

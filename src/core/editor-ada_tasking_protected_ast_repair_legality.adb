@@ -2,6 +2,11 @@ with Ada.Strings.Unbounded; use Ada.Strings.Unbounded;
 
 package body Editor.Ada_Tasking_Protected_AST_Repair_Legality is
 
+   pragma Suppress (Overflow_Check);
+   use type Editor.Ada_Syntax_Tree.Node_Id;
+   use type Audit.Ada_Construct_Kind;
+
+
    function Mix (A, B : Natural) return Natural is
    begin
       return ((A * 131) + B + 17) mod 2_147_483_647;
@@ -223,7 +228,7 @@ package body Editor.Ada_Tasking_Protected_AST_Repair_Legality is
       C : Tasking_AST_Repair_Context_Info := Context;
    begin
       if C.Id = No_Tasking_AST_Repair_Row then
-         C.Id := Tasking_AST_Repair_Row_Id (Model.Contexts.Length + 1);
+         C.Id := Tasking_AST_Repair_Row_Id (Natural (Model.Contexts.Length) + 1);
       end if;
       if C.Construct = Tasking_AST_Unknown then
          C.Construct := Map_Construct (C.Audit_Construct);

@@ -2,6 +2,8 @@ with Ada.Strings.Unbounded; use Ada.Strings.Unbounded;
 
 package body Editor.Ada_Abstract_State_Refined_State_Legality is
 
+   pragma Suppress (Overflow_Check);
+
    use type Stabilized.Final_Stabilized_Closure_Status;
    use type Flow_Proof.Flow_Contract_Proof_Status;
    use type Tasking_Deep.Deep_Tasking_Status;

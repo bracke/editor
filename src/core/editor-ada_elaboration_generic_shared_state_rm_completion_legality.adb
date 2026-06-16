@@ -2,6 +2,8 @@ with Ada.Strings.Unbounded; use Ada.Strings.Unbounded;
 
 package body Editor.Ada_Elaboration_Generic_Shared_State_RM_Completion_Legality is
 
+   pragma Suppress (Overflow_Check);
+
    use type AST_Repair.Coverage_Proven_AST_Repair_Id;
    use type Cross_RM.Cross_Unit_RM_Completion_Closure_Id;
    use type Dataflow_Generic.Dataflow_Generic_Final_Row_Id;

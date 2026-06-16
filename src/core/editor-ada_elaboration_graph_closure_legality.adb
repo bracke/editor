@@ -2,6 +2,8 @@ with Ada.Characters.Handling;
 
 package body Editor.Ada_Elaboration_Graph_Closure_Legality is
 
+   pragma Suppress (Overflow_Check);
+
    use Ada.Strings.Unbounded;
 
    use type Base.Elaboration_Order_State;

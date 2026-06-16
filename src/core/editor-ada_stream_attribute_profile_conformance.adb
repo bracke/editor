@@ -5,6 +5,8 @@ with Ada.Strings.Unbounded; use Ada.Strings.Unbounded;
 
 package body Editor.Ada_Stream_Attribute_Profile_Conformance is
 
+   pragma Suppress (Overflow_Check);
+
    use type Editor.Ada_Language_Model.Representation_Clause_Kind;
 
    function Mix (Left, Right : Natural) return Natural is

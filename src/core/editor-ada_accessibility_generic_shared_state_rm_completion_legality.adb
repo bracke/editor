@@ -2,6 +2,8 @@ with Ada.Strings.Unbounded; use Ada.Strings.Unbounded;
 
 package body Editor.Ada_Accessibility_Generic_Shared_State_RM_Completion_Legality is
 
+   pragma Suppress (Overflow_Check);
+
    use type Cross_RM.Cross_Unit_RM_Completion_Closure_Id;
    use type Prior_Access.Accessibility_Generic_Final_Row_Id;
    use type Elaboration_RM.Elaboration_RM_Completion_Row_Id;

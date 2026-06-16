@@ -1,6 +1,8 @@
 with Ada.Strings.Unbounded; use Ada.Strings.Unbounded;
 
 package body Editor.Ada_Representation_Freezing_Precision_Legality is
+
+   pragma Suppress (Overflow_Check);
    use type Freezing_Status;
    use type Representation_Status;
    use type Editor.Ada_Syntax_Tree.Node_Id;

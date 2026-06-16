@@ -1,4 +1,5 @@
 with Ada.Characters.Handling;
+with Ada.Containers.Vectors;
 with Ada.Strings;
 with Ada.Strings.Fixed;
 with Ada.Strings.Unbounded; use Ada.Strings.Unbounded;
@@ -20,6 +21,10 @@ package body Editor.Feature_Diagnostics is
    --  analysis, diagnostic history, or persisted filter/group projection state.
 
    use type Editor.Feature_Panel.Feature_Id;
+
+   package Visible_Row_Index_Vectors is new Ada.Containers.Vectors
+     (Index_Type   => Natural,
+      Element_Type => Natural);
 
    function Trim_Image (Value : Natural) return String is
    begin
@@ -275,10 +280,12 @@ package body Editor.Feature_Diagnostics is
 
    function Label_For (Item : Diagnostic_Item) return String is
    begin
-      return Severity_Label (Item.Severity) & ": " & To_String (Item.Message) &
-        " — " & Source_Display_Label (Item) &
-        " [" & Producer_Label (Item) & "]" &
-        (if Item.Is_Stale then " — stale" else "");
+      return Bounded_Text
+        (Severity_Label (Item.Severity) & ": " & To_String (Item.Message) &
+         " — " & Source_Display_Label (Item) &
+         " [" & Producer_Label (Item) & "]" &
+         (if Item.Is_Stale then " — stale" else ""),
+         Max_Diagnostic_Message_Text_Length, "");
    end Label_For;
 
    function Detail_For (Item : Diagnostic_Item) return String is
@@ -438,52 +445,58 @@ package body Editor.Feature_Diagnostics is
       end if;
    end Diagnostic_Comes_Before;
 
+   function Ordered_Visible_Indexes
+     (Diagnostics : Diagnostics_Feature_State)
+      return Visible_Row_Index_Vectors.Vector
+   is
+      Ordered : Visible_Row_Index_Vectors.Vector;
+   begin
+      for I in 1 .. Row_Count (Diagnostics) loop
+         declare
+            Candidate : constant Diagnostic_Item :=
+              Diagnostics.Rows.Element (I - 1);
+            Inserted  : Boolean := False;
+         begin
+            if Diagnostic_Is_Visible (Diagnostics, Candidate) then
+               if not Ordered.Is_Empty then
+                  for Position in Ordered.First_Index .. Ordered.Last_Index loop
+                     declare
+                        Existing_Index : constant Natural :=
+                          Ordered.Element (Position);
+                        Existing : constant Diagnostic_Item :=
+                          Diagnostics.Rows.Element (Existing_Index - 1);
+                     begin
+                        if Diagnostic_Comes_Before (Candidate, Existing) then
+                           Ordered.Insert (Position, I);
+                           Inserted := True;
+                           exit;
+                        end if;
+                     end;
+                  end loop;
+               end if;
+
+               if not Inserted then
+                  Ordered.Append (I);
+               end if;
+            end if;
+         end;
+      end loop;
+
+      return Ordered;
+   end Ordered_Visible_Indexes;
+
    function Ordered_Visible_Index_At
      (Diagnostics : Diagnostics_Feature_State;
       Position    : Positive) return Natural
    is
-      Best_Index : Natural := 0;
-      Best_Set   : Boolean := False;
+      Ordered : constant Visible_Row_Index_Vectors.Vector :=
+        Ordered_Visible_Indexes (Diagnostics);
    begin
-      if Position > Visible_Row_Count (Diagnostics) then
+      if Position > Natural (Ordered.Length) then
          return 0;
       end if;
 
-      for Pick in 1 .. Position loop
-         Best_Index := 0;
-         Best_Set := False;
-         for I in 1 .. Row_Count (Diagnostics) loop
-            declare
-               Candidate : constant Diagnostic_Item := Diagnostics.Rows.Element (I - 1);
-               Already_Selected : Boolean := False;
-            begin
-               if Diagnostic_Is_Visible (Diagnostics, Candidate) then
-                  if Pick > 1 then
-                     for Prior in 1 .. Pick - 1 loop
-                        if I = Ordered_Visible_Index_At (Diagnostics, Prior) then
-                           Already_Selected := True;
-                        end if;
-                     end loop;
-                  end if;
-
-                  if not Already_Selected
-                    and then (not Best_Set
-                      or else Diagnostic_Comes_Before
-                        (Candidate, Diagnostics.Rows.Element (Best_Index - 1)))
-                  then
-                     Best_Index := I;
-                     Best_Set := True;
-                  end if;
-               end if;
-            end;
-         end loop;
-      end loop;
-
-      if Best_Set then
-         return Best_Index;
-      else
-         return 0;
-      end if;
+      return Ordered.Element (Position - 1);
    end Ordered_Visible_Index_At;
 
    procedure Reset_Exhausted_Projection_Predicates
@@ -1009,15 +1022,18 @@ package body Editor.Feature_Diagnostics is
    is
       Groups : Diagnostics_File_Group_Vectors.Vector;
    begin
-      for Position in 1 .. Visible_Row_Count (Diagnostics) loop
-         declare
-            I     : constant Natural := Ordered_Visible_Index_At (Diagnostics, Position);
-            Item   : constant Diagnostic_Item := Diagnostics.Rows.Element (I - 1);
-            Source : constant String := To_String (Item.Source_Label);
-            Label  : constant String := Group_Label_For (Item);
-            Found  : Boolean := False;
-         begin
-            if I /= 0 then
+      declare
+         Ordered : constant Visible_Row_Index_Vectors.Vector :=
+           Ordered_Visible_Indexes (Diagnostics);
+      begin
+         for Position in Ordered.First_Index .. Ordered.Last_Index loop
+            declare
+               I     : constant Natural := Ordered.Element (Position);
+               Item   : constant Diagnostic_Item := Diagnostics.Rows.Element (I - 1);
+               Source : constant String := To_String (Item.Source_Label);
+               Label  : constant String := Group_Label_For (Item);
+               Found  : Boolean := False;
+            begin
                if not Groups.Is_Empty then
                   for G in Groups.First_Index .. Groups.Last_Index loop
                      declare
@@ -1054,9 +1070,9 @@ package body Editor.Feature_Diagnostics is
                         and then Item.Target_Buffer = No_Buffer
                         and then Item.Target_Line = 0));
                end if;
-            end if;
-         end;
-      end loop;
+            end;
+         end loop;
+      end;
       return Groups;
    end Visible_File_Groups;
 
@@ -1269,12 +1285,15 @@ package body Editor.Feature_Diagnostics is
             Can_Open    => False,
             Source_Index => 0);
       else
-         for Position in 1 .. Visible_Row_Count (Diagnostics) loop
-            declare
-               I    : constant Natural := Ordered_Visible_Index_At (Diagnostics, Position);
-               Item : constant Diagnostic_Item := Diagnostics.Rows.Element (I - 1);
-            begin
-               if I /= 0 then
+         declare
+            Ordered : constant Visible_Row_Index_Vectors.Vector :=
+              Ordered_Visible_Indexes (Diagnostics);
+         begin
+            for Position in Ordered.First_Index .. Ordered.Last_Index loop
+               declare
+                  I    : constant Natural := Ordered.Element (Position);
+                  Item : constant Diagnostic_Item := Diagnostics.Rows.Element (I - 1);
+               begin
                   Editor.Feature_Panel.Append_Row
                     (Panel,
                      Kind          => Editor.Feature_Panel.Feature_Row_Item,
@@ -1296,9 +1315,9 @@ package body Editor.Feature_Diagnostics is
                   if Selected_Id /= 0 and then Selected_Id = Natural (Item.Id) then
                      Restored_Row := Appended_Row;
                   end if;
-               end if;
-            end;
-         end loop;
+               end;
+            end loop;
+         end;
       end if;
 
       if Restored_Row /= 0 then
@@ -1422,7 +1441,7 @@ package body Editor.Feature_Diagnostics is
       elsif Label = "Target file missing or unavailable"
         or else Label = "Target file missing"
       then
-         return "Diagnostic target file is unavailable";
+         return "Target no longer exists.";
       elsif Label = "Target line unavailable" then
          return "Diagnostic target line is unavailable";
       elsif Label = "Target is stale; refresh required." then

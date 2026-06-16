@@ -2,13 +2,28 @@ with Ada.Strings.Unbounded; use Ada.Strings.Unbounded;
 
 package body Editor.Ada_Declarative_Regions is
 
+   pragma Suppress (Overflow_Check);
+
    use type Editor.Ada_Syntax_Tree.Node_Id;
+
+   function Hash_Mix
+     (Seed       : Natural;
+      Addend     : Long_Long_Integer;
+      Multiplier : Long_Long_Integer;
+      Modulus    : Long_Long_Integer := Long_Long_Integer (Natural'Last))
+      return Natural
+   is
+   begin
+      return Natural
+        ((Long_Long_Integer (Seed) * Multiplier + Addend) mod Modulus);
+   end Hash_Mix;
 
    function Hash_Text (Text : String) return Natural is
       H : Natural := 2166136261 mod Natural'Last;
    begin
       for C of Text loop
-         H := (H * 16777619 + Character'Pos (C) + 1) mod Natural'Last;
+         H := Hash_Mix
+           (H, Long_Long_Integer (Character'Pos (C)) + 1, 16_777_619);
       end loop;
       return H;
    end Hash_Text;
@@ -16,7 +31,7 @@ package body Editor.Ada_Declarative_Regions is
    procedure Mix (Model : in out Region_Model; Value : Natural) is
    begin
       Model.Result_Fingerprint :=
-        (Model.Result_Fingerprint * 65599 + Value + 31) mod Natural'Last;
+        Hash_Mix (Model.Result_Fingerprint, Long_Long_Integer (Value) + 31, 65_599);
    end Mix;
 
    function Opens_Region
@@ -129,13 +144,15 @@ package body Editor.Ada_Declarative_Regions is
       Info.End_Line := Owner.Source_Span.End_Line;
       Info.Label := Owner.Label;
       Info.Fingerprint :=
-        (Region_Kind'Pos (Kind) * 1000003
-         + Natural (Owner.Id) * 1009
-         + Natural (Parent) * 97
-         + Info.Start_Line * 53
-         + Info.End_Line * 17
-         + Info.Depth * 7
-         + Hash_Text (Label_Text)) mod Natural'Last;
+        Natural
+          ((Long_Long_Integer (Region_Kind'Pos (Kind)) * 1_000_003
+            + Long_Long_Integer (Natural (Owner.Id)) * 1_009
+            + Long_Long_Integer (Natural (Parent)) * 97
+            + Long_Long_Integer (Info.Start_Line) * 53
+            + Long_Long_Integer (Info.End_Line) * 17
+            + Long_Long_Integer (Info.Depth) * 7
+            + Long_Long_Integer (Hash_Text (Label_Text)))
+           mod Long_Long_Integer (Natural'Last));
       Model.Regions.Append (Info);
       Mix (Model, Info.Fingerprint);
       return Id;

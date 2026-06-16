@@ -3,6 +3,8 @@ with Ada.Strings.Unbounded; use Ada.Strings.Unbounded;
 
 package body Editor.Ada_Tasking_Protected_Final_Effects_Legality is
 
+   pragma Suppress (Overflow_Check);
+
    use type Access_Final.Master_Scope_Final_Row_Id;
    use type Disc_Consumer.Discriminant_Consumer_Row_Id;
    use type Editor.Ada_Syntax_Tree.Node_Id;

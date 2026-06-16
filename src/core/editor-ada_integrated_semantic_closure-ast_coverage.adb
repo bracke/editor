@@ -2,6 +2,8 @@ with Ada.Characters.Handling;
 with Ada.Strings.Unbounded; use Ada.Strings.Unbounded;
 
 package body Editor.Ada_Integrated_Semantic_Closure.AST_Coverage is
+
+   pragma Suppress (Overflow_Check);
    use type Editor.Ada_AST_Semantic_Coverage_Audit.Coverage_Status;
 
    package Audit renames Editor.Ada_AST_Semantic_Coverage_Audit;

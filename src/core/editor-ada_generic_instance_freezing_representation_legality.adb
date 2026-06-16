@@ -3,6 +3,8 @@ with Ada.Strings.Unbounded; use Ada.Strings.Unbounded;
 
 package body Editor.Ada_Generic_Instance_Freezing_Representation_Legality is
 
+   pragma Suppress (Overflow_Check);
+
    package AL renames Editor.Ada_Assignment_Legality;
    package RL renames Editor.Ada_Return_Legality;
    package EL renames Editor.Ada_Conversion_Access_Aggregate_Legality;

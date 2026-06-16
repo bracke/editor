@@ -249,15 +249,15 @@ package body Editor.Workspace_Persistence.Tests is
          "editor-workspace-version=1" & ASCII.LF &
          "project-root=/tmp/project" & ASCII.LF &
          "[open-files]" & ASCII.LF &
-         "src/editor.adb|row=not-a-number|col=4|view=0" & ASCII.LF &
+         "src/editor.adb|relative=true|row=not-a-number|col=4|view=0" & ASCII.LF &
          "[active-file]" & ASCII.LF &
          "src/editor.adb|relative=true" & ASCII.LF);
 
       Editor.Workspace_Persistence.Load_From_File (Path, Snapshot, Status);
       Assert (Status = Editor.Workspace_Persistence.Workspace_Persistence_Partial_Restore,
               "malformed optional field should mark load partial");
-      Assert (Editor.Workspace_Persistence.Open_File_Count (Snapshot) = 1,
-              "partial optional field should not discard otherwise valid file entry");
+      Assert (Editor.Workspace_Persistence.Open_File_Count (Snapshot) = 0,
+              "malformed canonical metadata should reject the file entry");
       Remove_If_Exists (Path);
    end Test_Malformed_Optional_Entry_Is_Partial;
 
@@ -271,8 +271,8 @@ package body Editor.Workspace_Persistence.Tests is
       Clean : constant String := Editor.Workspace_Persistence.Normalize_Project_Relative_Path
         ("src\\core//editor.adb", Valid);
    begin
-      Assert (Valid and then Clean = "src/core/editor.adb",
-              "normalization should canonicalize project-relative separators");
+      Assert ((not Valid) and then Clean = "",
+              "strict normalization should reject noncanonical separators");
       Assert (not Editor.Workspace_Persistence.Is_Safe_Project_Relative_Path ("../outside.adb"),
               "workspace persistence should reject parent-directory escapes");
       Assert (not Editor.Workspace_Persistence.Is_Safe_Project_Relative_Path ("/tmp/outside.adb"),
@@ -297,7 +297,7 @@ package body Editor.Workspace_Persistence.Tests is
       Editor.Workspace_Persistence.Set_Project_Root (Left, "/tmp/project");
       Editor.Workspace_Persistence.Add_Open_File
         (Left,
-         (Path                => To_Unbounded_String ("src\\editor.adb"),
+         (Path                => To_Unbounded_String ("src/editor.adb"),
           Is_Project_Relative => True,
           Cursor_Row          => 3,
           Cursor_Column       => 2,
@@ -391,6 +391,7 @@ package body Editor.Workspace_Persistence.Tests is
          "[open-files]" & ASCII.LF &
          "../outside.adb|relative=true|row=0|col=0|view=0" & ASCII.LF &
          "src/ok.adb|relative=true|row=bad|col=0|view=0" & ASCII.LF &
+         "src/ok.adb|relative=true|row=0|col=0|view=0" & ASCII.LF &
          "[unknown-section]" & ASCII.LF &
          "ignored=true" & ASCII.LF);
 
@@ -453,8 +454,8 @@ package body Editor.Workspace_Persistence.Tests is
          "src/a.adb|relative=true|row=1|col=2|view=3" & ASCII.LF &
          "src/a.adb|relative=true|row=9|col=9|view=9" & ASCII.LF &
          "[file-tree-expanded]" & ASCII.LF &
-         "z" & ASCII.LF &
          "a" & ASCII.LF &
+         "z" & ASCII.LF &
          "z" & ASCII.LF);
 
       Editor.Workspace_Persistence.Load_From_File (Path, Snapshot, Status);
@@ -676,8 +677,13 @@ package body Editor.Workspace_Persistence.Tests is
          "project-root=/tmp/phase558_project" & ASCII.LF &
          "[open-files]" & ASCII.LF &
          "src/main.adb|relative=true|row=0|col=0|view=0" & ASCII.LF &
+         "[active-file]" & ASCII.LF &
+         "src/main.adb|relative=true" & ASCII.LF &
+         "[file-tree-expanded]" & ASCII.LF &
          "[panels]" & ASCII.LF &
+         "file-tree-visible=true" & ASCII.LF &
          "file-tree-width=0" & ASCII.LF &
+         "bottom-visible=false" & ASCII.LF &
          "bottom-height=0" & ASCII.LF &
          "bottom-content=problems" & ASCII.LF);
 

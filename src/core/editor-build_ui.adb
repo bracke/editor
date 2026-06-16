@@ -516,6 +516,7 @@ package body Editor.Build_UI is
    begin
       State.Build_Candidates := Candidates;
       Clear_Candidate_Application (State, "No build candidate selected");
+      Invalidate_Consent (State);
       State.Candidate_Discovery_Message := To_Unbounded_String (Message);
       Refresh_Validation (State);
    end Set_Build_Candidates;
@@ -1170,8 +1171,11 @@ package body Editor.Build_UI is
    is
    begin
       return (if Snapshot.Visible then
-               Length (Snapshot.Request_Preview.Tool_Kind_Label) > 0
-                 and then Length (Snapshot.Request_Preview.Working_Context_Label) > 0
+               (if Snapshot.Run_Available then
+                  Length (Snapshot.Request_Preview.Tool_Kind_Label) > 0
+                    and then Length (Snapshot.Request_Preview.Working_Context_Label) > 0
+                else
+                  Length (Snapshot.Request_Preview.Request_Mode_Label) > 0)
                  and then Length (Snapshot.Request_Preview.Consent_Label) > 0
                  and then Length (Snapshot.Run_Availability_Label) > 0
                  and then Snapshot.Candidate_Count = Natural (Snapshot.Candidates.Length)

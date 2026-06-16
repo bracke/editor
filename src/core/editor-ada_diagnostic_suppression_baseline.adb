@@ -2,6 +2,8 @@ with Ada.Strings.Unbounded; use Ada.Strings.Unbounded;
 
 package body Editor.Ada_Diagnostic_Suppression_Baseline is
 
+   pragma Suppress (Overflow_Check);
+
    use type Feed_Source;
    use type Feed_Severity;
    use type Editor.Ada_Semantic_Diagnostic_Index.Semantic_Diagnostic_Index_Id;

@@ -3,6 +3,8 @@ with Ada.Strings.Unbounded; use Ada.Strings.Unbounded;
 
 package body Editor.Ada_Final_Semantic_Diagnostic_Integration is
 
+   pragma Suppress (Overflow_Check);
+
    function Mix (A, B : Natural) return Natural is
    begin
       return ((A * 131) + B + 1194) mod 2_147_483_647;

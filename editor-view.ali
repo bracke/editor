@@ -1,5 +1,7 @@
 V "GNAT Lib v15"
 A -gnat2022
+A -gnatX
+A -gnata
 P SS ZX
 
 RN
@@ -7,7 +9,7 @@ RV NO_FIXED_POINT
 RV NO_FLOATING_POINT
 RV NO_IMPLICIT_CONDITIONALS
 
-U editor.view%b		editor-view.adb		fc999c5f NE OO PK
+U editor.view%b		editor-view.adb		e62692a3 NE OO PK
 W ada%s			ada.ads			ada.ali
 W ada.containers%s	a-contai.ads		a-contai.ali
 Z ada.strings.text_buffers%s  a-sttebu.adb	a-sttebu.ali
@@ -21,7 +23,7 @@ W editor.scrollbars%s	editor-scrollbars.adb	editor-scrollbars.ali
 W editor.settings%s	editor-settings.adb	editor-settings.ali
 W editor.wrap%s		editor-wrap.adb		editor-wrap.ali
 
-U editor.view%s		editor-view.ads		a5524226 EE NE OO PK
+U editor.view%s		editor-view.ads		bfed4cda EE NE OO PK
 W editor%s		editor.ads		editor.ali
 W editor.layout%s	editor-layout.adb	editor-layout.ali
 W editor.render_model%s	editor-render_model.adb	editor-render_model.ali
@@ -48,7 +50,7 @@ D a-stuten.ads		20250808065140 c6ced0ae ada.strings.utf_encoding%s
 D a-tags.ads		20250808065140 fbca0ad5 ada.tags%s
 D a-unccon.ads		20250808065140 0e9b276f ada.unchecked_conversion%s
 D editor.ads		20260612145959 16f844c2 editor%s
-D editor-ada_language_model.ads  20260612145959 459f92c3 editor.ada_language_model%s
+D editor-ada_language_model.ads  20260613110624 75f1fac9 editor.ada_language_model%s
 D editor-ada_project_index.ads  20260612145959 3ad143b9 editor.ada_project_index%s
 D editor-ada_syntax_tree.ads  20260612145959 49a76ced editor.ada_syntax_tree%s
 D editor-bookmarks.ads	20260612145959 4e695f4d editor.bookmarks%s
@@ -56,9 +58,9 @@ D editor-buffer_switcher.ads  20260612152524 fd053b33 editor.buffer_switcher%s
 D editor-buffer_types.ads  20260612151710 a555405e editor.buffer_types%s
 D editor-buffers.ads	20260612185530 1a6b6e4c editor.buffers%s
 D editor-build_candidates.ads  20260612145959 dc89ea7b editor.build_candidates%s
-D editor-build_output_details.ads  20260612145959 0f4ba402 editor.build_output_details%s
+D editor-build_output_details.ads  20260613095501 1d7c9af2 editor.build_output_details%s
 D editor-build_process_control.ads  20260612145959 28661204 editor.build_process_control%s
-D editor-build_result_summary.ads  20260612145959 94fc95d2 editor.build_result_summary%s
+D editor-build_result_summary.ads  20260613095501 5b952273 editor.build_result_summary%s
 D editor-build_runner_policy.ads  20260612145959 623f26a9 editor.build_runner_policy%s
 D editor-build_ui.ads	20260612152524 28a54496 editor.build_ui%s
 D editor-build_working_context.ads  20260612145959 cef9cea9 editor.build_working_context%s
@@ -100,14 +102,14 @@ D editor-pending_transitions.ads  20260612145959 81c78960 editor.pending_transit
 D editor-problems.ads	20260612145959 a9a08157 editor.problems%s
 D editor-producer_contracts.ads  20260612145959 c3ee4501 editor.producer_contracts%s
 D editor-project.ads	20260612145959 f4d50f6d editor.project%s
-D editor-project_search.ads  20260612152451 857df5ab editor.project_search%s
+D editor-project_search.ads  20260612195704 b7cf3cc2 editor.project_search%s
 D editor-project_search_bar.ads  20260612145959 c5c12f77 editor.project_search_bar%s
-D editor-quick_open.ads	20260612151807 878ba83c editor.quick_open%s
+D editor-quick_open.ads	20260614175339 b8f14db6 editor.quick_open%s
 D editor-recent_buffers.ads  20260612145959 617e4612 editor.recent_buffers%s
 D editor-recent_projects.ads  20260612145959 ee1155f5 editor.recent_projects%s
 D editor-render_cache.ads  20260612145959 951d8d8f editor.render_cache%s
 D editor-render_layers.ads  20260612145959 e75e95d2 editor.render_layers%s
-D editor-render_model.ads  20260612145959 bd0252b2 editor.render_model%s
+D editor-render_model.ads  20260613081313 a7bd5c4e editor.render_model%s
 D editor-render_packet.ads  20260612145959 ab21aa24 editor.render_packet%s
 D editor-scrollbars.ads	20260612145959 9b382f5f editor.scrollbars%s
 D editor-search.ads	20260612145959 dac0e204 editor.search%s
@@ -115,7 +117,7 @@ D editor-search_results.ads  20260612145959 98eded1d editor.search_results%s
 D editor-selection.ads	20260612145959 37bfc5e9 editor.selection%s
 D editor-settings.ads	20260612145959 c2103809 editor.settings%s
 D editor-settings_management.ads  20260612145959 cf741a5b editor.settings_management%s
-D editor-state.ads	20260612170622 4c537118 editor.state%s
+D editor-state.ads	20260613081313 1982bcb9 editor.state%s
 D editor-status_bar.ads	20260612145959 879f0640 editor.status_bar%s
 D editor-syntax.ads	20260612145959 d59b0303 editor.syntax%s
 D editor-syntax_cache.ads  20260612164742 637f2470 editor.syntax_cache%s
@@ -125,7 +127,7 @@ D editor-unicode.ads	20260612145959 552ff3cc editor.unicode%s
 D editor-view.ads	20260612152152 12b5fbb1 editor.view%s
 D editor-view.adb	20260612154933 31621245 editor.view%b
 D editor-view_types.ads	20260612152152 f3042ec7 editor.view_types%s
-D editor-workspace_persistence.ads  20260612145959 455ffd61 editor.workspace_persistence%s
+D editor-workspace_persistence.ads  20260612202240 a037efc2 editor.workspace_persistence%s
 D editor-wrap.ads	20260612145959 87db665a editor.wrap%s
 D interfac.ads		20250808065140 9111f9c1 interfaces%s
 D i-c.ads		20250808065140 e94c966a interfaces.c%s
@@ -279,10 +281,10 @@ X 78 editor-render_cache.ads
 5K16*Render_Cache 61e24 96|3w13 69r14 78r17 86r17 99r17 211r17 235r17 283r17
 8U14*Invalidate_All 96|69s27 78s30 86s30 99s30 211s30 235s30 283s30
 X 80 editor-render_model.ads
-28K16*Render_Model 334e24 95|2w13 50r23 96|4w13 299r19 313r23
+28K16*Render_Model 335e24 95|2w13 50r23 96|4w13 299r19 313r23
 40A9*Natural_Array(natural)<integer>
 73A9*Visual_Row_Info_Array(99|13R9)<integer>
-76R9*Render_Snapshot 323e14 95|50r36 96|299r32 313r36
+76R9*Render_Snapshot 324e14 95|50r36 96|299r32 313r36
 87i7*Caret_Count{natural} 96|463r21
 89a7*Caret_Virtual_Column{40A9} 96|464r27 469r24
 97i7*Total_Line_Count{natural} 96|332r30 491r39

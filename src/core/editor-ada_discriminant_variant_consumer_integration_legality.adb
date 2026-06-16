@@ -2,6 +2,8 @@ with Ada.Strings.Unbounded; use Ada.Strings.Unbounded;
 
 package body Editor.Ada_Discriminant_Variant_Consumer_Integration_Legality is
 
+   pragma Suppress (Overflow_Check);
+
 
    use type Disc_AST.Discriminant_Variant_AST_Repair_Status;
    use type Rep_CPD.Representation_Tasking_CPD_Status;

@@ -132,13 +132,6 @@ package body Editor.Lifecycle_Guidance is
             return With_Command_Shortcut
               ("Dirty file - save available",
                Editor.Commands.Command_Save_File, Show_Shortcuts (S));
-         elsif (not S.File_Info.Has_Path)
-           and then Save_As_Supported
-           and then Available (S, Editor.Commands.Command_Save_File_As)
-         then
-            return With_Command_Shortcut
-              ("Untitled dirty buffer - Save As available",
-               Editor.Commands.Command_Save_File_As, Show_Shortcuts (S));
          elsif S.File_Info.Has_Path then
             return "Dirty file - save first";
          else

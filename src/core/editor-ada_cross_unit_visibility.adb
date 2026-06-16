@@ -3,6 +3,8 @@ with Ada.Strings.Unbounded; use Ada.Strings.Unbounded;
 
 package body Editor.Ada_Cross_Unit_Visibility is
 
+   pragma Suppress (Overflow_Check);
+
    function Normalize (S : String) return String is
    begin
       return Ada.Characters.Handling.To_Lower (S);
@@ -11,13 +13,18 @@ package body Editor.Ada_Cross_Unit_Visibility is
    procedure Mix (Value : in out Natural; Text : String) is
    begin
       for Ch of Text loop
-         Value := (Value * 131 + Character'Pos (Ch)) mod 1_000_000_007;
+         Value := Natural
+           ((Long_Long_Integer (Value) * 131
+             + Long_Long_Integer (Character'Pos (Ch)))
+            mod 1_000_000_007);
       end loop;
    end Mix;
 
    procedure Mix (Value : in out Natural; N : Natural) is
    begin
-      Value := (Value * 131 + N) mod 1_000_000_007;
+      Value := Natural
+        ((Long_Long_Integer (Value) * 131 + Long_Long_Integer (N))
+         mod 1_000_000_007);
    end Mix;
 
    function Status_For

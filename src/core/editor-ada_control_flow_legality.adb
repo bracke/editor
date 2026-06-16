@@ -2,6 +2,8 @@ with Ada.Strings.Unbounded; use Ada.Strings.Unbounded;
 
 package body Editor.Ada_Control_Flow_Legality is
 
+   pragma Suppress (Overflow_Check);
+
    use type Editor.Ada_Return_Legality.Return_Legality_Id;
    use type Editor.Ada_Syntax_Tree.Node_Id;
 

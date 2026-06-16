@@ -457,11 +457,11 @@ package body Editor.Build_Output_Details is
    is
    begin
       if Details.Stdout_Truncated and then Details.Stdout_Display_Truncated then
-         return "stdout truncated; stdout display excerpt truncated";
+         return "stdout runner/display truncated";
       elsif Details.Stdout_Truncated then
          return "stdout truncated";
       elsif Details.Stdout_Display_Truncated then
-         return "stdout display excerpt truncated";
+         return "stdout display truncated";
       elsif Details.Stdout_Available then
          return "stdout captured within display bound";
       else
@@ -474,11 +474,11 @@ package body Editor.Build_Output_Details is
    is
    begin
       if Details.Stderr_Truncated and then Details.Stderr_Display_Truncated then
-         return "stderr truncated; stderr display excerpt truncated";
+         return "stderr runner/display truncated";
       elsif Details.Stderr_Truncated then
          return "stderr truncated";
       elsif Details.Stderr_Display_Truncated then
-         return "stderr display excerpt truncated";
+         return "stderr display truncated";
       elsif Details.Stderr_Available then
          return "stderr captured within display bound";
       else
@@ -491,9 +491,9 @@ package body Editor.Build_Output_Details is
    is
    begin
       if Details.Timed_Out then
-         return "build timed out; output may be incomplete";
+         return "partial output: build timed out";
       elsif Details.Cancelled then
-         return "build cancelled; output may be incomplete";
+         return "partial output: build cancelled";
       elsif Details.Output_Partial then
          return "Partial output captured";
       else

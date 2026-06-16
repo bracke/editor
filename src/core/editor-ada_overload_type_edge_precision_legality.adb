@@ -2,6 +2,8 @@ with Ada.Strings.Unbounded; use Ada.Strings.Unbounded;
 
 package body Editor.Ada_Overload_Type_Edge_Precision_Legality is
 
+   pragma Suppress (Overflow_Check);
+
    use type Editor.Ada_Syntax_Tree.Node_Id;
    use type Expr_AST.Expression_Construct_AST_Repair_Row_Id;
    use type Expr_AST.Expression_Construct_AST_Repair_Status;

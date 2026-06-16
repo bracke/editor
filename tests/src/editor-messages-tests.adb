@@ -3,6 +3,7 @@ with Ada.Directories;
 with AUnit.Test_Cases;
 with Ada.Strings.Unbounded; use Ada.Strings.Unbounded;
 with Interfaces.C;
+with Editor.Buffers;
 with Editor.Commands;
 with Editor.Executor;
 with Editor.Gutter_Markers;
@@ -374,6 +375,7 @@ package body Editor.Messages.Tests is
       M : Editor.Messages.Editor_Message;
       Path : constant String := Temp_Path ("save_success.txt");
    begin
+      Editor.Buffers.Reset_Global_For_Test;
       Remove_If_Exists (Path);
       Editor.State.Init (S);
       Editor.State.Load_Text (S, "hello");
@@ -386,9 +388,10 @@ package body Editor.Messages.Tests is
       Assert (Found, "Save_File_As success must publish a message");
       Assert (M.Severity = Editor.Messages.Success_Message,
               "Save_File_As success must publish success severity");
-      Assert (To_String (M.Text) = "Saved save_success.txt",
-              "Save_File_As success message must include derived display name");
+      Assert (To_String (M.Text) = "Saved file as",
+              "Save_File_As success message must use normalized lifecycle text");
       Remove_If_Exists (Path);
+      Editor.Buffers.Reset_Global_For_Test;
    end Test_Save_Success_Pushes_Success_Message;
 
    procedure Test_Save_Failure_Pushes_Error_Message
@@ -399,8 +402,24 @@ package body Editor.Messages.Tests is
       Cmd : Editor.Commands.Command;
       Found : Boolean := False;
       M : Editor.Messages.Editor_Message;
+      Seed_Path : constant String := Temp_Path ("save_failure_seed.txt");
    begin
+      Editor.Buffers.Reset_Global_For_Test;
+      Remove_If_Exists (Seed_Path);
       Editor.State.Init (S);
+      Editor.State.Load_Text (S, "hello");
+
+      Cmd.Kind := Editor.Commands.Save_File_As;
+      Cmd.Path := To_Unbounded_String (Seed_Path);
+      Editor.Executor.Execute_No_Log (S, Cmd);
+
+      S.File_Info.Has_Path := True;
+      S.File_Info.Path := To_Unbounded_String ("/tmp");
+      S.File_Info.Display_Name := To_Unbounded_String ("tmp");
+      S.File_Info.Dirty := True;
+      S.File_Info.File_Token_Known := False;
+      S.File_Info.File_Token_Label := Null_Unbounded_String;
+      S.File_Info.External_Change_Surfaced := False;
       Cmd.Kind := Editor.Commands.Save_File;
       Editor.Executor.Execute_No_Log (S, Cmd);
 
@@ -408,9 +427,10 @@ package body Editor.Messages.Tests is
       Assert (Found, "Save_File failure must publish a message");
       Assert (M.Severity = Editor.Messages.Error_Message,
               "Save_File failure must publish error severity");
-      Assert (To_String (M.Text)'Length >= 12
-                and then To_String (M.Text) (1 .. 12) = "Save failed:",
-              "Save_File failure message must use the save-failed prefix");
+      Assert (To_String (M.Text) = "Could not save file.",
+              "Save_File failure message must use the canonical save failure text");
+      Remove_If_Exists (Seed_Path);
+      Editor.Buffers.Reset_Global_For_Test;
    end Test_Save_Failure_Pushes_Error_Message;
 
    procedure Test_Search_No_Match_Pushes_Info_Message

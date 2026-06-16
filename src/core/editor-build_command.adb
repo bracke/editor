@@ -342,6 +342,8 @@ package body Editor.Build_Command is
             --  lifecycle stop flag is set.
             accept Stop;
             exit;
+         or
+            terminate;
          end select;
       end loop;
    end Public_Build_Worker;
@@ -1222,6 +1224,18 @@ package body Editor.Build_Command is
          declare
             Message : constant String := Build_Run_Unavailable_Reason (Readiness);
          begin
+            if Editor.Build_Result_Summary.Retain_Pre_Run_Unavailable_Summary then
+               State.Latest_Build_Result :=
+                 Editor.Build_Result_Summary.Replace_Latest_Build_Result_Summary
+                   (State.Latest_Build_Result,
+                    Editor.Build_Result_Summary.Summary_From_Unavailable_Message
+                      (Message));
+               State.Latest_Build_Output_Details :=
+                 Editor.Build_Output_Details.Replace_Latest_Build_Output_Details
+                   (State.Latest_Build_Output_Details,
+                    Editor.Build_Output_Details.Build_Unavailable_Output_Details
+                      (Message));
+            end if;
             return
               (Build_Result      => Editor.External_Producers.Build_Build_Run_Result
                  (Editor.External_Producers.Build_Run_Not_Available),
@@ -1523,13 +1537,12 @@ package body Editor.Build_Command is
          Gate : constant Editor.External_Producers.Build_Execution_Gate :=
            Build_Run_Execution_Gate (State);
          Runner_Only_Gate : constant Editor.External_Producers.Build_Execution_Gate :=
-           (Process_Policy                  => Gate.Process_Policy,
-            Allow_Build_Run                 => Gate.Allow_Build_Run,
-            Allow_Real_Build_Tool_Execution => Gate.Allow_Real_Build_Tool_Execution,
-            Allow_Real_Build_Tool_Fixture   => Gate.Allow_Real_Build_Tool_Fixture,
-            Consent                         => Gate.Consent,
-            Allow_Diagnostics_Ingestion     => False,
-            Show_Diagnostics                => False);
+           Editor.External_Producers.Build_Test_Fixture_Execution_Gate
+             (Allow_Diagnostics_Ingestion => False,
+              Show_Diagnostics            => False,
+              Max_Output_Bytes            => Gate.Process_Policy.Max_Output_Bytes,
+              Consent                     =>
+                Editor.External_Producers.Build_Consent_Test_Only);
          Ingestion : Editor.External_Producers.Diagnostic_Line_Command_Result :=
            Empty_Diagnostics;
       begin

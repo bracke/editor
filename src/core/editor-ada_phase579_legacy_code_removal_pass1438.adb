@@ -2,6 +2,8 @@ with Ada.Strings.Unbounded; use Ada.Strings.Unbounded;
 
 package body Editor.Ada_Phase579_Legacy_Code_Removal_Pass1438 is
 
+   pragma Suppress (Overflow_Check);
+
    procedure Add_Row (Input : in out Removal_Input; Row : Removal_Row) is
    begin
       Input.Rows.Append (Row);

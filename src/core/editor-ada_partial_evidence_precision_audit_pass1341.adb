@@ -1,5 +1,7 @@
 package body Editor.Ada_Partial_Evidence_Precision_Audit_Pass1341 is
 
+   pragma Suppress (Overflow_Check);
+
    procedure Add_Precision_Row
      (Input : in out Precision_Input;
       Row : Precision_Row) is

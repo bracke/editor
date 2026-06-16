@@ -158,6 +158,18 @@ package body Editor.Outline_Extractor is
       return Result.Result_Status = Extraction_Ok;
    end Is_Success;
 
+   Fingerprint_Modulus : constant Long_Long_Integer := 2_147_483_647;
+
+   function Hash_Mix
+     (Seed       : Natural;
+      Addend     : Long_Long_Integer;
+      Multiplier : Long_Long_Integer := 131) return Natural
+   is
+   begin
+      return Natural
+        ((Long_Long_Integer (Seed) * Multiplier + Addend) mod Fingerprint_Modulus);
+   end Hash_Mix;
+
    function Hash_String
      (Seed : Natural;
       Text : String) return Natural
@@ -165,7 +177,7 @@ package body Editor.Outline_Extractor is
       H : Natural := Seed;
    begin
       for C of Text loop
-         H := (H * 131 + Character'Pos (C) + 1) mod 2_147_483_647;
+         H := Hash_Mix (H, Long_Long_Integer (Character'Pos (C)) + 1);
       end loop;
       return H;
    end Hash_String;
@@ -178,18 +190,22 @@ package body Editor.Outline_Extractor is
         + Natural (Extraction_Failure_Kind'Pos (Result.Failure_Kind)) + 1;
    begin
       H := H mod 2_147_483_647;
-      H := (H * 131 + Item_Count (Result) + 1) mod 2_147_483_647;
+      H := Hash_Mix (H, Long_Long_Integer (Item_Count (Result)) + 1);
       for Item of Result.Items loop
-         H := (H * 131 + Natural (Editor.Outline.Outline_Item_Kind'Pos (Item.Kind)) + 1)
-           mod 2_147_483_647;
+         H := Hash_Mix
+           (H,
+            Long_Long_Integer
+              (Natural (Editor.Outline.Outline_Item_Kind'Pos (Item.Kind))) + 1);
          H := Hash_String (H, To_String (Item.Label));
          H := Hash_String (H, To_String (Item.Detail));
-         H := (H * 131 + Item.Depth + 1) mod 2_147_483_647;
-         H := (H * 131 + Natural (Editor.Outline.Outline_Target_Kind'Pos (Item.Target_Kind)) + 1)
-           mod 2_147_483_647;
-         H := (H * 131 + Item.Buffer_Token + 1) mod 2_147_483_647;
-         H := (H * 131 + Item.Line + 1) mod 2_147_483_647;
-         H := (H * 131 + Item.Column + 1) mod 2_147_483_647;
+         H := Hash_Mix (H, Long_Long_Integer (Item.Depth) + 1);
+         H := Hash_Mix
+           (H,
+            Long_Long_Integer
+              (Natural (Editor.Outline.Outline_Target_Kind'Pos (Item.Target_Kind))) + 1);
+         H := Hash_Mix (H, Long_Long_Integer (Item.Buffer_Token) + 1);
+         H := Hash_Mix (H, Long_Long_Integer (Item.Line) + 1);
+         H := Hash_Mix (H, Long_Long_Integer (Item.Column) + 1);
       end loop;
       return H;
    end Fingerprint;
@@ -204,6 +220,55 @@ package body Editor.Outline_Extractor is
       end loop;
       return 1;
    end First_Non_Blank_Column;
+
+   function Trim_Code_Whitespace (Line : String) return String
+   is
+      First : Natural := Line'First;
+      Last  : Natural := Line'Last;
+   begin
+      if Line'Length = 0 then
+         return "";
+      end if;
+
+      while First <= Last
+        and then (Line (First) = ' '
+                  or else Line (First) = Ada.Characters.Latin_1.HT)
+      loop
+         First := First + 1;
+      end loop;
+
+      while Last >= First
+        and then (Line (Last) = ' '
+                  or else Line (Last) = Ada.Characters.Latin_1.HT)
+      loop
+         Last := Last - 1;
+      end loop;
+
+      if First > Last then
+         return "";
+      else
+         declare
+            Slice  : constant String := Line (First .. Last);
+            Result : String (1 .. Slice'Length);
+         begin
+            Result := Slice;
+            return Result;
+         end;
+      end if;
+   end Trim_Code_Whitespace;
+
+   function Tabs_As_Spaces (Text : String) return String
+   is
+      Result : String := Text;
+   begin
+      for I in Result'Range loop
+         if Result (I) = Ada.Characters.Latin_1.HT then
+            Result (I) := ' ';
+         end if;
+      end loop;
+
+      return Result;
+   end Tabs_As_Spaces;
 
    function Starts_With
      (Text   : String;
@@ -365,7 +430,7 @@ package body Editor.Outline_Extractor is
    is
       First_Column : constant Natural := First_Non_Blank_Column (Line);
       First_Index  : constant Natural := Line'First + First_Column - 1;
-      Lower        : constant String := Ada.Strings.Fixed.Translate
+      Lower        : constant String (Line'Range) := Ada.Strings.Fixed.Translate
         (Line, Ada.Strings.Maps.Constants.Lower_Case_Map);
       Close        : Natural := 0;
       I            : Natural := First_Index;
@@ -486,9 +551,7 @@ package body Editor.Outline_Extractor is
                   end;
                end if;
             end;
-            if I < Text'Last then
-               Line_Start := I + 1;
-            end if;
+            Line_Start := I + 1;
          end if;
       end loop;
 
@@ -928,7 +991,7 @@ package body Editor.Outline_Extractor is
 
    function Leading_Block_Label (Line : String) return String
    is
-      Trimmed : constant String := Ada.Strings.Fixed.Trim (Line, Ada.Strings.Both);
+      Trimmed : constant String := Trim_Code_Whitespace (Line);
       I       : Natural := Trimmed'First;
       Name    : constant String := Read_Name (Trimmed, Trimmed'First, False);
       Colon   : Natural := 0;
@@ -982,7 +1045,7 @@ package body Editor.Outline_Extractor is
 
    function Strip_Leading_Block_Label (Line : String) return String
    is
-      Trimmed : constant String := Ada.Strings.Fixed.Trim (Line, Ada.Strings.Both);
+      Trimmed : constant String := Trim_Code_Whitespace (Line);
       I       : Natural := Trimmed'First;
       Name    : constant String := Read_Name (Trimmed, Trimmed'First, False);
    begin
@@ -1031,7 +1094,7 @@ package body Editor.Outline_Extractor is
       --  again here keeps this helper safe if future local structure code calls
       --  it directly with a raw lower-case line.  This remains transient and
       --  preserves columns because the same Ada lexical sanitizer is used.
-      return Ada.Strings.Fixed.Trim (Stripped, Ada.Strings.Both);
+      return Trim_Code_Whitespace (Stripped);
    end Normalize_Structure_Line;
 
    function Declaration_Form
@@ -1810,6 +1873,58 @@ package body Editor.Outline_Extractor is
       null;
    end Append_Marker_Source_Line;
 
+   procedure Append_Marker_Lines
+     (Result : in out Extraction_Result;
+      Text   : String)
+   is
+      Line_Start  : Positive := Text'First;
+      Line_Number : Positive := 1;
+   begin
+      if Text'Length = 0 then
+         return;
+      end if;
+
+      for I in Text'Range loop
+         if Text (I) = Ada.Characters.Latin_1.LF then
+            declare
+               Line_End : Natural := I - 1;
+            begin
+               if Line_End >= Line_Start
+                 and then Text (Line_End) = Ada.Characters.Latin_1.CR
+               then
+                  Line_End := Line_End - 1;
+               end if;
+
+               if Line_End >= Line_Start then
+                  Append_Marker_Source_Line
+                    (Result, Text (Line_Start .. Line_End), Line_Number);
+               else
+                  Append_Marker_Source_Line (Result, "", Line_Number);
+               end if;
+            end;
+            Line_Start := I + 1;
+            Line_Number := Line_Number + 1;
+         end if;
+      end loop;
+
+      if Line_Start <= Text'Last then
+         declare
+            Line_End : Natural := Text'Last;
+         begin
+            if Text (Line_End) = Ada.Characters.Latin_1.CR then
+               Line_End := Line_End - 1;
+            end if;
+
+            if Line_End >= Line_Start then
+               Append_Marker_Source_Line
+                 (Result, Text (Line_Start .. Line_End), Line_Number);
+            else
+               Append_Marker_Source_Line (Result, "", Line_Number);
+            end if;
+         end;
+      end if;
+   end Append_Marker_Lines;
+
 
    function Numeric_Suffix (Text : String; Start : Positive) return Natural
    is
@@ -1837,6 +1952,29 @@ package body Editor.Outline_Extractor is
          return 0;
       end if;
    end Detail_Start_Line;
+
+   function Detail_End_Line (Detail : String) return Natural
+   is
+      Start_Line : constant Natural := Detail_Start_Line (Detail);
+      Dash       : Natural := 0;
+   begin
+      if not Starts_With (Detail, "lines ") then
+         return Start_Line;
+      end if;
+
+      for I in Detail'Range loop
+         if Detail (I) = '-' then
+            Dash := I;
+            exit;
+         end if;
+      end loop;
+
+      if Dash = 0 or else Dash >= Detail'Last then
+         return Start_Line;
+      end if;
+
+      return Numeric_Suffix (Detail, Dash + 1);
+   end Detail_End_Line;
 
    function End_Line_Detail
      (Start_Line : Natural;
@@ -1891,6 +2029,23 @@ package body Editor.Outline_Extractor is
       end if;
    end Detail_Form;
 
+   function Primary_Detail_Form (Detail : String) return String
+   is
+      Form : constant String := Detail_Form (Detail);
+   begin
+      for I in Form'Range loop
+         if Form (I) = ' ' or else Form (I) = Ada.Characters.Latin_1.HT then
+            if I = Form'First then
+               return "";
+            else
+               return Form (Form'First .. I - 1);
+            end if;
+         end if;
+      end loop;
+
+      return Form;
+   end Primary_Detail_Form;
+
    procedure Build_Line_Vector
      (Text  : String;
       Lines : in out Line_Vectors.Vector)
@@ -1920,9 +2075,7 @@ package body Editor.Outline_Extractor is
                   Lines.Append (Null_Unbounded_String);
                end if;
             end;
-            if I < Text'Last then
-               Line_Start := I + 1;
-            end if;
+            Line_Start := I + 1;
             Line_Number := Line_Number + 1;
          end if;
       end loop;
@@ -1943,6 +2096,1627 @@ package body Editor.Outline_Extractor is
          end;
       end if;
    end Build_Line_Vector;
+
+   function Code_Lower_Line
+     (Lines       : Line_Vectors.Vector;
+      Line_Number : Natural) return String
+   is
+   begin
+      if Line_Number = 0
+        or else Lines.Is_Empty
+        or else Line_Number > Natural (Lines.Length)
+      then
+         return "";
+      end if;
+
+      declare
+         Raw     : constant String := To_String (Lines (Line_Number - 1));
+         Clean   : constant String := Editor.Ada_Syntax_Core.Strip_Comment_Safely (Raw);
+         Code    : constant String := Editor.Ada_Syntax_Core.Sanitize_Line (Clean);
+         Trimmed : constant String := Trim_Code_Whitespace (Code);
+      begin
+         return Ada.Strings.Fixed.Translate
+           (Trimmed, Ada.Strings.Maps.Constants.Lower_Case_Map);
+      end;
+   end Code_Lower_Line;
+
+   function Header_Text_From
+     (Lines      : Line_Vectors.Vector;
+      Start_Line : Natural) return String
+   is
+      Combined : Unbounded_String;
+      Limit    : constant Natural :=
+        Natural'Min (Natural (Lines.Length), Start_Line + 8);
+   begin
+      if Start_Line = 0 or else Lines.Is_Empty then
+         return "";
+      end if;
+
+      for L in Start_Line .. Limit loop
+         declare
+            Lower : constant String := Code_Lower_Line (Lines, L);
+         begin
+            if Lower'Length > 0 then
+               if Length (Combined) > 0 then
+                  Append (Combined, " ");
+               end if;
+               Append (Combined, Lower);
+
+               if Has_Code_Character (Lower, ';')
+                 or else Has_Token_Is (Lower)
+                 or else Starts_With_Word (Lower, "begin")
+               then
+                  exit;
+               end if;
+            end if;
+         end;
+      end loop;
+
+      return To_String (Combined);
+   end Header_Text_From;
+
+   function Header_Starts_With_Function (Header : String) return Boolean
+   is
+      Normalized : constant String := Normalize_Structure_Line (Header);
+   begin
+      return Starts_With_Word (Normalized, "function")
+        or else Starts_With (Normalized, "with function");
+   end Header_Starts_With_Function;
+
+   function Header_Starts_With_Procedure (Header : String) return Boolean
+   is
+      Normalized : constant String := Normalize_Structure_Line (Header);
+   begin
+      return Starts_With_Word (Normalized, "procedure")
+        or else Starts_With (Normalized, "with procedure");
+   end Header_Starts_With_Procedure;
+
+   function Header_Is_Subprogram_Body (Header : String) return Boolean
+   is
+   begin
+      return Has_Token_Is (Header)
+        and then (not Has_Code_Character (Header, ';')
+                  or else Has_Is_Followed_By (Header, "separate")
+                  or else Has_Is_Followed_By (Header, "null"))
+        and then not Has_Is_Followed_By (Header, "new")
+        and then not Has_Renames (Header);
+   end Header_Is_Subprogram_Body;
+
+   function Header_Is_Expression_Function
+     (Lines      : Line_Vectors.Vector;
+      Start_Line : Natural) return Boolean
+   is
+      Seen_Is : Boolean := False;
+      Limit   : constant Natural :=
+        Natural'Min (Natural (Lines.Length), Start_Line + 8);
+   begin
+      if Start_Line = 0 or else Lines.Is_Empty then
+         return False;
+      end if;
+
+      for L in Start_Line .. Limit loop
+         declare
+            Lower : constant String := Code_Lower_Line (Lines, L);
+         begin
+            if Lower'Length = 0 then
+               null;
+            elsif Starts_With_Word (Lower, "begin") then
+               return False;
+            elsif not Seen_Is then
+               if Has_Is_Followed_By (Lower, "new") then
+                  return False;
+               end if;
+
+               if Has_Is_Followed_By_Open_Paren (Lower) then
+                  return True;
+               elsif Has_Token_Is (Lower) then
+                  Seen_Is := True;
+               elsif Has_Code_Character (Lower, ';') then
+                  return False;
+               end if;
+            else
+               return Starts_With (Lower, "(");
+            end if;
+         end;
+      end loop;
+
+      return False;
+   end Header_Is_Expression_Function;
+
+   function Header_Is_Instantiation
+     (Lines      : Line_Vectors.Vector;
+      Start_Line : Natural) return Boolean
+   is
+      Seen_Is : Boolean := False;
+      Limit   : constant Natural :=
+        Natural'Min (Natural (Lines.Length), Start_Line + 8);
+   begin
+      if Start_Line = 0 or else Lines.Is_Empty then
+         return False;
+      end if;
+
+      for L in Start_Line .. Limit loop
+         declare
+            Lower : constant String := Code_Lower_Line (Lines, L);
+         begin
+            if Lower'Length = 0 then
+               null;
+            elsif Seen_Is then
+               return Starts_With_Word (Lower, "new");
+            elsif Has_Is_Followed_By (Lower, "new") then
+               return True;
+            else
+               if Has_Token_Is (Lower) then
+                  Seen_Is := True;
+               elsif Has_Code_Character (Lower, ';') then
+                  return False;
+               end if;
+            end if;
+         end;
+      end loop;
+
+      return False;
+   end Header_Is_Instantiation;
+
+   function Header_Is_Body_Stub
+     (Lines      : Line_Vectors.Vector;
+      Start_Line : Natural) return Boolean
+   is
+      Seen_Is : Boolean := False;
+      Limit   : constant Natural :=
+        Natural'Min (Natural (Lines.Length), Start_Line + 4);
+   begin
+      if Start_Line = 0 or else Lines.Is_Empty then
+         return False;
+      end if;
+
+      for L in Start_Line .. Limit loop
+         declare
+            Lower : constant String := Code_Lower_Line (Lines, L);
+         begin
+            if Lower'Length = 0 then
+               null;
+            elsif Seen_Is then
+               return Starts_With_Word (Lower, "separate");
+            elsif Has_Is_Followed_By (Lower, "separate") then
+               return True;
+            elsif Has_Token_Is (Lower) then
+               Seen_Is := True;
+            elsif Has_Code_Character (Lower, ';') then
+               return False;
+            end if;
+         end;
+      end loop;
+
+      return False;
+   end Header_Is_Body_Stub;
+
+   function Is_Separate_Subunit_Declaration
+     (Lines      : Line_Vectors.Vector;
+      Start_Line : Natural) return Boolean
+   is
+      Current  : constant String := Code_Lower_Line (Lines, Start_Line);
+      Previous : constant String :=
+        (if Start_Line > 1 then Code_Lower_Line (Lines, Start_Line - 1) else "");
+   begin
+      return Starts_With_Word (Current, "separate")
+        or else Starts_With_Word (Previous, "separate");
+   end Is_Separate_Subunit_Declaration;
+
+   procedure Decrement_Subsequent_Nested_Depths
+     (Result      : in out Extraction_Result;
+      After_Index : Natural;
+      Base_Depth  : Natural)
+   is
+   begin
+      if Result.Items.Is_Empty or else After_Index >= Result.Items.Last_Index then
+         return;
+      end if;
+
+      for J in After_Index + 1 .. Result.Items.Last_Index loop
+         declare
+            Later : Editor.Outline.Outline_Item := Result.Items.Element (J);
+         begin
+            if Later.Depth > Base_Depth then
+               Later.Depth := Later.Depth - 1;
+               Result.Items.Replace_Element (J, Later);
+            end if;
+         end;
+      end loop;
+   end Decrement_Subsequent_Nested_Depths;
+
+   function Replace_Label_Prefix
+     (Label      : String;
+      Old_Prefix : String;
+      New_Prefix : String) return String
+   is
+   begin
+      if Starts_With (Label, Old_Prefix)
+        and then Label'Length >= Old_Prefix'Length
+      then
+         return New_Prefix &
+           Label (Label'First + Old_Prefix'Length .. Label'Last);
+      end if;
+
+      return Label;
+   end Replace_Label_Prefix;
+
+   function Has_Projected_Formal_Subprogram_Row
+     (Result      : Extraction_Result;
+      Line_Number : Natural) return Boolean
+   is
+   begin
+      for Item of Result.Items loop
+         if Item.Kind = Editor.Outline.Outline_Generic_Formal
+           and then Item.Line = Line_Number
+         then
+            declare
+               Label : constant String := To_String (Item.Label);
+            begin
+               if Starts_With (Label, "formal function ")
+                 or else Starts_With (Label, "formal procedure ")
+               then
+                  return True;
+               end if;
+            end;
+         end if;
+      end loop;
+
+      return False;
+   end Has_Projected_Formal_Subprogram_Row;
+
+   function Has_Projected_Formal_Type_Row
+     (Result      : Extraction_Result;
+      Line_Number : Natural) return Boolean
+   is
+   begin
+      for Item of Result.Items loop
+         if Item.Kind = Editor.Outline.Outline_Generic_Formal
+           and then Item.Line = Line_Number
+           and then Ada.Strings.Fixed.Index
+             (To_String (Item.Detail), "generic formal type") /= 0
+         then
+            return True;
+         end if;
+      end loop;
+
+      return False;
+   end Has_Projected_Formal_Type_Row;
+
+   procedure Insert_Source_Ordered
+     (Result : in out Extraction_Result;
+      Item   : Editor.Outline.Outline_Item)
+   is
+   begin
+      if Result.Items.Is_Empty then
+         Result.Items.Append (Item);
+         return;
+      end if;
+
+      for I in Result.Items.First_Index .. Result.Items.Last_Index loop
+         declare
+            Existing : constant Editor.Outline.Outline_Item :=
+              Result.Items.Element (I);
+         begin
+            if Existing.Line > Item.Line
+              or else (Existing.Line = Item.Line
+                       and then Existing.Column > Item.Column)
+            then
+               Result.Items.Insert (I, Item);
+               return;
+            end if;
+         end;
+      end loop;
+
+      Result.Items.Append (Item);
+   end Insert_Source_Ordered;
+
+   function Formal_Subprogram_Source_Name
+     (Trimmed : String;
+      Raw     : String;
+      Prefix  : String) return String
+   is
+      function After_Phrase (Phrase : String) return String
+      is
+         Pos : constant Natural :=
+           Ada.Strings.Fixed.Index
+             (Ada.Strings.Fixed.Translate
+                (Trimmed, Ada.Strings.Maps.Constants.Lower_Case_Map),
+              Ada.Strings.Fixed.Translate
+                (Phrase, Ada.Strings.Maps.Constants.Lower_Case_Map));
+         First : Natural;
+      begin
+         if Pos = 0 then
+            return "";
+         end if;
+
+         First := Pos + Phrase'Length;
+         if First > Trimmed'Last then
+            return "";
+         end if;
+
+         return Ada.Strings.Fixed.Trim
+           (Trimmed (First .. Trimmed'Last), Ada.Strings.Both);
+      end After_Phrase;
+   begin
+      if Prefix = "formal function " then
+         declare
+            Tail : constant String := After_Phrase ("with function");
+            Name : constant String :=
+              (if Tail'Length > 0
+               then Read_Function_Name (Tail, Tail'First, True)
+               else "");
+         begin
+            if Name'Length > 0 then
+               return Name;
+            elsif Ada.Strings.Fixed.Index (Raw, "<") /= 0 then
+               return """<""";
+            end if;
+         end;
+      elsif Prefix = "formal procedure " then
+         declare
+            Tail : constant String := After_Phrase ("with procedure");
+         begin
+            if Tail'Length > 0 then
+               return Read_Name (Tail, Tail'First, True);
+            end if;
+         end;
+      end if;
+
+      return "";
+   end Formal_Subprogram_Source_Name;
+
+   procedure Add_Missing_Generic_Formal_Subprograms
+     (Result : in out Extraction_Result;
+      Lines  : Line_Vectors.Vector)
+   is
+   begin
+      for L in 1 .. Natural (Lines.Length) loop
+         declare
+            Raw     : constant String := To_String (Lines (L - 1));
+            Trimmed : constant String := Trim_Code_Whitespace
+              (Editor.Ada_Syntax_Core.Strip_Comment_Safely (Raw));
+            Lower   : constant String := Code_Lower_Line (Lines, L);
+            Prefix  : constant String :=
+              (if Starts_With (Lower, "with function")
+               then "formal function "
+               elsif Starts_With (Lower, "with procedure")
+               then "formal procedure "
+               else "");
+            Name    : constant String :=
+              Formal_Subprogram_Source_Name (Trimmed, Raw, Prefix);
+         begin
+            if Prefix'Length > 0
+              and then Name'Length > 0
+              and then not Has_Projected_Formal_Subprogram_Row (Result, L)
+            then
+               Insert_Source_Ordered
+                 (Result,
+                  Editor.Outline.Outline_Item'
+                    (Kind        => Editor.Outline.Outline_Generic_Formal,
+                     Label       => To_Unbounded_String (Prefix & Name),
+                     Detail      => To_Unbounded_String
+                       ("line" & Natural'Image (L) &
+                        (if Prefix = "formal function "
+                         then " generic formal function"
+                         else " generic formal procedure")),
+                     Depth       => 0,
+                     Target_Kind => Editor.Outline.Buffer_Position_Target,
+                     Buffer_Token => Result.Result_Identity.Active_Buffer_Token,
+                     Line        => L,
+                     Column      => Declaration_Target_Column (Raw)));
+            end if;
+         end;
+      end loop;
+   end Add_Missing_Generic_Formal_Subprograms;
+
+   function Formal_Type_Label_Prefix_From_Line (Lower : String) return String is
+   begin
+      if Has_Token (Lower, "array") then
+         return "formal array type ";
+      elsif Has_Token (Lower, "access")
+        and then (Has_Token (Lower, "function")
+                  or else Has_Token (Lower, "procedure"))
+      then
+         return "formal access subprogram type ";
+      elsif Has_Token (Lower, "access") then
+         return "formal access type ";
+      elsif Has_Token (Lower, "new")
+        and then Has_Token (Lower, "private")
+      then
+         return "formal private extension type ";
+      elsif Has_Token (Lower, "new") then
+         return "formal derived type ";
+      elsif Has_Token (Lower, "interface") then
+         return "formal interface type ";
+      else
+         return "formal type ";
+      end if;
+   end Formal_Type_Label_Prefix_From_Line;
+
+   function Formal_Type_Detail_Metadata_From_Line (Lower : String) return String is
+   begin
+      return
+        (if Has_Token (Lower, "array") then " array" else "") &
+        (if Has_Token (Lower, "access") then " access" else "") &
+        (if Has_Token (Lower, "function") or else Has_Token (Lower, "procedure")
+         then " access-subprogram" else "") &
+        (if Has_Token (Lower, "new") then " derived" else "") &
+        (if Has_Token (Lower, "range") then " range" else "") &
+        (if Ada.Strings.Fixed.Index (Lower, "<>") /= 0 then " box" else "") &
+        (if Has_Token (Lower, "private") then " private-extension" else "") &
+        (if Has_Token (Lower, "interface") then " interface" else "") &
+        (if Has_Token (Lower, "limited") then " limited" else "");
+   end Formal_Type_Detail_Metadata_From_Line;
+
+   function Formal_Type_Source_Name (Trimmed : String) return String
+   is
+      Lower : constant String :=
+        Ada.Strings.Fixed.Translate
+          (Trimmed, Ada.Strings.Maps.Constants.Lower_Case_Map);
+      Pos : constant Natural := Ada.Strings.Fixed.Index (Lower, "with type");
+   begin
+      if Pos = 0 then
+         return "";
+      end if;
+
+      return Read_Name (Trimmed, Pos + 9, True);
+   end Formal_Type_Source_Name;
+
+   procedure Add_Missing_Generic_Formal_Types
+     (Result : in out Extraction_Result;
+      Lines  : Line_Vectors.Vector)
+   is
+   begin
+      for L in 1 .. Natural (Lines.Length) loop
+         declare
+            Raw     : constant String := To_String (Lines (L - 1));
+            Trimmed : constant String := Trim_Code_Whitespace
+              (Editor.Ada_Syntax_Core.Strip_Comment_Safely (Raw));
+            Lower   : constant String := Code_Lower_Line (Lines, L);
+            Name    : constant String := Formal_Type_Source_Name (Trimmed);
+         begin
+            if Starts_With (Lower, "with type ")
+              and then Name'Length > 0
+              and then not Has_Projected_Formal_Type_Row (Result, L)
+            then
+               Insert_Source_Ordered
+                 (Result,
+                  Editor.Outline.Outline_Item'
+                    (Kind        => Editor.Outline.Outline_Generic_Formal,
+                     Label       => To_Unbounded_String
+                       (Formal_Type_Label_Prefix_From_Line (Lower) & Name),
+                     Detail      => To_Unbounded_String
+                       ("line" & Natural'Image (L) &
+                        " generic formal type" &
+                        Formal_Type_Detail_Metadata_From_Line (Lower)),
+                     Depth       => 0,
+                     Target_Kind => Editor.Outline.Buffer_Position_Target,
+                     Buffer_Token => Result.Result_Identity.Active_Buffer_Token,
+                     Line        => L,
+                     Column      => Declaration_Target_Column (Raw)));
+            end if;
+         end;
+      end loop;
+   end Add_Missing_Generic_Formal_Types;
+
+   function Has_Projected_Callable_Row
+     (Result      : Extraction_Result;
+      Line_Number : Natural) return Boolean
+   is
+   begin
+      for Item of Result.Items loop
+         if Item.Line = Line_Number
+           and then Item.Kind in Editor.Outline.Outline_Procedure
+              | Editor.Outline.Outline_Function
+              | Editor.Outline.Outline_Subprogram
+         then
+            return True;
+         end if;
+      end loop;
+
+      return False;
+   end Has_Projected_Callable_Row;
+
+   function Callable_Source_Text (Trimmed : String) return String is
+   begin
+      return Strip_Abstract_Prefix
+        (Strip_Overriding_Prefix
+           (Editor.Ada_Syntax_Core.Strip_Separate_Prefix (Trimmed)));
+   end Callable_Source_Text;
+
+   procedure Add_Missing_Callable_Declarations
+     (Result : in out Extraction_Result;
+      Lines  : Line_Vectors.Vector)
+   is
+   begin
+      for L in 1 .. Natural (Lines.Length) loop
+         declare
+            Raw     : constant String := To_String (Lines (L - 1));
+            Trimmed : constant String := Ada.Strings.Fixed.Trim
+              (Editor.Ada_Syntax_Core.Strip_Comment_Safely (Raw),
+               Ada.Strings.Both);
+            Source  : constant String := Callable_Source_Text (Trimmed);
+            Lower   : constant String :=
+              Ada.Strings.Fixed.Translate
+                (Editor.Ada_Syntax_Core.Sanitize_Line (Source),
+                 Ada.Strings.Maps.Constants.Lower_Case_Map);
+            Header  : constant String := Header_Text_From (Lines, L);
+            Is_Func : constant Boolean := Starts_With_Word (Lower, "function");
+            Is_Proc : constant Boolean := Starts_With_Word (Lower, "procedure");
+            Kind    : constant Editor.Outline.Outline_Item_Kind :=
+              (if Is_Func then Editor.Outline.Outline_Function
+               else Editor.Outline.Outline_Procedure);
+            Prefix  : constant String := (if Is_Func then "function" else "procedure");
+            Name    : constant String :=
+              (if Is_Func then Read_Function_Name (Source, Source'First + 8, True)
+               elsif Is_Proc then Read_Name (Source, Source'First + 9, True)
+               else "");
+            Form    : constant String :=
+              (if Is_Func and then Header_Is_Expression_Function (Lines, L)
+               then "expression"
+               elsif Is_Func
+                 and then Has_Token_Is (Header)
+                 and then Has_Is_Followed_By (Header, "separate")
+               then "body"
+               elsif Is_Proc
+                 and then Has_Token_Is (Header)
+                 and then (Has_Is_Followed_By (Header, "null")
+                           or else Has_Is_Followed_By (Header, "separate"))
+               then "body"
+               elsif Has_Renames (Header) then "renames"
+               else "declaration");
+         begin
+            if (Is_Func or else Is_Proc)
+              and then Name'Length > 0
+              and then not Has_Projected_Callable_Row (Result, L)
+            then
+               Insert_Source_Ordered
+                 (Result,
+                  Editor.Outline.Outline_Item'
+                    (Kind        => Kind,
+                     Label       => To_Unbounded_String
+                       (Label_Text (Prefix, Name, Form)),
+                     Detail      => To_Unbounded_String
+                       (Detail_Text (Positive (L), Form)),
+                     Depth       => 0,
+                     Target_Kind => Editor.Outline.Buffer_Position_Target,
+                     Buffer_Token => Result.Result_Identity.Active_Buffer_Token,
+                     Line        => L,
+                     Column      => Declaration_Target_Column (Raw)));
+            end if;
+         end;
+      end loop;
+   end Add_Missing_Callable_Declarations;
+
+   function Is_Generic_Formal_Profile_Continuation
+     (Lines       : Line_Vectors.Vector;
+      Line_Number : Natural) return Boolean
+   is
+      Lower : constant String := Code_Lower_Line (Lines, Line_Number);
+      First : constant Natural :=
+        (if Line_Number > 3 then Line_Number - 3 else 1);
+   begin
+      if Line_Number <= 1 or else not Starts_With (Lower, "(") then
+         return False;
+      end if;
+
+      for L in reverse First .. Line_Number - 1 loop
+         declare
+            Prev : constant String := Code_Lower_Line (Lines, L);
+         begin
+            if Prev'Length = 0 then
+               null;
+            elsif Starts_With (Prev, "with function")
+              or else Starts_With (Prev, "with procedure")
+            then
+               return not Has_Code_Character (Prev, ';');
+            elsif Has_Code_Character (Prev, ';') then
+               return False;
+            end if;
+         end;
+      end loop;
+
+      return False;
+   end Is_Generic_Formal_Profile_Continuation;
+
+   procedure Remove_Generic_Formal_Profile_Objects
+     (Result : in out Extraction_Result;
+      Lines  : Line_Vectors.Vector)
+   is
+   begin
+      if Result.Items.Is_Empty then
+         return;
+      end if;
+
+      for I in reverse Result.Items.First_Index .. Result.Items.Last_Index loop
+         declare
+            Item : constant Editor.Outline.Outline_Item :=
+              Result.Items.Element (I);
+         begin
+            if Item.Kind = Editor.Outline.Outline_Generic_Formal
+              and then Starts_With (To_String (Item.Label), "formal object ")
+              and then Is_Generic_Formal_Profile_Continuation (Lines, Item.Line)
+            then
+               Result.Items.Delete (I);
+            end if;
+         end;
+      end loop;
+   end Remove_Generic_Formal_Profile_Objects;
+
+   procedure Remove_Generic_Formal_Object_Duplicates
+     (Result : in out Extraction_Result)
+   is
+   begin
+      if Result.Items.Is_Empty then
+         return;
+      end if;
+
+      for I in reverse Result.Items.First_Index .. Result.Items.Last_Index loop
+         declare
+            Item : constant Editor.Outline.Outline_Item :=
+              Result.Items.Element (I);
+            Label : constant String := To_String (Item.Label);
+            Name  : constant String :=
+              (if Starts_With (Label, "object ")
+               then Label (Label'First + 7 .. Label'Last)
+               elsif Starts_With (Label, "constant ")
+               then Label (Label'First + 9 .. Label'Last)
+               else "");
+            Found_Formal : Boolean := False;
+         begin
+            if Item.Kind = Editor.Outline.Outline_Object
+              and then Name'Length > 0
+            then
+               for Existing of Result.Items loop
+                  if Existing.Kind = Editor.Outline.Outline_Generic_Formal
+                    and then Existing.Line = Item.Line
+                    and then To_String (Existing.Label) = "formal object " & Name
+                  then
+                     Found_Formal := True;
+                     exit;
+                  end if;
+               end loop;
+
+               if Found_Formal then
+                  Result.Items.Delete (I);
+               end if;
+            end if;
+         end;
+      end loop;
+   end Remove_Generic_Formal_Object_Duplicates;
+
+   procedure Remove_Duplicate_Body_Stubs (Result : in out Extraction_Result) is
+   begin
+      if Result.Items.Is_Empty then
+         return;
+      end if;
+
+      for I in reverse Result.Items.First_Index .. Result.Items.Last_Index loop
+         declare
+            Item_Label : constant String := To_String (Result.Items.Element (I).Label);
+            Item_Detail : constant String := To_String (Result.Items.Element (I).Detail);
+            Duplicate : Boolean := False;
+         begin
+            if Ada.Strings.Fixed.Index (Item_Detail, "body-stub") /= 0
+              and then I > Result.Items.First_Index
+            then
+               for J in Result.Items.First_Index .. I - 1 loop
+                  declare
+                     Existing : constant Editor.Outline.Outline_Item :=
+                       Result.Items.Element (J);
+                  begin
+                     if Existing.Kind = Result.Items.Element (I).Kind
+                       and then To_String (Existing.Label) = Item_Label
+                       and then Ada.Strings.Fixed.Index
+                         (To_String (Existing.Detail), "body-stub") /= 0
+                     then
+                        Duplicate := True;
+                        exit;
+                     end if;
+                  end;
+               end loop;
+
+               if Duplicate then
+                  Result.Items.Delete (I);
+               end if;
+            end if;
+         end;
+      end loop;
+   end Remove_Duplicate_Body_Stubs;
+
+   procedure Remove_Duplicate_Source_Rows (Result : in out Extraction_Result) is
+   begin
+      if Result.Items.Is_Empty then
+         return;
+      end if;
+
+      for I in reverse Result.Items.First_Index .. Result.Items.Last_Index loop
+         declare
+            Item : constant Editor.Outline.Outline_Item :=
+              Result.Items.Element (I);
+            Duplicate : Boolean := False;
+         begin
+            if I > Result.Items.First_Index then
+               for J in Result.Items.First_Index .. I - 1 loop
+                  declare
+                     Existing : constant Editor.Outline.Outline_Item :=
+                       Result.Items.Element (J);
+                  begin
+                     if Existing.Kind = Item.Kind
+                       and then Existing.Line = Item.Line
+                       and then To_String (Existing.Label) = To_String (Item.Label)
+                     then
+                        Duplicate := True;
+                        exit;
+                     end if;
+                  end;
+               end loop;
+            end if;
+
+            if Duplicate then
+               Result.Items.Delete (I);
+            end if;
+         end;
+      end loop;
+   end Remove_Duplicate_Source_Rows;
+
+   procedure Remove_Redundant_Package_Aspect_Rows
+     (Result : in out Extraction_Result)
+   is
+   begin
+      if Result.Items.Is_Empty then
+         return;
+      end if;
+
+      for I in reverse Result.Items.First_Index .. Result.Items.Last_Index loop
+         declare
+            Item  : constant Editor.Outline.Outline_Item := Result.Items.Element (I);
+            Label : constant String := To_String (Item.Label);
+            With_Pos : constant Natural := Ada.Strings.Fixed.Index (Label, " with ");
+            Duplicate : Boolean := False;
+         begin
+            if Item.Kind = Editor.Outline.Outline_Package
+              and then With_Pos > Label'First
+            then
+               for Existing of Result.Items loop
+                  if Existing.Kind = Item.Kind
+                    and then Existing.Line = Item.Line
+                    and then To_String (Existing.Label) =
+                      Label (Label'First .. With_Pos - 1)
+                  then
+                     Duplicate := True;
+                     exit;
+                  end if;
+               end loop;
+
+               if Duplicate then
+                  Result.Items.Delete (I);
+               end if;
+            end if;
+         end;
+      end loop;
+   end Remove_Redundant_Package_Aspect_Rows;
+
+   procedure Remove_Redundant_Separate_Body_Rows
+     (Result : in out Extraction_Result)
+   is
+   begin
+      if Result.Items.Is_Empty then
+         return;
+      end if;
+
+      for I in reverse Result.Items.First_Index .. Result.Items.Last_Index loop
+         declare
+            Item  : constant Editor.Outline.Outline_Item := Result.Items.Element (I);
+            Label : constant String := To_String (Item.Label);
+            Name  : constant String :=
+              (if Starts_With (Label, "separate body ")
+               then Label (Label'First + 14 .. Label'Last)
+               else "");
+            Duplicate : Boolean := False;
+         begin
+            if Name'Length > 0 then
+               for Existing of Result.Items loop
+                  declare
+                     Existing_Label : constant String := To_String (Existing.Label);
+                  begin
+                     if Existing.Line = Item.Line
+                       and then (Existing_Label = "package body " & Name
+                                 or else Existing_Label = "procedure body " & Name
+                                 or else Existing_Label = "function body " & Name)
+                     then
+                        Duplicate := True;
+                        exit;
+                     end if;
+                  end;
+               end loop;
+
+               if Duplicate then
+                  Result.Items.Delete (I);
+               end if;
+            end if;
+         end;
+      end loop;
+   end Remove_Redundant_Separate_Body_Rows;
+
+   procedure Remove_Label_Block_Object_Rows
+     (Result : in out Extraction_Result;
+      Lines  : Line_Vectors.Vector)
+   is
+   begin
+      if Result.Items.Is_Empty then
+         return;
+      end if;
+
+      for I in reverse Result.Items.First_Index .. Result.Items.Last_Index loop
+         declare
+            Item  : constant Editor.Outline.Outline_Item := Result.Items.Element (I);
+            Lower : constant String := Code_Lower_Line (Lines, Item.Line);
+            Colon : constant Natural := Ada.Strings.Fixed.Index (Lower, ":");
+         begin
+            if Item.Kind = Editor.Outline.Outline_Object
+              and then Colon /= 0
+              and then Colon < Lower'Last
+            then
+               declare
+                  Tail : constant String := Ada.Strings.Fixed.Trim
+                    (Lower (Colon + 1 .. Lower'Last), Ada.Strings.Both);
+               begin
+                  if Starts_With_Word (Tail, "begin")
+                    or else Starts_With_Word (Tail, "declare")
+                    or else Starts_With_Word (Tail, "loop")
+                    or else Starts_With_Word (Tail, "select")
+                  then
+                     Result.Items.Delete (I);
+                  end if;
+               end;
+            end if;
+         end;
+      end loop;
+   end Remove_Label_Block_Object_Rows;
+
+   procedure Remove_Redundant_Entry_Barrier_Rows
+     (Result : in out Extraction_Result)
+   is
+   begin
+      if Result.Items.Is_Empty then
+         return;
+      end if;
+
+      for I in reverse Result.Items.First_Index .. Result.Items.Last_Index loop
+         declare
+            Item  : constant Editor.Outline.Outline_Item := Result.Items.Element (I);
+            Label : constant String := To_String (Item.Label);
+            When_Pos : constant Natural := Ada.Strings.Fixed.Index (Label, " when ");
+            Duplicate : Boolean := False;
+         begin
+            if Starts_With (Label, "entry ")
+              and then When_Pos > Label'First
+            then
+               for Existing of Result.Items loop
+                  if Existing.Kind = Item.Kind
+                    and then Existing.Line = Item.Line
+                    and then Starts_With (To_String (Existing.Label), "entry ")
+                    and then To_String (Existing.Label) =
+                      Label (Label'First .. When_Pos - 1)
+                  then
+                     Duplicate := True;
+                     exit;
+                  end if;
+               end loop;
+
+               if Duplicate then
+                  Result.Items.Delete (I);
+               end if;
+            end if;
+         end;
+      end loop;
+   end Remove_Redundant_Entry_Barrier_Rows;
+
+   procedure Remove_Redundant_Prefixed_Callable_Rows
+     (Result : in out Extraction_Result)
+   is
+   begin
+      if Result.Items.Is_Empty then
+         return;
+      end if;
+
+      for I in reverse Result.Items.First_Index .. Result.Items.Last_Index loop
+         declare
+            Item  : constant Editor.Outline.Outline_Item := Result.Items.Element (I);
+            Label : constant String := To_String (Item.Label);
+            Replacement : Unbounded_String := Null_Unbounded_String;
+            Duplicate : Boolean := False;
+         begin
+            if Starts_With (Label, "procedure body overriding procedure ") then
+               Replacement := To_Unbounded_String
+                 ("procedure body " & Label (Label'First + 36 .. Label'Last));
+            elsif Starts_With (Label, "function body overriding function ") then
+               Replacement := To_Unbounded_String
+                 ("function body " & Label (Label'First + 34 .. Label'Last));
+            end if;
+
+            if Length (Replacement) > 0 then
+               for Existing of Result.Items loop
+                  if Existing.Line = Item.Line
+                    and then Existing.Kind = Item.Kind
+                    and then To_String (Existing.Label) = To_String (Replacement)
+                  then
+                     Duplicate := True;
+                     exit;
+                  end if;
+               end loop;
+
+               if Duplicate then
+                  Result.Items.Delete (I);
+               end if;
+            end if;
+         end;
+      end loop;
+   end Remove_Redundant_Prefixed_Callable_Rows;
+
+   procedure Normalize_Generic_Depths_From_Ranges
+     (Result : in out Extraction_Result)
+   is
+   begin
+      if Result.Items.Is_Empty then
+         return;
+      end if;
+
+      for I in Result.Items.First_Index .. Result.Items.Last_Index loop
+         declare
+            Item  : Editor.Outline.Outline_Item := Result.Items.Element (I);
+            Label : constant String := To_String (Item.Label);
+         begin
+            if Starts_With (Label, "formal ") and then Item.Depth /= 0 then
+               Item.Depth := 0;
+               Result.Items.Replace_Element (I, Item);
+            end if;
+         end;
+      end loop;
+
+      for I in Result.Items.First_Index .. Result.Items.Last_Index loop
+         declare
+            Item       : Editor.Outline.Outline_Item := Result.Items.Element (I);
+            Label      : constant String := To_String (Item.Label);
+            Old_Depth  : constant Natural := Item.Depth;
+            Start_Line : constant Natural := Detail_Start_Line (To_String (Item.Detail));
+            End_Line   : constant Natural := Detail_End_Line (To_String (Item.Detail));
+         begin
+            if Starts_With (Label, "generic ")
+              and then Old_Depth > 0
+            then
+               Item.Depth := 0;
+               Result.Items.Replace_Element (I, Item);
+
+               if End_Line > Start_Line then
+                  for J in Result.Items.First_Index .. Result.Items.Last_Index loop
+                     if J /= I then
+                        declare
+                           Child : Editor.Outline.Outline_Item :=
+                             Result.Items.Element (J);
+                        begin
+                           if Child.Line > Start_Line
+                             and then Child.Line <= End_Line
+                             and then Child.Depth >= Old_Depth
+                           then
+                              Child.Depth := Child.Depth - Old_Depth;
+                              Result.Items.Replace_Element (J, Child);
+                           end if;
+                        end;
+                     end if;
+                  end loop;
+               end if;
+            end if;
+         end;
+      end loop;
+   end Normalize_Generic_Depths_From_Ranges;
+
+   procedure Normalize_Ranged_Child_Depths
+     (Result : in out Extraction_Result)
+   is
+   begin
+      if Result.Items.Is_Empty then
+         return;
+      end if;
+
+      for I in Result.Items.First_Index .. Result.Items.Last_Index loop
+         declare
+            Parent     : constant Editor.Outline.Outline_Item :=
+              Result.Items.Element (I);
+            Start_Line : constant Natural :=
+              Detail_Start_Line (To_String (Parent.Detail));
+            End_Line   : constant Natural :=
+              Detail_End_Line (To_String (Parent.Detail));
+            Form       : constant String :=
+              Primary_Detail_Form (To_String (Parent.Detail));
+            Has_Range  : constant Boolean :=
+              Parent.Kind in Editor.Outline.Outline_Package_Body
+                 | Editor.Outline.Outline_Task
+                 | Editor.Outline.Outline_Protected
+              or else (Parent.Kind = Editor.Outline.Outline_Package
+                       and then Form = "spec")
+              or else ((Parent.Kind = Editor.Outline.Outline_Procedure
+                        or else Parent.Kind = Editor.Outline.Outline_Function)
+                       and then Form = "body")
+              or else (Parent.Kind = Editor.Outline.Outline_Type
+                       and then (Form = "record" or else Form = "variant"));
+         begin
+            if End_Line > Start_Line and then Has_Range then
+               for J in Result.Items.First_Index .. Result.Items.Last_Index loop
+                  if J /= I then
+                     declare
+                        Child : Editor.Outline.Outline_Item :=
+                          Result.Items.Element (J);
+                     begin
+                        if Child.Line > Start_Line
+                          and then Child.Line < End_Line
+                          and then Child.Depth <= Parent.Depth
+                        then
+                           Child.Depth := Parent.Depth + 1;
+                           Result.Items.Replace_Element (J, Child);
+                        end if;
+                     end;
+                  end if;
+               end loop;
+            end if;
+         end;
+      end loop;
+   end Normalize_Ranged_Child_Depths;
+
+   procedure Normalize_Depths_To_Nearest_Range
+     (Result : in out Extraction_Result)
+   is
+      function Has_Structure_Range
+        (Item : Editor.Outline.Outline_Item) return Boolean
+      is
+         Form : constant String := Primary_Detail_Form (To_String (Item.Detail));
+      begin
+         return Item.Kind in Editor.Outline.Outline_Package_Body
+              | Editor.Outline.Outline_Task
+              | Editor.Outline.Outline_Protected
+           or else (Item.Kind = Editor.Outline.Outline_Package
+                    and then Form = "spec")
+           or else ((Item.Kind = Editor.Outline.Outline_Procedure
+                     or else Item.Kind = Editor.Outline.Outline_Function)
+                    and then Form = "body")
+           or else (Item.Kind = Editor.Outline.Outline_Type
+                    and then (Form = "record" or else Form = "variant"));
+      end Has_Structure_Range;
+   begin
+      if Result.Items.Is_Empty then
+         return;
+      end if;
+
+      for I in Result.Items.First_Index .. Result.Items.Last_Index loop
+         declare
+            Child          : Editor.Outline.Outline_Item := Result.Items.Element (I);
+            Best_Parent    : Natural := Result.Items.First_Index;
+            Best_Span      : Natural := Natural'Last;
+            Has_Parent     : Boolean := False;
+         begin
+            for J in Result.Items.First_Index .. Result.Items.Last_Index loop
+               if J /= I then
+                  declare
+                     Parent     : constant Editor.Outline.Outline_Item :=
+                       Result.Items.Element (J);
+                     Start_Line : constant Natural :=
+                       Detail_Start_Line (To_String (Parent.Detail));
+                     End_Line   : constant Natural :=
+                       Detail_End_Line (To_String (Parent.Detail));
+                     Span       : constant Natural :=
+                       (if End_Line > Start_Line then End_Line - Start_Line else 0);
+                  begin
+                     if Has_Structure_Range (Parent)
+                       and then (Start_Line < Child.Line
+                                 or else (Start_Line = Child.Line
+                                          and then Child.Kind in
+                                            Editor.Outline.Outline_Discriminant
+                                              | Editor.Outline.Outline_Enum_Literal))
+                       and then Child.Line < End_Line
+                       and then Span > 0
+                       and then Span < Best_Span
+                     then
+                        Best_Parent := J;
+                        Best_Span := Span;
+                        Has_Parent := True;
+                     end if;
+                  end;
+               end if;
+            end loop;
+
+            if Has_Parent then
+               declare
+                  Parent : constant Editor.Outline.Outline_Item :=
+                    Result.Items.Element (Best_Parent);
+                  Desired : constant Natural := Parent.Depth + 1;
+               begin
+                  if Child.Depth /= Desired then
+                     Child.Depth := Desired;
+                     Result.Items.Replace_Element (I, Child);
+                  end if;
+               end;
+            end if;
+         end;
+      end loop;
+   end Normalize_Depths_To_Nearest_Range;
+
+   procedure Normalize_Same_Line_Enum_Literal_Depths
+     (Result : in out Extraction_Result)
+   is
+   begin
+      if Result.Items.Is_Empty then
+         return;
+      end if;
+
+      for I in Result.Items.First_Index .. Result.Items.Last_Index loop
+         declare
+            Item : Editor.Outline.Outline_Item := Result.Items.Element (I);
+         begin
+            if Item.Kind = Editor.Outline.Outline_Enum_Literal then
+               for J in reverse Result.Items.First_Index .. I loop
+                  declare
+                     Parent : constant Editor.Outline.Outline_Item :=
+                       Result.Items.Element (J);
+                  begin
+                     if Parent.Kind = Editor.Outline.Outline_Type
+                       and then Parent.Line = Item.Line
+                       and then Starts_With (To_String (Parent.Label), "enum type ")
+                     then
+                        Item.Depth := Parent.Depth + 1;
+                        Result.Items.Replace_Element (I, Item);
+                        exit;
+                     end if;
+                  end;
+               end loop;
+            end if;
+         end;
+      end loop;
+   end Normalize_Same_Line_Enum_Literal_Depths;
+
+   function Has_Field_Row_For_Object
+     (Result : Extraction_Result;
+      Object : Editor.Outline.Outline_Item) return Boolean
+   is
+      Label : constant String := To_String (Object.Label);
+      Name  : constant String :=
+        (if Starts_With (Label, "object ")
+         then Label (Label'First + 7 .. Label'Last)
+         else "");
+   begin
+      if Name'Length = 0 then
+         return False;
+      end if;
+
+      for Existing of Result.Items loop
+         if Existing.Kind = Editor.Outline.Outline_Field
+           and then Existing.Line = Object.Line
+           and then To_String (Existing.Label) = "field " & Name
+         then
+            return True;
+         end if;
+      end loop;
+
+      return False;
+   end Has_Field_Row_For_Object;
+
+   procedure Remove_Object_Field_Duplicates
+     (Result : in out Extraction_Result)
+   is
+   begin
+      if Result.Items.Is_Empty then
+         return;
+      end if;
+
+      for I in reverse Result.Items.First_Index .. Result.Items.Last_Index loop
+         declare
+            Item : constant Editor.Outline.Outline_Item :=
+              Result.Items.Element (I);
+         begin
+            if Item.Kind = Editor.Outline.Outline_Object
+              and then Has_Field_Row_For_Object (Result, Item)
+            then
+               Result.Items.Delete (I);
+            end if;
+         end;
+      end loop;
+   end Remove_Object_Field_Duplicates;
+
+   procedure Normalize_Projected_Subprogram_Headers
+     (Result : in out Extraction_Result;
+      Lines  : Line_Vectors.Vector)
+   is
+   begin
+      if Result.Items.Is_Empty then
+         return;
+      end if;
+
+      for I in Result.Items.First_Index .. Result.Items.Last_Index loop
+         declare
+            Item   : Editor.Outline.Outline_Item := Result.Items.Element (I);
+            Header : constant String := Header_Text_From (Lines, Item.Line);
+            Label  : constant String := To_String (Item.Label);
+            Form   : constant String := Primary_Detail_Form (To_String (Item.Detail));
+         begin
+            if Item.Line > 0 and then Item.Line <= Natural (Lines.Length) then
+               Item.Column :=
+                 Declaration_Target_Column (To_String (Lines (Item.Line - 1)));
+            end if;
+
+            if Is_Separate_Subunit_Declaration (Lines, Item.Line)
+              and then (Item.Kind = Editor.Outline.Outline_Package_Body
+                        or else Item.Kind = Editor.Outline.Outline_Procedure
+                        or else Item.Kind = Editor.Outline.Outline_Function)
+            then
+               Item.Depth := 0;
+            end if;
+
+            if Starts_With (Label, "generic procedure ")
+              and then Header_Starts_With_Function (Header)
+            then
+               Item.Kind := Editor.Outline.Outline_Function;
+               Item.Label := To_Unbounded_String
+                 (Replace_Label_Prefix
+                    (Label, "generic procedure ", "generic function "));
+            elsif Starts_With (Label, "generic function ")
+              and then Header_Starts_With_Procedure (Header)
+            then
+               Item.Kind := Editor.Outline.Outline_Procedure;
+               Item.Label := To_Unbounded_String
+                 (Replace_Label_Prefix
+                    (Label, "generic function ", "generic procedure "));
+            elsif Starts_With (Label, "formal procedure ")
+              and then Header_Starts_With_Function (Header)
+            then
+               Item.Label := To_Unbounded_String
+                 (Replace_Label_Prefix
+                    (Label, "formal procedure ", "formal function "));
+               Item.Detail := To_Unbounded_String
+                 (Detail_Text (Positive (Item.Line), "generic formal function"));
+            elsif Starts_With (Label, "formal function ")
+              and then Header_Starts_With_Procedure (Header)
+            then
+               Item.Label := To_Unbounded_String
+                 (Replace_Label_Prefix
+                    (Label, "formal function ", "formal procedure "));
+               Item.Detail := To_Unbounded_String
+                 (Detail_Text (Positive (Item.Line), "generic formal procedure"));
+            elsif Starts_With (Label, "separate body ")
+              and then Header_Starts_With_Procedure (Header)
+            then
+               Item.Kind := Editor.Outline.Outline_Procedure;
+               Item.Label := To_Unbounded_String
+                 (Replace_Label_Prefix
+                    (Label, "separate body ", "procedure body "));
+               Item.Detail := To_Unbounded_String
+                 (Detail_Text (Positive (Item.Line), "body"));
+            elsif Starts_With (Label, "separate body ")
+              and then Header_Starts_With_Function (Header)
+            then
+               Item.Kind := Editor.Outline.Outline_Function;
+               Item.Label := To_Unbounded_String
+                 (Replace_Label_Prefix
+                    (Label, "separate body ", "function body "));
+               Item.Detail := To_Unbounded_String
+                 (Detail_Text (Positive (Item.Line), "body"));
+            elsif Ends_With (Label, " instantiation")
+              and then Header_Starts_With_Procedure (Header)
+            then
+               Item.Kind := Editor.Outline.Outline_Procedure;
+               Item.Label := To_Unbounded_String
+                 ("procedure " &
+                  Label (Label'First + 8 .. Label'Last - 14));
+            elsif Ends_With (Label, " instantiation")
+              and then Header_Starts_With_Function (Header)
+            then
+               Item.Kind := Editor.Outline.Outline_Function;
+               Item.Label := To_Unbounded_String
+                 ("function " &
+                  Label (Label'First + 8 .. Label'Last - 14));
+            elsif Ends_With (Label, " instantiation")
+              and then Starts_With (Label, "package ")
+            then
+               Item.Label := To_Unbounded_String
+                 (Label (Label'First .. Label'Last - 14));
+            end if;
+
+            if (Item.Kind = Editor.Outline.Outline_Package
+                or else Item.Kind = Editor.Outline.Outline_Procedure
+                or else Item.Kind = Editor.Outline.Outline_Function)
+              and then Form /= "renames"
+              and then Has_Renames (Header)
+            then
+               declare
+                  Current : constant String := To_String (Item.Label);
+               begin
+                  if not Ends_With (Current, " renames") then
+                     Item.Label := To_Unbounded_String (Current & " renames");
+                  end if;
+
+                  Item.Detail := To_Unbounded_String
+                    (Detail_Text (Positive (Item.Line), "renames"));
+               end;
+            end if;
+
+            if Item.Kind = Editor.Outline.Outline_Package
+              and then Form = "instantiation"
+              and then not Header_Is_Instantiation (Lines, Item.Line)
+            then
+               Item.Detail := To_Unbounded_String
+                 (Detail_Text (Positive (Item.Line), "spec"));
+            end if;
+
+            if (Item.Kind = Editor.Outline.Outline_Package
+                or else Item.Kind = Editor.Outline.Outline_Procedure
+                or else Item.Kind = Editor.Outline.Outline_Function)
+              and then Form /= "instantiation"
+              and then Header_Is_Instantiation (Lines, Item.Line)
+            then
+               declare
+                  Current : constant String := To_String (Item.Label);
+               begin
+                  if Starts_With (Current, "procedure body ") then
+                     Item.Label := To_Unbounded_String
+                       (Replace_Label_Prefix
+                          (Current, "procedure body ", "procedure "));
+                  elsif Starts_With (Current, "function body ") then
+                     Item.Label := To_Unbounded_String
+                       (Replace_Label_Prefix
+                          (Current, "function body ", "function "));
+                  elsif Starts_With (Current, "expression function ") then
+                     Item.Label := To_Unbounded_String
+                       (Replace_Label_Prefix
+                          (Current, "expression function ", "function "));
+                  elsif Ends_With (Current, " instantiation")
+                    and then Starts_With (Current, "package ")
+                  then
+                     Item.Label := To_Unbounded_String
+                       (Current (Current'First .. Current'Last - 14));
+                  end if;
+
+                  Item.Detail := To_Unbounded_String
+                    (Detail_Text (Positive (Item.Line), "instantiation"));
+                  Decrement_Subsequent_Nested_Depths
+                    (Result, I, Item.Depth);
+               end;
+            end if;
+
+            if Form = "body"
+              and then Header_Is_Body_Stub (Lines, Item.Line)
+            then
+               Decrement_Subsequent_Nested_Depths (Result, I, Item.Depth);
+            end if;
+
+            if Item.Kind = Editor.Outline.Outline_Function
+              and then Form /= "expression"
+              and then not Header_Is_Instantiation (Lines, Item.Line)
+              and then Header_Is_Expression_Function (Lines, Item.Line)
+            then
+               declare
+                  Current : constant String := To_String (Item.Label);
+               begin
+                  if Starts_With (Current, "generic function body ") then
+                     Item.Label := To_Unbounded_String
+                       (Replace_Label_Prefix
+                          (Current, "generic function body ",
+                           "generic expression function "));
+                  elsif Starts_With (Current, "function body ") then
+                     Item.Label := To_Unbounded_String
+                       (Replace_Label_Prefix
+                          (Current, "function body ", "expression function "));
+                  elsif Starts_With (Current, "generic function ") then
+                     Item.Label := To_Unbounded_String
+                       (Replace_Label_Prefix
+                          (Current, "generic function ",
+                           "generic expression function "));
+                  elsif Starts_With (Current, "function ") then
+                     Item.Label := To_Unbounded_String
+                       (Replace_Label_Prefix
+                          (Current, "function ", "expression function "));
+                  end if;
+
+                  Item.Detail := To_Unbounded_String
+                    (Detail_Text (Positive (Item.Line), "expression"));
+                  Decrement_Subsequent_Nested_Depths
+                    (Result, I, Item.Depth);
+               end;
+            end if;
+
+            if (Item.Kind = Editor.Outline.Outline_Procedure
+                or else Item.Kind = Editor.Outline.Outline_Function)
+              and then Form = "body"
+              and then not Header_Is_Instantiation (Lines, Item.Line)
+            then
+               declare
+                  Current : constant String := To_String (Item.Label);
+               begin
+                  if Starts_With (Current, "procedure ")
+                    and then not Starts_With (Current, "procedure body ")
+                  then
+                     Item.Label := To_Unbounded_String
+                       (Replace_Label_Prefix
+                          (Current, "procedure ", "procedure body "));
+                  elsif Starts_With (Current, "function ")
+                    and then not Starts_With (Current, "function body ")
+                  then
+                     Item.Label := To_Unbounded_String
+                       (Replace_Label_Prefix
+                          (Current, "function ", "function body "));
+                  end if;
+               end;
+            end if;
+
+            if (Item.Kind = Editor.Outline.Outline_Procedure
+                or else Item.Kind = Editor.Outline.Outline_Function)
+              and then Form = "declaration"
+              and then not Header_Is_Instantiation (Lines, Item.Line)
+              and then not Header_Is_Expression_Function (Lines, Item.Line)
+              and then Header_Is_Subprogram_Body (Header)
+            then
+               declare
+                  Current : constant String := To_String (Item.Label);
+               begin
+                  if Starts_With (Current, "generic procedure ") then
+                     Item.Label := To_Unbounded_String
+                       (Replace_Label_Prefix
+                          (Current, "generic procedure ", "generic procedure body "));
+                  elsif Starts_With (Current, "generic function ") then
+                     Item.Label := To_Unbounded_String
+                       (Replace_Label_Prefix
+                          (Current, "generic function ", "generic function body "));
+                  elsif Starts_With (Current, "procedure ") then
+                     Item.Label := To_Unbounded_String
+                       (Replace_Label_Prefix
+                          (Current, "procedure ", "procedure body "));
+                  elsif Starts_With (Current, "function ") then
+                     Item.Label := To_Unbounded_String
+                       (Replace_Label_Prefix
+                          (Current, "function ", "function body "));
+                  end if;
+
+                  Item.Detail := To_Unbounded_String
+                    (Detail_Text (Positive (Item.Line), "body"));
+               end;
+            end if;
+
+            Result.Items.Replace_Element (I, Item);
+         end;
+      end loop;
+   end Normalize_Projected_Subprogram_Headers;
+
+   function Declaration_Text_Until_Semicolon
+     (Lines      : Line_Vectors.Vector;
+      Start_Line : Natural) return String
+   is
+      Combined : Unbounded_String;
+      Limit    : constant Natural :=
+        Natural'Min (Natural (Lines.Length), Start_Line + 8);
+   begin
+      if Start_Line = 0 or else Lines.Is_Empty then
+         return "";
+      end if;
+
+      for L in Start_Line .. Limit loop
+         declare
+            Lower : constant String := Code_Lower_Line (Lines, L);
+         begin
+            if Lower'Length > 0 then
+               if Length (Combined) > 0 then
+                  Append (Combined, " ");
+               end if;
+               Append (Combined, Lower);
+               if Has_Code_Character (Lower, ';') then
+                  exit;
+               end if;
+            end if;
+         end;
+      end loop;
+
+      return To_String (Combined);
+   end Declaration_Text_Until_Semicolon;
+
+   function Has_Enumeration_Literal_Row_After
+     (Result      : Extraction_Result;
+      Line_Number : Natural;
+      Depth       : Natural) return Boolean
+   is
+   begin
+      for Existing of Result.Items loop
+         if Existing.Kind = Editor.Outline.Outline_Enum_Literal
+           and then Existing.Line >= Line_Number
+           and then Existing.Depth = Depth
+         then
+            return True;
+         end if;
+      end loop;
+
+      return False;
+   end Has_Enumeration_Literal_Row_After;
+
+   procedure Supplement_Split_Enumeration_Literals
+     (Result : in out Extraction_Result;
+      Lines  : Line_Vectors.Vector)
+   is
+      Original_Last : Natural;
+   begin
+      if Result.Items.Is_Empty then
+         return;
+      end if;
+
+      Original_Last := Result.Items.Last_Index;
+      for I in Result.Items.First_Index .. Original_Last loop
+         declare
+            Item : Editor.Outline.Outline_Item := Result.Items.Element (I);
+            Label : constant String := To_String (Item.Label);
+            Decl  : constant String :=
+              Declaration_Text_Until_Semicolon (Lines, Item.Line);
+         begin
+            if Item.Kind = Editor.Outline.Outline_Type
+              and then Starts_With (Label, "type ")
+              and then Looks_Like_Enumeration_Type_Line (Decl)
+              and then not Has_Enumeration_Literal_Row_After
+                (Result, Item.Line, Item.Depth + 1)
+            then
+               Item.Label := To_Unbounded_String
+                 ("enum type " & Label (Label'First + 5 .. Label'Last));
+               Result.Items.Replace_Element (I, Item);
+
+               for L in Item.Line .. Natural'Min (Natural (Lines.Length), Item.Line + 8) loop
+                  declare
+                     Raw : constant String := To_String (Lines (L - 1));
+                  begin
+                     if L /= Item.Line
+                       or else Ada.Strings.Fixed.Index (Raw, "(") /= 0
+                     then
+                        Append_Enumeration_Literals_From_Line
+                          (Result, Raw, Positive (L), Item.Depth + 1,
+                           (if L = Item.Line
+                            then First_Enumeration_List_Column (Raw)
+                            else Raw'First));
+                     end if;
+                     exit when Has_Code_Character (Code_Lower_Line (Lines, L), ';');
+                  end;
+               end loop;
+            end if;
+         end;
+      end loop;
+   end Supplement_Split_Enumeration_Literals;
+
+   function Comes_Before
+     (Left  : Editor.Outline.Outline_Item;
+      Right : Editor.Outline.Outline_Item) return Boolean
+   is
+   begin
+      return Left.Line < Right.Line
+        or else (Left.Line = Right.Line and then Left.Column < Right.Column)
+        or else (Left.Line = Right.Line
+                 and then Left.Column = Right.Column
+                 and then Left.Depth < Right.Depth);
+   end Comes_Before;
+
+   procedure Sort_Items_By_Source (Result : in out Extraction_Result)
+   is
+   begin
+      if Natural (Result.Items.Length) < 2 then
+         return;
+      end if;
+
+      for I in Result.Items.First_Index + 1 .. Result.Items.Last_Index loop
+         declare
+            Current : Editor.Outline.Outline_Item := Result.Items.Element (I);
+            J       : Natural := I;
+         begin
+            while J > Result.Items.First_Index
+              and then Comes_Before (Current, Result.Items.Element (J - 1))
+            loop
+               Result.Items.Replace_Element (J, Result.Items.Element (J - 1));
+               J := J - 1;
+            end loop;
+            Result.Items.Replace_Element (J, Current);
+         end;
+      end loop;
+   end Sort_Items_By_Source;
 
    function Is_Code_Line_Open
      (Lower_Line : String) return Boolean
@@ -2268,7 +4042,7 @@ package body Editor.Outline_Extractor is
       Form : String) return String
    is
    begin
-      if Form = "record" then
+      if Form = "record" or else Form = "variant" then
          return "record";
       elsif Item.Kind = Editor.Outline.Outline_Package
         or else Item.Kind = Editor.Outline.Outline_Package_Body
@@ -2502,6 +4276,7 @@ package body Editor.Outline_Extractor is
       Expected_Close_Keyword : String := "") return Natural
    is
       Stack : Structure_Stack_Vectors.Vector;
+      Root_Line : constant String := Code_Lower_Line (Lines, Start_Line);
    begin
       if Start_Line = 0 or else Lines.Is_Empty then
          return 0;
@@ -2509,8 +4284,11 @@ package body Editor.Outline_Extractor is
 
       Stack.Append
         (Structure_Stack_Entry'
-          (Needs_Body_Begin       => Form_Needs_Body_Begin (Form),
-          Pending_Header         => False,
+          (Needs_Body_Begin       =>
+             Form_Needs_Body_Begin (Form)
+             and then Expected_Close_Keyword /= "package"
+             and then Expected_Close_Keyword /= "protected",
+          Pending_Header         => Declaration_Header_Starts_Construct (Root_Line),
           Expected_Close_Keyword => To_Unbounded_String (Expected_Close_Keyword),
           Expected_Name          => To_Unbounded_String (Expected_Lower_Name)));
 
@@ -2546,12 +4324,21 @@ package body Editor.Outline_Extractor is
                  and then Stack.Last_Element.Pending_Header
                  and then Has_Token_Is (Structure_Lower)
                then
-                  declare
-                     Frame : Structure_Stack_Entry := Stack.Last_Element;
-                  begin
-                     Frame.Pending_Header := False;
-                     Stack.Replace_Element (Stack.Last_Index, Frame);
-                  end;
+                  if Natural (Stack.Length) > 1
+                    and then Has_Code_Character (Structure_Lower, ';')
+                    and then (Has_Is_Followed_By (Structure_Lower, "separate")
+                              or else Has_Is_Followed_By (Structure_Lower, "null")
+                              or else Has_Is_Followed_By (Structure_Lower, "new"))
+                  then
+                     Stack.Delete_Last;
+                  else
+                     declare
+                        Frame : Structure_Stack_Entry := Stack.Last_Element;
+                     begin
+                        Frame.Pending_Header := False;
+                        Stack.Replace_Element (Stack.Last_Index, Frame);
+                     end;
+                  end if;
                elsif Starts_With_Word (Structure_Lower, "entry")
                  and then Is_Code_Line_Open (Structure_Lower)
                then
@@ -2572,6 +4359,7 @@ package body Editor.Outline_Extractor is
                elsif not Stack.Is_Empty
                  and then Stack.Last_Element.Needs_Body_Begin
                  and then Has_Token_Is (Structure_Lower)
+                 and then not Is_Code_Line_Open (Structure_Lower)
                then
                   --  A multi-line body header can finish with a standalone
                   --  or continuation "is" line.  Keep waiting for the
@@ -2596,6 +4384,16 @@ package body Editor.Outline_Extractor is
                         Frame.Pending_Header := False;
                         Stack.Replace_Element (Stack.Last_Index, Frame);
                      end;
+                  elsif Natural (Stack.Length) = 1
+                    and then Block_Label'Length = 0
+                    and then To_String
+                      (Stack.Last_Element.Expected_Close_Keyword) = "package"
+                  then
+                     --  A package body's optional elaboration-part begin is
+                     --  part of the package frame, not a nested anonymous
+                     --  block.  Labeled blocks inside that part are tracked
+                     --  separately and must not close the package early.
+                     null;
                   else
                      Stack.Append
                        (Structure_Stack_Entry'
@@ -2640,11 +4438,48 @@ package body Editor.Outline_Extractor is
       return 0;
    end Closing_Line_For;
 
+   function Explicit_Root_End_Line_For
+     (Lines                  : Line_Vectors.Vector;
+      Start_Line             : Natural;
+      Expected_Lower_Name    : String;
+      Expected_Close_Keyword : String) return Natural
+   is
+   begin
+      if Start_Line = 0 or else Lines.Is_Empty then
+         return 0;
+      end if;
+
+      for L in Start_Line + 1 .. Natural (Lines.Length) loop
+         declare
+            Lower     : constant String := Code_Lower_Line (Lines, L);
+            Name      : constant String := Closing_Line_Name (Lower);
+            Qualifier : constant String := Closing_Line_Qualifier (Lower);
+         begin
+            if Starts_With_Word (Lower, "end") then
+               if Expected_Lower_Name'Length > 0
+                 and then Name = Expected_Lower_Name
+               then
+                  return L;
+               elsif Expected_Close_Keyword'Length > 0
+                 and then Name = Expected_Close_Keyword
+                 and then (Qualifier'Length = 0
+                           or else (Expected_Lower_Name'Length > 0
+                                    and then Qualifier = Expected_Lower_Name))
+               then
+                  return L;
+               end if;
+            end if;
+         end;
+      end loop;
+
+      return 0;
+   end Explicit_Root_End_Line_For;
+
    function Item_May_Have_Structure_Range
      (Item : Editor.Outline.Outline_Item) return Boolean
    is
       Detail : constant String := To_String (Item.Detail);
-      Form   : constant String := Detail_Form (Detail);
+      Form   : constant String := Primary_Detail_Form (Detail);
    begin
       if Item.Kind = Editor.Outline.Outline_Package_Body
         or else Item.Kind = Editor.Outline.Outline_Task
@@ -2661,7 +4496,7 @@ package body Editor.Outline_Extractor is
       then
          return Form = "body";
       elsif Item.Kind = Editor.Outline.Outline_Type then
-         return Form = "record";
+         return Form = "record" or else Form = "variant";
       else
          return False;
       end if;
@@ -2678,12 +4513,29 @@ package body Editor.Outline_Extractor is
          return;
       end if;
 
+      Add_Missing_Generic_Formal_Subprograms (Result, Lines);
+      Add_Missing_Generic_Formal_Types (Result, Lines);
+      Add_Missing_Callable_Declarations (Result, Lines);
+      Remove_Generic_Formal_Profile_Objects (Result, Lines);
+      Remove_Generic_Formal_Object_Duplicates (Result);
+      Normalize_Projected_Subprogram_Headers (Result, Lines);
+      Remove_Redundant_Package_Aspect_Rows (Result);
+      Remove_Redundant_Separate_Body_Rows (Result);
+      Remove_Label_Block_Object_Rows (Result, Lines);
+      Remove_Redundant_Entry_Barrier_Rows (Result);
+      Remove_Redundant_Prefixed_Callable_Rows (Result);
+      Supplement_Split_Enumeration_Literals (Result, Lines);
+      Remove_Object_Field_Duplicates (Result);
+      Remove_Duplicate_Body_Stubs (Result);
+      Remove_Duplicate_Source_Rows (Result);
+      Sort_Items_By_Source (Result);
+
       for Index in Result.Items.First_Index .. Result.Items.Last_Index loop
          declare
             Item       : Editor.Outline.Outline_Item := Result.Items.Element (Index);
             Start_Line : constant Natural := Detail_Start_Line (To_String (Item.Detail));
             End_Line   : Natural := 0;
-            Form       : constant String := Detail_Form (To_String (Item.Detail));
+            Form       : constant String := Primary_Detail_Form (To_String (Item.Detail));
          begin
             if Item_May_Have_Structure_Range (Item)
               and then Start_Line > 0
@@ -2693,17 +4545,29 @@ package body Editor.Outline_Extractor is
             then
                End_Line := Closing_Line_For
                  (Lines, Start_Line, Form,
-                  (if Form = "record" then ""
+                  (if Form = "record" or else Form = "variant" then ""
                    else Lowercase_Text (Last_Label_Word (To_String (Item.Label)))),
                   Expected_End_Keyword (Item, Form));
                if End_Line > Start_Line then
-                  Item.Detail := To_Unbounded_String
-                    (End_Line_Detail (Start_Line, End_Line, Form));
+                  declare
+                     Range_Form : constant String :=
+                       (if Form = "variant"
+                        then "variant record variant-record"
+                        else Form);
+                  begin
+                     Item.Detail := To_Unbounded_String
+                       (End_Line_Detail (Start_Line, End_Line, Range_Form));
+                  end;
                   Result.Items.Replace_Element (Index, Item);
                end if;
             end if;
          end;
       end loop;
+
+      Normalize_Generic_Depths_From_Ranges (Result);
+      Normalize_Ranged_Child_Depths (Result);
+      Normalize_Depths_To_Nearest_Range (Result);
+      Normalize_Same_Line_Enum_Literal_Depths (Result);
    end Annotate_Local_Structure_Ranges;
 
 
@@ -2759,14 +4623,18 @@ package body Editor.Outline_Extractor is
    begin
       if Symbol.Flags.Has_Variant_Record_Metadata then
          return "variant record type ";
+      elsif Symbol.Flags.Has_Private_Extension_Metadata then
+         return "private extension type ";
+      elsif Symbol.Flags.Is_Private
+        or else Symbol.Flags.Has_Limited_Metadata
+      then
+         return "private type ";
       elsif Symbol.Flags.Has_Array_Metadata then
          return "array type ";
       elsif Symbol.Flags.Has_Access_Subprogram_Metadata then
          return "access subprogram type ";
       elsif Symbol.Flags.Has_Access_Metadata then
          return "access type ";
-      elsif Symbol.Flags.Has_Private_Extension_Metadata then
-         return "private extension type ";
       elsif Symbol.Flags.Has_Derived_Metadata
         and then Symbol.Flags.Has_Null_Record_Metadata
       then
@@ -2809,11 +4677,61 @@ package body Editor.Outline_Extractor is
       end if;
    end Formal_Type_Label_Prefix;
 
+   function Has_Return_Profile
+     (Symbol : Editor.Ada_Language_Model.Symbol_Info) return Boolean
+   is
+      Profile : constant String := Lowercase_Text (To_String (Symbol.Profile_Summary));
+   begin
+      return Ada.Strings.Fixed.Index (Profile, " return ") /= 0
+        or else Starts_With (Profile, "return ");
+   end Has_Return_Profile;
+
+   function Callable_Display_Name
+     (Symbol : Editor.Ada_Language_Model.Symbol_Info) return String
+   is
+      Name : constant String := To_String (Symbol.Name);
+      Lower_Name : constant String := Lowercase_Text (Name);
+      Return_Pos : constant Natural :=
+        Ada.Strings.Fixed.Index (Lower_Name, " return ");
+   begin
+      if Return_Pos > Name'First then
+         return Ada.Strings.Fixed.Trim
+           (Name (Name'First .. Return_Pos - 1), Ada.Strings.Both);
+      end if;
+
+      return Name;
+   end Callable_Display_Name;
+
+   function Formal_Subprogram_Label_Prefix
+     (Symbol : Editor.Ada_Language_Model.Symbol_Info) return String
+   is
+      Name : constant String := To_String (Symbol.Name);
+   begin
+      if Has_Return_Profile (Symbol)
+        or else (Name'Length > 0 and then Name (Name'First) = '"')
+      then
+         return "formal function ";
+      else
+         return "formal procedure ";
+      end if;
+   end Formal_Subprogram_Label_Prefix;
+
+   function Generic_Subprogram_Label_Prefix
+     (Symbol : Editor.Ada_Language_Model.Symbol_Info) return String
+   is
+   begin
+      if Has_Return_Profile (Symbol) then
+         return "generic function ";
+      else
+         return "generic procedure ";
+      end if;
+   end Generic_Subprogram_Label_Prefix;
+
    function Symbol_Label
      (Symbol : Editor.Ada_Language_Model.Symbol_Info) return String
    is
       use Editor.Ada_Language_Model;
-      Name : constant String := To_String (Symbol.Name);
+      Name : constant String := Callable_Display_Name (Symbol);
       Rename_Suffix : constant String := (if Symbol.Flags.Is_Rename then " renames" else "");
    begin
       case Symbol.Kind is
@@ -2830,23 +4748,31 @@ package body Editor.Outline_Extractor is
                return "procedure " & Name & Rename_Suffix;
             end if;
          when Symbol_Function =>
-            if Symbol.Flags.Is_Body then
+            if Symbol.Flags.Has_Expression_Function_Metadata then
+               return "expression function " & Name;
+            elsif Symbol.Flags.Is_Body then
                return "function body " & Name;
             else
                return "function " & Name & Rename_Suffix;
             end if;
          when Symbol_Operator_Function =>
-            if Symbol.Flags.Is_Body then
+            if Symbol.Flags.Has_Expression_Function_Metadata then
+               return "expression function " & Name;
+            elsif Symbol.Flags.Is_Body then
                return "function body " & Name;
             else
                return "function " & Name & Rename_Suffix;
             end if;
          when Symbol_Generic_Subprogram =>
+            declare
+               Prefix : constant String := Generic_Subprogram_Label_Prefix (Symbol);
+            begin
             if Symbol.Flags.Is_Body then
-               return "generic subprogram body " & Name;
+                  return Prefix & "body " & Name;
             else
-               return "generic subprogram " & Name;
+                  return Prefix & Name;
             end if;
+            end;
          when Symbol_Record_Type =>
             if Symbol.Flags.Has_Variant_Record_Metadata then
                return "variant record type " & Name;
@@ -2872,15 +4798,27 @@ package body Editor.Outline_Extractor is
          when Symbol_Enumeration_Literal =>
             return "literal " & Name;
          when Symbol_Object =>
-            return "object " & Name;
+            return "object " & Name & Rename_Suffix;
          when Symbol_Constant =>
-            return "constant " & Name;
+            return "constant " & Name & Rename_Suffix;
          when Symbol_Exception =>
             return "exception " & Name;
          when Symbol_Task =>
-            return "task " & Name;
+            if Symbol.Flags.Is_Body then
+               return "task body " & Name;
+            elsif Symbol.Flags.Has_Task_Type_Metadata then
+               return "task type " & Name;
+            else
+               return "task " & Name;
+            end if;
          when Symbol_Protected =>
-            return "protected " & Name;
+            if Symbol.Flags.Is_Body then
+               return "protected body " & Name;
+            elsif Symbol.Flags.Has_Protected_Type_Metadata then
+               return "protected type " & Name;
+            else
+               return "protected " & Name;
+            end if;
          when Symbol_Entry =>
             if Symbol.Flags.Has_Entry_Family_Metadata then
                return "entry family " & Name;
@@ -2892,7 +4830,7 @@ package body Editor.Outline_Extractor is
          when Symbol_Generic_Formal_Object =>
             return "formal object " & Name;
          when Symbol_Generic_Formal_Subprogram =>
-            return "formal subprogram " & Name;
+            return Formal_Subprogram_Label_Prefix (Symbol) & Name;
          when Symbol_Generic_Formal_Package =>
             return "formal package " & Name;
          when Symbol_Rename =>
@@ -2906,6 +4844,47 @@ package body Editor.Outline_Extractor is
       end case;
    end Symbol_Label;
 
+   function Symbol_Has_Child_Kind
+     (Analysis : Editor.Ada_Language_Model.Analysis_Result;
+      Parent   : Editor.Ada_Language_Model.Symbol_Id;
+      Kind     : Editor.Ada_Language_Model.Symbol_Kind) return Boolean
+   is
+      use Editor.Ada_Language_Model;
+   begin
+      if Parent = No_Symbol then
+         return False;
+      end if;
+
+      for Index in 1 .. Symbol_Count (Analysis) loop
+         declare
+            Child : constant Symbol_Info := Symbol_At (Analysis, Index);
+         begin
+            if Child.Parent_Symbol = Parent and then Child.Kind = Kind then
+               return True;
+            end if;
+         end;
+      end loop;
+
+      return False;
+   end Symbol_Has_Child_Kind;
+
+   function Projected_Symbol_Label
+     (Analysis : Editor.Ada_Language_Model.Analysis_Result;
+      Symbol   : Editor.Ada_Language_Model.Symbol_Info) return String
+   is
+      use Editor.Ada_Language_Model;
+      Name : constant String := Callable_Display_Name (Symbol);
+   begin
+      if Symbol.Kind = Symbol_Type
+        and then Symbol_Has_Child_Kind
+          (Analysis, Symbol.Id, Symbol_Enumeration_Literal)
+      then
+         return "enum type " & Name;
+      end if;
+
+      return Symbol_Label (Symbol);
+   end Projected_Symbol_Label;
+
    function Symbol_Detail
      (Symbol : Editor.Ada_Language_Model.Symbol_Info) return String
    is
@@ -2915,13 +4894,43 @@ package body Editor.Outline_Extractor is
       Profile : constant String := To_String (Symbol.Profile_Summary);
       Base_Form : constant String :=
         (case Symbol.Kind is
+            when Symbol_Package => " spec",
             when Symbol_Record_Type =>
               (if Symbol.Flags.Has_Variant_Record_Metadata then " variant record" else " record"),
             when Symbol_Subtype => " subtype",
             when Symbol_Package_Body => " body",
+            when Symbol_Procedure =>
+              (if Symbol.Flags.Is_Body
+                 or else Symbol.Flags.Has_Null_Subprogram_Metadata
+                 or else Symbol.Flags.Has_Body_Stub_Metadata
+               then " body"
+               elsif Symbol.Flags.Is_Instantiation then " instantiation"
+               else " declaration"),
+            when Symbol_Function | Symbol_Operator_Function =>
+              (if Symbol.Flags.Has_Expression_Function_Metadata then " expression"
+               elsif Symbol.Flags.Is_Body
+                 or else Symbol.Flags.Has_Body_Stub_Metadata
+               then " body"
+               elsif Symbol.Flags.Is_Instantiation then " instantiation"
+               else " declaration"),
             when Symbol_Rename => " renames",
             when Symbol_Instantiation => " instantiation",
-            when Symbol_Generic_Package | Symbol_Generic_Subprogram => " generic",
+            when Symbol_Generic_Package => " spec",
+            when Symbol_Generic_Subprogram =>
+              (if Symbol.Flags.Is_Body
+                 or else Symbol.Flags.Has_Body_Stub_Metadata
+               then " body"
+               elsif Symbol.Flags.Has_Expression_Function_Metadata then " expression"
+               else " declaration"),
+            when Symbol_Task =>
+              (if Symbol.Flags.Is_Body then " body"
+               elsif Symbol.Flags.Has_Task_Type_Metadata then " type"
+               else " task"),
+            when Symbol_Protected =>
+              (if Symbol.Flags.Is_Body then " body"
+               elsif Symbol.Flags.Has_Protected_Type_Metadata then " type"
+               else " protected"),
+            when Symbol_Entry => " declaration",
             when Symbol_Generic_Formal_Package =>
               (if Symbol.Flags.Has_Generic_Actual_Part_Metadata then
                   " generic formal package actuals"
@@ -2929,12 +4938,17 @@ package body Editor.Outline_Extractor is
                   " generic formal package box"
                else
                   " generic formal package"),
-            when Symbol_Generic_Formal_Subprogram => " generic formal subprogram",
+            when Symbol_Generic_Formal_Subprogram =>
+              (if Has_Return_Profile (Symbol) then
+                  " generic formal function"
+               else
+                  " generic formal procedure"),
             when Symbol_Generic_Formal_Type => " generic formal type",
             when Symbol_Generic_Formal_Object => " generic formal object",
             when Symbol_Record_Component => " component",
             when Symbol_Discriminant => " discriminant",
             when Symbol_Enumeration_Literal => " enumeration",
+            when Symbol_Object => " object",
             when Symbol_Constant => " constant",
             when Symbol_Exception => " exception",
             when others => "");
@@ -3031,26 +5045,90 @@ package body Editor.Outline_Extractor is
       return "line " & Line_Text & Form & Abstract_Metadata & Overriding_Metadata & Representation & Aspect & Pragma_Metadata & Null_Exclusion & Aliased_Metadata & Limited_Metadata & Tagged_Metadata & Interface_Metadata & Synchronized_Metadata & Task_Interface_Metadata & Protected_Interface_Metadata & Task_Type_Metadata & Protected_Type_Metadata & Access_Metadata & Access_All_Metadata & Access_Constant_Metadata & Class_Wide_Metadata & Access_Subprogram_Metadata & Access_Protected_Metadata & Array_Metadata & Derived_Metadata & Range_Metadata & Modular_Metadata & Digits_Metadata & Delta_Metadata & Variant_Record_Metadata & Default_Expression_Metadata & Entry_Family_Metadata & Incomplete_Type_Metadata & Profile_Mode_Metadata & Entry_Barrier_Metadata & Box_Metadata & Discriminant_Part_Metadata & Body_Stub_Metadata & Constraint_Metadata;
    end Symbol_Detail;
 
+   function Include_Symbol_In_Outline
+     (Analysis : Editor.Ada_Language_Model.Analysis_Result;
+      Info     : Editor.Ada_Language_Model.Symbol_Info) return Boolean
+   is
+      use Editor.Ada_Language_Model;
+
+      function Parent_Is_Callable return Boolean is
+         Parent : constant Symbol_Info := Symbol (Analysis, Info.Parent_Symbol);
+      begin
+         return Parent.Kind in Symbol_Procedure
+           | Symbol_Function
+           | Symbol_Operator_Function
+           | Symbol_Generic_Subprogram
+           | Symbol_Generic_Formal_Subprogram
+           | Symbol_Entry
+           | Symbol_Separate_Body;
+      end Parent_Is_Callable;
+
+      function Parent_Is_Record_Type return Boolean is
+         Parent : constant Symbol_Info := Symbol (Analysis, Info.Parent_Symbol);
+      begin
+         return Parent.Kind = Symbol_Record_Type;
+      end Parent_Is_Record_Type;
+   begin
+      if Info.Kind in Symbol_Object | Symbol_Constant | Symbol_Exception
+        and then Parent_Is_Callable
+      then
+         return False;
+      end if;
+
+      if Info.Kind in Symbol_Object | Symbol_Constant
+        and then Parent_Is_Record_Type
+      then
+         return False;
+      end if;
+
+      return True;
+   end Include_Symbol_In_Outline;
+
    procedure Append_Analysis_Result
      (Result   : in out Extraction_Result;
       Analysis : Editor.Ada_Language_Model.Analysis_Result)
    is
+      function Has_Projected_Row
+        (Kind  : Editor.Outline.Outline_Item_Kind;
+         Label : String;
+         Line  : Natural) return Boolean
+      is
+      begin
+         for Existing of Result.Items loop
+            if Existing.Kind = Kind
+              and then Existing.Line = Line
+              and then To_String (Existing.Label) = Label
+            then
+               return True;
+            end if;
+         end loop;
+
+         return False;
+      end Has_Projected_Row;
    begin
       for Index in 1 .. Editor.Ada_Language_Model.Symbol_Count (Analysis) loop
          declare
             Symbol : constant Editor.Ada_Language_Model.Symbol_Info :=
               Editor.Ada_Language_Model.Symbol_At (Analysis, Index);
+            Kind : constant Editor.Outline.Outline_Item_Kind :=
+              Outline_Kind_For_Symbol (Symbol.Kind);
+            Label : constant String := Projected_Symbol_Label (Analysis, Symbol);
          begin
-            Result.Items.Append
-              (Editor.Outline.Outline_Item'
-          (Kind         => Outline_Kind_For_Symbol (Symbol.Kind),
-                Label        => To_Unbounded_String (Symbol_Label (Symbol)),
-                Detail       => To_Unbounded_String (Symbol_Detail (Symbol)),
-                Depth        => Symbol.Depth,
-                Target_Kind  => Editor.Outline.Buffer_Position_Target,
-                Buffer_Token => Result.Result_Identity.Active_Buffer_Token,
-                Line         => Symbol.Source_Span.Start_Line,
-                Column       => Symbol.Source_Span.Start_Column));
+            if Include_Symbol_In_Outline (Analysis, Symbol)
+              and then not Has_Projected_Row
+                (Kind, Label, Symbol.Source_Span.Start_Line)
+            then
+               Result.Items.Append
+                 (Editor.Outline.Outline_Item'
+                    (Kind         => Kind,
+                     Label        => To_Unbounded_String (Label),
+                     Detail       => To_Unbounded_String (Symbol_Detail (Symbol)),
+                     Depth        => Symbol.Depth,
+                     Target_Kind  => Editor.Outline.Buffer_Position_Target,
+                     Buffer_Token => Result.Result_Identity.Active_Buffer_Token,
+                     Line         => Symbol.Source_Span.Start_Line,
+                     Column       => Symbol.Source_Span.Start_Column));
+            end if;
          end;
       end loop;
    end Append_Analysis_Result;
@@ -3064,63 +5142,27 @@ package body Editor.Outline_Extractor is
          Failure_Kind    => No_Failure,
          Result_Identity => Snapshot.Snapshot_Identity,
          Items           => Outline_Item_Vectors.Empty_Vector);
-      Line_Start  : Positive := Text'First;
-      Line_Number : Positive := 1;
    begin
       if Text'Length = 0 then
          return Result;
       end if;
 
-      declare
-         Analysis : constant Editor.Ada_Language_Model.Analysis_Result :=
-           Editor.Ada_Declaration_Parser.Parse
-             (Text, To_String (Snapshot.Buffer_Label));
-      begin
-         if Editor.Ada_Language_Model.Symbol_Count (Analysis) > 0 then
-            Append_Analysis_Result (Result, Analysis);
-            Annotate_Local_Structure_Ranges (Result, Text);
-            return Result;
-         end if;
-      end;
+      Append_Marker_Lines (Result, Text);
+      if Item_Count (Result) > 0 then
+         return Result;
+      end if;
 
-      for I in Text'Range loop
-         if Text (I) = Ada.Characters.Latin_1.LF then
-            declare
-               Line_End : Natural := I - 1;
-            begin
-               if Line_End >= Line_Start
-                 and then Text (Line_End) = Ada.Characters.Latin_1.CR
-               then
-                  Line_End := Line_End - 1;
-               end if;
-
-               if Line_End >= Line_Start then
-                  Append_Marker_Source_Line
-                    (Result, Text (Line_Start .. Line_End), Line_Number);
-               else
-                  Append_Marker_Source_Line (Result, "", Line_Number);
-               end if;
-            end;
-            if I < Text'Last then
-               Line_Start := I + 1;
-            end if;
-            Line_Number := Line_Number + 1;
-         end if;
-      end loop;
-
-      if Line_Start <= Text'Last then
+      if Looks_Like_Ada_Buffer (Text, To_String (Snapshot.Buffer_Label)) then
          declare
-            Line_End : Natural := Text'Last;
+            Parser_Text : constant String := Tabs_As_Spaces (Text);
+            Analysis : constant Editor.Ada_Language_Model.Analysis_Result :=
+              Editor.Ada_Declaration_Parser.Parse
+                (Parser_Text, To_String (Snapshot.Buffer_Label));
          begin
-            if Text (Line_End) = Ada.Characters.Latin_1.CR then
-               Line_End := Line_End - 1;
-            end if;
-
-            if Line_End >= Line_Start then
-               Append_Marker_Source_Line
-                 (Result, Text (Line_Start .. Line_End), Line_Number);
-            else
-               Append_Marker_Source_Line (Result, "", Line_Number);
+            if Editor.Ada_Language_Model.Symbol_Count (Analysis) > 0 then
+               Append_Analysis_Result (Result, Analysis);
+               Annotate_Local_Structure_Ranges (Result, Text);
+               return Result;
             end if;
          end;
       end if;

@@ -517,45 +517,42 @@ package body Editor.Outline is
      (Outline : in out Outline_State;
       Items   : Outline_Item_Array)
    is
+      Previous_Selected : constant Natural := Selected_Index (Outline);
+      Previous_Item     : Outline_Item;
+      Had_Previous      : constant Boolean := Previous_Selected /= 0;
+      Best_Index        : Natural := 0;
+      Best_Score        : Natural := 0;
    begin
-      declare
-         Previous_Selected : constant Natural := Selected_Index (Outline);
-         Previous_Item     : Outline_Item;
-         Had_Previous      : constant Boolean := Previous_Selected /= 0;
-         Best_Index        : Natural := 0;
-         Best_Score        : Natural := 0;
-      begin
-         if Had_Previous then
-            Previous_Item := Outline.Items (Previous_Selected - 1);
-         end if;
+      if Had_Previous then
+         Previous_Item := Outline.Items (Previous_Selected - 1);
+      end if;
 
-         Clear_Visible_Outline_Rows (Outline);
-         Clear_Outline_Selection (Outline);
-         Clear_Current_Symbol (Outline);
-         for Item of Items loop
-            Outline.Items.Append (Item);
+      Clear_Visible_Outline_Rows (Outline);
+      Clear_Outline_Selection (Outline);
+      Clear_Current_Symbol (Outline);
+      for Item of Items loop
+         Outline.Items.Append (Item);
+      end loop;
+      Bump_Rows_Generation (Outline);
+
+      if Had_Previous then
+         for I in 1 .. Natural (Outline.Items.Length) loop
+            declare
+               Score : constant Natural :=
+                 Selection_Preservation_Score
+                   (Previous_Item, Outline.Items (I - 1));
+            begin
+               if Score > Best_Score then
+                  Best_Score := Score;
+                  Best_Index := I;
+               end if;
+            end;
          end loop;
-         Bump_Rows_Generation (Outline);
 
-         if Had_Previous then
-            for I in 1 .. Natural (Outline.Items.Length) loop
-               declare
-                  Score : constant Natural :=
-                    Selection_Preservation_Score
-                      (Previous_Item, Outline.Items (I - 1));
-               begin
-                  if Score > Best_Score then
-                     Best_Score := Score;
-                     Best_Index := I;
-                  end if;
-               end;
-            end loop;
-
-            if Best_Index /= 0 then
-               Outline.Selected := Best_Index;
-            end if;
+         if Best_Index /= 0 then
+            Outline.Selected := Best_Index;
          end if;
-      end;
+      end if;
       if Outline.Pending_Snapshot.Request_Token /= 0 then
          Outline.Last_Applied_Snapshot := Outline.Pending_Snapshot;
          Invalidate_Extraction_Token (Outline);
@@ -573,6 +570,9 @@ package body Editor.Outline is
       else
          Outline.Source := Extracted_Outline;
          Reconcile_Filtered_Selection (Outline);
+         if Best_Index = 0 then
+            Clear_Outline_Selection (Outline);
+         end if;
          Set_Diagnostics
            (Outline, Extracted_Outline,
             "Outline extracted:" & Natural'Image (Item_Count (Outline)) &
@@ -877,6 +877,13 @@ package body Editor.Outline is
    is
       Normalized : constant String := Normalize_Filter_Text (Text);
    begin
+      if Outline.Source in No_Outline | Unsupported_Content | Extraction_Failed then
+         Outline.Filter_Input_Active := False;
+         Clear_Filtered_Projection (Outline);
+         Reset_Filter_History_Cursor (Outline);
+         return;
+      end if;
+
       Outline.Filter_Text_Value := To_Unbounded_String (Normalized);
       Outline.Filter_Active := Normalized /= "";
       Bump_Filter_Generation (Outline);
@@ -1531,15 +1538,26 @@ package body Editor.Outline is
       Line         : Positive;
       Column       : Natural := 1) return Natural
    is
+      Nearest_On_Line : constant Natural :=
+        Find_Nearest_Item_For_Position
+          (Outline, Buffer_Token, Line, Natural'Last);
+      Nearest : constant Natural :=
+        Find_Nearest_Item_For_Position (Outline, Buffer_Token, Line, Column);
       Ranged : constant Natural :=
         Find_Enclosing_Ranged_Item_For_Position
           (Outline, Buffer_Token, Line, Column);
    begin
+      if Nearest_On_Line /= 0
+        and then Item_Line (Outline, Positive (Nearest_On_Line)) = Line
+      then
+         return Nearest_On_Line;
+      end if;
+
       if Ranged /= 0 then
          return Ranged;
       end if;
 
-      return Find_Nearest_Item_For_Position (Outline, Buffer_Token, Line, Column);
+      return Nearest;
    end Find_Current_Symbol_For_Cursor;
 
    procedure Update_Current_Symbol_For_Cursor
@@ -1605,7 +1623,7 @@ package body Editor.Outline is
       case Outline.Source is
          when No_Outline =>
             if To_String (Outline.Last_Extraction_Message) = Message_Outline_No_Active_Buffer then
-               return "Outline unavailable: no active buffer.";
+               return "No active buffer.";
             else
                return "Outline not refreshed.";
             end if;
@@ -1613,7 +1631,18 @@ package body Editor.Outline is
             if To_String (Outline.Last_Extraction_Message) = Message_Outline_No_Symbols then
                return "No outline items found.";
             else
-               return "Outline unavailable: active buffer is not supported.";
+               declare
+                  Message : constant String :=
+                    To_String (Outline.Last_Extraction_Message);
+               begin
+                  if Message'Length = 0 then
+                     return "Outline unavailable for this buffer.";
+                  elsif Message (Message'Last) = '.' then
+                     return Message;
+                  else
+                     return Message & ".";
+                  end if;
+               end;
             end if;
          when Extraction_Failed =>
             return "Outline refresh failed.";
@@ -2332,6 +2361,18 @@ package body Editor.Outline is
          Source_Class => Outline.Source);
    end Summary;
 
+   Fingerprint_Modulus : constant Long_Long_Integer := 2_147_483_647;
+
+   function Hash_Mix
+     (Seed       : Natural;
+      Addend     : Long_Long_Integer;
+      Multiplier : Long_Long_Integer := 131) return Natural
+   is
+   begin
+      return Natural
+        ((Long_Long_Integer (Seed) * Multiplier + Addend) mod Fingerprint_Modulus);
+   end Hash_Mix;
+
    function Hash_String
      (Seed : Natural;
       Text : String) return Natural
@@ -2339,7 +2380,7 @@ package body Editor.Outline is
       H : Natural := Seed;
    begin
       for C of Text loop
-         H := (H * 131 + Character'Pos (C) + 1) mod 2_147_483_647;
+         H := Hash_Mix (H, Long_Long_Integer (Character'Pos (C)) + 1);
       end loop;
       return H;
    end Hash_String;
@@ -2353,21 +2394,21 @@ package body Editor.Outline is
         mod 2_147_483_647;
    begin
       for I in 1 .. Item_Count (Outline) loop
-         H :=
-           (H * 31 + Outline_Item_Kind'Pos (Item_Kind (Outline, I)))
-           mod 2_147_483_647;
-         H :=
-           (H * 31 + Outline_Target_Kind'Pos
-              (Item_Target_Kind (Outline, I)))
-           mod 2_147_483_647;
-         H :=
-           (H * 31 + Item_Buffer_Token (Outline, I) + 1) mod 2_147_483_647;
-         H :=
-           (H * 31 + Item_Depth (Outline, I) + 1) mod 2_147_483_647;
-         H :=
-           (H * 31 + Item_Line (Outline, I) + 1) mod 2_147_483_647;
-         H :=
-           (H * 31 + Item_Column (Outline, I) + 1) mod 2_147_483_647;
+         H := Hash_Mix
+           (H, Long_Long_Integer (Outline_Item_Kind'Pos (Item_Kind (Outline, I))), 31);
+         H := Hash_Mix
+           (H,
+            Long_Long_Integer
+              (Outline_Target_Kind'Pos (Item_Target_Kind (Outline, I))),
+            31);
+         H := Hash_Mix
+           (H, Long_Long_Integer (Item_Buffer_Token (Outline, I)) + 1, 31);
+         H := Hash_Mix
+           (H, Long_Long_Integer (Item_Depth (Outline, I)) + 1, 31);
+         H := Hash_Mix
+           (H, Long_Long_Integer (Item_Line (Outline, I)) + 1, 31);
+         H := Hash_Mix
+           (H, Long_Long_Integer (Item_Column (Outline, I)) + 1, 31);
          H := Hash_String (H, Item_Label (Outline, I));
          H := Hash_String (H, Item_Detail (Outline, I));
       end loop;
@@ -2456,7 +2497,7 @@ package body Editor.Outline is
 
    function Reason_No_Outline_Item_Selected return String is
    begin
-      return "No outline item selected";
+      return Message_Outline_No_Selected_Symbol;
    end Reason_No_Outline_Item_Selected;
 
    function Reason_Outline_Belongs_To_Another_Buffer return String is

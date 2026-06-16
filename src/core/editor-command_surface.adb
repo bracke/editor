@@ -54,10 +54,6 @@ package body Editor.Command_Surface is
                   return False;
                end if;
 
-               if Editor.External_Producers.Is_Public_Build_Surface_Id (Name) then
-                  return False;
-               end if;
-
                Round := Editor.Commands.Command_Id_From_Stable_Name (Name, Found);
                if not Found or else Round /= Id or else Seen (Round) then
                   return False;
@@ -135,9 +131,6 @@ package body Editor.Command_Surface is
             return False;
          end if;
 
-         if Editor.Commands.Is_Public_Build_Command (Id) then
-            return False;
-         end if;
       end loop;
       return True;
    end Visibility_Is_Consistent;
@@ -229,7 +222,6 @@ package body Editor.Command_Surface is
       for D of Palette loop
          if not Editor.Commands.Visible_In_Command_Palette (D.Id)
            or else D.Category = Editor.Commands.Internal_Category
-           or else Editor.Commands.Is_Public_Build_Command (D.Id)
            or else Editor.Commands.Is_Internal_Build_Test_Seam_Command (D.Id)
            or else Seen (D.Id)
          then
@@ -376,7 +368,7 @@ package body Editor.Command_Surface is
       elsif not Review.Persistence_Clean then
          return "Commands: command persistence boundary failed";
       elsif not Review.Public_Build_Guardrail_Intact then
-         return "Commands: public build safety check failed";
+         return "Commands: public build guardrail failed";
       else
          return "Commands: command descriptor incomplete";
       end if;

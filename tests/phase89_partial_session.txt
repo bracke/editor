@@ -1,0 +1,7 @@
+editor-workspace-version=1
+project-root=/tmp/project
+[open-files]
+src/editor.adb|row=not-a-number|col=4|view=0
+[active-file]
+src/editor.adb|relative=true
+

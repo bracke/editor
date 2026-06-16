@@ -360,6 +360,20 @@ package body Editor.Project_Search is
       Internal_Clear_Replace_Preview (State);
    end Reset_Results;
 
+   procedure Preserve_Results_For_Precondition_Failure
+     (State  : in out Project_Search_State;
+      Status : Project_Search_Status;
+      Query  : String)
+   is
+   begin
+      State.Last_Status := Status;
+      State.Last_Query_Text := To_Unbounded_String (Query);
+      if Natural (State.Results.Length) > 0 then
+         State.Stale := True;
+         Mark_Replace_Preview_Stale (State);
+      end if;
+   end Preserve_Results_For_Precondition_Failure;
+
    procedure Clear
      (State : in out Project_Search_State)
    is
@@ -782,7 +796,11 @@ package body Editor.Project_Search is
    is
       Normal : constant String := Normalize_Path_Scope (Scope, Valid);
    begin
-      if Valid and then To_String (State.Scope_Text) /= Normal then
+      if Valid
+        and then (To_String (State.Scope_Text) /= Normal
+                  or else (Normal'Length = 0
+                           and then Natural (State.Results.Length) > 0))
+      then
          State.Scope_Text := To_Unbounded_String (Normal);
          Clear_Results_Preserve_Query (State);
       end if;
@@ -1075,6 +1093,8 @@ package body Editor.Project_Search is
    is
    begin
       State.Stale := True;
+      State.Replace_Stale := True;
+      State.Replace_Status_Value := Project_Replace_Search_Stale;
       Mark_Replace_Preview_Stale (State);
    end Mark_Stale_Unconditionally;
 
@@ -2464,6 +2484,7 @@ package body Editor.Project_Search is
                State.Last_Regex_Error :=
                  To_Unbounded_String (Ada_Regexp.Status_Image (Match.Status));
                Reset_Results (State, Project_Search_Invalid_Regex);
+               State.Last_Query_Text := To_Unbounded_String (Needle);
                return;
             end if;
 
@@ -2640,8 +2661,8 @@ package body Editor.Project_Search is
          State.Last_Query_Text := Null_Unbounded_String;
          return;
       elsif File_Total = 0 then
-         Reset_Results (State, Project_Search_No_Files);
-         State.Last_Query_Text := To_Unbounded_String (Q);
+         Preserve_Results_For_Precondition_Failure
+           (State, Project_Search_No_Files, Q);
          return;
       end if;
 
@@ -2762,6 +2783,9 @@ package body Editor.Project_Search is
                                     Use_Regex  => State.Regex_Search,
                                     Options    => Effective_Options,
                                     File_Count => File_Count);
+                                 if State.Last_Status = Project_Search_Invalid_Regex then
+                                    return;
+                                 end if;
                               else
                                  State.Read_Error_Count := State.Read_Error_Count + 1;
                               end if;
@@ -3092,12 +3116,12 @@ package body Editor.Project_Search is
          State.Last_Query_Text := Null_Unbounded_String;
          return;
       elsif not Editor.Project.Has_Project (Project) then
-         Reset_Results (State, Project_Search_No_Project);
-         State.Last_Query_Text := To_Unbounded_String (Q);
+         Preserve_Results_For_Precondition_Failure
+           (State, Project_Search_No_Project, Q);
          return;
       elsif File_Total = 0 then
-         Reset_Results (State, Project_Search_No_Files);
-         State.Last_Query_Text := To_Unbounded_String (Q);
+         Preserve_Results_For_Precondition_Failure
+           (State, Project_Search_No_Files, Q);
          return;
       end if;
 
@@ -3169,6 +3193,9 @@ package body Editor.Project_Search is
                               Use_Regex  => State.Regex_Search,
                               Options    => Effective_Options,
                               File_Count => File_Count);
+                           if State.Last_Status = Project_Search_Invalid_Regex then
+                              return;
+                           end if;
                         elsif Result.Status = Editor.Files.File_Open_Not_Found then
                            State.Skipped_Missing_Total := State.Skipped_Missing_Total + 1;
                         elsif Result.Status = Editor.Files.File_Open_Decode_Error then

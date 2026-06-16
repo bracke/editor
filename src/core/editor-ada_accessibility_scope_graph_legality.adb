@@ -3,6 +3,8 @@ with Ada.Strings.Unbounded; use Ada.Strings.Unbounded;
 
 package body Editor.Ada_Accessibility_Scope_Graph_Legality is
 
+   pragma Suppress (Overflow_Check);
+
    package Precision renames Editor.Ada_Accessibility_Precision_Legality;
    package Replay renames Editor.Ada_Generic_Instance_Body_Semantic_Replay;
    package Discriminants renames Editor.Ada_Discriminant_Dependent_Legality;

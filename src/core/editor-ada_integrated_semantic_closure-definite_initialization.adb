@@ -3,6 +3,8 @@ with Ada.Strings.Unbounded; use Ada.Strings.Unbounded;
 with Editor.Ada_Syntax_Tree;
 
 package body Editor.Ada_Integrated_Semantic_Closure.Definite_Initialization is
+
+   pragma Suppress (Overflow_Check);
    use type Editor.Ada_Definite_Initialization_Flow_Legality.Initialization_Legality_Status;
 
    package DIF renames Editor.Ada_Definite_Initialization_Flow_Legality;

@@ -2,6 +2,8 @@ with Ada.Strings.Unbounded; use Ada.Strings.Unbounded;
 
 package body Editor.Ada_Phase579_Legacy_Scaffold_Inventory_Pass1440 is
 
+   pragma Suppress (Overflow_Check);
+
    procedure Add_Row (Input : in out Inventory_Input; Row : Inventory_Row) is
    begin
       Input.Rows.Append (Row);

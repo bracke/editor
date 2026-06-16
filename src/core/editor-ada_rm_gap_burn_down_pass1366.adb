@@ -2,6 +2,16 @@ with Ada.Strings.Unbounded;
 
 package body Editor.Ada_RM_Gap_Burn_Down_Pass1366 is
 
+   pragma Suppress (Overflow_Check);
+   use type Remediation.Remediation_State;
+   use type Matrix.Coverage_Level;
+   use type Precision.Precision_Classification;
+   use type Consumers.Semantic_Consumer;
+   use type Matrix.RM_Family;
+   use type Matrix.Implementing_Slice;
+   use type Final_Gate.Final_Verdict;
+
+
    use Ada.Strings.Unbounded;
 
    procedure Add_Blocker

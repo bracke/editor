@@ -12,6 +12,16 @@ tags = ["editor"]
 executables = ["editor_app"]
 project-files = ["editor.gpr"]
 
+[[actions]]
+type = "test"
+command = ["alr", "build"]
+directory = "tests"
+
+[[actions]]
+type = "test"
+command = ["./bin/tests"]
+directory = "tests"
+
 [[depends-on]]
 textrender = "*"
 

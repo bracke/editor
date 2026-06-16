@@ -153,7 +153,8 @@ package body Editor.Diagnostics_Review_UX.Tests is
          Message       => "build failure",
          Source_Label  => "Build / gprbuild",
          Source_Kind   => Editor.Feature_Diagnostics.External_Diagnostic_Source,
-         Has_Target    => False);
+         Has_Target    => False,
+         Build_Produced => True);
       Editor.Feature_Diagnostics.Add_Diagnostic
         (S.Feature_Diagnostics,
          Severity      => Editor.Feature_Diagnostics.Diagnostic_Info,
@@ -564,7 +565,7 @@ package body Editor.Diagnostics_Review_UX.Tests is
       Assert (not Editor.Commands.Is_Available (Open_Availability),
               "open-selected is unavailable for selected source-less diagnostics");
       Assert (Editor.Commands.Unavailable_Reason (Open_Availability) =
-              "Selected diagnostic has no source target",
+              "Selected diagnostic has no source target.",
               "open-selected reports the precise source-less selected-row reason");
       Assert (Editor.Commands.Is_Available (Clear_Availability),
               "clear-selected remains available for selected source-less diagnostics");
@@ -602,6 +603,7 @@ package body Editor.Diagnostics_Review_UX.Tests is
               "source-labelled missing target uses shared missing-target wording");
 
       Before_Count := Editor.Messages.Count (S.Messages);
+      Editor.Feature_Panel.Set_Visible (S.Feature_Panel, True);
       Editor.Executor.Execute_Command
         (S, Editor.Commands.Command_Feature_Panel_Open_Selected);
 
@@ -1077,6 +1079,7 @@ package body Editor.Diagnostics_Review_UX.Tests is
       Editor.Feature_Panel.Select_Row (S.Feature_Panel, 1);
 
       Before_Count := Editor.Messages.Count (S.Messages);
+      Editor.Feature_Panel.Set_Visible (S.Feature_Panel, True);
       Editor.Executor.Execute_Command
         (S, Editor.Commands.Command_Feature_Panel_Open_Selected);
 
@@ -1111,6 +1114,7 @@ package body Editor.Diagnostics_Review_UX.Tests is
       Editor.Feature_Diagnostics.Project_Rows
         (S.Feature_Diagnostics, S.Feature_Panel);
       Editor.Feature_Panel.Select_Row (S.Feature_Panel, 1);
+      Editor.Feature_Panel.Set_Visible (S.Feature_Panel, True);
 
       Editor.Executor.Execute_Command
         (S, Editor.Commands.Command_Feature_Panel_Open_Selected);
@@ -1134,6 +1138,7 @@ package body Editor.Diagnostics_Review_UX.Tests is
       Editor.Feature_Diagnostics.Project_Rows
         (S.Feature_Diagnostics, S.Feature_Panel);
       Editor.Feature_Panel.Select_Row (S.Feature_Panel, 1);
+      Editor.Feature_Panel.Set_Visible (S.Feature_Panel, True);
 
       Editor.Executor.Execute_Command
         (S, Editor.Commands.Command_Feature_Panel_Open_Selected);
@@ -1788,7 +1793,24 @@ package body Editor.Diagnostics_Review_UX.Tests is
       Seed_Rows (S);
       Result := Editor.Diagnostics_Review_UX.Run_Diagnostics_Review_UX_Audit (S);
       Assert (Result.Coherent,
-              "Phase 557 Diagnostics review UX audit is coherent");
+              "Phase 557 Diagnostics review UX audit is coherent"
+              & " labels=" & Boolean'Image (Result.Rows_Have_Readable_Labels)
+              & " msg_bound=" & Boolean'Image (Result.Row_Message_Text_Is_Bounded)
+              & " src_bound=" & Boolean'Image (Result.Row_Source_Label_Text_Is_Bounded)
+              & " counts=" & Boolean'Image (Result.Severity_Counts_Are_Useful)
+              & " filters=" & Boolean'Image (Result.Filters_Are_Projection_Only)
+              & " source_filter=" & Boolean'Image (Result.Source_Filter_Is_Projection_Only)
+              & " groups=" & Boolean'Image (Result.File_Grouping_Is_Projection_Only)
+              & " build_filter=" & Boolean'Image (Result.Build_Filter_Uses_Producer_Predicate)
+              & " routes=" & Boolean'Image (Result.Navigation_Routes_Are_Diagnostics)
+              & " missing=" & Boolean'Image (Result.Missing_Source_Targets_Are_Clear)
+              & " stale=" & Boolean'Image (Result.Edit_Stale_Lifecycle_Is_Clear)
+              & " build_boundary=" & Boolean'Image (Result.Build_Producer_Boundary_Is_Clear)
+              & " build_ui=" & Boolean'Image (Result.Build_UI_Is_Scalar_Only)
+              & " output=" & Boolean'Image (Result.Output_Details_Are_Output_Only)
+              & " render=" & Boolean'Image (Result.Render_Is_Observational)
+              & " commands=" & Boolean'Image (Result.Command_Frontdoors_Carry_No_Payload)
+              & " persistence=" & Boolean'Image (Result.Persistence_Excludes_Review_State));
    end Test_Phase_557_Coherence_Audit;
 
    procedure Test_Partial_Target_With_Missing_Line_Is_Labelled_Clearly
@@ -2063,6 +2085,7 @@ package body Editor.Diagnostics_Review_UX.Tests is
       Editor.Feature_Diagnostics.Project_Rows
         (S.Feature_Diagnostics, S.Feature_Panel);
       Editor.Feature_Panel.Select_Row (S.Feature_Panel, 1);
+      Editor.Feature_Panel.Set_Visible (S.Feature_Panel, True);
 
       A := Editor.Executor.Command_Availability
         (S, Editor.Commands.Command_Diagnostics_Open_Selected);

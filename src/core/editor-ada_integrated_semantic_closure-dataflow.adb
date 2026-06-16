@@ -3,6 +3,8 @@ with Ada.Strings.Unbounded; use Ada.Strings.Unbounded;
 
 package body Editor.Ada_Integrated_Semantic_Closure.Dataflow is
 
+   pragma Suppress (Overflow_Check);
+
    package DGL renames Editor.Ada_Dataflow_Global_Depends_Legality;
 
    use type DGL.Dataflow_Legality_Status;

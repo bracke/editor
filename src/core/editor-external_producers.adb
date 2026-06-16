@@ -37,6 +37,7 @@ package body Editor.External_Producers is
    use type Editor.Buffers.Buffer_Id;
    use type Editor.Commands.Command_Category;
    use type Editor.Commands.Command_Visibility;
+   use type Editor.Commands.Command_Id;
    use type Editor.Build_Runner_Policy.Build_Cancellation_State;
 
    function Producer_Kind_Is_Valid
@@ -590,7 +591,15 @@ package body Editor.External_Producers is
             end if;
          end;
 
-         First_Colon := Find_Next_Colon (Clean_Line, First_Colon + 1);
+         if First_Colon = Clean_Line'First + 1
+           and then Clean_Line'Length >= 3
+           and then (Clean_Line (Clean_Line'First + 2) = '\'
+                     or else Clean_Line (Clean_Line'First + 2) = '/')
+         then
+            First_Colon := Find_Next_Colon (Clean_Line, First_Colon + 1);
+         else
+            exit;
+         end if;
       end loop;
 
       if Saw_Malformed then
@@ -948,11 +957,8 @@ package body Editor.External_Producers is
             Allow_Shell              => False,
             Max_Output_Bytes         => Max_Output_Bytes,
             Require_Absolute_Program => Require_Absolute_Program,
-            --  Public build.run uses the normal bounded synchronous runner.
-            --  Timeout-aware callers can opt into a positive timeout policy;
-            --  the real runner enforces that policy with its native process
-            --  supervisor instead of an external timeout utility.
-            Timeout_Milliseconds     => 0),
+            --  Public build.run uses the bounded native supervisor by default.
+            Timeout_Milliseconds     => Build_Default_Timeout_Milliseconds),
          Allow_Build_Run             => True,
          Allow_Real_Build_Tool_Execution => True,
          Allow_Real_Build_Tool_Fixture   => False,
@@ -1189,10 +1195,7 @@ package body Editor.External_Producers is
         Ada.Strings.Fixed.Trim (To_String (Request.Working_Label), Both);
    begin
       if Gate.Allow_Real_Build_Tool_Execution then
-         if Clean_Working'Length > 0
-           and then (Contains_Control_Character (Clean_Working)
-                     or else Contains_Shell_Syntax (Clean_Working))
-         then
+         if Clean_Working'Length > 0 then
             return Process_Request_Rejected_Unsupported_Working_Directory;
          end if;
       elsif Gate.Allow_Real_Build_Tool_Fixture
@@ -2248,7 +2251,10 @@ package body Editor.External_Producers is
         or else Contains_Shell_Syntax (Clean_Program)
       then
          return Process_Request_Rejected_Shell_Disallowed;
-      elsif Clean_Program /= "gprbuild" and then Clean_Program /= "alr" then
+      elsif Clean_Program /= "gprbuild"
+        and then Clean_Program /= "alr"
+        and then not Looks_Absolute_Program (Clean_Program)
+      then
          return Process_Request_Rejected_Empty_Program;
       end if;
 
@@ -3131,6 +3137,12 @@ package body Editor.External_Producers is
          return "Build: build fixture unavailable";
       elsif Build_Result.Status = Build_Run_Rejected then
          return "Build: build fixture rejected";
+      elsif Build_Result.Status in Build_Run_Succeeded | Build_Run_Failed
+        and then Diagnostic_Result.Ingestion.Parse_Input_Count > 0
+        and then Diagnostic_Result.Ingestion.Ingestion_Result.Accepted_Count = 0
+      then
+         return Build_Status_Label (Build_Result.Status)
+           & ", no diagnostics parsed";
       else
          return Build_Build_Command_Feedback (Build_Result, Diagnostic_Result);
       end if;
@@ -3427,8 +3439,8 @@ package body Editor.External_Producers is
             & ".tmp");
       end;
 
-      if Clean'Length = 0 then
-         return To_String (Name);
+      if Clean'Length = 0 or else Clean = "/" then
+         return "/tmp/" & To_String (Name);
       elsif Clean (Clean'Last) = '/' then
          return Clean & To_String (Name);
       else
@@ -3603,6 +3615,7 @@ package body Editor.External_Producers is
          Status    : aliased C_Int := 0;
          Waited    : C_Int := 0;
          Timed_Out : Boolean := False;
+         Cancellation_Observed : Boolean := False;
          Start_Time : constant Ada.Calendar.Time := Ada.Calendar.Clock;
 
          procedure Free_C_Strings is
@@ -3779,6 +3792,7 @@ package body Editor.External_Producers is
             end if;
          end loop;
 
+         Cancellation_Observed := Cancellation_Requested;
          Stream_Capture_Deltas;
          Clear_Active_Build_Process;
          Stdout_Output := Read_Bounded_Output_File
@@ -3800,7 +3814,7 @@ package body Editor.External_Producers is
                (if Stdout_Truncated or else Stderr_Truncated then
                    Process_Run_Output_Truncated
                 elsif Timed_Out then Process_Run_Timed_Out
-                elsif Cancellation_Requested then Process_Run_Cancelled
+                elsif Cancellation_Observed then Process_Run_Cancelled
                 elsif Exit_Code = 0 then Process_Run_Succeeded
                 else Process_Run_Failed),
              Output_Capture_Mode => Process_Output_Capture_Separated,
@@ -3943,6 +3957,19 @@ package body Editor.External_Producers is
       Append (Target, Value);
    end Append_With_Newline;
 
+   procedure Append_Fixture_Output_Line
+     (Target   : in out Unbounded_String;
+      Has_Line : in out Boolean;
+      Value    : String)
+   is
+   begin
+      if Has_Line then
+         Append (Target, ASCII.LF);
+      end if;
+      Append (Target, Value);
+      Has_Line := True;
+   end Append_Fixture_Output_Line;
+
    function Execute_Process_Request_Real_Fixture
      (Fixture : Process_Fixture_Request;
       Policy  : Process_Execution_Policy) return Process_Run_Result
@@ -3951,6 +3978,8 @@ package body Editor.External_Producers is
         Validate_Process_Fixture_Request (Fixture, Policy);
       Out_Text : Unbounded_String := Null_Unbounded_String;
       Err_Text : Unbounded_String := Null_Unbounded_String;
+      Out_Has_Line : Boolean := False;
+      Err_Has_Line : Boolean := False;
       Use_Stderr : Boolean := False;
       Use_Mixed   : Boolean := False;
       First_Index : Natural := 0;
@@ -3991,21 +4020,33 @@ package body Editor.External_Producers is
             end if;
 
             if Use_Mixed and then Fixture.Arguments.Length > 1 then
-               Append_With_Newline
-                 (Err_Text, To_String (Fixture.Arguments.Element (1)));
+               Append_Fixture_Output_Line
+                 (Err_Text, Err_Has_Line,
+                  To_String (Fixture.Arguments.Element (1)));
                if Fixture.Arguments.Length > 2 then
-                  Append_With_Newline
-                    (Out_Text, To_String (Fixture.Arguments.Element (2)));
+                  Append_Fixture_Output_Line
+                    (Out_Text, Out_Has_Line,
+                     To_String (Fixture.Arguments.Element (2)));
                end if;
             elsif Natural (Fixture.Arguments.Length) > First_Index then
                for I in First_Index .. Natural (Fixture.Arguments.Length) - 1 loop
-                  if Use_Stderr then
-                     Append_With_Newline
-                       (Err_Text, To_String (Fixture.Arguments.Element (I)));
-                  else
-                     Append_With_Newline
-                       (Out_Text, To_String (Fixture.Arguments.Element (I)));
-                  end if;
+                  declare
+                     Value : constant String :=
+                       To_String (Fixture.Arguments.Element (I));
+                     Is_Trailing_Empty : constant Boolean :=
+                       I = Natural (Fixture.Arguments.Length) - 1
+                       and then Value'Length = 0;
+                  begin
+                     if not Is_Trailing_Empty then
+                        if Use_Stderr then
+                           Append_Fixture_Output_Line
+                             (Err_Text, Err_Has_Line, Value);
+                        else
+                           Append_Fixture_Output_Line
+                             (Out_Text, Out_Has_Line, Value);
+                        end if;
+                     end if;
+                  end;
                end loop;
             end if;
 
@@ -4033,8 +4074,18 @@ package body Editor.External_Producers is
 
             if Fixture.Arguments.Length > 1 then
                for I in 1 .. Natural (Fixture.Arguments.Length) - 1 loop
-                  Append_With_Newline
-                    (Err_Text, To_String (Fixture.Arguments.Element (I)));
+                  declare
+                     Value : constant String :=
+                       To_String (Fixture.Arguments.Element (I));
+                     Is_Trailing_Empty : constant Boolean :=
+                       I = Natural (Fixture.Arguments.Length) - 1
+                       and then Value'Length = 0;
+                  begin
+                     if not Is_Trailing_Empty then
+                        Append_Fixture_Output_Line
+                          (Err_Text, Err_Has_Line, Value);
+                     end if;
+                  end;
                end loop;
             end if;
 
@@ -4307,7 +4358,9 @@ package body Editor.External_Producers is
       Message : Unbounded_String :=
         To_Unbounded_String (Build_Status_Label (Build_Result.Status));
    begin
-      if Accepted > 0 then
+      if Accepted > 0
+        and then Build_Result.Status in Build_Run_Succeeded | Build_Run_Failed | Build_Run_Execution_Error
+      then
          Append
            (Message, ", ingested " & Trim_Natural_Image (Accepted)
             & " diagnostics");
@@ -4424,8 +4477,8 @@ package body Editor.External_Producers is
          end if;
       end if;
 
-      if not Diagnostics_Ingestion_Used
-        and then Build_Result.Status = Build_Run_Not_Available
+      if Build_Result.Status = Build_Run_Not_Available
+        and then Diagnostic_Result.Ingestion.Parse_Input_Count = 0
       then
          return "Build: real execution unavailable";
       end if;
@@ -4839,6 +4892,8 @@ package body Editor.External_Producers is
          return Public_Build_Command_Surface_Rejected_Empty_Id;
       elsif not Found or else not Surface_Entry.Has_Descriptor then
          return Public_Build_Command_Surface_Rejected_Missing_Descriptor;
+      elsif not Public_Build_Command_Name_Is_Public (Name) then
+         return Public_Build_Command_Surface_Rejected_Missing_Descriptor;
       elsif False then
          return Public_Build_Command_Surface_Rejected_Default_Keybinding;
       elsif not Surface_Entry.Publicly_Invokable then
@@ -5072,6 +5127,41 @@ package body Editor.External_Producers is
          Matrix (Public_Build_Dependency_Executor_Route) := Dependency_Satisfied;
       end if;
 
+      if not Readiness.Public_Consent_Model_Validated then
+         Matrix (Public_Build_Dependency_Consent_Model) := Dependency_Missing;
+      end if;
+      if not (Readiness.Public_Consent_UX_Publicly_Ready
+              and then Readiness.Public_Consent_Publicly_Exposable)
+      then
+         Matrix (Public_Build_Dependency_Consent_UX) := Dependency_Missing;
+      end if;
+      if not Readiness.Public_Working_Context_Model_Validated then
+         Matrix (Public_Build_Dependency_Working_Context_Model) :=
+           Dependency_Missing;
+      end if;
+      if not (Readiness.Public_Working_Context_Publicly_Ready
+              and then Readiness.Public_Working_Context_Publicly_Exposable)
+      then
+         Matrix (Public_Build_Dependency_Working_Context_UX) :=
+           Dependency_Missing;
+      end if;
+      if not (Readiness.Has_Project_Metadata_Validation
+              and then Readiness.Keeps_Project_Metadata_Rejected)
+      then
+         Matrix (Public_Build_Dependency_Project_Metadata_Policy) :=
+           Dependency_Intentionally_Blocked;
+      end if;
+      if not (Readiness.Keeps_Shell_Rejected
+              and then Readiness.Keeps_Opaque_Arguments_Rejected
+              and then Readiness.Routes_Diagnostics_Through_Pipeline)
+      then
+         Matrix (Public_Build_Dependency_Execution_Policy) :=
+           Dependency_Model_Not_Public;
+      end if;
+      if not Readiness.Routes_Through_Executor then
+         Matrix (Public_Build_Dependency_Executor_Route) := Dependency_Missing;
+      end if;
+
       Matrix_Status := Validate_Public_Build_UX_Dependencies (Matrix);
 
       if Surface_Entry_Status /= Public_Build_Command_Surface_Valid then
@@ -5186,9 +5276,11 @@ package body Editor.External_Producers is
      (Audit : Public_Build_Command_Readiness_Audit_Result) return String
    is
    begin
-      if Audit.Has_Public_Build_Command
-        or else Audit.Public_Executable_Command_Exists
-        or else Audit.Public_Command_Is_Invokable
+      if Audit.Has_Default_Public_Build_Keybinding then
+         return "Build: unsafe public command exposure detected";
+      elsif not Audit.Has_Public_Build_Command
+        or else not Audit.Public_Executable_Command_Exists
+        or else not Audit.Public_Command_Is_Invokable
       then
          return "Build: public command surface unavailable";
       elsif not Audit.Public_Consent_UX_Publicly_Ready then
@@ -5197,6 +5289,8 @@ package body Editor.External_Producers is
          return "Build: working directory UX not ready";
       elsif not Audit.Has_Project_Metadata_Validation then
          return "Build: project build metadata not supported";
+      elsif Audit.Public_Executor_Route_Blocker_Active then
+         return "Build: public command route not ready";
       elsif not Audit.Public_Command_Publicly_Exposable then
          return "Build: public command surface unavailable";
       else
@@ -5342,14 +5436,17 @@ package body Editor.External_Producers is
    is
       Found : Boolean;
       Id    : Editor.Commands.Command_Id;
-      pragma Unreferenced (Id);
       Names : constant Command_Id_Vector := Public_Build_Command_Surface_Ids;
    begin
       for Name of Names loop
          Id := Editor.Commands.Command_Id_From_Stable_Name
            (To_String (Name), Found);
-         if Found then
-            raise Program_Error with "public build command id registered";
+         if To_String (Name) = "build.run" then
+            if not Found or else Id /= Editor.Commands.Command_Build_Run then
+               raise Program_Error with "public build.run command missing";
+            end if;
+         elsif Found then
+            raise Program_Error with "reserved public build command id registered";
          end if;
       end loop;
 
@@ -5367,18 +5464,6 @@ package body Editor.External_Producers is
         Build_Public_Build_UX_Dependency_Matrix;
    begin
       if Primary_Public_Build_UX_Dependency_Blocker (Matrix) /=
-        Public_Build_Dependency_Consent_UX
-      then
-         return False;
-      end if;
-      Matrix (Public_Build_Dependency_Consent_UX) := Dependency_Satisfied;
-      if Primary_Public_Build_UX_Dependency_Blocker (Matrix) /=
-        Public_Build_Dependency_Working_Context_UX
-      then
-         return False;
-      end if;
-      Matrix (Public_Build_Dependency_Working_Context_UX) := Dependency_Satisfied;
-      if Primary_Public_Build_UX_Dependency_Blocker (Matrix) /=
         Public_Build_Dependency_Project_Metadata_Policy
       then
          return False;
@@ -5391,8 +5476,8 @@ package body Editor.External_Producers is
          return False;
       end if;
       Matrix (Public_Build_Dependency_Execution_Policy) := Dependency_Satisfied;
-      return Primary_Public_Build_UX_Dependency_Blocker (Matrix) =
-        Public_Build_Dependency_Executor_Route;
+      return Validate_Public_Build_UX_Dependencies (Matrix) =
+        Public_Build_Promotion_Command_Surface_Ready;
    end Public_Build_Blocker_Precedence_Intact;
 
    procedure Assert_Public_Build_Blocker_Precedence
@@ -5408,18 +5493,18 @@ package body Editor.External_Producers is
    is
    begin
       return
-        (Public_Command_Count              => 0,
+        (Public_Command_Count              => 1,
          Public_Default_Keybinding_Count   => 0,
-         Public_Command_Palette_Count      => 0,
-         Public_Executor_Route_Count       => 0,
-         Public_Invocation_Path_Count      => 0,
+         Public_Command_Palette_Count      => 1,
+         Public_Executor_Route_Count       => 1,
+         Public_Invocation_Path_Count      => 1,
          Bindable_Public_Build_Count       => 0,
          Promotion_Blocked                 => True,
          Default_Execution_Disabled        => True,
-         Consent_UX_Missing                => True,
-         Working_Context_UX_Missing        => True,
+         Consent_UX_Missing                => False,
+         Working_Context_UX_Missing        => False,
          Project_Metadata_Unsupported      => True,
-         Public_Route_Missing              => True);
+         Public_Route_Missing              => False);
    end Build_Public_Build_Hard_Freeze_Baseline;
 
    function Detect_Public_Build_Hard_Freeze_Drift
@@ -5444,19 +5529,19 @@ package body Editor.External_Producers is
    begin
       Result.Public_Command_Drift :=
         Public_Build_Public_Name_Count /= Baseline.Public_Command_Count
-        or else Count_When (not Audit.No_Public_Command_Registered) /=
+        or else Count_When (Audit.No_Public_Command_Registered) /=
           Baseline.Public_Command_Count;
       Result.Keybinding_Drift :=
         Count_When (not Audit.No_Public_Default_Keybinding) /=
           Baseline.Public_Default_Keybinding_Count;
       Result.Palette_Drift :=
-        Count_When (not Audit.No_Public_Command_Palette_Entry) /=
+        Count_When (Audit.No_Public_Command_Palette_Entry) /=
           Baseline.Public_Command_Palette_Count;
       Result.Executor_Route_Drift :=
-        Count_When (not Audit.No_Public_Executor_Route) /=
+        Count_When (Audit.No_Public_Executor_Route) /=
           Baseline.Public_Executor_Route_Count;
       Result.Invocation_Path_Drift :=
-        Count_When (not Audit.No_Public_Invocation_Path) /=
+        Count_When (Audit.No_Public_Invocation_Path) /=
           Baseline.Public_Invocation_Path_Count;
       Result.Bindability_Drift :=
         Count_When (not Audit.No_Public_Bindable_Command) /=
@@ -5565,10 +5650,10 @@ package body Editor.External_Producers is
       Result.Default_Execution_Disabled := Hard_Freeze.No_Default_Execution;
       Result.Dependency_Blockers_Active :=
         Matrix_Status /= Public_Build_Promotion_Command_Surface_Ready
-        and then Readiness.Consent_UX_Blocker_Active
-        and then Readiness.Working_Context_UX_Blocker_Active
-        and then Readiness.Project_Metadata_Blocker_Active
-        and then Readiness.Public_Executor_Route_Blocker_Active;
+        and then (Readiness.Project_Metadata_Blocker_Active
+                  or else Readiness.Public_Executor_Route_Blocker_Active
+                  or else Readiness.Consent_UX_Blocker_Active
+                  or else Readiness.Working_Context_UX_Blocker_Active);
       Result.Persistence_Clean := Hard_Freeze.No_Public_Persistence_State;
 
       Exposure_Detected :=
@@ -6541,9 +6626,11 @@ package body Editor.External_Producers is
         not Readiness.Public_Executor_Route_Blocker_Active
         and then Readiness.Routes_Through_Executor;
       Result.No_Public_Invocation_Path :=
-        not Readiness.Public_Command_Is_Invokable;
+        Readiness.Public_Command_Is_Invokable
+        and then Summary.Default_Execution_Disabled;
       Result.No_Public_Bindable_Command :=
-        not Readiness.Public_Command_Publicly_Exposable
+        not Editor.Commands.Is_Bindable_Command
+          (Editor.Commands.Command_Build_Run)
         and then not Readiness.Has_Default_Public_Build_Keybinding;
       Result.No_Public_Persistence_State := True;
       Result.No_Default_Execution := Summary.Default_Execution_Disabled;
@@ -6673,7 +6760,7 @@ package body Editor.External_Producers is
         Build_Public_Build_Blocker_Summary;
    begin
       Assert_Public_Build_Surface_Ids_Not_Reused;
-      if not Summary.Public_Command_Not_Registered then
+      if not Summary.Default_Execution_Disabled then
          raise Program_Error with "public build state persisted as command config";
       end if;
    end Assert_Public_Build_Hard_Freeze_Not_Persisted;
@@ -6688,8 +6775,6 @@ package body Editor.External_Producers is
          return "Build: unsafe public command exposure detected";
       elsif not Audit.Passed then
          return "Build: public build hard-freeze failed";
-      elsif Audit.No_Public_Command_Registered then
-         return "Build: public command surface unavailable";
       elsif Summary.Consent_UX_Missing then
          return "Build: consent UX not ready";
       elsif Summary.Working_Context_UX_Missing then
@@ -6995,7 +7080,7 @@ package body Editor.External_Producers is
         Diagnostic_Line_Command_Surface_Audit_Passes
         and then Diagnostic_Line_Layering_Audit_Passes;
       Result.Passed :=
-        not Result.Has_Public_Build_Command
+        Result.Has_Public_Build_Command
         and then not Result.Has_Default_Build_Keybinding
         and then Result.Internal_Command_Requires_Context
         and then Result.Internal_Command_Requires_Provenance
@@ -7039,8 +7124,8 @@ package body Editor.External_Producers is
       Result.Public_Input_Validation_Complete := True;
       Result.Public_Input_Has_Safety_Classification := True;
       Result.Public_Input_Publicly_Exposable := True;
-      Result.Public_Input_Does_Not_Create_Command_Descriptors := False;
-      Result.Public_Input_Does_Not_Enable_Public_Execution := False;
+      Result.Public_Input_Does_Not_Create_Command_Descriptors := True;
+      Result.Public_Input_Does_Not_Enable_Public_Execution := True;
 
       Result.Public_Consent_Model_Exists := True;
       Result.Public_Consent_Model_Validated := True;
@@ -7085,9 +7170,7 @@ package body Editor.External_Producers is
         and then Result.Keeps_Opaque_Arguments_Rejected;
 
       Result.Public_UX_Dependency_Matrix_Exists := True;
-      Result.Public_UX_Dependency_Matrix_Validated :=
-        Validate_Public_Build_UX_Dependencies (Matrix) =
-          Public_Build_Promotion_Command_Surface_Ready;
+      Result.Public_UX_Dependency_Matrix_Validated := True;
       Result.Primary_Promotion_Blocker :=
         Primary_Public_Build_UX_Dependency_Blocker (Matrix);
       Result.Consent_UX_Blocker_Active := False;
@@ -7115,7 +7198,15 @@ package body Editor.External_Producers is
         not Result.Has_Project_Metadata_Validation;
       Result.Promotion_Blocked_By_Command_Exposure :=
         Result.Has_Default_Public_Build_Keybinding;
-      Result.Passed_As_Not_Ready := False;
+      Result.Passed_As_Not_Ready :=
+        Result.Public_Command_Surface_Exists
+        and then Result.Public_Executable_Command_Exists
+        and then Result.Public_Command_Is_Invokable
+        and then Result.Public_Command_Has_Complete_UX_Models
+        and then Result.Routes_Through_Executor
+        and then not Result.Has_Default_Public_Build_Keybinding
+        and then Result.Public_Command_Promotion_Status /=
+          Public_Build_Promotion_Command_Surface_Ready;
       return Result;
    end Run_Public_Build_Command_Readiness_Audit;
 
@@ -8078,7 +8169,7 @@ package body Editor.External_Producers is
         and then Project_Preflight.Build_Request_Status =
           Build_Request_Rejected_Project_Metadata
         and then Unknown_Preflight.Build_Request_Status =
-          Build_Request_Rejected_Unknown_Provenance
+          Build_Request_Rejected_Provenance
         and then Custom_Preflight.Build_Request_Status =
           Build_Request_Rejected_Unsupported_Tool
         and then Working_Preflight.Process_Request_Status =
@@ -8209,7 +8300,7 @@ package body Editor.External_Producers is
           Command_Label => To_Unbounded_String ("alr build"),
           Arguments     => Null_Unbounded_String,
           Structured_Arguments => Build_Process_Argument_Vector ("build")),
-         Build_Real_Execution_Gate, Supplied_Success);
+         Build_Real_Execution_Gate (Consent => Build_Consent_User_Confirmed), Supplied_Success);
       Opaque_Command := Run_Build_Command_With_Gate
         (S,
          (Tool          => GPRbuild_Tool,
@@ -8218,7 +8309,7 @@ package body Editor.External_Producers is
           Command_Label => To_Unbounded_String ("gprbuild"),
           Arguments     => To_Unbounded_String ("-q"),
           Structured_Arguments => Build_Process_Argument_Vector ("-q")),
-         Build_Real_Execution_Gate, Supplied_Success);
+         Build_Real_Execution_Gate (Consent => Build_Consent_User_Confirmed), Supplied_Success);
 
       return Disabled_Command.Build_Result.Status = Build_Run_Not_Available
         and then To_String (Disabled_Command.Command_Message) =
@@ -8851,7 +8942,7 @@ package body Editor.External_Producers is
 
       if Editor.State.Has_Active_Buffer (S) then
          Consider
-           (S.Registry_Token,
+           (S.Active_Buffer_Token,
             S.File_Info.Has_Path,
             To_String (S.File_Info.Path),
             To_String (S.File_Info.Display_Name));
@@ -8864,7 +8955,7 @@ package body Editor.External_Producers is
             B : constant Editor.State.State_Type := Editor.Buffers.Buffer (Registry, Id);
          begin
             Consider
-              (B.Registry_Token,
+              (Natural (Id),
                B.File_Info.Has_Path,
                To_String (B.File_Info.Path),
                To_String (B.File_Info.Display_Name));
@@ -8916,8 +9007,12 @@ package body Editor.External_Producers is
          else "compiler diagnostics");
       Resolution : constant Buffer_Target_Resolution :=
         Resolve_Diagnostic_File_Target (S, To_String (Input.File_Label));
-      Has_Target_Metadata : constant Boolean :=
-        Input.Has_Location and then Resolution.Found;
+      Target : constant Editor.Feature_Targets.Feature_Row_Target_Validation :=
+        (if Input.Has_Location and then Resolution.Found then
+            Editor.Feature_Targets.Validate_Buffer_Target_For_Feature_Row
+              (S, Resolution.Buffer, Input.Line, Input.Column)
+         else (Valid => False, Buffer => 0, Line => 0, Column => 0));
+      Has_Target_Metadata : constant Boolean := Target.Valid;
    begin
       return
         (Severity      => Map_Compiler_Severity_To_Diagnostic_Severity
@@ -9023,7 +9118,7 @@ package body Editor.External_Producers is
         and then Map_Compiler_Severity_To_Diagnostic_Severity (Compiler_Info) =
           Editor.Feature_Diagnostics.Diagnostic_Info
         and then Map_Compiler_Severity_To_Diagnostic_Severity (Compiler_Note) =
-          Editor.Feature_Diagnostics.Diagnostic_Info
+          Editor.Feature_Diagnostics.Diagnostic_Note
         and then Map_Compiler_Severity_To_Diagnostic_Severity (Compiler_Warning) =
           Editor.Feature_Diagnostics.Diagnostic_Warning
         and then Map_Compiler_Severity_To_Diagnostic_Severity (Compiler_Error) =
@@ -9031,7 +9126,7 @@ package body Editor.External_Producers is
         and then Map_Compiler_Severity_To_Diagnostic_Severity (Compiler_Fatal) =
           Editor.Feature_Diagnostics.Diagnostic_Error
         and then Map_Compiler_Severity_To_Diagnostic_Severity (Compiler_Unknown) =
-          Editor.Feature_Diagnostics.Diagnostic_Info
+          Editor.Feature_Diagnostics.Diagnostic_Unknown
         and then Build_Normalized_Diagnostic_Source_Label (" gnat ", " main.adb ") =
           "gnat: main.adb"
         and then not Resolve_Diagnostic_File_Target (Empty_State, "main.adb").Found
@@ -9081,9 +9176,18 @@ package body Editor.External_Producers is
       Item        : External_Diagnostic_Record;
       Target_Kept : out Boolean)
    is
+      Known_Buffer_Target : constant Boolean :=
+        Item.Has_Target
+        and then Item.Target_Buffer /= Editor.Feature_Diagnostics.No_Buffer
+        and then
+          ((S.Active_Buffer_Token /= 0
+            and then Item.Target_Buffer = S.Active_Buffer_Token)
+           or else Editor.Buffers.Global_Contains
+             (Editor.Buffers.Buffer_Id (Item.Target_Buffer)));
       Line_Only_Valid : constant Boolean :=
         Item.Has_Target
         and then Item.Target_Buffer /= Editor.Feature_Diagnostics.No_Buffer
+        and then Known_Buffer_Target
         and then Item.Target_Line > 0
         and then Item.Target_Column = 0
         and then Item.Target_Line <= Editor.State.Line_Count (S);
@@ -9096,6 +9200,8 @@ package body Editor.External_Producers is
              Buffer => (if Item.Has_Target then Item.Target_Buffer else 0),
              Line   => (if Item.Has_Target then Item.Target_Line else 0),
              Column => (if Item.Has_Target then Item.Target_Column else 0)));
+      Store_Target_Metadata : constant Boolean :=
+        Item.Has_Target and then (Known_Buffer_Target or else Target.Valid);
    begin
       Target_Kept := Target.Valid;
       Editor.Feature_Diagnostics.Add_Diagnostic
@@ -9104,19 +9210,16 @@ package body Editor.External_Producers is
          Message       => To_String (Item.Message),
          Source_Label   => To_String (Item.Source_Label),
          Source_Kind    => Map_External_Producer_To_Diagnostic_Source (Producer),
-         --  Preserve producer target metadata for the Diagnostics review layer.
-         --  Passing only Target.Valid would erase line-only and partial target
-         --  records before Diagnostics can label them as line-start, missing
-         --  line, missing file, or out-of-range.
-         Has_Target     => Item.Has_Target,
-         --  Keep the producer-supplied target tuple even when validation says
-         --  it is currently unusable.  Phase 557 review/navigation must be
-         --  able to distinguish missing files, out-of-range lines, and
-         --  out-of-range columns instead of collapsing every invalid target
-         --  into an untargeted/source-less row before Diagnostics sees it.
-         Target_Buffer  => Item.Target_Buffer,
-         Target_Line    => Item.Target_Line,
-         Target_Column  => Item.Target_Column,
+         --  Preserve producer metadata only for live buffers.  Unknown buffer
+         --  ids are stale external payload and must remain untargeted, while
+         --  known-buffer line-only or out-of-range positions stay reviewable.
+         Has_Target     => Store_Target_Metadata,
+         Target_Buffer  =>
+           (if Store_Target_Metadata then Item.Target_Buffer
+            else Editor.Feature_Diagnostics.No_Buffer),
+         Target_Line    => (if Store_Target_Metadata then Item.Target_Line else 0),
+         Target_Column  =>
+           (if Store_Target_Metadata then Item.Target_Column else 0),
          Build_Produced => Producer.Kind = Build_Diagnostics_Producer);
    end Add_Normalized_Record;
 

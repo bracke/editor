@@ -1,6 +1,8 @@
 with Ada.Strings.Unbounded; use Ada.Strings.Unbounded;
 
 package body Editor.Ada_Generic_Replay_Nested_Cycle_Closure_Legality is
+
+   pragma Suppress (Overflow_Check);
    use type Backmap.Generic_Backmap_Status;
    use type Final_RM.Final_RM_Status;
    use type Cross_Final.Cross_Unit_Final_Status;

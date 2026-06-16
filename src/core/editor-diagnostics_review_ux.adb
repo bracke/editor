@@ -182,7 +182,7 @@ package body Editor.Diagnostics_Review_UX is
           Editor.Commands.Panel_Category
         and then Editor.Commands.Stable_Command_Name
           (Editor.Commands.Command_Diagnostics_Open_Selected) =
-          "diagnostics-open-selected"
+          "diagnostics.open-selected"
         and then Editor.Commands.Command_Id_From_Stable_Name
           ("diagnostics.open-selected", Found) =
           Editor.Commands.Command_Diagnostics_Open_Selected

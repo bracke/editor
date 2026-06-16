@@ -2,6 +2,8 @@ with Ada.Strings.Unbounded; use Ada.Strings.Unbounded;
 
 package body Editor.Ada_Diagnostic_Panel_Projection is
 
+   pragma Suppress (Overflow_Check);
+
    use type Feed_Severity;
 
    function Mix (A, B : Natural) return Natural is

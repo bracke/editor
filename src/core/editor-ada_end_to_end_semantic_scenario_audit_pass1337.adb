@@ -1,5 +1,7 @@
 package body Editor.Ada_End_To_End_Semantic_Scenario_Audit_Pass1337 is
 
+   pragma Suppress (Overflow_Check);
+
    procedure Add_Scenario (Model : in out Scenario_Model; Scenario : End_To_End_Scenario) is
    begin
       Model.Items.Append (Scenario);

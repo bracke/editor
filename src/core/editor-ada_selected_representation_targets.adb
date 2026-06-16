@@ -4,6 +4,8 @@ with Ada.Strings.Unbounded; use Ada.Strings.Unbounded;
 
 package body Editor.Ada_Selected_Representation_Targets is
 
+   pragma Suppress (Overflow_Check);
+
    use type Editor.Ada_Selected_Name_Resolution.Selected_Name_Id;
 
    function Normalize (S : String) return String is

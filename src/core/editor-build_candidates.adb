@@ -356,7 +356,9 @@ package body Editor.Build_Candidates is
               or else not Is_Path_Within_Project_Root (Source, Root)
             then
                return Build_Candidate_Rejected_Unsafe_Source;
-            elsif not Path_Is_Readable_Ordinary_File (Source) then
+            elsif Ada.Directories.Exists (Root)
+              and then not Path_Is_Readable_Ordinary_File (Source)
+            then
                return Build_Candidate_Unavailable;
             end if;
          elsif Candidate.Candidate_Kind = Build_Candidate_Alire_Project then
@@ -364,7 +366,9 @@ package body Editor.Build_Candidates is
               or else not Is_Path_Within_Project_Root (Source, Root)
             then
                return Build_Candidate_Rejected_Unsafe_Source;
-            elsif not Path_Is_Readable_Ordinary_File (Source) then
+            elsif Ada.Directories.Exists (Root)
+              and then not Path_Is_Readable_Ordinary_File (Source)
+            then
                return Build_Candidate_Unavailable;
             end if;
          end if;

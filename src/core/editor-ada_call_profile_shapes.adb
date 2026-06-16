@@ -5,6 +5,8 @@ with Ada.Strings.Unbounded; use Ada.Strings.Unbounded;
 
 package body Editor.Ada_Call_Profile_Shapes is
 
+   pragma Suppress (Overflow_Check);
+
    use type Editor.Ada_Declarative_Regions.Region_Id;
    use type Editor.Ada_Syntax_Tree.Node_Id;
    use type Editor.Ada_Syntax_Tree.Node_Kind;
@@ -25,11 +27,24 @@ package body Editor.Ada_Call_Profile_Shapes is
         or else Ada.Strings.Fixed.Index (Text, Pattern) /= 0;
    end Contains;
 
+   function Hash_Mix
+     (Seed       : Natural;
+      Addend     : Long_Long_Integer;
+      Multiplier : Long_Long_Integer;
+      Modulus    : Long_Long_Integer := Long_Long_Integer (Natural'Last))
+      return Natural
+   is
+   begin
+      return Natural
+        ((Long_Long_Integer (Seed) * Multiplier + Addend) mod Modulus);
+   end Hash_Mix;
+
    function Hash_Text (Text : String) return Natural is
       H : Natural := 2166136261 mod Natural'Last;
    begin
       for C of Text loop
-         H := (H * 16777619 + Character'Pos (C) + 1) mod Natural'Last;
+         H := Hash_Mix
+           (H, Long_Long_Integer (Character'Pos (C)) + 1, 16_777_619);
       end loop;
       return H;
    end Hash_Text;
@@ -37,7 +52,7 @@ package body Editor.Ada_Call_Profile_Shapes is
    procedure Mix (Model : in out Profile_Shape_Model; Value : Natural) is
    begin
       Model.Result_Fingerprint :=
-        (Model.Result_Fingerprint * 65599 + Value + 101) mod Natural'Last;
+        Hash_Mix (Model.Result_Fingerprint, Long_Long_Integer (Value) + 101, 65_599);
    end Mix;
 
    function Is_Callable_Declaration
@@ -427,16 +442,18 @@ package body Editor.Ada_Call_Profile_Shapes is
       Info.Start_Line := Node.Source_Span.Start_Line;
       Info.End_Line := Node.Source_Span.End_Line;
       Info.Fingerprint :=
-        (Callable_Profile_Status'Pos (Status) * 1000003
-         + Natural (Node.Id) * 1009
-         + Natural (Region) * 97
-         + Param_Count * 31
-         + Defaulted_Count * 23
-         + Hash_Text (To_String (Formal_Names))
-         + Hash_Text (To_String (Defaulted_Names))
-         + (if Result /= "" then 17 else 0)
-         + Hash_Text (Norm)
-         + Hash_Text (Normalize (Result))) mod Natural'Last;
+        Natural
+          ((Long_Long_Integer (Callable_Profile_Status'Pos (Status)) * 1_000_003
+            + Long_Long_Integer (Natural (Node.Id)) * 1_009
+            + Long_Long_Integer (Natural (Region)) * 97
+            + Long_Long_Integer (Param_Count) * 31
+            + Long_Long_Integer (Defaulted_Count) * 23
+            + Long_Long_Integer (Hash_Text (To_String (Formal_Names)))
+            + Long_Long_Integer (Hash_Text (To_String (Defaulted_Names)))
+            + (if Result /= "" then 17 else 0)
+            + Long_Long_Integer (Hash_Text (Norm))
+            + Long_Long_Integer (Hash_Text (Normalize (Result))))
+           mod Long_Long_Integer (Natural'Last));
       Model.Callables.Append (Info);
       Mix (Model, Info.Fingerprint);
    end Add_Callable;

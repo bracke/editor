@@ -5,6 +5,8 @@ with Ada.Strings.Unbounded;
 
 package body Editor.Ada_Static_Expressions is
 
+   pragma Suppress (Overflow_Check);
+
    use type Editor.Ada_Declarative_Regions.Region_Id;
    use type Editor.Ada_Syntax_Tree.Node_Id;
    use type Static_Binding_Id;
@@ -120,27 +122,32 @@ package body Editor.Ada_Static_Expressions is
       Result : Natural := 0;
    begin
       for C of Text loop
-         Result := (Result * 131 + Character'Pos (Ada.Characters.Handling.To_Lower (C)) + 1)
-           mod Natural'Last;
+         Result := Natural
+           ((Long_Long_Integer (Result) * 131
+             + Long_Long_Integer
+               (Character'Pos (Ada.Characters.Handling.To_Lower (C))) + 1)
+            mod Long_Long_Integer (Natural'Last));
       end loop;
       return Result;
    end Hash_Text;
 
    function Hash_Value (Value : Static_Value_Info) return Natural is
    begin
-      return (Static_Value_Status'Pos (Value.Status) * 1000003
-              + Natural (abs (Value.Integer_Value) mod 1_000_003) * 97
-              + Natural (abs (Long_Long_Integer (Value.Real_Value * 1000.0)) mod 1_000_003) * 89
-              + Hash_Text (To_String (Value.Normalized_Text)) * 17
-              + Hash_Text (To_String (Value.Referenced_Name)) * 31
-              + Hash_Text (To_String (Value.Attribute_Prefix)) * 43
-              + Hash_Text (To_String (Value.Attribute_Name)) * 59
-              + Hash_Text (To_String (Value.Literal_Name)) * 67
-              + Natural (abs (Value.Literal_Position) mod 1_000_003) * 71
-              + Hash_Text (To_String (Value.Modular_Type_Name)) * 79
-              + Natural (abs (Value.Modulus_Value) mod 1_000_003) * 83
-              + Hash_Text (To_String (Value.Fixed_Type_Name)) * 97
-              + Natural (abs (Long_Long_Integer (Value.Delta_Value * 1_000_000.0)) mod 1_000_003) * 109) mod Natural'Last;
+      return Natural
+        ((Long_Long_Integer (Static_Value_Status'Pos (Value.Status)) * 1_000_003
+          + Long_Long_Integer (Natural (abs (Value.Integer_Value) mod 1_000_003)) * 97
+          + Long_Long_Integer (Natural (abs (Long_Long_Integer (Value.Real_Value * 1000.0)) mod 1_000_003)) * 89
+          + Long_Long_Integer (Hash_Text (To_String (Value.Normalized_Text))) * 17
+          + Long_Long_Integer (Hash_Text (To_String (Value.Referenced_Name))) * 31
+          + Long_Long_Integer (Hash_Text (To_String (Value.Attribute_Prefix))) * 43
+          + Long_Long_Integer (Hash_Text (To_String (Value.Attribute_Name))) * 59
+          + Long_Long_Integer (Hash_Text (To_String (Value.Literal_Name))) * 67
+          + Long_Long_Integer (Natural (abs (Value.Literal_Position) mod 1_000_003)) * 71
+          + Long_Long_Integer (Hash_Text (To_String (Value.Modular_Type_Name))) * 79
+          + Long_Long_Integer (Natural (abs (Value.Modulus_Value) mod 1_000_003)) * 83
+          + Long_Long_Integer (Hash_Text (To_String (Value.Fixed_Type_Name))) * 97
+          + Long_Long_Integer (Natural (abs (Long_Long_Integer (Value.Delta_Value * 1_000_000.0)) mod 1_000_003)) * 109)
+         mod Long_Long_Integer (Natural'Last));
    end Hash_Value;
 
    function Make_Value
@@ -1207,12 +1214,17 @@ package body Editor.Ada_Static_Expressions is
                      Item.Start_Line := Node.Source_Span.Start_Line;
                      Item.End_Line := Node.Source_Span.End_Line;
                      Item.Fingerprint :=
-                       (Natural (Item.Id) * 1000003
-                        + Static_Binding_Kind'Pos (Item.Kind) * 10007
-                        + Hash_Text (Name) * 101
-                        + Value.Fingerprint * 31) mod Natural'Last;
+                       Natural
+                         ((Long_Long_Integer (Natural (Item.Id)) * 1_000_003
+                           + Long_Long_Integer (Static_Binding_Kind'Pos (Item.Kind)) * 10_007
+                           + Long_Long_Integer (Hash_Text (Name)) * 101
+                           + Long_Long_Integer (Value.Fingerprint) * 31)
+                          mod Long_Long_Integer (Natural'Last));
                      Model.Result_Fingerprint :=
-                       (Model.Result_Fingerprint * 65599 + Item.Fingerprint) mod Natural'Last;
+                       Natural
+                         ((Long_Long_Integer (Model.Result_Fingerprint) * 65_599
+                           + Long_Long_Integer (Item.Fingerprint))
+                          mod Long_Long_Integer (Natural'Last));
                      Model.Bindings.Append (Item);
                   end if;
                end;
@@ -1331,10 +1343,12 @@ package body Editor.Ada_Static_Expressions is
                               Item.Start_Line := Child_Node.Source_Span.Start_Line;
                               Item.End_Line := Child_Node.Source_Span.End_Line;
                               Item.Fingerprint :=
-                                (Natural (Item.Id) * 1000003
-                                 + Hash_Text (Name) * 101
-                                 + Hash_Text (Literal_Name) * 211
-                                 + Natural (Position mod 1_000_003) * 307) mod Natural'Last;
+                                Natural
+                                  ((Long_Long_Integer (Natural (Item.Id)) * 1_000_003
+                                    + Long_Long_Integer (Hash_Text (Name)) * 101
+                                    + Long_Long_Integer (Hash_Text (Literal_Name)) * 211
+                                    + Long_Long_Integer (Natural (Position mod 1_000_003)) * 307)
+                                   mod Long_Long_Integer (Natural'Last));
                               Model.Enumeration_Literals.Append (Item);
                               Position := Position + 1;
                            end if;
@@ -1372,10 +1386,12 @@ package body Editor.Ada_Static_Expressions is
                      Item.Start_Line := Node.Source_Span.Start_Line;
                      Item.End_Line := Node.Source_Span.End_Line;
                      Item.Fingerprint :=
-                       (Natural (Item.Id) * 1000003
-                        + Hash_Text (Name) * 101
-                        + Item.First_Value.Fingerprint * 17
-                        + Item.Last_Value.Fingerprint * 31) mod Natural'Last;
+                       Natural
+                         ((Long_Long_Integer (Natural (Item.Id)) * 1_000_003
+                           + Long_Long_Integer (Hash_Text (Name)) * 101
+                           + Long_Long_Integer (Item.First_Value.Fingerprint) * 17
+                           + Long_Long_Integer (Item.Last_Value.Fingerprint) * 31)
+                          mod Long_Long_Integer (Natural'Last));
                      Model.Type_Bounds.Append (Item);
                   end if;
                end;
@@ -1392,10 +1408,12 @@ package body Editor.Ada_Static_Expressions is
             Item.Value := Evaluate_Numeric_Expression
               (Model, Item.Region, To_String (Item.Expression_Text));
             Item.Fingerprint :=
-              (Natural (Item.Id) * 1000003
-               + Static_Binding_Kind'Pos (Item.Kind) * 10007
-               + Hash_Text (To_String (Item.Name)) * 101
-               + Item.Value.Fingerprint * 31) mod Natural'Last;
+              Natural
+                ((Long_Long_Integer (Natural (Item.Id)) * 1_000_003
+                  + Long_Long_Integer (Static_Binding_Kind'Pos (Item.Kind)) * 10_007
+                  + Long_Long_Integer (Hash_Text (To_String (Item.Name))) * 101
+                  + Long_Long_Integer (Item.Value.Fingerprint) * 31)
+                 mod Long_Long_Integer (Natural'Last));
             Model.Bindings.Replace_Element (Positive (Index), Item);
          end;
       end loop;

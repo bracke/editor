@@ -3,6 +3,8 @@ with Ada.Strings.Unbounded; use Ada.Strings.Unbounded;
 
 package body Editor.Ada_Discriminant_Dependent_Legality is
 
+   pragma Suppress (Overflow_Check);
+
    package Record_Agg renames Editor.Ada_Record_Variant_Aggregate_Legality;
    package Assignments renames Editor.Ada_Assignment_Legality;
    package Conv renames Editor.Ada_Conversion_Access_Aggregate_Legality;

@@ -2,6 +2,15 @@ with Ada.Strings.Unbounded; use Ada.Strings.Unbounded;
 
 package body Editor.Ada_Volatile_Atomic_Representation_Consumer_Legality is
 
+   pragma Suppress (Overflow_Check);
+   use type Closure.Shared_State_Stabilized_Closure_Status;
+   use type Shared.Shared_State_Row_Id;
+   use type Rep.Representation_Shared_State_Row_Id;
+   use type Abstract_Consumers.Abstract_State_Consumer_Row_Id;
+   use type Closure.Shared_State_Stabilized_Closure_Id;
+   use type Editor.Ada_Syntax_Tree.Node_Id;
+
+
    function Mix (Left, Right : Natural) return Natural is
    begin
       return ((Left * 65_537) + Right + 12_225) mod 2_147_483_647;

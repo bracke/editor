@@ -5,6 +5,8 @@ with Ada.Strings.Unbounded; use Ada.Strings.Unbounded;
 
 package body Editor.Ada_Call_Candidates is
 
+   pragma Suppress (Overflow_Check);
+
    use type Editor.Ada_Declarative_Regions.Region_Id;
    use type Editor.Ada_Direct_Visibility.Declaration_Id;
    use type Editor.Ada_Direct_Visibility.Lookup_Status;

@@ -193,6 +193,7 @@ package body Editor.Input_Bridge.Tests is
       Root : constant String := Temp_Path ("toggle_root");
       S    : Editor.State.State_Type;
       After : Editor.State.State_Type;
+      Open_Res : Editor.Project.Project_Open_Result;
       A_Dir : Editor.File_Tree.File_Tree_Node_Id;
       Found : Boolean := False;
       Layout : Editor.Layout.Layout_Config;
@@ -202,7 +203,12 @@ package body Editor.Input_Bridge.Tests is
       Editor.Buffers.Reset_Global_For_Test;
       Build_Fixture (Root);
       Editor.State.Init (S);
+      Open_Res := Editor.Project.Open_Project (Root);
+      Assert (Editor.Project.Is_Success (Open_Res),
+              "fixture project must open before file tree activation");
+      Editor.Project.Apply_Open_Result (S.Project, Open_Res);
       S.File_Tree := Editor.File_Tree.Scan_Project (Root);
+      Editor.View.Set_Viewport (Width => 800, Height => 480);
       A_Dir := Editor.File_Tree.Find_By_Path (S.File_Tree, "a_dir", Found);
       Assert (Found, "fixture must contain a_dir");
       Assert (not Editor.File_Tree.Node (S.File_Tree, A_Dir).Is_Expanded,
@@ -234,6 +240,7 @@ package body Editor.Input_Bridge.Tests is
       Root : constant String := Temp_Path ("open_root");
       S    : Editor.State.State_Type;
       After : Editor.State.State_Type;
+      Open_Res : Editor.Project.Project_Open_Result;
       File_Id : Editor.File_Tree.File_Tree_Node_Id;
       Found : Boolean := False;
       Layout : Editor.Layout.Layout_Config;
@@ -245,7 +252,12 @@ package body Editor.Input_Bridge.Tests is
       Editor.Buffers.Reset_Global_For_Test;
       Build_Fixture (Root);
       Editor.State.Init (S);
+      Open_Res := Editor.Project.Open_Project (Root);
+      Assert (Editor.Project.Is_Success (Open_Res),
+              "fixture project must open before file tree activation");
+      Editor.Project.Apply_Open_Result (S.Project, Open_Res);
       S.File_Tree := Editor.File_Tree.Scan_Project (Root);
+      Editor.View.Set_Viewport (Width => 800, Height => 480);
       File_Id := Editor.File_Tree.Find_By_Path (S.File_Tree, "a.txt", Found);
       Assert (Found, "fixture must contain a.txt");
 
@@ -294,6 +306,7 @@ package body Editor.Input_Bridge.Tests is
       Editor.State.Init (S);
       Editor.State.Load_Text (S, "abc" & ASCII.LF & "def");
       S.File_Tree := Editor.File_Tree.Scan_Project (Root);
+      Editor.View.Set_Viewport (Width => 800, Height => 480);
       Caret_Before := S.Carets (S.Carets.First_Index);
 
       Editor.Input_Bridge.Set_State_For_Test (S);
@@ -608,6 +621,7 @@ package body Editor.Input_Bridge.Tests is
       Editor.State.Init (S);
       Editor.State.Load_Text (S, "alpha beta");
       S.File_Tree := Editor.File_Tree.Scan_Project (Root);
+      Editor.View.Set_Viewport (Width => 800, Height => 480);
       Editor.Input_Bridge.Set_State_For_Test (S);
       Layout := Editor.Layout.Current;
       X := Natural (Editor.Layout.File_Tree_X (Layout)) + Editor.Layout.Cell_W;
@@ -708,10 +722,21 @@ package body Editor.Input_Bridge.Tests is
       After  : Editor.State.State_Type;
       Cmd    : Editor.Commands.Command;
       Snap   : Editor.Render_Model.Render_Snapshot;
+      Items  : constant Editor.Outline.Outline_Item_Array :=
+        (1 =>
+           (Kind        => Editor.Outline.Outline_Procedure,
+            Label       => To_Unbounded_String ("Yield_Model"),
+            Detail      => To_Unbounded_String ("procedure"),
+            Depth       => 0,
+            Target_Kind  => Editor.Outline.Buffer_Position_Target,
+            Buffer_Token => 1,
+            Line         => 1,
+            Column       => 1));
    begin
       Editor.Buffers.Reset_Global_For_Test;
       Editor.State.Init (S);
       Editor.State.Load_Text (S, "abc");
+      Editor.Outline.Replace_Items (S.Outline, Items);
       Editor.Outline.Activate_Filter_Input (S.Outline);
       Editor.Input_Bridge.Set_State_For_Test (S);
 
@@ -746,9 +771,9 @@ package body Editor.Input_Bridge.Tests is
       Editor.State.Init (S);
       Editor.State.Load_Text (S, "alpha" & ASCII.LF & "beta");
       Editor.Feature_Search_Results.Add_Search_Result
-        (S.Feature_Search_Results, "alpha", "buffer", True, S.Registry_Token, 1, 1);
+        (S.Feature_Search_Results, "alpha", "buffer", True, S.Active_Buffer_Token, 1, 1);
       Editor.Feature_Search_Results.Add_Search_Result
-        (S.Feature_Search_Results, "beta", "buffer", True, S.Registry_Token, 2, 1);
+        (S.Feature_Search_Results, "beta", "buffer", True, S.Active_Buffer_Token, 2, 1);
       Editor.Feature_Search_Results.Project_Rows
         (S.Feature_Search_Results, S.Feature_Panel);
       Editor.Feature_Panel.Set_Visible (S.Feature_Panel, True);
@@ -794,7 +819,7 @@ package body Editor.Input_Bridge.Tests is
       Editor.State.Init (S);
       Editor.State.Load_Text (S, "alpha" & ASCII.LF & "beta");
       Editor.Feature_Search_Results.Add_Search_Result
-        (S.Feature_Search_Results, "beta", "buffer", True, S.Registry_Token, 2, 2);
+        (S.Feature_Search_Results, "beta", "buffer", True, S.Active_Buffer_Token, 2, 2);
       Editor.Feature_Search_Results.Project_Rows
         (S.Feature_Search_Results, S.Feature_Panel);
       Editor.Feature_Panel.Set_Visible (S.Feature_Panel, True);
@@ -811,7 +836,7 @@ package body Editor.Input_Bridge.Tests is
       After := Editor.Input_Bridge.Get_State_For_Test;
 
       Assert
-        (After.Carets (After.Carets.First_Index).Pos = 5,
+        (After.Carets (After.Carets.First_Index).Pos = 7,
          "Phase 230 double-clicking a Search Results feature row must activate through the search-result target path");
       Assert
         (Editor.Feature_Panel.Selected_Row (After.Feature_Panel) = 1,

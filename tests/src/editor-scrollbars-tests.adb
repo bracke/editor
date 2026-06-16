@@ -120,6 +120,7 @@ package body Editor.Scrollbars.Tests is
       Config : Editor.Scrollbars.Scrollbar_Config := Editor.Scrollbars.Current;
       Geometry : Editor.Scrollbars.Scrollbar_Geometry;
    begin
+      Config.Enabled := True;
       Config.Min_Thumb_Size := 40;
       Geometry := Editor.Scrollbars.Vertical_Geometry
         (Layout          => Layout,
@@ -140,10 +141,11 @@ package body Editor.Scrollbars.Tests is
    is
       pragma Unreferenced (T);
       Layout : constant Editor.Layout.Layout_Config := Editor.Layout.Current;
-      Config : constant Editor.Scrollbars.Scrollbar_Config := Editor.Scrollbars.Current;
+      Config : Editor.Scrollbars.Scrollbar_Config := Editor.Scrollbars.Current;
       Top    : Editor.Scrollbars.Scrollbar_Geometry;
       Bottom : Editor.Scrollbars.Scrollbar_Geometry;
    begin
+      Config.Enabled := True;
       Top := Editor.Scrollbars.Vertical_Geometry
         (Layout, 800, 120, 100, 10, 0, Config);
       Bottom := Editor.Scrollbars.Vertical_Geometry

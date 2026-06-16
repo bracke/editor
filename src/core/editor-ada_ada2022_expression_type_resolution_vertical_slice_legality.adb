@@ -2,6 +2,8 @@ with Ada.Strings.Unbounded; use Ada.Strings.Unbounded;
 
 package body Editor.Ada_Ada2022_Expression_Type_Resolution_Vertical_Slice_Legality is
 
+   pragma Suppress (Overflow_Check);
+
    function Mix (A, B : Natural) return Natural is
    begin
       return ((A * 65599) + (B * 997) + 1305) mod 1_000_000_007;

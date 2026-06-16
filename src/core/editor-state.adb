@@ -69,6 +69,9 @@ package body Editor.State is
    use type Editor.Panel_Focus.Bottom_Focus_Content;
 
    Next_Registry_Token : Natural := 1;
+   Runtime_Keybindings_Initialized : Boolean := False;
+   Runtime_Keybinding_Status : Editor.Keybinding_Config.Keybinding_Config_Status :=
+     Editor.Keybinding_Config.Keybinding_Config_Not_Found;
 
    function Allocate_Registry_Token return Natural is
       Result : constant Natural := Next_Registry_Token;
@@ -126,10 +129,22 @@ package body Editor.State is
 
    function Has_Active_Buffer (S : State_Type) return Boolean is
    begin
-      return S.File_Info.Has_Path
-        or else S.File_Info.Dirty
-        or else Text_Buffer.Length (S.Buffer) > 0
-        or else Editor.Buffers.Global_Active_Buffer /= Editor.Buffers.No_Buffer;
+      if S.Active_Buffer_Token = 0 then
+         return S.Registry_Token = 0
+           and then
+             (S.Buffer_Revision /= 0
+              or else S.File_Info.Has_Path
+              or else S.File_Info.Dirty
+              or else Current_Text (S) /= "");
+      elsif Editor.Buffers.Global_Registry_Current_For (S) then
+         return Editor.Buffers.Global_Contains
+           (Editor.Buffers.Buffer_Id (S.Active_Buffer_Token));
+      else
+         return S.Buffer_Revision /= 0
+           or else S.File_Info.Has_Path
+           or else S.File_Info.Dirty
+           or else Current_Text (S) /= "";
+      end if;
    end Has_Active_Buffer;
 
    function Active_Buffer (S : State_Type) return State_Type is
@@ -416,6 +431,14 @@ package body Editor.State is
    begin
       Replace_Document (S, Contents);
       S.File_Info := File_Info;
+      Editor.Feature_Search_Results.Mark_Stale_For_Buffer_Change
+        (S.Feature_Search_Results, S.Active_Buffer_Token, S.Buffer_Revision);
+      if S.Registry_Token /= 0
+        and then S.Registry_Token /= S.Active_Buffer_Token
+      then
+         Editor.Feature_Search_Results.Mark_Stale_For_Buffer_Change
+           (S.Feature_Search_Results, S.Registry_Token, S.Buffer_Revision);
+      end if;
    end Replace_Buffer_Contents;
 
    procedure Load_Text
@@ -568,20 +591,26 @@ package body Editor.State is
             Editor.Settings.Apply (S.Settings);
          end if;
       end;
-      declare
-         Loaded_Keybindings : Editor.Keybinding_Config.Keybinding_Config_Model;
-      begin
-         Editor.Keybindings.Reset_To_Defaults;
-         Editor.Keybinding_Config.Load_From_File
-           (Editor.Keybinding_Config.Keybindings_File_Path,
-            Loaded_Keybindings,
-            Startup_Keybinding_Status);
-         if Startup_Keybinding_Status = Editor.Keybinding_Config.Keybinding_Config_Ok
-           or else Startup_Keybinding_Status = Editor.Keybinding_Config.Keybinding_Config_Partial_Load
-         then
-            Editor.Keybinding_Config.Apply_To_Runtime (Loaded_Keybindings);
-         end if;
-      end;
+      if not Runtime_Keybindings_Initialized then
+         declare
+            Loaded_Keybindings : Editor.Keybinding_Config.Keybinding_Config_Model;
+         begin
+            Editor.Keybindings.Reset_To_Defaults;
+            Editor.Keybinding_Config.Load_From_File
+              (Editor.Keybinding_Config.Keybindings_File_Path,
+               Loaded_Keybindings,
+               Startup_Keybinding_Status);
+            if Startup_Keybinding_Status = Editor.Keybinding_Config.Keybinding_Config_Ok
+              or else Startup_Keybinding_Status = Editor.Keybinding_Config.Keybinding_Config_Partial_Load
+            then
+               Editor.Keybinding_Config.Apply_To_Runtime (Loaded_Keybindings);
+            end if;
+            Runtime_Keybinding_Status := Startup_Keybinding_Status;
+            Runtime_Keybindings_Initialized := True;
+         end;
+      else
+         Startup_Keybinding_Status := Runtime_Keybinding_Status;
+      end if;
       Editor.Recent_Projects.Load_From_File
         (Editor.Recent_Projects.Recent_Projects_File_Path,
          S.Recent_Projects,
@@ -1012,7 +1041,9 @@ package body Editor.State is
          S.Syntax_Symbols_Buffer_Token := S.Active_Buffer_Token;
       end if;
 
-      if S.Syntax_Source_Revision /= S.Buffer_Revision then
+      if S.Syntax_Source_Revision /= S.Buffer_Revision
+        or else Editor.Syntax_Cache.Cached_Line_Count (S.Syntax_Cache) /= Total
+      then
          Editor.Syntax_Cache.Set_Line_Count (S.Syntax_Cache, Total);
          S.Syntax_Source_Revision := S.Buffer_Revision;
          S.Syntax_Source_Buffer_Token := S.Active_Buffer_Token;
@@ -1151,6 +1182,12 @@ package body Editor.State is
       Target        : constant Editor.Feature_Targets.Feature_Row_Target_Validation :=
         Editor.Feature_Targets.Validate_Buffer_Target_For_Feature_Row
           (S, Buffer, Line, Column);
+      Keep_Target   : constant Boolean :=
+        Target.Valid
+        or else (Buffer /= Editor.Feature_Diagnostics.No_Buffer
+                 and then Line > 0
+                 and then Column = 0
+                 and then Line <= Editor.State.Line_Count (S));
    begin
       if Clean_Message'Length = 0 then
          return Editor.Producer_Contracts.Rejected_Empty_Text;
@@ -1167,20 +1204,14 @@ package body Editor.State is
          --  collapse line-only, missing-line, or missing-buffer records into a
          --  source-less row by passing only Target.Valid here; Add_Diagnostic
          --  owns the navigable-vs-partial target distinction.
-         Has_Target    => Buffer /= Editor.Feature_Diagnostics.No_Buffer
-                          or else Line > 0,
+         Has_Target    => Keep_Target,
          Target_Buffer => Buffer,
          Target_Line   => Line,
          Target_Column => Column);
       Editor.Feature_Diagnostics.Reconcile_Diagnostics_After_Row_Change
         (S.Feature_Diagnostics, S.Feature_Panel);
       Editor.Render_Cache.Invalidate_All;
-      if Target.Valid
-        or else (Buffer /= Editor.Feature_Diagnostics.No_Buffer
-                 and then Line > 0
-                 and then Column = 0
-                 and then Line <= Editor.State.Line_Count (S))
-      then
+      if Keep_Target then
          return Editor.Producer_Contracts.Accepted;
       else
          return Editor.Producer_Contracts.Accepted_Untargeted;

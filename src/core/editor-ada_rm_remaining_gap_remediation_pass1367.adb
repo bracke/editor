@@ -2,6 +2,13 @@ with Ada.Strings.Unbounded;
 
 package body Editor.Ada_RM_Remaining_Gap_Remediation_Pass1367 is
 
+   pragma Suppress (Overflow_Check);
+   use type Matrix.Coverage_Level;
+   use type Remediation.Remediation_State;
+   use type Precision.Precision_Classification;
+   use type Consumers.Semantic_Consumer;
+
+
    use Ada.Strings.Unbounded;
 
    procedure Add_Blocker

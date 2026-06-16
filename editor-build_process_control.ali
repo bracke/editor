@@ -1,5 +1,7 @@
 V "GNAT Lib v15"
 A -gnat2022
+A -gnatX
+A -gnata
 P SS ZX
 
 RN
@@ -15,7 +17,7 @@ RV NO_IMPLICIT_LOOPS
 RV NO_ELABORATION_CODE
 RV MAX_ENTRY_QUEUE_LENGTH=1+
 
-U editor.build_process_control%b  editor-build_process_control.adb  63ccd408 OO PF PK
+U editor.build_process_control%b  editor-build_process_control.adb  71fbeaf8 OO PF PK
 Z ada.exceptions%s	a-except.adb		a-except.ali
 Z ada.strings.text_buffers%s  a-sttebu.adb	a-sttebu.ali
 W editor%s		editor.ads		editor.ali
@@ -29,7 +31,7 @@ Z system.standard_library%s  s-stalib.adb	s-stalib.ali
 Z system.tasking%s	s-taskin.adb		s-taskin.ali
 Z system.tasking.protected_objects%s  s-taprob.adb  s-taprob.ali
 
-U editor.build_process_control%s  editor-build_process_control.ads  31d5f2c4 EE NE OO PK
+U editor.build_process_control%s  editor-build_process_control.ads  23e2cc34 EE NE OO PK
 W editor%s		editor.ads		editor.ali
 W editor.build_output_details%s  editor-build_output_details.adb  editor-build_output_details.ali
 
@@ -48,7 +50,7 @@ D a-stuten.ads		20250808065140 c6ced0ae ada.strings.utf_encoding%s
 D a-tags.ads		20250808065140 fbca0ad5 ada.tags%s
 D a-unccon.ads		20250808065140 0e9b276f ada.unchecked_conversion%s
 D editor.ads		20260612145959 16f844c2 editor%s
-D editor-build_output_details.ads  20260612145959 0f4ba402 editor.build_output_details%s
+D editor-build_output_details.ads  20260613095501 1d7c9af2 editor.build_output_details%s
 D editor-build_process_control.ads  20260612145959 28661204 editor.build_process_control%s
 D editor-build_process_control.adb  20260612154933 adadf464 editor.build_process_control%b
 D interfac.ads		20250808065140 9111f9c1 interfaces%s
@@ -145,7 +147,7 @@ X 15 editor.ads
 1K9*Editor 5e11 17|1r6 3r9 37r16 40r20 59r5 18|1r6 4r14 16r19 18r23 31r33
 . 57r19 65r23 164r16 171r20 226r5
 X 16 editor-build_output_details.ads
-3K16*Build_Output_Details 347e32 17|1w13 37r23 40r27 18|1w13 16r26 18r30
+3K16*Build_Output_Details 349e32 17|1w13 37r23 40r27 18|1w13 16r26 18r30
 . 31r40 57r26 65r30 164r23 171r27
 65R9*Build_Output_Stream_State 77e14 17|37r44 40r48 18|16r47 18r51 31r61
 . 57r47 65r51 164r44 171r48

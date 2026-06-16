@@ -4,6 +4,8 @@ with Editor.Ada_AST_Semantic_Coverage_Audit;
 
 package body Editor.Ada_Integrated_Semantic_Closure.Coverage_Gates is
 
+   pragma Suppress (Overflow_Check);
+
    package Gate_Pkg renames Editor.Ada_Semantic_Coverage_Gates;
    package Audit renames Editor.Ada_AST_Semantic_Coverage_Audit;
 

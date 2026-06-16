@@ -1,5 +1,7 @@
 V "GNAT Lib v15"
 A -gnat2022
+A -gnatX
+A -gnata
 P SS ZX
 
 RN
@@ -75,8 +77,8 @@ D editor-build_candidate_discovery.ads  20260612145959 5fe98328 editor.build_can
 D editor-build_candidate_refresh.ads  20260612145959 d541c976 editor.build_candidate_refresh%s
 D editor-build_candidate_refresh.adb  20260612160717 b369326c editor.build_candidate_refresh%b
 D editor-build_candidates.ads  20260612145959 dc89ea7b editor.build_candidates%s
-D editor-build_output_details.ads  20260612145959 0f4ba402 editor.build_output_details%s
-D editor-build_result_summary.ads  20260612145959 94fc95d2 editor.build_result_summary%s
+D editor-build_output_details.ads  20260613095501 1d7c9af2 editor.build_output_details%s
+D editor-build_result_summary.ads  20260613095501 5b952273 editor.build_result_summary%s
 D editor-build_ui.ads	20260612152524 28a54496 editor.build_ui%s
 D editor-build_working_context.ads  20260612145959 cef9cea9 editor.build_working_context%s
 D editor-commands.ads	20260612173240 3b5e3f44 editor.commands%s
@@ -86,7 +88,7 @@ D editor-feature_diagnostics.ads  20260612145959 9dd4f8ea editor.feature_diagnos
 D editor-feature_panel.ads  20260612145959 0bdf4cfc editor.feature_panel%s
 D editor-keybindings.ads  20260612145959 2657f44d editor.keybindings%s
 D editor-producer_contracts.ads  20260612145959 c3ee4501 editor.producer_contracts%s
-D editor-state.ads	20260612170622 4c537118 editor.state%s
+D editor-state.ads	20260613081313 1982bcb9 editor.state%s
 D editor-unicode.ads	20260612145959 552ff3cc editor.unicode%s
 D interfac.ads		20250808065140 9111f9c1 interfaces%s
 D i-c.ads		20250808065140 e94c966a interfaces.c%s

@@ -8,6 +8,8 @@ with Editor.Ada_Token_Cursor;
 
 package body Editor.Ada_Syntax_Tree is
 
+   pragma Suppress (Overflow_Check);
+
    function Lower (S : String) return String is
    begin
       return Ada.Strings.Fixed.Translate (S, Ada.Strings.Maps.Constants.Lower_Case_Map);
@@ -122,15 +124,20 @@ package body Editor.Ada_Syntax_Tree is
       Info.Parent := Parent;
       Info.Depth := Depth;
       Info.Label := To_Unbounded_String (Label);
-      Info.Fingerprint :=
-        (Node_Kind'Pos (Kind) * 1000003
-         + Source_Span.Start_Line * 1009
-         + Source_Span.Start_Column * 97
-         + Source_Span.End_Line * 53
-         + Source_Span.End_Column * 17
-         + Natural (Parent) * 13
-         + Depth * 7
-         + Hash_Text (Label)) mod Natural'Last;
+      declare
+         type Hash_Value is mod 2 ** 64;
+         Fingerprint : constant Hash_Value :=
+           Hash_Value (Node_Kind'Pos (Kind)) * 1000003
+           + Hash_Value (Source_Span.Start_Line) * 1009
+           + Hash_Value (Source_Span.Start_Column) * 97
+           + Hash_Value (Source_Span.End_Line) * 53
+           + Hash_Value (Source_Span.End_Column) * 17
+           + Hash_Value (Natural (Parent)) * 13
+           + Hash_Value (Depth) * 7
+           + Hash_Value (Hash_Text (Label));
+      begin
+         Info.Fingerprint := Natural (Fingerprint mod Hash_Value (Natural'Last));
+      end;
       Tree.Nodes.Append (Info);
       if Tree.Root_Node = No_Node then
          Tree.Root_Node := Id;
@@ -358,12 +365,15 @@ package body Editor.Ada_Syntax_Tree is
             return not Contains (L, " end loop");
          when Node_Declare_Block =>
             return not Contains (L, " end");
+         when Node_Begin_Block =>
+            return not Contains (L, " end");
          when Node_Select_Statement =>
             return not Contains (L, " end select");
          when Node_Type_Declaration =>
             return (Contains (L, " record") or else Contains (L, " record;")
                     or else Contains (L, " is record")
                     or else Contains (L, " with record"))
+              and then not Contains (L, " null record")
               and then not Contains (L, " end record");
          when Node_Representation_Clause =>
             return Contains (L, " use record")
@@ -514,7 +524,8 @@ package body Editor.Ada_Syntax_Tree is
    end End_Target_Text;
 
    function Opening_Target_Text (Kind : Node_Kind; Label : String) return String is
-      Clean : constant String := Strip_Terminator (Label);
+      Clean : constant String :=
+        (if Kind = Node_Expected_Token then Trim (Label) else Strip_Terminator (Label));
       L     : constant String := Lower (Clean);
 
       function After_Prefix (Prefix : String) return String is
@@ -527,6 +538,7 @@ package body Editor.Ada_Syntax_Tree is
 
       function First_Name (Text : String) return String is
          Work : constant String := Trim (Text);
+         L_Work : constant String := Lower (Work);
       begin
          if Work = "" then
             return "";
@@ -534,10 +546,14 @@ package body Editor.Ada_Syntax_Tree is
             return Segment_Before (Work, "(");
          elsif Contains (Work, ":") then
             return Segment_Before (Work, ":");
-         elsif Contains (Lower (Work), " return ") then
+         elsif Contains (L_Work, " return ") then
             return Segment_Before (Work, " return " );
-         elsif Contains (Lower (Work), " is ") then
+         elsif Contains (L_Work, " is ") then
             return Segment_Before (Work, " is " );
+         elsif Work'Length > 3
+           and then L_Work (L_Work'Last - 2 .. L_Work'Last) = " is"
+         then
+            return Trim (Work (Work'First .. Work'Last - 3));
          elsif Contains (Work, ";") then
             return Segment_Before (Work, ";");
          else
@@ -797,6 +813,53 @@ package body Editor.Ada_Syntax_Tree is
       return Trim (Text (First .. Text'Last));
    end Segment_After;
 
+   function If_Condition_Text (Code, Prefix : String) return String is
+      Clean : constant String := Trim (Code);
+      L     : constant String := Lower (Clean);
+      Start : Natural := Clean'First + Prefix'Length;
+      Then_Pos : Natural := 0;
+   begin
+      while Start <= Clean'Last and then Clean (Start) = ' ' loop
+         Start := Start + 1;
+      end loop;
+
+      for I in Clean'Range loop
+         if I + 4 <= Clean'Last
+           and then L (I .. I + 4) = " then"
+           and then (I + 5 > Clean'Last or else not Is_Word_Char (L (I + 5)))
+         then
+            Then_Pos := I;
+         end if;
+      end loop;
+
+      if Then_Pos = 0 or else Then_Pos <= Start then
+         return "";
+      end if;
+
+      return Trim (Clean (Start .. Then_Pos - 1));
+   end If_Condition_Text;
+
+   function If_Action_Text (Code : String) return String is
+      Clean : constant String := Trim (Code);
+      L     : constant String := Lower (Clean);
+      Then_Pos : Natural := 0;
+   begin
+      for I in Clean'Range loop
+         if I + 4 <= Clean'Last
+           and then L (I .. I + 4) = " then"
+           and then (I + 5 > Clean'Last or else not Is_Word_Char (L (I + 5)))
+         then
+            Then_Pos := I;
+         end if;
+      end loop;
+
+      if Then_Pos = 0 or else Then_Pos + 5 > Clean'Last then
+         return "";
+      end if;
+
+      return Trim (Clean (Then_Pos + 5 .. Clean'Last));
+   end If_Action_Text;
+
    function Is_Character_Literal_At
      (Text : String; Pos : Natural; Last : Natural) return Boolean
    is
@@ -890,6 +953,27 @@ package body Editor.Ada_Syntax_Tree is
       end if;
       return Trim (Text (Open_Pos + 1 .. Close_Pos - 1));
    end Segment_Between_First_Parens;
+
+   function Segment_Between_First_Parens_After
+     (Text   : String;
+      Marker : String) return String
+   is
+      L : constant String := Lower (Text);
+   begin
+      for I in L'Range loop
+         if I + Marker'Length - 1 <= L'Last
+           and then L (I .. I + Marker'Length - 1) = Marker
+         then
+            if I + Marker'Length <= Text'Last then
+               return Segment_Between_First_Parens
+                 (Text (I + Marker'Length .. Text'Last));
+            end if;
+            return "";
+         end if;
+      end loop;
+
+      return "";
+   end Segment_Between_First_Parens_After;
 
    function Strip_Leading_With (Text : String) return String is
       T : constant String := Trim (Text);
@@ -1099,6 +1183,17 @@ package body Editor.Ada_Syntax_Tree is
       end if;
       if Contains (L, " and then ") or else Contains (L, " or else ") then
          Add_Syntax_Child (Tree, Expr, Depth + 1, Line, Node_Short_Circuit_Expression, Clean);
+         if Contains (L, " and then ") then
+            Add_Expression_Nodes
+              (Tree, Expr, Depth + 1, Line, Segment_Before (Clean, " and then "));
+            Add_Expression_Nodes
+              (Tree, Expr, Depth + 1, Line, Segment_After (Clean, " and then "));
+         elsif Contains (L, " or else ") then
+            Add_Expression_Nodes
+              (Tree, Expr, Depth + 1, Line, Segment_Before (Clean, " or else "));
+            Add_Expression_Nodes
+              (Tree, Expr, Depth + 1, Line, Segment_After (Clean, " or else "));
+         end if;
       end if;
       if Starts_With_Word (L, "not") or else Starts_With_Word (L, "abs")
         or else (Clean'Length > 1 and then (Clean (Clean'First) = '-' or else Clean (Clean'First) = '+'))
@@ -1148,6 +1243,11 @@ package body Editor.Ada_Syntax_Tree is
          Add_Syntax_Child (Tree, Expr, Depth + 1, Line, Node_Selected_Name, Clean);
       end if;
       if Contains (Clean, "(") and then Contains (Clean, ")") then
+         if not Contains (Clean, "=>") then
+            Add_Syntax_Child (Tree, Expr, Depth + 1, Line, Node_Association, Clean);
+            Add_Syntax_Child (Tree, Expr, Depth + 1, Line, Node_Positional_Association, Clean);
+         end if;
+
          if Clean (Clean'First) = '(' then
             Add_Syntax_Child (Tree, Expr, Depth + 1, Line, Node_Aggregate, Clean);
          elsif Contains (Clean, "..") then
@@ -1178,25 +1278,41 @@ package body Editor.Ada_Syntax_Tree is
       Kind   : Node_Kind;
       Label  : String)
    is
-      Clean : constant String := Strip_Terminator (Label);
       Id    : Node_Id;
    begin
-      if Clean /= "" then
-         Id := Add_Node
-           (Tree, Kind, (Line, 1, Line, Last_Column_For (Clean)), Parent, Depth, Clean);
-         if Kind = Node_Statement_Action
-           or else Kind = Node_Statement_Target
-           or else Kind = Node_Statement_Condition
-           or else Kind = Node_Statement_Selector
-           or else Kind = Node_Statement_Arguments
-           or else Kind = Node_Statement_Message
-           or else Kind = Node_Declaration_Default
-           or else Kind = Node_Aspect_Value
-           or else Kind = Node_Generic_Actual_Value
-         then
-            Add_Expression_Nodes (Tree, Id, Depth + 1, Line, Clean);
-         end if;
+      if Kind = Node_Expected_Token then
+         declare
+            Token : constant String := Trim (Label);
+         begin
+            if Token /= "" then
+               Id := Add_Node
+                 (Tree, Kind, (Line, 1, Line, Last_Column_For (Token)),
+                  Parent, Depth, Token);
+            end if;
+         end;
+         return;
       end if;
+
+      declare
+         Clean : constant String := Strip_Terminator (Label);
+      begin
+         if Clean /= "" then
+            Id := Add_Node
+              (Tree, Kind, (Line, 1, Line, Last_Column_For (Clean)), Parent, Depth, Clean);
+            if Kind = Node_Statement_Action
+              or else Kind = Node_Statement_Target
+              or else Kind = Node_Statement_Condition
+              or else Kind = Node_Statement_Selector
+              or else Kind = Node_Statement_Arguments
+              or else Kind = Node_Statement_Message
+              or else Kind = Node_Declaration_Default
+              or else Kind = Node_Aspect_Value
+              or else Kind = Node_Generic_Actual_Value
+            then
+               Add_Expression_Nodes (Tree, Id, Depth + 1, Line, Clean);
+            end if;
+         end if;
+      end;
    end Add_Detail_Node;
 
    procedure Add_Association_List_Nodes
@@ -1245,6 +1361,11 @@ package body Editor.Ada_Syntax_Tree is
                Add_Key_Value_Details (Node_Aspect_Name, Node_Aspect_Value);
             when Node_Generic_Actual_Association =>
                Add_Key_Value_Details (Node_Generic_Actual_Formal, Node_Generic_Actual_Value);
+               if Has_Top_Level_Arrow (Segment) then
+                  Add_Detail_Node
+                    (Tree, Assoc, Depth + 1, Line, Node_Statement_Target,
+                     Split_Before_Top_Level_Arrow (Segment));
+               end if;
             when Node_Discriminant_Specification | Node_Parameter_Specification =>
                Add_Declaration_Detail_Nodes (Tree, Assoc, Depth + 1, Line, Segment, Association_Kind);
             when Node_Pragma_Argument =>
@@ -1615,7 +1736,7 @@ package body Editor.Ada_Syntax_Tree is
    is
       Clean : constant String := Strip_Terminator (Code);
       L     : constant String := Lower (Clean);
-      Items : constant String := Segment_Between_First_Parens (Clean);
+      Items : constant String := Segment_Between_First_Parens_After (Clean, " is ");
       Start : Natural;
       Level : Natural := 0;
 
@@ -2494,20 +2615,27 @@ package body Editor.Ada_Syntax_Tree is
          when Node_If_Statement =>
             Add_Detail_Node
               (Tree, Id, Depth, Line, Node_Statement_Condition,
-               Segment_Before (Segment_After (Code, "if"), "then"));
-            Semi := First_Semicolon (Segment_After (Code, "then"));
-            if Semi /= 0 then
-               Add_Action_Sequence
-                 (Tree, Id, Depth, Line, Segment_After (Code, "then"));
-            end if;
+               If_Condition_Text (Code, "if"));
+            declare
+               Tail : constant String := If_Action_Text (Code);
+            begin
+               if Tail /= "" and then not Starts_With_Word (Lower (Tail), "end") then
+                  Add_Action_Sequence
+                    (Tree, Id, Depth, Line, Tail);
+               end if;
+            end;
          when Node_Elsif_Part =>
             Add_Detail_Node
               (Tree, Id, Depth, Line, Node_Statement_Condition,
-               Segment_Before (Segment_After (Code, "elsif"), "then"));
-            if First_Semicolon (Segment_After (Code, "then")) /= 0 then
-               Add_Action_Sequence
-                 (Tree, Id, Depth, Line, Segment_After (Code, "then"));
-            end if;
+               If_Condition_Text (Code, "elsif"));
+            declare
+               Tail : constant String := If_Action_Text (Code);
+            begin
+               if Tail /= "" and then not Starts_With_Word (Lower (Tail), "end") then
+                  Add_Action_Sequence
+                    (Tree, Id, Depth, Line, Tail);
+               end if;
+            end;
          when Node_Else_Part =>
             if First_Semicolon (Segment_After (Code, "else")) /= 0 then
                Add_Action_Sequence
@@ -2533,24 +2661,36 @@ package body Editor.Ada_Syntax_Tree is
          when Node_Select_Alternative =>
             if Starts_With_Word (L, "then") and then Contains (L, "then abort") then
                Add_Detail_Node (Tree, Id, Depth, Line, Node_Statement_Mode, "then abort");
-               if First_Semicolon (Segment_After (Code, "then abort")) /= 0 then
-                  Add_Action_Sequence
-                    (Tree, Id, Depth, Line, Segment_After (Code, "then abort"), True);
-               end if;
+               declare
+                  Tail : constant String := Segment_After (Code, "then abort");
+               begin
+                  if Tail /= "" and then not Starts_With_Word (Lower (Tail), "end") then
+                     Add_Action_Sequence
+                       (Tree, Id, Depth, Line, Tail, True);
+                  end if;
+               end;
             elsif Starts_With_Word (L, "else") then
                Add_Detail_Node (Tree, Id, Depth, Line, Node_Statement_Alternative, "else");
-               if First_Semicolon (Segment_After (Code, "else")) /= 0 then
-                  Add_Action_Sequence
-                    (Tree, Id, Depth, Line, Segment_After (Code, "else"), True);
-               end if;
+               declare
+                  Tail : constant String := Segment_After (Code, "else");
+               begin
+                  if Tail /= "" and then not Starts_With_Word (Lower (Tail), "end") then
+                     Add_Action_Sequence
+                       (Tree, Id, Depth, Line, Tail, True);
+                  end if;
+               end;
             elsif Starts_With_Word (L, "terminate") then
                Add_Detail_Node (Tree, Id, Depth, Line, Node_Statement_Mode, "terminate");
             else
                Add_Detail_Node (Tree, Id, Depth, Line, Node_Statement_Alternative, "or");
-               if First_Semicolon (Segment_After (Code, "or")) /= 0 then
-                  Add_Action_Sequence
-                    (Tree, Id, Depth, Line, Segment_After (Code, "or"), True);
-               end if;
+               declare
+                  Tail : constant String := Segment_After (Code, "or");
+               begin
+                  if Tail /= "" and then not Starts_With_Word (Lower (Tail), "end") then
+                     Add_Action_Sequence
+                       (Tree, Id, Depth, Line, Tail, True);
+                  end if;
+               end;
             end if;
          when Node_Exception_Handler =>
             Add_Detail_Node
@@ -2579,10 +2719,14 @@ package body Editor.Ada_Syntax_Tree is
                  (Tree, Id, Depth, Line, Node_Statement_Selector,
                   Segment_Before (Segment_After (Code, "for"), "loop"));
             end if;
-            if First_Semicolon (Segment_After (Code, "loop")) /= 0 then
-               Add_Action_Sequence
-                 (Tree, Id, Depth, Line, Segment_After (Code, "loop"));
-            end if;
+            declare
+               Tail : constant String := Segment_After (Code, "loop");
+            begin
+               if Tail /= "" and then not Starts_With_Word (Lower (Tail), "end") then
+                  Add_Action_Sequence
+                    (Tree, Id, Depth, Line, Tail);
+               end if;
+            end;
          when Node_Declare_Block =>
             if Contains (L, " begin ") then
                Add_Action_Sequence
@@ -2707,6 +2851,15 @@ package body Editor.Ada_Syntax_Tree is
          end loop;
       end Pop_Alternative_Scope;
 
+      procedure Pop_Exception_Handler_Scope is
+      begin
+         while Scope_Depth > 0
+           and then Current_Kind = Node_Exception_Handler
+         loop
+            Pop_Scope;
+         end loop;
+      end Pop_Exception_Handler_Scope;
+
       procedure Add_Recovery_Node
         (Kind   : Node_Kind;
          Parent : Node_Id;
@@ -2722,11 +2875,20 @@ package body Editor.Ada_Syntax_Tree is
       end Add_Recovery_Node;
 
       function Matching_End_Depth (End_Code : String) return Natural is
+         Target : constant String := End_Target_Text (End_Code);
       begin
          for D in reverse 1 .. Scope_Depth loop
-            if End_Matches_Kind (Node (Tree, Scope_Stack (D)).Kind, End_Code) then
-               return D;
-            end if;
+            declare
+               Candidate : constant Node_Kind := Node (Tree, Scope_Stack (D)).Kind;
+            begin
+               if Target /= ""
+                 and then Is_Transient_Statement_Part (Candidate)
+               then
+                  null;
+               elsif End_Matches_Kind (Candidate, End_Code) then
+                  return D;
+               end if;
+            end;
          end loop;
          return 0;
       end Matching_End_Depth;
@@ -3058,10 +3220,7 @@ package body Editor.Ada_Syntax_Tree is
       procedure Add_Line (Line : String; Line_No : Positive) is
          Classified  : constant Node_Kind := Classify_Line (Line);
          Code        : constant String :=
-           Trim
-             ((if Classified = Node_Pragma
-               then Code_Preserving_Literals_For_Retention (Line)
-               else Editor.Ada_Syntax_Core.Sanitize_Line (Line)));
+           Trim (Code_Preserving_Literals_For_Retention (Line));
          Last_Column : constant Positive := (if Line'Length = 0 then 1 else Line'Length);
          Parent      : Node_Id;
          New_Node    : Node_Id;
@@ -3143,7 +3302,16 @@ package body Editor.Ada_Syntax_Tree is
                if Is_End_Node (Kind) then
                   Recover_To_End_Boundary (Code, Line_No);
                elsif Is_Alternative_Node (Kind) then
-                  Pop_Alternative_Scope;
+                  if Scope_Depth > 0
+                    and then Classified = Node_When_Alternative
+                    and then (Current_Kind = Node_Exception_Section
+                              or else Current_Kind = Node_Exception_Handler)
+                  then
+                     Kind := Node_Exception_Handler;
+                     Pop_Exception_Handler_Scope;
+                  else
+                     Pop_Alternative_Scope;
+                  end if;
                   if Kind = Node_Exception_Section
                     and then Scope_Depth > 0
                     and then Current_Kind = Node_Begin_Block

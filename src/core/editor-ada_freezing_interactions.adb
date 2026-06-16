@@ -5,6 +5,8 @@ with Ada.Strings.Unbounded; use Ada.Strings.Unbounded;
 
 package body Editor.Ada_Freezing_Interactions is
 
+   pragma Suppress (Overflow_Check);
+
    use type Ada.Containers.Count_Type;
    use type Editor.Ada_Freezing_Points.Freezable_Id;
    use type Editor.Ada_Freezing_Points.Freezable_Kind;

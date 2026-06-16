@@ -4,6 +4,8 @@ with Editor.Ada_Language_Model;
 
 package body Editor.Ada_Separate_Body_Stub_Rules is
 
+   pragma Suppress (Overflow_Check);
+
    function Normalize (S : String) return String is
    begin
       return Ada.Characters.Handling.To_Lower (S);
@@ -12,13 +14,18 @@ package body Editor.Ada_Separate_Body_Stub_Rules is
    procedure Mix (Value : in out Natural; Text : String) is
    begin
       for Ch of Text loop
-         Value := (Value * 131 + Character'Pos (Ch) + 1) mod 1_000_000_007;
+         Value := Natural
+           ((Long_Long_Integer (Value) * 131
+             + Long_Long_Integer (Character'Pos (Ch)) + 1)
+            mod 1_000_000_007);
       end loop;
    end Mix;
 
    procedure Mix (Value : in out Natural; N : Natural) is
    begin
-      Value := (Value * 131 + N + 1) mod 1_000_000_007;
+      Value := Natural
+        ((Long_Long_Integer (Value) * 131 + Long_Long_Integer (N) + 1)
+         mod 1_000_000_007);
    end Mix;
 
    function Tail_Name (Name : String) return String is

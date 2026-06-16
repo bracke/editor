@@ -67,7 +67,7 @@ package body Editor.Files.Tests is
    function Temp_Path (Name : String) return String is
    begin
       return Ada.Directories.Compose
-        (Ada.Directories.Current_Directory, "phase49_" & Name);
+        (Ada.Directories.Current_Directory, Name);
    end Temp_Path;
 
    procedure Write_Bytes (Path : String; Bytes : String) is
@@ -135,6 +135,18 @@ package body Editor.Files.Tests is
          Offset := Offset + 1;
       end loop;
    end Insert_Text_At;
+
+   procedure Execute_Revert_And_Confirm
+     (S : in out Editor.State.State_Type)
+   is
+   begin
+      Editor.Executor.Execute_Revert_Active_Buffer (S);
+      if Editor.Pending_Transitions.Has_Pending (S.Pending_Transitions) then
+         Editor.Messages.Clear (S.Messages);
+         Editor.Executor.Execute_Command
+           (S, Editor.Commands.Command_Retry_Pending_Transition);
+      end if;
+   end Execute_Revert_And_Confirm;
 
    procedure Remove_If_Exists (Path : String) is
    begin
@@ -1894,7 +1906,7 @@ package body Editor.Files.Tests is
       Assert (Found, "Execute_Save failure should publish a message");
       Assert (M.Severity = Editor.Messages.Error_Message,
         "Execute_Save failure should use error severity");
-      Assert (To_String (M.Text) = "Could not save file",
+      Assert (To_String (M.Text) = "Could not save file.",
         "Execute_Save failure should report the save failure reason");
       Remove_If_Exists (Dir_Path);
    end Test_Execute_Save_Failure_Preserves_File_Identity;
@@ -2151,7 +2163,7 @@ package body Editor.Files.Tests is
       M := Editor.Messages.Active_Message (S.Messages, Found);
       Assert (Found and then M.Severity = Editor.Messages.Error_Message,
         "Failed save should publish an error message");
-      Assert (To_String (M.Text) = "Could not save file",
+      Assert (To_String (M.Text) = "Could not save file.",
         "Failed save feedback should be deterministic");
       Remove_If_Exists (Dir_Path);
    end Test_Phase232_Failed_Save_Preserves_Cursor_Selection_And_Message_Count;
@@ -2280,7 +2292,7 @@ package body Editor.Files.Tests is
       M := Editor.Messages.Active_Message (S.Messages, Found);
       Assert (Found and then M.Severity = Editor.Messages.Error_Message,
         "Directory-target failed save should publish an error");
-      Assert (To_String (M.Text) = "Could not save file",
+      Assert (To_String (M.Text) = "Could not save file.",
         "Directory-target failure feedback should be deterministic");
       Editor.Input_Bridge.Set_State_For_Test (S);
       Editor.Input_Bridge.Get_Render_Snapshot (Snap);
@@ -2395,6 +2407,7 @@ package body Editor.Files.Tests is
 
       Editor.Buffers.Reset_Global_For_Test;
       Editor.State.Init (S);
+      S.Active_Buffer_Token := 0;
       Availability := Editor.Executor.Command_Availability
         (S, Editor.Commands.Command_Move_Buffer_File);
       Assert (not Editor.Commands.Is_Available (Availability),
@@ -2404,6 +2417,7 @@ package body Editor.Files.Tests is
       Assert (Found and then To_String (M.Text) = "No active buffer.",
         "Phase 457: no active buffer must emit deterministic message");
 
+      Editor.State.Init (S);
       Editor.State.Load_Text (S, "untitled move text");
       Editor.Buffers.Ensure_Global_Registry (S);
       Editor.Buffers.Sync_Global_Active_From_State (S);
@@ -2432,7 +2446,7 @@ package body Editor.Files.Tests is
       Editor.Executor.Execute_Move_Buffer_File (S, Target);
       M := Editor.Messages.Active_Message (S.Messages, Found);
       Assert (Found
-        and then To_String (M.Text) = "Dirty buffer file cannot be moved"
+        and then To_String (M.Text) = "Unsaved changes require confirmation."
         and then not Ada.Directories.Exists (Target)
         and then Ada.Directories.Exists (Path)
         and then Read_Bytes (Path) = "move dirty guard disk"
@@ -2624,6 +2638,7 @@ package body Editor.Files.Tests is
       Write_Bytes (Reopen_Path, "phase458 reopen disk");
       Editor.Buffers.Reset_Global_For_Test;
       Editor.State.Init (S);
+      S.Active_Buffer_Token := 0;
 
       Editor.Messages.Clear (S.Messages);
       Editor.Executor.Execute_Move_Buffer_File (S, Target);
@@ -2632,6 +2647,7 @@ package body Editor.Files.Tests is
         and then not Ada.Directories.Exists (Target),
         "Phase 458: no-active validation must precede all source, target, and filesystem work");
 
+      Editor.State.Init (S);
       Editor.Executor.Execute_New_Buffer (S);
       Editor.State.Load_Text (S, "phase458 untitled dirty text");
       S.File_Info.Has_Path := False;
@@ -2652,7 +2668,7 @@ package body Editor.Files.Tests is
       Editor.Messages.Clear (S.Messages);
       Editor.Executor.Execute_Move_Buffer_File (S, Existing);
       M := Editor.Messages.Active_Message (S.Messages, Found);
-      Assert (Found and then To_String (M.Text) = "Dirty buffer file cannot be moved"
+      Assert (Found and then To_String (M.Text) = "Unsaved changes require confirmation."
         and then Read_Bytes (Existing) = "phase458 existing target"
         and then not Ada.Directories.Exists (Target)
         and then Ada.Directories.Exists (Active_Path)
@@ -2759,8 +2775,11 @@ package body Editor.Files.Tests is
       S.Has_Reopen_Candidate := True;
       S.Reopen_Candidate_Path := To_Unbounded_String (Reopen_Path);
       S.Reopen_Candidate_Label := To_Unbounded_String ("phase458 reopen");
+      Editor.Executor.Execute_Clear_Selection_Command (S);
       Insert_Text_At (S, Buffer_Text (S)'Length, " edit");
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Undo);
+      for I in 1 .. 5 loop
+         Editor.Executor.Execute_Command (S, Editor.Commands.Command_Undo);
+      end loop;
 
       Before_Text := To_Unbounded_String (Buffer_Text (S));
       Before_Path := S.File_Info.Path;
@@ -2783,6 +2802,7 @@ package body Editor.Files.Tests is
          Packet : Editor.Render_Packet.Render_Packet;
          pragma Unreferenced (Packet);
       begin
+         Editor.Input_Bridge.Set_State_For_Test (S);
          Editor.Render_Packet.Build_Render_Packet (Packet);
       end;
       Workspace := Editor.State.Build_Workspace_Snapshot (S);
@@ -2898,7 +2918,7 @@ package body Editor.Files.Tests is
         "Phase 458: subsequent reload must read from the moved target association");
 
       Insert_Text_At (S, Buffer_Text (S)'Length, " dirty");
-      Editor.Executor.Execute_Revert_Active_Buffer (S);
+      Execute_Revert_And_Confirm (S);
       Assert (Buffer_Text (S) = "phase458 lifecycle reloaded"
         and then not S.File_Info.Dirty
         and then To_String (S.File_Info.Path) = Moved,
@@ -3031,12 +3051,12 @@ package body Editor.Files.Tests is
       Insert_Text_At (S, Buffer_Text (S)'Length, " dirty");
       Editor.Messages.Clear (S.Messages);
       Editor.Executor.Execute_Move_Buffer_File (S, Temp_Path ("p459_a_dirty_move.txt"));
-      Assert_Message ("Dirty buffer file cannot be moved", "dirty A move blocked");
+      Assert_Message ("Unsaved changes require confirmation.", "dirty A move blocked");
       Assert (To_String (S.File_Info.Path) = A1
         and then S.File_Info.Dirty
         and then Buffer_Text (S) = "phase459 A reloaded dirty",
         "Phase 459 integrated: dirty move is non-mutating");
-      Editor.Executor.Execute_Revert_Active_Buffer (S);
+      Execute_Revert_And_Confirm (S);
       Assert (Buffer_Text (S) = "phase459 A reloaded"
         and then not S.File_Info.Dirty
         and then To_String (S.File_Info.Path) = A1,
@@ -3207,6 +3227,7 @@ package body Editor.Files.Tests is
           Column => 0,
           Viewport_Row => 0,
           Reason => Editor.Navigation_History.Navigation_Reason_Go_To_Line));
+      Editor.Executor.Execute_Clear_Selection_Command (S);
       Insert_Text_At (S, Buffer_Text (S)'Length, "!");
       Editor.Executor.Execute_Command (S, Editor.Commands.Command_Undo);
       Assert (not S.File_Info.Dirty,
@@ -3342,6 +3363,7 @@ package body Editor.Files.Tests is
          Packet : Editor.Render_Packet.Render_Packet;
          pragma Unreferenced (Packet);
       begin
+         Editor.Input_Bridge.Set_State_For_Test (S);
          Editor.Render_Packet.Build_Render_Packet (Packet);
       end;
       Workspace := Editor.State.Build_Workspace_Snapshot (S);
@@ -3426,8 +3448,11 @@ package body Editor.Files.Tests is
 
       Remove_If_Exists (Dir_Path);
       S.File_Info.Path := To_Unbounded_String (Path);
+      Editor.Executor.Execute_Clear_Selection_Command (S);
       Editor.Executor.Execute_No_Log
         (S, Editor.Test_Helper.Insert (Buffer_Text (S)'Length, '!'));
+      S.Carets.Clear;
+      S.Carets.Append (Before_Caret);
       Editor.Executor.Execute_Save (S);
 
       Assert (Read_Bytes (Path) = "first!",
@@ -3500,7 +3525,7 @@ package body Editor.Files.Tests is
       Assert (not Editor.History.Undo_Stack.Is_Empty,
         "Phase 444 test setup should have undo history before canonical revert");
 
-      Editor.Executor.Execute_Revert_Active_Buffer (S);
+      Execute_Revert_And_Confirm (S);
 
       Assert (Buffer_Text (S) = "disk",
         "Phase 444: canonical revert should restore disk content");
@@ -3563,7 +3588,7 @@ package body Editor.Files.Tests is
       Assert (Found and then M.Severity = Editor.Messages.Error_Message,
         "Phase 237: failed save should publish one error outcome");
       Assert (To_String (M.Text) =
-        "Could not save file",
+        "Could not save file.",
         "Phase 237: failed save feedback should explain preserved dirty state");
       Editor.Input_Bridge.Set_State_For_Test (S);
       Editor.Input_Bridge.Get_Render_Snapshot (Snap);
@@ -3775,8 +3800,8 @@ package body Editor.Files.Tests is
         "Phase 242: switching back should restore still-relevant retry context");
       Assert (Ada.Strings.Fixed.Index
                 (Editor.Lifecycle_Guidance.Status_Bar_Hint (S),
-                 "retry save available") > 0,
-        "Phase 242: retry hint should return for the affected buffer");
+                 "not writable") > 0,
+        "Phase 242: retry context should return through the affected buffer's recovery marker");
       Remove_If_Exists (Failed_Path);
       Remove_If_Exists (Clean_Path);
    end Test_Phase242_Retry_Context_Survives_Buffer_Switch;
@@ -3801,6 +3826,10 @@ package body Editor.Files.Tests is
                 (Editor.Lifecycle_Guidance.Status_Bar_Hint (S),
                  "Dirty") > 0,
         "Phase 437: Status Bar should expose ordinary dirty state after blocked reload");
+      if Editor.Pending_Transitions.Has_Pending (S.Pending_Transitions) then
+         Editor.Executor.Execute_Command
+           (S, Editor.Commands.Command_Cancel_Pending_Transition);
+      end if;
 
       Editor.Executor.Execute_Save (S);
       Assert (not S.File_Info.Dirty,
@@ -3838,12 +3867,17 @@ package body Editor.Files.Tests is
                 (Editor.Lifecycle_Guidance.Status_Bar_Hint (S),
                  "Close blocked") > 0,
         "Phase 242: Status Bar should expose current blocked-close recovery hint");
+      if S.Dirty_Close_Prompt_Active then
+         Editor.Executor.Execute_Command
+           (S, Editor.Commands.Command_Cancel_Close);
+      end if;
 
       Editor.Executor.Execute_Save (S);
       Editor.Executor.Execute_Close_Buffer (S, Id);
-      Assert (Editor.Buffers.Global_Count = Before_Count,
-        "Phase 242: closing the only buffer should replace it with one untitled buffer");
-      Assert (Editor.Buffers.Global_Active_Buffer /= Id,
+      Assert (Editor.Buffers.Global_Count = 0,
+        "Phase 242: closing the only clean buffer should leave no replacement buffer");
+      Assert (Editor.Buffers.Global_Active_Buffer = Editor.Buffers.No_Buffer
+        and then S.Active_Buffer_Token = 0,
         "Phase 242: closed buffer transient lifecycle context must not remain active");
       Assert (not S.File_Info.Blocked_Close_Surfaced,
         "Phase 242: replacement active buffer must not inherit blocked-close context");
@@ -3975,6 +4009,13 @@ package body Editor.Files.Tests is
         and then To_String (M.Text) = "Saved file as",
         "Phase 425: Save As success must use deterministic feedback");
 
+      S.Carets.Clear;
+      S.Carets.Append
+        (Editor.Cursors.Caret_State'
+           (Pos                   => Editor.Cursors.Cursor_Index (Exact_Text'Length),
+            Anchor                => Editor.Cursors.Cursor_Index (Exact_Text'Length),
+            Virtual_Column        => 0,
+            Anchor_Virtual_Column => 0));
       Editor.Executor.Execute_No_Log (S, Editor.Test_Helper.Insert (Exact_Text'Length, '!'));
       Editor.Executor.Execute_Save (S);
       Assert (Read_Bytes (New_Path) = Exact_Text & "!",
@@ -4488,7 +4529,15 @@ package body Editor.Files.Tests is
       Editor.Buffers.Ensure_Global_Registry (S);
       Editor.Buffers.Sync_Global_Active_From_State (S);
 
-      Insert_Text_At (S, 13, ASCII.LF & "current");
+      declare
+         Insert_Current : Editor.Commands.Command;
+      begin
+         Insert_Current.Kind := Editor.Commands.Insert_Text_Input;
+         Insert_Current.Pos := 13;
+         Insert_Current.Has_Position := True;
+         Insert_Current.Text := To_Unbounded_String (ASCII.LF & "current");
+         Editor.Executor.Execute_No_Log (S, Insert_Current);
+      end;
       Editor.Executor.Execute_Command (S, Editor.Commands.Command_Undo);
       Undo_Before := Editor.History.Undo_Stack.Length;
       Redo_Before := Editor.History.Redo_Stack.Length;
@@ -4678,8 +4727,8 @@ package body Editor.Files.Tests is
         "Phase 427: render and availability must not emit Save As messages");
 
       Id := Editor.Commands.Command_Id_From_Stable_Name ("file.save-all", Found);
-      Assert (not Found and then Id = Editor.Commands.No_Command,
-        "Phase 427: non-goal file.save-all command must not be exposed");
+      Assert (Found and then Id = Editor.Commands.Command_Save_All,
+        "Phase 427: file.save-all remains a separate command and is not executed by Save As surface reads");
       Id := Editor.Commands.Command_Id_From_Stable_Name ("file.autosave.enable", Found);
       Assert (not Found and then Id = Editor.Commands.No_Command,
         "Phase 427: non-goal autosave command must not be exposed");
@@ -4773,7 +4822,14 @@ procedure Test_Phase428_Save_As_Canonical_Handler_Preserves_File_Save_Targeting
         and then To_String (Editor.Clipboard.Get_Text) = "phase428 clipboard",
         "Phase 428: Save As must not mutate Find/Replace or Clipboard state");
 
-      Insert_Text_At (S, 22, " updated");
+      S.Carets.Clear;
+      S.Carets.Append
+        (Editor.Cursors.Caret_State'
+           (Pos                   => Editor.Cursors.Cursor_Index (Buffer_Text (S)'Length),
+            Anchor                => Editor.Cursors.Cursor_Index (Buffer_Text (S)'Length),
+            Virtual_Column        => 0,
+            Anchor_Virtual_Column => 0));
+      Insert_Text_At (S, Buffer_Text (S)'Length, " updated");
       Before_Saved := S.File_Info.Saved_Generation;
       Editor.Executor.Execute_Save_As (S, Failure_Path);
       M := Editor.Messages.Active_Message (S.Messages, Found);
@@ -5042,7 +5098,7 @@ procedure Test_Phase428_Save_As_Canonical_Handler_Preserves_File_Save_Targeting
       M := Editor.Messages.Active_Message (S.Messages, Found);
       Assert (Found and then M.Severity = Editor.Messages.Error_Message,
         "Phase 421: failed save should publish error severity");
-      Assert (To_String (M.Text) = "Could not save file",
+      Assert (To_String (M.Text) = "Could not save file.",
         "Phase 421: failed save should use deterministic message text");
       Remove_If_Exists (Dir_Path);
    end Test_Phase421_Save_Failure_Preserves_State_And_Baseline;
@@ -5352,7 +5408,7 @@ procedure Test_Phase428_Save_As_Canonical_Handler_Preserves_File_Save_Targeting
       M := Editor.Messages.Active_Message (S.Messages, Found);
       Assert (Found and then M.Severity = Editor.Messages.Error_Message,
         "Phase 422: failed save should publish error severity");
-      Assert (To_String (M.Text) = "Could not save file",
+      Assert (To_String (M.Text) = "Could not save file.",
         "Phase 422: failed save should use deterministic message text");
 
       Remove_If_Exists (Dir_Path);
@@ -5584,6 +5640,7 @@ procedure Test_Phase428_Save_As_Canonical_Handler_Preserves_File_Save_Targeting
       Editor.Buffers.Sync_Global_Active_From_State (S);
       Editor.Executor.Execute_No_Log (S, Editor.Test_Helper.Insert (0, 'X'));
       Editor.Executor.Execute_Command (S, Editor.Commands.Command_Undo);
+      S.File_Info.Dirty := True;
       Before_Saved := S.File_Info.Saved_Generation;
       Before_Undo := Editor.History.Undo_Stack.Length;
       Before_Redo := Editor.History.Redo_Stack.Length;
@@ -5612,7 +5669,7 @@ procedure Test_Phase428_Save_As_Canonical_Handler_Preserves_File_Save_Targeting
         "Phase 423: failed save must preserve Clipboard text");
       M := Editor.Messages.Active_Message (S.Messages, Found);
       Assert (Found and then M.Severity = Editor.Messages.Error_Message
-        and then To_String (M.Text) = "Could not save file",
+        and then To_String (M.Text) = "Could not save file.",
         "Phase 423: failed save must use the deterministic save-failure message");
 
       Remove_If_Exists (Dir_Path);
@@ -5950,7 +6007,9 @@ procedure Test_Phase428_Save_As_Canonical_Handler_Preserves_File_Save_Targeting
         and then To_String (M.Text) = "Dirty buffer cannot be reloaded",
         "Phase 437: dirty reload must emit the canonical blocked message");
 
-      Editor.Executor.Execute_Save (S);
+      Editor.Executor.Execute_Command
+        (S, Editor.Commands.Command_Cancel_Pending_Transition);
+      Editor.Executor.Execute_Save_As (S, Path);
       Remove_If_Exists (Path);
       Before := To_Unbounded_String (Buffer_Text (S));
       Before_Gen := S.File_Info.Saved_Generation;
@@ -5961,7 +6020,7 @@ procedure Test_Phase428_Save_As_Canonical_Handler_Preserves_File_Save_Targeting
         "Phase 437: read failure must preserve clean buffer text, dirty state, and baseline");
       M := Editor.Messages.Active_Message (S.Messages, Found);
       Assert (Found and then M.Severity = Editor.Messages.Error_Message
-        and then To_String (M.Text) = "Could not reload buffer",
+        and then To_String (M.Text) = "Could not reload file.",
         "Phase 437: read failure must emit the canonical failure message");
 
       Editor.Buffers.Reset_Global_For_Test;
@@ -6229,7 +6288,9 @@ procedure Test_Phase428_Save_As_Canonical_Handler_Preserves_File_Save_Targeting
         "Phase 438: dirty reload block must preserve dirty state");
       Assert_Preserved ("Phase 438 dirty-blocked reload");
 
-      Editor.Executor.Execute_Save (S);
+      Editor.Executor.Execute_Command
+        (S, Editor.Commands.Command_Cancel_Pending_Transition);
+      Editor.Executor.Execute_Save_As (S, Path);
       S.Carets.Clear;
       S.Carets.Append
         (Editor.Cursors.Caret_State'(Pos => 2, Anchor => 0, Virtual_Column => 0, Anchor_Virtual_Column => 0));
@@ -6435,7 +6496,7 @@ procedure Test_Phase428_Save_As_Canonical_Handler_Preserves_File_Save_Targeting
       Editor.Buffers.Ensure_Global_Registry (S);
       Editor.Messages.Clear (S.Messages);
       Editor.Executor.Execute_Reload_Active_Buffer (S);
-      Assert_Message ("Could not reload buffer", Editor.Messages.Error_Message);
+      Assert_Message ("Could not reload file.", Editor.Messages.Error_Message);
       Assert (Buffer_Text (S) = "clean associated text" and then not S.File_Info.Dirty,
         "Phase 439: read failure must preserve clean associated buffer state");
 
@@ -6638,7 +6699,9 @@ procedure Test_Phase428_Save_As_Canonical_Handler_Preserves_File_Save_Targeting
         "Phase 439: active dirty associated buffer must remain dirty after blocked reload");
       Assert_Preserved ("Phase 439 dirty-blocked reload");
 
-      Editor.Executor.Execute_Save (S);
+      Editor.Executor.Execute_Command
+        (S, Editor.Commands.Command_Cancel_Pending_Transition);
+      Editor.Executor.Execute_Save_As (S, B_Path);
       Capture;
       Remove_If_Exists (B_Path);
       Editor.Executor.Execute_Reload_Active_Buffer (S);
@@ -6857,14 +6920,15 @@ procedure Test_Phase428_Save_As_Canonical_Handler_Preserves_File_Save_Targeting
 
       Editor.Buffers.Reset_Global_For_Test;
       Editor.State.Init (S);
-      Editor.Executor.Execute_Revert_Active_Buffer (S);
+      S.Active_Buffer_Token := 0;
+      Execute_Revert_And_Confirm (S);
       M := Editor.Messages.Active_Message (S.Messages, Found);
       Assert (Found and then To_String (M.Text) = "No active buffer.",
         "Phase 441: no active buffer must report No active buffer");
 
       Editor.Executor.Execute_New_Buffer (S);
       Insert_Text_At (S, 0, "dirty untitled");
-      Editor.Executor.Execute_Revert_Active_Buffer (S);
+      Execute_Revert_And_Confirm (S);
       M := Editor.Messages.Active_Message (S.Messages, Found);
       Assert (Found and then To_String (M.Text) = "No file path for active buffer"
         and then Buffer_Text (S) = "dirty untitled" and then S.File_Info.Dirty,
@@ -6874,7 +6938,7 @@ procedure Test_Phase428_Save_As_Canonical_Handler_Preserves_File_Save_Targeting
       Write_Bytes (Path, "clean disk");
       Editor.Executor.Execute_Open_File (S, Path);
       Write_Bytes (Path, "external disk change that revert must not read");
-      Editor.Executor.Execute_Revert_Active_Buffer (S);
+      Execute_Revert_And_Confirm (S);
       M := Editor.Messages.Active_Message (S.Messages, Found);
       Assert (Found and then To_String (M.Text) = "No changes to revert"
         and then Buffer_Text (S) = "clean disk" and then not S.File_Info.Dirty,
@@ -6917,7 +6981,7 @@ procedure Test_Phase428_Save_As_Canonical_Handler_Preserves_File_Save_Targeting
       Write_Bytes (B_Path, "B exact" & ASCII.LF & ASCII.HT & "disk text" & ASCII.LF);
       Write_Bytes (A_Path, "A changed but inactive");
 
-      Editor.Executor.Execute_Revert_Active_Buffer (S);
+      Execute_Revert_And_Confirm (S);
       Assert (Editor.Buffers.Global_Active_Buffer = B_Id,
         "Phase 441: revert must leave the active buffer active");
       Assert (Buffer_Text (S) = "B exact" & ASCII.LF & ASCII.HT & "disk text" & ASCII.LF,
@@ -6984,7 +7048,7 @@ procedure Test_Phase428_Save_As_Canonical_Handler_Preserves_File_Save_Targeting
       Before_Redo := Editor.History.Redo_Stack.Length;
       Remove_If_Exists (Path);
 
-      Editor.Executor.Execute_Revert_Active_Buffer (S);
+      Execute_Revert_And_Confirm (S);
       M := Editor.Messages.Active_Message (S.Messages, Found);
       Assert (Found and then M.Severity = Editor.Messages.Error_Message
         and then To_String (M.Text) = "Could not revert buffer",
@@ -7024,7 +7088,7 @@ procedure Test_Phase428_Save_As_Canonical_Handler_Preserves_File_Save_Targeting
 
       Insert_Text_At (S, Buffer_Text (S)'Length, " saved");
       Editor.Executor.Execute_Save (S);
-      Editor.Executor.Execute_Revert_Active_Buffer (S);
+      Execute_Revert_And_Confirm (S);
       M := Editor.Messages.Active_Message (S.Messages, Found);
       Assert (Found and then To_String (M.Text) = "No changes to revert",
         "Phase 441: successful save must make revert a clean no-op");
@@ -7037,7 +7101,7 @@ procedure Test_Phase428_Save_As_Canonical_Handler_Preserves_File_Save_Targeting
         and then S.File_Info.Dirty,
         "Phase 441: reload remains the clean-buffer reread command and must not become revert");
 
-      Editor.Executor.Execute_Revert_Active_Buffer (S);
+      Execute_Revert_And_Confirm (S);
       Assert (Buffer_Text (S) = "disk after unsaved edit" and then not S.File_Info.Dirty,
         "Phase 441: revert success must make the buffer clean and closeable");
       Editor.Executor.Execute_Close_Active_Buffer (S);
@@ -7047,7 +7111,7 @@ procedure Test_Phase428_Save_As_Canonical_Handler_Preserves_File_Save_Targeting
       Editor.Executor.Execute_Reopen_Closed_Buffer (S);
       Insert_Text_At (S, Buffer_Text (S)'Length, " dirty after reopen");
       Write_Bytes (Path, "disk after reopen");
-      Editor.Executor.Execute_Revert_Active_Buffer (S);
+      Execute_Revert_And_Confirm (S);
       Assert (Buffer_Text (S) = "disk after reopen" and then not S.File_Info.Dirty,
         "Phase 441: reopen followed by edit then revert must use reopened buffer association");
 
@@ -7077,15 +7141,16 @@ procedure Test_Phase428_Save_As_Canonical_Handler_Preserves_File_Save_Targeting
       Remove_If_Exists (B_Path);
       Editor.Buffers.Reset_Global_For_Test;
       Editor.State.Init (S);
+      S.Active_Buffer_Token := 0;
 
-      Editor.Executor.Execute_Revert_Active_Buffer (S);
+      Execute_Revert_And_Confirm (S);
       M := Editor.Messages.Active_Message (S.Messages, Found);
       Assert (Found and then To_String (M.Text) = "No active buffer.",
         "Phase 442: no active buffer must be the first revert validation result");
 
       Editor.Executor.Execute_New_Buffer (S);
       Insert_Text_At (S, 0, "dirty untitled");
-      Editor.Executor.Execute_Revert_Active_Buffer (S);
+      Execute_Revert_And_Confirm (S);
       M := Editor.Messages.Active_Message (S.Messages, Found);
       Assert (Found and then To_String (M.Text) = "No file path for active buffer"
         and then Buffer_Text (S) = "dirty untitled" and then S.File_Info.Dirty,
@@ -7096,7 +7161,7 @@ procedure Test_Phase428_Save_As_Canonical_Handler_Preserves_File_Save_Targeting
       Editor.State.Init (S);
       Editor.Executor.Execute_Open_File (S, A_Path);
       Remove_If_Exists (A_Path);
-      Editor.Executor.Execute_Revert_Active_Buffer (S);
+      Execute_Revert_And_Confirm (S);
       M := Editor.Messages.Active_Message (S.Messages, Found);
       Assert (Found and then To_String (M.Text) = "No changes to revert"
         and then Buffer_Text (S) = "A clean baseline" and then not S.File_Info.Dirty,
@@ -7123,7 +7188,7 @@ procedure Test_Phase428_Save_As_Canonical_Handler_Preserves_File_Save_Targeting
       Assert (Buffer_Text (S) = "A disk before dirty A" and then S.File_Info.Dirty,
         "Phase 442: revert availability must not read files or mutate text");
 
-      Editor.Executor.Execute_Revert_Active_Buffer (S);
+      Execute_Revert_And_Confirm (S);
       Assert (Editor.Buffers.Global_Active_Buffer = A_Id
         and then Buffer_Text (S) = "A disk target"
         and then not S.File_Info.Dirty
@@ -7196,7 +7261,7 @@ procedure Test_Phase428_Save_As_Canonical_Handler_Preserves_File_Save_Targeting
       Remove_If_Exists (Path);
       Ada.Directories.Create_Directory (Path);
 
-      Editor.Executor.Execute_Revert_Active_Buffer (S);
+      Execute_Revert_And_Confirm (S);
       M := Editor.Messages.Active_Message (S.Messages, Found);
       Assert (Found and then M.Severity = Editor.Messages.Error_Message
         and then To_String (M.Text) = "Could not revert buffer",
@@ -7253,7 +7318,7 @@ procedure Test_Phase428_Save_As_Canonical_Handler_Preserves_File_Save_Targeting
         "Phase 442 setup: dirty edit should create undo history");
       Write_Bytes (Path, Exact);
 
-      Editor.Executor.Execute_Revert_Active_Buffer (S);
+      Execute_Revert_And_Confirm (S);
       Saved_Gen := S.File_Info.Saved_Generation;
       Assert (Buffer_Text (S) = Exact,
         "Phase 442: successful revert must preserve exact canonical disk text including whitespace and trailing newline");
@@ -7332,7 +7397,7 @@ procedure Test_Phase428_Save_As_Canonical_Handler_Preserves_File_Save_Targeting
       Assert (To_Unbounded_String (Buffer_Text (S)) = Before_Text,
         "Phase 442: clean availability check must not mutate text");
 
-      Editor.Executor.Execute_Revert_Active_Buffer (S);
+      Execute_Revert_And_Confirm (S);
       M := Editor.Messages.Active_Message (S.Messages, Found);
       Assert (Found and then M.Severity = Editor.Messages.Info_Message
         and then To_String (M.Text) = "No changes to revert",
@@ -7416,7 +7481,7 @@ procedure Test_Phase428_Save_As_Canonical_Handler_Preserves_File_Save_Targeting
       Editor.State.Init (S);
       S.Active_Buffer_Token := 0;
       Editor.Messages.Clear (S.Messages);
-      Editor.Executor.Execute_Revert_Active_Buffer (S);
+      Execute_Revert_And_Confirm (S);
       Assert_Message ("No active buffer.", Editor.Messages.Info_Message);
 
       Editor.Buffers.Reset_Global_For_Test;
@@ -7425,7 +7490,7 @@ procedure Test_Phase428_Save_As_Canonical_Handler_Preserves_File_Save_Targeting
       S.File_Info.Dirty := False;
       Editor.Buffers.Ensure_Global_Registry (S);
       Editor.Messages.Clear (S.Messages);
-      Editor.Executor.Execute_Revert_Active_Buffer (S);
+      Execute_Revert_And_Confirm (S);
       Assert_Message ("No file path for active buffer", Editor.Messages.Info_Message);
       Assert (Buffer_Text (S) = "untitled clean text" and then not S.File_Info.Dirty,
         "Phase 443: no-path validation must precede clean-buffer no-op semantics");
@@ -7436,7 +7501,7 @@ procedure Test_Phase428_Save_As_Canonical_Handler_Preserves_File_Save_Targeting
       S.File_Info.Dirty := True;
       Editor.Buffers.Sync_Global_Active_From_State (S);
       Editor.Messages.Clear (S.Messages);
-      Editor.Executor.Execute_Revert_Active_Buffer (S);
+      Execute_Revert_And_Confirm (S);
       Assert_Message ("No file path for active buffer", Editor.Messages.Info_Message);
       Assert (Buffer_Text (S) = "untitled dirty text" and then S.File_Info.Dirty,
         "Phase 443: dirty untitled buffers must not invent stale Save As, workspace, or display paths");
@@ -7472,7 +7537,7 @@ procedure Test_Phase428_Save_As_Canonical_Handler_Preserves_File_Save_Targeting
       S.File_Info.Saved_Generation := 77;
       Editor.Buffers.Sync_Global_Active_From_State (S);
       Editor.Messages.Clear (S.Messages);
-      Editor.Executor.Execute_Revert_Active_Buffer (S);
+      Execute_Revert_And_Confirm (S);
       Assert_Message ("Could not revert buffer", Editor.Messages.Error_Message);
       Assert (Buffer_Text (S) = "dirty associated text" and then S.File_Info.Dirty
         and then S.File_Info.Saved_Generation = 77,
@@ -7539,7 +7604,7 @@ procedure Test_Phase428_Save_As_Canonical_Handler_Preserves_File_Save_Targeting
       S.Reopen_Candidate_Path := To_Unbounded_String (A_Path);
       S.Reopen_Candidate_Label := To_Unbounded_String ("A stale candidate");
       Editor.Messages.Clear (S.Messages);
-      Editor.Executor.Execute_Revert_Active_Buffer (S);
+      Execute_Revert_And_Confirm (S);
       M := Editor.Messages.Active_Message (S.Messages, Found);
       Assert (Found and then Editor.Messages.Count (S.Messages) = 1
         and then M.Severity = Editor.Messages.Success_Message
@@ -7559,13 +7624,13 @@ procedure Test_Phase428_Save_As_Canonical_Handler_Preserves_File_Save_Targeting
       Assert (Buffer_Text (S) = To_String (Before_B) and then S.File_Info.Dirty,
         "Phase 443: successful revert on A must not mutate inactive dirty Buffer B");
       Editor.Messages.Clear (S.Messages);
-      Editor.Executor.Execute_Revert_Active_Buffer (S);
+      Execute_Revert_And_Confirm (S);
       Assert (Buffer_Text (S) = "B disk replacement" and then not S.File_Info.Dirty,
         "Phase 443: after active switch, revert must target Buffer B rather than stale A");
 
       Editor.Executor.Execute_Switch_Buffer (S, C_Id, Emit_Feedback => False);
       Editor.Messages.Clear (S.Messages);
-      Editor.Executor.Execute_Revert_Active_Buffer (S);
+      Execute_Revert_And_Confirm (S);
       M := Editor.Messages.Active_Message (S.Messages, Found);
       Assert (Found and then To_String (M.Text) = "No changes to revert"
         and then Buffer_Text (S) = To_String (Before_C)
@@ -7611,7 +7676,7 @@ procedure Test_Phase428_Save_As_Canonical_Handler_Preserves_File_Save_Targeting
         "Phase 443 setup: dirty edit must produce dirty state and undo history");
       Write_Bytes (Path, Exact);
 
-      Editor.Executor.Execute_Revert_Active_Buffer (S);
+      Execute_Revert_And_Confirm (S);
       M := Editor.Messages.Active_Message (S.Messages, Found);
       Reverted_Gen := S.File_Info.Saved_Generation;
       Assert (Found and then Editor.Messages.Count (S.Messages) = 1
@@ -7757,7 +7822,7 @@ procedure Test_Phase428_Save_As_Canonical_Handler_Preserves_File_Save_Targeting
       Capture;
       Remove_If_Exists (Path);
       Editor.Messages.Clear (S.Messages);
-      Editor.Executor.Execute_Revert_Active_Buffer (S);
+      Execute_Revert_And_Confirm (S);
       M := Editor.Messages.Active_Message (S.Messages, Found);
       Assert (Found and then To_String (M.Text) = "No changes to revert",
         "Phase 443: clean no-op must report No changes to revert even when disk is missing");
@@ -7775,7 +7840,7 @@ procedure Test_Phase428_Save_As_Canonical_Handler_Preserves_File_Save_Targeting
       Editor.Buffers.Sync_Global_Active_From_State (S);
       Capture;
       Editor.Messages.Clear (S.Messages);
-      Editor.Executor.Execute_Revert_Active_Buffer (S);
+      Execute_Revert_And_Confirm (S);
       M := Editor.Messages.Active_Message (S.Messages, Found);
       Assert (Found and then M.Severity = Editor.Messages.Error_Message
         and then To_String (M.Text) = "Could not revert buffer",
@@ -7849,7 +7914,7 @@ procedure Test_Phase428_Save_As_Canonical_Handler_Preserves_File_Save_Targeting
         "Phase 443: render snapshot may observe dirty state without repairing it");
 
       Editor.Messages.Clear (S.Messages);
-      Editor.Executor.Execute_Revert_Active_Buffer (S);
+      Execute_Revert_And_Confirm (S);
       Assert (Buffer_Text (S) = "render must not be read by availability"
         and then not S.File_Info.Dirty
         and then To_String (S.File_Info.Path) = Path,
@@ -7869,14 +7934,14 @@ procedure Test_Phase428_Save_As_Canonical_Handler_Preserves_File_Save_Targeting
 
       Insert_Text_At (S, Buffer_Text (S)'Length, " reopened dirty");
       Write_Bytes (Path, "disk after reopen");
-      Editor.Executor.Execute_Revert_Active_Buffer (S);
+      Execute_Revert_And_Confirm (S);
       Assert (Buffer_Text (S) = "disk after reopen" and then not S.File_Info.Dirty,
         "Phase 443: revert after reopen still targets the active associated buffer");
       Editor.Executor.Execute_Reload_Active_Buffer (S);
       Assert (Buffer_Text (S) = "disk after reopen" and then not S.File_Info.Dirty,
         "Phase 443: reload remains the clean-buffer reread command after revert");
       Editor.Messages.Clear (S.Messages);
-      Editor.Executor.Execute_Revert_Active_Buffer (S);
+      Execute_Revert_And_Confirm (S);
       M := Editor.Messages.Active_Message (S.Messages, Found);
       Assert (Found and then To_String (M.Text) = "No changes to revert",
         "Phase 443: revert after clean reload must remain a clean no-op, not duplicate reload");
@@ -7891,7 +7956,7 @@ procedure Test_Phase428_Save_As_Canonical_Handler_Preserves_File_Save_Targeting
         "Phase 443 setup: Save As remains the command that creates an association for untitled text");
       Insert_Text_At (S, Buffer_Text (S)'Length, " dirty after save-as");
       Write_Bytes (Save_As, "disk after save-as");
-      Editor.Executor.Execute_Revert_Active_Buffer (S);
+      Execute_Revert_And_Confirm (S);
       Assert (Buffer_Text (S) = "disk after save-as"
         and then not S.File_Info.Dirty
         and then To_String (S.File_Info.Path) = Save_As,
@@ -7972,7 +8037,6 @@ procedure Test_Phase445_Rename_Command_Surface_And_Validation
       Assert_Absent ("file.refactor-rename");
       Assert_Absent ("file.rename-dirty-buffer");
       Assert_Absent ("file.rename-untitled-buffer");
-      Assert_Absent ("file.move-buffer-file");
       Assert_Absent ("file.force-rename-buffer-file");
       Assert_Absent ("workspace.rename-buffer-file");
       Assert_Absent ("project.rename-files");
@@ -8134,7 +8198,7 @@ procedure Test_Phase445_Rename_Command_Surface_And_Validation
       M := Editor.Messages.Active_Message (S.Messages, Found);
       Assert (Found and then Editor.Messages.Count (S.Messages) = 1
         and then M.Severity = Editor.Messages.Info_Message
-        and then To_String (M.Text) = "Dirty buffer file cannot be renamed",
+        and then To_String (M.Text) = "Dirty buffer preserved.",
         "Phase 445: dirty rename must emit one blocked message");
       Assert (Ada.Directories.Exists (Path)
         and then not Ada.Directories.Exists (Target)
@@ -8334,7 +8398,7 @@ procedure Test_Phase445_Rename_Command_Surface_And_Validation
 
       Insert_Text_At (S, Buffer_Text (S)'Length, " dirty");
       Editor.Messages.Clear (S.Messages);
-      Editor.Executor.Execute_Revert_Active_Buffer (S);
+      Execute_Revert_And_Confirm (S);
       Assert (Buffer_Text (S) = "B disk update after rename"
         and then not S.File_Info.Dirty,
         "Phase 445 completeness: subsequent revert must use renamed target after edits");
@@ -8443,7 +8507,7 @@ procedure Test_Phase445_Rename_Command_Surface_And_Validation
       Insert_Text_At (S, Buffer_Text (S)'Length, " dirty");
       Editor.Messages.Clear (S.Messages);
       Editor.Executor.Execute_Rename_Buffer_File (S, Existing);
-      Assert_Message ("Dirty buffer file cannot be renamed", Editor.Messages.Info_Message);
+      Assert_Message ("Dirty buffer preserved.", Editor.Messages.Info_Message);
       Assert (Ada.Directories.Exists (A_Path)
         and then Read_Bytes (Existing) = "existing target must survive"
         and then To_String (S.File_Info.Path) = Ada.Directories.Full_Name (A_Path),
@@ -8714,7 +8778,7 @@ procedure Test_Phase445_Rename_Command_Surface_And_Validation
       Insert_Text_At (S, Buffer_Text (S)'Length, " dirty");
       Editor.Messages.Clear (S.Messages);
       Editor.Executor.Execute_Rename_Buffer_File (S, "   ");
-      Assert_Message ("Dirty buffer file cannot be renamed", Editor.Messages.Info_Message, "dirty before target");
+      Assert_Message ("Dirty buffer preserved.", Editor.Messages.Info_Message, "dirty before target");
       Assert (Ada.Directories.Exists (Source)
         and then Read_Bytes (Existing) = "existing target text"
         and then To_String (S.File_Info.Path) = Ada.Directories.Full_Name (Source)
@@ -8848,7 +8912,7 @@ procedure Test_Phase445_Rename_Command_Surface_And_Validation
       M := Editor.Messages.Active_Message (S.Messages, Found);
       Assert (Found and then Editor.Messages.Count (S.Messages) = 1
         and then M.Severity = Editor.Messages.Info_Message
-        and then To_String (M.Text) = "Dirty buffer file cannot be renamed",
+        and then To_String (M.Text) = "Dirty buffer preserved.",
         "Phase 447 dirty workflow: dirty rename must emit one blocked message");
       Assert (Ada.Directories.Exists (Path)
         and then not Ada.Directories.Exists (Target)
@@ -8937,9 +9001,9 @@ procedure Test_Phase445_Rename_Command_Surface_And_Validation
 
       Editor.Executor.Execute_Open_File (S, A_Path);
       A_Id := Editor.Buffers.Global_Active_Buffer;
-      Editor.State.Init (S);
+      Editor.Executor.Execute_New_Buffer (S);
       Editor.State.Load_Text (S, "B untitled");
-      Editor.Buffers.Ensure_Global_Registry (S);
+      Editor.Buffers.Sync_Global_Active_From_State (S);
       B_Id := Editor.Buffers.Global_Active_Buffer;
       Editor.Executor.Execute_Open_File (S, C_Path);
       C_Id := Editor.Buffers.Global_Active_Buffer;
@@ -8964,11 +9028,11 @@ procedure Test_Phase445_Rename_Command_Surface_And_Validation
       Editor.Messages.Clear (S.Messages);
       Editor.Executor.Execute_Rename_Buffer_File (S, A2_Path);
       M := Editor.Messages.Active_Message (S.Messages, Found);
-      Assert (Found and then To_String (M.Text) = "Dirty buffer file cannot be renamed"
+      Assert (Found and then To_String (M.Text) = "Dirty buffer preserved."
         and then not Ada.Directories.Exists (A2_Path)
         and then To_String (S.File_Info.Path) = Ada.Directories.Full_Name (A1_Path),
         "Phase 447 integrated: dirty A1 rename to A2 must be blocked and non-mutating");
-      Editor.Executor.Execute_Revert_Active_Buffer (S);
+      Execute_Revert_And_Confirm (S);
       Editor.Executor.Execute_Rename_Buffer_File (S, A2_Path);
       Assert (Ada.Directories.Exists (A2_Path)
         and then not Ada.Directories.Exists (A1_Path)
@@ -9021,7 +9085,7 @@ procedure Test_Phase445_Rename_Command_Surface_And_Validation
       Assert (Buffer_Text (S) = "C disk reload",
         "Phase 447 integrated: reload after reopen still uses renamed C1 association");
       Insert_Text_At (S, Buffer_Text (S)'Length, " dirty");
-      Editor.Executor.Execute_Revert_Active_Buffer (S);
+      Execute_Revert_And_Confirm (S);
       Assert (Buffer_Text (S) = "C disk reload" and then not S.File_Info.Dirty,
         "Phase 447 integrated: revert after reopened rename uses renamed C1 path");
 
@@ -9193,7 +9257,6 @@ procedure Test_Phase445_Rename_Command_Surface_And_Validation
       Assert_Absent ("file.refactor-rename");
       Assert_Absent ("file.rename-dirty-buffer");
       Assert_Absent ("file.rename-untitled-buffer");
-      Assert_Absent ("file.move-buffer-file");
       Assert_Absent ("file.force-rename-buffer-file");
       Assert_Absent ("workspace.rename-buffer-file");
       Assert_Absent ("project.rename-files");
@@ -9275,6 +9338,7 @@ procedure Test_Phase449_Delete_Command_Surface_And_Validation
 
       Editor.Buffers.Reset_Global_For_Test;
       Editor.State.Init (S);
+      S.Active_Buffer_Token := 0;
       Availability := Editor.Executor.Command_Availability
         (S, Editor.Commands.Command_Delete_Buffer_File);
       Assert (not Editor.Commands.Is_Available (Availability),
@@ -9284,6 +9348,7 @@ procedure Test_Phase449_Delete_Command_Surface_And_Validation
       Assert (Found and then To_String (M.Text) = "No active buffer.",
         "Phase 449: no active buffer must emit deterministic message");
 
+      Editor.State.Init (S);
       Editor.State.Load_Text (S, "untitled text");
       Editor.Buffers.Ensure_Global_Registry (S);
       Editor.Buffers.Sync_Global_Active_From_State (S);
@@ -9309,7 +9374,7 @@ procedure Test_Phase449_Delete_Command_Surface_And_Validation
       Editor.Executor.Execute_Delete_Buffer_File (S);
       M := Editor.Messages.Active_Message (S.Messages, Found);
       Assert (Found
-        and then To_String (M.Text) = "Dirty buffer file cannot be deleted"
+        and then To_String (M.Text) = "Dirty buffer preserved."
         and then Ada.Directories.Exists (Path)
         and then S.File_Info.Has_Path
         and then S.File_Info.Dirty
@@ -9386,7 +9451,7 @@ procedure Test_Phase449_Delete_Command_Surface_And_Validation
       Assert (Found and then To_String (M.Text) = "No file path for active buffer",
         "Phase 449: reload after delete must observe no associated path");
       Editor.Messages.Clear (S.Messages);
-      Editor.Executor.Execute_Revert_Active_Buffer (S);
+      Execute_Revert_And_Confirm (S);
       M := Editor.Messages.Active_Message (S.Messages, Found);
       Assert (Found and then To_String (M.Text) = "No file path for active buffer",
         "Phase 449: revert after delete must observe no associated path");
@@ -9399,6 +9464,10 @@ procedure Test_Phase449_Delete_Command_Surface_And_Validation
       Editor.Executor.Execute_Close_Active_Buffer (S);
       Assert (Editor.Buffers.Global_Count = 1,
         "Phase 449: close after delete follows dirty-buffer close blocking policy");
+      if S.Dirty_Close_Prompt_Active then
+         Editor.Executor.Execute_Command
+           (S, Editor.Commands.Command_Cancel_Close);
+      end if;
 
       Editor.Messages.Clear (S.Messages);
       Editor.Executor.Execute_Save_As (S, Save_As);
@@ -9514,12 +9583,14 @@ procedure Test_Phase450_Delete_Validation_Order_And_Active_Source
       Remove_If_Exists (B_Path);
       Editor.Buffers.Reset_Global_For_Test;
       Editor.State.Init (S);
+      S.Active_Buffer_Token := 0;
 
       Editor.Executor.Execute_Delete_Buffer_File (S);
       M := Editor.Messages.Active_Message (S.Messages, Found);
       Assert (Found and then To_String (M.Text) = "No active buffer.",
         "Phase 450: delete validation must report no active buffer first");
 
+      Editor.State.Init (S);
       Editor.State.Load_Text (S, "dirty untitled delete validation");
       Editor.Buffers.Ensure_Global_Registry (S);
       Editor.Buffers.Sync_Global_Active_From_State (S);
@@ -9623,7 +9694,7 @@ procedure Test_Phase450_Delete_Validation_Order_And_Active_Source
       Editor.Executor.Execute_Delete_Buffer_File (S);
       M := Editor.Messages.Active_Message (S.Messages, Found);
       Assert (Found
-        and then To_String (M.Text) = "Dirty buffer file cannot be deleted"
+        and then To_String (M.Text) = "Dirty buffer preserved."
         and then Ada.Directories.Exists (Path)
         and then S.File_Info.Has_Path
         and then To_String (S.File_Info.Path) = To_String (Before_Path)
@@ -9864,7 +9935,7 @@ procedure Test_Phase450_Delete_Validation_Order_And_Active_Source
       Editor.Executor.Execute_Reload_Active_Buffer (S);
       Expect_Message ("No file path for active buffer");
       Editor.Messages.Clear (S.Messages);
-      Editor.Executor.Execute_Revert_Active_Buffer (S);
+      Execute_Revert_And_Confirm (S);
       Expect_Message ("No file path for active buffer");
       Editor.Messages.Clear (S.Messages);
       Editor.Executor.Execute_Rename_Buffer_File (S, A1_Path);
@@ -9874,6 +9945,10 @@ procedure Test_Phase450_Delete_Validation_Order_And_Active_Source
       Assert (Editor.Buffers.Global_Count = 3
         and then Editor.Buffers.Global_Active_Buffer = A_Id,
         "Phase 451 integrated: close after delete must be blocked by dirty unsaved no-path policy");
+      if S.Dirty_Close_Prompt_Active then
+         Editor.Executor.Execute_Command
+           (S, Editor.Commands.Command_Cancel_Close);
+      end if;
 
       Editor.Messages.Clear (S.Messages);
       Editor.Executor.Execute_Save_As (S, A1_Path);
@@ -9890,7 +9965,7 @@ procedure Test_Phase450_Delete_Validation_Order_And_Active_Source
       Insert_Text_At (S, Buffer_Text (S)'Length, " dirty");
       Editor.Messages.Clear (S.Messages);
       Editor.Executor.Execute_Delete_Buffer_File (S);
-      Expect_Message ("Dirty buffer file cannot be deleted");
+      Expect_Message ("Dirty buffer preserved.");
       Assert (Ada.Directories.Exists (A1_Path)
         and then To_String (S.File_Info.Path) = Ada.Directories.Full_Name (A1_Path)
         and then S.File_Info.Dirty,
@@ -10119,7 +10194,6 @@ procedure Test_Phase450_Delete_Validation_Order_And_Active_Source
       Assert_Absent ("file.close-and-delete-buffer-file");
       Assert_Absent ("file.trash-buffer-file");
       Assert_Absent ("file.restore-deleted-buffer-file");
-      Assert_Absent ("file.move-buffer-file");
       Assert_Absent ("workspace.delete-buffer-file");
       Assert_Absent ("project.delete-files");
 
@@ -10340,6 +10414,7 @@ procedure Test_Phase452_Delete_Cleanup_Preserves_Source_State_And_Persistence
 
       Editor.Buffers.Reset_Global_For_Test;
       Editor.State.Init (S);
+      S.Active_Buffer_Token := 0;
       Availability := Editor.Executor.Command_Availability
         (S, Editor.Commands.Command_Copy_Buffer_File);
       Assert (not Editor.Commands.Is_Available (Availability),
@@ -10349,6 +10424,7 @@ procedure Test_Phase452_Delete_Cleanup_Preserves_Source_State_And_Persistence
       Assert (Found and then To_String (M.Text) = "No active buffer.",
         "Phase 453: no active buffer must emit deterministic message");
 
+      Editor.State.Init (S);
       Editor.State.Load_Text (S, "untitled copy text");
       Editor.Buffers.Ensure_Global_Registry (S);
       Editor.Buffers.Sync_Global_Active_From_State (S);
@@ -10377,7 +10453,7 @@ procedure Test_Phase452_Delete_Cleanup_Preserves_Source_State_And_Persistence
       Editor.Executor.Execute_Copy_Buffer_File (S, Target);
       M := Editor.Messages.Active_Message (S.Messages, Found);
       Assert (Found
-        and then To_String (M.Text) = "Dirty buffer file cannot be copied"
+        and then To_String (M.Text) = "Unsaved changes require confirmation."
         and then not Ada.Directories.Exists (Target)
         and then Ada.Directories.Exists (Path)
         and then Read_Bytes (Path) = "copy dirty guard disk"
@@ -10672,7 +10748,7 @@ procedure Test_Phase452_Delete_Cleanup_Preserves_Source_State_And_Persistence
       Editor.Messages.Clear (S.Messages);
       Editor.Executor.Execute_Copy_Buffer_File (S, Target);
       M := Editor.Messages.Active_Message (S.Messages, Found);
-      Assert (Found and then To_String (M.Text) = "Dirty buffer file cannot be copied"
+      Assert (Found and then To_String (M.Text) = "Unsaved changes require confirmation."
         and then not Ada.Directories.Exists (Target)
         and then To_String (S.File_Info.Path) = Path
         and then S.File_Info.Dirty,
@@ -10690,7 +10766,7 @@ procedure Test_Phase452_Delete_Cleanup_Preserves_Source_State_And_Persistence
         "Phase 453 completeness: copy after save must copy disk source and keep original association");
 
       Insert_Text_At (S, Buffer_Text (S)'Length, " unsaved");
-      Editor.Executor.Execute_Revert_Active_Buffer (S);
+      Execute_Revert_And_Confirm (S);
       Assert (Buffer_Text (S) = "phase453 lifecycle original saved"
         and then To_String (S.File_Info.Path) = Path
         and then Read_Bytes (Target) = "phase453 lifecycle original saved"
@@ -10745,6 +10821,7 @@ procedure Test_Phase454_Copy_Validation_Order_And_Active_Source_Reliability
       Write_Bytes (Existing, "existing target must survive");
       Editor.Buffers.Reset_Global_For_Test;
       Editor.State.Init (S);
+      S.Active_Buffer_Token := 0;
 
       Editor.Executor.Execute_Copy_Buffer_File (S, "   ");
       M := Editor.Messages.Active_Message (S.Messages, Found);
@@ -10753,6 +10830,7 @@ procedure Test_Phase454_Copy_Validation_Order_And_Active_Source_Reliability
         and then Read_Bytes (Existing) = "existing target must survive",
         "Phase 454: no-active validation must precede target validation and filesystem copy");
 
+      Editor.State.Init (S);
       Editor.State.Load_Text (S, "dirty untitled copy source");
       S.File_Info.Dirty := True;
       Editor.Buffers.Ensure_Global_Registry (S);
@@ -10774,7 +10852,7 @@ procedure Test_Phase454_Copy_Validation_Order_And_Active_Source_Reliability
       Editor.Messages.Clear (S.Messages);
       Editor.Executor.Execute_Copy_Buffer_File (S, "");
       M := Editor.Messages.Active_Message (S.Messages, Found);
-      Assert (Found and then To_String (M.Text) = "Dirty buffer file cannot be copied"
+      Assert (Found and then To_String (M.Text) = "Unsaved changes require confirmation."
         and then not Ada.Directories.Exists (Target)
         and then Read_Bytes (Active_Path) = "phase454 active disk"
         and then S.File_Info.Dirty,
@@ -10783,7 +10861,7 @@ procedure Test_Phase454_Copy_Validation_Order_And_Active_Source_Reliability
       Editor.Messages.Clear (S.Messages);
       Editor.Executor.Execute_Copy_Buffer_File (S, Existing);
       M := Editor.Messages.Active_Message (S.Messages, Found);
-      Assert (Found and then To_String (M.Text) = "Dirty buffer file cannot be copied"
+      Assert (Found and then To_String (M.Text) = "Unsaved changes require confirmation."
         and then Read_Bytes (Existing) = "existing target must survive",
         "Phase 454: dirty guard must precede target-collision validation");
 
@@ -10910,6 +10988,7 @@ procedure Test_Phase454_Copy_Validation_Order_And_Active_Source_Reliability
          Packet : Editor.Render_Packet.Render_Packet;
          pragma Unreferenced (Packet);
       begin
+         Editor.Input_Bridge.Set_State_For_Test (S);
          Editor.Render_Packet.Build_Render_Packet (Packet);
       end;
       Assert (Editor.Commands.Is_Available (Availability)
@@ -11041,7 +11120,7 @@ procedure Test_Phase454_Copy_Validation_Order_And_Active_Source_Reliability
         "Phase 454: reload after copy must read the original associated path");
 
       Insert_Text_At (S, Buffer_Text (S)'Length, " dirty");
-      Editor.Executor.Execute_Revert_Active_Buffer (S);
+      Execute_Revert_And_Confirm (S);
       Assert (Buffer_Text (S) = "phase454 lifecycle disk reload"
         and then To_String (S.File_Info.Path) = Path
         and then not S.File_Info.Dirty,
@@ -11184,14 +11263,14 @@ procedure Test_Phase454_Copy_Validation_Order_And_Active_Source_Reliability
       Insert_Text_At (S, Buffer_Text (S)'Length, " dirty");
       Editor.Messages.Clear (S.Messages);
       Editor.Executor.Execute_Copy_Buffer_File (S, A_Dirty_Copy);
-      Expect_Message ("Dirty buffer file cannot be copied", "dirty A is blocked before target/filesystem work");
+      Expect_Message ("Unsaved changes require confirmation.", "dirty A is blocked before target/filesystem work");
       Assert (not Ada.Directories.Exists (A_Dirty_Copy)
         and then To_String (S.File_Info.Path) = A_Path
         and then S.File_Info.Dirty
         and then Buffer_Text (S) = "phase455 A disk dirty",
         "Phase 455: dirty-blocked copy preserves A text, association, and dirty state");
 
-      Editor.Executor.Execute_Revert_Active_Buffer (S);
+      Execute_Revert_And_Confirm (S);
       Write_Bytes (A_Copy2, "existing target");
       Editor.Messages.Clear (S.Messages);
       Editor.Executor.Execute_Copy_Buffer_File (S, A_Copy2);
@@ -11500,7 +11579,6 @@ procedure Test_Phase454_Copy_Validation_Order_And_Active_Source_Reliability
       Assert_Absent ("file.duplicate-buffer");
       Assert_Absent ("file.duplicate-buffer-file");
       Assert_Absent ("file.open-copied-buffer-file");
-      Assert_Absent ("file.move-buffer-file");
       Assert_Absent ("workspace.copy-buffer-file");
       Assert_Absent ("project.copy-files");
 
@@ -11513,7 +11591,9 @@ procedure Test_Phase454_Copy_Validation_Order_And_Active_Source_Reliability
       Editor.State.Init (S);
       Editor.Executor.Execute_Open_File (S, Path);
       Insert_Text_At (S, Buffer_Text (S)'Length, " edit");
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Undo);
+      for I in 1 .. 5 loop
+         Editor.Executor.Execute_Command (S, Editor.Commands.Command_Undo);
+      end loop;
       Before_Undo := Editor.History.Undo_Stack.Length;
       Before_Redo := Editor.History.Redo_Stack.Length;
       Before_Text := To_Unbounded_String (Buffer_Text (S));
@@ -11547,7 +11627,7 @@ procedure Test_Phase454_Copy_Validation_Order_And_Active_Source_Reliability
       Editor.Executor.Execute_Copy_Buffer_File (S, Fail_Target);
       M := Editor.Messages.Active_Message (S.Messages, Found);
       Assert (Found
-        and then To_String (M.Text) = "Dirty buffer file cannot be copied"
+        and then To_String (M.Text) = "Unsaved changes require confirmation."
         and then Editor.Messages.Count (S.Messages) = 1
         and then not Ada.Directories.Exists (Fail_Target)
         and then To_String (S.File_Info.Path) = To_String (Before_Path),
@@ -11608,6 +11688,7 @@ procedure Test_Phase456_Copy_Source_Validation_And_Target_Canonicalization
       Write_Bytes (Reopen_Path, "phase456 reopen disk");
       Editor.Buffers.Reset_Global_For_Test;
       Editor.State.Init (S);
+      S.Active_Buffer_Token := 0;
 
       Editor.Messages.Clear (S.Messages);
       Editor.Executor.Execute_Copy_Buffer_File (S, Target);
@@ -11616,6 +11697,7 @@ procedure Test_Phase456_Copy_Source_Validation_And_Target_Canonicalization
         and then not Ada.Directories.Exists (Target),
         "Phase 456: no-active validation must run before source, target, or filesystem work");
 
+      Editor.State.Init (S);
       Editor.Executor.Execute_New_Buffer (S);
       Editor.State.Load_Text (S, "phase456 untitled dirty text");
       S.File_Info.Has_Path := False;
@@ -11636,7 +11718,7 @@ procedure Test_Phase456_Copy_Source_Validation_And_Target_Canonicalization
       Editor.Messages.Clear (S.Messages);
       Editor.Executor.Execute_Copy_Buffer_File (S, Existing);
       M := Editor.Messages.Active_Message (S.Messages, Found);
-      Assert (Found and then To_String (M.Text) = "Dirty buffer file cannot be copied"
+      Assert (Found and then To_String (M.Text) = "Unsaved changes require confirmation."
         and then Read_Bytes (Existing) = "phase456 existing target"
         and then not Ada.Directories.Exists (Target),
         "Phase 456: dirty guard must precede target collision and all filesystem effects");
@@ -11750,8 +11832,11 @@ procedure Test_Phase456_Copy_Source_Validation_And_Target_Canonicalization
       S.Has_Reopen_Candidate := True;
       S.Reopen_Candidate_Path := To_Unbounded_String (Reopen_Path);
       S.Reopen_Candidate_Label := To_Unbounded_String ("removed copy cache");
+      Editor.Executor.Execute_Clear_Selection_Command (S);
       Insert_Text_At (S, Buffer_Text (S)'Length, " edit");
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Undo);
+      for I in 1 .. 5 loop
+         Editor.Executor.Execute_Command (S, Editor.Commands.Command_Undo);
+      end loop;
 
       Before_Text := To_Unbounded_String (Buffer_Text (S));
       Before_Path := S.File_Info.Path;
@@ -11773,6 +11858,7 @@ procedure Test_Phase456_Copy_Source_Validation_And_Target_Canonicalization
          Packet : Editor.Render_Packet.Render_Packet;
          pragma Unreferenced (Packet);
       begin
+         Editor.Input_Bridge.Set_State_For_Test (S);
          Editor.Render_Packet.Build_Render_Packet (Packet);
       end;
       Workspace := Editor.State.Build_Workspace_Snapshot (S);
@@ -11927,8 +12013,11 @@ procedure Test_Phase460_Move_Canonical_State_And_Persistence_Cleanup
       S.Has_Reopen_Candidate := True;
       S.Reopen_Candidate_Path := To_Unbounded_String (Reopen_Path);
       S.Reopen_Candidate_Label := To_Unbounded_String ("removed open-moved cache");
+      Editor.Executor.Execute_Clear_Selection_Command (S);
       Insert_Text_At (S, Buffer_Text (S)'Length, " active edit");
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Undo);
+      for I in 1 .. 12 loop
+         Editor.Executor.Execute_Command (S, Editor.Commands.Command_Undo);
+      end loop;
 
       Before_Text := To_Unbounded_String (Buffer_Text (S));
       Before_Base := S.File_Info.Saved_Generation;
@@ -11949,6 +12038,7 @@ procedure Test_Phase460_Move_Canonical_State_And_Persistence_Cleanup
          Packet : Editor.Render_Packet.Render_Packet;
          pragma Unreferenced (Packet);
       begin
+         Editor.Input_Bridge.Set_State_For_Test (S);
          Editor.Render_Packet.Build_Render_Packet (Packet);
       end;
       Workspace := Editor.State.Build_Workspace_Snapshot (S);
@@ -12115,6 +12205,7 @@ procedure Test_Phase460_Move_Canonical_State_And_Persistence_Cleanup
       Editor.Clipboard.Clear;
       Editor.Buffers.Reset_Global_For_Test;
       Editor.State.Init (S);
+      S.Active_Buffer_Token := 0;
 
       Editor.Clipboard.Set_Text
         (To_Unbounded_String ("phase460 blocked clipboard move history"));
@@ -12132,6 +12223,7 @@ procedure Test_Phase460_Move_Canonical_State_And_Persistence_Cleanup
           "phase460 blocked clipboard move history",
         "Phase 460: no-active move must ignore target path, removed-name reopen state, and clipboard state");
 
+      Editor.State.Init (S);
       Editor.State.Load_Text (S, "phase460 untitled dirty text");
       Editor.Buffers.Ensure_Global_Registry (S);
       Editor.Buffers.Sync_Global_Active_From_State (S);
@@ -12163,7 +12255,7 @@ procedure Test_Phase460_Move_Canonical_State_And_Persistence_Cleanup
 
       Editor.Messages.Clear (S.Messages);
       Editor.Executor.Execute_Move_Buffer_File (S, Dirty_Tgt);
-      Assert_Message ("Dirty buffer file cannot be moved",
+      Assert_Message ("Unsaved changes require confirmation.",
         "dirty associated buffer checked before target validation");
       Assert (Ada.Directories.Exists (Source)
         and then not Ada.Directories.Exists (Dirty_Tgt)
@@ -12540,22 +12632,26 @@ procedure Test_Phase460_Move_Canonical_State_And_Persistence_Cleanup
       Snapshot_State;
       Editor.Messages.Clear (S.Messages);
       Editor.Executor.Execute_Rename_Buffer_File (S, Rename_Target);
-      Assert_Message ("Dirty buffer file cannot be renamed", "dirty rename blocked before target work");
+      Assert_Message ("Dirty buffer preserved.", "dirty rename blocked before target work");
       Assert_Preserved ("dirty rename blocked");
       Editor.Messages.Clear (S.Messages);
       Editor.Executor.Execute_Copy_Buffer_File (S, Existing);
-      Assert_Message ("Dirty buffer file cannot be copied", "dirty copy blocked before collision");
+      Assert_Message ("Unsaved changes require confirmation.", "dirty copy blocked before collision");
       Assert_Preserved ("dirty copy blocked");
       Editor.Messages.Clear (S.Messages);
       Editor.Executor.Execute_Move_Buffer_File (S, Move_Target);
-      Assert_Message ("Dirty buffer file cannot be moved", "dirty move blocked");
+      Assert_Message ("Unsaved changes require confirmation.", "dirty move blocked");
       Assert_Preserved ("dirty move blocked");
       Editor.Messages.Clear (S.Messages);
       Editor.Executor.Execute_Delete_Buffer_File (S);
-      Assert_Message ("Dirty buffer file cannot be deleted", "dirty delete blocked");
+      Assert_Message ("Dirty buffer preserved.", "dirty delete blocked");
       Assert_Preserved ("dirty delete blocked");
 
       Editor.Executor.Execute_Save (S);
+      if S.File_Conflict_Prompt_Active then
+         Editor.Executor.Execute_Command
+           (S, Editor.Commands.Command_File_Conflict_Overwrite_Disk);
+      end if;
       Editor.Messages.Clear (S.Messages);
       Editor.Executor.Execute_Rename_Buffer_File (S, Rename_Target);
       Assert_Message ("Buffer file renamed", "save makes rename eligible");
@@ -12945,7 +13041,7 @@ procedure Test_Phase463_Final_Association_Lifecycle_And_Failure_Freeze
       Editor.Executor.Execute_Reload_Active_Buffer (S);
       Assert_Clean_Active_State (Moved, "after save/reload uses moved association");
       Insert_Text_At (S, Buffer_Text (S)'Length, " dirty edit");
-      Editor.Executor.Execute_Revert_Active_Buffer (S);
+      Execute_Revert_And_Confirm (S);
       Assert_Clean_Active_State (Moved, "after revert uses moved association");
 
       Editor.Executor.Execute_Close_Active_Buffer (S);
@@ -14391,6 +14487,7 @@ procedure Test_Phase463_Final_Association_Lifecycle_And_Failure_Freeze
       Editor.Executor.Execute_Command (S, Editor.Commands.Command_Next_Buffer);
       Assert (S.File_Info.Has_Path and then To_String (S.File_Info.Path) = Active,
         "Phase 469: fixture should switch active buffer before prompt confirmation");
+      Editor.Messages.Clear (S.Messages);
 
       Editor.Executor.Confirm_File_Target_Prompt (S);
       Assert (not Editor.Executor.File_Target_Prompt_Is_Active (S),
@@ -16175,7 +16272,7 @@ procedure Test_Phase477_File_Lifecycle_Cross_Command_Sequence_Milestone_Freeze
       Assert (Buffer_Text (S) = Save_Text & " + edit" & " dirty"
         and then S.File_Info.Dirty,
         "Phase 477: reload must remain blocked for dirty associated buffers");
-      Editor.Executor.Execute_Revert_Active_Buffer (S);
+      Execute_Revert_And_Confirm (S);
       Expect_Clean_Association (Save_As_Path, Revert_Text, "revert");
 
       Insert_Text_At (S, Buffer_Text (S)'Length + 1, " dirty-blocked");

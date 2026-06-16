@@ -18,6 +18,7 @@ package body Editor.Build_Diagnostics_Review is
    use type Editor.External_Producers.External_Producer_Kind;
    use type Editor.Feature_Diagnostics.Diagnostic_Source_Kind;
    use type Editor.Feature_Panel.Feature_Id;
+   use type Editor.Feature_Panel.Feature_Panel_Row_Kind;
 
    function Contains
      (Text    : String;
@@ -87,12 +88,21 @@ package body Editor.Build_Diagnostics_Review is
      (State : Editor.State.State_Type) return Boolean
    is
       Panel : Editor.Feature_Panel.Feature_Panel_State;
+      Visible : constant Natural :=
+        Editor.Feature_Diagnostics.Visible_Row_Count (State.Feature_Diagnostics);
+      Projected : Natural := 0;
    begin
       Editor.Feature_Diagnostics.Project_Rows (State.Feature_Diagnostics, Panel);
+      Projected := Editor.Feature_Panel.Row_Count (Panel);
       return Editor.Feature_Panel.Active_Feature (Panel) =
           Editor.Feature_Panel.Diagnostics_Feature
-        and then Editor.Feature_Panel.Row_Count (Panel) =
-          Editor.Feature_Diagnostics.Visible_Row_Count (State.Feature_Diagnostics)
+        and then
+          (Projected = Visible
+           or else
+             (Visible = 0
+              and then Projected = 1
+              and then Editor.Feature_Panel.Row_Kind (Panel, 1) =
+                Editor.Feature_Panel.Feature_Row_Empty_State))
         and then Editor.Feature_Panel.Invariant_Holds (Panel);
    end Assert_Build_Diagnostics_Review_Uses_Existing_Diagnostics;
 
@@ -106,7 +116,7 @@ package body Editor.Build_Diagnostics_Review is
       return Editor.Commands.Stable_Command_Name (Id) = Name
         and then Editor.Commands.Has_Availability_Handler (Id)
         and then Editor.Commands.Is_Bindable_Command (Id)
-        and then Descriptor.Category = Editor.Commands.Diagnostics_Category;
+        and then Descriptor.Category = Editor.Commands.Panel_Category;
    end Diagnostics_Command_Route_Passes;
 
    function Assert_Build_Diagnostics_Navigation_Uses_Diagnostics_Routes
@@ -115,13 +125,13 @@ package body Editor.Build_Diagnostics_Review is
    begin
       return Diagnostics_Command_Route_Passes
           (Editor.Commands.Command_Diagnostics_Open_Selected,
-           "diagnostics-open-selected")
+           "diagnostics.open-selected")
         and then Diagnostics_Command_Route_Passes
           (Editor.Commands.Command_Diagnostics_Select_Next,
-           "diagnostics-select-next")
+           "diagnostics.next")
         and then Diagnostics_Command_Route_Passes
           (Editor.Commands.Command_Diagnostics_Select_Previous,
-           "diagnostics-select-previous")
+           "diagnostics.previous")
         and then Editor.Commands.Stable_Command_Name
           (Editor.Commands.Command_Build_Run) = "build.run"
         and then Editor.Commands.Is_Public_Build_Command

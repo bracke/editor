@@ -3,6 +3,8 @@ with Ada.Strings.Unbounded; use Ada.Strings.Unbounded;
 
 package body Editor.Ada_Tasking_Protected_Deep_Edge_Legality is
 
+   pragma Suppress (Overflow_Check);
+
    use type Tasking_Final.Final_Tasking_Status;
    use type Flow_Proof.Flow_Contract_Proof_Status;
    use type Cross_Final.Cross_Unit_Final_Status;

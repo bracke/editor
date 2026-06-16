@@ -181,13 +181,21 @@ package body Editor.Buffer_Switcher_Contextual_Hints is
       Row   : constant Editor.Buffer_Switcher.Buffer_Switcher_Row :=
         Editor.Buffer_Switcher.Selected_Row (S.Buffer_Switcher, Found);
    begin
+      if Snapshot.Active_Review_Mode /= Editor.Buffer_Switcher.No_Review then
+         Add_Review_Commands (S, Hints, Max_Hints, Show_Keybindings);
+      end if;
+
       if Snapshot.Has_Dirty_Prune_Apply_Confirmation then
          Add_Commands (S, Hints,
            (Command_Buffer_Switcher_Pending_Mark_Dirty_Prune_Apply_Confirm,
             Command_Buffer_Switcher_Pending_Mark_Dirty_Prune_Apply_Cancel,
             Command_Buffer_Switcher_Pending_Mark_Dirty_Prune_Apply_Review_Show),
            Max_Hints, Show_Keybindings);
-         if Found and then Row.Is_Dirty_Prune_Apply_Target then
+         if Found
+           and then Editor.Buffer_Switcher
+             .Is_Dirty_Pending_Marked_Close_Prune_Apply_Target
+                (S.Buffer_Switcher, Row.Id)
+         then
             Add_Command (S, Hints,
               Command_Buffer_Switcher_Pending_Mark_Dirty_Prune_Apply_Remove_Selected,
               Max_Hints, Show_Keybindings);
@@ -206,7 +214,10 @@ package body Editor.Buffer_Switcher_Contextual_Hints is
             Command_Buffer_Switcher_Pending_Mark_Dirty_Prune_Cancel,
             Command_Buffer_Switcher_Pending_Mark_Dirty_Prune_Review_Show),
            Max_Hints, Show_Keybindings);
-         if Found and then Row.Is_Dirty_Prune_Preview_Target then
+         if Found
+           and then Editor.Buffer_Switcher.Is_Dirty_Pending_Marked_Close_Prune_Target
+             (S.Buffer_Switcher, Row.Id)
+         then
             Add_Command (S, Hints,
               Command_Buffer_Switcher_Pending_Mark_Dirty_Prune_Remove_Selected,
               Max_Hints, Show_Keybindings);

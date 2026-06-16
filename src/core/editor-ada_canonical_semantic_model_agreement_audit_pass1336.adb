@@ -1,5 +1,7 @@
 package body Editor.Ada_Canonical_Semantic_Model_Agreement_Audit_Pass1336 is
 
+   pragma Suppress (Overflow_Check);
+
    procedure Add_Binding (Model : in out Canonical_Model; Binding : Canonical_Binding) is
    begin
       Model.Bindings.Append (Binding);

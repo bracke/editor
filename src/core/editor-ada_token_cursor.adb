@@ -6,6 +6,8 @@ with Ada.Strings.Unbounded; use Ada.Strings.Unbounded;
 
 package body Editor.Ada_Token_Cursor is
 
+   pragma Suppress (Overflow_Check);
+
    function Lower (S : String) return String is
    begin
       return Ada.Strings.Fixed.Translate (S, Ada.Strings.Maps.Constants.Lower_Case_Map);

@@ -393,7 +393,7 @@ package body Editor.Feature_Panel is
       H : Natural := Seed;
    begin
       for C of Text loop
-         H := (H * 131 + Character'Pos (C) + 1) mod 2_147_483_647;
+         H := Natural ((Long_Long_Integer (H) * 131 + Long_Long_Integer (Character'Pos (C)) + 1) mod 2_147_483_647);
       end loop;
       return H;
    end Hash_String;

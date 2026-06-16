@@ -3,6 +3,20 @@ with Ada.Strings.Unbounded; use Ada.Strings.Unbounded;
 
 package body Editor.Ada_RM_Completion_Closure_Consumer_Stabilized_Diagnostic_Provenance is
 
+   pragma Suppress (Overflow_Check);
+   use type Diag.RM_Closure_Consumer_Stabilized_Diagnostic_Status;
+   use type Diag.RM_Closure_Consumer_Stabilized_Diagnostic_Severity;
+   use type Diag.RM_Closure_Consumer_Stabilized_Diagnostic_Family;
+   use type Diag.Closure.RM_Closure_Consumer_Stabilized_Closure_Id;
+   use type Diag.Closure.Gate.RM_Closure_Consumer_Stabilization_Gate_Id;
+   use type Diag.Closure.Gate.Conv.RM_Closure_Consumer_Convergence_Id;
+   use type Diag.Closure.Gate.Conv.Apply.RM_Closure_Consumer_Application_Id;
+   use type Diag.Closure.Gate.Conv.Apply.Recheck.RM_Closure_Consumer_Recheck_Id;
+   use type Diag.Closure.Gate.Conv.Apply.Recheck.Worklist.RM_Closure_Consumer_Worklist_Id;
+   use type Diag.Closure.Gate.Conv.Apply.Recheck.Worklist.Diagnostics.RM_Closure_Consumer_Diagnostic_Id;
+   use type Editor.Ada_Syntax_Tree.Node_Id;
+
+
    function Mix (A, B : Natural) return Natural is
    begin
       return ((A * 257) + B + 1282) mod 2_147_483_647;

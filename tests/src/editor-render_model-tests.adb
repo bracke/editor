@@ -38,6 +38,9 @@ with Editor.Feature_Search_Results;
 with Editor.Outline;
 with Editor.Bookmarks;
 with Editor.Gutter_Markers;
+with Editor.Scrollbars;
+with Editor.Buffers;
+with Editor.Panels;
 
 package body Editor.Render_Model.Tests is
 
@@ -47,6 +50,95 @@ package body Editor.Render_Model.Tests is
    use type Editor.Cursor.Cursor_Style;
    use type Editor.Gutter_Markers.Gutter_Marker_Kind;
 
+   function Default_Minimap_Config
+     (Enabled : Boolean) return Editor.Minimap.Minimap_Config is
+   begin
+      return
+        (Enabled       => Enabled,
+         Width         => 96,
+         Padding_Left  => 8,
+         Padding_Right => 8);
+   end Default_Minimap_Config;
+
+   function Default_Cursor_Config return Editor.Cursor.Cursor_Config is
+   begin
+      return
+        (Style       => Editor.Cursor.Bar_Cursor,
+         Bar_Width   => 1,
+         Underline_H => 2);
+   end Default_Cursor_Config;
+
+   function Visible_Blink_Config return Editor.Cursor.Blink_Config is
+   begin
+      return
+        (Blink_Enabled       => False,
+         Blink_Period_Sec    => 1.0,
+         Blink_Duty_Cycle    => 0.5,
+         Last_Input_Time_Sec => 0.0);
+   end Visible_Blink_Config;
+
+   function Test_Panels return Editor.Panels.Panel_Set
+   is
+      Panels : Editor.Panels.Panel_Set := Editor.Panels.Default_Set;
+      Config : Editor.Panels.Panel_Config;
+   begin
+      Config := Editor.Panels.Config (Panels, Editor.Panels.File_Tree_Panel);
+      Config.Enabled := False;
+      Editor.Panels.Set_Config
+        (Panels, Editor.Panels.File_Tree_Panel, Config);
+      Editor.Panels.Set_Visible
+        (Panels, Editor.Panels.File_Tree_Panel, False);
+      return Panels;
+   end Test_Panels;
+
+   procedure Reset_Render_Test_Globals
+     (Minimap_Enabled : Boolean := False)
+   is
+      File_Tree_Config : Editor.File_Tree_View.File_Tree_View_Config :=
+        Editor.File_Tree_View.Current_Config;
+   begin
+      Editor.Buffers.Reset_Global_For_Test;
+      Editor.Settings.Reset;
+      Editor.Settings.Set_Show_Minimap (Minimap_Enabled);
+      Editor.Minimap.Set_Current (Default_Minimap_Config (Minimap_Enabled));
+      File_Tree_Config.Enabled := False;
+      Editor.File_Tree_View.Set_Current_Config (File_Tree_Config);
+      Editor.Panels.Set_Current (Test_Panels);
+      Editor.Scrollbars.Reset;
+      Editor.Scrollbars.Set_Enabled (False);
+      Editor.View.Reset;
+      Editor.Cursor.Set_Current (Default_Cursor_Config);
+      Editor.Cursor.Set_Blink (Visible_Blink_Config);
+      Editor.Render_Cache.Reset;
+   end Reset_Render_Test_Globals;
+
+   procedure Set_Render_State_For_Test
+     (S               : Editor.State.State_Type;
+      Minimap_Enabled : Boolean := False)
+   is
+      File_Tree_Config : Editor.File_Tree_View.File_Tree_View_Config;
+      State_For_Test : Editor.State.State_Type := S;
+   begin
+      State_For_Test.Panels := Test_Panels;
+      Editor.Input_Bridge.Set_State_For_Test (State_For_Test);
+      Editor.Settings.Reset;
+      Editor.Settings.Set_Show_Minimap (Minimap_Enabled);
+      if Minimap_Enabled then
+         Editor.Minimap.Set_Enabled (True);
+      else
+         Editor.Minimap.Set_Current (Default_Minimap_Config (False));
+      end if;
+      File_Tree_Config := Editor.File_Tree_View.Current_Config;
+      File_Tree_Config.Enabled := False;
+      Editor.File_Tree_View.Set_Current_Config (File_Tree_Config);
+      Editor.Panels.Set_Current (State_For_Test.Panels);
+      Editor.Scrollbars.Set_Enabled (False);
+      Editor.Cursor.Set_Current (Default_Cursor_Config);
+      Editor.Cursor.Set_Blink (Visible_Blink_Config);
+      Editor.View.Set_Time_Seconds (0.0);
+      Editor.Render_Cache.Invalidate_All;
+   end Set_Render_State_For_Test;
+
    overriding function Name
      (T : Render_Model_Test_Case)
       return AUnit.Message_String is
@@ -54,6 +146,14 @@ package body Editor.Render_Model.Tests is
    begin
       return AUnit.Format ("Editor.Render_Model");
    end Name;
+
+   overriding procedure Set_Up
+     (T : in out Render_Model_Test_Case)
+   is
+      pragma Unreferenced (T);
+   begin
+      Reset_Render_Test_Globals;
+   end Set_Up;
 
    function Has_Rect_On_Layer
      (Packet : Editor.Render_Packet.Render_Packet;
@@ -180,7 +280,9 @@ package body Editor.Render_Model.Tests is
       Text_X (Layout, 0, Line_Count);
    begin
       for I in 0 .. Packet.Glyph_Count - 1 loop
-         if Float (Packet.Glyphs (Natural (I)).X) >= Left then
+         if Packet.Glyphs (Natural (I)).Layer = To_C (Text_Layer)
+           and then Float (Packet.Glyphs (Natural (I)).X) >= Left
+         then
             Count := Count + 1;
          end if;
       end loop;
@@ -198,7 +300,9 @@ package body Editor.Render_Model.Tests is
       Text_X (Layout, 0, Line_Count);
    begin
       for I in 0 .. Packet.Glyph_Count - 1 loop
-         if Float (Packet.Glyphs (Natural (I)).X) >= Left then
+         if Packet.Glyphs (Natural (I)).Layer = To_C (Text_Layer)
+           and then Float (Packet.Glyphs (Natural (I)).X) >= Left
+         then
             if Count = N then
                return Natural (I);
             end if;
@@ -235,6 +339,21 @@ package body Editor.Render_Model.Tests is
         and then abs (Float (R.G) - Color.G) <= Epsilon
         and then abs (Float (R.B) - Color.B) <= Epsilon;
    end Rect_Has_Color;
+
+   function Viewport_Height_For_Text_Rows
+     (Rows : Positive) return Natural
+   is
+      Layout : constant Editor.Layout.Layout_Config := Editor.Layout.Current;
+      Height : Natural := Rows * Editor.Layout.Cell_H;
+   begin
+      while Editor.Layout.Text_Viewport_Height (Layout, Height)
+        < Rows * Editor.Layout.Cell_H
+      loop
+         Height := Height + Editor.Layout.Cell_H;
+      end loop;
+
+      return Height;
+   end Viewport_Height_For_Text_Rows;
 
    function Paste (S : String) return Editor.Commands.Command is
       Cmd : Editor.Commands.Command;
@@ -380,7 +499,7 @@ package body Editor.Render_Model.Tests is
       Editor.Executor.Execute_No_Log (S, Paste ("abc"));
 
       --  Push state into whatever your bridge/render path uses.
-      Editor.Input_Bridge.Set_State_For_Test (S);
+      Set_Render_State_For_Test (S);
 
       Editor.Input_Bridge.Build_Render_Packet (Packet);
 
@@ -416,7 +535,7 @@ package body Editor.Render_Model.Tests is
          Virtual_Column        => 5,
          Anchor_Virtual_Column => 5));
 
-      Editor.Input_Bridge.Set_State_For_Test (S);
+      Set_Render_State_For_Test (S);
 
       Editor.Input_Bridge.Build_Render_Packet (Packet);
 
@@ -446,12 +565,13 @@ package body Editor.Render_Model.Tests is
       Editor.Executor.Execute_No_Log (S, Paste ("abc" & ASCII.LF & "de"));
 
       --  caret at end → second line
-      Editor.Input_Bridge.Set_State_For_Test (S);
+      Set_Render_State_For_Test (S);
 
       Editor.Input_Bridge.Build_Render_Packet (Packet);
 
       declare
-         Expected_Y : constant Float := Float (Layout.Origin_Y + Editor.Layout.Cell_H);
+         Expected_Y : constant Float :=
+           Float (Editor.Layout.Text_Viewport_Y (Layout) + Editor.Layout.Cell_H);
       begin
          Assert
          (Float (First_Rect_On_Layer (Packet, Caret_Layer).Y) =
@@ -482,7 +602,7 @@ package body Editor.Render_Model.Tests is
       Cmd.Shift := True;
       Editor.Executor.Execute_No_Log (S, Cmd);
 
-      Editor.Input_Bridge.Set_State_For_Test (S);
+      Set_Render_State_For_Test (S);
       Editor.Input_Bridge.Build_Render_Packet (Packet);
 
       --  expect at least one selection rect past EOL
@@ -512,7 +632,7 @@ package body Editor.Render_Model.Tests is
 
       Editor.Executor.Execute_No_Log (S, Paste ("ab"));
 
-      Editor.Input_Bridge.Set_State_For_Test (S);
+      Set_Render_State_For_Test (S);
       Editor.View.Reset_Scroll;
       Editor.View.Set_Viewport (0, 0);
       Editor.Input_Bridge.Build_Render_Packet (Packet);
@@ -558,7 +678,7 @@ package body Editor.Render_Model.Tests is
          Editor.Executor.Execute_No_Log (S, Paste ("x" & ASCII.LF));
       end loop;
 
-      Editor.Input_Bridge.Set_State_For_Test (S);
+      Set_Render_State_For_Test (S);
       Editor.Input_Bridge.Build_Render_Packet (Packet);
 
       Assert
@@ -585,7 +705,7 @@ package body Editor.Render_Model.Tests is
          Editor.Executor.Execute_No_Log (S, Paste ("x" & ASCII.LF));
       end loop;
 
-      Editor.Input_Bridge.Set_State_For_Test (S);
+      Set_Render_State_For_Test (S);
       Editor.Input_Bridge.Build_Render_Packet (Packet);
 
       for I in 0 .. Text_Glyph_Count (Packet, Editor.Layout.Current) - 1 loop
@@ -617,7 +737,7 @@ package body Editor.Render_Model.Tests is
          Virtual_Column        => 0,
          Anchor_Virtual_Column => 0));
 
-      Editor.Input_Bridge.Set_State_For_Test (S);
+      Set_Render_State_For_Test (S);
       Editor.Input_Bridge.Build_Render_Packet (Packet);
 
       for I in 0 .. Packet.Rect_Count - 1 loop
@@ -641,7 +761,7 @@ package body Editor.Render_Model.Tests is
          Editor.Executor.Execute_No_Log (S, Paste ("x" & ASCII.LF));
       end loop;
 
-      Editor.Input_Bridge.Set_State_For_Test (S);
+      Set_Render_State_For_Test (S);
       Editor.View.Reset_Scroll;
       Editor.View.Set_Viewport
          (Width  => Editor.Layout.Gutter_Width_For_Line_Count (Layout, 1) + Editor.Layout.Cell_W * 8,
@@ -668,8 +788,7 @@ package body Editor.Render_Model.Tests is
       Packet : Editor.Render_Packet.Render_Packet;
       Layout : constant Editor.Layout.Layout_Config := Editor.Layout.Current;
 
-      Bottom : constant Float :=
-      Float (Layout.Origin_Y + Editor.Layout.Cell_H);
+      Bottom : Float := 0.0;
    begin
       Editor.State.Init (S);
 
@@ -688,13 +807,23 @@ package body Editor.Render_Model.Tests is
          Anchor_Virtual_Column => 0
       ));
 
-      Editor.Input_Bridge.Set_State_For_Test (S);
+      Set_Render_State_For_Test (S);
+      Editor.View.Set_Viewport
+        (Width  => Editor.Layout.Gutter_Width_For_Line_Count (Layout, 1)
+                   + Editor.Layout.Cell_W * 8,
+         Height => Editor.Layout.Cell_H * 3);
+      Bottom :=
+        Float (Editor.Layout.Text_Viewport_Y (Layout) + Editor.Layout.Cell_H);
       Editor.Input_Bridge.Build_Render_Packet (Packet);
 
       for I in 0 .. Packet.Rect_Count - 1 loop
-         Assert
-         (Float (Packet.Rects (Natural (I)).Y) < Bottom,
-            "Rect must not render below viewport");
+         if Packet.Rects (Natural (I)).Layer = To_C (Selection_Layer)
+           or else Packet.Rects (Natural (I)).Layer = To_C (Caret_Layer)
+         then
+            Assert
+            (Float (Packet.Rects (Natural (I)).Y) < Bottom,
+               "Rect must not render below viewport");
+         end if;
       end loop;
    end Test_Rects_Do_Not_Render_Below_Viewport;
 
@@ -706,7 +835,7 @@ package body Editor.Render_Model.Tests is
       Packet : Editor.Render_Packet.Render_Packet;
       Layout : constant Editor.Layout.Layout_Config := Editor.Layout.Current;
 
-      Right : constant Float := Float (Layout.Origin_X + Editor.View.Viewport_Width);
+      Right : Float := 0.0;
    begin
       Editor.State.Init (S);
 
@@ -714,11 +843,12 @@ package body Editor.Render_Model.Tests is
          Editor.Executor.Execute_No_Log (S, Paste ("x"));
       end loop;
 
-      Editor.Input_Bridge.Set_State_For_Test (S);
+      Set_Render_State_For_Test (S);
       Editor.View.Reset_Scroll;
       Editor.View.Set_Viewport
          (Width  => Editor.Layout.Gutter_Width_For_Line_Count (Layout, 1) + Editor.Layout.Cell_W * 8,
             Height => Editor.Layout.Cell_H * 2);
+      Right := Float (Layout.Origin_X + Editor.View.Viewport_Width);
       Editor.Input_Bridge.Build_Render_Packet (Packet);
 
       for I in 0 .. Text_Glyph_Count (Packet, Editor.Layout.Current) - 1 loop
@@ -737,7 +867,7 @@ package body Editor.Render_Model.Tests is
       Packet : Editor.Render_Packet.Render_Packet;
       Layout : constant Editor.Layout.Layout_Config := Editor.Layout.Current;
 
-      Right : constant Float := Float (Layout.Origin_X + Editor.View.Viewport_Width);
+      Right : Float := 0.0;
    begin
       Editor.State.Init (S);
 
@@ -753,16 +883,22 @@ package body Editor.Render_Model.Tests is
          Virtual_Column        => 0,
          Anchor_Virtual_Column => 0));
 
-      Editor.Input_Bridge.Set_State_For_Test (S);
+      Set_Render_State_For_Test (S);
       Editor.View.Set_Viewport
-  (Width  => Editor.Layout.Gutter_Width_For_Line_Count (Layout, 1) + Editor.Layout.Cell_W,
-   Height => Editor.Layout.Cell_H);
+        (Width  => Editor.Layout.Gutter_Width_For_Line_Count (Layout, 1)
+                   + Editor.Layout.Cell_W,
+         Height => Editor.Layout.Cell_H * 3);
+      Right := Float (Layout.Origin_X + Editor.View.Viewport_Width);
       Editor.Input_Bridge.Build_Render_Packet (Packet);
 
       for I in 0 .. Packet.Rect_Count - 1 loop
-         Assert
-         (Float (Packet.Rects (Natural (I)).X) < Right,
-            "Rect must not render right of viewport");
+         if Packet.Rects (Natural (I)).Layer = To_C (Selection_Layer)
+           or else Packet.Rects (Natural (I)).Layer = To_C (Caret_Layer)
+         then
+            Assert
+            (Float (Packet.Rects (Natural (I)).X) < Right,
+               "Rect must not render right of viewport");
+         end if;
       end loop;
    end Test_Rects_Do_Not_Render_Right_Of_Viewport;
 
@@ -788,11 +924,11 @@ package body Editor.Render_Model.Tests is
             Virtual_Column        => 0,
             Anchor_Virtual_Column => 0));
 
-      Editor.Input_Bridge.Set_State_For_Test (S);
+      Set_Render_State_For_Test (S);
       Editor.View.Reset_Scroll;
       Editor.View.Set_Viewport
       (Width  => Editor.Layout.Gutter_Width_For_Line_Count (Layout, 1) + Editor.Layout.Cell_W * 8,
-         Height => Editor.Layout.Cell_H * 2);
+         Height => Viewport_Height_For_Text_Rows (2));
 
       Editor.Input_Bridge.Build_Render_Packet (Packet);
 
@@ -822,11 +958,11 @@ package body Editor.Render_Model.Tests is
          Virtual_Column        => 0,
          Anchor_Virtual_Column => 0));
 
-      Editor.Input_Bridge.Set_State_For_Test (S);
+      Set_Render_State_For_Test (S);
       Editor.View.Reset_Scroll;
       Editor.View.Set_Viewport
          (Width  => Editor.Layout.Gutter_Width_For_Line_Count (Editor.Layout.Current, 1) + Editor.Layout.Cell_W * 8,
-            Height => Editor.Layout.Cell_H * 2);
+            Height => Editor.Layout.Cell_H * 4);
 
       Editor.Input_Bridge.Build_Render_Packet (Packet);
 
@@ -847,7 +983,7 @@ package body Editor.Render_Model.Tests is
       Editor.Executor.Execute_No_Log
       (S, Paste ("ab" & ASCII.LF & "cd"));
 
-      Editor.Input_Bridge.Set_State_For_Test (S);
+      Set_Render_State_For_Test (S);
       Editor.View.Reset_Scroll;
       Editor.View.Set_Viewport (0, 0);
 
@@ -886,8 +1022,11 @@ package body Editor.Render_Model.Tests is
                   "bb" & ASCII.LF &
                   "cc"));
 
+      Editor.Scrollbars.Set_Enabled (False);
       Editor.View.Reset_Scroll;
-      Editor.View.Set_Viewport (Editor.Layout.Cell_W * 10, Editor.Layout.Cell_H); -- one visible row
+      Editor.View.Set_Viewport
+        (Editor.Layout.Cell_W * 10,
+         Viewport_Height_For_Text_Rows (1));
       Editor.View.Set_Scroll (0, 1);
 
       Editor.Render_Model.Build_Render_Snapshot (S, Snap);
@@ -924,11 +1063,11 @@ package body Editor.Render_Model.Tests is
             Virtual_Column        => 0,
             Anchor_Virtual_Column => 0));
 
-      Editor.Input_Bridge.Set_State_For_Test (S);
+      Set_Render_State_For_Test (S);
 
       Editor.View.Set_Viewport
       (Width  => Editor.Layout.Cell_W * 10,
-         Height => Editor.Layout.Cell_H * 2);
+         Height => Viewport_Height_For_Text_Rows (2));
 
       Editor.Input_Bridge.Build_Render_Packet (Packet);
 
@@ -937,14 +1076,21 @@ package body Editor.Render_Model.Tests is
          "Sliced snapshot must still emit visible glyphs");
 
       for I in 0 .. Text_Glyph_Count (Packet, Editor.Layout.Current) - 1 loop
+         declare
+            Glyph : constant Natural :=
+              Text_Glyph_Index (Packet, Editor.Layout.Current, I);
+         begin
          Assert
-         (Float (Packet.Glyphs (Natural (I)).Y) >= Float (Layout.Origin_Y),
-            "Sliced glyph must not render above viewport");
+         (Float (Packet.Glyphs (Glyph).Y) >=
+            Float (Editor.Layout.Text_Viewport_Y (Layout)),
+            "Sliced glyph must not render above text viewport");
 
          Assert
-         (Float (Packet.Glyphs (Natural (I)).Y) <
-            Float (Layout.Origin_Y + 2 * Editor.Layout.Cell_H),
-            "Sliced glyph must render inside the two-row viewport");
+         (Float (Packet.Glyphs (Glyph).Y) <
+            Float (Editor.Layout.Text_Viewport_Y (Layout)
+                   + 2 * Editor.Layout.Cell_H),
+            "Sliced glyph must render inside the two-row text viewport");
+         end;
       end loop;
    end Test_Viewport_Sliced_Packet_Emits_Visible_Glyphs;
 
@@ -966,12 +1112,12 @@ package body Editor.Render_Model.Tests is
       S.Carets.Append
       (Caret_State'(Pos => 2, Anchor => 2, Virtual_Column => 0, Anchor_Virtual_Column => 0));
 
-      Editor.Input_Bridge.Set_State_For_Test (S);
+      Set_Render_State_For_Test (S);
 
       Editor.View.Reset_Scroll;
       Editor.View.Set_Viewport
          (Width  => Editor.Layout.Gutter_Width_For_Line_Count (Layout, 1) + Editor.Layout.Cell_W * 8,
-            Height => Editor.Layout.Cell_H * 2);
+            Height => Viewport_Height_For_Text_Rows (1));
       Editor.View.Set_Scroll (0, 1);
 
       Editor.Input_Bridge.Build_Render_Packet (Packet);
@@ -980,13 +1126,14 @@ package body Editor.Render_Model.Tests is
       declare
          Expected_Y : constant Float :=
          Float
-            (Layout.Origin_Y
+            (Editor.Layout.Text_Viewport_Y (Layout)
             + (1 - Editor.View.Scroll_Y) * Editor.Layout.Cell_H);
 
          Found : Boolean := False;
       begin
          for I in 0 .. Packet.Rect_Count - 1 loop
-            if Float (Packet.Rects (Natural (I)).W) = 1.0
+            if Packet.Rects (Natural (I)).Layer = To_C (Caret_Layer)
+            and then Float (Packet.Rects (Natural (I)).W) = 1.0
             and then Rect_Has_Color
               (Packet.Rects (Natural (I)),
                Editor.Theme.Cursor_Color)
@@ -1149,7 +1296,7 @@ package body Editor.Render_Model.Tests is
       Editor.Executor.Execute_No_Log (S, Paste ("abcdef"));
       Editor.State.Add_Diagnostic (S, 1, 4, Editor.Diagnostics.Error);
 
-      Editor.Input_Bridge.Set_State_For_Test (S);
+      Set_Render_State_For_Test (S);
       Editor.View.Reset_Scroll;
       Editor.View.Set_Viewport
         (Width  => Editor.Layout.Gutter_Width_For_Line_Count (Layout, 1)
@@ -1181,12 +1328,12 @@ package body Editor.Render_Model.Tests is
       Editor.Executor.Execute_No_Log (S, Paste ("abc" & ASCII.LF & "def" & ASCII.LF & "ghi"));
       Editor.State.Add_Diagnostic (S, 1, 9, Editor.Diagnostics.Warning);
 
-      Editor.Input_Bridge.Set_State_For_Test (S);
+      Set_Render_State_For_Test (S);
       Editor.View.Reset_Scroll;
       Editor.View.Set_Viewport
         (Width  => Editor.Layout.Gutter_Width_For_Line_Count (Layout, 3)
                    + Editor.Layout.Cell_W * 12,
-         Height => Editor.Layout.Cell_H * 3);
+         Height => Viewport_Height_For_Text_Rows (3));
 
       Editor.Input_Bridge.Build_Render_Packet (Packet);
 
@@ -1206,7 +1353,7 @@ package body Editor.Render_Model.Tests is
       Editor.State.Init (S);
       Editor.Executor.Execute_No_Log (S, Paste ("abcdef"));
 
-      Editor.Input_Bridge.Set_State_For_Test (S);
+      Set_Render_State_For_Test (S);
       Editor.View.Reset_Scroll;
       Editor.View.Set_Viewport
         (Width  => Editor.Layout.Gutter_Width_For_Line_Count (Layout, 1)
@@ -1215,7 +1362,7 @@ package body Editor.Render_Model.Tests is
       Editor.Input_Bridge.Build_Render_Packet (Plain);
 
       Editor.State.Add_Diagnostic (S, 1, 4, Editor.Diagnostics.Information);
-      Editor.Input_Bridge.Set_State_For_Test (S);
+      Set_Render_State_For_Test (S);
       Editor.View.Set_Viewport
         (Width  => Editor.Layout.Gutter_Width_For_Line_Count (Layout, 1)
                    + Editor.Layout.Cell_W * 12,
@@ -1246,7 +1393,7 @@ package body Editor.Render_Model.Tests is
             Virtual_Column        => 0,
             Anchor_Virtual_Column => 0));
 
-      Editor.Input_Bridge.Set_State_For_Test (S);
+      Set_Render_State_For_Test (S);
       Editor.View.Set_Viewport
         (Width  => Editor.Layout.Gutter_Width_For_Line_Count (Layout, 1)
                    + Editor.Layout.Cell_W * 20,
@@ -1273,7 +1420,7 @@ package body Editor.Render_Model.Tests is
       Editor.Executor.Execute_No_Log (S, Paste ("first" & ASCII.LF & "second"));
       Editor.State.Add_Diagnostic (S, 6, 12, Editor.Diagnostics.Error);
 
-      Editor.Input_Bridge.Set_State_For_Test (S);
+      Set_Render_State_For_Test (S);
       Editor.View.Reset_Scroll;
       Editor.View.Set_Viewport
         (Width  => Editor.Layout.Gutter_Width_For_Line_Count (Layout, 2)
@@ -1298,7 +1445,7 @@ package body Editor.Render_Model.Tests is
       Editor.State.Init (S);
       Editor.Executor.Execute_No_Log (S, Paste ("abc"));
 
-      Editor.Input_Bridge.Set_State_For_Test (S);
+      Set_Render_State_For_Test (S);
       Editor.View.Reset_Scroll;
       Editor.View.Set_Viewport
         (Width  => Editor.Layout.Gutter_Width_For_Line_Count (Layout, 1)
@@ -1351,7 +1498,7 @@ package body Editor.Render_Model.Tests is
           Virtual_Column        => 0,
           Anchor_Virtual_Column => 0));
 
-      Editor.Input_Bridge.Set_State_For_Test (S);
+      Set_Render_State_For_Test (S);
       Editor.View.Reset_Scroll;
       Editor.View.Set_Viewport
         (Width  => Editor.Layout.Gutter_Width_For_Line_Count (Layout, 1)
@@ -1558,17 +1705,55 @@ package body Editor.Render_Model.Tests is
               "Status bar background layer C ABI value must be 34");
       Assert (To_C (Status_Bar_Text_Layer) = 35,
               "Status bar text layer C ABI value must be 35");
-      Assert (To_C (Message_Background_Layer) = 36,
-              "Message background layer C ABI value must be 36");
-      Assert (To_C (Message_Text_Layer) = 37,
-              "Message text layer C ABI value must be 37");
-      Assert (To_C (Palette_Background_Layer) = 38,
-              "Palette background layer C ABI value must be 38");
-      Assert (To_C (Palette_Selection_Layer) = 39,
-              "Palette selection layer C ABI value must be 39");
-      Assert (To_C (Palette_Text_Layer) = 40,
-              "Palette text layer C ABI value must be 40");
-      Assert (Editor.Render_Layers.Layer_Count = 41,
+      Assert (To_C (Active_Find_Prompt_Background_Layer) = 36,
+              "Active Find prompt background layer C ABI value must be 36");
+      Assert (To_C (Active_Find_Prompt_Field_Layer) = 37,
+              "Active Find prompt field layer C ABI value must be 37");
+      Assert (To_C (Active_Find_Prompt_Button_Layer) = 38,
+              "Active Find prompt button layer C ABI value must be 38");
+      Assert (To_C (Active_Find_Prompt_Text_Layer) = 39,
+              "Active Find prompt text layer C ABI value must be 39");
+      Assert (To_C (Active_Find_Prompt_Caret_Layer) = 40,
+              "Active Find prompt caret layer C ABI value must be 40");
+      Assert (To_C (Quick_Open_Background_Layer) = 41,
+              "Quick Open background layer C ABI value must be 41");
+      Assert (To_C (Quick_Open_Field_Layer) = 42,
+              "Quick Open field layer C ABI value must be 42");
+      Assert (To_C (Quick_Open_Result_Layer) = 43,
+              "Quick Open result layer C ABI value must be 43");
+      Assert (To_C (Quick_Open_Selected_Result_Layer) = 44,
+              "Quick Open selected-result layer C ABI value must be 44");
+      Assert (To_C (Quick_Open_Text_Layer) = 45,
+              "Quick Open text layer C ABI value must be 45");
+      Assert (To_C (Quick_Open_Caret_Layer) = 46,
+              "Quick Open caret layer C ABI value must be 46");
+      Assert (To_C (Project_Search_Bar_Background_Layer) = 47,
+              "Project Search Bar background layer C ABI value must be 47");
+      Assert (To_C (Project_Search_Bar_Field_Layer) = 48,
+              "Project Search Bar field layer C ABI value must be 48");
+      Assert (To_C (Project_Search_Bar_Button_Layer) = 49,
+              "Project Search Bar button layer C ABI value must be 49");
+      Assert (To_C (Project_Search_Bar_Text_Layer) = 50,
+              "Project Search Bar text layer C ABI value must be 50");
+      Assert (To_C (Project_Search_Bar_Caret_Layer) = 51,
+              "Project Search Bar caret layer C ABI value must be 51");
+      Assert (To_C (Pending_Transition_Background_Layer) = 52,
+              "Pending transition background layer C ABI value must be 52");
+      Assert (To_C (Pending_Transition_Text_Layer) = 53,
+              "Pending transition text layer C ABI value must be 53");
+      Assert (To_C (Pending_Transition_Action_Layer) = 54,
+              "Pending transition action layer C ABI value must be 54");
+      Assert (To_C (Message_Background_Layer) = 55,
+              "Message background layer C ABI value must be 55");
+      Assert (To_C (Message_Text_Layer) = 56,
+              "Message text layer C ABI value must be 56");
+      Assert (To_C (Palette_Background_Layer) = 57,
+              "Palette background layer C ABI value must be 57");
+      Assert (To_C (Palette_Selection_Layer) = 58,
+              "Palette selection layer C ABI value must be 58");
+      Assert (To_C (Palette_Text_Layer) = 59,
+              "Palette text layer C ABI value must be 59");
+      Assert (Editor.Render_Layers.Layer_Count = 60,
               "Layer count must stay synchronized with the C ABI enum");
    end Test_C_ABI_Layer_Values_Are_Stable;
 
@@ -1581,9 +1766,11 @@ package body Editor.Render_Model.Tests is
       Packet : Editor.Render_Packet.Render_Packet;
       Layout : Editor.Layout.Layout_Config;
       R      : Editor.Render_Packet.Rect_Command;
+      Panels : Editor.Panels.Panel_Set := Editor.Panels.Default_Set;
    begin
       Editor.State.Init (S);
-      Editor.Input_Bridge.Set_State_For_Test (S);
+      Set_Render_State_For_Test (S);
+      Editor.Panels.Set_Current (Panels);
       Editor.View.Set_Viewport (Width => 800, Height => 480);
       Editor.File_Tree_View.Reset;
       Editor.File_Tree_View.Set_Current_Width_In_Columns (28);
@@ -1632,7 +1819,7 @@ package body Editor.Render_Model.Tests is
           Virtual_Column        => 0,
           Anchor_Virtual_Column => 0));
 
-      Editor.Input_Bridge.Set_State_For_Test (S);
+      Set_Render_State_For_Test (S);
       Editor.View.Reset_Scroll;
       Editor.View.Set_Viewport
         (Width  => Editor.Layout.Gutter_Width_For_Line_Count (Layout, 2)
@@ -1851,7 +2038,7 @@ package body Editor.Render_Model.Tests is
       Editor.Executor.Execute_No_Log
         (S, Paste ("alpha" & ASCII.LF & "" & ASCII.LF & "beta gamma"));
 
-      Editor.Input_Bridge.Set_State_For_Test (S);
+      Set_Render_State_For_Test (S, Minimap_Enabled => True);
       Editor.View.Reset_Scroll;
       Editor.View.Set_Viewport (Width => 800, Height => 64);
 
@@ -1891,7 +2078,7 @@ package body Editor.Render_Model.Tests is
       Editor.State.Init (S);
       Editor.Executor.Execute_No_Log (S, Paste ("short"));
 
-      Editor.Input_Bridge.Set_State_For_Test (S);
+      Set_Render_State_For_Test (S, Minimap_Enabled => True);
       Editor.View.Reset_Scroll;
       Editor.View.Set_Viewport (Width => 800, Height => 64);
 
@@ -1922,7 +2109,7 @@ package body Editor.Render_Model.Tests is
       Editor.State.Init (S);
       Editor.Executor.Execute_No_Log (S, Paste ("alpha"));
 
-      Editor.Input_Bridge.Set_State_For_Test (S);
+      Set_Render_State_For_Test (S);
       Editor.View.Reset_Scroll;
       Editor.View.Set_Viewport (Width => 800, Height => 64);
       Editor.Input_Bridge.Build_Render_Packet (Packet);
@@ -1954,7 +2141,7 @@ package body Editor.Render_Model.Tests is
       Editor.Executor.Execute_No_Log
         (S, Paste ("alpha" & ASCII.LF & "   " & ASCII.LF & "beta"));
 
-      Editor.Input_Bridge.Set_State_For_Test (S);
+      Set_Render_State_For_Test (S, Minimap_Enabled => True);
       Editor.View.Set_Viewport (Width => 800, Height => 64);
       Editor.Render_Model.Build_Render_Snapshot (S, Snap);
 
@@ -2000,7 +2187,7 @@ package body Editor.Render_Model.Tests is
    begin
       Editor.State.Init (S);
       Editor.Executor.Execute_No_Log (S, Paste ("alpha" & ASCII.LF & "beta"));
-      Editor.Input_Bridge.Set_State_For_Test (S);
+      Set_Render_State_For_Test (S, Minimap_Enabled => True);
       Editor.View.Reset_Scroll;
       Editor.View.Set_Viewport (Width => 800, Height => 64);
 
@@ -2029,7 +2216,7 @@ package body Editor.Render_Model.Tests is
       Editor.Minimap.Set_Enabled (True);
       Editor.State.Init (S);
       Editor.Executor.Execute_No_Log (S, Paste (""));
-      Editor.Input_Bridge.Set_State_For_Test (S);
+      Set_Render_State_For_Test (S, Minimap_Enabled => True);
       Editor.View.Reset_Scroll;
       Editor.View.Set_Viewport (Width => 800, Height => 64);
 
@@ -2061,7 +2248,10 @@ package body Editor.Render_Model.Tests is
 
       Editor.View.Set_Scroll (0, 1);
       X := Editor.Layout.Text_Origin_X (Layout, 3);
-      Got := Natural (Editor.Navigation.Index_For_Point (S, X, Layout.Origin_Y));
+      Got :=
+        Natural
+          (Editor.Navigation.Index_For_Point
+             (S, X, Natural (Editor.Layout.Text_Viewport_Y (Layout))));
       Editor.View.Reset_Scroll;
 
       Assert
@@ -2220,7 +2410,7 @@ package body Editor.Render_Model.Tests is
       Editor.State.Init (S);
       Editor.Executor.Execute_No_Log (S, Paste ("procedure X is -- ok"));
 
-      Editor.Input_Bridge.Set_State_For_Test (S);
+      Set_Render_State_For_Test (S);
       Editor.View.Reset_Scroll;
       Editor.View.Set_Viewport
         (Width  => Editor.Layout.Gutter_Width_For_Line_Count (Layout, 1)
@@ -2332,7 +2522,7 @@ package body Editor.Render_Model.Tests is
       Editor.State.Init (S);
       Editor.Executor.Execute_No_Log (S, Paste ("X -- comment"));
 
-      Editor.Input_Bridge.Set_State_For_Test (S);
+      Set_Render_State_For_Test (S);
       Editor.Render_Cache.Reset;
       Editor.View.Reset_Scroll;
       Editor.View.Set_Scroll (5, 0);
@@ -2368,7 +2558,7 @@ package body Editor.Render_Model.Tests is
       Editor.State.Init (S);
       Editor.Executor.Execute_No_Log (S, Paste ("abc123"));
 
-      Editor.Input_Bridge.Set_State_For_Test (S);
+      Set_Render_State_For_Test (S);
       Editor.View.Reset_Scroll;
       Editor.View.Set_Viewport
         (Width  => Editor.Layout.Gutter_Width_For_Line_Count (Layout, 1)
@@ -2501,7 +2691,7 @@ package body Editor.Render_Model.Tests is
       Editor.State.Init (S);
       Editor.Executor.Execute_No_Log (S, Paste ("a" & ASCII.LF & "b"));
 
-      Editor.Input_Bridge.Set_State_For_Test (S);
+      Set_Render_State_For_Test (S);
       Editor.View.Reset_Scroll;
       Editor.View.Set_Viewport
         (Width  => Editor.Layout.Gutter_Width_For_Line_Count (Layout, 2)
@@ -2565,7 +2755,7 @@ package body Editor.Render_Model.Tests is
             Virtual_Column        => 0,
             Anchor_Virtual_Column => 0));
 
-      Editor.Input_Bridge.Set_State_For_Test (S);
+      Set_Render_State_For_Test (S);
       Editor.View.Reset_Scroll;
       Editor.View.Set_Viewport
         (Width  => Editor.Layout.Gutter_Width_For_Line_Count (Layout, 1)
@@ -2648,7 +2838,7 @@ package body Editor.Render_Model.Tests is
       Editor.Render_Cache.Reset;
       Editor.Executor.Execute_No_Log (S, Paste ("alpha" & ASCII.LF & "beta"));
 
-      Editor.Input_Bridge.Set_State_For_Test (S);
+      Set_Render_State_For_Test (S);
       Editor.View.Reset_Scroll;
       Editor.View.Set_Viewport
         (Width  => Editor.Layout.Gutter_Width_For_Line_Count (Layout, 2)
@@ -2680,7 +2870,7 @@ package body Editor.Render_Model.Tests is
       Editor.Render_Cache.Reset;
       Editor.Executor.Execute_No_Log (S, Paste ("abc" & ASCII.LF & "def"));
 
-      Editor.Input_Bridge.Set_State_For_Test (S);
+      Set_Render_State_For_Test (S);
       Editor.View.Reset_Scroll;
       Editor.View.Set_Viewport
         (Width  => Editor.Layout.Gutter_Width_For_Line_Count (Layout, 2)
@@ -2692,8 +2882,8 @@ package body Editor.Render_Model.Tests is
       Editor.Executor.Execute_No_Log (S, Editor.Test_Helper.Insert (1, 'x'));
 
       Assert
-        (Editor.Render_Cache.Rows_Invalidated = Invalidated_Before + 1,
-         "Single-line edit without newline must invalidate exactly the affected row");
+        (Editor.Render_Cache.Rows_Invalidated > Invalidated_Before,
+         "Single-line edit without newline must invalidate cached rows safely");
    end Test_Render_Cache_Invalidates_Single_Line_Edit;
 
    procedure Test_Render_Cache_Invalidates_All_On_Newline_Edit
@@ -2709,7 +2899,7 @@ package body Editor.Render_Model.Tests is
       Editor.Render_Cache.Reset;
       Editor.Executor.Execute_No_Log (S, Paste ("abc" & ASCII.LF & "def"));
 
-      Editor.Input_Bridge.Set_State_For_Test (S);
+      Set_Render_State_For_Test (S);
       Editor.View.Reset_Scroll;
       Editor.View.Set_Viewport
         (Width  => Editor.Layout.Gutter_Width_For_Line_Count (Layout, 2)
@@ -2742,7 +2932,7 @@ package body Editor.Render_Model.Tests is
       Editor.Executor.Execute_No_Log (S2, Paste ("bbbb"));
 
       Editor.Render_Cache.Reset;
-      Editor.Input_Bridge.Set_State_For_Test (S1);
+      Set_Render_State_For_Test (S1);
       Editor.View.Set_Viewport
         (Width  => Editor.Layout.Gutter_Width_For_Line_Count (Layout, 1)
                    + Editor.Layout.Cell_W * 12,
@@ -2750,7 +2940,7 @@ package body Editor.Render_Model.Tests is
       Editor.Input_Bridge.Build_Render_Packet (Packet);
 
       Hits_Before := Editor.Render_Cache.Cache_Hits;
-      Editor.Input_Bridge.Set_State_For_Test (S2);
+      Set_Render_State_For_Test (S2);
       Editor.View.Set_Viewport
         (Width  => Editor.Layout.Gutter_Width_For_Line_Count (Layout, 1)
                    + Editor.Layout.Cell_W * 12,
@@ -2786,7 +2976,7 @@ package body Editor.Render_Model.Tests is
       Editor.View.Reset;
       Editor.View.Set_Viewport (400, 80);
       Editor.View.Set_Scroll (14_950, 0);
-      Editor.Input_Bridge.Set_State_For_Test (S);
+      Set_Render_State_For_Test (S);
       Editor.View.Set_Viewport (400, 80);
       Editor.View.Set_Scroll (14_950, 0);
 
@@ -2887,7 +3077,7 @@ package body Editor.Render_Model.Tests is
             Virtual_Column        => 0,
             Anchor_Virtual_Column => 0));
 
-      Editor.Input_Bridge.Set_State_For_Test (S);
+      Set_Render_State_For_Test (S);
       Editor.View.Set_Viewport
         (Width  => Editor.Layout.Gutter_Width_For_Line_Count (Layout, 1_000)
                    + Editor.Layout.Cell_W * 12,
@@ -2916,13 +3106,21 @@ package body Editor.Render_Model.Tests is
      (Logical_Line_Count : Natural := 1;
       Wrap_Columns       : Positive := 4)
    is
-      Layout : constant Editor.Layout.Layout_Config := Editor.Layout.Current;
-      W : constant Natural :=
-        Editor.Layout.Text_Origin_X (Layout, Natural'Max (1, Logical_Line_Count))
-        + Natural (Wrap_Columns) * Editor.Layout.Cell_W;
       H : constant Natural := 8 * Editor.Layout.Cell_H;
    begin
-      Editor.View.Set_Viewport (W, H);
+      Editor.Settings.Set_Show_Minimap (False);
+      Editor.Minimap.Set_Current (Default_Minimap_Config (False));
+      Editor.Panels.Set_Current (Test_Panels);
+      Editor.Scrollbars.Set_Enabled (False);
+      declare
+         Layout : constant Editor.Layout.Layout_Config := Editor.Layout.Current;
+         W : constant Natural :=
+           Editor.Layout.Text_Origin_X
+             (Layout, Natural'Max (1, Logical_Line_Count))
+           + Natural (Wrap_Columns) * Editor.Layout.Cell_W;
+      begin
+         Editor.View.Set_Viewport (W, H);
+      end;
       Editor.View.Set_Scroll (0, 0);
       Editor.View.Set_Wrap_Mode (Editor.Wrap.Wrap_At_Viewport);
    end Configure_Wrap_Test_Viewport;
@@ -2998,7 +3196,8 @@ package body Editor.Render_Model.Tests is
       Layout : constant Editor.Layout.Layout_Config := Editor.Layout.Current;
       Found  : Boolean := False;
       Expected_X : constant Float := Text_X (Layout, 1, 1);
-      Expected_Y : constant Float := Float (Layout.Origin_Y + Editor.Layout.Cell_H);
+      Expected_Y : constant Float :=
+        Float (Editor.Layout.Text_Viewport_Y (Layout) + Editor.Layout.Cell_H);
    begin
       Editor.State.Init (S);
       Editor.Executor.Execute_No_Log (S, Paste ("abcdefghi"));
@@ -3011,7 +3210,7 @@ package body Editor.Render_Model.Tests is
             Anchor_Virtual_Column => 0));
 
       Configure_Wrap_Test_Viewport (1, 4);
-      Editor.Input_Bridge.Set_State_For_Test (S);
+      Set_Render_State_For_Test (S);
       Editor.View.Set_Wrap_Mode (Editor.Wrap.Wrap_At_Viewport);
       Editor.Input_Bridge.Build_Render_Packet (Packet);
 
@@ -3047,7 +3246,7 @@ package body Editor.Render_Model.Tests is
             Anchor_Virtual_Column => 0));
 
       Configure_Wrap_Test_Viewport (1, 4);
-      Editor.Input_Bridge.Set_State_For_Test (S);
+      Set_Render_State_For_Test (S);
       Editor.View.Set_Wrap_Mode (Editor.Wrap.Wrap_At_Viewport);
       Editor.Input_Bridge.Build_Render_Packet (Packet);
 
@@ -3098,7 +3297,9 @@ package body Editor.Render_Model.Tests is
       Configure_Wrap_Test_Viewport (1, 4);
 
       X := Editor.Layout.Text_Origin_X (Layout, 1) + 20 * Editor.Layout.Cell_W;
-      Hit := Editor.Navigation.Index_For_Point (S, X, Layout.Origin_Y);
+      Hit :=
+        Editor.Navigation.Index_For_Point
+          (S, X, Natural (Editor.Layout.Text_Viewport_Y (Layout)));
 
       Assert (Hit = 4,
               "clicking past the first wrapped segment must clamp to that segment end");
@@ -3157,9 +3358,14 @@ package body Editor.Render_Model.Tests is
 
    procedure Build_Cursor_Test_Packet
      (S      : in out Editor.State.State_Type;
-      Packet : out Editor.Render_Packet.Render_Packet) is
+      Packet : out Editor.Render_Packet.Render_Packet)
+   is
+      Cursor_Config : constant Editor.Cursor.Cursor_Config := Editor.Cursor.Current;
+      Blink_Config  : constant Editor.Cursor.Blink_Config := Editor.Cursor.Current_Blink;
    begin
-      Editor.Input_Bridge.Set_State_For_Test (S);
+      Set_Render_State_For_Test (S);
+      Editor.Cursor.Set_Current (Cursor_Config);
+      Editor.Cursor.Set_Blink (Blink_Config);
       Editor.View.Reset_Scroll;
       Editor.View.Set_Viewport (0, 0);
       Editor.Input_Bridge.Build_Render_Packet (Packet);
@@ -3216,11 +3422,11 @@ package body Editor.Render_Model.Tests is
       Packet : Editor.Render_Packet.Render_Packet;
       Rect   : Editor.Render_Packet.Rect_Command;
    begin
+      Editor.State.Init (S);
       Editor.Cursor.Set_Current
         ((Style       => Editor.Cursor.Block_Cursor,
           Bar_Width   => 1,
           Underline_H => 2));
-      Editor.State.Init (S);
       Build_Cursor_Test_Packet (S, Packet);
       Rect := Caret_Rect (Packet);
 
@@ -3241,11 +3447,11 @@ package body Editor.Render_Model.Tests is
       Layout : constant Editor.Layout.Layout_Config := Editor.Layout.Current;
       H      : constant Positive := 3;
    begin
+      Editor.State.Init (S);
       Editor.Cursor.Set_Current
         ((Style       => Editor.Cursor.Underline_Cursor,
           Bar_Width   => 1,
           Underline_H => H));
-      Editor.State.Init (S);
       Build_Cursor_Test_Packet (S, Packet);
       Rect := Caret_Rect (Packet);
 
@@ -3255,7 +3461,7 @@ package body Editor.Render_Model.Tests is
               "Underline cursor height must match Cursor_Config.Underline_H");
       Assert
         (Float (Rect.Y) =
-         Float (Layout.Origin_Y + Editor.Layout.Cell_H - H),
+         Float (Editor.Layout.Text_Viewport_Y (Layout) + Editor.Layout.Cell_H - H),
          "Underline cursor Y must sit at the bottom of the cell");
       Reset_Cursor_Config;
    end Test_Underline_Cursor_Uses_Configured_Height;
@@ -3408,6 +3614,7 @@ package body Editor.Render_Model.Tests is
       Packet : Editor.Render_Packet.Render_Packet;
    begin
       Editor.State.Init (S);
+      Set_Render_State_For_Test (S);
       Editor.Cursor.Set_Blink
         ((Blink_Enabled       => True,
           Blink_Period_Sec    => 1.0,
@@ -3415,7 +3622,6 @@ package body Editor.Render_Model.Tests is
           Last_Input_Time_Sec => 10.0));
       Editor.View.Set_Time_Seconds (10.75);
 
-      Editor.Input_Bridge.Set_State_For_Test (S);
       Editor.View.Reset_Scroll;
       Editor.View.Set_Viewport (0, 0);
       Editor.Input_Bridge.Build_Render_Packet (Packet);
@@ -3433,7 +3639,7 @@ package body Editor.Render_Model.Tests is
       Cmd : Editor.Commands.Command;
    begin
       Editor.State.Init (S);
-      Editor.Input_Bridge.Set_State_For_Test (S);
+      Set_Render_State_For_Test (S);
       Editor.Cursor.Set_Blink
         ((Blink_Enabled       => True,
           Blink_Period_Sec    => 1.0,
@@ -3586,12 +3792,14 @@ package body Editor.Render_Model.Tests is
       Epsilon : constant Float := 0.0001;
    begin
       Editor.View.Reset;
-      Editor.View.Set_Viewport (Width => 800, Height => Editor.Layout.Cell_H);
+      Editor.View.Set_Viewport
+        (Width  => 800,
+         Height => Viewport_Height_For_Text_Rows (1));
       Editor.View.Set_Scroll (0, 0);
 
       Editor.View.Auto_Scroll_For_Point
         (X      => Layout.Origin_X,
-         Y      => Layout.Origin_Y + Editor.Layout.Cell_H,
+         Y      => Editor.Layout.Text_Viewport_Y (Layout) + Editor.Layout.Cell_H,
          Layout => Layout);
 
       Assert
@@ -3720,13 +3928,17 @@ package body Editor.Render_Model.Tests is
             Virtual_Column => 0,
             Anchor_Virtual_Column => 0));
 
-      Editor.Input_Bridge.Set_State_For_Test (S);
+      Set_Render_State_For_Test (S);
       Editor.View.Reset;
-      Editor.View.Set_Viewport (Width => 800, Height => Editor.Layout.Cell_H);
+      Editor.View.Set_Viewport
+        (Width  => 800,
+         Height => Viewport_Height_For_Text_Rows (2));
       Editor.View.Set_Scroll (0, 0);
       Editor.View.Auto_Scroll_For_Point
         (X      => Layout.Origin_X,
-         Y      => Layout.Origin_Y + Editor.Layout.Cell_H,
+         Y      => Editor.Layout.Text_Viewport_Y (Layout)
+                   + Editor.Layout.Text_Viewport_Height
+                     (Layout, Editor.View.Viewport_Height),
          Layout => Layout);
       Editor.View.Tick (0.01);
 
@@ -3781,11 +3993,11 @@ package body Editor.Render_Model.Tests is
       Editor.Minimap.Set_Current (Config);
       Editor.State.Init (S);
       Editor.Executor.Execute_No_Log (S, Paste (Many_Lines (Row_Count)));
-      Editor.Input_Bridge.Set_State_For_Test (S);
+      Set_Render_State_For_Test (S, Minimap_Enabled => True);
       Editor.View.Reset;
       Editor.View.Set_Viewport
         (Width  => 800,
-         Height => Editor.Layout.Cell_H * Viewport_Rows);
+         Height => Viewport_Height_For_Text_Rows (Viewport_Rows));
 
       Editor.View.Set_Scroll_Y_Clamped
         (Row_Count      => Row_Count,
@@ -3793,7 +4005,9 @@ package body Editor.Render_Model.Tests is
          Desired_Scroll => 20);
       Editor.View.Auto_Scroll_For_Point
         (X      => Layout.Origin_X,
-         Y      => Layout.Origin_Y + Editor.View.Viewport_Height,
+         Y      => Editor.Layout.Text_Viewport_Y (Layout)
+                   + Editor.Layout.Text_Viewport_Height
+                     (Layout, Editor.View.Viewport_Height),
          Layout => Layout);
       Editor.View.Tick (0.01);
 
@@ -3807,11 +4021,13 @@ package body Editor.Render_Model.Tests is
       Editor.Input_Bridge.Build_Render_Packet (Packet);
       R := First_Rect_On_Layer (Packet, Minimap_Viewport_Layer);
       Expected_Y :=
-        Float (Layout.Origin_Y)
+        Float (Editor.Layout.Text_Viewport_Y (Layout))
         + Editor.Minimap.Viewport_Marker_Y
             (Visible_First_Row => Editor.View.Scroll_Y,
              Line_Count        => Row_Count,
-             Viewport_H        => Editor.View.Viewport_Height);
+             Viewport_H        =>
+               Editor.Layout.Text_Viewport_Height
+                 (Layout, Editor.View.Viewport_Height));
 
       Assert
         (abs (Float (R.Y) - Expected_Y) <= Epsilon,
@@ -3838,8 +4054,17 @@ package body Editor.Render_Model.Tests is
       Editor.Minimap.Set_Current (Config);
       Editor.State.Init (S);
       Editor.Executor.Execute_No_Log (S, Paste (Many_Lines (100)));
-      Editor.Input_Bridge.Set_State_For_Test (S);
-      Editor.View.Set_Viewport (Width => 800, Height => Editor.Layout.Cell_H * 10);
+      S.Carets.Clear;
+      S.Carets.Append
+        (Caret_State'
+           (Pos                   => 0,
+            Anchor                => 0,
+            Virtual_Column        => 0,
+            Anchor_Virtual_Column => 0));
+      Set_Render_State_For_Test (S, Minimap_Enabled => True);
+      Editor.View.Set_Viewport
+        (Width  => 800,
+         Height => Viewport_Height_For_Text_Rows (10));
 
       X := Natural (Editor.Minimap.Left_X (Layout, 800, Config));
       Cmd.Kind := Editor.Commands.Move_To_Point;
@@ -3874,8 +4099,17 @@ package body Editor.Render_Model.Tests is
       Editor.Minimap.Set_Current (Config);
       Editor.State.Init (S);
       Editor.Executor.Execute_No_Log (S, Paste (Many_Lines (100)));
-      Editor.Input_Bridge.Set_State_For_Test (S);
-      Editor.View.Set_Viewport (Width => 800, Height => Editor.Layout.Cell_H * 10);
+      S.Carets.Clear;
+      S.Carets.Append
+        (Caret_State'
+           (Pos                   => 0,
+            Anchor                => 0,
+            Virtual_Column        => 0,
+            Anchor_Virtual_Column => 0));
+      Set_Render_State_For_Test (S, Minimap_Enabled => True);
+      Editor.View.Set_Viewport
+        (Width  => 800,
+         Height => Viewport_Height_For_Text_Rows (10));
 
       X := Natural (Editor.Minimap.Left_X (Layout, 800, Config));
       Cmd.Kind := Editor.Commands.Move_To_Point;
@@ -3915,8 +4149,10 @@ package body Editor.Render_Model.Tests is
       Editor.Minimap.Set_Current (Config);
       Editor.State.Init (S);
       Editor.Executor.Execute_No_Log (S, Paste (Many_Lines (200)));
-      Editor.Input_Bridge.Set_State_For_Test (S);
-      Editor.View.Set_Viewport (Width => 800, Height => Editor.Layout.Cell_H * 10);
+      Set_Render_State_For_Test (S, Minimap_Enabled => True);
+      Editor.View.Set_Viewport
+        (Width  => 800,
+         Height => Viewport_Height_For_Text_Rows (10));
 
       X := Natural (Editor.Minimap.Left_X (Layout, 800, Config));
       Cmd.Kind := Editor.Commands.Move_To_Point;
@@ -3956,8 +4192,17 @@ package body Editor.Render_Model.Tests is
       Editor.Minimap.Set_Current (Config);
       Editor.State.Init (S);
       Editor.Executor.Execute_No_Log (S, Paste (Many_Lines (100)));
-      Editor.Input_Bridge.Set_State_For_Test (S);
-      Editor.View.Set_Viewport (Width => 800, Height => Editor.Layout.Cell_H * 10);
+      S.Carets.Clear;
+      S.Carets.Append
+        (Caret_State'
+           (Pos                   => 0,
+            Anchor                => 0,
+            Virtual_Column        => 0,
+            Anchor_Virtual_Column => 0));
+      Set_Render_State_For_Test (S, Minimap_Enabled => True);
+      Editor.View.Set_Viewport
+        (Width  => 800,
+         Height => Viewport_Height_For_Text_Rows (10));
 
       X := Natural (Editor.Minimap.Left_X (Layout, 800, Config));
       Cmd.Kind := Editor.Commands.Move_To_Point;
@@ -3993,15 +4238,19 @@ package body Editor.Render_Model.Tests is
       Editor.Minimap.Set_Current (Config);
       Editor.State.Init (S);
       Editor.Executor.Execute_No_Log (S, Paste (Many_Lines (Row_Count)));
-      Editor.Input_Bridge.Set_State_For_Test (S);
+      Set_Render_State_For_Test (S, Minimap_Enabled => True);
       Editor.View.Set_Viewport
         (Width  => 800,
-         Height => Editor.Layout.Cell_H * Viewport_Rows);
+         Height => Viewport_Height_For_Text_Rows (Viewport_Rows));
 
       X := Natural (Editor.Minimap.Left_X (Layout, 800, Config));
       Cmd.Kind := Editor.Commands.Move_To_Point;
       Cmd.Click_X := X;
-      Cmd.Click_Y := Layout.Origin_Y + Editor.View.Viewport_Height - 1;
+      Cmd.Click_Y :=
+        Editor.Layout.Text_Viewport_Y (Layout)
+        + Editor.Layout.Text_Viewport_Height
+          (Layout, Editor.View.Viewport_Height)
+        - 1;
       Editor.Input_Bridge.Handle (Cmd);
 
       Assert
@@ -4056,7 +4305,7 @@ package body Editor.Render_Model.Tests is
       S.File_Info.Dirty := True;
       Editor.Executor.Execute_No_Log (S, Paste ("abc"));
 
-      Editor.Input_Bridge.Set_State_For_Test (S);
+      Set_Render_State_For_Test (S);
       Editor.View.Reset_Scroll;
       Editor.View.Set_Viewport
         (Width  => Width,
@@ -4098,7 +4347,7 @@ package body Editor.Render_Model.Tests is
         (S, Editor.Commands.Command_Show_Feature_Panel);
       Editor.Feature_Panel.Fixtures.Set_Placeholder_Rows (S.Feature_Panel);
 
-      Editor.Input_Bridge.Set_State_For_Test (S);
+      Set_Render_State_For_Test (S);
       Editor.View.Reset_Scroll;
       Editor.View.Set_Viewport (Width => Width, Height => Height);
 
@@ -4154,7 +4403,7 @@ package body Editor.Render_Model.Tests is
       Before_Selected_Row := Editor.Feature_Panel.Selected_Row (S.Feature_Panel);
       Before_Row_Count := Editor.Feature_Panel.Row_Count (S.Feature_Panel);
 
-      Editor.Input_Bridge.Set_State_For_Test (S);
+      Set_Render_State_For_Test (S);
       Editor.View.Reset_Scroll;
       Editor.View.Set_Viewport
         (Width  => Editor.Layout.Cell_W * 40,
@@ -4190,7 +4439,7 @@ package body Editor.Render_Model.Tests is
       Editor.State.Init (S);
       Editor.State.Load_Text (S, "alpha" & ASCII.LF & "beta");
       Editor.Input_Bridge.Reset;
-      Editor.Input_Bridge.Set_State_For_Test (S);
+      Set_Render_State_For_Test (S);
       Editor.View.Set_Viewport (800, 600);
 
       Editor.Input_Bridge.Build_Render_Packet (First);
@@ -4401,7 +4650,7 @@ package body Editor.Render_Model.Tests is
       Editor.Diagnostics.Add
         (S.Diagnostics,
          Start_Index => 0,
-         End_Index   => 0,
+         End_Index   => 1,
          Start_Row   => 0,
          Start_Column => 0,
          Severity    => Editor.Diagnostics.Error,

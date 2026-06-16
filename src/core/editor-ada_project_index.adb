@@ -6,12 +6,41 @@ use type Editor.Ada_Language_Model.Symbol_Kind;
 
 package body Editor.Ada_Project_Index is
 
+   pragma Suppress (Overflow_Check);
+
+
+   Fingerprint_Modulus : constant Long_Long_Integer := 2_147_483_647;
+
+   type Natural_Addend_Array is array (Positive range <>) of Natural;
+
+   function Hash_Mix
+     (Seed       : Natural;
+      Addend     : Long_Long_Integer;
+      Multiplier : Long_Long_Integer := 131) return Natural
+   is
+   begin
+      return Natural
+        ((Long_Long_Integer (Seed) * Multiplier + Addend) mod Fingerprint_Modulus);
+   end Hash_Mix;
+
+   function Hash_Mix
+     (Seed       : Natural;
+      Addends    : Natural_Addend_Array;
+      Multiplier : Long_Long_Integer := 131) return Natural
+   is
+      Acc : Long_Long_Integer := Long_Long_Integer (Seed) * Multiplier;
+   begin
+      for Addend of Addends loop
+         Acc := Acc + Long_Long_Integer (Addend);
+      end loop;
+      return Natural (Acc mod Fingerprint_Modulus);
+   end Hash_Mix;
 
    function Hash_String (Seed : Natural; Text : String) return Natural is
       H : Natural := Seed;
    begin
       for C of Text loop
-         H := (H * 131 + Character'Pos (C) + 1) mod 2_147_483_647;
+         H := Hash_Mix (H, Long_Long_Integer (Character'Pos (C)) + 1);
       end loop;
       return H;
    end Hash_String;
@@ -362,9 +391,13 @@ package body Editor.Ada_Project_Index is
          --  ownership numbers can produce the same aggregate stamp, weakening
          --  stale-target detection for status/navigation consumers.
          H := Hash_String (H, To_String (F.Key.Path));
-         H := (H * 131 + F.Key.Buffer_Token + F.Key.Buffer_Revision
-               + F.Key.Lifecycle_Generation + F.Key.Fingerprint + 1)
-           mod 2_147_483_647;
+         H := Hash_Mix
+           (H,
+            (F.Key.Buffer_Token,
+             F.Key.Buffer_Revision,
+             F.Key.Lifecycle_Generation,
+             F.Key.Fingerprint,
+             1));
       end loop;
 
       --  Pass 141: include the bounded file-table overflow bit in the
@@ -373,17 +406,18 @@ package body Editor.Ada_Project_Index is
       --  appended; status/navigation consumers must be able to observe that
       --  transition through the same stamp used for non-overflow mutations.
       if Index.Index_Overflow then
-         H := (H * 131 + 97) mod 2_147_483_647;
+         H := Hash_Mix (H, 97);
       end if;
 
       if Index.Unit_Overflow then
-         H := (H * 131 + 193) mod 2_147_483_647;
+         H := Hash_Mix (H, 193);
       end if;
 
       for U of Index.Units loop
          H := Hash_String (H, To_String (U.Normalized_Unit_Name));
-         H := (H * 131 + Indexed_Unit_Role'Pos (U.Role) + U.Key.Fingerprint + 1)
-           mod 2_147_483_647;
+         H := Hash_Mix
+           (H,
+            (Natural (Indexed_Unit_Role'Pos (U.Role)), U.Key.Fingerprint, 1));
       end loop;
 
       Index.Index_Fingerprint := H;
@@ -436,15 +470,46 @@ package body Editor.Ada_Project_Index is
    function Same_Or_Descendant_Path (Path : String; Root_Path : String) return Boolean is
       function Normalized (Text : String) return String is
          Result : String := Text;
-         Last   : Integer := Text'Last;
+         Write  : Natural := Result'First;
+         Last   : Natural;
+         Prev_Sep : Boolean := False;
       begin
-         for I in Result'Range loop
-            if Character'Pos (Result (I)) = 16#5C# then
-               Result (I) := '/';
-            end if;
+         if Text'Length = 0 then
+            return "";
+         end if;
+
+         for I in Text'Range loop
+            declare
+               Ch : Character := Text (I);
+            begin
+               if Character'Pos (Ch) = 16#5C# then
+                  Ch := '/';
+               end if;
+
+               if Ch = '/' then
+                  if not Prev_Sep then
+                     Result (Write) := Ch;
+                     Write := Write + 1;
+                  end if;
+                  Prev_Sep := True;
+               else
+                  Result (Write) := Ch;
+                  Write := Write + 1;
+                  Prev_Sep := False;
+               end if;
+            end;
          end loop;
 
+         if Write = Result'First then
+            return "";
+         end if;
+
+         Last := Write - 1;
+
          while Last >= Result'First and then Result (Last) = '/' loop
+            if Last = 0 then
+               exit;
+            end if;
             Last := Last - 1;
          end loop;
 

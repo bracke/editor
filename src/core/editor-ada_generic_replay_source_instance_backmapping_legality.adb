@@ -2,6 +2,8 @@ with Ada.Strings.Unbounded; use Ada.Strings.Unbounded;
 
 package body Editor.Ada_Generic_Replay_Source_Instance_Backmapping_Legality is
 
+   pragma Suppress (Overflow_Check);
+
 
    use type Editor.Ada_Syntax_Tree.Node_Id;
    use type Replay_CPD.Generic_Replay_Representation_Row_Id;

@@ -1,5 +1,6 @@
 with Editor.Layout;
 with Editor.Line_Numbers;
+with Editor.Settings;
 with Editor.Wrap;
 use type Editor.Line_Numbers.Line_Number_Mode;
 use type Editor.Wrap.Wrap_Mode;
@@ -35,6 +36,7 @@ package body Editor.Render_Cache is
       Line_Number_Mode : Editor.Line_Numbers.Line_Number_Mode :=
         Editor.Line_Numbers.Absolute_Line_Numbers;
       Line_Number_Current_Row : Natural := 0;
+      Settings_Version : Natural := 0;
       Glyph_Count : Natural := 0;
       Glyphs      : Row_Glyph_Array;
    end record;
@@ -143,7 +145,8 @@ package body Editor.Render_Cache is
         and then E.Cell_H = Editor.Layout.Cell_H
         and then E.Is_Current = Is_Current
         and then E.Line_Number_Mode = Line_Number_Mode
-        and then E.Line_Number_Current_Row = Line_Number_Current_Row;
+        and then E.Line_Number_Current_Row = Line_Number_Current_Row
+        and then E.Settings_Version = Editor.Settings.Version;
    begin
       if OK then
          Hit_Count := Hit_Count + 1;
@@ -196,6 +199,7 @@ package body Editor.Render_Cache is
       E.Is_Current := Is_Current;
       E.Line_Number_Mode := Line_Number_Mode;
       E.Line_Number_Current_Row := Line_Number_Current_Row;
+      E.Settings_Version := Editor.Settings.Version;
       E.Glyph_Count := Glyph_Count;
 
       if Glyph_Count > 0 then

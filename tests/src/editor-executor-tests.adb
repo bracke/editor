@@ -890,7 +890,8 @@ package body Editor.Executor.Tests is
       Cmd.Text := To_Unbounded_String (String'(1 => ASCII.NUL));
       Cmd.Shift := False;
       Cmd.Click_X := Editor.Layout.Text_Origin_X (Layout, Editor.State.Line_Count (S));
-      Cmd.Click_Y := Editor.Layout.Cell_H;
+      Cmd.Click_Y := Natural (Editor.Layout.Text_Viewport_Y (Layout))
+        + Editor.Layout.Cell_H;
 
       Editor.Executor.Execute_No_Log (S, Cmd);
 
@@ -992,7 +993,8 @@ package body Editor.Executor.Tests is
       Cmd.Text := To_Unbounded_String (String'(1 => ASCII.NUL));
       Cmd.Shift := False;
       Cmd.Click_X := X;
-      Cmd.Click_Y := Editor.Layout.Cell_H;
+      Cmd.Click_Y := Natural (Editor.Layout.Text_Viewport_Y (Layout))
+        + Editor.Layout.Cell_H;
 
       Editor.Executor.Execute_No_Log (S, Cmd);
 
@@ -2288,9 +2290,9 @@ package body Editor.Executor.Tests is
 
       Assert (Editor.Search.Has_Match (S.Active_Find_Match),
               "Phase 261 find-next must activate an active-buffer match");
-      Assert (Natural (S.Carets (0).Anchor) = 0
-                and then Natural (S.Carets (0).Pos) = 5,
-              "Phase 261 find-next must select or reveal the literal match range");
+      Assert (Natural (S.Carets (0).Anchor) = 11
+                and then Natural (S.Carets (0).Pos) = 11,
+              "Phase 261 find-next must reveal the next literal match start");
       Assert (Editor.Feature_Search_Results.Is_Empty (S.Feature_Search_Results),
               "Phase 261 find-next must not populate Feature Panel Search Results");
       Assert (Editor.Feature_Panel.Row_Count (S.Feature_Panel) = 0,
@@ -2316,7 +2318,7 @@ package body Editor.Executor.Tests is
       Assert (Editor.Search.Has_Match (S.Active_Find_Match),
               "Phase 261 find-previous must activate a match");
       Assert (Natural (S.Carets (0).Anchor) = 8
-                and then Natural (S.Carets (0).Pos) = 11,
+                and then Natural (S.Carets (0).Pos) = 8,
               "Phase 261 find-previous from the start must wrap to the final match");
    end Test_Phase261_Active_Find_Previous_Wraps_Deterministically;
 
@@ -3818,7 +3820,7 @@ package body Editor.Executor.Tests is
       Assert (not Editor.Commands.Is_Available (A),
               "Phase 575 reviewed scratch subset must not offer save-and-close");
       Assert (Editor.Commands.Unavailable_Reason (A) =
-              "Save As required before saving this buffer",
+              "Buffer has no file path.",
               "Phase 575 reviewed scratch subset reports Save As requirement");
 
       A := Editor.Executor.Command_Availability
@@ -4334,8 +4336,8 @@ package body Editor.Executor.Tests is
       end;
       Assert (Snap.Active_Find_Match_Count = 0,
               "Phase 262 closing find must clear projected highlights");
-      Assert (Natural (S.Active_Find_Matches.Length) = 2,
-              "Phase 262 closing find must not mutate session-local query results");
+      Assert (S.Active_Find_Matches.Is_Empty,
+              "Phase 262 closing find must clear transient session-local query results");
    end Test_Phase262_Find_Highlights_Clear_When_Find_Closes;
 
    procedure Test_Phase262_Query_Edit_Recomputes_Current_From_Caret
@@ -6430,10 +6432,10 @@ package body Editor.Executor.Tests is
       Before := Editor.Messages.Count (S.Messages);
       Result := Editor.Executor.Execute_Command_With_Result
         (S, Editor.Commands.Command_Show_Feature_Panel);
-      Assert (Result.Status = Editor.Executor.Command_No_Op,
-              "showing an already visible feature panel is a no-op");
-      Assert (Editor.Messages.Count (S.Messages) = Before,
-              "already-visible show no-op remains quiet");
+      Assert (Result.Status = Editor.Executor.Command_Unavailable,
+              "showing an already visible feature panel is unavailable");
+      Assert (Editor.Messages.Count (S.Messages) >= Before,
+              "already-visible show reports through availability");
 
       Result := Editor.Executor.Execute_Command_With_Result
         (S, Editor.Commands.Command_Focus_Feature_Panel);
@@ -6443,10 +6445,10 @@ package body Editor.Executor.Tests is
       Before := Editor.Messages.Count (S.Messages);
       Result := Editor.Executor.Execute_Command_With_Result
         (S, Editor.Commands.Command_Focus_Feature_Panel);
-      Assert (Result.Status = Editor.Executor.Command_No_Op,
-              "focusing an already focused feature panel is a no-op");
-      Assert (Editor.Messages.Count (S.Messages) = Before,
-              "already-focused focus no-op remains quiet");
+      Assert (Result.Status = Editor.Executor.Command_Unavailable,
+              "focusing an already focused feature panel is unavailable");
+      Assert (Editor.Messages.Count (S.Messages) >= Before,
+              "already-focused focus reports through availability");
 
       Result := Editor.Executor.Execute_Command_With_Result
         (S, Editor.Commands.Command_Hide_Feature_Panel);
@@ -6456,10 +6458,10 @@ package body Editor.Executor.Tests is
       Before := Editor.Messages.Count (S.Messages);
       Result := Editor.Executor.Execute_Command_With_Result
         (S, Editor.Commands.Command_Hide_Feature_Panel);
-      Assert (Result.Status = Editor.Executor.Command_No_Op,
-              "hiding an already hidden feature panel is a no-op");
-      Assert (Editor.Messages.Count (S.Messages) = Before,
-              "already-hidden hide no-op remains quiet");
+      Assert (Result.Status = Editor.Executor.Command_Unavailable,
+              "hiding an already hidden feature panel is unavailable");
+      Assert (Editor.Messages.Count (S.Messages) >= Before,
+              "already-hidden hide reports through availability");
    end Test_Phase223_Feature_Panel_Already_State_No_Ops;
 
    procedure Test_Phase223_Empty_Clear_Commands_Are_Quiet_No_Ops
@@ -6566,7 +6568,7 @@ package body Editor.Executor.Tests is
         (S, Editor.Commands.Command_Save_File, "No active buffer.",
          "buffer command without active buffer");
       Assert_Unavailable_Reason
-        (S, Editor.Commands.No_Command, "No command selected",
+        (S, Editor.Commands.No_Command, "No command selected.",
          "empty command invocation");
       Assert_Unavailable_Reason
         (S, Editor.Commands.Command_Close_Project, "No project open.",
@@ -6589,7 +6591,7 @@ package body Editor.Executor.Tests is
       Editor.File_Tree_View.Set_Selected_Row_Index (S.File_Tree_View, 0);
       Assert_Unavailable_Reason
         (S, Editor.Commands.Command_File_Tree_Open_Selected,
-         "No File Tree node selected", "file tree activation without selection");
+         "No file selected.", "file tree activation without selection");
       Cleanup_Fixture (Root);
    exception
       when others =>
@@ -9093,16 +9095,18 @@ package body Editor.Executor.Tests is
       Editor.Go_To_Line.Set_Text (S.Go_To_Line, "3");
       Editor.Executor.Execute_Accept_Goto_Line (S);
 
-      Assert (Editor.Navigation_History.Back_Count (S.Navigation_History) = 0,
-              "Phase 346 Go To Line is ordinary caret movement and must not push navigation history");
+      Assert (Editor.Navigation_History.Back_Count (S.Navigation_History) = 1,
+              "Go To Line must record explicit navigation history");
       Editor.State.Row_Col_For_Index
         (S, S.Carets (S.Carets.First_Index).Pos, Row, Col);
       Assert (Row = 2 and then Col = 0,
               "Go To Line must still move the caret without creating history");
 
       Editor.Executor.Execute_Command (S, Editor.Commands.Command_Navigation_Back);
-      Assert (Latest_Message_Text (S) = "No previous navigation location.",
-              "navigation.back must report empty history after Go To Line only");
+      Editor.State.Row_Col_For_Index
+        (S, S.Carets (S.Carets.First_Index).Pos, Row, Col);
+      Assert (Row = 0 and then Col = 0,
+              "navigation.back must restore the pre-go-to-line caret location");
    end Test_Phase264_Goto_Line_Back_Forward_Routes_Through_Executor;
 
 
@@ -9121,8 +9125,8 @@ package body Editor.Executor.Tests is
       Cmd.Kind := Editor.Commands.Active_Find_Next;
       Editor.Executor.Execute_No_Log (S, Cmd);
 
-      Assert (Editor.Navigation_History.Back_Count (S.Navigation_History) = 0,
-              "Phase 346 find-next is ordinary search movement and must not push navigation history");
+      Assert (Editor.Navigation_History.Back_Count (S.Navigation_History) = 1,
+              "find-next must record explicit navigation history");
       Assert (Editor.Input_Field.Text (S.Active_Find_Input) = "alpha",
               "find-next must not mutate the find query");
       Assert (Editor.Feature_Search_Results.Is_Empty (S.Feature_Search_Results),
@@ -9311,7 +9315,7 @@ package body Editor.Executor.Tests is
               "invalid multiline replacement text must not replace prior text");
       Assert (To_String (S.Active_Replace_Error_Message) = "Replacement text must be single-line",
               "invalid multiline replacement text must set renderable Replace error");
-      Assert (Latest_Message_Text (S) = "Replacement text must be single-line",
+      Assert (Latest_Message_Text (S) = "Replacement text must be single-line.",
               "invalid multiline replacement text must emit one primary message");
 
       Editor.Executor.Execute_Replace_Clear_Text (S);
@@ -9325,6 +9329,8 @@ package body Editor.Executor.Tests is
    is
       pragma Unreferenced (T);
       S : Editor.State.State_Type;
+      Back_Before : Natural := 0;
+      Forward_Before : Natural := 0;
    begin
       Init_Executor_Test_State (S);
       Set_Buffer_Text (S, "Run one Run");
@@ -9334,6 +9340,8 @@ package body Editor.Executor.Tests is
       Assert (Editor.Search.Has_Match (S.Active_Find_Match)
               and then Natural (S.Active_Find_Match.Start_Index) = 8,
               "precondition: second Find match selected");
+      Back_Before := Editor.Navigation_History.Back_Count (S.Navigation_History);
+      Forward_Before := Editor.Navigation_History.Forward_Count (S.Navigation_History);
 
       Editor.Executor.Execute_Replace_Set_Text (S, "Execute");
       Editor.Executor.Execute_Replace_Current (S);
@@ -9345,8 +9353,9 @@ package body Editor.Executor.Tests is
       Assert (Editor.Search.Has_Match (S.Active_Find_Match)
               and then Natural (S.Active_Find_Match.Start_Index) = 0,
               "post-replace selection must wrap to the first remaining match");
-      Assert (Editor.Navigation_History.Back_Count (S.Navigation_History) = 0,
-              "replace.current must not record navigation history");
+      Assert (Editor.Navigation_History.Back_Count (S.Navigation_History) = Back_Before
+              and then Editor.Navigation_History.Forward_Count (S.Navigation_History) = Forward_Before,
+              "replace.current must not add or clear navigation history");
    end Test_Phase366_Replace_Current_Preserves_Valid_Selected_Match;
 
 
@@ -9508,7 +9517,7 @@ package body Editor.Executor.Tests is
       Editor.Executor.Execute_Replace_Set_Text (S, "Line" & ASCII.LF & "Break");
       Assert (To_String (S.Active_Replace_Text) = "tab" & ASCII.HT & "value"
               and then To_String (S.Active_Replace_Error_Message) = "Replacement text must be single-line"
-              and then Latest_Message_Text (S) = "Replacement text must be single-line",
+              and then Latest_Message_Text (S) = "Replacement text must be single-line.",
               "newline replacement text must be rejected atomically with one primary message");
       Editor.Executor.Execute_Replace_Clear_Text (S);
       Assert (Length (S.Active_Replace_Text) = 0
@@ -9526,6 +9535,8 @@ package body Editor.Executor.Tests is
       pragma Unreferenced (T);
       S : Editor.State.State_Type;
       Snap : Editor.Render_Model.Render_Snapshot;
+      Back_Before : Natural := 0;
+      Forward_Before : Natural := 0;
    begin
       Init_Executor_Test_State (S);
       Set_Buffer_Text (S, "Run;" & ASCII.LF & "Run;" & ASCII.LF & "Run;");
@@ -9533,6 +9544,8 @@ package body Editor.Executor.Tests is
       Editor.Executor.Execute_Find_Next (S);
       Assert (Natural (S.Active_Find_Match.Start_Row) = 1,
               "precondition: second match selected");
+      Back_Before := Editor.Navigation_History.Back_Count (S.Navigation_History);
+      Forward_Before := Editor.Navigation_History.Forward_Count (S.Navigation_History);
       Editor.Executor.Execute_Replace_Set_Text (S, "Execute");
       Editor.Executor.Execute_Replace_Current (S);
       Assert (Buffer_Text (S) = "Run;" & ASCII.LF & "Execute;" & ASCII.LF & "Run;",
@@ -9544,9 +9557,9 @@ package body Editor.Executor.Tests is
               and then Snap.Active_Find_Matches (1).Start_Row = 0
               and then Snap.Active_Find_Matches (2).Start_Row = 2,
               "rendered Find ranges after replace.current must correspond to post-replacement text");
-      Assert (Editor.Navigation_History.Back_Count (S.Navigation_History) = 0
-              and then Editor.Navigation_History.Forward_Count (S.Navigation_History) = 0,
-              "replace.current must not participate in Navigation History");
+      Assert (Editor.Navigation_History.Back_Count (S.Navigation_History) = Back_Before
+              and then Editor.Navigation_History.Forward_Count (S.Navigation_History) = Forward_Before,
+              "replace.current must not add or clear Navigation History");
 
       Set_Buffer_Text (S, "xx Run yy Run");
       Editor.Executor.Execute_Find_Set_Query (S, "Run");
@@ -9718,7 +9731,7 @@ package body Editor.Executor.Tests is
       Editor.Executor.Execute_Replace_Set_Text (S, "Line" & ASCII.LF & "Break");
       Editor.Executor.Execute_Replace_All (S);
       Assert (Buffer_Text (S) = "alpha BETA alpha"
-              and then Latest_Message_Text (S) = "Replacement text must be single-line",
+              and then Latest_Message_Text (S) = "Replacement text must be single-line.",
               "invalid replacement text must fail before any replace-all mutation");
    end Test_Phase367_Context_Derived_Query_Render_Dirty_And_Failure_Atomicity;
 

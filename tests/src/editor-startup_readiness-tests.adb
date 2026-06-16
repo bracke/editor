@@ -583,10 +583,10 @@ package body Editor.Startup_Readiness.Tests is
 
       Assert (Summary.Rows (5).Status = Startup_Unavailable,
               "observed startup summary must report missing project root");
-      Assert (Summary.Rows (6).Status = Startup_Partial_Restore,
-              "observed startup summary must report missing project-relative file");
-      Assert (Summary.Missing_File_Count = 2,
-              "observed startup summary must count missing project and file references");
+      Assert (Summary.Rows (6).Status = Startup_Not_Requested,
+              "project-relative restore must not cascade under a missing project root");
+      Assert (Summary.Missing_File_Count = 1,
+              "observed startup summary must count only the missing project target");
       Assert (Summary.Safe_Focus = Startup_Focus_None,
               "missing project/file restore must not choose an unsafe focus target");
    end Test_Phase_568_Observed_Summary_Uses_Loaded_Workspace_Diagnostics;
@@ -811,7 +811,7 @@ package body Editor.Startup_Readiness.Tests is
    end Test_Phase_568_Missing_Project_Does_Not_Cascade_Open_File_Missing_Counts;
 
 
-   procedure Test_Phase_568_Missing_Project_Still_Restores_Absolute_Open_Files
+   procedure Test_Phase_568_Missing_Project_Rejects_Absolute_Open_Files
      (T : in out AUnit.Test_Cases.Test_Case'Class)
    is
       pragma Unreferenced (T);
@@ -833,10 +833,9 @@ package body Editor.Startup_Readiness.Tests is
       Item.Path := To_Unbounded_String (Absolute_File);
       Item.Is_Project_Relative := False;
       Editor.Workspace_Persistence.Add_Open_File (Snapshot, Item);
-      --  A project-relative open file cannot be attempted while the saved
-      --  project root is unavailable.  It should make the open-file restore
-      --  row partial when absolute files are independently restored, but it
-      --  must not add another missing-file target count.
+      --  The strict workspace schema rejects absolute open-file entries before
+      --  startup restore. Project-relative entries then cannot be attempted
+      --  while the saved project root is unavailable.
       Item.Path := To_Unbounded_String ("src/missing_under_missing_project.adb");
       Item.Is_Project_Relative := True;
       Editor.Workspace_Persistence.Add_Open_File (Snapshot, Item);
@@ -853,29 +852,29 @@ package body Editor.Startup_Readiness.Tests is
 
       Assert (Summary.Rows (5).Status = Startup_Unavailable,
               "missing project root must remain the primary project restore status");
-      Assert (Summary.Rows (6).Status = Startup_Partial_Restore,
-              "absolute restore plus suppressed relative entries must be reported as partial");
-      Assert (Summary.Rows (6).Warning_Count = 1,
-              "suppressed project-relative open files must surface as a bounded file-restore warning");
-      Assert (Summary.Rows (6).Restored_File_Count = 1,
-              "absolute open-file restore must still be counted");
+      Assert (Summary.Rows (6).Status = Startup_Not_Requested,
+              "open-file restore must not run without retained project-relative entries");
+      Assert (Summary.Rows (6).Warning_Count = 0,
+              "suppressed project-relative open files must not add cascaded warnings");
+      Assert (Summary.Rows (6).Restored_File_Count = 0,
+              "absolute open-file entries must not be counted under strict workspace schema");
       Assert (Summary.Rows (6).Missing_File_Count = 0,
               "suppressed project-relative entries must not add missing-file target counts");
       Assert (Summary.Missing_File_Count = 1,
-              "absolute open-file restore must not add cascaded missing project-relative counts");
-      Assert (Summary.Warning_Count = 2,
-              "missing project plus suppressed relative open files should produce two owned warnings");
-      Assert (Summary.Safe_Focus = Startup_Focus_Editor,
-              "restored absolute active file may safely receive editor focus");
+              "strict workspace restore must not add cascaded open-file counts");
+      Assert (Summary.Warning_Count = 1,
+              "missing project should own the only startup warning");
+      Assert (Summary.Safe_Focus = Startup_Focus_None,
+              "rejected absolute active file must not receive editor focus");
       Assert (Summary.Readiness = Startup_Project_Unavailable,
-              "project unavailable remains the readiness label even with absolute buffers");
-      Assert (Status_Bar_Label (Summary) = "Project unavailable — files restored",
-              "status must expose project unavailable while acknowledging restored absolute files");
-      Assert (Index (Startup_Command_Message (Summary), "Restored files: 1.") > 0,
-              "startup command summary must include restored absolute file counts");
+              "project unavailable remains the readiness label without restored buffers");
+      Assert (Status_Bar_Label (Summary) = "Project unavailable",
+              "status must expose project unavailable without fabricated restored files");
+      Assert (Index (Startup_Command_Message (Summary), "Restored files:") = 0,
+              "startup command summary must not include rejected absolute file counts");
 
       Delete_If_Exists (Absolute_File);
-   end Test_Phase_568_Missing_Project_Still_Restores_Absolute_Open_Files;
+   end Test_Phase_568_Missing_Project_Rejects_Absolute_Open_Files;
 
 
    procedure Test_Phase_568_State_Init_Records_Startup_Summary
@@ -916,7 +915,7 @@ package body Editor.Startup_Readiness.Tests is
    begin
       Assert (Index (Message, "Workspace restored with missing files skipped.") > 0,
               "startup summary command message must include the readiness message");
-      Assert (Index (Message, "Warnings: 3.") > 0,
+      Assert (Index (Message, "Warnings: 5.") > 0,
               "startup summary command message must include aggregate warnings");
       Assert (Index (Message, "Rejected entries: 2.") > 0,
               "startup summary command message must include rejected-entry count");
@@ -1040,8 +1039,8 @@ package body Editor.Startup_Readiness.Tests is
         (T, Test_Phase_568_Missing_Project_Does_Not_Cascade_Open_File_Missing_Counts'Access,
          "phase 568 missing project does not cascade open-file missing counts");
       Register_Routine
-        (T, Test_Phase_568_Missing_Project_Still_Restores_Absolute_Open_Files'Access,
-         "phase 568 missing project still restores absolute open files");
+        (T, Test_Phase_568_Missing_Project_Rejects_Absolute_Open_Files'Access,
+         "phase 568 missing project rejects absolute open files");
       Register_Routine
         (T, Test_Phase_568_State_Init_Records_Startup_Summary'Access,
          "phase 568 state init records startup summary");

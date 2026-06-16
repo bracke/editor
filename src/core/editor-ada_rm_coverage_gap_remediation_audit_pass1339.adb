@@ -2,6 +2,12 @@ with Ada.Strings.Unbounded; use Ada.Strings.Unbounded;
 
 package body Editor.Ada_RM_Coverage_Gap_Remediation_Audit_Pass1339 is
 
+   pragma Suppress (Overflow_Check);
+   use type Matrix.RM_Family;
+   use type Matrix.Coverage_Level;
+   use type Matrix.Implementing_Slice;
+
+
    procedure Add_Remediation_Item
      (Input : in out Remediation_Input;
       Item : Remediation_Item) is

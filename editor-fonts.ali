@@ -1,0 +1,141 @@
+V "GNAT Lib v15"
+A -gnat2022
+A -gnatX
+A -gnata
+P ZX
+
+RN
+RV NO_FLOATING_POINT
+RV NO_DEFAULT_INITIALIZATION
+RV NO_IMPLEMENTATION_PRAGMAS
+
+U editor.fonts%b	editor-fonts.adb	6dbe0703 NE OO PK
+W editor%s		editor.ads		editor.ali
+W editor.fonts%s	editor-fonts.adb	editor-fonts.ali
+W editor.fonts.init%s	editor-fonts-init.adb	editor-fonts-init.ali
+W editor.unicode%s	editor-unicode.adb	editor-unicode.ali
+Z system.assertions%s	s-assert.adb		s-assert.ali
+Z system.fat_flt%s	s-fatflt.ads		s-fatflt.ali
+W textrender%s		textrender.adb		textrender.ali
+
+U editor.fonts%s	editor-fonts.ads	4eb53987 EE NE OO PK
+W editor%s		editor.ads		editor.ali
+W editor.unicode%s	editor-unicode.adb	editor-unicode.ali
+W interfaces%s		interfac.ads		interfac.ali
+W interfaces.c%s	i-c.adb			i-c.ali
+
+D ada.ads		20250808065140 76789da1 ada%s
+D a-assert.ads		20250808065140 ba465f5c ada.assertions%s
+D a-unccon.ads		20250808065140 0e9b276f ada.unchecked_conversion%s
+D editor.ads		20260612145959 16f844c2 editor%s
+D editor-fonts.ads	20260612145959 e42e18e3 editor.fonts%s
+D editor-fonts.adb	20260614153909 d7819b37 editor.fonts%b
+D editor-fonts-init.ads	20260612145959 d7eea43c editor.fonts.init%s
+D editor-unicode.ads	20260612145959 552ff3cc editor.unicode%s
+D interfac.ads		20250808065140 9111f9c1 interfaces%s
+D i-c.ads		20250808065140 e94c966a interfaces.c%s
+D system.ads		20250808065140 14286b0f system%s
+D s-assert.ads		20250808065140 9c4520c7 system.assertions%s
+D s-exctab.ads		20250808065140 91bef6ef system.exception_table%s
+D s-fatflt.ads		20250808065140 11beb392 system.fat_flt%s
+D s-fatgen.ads		20250808065140 d28c6cfe system.fat_gen%s
+D s-parame.ads		20250808065140 3597fc11 system.parameters%s
+D s-stalib.ads		20250808065140 1c9580f6 system.standard_library%s
+D textrender.ads	20260610151548 dcd0d327 textrender%s
+G a e
+G c Z s b [ascent editor__fonts 38 13 none]
+G c Z s b [descent editor__fonts 39 13 none]
+G c Z s b [get_glyph editor__fonts 41 13 none]
+G c Z s b [get_glyph editor__fonts 45 13 none]
+G c Z s b [monospace_cell_width editor__fonts 49 13 none]
+G c Z s b [font_is_monospace editor__fonts 51 13 none]
+G c Z s b [check_glyph_fits_cell editor__fonts 53 14 none]
+G c Z s s [glyph_metricIP editor__fonts 21 9 none]
+G r c none [ascent editor__fonts 38 13 none] [ascent textrender 178 13 none]
+G r c none [descent editor__fonts 39 13 none] [descent textrender 183 13 none]
+G r c none [get_glyph editor__fonts 41 13 none] [is_valid_scalar editor__unicode 6 13 none]
+G r c none [get_glyph editor__fonts 41 13 none] [is_initialized editor__fonts__init 5 13 none]
+G r c none [get_glyph editor__fonts 41 13 none] [get_glyph textrender 207 13 none]
+G r c none [get_glyph editor__fonts 45 13 none] [is_valid_scalar editor__unicode 6 13 none]
+G r c none [get_glyph editor__fonts 45 13 none] [is_initialized editor__fonts__init 5 13 none]
+G r c none [get_glyph editor__fonts 45 13 none] [get_glyph textrender 207 13 none]
+G r c none [monospace_cell_width editor__fonts 49 13 none] [is_valid_scalar editor__unicode 6 13 none]
+G r c none [monospace_cell_width editor__fonts 49 13 none] [is_initialized editor__fonts__init 5 13 none]
+G r c none [monospace_cell_width editor__fonts 49 13 none] [get_glyph textrender 207 13 none]
+G r c none [font_is_monospace editor__fonts 51 13 none] [is_valid_scalar editor__unicode 6 13 none]
+G r c none [font_is_monospace editor__fonts 51 13 none] [is_initialized editor__fonts__init 5 13 none]
+G r c none [font_is_monospace editor__fonts 51 13 none] [get_glyph textrender 207 13 none]
+X 4 editor.ads
+1K9*Editor 5e11 5|2r6 4r9 46r16 58r5 6|2r6 3r6 5r14 19r10 23r16 28r27 30r14
+. 34r22 166r5
+X 5 editor-fonts.ads
+4K16*Fonts 4|1k9 5|58l12 58e17 6|2r13 5b21 34r29 166l12 166t17
+21R9*Glyph_Metric 36e14 43r20 47r20 54r21 6|9r20 24r20 80r11 90r22 91r22
+. 92r22 113r19
+22f7*W{float} 6|56m10 120r17 128r17
+23f7*H{float} 6|57m10 120r41 132r17
+25f7*U0{float} 6|58m10 141r15 141r41 157r27
+26f7*V0{float} 6|59m10 145r15 145r41 161r27
+27f7*U1{float} 6|60m10 149r15 149r41 157r15
+28f7*V1{float} 6|61m10 153r15 153r41 161r15
+30f7*Bearing_X{float} 6|62m10
+31f7*Bearing_Y{float} 6|63m10
+35f7*Advance_X{float} 6|64m10 83r34 108r28 108r49 109r36 109r57 122r20
+38V13*Ascent{float} 6|69b13 72l8 72t14
+39V13*Descent{float} 6|74b13 77l8 77t15
+41V13*Get_Glyph{boolean} 42>7 43<7 6|7b13 20l8 20t17 82s10 96s14 100s14 104s14
+42e7 Ch{character} 6|8b7 11r48
+43r7 Metric{21R9} 6|9b7 14m10 19m47 19r47
+45V13*Get_Glyph{boolean} 46>7 47<7 6|18s14 22b13 67l8 67t17
+46e7 Code{8|2E12} 6|23b7 28r58 30r46
+47r7 Metric{21R9} 6|24b7 51m10 55m7
+49V13*Monospace_Cell_Width{float} 6|79b13 87l8 87t28
+51V13*Font_Is_Monospace{boolean} 6|89b13 110l8 110t25
+53U14*Check_Glyph_Fits_Cell 54>7 55>7 56>7 6|112b14 164l8 164t29
+54r7 Metric{21R9} 6|113b5 120r10 120r34 122r13 128r10 132r10 141r8 141r34
+. 145r8 145r34 149r8 149r34 153r8 153r34 157r8 157r20 161r8 161r20
+55i7 Cell_Width{positive} 6|114b7 138r28
+56i7 Cell_Height{positive} 6|115b7 138r40
+X 6 editor-fonts.adb
+11i7 Pos{natural} 13r10 13r44 19r41
+26r7 M{18|116R9} 37m66 37r66 45m86 45r86 56r23 57r23 58r23 59r23 60r23 61r23
+. 62r23 63r23 64r23
+27e7 Status{18|96E9} 37m7 39r10 40r18 45m10 48r10 49r18
+28i7 CP{natural} 31m10 37r61
+80r7 M{5|21R9} 82m38 82r38 83r32
+90r7 I_Metric{5|21R9} 96m42 96r42 108r19
+91r7 M_Metric{5|21R9} 100m42 100r42 108r40 109r48
+92r7 Space_Metric{5|21R9} 104m42 104r42 109r23
+94f7 Epsilon{float} 108r63 109r71
+X 7 editor-fonts-init.ads
+1K22*Init 6|2w19 34r35 7|7e22
+5V13*Is_Initialized{boolean} 6|34s40
+X 8 editor-unicode.ads
+1K16*Unicode 5|2w13 46r23 6|3w13 19r17 23r23 28r34 30r21 8|8e19
+2E12*Code_Point{wide_wide_character} 5|46r31 6|19r25 23r31 28r42
+6V13*Is_Valid_Scalar{boolean} 6|30s29
+X 9 interfac.ads
+47K9*Interfaces 5|1r6 9|247e15
+X 10 i-c.ads
+33K20*C 5|1w17 10|601e17
+X 18 textrender.ads
+87K9*Textrender 6|1w6 1r22 26r16 27r16 37r17 37r39 39r20 40r28 45r20 45r42
+. 48r20 49r28 71r14 76r14 18|252e15
+93I12*Codepoint{natural} 6|37r50 45r53
+96E9*Status_Code 6|27r27 18|102e21
+97n7*Success{96E9} 6|39r31 48r31
+100n7*Glyph_Missing{96E9} 6|40r39 49r39
+116R9*Glyph_Metric 6|26r27 18|141e14
+120f7*W{float} 6|56r25
+121f7*H{float} 6|57r25
+124f7*U0{float} 6|58r25
+125f7*V0{float} 6|59r25
+126f7*U1{float} 6|60r25
+127f7*V1{float} 6|61r25
+134f7*Advance_X{float} 6|64r25
+137f7*Bearing_X{float} 6|62r25
+140f7*Bearing_Y{float} 6|63r25
+178V13*Ascent{float} 6|71s25
+183V13*Descent{float} 6|76s25
+207V13*Get_Glyph{96E9} 6|37s28 45s31
+

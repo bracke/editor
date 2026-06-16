@@ -2,6 +2,12 @@ with Ada.Strings.Unbounded; use Ada.Strings.Unbounded;
 
 package body Editor.Ada_Tasking_Elaboration_Contract_Flow_Consumer_Legality is
 
+   pragma Suppress (Overflow_Check);
+   use type Task_Effects.Tasking_Effect_Status;
+   use type Elab_Contract.Elaboration_Contract_Flow_Row_Id;
+   use type Editor.Ada_Syntax_Tree.Node_Id;
+
+
    function Mix (Left, Right : Natural) return Natural is
    begin
       return (Left * 131 + Right * 17 + 97) mod 2_147_483_647;

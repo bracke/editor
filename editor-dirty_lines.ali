@@ -1,5 +1,7 @@
 V "GNAT Lib v15"
 A -gnat2022
+A -gnatX
+A -gnata
 P SS ZX
 
 RN
@@ -43,6 +45,7 @@ Z ada.tags%s		a-tags.adb		a-tags.ali
 Z ada.unchecked_deallocation%s
 W editor%s		editor.ads		editor.ali
 Z system%s		system.ads		system.ali
+Z system.assertions%s	s-assert.adb		s-assert.ali
 Z system.finalization_primitives%s  s-finpri.adb  s-finpri.ali
 Z system.pool_global%s	s-pooglo.adb		s-pooglo.ali
 Z system.put_images%s	s-putima.adb		s-putima.ali
@@ -58,6 +61,7 @@ Z system.strings.stream_ops%s  s-ststop.adb	s-ststop.ali
 Z system.wch_stw%s	s-wchstw.adb		s-wchstw.ali
 
 D ada.ads		20250808065140 76789da1 ada%s
+D a-assert.ads		20250808065140 ba465f5c ada.assertions%s
 D a-charac.ads		20250808065140 2d3ec45b ada.characters%s
 D a-chlat1.ads		20250808065140 e0d72e76 ada.characters.latin_1%s
 D a-contai.ads		20250808065140 61e5e089 ada.containers%s
@@ -85,6 +89,7 @@ D editor-dirty_lines.adb  20260612145959 72c54af9 editor.dirty_lines%b
 D interfac.ads		20250808065140 9111f9c1 interfaces%s
 D i-c.ads		20250808065140 e94c966a interfaces.c%s
 D system.ads		20250808065140 14286b0f system%s
+D s-assert.ads		20250808065140 9c4520c7 system.assertions%s
 D s-atocou.ads		20250808065140 dc18efc3 system.atomic_counters%s
 D s-atocou.adb		20250808065140 6fe685de system.atomic_counters%b
 D s-atopri.ads		20250808065140 e19c1d89 system.atomic_primitives%s
@@ -398,93 +403,93 @@ G c Z s s [dirty_line_stateDF editor__dirty_lines 56 9 none]
 G c Z s s [dirty_line_stateIP editor__dirty_lines 56 9 none]
 G c Z b b [split_lines editor__dirty_lines 5 14 none]
 X 1 ada.ads
-18K9*Ada 22e8 24|1r6 2r6 47r32 49r23 50r23 52r32 25|1r6 1r33
-X 4 a-contai.ads
-16K13*Containers 28e19 24|1r10 47r36 52r36
+18K9*Ada 22e8 25|1r6 2r6 47r32 49r23 50r23 52r32 26|1r6 1r33
+X 5 a-contai.ads
+16K13*Containers 28e19 25|1r10 47r36 52r36
 22I9*Count_Type<integer>
-X 8 a-convec.ads
-62I9 Index_Type 24|48r7 53r7
-63+9 Element_Type 24|49r7 54r7
-65V19 "="{boolean} 24|50r8
-74k24*Vectors 878e27 24|1w21 47r47 52r47
+X 9 a-convec.ads
+62I9 Index_Type 25|48r7 53r7
+63+9 Element_Type 25|49r7 54r7
+65V19 "="{boolean} 25|50r8
+74k24*Vectors 878e27 25|1w21 47r47 52r47
 81I12*Extended_Index{integer}
-91R9*Vector<11|43R9> 24|58r41[47] 59r41[52] 25|7r35[24|47] 98r36[24|47]
-175V13*Length{4|22I9} 25|60s44[24|47] 108s47[24|47] 109s51[24|47]
-187V13*Is_Empty{boolean} 25|75s22[24|52]
-190U14*Clear 25|11s13[24|47] 33s28[24|47] 34s19[24|52] 44s19[24|52] 111s19[24|52]
-206V13*Element{24|6E9} 25|83s26[24|52] 121s30[24|47] 121s68[24|47]
-483U14*Append 25|15s19[24|47] 25s13[24|47] 127s22[24|52]
-560V13*First_Index{integer} 25|79s28[24|52]
-570V13*Last_Index{81I12[24|52]} 25|79s66[24|52]
-X 12 a-iteint.ads
+91R9*Vector<12|43R9> 25|58r41[47] 59r41[52] 26|7r35[25|47] 98r36[25|47]
+175V13*Length{5|22I9} 26|60s44[25|47] 108s47[25|47] 109s51[25|47]
+187V13*Is_Empty{boolean} 26|75s22[25|52]
+190U14*Clear 26|11s13[25|47] 33s28[25|47] 34s19[25|52] 44s19[25|52] 111s19[25|52]
+206V13*Element{25|6E9} 26|83s26[25|52] 121s30[25|47] 121s68[25|47]
+483U14*Append 26|15s19[25|47] 25s13[25|47] 127s22[25|52]
+560V13*First_Index{integer} 26|79s28[25|52]
+570V13*Last_Index{81I12[25|52]} 26|79s66[25|52]
+X 13 a-iteint.ads
 24h9 Forward_Iterator
-32h9 Reversible_Iterator<24R9[8|119]>
-X 14 a-string.ads
-16K13*Strings 35e16 24|2r10 49r27 50r27 25|1r10 1r37
-X 18 a-strunb.ads
-91K21*Unbounded 1641e26 24|2w18 49r35 50r35 25|1w18 1r45
-105R9*Unbounded_String<11|43R9> 1620e15 24|49r45 25|9r17
-109r4*Null_Unbounded_String{105R9} 25|9r37 16r24
-168U14*Append 25|18s13
-269V14*"="{boolean} 24|50r46 25|121s44
-283V14*"="{boolean} 24|50r46
-X 23 editor.ads
-1K9*Editor 5e11 24|4r9 63r5 25|3r14 142r5
-X 24 editor-dirty_lines.ads
-4K16*Dirty_Lines 23|1k9 24|47E12 63l12 63e23 25|3b21 142l12 142t23
-6E9*Dirty_Line_Kind 9e21 31r31 54r23 25|72r31 101r23
-7n7*Clean_Line{6E9} 25|76r17 80r17 91r43 101r42 124r21 128r21
-8n7*Added_Line{6E9} 25|120r21
-9n7*Modified_Line{6E9} 25|122r21
+32h9 Reversible_Iterator<24R9[9|119]>
+X 15 a-string.ads
+16K13*Strings 35e16 25|2r10 49r27 50r27 26|1r10 1r37
+X 19 a-strunb.ads
+91K21*Unbounded 1641e26 25|2w18 49r35 50r35 26|1w18 1r45
+105R9*Unbounded_String<12|43R9> 1620e15 25|49r45 26|9r17
+109r4*Null_Unbounded_String{105R9} 26|9r37 16r24
+168U14*Append 26|18s13
+269V14*"="{boolean} 25|50r46 26|121s44
+283V14*"="{boolean} 25|50r46
+X 24 editor.ads
+1K9*Editor 5e11 25|4r9 63r5 26|3r14 142r5
+X 25 editor-dirty_lines.ads
+4K16*Dirty_Lines 24|1k9 25|47E12 63l12 63e23 26|3b21 142l12 142t23
+6E9*Dirty_Line_Kind 9e21 31r31 54r23 26|72r31 101r23
+7n7*Clean_Line{6E9} 26|76r17 80r17 91r43 101r42 124r21 128r21
+8n7*Added_Line{6E9} 26|120r21
+9n7*Modified_Line{6E9} 26|122r21
 11R9*Dirty_Line_State 14r22 17r22 21r15 24r15 27r15 30r15 34r15 38r29 42r29
-. 56c9 61e14 25|29r22 39r22 50r15 57r15 64r15 71r15 87r15 95r29 135r29
-13U14*Clear 14=7 25|28b14 36l8 36t13
-14r7 State{11R9} 25|29b7 32m7 33m7 33r7 34m7 34r7 35m7
-16U14*Set_Baseline_Text 17=7 18>7 25|38b14 47l8 47t25 104s10 139s7
-17r7 State{11R9} 25|39b7 43m26 43r26 44m7 44r7 45m7 46m7
-18a7 Text{string} 25|40b7 43r20
-20V13*Has_Baseline{boolean} 21>7 25|49b13 54l8 54t20
-21r7 State{11R9} 25|50b7 53r14
-23V13*Baseline_Line_Count{natural} 24>7 25|56b13 61l8 61t27
-24r7 State{11R9} 25|57b7 60r23
-26V13*Dirty_Line_Count{natural} 27>7 25|63b13 68l8 68t24
-27r7 State{11R9} 25|64b7 67r14
-29V13*Kind_For_Row{6E9} 30>7 31>7 25|70b13 84l8 84t20 91s14
-30r7 State{11R9} 25|71b7 75r10 79r16 79r54 83r14
-31i7 Row{natural} 25|72b7 79r10 79r48 83r35
-33V13*Is_Dirty_Row{boolean} 34>7 35>7 25|86b13 92l8 92t20
-34r7 State{11R9} 25|87b7 91r28
-35i7 Row{natural} 25|88b7 91r35
-37U14*Recompute 38=7 39>7 25|94b14 132l8 132t17
-38r7 State{11R9} 25|95b7 103r14 104m29 109r30 111m7 111r7 112m7 121r47 127m10
+. 56c9 61e14 26|29r22 39r22 50r15 57r15 64r15 71r15 87r15 95r29 135r29
+13U14*Clear 14=7 26|28b14 36l8 36t13
+14r7 State{11R9} 26|29b7 32m7 33m7 33r7 34m7 34r7 35m7
+16U14*Set_Baseline_Text 17=7 18>7 26|38b14 47l8 47t25 104s10 139s7
+17r7 State{11R9} 26|39b7 43m26 43r26 44m7 44r7 45m7 46m7
+18a7 Text{string} 26|40b7 43r20
+20V13*Has_Baseline{boolean} 21>7 26|49b13 54l8 54t20
+21r7 State{11R9} 26|50b7 53r14
+23V13*Baseline_Line_Count{natural} 24>7 26|56b13 61l8 61t27
+24r7 State{11R9} 26|57b7 60r23
+26V13*Dirty_Line_Count{natural} 27>7 26|63b13 68l8 68t24
+27r7 State{11R9} 26|64b7 67r14
+29V13*Kind_For_Row{6E9} 30>7 31>7 26|70b13 84l8 84t20 91s14
+30r7 State{11R9} 26|71b7 75r10 79r16 79r54 83r14
+31i7 Row{natural} 26|72b7 79r10 79r48 83r35
+33V13*Is_Dirty_Row{boolean} 34>7 35>7 26|86b13 92l8 92t20
+34r7 State{11R9} 26|87b7 91r28
+35i7 Row{natural} 26|88b7 91r35
+37U14*Recompute 38=7 39>7 26|94b14 132l8 132t17
+38r7 State{11R9} 26|95b7 103r14 104m29 109r30 111m7 111r7 112m7 121r47 127m10
 . 127r10 129m13 129r34
-39a7 Current_Text{string} 25|96b7 107r20
-41U14*Clear_Dirty_State_To_Current 42=7 43>7 25|134b14 140l8 140t36
-42r7 State{11R9} 25|135b7 139m26
-43a7 Current_Text{string} 25|136b7 139r33
-47K12 Line_Vectors[8|74] 58r28 25|7r22 98r23
-52K12 Kind_Vectors[8|74] 59r28
-57b7*Has_Saved_Baseline{boolean} 25|32m13 46m13 53r20 103r20
-58r7*Baseline_Lines{8|91R9[47]} 25|33m13 43m32 60r29 109r36 121r53
-59r7*Kinds{8|91R9[52]} 25|34m13 44m13 75r16 79r22 79r60 83r20 111m13 127m16
-60i7*Dirty_Count{natural} 25|35m13 45m13 67r20 112m13 129m19 129r40
-X 25 editor-dirty_lines.adb
+39a7 Current_Text{string} 26|96b7 107r20
+41U14*Clear_Dirty_State_To_Current 42=7 43>7 26|134b14 140l8 140t36
+42r7 State{11R9} 26|135b7 139m26
+43a7 Current_Text{string} 26|136b7 139r33
+47K12 Line_Vectors[9|74] 58r28 26|7r22 98r23
+52K12 Kind_Vectors[9|74] 59r28
+57b7*Has_Saved_Baseline{boolean} 26|32m13 46m13 53r20 103r20
+58r7*Baseline_Lines{9|91R9[47]} 26|33m13 43m32 60r29 109r36 121r53
+59r7*Kinds{9|91R9[52]} 26|34m13 44m13 75r16 79r22 79r60 83r20 111m13 127m16
+60i7*Dirty_Count{natural} 26|35m13 45m13 67r20 112m13 129m19 129r40
+X 26 editor-dirty_lines.adb
 5U14 Split_Lines 5b14 6>7 7=7 26l8 26t19 43s7 107s7
 6a7 Text{string} 13r17
-7r7 Lines{8|91R9[24|47]} 11m7 11r7 15m13 15r13 25m7 25r7
-9r7 Current{18|105R9} 15r27 16m13 18m21 18r21 25r21
+7r7 Lines{9|91R9[25|47]} 11m7 11r7 15m13 15r13 25m7 25r7
+9r7 Current{19|105R9} 15r27 16m13 18m21 18r21 25r21
 13e11 Ch=13:17{character} 14r13 18r30
-98r7 Current_Lines{8|91R9[24|47]} 107m34 107r34 108r33 121r16
+98r7 Current_Lines{9|91R9[25|47]} 107m34 107r34 108r33 121r16
 99i7 Current_Count{natural} 108m7 114r10 118r23
 100i7 Base_Count{natural} 109m7 119r20
-101e7 Kind{24|6E9} 120m13 122m13 124m13 127r30 128r13
+101e7 Kind{25|6E9} 120m13 122m13 124m13 127r30 128r13
 118i11 Row{integer} 119r13 121r39 121r77
-X 28 system.ads
+X 29 system.ads
 67M9*Address
-X 35 s-memory.ads
-51V13*Alloc{28|67M9} 101i<c,__gnat_malloc>22
+X 37 s-memory.ads
+51V13*Alloc{29|67M9} 101i<c,__gnat_malloc>22
 66U14*Free 102i<c,__gnat_free>22
-74V13*Realloc{28|67M9} 103i<c,__gnat_realloc>22
-X 46 s-stalib.adb
+74V13*Realloc{29|67M9} 103i<c,__gnat_realloc>22
+X 48 s-stalib.adb
 87U14 Break_Start 88i<c,__gnat_break_start>22
 

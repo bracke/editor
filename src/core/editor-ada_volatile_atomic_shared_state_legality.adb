@@ -2,6 +2,8 @@ with Ada.Strings.Unbounded; use Ada.Strings.Unbounded;
 
 package body Editor.Ada_Volatile_Atomic_Shared_State_Legality is
 
+   pragma Suppress (Overflow_Check);
+
    use type Abstract_States.Abstract_State_Status;
    use type Editor.Ada_Syntax_Tree.Node_Id;
    use type Flow_Proof.Flow_Contract_Proof_Status;

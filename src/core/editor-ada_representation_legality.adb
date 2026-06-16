@@ -7,6 +7,8 @@ with Editor.Ada_Direct_Visibility;
 
 package body Editor.Ada_Representation_Legality is
 
+   pragma Suppress (Overflow_Check);
+
    use type Ada.Containers.Count_Type;
    use type Editor.Ada_Declarative_Regions.Region_Id;
    use type Editor.Ada_Freezing_Points.Freezable_Id;

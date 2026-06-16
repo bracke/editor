@@ -623,6 +623,36 @@ package body Editor.File_Tree is
       Rebuild_Visible_Rows (Tree);
    end Expand_Ancestors;
 
+   procedure Expand_File_Ancestors
+     (Tree : in out File_Tree_State)
+   is
+      Parent       : File_Tree_Node_Id := No_File_Tree_Node;
+      Parent_Index : Natural := Natural'Last;
+      Rec          : File_Tree_Node_Record;
+   begin
+      if Tree.Nodes.Length = 0 then
+         return;
+      end if;
+
+      for I in Tree.Nodes.First_Index .. Tree.Nodes.Last_Index loop
+         if Tree.Nodes (I).Kind = File_Node then
+            Parent := Tree.Nodes (I).Parent;
+            while Parent /= No_File_Tree_Node loop
+               Parent_Index := Index_Of (Tree, Parent);
+               exit when Parent_Index = Natural'Last;
+               Rec := Tree.Nodes (Parent_Index);
+               if Rec.Kind = Directory_Node then
+                  Rec.Is_Expanded := True;
+                  Tree.Nodes.Replace_Element (Parent_Index, Rec);
+               end if;
+               Parent := Rec.Parent;
+            end loop;
+         end if;
+      end loop;
+
+      Rebuild_Visible_Rows (Tree);
+   end Expand_File_Ancestors;
+
    function Kind_Label
      (Kind : File_Tree_Node_Kind) return String
    is

@@ -2,6 +2,8 @@ with Ada.Strings.Unbounded; use Ada.Strings.Unbounded;
 
 package body Editor.Ada_Subtype_Range_Predicate_Vertical_Slice_Legality is
 
+   pragma Suppress (Overflow_Check);
+
    function Mix (A, B : Natural) return Natural is
    begin
       return ((A * 65599) + (B * 1009) + 1306) mod 1_000_000_007;
@@ -263,7 +265,7 @@ package body Editor.Ada_Subtype_Range_Predicate_Vertical_Slice_Legality is
             when Legality_Not_Checked => "subtype constraint was not checked");
       R.Detail := S.Source_Name;
       R.Fingerprint := Mix
-        (Natural (R.Subtype_Ref), Mix (Natural (R.Status'Pos), Mix (R.Source_Fingerprint, R.AST_Fingerprint)));
+        (Natural (R.Subtype_Ref), Mix (Natural (Legality_Status'Pos (R.Status)), Mix (R.Source_Fingerprint, R.AST_Fingerprint)));
       return R;
    end Build_Result;
 

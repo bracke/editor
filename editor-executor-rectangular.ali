@@ -1,5 +1,7 @@
 V "GNAT Lib v15"
 A -gnat2022
+A -gnatX
+A -gnata
 P SS ZX
 
 RN
@@ -7,7 +9,7 @@ RV NO_EXCEPTION_HANDLERS
 RV NO_EXCEPTIONS
 RV NO_STANDARD_STORAGE_POOLS
 
-U editor.executor.rectangular%b  editor-executor-rectangular.adb  b5ba29f4 NE OO PK
+U editor.executor.rectangular%b  editor-executor-rectangular.adb  e06be455 NE OO PK
 W ada%s			ada.ads			ada.ali
 W ada.containers%s	a-contai.ads		a-contai.ali
 Z ada.exceptions%s	a-except.adb		a-except.ali
@@ -22,7 +24,7 @@ Z system%s		system.ads		system.ali
 Z system.finalization_primitives%s  s-finpri.adb  s-finpri.ali
 Z system.soft_links%s	s-soflin.adb		s-soflin.ali
 
-U editor.executor.rectangular%s  editor-executor-rectangular.ads  4199e4f7 EE NE OO PK
+U editor.executor.rectangular%s  editor-executor-rectangular.ads  14482956 EE NE OO PK
 W editor%s		editor.ads		editor.ali
 W editor.commands%s	editor-commands.adb	editor-commands.ali
 W editor.cursors%s	editor-cursors.adb	editor-cursors.ali
@@ -49,7 +51,7 @@ D a-stuten.ads		20250808065140 c6ced0ae ada.strings.utf_encoding%s
 D a-tags.ads		20250808065140 fbca0ad5 ada.tags%s
 D a-unccon.ads		20250808065140 0e9b276f ada.unchecked_conversion%s
 D editor.ads		20260612145959 16f844c2 editor%s
-D editor-ada_language_model.ads  20260612145959 459f92c3 editor.ada_language_model%s
+D editor-ada_language_model.ads  20260613110624 75f1fac9 editor.ada_language_model%s
 D editor-ada_project_index.ads  20260612145959 3ad143b9 editor.ada_project_index%s
 D editor-ada_syntax_tree.ads  20260612145959 49a76ced editor.ada_syntax_tree%s
 D editor-bookmarks.ads	20260612145959 4e695f4d editor.bookmarks%s
@@ -57,9 +59,9 @@ D editor-buffer_switcher.ads  20260612152524 fd053b33 editor.buffer_switcher%s
 D editor-buffer_types.ads  20260612151710 a555405e editor.buffer_types%s
 D editor-buffers.ads	20260612185530 1a6b6e4c editor.buffers%s
 D editor-build_candidates.ads  20260612145959 dc89ea7b editor.build_candidates%s
-D editor-build_output_details.ads  20260612145959 0f4ba402 editor.build_output_details%s
+D editor-build_output_details.ads  20260613095501 1d7c9af2 editor.build_output_details%s
 D editor-build_process_control.ads  20260612145959 28661204 editor.build_process_control%s
-D editor-build_result_summary.ads  20260612145959 94fc95d2 editor.build_result_summary%s
+D editor-build_result_summary.ads  20260613095501 5b952273 editor.build_result_summary%s
 D editor-build_runner_policy.ads  20260612145959 623f26a9 editor.build_runner_policy%s
 D editor-build_ui.ads	20260612152524 28a54496 editor.build_ui%s
 D editor-build_working_context.ads  20260612145959 cef9cea9 editor.build_working_context%s
@@ -98,9 +100,9 @@ D editor-pending_transitions.ads  20260612145959 81c78960 editor.pending_transit
 D editor-problems.ads	20260612145959 a9a08157 editor.problems%s
 D editor-producer_contracts.ads  20260612145959 c3ee4501 editor.producer_contracts%s
 D editor-project.ads	20260612145959 f4d50f6d editor.project%s
-D editor-project_search.ads  20260612152451 857df5ab editor.project_search%s
+D editor-project_search.ads  20260612195704 b7cf3cc2 editor.project_search%s
 D editor-project_search_bar.ads  20260612145959 c5c12f77 editor.project_search_bar%s
-D editor-quick_open.ads	20260612151807 878ba83c editor.quick_open%s
+D editor-quick_open.ads	20260614175339 b8f14db6 editor.quick_open%s
 D editor-recent_buffers.ads  20260612145959 617e4612 editor.recent_buffers%s
 D editor-recent_projects.ads  20260612145959 ee1155f5 editor.recent_projects%s
 D editor-rectangle_selection.ads  20260612145959 16b1a48c editor.rectangle_selection%s
@@ -108,7 +110,7 @@ D editor-search.ads	20260612145959 dac0e204 editor.search%s
 D editor-search_results.ads  20260612145959 98eded1d editor.search_results%s
 D editor-selection.ads	20260612145959 37bfc5e9 editor.selection%s
 D editor-settings.ads	20260612145959 c2103809 editor.settings%s
-D editor-state.ads	20260612170622 4c537118 editor.state%s
+D editor-state.ads	20260613081313 1982bcb9 editor.state%s
 D editor-status_bar.ads	20260612145959 879f0640 editor.status_bar%s
 D editor-syntax.ads	20260612145959 d59b0303 editor.syntax%s
 D editor-syntax_cache.ads  20260612164742 637f2470 editor.syntax_cache%s
@@ -116,7 +118,7 @@ D editor-syntax_semantics.ads  20260612145959 a499b10a editor.syntax_semantics%s
 D editor-tab_bar.ads	20260612151839 e26dca3d editor.tab_bar%s
 D editor-unicode.ads	20260612145959 552ff3cc editor.unicode%s
 D editor-view_types.ads	20260612152152 f3042ec7 editor.view_types%s
-D editor-workspace_persistence.ads  20260612145959 455ffd61 editor.workspace_persistence%s
+D editor-workspace_persistence.ads  20260612202240 a037efc2 editor.workspace_persistence%s
 D editor-wrap.ads	20260612145959 87db665a editor.wrap%s
 D interfac.ads		20250808065140 9111f9c1 interfaces%s
 D i-c.ads		20250808065140 e94c966a interfaces.c%s
@@ -152,11 +154,11 @@ G c Z b b [drag_rectangle editor__executor__rectangular 73 14 none]
 G r c none [execute editor__executor__rectangular 7 14 none] [point_to_row_col editor__rectangle_selection 21 14 none]
 G r c none [execute editor__executor__rectangular 7 14 none] [normalize editor__rectangle_selection 15 13 none]
 G r c none [execute editor__executor__rectangular 7 14 none] [build_carets editor__rectangle_selection 28 14 none]
-G r c none [execute editor__executor__rectangular 7 14 none] [row_col_for_index editor__state 495 14 none]
+G r c none [execute editor__executor__rectangular 7 14 none] [row_col_for_index editor__state 496 14 none]
 G r c none [start_rectangle editor__executor__rectangular 19 14 none] [point_to_row_col editor__rectangle_selection 21 14 none]
 G r c none [start_rectangle editor__executor__rectangular 19 14 none] [normalize editor__rectangle_selection 15 13 none]
 G r c none [start_rectangle editor__executor__rectangular 19 14 none] [build_carets editor__rectangle_selection 28 14 none]
-G r c none [start_rectangle_at_caret editor__executor__rectangular 43 14 none] [row_col_for_index editor__state 495 14 none]
+G r c none [start_rectangle_at_caret editor__executor__rectangular 43 14 none] [row_col_for_index editor__state 496 14 none]
 G r c none [start_rectangle_at_caret editor__executor__rectangular 43 14 none] [normalize editor__rectangle_selection 15 13 none]
 G r c none [start_rectangle_at_caret editor__executor__rectangular 43 14 none] [build_carets editor__rectangle_selection 28 14 none]
 G r c none [drag_rectangle editor__executor__rectangular 73 14 none] [point_to_row_col editor__rectangle_selection 21 14 none]
@@ -251,13 +253,13 @@ X 75 editor-rectangle_selection.ads
 21U14*Point_To_Row_Col 43|30s34 94s34
 28U14*Build_Carets 43|37s34 67s34 103s34
 X 80 editor-state.ads
-51K16*State 42|1w13 8r44 43|1w13 10r18 20r44 44r44 53r17 74r44 110r44 80|610e17
-115R9*State_Type 42|8r50 43|10r24 20r50 44r50 74r50 110r50 80|366e14
+51K16*State 42|1w13 8r44 43|1w13 10r18 20r44 44r44 53r17 74r44 110r44 80|611e17
+115R9*State_Type 42|8r50 43|10r24 20r50 44r50 74r50 110r50 80|367e14
 117r7*Carets{7|91R9[37|19]} 43|12r12 15r19 15r29 52r12 54r18 54r28 55r15
 . 55r25 56r22 56r32 143r18 145r50 145r60 147m21 148m21
 122i7*Preferred_Column{natural} 43|116r33
 123b7*Rect_Select_Active{boolean} 43|32m9 60m9 84r16 142m15
 124i7*Rect_Anchor_Row{natural} 43|33m9 61m9 98r12
 125i7*Rect_Anchor_Col{natural} 43|34m9 62m9 99r12
-495U14*Row_Col_For_Index 43|53s23
+496U14*Row_Col_For_Index 43|53s23
 

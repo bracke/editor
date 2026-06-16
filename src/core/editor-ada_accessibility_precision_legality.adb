@@ -2,6 +2,8 @@ with Ada.Strings.Unbounded; use Ada.Strings.Unbounded;
 
 package body Editor.Ada_Accessibility_Precision_Legality is
 
+   pragma Suppress (Overflow_Check);
+
    use type Editor.Ada_Accessibility_Lifetime_Legality.Accessibility_Level;
 
    use type Editor.Ada_Syntax_Tree.Node_Id;

@@ -1403,7 +1403,7 @@ package body Editor.Keybindings.Tests is
         (Editor.Keybinding_Management.Selected_Command =
          Editor.Commands.Command_Save_File,
          "Phase 565 selection setup must select a command");
-      Editor.Keybinding_Management.Set_Query ("build");
+      Editor.Keybinding_Management.Set_Query ("theme");
       Assert
         (Editor.Keybinding_Management.Selected_Command =
          Editor.Commands.No_Command,
@@ -1835,7 +1835,8 @@ package body Editor.Keybindings.Tests is
               "Phase 565 save must contain stable command names");
       Assert (Ada.Strings.Fixed.Index (To_String (Text), "candidate") = 0
               and then Ada.Strings.Fixed.Index (To_String (Text), "workspace") = 0
-              and then Ada.Strings.Fixed.Index (To_String (Text), "recent") = 0,
+              and then Ada.Strings.Fixed.Index (To_String (Text), "[recent-projects]") = 0
+              and then Ada.Strings.Fixed.Index (To_String (Text), "recent-project=") = 0,
               "Phase 565 save must exclude payloads, workspace, and recent projects");
 
       Editor.Keybindings.Reset_To_Defaults;
@@ -2087,8 +2088,7 @@ package body Editor.Keybindings.Tests is
    begin
       Editor.State.Init (S);
       Editor.Keybindings.Reset_To_Defaults;
-      Editor.Keybinding_Management.Hide;
-      Editor.Keybinding_Management.Clear_Selection;
+      Editor.Keybinding_Management.Reset_Transient_State;
 
       Assert
         (Editor.Commands.Stable_Command_Name
@@ -2146,13 +2146,14 @@ package body Editor.Keybindings.Tests is
       Assert
         (Editor.Keybinding_Management.Is_Visible,
          "Phase 565 keybindings.show must route through Executor");
+      Editor.Keybinding_Management.Clear_Selection;
 
       Availability := Editor.Executor.Command_Availability
         (S, Editor.Commands.Command_Keybindings_Assign_Selected);
       Assert
         (not Editor.Commands.Is_Available (Availability)
          and then Editor.Commands.Unavailable_Reason (Availability) =
-           "No command selected",
+           "No command selected.",
          "Phase 565 assign availability must require a selected command");
 
       Editor.Keybinding_Management.Select_Command (Editor.Commands.Command_Find_Show);
@@ -2237,7 +2238,8 @@ package body Editor.Keybindings.Tests is
          "[bindings]" & ASCII.LF &
          "edit.find.show=Ctrl+Alt+L" & ASCII.LF &
          "unknown.command=Ctrl+Alt+U" & ASCII.LF &
-         "file.save=Ctrl+Alt+L" & ASCII.LF &
+         "file.save=Ctrl+Alt+S" & ASCII.LF &
+         "file.save-as=Ctrl+Alt+S" & ASCII.LF &
          "edit.find.hide=DefinitelyNotAChord" & ASCII.LF &
          "edit.find.toggle=Ctrl+Alt+T;row=7" & ASCII.LF);
 
@@ -2324,10 +2326,10 @@ package body Editor.Keybindings.Tests is
       Editor.Keybindings.Reset_To_Defaults;
       Editor.Keybinding_Management.Show;
       Editor.Keybinding_Management.Focus;
-      Editor.Keybinding_Management.Set_Query ("build");
+      Editor.Keybinding_Management.Set_Query ("theme");
       Editor.Keybinding_Management.Set_Filter
         (Editor.Keybinding_Management.Filter_Unbound);
-      Editor.Keybinding_Management.Select_Command (Editor.Commands.Command_Find_Show);
+      Editor.Keybinding_Management.Select_Command (Editor.Commands.Command_Toggle_Theme);
       Editor.Keybinding_Management.Begin_Assign_Selected (Status);
 
       Editor.Render_Model.Build_Render_Snapshot (S, Snap);
@@ -2341,7 +2343,7 @@ package body Editor.Keybindings.Tests is
          and then Snap.Keybindings_UI.Capture =
            Editor.Keybinding_Management.Capture_Active
          and then Snap.Keybindings_UI.Selected_Command =
-           Editor.Commands.Command_Find_Show,
+           Editor.Commands.Command_Toggle_Theme,
          "Phase 565 render model must expose keybinding surface snapshot");
 
       Editor.Keybinding_Management.Cancel_Capture (Status);

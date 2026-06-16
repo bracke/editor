@@ -2,6 +2,11 @@ with Ada.Strings.Unbounded; use Ada.Strings.Unbounded;
 
 package body Editor.Ada_RM_Completion_Closure_Consumer_Diagnostic_Integration is
 
+   pragma Suppress (Overflow_Check);
+   use type Predicate.Predicate_RM_Closure_Consumer_Status;
+   use type Editor.Ada_Syntax_Tree.Node_Id;
+
+
    function Mix (A, B : Natural) return Natural is
    begin
       return A * 41 + B + 23;

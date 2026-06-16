@@ -4,11 +4,40 @@ with Editor.Ada_Syntax_Tree;
 
 package body Editor.Ada_Language_Model is
 
+   pragma Suppress (Overflow_Check);
+
+   Fingerprint_Modulus : constant Long_Long_Integer := 2_147_483_647;
+
+   type Natural_Addend_Array is array (Positive range <>) of Natural;
+
+   function Hash_Mix
+     (Seed       : Natural;
+      Addend     : Long_Long_Integer;
+      Multiplier : Long_Long_Integer := 131) return Natural
+   is
+   begin
+      return Natural
+        ((Long_Long_Integer (Seed) * Multiplier + Addend) mod Fingerprint_Modulus);
+   end Hash_Mix;
+
+   function Hash_Mix
+     (Seed       : Natural;
+      Addends    : Natural_Addend_Array;
+      Multiplier : Long_Long_Integer := 131) return Natural
+   is
+      Acc : Long_Long_Integer := Long_Long_Integer (Seed) * Multiplier;
+   begin
+      for Addend of Addends loop
+         Acc := Acc + Long_Long_Integer (Addend);
+      end loop;
+      return Natural (Acc mod Fingerprint_Modulus);
+   end Hash_Mix;
+
    function Hash_String (Seed : Natural; Text : String) return Natural is
       H : Natural := Seed;
    begin
       for C of Text loop
-         H := (H * 131 + Character'Pos (C) + 1) mod 2_147_483_647;
+         H := Hash_Mix (H, Long_Long_Integer (Character'Pos (C)) + 1);
       end loop;
       return H;
    end Hash_String;
@@ -25,9 +54,9 @@ package body Editor.Ada_Language_Model is
    function Hash_Boolean (Seed : Natural; Value : Boolean) return Natural is
    begin
       if Value then
-         return (Seed * 131 + 1) mod 2_147_483_647;
+         return Hash_Mix (Seed, 1);
       else
-         return (Seed * 131 + 2) mod 2_147_483_647;
+         return Hash_Mix (Seed, 2);
       end if;
    end Hash_Boolean;
 
@@ -147,13 +176,13 @@ package body Editor.Ada_Language_Model is
          if not Analysis.Symbol_Overflow then
             Analysis.Symbol_Overflow := True;
             Analysis.Result_Fingerprint :=
-              (Analysis.Result_Fingerprint * 131 + 142) mod 2_147_483_647;
+              Hash_Mix (Analysis.Result_Fingerprint, 142);
          end if;
          return No_Symbol;
       end if;
 
       Id := Symbol_Id (Natural (Analysis.Symbols.Length) + 1);
-      H := (H * 131 + Natural (Symbol_Kind'Pos (Kind)) + 1) mod 2_147_483_647;
+      H := Hash_Mix (H, (Natural (Symbol_Kind'Pos (Kind)), 1));
       H := Hash_String (H, Normalized);
       --  Pass 149: lookup remains Ada case-insensitive, but the analysis
       --  fingerprint also covers source spelling because Outline labels,
@@ -161,18 +190,22 @@ package body Editor.Ada_Language_Model is
       --  Two otherwise identical declarations that differ only by identifier
       --  case must not become cache-equivalent.
       H := Hash_String (H, Name);
-      H :=
-        (H * 131 + Source_Span.Start_Line + Source_Span.Start_Column +
-         Source_Span.End_Line + Source_Span.End_Column + Declaration_Column + Depth + 1)
-        mod 2_147_483_647;
+      H := Hash_Mix
+        (H,
+         (Source_Span.Start_Line,
+          Source_Span.Start_Column,
+          Source_Span.End_Line,
+          Source_Span.End_Column,
+          Declaration_Column,
+          Depth,
+          1));
       --  Pass 159: symbol ownership is parser-owned metadata too.  The
       --  aggregate fingerprint must distinguish identical declarations that
       --  are retained under different lexical scopes or parent symbols,
       --  because outline hierarchy, scoped resolver lookup, and semantic
       --  colouring all consume those ownership stamps.
-      H :=
-        (H * 131 + Natural (Enclosing_Scope) + Natural (Parent_Symbol) + 1)
-        mod 2_147_483_647;
+      H := Hash_Mix
+        (H, (Natural (Enclosing_Scope), Natural (Parent_Symbol), 1));
       --  Pass 145: the initial symbol fingerprint must cover all parser-owned
       --  metadata that can affect outline rows, semantic classification, and
       --  stale-cache stamps.  Earlier stamps only covered the symbol kind,
@@ -228,8 +261,7 @@ package body Editor.Ada_Language_Model is
         (Info.Fingerprint * 131 + Natural (Symbol_Kind'Pos (Kind)) + 1)
         mod 2_147_483_647;
       Analysis.Result_Fingerprint :=
-        (Analysis.Result_Fingerprint * 131 + Info.Fingerprint + 1)
-        mod 2_147_483_647;
+        Hash_Mix (Analysis.Result_Fingerprint, Long_Long_Integer (Info.Fingerprint) + 1);
       Analysis.Symbols.Replace_Element (Positive (Id), Info);
    end Set_Symbol_Kind;
 
@@ -260,8 +292,7 @@ package body Editor.Ada_Language_Model is
       Info.Fingerprint := Hash_String (Info.Fingerprint, Normalize_Name (Target_Name));
       Info.Fingerprint := Hash_String (Info.Fingerprint, Target_Name);
       Analysis.Result_Fingerprint :=
-        (Analysis.Result_Fingerprint * 131 + Info.Fingerprint + 1)
-        mod 2_147_483_647;
+        Hash_Mix (Analysis.Result_Fingerprint, Long_Long_Integer (Info.Fingerprint) + 1);
       Analysis.Symbols.Replace_Element (Positive (Id), Info);
    end Set_Symbol_Target;
 
@@ -293,8 +324,7 @@ package body Editor.Ada_Language_Model is
       Info.Profile_Summary := To_Unbounded_String (Profile_Summary);
       Info.Fingerprint := Hash_String (Info.Fingerprint, Profile_Summary);
       Analysis.Result_Fingerprint :=
-        (Analysis.Result_Fingerprint * 131 + Info.Fingerprint + 1)
-        mod 2_147_483_647;
+        Hash_Mix (Analysis.Result_Fingerprint, Long_Long_Integer (Info.Fingerprint) + 1);
       Analysis.Symbols.Replace_Element (Positive (Id), Info);
    end Set_Symbol_Profile;
 
@@ -320,8 +350,7 @@ package body Editor.Ada_Language_Model is
       Info.Fingerprint :=
         (Info.Fingerprint * 131 + 17) mod 2_147_483_647;
       Analysis.Result_Fingerprint :=
-        (Analysis.Result_Fingerprint * 131 + Info.Fingerprint + 1)
-        mod 2_147_483_647;
+        Hash_Mix (Analysis.Result_Fingerprint, Long_Long_Integer (Info.Fingerprint) + 1);
       Analysis.Symbols.Replace_Element (Positive (Id), Info);
    end Mark_Symbol_Instantiation;
 
@@ -349,8 +378,7 @@ package body Editor.Ada_Language_Model is
       Info.Fingerprint :=
         (Info.Fingerprint * 131 + 579195) mod 2_147_483_647;
       Analysis.Result_Fingerprint :=
-        (Analysis.Result_Fingerprint * 131 + Info.Fingerprint + 1)
-        mod 2_147_483_647;
+        Hash_Mix (Analysis.Result_Fingerprint, Long_Long_Integer (Info.Fingerprint) + 1);
       Analysis.Symbols.Replace_Element (Positive (Id), Info);
    end Mark_Symbol_Representation_Clause;
 
@@ -378,8 +406,7 @@ package body Editor.Ada_Language_Model is
       Info.Fingerprint :=
         (Info.Fingerprint * 131 + 579205) mod 2_147_483_647;
       Analysis.Result_Fingerprint :=
-        (Analysis.Result_Fingerprint * 131 + Info.Fingerprint + 1)
-        mod 2_147_483_647;
+        Hash_Mix (Analysis.Result_Fingerprint, Long_Long_Integer (Info.Fingerprint) + 1);
       Analysis.Symbols.Replace_Element (Positive (Id), Info);
    end Mark_Symbol_Pragma_Metadata;
 
@@ -412,8 +439,7 @@ package body Editor.Ada_Language_Model is
       Info.Fingerprint :=
         (Info.Fingerprint * 131 + 579239) mod 2_147_483_647;
       Analysis.Result_Fingerprint :=
-        (Analysis.Result_Fingerprint * 131 + Info.Fingerprint + 1)
-        mod 2_147_483_647;
+        Hash_Mix (Analysis.Result_Fingerprint, Long_Long_Integer (Info.Fingerprint) + 1);
       Analysis.Symbols.Replace_Element (Positive (Id), Info);
    end Mark_Symbol_Aspect_Specification;
 
@@ -439,8 +465,7 @@ package body Editor.Ada_Language_Model is
       Info.Fingerprint :=
         (Info.Fingerprint * 131 + 579214) mod 2_147_483_647;
       Analysis.Result_Fingerprint :=
-        (Analysis.Result_Fingerprint * 131 + Info.Fingerprint + 1)
-        mod 2_147_483_647;
+        Hash_Mix (Analysis.Result_Fingerprint, Long_Long_Integer (Info.Fingerprint) + 1);
       Analysis.Symbols.Replace_Element (Positive (Id), Info);
    end Mark_Symbol_Access_Subprogram_Metadata;
 
@@ -465,18 +490,22 @@ package body Editor.Ada_Language_Model is
          if not Analysis.Symbol_Overflow then
             Analysis.Symbol_Overflow := True;
             Analysis.Result_Fingerprint :=
-              (Analysis.Result_Fingerprint * 131 + 579367) mod 2_147_483_647;
+              Hash_Mix (Analysis.Result_Fingerprint, 579367);
          end if;
          return;
       end if;
 
-      H := (H * 131 + Natural (Instance_Symbol) + Position + 579367) mod 2_147_483_647;
+      H := Hash_Mix (H, (Natural (Instance_Symbol), Position, 579367));
       H := Hash_String (H, Formal_Name);
       H := Hash_String (H, Normal_Formal);
       H := Hash_String (H, Actual_Name);
       H := Hash_String (H, Normal_Actual);
-      H := (H * 131 + Source_Span.Start_Line + Source_Span.Start_Column + Source_Span.End_Line + Source_Span.End_Column)
-        mod 2_147_483_647;
+      H := Hash_Mix
+        (H,
+         (Source_Span.Start_Line,
+          Source_Span.Start_Column,
+          Source_Span.End_Line,
+          Source_Span.End_Column));
 
       Analysis.Generic_Actuals.Append
         (Generic_Actual_Info'(Instance_Symbol => Instance_Symbol,
@@ -1462,8 +1491,7 @@ package body Editor.Ada_Language_Model is
       Info.Fingerprint :=
         (Info.Fingerprint * 131 + 579215) mod 2_147_483_647;
       Analysis.Result_Fingerprint :=
-        (Analysis.Result_Fingerprint * 131 + Info.Fingerprint + 1)
-        mod 2_147_483_647;
+        Hash_Mix (Analysis.Result_Fingerprint, Long_Long_Integer (Info.Fingerprint) + 1);
       Analysis.Symbols.Replace_Element (Positive (Id), Info);
    end Mark_Symbol_Variant_Record_Metadata;
 
@@ -1524,20 +1552,25 @@ package body Editor.Ada_Language_Model is
          if not Analysis.Symbol_Overflow then
             Analysis.Symbol_Overflow := True;
             Analysis.Result_Fingerprint :=
-              (Analysis.Result_Fingerprint * 131 + 579375) mod 2_147_483_647;
+              Hash_Mix (Analysis.Result_Fingerprint, 579375);
          end if;
          return;
       end if;
 
-      H := (H * 131 + Natural (Executable_Binding_Kind'Pos (Kind)) + 1)
-        mod 2_147_483_647;
+      H := Hash_Mix
+        (H, (Natural (Executable_Binding_Kind'Pos (Kind)), 1));
       H := Hash_String (H, Normalize_Name (Name));
       H := Hash_String (H, Name);
       H := Hash_String (H, Expression_Text);
-      H := (H * 131 + Natural (Scope) + Natural (Target_Symbol)
-            + Source_Span.Start_Line + Source_Span.Start_Column
-            + Source_Span.End_Line + Source_Span.End_Column + 579375)
-        mod 2_147_483_647;
+      H := Hash_Mix
+        (H,
+         (Natural (Scope),
+          Natural (Target_Symbol),
+          Source_Span.Start_Line,
+          Source_Span.Start_Column,
+          Source_Span.End_Line,
+          Source_Span.End_Column,
+          579375));
 
       Info :=
         (Kind            => Kind,
@@ -1925,16 +1958,21 @@ package body Editor.Ada_Language_Model is
       H := Hash_String (H, Visibility_Clause_Kind'Image (Kind));
       H := Hash_String (H, Normalize_Name (Name));
       if Is_Context_Clause then
-         H := (H * 131 + 758001) mod 2_147_483_647;
+         H := Hash_Mix (H, 758001);
       end if;
       if Info.Has_Limited_Modifier then
-         H := (H * 131 + 758002) mod 2_147_483_647;
+         H := Hash_Mix (H, 758002);
       end if;
       if Info.Has_Private_Modifier then
-         H := (H * 131 + 758003) mod 2_147_483_647;
+         H := Hash_Mix (H, 758003);
       end if;
-      H := (H * 131 + Natural (Scope) + Source_Span.Start_Line + Source_Span.Start_Column
-            + Source_Span.End_Line + Source_Span.End_Column) mod 2_147_483_647;
+      H := Hash_Mix
+        (H,
+         (Natural (Scope),
+          Source_Span.Start_Line,
+          Source_Span.Start_Column,
+          Source_Span.End_Line,
+          Source_Span.End_Column));
       Info.Fingerprint := H;
 
       Analysis.Visibility_Clauses.Append (Info);
@@ -2303,6 +2341,7 @@ package body Editor.Ada_Language_Model is
         | Symbol_Type | Symbol_Record_Type
         | Symbol_Task | Symbol_Protected | Symbol_Entry
         | Symbol_Generic_Package | Symbol_Generic_Subprogram
+        | Symbol_Generic_Formal_Type | Symbol_Generic_Formal_Subprogram
         | Symbol_Generic_Formal_Package
         | Symbol_Separate_Body;
    end Is_Declaration_Owner;
@@ -2340,9 +2379,7 @@ package body Editor.Ada_Language_Model is
 
    function Range_Extends_Past_Start (Source_Span : Source_Range) return Boolean is
    begin
-      return Source_Span.End_Line > Source_Span.Start_Line
-        or else (Source_Span.End_Line = Source_Span.Start_Line
-                 and then Source_Span.End_Column > Source_Span.Start_Column);
+      return Source_Span.End_Line > Source_Span.Start_Line;
    end Range_Extends_Past_Start;
 
    function Position_In_Range
@@ -2362,6 +2399,11 @@ package body Editor.Ada_Language_Model is
       return Position_Not_After (Line, Column, Source_Span.End_Line, Source_Span.End_Column);
    end Position_In_Range;
 
+   function Allows_Open_Ended_Scope (Kind : Symbol_Kind) return Boolean is
+   begin
+      return Kind not in Symbol_Type | Symbol_Record_Type | Symbol_Generic_Formal_Type;
+   end Allows_Open_Ended_Scope;
+
    function Scope_For_Position
      (Analysis : Analysis_Result;
       Line     : Positive;
@@ -2369,6 +2411,8 @@ package body Editor.Ada_Language_Model is
    is
       Best       : Symbol_Id := No_Symbol;
       Best_Depth : Natural := 0;
+      Best_Line  : Positive := 1;
+      Best_Column : Positive := 1;
    begin
       --  Pass 188: render-time semantic colouring needs a parser-owned
       --  lexical scope for the token being classified.  The parser currently
@@ -2390,11 +2434,21 @@ package body Editor.Ada_Language_Model is
               and then Position_Not_After
                 (Info.Declaration_Line, Info.Declaration_Column, Line, Column)
               and then Position_In_Range (Info.Source_Span, Line, Column)
+              and then (Range_Extends_Past_Start (Info.Source_Span)
+                        or else Line = Info.Source_Span.Start_Line
+                        or else Allows_Open_Ended_Scope (Info.Kind))
               and then (Info.Depth > Best_Depth
-                        or else Best = No_Symbol)
+                        or else Best = No_Symbol
+                        or else (Info.Depth = Best_Depth
+                                 and then Position_Not_After
+                                   (Best_Line, Best_Column,
+                                    Info.Declaration_Line,
+                                    Info.Declaration_Column)))
             then
                Best := Info.Id;
                Best_Depth := Info.Depth;
+               Best_Line := Info.Declaration_Line;
+               Best_Column := Info.Declaration_Column;
             end if;
          end;
       end loop;

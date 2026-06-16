@@ -205,7 +205,7 @@ package body Editor.Render_Packet is
      (Out_Packet : out Render_Packet)
    is
       Snap   : Editor.Render_Model.Render_Snapshot;
-      S      : constant Editor.State.State_Type := Editor.Input_Bridge.Get_State_For_Test;
+      S      : Editor.State.State_Type := Editor.Input_Bridge.Get_State_For_Test;
       Layout : constant Editor.Layout.Layout_Config := Editor.Layout.Current;
       Cell_W : constant Positive := Editor.Layout.Cell_W;
       Cell_H : constant Positive := Editor.Layout.Cell_H;
@@ -4518,6 +4518,7 @@ package body Editor.Render_Packet is
       Scroll_X := Editor.View.Scroll_X;
       Editor.Input_Bridge.Get_Render_Snapshot (Snap);
       Scroll_X := Editor.View.Scroll_X;
+      S := Editor.Input_Bridge.Get_State_For_Test;
 
       Push_Tab_Bar (Out_Packet);
       Push_File_Tree (Out_Packet);

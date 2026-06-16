@@ -262,6 +262,7 @@ package body Editor.Workspace_Persistence is
         or else Has_Workspace_Path_Meta_Character (Clean)
         or else Has_Backslash_Separator (Clean)
         or else Is_Absolute_Path (Clean)
+        or else Clean (Clean'Last) = '/'
       then
          Reject;
          return "";
@@ -350,7 +351,10 @@ package body Editor.Workspace_Persistence is
       First_Sep : Natural) return Boolean
    is
    begin
-      if First_Sep = 0 or else First_Sep = Line'Last then
+      if First_Sep = 0
+        or else First_Sep = Line'Last
+        or else Line (Line'Last) = '|'
+      then
          return True;
       end if;
 

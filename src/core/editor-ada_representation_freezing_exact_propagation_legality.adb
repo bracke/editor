@@ -2,6 +2,10 @@ with Ada.Strings.Unbounded; use Ada.Strings.Unbounded;
 
 package body Editor.Ada_Representation_Freezing_Exact_Propagation_Legality is
 
+   pragma Suppress (Overflow_Check);
+   use type Editor.Ada_Syntax_Tree.Node_Id;
+
+
    function Mix (A, B : Natural) return Natural is
    begin
       return ((A * 131) + B + 17) mod 2_147_483_647;

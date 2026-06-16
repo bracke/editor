@@ -1,5 +1,7 @@
-V "GNAT Lib v15"
+V "GNAT Lib v13"
 A -gnat2022
+A -gnatX
+A -gnata
 P SS ZX
 
 RN
@@ -15,7 +17,7 @@ RV NO_IMPLEMENTATION_PRAGMAS
 RV NO_IMPLICIT_LOOPS
 RV NO_ELABORATION_CODE
 
-U editor.keybindings%b	editor-keybindings.adb	de78889d OO PK
+U editor.keybindings%b	editor-keybindings.adb	7b88507d OO PK
 W ada%s			ada.ads			ada.ali
 W ada.characters%s	a-charac.ads		a-charac.ali
 W ada.characters.handling%s  a-chahan.adb	a-chahan.ali
@@ -24,75 +26,77 @@ W ada.strings%s		a-string.ads		a-string.ali
 W ada.strings.fixed%s	a-strfix.adb		a-strfix.ali
 Z ada.strings.text_buffers%s  a-sttebu.adb	a-sttebu.ali
 W ada.strings.unbounded%s  a-strunb.adb		a-strunb.ali
-Z ada.tags%s		a-tags.adb		a-tags.ali
 W editor%s		editor.ads		editor.ali
 Z system%s		system.ads		system.ali
-Z system.finalization_primitives%s  s-finpri.adb  s-finpri.ali
+Z system.assertions%s	s-assert.adb		s-assert.ali
+Z system.compare_array_unsigned_8%s  s-carun8.adb  s-carun8.ali
 Z system.return_stack%s	s-retsta.ads		s-retsta.ali
 Z system.secondary_stack%s  s-secsta.adb	s-secsta.ali
 Z system.soft_links%s	s-soflin.adb		s-soflin.ali
 Z system.standard_library%s  s-stalib.adb	s-stalib.ali
 
-U editor.keybindings%s	editor-keybindings.ads	baf6ff60 EE NE OO PK
+U editor.keybindings%s	editor-keybindings.ads	700affdb EE NE OO PK
 W ada%s			ada.ads			ada.ali
 Z ada.exceptions%s	a-except.adb		a-except.ali
 W ada.strings%s		a-string.ads		a-string.ali
+Z ada.strings.text_buffers%s  a-sttebu.adb	a-sttebu.ali
 W ada.strings.unbounded%s  a-strunb.adb		a-strunb.ali
 Z ada.tags%s		a-tags.adb		a-tags.ali
 W editor%s		editor.ads		editor.ali
 W editor.commands%s	editor-commands.adb	editor-commands.ali
 Z system%s		system.ads		system.ali
 
-D ada.ads		20250808065140 76789da1 ada%s
-D a-charac.ads		20250808065140 2d3ec45b ada.characters%s
-D a-chahan.ads		20250808065140 bf752ff6 ada.characters.handling%s
-D a-chlat1.ads		20250808065140 e0d72e76 ada.characters.latin_1%s
-D a-contai.ads		20250808065140 61e5e089 ada.containers%s
-D a-conhel.ads		20250808065140 46fe1ce3 ada.containers.helpers%s
-D a-convec.ads		20250808065140 91fb49f3 ada.containers.vectors%s
-D a-except.ads		20250808065140 e7970cd9 ada.exceptions%s
-D a-finali.ads		20250808065140 bf4f806b ada.finalization%s
-D a-iteint.ads		20250808065140 49a8bee2 ada.iterator_interfaces%s
-D a-stream.ads		20250808065140 17477cbd ada.streams%s
-D a-string.ads		20250808065140 90ac6797 ada.strings%s
-D a-strfix.ads		20250808065140 8648dedb ada.strings.fixed%s
-D a-strmap.ads		20250808065140 1f91ebb6 ada.strings.maps%s
-D a-strsea.ads		20250808065140 18c3c634 ada.strings.search%s
-D a-sttebu.ads		20250808065140 f1ad67a2 ada.strings.text_buffers%s
-D a-strunb.ads		20250808065140 b10770ab ada.strings.unbounded%s
-D a-stuten.ads		20250808065140 c6ced0ae ada.strings.utf_encoding%s
-D a-tags.ads		20250808065140 fbca0ad5 ada.tags%s
-D a-unccon.ads		20250808065140 0e9b276f ada.unchecked_conversion%s
+D ada.ads		20240521074738 76789da1 ada%s
+D a-assert.ads		20240521074737 ba465f5c ada.assertions%s
+D a-charac.ads		20240521074737 2d3ec45b ada.characters%s
+D a-chahan.ads		20240521074737 278246c0 ada.characters.handling%s
+D a-chlat1.ads		20240521074737 e0d72e76 ada.characters.latin_1%s
+D a-contai.ads		20240521074737 61e5e089 ada.containers%s
+D a-conhel.ads		20240521074737 46fe1ce3 ada.containers.helpers%s
+D a-convec.ads		20240521074737 91fb49f3 ada.containers.vectors%s
+D a-except.ads		20240521074738 2a7d8d70 ada.exceptions%s
+D a-finali.ads		20240521074738 bf4f806b ada.finalization%s
+D a-iteint.ads		20240521074738 49a8bee2 ada.iterator_interfaces%s
+D a-stream.ads		20240521074738 119b8fb3 ada.streams%s
+D a-string.ads		20240521074738 90ac6797 ada.strings%s
+D a-strfix.ads		20240521074738 d8832344 ada.strings.fixed%s
+D a-strmap.ads		20240521074738 ed8acfdb ada.strings.maps%s
+D a-strsea.ads		20240521074738 2d394feb ada.strings.search%s
+D a-sttebu.ads		20240521074738 f1ad67a2 ada.strings.text_buffers%s
+D a-strunb.ads		20240521074738 7bfb7010 ada.strings.unbounded%s
+D a-stuten.ads		20240521074738 c6ced0ae ada.strings.utf_encoding%s
+D a-tags.ads		20240521074738 9eaa38c6 ada.tags%s
+D a-unccon.ads		20240521074738 0e9b276f ada.unchecked_conversion%s
 D editor.ads		20260612145959 16f844c2 editor%s
 D editor-commands.ads	20260612173240 3b5e3f44 editor.commands%s
 D editor-cursors.ads	20260612145959 1f938cf3 editor.cursors%s
 D editor-keybindings.ads  20260612145959 2657f44d editor.keybindings%s
-D editor-keybindings.adb  20260612145959 7015fd56 editor.keybindings%b
+D editor-keybindings.adb  20260615192602 d925b1a4 editor.keybindings%b
 D editor-unicode.ads	20260612145959 552ff3cc editor.unicode%s
-D interfac.ads		20250808065140 9111f9c1 interfaces%s
-D i-c.ads		20250808065140 e94c966a interfaces.c%s
-D system.ads		20250808065140 14286b0f system%s
-D s-atocou.ads		20250808065140 dc18efc3 system.atomic_counters%s
-D s-exctab.ads		20250808065140 91bef6ef system.exception_table%s
-D s-finpri.ads		20250808065140 5970d55a system.finalization_primitives%s
-D s-finroo.ads		20250808065140 0a7c3ed4 system.finalization_root%s
-D s-memory.ads		20250808065140 18949c1a system.memory%s
-D s-oscons.ads		20250827122531 068e1a91 system.os_constants%s
-D s-oslock.ads		20250808065140 13fa6b78 system.os_locks%s
-D s-parame.ads		20250808065140 3597fc11 system.parameters%s
-D s-pooglo.ads		20250808065140 91708d21 system.pool_global%s
-D s-putima.ads		20250808065140 17291fe4 system.put_images%s
-D s-retsta.ads		20250808065140 0f6b06cb system.return_stack%s
-D s-secsta.ads		20250808065140 578279f5 system.secondary_stack%s
-D s-soflin.ads		20250808065140 5d88fdea system.soft_links%s
-D s-stache.ads		20250808065140 0b81c1fe system.stack_checking%s
-D s-stalib.ads		20250808065140 1c9580f6 system.standard_library%s
-D s-stalib.adb		20250808065140 eb464a47 system.standard_library%b
-D s-stoele.ads		20250808065140 ccded4e8 system.storage_elements%s
-D s-stopoo.ads		20250808065140 e9fa2dd8 system.storage_pools%s
-D s-stratt.ads		20250808065140 516607ae system.stream_attributes%s
-D s-traent.ads		20250808065140 c81cbf8c system.traceback_entries%s
-D s-unstyp.ads		20250808065140 fa2a7f59 system.unsigned_types%s
+D interfac.ads		20240521074738 15f799c2 interfaces%s
+D system.ads		20240521074738 426dafb8 system%s
+D s-assert.ads		20240521074738 9c4520c7 system.assertions%s
+D s-atocou.ads		20240521074738 dc18efc3 system.atomic_counters%s
+D s-carun8.ads		20240521074738 90e69e63 system.compare_array_unsigned_8%s
+D s-exctab.ads		20240521074738 91bef6ef system.exception_table%s
+D s-finmas.ads		20240521074738 bd688734 system.finalization_masters%s
+D s-finroo.ads		20240521074738 4ff27390 system.finalization_root%s
+D s-memory.ads		20240521074738 5b8432d0 system.memory%s
+D s-parame.ads		20251218205951 1f39ba92 system.parameters%s
+D s-pooglo.ads		20240521074738 91708d21 system.pool_global%s
+D s-putima.ads		20240521074738 17291fe4 system.put_images%s
+D s-retsta.ads		20240521074738 0f6b06cb system.return_stack%s
+D s-secsta.ads		20240521074738 578279f5 system.secondary_stack%s
+D s-soflin.ads		20240521074738 df77073e system.soft_links%s
+D s-stache.ads		20240521074738 0b81c1fe system.stack_checking%s
+D s-stalib.ads		20240521074738 1c9580f6 system.standard_library%s
+D s-stalib.adb		20240521074738 eb464a47 system.standard_library%b
+D s-stoele.ads		20240521074738 ab5468e4 system.storage_elements%s
+D s-stoele.adb		20240521074738 8f5a9db6 system.storage_elements%b
+D s-stopoo.ads		20240521074738 e9fa2dd8 system.storage_pools%s
+D s-stratt.ads		20240521074738 f7dfd786 system.stream_attributes%s
+D s-traent.ads		20240521074738 c81cbf8c system.traceback_entries%s
+D s-unstyp.ads		20240521074738 fa2a7f59 system.unsigned_types%s
 G a e
 G c Z s b [reset_to_defaults editor__keybindings 76 14 none]
 G c Z s b [clear editor__keybindings 78 14 none]
@@ -170,34 +174,34 @@ G r c none [display_command_at editor__keybindings 508 13 none] [is_internal_bui
 G r c none [display_command_at editor__keybindings 508 13 none] [is_bindable_command editor__commands 1009 13 none]
 G r c none [display_command_at editor__keybindings 508 13 none] [stable_command_name editor__commands 969 13 none]
 X 1 ada.ads
-18K9*Ada 22e8 24|1r6 58r21 59r9 25|1r6 1r33 2r6 3r6 316r30 317r10 317r40
+16K9*Ada 20e8 25|1r6 58r21 59r9 26|1r6 1r33 2r6 3r6 316r30 317r10 317r40
 . 378r35 378r65 395r42 395r86 396r42
-X 2 a-charac.ads
-16K13*Characters 18e19 25|3r10 316r34 396r46
-X 3 a-chahan.ads
-43K24*Handling 454e28 25|3w21 316r45 396r57
-274V13*To_Lower{string} 25|316s54 396s66
-X 10 a-iteint.ads
+X 3 a-charac.ads
+16K13*Characters 18e19 26|3r10 316r34 396r46
+X 4 a-chahan.ads
+43K24*Handling 455e28 26|3w21 316r45 396r57
+275V13*To_Lower{string} 26|316s54 396s66
+X 11 a-iteint.ads
 24h9 Forward_Iterator
-32h9 Reversible_Iterator<24R9[7|119]>
-X 12 a-string.ads
-16K13*Strings 35e16 24|1r10 58r25 59r13 25|1r10 1r37 2r10 317r14 317r44 378r39
+32h9 Reversible_Iterator<24R9[8|119]>
+X 13 a-string.ads
+16K13*Strings 35e16 25|1r10 58r25 59r13 26|1r10 1r37 2r10 317r14 317r44 378r39
 . 378r69 395r46 395r90
-33n37*Both{33E9} 25|317r52 378r77 395r98
-X 13 a-strfix.ads
-49K21*Fixed 1390e22 25|2w18 317r22 378r47 395r54
-1133V13*Trim{string} 25|317s28 378s53 395s60
-X 17 a-strunb.ads
-91K21*Unbounded 1641e26 24|1w18 58r33 59r21 25|1w18 1r45
-105R9*Unbounded_String<9|43R9> 1620e15 24|58r43 25|304r21 442r16
-109r4*Null_Unbounded_String{105R9} 24|59r31 25|442r36 609r25
-111V13*Length{natural} 25|308s10
-122V13*To_Unbounded_String{105R9} 25|603s31
-135V13*To_String{string} 25|457s14
-159U14*Append 25|309s10 311s7
-X 21 editor.ads
-1K9*Editor 5e11 24|2r6 4r9 82r15 93r16 100r12 117r19 124r17 130r17 137r17
-. 147r32 157r32 163r12 230r5 25|5r14 7r13 14r15 14r45 53r12 56r14 57r22 58r22
+33n37*Both{33E9} 26|317r52 378r77 395r98
+X 14 a-strfix.ads
+49K21*Fixed 1433e22 26|2w18 317r22 378r47 395r54
+1156V13*Trim{string} 26|317s28 378s53 395s60
+X 18 a-strunb.ads
+85K21*Unbounded 766e26 25|1w18 58r33 59r21 26|1w18 1r45
+91R9*Unbounded_String<10|43R9> 745e15 25|58r43 26|304r21 442r16
+95r4*Null_Unbounded_String{91R9} 25|59r31 26|442r36 609r25
+97V13*Length{natural} 26|308s10
+108V13*To_Unbounded_String{91R9} 26|603s31
+121V13*To_String{string} 26|457s14
+140U14*Append 26|309s10 311s7
+X 22 editor.ads
+1K9*Editor 5e11 25|2r6 4r9 82r15 93r16 100r12 117r19 124r17 130r17 137r17
+. 147r32 157r32 163r12 230r5 26|5r14 7r13 14r15 14r45 53r12 56r14 57r22 58r22
 . 75r15 97r16 103r14 106r13 109r13 112r17 172r12 197r17 219r10 222r10 225r10
 . 228r10 231r10 234r10 240r19 249r16 253r22 259r13 461r17 474r17 494r21 497r14
 . 498r11 502r17 512r41 514r18 514r48 516r25 523r20 524r31 546r14 553r17 564r32
@@ -208,9 +212,9 @@ X 21 editor.ads
 . 749r45 750r46 751r50 752r47 753r34 754r36 755r49 756r51 761r36 762r33 763r32
 . 764r33 766r46 767r47 768r44 769r46 770r46 771r45 772r60 773r59 774r60 775r61
 . 790r5
-X 22 editor-commands.ads
-6K16*Commands 1740e20 24|2w13 82r22 93r23 100r19 117r26 124r24 130r24 137r24
-. 147r39 157r39 163r19 25|7r20 14r22 14r52 53r19 56r21 57r29 58r29 75r22
+X 23 editor-commands.ads
+6K16*Commands 1740e20 25|2w13 82r22 93r23 100r19 117r26 124r24 130r24 137r24
+. 147r39 157r39 163r19 26|7r20 14r22 14r52 53r19 56r21 57r29 58r29 75r22
 . 97r23 103r21 106r20 109r20 112r24 172r19 197r24 219r17 222r17 225r17 228r17
 . 231r17 234r17 240r26 249r23 253r29 259r20 461r24 474r24 494r28 497r21 498r18
 . 502r24 512r48 514r25 514r55 516r32 523r27 524r38 546r21 553r24 564r39 576r24
@@ -220,227 +224,227 @@ X 22 editor-commands.ads
 . 738r51 739r52 741r38 742r39 743r36 744r38 745r38 746r37 747r52 748r51 749r52
 . 750r53 751r57 752r54 753r41 754r43 755r56 756r58 761r43 762r40 763r39 764r40
 . 766r53 767r54 768r51 769r53 770r53 771r52 772r67 773r66 774r67 775r68
-11E9*Command_Id 549e47 24|82r31 93r32 100r28 117r35 124r33 130r33 137r33
-. 147r48 157r48 163r28 25|7r29 14r31 53r28 75r31 97r32 172r28 197r33 240r35
+11E9*Command_Id 549e47 25|82r31 93r32 100r28 117r35 124r33 130r33 137r33
+. 147r48 157r48 163r28 26|7r29 14r31 53r28 75r31 97r32 172r28 197r33 240r35
 . 461r33 474r33 494r37 502r33 512r57 514r34 516r41 523r36 553r33 564r48 576r33
 . 587r48 596r33 615r34 616r46 648r33
-12n7*No_Command{11E9} 25|14r61 253r38 259r29 514r64 524r47 546r30
-13n7*Command_Move_Left{11E9} 25|741r47
-14n7*Command_Move_Right{11E9} 25|742r48
-15n7*Command_Move_Up{11E9} 25|743r45
-16n7*Command_Move_Down{11E9} 25|744r47
-17n7*Command_Move_Line_Start{11E9} 25|745r47
-18n7*Command_Move_Line_End{11E9} 25|746r46
-19n7*Command_Move_Document_Start{11E9} 25|747r61
-20n7*Command_Move_Document_End{11E9} 25|748r60
-21n7*Command_Move_Word_Left{11E9} 25|749r61
-22n7*Command_Move_Word_Right{11E9} 25|750r62
-23n7*Command_Page_Up{11E9} 25|753r50
-24n7*Command_Page_Down{11E9} 25|754r52
-25n7*Command_Select_Left{11E9} 25|766r62
-26n7*Command_Select_Right{11E9} 25|767r63
-27n7*Command_Select_Up{11E9} 25|768r60
-28n7*Command_Select_Down{11E9} 25|769r62
-29n7*Command_Select_Word_Left{11E9} 25|774r76
-30n7*Command_Select_Word_Right{11E9} 25|775r77
-32n7*Command_Select_Line{11E9} 25|714r58
-37n7*Command_Select_Line_Start{11E9} 25|770r62
-38n7*Command_Select_Line_End{11E9} 25|771r61
-39n7*Command_Select_Document_Start{11E9} 25|772r76
-40n7*Command_Select_Document_End{11E9} 25|773r75
-41n7*Command_Select_Page_Up{11E9} 25|755r65
-42n7*Command_Select_Page_Down{11E9} 25|756r67
-43n7*Command_Insert_Newline{11E9} 25|763r48
-44n7*Command_Undo{11E9} 25|734r58
-45n7*Command_Redo{11E9} 25|735r58 736r73
-47n7*Command_Copy{11E9} 25|716r58
-48n7*Command_Cut{11E9} 25|717r58
-49n7*Command_Paste{11E9} 25|718r58
-51n7*Command_Select_All{11E9} 25|715r58
-66n7*Command_Char_Delete_Previous{11E9} 25|761r52
-67n7*Command_Char_Delete_Next{11E9} 25|762r49
-68n7*Command_Word_Delete_Previous{11E9} 25|751r66
-69n7*Command_Word_Delete_Next{11E9} 25|752r63
-70n7*Command_Save_File{11E9} 25|703r58
-71n7*Command_Save_File_As{11E9} 25|705r29
-83n7*Command_Open_Quick_Open{11E9} 25|709r58
-217n7*Command_Open_Command_Palette{11E9} 25|710r73
-222n7*Command_Cancel{11E9} 25|764r49
-239n7*Command_New_Buffer{11E9} 25|711r58
-240n7*Command_Close_Active_Buffer{11E9} 25|712r58
-270n7*Command_Previous_Recent_Buffer{11E9} 25|732r60
-271n7*Command_Next_Recent_Buffer{11E9} 25|733r75
-284n7*Command_Toggle_Problems_Panel{11E9} 25|713r73
-287n7*Command_Toggle_Bookmark{11E9} 25|725r59
-288n7*Command_Next_Bookmark{11E9} 25|723r45
-289n7*Command_Previous_Bookmark{11E9} 25|724r60
-290n7*Command_Clear_Bookmarks{11E9} 25|726r74
-307n7*Command_Goto_Line{11E9} 25|707r58
-312n7*Command_Navigation_Back{11E9} 25|738r60
-313n7*Command_Navigation_Forward{11E9} 25|739r61
-317n7*Command_Find_Show{11E9} 25|706r58
-328n7*Command_Active_Find_Next{11E9} 25|729r45
-329n7*Command_Active_Find_Previous{11E9} 25|730r60
-342n7*Command_Open_Project_Search_Bar{11E9} 25|708r73
-456n7*Command_Refresh_Outline{11E9} 25|219r26
-468n7*Command_Open_Selected_Outline_Item{11E9} 25|222r26
-469n7*Command_Select_Current_Outline_Symbol{11E9} 25|231r26
-470n7*Command_Reveal_Current_Outline_Symbol{11E9} 25|234r26
-473n7*Command_Select_Next_Outline_Item{11E9} 25|225r26
-474n7*Command_Select_Previous_Outline_Item{11E9} 25|228r26
-938V13*Is_Concrete_Command{boolean} 25|103s30
-947V13*Is_Public_Build_Command{boolean} 25|58s38 106s29
-954V13*Is_Internal_Build_Test_Seam_Command{boolean} 25|57s38 109s29
-969V13*Stable_Command_Name{string} 25|497s30 498s27
-1009V13*Is_Bindable_Command{boolean} 25|56s30 112s33 249s32 620s32 649s29
-X 24 editor-keybindings.ads
-4K16*Keybindings 21|1k9 24|223E9 230l12 230e23 25|5b21 790l12 790t23
-6E9*Key_Code 38e13 48r19 25|33r15 265r29 315r71 357r32 385r18
-7n7*Key_Left{6E9} 25|12r17 268r15 320r33 353r17 381r17 489r22 738r20 741r20
+12n7*No_Command{11E9} 26|14r61 253r38 259r29 514r64 524r47 546r30
+13n7*Command_Move_Left{11E9} 26|741r47
+14n7*Command_Move_Right{11E9} 26|742r48
+15n7*Command_Move_Up{11E9} 26|743r45
+16n7*Command_Move_Down{11E9} 26|744r47
+17n7*Command_Move_Line_Start{11E9} 26|745r47
+18n7*Command_Move_Line_End{11E9} 26|746r46
+19n7*Command_Move_Document_Start{11E9} 26|747r61
+20n7*Command_Move_Document_End{11E9} 26|748r60
+21n7*Command_Move_Word_Left{11E9} 26|749r61
+22n7*Command_Move_Word_Right{11E9} 26|750r62
+23n7*Command_Page_Up{11E9} 26|753r50
+24n7*Command_Page_Down{11E9} 26|754r52
+25n7*Command_Select_Left{11E9} 26|766r62
+26n7*Command_Select_Right{11E9} 26|767r63
+27n7*Command_Select_Up{11E9} 26|768r60
+28n7*Command_Select_Down{11E9} 26|769r62
+29n7*Command_Select_Word_Left{11E9} 26|774r76
+30n7*Command_Select_Word_Right{11E9} 26|775r77
+32n7*Command_Select_Line{11E9} 26|714r58
+37n7*Command_Select_Line_Start{11E9} 26|770r62
+38n7*Command_Select_Line_End{11E9} 26|771r61
+39n7*Command_Select_Document_Start{11E9} 26|772r76
+40n7*Command_Select_Document_End{11E9} 26|773r75
+41n7*Command_Select_Page_Up{11E9} 26|755r65
+42n7*Command_Select_Page_Down{11E9} 26|756r67
+43n7*Command_Insert_Newline{11E9} 26|763r48
+44n7*Command_Undo{11E9} 26|734r58
+45n7*Command_Redo{11E9} 26|735r58 736r73
+47n7*Command_Copy{11E9} 26|716r58
+48n7*Command_Cut{11E9} 26|717r58
+49n7*Command_Paste{11E9} 26|718r58
+51n7*Command_Select_All{11E9} 26|715r58
+66n7*Command_Char_Delete_Previous{11E9} 26|761r52
+67n7*Command_Char_Delete_Next{11E9} 26|762r49
+68n7*Command_Word_Delete_Previous{11E9} 26|751r66
+69n7*Command_Word_Delete_Next{11E9} 26|752r63
+70n7*Command_Save_File{11E9} 26|703r58
+71n7*Command_Save_File_As{11E9} 26|705r29
+83n7*Command_Open_Quick_Open{11E9} 26|709r58
+217n7*Command_Open_Command_Palette{11E9} 26|710r73
+222n7*Command_Cancel{11E9} 26|764r49
+239n7*Command_New_Buffer{11E9} 26|711r58
+240n7*Command_Close_Active_Buffer{11E9} 26|712r58
+270n7*Command_Previous_Recent_Buffer{11E9} 26|732r60
+271n7*Command_Next_Recent_Buffer{11E9} 26|733r75
+284n7*Command_Toggle_Problems_Panel{11E9} 26|713r73
+287n7*Command_Toggle_Bookmark{11E9} 26|725r59
+288n7*Command_Next_Bookmark{11E9} 26|723r45
+289n7*Command_Previous_Bookmark{11E9} 26|724r60
+290n7*Command_Clear_Bookmarks{11E9} 26|726r74
+307n7*Command_Goto_Line{11E9} 26|707r58
+312n7*Command_Navigation_Back{11E9} 26|738r60
+313n7*Command_Navigation_Forward{11E9} 26|739r61
+317n7*Command_Find_Show{11E9} 26|706r58
+328n7*Command_Active_Find_Next{11E9} 26|729r45
+329n7*Command_Active_Find_Previous{11E9} 26|730r60
+342n7*Command_Open_Project_Search_Bar{11E9} 26|708r73
+456n7*Command_Refresh_Outline{11E9} 26|219r26
+468n7*Command_Open_Selected_Outline_Item{11E9} 26|222r26
+469n7*Command_Select_Current_Outline_Symbol{11E9} 26|231r26
+470n7*Command_Reveal_Current_Outline_Symbol{11E9} 26|234r26
+473n7*Command_Select_Next_Outline_Item{11E9} 26|225r26
+474n7*Command_Select_Previous_Outline_Item{11E9} 26|228r26
+938V13*Is_Concrete_Command{boolean} 26|103s30
+947V13*Is_Public_Build_Command{boolean} 26|58s38 106s29
+954V13*Is_Internal_Build_Test_Seam_Command{boolean} 26|57s38 109s29
+969V13*Stable_Command_Name{string} 26|497s30 498s27
+1009V13*Is_Bindable_Command{boolean} 26|56s30 112s33 249s32 620s32 649s29
+X 25 editor-keybindings.ads
+4K16*Keybindings 22|1k9 25|223E9 230l12 230e23 26|5b21 790l12 790t23
+6E9*Key_Code 38e13 48r19 26|33r15 265r29 315r71 357r32 385r18
+7n7*Key_Left{6E9} 26|12r17 268r15 320r33 353r17 381r17 489r22 738r20 741r20
 . 749r20 766r20 774r20
-8n7*Key_Right{6E9} 25|269r15 321r37 739r20 742r20 750r20 767r20 775r20
-9n7*Key_Up{6E9} 25|270r15 322r34 743r20 768r20
-10n7*Key_Down{6E9} 25|271r15 323r36 744r20 769r20
-11n7*Key_Home{6E9} 25|272r15 324r36 745r20 747r20 770r20 772r20
-12n7*Key_End{6E9} 25|273r15 325r35 746r20 748r20 771r20 773r20
-13n7*Key_Page_Up{6E9} 25|274r15 326r60 753r20 755r20
-14n7*Key_Page_Down{6E9} 25|275r15 327r64 754r20 756r20
-15n7*Key_Backspace{6E9} 25|276r15 328r41 751r20 761r20
-16n7*Key_Delete{6E9} 25|277r15 329r38 752r20 762r20
-17n7*Key_Enter{6E9} 25|221r25 278r15 330r37 763r20
-18n7*Key_Escape{6E9} 25|279r15 331r38 764r20
-19n7*Key_A{6E9} 25|280r15 332r33 360r15 715r20
-20n7*Key_S{6E9} 25|281r15 333r33 360r23 703r20 704r20
-21n7*Key_C{6E9} 25|282r15 334r33 360r31 716r20
-22n7*Key_X{6E9} 25|283r15 335r33 360r39 717r20
-23n7*Key_V{6E9} 25|284r15 336r33 360r47 718r20
-24n7*Key_F{6E9} 25|285r15 337r33 360r55 706r20 708r20
-25n7*Key_G{6E9} 25|286r15 707r20
-26n7*Key_H{6E9} 25|287r15 338r33 360r63
-27n7*Key_P{6E9} 25|288r15 339r33 360r71 709r20 710r20
-28n7*Key_N{6E9} 25|289r15 340r33 361r15 711r20
-29n7*Key_W{6E9} 25|290r15 341r33 361r23 712r20
-30n7*Key_M{6E9} 25|291r15 342r33 361r31 713r20
-31n7*Key_L{6E9} 25|292r15 343r33 361r39 714r20
-32n7*Key_F1{6E9} 25|293r15 344r34
-33n7*Key_F2{6E9} 25|294r15 345r34 723r20 724r20 725r20 726r20
-34n7*Key_F3{6E9} 25|224r25 227r25 295r15 346r34 729r20 730r20
-35n7*Key_F12{6E9} 25|218r25 230r25 233r25 296r15 347r35
-36n7*Key_Tab{6E9} 25|297r15 348r35 732r20 733r20
-37n7*Key_Z{6E9} 25|298r15 349r33 361r47 734r20 736r20
-38n7*Key_Y{6E9} 25|299r15 350r33 361r55 735r20
-40R9*Modifier_Set 45e14 49r19 25|368r43
-41b7*Ctrl{boolean} 25|13m24 26r30 26r49 42m24 370r24 382m24 402r39 403m36
+8n7*Key_Right{6E9} 26|269r15 321r37 739r20 742r20 750r20 767r20 775r20
+9n7*Key_Up{6E9} 26|270r15 322r34 743r20 768r20
+10n7*Key_Down{6E9} 26|271r15 323r36 744r20 769r20
+11n7*Key_Home{6E9} 26|272r15 324r36 745r20 747r20 770r20 772r20
+12n7*Key_End{6E9} 26|273r15 325r35 746r20 748r20 771r20 773r20
+13n7*Key_Page_Up{6E9} 26|274r15 326r60 753r20 755r20
+14n7*Key_Page_Down{6E9} 26|275r15 327r64 754r20 756r20
+15n7*Key_Backspace{6E9} 26|276r15 328r41 751r20 761r20
+16n7*Key_Delete{6E9} 26|277r15 329r38 752r20 762r20
+17n7*Key_Enter{6E9} 26|221r25 278r15 330r37 763r20
+18n7*Key_Escape{6E9} 26|279r15 331r38 764r20
+19n7*Key_A{6E9} 26|280r15 332r33 360r15 715r20
+20n7*Key_S{6E9} 26|281r15 333r33 360r23 703r20 704r20
+21n7*Key_C{6E9} 26|282r15 334r33 360r31 716r20
+22n7*Key_X{6E9} 26|283r15 335r33 360r39 717r20
+23n7*Key_V{6E9} 26|284r15 336r33 360r47 718r20
+24n7*Key_F{6E9} 26|285r15 337r33 360r55 706r20 708r20
+25n7*Key_G{6E9} 26|286r15 707r20
+26n7*Key_H{6E9} 26|287r15 338r33 360r63
+27n7*Key_P{6E9} 26|288r15 339r33 360r71 709r20 710r20
+28n7*Key_N{6E9} 26|289r15 340r33 361r15 711r20
+29n7*Key_W{6E9} 26|290r15 341r33 361r23 712r20
+30n7*Key_M{6E9} 26|291r15 342r33 361r31 713r20
+31n7*Key_L{6E9} 26|292r15 343r33 361r39 714r20
+32n7*Key_F1{6E9} 26|293r15 344r34
+33n7*Key_F2{6E9} 26|294r15 345r34 723r20 724r20 725r20 726r20
+34n7*Key_F3{6E9} 26|224r25 227r25 295r15 346r34 729r20 730r20
+35n7*Key_F12{6E9} 26|218r25 230r25 233r25 296r15 347r35
+36n7*Key_Tab{6E9} 26|297r15 348r35 732r20 733r20
+37n7*Key_Z{6E9} 26|298r15 349r33 361r47 734r20 736r20
+38n7*Key_Y{6E9} 26|299r15 350r33 361r55 735r20
+40R9*Modifier_Set 45e14 49r19 26|368r43
+41b7*Ctrl{boolean} 26|13m24 26r30 26r49 42m24 370r24 382m24 402r39 403m36
 . 444r26 490m29
-42b7*Shift{boolean} 25|13m39 27r30 27r50 42m38 371r27 382m39 408r39 409m36
+42b7*Shift{boolean} 26|13m39 27r30 27r50 42m38 371r27 382m39 408r39 409m36
 . 450r26 490m44
-43b7*Alt{boolean} 25|13m55 28r30 28r48 42m54 370r47 382m55 405r39 406m36
+43b7*Alt{boolean} 26|13m55 28r30 28r48 42m54 370r47 382m55 405r39 406m36
 . 447r26 490m60
-44b7*Meta{boolean} 25|13m69 29r30 29r49 42m66 371r51 382m69 411r39 412m36
+44b7*Meta{boolean} 26|13m69 29r30 29r49 42m66 371r51 382m69 411r39 412m36
 . 453r26 490m74
 47R9*Key_Chord 50e14 81r15 92r16 97r15 107r15 116r15 138r34 213r35 219r15
-. 25|11r15 23r32 37r40 74r15 96r16 160r15 183r15 196r17 239r15 376r35 380r16
+. 26|11r15 23r32 37r40 74r15 96r16 160r15 183r15 196r17 239r15 376r35 380r16
 . 440r15 475r34
-48e7*Key{6E9} 25|12m10 25r16 25r24 41m10 381m10 419m26 428r38 456r44 489m15
-49r7*Modifiers{40R9} 25|13m10 26r20 26r39 27r20 27r40 28r20 28r38 29r20 29r39
+48e7*Key{6E9} 26|12m10 25r16 25r24 41m10 381m10 419m26 428r38 456r44 489m15
+49r7*Modifiers{40R9} 26|13m10 26r20 26r39 27r20 27r40 28r20 28r38 29r20 29r39
 . 42m10 382m10 402r29 403m26 405r29 406m26 408r29 409m26 411r29 412m26 429r47
 . 444r16 447r16 450r16 453r16 490m15
-52E9*Binding_Result 54e21 117r54 25|240r54
-53n7*No_Binding{52E9} 25|254r23 260r14
-54n7*Bound_Command{52E9} 25|251r23 628r58
-56R9*Command_Keybinding_Info 60e14 124r52 25|596r52
-57b7*Has_Binding{boolean} 25|602m16 608m10
-58r7*Display{17|105R9} 25|603m16 609m10
-62R9*Default_Keybinding_Registration_Result 66e14 113r14 25|195r24 210r14
+52E9*Binding_Result 54e21 117r54 26|240r54
+53n7*No_Binding{52E9} 26|254r23 260r14
+54n7*Bound_Command{52E9} 26|251r23 628r58
+56R9*Command_Keybinding_Info 60e14 124r52 26|596r52
+57b7*Has_Binding{boolean} 26|602m16 608m10
+58r7*Display{18|91R9} 26|603m16 609m10
+62R9*Default_Keybinding_Registration_Result 66e14 113r14 26|195r24 210r14
 . 212r16 778r32
-63i7*Requested_Count{natural} 25|200m14 200r40 783r26
-64i7*Registered_Count{natural} 25|203m17 203r44 782r24
-65i7*Conflict_Count{natural} 25|205m17 205r42 782r54
-68E9*Keybinding_Change_Status 74e36 94r20 25|98r20
-69n7*Keybinding_Change_Ok{68E9} 25|151r20
-70n7*Keybinding_Change_Invalid_Target{68E9} 25|104r20
-71n7*Keybinding_Change_Non_Bindable_Target{68E9} 25|113r20
-72n7*Keybinding_Change_Internal_Target{68E9} 25|110r20
-73n7*Keybinding_Change_Public_Build_Target{68E9} 25|107r20
-74n7*Keybinding_Change_Table_Full{68E9} 25|132r23 155r20
-76U14*Reset_To_Defaults 25|699b14 786l8 786t25 789s4
-78U14*Clear 25|45b14 50l8 50t13 701s7
-80U14*Bind 81>7 82>7 25|73b14 93l8 93t12 202s10 703s7 704s7 706s7 707s7 708s7
+63i7*Requested_Count{natural} 26|200m14 200r40 783r26
+64i7*Registered_Count{natural} 26|203m17 203r44 782r24
+65i7*Conflict_Count{natural} 26|205m17 205r42 782r54
+68E9*Keybinding_Change_Status 74e36 94r20 26|98r20
+69n7*Keybinding_Change_Ok{68E9} 26|151r20
+70n7*Keybinding_Change_Invalid_Target{68E9} 26|104r20
+71n7*Keybinding_Change_Non_Bindable_Target{68E9} 26|113r20
+72n7*Keybinding_Change_Internal_Target{68E9} 26|110r20
+73n7*Keybinding_Change_Public_Build_Target{68E9} 26|107r20
+74n7*Keybinding_Change_Table_Full{68E9} 26|132r23 155r20
+76U14*Reset_To_Defaults 26|699b14 786l8 786t25 789s4
+78U14*Clear 26|45b14 50l8 50t13 701s7
+80U14*Bind 81>7 82>7 26|73b14 93l8 93t12 202s10 703s7 704s7 706s7 707s7 708s7
 . 709s7 710s7 711s7 712s7 713s7 714s7 715s7 716s7 717s7 718s7 723s7 724s7
 . 725s7 726s7 729s7 730s7 732s7 733s7 734s7 735s7 736s7 738s7 739s7 741s7
 . 742s7 743s7 744s7 745s7 746s7 747s7 748s7 749s7 750s7 751s7 752s7 753s7
 . 754s7 755s7 756s7 761s7 762s7 763s7 764s7 766s7 767s7 768s7 769s7 770s7
 . 771s7 772s7 773s7 774s7 775s7
-81r7 Chord{47R9} 25|74b7 79r72 87r53
-82e7 Id{22|11E9} 25|75b7 80r32 87r66
-91U14*Assign 92>7 93>7 94<7 25|95b14 157l8 157t14
-92r7 Chord{47R9} 25|96b7 122r62 142r62 150r59
-93e7 Id{22|11E9} 25|97b7 103r51 106r54 109r66 112r54 121r40 141r40 150r72
-94e7 Status{68E9} 25|98b7 104m10 107m10 110m10 113m10 132m13 151m10 155m10
-96U14*Unbind 97>7 25|159b14 169l8 169t14
-97r7 Chord{47R9} 25|160b7 164r72
-99U14*Unbind_Command 100>7 25|171b14 180l8 180t22
-100e7 Id{22|11E9} 25|172b7 176r58
-106V13*Can_Register_Default_Keybinding{boolean} 107>7 25|182b13 192l8 192t39
+81r7 Chord{47R9} 26|74b7 79r72 87r53
+82e7 Id{23|11E9} 26|75b7 80r32 87r66
+91U14*Assign 92>7 93>7 94<7 26|95b14 157l8 157t14
+92r7 Chord{47R9} 26|96b7 122r62 142r62 150r59
+93e7 Id{23|11E9} 26|97b7 103r51 106r54 109r66 112r54 121r40 141r40 150r72
+94e7 Status{68E9} 26|98b7 104m10 107m10 110m10 113m10 132m13 151m10 155m10
+96U14*Unbind 97>7 26|159b14 169l8 169t14
+97r7 Chord{47R9} 26|160b7 164r72
+99U14*Unbind_Command 100>7 26|171b14 180l8 180t22
+100e7 Id{23|11E9} 26|172b7 176r58
+106V13*Can_Register_Default_Keybinding{boolean} 107>7 26|182b13 192l8 192t39
 . 201s10
-107r7 Chord{47R9} 25|183b7 187r72
-112V13*Register_Outline_Keybindings{62R9} 25|209b13 236l8 236t36 779s12
-115V13*Resolve{52E9} 116>7 117<7 25|238b13 261l8 261t15 628s16
-116r7 Chord{47R9} 25|239b7 244r72
-117e7 Id{22|11E9} 25|240b7 250m16 253m16 259m7
-123V13*Primary_Binding_For_Command{56R9} 124>7 25|595b13 610l8 610t35
-124e7 Command{22|11E9} 25|596b7 600r58
-129V13*Binding_Count_For_Command{natural} 130>7 25|460b13 471l8 471t33 505s14
-130e7 Command{22|11E9} 25|461b7 466r58
-136V13*Binding_For_Command{47R9} 137>7 138>7 25|473b13 491l8 491t27
-137e7 Command{22|11E9} 25|474b7 480r58
-138i7 Index{positive} 25|475b7 482r24
-143V13*Bound_Command_Count{natural} 25|549b13 561l8 561t27
-146V13*Bound_Command_At{22|11E9} 147>7 25|563b13 570l8 570t24
-147i7 Index{positive} 25|564b7 568r10
-152V13*Unbound_Assignable_Command_Count{natural} 25|572b13 584l8 584t40
-156V13*Unbound_Assignable_Command_At{22|11E9} 157>7 25|586b13 593l8 593t37
-157i7 Index{positive} 25|587b7 591r10
-162V13*Is_Normal_Assignable_Command{boolean} 163>7 25|52b13 59l8 59t36 526s24
+107r7 Chord{47R9} 26|183b7 187r72
+112V13*Register_Outline_Keybindings{62R9} 26|209b13 236l8 236t36 779s12
+115V13*Resolve{52E9} 116>7 117<7 26|238b13 261l8 261t15 628s16
+116r7 Chord{47R9} 26|239b7 244r72
+117e7 Id{23|11E9} 26|240b7 250m16 253m16 259m7
+123V13*Primary_Binding_For_Command{56R9} 124>7 26|595b13 610l8 610t35
+124e7 Command{23|11E9} 26|596b7 600r58
+129V13*Binding_Count_For_Command{natural} 130>7 26|460b13 471l8 471t33 505s14
+130e7 Command{23|11E9} 26|461b7 466r58
+136V13*Binding_For_Command{47R9} 137>7 138>7 26|473b13 491l8 491t27
+137e7 Command{23|11E9} 26|474b7 480r58
+138i7 Index{positive} 26|475b7 482r24
+143V13*Bound_Command_Count{natural} 26|549b13 561l8 561t27
+146V13*Bound_Command_At{23|11E9} 147>7 26|563b13 570l8 570t24
+147i7 Index{positive} 26|564b7 568r10
+152V13*Unbound_Assignable_Command_Count{natural} 26|572b13 584l8 584t40
+156V13*Unbound_Assignable_Command_At{23|11E9} 157>7 26|586b13 593l8 593t37
+157i7 Index{positive} 26|587b7 591r10
+162V13*Is_Normal_Assignable_Command{boolean} 163>7 26|52b13 59l8 59t36 526s24
 . 554s13 577s13
-163e7 Id{22|11E9} 25|53b7 56r51 57r75 58r63
-165E9*Keybinding_Validation_Status 167e27 189r14 224r27 25|671r14
-166n7*Valid_Keybindings{165E9} 224r59 25|663r38
-167n7*Invalid_Keybindings{165E9} 25|661r38
+163e7 Id{23|11E9} 26|53b7 56r51 57r75 58r63
+165E9*Keybinding_Validation_Status 167e27 189r14 224r27 26|671r14
+166n7*Valid_Keybindings{165E9} 224r59 26|663r38
+167n7*Invalid_Keybindings{165E9} 26|661r38
 169R9*Keybinding_Validation_Result 183r29 188r16 194r16 199r16 204r16 223c9
-. 228e14 25|612r29 614r16 670r16 678r16 685r16 692r16
-171R9*Keybinding_Validation_Summary 176e14 205r14 227r28 25|693r14
-172i7*Bound_Command_Count{natural} 25|651m42 652r44
-173i7*Conflict_Count{natural} 25|641m45 642r47
-174i7*Invalid_Count{natural} 25|624m42 625r44 632m42 633r44
-175i7*Unbound_Count{natural} 25|654m42 655r44
-183V13*Validate{169R9} 25|612b13 667l8 667t16
-187V13*Status{165E9} 188>7 25|669b13 675l8 675t14
-188r7 Result{169R9} 25|670b7 674r14
-193V13*Has_Invalid_Command_Targets{boolean} 194>7 25|677b13 682l8 682t35
-194r7 Result{169R9} 25|678b7 681r14
-198V13*Has_Duplicate_Chords{boolean} 199>7 25|684b13 689l8 689t28
-199r7 Result{169R9} 25|685b7 688r14
-203V13*Summary{171R9} 204>7 25|691b13 697l8 697t15
-204r7 Result{169R9} 25|692b7 696r14
-211V13*Parse_Chord{47R9} 212>7 213<7 25|374b13 437l8 437t19
-212a7 Text{string} 25|375b7 378r59
-213b7 Found{boolean} 25|376b7 388m10 399m19 402m49 405m48 408m50 411m49 416m22
+. 228e14 26|612r29 614r16 670r16 678r16 685r16 692r16
+171R9*Keybinding_Validation_Summary 176e14 205r14 227r28 26|693r14
+172i7*Bound_Command_Count{natural} 26|651m42 652r44
+173i7*Conflict_Count{natural} 26|641m45 642r47
+174i7*Invalid_Count{natural} 26|624m42 625r44 632m42 633r44
+175i7*Unbound_Count{natural} 26|654m42 655r44
+183V13*Validate{169R9} 26|612b13 667l8 667t16
+187V13*Status{165E9} 188>7 26|669b13 675l8 675t14
+188r7 Result{169R9} 26|670b7 674r14
+193V13*Has_Invalid_Command_Targets{boolean} 194>7 26|677b13 682l8 682t35
+194r7 Result{169R9} 26|678b7 681r14
+198V13*Has_Duplicate_Chords{boolean} 199>7 26|684b13 689l8 689t28
+199r7 Result{169R9} 26|685b7 688r14
+203V13*Summary{171R9} 204>7 26|691b13 697l8 697t15
+204r7 Result{169R9} 26|692b7 696r14
+211V13*Parse_Chord{47R9} 212>7 213<7 26|374b13 437l8 437t19
+212a7 Text{string} 26|375b7 378r59
+213b7 Found{boolean} 26|376b7 388m10 399m19 402m49 405m48 408m50 411m49 416m22
 . 431m10 435m7
-218V13*Format_Chord{string} 219>7 25|439b13 458l8 458t20 603s52
-219r7 Chord{47R9} 25|440b7 444r10 447r10 450r10 453r10 456r38
-224e7*Validation_Status{165E9} 25|661m17 663m17 674r21
-225b7*Invalid_Targets{boolean} 25|623m23 631m23 660r17 681r21
-226b7*Duplicate_Chords{boolean} 25|640m26 660r48 688r21
-227r7*Validation_Summary{171R9} 25|624m23 625r25 632m23 633r25 641m26 642r28
+218V13*Format_Chord{string} 219>7 26|439b13 458l8 458t20 603s52
+219r7 Chord{47R9} 26|440b7 444r10 447r10 450r10 453r10 456r38
+224e7*Validation_Status{165E9} 26|661m17 663m17 674r21
+225b7*Invalid_Targets{boolean} 26|623m23 631m23 660r17 681r21
+226b7*Duplicate_Chords{boolean} 26|640m26 660r48 688r21
+227r7*Validation_Summary{171R9} 26|624m23 625r25 632m23 633r25 641m26 642r28
 . 651m23 652r25 654m23 655r25 696r21
-X 25 editor-keybindings.adb
+X 26 editor-keybindings.adb
 9R9 Binding_Entry 15e14 19r51
 10b7*Used{boolean} 48m23 64r30 79r26 86r30 87m30 120r26 140r26 144m26 150m36
 . 164r26 165m26 176r26 177m26 187r26 244r26 466r26 480r26 600r26 619r26 637r32
-11r7*Chord{24|47R9} 79r65 87m44 122r55 142r55 150m50 164r65 187r65 244r65
+11r7*Chord{25|47R9} 79r65 87m44 122r55 142r55 150m50 164r65 187r65 244r65
 . 483r36 603r79 628r38 638r52 638r72
-14e7*Id{22|11E9} 80m26 87m60 121r35 141r35 150m66 176r53 249r66 250r35 466r53
+14e7*Id{23|11E9} 80m26 87m60 121r35 141r35 150m66 176r53 249r66 250r35 466r53
 . 480r53 600r53 620r66 621r44 629r48
 17i4 Max_Bindings{natural} 18r48
 18I12 Binding_Index{natural} 19r33
@@ -449,20 +453,20 @@ X 25 editor-keybindings.adb
 . 85r16 86r17 87m13 100r31 119r16 120r13 121r22 122r42 139r16 140r13 141r22
 . 142r42 144m13 150m10 163r16 164r13 164r52 165m13 175r16 176r13 176r40 177m13
 . 186r16 187r13 187r52 243r16 244r13 244r52 249r53 250r22 465r16 466r13 466r40
-. 479r16 480r13 480r40 483r23 599r16 600r13 600r40 603r66 618r16 619r13 620r53
+. 479r16 480r13 480r40 483r23 599r24 600r13 600r40 603r66 618r16 619r13 620r53
 . 621r31 628r25 629r35 636r31 637r19 638r39 638r59
 23V13 Same_Chord{boolean} 23b13 23>25 23>28 30l8 30t18 79s40 122s30 142s30
 . 164s40 187s40 244s40 638s27
-23r25 L{24|47R9} 25r14 26r18 27r18 28r18 29r18
-23r28 R{24|47R9} 25r22 26r37 27r38 28r36 29r37
-32V13 Chord{24|47R9} 32b13 33>7 34>7 35>7 36>7 37>7 43l8 43t13 218s18 221s18
+23r25 L{25|47R9} 25r14 26r18 27r18 28r18 29r18
+23r28 R{25|47R9} 25r22 26r37 27r38 28r36 29r37
+32V13 Chord{25|47R9} 32b13 33>7 34>7 35>7 36>7 37>7 43l8 43t13 218s18 221s18
 . 224s18 227s18 230s18 233s18 703s13 704s13 706s13 707s13 708s13 709s13 710s13
 . 711s13 712s13 713s13 714s13 715s13 716s13 717s13 718s13 723s13 724s13 725s13
 . 726s13 729s13 730s13 732s13 733s13 734s13 735s13 736s13 738s13 739s13 741s13
 . 742s13 743s13 744s13 745s13 746s13 747s13 748s13 749s13 750s13 751s13 752s13
 . 753s13 754s13 755s13 756s13 761s13 762s13 763s13 764s13 766s13 767s13 768s13
 . 769s13 770s13 771s13 772s13 773s13 774s13 775s13
-33e7 Key{24|6E9} 41r23
+33e7 Key{25|6E9} 41r23
 34b7 Ctrl{boolean} 42r32 218r34 703r27 704r27 706r27 707r27 708r27 709r27
 . 710r27 711r27 712r27 713r27 714r27 715r27 716r27 717r27 718r27 725r28 726r28
 . 732r29 733r29 734r27 735r27 736r27 747r30 748r29 749r30 750r31 751r35 752r32
@@ -488,19 +492,19 @@ X 25 editor-keybindings.adb
 186i11 I{integer} 187r23 187r62
 194U14 Register_Default_If_Free 194b14 195=7 196>7 197>7 207l8 207t32 217s7
 . 220s7 223s7 226s7 229s7 232s7
-195r7 Result{24|62R9} 200m7 200r33 203m10 203r37 205m10 205r35
-196r7 Chord{24|47R9} 201r43 202r16
-197e7 Command{22|11E9} 202r23
-212r7 Result{24|62R9} 218m10 218r10 221m10 221r10 224m10 224r10 227m10 227r10
+195r7 Result{25|62R9} 200m7 200r33 203m10 203r37 205m10 205r35
+196r7 Chord{25|47R9} 201r43 202r16
+197e7 Command{23|11E9} 202r23
+212r7 Result{25|62R9} 218m10 218r10 221m10 221r10 224m10 224r10 227m10 227r10
 . 230m10 230r10 233m10 233r10 235r14
 243i11 I{integer} 244r23 244r62 249r63 250r32
 265V13 Key_Name{string} 265b13 265>23 301l8 301t16 456s28
-265e23 Key{24|6E9} 267r12
+265e23 Key{25|6E9} 267r12
 303U14 Append_Part 303b14 304=7 305>7 312l8 312t19 445s10 448s10 451s10 454s10
 . 456s7
-304r7 Text{17|105R9} 308r18 309m18 311m15
+304r7 Text{18|91R9} 308r18 309m18 311m15
 305a7 Part{string} 311r21
-315V13 Key_From_Name{24|6E9} 315b13 315>28 315<43 355l8 355t21 414s24
+315V13 Key_From_Name{25|6E9} 315b13 315>28 315<43 355l8 355t21 414s24
 315a28 Name{string} 317r34
 315b43 Found{boolean} 319m7 352m10
 316a7 N{string} 320r10 321r13 322r13 323r13 324r13 325r13 326r13 326r34 327r13
@@ -508,60 +512,60 @@ X 25 editor-keybindings.adb
 . 338r13 339r13 340r13 341r13 342r13 343r13 344r13 345r13 346r13 347r13 348r13
 . 349r13 350r13
 357V13 Is_Text_Key{boolean} 357b13 357>26 366l8 366t19 428s18
-357e26 Key{24|6E9} 359r12
+357e26 Key{25|6E9} 359r12
 368V13 Has_Any_Modifier{boolean} 368b13 368>31 372l8 372t24 429s22
-368r31 Modifiers{24|40R9} 370r14 370r37 371r17 371r41
+368r31 Modifiers{25|40R9} 370r14 370r37 371r17 371r41
 378a7 T{string} 379r28 387r10 392r16 392r27 393r17 393r36 395r66
 379i7 Start{positive} 395r69 423m13
-380r7 Result{24|47R9} 389r17 400r26 402r22 402r72 403m19 405r22 405r71 406m19
+380r7 Result{25|47R9} 389r17 400r26 402r22 402r72 403m19 405r22 405r71 406m19
 . 408r22 408r73 409m19 411r22 411r72 412m19 417r29 419m19 428r31 429r40 432r17
 . 436r14
 383b7 Have_Key{boolean} 398r43 420m19 427r10 435r16
 384b7 Part_Ok{boolean} 414m45 414r45 415r26
-385e7 K{24|6E9} 414m19 419r33
+385e7 K{25|6E9} 414m19 419r33
 392i11 I{integer} 393r13 393r39 395r78 423r22
 395a16 Part{string} 396r76 398r19 414r39
 396a16 Low{string} 401r22 404r22 407r22 410r22
-442r7 Result{17|105R9} 445m23 445r23 448m23 448r23 451m23 451r23 454m23 454r23
+442r7 Result{18|91R9} 445m23 445r23 448m23 448r23 451m23 451r23 454m23 454r23
 . 456m20 456r20 457r25
 463i7 Count{natural} 467m13 467r22 470r14
 465i11 I{integer} 466r23 466r50
 477i7 Count{natural} 481m13 481r22 482r16
 479i11 I{integer} 480r23 480r50 483r33
 493V13 Command_Name_Less{boolean} 493b13 494>7 494>13 499l8 499t25 530s46
-494e7 Left{22|11E9} 497r51
-494e13 Right{22|11E9} 498r48
+494e7 Left{23|11E9} 497r51
+494e13 Right{23|11E9} 498r48
 501V13 Has_Any_Binding{boolean} 501b13 502>7 506l8 506t23 527s46 528s60 555s21
 . 578s25
-502e7 Command{22|11E9} 505r41
-508V13 Display_Command_At{22|11E9} 508b13 509>7 510>7 511>7 512>7 547l8 547t26
+502e7 Command{23|11E9} 505r41
+508V13 Display_Command_At{23|11E9} 508b13 509>7 510>7 511>7 512>7 547l8 547t26
 . 567s14 590s14
 509i7 Index{positive} 540r22
 510b7 Want_Bound{boolean} 527r26 568r17 591r17
 511b7 Want_Unbound{boolean} 528r34 568r37 591r38
 512b7 Assignable_Only{boolean} 519r28 569r10 592r10
-514e7 Best{22|11E9} 530r69 532m16 538r16 541r20
+514e7 Best{23|11E9} 530r69 532m16 538r16 541r20
 515b7 Best_Set{boolean} 522m10 530r29 533m16 537r24
 516a7 Seen(boolean) 525r28 538m10
 517i7 Wanted{natural} 539m10 539r20 540r13
 518b7 Eligible{boolean} 524m13 529r16
-523e14 Id{22|11E9} 524r25 525r34 526r54 527r63 528r77 530r65 532r24
+523e14 Id{23|11E9} 524r25 525r34 526r54 527r63 528r77 530r65 532r24
 551i7 Count{natural} 557m13 557r22 560r14
-553e11 Id{22|11E9} 554r43 555r38
+553e11 Id{23|11E9} 554r43 555r38
 574i7 Count{natural} 580m13 580r22 583r14
-576e11 Id{22|11E9} 577r43 578r42
+576e11 Id{23|11E9} 577r43 578r42
 599i11 I{integer} 600r23 600r50 603r76
-614r7 Result{24|169R9} 623m16 624m16 625r18 631m16 632m16 633r18 640m19 641m19
+614r7 Result{25|169R9} 623m16 624m16 625r18 631m16 632m16 633r18 640m19 641m19
 . 642r21 651m16 652r18 654m16 655r18 660r10 660r41 661m10 663m10 666r14
-615e7 Resolved{22|11E9} 628m45 628r45 629r23
+615e7 Resolved{23|11E9} 628m45 628r45 629r23
 616a7 Command_Bound(boolean) 621m16 650r16
 618i11 I{integer} 619r23 620r63 621r41 628r35 629r45 636r22 638r49
 636i17 J{integer} 637r29 638r69
-648e11 Id{22|11E9} 649r50 650r31
-778r10 Registered{24|62R9} 782r13 782r43 783r15
+648e11 Id{23|11E9} 649r50 650r31
+778r10 Registered{25|62R9} 782r13 782r43 783r15
 X 29 system.ads
 67M9*Address
-X 34 s-memory.ads
+X 36 s-memory.ads
 51V13*Alloc{29|67M9} 101i<c,__gnat_malloc>22
 66U14*Free 102i<c,__gnat_free>22
 74V13*Realloc{29|67M9} 103i<c,__gnat_realloc>22

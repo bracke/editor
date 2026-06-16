@@ -1,5 +1,11 @@
 package body Editor.Ada_Remaining_RM_Edge_Remediation_Worklist_Legality is
 
+   pragma Suppress (Overflow_Check);
+   use type Diagnostics.Remaining_RM_Edge_Stabilized_Diagnostic_Family;
+   use type Edge.Remaining_RM_Edge_Blocker_Family;
+   use type Editor.Ada_Syntax_Tree.Node_Id;
+
+
    function Mix (Left, Right : Natural) return Natural is
    begin
       return (Left * 16_777_619 + Right + 12_860) mod 2_147_483_647;

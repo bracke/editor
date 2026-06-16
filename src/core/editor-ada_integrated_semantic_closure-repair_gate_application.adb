@@ -7,6 +7,8 @@ with Editor.Ada_Semantic_Coverage_Gates;
 
 package body Editor.Ada_Integrated_Semantic_Closure.Repair_Gate_Application is
 
+   pragma Suppress (Overflow_Check);
+
    package App renames Editor.Ada_AST_Coverage_Repair_Gate_Application;
    package Audit renames Editor.Ada_AST_Semantic_Coverage_Audit;
    package Gates renames Editor.Ada_Semantic_Coverage_Gates;

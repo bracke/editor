@@ -27,6 +27,7 @@ with Editor.Render_Layers;
 with Editor.Render_Model;
 with Editor.Render_Packet;
 with Editor.Settings;
+with Editor.Settings_Management;
 with Editor.State;
 with Editor.Theme;
 with Editor.View;
@@ -891,6 +892,7 @@ package body Editor.Settings.Tests is
       Ada.Environment_Variables.Set ("EDITOR_SETTINGS_PATH", Path);
 
       Editor.State.Init (S);
+      Editor.Settings_Management.Reset_Transient_State;
       Assert (Editor.Settings.Minimap_Visible (S.Settings),
               "state fixture must start with default minimap setting");
       Editor.Minimap.Set_Enabled (False);
@@ -899,7 +901,7 @@ package body Editor.Settings.Tests is
       Assert (Editor.Settings.Minimap_Visible (S.Settings),
               "failed Save Settings must not replace in-memory state settings snapshot");
       M := Editor.Messages.Active_Message (S.Messages, Found);
-      Assert (Found and then To_String (M.Text) = "Save settings failed",
+      Assert (Found and then To_String (M.Text) = "Settings file could not be written.",
               "failed Save Settings must emit deterministic failure outcome");
       Editor.Minimap.Set_Enabled (True);
       Delete_If_Exists (Blocker);
@@ -920,6 +922,7 @@ package body Editor.Settings.Tests is
       Ada.Environment_Variables.Set ("EDITOR_SETTINGS_PATH", Path);
 
       Editor.State.Init (S);
+      Editor.Settings_Management.Reset_Transient_State;
       Editor.Settings.Set_Defaults (Model);
       Editor.Settings.Set_Minimap_Visible (Model, False);
       Editor.State.Apply_Settings (S, Model);
@@ -928,7 +931,7 @@ package body Editor.Settings.Tests is
       Assert (not Editor.Settings.Minimap_Visible (S.Settings),
               "malformed settings reload must not partially replace state settings");
       M := Editor.Messages.Active_Message (S.Messages, Found);
-      Assert (Found and then To_String (M.Text) = "Settings file is invalid",
+      Assert (Found and then To_String (M.Text) = "Settings file is invalid.",
               "malformed settings reload must emit deterministic failure outcome");
       Editor.Minimap.Set_Enabled (True);
       Editor.Settings.Set_Show_Minimap (True);
@@ -1093,6 +1096,7 @@ package body Editor.Settings.Tests is
               Editor.Lifecycle_Audit.Summary (Result));
       Assert (Editor.Pending_Transitions.Has_Pending (S.Pending_Transitions),
               "Reset Settings must not clear pending transitions");
+      Editor.Settings_Management.Reset_Transient_State;
       Delete_If_Exists (Settings_Path);
    end Test_Phase104_Settings_Commands_Preserve_Lifecycle_State;
 
@@ -1120,6 +1124,7 @@ package body Editor.Settings.Tests is
 
       Ada.Environment_Variables.Set ("EDITOR_SETTINGS_PATH", Path);
       Editor.State.Init (S);
+      Editor.Settings_Management.Reset_Transient_State;
       Editor.Settings.Load_From_File (Path, Loaded, Status);
       Assert (Status = Editor.Settings.Settings_Ok,
               "default settings fixture must load");

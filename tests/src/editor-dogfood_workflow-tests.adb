@@ -75,6 +75,11 @@ package body Editor.Dogfood_Workflow.Tests is
       return Ada.Directories.Current_Directory & "/phase535_dogfood_project";
    end Temp_Root;
 
+   function Temp_Config_Root return String is
+   begin
+      return Ada.Directories.Current_Directory & "/phase535_dogfood_config";
+   end Temp_Config_Root;
+
    procedure Remove_Tree_If_Exists (Path : String) is
    begin
       if Ada.Directories.Exists (Path) then
@@ -99,7 +104,11 @@ package body Editor.Dogfood_Workflow.Tests is
       F   : Stream_IO.File_Type;
       Raw : Ada.Streams.Stream_Element_Array
         (1 .. Ada.Streams.Stream_Element_Offset (Text'Length));
+      Parent : constant String := Ada.Directories.Containing_Directory (Path);
    begin
+      if Parent'Length > 0 and then not Ada.Directories.Exists (Parent) then
+         Ada.Directories.Create_Path (Parent);
+      end if;
       Stream_IO.Create (F, Stream_IO.Out_File, Path);
       for I in Text'Range loop
          Raw (Ada.Streams.Stream_Element_Offset (I - Text'First + 1)) :=
@@ -584,6 +593,8 @@ package body Editor.Dogfood_Workflow.Tests is
       Assert (Editor.Outline_Extractor.Status (Extracted) =
                 Editor.Outline_Extractor.Extraction_Ok,
               "Ada Outline extraction succeeds on the real dogfood buffer");
+      Editor.Outline.Begin_Extraction
+        (S.Outline, Editor.Outline_Extractor.Identity (Extracted));
       Editor.Outline_Extractor.Apply_To_Outline (Extracted, S.Outline);
       Assert (Editor.Outline.Item_Count (S.Outline) >= 3,
               "Outline exposes real extracted Ada rows");
@@ -639,6 +650,7 @@ package body Editor.Dogfood_Workflow.Tests is
                 Editor.Focus_Management.Focus_Project_Search_Results,
               "failed stale Search activation keeps focus on Search results for correction");
       Editor.Project_Search.Clear_Stale (S.Project_Search);
+      Editor.Feature_Diagnostics.Clear_Diagnostics (S.Feature_Diagnostics);
 
       --  Build UI candidate refresh, explicit command-route selection, consent,
       --  deterministic bounded run, Diagnostics ingestion, and diagnostic target open.
@@ -665,6 +677,14 @@ package body Editor.Dogfood_Workflow.Tests is
               "selected candidate exposes a structured request preview");
       Assert (not S.Build_UI.Consent_Acknowledged,
               "candidate selection does not auto-consent");
+      if not S.Build_UI.Show_Diagnostics_On_Result then
+         Build_Run := Editor.Executor.Execute_Command_With_Result
+           (S, Editor.Commands.Command_Build_Toggle_Diagnostics_Ingestion);
+         Assert (Build_Run.Status = Editor.Command_Execution.Command_Executed,
+                 "build diagnostics ingestion is enabled through Executor");
+      end if;
+      Assert (S.Build_UI.Show_Diagnostics_On_Result,
+              "Build UI request explicitly enables diagnostics ingestion");
       S.Public_Build_Execution_Policy :=
         Editor.Build_Runner_Policy.Build_Execution_Bounded_Process;
       Build_Run := Editor.Executor.Execute_Command_With_Result
@@ -807,6 +827,8 @@ package body Editor.Dogfood_Workflow.Tests is
           Max_Line_Length => Editor.Project_Search.Max_Search_Result_Preview_Length,
           Max_File_Size_Bytes => 64 * 1024,
           Regex_Max_Steps => 100_000));
+      Editor.Outline.Begin_Extraction
+        (S2.Outline, Editor.Outline_Extractor.Identity (Extracted));
       Editor.Outline_Extractor.Apply_To_Outline (Extracted, S2.Outline);
       Editor.Feature_Diagnostics.Add_Diagnostic
         (S2.Feature_Diagnostics,
@@ -1265,8 +1287,8 @@ package body Editor.Dogfood_Workflow.Tests is
       Assert (Metadata.Dirty_Category = Editor.Buffers.Buffer_Dirty_Conflicted_File,
               "dirty close review handoff preserves Buffer List conflict classification");
       Assert (Metadata.Close_Eligibility =
-                Editor.Buffers.Buffer_Requires_Conflict_Resolution_Or_Discard,
-              "failed save-and-close keeps close eligibility blocked by conflict resolution");
+                Editor.Buffers.Buffer_Blocked_By_Pending_Confirmation,
+              "failed save-and-close keeps close eligibility blocked by the conflict confirmation");
       Assert (S.File_Conflict_Close_After_Overwrite,
               "save-and-close conflict records an explicit close-after-overwrite handoff only after user confirmation");
 
@@ -1377,6 +1399,8 @@ package body Editor.Dogfood_Workflow.Tests is
             S.Buffer_Revision,
             S.Lifecycle_Generation,
             578));
+      Editor.Outline.Begin_Extraction
+        (S.Outline, Editor.Outline_Extractor.Identity (Extracted));
       Editor.Outline_Extractor.Apply_To_Outline (Extracted, S.Outline);
       Assert (Editor.Outline.Has_Items (S.Outline),
               "Project A Outline state is populated before switch");
@@ -2921,6 +2945,8 @@ package body Editor.Dogfood_Workflow.Tests is
       Assert (Editor.Outline_Extractor.Status (Extracted) =
                 Editor.Outline_Extractor.Extraction_Ok,
               "daily loop Outline extraction succeeds on active source buffer");
+      Editor.Outline.Begin_Extraction
+        (S.Outline, Editor.Outline_Extractor.Identity (Extracted));
       Editor.Outline_Extractor.Apply_To_Outline (Extracted, S.Outline);
       Outline_Row := First_Target_Row (S.Outline);
       Assert (Outline_Row > 0,
@@ -2945,6 +2971,14 @@ package body Editor.Dogfood_Workflow.Tests is
         (S, Editor.Commands.Command_Build_Select_Next_Candidate);
       Assert (Build_Run.Status = Editor.Command_Execution.Command_Executed,
               "daily loop explicitly selects a build candidate");
+      if not S.Build_UI.Show_Diagnostics_On_Result then
+         Build_Run := Editor.Executor.Execute_Command_With_Result
+           (S, Editor.Commands.Command_Build_Toggle_Diagnostics_Ingestion);
+         Assert (Build_Run.Status = Editor.Command_Execution.Command_Executed,
+                 "daily loop enables build diagnostics ingestion");
+      end if;
+      Assert (S.Build_UI.Show_Diagnostics_On_Result,
+              "daily loop Build UI request explicitly enables diagnostics ingestion");
       S.Public_Build_Execution_Policy :=
         Editor.Build_Runner_Policy.Build_Execution_Bounded_Process;
       Build_Run := Editor.Executor.Execute_Command_With_Result
@@ -4033,6 +4067,21 @@ package body Editor.Dogfood_Workflow.Tests is
    begin
       return AUnit.Format ("Editor.Dogfood_Workflow");
    end Name;
+
+   overriding procedure Set_Up (T : in out Dogfood_Workflow_Test_Case) is
+      pragma Unreferenced (T);
+   begin
+      Remove_Tree_If_Exists (Temp_Config_Root);
+      Ada.Directories.Create_Path (Temp_Config_Root);
+      Editor.Recent_Projects.Set_Config_Directory_For_Tests (Temp_Config_Root);
+   end Set_Up;
+
+   overriding procedure Tear_Down (T : in out Dogfood_Workflow_Test_Case) is
+      pragma Unreferenced (T);
+   begin
+      Editor.Recent_Projects.Clear_Config_Directory_Override;
+      Remove_Tree_If_Exists (Temp_Config_Root);
+   end Tear_Down;
 
    overriding procedure Register_Tests
      (T : in out Dogfood_Workflow_Test_Case)

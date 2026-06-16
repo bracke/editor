@@ -3,6 +3,8 @@ with Ada.Strings.Unbounded; use Ada.Strings.Unbounded;
 
 package body Editor.Ada_Overload_RM_Edge_Legality is
 
+   pragma Suppress (Overflow_Check);
+
    package Preference renames Editor.Ada_Overload_Preference_Legality;
    package Replay renames Editor.Ada_Generic_Instance_Body_Semantic_Replay;
    package Gates renames Editor.Ada_Widened_Legality_Coverage_Gate_Enforcement;

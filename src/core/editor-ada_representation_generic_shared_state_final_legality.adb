@@ -2,6 +2,17 @@ with Ada.Strings.Unbounded; use Ada.Strings.Unbounded;
 
 package body Editor.Ada_Representation_Generic_Shared_State_Final_Legality is
 
+   pragma Suppress (Overflow_Check);
+   use type Closure.Shared_State_Stabilized_Closure_Status;
+   use type Closure.Shared_State_Stabilized_Closure_Id;
+   use type Rep_Final.Final_Representation_Row_Id;
+   use type Rep_Shared.Representation_Shared_State_Row_Id;
+   use type Generic_Replay.Generic_Abstract_Replay_Row_Id;
+   use type Overload_Generic.Overload_Generic_Final_Row_Id;
+   use type Volatile_Rep.Volatile_Atomic_Representation_Row_Id;
+   use type Editor.Ada_Syntax_Tree.Node_Id;
+
+
    function Mix (A, B : Natural) return Natural is
       Modulus : constant Natural := 2 ** 30 - 35;
    begin

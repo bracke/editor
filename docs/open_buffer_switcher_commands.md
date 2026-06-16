@@ -61,52 +61,52 @@ The following are display-only or read-only derivation paths and must not be lis
 
 | Stable name | Short description | Category | Class | Bindable | Palette | Hint | Route | Owner | Status |
 |---|---|---|---|---:|---:|---:|---|---|---|
-| buffers.switcher.open | Switch among currently open buffers | Navigation | General | yes | yes | no | Executor | switcher overlay | current |
-| buffers.switcher.close | Close the open-buffer switcher | Navigation | General | yes | no | conditional | Executor | switcher overlay | current |
-| buffers.switcher.accept | Switch to the selected open buffer | Navigation | General | yes | no | conditional | Executor | switcher overlay | current |
-| buffers.switcher.next | Select the next open-buffer switcher row | Navigation | General | yes | no | conditional | Executor | switcher overlay | current |
-| buffers.switcher.previous | Select the previous open-buffer switcher row | Navigation | General | yes | no | conditional | Executor | switcher overlay | current |
+| buffers.switcher.open | Inspect and switch among currently open buffers | Navigation | General | yes | yes | no | Executor | switcher overlay | current |
+| buffers.switcher.close | Hide the open-buffer list | Navigation | General | yes | no | conditional | Executor | switcher overlay | current |
+| buffers.switcher.accept | Switch to the selected open buffer-list row | Navigation | General | yes | no | conditional | Executor | switcher overlay | current |
+| buffers.switcher.next | Select the next open-buffer list row | Navigation | General | yes | no | conditional | Executor | switcher overlay | current |
+| buffers.switcher.previous | Select the previous open-buffer list row | Navigation | General | yes | no | conditional | Executor | switcher overlay | current |
 
 ### Filters and Sort
 
 | Stable name | Short description | Category | Class | Bindable | Palette | Hint | Route | Owner | Status |
 |---|---|---|---|---:|---:|---:|---|---|---|
-| buffers.switcher.filter.clear | Clear the active open-buffer switcher metadata filter. | Navigation | General | yes | yes | conditional | Executor | filter/query/sort state | current |
-| buffers.switcher.filter.pinned | Show only pinned open buffers in the open-buffer switcher. | Navigation | General | yes | yes | no | Executor | filter/query/sort state | current |
+| buffers.switcher.filter.clear | Clear the active open-buffer list filter. | Navigation | General | yes | yes | conditional | Executor | filter/query/sort state | current |
+| buffers.switcher.filter.pinned | Show only pinned open buffers in the Open Buffer List. | Navigation | General | yes | yes | no | Executor | filter/query/sort state | current |
 | buffers.switcher.filter.group | Show only open buffers in the named session-local group. | Navigation | General | yes | yes | no | Executor | filter/query/sort state | current |
 | buffers.switcher.filter.label | Show only open buffers with the named session-local label. | Navigation | General | yes | yes | no | Executor | filter/query/sort state | current |
 | buffers.switcher.filter.noted | Show only open buffers that have session-local notes. | Navigation | General | yes | yes | no | Executor | filter/query/sort state | current |
-| buffers.switcher.sort.default | Use the default open-buffer switcher order. | Navigation | General | yes | yes | no | Executor | filter/query/sort state | current |
-| buffers.switcher.sort.recent | Order open-buffer switcher rows by recent activation. | Navigation | General | yes | yes | no | Executor | filter/query/sort state | current |
-| buffers.switcher.sort.name | Order open-buffer switcher rows by display name. | Navigation | General | yes | yes | no | Executor | filter/query/sort state | current |
-| buffers.switcher.sort.pinned | Order pinned open buffers before unpinned buffers in the switcher. | Navigation | General | yes | yes | no | Executor | filter/query/sort state | current |
-| buffers.switcher.sort.group | Order grouped open buffers by group name in the switcher. | Navigation | General | yes | yes | no | Executor | filter/query/sort state | current |
-| buffers.switcher.sort.label | Order labeled open buffers by label text in the switcher. | Navigation | General | yes | yes | no | Executor | filter/query/sort state | current |
-| buffers.switcher.sort.next | Cycle to the next open-buffer switcher sort mode. | Navigation | General | yes | yes | conditional | Executor | filter/query/sort state | current |
-| buffers.switcher.sort.previous | Cycle to the previous open-buffer switcher sort mode. | Navigation | General | yes | yes | no | Executor | filter/query/sort state | current |
+| buffers.switcher.sort.default | Use the default Open Buffer List order. | Navigation | General | yes | yes | no | Executor | filter/query/sort state | current |
+| buffers.switcher.sort.recent | Order Open Buffer List rows by recent activation. | Navigation | General | yes | yes | no | Executor | filter/query/sort state | current |
+| buffers.switcher.sort.name | Order Open Buffer List rows by display name. | Navigation | General | yes | yes | no | Executor | filter/query/sort state | current |
+| buffers.switcher.sort.pinned | Order pinned open buffers before unpinned buffers in the open-buffer list. | Navigation | General | yes | yes | no | Executor | filter/query/sort state | current |
+| buffers.switcher.sort.group | Order grouped open buffers by group name in the open-buffer list. | Navigation | General | yes | yes | no | Executor | filter/query/sort state | current |
+| buffers.switcher.sort.label | Order labeled open buffers by label text in the open-buffer list. | Navigation | General | yes | yes | no | Executor | filter/query/sort state | current |
+| buffers.switcher.sort.next | Cycle to the next Open Buffer List sort mode. | Navigation | General | yes | yes | conditional | Executor | filter/query/sort state | current |
+| buffers.switcher.sort.previous | Cycle to the previous Open Buffer List sort mode. | Navigation | General | yes | yes | no | Executor | filter/query/sort state | current |
 
 ### Selected Actions
 
 | Stable name | Short description | Category | Class | Bindable | Palette | Hint | Route | Owner | Status |
 |---|---|---|---|---:|---:|---:|---|---|---|
-| buffers.switcher.selected.close | Close the selected open buffer from the switcher. | Navigation | Destructive+Lifecycle | yes | yes | no | Executor | selected row | current |
-| buffers.switcher.selected.pin | Pin the selected open buffer from the switcher. | Navigation | Lifecycle | yes | yes | no | Executor | selected row | current |
-| buffers.switcher.selected.unpin | Unpin the selected open buffer from the switcher. | Navigation | Lifecycle | yes | yes | no | Executor | selected row | current |
-| buffers.switcher.selected.toggle-pin | Toggle pin state for the selected open buffer from the switcher. | Navigation | Lifecycle | yes | yes | no | Executor | selected row | current |
-| buffers.switcher.selected.group.assign | Assign the selected open buffer to a session-local group from the switcher. | Navigation | Lifecycle | yes | yes | no | Executor | selected row | current |
-| buffers.switcher.selected.group.clear | Clear the selected open buffer group from the switcher. | Navigation | Lifecycle | yes | yes | no | Executor | selected row | current |
-| buffers.switcher.selected.label.set | Set the selected open buffer label from the switcher. | Navigation | Lifecycle | yes | yes | no | Executor | selected row | current |
-| buffers.switcher.selected.label.clear | Clear the selected open buffer label from the switcher. | Navigation | Lifecycle | yes | yes | no | Executor | selected row | current |
-| buffers.switcher.selected.note.set | Set the selected open buffer note from the switcher. | Navigation | Lifecycle | yes | yes | no | Executor | selected row | current |
-| buffers.switcher.selected.note.clear | Clear the selected open buffer note from the switcher. | Navigation | Lifecycle | yes | yes | no | Executor | selected row | current |
+| buffers.switcher.selected.close | Close the selected open buffer from the buffer list. | Navigation | Destructive+Lifecycle | yes | yes | no | Executor | selected row | current |
+| buffers.switcher.selected.pin | Pin the selected open buffer from the open-buffer list. | Navigation | Lifecycle | yes | yes | no | Executor | selected row | current |
+| buffers.switcher.selected.unpin | Unpin the selected open buffer from the open-buffer list. | Navigation | Lifecycle | yes | yes | no | Executor | selected row | current |
+| buffers.switcher.selected.toggle-pin | Toggle pin state for the selected open buffer from the open-buffer list. | Navigation | Lifecycle | yes | yes | no | Executor | selected row | current |
+| buffers.switcher.selected.group.assign | Assign the selected open buffer to a session-local group from the open-buffer list. | Navigation | Lifecycle | yes | yes | no | Executor | selected row | current |
+| buffers.switcher.selected.group.clear | Clear the selected open buffer group from the open-buffer list. | Navigation | Lifecycle | yes | yes | no | Executor | selected row | current |
+| buffers.switcher.selected.label.set | Set the selected open buffer label from the open-buffer list. | Navigation | Lifecycle | yes | yes | no | Executor | selected row | current |
+| buffers.switcher.selected.label.clear | Clear the selected open buffer label from the open-buffer list. | Navigation | Lifecycle | yes | yes | no | Executor | selected row | current |
+| buffers.switcher.selected.note.set | Set the selected open buffer note from the open-buffer list. | Navigation | Lifecycle | yes | yes | no | Executor | selected row | current |
+| buffers.switcher.selected.note.clear | Clear the selected open buffer note from the open-buffer list. | Navigation | Lifecycle | yes | yes | no | Executor | selected row | current |
 
 ### Preview
 
 | Stable name | Short description | Category | Class | Bindable | Palette | Hint | Route | Owner | Status |
 |---|---|---|---|---:|---:|---:|---|---|---|
-| buffers.switcher.preview.toggle | Show or hide the selected open-buffer preview in the switcher. | Navigation | General | yes | yes | no | Executor | preview state | current |
-| buffers.switcher.previewow | Show a compact read-only preview for the selected switcher buffer. | Navigation | General | yes | yes | no | Executor | preview state | current |
-| buffers.switcher.preview.hide | Hide the selected open-buffer preview in the switcher. | Navigation | General | yes | yes | no | Executor | preview state | current |
+| buffers.switcher.preview.toggle | Show or hide the selected open-buffer preview in the open-buffer list. | Navigation | General | yes | yes | no | Executor | preview state | current |
+| buffers.switcher.preview.show | Show a compact read-only preview for the selected open buffer. | Navigation | General | yes | yes | no | Executor | preview state | current |
+| buffers.switcher.preview.hide | Hide the selected open-buffer preview in the open-buffer list. | Navigation | General | yes | yes | no | Executor | preview state | current |
 | buffers.switcher.preview.next-line | Scroll the selected-buffer preview down by one line. | Navigation | General | yes | yes | no | Executor | preview state | current |
 | buffers.switcher.preview.previous-line | Scroll the selected-buffer preview up by one line. | Navigation | General | yes | yes | no | Executor | preview state | current |
 | buffers.switcher.preview.center-cursor | Return the selected-buffer preview to that buffer's cursor line. | Navigation | General | yes | yes | no | Executor | preview state | current |
@@ -115,27 +115,27 @@ The following are display-only or read-only derivation paths and must not be lis
 
 | Stable name | Short description | Category | Class | Bindable | Palette | Hint | Route | Owner | Status |
 |---|---|---|---|---:|---:|---:|---|---|---|
-| buffers.switcher.mark.toggle | Mark or unmark the selected open buffer in the switcher. | Navigation | General | yes | yes | no | Executor | mark set | current |
-| buffers.switcher.mark.set | Mark the selected open buffer in the switcher. | Navigation | General | yes | yes | conditional | Executor | mark set | current |
-| buffers.switcher.mark.clear | Clear the mark from the selected open buffer in the switcher. | Navigation | General | yes | yes | conditional | Executor | mark set | current |
-| buffers.switcher.mark.clear-all | Clear all temporary open-buffer switcher marks. | Navigation | General | yes | yes | conditional | Executor | mark set | current |
-| buffers.switcher.mark.invert-visible | Invert marks for the currently visible switcher rows. | Navigation | General | yes | yes | no | Executor | mark set | current |
-| buffers.switcher.mark.visible | Mark all currently visible open-buffer switcher rows. | Navigation | General | yes | yes | no | Executor | mark set | current |
-| buffers.switcher.mark.clear-visible | Clear marks from currently visible open-buffer switcher rows. | Navigation | General | yes | yes | no | Executor | mark set | current |
+| buffers.switcher.mark.toggle | Mark or unmark the selected open buffer in the open-buffer list. | Navigation | General | yes | yes | no | Executor | mark set | current |
+| buffers.switcher.mark.set | Mark the selected open buffer in the open-buffer list. | Navigation | General | yes | yes | conditional | Executor | mark set | current |
+| buffers.switcher.mark.clear | Clear the mark from the selected open buffer in the open-buffer list. | Navigation | General | yes | yes | conditional | Executor | mark set | current |
+| buffers.switcher.mark.clear-all | Clear all temporary Open Buffer List marks. | Navigation | General | yes | yes | conditional | Executor | mark set | current |
+| buffers.switcher.mark.invert-visible | Invert marks for the currently visible open-buffer rows. | Navigation | General | yes | yes | no | Executor | mark set | current |
+| buffers.switcher.mark.visible | Mark all currently visible open-buffer list rows. | Navigation | General | yes | yes | no | Executor | mark set | current |
+| buffers.switcher.mark.clear-visible | Clear marks from currently visible open-buffer list rows. | Navigation | General | yes | yes | no | Executor | mark set | current |
 | buffers.switcher.mark.pinned | Mark all currently open pinned buffers. | Navigation | General | yes | yes | no | Executor | mark set | current |
 | buffers.switcher.mark.close-marked | Prepare confirmation for closing all currently marked open buffers. | Navigation | General | yes | yes | conditional | Executor | mark set | current |
-| buffers.switcher.mark.confirm | Confirm the pending marked switcher action. | Navigation | Lifecycle | yes | yes | conditional | Executor | mark set | current |
-| buffers.switcher.mark.cancel | Cancel the pending marked switcher action without mutation. | Navigation | General | yes | yes | conditional | Executor | mark set | current |
+| buffers.switcher.mark.confirm | Confirm the pending marked buffer action. | Navigation | Lifecycle | yes | yes | conditional | Executor | mark set | current |
+| buffers.switcher.mark.cancel | Cancel the pending marked buffer action without mutation. | Navigation | General | yes | yes | conditional | Executor | mark set | current |
 
 ### Mark Review
 
 | Stable name | Short description | Category | Class | Bindable | Palette | Hint | Route | Owner | Status |
 |---|---|---|---|---:|---:|---:|---|---|---|
-| buffers.switcher.mark.review.toggle | Show or hide a marked-only review view in the open-buffer switcher. | Navigation | General | yes | yes | no | Executor | mark review state | current |
-| buffers.switcher.mark.reviewow | Show only currently marked open buffers in the switcher. | Navigation | General | yes | yes | conditional | Executor | mark review state | current |
-| buffers.switcher.mark.review.hide | Return the switcher to its ordinary candidate projection. | Navigation | General | yes | yes | conditional | Executor | mark review state | current |
-| buffers.switcher.mark.next | Move the switcher selection to the next marked candidate without activating it. | Navigation | General | yes | yes | conditional | Executor | mark review state | current |
-| buffers.switcher.mark.previous | Move the switcher selection to the previous marked candidate without activating it. | Navigation | General | yes | yes | conditional | Executor | mark review state | current |
+| buffers.switcher.mark.review.toggle | Show or hide a marked-only review view in the Open Buffer List. | Navigation | General | yes | yes | no | Executor | mark review state | current |
+| buffers.switcher.mark.review.show | Show only currently marked open buffers in the open-buffer list. | Navigation | General | yes | yes | conditional | Executor | mark review state | current |
+| buffers.switcher.mark.review.hide | Return the open-buffer list to its normal view. | Navigation | General | yes | yes | conditional | Executor | mark review state | current |
+| buffers.switcher.mark.next | Move the open-buffer list selection to the next marked candidate without activating it. | Navigation | General | yes | yes | conditional | Executor | mark review state | current |
+| buffers.switcher.mark.previous | Move the open-buffer list selection to the previous marked candidate without activating it. | Navigation | General | yes | yes | conditional | Executor | mark review state | current |
 | buffers.switcher.mark.summary | Report the current count of marked open buffers. | Navigation | General | yes | yes | no | Executor | mark review state | current |
 
 ### Marked Metadata Apply
@@ -147,23 +147,23 @@ The following are display-only or read-only derivation paths and must not be lis
 | buffers.switcher.mark.noted | Mark all currently open buffers that have session-local notes. | Navigation | General | yes | yes | no | Executor | mark set | current |
 | buffers.switcher.mark.pin-marked | Pin all currently marked open buffers. | Navigation | General | yes | yes | no | Executor | mark set | current |
 | buffers.switcher.mark.unpin-marked | Unpin all currently marked open buffers. | Navigation | General | yes | yes | no | Executor | mark set | current |
-| buffers.switcher.mark.clear-metadata | Clear group, label, and note metadata from all marked open buffers. | Navigation | General | yes | yes | no | Executor | mark set | current |
+| buffers.switcher.mark.clear-metadata | Clear group, label, and note details from all marked open buffers. | Navigation | General | yes | yes | no | Executor | mark set | current |
 | buffers.switcher.mark.group.assign | Assign a group to all currently marked open buffers. | Navigation | General | yes | yes | no | Executor | mark set | current |
-| buffers.switcher.mark.group.clear | Clear group metadata from all currently marked open buffers. | Navigation | General | yes | yes | no | Executor | mark set | current |
+| buffers.switcher.mark.group.clear | Clear group names from all currently marked open buffers. | Navigation | General | yes | yes | no | Executor | mark set | current |
 | buffers.switcher.mark.label.set | Set a label on all currently marked open buffers. | Navigation | General | yes | yes | no | Executor | mark set | current |
-| buffers.switcher.mark.label.clear | Clear label metadata from all currently marked open buffers. | Navigation | General | yes | yes | no | Executor | mark set | current |
+| buffers.switcher.mark.label.clear | Clear labels from all currently marked open buffers. | Navigation | General | yes | yes | no | Executor | mark set | current |
 | buffers.switcher.mark.note.set | Set a note on all currently marked open buffers. | Navigation | General | yes | yes | no | Executor | mark set | current |
-| buffers.switcher.mark.note.clear | Clear note metadata from all currently marked open buffers. | Navigation | General | yes | yes | no | Executor | mark set | current |
+| buffers.switcher.mark.note.clear | Clear notes from all currently marked open buffers. | Navigation | General | yes | yes | no | Executor | mark set | current |
 
 ### Pending Marked Close
 
 | Stable name | Short description | Category | Class | Bindable | Palette | Hint | Route | Owner | Status |
 |---|---|---|---|---:|---:|---:|---|---|---|
-| buffers.switcher.pending-mark.review.toggle | Show or hide the captured pending marked-close target review in the open-buffer switcher. | Navigation | General | yes | yes | no | Executor | pending marked close | current |
-| buffers.switcher.pending-mark.reviewow | Show captured pending marked-close targets in the open-buffer switcher. | Navigation | General | yes | yes | conditional | Executor | pending marked close | current |
+| buffers.switcher.pending-mark.review.toggle | Show or hide the captured pending marked-close target review in the Open Buffer List. | Navigation | General | yes | yes | no | Executor | pending marked close | current |
+| buffers.switcher.pending-mark.review.show | Show captured pending marked-close targets in the Open Buffer List. | Navigation | General | yes | yes | conditional | Executor | pending marked close | current |
 | buffers.switcher.pending-mark.review.hide | Hide pending marked-close target review without cancelling the pending action. | Navigation | General | yes | yes | conditional | Executor | pending marked close | current |
-| buffers.switcher.pending-mark.next | Move switcher selection to the next captured pending close target without activating it. | Navigation | General | yes | yes | conditional | Executor | pending marked close | current |
-| buffers.switcher.pending-mark.previous | Move switcher selection to the previous captured pending close target without activating it. | Navigation | General | yes | yes | conditional | Executor | pending marked close | current |
+| buffers.switcher.pending-mark.next | Move open-buffer list selection to the next captured pending close target without activating it. | Navigation | General | yes | yes | conditional | Executor | pending marked close | current |
+| buffers.switcher.pending-mark.previous | Move open-buffer list selection to the previous captured pending close target without activating it. | Navigation | General | yes | yes | conditional | Executor | pending marked close | current |
 | buffers.switcher.pending-mark.summary | Report captured and still-open pending marked-close target counts. | Navigation | General | yes | yes | no | Executor | pending marked close | current |
 | buffers.switcher.pending-mark.remove-selected | Remove the selected buffer from the captured pending marked-close targets without changing marks. | Navigation | General | yes | yes | conditional | Executor | pending marked close | current |
 | buffers.switcher.pending-mark.restore-last-pruned | Restore the most recently pruned pending marked-close target without changing marks. | Navigation | General | yes | yes | conditional | Executor | pending marked close | current |
@@ -173,10 +173,10 @@ The following are display-only or read-only derivation paths and must not be lis
 | Stable name | Short description | Category | Class | Bindable | Palette | Hint | Route | Owner | Status |
 |---|---|---|---|---:|---:|---:|---|---|---|
 | buffers.switcher.pending-mark.pruned-summary | Report pruned pending marked-close target counts. | Navigation | General | yes | yes | no | Executor | ordinary pruned targets | current |
-| buffers.switcher.pending-mark.pruned-next | Move switcher selection to the next still-open pruned pending marked-close target without restoring it. | Navigation | General | yes | yes | conditional | Executor | ordinary pruned targets | current |
-| buffers.switcher.pending-mark.pruned-previous | Move switcher selection to the previous still-open pruned pending marked-close target without restoring it. | Navigation | General | yes | yes | conditional | Executor | ordinary pruned targets | current |
-| buffers.switcher.pending-mark.pruned-review.toggle | Show or hide pruned pending marked-close targets in the open-buffer switcher. | Navigation | General | yes | yes | no | Executor | ordinary pruned targets | current |
-| buffers.switcher.pending-mark.pruned-reviewow | Show still-open pruned pending marked-close targets in the open-buffer switcher. | Navigation | General | yes | yes | conditional | Executor | ordinary pruned targets | current |
+| buffers.switcher.pending-mark.pruned-next | Move open-buffer list selection to the next still-open pruned pending marked-close target without restoring it. | Navigation | General | yes | yes | conditional | Executor | ordinary pruned targets | current |
+| buffers.switcher.pending-mark.pruned-previous | Move open-buffer list selection to the previous still-open pruned pending marked-close target without restoring it. | Navigation | General | yes | yes | conditional | Executor | ordinary pruned targets | current |
+| buffers.switcher.pending-mark.pruned-review.toggle | Show or hide pruned pending marked-close targets in the Open Buffer List. | Navigation | General | yes | yes | no | Executor | ordinary pruned targets | current |
+| buffers.switcher.pending-mark.pruned-review.show | Show still-open pruned pending marked-close targets in the Open Buffer List. | Navigation | General | yes | yes | conditional | Executor | ordinary pruned targets | current |
 | buffers.switcher.pending-mark.pruned-review.hide | Hide pruned pending marked-close target review without restoring targets. | Navigation | General | yes | yes | conditional | Executor | ordinary pruned targets | current |
 | buffers.switcher.pending-mark.restore-selected-pruned | Restore the selected still-open pruned pending marked-close target without changing marks. | Navigation | General | yes | yes | no | Executor | ordinary pruned targets | current |
 
@@ -185,8 +185,8 @@ The following are display-only or read-only derivation paths and must not be lis
 | Stable name | Short description | Category | Class | Bindable | Palette | Hint | Route | Owner | Status |
 |---|---|---|---|---:|---:|---:|---|---|---|
 | buffers.switcher.pending-mark.dirty-summary | Report dirty still-open pending marked-close target counts. | Navigation | General | yes | yes | no | Executor | dirty pending targets | current |
-| buffers.switcher.pending-mark.dirty-next | Move switcher selection to the next dirty pending marked-close target without activating it. | Navigation | General | yes | yes | conditional | Executor | dirty pending targets | current |
-| buffers.switcher.pending-mark.dirty-previous | Move switcher selection to the previous dirty pending marked-close target without activating it. | Navigation | General | yes | yes | conditional | Executor | dirty pending targets | current |
+| buffers.switcher.pending-mark.dirty-next | Move open-buffer list selection to the next dirty pending marked-close target without activating it. | Navigation | General | yes | yes | conditional | Executor | dirty pending targets | current |
+| buffers.switcher.pending-mark.dirty-previous | Move open-buffer list selection to the previous dirty pending marked-close target without activating it. | Navigation | General | yes | yes | conditional | Executor | dirty pending targets | current |
 | buffers.switcher.pending-mark.dirty-remove-selected | Remove the selected dirty pending marked-close target without closing, saving, discarding, or changing marks. | Navigation | General | yes | yes | conditional | Executor | dirty pending targets | current |
 
 ### Dirty-Prune Preview
@@ -197,16 +197,16 @@ The following are display-only or read-only derivation paths and must not be lis
 | buffers.switcher.pending-mark.dirty-prune.apply | Capture the current dirty-prune preview targets for explicit apply confirmation without pruning pending close targets. | Navigation | General | yes | yes | conditional | Executor | dirty-prune preview | current |
 | buffers.switcher.pending-mark.dirty-prune.cancel | Clear the prepared dirty pending marked-close prune without mutation. | Navigation | General | yes | yes | conditional | Executor | dirty-prune preview | current |
 | buffers.switcher.pending-mark.dirty-prune.summary | Report captured and still-applicable dirty pending marked-close prune targets. | Navigation | General | yes | yes | no | Executor | dirty-prune preview | current |
-| buffers.switcher.pending-mark.dirty-prune.next | Move switcher selection to the next captured dirty-prune preview target without activating or pruning it. | Navigation | General | yes | yes | conditional | Executor | dirty-prune preview | current |
-| buffers.switcher.pending-mark.dirty-prune.previous | Move switcher selection to the previous captured dirty-prune preview target without activating or pruning it. | Navigation | General | yes | yes | conditional | Executor | dirty-prune preview | current |
-| buffers.switcher.pending-mark.dirty-prune.review.toggle | Toggle review of captured dirty-prune preview targets in the open-buffer switcher. | Navigation | General | yes | yes | no | Executor | dirty-prune preview | current |
-| buffers.switcher.pending-mark.dirty-prune.reviewow | Show captured dirty-prune preview targets in the open-buffer switcher without applying them. | Navigation | General | yes | yes | conditional | Executor | dirty-prune preview | current |
-| buffers.switcher.pending-mark.dirty-prune.review.hide | Return the switcher to ordinary projection without clearing the dirty-prune preview. | Navigation | General | yes | yes | conditional | Executor | dirty-prune preview | current |
+| buffers.switcher.pending-mark.dirty-prune.next | Move open-buffer list selection to the next captured dirty-prune preview target without activating or pruning it. | Navigation | General | yes | yes | conditional | Executor | dirty-prune preview | current |
+| buffers.switcher.pending-mark.dirty-prune.previous | Move open-buffer list selection to the previous captured dirty-prune preview target without activating or pruning it. | Navigation | General | yes | yes | conditional | Executor | dirty-prune preview | current |
+| buffers.switcher.pending-mark.dirty-prune.review.toggle | Toggle review of captured dirty-prune preview targets in the Open Buffer List. | Navigation | General | yes | yes | no | Executor | dirty-prune preview | current |
+| buffers.switcher.pending-mark.dirty-prune.review.show | Show captured dirty-prune preview targets in the Open Buffer List without applying them. | Navigation | General | yes | yes | conditional | Executor | dirty-prune preview | current |
+| buffers.switcher.pending-mark.dirty-prune.review.hide | Return the open-buffer list to its normal view without clearing the dirty-prune preview. | Navigation | General | yes | yes | conditional | Executor | dirty-prune preview | current |
 | buffers.switcher.pending-mark.dirty-prune.remove-selected | Remove the selected buffer from the prepared dirty-prune preview without pruning pending close targets. | Navigation | General | yes | yes | conditional | Executor | dirty-prune preview | current |
 | buffers.switcher.pending-mark.dirty-prune.restore-last-removed | Restore the most recently removed buffer to the prepared dirty-prune preview without pruning pending close targets. | Navigation | General | yes | yes | conditional | Executor | dirty-prune preview | current |
 | buffers.switcher.pending-mark.dirty-prune.removed-summary | Report dirty-prune preview targets removed from the current prepared preview. | Navigation | General | yes | yes | no | Executor | dirty-prune preview | current |
-| buffers.switcher.pending-mark.dirty-prune.removed-next | Move switcher selection to the next still-open target removed from the dirty-prune preview without restoring or activating it. | Navigation | General | yes | yes | conditional | Executor | dirty-prune preview | current |
-| buffers.switcher.pending-mark.dirty-prune.removed-previous | Move switcher selection to the previous still-open target removed from the dirty-prune preview without restoring or activating it. | Navigation | General | yes | yes | conditional | Executor | dirty-prune preview | current |
+| buffers.switcher.pending-mark.dirty-prune.removed-next | Move open-buffer list selection to the next still-open target removed from the dirty-prune preview without restoring or activating it. | Navigation | General | yes | yes | conditional | Executor | dirty-prune preview | current |
+| buffers.switcher.pending-mark.dirty-prune.removed-previous | Move open-buffer list selection to the previous still-open target removed from the dirty-prune preview without restoring or activating it. | Navigation | General | yes | yes | conditional | Executor | dirty-prune preview | current |
 | buffers.switcher.pending-mark.dirty-prune.clear-stale | Remove stale targets from the prepared dirty-prune preview without pruning active pending close targets. | Navigation | General | yes | yes | conditional | Executor | dirty-prune preview | current |
 | buffers.switcher.pending-mark.dirty-prune.stale-summary | Report stale targets in the prepared dirty-prune preview without mutating it. | Navigation | General | yes | yes | no | Executor | dirty-prune preview | current |
 
@@ -217,16 +217,16 @@ The following are display-only or read-only derivation paths and must not be lis
 | buffers.switcher.pending-mark.dirty-prune.apply.confirm | Confirm and prune captured dirty-prune apply targets that are still open, pending, and dirty. | Navigation | General | yes | yes | conditional | Executor | dirty-prune apply confirmation | current |
 | buffers.switcher.pending-mark.dirty-prune.apply.cancel | Clear the pending dirty-prune apply confirmation without mutating preview or pending close targets. | Navigation | General | yes | yes | conditional | Executor | dirty-prune apply confirmation | current |
 | buffers.switcher.pending-mark.dirty-prune.apply.summary | Report captured and still-applicable dirty-prune apply confirmation targets. | Navigation | General | yes | yes | no | Executor | dirty-prune apply confirmation | current |
-| buffers.switcher.pending-mark.dirty-prune.apply.next | Move switcher selection to the next captured dirty-prune apply target without activating or pruning it. | Navigation | General | yes | yes | conditional | Executor | dirty-prune apply confirmation | current |
-| buffers.switcher.pending-mark.dirty-prune.apply.previous | Move switcher selection to the previous captured dirty-prune apply target without activating or pruning it. | Navigation | General | yes | yes | conditional | Executor | dirty-prune apply confirmation | current |
-| buffers.switcher.pending-mark.dirty-prune.apply.review.toggle | Toggle review of captured dirty-prune apply targets in the open-buffer switcher. | Navigation | General | yes | yes | no | Executor | dirty-prune apply confirmation | current |
-| buffers.switcher.pending-mark.dirty-prune.apply.reviewow | Show captured dirty-prune apply targets in the open-buffer switcher without confirming them. | Navigation | General | yes | yes | conditional | Executor | dirty-prune apply confirmation | current |
-| buffers.switcher.pending-mark.dirty-prune.apply.review.hide | Return the switcher to ordinary projection without clearing dirty-prune apply confirmation. | Navigation | General | yes | yes | conditional | Executor | dirty-prune apply confirmation | current |
+| buffers.switcher.pending-mark.dirty-prune.apply.next | Move open-buffer list selection to the next captured dirty-prune apply target without activating or pruning it. | Navigation | General | yes | yes | conditional | Executor | dirty-prune apply confirmation | current |
+| buffers.switcher.pending-mark.dirty-prune.apply.previous | Move open-buffer list selection to the previous captured dirty-prune apply target without activating or pruning it. | Navigation | General | yes | yes | conditional | Executor | dirty-prune apply confirmation | current |
+| buffers.switcher.pending-mark.dirty-prune.apply.review.toggle | Toggle review of captured dirty-prune apply targets in the Open Buffer List. | Navigation | General | yes | yes | no | Executor | dirty-prune apply confirmation | current |
+| buffers.switcher.pending-mark.dirty-prune.apply.review.show | Show captured dirty-prune apply targets in the Open Buffer List without confirming them. | Navigation | General | yes | yes | conditional | Executor | dirty-prune apply confirmation | current |
+| buffers.switcher.pending-mark.dirty-prune.apply.review.hide | Return the open-buffer list to its normal view without clearing dirty-prune apply confirmation. | Navigation | General | yes | yes | conditional | Executor | dirty-prune apply confirmation | current |
 | buffers.switcher.pending-mark.dirty-prune.apply.remove-selected | Remove the selected buffer from dirty-prune apply confirmation without mutating the preview or pending close targets. | Navigation | General | yes | yes | conditional | Executor | dirty-prune apply confirmation | current |
 | buffers.switcher.pending-mark.dirty-prune.apply.restore-last-removed | Restore the most recently removed buffer to dirty-prune apply confirmation. | Navigation | General | yes | yes | conditional | Executor | dirty-prune apply confirmation | current |
 | buffers.switcher.pending-mark.dirty-prune.apply.removed-summary | Report targets removed from the current dirty-prune apply confirmation. | Navigation | General | yes | yes | no | Executor | dirty-prune apply confirmation | current |
-| buffers.switcher.pending-mark.dirty-prune.apply.removed-next | Move switcher selection to the next still-open target removed from dirty-prune apply confirmation. | Navigation | General | yes | yes | conditional | Executor | dirty-prune apply confirmation | current |
-| buffers.switcher.pending-mark.dirty-prune.apply.removed-previous | Move switcher selection to the previous still-open target removed from dirty-prune apply confirmation. | Navigation | General | yes | yes | conditional | Executor | dirty-prune apply confirmation | current |
+| buffers.switcher.pending-mark.dirty-prune.apply.removed-next | Move open-buffer list selection to the next still-open target removed from dirty-prune apply confirmation. | Navigation | General | yes | yes | conditional | Executor | dirty-prune apply confirmation | current |
+| buffers.switcher.pending-mark.dirty-prune.apply.removed-previous | Move open-buffer list selection to the previous still-open target removed from dirty-prune apply confirmation. | Navigation | General | yes | yes | conditional | Executor | dirty-prune apply confirmation | current |
 | buffers.switcher.pending-mark.dirty-prune.apply.clear-stale | Remove stale targets from dirty-prune apply confirmation without recording removals or pruning pending close targets. | Navigation | General | yes | yes | conditional | Executor | dirty-prune apply confirmation | current |
 | buffers.switcher.pending-mark.dirty-prune.apply.stale-summary | Report stale targets in the pending dirty-prune apply confirmation without mutating it. | Navigation | General | yes | yes | no | Executor | dirty-prune apply confirmation | current |
 
@@ -234,6 +234,8 @@ The following are display-only or read-only derivation paths and must not be lis
 
 | Stable name | Short description | Category | Class | Bindable | Palette | Hint | Route | Owner | Status |
 |---|---|---|---|---:|---:|---:|---|---|---|
+| file.close-other-buffers | Close every non-active clean buffer and leave dirty buffers open. | File | Destructive+Lifecycle | yes | yes | no | Executor | buffer cleanup policy | current |
+| file.close-clean-buffers | Close clean buffers while leaving dirty buffers open. | File | Destructive+Lifecycle | yes | yes | no | Executor | buffer cleanup policy | current |
 | buffers.recent.previous | Switch to the most recently used non-active open buffer | File | Lifecycle | yes | yes | no | Executor | recent-buffer traversal | current |
 | buffers.recent.next | Move forward through recent-buffer traversal | File | Lifecycle | yes | yes | no | Executor | recent-buffer traversal | current |
 

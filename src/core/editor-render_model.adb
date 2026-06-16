@@ -110,7 +110,7 @@ package body Editor.Render_Model is
    begin
       if S.Active_Buffer_Token /= 0 then
          return S.Active_Buffer_Token;
-      elsif Editor.Buffers.Global_Count > 1
+      elsif Editor.Buffers.Global_Count > 0
         and then Editor.Buffers.Global_Active_Buffer /= Editor.Buffers.No_Buffer
       then
          return Natural (Editor.Buffers.Global_Active_Buffer);
@@ -124,7 +124,11 @@ package body Editor.Render_Model is
    is
    begin
       return S.Active_Find_Source_Buffer_Token /= 0
-        and then S.Active_Find_Source_Buffer_Token = Active_Find_Buffer_Token (S);
+        and then
+          (S.Active_Find_Source_Buffer_Token = Active_Find_Buffer_Token (S)
+           or else
+             (S.Active_Buffer_Token = 0
+              and then S.Active_Find_Source_Buffer_Token = S.Registry_Token));
    end Active_Find_Source_Current;
 
    function Dirty_Close_Open_Buffer_Fingerprint return Natural
@@ -1300,7 +1304,9 @@ package body Editor.Render_Model is
          O.Selection_Count := 0;
          O.Selected_Character_Count := 0;
          O.Selected_Line_Count := 0;
-         if Status = Editor.Selection.Selection_Ok then
+         if Status = Editor.Selection.Selection_Ok
+           and then not S.Rect_Select_Active
+         then
             O.Selection_Count := 1;
             O.Selected_Character_Count :=
               Editor.Selection.Selected_Character_Count (S);

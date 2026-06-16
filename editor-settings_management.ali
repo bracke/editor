@@ -1,5 +1,7 @@
 V "GNAT Lib v15"
 A -gnat2022
+A -gnatX
+A -gnata
 P SS ZX
 
 RN
@@ -299,15 +301,15 @@ G c Z b b [catalog_row editor__settings_management 1416 13 none]
 G c Z b b [route_row editor__settings_management 1579 13 none]
 G c Z b b [is_settings_management_command editor__settings_management 1822 13 none]
 G c Z b b [append_audit_row editor__settings_management 1890 14 none]
-G r c none [b editor__settings_management 9 1 none] [setting_name_command_palette_show_keybindings editor__settings 104 13 none]
-G r c none [b editor__settings_management 9 1 none] [setting_name_command_palette_show_selected_description editor__settings 105 13 none]
-G r c none [b editor__settings_management 9 1 none] [setting_name_theme editor__settings 97 13 none]
-G r c none [b editor__settings_management 9 1 none] [setting_name_line_numbers editor__settings 98 13 none]
 G r c none [b editor__settings_management 9 1 none] [setting_name_cursor_style editor__settings 99 13 none]
 G r c none [b editor__settings_management 9 1 none] [setting_name_cursor_blink editor__settings 100 13 none]
 G r c none [b editor__settings_management 9 1 none] [setting_name_minimap_visible editor__settings 101 13 none]
 G r c none [b editor__settings_management 9 1 none] [setting_name_scrollbars_visible editor__settings 102 13 none]
 G r c none [b editor__settings_management 9 1 none] [setting_name_command_palette_show_unavailable editor__settings 103 13 none]
+G r c none [b editor__settings_management 9 1 none] [setting_name_command_palette_show_keybindings editor__settings 104 13 none]
+G r c none [b editor__settings_management 9 1 none] [setting_name_command_palette_show_selected_description editor__settings 105 13 none]
+G r c none [b editor__settings_management 9 1 none] [setting_name_theme editor__settings 97 13 none]
+G r c none [b editor__settings_management 9 1 none] [setting_name_line_numbers editor__settings 98 13 none]
 G r c none [confirm_reset_all_settings editor__settings_management 160 14 none] [set_defaults editor__settings 131 14 none]
 G r c none [row_at editor__settings_management 200 13 none] [setting_name_theme editor__settings 97 13 none]
 G r c none [row_at editor__settings_management 200 13 none] [theme_id editor__settings 139 13 none]

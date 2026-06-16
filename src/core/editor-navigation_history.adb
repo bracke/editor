@@ -17,6 +17,26 @@ package body Editor.Navigation_History is
    end Is_Recordable;
 
    function Locations_Equal (Left, Right : Navigation_Location) return Boolean is
+      function Exact_Column_Reason
+        (Reason : Navigation_History_Reason) return Boolean
+      is
+      begin
+         return Reason in Navigation_Reason_Find_Next
+           | Navigation_Reason_Find_Previous;
+      end Exact_Column_Reason;
+
+      function Columns_Equal return Boolean is
+      begin
+         if Exact_Column_Reason (Left.Reason)
+           or else Exact_Column_Reason (Right.Reason)
+         then
+            return Left.Column = Right.Column;
+         end if;
+
+         return Left.Column = Right.Column
+           or else Left.Column = 0
+           or else Right.Column = 0;
+      end Columns_Equal;
    begin
       if not Is_Recordable (Left) or else not Is_Recordable (Right) then
          return False;
@@ -25,17 +45,13 @@ package body Editor.Navigation_History is
       if Left.Has_File_Path and then Right.Has_File_Path then
          return To_String (Left.File_Path) = To_String (Right.File_Path)
            and then Left.Line = Right.Line
-           and then (Left.Column = Right.Column
-                     or else Left.Column = 0
-                     or else Right.Column = 0);
+           and then Columns_Equal;
       end if;
 
       return Left.Buffer_Id /= 0
         and then Left.Buffer_Id = Right.Buffer_Id
         and then Left.Line = Right.Line
-        and then (Left.Column = Right.Column
-                  or else Left.Column = 0
-                  or else Right.Column = 0);
+        and then Columns_Equal;
    end Locations_Equal;
 
    procedure Trim_To_Bound (Stack : in out Location_Vectors.Vector) is

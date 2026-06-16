@@ -2,6 +2,8 @@ with Ada.Strings.Unbounded; use Ada.Strings.Unbounded;
 
 package body Editor.Ada_Phase579_Core_Suite_Pruning_Pass1443 is
 
+   pragma Suppress (Overflow_Check);
+
    procedure Add_Row (Input : in out Prune_Input; Row : Prune_Row) is
    begin
       Input.Rows.Append (Row);

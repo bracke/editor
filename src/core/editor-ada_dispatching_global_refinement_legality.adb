@@ -2,6 +2,8 @@ with Ada.Strings.Unbounded; use Ada.Strings.Unbounded;
 
 package body Editor.Ada_Dispatching_Global_Refinement_Legality is
 
+   pragma Suppress (Overflow_Check);
+
    use type Abstract_Consumers.Abstract_State_Consumer_Row_Id;
    use type Abstract_State.Abstract_State_Row_Id;
    use type Closure.Shared_State_Stabilized_Closure_Id;

@@ -3,6 +3,8 @@ with Ada.Strings.Unbounded; use Ada.Strings.Unbounded;
 
 package body Editor.Ada_Overload_Resolution_Legality is
 
+   pragma Suppress (Overflow_Check);
+
    use type Editor.Ada_Syntax_Tree.Node_Id;
    use type Editor.Ada_Overload_Ranking.Overload_Ranking_Id;
    use type Editor.Ada_Overload_Ranking.Overload_Ranking_Status;

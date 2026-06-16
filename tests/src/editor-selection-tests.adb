@@ -1242,21 +1242,25 @@ package body Editor.Selection.Tests is
       Editor.Executor.Execute_No_Log
       (S, Editor.Test_Helper.Insert (0, 'X'));
 
-      --  Expected: "aXd\neXh\niXl"
-      Assert (Text_Buffer.Length (S.Buffer) = 11,
-            "Rectangle replace length failed");
+      --  Canonical text insertion is single-caret only.  Rectangular
+      --  replacement is not silently routed through ordinary text input.
+      Assert (Text_Buffer.Length (S.Buffer) = 14,
+            "Rectangle text input rejection must preserve buffer length");
 
       Assert (Text_Buffer.Element (S.Buffer, 1) = 'a', "line1 start");
-      Assert (Text_Buffer.Element (S.Buffer, 2) = 'X', "line1 replacement");
-      Assert (Text_Buffer.Element (S.Buffer, 3) = 'd', "line1 end");
+      Assert (Text_Buffer.Element (S.Buffer, 2) = 'b', "line1 selected text preserved");
+      Assert (Text_Buffer.Element (S.Buffer, 3) = 'c', "line1 selected text preserved");
+      Assert (Text_Buffer.Element (S.Buffer, 4) = 'd', "line1 end");
 
-      Assert (Text_Buffer.Element (S.Buffer, 5) = 'e', "line2 start");
-      Assert (Text_Buffer.Element (S.Buffer, 6) = 'X', "line2 replacement");
-      Assert (Text_Buffer.Element (S.Buffer, 7) = 'h', "line2 end");
+      Assert (Text_Buffer.Element (S.Buffer, 6) = 'e', "line2 start");
+      Assert (Text_Buffer.Element (S.Buffer, 7) = 'f', "line2 selected text preserved");
+      Assert (Text_Buffer.Element (S.Buffer, 8) = 'g', "line2 selected text preserved");
+      Assert (Text_Buffer.Element (S.Buffer, 9) = 'h', "line2 end");
 
-      Assert (Text_Buffer.Element (S.Buffer, 9) = 'i', "line3 start");
-      Assert (Text_Buffer.Element (S.Buffer, 10) = 'X', "line3 replacement");
-      Assert (Text_Buffer.Element (S.Buffer, 11) = 'l', "line3 end");
+      Assert (Text_Buffer.Element (S.Buffer, 11) = 'i', "line3 start");
+      Assert (Text_Buffer.Element (S.Buffer, 12) = 'j', "line3 selected text preserved");
+      Assert (Text_Buffer.Element (S.Buffer, 13) = 'k', "line3 selected text preserved");
+      Assert (Text_Buffer.Element (S.Buffer, 14) = 'l', "line3 end");
    end Test_Rectangle_Insert_Replaces_Per_Line;
 
    procedure Test_Rectangle_Paste_Per_Line
@@ -1322,10 +1326,8 @@ package body Editor.Selection.Tests is
       Editor.Executor.Execute_No_Log
       (S, Editor.Test_Helper.Insert (0, 'X'));
 
-      Editor.Executor.Execute_No_Log (S, Editor.Test_Helper.Undo);
-
       Assert (Text_Buffer.Length (S.Buffer) = 9,
-            "Undo must restore original text");
+            "Rejected rectangle insertion must preserve original text");
    end Test_Rectangle_Undo_Restores_All_Lines;
 
    procedure Test_Virtual_Column_Paste
@@ -1436,8 +1438,8 @@ package body Editor.Selection.Tests is
       Assert (Text_Buffer.Element (S.Buffer, 4) = ASCII.LF,
             "Rejected multi-caret insertion must preserve the original text");
 
-      Assert (S.Carets.Length = 1,
-            "Rejected multi-caret insertion normalizes to one canonical caret");
+      Assert (S.Carets.Length = 2,
+            "Rejected multi-caret insertion preserves caret state for explicit cleanup");
    end Test_Multi_Caret_Virtual_Column_Insert_Text_Input;
 
    procedure Test_Move_Right_Creates_Virtual_Column

@@ -1,5 +1,7 @@
-V "GNAT Lib v15"
+V "GNAT Lib v13"
 A -gnat2022
+A -gnatX
+A -gnata
 P SS ZX
 
 RN
@@ -14,7 +16,7 @@ RV NO_DEFAULT_INITIALIZATION
 RV NO_DYNAMIC_SIZED_OBJECTS
 RV NO_IMPLEMENTATION_PRAGMAS
 
-U editor.contextual_help%b  editor-contextual_help.adb  0b795dea NE OO PK
+U editor.contextual_help%b  editor-contextual_help.adb  c1855d51 NE OO PK
 W ada%s			ada.ads			ada.ali
 Z ada.exceptions%s	a-except.adb		a-except.ali
 W ada.strings%s		a-string.ads		a-string.ali
@@ -27,34 +29,33 @@ Z system.concat_2%s	s-conca2.adb		s-conca2.ali
 Z system.concat_3%s	s-conca3.adb		s-conca3.ali
 Z system.concat_4%s	s-conca4.adb		s-conca4.ali
 Z system.concat_5%s	s-conca5.adb		s-conca5.ali
-Z system.finalization_primitives%s  s-finpri.adb  s-finpri.ali
 Z system.secondary_stack%s  s-secsta.adb	s-secsta.ali
 Z system.soft_links%s	s-soflin.adb		s-soflin.ali
 Z system.standard_library%s  s-stalib.adb	s-stalib.ali
 
 U editor.contextual_help%s  editor-contextual_help.ads  d62ca27d EE NE OO PK
+Z ada.strings.text_buffers%s  a-sttebu.adb	a-sttebu.ali
 W editor%s		editor.ads		editor.ali
 W editor.commands%s	editor-commands.adb	editor-commands.ali
 W editor.feature_panel%s  editor-feature_panel.adb  editor-feature_panel.ali
 
-D ada.ads		20250808065140 76789da1 ada%s
-D a-charac.ads		20250808065140 2d3ec45b ada.characters%s
-D a-chlat1.ads		20250808065140 e0d72e76 ada.characters.latin_1%s
-D a-contai.ads		20250808065140 61e5e089 ada.containers%s
-D a-conhel.ads		20250808065140 46fe1ce3 ada.containers.helpers%s
-D a-convec.ads		20250808065140 91fb49f3 ada.containers.vectors%s
-D a-except.ads		20250808065140 e7970cd9 ada.exceptions%s
-D a-finali.ads		20250808065140 bf4f806b ada.finalization%s
-D a-iteint.ads		20250808065140 49a8bee2 ada.iterator_interfaces%s
-D a-stream.ads		20250808065140 17477cbd ada.streams%s
-D a-string.ads		20250808065140 90ac6797 ada.strings%s
-D a-strmap.ads		20250808065140 1f91ebb6 ada.strings.maps%s
-D a-strsea.ads		20250808065140 18c3c634 ada.strings.search%s
-D a-sttebu.ads		20250808065140 f1ad67a2 ada.strings.text_buffers%s
-D a-strunb.ads		20250808065140 b10770ab ada.strings.unbounded%s
-D a-stuten.ads		20250808065140 c6ced0ae ada.strings.utf_encoding%s
-D a-tags.ads		20250808065140 fbca0ad5 ada.tags%s
-D a-unccon.ads		20250808065140 0e9b276f ada.unchecked_conversion%s
+D ada.ads		20240521074738 76789da1 ada%s
+D a-charac.ads		20240521074737 2d3ec45b ada.characters%s
+D a-chlat1.ads		20240521074737 e0d72e76 ada.characters.latin_1%s
+D a-contai.ads		20240521074737 61e5e089 ada.containers%s
+D a-conhel.ads		20240521074737 46fe1ce3 ada.containers.helpers%s
+D a-convec.ads		20240521074737 91fb49f3 ada.containers.vectors%s
+D a-except.ads		20240521074738 2a7d8d70 ada.exceptions%s
+D a-finali.ads		20240521074738 bf4f806b ada.finalization%s
+D a-iteint.ads		20240521074738 49a8bee2 ada.iterator_interfaces%s
+D a-stream.ads		20240521074738 119b8fb3 ada.streams%s
+D a-string.ads		20240521074738 90ac6797 ada.strings%s
+D a-strmap.ads		20240521074738 ed8acfdb ada.strings.maps%s
+D a-sttebu.ads		20240521074738 f1ad67a2 ada.strings.text_buffers%s
+D a-strunb.ads		20240521074738 7bfb7010 ada.strings.unbounded%s
+D a-stuten.ads		20240521074738 c6ced0ae ada.strings.utf_encoding%s
+D a-tags.ads		20240521074738 9eaa38c6 ada.tags%s
+D a-unccon.ads		20240521074738 0e9b276f ada.unchecked_conversion%s
 D editor.ads		20260612145959 16f844c2 editor%s
 D editor-commands.ads	20260612173240 3b5e3f44 editor.commands%s
 D editor-contextual_help.ads  20260612145959 f0559507 editor.contextual_help%s
@@ -63,34 +64,32 @@ D editor-cursors.ads	20260612145959 1f938cf3 editor.cursors%s
 D editor-feature_panel.ads  20260612145959 0bdf4cfc editor.feature_panel%s
 D editor-keybindings.ads  20260612145959 2657f44d editor.keybindings%s
 D editor-unicode.ads	20260612145959 552ff3cc editor.unicode%s
-D interfac.ads		20250808065140 9111f9c1 interfaces%s
-D i-c.ads		20250808065140 e94c966a interfaces.c%s
-D system.ads		20250808065140 14286b0f system%s
-D s-atocou.ads		20250808065140 dc18efc3 system.atomic_counters%s
-D s-conca2.ads		20250808065140 b5fb73f7 system.concat_2%s
-D s-conca3.ads		20250808065140 8a7a19a2 system.concat_3%s
-D s-conca4.ads		20250808065140 33f85f3e system.concat_4%s
-D s-conca5.ads		20250808065140 4099d1db system.concat_5%s
-D s-exctab.ads		20250808065140 91bef6ef system.exception_table%s
-D s-finpri.ads		20250808065140 5970d55a system.finalization_primitives%s
-D s-finroo.ads		20250808065140 0a7c3ed4 system.finalization_root%s
-D s-memory.ads		20250808065140 18949c1a system.memory%s
-D s-oscons.ads		20250827122531 068e1a91 system.os_constants%s
-D s-oslock.ads		20250808065140 13fa6b78 system.os_locks%s
-D s-parame.ads		20250808065140 3597fc11 system.parameters%s
-D s-pooglo.ads		20250808065140 91708d21 system.pool_global%s
-D s-putima.ads		20250808065140 17291fe4 system.put_images%s
-D s-retsta.ads		20250808065140 0f6b06cb system.return_stack%s
-D s-secsta.ads		20250808065140 578279f5 system.secondary_stack%s
-D s-soflin.ads		20250808065140 5d88fdea system.soft_links%s
-D s-stache.ads		20250808065140 0b81c1fe system.stack_checking%s
-D s-stalib.ads		20250808065140 1c9580f6 system.standard_library%s
-D s-stalib.adb		20250808065140 eb464a47 system.standard_library%b
-D s-stoele.ads		20250808065140 ccded4e8 system.storage_elements%s
-D s-stopoo.ads		20250808065140 e9fa2dd8 system.storage_pools%s
-D s-stratt.ads		20250808065140 516607ae system.stream_attributes%s
-D s-traent.ads		20250808065140 c81cbf8c system.traceback_entries%s
-D s-unstyp.ads		20250808065140 fa2a7f59 system.unsigned_types%s
+D interfac.ads		20240521074738 15f799c2 interfaces%s
+D system.ads		20240521074738 426dafb8 system%s
+D s-atocou.ads		20240521074738 dc18efc3 system.atomic_counters%s
+D s-conca2.ads		20240521074738 b5fb73f7 system.concat_2%s
+D s-conca3.ads		20240521074738 8a7a19a2 system.concat_3%s
+D s-conca4.ads		20240521074738 33f85f3e system.concat_4%s
+D s-conca5.ads		20240521074738 4099d1db system.concat_5%s
+D s-exctab.ads		20240521074738 91bef6ef system.exception_table%s
+D s-finmas.ads		20240521074738 bd688734 system.finalization_masters%s
+D s-finroo.ads		20240521074738 4ff27390 system.finalization_root%s
+D s-memory.ads		20240521074738 5b8432d0 system.memory%s
+D s-parame.ads		20251218205951 1f39ba92 system.parameters%s
+D s-pooglo.ads		20240521074738 91708d21 system.pool_global%s
+D s-putima.ads		20240521074738 17291fe4 system.put_images%s
+D s-retsta.ads		20240521074738 0f6b06cb system.return_stack%s
+D s-secsta.ads		20240521074738 578279f5 system.secondary_stack%s
+D s-soflin.ads		20240521074738 df77073e system.soft_links%s
+D s-stache.ads		20240521074738 0b81c1fe system.stack_checking%s
+D s-stalib.ads		20240521074738 1c9580f6 system.standard_library%s
+D s-stalib.adb		20240521074738 eb464a47 system.standard_library%b
+D s-stoele.ads		20240521074738 ab5468e4 system.storage_elements%s
+D s-stoele.adb		20240521074738 8f5a9db6 system.storage_elements%b
+D s-stopoo.ads		20240521074738 e9fa2dd8 system.storage_pools%s
+D s-stratt.ads		20240521074738 f7dfd786 system.stream_attributes%s
+D s-traent.ads		20240521074738 c81cbf8c system.traceback_entries%s
+D s-unstyp.ads		20240521074738 fa2a7f59 system.unsigned_types%s
 G a e
 G c Z s b [shortcut_text editor__contextual_help 13 13 none]
 G c Z s b [with_shortcut editor__contextual_help 17 13 none]
@@ -153,106 +152,106 @@ G r c none [command_row_action_hint editor__contextual_help 61 13 none] [is_bind
 G r c none [command_row_action_hint editor__contextual_help 61 13 none] [primary_binding_for_command editor__keybindings 123 13 none]
 G r j command_keybinding_info [command_row_action_hint editor__contextual_help 61 13 none] [command_keybinding_infoDA editor__keybindings 56 9 none]
 X 1 ada.ads
-18K9*Ada 22e8 22|1r6 1r33 41r17 197r37 198r37
+16K9*Ada 20e8 21|1r6 1r33 41r17 197r37 198r37
 X 9 a-iteint.ads
 24h9 Forward_Iterator
 32h9 Reversible_Iterator<24R9[6|119]>
 X 11 a-string.ads
-16K13*Strings 35e16 22|1r10 1r37 41r21 197r41 198r41
-X 15 a-strunb.ads
-91K21*Unbounded 1641e26 22|1w18 1r45 41r29 197r49 198r49
-105R9*Unbounded_String<8|43R9> 1620e15 22|259r17 337r14
-109r4*Null_Unbounded_String{105R9} 22|259r37
-122V13*To_Unbounded_String{105R9} 22|266s21 272s21 338s9
-135V13*To_String{string} 22|41s39 197s59 198s59 291s14 345s14
-159U14*Append 22|282s10 285s10 288s10 343s10
-X 19 editor.ads
-1K9*Editor 5e11 21|1r6 2r6 4r9 14r24 19r24 43r13 58r24 62r25 81r5 22|2r6
+16K13*Strings 35e16 21|1r10 1r37 41r21 197r41 198r41
+X 14 a-strunb.ads
+85K21*Unbounded 766e26 21|1w18 1r45 41r29 197r49 198r49
+91R9*Unbounded_String<8|43R9> 745e15 21|259r17 337r14
+95r4*Null_Unbounded_String{91R9} 21|259r37
+108V13*To_Unbounded_String{91R9} 21|266s21 272s21 338s9
+121V13*To_String{string} 21|41s39 197s59 198s59 291s14 345s14
+140U14*Append 21|282s10 285s10 288s10 343s10
+X 18 editor.ads
+1K9*Editor 5e11 20|1r6 2r6 4r9 14r24 19r24 43r13 58r24 62r25 81r5 21|2r6
 . 4r14 6r13 26r24 29r14 32r21 33r17 34r17 39r15 48r24 150r29 179r18 183r15
 . 185r15 187r15 189r15 195r13 201r24 202r27 256r24 261r21 269r16 275r16 295r25
 . 348r5
-X 20 editor-commands.ads
-6K16*Commands 1740e20 21|1w13 14r31 19r31 62r32 22|26r31 32r28 33r24 34r24
+X 19 editor-commands.ads
+6K16*Commands 1740e20 20|1w13 14r31 19r31 62r32 21|26r31 32r28 33r24 34r24
 . 48r31 150r36 269r23 275r23 295r32
-11E9*Command_Id 549e47 21|14r40 19r40 62r41 22|26r40 48r40 295r41
-217n7*Command_Open_Command_Palette{11E9} 22|150r45
-455n7*Command_Feature_Panel_Open_Selected{11E9} 22|269r32 275r32
-947V13*Is_Public_Build_Command{boolean} 22|34s33
-954V13*Is_Internal_Build_Test_Seam_Command{boolean} 22|33s33
-1009V13*Is_Bindable_Command{boolean} 22|32s37
-X 21 editor-contextual_help.ads
-4K16*Contextual_Help 19|1k9 21|81l12 81e27 22|4b21 348l12 348t27
-13V13*Shortcut_Text{string} 14>7 15>7 22|25b13 44l8 44t21 51s37
-14e7 Command{20|11E9} 22|26b7 32r58 33r70 34r58 39r63
-15b7 Show_Shortcuts{boolean} 22|27b7 31r14
-17V13*With_Shortcut{string} 18>7 19>7 20>7 22|46b13 58l8 58t21 149s17 267s13
+11E9*Command_Id 549e47 20|14r40 19r40 62r41 21|26r40 48r40 295r41
+217n7*Command_Open_Command_Palette{11E9} 21|150r45
+455n7*Command_Feature_Panel_Open_Selected{11E9} 21|269r32 275r32
+947V13*Is_Public_Build_Command{boolean} 21|34s33
+954V13*Is_Internal_Build_Test_Seam_Command{boolean} 21|33s33
+1009V13*Is_Bindable_Command{boolean} 21|32s37
+X 20 editor-contextual_help.ads
+4K16*Contextual_Help 18|1k9 20|81l12 81e27 21|4b21 348l12 348t27
+13V13*Shortcut_Text{string} 14>7 15>7 21|25b13 44l8 44t21 51s37
+14e7 Command{19|11E9} 21|26b7 32r58 33r70 34r58 39r63
+15b7 Show_Shortcuts{boolean} 21|27b7 31r14
+17V13*With_Shortcut{string} 18>7 19>7 20>7 21|46b13 58l8 58t21 149s17 267s13
 . 273s13 302s17
-18a7 Text{string} 22|47b7 54r17 56r17
-19e7 Command{20|11E9} 22|48b7 51r52
-20b7 Show_Shortcuts{boolean} 22|49b7 51r61
-22V13*Empty_Messages_Detail{string} 22|60b13 63l8 63t29
-23V13*Empty_Diagnostics_Detail{string} 22|65b13 68l8 68t32
-24V13*Empty_Search_Results_Detail{string} 25>7 22|70b13 79l8 79t35
-25b7 Has_Query{boolean} 22|71b7 74r10
-26V13*Empty_Outline_Detail{string} 27>7 22|81b13 90l8 90t28
-27b7 Has_Active_Buffer{boolean} 22|82b7 85r10
-28V13*Empty_File_Tree_Text{string} 29>7 22|92b13 101l8 101t28
-29b7 Has_Project{boolean} 22|93b7 96r10
-30V13*Empty_Open_Buffers_Text{string} 22|103b13 106l8 106t31
-31V13*Command_Palette_No_Match_Detail{string} 32>7 22|108b13 117l8 117t39
-32b7 Query_Is_Empty{boolean} 22|109b7 112r10
-34V13*Focus_Hint{string} 35>7 36>7 22|119b13 155l8 155t18
-35a7 Focus_Label{string} 22|120b7 124r10 125r39 126r13 127r39 128r13 129r39
+18a7 Text{string} 21|47b7 54r17 56r17
+19e7 Command{19|11E9} 21|48b7 51r52
+20b7 Show_Shortcuts{boolean} 21|49b7 51r61
+22V13*Empty_Messages_Detail{string} 21|60b13 63l8 63t29
+23V13*Empty_Diagnostics_Detail{string} 21|65b13 68l8 68t32
+24V13*Empty_Search_Results_Detail{string} 25>7 21|70b13 79l8 79t35
+25b7 Has_Query{boolean} 21|71b7 74r10
+26V13*Empty_Outline_Detail{string} 27>7 21|81b13 90l8 90t28
+27b7 Has_Active_Buffer{boolean} 21|82b7 85r10
+28V13*Empty_File_Tree_Text{string} 29>7 21|92b13 101l8 101t28
+29b7 Has_Project{boolean} 21|93b7 96r10
+30V13*Empty_Open_Buffers_Text{string} 21|103b13 106l8 106t31
+31V13*Command_Palette_No_Match_Detail{string} 32>7 21|108b13 117l8 117t39
+32b7 Query_Is_Empty{boolean} 21|109b7 112r10
+34V13*Focus_Hint{string} 35>7 36>7 21|119b13 155l8 155t18
+35a7 Focus_Label{string} 21|120b7 124r10 125r39 126r13 127r39 128r13 129r39
 . 130r13 131r39 132r13 133r39 134r13 136r13 138r13 140r13 142r13 144r13 146r13
 . 148r13
-36b7 Show_Shortcuts{boolean} 22|121b7 125r52 127r52 129r52 131r52 133r52
+36b7 Show_Shortcuts{boolean} 21|121b7 125r52 127r52 129r52 131r52 133r52
 . 151r13
-38V13*Keyboard_Action_Hint{string} 39>7 40>7 22|125s17 127s17 129s17 131s17
+38V13*Keyboard_Action_Hint{string} 39>7 40>7 21|125s17 127s17 129s17 131s17
 . 133s17 157b13 176l8 176t28
-39a7 Focus_Label{string} 22|158b7 163r10 165r13 167r13 169r13 171r13
-40b7 Show_Shortcuts{boolean} 22|159b7 161r28
-42V13*Row_Accessible_Label{string} 43>7 22|194b13 216l8 216t28
-43r7 Row{24|100R9} 22|195b7 197r70 198r70 199r52 201r13 202r16 204r16
-45V13*Command_Row_Accessible_Label{string} 46>7 47>7 48>7 49>7 50>7 22|218b13
+39a7 Focus_Label{string} 21|158b7 163r10 165r13 167r13 169r13 171r13
+40b7 Show_Shortcuts{boolean} 21|159b7 161r28
+42V13*Row_Accessible_Label{string} 43>7 21|194b13 216l8 216t28
+43r7 Row{23|100R9} 21|195b7 197r70 198r70 199r52 201r13 202r16 204r16
+45V13*Command_Row_Accessible_Label{string} 46>7 47>7 48>7 49>7 50>7 21|218b13
 . 239l8 239t36
-46a7 Label{string} 22|219b7 226r13 226r35
-47a7 Category_Label{string} 22|220b7 228r13 228r51
-48a7 Description{string} 22|221b7 230r28
-49b7 Available{boolean} 22|222b7 230r13
-50a7 Reason{string} 22|223b7 231r16 231r39
-52V13*File_Tree_Row_Accessible_Label{string} 53>7 54>7 55>7 22|241b13 253l8
+46a7 Label{string} 21|219b7 226r13 226r35
+47a7 Category_Label{string} 21|220b7 228r13 228r51
+48a7 Description{string} 21|221b7 230r28
+49b7 Available{boolean} 21|222b7 230r13
+50a7 Reason{string} 21|223b7 231r16 231r39
+52V13*File_Tree_Row_Accessible_Label{string} 53>7 54>7 55>7 21|241b13 253l8
 . 253t38
-53a7 Display_Label{string} 22|242b7 248r13 248r43
-54b7 Is_Directory{boolean} 22|243b7 246r42
-55b7 Is_Selected{boolean} 22|244b7 250r13
-57V13*Selected_Row_Action_Hint{string} 58>7 59>7 22|255b13 292l8 292t32
-58r7 Row{24|100R9} 22|256b7 261r10 262r21 265r13 265r35 265r60 271r13 281r10
+53a7 Display_Label{string} 21|242b7 248r13 248r43
+54b7 Is_Directory{boolean} 21|243b7 246r42
+55b7 Is_Selected{boolean} 21|244b7 250r13
+57V13*Selected_Row_Action_Hint{string} 58>7 59>7 21|255b13 292l8 292t32
+58r7 Row{23|100R9} 21|256b7 261r10 262r21 265r13 265r35 265r60 271r13 281r10
 . 284r10 287r10
-59b7 Show_Shortcuts{boolean} 22|257b7 270r16 276r16
-61V13*Command_Row_Action_Hint{string} 62>7 63>7 64>7 65>7 22|294b13 311l8
+59b7 Show_Shortcuts{boolean} 21|257b7 270r16 276r16
+61V13*Command_Row_Action_Hint{string} 62>7 63>7 64>7 65>7 21|294b13 311l8
 . 311t31
-62e7 Command{20|11E9} 22|295b7 304r13
-63b7 Available{boolean} 22|296b7 301r10
-64a7 Disabled_Reason{string} 22|297b7 306r13 307r17
-65b7 Show_Shortcuts{boolean} 22|298b7 305r13
-67V13*File_Tree_Row_Action_Hint{string} 68>7 69>7 70>7 22|313b13 329l8 329t33
-68b7 Is_Directory{boolean} 22|314b7 320r10
-69b7 Is_Expanded{boolean} 22|315b7 321r13
-70b7 Show_Shortcuts{boolean} 22|316b7 318r28
-72V13*Open_Buffer_Row_Action_Hint{string} 73>7 74>7 75>7 22|331b13 346l8
+62e7 Command{19|11E9} 21|295b7 304r13
+63b7 Available{boolean} 21|296b7 301r10
+64a7 Disabled_Reason{string} 21|297b7 306r13 307r17
+65b7 Show_Shortcuts{boolean} 21|298b7 305r13
+67V13*File_Tree_Row_Action_Hint{string} 68>7 69>7 70>7 21|313b13 329l8 329t33
+68b7 Is_Directory{boolean} 21|314b7 320r10
+69b7 Is_Expanded{boolean} 21|315b7 321r13
+70b7 Show_Shortcuts{boolean} 21|316b7 318r28
+72V13*Open_Buffer_Row_Action_Hint{string} 73>7 74>7 75>7 21|331b13 346l8
 . 346t35
-73b7 Is_Active{boolean} 22|332b7 339r16
-74b7 Can_Close{boolean} 22|333b7 342r10
-75b7 Show_Shortcuts{boolean} 22|334b7 336r28
-77V13*Truncate{string} 78>7 79>7 22|8b13 23l8 23t16
-78a7 Text{string} 22|9b7 16r13 17r17 19r17 19r23 19r37 21r17 21r23 21r37
-79i7 Max_Columns{natural} 22|10b7 14r10 16r28 18r13 19r50 21r50
-X 22 editor-contextual_help.adb
+73b7 Is_Active{boolean} 21|332b7 339r16
+74b7 Can_Close{boolean} 21|333b7 342r10
+75b7 Show_Shortcuts{boolean} 21|334b7 336r28
+77V13*Truncate{string} 78>7 79>7 21|8b13 23l8 23t16
+78a7 Text{string} 21|9b7 16r13 17r17 19r17 19r23 19r37 21r17 21r23 21r37
+79i7 Max_Columns{natural} 21|10b7 14r10 16r28 18r13 19r50 21r50
+X 21 editor-contextual_help.adb
 12a7 Ellipsis{string} 21r69
-29r7 Info{25|56R9} 39m7 39r7 40r10 41r50
+29r7 Info{24|56R9} 39m7 39r7 40r10 41r50
 51a7 Shortcut{string} 53r10 56r31
 178V13 Severity_Text{string} 178b13 179>7 192l8 192t21 199s37
-179e7 Severity{24|72E9} 182r12
+179e7 Severity{23|72E9} 182r12
 197a7 Label{string} 207r13 207r35
 198a7 Detail{string} 208r16 208r39 211r10 211r37 212r58
 199a7 Severity{string} 203r16 203r41
@@ -264,45 +263,45 @@ X 22 editor-contextual_help.adb
 246a7 Kind_Text{string} 252r14
 247a7 Name_Text{string} 252r49
 249a7 Selected_Text{string} 252r26
-259r7 Primary{15|105R9} 266m10 272m10 282m18 282r18 285m18 285r18 288m18
-. 288r18 291r25
-337r7 Hint{15|105R9} 343m18 343r18 345r25
-X 24 editor-feature_panel.ads
-4K16*Feature_Panel 21|2w13 43r20 58r31 22|6r20 179r25 183r22 185r22 187r22
-. 189r22 195r20 201r31 202r34 256r31 261r28 24|696e25
-64E9*Feature_Panel_Row_Kind 22|6r34 24|67e31
-65n7*Feature_Row_Header{64E9} 22|201r45
-67n7*Feature_Row_Empty_State{64E9} 22|202r48 261r42
-72E9*Feature_Row_Severity 22|179r39 24|76e34
-73n7*Feature_Row_No_Severity{72E9} 22|189r36
-74n7*Feature_Row_Info_Severity{72E9} 22|183r36
-75n7*Feature_Row_Warning_Severity{72E9} 22|185r36
-76n7*Feature_Row_Error_Severity{72E9} 22|187r36
-100R9*Feature_Panel_Render_Row 21|43r34 58r45 22|195r34 256r45 24|117e14
-101e7*Kind{64E9} 22|201r17 202r20 261r14
-102r7*Label{15|105R9} 22|197r74
-103r7*Detail{15|105R9} 22|198r74
-105b7*Is_Current_Symbol{boolean} 22|204r20
-106b7*Selectable{boolean} 22|262r25
-107b7*Activatable{boolean} 22|265r39 271r17
-108b7*Has_Target{boolean} 22|265r64
-110b7*Can_Open{boolean} 22|265r17
-111b7*Can_Copy{boolean} 22|281r14
-112b7*Can_Clear{boolean} 22|284r14
-113b7*Can_Reveal{boolean} 22|287r14
-116e7*Severity{72E9} 22|199r56
-X 25 editor-keybindings.ads
-4K16*Keybindings 22|2w13 29r21 39r22 25|230e23
-56R9*Command_Keybinding_Info 22|29r33 25|60e14
-57b7*Has_Binding{boolean} 22|40r15
-58r7*Display{15|105R9} 22|41r55
-123V13*Primary_Binding_For_Command{56R9} 22|39s34
-X 29 system.ads
+259r7 Primary{14|91R9} 266m10 272m10 282m18 282r18 285m18 285r18 288m18 288r18
+. 291r25
+337r7 Hint{14|91R9} 343m18 343r18 345r25
+X 23 editor-feature_panel.ads
+4K16*Feature_Panel 20|2w13 43r20 58r31 21|6r20 179r25 183r22 185r22 187r22
+. 189r22 195r20 201r31 202r34 256r31 261r28 23|696e25
+64E9*Feature_Panel_Row_Kind 21|6r34 23|67e31
+65n7*Feature_Row_Header{64E9} 21|201r45
+67n7*Feature_Row_Empty_State{64E9} 21|202r48 261r42
+72E9*Feature_Row_Severity 21|179r39 23|76e34
+73n7*Feature_Row_No_Severity{72E9} 21|189r36
+74n7*Feature_Row_Info_Severity{72E9} 21|183r36
+75n7*Feature_Row_Warning_Severity{72E9} 21|185r36
+76n7*Feature_Row_Error_Severity{72E9} 21|187r36
+100R9*Feature_Panel_Render_Row 20|43r34 58r45 21|195r34 256r45 23|117e14
+101e7*Kind{64E9} 21|201r17 202r20 261r14
+102r7*Label{14|91R9} 21|197r74
+103r7*Detail{14|91R9} 21|198r74
+105b7*Is_Current_Symbol{boolean} 21|204r20
+106b7*Selectable{boolean} 21|262r25
+107b7*Activatable{boolean} 21|265r39 271r17
+108b7*Has_Target{boolean} 21|265r64
+110b7*Can_Open{boolean} 21|265r17
+111b7*Can_Copy{boolean} 21|281r14
+112b7*Can_Clear{boolean} 21|284r14
+113b7*Can_Reveal{boolean} 21|287r14
+116e7*Severity{72E9} 21|199r56
+X 24 editor-keybindings.ads
+4K16*Keybindings 21|2w13 29r21 39r22 24|230e23
+56R9*Command_Keybinding_Info 21|29r33 24|60e14
+57b7*Has_Binding{boolean} 21|40r15
+58r7*Display{14|91R9} 21|41r55
+123V13*Primary_Binding_For_Command{56R9} 21|39s34
+X 27 system.ads
 67M9*Address
-X 38 s-memory.ads
-51V13*Alloc{29|67M9} 101i<c,__gnat_malloc>22
+X 36 s-memory.ads
+51V13*Alloc{27|67M9} 101i<c,__gnat_malloc>22
 66U14*Free 102i<c,__gnat_free>22
-74V13*Realloc{29|67M9} 103i<c,__gnat_realloc>22
-X 49 s-stalib.adb
+74V13*Realloc{27|67M9} 103i<c,__gnat_realloc>22
+X 45 s-stalib.adb
 87U14 Break_Start 88i<c,__gnat_break_start>22
 

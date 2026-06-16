@@ -1,5 +1,7 @@
 V "GNAT Lib v15"
 A -gnat2022
+A -gnatX
+A -gnata
 P SS ZX
 
 RN
@@ -19,7 +21,7 @@ RV NO_IMPLEMENTATION_PRAGMAS
 RV NO_IMPLICIT_LOOPS
 RV NO_OBSOLESCENT_FEATURES
 
-U editor.files%b	editor-files.adb	a983d33f NE OO PK
+U editor.files%b	editor-files.adb	fc521e9e NE OO PK
 W ada%s			ada.ads			ada.ali
 W ada.calendar%s	a-calend.adb		a-calend.ali
 W ada.directories%s	a-direct.adb		a-direct.ali
@@ -48,7 +50,7 @@ Z system.secondary_stack%s  s-secsta.adb	s-secsta.ali
 Z system.soft_links%s	s-soflin.adb		s-soflin.ali
 Z system.standard_library%s  s-stalib.adb	s-stalib.ali
 
-U editor.files%s	editor-files.ads	2743ce09 EE NE OO PK
+U editor.files%s	editor-files.ads	729203a8 EE NE OO PK
 W ada%s			ada.ads			ada.ali
 Z ada.exceptions%s	a-except.adb		a-except.ali
 W ada.strings%s		a-string.ads		a-string.ali
@@ -86,7 +88,7 @@ D a-tags.ads		20250808065140 fbca0ad5 ada.tags%s
 D a-unccon.ads		20250808065140 0e9b276f ada.unchecked_conversion%s
 D a-uncdea.ads		20250808065140 c3a8ac65 ada.unchecked_deallocation%s
 D editor.ads		20260612145959 16f844c2 editor%s
-D editor-ada_language_model.ads  20260612145959 459f92c3 editor.ada_language_model%s
+D editor-ada_language_model.ads  20260613110624 75f1fac9 editor.ada_language_model%s
 D editor-ada_project_index.ads  20260612145959 3ad143b9 editor.ada_project_index%s
 D editor-ada_syntax_tree.ads  20260612145959 49a76ced editor.ada_syntax_tree%s
 D editor-bookmarks.ads	20260612145959 4e695f4d editor.bookmarks%s
@@ -94,9 +96,9 @@ D editor-buffer_switcher.ads  20260612152524 fd053b33 editor.buffer_switcher%s
 D editor-buffer_types.ads  20260612151710 a555405e editor.buffer_types%s
 D editor-buffers.ads	20260612185530 1a6b6e4c editor.buffers%s
 D editor-build_candidates.ads  20260612145959 dc89ea7b editor.build_candidates%s
-D editor-build_output_details.ads  20260612145959 0f4ba402 editor.build_output_details%s
+D editor-build_output_details.ads  20260613095501 1d7c9af2 editor.build_output_details%s
 D editor-build_process_control.ads  20260612145959 28661204 editor.build_process_control%s
-D editor-build_result_summary.ads  20260612145959 94fc95d2 editor.build_result_summary%s
+D editor-build_result_summary.ads  20260613095501 5b952273 editor.build_result_summary%s
 D editor-build_runner_policy.ads  20260612145959 623f26a9 editor.build_runner_policy%s
 D editor-build_ui.ads	20260612152524 28a54496 editor.build_ui%s
 D editor-build_working_context.ads  20260612145959 cef9cea9 editor.build_working_context%s
@@ -138,18 +140,18 @@ D editor-pending_transitions.ads  20260612145959 81c78960 editor.pending_transit
 D editor-problems.ads	20260612145959 a9a08157 editor.problems%s
 D editor-producer_contracts.ads  20260612145959 c3ee4501 editor.producer_contracts%s
 D editor-project.ads	20260612145959 f4d50f6d editor.project%s
-D editor-project_search.ads  20260612152451 857df5ab editor.project_search%s
+D editor-project_search.ads  20260612195704 b7cf3cc2 editor.project_search%s
 D editor-project_search_bar.ads  20260612145959 c5c12f77 editor.project_search_bar%s
-D editor-quick_open.ads	20260612151807 878ba83c editor.quick_open%s
+D editor-quick_open.ads	20260614175339 b8f14db6 editor.quick_open%s
 D editor-recent_buffers.ads  20260612145959 617e4612 editor.recent_buffers%s
 D editor-recent_projects.ads  20260612145959 ee1155f5 editor.recent_projects%s
-D editor-render_model.ads  20260612145959 bd0252b2 editor.render_model%s
+D editor-render_model.ads  20260613081313 a7bd5c4e editor.render_model%s
 D editor-search.ads	20260612145959 dac0e204 editor.search%s
 D editor-search_results.ads  20260612145959 98eded1d editor.search_results%s
 D editor-selection.ads	20260612145959 37bfc5e9 editor.selection%s
 D editor-settings.ads	20260612145959 c2103809 editor.settings%s
 D editor-settings_management.ads  20260612145959 cf741a5b editor.settings_management%s
-D editor-state.ads	20260612170622 4c537118 editor.state%s
+D editor-state.ads	20260613081313 1982bcb9 editor.state%s
 D editor-status_bar.ads	20260612145959 879f0640 editor.status_bar%s
 D editor-syntax.ads	20260612145959 d59b0303 editor.syntax%s
 D editor-syntax_cache.ads  20260612164742 637f2470 editor.syntax_cache%s
@@ -159,7 +161,7 @@ D editor-unicode.ads	20260612145959 552ff3cc editor.unicode%s
 D editor-utf8.ads	20260612145959 404e16b1 editor.utf8%s
 D editor-view.ads	20260612152152 12b5fbb1 editor.view%s
 D editor-view_types.ads	20260612152152 f3042ec7 editor.view_types%s
-D editor-workspace_persistence.ads  20260612145959 455ffd61 editor.workspace_persistence%s
+D editor-workspace_persistence.ads  20260612202240 a037efc2 editor.workspace_persistence%s
 D editor-wrap.ads	20260612145959 87db665a editor.wrap%s
 D gnat.ads		20250808065140 b5988c27 gnat%s
 D g-os_lib.ads		20250808065140 0db74523 gnat.os_lib%s
@@ -263,12 +265,12 @@ G c Z b b [status_to_file_status editor__files 167 13 none]
 G c Z b b [normalize_text editor__files 186 13 none]
 G r c none [open_file editor__files 188 13 none] [code_point_count editor__utf8 17 13 none]
 G r c none [load_file editor__files 323 13 none] [code_point_count editor__utf8 17 13 none]
-G r c none [load_file editor__files 323 13 none] [replace_buffer_contents editor__state 459 14 none]
-G r c none [load_file editor__files 323 13 none] [current_buffer_revision editor__state 470 13 none]
+G r c none [load_file editor__files 323 13 none] [replace_buffer_contents editor__state 460 14 none]
+G r c none [load_file editor__files 323 13 none] [current_buffer_revision editor__state 471 13 none]
 G r c none [load_file editor__files 323 13 none] [reset_scroll editor__view 21 14 none]
-G r c none [save_file editor__files 327 13 none] [current_text editor__state 467 13 none]
-G r c none [save_file editor__files 327 13 none] [current_buffer_revision editor__state 470 13 none]
-G r c none [save_file editor__files 327 13 none] [reset_dirty_line_baseline editor__state 486 14 none]
+G r c none [save_file editor__files 327 13 none] [current_text editor__state 468 13 none]
+G r c none [save_file editor__files 327 13 none] [current_buffer_revision editor__state 471 13 none]
+G r c none [save_file editor__files 327 13 none] [reset_dirty_line_baseline editor__state 487 14 none]
 G r c none [normalize_text editor__files 186 13 none] [code_point_count editor__utf8 17 13 none]
 X 1 ada.ads
 18K9*Ada 22e8 58|1r6 52r22 53r9 54r22 55r9 56r22 57r9 58r22 59r9 114r22 115r9
@@ -669,7 +671,7 @@ X 64 editor-history.ads
 60r4*Redo_Stack{8|91R9[54]} 59|996m22 996r22
 X 92 editor-state.ads
 51K16*State 58|2w13 325r28 329r28 59|7w13 966r28 974r14 980r46 1003r28 1006r33
-. 1014r49 1029r17 92|610e17
+. 1014r49 1029r17 92|611e17
 89b7*Has_Path{boolean} 59|975m19 1009m22
 90r7*Path{23|105R9} 59|976m19 1010m22
 92r7*Display_Name{23|105R9} 59|977m19 1011m22
@@ -685,15 +687,15 @@ X 92 editor-state.ads
 103b7*External_Change_Surfaced{boolean} 59|987m19 1021m22
 105b7*File_Token_Known{boolean} 59|992m22 1026m25
 106r7*File_Token_Label{23|105R9} 59|993m22 1027m25
-115R9*State_Type 58|325r34 329r34 59|966r34 1003r34 92|366e14
-188r7*File_Info{88R9} 59|975m9 976m9 977m9 978m9 979m9 980m9 981m9 982m9
+115R9*State_Type 58|325r34 329r34 59|966r34 1003r34 92|367e14
+189r7*File_Info{88R9} 59|975m9 976m9 977m9 978m9 979m9 980m9 981m9 982m9
 . 983m9 984m9 985m9 986m9 987m9 992m12 993m12 1009m12 1010m12 1011m12 1012m12
 . 1013m12 1014m12 1015m12 1016m12 1017m12 1018m12 1019m12 1020m12 1021m12
 . 1026m15 1027m15
-459U14*Replace_Buffer_Contents 59|974s20
-467V13*Current_Text{string} 59|1006s39
-470V13*Current_Buffer_Revision{natural} 59|980s52 1014s55
-486U14*Reset_Dirty_Line_Baseline 59|1029s23
+460U14*Replace_Buffer_Contents 59|974s20
+468V13*Current_Text{string} 59|1006s39
+471V13*Current_Buffer_Revision{natural} 59|980s52 1014s55
+487U14*Reset_Dirty_Line_Baseline 59|1029s23
 X 99 editor-utf8.ads
 3K16*UTF8 59|8w13 222r26 223r38 225r22 99|24e16
 4n29*Reject{4E9} 59|223r43

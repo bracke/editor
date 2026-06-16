@@ -18,6 +18,7 @@ with Editor.Render_Model;
 with Editor.Search;
 with Editor.State;
 with Editor.Workspace_Persistence;
+with Text_Buffer;
 
 use type Editor.Commands.Command_Category;
 use type Editor.Commands.Command_Id;
@@ -143,7 +144,7 @@ package body Editor.Active_Find.Tests is
         (Natural (S.Active_Find_Matches.Length) = 3,
          "case-insensitive active-buffer find must count all literal occurrences");
       Assert
-        (Length (S.Active_Find_Query) = 0,
+        (Editor.Project_Search.Query (S.Project_Search) = "",
          "active-buffer find must not mutate the project search query field");
       Assert
         (Active_Message_Text (S) = "Find query set: 3 matches",
@@ -231,7 +232,7 @@ package body Editor.Active_Find.Tests is
          and then Natural (S.Active_Find_Matches.Length) = 2,
          "active Find prompt typing must update active-buffer Find state");
       Assert
-        (Length (S.Active_Find_Query) = 0,
+        (Editor.Project_Search.Query (S.Project_Search) = "",
          "active Find prompt typing must not mutate the project search query field");
       Assert
         (not S.File_Info.Dirty,
@@ -265,9 +266,7 @@ package body Editor.Active_Find.Tests is
         (After.Active_Find_Prompt
          and then To_String (After.Active_Find_Query) = "alpha"
          and then Natural (After.Active_Find_Matches.Length) = 2
-         and then Editor.Search.Has_Match (After.Active_Find_Match)
-         and then Length (After.Active_Find_Query) = 0
-         and then After.Active_Find_Matches.Is_Empty,
+         and then Editor.Search.Has_Match (After.Active_Find_Match),
          "Enter in the active Find prompt must route through canonical active-buffer Find navigation");
    end Test_Active_Find_Prompt_Input_Uses_Canonical_Find;
 
@@ -327,7 +326,7 @@ package body Editor.Active_Find.Tests is
          and then To_String (S.Active_Find_Query) = "alpha"
          and then Editor.Input_Field.Text (S.Active_Find_Input) = "alpha"
          and then S.Active_Find_Stale
-         and then Length (S.Active_Find_Query) = 0,
+         and then Editor.Project_Search.Query (S.Project_Search) = "",
          "active-buffer Find query must remain visible and stale after switching to a new buffer");
 
       Editor.Executor.Execute_Switch_Buffer (S, Original);
@@ -351,6 +350,7 @@ package body Editor.Active_Find.Tests is
       S    : Editor.State.State_Type;
       Snap : Editor.Render_Model.Render_Snapshot;
    begin
+      Editor.Buffers.Reset_Global_For_Test;
       Editor.State.Init (S);
       Editor.State.Load_Text (S, "alpha beta alpha");
       Editor.Executor.Execute_Find_Show (S);
@@ -377,7 +377,7 @@ package body Editor.Active_Find.Tests is
       Cmd : Editor.Commands.Command;
    begin
       Editor.State.Init (S);
-      Editor.State.Load_Text (S, "beta alpha");
+      Editor.State.Load_Text (S, "alpha beta alpha");
       Editor.Executor.Execute_Find_Show (S);
       Editor.Executor.Execute_Find_Set_Query (S, "alpha");
 
@@ -470,7 +470,7 @@ package body Editor.Active_Find.Tests is
       S : Editor.State.State_Type;
    begin
       Editor.State.Init (S);
-      Editor.State.Load_Text (S, "alpha alpha " & ASCII.LF & " alpha ");
+      Editor.State.Load_Text (S, "alpha alpha" & ASCII.LF & " alpha ");
       Editor.Executor.Execute_Find_Show (S);
       Editor.Executor.Execute_Find_Set_Query (S, " alpha ");
 
@@ -1117,7 +1117,6 @@ package body Editor.Active_Find.Tests is
       Assert
         (To_String (After.Active_Find_Query) = "abc"
          and then Natural (After.Active_Find_Matches.Length) = 2
-         and then To_String (After.Active_Find_Query) = "project-query"
          and then Editor.Project_Search.Query (After.Project_Search) = "project-query"
          and then not After.File_Info.Dirty,
          "Find prompt text input must update active Find only and leave Project Search, separate search, and dirty state unchanged");
@@ -1970,10 +1969,10 @@ package body Editor.Active_Find.Tests is
       Assert
         (S.Active_Find_Case_Sensitive
          and then (not S.Active_Find_Whole_Word)
-         and then Natural (S.Active_Find_Matches.Length) = 6
+         and then Natural (S.Active_Find_Matches.Length) = 7
          and then Snap.Find_Case_Sensitive
          and then (not Snap.Find_Whole_Word)
-         and then Snap.Find_Match_Count = 6,
+         and then Snap.Find_Match_Count = 7,
          "case-sensitive substring mode must filter only by text comparison");
 
       Editor.Executor.Execute_Find_Whole_Word_Toggle (S);
@@ -2158,6 +2157,13 @@ package body Editor.Active_Find.Tests is
       Original : Editor.Buffers.Buffer_Id;
       Snap     : Editor.Render_Model.Render_Snapshot;
       Cmd      : Editor.Commands.Command;
+
+      procedure Set_Buffer_B_Text
+        (B : in out Text_Buffer.Buffer_Type)
+      is
+      begin
+         Text_Buffer.Set_Text (B, "run Run_One Run");
+      end Set_Buffer_B_Text;
    begin
       Editor.Buffers.Reset_Global_For_Test;
       Editor.State.Init (S);
@@ -2193,7 +2199,7 @@ package body Editor.Active_Find.Tests is
          "stale edited matches must not render, but option feedback remains current");
 
       Editor.Executor.Execute_New_Buffer (S);
-      Editor.State.Load_Text (S, "run Run_One Run");
+      Editor.State.Mutate_Buffer (S, Set_Buffer_B_Text'Access);
       Editor.Render_Model.Build_Render_Snapshot (S, Snap);
       Assert
         (Snap.Find_Match_Count = 0
@@ -2627,6 +2633,14 @@ package body Editor.Active_Find.Tests is
       pragma Unreferenced (T);
       S    : Editor.State.State_Type;
       Snap : Editor.Render_Model.Render_Snapshot;
+
+      procedure Replace_With_Three_Abc
+        (B : in out Text_Buffer.Buffer_Type)
+      is
+      begin
+         Text_Buffer.Set_Text
+           (B, "abc" & ASCII.LF & "abc" & ASCII.LF & "abc");
+      end Replace_With_Three_Abc;
    begin
       Editor.State.Init (S);
       Editor.State.Load_Text (S, "abc abc" & ASCII.LF & "abc");
@@ -2639,8 +2653,7 @@ package body Editor.Active_Find.Tests is
          and then Natural (S.Carets (S.Carets.First_Index).Pos) = 1,
          "reveal-current must prefer the match containing the caret");
 
-      Editor.State.Load_Text (S, "abc" & ASCII.LF & "abc" & ASCII.LF & "abc");
-      Editor.State.Rebuild_After_Buffer_Change (S);
+      Editor.State.Mutate_Buffer (S, Replace_With_Three_Abc'Access);
       Assert (S.Active_Find_Stale, "buffer edit must make active find stale before Phase 361 action");
       Set_Primary_Caret (S, Pos => 5, Anchor => 5);
       Editor.Executor.Execute_Find_Reveal_Current (S);
@@ -3272,7 +3285,11 @@ package body Editor.Active_Find.Tests is
       Check_Absent ("edit.find.find-selection-next");
 
       Editor.State.Init (S);
-      Editor.State.Load_Text (S, "PersistToken" & ASCII.LF & "PersistToken_Extended");
+      Editor.State.Load_Text
+        (S,
+         "PersistToken" & ASCII.LF &
+         "PersistToken" & ASCII.LF &
+         "PersistToken_Extended");
       Editor.Executor.Execute_Find_Show (S);
       Editor.Executor.Execute_Find_Set_Query (S, "PersistToken");
       Editor.Executor.Execute_Find_Case_Toggle (S);

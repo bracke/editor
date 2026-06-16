@@ -1,6 +1,8 @@
 with Ada.Strings.Unbounded; use Ada.Strings.Unbounded;
 
 package body Editor.Ada_Repaired_Coverage_Semantic_Feedback is
+
+   pragma Suppress (Overflow_Check);
    use type Diag.Repair_Gated_Diagnostic_Status;
    use type Diag.Repair_Gated_Diagnostic_Action;
    use type App.Application_Status;

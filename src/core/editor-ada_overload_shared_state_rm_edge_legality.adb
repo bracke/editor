@@ -2,6 +2,8 @@ with Ada.Strings.Unbounded; use Ada.Strings.Unbounded;
 
 package body Editor.Ada_Overload_Shared_State_RM_Edge_Legality is
 
+   pragma Suppress (Overflow_Check);
+
    use type Abstract_States.Abstract_State_Status;
    use type Editor.Ada_Syntax_Tree.Node_Id;
    use type Final_RM.Final_RM_Status;

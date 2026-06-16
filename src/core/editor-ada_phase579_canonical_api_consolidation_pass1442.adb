@@ -2,6 +2,8 @@ with Ada.Strings.Unbounded; use Ada.Strings.Unbounded;
 
 package body Editor.Ada_Phase579_Canonical_API_Consolidation_Pass1442 is
 
+   pragma Suppress (Overflow_Check);
+
    procedure Add_Row (Input : in out API_Input; Row : API_Row) is
    begin
       Input.Rows.Append (Row);

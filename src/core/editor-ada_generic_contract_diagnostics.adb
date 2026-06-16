@@ -2,6 +2,8 @@ with Ada.Strings.Unbounded; use Ada.Strings.Unbounded;
 
 package body Editor.Ada_Generic_Contract_Diagnostics is
 
+   pragma Suppress (Overflow_Check);
+
    use type Editor.Ada_Generic_View_Compatibility.Generic_View_Status;
    use type Editor.Ada_Generic_Instantiated_Body_Analysis.Instantiated_Body_Status;
    use type Editor.Ada_Generic_Formal_Package_Substitutions.Formal_Package_Substitution_Status;
@@ -720,12 +722,13 @@ package body Editor.Ada_Generic_Contract_Diagnostics is
 
    function Diagnostic_At
      (Model : Generic_Contract_Diagnostic_Model;
-      Index : Positive) return Generic_Contract_Diagnostic_Info is
+      Index : Natural) return Generic_Contract_Diagnostic_Info is
    begin
-      if Index > Natural (Model.Diagnostics.Length) then
+      if Index = 0 or else Index > Natural (Model.Diagnostics.Length) then
          return (others => <>);
       end if;
-      return Model.Diagnostics.Element (Index);
+
+      return Model.Diagnostics.Element (Positive (Index));
    end Diagnostic_At;
 
    function Diagnostic_For_Node

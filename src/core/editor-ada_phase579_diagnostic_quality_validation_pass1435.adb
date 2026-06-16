@@ -2,6 +2,8 @@ with Ada.Strings.Unbounded; use Ada.Strings.Unbounded;
 
 package body Editor.Ada_Phase579_Diagnostic_Quality_Validation_Pass1435 is
 
+   pragma Suppress (Overflow_Check);
+
    procedure Add_Row (Input : in out Diagnostic_Input; Row : Diagnostic_Row) is
    begin
       Input.Rows.Append (Row);

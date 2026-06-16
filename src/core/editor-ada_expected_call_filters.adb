@@ -8,6 +8,8 @@ with Editor.Ada_Type_Graph;
 
 package body Editor.Ada_Expected_Call_Filters is
 
+   pragma Suppress (Overflow_Check);
+
    use type Editor.Ada_Call_Profile_Filters.Profile_Filter_Id;
    use type Editor.Ada_Call_Profile_Filters.Profile_Filter_Status;
    use type Editor.Ada_Call_Profile_Shapes.Callable_Profile_Id;

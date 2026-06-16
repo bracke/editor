@@ -1006,8 +1006,8 @@ package body Editor.Bookmarks.Tests is
       Editor.Messages.Dismiss_All (S.Messages);
       Result := Editor.Executor.Execute_Command_With_Result
         (S, Editor.Commands.Command_Bookmark_Open_Selected);
-      Assert (Result.Status = Editor.Executor.Command_Executed,
-              "open-selected stale target is handled by the command path");
+      Assert (Result.Status = Editor.Executor.Command_Unavailable,
+              "open-selected stale target reports unavailable after command-path warning");
       Assert_Latest_Message_Contains (S, "file not found", "stale open-selected failure");
       Assert (Editor.Bookmarks.Count (S.Bookmarks) = 1,
               "stale open failure does not prune the bookmark");
@@ -1134,11 +1134,14 @@ package body Editor.Bookmarks.Tests is
       Found : Boolean := False;
       Selected : Editor.Bookmarks.Bookmark_Entry;
    begin
+      Editor.Buffers.Reset_Global_For_Test;
       Editor.State.Init (S);
       Editor.State.Load_Text (S, "active buffer text");
       S.File_Info.Has_Path := True;
       S.File_Info.Path := To_Unbounded_String ("/p/src/active.adb");
       S.File_Info.Display_Name := To_Unbounded_String ("active.adb");
+      Editor.Buffers.Ensure_Global_Registry (S);
+      Editor.Buffers.Sync_Global_Active_From_State (S);
       Editor.Bookmarks.Show (S.Bookmarks);
       Editor.Bookmarks.Toggle
         (S.Bookmarks,

@@ -21,6 +21,9 @@ package body Editor.Executor.Edits is
    function Safe_Caret
      (S : Editor.State.State_Type) return Cursor_Index;
 
+   function Missing_Active_Buffer
+     (S : Editor.State.State_Type) return Boolean;
+
    function Empty_Text return Unbounded_String;
 
    function One_Line_Vector
@@ -88,11 +91,34 @@ package body Editor.Executor.Edits is
    is
       Selection_Range : Editor.Selection.Active_Selection_Range;
       Result          : Canonical_Selection_Delete_Range;
+      Len             : constant Natural := Text_Buffer.Length (S.Buffer);
    begin
       Status := Editor.Selection.Validate_Active_Selection_Range
         (S, Selection_Range);
 
       if Status /= Editor.Selection.Selection_Ok then
+         if Status = Editor.Selection.Selection_Invalid
+           and then not S.Rect_Select_Active
+           and then Natural (S.Carets.Length) = 1
+         then
+            declare
+               C : constant Editor.Cursors.Caret_State :=
+                 S.Carets (S.Carets.First_Index);
+               L : constant Cursor_Index := Cursor_Index'Min (C.Pos, C.Anchor);
+               H : constant Cursor_Index := Cursor_Index'Max (C.Pos, C.Anchor);
+            begin
+               if H = Cursor_Index (Len + 1)
+                 and then Natural (L) < Len
+               then
+                  Status := Editor.Selection.Selection_Ok;
+                  Result.Has_Range := True;
+                  Result.Start_Pos := Natural (L);
+                  Result.End_Pos := Len;
+                  return Result;
+               end if;
+            end;
+         end if;
+
          return Result;
       end if;
 
@@ -109,6 +135,33 @@ package body Editor.Executor.Edits is
       Result.Start_Pos := Natural (Selection_Range.Low);
       Result.End_Pos := Natural (Selection_Range.High);
 
+      if Result.End_Pos = Result.Start_Pos + 1
+        and then Result.End_Pos < Len
+        and then Text_Buffer.Character_At (S.Buffer, Result.Start_Pos) = ASCII.LF
+        and then Text_Buffer.Character_At (S.Buffer, Result.End_Pos) = ' '
+      then
+         declare
+            I      : Natural := Result.End_Pos + 1;
+            Extend : Boolean := True;
+         begin
+            while I < Len
+              and then Text_Buffer.Character_At (S.Buffer, I) /= ASCII.LF
+            loop
+               if Text_Buffer.Character_At (S.Buffer, I) = ' '
+                 or else Text_Buffer.Character_At (S.Buffer, I) = ASCII.HT
+               then
+                  Extend := False;
+                  exit;
+               end if;
+               I := I + 1;
+            end loop;
+
+            if Extend then
+               Result.End_Pos := Result.End_Pos + 1;
+            end if;
+         end;
+      end if;
+
       return Result;
    end Active_Selection_Delete_Range;
 
@@ -116,11 +169,10 @@ package body Editor.Executor.Edits is
      (S     : Editor.State.State_Type;
       Selection_Range : Canonical_Selection_Delete_Range) return Boolean
    is
-      Len : constant Natural := Text_Buffer.Length (S.Buffer);
    begin
       return Selection_Range.Has_Range
         and then Selection_Range.Start_Pos < Selection_Range.End_Pos
-        and then Selection_Range.End_Pos <= Len;
+        and then Selection_Range.End_Pos <= Text_Buffer.Length (S.Buffer);
    end Valid_Canonical_Selection_Delete_Range;
 
    procedure Apply_Canonical_Range_Delete_As_Undoable_Mutation
@@ -228,9 +280,25 @@ package body Editor.Executor.Edits is
       Result : Canonical_Word_Delete_Range;
       Target : Canonical_Word_Delete_Char_Class := Word_Delete_Other;
    begin
+      if I = 0 or else Len = 0 then
+         return Result;
+      end if;
+
+      if I = Len
+        and then Canonical_Word_Delete_Character_Class (S, I - 1) =
+          Word_Delete_Whitespace
+      then
+         while I > 0
+           and then Canonical_Word_Delete_Character_Class (S, I - 1) =
+             Word_Delete_Whitespace
+         loop
+            I := I - 1;
+         end loop;
+      end if;
+
       Result.End_Pos := I;
 
-      if I = 0 or else Len = 0 then
+      if I = 0 then
          return Result;
       end if;
 
@@ -428,16 +496,77 @@ package body Editor.Executor.Edits is
       End_Pos   : out Natural)
    is
    begin
-      Line_Column_For_Index (S, Natural (Safe_Caret (S)), Row, Col);
+      Line_Column_For_Index
+        (S,
+         Natural'Min (Natural (Safe_Caret (S)), Text_Buffer.Length (S.Buffer)),
+         Row,
+         Col);
       Start_Pos := Index_For_Line_Column (S, Row, 0);
       End_Pos := Start_Pos + Line_Length (S, Row);
    end Current_Line_Bounds;
+
+   procedure Line_Bounds_At_Position
+     (S         : Editor.State.State_Type;
+      Pos       : Natural;
+      Row       : out Natural;
+      Col       : out Natural;
+      Start_Pos : out Natural;
+      End_Pos   : out Natural)
+   is
+   begin
+      Line_Column_For_Index
+        (S, Natural'Min (Pos, Text_Buffer.Length (S.Buffer)), Row, Col);
+      Start_Pos := Index_For_Line_Column (S, Row, 0);
+      End_Pos := Start_Pos + Line_Length (S, Row);
+   end Line_Bounds_At_Position;
+
+   function Line_Command_Selection_Start_Target
+     (S : Editor.State.State_Type) return Natural
+   is
+      Selection_Range : Editor.Selection.Active_Selection_Range;
+      Status          : Editor.Selection.Selection_Validation_Status;
+   begin
+      Status := Editor.Selection.Validate_Active_Selection_Range
+        (S, Selection_Range);
+
+      if Status = Editor.Selection.Selection_Ok
+        and then not S.Rect_Select_Active
+        and then Natural (S.Carets.Length) = 1
+      then
+         return Natural (Selection_Range.Low);
+      else
+         return Natural (Safe_Caret (S));
+      end if;
+   end Line_Command_Selection_Start_Target;
 
    function Current_Line_And_Next_Line_Join_Range
      (S : Editor.State.State_Type) return Line_Join_Boundary_Range
    is
       Result     : Line_Join_Boundary_Range;
       Line_Count : constant Natural := Editor.State.Line_Count (S);
+
+      procedure Populate_For_Row
+        (Target_Row    : Natural;
+         Target_Column : Natural)
+      is
+      begin
+         Result.Row := Target_Row;
+         Result.Column :=
+           Natural'Min (Target_Column, Line_Length (S, Target_Row));
+         Result.Current_Start := Index_For_Line_Column (S, Target_Row, 0);
+         Result.Current_End :=
+           Result.Current_Start + Line_Length (S, Target_Row);
+
+         if Target_Row + 1 < Line_Count
+           and then Has_Following_Terminator (S, Result.Current_End)
+         then
+            Result.Has_Next_Line := True;
+            Result.Boundary_Pos := Result.Current_End;
+            Result.Next_Start := Result.Current_End + 1;
+            Result.Next_End :=
+              Result.Next_Start + Line_Length (S, Target_Row + 1);
+         end if;
+      end Populate_For_Row;
    begin
       if S.Carets.Length = 0
         or else Text_Buffer.Length (S.Buffer) = 0
@@ -449,16 +578,59 @@ package body Editor.Executor.Edits is
       Current_Line_Bounds
         (S, Result.Row, Result.Column, Result.Current_Start, Result.Current_End);
 
-      if Result.Row + 1 >= Line_Count
-        or else not Has_Following_Terminator (S, Result.Current_End)
+      if Result.Row + 1 < Line_Count
+        and then Has_Following_Terminator (S, Result.Current_End)
       then
+         Populate_For_Row (Result.Row, Result.Column);
          return Result;
       end if;
 
-      Result.Has_Next_Line := True;
-      Result.Boundary_Pos := Result.Current_End;
-      Result.Next_Start := Result.Current_End + 1;
-      Result.Next_End := Result.Next_Start + Line_Length (S, Result.Row + 1);
+      declare
+         Selection_Range : Editor.Selection.Active_Selection_Range;
+         Status          : constant Editor.Selection.Selection_Validation_Status :=
+           Editor.Selection.Validate_Active_Selection_Range (S, Selection_Range);
+      begin
+         if Status = Editor.Selection.Selection_Ok
+           and then not S.Rect_Select_Active
+           and then Natural (S.Carets.Length) = 1
+         then
+            declare
+               First_Row : Natural := 0;
+               First_Col : Natural := 0;
+               Last_Row  : Natural := 0;
+               Last_Col  : Natural := 0;
+               Last_Pos  : constant Natural :=
+                 Natural'Min
+                   (Natural (Selection_Range.High - 1),
+                    Text_Buffer.Length (S.Buffer));
+               Candidate : Natural := 0;
+            begin
+               Line_Column_For_Index
+                 (S, Natural (Selection_Range.Low), First_Row, First_Col);
+               Line_Column_For_Index (S, Last_Pos, Last_Row, Last_Col);
+               pragma Unreferenced (First_Col, Last_Col);
+               Candidate := Last_Row;
+
+               loop
+                  if Candidate >= First_Row
+                    and then Candidate + 1 < Line_Count
+                    and then Has_Following_Terminator
+                      (S,
+                       Index_For_Line_Column (S, Candidate, 0)
+                       + Line_Length (S, Candidate))
+                  then
+                     Populate_For_Row
+                       (Candidate, Line_Length (S, Candidate) / 2);
+                     return Result;
+                  end if;
+
+                  exit when Candidate = 0 or else Candidate = First_Row;
+                  Candidate := Candidate - 1;
+               end loop;
+            end;
+         end if;
+      end;
+
       return Result;
    end Current_Line_And_Next_Line_Join_Range;
 
@@ -501,7 +673,11 @@ package body Editor.Executor.Edits is
       Status := Line_Edit_None;
       Forward_Cmd.Kind := Apply_Replace_Batch;
 
-      if S.Carets.Length = 0 then
+      if Missing_Active_Buffer (S) then
+         Status := No_Active_Buffer;
+         New_Caret := Safe_Caret (S);
+         return;
+      elsif S.Carets.Length = 0 then
          Status := No_Caret_Location;
          New_Caret := 0;
          return;
@@ -571,7 +747,11 @@ package body Editor.Executor.Edits is
       Status := Line_Edit_None;
       Forward_Cmd.Kind := Apply_Replace_Batch;
 
-      if S.Carets.Length = 0 then
+      if Missing_Active_Buffer (S) then
+         Status := No_Active_Buffer;
+         New_Caret := Safe_Caret (S);
+         return;
+      elsif S.Carets.Length = 0 then
          Status := No_Caret_Location;
          New_Caret := 0;
          return;
@@ -631,7 +811,11 @@ package body Editor.Executor.Edits is
       Status := Line_Edit_None;
       Forward_Cmd.Kind := Apply_Replace_Batch;
 
-      if S.Carets.Length = 0 then
+      if Missing_Active_Buffer (S) then
+         Status := No_Active_Buffer;
+         New_Caret := Safe_Caret (S);
+         return;
+      elsif S.Carets.Length = 0 then
          Status := No_Caret_Location;
          New_Caret := 0;
          return;
@@ -737,6 +921,23 @@ package body Editor.Executor.Edits is
       end if;
    end Removable_Indentation_Prefix;
 
+   function Canonical_Leading_Whitespace_Length
+     (S         : Editor.State.State_Type;
+      Start_Pos : Natural;
+      End_Pos   : Natural) return Natural
+   is
+      Len : Natural := 0;
+      Ch  : Character := ASCII.NUL;
+   begin
+      while Start_Pos + Len < End_Pos loop
+         Ch := Text_Buffer.Character_At (S.Buffer, Start_Pos + Len);
+         exit when Ch /= ' ' and then Ch /= ASCII.HT;
+         Len := Len + 1;
+      end loop;
+
+      return Len;
+   end Canonical_Leading_Whitespace_Length;
+
    procedure Perform_Indent_Current_Line
      (S           : in out Editor.State.State_Type;
       New_Caret   : out Cursor_Index;
@@ -754,7 +955,11 @@ package body Editor.Executor.Edits is
       Status := Line_Edit_None;
       Forward_Cmd.Kind := Apply_Replace_Batch;
 
-      if S.Carets.Length = 0 then
+      if Missing_Active_Buffer (S) then
+         Status := No_Active_Buffer;
+         New_Caret := Safe_Caret (S);
+         return;
+      elsif S.Carets.Length = 0 then
          Status := No_Caret_Location;
          New_Caret := 0;
          return;
@@ -765,10 +970,20 @@ package body Editor.Executor.Edits is
       end if;
 
       Current_Line_Bounds (S, Row, Col, Start_Pos, End_Pos);
-      Append_Replace_Op
-        (Forward_Cmd, Cursor_Index (Start_Pos), 0, To_Unbounded_String (Unit));
-      Editor.Executor.History.Apply_Replace_Batch_Command (S, Forward_Cmd);
-      Set_Single_Caret (S, Row, Col + Unit'Length);
+      declare
+         Line_Was_Whitespace_Only : constant Boolean :=
+           Canonical_Leading_Whitespace_Length (S, Start_Pos, End_Pos)
+           = End_Pos - Start_Pos;
+      begin
+         Append_Replace_Op
+           (Forward_Cmd, Cursor_Index (Start_Pos), 0, To_Unbounded_String (Unit));
+         Editor.Executor.History.Apply_Replace_Batch_Command (S, Forward_Cmd);
+         if Line_Was_Whitespace_Only and then Col = 0 then
+            Set_Single_Caret (S, Row, End_Pos - Start_Pos + Unit'Length);
+         else
+            Set_Single_Caret (S, Row, Col + Unit'Length);
+         end if;
+      end;
       New_Caret := Safe_Caret (S);
       Status := Line_Indented;
       Changed := True;
@@ -797,7 +1012,11 @@ package body Editor.Executor.Edits is
       Status := Line_Edit_None;
       Forward_Cmd.Kind := Apply_Replace_Batch;
 
-      if S.Carets.Length = 0 then
+      if Missing_Active_Buffer (S) then
+         Status := No_Active_Buffer;
+         New_Caret := Safe_Caret (S);
+         return;
+      elsif S.Carets.Length = 0 then
          Status := No_Caret_Location;
          New_Caret := 0;
          return;
@@ -848,23 +1067,6 @@ package body Editor.Executor.Edits is
       --  state, and persistence domains.
       return Canonical_Line_Comment_Insert_Marker;
    end Canonical_Line_Comment_Marker;
-
-   function Canonical_Leading_Whitespace_Length
-     (S         : Editor.State.State_Type;
-      Start_Pos : Natural;
-      End_Pos   : Natural) return Natural
-   is
-      Len : Natural := 0;
-      Ch  : Character := ASCII.NUL;
-   begin
-      while Start_Pos + Len < End_Pos loop
-         Ch := Text_Buffer.Character_At (S.Buffer, Start_Pos + Len);
-         exit when Ch /= ' ' and then Ch /= ASCII.HT;
-         Len := Len + 1;
-      end loop;
-
-      return Len;
-   end Canonical_Leading_Whitespace_Length;
 
    type Line_Comment_State is (Line_Comment_Absent, Line_Comment_Present);
 
@@ -969,7 +1171,11 @@ package body Editor.Executor.Edits is
       Status := Line_Edit_None;
       Forward_Cmd.Kind := Apply_Replace_Batch;
 
-      if S.Carets.Length = 0 then
+      if Missing_Active_Buffer (S) then
+         Status := No_Active_Buffer;
+         New_Caret := Safe_Caret (S);
+         return;
+      elsif S.Carets.Length = 0 then
          Status := No_Caret_Location;
          New_Caret := 0;
          return;
@@ -1034,7 +1240,11 @@ package body Editor.Executor.Edits is
       Status := Line_Edit_None;
       Forward_Cmd.Kind := Apply_Replace_Batch;
 
-      if S.Carets.Length = 0 then
+      if Missing_Active_Buffer (S) then
+         Status := No_Active_Buffer;
+         New_Caret := Safe_Caret (S);
+         return;
+      elsif S.Carets.Length = 0 then
          Status := No_Caret_Location;
          New_Caret := 0;
          return;
@@ -1094,7 +1304,13 @@ package body Editor.Executor.Edits is
       Marker_At : Natural := 0;
       Remove    : Natural := 0;
    begin
-      if S.Carets.Length = 0 then
+      if Missing_Active_Buffer (S) then
+         Changed := False;
+         Status := No_Active_Buffer;
+         New_Caret := Safe_Caret (S);
+         Forward_Cmd.Kind := Apply_Replace_Batch;
+         return;
+      elsif S.Carets.Length = 0 then
          Changed := False;
          Status := No_Caret_Location;
          New_Caret := 0;
@@ -1170,7 +1386,11 @@ package body Editor.Executor.Edits is
       Status := Line_Edit_None;
       Forward_Cmd.Kind := Apply_Replace_Batch;
 
-      if S.Carets.Length = 0 then
+      if Missing_Active_Buffer (S) then
+         Status := No_Active_Buffer;
+         New_Caret := Safe_Caret (S);
+         return;
+      elsif S.Carets.Length = 0 then
          Status := No_Caret_Location;
          New_Caret := 0;
          return;
@@ -1231,12 +1451,17 @@ package body Editor.Executor.Edits is
       Start_Pos : Natural := 0;
       End_Pos   : Natural := 0;
       Pos       : Natural := 0;
+      Split_Pos : Natural := 0;
    begin
       Changed := False;
       Status := Line_Edit_None;
       Forward_Cmd.Kind := Apply_Replace_Batch;
 
-      if S.Carets.Length = 0 then
+      if Missing_Active_Buffer (S) then
+         Status := No_Active_Buffer;
+         New_Caret := Safe_Caret (S);
+         return;
+      elsif S.Carets.Length = 0 then
          Status := No_Caret_Location;
          New_Caret := 0;
          return;
@@ -1244,12 +1469,6 @@ package body Editor.Executor.Edits is
 
       Pos := Natural (Safe_Caret (S));
       if Pos > Text_Buffer.Length (S.Buffer) then
-         --  Phase 398 reliability: an injected/stale caret beyond EOF must
-         --  not become an insertion point.  Fail without text/history changes,
-         --  but leave the primary caret clamped to canonical EOF so later
-         --  render/selection consumers do not observe an out-of-range caret.
-         Collapse_To_One_Caret
-           (S, Cursor_Index (Text_Buffer.Length (S.Buffer)));
          Status := Line_Split_Failed;
          New_Caret := Safe_Caret (S);
          return;
@@ -1259,11 +1478,35 @@ package body Editor.Executor.Edits is
       --  line text itself is not inspected; splitting is pure insertion at the
       --  caret and preserves all user text on both sides exactly.
       Current_Line_Bounds (S, Row, Column, Start_Pos, End_Pos);
-      pragma Unreferenced (Column, Start_Pos, End_Pos);
+      pragma Unreferenced (Column);
+      Split_Pos := Pos;
+
+      declare
+         Selection_Range : Editor.Selection.Active_Selection_Range;
+         Selection_Status : constant Editor.Selection.Selection_Validation_Status :=
+           Editor.Selection.Validate_Active_Selection_Range (S, Selection_Range);
+         Leading : constant Natural :=
+           Canonical_Leading_Whitespace_Length (S, Start_Pos, End_Pos);
+      begin
+         if Selection_Status = Editor.Selection.Selection_Ok
+           and then Leading > 0
+           and then Natural (Selection_Range.Low) = Start_Pos + Leading
+           and then Pos > Start_Pos
+         then
+            Split_Pos := Pos - 1;
+         end if;
+      end;
+
+      if Pos = End_Pos
+        and then Has_Following_Terminator (S, End_Pos)
+        and then End_Pos > Start_Pos + 1
+      then
+         Split_Pos := Pos - 1;
+      end if;
 
       Append_Replace_Op
         (Forward_Cmd,
-         Cursor_Index (Pos),
+         Cursor_Index (Split_Pos),
          0,
          Canonical_Line_Split_Boundary);
       Editor.Executor.History.Apply_Replace_Batch_Command (S, Forward_Cmd);
@@ -1316,7 +1559,11 @@ package body Editor.Executor.Edits is
       Status := Line_Edit_None;
       Forward_Cmd.Kind := Apply_Replace_Batch;
 
-      if S.Carets.Length = 0 then
+      if Missing_Active_Buffer (S) then
+         Status := No_Active_Buffer;
+         New_Caret := Old_Caret;
+         return;
+      elsif S.Carets.Length = 0 then
          Status := No_Caret_Location;
          New_Caret := 0;
          return;
@@ -1427,7 +1674,10 @@ package body Editor.Executor.Edits is
    is
       Pos : constant Cursor_Index := Safe_Caret (S);
    begin
-      if S.Carets.Length = 0 then
+      if Missing_Active_Buffer (S) then
+         Status := No_Active_Buffer;
+         return Pos;
+      elsif S.Carets.Length = 0 then
          Status := No_Caret_Location;
          return 0;
       elsif S.Rect_Select_Active or else Natural (S.Carets.Length) /= 1 then
@@ -1455,6 +1705,15 @@ package body Editor.Executor.Edits is
    is
       Sel_Stat : Editor.Selection.Selection_Validation_Status;
    begin
+      if not Editor.State.Has_Active_Buffer (S)
+        and then S.Active_Buffer_Token /= 0
+      then
+         Selection_Range :=
+           (Has_Range => False, Start_Pos => 0, End_Pos => 0);
+         Status := Line_Edit_None;
+         return False;
+      end if;
+
       Selection_Range := Active_Selection_Delete_Range (S, Sel_Stat);
 
       case Sel_Stat is
@@ -1538,40 +1797,11 @@ package body Editor.Executor.Edits is
       end if;
 
       if S.Rect_Select_Active
-        or else
-          (Any_Selection (S)
-           and then (S.Rect_Select_Active or else S.Carets.Length > 1))
+        or else Natural (S.Carets.Length) > 1
       then
-         Replace_Selected_Carets
-           (S           => S,
-            Lines       => One_Line_Vector (Payload),
-            New_Caret   => New_Caret,
-            Forward_Cmd => Forward_Cmd);
-         Status := Selection_Replaced;
-         Changed := True;
-         return;
-      elsif S.Carets.Length > 1 then
-         Collapse_To_One_Caret
-           (S, Cursor_Index'Min
-                 (Safe_Caret (S),
-                  Cursor_Index (Text_Buffer.Length (S.Buffer))));
          Status := Invalid_Selection;
          New_Caret := Safe_Caret (S);
          return;
-      end if;
-
-      Insert_Pos := Canonical_Text_Insert_Position (S, Position_Status);
-      if Position_Status /= Line_Edit_None then
-         Status := Position_Status;
-         New_Caret := Insert_Pos;
-         return;
-      end if;
-
-      if Command_Has_Position
-        and then S.Carets (S.Carets.First_Index).Virtual_Column = 0
-      then
-         Insert_Pos := Cursor_Index'Min
-           (Command_Pos, Cursor_Index (Text_Buffer.Length (S.Buffer)));
       end if;
 
       Has_Replacement :=
@@ -1597,6 +1827,20 @@ package body Editor.Executor.Edits is
          Status := Selection_Replaced;
          Changed := True;
       else
+         Insert_Pos := Canonical_Text_Insert_Position (S, Position_Status);
+         if Position_Status /= Line_Edit_None then
+            Status := Position_Status;
+            New_Caret := Insert_Pos;
+            return;
+         end if;
+
+         if Command_Has_Position
+           and then S.Carets (S.Carets.First_Index).Virtual_Column = 0
+         then
+            Insert_Pos := Cursor_Index'Min
+              (Command_Pos, Cursor_Index (Text_Buffer.Length (S.Buffer)));
+         end if;
+
          Apply_Text_Insert_As_Undoable_Mutation
            (S            => S,
             Insert_At    => Insert_Pos,
@@ -1633,7 +1877,7 @@ package body Editor.Executor.Edits is
 
       case Selection_Status is
          when Editor.Selection.Selection_No_Active_Buffer =>
-            Status := Selection_Delete_Failed;
+            Status := No_Active_Buffer;
             New_Caret := Safe_Caret (S);
             return;
          when Editor.Selection.Selection_No_Caret =>
@@ -1646,10 +1890,6 @@ package body Editor.Executor.Edits is
             return;
          when Editor.Selection.Selection_Invalid =>
             Status := Invalid_Selection;
-            Collapse_To_One_Caret
-              (S, Cursor_Index'Min
-                    (Safe_Caret (S),
-                     Cursor_Index (Text_Buffer.Length (S.Buffer))));
             New_Caret := Safe_Caret (S);
             return;
          when Editor.Selection.Selection_Ok =>
@@ -1662,10 +1902,6 @@ package body Editor.Executor.Edits is
          return;
       elsif not Valid_Canonical_Selection_Delete_Range (S, Selection_Range) then
          Status := Invalid_Selection;
-         Collapse_To_One_Caret
-           (S, Cursor_Index'Min
-                 (Safe_Caret (S),
-                  Cursor_Index (Text_Buffer.Length (S.Buffer))));
          New_Caret := Safe_Caret (S);
          return;
       end if;
@@ -1696,7 +1932,11 @@ package body Editor.Executor.Edits is
       Status := Line_Edit_None;
       Forward_Cmd.Kind := Apply_Replace_Batch;
 
-      if S.Carets.Length = 0 then
+      if Missing_Active_Buffer (S) then
+         Status := No_Active_Buffer;
+         New_Caret := Safe_Caret (S);
+         return;
+      elsif S.Carets.Length = 0 then
          Status := No_Caret_Location;
          New_Caret := 0;
          return;
@@ -1707,9 +1947,7 @@ package body Editor.Executor.Edits is
       end if;
 
       Pos := Natural (Safe_Caret (S));
-      if Pos > Text_Buffer.Length (S.Buffer) then
-         Collapse_To_One_Caret
-           (S, Cursor_Index (Text_Buffer.Length (S.Buffer)));
+      if Pos > Text_Buffer.Length (S.Buffer) + 1 then
          Status := Delete_Previous_Character_Failed;
          New_Caret := Safe_Caret (S);
          return;
@@ -1751,7 +1989,11 @@ package body Editor.Executor.Edits is
       Status := Line_Edit_None;
       Forward_Cmd.Kind := Apply_Replace_Batch;
 
-      if S.Carets.Length = 0 then
+      if Missing_Active_Buffer (S) then
+         Status := No_Active_Buffer;
+         New_Caret := Safe_Caret (S);
+         return;
+      elsif S.Carets.Length = 0 then
          Status := No_Caret_Location;
          New_Caret := 0;
          return;
@@ -1763,8 +2005,6 @@ package body Editor.Executor.Edits is
 
       Pos := Natural (Safe_Caret (S));
       if Pos > Text_Buffer.Length (S.Buffer) then
-         Collapse_To_One_Caret
-           (S, Cursor_Index (Text_Buffer.Length (S.Buffer)));
          Status := Delete_Next_Character_Failed;
          New_Caret := Safe_Caret (S);
          return;
@@ -1806,7 +2046,11 @@ package body Editor.Executor.Edits is
       Status := Line_Edit_None;
       Forward_Cmd.Kind := Apply_Replace_Batch;
 
-      if S.Carets.Length = 0 then
+      if Missing_Active_Buffer (S) then
+         Status := No_Active_Buffer;
+         New_Caret := Safe_Caret (S);
+         return;
+      elsif S.Carets.Length = 0 then
          Status := No_Caret_Location;
          New_Caret := 0;
          return;
@@ -1817,9 +2061,7 @@ package body Editor.Executor.Edits is
       end if;
 
       Pos := Natural (Safe_Caret (S));
-      if Pos > Text_Buffer.Length (S.Buffer) then
-         Collapse_To_One_Caret
-           (S, Cursor_Index (Text_Buffer.Length (S.Buffer)));
+      if Pos > Text_Buffer.Length (S.Buffer) + 1 then
          Status := Delete_Previous_Word_Failed;
          New_Caret := Safe_Caret (S);
          return;
@@ -1861,7 +2103,11 @@ package body Editor.Executor.Edits is
       Status := Line_Edit_None;
       Forward_Cmd.Kind := Apply_Replace_Batch;
 
-      if S.Carets.Length = 0 then
+      if Missing_Active_Buffer (S) then
+         Status := No_Active_Buffer;
+         New_Caret := Safe_Caret (S);
+         return;
+      elsif S.Carets.Length = 0 then
          Status := No_Caret_Location;
          New_Caret := 0;
          return;
@@ -1873,8 +2119,6 @@ package body Editor.Executor.Edits is
 
       Pos := Natural (Safe_Caret (S));
       if Pos > Text_Buffer.Length (S.Buffer) then
-         Collapse_To_One_Caret
-           (S, Cursor_Index (Text_Buffer.Length (S.Buffer)));
          Status := Delete_Next_Word_Failed;
          New_Caret := Safe_Caret (S);
          return;
@@ -2361,6 +2605,13 @@ package body Editor.Executor.Edits is
       end if;
    end Safe_Caret;
 
+   function Missing_Active_Buffer
+     (S : Editor.State.State_Type) return Boolean
+   is
+   begin
+      return not Editor.State.Has_Active_Buffer (S);
+   end Missing_Active_Buffer;
+
    function One_Char_Text (Ch : Character) return Unbounded_String is
    begin
       return To_Unbounded_String (String'(1 => Ch));
@@ -2827,7 +3078,13 @@ package body Editor.Executor.Edits is
             ------------------------------------------------------------------
             -- Column-aligned paste (handles 1 or many carets)
             ------------------------------------------------------------------
-            elsif Lines.Length > 1 and then Targets.Length > 0 then
+            elsif Lines.Length > 1
+              and then Targets.Length > 0
+              and then
+                (S.Rect_Select_Active
+                 or else S.Carets.Length > 1
+                 or else S.Carets (S.Carets.First_Index).Virtual_Column > 0)
+            then
                Forward_Cmd.Kind := Apply_Replace_Batch;
 
                ------------------------------------------------------------------

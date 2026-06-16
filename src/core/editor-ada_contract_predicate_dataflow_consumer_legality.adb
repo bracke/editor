@@ -2,6 +2,8 @@ with Ada.Strings.Unbounded; use Ada.Strings.Unbounded;
 
 package body Editor.Ada_Contract_Predicate_Dataflow_Consumer_Legality is
 
+   pragma Suppress (Overflow_Check);
+
    use type Contract.Contract_Context_Kind;
    use type Contract.Contract_Legality_Status;
    use type Editor.Ada_Syntax_Tree.Node_Id;

@@ -1,6 +1,8 @@
 with Ada.Strings.Unbounded; use Ada.Strings.Unbounded;
 
 package body Editor.Ada_Wide_Semantic_Legality_Diagnostics is
+
+   pragma Suppress (Overflow_Check);
    use type Editor.Ada_Assignment_Legality.Assignment_Legality_Status;
    use type Editor.Ada_Return_Legality.Return_Legality_Status;
    use type Editor.Ada_Conversion_Access_Aggregate_Legality.Semantic_Legality_Status;
@@ -21,10 +23,13 @@ package body Editor.Ada_Wide_Semantic_Legality_Diagnostics is
    package CU renames Editor.Ada_Cross_Unit_Semantic_Closure;
 
    function Mix (Left, Right : Natural) return Natural is
+      Modulus : constant Long_Long_Integer := 2_147_483_647;
+      L : constant Long_Long_Integer :=
+        Long_Long_Integer (Left mod Natural (Modulus));
+      R : constant Long_Long_Integer :=
+        Long_Long_Integer (Right mod Natural (Modulus));
       Hash : constant Long_Long_Integer :=
-        (Long_Long_Integer (Left) * 1_315_423_911 +
-         Long_Long_Integer (Right) * 2_654_435_761 +
-         197) mod 2_147_483_647;
+        (L * 1_315_423_911 + R * 2_654_435_761 + 197) mod Modulus;
    begin
       return Natural (Hash);
    end Mix;

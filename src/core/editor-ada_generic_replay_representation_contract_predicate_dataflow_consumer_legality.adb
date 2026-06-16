@@ -1,6 +1,8 @@
 with Ada.Strings.Unbounded; use Ada.Strings.Unbounded;
 
 package body Editor.Ada_Generic_Replay_Representation_Contract_Predicate_Dataflow_Consumer_Legality is
+
+   pragma Suppress (Overflow_Check);
    use type Rep_CPD.Representation_Tasking_CPD_Row_Id;
    use type Editor.Ada_Syntax_Tree.Node_Id;
 

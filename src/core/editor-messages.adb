@@ -149,7 +149,8 @@ package body Editor.Messages is
                then
                   Existing.Created_At_Ms := Now_Ms;
                   Existing.Expires_At_Ms := Expires;
-                  State.Queue.Replace_Element (I, Existing);
+                  State.Queue.Delete (I);
+                  State.Queue.Append (Existing);
                   Enforce_Capacity (State, Now_Ms, Config);
                   return;
                end if;

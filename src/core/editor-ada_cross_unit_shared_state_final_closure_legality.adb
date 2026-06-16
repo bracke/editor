@@ -2,6 +2,8 @@ with Ada.Strings.Unbounded; use Ada.Strings.Unbounded;
 
 package body Editor.Ada_Cross_Unit_Shared_State_Final_Closure_Legality is
 
+   pragma Suppress (Overflow_Check);
+
    use type Abstract_States.Abstract_State_Status;
    use type Cross_Unit.Cross_Unit_Final_Status;
    use type Editor.Ada_Syntax_Tree.Node_Id;

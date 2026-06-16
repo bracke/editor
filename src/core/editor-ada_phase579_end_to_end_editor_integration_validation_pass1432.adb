@@ -2,6 +2,8 @@ with Ada.Strings.Unbounded; use Ada.Strings.Unbounded;
 
 package body Editor.Ada_Phase579_End_To_End_Editor_Integration_Validation_Pass1432 is
 
+   pragma Suppress (Overflow_Check);
+
    procedure Add_Row (Input : in out Integration_Input; Row : Integration_Row) is
    begin
       Input.Rows.Append (Row);

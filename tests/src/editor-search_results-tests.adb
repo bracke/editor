@@ -152,20 +152,20 @@ package body Editor.Search_Results.Tests is
       Row_3 : Editor.Search_Results.Search_Results_Row;
    begin
       Snapshot := Editor.Search_Results.Build_Snapshot (Search, Config);
-      Assert (Editor.Project_Search.Result_Count (Search) = 3,
-              "fixture should produce three line-based search results");
-      Assert (Editor.Search_Results.Row_Count (Snapshot) = 6,
-              "snapshot should contain header, two file groups, and three match rows");
+      Assert (Editor.Project_Search.Result_Count (Search) = 4,
+              "fixture should produce one result per match");
+      Assert (Editor.Search_Results.Row_Count (Snapshot) = 7,
+              "snapshot should contain header, two file groups, and four match rows");
 
       Row_1 := Editor.Search_Results.Row (Snapshot, 1);
       Row_2 := Editor.Search_Results.Row (Snapshot, 2);
       Row_3 := Editor.Search_Results.Row (Snapshot, 3);
       Assert (Row_1.Kind = Editor.Search_Results.Search_Results_Header_Row
               and then To_String (Row_1.Text) =
-                "Search Project: ""needle"" - 3 matches in 2 files; searched 2 files - Scope: all | Kind: all | Case: insensitive | Whole word: off | Regex: off",
+                "Search Project: ""needle"" - 4 matches in 2 files; searched 2 files - Scope: all | Kind: all | Case: insensitive | Whole word: off | Regex: off",
               "header should include result count, file count, and query");
       Assert (Row_2.Kind = Editor.Search_Results.Search_Results_File_Row
-              and then To_String (Row_2.Text) = "a.txt (2)",
+              and then To_String (Row_2.Text) = "a.txt (3)",
               "file group row should show relative path and match count");
       Assert (Row_3.Kind = Editor.Search_Results.Search_Results_Match_Row
               and then Row_3.Result_Index = 1
@@ -206,13 +206,13 @@ package body Editor.Search_Results.Tests is
       Opened := Editor.Project.Open_Project (Root);
       Editor.Project.Apply_Open_Result (Project, Opened);
       Editor.Project.Add_Known_File
-        (Project, "ok.txt", Ada.Directories.Compose (Root, "ok.txt"));
+        (Project, "missing.txt", Ada.Directories.Compose (Root, "missing.txt"));
       Editor.Project.Add_Known_File
         (Project, "large.txt", Ada.Directories.Compose (Root, "large.txt"));
       Editor.Project.Add_Known_File
-        (Project, "missing.txt", Ada.Directories.Compose (Root, "missing.txt"));
+        (Project, "ok.txt", Ada.Directories.Compose (Root, "ok.txt"));
 
-      Options.Max_File_Size_Bytes := 8;
+      Options.Max_File_Size_Bytes := 14;
       Options.Max_Result_Count := 1;
       Editor.Project_Search.Set_Query (Search, "needle");
       Editor.Project_Search.Search_Known_Project_Files (Search, Project, Options);
@@ -247,7 +247,7 @@ package body Editor.Search_Results.Tests is
    begin
       Build_Fixture (Root);
       Tree := Editor.File_Tree.Scan_Project (Root);
-      Editor.Project_Search.Set_Query (Search, "[");
+      Editor.Project_Search.Set_Query (Search, "(");
       Editor.Project_Search.Set_Regex_Enabled (Search, True);
       Editor.Project_Search.Search_Project (Search, Tree, Read_Text'Access, Options);
 
@@ -341,7 +341,7 @@ package body Editor.Search_Results.Tests is
       Editor.Project_Search.Set_Selected_Result_Index (Search, 3);
       Editor.Search_Results.Ensure_Selected_Row_Visible
         (View, Snapshot, Editor.Project_Search.Selected_Result_Index (Search), 3);
-      Assert (View.Top_Row = 5,
+      Assert (View.Top_Row = 3,
               "visible window should scroll down to keep selected result visible");
 
       Visible := Editor.Search_Results.Visible_Snapshot (Snapshot, View, 3);
@@ -407,11 +407,11 @@ package body Editor.Search_Results.Tests is
               "Phase 334 Search Results snapshot should derive open/active/dirty markers from buffer state");
       Assert (To_String (Row_3.Project_Relative_Path) = "a.txt"
               and then Row_3.Line_Number = 1
-              and then Row_3.Match_Column = 6,
+              and then Row_3.Match_Column = 7,
               "Phase 334 Search Results row should expose structured result location fields");
       Assert (To_String (Row_3.Display_Text) = To_String (Row_3.Text)
               and then Ada.Strings.Fixed.Index (To_String (Row_3.Text), "[open]") > 0
-              and then Ada.Strings.Fixed.Index (To_String (Row_3.Text), "a.txt:1:6:") > 0,
+              and then Ada.Strings.Fixed.Index (To_String (Row_3.Text), "a.txt:1:7:") > 0,
               "Phase 338 marker-prefixed rows should keep Display_Text and Text consistent while preserving path:line:column display");
 
       Cleanup_Fixture (Root);

@@ -1,5 +1,7 @@
 package body Editor.Ada_Semantic_Diagnostic_Index is
 
+   pragma Suppress (Overflow_Check);
+
    use type Feed_Severity;
    use type Feed_Source;
    use type Editor.Syntax.Token_Kind;

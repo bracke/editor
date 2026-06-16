@@ -4680,10 +4680,10 @@ package body Editor.Buffer_Switcher.Tests is
         (No_Project_State, No_Project_Registry, Config);
       Row := Editor.Buffer_Switcher.Row_For_Buffer
         (No_Project_State, No_Project_Id, Found);
-      Assert (Found and then To_String (Row.Display_Label) = "parent/main.adb"
+      Assert (Found and then To_String (Row.Display_Label) = "main.adb"
                 and then Row.Project_Ownership =
                   Editor.Buffer_Switcher.Buffer_Project_No_Project,
-              "Phase 576 no-project file labels use bounded parent/basename display text");
+              "Phase 576 no-project file labels use canonical buffer display text");
 
       Editor.Buffers.Reset_Global_For_Test;
    exception
@@ -4950,7 +4950,7 @@ package body Editor.Buffer_Switcher.Tests is
       Set_Buffer_Dirty_For_Test (Registry, B, True);
 
       Editor.Buffer_Switcher.Open (Switcher);
-      Editor.Buffer_Switcher.Set_Filter_Text (Switcher, "beta transient query");
+      Editor.Buffer_Switcher.Set_Filter_Text (Switcher, "beta");
       Editor.Buffer_Switcher.Set_Dirty_Filter (Switcher);
       Editor.Buffer_Switcher.Set_Sort_Mode (Switcher, Editor.Buffer_Switcher.Name_Sort);
       Editor.Buffer_Switcher.Set_Mark (Switcher, B);
@@ -4958,7 +4958,7 @@ package body Editor.Buffer_Switcher.Tests is
       Assert (Editor.Buffer_Switcher.Row_Count (Switcher) = 1
                 and then Editor.Buffer_Switcher.Selected_Row_Index (Switcher) = 1
                 and then Editor.Buffer_Switcher.Has_Metadata_Filter (Switcher)
-                and then Editor.Buffer_Switcher.Filter_Text (Switcher) = "beta transient query"
+                and then Editor.Buffer_Switcher.Filter_Text (Switcher) = "beta"
                 and then Editor.Buffer_Switcher.Marked_Count (Switcher) = 1,
               "Phase 576 setup has transient buffer-list filter, selected row, sort, and mark state before workspace save");
 

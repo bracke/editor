@@ -165,7 +165,7 @@ use type Editor.Build_Result_Summary.Diagnostics_Ingestion_Summary_Status;
       Gate : constant Editor.External_Producers.Build_Execution_Gate :=
         Editor.External_Producers.Build_Test_Fixture_Execution_Gate
           (Allow_Diagnostics_Ingestion => False,
-           Consent => Editor.External_Producers.Build_Consent_User_Confirmed);
+           Consent => Editor.External_Producers.Build_Consent_Test_Only);
       Process_Result : constant Editor.External_Producers.Process_Run_Result :=
         Editor.External_Producers.Build_Process_Run_Result
           (Editor.External_Producers.Process_Run_Succeeded,
@@ -231,11 +231,11 @@ use type Editor.Build_Result_Summary.Diagnostics_Ingestion_Summary_Status;
       Gate_Disabled : constant Editor.External_Producers.Build_Execution_Gate :=
         Editor.External_Producers.Build_Test_Fixture_Execution_Gate
           (Allow_Diagnostics_Ingestion => False,
-           Consent => Editor.External_Producers.Build_Consent_User_Confirmed);
+           Consent => Editor.External_Producers.Build_Consent_Test_Only);
       Gate_Enabled : constant Editor.External_Producers.Build_Execution_Gate :=
         Editor.External_Producers.Build_Test_Fixture_Execution_Gate
           (Allow_Diagnostics_Ingestion => True,
-           Consent => Editor.External_Producers.Build_Consent_User_Confirmed);
+           Consent => Editor.External_Producers.Build_Consent_Test_Only);
       Process_Result : constant Editor.External_Producers.Process_Run_Result :=
         Editor.External_Producers.Build_Process_Run_Result
           (Editor.External_Producers.Process_Run_Failed,
@@ -553,7 +553,7 @@ use type Editor.Build_Result_Summary.Diagnostics_Ingestion_Summary_Status;
       Gate : constant Editor.External_Producers.Build_Execution_Gate :=
         Editor.External_Producers.Build_Test_Fixture_Execution_Gate
           (Allow_Diagnostics_Ingestion => False,
-           Consent => Editor.External_Producers.Build_Consent_User_Confirmed);
+           Consent => Editor.External_Producers.Build_Consent_Test_Only);
       Failed : constant Editor.External_Producers.Build_Command_Result :=
         Editor.External_Producers.Run_Build_Command_With_Gate
           (S, Request, Gate,
@@ -774,7 +774,7 @@ use type Editor.Build_Result_Summary.Diagnostics_Ingestion_Summary_Status;
    is
       pragma Unreferenced (T);
       S : Editor.State.State_Type := Ready_State;
-      Before : Editor.State.State_Type := S;
+      Before : Editor.State.State_Type;
       Old_Identity : constant String := Editor.Build_UI.Current_Request_Identity (S.Build_UI);
       Result : Editor.External_Producers.Build_Command_Result;
    begin
@@ -791,6 +791,7 @@ use type Editor.Build_Result_Summary.Diagnostics_Ingestion_Summary_Status;
                 (S),
               "execution gate does not carry user-confirmed consent after request mutation");
 
+      Before := S;
       Result := Editor.Build_Command.Execute_Public_Build_Run (S);
       Assert (Editor.Build_Execution_Workflow.Assert_Build_Preflight_Failure_Is_Non_Destructive
                 (Before, S, Result),
@@ -914,6 +915,8 @@ use type Editor.Build_Result_Summary.Diagnostics_Ingestion_Summary_Status;
       Assert (not Editor.Commands.Is_Available
                 (Editor.Build_Command.Build_Cancel_Availability (S)),
               "build.cancel is unavailable without an active build job");
+      Assert (Editor.Build_Execution_Workflow.Assert_Build_Cancel_Advertised_With_Active_Job_Model (S),
+              "workflow coherence accepts build.cancel only with active job state");
       Editor.Build_Command.Begin_Public_Build_Job (S, "test build");
       Editor.Build_Command.Register_Public_Build_Test_Process (S);
       Assert (Editor.Commands.Is_Available
@@ -926,8 +929,6 @@ use type Editor.Build_Result_Summary.Diagnostics_Ingestion_Summary_Status;
       Assert (S.Public_Build_Job_Cancellation =
                 Editor.Build_Runner_Policy.Cancellation_Requested,
               "active public build job records requested cancellation after signalling the handle");
-      Assert (Editor.Build_Execution_Workflow.Assert_Build_Cancel_Advertised_With_Active_Job_Model (S),
-              "workflow coherence accepts build.cancel only with active job state");
 
       Editor.Build_Command.Complete_Public_Build_Job (S);
       Editor.Build_Command.Begin_Public_Build_Job (S, "non-cancellable build");
@@ -1160,7 +1161,7 @@ use type Editor.Build_Result_Summary.Diagnostics_Ingestion_Summary_Status;
         Editor.External_Producers.Build_Test_Fixture_Execution_Gate
           (Allow_Diagnostics_Ingestion => False,
            Show_Diagnostics => False,
-           Consent => Editor.External_Producers.Build_Consent_User_Confirmed);
+           Consent => Editor.External_Producers.Build_Consent_Test_Only);
       Process_Result : constant Editor.External_Producers.Process_Run_Result :=
         Editor.External_Producers.Build_Process_Run_Result
           (Editor.External_Producers.Process_Run_Failed,

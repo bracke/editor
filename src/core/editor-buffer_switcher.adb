@@ -389,12 +389,54 @@ package body Editor.Buffer_Switcher is
       return No_Recent_Rank;
    end Recent_Rank;
 
+   function Name_Sort_Ownership_Priority
+     (Kind : Editor.Buffers.Buffer_Ownership_Kind) return Natural
+   is
+   begin
+      case Kind is
+         when Editor.Buffers.Buffer_Project_Owned =>
+            return 1;
+         when Editor.Buffers.Buffer_Outside_Project =>
+            return 2;
+         when Editor.Buffers.Buffer_Scratch_Unbacked =>
+            return 3;
+         when Editor.Buffers.Buffer_Missing_Project_Context =>
+            return 4;
+         when Editor.Buffers.Buffer_Unknown_File_Backed =>
+            return 5;
+      end case;
+   end Name_Sort_Ownership_Priority;
+
+   function Candidate_Base_Name (Candidate : Switcher_Candidate) return String is
+      Path : constant String := To_String (Candidate.Metadata.File_Path);
+      Last_Sep : Natural := 0;
+   begin
+      if Candidate.Metadata.Has_File_Path then
+         for I in Path'Range loop
+            if Path (I) = '/' or else Path (I) = '\' then
+               Last_Sep := I;
+            end if;
+         end loop;
+         if Last_Sep = 0 then
+            return Path;
+         elsif Last_Sep < Path'Last then
+            return Path (Last_Sep + 1 .. Path'Last);
+         else
+            return "";
+         end if;
+      else
+         return To_String (Candidate.Summary.Display_Name);
+      end if;
+   end Candidate_Base_Name;
+
    function Candidate_Before
      (Left, Right : Switcher_Candidate;
       Mode        : Switcher_Sort_Mode) return Boolean
    is
       Left_Name  : constant String := Lower (To_String (Left.Summary.Display_Name));
       Right_Name : constant String := Lower (To_String (Right.Summary.Display_Name));
+      Left_Base  : constant String := Lower (Candidate_Base_Name (Left));
+      Right_Base : constant String := Lower (Candidate_Base_Name (Right));
       Left_Group : constant String := Lower (To_String (Left.Summary.Group_Name));
       Right_Group : constant String := Lower (To_String (Right.Summary.Group_Name));
       Left_Label : constant String := Lower (To_String (Left.Summary.Label_Text));
@@ -410,7 +452,21 @@ package body Editor.Buffer_Switcher is
             end if;
 
          when Name_Sort =>
-            if Left_Name /= Right_Name then
+            if Left_Base /= Right_Base then
+               return Left_Base < Right_Base;
+            elsif Name_Sort_Ownership_Priority (Left.Metadata.Ownership) /=
+              Name_Sort_Ownership_Priority (Right.Metadata.Ownership)
+            then
+               return Name_Sort_Ownership_Priority (Left.Metadata.Ownership) <
+                 Name_Sort_Ownership_Priority (Right.Metadata.Ownership);
+            elsif Left.Metadata.Has_Project_Relative_Path
+              and then Right.Metadata.Has_Project_Relative_Path
+              and then To_String (Left.Metadata.Project_Relative_Path) /=
+                To_String (Right.Metadata.Project_Relative_Path)
+            then
+               return To_String (Left.Metadata.Project_Relative_Path) <
+                 To_String (Right.Metadata.Project_Relative_Path);
+            elsif Left_Name /= Right_Name then
                return Left_Name < Right_Name;
             elsif To_String (Left.Summary.Display_Name) /= To_String (Right.Summary.Display_Name) then
                return To_String (Left.Summary.Display_Name) < To_String (Right.Summary.Display_Name);
@@ -631,10 +687,14 @@ package body Editor.Buffer_Switcher is
          return To_Unbounded_String
            (Short_Path_Label (To_String (Metadata.Outside_Project_Path_Label)));
       elsif Metadata.Has_File_Path then
-         return To_Unbounded_String
-           (Short_Path_Label (To_String (Metadata.File_Path)));
+         if Metadata.Ownership = Editor.Buffers.Buffer_Missing_Project_Context then
+            return To_Unbounded_String (Path_Base_Name (To_String (Metadata.File_Path)));
+         else
+            return To_Unbounded_String
+              (Short_Path_Label (To_String (Metadata.File_Path)));
+         end if;
       elsif Metadata.Has_Scratch_Label then
-         return Metadata.Display_Label;
+         return To_Unbounded_String ("Untitled");
       else
          return Metadata.Display_Label;
       end if;
@@ -739,10 +799,10 @@ package body Editor.Buffer_Switcher is
          Add ("unwritable");
       end if;
       if Row.External_Change_Surfaced then
+         if Row.Is_Outside_Project then
+            Add ("conflict");
+         end if;
          Add ("external-change");
-      end if;
-      if Row.Stale_Backing_State then
-         Add ("stale");
       end if;
       if Row.Blocked_Close_Surfaced then
          Add ("guarded");
@@ -2078,7 +2138,7 @@ package body Editor.Buffer_Switcher is
       Removed := True;
       Remaining := Natural (State.Dirty_Prune_Apply_Targets.Length);
       if Remaining = 0 then
-         Clear_Dirty_Prune_Apply_State (State);
+         Clear_Dirty_Prune_Apply_Review_Modes (State);
       end if;
    end Remove_Dirty_Pending_Marked_Close_Prune_Apply_Target;
 

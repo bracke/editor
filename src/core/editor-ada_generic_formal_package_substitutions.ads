@@ -65,7 +65,7 @@ package Editor.Ada_Generic_Formal_Package_Substitutions is
 
    function Substitution_At
      (Model : Formal_Package_Substitution_Model;
-      Index : Positive) return Formal_Package_Substitution_Info;
+      Index : Natural) return Formal_Package_Substitution_Info;
 
    function First_For_Formal
      (Model    : Formal_Package_Substitution_Model;

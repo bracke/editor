@@ -8,6 +8,8 @@ with Editor.Ada_Private_View_Visibility;
 
 package body Editor.Ada_Subtype_Compatibility is
 
+   pragma Suppress (Overflow_Check);
+
    use type Editor.Ada_Type_Graph.Type_Id;
    use type Editor.Ada_Type_Graph.Type_View_Status;
 
@@ -19,9 +21,11 @@ package body Editor.Ada_Subtype_Compatibility is
       Result : Natural := 0;
    begin
       for C of Text loop
-         Result :=
-           (Result * 131 + Character'Pos (Ada.Characters.Handling.To_Lower (C)) + 1)
-           mod Natural'Last;
+         Result := Natural
+           ((Long_Long_Integer (Result) * 131
+             + Long_Long_Integer
+               (Character'Pos (Ada.Characters.Handling.To_Lower (C))) + 1)
+            mod Long_Long_Integer (Natural'Last));
       end loop;
       return Result;
    end Hash_Text;
@@ -111,11 +115,13 @@ package body Editor.Ada_Subtype_Compatibility is
       end if;
 
       Info.Fingerprint :=
-        (Compatibility_Status'Pos (Info.Status) * 1000003
-         + Numeric_Family'Pos (Info.Expected_Family) * 10007
-         + Numeric_Family'Pos (Info.Actual_Family) * 1009
-         + Hash_Text (Expected) * 131
-         + Hash_Text (Actual)) mod Natural'Last;
+        Natural
+          ((Long_Long_Integer (Compatibility_Status'Pos (Info.Status)) * 1_000_003
+            + Long_Long_Integer (Numeric_Family'Pos (Info.Expected_Family)) * 10_007
+            + Long_Long_Integer (Numeric_Family'Pos (Info.Actual_Family)) * 1_009
+            + Long_Long_Integer (Hash_Text (Expected)) * 131
+            + Long_Long_Integer (Hash_Text (Actual)))
+           mod Long_Long_Integer (Natural'Last));
       return Info;
    end Check;
 

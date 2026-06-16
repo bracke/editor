@@ -2,6 +2,8 @@ with Ada.Strings.Unbounded; use Ada.Strings.Unbounded;
 
 package body Editor.Ada_Coverage_Gated_Semantic_Results is
 
+   pragma Suppress (Overflow_Check);
+
    use type Editor.Ada_Syntax_Tree.Node_Id;
    use type Gates.Semantic_Conclusion_Kind;
    use type Audit.Semantic_Consumer_Family;

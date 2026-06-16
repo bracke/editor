@@ -4,6 +4,8 @@ with Ada.Strings.Unbounded;
 
 package body Editor.Ada_Symbol_Resolver is
 
+   pragma Suppress (Overflow_Check);
+
    function Leaf_Name (Name : String) return String is
       Dot : Natural := 0;
    begin

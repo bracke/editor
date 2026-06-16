@@ -2,6 +2,8 @@ with Ada.Strings.Unbounded; use Ada.Strings.Unbounded;
 
 package body Editor.Ada_Dataflow_Definite_Initialization_Consumer_Legality is
 
+   pragma Suppress (Overflow_Check);
+
    use type Dataflow.Dataflow_Context_Kind;
    use type Dataflow.Dataflow_Effect_Kind;
    use type Dataflow.Dataflow_Legality_Status;

@@ -1,8 +1,13 @@
 with "config/tests_config.gpr";
+with "../editor_core.gpr";
 
 project Tests is
 
-   for Source_Dirs use ("src/", "config/", "../src/core", "../src/textrender");
+   for Source_Dirs use ("src/", "config/", "../src/core");
+   for Excluded_Source_Files use
+     ("editor.ads",
+      "editor-runtime_c_api.ads",
+      "editor-runtime_c_api.adb");
    for Object_Dir use "obj/" & Tests_Config.Build_Profile;
    for Create_Missing_Dirs use "True";
    for Exec_Dir use "bin";

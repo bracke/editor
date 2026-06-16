@@ -477,17 +477,14 @@ package body Editor.Selection is
    function Has_Selection
      (S : Editor.State.State_Type) return Boolean
    is
-      Selection_Range  : Active_Selection_Range;
-      Status : constant Selection_Validation_Status :=
-        Validate_Active_Selection_Range (S, Selection_Range);
-      pragma Unreferenced (Selection_Range);
+      Selection_Range : Active_Selection_Range;
    begin
       --  Phase 380 canonicalization: active-buffer selected-text consumers,
       --  availability, and render projection must agree on the same primary
       --  active selection contract.  Rectangular/editor-mechanics selection
       --  remains explicitly queryable through Editor.Rectangle_Selection, but
       --  it must not make canonical selected-text commands appear available.
-      return Status = Selection_Ok;
+      return Validate_Active_Selection_Range (S, Selection_Range) = Selection_Ok;
    end Has_Selection;
 
    function Is_Rectangular_Selection

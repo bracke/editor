@@ -1,5 +1,10 @@
 package body Editor.Ada_RM_Completion_Closure_Consumer_Remediation_Worklist_Legality is
 
+   pragma Suppress (Overflow_Check);
+   use type Diagnostics.RM_Closure_Consumer_Diagnostic_Family;
+   use type Editor.Ada_Syntax_Tree.Node_Id;
+
+
    function Mix (Left, Right : Natural) return Natural is
    begin
       return (Left * 16_777_619 + Right + 12_774) mod 2_147_483_647;

@@ -3,6 +3,12 @@ with Editor.Ada_Syntax_Tree;
 
 package body Editor.Ada_Repair_Gated_Diagnostic_Integration is
 
+   pragma Suppress (Overflow_Check);
+   use type App.Application_Status;
+   use type Closure.Integrated_Closure_Status;
+   use type Editor.Ada_Syntax_Tree.Node_Id;
+
+
    function Mix (A, B : Natural) return Natural is
    begin
       return ((A * 167) + B + 71) mod 1_000_000_007;
@@ -218,8 +224,8 @@ package body Editor.Ada_Repair_Gated_Diagnostic_Integration is
    function Build
      (Applications : App.Application_Model;
       Closure_Model : Closure.Integrated_Closure_Model;
-      Closure_Input_Current : Boolean;
-      Closure_Rejected_Count : Natural)
+      Closure_Input_Current : Boolean := True;
+      Closure_Rejected_Count : Natural := 0)
       return Repair_Gated_Diagnostic_Model is
       Result : Repair_Gated_Diagnostic_Model;
    begin

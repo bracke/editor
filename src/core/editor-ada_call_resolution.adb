@@ -1,5 +1,7 @@
 package body Editor.Ada_Call_Resolution is
 
+   pragma Suppress (Overflow_Check);
+
    use type Editor.Ada_Call_Candidates.Call_Candidate_Id;
    use type Editor.Ada_Call_Candidates.Call_Candidate_Status;
    use type Editor.Ada_Call_Profile_Filters.Profile_Filter_Status;

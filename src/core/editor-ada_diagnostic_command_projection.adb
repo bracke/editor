@@ -2,6 +2,10 @@ with Ada.Strings.Unbounded; use Ada.Strings.Unbounded;
 
 package body Editor.Ada_Diagnostic_Command_Projection is
 
+   pragma Suppress (Overflow_Check);
+
+   use type Editor.Ada_Semantic_Diagnostic_Index.Semantic_Diagnostic_Index_Id;
+
    function Mix (A, B : Natural) return Natural is
    begin
       return ((A * 191) + B + 223) mod 1_000_000_007;
@@ -78,8 +82,9 @@ package body Editor.Ada_Diagnostic_Command_Projection is
       H := Mix (H, Descriptor.Feed_Index + 1);
       H := Mix (H, Descriptor.Diagnostic.Fingerprint + 1);
       H := Mix (H, Natural (Descriptor.Route_Id) + 1);
-      H := Mix (H, Natural (Descriptor.Command_Kind) + 1);
-      H := Mix (H, Natural (Descriptor.Availability) + 1);
+      H := Mix (H, Diagnostic_Command_Kind'Pos (Descriptor.Command_Kind) + 1);
+      H := Mix
+        (H, Diagnostic_Command_Availability'Pos (Descriptor.Availability) + 1);
       H := Mix (H, Descriptor.Start_Line);
       H := Mix (H, Descriptor.Start_Column);
       H := Mix (H, Descriptor.Route_Fingerprint + 1);

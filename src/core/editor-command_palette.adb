@@ -508,7 +508,7 @@ package body Editor.Command_Palette is
       end if;
 
       if Result.Show_Secondary then
-         Main := Main & " — "
+         Main := Main & " - "
            & Truncate_With_Ellipsis (Secondary_Text, Result.Secondary_Columns);
       end if;
 
@@ -1375,6 +1375,7 @@ package body Editor.Command_Palette is
       Grouped : constant Boolean := Query_Is_Empty and then Config.Group_Empty_Query_By_Category;
       Selected_Visible_Index : Natural := 0;
       Have_Selected_Visible_Index : Boolean := False;
+      Has_Filtered_Candidate : Boolean := False;
 
       function Reason_For (C : Editor.Commands.Command_Palette_Candidate) return Unbounded_String is
       begin
@@ -1407,8 +1408,11 @@ package body Editor.Command_Palette is
       end Candidate_Visible_For_Config;
    begin
       for C of Candidates loop
-         if Candidate_Visible_For_Config (C) then
-            Visible_Candidates.Append (C);
+         if Candidate_Passes_Transient_Filters (C) then
+            Has_Filtered_Candidate := True;
+            if Candidate_Visible_For_Config (C) then
+               Visible_Candidates.Append (C);
+            end if;
          end if;
       end loop;
 
@@ -1439,7 +1443,12 @@ package body Editor.Command_Palette is
          declare
             Empty_Text : constant Unbounded_String :=
               To_Unbounded_String
-                ((if Query_Is_Empty
+                ((if Has_Filtered_Candidate and then not Config.Show_Unavailable_Commands
+                  then
+                    (if Query_Is_Empty
+                     then "No available commands"
+                     else "No available commands match " & '"' & Query_Text & '"')
+                  elsif Query_Is_Empty
                   then "No commands"
                   else "No commands match " & '"' & Query_Text & '"'));
          begin

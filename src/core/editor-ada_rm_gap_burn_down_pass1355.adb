@@ -1,5 +1,12 @@
 package body Editor.Ada_RM_Gap_Burn_Down_Pass1355 is
 
+   pragma Suppress (Overflow_Check);
+   use type Remediation.Remediation_State;
+   use type Matrix.Coverage_Level;
+   use type Precision.Precision_Classification;
+   use type Consumers.Semantic_Consumer;
+
+
    function Count (Results : Burn_Down_Model) return Natural is
    begin
       return Natural (Results.Entries.Length);

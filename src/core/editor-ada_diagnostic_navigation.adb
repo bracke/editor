@@ -1,5 +1,7 @@
 package body Editor.Ada_Diagnostic_Navigation is
 
+   pragma Suppress (Overflow_Check);
+
    use type Feed_Severity;
 
    function Mix (A, B : Natural) return Natural is

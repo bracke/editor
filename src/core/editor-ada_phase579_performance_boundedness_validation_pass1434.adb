@@ -2,6 +2,8 @@ with Ada.Strings.Unbounded; use Ada.Strings.Unbounded;
 
 package body Editor.Ada_Phase579_Performance_Boundedness_Validation_Pass1434 is
 
+   pragma Suppress (Overflow_Check);
+
    procedure Add_Row (Input : in out Boundedness_Input; Row : Boundedness_Row) is
    begin
       Input.Rows.Append (Row);

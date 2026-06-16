@@ -2,6 +2,8 @@ with Ada.Strings.Unbounded; use Ada.Strings.Unbounded;
 
 package body Editor.Ada_Overload_Ranking_Provenance is
 
+   pragma Suppress (Overflow_Check);
+
    use type Editor.Ada_Overload_Ranking.Overload_Ranking_Id;
    use type Editor.Ada_Expression_Diagnostics.Expression_Diagnostic_Id;
 

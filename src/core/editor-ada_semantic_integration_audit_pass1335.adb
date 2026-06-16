@@ -1,5 +1,7 @@
 package body Editor.Ada_Semantic_Integration_Audit_Pass1335 is
 
+   pragma Suppress (Overflow_Check);
+
    procedure Add_Slice (Model : in out Slice_Model; Slice : Slice_Info) is
    begin
       Model.Items.Append (Slice);

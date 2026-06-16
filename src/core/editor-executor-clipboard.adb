@@ -26,7 +26,7 @@ package body Editor.Executor.Clipboard is
    begin
       case Status is
          when Editor.Selection.Selection_No_Active_Buffer =>
-            return Editor.Commands.Unavailable ("No active buffer");
+            return Editor.Commands.Unavailable ("No active buffer.");
          when Editor.Selection.Selection_No_Caret
             | Editor.Selection.Selection_Empty =>
             return Editor.Commands.Unavailable ("No selected text");

@@ -36,7 +36,9 @@ package body Editor.Gutter_Markers.Tests is
    is
       Layout : constant Editor.Layout.Layout_Config := Editor.Layout.Current;
    begin
-      return Layout.Origin_Y + Visible_Row * Editor.Layout.Cell_H + Editor.Layout.Cell_H / 2;
+      return Natural (Editor.Layout.Text_Viewport_Y (Layout))
+        + Visible_Row * Editor.Layout.Cell_H
+        + Editor.Layout.Cell_H / 2;
    end Row_Y;
 
    function Marker_X return Natural
@@ -1117,6 +1119,7 @@ package body Editor.Gutter_Markers.Tests is
       Editor.State.Init (S);
       Editor.State.Load_Text (S, "a" & ASCII.LF & "b" & ASCII.LF & "c");
       Editor.Folding.Add_Fold (S.Folding, 0, 2);
+      Editor.Folding.Toggle_Fold_At_Row (S.Folding, 0);
       Editor.Dirty_Lines.Set_Baseline_Text
         (S.Dirty_Lines, "a" & ASCII.LF & "b" & ASCII.LF & "c");
       Editor.Dirty_Lines.Recompute

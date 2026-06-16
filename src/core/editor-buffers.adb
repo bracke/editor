@@ -6,6 +6,7 @@ with Ada.Containers; use type Ada.Containers.Count_Type;
 with Ada.Containers.Vectors;
 with Editor.State;
 with Editor.View;
+with Editor.Commands;
 with Ada.Unchecked_Deallocation;
 with Editor.Messages;
 with Editor.Feature_Messages;
@@ -771,6 +772,7 @@ package body Editor.Buffers is
 
                   when Buffer_Scratch_Unbacked =>
                      Result.Scratch.Append (Item.Id);
+                     Result.Project_Close_Unaffected.Append (Item.Id);
 
                   when Buffer_Missing_Project_Context |
                        Buffer_Unknown_File_Backed =>
@@ -2089,6 +2091,9 @@ package body Editor.Buffers is
          Global_Owner_Token := State.Registry_Token;
          Editor.History.Undo_Stack.Clear;
          Editor.History.Redo_Stack.Clear;
+         if State.Active_Buffer_Token = 0 then
+            return;
+         end if;
       elsif not Global_Registry.Items.Is_Empty then
          return;
       elsif State.Active_Buffer_Token = 0 then
@@ -2164,6 +2169,8 @@ package body Editor.Buffers is
       Active_Find_Input : constant Editor.Input_Field.Input_Field_State := State.Active_Find_Input;
       Active_Find_Prompt : constant Boolean := State.Active_Find_Prompt;
       Active_Find_Query  : constant Unbounded_String := State.Active_Find_Query;
+      Active_Find_Case_Sensitive : constant Boolean := State.Active_Find_Case_Sensitive;
+      Active_Find_Whole_Word : constant Boolean := State.Active_Find_Whole_Word;
       Active_Replace_Prompt : constant Boolean := State.Active_Replace_Prompt;
       Active_Replace_Text : constant Unbounded_String := State.Active_Replace_Text;
       Quick_Open : constant Editor.Quick_Open.Quick_Open_State := State.Quick_Open;
@@ -2212,6 +2219,14 @@ package body Editor.Buffers is
         State.Dirty_Close_Prompt_Missing_Count;
       Dirty_Close_Prompt_Save_Failure_Count : constant Natural :=
         State.Dirty_Close_Prompt_Save_Failure_Count;
+      File_Target_Prompt_Active : constant Boolean :=
+        State.File_Target_Prompt_Active;
+      File_Target_Prompt_Command : constant Editor.Commands.Command_Id :=
+        State.File_Target_Prompt_Command;
+      File_Target_Prompt_Label : constant Unbounded_String :=
+        State.File_Target_Prompt_Label;
+      File_Target_Prompt_Input : constant Editor.Input_Field.Input_Field_State :=
+        State.File_Target_Prompt_Input;
       Owner_Token : constant Natural := State.Registry_Token;
    begin
       if I = Natural'Last then
@@ -2276,6 +2291,10 @@ package body Editor.Buffers is
       State.Dirty_Close_Prompt_Missing_Count := Dirty_Close_Prompt_Missing_Count;
       State.Dirty_Close_Prompt_Save_Failure_Count :=
         Dirty_Close_Prompt_Save_Failure_Count;
+      State.File_Target_Prompt_Active := File_Target_Prompt_Active;
+      State.File_Target_Prompt_Command := File_Target_Prompt_Command;
+      State.File_Target_Prompt_Label := File_Target_Prompt_Label;
+      State.File_Target_Prompt_Input := File_Target_Prompt_Input;
 
       --  Active-buffer Find owns only canonical query/input state during
       --  buffer switches; no inactive Active Find prompt state is preserved.
@@ -2288,6 +2307,8 @@ package body Editor.Buffers is
          State.Active_Find_Matches.Clear;
          State.Active_Find_Match := Editor.Search.No_Match;
          State.Active_Find_Stale := Length (State.Active_Find_Query) > 0;
+         State.Active_Find_Case_Sensitive := Active_Find_Case_Sensitive;
+         State.Active_Find_Whole_Word := Active_Find_Whole_Word;
          State.Active_Find_Source_Buffer_Token := 0;
          State.Active_Replace_Prompt := Active_Replace_Prompt;
          if Active_Replace_Prompt then
@@ -2846,7 +2867,11 @@ package body Editor.Buffers is
            and then Same_Or_Descendant_Path
              (To_String (Global_Registry.Items (I).State.File_Info.Path), Path)
          then
-            Close_Buffer (Global_Registry, Global_Registry.Items (I).Id, Closed);
+            declare
+               Id_To_Close : constant Buffer_Id := Global_Registry.Items (I).Id;
+            begin
+               Close_Buffer (Global_Registry, Id_To_Close, Closed);
+            end;
             if Closed then
                Closed_Count := Closed_Count + 1;
             else

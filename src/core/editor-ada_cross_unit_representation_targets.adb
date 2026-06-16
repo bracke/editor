@@ -5,6 +5,8 @@ with Editor.Ada_Freezing_Points;
 
 package body Editor.Ada_Cross_Unit_Representation_Targets is
 
+   pragma Suppress (Overflow_Check);
+
    function Normalize (S : String) return String is
    begin
       return Ada.Characters.Handling.To_Lower (S);

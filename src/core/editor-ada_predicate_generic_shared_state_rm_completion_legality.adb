@@ -1,4 +1,6 @@
 package body Editor.Ada_Predicate_Generic_Shared_State_RM_Completion_Legality is
+
+   pragma Suppress (Overflow_Check);
    use type Prior_Predicate.Predicate_Generic_Final_Row_Id;
    use type Cross_RM.Cross_Unit_RM_Completion_Closure_Id;
    use type Elaboration_RM.Elaboration_RM_Completion_Row_Id;

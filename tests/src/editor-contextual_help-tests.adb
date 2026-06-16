@@ -263,7 +263,7 @@ package body Editor.Contextual_Help.Tests is
       Assert
         (Command_Row_Accessible_Label
            ("Save File", "File", "", False, "No active buffer.") =
-         "Save File (File) — No active buffer",
+         "Save File (File) — No active buffer.",
          "Disabled command rows must expose the user-facing reason");
       Assert
         (File_Tree_Row_Accessible_Label ("src", True, True) =

@@ -421,7 +421,7 @@ package body Editor.Go_To_Line.Tests is
 
       Editor.Go_To_Line.Set_Text (S.Go_To_Line, "77");
       Editor.Go_To_Line.Set_Error (S.Go_To_Line, "stale error");
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Open_Quick_Open);
+      Editor.Executor.Execute_Open_Quick_Open (S);
       Assert ((not Editor.Go_To_Line.Is_Open (S.Go_To_Line))
               and then Editor.Go_To_Line.Text (S.Go_To_Line) = ""
               and then not Editor.Go_To_Line.Has_Error (S.Go_To_Line),

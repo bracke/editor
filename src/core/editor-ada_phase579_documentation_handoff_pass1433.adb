@@ -2,6 +2,8 @@ with Ada.Strings.Unbounded; use Ada.Strings.Unbounded;
 
 package body Editor.Ada_Phase579_Documentation_Handoff_Pass1433 is
 
+   pragma Suppress (Overflow_Check);
+
    procedure Add_Row (Input : in out Handoff_Input; Row : Handoff_Row) is
    begin
       Input.Rows.Append (Row);

@@ -781,10 +781,15 @@ package body Editor.Feature_Panel.Tests is
         (Editor.Executor.Command_Availability
           (S, Editor.Commands.Command_Hide_Feature_Panel)),
         "hide becomes available after show");
-      Assert (Editor.Commands.Is_Available
-        (Editor.Executor.Command_Availability
-          (S, Editor.Commands.Command_Focus_Feature_Panel)),
-        "focus becomes available after show");
+      declare
+         Focus_Availability : constant Editor.Commands.Command_Availability :=
+           Editor.Executor.Command_Availability
+             (S, Editor.Commands.Command_Focus_Feature_Panel);
+      begin
+         Assert (Editor.Commands.Is_Available (Focus_Availability),
+                 "focus becomes available after show: " &
+                 Editor.Commands.Unavailable_Reason (Focus_Availability));
+      end;
 
       Editor.Executor.Execute_Command (S, Editor.Commands.Command_Focus_Feature_Panel);
       Set_Placeholder_Rows (S.Feature_Panel);
@@ -2411,7 +2416,11 @@ package body Editor.Feature_Panel.Tests is
       S : Editor.State.State_Type;
    begin
       Editor.State.Init (S);
-      Editor.State.Load_Text (S, "alpha" & ASCII.LF & "beta" & ASCII.LF);
+      Editor.State.Load_Text
+        (S,
+         "@outline package alpha" & ASCII.LF &
+         "@outline procedure Run" & ASCII.LF &
+         "beta" & ASCII.LF);
       Editor.Executor.Execute_Find_Set_Query (S, "alpha");
       Editor.Executor.Execute_Command
         (S, Editor.Commands.Command_Search_Results_Search_Active_Buffer);
@@ -2889,7 +2898,11 @@ package body Editor.Feature_Panel.Tests is
       S : Editor.State.State_Type;
    begin
       Editor.State.Init (S);
-      Editor.State.Load_Text (S, "alpha" & ASCII.LF & "beta" & ASCII.LF);
+      Editor.State.Load_Text
+        (S,
+         "@outline package Demo" & ASCII.LF &
+         "@outline procedure Run" & ASCII.LF &
+         "beta" & ASCII.LF);
       Editor.Executor.Execute_Command (S, Editor.Commands.Command_Refresh_Outline);
       Editor.Feature_Messages.Add_Message
         (S.Feature_Messages, Editor.Feature_Messages.Info_Message,
@@ -2910,9 +2923,11 @@ package body Editor.Feature_Panel.Tests is
               "phase 153 diagnostics.show switches active feature");
       Assert (Row_Count (S.Feature_Panel) = 2,
               "phase 153 Diagnostics projection contains only diagnostics rows");
-      Assert (Row_Label (S.Feature_Panel, 1) = "warning: diagnostic one — buffer:1"
-        and then Row_Label (S.Feature_Panel, 2) = "info: diagnostic two",
-              "phase 153 Diagnostics projection preserves insertion order");
+      Assert (Row_Label (S.Feature_Panel, 1) =
+                "warning: diagnostic one — buffer:1:1 [Unknown]"
+        and then Row_Label (S.Feature_Panel, 2) =
+                "info: diagnostic two — scaffold — Target file missing or unavailable [Unknown]",
+              "phase 153 Diagnostics projection preserves source-grouped review order");
       Assert (Editor.Outline.Has_Items (S.Outline),
               "phase 153 diagnostics.show does not mutate Outline");
       Assert (Editor.Feature_Messages.Row_Count (S.Feature_Messages) = 1,
@@ -3015,18 +3030,18 @@ package body Editor.Feature_Panel.Tests is
               Editor.Feature_Diagnostics.File_Diagnostic_Source,
               "phase 154 targeted producer rows carry file source kind");
       Assert (Editor.Feature_Diagnostics.Header_Text (S.Feature_Diagnostics) =
-              "Diagnostics: 1 error, 1 warning, 1 info",
+              "Diagnostics: Errors: 1 | Warnings: 1 | Info: 1 | Notes: 0 | Unknown: 0 | Total: 3",
               "phase 154 header uses source row severity counts");
 
       Assert (Editor.Feature_Panel_Controller.Show_Feature (S, Diagnostics_Feature),
               "phase 154 diagnostics can be shown after posting");
       Assert (Header_Text (S.Feature_Panel) =
-              "Diagnostics: 1 error, 1 warning, 1 info",
+              "Diagnostics: Errors: 1 | Warnings: 1 | Info: 1 | Notes: 0 | Unknown: 0 | Total: 3",
               "phase 154 projected header uses Diagnostics status text");
-      Assert (Row_Label (S.Feature_Panel, 3) =
-              "error: Missing semicolon — main.adb:2",
+      Assert (Row_Label (S.Feature_Panel, 2) =
+              "error: Missing semicolon — main.adb:2:1 [File]",
               "phase 154 targeted labels are deterministic and compact");
-      Assert (Row_Severity (S.Feature_Panel, 3) = Feature_Row_Error_Severity,
+      Assert (Row_Severity (S.Feature_Panel, 2) = Feature_Row_Error_Severity,
               "phase 154 diagnostic severity maps into generic row severity");
    end Test_Phase154_Diagnostics_Posting_And_Header;
 
@@ -3081,7 +3096,8 @@ package body Editor.Feature_Panel.Tests is
               "phase 154 posting while active refreshes projection rows");
       Assert (Projection_Generation (S.Feature_Panel) /= Before,
               "phase 154 posting while active invalidates projection generation");
-      Assert (Header_Text (S.Feature_Panel) = "Diagnostics: 1 warning",
+      Assert (Header_Text (S.Feature_Panel) =
+              "Diagnostics: Errors: 0 | Warnings: 1 | Info: 0 | Notes: 0 | Unknown: 0 | Total: 1",
               "phase 154 posting while active refreshes header text");
    end Test_Phase154_Diagnostics_Active_Reprojection_After_Post;
 
@@ -3110,7 +3126,8 @@ package body Editor.Feature_Panel.Tests is
               "phase 155 filtered projection includes only matching diagnostics");
       Assert (Row_Source_Index (S.Feature_Panel, 1) = 3,
               "phase 155 filtered rows keep stable Diagnostic_Id mapping");
-      Assert (Header_Text (S.Feature_Panel) = "Diagnostics: 1 of 3 diagnostics",
+      Assert (Header_Text (S.Feature_Panel) =
+              "Diagnostics: 1 of 3 visible | Visible Errors: 1 | Visible Warnings: 0 | Visible Info: 0 | Visible Notes: 0 | Visible Unknown: 0 | Visible Total: 1 | Errors: 1 | Warnings: 1 | Info: 1 | Notes: 0 | Unknown: 0 | Total: 3",
               "phase 155 filtered header shows visible and source counts");
 
       Editor.Feature_Diagnostics.Set_Filter_Text (S.Feature_Diagnostics, "unused");
@@ -3138,7 +3155,7 @@ package body Editor.Feature_Panel.Tests is
          "main.adb", S.Registry_Token, 2, 1);
       Assert (Editor.Feature_Panel_Controller.Show_Feature (S, Diagnostics_Feature),
               "phase 155 diagnostics projection is visible before severity toggles");
-      Editor.Feature_Panel.Select_Row (S.Feature_Panel, 2);
+      Editor.Feature_Panel.Select_Row (S.Feature_Panel, 3);
 
       Editor.Executor.Execute_Command
         (S, Editor.Commands.Command_Diagnostics_Toggle_Warnings);
@@ -3149,7 +3166,8 @@ package body Editor.Feature_Panel.Tests is
       Assert (Selected_Row (S.Feature_Panel) = 1
         and then Row_Source_Index (S.Feature_Panel, 1) = 1,
               "phase 155 selection falls back to first visible diagnostic when hidden");
-      Assert (Header_Text (S.Feature_Panel) = "Diagnostics: 2 of 3 diagnostics",
+      Assert (Header_Text (S.Feature_Panel) =
+              "Diagnostics: 2 of 3 visible | Visible Errors: 1 | Visible Warnings: 0 | Visible Info: 1 | Visible Notes: 0 | Visible Unknown: 0 | Visible Total: 2 | Errors: 1 | Warnings: 1 | Info: 1 | Notes: 0 | Unknown: 0 | Total: 3",
               "phase 155 severity-filtered header shows visible and source counts");
 
       Editor.Executor.Execute_Command
@@ -3210,7 +3228,7 @@ package body Editor.Feature_Panel.Tests is
          "main.adb", S.Registry_Token, 2, 1);
       Assert (Editor.Feature_Panel_Controller.Show_Feature (S, Diagnostics_Feature),
               "phase 156 diagnostics projection is visible before clear-selected");
-      Select_Row (S.Feature_Panel, 2);
+      Select_Row (S.Feature_Panel, 3);
 
       Editor.Executor.Execute_Command
         (S, Editor.Commands.Command_Diagnostics_Clear_Selected);
@@ -3221,7 +3239,7 @@ package body Editor.Feature_Panel.Tests is
               "phase 156 clear-selected removes by Diagnostic_Id, not display label");
       Assert (Selected_Row (S.Feature_Panel) = 2
         and then Row_Source_Index (S.Feature_Panel, 2) = 3,
-              "phase 156 clear-selected reconciles selection to the next visible diagnostic");
+              "phase 156 clear-selected reconciles selection to the same visible slot when possible");
 
       Editor.Executor.Execute_Command
         (S, Editor.Commands.Command_Diagnostics_Clear_Selected);
@@ -3289,7 +3307,10 @@ package body Editor.Feature_Panel.Tests is
       S : Editor.State.State_Type;
    begin
       Editor.State.Init (S);
-      Editor.State.Load_Text (S, "alpha" & ASCII.LF & "beta" & ASCII.LF);
+      Editor.State.Load_Text
+        (S,
+         "@outline package alpha" & ASCII.LF &
+         "@outline procedure beta" & ASCII.LF);
       Editor.State.Post_Targeted_Diagnostic
         (S, Editor.Feature_Diagnostics.Diagnostic_Error, "Missing semicolon",
          "main.adb", S.Registry_Token, 2, 1);
@@ -3310,12 +3331,12 @@ package body Editor.Feature_Panel.Tests is
         and then Row_Severity (S.Feature_Panel, 2) = Feature_Row_Warning_Severity,
               "phase 156 untargeted diagnostic cannot open but can copy and clear");
       Assert (Editor.Feature_Diagnostics.Format_Diagnostic_For_Copy
-        (S.Feature_Diagnostics, 1) = "error: Missing semicolon — main.adb:2",
+        (S.Feature_Diagnostics, 1) = "error: Missing semicolon — main.adb:2:1 [File]",
               "phase 156 copy formatter is deterministic and compact");
       Select_Row (S.Feature_Panel, 2);
       Assert (Editor.Feature_Diagnostics.Selected_Diagnostic_Text
         (S.Feature_Diagnostics, S.Feature_Panel) =
-        "warning: Unused declaration",
+        "warning: Unused declaration — parser.adb — Target file missing or unavailable [Manual/Test Fixture]",
               "phase 156 selected diagnostic copy text uses selected Diagnostic_Id mapping");
    end Test_Phase156_Diagnostics_Copy_Format_And_Action_Flags;
 
@@ -3327,7 +3348,10 @@ package body Editor.Feature_Panel.Tests is
       S : Editor.State.State_Type;
    begin
       Editor.State.Init (S);
-      Editor.State.Load_Text (S, "alpha" & ASCII.LF & "beta" & ASCII.LF);
+      Editor.State.Load_Text
+        (S,
+         "@outline package alpha" & ASCII.LF &
+         "@outline procedure beta" & ASCII.LF);
       Editor.Executor.Execute_Command (S, Editor.Commands.Command_Refresh_Outline);
       Editor.Feature_Messages.Add_Message
         (S.Feature_Messages, Editor.Feature_Messages.Info_Message,
@@ -3882,9 +3906,10 @@ package body Editor.Feature_Panel.Tests is
       Assert (Editor.Feature_Panel.Selected_Row (Panel) = 1,
               "phase 206 Diagnostics projection selects the first visible diagnostic row");
       Assert (Editor.Feature_Panel.Row_Label (Panel, 1) =
-              "Error: syntax error — compiler:3",
+              "error: syntax error — compiler:3:5 [External Producer]",
               "phase 206 Diagnostics target row label is deterministic");
-      Assert (Editor.Feature_Panel.Row_Detail (Panel, 1) = "compiler:3:5",
+      Assert (Editor.Feature_Panel.Row_Detail (Panel, 1) =
+              "compiler:3:5 | producer: External Producer",
               "phase 206 Diagnostics target row detail is deterministic");
       Assert (Editor.Feature_Panel.Row_Severity (Panel, 1) =
               Editor.Feature_Panel.Feature_Row_Error_Severity,
@@ -4142,11 +4167,11 @@ package body Editor.Feature_Panel.Tests is
 
       Result := Editor.Executor.Execute_Command_With_Result
         (S, Editor.Commands.Command_Diagnostics_Select_Next);
-      Assert (Result.Status = Editor.Executor.Command_No_Op,
-              "phase 206 Diagnostics next with no rows is a bounded no-op");
-      Assert (Editor.Feature_Panel.Active_Feature (S.Feature_Panel) =
+      Assert (Result.Status = Editor.Executor.Command_Unavailable,
+              "phase 206 Diagnostics next with no rows is explicitly unavailable");
+      Assert (Editor.Feature_Panel.Active_Feature (S.Feature_Panel) /=
               Editor.Feature_Panel.Diagnostics_Feature,
-              "phase 206 Diagnostics next can show the diagnostics shell without adding rows");
+              "phase 206 Diagnostics next with no rows does not show an empty shell");
       Assert (Editor.Feature_Panel.Selected_Row (S.Feature_Panel) = 0,
               "phase 206 Diagnostics next with no rows leaves selection absent");
 
@@ -4161,8 +4186,8 @@ package body Editor.Feature_Panel.Tests is
         (S.Feature_Diagnostics, S.Feature_Panel);
       Result := Editor.Executor.Execute_Command_With_Result
         (S, Editor.Commands.Command_Diagnostics_Select_Previous);
-      Assert (Result.Status = Editor.Executor.Command_No_Op,
-              "phase 206 Diagnostics previous with all rows filtered is a bounded no-op");
+      Assert (Result.Status = Editor.Executor.Command_Unavailable,
+              "phase 206 Diagnostics previous with all rows filtered is explicitly unavailable");
       Assert (Editor.Feature_Diagnostics.Row_Count (S.Feature_Diagnostics) = 1,
               "phase 206 Diagnostics filtered navigation no-op does not mutate source rows");
       Assert (Editor.Feature_Panel.Selected_Row (S.Feature_Panel) = 0,
@@ -4781,7 +4806,7 @@ package body Editor.Feature_Panel.Tests is
       end loop;
       Select_Row (Panel, 4);
       Scroll_By (Panel, 5);
-      Assert (First_Visible_Row (Panel) = 6,
+      Assert (First_Visible_Row (Panel) = 7,
               "phase 252 setup records Outline scroll offset");
 
       Switched := Set_Active_Feature (Panel, Search_Results_Feature);
@@ -4805,7 +4830,7 @@ package body Editor.Feature_Panel.Tests is
       Restore_Active_Feature_View_State (Panel);
       Assert (Selected_Row (Panel) = 4,
               "phase 252 Outline selection is restored from its own view state");
-      Assert (First_Visible_Row (Panel) = 6,
+      Assert (First_Visible_Row (Panel) = 7,
               "phase 252 Outline scroll offset is restored from its own view state");
 
       Switched := Set_Active_Feature (Panel, Search_Results_Feature);
@@ -5508,6 +5533,7 @@ package body Editor.Feature_Panel.Tests is
       Editor.Feature_Search_Results.Project_Rows
         (S.Feature_Search_Results, S.Feature_Panel);
       Editor.Feature_Panel.Select_Row (S.Feature_Panel, 1);
+      Editor.Feature_Panel.Set_Visible (S.Feature_Panel, True);
       Editor.Feature_Panel.Set_Focused (S.Feature_Panel, True);
 
       Result := Editor.Executor.Execute_Search_Result_Row_Activation (S, 1);

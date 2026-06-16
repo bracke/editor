@@ -1,6 +1,8 @@
 with Ada.Strings.Unbounded; use Ada.Strings.Unbounded;
 
 package body Editor.Ada_Generic_Shared_State_Final_Remediation_Worklist_Legality is
+
+   pragma Suppress (Overflow_Check);
    use type Generic_Shared_State_Final_Worklist_Family;
    use type Editor.Ada_Syntax_Tree.Node_Id;
 

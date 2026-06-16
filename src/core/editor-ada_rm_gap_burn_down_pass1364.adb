@@ -1,5 +1,12 @@
 package body Editor.Ada_RM_Gap_Burn_Down_Pass1364 is
 
+   pragma Suppress (Overflow_Check);
+   use type Remediation.Remediation_State;
+   use type Matrix.Coverage_Level;
+   use type Precision.Precision_Classification;
+   use type Consumers.Semantic_Consumer;
+
+
    procedure Add_Blocker
      (Result : in out Burn_Down_Entry;
       Status : Burn_Down_Status) is

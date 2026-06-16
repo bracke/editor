@@ -1,5 +1,7 @@
-V "GNAT Lib v15"
+V "GNAT Lib v13"
 A -gnat2022
+A -gnatX
+A -gnata
 P SS ZX
 
 RN
@@ -11,7 +13,7 @@ RV NO_DYNAMIC_SIZED_OBJECTS
 RV NO_IMPLICIT_LOOPS
 RV NO_OBSOLESCENT_FEATURES
 
-U editor.syntax%b	editor-syntax.adb	4af3e384 NE OO PK
+U editor.syntax%b	editor-syntax.adb	d2048ab2 NE OO PK
 W ada%s			ada.ads			ada.ali
 W ada.characters%s	a-charac.ads		a-charac.ali
 W ada.characters.handling%s  a-chahan.adb	a-chahan.ali
@@ -21,17 +23,17 @@ Z system.secondary_stack%s  s-secsta.adb	s-secsta.ali
 U editor.syntax%s	editor-syntax.ads	c36347c1 EE NE OO PK
 W editor%s		editor.ads		editor.ali
 
-D ada.ads		20250808065140 76789da1 ada%s
-D a-charac.ads		20250808065140 2d3ec45b ada.characters%s
-D a-chahan.ads		20250808065140 bf752ff6 ada.characters.handling%s
-D a-chlat1.ads		20250808065140 e0d72e76 ada.characters.latin_1%s
+D ada.ads		20240521074738 76789da1 ada%s
+D a-charac.ads		20240521074737 2d3ec45b ada.characters%s
+D a-chahan.ads		20240521074737 278246c0 ada.characters.handling%s
+D a-chlat1.ads		20240521074737 e0d72e76 ada.characters.latin_1%s
 D editor.ads		20260612145959 16f844c2 editor%s
 D editor-syntax.ads	20260612145959 d59b0303 editor.syntax%s
 D editor-syntax.adb	20260612145959 201dcf71 editor.syntax%b
-D system.ads		20250808065140 14286b0f system%s
-D s-parame.ads		20250808065140 3597fc11 system.parameters%s
-D s-secsta.ads		20250808065140 578279f5 system.secondary_stack%s
-D s-stoele.ads		20250808065140 ccded4e8 system.storage_elements%s
+D system.ads		20240521074738 426dafb8 system%s
+D s-parame.ads		20251218205951 1f39ba92 system.parameters%s
+D s-secsta.ads		20240521074738 578279f5 system.secondary_stack%s
+D s-stoele.ads		20240521074738 ab5468e4 system.storage_elements%s
 G a e
 G c Z s b [is_keyword editor__syntax 45 13 none]
 G c Z s b [kind_at editor__syntax 48 13 none]
@@ -54,12 +56,12 @@ G c Z b b [previous_non_space editor__syntax 184 13 none]
 G c Z b b [last_word_before editor__syntax 198 13 none]
 G c Z b b [looks_like_attribute editor__syntax 222 13 none]
 X 1 ada.ads
-18K9*Ada 22e8 7|1r6 40r24
+16K9*Ada 20e8 7|1r6 40r24
 X 2 a-charac.ads
 16K13*Characters 18e19 7|1r10 40r28
 X 3 a-chahan.ads
-43K24*Handling 454e28 7|1w21 40r39
-209V13*To_Lower{character} 7|40s48
+43K24*Handling 455e28 7|1w21 40r39
+210V13*To_Lower{character} 7|40s48
 X 5 editor.ads
 1K9*Editor 5e11 6|1r9 81r5 7|3r14 578r5
 X 6 editor-syntax.ads

@@ -2,6 +2,8 @@ with Ada.Strings.Unbounded; use Ada.Strings.Unbounded;
 
 package body Editor.Ada_Phase579_Final_Dead_Code_Sweep_Pass1445 is
 
+   pragma Suppress (Overflow_Check);
+
    procedure Add_Row (Input : in out Sweep_Input; Row : Sweep_Row) is
    begin
       Input.Rows.Append (Row);

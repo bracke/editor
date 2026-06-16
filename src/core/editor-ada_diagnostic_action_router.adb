@@ -2,6 +2,10 @@ with Ada.Strings.Unbounded; use Ada.Strings.Unbounded;
 
 package body Editor.Ada_Diagnostic_Action_Router is
 
+   pragma Suppress (Overflow_Check);
+
+   use type Editor.Ada_Semantic_Diagnostic_Index.Semantic_Diagnostic_Index_Id;
+
    function Mix (A, B : Natural) return Natural is
    begin
       return ((A * 181) + B + 211) mod 1_000_000_007;

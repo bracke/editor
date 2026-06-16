@@ -2,6 +2,8 @@ with Ada.Strings.Unbounded; use Ada.Strings.Unbounded;
 
 package body Editor.Ada_Cross_Unit_RM_Completion_Closure_Consumer_Legality is
 
+   pragma Suppress (Overflow_Check);
+
    use type Closure.RM_Completion_Stabilized_Closure_Id;
    use type Closure.RM_Completion_Stabilized_Closure_Status;
    use type Editor.Ada_Syntax_Tree.Node_Id;

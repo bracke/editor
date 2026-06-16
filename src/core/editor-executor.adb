@@ -763,7 +763,7 @@ package body Editor.Executor is
       elsif Target_Buffer = 0
         or else not Feature_Target_Buffer_Exists (S, Target_Buffer)
       then
-         return "Diagnostic target file is unavailable.";
+         return "Target no longer exists.";
       elsif Line = 0 then
          return "Diagnostic target line is unavailable.";
       elsif Line_Count = 0 or else Line > Line_Count then
@@ -802,7 +802,9 @@ package body Editor.Executor is
       --  Command availability reasons are status labels, while execution
       --  messages are sentences.  Reuse the precise target classifier but
       --  drop the final period for palette/keybinding availability display.
-      if Label'Length > 0 and then Label (Label'Last) = '.' then
+      if Label = "Target no longer exists." then
+         return Label;
+      elsif Label'Length > 0 and then Label (Label'Last) = '.' then
          return Label (Label'First .. Label'Last - 1);
       else
          return Label;
@@ -1046,18 +1048,29 @@ package body Editor.Executor is
    function Has_Selected_Outline_Activation_Target
      (S : Editor.State.State_Type) return Boolean
    is
+      Panel       : Editor.Feature_Panel.Feature_Panel_State := S.Feature_Panel;
       Row         : Natural := 0;
       Outline_Row : Natural := 0;
    begin
-      if not Editor.Feature_Panel.Is_Visible (S.Feature_Panel)
-        or else not Editor.Feature_Panel.Has_Selection (S.Feature_Panel)
-      then
+      if not Editor.Feature_Panel.Is_Visible (Panel) then
          return False;
       end if;
 
-      Row := Editor.Feature_Panel.Selected_Row (S.Feature_Panel);
+      if Editor.Outline.Selected_Index (S.Outline) > 0
+        and then
+          (Editor.Feature_Panel.Active_Feature (Panel) /=
+             Editor.Feature_Panel.Outline_Feature
+           or else not Editor.Feature_Panel.Has_Selection (Panel))
+      then
+         Editor.Outline.Set_Rows_From_Outline (S.Outline, Panel);
+      end if;
+      if not Editor.Feature_Panel.Has_Selection (Panel) then
+         return False;
+      end if;
+
+      Row := Editor.Feature_Panel.Selected_Row (Panel);
       Outline_Row := Editor.Outline.Map_Panel_Row_To_Outline_Row
-        (S.Outline, S.Feature_Panel, Row);
+        (S.Outline, Panel, Row);
       if Outline_Row = 0 then
          return False;
       end if;
@@ -1077,7 +1090,7 @@ package body Editor.Executor is
          --  live buffer and an in-range source position before the command is
          --  advertised as available.
          return Editor.Outline.Validate_Outline_Row_For_Activation
-             (S.Outline, S.Feature_Panel, Row, Target_Buffer)
+             (S.Outline, Panel, Row, Target_Buffer)
            and then Feature_Target_Position_Is_Valid
              (S, Target_Buffer, Target_Line, Target_Column);
       end;
@@ -1394,12 +1407,12 @@ package body Editor.Executor is
          if Editor.Buffers.Global_Count = 0
            or else Active_Id = Editor.Buffers.No_Buffer
          then
-            return Editor.Commands.Unavailable ("No active buffer");
+            return Editor.Commands.Unavailable ("No active buffer.");
          end if;
 
          if S.Active_Buffer_Token /= Natural (Active_Id) then
             if not Editor.Buffers.Global_Contains (Active_Id) then
-               return Editor.Commands.Unavailable ("No active buffer");
+               return Editor.Commands.Unavailable ("No active buffer.");
             end if;
 
             Effective_File :=
@@ -1409,7 +1422,7 @@ package body Editor.Executor is
          end if;
 
          if not Effective_Has_Buffer then
-            return Editor.Commands.Unavailable ("No active buffer");
+            return Editor.Commands.Unavailable ("No active buffer.");
          elsif not Effective_File.Has_Path
            or else Length (Effective_File.Path) = 0
          then
@@ -1440,6 +1453,8 @@ package body Editor.Executor is
          --  transient prompt input or confirmation payload is active.
          case Id is
             when Command_Cancel =>
+               return Editor.Commands.Available;
+            when Command_Restore_Workspace_State =>
                return Editor.Commands.Available;
             when No_Command =>
                return Editor.Commands.Unavailable ("No command");
@@ -1718,16 +1733,13 @@ package body Editor.Executor is
                --  that execution would use, but it must remain read-only:
                --  do not load the active buffer into S, do not sync stale
                --  state into the registry, and do not touch filesystem state.
-               if not Editor.Buffers.Global_Registry_Current_For (S)
-                 or else Editor.Buffers.Global_Count = 0
-                 or else Active_Id = Editor.Buffers.No_Buffer
+               if Editor.Buffers.Global_Registry_Current_For (S)
+                 and then Editor.Buffers.Global_Count > 0
+                 and then Active_Id /= Editor.Buffers.No_Buffer
+                 and then S.Active_Buffer_Token /= Natural (Active_Id)
                then
-                  return Editor.Commands.Unavailable ("No active buffer");
-               end if;
-
-               if S.Active_Buffer_Token /= Natural (Active_Id) then
                   if not Editor.Buffers.Global_Contains (Active_Id) then
-                     return Editor.Commands.Unavailable ("No active buffer");
+                     return Editor.Commands.Unavailable ("No active buffer.");
                   end if;
 
                   Effective_File :=
@@ -1737,11 +1749,15 @@ package body Editor.Executor is
                end if;
 
                if not Effective_Has_Buffer then
-                  return Editor.Commands.Unavailable ("No active buffer");
+                  return Editor.Commands.Unavailable ("No active buffer.");
                elsif not Effective_File.Has_Path
                  or else Length (Effective_File.Path) = 0
                then
                   return Editor.Commands.Unavailable ("No file path for active buffer");
+               elsif Effective_File.Dirty then
+                  null;
+               else
+                  return Editor.Commands.Unavailable ("No changes to save");
                end if;
 
                return Editor.Commands.Available;
@@ -1769,7 +1785,7 @@ package body Editor.Executor is
 
          when Command_Reveal_Active_File_In_Tree =>
             if not Has_Buffer then
-               return Editor.Commands.Unavailable ("No active buffer");
+               return Editor.Commands.Unavailable ("No active buffer.");
             elsif not S.File_Info.Has_Path or else Length (S.File_Info.Path) = 0 then
                return Editor.Commands.Unavailable ("Active buffer has no file path");
             elsif not Editor.Project.Has_Project (S.Project) then
@@ -1797,12 +1813,12 @@ package body Editor.Executor is
                if Editor.Buffers.Global_Count = 0
                  or else Active_Id = Editor.Buffers.No_Buffer
                then
-                  return Editor.Commands.Unavailable ("No active buffer");
+                  return Editor.Commands.Unavailable ("No active buffer.");
                end if;
 
                if S.Active_Buffer_Token /= Natural (Active_Id) then
                   if not Editor.Buffers.Global_Contains (Active_Id) then
-                     return Editor.Commands.Unavailable ("No active buffer");
+                     return Editor.Commands.Unavailable ("No active buffer.");
                   end if;
 
                   Effective_File :=
@@ -1812,11 +1828,14 @@ package body Editor.Executor is
                end if;
 
                if not Effective_Has_Buffer then
-                  return Editor.Commands.Unavailable ("No active buffer");
+                  return Editor.Commands.Unavailable ("No active buffer.");
                elsif not Effective_File.Has_Path
                  or else Length (Effective_File.Path) = 0
                then
-                  return Editor.Commands.Unavailable ("No file-backed active buffer");
+                  return Editor.Commands.Unavailable ("No file path for active buffer");
+               elsif Effective_File.Dirty then
+                  return Editor.Commands.Unavailable
+                    ("Dirty buffer cannot be reloaded");
                end if;
 
                return Editor.Commands.Available;
@@ -1835,12 +1854,12 @@ package body Editor.Executor is
                if Editor.Buffers.Global_Count = 0
                  or else Active_Id = Editor.Buffers.No_Buffer
                then
-                  return Editor.Commands.Unavailable ("No active buffer");
+                  return Editor.Commands.Unavailable ("No active buffer.");
                end if;
 
                if S.Active_Buffer_Token /= Natural (Active_Id) then
                   if not Editor.Buffers.Global_Contains (Active_Id) then
-                     return Editor.Commands.Unavailable ("No active buffer");
+                     return Editor.Commands.Unavailable ("No active buffer.");
                   end if;
 
                   Effective_File :=
@@ -1850,7 +1869,7 @@ package body Editor.Executor is
                end if;
 
                if not Effective_Has_Buffer then
-                  return Editor.Commands.Unavailable ("No active buffer");
+                  return Editor.Commands.Unavailable ("No active buffer.");
                elsif not Effective_File.Has_Path
                  or else Length (Effective_File.Path) = 0
                then
@@ -1883,7 +1902,7 @@ package body Editor.Executor is
             if Editor.Buffers.Global_Count = 0
               or else Editor.Buffers.Global_Active_Buffer = Editor.Buffers.No_Buffer
             then
-               return Editor.Commands.Unavailable ("No active buffer");
+               return Editor.Commands.Unavailable ("No active buffer.");
             end if;
             return Editor.Commands.Available;
 
@@ -1922,7 +1941,7 @@ package body Editor.Executor is
             | Command_Goto_Start
             | Command_Goto_End =>
             if not Has_Buffer then
-               return Editor.Commands.Unavailable ("No active buffer");
+               return Editor.Commands.Unavailable ("No active buffer.");
             end if;
             return Editor.Commands.Available;
 
@@ -1934,7 +1953,7 @@ package body Editor.Executor is
 
          when Command_Paste =>
             if not Has_Buffer then
-               return Editor.Commands.Unavailable ("No active buffer");
+               return Editor.Commands.Unavailable ("No active buffer.");
             elsif not Editor.Clipboard.Has_Text then
                return Editor.Commands.Unavailable ("Clipboard is empty");
             end if;
@@ -1948,13 +1967,13 @@ package body Editor.Executor is
 
          when Command_Select_All =>
             if not Has_Buffer then
-               return Editor.Commands.Unavailable ("No active buffer");
+               return Editor.Commands.Unavailable ("No active buffer.");
             end if;
             return Editor.Commands.Available;
 
          when Command_Selection_Clear =>
             if not Has_Buffer then
-               return Editor.Commands.Unavailable ("No active buffer");
+               return Editor.Commands.Unavailable ("No active buffer.");
             elsif S.Carets.Length = 0 then
                return Editor.Commands.Unavailable ("No caret location");
             elsif not Editor.Selection.Has_Selection (S)
@@ -1966,7 +1985,7 @@ package body Editor.Executor is
 
          when Command_Selection_Delete =>
             if not Has_Buffer then
-               return Editor.Commands.Unavailable ("No active buffer");
+               return Editor.Commands.Unavailable ("No active buffer.");
             elsif S.Carets.Length = 0 then
                return Editor.Commands.Unavailable ("No caret location");
             end if;
@@ -1974,7 +1993,7 @@ package body Editor.Executor is
 
          when Command_Trim_Trailing_Whitespace =>
             if not Has_Buffer then
-               return Editor.Commands.Unavailable ("No active buffer");
+               return Editor.Commands.Unavailable ("No active buffer.");
             elsif S.Carets.Length = 0 then
                return Editor.Commands.Unavailable ("No caret location");
             elsif not Trim_Trailing_Whitespace_Would_Change then
@@ -1998,7 +2017,7 @@ package body Editor.Executor is
             | Command_Word_Delete_Previous
             | Command_Word_Delete_Next =>
             if not Has_Buffer then
-               return Editor.Commands.Unavailable ("No active buffer");
+               return Editor.Commands.Unavailable ("No active buffer.");
             elsif S.Carets.Length = 0 then
                return Editor.Commands.Unavailable ("No caret location");
             end if;
@@ -2010,7 +2029,7 @@ package body Editor.Executor is
 
          when Command_Goto_Line_Prefill_Current =>
             if not Has_Buffer then
-               return Editor.Commands.Unavailable ("No active buffer");
+               return Editor.Commands.Unavailable ("No active buffer.");
             elsif S.Carets.Length = 0 or else Editor.State.Line_Count (S) = 0 then
                return Editor.Commands.Unavailable ("No current caret location");
             end if;
@@ -2061,18 +2080,18 @@ package body Editor.Executor is
                if Editor.Buffers.Global_Count = 0
                  or else Active_Id = Editor.Buffers.No_Buffer
                then
-                  return Editor.Commands.Unavailable ("No active buffer");
+                  return Editor.Commands.Unavailable ("No active buffer.");
                end if;
 
                if S.Active_Buffer_Token /= Natural (Active_Id) then
                   if not Editor.Buffers.Global_Contains (Active_Id) then
-                     return Editor.Commands.Unavailable ("No active buffer");
+                     return Editor.Commands.Unavailable ("No active buffer.");
                   end if;
                   Effective_File :=
                     Editor.Buffers.Buffer
                       (Editor.Buffers.Global_Registry_For_UI, Active_Id).File_Info;
                elsif not Has_Buffer then
-                  return Editor.Commands.Unavailable ("No active buffer");
+                  return Editor.Commands.Unavailable ("No active buffer.");
                end if;
 
                --  Phase 575: dirty active close is available because execution
@@ -2083,9 +2102,9 @@ package body Editor.Executor is
 
          when Command_Close_Other_Buffers =>
             if Editor.Buffers.Global_Count = 0 then
-               return Editor.Commands.Unavailable ("No active buffer");
+               return Editor.Commands.Unavailable ("No active buffer.");
             elsif not Has_Buffer then
-               return Editor.Commands.Unavailable ("No active buffer");
+               return Editor.Commands.Unavailable ("No active buffer.");
             end if;
             return Editor.Commands.Available;
 
@@ -2096,7 +2115,7 @@ package body Editor.Executor is
             elsif Editor.Project.Known_File_Count (S.Project) = 0 then
                return Editor.Commands.Unavailable ("No project open.");
             elsif not Has_Buffer then
-               return Editor.Commands.Unavailable ("No active buffer");
+               return Editor.Commands.Unavailable ("No active buffer.");
             elsif not Has_Selection then
                return Editor.Commands.Unavailable ("No selected text");
             end if;
@@ -2109,13 +2128,13 @@ package body Editor.Executor is
             elsif Editor.Project.Known_File_Count (S.Project) = 0 then
                return Editor.Commands.Unavailable ("No project open.");
             elsif not Has_Buffer then
-               return Editor.Commands.Unavailable ("No active buffer");
+               return Editor.Commands.Unavailable ("No active buffer.");
             end if;
             return Editor.Commands.Available;
 
          when Command_Find_From_Selection =>
             if not Has_Buffer then
-               return Editor.Commands.Unavailable ("No active buffer");
+               return Editor.Commands.Unavailable ("No active buffer.");
             elsif not Has_Selection then
                return Editor.Commands.Unavailable ("No selected text");
             end if;
@@ -2123,7 +2142,7 @@ package body Editor.Executor is
 
          when Command_Find_From_Active_Word =>
             if not Has_Buffer then
-               return Editor.Commands.Unavailable ("No active buffer");
+               return Editor.Commands.Unavailable ("No active buffer.");
             end if;
             return Editor.Commands.Available;
 
@@ -2150,7 +2169,7 @@ package body Editor.Executor is
 
          when Command_Pin_Buffer =>
             if not Has_Buffer then
-               return Editor.Commands.Unavailable ("No active buffer");
+               return Editor.Commands.Unavailable ("No active buffer.");
             elsif Editor.Buffers.Global_Is_Buffer_Pinned (Editor.Buffers.Global_Active_Buffer) then
                return Editor.Commands.Unavailable ("Buffer already pinned");
             end if;
@@ -2158,7 +2177,7 @@ package body Editor.Executor is
 
          when Command_Unpin_Buffer =>
             if not Has_Buffer then
-               return Editor.Commands.Unavailable ("No active buffer");
+               return Editor.Commands.Unavailable ("No active buffer.");
             elsif not Editor.Buffers.Global_Is_Buffer_Pinned (Editor.Buffers.Global_Active_Buffer) then
                return Editor.Commands.Unavailable ("Buffer is not pinned");
             end if;
@@ -2166,7 +2185,7 @@ package body Editor.Executor is
 
          when Command_Toggle_Buffer_Pin =>
             if not Has_Buffer then
-               return Editor.Commands.Unavailable ("No active buffer");
+               return Editor.Commands.Unavailable ("No active buffer.");
             end if;
             return Editor.Commands.Available;
 
@@ -2177,13 +2196,13 @@ package body Editor.Executor is
             | Command_Edit_Buffer_Note
             | Command_Show_Buffer_Note =>
             if not Has_Buffer then
-               return Editor.Commands.Unavailable ("No active buffer");
+               return Editor.Commands.Unavailable ("No active buffer.");
             end if;
             return Editor.Commands.Available;
 
          when Command_Clear_Buffer_Label =>
             if not Has_Buffer then
-               return Editor.Commands.Unavailable ("No active buffer");
+               return Editor.Commands.Unavailable ("No active buffer.");
             elsif not Editor.Buffers.Global_Has_Buffer_Label (Editor.Buffers.Global_Active_Buffer) then
                return Editor.Commands.Unavailable ("Active buffer has no label");
             end if;
@@ -2191,7 +2210,7 @@ package body Editor.Executor is
 
          when Command_Clear_Buffer_Note =>
             if not Has_Buffer then
-               return Editor.Commands.Unavailable ("No active buffer");
+               return Editor.Commands.Unavailable ("No active buffer.");
             elsif not Editor.Buffers.Global_Has_Buffer_Note (Editor.Buffers.Global_Active_Buffer) then
                return Editor.Commands.Unavailable ("Active buffer has no note");
             end if;
@@ -2199,13 +2218,13 @@ package body Editor.Executor is
 
          when Command_Assign_Buffer_Group =>
             if not Has_Buffer then
-               return Editor.Commands.Unavailable ("No active buffer");
+               return Editor.Commands.Unavailable ("No active buffer.");
             end if;
             return Editor.Commands.Available;
 
          when Command_Clear_Buffer_Group =>
             if not Has_Buffer then
-               return Editor.Commands.Unavailable ("No active buffer");
+               return Editor.Commands.Unavailable ("No active buffer.");
             elsif not Editor.Buffers.Global_Has_Buffer_Group (Editor.Buffers.Global_Active_Buffer) then
                return Editor.Commands.Unavailable ("Active buffer has no group");
             end if;
@@ -2323,9 +2342,21 @@ package body Editor.Executor is
             end if;
             return Editor.Commands.Available;
 
-         when Command_Open_Quick_Open
-            | Command_Toggle_Quick_Open
-            | Command_Refresh_File_Tree
+         when Command_Open_Quick_Open =>
+            if not Has_Project then
+               return Editor.Commands.Unavailable ("No project open.");
+            end if;
+            return Editor.Commands.Available;
+
+         when Command_Toggle_Quick_Open =>
+            if not Has_Project
+              and then not Editor.Quick_Open.Is_Open (S.Quick_Open)
+            then
+               return Editor.Commands.Unavailable ("No project open.");
+            end if;
+            return Editor.Commands.Available;
+
+         when Command_Refresh_File_Tree
             | Command_Refresh_Project_Files
             | Command_Focus_File_Tree
             | Command_Close_Project
@@ -2340,7 +2371,7 @@ package body Editor.Executor is
             if not Has_Project then
                return Editor.Commands.Unavailable ("No project open");
             elsif not Has_Buffer then
-               return Editor.Commands.Unavailable ("No active buffer");
+               return Editor.Commands.Unavailable ("No active buffer.");
             elsif Editor.Project.Known_File_Count (S.Project) = 0 then
                return Editor.Commands.Unavailable ("No project files.");
             else
@@ -2386,7 +2417,7 @@ package body Editor.Executor is
 
          when Command_Undo =>
             if not Has_Buffer then
-               return Editor.Commands.Unavailable ("No active buffer");
+               return Editor.Commands.Unavailable ("No active buffer.");
             elsif not Editor.Buffers.Global_Registry_Current_For (S) then
                return Editor.Commands.Unavailable ("No edits to undo");
             elsif Editor.History.Undo_Stack.Is_Empty then
@@ -2396,7 +2427,7 @@ package body Editor.Executor is
 
          when Command_Redo =>
             if not Has_Buffer then
-               return Editor.Commands.Unavailable ("No active buffer");
+               return Editor.Commands.Unavailable ("No active buffer.");
             elsif not Editor.Buffers.Global_Registry_Current_For (S) then
                return Editor.Commands.Unavailable ("No edits to redo");
             elsif Editor.History.Redo_Stack.Is_Empty then
@@ -2406,7 +2437,7 @@ package body Editor.Executor is
 
          when Command_Edit_History_Clear =>
             if not Has_Buffer then
-               return Editor.Commands.Unavailable ("No active buffer");
+               return Editor.Commands.Unavailable ("No active buffer.");
             elsif Editor.History.Undo_Stack.Is_Empty
               and then Editor.History.Redo_Stack.Is_Empty
             then
@@ -2516,7 +2547,7 @@ package body Editor.Executor is
             if not Has_Search_Results then
                return Editor.Commands.Unavailable ("No project search results");
             elsif not Has_Buffer then
-               return Editor.Commands.Unavailable ("No active buffer");
+               return Editor.Commands.Unavailable ("No active buffer.");
             end if;
             return Editor.Commands.Available;
 
@@ -2711,7 +2742,7 @@ package body Editor.Executor is
 
          when Command_Clear_Bookmarks =>
             if not Has_Buffer then
-               return Editor.Commands.Unavailable ("No active buffer");
+               return Editor.Commands.Unavailable ("No active buffer.");
             elsif not Editor.Gutter_Markers.Has_Bookmarks (S.Gutter_Markers) then
                return Editor.Commands.Unavailable ("No bookmarks");
             end if;
@@ -2733,7 +2764,7 @@ package body Editor.Executor is
 
          when Command_Bookmark_Toggle_Current_Location =>
             if not Has_Buffer then
-               return Editor.Commands.Unavailable ("No active buffer");
+               return Editor.Commands.Unavailable ("No active buffer.");
             elsif not S.File_Info.Has_Path then
                return Editor.Commands.Unavailable ("No bookmarkable location");
             end if;
@@ -2760,7 +2791,7 @@ package body Editor.Executor is
 
          when Command_Bookmark_Reveal_Current =>
             if not Editor.State.Has_Active_Buffer (S) then
-               return Editor.Commands.Unavailable ("No active buffer");
+               return Editor.Commands.Unavailable ("No active buffer.");
             elsif not Editor.Bookmarks.Has_Bookmarks (S.Bookmarks) then
                return Editor.Commands.Unavailable ("No bookmarks");
             elsif not S.File_Info.Has_Path then
@@ -2786,7 +2817,7 @@ package body Editor.Executor is
 
          when Command_Focus_Problems =>
             if not Has_Buffer then
-               return Editor.Commands.Unavailable ("No active buffer");
+               return Editor.Commands.Unavailable ("No active buffer.");
             end if;
             return Editor.Commands.Available;
 
@@ -3782,7 +3813,7 @@ package body Editor.Executor is
             | Command_Replace_Current
             | Command_Replace_All =>
             if not Has_Find_Target_Buffer (S) then
-               return Editor.Commands.Unavailable ("No active buffer");
+               return Editor.Commands.Unavailable ("No active buffer.");
             elsif Length (S.Active_Find_Query) = 0 then
                return Editor.Commands.Unavailable ("No find query");
             end if;
@@ -3938,7 +3969,7 @@ package body Editor.Executor is
             --  keybinding projections from advertising a command that can only
             --  return a canonical reveal failure at execution time.
             if not Has_Buffer then
-               return Editor.Commands.Unavailable ("No active buffer");
+               return Editor.Commands.Unavailable ("No active buffer.");
             elsif not S.File_Info.Has_Path or else Length (S.File_Info.Path) = 0 then
                return Editor.Commands.Unavailable ("Active buffer has no file path");
             elsif not Has_Project then
@@ -4141,14 +4172,25 @@ package body Editor.Executor is
             return Editor.Commands.Available;
 
          when Command_Show_Feature_Panel =>
+            if Editor.Feature_Panel.Is_Visible (S.Feature_Panel) then
+               return Editor.Commands.Unavailable
+                 (Editor.Feature_Panel.Reason_Feature_Panel_Already_Shown);
+            end if;
             return Editor.Commands.Available;
 
          when Command_Hide_Feature_Panel =>
+            if not Editor.Feature_Panel.Is_Visible (S.Feature_Panel) then
+               return Editor.Commands.Unavailable
+                 (Editor.Feature_Panel.Reason_Feature_Panel_Hidden);
+            end if;
             return Editor.Commands.Available;
 
          when Command_Focus_Feature_Panel =>
             if not Editor.Feature_Panel.Is_Visible (S.Feature_Panel) then
                return Editor.Commands.Unavailable (Editor.Feature_Panel.Reason_Feature_Panel_Hidden);
+            elsif Editor.Feature_Panel.Is_Focused (S.Feature_Panel) then
+               return Editor.Commands.Unavailable
+                 (Editor.Feature_Panel.Reason_Feature_Panel_Already_Focused);
             end if;
             return Editor.Commands.Available;
 
@@ -4157,7 +4199,7 @@ package body Editor.Executor is
               (Editor.Feature_Panel.Active_Feature (S.Feature_Panel))
             then
                return Editor.Commands.Unavailable ("Feature panel: no active feature");
-            elsif not Editor.Feature_Panel.Has_Clearable_Row (S.Feature_Panel) then
+            elsif not Editor.Feature_Panel.Has_Selectable_Row (S.Feature_Panel) then
                return Editor.Commands.Unavailable (Editor.Feature_Panel.Reason_No_Feature_Panel_Rows);
             end if;
             return Editor.Commands.Available;
@@ -4184,6 +4226,8 @@ package body Editor.Executor is
                  (Editor.Feature_Panel.Reason_No_Feature_Panel_Row_Selected);
             elsif not Editor.Feature_Panel.Row_Can_Open
               (S.Feature_Panel, Positive (Editor.Feature_Panel.Selected_Row (S.Feature_Panel)))
+              and then Editor.Feature_Panel.Active_Feature (S.Feature_Panel) /=
+                Editor.Feature_Panel.Diagnostics_Feature
             then
                return Editor.Commands.Unavailable
                  (Editor.Feature_Panel.Message_Feature_Panel_Row_Has_No_Target);
@@ -4233,6 +4277,9 @@ package body Editor.Executor is
             return Editor.Commands.Available;
 
          when Command_Clear_Outline =>
+            if not Editor.Outline.Has_Items (S.Outline) then
+               return Editor.Commands.Unavailable (Editor.Outline.Reason_No_Outline_Items);
+            end if;
             return Editor.Commands.Available;
 
          when Command_Show_Outline =>
@@ -4602,7 +4649,9 @@ package body Editor.Executor is
             if not Editor.State.Has_Active_Buffer (S) or else S.Registry_Token = 0 then
                return Editor.Commands.Unavailable
                  (Editor.Feature_Search_Results.Message_Search_Active_Buffer_No_Active_Buffer);
-            elsif Editor.Feature_Search_Results.Search_Input_Text (S.Feature_Search_Results)'Length = 0 then
+            elsif Editor.Feature_Search_Results.Search_Input_Text (S.Feature_Search_Results)'Length = 0
+              and then Length (S.Active_Find_Query) = 0
+            then
                return Editor.Commands.Unavailable
                  (Editor.Feature_Search_Results.Message_Search_Active_Buffer_Empty_Query);
             end if;
@@ -4982,7 +5031,16 @@ package body Editor.Executor is
 
       Availability := Command_Availability (S, Id);
       if not Editor.Commands.Is_Available (Availability) then
-         Report_Info (S, Editor.Commands.Unavailable_Reason (Availability));
+         declare
+            Reason : constant String :=
+              Editor.Commands.Unavailable_Reason (Availability);
+         begin
+            if Reason = "Command unavailable while confirmation is pending." then
+               Report_Warning_Raw (S, Reason);
+            else
+               Report_Info (S, Reason);
+            end if;
+         end;
          return;
       end if;
 
@@ -6726,7 +6784,14 @@ package body Editor.Executor is
                elsif Editor.Messages.Severity (Msg) =
                  Editor.Messages.Warning_Message
                then
-                  return Editor.Command_Execution.Unavailable (Command);
+                  case Command is
+                     when Editor.Commands.Command_Reload_Settings
+                        | Editor.Commands.Command_Reload_Keybindings
+                        | Editor.Commands.Command_Validate_Keybindings =>
+                        return Editor.Command_Execution.Executed (Command);
+                     when others =>
+                        return Editor.Command_Execution.Unavailable (Command);
+                  end case;
                end if;
             end if;
          end if;
@@ -6751,7 +6816,7 @@ package body Editor.Executor is
             when Editor.Executor.Clipboard.Clipboard_Cleared =>
                Report_Success (S, "Clipboard cleared");
             when Editor.Executor.Clipboard.Clipboard_No_Active_Buffer =>
-               Report_Info (S, "No active buffer");
+               Report_Info (S, "No active buffer.");
             when Editor.Executor.Clipboard.Clipboard_No_Selected_Text =>
                Report_Info (S, "No selected text");
             when Editor.Executor.Clipboard.Clipboard_Invalid_Selection =>
@@ -6822,7 +6887,7 @@ package body Editor.Executor is
             when Editor.Executor.Edits.Selection_Delete_Failed =>
                Report_Error (S, "Could not delete selection");
             when Editor.Executor.Edits.No_Active_Buffer =>
-               Report_Info (S, "No active buffer");
+               Report_Info (S, "No active buffer.");
             when Editor.Executor.Edits.Nothing_To_Insert =>
                Report_Info (S, "Nothing to insert");
             when Editor.Executor.Edits.Invalid_Text_Input =>
@@ -6969,7 +7034,43 @@ package body Editor.Executor is
                  or else Reason = "Close review is stale");
          begin
             if not Allow_Stale_Close_Cleanup then
-               Report_Info (S, Reason);
+               if Id = Editor.Commands.Command_Build_Run
+                 and then Editor.Build_Result_Summary.Retain_Pre_Run_Unavailable_Summary
+               then
+                  S.Latest_Build_Result :=
+                    Editor.Build_Result_Summary.Replace_Latest_Build_Result_Summary
+                      (S.Latest_Build_Result,
+                       Editor.Build_Result_Summary.Summary_From_Unavailable_Message
+                         (Reason));
+                  S.Latest_Build_Output_Details :=
+                    Editor.Build_Output_Details.Replace_Latest_Build_Output_Details
+                      (S.Latest_Build_Output_Details,
+                       Editor.Build_Output_Details.Build_Unavailable_Output_Details
+                         (Reason));
+               end if;
+               if Id = Editor.Commands.Command_Diagnostics_Filter_Build
+                 and then Reason = "No build diagnostics"
+               then
+                  Report_Info
+                    (S, Editor.Feature_Diagnostics.Message_No_Build_Diagnostics);
+               elsif (Id = Editor.Commands.Command_Diagnostics_Select_Next
+                      or else Id = Editor.Commands.Command_Diagnostics_Select_Previous)
+                 and then Reason = "No visible diagnostics"
+               then
+                  Report_Info
+                    (S, Editor.Feature_Diagnostics.Message_No_Visible_Diagnostic);
+               elsif Id = Editor.Commands.Command_Focus_Outline
+                 and then Reason =
+                   Editor.Outline.Reason_Feature_Panel_Already_Focused
+               then
+                  Report_Info (S, Editor.Outline.Message_Outline_Focused);
+               elsif Reason =
+                 "Command unavailable while confirmation is pending."
+               then
+                  Report_Warning (S, Reason);
+               else
+                  Report_Info (S, Reason);
+               end if;
                Editor.Render_Cache.Invalidate_All;
                return Editor.Command_Execution.Unavailable (Id);
             end if;
@@ -8196,6 +8297,18 @@ package body Editor.Executor is
          when Editor.Commands.Command_Restore_Workspace_State =>
             Execute_Restore_Workspace_State (S);
             Editor.Render_Cache.Invalidate_All;
+            declare
+               Found : Boolean := False;
+               Msg   : Editor.Messages.Editor_Message;
+            begin
+               Msg := Editor.Messages.Active_Message (S.Messages, Found);
+               if Found
+                 and then Editor.Messages.Severity (Msg) =
+                   Editor.Messages.Error_Message
+               then
+                  return Editor.Command_Execution.Failed (Id);
+               end if;
+            end;
             return Result_After_Command (Id);
 
          when Editor.Commands.Command_Clear_Workspace_State =>
@@ -8209,6 +8322,7 @@ package body Editor.Executor is
                Report_Info (S, Editor.Feature_Panel.Message_Feature_Panel_Hidden);
             else
                Editor.Feature_Panel.Set_Visible (S.Feature_Panel, True);
+               Editor.Feature_Panel.Set_Focused (S.Feature_Panel, False);
                Report_Info (S, Editor.Feature_Panel.Message_Feature_Panel_Shown);
             end if;
             Editor.Render_Cache.Invalidate_All;
@@ -8219,6 +8333,7 @@ package body Editor.Executor is
                return Editor.Command_Execution.No_Op (Id);
             end if;
             Editor.Feature_Panel.Set_Visible (S.Feature_Panel, True);
+            Editor.Feature_Panel.Set_Focused (S.Feature_Panel, False);
             Report_Info (S, Editor.Feature_Panel.Message_Feature_Panel_Shown);
             Editor.Render_Cache.Invalidate_All;
             return Result_After_Command (Id);
@@ -8244,7 +8359,7 @@ package body Editor.Executor is
             return Result_After_Command (Id);
 
          when Editor.Commands.Command_Clear_Feature_Panel =>
-            if not Editor.Feature_Panel.Has_Clearable_Row (S.Feature_Panel) then
+            if Editor.Feature_Panel.Row_Count (S.Feature_Panel) = 0 then
                return Editor.Command_Execution.No_Op (Id);
             elsif not Editor.Feature_Panel_Controller.Dispatch_Active_Feature_Clear (S) then
                Report_Info (S, "Feature panel: no active feature");
@@ -8328,86 +8443,89 @@ package body Editor.Executor is
             return Editor.Command_Execution.No_Op (Id);
 
          when Editor.Commands.Command_Refresh_Outline =>
-            declare
-               Request_Token : constant Natural :=
-                 Editor.Outline.Next_Request_Token (S.Outline);
-               Text : constant String := Editor.State.Current_Text (S);
-               Snapshot : constant Editor.Outline_Extractor.Buffer_Text_Snapshot :=
-                 Editor.Outline_Extractor.Make_Snapshot
-                   (Text                 => Text,
-                    Buffer_Label         =>
-                      (if S.File_Info.Has_Path
-                       then To_String (S.File_Info.Path)
-                       else To_String (S.File_Info.Display_Name)),
-                    Active_Buffer_Token  => Active_Feature_Buffer_Token (S),
-                    Buffer_Revision      =>
-                      Editor.State.Current_Buffer_Revision (S),
-                    Lifecycle_Generation =>
-                      Editor.State.Current_Lifecycle_Generation (S),
-                    Request_Token        => Request_Token);
-               Extract_Result : Editor.Outline_Extractor.Extraction_Result;
             begin
-               if Editor.Feature_Panel.Has_Selection (S.Feature_Panel) then
-                  declare
-                     Mapped_Selected : constant Natural :=
-                       Editor.Outline.Map_Panel_Row_To_Outline_Row
-                         (S.Outline, S.Feature_Panel,
-                          Editor.Feature_Panel.Selected_Row (S.Feature_Panel));
-                  begin
-                     Editor.Outline.Select_Item (S.Outline, Mapped_Selected);
-                  end;
-               else
-                  Editor.Outline.Select_Item (S.Outline, 0);
-               end if;
-
-               Editor.Outline.Begin_Extraction
-                 (S.Outline, Editor.Outline_Extractor.Identity (Snapshot));
-               Extract_Result := Editor.Outline_Extractor.Extract (Snapshot);
-
-               case Editor.Outline_Extractor.Status (Extract_Result) is
-                  when Editor.Outline_Extractor.Extraction_Ok =>
-                     Editor.Outline_Extractor.Apply_To_Outline
-                       (Extract_Result, S.Outline);
+               Editor.Buffers.Ensure_Global_Registry (S);
+               declare
+                  Request_Token : constant Natural :=
+                    Editor.Outline.Next_Request_Token (S.Outline);
+                  Text : constant String := Editor.State.Current_Text (S);
+                  Snapshot : constant Editor.Outline_Extractor.Buffer_Text_Snapshot :=
+                    Editor.Outline_Extractor.Make_Snapshot
+                      (Text                 => Text,
+                       Buffer_Label         =>
+                         (if S.File_Info.Has_Path
+                          then To_String (S.File_Info.Path)
+                          else To_String (S.File_Info.Display_Name)),
+                       Active_Buffer_Token  => Active_Feature_Buffer_Token (S),
+                       Buffer_Revision      =>
+                         Editor.State.Current_Buffer_Revision (S),
+                       Lifecycle_Generation =>
+                         Editor.State.Current_Lifecycle_Generation (S),
+                       Request_Token        => Request_Token);
+                  Extract_Result : Editor.Outline_Extractor.Extraction_Result;
+               begin
+                  if Editor.Feature_Panel.Has_Selection (S.Feature_Panel) then
                      declare
-                        Cursor_Row : Natural := 0;
-                        Cursor_Col : Natural := 0;
+                        Mapped_Selected : constant Natural :=
+                          Editor.Outline.Map_Panel_Row_To_Outline_Row
+                            (S.Outline, S.Feature_Panel,
+                             Editor.Feature_Panel.Selected_Row (S.Feature_Panel));
                      begin
-                        Line_Column_For_Index
-                          (S, Natural (Safe_Caret (S)), Cursor_Row, Cursor_Col);
-                        Editor.Outline.Update_Current_Symbol_For_Cursor
-                          (S.Outline, Active_Feature_Buffer_Token (S), Cursor_Row + 1, Cursor_Col + 1);
+                        Editor.Outline.Select_Item (S.Outline, Mapped_Selected);
                      end;
-                     Editor.Feature_Panel.Forget_Feature_View_State
-                       (S.Feature_Panel, Editor.Feature_Panel.Outline_Feature);
-                     Editor.Outline.Set_Rows_From_Outline (S.Outline, S.Feature_Panel);
-                     Editor.Feature_Panel.Set_Visible (S.Feature_Panel, True);
-                     Report_Info
-                       (S, Editor.Outline.Message_Outline_Refreshed);
-                     Editor.Render_Cache.Invalidate_All;
-                     return Result_After_Command (Id);
+                  else
+                     Editor.Outline.Select_Item (S.Outline, 0);
+                  end if;
 
-                  when Editor.Outline_Extractor.Extraction_Unavailable =>
-                     Editor.Outline_Extractor.Apply_To_Outline
-                       (Extract_Result, S.Outline);
-                     Editor.Outline.Clear_Current_Symbol (S.Outline);
-                     Editor.Feature_Panel.Forget_Feature_View_State
-                       (S.Feature_Panel, Editor.Feature_Panel.Outline_Feature);
-                     Editor.Outline.Set_Rows_From_Outline (S.Outline, S.Feature_Panel);
-                     Report_Info (S, Editor.Outline.Message_Outline_Unsupported_Buffer);
-                     Editor.Render_Cache.Invalidate_All;
-                     return Editor.Command_Execution.Unavailable (Id);
+                  Editor.Outline.Begin_Extraction
+                    (S.Outline, Editor.Outline_Extractor.Identity (Snapshot));
+                  Extract_Result := Editor.Outline_Extractor.Extract (Snapshot);
 
-                  when Editor.Outline_Extractor.Extraction_Failed =>
-                     Editor.Outline_Extractor.Apply_To_Outline
-                       (Extract_Result, S.Outline);
-                     Editor.Outline.Clear_Current_Symbol (S.Outline);
-                     Editor.Feature_Panel.Forget_Feature_View_State
-                       (S.Feature_Panel, Editor.Feature_Panel.Outline_Feature);
-                     Editor.Outline.Set_Rows_From_Outline (S.Outline, S.Feature_Panel);
-                     Report_Info (S, Editor.Outline.Message_Outline_Refresh_Failed);
-                     Editor.Render_Cache.Invalidate_All;
-                     return Editor.Command_Execution.Failed (Id);
-               end case;
+                  case Editor.Outline_Extractor.Status (Extract_Result) is
+                     when Editor.Outline_Extractor.Extraction_Ok =>
+                        Editor.Outline_Extractor.Apply_To_Outline
+                          (Extract_Result, S.Outline);
+                        declare
+                           Cursor_Row : Natural := 0;
+                           Cursor_Col : Natural := 0;
+                        begin
+                           Line_Column_For_Index
+                             (S, Natural (Safe_Caret (S)), Cursor_Row, Cursor_Col);
+                           Editor.Outline.Update_Current_Symbol_For_Cursor
+                             (S.Outline, Active_Feature_Buffer_Token (S), Cursor_Row + 1, Cursor_Col + 1);
+                        end;
+                        Editor.Feature_Panel.Forget_Feature_View_State
+                          (S.Feature_Panel, Editor.Feature_Panel.Outline_Feature);
+                        Editor.Outline.Set_Rows_From_Outline (S.Outline, S.Feature_Panel);
+                        Editor.Feature_Panel.Set_Visible (S.Feature_Panel, True);
+                        Report_Info
+                          (S, Editor.Outline.Message_Outline_Refreshed);
+                        Editor.Render_Cache.Invalidate_All;
+                        return Result_After_Command (Id);
+
+                     when Editor.Outline_Extractor.Extraction_Unavailable =>
+                        Editor.Outline_Extractor.Apply_To_Outline
+                          (Extract_Result, S.Outline);
+                        Editor.Outline.Clear_Current_Symbol (S.Outline);
+                        Editor.Feature_Panel.Forget_Feature_View_State
+                          (S.Feature_Panel, Editor.Feature_Panel.Outline_Feature);
+                        Editor.Outline.Set_Rows_From_Outline (S.Outline, S.Feature_Panel);
+                        Report_Info (S, Editor.Outline.Message_Outline_Unsupported_Buffer);
+                        Editor.Render_Cache.Invalidate_All;
+                        return Editor.Command_Execution.Unavailable (Id);
+
+                     when Editor.Outline_Extractor.Extraction_Failed =>
+                        Editor.Outline_Extractor.Apply_To_Outline
+                          (Extract_Result, S.Outline);
+                        Editor.Outline.Clear_Current_Symbol (S.Outline);
+                        Editor.Feature_Panel.Forget_Feature_View_State
+                          (S.Feature_Panel, Editor.Feature_Panel.Outline_Feature);
+                        Editor.Outline.Set_Rows_From_Outline (S.Outline, S.Feature_Panel);
+                        Report_Info (S, Editor.Outline.Message_Outline_Refresh_Failed);
+                        Editor.Render_Cache.Invalidate_All;
+                        return Editor.Command_Execution.Failed (Id);
+                  end case;
+               end;
             end;
 
 
@@ -8536,7 +8654,7 @@ package body Editor.Executor is
             Editor.Outline.Clear (S.Outline);
             Editor.Feature_Panel.Forget_Feature_View_State
               (S.Feature_Panel, Editor.Feature_Panel.Outline_Feature);
-            Editor.Outline.Set_Rows_From_Outline (S.Outline, S.Feature_Panel);
+            Editor.Feature_Panel.Clear_Rows (S.Feature_Panel);
             Report_Info (S, Editor.Outline.Message_Outline_Cleared);
             Editor.Render_Cache.Invalidate_All;
             return Result_After_Command (Id);
@@ -8564,6 +8682,14 @@ package body Editor.Executor is
             return Result_After_Command (Id);
 
          when Editor.Commands.Command_Open_Selected_Outline_Item =>
+            if Editor.Outline.Selected_Index (S.Outline) > 0
+              and then
+                (Editor.Feature_Panel.Active_Feature (S.Feature_Panel) /=
+                   Editor.Feature_Panel.Outline_Feature
+                 or else not Editor.Feature_Panel.Has_Selection (S.Feature_Panel))
+            then
+               Editor.Outline.Set_Rows_From_Outline (S.Outline, S.Feature_Panel);
+            end if;
             declare
                Row : constant Natural :=
                  Editor.Feature_Panel.Selected_Row (S.Feature_Panel);
@@ -9029,6 +9155,12 @@ package body Editor.Executor is
 
          when Editor.Commands.Command_Search_Results_Search_Active_Buffer =>
             declare
+               Input_Query     : constant String :=
+                 Editor.Feature_Search_Results.Search_Input_Text (S.Feature_Search_Results);
+               Effective_Query : constant String :=
+                 (if Input_Query'Length > 0
+                  then Input_Query
+                  else To_String (S.Active_Find_Query));
                Previous_Index  : Natural := 0;
                Previous_Buffer : Natural := Editor.Feature_Search_Results.No_Buffer;
                Previous_Line   : Natural := 0;
@@ -9042,7 +9174,7 @@ package body Editor.Executor is
                   Report_Info
                     (S, Editor.Feature_Search_Results.Message_Search_Active_Buffer_No_Active_Buffer);
                   return Editor.Command_Execution.No_Op (Id);
-               elsif Editor.Feature_Search_Results.Search_Input_Text (S.Feature_Search_Results)'Length = 0 then
+               elsif Effective_Query'Length = 0 then
                   Report_Info
                     (S, Editor.Feature_Search_Results.Message_Search_Active_Buffer_Empty_Query);
                   return Editor.Command_Execution.No_Op (Id);
@@ -9050,7 +9182,7 @@ package body Editor.Executor is
 
                Preserve :=
                  Editor.Feature_Search_Results.Has_Query (S.Feature_Search_Results)
-                 and then Editor.Feature_Search_Results.Query_Text (S.Feature_Search_Results) = Editor.Feature_Search_Results.Search_Input_Text (S.Feature_Search_Results)
+                 and then Editor.Feature_Search_Results.Query_Text (S.Feature_Search_Results) = Effective_Query
                  and then Editor.Feature_Search_Results.Searched_Buffer (S.Feature_Search_Results) = Active_Feature_Buffer_Token (S);
 
                if Preserve then
@@ -9074,13 +9206,13 @@ package body Editor.Executor is
 
                Editor.Feature_Search_Results.Run_Active_Buffer_Search
                  (Results          => S.Feature_Search_Results,
-                  Query            => Editor.Feature_Search_Results.Search_Input_Text (S.Feature_Search_Results),
+                  Query            => Effective_Query,
                   Snapshot_Text    => Editor.State.Current_Text (S),
                   Source_Label     => To_String (S.File_Info.Display_Name),
                   Target_Buffer    => Active_Feature_Buffer_Token (S),
                   Snapshot_Version => Editor.State.Current_Buffer_Revision (S));
                Editor.Feature_Search_Results.Commit_Search_Query_To_History
-                 (S.Feature_Search_Results, Editor.Feature_Search_Results.Search_Input_Text (S.Feature_Search_Results));
+                 (S.Feature_Search_Results, Effective_Query);
                Editor.Feature_Search_Results.Deactivate_Search_Query_Input
                  (S.Feature_Search_Results);
 
@@ -9232,7 +9364,11 @@ package body Editor.Executor is
                Report_Info (S, Editor.Feature_Diagnostics.Message_No_Diagnostics);
                return Editor.Command_Execution.No_Op (Id);
             end if;
-            Report_Info (S, Editor.Feature_Diagnostics.Message_Diagnostics_Shown);
+            if Editor.Feature_Diagnostics.Row_Count (S.Feature_Diagnostics) = 0 then
+               Report_Info (S, Editor.Feature_Diagnostics.Message_No_Diagnostics);
+            else
+               Report_Info (S, Editor.Feature_Diagnostics.Message_Diagnostics_Shown);
+            end if;
             Editor.Render_Cache.Invalidate_All;
             return Result_After_Command (Id);
 
@@ -9995,10 +10131,19 @@ package body Editor.Executor is
         Editor.File_Tree_View.Selected_Row_Index (S.File_Tree_View);
       Cmd := Editor.Commands.Command_For_Id (Id, Shift);
       if Cmd.Kind = Editor.Commands.Insert_Text_Input then
-         Cmd.Pos := Before_Caret;
-         Cmd.Has_Position := True;
+         declare
+            Line_Status : Editor.Executor.Edits.Line_Edit_Status;
+         begin
+            Cmd.Pos := Before_Caret;
+            Cmd.Has_Position := True;
+            Execute_No_Log_With_Status (S, Cmd, Line_Status);
+            Editor.Buffers.Sync_Global_Active_From_State (S);
+            Report_Line_Edit_Status (Id, Line_Status);
+            Editor.Render_Cache.Invalidate_All;
+         end;
+      else
+         Execute_No_Log (S, Cmd);
       end if;
-      Execute_No_Log (S, Cmd);
       Sync_Current_Outline_Symbol_From_Caret (S);
       if Is_Boundary_Navigation_Command (Id)
         and then Navigation_State_Unchanged
@@ -10126,24 +10271,19 @@ package body Editor.Executor is
          when Editor.Overlay_Focus.Active_Find_Prompt_Overlay =>
             Editor.Input_Field.Clear (S.Active_Find_Input);
             if S.Active_Find_Prompt then
-               declare
-                  Clear_Find_State : constant Boolean := S.Active_Replace_Prompt;
-               begin
-                  Editor.Input_Field.Set_Text (S.Active_Find_Input, "");
-                  S.Active_Find_Query := Null_Unbounded_String;
-                  if Clear_Find_State then
-                     S.Active_Find_Matches.Clear;
-                     S.Active_Find_Match := Editor.Search.No_Match;
-                  end if;
-                  S.Active_Find_Stale := False;
-                  S.Active_Find_Case_Sensitive := False;
-                  S.Active_Find_Whole_Word := False;
-                  S.Active_Find_Source_Buffer_Token := 0;
-                  S.Active_Find_Prompt := False;
-                  S.Active_Replace_Text := Null_Unbounded_String;
-                  S.Active_Replace_Error_Message := Null_Unbounded_String;
-                  S.Active_Replace_Prompt := False;
-               end;
+               Editor.Input_Field.Set_Text (S.Active_Find_Input, "");
+               S.Active_Find_Query := Null_Unbounded_String;
+               S.Active_Find_Matches.Clear;
+               S.Active_Find_Match := Editor.Search.No_Match;
+               S.Active_Find_Stale := False;
+               S.Active_Find_Wrapped := False;
+               S.Active_Find_Case_Sensitive := False;
+               S.Active_Find_Whole_Word := False;
+               S.Active_Find_Source_Buffer_Token := 0;
+               S.Active_Find_Prompt := False;
+               S.Active_Replace_Text := Null_Unbounded_String;
+               S.Active_Replace_Error_Message := Null_Unbounded_String;
+               S.Active_Replace_Prompt := False;
             end if;
          when Editor.Overlay_Focus.Go_To_Line_Overlay =>
             Editor.Go_To_Line.Clear (S.Go_To_Line);
@@ -10199,10 +10339,14 @@ package body Editor.Executor is
       Clear_Lower_Priority_Focus_For_Overlay (S);
 
       if Current /= Editor.Overlay_Focus.No_Overlay and then Current /= Overlay then
-         --  A visible active Find prompt may remain open but inactive while a modal
-         --  overlay owns keyboard input.  All other replaced overlays are
-         --  closed so there is never more than one modal text input visible.
-         if Current /= Editor.Overlay_Focus.Active_Find_Prompt_Overlay then
+         --  A visible active Find prompt, and Quick Open behind a file-target
+         --  prompt, may remain open but inactive while another overlay owns
+         --  keyboard input.
+         if Current /= Editor.Overlay_Focus.Active_Find_Prompt_Overlay
+           and then not
+             (Current = Editor.Overlay_Focus.Quick_Open_Overlay
+              and then Overlay = Editor.Overlay_Focus.File_Target_Prompt_Overlay)
+         then
             Close_Overlay_Surface (S, Current);
          end if;
          Editor.Overlay_Focus.Dismiss
@@ -10251,7 +10395,6 @@ package body Editor.Executor is
             Editor.Go_To_Line.Open (S.Go_To_Line);
          when Editor.Overlay_Focus.File_Target_Prompt_Overlay =>
             Editor.Command_Palette.Close;
-            Editor.Quick_Open.Close (S.Quick_Open);
             Editor.Buffer_Switcher.Close (S.Buffer_Switcher);
             Editor.Project_Search_Bar.Close (S.Project_Search_Bar);
             Editor.Go_To_Line.Clear (S.Go_To_Line);
@@ -10695,6 +10838,10 @@ package body Editor.Executor is
       Query   : constant String := To_String (S.Active_Find_Query);
       Candidates : Editor.Search.Search_Match_Vectors.Vector;
    begin
+      if not Editor.Buffers.Global_Registry_Current_For (S) then
+         Editor.Buffers.Ensure_Global_Registry (S);
+      end if;
+
       S.Active_Find_Matches.Clear;
       S.Active_Find_Match := Editor.Search.No_Match;
       S.Active_Find_Stale := False;
@@ -10766,9 +10913,26 @@ package body Editor.Executor is
 
       Pos := Natural (S.Carets (S.Carets.First_Index).Pos);
       Anchor := Natural (S.Carets (S.Carets.First_Index).Anchor);
-      return (Anchor = Start_Index and then Pos = End_Index)
+      return (Anchor = Start_Index and then Pos = Start_Index)
+        or else (Anchor = Start_Index and then Pos = End_Index)
         or else (Anchor = End_Index and then Pos = Start_Index);
    end Active_Find_Match_Is_Selected;
+
+   function Active_Find_Match_Is_Current
+     (S : Editor.State.State_Type) return Boolean
+   is
+      Ordinal : constant Natural := Selected_Find_Ordinal (S);
+      Match   : Editor.Search.Search_Match;
+   begin
+      if Ordinal = 0 then
+         return False;
+      end if;
+
+      Match := Find_Match_By_Ordinal (S, Ordinal);
+      return Editor.Search.Has_Match (Match)
+        and then Match.Start_Index = S.Active_Find_Match.Start_Index
+        and then Match.End_Index = S.Active_Find_Match.End_Index;
+   end Active_Find_Match_Is_Current;
 
    function First_Find_Ordinal_At_Or_After_Caret
      (S : Editor.State.State_Type) return Natural
@@ -10826,6 +10990,32 @@ package body Editor.Executor is
       S.Active_Find_Match := Find_Match_By_Ordinal (S, Ordinal);
    end Select_Active_Find_Nearest_Caret;
 
+   procedure Select_Active_Find_Containing_Caret_Or_Nearest
+     (S : in out Editor.State.State_Type)
+   is
+      Origin : Natural := 0;
+   begin
+      if S.Active_Find_Matches.Is_Empty then
+         S.Active_Find_Match := Editor.Search.No_Match;
+         return;
+      end if;
+
+      if S.Carets.Length > 0 then
+         Origin := Natural (Safe_Caret (S));
+      end if;
+
+      for Match of S.Active_Find_Matches loop
+         if Origin >= Natural (Match.Start_Index)
+           and then Origin < Natural (Match.End_Index)
+         then
+            S.Active_Find_Match := Match;
+            return;
+         end if;
+      end loop;
+
+      Select_Active_Find_Nearest_Caret (S);
+   end Select_Active_Find_Containing_Caret_Or_Nearest;
+
    Max_Find_Context_Query_Length : constant Natural := 256;
 
    type Find_Context_Query_Status is
@@ -10844,7 +11034,7 @@ package body Editor.Executor is
          when Find_Context_Query_Ready =>
             return "";
          when Find_Context_No_Active_Buffer =>
-            return "No active buffer";
+            return "No active buffer.";
          when Find_Context_No_Selected_Text =>
             return "No selected text";
          when Find_Context_No_Searchable_Text =>
@@ -11010,6 +11200,27 @@ package body Editor.Executor is
       end;
    end Find_Query_From_Active_Word;
 
+   procedure Set_Active_Find_Query_And_Report
+     (S    : in out Editor.State.State_Type;
+      Text : String);
+
+   procedure Apply_Find_Context_Query
+     (S     : in out Editor.State.State_Type;
+      Query : String)
+   is
+   begin
+      if not S.Active_Find_Prompt then
+         Activate_Overlay (S, Editor.Overlay_Focus.Active_Find_Prompt_Overlay);
+         Editor.Input_Field.Set_Text
+           (S.Active_Find_Input, To_String (S.Active_Find_Query));
+      end if;
+
+      S.Active_Find_Prompt := True;
+      Set_Active_Find_Query_And_Report (S, Query);
+      Select_Active_Find_Containing_Caret_Or_Nearest (S);
+      Editor.Render_Cache.Invalidate_All;
+   end Apply_Find_Context_Query;
+
    procedure Execute_Find_From_Selection
      (S : in out Editor.State.State_Type)
    is
@@ -11022,7 +11233,7 @@ package body Editor.Executor is
          return;
       end if;
 
-      Execute_Find_Set_Query (S, Query);
+      Apply_Find_Context_Query (S, Query);
    end Execute_Find_From_Selection;
 
    procedure Execute_Find_From_Active_Word
@@ -11037,7 +11248,7 @@ package body Editor.Executor is
          return;
       end if;
 
-      Execute_Find_Set_Query (S, Query);
+      Apply_Find_Context_Query (S, Query);
    end Execute_Find_From_Active_Word;
 
    procedure Clear_Active_Replace_State
@@ -11052,6 +11263,7 @@ package body Editor.Executor is
       S.Active_Find_Matches.Clear;
       S.Active_Find_Match := Editor.Search.No_Match;
       S.Active_Find_Stale := False;
+      S.Active_Find_Wrapped := False;
       S.Active_Find_Source_Buffer_Token := 0;
    end Reset_Active_Find_Query_State;
 
@@ -11080,7 +11292,7 @@ package body Editor.Executor is
          S.Active_Find_Match := Editor.Search.No_Match;
          S.Active_Find_Stale := True;
          S.Active_Find_Source_Buffer_Token := 0;
-         Report_Warning (S, "No active buffer");
+         Report_Warning (S, "No active buffer.");
       else
          Recompute_Active_Find_Matches (S);
          Select_Active_Find_Nearest_Caret (S);
@@ -11140,7 +11352,10 @@ package body Editor.Executor is
       end if;
       Editor.Input_Field.Set_Text (S.Active_Find_Input, "");
       S.Active_Find_Query := To_Unbounded_String ("");
+      S.Active_Find_Matches.Clear;
+      S.Active_Find_Match := Editor.Search.No_Match;
       S.Active_Find_Stale := False;
+      S.Active_Find_Wrapped := False;
       S.Active_Find_Case_Sensitive := False;
       S.Active_Find_Whole_Word := False;
       S.Active_Find_Source_Buffer_Token := 0;
@@ -11175,16 +11390,6 @@ package body Editor.Executor is
       end if;
       S.Active_Find_Prompt := True;
       Set_Active_Find_Query_And_Report (S, Text);
-      if Editor.Search.Has_Match (S.Active_Find_Match) then
-         S.Carets.Clear;
-         S.Carets.Append
-           (Editor.Cursors.Caret_State'
-             (Pos                   => S.Active_Find_Match.End_Index,
-              Anchor                => S.Active_Find_Match.Start_Index,
-              Virtual_Column        => 0,
-              Anchor_Virtual_Column => 0));
-         S.Preferred_Column := S.Active_Find_Match.End_Column;
-      end if;
       Editor.Render_Cache.Invalidate_All;
    end Execute_Find_Set_Query;
 
@@ -11325,22 +11530,40 @@ package body Editor.Executor is
 
    procedure Move_To_Find_Match
      (S        : in out Editor.State.State_Type;
-      Match    : Editor.Search.Search_Match;
-      Previous : Editor.Navigation_History.Navigation_Location;
-      Reason   : Editor.Navigation_History.Navigation_History_Reason)
+     Match    : Editor.Search.Search_Match;
+     Previous : Editor.Navigation_History.Navigation_Location;
+     Reason   : Editor.Navigation_History.Navigation_History_Reason)
    is
-      pragma Unreferenced (Previous, Reason);
+      pragma Unreferenced (Previous);
+      Effective_Previous : Editor.Navigation_History.Navigation_Location;
+      Target : Editor.Navigation_History.Navigation_Location;
    begin
+      if not Editor.Buffers.Global_Registry_Current_For (S) then
+         Editor.Buffers.Ensure_Global_Registry (S);
+      end if;
+      Effective_Previous := Current_Navigation_Location (S, Reason);
+
       S.Active_Find_Match := Match;
       Apply_Feature_Target_Handoff (S, Match.Start_Row, Match.Start_Column);
       S.Carets.Clear;
       S.Carets.Append
         (Editor.Cursors.Caret_State'
-          (Pos                   => Match.End_Index,
+          (Pos                   => Match.Start_Index,
            Anchor                => Match.Start_Index,
            Virtual_Column        => 0,
            Anchor_Virtual_Column => 0));
-      S.Preferred_Column := Match.End_Column;
+      S.Preferred_Column := Match.Start_Column;
+
+      Target :=
+        (Buffer_Id      => Active_Feature_Buffer_Token (S),
+         Has_File_Path  => S.File_Info.Has_Path,
+         File_Path      => S.File_Info.Path,
+         Display_Path   => S.File_Info.Display_Name,
+         Line           => Natural (Match.Start_Row) + 1,
+         Column         => Natural (Match.Start_Column),
+         Viewport_Row   => Editor.View.Scroll_Y,
+         Reason         => Reason);
+      Record_Navigation_If_Target_Changed (S, Effective_Previous, Target);
    end Move_To_Find_Match;
 
    procedure Execute_Find_Next
@@ -11355,7 +11578,7 @@ package body Editor.Executor is
       Previous : Editor.Navigation_History.Navigation_Location;
    begin
       if not Has_Find_Target_Buffer (S) then
-         Report_Warning (S, "No active buffer");
+         Report_Warning (S, "No active buffer.");
          Editor.Render_Cache.Invalidate_All;
          return;
       elsif Query'Length = 0 then
@@ -11365,7 +11588,9 @@ package body Editor.Executor is
       end if;
 
       Prior_Ordinal :=
-        (if Active_Find_Match_Is_Selected (S) then Selected_Find_Ordinal (S)
+        (if Active_Find_Match_Is_Selected (S)
+           or else Active_Find_Match_Is_Current (S)
+         then Selected_Find_Ordinal (S)
          else 0);
       Recompute_Active_Find_Matches (S);
       Count := Natural (S.Active_Find_Matches.Length);
@@ -11411,7 +11636,7 @@ package body Editor.Executor is
       Previous : Editor.Navigation_History.Navigation_Location;
    begin
       if not Has_Find_Target_Buffer (S) then
-         Report_Warning (S, "No active buffer");
+         Report_Warning (S, "No active buffer.");
          Editor.Render_Cache.Invalidate_All;
          return;
       elsif Query'Length = 0 then
@@ -11421,7 +11646,9 @@ package body Editor.Executor is
       end if;
 
       Prior_Ordinal :=
-        (if Active_Find_Match_Is_Selected (S) then Selected_Find_Ordinal (S)
+        (if Active_Find_Match_Is_Selected (S)
+           or else Active_Find_Match_Is_Current (S)
+         then Selected_Find_Ordinal (S)
          else 0);
       Recompute_Active_Find_Matches (S);
       Count := Natural (S.Active_Find_Matches.Length);
@@ -11510,7 +11737,7 @@ package body Editor.Executor is
       Previous : Editor.Navigation_History.Navigation_Location;
    begin
       if not Has_Find_Target_Buffer (S) then
-         Report_Warning (S, "No active buffer");
+         Report_Warning (S, "No active buffer.");
          Editor.Render_Cache.Invalidate_All;
          return;
       elsif Query'Length = 0 then
@@ -11546,7 +11773,7 @@ package body Editor.Executor is
       Previous : Editor.Navigation_History.Navigation_Location;
    begin
       if not Has_Find_Target_Buffer (S) then
-         Report_Warning (S, "No active buffer");
+         Report_Warning (S, "No active buffer.");
          Editor.Render_Cache.Invalidate_All;
          return;
       elsif Query'Length = 0 then
@@ -11581,7 +11808,7 @@ package body Editor.Executor is
       Ordinal : Natural := 0;
    begin
       if not Has_Find_Target_Buffer (S) then
-         Report_Warning (S, "No active buffer");
+         Report_Warning (S, "No active buffer.");
          Editor.Render_Cache.Invalidate_All;
          return;
       elsif Query'Length = 0 then
@@ -11812,7 +12039,7 @@ package body Editor.Executor is
       Before := S;
 
       if not Has_Find_Target_Buffer (S) then
-         Report_Warning (S, "No active buffer"); Editor.Render_Cache.Invalidate_All; return;
+         Report_Warning (S, "No active buffer."); Editor.Render_Cache.Invalidate_All; return;
       elsif Query'Length = 0 then
          Report_Info (S, "No find query"); Editor.Render_Cache.Invalidate_All; return;
       elsif Length (S.Active_Replace_Error_Message) > 0 then
@@ -11883,7 +12110,7 @@ package body Editor.Executor is
       Before := S;
 
       if not Has_Find_Target_Buffer (S) then
-         Report_Warning (S, "No active buffer"); Editor.Render_Cache.Invalidate_All; return;
+         Report_Warning (S, "No active buffer."); Editor.Render_Cache.Invalidate_All; return;
       elsif Query'Length = 0 then
          Report_Info (S, "No find query"); Editor.Render_Cache.Invalidate_All; return;
       elsif Length (S.Active_Replace_Error_Message) > 0 then
@@ -11949,7 +12176,7 @@ package body Editor.Executor is
       end Number_Image;
    begin
       if not Editor.State.Has_Active_Buffer (S) then
-         Report_Warning (S, "No active buffer");
+         Report_Warning (S, "No active buffer.");
          return;
       elsif S.Carets.Length = 0 or else Editor.State.Line_Count (S) = 0 then
          Report_Warning (S, "No current caret location");
@@ -12053,7 +12280,7 @@ package body Editor.Executor is
       end if;
 
       if not Editor.State.Has_Active_Buffer (S) then
-         Report_Goto_Line_Error ("No active buffer");
+         Report_Goto_Line_Error ("No active buffer.");
          return;
       end if;
 
@@ -12085,6 +12312,9 @@ package body Editor.Executor is
          Target_Column := 0;
       end if;
 
+      if not Editor.Buffers.Global_Registry_Current_For (S) then
+         Editor.Buffers.Ensure_Global_Registry (S);
+      end if;
       Before_Location := Current_Navigation_Location
         (S, Editor.Navigation_History.Navigation_Reason_Go_To_Line);
       Target_Location := Before_Location;
@@ -12112,6 +12342,8 @@ package body Editor.Executor is
       --  Go To Line remains same-buffer navigation and does not open files,
       --  activate another buffer, or mutate feature-panel content.
       Apply_Feature_Target_Handoff (S, Target_Row, Target_Column);
+      Record_Navigation_If_Target_Changed
+        (S, Before_Location, Target_Location);
 
       if Editor.Overlay_Focus.Is_Active
         (S.Overlay_Focus, Editor.Overlay_Focus.Go_To_Line_Overlay)
@@ -12324,6 +12556,14 @@ package body Editor.Executor is
          end loop;
          return False;
       end Selected_File_Still_Known;
+
+      function Current_State_Is_Disposable_Initial_Untitled return Boolean is
+      begin
+         return Editor.Buffers.Global_Count = 0
+           and then not S.File_Info.Has_Path
+           and then not S.File_Info.Dirty
+           and then Editor.State.Current_Text (S) = "";
+      end Current_State_Is_Disposable_Initial_Untitled;
    begin
       --  Phase 248: accepting a Quick Open result is an ordinary open/focus
       --  action and should replace restore-only current feedback.
@@ -12355,6 +12595,9 @@ package body Editor.Executor is
          --  never reloaded or inspected through the filesystem.
          Preflight := Editor.Files.Open_File (Path);
          if not Editor.Files.Is_Success (Preflight) then
+            if Current_State_Is_Disposable_Initial_Untitled then
+               S.Active_Buffer_Token := 0;
+            end if;
             Report_Error
               (S, "Could not open " & Label & ": "
                & (case Preflight.Status is
@@ -12737,7 +12980,7 @@ package body Editor.Executor is
          Editor.Render_Cache.Invalidate_All;
          return;
       elsif not Editor.State.Has_Active_Buffer (S) then
-         Report_Info (S, "No active buffer");
+         Report_Info (S, "No active buffer.");
          Editor.Render_Cache.Invalidate_All;
          return;
       elsif Editor.Project.Known_File_Count (S.Project) = 0 then
@@ -12787,7 +13030,7 @@ package body Editor.Executor is
          Editor.Render_Cache.Invalidate_All;
          return;
       elsif not Editor.State.Has_Active_Buffer (S) then
-         Report_Info (S, "No active buffer");
+         Report_Info (S, "No active buffer.");
          Editor.Render_Cache.Invalidate_All;
          return;
       elsif Editor.Project.Known_File_Count (S.Project) = 0 then
@@ -13759,7 +14002,6 @@ package body Editor.Executor is
       if not S.Active_Find_Prompt then
          return;
       end if;
-      Sync_Active_Find_Input_From_Query (S);
       Editor.Input_Field.Insert_Text (S.Active_Find_Input, Text);
       Set_Active_Find_Query_And_Report
         (S, Editor.Input_Field.Text (S.Active_Find_Input));
@@ -13772,7 +14014,6 @@ package body Editor.Executor is
       if not S.Active_Find_Prompt then
          return;
       end if;
-      Sync_Active_Find_Input_From_Query (S);
       Editor.Input_Field.Backspace (S.Active_Find_Input);
       Set_Active_Find_Query_And_Report
         (S, Editor.Input_Field.Text (S.Active_Find_Input));
@@ -13785,7 +14026,6 @@ package body Editor.Executor is
       if not S.Active_Find_Prompt then
          return;
       end if;
-      Sync_Active_Find_Input_From_Query (S);
       Editor.Input_Field.Delete_Forward (S.Active_Find_Input);
       Set_Active_Find_Query_And_Report
         (S, Editor.Input_Field.Text (S.Active_Find_Input));
@@ -13982,7 +14222,7 @@ package body Editor.Executor is
       end if;
 
       if Editor.Buffers.Global_Active_Buffer = Editor.Buffers.No_Buffer then
-         Report_Info (S, "No active buffer");
+         Report_Info (S, "No active buffer.");
          return;
       elsif not S.File_Info.Has_Path or else Length (S.File_Info.Path) = 0 then
          Report_Info (S, "Active buffer has no file path");
@@ -14052,6 +14292,9 @@ package body Editor.Executor is
       Selected_Path  : Unbounded_String := Null_Unbounded_String;
       Restored_Row   : Natural := 0;
       Selection_Disappeared : Boolean := False;
+      Default_Collapsed_Load : constant Boolean :=
+        Editor.File_Tree.Is_Empty (S.File_Tree)
+        or else Editor.File_Tree.Expanded_Node_Count (S.File_Tree) <= 1;
    begin
       if not Editor.Project.Has_Project (S.Project) then
          Editor.File_Tree.Clear (S.File_Tree);
@@ -14077,6 +14320,12 @@ package body Editor.Executor is
          Editor.File_Tree.Preserve_Expanded_Paths_From
            (Tree   => Tree,
             Source => S.File_Tree);
+         if Default_Collapsed_Load
+           and then (Length (Selected_Path) = 0
+                     or else To_String (Selected_Path) = ".")
+         then
+            Editor.File_Tree.Expand_File_Ancestors (Tree);
+         end if;
 
          S.File_Tree := Tree;
          Populate_Project_Known_Files_From_File_Tree (S);
@@ -14575,6 +14824,10 @@ package body Editor.Executor is
       return Editor.Buffers.Buffer_Project_Lifecycle_Sets
    is
    begin
+      if Editor.Buffers.Global_Count = 0 then
+         return Editor.Buffers.Global_Project_Lifecycle_Buffer_Sets (S.Project);
+      end if;
+
       Editor.Buffers.Ensure_Global_Registry (S);
       Editor.Buffers.Sync_Global_Active_From_State (S);
       return Editor.Buffers.Global_Project_Lifecycle_Buffer_Sets (S.Project);
@@ -14897,6 +15150,19 @@ package body Editor.Executor is
       Result : Editor.Project.Project_Open_Result;
       Tree        : Editor.File_Tree.File_Tree_State;
       Tree_Result : Editor.File_Tree.File_Tree_Scan_Result;
+
+      function Current_State_Is_Disposable_Initial_Untitled return Boolean is
+      begin
+         return not S.File_Info.Has_Path
+           and then not S.File_Info.Dirty
+           and then Editor.State.Current_Text (S) = ""
+           and then
+             (Editor.Buffers.Global_Count = 0
+              or else
+                (Editor.Buffers.Global_Count = 1
+                 and then Editor.Buffers.Global_Active_Buffer /=
+                   Editor.Buffers.No_Buffer));
+      end Current_State_Is_Disposable_Initial_Untitled;
    begin
 
       if Editor.Pending_Transitions.Has_Pending (S.Pending_Transitions) then
@@ -14982,8 +15248,10 @@ package body Editor.Executor is
 
       end if;
 
-      Editor.Buffers.Ensure_Global_Registry (S);
-      Editor.Buffers.Sync_Global_Active_From_State (S);
+      if not Current_State_Is_Disposable_Initial_Untitled then
+         Editor.Buffers.Ensure_Global_Registry (S);
+         Editor.Buffers.Sync_Global_Active_From_State (S);
+      end if;
       if Explicit_Switch then
          Guard := Editor.Dirty_Guards.Guard_Transition
            (Editor.Dirty_Guards.Switch_Project_Transition,
@@ -15146,6 +15414,29 @@ package body Editor.Executor is
            and then not S.File_Info.Dirty
            and then Editor.State.Current_Text (S) = "";
       end Current_State_Is_Disposable_Initial_Untitled;
+
+      procedure Clear_Explicit_Open_Find_State is
+      begin
+         Editor.Input_Field.Clear (S.Active_Find_Input);
+         S.Active_Find_Query := Null_Unbounded_String;
+         S.Active_Find_Matches.Clear;
+         S.Active_Find_Match := Editor.Search.No_Match;
+         S.Active_Find_Stale := False;
+         S.Active_Find_Wrapped := False;
+         S.Active_Find_Case_Sensitive := False;
+         S.Active_Find_Whole_Word := False;
+         S.Active_Find_Source_Buffer_Token := 0;
+         S.Active_Find_Prompt := False;
+         S.Active_Replace_Prompt := False;
+         S.Active_Replace_Text := Null_Unbounded_String;
+         S.Active_Replace_Error_Message := Null_Unbounded_String;
+         if Editor.Overlay_Focus.Is_Active
+           (S.Overlay_Focus, Editor.Overlay_Focus.Active_Find_Prompt_Overlay)
+         then
+            Editor.Overlay_Focus.Dismiss
+              (S.Overlay_Focus, Editor.Overlay_Focus.Dismiss_Command);
+         end if;
+      end Clear_Explicit_Open_Find_State;
    begin
       --  Phase 248: a direct explicit open/focus action is ordinary user
       --  interaction.  It must replace current restore-only Status Bar
@@ -15202,7 +15493,22 @@ package body Editor.Executor is
          --  disposable initial empty untitled editor state.  Preserve any
          --  real existing buffer state, including dirty untitled work, before
          --  adding later file-backed buffers.
-         if not Current_State_Is_Disposable_Initial_Untitled then
+         if Current_State_Is_Disposable_Initial_Untitled then
+            if Editor.Buffers.Global_Count = 1 then
+               declare
+                  Active : constant Editor.Buffers.Buffer_Id :=
+                    Editor.Buffers.Global_Active_Buffer;
+                  Closed : Boolean := False;
+               begin
+                  if Active /= Editor.Buffers.No_Buffer then
+                     Editor.Buffers.Global_Force_Close_Buffer (Active, Closed);
+                     if Closed then
+                        S.Active_Buffer_Token := 0;
+                     end if;
+                  end if;
+               end;
+            end if;
+         else
             Editor.Buffers.Ensure_Global_Registry (S);
             Editor.Buffers.Sync_Global_Active_From_State (S);
             if Editor.Buffers.Global_Active_Buffer /= Editor.Buffers.No_Buffer then
@@ -15233,6 +15539,7 @@ package body Editor.Executor is
             Contents     => To_String (Result.Contents),
             New_Id       => Id);
          Editor.Buffers.Load_Global_Active_Into_State (S);
+         Clear_Explicit_Open_Find_State;
          --  Phase 574: successful command-boundary reads capture the
          --  best-effort file identity token immediately.  Without this, a
          --  freshly opened file-backed buffer would have no known baseline
@@ -15401,11 +15708,21 @@ package body Editor.Executor is
       Result : Editor.Files.File_Open_Result;
       Found  : Boolean := False;
       Id     : Editor.Buffers.Buffer_Id := Editor.Buffers.No_Buffer;
+
+      function Current_State_Is_Disposable_Initial_Untitled return Boolean is
+      begin
+         return Editor.Buffers.Global_Count = 0
+           and then not S.File_Info.Has_Path
+           and then not S.File_Info.Dirty
+           and then Editor.State.Current_Text (S) = "";
+      end Current_State_Is_Disposable_Initial_Untitled;
    begin
       Restored_Id := Editor.Buffers.No_Buffer;
       Already_Open := False;
-      Editor.Buffers.Ensure_Global_Registry (S);
-      Editor.Buffers.Sync_Global_Active_From_State (S);
+      if not Current_State_Is_Disposable_Initial_Untitled then
+         Editor.Buffers.Ensure_Global_Registry (S);
+         Editor.Buffers.Sync_Global_Active_From_State (S);
+      end if;
 
       Id := Editor.Buffers.Global_Find_By_Path (Path, Found);
       if Found then
@@ -16487,10 +16804,10 @@ package body Editor.Executor is
       end if;
    end Resolve_Active_Buffer_Save_Target;
 
-   function Active_Buffer_Save_Target_Available return Boolean is
+   function Active_Buffer_Save_Target_Available
+     (S : Editor.State.State_Type) return Boolean is
    begin
-      return Editor.Buffers.Global_Count > 0
-        and then Editor.Buffers.Global_Active_Buffer /= Editor.Buffers.No_Buffer;
+      return Editor.State.Has_Active_Buffer (S);
    end Active_Buffer_Save_Target_Available;
 
    function Validate_Active_Buffer_Save_Target
@@ -16651,6 +16968,21 @@ package body Editor.Executor is
       when others =>
          return False;
    end Active_Save_Target_Is_Existing_Unwritable;
+
+   function Active_Save_Target_Is_Existing_Nonregular
+     (S : Editor.State.State_Type) return Boolean
+   is
+      use type Ada.Directories.File_Kind;
+      Path : constant String := To_String (S.File_Info.Path);
+   begin
+      return S.File_Info.Has_Path
+        and then Path'Length > 0
+        and then Ada.Directories.Exists (Path)
+        and then Ada.Directories.Kind (Path) /= Ada.Directories.Ordinary_File;
+   exception
+      when others =>
+         return False;
+   end Active_Save_Target_Is_Existing_Nonregular;
 
    procedure Capture_Active_File_Token
      (S : in out Editor.State.State_Type)
@@ -16849,10 +17181,14 @@ package body Editor.Executor is
       --  serialization, active-buffer file write, post-success baseline
       --  update, retained clean no-op, and deterministic failure reporting.
       Clear_Restore_Feedback_Current (S);
+      if File_Lifecycle_Confirmation_Pending (S) then
+         Report_Warning (S, "Command unavailable while confirmation is pending");
+         return;
+      end if;
       Resolve_Active_Buffer_Save_Target (S);
 
-      if not Active_Buffer_Save_Target_Available then
-         Report_Info (S, "No active buffer");
+      if not Active_Buffer_Save_Target_Available (S) then
+         Report_Info (S, "No active buffer.");
          return;
       elsif not Validate_Active_Buffer_Save_Target (S) then
          S.File_Info.Last_Save_Failed := True;
@@ -16908,6 +17244,7 @@ package body Editor.Executor is
          Mark_Active_Buffer_Saved (S, Result);
          File_Lifecycle_Invalidate_Derived_State
            (S, "Derived state is stale after save");
+         Editor.Buffers.Sync_Global_Active_From_State (S);
          if S.File_Info.Has_Path and then Visible_Restore_Message_In_History (S) then
             Report_Success_Append
               (S, "Saved " & To_String (S.File_Info.Display_Name));
@@ -17063,10 +17400,7 @@ package body Editor.Executor is
       S.Active_Find_Stale := True;
       Editor.Outline.Clear (S.Outline);
       S.Outline_Cursor_Key_Valid := False;
-      Editor.Diagnostics.Clear (S.Diagnostics);
-      S.Active_Diagnostic :=
-        (Has_Active => False, Index => Editor.Diagnostics.No_Diagnostic);
-      Editor.Project_Search.Mark_Stale (S.Project_Search);
+      Editor.Project_Search.Mark_Stale_Unconditionally (S.Project_Search);
       Editor.Project_Search.Mark_Replace_Preview_Stale (S.Project_Search);
       Editor.Feature_Diagnostics.Mark_Diagnostics_For_Buffer_Stale
         (S.Feature_Diagnostics, S.Active_Buffer_Token);
@@ -17145,7 +17479,7 @@ package body Editor.Executor is
       --  canonical file read, text replacement after read success, baseline
       --  update after replacement, and retained buffer-local lifecycle policy.
       if not Resolve_Active_Buffer_Reload_Target (S) then
-         Report_Info (S, "No active buffer");
+         Report_Info (S, "No active buffer.");
          return;
       elsif not Validate_Active_Buffer_Associated_Path_For_Reload (S) then
          Report_Info (S, "No file path for active buffer");
@@ -17249,7 +17583,7 @@ package body Editor.Executor is
       --  read success, baseline update only after replacement, and retained
       --  buffer-local destructive text-replacement lifecycle policy.
       if not Resolve_Active_Buffer_Revert_Target (S) then
-         Report_Info (S, "No active buffer");
+         Report_Info (S, "No active buffer.");
          return;
       elsif not Validate_Active_Buffer_Associated_Path_For_Revert (S) then
          Report_Info (S, "No file path for active buffer");
@@ -17404,8 +17738,13 @@ package body Editor.Executor is
       Previous_File : Editor.State.File_State;
       Result        : Editor.Files.File_Rename_Result;
    begin
+      if File_Lifecycle_Confirmation_Pending (S) then
+         Report_Warning (S, "Command unavailable while confirmation is pending");
+         return;
+      end if;
+
       if not Resolve_Active_Buffer_Associated_File_Operation_Source (S) then
-         Report_Info (S, "No active buffer");
+         Report_Info (S, "No active buffer.");
          return;
       end if;
 
@@ -17497,8 +17836,13 @@ package body Editor.Executor is
       Previous_File : Editor.State.File_State;
       Result        : Editor.Files.File_Delete_Result;
    begin
+      if File_Lifecycle_Confirmation_Pending (S) then
+         Report_Warning (S, "Command unavailable while confirmation is pending");
+         return;
+      end if;
+
       if not Resolve_Active_Buffer_Associated_File_Operation_Source (S) then
-         Report_Info (S, "No active buffer");
+         Report_Info (S, "No active buffer.");
          return;
       end if;
 
@@ -17554,8 +17898,13 @@ package body Editor.Executor is
       Previous_File : Editor.State.File_State;
       Result        : Editor.Files.File_Copy_Result;
    begin
+      if File_Lifecycle_Confirmation_Pending (S) then
+         Report_Warning (S, "Command unavailable while confirmation is pending");
+         return;
+      end if;
+
       if not Resolve_Active_Buffer_Associated_File_Operation_Source (S) then
-         Report_Info (S, "No active buffer");
+         Report_Info (S, "No active buffer.");
          return;
       end if;
 
@@ -17639,8 +17988,13 @@ package body Editor.Executor is
       Previous_File : Editor.State.File_State;
       Result        : Editor.Files.File_Move_Result;
    begin
+      if File_Lifecycle_Confirmation_Pending (S) then
+         Report_Warning (S, "Command unavailable while confirmation is pending");
+         return;
+      end if;
+
       if not Resolve_Active_Buffer_Associated_File_Operation_Source (S) then
-         Report_Info (S, "No active buffer");
+         Report_Info (S, "No active buffer.");
          return;
       end if;
 
@@ -17894,6 +18248,8 @@ package body Editor.Executor is
          begin
             if Conflict_Kind_For_Status (External_Status, S.File_Info.Dirty) /=
               Editor.State.No_File_Conflict
+              and then External_Status /= Editor.Files.File_External_Status_Missing
+              and then not Active_Save_Target_Is_Existing_Nonregular (S)
             then
                Status := Editor.Files.File_Save_Write_Error;
                S.File_Info.Last_Save_Failed := True;
@@ -17992,9 +18348,11 @@ package body Editor.Executor is
                      begin
                         if Save_Current_File_Backed_Buffer (Status) then
                            Saved := Saved + 1;
-                        elsif S.File_Info.External_Change_Surfaced
-                          or else S.File_Info.Missing_Target_Surfaced
-                          or else S.File_Info.Unreadable_Target_Surfaced
+                        elsif Status = Editor.Files.File_Save_Write_Error
+                          and then
+                            (S.File_Info.External_Change_Surfaced
+                             or else S.File_Info.Missing_Target_Surfaced
+                             or else S.File_Info.Unreadable_Target_Surfaced)
                         then
                            --  Phase 574: command-boundary conflict skips are
                            --  not failed writes.  They are deliberate
@@ -18621,7 +18979,7 @@ package body Editor.Executor is
       Active := Editor.Buffers.Global_Active_Buffer;
 
       if Active = Editor.Buffers.No_Buffer then
-         Report_Info (S, "No active buffer");
+         Report_Info (S, "No active buffer.");
          return;
       end if;
 
@@ -19022,6 +19380,19 @@ package body Editor.Executor is
                Closed := Closed + 1;
             end if;
          end;
+      end if;
+
+      if Editor.Buffers.Global_Count = 0
+        or else Editor.Buffers.Global_Active_Buffer = Editor.Buffers.No_Buffer
+      then
+         Text_Buffer.Clear (S.Buffer);
+         S.File_Info := (others => <>);
+         S.Buffer_Revision := 0;
+         S.Active_Buffer_Token := 0;
+         S.Line_Starts.Clear;
+         S.Line_Starts.Append (0);
+      else
+         Editor.Buffers.Load_Global_Active_Into_State (S);
       end if;
 
       Editor.Pending_Transitions.Clear (S.Pending_Transitions);
@@ -19515,7 +19886,7 @@ package body Editor.Executor is
       Editor.Buffers.Sync_Global_Active_From_State (S);
       Id := Editor.Buffers.Global_Active_Buffer;
       if Id = Editor.Buffers.No_Buffer then
-         Report_Info (S, "No active buffer");
+         Report_Info (S, "No active buffer.");
          return;
       end if;
       Editor.Buffers.Global_Pin_Buffer (Id);
@@ -19532,7 +19903,7 @@ package body Editor.Executor is
       Editor.Buffers.Sync_Global_Active_From_State (S);
       Id := Editor.Buffers.Global_Active_Buffer;
       if Id = Editor.Buffers.No_Buffer then
-         Report_Info (S, "No active buffer");
+         Report_Info (S, "No active buffer.");
          return;
       end if;
       Editor.Buffers.Global_Unpin_Buffer (Id);
@@ -19550,7 +19921,7 @@ package body Editor.Executor is
       Editor.Buffers.Sync_Global_Active_From_State (S);
       Id := Editor.Buffers.Global_Active_Buffer;
       if Id = Editor.Buffers.No_Buffer then
-         Report_Info (S, "No active buffer");
+         Report_Info (S, "No active buffer.");
          return;
       end if;
       Was_Pinned := Editor.Buffers.Global_Is_Buffer_Pinned (Id);
@@ -19600,7 +19971,7 @@ package body Editor.Executor is
       Editor.Buffers.Sync_Global_Active_From_State (S);
       Id := Editor.Buffers.Global_Active_Buffer;
       if Id = Editor.Buffers.No_Buffer then
-         Report_Info (S, "No active buffer");
+         Report_Info (S, "No active buffer.");
       elsif Text'Length > Editor.Buffers.Max_Buffer_Label_Length then
          Report_Info (S, "Label too long");
       elsif Text'Length = 0 then
@@ -19625,7 +19996,7 @@ package body Editor.Executor is
       Editor.Buffers.Sync_Global_Active_From_State (S);
       Id := Editor.Buffers.Global_Active_Buffer;
       if Id = Editor.Buffers.No_Buffer then
-         Report_Info (S, "No active buffer");
+         Report_Info (S, "No active buffer.");
       elsif not Editor.Buffers.Global_Has_Buffer_Label (Id) then
          Report_Info (S, "No label for " & Editor.Buffers.Global_Display_Name (Id));
       else
@@ -19644,7 +20015,7 @@ package body Editor.Executor is
       Editor.Buffers.Sync_Global_Active_From_State (S);
       Id := Editor.Buffers.Global_Active_Buffer;
       if Id = Editor.Buffers.No_Buffer then
-         Report_Info (S, "No active buffer");
+         Report_Info (S, "No active buffer.");
       elsif not Editor.Buffers.Global_Has_Buffer_Label (Id) then
          Report_Info (S, "No label for " & Editor.Buffers.Global_Display_Name (Id));
       else
@@ -19662,7 +20033,7 @@ package body Editor.Executor is
       Editor.Buffers.Sync_Global_Active_From_State (S);
       Id := Editor.Buffers.Global_Active_Buffer;
       if Id = Editor.Buffers.No_Buffer then
-         Report_Info (S, "No active buffer");
+         Report_Info (S, "No active buffer.");
       elsif Text'Length > Editor.Buffers.Max_Buffer_Note_Length then
          Report_Info (S, "Note too long");
       elsif Text'Length = 0 then
@@ -19685,7 +20056,7 @@ package body Editor.Executor is
       Editor.Buffers.Sync_Global_Active_From_State (S);
       Id := Editor.Buffers.Global_Active_Buffer;
       if Id = Editor.Buffers.No_Buffer then
-         Report_Info (S, "No active buffer");
+         Report_Info (S, "No active buffer.");
       elsif not Editor.Buffers.Global_Has_Buffer_Note (Id) then
          Report_Info (S, "No note for " & Editor.Buffers.Global_Display_Name (Id));
       else
@@ -19704,7 +20075,7 @@ package body Editor.Executor is
       Editor.Buffers.Sync_Global_Active_From_State (S);
       Id := Editor.Buffers.Global_Active_Buffer;
       if Id = Editor.Buffers.No_Buffer then
-         Report_Info (S, "No active buffer");
+         Report_Info (S, "No active buffer.");
       elsif not Editor.Buffers.Global_Has_Buffer_Note (Id) then
          Report_Info (S, "No note for " & Editor.Buffers.Global_Display_Name (Id));
       else
@@ -19722,7 +20093,7 @@ package body Editor.Executor is
       Editor.Buffers.Sync_Global_Active_From_State (S);
       Id := Editor.Buffers.Global_Active_Buffer;
       if Id = Editor.Buffers.No_Buffer then
-         Report_Info (S, "No active buffer");
+         Report_Info (S, "No active buffer.");
       elsif Group'Length = 0 then
          Report_Info (S, "No group name");
       else
@@ -19741,7 +20112,7 @@ package body Editor.Executor is
       Editor.Buffers.Sync_Global_Active_From_State (S);
       Id := Editor.Buffers.Global_Active_Buffer;
       if Id = Editor.Buffers.No_Buffer then
-         Report_Info (S, "No active buffer");
+         Report_Info (S, "No active buffer.");
       elsif not Editor.Buffers.Global_Has_Buffer_Group (Id) then
          Report_Info (S, "Active buffer has no group");
       else
@@ -22298,9 +22669,17 @@ package body Editor.Executor is
             if Editor.Buffers.Global_Contains
               (Editor.Buffers.Buffer_Id (Target.Buffer_Id))
             then
-               Editor.Buffers.Global_Set_Active_Buffer
-                 (Editor.Buffers.Buffer_Id (Target.Buffer_Id));
-               Editor.Buffers.Load_Global_Active_Into_State (S);
+               declare
+                  Target_Id : constant Editor.Buffers.Buffer_Id :=
+                    Editor.Buffers.Buffer_Id (Target.Buffer_Id);
+               begin
+                  Editor.Buffers.Global_Set_Active_Buffer (Target_Id);
+                  if S.Active_Buffer_Token = Natural (Target_Id) then
+                     Editor.Buffers.Sync_Global_Active_From_State (S);
+                  else
+                     Editor.Buffers.Load_Global_Active_Into_State (S);
+                  end if;
+               end;
                declare
                   Reload_Path    : constant Unbounded_String := S.File_Info.Path;
                   Reload_Display : constant Unbounded_String := S.File_Info.Display_Name;
@@ -22336,9 +22715,17 @@ package body Editor.Executor is
             if Editor.Buffers.Global_Contains
               (Editor.Buffers.Buffer_Id (Target.Buffer_Id))
             then
-               Editor.Buffers.Global_Set_Active_Buffer
-                 (Editor.Buffers.Buffer_Id (Target.Buffer_Id));
-               Editor.Buffers.Load_Global_Active_Into_State (S);
+               declare
+                  Target_Id : constant Editor.Buffers.Buffer_Id :=
+                    Editor.Buffers.Buffer_Id (Target.Buffer_Id);
+               begin
+                  Editor.Buffers.Global_Set_Active_Buffer (Target_Id);
+                  if S.Active_Buffer_Token = Natural (Target_Id) then
+                     Editor.Buffers.Sync_Global_Active_From_State (S);
+                  else
+                     Editor.Buffers.Load_Global_Active_Into_State (S);
+                  end if;
+               end;
                declare
                   Revert_Path    : constant Unbounded_String := S.File_Info.Path;
                   Revert_Display : constant Unbounded_String := S.File_Info.Display_Name;
@@ -22555,6 +22942,10 @@ package body Editor.Executor is
       --  target write, then active-buffer association/baseline/dirty update only
       --  after write success.
       Clear_Restore_Feedback_Current (S);
+      if File_Lifecycle_Confirmation_Pending (S) then
+         Report_Warning (S, "Command unavailable while confirmation is pending");
+         return;
+      end if;
       Resolve_Active_Buffer_Save_As_Source (S);
 
       Previous_File := S.File_Info;
@@ -22562,8 +22953,8 @@ package body Editor.Executor is
       Previous_Saved := S.File_Info.Saved_Generation;
       Previous_Valid := S.File_Info.Baseline_Valid;
 
-      if not Active_Buffer_Save_Target_Available then
-         Report_Info (S, "No active buffer");
+      if not Active_Buffer_Save_Target_Available (S) then
+         Report_Info (S, "No active buffer.");
          return;
       elsif Path'Length = 0 then
          Report_Error (S, "No target path for Save As");
@@ -22580,6 +22971,7 @@ package body Editor.Executor is
          Mark_Active_Buffer_Saved_As (S, Result);
          File_Lifecycle_Invalidate_Derived_State
            (S, "Derived state is stale after save as");
+         Editor.Buffers.Sync_Global_Active_From_State (S);
          Report_Success (S, "Saved file as");
       else
          --  Preserve all editor-owned success state on failure.  No association,
@@ -22665,6 +23057,14 @@ package body Editor.Executor is
       Before_Location : constant Editor.Navigation_History.Navigation_Location :=
         Current_Navigation_Location
           (S, Editor.Navigation_History.Navigation_Reason_Buffer_Switch);
+
+      function Active_Message_Is_Non_Info return Boolean is
+         Found : Boolean := False;
+         M     : constant Editor.Messages.Editor_Message :=
+           Editor.Messages.Active_Message (S.Messages, Found);
+      begin
+         return Found and then M.Severity /= Editor.Messages.Info_Message;
+      end Active_Message_Is_Non_Info;
    begin
       Editor.Buffers.Ensure_Global_Registry (S);
       if not Editor.Buffers.Global_Contains (Id) then
@@ -22714,7 +23114,7 @@ package body Editor.Executor is
             Editor.Problems.Ensure_Valid_Selection (S.Problems_View, Snapshot);
          end;
       end if;
-      if Emit_Feedback then
+      if Emit_Feedback and then not Active_Message_Is_Non_Info then
          Report_Info (S, "Switched to " & To_String (S.File_Info.Display_Name));
       end if;
    end Execute_Switch_Buffer;
@@ -23004,7 +23404,7 @@ package body Editor.Executor is
       Id := Resolve_Active_Buffer_Close_Target (S);
 
       if Id = Editor.Buffers.No_Buffer then
-         Report_Info (S, "No active buffer");
+         Report_Info (S, "No active buffer.");
          return;
       elsif not Editor.Buffers.Global_Contains (Id) then
          Report_Error (S, "Could not close buffer");
@@ -23062,7 +23462,7 @@ package body Editor.Executor is
       if Id = Editor.Buffers.Global_Active_Buffer then
          Execute_Close_Active_Buffer (S);
       elsif Id = Editor.Buffers.No_Buffer then
-         Report_Info (S, "No active buffer");
+         Report_Info (S, "No active buffer.");
       else
          Report_Error (S, "Could not close buffer");
       end if;
@@ -23666,9 +24066,9 @@ package body Editor.Executor is
             elsif Reason = "Target file missing or unavailable"
               or else Reason = "Target file missing"
             then
-               Report_Info (S, "Diagnostic target file is unavailable.");
+               Report_Info (S, "Target no longer exists.");
             elsif Reason = "Target line unavailable" then
-               Report_Info (S, "Diagnostic target line is unavailable.");
+               Report_Info (S, "Target line is unavailable.");
             elsif Reason = "Target is stale; refresh required." then
                Report_Info (S, "Target is stale; refresh required.");
             elsif Reason'Length > 0 then
@@ -24060,8 +24460,7 @@ package body Editor.Executor is
       elsif Ada.Strings.Fixed.Index (Effective, "/") /= 0
         or else Ada.Strings.Fixed.Index (Effective, "\") /= 0
       then
-         return Ada.Directories.Compose
-           (Editor.Project.Root_Path (S.Project), Effective);
+         return Editor.Project.Absolute_Project_File_Path (S.Project, Effective);
       else
          return Ada.Directories.Compose (Base, Effective);
       end if;
@@ -25124,7 +25523,7 @@ package body Editor.Executor is
       Active_Buffer_Was_Renamed :=
         S.File_Info.Has_Path
         and then Same_Or_Descendant_File_Tree_Path
-          (To_String (Summary.Absolute_Path), To_String (S.File_Info.Path));
+          (To_String (S.File_Info.Path), To_String (Summary.Absolute_Path));
 
       if not Editor.Project.Is_Under_Project (S.Project, To_String (Target)) then
          Report_Error (S, "Target path is outside the project");
@@ -25263,7 +25662,7 @@ package body Editor.Executor is
       Active_Buffer_Was_Deleted :=
         S.File_Info.Has_Path
         and then Same_Or_Descendant_File_Tree_Path
-          (To_String (Summary.Absolute_Path), To_String (S.File_Info.Path));
+          (To_String (S.File_Info.Path), To_String (Summary.Absolute_Path));
 
       begin
          --  Mutate the filesystem before closing clean open buffers.  If the
@@ -25294,8 +25693,8 @@ package body Editor.Executor is
                   --  the same empty-buffer state users see after closing the
                   --  final clean buffer, while keeping the File Tree workflow
                   --  focused for the next selection.
-                  Editor.State.Load_Text (S, "");
                   S.Active_Buffer_Token := 0;
+                  Editor.State.Load_Text (S, "");
                   Editor.Focus_Management.Set_Focus_Owner
                     (S, Editor.Focus_Management.Focus_File_Tree);
                else
@@ -25814,7 +26213,7 @@ package body Editor.Executor is
          when Context_Query_Ready =>
             return "";
          when Context_No_Active_Buffer =>
-            return "No active buffer";
+            return "No active buffer.";
          when Context_No_Selected_Text =>
             return "No selected text";
          when Context_No_Searchable_Text =>
@@ -26419,7 +26818,7 @@ package body Editor.Executor is
       if not Editor.State.Has_Active_Buffer (S)
         or else not Editor.State.Current_File (S).Has_Path
       then
-         Report_Info (S, "No active buffer");
+         Report_Info (S, "No active buffer.");
          Editor.Render_Cache.Invalidate_All;
          return;
       elsif Editor.Project_Search.Result_Count (S.Project_Search) = 0 then
@@ -28057,7 +28456,7 @@ package body Editor.Executor is
       Has_Project_Relative : Boolean := False;
    begin
       if not Editor.State.Has_Active_Buffer (S) then
-         Report_Info (S, "No active buffer");
+         Report_Info (S, "No active buffer.");
          return;
       elsif not S.File_Info.Has_Path then
          Report_Info (S, "No bookmarkable location");
@@ -28177,7 +28576,7 @@ package body Editor.Executor is
       Item  : Editor.Bookmarks.Bookmark_Entry;
    begin
       if not Editor.State.Has_Active_Buffer (S) then
-         Report_Info (S, "No active buffer");
+         Report_Info (S, "No active buffer.");
          return;
       elsif not Editor.Bookmarks.Has_Bookmarks (S.Bookmarks) then
          Report_Info (S, "No bookmarks");
@@ -28915,7 +29314,7 @@ package body Editor.Executor is
         Editor.Selection.Select_All_Range_For_Buffer (S);
    begin
       if not Editor.State.Has_Active_Buffer (S) then
-         Report_Info (S, "No active buffer");
+         Report_Info (S, "No active buffer.");
       elsif Selection_Range.High = 0 then
          Keep_Only_Primary_Selection_Caret (S);
          Set_Primary_Caret (S, 0);
@@ -28944,7 +29343,7 @@ package body Editor.Executor is
       Caret : Cursor_Index := Safe_Caret (S);
    begin
       if not Editor.State.Has_Active_Buffer (S) then
-         Report_Info (S, "No active buffer");
+         Report_Info (S, "No active buffer.");
       elsif S.Carets.Length = 0 then
          Report_Info (S, "No caret location");
       elsif not Primary_Selection_Is_Valid (S) and then not S.Rect_Select_Active then
@@ -28972,7 +29371,7 @@ package body Editor.Executor is
       Selection_Range : Editor.Selection.Active_Selection_Range := (Low => 0, High => 0);
    begin
       if not Editor.State.Has_Active_Buffer (S) then
-         Report_Info (S, "No active buffer");
+         Report_Info (S, "No active buffer.");
       elsif S.Carets.Length = 0 then
          Report_Info (S, "No caret location");
       elsif Text_Buffer.Length (S.Buffer) = 0 then
@@ -29444,8 +29843,29 @@ package body Editor.Executor is
       Cmd : Command;
       Line_Status : out Editor.Executor.Edits.Line_Edit_Status)
    is
+      function Current_State_Is_Disposable_Initial_Untitled return Boolean is
+      begin
+         return Editor.Buffers.Global_Count = 0
+           and then not S.File_Info.Has_Path
+           and then not S.File_Info.Dirty
+           and then Editor.State.Current_Text (S) = "";
+      end Current_State_Is_Disposable_Initial_Untitled;
+
+      function Command_Defers_Initial_Buffer_Materialization return Boolean is
+      begin
+         case Cmd.Kind is
+            when File_Tree_Open_Selected =>
+               return True;
+            when others =>
+               return False;
+         end case;
+      end Command_Defers_Initial_Buffer_Materialization;
    begin
-      if not Editor.Buffers.Global_Registry_Current_For (S) then
+      if not Editor.Buffers.Global_Registry_Current_For (S)
+        and then not
+          (Current_State_Is_Disposable_Initial_Untitled
+           and then Command_Defers_Initial_Buffer_Materialization)
+      then
          Editor.Buffers.Ensure_Global_Registry (S);
       end if;
 

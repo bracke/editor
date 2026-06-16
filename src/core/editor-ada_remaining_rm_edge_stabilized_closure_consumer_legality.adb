@@ -2,6 +2,15 @@ with Ada.Strings.Unbounded; use Ada.Strings.Unbounded;
 
 package body Editor.Ada_Remaining_RM_Edge_Stabilized_Closure_Consumer_Legality is
 
+   pragma Suppress (Overflow_Check);
+   use type Closure.RM_Closure_Consumer_Stabilized_Closure_Id;
+   use type Closure.RM_Closure_Consumer_Stabilized_Closure_Status;
+   use type Closure.Gate.Conv.Apply.RM_Closure_Consumer_Application_Id;
+   use type Edge.Remaining_RM_Edge_Kind;
+   use type Edge.Remaining_RM_Edge_Blocker_Family;
+   use type Editor.Ada_Syntax_Tree.Node_Id;
+
+
    function Mix (A, B : Natural) return Natural is
    begin
       return ((A * 1_127) + (B * 149) + 12_840) mod 1_000_000_007;

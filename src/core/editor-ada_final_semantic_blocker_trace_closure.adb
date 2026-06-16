@@ -1,5 +1,7 @@
 package body Editor.Ada_Final_Semantic_Blocker_Trace_Closure is
 
+   pragma Suppress (Overflow_Check);
+
    use type Final_Prov.Final_Blocker_Family;
    use type Final_Prov.Final_Provenance_Status;
    use type Final_Prov.Final_Provenance_Stage;

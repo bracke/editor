@@ -2,6 +2,8 @@ with Ada.Strings.Unbounded; use Ada.Strings.Unbounded;
 
 package body Editor.Ada_Contract_Flow_Refinement_Consumer_Legality is
 
+   pragma Suppress (Overflow_Check);
+
    use type Contracts.Contract_Legality_Status;
    use type Editor.Ada_Syntax_Tree.Node_Id;
    use type Flow_Consumers.Consumer_Row_Id;

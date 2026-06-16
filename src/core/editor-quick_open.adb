@@ -231,6 +231,19 @@ package body Editor.Quick_Open is
       return True;
    end Ordered_Characters_Match;
 
+   function Ordered_Basename_Fuzzy_Match
+     (Pattern : String;
+      Text    : String) return Boolean
+   is
+      P : constant String := Normalize_For_Compare (Trim_Query (Pattern));
+      T : constant String := Normalize_For_Compare (Text);
+   begin
+      return P'Length > 0
+        and then T'Length > 0
+        and then T (T'First) = P (P'First)
+        and then Ordered_Characters_Match (P, T);
+   end Ordered_Basename_Fuzzy_Match;
+
    function Ordered_Terms_Match
      (Query       : String;
       Path        : String;
@@ -472,7 +485,7 @@ package body Editor.Quick_Open is
       B : constant String := Normalize_For_Compare (Base_Name (Path));
    begin
       if Q'Length = 0 then
-         return Path_Substring;
+         return No_Match;
       elsif Query_Has_Path_Traversal_Term (Q)
         or else Query_Has_Project_Relative_Violation (Q)
       then
@@ -495,9 +508,11 @@ package body Editor.Quick_Open is
          return Path_Segment_Substring;
       elsif Contains (P, Q) then
          return Path_Substring;
-      elsif Ordered_Characters_Match (Q, B) then
+      elsif Ordered_Basename_Fuzzy_Match (Q, B) then
          return Basename_Fuzzy;
-      elsif Ordered_Characters_Match (Q, P) then
+      elsif Ordered_Characters_Match (Q, P)
+        and then not Ordered_Characters_Match (Q, B)
+      then
          return Path_Fuzzy;
       else
          return No_Match;
@@ -1178,32 +1193,30 @@ package body Editor.Quick_Open is
         Editor.File_Tree.Scan_Status (Tree).Status /= Editor.File_Tree.File_Tree_No_Project;
       State.Known_Total := Editor.File_Tree.File_Node_Count (Tree);
       State.Filtered_Total := 0;
-      if Trim_Query (Query)'Length > 0 then
-         for I in 1 .. Editor.File_Tree.File_Node_Count (Tree) loop
-            declare
-               Node : constant Editor.File_Tree.File_Tree_Node_Summary :=
-                 Editor.File_Tree.File_Node_At (Tree, I);
-               Path   : constant String := Normalize_Display_Path (To_String (Node.Relative_Path));
-               Bucket : constant Quick_Open_Match_Bucket :=
-                 Quick_Open_Match_Bucket_For (Query, Path);
-            begin
-               if Node.Id /= Editor.File_Tree.No_File_Tree_Node
-                 and then Is_Project_Relative_File_Path (Path)
-                 and then In_Path_Scope (Path, To_String (State.Scope))
-                 and then Matches_File_Kind (Path, State.Kind_Filter)
-                 and then Bucket /= No_Match
-               then
-                  State.Filtered_Total := State.Filtered_Total + 1;
-                  State.Results.Append
-                    (Quick_Open_Result'
-                      (Node_Id       => Node.Id,
-                      Display_Path  => To_Unbounded_String (Path),
-                      Absolute_Path => Node.Absolute_Path,
-                      Match_Bucket  => Bucket));
-               end if;
-            end;
-         end loop;
-      end if;
+      for I in 1 .. Editor.File_Tree.File_Node_Count (Tree) loop
+         declare
+            Node : constant Editor.File_Tree.File_Tree_Node_Summary :=
+              Editor.File_Tree.File_Node_At (Tree, I);
+            Path   : constant String := Normalize_Display_Path (To_String (Node.Relative_Path));
+            Bucket : constant Quick_Open_Match_Bucket :=
+              Quick_Open_Match_Bucket_For (Query, Path);
+         begin
+            if Node.Id /= Editor.File_Tree.No_File_Tree_Node
+              and then Is_Project_Relative_File_Path (Path)
+              and then In_Path_Scope (Path, To_String (State.Scope))
+              and then Matches_File_Kind (Path, State.Kind_Filter)
+              and then Bucket /= No_Match
+            then
+               State.Filtered_Total := State.Filtered_Total + 1;
+               State.Results.Append
+                 (Quick_Open_Result'
+                   (Node_Id       => Node.Id,
+                   Display_Path  => To_Unbounded_String (Path),
+                   Absolute_Path => Node.Absolute_Path,
+                   Match_Bucket  => Bucket));
+            end if;
+         end;
+      end loop;
 
       Sort_Results (State.Results);
       while Natural (State.Results.Length) > Config.Max_Result_Count loop
@@ -1234,11 +1247,9 @@ package body Editor.Quick_Open is
       State.Known_Total := Editor.Project.Known_File_Count (Project);
       State.Filtered_Total := 0;
 
-      if Trim_Query (Query)'Length > 0 then
-         for I in 1 .. Editor.Project.Known_File_Count (Project) loop
-            Append_Literal_Project_Result (State, Project, I, Query);
-         end loop;
-      end if;
+      for I in 1 .. Editor.Project.Known_File_Count (Project) loop
+         Append_Literal_Project_Result (State, Project, I, Query);
+      end loop;
 
       Sort_Results (State.Results);
       while Natural (State.Results.Length) > Config.Max_Result_Count loop
@@ -1342,9 +1353,9 @@ package body Editor.Quick_Open is
       return State.Results (State.Selected_Index - 1);
    end Selected_Result;
 
-   function Result_At (State : Quick_Open_State; Index : Positive) return Quick_Open_Result is
+   function Result_At (State : Quick_Open_State; Index : Natural) return Quick_Open_Result is
    begin
-      if Index > Natural (State.Results.Length) then
+      if Index = 0 or else Index > Natural (State.Results.Length) then
          return (others => <>);
       end if;
       return State.Results (Index - 1);

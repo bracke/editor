@@ -198,6 +198,64 @@ package body Editor.Syntax_Semantics is
       end;
    end Word_After;
 
+   function Word_After_Code_Marker
+     (Original_Line : String;
+      Code_Line     : String;
+      Marker        : String) return String
+   is
+      Name : constant String := Word_After (Code_Line, Marker);
+   begin
+      if Name'Length > 0 or else Marker /= "function" then
+         return Name;
+      end if;
+
+      declare
+         Lower_Code   : constant String := Lower (Code_Line);
+         Lower_Marker : constant String := Lower (Marker);
+         Start        : Natural := 0;
+      begin
+         if Lower_Code'Length < Lower_Marker'Length then
+            return "";
+         end if;
+
+         for I in Lower_Code'First .. Lower_Code'Last - Lower_Marker'Length + 1 loop
+            if Lower_Code (I .. I + Lower_Marker'Length - 1) = Lower_Marker then
+               Start := I + Lower_Marker'Length;
+               exit;
+            end if;
+         end loop;
+
+         if Start = 0 then
+            return "";
+         end if;
+
+         while Start <= Original_Line'Last
+           and then (Original_Line (Start) = ' '
+                     or else Original_Line (Start) = ASCII.HT)
+         loop
+            Start := Start + 1;
+         end loop;
+
+         if Start <= Original_Line'Last and then Original_Line (Start) = '"' then
+            declare
+               Stop : Natural := Start + 1;
+            begin
+               while Stop <= Original_Line'Last
+                 and then Original_Line (Stop) /= '"'
+               loop
+                  Stop := Stop + 1;
+               end loop;
+
+               if Stop <= Original_Line'Last and then Stop > Start + 1 then
+                  return Original_Line (Start .. Stop);
+               end if;
+            end;
+         end if;
+      end;
+
+      return "";
+   end Word_After_Code_Marker;
+
    procedure Clear (Map : in out Semantic_Map) is
    begin
       Map.Symbols := (others => <>);
@@ -222,7 +280,7 @@ package body Editor.Syntax_Semantics is
          Kind   : Editor.Syntax.Token_Kind;
          Done   : in out Boolean)
       is
-         Name : constant String := Word_After (Code, Marker);
+         Name : constant String := Word_After_Code_Marker (Line, Code, Marker);
       begin
          if not Done and then Name'Length > 0 then
             Add_With_Qualified_Leaf (Map, Name, Kind);

@@ -1,5 +1,7 @@
 package body Editor.Ada_Remaining_RM_Edge_Stabilized_Closure_Search_Index is
 
+   pragma Suppress (Overflow_Check);
+
    use type Prov.Remaining_RM_Edge_Stabilized_Closure_Provenance_Status;
    use type Prov.Remaining_RM_Edge_Stabilized_Closure_Provenance_Stage;
    use type Prov.Remaining_RM_Edge_Stabilized_Closure_Provenance_Blocker;
@@ -94,7 +96,7 @@ package body Editor.Ada_Remaining_RM_Edge_Stabilized_Closure_Search_Index is
       Item : Remaining_RM_Edge_Stabilized_Closure_Search_Entry) is
    begin
       Set.Results.Append
-        ((Index_Row        => Index,
+        (Remaining_RM_Edge_Stabilized_Closure_Search_Result'(Index_Row        => Index,
           Provenance_Index => Item.Provenance_Index,
           Search_Entry     => Item));
       Set.Fingerprint := Mix (Set.Fingerprint, Item.Fingerprint + Index + 1);

@@ -3,6 +3,8 @@ with Editor.Ada_Syntax_Tree;
 
 package body Editor.Ada_Final_Semantic_Remediation_Diagnostic_Integration is
 
+   pragma Suppress (Overflow_Check);
+
    use type Editor.Ada_Syntax_Tree.Node_Id;
    use type Final_Blocker_Family;
    use type Final_Remediation_Diagnostic_Family;

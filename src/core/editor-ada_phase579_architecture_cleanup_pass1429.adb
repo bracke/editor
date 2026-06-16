@@ -2,6 +2,8 @@ with Ada.Strings.Unbounded; use Ada.Strings.Unbounded;
 
 package body Editor.Ada_Phase579_Architecture_Cleanup_Pass1429 is
 
+   pragma Suppress (Overflow_Check);
+
    procedure Add_Row (Input : in out Cleanup_Input; Row : Cleanup_Row) is
    begin
       Input.Rows.Append (Row);

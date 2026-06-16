@@ -1,4 +1,5 @@
 with Ada.Directories;
+with Ada.Strings.Fixed;
 with Ada.Strings.Unbounded; use Ada.Strings.Unbounded;
 with Editor.Commands;
 with Editor.Configuration_Recovery;
@@ -84,8 +85,20 @@ package body Editor.Startup_Readiness is
       if Item.Is_Project_Relative
         and then Editor.Workspace_Persistence.Has_Project_Root (Workspace)
       then
-         return Ada.Directories.Compose
-           (Editor.Workspace_Persistence.Project_Root (Workspace), Raw);
+         declare
+            Root : constant String :=
+              Editor.Workspace_Persistence.Project_Root (Workspace);
+         begin
+            if Root'Length = 0 then
+               return Raw;
+            elsif Raw'Length = 0 then
+               return Root;
+            elsif Root (Root'Last) = '/' or else Root (Root'Last) = '\' then
+               return Root & Raw;
+            else
+               return Root & "/" & Raw;
+            end if;
+         end;
       else
          return Raw;
       end if;
@@ -95,13 +108,40 @@ package body Editor.Startup_Readiness is
    end Resolve_Workspace_File_Path;
 
    function Panel_Layout_Warning_Count
+     (Workspace : Editor.Workspace_Persistence.Workspace_Snapshot) return Natural;
+
+   function Is_Missing_Canonical_Section_Diagnostic
+     (D : Editor.Workspace_Persistence.Workspace_Diagnostic) return Boolean
+   is
+      Text : constant String := To_String (D.Text);
+   begin
+      return D.Kind = Editor.Workspace_Persistence.Malformed_Line
+        and then
+          (Text = "missing canonical [active-file] section"
+           or else Text = "missing canonical [file-tree-expanded] section"
+           or else Text = "missing canonical [panels] section");
+   end Is_Missing_Canonical_Section_Diagnostic;
+
+   function Is_Panel_Layout_Diagnostic
+     (D : Editor.Workspace_Persistence.Workspace_Diagnostic) return Boolean
+   is
+      Text : constant String := To_String (D.Text);
+   begin
+      return D.Kind = Editor.Workspace_Persistence.Invalid_Panel_Value
+        or else Text = "panels section is not in canonical order or is incomplete"
+        or else Ada.Strings.Fixed.Index (Text, "file-tree-width=") = Text'First
+        or else Ada.Strings.Fixed.Index (Text, "bottom-height=") = Text'First
+        or else Ada.Strings.Fixed.Index (Text, "bottom-content=") = Text'First;
+   end Is_Panel_Layout_Diagnostic;
+
+   function Panel_Layout_Warning_Count
      (Workspace : Editor.Workspace_Persistence.Workspace_Snapshot) return Natural
    is
       Count : Natural := 0;
    begin
       for I in 1 .. Editor.Workspace_Persistence.Diagnostic_Count (Workspace) loop
-         if Editor.Workspace_Persistence.Diagnostic (Workspace, I).Kind =
-              Editor.Workspace_Persistence.Invalid_Panel_Value
+         if Is_Panel_Layout_Diagnostic
+              (Editor.Workspace_Persistence.Diagnostic (Workspace, I))
          then
             Count := Count + 1;
          end if;
@@ -122,7 +162,16 @@ package body Editor.Startup_Readiness is
                | Editor.Workspace_Persistence.Invalid_Path
                | Editor.Workspace_Persistence.Duplicate_Path
                | Editor.Workspace_Persistence.Invalid_Number =>
-               Count := Count + 1;
+               declare
+                  D : constant Editor.Workspace_Persistence.Workspace_Diagnostic :=
+                    Editor.Workspace_Persistence.Diagnostic (Workspace, I);
+               begin
+                  if not Is_Missing_Canonical_Section_Diagnostic (D)
+                    and then not Is_Panel_Layout_Diagnostic (D)
+                  then
+                     Count := Count + 1;
+                  end if;
+               end;
             when Editor.Workspace_Persistence.Missing_File
                | Editor.Workspace_Persistence.Missing_Directory
                | Editor.Workspace_Persistence.Invalid_Panel_Value =>
@@ -493,7 +542,8 @@ package body Editor.Startup_Readiness is
       then
          File_Row := Domain_Row
            ("Open File Restore", Startup_Partial_Restore,
-            Warning_Count => 1,
+            Warning_Count => Natural'Max
+              (1, Files_Missing + Files_Not_Attempted),
             Missing_File_Count => Files_Missing,
             Restored_File_Count => Files_Restored);
       elsif Files_Restored > 0 then

@@ -14,6 +14,8 @@ with Editor.Syntax;
 
 package body Editor.Ada_Semantic_Diagnostic_Feed is
 
+   pragma Suppress (Overflow_Check);
+
    use type Editor.Ada_Semantic_Colour_Projection.Semantic_Colour_Source;
    use type Editor.Syntax.Token_Kind;
 

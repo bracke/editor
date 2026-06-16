@@ -3,6 +3,8 @@ with Ada.Strings.Unbounded; use Ada.Strings.Unbounded;
 
 package body Editor.Ada_Generic_View_Compatibility is
 
+   pragma Suppress (Overflow_Check);
+
    use type Editor.Ada_Generic_Contracts.Generic_Formal_Id;
    use type Editor.Ada_Generic_Contracts.Generic_Instance_Id;
    use type Editor.Ada_View_Aware_Compatibility.View_Compatibility_Id;

@@ -2,6 +2,8 @@ with Ada.Strings.Unbounded; use Ada.Strings.Unbounded;
 
 package body Editor.Ada_Object_Flow_Accessibility_Consumer_Legality is
 
+   pragma Suppress (Overflow_Check);
+
 
    use type Access_Consumers.Accessibility_Consumer_Row_Id;
    use type Access_Consumers.Accessibility_Consumer_Context_Kind;

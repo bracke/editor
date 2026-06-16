@@ -6,6 +6,8 @@ with Editor.Ada_Use_Type_Operators;
 
 package body Editor.Ada_Expression_Types is
 
+   pragma Suppress (Overflow_Check);
+
    use type Editor.Ada_Call_Resolution.Call_Resolution_Id;
    use type Editor.Ada_Call_Resolution.Call_Resolution_Status;
    use type Editor.Ada_Direct_Visibility.Lookup_Status;
@@ -49,11 +51,21 @@ package body Editor.Ada_Expression_Types is
       return Pattern /= "" and then Ada.Strings.Fixed.Index (Text, Pattern) /= 0;
    end Contains;
 
+   function Hash_Mix
+     (Seed       : Natural;
+      Addend     : Long_Long_Integer;
+      Multiplier : Long_Long_Integer := 131) return Natural
+   is
+   begin
+      return Natural
+        ((Long_Long_Integer (Seed) * Multiplier + Addend) mod 2_147_483_647);
+   end Hash_Mix;
+
    function Hash_Text (Text : String) return Natural is
       Result : Natural := 0;
    begin
       for C of Text loop
-         Result := (Result * 131 + Character'Pos (C)) mod 2_147_483_647;
+         Result := Hash_Mix (Result, Long_Long_Integer (Character'Pos (C)));
       end loop;
       return Result;
    end Hash_Text;
@@ -884,7 +896,7 @@ package body Editor.Ada_Expression_Types is
       Info.Fingerprint := Fingerprint_For (Info);
       Model.Expressions.Append (Info);
       Model.Result_Fingerprint :=
-        (Model.Result_Fingerprint * 131 + Info.Fingerprint) mod 2_147_483_647;
+        Hash_Mix (Model.Result_Fingerprint, Long_Long_Integer (Info.Fingerprint));
    end Append;
 
 

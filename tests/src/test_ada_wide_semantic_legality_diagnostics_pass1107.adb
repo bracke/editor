@@ -223,6 +223,7 @@ package body Test_Ada_Wide_Semantic_Legality_Diagnostics_Pass1107 is
       Cross_Unit     : CU.Cross_Unit_Semantic_Model;
    begin
       Assignment_Context.Id := 1;
+      Assignment_Context.Kind := AL.Assignment_Context_Assignment_Statement;
       Assignment_Context.Target_Node := Editor.Ada_Syntax_Tree.Node_Id (101);
       Assignment_Context.Source_Node := Editor.Ada_Syntax_Tree.Node_Id (102);
       Assignment_Context.Target_Mode := AL.Assignment_Target_Constant;

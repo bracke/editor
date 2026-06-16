@@ -3,6 +3,8 @@ with Ada.Strings.Unbounded; use Ada.Strings.Unbounded;
 with Editor.Ada_Syntax_Tree;
 
 package body Editor.Ada_Integrated_Semantic_Closure.Consumer_Chain is
+
+   pragma Suppress (Overflow_Check);
    use type Editor.Ada_Syntax_Tree.Node_Id;
 
    function Normalized (Text : Unbounded_String) return Unbounded_String is

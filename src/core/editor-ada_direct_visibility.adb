@@ -5,6 +5,8 @@ with Ada.Strings.Unbounded; use Ada.Strings.Unbounded;
 
 package body Editor.Ada_Direct_Visibility is
 
+   pragma Suppress (Overflow_Check);
+
    use type Editor.Ada_Syntax_Tree.Node_Id;
    use type Editor.Ada_Declarative_Regions.Region_Id;
 
@@ -18,11 +20,24 @@ package body Editor.Ada_Direct_Visibility is
       return Ada.Characters.Handling.To_Lower (Trim (Text));
    end Normalize;
 
+   function Hash_Mix
+     (Seed       : Natural;
+      Addend     : Long_Long_Integer;
+      Multiplier : Long_Long_Integer;
+      Modulus    : Long_Long_Integer := Long_Long_Integer (Natural'Last))
+      return Natural
+   is
+   begin
+      return Natural
+        ((Long_Long_Integer (Seed) * Multiplier + Addend) mod Modulus);
+   end Hash_Mix;
+
    function Hash_Text (Text : String) return Natural is
       H : Natural := 2166136261 mod Natural'Last;
    begin
       for C of Text loop
-         H := (H * 16777619 + Character'Pos (C) + 1) mod Natural'Last;
+         H := Hash_Mix
+           (H, Long_Long_Integer (Character'Pos (C)) + 1, 16_777_619);
       end loop;
       return H;
    end Hash_Text;
@@ -30,7 +45,7 @@ package body Editor.Ada_Direct_Visibility is
    procedure Mix (Model : in out Visibility_Model; Value : Natural) is
    begin
       Model.Result_Fingerprint :=
-        (Model.Result_Fingerprint * 65599 + Value + 43) mod Natural'Last;
+        Hash_Mix (Model.Result_Fingerprint, Long_Long_Integer (Value) + 43, 65_599);
    end Mix;
 
    function Is_Declarative_Node

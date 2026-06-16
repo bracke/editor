@@ -618,7 +618,7 @@ package body Editor.Build_UI.Tests is
                 "No stderr captured.",
               "Phase 527 Build UI does not reuse stale stream text");
       Assert (To_String (Snapshot.Output_Details.Partial_Output_Label) =
-                "build timed out; output may be incomplete",
+                "partial output: build timed out",
               "Phase 527 Build UI distinguishes partial timeout output from truncation");
       Assert (To_String (Snapshot.Latest_Result.Latest_Build_Result_Truncation_Label) =
                 "output not truncated",

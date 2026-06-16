@@ -2,6 +2,8 @@ with Ada.Strings.Unbounded; use Ada.Strings.Unbounded;
 
 package body Editor.Ada_Discriminant_Generic_Representation_Consumer_Legality is
 
+   pragma Suppress (Overflow_Check);
+
 
    use type Disc.Discriminant_Legality_Id;
    use type Gen_Rep.Generic_Replay_Representation_Row_Id;

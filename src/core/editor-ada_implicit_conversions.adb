@@ -2,6 +2,8 @@ with Editor.Ada_Subtype_Compatibility;
 
 package body Editor.Ada_Implicit_Conversions is
 
+   pragma Suppress (Overflow_Check);
+
    function Classify
      (Compatibility : Editor.Ada_Subtype_Compatibility.Compatibility_Info)
       return Implicit_Conversion_Info

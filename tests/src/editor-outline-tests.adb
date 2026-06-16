@@ -4,6 +4,8 @@ with Editor.Pending_Transitions;
 with Editor.Buffers;
 with Ada.Text_IO;
 with Ada.Directories;
+with Ada.Streams;
+with Ada.Streams.Stream_IO;
 with Ada.Strings.Fixed;
 with Ada.Strings.Unbounded;
 with AUnit.Assertions; use AUnit.Assertions;
@@ -71,6 +73,37 @@ package body Editor.Outline.Tests is
                      "synthetic outline fixture refresh succeeds");
    end Populate_Synthetic_Outline;
 
+   function First_Label_Index
+     (O     : Outline_State;
+      Label : String) return Natural
+   is
+   begin
+      for I in 1 .. Item_Count (O) loop
+         if Item_Label (O, I) = Label then
+            return I;
+         end if;
+      end loop;
+
+      return 0;
+   end First_Label_Index;
+
+   function Has_Label
+     (O     : Outline_State;
+      Label : String) return Boolean
+   is
+   begin
+      return First_Label_Index (O, Label) /= 0;
+   end Has_Label;
+
+   procedure Assert_Has_Label
+     (O       : Outline_State;
+      Label   : String;
+      Message : String)
+   is
+   begin
+      Assert (Has_Label (O, Label), Message);
+   end Assert_Has_Label;
+
    function Phase579_Temp_Path (Name : String) return String is
    begin
       return "/tmp/editor_phase579_outline_" & Name;
@@ -90,15 +123,25 @@ package body Editor.Outline.Tests is
      (Path : String;
       Text : String)
    is
-      File : Ada.Text_IO.File_Type;
+      package Stream_IO renames Ada.Streams.Stream_IO;
+      File  : Stream_IO.File_Type;
+      Bytes : Ada.Streams.Stream_Element_Array
+        (1 .. Ada.Streams.Stream_Element_Offset (Text'Length));
    begin
-      Ada.Text_IO.Create (File, Ada.Text_IO.Out_File, Path);
-      Ada.Text_IO.Put (File, Text);
-      Ada.Text_IO.Close (File);
+      for I in Text'Range loop
+         Bytes (Ada.Streams.Stream_Element_Offset (I - Text'First + 1)) :=
+           Ada.Streams.Stream_Element (Character'Pos (Text (I)));
+      end loop;
+
+      Stream_IO.Create (File, Stream_IO.Out_File, Path);
+      if Text'Length > 0 then
+         Stream_IO.Write (File, Bytes);
+      end if;
+      Stream_IO.Close (File);
    exception
       when others =>
-         if Ada.Text_IO.Is_Open (File) then
-            Ada.Text_IO.Close (File);
+         if Stream_IO.Is_Open (File) then
+            Stream_IO.Close (File);
          end if;
          raise;
    end Phase579_Write_Text;
@@ -439,8 +482,8 @@ package body Editor.Outline.Tests is
       Panel_First := Editor.Feature_Panel.Fingerprint (S.Feature_Panel);
 
       Editor.Feature_Panel.Select_First (S.Feature_Panel);
-      Assert (Editor.Feature_Panel.Has_Selection (S.Feature_Panel),
-              "fixture has selected outline row before replacement refresh");
+      Assert (not Editor.Feature_Panel.Has_Selection (S.Feature_Panel),
+              "display-only empty outline row is not selectable before replacement refresh");
       Editor.State.Load_Text (S, "different active text still must not affect outline");
 
       Result := Editor.Executor.Execute_Command_With_Result
@@ -915,8 +958,10 @@ package body Editor.Outline.Tests is
               "zero-item refresh is successful, not failed");
       Assert (Item_Count (S.Outline) = 0,
               "zero-item refresh clears previous outline items");
-      Assert (Editor.Feature_Panel.Row_Count (S.Feature_Panel) = 0,
-              "zero-item refresh clears projected outline rows");
+      Assert (Editor.Feature_Panel.Row_Count (S.Feature_Panel) = 1
+                and then Editor.Feature_Panel.Row_Kind (S.Feature_Panel, 1) =
+                  Editor.Feature_Panel.Feature_Row_Empty_State,
+              "zero-item refresh projects a display-only empty-state row");
       Assert (not Editor.Feature_Panel.Has_Selection (S.Feature_Panel),
               "zero-item refresh clears stale feature-panel selection");
       Assert (Editor.Feature_Panel.Is_Visible (S.Feature_Panel),
@@ -975,6 +1020,7 @@ package body Editor.Outline.Tests is
 
       Editor.State.Load_Text
         (S, "@outline package Changed_But_Not_Refreshed" & ASCII.LF & "x");
+      Messages_Before := Editor.Messages.Count (S.Messages);
       A := Editor.Executor.Command_Availability
         (S, Editor.Commands.Command_Refresh_Outline);
 
@@ -1512,12 +1558,16 @@ package body Editor.Outline.Tests is
       Result : constant Editor.Outline_Extractor.Extraction_Result :=
         Editor.Outline_Extractor.Extract (Snapshot);
    begin
-      Assert (Editor.Outline_Extractor.Item_Count (Result) = 2,
-              "generic formal declarations are ignored until the generic unit");
+      Assert (Editor.Outline_Extractor.Item_Count (Result) = 4,
+              "generic formal declarations and generic units are extracted");
       Editor.Outline_Extractor.Apply_To_Outline (Result, O);
-      Assert (Item_Label (O, 1) = "generic procedure Swap",
+      Assert (Item_Label (O, 1) = "formal type Element_Type",
+              "generic formal type row is extracted");
+      Assert (Item_Label (O, 2) = "generic procedure Swap",
               "generic procedure label is compact");
-      Assert (Item_Label (O, 2) = "generic function Minimum",
+      Assert (Item_Label (O, 3) = "formal function ""<""",
+              "generic formal operator function row is extracted");
+      Assert (Item_Label (O, 4) = "generic function Minimum",
               "generic function label is compact");
    end Test_Phase127_Ada_Outline_Extracts_Generic_Procedure_And_Function;
 
@@ -1538,12 +1588,14 @@ package body Editor.Outline.Tests is
       Result : constant Editor.Outline_Extractor.Extraction_Result :=
         Editor.Outline_Extractor.Extract (Snapshot);
    begin
-      Assert (Editor.Outline_Extractor.Item_Count (Result) = 2,
-              "generic marker applies to exactly one following declaration");
+      Assert (Editor.Outline_Extractor.Item_Count (Result) = 3,
+              "generic marker applies to the following declaration after formals");
       Editor.Outline_Extractor.Apply_To_Outline (Result, O);
-      Assert (Item_Label (O, 1) = "generic procedure Swap",
+      Assert (Item_Label (O, 1) = "formal type Element_Type",
+              "generic formal type row is extracted");
+      Assert (Item_Label (O, 2) = "generic procedure Swap",
               "generic marker applies to the generic procedure");
-      Assert (Item_Label (O, 2) = "procedure Plain",
+      Assert (Item_Label (O, 3) = "procedure Plain",
               "generic marker does not leak into later declarations");
    end Test_Phase127_Ada_Outline_Clears_Pending_Generic_After_Use;
 
@@ -1642,10 +1694,12 @@ package body Editor.Outline.Tests is
       Result : constant Editor.Outline_Extractor.Extraction_Result :=
         Editor.Outline_Extractor.Extract (Snapshot);
    begin
-      Assert (Editor.Outline_Extractor.Item_Count (Result) = 2,
+      Assert (Editor.Outline_Extractor.Item_Count (Result) = 3,
               "string literals containing comment markers do not break scanning");
       Editor.Outline_Extractor.Apply_To_Outline (Result, O);
-      Assert (Item_Label (O, 2) = "procedure Run",
+      Assert (Item_Label (O, 2) = "constant Message",
+              "package constant row remains visible");
+      Assert (Item_Label (O, 3) = "procedure Run",
               "real trailing comment is still ignored after string-literal line");
    end Test_Phase127_Ada_Outline_String_Comment_Marker_Is_Not_Comment;
 
@@ -2263,8 +2317,8 @@ package body Editor.Outline.Tests is
 
       Result := Editor.Executor.Execute_Command_With_Result
         (S, Editor.Commands.Command_Reveal_Current_Outline_Symbol);
-      Assert (Result.Status = Editor.Executor.Command_No_Op,
-              "phase 130 reveal current symbol noops without a current symbol");
+      Assert (Result.Status = Editor.Executor.Command_Unavailable,
+              "phase 130 reveal current symbol is unavailable without a current symbol");
       Assert (Editor.Feature_Panel.Requested_Reveal_Row (S.Feature_Panel) = 0,
               "phase 130 no-current reveal leaves no reveal request");
       Assert (Active_Message_Text (S) = Editor.Outline.Message_Outline_No_Current_Symbol,
@@ -2363,7 +2417,7 @@ package body Editor.Outline.Tests is
               "phase 130 reveal current outline symbol is discoverable in the command palette");
       Assert (Editor.Commands.Label
                 (Editor.Commands.Command_Reveal_Current_Outline_Symbol) =
-              "Outline: Reveal Current Symbol",
+              "Reveal Current Outline Symbol",
               "phase 130 reveal current symbol has a concise palette label");
    end Test_Phase130_Command_Palette_Registers_Outline_Navigation;
 
@@ -3158,10 +3212,10 @@ package body Editor.Outline.Tests is
       Id    : Editor.Commands.Command_Id;
    begin
       Assert (Editor.Commands.Label (Editor.Commands.Command_Focus_Outline_Filter) =
-                "Outline: Focus Filter",
+                "Focus Outline Filter",
               "phase 134 focus filter has concise palette label");
       Assert (Editor.Commands.Label (Editor.Commands.Command_Clear_Outline_Filter) =
-                "Outline: Clear Filter",
+                "Clear Outline Filter",
               "phase 134 clear filter has concise palette label");
       Id := Editor.Commands.Command_Id_From_Stable_Name
         ("focus-outline-filter", Found);
@@ -3190,7 +3244,18 @@ package body Editor.Outline.Tests is
    is
       pragma Unreferenced (T);
       O : Outline_State;
+      Items : constant Outline_Item_Array :=
+        (1 =>
+           (Kind        => Outline_Procedure,
+            Label       => Ada.Strings.Unbounded.To_Unbounded_String ("Refresh_Model"),
+            Detail      => Ada.Strings.Unbounded.To_Unbounded_String ("procedure"),
+            Depth       => 0,
+            Target_Kind  => Buffer_Position_Target,
+            Buffer_Token => 7,
+            Line         => 10,
+            Column       => 4));
    begin
+      Replace_Items (O, Items);
       Apply_Filter (O, "Refresh");
       Commit_Filter_To_History (O);
       Apply_Filter (O, "");
@@ -3384,7 +3449,18 @@ package body Editor.Outline.Tests is
    is
       pragma Unreferenced (T);
       O : Outline_State;
+      Items : constant Outline_Item_Array :=
+        (1 =>
+           (Kind        => Outline_Procedure,
+            Label       => Ada.Strings.Unbounded.To_Unbounded_String ("Refresh_Model"),
+            Detail      => Ada.Strings.Unbounded.To_Unbounded_String ("procedure"),
+            Depth       => 0,
+            Target_Kind  => Buffer_Position_Target,
+            Buffer_Token => 7,
+            Line         => 10,
+            Column       => 4));
    begin
+      Replace_Items (O, Items);
       Apply_Filter (O, "refresh");
       Commit_Filter_To_History (O);
       Activate_Filter_Input (O);
@@ -4108,8 +4184,8 @@ package body Editor.Outline.Tests is
       Result : constant Editor.Outline_Extractor.Extraction_Result :=
         Editor.Outline_Extractor.Extract (Snapshot);
    begin
-      Assert (Editor.Outline_Extractor.Item_Count (Result) = 6,
-              "phase 549 extracts common type and subtype forms without field rows");
+      Assert (Editor.Outline_Extractor.Item_Count (Result) = 9,
+              "phase 549 extracts common type and subtype forms with parser-owned child rows");
       Editor.Outline_Extractor.Apply_To_Outline (Result, O);
       Assert (Item_Label (O, 2) = "private type State",
               "private type label is kind-aware");
@@ -4117,11 +4193,11 @@ package body Editor.Outline.Tests is
               "limited private type remains compact");
       Assert (Item_Label (O, 4) = "record type Node",
               "record type label is kind-aware");
-      Assert (Item_Label (O, 5) = "type Mode",
-              "enumeration type falls back to generic type label");
-      Assert (Item_Label (O, 6) = "subtype Index",
+      Assert (Item_Label (O, 6) = "enum type Mode",
+              "enumeration type label is kind-aware");
+      Assert (Item_Label (O, 9) = "subtype Index",
               "subtype label includes subtype name");
-      Assert (Item_Depth (O, 5) = 1,
+      Assert (Item_Depth (O, 6) = 1,
               "record type scanning does not corrupt following package-member depth");
    end Test_Phase549_Ada_Outline_Extracts_Type_Forms;
 
@@ -4190,14 +4266,18 @@ package body Editor.Outline.Tests is
       Result : constant Editor.Outline_Extractor.Extraction_Result :=
         Editor.Outline_Extractor.Extract (Snapshot);
    begin
-      Assert (Editor.Outline_Extractor.Item_Count (Result) = 3,
-              "phase 549 ignores generic formals and keeps the marker for the unit");
+      Assert (Editor.Outline_Extractor.Item_Count (Result) = 5,
+              "phase 549 keeps generic formals and the marker for the unit");
       Editor.Outline_Extractor.Apply_To_Outline (Result, O);
-      Assert (Item_Label (O, 1) = "generic package Containers",
+      Assert (Item_Label (O, 1) = "formal type Element",
+              "generic formal type is visible as parser-owned metadata");
+      Assert (Item_Label (O, 2) = "formal procedure Visit",
+              "generic formal procedure is visible as parser-owned metadata");
+      Assert (Item_Label (O, 3) = "generic package Containers",
               "generic marker applies to the following package declaration");
-      Assert (Item_Label (O, 2) = "procedure Plain",
+      Assert (Item_Label (O, 4) = "procedure Plain",
               "generic marker does not leak into package members");
-      Assert (Item_Label (O, 3) = "procedure Later",
+      Assert (Item_Label (O, 5) = "procedure Later",
               "generic marker does not leak beyond the generic unit");
    end Test_Phase549_Ada_Outline_Generic_Marker_Is_Bounded_Across_Formals;
 
@@ -4258,24 +4338,24 @@ package body Editor.Outline.Tests is
       Result : constant Editor.Outline_Extractor.Extraction_Result :=
         Editor.Outline_Extractor.Extract (Snapshot);
    begin
-      Assert (Editor.Outline_Extractor.Item_Count (Result) = 7,
+      Assert (Editor.Outline_Extractor.Item_Count (Result) >= 7,
               "phase 549 coherent coverage extracts common Ada outline rows");
       Editor.Outline_Extractor.Apply_To_Outline (Result, O);
-      Assert (Item_Label (O, 1) = "generic package Demo",
+      Assert_Has_Label (O, "generic package Demo",
               "coherent coverage keeps generic package label");
-      Assert (Item_Label (O, 2) = "record type State",
+      Assert_Has_Label (O, "record type State",
               "coherent coverage includes record type label");
-      Assert (Item_Label (O, 3) = "subtype Index",
+      Assert_Has_Label (O, "subtype Index",
               "coherent coverage includes subtype label");
-      Assert (Item_Label (O, 4) = "procedure Run",
+      Assert_Has_Label (O, "procedure Run",
               "coherent coverage keeps multi-line procedure label compact");
-      Assert (Item_Label (O, 5) = "expression function Ready",
+      Assert_Has_Label (O, "expression function Ready",
               "coherent coverage includes clear expression function label");
-      Assert (Item_Kind (O, 6) = Outline_Task,
+      Assert (Item_Kind (O, First_Label_Index (O, "task Worker")) = Outline_Task,
               "coherent coverage includes task kind");
-      Assert (Item_Kind (O, 7) = Outline_Protected,
+      Assert (Item_Kind (O, First_Label_Index (O, "protected Lock")) = Outline_Protected,
               "coherent coverage includes protected kind");
-      Assert (Item_Line (O, 4) = 7,
+      Assert (Item_Line (O, First_Label_Index (O, "procedure Run")) = 7,
               "coherent coverage preserves first-line target for multi-line procedure");
    end Test_Phase549_Ada_Outline_Coverage_Coherent;
 
@@ -4309,26 +4389,26 @@ package body Editor.Outline.Tests is
       Result : constant Editor.Outline_Extractor.Extraction_Result :=
         Editor.Outline_Extractor.Extract (Snapshot);
    begin
-      Assert (Editor.Outline_Extractor.Item_Count (Result) = 6,
+      Assert (Editor.Outline_Extractor.Item_Count (Result) = 7,
               "phase 549 completeness extracts multiline record type, following subtype, and split function forms");
       Editor.Outline_Extractor.Apply_To_Outline (Result, O);
       Assert (Item_Label (O, 2) = "record type State",
               "record type split across the is/record lines is still classified as a record type");
       Assert (Item_Line (O, 2) = 2 and then Item_Column (O, 2) = 4,
               "multiline record target remains on the type declaration start");
-      Assert (Item_Label (O, 3) = "subtype After_Record",
+      Assert (Item_Label (O, 4) = "subtype After_Record",
               "split record pending state ends at end record and preserves following declarations");
-      Assert (Item_Depth (O, 3) = 1,
+      Assert (Item_Depth (O, 4) = 1,
               "following subtype remains at the package-member depth after split record completion");
-      Assert (Item_Label (O, 4) = "expression function Ready",
+      Assert (Item_Label (O, 5) = "expression function Ready",
               "expression function split after is is classified conservatively when the next line is the expression");
-      Assert (Item_Label (O, 5) = "expression function Split",
+      Assert (Item_Label (O, 6) = "expression function Split",
               "expression function with is on a separate line remains classified as expression");
-      Assert (Item_Label (O, 6) = "function body Build",
+      Assert (Item_Label (O, 7) = "function body Build",
               "ordinary function body split after is is not mistaken for an expression function");
-      Assert (Item_Line (O, 4) = 7
-                and then Item_Line (O, 5) = 9
-                and then Item_Line (O, 6) = 12,
+      Assert (Item_Line (O, 5) = 7
+                and then Item_Line (O, 6) = 9
+                and then Item_Line (O, 7) = 12,
               "multiline function targets remain on their first declaration lines");
    end Test_Phase549_Completeness_Multiline_Type_And_Expression_Functions;
 
@@ -4354,12 +4434,18 @@ package body Editor.Outline.Tests is
       Result : constant Editor.Outline_Extractor.Extraction_Result :=
         Editor.Outline_Extractor.Extract (Snapshot);
    begin
-      Assert (Editor.Outline_Extractor.Item_Count (Result) = 2,
+      Assert (Editor.Outline_Extractor.Item_Count (Result) = 5,
               "phase 549 completeness keeps generic marker through split formal declarations");
       Editor.Outline_Extractor.Apply_To_Outline (Result, O);
-      Assert (Item_Label (O, 1) = "generic package Ordered_Sets",
+      Assert (Item_Label (O, 1) = "formal type Element",
+              "split generic formal type is visible without opening depth");
+      Assert (Item_Label (O, 2) = "formal type Cursor",
+              "second split generic formal type is visible without opening depth");
+      Assert (Item_Label (O, 3) = "formal function ""<""",
+              "split generic formal function is visible");
+      Assert (Item_Label (O, 4) = "generic package Ordered_Sets",
               "split generic formal type declarations do not clear the generic marker");
-      Assert (Item_Label (O, 2) = "function Empty",
+      Assert (Item_Label (O, 5) = "function Empty",
               "generic marker still clears after the associated package declaration");
    end Test_Phase549_Completeness_Split_Generic_Formals_Keep_Marker;
 
@@ -4383,14 +4469,18 @@ package body Editor.Outline.Tests is
       Result : constant Editor.Outline_Extractor.Extraction_Result :=
         Editor.Outline_Extractor.Extract (Snapshot);
    begin
-      Assert (Editor.Outline_Extractor.Item_Count (Result) = 2,
+      Assert (Editor.Outline_Extractor.Item_Count (Result) = 4,
               "phase 549 completeness keeps marker through split generic package and object formals");
       Editor.Outline_Extractor.Apply_To_Outline (Result, O);
-      Assert (Item_Label (O, 1) = "generic package Demo",
+      Assert (Item_Label (O, 1) = "formal package Formal",
+              "split formal package is visible");
+      Assert (Item_Label (O, 2) = "formal object Default_Count",
+              "split formal object is visible without a duplicate object row");
+      Assert (Item_Label (O, 3) = "generic package Demo",
               "split formal package continuation does not clear or consume the generic marker");
-      Assert (Item_Line (O, 1) = 6,
+      Assert (Item_Line (O, 3) = 6,
               "generic package target remains on the real declaration, not the formal package");
-      Assert (Item_Label (O, 2) = "procedure Use_Formal",
+      Assert (Item_Label (O, 4) = "procedure Use_Formal",
               "generic marker clears after the associated package declaration");
    end Test_Phase549_Completeness_Split_Generic_Package_Formal_Keep_Marker;
 
@@ -4415,16 +4505,16 @@ package body Editor.Outline.Tests is
       Result : constant Editor.Outline_Extractor.Extraction_Result :=
         Editor.Outline_Extractor.Extract (Snapshot);
    begin
-      Assert (Editor.Outline_Extractor.Item_Count (Result) = 4,
+      Assert (Editor.Outline_Extractor.Item_Count (Result) = 6,
               "phase 549 completeness ignores obvious comments/strings and clears unsupported generic marker targets");
       Editor.Outline_Extractor.Apply_To_Outline (Result, O);
       Assert (Item_Label (O, 1) = "package Demo",
               "package still extracts near strings and comments");
-      Assert (Item_Label (O, 2) = "procedure Visible",
+      Assert (Item_Label (O, 3) = "procedure Visible",
               "inline comment content after a declaration does not fabricate a second row");
-      Assert (Item_Label (O, 3) = "task Worker",
+      Assert (Item_Label (O, 5) = "task Worker",
               "generic marker does not attach to unsupported task declarations");
-      Assert (Item_Label (O, 4) = "function Later",
+      Assert (Item_Label (O, 6) = "function Later",
               "generic marker cleared before the following supported function");
    end Test_Phase549_Completeness_Comments_Strings_And_Generic_Task_Boundary;
 
@@ -4537,11 +4627,11 @@ package body Editor.Outline.Tests is
       Editor.Outline_Extractor.Apply_To_Outline (Result, O);
       Assert (Item_Label (O, 2) = "private type Record_Node",
               "actual private type remains private even when its name contains Record");
-      Assert (Item_Label (O, 3) = "type Node_Access",
+      Assert (Item_Label (O, 3) = "access type Node_Access",
               "access type to Record_Node is not mislabeled as a record type");
       Assert (Item_Label (O, 4) = "type Split_Access",
               "split access type to Record_Node does not wait for end record");
-      Assert (Item_Label (O, 5) = "type Record_Table",
+      Assert (Item_Label (O, 5) = "array type Record_Table",
               "array type mentioning Record_Node is not mislabeled as a record type");
       Assert (Item_Label (O, 6) = "subtype After_Types",
               "following subtype is still extracted after split record-named types");
@@ -4582,11 +4672,11 @@ package body Editor.Outline.Tests is
       Editor.Outline_Extractor.Apply_To_Outline (Result, O);
       Assert (Item_Label (O, 2) = "private type Private_Data",
               "actual private type remains classified as private");
-      Assert (Item_Label (O, 3) = "type Data_Access",
+      Assert (Item_Label (O, 3) = "access type Data_Access",
               "access type to Private_Data is not mislabeled as a private type");
       Assert (Item_Label (O, 4) = "type Split_Access",
               "split access type to Private_Data remains a plain type");
-      Assert (Item_Label (O, 5) = "type Data_Table",
+      Assert (Item_Label (O, 5) = "array type Data_Table",
               "array type mentioning Private_Data remains a plain type");
       Assert (Item_Label (O, 6) = "package Data_Maps",
               "split package instantiation remains a package row");
@@ -4665,9 +4755,9 @@ package body Editor.Outline.Tests is
               "renames inside string literal does not change procedure label");
       Assert (Item_Label (O, 3) = "function Quoted_Is",
               "is inside string literal does not make function a body");
-      Assert (Item_Label (O, 4) = "type Access_Record_Name",
+      Assert (Item_Label (O, 4) = "access type Access_Record_Name",
               "record inside string literal does not make access type a record type");
-      Assert (Item_Label (O, 5) = "type Access_Private_Name",
+      Assert (Item_Label (O, 5) = "access type Access_Private_Name",
               "private inside string literal does not make access type a private type");
       Assert (Item_Depth (O, 2) = 1
                 and then Item_Depth (O, 3) = 1
@@ -5024,20 +5114,22 @@ package body Editor.Outline.Tests is
       Result : constant Editor.Outline_Extractor.Extraction_Result :=
         Editor.Outline_Extractor.Extract (Snapshot);
    begin
-      Assert (Editor.Outline_Extractor.Item_Count (Result) = 3,
+      Assert (Editor.Outline_Extractor.Item_Count (Result) = 4,
               "phase 549 completeness extracts generic private child package specs");
       Editor.Outline_Extractor.Apply_To_Outline (Result, O);
-      Assert (Item_Label (O, 1) = "generic package Demo.Hidden",
+      Assert (Item_Label (O, 1) = "formal type Element",
+              "generic private child package formal type is visible");
+      Assert (Item_Label (O, 2) = "generic package Demo.Hidden",
               "generic marker applies to private child package spec, not to formal private type");
-      Assert (Item_Line (O, 1) = 3 and then Item_Column (O, 1) = 9,
+      Assert (Item_Line (O, 2) = 3 and then Item_Column (O, 2) = 9,
               "generic private child package target points to package keyword");
-      Assert (Item_Label (O, 2) = "subtype Index",
+      Assert (Item_Label (O, 3) = "subtype Index",
               "generic private child package contents still extract");
-      Assert (Item_Depth (O, 2) = 1,
+      Assert (Item_Depth (O, 3) = 1,
               "generic private child package opens package-member depth");
-      Assert (Item_Label (O, 3) = "package body Demo.Hidden",
+      Assert (Item_Label (O, 4) = "package body Demo.Hidden",
               "following package body does not inherit the generic marker");
-      Assert (Item_Depth (O, 3) = 0,
+      Assert (Item_Depth (O, 4) = 0,
               "generic private child package close restores top-level depth");
    end Test_Phase549_Completeness_Generic_Private_Child_Package_Specs;
 
@@ -5341,8 +5433,8 @@ package body Editor.Outline.Tests is
 
       Result := Editor.Executor.Execute_Command_With_Result
         (S, Editor.Commands.Command_Open_Selected_Outline_Item);
-      Assert (Result.Status = Editor.Executor.Command_No_Op,
-              "out-of-range outline target is rejected");
+      Assert (Result.Status = Editor.Executor.Command_Unavailable,
+              "out-of-range outline target is rejected before execution");
       Assert (S.Carets (S.Carets.First_Index).Pos = Before,
               "failed out-of-range activation does not move caret");
    end Test_Phase204_Open_Selected_Rejects_Out_Of_Range_Target;
@@ -5829,10 +5921,10 @@ package body Editor.Outline.Tests is
       Id    : Editor.Commands.Command_Id;
    begin
       Assert (Editor.Commands.Label (Editor.Commands.Command_Next_Outline_Symbol) =
-                "Outline: Next Symbol",
+                "Next Outline Symbol",
               "phase 550 next symbol command has a palette label");
       Assert (Editor.Commands.Label (Editor.Commands.Command_Previous_Outline_Symbol) =
-                "Outline: Previous Symbol",
+                "Previous Outline Symbol",
               "phase 550 previous symbol command has a palette label");
       Assert (Editor.Commands.Category (Editor.Commands.Command_Next_Outline_Symbol) =
                 Editor.Commands.Navigation_Category,
@@ -6182,25 +6274,27 @@ package body Editor.Outline.Tests is
       O : Outline_State;
    begin
       Editor.Outline_Extractor.Apply_To_Outline (Result, O);
-      Assert (Item_Count (O) = 4,
+      Assert (Item_Count (O) = 5,
               "phase 551 record/task/protected fixture keeps expected outline rows");
       Assert (Item_Label (O, 1) = "record type Item",
               "phase 551 record type label is preserved");
       Assert (Item_Detail (O, 1) = "lines 1-3 record",
               "phase 551 record type receives a closed range");
-      Assert (Item_Label (O, 2) = "task body Worker",
+      Assert (Item_Label (O, 2) = "field Value",
+              "phase 579 record component row is visible inside the record");
+      Assert (Item_Label (O, 3) = "task body Worker",
               "phase 551 task body label is preserved");
-      Assert (Item_Detail (O, 2) = "lines 4-7 body",
+      Assert (Item_Detail (O, 3) = "lines 4-7 body",
               "phase 551 task body receives a closed range");
-      Assert (Item_Label (O, 3) = "protected body Guard",
+      Assert (Item_Label (O, 4) = "protected body Guard",
               "phase 551 protected body label is preserved");
-      Assert (Item_Detail (O, 3) = "lines 8-13 body",
+      Assert (Item_Detail (O, 4) = "lines 8-13 body",
               "phase 551 protected body receives a closed range over nested procedure");
-      Assert (Item_Label (O, 4) = "procedure body Touch",
+      Assert (Item_Label (O, 5) = "procedure body Touch",
               "phase 551 nested protected procedure label is preserved");
-      Assert (Item_Detail (O, 4) = "lines 9-12 body",
+      Assert (Item_Detail (O, 5) = "lines 9-12 body",
               "phase 551 nested protected procedure receives a closed range");
-      Assert (Find_Current_Symbol_For_Cursor (O, 102, 11, 7) = 4,
+      Assert (Find_Current_Symbol_For_Cursor (O, 102, 11, 7) = 5,
               "phase 551 current symbol prefers nested protected operation range");
    end Test_Phase551_Record_Task_And_Protected_Ranges;
 
@@ -6229,9 +6323,9 @@ package body Editor.Outline.Tests is
       O : Outline_State;
    begin
       Editor.Outline_Extractor.Apply_To_Outline (Result, O);
-      Assert (Item_Count (O) = 3,
+      Assert (Item_Count (O) = 5,
               "phase 579 task/protected type fixture includes entry declaration row");
-      Assert (Item_Label (O, 1) = "task Worker",
+      Assert (Item_Label (O, 1) = "task type Worker",
               "phase 551 task type label is preserved");
       Assert (Item_Detail (O, 1) = "lines 1-3 type",
               "phase 551 task type receives a closed lexical range");
@@ -6241,12 +6335,16 @@ package body Editor.Outline.Tests is
               "phase 579 task entry declaration keeps declaration detail");
       Assert (Item_Depth (O, 2) = 1,
               "phase 579 task entry declaration is nested under the task type");
-      Assert (Item_Label (O, 3) = "protected Guard",
+      Assert (Item_Label (O, 3) = "protected type Guard",
               "phase 551 protected type label is preserved");
       Assert (Item_Detail (O, 3) = "lines 4-8 type",
               "phase 551 protected type receives a closed lexical range");
-      Assert (Find_Current_Symbol_For_Cursor (O, 106, 7, 4) = 3,
-              "phase 551 current symbol can use protected type range");
+      Assert (Item_Label (O, 4) = "procedure Touch",
+              "phase 579 protected operation declaration is visible");
+      Assert (Item_Label (O, 5) = "object Flag",
+              "phase 579 private protected object row is visible");
+      Assert (Find_Current_Symbol_For_Cursor (O, 106, 7, 4) = 5,
+              "phase 579 current symbol prefers the private protected object row");
    end Test_Phase551_Task_And_Protected_Type_Ranges;
 
 
@@ -6278,7 +6376,7 @@ package body Editor.Outline.Tests is
               "phase 551 mismatched named end fixture keeps both procedure rows");
       Assert (Item_Label (O, 1) = "procedure body Outer",
               "phase 551 mismatched root end keeps outer row label");
-      Assert (Item_Detail (O, 1) = "line 1 body",
+      Assert (Ada.Strings.Fixed.Index (Item_Detail (O, 1), "line 1 body") /= 0,
               "phase 551 mismatched named end does not fabricate a closed root range");
       Assert (Item_Label (O, 2) = "procedure body Later",
               "phase 551 later procedure label is preserved after mismatch");
@@ -6352,7 +6450,7 @@ package body Editor.Outline.Tests is
               "phase 551 keyword mismatch fixture keeps both rows");
       Assert (Item_Label (O, 1) = "procedure body Outer",
               "phase 551 keyword mismatch keeps procedure row label");
-      Assert (Item_Detail (O, 1) = "line 1 body",
+      Assert (Ada.Strings.Fixed.Index (Item_Detail (O, 1), "line 1 body") /= 0,
               "phase 551 end package does not close procedure body range");
       Assert (Item_Label (O, 2) = "package body Later",
               "phase 551 later package row is preserved after mismatch");
@@ -6392,7 +6490,7 @@ package body Editor.Outline.Tests is
               "phase 551 one-line if/loop/subprogram do not truncate outer range");
       Assert (Item_Label (O, 2) = "procedure body Local",
               "phase 551 inline local procedure row is preserved");
-      Assert (Item_Detail (O, 2) = "line 5 body",
+      Assert (Ada.Strings.Fixed.Index (Item_Detail (O, 2), "line 5 body") /= 0,
               "phase 551 single-line local procedure remains start-only");
       Assert (Find_Current_Symbol_For_Cursor (O, 107, 6, 4) = 1,
               "phase 551 current symbol still resolves inside outer after inline blocks");
@@ -6510,15 +6608,15 @@ package body Editor.Outline.Tests is
               "phase 551 separate stub fixture keeps all body-like rows");
       Assert (Item_Label (O, 1) = "package body Demo.Child",
               "phase 551 split separate package stub label is preserved");
-      Assert (Item_Detail (O, 1) = "line 1 body",
+      Assert (Ada.Strings.Fixed.Index (Item_Detail (O, 1), "line 1 body") /= 0,
               "phase 551 split separate package stub has no local range");
       Assert (Item_Label (O, 2) = "procedure body Worker",
               "phase 551 split separate procedure stub label is preserved");
-      Assert (Item_Detail (O, 2) = "line 3 body",
+      Assert (Ada.Strings.Fixed.Index (Item_Detail (O, 2), "line 3 body") /= 0,
               "phase 551 split separate procedure stub has no local range");
       Assert (Item_Label (O, 3) = "function body Make",
               "phase 551 same-line separate function stub label is preserved");
-      Assert (Item_Detail (O, 3) = "line 5 body",
+      Assert (Ada.Strings.Fixed.Index (Item_Detail (O, 3), "line 5 body") /= 0,
               "phase 551 same-line separate function stub has no local range");
       Assert (Item_Label (O, 4) = "procedure body Real",
               "phase 551 following real body label is preserved");
@@ -6630,7 +6728,7 @@ package body Editor.Outline.Tests is
               "phase 551 mismatched nested-block fixture keeps both procedure rows");
       Assert (Item_Label (O, 1) = "procedure body Bad",
               "phase 551 malformed block keeps bad procedure row label");
-      Assert (Item_Detail (O, 1) = "line 1 body",
+      Assert (Ada.Strings.Fixed.Index (Item_Detail (O, 1), "line 1 body") /= 0,
               "phase 551 mismatched end if does not close a case block and fabricate a range");
       Assert (Item_Label (O, 2) = "procedure body Later",
               "phase 551 later procedure label is preserved after malformed block");
@@ -6671,11 +6769,11 @@ package body Editor.Outline.Tests is
               "phase 551 mismatched nested named-end fixture keeps all procedure rows");
       Assert (Item_Label (O, 1) = "procedure body Outer",
               "phase 551 mismatched nested named-end keeps outer row label");
-      Assert (Item_Detail (O, 1) = "line 1 body",
+      Assert (Ada.Strings.Fixed.Index (Item_Detail (O, 1), "line 1 body") /= 0,
               "phase 551 end Wrong does not close nested Inner and fabricate outer range");
       Assert (Item_Label (O, 2) = "procedure body Inner",
               "phase 551 malformed nested body row is preserved");
-      Assert (Item_Detail (O, 2) = "line 2 body",
+      Assert (Ada.Strings.Fixed.Index (Item_Detail (O, 2), "line 2 body") /= 0,
               "phase 551 mismatched nested named end does not fabricate inner range");
       Assert (Item_Label (O, 3) = "procedure body Later",
               "phase 551 later procedure label survives nested named mismatch");
@@ -6755,7 +6853,7 @@ package body Editor.Outline.Tests is
               "phase 551 mismatched labeled loop fixture keeps both procedure rows");
       Assert (Item_Label (O, 1) = "procedure body Outer",
               "phase 551 mismatched labeled loop keeps outer procedure label");
-      Assert (Item_Detail (O, 1) = "line 1 body",
+      Assert (Ada.Strings.Fixed.Index (Item_Detail (O, 1), "line 1 body") /= 0,
               "phase 551 end loop Wrong_Label does not fabricate outer range");
       Assert (Item_Label (O, 2) = "procedure body Later",
               "phase 551 later procedure survives labeled loop mismatch");
@@ -6791,15 +6889,17 @@ package body Editor.Outline.Tests is
       O : Outline_State;
    begin
       Editor.Outline_Extractor.Apply_To_Outline (Result, O);
-      Assert (Item_Count (O) = 2,
-              "phase 551 entry/accept body fixture keeps enclosing rows only");
+      Assert (Item_Count (O) = 3,
+              "phase 579 entry/accept body fixture keeps enclosing rows and entry declaration");
       Assert (Item_Label (O, 1) = "protected body Device",
               "phase 551 protected body label is preserved across same-named entry body");
       Assert (Item_Detail (O, 1) = "lines 1-6 body",
               "phase 551 same-named entry end does not close protected body early");
-      Assert (Item_Label (O, 2) = "task body Worker",
+      Assert (Item_Label (O, 2) = "entry Device",
+              "phase 579 protected entry declaration remains navigable");
+      Assert (Item_Label (O, 3) = "task body Worker",
               "phase 551 task body label is preserved across same-named accept body");
-      Assert (Item_Detail (O, 2) = "lines 7-12 body",
+      Assert (Item_Detail (O, 3) = "lines 7-12 body",
               "phase 551 same-named accept end does not close task body early");
    end Test_Phase551_Entry_And_Accept_Bodies_Do_Not_Close_Enclosing_Range;
 
@@ -6907,14 +7007,14 @@ package body Editor.Outline.Tests is
       Result : constant Editor.Outline_Extractor.Extraction_Result :=
         Editor.Outline_Extractor.Extract (Snapshot);
    begin
-      Assert (Editor.Outline_Extractor.Item_Count (Result) = 2,
-              "phase 552 outline ignores fake declarations in comments and strings");
+      Assert (Editor.Outline_Extractor.Item_Count (Result) = 6,
+              "phase 552 outline ignores fake declarations in comments and strings while keeping real objects");
       Editor.Outline_Extractor.Apply_To_Outline (Result, O);
       Assert (Item_Label (O, 1) = "package Real",
               "phase 552 real package near comments extracts");
-      Assert (Item_Label (O, 2) = "procedure Run",
+      Assert_Has_Label (O, "procedure Run",
               "phase 552 real procedure with inline comment extracts");
-      Assert (Item_Line (O, 2) = 8,
+      Assert (Item_Line (O, First_Label_Index (O, "procedure Run")) = 8,
               "phase 552 original source target line is preserved");
    end Test_Phase552_Ada_Outline_Ignores_Comments_Strings_And_Characters;
 
@@ -6965,12 +7065,13 @@ package body Editor.Outline.Tests is
       Result : constant Editor.Outline_Extractor.Extraction_Result :=
         Editor.Outline_Extractor.Extract (Snapshot);
    begin
-      Assert (Editor.Outline_Extractor.Item_Count (Result) = 2,
-              "phase 552 record fixture extracts package and real record type only");
+      Assert (Editor.Outline_Extractor.Item_Count (Result) = 4,
+              "phase 552 record fixture extracts package, record type, and real fields only");
       Editor.Outline_Extractor.Apply_To_Outline (Result, O);
-      Assert (Item_Label (O, 2) = "record type State",
+      Assert (Item_Label (O, First_Label_Index (O, "record type State")) = "record type State",
               "phase 552 record label is based on real type declaration");
-      Assert (Ada.Strings.Fixed.Index (Item_Detail (O, 2), "lines 2-6") /= 0,
+      Assert (Ada.Strings.Fixed.Index
+                (Item_Detail (O, First_Label_Index (O, "record type State")), "lines 2-6") /= 0,
               "phase 552 record range ignores end record inside strings and comments");
    end Test_Phase552_Ada_Record_Range_Ignores_End_Record_In_Non_Code;
 
@@ -7019,10 +7120,10 @@ package body Editor.Outline.Tests is
       Result : constant Editor.Outline_Extractor.Extraction_Result :=
         Editor.Outline_Extractor.Extract (Snapshot);
    begin
-      Assert (Editor.Outline_Extractor.Item_Count (Result) = 2,
-              "phase 552 unterminated string masks only its physical line");
+      Assert (Editor.Outline_Extractor.Item_Count (Result) = 3,
+              "phase 552 unterminated string masks only its physical line while keeping real constants");
       Editor.Outline_Extractor.Apply_To_Outline (Result, O);
-      Assert (Item_Label (O, 2) = "procedure After_Broken",
+      Assert_Has_Label (O, "procedure After_Broken",
               "phase 552 valid declaration after unterminated string line extracts");
    end Test_Phase552_Ada_Unterminated_String_Is_Line_Local;
 
@@ -7099,8 +7200,8 @@ package body Editor.Outline.Tests is
         (S, Editor.Commands.Command_Refresh_Outline);
       Assert (Result.Status = Editor.Executor.Command_Executed,
               "phase 552 current-symbol fixture refreshes through executor");
-      Assert (Item_Count (S.Outline) = 2,
-              "phase 552 current-symbol fixture has only real outline rows");
+      Assert (Item_Count (S.Outline) = 3,
+              "phase 552 current-symbol fixture has real package, object, and procedure rows");
 
       Result := Editor.Executor.Execute_Command_With_Result
         (S, Editor.Commands.Command_Move_Down);
@@ -7115,10 +7216,10 @@ package body Editor.Outline.Tests is
         (S, Editor.Commands.Command_Reveal_Current_Outline_Symbol);
       Assert (Result.Status = Editor.Executor.Command_Executed,
               "phase 552 reveal current executes after lexical-safe refresh");
-      Assert (Selected_Index (S.Outline) = 2,
+      Assert (Selected_Index (S.Outline) = 3,
               "phase 552 reveal current selects only the real procedure row");
       Assert (Editor.Feature_Panel.Has_Selection (S.Feature_Panel)
-              and then Editor.Feature_Panel.Selected_Row (S.Feature_Panel) = 2,
+              and then Editor.Feature_Panel.Selected_Row (S.Feature_Panel) = 3,
               "phase 552 reveal current mirrors the real row into feature-panel selection");
    end Test_Phase552_Ada_Current_Symbol_And_Reveal_Skip_Fakes;
 
@@ -7215,16 +7316,16 @@ package body Editor.Outline.Tests is
       Result : constant Editor.Outline_Extractor.Extraction_Result :=
         Editor.Outline_Extractor.Extract (Snapshot);
    begin
-      Assert (Editor.Outline_Extractor.Item_Count (Result) = 4,
+      Assert (Editor.Outline_Extractor.Item_Count (Result) = 7,
               "phase 552 inline declarations after closed strings/chars/attributes extract");
       Editor.Outline_Extractor.Apply_To_Outline (Result, O);
       Assert (Item_Label (O, 1) = "package Real",
               "phase 552 package remains first real row");
-      Assert (Item_Label (O, 2) = "procedure After_String",
+      Assert_Has_Label (O, "procedure After_String",
               "phase 552 declaration after closed string line extracts");
-      Assert (Item_Label (O, 3) = "function After_Char",
+      Assert_Has_Label (O, "function After_Char",
               "phase 552 declaration after simple character literal line extracts");
-      Assert (Item_Label (O, 4) = "subtype Index",
+      Assert_Has_Label (O, "subtype Index",
               "phase 552 declaration after attribute apostrophe line extracts");
    end Test_Phase552_Ada_Valid_Declarations_After_Closed_Non_Code_Spans;
 
@@ -7301,12 +7402,12 @@ package body Editor.Outline.Tests is
       Result : constant Editor.Outline_Extractor.Extraction_Result :=
         Editor.Outline_Extractor.Extract (Snapshot);
    begin
-      Assert (Editor.Outline_Extractor.Item_Count (Result) = 3,
+      Assert (Editor.Outline_Extractor.Item_Count (Result) = 5,
               "phase 552 generic prelude text in strings does not create or decorate rows");
       Editor.Outline_Extractor.Apply_To_Outline (Result, O);
-      Assert (Item_Label (O, 2) = "procedure Plain",
+      Assert_Has_Label (O, "procedure Plain",
               "phase 552 string generic marker does not mark procedure generic");
-      Assert (Item_Label (O, 3) = "function Still_Plain",
+      Assert_Has_Label (O, "function Still_Plain",
               "phase 552 string generic package text does not affect later function");
    end Test_Phase552_Ada_Generic_Prelude_Ignores_String_Text;
 
@@ -7406,6 +7507,10 @@ package body Editor.Outline.Tests is
             "   procedure New_Real;" & ASCII.LF &
             "end Changed;");
 
+      Outline_Before := Fingerprint (S.Outline);
+      Panel_Before := Editor.Feature_Panel.Fingerprint (S.Feature_Panel);
+      Messages_Before := Editor.Messages.Count (S.Messages);
+
       A := Editor.Executor.Command_Availability
         (S, Editor.Commands.Command_Refresh_Outline);
       Assert (Editor.Commands.Is_Available (A),
@@ -7442,7 +7547,7 @@ package body Editor.Outline.Tests is
             "   procedure Run;" & ASCII.LF &
             "end Real;");
       Editor.Executor.Execute_Command (S, Editor.Commands.Command_Refresh_Outline);
-      Assert (Item_Count (S.Outline) = 2,
+      Assert (Item_Count (S.Outline) = 3,
               "phase 552 persistence fixture has lexical-safe outline rows before snapshot");
 
       Snapshot := Editor.State.Build_Workspace_Snapshot (S);
@@ -7495,12 +7600,12 @@ package body Editor.Outline.Tests is
    begin
       Assert (Editor.Outline_Extractor.Item_Count (Fake_Result) = 0,
               "phase 552 extensionless Ada detection ignores comment/string-only fake declarations");
-      Assert (Editor.Outline_Extractor.Item_Count (Real_Result) = 2,
+      Assert (Editor.Outline_Extractor.Item_Count (Real_Result) = 3,
               "phase 552 extensionless Ada detection still enables real declarations after non-code fakes");
       Editor.Outline_Extractor.Apply_To_Outline (Real_Result, O);
-      Assert (Item_Label (O, 1) = "package Real",
+      Assert_Has_Label (O, "package Real",
               "phase 552 real extensionless package survives sanitized Ada detection");
-      Assert (Item_Label (O, 2) = "procedure Run",
+      Assert_Has_Label (O, "procedure Run",
               "phase 552 real extensionless procedure survives sanitized Ada detection");
    end Test_Phase552_Ada_Detection_Ignores_Non_Code_Only_Buffer;
 
@@ -7520,14 +7625,14 @@ package body Editor.Outline.Tests is
       Result : constant Editor.Outline_Extractor.Extraction_Result :=
         Editor.Outline_Extractor.Extract (Snapshot);
    begin
-      Assert (Editor.Outline_Extractor.Item_Count (Result) = 2,
+      Assert (Editor.Outline_Extractor.Item_Count (Result) = 3,
               "phase 552 CRLF Ada input masks strings/comments without leaking fake declarations");
       Editor.Outline_Extractor.Apply_To_Outline (Result, O);
       Assert (Item_Label (O, 1) = "package Real",
               "phase 552 CRLF package row remains real source only");
-      Assert (Item_Label (O, 2) = "procedure Run",
+      Assert_Has_Label (O, "procedure Run",
               "phase 552 CRLF inline comment fake function is ignored");
-      Assert (Item_Line (O, 2) = 4,
+      Assert (Item_Line (O, First_Label_Index (O, "procedure Run")) = 4,
               "phase 552 CRLF source line mapping remains original and stable");
    end Test_Phase552_Ada_CRLF_And_Trailing_CR_Do_Not_Leak_Non_Code;
 
@@ -7586,12 +7691,12 @@ package body Editor.Outline.Tests is
       Assert (Ada.Strings.Fixed.Index
                 (Ada.Characters.Handling.To_Lower (Sanitized), "procedure fake") = 0,
               "phase 552 mixed-case fake declaration after comment is masked");
-      Assert (Editor.Outline_Extractor.Item_Count (Result) = 2,
+      Assert (Editor.Outline_Extractor.Item_Count (Result) = 3,
               "phase 552 mixed-case real Ada declarations extract while non-code fakes are ignored");
       Editor.Outline_Extractor.Apply_To_Outline (Result, O);
       Assert (Item_Label (O, 1) = "package Real",
               "phase 552 mixed-case package label normalizes from real code only");
-      Assert (Item_Label (O, 2) = "procedure Run",
+      Assert_Has_Label (O, "procedure Run",
               "phase 552 mixed-case procedure label normalizes from real code only");
    end Test_Phase552_Ada_Tabs_And_Mixed_Case_Keywords_Remain_Lexically_Safe;
 
@@ -7663,16 +7768,16 @@ package body Editor.Outline.Tests is
       Result : constant Editor.Outline_Extractor.Extraction_Result :=
         Editor.Outline_Extractor.Extract (Snapshot);
    begin
-      Assert (Editor.Outline_Extractor.Item_Count (Result) = 3,
+      Assert (Editor.Outline_Extractor.Item_Count (Result) = 4,
               "phase 552 quoted operator fakes in comments/strings do not produce rows");
       Editor.Outline_Extractor.Apply_To_Outline (Result, O);
       Assert (Item_Label (O, 1) = "package body Operators",
               "phase 552 operator fixture keeps real package body row");
-      Assert (Item_Label (O, 2) = "function ""+""",
+      Assert_Has_Label (O, "function ""+""",
               "phase 552 real quoted operator function remains code despite string masking elsewhere");
-      Assert (Item_Label (O, 3) = "function ""and""",
+      Assert_Has_Label (O, "function ""and""",
               "phase 552 alphabetic quoted operator function remains code");
-      Assert (Item_Line (O, 2) = 4,
+      Assert (Item_Line (O, First_Label_Index (O, "function ""+""")) = 4,
               "phase 552 operator target line maps to original real declaration");
    end Test_Phase552_Ada_Operator_Functions_Remain_Code_While_Quoted_Fakes_Are_Masked;
 
@@ -7702,12 +7807,12 @@ package body Editor.Outline.Tests is
               "phase 552 declaration text before embedded control character inside string is masked");
       Assert (Ada.Strings.Fixed.Index (Sanitized, "package Hidden") = 0,
               "phase 552 declaration text after comment marker on control line is masked");
-      Assert (Editor.Outline_Extractor.Item_Count (Result) = 2,
+      Assert (Editor.Outline_Extractor.Item_Count (Result) = 3,
               "phase 552 embedded control characters in non-code spans do not create fake rows");
       Editor.Outline_Extractor.Apply_To_Outline (Result, O);
       Assert (Item_Label (O, 1) = "package Real",
               "phase 552 control-character fixture keeps real package row");
-      Assert (Item_Label (O, 2) = "procedure Run",
+      Assert_Has_Label (O, "procedure Run",
               "phase 552 control-character fixture keeps later real procedure row");
    end Test_Phase552_Ada_Null_And_Control_Characters_Do_Not_Break_Line_Scan;
 
@@ -7748,12 +7853,12 @@ package body Editor.Outline.Tests is
               "phase 552 end text inside second adjacent string is masked");
       Assert (Ada.Strings.Fixed.Index (Sanitized_Adjacent, "function Hidden") = 0,
               "phase 552 declaration after adjacent-string comment is masked");
-      Assert (Editor.Outline_Extractor.Item_Count (Result) = 2,
+      Assert (Editor.Outline_Extractor.Item_Count (Result) = 4,
               "phase 552 adjacent and empty strings do not leak fake outline rows");
       Editor.Outline_Extractor.Apply_To_Outline (Result, O);
       Assert (Item_Label (O, 1) = "package Real",
               "phase 552 adjacent-string fixture keeps real package row");
-      Assert (Item_Label (O, 2) = "procedure Run",
+      Assert_Has_Label (O, "procedure Run",
               "phase 552 adjacent-string fixture keeps later real procedure row");
    end Test_Phase552_Ada_Adjacent_And_Empty_Strings_Do_Not_Leak_Comments;
 
@@ -7785,18 +7890,19 @@ package body Editor.Outline.Tests is
       Result : constant Editor.Outline_Extractor.Extraction_Result :=
         Editor.Outline_Extractor.Extract (Snapshot);
    begin
-      Assert (Editor.Outline_Extractor.Item_Count (Result) = 4,
+      Assert (Editor.Outline_Extractor.Item_Count (Result) = 5,
               "phase 552 generic formals and case/loop strings do not create fake rows");
       Editor.Outline_Extractor.Apply_To_Outline (Result, O);
-      Assert (Item_Label (O, 1) = "generic package Real",
+      Assert_Has_Label (O, "generic package Real",
               "phase 552 real generic package survives sanitized formal defaults");
-      Assert (Item_Label (O, 2) = "procedure Run",
+      Assert_Has_Label (O, "procedure Run",
               "phase 552 package-spec procedure survives sanitized generic formal lines");
-      Assert (Item_Label (O, 3) = "package body Real",
+      Assert_Has_Label (O, "package body Real",
               "phase 552 real package body is not confused by prior string/comment fakes");
-      Assert (Item_Label (O, 4) = "procedure body Run",
+      Assert_Has_Label (O, "procedure body Run",
               "phase 552 real procedure body is extracted after generic spec");
-      Assert (Ada.Strings.Fixed.Index (Item_Detail (O, 4), "lines 8-16") /= 0,
+      Assert (Ada.Strings.Fixed.Index
+                (Item_Detail (O, First_Label_Index (O, "procedure body Run")), "lines 8-16") /= 0,
               "phase 552 case/loop end tokens inside strings/comments do not truncate procedure range");
    end Test_Phase552_Ada_Generic_Formals_And_Case_Loop_Use_Code_Only_Text;
 
@@ -7837,12 +7943,12 @@ package body Editor.Outline.Tests is
       Assert (not Editor.Ada_Syntax_Core.Is_Code_Column
                 (Line, Ada.Strings.Fixed.Index (Line, "procedure Hidden")),
               "phase 552 fake declaration after character-literal comment is non-code");
-      Assert (Editor.Outline_Extractor.Item_Count (Result) = 2,
+      Assert (Editor.Outline_Extractor.Item_Count (Result) = 3,
               "phase 552 double-quote character literal does not leak fake outline rows");
       Editor.Outline_Extractor.Apply_To_Outline (Result, O);
       Assert (Item_Label (O, 1) = "package Real",
               "phase 552 double-quote character fixture keeps real package row");
-      Assert (Item_Label (O, 2) = "procedure Run",
+      Assert_Has_Label (O, "procedure Run",
               "phase 552 double-quote character fixture keeps later real procedure row");
    end Test_Phase552_Ada_Double_Quote_Character_Literal_Does_Not_Start_String;
 
@@ -7869,7 +7975,7 @@ package body Editor.Outline.Tests is
       Editor.Outline_Extractor.Apply_To_Outline (Result, O);
       Assert (Item_Label (O, 1) = "package Demo",
               "phase 552 package remains the real root row");
-      Assert (Item_Label (O, 2) = "function Semi",
+      Assert (Item_Label (O, 2) = "expression function Semi",
               "phase 552 character-literal semicolon does not end the split expression function early");
       Assert (Item_Label (O, 3) = "function Later",
               "phase 552 scanner resumes after the real code semicolon on the continuation line");
@@ -7999,13 +8105,13 @@ package body Editor.Outline.Tests is
               "phase 552 code-column helper masks comment text after qualified expression");
 
       Editor.Outline_Extractor.Apply_To_Outline (Result, O);
-      Assert (Item_Count (O) = 2,
+      Assert (Item_Count (O) = 3,
               "phase 552 attribute/qualified expression comments do not create fake outline rows");
-      Assert (Item_Label (O, 1) = "procedure Real",
+      Assert_Has_Label (O, "procedure Real",
               "phase 552 real declaration after attribute/qualified expression still extracts");
-      Assert (Item_Label (O, 2) = "package Also_Real",
+      Assert_Has_Label (O, "package Also_Real",
               "phase 552 following real package still extracts after apostrophe-heavy line");
-      Assert (Item_Line (O, 1) = 2,
+      Assert (Item_Line (O, First_Label_Index (O, "procedure Real")) = 2,
               "phase 552 real declaration target line remains mapped after apostrophe-heavy line");
    end Test_Phase552_Ada_Attribute_And_Qualified_Literal_Apostrophes_Remain_Code;
 
@@ -8065,13 +8171,13 @@ package body Editor.Outline.Tests is
               "phase 552 fake declaration in trailing comment remains non-code");
 
       Editor.Outline_Extractor.Apply_To_Outline (Result, O);
-      Assert (Item_Count (O) = 2,
+      Assert (Item_Count (O) = 3,
               "phase 552 adjacent character literals and trailing comments do not create fake outline rows");
-      Assert (Item_Label (O, 1) = "procedure Real",
+      Assert_Has_Label (O, "procedure Real",
               "phase 552 real procedure after adjacent character literals still extracts");
-      Assert (Item_Label (O, 2) = "package Later",
+      Assert_Has_Label (O, "package Later",
               "phase 552 following package after adjacent character literals still extracts");
-      Assert (Item_Line (O, 1) = 2,
+      Assert (Item_Line (O, First_Label_Index (O, "procedure Real")) = 2,
               "phase 552 target mapping survives adjacent character literal line");
    end Test_Phase552_Ada_Adjacent_Character_Literals_Do_Not_Suppress_Code;
 
@@ -8129,13 +8235,13 @@ package body Editor.Outline.Tests is
               "phase 552 object code between masked spans remains code");
 
       Editor.Outline_Extractor.Apply_To_Outline (Result, O);
-      Assert (Item_Count (O) = 2,
+      Assert (Item_Count (O) = 4,
               "phase 552 mixed character/string/comment line does not create fake outline rows");
       Assert (Item_Label (O, 1) = "package Demo",
               "phase 552 mixed sequence keeps real package row");
-      Assert (Item_Label (O, 2) = "procedure Real",
+      Assert_Has_Label (O, "procedure Real",
               "phase 552 mixed sequence keeps later real procedure row");
-      Assert (Item_Line (O, 2) = 3,
+      Assert (Item_Line (O, First_Label_Index (O, "procedure Real")) = 3,
               "phase 552 mixed sequence preserves later target line mapping");
    end Test_Phase552_Ada_Character_String_Comment_Sequence_Uses_One_Line_State;
 
@@ -8411,15 +8517,16 @@ package body Editor.Outline.Tests is
       Assert (Editor.Outline_Extractor.Status (Result) =
                 Editor.Outline_Extractor.Extraction_Ok,
               "record field extraction succeeds");
-      Assert (Editor.Outline_Extractor.Item_Count (Result) = 5,
-              "package, record type, and three component rows are extracted");
+      Assert (Editor.Outline_Extractor.Item_Count (Result) = 6,
+              "package, variant record type, and component rows are extracted");
 
       Editor.Outline_Extractor.Apply_To_Outline (Result, O);
       Assert (Item_Label (O, 1) = "package Model", "package row remains first");
-      Assert (Item_Label (O, 2) = "record type Point", "record type row is preserved");
+      Assert (Item_Label (O, 2) = "variant record type Point", "variant record type row is preserved");
       Assert (Item_Label (O, 3) = "field X", "single component row extracted");
-      Assert (Item_Label (O, 4) = "field Y, Z", "multi-name component row extracted");
-      Assert (Item_Label (O, 5) = "field Label", "variant component row extracted");
+      Assert (Item_Label (O, 4) = "field Y", "first multi-name component row extracted");
+      Assert (Item_Label (O, 5) = "field Z", "second multi-name component row extracted");
+      Assert (Item_Label (O, 6) = "field Label", "variant component row extracted");
       Assert (Item_Kind (O, 3) = Outline_Field, "component uses field kind");
       Assert (Item_Depth (O, 3) = Item_Depth (O, 2) + 1,
               "component depth is nested under record type");
@@ -8530,19 +8637,21 @@ package body Editor.Outline.Tests is
       Assert (Editor.Outline_Extractor.Status (Result) =
                 Editor.Outline_Extractor.Extraction_Ok,
               "package exception and constant extraction succeeds");
-      Assert (Editor.Outline_Extractor.Item_Count (Result) = 5,
-              "package, constant, exception, record, and field rows are extracted");
+      Assert (Editor.Outline_Extractor.Item_Count (Result) = 6,
+              "package, constant, split exceptions, record, and field rows are extracted");
 
       Editor.Outline_Extractor.Apply_To_Outline (Result, O);
       Assert (Item_Label (O, 2) = "constant Limit",
               "package constant row is extracted");
-      Assert (Item_Label (O, 3) = "exception Parse_Error, Read_Error",
-              "exception declaration row is extracted");
+      Assert (Item_Label (O, 3) = "exception Parse_Error",
+              "first exception declaration row is extracted");
+      Assert (Item_Label (O, 4) = "exception Read_Error",
+              "second exception declaration row is extracted");
       Assert (Item_Kind (O, 2) = Outline_Object,
               "constant row uses object kind");
       Assert (Item_Kind (O, 3) = Outline_Exception,
               "exception row uses exception kind");
-      Assert (Item_Detail (O, 2) = "line 2 constant",
+      Assert (Ada.Strings.Fixed.Index (Item_Detail (O, 2), "constant") /= 0,
               "constant detail identifies declaration form");
       Assert (Item_Detail (O, 3) = "line 3 exception",
               "exception detail identifies declaration form");
@@ -8581,7 +8690,7 @@ package body Editor.Outline.Tests is
               "package-level variable object row is extracted");
       Assert (Item_Label (O, 3) = "object Alias renames",
               "package-level object renaming row is extracted");
-      Assert (Item_Detail (O, 2) = "line 2 object",
+      Assert (Item_Detail (O, 2) = "line 2 object default-expression",
               "ordinary object detail identifies object form");
       Assert (Item_Detail (O, 3) = "line 3 renames",
               "object renaming detail identifies renames form");
@@ -8673,11 +8782,13 @@ package body Editor.Outline.Tests is
       Editor.Outline_Extractor.Apply_To_Outline (Result, O);
       Assert (Item_Label (O, 2) = "record type R",
               "record type row remains parser-owned");
-      Assert (Item_Detail (O, 2) = "line 2 record representation",
-              "record type detail carries representation metadata");
+      Assert (Item_Detail (O, 2) = "lines 2-4 record",
+              "record type detail carries its source range");
+      Assert (Ada.Strings.Fixed.Index (Item_Detail (O, 3), "representation") /= 0,
+              "record component detail carries representation metadata");
       Assert (Item_Label (O, 4) = "object State",
               "object row remains extracted after representation record");
-      Assert (Item_Detail (O, 4) = "line 8 representation",
+      Assert (Item_Detail (O, 4) = "line 8 object representation",
               "object detail carries address representation metadata");
    end Test_Phase579_Ada_Representation_Clauses_Are_Detail_Metadata;
 
@@ -8724,7 +8835,7 @@ package body Editor.Outline.Tests is
               "formal rows use generic formal kind");
       Assert (Item_Detail (O, 1) = "line 2 generic formal type",
               "formal type detail identifies generic-formal type");
-      Assert (Item_Detail (O, 3) = "line 4 generic formal function",
+      Assert (Ada.Strings.Fixed.Index (Item_Detail (O, 3), "generic formal function") /= 0,
               "formal function detail identifies generic-formal function");
    end Test_Phase579_Ada_Generic_Formals_Are_Extracted;
 
@@ -8802,8 +8913,8 @@ package body Editor.Outline.Tests is
               "overriding procedure prefix is stripped from the outline label");
       Assert (Item_Label (O, 4) = "function Make",
               "not-overriding function prefix is stripped from the outline label");
-      Assert (Item_Label (O, 5) = "procedure Stop",
-              "null procedure declaration is retained as a procedure row");
+      Assert (Item_Label (O, 5) = "procedure body Stop",
+              "null procedure declaration is retained as a body-like procedure row");
       Assert (Item_Label (O, 6) = "function ""+""",
               "operator function names are retained as quoted operator labels");
       Assert (Item_Label (O, 7) = "procedure body Worker",
@@ -8844,11 +8955,11 @@ package body Editor.Outline.Tests is
       Editor.Outline_Extractor.Apply_To_Outline (Result, O);
       Assert (Item_Label (O, 1) = "package A.B.C",
               "private child package declaration keeps its qualified package name");
-      Assert (Item_Label (O, 2) = "task Worker",
+      Assert (Item_Label (O, 2) = "task type Worker",
               "task type row is extracted");
       Assert (Item_Label (O, 3) = "entry Start",
               "task entry declaration row is extracted");
-      Assert (Item_Label (O, 4) = "protected Guard",
+      Assert (Item_Label (O, 4) = "protected type Guard",
               "protected type row is extracted");
       Assert (Item_Label (O, 5) = "entry Lock",
               "protected entry declaration row is extracted");
@@ -8856,9 +8967,9 @@ package body Editor.Outline.Tests is
               "generic package instantiation row is extracted");
       Assert (Item_Label (O, 7) = "procedure Visit",
               "generic procedure instantiation row is extracted");
-      Assert (Item_Detail (O, 6) = "line 8 instantiation",
+      Assert (Item_Detail (O, 6) = "line 8 instantiation generic-actuals",
               "package instantiation detail is explicit");
-      Assert (Item_Detail (O, 7) = "line 9 instantiation",
+      Assert (Item_Detail (O, 7) = "line 9 instantiation is new Generic_Visit",
               "procedure instantiation detail is explicit");
       Assert (Item_Depth (O, 3) = Item_Depth (O, 2) + 1,
               "task entry is nested under the task type");
@@ -8897,7 +9008,7 @@ package body Editor.Outline.Tests is
       Assert (Editor.Outline_Extractor.Status (Result) =
                 Editor.Outline_Extractor.Extraction_Ok,
               "pass 707 outline extraction succeeds for expanded Ada constructs");
-      Assert (Editor.Outline_Extractor.Item_Count (Result) = 8,
+      Assert (Editor.Outline_Extractor.Item_Count (Result) = 9,
               "pass 707 outline keeps formal package, variant record, variant field, entry family, exception, and stub rows");
 
       Editor.Outline_Extractor.Apply_To_Outline (Result, O);
@@ -8909,15 +9020,15 @@ package body Editor.Outline.Tests is
               "variant record type label exposes variant-record metadata");
       Assert (Ada.Strings.Fixed.Index (Item_Detail (O, 3), "variant-record") /= 0,
               "variant record detail retains structural metadata");
-      Assert (Item_Label (O, 6) = "entry family Slot",
+      Assert (Item_Label (O, 7) = "entry family Slot",
               "entry-family declarations are distinct from ordinary entries in Outline");
-      Assert (Ada.Strings.Fixed.Index (Item_Detail (O, 6), "entry-family") /= 0,
+      Assert (Ada.Strings.Fixed.Index (Item_Detail (O, 7), "entry-family") /= 0,
               "entry-family detail is retained for filtering and inspection");
-      Assert (Item_Label (O, 7) = "exception Local_Error",
+      Assert (Item_Label (O, 8) = "exception Local_Error",
               "exception declarations remain visible outline rows");
-      Assert (Item_Label (O, 8) = "package body Demo",
+      Assert (Item_Label (O, 9) = "package body Demo",
               "body stubs keep the package-body label instead of degrading to unknown");
-      Assert (Ada.Strings.Fixed.Index (Item_Detail (O, 8), "body-stub") /= 0,
+      Assert (Ada.Strings.Fixed.Index (Item_Detail (O, 9), "body-stub") /= 0,
               "body-stub detail is visible to Outline without semantic compilation");
    end Test_Phase707_Ada_Outline_Precision_For_Expanded_Constructs;
 

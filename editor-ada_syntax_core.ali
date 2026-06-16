@@ -1,5 +1,7 @@
-V "GNAT Lib v15"
+V "GNAT Lib v13"
 A -gnat2022
+A -gnatX
+A -gnata
 P SS ZX
 
 RN
@@ -9,7 +11,7 @@ RV NO_STANDARD_STORAGE_POOLS
 RV NO_DYNAMIC_SIZED_OBJECTS
 RV NO_IMPLICIT_LOOPS
 
-U editor.ada_syntax_core%b  editor-ada_syntax_core.adb  25a6c89d NE OO PK
+U editor.ada_syntax_core%b  editor-ada_syntax_core.adb  046c1566 NE OO PK
 W ada%s			ada.ads			ada.ali
 W ada.characters%s	a-charac.ads		a-charac.ali
 W ada.characters.latin_1%s  a-chlat1.ads	a-chlat1.ali
@@ -23,25 +25,25 @@ Z system.secondary_stack%s  s-secsta.adb	s-secsta.ali
 U editor.ada_syntax_core%s  editor-ada_syntax_core.ads  de2a9c1f EE NE OO PK
 W editor%s		editor.ads		editor.ali
 
-D ada.ads		20250808065140 76789da1 ada%s
-D a-charac.ads		20250808065140 2d3ec45b ada.characters%s
-D a-chlat1.ads		20250808065140 e0d72e76 ada.characters.latin_1%s
-D a-string.ads		20250808065140 90ac6797 ada.strings%s
-D a-strfix.ads		20250808065140 8648dedb ada.strings.fixed%s
-D a-strmap.ads		20250808065140 1f91ebb6 ada.strings.maps%s
-D a-stmaco.ads		20250808065140 4b1f2a0b ada.strings.maps.constants%s
-D a-strsea.ads		20250808065140 18c3c634 ada.strings.search%s
-D a-unccon.ads		20250808065140 0e9b276f ada.unchecked_conversion%s
+D ada.ads		20240521074738 76789da1 ada%s
+D a-charac.ads		20240521074737 2d3ec45b ada.characters%s
+D a-chlat1.ads		20240521074737 e0d72e76 ada.characters.latin_1%s
+D a-string.ads		20240521074738 90ac6797 ada.strings%s
+D a-strfix.ads		20240521074738 d8832344 ada.strings.fixed%s
+D a-strmap.ads		20240521074738 ed8acfdb ada.strings.maps%s
+D a-stmaco.ads		20240521074738 4b1f2a0b ada.strings.maps.constants%s
+D a-strsea.ads		20240521074738 2d394feb ada.strings.search%s
+D a-unccon.ads		20240521074738 0e9b276f ada.unchecked_conversion%s
 D editor.ads		20260612145959 16f844c2 editor%s
 D editor-ada_syntax_core.ads  20260612145959 c8d2d8dd editor.ada_syntax_core%s
-D editor-ada_syntax_core.adb  20260612145959 5058ad71 editor.ada_syntax_core%b
-D system.ads		20250808065140 14286b0f system%s
-D s-exctab.ads		20250808065140 91bef6ef system.exception_table%s
-D s-parame.ads		20250808065140 3597fc11 system.parameters%s
-D s-secsta.ads		20250808065140 578279f5 system.secondary_stack%s
-D s-stalib.ads		20250808065140 1c9580f6 system.standard_library%s
-D s-stoele.ads		20250808065140 ccded4e8 system.storage_elements%s
-D s-unstyp.ads		20250808065140 fa2a7f59 system.unsigned_types%s
+D editor-ada_syntax_core.adb  20260614162821 2f598d15 editor.ada_syntax_core%b
+D system.ads		20240521074738 426dafb8 system%s
+D s-exctab.ads		20240521074738 91bef6ef system.exception_table%s
+D s-parame.ads		20251218205951 1f39ba92 system.parameters%s
+D s-secsta.ads		20240521074738 578279f5 system.secondary_stack%s
+D s-stalib.ads		20240521074738 1c9580f6 system.standard_library%s
+D s-stoele.ads		20240521074738 ab5468e4 system.storage_elements%s
+D s-unstyp.ads		20240521074738 fa2a7f59 system.unsigned_types%s
 G a e
 G c Z s b [sanitize_line editor__ada_syntax_core 9 13 none]
 G c Z s b [is_code_column editor__ada_syntax_core 13 13 none]
@@ -51,117 +53,117 @@ G c Z s b [looks_like_simple_character_literal editor__ada_syntax_core 29 13 non
 G c Z s b [simple_character_literal_length editor__ada_syntax_core 35 13 none]
 G c Z s b [looks_like_ada_declaration_line editor__ada_syntax_core 43 13 none]
 G c Z s b [strip_separate_prefix editor__ada_syntax_core 47 13 none]
-G c Z b b [starts_with editor__ada_syntax_core 8 13 none]
-G c Z b b [ends_with editor__ada_syntax_core 17 13 none]
-G c Z b b [is_word_char editor__ada_syntax_core 26 13 none]
-G c Z b b [starts_with_word editor__ada_syntax_core 35 13 none]
-G c Z b b [starts_with_keyword editor__ada_syntax_core 49 13 none]
-G c Z b b [starts_with_phrase editor__ada_syntax_core 63 13 none]
-G c Z b b [code_mask_line editor__ada_syntax_core 116 13 none]
+G c Z b b [starts_with editor__ada_syntax_core 10 13 none]
+G c Z b b [ends_with editor__ada_syntax_core 19 13 none]
+G c Z b b [is_word_char editor__ada_syntax_core 28 13 none]
+G c Z b b [starts_with_word editor__ada_syntax_core 37 13 none]
+G c Z b b [starts_with_keyword editor__ada_syntax_core 51 13 none]
+G c Z b b [starts_with_phrase editor__ada_syntax_core 65 13 none]
+G c Z b b [code_mask_line editor__ada_syntax_core 118 13 none]
 X 1 ada.ads
-18K9*Ada 22e8 12|1r6 2r6 3r6 4r6 92r38 93r38 125r27 126r34 141r27 142r31
-. 155r37 156r37 225r40 226r17 235r34 236r16 254r14 254r69 259r36 260r39 261r34
-. 262r19
+16K9*Ada 20e8 12|1r6 2r6 3r6 4r6 94r38 95r38 127r27 128r34 143r27 144r31
+. 157r37 158r37 227r40 228r17 237r34 238r16 256r14 256r69 261r36 262r39 263r34
+. 264r19
 X 2 a-charac.ads
-16K13*Characters 18e19 12|1r10 92r42 93r42 125r31 126r38 141r31 142r35 155r41
-. 156r41
+16K13*Characters 18e19 12|1r10 94r42 95r42 127r31 128r38 143r31 144r35 157r41
+. 158r41
 X 3 a-chlat1.ads
-16K24*Latin_1 294e27 12|1w21 92r53 93r53 125r42 126r49 141r42 142r46 155r52
-. 156r52
-33e4*LF{character} 12|92r61 125r50 141r50 155r60
-36e4*CR{character} 12|93r61 126r57 142r54 156r60
+16K24*Latin_1 294e27 12|1w21 94r53 95r53 127r42 128r49 143r42 144r46 157r52
+. 158r52
+33e4*LF{character} 12|94r61 127r50 143r50 157r60
+36e4*CR{character} 12|95r61 128r57 144r54 158r60
 X 4 a-string.ads
-16K13*Strings 35e16 12|2w10 3r10 4r10 225r44 226r21 235r38 236r20 254r18
-. 254r73 259r40 260r43 261r38 262r23
-33n37*Both{33E9} 12|254r81 260r51
+16K13*Strings 35e16 12|2w10 3r10 4r10 227r44 228r21 237r38 238r20 256r18
+. 256r73 261r40 262r43 263r38 264r23
+33n37*Both{33E9} 12|256r81 262r51
 X 5 a-strfix.ads
-49K21*Fixed 1390e22 12|3w18 225r52 235r46 254r26 259r48 261r46
-748V13*Translate{string} 12|225s58 235s52 261s52
-1133V13*Trim{string} 12|254s32 259s54
+49K21*Fixed 1433e22 12|3w18 227r52 237r46 256r26 261r48 263r46
+758V13*Translate{string} 12|227s58 237s52 263s52
+1156V13*Trim{string} 12|256s32 261s54
 X 6 a-strmap.ads
-51K21*Maps 650e21 12|4r18 226r29 236r28 262r31
-259A9*Character_Mapping(character)
+51K21*Maps 651e21 12|4r18 228r29 238r28 264r31
+260A9*Character_Mapping(character)
 X 7 a-stmaco.ads
-38K26*Constants 915e31 12|4w23 226r34 236r33 262r36
-54a4*Lower_Case_Map{6|259A9} 12|226r44 236r43 262r46
+38K26*Constants 915e31 12|4w23 228r34 238r33 264r36
+54a4*Lower_Case_Map{6|260A9} 12|228r44 238r43 264r46
 X 10 editor.ads
-1K9*Editor 5e11 11|1r9 49r5 12|6r14 296r5
+1K9*Editor 5e11 11|1r9 49r5 12|6r14 298r5
 X 11 editor-ada_syntax_core.ads
-1K16*Ada_Syntax_Core 10|1k9 11|49l12 49e27 12|6b21 296l12 296t27
-9V13*Sanitize_Line{string} 9>28 12|177b13 188l8 188t21 205s38
-9a28 Line{string} 12|177b28 179r26 180r51
-13V13*Is_Code_Column{boolean} 14>7 15>7 12|190b13 201l8 201t22
-14a7 Line{string} 12|191b7 194r36 195r51 197r24
-15i7 Column{positive} 12|192b7 194r49
-19V13*Strip_Comment_Safely{string} 19>35 12|203b13 221l8 221t28 260s10
-19a35 Line{string} 12|203b35 205r53 210r18
-23V13*Is_Ada_Source_Label{boolean} 23>34 12|223b13 231l8 231t27
-23a34 Label{string} 12|223b34 226r10
-29V13*Looks_Like_Simple_Character_Literal{boolean} 30>7 31>7 12|71b13 94l8
-. 94t43 109s13 160s16
-30a7 Line{string} 12|72b7 77r18 77r49 81r23 82r18 83r18 84r18 85r18 90r14
-. 91r18 92r18 93r18
-31i7 Start{natural} 12|73b7 77r10 77r37 81r10 82r24 83r24 84r24 85r24 90r20
-. 91r24 92r24 93r24
-35V13*Simple_Character_Literal_Length{natural} 36>7 37>7 12|96b13 114l8 114t39
-. 162s50
-36a7 Line{string} 12|97b7 102r23 103r18 104r18 105r18 106r18 109r50
-37i7 Start{natural} 12|98b7 102r10 103r24 104r24 105r24 106r24 109r56
-43V13*Looks_Like_Ada_Declaration_Line{boolean} 43>46 12|257b13 273s24 294l8
-. 294t39
-43a46 Line{string} 12|257b46 260r32
-47V13*Strip_Separate_Prefix{string} 47>36 12|233b13 255l8 255t29 270s43
-47a36 Line{string} 12|233b36 236r10 240r17 243r16 244r13 250r37 254r38 254r57
+1K16*Ada_Syntax_Core 10|1k9 11|49l12 49e27 12|6b21 298l12 298t27
+9V13*Sanitize_Line{string} 9>28 12|179b13 190l8 190t21 207s38
+9a28 Line{string} 12|179b28 181r26 182r51
+13V13*Is_Code_Column{boolean} 14>7 15>7 12|192b13 203l8 203t22
+14a7 Line{string} 12|193b7 196r36 197r51 199r24
+15i7 Column{positive} 12|194b7 196r49
+19V13*Strip_Comment_Safely{string} 19>35 12|205b13 223l8 223t28 262s10
+19a35 Line{string} 12|205b35 207r53 212r18
+23V13*Is_Ada_Source_Label{boolean} 23>34 12|225b13 233l8 233t27
+23a34 Label{string} 12|225b34 228r10
+29V13*Looks_Like_Simple_Character_Literal{boolean} 30>7 31>7 12|73b13 96l8
+. 96t43 111s13 162s16
+30a7 Line{string} 12|74b7 79r18 79r49 83r23 84r18 85r18 86r18 87r18 92r14
+. 93r18 94r18 95r18
+31i7 Start{natural} 12|75b7 79r10 79r37 83r10 84r24 85r24 86r24 87r24 92r20
+. 93r24 94r24 95r24
+35V13*Simple_Character_Literal_Length{natural} 36>7 37>7 12|98b13 116l8 116t39
+. 164s50
+36a7 Line{string} 12|99b7 104r23 105r18 106r18 107r18 108r18 111r50
+37i7 Start{natural} 12|100b7 104r10 105r24 106r24 107r24 108r24 111r56
+43V13*Looks_Like_Ada_Declaration_Line{boolean} 43>46 12|259b13 275s24 296l8
+. 296t39
+43a46 Line{string} 12|259b46 262r32
+47V13*Strip_Separate_Prefix{string} 47>36 12|235b13 257l8 257t29 272s43
+47a36 Line{string} 12|235b36 238r10 242r17 245r16 246r13 252r37 256r38 256r57
 X 12 editor-ada_syntax_core.adb
-8V13 Starts_With{boolean} 8b13 9>7 10>7 15l8 15t19 41s14 55s14 68s14
-9a7 Text{string} 13r14 14r18 14r24 14r38
-10a7 Prefix{string} 13r29 14r51 14r72
-17V13 Ends_With{boolean} 17b13 18>7 19>7 24l8 24t17 228s14 229s17 230s17
-18a7 Text{string} 22r14 23r18 23r24 23r57
-19a7 Suffix{string} 22r29 23r36 23r70
-26V13 Is_Word_Char{boolean} 26b13 26>27 33l8 33t20 46s50 60s50
-26e27 C{character} 29r15 29r33 30r18 30r36 31r18 31r36 32r17
-35V13 Starts_With_Word{boolean} 35b13 36>7 37>7 47l8 47t24 239s14 268s10
-. 277s14 280s17 281s17 288s17 289s17 290s17 291s17 292s17 293s17
-36a7 Lower_Line{string} 41r27 45r16 46r22 46r64
-37a7 Word{string} 41r39 45r35
-39i7 After{natural} 45m7 46r14 46r76
-49V13 Starts_With_Keyword{boolean} 49b13 50>7 51>7 61l8 61t27 279s17
-50a7 Lower_Line{string} 55r27 59r16 60r22 60r64
-51a7 Keyword{string} 55r39 59r35
-53i7 After{natural} 59m7 60r14 60r76
-63V13 Starts_With_Phrase{boolean} 63b13 64>7 65>7 69l8 69t26 278s17 282s17
-. 283s17 284s17 285s17 286s17 287s17
-64a7 Lower_Line{string} 68r27
-65a7 Phrase{string} 68r39
-75e7 Quote{character} 82r33 83r37 84r37 85r37 90r29 91r37
-100e7 Quote{character} 103r33 104r37 105r37 106r37
-116V13 Code_Mask_Line{string} 116b13 116>29 175l8 175t22 180s35 195s35
-116a29 Line{string} 118r30 120r30 122r18 125r16 126r23 130r19 131r23 131r42
-. 141r16 142r20 146r16 150r20 151r21 152r21 154r24 155r26 156r26 160r53 162r83
-118a7 Mask{string} 124m13 132m19 144m13 147m13 157m16 165m19 174r14
-119b7 In_String{boolean} 123r13 128m16 135m19 148m13
-120i7 I{natural} 122r13 124r19 125r22 126r29 129m16 129r21 130r25 131r19
-. 131r48 132r25 133m19 133r24 136m19 136r24 139m16 139r21 141r22 142r26 144r19
-. 145m13 145r18 146r22 147r19 149m13 149r18 150r16 151r27 152r27 154r19 155r32
-. 156r32 157r22 158m16 158r21 160r59 162r89 164r25 164r30 167m16 167r21 170m13
-. 170r18
-162i16 Span_Length{natural} 164r34 167r25
-164i20 J{integer} 165r25
-179a7 Result{string} 182r16 184m13 187r14
-180a7 Mask{string} 183r13
-182i11 I{integer} 183r19 184r21
-194i7 Target{natural} 197r10 200r20
-195a7 Mask{string} 200r14
-205a7 Sanitized{string} 206r30 208r26 209r18 213r32 216r22 219r17 219r28
-206i7 Last_Code{natural} 208r13 209r29 210r24 212m10 212r23 213r20 216r10
-. 219r47
-225a7 Lower_Label{string} 228r25 229r28 230r28
-235a7 Lower{string} 239r32
-237i7 Close{natural} 245m13 250r10 250r28 254r44
-243i11 I{integer} 244r19 245r22
-259a7 Trimmed{string} 262r10 270r66
-261a7 Lower{string} 264r10 268r28 277r32 278r37 279r38 280r35 281r35 282r37
-. 283r37 284r37 285r37 286r37 287r37 288r35 289r35 290r35 291r35 292r35 293r35
-270a13 Stripped{string} 272r20 273r57
+10V13 Starts_With{boolean} 10b13 11>7 12>7 17l8 17t19 43s14 57s14 70s14
+11a7 Text{string} 15r14 16r18 16r24 16r38
+12a7 Prefix{string} 15r29 16r51 16r72
+19V13 Ends_With{boolean} 19b13 20>7 21>7 26l8 26t17 230s14 231s17 232s17
+20a7 Text{string} 24r14 25r18 25r24 25r57
+21a7 Suffix{string} 24r29 25r36 25r70
+28V13 Is_Word_Char{boolean} 28b13 28>27 35l8 35t20 48s50 62s50
+28e27 C{character} 31r15 31r33 32r18 32r36 33r18 33r36 34r17
+37V13 Starts_With_Word{boolean} 37b13 38>7 39>7 49l8 49t24 241s14 270s10
+. 279s14 282s17 283s17 290s17 291s17 292s17 293s17 294s17 295s17
+38a7 Lower_Line{string} 43r27 47r16 48r22 48r64
+39a7 Word{string} 43r39 47r35
+41i7 After{natural} 47m7 48r14 48r76
+51V13 Starts_With_Keyword{boolean} 51b13 52>7 53>7 63l8 63t27 281s17
+52a7 Lower_Line{string} 57r27 61r16 62r22 62r64
+53a7 Keyword{string} 57r39 61r35
+55i7 After{natural} 61m7 62r14 62r76
+65V13 Starts_With_Phrase{boolean} 65b13 66>7 67>7 71l8 71t26 280s17 284s17
+. 285s17 286s17 287s17 288s17 289s17
+66a7 Lower_Line{string} 70r27
+67a7 Phrase{string} 70r39
+77e7 Quote{character} 84r33 85r37 86r37 87r37 92r29 93r37
+102e7 Quote{character} 105r33 106r37 107r37 108r37
+118V13 Code_Mask_Line{string} 118b13 118>29 177l8 177t22 182s35 197s35
+118a29 Line{string} 120r30 122r30 124r18 127r16 128r23 132r19 133r23 133r42
+. 143r16 144r20 148r16 152r20 153r21 154r21 156r24 157r26 158r26 162r53 164r83
+120a7 Mask{string} 126m13 134m19 146m13 149m13 159m16 167m19 176r14
+121b7 In_String{boolean} 125r13 130m16 137m19 150m13
+122i7 I{natural} 124r13 126r19 127r22 128r29 131m16 131r21 132r25 133r19
+. 133r48 134r25 135m19 135r24 138m19 138r24 141m16 141r21 143r22 144r26 146r19
+. 147m13 147r18 148r22 149r19 151m13 151r18 152r16 153r27 154r27 156r19 157r32
+. 158r32 159r22 160m16 160r21 162r59 164r89 166r25 166r30 169m16 169r21 172m13
+. 172r18
+164i16 Span_Length{natural} 166r34 169r25
+166i20 J{integer} 167r25
+181a7 Result{string} 184r16 186m13 189r14
+182a7 Mask{string} 185r13
+184i11 I{integer} 185r19 186r21
+196i7 Target{natural} 199r10 202r20
+197a7 Mask{string} 202r14
+207a7 Sanitized{string} 208r30 210r26 211r18 215r32 218r22 221r17 221r28
+208i7 Last_Code{natural} 210r13 211r29 212r24 214m10 214r23 215r20 218r10
+. 221r47
+227a7 Lower_Label{string} 230r25 231r28 232r28
+237a7 Lower{string} 241r32
+239i7 Close{natural} 247m13 252r10 252r28 256r44
+245i11 I{integer} 246r19 247r22
+261a7 Trimmed{string} 264r10 272r66
+263a7 Lower{string} 266r10 270r28 279r32 280r37 281r38 282r35 283r35 284r37
+. 285r37 286r37 287r37 288r37 289r37 290r35 291r35 292r35 293r35 294r35 295r35
+272a13 Stripped{string} 274r20 275r57
 

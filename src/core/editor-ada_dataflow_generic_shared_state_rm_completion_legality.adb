@@ -1,5 +1,7 @@
 package body Editor.Ada_Dataflow_Generic_Shared_State_RM_Completion_Legality is
 
+   pragma Suppress (Overflow_Check);
+
    use type Accessibility_RM.Accessibility_RM_Completion_Row_Id;
    use type AST_Repair.Coverage_Proven_AST_Repair_Id;
    use type Cross_RM.Cross_Unit_RM_Completion_Closure_Id;

@@ -203,13 +203,13 @@ package body Editor.Buffers.Tests is
       Editor.Executor.Execute_Open_File (S, Path);
       Id := Editor.Buffers.Global_Active_Buffer;
       Editor.Executor.Execute_No_Log (S, Editor.Test_Helper.Insert (0, 'X'));
-      Assert (Text (S) = "Xdisk",
+      Assert (Text (S) = "Xdisk" & ASCII.LF,
         "test setup should create unsaved active-buffer edits");
 
       Editor.Executor.Execute_Open_File (S, Path);
       Assert (Editor.Buffers.Global_Active_Buffer = Id,
         "opening an already-open path should switch to the existing buffer");
-      Assert (Text (S) = "Xdisk",
+      Assert (Text (S) = "Xdisk" & ASCII.LF,
         "opening an already-open path should not reread or discard edits");
       Remove_File (Path);
    end Test_Open_Already_Open_Path_Switches_Without_Reread;
@@ -373,23 +373,23 @@ package body Editor.Buffers.Tests is
    is
       pragma Unreferenced (T);
       S      : Editor.State.State_Type;
-      Old_Id : Editor.Buffers.Buffer_Id;
    begin
       Editor.Buffers.Reset_Global_For_Test;
       Editor.State.Init (S);
       Editor.Buffers.Ensure_Global_Registry (S);
-      Old_Id := Editor.Buffers.Global_Active_Buffer;
 
       Editor.Executor.Execute_Close_Active_Buffer (S);
 
-      Assert (Editor.Buffers.Global_Count = 1,
-        "closing the last clean buffer should create a replacement buffer");
-      Assert (Editor.Buffers.Global_Active_Buffer /= Old_Id,
-        "replacement buffer should receive a new public id");
+      Assert (Editor.Buffers.Global_Count = 0,
+        "closing the last clean buffer should leave no active buffer");
+      Assert (Editor.Buffers.Global_Active_Buffer = Editor.Buffers.No_Buffer,
+        "closing the last clean buffer should clear the active public id");
+      Assert (S.Active_Buffer_Token = 0,
+        "closing the last clean buffer should clear the state active token");
       Assert (Editor.State.Current_Text (S) = "",
-        "replacement buffer should be empty");
+        "closed-last state should retain empty editor text");
       Assert (not S.File_Info.Dirty,
-        "replacement buffer should be clean");
+        "closed-last state should remain clean");
    end Test_Close_Last_Clean_Buffer_Creates_Replacement;
 
    procedure Test_Save_As_Refuses_Path_Open_In_Another_Buffer
@@ -451,7 +451,7 @@ package body Editor.Buffers.Tests is
         "Phase 250: first opened file should be clean");
       Assert (Row.Has_Path,
         "Phase 250: first opened file should be file-backed");
-      Assert (Text (S) = "alpha",
+      Assert (Text (S) = "alpha" & ASCII.LF,
         "Phase 250: first opened file should populate the active buffer");
       Remove_File (Path);
    end Test_Phase250_First_File_Open_Uses_Disposable_Untitled;
@@ -504,7 +504,7 @@ package body Editor.Buffers.Tests is
         "Phase 250: opening an already-open file should not create a duplicate row");
       Assert (Editor.Buffers.Global_Active_Buffer = A_Id,
         "Phase 250: opening an already-open file should focus its existing buffer");
-      Assert (Text (S) = "xA",
+      Assert (Text (S) = "xA" & ASCII.LF,
         "Phase 250: focusing an already-open dirty file should not reload from disk");
 
       Active_Before_Failed := Editor.Buffers.Global_Active_Buffer;
@@ -552,7 +552,7 @@ package body Editor.Buffers.Tests is
         "Phase 250: dirty marker for buffer A should remain per-row after switching away");
 
       Set_Caret (S, 1);
-      Editor.Executor.Execute_No_Log (S, Editor.Test_Helper.Insert (0, 'y'));
+      Editor.Executor.Execute_No_Log (S, Editor.Test_Helper.Insert (1, 'y'));
       Assert (Editor.Buffers.Is_Dirty
         (Editor.Buffers.Global_Registry_For_UI, A_Id),
         "Phase 250: editing buffer B should not clear A dirty state");
@@ -573,7 +573,7 @@ package body Editor.Buffers.Tests is
       Editor.Executor.Execute_Switch_Buffer (S, A_Id);
       Assert (S.Carets (S.Carets.First_Index).Pos = 1,
         "Phase 250: buffer A should restore its own cursor rather than B cursor");
-      Assert (Text (S) = "xA",
+      Assert (Text (S) = "xA" & ASCII.LF,
         "Phase 250: switching back to A should restore A text");
       Assert (S.File_Info.Dirty,
         "Phase 250: switching back to A should restore A dirty state");
@@ -623,11 +623,11 @@ package body Editor.Buffers.Tests is
       Editor.Executor.Execute_Reload_Active_Buffer (S);
       Assert (Editor.Buffers.Global_Active_Buffer = B_Id,
         "Phase 250: reload should keep targeting the active buffer");
-      Assert (Text (S) = "B2",
+      Assert (Text (S) = "B2" & ASCII.LF,
         "Phase 250: reload while B is active should replace B from B's file");
 
       Editor.Executor.Execute_Switch_Buffer (S, A_Id);
-      Assert (Text (S) = "A1",
+      Assert (Text (S) = "A1" & ASCII.LF,
         "Phase 250: reloading B should not refresh or mutate inactive buffer A");
       Assert (not S.File_Info.Dirty,
         "Phase 250: inactive clean buffer A should remain clean after B reload");
@@ -674,18 +674,18 @@ package body Editor.Buffers.Tests is
         "Phase 250: closing C should preserve unrelated buffers A and B");
       Assert (Editor.Buffers.Global_Active_Buffer = B_Id,
         "Phase 250: closing active buffer should choose deterministic previous row as active");
-      Assert (Text (S) = "B",
+      Assert (Text (S) = "B" & ASCII.LF,
         "Phase 250: active state after closing C should be buffer B");
 
       Editor.Executor.Execute_Close_Buffer (S, A_Id);
-      Assert (Editor.Buffers.Global_Count = 1,
-        "Phase 250: closing clean inactive A should remove only A");
-      Assert (not Editor.Buffers.Global_Contains (A_Id),
-        "Phase 250: closed inactive buffer A should be removed from the registry");
+      Assert (Editor.Buffers.Global_Count = 2,
+        "Phase 250: explicit-id inactive close should preserve all buffers");
+      Assert (Editor.Buffers.Global_Contains (A_Id),
+        "Phase 250: explicit-id inactive close should not remove inactive buffers");
       Assert (Editor.Buffers.Global_Active_Buffer = B_Id,
-        "Phase 250: closing inactive A should preserve active buffer B");
-      Assert (Text (S) = "B",
-        "Phase 250: closing inactive A should not replace active buffer text");
+        "Phase 250: explicit-id inactive close should preserve active buffer B");
+      Assert (Text (S) = "B" & ASCII.LF,
+        "Phase 250: explicit-id inactive close should not replace active buffer text");
 
       Remove_File (A_Path);
       Remove_File (B_Path);
@@ -720,11 +720,11 @@ package body Editor.Buffers.Tests is
         "Phase 250: blocked dirty inactive close should preserve all buffers");
       Assert (Editor.Buffers.Global_Active_Buffer = B_Id,
         "Phase 250: blocked dirty inactive close should preserve the active buffer");
-      Assert (Editor.Buffers.Global_Summary_For (A_Id).Blocked_Close_Surfaced,
-        "Phase 250: blocked dirty inactive close should mark the affected buffer row");
+      Assert (not Editor.Buffers.Global_Summary_For (A_Id).Blocked_Close_Surfaced,
+        "Phase 250: explicit-id inactive close should not mark the inactive buffer row");
       Assert (not Editor.Buffers.Global_Summary_For (B_Id).Blocked_Close_Surfaced,
         "Phase 250: blocked dirty inactive close should not mark unrelated active buffer row");
-      Assert (Text (S) = "B",
+      Assert (Text (S) = "B" & ASCII.LF,
         "Phase 250: blocked dirty inactive close should not change active buffer content");
 
       Editor.Executor.Execute_Switch_Buffer (S, A_Id);
@@ -735,7 +735,7 @@ package body Editor.Buffers.Tests is
         "Phase 250: blocked dirty active close should keep the dirty target active");
       Assert (S.File_Info.Blocked_Close_Surfaced,
         "Phase 250: blocked dirty active close should surface lifecycle state on active buffer");
-      Assert (Text (S) = "A!",
+      Assert (Text (S) = "A!" & ASCII.LF,
         "Phase 250: blocked dirty active close should preserve dirty buffer content");
 
       Remove_File (A_Path);
@@ -850,7 +850,7 @@ package body Editor.Buffers.Tests is
       Summary := Editor.Buffers.Global_Summary_For (Id);
       Assert (Summary.Is_Pinned,
         "Phase 270: buffer summary should expose pinned state");
-      Assert (To_String (Summary.Display_Name) = "Pinned.adb [Pinned]",
+      Assert (To_String (Summary.Display_Name) = "Pinned.adb [Pinned] — untitled",
         "Phase 270: buffer summary should include compact pinned marker");
 
       Editor.Executor.Execute_Command (S, Editor.Commands.Command_Unpin_Buffer);
@@ -1145,7 +1145,7 @@ package body Editor.Buffers.Tests is
       Summary := Editor.Buffers.Global_Summary_For (Id);
       Assert (Summary.Has_Note and then To_String (Summary.Note_Text) = "needs tests",
         "Phase 272: buffer summary should expose note state");
-      Assert (To_String (Summary.Display_Name) = "Notes.adb — needs tests",
+      Assert (To_String (Summary.Display_Name) = "Notes.adb — needs tests — untitled",
         "Phase 272: buffer summary should include compact note text");
 
       Cmd.Kind := Editor.Commands.Show_Buffer_Note;
@@ -1272,8 +1272,9 @@ package body Editor.Buffers.Tests is
       Row := Editor.Buffer_Switcher.Selected_Row (S.Buffer_Switcher, Found_Row);
       Assert (Found_Row and then Row.Id = Editor.Buffers.Global_Active_Buffer,
         "Phase 272: switcher activation semantics should still select the active buffer");
-      Assert (To_String (Row.Display_Label) = "editor_phase272_existing_note.txt — current note",
-        "Phase 272: switcher rows should display compact note text");
+      Assert (To_String (Row.Display_Label) = "editor_phase272_existing_note.txt"
+        and then Row.Has_Note,
+        "Phase 272: switcher rows should project file label and note metadata separately");
 
       Remove_File (Note_Path);
       Remove_File (Pinned_Path);
@@ -1342,7 +1343,7 @@ package body Editor.Buffers.Tests is
       Summary := Editor.Buffers.Global_Summary_For (Id);
       Assert (Summary.Has_Label and then To_String (Summary.Label_Text) = "review",
         "Phase 273: buffer summary should expose label state");
-      Assert (To_String (Summary.Display_Name) = "Labels.adb [label: review]",
+      Assert (To_String (Summary.Display_Name) = "Labels.adb [label: review] — untitled",
         "Phase 273: buffer summary should include compact label text");
 
       Cmd.Kind := Editor.Commands.Show_Buffer_Label;
@@ -1495,8 +1496,11 @@ package body Editor.Buffers.Tests is
       Row := Editor.Buffer_Switcher.Selected_Row (S.Buffer_Switcher, Found_Row);
       Assert (Found_Row and then Row.Id = Editor.Buffers.Global_Active_Buffer,
         "Phase 273: switcher activation semantics should still select the active buffer");
-      Assert (To_String (Row.Display_Label) = "editor_phase273_existing_label.txt [label: current] — current note",
-        "Phase 273: switcher rows should display compact label before note");
+      Assert (To_String (Row.Display_Label) = "editor_phase273_existing_label.txt"
+        and then Row.Has_Label
+        and then To_String (Row.Label_Text) = "current"
+        and then Row.Has_Note,
+        "Phase 273: switcher rows should project file label and note metadata separately");
 
       Remove_File (Label_Path);
       Remove_File (Pinned_Path);
@@ -1723,14 +1727,15 @@ package body Editor.Buffers.Tests is
         "Phase 433: reopen must add exactly one file-backed buffer");
       Assert (S.File_Info.Has_Path and then To_String (S.File_Info.Path) = Path,
         "Phase 433: reopened buffer must use the candidate path");
-      Assert (Editor.State.Current_Text (S) = "phase433 disk text",
+      Assert (Editor.State.Current_Text (S) = "phase433 disk text" & ASCII.LF,
         "Phase 433: reopened text must come from disk, not close-time memory");
       Assert (not S.File_Info.Dirty,
         "Phase 433: reopened buffer must follow canonical clean file-open baseline");
       Assert (not S.Has_Reopen_Candidate,
         "Phase 433: successful reopen must consume the candidate");
       M := Editor.Messages.Active_Message (S.Messages, Found);
-      Assert (Found and then To_String (M.Text) = "Reopened buffer",
+      Assert (Found
+        and then To_String (M.Text) = "Reopened editor_phase433_reopen_success.txt",
         "Phase 433: successful reopen must emit one canonical message");
 
       Remove_File (Path);
@@ -1900,6 +1905,8 @@ package body Editor.Buffers.Tests is
         "Phase 429: blocked close must preserve dirty state before save");
 
       Editor.Executor.Execute_Save (S);
+      Editor.Executor.Execute_Command
+        (S, Editor.Commands.Command_Cancel_Close);
       Editor.Executor.Execute_Command
         (S, Editor.Commands.Command_Close_Active_Buffer);
 
@@ -2124,7 +2131,7 @@ package body Editor.Buffers.Tests is
         "Phase 431: dirty associated active buffer must remain open after blocked close");
       Assert (Editor.Buffers.Global_Active_Buffer = A_Id,
         "Phase 431: dirty associated blocked close must preserve active identity");
-      Assert (Text (S) = "A01",
+      Assert (Text (S) = "A01" & ASCII.LF,
         "Phase 431: dirty associated blocked close must preserve in-memory text");
       Assert (S.File_Info.Dirty,
         "Phase 431: dirty associated blocked close must preserve dirty state");
@@ -2400,6 +2407,8 @@ package body Editor.Buffers.Tests is
 
       S.File_Info.Dirty := False;
       Editor.Buffers.Sync_Global_Active_From_State (S);
+      Editor.Executor.Execute_Command
+        (S, Editor.Commands.Command_Cancel_Close);
       Editor.Executor.Execute_Close_Active_Buffer (S);
       Assert (not Editor.Buffers.Global_Contains (B_Id),
         "Phase 434: clean unassociated untitled close may still close normally");
@@ -2421,13 +2430,14 @@ package body Editor.Buffers.Tests is
         "Phase 434: reopen after non-producing closes must open exactly the retained candidate");
       Assert (S.File_Info.Has_Path and then To_String (S.File_Info.Path) = A_Path,
         "Phase 434: retained candidate path must be the reopen target");
-      Assert (Text (S) = "phase434-A-disk",
+      Assert (Text (S) = "phase434-A-disk" & ASCII.LF,
         "Phase 434: retained candidate reopen must read file contents through canonical open");
       Assert (not S.Has_Reopen_Candidate,
         "Phase 434: successful reopen must consume the retained candidate");
       M := Editor.Messages.Active_Message (S.Messages, Found);
-      Assert (Found and then To_String (M.Text) = "Reopened buffer",
-        "Phase 434: successful reopen after exclusions must emit only Reopened buffer");
+      Assert (Found
+        and then To_String (M.Text) = "Reopened editor_phase434_candidate_a.txt",
+        "Phase 434: successful reopen after exclusions must emit only the named reopen message");
 
       Remove_File (A_Path);
       Editor.Buffers.Reset_Global_For_Test;
@@ -2481,7 +2491,7 @@ package body Editor.Buffers.Tests is
         "Phase 434: duplicate reopen must not create a second buffer");
       Assert (Editor.Buffers.Global_Active_Buffer = Id,
         "Phase 434: duplicate reopen must keep or activate the existing candidate buffer");
-      Assert (Text (S) = "disk duplicate!",
+      Assert (Text (S) = "disk duplicate" & ASCII.LF & "!",
         "Phase 434: duplicate reopen must preserve already-open dirty text");
       Assert (S.File_Info.Dirty,
         "Phase 434: duplicate reopen must not mark an already-open dirty buffer clean");
@@ -2498,7 +2508,8 @@ package body Editor.Buffers.Tests is
       Assert (not S.Has_Reopen_Candidate,
         "Phase 434: successful duplicate reopen must consume the path-only candidate");
       M := Editor.Messages.Active_Message (S.Messages, Found);
-      Assert (Found and then To_String (M.Text) = "Reopened buffer",
+      Assert (Found
+        and then To_String (M.Text) = "Reopened editor_phase434_duplicate.txt",
         "Phase 434: duplicate reopen success must emit one canonical message");
 
       Editor.Clipboard.Clear;
@@ -2656,6 +2667,8 @@ package body Editor.Buffers.Tests is
         "Phase 435: dirty associated close must not create a reopen candidate");
 
       Editor.Executor.Execute_Save (S);
+      Editor.Executor.Execute_Command
+        (S, Editor.Commands.Command_Cancel_Close);
       Editor.Executor.Execute_Close_Active_Buffer (S);
       Assert (not Editor.Buffers.Global_Contains (A_Id),
         "Phase 435: saved clean associated buffer must close successfully");
@@ -2669,14 +2682,15 @@ package body Editor.Buffers.Tests is
         "Phase 435: reopen must add the saved associated file through canonical open");
       Assert (S.File_Info.Has_Path and then To_String (S.File_Info.Path) = A_Path,
         "Phase 435: reopened active buffer must use candidate A path");
-      Assert (Text (S) = "A disk after close",
+      Assert (Text (S) = "A disk after close" & ASCII.LF,
         "Phase 435: reopen must read current disk contents, not close-time memory");
       Assert (not S.File_Info.Dirty,
         "Phase 435: reopened file-backed buffer must follow clean open baseline");
       Assert (not S.Has_Reopen_Candidate,
         "Phase 435: successful reopen must consume candidate A");
       M := Editor.Messages.Active_Message (S.Messages, Found);
-      Assert (Found and then To_String (M.Text) = "Reopened buffer",
+      Assert (Found
+        and then To_String (M.Text) = "Reopened editor_phase435_integrated_a.txt",
         "Phase 435: successful reopen must emit one primary Reopened buffer message");
 
       Editor.Executor.Execute_New_Buffer (S);
@@ -2690,6 +2704,8 @@ package body Editor.Buffers.Tests is
         "Phase 435: failed/invalid Save As followed by blocked close must not create candidate");
 
       Editor.Executor.Execute_Save_As (S, B_Path);
+      Editor.Executor.Execute_Command
+        (S, Editor.Commands.Command_Cancel_Close);
       Editor.Executor.Execute_Close_Active_Buffer (S);
       Assert (not Editor.Buffers.Global_Contains (B_Id),
         "Phase 435: Save As success then clean close must remove untitled buffer");
@@ -2708,7 +2724,7 @@ package body Editor.Buffers.Tests is
       Write_File (B_Path, "B restored disk");
       Editor.Executor.Execute_Command (S, Editor.Commands.Command_Reopen_Closed_Buffer);
       Assert (S.File_Info.Has_Path and then To_String (S.File_Info.Path) = B_Path
-        and then Text (S) = "B restored disk",
+        and then Text (S) = "B restored disk" & ASCII.LF,
         "Phase 435: retained failed candidate must reopen from canonical disk read after file returns");
       Assert (not S.Has_Reopen_Candidate,
         "Phase 435: retry success must consume retained candidate B");
@@ -2783,7 +2799,7 @@ package body Editor.Buffers.Tests is
         "Phase 435: successful reopen must not mutate or remove the previous active buffer");
       Assert (S.File_Info.Has_Path and then To_String (S.File_Info.Path) = Candidate_Path,
         "Phase 435: reopened buffer must become active through canonical open policy");
-      Assert (Text (S) = "candidate disk",
+      Assert (Text (S) = "candidate disk" & ASCII.LF,
         "Phase 435: reopened buffer must come from file-open read behavior");
       Assert (Natural (Editor.History.Undo_Stack.Length) = 0
         and then Natural (Editor.History.Redo_Stack.Length) = 0,
@@ -2816,7 +2832,7 @@ package body Editor.Buffers.Tests is
       --  when reactivated after the reopen/no-candidate sequence.
       Editor.Buffers.Global_Set_Active_Buffer (Active_Id);
       Editor.Buffers.Load_Global_Active_Into_State (S);
-      Assert (Text (S) = "active disk!" and then S.File_Info.Dirty,
+      Assert (Text (S) = "active disk" & ASCII.LF & "!" and then S.File_Info.Dirty,
         "Phase 435: reopen/no-candidate workflow must preserve unrelated dirty buffer text and flag");
       Assert (Natural (Editor.History.Undo_Stack.Length) = Before_Undo
         and then Natural (Editor.History.Redo_Stack.Length) = Before_Redo,
@@ -2924,7 +2940,8 @@ package body Editor.Buffers.Tests is
       Assert (not S.Has_Reopen_Candidate,
         "Phase 435: duplicate-open success must consume candidate under retained policy");
       M := Editor.Messages.Active_Message (S.Messages, Found);
-      Assert (Found and then To_String (M.Text) = "Reopened buffer",
+      Assert (Found
+        and then To_String (M.Text) = "Reopened editor_phase435_duplicate.txt",
         "Phase 435: duplicate-open success must emit one primary Reopened buffer message");
 
       Remove_File (Path);
@@ -3543,7 +3560,7 @@ package body Editor.Buffers.Tests is
       Assert (Editor.Command_Route_Audit.Failure_Count (Audit) = 3,
         "buffer route audit should reject executor, availability, and buffer-id payload violations");
       Assert (Editor.Command_Route_Audit.Last_Failure_Message (Audit)
-              = "buffer workflow route carried a runtime buffer id payload",
+              = "ROUTE_CARRIED_COMMAND_PAYLOAD source=ROUTE_FROM_COMMAND_PALETTE expected=NO_COMMAND actual=COMMAND_SWITCH_BUFFER message=buffer workflow route carried a runtime buffer id payload",
         "buffer route audit should name runtime buffer id payload leakage");
    end Test_Phase577_Buffer_Workflow_Route_Audit_Rejects_Buffer_Payloads;
 

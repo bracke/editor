@@ -41,6 +41,7 @@ with Editor.Tab_Bar;
 with Editor.Executor;
 with Editor.Executor.Clipboard;
 with Editor.Executor.Navigation;
+with Editor.Selection;
 with Editor.Wrap;
 with Editor.Problems;
 with Editor.Search_Results;
@@ -87,6 +88,7 @@ use type Editor.Search_Results.Search_Results_Zone;
 use type Editor.Problems.Problems_Zone;
 use type Editor.Keybinding_Config.Keybinding_Config_Status;
 use type Editor.Keybindings.Binding_Result;
+use type Editor.Selection.Selection_Validation_Status;
 use type Editor.File_Tree_View.File_Tree_Action;
 use type Editor.Gutter.Gutter_Zone;
 use type Editor.Tab_Bar.Tab_Bar_Zone;
@@ -255,11 +257,15 @@ use type Editor.Guided_Prompts.Prompt_Kind;
                    (The_Editor.State.Carets.First_Index).Pos;
                Routed.Has_Position := True;
             end if;
-            if Length (Routed.Text) = 0 then
-               if Cmd.Code /= Wide_Wide_Character'Val (0) then
-                  Routed.Text :=
-                    To_Unbounded_String (Editor.UTF8.Encode_UTF8 (Cmd.Code));
-               elsif Cmd.Ch /= ASCII.NUL then
+            if Cmd.Code /= Wide_Wide_Character'Val (0)
+              and then
+                (Length (Routed.Text) = 0
+                 or else To_String (Routed.Text) = String'(1 => ASCII.NUL))
+            then
+               Routed.Text :=
+                 To_Unbounded_String (Editor.UTF8.Encode_UTF8 (Cmd.Code));
+            elsif Length (Routed.Text) = 0 then
+               if Cmd.Ch /= ASCII.NUL then
                   Routed.Text := To_Unbounded_String (String'(1 => Cmd.Ch));
                else
                   Routed.Text := Null_Unbounded_String;
@@ -323,7 +329,8 @@ use type Editor.Guided_Prompts.Prompt_Kind;
             | Routed_To_Delete_Previous_Word
             | Routed_To_Delete_Next_Word
             | Routed_To_Line_Split =>
-            Editor.Instance.Execute (The_Editor, Canonical_Text_Entry_Command (Cmd));
+            Editor.Executor.Execute_Command (The_Editor.State, Id, Shift);
+            Editor.Render_Cache.Invalidate_All;
          when Routed_To_Guided_Prompt =>
             case Id is
                when Editor.Commands.Command_Char_Delete_Previous =>
@@ -677,7 +684,6 @@ use type Editor.Guided_Prompts.Prompt_Kind;
             | Editor.Commands.Command_Close_Project
             | Editor.Commands.Command_Clear_Project
             | Editor.Commands.Command_Clear_Recent_Projects
-            | Editor.Commands.Command_Close_Active_Buffer
             | Editor.Commands.Command_Close_All_Buffers
             | Editor.Commands.Command_Close_All_Clean_Buffers
             | Editor.Commands.Command_Close_Other_Buffers
@@ -731,7 +737,6 @@ use type Editor.Guided_Prompts.Prompt_Kind;
             | Editor.Commands.Command_Close_Project
             | Editor.Commands.Command_Clear_Project
             | Editor.Commands.Command_Clear_Recent_Projects
-            | Editor.Commands.Command_Close_Active_Buffer
             | Editor.Commands.Command_Close_All_Buffers
             | Editor.Commands.Command_Close_All_Clean_Buffers
             | Editor.Commands.Command_Close_Other_Buffers
@@ -968,6 +973,16 @@ use type Editor.Guided_Prompts.Prompt_Kind;
          return;
       end if;
 
+      if Id = Editor.Commands.Command_Open_Quick_Open then
+         Editor.Executor.Execute_Open_Quick_Open (The_Editor.State);
+         Editor.Render_Cache.Invalidate_All;
+         return;
+      elsif Id = Editor.Commands.Command_Toggle_Quick_Open then
+         Editor.Executor.Execute_Toggle_Quick_Open (The_Editor.State);
+         Editor.Render_Cache.Invalidate_All;
+         return;
+      end if;
+
       declare
          Availability : constant Editor.Commands.Command_Availability :=
            Editor.Executor.Command_Availability (The_Editor.State, Id);
@@ -978,6 +993,40 @@ use type Editor.Guided_Prompts.Prompt_Kind;
             return;
          end if;
       end;
+
+      if Editor.Commands.Is_Text_Editing_Command (Id) then
+         if Id = Editor.Commands.Command_Comment_Line
+           or else Id = Editor.Commands.Command_Uncomment_Line
+           or else Id = Editor.Commands.Command_Toggle_Line_Comment
+         then
+            declare
+               Selection_Range : Editor.Selection.Active_Selection_Range;
+               Status          : constant Editor.Selection.Selection_Validation_Status :=
+                 Editor.Selection.Validate_Active_Selection_Range
+                   (The_Editor.State, Selection_Range);
+            begin
+               if Status = Editor.Selection.Selection_Ok
+                 and then not The_Editor.State.Rect_Select_Active
+                 and then Natural (The_Editor.State.Carets.Length) = 1
+               then
+                  declare
+                     C : Editor.Cursors.Caret_State :=
+                       The_Editor.State.Carets
+                         (The_Editor.State.Carets.First_Index);
+                  begin
+                     C.Pos := Selection_Range.Low;
+                     C.Anchor := Selection_Range.Low;
+                     The_Editor.State.Carets.Replace_Element
+                       (The_Editor.State.Carets.First_Index, C);
+                  end;
+               end if;
+            end;
+         end if;
+
+         Editor.Executor.Execute_Command (The_Editor.State, Id, Shift);
+         Editor.Render_Cache.Invalidate_All;
+         return;
+      end if;
 
       case Id is
          when Editor.Commands.No_Command =>
@@ -1162,10 +1211,8 @@ use type Editor.Guided_Prompts.Prompt_Kind;
             Editor.Executor.Execute_Command (The_Editor.State, Id, Shift);
 
          when Editor.Commands.Command_Save_File
-            | Editor.Commands.Command_Save_File_As
             | Editor.Commands.Command_Reload_Active_Buffer
             | Editor.Commands.Command_Revert_Active_Buffer
-            | Editor.Commands.Command_Rename_Buffer_File
             | Editor.Commands.Command_Delete_Buffer_File
             | Editor.Commands.Command_New_Buffer
             | Editor.Commands.Command_Close_Active_Buffer
@@ -1586,6 +1633,8 @@ use type Editor.Guided_Prompts.Prompt_Kind;
                Editor.Command_Palette.Select_All;
             elsif Cmd.Ch = ASCII.LF or else Cmd.Ch = ASCII.CR then
                Accept_Selected_Palette_Command;
+            elsif Length (Cmd.Text) > 0 then
+               Editor.Command_Palette.Insert_Text (To_String (Cmd.Text));
             else
                Editor.Command_Palette.Append_Character (Cmd.Ch);
             end if;
@@ -1759,6 +1808,10 @@ use type Editor.Guided_Prompts.Prompt_Kind;
                else
                   Execute_Command_Id (Editor.Commands.Command_Quick_Open_Next_Result);
                end if;
+            elsif Length (Cmd.Text) > 0 then
+               Cmd2.Kind := Editor.Commands.Quick_Open_Insert_Text;
+               Cmd2.Text := Cmd.Text;
+               Editor.Instance.Execute (The_Editor, Cmd2);
             elsif Cmd.Ch /= ASCII.NUL then
                Cmd2.Kind := Editor.Commands.Quick_Open_Insert_Text;
                Cmd2.Text := To_Unbounded_String (String'(1 => Cmd.Ch));
@@ -1989,6 +2042,10 @@ use type Editor.Guided_Prompts.Prompt_Kind;
                else
                   Execute_Command_Id (Editor.Commands.Command_Buffer_Switcher_Next_Result);
                end if;
+            elsif Length (Cmd.Text) > 0 then
+               Cmd2.Kind := Editor.Commands.Buffer_Switcher_Insert_Text;
+               Cmd2.Text := Cmd.Text;
+               Editor.Instance.Execute (The_Editor, Cmd2);
             elsif Cmd.Ch /= ASCII.NUL then
                Cmd2.Kind := Editor.Commands.Buffer_Switcher_Insert_Text;
                Cmd2.Text := To_Unbounded_String (String'(1 => Cmd.Ch));
@@ -2099,6 +2156,10 @@ use type Editor.Guided_Prompts.Prompt_Kind;
                  (The_Editor.State.Project_Search_Bar);
                Sync_Project_Search_Replace_Mode_From_Bar;
                Editor.Render_Cache.Invalidate_All;
+            elsif Length (Cmd.Text) > 0 then
+               Cmd2.Kind := Editor.Commands.Project_Search_Bar_Insert_Text;
+               Cmd2.Text := Cmd.Text;
+               Editor.Instance.Execute (The_Editor, Cmd2);
             elsif Cmd.Ch /= ASCII.NUL then
                Cmd2.Kind := Editor.Commands.Project_Search_Bar_Insert_Text;
                Cmd2.Text := To_Unbounded_String (String'(1 => Cmd.Ch));
@@ -2345,6 +2406,10 @@ use type Editor.Guided_Prompts.Prompt_Kind;
                Editor.Render_Cache.Invalidate_All;
             elsif Cmd.Ch = ASCII.LF or else Cmd.Ch = ASCII.CR then
                Execute_Command_Id (Editor.Commands.Command_Accept_Goto_Line);
+            elsif Length (Cmd.Text) > 0 then
+               Cmd2.Kind := Editor.Commands.Goto_Line_Insert_Text;
+               Cmd2.Text := Cmd.Text;
+               Editor.Instance.Execute (The_Editor, Cmd2);
             elsif Cmd.Ch /= ASCII.NUL and then Cmd.Ch /= ASCII.HT then
                Cmd2.Kind := Editor.Commands.Goto_Line_Insert_Text;
                Cmd2.Text := To_Unbounded_String (String'(1 => Cmd.Ch));
@@ -2448,6 +2513,10 @@ use type Editor.Guided_Prompts.Prompt_Kind;
                Execute_Command_Id (Editor.Commands.Command_Active_Find_Next);
             elsif Cmd.Ch = ASCII.HT then
                null;
+            elsif Length (Cmd.Text) > 0 then
+               Cmd2.Kind := Editor.Commands.Active_Find_Input_Insert_Text;
+               Cmd2.Text := Cmd.Text;
+               Editor.Instance.Execute (The_Editor, Cmd2);
             elsif Cmd.Ch /= ASCII.NUL then
                Cmd2.Kind := Editor.Commands.Active_Find_Input_Insert_Text;
                Cmd2.Text := To_Unbounded_String (String'(1 => Cmd.Ch));
@@ -2564,6 +2633,19 @@ use type Editor.Guided_Prompts.Prompt_Kind;
                end if;
             elsif Cmd.Ch = ASCII.HT then
                Editor.Outline.Deactivate_Filter_Input (The_Editor.State.Outline);
+               Editor.Render_Cache.Invalidate_All;
+            elsif Length (Cmd.Text) > 0 then
+               Editor.Outline.Insert_Filter_Text
+                 (The_Editor.State.Outline, To_String (Cmd.Text));
+               Editor.Outline.Set_Rows_From_Outline
+                 (The_Editor.State.Outline, The_Editor.State.Feature_Panel);
+               if Editor.Outline.Selected_Index (The_Editor.State.Outline) /= 0 then
+                  Editor.Feature_Panel.Request_Reveal_Row
+                    (The_Editor.State.Feature_Panel,
+                     Editor.Outline.Visible_Row_For_Outline_Row
+                       (The_Editor.State.Outline,
+                        Editor.Outline.Selected_Index (The_Editor.State.Outline)));
+               end if;
                Editor.Render_Cache.Invalidate_All;
             elsif Cmd.Ch /= ASCII.NUL then
                Editor.Outline.Insert_Filter_Character
@@ -2690,6 +2772,9 @@ use type Editor.Guided_Prompts.Prompt_Kind;
                Editor.Focus_Management.Restore_Focus_To_Editor (The_Editor.State);
             elsif Cmd.Ch = ASCII.HT then
                null;
+            elsif Length (Cmd.Text) > 0 then
+               Editor.Executor.Insert_File_Target_Prompt_Text
+                 (The_Editor.State, To_String (Cmd.Text));
             elsif Cmd.Ch /= ASCII.NUL then
                Editor.Executor.Insert_File_Target_Prompt_Text
                  (The_Editor.State, String'(1 => Cmd.Ch));
@@ -2758,6 +2843,21 @@ use type Editor.Guided_Prompts.Prompt_Kind;
          when Editor.Commands.Insert_Text_Input =>
             if Cmd.Ch = ASCII.LF or else Cmd.Ch = ASCII.CR then
                Execute_Command_Id (Editor.Commands.Command_Search_Results_Search_Active_Buffer);
+            elsif Length (Cmd.Text) > 0 then
+               declare
+                  Text : constant String := To_String (Cmd.Text);
+               begin
+                  for Ch of Text loop
+                     if Ch /= ASCII.LF and then Ch /= ASCII.CR then
+                        Editor.Feature_Search_Results.Insert_Search_Input_Character
+                          (The_Editor.State.Feature_Search_Results, Ch);
+                     end if;
+                  end loop;
+               end;
+               Editor.Feature_Search_Results.Project_Rows
+                 (The_Editor.State.Feature_Search_Results,
+                  The_Editor.State.Feature_Panel);
+               Editor.Render_Cache.Invalidate_All;
             elsif Cmd.Ch /= ASCII.NUL and then Cmd.Ch /= ASCII.HT then
                Editor.Feature_Search_Results.Insert_Search_Input_Character
                  (The_Editor.State.Feature_Search_Results, Cmd.Ch);
@@ -3609,6 +3709,15 @@ use type Editor.Guided_Prompts.Prompt_Kind;
          return False;
       end if;
 
+      if not Editor.Tab_Bar.Enabled (Layout.Tab_Bar)
+        or else Integer (Cmd.Click_Y) < Integer (Editor.Layout.Tab_Bar_Y (Layout))
+        or else Integer (Cmd.Click_Y) >=
+          Integer (Editor.Layout.Tab_Bar_Y (Layout)
+                   + Editor.Layout.Tab_Bar_Height (Layout))
+      then
+         return False;
+      end if;
+
       Editor.Buffers.Ensure_Global_Registry (The_Editor.State);
       Registry := Editor.Buffers.Global_Registry_For_UI;
 
@@ -4380,6 +4489,33 @@ use type Editor.Guided_Prompts.Prompt_Kind;
                   null;
             end case;
          end;
+      end if;
+
+      if The_Editor.State.Active_Find_Prompt
+        and then
+          ((not Editor.Overlay_Focus.Has_Active_Overlay
+              (The_Editor.State.Overlay_Focus))
+           or else Editor.Overlay_Focus.Is_Active
+             (The_Editor.State.Overlay_Focus,
+              Editor.Overlay_Focus.Active_Find_Prompt_Overlay))
+      then
+         case Chord.Key is
+            when Editor.Keybindings.Key_Enter =>
+               if Chord.Modifiers.Shift then
+                  Execute_Command_Id (Editor.Commands.Command_Active_Find_Previous);
+                  Editor.Cursor.Notify_Input
+                    (Float (Editor.View.Current_Time_Seconds));
+                  return;
+               end if;
+            when Editor.Keybindings.Key_Escape =>
+               Cmd.Kind := Editor.Commands.Active_Find_Hide;
+               Editor.Instance.Execute (The_Editor, Cmd);
+               Editor.Cursor.Notify_Input
+                 (Float (Editor.View.Current_Time_Seconds));
+               return;
+            when others =>
+               null;
+         end case;
       end if;
 
       if Editor.Keybindings.Resolve (Chord, Id) = Editor.Keybindings.Bound_Command then
@@ -5812,8 +5948,10 @@ use type Editor.Guided_Prompts.Prompt_Kind;
 
    function Get_State_For_Test return Editor.State.State_Type is
    begin
-      pragma Assert (Initialized,
-         "Input_Bridge must be initialized before reading test state");
+      if not Initialized then
+         Editor.Instance.Init (The_Editor);
+         Initialized := True;
+      end if;
 
       return The_Editor.State;
    end Get_State_For_Test;
@@ -5834,7 +5972,6 @@ use type Editor.Guided_Prompts.Prompt_Kind;
       Editor.Panels.Set_Current (The_Editor.State.Panels);
       Editor.Scrollbars.Reset;
       Editor.Render_Cache.Invalidate_All;
-      Editor.Keybindings.Reset_To_Defaults;
       Editor.View.Reset_Scroll;
       Initialized := True;
    end Set_State_For_Test;

@@ -378,7 +378,7 @@ package body Editor.Project.Tests is
       Editor.Executor.Execute_Refresh_File_Tree (S);
       Assert (Editor.File_Tree.Is_Empty (S.File_Tree),
               "Refresh without a project must leave the file tree empty");
-      Assert (Last_Message_Text (S) = "Refresh file tree failed: no project",
+      Assert (Last_Message_Text (S) = "No project open.",
               "Refresh without a project must publish a deterministic warning");
 
       Ada.Directories.Create_Directory (Root);
@@ -572,14 +572,20 @@ package body Editor.Project.Tests is
               "Show Recent Projects descriptor must exist");
       Assert (Descriptor_Exists (Editor.Commands.Command_Clear_Recent_Projects),
               "Clear Recent Projects descriptor must exist");
-      Assert (Descriptor_Exists (Editor.Commands.Command_Remove_Selected_Recent_Project),
-              "Remove Selected Recent Project descriptor must exist");
+      Assert (Editor.Commands.Descriptor
+                (Editor.Commands.Command_Remove_Selected_Recent_Project).Id =
+              Editor.Commands.Command_Remove_Selected_Recent_Project,
+              "Remove Selected Recent Project descriptor must exist as hidden/internal command");
       Assert (Descriptor_Exists (Editor.Commands.Command_Remove_Missing_Recent_Projects),
               "Remove Missing Recent Projects descriptor must exist");
-      Assert (Descriptor_Exists (Editor.Commands.Command_Select_Next_Recent_Project),
-              "Select Next Recent Project descriptor must exist");
-      Assert (Descriptor_Exists (Editor.Commands.Command_Select_Previous_Recent_Project),
-              "Select Previous Recent Project descriptor must exist");
+      Assert (Editor.Commands.Descriptor
+                (Editor.Commands.Command_Select_Next_Recent_Project).Id =
+              Editor.Commands.Command_Select_Next_Recent_Project,
+              "Select Next Recent Project descriptor must exist as hidden/internal command");
+      Assert (Editor.Commands.Descriptor
+                (Editor.Commands.Command_Select_Previous_Recent_Project).Id =
+              Editor.Commands.Command_Select_Previous_Recent_Project,
+              "Select Previous Recent Project descriptor must exist as hidden/internal command");
    end Test_Command_Palette_Project_Descriptors_Exist;
 
 
@@ -788,7 +794,7 @@ package body Editor.Project.Tests is
 
       Assert
         (Last_Message_Text (S) =
-           "Project files refreshed: 2 files; added 2; excluded 1 ignored path; ignored 1 invalid pattern",
+           "Project files refreshed: 2 files; removed 1; excluded 1 ignored path; ignored 1 invalid pattern",
          "refresh message must report ignored and invalid projectignore counts");
 
       Remove_If_Exists (Root);
@@ -999,7 +1005,7 @@ package body Editor.Project.Tests is
               "Phase 327 create-from-query must not create missing parents");
       Assert (not Ada.Directories.Exists (File_Path),
               "Phase 327 create-from-query must not create the target when the parent is missing");
-      Assert (Last_Message_Text (S) = "Parent directory does not exist: src/panels/",
+      Assert (Last_Message_Text (S) = "Parent directory is unavailable.",
               "Phase 327 create-from-query must preserve its missing-parent failure message");
       Assert (not Editor.Project.Has_Known_File (S.Project, "src/panels/view.adb"),
               "failed narrow create must not insert the target into known project files");
@@ -1142,6 +1148,8 @@ package body Editor.Project.Tests is
       Remove_If_Exists (Root);
       Ada.Directories.Create_Directory (Root);
       Editor.State.Init (S);
+      Editor.Recent_Projects.Clear (S.Recent_Projects);
+      S.Recent_Project_Selected_Index := 0;
       Editor.Recent_Projects.Add_Or_Promote
         (S.Recent_Projects, Root, "stale-recent-root", 559);
 

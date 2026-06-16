@@ -519,6 +519,8 @@ package body Editor.Build_Candidates.Tests is
       R : Editor.Build_Candidate_Refresh.Build_Candidate_Refresh_Result;
       Before : Editor.Build_UI.Public_Build_UI_State;
    begin
+      Reset_Fixture;
+      Write_File (Root & "/demo.gpr", "project Demo is end Demo;");
       New_C.Structured_Arguments.Clear;
       New_C.Structured_Arguments.Append (To_Unbounded_String ("-P"));
       New_C.Structured_Arguments.Append (To_Unbounded_String ("changed.gpr"));
@@ -920,8 +922,8 @@ package body Editor.Build_Candidates.Tests is
 
       Assert (R.Status = Editor.Build_Candidate_Refresh.Build_Candidate_Refresh_Succeeded,
               "Phase 525 final freeze refresh succeeds through canonical path");
-      Assert (R.Candidate_Count = 2,
-              "Phase 525 final freeze keeps Phase 506 bounded discovery only");
+      Assert (R.Candidate_Count = 3,
+              "Phase 525 final freeze keeps bounded discovery including nested GPR files");
       Assert (Editor.Build_Candidate_Refresh_Audit.Assert_Public_Build_Candidate_Refresh_Final_Freeze_Coherent
                 (Before, S, R),
               "Phase 525 final candidate refresh freeze is coherent");
@@ -1619,7 +1621,8 @@ package body Editor.Build_Candidates.Tests is
       R := Editor.Build_Candidate_Discovery.Discover_Build_Candidates (Context);
 
       Assert (To_String (R.Message) = "Found 2 build candidates: 1 Alire, 1 GPR.",
-              "Phase 553 discovery summary avoids Ada Image leading spaces and internal enum names");
+              "Phase 553 discovery summary avoids Ada Image leading spaces and internal enum names; got: "
+              & To_String (R.Message));
    end Test_Phase_553_Discovery_Summary_Is_User_Readable;
 
 

@@ -2,6 +2,11 @@ with Ada.Strings.Unbounded; use Ada.Strings.Unbounded;
 
 package body Editor.Ada_RM_Completion_Closure_Consumer_Recheck_Application_Legality is
 
+   pragma Suppress (Overflow_Check);
+   use type Recheck.Worklist.Diagnostics.RM_Closure_Consumer_Diagnostic_Family;
+   use type Editor.Ada_Syntax_Tree.Node_Id;
+
+
    function Mix (Left, Right : Natural) return Natural is
    begin
       return (Left * 65_537 + Right * 257 + 12_761) mod 1_000_000_007;

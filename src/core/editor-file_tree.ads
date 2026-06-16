@@ -179,6 +179,12 @@ package Editor.File_Tree is
      (Tree : in out File_Tree_State;
       Id   : File_Tree_Node_Id);
 
+   --  Expand all parent directories for scanned file nodes.
+   --  Invalid or empty trees are deterministic no-ops.
+   --  @param Tree file tree state to mutate
+   procedure Expand_File_Ancestors
+     (Tree : in out File_Tree_State);
+
    --  Return a stable UI label for the node kind.
    --  @param Kind file tree node kind
    --  @return directory or file

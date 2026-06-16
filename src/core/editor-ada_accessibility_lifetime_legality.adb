@@ -2,6 +2,8 @@ with Ada.Strings.Unbounded; use Ada.Strings.Unbounded;
 
 package body Editor.Ada_Accessibility_Lifetime_Legality is
 
+   pragma Suppress (Overflow_Check);
+
    use type Editor.Ada_Syntax_Tree.Node_Id;
    use type Editor.Ada_Assignment_Legality.Assignment_Legality_Status;
    use type Editor.Ada_Return_Legality.Return_Legality_Status;
@@ -576,7 +578,16 @@ package body Editor.Ada_Accessibility_Lifetime_Legality is
       Results : Accessibility_Result_Set;
    begin
       for Row of Model.Items loop
-         if Row.Source_Level = Level or else Row.Target_Level = Level then
+         if (Level = Accessibility_Level_Unknown
+             and then Row.Status =
+               Accessibility_Legality_Anonymous_Access_Level_Unresolved
+             and then
+               (Row.Source_Level = Level or else Row.Target_Level = Level))
+           or else
+             (Level /= Accessibility_Level_Unknown
+              and then
+                (Row.Source_Level = Level or else Row.Target_Level = Level))
+         then
             Results.Items.Append (Row);
             Results.Fingerprint := Mix (Results.Fingerprint, Row.Fingerprint + 1);
          end if;
@@ -649,7 +660,16 @@ package body Editor.Ada_Accessibility_Lifetime_Legality is
       Count : Natural := 0;
    begin
       for Row of Model.Items loop
-         if Row.Source_Level = Level or else Row.Target_Level = Level then
+         if (Level = Accessibility_Level_Unknown
+             and then Row.Status =
+               Accessibility_Legality_Anonymous_Access_Level_Unresolved
+             and then
+               (Row.Source_Level = Level or else Row.Target_Level = Level))
+           or else
+             (Level /= Accessibility_Level_Unknown
+              and then
+                (Row.Source_Level = Level or else Row.Target_Level = Level))
+         then
             Count := Count + 1;
          end if;
       end loop;

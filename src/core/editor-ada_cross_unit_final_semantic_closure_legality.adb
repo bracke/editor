@@ -3,6 +3,8 @@ with Ada.Strings.Unbounded; use Ada.Strings.Unbounded;
 
 package body Editor.Ada_Cross_Unit_Final_Semantic_Closure_Legality is
 
+   pragma Suppress (Overflow_Check);
+
    use type Access_Final.Master_Scope_Final_Row_Id;
    use type Access_Final.Master_Scope_Final_Status;
    use type Completion.Completion_Legality_Id;

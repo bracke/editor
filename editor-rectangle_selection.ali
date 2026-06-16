@@ -1,5 +1,7 @@
 V "GNAT Lib v15"
 A -gnat2022
+A -gnatX
+A -gnata
 P SS ZX
 
 RN
@@ -36,7 +38,7 @@ Z system.soft_links%s	s-soflin.adb		s-soflin.ali
 Z system.standard_library%s  s-stalib.adb	s-stalib.ali
 W text_buffer%s		text_buffer.ads		text_buffer.ali
 
-U editor.rectangle_selection%s  editor-rectangle_selection.ads  d9d0524a EE NE OO PK
+U editor.rectangle_selection%s  editor-rectangle_selection.ads  8c019feb EE NE OO PK
 W ada%s			ada.ads			ada.ali
 W ada.strings%s		a-string.ads		a-string.ali
 W ada.strings.unbounded%s  a-strunb.adb		a-strunb.ali
@@ -65,7 +67,7 @@ D a-stuten.ads		20250808065140 c6ced0ae ada.strings.utf_encoding%s
 D a-tags.ads		20250808065140 fbca0ad5 ada.tags%s
 D a-unccon.ads		20250808065140 0e9b276f ada.unchecked_conversion%s
 D editor.ads		20260612145959 16f844c2 editor%s
-D editor-ada_language_model.ads  20260612145959 459f92c3 editor.ada_language_model%s
+D editor-ada_language_model.ads  20260613110624 75f1fac9 editor.ada_language_model%s
 D editor-ada_project_index.ads  20260612145959 3ad143b9 editor.ada_project_index%s
 D editor-ada_syntax_tree.ads  20260612145959 49a76ced editor.ada_syntax_tree%s
 D editor-bookmarks.ads	20260612145959 4e695f4d editor.bookmarks%s
@@ -73,9 +75,9 @@ D editor-buffer_switcher.ads  20260612152524 fd053b33 editor.buffer_switcher%s
 D editor-buffer_types.ads  20260612151710 a555405e editor.buffer_types%s
 D editor-buffers.ads	20260612185530 1a6b6e4c editor.buffers%s
 D editor-build_candidates.ads  20260612145959 dc89ea7b editor.build_candidates%s
-D editor-build_output_details.ads  20260612145959 0f4ba402 editor.build_output_details%s
+D editor-build_output_details.ads  20260613095501 1d7c9af2 editor.build_output_details%s
 D editor-build_process_control.ads  20260612145959 28661204 editor.build_process_control%s
-D editor-build_result_summary.ads  20260612145959 94fc95d2 editor.build_result_summary%s
+D editor-build_result_summary.ads  20260613095501 5b952273 editor.build_result_summary%s
 D editor-build_runner_policy.ads  20260612145959 623f26a9 editor.build_runner_policy%s
 D editor-build_ui.ads	20260612152524 28a54496 editor.build_ui%s
 D editor-build_working_context.ads  20260612145959 cef9cea9 editor.build_working_context%s
@@ -115,20 +117,20 @@ D editor-pending_transitions.ads  20260612145959 81c78960 editor.pending_transit
 D editor-problems.ads	20260612145959 a9a08157 editor.problems%s
 D editor-producer_contracts.ads  20260612145959 c3ee4501 editor.producer_contracts%s
 D editor-project.ads	20260612145959 f4d50f6d editor.project%s
-D editor-project_search.ads  20260612152451 857df5ab editor.project_search%s
+D editor-project_search.ads  20260612195704 b7cf3cc2 editor.project_search%s
 D editor-project_search_bar.ads  20260612145959 c5c12f77 editor.project_search_bar%s
-D editor-quick_open.ads	20260612151807 878ba83c editor.quick_open%s
+D editor-quick_open.ads	20260614175339 b8f14db6 editor.quick_open%s
 D editor-recent_buffers.ads  20260612145959 617e4612 editor.recent_buffers%s
 D editor-recent_projects.ads  20260612145959 ee1155f5 editor.recent_projects%s
 D editor-rectangle_selection.ads  20260612145959 16b1a48c editor.rectangle_selection%s
 D editor-rectangle_selection.adb  20260612154607 0dbf4b5e editor.rectangle_selection%b
-D editor-render_model.ads  20260612145959 bd0252b2 editor.render_model%s
+D editor-render_model.ads  20260613081313 a7bd5c4e editor.render_model%s
 D editor-search.ads	20260612145959 dac0e204 editor.search%s
 D editor-search_results.ads  20260612145959 98eded1d editor.search_results%s
 D editor-selection.ads	20260612145959 37bfc5e9 editor.selection%s
 D editor-settings.ads	20260612145959 c2103809 editor.settings%s
 D editor-settings_management.ads  20260612145959 cf741a5b editor.settings_management%s
-D editor-state.ads	20260612170622 4c537118 editor.state%s
+D editor-state.ads	20260613081313 1982bcb9 editor.state%s
 D editor-status_bar.ads	20260612145959 879f0640 editor.status_bar%s
 D editor-syntax.ads	20260612145959 d59b0303 editor.syntax%s
 D editor-syntax_cache.ads  20260612164742 637f2470 editor.syntax_cache%s
@@ -138,7 +140,7 @@ D editor-unicode.ads	20260612145959 552ff3cc editor.unicode%s
 D editor-utf8.ads	20260612145959 404e16b1 editor.utf8%s
 D editor-view.ads	20260612152152 12b5fbb1 editor.view%s
 D editor-view_types.ads	20260612152152 f3042ec7 editor.view_types%s
-D editor-workspace_persistence.ads  20260612145959 455ffd61 editor.workspace_persistence%s
+D editor-workspace_persistence.ads  20260612202240 a037efc2 editor.workspace_persistence%s
 D editor-wrap.ads	20260612145959 87db665a editor.wrap%s
 D interfac.ads		20250808065140 9111f9c1 interfaces%s
 D i-c.ads		20250808065140 e94c966a interfaces.c%s
@@ -187,55 +189,55 @@ G c Z b b [has_rectangle_span editor__rectangle_selection 165 13 none]
 G c Z b b [column_for editor__rectangle_selection 189 13 none]
 G c Z b b [append_replace_op editor__rectangle_selection 289 14 none]
 G r c none [point_to_row_col editor__rectangle_selection 21 14 none] [current editor__layout 20 13 none]
-G r c none [point_to_row_col editor__rectangle_selection 21 14 none] [line_count editor__state 489 13 none]
+G r c none [point_to_row_col editor__rectangle_selection 21 14 none] [line_count editor__state 490 13 none]
 G r c none [point_to_row_col editor__rectangle_selection 21 14 none] [scroll_x editor__view 53 13 none]
 G r c none [point_to_row_col editor__rectangle_selection 21 14 none] [text_column_for_x editor__layout 199 13 none]
 G r c none [point_to_row_col editor__rectangle_selection 21 14 none] [scroll_y editor__view 54 13 none]
 G r c none [point_to_row_col editor__rectangle_selection 21 14 none] [row_for_y editor__layout 222 13 none]
 G r c none [point_to_row_col editor__rectangle_selection 21 14 none] [visible_row_count editor__folding 115 13 none]
 G r c none [point_to_row_col editor__rectangle_selection 21 14 none] [visible_row_to_document_row editor__folding 97 13 none]
-G r c none [build_carets editor__rectangle_selection 28 14 none] [line_count editor__state 489 13 none]
-G r c none [build_carets editor__rectangle_selection 28 14 none] [line_start editor__state 501 13 none]
-G r c none [build_carets editor__rectangle_selection 28 14 none] [line_end editor__state 505 13 none]
+G r c none [build_carets editor__rectangle_selection 28 14 none] [line_count editor__state 490 13 none]
+G r c none [build_carets editor__rectangle_selection 28 14 none] [line_start editor__state 502 13 none]
+G r c none [build_carets editor__rectangle_selection 28 14 none] [line_end editor__state 506 13 none]
 G r c none [build_carets editor__rectangle_selection 28 14 none] [length text_backend__rope_impl 69 13 none]
-G r c none [build_carets editor__rectangle_selection 28 14 none] [normalize_carets editor__state 530 14 none]
-G r c none [selection_left_column editor__rectangle_selection 38 13 none] [row_col_for_index editor__state 495 14 none]
-G r c none [selection_right_column editor__rectangle_selection 42 13 none] [row_col_for_index editor__state 495 14 none]
-G r c none [selection_start_position editor__rectangle_selection 46 13 none] [row_col_for_index editor__state 495 14 none]
-G r c none [selection_start_position editor__rectangle_selection 46 13 none] [line_count editor__state 489 13 none]
+G r c none [build_carets editor__rectangle_selection 28 14 none] [normalize_carets editor__state 531 14 none]
+G r c none [selection_left_column editor__rectangle_selection 38 13 none] [row_col_for_index editor__state 496 14 none]
+G r c none [selection_right_column editor__rectangle_selection 42 13 none] [row_col_for_index editor__state 496 14 none]
+G r c none [selection_start_position editor__rectangle_selection 46 13 none] [row_col_for_index editor__state 496 14 none]
+G r c none [selection_start_position editor__rectangle_selection 46 13 none] [line_count editor__state 490 13 none]
 G r c none [selection_start_position editor__rectangle_selection 46 13 none] [length text_backend__rope_impl 69 13 none]
-G r c none [selection_start_position editor__rectangle_selection 46 13 none] [line_start editor__state 501 13 none]
-G r c none [selection_start_position editor__rectangle_selection 46 13 none] [line_end editor__state 505 13 none]
-G r c none [selection_end_position editor__rectangle_selection 50 13 none] [row_col_for_index editor__state 495 14 none]
-G r c none [selection_end_position editor__rectangle_selection 50 13 none] [line_count editor__state 489 13 none]
+G r c none [selection_start_position editor__rectangle_selection 46 13 none] [line_start editor__state 502 13 none]
+G r c none [selection_start_position editor__rectangle_selection 46 13 none] [line_end editor__state 506 13 none]
+G r c none [selection_end_position editor__rectangle_selection 50 13 none] [row_col_for_index editor__state 496 14 none]
+G r c none [selection_end_position editor__rectangle_selection 50 13 none] [line_count editor__state 490 13 none]
 G r c none [selection_end_position editor__rectangle_selection 50 13 none] [length text_backend__rope_impl 69 13 none]
-G r c none [selection_end_position editor__rectangle_selection 50 13 none] [line_start editor__state 501 13 none]
-G r c none [selection_end_position editor__rectangle_selection 50 13 none] [line_end editor__state 505 13 none]
-G r c none [rectangular_copy_text editor__rectangle_selection 54 13 none] [row_col_for_index editor__state 495 14 none]
-G r c none [rectangular_copy_text editor__rectangle_selection 54 13 none] [line_count editor__state 489 13 none]
-G r c none [rectangular_copy_text editor__rectangle_selection 54 13 none] [line_start editor__state 501 13 none]
-G r c none [rectangular_copy_text editor__rectangle_selection 54 13 none] [line_end editor__state 505 13 none]
+G r c none [selection_end_position editor__rectangle_selection 50 13 none] [line_start editor__state 502 13 none]
+G r c none [selection_end_position editor__rectangle_selection 50 13 none] [line_end editor__state 506 13 none]
+G r c none [rectangular_copy_text editor__rectangle_selection 54 13 none] [row_col_for_index editor__state 496 14 none]
+G r c none [rectangular_copy_text editor__rectangle_selection 54 13 none] [line_count editor__state 490 13 none]
+G r c none [rectangular_copy_text editor__rectangle_selection 54 13 none] [line_start editor__state 502 13 none]
+G r c none [rectangular_copy_text editor__rectangle_selection 54 13 none] [line_end editor__state 506 13 none]
 G r c none [rectangular_copy_text editor__rectangle_selection 54 13 none] [code_point_at text_backend__rope_impl 111 13 none]
 G r c none [rectangular_copy_text editor__rectangle_selection 54 13 none] [encode_utf8 editor__utf8 14 13 none]
-G r c none [build_delete_command editor__rectangle_selection 57 14 none] [row_col_for_index editor__state 495 14 none]
-G r c none [build_delete_command editor__rectangle_selection 57 14 none] [line_count editor__state 489 13 none]
+G r c none [build_delete_command editor__rectangle_selection 57 14 none] [row_col_for_index editor__state 496 14 none]
+G r c none [build_delete_command editor__rectangle_selection 57 14 none] [line_count editor__state 490 13 none]
 G r c none [build_delete_command editor__rectangle_selection 57 14 none] [length text_backend__rope_impl 69 13 none]
-G r c none [build_delete_command editor__rectangle_selection 57 14 none] [line_start editor__state 501 13 none]
-G r c none [build_delete_command editor__rectangle_selection 57 14 none] [line_end editor__state 505 13 none]
-G r c none [collapse_after_delete editor__rectangle_selection 61 14 none] [row_col_for_index editor__state 495 14 none]
-G r c none [collapse_after_delete editor__rectangle_selection 61 14 none] [line_count editor__state 489 13 none]
-G r c none [collapse_after_delete editor__rectangle_selection 61 14 none] [line_start editor__state 501 13 none]
-G r c none [collapse_after_delete editor__rectangle_selection 61 14 none] [line_end editor__state 505 13 none]
+G r c none [build_delete_command editor__rectangle_selection 57 14 none] [line_start editor__state 502 13 none]
+G r c none [build_delete_command editor__rectangle_selection 57 14 none] [line_end editor__state 506 13 none]
+G r c none [collapse_after_delete editor__rectangle_selection 61 14 none] [row_col_for_index editor__state 496 14 none]
+G r c none [collapse_after_delete editor__rectangle_selection 61 14 none] [line_count editor__state 490 13 none]
+G r c none [collapse_after_delete editor__rectangle_selection 61 14 none] [line_start editor__state 502 13 none]
+G r c none [collapse_after_delete editor__rectangle_selection 61 14 none] [line_end editor__state 506 13 none]
 G r c none [collapse_after_delete editor__rectangle_selection 61 14 none] [length text_backend__rope_impl 69 13 none]
-G r c none [collapse_after_delete editor__rectangle_selection 61 14 none] [normalize_carets editor__state 530 14 none]
-G r c none [line_length editor__rectangle_selection 13 13 none] [line_count editor__state 489 13 none]
-G r c none [line_length editor__rectangle_selection 13 13 none] [line_start editor__state 501 13 none]
-G r c none [line_length editor__rectangle_selection 13 13 none] [line_end editor__state 505 13 none]
-G r c none [index_for_row_col editor__rectangle_selection 34 13 none] [line_count editor__state 489 13 none]
+G r c none [collapse_after_delete editor__rectangle_selection 61 14 none] [normalize_carets editor__state 531 14 none]
+G r c none [line_length editor__rectangle_selection 13 13 none] [line_count editor__state 490 13 none]
+G r c none [line_length editor__rectangle_selection 13 13 none] [line_start editor__state 502 13 none]
+G r c none [line_length editor__rectangle_selection 13 13 none] [line_end editor__state 506 13 none]
+G r c none [index_for_row_col editor__rectangle_selection 34 13 none] [line_count editor__state 490 13 none]
 G r c none [index_for_row_col editor__rectangle_selection 34 13 none] [length text_backend__rope_impl 69 13 none]
-G r c none [index_for_row_col editor__rectangle_selection 34 13 none] [line_start editor__state 501 13 none]
-G r c none [index_for_row_col editor__rectangle_selection 34 13 none] [line_end editor__state 505 13 none]
-G r c none [column_for editor__rectangle_selection 189 13 none] [row_col_for_index editor__state 495 14 none]
+G r c none [index_for_row_col editor__rectangle_selection 34 13 none] [line_start editor__state 502 13 none]
+G r c none [index_for_row_col editor__rectangle_selection 34 13 none] [line_end editor__state 506 13 none]
+G r c none [column_for editor__rectangle_selection 189 13 none] [row_col_for_index editor__state 496 14 none]
 X 1 ada.ads
 18K9*Ada 22e8 76|1r6 55r43 77|1r6 1r33 2r6 2r26 248r43
 X 5 a-contai.ads
@@ -433,21 +435,21 @@ X 84 editor-state.ads
 . 62r35 77|14r20 20r24 24r32 25r32 35r20 41r24 46r44 63r20 70r63 77r17 84r42
 . 89r30 90r30 97r29 108r17 118r93 153r14 173r18 190r27 201r14 206r18 216r18
 . 226r18 232r14 237r18 243r14 248r18 263r23 265r41 301r20 329r35 346r20 386r14
-. 84|610e17
+. 84|611e17
 115R9*State_Type 76|22r26 29r35 36r24 39r24 43r24 47r24 51r24 55r24 58r26
 . 62r41 77|14r26 35r26 63r26 97r35 173r24 190r33 206r24 216r24 226r24 237r24
-. 248r24 301r26 329r41 84|366e14
+. 248r24 301r26 329r41 84|367e14
 116r7*Buffer{121|7R9} 77|42r53 274r95
 117r7*Carets{7|91R9[37|19]} 77|106m9 109m12 136m12 144r12 145m12 180r18 253r18
 . 312r18 384m9 387r22 387r32
 123b7*Rect_Select_Active{boolean} 77|176r16 385m9
-187r7*Folding{50|22R9} 77|84r26 88r18
-489V13*Line_Count{natural} 77|20s30 41s30 70s69 77s23 84s48 89s36 90s36 108s23
+188r7*Folding{50|22R9} 77|84r26 88r18
+490V13*Line_Count{natural} 77|20s30 41s30 70s69 77s23 84s48 89s36 90s36 108s23
 . 118s99
-495U14*Row_Col_For_Index 77|201s20 232s20 243s20 263s29 346s26
-501V13*Line_Start{37|5I12} 77|24s38 46s50 265s47
-505V13*Line_End{37|5I12} 77|25s38
-530U14*Normalize_Carets 77|153s20 386s20
+496U14*Row_Col_For_Index 77|201s20 232s20 243s20 263s29 346s26
+502V13*Line_Start{37|5I12} 77|24s38 46s50 265s47
+506V13*Line_End{37|5I12} 77|25s38
+531U14*Normalize_Carets 77|153s20 386s20
 X 90 editor-unicode.ads
 2E12*Code_Point{wide_wide_character}
 X 91 editor-utf8.ads

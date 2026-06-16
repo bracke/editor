@@ -3,6 +3,8 @@ with Ada.Strings.Unbounded; use Ada.Strings.Unbounded;
 
 package body Editor.Ada_Record_Layout_Exact_Validation is
 
+   pragma Suppress (Overflow_Check);
+
    use type Editor.Ada_Record_Layout_Validation.Record_Layout_Status;
 
    function Mix (Left, Right : Natural) return Natural is

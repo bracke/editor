@@ -24,6 +24,7 @@ package Editor.Keybindings is
       Key_F,
       Key_G,
       Key_H,
+      Key_O,
       Key_P,
       Key_N,
       Key_W,

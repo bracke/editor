@@ -1,5 +1,12 @@
 package body Editor.Ada_Semantic_Regression_Corpus_Balance_Audit_Pass1342 is
 
+   pragma Suppress (Overflow_Check);
+   use type Matrix.RM_Family;
+   use type Matrix.Implementing_Slice;
+   use type Remediation.Remediation_State;
+   use type Precision.Precision_Classification;
+
+
    procedure Add_Corpus_Row
      (Input : in out Corpus_Input;
       Row : Corpus_Row) is

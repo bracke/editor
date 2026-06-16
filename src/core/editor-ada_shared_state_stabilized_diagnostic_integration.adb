@@ -3,6 +3,11 @@ with Editor.Ada_Syntax_Tree;
 
 package body Editor.Ada_Shared_State_Stabilized_Diagnostic_Integration is
 
+   pragma Suppress (Overflow_Check);
+   use type Shared_State_Stabilized_Family;
+   use type Editor.Ada_Syntax_Tree.Node_Id;
+
+
    function Mix (Left, Right : Natural) return Natural is
    begin
       return (Left * 16_777_619 + Right + 2_167) mod 2_147_483_647;

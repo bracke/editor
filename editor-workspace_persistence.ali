@@ -1,5 +1,7 @@
 V "GNAT Lib v15"
 A -gnat2022
+A -gnatX
+A -gnata
 P SS ZX
 
 RN
@@ -22,7 +24,7 @@ RV NO_IMPLICIT_LOOPS
 RV NO_ELABORATION_CODE
 RV NO_OBSOLESCENT_FEATURES
 
-U editor.workspace_persistence%b  editor-workspace_persistence.adb  2dd8d0bd NE OO PK
+U editor.workspace_persistence%b  editor-workspace_persistence.adb  74284b42 NE OO PK
 W ada%s			ada.ads			ada.ali
 W ada.characters%s	a-charac.ads		a-charac.ali
 W ada.characters.handling%s  a-chahan.adb	a-chahan.ali
@@ -49,7 +51,7 @@ Z system.soft_links%s	s-soflin.adb		s-soflin.ali
 Z system.standard_library%s  s-stalib.adb	s-stalib.ali
 Z system.val_int%s	s-valint.ads		s-valint.ali
 
-U editor.workspace_persistence%s  editor-workspace_persistence.ads  735b80fb EE OO PF PK
+U editor.workspace_persistence%s  editor-workspace_persistence.ads  96339258 EE OO PF PK
 W ada%s			ada.ads			ada.ali
 W ada.containers%s	a-contai.ads		a-contai.ali
 Z ada.containers.generic_array_sort%s
@@ -66,6 +68,7 @@ Z ada.tags%s		a-tags.adb		a-tags.ali
 Z ada.unchecked_deallocation%s
 W editor%s		editor.ads		editor.ali
 Z system%s		system.ads		system.ali
+Z system.assertions%s	s-assert.adb		s-assert.ali
 Z system.finalization_primitives%s  s-finpri.adb  s-finpri.ali
 Z system.pool_global%s	s-pooglo.adb		s-pooglo.ali
 Z system.put_images%s	s-putima.adb		s-putima.ali
@@ -81,6 +84,7 @@ Z system.strings.stream_ops%s  s-ststop.adb	s-ststop.ali
 Z system.wch_stw%s	s-wchstw.adb		s-wchstw.ali
 
 D ada.ads		20250808065140 76789da1 ada%s
+D a-assert.ads		20250808065140 ba465f5c ada.assertions%s
 D a-calend.ads		20250808065140 bf7f3cc9 ada.calendar%s
 D a-charac.ads		20250808065140 2d3ec45b ada.characters%s
 D a-chahan.ads		20250808065140 bf752ff6 ada.characters.handling%s
@@ -109,14 +113,15 @@ D a-textio.ads		20250808065140 34ef47de ada.text_io%s
 D a-unccon.ads		20250808065140 0e9b276f ada.unchecked_conversion%s
 D a-uncdea.ads		20250808065140 c3a8ac65 ada.unchecked_deallocation%s
 D editor.ads		20260612145959 16f844c2 editor%s
-D editor-workspace_persistence.ads  20260612145959 455ffd61 editor.workspace_persistence%s
-D editor-workspace_persistence.adb  20260612154933 fe7ec98f editor.workspace_persistence%b
+D editor-workspace_persistence.ads  20260612202240 a037efc2 editor.workspace_persistence%s
+D editor-workspace_persistence.adb  20260615193913 42e640d3 editor.workspace_persistence%b
 D gnat.ads		20250808065140 b5988c27 gnat%s
 D g-os_lib.ads		20250808065140 0db74523 gnat.os_lib%s
 D interfac.ads		20250808065140 9111f9c1 interfaces%s
 D i-c.ads		20250808065140 e94c966a interfaces.c%s
 D i-cstrea.ads		20250808065140 ffd01b9d interfaces.c_streams%s
 D system.ads		20250808065140 14286b0f system%s
+D s-assert.ads		20250808065140 9c4520c7 system.assertions%s
 D s-atocou.ads		20250808065140 dc18efc3 system.atomic_counters%s
 D s-atocou.adb		20250808065140 6fe685de system.atomic_counters%b
 D s-atopri.ads		20250808065140 e19c1d89 system.atomic_primitives%s
@@ -171,463 +176,464 @@ G c Z s b [has_project_root editor__workspace_persistence 81 13 none]
 G c Z s b [project_root editor__workspace_persistence 84 13 none]
 G c Z s b [add_open_file editor__workspace_persistence 87 14 none]
 G c Z s b [open_file_count editor__workspace_persistence 91 13 none]
-G c Z s b [open_file editor__workspace_persistence 94 13 none]
-G c Z s b [set_active_file_path editor__workspace_persistence 98 14 none]
-G c Z s b [has_active_file_path editor__workspace_persistence 103 13 none]
-G c Z s b [active_file_path editor__workspace_persistence 106 13 none]
-G c Z s b [active_file_is_project_relative editor__workspace_persistence 109 13 none]
-G c Z s b [add_expanded_file_tree_path editor__workspace_persistence 112 14 none]
-G c Z s b [expanded_file_tree_path_count editor__workspace_persistence 116 13 none]
-G c Z s b [expanded_file_tree_path editor__workspace_persistence 119 13 none]
-G c Z s b [set_file_tree_panel editor__workspace_persistence 123 14 none]
-G c Z s b [file_tree_panel_visible editor__workspace_persistence 128 13 none]
-G c Z s b [file_tree_panel_width editor__workspace_persistence 131 13 none]
-G c Z s b [set_bottom_panel editor__workspace_persistence 134 14 none]
-G c Z s b [bottom_panel_visible editor__workspace_persistence 140 13 none]
-G c Z s b [bottom_panel_height editor__workspace_persistence 143 13 none]
-G c Z s b [active_bottom_content editor__workspace_persistence 146 13 none]
-G c Z s b [session_file_path editor__workspace_persistence 150 13 none]
-G c Z s b [session_file_status editor__workspace_persistence 161 13 none]
-G c Z s b [workspace_state_exists editor__workspace_persistence 168 13 none]
-G c Z s b [is_session_file_path_for_project editor__workspace_persistence 171 13 none]
-G c Z s b [is_safe_project_relative_path editor__workspace_persistence 175 13 none]
-G c Z s b [normalize_project_relative_path editor__workspace_persistence 178 13 none]
-G c Z s b [normalize editor__workspace_persistence 182 14 none]
-G c Z s b [equivalent editor__workspace_persistence 185 13 none]
-G c Z s b [debug_summary editor__workspace_persistence 189 13 none]
-G c Z s b [serialized_text editor__workspace_persistence 206 13 none]
-G c Z s b [audit_serialized_buffer_persistence editor__workspace_persistence 209 13 none]
-G c Z s b [audit_buffer_persistence editor__workspace_persistence 212 13 none]
-G c Z s b [diagnostic_count editor__workspace_persistence 215 13 none]
-G c Z s b [diagnostic editor__workspace_persistence 218 13 none]
-G c Z s b [save_to_file editor__workspace_persistence 228 14 none]
-G c Z s b [save_to_file_atomically editor__workspace_persistence 238 14 none]
-G c Z s b [load_from_file editor__workspace_persistence 243 14 none]
+G c Z s b [open_file_request_count editor__workspace_persistence 94 13 none]
+G c Z s b [open_file editor__workspace_persistence 97 13 none]
+G c Z s b [set_active_file_path editor__workspace_persistence 101 14 none]
+G c Z s b [has_active_file_path editor__workspace_persistence 106 13 none]
+G c Z s b [active_file_path editor__workspace_persistence 109 13 none]
+G c Z s b [active_file_is_project_relative editor__workspace_persistence 112 13 none]
+G c Z s b [add_expanded_file_tree_path editor__workspace_persistence 115 14 none]
+G c Z s b [expanded_file_tree_path_count editor__workspace_persistence 119 13 none]
+G c Z s b [expanded_file_tree_path editor__workspace_persistence 122 13 none]
+G c Z s b [set_file_tree_panel editor__workspace_persistence 126 14 none]
+G c Z s b [file_tree_panel_visible editor__workspace_persistence 131 13 none]
+G c Z s b [file_tree_panel_width editor__workspace_persistence 134 13 none]
+G c Z s b [set_bottom_panel editor__workspace_persistence 137 14 none]
+G c Z s b [bottom_panel_visible editor__workspace_persistence 143 13 none]
+G c Z s b [bottom_panel_height editor__workspace_persistence 146 13 none]
+G c Z s b [active_bottom_content editor__workspace_persistence 149 13 none]
+G c Z s b [session_file_path editor__workspace_persistence 153 13 none]
+G c Z s b [session_file_status editor__workspace_persistence 164 13 none]
+G c Z s b [workspace_state_exists editor__workspace_persistence 171 13 none]
+G c Z s b [is_session_file_path_for_project editor__workspace_persistence 174 13 none]
+G c Z s b [is_safe_project_relative_path editor__workspace_persistence 178 13 none]
+G c Z s b [normalize_project_relative_path editor__workspace_persistence 181 13 none]
+G c Z s b [normalize editor__workspace_persistence 185 14 none]
+G c Z s b [equivalent editor__workspace_persistence 188 13 none]
+G c Z s b [debug_summary editor__workspace_persistence 192 13 none]
+G c Z s b [serialized_text editor__workspace_persistence 209 13 none]
+G c Z s b [audit_serialized_buffer_persistence editor__workspace_persistence 212 13 none]
+G c Z s b [audit_buffer_persistence editor__workspace_persistence 215 13 none]
+G c Z s b [diagnostic_count editor__workspace_persistence 218 13 none]
+G c Z s b [diagnostic editor__workspace_persistence 221 13 none]
+G c Z s b [save_to_file editor__workspace_persistence 231 14 none]
+G c Z s b [save_to_file_atomically editor__workspace_persistence 241 14 none]
+G c Z s b [load_from_file editor__workspace_persistence 246 14 none]
 G c Z s s [workspace_file_entryDI editor__workspace_persistence 57 9 none]
 G c Z s s [workspace_file_entryDA editor__workspace_persistence 57 9 none]
 G c Z s s [workspace_file_entryDF editor__workspace_persistence 57 9 none]
 G c Z s s [workspace_file_entryIP editor__workspace_persistence 57 9 none]
-G c Z s s [has_element editor__workspace_persistence__file_entry_vectors 115 13 249_4]
-G c Z s s [empty editor__workspace_persistence__file_entry_vectors 125 13 249_4]
-G c Z s s [Oeq editor__workspace_persistence__file_entry_vectors 127 24 249_4]
-G c Z s s [to_vector editor__workspace_persistence__file_entry_vectors 136 13 249_4]
-G c Z s s [to_vector editor__workspace_persistence__file_entry_vectors 139 13 249_4]
-G c Z s s [Oconcat editor__workspace_persistence__file_entry_vectors 145 13 249_4]
-G c Z s s [Oconcat editor__workspace_persistence__file_entry_vectors 149 13 249_4]
-G c Z s s [Oconcat editor__workspace_persistence__file_entry_vectors 153 13 249_4]
-G c Z s s [Oconcat editor__workspace_persistence__file_entry_vectors 157 13 249_4]
-G c Z s s [capacity editor__workspace_persistence__file_entry_vectors 161 13 249_4]
-G c Z s s [reserve_capacity editor__workspace_persistence__file_entry_vectors 164 14 249_4]
-G c Z s s [length editor__workspace_persistence__file_entry_vectors 175 13 249_4]
-G c Z s s [set_length editor__workspace_persistence__file_entry_vectors 178 14 249_4]
-G c Z s s [is_empty editor__workspace_persistence__file_entry_vectors 187 13 249_4]
-G c Z s s [clear editor__workspace_persistence__file_entry_vectors 190 14 249_4]
-G c Z s s [to_cursor editor__workspace_persistence__file_entry_vectors 194 13 249_4]
-G c Z s s [to_index editor__workspace_persistence__file_entry_vectors 201 13 249_4]
-G c Z s s [element editor__workspace_persistence__file_entry_vectors 206 13 249_4]
-G c Z s s [element editor__workspace_persistence__file_entry_vectors 213 13 249_4]
-G c Z s s [replace_element editor__workspace_persistence__file_entry_vectors 217 14 249_4]
-G c Z s s [replace_element editor__workspace_persistence__file_entry_vectors 228 14 249_4]
-G c Z s s [query_element editor__workspace_persistence__file_entry_vectors 239 14 249_4]
-G c Z s s [query_element editor__workspace_persistence__file_entry_vectors 250 14 249_4]
-G c Z s s [update_element editor__workspace_persistence__file_entry_vectors 259 14 249_4]
-G c Z s s [update_element editor__workspace_persistence__file_entry_vectors 276 14 249_4]
-G c Z s s [constant_reference editor__workspace_persistence__file_entry_vectors 303 13 249_4]
-G c Z s s [reference editor__workspace_persistence__file_entry_vectors 308 13 249_4]
-G c Z s s [constant_reference editor__workspace_persistence__file_entry_vectors 313 13 249_4]
-G c Z s s [reference editor__workspace_persistence__file_entry_vectors 318 13 249_4]
-G c Z s s [assign editor__workspace_persistence__file_entry_vectors 323 14 249_4]
-G c Z s s [copy editor__workspace_persistence__file_entry_vectors 325 13 249_4]
-G c Z s s [move editor__workspace_persistence__file_entry_vectors 327 14 249_4]
-G c Z s s [new_vector editor__workspace_persistence__file_entry_vectors 333 13 249_4]
-G c Z s s [insert_vector editor__workspace_persistence__file_entry_vectors 337 14 249_4]
-G c Z s s [insert_vector editor__workspace_persistence__file_entry_vectors 361 14 249_4]
-G c Z s s [insert_vector editor__workspace_persistence__file_entry_vectors 378 14 249_4]
-G c Z s s [insert editor__workspace_persistence__file_entry_vectors 396 14 249_4]
-G c Z s s [insert editor__workspace_persistence__file_entry_vectors 404 14 249_4]
-G c Z s s [insert editor__workspace_persistence__file_entry_vectors 412 14 249_4]
-G c Z s s [insert editor__workspace_persistence__file_entry_vectors 421 14 249_4]
-G c Z s s [insert editor__workspace_persistence__file_entry_vectors 438 14 249_4]
-G c Z s s [prepend_vector editor__workspace_persistence__file_entry_vectors 449 14 249_4]
-G c Z s s [prepend editor__workspace_persistence__file_entry_vectors 459 14 249_4]
-G c Z s s [append_vector editor__workspace_persistence__file_entry_vectors 466 14 249_4]
-G c Z s s [append editor__workspace_persistence__file_entry_vectors 476 14 249_4]
-G c Z s s [append editor__workspace_persistence__file_entry_vectors 483 14 249_4]
-G c Z s s [insert_space editor__workspace_persistence__file_entry_vectors 486 14 249_4]
-G c Z s s [insert_space editor__workspace_persistence__file_entry_vectors 503 14 249_4]
-G c Z s s [delete editor__workspace_persistence__file_entry_vectors 514 14 249_4]
-G c Z s s [delete editor__workspace_persistence__file_entry_vectors 524 14 249_4]
-G c Z s s [delete_first editor__workspace_persistence__file_entry_vectors 533 14 249_4]
-G c Z s s [delete_last editor__workspace_persistence__file_entry_vectors 538 14 249_4]
-G c Z s s [reverse_elements editor__workspace_persistence__file_entry_vectors 546 14 249_4]
-G c Z s s [swap editor__workspace_persistence__file_entry_vectors 549 14 249_4]
-G c Z s s [swap editor__workspace_persistence__file_entry_vectors 554 14 249_4]
-G c Z s s [first_index editor__workspace_persistence__file_entry_vectors 560 13 249_4]
-G c Z s s [first editor__workspace_persistence__file_entry_vectors 563 13 249_4]
-G c Z s s [first_element editor__workspace_persistence__file_entry_vectors 567 13 249_4]
-G c Z s s [last_index editor__workspace_persistence__file_entry_vectors 570 13 249_4]
-G c Z s s [last editor__workspace_persistence__file_entry_vectors 574 13 249_4]
-G c Z s s [last_element editor__workspace_persistence__file_entry_vectors 578 13 249_4]
-G c Z s s [next editor__workspace_persistence__file_entry_vectors 581 13 249_4]
-G c Z s s [next editor__workspace_persistence__file_entry_vectors 587 14 249_4]
-G c Z s s [previous editor__workspace_persistence__file_entry_vectors 590 13 249_4]
-G c Z s s [previous editor__workspace_persistence__file_entry_vectors 596 14 249_4]
-G c Z s s [find_index editor__workspace_persistence__file_entry_vectors 599 13 249_4]
-G c Z s s [find editor__workspace_persistence__file_entry_vectors 609 13 249_4]
-G c Z s s [reverse_find_index editor__workspace_persistence__file_entry_vectors 623 13 249_4]
-G c Z s s [reverse_find editor__workspace_persistence__file_entry_vectors 635 13 249_4]
-G c Z s s [contains editor__workspace_persistence__file_entry_vectors 649 13 249_4]
-G c Z s s [iterate editor__workspace_persistence__file_entry_vectors 654 14 249_4]
-G c Z s s [reverse_iterate editor__workspace_persistence__file_entry_vectors 662 14 249_4]
-G c Z s s [iterate editor__workspace_persistence__file_entry_vectors 669 13 249_4]
-G c Z s s [iterate editor__workspace_persistence__file_entry_vectors 672 13 249_4]
-G c Z s s [adjust editor__workspace_persistence__file_entry_vectors__implementation 90 28 726_4_249_4]
-G c Z s s [finalize editor__workspace_persistence__file_entry_vectors__implementation 93 28 726_4_249_4]
-G c Z s s [zero_counts editor__workspace_persistence__file_entry_vectors__implementation 96 17 726_4_249_4]
-G c Z s s [busy editor__workspace_persistence__file_entry_vectors__implementation 100 17 726_4_249_4]
-G c Z s s [unbusy editor__workspace_persistence__file_entry_vectors__implementation 104 17 726_4_249_4]
-G c Z s s [lock editor__workspace_persistence__file_entry_vectors__implementation 108 17 726_4_249_4]
-G c Z s s [unlock editor__workspace_persistence__file_entry_vectors__implementation 112 17 726_4_249_4]
-G c Z s s [tc_check editor__workspace_persistence__file_entry_vectors__implementation 116 17 726_4_249_4]
-G c Z s s [te_check editor__workspace_persistence__file_entry_vectors__implementation 120 17 726_4_249_4]
-G c Z s s [is_busy editor__workspace_persistence__file_entry_vectors__implementation 136 16 726_4_249_4]
-G c Z s s [is_locked editor__workspace_persistence__file_entry_vectors__implementation 140 16 726_4_249_4]
-G c Z s s [initialize editor__workspace_persistence__file_entry_vectors__implementation 161 28 726_4_249_4]
-G c Z s s [finalize editor__workspace_persistence__file_entry_vectors__implementation 162 28 726_4_249_4]
-G c Z s s [initialize editor__workspace_persistence__file_entry_vectors__implementation 167 28 726_4_249_4]
-G c Z s s [finalize editor__workspace_persistence__file_entry_vectors__implementation 168 28 726_4_249_4]
-G c Z s s [reference_control_typeDA editor__workspace_persistence__file_entry_vectors__implementation 84 12 726_4_249_4]
-G c Z s s [reference_control_typeDF editor__workspace_persistence__file_entry_vectors__implementation 84 12 726_4_249_4]
-G c Z s s [reference_control_typeIP editor__workspace_persistence__file_entry_vectors__implementation 84 12 726_4_249_4]
-G c Z s s [with_busyDF editor__workspace_persistence__file_entry_vectors__implementation 158 12 726_4_249_4]
-G c Z s s [with_busyIP editor__workspace_persistence__file_entry_vectors__implementation 158 12 726_4_249_4]
-G c Z s s [with_lockDF editor__workspace_persistence__file_entry_vectors__implementation 164 12 726_4_249_4]
-G c Z s s [with_lockIP editor__workspace_persistence__file_entry_vectors__implementation 164 12 726_4_249_4]
-G c Z s s [put_image editor__workspace_persistence__file_entry_vectors 747 14 249_4]
-G c Z s s [adjust editor__workspace_persistence__file_entry_vectors 750 25 249_4]
-G c Z s s [finalize editor__workspace_persistence__file_entry_vectors 751 25 249_4]
-G c Z s s [write editor__workspace_persistence__file_entry_vectors 753 14 249_4]
-G c Z s s [read editor__workspace_persistence__file_entry_vectors 759 14 249_4]
-G c Z s s [read editor__workspace_persistence__file_entry_vectors 773 14 249_4]
-G c Z s s [write editor__workspace_persistence__file_entry_vectors 779 14 249_4]
-G c Z s s [write editor__workspace_persistence__file_entry_vectors 798 14 249_4]
-G c Z s s [read editor__workspace_persistence__file_entry_vectors 804 14 249_4]
-G c Z s s [write editor__workspace_persistence__file_entry_vectors 820 14 249_4]
-G c Z s s [read editor__workspace_persistence__file_entry_vectors 826 14 249_4]
-G c Z s s [pseudo_reference editor__workspace_persistence__file_entry_vectors 840 13 249_4]
-G c Z s s [get_element_access editor__workspace_persistence__file_entry_vectors 849 13 249_4]
-G c Z s s [cursorIP editor__workspace_persistence__file_entry_vectors 768 9 249_4]
-G c Z s s [vectorDA editor__workspace_persistence__file_entry_vectors 741 9 249_4]
-G c Z s s [vectorDF editor__workspace_persistence__file_entry_vectors 741 9 249_4]
-G c Z s s [vectorIP editor__workspace_persistence__file_entry_vectors 741 9 249_4]
-G c Z s s [finalize editor__workspace_persistence__file_entry_vectors 865 25 249_4]
-G c Z s s [first editor__workspace_persistence__file_entry_vectors 867 24 249_4]
-G c Z s s [last editor__workspace_persistence__file_entry_vectors 868 24 249_4]
-G c Z s s [next editor__workspace_persistence__file_entry_vectors 870 24 249_4]
-G c Z s s [previous editor__workspace_persistence__file_entry_vectors 874 24 249_4]
-G c Z s s [constant_reference_typeDI editor__workspace_persistence__file_entry_vectors 788 9 249_4]
-G c Z s s [constant_reference_typeDA editor__workspace_persistence__file_entry_vectors 788 9 249_4]
-G c Z s s [constant_reference_typeDF editor__workspace_persistence__file_entry_vectors 788 9 249_4]
-G c Z s s [constant_reference_typeIP editor__workspace_persistence__file_entry_vectors 788 9 249_4]
-G c Z s s [reference_typeDI editor__workspace_persistence__file_entry_vectors 810 9 249_4]
-G c Z s s [reference_typeDA editor__workspace_persistence__file_entry_vectors 810 9 249_4]
-G c Z s s [reference_typeDF editor__workspace_persistence__file_entry_vectors 810 9 249_4]
-G c Z s s [reference_typeIP editor__workspace_persistence__file_entry_vectors 810 9 249_4]
-G c Z s s [elements_arrayIP editor__workspace_persistence__file_entry_vectors 729 9 249_4]
-G c Z s s [elements_arrayDI editor__workspace_persistence__file_entry_vectors 729 9 249_4]
-G c Z s s [elements_arrayDA editor__workspace_persistence__file_entry_vectors 729 9 249_4]
-G c Z s s [elements_arrayDF editor__workspace_persistence__file_entry_vectors 729 9 249_4]
-G c Z s s [elements_typeDI editor__workspace_persistence__file_entry_vectors 732 9 249_4]
-G c Z s s [elements_typeDF editor__workspace_persistence__file_entry_vectors 732 9 249_4]
-G c Z s s [elements_typeIP editor__workspace_persistence__file_entry_vectors 732 9 249_4]
-G c Z s s [iteratorDF editor__workspace_persistence__file_entry_vectors 857 9 249_4]
-G c Z s s [iteratorIP editor__workspace_persistence__file_entry_vectors 857 9 249_4]
-G c Z s s [free editor__workspace_persistence__file_entry_vectors 44 14 249_4]
-G c Z s s [append_slow_path editor__workspace_persistence__file_entry_vectors 47 14 249_4]
-G c Z s s [has_element editor__workspace_persistence__string_vectors 115 13 253_4]
-G c Z s s [empty editor__workspace_persistence__string_vectors 125 13 253_4]
-G c Z s s [Oeq editor__workspace_persistence__string_vectors 127 24 253_4]
-G c Z s s [to_vector editor__workspace_persistence__string_vectors 136 13 253_4]
-G c Z s s [to_vector editor__workspace_persistence__string_vectors 139 13 253_4]
-G c Z s s [Oconcat editor__workspace_persistence__string_vectors 145 13 253_4]
-G c Z s s [Oconcat editor__workspace_persistence__string_vectors 149 13 253_4]
-G c Z s s [Oconcat editor__workspace_persistence__string_vectors 153 13 253_4]
-G c Z s s [Oconcat editor__workspace_persistence__string_vectors 157 13 253_4]
-G c Z s s [capacity editor__workspace_persistence__string_vectors 161 13 253_4]
-G c Z s s [reserve_capacity editor__workspace_persistence__string_vectors 164 14 253_4]
-G c Z s s [length editor__workspace_persistence__string_vectors 175 13 253_4]
-G c Z s s [set_length editor__workspace_persistence__string_vectors 178 14 253_4]
-G c Z s s [is_empty editor__workspace_persistence__string_vectors 187 13 253_4]
-G c Z s s [clear editor__workspace_persistence__string_vectors 190 14 253_4]
-G c Z s s [to_cursor editor__workspace_persistence__string_vectors 194 13 253_4]
-G c Z s s [to_index editor__workspace_persistence__string_vectors 201 13 253_4]
-G c Z s s [element editor__workspace_persistence__string_vectors 206 13 253_4]
-G c Z s s [element editor__workspace_persistence__string_vectors 213 13 253_4]
-G c Z s s [replace_element editor__workspace_persistence__string_vectors 217 14 253_4]
-G c Z s s [replace_element editor__workspace_persistence__string_vectors 228 14 253_4]
-G c Z s s [query_element editor__workspace_persistence__string_vectors 239 14 253_4]
-G c Z s s [query_element editor__workspace_persistence__string_vectors 250 14 253_4]
-G c Z s s [update_element editor__workspace_persistence__string_vectors 259 14 253_4]
-G c Z s s [update_element editor__workspace_persistence__string_vectors 276 14 253_4]
-G c Z s s [constant_reference editor__workspace_persistence__string_vectors 303 13 253_4]
-G c Z s s [reference editor__workspace_persistence__string_vectors 308 13 253_4]
-G c Z s s [constant_reference editor__workspace_persistence__string_vectors 313 13 253_4]
-G c Z s s [reference editor__workspace_persistence__string_vectors 318 13 253_4]
-G c Z s s [assign editor__workspace_persistence__string_vectors 323 14 253_4]
-G c Z s s [copy editor__workspace_persistence__string_vectors 325 13 253_4]
-G c Z s s [move editor__workspace_persistence__string_vectors 327 14 253_4]
-G c Z s s [new_vector editor__workspace_persistence__string_vectors 333 13 253_4]
-G c Z s s [insert_vector editor__workspace_persistence__string_vectors 337 14 253_4]
-G c Z s s [insert_vector editor__workspace_persistence__string_vectors 361 14 253_4]
-G c Z s s [insert_vector editor__workspace_persistence__string_vectors 378 14 253_4]
-G c Z s s [insert editor__workspace_persistence__string_vectors 396 14 253_4]
-G c Z s s [insert editor__workspace_persistence__string_vectors 404 14 253_4]
-G c Z s s [insert editor__workspace_persistence__string_vectors 412 14 253_4]
-G c Z s s [insert editor__workspace_persistence__string_vectors 421 14 253_4]
-G c Z s s [insert editor__workspace_persistence__string_vectors 438 14 253_4]
-G c Z s s [prepend_vector editor__workspace_persistence__string_vectors 449 14 253_4]
-G c Z s s [prepend editor__workspace_persistence__string_vectors 459 14 253_4]
-G c Z s s [append_vector editor__workspace_persistence__string_vectors 466 14 253_4]
-G c Z s s [append editor__workspace_persistence__string_vectors 476 14 253_4]
-G c Z s s [append editor__workspace_persistence__string_vectors 483 14 253_4]
-G c Z s s [insert_space editor__workspace_persistence__string_vectors 486 14 253_4]
-G c Z s s [insert_space editor__workspace_persistence__string_vectors 503 14 253_4]
-G c Z s s [delete editor__workspace_persistence__string_vectors 514 14 253_4]
-G c Z s s [delete editor__workspace_persistence__string_vectors 524 14 253_4]
-G c Z s s [delete_first editor__workspace_persistence__string_vectors 533 14 253_4]
-G c Z s s [delete_last editor__workspace_persistence__string_vectors 538 14 253_4]
-G c Z s s [reverse_elements editor__workspace_persistence__string_vectors 546 14 253_4]
-G c Z s s [swap editor__workspace_persistence__string_vectors 549 14 253_4]
-G c Z s s [swap editor__workspace_persistence__string_vectors 554 14 253_4]
-G c Z s s [first_index editor__workspace_persistence__string_vectors 560 13 253_4]
-G c Z s s [first editor__workspace_persistence__string_vectors 563 13 253_4]
-G c Z s s [first_element editor__workspace_persistence__string_vectors 567 13 253_4]
-G c Z s s [last_index editor__workspace_persistence__string_vectors 570 13 253_4]
-G c Z s s [last editor__workspace_persistence__string_vectors 574 13 253_4]
-G c Z s s [last_element editor__workspace_persistence__string_vectors 578 13 253_4]
-G c Z s s [next editor__workspace_persistence__string_vectors 581 13 253_4]
-G c Z s s [next editor__workspace_persistence__string_vectors 587 14 253_4]
-G c Z s s [previous editor__workspace_persistence__string_vectors 590 13 253_4]
-G c Z s s [previous editor__workspace_persistence__string_vectors 596 14 253_4]
-G c Z s s [find_index editor__workspace_persistence__string_vectors 599 13 253_4]
-G c Z s s [find editor__workspace_persistence__string_vectors 609 13 253_4]
-G c Z s s [reverse_find_index editor__workspace_persistence__string_vectors 623 13 253_4]
-G c Z s s [reverse_find editor__workspace_persistence__string_vectors 635 13 253_4]
-G c Z s s [contains editor__workspace_persistence__string_vectors 649 13 253_4]
-G c Z s s [iterate editor__workspace_persistence__string_vectors 654 14 253_4]
-G c Z s s [reverse_iterate editor__workspace_persistence__string_vectors 662 14 253_4]
-G c Z s s [iterate editor__workspace_persistence__string_vectors 669 13 253_4]
-G c Z s s [iterate editor__workspace_persistence__string_vectors 672 13 253_4]
-G c Z s s [adjust editor__workspace_persistence__string_vectors__implementation 90 28 726_4_253_4]
-G c Z s s [finalize editor__workspace_persistence__string_vectors__implementation 93 28 726_4_253_4]
-G c Z s s [zero_counts editor__workspace_persistence__string_vectors__implementation 96 17 726_4_253_4]
-G c Z s s [busy editor__workspace_persistence__string_vectors__implementation 100 17 726_4_253_4]
-G c Z s s [unbusy editor__workspace_persistence__string_vectors__implementation 104 17 726_4_253_4]
-G c Z s s [lock editor__workspace_persistence__string_vectors__implementation 108 17 726_4_253_4]
-G c Z s s [unlock editor__workspace_persistence__string_vectors__implementation 112 17 726_4_253_4]
-G c Z s s [tc_check editor__workspace_persistence__string_vectors__implementation 116 17 726_4_253_4]
-G c Z s s [te_check editor__workspace_persistence__string_vectors__implementation 120 17 726_4_253_4]
-G c Z s s [is_busy editor__workspace_persistence__string_vectors__implementation 136 16 726_4_253_4]
-G c Z s s [is_locked editor__workspace_persistence__string_vectors__implementation 140 16 726_4_253_4]
-G c Z s s [initialize editor__workspace_persistence__string_vectors__implementation 161 28 726_4_253_4]
-G c Z s s [finalize editor__workspace_persistence__string_vectors__implementation 162 28 726_4_253_4]
-G c Z s s [initialize editor__workspace_persistence__string_vectors__implementation 167 28 726_4_253_4]
-G c Z s s [finalize editor__workspace_persistence__string_vectors__implementation 168 28 726_4_253_4]
-G c Z s s [reference_control_typeDA editor__workspace_persistence__string_vectors__implementation 84 12 726_4_253_4]
-G c Z s s [reference_control_typeDF editor__workspace_persistence__string_vectors__implementation 84 12 726_4_253_4]
-G c Z s s [reference_control_typeIP editor__workspace_persistence__string_vectors__implementation 84 12 726_4_253_4]
-G c Z s s [with_busyDF editor__workspace_persistence__string_vectors__implementation 158 12 726_4_253_4]
-G c Z s s [with_busyIP editor__workspace_persistence__string_vectors__implementation 158 12 726_4_253_4]
-G c Z s s [with_lockDF editor__workspace_persistence__string_vectors__implementation 164 12 726_4_253_4]
-G c Z s s [with_lockIP editor__workspace_persistence__string_vectors__implementation 164 12 726_4_253_4]
-G c Z s s [put_image editor__workspace_persistence__string_vectors 747 14 253_4]
-G c Z s s [adjust editor__workspace_persistence__string_vectors 750 25 253_4]
-G c Z s s [finalize editor__workspace_persistence__string_vectors 751 25 253_4]
-G c Z s s [write editor__workspace_persistence__string_vectors 753 14 253_4]
-G c Z s s [read editor__workspace_persistence__string_vectors 759 14 253_4]
-G c Z s s [read editor__workspace_persistence__string_vectors 773 14 253_4]
-G c Z s s [write editor__workspace_persistence__string_vectors 779 14 253_4]
-G c Z s s [write editor__workspace_persistence__string_vectors 798 14 253_4]
-G c Z s s [read editor__workspace_persistence__string_vectors 804 14 253_4]
-G c Z s s [write editor__workspace_persistence__string_vectors 820 14 253_4]
-G c Z s s [read editor__workspace_persistence__string_vectors 826 14 253_4]
-G c Z s s [pseudo_reference editor__workspace_persistence__string_vectors 840 13 253_4]
-G c Z s s [get_element_access editor__workspace_persistence__string_vectors 849 13 253_4]
-G c Z s s [cursorIP editor__workspace_persistence__string_vectors 768 9 253_4]
-G c Z s s [vectorDA editor__workspace_persistence__string_vectors 741 9 253_4]
-G c Z s s [vectorDF editor__workspace_persistence__string_vectors 741 9 253_4]
-G c Z s s [vectorIP editor__workspace_persistence__string_vectors 741 9 253_4]
-G c Z s s [finalize editor__workspace_persistence__string_vectors 865 25 253_4]
-G c Z s s [first editor__workspace_persistence__string_vectors 867 24 253_4]
-G c Z s s [last editor__workspace_persistence__string_vectors 868 24 253_4]
-G c Z s s [next editor__workspace_persistence__string_vectors 870 24 253_4]
-G c Z s s [previous editor__workspace_persistence__string_vectors 874 24 253_4]
-G c Z s s [constant_reference_typeDI editor__workspace_persistence__string_vectors 788 9 253_4]
-G c Z s s [constant_reference_typeDA editor__workspace_persistence__string_vectors 788 9 253_4]
-G c Z s s [constant_reference_typeDF editor__workspace_persistence__string_vectors 788 9 253_4]
-G c Z s s [constant_reference_typeIP editor__workspace_persistence__string_vectors 788 9 253_4]
-G c Z s s [reference_typeDI editor__workspace_persistence__string_vectors 810 9 253_4]
-G c Z s s [reference_typeDA editor__workspace_persistence__string_vectors 810 9 253_4]
-G c Z s s [reference_typeDF editor__workspace_persistence__string_vectors 810 9 253_4]
-G c Z s s [reference_typeIP editor__workspace_persistence__string_vectors 810 9 253_4]
-G c Z s s [elements_arrayIP editor__workspace_persistence__string_vectors 729 9 253_4]
-G c Z s s [elements_arrayDI editor__workspace_persistence__string_vectors 729 9 253_4]
-G c Z s s [elements_arrayDA editor__workspace_persistence__string_vectors 729 9 253_4]
-G c Z s s [elements_arrayDF editor__workspace_persistence__string_vectors 729 9 253_4]
-G c Z s s [elements_typeDI editor__workspace_persistence__string_vectors 732 9 253_4]
-G c Z s s [elements_typeDF editor__workspace_persistence__string_vectors 732 9 253_4]
-G c Z s s [elements_typeIP editor__workspace_persistence__string_vectors 732 9 253_4]
-G c Z s s [iteratorDF editor__workspace_persistence__string_vectors 857 9 253_4]
-G c Z s s [iteratorIP editor__workspace_persistence__string_vectors 857 9 253_4]
-G c Z s s [free editor__workspace_persistence__string_vectors 44 14 253_4]
-G c Z s s [append_slow_path editor__workspace_persistence__string_vectors 47 14 253_4]
+G c Z s s [has_element editor__workspace_persistence__file_entry_vectors 115 13 252_4]
+G c Z s s [empty editor__workspace_persistence__file_entry_vectors 125 13 252_4]
+G c Z s s [Oeq editor__workspace_persistence__file_entry_vectors 127 24 252_4]
+G c Z s s [to_vector editor__workspace_persistence__file_entry_vectors 136 13 252_4]
+G c Z s s [to_vector editor__workspace_persistence__file_entry_vectors 139 13 252_4]
+G c Z s s [Oconcat editor__workspace_persistence__file_entry_vectors 145 13 252_4]
+G c Z s s [Oconcat editor__workspace_persistence__file_entry_vectors 149 13 252_4]
+G c Z s s [Oconcat editor__workspace_persistence__file_entry_vectors 153 13 252_4]
+G c Z s s [Oconcat editor__workspace_persistence__file_entry_vectors 157 13 252_4]
+G c Z s s [capacity editor__workspace_persistence__file_entry_vectors 161 13 252_4]
+G c Z s s [reserve_capacity editor__workspace_persistence__file_entry_vectors 164 14 252_4]
+G c Z s s [length editor__workspace_persistence__file_entry_vectors 175 13 252_4]
+G c Z s s [set_length editor__workspace_persistence__file_entry_vectors 178 14 252_4]
+G c Z s s [is_empty editor__workspace_persistence__file_entry_vectors 187 13 252_4]
+G c Z s s [clear editor__workspace_persistence__file_entry_vectors 190 14 252_4]
+G c Z s s [to_cursor editor__workspace_persistence__file_entry_vectors 194 13 252_4]
+G c Z s s [to_index editor__workspace_persistence__file_entry_vectors 201 13 252_4]
+G c Z s s [element editor__workspace_persistence__file_entry_vectors 206 13 252_4]
+G c Z s s [element editor__workspace_persistence__file_entry_vectors 213 13 252_4]
+G c Z s s [replace_element editor__workspace_persistence__file_entry_vectors 217 14 252_4]
+G c Z s s [replace_element editor__workspace_persistence__file_entry_vectors 228 14 252_4]
+G c Z s s [query_element editor__workspace_persistence__file_entry_vectors 239 14 252_4]
+G c Z s s [query_element editor__workspace_persistence__file_entry_vectors 250 14 252_4]
+G c Z s s [update_element editor__workspace_persistence__file_entry_vectors 259 14 252_4]
+G c Z s s [update_element editor__workspace_persistence__file_entry_vectors 276 14 252_4]
+G c Z s s [constant_reference editor__workspace_persistence__file_entry_vectors 303 13 252_4]
+G c Z s s [reference editor__workspace_persistence__file_entry_vectors 308 13 252_4]
+G c Z s s [constant_reference editor__workspace_persistence__file_entry_vectors 313 13 252_4]
+G c Z s s [reference editor__workspace_persistence__file_entry_vectors 318 13 252_4]
+G c Z s s [assign editor__workspace_persistence__file_entry_vectors 323 14 252_4]
+G c Z s s [copy editor__workspace_persistence__file_entry_vectors 325 13 252_4]
+G c Z s s [move editor__workspace_persistence__file_entry_vectors 327 14 252_4]
+G c Z s s [new_vector editor__workspace_persistence__file_entry_vectors 333 13 252_4]
+G c Z s s [insert_vector editor__workspace_persistence__file_entry_vectors 337 14 252_4]
+G c Z s s [insert_vector editor__workspace_persistence__file_entry_vectors 361 14 252_4]
+G c Z s s [insert_vector editor__workspace_persistence__file_entry_vectors 378 14 252_4]
+G c Z s s [insert editor__workspace_persistence__file_entry_vectors 396 14 252_4]
+G c Z s s [insert editor__workspace_persistence__file_entry_vectors 404 14 252_4]
+G c Z s s [insert editor__workspace_persistence__file_entry_vectors 412 14 252_4]
+G c Z s s [insert editor__workspace_persistence__file_entry_vectors 421 14 252_4]
+G c Z s s [insert editor__workspace_persistence__file_entry_vectors 438 14 252_4]
+G c Z s s [prepend_vector editor__workspace_persistence__file_entry_vectors 449 14 252_4]
+G c Z s s [prepend editor__workspace_persistence__file_entry_vectors 459 14 252_4]
+G c Z s s [append_vector editor__workspace_persistence__file_entry_vectors 466 14 252_4]
+G c Z s s [append editor__workspace_persistence__file_entry_vectors 476 14 252_4]
+G c Z s s [append editor__workspace_persistence__file_entry_vectors 483 14 252_4]
+G c Z s s [insert_space editor__workspace_persistence__file_entry_vectors 486 14 252_4]
+G c Z s s [insert_space editor__workspace_persistence__file_entry_vectors 503 14 252_4]
+G c Z s s [delete editor__workspace_persistence__file_entry_vectors 514 14 252_4]
+G c Z s s [delete editor__workspace_persistence__file_entry_vectors 524 14 252_4]
+G c Z s s [delete_first editor__workspace_persistence__file_entry_vectors 533 14 252_4]
+G c Z s s [delete_last editor__workspace_persistence__file_entry_vectors 538 14 252_4]
+G c Z s s [reverse_elements editor__workspace_persistence__file_entry_vectors 546 14 252_4]
+G c Z s s [swap editor__workspace_persistence__file_entry_vectors 549 14 252_4]
+G c Z s s [swap editor__workspace_persistence__file_entry_vectors 554 14 252_4]
+G c Z s s [first_index editor__workspace_persistence__file_entry_vectors 560 13 252_4]
+G c Z s s [first editor__workspace_persistence__file_entry_vectors 563 13 252_4]
+G c Z s s [first_element editor__workspace_persistence__file_entry_vectors 567 13 252_4]
+G c Z s s [last_index editor__workspace_persistence__file_entry_vectors 570 13 252_4]
+G c Z s s [last editor__workspace_persistence__file_entry_vectors 574 13 252_4]
+G c Z s s [last_element editor__workspace_persistence__file_entry_vectors 578 13 252_4]
+G c Z s s [next editor__workspace_persistence__file_entry_vectors 581 13 252_4]
+G c Z s s [next editor__workspace_persistence__file_entry_vectors 587 14 252_4]
+G c Z s s [previous editor__workspace_persistence__file_entry_vectors 590 13 252_4]
+G c Z s s [previous editor__workspace_persistence__file_entry_vectors 596 14 252_4]
+G c Z s s [find_index editor__workspace_persistence__file_entry_vectors 599 13 252_4]
+G c Z s s [find editor__workspace_persistence__file_entry_vectors 609 13 252_4]
+G c Z s s [reverse_find_index editor__workspace_persistence__file_entry_vectors 623 13 252_4]
+G c Z s s [reverse_find editor__workspace_persistence__file_entry_vectors 635 13 252_4]
+G c Z s s [contains editor__workspace_persistence__file_entry_vectors 649 13 252_4]
+G c Z s s [iterate editor__workspace_persistence__file_entry_vectors 654 14 252_4]
+G c Z s s [reverse_iterate editor__workspace_persistence__file_entry_vectors 662 14 252_4]
+G c Z s s [iterate editor__workspace_persistence__file_entry_vectors 669 13 252_4]
+G c Z s s [iterate editor__workspace_persistence__file_entry_vectors 672 13 252_4]
+G c Z s s [adjust editor__workspace_persistence__file_entry_vectors__implementation 90 28 726_4_252_4]
+G c Z s s [finalize editor__workspace_persistence__file_entry_vectors__implementation 93 28 726_4_252_4]
+G c Z s s [zero_counts editor__workspace_persistence__file_entry_vectors__implementation 96 17 726_4_252_4]
+G c Z s s [busy editor__workspace_persistence__file_entry_vectors__implementation 100 17 726_4_252_4]
+G c Z s s [unbusy editor__workspace_persistence__file_entry_vectors__implementation 104 17 726_4_252_4]
+G c Z s s [lock editor__workspace_persistence__file_entry_vectors__implementation 108 17 726_4_252_4]
+G c Z s s [unlock editor__workspace_persistence__file_entry_vectors__implementation 112 17 726_4_252_4]
+G c Z s s [tc_check editor__workspace_persistence__file_entry_vectors__implementation 116 17 726_4_252_4]
+G c Z s s [te_check editor__workspace_persistence__file_entry_vectors__implementation 120 17 726_4_252_4]
+G c Z s s [is_busy editor__workspace_persistence__file_entry_vectors__implementation 136 16 726_4_252_4]
+G c Z s s [is_locked editor__workspace_persistence__file_entry_vectors__implementation 140 16 726_4_252_4]
+G c Z s s [initialize editor__workspace_persistence__file_entry_vectors__implementation 161 28 726_4_252_4]
+G c Z s s [finalize editor__workspace_persistence__file_entry_vectors__implementation 162 28 726_4_252_4]
+G c Z s s [initialize editor__workspace_persistence__file_entry_vectors__implementation 167 28 726_4_252_4]
+G c Z s s [finalize editor__workspace_persistence__file_entry_vectors__implementation 168 28 726_4_252_4]
+G c Z s s [reference_control_typeDA editor__workspace_persistence__file_entry_vectors__implementation 84 12 726_4_252_4]
+G c Z s s [reference_control_typeDF editor__workspace_persistence__file_entry_vectors__implementation 84 12 726_4_252_4]
+G c Z s s [reference_control_typeIP editor__workspace_persistence__file_entry_vectors__implementation 84 12 726_4_252_4]
+G c Z s s [with_busyDF editor__workspace_persistence__file_entry_vectors__implementation 158 12 726_4_252_4]
+G c Z s s [with_busyIP editor__workspace_persistence__file_entry_vectors__implementation 158 12 726_4_252_4]
+G c Z s s [with_lockDF editor__workspace_persistence__file_entry_vectors__implementation 164 12 726_4_252_4]
+G c Z s s [with_lockIP editor__workspace_persistence__file_entry_vectors__implementation 164 12 726_4_252_4]
+G c Z s s [put_image editor__workspace_persistence__file_entry_vectors 747 14 252_4]
+G c Z s s [adjust editor__workspace_persistence__file_entry_vectors 750 25 252_4]
+G c Z s s [finalize editor__workspace_persistence__file_entry_vectors 751 25 252_4]
+G c Z s s [write editor__workspace_persistence__file_entry_vectors 753 14 252_4]
+G c Z s s [read editor__workspace_persistence__file_entry_vectors 759 14 252_4]
+G c Z s s [read editor__workspace_persistence__file_entry_vectors 773 14 252_4]
+G c Z s s [write editor__workspace_persistence__file_entry_vectors 779 14 252_4]
+G c Z s s [write editor__workspace_persistence__file_entry_vectors 798 14 252_4]
+G c Z s s [read editor__workspace_persistence__file_entry_vectors 804 14 252_4]
+G c Z s s [write editor__workspace_persistence__file_entry_vectors 820 14 252_4]
+G c Z s s [read editor__workspace_persistence__file_entry_vectors 826 14 252_4]
+G c Z s s [pseudo_reference editor__workspace_persistence__file_entry_vectors 840 13 252_4]
+G c Z s s [get_element_access editor__workspace_persistence__file_entry_vectors 849 13 252_4]
+G c Z s s [cursorIP editor__workspace_persistence__file_entry_vectors 768 9 252_4]
+G c Z s s [vectorDA editor__workspace_persistence__file_entry_vectors 741 9 252_4]
+G c Z s s [vectorDF editor__workspace_persistence__file_entry_vectors 741 9 252_4]
+G c Z s s [vectorIP editor__workspace_persistence__file_entry_vectors 741 9 252_4]
+G c Z s s [finalize editor__workspace_persistence__file_entry_vectors 865 25 252_4]
+G c Z s s [first editor__workspace_persistence__file_entry_vectors 867 24 252_4]
+G c Z s s [last editor__workspace_persistence__file_entry_vectors 868 24 252_4]
+G c Z s s [next editor__workspace_persistence__file_entry_vectors 870 24 252_4]
+G c Z s s [previous editor__workspace_persistence__file_entry_vectors 874 24 252_4]
+G c Z s s [constant_reference_typeDI editor__workspace_persistence__file_entry_vectors 788 9 252_4]
+G c Z s s [constant_reference_typeDA editor__workspace_persistence__file_entry_vectors 788 9 252_4]
+G c Z s s [constant_reference_typeDF editor__workspace_persistence__file_entry_vectors 788 9 252_4]
+G c Z s s [constant_reference_typeIP editor__workspace_persistence__file_entry_vectors 788 9 252_4]
+G c Z s s [reference_typeDI editor__workspace_persistence__file_entry_vectors 810 9 252_4]
+G c Z s s [reference_typeDA editor__workspace_persistence__file_entry_vectors 810 9 252_4]
+G c Z s s [reference_typeDF editor__workspace_persistence__file_entry_vectors 810 9 252_4]
+G c Z s s [reference_typeIP editor__workspace_persistence__file_entry_vectors 810 9 252_4]
+G c Z s s [elements_arrayIP editor__workspace_persistence__file_entry_vectors 729 9 252_4]
+G c Z s s [elements_arrayDI editor__workspace_persistence__file_entry_vectors 729 9 252_4]
+G c Z s s [elements_arrayDA editor__workspace_persistence__file_entry_vectors 729 9 252_4]
+G c Z s s [elements_arrayDF editor__workspace_persistence__file_entry_vectors 729 9 252_4]
+G c Z s s [elements_typeDI editor__workspace_persistence__file_entry_vectors 732 9 252_4]
+G c Z s s [elements_typeDF editor__workspace_persistence__file_entry_vectors 732 9 252_4]
+G c Z s s [elements_typeIP editor__workspace_persistence__file_entry_vectors 732 9 252_4]
+G c Z s s [iteratorDF editor__workspace_persistence__file_entry_vectors 857 9 252_4]
+G c Z s s [iteratorIP editor__workspace_persistence__file_entry_vectors 857 9 252_4]
+G c Z s s [free editor__workspace_persistence__file_entry_vectors 44 14 252_4]
+G c Z s s [append_slow_path editor__workspace_persistence__file_entry_vectors 47 14 252_4]
+G c Z s s [has_element editor__workspace_persistence__string_vectors 115 13 256_4]
+G c Z s s [empty editor__workspace_persistence__string_vectors 125 13 256_4]
+G c Z s s [Oeq editor__workspace_persistence__string_vectors 127 24 256_4]
+G c Z s s [to_vector editor__workspace_persistence__string_vectors 136 13 256_4]
+G c Z s s [to_vector editor__workspace_persistence__string_vectors 139 13 256_4]
+G c Z s s [Oconcat editor__workspace_persistence__string_vectors 145 13 256_4]
+G c Z s s [Oconcat editor__workspace_persistence__string_vectors 149 13 256_4]
+G c Z s s [Oconcat editor__workspace_persistence__string_vectors 153 13 256_4]
+G c Z s s [Oconcat editor__workspace_persistence__string_vectors 157 13 256_4]
+G c Z s s [capacity editor__workspace_persistence__string_vectors 161 13 256_4]
+G c Z s s [reserve_capacity editor__workspace_persistence__string_vectors 164 14 256_4]
+G c Z s s [length editor__workspace_persistence__string_vectors 175 13 256_4]
+G c Z s s [set_length editor__workspace_persistence__string_vectors 178 14 256_4]
+G c Z s s [is_empty editor__workspace_persistence__string_vectors 187 13 256_4]
+G c Z s s [clear editor__workspace_persistence__string_vectors 190 14 256_4]
+G c Z s s [to_cursor editor__workspace_persistence__string_vectors 194 13 256_4]
+G c Z s s [to_index editor__workspace_persistence__string_vectors 201 13 256_4]
+G c Z s s [element editor__workspace_persistence__string_vectors 206 13 256_4]
+G c Z s s [element editor__workspace_persistence__string_vectors 213 13 256_4]
+G c Z s s [replace_element editor__workspace_persistence__string_vectors 217 14 256_4]
+G c Z s s [replace_element editor__workspace_persistence__string_vectors 228 14 256_4]
+G c Z s s [query_element editor__workspace_persistence__string_vectors 239 14 256_4]
+G c Z s s [query_element editor__workspace_persistence__string_vectors 250 14 256_4]
+G c Z s s [update_element editor__workspace_persistence__string_vectors 259 14 256_4]
+G c Z s s [update_element editor__workspace_persistence__string_vectors 276 14 256_4]
+G c Z s s [constant_reference editor__workspace_persistence__string_vectors 303 13 256_4]
+G c Z s s [reference editor__workspace_persistence__string_vectors 308 13 256_4]
+G c Z s s [constant_reference editor__workspace_persistence__string_vectors 313 13 256_4]
+G c Z s s [reference editor__workspace_persistence__string_vectors 318 13 256_4]
+G c Z s s [assign editor__workspace_persistence__string_vectors 323 14 256_4]
+G c Z s s [copy editor__workspace_persistence__string_vectors 325 13 256_4]
+G c Z s s [move editor__workspace_persistence__string_vectors 327 14 256_4]
+G c Z s s [new_vector editor__workspace_persistence__string_vectors 333 13 256_4]
+G c Z s s [insert_vector editor__workspace_persistence__string_vectors 337 14 256_4]
+G c Z s s [insert_vector editor__workspace_persistence__string_vectors 361 14 256_4]
+G c Z s s [insert_vector editor__workspace_persistence__string_vectors 378 14 256_4]
+G c Z s s [insert editor__workspace_persistence__string_vectors 396 14 256_4]
+G c Z s s [insert editor__workspace_persistence__string_vectors 404 14 256_4]
+G c Z s s [insert editor__workspace_persistence__string_vectors 412 14 256_4]
+G c Z s s [insert editor__workspace_persistence__string_vectors 421 14 256_4]
+G c Z s s [insert editor__workspace_persistence__string_vectors 438 14 256_4]
+G c Z s s [prepend_vector editor__workspace_persistence__string_vectors 449 14 256_4]
+G c Z s s [prepend editor__workspace_persistence__string_vectors 459 14 256_4]
+G c Z s s [append_vector editor__workspace_persistence__string_vectors 466 14 256_4]
+G c Z s s [append editor__workspace_persistence__string_vectors 476 14 256_4]
+G c Z s s [append editor__workspace_persistence__string_vectors 483 14 256_4]
+G c Z s s [insert_space editor__workspace_persistence__string_vectors 486 14 256_4]
+G c Z s s [insert_space editor__workspace_persistence__string_vectors 503 14 256_4]
+G c Z s s [delete editor__workspace_persistence__string_vectors 514 14 256_4]
+G c Z s s [delete editor__workspace_persistence__string_vectors 524 14 256_4]
+G c Z s s [delete_first editor__workspace_persistence__string_vectors 533 14 256_4]
+G c Z s s [delete_last editor__workspace_persistence__string_vectors 538 14 256_4]
+G c Z s s [reverse_elements editor__workspace_persistence__string_vectors 546 14 256_4]
+G c Z s s [swap editor__workspace_persistence__string_vectors 549 14 256_4]
+G c Z s s [swap editor__workspace_persistence__string_vectors 554 14 256_4]
+G c Z s s [first_index editor__workspace_persistence__string_vectors 560 13 256_4]
+G c Z s s [first editor__workspace_persistence__string_vectors 563 13 256_4]
+G c Z s s [first_element editor__workspace_persistence__string_vectors 567 13 256_4]
+G c Z s s [last_index editor__workspace_persistence__string_vectors 570 13 256_4]
+G c Z s s [last editor__workspace_persistence__string_vectors 574 13 256_4]
+G c Z s s [last_element editor__workspace_persistence__string_vectors 578 13 256_4]
+G c Z s s [next editor__workspace_persistence__string_vectors 581 13 256_4]
+G c Z s s [next editor__workspace_persistence__string_vectors 587 14 256_4]
+G c Z s s [previous editor__workspace_persistence__string_vectors 590 13 256_4]
+G c Z s s [previous editor__workspace_persistence__string_vectors 596 14 256_4]
+G c Z s s [find_index editor__workspace_persistence__string_vectors 599 13 256_4]
+G c Z s s [find editor__workspace_persistence__string_vectors 609 13 256_4]
+G c Z s s [reverse_find_index editor__workspace_persistence__string_vectors 623 13 256_4]
+G c Z s s [reverse_find editor__workspace_persistence__string_vectors 635 13 256_4]
+G c Z s s [contains editor__workspace_persistence__string_vectors 649 13 256_4]
+G c Z s s [iterate editor__workspace_persistence__string_vectors 654 14 256_4]
+G c Z s s [reverse_iterate editor__workspace_persistence__string_vectors 662 14 256_4]
+G c Z s s [iterate editor__workspace_persistence__string_vectors 669 13 256_4]
+G c Z s s [iterate editor__workspace_persistence__string_vectors 672 13 256_4]
+G c Z s s [adjust editor__workspace_persistence__string_vectors__implementation 90 28 726_4_256_4]
+G c Z s s [finalize editor__workspace_persistence__string_vectors__implementation 93 28 726_4_256_4]
+G c Z s s [zero_counts editor__workspace_persistence__string_vectors__implementation 96 17 726_4_256_4]
+G c Z s s [busy editor__workspace_persistence__string_vectors__implementation 100 17 726_4_256_4]
+G c Z s s [unbusy editor__workspace_persistence__string_vectors__implementation 104 17 726_4_256_4]
+G c Z s s [lock editor__workspace_persistence__string_vectors__implementation 108 17 726_4_256_4]
+G c Z s s [unlock editor__workspace_persistence__string_vectors__implementation 112 17 726_4_256_4]
+G c Z s s [tc_check editor__workspace_persistence__string_vectors__implementation 116 17 726_4_256_4]
+G c Z s s [te_check editor__workspace_persistence__string_vectors__implementation 120 17 726_4_256_4]
+G c Z s s [is_busy editor__workspace_persistence__string_vectors__implementation 136 16 726_4_256_4]
+G c Z s s [is_locked editor__workspace_persistence__string_vectors__implementation 140 16 726_4_256_4]
+G c Z s s [initialize editor__workspace_persistence__string_vectors__implementation 161 28 726_4_256_4]
+G c Z s s [finalize editor__workspace_persistence__string_vectors__implementation 162 28 726_4_256_4]
+G c Z s s [initialize editor__workspace_persistence__string_vectors__implementation 167 28 726_4_256_4]
+G c Z s s [finalize editor__workspace_persistence__string_vectors__implementation 168 28 726_4_256_4]
+G c Z s s [reference_control_typeDA editor__workspace_persistence__string_vectors__implementation 84 12 726_4_256_4]
+G c Z s s [reference_control_typeDF editor__workspace_persistence__string_vectors__implementation 84 12 726_4_256_4]
+G c Z s s [reference_control_typeIP editor__workspace_persistence__string_vectors__implementation 84 12 726_4_256_4]
+G c Z s s [with_busyDF editor__workspace_persistence__string_vectors__implementation 158 12 726_4_256_4]
+G c Z s s [with_busyIP editor__workspace_persistence__string_vectors__implementation 158 12 726_4_256_4]
+G c Z s s [with_lockDF editor__workspace_persistence__string_vectors__implementation 164 12 726_4_256_4]
+G c Z s s [with_lockIP editor__workspace_persistence__string_vectors__implementation 164 12 726_4_256_4]
+G c Z s s [put_image editor__workspace_persistence__string_vectors 747 14 256_4]
+G c Z s s [adjust editor__workspace_persistence__string_vectors 750 25 256_4]
+G c Z s s [finalize editor__workspace_persistence__string_vectors 751 25 256_4]
+G c Z s s [write editor__workspace_persistence__string_vectors 753 14 256_4]
+G c Z s s [read editor__workspace_persistence__string_vectors 759 14 256_4]
+G c Z s s [read editor__workspace_persistence__string_vectors 773 14 256_4]
+G c Z s s [write editor__workspace_persistence__string_vectors 779 14 256_4]
+G c Z s s [write editor__workspace_persistence__string_vectors 798 14 256_4]
+G c Z s s [read editor__workspace_persistence__string_vectors 804 14 256_4]
+G c Z s s [write editor__workspace_persistence__string_vectors 820 14 256_4]
+G c Z s s [read editor__workspace_persistence__string_vectors 826 14 256_4]
+G c Z s s [pseudo_reference editor__workspace_persistence__string_vectors 840 13 256_4]
+G c Z s s [get_element_access editor__workspace_persistence__string_vectors 849 13 256_4]
+G c Z s s [cursorIP editor__workspace_persistence__string_vectors 768 9 256_4]
+G c Z s s [vectorDA editor__workspace_persistence__string_vectors 741 9 256_4]
+G c Z s s [vectorDF editor__workspace_persistence__string_vectors 741 9 256_4]
+G c Z s s [vectorIP editor__workspace_persistence__string_vectors 741 9 256_4]
+G c Z s s [finalize editor__workspace_persistence__string_vectors 865 25 256_4]
+G c Z s s [first editor__workspace_persistence__string_vectors 867 24 256_4]
+G c Z s s [last editor__workspace_persistence__string_vectors 868 24 256_4]
+G c Z s s [next editor__workspace_persistence__string_vectors 870 24 256_4]
+G c Z s s [previous editor__workspace_persistence__string_vectors 874 24 256_4]
+G c Z s s [constant_reference_typeDI editor__workspace_persistence__string_vectors 788 9 256_4]
+G c Z s s [constant_reference_typeDA editor__workspace_persistence__string_vectors 788 9 256_4]
+G c Z s s [constant_reference_typeDF editor__workspace_persistence__string_vectors 788 9 256_4]
+G c Z s s [constant_reference_typeIP editor__workspace_persistence__string_vectors 788 9 256_4]
+G c Z s s [reference_typeDI editor__workspace_persistence__string_vectors 810 9 256_4]
+G c Z s s [reference_typeDA editor__workspace_persistence__string_vectors 810 9 256_4]
+G c Z s s [reference_typeDF editor__workspace_persistence__string_vectors 810 9 256_4]
+G c Z s s [reference_typeIP editor__workspace_persistence__string_vectors 810 9 256_4]
+G c Z s s [elements_arrayIP editor__workspace_persistence__string_vectors 729 9 256_4]
+G c Z s s [elements_arrayDI editor__workspace_persistence__string_vectors 729 9 256_4]
+G c Z s s [elements_arrayDA editor__workspace_persistence__string_vectors 729 9 256_4]
+G c Z s s [elements_arrayDF editor__workspace_persistence__string_vectors 729 9 256_4]
+G c Z s s [elements_typeDI editor__workspace_persistence__string_vectors 732 9 256_4]
+G c Z s s [elements_typeDF editor__workspace_persistence__string_vectors 732 9 256_4]
+G c Z s s [elements_typeIP editor__workspace_persistence__string_vectors 732 9 256_4]
+G c Z s s [iteratorDF editor__workspace_persistence__string_vectors 857 9 256_4]
+G c Z s s [iteratorIP editor__workspace_persistence__string_vectors 857 9 256_4]
+G c Z s s [free editor__workspace_persistence__string_vectors 44 14 256_4]
+G c Z s s [append_slow_path editor__workspace_persistence__string_vectors 47 14 256_4]
 G c Z s s [workspace_diagnosticDI editor__workspace_persistence 41 9 none]
 G c Z s s [workspace_diagnosticDA editor__workspace_persistence 41 9 none]
 G c Z s s [workspace_diagnosticDF editor__workspace_persistence 41 9 none]
 G c Z s s [workspace_diagnosticIP editor__workspace_persistence 41 9 none]
-G c Z s s [has_element editor__workspace_persistence__diagnostic_vectors 115 13 258_4]
-G c Z s s [empty editor__workspace_persistence__diagnostic_vectors 125 13 258_4]
-G c Z s s [Oeq editor__workspace_persistence__diagnostic_vectors 127 24 258_4]
-G c Z s s [to_vector editor__workspace_persistence__diagnostic_vectors 136 13 258_4]
-G c Z s s [to_vector editor__workspace_persistence__diagnostic_vectors 139 13 258_4]
-G c Z s s [Oconcat editor__workspace_persistence__diagnostic_vectors 145 13 258_4]
-G c Z s s [Oconcat editor__workspace_persistence__diagnostic_vectors 149 13 258_4]
-G c Z s s [Oconcat editor__workspace_persistence__diagnostic_vectors 153 13 258_4]
-G c Z s s [Oconcat editor__workspace_persistence__diagnostic_vectors 157 13 258_4]
-G c Z s s [capacity editor__workspace_persistence__diagnostic_vectors 161 13 258_4]
-G c Z s s [reserve_capacity editor__workspace_persistence__diagnostic_vectors 164 14 258_4]
-G c Z s s [length editor__workspace_persistence__diagnostic_vectors 175 13 258_4]
-G c Z s s [set_length editor__workspace_persistence__diagnostic_vectors 178 14 258_4]
-G c Z s s [is_empty editor__workspace_persistence__diagnostic_vectors 187 13 258_4]
-G c Z s s [clear editor__workspace_persistence__diagnostic_vectors 190 14 258_4]
-G c Z s s [to_cursor editor__workspace_persistence__diagnostic_vectors 194 13 258_4]
-G c Z s s [to_index editor__workspace_persistence__diagnostic_vectors 201 13 258_4]
-G c Z s s [element editor__workspace_persistence__diagnostic_vectors 206 13 258_4]
-G c Z s s [element editor__workspace_persistence__diagnostic_vectors 213 13 258_4]
-G c Z s s [replace_element editor__workspace_persistence__diagnostic_vectors 217 14 258_4]
-G c Z s s [replace_element editor__workspace_persistence__diagnostic_vectors 228 14 258_4]
-G c Z s s [query_element editor__workspace_persistence__diagnostic_vectors 239 14 258_4]
-G c Z s s [query_element editor__workspace_persistence__diagnostic_vectors 250 14 258_4]
-G c Z s s [update_element editor__workspace_persistence__diagnostic_vectors 259 14 258_4]
-G c Z s s [update_element editor__workspace_persistence__diagnostic_vectors 276 14 258_4]
-G c Z s s [constant_reference editor__workspace_persistence__diagnostic_vectors 303 13 258_4]
-G c Z s s [reference editor__workspace_persistence__diagnostic_vectors 308 13 258_4]
-G c Z s s [constant_reference editor__workspace_persistence__diagnostic_vectors 313 13 258_4]
-G c Z s s [reference editor__workspace_persistence__diagnostic_vectors 318 13 258_4]
-G c Z s s [assign editor__workspace_persistence__diagnostic_vectors 323 14 258_4]
-G c Z s s [copy editor__workspace_persistence__diagnostic_vectors 325 13 258_4]
-G c Z s s [move editor__workspace_persistence__diagnostic_vectors 327 14 258_4]
-G c Z s s [new_vector editor__workspace_persistence__diagnostic_vectors 333 13 258_4]
-G c Z s s [insert_vector editor__workspace_persistence__diagnostic_vectors 337 14 258_4]
-G c Z s s [insert_vector editor__workspace_persistence__diagnostic_vectors 361 14 258_4]
-G c Z s s [insert_vector editor__workspace_persistence__diagnostic_vectors 378 14 258_4]
-G c Z s s [insert editor__workspace_persistence__diagnostic_vectors 396 14 258_4]
-G c Z s s [insert editor__workspace_persistence__diagnostic_vectors 404 14 258_4]
-G c Z s s [insert editor__workspace_persistence__diagnostic_vectors 412 14 258_4]
-G c Z s s [insert editor__workspace_persistence__diagnostic_vectors 421 14 258_4]
-G c Z s s [insert editor__workspace_persistence__diagnostic_vectors 438 14 258_4]
-G c Z s s [prepend_vector editor__workspace_persistence__diagnostic_vectors 449 14 258_4]
-G c Z s s [prepend editor__workspace_persistence__diagnostic_vectors 459 14 258_4]
-G c Z s s [append_vector editor__workspace_persistence__diagnostic_vectors 466 14 258_4]
-G c Z s s [append editor__workspace_persistence__diagnostic_vectors 476 14 258_4]
-G c Z s s [append editor__workspace_persistence__diagnostic_vectors 483 14 258_4]
-G c Z s s [insert_space editor__workspace_persistence__diagnostic_vectors 486 14 258_4]
-G c Z s s [insert_space editor__workspace_persistence__diagnostic_vectors 503 14 258_4]
-G c Z s s [delete editor__workspace_persistence__diagnostic_vectors 514 14 258_4]
-G c Z s s [delete editor__workspace_persistence__diagnostic_vectors 524 14 258_4]
-G c Z s s [delete_first editor__workspace_persistence__diagnostic_vectors 533 14 258_4]
-G c Z s s [delete_last editor__workspace_persistence__diagnostic_vectors 538 14 258_4]
-G c Z s s [reverse_elements editor__workspace_persistence__diagnostic_vectors 546 14 258_4]
-G c Z s s [swap editor__workspace_persistence__diagnostic_vectors 549 14 258_4]
-G c Z s s [swap editor__workspace_persistence__diagnostic_vectors 554 14 258_4]
-G c Z s s [first_index editor__workspace_persistence__diagnostic_vectors 560 13 258_4]
-G c Z s s [first editor__workspace_persistence__diagnostic_vectors 563 13 258_4]
-G c Z s s [first_element editor__workspace_persistence__diagnostic_vectors 567 13 258_4]
-G c Z s s [last_index editor__workspace_persistence__diagnostic_vectors 570 13 258_4]
-G c Z s s [last editor__workspace_persistence__diagnostic_vectors 574 13 258_4]
-G c Z s s [last_element editor__workspace_persistence__diagnostic_vectors 578 13 258_4]
-G c Z s s [next editor__workspace_persistence__diagnostic_vectors 581 13 258_4]
-G c Z s s [next editor__workspace_persistence__diagnostic_vectors 587 14 258_4]
-G c Z s s [previous editor__workspace_persistence__diagnostic_vectors 590 13 258_4]
-G c Z s s [previous editor__workspace_persistence__diagnostic_vectors 596 14 258_4]
-G c Z s s [find_index editor__workspace_persistence__diagnostic_vectors 599 13 258_4]
-G c Z s s [find editor__workspace_persistence__diagnostic_vectors 609 13 258_4]
-G c Z s s [reverse_find_index editor__workspace_persistence__diagnostic_vectors 623 13 258_4]
-G c Z s s [reverse_find editor__workspace_persistence__diagnostic_vectors 635 13 258_4]
-G c Z s s [contains editor__workspace_persistence__diagnostic_vectors 649 13 258_4]
-G c Z s s [iterate editor__workspace_persistence__diagnostic_vectors 654 14 258_4]
-G c Z s s [reverse_iterate editor__workspace_persistence__diagnostic_vectors 662 14 258_4]
-G c Z s s [iterate editor__workspace_persistence__diagnostic_vectors 669 13 258_4]
-G c Z s s [iterate editor__workspace_persistence__diagnostic_vectors 672 13 258_4]
-G c Z s s [adjust editor__workspace_persistence__diagnostic_vectors__implementation 90 28 726_4_258_4]
-G c Z s s [finalize editor__workspace_persistence__diagnostic_vectors__implementation 93 28 726_4_258_4]
-G c Z s s [zero_counts editor__workspace_persistence__diagnostic_vectors__implementation 96 17 726_4_258_4]
-G c Z s s [busy editor__workspace_persistence__diagnostic_vectors__implementation 100 17 726_4_258_4]
-G c Z s s [unbusy editor__workspace_persistence__diagnostic_vectors__implementation 104 17 726_4_258_4]
-G c Z s s [lock editor__workspace_persistence__diagnostic_vectors__implementation 108 17 726_4_258_4]
-G c Z s s [unlock editor__workspace_persistence__diagnostic_vectors__implementation 112 17 726_4_258_4]
-G c Z s s [tc_check editor__workspace_persistence__diagnostic_vectors__implementation 116 17 726_4_258_4]
-G c Z s s [te_check editor__workspace_persistence__diagnostic_vectors__implementation 120 17 726_4_258_4]
-G c Z s s [is_busy editor__workspace_persistence__diagnostic_vectors__implementation 136 16 726_4_258_4]
-G c Z s s [is_locked editor__workspace_persistence__diagnostic_vectors__implementation 140 16 726_4_258_4]
-G c Z s s [initialize editor__workspace_persistence__diagnostic_vectors__implementation 161 28 726_4_258_4]
-G c Z s s [finalize editor__workspace_persistence__diagnostic_vectors__implementation 162 28 726_4_258_4]
-G c Z s s [initialize editor__workspace_persistence__diagnostic_vectors__implementation 167 28 726_4_258_4]
-G c Z s s [finalize editor__workspace_persistence__diagnostic_vectors__implementation 168 28 726_4_258_4]
-G c Z s s [reference_control_typeDA editor__workspace_persistence__diagnostic_vectors__implementation 84 12 726_4_258_4]
-G c Z s s [reference_control_typeDF editor__workspace_persistence__diagnostic_vectors__implementation 84 12 726_4_258_4]
-G c Z s s [reference_control_typeIP editor__workspace_persistence__diagnostic_vectors__implementation 84 12 726_4_258_4]
-G c Z s s [with_busyDF editor__workspace_persistence__diagnostic_vectors__implementation 158 12 726_4_258_4]
-G c Z s s [with_busyIP editor__workspace_persistence__diagnostic_vectors__implementation 158 12 726_4_258_4]
-G c Z s s [with_lockDF editor__workspace_persistence__diagnostic_vectors__implementation 164 12 726_4_258_4]
-G c Z s s [with_lockIP editor__workspace_persistence__diagnostic_vectors__implementation 164 12 726_4_258_4]
-G c Z s s [put_image editor__workspace_persistence__diagnostic_vectors 747 14 258_4]
-G c Z s s [adjust editor__workspace_persistence__diagnostic_vectors 750 25 258_4]
-G c Z s s [finalize editor__workspace_persistence__diagnostic_vectors 751 25 258_4]
-G c Z s s [write editor__workspace_persistence__diagnostic_vectors 753 14 258_4]
-G c Z s s [read editor__workspace_persistence__diagnostic_vectors 759 14 258_4]
-G c Z s s [read editor__workspace_persistence__diagnostic_vectors 773 14 258_4]
-G c Z s s [write editor__workspace_persistence__diagnostic_vectors 779 14 258_4]
-G c Z s s [write editor__workspace_persistence__diagnostic_vectors 798 14 258_4]
-G c Z s s [read editor__workspace_persistence__diagnostic_vectors 804 14 258_4]
-G c Z s s [write editor__workspace_persistence__diagnostic_vectors 820 14 258_4]
-G c Z s s [read editor__workspace_persistence__diagnostic_vectors 826 14 258_4]
-G c Z s s [pseudo_reference editor__workspace_persistence__diagnostic_vectors 840 13 258_4]
-G c Z s s [get_element_access editor__workspace_persistence__diagnostic_vectors 849 13 258_4]
-G c Z s s [cursorIP editor__workspace_persistence__diagnostic_vectors 768 9 258_4]
-G c Z s s [vectorDA editor__workspace_persistence__diagnostic_vectors 741 9 258_4]
-G c Z s s [vectorDF editor__workspace_persistence__diagnostic_vectors 741 9 258_4]
-G c Z s s [vectorIP editor__workspace_persistence__diagnostic_vectors 741 9 258_4]
-G c Z s s [finalize editor__workspace_persistence__diagnostic_vectors 865 25 258_4]
-G c Z s s [first editor__workspace_persistence__diagnostic_vectors 867 24 258_4]
-G c Z s s [last editor__workspace_persistence__diagnostic_vectors 868 24 258_4]
-G c Z s s [next editor__workspace_persistence__diagnostic_vectors 870 24 258_4]
-G c Z s s [previous editor__workspace_persistence__diagnostic_vectors 874 24 258_4]
-G c Z s s [constant_reference_typeDI editor__workspace_persistence__diagnostic_vectors 788 9 258_4]
-G c Z s s [constant_reference_typeDA editor__workspace_persistence__diagnostic_vectors 788 9 258_4]
-G c Z s s [constant_reference_typeDF editor__workspace_persistence__diagnostic_vectors 788 9 258_4]
-G c Z s s [constant_reference_typeIP editor__workspace_persistence__diagnostic_vectors 788 9 258_4]
-G c Z s s [reference_typeDI editor__workspace_persistence__diagnostic_vectors 810 9 258_4]
-G c Z s s [reference_typeDA editor__workspace_persistence__diagnostic_vectors 810 9 258_4]
-G c Z s s [reference_typeDF editor__workspace_persistence__diagnostic_vectors 810 9 258_4]
-G c Z s s [reference_typeIP editor__workspace_persistence__diagnostic_vectors 810 9 258_4]
-G c Z s s [elements_arrayIP editor__workspace_persistence__diagnostic_vectors 729 9 258_4]
-G c Z s s [elements_arrayDI editor__workspace_persistence__diagnostic_vectors 729 9 258_4]
-G c Z s s [elements_arrayDA editor__workspace_persistence__diagnostic_vectors 729 9 258_4]
-G c Z s s [elements_arrayDF editor__workspace_persistence__diagnostic_vectors 729 9 258_4]
-G c Z s s [elements_typeDI editor__workspace_persistence__diagnostic_vectors 732 9 258_4]
-G c Z s s [elements_typeDF editor__workspace_persistence__diagnostic_vectors 732 9 258_4]
-G c Z s s [elements_typeIP editor__workspace_persistence__diagnostic_vectors 732 9 258_4]
-G c Z s s [iteratorDF editor__workspace_persistence__diagnostic_vectors 857 9 258_4]
-G c Z s s [iteratorIP editor__workspace_persistence__diagnostic_vectors 857 9 258_4]
-G c Z s s [free editor__workspace_persistence__diagnostic_vectors 44 14 258_4]
-G c Z s s [append_slow_path editor__workspace_persistence__diagnostic_vectors 47 14 258_4]
+G c Z s s [has_element editor__workspace_persistence__diagnostic_vectors 115 13 261_4]
+G c Z s s [empty editor__workspace_persistence__diagnostic_vectors 125 13 261_4]
+G c Z s s [Oeq editor__workspace_persistence__diagnostic_vectors 127 24 261_4]
+G c Z s s [to_vector editor__workspace_persistence__diagnostic_vectors 136 13 261_4]
+G c Z s s [to_vector editor__workspace_persistence__diagnostic_vectors 139 13 261_4]
+G c Z s s [Oconcat editor__workspace_persistence__diagnostic_vectors 145 13 261_4]
+G c Z s s [Oconcat editor__workspace_persistence__diagnostic_vectors 149 13 261_4]
+G c Z s s [Oconcat editor__workspace_persistence__diagnostic_vectors 153 13 261_4]
+G c Z s s [Oconcat editor__workspace_persistence__diagnostic_vectors 157 13 261_4]
+G c Z s s [capacity editor__workspace_persistence__diagnostic_vectors 161 13 261_4]
+G c Z s s [reserve_capacity editor__workspace_persistence__diagnostic_vectors 164 14 261_4]
+G c Z s s [length editor__workspace_persistence__diagnostic_vectors 175 13 261_4]
+G c Z s s [set_length editor__workspace_persistence__diagnostic_vectors 178 14 261_4]
+G c Z s s [is_empty editor__workspace_persistence__diagnostic_vectors 187 13 261_4]
+G c Z s s [clear editor__workspace_persistence__diagnostic_vectors 190 14 261_4]
+G c Z s s [to_cursor editor__workspace_persistence__diagnostic_vectors 194 13 261_4]
+G c Z s s [to_index editor__workspace_persistence__diagnostic_vectors 201 13 261_4]
+G c Z s s [element editor__workspace_persistence__diagnostic_vectors 206 13 261_4]
+G c Z s s [element editor__workspace_persistence__diagnostic_vectors 213 13 261_4]
+G c Z s s [replace_element editor__workspace_persistence__diagnostic_vectors 217 14 261_4]
+G c Z s s [replace_element editor__workspace_persistence__diagnostic_vectors 228 14 261_4]
+G c Z s s [query_element editor__workspace_persistence__diagnostic_vectors 239 14 261_4]
+G c Z s s [query_element editor__workspace_persistence__diagnostic_vectors 250 14 261_4]
+G c Z s s [update_element editor__workspace_persistence__diagnostic_vectors 259 14 261_4]
+G c Z s s [update_element editor__workspace_persistence__diagnostic_vectors 276 14 261_4]
+G c Z s s [constant_reference editor__workspace_persistence__diagnostic_vectors 303 13 261_4]
+G c Z s s [reference editor__workspace_persistence__diagnostic_vectors 308 13 261_4]
+G c Z s s [constant_reference editor__workspace_persistence__diagnostic_vectors 313 13 261_4]
+G c Z s s [reference editor__workspace_persistence__diagnostic_vectors 318 13 261_4]
+G c Z s s [assign editor__workspace_persistence__diagnostic_vectors 323 14 261_4]
+G c Z s s [copy editor__workspace_persistence__diagnostic_vectors 325 13 261_4]
+G c Z s s [move editor__workspace_persistence__diagnostic_vectors 327 14 261_4]
+G c Z s s [new_vector editor__workspace_persistence__diagnostic_vectors 333 13 261_4]
+G c Z s s [insert_vector editor__workspace_persistence__diagnostic_vectors 337 14 261_4]
+G c Z s s [insert_vector editor__workspace_persistence__diagnostic_vectors 361 14 261_4]
+G c Z s s [insert_vector editor__workspace_persistence__diagnostic_vectors 378 14 261_4]
+G c Z s s [insert editor__workspace_persistence__diagnostic_vectors 396 14 261_4]
+G c Z s s [insert editor__workspace_persistence__diagnostic_vectors 404 14 261_4]
+G c Z s s [insert editor__workspace_persistence__diagnostic_vectors 412 14 261_4]
+G c Z s s [insert editor__workspace_persistence__diagnostic_vectors 421 14 261_4]
+G c Z s s [insert editor__workspace_persistence__diagnostic_vectors 438 14 261_4]
+G c Z s s [prepend_vector editor__workspace_persistence__diagnostic_vectors 449 14 261_4]
+G c Z s s [prepend editor__workspace_persistence__diagnostic_vectors 459 14 261_4]
+G c Z s s [append_vector editor__workspace_persistence__diagnostic_vectors 466 14 261_4]
+G c Z s s [append editor__workspace_persistence__diagnostic_vectors 476 14 261_4]
+G c Z s s [append editor__workspace_persistence__diagnostic_vectors 483 14 261_4]
+G c Z s s [insert_space editor__workspace_persistence__diagnostic_vectors 486 14 261_4]
+G c Z s s [insert_space editor__workspace_persistence__diagnostic_vectors 503 14 261_4]
+G c Z s s [delete editor__workspace_persistence__diagnostic_vectors 514 14 261_4]
+G c Z s s [delete editor__workspace_persistence__diagnostic_vectors 524 14 261_4]
+G c Z s s [delete_first editor__workspace_persistence__diagnostic_vectors 533 14 261_4]
+G c Z s s [delete_last editor__workspace_persistence__diagnostic_vectors 538 14 261_4]
+G c Z s s [reverse_elements editor__workspace_persistence__diagnostic_vectors 546 14 261_4]
+G c Z s s [swap editor__workspace_persistence__diagnostic_vectors 549 14 261_4]
+G c Z s s [swap editor__workspace_persistence__diagnostic_vectors 554 14 261_4]
+G c Z s s [first_index editor__workspace_persistence__diagnostic_vectors 560 13 261_4]
+G c Z s s [first editor__workspace_persistence__diagnostic_vectors 563 13 261_4]
+G c Z s s [first_element editor__workspace_persistence__diagnostic_vectors 567 13 261_4]
+G c Z s s [last_index editor__workspace_persistence__diagnostic_vectors 570 13 261_4]
+G c Z s s [last editor__workspace_persistence__diagnostic_vectors 574 13 261_4]
+G c Z s s [last_element editor__workspace_persistence__diagnostic_vectors 578 13 261_4]
+G c Z s s [next editor__workspace_persistence__diagnostic_vectors 581 13 261_4]
+G c Z s s [next editor__workspace_persistence__diagnostic_vectors 587 14 261_4]
+G c Z s s [previous editor__workspace_persistence__diagnostic_vectors 590 13 261_4]
+G c Z s s [previous editor__workspace_persistence__diagnostic_vectors 596 14 261_4]
+G c Z s s [find_index editor__workspace_persistence__diagnostic_vectors 599 13 261_4]
+G c Z s s [find editor__workspace_persistence__diagnostic_vectors 609 13 261_4]
+G c Z s s [reverse_find_index editor__workspace_persistence__diagnostic_vectors 623 13 261_4]
+G c Z s s [reverse_find editor__workspace_persistence__diagnostic_vectors 635 13 261_4]
+G c Z s s [contains editor__workspace_persistence__diagnostic_vectors 649 13 261_4]
+G c Z s s [iterate editor__workspace_persistence__diagnostic_vectors 654 14 261_4]
+G c Z s s [reverse_iterate editor__workspace_persistence__diagnostic_vectors 662 14 261_4]
+G c Z s s [iterate editor__workspace_persistence__diagnostic_vectors 669 13 261_4]
+G c Z s s [iterate editor__workspace_persistence__diagnostic_vectors 672 13 261_4]
+G c Z s s [adjust editor__workspace_persistence__diagnostic_vectors__implementation 90 28 726_4_261_4]
+G c Z s s [finalize editor__workspace_persistence__diagnostic_vectors__implementation 93 28 726_4_261_4]
+G c Z s s [zero_counts editor__workspace_persistence__diagnostic_vectors__implementation 96 17 726_4_261_4]
+G c Z s s [busy editor__workspace_persistence__diagnostic_vectors__implementation 100 17 726_4_261_4]
+G c Z s s [unbusy editor__workspace_persistence__diagnostic_vectors__implementation 104 17 726_4_261_4]
+G c Z s s [lock editor__workspace_persistence__diagnostic_vectors__implementation 108 17 726_4_261_4]
+G c Z s s [unlock editor__workspace_persistence__diagnostic_vectors__implementation 112 17 726_4_261_4]
+G c Z s s [tc_check editor__workspace_persistence__diagnostic_vectors__implementation 116 17 726_4_261_4]
+G c Z s s [te_check editor__workspace_persistence__diagnostic_vectors__implementation 120 17 726_4_261_4]
+G c Z s s [is_busy editor__workspace_persistence__diagnostic_vectors__implementation 136 16 726_4_261_4]
+G c Z s s [is_locked editor__workspace_persistence__diagnostic_vectors__implementation 140 16 726_4_261_4]
+G c Z s s [initialize editor__workspace_persistence__diagnostic_vectors__implementation 161 28 726_4_261_4]
+G c Z s s [finalize editor__workspace_persistence__diagnostic_vectors__implementation 162 28 726_4_261_4]
+G c Z s s [initialize editor__workspace_persistence__diagnostic_vectors__implementation 167 28 726_4_261_4]
+G c Z s s [finalize editor__workspace_persistence__diagnostic_vectors__implementation 168 28 726_4_261_4]
+G c Z s s [reference_control_typeDA editor__workspace_persistence__diagnostic_vectors__implementation 84 12 726_4_261_4]
+G c Z s s [reference_control_typeDF editor__workspace_persistence__diagnostic_vectors__implementation 84 12 726_4_261_4]
+G c Z s s [reference_control_typeIP editor__workspace_persistence__diagnostic_vectors__implementation 84 12 726_4_261_4]
+G c Z s s [with_busyDF editor__workspace_persistence__diagnostic_vectors__implementation 158 12 726_4_261_4]
+G c Z s s [with_busyIP editor__workspace_persistence__diagnostic_vectors__implementation 158 12 726_4_261_4]
+G c Z s s [with_lockDF editor__workspace_persistence__diagnostic_vectors__implementation 164 12 726_4_261_4]
+G c Z s s [with_lockIP editor__workspace_persistence__diagnostic_vectors__implementation 164 12 726_4_261_4]
+G c Z s s [put_image editor__workspace_persistence__diagnostic_vectors 747 14 261_4]
+G c Z s s [adjust editor__workspace_persistence__diagnostic_vectors 750 25 261_4]
+G c Z s s [finalize editor__workspace_persistence__diagnostic_vectors 751 25 261_4]
+G c Z s s [write editor__workspace_persistence__diagnostic_vectors 753 14 261_4]
+G c Z s s [read editor__workspace_persistence__diagnostic_vectors 759 14 261_4]
+G c Z s s [read editor__workspace_persistence__diagnostic_vectors 773 14 261_4]
+G c Z s s [write editor__workspace_persistence__diagnostic_vectors 779 14 261_4]
+G c Z s s [write editor__workspace_persistence__diagnostic_vectors 798 14 261_4]
+G c Z s s [read editor__workspace_persistence__diagnostic_vectors 804 14 261_4]
+G c Z s s [write editor__workspace_persistence__diagnostic_vectors 820 14 261_4]
+G c Z s s [read editor__workspace_persistence__diagnostic_vectors 826 14 261_4]
+G c Z s s [pseudo_reference editor__workspace_persistence__diagnostic_vectors 840 13 261_4]
+G c Z s s [get_element_access editor__workspace_persistence__diagnostic_vectors 849 13 261_4]
+G c Z s s [cursorIP editor__workspace_persistence__diagnostic_vectors 768 9 261_4]
+G c Z s s [vectorDA editor__workspace_persistence__diagnostic_vectors 741 9 261_4]
+G c Z s s [vectorDF editor__workspace_persistence__diagnostic_vectors 741 9 261_4]
+G c Z s s [vectorIP editor__workspace_persistence__diagnostic_vectors 741 9 261_4]
+G c Z s s [finalize editor__workspace_persistence__diagnostic_vectors 865 25 261_4]
+G c Z s s [first editor__workspace_persistence__diagnostic_vectors 867 24 261_4]
+G c Z s s [last editor__workspace_persistence__diagnostic_vectors 868 24 261_4]
+G c Z s s [next editor__workspace_persistence__diagnostic_vectors 870 24 261_4]
+G c Z s s [previous editor__workspace_persistence__diagnostic_vectors 874 24 261_4]
+G c Z s s [constant_reference_typeDI editor__workspace_persistence__diagnostic_vectors 788 9 261_4]
+G c Z s s [constant_reference_typeDA editor__workspace_persistence__diagnostic_vectors 788 9 261_4]
+G c Z s s [constant_reference_typeDF editor__workspace_persistence__diagnostic_vectors 788 9 261_4]
+G c Z s s [constant_reference_typeIP editor__workspace_persistence__diagnostic_vectors 788 9 261_4]
+G c Z s s [reference_typeDI editor__workspace_persistence__diagnostic_vectors 810 9 261_4]
+G c Z s s [reference_typeDA editor__workspace_persistence__diagnostic_vectors 810 9 261_4]
+G c Z s s [reference_typeDF editor__workspace_persistence__diagnostic_vectors 810 9 261_4]
+G c Z s s [reference_typeIP editor__workspace_persistence__diagnostic_vectors 810 9 261_4]
+G c Z s s [elements_arrayIP editor__workspace_persistence__diagnostic_vectors 729 9 261_4]
+G c Z s s [elements_arrayDI editor__workspace_persistence__diagnostic_vectors 729 9 261_4]
+G c Z s s [elements_arrayDA editor__workspace_persistence__diagnostic_vectors 729 9 261_4]
+G c Z s s [elements_arrayDF editor__workspace_persistence__diagnostic_vectors 729 9 261_4]
+G c Z s s [elements_typeDI editor__workspace_persistence__diagnostic_vectors 732 9 261_4]
+G c Z s s [elements_typeDF editor__workspace_persistence__diagnostic_vectors 732 9 261_4]
+G c Z s s [elements_typeIP editor__workspace_persistence__diagnostic_vectors 732 9 261_4]
+G c Z s s [iteratorDF editor__workspace_persistence__diagnostic_vectors 857 9 261_4]
+G c Z s s [iteratorIP editor__workspace_persistence__diagnostic_vectors 857 9 261_4]
+G c Z s s [free editor__workspace_persistence__diagnostic_vectors 44 14 261_4]
+G c Z s s [append_slow_path editor__workspace_persistence__diagnostic_vectors 47 14 261_4]
 G c Z s s [workspace_restore_summaryIP editor__workspace_persistence 47 9 none]
-G c Z s s [workspace_snapshotDI editor__workspace_persistence 262 9 none]
-G c Z s s [workspace_snapshotDA editor__workspace_persistence 262 9 none]
-G c Z s s [workspace_snapshotDF editor__workspace_persistence 262 9 none]
-G c Z s s [workspace_snapshotIP editor__workspace_persistence 262 9 none]
-G c Z s s [workspace_buffer_persistence_auditIP editor__workspace_persistence 193 9 none]
+G c Z s s [workspace_snapshotDI editor__workspace_persistence 265 9 none]
+G c Z s s [workspace_snapshotDA editor__workspace_persistence 265 9 none]
+G c Z s s [workspace_snapshotDF editor__workspace_persistence 265 9 none]
+G c Z s s [workspace_snapshotIP editor__workspace_persistence 265 9 none]
+G c Z s s [workspace_buffer_persistence_auditIP editor__workspace_persistence 196 9 none]
 G c Z b b [trim editor__workspace_persistence 26 13 none]
 G c Z b b [natural_text editor__workspace_persistence 31 13 none]
 G c Z b b [bool_text editor__workspace_persistence 36 13 none]
@@ -645,158 +651,158 @@ G c Z b b [has_control_character editor__workspace_persistence 198 13 none]
 G c Z b b [has_workspace_path_meta_character editor__workspace_persistence 208 13 none]
 G c Z b b [has_backslash_separator editor__workspace_persistence 218 13 none]
 G c Z b b [is_absolute_path editor__workspace_persistence 228 13 none]
-G c Z b b [sort_expanded_paths editor__workspace_persistence 321 14 none]
-G c Z b b [has_malformed_metadata_separators editor__workspace_persistence 348 13 none]
-G c Z b b [report_unsupported_field editor__workspace_persistence 366 14 none]
-G c Z b b [parse_project_reference_line editor__workspace_persistence 377 14 none]
-G c Z b b [parse_open_file_line editor__workspace_persistence 405 14 none]
-G c Z b b [comparable_path editor__workspace_persistence 1296 13 none]
-G c Z b b [write_snapshot_to_file editor__workspace_persistence 1326 14 none]
+G c Z b b [sort_expanded_paths editor__workspace_persistence 322 14 none]
+G c Z b b [has_malformed_metadata_separators editor__workspace_persistence 349 13 none]
+G c Z b b [report_unsupported_field editor__workspace_persistence 370 14 none]
+G c Z b b [parse_project_reference_line editor__workspace_persistence 381 14 none]
+G c Z b b [parse_open_file_line editor__workspace_persistence 409 14 none]
+G c Z b b [comparable_path editor__workspace_persistence 1311 13 none]
+G c Z b b [write_snapshot_to_file editor__workspace_persistence 1341 14 none]
 X 1 ada.ads
-18K9*Ada 22e8 30|1r6 2r6 44r21 58r29 249r38 253r34 255r23 256r23 258r38 265r24
-. 268r24 31|1r6 2r6 3r6 4r6 5r6 5r33 6r6 11r13 12r13 28r14 28r44 136r32 411r35
-. 431r13 452r16 468r18 1033r14 1048r35 1137r21 1139r19 1145r27 1189r22 1195r23
-. 1198r22 1208r23 1219r16 1259r14 1260r10 1268r14 1270r46 1274r10 1274r41
-. 1278r7 1278r31 1279r7 1283r13 1284r13 1331r14 1337r7 1337r33 1338r7 1342r7
-. 1345r13 1346r13 1365r37 1366r37 1367r37 1372r13 1373r13 1381r38 1382r10
-. 1420r17 1450r14 1455r7 1455r31 1456r17 1458r43 1468r19 1480r19 1488r19
-. 1552r22 1558r22 1563r22 1605r54 1634r31 1652r42 1716r28 1751r50 1864r7
-. 1944r12 1947r13 1948r13
-X 3 a-charac.ads
-16K13*Characters 18e19 31|1r10 1033r18
-X 4 a-chahan.ads
-43K24*Handling 454e28 31|1w21 1033r29
-209V13*To_Lower{character} 31|1041s30
-X 6 a-contai.ads
-16K13*Containers 28e19 30|1r10 249r42 253r38 258r42 31|2w10 11r17
-22I9*Count_Type<integer> 31|11r28
-X 10 a-convec.ads
-62I9 Index_Type 30|250r7 254r7 259r7
-63+9 Element_Type 30|251r7 255r7 260r7
-65V19 "="{boolean} 30|256r8
-74k24*Vectors 878e27 30|1w21 249r53 253r49 258r53
+18K9*Ada 22e8 31|1r6 2r6 44r21 58r29 252r38 256r34 258r23 259r23 261r38 268r24
+. 272r24 32|1r6 2r6 3r6 4r6 5r6 5r33 6r6 11r13 12r13 28r14 28r44 136r32 415r35
+. 435r13 456r16 472r18 1048r14 1063r35 1152r21 1154r19 1160r27 1204r22 1210r23
+. 1213r22 1223r23 1234r16 1274r14 1275r10 1283r14 1285r46 1289r10 1289r41
+. 1293r7 1293r31 1294r7 1298r13 1299r13 1346r14 1352r7 1352r33 1353r7 1357r7
+. 1360r13 1361r13 1380r37 1381r37 1382r37 1387r13 1388r13 1396r38 1397r10
+. 1435r17 1465r14 1470r7 1470r31 1471r17 1473r43 1483r19 1495r19 1503r19
+. 1567r22 1573r22 1578r22 1620r54 1649r31 1667r42 1731r28 1766r50 1879r7
+. 1959r12 1962r13 1963r13
+X 4 a-charac.ads
+16K13*Characters 18e19 32|1r10 1048r18
+X 5 a-chahan.ads
+43K24*Handling 454e28 32|1w21 1048r29
+209V13*To_Lower{character} 32|1056s30
+X 7 a-contai.ads
+16K13*Containers 28e19 31|1r10 252r42 256r38 261r42 32|2w10 11r17
+22I9*Count_Type<integer> 32|11r28
+X 11 a-convec.ads
+62I9 Index_Type 31|253r7 257r7 262r7
+63+9 Element_Type 31|254r7 258r7 263r7
+65V19 "="{boolean} 31|259r8
+74k24*Vectors 878e27 31|1w21 252r53 256r49 261r53
 81I12*Extended_Index{integer}
-91R9*Vector<14|43R9> 30|266r43[249] 270r39[253] 276r46[258] 31|826r44[30|249]
-. 827r44[30|253]
-175V13*Length{6|22I9} 31|324s34[30|253] 674s43[30|249] 737s47[30|253] 812s44[30|258]
-. 923s30[30|249] 923s53[30|249] 924s34[30|253] 924s61[30|253] 929s23[30|249]
-. 947s27[30|253] 966s65[30|249] 968s73[30|253] 969s73[30|258]
-190U14*Clear 31|603s27[30|249] 607s31[30|253] 613s28[30|258]
-206V13*Element{23|105R9} 31|331s51[30|253] 332s51[30|253] 335s79[30|253]
-. 338s49[30|253] 682s34[30|249] 745s49[30|253] 820s35[30|258] 932s67[30|249]
-. 933s67[30|249] 949s44[30|253] 950s44[30|253]
-217U14*Replace_Element 31|337s43[30|253] 339s43[30|253]
-483U14*Append 31|191s28[30|258] 667s27[30|249] 730s31[30|253] 848s38[30|249]
-. 884s39[30|253]
-560V13*First_Index{integer} 31|330s43[30|253] 930s32[30|249] 948s36[30|253]
-570V13*Last_Index{81I12[30|253]} 31|330s82[30|253] 930s60[30|249] 948s68[30|253]
-X 12 a-direct.ads
-76K13*Directories 524e20 31|3w10 12r17 1259r18 1260r14 1270r50 1274r14 1274r45
-. 1365r41 1366r41 1367r41 1372r17 1373r17 1381r42 1382r14 1450r18
-118U14*Create_Path 31|1382s26
-147U14*Delete_File 31|1373s29
-245V13*Simple_Name{string} 31|1366s53
-251V13*Containing_Directory{string} 31|1365s53
-275V13*Compose{string} 31|1259s30 1260s26 1367s53
-303E9*File_Kind 303e62 31|12r29
-303n34*Ordinary_File{303E9} 31|1274r57
-310V13*Exists{boolean} 31|1270s62 1372s29 1381s54 1450s30
-316V13*Kind{303E9} 31|1274s26
-X 16 a-iteint.ads
+91R9*Vector<15|43R9> 31|269r43[252] 274r39[256] 280r46[261] 32|841r44[31|252]
+. 842r44[31|256]
+175V13*Length{7|22I9} 32|325s34[31|256] 682s43[31|252] 752s47[31|256] 827s44[31|261]
+. 938s30[31|252] 938s53[31|252] 939s34[31|256] 939s61[31|256] 944s23[31|252]
+. 962s27[31|256] 981s65[31|252] 983s73[31|256] 984s73[31|261]
+190U14*Clear 32|607s27[31|252] 612s31[31|256] 618s28[31|261]
+206V13*Element{24|105R9} 32|332s51[31|256] 333s51[31|256] 336s79[31|256]
+. 339s49[31|256] 697s34[31|252] 760s49[31|256] 835s35[31|261] 947s67[31|252]
+. 948s67[31|252] 964s44[31|256] 965s44[31|256]
+217U14*Replace_Element 32|338s43[31|256] 340s43[31|256]
+483U14*Append 32|191s28[31|261] 675s27[31|252] 745s31[31|256] 863s38[31|252]
+. 899s39[31|256]
+560V13*First_Index{integer} 32|331s43[31|256] 945s32[31|252] 963s36[31|256]
+570V13*Last_Index{81I12[31|256]} 32|331s82[31|256] 945s60[31|252] 963s68[31|256]
+X 13 a-direct.ads
+76K13*Directories 524e20 32|3w10 12r17 1274r18 1275r14 1285r50 1289r14 1289r45
+. 1380r41 1381r41 1382r41 1387r17 1388r17 1396r42 1397r14 1465r18
+118U14*Create_Path 32|1397s26
+147U14*Delete_File 32|1388s29
+245V13*Simple_Name{string} 32|1381s53
+251V13*Containing_Directory{string} 32|1380s53
+275V13*Compose{string} 32|1274s30 1275s26 1382s53
+303E9*File_Kind 303e62 32|12r29
+303n34*Ordinary_File{303E9} 32|1289r57
+310V13*Exists{boolean} 32|1285s62 1387s29 1396s54 1465s30
+316V13*Kind{303E9} 32|1289s26
+X 17 a-iteint.ads
 24h9 Forward_Iterator
-32h9 Reversible_Iterator<24R9[10|119]>
-X 18 a-string.ads
-16K13*Strings 35e16 30|2r10 44r25 58r33 255r27 256r27 265r28 268r28 31|4r10
-. 5r10 5r37 28r18 28r48 136r36 411r39 431r17 452r20 468r22 1048r39 1137r25
-. 1139r23 1145r31 1189r26 1195r27 1198r26 1208r27 1219r20 1605r58 1634r35
-. 1652r46 1716r32 1751r54
-33n37*Both{33E9} 31|28r56
-X 19 a-strfix.ads
-49K21*Fixed 1390e22 31|4w18 28r26 136r44 411r47 431r25 452r28 468r30 1048r47
-. 1137r33 1139r31 1145r39 1189r34 1195r35 1198r34 1208r35 1219r28 1605r66
-. 1634r43 1652r54 1716r40 1751r62
-252V13*Index{natural} 31|136s50 411s53 431s31 452s34 468s36 1048s53 1137s39
-. 1139s37 1145s45 1189s40 1195s41 1198s40 1208s41 1219s34 1605s72 1634s49
-. 1652s60 1716s46 1751s68
-1133V13*Trim{string} 31|28s32
-X 23 a-strunb.ads
-91K21*Unbounded 1641e26 30|2w18 44r33 58r41 255r35 256r35 265r36 268r36 31|5w18
+32h9 Reversible_Iterator<24R9[11|119]>
+X 19 a-string.ads
+16K13*Strings 35e16 31|2r10 44r25 58r33 258r27 259r27 268r28 272r28 32|4r10
+. 5r10 5r37 28r18 28r48 136r36 415r39 435r17 456r20 472r22 1063r39 1152r25
+. 1154r23 1160r31 1204r26 1210r27 1213r26 1223r27 1234r20 1620r58 1649r35
+. 1667r46 1731r32 1766r54
+33n37*Both{33E9} 32|28r56
+X 20 a-strfix.ads
+49K21*Fixed 1390e22 32|4w18 28r26 136r44 415r47 435r25 456r28 472r30 1063r47
+. 1152r33 1154r31 1160r39 1204r34 1210r35 1213r34 1223r35 1234r28 1620r66
+. 1649r43 1667r54 1731r40 1766r62
+252V13*Index{natural} 32|136s50 415s53 435s31 456s34 472s36 1063s53 1152s39
+. 1154s37 1160s45 1204s40 1210s41 1213s40 1223s41 1234s34 1620s72 1649s49
+. 1667s60 1731s46 1766s68
+1133V13*Trim{string} 32|28s32
+X 24 a-strunb.ads
+91K21*Unbounded 1641e26 31|2w18 44r33 58r41 258r35 259r35 268r36 272r36 32|5w18
 . 5r45
-105R9*Unbounded_String<14|43R9> 1620e15 30|44r43 58r51 255r45 265r46 268r46
-. 31|249r16 335r35 415r15 978r16 1445r39 1647r39
-109r4*Null_Unbounded_String{105R9} 31|249r36 602r24 605r31 978r36 1445r59
-. 1930r34
-111V13*Length{natural} 31|293s19 303s10 460s10 1722s31
-122V13*To_Unbounded_String{105R9} 31|195s26 457s23 470s22 473s22 632s24 665s20
-. 694s31 730s39 846s35 866s37 884s47 1654s46 1657s46 1745s53
-135V13*To_String{string} 31|155s13 168s13 308s14 331s16 332s16 479s39 581s55
-. 583s67 585s65 647s14 656s10 710s14 745s14 834s19 840s25 860s16 874s16 879s22
-. 914s17 914s39 916s17 916s46 935s19 935s42 949s16 950s16 965s49 967s53 990s38
-. 996s13 1006s13 1012s20 1022s14 1663s63 1723s45 1730s39 1924s52
-159U14*Append 31|294s19 296s16 982s10
-168U14*Append 31|983s10
-269V14*"="{boolean} 30|256r46
-283V14*"="{boolean} 30|256r46
-X 26 a-textio.ads
-58K13*Text_IO 785e16 31|6w10 1268r18 1278r11 1278r35 1279r11 1283r17 1284r17
-. 1331r18 1337r11 1337r37 1338r11 1342r11 1345r17 1346r17 1420r21 1455r11
-. 1455r35 1456r21 1458r47 1468r23 1480r23 1488r23 1552r26 1558r26 1563r26
-. 1864r11 1944r16 1947r17 1948r17
-67P9*File_Type 31|1268r26 1331r26 1420r29
-69n23*In_File{69E9} 31|1278r43 1455r43
-69n32*Out_File{69E9} 31|1337r45
-99U14*Create 31|1337s19
-115U14*Open 31|1278s19 1455s19
-131U14*Close 31|1279s19 1284s25 1342s19 1346s25 1468s31 1480s31 1488s31 1552s34
-. 1558s34 1563s34 1864s19 1948s25
-176V13*Is_Open{boolean} 31|1283s25 1345s25 1947s25
-341V13*End_Of_File{boolean} 31|1456s29
-508U14*Put 31|1338s19
-549V13*Get_Line{string} 31|1458s55
-601X4*Name_Error 31|1944r24
-X 29 editor.ads
-1K9*Editor 5e11 30|4r9 278r5 31|9r14 1953r5
-X 30 editor-workspace_persistence.ads
-4K16*Workspace_Persistence 29|1k9 30|57E9 278l12 278e33 31|9b21 1953l12 1953t33
-5E9*Workspace_Persistence_Status 12e45 231r22 241r22 246r22 31|176r23 368r25
-. 381r25 409r25 1329r22 1354r22 1363r22 1418r22 1424r17
-6n7*Workspace_Persistence_Ok{5E9} 31|179r19 1334r17 1380r17 1387r20 1409r17
-. 1424r49 1448r17 1941r20
-7n7*Workspace_Persistence_Not_Found{5E9} 31|1451r20 1945r20
-8n7*Workspace_Persistence_Invalid_Format{5E9} 31|1469r29 1481r29 1489r29
-. 1553r32 1559r32 1937r20
-9n7*Workspace_Persistence_Unsupported_Version{5E9} 31|1564r32
-10n7*Workspace_Persistence_Read_Error{5E9} 31|1950r20
-11n7*Workspace_Persistence_Write_Error{5E9} 31|1348r20 1398r23 1404r23 1412r20
-12n7*Workspace_Persistence_Partial_Restore{5E9} 31|180r20 1938r23 1939r20
+105R9*Unbounded_String<15|43R9> 1620e15 31|44r43 58r51 258r45 268r46 272r46
+. 32|249r16 336r35 419r15 993r16 1460r39 1662r39
+109r4*Null_Unbounded_String{105R9} 32|249r36 606r24 610r31 993r36 1460r59
+. 1945r34
+111V13*Length{natural} 32|294s19 304s10 464s10 1737s31
+122V13*To_Unbounded_String{105R9} 32|195s26 461s23 474s22 477s22 637s24 673s20
+. 709s31 745s39 861s35 881s37 899s47 1669s46 1672s46 1760s53
+135V13*To_String{string} 32|155s13 168s13 309s14 332s16 333s16 483s39 585s55
+. 587s67 589s65 652s14 661s10 725s14 760s14 849s19 855s25 875s16 889s16 894s22
+. 929s17 929s39 931s17 931s46 950s19 950s42 964s16 965s16 980s49 982s53 1005s38
+. 1011s13 1021s13 1027s20 1037s14 1678s63 1738s45 1745s39 1939s52
+159U14*Append 32|295s19 297s16 997s10
+168U14*Append 32|998s10
+269V14*"="{boolean} 31|259r46
+283V14*"="{boolean} 31|259r46
+X 27 a-textio.ads
+58K13*Text_IO 785e16 32|6w10 1283r18 1293r11 1293r35 1294r11 1298r17 1299r17
+. 1346r18 1352r11 1352r37 1353r11 1357r11 1360r17 1361r17 1435r21 1470r11
+. 1470r35 1471r21 1473r47 1483r23 1495r23 1503r23 1567r26 1573r26 1578r26
+. 1879r11 1959r16 1962r17 1963r17
+67P9*File_Type 32|1283r26 1346r26 1435r29
+69n23*In_File{69E9} 32|1293r43 1470r43
+69n32*Out_File{69E9} 32|1352r45
+99U14*Create 32|1352s19
+115U14*Open 32|1293s19 1470s19
+131U14*Close 32|1294s19 1299s25 1357s19 1361s25 1483s31 1495s31 1503s31 1567s34
+. 1573s34 1578s34 1879s19 1963s25
+176V13*Is_Open{boolean} 32|1298s25 1360s25 1962s25
+341V13*End_Of_File{boolean} 32|1471s29
+508U14*Put 32|1353s19
+549V13*Get_Line{string} 32|1473s55
+601X4*Name_Error 32|1959r24
+X 30 editor.ads
+1K9*Editor 5e11 31|4r9 282r5 32|9r14 1968r5
+X 31 editor-workspace_persistence.ads
+4K16*Workspace_Persistence 30|1k9 31|57E9 282l12 282e33 32|9b21 1968l12 1968t33
+5E9*Workspace_Persistence_Status 12e45 234r22 244r22 249r22 32|176r23 372r25
+. 385r25 413r25 1344r22 1369r22 1378r22 1433r22 1439r17
+6n7*Workspace_Persistence_Ok{5E9} 32|179r19 1349r17 1395r17 1402r20 1424r17
+. 1439r49 1463r17 1956r20
+7n7*Workspace_Persistence_Not_Found{5E9} 32|1466r20 1960r20
+8n7*Workspace_Persistence_Invalid_Format{5E9} 32|1484r29 1496r29 1504r29
+. 1568r32 1574r32 1952r20
+9n7*Workspace_Persistence_Unsupported_Version{5E9} 32|1579r32
+10n7*Workspace_Persistence_Read_Error{5E9} 32|1965r20
+11n7*Workspace_Persistence_Write_Error{5E9} 32|1363r20 1413r23 1419r23 1427r20
+12n7*Workspace_Persistence_Partial_Restore{5E9} 32|180r20 1953r23 1954r20
 14R9*Workspace_Lifecycle_Config 18e14 20r50
 15b7*Auto_Restore_On_Project_Open{boolean} 21m7
 16b7*Report_Available_Session_On_Project_Open{boolean} 22m7
 17b7*Save_On_Project_Close{boolean} 23m7
 20r4*Default_Workspace_Lifecycle_Config{14R9}
-25E9*Workspace_Session_File_Status 28e31 162r37 31|1265r37
-26n7*Session_File_Missing{25E9} 31|1271r17
-27n7*Session_File_Present{25E9} 31|1280r14 1293r51
-28n7*Session_File_Unreadable{25E9} 31|1275r17 1286r17
-30E9*Workspace_Diagnostic_Kind 39e27 42r21 31|186r18
-31n7*Malformed_Line{30E9} 42r50 31|434r39 439r36 449r39 485r45 501r51 517r57
-. 533r63 545r63 570r36 592r36 1466r42 1478r42 1487r45 1523r51 1551r48 1562r48
-. 1585r41 1600r51 1617r44 1637r57 1641r54 1669r69 1681r69 1700r57 1735r44
-. 1759r54 1769r63 1782r63 1801r63 1814r63 1833r63 1869r26 1875r26 1881r26
-. 1887r26 1910r26 1936r36
-32n7*Unknown_Section{30E9} 31|1516r48 1857r48
-33n7*Unsupported_Key{30E9} 31|373r33 399r36 432r39 453r39 1635r57 1717r54
-. 1846r47
-34n7*Invalid_Path{30E9} 31|388r39 395r39 461r36 585r42 1625r44 1720r54 1927r23
-35n7*Duplicate_Path{30E9} 31|583r42 1732r44 1742r44
+25E9*Workspace_Session_File_Status 28e31 165r37 32|1280r37
+26n7*Session_File_Missing{25E9} 32|1286r17
+27n7*Session_File_Present{25E9} 32|1295r14 1308r51
+28n7*Session_File_Unreadable{25E9} 32|1290r17 1301r17
+30E9*Workspace_Diagnostic_Kind 39e27 42r21 32|186r18
+31n7*Malformed_Line{30E9} 42r50 32|438r39 443r36 453r39 489r45 505r51 521r57
+. 537r63 549r63 574r36 596r36 1481r42 1493r42 1502r45 1538r51 1566r48 1577r48
+. 1600r41 1615r51 1632r44 1652r57 1656r54 1684r69 1696r69 1715r57 1750r44
+. 1774r54 1784r63 1797r63 1816r63 1829r63 1848r63 1884r26 1890r26 1896r26
+. 1902r26 1925r26 1951r36
+32n7*Unknown_Section{30E9} 32|1531r48 1872r48
+33n7*Unsupported_Key{30E9} 32|377r33 403r36 436r39 457r39 1650r57 1732r54
+. 1861r47
+34n7*Invalid_Path{30E9} 32|392r39 399r39 465r36 589r42 1640r44 1735r54 1942r23
+35n7*Duplicate_Path{30E9} 32|587r42 1747r44 1757r44
 36n7*Missing_File{30E9}
 37n7*Missing_Directory{30E9}
-38n7*Invalid_Number{30E9} 31|491r45 507r51 523r57 1557r48 1795r63 1827r63
-39n7*Invalid_Panel_Value{30E9} 31|1776r63 1787r66 1808r63 1819r66 1840r63
-41R9*Workspace_Diagnostic 45e14 220r35 260r23 31|192r10 817r35
-42e7*Kind{30E9} 31|193m12
-43i7*Line_Number{natural} 31|194m11
-44r7*Text{23|105R9} 31|195m11
+38n7*Invalid_Number{30E9} 32|495r45 511r51 527r57 1572r48 1810r63 1842r63
+39n7*Invalid_Panel_Value{30E9} 32|1791r63 1802r66 1823r63 1834r66 1855r63
+41R9*Workspace_Diagnostic 45e14 223r35 263r23 32|192r10 832r35
+42e7*Kind{30E9} 32|193m12
+43i7*Line_Number{natural} 32|194m11
+44r7*Text{24|105R9} 32|195m11
 47R9*Workspace_Restore_Summary 55e14
 48i7*Files_Requested{natural}
 49i7*Files_Restored{natural}
@@ -805,263 +811,266 @@ X 30 editor-workspace_persistence.ads
 52i7*Expansions_Restored{natural}
 53i7*Expansions_Skipped{natural}
 54i7*Panel_Values_Clamped{natural}
-57R9*Workspace_File_Entry 63e14 89r17 96r35 251r23 31|412r14 652r17 657r15
-. 679r35 835r24 932r30 933r30
-58r7*Path{23|105R9} 31|155r29 457m15 460r23 581r71 583r83 585r81 656r26 665m12
-. 834r35 840r45 846m27 935r33 935r56 996r29
-59b7*Is_Project_Relative{boolean} 31|538m42 580r21 659r20 666m12 831r18 847m27
-. 936r29 936r55 997r46
-60i7*Cursor_Row{natural} 31|488m24 937r29 937r46 998r44
-61i7*Cursor_Column{natural} 31|504m30 938r29 938r49 999r44
-62i7*View_First_Row{natural} 31|520m36 939r29 939r50 1000r45
-65E9*Bottom_Content_Id 67e40 138r18 147r45 275r27 31|45r37 116r21 777r18
-. 801r45 1444r39 1754r30
-66n7*Workspace_Problems_Content{65E9} 275r48 31|48r15 120r21 126r21 612r34
-. 1444r60 1908r40
-67n7*Workspace_Search_Results_Content{65E9} 31|50r15 123r21
-69R9*Workspace_Snapshot 72r25 75r18 78r25 82r18 85r18 88r25 92r18 95r18 99r36
-. 104r18 107r18 110r18 113r25 117r18 120r18 124r25 129r18 132r18 135r25 141r18
-. 144r18 147r18 183r25 186r15 187r15 190r18 207r18 213r18 216r18 219r18 229r18
-. 239r18 245r22 262c9 277e14 31|150r18 163r18 185r25 321r53 367r25 380r25
-. 408r25 597r25 617r18 624r25 637r18 644r18 651r25 671r18 678r18 686r36 700r18
-. 707r18 714r18 721r25 734r18 741r18 749r25 760r18 767r18 774r25 787r18 794r18
-. 801r18 809r18 816r18 824r25 903r15 904r15 906r11 907r11 961r18 975r18 977r16
-. 1248r18 1327r18 1332r14 1352r18 1361r18 1417r22
-71U14*Clear 72=7 31|596b14 614l8 614t13 1447s7
-72r7 Snapshot{69R9} 31|597b7 600m7 601m7 602m7 603m7 603r7 604m7 605m7 606m7
-. 607m7 607r7 608m7 609m7 610m7 611m7 612m7 613m7 613r7
-74V13*Version{natural} 75>7 31|616b13 621l8 621t15
-75r7 Snapshot{69R9} 31|617b7 620r14
-77U14*Set_Project_Root 78=7 79>7 31|393s10 623b14 634l8 634t24
-78r7 Snapshot{69R9} 31|624b7 629m7 632m7 633r14
-79a7 Path{string} 31|625b7 627r34
-81V13*Has_Project_Root{boolean} 82>7 31|636b13 641l8 641t24
-82r7 Snapshot{69R9} 31|637b7 640r14
-84V13*Project_Root{string} 85>7 31|643b13 648l8 648t20
-85r7 Snapshot{69R9} 31|644b7 647r25
-87U14*Add_Open_File 88=7 89>7 31|578s10 650b14 668l8 668t21
-88r7 Snapshot{69R9} 31|651b7 661r37 667m7 667r7
-89r7 Item{57R9} 31|652b7 656r21 657r39 659r15
-91V13*Open_File_Count{natural} 92>7 31|576s39 579s13 670b13 675l8 675t23
-92r7 Snapshot{69R9} 31|671b7 674r23
-94V13*Open_File{57R9} 95>7 96>7 31|677b13 683l8 683t17
-95r7 Snapshot{69R9} 31|678b7 682r14
-96i7 Index{positive} 31|679b7 682r43
-98U14*Set_Active_File_Path 99=7 100>7 101>7 31|685b14 697l8 697t28 1622s28
-99r7 Snapshot{69R9} 31|686b7 693m7 694m7 695r14 696m7
-100a7 Path{string} 31|687b7 691r67
-101b7 Is_Project_Relative{boolean} 31|688b7 693r30
-103V13*Has_Active_File_Path{boolean} 104>7 31|699b13 704l8 704t28
-104r7 Snapshot{69R9} 31|700b7 703r14
-106V13*Active_File_Path{string} 107>7 31|706b13 711l8 711t24
-107r7 Snapshot{69R9} 31|707b7 710r25
-109V13*Active_File_Is_Project_Relative{boolean} 110>7 31|713b13 718l8 718t39
-110r7 Snapshot{69R9} 31|714b7 717r14
-112U14*Add_Expanded_File_Tree_Path 113=7 114>7 31|720b14 731l8 731t35 1739s28
-113r7 Snapshot{69R9} 31|721b7 727r49 730m7 730r7
-114a7 Path{string} 31|722b7 725r67
-116V13*Expanded_File_Tree_Path_Count{natural} 117>7 31|733b13 738l8 738t37
-. 1711s54 1740s31
-117r7 Snapshot{69R9} 31|734b7 737r23
-119V13*Expanded_File_Tree_Path{string} 120>7 121>7 31|740b13 746l8 746t31
-120r7 Snapshot{69R9} 31|741b7 745r25
-121i7 Index{positive} 31|742b7 745r58
-123U14*Set_File_Tree_Panel 124=7 125>7 126>7 31|748b14 757l8 757t27
-124r7 Snapshot{69R9} 31|749b7 754m7 755m7
-125b7 Visible{boolean} 31|750b7 754r37
-126i7 Width{natural} 31|751b7 756r13 756r57
-128V13*File_Tree_Panel_Visible{boolean} 129>7 31|759b13 764l8 764t31
-129r7 Snapshot{69R9} 31|760b7 763r14
-131V13*File_Tree_Panel_Width{natural} 132>7 31|766b13 771l8 771t29
-132r7 Snapshot{69R9} 31|767b7 770r14
-134U14*Set_Bottom_Panel 135=7 136>7 137>7 138>7 31|773b14 784l8 784t24
-135r7 Snapshot{69R9} 31|774b7 780m7 781m7 783m7
-136b7 Visible{boolean} 31|775b7 780r34
-137i7 Height{natural} 31|776b7 782r13 782r56
-138e7 Content{65E9} 31|777b7 783r34
-140V13*Bottom_Panel_Visible{boolean} 141>7 31|786b13 791l8 791t28
-141r7 Snapshot{69R9} 31|787b7 790r14
-143V13*Bottom_Panel_Height{natural} 144>7 31|793b13 798l8 798t27
-144r7 Snapshot{69R9} 31|794b7 797r14
-146V13*Active_Bottom_Content{65E9} 147>7 31|800b13 805l8 805t29
-147r7 Snapshot{69R9} 31|801b7 804r14
-150V13*Session_File_Path{string} 151>7 154r52 31|1255b13 1261l8 1261t25 1267s33
-. 1320s56
-151a7 Project_Root{string} 31|1256b7 1260r35
-153V13*Session_File_Path_For_Project=154:52{string}
-154a7 Project_Root{string}
-161V13*Session_File_Status{25E9} 162>7 31|1264b13 1287l8 1287t27 1293s14
-162a7 Project_Root{string} 31|1265b7 1267r52 1270r10
-168V13*Workspace_State_Exists{boolean} 169>7 31|1289b13 1294l8 1294t30
-169a7 Project_Root{string} 31|1290b7 1293r35
-171V13*Is_Session_File_Path_For_Project{boolean} 172>7 173>7 31|1315b13 1324l8
-. 1324t40
-172a7 Project_Root{string} 31|1316b7 1320r75
-173a7 Path{string} 31|1317b7 1320r31
-175V13*Is_Safe_Project_Relative_Path{boolean} 176>7 31|311b13 319l8 319t37
-. 581s24
-176a7 Path{string} 31|312b7 315r68
-178V13*Normalize_Project_Relative_Path{string} 179>7 180<7 31|244b13 309l8
-. 309t39 315s35 655s34 691s34 725s34 833s43 859s40 873s40 1713s53
-179a7 Path{string} 31|245b7 248r35
-180b7 Valid{boolean} 31|246b7 255m10 258m7
-182U14*Normalize 183=7 31|823b14 900l8 900t17 909s7 910s7 986s7 1335s7
-183r7 Snapshot{69R9} 31|824b7 830r19 855m7 857r10 860r27 862m13 862r36 864r44
-. 865m13 866m13 867r20 871r24 890m7 892r10 893m10 895r10 896m10 899m28
-185V13*Equivalent{boolean} 186>7 187>7 31|902b13 958l8 958t18
-186r7 Left{69R9} 31|903b7 906r33
-187r7 Right{69R9} 31|904b7 907r33
-189V13*Debug_Summary{string} 190>7 31|960b13 970l8 970t21
-190r7 Snapshot{69R9} 31|961b7 964r41 965r26 965r60 966r45 967r28 967r64 968r49
-. 969r52
-193R9*Workspace_Buffer_Persistence_Audit 204e14 210r45 213r45 31|1027r45
-. 1029r17 1248r45
-194b7*Runtime_Buffer_Id_Persisted{boolean} 31|1073m20 1233r20
-195b7*Active_Buffer_Id_Persisted{boolean} 31|1077m20 1234r29
-196b7*Selected_Buffer_Id_Persisted{boolean} 31|1081m20 1235r29
-197b7*Buffer_List_State_Persisted{boolean} 31|1091m20 1236r29
-198b7*Dirty_Text_Persisted{boolean} 31|1096m20 1237r29
-199b7*Scratch_Text_Persisted{boolean} 31|1100m20 1238r29
-200b7*Conflict_Token_Persisted{boolean} 31|1106m20 1239r29
-201b7*Close_Prompt_State_Persisted{boolean} 31|1115m20 1240r29
-202b7*Undo_Redo_Clipboard_Persisted{boolean} 31|1121m20 1241r29
-203b7*Safe{boolean} 31|1232m14
-206V13*Serialized_Text{string} 207>7 31|974b13 1023l8 1023t23 1251s51 1338s30
-207r7 Snapshot{69R9} 31|975b7 977r38
-209V13*Audit_Serialized_Buffer_Persistence{193R9} 210>7 31|1026b13 1244l8
-. 1244t43 1251s14
-210a7 Serialized_Workspace{string} 31|1027b7 1215r24 1218r20 1220r13 1220r42
-. 1224r16 1224r45 1225r20 1227r36
-212V13*Audit_Buffer_Persistence{193R9} 213>7 31|1247b13 1252l8 1252t32
-213r7 Snapshot{69R9} 31|1248b7 1251r68
-215V13*Diagnostic_Count{natural} 216>7 31|808b13 813l8 813t24
-216r7 Snapshot{69R9} 31|809b7 812r23
-218V13*Diagnostic{41R9} 219>7 220>7 31|815b13 821l8 821t18
-219r7 Snapshot{69R9} 31|816b7 820r14
-220i7 Index{positive} 31|817b7 820r44
-228U14*Save_To_File 229>7 230>7 231<7 31|1351b14 1358l8 1358t20
-229r7 Snapshot{69R9} 31|1352b7 1357r32
-230a7 Path{string} 31|1353b7 1357r42
-231e7 Status{5E9} 31|1354b7 1357m48
-238U14*Save_To_File_Atomically 239>7 240>7 241<7 31|1357s7 1360b14 1413l8
-. 1413t31
-239r7 Snapshot{69R9} 31|1361b7 1386r31
-240a7 Path{string} 31|1362b7 1365r75 1366r66 1395r41
-241e7 Status{5E9} 31|1363b7 1380m7 1386m47 1387r10 1398m13 1404m13 1409m7
-. 1412m10
-243U14*Load_From_File 244>7 245<7 246<7 31|1415b14 1951l8 1951t22
-244a7 Path{string} 31|1416b7 1450r38 1455r52
-245r7 Snapshot{69R9} 31|1417b7 1447m14 1466m32 1478m32 1487m35 1516m38 1523m41
-. 1551m38 1557m38 1562m38 1567m19 1585m31 1590m46 1591r46 1597m59 1600m41
-. 1617m34 1622m50 1623r35 1625m34 1635m47 1637m47 1641m44 1669m59 1681m59
-. 1689m43 1700m47 1711r85 1717m44 1720m44 1732m34 1735m34 1739m57 1740r62
-. 1742m34 1759m44 1769m53 1776m53 1782m53 1787m56 1795m53 1801m53 1808m53
-. 1814m53 1819m56 1827m53 1833m53 1840m53 1846m37 1857m38 1869m16 1875m16
-. 1881m16 1887m16 1904m13 1905m13 1906m13 1907m13 1908m13 1910m16 1914m13
-. 1915m13 1916m13 1917m13 1918m13 1923r18 1924r42 1924r63 1927m13 1929m10
-. 1930m10 1931m10 1936m26
-246e7 Status{5E9} 31|1418b7 1448m7 1451m10 1469m19 1481m19 1489m19 1553m22
-. 1559m22 1564m22 1937m10 1939m10 1941m10 1945m10 1950m10
-249K12 File_Entry_Vectors[10|74] 266r24 31|826r25
-253K12 String_Vectors[10|74] 270r24 31|827r29
-258K12 Diagnostic_Vectors[10|74] 276r27
-263i7*Format_Version{natural} 31|600m16 620r23 912r12 912r32 964r50 1567m28
-264b7*Has_Root{boolean} 31|394r26 601m16 629m16 633r23 640r23 913r19 913r33
-. 965r35 989r15 1591r55
-265r7*Root{23|105R9} 31|602m16 632m16 647r34 914r30 914r52 965r69 990r54
-266r7*Open_Files{10|91R9[249]} 31|154r28 603m16 667m16 674r32 682r23 830r28
-. 855m16 923r19 923r42 929r12 930r21 930r49 932r56 933r56 966r54 994r24
-267b7*Has_Active{boolean} 31|604m16 693m16 695r23 703r23 857r19 862m22 867r29
-. 915r19 915r35 967r37 1004r15 1623r44 1923r27 1929m19
-268r7*Active_Path{23|105R9} 31|605m16 694m16 710r34 860r36 866m22 916r30
-. 916r59 967r73 1006r29 1924r72 1930m19
-269b7*Active_Rel{boolean} 31|606m16 696m16 717r23 862r45 865m22 917r19 917r35
-. 1007r46 1931m19
-270r7*Expanded_Paths{10|91R9[253]} 31|167r28 324r19 330r28 330r67 331r36
-. 332r36 335r64 337m28 338r34 339m28 607m16 730m16 737r32 745r34 871r33 890m16
-. 924r19 924r46 947r12 948r21 948r53 949r29 950r29 968r58 1011r29
-271b7*File_Tree_Visible{boolean} 31|608m16 754m16 763r23 918r19 918r42 1016r56
-. 1904m22 1914m22
-272i7*File_Tree_Width{natural} 31|609m16 755m16 770r23 892r19 893m19 919r19
-. 919r40 1017r57 1905m22 1915m22
-273b7*Bottom_Visible{boolean} 31|610m16 780m16 790r23 920r19 920r39 1018r53
-. 1906m22 1916m22
-274i7*Bottom_Height{natural} 31|611m16 781m16 797r23 895r19 896m19 921r19
-. 921r38 1019r55 1907m22 1917m22
-275e7*Bottom_Content{65E9} 31|612m16 783m16 804r23 922r19 922r39 1020r56
-. 1908m22 1918m22
-276r7*Diagnostics{10|91R9[258]} 31|191m16 613m16 812r32 820r23 969r61
-X 31 editor-workspace_persistence.adb
-14i4 Current_Format_Version{natural} 600r34 988r61 1561r30
-15i4 Default_File_Tree_Width{natural} 609r35 756r28 893r38 1441r50 1905r41
-16i4 Default_Bottom_Height{natural} 611r33 782r29 896r36 1443r50 1907r39
-18E9 Section_Id 24e23 1030r17 1422r17 1496r31
-19n7 Root_Section{18E9} 1030r31 1188r18 1422r31 1572r24
-20n7 Open_Files_Section{18E9} 1169r30 1194r18 1501r32 1529r33 1596r24
-21n7 Active_File_Section{18E9} 1171r30 1194r39 1505r32 1531r33 1598r24
-22n7 File_Tree_Expanded_Section{18E9} 1173r30 1204r18 1509r32 1533r33 1709r24
-23n7 Panels_Section{18E9} 1175r30 1188r33 1513r32 1535r33 1749r24
-24n7 Unknown_Section{18E9} 1177r30 1188r50 1496r45 1515r33 1522r36 1856r24
-26V13 Trim{string} 26b13 26>19 29l8 29t12 33s14 260s26 387s43 446s49 630s26
-. 1034s39 1155s36 1297s37 1459s43 1613s59
+57R9*Workspace_File_Entry 63e14 89r17 99r35 254r23 32|416r14 657r17 662r15
+. 694r35 850r24 947r30 948r30
+58r7*Path{24|105R9} 32|155r29 461m15 464r23 585r71 587r83 589r81 661r26 673m12
+. 849r35 855r45 861m27 950r33 950r56 1011r29
+59b7*Is_Project_Relative{boolean} 32|542m42 584r21 664r20 674m12 846r18 862m27
+. 951r29 951r55 1012r46
+60i7*Cursor_Row{natural} 32|492m24 952r29 952r46 1013r44
+61i7*Cursor_Column{natural} 32|508m30 953r29 953r49 1014r44
+62i7*View_First_Row{natural} 32|524m36 954r29 954r50 1015r45
+65E9*Bottom_Content_Id 67e40 141r18 150r45 279r27 32|45r37 116r21 792r18
+. 816r45 1459r39 1769r30
+66n7*Workspace_Problems_Content{65E9} 279r48 32|48r15 120r21 126r21 617r34
+. 1459r60 1923r40
+67n7*Workspace_Search_Results_Content{65E9} 32|50r15 123r21
+69R9*Workspace_Snapshot 72r25 75r18 78r25 82r18 85r18 88r25 92r18 95r18 98r18
+. 102r36 107r18 110r18 113r18 116r25 120r18 123r18 127r25 132r18 135r18 138r25
+. 144r18 147r18 150r18 186r25 189r15 190r15 193r18 210r18 216r18 219r18 222r18
+. 232r18 242r18 248r22 265c9 281e14 32|150r18 163r18 185r25 322r53 371r25
+. 384r25 412r25 601r25 622r18 629r25 642r18 649r18 656r25 679r18 686r18 693r18
+. 701r36 715r18 722r18 729r18 736r25 749r18 756r18 764r25 775r18 782r18 789r25
+. 802r18 809r18 816r18 824r18 831r18 839r25 918r15 919r15 921r11 922r11 976r18
+. 990r18 992r16 1263r18 1342r18 1347r14 1367r18 1376r18 1432r22
+71U14*Clear 72=7 32|600b14 619l8 619t13 1462s7
+72r7 Snapshot{69R9} 32|601b7 604m7 605m7 606m7 607m7 607r7 608m7 609m7 610m7
+. 611m7 612m7 612r7 613m7 614m7 615m7 616m7 617m7 618m7 618r7
+74V13*Version{natural} 75>7 32|621b13 626l8 626t15
+75r7 Snapshot{69R9} 32|622b7 625r14
+77U14*Set_Project_Root 78=7 79>7 32|397s10 628b14 639l8 639t24
+78r7 Snapshot{69R9} 32|629b7 634m7 637m7 638r14
+79a7 Path{string} 32|630b7 632r34
+81V13*Has_Project_Root{boolean} 82>7 32|641b13 646l8 646t24
+82r7 Snapshot{69R9} 32|642b7 645r14
+84V13*Project_Root{string} 85>7 32|648b13 653l8 653t20
+85r7 Snapshot{69R9} 32|649b7 652r25
+87U14*Add_Open_File 88=7 89>7 32|582s10 655b14 676l8 676t21
+88r7 Snapshot{69R9} 32|656b7 668m7 668r38 669r30 675m7 675r7
+89r7 Item{57R9} 32|657b7 661r21 662r39 664r15
+91V13*Open_File_Count{natural} 92>7 32|580s39 583s13 678b13 683l8 683t23
+92r7 Snapshot{69R9} 32|679b7 682r23
+94V13*Open_File_Request_Count{natural} 95>7 32|685b13 690l8 690t31
+95r7 Snapshot{69R9} 32|686b7 689r14
+97V13*Open_File{57R9} 98>7 99>7 32|692b13 698l8 698t17
+98r7 Snapshot{69R9} 32|693b7 697r14
+99i7 Index{positive} 32|694b7 697r43
+101U14*Set_Active_File_Path 102=7 103>7 104>7 32|700b14 712l8 712t28 1637s28
+102r7 Snapshot{69R9} 32|701b7 708m7 709m7 710r14 711m7
+103a7 Path{string} 32|702b7 706r67
+104b7 Is_Project_Relative{boolean} 32|703b7 708r30
+106V13*Has_Active_File_Path{boolean} 107>7 32|714b13 719l8 719t28
+107r7 Snapshot{69R9} 32|715b7 718r14
+109V13*Active_File_Path{string} 110>7 32|721b13 726l8 726t24
+110r7 Snapshot{69R9} 32|722b7 725r25
+112V13*Active_File_Is_Project_Relative{boolean} 113>7 32|728b13 733l8 733t39
+113r7 Snapshot{69R9} 32|729b7 732r14
+115U14*Add_Expanded_File_Tree_Path 116=7 117>7 32|735b14 746l8 746t35 1754s28
+116r7 Snapshot{69R9} 32|736b7 742r49 745m7 745r7
+117a7 Path{string} 32|737b7 740r67
+119V13*Expanded_File_Tree_Path_Count{natural} 120>7 32|748b13 753l8 753t37
+. 1726s54 1755s31
+120r7 Snapshot{69R9} 32|749b7 752r23
+122V13*Expanded_File_Tree_Path{string} 123>7 124>7 32|755b13 761l8 761t31
+123r7 Snapshot{69R9} 32|756b7 760r25
+124i7 Index{positive} 32|757b7 760r58
+126U14*Set_File_Tree_Panel 127=7 128>7 129>7 32|763b14 772l8 772t27
+127r7 Snapshot{69R9} 32|764b7 769m7 770m7
+128b7 Visible{boolean} 32|765b7 769r37
+129i7 Width{natural} 32|766b7 771r13 771r57
+131V13*File_Tree_Panel_Visible{boolean} 132>7 32|774b13 779l8 779t31
+132r7 Snapshot{69R9} 32|775b7 778r14
+134V13*File_Tree_Panel_Width{natural} 135>7 32|781b13 786l8 786t29
+135r7 Snapshot{69R9} 32|782b7 785r14
+137U14*Set_Bottom_Panel 138=7 139>7 140>7 141>7 32|788b14 799l8 799t24
+138r7 Snapshot{69R9} 32|789b7 795m7 796m7 798m7
+139b7 Visible{boolean} 32|790b7 795r34
+140i7 Height{natural} 32|791b7 797r13 797r56
+141e7 Content{65E9} 32|792b7 798r34
+143V13*Bottom_Panel_Visible{boolean} 144>7 32|801b13 806l8 806t28
+144r7 Snapshot{69R9} 32|802b7 805r14
+146V13*Bottom_Panel_Height{natural} 147>7 32|808b13 813l8 813t27
+147r7 Snapshot{69R9} 32|809b7 812r14
+149V13*Active_Bottom_Content{65E9} 150>7 32|815b13 820l8 820t29
+150r7 Snapshot{69R9} 32|816b7 819r14
+153V13*Session_File_Path{string} 154>7 157r52 32|1270b13 1276l8 1276t25 1282s33
+. 1335s56
+154a7 Project_Root{string} 32|1271b7 1275r35
+156V13*Session_File_Path_For_Project=157:52{string}
+157a7 Project_Root{string}
+164V13*Session_File_Status{25E9} 165>7 32|1279b13 1302l8 1302t27 1308s14
+165a7 Project_Root{string} 32|1280b7 1282r52 1285r10
+171V13*Workspace_State_Exists{boolean} 172>7 32|1304b13 1309l8 1309t30
+172a7 Project_Root{string} 32|1305b7 1308r35
+174V13*Is_Session_File_Path_For_Project{boolean} 175>7 176>7 32|1330b13 1339l8
+. 1339t40
+175a7 Project_Root{string} 32|1331b7 1335r75
+176a7 Path{string} 32|1332b7 1335r31
+178V13*Is_Safe_Project_Relative_Path{boolean} 179>7 32|312b13 320l8 320t37
+. 585s24
+179a7 Path{string} 32|313b7 316r68
+181V13*Normalize_Project_Relative_Path{string} 182>7 183<7 32|244b13 310l8
+. 310t39 316s35 660s34 706s34 740s34 848s43 874s40 888s40 1728s53
+182a7 Path{string} 32|245b7 248r35
+183b7 Valid{boolean} 32|246b7 255m10 258m7
+185U14*Normalize 186=7 32|838b14 915l8 915t17 924s7 925s7 1001s7 1350s7
+186r7 Snapshot{69R9} 32|839b7 845r19 870m7 872r10 875r27 877m13 877r36 879r44
+. 880m13 881m13 882r20 886r24 905m7 907r10 908m10 910r10 911m10 914m28
+188V13*Equivalent{boolean} 189>7 190>7 32|917b13 973l8 973t18
+189r7 Left{69R9} 32|918b7 921r33
+190r7 Right{69R9} 32|919b7 922r33
+192V13*Debug_Summary{string} 193>7 32|975b13 985l8 985t21
+193r7 Snapshot{69R9} 32|976b7 979r41 980r26 980r60 981r45 982r28 982r64 983r49
+. 984r52
+196R9*Workspace_Buffer_Persistence_Audit 207e14 213r45 216r45 32|1042r45
+. 1044r17 1263r45
+197b7*Runtime_Buffer_Id_Persisted{boolean} 32|1088m20 1248r20
+198b7*Active_Buffer_Id_Persisted{boolean} 32|1092m20 1249r29
+199b7*Selected_Buffer_Id_Persisted{boolean} 32|1096m20 1250r29
+200b7*Buffer_List_State_Persisted{boolean} 32|1106m20 1251r29
+201b7*Dirty_Text_Persisted{boolean} 32|1111m20 1252r29
+202b7*Scratch_Text_Persisted{boolean} 32|1115m20 1253r29
+203b7*Conflict_Token_Persisted{boolean} 32|1121m20 1254r29
+204b7*Close_Prompt_State_Persisted{boolean} 32|1130m20 1255r29
+205b7*Undo_Redo_Clipboard_Persisted{boolean} 32|1136m20 1256r29
+206b7*Safe{boolean} 32|1247m14
+209V13*Serialized_Text{string} 210>7 32|989b13 1038l8 1038t23 1266s51 1353s30
+210r7 Snapshot{69R9} 32|990b7 992r38
+212V13*Audit_Serialized_Buffer_Persistence{196R9} 213>7 32|1041b13 1259l8
+. 1259t43 1266s14
+213a7 Serialized_Workspace{string} 32|1042b7 1230r24 1233r20 1235r13 1235r42
+. 1239r16 1239r45 1240r20 1242r36
+215V13*Audit_Buffer_Persistence{196R9} 216>7 32|1262b13 1267l8 1267t32
+216r7 Snapshot{69R9} 32|1263b7 1266r68
+218V13*Diagnostic_Count{natural} 219>7 32|823b13 828l8 828t24
+219r7 Snapshot{69R9} 32|824b7 827r23
+221V13*Diagnostic{41R9} 222>7 223>7 32|830b13 836l8 836t18
+222r7 Snapshot{69R9} 32|831b7 835r14
+223i7 Index{positive} 32|832b7 835r44
+231U14*Save_To_File 232>7 233>7 234<7 32|1366b14 1373l8 1373t20
+232r7 Snapshot{69R9} 32|1367b7 1372r32
+233a7 Path{string} 32|1368b7 1372r42
+234e7 Status{5E9} 32|1369b7 1372m48
+241U14*Save_To_File_Atomically 242>7 243>7 244<7 32|1372s7 1375b14 1428l8
+. 1428t31
+242r7 Snapshot{69R9} 32|1376b7 1401r31
+243a7 Path{string} 32|1377b7 1380r75 1381r66 1410r41
+244e7 Status{5E9} 32|1378b7 1395m7 1401m47 1402r10 1413m13 1419m13 1424m7
+. 1427m10
+246U14*Load_From_File 247>7 248<7 249<7 32|1430b14 1966l8 1966t22
+247a7 Path{string} 32|1431b7 1465r38 1470r52
+248r7 Snapshot{69R9} 32|1432b7 1462m14 1481m32 1493m32 1502m35 1531m38 1538m41
+. 1566m38 1572m38 1577m38 1582m19 1600m31 1605m46 1606r46 1612m59 1615m41
+. 1632m34 1637m50 1638r35 1640m34 1650m47 1652m47 1656m44 1684m59 1696m59
+. 1704m43 1715m47 1726r85 1732m44 1735m44 1747m34 1750m34 1754m57 1755r62
+. 1757m34 1774m44 1784m53 1791m53 1797m53 1802m56 1810m53 1816m53 1823m53
+. 1829m53 1834m56 1842m53 1848m53 1855m53 1861m37 1872m38 1884m16 1890m16
+. 1896m16 1902m16 1919m13 1920m13 1921m13 1922m13 1923m13 1925m16 1929m13
+. 1930m13 1931m13 1932m13 1933m13 1938r18 1939r42 1939r63 1942m13 1944m10
+. 1945m10 1946m10 1951m26
+249e7 Status{5E9} 32|1433b7 1463m7 1466m10 1484m19 1496m19 1504m19 1568m22
+. 1574m22 1579m22 1952m10 1954m10 1956m10 1960m10 1965m10
+252K12 File_Entry_Vectors[11|74] 269r24 32|841r25
+256K12 String_Vectors[11|74] 274r24 32|842r29
+261K12 Diagnostic_Vectors[11|74] 280r27
+266i7*Format_Version{natural} 32|604m16 625r23 927r12 927r32 979r50 1582m28
+267b7*Has_Root{boolean} 32|398r26 605m16 634m16 638r23 645r23 928r19 928r33
+. 980r35 1004r15 1606r55
+268r7*Root{24|105R9} 32|606m16 637m16 652r34 929r30 929r52 980r69 1005r54
+269r7*Open_Files{11|91R9[252]} 32|154r28 607m16 675m16 682r32 697r23 845r28
+. 870m16 938r19 938r42 944r12 945r21 945r49 947r56 948r56 981r54 1009r24
+270i7*Open_File_Requests{natural} 32|608m16 668m16 668r47 689r23
+271b7*Has_Active{boolean} 32|609m16 708m16 710r23 718r23 872r19 877m22 882r29
+. 930r19 930r35 982r37 1019r15 1638r44 1938r27 1944m19
+272r7*Active_Path{24|105R9} 32|610m16 709m16 725r34 875r36 881m22 931r30
+. 931r59 982r73 1021r29 1939r72 1945m19
+273b7*Active_Rel{boolean} 32|611m16 711m16 732r23 877r45 880m22 932r19 932r35
+. 1022r46 1946m19
+274r7*Expanded_Paths{11|91R9[256]} 32|167r28 325r19 331r28 331r67 332r36
+. 333r36 336r64 338m28 339r34 340m28 612m16 745m16 752r32 760r34 886r33 905m16
+. 939r19 939r46 962r12 963r21 963r53 964r29 965r29 983r58 1026r29
+275b7*File_Tree_Visible{boolean} 32|613m16 769m16 778r23 933r19 933r42 1031r56
+. 1919m22 1929m22
+276i7*File_Tree_Width{natural} 32|614m16 770m16 785r23 907r19 908m19 934r19
+. 934r40 1032r57 1920m22 1930m22
+277b7*Bottom_Visible{boolean} 32|615m16 795m16 805r23 935r19 935r39 1033r53
+. 1921m22 1931m22
+278i7*Bottom_Height{natural} 32|616m16 796m16 812r23 910r19 911m19 936r19
+. 936r38 1034r55 1922m22 1932m22
+279e7*Bottom_Content{65E9} 32|617m16 798m16 819r23 937r19 937r39 1035r56
+. 1923m22 1933m22
+280r7*Diagnostics{11|91R9[261]} 32|191m16 618m16 827r32 835r23 984r61
+X 32 editor-workspace_persistence.adb
+14i4 Current_Format_Version{natural} 604r34 1003r61 1576r30
+15i4 Default_File_Tree_Width{natural} 614r35 771r28 908r38 1456r50 1920r41
+16i4 Default_Bottom_Height{natural} 616r33 797r29 911r36 1458r50 1922r39
+18E9 Section_Id 24e23 1045r17 1437r17 1511r31
+19n7 Root_Section{18E9} 1045r31 1203r18 1437r31 1587r24
+20n7 Open_Files_Section{18E9} 1184r30 1209r18 1516r32 1544r33 1611r24
+21n7 Active_File_Section{18E9} 1186r30 1209r39 1520r32 1546r33 1613r24
+22n7 File_Tree_Expanded_Section{18E9} 1188r30 1219r18 1524r32 1548r33 1724r24
+23n7 Panels_Section{18E9} 1190r30 1203r33 1528r32 1550r33 1764r24
+24n7 Unknown_Section{18E9} 1192r30 1203r50 1511r45 1530r33 1537r36 1871r24
+26V13 Trim{string} 26b13 26>19 29l8 29t12 33s14 260s26 391s43 450s49 635s26
+. 1049s39 1170s36 1312s37 1474s43 1628s59
 26a19 Text{string} 28r38
-31V13 Natural_Text{string} 31b13 31>27 34l8 34t20 964s27 966s22 968s26 969s29
-. 988s47 998s25 999s25 1000s26 1017s38 1019s36
+31V13 Natural_Text{string} 31b13 31>27 34l8 34t20 979s27 981s22 983s26 984s29
+. 1003s47 1013s25 1014s25 1015s26 1032s38 1034s36
 31i27 Value{natural} 33r35
-36V13 Bool_Text{string} 36b13 36>24 43l8 43t17 997s30 1007s30 1016s40 1018s37
+36V13 Bool_Text{string} 36b13 36>24 43l8 43t17 1012s30 1022s30 1031s40 1033s37
 36b24 Value{boolean} 38r10
-45V13 Content_Text{string} 45b13 45>27 53l8 53t20 1020s37
-45e27 Content{30|65E9} 47r12
+45V13 Content_Text{string} 45b13 45>27 53l8 53t20 1035s37
+45e27 Content{31|65E9} 47r12
 56V13 Is_Decimal_Natural_Text{boolean} 56b13 56>38 77l8 77t31 84s14
 56a38 Text{string} 58r10 62r17 72r10 72r35 72r41
 62e11 Ch=62:17{character} 63r13 63r30
-79V13 Parse_Natural_Strict{boolean} 79b13 80>7 81<7 95l8 95t28 487s22 503s28
-. 519s34 1556s26 1784s40 1816s40
+79V13 Parse_Natural_Strict{boolean} 79b13 80>7 81<7 95l8 95t28 491s22 507s28
+. 523s34 1571s26 1799s40 1831s40
 80a7 Text{string} 84r39 89r31
 81i7 Value{natural} 85m10 89m7 93m10
-97V13 Parse_Boolean_Strict{boolean} 97b13 98>7 99<7 112l8 112t28 535s40 1671s46
-. 1771s40 1803s40
+97V13 Parse_Boolean_Strict{boolean} 97b13 98>7 99<7 112l8 112t28 539s40 1686s46
+. 1786s40 1818s40
 98a7 Text{string} 102r10 105r13
 99b7 Value{boolean} 103m10 106m10 109m10
-114V13 Parse_Content_Strict{boolean} 114b13 115>7 116<7 129l8 129t28 1835s40
+114V13 Parse_Content_Strict{boolean} 114b13 115>7 116<7 129l8 129t28 1850s40
 115a7 Text{string} 119r10 122r13
-116e7 Content{30|65E9} 120m10 123m10 126m10
-131V13 Value_After_Strict{string} 131b13 132>7 133>7 134<7 147l8 147t26 384s34
-. 480s39 496s45 512s51 528s57 1575s52 1664s63
+116e7 Content{31|65E9} 120m10 123m10 126m10
+131V13 Value_After_Strict{string} 131b13 132>7 133>7 134<7 147l8 147t26 388s34
+. 484s39 500s45 516s51 532s57 1590s52 1679s63
 132a7 Field{string} 136r57 139r18 139r25 142r17 142r34
 133a7 Key{string} 139r50
 134b7 Found{boolean} 141m10 145m7
 136i7 Eq{natural} 138r10 139r40 142r24
-149V13 Has_Open_File_Path{boolean} 149b13 150>7 151>7 160l8 160t26 661s17
-. 864s24 1924s22
-150r7 Snapshot{30|69R9} 154r19
+149V13 Has_Open_File_Path{boolean} 149b13 150>7 151>7 160l8 160t26 669s10
+. 879s24 1939s22
+150r7 Snapshot{31|69R9} 154r19
 151a7 Path{string} 155r37
-154r11 Item{30|57R9} 155r24
-162V13 Has_Expanded_Path{boolean} 162b13 163>7 164>7 173l8 173t25 727s30
-163r7 Snapshot{30|69R9} 167r19
+154r11 Item{31|57R9} 155r24
+162V13 Has_Expanded_Path{boolean} 162b13 163>7 164>7 173l8 173t25 742s30
+163r7 Snapshot{31|69R9} 167r19
 164a7 Path{string} 168r32
-167r11 Item{23|105R9} 168r24
-175U14 Mark_Partial 175b14 176=7 182l8 182t20 374s7 389s13 396s13 400s10
-. 436s10 440s10 450s13 454s13 462s10 486s19 492s19 502s25 508s25 518s31 524s31
-. 534s37 546s37 565s10 571s10 587s13 593s10 1472s16 1484s16 1517s22 1524s25
-. 1586s28 1601s25 1618s31 1626s31 1639s28 1642s28 1670s43 1682s43 1701s31
-. 1706s31 1718s28 1721s28 1737s28 1743s31 1760s28 1770s37 1777s37 1783s37
-. 1788s40 1796s37 1802s37 1809s37 1815s37 1820s40 1828s37 1834s37 1841s37
-. 1847s34 1854s28 1858s22 1871s13 1877s13 1883s13 1889s13 1912s13 1932s10
-176e7 Status{30|5E9} 179r10 180m10
-184U14 Add_Diagnostic 184b14 185=7 186>7 187>7 188>7 196l8 196t22 373s7 388s13
-. 395s13 399s10 432s13 434s13 439s10 449s13 453s13 461s10 485s19 491s19 501s25
-. 507s25 517s31 523s31 533s37 545s37 570s10 583s16 585s16 592s10 1466s16
-. 1478s16 1487s19 1516s22 1523s25 1551s22 1557s22 1562s22 1584s28 1600s25
-. 1616s31 1624s31 1635s31 1637s31 1641s28 1669s43 1681s43 1700s31 1717s28
-. 1720s28 1731s31 1734s31 1741s31 1759s28 1769s37 1776s37 1782s37 1787s40
-. 1795s37 1801s37 1808s37 1814s37 1819s40 1827s37 1833s37 1840s37 1845s34
-. 1857s22 1868s13 1874s13 1880s13 1886s13 1909s13 1926s10 1936s10
-185r7 Snapshot{30|69R9} 191m7 191r7
-186e7 Kind{30|30E9} 193r27
+167r11 Item{24|105R9} 168r24
+175U14 Mark_Partial 175b14 176=7 182l8 182t20 378s7 393s13 400s13 404s10
+. 440s10 444s10 454s13 458s13 466s10 490s19 496s19 506s25 512s25 522s31 528s31
+. 538s37 550s37 569s10 575s10 591s13 597s10 1487s16 1499s16 1532s22 1539s25
+. 1601s28 1616s25 1633s31 1641s31 1654s28 1657s28 1685s43 1697s43 1716s31
+. 1721s31 1733s28 1736s28 1752s28 1758s31 1775s28 1785s37 1792s37 1798s37
+. 1803s40 1811s37 1817s37 1824s37 1830s37 1835s40 1843s37 1849s37 1856s37
+. 1862s34 1869s28 1873s22 1886s13 1892s13 1898s13 1904s13 1927s13 1947s10
+176e7 Status{31|5E9} 179r10 180m10
+184U14 Add_Diagnostic 184b14 185=7 186>7 187>7 188>7 196l8 196t22 377s7 392s13
+. 399s13 403s10 436s13 438s13 443s10 453s13 457s13 465s10 489s19 495s19 505s25
+. 511s25 521s31 527s31 537s37 549s37 574s10 587s16 589s16 596s10 1481s16
+. 1493s16 1502s19 1531s22 1538s25 1566s22 1572s22 1577s22 1599s28 1615s25
+. 1631s31 1639s31 1650s31 1652s31 1656s28 1684s43 1696s43 1715s31 1732s28
+. 1735s28 1746s31 1749s31 1756s31 1774s28 1784s37 1791s37 1797s37 1802s40
+. 1810s37 1816s37 1823s37 1829s37 1834s40 1842s37 1848s37 1855s37 1860s34
+. 1872s22 1883s13 1889s13 1895s13 1901s13 1924s13 1941s10 1951s10
+185r7 Snapshot{31|69R9} 191m7 191r7
+186e7 Kind{31|30E9} 193r27
 187i7 Line_No{natural} 194r26
 188a7 Text{string} 195r47
-198V13 Has_Control_Character{boolean} 198b13 198>36 206l8 206t29 261s17 631s22
+198V13 Has_Control_Character{boolean} 198b13 198>36 206l8 206t29 261s17 636s22
 198a36 Path{string} 200r17
 200e11 Ch=200:17{character} 201r28 201r60
 208V13 Has_Workspace_Path_Meta_Character{boolean} 208b13 208>48 216l8 216t41
@@ -1074,276 +1083,276 @@ X 31 editor-workspace_persistence.adb
 228V13 Is_Absolute_Path{boolean} 228b13 228>31 242l8 242t24 264s17
 228a31 Path{string} 230r10 232r13 232r19 232r45 232r51 234r13 235r18 235r24
 . 236r19 236r25 236r55 236r61
-248a7 Clean{string} 259r10 260r17 260r32 261r40 262r52 263r42 264r35 270r14
-. 271r20 273r24 274r21 280r42
-249r7 Result{23|105R9} 293r27 294m27 294r27 296m24 296r24 303r18 308r25
-250i7 Pos{natural} 270m7 271r13 272r18 280r49 300m10
-251i7 Next{natural} 272m10 273r16 274r28 276m13 276r21 280r56 300r17
-253U17 Reject 253b17 256l11 256t17 266s10 287s16 290s16 304s10
-280a13 Segment{string} 282r16 289r19 289r41 296r32
-314b7 Valid{boolean} 315m74 315r74 318r14
-315a7 Ignore{string} 316r28
-321U14 Sort_Expanded_Paths 321b14 321=35 346l8 346t27 899s7
-321r35 Snapshot{30|69R9} 324r10 330r19 330r58 331r27 332r27 335r55 337m19
-. 337r19 338r25 339m19 339r19
-322b7 Swapped{boolean} 329m10 341m16 344r24
-330i14 I{integer} 331r60 332r60 335r88 338r22 338r58 339r60
-335r19 Left{23|105R9} 339r67
-348V13 Has_Malformed_Metadata_Separators{boolean} 348b13 349>7 350>7 364l8
-. 364t41 438s13 1640s31
-349a7 Line{string} 353r44 357r29 358r13 358r37
-350i7 First_Sep{natural} 353r10 353r32 357r16
-357i11 I{integer} 358r19 358r43
-366U14 Report_Unsupported_Field 366b14 367=7 368=7 369>7 370>7 375l8 375t32
-. 552s34 1688s40
-367r7 Snapshot{30|69R9} 373m23
-368e7 Status{30|5E9} 374m21
-369i7 Line_No{natural} 373r50
-370a7 Text{string} 373r59
-377U14 Parse_Project_Reference_Line 377b14 378>7 379>7 380=7 381=7 402l8
-. 402t36 1589s28
-378a7 Line{string} 384r54 388r62 395r62 399r62
-379i7 Line_No{natural} 388r53 395r53 399r53
-380r7 Snapshot{30|69R9} 388m29 393m28 394r17 395m29 399m26
-381e7 Status{30|5E9} 389m27 396m27 400m24
-383b7 Found{boolean} 384m76 384r76 386r10
-384a7 Val{string} 387r13 387r36 387r49 393r38
-405U14 Parse_Open_File_Line 405b14 406>7 407>7 408=7 409=7 594l8 594t28 1597s22
-406a7 Line{string} 411r60 431r38 432r65 434r64 438r48 439r61 445r49 445r55
-. 449r64 461r59 467r20 468r43 468r56 470r43 470r56 471r20 473r43 570r61 592r61
-407i7 Line_No{natural} 432r56 434r55 439r52 449r55 453r56 461r50 485r61 491r61
-. 501r67 507r67 517r73 523r73 533r79 545r79 553r55 570r52 583r58 585r56 592r52
-408r7 Snapshot{30|69R9} 432m29 434m29 439m26 449m29 453m29 461m26 485m35
-. 491m35 501m41 507m41 517m47 523m47 533m53 545m53 553m37 570m26 576r56 578m25
-. 579r30 583m32 585m32 592m26
-409e7 Status{30|5E9} 436m24 440m24 450m27 454m27 462m24 486m33 492m33 502m39
-. 508m39 518m45 524m45 534m51 546m51 553m47 565m24 571m24 587m27 593m24
-411i7 Sep{natural} 427r10 438r54 445r69 466r14
-412r7 Item{30|57R9} 457m10 460r18 488m19 504m25 520m31 538m37 578r35 580r16
-. 581r66 583r78 585r76
-413i7 Pos{natural} 466m7 467r13 468r49 470r49 471m13 473r49 474m13
-414i7 Next{natural} 468m10 469r13 473r56 474r20
-415r7 Field{23|105R9} 470m13 473m13 479r50
-416b7 Found{boolean} 480m72 480r72 482r16 496m78 496r78 498r22 512m85 512r85
-. 514r28 528m95 528r95 530r34
-417i7 N{natural} 487m49 487r49 488r38 503m56 503r56 504r47 519m62 519r62
-. 520r54
-418b7 B{boolean} 535m68 535r68 536r45
-419b7 Saw_Relative{boolean} 531r37 539m37 569r15
-420b7 Saw_Row{boolean} 483r19 489m19 569r32
-421b7 Saw_Col{boolean} 499r25 505m25 569r44
-422b7 Saw_View{boolean} 515r31 521m31 569r56
-423b7 Saw_Unsupported_Field{boolean} 551m34 564r10
-424b7 Saw_Duplicate_Field{boolean} 484m19 500m25 516m31 532m37 564r40
-425i7 Field_No{natural} 477m10 477r22 483r35 499r41 515r48 531r58
-445a10 Raw_Path_Original{string} 446r55 448r13
-446a10 Raw_Path{string} 448r34 452r41 453r65 457r44
-479a13 Text{string} 480r59 485r70 491r70 496r65 501r76 507r76 512r71 517r82
-. 523r82 528r77 533r88 545r88 553r64
-480a13 Val{string} 487r44
-496a19 Val2{string} 503r50
-512a25 Val3{string} 519r56
-528a31 Val4{string} 535r62
-576i10 Before{natural} 579r42
-627a7 Clean{string} 629r28 630r18 630r32 631r45 633r37
-654b7 Valid{boolean} 656m33 656r33 660r22
-655a7 Path{string} 661r47 665r41
-657r7 Copy{30|57R9} 665m7 666m7 667r35
-690b7 Valid{boolean} 691m73 691r73 693r59
-691a7 Clean{string} 695r39
-724b7 Valid{boolean} 725m73 725r73 727r15
-725a7 Clean{string} 727r59 730r60
-826r7 Normalized_Open{10|91R9[30|249]} 839r35 848m22 848r22 855r30
-827r7 Normalized_Expanded{10|91R9[30|253]} 878r32 884m19 884r19 890r34
-828b7 Valid{boolean} 834m42 834r42 838r19 860m50 860r50 863r24 874m39 874r39
-. 877r16
-830r11 Item{30|57R9} 831r13 834r30 835r48
-833a16 Clean{string} 840r53 846r56
-835r16 Copy{30|57R9} 846m22 847m22 848r46
-836b16 Seen{boolean} 841m25 845r26
-839r23 Existing{30|57R9} 840r36
-859a13 Clean{string} 864r54 867r45
-871r11 Path_Item{23|105R9} 874r27
-873a13 Clean{string} 879r45 884r68
-875b13 Seen{boolean} 880m22 883r23
-878r20 Existing{23|105R9} 879r33
-906r7 L{30|69R9} 909m18 909r18 912r10 913r17 914r28 915r17 916r28 917r17
-. 918r17 919r17 920r17 921r17 922r17 923r17 924r17 929r10 930r19 930r47 932r54
-. 947r10 948r19 948r51 949r27
-907r7 R{30|69R9} 910m18 910r18 912r30 913r31 914r50 915r33 916r57 917r33
-. 918r40 919r38 920r37 921r36 922r37 923r40 924r44 933r54 950r27
-930i14 I{integer} 932r76 933r76
-932r16 LE{30|57R9} 935r30 936r26 937r26 938r26 939r26
-933r16 RE{30|57R9} 935r53 936r52 937r43 938r46 939r47
-948i14 I{integer} 949r53 950r53
-977r7 Copy{30|69R9} 986m18 986r18 989r10 990r49 994r19 1004r10 1006r24 1007r41
-. 1011r24 1016r51 1017r52 1018r48 1019r50 1020r51
-978r7 Result{23|105R9} 982m18 982r18 983m18 983r18 1022r25
-980U17 Put_Line 980b17 980>27 984l11 984t19 988s7 990s10 993s7 995s10 1003s7
-. 1005s10 1010s7 1012s10 1015s7 1016s7 1017s7 1018s7 1019s7 1020s7
-980a27 Line{string} 982r26
-994r11 Item{30|57R9} 996r24 997r41 998r39 999r39 1000r40
-1011r11 Path_Item{23|105R9} 1012r31
-1029r7 Result{30|193R9} 1073m13 1077m13 1081m13 1091m13 1096m13 1100m13 1106m13
-. 1115m13 1121m13 1232m7 1233r13 1234r22 1235r22 1236r22 1237r22 1238r22
-. 1239r22 1240r22 1241r22 1243r14
-1030e7 Section{18E9} 1169m19 1171m19 1173m19 1175m19 1177m19 1187r15
-1032V16 Canonical_Field_Name{string} 1032b16 1032>38 1045l11 1045t31 1051s20
-. 1055s20 1165s42
-1032a38 Text{string} 1034r45
-1034a10 Trimmed{string} 1035r28 1037r19 1038r16 1038r42 1041r40
-1035a10 Result{string} 1039m16 1041m16 1044r17
-1037i14 I{integer} 1038r25 1038r51 1039r24 1041r24 1041r49
-1047V16 Field_Name_Of{string} 1047b16 1047>31 1057l11 1057t24 1060s36
-1047a31 Field{string} 1048r60 1051r42 1052r21 1055r42 1055r49
-1048i10 Eq{natural} 1050r13 1052r16 1055r64
-1059U17 Mark_Forbidden_Field 1059b17 1059>39 1123l11 1123t31 1140s19 1147s19
-. 1181s19 1191s19 1201s19
-1059a39 Raw_Name{string} 1060r51
-1060a10 Name{string} 1062r13 1066r13 1067r20 1068r20 1069r20 1070r20 1071r20
-. 1074r16 1075r20 1078r16 1079r20 1082r16 1083r20 1084r20 1085r20 1086r20
-. 1087r20 1088r20 1089r20 1092r16 1093r20 1094r20 1097r16 1098r20 1101r16
-. 1102r20 1103r20 1104r20 1107r16 1108r20 1109r20 1110r20 1111r20 1112r20
-. 1113r20 1116r16 1117r20 1118r20 1119r20
-1125U17 Audit_Bar_Separated_Metadata 1125b17 1126>10 1127>10 1152l11 1152t39
-. 1197s19 1210s19
-1126a10 Line{string} 1132r47 1136r23 1137r46 1137r59 1139r44 1139r57 1140r41
-. 1140r54 1142r23 1145r52 1147r41
-1127i10 First_Pos{natural} 1129r28 1132r13 1132r35
-1129i10 Pos{natural} 1136r16 1137r52 1139r50 1140r47 1142m16 1144r26 1145r58
-. 1147r47 1149m16
-1130i10 Next{natural} 1137m13 1138r16 1144r19 1145r65 1147r54 1149r23
-1154U17 Audit_Structural_Line 1154b17 1154>40 1213l11 1213t32 1223s13 1227s13
-1154a40 Raw_Line{string} 1155r42
-1155a10 Line{string} 1159r13 1163r13 1163r19 1163r46 1163r52 1166r19 1166r25
-. 1166r43 1189r47 1190r40 1191r41 1191r47 1195r48 1197r49 1198r47 1201r41
-. 1208r48 1210r49
-1156i10 Eq{natural} 1189m16 1190r19 1190r35 1191r61
-1157i10 Bar{natural} 1195m16 1196r19 1197r55 1208m16 1209r19 1210r55
-1165a16 Name{string} 1168r19 1170r22 1172r22 1174r22 1181r41
-1215i7 Pos{natural} 1218r13 1220r35 1224r38 1225m13 1227r58 1228m13
-1216i7 LF{natural} 1219m10 1222r13 1227r65 1228r20
-1267a7 Path{string} 1270r70 1274r32 1278r52
-1268p7 File{26|67P9} 1278m25 1278r25 1279m26 1279r26 1283r34 1284m32 1284r32
-1296V13 Comparable_Path{string} 1296b13 1296>30 1313l8 1313t23 1320s14 1320s39
-1296a30 Path{string} 1297r43
-1297a7 Stripped{string} 1298r26 1300r10 1304r16 1305r13 1308r27
-1298a7 Result{string} 1306m13 1308m13 1312r14
-1304i11 I{integer} 1305r23 1306r21 1308r21 1308r37
-1326U14 Write_Snapshot_To_File 1326b14 1327>7 1328>7 1329<7 1349l8 1349t30
-. 1386s7
-1327r7 Snapshot{30|69R9} 1332r36
-1328a7 Path{string} 1337r55
-1329e7 Status{30|5E9} 1334m7 1348m10
-1331p7 File{26|67P9} 1337m27 1337r27 1338r24 1342m26 1342r26 1345r34 1346m32
-. 1346r32
-1332r7 Copy{30|69R9} 1335m18 1335r18 1338r47
-1365a7 Dir{string} 1368r10 1381r10 1381r62 1382r39
-1366a7 Base{string} 1368r21
-1367a7 Temp{string} 1372r37 1373r42 1386r41 1395r35
-1370U17 Remove_Temp_Best_Effort 1370b17 1378l11 1378t34 1385s7 1388s10 1397s13
-. 1403s13 1408s7
-1393b10 Success{boolean} 1395m47 1396r17
-1420p7 File{26|67P9} 1455m25 1455r25 1456r42 1458r65 1468m38 1468r38 1480m38
-. 1480r38 1488m38 1488r38 1552m41 1552r41 1558m41 1558r41 1563m41 1563r41
-. 1864m26 1864r26 1947r34 1948m32 1948r32
-1421i7 Line_No{natural} 1461m13 1461r24 1466r58 1478r58 1487r61 1516r65 1523r67
-. 1551r64 1557r64 1562r64 1585r57 1590r37 1597r50 1600r67 1617r60 1625r58
-. 1635r74 1637r73 1641r70 1669r85 1681r85 1689r62 1700r73 1717r71 1720r68
-. 1732r60 1735r60 1742r60 1759r70 1769r79 1776r84 1782r79 1787r87 1795r79
-. 1801r79 1808r84 1814r79 1819r87 1827r79 1833r79 1840r84 1846r64 1857r65
-1422e7 Section{18E9} 1515m22 1522m25 1526m25 1571r21
-1423b7 Header{boolean} 1467r23 1479r23 1486r23 1543r23 1568m19 1866r10 1922r10
-. 1935r14
-1424e7 Partial{30|5E9} 1472m30 1472r30 1484m30 1484r30 1517m36 1517r36 1524m39
-. 1524r39 1586m42 1586r42 1590m56 1590r56 1597m69 1597r69 1601m39 1601r39
-. 1618m45 1618r45 1626m45 1626r45 1639m42 1639r42 1642m42 1642r42 1670m57
-. 1670r57 1682m57 1682r57 1689m53 1689r53 1701m45 1701r45 1706m45 1706r45
-. 1718m42 1718r42 1721m42 1721r42 1737m42 1737r42 1743m45 1743r45 1760m42
-. 1760r42 1770m51 1770r51 1777m51 1777r51 1783m51 1783r51 1788m54 1788r54
-. 1796m51 1796r51 1802m51 1802r51 1809m51 1809r51 1815m51 1815r51 1820m54
-. 1820r54 1828m51 1828r51 1834m51 1834r51 1841m51 1841r51 1847m48 1847r48
-. 1854m42 1854r42 1858m36 1858r36 1871m27 1871r27 1877m27 1877r27 1883m27
-. 1883r27 1889m27 1889r27 1912m27 1912r27 1932m24 1932r24 1938r13
-1425b7 Project_Root_Seen{boolean} 1592m31
-1426b7 Project_Root_Row_Seen{boolean} 1579r28 1588m28
-1427i7 Last_Section_Rank{natural} 1521r51 1527m25
-1428b7 Open_Section_Seen{boolean} 1500r35 1530m31 1867r17
-1429b7 Active_Section_Seen{boolean} 1504r35 1532m31 1873r17
-1430b7 Active_File_Row_Seen{boolean} 1599r25 1603m25
-1431b7 Expanded_Section_Seen{boolean} 1508r35 1534m31 1879r17
-1432b7 Panels_Seen{boolean} 1512r35 1536m31 1885r17 1893r10
-1433b7 Panel_File_Tree_Seen{boolean} 1767r37 1773m37 1895r24
-1434b7 Panel_Width_Seen{boolean} 1780r37 1791m40 1896r24
-1435b7 Panel_Bottom_Seen{boolean} 1799r37 1805m37 1897r24
-1436b7 Panel_Height_Seen{boolean} 1812r37 1823m40 1898r24
-1437b7 Panel_Content_Seen{boolean} 1831r37 1837m37 1899r24
-1438b7 Panel_Invalid{boolean} 1758m28 1768m37 1775m37 1781m37 1786m40 1794m37
-. 1800m37 1807m37 1813m37 1818m40 1826m37 1832m37 1839m37 1844m34 1853m28
-. 1894r13
-1439i7 Panel_Field_No{natural} 1756m25 1756r43 1767r66 1780r62 1799r63 1812r63
-. 1831r64
-1440b7 Panel_File_Tree_Visible_Value{boolean} 1772m37 1914r43
-1441i7 Panel_File_Tree_Width_Value{natural} 1790m40 1915r41
-1442b7 Panel_Bottom_Visible_Value{boolean} 1804m37 1916r40
-1443i7 Panel_Bottom_Height_Value{natural} 1822m40 1917r39
-1444e7 Panel_Bottom_Content_Value{30|65E9} 1836m37 1918r40
-1445r7 Last_Expanded_Path{23|105R9} 1722r39 1723r56 1730r50 1745m31
-1458a13 Raw_Line{string} 1459r49 1466r67 1473r19 1478r67
-1459a13 Line{string} 1462r16 1473r31 1485r19 1485r25 1485r52 1485r58 1487r70
-. 1493r50 1493r56 1493r74 1523r76 1548r22 1549r29 1549r35 1549r49 1551r73
-. 1556r48 1556r54 1556r84 1557r73 1562r73 1576r28 1585r66 1590r31 1597r44
-. 1600r76 1605r79 1634r56 1635r83 1637r82 1640r66 1641r79 1651r44 1652r67
-. 1652r80 1654r67 1654r80 1655r44 1657r67 1698r50 1698r56 1700r82 1714r28
-. 1716r53 1717r80 1720r77 1732r69 1735r69 1742r69 1751r75 1759r79 1763r56
-. 1763r62 1764r56 1764r72 1769r88 1776r93 1782r88 1787r96 1795r88 1801r88
-. 1808r93 1814r88 1819r96 1827r88 1833r88 1840r93 1846r73 1857r74
-1493a19 Name{string} 1498r22 1502r25 1506r25 1510r25 1516r74
-1494i19 Rank{natural} 1499m22 1503m22 1507m22 1511m22 1520r22 1521r43 1527r46
-1495b19 Duplicate{boolean} 1500m22 1504m22 1508m22 1512m22 1521r25
-1496e19 Target{18E9} 1501m22 1505m22 1509m22 1513m22 1526r36 1528r30
-1545a19 Prefix{string} 1548r36 1549r62 1549r84 1556r67
-1546i19 N{natural} 1556m96 1556r96 1561r25 1567r46
-1574b25 Found{boolean} 1576m50 1576r50 1591r31
-1575a25 Val{string} 1577r46
-1605i28 Sep{natural} 1630r28 1640r72 1645r50 1698r70
-1606b28 Rel{boolean} 1622r71 1674m43
-1607b25 Saw_Relative{boolean} 1667r43 1675m43 1694r31
-1608b25 Saw_Unsupported_Field{boolean} 1687m40 1695r43
-1609b25 Saw_Duplicate_Field{boolean} 1668m43 1696r43
-1610i25 Field_No{natural} 1661m34 1661r46 1667r64
-1612U35 Apply_Active_Path 1612b35 1612>54 1628l29 1628t46 1698s31
-1612a54 Raw_Path{string} 1613r65 1615r31 1617r69 1625r67
-1613a28 Candidate{string} 1615r43 1622r60
-1645i31 Pos{natural} 1651r37 1652r73 1654r73 1655m37 1657r73 1658m37
-1646i31 Next{natural} 1652m34 1653r37 1657r80 1658r44
-1647r31 Field{23|105R9} 1654m37 1657m37 1663r74
-1648b31 Found{boolean} 1664m101 1664r101 1666r40
-1649b31 B{boolean} 1671m73 1671r73 1672r51
-1663a37 Text{string} 1664r83 1669r94 1681r94 1689r71
-1664a37 Val{string} 1671r68
-1711i25 Before{natural} 1740r74
-1712b25 Valid{boolean} 1714m34 1714r34 1719r35
-1713a25 Clean{string} 1723r36 1730r31 1739r67 1745r74
-1751i25 Eq{natural} 1757r28 1763r76 1764r62
-1752b25 B{boolean} 1771m67 1771r67 1772r70 1803m67 1803r67 1804r67
-1753i25 N{natural} 1784m67 1784r67 1785r40 1790r71 1816m67 1816r67 1817r40
-. 1822r69
-1754e25 C{30|65E9} 1835m67 1835r67 1836r67
-1763a31 Key{string} 1766r34 1779r37 1798r37 1811r37 1830r37
-1764a31 Val{string} 1771r62 1784r62 1803r62 1816r62 1835r62
-X 32 gnat.ads
-40K9*GNAT 31|7r6 1395r10 32|63e9
-X 33 g-os_lib.ads
-51K14*OS_Lib=51:36 31|7w11 1395r15
-X 37 system.ads
+248a7 Clean{string} 259r10 260r17 260r32 261r40 262r52 263r42 264r35 265r17
+. 265r24 271r14 272r20 274r24 275r21 281r42
+249r7 Result{24|105R9} 294r27 295m27 295r27 297m24 297r24 304r18 309r25
+250i7 Pos{natural} 271m7 272r13 273r18 281r49 301m10
+251i7 Next{natural} 273m10 274r16 275r28 277m13 277r21 281r56 301r17
+253U17 Reject 253b17 256l11 256t17 267s10 288s16 291s16 305s10
+281a13 Segment{string} 283r16 290r19 290r41 297r32
+315b7 Valid{boolean} 316m74 316r74 319r14
+316a7 Ignore{string} 317r28
+322U14 Sort_Expanded_Paths 322b14 322=35 347l8 347t27 914s7
+322r35 Snapshot{31|69R9} 325r10 331r19 331r58 332r27 333r27 336r55 338m19
+. 338r19 339r25 340m19 340r19
+323b7 Swapped{boolean} 330m10 342m16 345r24
+331i14 I{integer} 332r60 333r60 336r88 339r22 339r58 340r60
+336r19 Left{24|105R9} 340r67
+349V13 Has_Malformed_Metadata_Separators{boolean} 349b13 350>7 351>7 368l8
+. 368t41 442s13 1655s31
+350a7 Line{string} 355r29 356r17 356r23 361r29 362r13 362r37
+351i7 First_Sep{natural} 354r10 355r17 361r16
+361i11 I{integer} 362r19 362r43
+370U14 Report_Unsupported_Field 370b14 371=7 372=7 373>7 374>7 379l8 379t32
+. 556s34 1703s40
+371r7 Snapshot{31|69R9} 377m23
+372e7 Status{31|5E9} 378m21
+373i7 Line_No{natural} 377r50
+374a7 Text{string} 377r59
+381U14 Parse_Project_Reference_Line 381b14 382>7 383>7 384=7 385=7 406l8
+. 406t36 1604s28
+382a7 Line{string} 388r54 392r62 399r62 403r62
+383i7 Line_No{natural} 392r53 399r53 403r53
+384r7 Snapshot{31|69R9} 392m29 397m28 398r17 399m29 403m26
+385e7 Status{31|5E9} 393m27 400m27 404m24
+387b7 Found{boolean} 388m76 388r76 390r10
+388a7 Val{string} 391r13 391r36 391r49 397r38
+409U14 Parse_Open_File_Line 409b14 410>7 411>7 412=7 413=7 598l8 598t28 1612s22
+410a7 Line{string} 415r60 435r38 436r65 438r64 442r48 443r61 449r49 449r55
+. 453r64 465r59 471r20 472r43 472r56 474r43 474r56 475r20 477r43 574r61 596r61
+411i7 Line_No{natural} 436r56 438r55 443r52 453r55 457r56 465r50 489r61 495r61
+. 505r67 511r67 521r73 527r73 537r79 549r79 557r55 574r52 587r58 589r56 596r52
+412r7 Snapshot{31|69R9} 436m29 438m29 443m26 453m29 457m29 465m26 489m35
+. 495m35 505m41 511m41 521m47 527m47 537m53 549m53 557m37 574m26 580r56 582m25
+. 583r30 587m32 589m32 596m26
+413e7 Status{31|5E9} 440m24 444m24 454m27 458m27 466m24 490m33 496m33 506m39
+. 512m39 522m45 528m45 538m51 550m51 557m47 569m24 575m24 591m27 597m24
+415i7 Sep{natural} 431r10 442r54 449r69 470r14
+416r7 Item{31|57R9} 461m10 464r18 492m19 508m25 524m31 542m37 582r35 584r16
+. 585r66 587r78 589r76
+417i7 Pos{natural} 470m7 471r13 472r49 474r49 475m13 477r49 478m13
+418i7 Next{natural} 472m10 473r13 477r56 478r20
+419r7 Field{24|105R9} 474m13 477m13 483r50
+420b7 Found{boolean} 484m72 484r72 486r16 500m78 500r78 502r22 516m85 516r85
+. 518r28 532m95 532r95 534r34
+421i7 N{natural} 491m49 491r49 492r38 507m56 507r56 508r47 523m62 523r62
+. 524r54
+422b7 B{boolean} 539m68 539r68 540r45
+423b7 Saw_Relative{boolean} 535r37 543m37 573r15
+424b7 Saw_Row{boolean} 487r19 493m19 573r32
+425b7 Saw_Col{boolean} 503r25 509m25 573r44
+426b7 Saw_View{boolean} 519r31 525m31 573r56
+427b7 Saw_Unsupported_Field{boolean} 555m34 568r10
+428b7 Saw_Duplicate_Field{boolean} 488m19 504m25 520m31 536m37 568r40
+429i7 Field_No{natural} 481m10 481r22 487r35 503r41 519r48 535r58
+449a10 Raw_Path_Original{string} 450r55 452r13
+450a10 Raw_Path{string} 452r34 456r41 457r65 461r44
+483a13 Text{string} 484r59 489r70 495r70 500r65 505r76 511r76 516r71 521r82
+. 527r82 532r77 537r88 549r88 557r64
+484a13 Val{string} 491r44
+500a19 Val2{string} 507r50
+516a25 Val3{string} 523r56
+532a31 Val4{string} 539r62
+580i10 Before{natural} 583r42
+632a7 Clean{string} 634r28 635r18 635r32 636r45 638r37
+659b7 Valid{boolean} 661m33 661r33 664r54
+660a7 Path{string} 669r40 673r41
+662r7 Copy{31|57R9} 673m7 674m7 675r35
+705b7 Valid{boolean} 706m73 706r73 708r59
+706a7 Clean{string} 710r39
+739b7 Valid{boolean} 740m73 740r73 742r15
+740a7 Clean{string} 742r59 745r60
+841r7 Normalized_Open{11|91R9[31|252]} 854r35 863m22 863r22 870r30
+842r7 Normalized_Expanded{11|91R9[31|256]} 893r32 899m19 899r19 905r34
+843b7 Valid{boolean} 849m42 849r42 853r19 875m50 875r50 878r24 889m39 889r39
+. 892r16
+845r11 Item{31|57R9} 846r13 849r30 850r48
+848a16 Clean{string} 855r53 861r56
+850r16 Copy{31|57R9} 861m22 862m22 863r46
+851b16 Seen{boolean} 856m25 860r26
+854r23 Existing{31|57R9} 855r36
+874a13 Clean{string} 879r54 882r45
+886r11 Path_Item{24|105R9} 889r27
+888a13 Clean{string} 894r45 899r68
+890b13 Seen{boolean} 895m22 898r23
+893r20 Existing{24|105R9} 894r33
+921r7 L{31|69R9} 924m18 924r18 927r10 928r17 929r28 930r17 931r28 932r17
+. 933r17 934r17 935r17 936r17 937r17 938r17 939r17 944r10 945r19 945r47 947r54
+. 962r10 963r19 963r51 964r27
+922r7 R{31|69R9} 925m18 925r18 927r30 928r31 929r50 930r33 931r57 932r33
+. 933r40 934r38 935r37 936r36 937r37 938r40 939r44 948r54 965r27
+945i14 I{integer} 947r76 948r76
+947r16 LE{31|57R9} 950r30 951r26 952r26 953r26 954r26
+948r16 RE{31|57R9} 950r53 951r52 952r43 953r46 954r47
+963i14 I{integer} 964r53 965r53
+992r7 Copy{31|69R9} 1001m18 1001r18 1004r10 1005r49 1009r19 1019r10 1021r24
+. 1022r41 1026r24 1031r51 1032r52 1033r48 1034r50 1035r51
+993r7 Result{24|105R9} 997m18 997r18 998m18 998r18 1037r25
+995U17 Put_Line 995b17 995>27 999l11 999t19 1003s7 1005s10 1008s7 1010s10
+. 1018s7 1020s10 1025s7 1027s10 1030s7 1031s7 1032s7 1033s7 1034s7 1035s7
+995a27 Line{string} 997r26
+1009r11 Item{31|57R9} 1011r24 1012r41 1013r39 1014r39 1015r40
+1026r11 Path_Item{24|105R9} 1027r31
+1044r7 Result{31|196R9} 1088m13 1092m13 1096m13 1106m13 1111m13 1115m13 1121m13
+. 1130m13 1136m13 1247m7 1248r13 1249r22 1250r22 1251r22 1252r22 1253r22
+. 1254r22 1255r22 1256r22 1258r14
+1045e7 Section{18E9} 1184m19 1186m19 1188m19 1190m19 1192m19 1202r15
+1047V16 Canonical_Field_Name{string} 1047b16 1047>38 1060l11 1060t31 1066s20
+. 1070s20 1180s42
+1047a38 Text{string} 1049r45
+1049a10 Trimmed{string} 1050r28 1052r19 1053r16 1053r42 1056r40
+1050a10 Result{string} 1054m16 1056m16 1059r17
+1052i14 I{integer} 1053r25 1053r51 1054r24 1056r24 1056r49
+1062V16 Field_Name_Of{string} 1062b16 1062>31 1072l11 1072t24 1075s36
+1062a31 Field{string} 1063r60 1066r42 1067r21 1070r42 1070r49
+1063i10 Eq{natural} 1065r13 1067r16 1070r64
+1074U17 Mark_Forbidden_Field 1074b17 1074>39 1138l11 1138t31 1155s19 1162s19
+. 1196s19 1206s19 1216s19
+1074a39 Raw_Name{string} 1075r51
+1075a10 Name{string} 1077r13 1081r13 1082r20 1083r20 1084r20 1085r20 1086r20
+. 1089r16 1090r20 1093r16 1094r20 1097r16 1098r20 1099r20 1100r20 1101r20
+. 1102r20 1103r20 1104r20 1107r16 1108r20 1109r20 1112r16 1113r20 1116r16
+. 1117r20 1118r20 1119r20 1122r16 1123r20 1124r20 1125r20 1126r20 1127r20
+. 1128r20 1131r16 1132r20 1133r20 1134r20
+1140U17 Audit_Bar_Separated_Metadata 1140b17 1141>10 1142>10 1167l11 1167t39
+. 1212s19 1225s19
+1141a10 Line{string} 1147r47 1151r23 1152r46 1152r59 1154r44 1154r57 1155r41
+. 1155r54 1157r23 1160r52 1162r41
+1142i10 First_Pos{natural} 1144r28 1147r13 1147r35
+1144i10 Pos{natural} 1151r16 1152r52 1154r50 1155r47 1157m16 1159r26 1160r58
+. 1162r47 1164m16
+1145i10 Next{natural} 1152m13 1153r16 1159r19 1160r65 1162r54 1164r23
+1169U17 Audit_Structural_Line 1169b17 1169>40 1228l11 1228t32 1238s13 1242s13
+1169a40 Raw_Line{string} 1170r42
+1170a10 Line{string} 1174r13 1178r13 1178r19 1178r46 1178r52 1181r19 1181r25
+. 1181r43 1204r47 1205r40 1206r41 1206r47 1210r48 1212r49 1213r47 1216r41
+. 1223r48 1225r49
+1171i10 Eq{natural} 1204m16 1205r19 1205r35 1206r61
+1172i10 Bar{natural} 1210m16 1211r19 1212r55 1223m16 1224r19 1225r55
+1180a16 Name{string} 1183r19 1185r22 1187r22 1189r22 1196r41
+1230i7 Pos{natural} 1233r13 1235r35 1239r38 1240m13 1242r58 1243m13
+1231i7 LF{natural} 1234m10 1237r13 1242r65 1243r20
+1282a7 Path{string} 1285r70 1289r32 1293r52
+1283p7 File{27|67P9} 1293m25 1293r25 1294m26 1294r26 1298r34 1299m32 1299r32
+1311V13 Comparable_Path{string} 1311b13 1311>30 1328l8 1328t23 1335s14 1335s39
+1311a30 Path{string} 1312r43
+1312a7 Stripped{string} 1313r26 1315r10 1319r16 1320r13 1323r27
+1313a7 Result{string} 1321m13 1323m13 1327r14
+1319i11 I{integer} 1320r23 1321r21 1323r21 1323r37
+1341U14 Write_Snapshot_To_File 1341b14 1342>7 1343>7 1344<7 1364l8 1364t30
+. 1401s7
+1342r7 Snapshot{31|69R9} 1347r36
+1343a7 Path{string} 1352r55
+1344e7 Status{31|5E9} 1349m7 1363m10
+1346p7 File{27|67P9} 1352m27 1352r27 1353r24 1357m26 1357r26 1360r34 1361m32
+. 1361r32
+1347r7 Copy{31|69R9} 1350m18 1350r18 1353r47
+1380a7 Dir{string} 1383r10 1396r10 1396r62 1397r39
+1381a7 Base{string} 1383r21
+1382a7 Temp{string} 1387r37 1388r42 1401r41 1410r35
+1385U17 Remove_Temp_Best_Effort 1385b17 1393l11 1393t34 1400s7 1403s10 1412s13
+. 1418s13 1423s7
+1408b10 Success{boolean} 1410m47 1411r17
+1435p7 File{27|67P9} 1470m25 1470r25 1471r42 1473r65 1483m38 1483r38 1495m38
+. 1495r38 1503m38 1503r38 1567m41 1567r41 1573m41 1573r41 1578m41 1578r41
+. 1879m26 1879r26 1962r34 1963m32 1963r32
+1436i7 Line_No{natural} 1476m13 1476r24 1481r58 1493r58 1502r61 1531r65 1538r67
+. 1566r64 1572r64 1577r64 1600r57 1605r37 1612r50 1615r67 1632r60 1640r58
+. 1650r74 1652r73 1656r70 1684r85 1696r85 1704r62 1715r73 1732r71 1735r68
+. 1747r60 1750r60 1757r60 1774r70 1784r79 1791r84 1797r79 1802r87 1810r79
+. 1816r79 1823r84 1829r79 1834r87 1842r79 1848r79 1855r84 1861r64 1872r65
+1437e7 Section{18E9} 1530m22 1537m25 1541m25 1586r21
+1438b7 Header{boolean} 1482r23 1494r23 1501r23 1558r23 1583m19 1881r10 1937r10
+. 1950r14
+1439e7 Partial{31|5E9} 1487m30 1487r30 1499m30 1499r30 1532m36 1532r36 1539m39
+. 1539r39 1601m42 1601r42 1605m56 1605r56 1612m69 1612r69 1616m39 1616r39
+. 1633m45 1633r45 1641m45 1641r45 1654m42 1654r42 1657m42 1657r42 1685m57
+. 1685r57 1697m57 1697r57 1704m53 1704r53 1716m45 1716r45 1721m45 1721r45
+. 1733m42 1733r42 1736m42 1736r42 1752m42 1752r42 1758m45 1758r45 1775m42
+. 1775r42 1785m51 1785r51 1792m51 1792r51 1798m51 1798r51 1803m54 1803r54
+. 1811m51 1811r51 1817m51 1817r51 1824m51 1824r51 1830m51 1830r51 1835m54
+. 1835r54 1843m51 1843r51 1849m51 1849r51 1856m51 1856r51 1862m48 1862r48
+. 1869m42 1869r42 1873m36 1873r36 1886m27 1886r27 1892m27 1892r27 1898m27
+. 1898r27 1904m27 1904r27 1927m27 1927r27 1947m24 1947r24 1953r13
+1440b7 Project_Root_Seen{boolean} 1607m31
+1441b7 Project_Root_Row_Seen{boolean} 1594r28 1603m28
+1442i7 Last_Section_Rank{natural} 1536r51 1542m25
+1443b7 Open_Section_Seen{boolean} 1515r35 1545m31 1882r17
+1444b7 Active_Section_Seen{boolean} 1519r35 1547m31 1888r17
+1445b7 Active_File_Row_Seen{boolean} 1614r25 1618m25
+1446b7 Expanded_Section_Seen{boolean} 1523r35 1549m31 1894r17
+1447b7 Panels_Seen{boolean} 1527r35 1551m31 1900r17 1908r10
+1448b7 Panel_File_Tree_Seen{boolean} 1782r37 1788m37 1910r24
+1449b7 Panel_Width_Seen{boolean} 1795r37 1806m40 1911r24
+1450b7 Panel_Bottom_Seen{boolean} 1814r37 1820m37 1912r24
+1451b7 Panel_Height_Seen{boolean} 1827r37 1838m40 1913r24
+1452b7 Panel_Content_Seen{boolean} 1846r37 1852m37 1914r24
+1453b7 Panel_Invalid{boolean} 1773m28 1783m37 1790m37 1796m37 1801m40 1809m37
+. 1815m37 1822m37 1828m37 1833m40 1841m37 1847m37 1854m37 1859m34 1868m28
+. 1909r13
+1454i7 Panel_Field_No{natural} 1771m25 1771r43 1782r66 1795r62 1814r63 1827r63
+. 1846r64
+1455b7 Panel_File_Tree_Visible_Value{boolean} 1787m37 1929r43
+1456i7 Panel_File_Tree_Width_Value{natural} 1805m40 1930r41
+1457b7 Panel_Bottom_Visible_Value{boolean} 1819m37 1931r40
+1458i7 Panel_Bottom_Height_Value{natural} 1837m40 1932r39
+1459e7 Panel_Bottom_Content_Value{31|65E9} 1851m37 1933r40
+1460r7 Last_Expanded_Path{24|105R9} 1737r39 1738r56 1745r50 1760m31
+1473a13 Raw_Line{string} 1474r49 1481r67 1488r19 1493r67
+1474a13 Line{string} 1477r16 1488r31 1500r19 1500r25 1500r52 1500r58 1502r70
+. 1508r50 1508r56 1508r74 1538r76 1563r22 1564r29 1564r35 1564r49 1566r73
+. 1571r48 1571r54 1571r84 1572r73 1577r73 1591r28 1600r66 1605r31 1612r44
+. 1615r76 1620r79 1649r56 1650r83 1652r82 1655r66 1656r79 1666r44 1667r67
+. 1667r80 1669r67 1669r80 1670r44 1672r67 1713r50 1713r56 1715r82 1729r28
+. 1731r53 1732r80 1735r77 1747r69 1750r69 1757r69 1766r75 1774r79 1778r56
+. 1778r62 1779r56 1779r72 1784r88 1791r93 1797r88 1802r96 1810r88 1816r88
+. 1823r93 1829r88 1834r96 1842r88 1848r88 1855r93 1861r73 1872r74
+1508a19 Name{string} 1513r22 1517r25 1521r25 1525r25 1531r74
+1509i19 Rank{natural} 1514m22 1518m22 1522m22 1526m22 1535r22 1536r43 1542r46
+1510b19 Duplicate{boolean} 1515m22 1519m22 1523m22 1527m22 1536r25
+1511e19 Target{18E9} 1516m22 1520m22 1524m22 1528m22 1541r36 1543r30
+1560a19 Prefix{string} 1563r36 1564r62 1564r84 1571r67
+1561i19 N{natural} 1571m96 1571r96 1576r25 1582r46
+1589b25 Found{boolean} 1591m50 1591r50 1606r31
+1590a25 Val{string} 1592r46
+1620i28 Sep{natural} 1645r28 1655r72 1660r50 1713r70
+1621b28 Rel{boolean} 1637r71 1689m43
+1622b25 Saw_Relative{boolean} 1682r43 1690m43 1709r31
+1623b25 Saw_Unsupported_Field{boolean} 1702m40 1710r43
+1624b25 Saw_Duplicate_Field{boolean} 1683m43 1711r43
+1625i25 Field_No{natural} 1676m34 1676r46 1682r64
+1627U35 Apply_Active_Path 1627b35 1627>54 1643l29 1643t46 1713s31
+1627a54 Raw_Path{string} 1628r65 1630r31 1632r69 1640r67
+1628a28 Candidate{string} 1630r43 1637r60
+1660i31 Pos{natural} 1666r37 1667r73 1669r73 1670m37 1672r73 1673m37
+1661i31 Next{natural} 1667m34 1668r37 1672r80 1673r44
+1662r31 Field{24|105R9} 1669m37 1672m37 1678r74
+1663b31 Found{boolean} 1679m101 1679r101 1681r40
+1664b31 B{boolean} 1686m73 1686r73 1687r51
+1678a37 Text{string} 1679r83 1684r94 1696r94 1704r71
+1679a37 Val{string} 1686r68
+1726i25 Before{natural} 1755r74
+1727b25 Valid{boolean} 1729m34 1729r34 1734r35
+1728a25 Clean{string} 1738r36 1745r31 1754r67 1760r74
+1766i25 Eq{natural} 1772r28 1778r76 1779r62
+1767b25 B{boolean} 1786m67 1786r67 1787r70 1818m67 1818r67 1819r67
+1768i25 N{natural} 1799m67 1799r67 1800r40 1805r71 1831m67 1831r67 1832r40
+. 1837r69
+1769e25 C{31|65E9} 1850m67 1850r67 1851r67
+1778a31 Key{string} 1781r34 1794r37 1813r37 1826r37 1845r37
+1779a31 Val{string} 1786r62 1799r62 1818r62 1831r62 1850r62
+X 33 gnat.ads
+40K9*GNAT 32|7r6 1410r10 33|63e9
+X 34 g-os_lib.ads
+51K14*OS_Lib=51:36 32|7w11 1410r15
+X 38 system.ads
 67M9*Address
-X 51 s-memory.ads
-51V13*Alloc{37|67M9} 101i<c,__gnat_malloc>22
+X 53 s-memory.ads
+51V13*Alloc{38|67M9} 101i<c,__gnat_malloc>22
 66U14*Free 102i<c,__gnat_free>22
-74V13*Realloc{37|67M9} 103i<c,__gnat_realloc>22
-X 53 s-os_lib.ads
-613U14*Rename_File 31|1395s22
-X 63 s-stalib.adb
+74V13*Realloc{38|67M9} 103i<c,__gnat_realloc>22
+X 55 s-os_lib.ads
+613U14*Rename_File 32|1410s22
+X 65 s-stalib.adb
 87U14 Break_Start 88i<c,__gnat_break_start>22
 

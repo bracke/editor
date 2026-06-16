@@ -503,21 +503,9 @@ package body Editor.Navigation is
            Editor.Layout.Text_Column_For_X
              (Layout, Line_Count, X, Editor.View.Scroll_X);
 
-         declare
-            Top : constant Natural :=
-              Natural (Editor.Layout.Text_Viewport_Y (Layout));
-         begin
-            if Y = Top and then Top = Editor.Layout.Cell_H then
-               --  Some direct executor tests still pass content-relative
-               --  coordinates while normal input uses screen coordinates.
-               --  The exact top boundary is the only ambiguous row hit.
-               Row := Editor.View.Scroll_Y + 1;
-            else
-               Row :=
-                 Editor.Layout.Row_For_Y
-                   (Layout, Y, Editor.View.Scroll_Y);
-            end if;
-         end;
+         Row :=
+           Editor.Layout.Row_For_Y
+             (Layout, Y, Editor.View.Scroll_Y);
 
          declare
             Visible_Count : constant Natural :=

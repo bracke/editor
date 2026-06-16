@@ -478,7 +478,9 @@ package body Editor.Build_Candidate_Discovery is
                Name : constant String := Ada.Directories.Simple_Name (Dir_Entry);
                Rel  : constant String := Join_Relative (Relative_Path, Name);
             begin
-               if Ada.Directories.Kind (Dir_Entry) = Ada.Directories.Directory then
+               if Name = "." or else Name = ".." then
+                  null;
+               elsif Ada.Directories.Kind (Dir_Entry) = Ada.Directories.Directory then
                   declare
                      Full : constant String := Directory_Path & "/" & Name;
                   begin

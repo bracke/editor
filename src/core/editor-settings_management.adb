@@ -708,6 +708,15 @@ package body Editor.Settings_Management is
       Result : out Domain_Separation_Audit)
    is
       L : constant String := Lower (Text);
+      function Contains (Pattern : String) return Boolean is
+      begin
+         return Ada.Strings.Fixed.Index (L, Pattern) > 0;
+      end Contains;
+      function Starts_With (Pattern : String) return Boolean is
+      begin
+         return L'Length >= Pattern'Length
+           and then L (L'First .. L'First + Pattern'Length - 1) = Pattern;
+      end Starts_With;
       procedure Mark (Condition : Boolean; Flag : in out Boolean) is
       begin
          if Condition and then not Flag then
@@ -717,19 +726,23 @@ package body Editor.Settings_Management is
       end Mark;
    begin
       Result := (others => <>);
-      Mark (Ada.Strings.Fixed.Index (L, "[keybindings]") > 0 or else Ada.Strings.Fixed.Index (L, "keybinding.") > 0 or else Ada.Strings.Fixed.Index (L, "keybindings=") > 0 or else Ada.Strings.Fixed.Index (L, "chord=") > 0,
+      Mark (Contains ("[keybindings]")
+            or else Starts_With ("keybinding.")
+            or else Starts_With ("keybindings=")
+            or else Starts_With ("keybinding=")
+            or else Starts_With ("chord="),
             Result.Settings_Contains_Keybindings);
-      Mark (Ada.Strings.Fixed.Index (L, "workspace") > 0 or else Ada.Strings.Fixed.Index (L, "open-file") > 0
-            or else Ada.Strings.Fixed.Index (L, "active-file") > 0 or else Ada.Strings.Fixed.Index (L, "project-root") > 0,
+      Mark (Contains ("workspace") or else Contains ("open-file")
+            or else Contains ("active-file") or else Contains ("project-root"),
             Result.Settings_Contains_Workspace);
-      Mark (Ada.Strings.Fixed.Index (L, "recent-project") > 0,
+      Mark (Contains ("recent-project"),
             Result.Settings_Contains_Recent);
-      Mark (Ada.Strings.Fixed.Index (L, "build-result") > 0 or else Ada.Strings.Fixed.Index (L, "search-query") > 0
-            or else Ada.Strings.Fixed.Index (L, "outline-row") > 0 or else Ada.Strings.Fixed.Index (L, "diagnostic-row") > 0
-            or else Ada.Strings.Fixed.Index (L, "command-payload") > 0 or else Ada.Strings.Fixed.Index (L, "dirty-state") > 0
-            or else Ada.Strings.Fixed.Index (L, "settings-query") > 0 or else Ada.Strings.Fixed.Index (L, "settings-selection") > 0
-            or else Ada.Strings.Fixed.Index (L, "settings-filter") > 0 or else Ada.Strings.Fixed.Index (L, "configuration-audit-result") > 0
-            or else Ada.Strings.Fixed.Index (L, "pending-settings-reset-confirmation") > 0,
+      Mark (Contains ("build-result") or else Contains ("search-query")
+            or else Contains ("outline-row") or else Contains ("diagnostic-row")
+            or else Contains ("command-payload") or else Contains ("dirty-state")
+            or else Contains ("settings-query") or else Contains ("settings-selection")
+            or else Contains ("settings-filter") or else Contains ("configuration-audit-result")
+            or else Contains ("pending-settings-reset-confirmation"),
             Result.Settings_Contains_Runtime);
    end Audit_Domain_Separation_Text;
 

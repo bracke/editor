@@ -661,6 +661,7 @@ package body Editor.Line_Edit.Tests is
    begin
       Editor.History.Undo_Stack.Clear;
       Editor.History.Redo_Stack.Clear;
+      Editor.Buffers.Reset_Global_For_Test;
       Editor.State.Init (S);
       Editor.Keybindings.Bind
         (Ctrl_Shift (Editor.Keybindings.Key_Delete),
@@ -689,6 +690,7 @@ package body Editor.Line_Edit.Tests is
 
       Editor.State.Load_Text (S, "one" & ASCII.LF & "two" & ASCII.LF & "three");
       Editor.History.Undo_Stack.Clear;
+      Editor.Buffers.Reset_Global_For_Test;
       Set_Caret (S, 4);
       Editor.Input_Bridge.Set_State_For_Test (S);
       Editor.Input_Bridge.Handle_Key_Chord
@@ -701,6 +703,7 @@ package body Editor.Line_Edit.Tests is
 
       Editor.State.Load_Text (S, "one" & ASCII.LF & "two" & ASCII.LF & "three");
       Editor.History.Undo_Stack.Clear;
+      Editor.Buffers.Reset_Global_For_Test;
       Set_Caret (S, 4);
       Editor.Input_Bridge.Set_State_For_Test (S);
       Editor.Input_Bridge.Handle_Key_Chord
@@ -713,6 +716,7 @@ package body Editor.Line_Edit.Tests is
 
       Editor.State.Load_Text (S, "one" & ASCII.LF & "two" & ASCII.LF & "three");
       Editor.History.Undo_Stack.Clear;
+      Editor.Buffers.Reset_Global_For_Test;
       Set_Caret (S, 4);
       Editor.Input_Bridge.Set_State_For_Test (S);
       Editor.Input_Bridge.Handle_Key_Chord
@@ -6627,8 +6631,11 @@ procedure Test_Phase396_Line_Join_Canonical_Behavior_And_Persistence
                           "Phase 399 render snapshot must not repair stale caret by splitting");
       Assert (R.Length = Text_Buffer.Length (S.Buffer),
               "Phase 399 render snapshot length derives from unchanged canonical buffer");
-      Assert (Editor.Selection.Has_Selection (S),
-              "Phase 399 render snapshot must not clear selection before split command");
+      Assert
+        (S.Carets (S.Carets.First_Index).Anchor = 0
+         and then Natural (S.Carets (S.Carets.First_Index).Pos) =
+           Text_Buffer.Length (S.Buffer) + 25,
+         "Phase 399 render snapshot must not repair stale selection endpoints before split command");
       Assert (Editor.Clipboard.Get_Text = Before_Clip,
               "Phase 399 render snapshot must not mutate clipboard");
       Assert (Natural (Editor.History.Undo_Stack.Length) = Before_Undo
@@ -9051,7 +9058,7 @@ procedure Test_Phase400_Line_Split_Canonical_Behavior_And_State_Boundaries
       Set_Caret (S, 10);
       Editor.Executor.Execute_Command (S, Editor.Commands.Command_Char_Delete_Previous);
       Assert_Buffer_Text
-        (S, "Alpha Bea Gamma",
+        (S, "Alpha Bet Gamma",
          "Phase 407 previous delete must remove exact adjacent character after selection/find setup");
       Assert (S.Carets (S.Carets.First_Index).Pos = 9,
               "Phase 407 previous delete caret must move to deleted range start");
@@ -9080,7 +9087,7 @@ procedure Test_Phase400_Line_Split_Canonical_Behavior_And_State_Boundaries
       Assert_Buffer_Text (S, "Alpha Beta Gamma",
                           "Phase 407 undo restores pre-delete text");
       Editor.Executor.Execute_Command (S, Editor.Commands.Command_Redo);
-      Assert_Buffer_Text (S, "Alpha Bea Gamma",
+      Assert_Buffer_Text (S, "Alpha Bet Gamma",
                           "Phase 407 redo restores post-delete text");
 
       Editor.History.Undo_Stack.Clear;
@@ -10664,7 +10671,9 @@ procedure Test_Phase412_Selection_Delete_Canonical_State_Only_Workflow
       Assert (Natural (Editor.History.Undo_Stack.Length) = 1,
               "Phase 413 bridge insertion uses undoable mutation");
 
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Open_Quick_Open);
+      Editor.Input_Bridge.Set_State_For_Test (S);
+      Editor.Input_Bridge.Execute_Command_Id (Editor.Commands.Command_Open_Quick_Open);
+      S := Editor.Input_Bridge.Get_State_For_Test;
       Editor.Input_Bridge.Set_State_For_Test (S);
       Cmd.Ch := 'Z';
       Cmd.Text := To_Unbounded_String (String'(1 => 'Z'));
@@ -11401,7 +11410,9 @@ procedure Test_Phase412_Selection_Delete_Canonical_State_Only_Workflow
       Undo_Before := Natural (Editor.History.Undo_Stack.Length);
       Redo_Before := Natural (Editor.History.Redo_Stack.Length);
       Dirty_Before := Editor.State.Is_Dirty (S);
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Open_Quick_Open);
+      Editor.Input_Bridge.Set_State_For_Test (S);
+      Editor.Input_Bridge.Execute_Command_Id (Editor.Commands.Command_Open_Quick_Open);
+      S := Editor.Input_Bridge.Get_State_For_Test;
       Editor.Input_Bridge.Set_State_For_Test (S);
       Cmd.Ch := 'Z';
       Cmd.Text := To_Unbounded_String (String'(1 => 'Z'));
@@ -11749,7 +11760,9 @@ procedure Test_Phase412_Selection_Delete_Canonical_State_Only_Workflow
       Undo_Before := Natural (Editor.History.Undo_Stack.Length);
       Redo_Before := Natural (Editor.History.Redo_Stack.Length);
       Dirty_Before := Editor.State.Is_Dirty (S);
-      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Open_Quick_Open);
+      Editor.Input_Bridge.Set_State_For_Test (S);
+      Editor.Input_Bridge.Execute_Command_Id (Editor.Commands.Command_Open_Quick_Open);
+      S := Editor.Input_Bridge.Get_State_For_Test;
       Editor.Input_Bridge.Set_State_For_Test (S);
       Cmd.Ch := 'Z';
       Cmd.Text := To_Unbounded_String (String'(1 => 'Z'));

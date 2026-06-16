@@ -1490,7 +1490,6 @@ package body Editor.Focus_Management is
             | Editor.Commands.Command_Show_Search_Results_Panel
             | Editor.Commands.Command_Focus_Search_Results
             | Editor.Commands.Command_Focus_File_Tree
-            | Editor.Commands.Command_Show_Feature_Panel
             | Editor.Commands.Command_Focus_Feature_Panel
             | Editor.Commands.Command_Show_Outline
             | Editor.Commands.Command_Focus_Outline
@@ -1591,6 +1590,8 @@ package body Editor.Focus_Management is
          | Focus_Recent_Projects
       then
          return True;
+      elsif Editor.Feature_Panel.Is_Focused (S.Feature_Panel) then
+         return Owner /= Focus_Editor;
       elsif Editor.Panel_Focus.Editor_Text_Has_Focus (S.Panel_Focus) then
          return Owner = Focus_Editor;
       else

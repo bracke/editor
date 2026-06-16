@@ -2,6 +2,8 @@ with Ada.Strings.Unbounded; use Ada.Strings.Unbounded;
 
 package body Editor.Ada_Elaboration_Generic_Shared_State_Final_Legality is
 
+   pragma Suppress (Overflow_Check);
+
    use type Cross_Generic.Cross_Unit_Generic_Final_Row_Id;
    use type Dispatching_Global.Dispatching_Global_Row_Id;
    use type Editor.Ada_Syntax_Tree.Node_Id;

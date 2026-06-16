@@ -2,6 +2,15 @@ with Ada.Strings.Unbounded; use Ada.Strings.Unbounded;
 
 package body Editor.Ada_Tasking_Generic_Shared_State_RM_Hard_Case_Completion_Legality is
 
+   pragma Suppress (Overflow_Check);
+   use type Closure.Generic_Shared_State_Final_Stabilized_Closure_Status;
+   use type Previous.Tasking_Generic_Final_Row_Id;
+   use type Representation_Hard_Cases.Representation_Generic_RM_Hard_Case_Id;
+   use type Overload_Edges.Overload_Generic_RM_Edge_Completion_Id;
+   use type Closure.Generic_Shared_State_Final_Stabilized_Closure_Id;
+   use type Editor.Ada_Syntax_Tree.Node_Id;
+
+
    function Mix (A, B : Natural) return Natural is
    begin
       return ((A * 131) + B + 17) mod 2_147_483_647;

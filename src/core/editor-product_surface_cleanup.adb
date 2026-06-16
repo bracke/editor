@@ -50,6 +50,7 @@ package body Editor.Product_Surface_Cleanup is
         or else Contains (L, " demo")
         or else Contains (L, "demo ")
         or else L = "demo"
+        or else Contains (L, "fixture")
         or else Contains (L, "scaffold");
    end Looks_Like_Demo_Text;
 
@@ -83,6 +84,8 @@ package body Editor.Product_Surface_Cleanup is
       for I in 1 .. Editor.Outline.Item_Count (S.Outline) loop
          if Looks_Like_Demo_Text
              (Editor.Outline.Item_Label (S.Outline, I))
+           or else Looks_Like_Demo_Text
+             (Editor.Outline.Item_Detail (S.Outline, I))
          then
             return True;
          end if;

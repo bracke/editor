@@ -2,6 +2,8 @@ with Ada.Strings.Unbounded; use Ada.Strings.Unbounded;
 
 package body Editor.Ada_Final_Semantic_Stabilized_Closure_Legality is
 
+   pragma Suppress (Overflow_Check);
+
    use type Final_Blocker_Family;
    use type Editor.Ada_Syntax_Tree.Node_Id;
 

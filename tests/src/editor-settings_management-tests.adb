@@ -366,6 +366,7 @@ package body Editor.Settings_Management.Tests is
       Assert (Snap.Settings_UI.Display_Row_Count >= 1,
               "current transient settings query should still project matching rows");
 
+      Editor.Settings.Set_Command_Palette_Show_Keybindings (S.Settings, False);
       Editor.Settings_Management.Execute_Settings_Surface_Command
         (Editor.Settings_Management.Settings_Action_Reset_All,
          S.Settings, Status);

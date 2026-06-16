@@ -2,6 +2,8 @@ with Ada.Characters.Handling;
 with Ada.Strings.Unbounded; use Ada.Strings.Unbounded;
 
 package body Editor.Ada_Predicate_Invariant_Use_Site_Legality is
+
+   pragma Suppress (Overflow_Check);
    use type Editor.Ada_Staticness_Range_Predicate_Legality.Static_Legality_Status;
    use type Editor.Ada_Assignment_Legality.Assignment_Legality_Status;
    use type Editor.Ada_Return_Legality.Return_Legality_Status;

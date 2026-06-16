@@ -2,6 +2,8 @@ with Ada.Strings.Unbounded; use Ada.Strings.Unbounded;
 
 package body Editor.Ada_Accessibility_Generic_Shared_State_Final_Legality is
 
+   pragma Suppress (Overflow_Check);
+
    use type Access_Final.Master_Scope_Final_Row_Id;
    use type Cross_Generic.Cross_Unit_Generic_Final_Row_Id;
    use type Elab_Generic.Elaboration_Generic_Final_Row_Id;

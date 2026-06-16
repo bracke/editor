@@ -757,7 +757,7 @@ package body Editor.Feature_Search_Results is
          Editor.Feature_Panel.Append_Row
            (Panel,
             Kind        => Editor.Feature_Panel.Feature_Row_Empty_State,
-            Label       => (if Results.Has_Query or else Results.Search_Input_Active then Header_Text (Results) else "No search results"),
+            Label       => (if Results.Has_Query or else Results.Search_Input_Active then Header_Text (Results) else "No search results."),
             Detail      => Editor.Contextual_Help.Empty_Search_Results_Detail (Results.Has_Query),
             Selectable  => False,
             Activatable => False,

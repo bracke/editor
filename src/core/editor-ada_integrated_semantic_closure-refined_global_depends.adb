@@ -3,6 +3,8 @@ with Ada.Strings.Unbounded; use Ada.Strings.Unbounded;
 with Editor.Ada_Syntax_Tree;
 
 package body Editor.Ada_Integrated_Semantic_Closure.Refined_Global_Depends is
+
+   pragma Suppress (Overflow_Check);
    use type Editor.Ada_Syntax_Tree.Node_Id;
    use type Editor.Ada_Refined_Global_Depends_Conformance_Legality.Refined_Conformance_Status;
 

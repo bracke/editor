@@ -1,5 +1,7 @@
 package body Editor.Ada_Library_Unit_Subunit_Vertical_Slice_Legality is
 
+   pragma Suppress (Overflow_Check);
+
    function Mix (A, B : Natural) return Natural is
    begin
       return ((A * 65599) + (B * 31337) + 1331) mod 1_000_000_007;

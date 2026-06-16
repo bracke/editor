@@ -97,7 +97,7 @@ package body Editor.Product_Surface_Cleanup.Tests is
       Editor.State.Initialize (S);
 
       Editor.Diagnostics.Add
-        (S.Diagnostics, 0, 0, Editor.Diagnostics.Warning,
+        (S.Diagnostics, 0, 1, Editor.Diagnostics.Warning,
          "fake diagnostic should never be normal product data");
       Assert (Editor.Product_Surface_Cleanup.Diagnostics_Has_Demo_Rows (S),
               "audit detects fake Diagnostics rows");

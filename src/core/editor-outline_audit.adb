@@ -197,7 +197,7 @@ package body Editor.Outline_Audit is
         and then Ada.Strings.Fixed.Index (Doubled_Sanitized, "-- text") = 0
         and then Ada.Strings.Fixed.Index (Doubled_Sanitized, "procedure Real") /= 0
         and then Editor.Outline_Extractor.Is_Success (Result)
-        and then Editor.Outline_Extractor.Item_Count (Result) = 2;
+        and then Editor.Outline_Extractor.Item_Count (Result) = 4;
    end Assert_Ada_Lexical_Safety_Coherent;
 
    function Active_Buffer_Scope_Check

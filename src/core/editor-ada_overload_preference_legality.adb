@@ -2,6 +2,8 @@ with Ada.Strings.Unbounded; use Ada.Strings.Unbounded;
 
 package body Editor.Ada_Overload_Preference_Legality is
 
+   pragma Suppress (Overflow_Check);
+
    package ORL renames Editor.Ada_Overload_Resolution_Legality;
 
    use type Editor.Ada_Syntax_Tree.Node_Id;

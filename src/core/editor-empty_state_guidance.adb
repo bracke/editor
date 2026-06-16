@@ -100,6 +100,16 @@ package body Editor.Empty_State_Guidance is
         and then Command /= Editor.Commands.Command_Configuration_Reset_All_Cancel;
    end Pending_Confirmation_Blocks_Suggestion;
 
+   function Command_Is_Visible_In_Guidance
+     (Command : Editor.Commands.Command_Id) return Boolean
+   is
+      D : constant Editor.Commands.Command_Descriptor :=
+        Editor.Commands.Descriptor (Command);
+   begin
+      return D.Visibility = Editor.Commands.Palette_Command
+        or else Command = Editor.Commands.Command_Open_Command_Palette;
+   end Command_Is_Visible_In_Guidance;
+
    procedure Set_Text
      (Snapshot  : in out Empty_State_Snapshot;
       Surface   : Empty_State_Surface;
@@ -284,7 +294,7 @@ package body Editor.Empty_State_Guidance is
            Editor.Executor.Command_Availability (S, Command);
          Stable : constant String := Editor.Commands.Stable_Command_Name (Command);
       begin
-         if D.Visibility /= Editor.Commands.Palette_Command
+         if not Command_Is_Visible_In_Guidance (Command)
            or else Stable'Length = 0
            or else not Safe_Stable_Command_Name (Stable)
          then
@@ -343,8 +353,7 @@ package body Editor.Empty_State_Guidance is
          return False;
       end if;
 
-      return Editor.Commands.Descriptor (Resolved).Visibility =
-        Editor.Commands.Palette_Command;
+      return Command_Is_Visible_In_Guidance (Resolved);
    end Stable_Name_Is_Display_Only;
 
    function Suggestion_Is_Descriptor_Consistent
@@ -365,8 +374,7 @@ package body Editor.Empty_State_Guidance is
       Resolved := Editor.Commands.Command_Id_From_Stable_Name (Name, Found);
       if not Found
         or else Resolved /= Suggestion.Command
-        or else Editor.Commands.Descriptor (Suggestion.Command).Visibility /=
-          Editor.Commands.Palette_Command
+        or else not Command_Is_Visible_In_Guidance (Suggestion.Command)
         or else To_String (Suggestion.Title) /=
           To_String (Editor.Commands.Descriptor (Suggestion.Command).Name)
         or else To_String (Suggestion.Short_Explanation) /=
@@ -537,9 +545,14 @@ package body Editor.Empty_State_Guidance is
          return False;
       end if;
 
-      Editor.Command_Palette.Open_With_Command (Resolved);
-      return Editor.Command_Palette.Is_Open
-        and then Editor.Command_Palette.Selected_Command = Resolved;
+      if Resolved = Editor.Commands.Command_Open_Command_Palette then
+         Editor.Command_Palette.Open;
+         return Editor.Command_Palette.Is_Open;
+      else
+         Editor.Command_Palette.Open_With_Command (Resolved);
+         return Editor.Command_Palette.Is_Open
+           and then Editor.Command_Palette.Selected_Command = Resolved;
+      end if;
    end Open_Suggested_Command_In_Command_Palette;
 
    function Open_Selected_Suggested_Command_In_Command_Palette
@@ -1781,7 +1794,7 @@ package body Editor.Empty_State_Guidance is
          D : constant Editor.Commands.Command_Descriptor :=
            Editor.Commands.Descriptor (Suggestion.Command);
       begin
-         return D.Visibility = Editor.Commands.Palette_Command
+         return Command_Is_Visible_In_Guidance (Suggestion.Command)
            and then Name = Editor.Commands.Stable_Command_Name (Suggestion.Command)
            and then To_String (Suggestion.Title) = To_String (D.Name)
            and then To_String (Suggestion.Short_Explanation) = To_String (D.Description)
@@ -2064,7 +2077,7 @@ package body Editor.Empty_State_Guidance is
          end if;
 
          D := Editor.Commands.Descriptor (Snapshot.Suggestions (I).Command);
-         if D.Visibility /= Editor.Commands.Palette_Command
+         if not Command_Is_Visible_In_Guidance (Snapshot.Suggestions (I).Command)
            or else To_String (Snapshot.Suggestions (I).Title) /= To_String (D.Name)
            or else To_String (Snapshot.Suggestions (I).Stable_Name) /=
              Editor.Commands.Stable_Command_Name (Snapshot.Suggestions (I).Command)

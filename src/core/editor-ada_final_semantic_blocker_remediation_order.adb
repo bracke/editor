@@ -2,6 +2,8 @@ with Editor.Ada_Syntax_Tree;
 
 package body Editor.Ada_Final_Semantic_Blocker_Remediation_Order is
 
+   pragma Suppress (Overflow_Check);
+
    use type Editor.Ada_Syntax_Tree.Node_Id;
    use type Final_Blocker_Family;
    use type Final_Blocker_Trace_Id;

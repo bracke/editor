@@ -174,8 +174,7 @@ package body Editor.Feature_Panel_Controller is
 
       case Feature is
          when Editor.Feature_Panel.Outline_Feature =>
-            Editor.Outline.Clear (S.Outline);
-            Editor.Outline.Set_Rows_From_Outline (S.Outline, S.Feature_Panel);
+            Editor.Feature_Panel.Clear_Rows (S.Feature_Panel);
             return True;
          when Editor.Feature_Panel.Messages_Feature =>
             Editor.Feature_Messages.Clear (S.Feature_Messages);

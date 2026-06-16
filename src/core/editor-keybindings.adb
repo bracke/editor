@@ -14,7 +14,7 @@ package body Editor.Keybindings is
       Id    : Editor.Commands.Command_Id := Editor.Commands.No_Command;
    end record;
 
-   Max_Bindings : constant Natural := 64;
+   Max_Bindings : constant Natural := 256;
    subtype Binding_Index is Natural range 1 .. Max_Bindings;
    type Binding_Table is array (Binding_Index) of Binding_Entry;
 
@@ -285,6 +285,7 @@ package body Editor.Keybindings is
          when Key_F         => return "F";
          when Key_G         => return "G";
          when Key_H         => return "H";
+         when Key_O         => return "O";
          when Key_P         => return "P";
          when Key_N         => return "N";
          when Key_W         => return "W";
@@ -335,7 +336,9 @@ package body Editor.Keybindings is
       elsif N = "x" then return Key_X;
       elsif N = "v" then return Key_V;
       elsif N = "f" then return Key_F;
+      elsif N = "g" then return Key_G;
       elsif N = "h" then return Key_H;
+      elsif N = "o" then return Key_O;
       elsif N = "p" then return Key_P;
       elsif N = "n" then return Key_N;
       elsif N = "w" then return Key_W;
@@ -357,8 +360,8 @@ package body Editor.Keybindings is
    function Is_Text_Key (Key : Key_Code) return Boolean is
    begin
       case Key is
-         when Key_A | Key_S | Key_C | Key_X | Key_V | Key_F | Key_H | Key_P
-            | Key_N | Key_W | Key_M | Key_L | Key_Z | Key_Y =>
+         when Key_A | Key_S | Key_C | Key_X | Key_V | Key_F | Key_G | Key_H
+            | Key_O | Key_P | Key_N | Key_W | Key_M | Key_L | Key_Z | Key_Y =>
             return True;
          when others =>
             return False;
@@ -596,7 +599,7 @@ package body Editor.Keybindings is
      (Command : Editor.Commands.Command_Id) return Command_Keybinding_Info
    is
    begin
-      for I in Bindings'Range loop
+      for I in reverse Bindings'Range loop
          if Bindings (I).Used and then Bindings (I).Id = Command then
             return
               (Has_Binding => True,

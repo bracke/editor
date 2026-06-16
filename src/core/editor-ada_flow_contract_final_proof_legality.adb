@@ -2,6 +2,8 @@ with Ada.Strings.Unbounded; use Ada.Strings.Unbounded;
 
 package body Editor.Ada_Flow_Contract_Final_Proof_Legality is
 
+   pragma Suppress (Overflow_Check);
+
    use type Contract_CPD.Contract_Predicate_Status;
    use type Refined.Refined_Conformance_Status;
    use type Flow_Consumer.Consumer_Status;

@@ -2,6 +2,8 @@ with Ada.Strings.Unbounded; use Ada.Strings.Unbounded;
 
 package body Editor.Ada_Semantic_Colour_Projection is
 
+   pragma Suppress (Overflow_Check);
+
    use type Editor.Syntax.Token_Kind;
 
    function Mix (A, B : Natural) return Natural is

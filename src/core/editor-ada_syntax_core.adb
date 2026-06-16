@@ -5,6 +5,8 @@ with Ada.Strings.Maps.Constants;
 
 package body Editor.Ada_Syntax_Core is
 
+   pragma Suppress (Overflow_Check);
+
    function Starts_With
      (Text   : String;
       Prefix : String) return Boolean

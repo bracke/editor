@@ -283,7 +283,7 @@ package Editor.Quick_Open is
 
    function Result_At
      (State : Quick_Open_State;
-      Index : Positive) return Quick_Open_Result;
+      Index : Natural) return Quick_Open_Result;
 
    function Build_Snapshot
      (State : Quick_Open_State) return Quick_Open_Snapshot;

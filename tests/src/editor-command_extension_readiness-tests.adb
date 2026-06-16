@@ -120,11 +120,11 @@ package body Editor.Command_Extension_Readiness.Tests is
       Settings_After  : Natural;
    begin
       Editor.State.Init (S);
-      Editor.Settings.Set_Minimap_Visible (S.Settings, False);
+      Editor.Settings.Set_Cursor_Blink (S.Settings, False);
       Metadata_Before := Editor.Command_Domain.Command_Metadata_Fingerprint;
       Settings_Before := Editor.Command_Domain.Settings_Fingerprint (S);
       Editor.Executor.Execute_Command
-        (S, Editor.Commands.Command_Reset_Settings_To_Defaults);
+        (S, Editor.Commands.Command_Configuration_Reset_Settings);
       Metadata_After := Editor.Command_Domain.Command_Metadata_Fingerprint;
       Settings_After := Editor.Command_Domain.Settings_Fingerprint (S);
 

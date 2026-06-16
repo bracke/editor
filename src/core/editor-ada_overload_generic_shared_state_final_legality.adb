@@ -1,6 +1,8 @@
 with Ada.Strings.Unbounded; use Ada.Strings.Unbounded;
 
 package body Editor.Ada_Overload_Generic_Shared_State_Final_Legality is
+
+   pragma Suppress (Overflow_Check);
    use type Closure.Shared_State_Stabilized_Closure_Status;
    use type Overload.Overload_Shared_State_Row_Id;
    use type Generic_Replay.Generic_Abstract_Replay_Row_Id;

@@ -840,6 +840,7 @@ package body Editor.Focus_Management.Tests is
       pragma Unreferenced (T);
       S : Editor.State.State_Type;
    begin
+      Editor.State.Init (S);
       Editor.Panels.Set_Bottom_Content
         (S.Panels, Editor.Panels.Search_Results_Content);
       Editor.Panels.Set_Visible
@@ -920,6 +921,7 @@ package body Editor.Focus_Management.Tests is
       pragma Unreferenced (T);
       S : Editor.State.State_Type;
    begin
+      Editor.State.Init (S);
       Editor.Panels.Set_Bottom_Content
         (S.Panels, Editor.Panels.Search_Results_Content);
       Editor.Panels.Set_Visible
@@ -1840,6 +1842,7 @@ package body Editor.Focus_Management.Tests is
       pragma Unreferenced (T);
       S : Editor.State.State_Type;
    begin
+      Editor.State.Init (S);
       S.Build_UI.Build_UI_Focused := True;
       S.Latest_Build_Result_Focused := True;
       S.Latest_Build_Output_Details.Build_Output_Details_Focused := True;
@@ -1978,6 +1981,7 @@ package body Editor.Focus_Management.Tests is
       pragma Unreferenced (T);
       S : Editor.State.State_Type;
    begin
+      Editor.State.Init (S);
       Editor.Panels.Set_Bottom_Content
         (S.Panels, Editor.Panels.Search_Results_Content);
       Editor.Panels.Set_Visible

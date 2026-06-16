@@ -3,6 +3,8 @@ with Ada.Strings.Unbounded; use Ada.Strings.Unbounded;
 
 package body Editor.Ada_Accessibility_Master_Scope_Final_Consumer_Legality is
 
+   pragma Suppress (Overflow_Check);
+
    use type Scope_Consumer.Accessibility_Consumer_Row_Id;
    use type Object_Flow.Object_Flow_Row_Id;
    use type Disc_Consumer.Discriminant_Consumer_Row_Id;
