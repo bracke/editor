@@ -5945,6 +5945,18 @@ package body Editor.Outline.Tests is
                 "outline.reveal-current-symbol",
               "phase 550 reveal-current command has canonical no-payload stable name");
       Assert (Editor.Commands.Stable_Command_Name
+                (Editor.Commands.Command_Select_Current_Outline_Symbol) =
+                "outline.select-current-symbol",
+              "phase 550 select-current command has canonical no-payload stable name");
+      Assert (Editor.Commands.Stable_Command_Name
+                (Editor.Commands.Command_Select_Next_Outline_Item) =
+                "outline.select-next",
+              "phase 550 select-next command has canonical no-payload stable name");
+      Assert (Editor.Commands.Stable_Command_Name
+                (Editor.Commands.Command_Select_Previous_Outline_Item) =
+                "outline.select-previous",
+              "phase 550 select-previous command has canonical no-payload stable name");
+      Assert (Editor.Commands.Stable_Command_Name
                 (Editor.Commands.Command_Focus_Outline_Filter) =
                 "outline.filter.focus",
               "phase 550 focus filter command has canonical no-payload stable name");
@@ -5956,6 +5968,30 @@ package body Editor.Outline.Tests is
         ("outline.reveal-current-symbol", Found);
       Assert (Found and then Id = Editor.Commands.Command_Reveal_Current_Outline_Symbol,
               "phase 550 reveal-current stable alias routes without payload");
+      Id := Editor.Commands.Command_Id_From_Stable_Name
+        ("outline.select-current-symbol", Found);
+      Assert (Found and then Id = Editor.Commands.Command_Select_Current_Outline_Symbol,
+              "phase 550 select-current stable alias routes without payload");
+      Id := Editor.Commands.Command_Id_From_Stable_Name
+        ("select-current-outline-symbol", Found);
+      Assert (Found and then Id = Editor.Commands.Command_Select_Current_Outline_Symbol,
+              "phase 550 legacy select-current alias remains loadable");
+      Id := Editor.Commands.Command_Id_From_Stable_Name
+        ("outline.select-next", Found);
+      Assert (Found and then Id = Editor.Commands.Command_Select_Next_Outline_Item,
+              "phase 550 select-next stable alias routes without payload");
+      Id := Editor.Commands.Command_Id_From_Stable_Name
+        ("select-next-outline-item", Found);
+      Assert (Found and then Id = Editor.Commands.Command_Select_Next_Outline_Item,
+              "phase 550 legacy select-next alias remains loadable");
+      Id := Editor.Commands.Command_Id_From_Stable_Name
+        ("outline.select-previous", Found);
+      Assert (Found and then Id = Editor.Commands.Command_Select_Previous_Outline_Item,
+              "phase 550 select-previous stable alias routes without payload");
+      Id := Editor.Commands.Command_Id_From_Stable_Name
+        ("select-previous-outline-item", Found);
+      Assert (Found and then Id = Editor.Commands.Command_Select_Previous_Outline_Item,
+              "phase 550 legacy select-previous alias remains loadable");
       Id := Editor.Commands.Command_Id_From_Stable_Name
         ("outline.filter.next-match", Found);
       Assert (Found and then Id = Editor.Commands.Command_Select_Next_Outline_Item,
@@ -6572,7 +6608,7 @@ package body Editor.Outline.Tests is
               "phase 551 split spec does not consume outer body range");
       Assert (Item_Label (O, 2) = "procedure Decl",
               "phase 551 split spec declaration row is preserved");
-      Assert (Item_Detail (O, 2) = "line 2 declaration",
+      Assert (Item_Detail (O, 2) = "line 2 declaration (Value : Integer)",
               "phase 551 split spec does not fabricate a body range");
    end Test_Phase551_Split_Subprogram_Spec_Does_Not_Corrupt_Outer_Range;
 
@@ -6655,7 +6691,7 @@ package body Editor.Outline.Tests is
               "phase 551 string literal is token does not corrupt outer body range");
       Assert (Item_Label (O, 2) = "procedure Local",
               "phase 551 split spec with string default keeps declaration row");
-      Assert (Item_Detail (O, 2) = "line 2 declaration",
+      Assert (Item_Detail (O, 2) = "line 2 declaration (Message : String :=     )",
               "phase 551 split spec string default does not fabricate body range");
    end Test_Phase551_String_Tokens_In_Split_Spec_Do_Not_Corrupt_Ranges;
 

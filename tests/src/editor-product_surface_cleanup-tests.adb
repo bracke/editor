@@ -208,6 +208,9 @@ package body Editor.Product_Surface_Cleanup.Tests is
       use AUnit.Test_Cases.Registration;
    begin
       Register_Routine
+        (T, Test_Removed_Name_Demo_Command_Removed_From_Command_Surface'Access,
+         "Phase 530 removed demo command is absent from command surface");
+      Register_Routine
         (T, Test_Normal_Startup_Has_No_Demo_Surface'Access,
          "Phase 530 normal startup has no demo product surface");
       Register_Routine

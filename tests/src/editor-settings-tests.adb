@@ -511,6 +511,8 @@ package body Editor.Settings.Tests is
               "Cursor style setting key must be stable");
       Assert (Editor.Settings.Setting_Name_Cursor_Blink = "cursor-blink",
               "Cursor blink setting key must be stable");
+      Assert (Editor.Settings.Setting_Name_Format_On_Save = "format-on-save",
+              "Format-on-save setting key must be stable");
       Assert (Editor.Settings.Setting_Name_Minimap_Visible = "minimap-visible",
               "Minimap visibility setting key must be stable");
       Assert (Editor.Settings.Setting_Name_Scrollbars_Visible = "scrollbars-visible",

@@ -1,6 +1,7 @@
 with Ada.Strings.Unbounded; use Ada.Strings.Unbounded;
 with Editor.Ada_View_Aware_Compatibility;
 with Editor.Ada_Dispatching_Call_Legality;
+with Editor.Ada_Overload_Resolution_Legality;
 with Editor.Ada_Overload_Ranking;
 
 package body Editor.Ada_Expression_Diagnostics is
@@ -9,6 +10,7 @@ package body Editor.Ada_Expression_Diagnostics is
 
    use type Editor.Ada_Syntax_Tree.Node_Id;
    use type Editor.Ada_Dispatching_Call_Legality.Dispatching_Legality_Status;
+   use type Editor.Ada_Overload_Resolution_Legality.Overload_Legality_Status;
    use type Editor.Ada_Overload_Ranking.Overload_Ranking_Status;
 
    function Mix (Left : Natural; Right : Natural) return Natural is
@@ -116,7 +118,8 @@ package body Editor.Ada_Expression_Diagnostics is
    is
    begin
       case Status is
-         when Editor.Ada_View_Aware_Compatibility.View_Compatibility_Known_Incompatible =>
+         when Editor.Ada_View_Aware_Compatibility.View_Compatibility_Requires_Explicit_Conversion |
+              Editor.Ada_View_Aware_Compatibility.View_Compatibility_Known_Incompatible =>
             return Expression_Diagnostic_Error;
          when Editor.Ada_View_Aware_Compatibility.View_Compatibility_Compatible |
               Editor.Ada_View_Aware_Compatibility.View_Compatibility_Private_Full_View =>
@@ -132,7 +135,8 @@ package body Editor.Ada_Expression_Diagnostics is
    is
    begin
       case Status is
-         when Editor.Ada_View_Aware_Compatibility.View_Compatibility_Known_Incompatible =>
+         when Editor.Ada_View_Aware_Compatibility.View_Compatibility_Requires_Explicit_Conversion |
+              Editor.Ada_View_Aware_Compatibility.View_Compatibility_Known_Incompatible =>
             return Expression_Diagnostic_Expected_Type_Mismatch;
          when Editor.Ada_View_Aware_Compatibility.View_Compatibility_Indeterminate =>
             return Expression_Diagnostic_Unknown_Expression;
@@ -161,6 +165,8 @@ package body Editor.Ada_Expression_Diagnostics is
             return "cross-unit selected name resolves through a private view";
          when Editor.Ada_View_Aware_Compatibility.View_Compatibility_Cross_Unit_Unresolved =>
             return "cross-unit selected-name compatibility could not be resolved";
+         when Editor.Ada_View_Aware_Compatibility.View_Compatibility_Requires_Explicit_Conversion =>
+            return "derived specific type compatibility requires an explicit conversion";
          when Editor.Ada_View_Aware_Compatibility.View_Compatibility_Known_Incompatible =>
             return "view-aware subtype compatibility is known to be incompatible";
          when Editor.Ada_View_Aware_Compatibility.View_Compatibility_Indeterminate =>
@@ -187,6 +193,114 @@ package body Editor.Ada_Expression_Diagnostics is
    begin
       return Editor.Ada_Overload_Ranking.Overload_Ranking_Status'Pos (Status) + 1;
    end Ranking_Status_Fingerprint;
+
+   function Overload_Legality_Status_Fingerprint
+     (Status : Editor.Ada_Overload_Resolution_Legality.Overload_Legality_Status)
+      return Natural is
+   begin
+      return Editor.Ada_Overload_Resolution_Legality.Overload_Legality_Status'Pos
+        (Status) + 1;
+   end Overload_Legality_Status_Fingerprint;
+
+   function Severity_From_Overload_Legality
+     (Status : Editor.Ada_Overload_Resolution_Legality.Overload_Legality_Status)
+      return Expression_Diagnostic_Severity is
+   begin
+      case Status is
+         when Editor.Ada_Overload_Resolution_Legality.Overload_Legality_Ambiguous_After_Preference |
+              Editor.Ada_Overload_Resolution_Legality.Overload_Legality_No_Visible_Candidate |
+              Editor.Ada_Overload_Resolution_Legality.Overload_Legality_Not_Visible |
+              Editor.Ada_Overload_Resolution_Legality.Overload_Legality_Profile_Mismatch |
+              Editor.Ada_Overload_Resolution_Legality.Overload_Legality_Actual_Type_Mismatch |
+              Editor.Ada_Overload_Resolution_Legality.Overload_Legality_Defaulted_Formal_Mismatch |
+              Editor.Ada_Overload_Resolution_Legality.Overload_Legality_Linked_Semantic_Error =>
+            return Expression_Diagnostic_Error;
+         when Editor.Ada_Overload_Resolution_Legality.Overload_Legality_Private_View_Barrier |
+              Editor.Ada_Overload_Resolution_Legality.Overload_Legality_Limited_View_Barrier |
+              Editor.Ada_Overload_Resolution_Legality.Overload_Legality_Cross_Unit_Unresolved |
+              Editor.Ada_Overload_Resolution_Legality.Overload_Legality_Unknown |
+              Editor.Ada_Overload_Resolution_Legality.Overload_Legality_Indeterminate |
+              Editor.Ada_Overload_Resolution_Legality.Overload_Legality_Not_Checked =>
+            return Expression_Diagnostic_Warning;
+         when others =>
+            return Expression_Diagnostic_Severity_Info;
+      end case;
+   end Severity_From_Overload_Legality;
+
+   function Kind_From_Overload_Legality
+     (Status : Editor.Ada_Overload_Resolution_Legality.Overload_Legality_Status)
+      return Expression_Diagnostic_Kind is
+   begin
+      case Status is
+         when Editor.Ada_Overload_Resolution_Legality.Overload_Legality_Ambiguous_After_Preference =>
+            return Expression_Diagnostic_Call_Ambiguous;
+         when Editor.Ada_Overload_Resolution_Legality.Overload_Legality_No_Visible_Candidate |
+              Editor.Ada_Overload_Resolution_Legality.Overload_Legality_Not_Visible |
+              Editor.Ada_Overload_Resolution_Legality.Overload_Legality_Cross_Unit_Unresolved =>
+            return Expression_Diagnostic_Unresolved_Expression;
+         when Editor.Ada_Overload_Resolution_Legality.Overload_Legality_Profile_Mismatch |
+              Editor.Ada_Overload_Resolution_Legality.Overload_Legality_Actual_Type_Mismatch |
+              Editor.Ada_Overload_Resolution_Legality.Overload_Legality_Defaulted_Formal_Mismatch =>
+            return Expression_Diagnostic_Call_Actual_Mismatch;
+         when Editor.Ada_Overload_Resolution_Legality.Overload_Legality_Private_View_Barrier |
+              Editor.Ada_Overload_Resolution_Legality.Overload_Legality_Limited_View_Barrier |
+              Editor.Ada_Overload_Resolution_Legality.Overload_Legality_Linked_Semantic_Error =>
+            return Expression_Diagnostic_Expected_Type_Mismatch;
+         when others =>
+            return Expression_Diagnostic_Unknown_Expression;
+      end case;
+   end Kind_From_Overload_Legality;
+
+   procedure Add_Overload_Legality
+     (Model  : in out Expression_Diagnostic_Model;
+      Source : Editor.Ada_Overload_Resolution_Legality.Overload_Legality_Info)
+   is
+      Id : constant Expression_Diagnostic_Id :=
+        Expression_Diagnostic_Id (Natural (Model.Diagnostics.Length) + 1);
+      Item : Expression_Diagnostic_Info;
+      Kind : constant Expression_Diagnostic_Kind :=
+        Kind_From_Overload_Legality (Source.Status);
+      Sev  : constant Expression_Diagnostic_Severity :=
+        Severity_From_Overload_Legality (Source.Status);
+   begin
+      if not Editor.Ada_Overload_Resolution_Legality.Has_Legality (Source) then
+         return;
+      end if;
+
+      if Sev = Expression_Diagnostic_Severity_Info then
+         return;
+      end if;
+
+      Item.Id := Id;
+      Item.Node := Source.Node;
+      Item.Kind := Kind;
+      Item.Severity := Sev;
+      Item.Message := Source.Message;
+      Item.Detail := Source.Detail;
+      Item.From_Overload_Legality := True;
+      Item.Overload_Legality := Source.Id;
+      Item.Overload_Legality_Status := Source.Status;
+      Item.Overload_Ranking := Source.Ranking;
+      Item.Overload_Ranking_Status := Source.Ranking_Status;
+      Item.Candidate_Count := Source.Candidate_Count;
+      Item.Selected_Count := Source.Selected_Count;
+      Item.Compatible_Count := Source.Visible_Candidate_Count;
+      Item.Mismatch_Count := Source.Rejected_Count;
+      Item.Overload_Legality_Fingerprint := Source.Fingerprint;
+      Item.Overload_Ranking_Fingerprint := Source.Ranking_Fingerprint;
+      Item.Start_Line := Source.Start_Line;
+      Item.Start_Column := Source.Start_Column;
+      Item.End_Line := Source.End_Line;
+      Item.End_Column := Source.End_Column;
+      Item.Fingerprint := Mix
+        (Mix (Natural (Source.Node), Source.Fingerprint),
+         Mix (Kind_Fingerprint (Kind),
+              Mix (Severity_Fingerprint (Sev),
+                   Overload_Legality_Status_Fingerprint (Source.Status))));
+
+      Model.Diagnostics.Append (Item);
+      Model.Result_Fingerprint := Mix (Model.Result_Fingerprint, Item.Fingerprint);
+   end Add_Overload_Legality;
 
    function Severity_From_Ranking
      (Status : Editor.Ada_Overload_Ranking.Overload_Ranking_Status)
@@ -718,6 +832,27 @@ package body Editor.Ada_Expression_Diagnostics is
       return Model;
    end Build_With_All_Semantic_Causes_And_Ranking;
 
+   function Build_With_All_Semantic_Causes_Ranking_And_Overload_Legality
+     (Expressions  : Editor.Ada_Expression_Types.Expression_Type_Model;
+      Causes       : Editor.Ada_Overload_Ambiguity_Diagnostics.Overload_Ambiguity_Model;
+      Views        : Editor.Ada_View_Aware_Compatibility.View_Compatibility_Model;
+      Dispatching  : Editor.Ada_Dispatching_Call_Legality.Dispatching_Legality_Model;
+      Ranking      : Editor.Ada_Overload_Ranking.Overload_Ranking_Model;
+      Overloads    : Editor.Ada_Overload_Resolution_Legality.Overload_Legality_Model)
+      return Expression_Diagnostic_Model
+   is
+      Model : Expression_Diagnostic_Model :=
+        Build_With_All_Semantic_Causes_And_Ranking
+          (Expressions, Causes, Views, Dispatching, Ranking);
+      Item  : Editor.Ada_Overload_Resolution_Legality.Overload_Legality_Info;
+   begin
+      for I in 1 .. Editor.Ada_Overload_Resolution_Legality.Legality_Count (Overloads) loop
+         Item := Editor.Ada_Overload_Resolution_Legality.Legality_At (Overloads, I);
+         Add_Overload_Legality (Model, Item);
+      end loop;
+      return Model;
+   end Build_With_All_Semantic_Causes_Ranking_And_Overload_Legality;
+
    function Has_Diagnostics (Model : Expression_Diagnostic_Model) return Boolean is
    begin
       return not Model.Diagnostics.Is_Empty;
@@ -998,6 +1133,35 @@ package body Editor.Ada_Expression_Diagnostics is
       end loop;
       return Result;
    end Overload_Ranking_Rejection_Diagnostic_Count;
+
+   function Overload_Legality_Diagnostic_Count
+     (Model : Expression_Diagnostic_Model) return Natural
+   is
+      Result : Natural := 0;
+   begin
+      for I in 1 .. Natural (Model.Diagnostics.Length) loop
+         if Model.Diagnostics.Element (Positive (I)).From_Overload_Legality then
+            Result := Result + 1;
+         end if;
+      end loop;
+      return Result;
+   end Overload_Legality_Diagnostic_Count;
+
+   function Overload_Legality_Error_Count
+     (Model : Expression_Diagnostic_Model) return Natural
+   is
+      Result : Natural := 0;
+   begin
+      for I in 1 .. Natural (Model.Diagnostics.Length) loop
+         if Model.Diagnostics.Element (Positive (I)).From_Overload_Legality
+           and then Model.Diagnostics.Element (Positive (I)).Severity =
+             Expression_Diagnostic_Error
+         then
+            Result := Result + 1;
+         end if;
+      end loop;
+      return Result;
+   end Overload_Legality_Error_Count;
 
    function Fingerprint (Model : Expression_Diagnostic_Model) return Natural is
    begin

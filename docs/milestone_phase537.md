@@ -34,7 +34,7 @@ Show Build UI, refresh build candidates from the open project, select a candidat
 
 ## Inspect build output
 
-After a represented build result exists, use the Build UI result/output details surfaces to inspect the latest bounded output. The current editor also supports bounded active-job output streaming into Build Output. There is still no build history, rerun-last-build action, terminal, or shell command language in this milestone.
+After a represented build result exists, use the Build UI result/output details surfaces to inspect the latest bounded output. The current editor also supports bounded active-job output streaming into Build Output. Build history, rerun-last-build, and shell command language remain out of scope for this milestone; project-scoped Terminal tasks and the first-class project run/test commands are the structured task-runner surface for default/profiled `alr build`, `alr run`, and `alr test`.
 
 ## Review Diagnostics
 
@@ -42,7 +42,7 @@ When Diagnostics-owned ingestion has produced diagnostics, show Diagnostics to r
 
 ## Workspace reload
 
-Workspace reload may restore retained structural session state such as project reference, open file references, active file reference, and retained structural panel visibility. It deliberately does not restore unsaved buffer text, Build candidates, selected Build candidate, Build consent, latest Build result/output, Outline rows, Project Search results, Quick Open matches, File Tree data rows, Command Palette query/results, or dogfood transient state.
+Workspace reload may restore retained structural session state such as project reference, open file references, active file reference, and retained structural panel visibility. It deliberately does not restore unsaved buffer text, Build candidates, selected Build candidate, Build consent, latest Build result/output, Terminal task rows/output/rerun payload, Outline rows, Project Search results, Quick Open matches, File Tree data rows, Command Palette query/results, or dogfood transient state.
 
 Expected reload messages include `Workspace loaded.`, `Workspace saved.`, `Workspace contains no project to restore.`, `Some files could not be reopened.`, and `Unsupported workspace fields ignored.`
 

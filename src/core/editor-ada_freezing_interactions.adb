@@ -124,7 +124,12 @@ package body Editor.Ada_Freezing_Interactions is
             if Instance.Status /= Editor.Ada_Generic_Contracts.Generic_Instance_Record_Valid then
                Item.Status := Freezing_Interaction_Generic_Target_Unresolved;
             elsif Target = Editor.Ada_Freezing_Points.No_Freezable then
-               Item.Status := Freezing_Interaction_Generic_Target_Unresolved;
+               --  Generic package declarations are valid freezing designators
+               --  even when the lower freezable model has not materialized a
+               --  package-generic target.  Preserve the instance-specific
+               --  freezing fact so downstream representation diagnostics can
+               --  distinguish a valid instance from a malformed/unresolved one.
+               Item.Status := Freezing_Interaction_Generic_Instance_Freezes_Target;
             elsif Editor.Ada_Freezing_Points.Freezing_Status_For
               (Freezing, Instance.Region, To_String (Instance.Generic_Name)) =
               Editor.Ada_Freezing_Points.Freezing_Target_Ambiguous

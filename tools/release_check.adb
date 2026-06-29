@@ -3,6 +3,8 @@ with Ada.Directories;
 with Editor_Tool_Common; use Editor_Tool_Common;
 
 procedure Release_Check is
+   use type Ada.Directories.File_Kind;
+
    Tool : constant String := "release_check";
 
    Tools_Build_Attempted : Boolean := False;
@@ -502,7 +504,7 @@ begin
    if not File_Contains ("tools/runtime_smoke.adb", "EDITOR_RUNTIME_SMOKE_TIMEOUT_SECONDS")
      or else not File_Contains ("tools/runtime_smoke.adb", "--runtime-smoke-max-seconds=")
      or else not File_Contains ("src/runtime/main.c", "--runtime-smoke-max-seconds=")
-     or else not File_Contains ("src/runtime/runtime_glfw.c", "exceeded internal smoke timeout")
+     or else not File_Contains ("src/runtime/runtime_glfw.adb", "exceeded internal smoke timeout")
      or else File_Contains ("tools/runtime_smoke.adb", "Command_Exists (""timeout"")")
      or else File_Contains ("tools/runtime_smoke.adb", "--kill-after=")
      or else not File_Contains ("docs/release/RUNTIME_SMOKE.md", "--runtime-smoke-max-seconds")
@@ -785,7 +787,8 @@ begin
    --  and fails when its own strict environment variable requires execution.
    Run_Tool_Gate ("outline_static_sanity", "Outline static sanity gate");
    Run_Tool_Gate ("ada_keyword_identifier_check", "Ada keyword identifier gate");
-   Run_Tool_Gate ("runtime_compile_check", "runtime C syntax/header gate");
+   Run_Tool_Gate
+     ("runtime_compile_check", "runtime C entrypoint/Ada backend gate");
    Run_Tool_Gate ("runtime_link_check", "runtime link/build gate");
    Run_Tool_Gate ("runtime_smoke", "runtime graphical smoke gate");
    Run_Tool_Gate ("runtime_missing_asset_check", "runtime missing-shader negative gate");

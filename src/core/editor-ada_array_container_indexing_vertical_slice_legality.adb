@@ -17,7 +17,8 @@ package body Editor.Ada_Array_Container_Indexing_Vertical_Slice_Legality is
         | Composite_Multidimensional_Array
         | Composite_String_Array
         | Composite_Formal_Array
-        | Composite_Private_Array;
+        | Composite_Private_Array
+        | Composite_Limited_View;
    end Is_Array;
 
    function Is_Container (Kind : Composite_Kind) return Boolean is

@@ -5,6 +5,8 @@ with Ada.Text_IO;
 with Ada.Strings.Unbounded; use Ada.Strings.Unbounded;
 with Editor.Settings;
 with Editor.Commands;
+with Editor.Input_Bridge;
+with Editor.Keybindings;
 with Editor.Settings_Management;
 with Editor.State;
 with Editor.Render_Model;
@@ -17,6 +19,16 @@ package body Editor.Settings_Management.Tests is
    use type Editor.Settings_Management.Settings_Command_Action;
    use type Editor.Commands.Command_Id;
    use type Editor.Settings.Settings_Status;
+
+   function Key
+     (Code : Editor.Keybindings.Key_Code) return Editor.Keybindings.Key_Chord
+   is
+   begin
+      return
+        (Key => Code,
+         Modifiers =>
+           (Ctrl => False, Alt => False, Shift => False, Meta => False));
+   end Key;
 
    function Name
      (T : Settings_Management_Test_Case) return AUnit.Message_String
@@ -893,6 +905,57 @@ package body Editor.Settings_Management.Tests is
               "phase 566 milestone helper should pass for default settings model");
    end Test_Milestone_Helper;
 
+   procedure Test_Focused_Settings_Keyboard_Routes_Through_Input_Bridge
+     (T : in out AUnit.Test_Cases.Test_Case'Class)
+   is
+      pragma Unreferenced (T);
+      S : Editor.State.State_Type;
+      UI : Editor.Settings_Management.Settings_Editor_State;
+      After : Editor.State.State_Type;
+      Selected : constant Natural :=
+        Editor.Settings_Management.Index_For_Key
+          (Editor.Settings.Setting_Name_Command_Palette_Show_Keybindings);
+   begin
+      Editor.State.Init (S);
+      Editor.Settings_Management.Reset_Transient_State;
+      Editor.Settings.Set_Command_Palette_Show_Keybindings (S.Settings, True);
+
+      Editor.Settings_Management.Focus_Settings (UI);
+      UI.Selected_Index := Selected;
+      Editor.Settings_Management.Set_Current_Settings_Editor_State (UI);
+      Editor.Input_Bridge.Set_State_For_Test (S);
+
+      Editor.Input_Bridge.Handle_Key_Chord
+        (Key (Editor.Keybindings.Key_Down));
+      UI := Editor.Settings_Management.Current_Settings_Editor_State;
+      Assert (UI.Selected_Index /= Selected,
+              "Down is consumed by focused settings selection");
+
+      Editor.Input_Bridge.Handle_Key_Chord
+        (Key (Editor.Keybindings.Key_Up));
+      UI := Editor.Settings_Management.Current_Settings_Editor_State;
+      Assert (UI.Selected_Index = Selected,
+              "Up returns focused settings selection");
+
+      Editor.Input_Bridge.Handle_Key_Chord
+        (Key (Editor.Keybindings.Key_Enter));
+      After := Editor.Input_Bridge.Get_State_For_Test;
+      Assert (not Editor.Settings.Command_Palette_Show_Keybindings (After.Settings),
+              "Enter toggles the focused selected setting through Input_Bridge");
+
+      Editor.Input_Bridge.Handle_Key_Chord
+        (Key (Editor.Keybindings.Key_Delete));
+      After := Editor.Input_Bridge.Get_State_For_Test;
+      Assert (Editor.Settings.Command_Palette_Show_Keybindings (After.Settings),
+              "Delete resets the focused selected setting through Input_Bridge");
+
+      Editor.Input_Bridge.Handle_Key_Chord
+        (Key (Editor.Keybindings.Key_Escape));
+      UI := Editor.Settings_Management.Current_Settings_Editor_State;
+      Assert (not UI.Visible and then not UI.Focused,
+              "Escape hides the focused settings surface");
+   end Test_Focused_Settings_Keyboard_Routes_Through_Input_Bridge;
+
    overriding procedure Register_Tests
      (T : in out Settings_Management_Test_Case)
    is
@@ -955,6 +1018,9 @@ package body Editor.Settings_Management.Tests is
       AUnit.Test_Cases.Registration.Register_Routine
         (T, Test_Settings_Command_Routes_Are_Explicit_And_No_Payload'Access,
          "settings command routes are executor-backed or typed surface-only without payloads");
+      AUnit.Test_Cases.Registration.Register_Routine
+        (T, Test_Focused_Settings_Keyboard_Routes_Through_Input_Bridge'Access,
+         "focused settings keyboard routes through Input_Bridge");
       AUnit.Test_Cases.Registration.Register_Routine
         (T, Test_Milestone_Helper'Access,
          "settings configuration management milestone helper remains coherent");

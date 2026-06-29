@@ -15,6 +15,8 @@ with Editor.Commands;
 with Editor.State;
 with Editor.Executor;
 with Editor.Command_Execution;
+with Editor.Input_Bridge;
+with Editor.Keybindings;
 with Editor.Render_Model;
 
 use type Editor.Build_UI.Public_Build_UI_Validation_Status;
@@ -31,6 +33,16 @@ use type Editor.Build_UI.Build_UI_Build_Mode;
 use type Editor.Build_UI.Build_UI_Output_Capture_Limit;
 
 package body Editor.Build_UI.Tests is
+
+   function Key
+     (Code : Editor.Keybindings.Key_Code) return Editor.Keybindings.Key_Chord
+   is
+   begin
+      return
+        (Key       => Code,
+         Modifiers => (Ctrl => False, Shift => False,
+                       Alt => False, Meta => False));
+   end Key;
 
    overriding function Name
      (T : Build_UI_Test_Case) return AUnit.Message_String
@@ -80,6 +92,28 @@ package body Editor.Build_UI.Tests is
       return S;
    end Ready_Alire_UI;
 
+   function Two_Candidate_Focused_UI return Editor.Build_UI.Public_Build_UI_State
+   is
+      S : Editor.Build_UI.Public_Build_UI_State;
+      First : constant Editor.Build_Candidates.Build_Candidate_Record :=
+        Editor.Build_Candidates.Gprbuild_Candidate
+          ("current-project-root", "first.gpr");
+      Second : constant Editor.Build_Candidates.Build_Candidate_Record :=
+        Editor.Build_Candidates.Gprbuild_Candidate
+          ("current-project-root", "second.gpr");
+      Candidates : Editor.Build_Candidates.Build_Candidate_Vector :=
+        Editor.Build_Candidates.Empty_Candidates;
+   begin
+      Editor.Build_UI.Focus (S);
+      Candidates.Append (First);
+      Candidates.Append (Second);
+      Editor.Build_UI.Set_Build_Candidates
+        (S, Candidates, "refresh succeeded: 2 candidates");
+      Editor.Build_UI.Select_Build_Candidate
+        (S, To_String (First.Candidate_Id));
+      return S;
+   end Two_Candidate_Focused_UI;
+
    procedure Test_Build_UI_State_Is_Transient_And_Explicit
      (T : in out AUnit.Test_Cases.Test_Case'Class)
    is
@@ -96,6 +130,62 @@ package body Editor.Build_UI.Tests is
       Assert (Editor.Build_UI.Assert_Build_UI_State_Is_Transient (S),
               "build UI state carries no raw shell or remembered-consent field");
    end Test_Build_UI_State_Is_Transient_And_Explicit;
+
+   procedure Test_Focused_Build_UI_Keyboard_Routes_Through_Input_Bridge
+     (T : in out AUnit.Test_Cases.Test_Case'Class)
+   is
+      pragma Unreferenced (T);
+      S : Editor.State.State_Type;
+      After : Editor.State.State_Type;
+      Snapshot : Editor.Build_UI.Build_UI_Render_Snapshot;
+      First_Index : Natural;
+      Last_Index  : Natural;
+   begin
+      S.Build_UI := Two_Candidate_Focused_UI;
+      Editor.Input_Bridge.Set_State_For_Test (S);
+
+      Editor.Input_Bridge.Handle_Key_Chord
+        (Key (Editor.Keybindings.Key_Down));
+      After := Editor.Input_Bridge.Get_State_For_Test;
+      Snapshot := Editor.Build_UI.Build_Render_Snapshot
+        (After.Build_UI, After.Latest_Build_Result,
+         After.Latest_Build_Output_Details);
+      First_Index := Snapshot.Candidates.First_Index;
+      Last_Index := Snapshot.Candidates.Last_Index;
+      Assert (Snapshot.Candidate_Count = 2,
+              "focused Build UI key route preserves candidates");
+      Assert (Snapshot.Candidates (Last_Index).Selected,
+              "Down selects the next Build UI candidate through Input_Bridge");
+
+      Editor.Input_Bridge.Handle_Key_Chord
+        (Key (Editor.Keybindings.Key_Up));
+      After := Editor.Input_Bridge.Get_State_For_Test;
+      Snapshot := Editor.Build_UI.Build_Render_Snapshot
+        (After.Build_UI, After.Latest_Build_Result,
+         After.Latest_Build_Output_Details);
+      First_Index := Snapshot.Candidates.First_Index;
+      Last_Index := Snapshot.Candidates.Last_Index;
+      Assert (Snapshot.Candidates (First_Index).Selected,
+              "Up selects the previous Build UI candidate through Input_Bridge");
+
+      Editor.Input_Bridge.Handle_Key_Chord
+        (Key (Editor.Keybindings.Key_Delete));
+      After := Editor.Input_Bridge.Get_State_For_Test;
+      Snapshot := Editor.Build_UI.Build_Render_Snapshot
+        (After.Build_UI, After.Latest_Build_Result,
+         After.Latest_Build_Output_Details);
+      First_Index := Snapshot.Candidates.First_Index;
+      Last_Index := Snapshot.Candidates.Last_Index;
+      Assert (not Snapshot.Candidates (First_Index).Selected
+              and then not Snapshot.Candidates (Last_Index).Selected,
+              "Delete clears the focused Build UI candidate selection");
+
+      Editor.Input_Bridge.Handle_Key_Chord
+        (Key (Editor.Keybindings.Key_Escape));
+      After := Editor.Input_Bridge.Get_State_For_Test;
+      Assert (not After.Build_UI.Build_UI_Focused,
+              "Escape returns focused Build UI keyboard workflow to editor text");
+   end Test_Focused_Build_UI_Keyboard_Routes_Through_Input_Bridge;
 
    procedure Test_Request_Changes_Invalidate_Consent
      (T : in out AUnit.Test_Cases.Test_Case'Class)
@@ -575,7 +665,7 @@ package body Editor.Build_UI.Tests is
               "Phase 527 Build UI distinguishes stdout truncation");
       Assert (Snapshot.Diagnostics_View.Reveal_Available
               and then To_String (Snapshot.Diagnostics_View.Reveal_Command_Name) =
-                "diagnostics-show",
+                "diagnostics.show",
               "Phase 527 Build UI reveal uses existing Diagnostics command name only");
       Assert (Editor.Build_UI_Actions.Assert_Public_Build_Result_Output_UI_Coherent
                 (S),
@@ -1112,7 +1202,7 @@ package body Editor.Build_UI.Tests is
       Snapshot := Editor.Build_UI_Actions.Build_UI_Operability_Snapshot (S);
       Assert (Snapshot.Diagnostics_View.Reveal_Available
               and then To_String (Snapshot.Diagnostics_View.Reveal_Command_Name) =
-                "diagnostics-show",
+                "diagnostics.show",
               "Phase 556 Build UI exposes reveal only when Diagnostics-owned rows exist");
    end Test_Phase556_Reveal_Diagnostics_Requires_Produced_Count;
 
@@ -1124,6 +1214,9 @@ package body Editor.Build_UI.Tests is
       Register_Routine
         (T, Test_Build_UI_State_Is_Transient_And_Explicit'Access,
          "build UI state is transient and explicit");
+      Register_Routine
+        (T, Test_Focused_Build_UI_Keyboard_Routes_Through_Input_Bridge'Access,
+         "focused Build UI keyboard routes through Input_Bridge");
       Register_Routine
         (T, Test_Request_Changes_Invalidate_Consent'Access,
          "request changes invalidate build consent");

@@ -483,8 +483,11 @@ package body Editor.Ada_Symbol_Resolver is
          declare
             S : constant Symbol_Info := Symbol_At (Analysis, I);
          begin
-            if S.Parent_Symbol = Generic_Unit
-              and then S.Enclosing_Scope = Scope_Id (Natural (Generic_Unit))
+            if (S.Parent_Symbol = Generic_Unit
+                or else
+                  (Generic_Unit /= No_Symbol
+                   and then S.Parent_Symbol = Symbol (Analysis, Generic_Unit).Parent_Symbol
+                   and then S.Enclosing_Scope = Symbol (Analysis, Generic_Unit).Enclosing_Scope))
               and then (S.Kind = Symbol_Generic_Formal_Type
                         or else S.Kind = Symbol_Generic_Formal_Object
                         or else S.Kind = Symbol_Generic_Formal_Subprogram
@@ -598,8 +601,11 @@ package body Editor.Ada_Symbol_Resolver is
          declare
             S : constant Symbol_Info := Symbol_At (Analysis, I);
          begin
-            if S.Parent_Symbol = Generic_Unit
-              and then S.Enclosing_Scope = Scope_Id (Natural (Generic_Unit))
+            if (S.Parent_Symbol = Generic_Unit
+                or else
+                  (Generic_Unit /= No_Symbol
+                   and then S.Parent_Symbol = Symbol (Analysis, Generic_Unit).Parent_Symbol
+                   and then S.Enclosing_Scope = Symbol (Analysis, Generic_Unit).Enclosing_Scope))
               and then (S.Kind = Symbol_Generic_Formal_Type
                         or else S.Kind = Symbol_Generic_Formal_Object
                         or else S.Kind = Symbol_Generic_Formal_Subprogram
@@ -744,6 +750,55 @@ package body Editor.Ada_Symbol_Resolver is
                   end if;
                end;
             end loop;
+
+            if Prefix_Result.Matches.Is_Empty
+              and then From_Scope = No_Symbol
+            then
+               for Prefix_Index in 1 .. Symbol_Count (Analysis) loop
+                  declare
+                     P_Info : constant Symbol_Info := Symbol_At (Analysis, Prefix_Index);
+                     P : constant Symbol_Id := P_Info.Id;
+                  begin
+                     if Ada.Strings.Unbounded.To_String (P_Info.Normalized_Name) =
+                       Normalize_Name (Prefix)
+                     then
+                        for I in 1 .. Symbol_Count (Analysis) loop
+                           declare
+                              S : constant Symbol_Info := Symbol_At (Analysis, I);
+                           begin
+                              if S.Enclosing_Scope = Scope_Id (Natural (P))
+                                and then S.Parent_Symbol = P
+                                and then Ada.Strings.Unbounded.To_String (S.Normalized_Name) =
+                                  Normalize_Name (Leaf)
+                              then
+                                 Result.Matches.Append (S.Id);
+                              end if;
+                           end;
+                        end loop;
+
+                        declare
+                           Generic_Target : constant Symbol_Id := Generic_Target_Symbol (Analysis, P);
+                        begin
+                           if Generic_Target /= No_Symbol then
+                              for I in 1 .. Symbol_Count (Analysis) loop
+                                 declare
+                                    S : constant Symbol_Info := Symbol_At (Analysis, I);
+                                 begin
+                                    if S.Enclosing_Scope = Scope_Id (Natural (Generic_Target))
+                                      and then S.Parent_Symbol = Generic_Target
+                                      and then Ada.Strings.Unbounded.To_String (S.Normalized_Name) =
+                                        Normalize_Name (Leaf)
+                                    then
+                                       Result.Matches.Append (S.Id);
+                                    end if;
+                                 end;
+                              end loop;
+                           end if;
+                        end;
+                     end if;
+                  end;
+               end loop;
+            end if;
             if not Result.Matches.Is_Empty then
                Result.Overflow := Editor.Ada_Language_Model.Overflowed (Analysis) or else Prefix_Result.Overflow;
                return Result;
@@ -812,6 +867,20 @@ package body Editor.Ada_Symbol_Resolver is
 
       if Result.Matches.Is_Empty then
          Append_Use_Visible_Matches (Analysis, Name, From_Scope, Result);
+      end if;
+
+      if Result.Matches.Is_Empty
+        and then From_Scope = No_Symbol
+      then
+         for I in 1 .. Symbol_Count (Analysis) loop
+            declare
+               S : constant Symbol_Info := Symbol_At (Analysis, I);
+            begin
+               if Scoped_Name_Matches (S, Wanted, Wanted_Leaf) then
+                  Result.Matches.Append (S.Id);
+               end if;
+            end;
+         end loop;
       end if;
 
       Result.Overflow := Editor.Ada_Language_Model.Overflowed (Analysis);
@@ -1086,9 +1155,25 @@ package body Editor.Ada_Symbol_Resolver is
    begin
       case S.Kind is
          when Symbol_Object | Symbol_Constant | Symbol_Generic_Formal_Object =>
-            return Declaration_Type_From_Profile (Profile);
+            declare
+               From_Profile : constant String := Declaration_Type_From_Profile (Profile);
+            begin
+               if From_Profile'Length /= 0 then
+                  return From_Profile;
+               else
+                  return To_String (S.Target_Name);
+               end if;
+            end;
          when Symbol_Function | Symbol_Operator_Function =>
-            return Return_Type_From_Profile (Profile);
+            declare
+               From_Profile : constant String := Return_Type_From_Profile (Profile);
+            begin
+               if From_Profile'Length /= 0 then
+                  return From_Profile;
+               else
+                  return To_String (S.Target_Name);
+               end if;
+            end;
          when Symbol_Type | Symbol_Subtype | Symbol_Record_Type =>
             return To_String (S.Name);
          when Symbol_Enumeration_Literal =>
@@ -1967,9 +2052,19 @@ package body Editor.Ada_Symbol_Resolver is
       end Candidate_Matches_Actuals;
 
       function Candidate_Matches_Result (Candidate : Symbol_Info) return Boolean is
-         Expected : constant String := Normalize_Name (Trimmed (Expected_Result_Type));
+         Expected_Text : constant String := Trimmed (Expected_Result_Type);
+         Inferred_Expected : constant String :=
+           (if Expected_Text'Length = 0 then ""
+            else Infer_Expression_Type_In_Scope (Analysis, Expected_Text, From_Scope));
+         Expected : constant String :=
+           Normalize_Name
+             (if Inferred_Expected'Length /= 0 then Inferred_Expected else Expected_Text);
+         Candidate_Result : constant String :=
+           (if Profile_Return_Type (To_String (Candidate.Profile_Summary)) /= ""
+            then Profile_Return_Type (To_String (Candidate.Profile_Summary))
+            else To_String (Candidate.Target_Name));
          Returned : constant String := Effective_Formal_Type
-           (Candidate, Profile_Return_Type (To_String (Candidate.Profile_Summary)));
+           (Candidate, Candidate_Result);
       begin
          if Expected'Length = 0 then
             return True;

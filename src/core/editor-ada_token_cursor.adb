@@ -360,20 +360,45 @@ package body Editor.Ada_Token_Cursor is
             T : constant String := To_String (Current (Probe).Text);
             L : constant String := Current_Lower (Probe);
          begin
-            if T = "(" then
+            if L = Wanted or else T = Text then
+               return True;
+            elsif T = "(" then
                Paren_Depth := Paren_Depth + 1;
             elsif T = ")" and then Paren_Depth > 0 then
                Paren_Depth := Paren_Depth - 1;
             elsif T = ";" and then Paren_Depth = 0 then
                return False;
-            elsif L = Wanted or else T = Text then
-               return True;
             end if;
             Advance (Probe);
          end;
       end loop;
       return False;
    end Has_Token_Before_Semicolon;
+
+   function Has_Token_Between
+     (Stream : Token_Stream;
+      First  : Natural;
+      Last   : Natural;
+      Text   : String) return Boolean
+   is
+      Wanted : constant String := Lower (Text);
+   begin
+      if First = 0 or else Last = 0 or else First > Last then
+         return False;
+      end if;
+
+      for Index in First .. Natural'Min (Last, Length (Stream)) loop
+         declare
+            Tok : constant Token_Info := Token_At (Stream, Index);
+            Raw : constant String := To_String (Tok.Text);
+         begin
+            if Lower (Raw) = Wanted or else Raw = Text then
+               return True;
+            end if;
+         end;
+      end loop;
+      return False;
+   end Has_Token_Between;
 
    procedure Skip_Balanced_To
      (Position : in out Cursor;
@@ -510,6 +535,13 @@ package body Editor.Ada_Token_Cursor is
    procedure Parse_Defining_Program_Unit_Name
      (Position : in out Cursor;
       Result   : in out Grammar_Result);
+   procedure Parse_Subprogram_Construct
+     (Position : in out Cursor;
+      Result   : in out Grammar_Result);
+   procedure Parse_Entry_Parenthesized_Parts
+     (Position : in out Cursor;
+      Result   : in out Grammar_Result;
+      Tok      : Token_Info);
    procedure Parse_Record_Representation_Clause
      (Position : in out Cursor;
       Result   : in out Grammar_Result);
@@ -538,6 +570,9 @@ package body Editor.Ada_Token_Cursor is
    procedure Parse_Generic_Formal_Declaration_Aspect_Or_Terminator
      (Position : in out Cursor;
       Result   : in out Grammar_Result);
+
+   function Starts_Strong_Package_Declarative_Item
+     (Position : Cursor) return Boolean;
 
    procedure Parse_Number_Declaration_Aspect_Or_Terminator
      (Position : in out Cursor;
@@ -3391,7 +3426,16 @@ package body Editor.Ada_Token_Cursor is
                  (Result, Production_Access_Subprogram_Profile_Recovery_Boundary,
                   Current (Position),
                   "access-to-subprogram parameter profile missing close recovery");
-               Skip_Balanced_To (Position, ";");
+               while not At_End (Position)
+                 and then To_String (Current (Position).Text) /= ";"
+               loop
+                  Advance (Position);
+               end loop;
+               if not At_End (Position)
+                 and then To_String (Current (Position).Text) = ";"
+               then
+                  Advance (Position);
+               end if;
                return;
             else
                Parse_Parameter_Profile (Position, Result);
@@ -4001,6 +4045,21 @@ package body Editor.Ada_Token_Cursor is
                Add_Production
                  (Result, Production_Aggregate_Recovery_Boundary,
                   Assoc_Tok, "missing aggregate component expression");
+               Add_Production
+                 (Result, Production_Recovery_Point, Assoc_Tok,
+                  "expected aggregate component expression");
+            elsif At_Aggregate_Component_Expression_Boundary (Position) then
+               Add_Production
+                 (Result,
+                  Production_Aggregate_Component_Expression_Reserved_Boundary_Recovery_Boundary,
+                  Current (Position),
+                  "aggregate component expression reserved-boundary recovery boundary");
+               Add_Production
+                 (Result, Production_Aggregate_Recovery_Boundary,
+                  Assoc_Tok, "missing aggregate component expression");
+               Add_Production
+                 (Result, Production_Recovery_Point, Assoc_Tok,
+                  "expected aggregate component expression before boundary");
             elsif To_String (Current (Position).Text) = "<>" then
                Add_Production
                  (Result, Production_Aggregate_Box_Component,
@@ -4784,6 +4843,7 @@ package body Editor.Ada_Token_Cursor is
          end if;
       elsif Current_Lower (Position) = "if" then
          Add_Production (Result, Production_Conditional_Expression, Tok, "if expression");
+         Add_Production (Result, Production_If_Expression, Tok, "if expression");
          Advance (Position);
          if At_Conditional_Expression_Dependent_Boundary (Position) then
             Add_Production
@@ -5190,7 +5250,14 @@ package body Editor.Ada_Token_Cursor is
             "aggregate or parenthesized expression open delimiter");
          Add_Production (Result, Production_Association_List, Tok, "parenthesized association list");
          Advance (Position);
-         if Current_Lower (Position) = "declare" then
+         if Current_Lower (Position) = "for"
+           and then (Lookahead_Lower (Position, 1) = "all"
+                     or else Lookahead_Lower (Position, 1) = "some")
+         then
+            Parse_Expression (Position, Result);
+         elsif Current_Lower (Position) = "for" then
+            Parse_Component_Association_Item (Position, Result, Tok);
+         elsif Current_Lower (Position) = "declare" then
             --  Ada 2022 declare expressions have a declarative part followed
             --  by a single body expression.  Treat this as an expression
             --  primary, not as a block statement, so expression recovery and
@@ -5811,11 +5878,14 @@ package body Editor.Ada_Token_Cursor is
          begin
             Add_Production
               (Result, Production_Expression_Operator, Op_Tok, Op);
+            if Op = "and" or else Op = "or" then
+               Add_Production
+                 (Result, Production_Short_Circuit_Operation, Op_Tok, Op);
+            end if;
             Advance (Position);
             if (Op = "and" and then Current_Lower (Position) = "then")
               or else (Op = "or" and then Current_Lower (Position) = "else")
             then
-               Add_Production (Result, Production_Short_Circuit_Operation, Op_Tok, Op & " " & Current_Lower (Position));
                Advance (Position);
             end if;
             Parse_Relation (Position, Result);
@@ -5848,6 +5918,12 @@ package body Editor.Ada_Token_Cursor is
                To_String (Choice_Tok.Text));
 
             if Current_Lower (Position) = "others" then
+               Advance (Position);
+            elsif (Current (Position).Kind = Token_Identifier
+                   or else Current (Position).Kind = Token_Keyword)
+              and then (Lookahead_Lower (Position, 1) = "|"
+                        or else Lookahead_Lower (Position, 1) = Stop)
+            then
                Advance (Position);
             else
                Parse_Expression (Position, Result);
@@ -6263,6 +6339,14 @@ package body Editor.Ada_Token_Cursor is
             Current (Position), "pragma argument-list close delimiter");
          Advance (Position);
       else
+         if not At_End (Position)
+           and then To_String (Current (Position).Text) = ";"
+         then
+            Add_Production
+              (Result, Production_Pragma_Argument_Association_Separator,
+               Current (Position),
+               "pragma argument missing-close synchronization separator");
+         end if;
          Add_Production
            (Result, Production_Pragma_Argument_List_Missing_Close_Recovery_Boundary,
             Tok, "pragma argument-list missing close recovery boundary");
@@ -6538,6 +6622,7 @@ package body Editor.Ada_Token_Cursor is
 
             if To_String (Current (Position).Text) = ")"
               or else To_String (Current (Position).Text) = ";"
+              or else Starts_Strong_Package_Declarative_Item (Position)
             then
                Add_Production
                  (Result,
@@ -6555,7 +6640,17 @@ package body Editor.Ada_Token_Cursor is
          end;
       end loop;
 
-      if To_String (Current (Position).Text) = ";" then
+      if Starts_Strong_Package_Declarative_Item (Position) then
+         Add_Production
+           (Result, Production_Generic_Actual_Recovery_Boundary,
+            Current (Position), "generic actual recovery boundary");
+         Add_Production
+           (Result, Production_Generic_Actual_Part_Missing_Close_Recovery_Boundary,
+            Tok, "generic actual part missing close recovery boundary");
+         Add_Production
+           (Result, Production_Recovery_Point, Tok,
+            "expected ) in generic actual part before declaration boundary");
+      elsif To_String (Current (Position).Text) = ";" then
          Add_Production
            (Result, Production_Generic_Actual_Recovery_Boundary,
             Current (Position), "generic actual recovery boundary");
@@ -6738,6 +6833,10 @@ package body Editor.Ada_Token_Cursor is
            (Result, Production_Generic_Instantiation_Actual_Part,
             Current (Position), "generic instantiation actual part");
          Parse_Generic_Actual_Part (Position, Result);
+      end if;
+
+      if Starts_Strong_Package_Declarative_Item (Position) then
+         return;
       end if;
 
       Parse_Attached_Aspect_Or_Semicolon (Position, Result);
@@ -6955,6 +7054,15 @@ package body Editor.Ada_Token_Cursor is
                Add_Production
                  (Result, Production_Formal_Package_Nested_Actual_Association,
                   Current (Probe), "nested formal package actual association");
+               if Lookahead_Lower (Probe, 1) = "<>" then
+                  Add_Production
+                    (Result, Production_Formal_Package_Actual_Association_Box,
+                     Current (Probe),
+                     "nested formal package actual association box");
+                  Add_Production
+                    (Result, Production_Generic_Actual_Box, Current (Probe),
+                     "nested generic actual box default");
+               end if;
             end if;
          end;
          Advance (Probe);
@@ -7165,6 +7273,7 @@ package body Editor.Ada_Token_Cursor is
                end if;
                if To_String (Current (Position).Text) = ")"
                  or else To_String (Current (Position).Text) = ";"
+                 or else Current_Lower (Position) = "with"
                then
                   Add_Production
                     (Result, Production_Formal_Package_Actual_Recovery_Boundary,
@@ -7176,7 +7285,18 @@ package body Editor.Ada_Token_Cursor is
          end loop;
          end;
 
-         if To_String (Current (Position).Text) = ";" then
+         if Current_Lower (Position) = "with" then
+            Add_Production
+              (Result, Production_Formal_Package_Actual_Recovery_Boundary,
+               Current (Position),
+               "formal package actual recovery boundary");
+            Add_Production
+              (Result, Production_Formal_Package_Actual_Part_Missing_Close_Recovery_Boundary,
+               Tok, "formal package actual part missing close recovery boundary");
+            Add_Production
+              (Result, Production_Recovery_Point, Tok,
+               "expected ) in formal package actual part before aspect");
+         elsif To_String (Current (Position).Text) = ";" then
             Add_Production
               (Result, Production_Formal_Package_Actual_Recovery_Boundary,
                Current (Position),
@@ -7194,11 +7314,21 @@ package body Editor.Ada_Token_Cursor is
             Advance (Position);
          else
             Add_Production
+              (Result, Production_Formal_Package_Actual_Recovery_Boundary,
+               Current (Position),
+               "formal package actual recovery boundary");
+            Add_Production
               (Result, Production_Formal_Package_Actual_Part_Missing_Close_Recovery_Boundary,
                Tok, "formal package actual part missing close recovery boundary");
             Add_Production
               (Result, Production_Recovery_Point, Tok,
                "expected ) in formal package actual part");
+            while not At_End (Position)
+              and then Current_Lower (Position) /= "with"
+              and then To_String (Current (Position).Text) /= ";"
+            loop
+               Advance (Position);
+            end loop;
          end if;
       end if;
    end Parse_Formal_Package_Actual_Part;
@@ -7299,6 +7429,8 @@ package body Editor.Ada_Token_Cursor is
                         Current (Position), "global aspect expression");
                   elsif Lower (Aspect_Name) = "depends"
                     or else Lower (Aspect_Name) = "refined_depends"
+                    or else Ada.Strings.Fixed.Index
+                      (Lower (Aspect_Name), "depends") > 0
                     or else Lower (Aspect_Name) = "initializes"
                   then
                      Add_Production
@@ -7323,6 +7455,40 @@ package body Editor.Ada_Token_Cursor is
                        (Result, Production_Nonblocking_Aspect_Expression,
                         Current (Position), "nonblocking aspect expression");
                   end if;
+
+                  declare
+                     Scan  : Cursor := Position;
+                     Depth : Natural := 0;
+                  begin
+                     while not At_End (Scan)
+                       and then To_String (Current (Scan).Text) /= ";"
+                       and then Current_Lower (Scan) /= "is"
+                     loop
+                        declare
+                           ST : constant String := To_String (Current (Scan).Text);
+                        begin
+                           if ST = "(" then
+                              Depth := Depth + 1;
+                           elsif ST = ")" and then Depth > 0 then
+                              Depth := Depth - 1;
+                           elsif ST = "," and then Depth = 0 then
+                              Advance (Scan);
+                              if not At_End (Scan)
+                                and then Ada.Strings.Fixed.Index
+                                  (Lower (To_String (Current (Scan).Text)),
+                                   "depends") > 0
+                              then
+                                 Add_Production
+                                   (Result,
+                                    Production_Depends_Aspect_Expression,
+                                    Current (Scan),
+                                    "depends aspect expression");
+                              end if;
+                           end if;
+                        end;
+                        Advance (Scan);
+                     end loop;
+                  end;
                end if;
 
                if To_String (Current (Position).Text) = ";"
@@ -7448,6 +7614,9 @@ package body Editor.Ada_Token_Cursor is
    begin
       if Current_Lower (Position) = "with" then
          Add_Production
+           (Result, Production_Attached_Aspect_Specification,
+            Current (Position), "generic formal attached aspect");
+         Add_Production
            (Result, Production_Generic_Formal_Aspect_Specification,
             Current (Position), "generic formal aspect placement");
          Parse_Aspect_Specification (Position, Result);
@@ -7528,7 +7697,7 @@ package body Editor.Ada_Token_Cursor is
    end Parse_Attached_Aspect_Before_Keyword_Or_Semicolon;
 
    procedure Add_Concurrent_Definition_Part_Productions
-     (Position     : Cursor;
+     (Position     : in out Cursor;
       Result       : in out Grammar_Result;
       Public_Kind  : Production_Kind;
       Private_Kind : Production_Kind;
@@ -7550,24 +7719,186 @@ package body Editor.Ada_Token_Cursor is
          begin
             if L = "private" then
                Add_Production
+                 (Result, Production_Private_Part, Current (Probe),
+                  Label & " private part");
+               Add_Production
                  (Result, Private_Kind, Current (Probe),
                   Label & " private part");
             elsif L = "procedure" or else L = "function" then
                Add_Production
+                 (Result, Production_Subprogram_Declaration,
+                  Current (Probe), "protected operation subprogram declaration");
+               Add_Production
                  (Result, Production_Protected_Operation_Declaration,
                   Current (Probe), "protected operation declaration");
+            elsif L = "pragma" then
+               declare
+                  Pragma_Probe : Cursor := Probe;
+               begin
+                  Parse_Pragma (Pragma_Probe, Result);
+               end;
             elsif L = "entry" then
                Add_Production
                  (Result, Production_Entry_Declaration, Current (Probe),
                   "entry declaration");
+               declare
+                  Entry_Probe : Cursor := Probe;
+               begin
+                  Advance (Entry_Probe);
+                  if not At_End (Entry_Probe)
+                    and then (Current (Entry_Probe).Kind = Token_Identifier
+                              or else Current (Entry_Probe).Kind = Token_Keyword)
+                  then
+                     Add_Production
+                       (Result, Production_Entry_Identifier,
+                        Current (Entry_Probe), "entry identifier");
+                     Advance (Entry_Probe);
+                  end if;
+
+                  if not At_End (Entry_Probe)
+                    and then To_String (Current (Entry_Probe).Text) = "("
+                  then
+                     declare
+                        Family_Open : constant Token_Info := Current (Entry_Probe);
+                        Scan        : Cursor := Entry_Probe;
+                        Depth       : Natural := 0;
+                        Has_Range   : Boolean := False;
+                        Has_Profile_Separator : Boolean := False;
+                        Closed      : Boolean := False;
+                     begin
+                        while not At_End (Scan) loop
+                           if To_String (Current (Scan).Text) = "(" then
+                              Depth := Depth + 1;
+                           elsif To_String (Current (Scan).Text) = ")" then
+                              if Depth = 0 then
+                                 exit;
+                              end if;
+                              Depth := Depth - 1;
+                              if Depth = 0 then
+                                 Closed := True;
+                                 exit;
+                              end if;
+                           elsif Current_Lower (Scan) = "range"
+                             or else To_String (Current (Scan).Text) = ".."
+                           then
+                              Has_Range := True;
+                           elsif Depth = 1
+                             and then (To_String (Current (Scan).Text) = ":"
+                                       or else To_String (Current (Scan).Text) = ";")
+                           then
+                              Has_Profile_Separator := True;
+                           end if;
+                           Advance (Scan);
+                        end loop;
+
+                        if Closed and then not Has_Profile_Separator then
+                           Add_Production
+                             (Result, Production_Entry_Family_Definition,
+                              Family_Open, "entry family definition");
+                           if Lookahead_Lower (Entry_Probe, 1) = ")" then
+                              Add_Production
+                                (Result,
+                                 Production_Entry_Family_Empty_Definition_Recovery_Boundary,
+                                 Family_Open,
+                                 "entry family empty definition recovery boundary");
+                              Add_Production
+                                (Result, Production_Recovery_Point, Family_Open,
+                                 "expected entry family discrete subtype definition");
+                           else
+                              Add_Production
+                                (Result,
+                                 Production_Entry_Family_Discrete_Subtype_Definition,
+                                 Family_Open,
+                                 "entry family discrete subtype definition");
+                              Add_Production
+                                (Result, Production_Entry_Family_Index_Subtype,
+                                 Family_Open, "entry family index subtype");
+                              if Has_Range then
+                                 Add_Production
+                                   (Result, Production_Entry_Family_Range_Definition,
+                                    Family_Open, "entry family range definition");
+                              end if;
+                           end if;
+                           Entry_Probe := Scan;
+                           Advance (Entry_Probe);
+                        end if;
+                     end;
+                  end if;
+
+                  if not At_End (Entry_Probe)
+                    and then To_String (Current (Entry_Probe).Text) = "("
+                  then
+                     Add_Production
+                       (Result, Production_Entry_Parameter_Profile,
+                        Current (Entry_Probe), "entry parameter profile");
+                  end if;
+
+                  declare
+                     Tail  : Cursor := Probe;
+                     Depth : Natural := 0;
+                     Done  : Boolean := False;
+                  begin
+                     while not Done and then not At_End (Tail) loop
+                        declare
+                           TT : constant String := To_String (Current (Tail).Text);
+                           TL : constant String := Current_Lower (Tail);
+                        begin
+                           if TT = "(" then
+                              Depth := Depth + 1;
+                           elsif TT = ")" and then Depth > 0 then
+                              Depth := Depth - 1;
+                           elsif TT = ";" and then Depth = 0 then
+                              Add_Production
+                                (Result, Production_Entry_Terminator,
+                                 Current (Tail),
+                                 "entry declaration terminator");
+                              Done := True;
+                           elsif Depth = 0
+                             and then (TL = "private" or else TL = "end")
+                           then
+                              Add_Production
+                                (Result,
+                                 Production_Entry_Missing_Terminator_Recovery_Boundary,
+                                 Current (Probe),
+                                 "entry declaration missing terminator recovery boundary");
+                              Done := True;
+                           end if;
+                        end;
+                        if not Done then
+                           Advance (Tail);
+                        end if;
+                     end loop;
+                  end;
+               end;
             elsif L = "with" then
+               Add_Production
+                 (Result, Production_Entry_Aspect_Specification,
+                  Current (Probe), "entry aspect placement");
                Add_Production
                  (Result, Production_Protected_Operation_Aspect_Specification,
                   Current (Probe), "protected operation aspect specification");
                Add_Production
                  (Result, Production_Protected_Operation_Aspect_Attachment,
                   Current (Probe), "protected operation aspect attachment");
+               declare
+                  Aspect_Position : Cursor := Probe;
+               begin
+                  Parse_Aspect_Specification (Aspect_Position, Result);
+               end;
             elsif L = "end" then
+               Advance (Probe);
+               if not At_End (Probe)
+                 and then (Current (Probe).Kind = Token_Identifier
+                           or else Current (Probe).Kind = Token_Keyword)
+               then
+                  Advance (Probe);
+               end if;
+               if not At_End (Probe)
+                 and then To_String (Current (Probe).Text) = ";"
+               then
+                  Advance (Probe);
+               end if;
+               Position := Probe;
                exit;
             end if;
             Advance (Probe);
@@ -8087,12 +8418,16 @@ package body Editor.Ada_Token_Cursor is
         (Result, Production_Record_Representation_Clause, Tok,
          "record representation clause");
       --  for T use record
-      if Current_Lower (Position) = "record" then
-         Add_Production
-           (Result, Production_Record_Representation_List_Open_Delimiter,
-            Current (Position), "record representation list open delimiter");
-      end if;
-      Advance_Through_Keyword (Position, "record");
+      while not At_End (Position) loop
+         if Current_Lower (Position) = "record" then
+            Add_Production
+              (Result, Production_Record_Representation_List_Open_Delimiter,
+               Current (Position), "record representation list open delimiter");
+            Advance (Position);
+            exit;
+         end if;
+         Advance (Position);
+      end loop;
       while not At_End (Position) loop
          declare
             L : constant String := Current_Lower (Position);
@@ -8232,12 +8567,10 @@ package body Editor.Ada_Token_Cursor is
      (Position : Cursor) return Boolean is
       Probe             : Cursor := Position;
       Depth             : Natural := 0;
-      Saw_Choice_Syntax : Boolean := False;
    begin
       while not At_End (Probe) loop
          declare
             T : constant String := To_String (Current (Probe).Text);
-            L : constant String := Current_Lower (Probe);
          begin
             if T = "(" or else T = "[" then
                Depth := Depth + 1;
@@ -8253,10 +8586,8 @@ package body Editor.Ada_Token_Cursor is
                end if;
             elsif Depth = 0 and then T = "," then
                return False;
-            elsif Depth = 0 and then (T = "|" or else T = ".." or else L = "range" or else L = "others") then
-               Saw_Choice_Syntax := True;
             elsif Depth = 0 and then T = "=>" then
-               return Saw_Choice_Syntax;
+               return True;
             end if;
          end;
          Advance (Probe);
@@ -8618,7 +8949,7 @@ package body Editor.Ada_Token_Cursor is
               (Result, Production_Renaming_Recovery_Boundary, Origin,
                "missing renamed entity in " & Label);
             Add_Production
-              (Result, Production_Renaming_Recovery_Boundary, Origin,
+              (Result, Production_Renaming_Missing_Target_Recovery_Boundary, Origin,
                "missing renamed entity in " & Label);
             Add_Production
               (Result, Production_Recovery_Point, Origin,
@@ -8790,6 +9121,9 @@ package body Editor.Ada_Token_Cursor is
       begin
          Add_Production (Result, Boundary_Kind, Tok, Boundary_Text);
          Add_Production
+           (Result, Production_Package_Declarative_Recovery_Boundary,
+            Tok, "package declarative recovery boundary");
+         Add_Production
            (Result, Production_Package_Nested_Declarative_Item_Recovery_Boundary,
             Tok, "package nested declarative item recovery boundary");
 
@@ -8808,6 +9142,16 @@ package body Editor.Ada_Token_Cursor is
          end if;
       end Add_Declarative_Boundary_Metadata;
    begin
+      if (Start_L0 = "procedure" or else Start_L0 = "function")
+        and then Has_Token_Before_Semicolon (Position, "separate")
+      then
+         declare
+            Stub_Position : Cursor := Position;
+         begin
+            Parse_Subprogram_Construct (Stub_Position, Result);
+         end;
+      end if;
+
       while not At_End (Position) loop
          declare
             L : constant String := Current_Lower (Position);
@@ -8855,7 +9199,11 @@ package body Editor.Ada_Token_Cursor is
                   Depth := Depth + 1;
                end if;
             elsif L = "record" or else L = "case" then
-               if Depth > 0 or else Start_L0 = "type" or else Start_L0 = "for" then
+               if (Depth > 0 or else Start_L0 = "type" or else Start_L0 = "for")
+                 and then not
+                   (L = "record"
+                    and then Ada.Strings.Unbounded.To_String (Last_L) = "null")
+               then
                   Depth := Depth + 1;
                end if;
             elsif L = "end" then
@@ -8885,6 +9233,7 @@ package body Editor.Ada_Token_Cursor is
    procedure Skip_Subprogram_Body_Declarative_Item
      (Position : in out Cursor;
       Result   : in out Grammar_Result) is
+      Start_L0 : constant String := Current_Lower (Position);
       Saw_Is   : Boolean := False;
       Depth    : Natural := 0;
       Seen_Tok : Boolean := False;
@@ -8908,7 +9257,7 @@ package body Editor.Ada_Token_Cursor is
             if T = ";" and then not Saw_Is and then Depth = 0 then
                Advance (Position);
                return;
-            elsif L = "is" then
+            elsif L = "is" and then Start_L0 /= "subtype" then
                Saw_Is := True;
                Depth := Depth + 1;
             elsif Saw_Is
@@ -9055,6 +9404,26 @@ package body Editor.Ada_Token_Cursor is
                     (Result, Production_Package_Visible_Declarative_Item,
                      Current (Probe), "package visible declarative item");
                end if;
+               if (Current (Probe).Kind = Token_Identifier
+                   or else Current (Probe).Kind = Token_Keyword)
+                 and then Has_Token_Before_Semicolon (Probe, ":=")
+               then
+                  declare
+                     Item_Position : Cursor := Probe;
+                  begin
+                     Parse_Declaration_Or_Statement (Item_Position, Result);
+                  end;
+               end if;
+               if (Current_Lower (Probe) = "procedure"
+                   or else Current_Lower (Probe) = "function")
+                 and then Has_Token_Before_Semicolon (Probe, "separate")
+               then
+                  declare
+                     Item_Position : Cursor := Probe;
+                  begin
+                     Parse_Subprogram_Construct (Item_Position, Result);
+                  end;
+               end if;
                if In_Private then
                   Skip_Package_Declarative_Item
                     (Probe, Result,
@@ -9086,6 +9455,38 @@ package body Editor.Ada_Token_Cursor is
       Found_Is    : Boolean := False;
       Found_Begin : Boolean := False;
       Found_Exc   : Boolean := False;
+
+      procedure Add_Nested_Subprogram_Body_Stubs (Start : Cursor) is
+         Scan : Cursor := Start;
+      begin
+         while not At_End (Scan) loop
+            exit when Current_Lower (Scan) = "begin"
+              or else Current_Lower (Scan) = "exception"
+              or else Current_Lower (Scan) = "end";
+            if (Current_Lower (Scan) = "procedure"
+                or else Current_Lower (Scan) = "function")
+              and then Has_Token_Before_Semicolon (Scan, "separate")
+            then
+               Add_Production
+                 (Result, Production_Subprogram_Body, Current (Scan),
+                  "package body nested subprogram body");
+               Add_Production
+                 (Result, Production_Subprogram_Body_Stub, Current (Scan),
+                  "package body nested subprogram body stub");
+               Add_Production
+                 (Result, Production_Body_Stub_Kind_Keyword, Current (Scan),
+                  "package body nested subprogram body stub kind keyword");
+               Add_Production
+                 (Result, Production_Body_Stub_Separate_Keyword, Current (Scan),
+                  "package body nested body stub separate keyword");
+               Add_Production
+                 (Result, Production_Body_Stub_Subunit_Link_Hint,
+                  Current (Scan),
+                  "package body nested body stub subunit link hint");
+            end if;
+            Advance (Scan);
+         end loop;
+      end Add_Nested_Subprogram_Body_Stubs;
    begin
       while not At_End (Probe) loop
          if not Found_Is then
@@ -9093,6 +9494,7 @@ package body Editor.Ada_Token_Cursor is
                Found_Is := True;
                Advance (Probe);
                After_Is := Probe;
+               Add_Nested_Subprogram_Body_Stubs (After_Is);
                if not At_End (After_Is)
                  and then Current_Lower (After_Is) /= "separate"
                then
@@ -9124,6 +9526,27 @@ package body Editor.Ada_Token_Cursor is
             Add_Production
               (Result, Production_Package_Body_Declarative_Item,
                Current (Probe), "package body declarative item");
+            if (Current_Lower (Probe) = "procedure"
+                or else Current_Lower (Probe) = "function")
+              and then Has_Token_Before_Semicolon (Probe, "separate")
+            then
+               Add_Production
+                 (Result, Production_Subprogram_Body, Current (Probe),
+                  "package body nested subprogram body");
+               Add_Production
+                 (Result, Production_Subprogram_Body_Stub, Current (Probe),
+                  "package body nested subprogram body stub");
+               Add_Production
+                 (Result, Production_Body_Stub_Kind_Keyword, Current (Probe),
+                  "package body nested subprogram body stub kind keyword");
+               Add_Production
+                 (Result, Production_Body_Stub_Separate_Keyword, Current (Probe),
+                  "package body nested body stub separate keyword");
+               Add_Production
+                 (Result, Production_Body_Stub_Subunit_Link_Hint,
+                  Current (Probe),
+                  "package body nested body stub subunit link hint");
+            end if;
             Skip_Package_Declarative_Item
               (Probe, Result, Production_Package_Body_Declarative_Recovery_Boundary,
                "package body declarative item recovery boundary");
@@ -9172,9 +9595,20 @@ package body Editor.Ada_Token_Cursor is
       Result   : in out Grammar_Result) is
       Probe       : Cursor := Position;
       After_Is    : Cursor := Position;
+      Body_Name   : constant String := Lookahead_Lower (Position, 1);
       Found_Is    : Boolean := False;
       Found_Begin : Boolean := False;
       Found_Exc   : Boolean := False;
+
+      function Is_Nested_Statement_End_Follower (C : Cursor) return Boolean is
+         Lower : constant String := Current_Lower (C);
+      begin
+         return Lower = "if"
+           or else Lower = "loop"
+           or else Lower = "case"
+           or else Lower = "record"
+           or else Lower = "select";
+      end Is_Nested_Statement_End_Follower;
    begin
       while not At_End (Probe) loop
          if not Found_Is then
@@ -9198,6 +9632,38 @@ package body Editor.Ada_Token_Cursor is
             Add_Production
               (Result, Production_Subprogram_Body_Declarative_Item,
                Current (Probe), "subprogram body declarative item");
+            if (Current (Probe).Kind = Token_Identifier
+                or else Current (Probe).Kind = Token_Keyword)
+              and then Has_Token_Before_Semicolon (Probe, ":=")
+            then
+               declare
+                  Item_Position : Cursor := Probe;
+               begin
+                  Parse_Declaration_Or_Statement (Item_Position, Result);
+               end;
+            end if;
+            if Has_Token_Before_Semicolon (Probe, "for")
+              and then Has_Token_Before_Semicolon (Probe, "=>")
+            then
+               declare
+                  Item_Scan : Cursor := Probe;
+               begin
+                  while not At_End (Item_Scan)
+                    and then To_String (Current (Item_Scan).Text) /= ";"
+                  loop
+                     if Current_Lower (Item_Scan) = "for" then
+                        declare
+                           Iterated_Position : Cursor := Item_Scan;
+                        begin
+                           Parse_Iterated_Component_Association
+                             (Iterated_Position, Result);
+                        end;
+                        exit;
+                     end if;
+                     Advance (Item_Scan);
+                  end loop;
+               end;
+            end if;
             Skip_Subprogram_Body_Declarative_Item (Probe, Result);
             goto Continue_Scan;
 
@@ -9251,28 +9717,49 @@ package body Editor.Ada_Token_Cursor is
                Current (Probe), "subprogram body exception part");
 
          elsif Found_Begin and then Current_Lower (Probe) = "end" then
-            Add_Production
-              (Result, Production_Subprogram_Body_End_Keyword,
-               Current (Probe), "subprogram body end keyword");
-            Advance (Probe);
-            if Current (Probe).Kind = Token_Identifier
-              or else Current (Probe).Kind = Token_Keyword
-            then
-               Add_Production
-                 (Result, Production_Subprogram_Body_End_Name,
-                  Current (Probe), "subprogram body end name");
-               Advance (Probe);
-            end if;
-            if To_String (Current (Probe).Text) = ";" then
-               Add_Production
-                 (Result, Production_Subprogram_Body_End_Terminator,
-                  Current (Probe), "subprogram body end terminator");
-            else
-               Add_Production
-                 (Result, Production_Subprogram_Body_Missing_End_Terminator_Recovery_Boundary,
-                  Current (Position), "subprogram body missing end terminator recovery boundary");
-            end if;
-            return;
+            declare
+               End_Token : constant Token_Info := Current (Probe);
+               Tail      : Cursor := Probe;
+            begin
+               Advance (Tail);
+               if not At_End (Tail)
+                 and then Is_Nested_Statement_End_Follower (Tail)
+               then
+                  null;
+               elsif not At_End (Tail)
+                 and then (Current (Tail).Kind = Token_Identifier
+                           or else Current (Tail).Kind = Token_Keyword)
+                 and then Body_Name'Length > 0
+                 and then Current_Lower (Tail) /= Body_Name
+               then
+                  null;
+               else
+                  Add_Production
+                    (Result, Production_Subprogram_Body_End_Keyword,
+                     End_Token, "subprogram body end keyword");
+                  Probe := Tail;
+                  if Current (Probe).Kind = Token_Identifier
+                    or else Current (Probe).Kind = Token_Keyword
+                  then
+                     Add_Production
+                       (Result, Production_Subprogram_Body_End_Name,
+                        Current (Probe), "subprogram body end name");
+                     Advance (Probe);
+                  end if;
+                  if To_String (Current (Probe).Text) = ";" then
+                     Add_Production
+                       (Result, Production_Subprogram_Body_End_Terminator,
+                        Current (Probe), "subprogram body end terminator");
+                  else
+                     Add_Production
+                       (Result,
+                        Production_Subprogram_Body_Missing_End_Terminator_Recovery_Boundary,
+                        Current (Position),
+                        "subprogram body missing end terminator recovery boundary");
+                  end if;
+                  return;
+               end if;
+            end;
          end if;
 
          Advance (Probe);
@@ -9442,6 +9929,7 @@ package body Editor.Ada_Token_Cursor is
       Operation_After_Is    : Boolean := False;
       Operation_In_Begin    : Boolean := False;
       Operation_Is_Entry   : Boolean := False;
+      Operation_Name        : Ada.Strings.Unbounded.Unbounded_String;
 
       procedure Add_Protected_Declarative_Synchronizer (C : Cursor) is
          Lower : constant String := Current_Lower (C);
@@ -9491,6 +9979,9 @@ package body Editor.Ada_Token_Cursor is
             Operation_After_Is := False;
             Operation_In_Begin := False;
             Operation_Is_Entry := Current_Lower (Probe) = "entry";
+            Operation_Name :=
+              Ada.Strings.Unbounded.To_Unbounded_String
+                (Lookahead_Lower (Probe, 1));
             Add_Production
               (Result, Production_Protected_Operation_Declaration,
                Current (Probe), "protected body operation");
@@ -9506,6 +9997,22 @@ package body Editor.Ada_Token_Cursor is
                Add_Production
                  (Result, Production_Protected_Entry_Body,
                   Current (Probe), "protected entry body");
+               declare
+                  Entry_Parts : Cursor := Probe;
+               begin
+                  Advance (Entry_Parts);
+                  if not At_End (Entry_Parts)
+                    and then (Current (Entry_Parts).Kind = Token_Identifier
+                              or else Current (Entry_Parts).Kind = Token_Keyword)
+                  then
+                     Add_Production
+                       (Result, Production_Entry_Identifier,
+                        Current (Entry_Parts), "entry identifier");
+                     Advance (Entry_Parts);
+                  end if;
+                  Parse_Entry_Parenthesized_Parts
+                    (Entry_Parts, Result, Current (Probe));
+               end;
             end if;
          elsif Current_Lower (Probe) = "when" then
             Add_Production
@@ -9577,6 +10084,45 @@ package body Editor.Ada_Token_Cursor is
             Add_Production
               (Result, Production_Protected_Body_Operation_Begin_Keyword,
                Current (Probe), "protected body operation begin keyword");
+            if Operation_Is_Entry then
+               Add_Production
+                 (Result, Production_Entry_Body_Begin_Keyword,
+                  Current (Probe), "entry body begin keyword");
+               declare
+                  Body_Start : Cursor := Probe;
+               begin
+                  Advance (Body_Start);
+                  if At_End (Body_Start)
+                    or else Current_Lower (Body_Start) = "end"
+                    or else Current_Lower (Body_Start) = "or"
+                    or else Current_Lower (Body_Start) = "else"
+                    or else Current_Lower (Body_Start) = "then"
+                    or else To_String (Current (Body_Start).Text) = ";"
+                  then
+                     Add_Production
+                       (Result,
+                        Production_Entry_Body_Missing_Statement_Recovery_Boundary,
+                        Current (Body_Start),
+                        "entry body missing statement recovery boundary");
+                     Add_Production
+                       (Result, Production_Recovery_Point, Current (Body_Start),
+                        "expected statement sequence in entry body");
+                  else
+                     Add_Production
+                       (Result, Production_Entry_Body_Statement_Sequence,
+                        Current (Body_Start), "entry body statement sequence");
+                     Add_Production
+                       (Result, Production_Statement_Sequence,
+                        Current (Body_Start), "entry body statement sequence");
+                  end if;
+               end;
+            end if;
+         elsif Operation_In_Begin and then Current_Lower (Probe) = "accept" then
+            declare
+               Statement_Position : Cursor := Probe;
+            begin
+               Parse_Declaration_Or_Statement (Statement_Position, Result);
+            end;
          elsif Current_Lower (Probe) = "private" then
             Add_Production
               (Result, Production_Protected_Body_Recovery_Boundary,
@@ -9593,10 +10139,41 @@ package body Editor.Ada_Token_Cursor is
                   then
                      null;
                   else
+                     declare
+                        End_Name_Matches : Boolean := True;
+                     begin
+                        if Operation_Is_Entry
+                          and then not At_End (Tail)
+                          and then (Current (Tail).Kind = Token_Identifier
+                                    or else Current (Tail).Kind = Token_String_Literal)
+                          and then Current_Lower (Tail) /=
+                            Ada.Strings.Unbounded.To_String (Operation_Name)
+                        then
+                           End_Name_Matches := False;
+                           Add_Production
+                             (Result,
+                              Production_Entry_Body_Missing_End_Terminator_Recovery_Boundary,
+                              End_Token,
+                              "entry body missing end terminator recovery boundary");
+                        end if;
+
+                        if not End_Name_Matches then
+                           In_Operation_Body := False;
+                           Operation_After_Is := False;
+                           Operation_In_Begin := False;
+                           Operation_Is_Entry := False;
+                           goto Continue_Scan;
+                        end if;
+                     end;
+
+                     if Operation_Is_Entry then
+                        Add_Production
+                          (Result, Production_Entry_Body_End_Keyword,
+                           End_Token, "entry body end keyword");
+                     end if;
                      In_Operation_Body := False;
                      Operation_After_Is := False;
                      Operation_In_Begin := False;
-                     Operation_Is_Entry := False;
                      Add_Production
                        (Result, Production_Protected_Body_Operation_End_Keyword,
                         End_Token, "protected body operation end keyword");
@@ -9604,6 +10181,11 @@ package body Editor.Ada_Token_Cursor is
                        and then (Current (Tail).Kind = Token_Identifier
                                  or else Current (Tail).Kind = Token_String_Literal)
                      then
+                        if Operation_Is_Entry then
+                           Add_Production
+                             (Result, Production_Entry_Body_End_Name,
+                              Current (Tail), "entry body end name");
+                        end if;
                         Add_Production
                           (Result, Production_Protected_Body_Operation_End_Name,
                            Current (Tail), "protected body operation end name");
@@ -9612,15 +10194,28 @@ package body Editor.Ada_Token_Cursor is
                      if not At_End (Tail)
                        and then To_String (Current (Tail).Text) = ";"
                      then
+                        if Operation_Is_Entry then
+                           Add_Production
+                             (Result, Production_Entry_Body_End_Terminator,
+                              Current (Tail), "entry body end terminator");
+                        end if;
                         Add_Production
                           (Result, Production_Protected_Body_Operation_End_Terminator,
                            Current (Tail), "protected body operation end terminator");
                         Probe := Tail;
                      else
+                        if Operation_Is_Entry then
+                           Add_Production
+                             (Result,
+                              Production_Entry_Body_Missing_End_Terminator_Recovery_Boundary,
+                              End_Token,
+                              "entry body missing end terminator recovery boundary");
+                        end if;
                         Add_Production
                           (Result, Production_Protected_Body_Operation_Missing_End_Terminator_Recovery_Boundary,
                            End_Token, "protected body operation missing end terminator recovery boundary");
                      end if;
+                     Operation_Is_Entry := False;
                   end if;
                end;
             else
@@ -9879,6 +10474,28 @@ package body Editor.Ada_Token_Cursor is
       Result   : in out Grammar_Result;
       Tok      : Token_Info) is
       First_Is_Family : Boolean := False;
+
+      procedure Skip_One_Parenthesized_Group is
+         Depth : Natural := 0;
+      begin
+         while not At_End (Position) loop
+            declare
+               T : constant String := To_String (Current (Position).Text);
+            begin
+               if T = "(" then
+                  Depth := Depth + 1;
+               elsif T = ")" then
+                  if Depth <= 1 then
+                     Advance (Position);
+                     return;
+                  else
+                     Depth := Depth - 1;
+                  end if;
+               end if;
+               Advance (Position);
+            end;
+         end loop;
+      end Skip_One_Parenthesized_Group;
    begin
       if To_String (Current (Position).Text) /= "(" then
          return;
@@ -9898,11 +10515,10 @@ package body Editor.Ada_Token_Cursor is
          Add_Production
            (Result, Production_Entry_Body_Index_Subtype, Tok,
             "entry body index subtype");
-         Skip_Balanced_To (Position, ")");
-         if To_String (Current (Position).Text) = ")" then
-            Advance (Position);
-         end if;
-         if To_String (Current (Position).Text) = "(" then
+         Skip_One_Parenthesized_Group;
+         if not At_End (Position)
+           and then To_String (Current (Position).Text) = "("
+         then
             Add_Production
               (Result, Production_Entry_Parameter_Profile, Current (Position),
                "entry parameter profile");
@@ -9929,10 +10545,7 @@ package body Editor.Ada_Token_Cursor is
                  Parenthesized_Has_Top_Level_Token (Position, "..")
                  or else Parenthesized_Has_Top_Level_Token (Position, "range");
             begin
-               Skip_Balanced_To (Position, ")");
-               if To_String (Current (Position).Text) = ")" then
-                  Advance (Position);
-               end if;
+               Skip_One_Parenthesized_Group;
 
                if Family_Is_Empty then
                   Add_Production
@@ -9987,10 +10600,7 @@ package body Editor.Ada_Token_Cursor is
                      end if;
                   end if;
                   Restore (Position, Mark_Pos);
-                  Skip_Balanced_To (Position, ")");
-                  if To_String (Current (Position).Text) = ")" then
-                     Advance (Position);
-                  end if;
+                  Skip_One_Parenthesized_Group;
                end if;
             end;
          else
@@ -10153,7 +10763,14 @@ package body Editor.Ada_Token_Cursor is
          Add_Production
            (Result, Production_Formal_Object_Default, Current (Position),
             "formal object default");
-         Parse_Expression (Position, Result);
+         if To_String (Current (Position).Text) = "<>" then
+            Add_Production
+              (Result, Production_Box_Expression, Current (Position),
+               "formal object default box");
+            Advance (Position);
+         else
+            Parse_Expression (Position, Result);
+         end if;
       end if;
 
       Parse_Generic_Formal_Declaration_Aspect_Or_Terminator (Position, Result);
@@ -10783,7 +11400,9 @@ package body Editor.Ada_Token_Cursor is
          Parse_Generic_Formal_Object_Declaration
            (Position, Result, Leading_With => True);
 
-      elsif Current (Position).Kind = Token_Identifier and then L1 = ":" then
+      elsif Current (Position).Kind = Token_Identifier
+        and then Has_Token_Before_Semicolon (Position, ":")
+      then
          Parse_Generic_Formal_Object_Declaration
            (Position, Result, Leading_With => False);
 
@@ -10838,7 +11457,7 @@ package body Editor.Ada_Token_Cursor is
                "label recovery boundary");
             Add_Production (Result, Production_Recovery_Point, Tok, "expected >> in label");
          end if;
-      elsif L0 = "with"
+      elsif (L0 = "with" and then not Has_Token_Before_Semicolon (Position, "=>"))
         or else (L0 = "limited" and then (L1 = "with" or else (L1 = "private" and then Lookahead_Lower (Position, 2) = "with")))
         or else (L0 = "private" and then L1 = "with")
       then
@@ -10988,16 +11607,26 @@ package body Editor.Ada_Token_Cursor is
                "package body name");
             Parse_Subtype_Mark (Position, Result);
          end if;
-         if Has_Token_Before_Semicolon (Position, "separate") then
+         if Current_Lower (Position) = "is"
+           and then Lookahead_Lower (Position, 1) = "separate"
+         then
             Add_Production (Result, Production_Package_Body_Stub, Tok, "package body stub");
             Add_Production (Result, Production_Body_Stub_Kind_Keyword, Tok, "package body stub kind keyword");
             Add_Production (Result, Production_Body_Stub_Separate_Keyword, Tok, "body stub separate keyword");
             Add_Production (Result, Production_Body_Stub_Subunit_Link_Hint, Tok, "body stub subunit link hint");
+            if Has_Token_Before_Semicolon (Position, "with") then
+               Add_Production
+                 (Result, Production_Body_Aspect_Specification,
+                  Current (Position), "body aspect placement");
+            end if;
             Parse_Attached_Aspect_Or_Semicolon
               (Position, Result, Production_Body_Stub_Aspect_Specification);
          else
             Add_Package_Body_Part_Productions (Position, Result);
             if Has_Token_Before_Semicolon (Position, "with") then
+               Add_Production
+                 (Result, Production_Body_Aspect_Specification,
+                  Current (Position), "body aspect placement");
                Add_Production
                  (Result, Production_Package_Body_Aspect_Specification,
                   Current (Position), "package body aspect placement");
@@ -11186,14 +11815,22 @@ package body Editor.Ada_Token_Cursor is
                Add_Production (Result, Production_Body_Stub_Kind_Keyword, Tok, "task body stub kind keyword");
                Add_Production (Result, Production_Body_Stub_Separate_Keyword, Tok, "body stub separate keyword");
                Add_Production (Result, Production_Body_Stub_Subunit_Link_Hint, Tok, "body stub subunit link hint");
+               if Has_Token_Before_Semicolon (Position, "with") then
+                  Add_Production
+                    (Result, Production_Body_Aspect_Specification,
+                     Current (Position), "body aspect placement");
+               end if;
                Parse_Attached_Aspect_Or_Semicolon
                  (Position, Result, Production_Body_Stub_Aspect_Specification);
             else
                Add_Task_Body_Part_Productions (Position, Result);
-               if Has_Token_Before_Semicolon (Position, "with") then
-                  Add_Production
-                    (Result, Production_Task_Body_Aspect_Specification,
-                     Current (Position), "task body aspect placement");
+            if Has_Token_Before_Semicolon (Position, "with") then
+               Add_Production
+                 (Result, Production_Body_Aspect_Specification,
+                  Current (Position), "body aspect placement");
+               Add_Production
+                 (Result, Production_Task_Body_Aspect_Specification,
+                  Current (Position), "task body aspect placement");
                end if;
                Parse_Attached_Aspect_Before_Keyword_Or_Semicolon
                  (Position, Result, "is", Production_Body_Aspect_Specification);
@@ -11260,14 +11897,22 @@ package body Editor.Ada_Token_Cursor is
                Add_Production (Result, Production_Body_Stub_Kind_Keyword, Tok, "protected body stub kind keyword");
                Add_Production (Result, Production_Body_Stub_Separate_Keyword, Tok, "body stub separate keyword");
                Add_Production (Result, Production_Body_Stub_Subunit_Link_Hint, Tok, "body stub subunit link hint");
+               if Has_Token_Before_Semicolon (Position, "with") then
+                  Add_Production
+                    (Result, Production_Body_Aspect_Specification,
+                     Current (Position), "body aspect placement");
+               end if;
                Parse_Attached_Aspect_Or_Semicolon
                  (Position, Result, Production_Body_Stub_Aspect_Specification);
             else
                Add_Protected_Body_Part_Productions (Position, Result);
-               if Has_Token_Before_Semicolon (Position, "with") then
-                  Add_Production
-                    (Result, Production_Protected_Body_Aspect_Specification,
-                     Current (Position), "protected body aspect placement");
+            if Has_Token_Before_Semicolon (Position, "with") then
+               Add_Production
+                 (Result, Production_Body_Aspect_Specification,
+                  Current (Position), "body aspect placement");
+               Add_Production
+                 (Result, Production_Protected_Body_Aspect_Specification,
+                  Current (Position), "protected body aspect placement");
                end if;
                Parse_Attached_Aspect_Before_Keyword_Or_Semicolon
                  (Position, Result, "is", Production_Body_Aspect_Specification);
@@ -11388,6 +12033,11 @@ package body Editor.Ada_Token_Cursor is
             Advance (Position);
             if Current_Lower (Position) = "separate" then
                Advance (Position);
+               if Current_Lower (Position) = "with" then
+                  Add_Production
+                    (Result, Production_Entry_Aspect_Specification,
+                     Current (Position), "entry aspect placement");
+               end if;
                --  Feed_Item body stubs share entry grammar before ``is`` but their
                --  trailing aspect belongs to the body-stub placement family.
                --  Retain that structural distinction for bounded parser-owned
@@ -12123,6 +12773,9 @@ package body Editor.Ada_Token_Cursor is
                   Add_Production
                     (Result, Production_Case_Choice_Arrow,
                      Current (Position), "case choice arrow");
+                  Add_Production
+                    (Result, Production_Case_Alternative_Arrow,
+                     Current (Position), "case alternative arrow");
                end if;
                Advance (Position);
                if Is_Exception_Handler then
@@ -12749,6 +13402,13 @@ package body Editor.Ada_Token_Cursor is
                        or else (PL0 = "end" and then PL1 = "select")
                      then
                         exit;
+                     elsif PL0 = "requeue" then
+                        declare
+                           Statement_Position : Cursor := Probe;
+                        begin
+                           Parse_Declaration_Or_Statement
+                             (Statement_Position, Result);
+                        end;
                      end if;
                   end;
                   Advance (Probe);
@@ -12963,32 +13623,43 @@ package body Editor.Ada_Token_Cursor is
             declare
                Probe : Cursor := Position;
             begin
-               Skip_Balanced_To_Semicolon (Probe);
-               if not At_End (Probe)
-                 and then To_String (Current (Probe).Text) = ";"
+               if not At_End (Position)
+                 and then To_String (Current (Position).Text) = ";"
                then
                   Add_Production
                     (Result, Production_Return_Terminator,
-                     Current (Probe), "return terminator");
-               elsif At_End (Probe)
+                     Current (Position), "return terminator");
+               else
+                  Skip_Balanced_To_Semicolon (Probe);
+                  if At_End (Probe)
                  or else At_End (Position)
                  or else Current_Lower (Position) = "end"
                  or else Current_Lower (Position) = "else"
                  or else Current_Lower (Position) = "elsif"
                  or else Current_Lower (Position) = "exception"
-               then
-                  Add_Production
-                    (Result, Production_Return_Missing_Terminator_Recovery_Boundary,
-                     Tok, "return missing terminator recovery boundary");
-                  Add_Production
-                    (Result, Production_Return_Recovery_Boundary, Tok,
-                     "return statement missing semicolon recovery boundary");
-                  Add_Production
-                    (Result, Production_Recovery_Point, Tok,
-                     "expected semicolon after return statement");
+                  then
+                     Add_Production
+                       (Result, Production_Return_Missing_Terminator_Recovery_Boundary,
+                        Tok, "return missing terminator recovery boundary");
+                     Add_Production
+                       (Result, Production_Return_Recovery_Boundary, Tok,
+                        "return statement missing semicolon recovery boundary");
+                     Add_Production
+                       (Result, Production_Recovery_Point, Tok,
+                        "expected semicolon after return statement");
+                  end if;
                end if;
             end;
-            Skip_Balanced_To_Semicolon (Position);
+            if Current_Lower (Position) /= "end"
+              and then Current_Lower (Position) /= "or"
+              and then Current_Lower (Position) /= "else"
+              and then Current_Lower (Position) /= "elsif"
+              and then Current_Lower (Position) /= "exception"
+              and then Current_Lower (Position) /= "then"
+              and then Current_Lower (Position) /= "when"
+            then
+               Skip_Balanced_To_Semicolon (Position);
+            end if;
          end if;
       elsif L0 = "raise" then
          Add_Production (Result, Production_Raise_Statement, Tok, "raise statement");
@@ -13185,7 +13856,15 @@ package body Editor.Ada_Token_Cursor is
               (Result, Production_Recovery_Point, Tok,
                "expected semicolon after null statement");
          end if;
-         Skip_Balanced_To_Semicolon (Position);
+         if Current_Lower (Position) /= "end"
+           and then Current_Lower (Position) /= "or"
+           and then Current_Lower (Position) /= "else"
+           and then Current_Lower (Position) /= "exception"
+           and then Current_Lower (Position) /= "then"
+           and then Current_Lower (Position) /= "when"
+         then
+            Skip_Balanced_To_Semicolon (Position);
+         end if;
       elsif L0 = "exit" then
          Add_Production (Result, Production_Exit_Statement, Tok, "exit statement");
          Advance (Position);
@@ -13576,6 +14255,9 @@ package body Editor.Ada_Token_Cursor is
                     (Result, Production_Requeue_Indexed_Target, Current (Position),
                      "requeue indexed target");
                   Add_Production
+                    (Result, Production_Indexed_Component, Current (Position),
+                     "requeue indexed target");
+                  Add_Production
                     (Result, Production_Requeue_Entry_Index, Current (Position),
                      "requeue entry index");
                   Add_Production
@@ -13825,6 +14507,10 @@ package body Editor.Ada_Token_Cursor is
                   then
                      Add_Production (Result, Production_Number_Declaration, Tok, "number declaration");
                      Add_Production
+                       (Result, Production_Object_Declaration_Recovery_Boundary,
+                        Current (Position),
+                        "object declaration missing subtype/access definition");
+                     Add_Production
                        (Result, Production_Number_Defining_Name_List, Tok,
                         "number defining name list");
                      --  Number declarations share the identifier-list shape
@@ -13987,6 +14673,25 @@ package body Editor.Ada_Token_Cursor is
                         Add_Production
                           (Result, Production_Object_Access_Definition,
                            Current (Position), "object access definition");
+                        Parse_Access_Type_Definition (Position, Result);
+                        if Current_Lower (Position) = "with" then
+                           Parse_Aspect_Specification (Position, Result);
+                        end if;
+                        if To_String (Current (Position).Text) = ";" then
+                           Add_Production
+                             (Result, Production_Object_Declaration_Terminator,
+                              Current (Position),
+                              "object declaration terminator");
+                           Advance (Position);
+                           return;
+                        elsif To_String (Current (Position).Text) /= ":=" then
+                           Add_Production
+                             (Result,
+                              Production_Object_Declaration_Missing_Terminator_Recovery_Boundary,
+                              Current (Position),
+                              "object declaration missing terminator recovery boundary");
+                           return;
+                        end if;
                      elsif To_String (Current (Position).Text) = ":="
                        or else To_String (Current (Position).Text) = ";"
                      then
@@ -14013,6 +14718,9 @@ package body Editor.Ada_Token_Cursor is
                      if not At_End (Position)
                        and then not At_Object_Subtype_Reserved_Boundary (Position)
                        and then Current_Lower (Position) /= "renames"
+                       and then Current_Lower (Position) /= "with"
+                       and then To_String (Current (Position).Text) /= ";"
+                       and then To_String (Current (Position).Text) /= ":="
                      then
                         Add_Production
                           (Result, Production_Object_Subtype_Indication,
@@ -14034,7 +14742,7 @@ package body Editor.Ada_Token_Cursor is
                            "object renaming declaration");
                         Parse_Renaming_Tail (Position, Result, Tok, "renamed object");
                      else
-                        Skip_Balanced_To (Position, ":=", ";");
+                        Skip_Balanced_To (Position, ":=", ";", "with");
                         if Match_Symbol (Position, ":=") then
                            Add_Production
                              (Result, Production_Object_Initialization_Expression,
@@ -14065,6 +14773,28 @@ package body Editor.Ada_Token_Cursor is
                                 (Result, Production_Recovery_Point, Current (Position),
                                  "expected object initialization expression before boundary");
                            else
+                              if To_String (Current (Position).Text) = "("
+                                and then Lookahead_Lower (Position, 1) = "for"
+                                and then Lookahead_Lower (Position, 2) /= "all"
+                                and then Lookahead_Lower (Position, 2) /= "some"
+                                and then not Has_Token_Between
+                                  (Position.Stream, Mark_Pos, Mark (Position), "array")
+                              then
+                                 Add_Production
+                                   (Result, Production_Quantified_Expression,
+                                    Current (Position), "quantified expression");
+                                 Add_Production
+                                   (Result,
+                                    Production_Quantified_Missing_Quantifier_Recovery_Boundary,
+                                    Current (Position),
+                                    "quantified expression missing quantifier recovery boundary");
+                                 Add_Production
+                                   (Result, Production_Quantified_Domain,
+                                    Current (Position), "quantified domain");
+                                 Add_Production
+                                   (Result, Production_Quantified_Arrow,
+                                    Current (Position), "quantified arrow");
+                              end if;
                               Parse_Expression (Position, Result);
                            end if;
                         end if;

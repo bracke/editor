@@ -1,3 +1,19 @@
+## Ada release tools
+
+Release and validation tooling is implemented as Ada programs in `tools/` and
+built through `tools/editor_tools.gpr`. Shell and Python release wrappers are
+not part of the shipped tool surface; use the corresponding `tools/bin/*`
+commands after building the tool project. Release evidence reports use bounded
+merged stdout/stderr capture through the shared Ada helpers.
+The language-analysis release guard is `tools/bin/phase579_language_validation_check`.
+
+The graphical runtime smoke gate is bounded inside the runtime: `tools/bin/runtime_smoke`
+passes `--runtime-smoke-max-seconds` to `bin/editor` instead of relying on an
+external timeout utility.
+
+Build process-control platform scope is documented in
+`docs/release/BUILD_PROCESS_PLATFORM_SUPPORT.md`.
+
 Pass876 improves structural grammar coverage for Ada enumeration representation clauses by adding dedicated recovery metadata for empty lists, trailing separators, and missing value expressions. Regression coverage is in `Test_Language_Model_Token_Cursor_Enumeration_Representation_Recovery_Pass876`. This remains parser/token-cursor metadata only; it is not compiler-grade representation legality checking, static expression validation, overload resolution, compiler invocation, LSP integration, render-side parsing, or dirty-state mutation.
 
 Pass868 improves structural grammar coverage for Ada case statement alternatives by adding dedicated missing-statement recovery metadata after a choice arrow. Malformed or in-progress alternatives such as `when 1 =>` followed immediately by another `when` now retain `Production_Case_Alternative_Missing_Statement_Recovery_Boundary` while preserving the following alternative, `end case`, and later statements.
@@ -1333,7 +1349,7 @@ Pass1047 adds `Editor.Ada_Diagnostic_Status_Line`, an IDE-facing status-line sum
 
 ### Pass1048 - Ada diagnostic quick-fix skeleton model
 
-Pass1048 adds `Editor.Ada_Diagnostic_Quick_Fix_Skeleton`, a projection-only quick-fix candidate model over `Editor.Ada_Semantic_Diagnostic_Index`. It exposes deterministic non-mutating action skeletons for each accepted guarded semantic diagnostic: navigation, explanation, and source-family review candidates. The model preserves diagnostic identity, spans, severity, source family, token kind, syntax node, message payload, rejected-stale withholding, candidate counters, and fingerprints. It does not apply edits, build text changes, parse, save, reload, mutate buffers, register commands, touch workspace state, or perform rendering-side semantic work.
+Pass1048 adds `Editor.Ada_Diagnostic_Quick_Fix_Skeleton`, a projection-only quick-fix candidate model over `Editor.Ada_Semantic_Diagnostic_Index`. It exposes deterministic non-mutating action skeletons for each accepted guarded semantic diagnostic: navigation, explanation, and source-family review candidates. The model preserves diagnostic identity, spans, severity, source family, token kind, syntax node, message payload, rejected-stale withholding, candidate counters, and fingerprints. It does not synthesize or apply edits, parse, save, reload, mutate buffers, register commands, touch workspace state, or perform rendering-side semantic work; explicit producer-owned edit hints from the diagnostic feed can be carried as metadata for executor-owned application.
 
 ### Pass1049 - Ada diagnostic provenance / explain model
 
@@ -1461,7 +1477,7 @@ Regression coverage: `Test_Ada_Diagnostic_Quick_Fix_Overload_Ranking_Pass1074`.
 
 ### Pass1075 — Diagnostic action routing model
 
-Pass1075 adds `Editor.Ada_Diagnostic_Action_Router`, a deterministic projection-only bridge across the quick-fix skeleton, diagnostic navigation, diagnostic panel projection, diagnostic provenance, and diagnostic status-line summary models.  It routes each non-mutating diagnostic action skeleton to available navigation targets, panel rows, provenance/explain items, and status-line nearest-target metadata while preserving diagnostic identity, source span, severity, source family, token kind, syntax node, labels/details, quick-fix fingerprints, target fingerprints, and deterministic route fingerprints.  Stale/rejected input models produce no active routes while preserving rejected-route totals.
+Pass1075 adds `Editor.Ada_Diagnostic_Action_Router`, a deterministic projection-only bridge across the quick-fix skeleton, diagnostic navigation, diagnostic panel projection, diagnostic provenance, and diagnostic status-line summary models.  It routes each non-mutating diagnostic action skeleton to available navigation targets, panel rows, provenance/explain items, and status-line nearest-target metadata while preserving diagnostic identity, source span, severity, source family, token kind, syntax node, labels/details, explicit feed edit hints, quick-fix fingerprints, target fingerprints, and deterministic route fingerprints.  Stale/rejected input models produce no active routes while preserving rejected-route totals.
 
 Regression coverage: `Test_Ada_Diagnostic_Action_Router_Pass1075`.
 
@@ -1469,7 +1485,7 @@ This pass adds one compiler-grade building block for IDE-facing diagnostic actio
 
 ### Pass1076 — Diagnostic command projection model
 
-Pass1076 adds `Editor.Ada_Diagnostic_Command_Projection`, a deterministic projection-only bridge from diagnostic action routes to command-facing descriptors.  The model consumes `Editor.Ada_Diagnostic_Action_Router` output and exposes stable command names, display labels, detail payloads, availability state, diagnostic identity, source span, severity, source family, token kind, syntax node, route fingerprints, and descriptor fingerprints.  It does not register commands, invoke commands, apply edits, parse, mutate buffers, save/reload files, touch workspace state, or perform rendering-side semantic work.  Stale/rejected action-route models produce no active command descriptors while preserving rejected-command totals.
+Pass1076 adds `Editor.Ada_Diagnostic_Command_Projection`, a deterministic projection-only bridge from diagnostic action routes to command-facing descriptors.  The model consumes `Editor.Ada_Diagnostic_Action_Router` output and exposes stable command names, display labels, detail payloads, availability state, diagnostic identity, source span, severity, source family, token kind, syntax node, explicit feed edit hints, route fingerprints, and descriptor fingerprints.  It does not register commands, invoke commands, apply edits, parse, mutate buffers, save/reload files, touch workspace state, or perform rendering-side semantic work.  Stale/rejected action-route models produce no active command descriptors while preserving rejected-command totals.
 
 Regression coverage: `Test_Ada_Diagnostic_Command_Projection_Pass1076`.
 

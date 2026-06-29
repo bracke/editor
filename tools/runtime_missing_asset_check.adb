@@ -17,16 +17,19 @@ procedure Runtime_Missing_Asset_Check is
    Tmp         : constant String := "build/runtime-missing-shader-empty";
    Output_Path : constant String := "build/runtime-missing-shader-output.txt";
 begin
-   if not Ada.Directories.Exists ("bin/editor_app") then
+   if not Ada.Directories.Exists ("bin/editor") then
       if Command_Exists ("alr") or else Command_Exists ("gprbuild") then
          Status := Run0 ("tools/bin/runtime_link_check");
          if Status /= 0 then
-            Fail (Tool, "could not build bin/editor_app before missing-asset check");
+            Fail (Tool, "could not build bin/editor before missing-asset check");
          end if;
       elsif Strict ("EDITOR_REQUIRE_RUNTIME_MISSING_ASSET") then
-         Fail (Tool, "bin/editor_app missing and no Ada build tool is available");
+         Fail (Tool, "bin/editor missing and no Ada build tool is available");
       else
-         Info (Tool, "neither alr nor gprbuild found and bin/editor_app is not executable; missing-asset runtime check skipped");
+         Info
+           (Tool,
+            "neither alr nor gprbuild found and bin/editor is not "
+            & "executable; missing-asset runtime check skipped");
          return;
       end if;
    end if;
@@ -45,7 +48,7 @@ begin
       Args   : GNAT.OS_Lib.Argument_List (1 .. 1) := (1 => new String'("--runtime-check-shaders"));
       Result : constant Captured_Command_Output :=
         Run_Capture_Bounded
-          (Program     => "bin/editor_app",
+          (Program     => "./bin/editor",
            Args        => Args,
            Output_Path => Output_Path);
    begin

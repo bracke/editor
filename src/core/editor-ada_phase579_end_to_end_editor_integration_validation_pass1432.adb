@@ -25,7 +25,8 @@ package body Editor.Ada_Phase579_End_To_End_Editor_Integration_Validation_Pass14
             | Status_Rejected_Unbounded_Work
             | Status_Rejected_Consumer_Disagreement
             | Status_Rejected_Reopened_Remaining_Gap
-            | Status_Rejected_Stale_Integration_Evidence =>
+            | Status_Rejected_Stale_Integration_Evidence
+            | Status_Rejected_Duplicate_Surface =>
             return Class_Rejected;
          when Status_Indeterminate_Missing_Evidence =>
             return Class_Indeterminate;
@@ -111,7 +112,8 @@ package body Editor.Ada_Phase579_End_To_End_Editor_Integration_Validation_Pass14
             | Status_Rejected_Unbounded_Work
             | Status_Rejected_Consumer_Disagreement
             | Status_Rejected_Reopened_Remaining_Gap
-            | Status_Rejected_Stale_Integration_Evidence =>
+            | Status_Rejected_Stale_Integration_Evidence
+            | Status_Rejected_Duplicate_Surface =>
             Model.Rejected_Count := Model.Rejected_Count + 1;
          when Status_Indeterminate_Missing_Evidence =>
             Model.Indeterminate_Count := Model.Indeterminate_Count + 1;
@@ -121,12 +123,38 @@ package body Editor.Ada_Phase579_End_To_End_Editor_Integration_Validation_Pass14
    end Tally;
 
    function Build (Input : Integration_Input) return Integration_Model is
+      function Is_Required_Surface (Surface : Integration_Surface) return Boolean is
+      begin
+         return Surface /= Surface_Unknown;
+      end Is_Required_Surface;
+
+      function Required_Surface_Total return Natural is
+         Count : Natural := 0;
+      begin
+         for Surface in Integration_Surface loop
+            if Is_Required_Surface (Surface) then
+               Count := Count + 1;
+            end if;
+         end loop;
+         return Count;
+      end Required_Surface_Total;
+
+      Seen : array (Integration_Surface) of Boolean := (others => False);
       Model : Integration_Model;
       Status : Integration_Status;
       Feed_Item : Integration_Entry;
    begin
+      Model.Required_Surface_Count := Required_Surface_Total;
       for Row of Input.Rows loop
          Status := Evaluate (Row);
+         if Status = Status_Validated and then Is_Required_Surface (Row.Surface) then
+            if Seen (Row.Surface) then
+               Status := Status_Rejected_Duplicate_Surface;
+               Model.Duplicate_Surface_Count := Model.Duplicate_Surface_Count + 1;
+            else
+               Seen (Row.Surface) := True;
+            end if;
+         end if;
          Feed_Item.Id := Row.Id;
          Feed_Item.Surface := Row.Surface;
          Feed_Item.Status := Status;
@@ -137,6 +165,11 @@ package body Editor.Ada_Phase579_End_To_End_Editor_Integration_Validation_Pass14
          Model.Integration_Fingerprint :=
            Model.Integration_Fingerprint + Feed_Item.Result_Fingerprint;
          Tally (Model, Feed_Item);
+      end loop;
+      for Surface in Integration_Surface loop
+         if Is_Required_Surface (Surface) and then not Seen (Surface) then
+            Model.Missing_Surface_Count := Model.Missing_Surface_Count + 1;
+         end if;
       end loop;
       return Model;
    end Build;
@@ -157,10 +190,13 @@ package body Editor.Ada_Phase579_End_To_End_Editor_Integration_Validation_Pass14
 
    function End_To_End_Integration_Achieved (Model : Integration_Model) return Boolean is
    begin
-      return Model.Total_Rows >= 10
-        and then Model.Validated_Count = Model.Total_Rows
+      return Model.Total_Rows = Model.Required_Surface_Count
+        and then Model.Required_Surface_Count = 10
+        and then Model.Validated_Count = Model.Required_Surface_Count
         and then Model.Rejected_Count = 0
         and then Model.Indeterminate_Count = 0
+        and then Model.Missing_Surface_Count = 0
+        and then Model.Duplicate_Surface_Count = 0
         and then Model.Integration_Fingerprint > 0;
    end End_To_End_Integration_Achieved;
 

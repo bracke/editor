@@ -40,6 +40,7 @@ package Editor.Ada_Phase579_Architecture_Cleanup_Pass1429 is
       Status_Rejected_Pass_Churn_Intent,
       Status_Rejected_Reopened_Remaining_Gap,
       Status_Rejected_Fingerprint_Mismatch,
+      Status_Rejected_Duplicate_Surface,
       Status_Indeterminate_Missing_Cleanup_Evidence);
 
    type Cleanup_Result_Class is
@@ -114,6 +115,9 @@ package Editor.Ada_Phase579_Architecture_Cleanup_Pass1429 is
       Test_Count : Natural := 0;
       Rejected_Count : Natural := 0;
       Indeterminate_Count : Natural := 0;
+      Required_Surface_Count : Natural := 0;
+      Missing_Surface_Count : Natural := 0;
+      Duplicate_Surface_Count : Natural := 0;
       Audit_Fingerprint : Natural := 0;
    end record;
 

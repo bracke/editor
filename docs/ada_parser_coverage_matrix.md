@@ -1023,7 +1023,7 @@ This improves the compiler-grade overload-resolution foundation by turning candi
 
 ### Pass953 expected-type context foundation
 
-Added `Editor.Ada_Expected_Type_Contexts` to attach deterministic expected-subtype context metadata to call-shaped expression nodes in declaration defaults and return contexts. This is a compiler-grade semantic staging layer for later expected-type overload filtering and type checking; it does not yet complete full type compatibility, implicit conversion legality, generic contracts, freezing/representation legality, or cross-unit semantic closure.
+Added `Editor.Ada_Expected_Type_Contexts` to attach deterministic expected-subtype context metadata to call-shaped expression nodes in declaration defaults, return contexts, simple assignment targets, and nested positional/named parameter actuals. This is a compiler-grade semantic staging layer for expected-type overload filtering and type checking; type compatibility, implicit-conversion legality, generic contracts, freezing/representation legality, and cross-unit semantic closure remain in downstream semantic consumers.
 
 ### Pass954 — Expected-call result-subtype filtering
 
@@ -1039,7 +1039,7 @@ Pass956 adds `Editor.Ada_Type_Graph`, a compiler-grade type-system foundation bu
 
 ### Pass957 — Type-graph-aware expected-call compatibility
 
-Pass957 connects the declaration-derived type graph to expected-call filtering. `Editor.Ada_Subtype_Compatibility` gains graph-aware exact/subtype/derived compatibility statuses, and `Editor.Ada_Expected_Call_Filters.Build_With_Type_Graph` records both subtype-compatibility and raw type-graph compatibility metadata. Calls returning a derived type or subtype can now satisfy an expected ancestor subtype when the relationship is present in `Editor.Ada_Type_Graph`; known different roots remain mismatch metadata for later diagnostics. AUnit coverage: `Test_Ada_Expected_Call_Filter_Type_Graph_Compatibility_Pass957`.
+Pass957 connects the declaration-derived type graph to expected-call filtering. `Editor.Ada_Subtype_Compatibility` gains graph-aware exact/subtype/derived compatibility statuses, and `Editor.Ada_Expected_Call_Filters.Build_With_Type_Graph` records both subtype-compatibility and raw type-graph compatibility metadata. Calls returning a subtype can satisfy an expected ancestor subtype when the relationship is present in `Editor.Ada_Type_Graph`; derived-type ancestry remains explicit-conversion evidence and is not treated as an implicit overload selection. Known different roots remain mismatch metadata for later diagnostics. AUnit coverage: `Test_Ada_Expected_Call_Filter_Type_Graph_Compatibility_Pass957`.
 
 ### Pass958 - private views, interfaces, and class-wide compatibility
 
@@ -1410,7 +1410,7 @@ Pass1047 adds `Editor.Ada_Diagnostic_Status_Line` as an IDE-facing status summar
 
 ## Pass1048 diagnostic quick-fix skeleton coverage
 
-Pass1048 adds `Editor.Ada_Diagnostic_Quick_Fix_Skeleton` as a projection-only quick-fix candidate layer over the snapshot-guarded semantic diagnostic index. Coverage includes deterministic candidate identity, navigation/explanation/source-family review skeletons, severity/action/source counters, diagnostic-identity queries, stale-index withholding, and fingerprints. No source edits or mutations are produced by this layer.
+Pass1048 adds `Editor.Ada_Diagnostic_Quick_Fix_Skeleton` as a projection-only quick-fix candidate layer over the snapshot-guarded semantic diagnostic index. Coverage includes deterministic candidate identity, navigation/explanation/source-family review skeletons, severity/action/source counters, diagnostic-identity queries, stale-index withholding, explicit producer-owned edit-hint metadata, and fingerprints. No source edits are synthesized or applied by this layer.
 
 ## Pass1049 diagnostic provenance coverage
 
@@ -1435,7 +1435,7 @@ Pass1053 update:
 Pass1054 update:
 - Added selected-name cross-unit lookup consumer integration through `Editor.Ada_Selected_Name_Resolution.Build_With_Cross_Unit` and `Resolve_Selected_With_Cross_Unit`.
 - Cross-unit prefixes are now represented in selected-name metadata after local/direct/use lookup misses, preserving cross-unit status, target unit/path, lookup identity, and fingerprints.
-- Coverage remains conservative: this pass records visible cross-unit prefixes and restriction states; it does not yet perform selector lookup inside the imported unit declaration graph.
+- Coverage remains conservative for unsupported imported-unit shapes, but project cross-unit selected-name typing now resolves imported selector subtype metadata through the project index for live expression, assignment, return, and diagnostic consumers.
 
 Pass1055: cross-unit selected-name expression inference added; expression metadata now preserves cross-unit selected-name target/selector identity and deterministic counters while maintaining snapshot-owned analysis invariants.
 
@@ -1497,9 +1497,9 @@ Pass1073 note: unified diagnostic provenance now accepts overload-ranking proven
 
 Pass1074 note: diagnostic quick-fix skeletons now accept overload-ranking provenance through Editor.Ada_Diagnostic_Quick_Fix_Skeleton.Build_With_Overload_Ranking.  The layer is projection-only, preserves ranked overload evidence for IDE explanation actions, and does not parse, apply edits, mutate buffers, touch workspace state, or perform rendering-side semantic work.
 
-Pass1075 note: diagnostic action routing now joins quick-fix skeletons with diagnostic navigation, panel rows, provenance/explain items, and status-line nearest-target metadata through `Editor.Ada_Diagnostic_Action_Router`. The layer is projection-only and preserves stale-result rejection; it does not parse, mutate buffers, save/reload files, register commands, touch workspace state, or perform rendering-side semantic work.
+Pass1075 note: diagnostic action routing now joins quick-fix skeletons with diagnostic navigation, panel rows, provenance/explain items, status-line nearest-target metadata, and explicit feed edit hints through `Editor.Ada_Diagnostic_Action_Router`. The layer is projection-only and preserves stale-result rejection; it does not parse, mutate buffers, save/reload files, register commands, touch workspace state, or perform rendering-side semantic work.
 
-Pass1076 note: diagnostic command projection now turns diagnostic action routes into deterministic command-facing descriptors through `Editor.Ada_Diagnostic_Command_Projection`. The layer is projection-only and does not register commands, invoke commands, apply edits, parse, mutate buffers, save/reload files, touch workspace state, or perform rendering-side semantic work. Rejected/stale action-route models expose no active command descriptors while preserving rejected-command totals.
+Pass1076 note: diagnostic command projection now turns diagnostic action routes into deterministic command-facing descriptors through `Editor.Ada_Diagnostic_Command_Projection`, preserving explicit feed edit hints as descriptor metadata for executor-owned application. The layer is projection-only and does not register commands, invoke commands, apply edits, parse, mutate buffers, save/reload files, touch workspace state, or perform rendering-side semantic work. Rejected/stale action-route models expose no active command descriptors while preserving rejected-command totals.
 
 Pass1077 note: diagnostic command palette projection now turns diagnostic command descriptors into deterministic command-palette-facing entries through `Editor.Ada_Diagnostic_Command_Palette_Projection`. The layer is projection-only and does not register command aliases, mutate keybindings, invoke commands, apply edits, parse, mutate buffers, save/reload files, touch workspace state, or perform rendering-side semantic work. Rejected/stale command projection models expose no active palette entries while preserving rejected-entry totals.
 

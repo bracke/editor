@@ -2346,6 +2346,29 @@ package body Editor.Buffers is
       return Global_Registry;
    end Global_Registry_For_UI;
 
+   function Global_Buffer
+     (Id : Buffer_Id) return Buffer_State is
+   begin
+      return Buffer (Global_Registry, Id);
+   end Global_Buffer;
+
+   procedure Global_Replace_Buffer_Contents
+     (Id       : Buffer_Id;
+      Contents : String;
+      Replaced : out Boolean)
+   is
+      Target : constant access Buffer_State :=
+        Buffer_Access (Global_Registry, Id);
+   begin
+      Replaced := False;
+      if Target = null then
+         return;
+      end if;
+
+      Editor.State.Replace_Buffer_Contents (Target.all, Contents);
+      Replaced := True;
+   end Global_Replace_Buffer_Contents;
+
    function Global_Summary_At
      (Index : Positive) return Buffer_Summary
    is

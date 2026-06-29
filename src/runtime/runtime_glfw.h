@@ -12,6 +12,7 @@ typedef struct RuntimeGlfwOptions {
     unsigned smoke_visual_min_rects;
     unsigned smoke_visual_min_glyphs;
     int smoke_max_seconds;
+    const char *project_path;
 } RuntimeGlfwOptions;
 
 int runtime_glfw_run(void);

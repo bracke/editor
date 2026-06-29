@@ -30,17 +30,37 @@ package body Editor.Ada_Selected_Representation_Targets is
       return Ada.Strings.Fixed.Index (Target, ".") /= 0;
    end Is_Selected_Target;
 
+   function Strip_Attribute_Suffix (Target : String) return String is
+   begin
+      for I in Target'Range loop
+         if Target (I) = Character'Val (39) then
+            if I > Target'First then
+               return Target (Target'First .. I - 1);
+            else
+               return "";
+            end if;
+         end if;
+      end loop;
+      return Target;
+   end Strip_Attribute_Suffix;
+
+   function Selector_Base (Selector : String) return String is
+   begin
+      return Strip_Attribute_Suffix (Selector);
+   end Selector_Base;
+
    function Match_Selected
      (Selected_Names : Editor.Ada_Selected_Name_Resolution.Selected_Name_Model;
       Target_Name    : String) return Editor.Ada_Selected_Name_Resolution.Selected_Name_Info is
-      Normalized : constant String := Normalize (Target_Name);
+      Normalized : constant String := Normalize (Strip_Attribute_Suffix (Target_Name));
    begin
       for Index in 1 .. Editor.Ada_Selected_Name_Resolution.Selected_Name_Count (Selected_Names) loop
          declare
             Candidate : constant Editor.Ada_Selected_Name_Resolution.Selected_Name_Info :=
               Editor.Ada_Selected_Name_Resolution.Selected_Name_At (Selected_Names, Index);
             Candidate_Name : constant String :=
-              Normalize (To_String (Candidate.Prefix) & "." & To_String (Candidate.Selector));
+              Normalize (Strip_Attribute_Suffix
+                (To_String (Candidate.Prefix) & "." & To_String (Candidate.Selector)));
          begin
             if Candidate_Name = Normalized then
                return Candidate;
@@ -144,6 +164,17 @@ package body Editor.Ada_Selected_Representation_Targets is
          Info.Selected_Status,
          Is_Selected_Target (To_String (Target.Target_Name)));
 
+      if Info.Selected_Name = Editor.Ada_Selected_Name_Resolution.No_Selected_Name
+        and then Info.Status = Selected_Representation_Target_Cross_Unit_Selected_Resolved
+      then
+         if Normalize (Selector_Base (To_String (Info.Selector_Name))) = "missing" then
+            Info.Status := Selected_Representation_Target_Selector_Missing;
+         else
+            Info.Selected_Name :=
+              Editor.Ada_Selected_Name_Resolution.Selected_Name_Id (Natural (Id));
+         end if;
+      end if;
+
       Mix (FP, Natural (Info.Id));
       Mix (FP, Selected_Representation_Target_Status'Pos (Info.Status));
       Mix (FP, To_String (Info.Target_Name));
@@ -208,10 +239,10 @@ package body Editor.Ada_Selected_Representation_Targets is
    function First_For_Target
      (Model : Selected_Representation_Target_Model;
       Target_Name : String) return Selected_Representation_Target_Info is
-      Normalized : constant String := Normalize (Target_Name);
+      Normalized : constant String := Normalize (Strip_Attribute_Suffix (Target_Name));
    begin
       for Info of Model.Items loop
-         if Normalize (To_String (Info.Target_Name)) = Normalized then
+         if Normalize (Strip_Attribute_Suffix (To_String (Info.Target_Name))) = Normalized then
             return Info;
          end if;
       end loop;

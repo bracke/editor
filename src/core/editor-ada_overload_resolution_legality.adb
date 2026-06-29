@@ -1,11 +1,13 @@
 with Ada.Characters.Handling;
 with Ada.Strings.Unbounded; use Ada.Strings.Unbounded;
+with Editor.Ada_Implicit_Conversions;
 
 package body Editor.Ada_Overload_Resolution_Legality is
 
    pragma Suppress (Overflow_Check);
 
    use type Editor.Ada_Syntax_Tree.Node_Id;
+   use type Editor.Ada_Expected_Call_Filters.Expected_Call_Filter_Status;
    use type Editor.Ada_Overload_Ranking.Overload_Ranking_Id;
    use type Editor.Ada_Overload_Ranking.Overload_Ranking_Status;
    use type Editor.Ada_Wide_Semantic_Legality_Diagnostics.Wide_Semantic_Diagnostic_Id;
@@ -341,6 +343,133 @@ package body Editor.Ada_Overload_Resolution_Legality is
       Model.Contexts.Append (Item);
       Model.Result_Fingerprint := Mix (Model.Result_Fingerprint, Context_Fingerprint (Item));
    end Add_Context;
+
+   function Expected_Filter_Selects
+     (Status : Editor.Ada_Expected_Call_Filters.Expected_Call_Filter_Status)
+      return Boolean is
+   begin
+      return Status =
+        Editor.Ada_Expected_Call_Filters.Expected_Call_Filter_Result_Subtype_Matches
+        or else Status =
+          Editor.Ada_Expected_Call_Filters.Expected_Call_Filter_Result_Subtype_Compatible;
+   end Expected_Filter_Selects;
+
+   function Expected_Filter_Selects
+     (Info : Editor.Ada_Expected_Call_Filters.Expected_Call_Filter_Info)
+      return Boolean is
+   begin
+      return Expected_Filter_Selects (Info.Status)
+        and then Editor.Ada_Implicit_Conversions.Is_Implicitly_Allowed
+          ((Compatibility => Info.Compatibility,
+            Status        => Info.Implicit_Conversion,
+            Fingerprint   => 0));
+   end Expected_Filter_Selects;
+
+   function Node_Has_Selected_Expected_Filter
+     (Filters : Editor.Ada_Expected_Call_Filters.Expected_Call_Filter_Model;
+      Node    : Editor.Ada_Syntax_Tree.Node_Id) return Boolean
+   is
+      Info : Editor.Ada_Expected_Call_Filters.Expected_Call_Filter_Info;
+   begin
+      for I in 1 .. Editor.Ada_Expected_Call_Filters.Expected_Call_Filter_Count (Filters) loop
+         Info := Editor.Ada_Expected_Call_Filters.Expected_Call_Filter_At (Filters, I);
+         if Info.Call_Node = Node and then Expected_Filter_Selects (Info) then
+            return True;
+         end if;
+      end loop;
+      return False;
+   end Node_Has_Selected_Expected_Filter;
+
+   function Selected_Context_Already_Added
+     (Model : Overload_Context_Model;
+      Node  : Editor.Ada_Syntax_Tree.Node_Id) return Boolean
+   is
+      Info : Overload_Context_Info;
+   begin
+      for I in 1 .. Context_Count (Model) loop
+         Info := Context_At (Model, I);
+         if Info.Node = Node and then Info.Expected_Type_Match_Count > 0 then
+            return True;
+         end if;
+      end loop;
+      return False;
+   end Selected_Context_Already_Added;
+
+   function Context_From_Expected_Filter
+     (Info : Editor.Ada_Expected_Call_Filters.Expected_Call_Filter_Info)
+      return Overload_Context_Info
+   is
+      Context : Overload_Context_Info;
+   begin
+      Context.Kind := Overload_Context_Call;
+      Context.Node := Info.Call_Node;
+      Context.Designator := To_Unbounded_String ("call");
+      Context.Expected_Subtype := Info.Expected_Subtype;
+      Context.Selected_Subtype := Info.Result_Subtype;
+      Context.Start_Line := Info.Start_Line;
+      Context.End_Line := Info.End_Line;
+      Context.Source_Fingerprint := Info.Fingerprint;
+
+      if Expected_Filter_Selects (Info) then
+         Context.Candidate_Count := 1;
+         Context.Visible_Candidate_Count := 1;
+         Context.Expected_Type_Match_Count := 1;
+      else
+         case Info.Status is
+            when Editor.Ada_Expected_Call_Filters
+              .Expected_Call_Filter_Result_Subtype_Requires_Explicit_Conversion =>
+               Context.Candidate_Count := 1;
+               Context.Visible_Candidate_Count := 1;
+               Context.Actual_Type_Mismatch_Count := 1;
+            when Editor.Ada_Expected_Call_Filters.Expected_Call_Filter_Result_Subtype_Compatible =>
+               Context.Candidate_Count := 1;
+               Context.Visible_Candidate_Count := 1;
+               Context.Actual_Type_Mismatch_Count := 1;
+            when Editor.Ada_Expected_Call_Filters.Expected_Call_Filter_Result_Subtype_Mismatch =>
+               Context.Candidate_Count := 1;
+               Context.Visible_Candidate_Count := 1;
+               Context.Actual_Type_Mismatch_Count := 1;
+            when Editor.Ada_Expected_Call_Filters.Expected_Call_Filter_No_Unique_Profile =>
+               Context.Candidate_Count := 2;
+               Context.Visible_Candidate_Count := 2;
+               Context.Ambiguous_Candidate_Count := 1;
+            when Editor.Ada_Expected_Call_Filters.Expected_Call_Filter_No_Profile_Filter |
+                 Editor.Ada_Expected_Call_Filters.Expected_Call_Filter_No_Callable_Profile |
+                 Editor.Ada_Expected_Call_Filters.Expected_Call_Filter_Callable_Has_No_Result =>
+               Context.Candidate_Count := 1;
+               Context.Visible_Candidate_Count := 1;
+               Context.Profile_Mismatch_Count := 1;
+            when Editor.Ada_Expected_Call_Filters.Expected_Call_Filter_No_Call_Resolution =>
+               Context.Candidate_Count := 0;
+               Context.Visible_Candidate_Count := 0;
+            when others =>
+               Context.Candidate_Count := 1;
+               Context.Visible_Candidate_Count := 1;
+         end case;
+      end if;
+
+      return Context;
+   end Context_From_Expected_Filter;
+
+   function Build_Contexts_From_Expected_Call_Filters
+     (Filters : Editor.Ada_Expected_Call_Filters.Expected_Call_Filter_Model)
+      return Overload_Context_Model
+   is
+      Model : Overload_Context_Model;
+      Info  : Editor.Ada_Expected_Call_Filters.Expected_Call_Filter_Info;
+   begin
+      for I in 1 .. Editor.Ada_Expected_Call_Filters.Expected_Call_Filter_Count (Filters) loop
+         Info := Editor.Ada_Expected_Call_Filters.Expected_Call_Filter_At (Filters, I);
+         if Expected_Filter_Selects (Info) then
+            if not Selected_Context_Already_Added (Model, Info.Call_Node) then
+               Add_Context (Model, Context_From_Expected_Filter (Info));
+            end if;
+         elsif not Node_Has_Selected_Expected_Filter (Filters, Info.Call_Node) then
+            Add_Context (Model, Context_From_Expected_Filter (Info));
+         end if;
+      end loop;
+      return Model;
+   end Build_Contexts_From_Expected_Call_Filters;
 
    function Context_Count (Model : Overload_Context_Model) return Natural is
    begin

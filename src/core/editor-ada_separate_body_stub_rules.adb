@@ -85,6 +85,7 @@ package body Editor.Ada_Separate_Body_Stub_Rules is
       return Stub_Symbol.Kind = Editor.Ada_Language_Model.Symbol_Procedure
         or else Stub_Symbol.Kind = Editor.Ada_Language_Model.Symbol_Function
         or else Stub_Symbol.Kind = Editor.Ada_Language_Model.Symbol_Package_Body
+        or else Stub_Symbol.Kind = Editor.Ada_Language_Model.Symbol_Separate_Body
         or else Stub_Symbol.Kind = Editor.Ada_Language_Model.Symbol_Task
         or else Stub_Symbol.Kind = Editor.Ada_Language_Model.Symbol_Protected
         or else Stub_Symbol.Kind = Editor.Ada_Language_Model.Symbol_Entry;
@@ -171,11 +172,15 @@ package body Editor.Ada_Separate_Body_Stub_Rules is
       Separate_Unit : constant Editor.Ada_Project_Index.Indexed_Unit :=
         Separate_Unit_For (Index, To_String (Legality.Separate_Path));
       Parent_Analysis : Editor.Ada_Language_Model.Analysis_Result;
-      Target_Name : constant String := Tail_Name (To_String (Legality.Separate_Unit_Name));
+      Separate_Name : constant String :=
+        (if Length (Separate_Unit.Symbol.Name) > 0
+         then To_String (Separate_Unit.Symbol.Name)
+         else Tail_Name (To_String (Legality.Separate_Unit_Name)));
+      Target_Name : constant String := Tail_Name (Separate_Name);
       Found_Stub : Editor.Ada_Language_Model.Symbol_Info;
       Found_Count : Natural := 0;
    begin
-      Info.Separate_Unit_Name := Legality.Separate_Unit_Name;
+      Info.Separate_Unit_Name := To_Unbounded_String (Separate_Name);
       Info.Separate_Path := Legality.Separate_Path;
       Info.Parent_Unit_Name := Legality.Parent_Unit_Name;
       Info.Parent_Path := Legality.Parent_Path;

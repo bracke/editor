@@ -11,14 +11,21 @@ with Editor.Build_Runner_Policy;
 with Editor.Build_Command;
 with Editor.Build_Candidates;
 with Editor.Build_Output_Details_Audit;
+with Editor.Command_Execution;
+with Editor.Commands;
+with Editor.Executor;
+with Editor.Input_Bridge;
+with Editor.Keybindings;
 
 package body Editor.Build_Output_Details.Tests is
 
    use type Editor.Build_Output_Details.Build_Output_Details_Kind;
    use type Editor.Build_Output_Details.Build_Output_Stream_Selection;
+   use type Editor.Commands.Command_Id;
    use type Editor.Build_Result_Summary.Build_Result_Summary_Kind;
    use type Editor.External_Producers.Build_Run_Status;
    use type Editor.Build_Runner_Policy.Build_Execution_Policy;
+   use type Editor.Command_Execution.Command_Execution_Status;
 
    overriding function Name
      (T : Build_Output_Details_Test_Case) return AUnit.Message_String
@@ -59,6 +66,16 @@ package body Editor.Build_Output_Details.Tests is
          Exit_Code => Exit_Code,
          Has_Exit_Code => Has_Exit_Code);
    end Details_From_Output;
+
+   function Key
+     (Code : Editor.Keybindings.Key_Code) return Editor.Keybindings.Key_Chord
+   is
+   begin
+      return
+        (Key => Code,
+         Modifiers =>
+           (Ctrl => False, Alt => False, Shift => False, Meta => False));
+   end Key;
 
    function Ready_State return Editor.State.State_Type is
       S : Editor.State.State_Type;
@@ -304,6 +321,128 @@ package body Editor.Build_Output_Details.Tests is
               and then not Details.Build_Output_Details_Focused,
               "hide clears transient output-details focus only");
    end Test_Output_Details_Visibility_Does_Not_Mutate_Output;
+
+   procedure Test_Output_Details_Commands_And_Focused_Keyboard
+     (T : in out AUnit.Test_Cases.Test_Case'Class)
+   is
+      pragma Unreferenced (T);
+      S : Editor.State.State_Type;
+      After : Editor.State.State_Type;
+      Result : Editor.Command_Execution.Command_Execution_Result;
+      Found : Boolean := False;
+      Id : Editor.Commands.Command_Id;
+   begin
+      Editor.State.Init (S);
+
+      Result := Editor.Executor.Execute_Command_With_Result
+        (S, Editor.Commands.Command_Build_Result_Focus);
+      Assert (Result.Status = Editor.Command_Execution.Command_Unavailable,
+              "build result focus is unavailable before a result exists");
+
+      Result := Editor.Executor.Execute_Command_With_Result
+        (S, Editor.Commands.Command_Build_Output_Details_Focus);
+      Assert (Result.Status = Editor.Command_Execution.Command_Unavailable,
+              "output details focus is unavailable before output exists");
+
+      S.Latest_Build_Result :=
+        Editor.Build_Result_Summary.Build_Summary
+          (Kind => Editor.Build_Result_Summary.Build_Result_Summary_Failed,
+           Invocation_Label => "gprbuild editor.gpr",
+           Tool_Kind => Editor.Build_Result_Summary.Build_Result_GPRbuild_Tool,
+           Request_Mode => Editor.Build_Result_Summary.Build_Result_Request_Manual,
+           Working_Context_Label => "project",
+           Runner_Status_Label => "failed",
+           Primary_Message => "build failed",
+           Diagnostics_Ingestion_Status =>
+             Editor.Build_Result_Summary.Diagnostics_Ingestion_Succeeded);
+      S.Latest_Build_Output_Details :=
+        Details_From_Output
+          (Editor.Build_Output_Details.Build_Output_Runner_Failed,
+           Stdout_Text => "stdout",
+           Stderr_Text => "stderr");
+
+      Id := Editor.Commands.Command_Id_From_Stable_Name
+        ("build.output-details.select-stdout", Found);
+      Assert (Found
+              and then Id =
+                Editor.Commands.Command_Build_Output_Details_Select_Stdout,
+              "output details stdout command has a stable id");
+
+      Result := Editor.Executor.Execute_Command_With_Result
+        (S, Editor.Commands.Command_Build_Result_Focus);
+      Assert (Result.Status = Editor.Command_Execution.Command_Executed,
+              "build result focus routes through Executor");
+      Assert (S.Latest_Build_Result_Focused,
+              "build result focus command focuses the result surface");
+
+      Result := Editor.Executor.Execute_Command_With_Result
+        (S, Editor.Commands.Command_Build_Output_Details_Focus);
+      Assert (Result.Status = Editor.Command_Execution.Command_Executed,
+              "output details focus routes through Executor");
+      Assert (S.Latest_Build_Output_Details.Build_Output_Details_Focused,
+              "output details focus command focuses the details surface");
+
+      Result := Editor.Executor.Execute_Command_With_Result
+        (S, Editor.Commands.Command_Build_Output_Details_Select_Stdout);
+      Assert (Result.Status = Editor.Command_Execution.Command_Executed
+              and then S.Latest_Build_Output_Details.Selected_Output_Stream =
+                Editor.Build_Output_Details.Build_Output_Stream_Stdout,
+              "stdout selection command updates the selected output stream");
+
+      Result := Editor.Executor.Execute_Command_With_Result
+        (S, Editor.Commands.Command_Build_Output_Details_Select_Stderr);
+      Assert (Result.Status = Editor.Command_Execution.Command_Executed
+              and then S.Latest_Build_Output_Details.Selected_Output_Stream =
+                Editor.Build_Output_Details.Build_Output_Stream_Stderr,
+              "stderr selection command updates the selected output stream");
+
+      Result := Editor.Executor.Execute_Command_With_Result
+        (S, Editor.Commands.Command_Build_Output_Details_Select_Merged);
+      Assert (Result.Status = Editor.Command_Execution.Command_Executed
+              and then S.Latest_Build_Output_Details.Selected_Output_Stream =
+                Editor.Build_Output_Details.Build_Output_Stream_Merged,
+              "merged selection command updates the selected output stream");
+
+      S.Latest_Build_Result_Focused := True;
+      S.Latest_Build_Output_Details.Build_Output_Details_Focused := False;
+      Editor.Input_Bridge.Set_State_For_Test (S);
+
+      Editor.Input_Bridge.Handle_Key_Chord
+        (Key (Editor.Keybindings.Key_Enter));
+      After := Editor.Input_Bridge.Get_State_For_Test;
+      Assert (After.Latest_Build_Output_Details.Build_Output_Details_Focused
+              and then not After.Latest_Build_Result_Focused,
+              "Enter on focused result moves focus to output details");
+
+      Editor.Input_Bridge.Handle_Key_Chord
+        (Key (Editor.Keybindings.Key_Left));
+      After := Editor.Input_Bridge.Get_State_For_Test;
+      Assert (After.Latest_Build_Output_Details.Selected_Output_Stream =
+                Editor.Build_Output_Details.Build_Output_Stream_Stdout,
+              "Left selects stdout while output details are focused");
+
+      Editor.Input_Bridge.Handle_Key_Chord
+        (Key (Editor.Keybindings.Key_Right));
+      After := Editor.Input_Bridge.Get_State_For_Test;
+      Assert (After.Latest_Build_Output_Details.Selected_Output_Stream =
+                Editor.Build_Output_Details.Build_Output_Stream_Stderr,
+              "Right selects stderr while output details are focused");
+
+      Editor.Input_Bridge.Handle_Key_Chord
+        (Key (Editor.Keybindings.Key_Down));
+      After := Editor.Input_Bridge.Get_State_For_Test;
+      Assert (After.Latest_Build_Output_Details.Selected_Output_Stream =
+                Editor.Build_Output_Details.Build_Output_Stream_Merged,
+              "Down selects merged output while output details are focused");
+
+      Editor.Input_Bridge.Handle_Key_Chord
+        (Key (Editor.Keybindings.Key_Escape));
+      After := Editor.Input_Bridge.Get_State_For_Test;
+      Assert (not After.Latest_Build_Result_Focused
+              and then not
+                After.Latest_Build_Output_Details.Build_Output_Details_Focused,
+              "Escape returns build result/details focus to editor text");
+   end Test_Output_Details_Commands_And_Focused_Keyboard;
 
    procedure Test_Unavailable_Details_Are_Not_History_Or_Output_Log
      (T : in out AUnit.Test_Cases.Test_Case'Class)
@@ -954,6 +1093,9 @@ package body Editor.Build_Output_Details.Tests is
       Register_Routine
         (T, Test_Output_Details_Visibility_Does_Not_Mutate_Output'Access,
          "visibility and selected stream do not mutate output");
+      Register_Routine
+        (T, Test_Output_Details_Commands_And_Focused_Keyboard'Access,
+         "output details commands and focused keyboard route through Executor");
       Register_Routine
         (T, Test_Unavailable_Details_Are_Not_History_Or_Output_Log'Access,
          "unavailable details are not history or output log");

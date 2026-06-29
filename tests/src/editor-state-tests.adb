@@ -8,6 +8,8 @@ with Editor.Recent_Projects;
 with Editor.Pending_Transitions;
 with Editor.Dirty_Guards;
 with Editor.Test_Helper;
+with Editor.Ada_Language_Service;
+with Editor.External_Producers;
 with Text_Buffer;
 
 package body Editor.State.Tests is
@@ -68,7 +70,7 @@ package body Editor.State.Tests is
       Before : Editor.State.Project_Scoped_State_Summary;
       After  : Editor.State.Project_Scoped_State_Summary;
       Config_Dir : constant String := Ada.Directories.Compose
-        (Ada.Directories.Current_Directory, "phase99_recent_config");
+        ("/tmp/editor-tests", "phase99_recent_config");
       Open_Result : constant Editor.Project.Project_Open_Result :=
         (Status       => Editor.Project.Project_Open_Ok,
          Root_Path    => To_Unbounded_String ("/tmp/editor-phase99-a"),
@@ -84,6 +86,7 @@ package body Editor.State.Tests is
          others     => <>);
       Summary : constant Editor.Dirty_Guards.Dirty_Buffer_Summary :=
         (Dirty_Count => 1, Untitled_Count => 0, File_Backed_Count => 1);
+      Lines : Editor.External_Producers.Diagnostic_Text_Line_Array;
    begin
       if Ada.Directories.Exists (Config_Dir) then
          Ada.Directories.Delete_Tree (Config_Dir);
@@ -97,6 +100,11 @@ package body Editor.State.Tests is
         (S.Pending_Transitions, Target, Summary);
       Editor.Recent_Projects.Add_Or_Promote
         (S.Recent_Projects, "/tmp/editor-phase99-a", "editor-phase99-a", 10);
+      Lines.Append
+        (To_Unbounded_String
+           ("src/stale_project.adb:3:2: error: stale project diagnostic"));
+      Editor.Ada_Language_Service.Put_Compiler_Diagnostic_Lines
+        (S.Language_Service, Lines, Tool_Name => "gprbuild");
 
       Before := Editor.State.Project_Scoped_State_Summary_For (S);
       Assert (Before.Has_Project_Root,
@@ -121,6 +129,11 @@ package body Editor.State.Tests is
               "project-scoped reset must clear project-search query");
       Assert (not After.Has_Pending_Project_Target,
               "project-scoped reset must clear project-targeted pending transition");
+      Assert (not Editor.Ada_Language_Service.Compiler_Status
+                (S.Language_Service).Has_Run
+              and then Editor.Ada_Language_Service.Compiler_Diagnostic_Count
+                (S.Language_Service) = 0,
+              "project-scoped reset must clear retained compiler-backed language diagnostics");
       Assert (Editor.Recent_Projects.Count (S.Recent_Projects) = 1,
               "project-scoped reset must preserve global recent projects");
 

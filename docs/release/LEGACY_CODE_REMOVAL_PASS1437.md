@@ -6,8 +6,7 @@ Removed files:
 
 - `src/core/editor-ada_repair_gated_diagnostic_provenance.ads`
 - `src/core/editor-ada_repair_gated_diagnostic_provenance.adb`
-- `tests/src/test_ada_repair_gated_diagnostic_provenance_pass1151.ads`
-- `tests/src/test_ada_repair_gated_diagnostic_provenance_pass1151.adb`
+- the matching repair-gated diagnostic provenance regression package
 
 The corresponding `Core_Suite` `with` clause and `Add_Test` registration were also removed.
 

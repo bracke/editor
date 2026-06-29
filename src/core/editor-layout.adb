@@ -515,7 +515,7 @@ package body Editor.Layout is
    is
    begin
       return Line_Number_Right_Edge (Config, Line_Count)
-        - Float (Digit_From_Right) * Float (Cell_W);
+        - Float (Digit_From_Right + 1) * Float (Cell_W);
    end Line_Number_Cell_X;
 
    function Text_Right_X

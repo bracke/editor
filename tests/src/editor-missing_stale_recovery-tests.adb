@@ -33,7 +33,8 @@ package body Editor.Missing_Stale_Recovery.Tests is
 
    function Fixture_Root return String is
    begin
-      return Ada.Directories.Current_Directory & "/phase561_missing_stale_fixture";
+      Ada.Directories.Create_Path ("/tmp/editor-tests");
+      return "/tmp/editor-tests/phase561_missing_stale_fixture";
    end Fixture_Root;
 
    procedure Write_File (Path : String; Text : String := "demo") is
@@ -161,7 +162,7 @@ package body Editor.Missing_Stale_Recovery.Tests is
       Root : constant String := Fixture_Root;
       Existing : constant String := Root & "/src/main.adb";
       Missing  : constant String := Root & "/src/missing.adb";
-      Outside  : constant String := Ada.Directories.Current_Directory & "/phase561_outside.adb";
+      Outside  : constant String := "/tmp/editor-tests/phase561_outside.adb";
    begin
       Reset_Fixture;
       Write_File (Outside, "outside");
@@ -731,7 +732,7 @@ package body Editor.Missing_Stale_Recovery.Tests is
       pragma Unreferenced (T);
       Root : constant String := Fixture_Root;
       Source : constant String := Root & "/src/main.adb";
-      Outside : constant String := Ada.Directories.Current_Directory & "/phase561_outside_search.adb";
+      Outside : constant String := "/tmp/editor-tests/phase561_outside_search.adb";
    begin
       Reset_Fixture;
       Write_File (Outside, "outside");
@@ -857,7 +858,7 @@ package body Editor.Missing_Stale_Recovery.Tests is
       pragma Unreferenced (T);
       Root : constant String := Fixture_Root;
       Source : constant String := Root & "/src/main.adb";
-      Outside : constant String := Ada.Directories.Current_Directory & "/phase561_recent_outside.adb";
+      Outside : constant String := "/tmp/editor-tests/phase561_recent_outside.adb";
       Summary : constant Editor.Missing_Stale_Recovery.Replace_Apply_Validation_Summary :=
         (Applied_Targets => 2, Missing_Targets => 1, Stale_Targets => 1,
          Out_Of_Range_Targets => 1);

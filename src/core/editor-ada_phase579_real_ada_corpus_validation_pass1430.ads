@@ -39,6 +39,7 @@ package Editor.Ada_Phase579_Real_Ada_Corpus_Validation_Pass1430 is
       Status_Rejected_False_Negative,
       Status_Rejected_Missing_Diagnostic_Span,
       Status_Rejected_Duplicate_Diagnostic_Flood,
+      Status_Rejected_Duplicate_Family,
       Status_Rejected_Consumer_Disagreement,
       Status_Rejected_Stale_Corpus_Evidence,
       Status_Indeterminate_Missing_Corpus_Evidence);
@@ -107,6 +108,9 @@ package Editor.Ada_Phase579_Real_Ada_Corpus_Validation_Pass1430 is
       Cross_Unit_Agreed_Count : Natural := 0;
       Rejected_Count : Natural := 0;
       Indeterminate_Count : Natural := 0;
+      Required_Family_Count : Natural := 0;
+      Missing_Family_Count : Natural := 0;
+      Duplicate_Family_Count : Natural := 0;
       Corpus_Fingerprint : Natural := 0;
    end record;
 

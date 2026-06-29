@@ -1,4 +1,5 @@
 with Interfaces.C;
+with Textrender;
 with Editor.Unicode;
 
 package Editor.Fonts is
@@ -54,5 +55,7 @@ package Editor.Fonts is
      (Metric      : Glyph_Metric;
       Cell_Width  : Positive;
       Cell_Height : Positive);
+
+   function Backend return access Textrender.Renderer;
 
 end Editor.Fonts;

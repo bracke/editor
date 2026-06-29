@@ -10,6 +10,7 @@ with Editor.Build_Diagnostics;
 with Editor.Build_Result_Summary;
 with Editor.Build_Output_Details;
 with Editor.Build_Process_Control;
+with Editor.Ada_Language_Service;
 with Editor.External_Producers;
 with Editor.Keybindings;
 with Editor.Project;
@@ -391,6 +392,58 @@ package body Editor.Build_Command is
             return Editor.Build_Result_Summary.Build_Result_No_Tool;
       end case;
    end Summary_Tool_For;
+
+   function Compiler_Tool_Name
+     (Tool : Editor.External_Producers.Build_Tool_Kind) return String
+   is
+   begin
+      case Tool is
+         when Editor.External_Producers.GPRbuild_Tool =>
+            return "gprbuild";
+         when Editor.External_Producers.Alire_Build_Tool =>
+            return "alr";
+         when Editor.External_Producers.Custom_Build_Tool =>
+            return "custom-build";
+         when Editor.External_Producers.No_Build_Tool =>
+            return "build";
+      end case;
+   end Compiler_Tool_Name;
+
+   function Build_Run_Fingerprint
+     (Result : Editor.External_Producers.Build_Run_Result) return Natural
+   is
+      Exit_Code_Part : Natural := 0;
+   begin
+      if Result.Exit_Code < 0 then
+         if Result.Exit_Code = Integer'First then
+            Exit_Code_Part := Natural (Integer'Last);
+         else
+            Exit_Code_Part := Natural (-Result.Exit_Code);
+         end if;
+      else
+         Exit_Code_Part := Natural (Result.Exit_Code);
+      end if;
+
+      return
+        Editor.External_Producers.Build_Run_Status'Pos (Result.Status)
+        + Exit_Code_Part;
+   end Build_Run_Fingerprint;
+
+   procedure Feed_Language_Service_Compiler_Backend
+     (State   : in out Editor.State.State_Type;
+      Request : Editor.External_Producers.Build_Run_Request;
+      Result  : Editor.External_Producers.Build_Run_Result)
+   is
+   begin
+      State.Language_Service :=
+        Editor.Ada_Language_Service.From_Index (State.Language_Index);
+      Editor.Ada_Language_Service.Put_Compiler_Diagnostic_Lines
+        (State.Language_Service,
+         Editor.External_Producers.Extract_Diagnostic_Lines_From_Build_Result
+           (Result),
+         Tool_Name       => Compiler_Tool_Name (Request.Tool),
+         Run_Fingerprint => Build_Run_Fingerprint (Result));
+   end Feed_Language_Service_Compiler_Backend;
 
    function Summary_Mode_For
      (Request : Editor.External_Producers.Build_Run_Request)
@@ -1380,6 +1433,8 @@ package body Editor.Build_Command is
            State.Build_UI.Show_Diagnostics_On_Result);
 
       Result.Diagnostic_Result := Ingestion;
+      Feed_Language_Service_Compiler_Backend
+        (State, Completed_Request, Result.Build_Result);
       Result.Command_Message := To_Unbounded_String
         (Editor.External_Producers.Build_Gated_Build_Command_Feedback
            (Result.Build_Result,
@@ -1475,6 +1530,8 @@ package body Editor.Build_Command is
             State.Build_UI.Show_Diagnostics_On_Result);
 
          Result.Diagnostic_Result := Ingestion;
+         Feed_Language_Service_Compiler_Backend
+           (State, Conversion.Request, Result.Build_Result);
          Result.Command_Message := To_Unbounded_String
            (Editor.External_Producers.Build_Gated_Build_Command_Feedback
               (Result.Build_Result,
@@ -1560,6 +1617,8 @@ package body Editor.Build_Command is
             State.Build_UI.Show_Diagnostics_On_Result);
 
          Result.Diagnostic_Result := Ingestion;
+         Feed_Language_Service_Compiler_Backend
+           (State, Conversion.Request, Result.Build_Result);
          Result.Command_Message := To_Unbounded_String
            (Editor.External_Producers.Build_Gated_Build_Command_Feedback
               (Result.Build_Result,

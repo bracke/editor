@@ -103,7 +103,7 @@ package body Editor.Ada_Abstract_State_Global_Depends_Vertical_Slice_Legality is
       Target : State_Info;
       Source : State_Info) return State_Status
    is
-      pragma Unreferenced (Target, Source);
+      pragma Unreferenced (Target);
    begin
       if R.Missing_State_Blockers > 0 then
          return State_Missing_State;

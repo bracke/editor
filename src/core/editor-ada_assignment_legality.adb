@@ -1,10 +1,15 @@
 with Ada.Strings.Unbounded; use Ada.Strings.Unbounded;
+with Editor.Ada_Declarative_Regions;
 
 package body Editor.Ada_Assignment_Legality is
 
    pragma Suppress (Overflow_Check);
 
    use type Editor.Ada_Syntax_Tree.Node_Id;
+   use type Editor.Ada_Expected_Type_Contexts.Expected_Context_Kind;
+   use type Editor.Ada_Expected_Type_Contexts.Expected_Context_Id;
+   use type Editor.Ada_Expected_Type_Contexts.Expected_Context_Status;
+   use type Editor.Ada_Expression_Types.Expected_Type_Propagation_Status;
    use type Editor.Ada_Expression_Types.Expression_Type_Id;
    use type Editor.Ada_Expression_Types.Expression_Type_Status;
    use type Editor.Ada_Static_Expressions.Static_Value_Status;
@@ -312,6 +317,116 @@ package body Editor.Ada_Assignment_Legality is
       return Model.Model_Fingerprint;
    end Fingerprint;
 
+   function First_Context_For_Source_Node
+     (Model : Assignment_Context_Model;
+      Node  : Editor.Ada_Syntax_Tree.Node_Id) return Assignment_Context_Info is
+   begin
+      for I in 1 .. Natural (Model.Items.Length) loop
+         declare
+            Context : constant Assignment_Context_Info := Model.Items.Element (I);
+         begin
+            if Context.Source_Node = Node then
+               return Context;
+            end if;
+         end;
+      end loop;
+      return (others => <>);
+   end First_Context_For_Source_Node;
+
+   function Build_Contexts_From_Expected_Types
+     (Expected    : Editor.Ada_Expected_Type_Contexts.Expected_Context_Model;
+      Expressions : Editor.Ada_Expression_Types.Expression_Type_Model)
+      return Assignment_Context_Model
+   is
+      Model : Assignment_Context_Model;
+   begin
+      for Index in 1 .. Editor.Ada_Expected_Type_Contexts.Expected_Context_Count (Expected) loop
+         declare
+            Expected_Row : constant Editor.Ada_Expected_Type_Contexts.Expected_Context_Info :=
+              Editor.Ada_Expected_Type_Contexts.Expected_Context_At (Expected, Index);
+            Expr : constant Editor.Ada_Expression_Types.Expression_Type_Info :=
+              Editor.Ada_Expression_Types.Expression_Type_For_Node
+                (Expressions, Expected_Row.Node);
+            Context : Assignment_Context_Info;
+         begin
+            if Expected_Row.Kind in
+                 Editor.Ada_Expected_Type_Contexts.Expected_Context_Object_Default |
+                 Editor.Ada_Expected_Type_Contexts.Expected_Context_Constant_Default |
+                 Editor.Ada_Expected_Type_Contexts.Expected_Context_Declaration_Default |
+                 Editor.Ada_Expected_Type_Contexts.Expected_Context_Return_Statement |
+                 Editor.Ada_Expected_Type_Contexts.Expected_Context_Assignment_Target
+              and then Expected_Row.Status =
+                 Editor.Ada_Expected_Type_Contexts.Expected_Context_Found
+              and then Expr.Id /= Editor.Ada_Expression_Types.No_Expression_Type
+            then
+               case Expected_Row.Kind is
+                  when Editor.Ada_Expected_Type_Contexts.Expected_Context_Return_Statement =>
+                     Context.Kind := Assignment_Context_Extended_Return_Object;
+                  when Editor.Ada_Expected_Type_Contexts.Expected_Context_Assignment_Target =>
+                     Context.Kind := Assignment_Context_Assignment_Statement;
+                  when Editor.Ada_Expected_Type_Contexts.Expected_Context_Declaration_Default =>
+                     Context.Kind := Assignment_Context_Default_Initialization;
+                  when others =>
+                     Context.Kind := Assignment_Context_Object_Initialization;
+               end case;
+               Context.Target_Node := Expected_Row.Context_Node;
+               Context.Source_Node := Expected_Row.Node;
+               Context.Source_Expression := Expr.Id;
+               if Expected_Row.Kind =
+                 Editor.Ada_Expected_Type_Contexts.Expected_Context_Constant_Default
+               then
+                  Context.Target_Mode := Assignment_Target_Constant;
+               else
+                  Context.Target_Mode := Assignment_Target_Variable;
+               end if;
+               Context.Target_Subtype := Expected_Row.Expected_Subtype;
+               Context.Normalized_Target_Subtype := Expected_Row.Normalized_Subtype;
+               Context.Start_Line := Expected_Row.Start_Line;
+               Context.End_Line := Expected_Row.End_Line;
+               Context.Fingerprint := Mix (Expected_Row.Fingerprint, Expr.Fingerprint + 1);
+               Add_Context (Model, Context);
+            end if;
+         end;
+      end loop;
+
+      for Index in 1 .. Editor.Ada_Expression_Types.Expression_Type_Count (Expressions) loop
+         declare
+            Expr : constant Editor.Ada_Expression_Types.Expression_Type_Info :=
+              Editor.Ada_Expression_Types.Expression_Type_At (Expressions, Index);
+            Existing : constant Assignment_Context_Info :=
+              First_Context_For_Source_Node (Model, Expr.Node);
+            Context : Assignment_Context_Info;
+         begin
+            if Existing.Id = No_Assignment_Context
+              and then Expr.Expected_Context =
+                Editor.Ada_Expected_Type_Contexts.No_Expected_Context
+              and then Expr.Expected_Status in
+                Editor.Ada_Expression_Types.Expected_Type_Context_Found |
+                Editor.Ada_Expression_Types.Expected_Type_Propagated |
+                Editor.Ada_Expression_Types.Expected_Type_Compatible |
+                Editor.Ada_Expression_Types.Expected_Type_Mismatch
+              and then Length (Expr.Normalized_Expected_Subtype) > 0
+            then
+               Context.Kind := Assignment_Context_Object_Initialization;
+               Context.Target_Node := Expr.Node;
+               Context.Source_Node := Expr.Node;
+               Context.Source_Expression := Expr.Id;
+               Context.Target_Mode := Assignment_Target_Variable;
+               Context.Target_Subtype := Expr.Expected_Subtype;
+               Context.Normalized_Target_Subtype := Expr.Normalized_Expected_Subtype;
+               Context.Source_Subtype := Expr.Inferred_Subtype;
+               Context.Normalized_Source_Subtype := Expr.Normalized_Subtype;
+               Context.Start_Line := Expr.Start_Line;
+               Context.End_Line := Expr.End_Line;
+               Context.Fingerprint := Mix (Expr.Fingerprint, Length (Expr.Normalized_Expected_Subtype) + 1);
+               Add_Context (Model, Context);
+            end if;
+         end;
+      end loop;
+
+      return Model;
+   end Build_Contexts_From_Expected_Types;
+
    function Expression_For
      (Expressions : Editor.Ada_Expression_Types.Expression_Type_Model;
       Id          : Expression_Type_Id)
@@ -340,6 +455,13 @@ package body Editor.Ada_Assignment_Legality is
          end if;
          if Length (Result.Normalized_Source_Subtype) = 0 then
             Result.Normalized_Source_Subtype := Expr.Normalized_Subtype;
+         end if;
+         if Length (Result.Source_Subtype) = 0 then
+            Result.Source_Subtype := Expr.Dispatching_Call_Result_Subtype;
+         end if;
+         if Length (Result.Normalized_Source_Subtype) = 0 then
+            Result.Normalized_Source_Subtype :=
+              Expr.Normalized_Dispatching_Call_Result_Subtype;
          end if;
          if Expr.Status = Editor.Ada_Expression_Types.Expression_Type_Null_Literal then
             Result.Source_Is_Null_Literal := True;
@@ -382,10 +504,12 @@ package body Editor.Ada_Assignment_Legality is
          return Assignment_Legality_Limited_View_Barrier;
       elsif View.Status = Editor.Ada_View_Aware_Compatibility.View_Compatibility_Cross_Unit_Unresolved then
          return Assignment_Legality_Cross_Unit_Unresolved_View;
-      elsif View.Status = Editor.Ada_View_Aware_Compatibility.View_Compatibility_Known_Incompatible then
+      elsif View.Status = Editor.Ada_View_Aware_Compatibility.View_Compatibility_Requires_Explicit_Conversion
+        or else View.Status = Editor.Ada_View_Aware_Compatibility.View_Compatibility_Known_Incompatible
+      then
          return Assignment_Legality_Incompatible_Subtype;
       elsif View.Status = Editor.Ada_View_Aware_Compatibility.View_Compatibility_Indeterminate then
-         return Assignment_Legality_Indeterminate;
+         return Assignment_Legality_Not_Checked;
       else
          return Assignment_Legality_Not_Checked;
       end if;
@@ -395,7 +519,9 @@ package body Editor.Ada_Assignment_Legality is
      (Info : Editor.Ada_Subtype_Compatibility.Compatibility_Info;
       Context : Assignment_Context_Info) return Assignment_Legality_Status is
    begin
-      if Editor.Ada_Subtype_Compatibility.Is_Compatible (Info) then
+      if Info.Status = Editor.Ada_Subtype_Compatibility.Subtype_Compatibility_Type_Graph_Derived_From then
+         return Assignment_Legality_Incompatible_Subtype;
+      elsif Editor.Ada_Subtype_Compatibility.Is_Compatible (Info) then
          if Context.Target_Is_Class_Wide or else Context.Source_Is_Class_Wide then
             return Assignment_Legality_Class_Wide_Compatible;
          elsif Context.Target_Has_Static_Range
@@ -430,6 +556,7 @@ package body Editor.Ada_Assignment_Legality is
    function Classify
      (Context   : Assignment_Context_Info;
       View      : Editor.Ada_View_Aware_Compatibility.View_Compatibility_Info;
+      Types     : Editor.Ada_Type_Graph.Type_Model;
       Source_Fp : Natural) return Assignment_Legality_Info is
       Result : Assignment_Legality_Info;
       Subtype_Info : Editor.Ada_Subtype_Compatibility.Compatibility_Info;
@@ -496,9 +623,18 @@ package body Editor.Ada_Assignment_Legality is
       elsif View_Status_Result /= Assignment_Legality_Not_Checked then
          Result.Status := View_Status_Result;
       else
-         Subtype_Info := Editor.Ada_Subtype_Compatibility.Check
-           (To_String (Context.Normalized_Target_Subtype),
-            To_String (Context.Normalized_Source_Subtype));
+         if Editor.Ada_Type_Graph.Type_Count (Types) > 0 then
+            Subtype_Info := Editor.Ada_Subtype_Compatibility.Check_With_Type_Graph
+              (Types,
+               Editor.Ada_Declarative_Regions.No_Region,
+               Editor.Ada_Declarative_Regions.No_Region,
+               To_String (Context.Normalized_Target_Subtype),
+               To_String (Context.Normalized_Source_Subtype));
+         else
+            Subtype_Info := Editor.Ada_Subtype_Compatibility.Check
+              (To_String (Context.Normalized_Target_Subtype),
+               To_String (Context.Normalized_Source_Subtype));
+         end if;
          Result.Subtype_Status := Subtype_Info.Status;
          Result.Status := Status_From_Subtype (Subtype_Info, Context);
       end if;
@@ -562,8 +698,9 @@ package body Editor.Ada_Assignment_Legality is
       Expressions : Editor.Ada_Expression_Types.Expression_Type_Model)
       return Assignment_Legality_Model is
       Empty_Views : Editor.Ada_View_Aware_Compatibility.View_Compatibility_Model;
+      Empty_Types : Editor.Ada_Type_Graph.Type_Model;
    begin
-      return Build_With_View_Compatibility (Contexts, Expressions, Empty_Views);
+      return Build_With_Type_Graph (Contexts, Expressions, Empty_Views, Empty_Types);
    end Build;
 
    function Build_With_View_Compatibility
@@ -571,12 +708,25 @@ package body Editor.Ada_Assignment_Legality is
       Expressions : Editor.Ada_Expression_Types.Expression_Type_Model;
       Views       : Editor.Ada_View_Aware_Compatibility.View_Compatibility_Model)
       return Assignment_Legality_Model is
+      Empty_Types : Editor.Ada_Type_Graph.Type_Model;
+   begin
+      return Build_With_Type_Graph (Contexts, Expressions, Views, Empty_Types);
+   end Build_With_View_Compatibility;
+
+   function Build_With_Type_Graph
+     (Contexts    : Assignment_Context_Model;
+      Expressions : Editor.Ada_Expression_Types.Expression_Type_Model;
+      Views       : Editor.Ada_View_Aware_Compatibility.View_Compatibility_Model;
+      Types       : Editor.Ada_Type_Graph.Type_Model)
+      return Assignment_Legality_Model is
       Model : Assignment_Legality_Model;
    begin
       Model.Model_Fingerprint := Mix
         (Fingerprint (Contexts), Editor.Ada_Expression_Types.Fingerprint (Expressions) + 1);
       Model.Model_Fingerprint := Mix
         (Model.Model_Fingerprint, Editor.Ada_View_Aware_Compatibility.Fingerprint (Views) + 1);
+      Model.Model_Fingerprint := Mix
+        (Model.Model_Fingerprint, Editor.Ada_Type_Graph.Fingerprint (Types) + 1);
 
       for Index in 1 .. Natural (Contexts.Items.Length) loop
          declare
@@ -589,14 +739,14 @@ package body Editor.Ada_Assignment_Legality is
               Editor.Ada_View_Aware_Compatibility.First_For_Expression
                 (Views, Context.Source_Expression);
             Info         : constant Assignment_Legality_Info :=
-              Classify (Context, View, Expr.Fingerprint);
+              Classify (Context, View, Types, Expr.Fingerprint);
          begin
             Append (Model, Info);
          end;
       end loop;
 
       return Model;
-   end Build_With_View_Compatibility;
+   end Build_With_Type_Graph;
 
    function Legality_Count (Model : Assignment_Legality_Model) return Natural is
    begin

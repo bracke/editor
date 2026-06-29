@@ -169,6 +169,14 @@ package Editor.Ada_Generic_Instance_Freezing_Representation_Legality is
       Tagged_Model        : Editor.Ada_Tagged_Derived_Legality.Tagged_Legality_Model)
       return Instance_Legality_Model;
 
+   function Build_Contexts_From_Models
+     (Contracts       : Editor.Ada_Generic_Contracts.Generic_Contract_Model;
+      Bodies          : Editor.Ada_Generic_Instantiated_Body_Analysis.Instantiated_Body_Model;
+      Formal_Packages : Editor.Ada_Generic_Formal_Package_Substitutions.Formal_Package_Substitution_Model;
+      Freezing        : Editor.Ada_Freezing_Points.Freezing_Model;
+      Representation  : Editor.Ada_Representation_Legality.Representation_Legality_Model)
+      return Instance_Context_Model;
+
    function Legality_Count (Model : Instance_Legality_Model) return Natural;
    function Legality_At
      (Model : Instance_Legality_Model;

@@ -98,8 +98,9 @@ package body Editor.Messages.Tests is
      (Name : String) return String
    is
    begin
+      Ada.Directories.Create_Path ("/tmp/editor-tests");
       return Ada.Directories.Compose
-        (Ada.Directories.Current_Directory, "phase48_" & Name);
+        ("/tmp/editor-tests", "phase48_" & Name);
    end Temp_Path;
 
    procedure Test_Push_Message_Makes_State_Non_Empty

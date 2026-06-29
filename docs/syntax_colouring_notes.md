@@ -126,11 +126,11 @@ Pass 993: operational representation attributes expose deterministic target/valu
 
 ### Pass995 cross-unit closure notes
 
-Cross-unit relationships are now available through `Editor.Ada_Cross_Unit_Closure`. Semantic-colouring consumers should continue to use snapshot-owned analysis data only; the closure model is intended as a future source of cross-file semantic context, not as a rendering-side parser or file reload mechanism.
+Cross-unit relationships are now available through `Editor.Ada_Cross_Unit_Closure`. Semantic-colouring and diagnostic consumers use snapshot-owned analysis data only; the closure model is a cross-file semantic context source, not a rendering-side parser or file reload mechanism.
 
 ### Pass996 note
 
-Cross-unit semantic closure now includes context dependency links for ordinary `with`, `limited with`, `private with`, and context `use` package clauses. The dependency model is snapshot-owned, project-index-backed, deterministic, and preserves missing/ambiguous/overflow states for later semantic consumers.
+Cross-unit semantic closure now includes context dependency links for ordinary `with`, `limited with`, `private with`, and context `use` package clauses. The dependency model is snapshot-owned, project-index-backed, deterministic, and preserves missing/ambiguous/overflow states for semantic consumers.
 
 ## Pass997 cross-unit spec/body consistency
 
@@ -140,13 +140,13 @@ Pass998: cross-unit closure now includes deterministic child-unit and private-ch
 
 Pass999: cross-unit closure now includes deterministic separate-body legality metadata. Separate bodies are classified separately from raw separate-parent links as resolved parent bodies, missing parents, ambiguous parents, overflow, parent-role mismatches, or missing parent-name text, with stable query APIs and AUnit coverage in `Test_Ada_Cross_Unit_Separate_Body_Legality_Pass999`.
 
-Pass1000: expression type inference metadata is staged in `Editor.Ada_Expression_Types` for later semantic-colouring and diagnostics consumers; unresolved and ambiguous expression types remain explicit.
+Pass1000: expression type inference metadata is staged in `Editor.Ada_Expression_Types` for semantic-colouring and diagnostics consumers; unresolved and ambiguous expression types remain explicit.
 
-Pass1001 note: expression type inference now has an opt-in expected-type propagation layer. Declaration-default contexts and existing expected-context metadata are staged into deterministic expression records with compatible/propagated/mismatch/unknown statuses for later diagnostics and overload/type checking.
+Pass1001 note: expression type inference now has an opt-in expected-type propagation layer. Declaration-default contexts and existing expected-context metadata are staged into deterministic expression records with compatible/propagated/mismatch/unknown statuses for diagnostics and overload/type checking.
 
-Pass1002 note: expression type inference now records operator operand/result metadata for predefined numeric, Boolean, short-circuit, relational, and membership-shaped operators. Unknown and mismatched operands are preserved explicitly for diagnostics and later overload-aware passes.
+Pass1002 note: expression type inference now records operator operand/result metadata for predefined numeric, Boolean, short-circuit, relational, and membership-shaped operators. Unknown and mismatched operands are preserved explicitly for diagnostics and overload-aware passes.
 
-Pass1003: expression aggregate context inference extends the Ada expression-type model with context-sensitive aggregate/container-aggregate metadata, component-shape counters, and deterministic unknown/mismatch states for later diagnostics.
+Pass1003: expression aggregate context inference extends the Ada expression-type model with context-sensitive aggregate/container-aggregate metadata, component-shape counters, and deterministic unknown/mismatch states for diagnostics.
 
 Pass1004 update: expression type inference now includes conversion and qualified-expression target/operand metadata. The model exposes deterministic counters for resolved conversion targets, compatible operands, explicit-conversion operands, mismatches, and unknown conversion cases, with regression coverage in `Test_Ada_Expression_Conversion_Qualified_Inference_Pass1004`.
 
@@ -160,20 +160,20 @@ Pass1007: Added expression membership/range inference metadata. Membership expre
 Pass1008: Added expression target-name/update inference metadata. Ada 2022 target-name @ expressions now preserve context-required versus context-propagated status, delta/update aggregates retain expected/source subtype compatibility metadata, and deterministic counters/fingerprints expose compatible, mismatch, and unknown update-expression cases.
 
 
-Pass1009: indexed and slice expressions expose typed metadata for future semantic-colouring refinement while preserving snapshot-owned analysis.
+Pass1009: indexed and slice expressions expose typed metadata for semantic-colouring refinement while preserving snapshot-owned analysis.
 
-Pass1010 note: expression-type metadata now exposes dereference/access-designator inference for future semantic colouring, while rendering remains a non-parsing projection consumer.
-Pass1011 note: expression-type metadata now exposes allocator target/result and expected access-designated subtype inference for future semantic colouring, while rendering remains projection-only and performs no parsing.
+Pass1010 note: expression-type metadata now exposes dereference/access-designator inference for semantic colouring, while rendering remains a non-parsing projection consumer.
+Pass1011 note: expression-type metadata now exposes allocator target/result and expected access-designated subtype inference for semantic colouring, while rendering remains projection-only and performs no parsing.
 
-Pass1012 note: expression-type metadata now exposes parameter-association formal subtype context for future semantic-colouring/diagnostic consumers. Rendering remains projection-only and performs no parsing or semantic mutation.
+Pass1012 note: expression-type metadata now exposes parameter-association formal subtype context for semantic-colouring/diagnostic consumers. Rendering remains projection-only and performs no parsing or semantic mutation.
 
-Pass1013 note: expression-type metadata now exposes call actual/formal subtype compatibility for future diagnostic and semantic-colouring consumers. Rendering remains projection-only and performs no parsing or semantic mutation.
+Pass1013 note: expression-type metadata now exposes call actual/formal subtype compatibility for diagnostic and semantic-colouring consumers. Rendering remains projection-only and performs no parsing or semantic mutation.
 
-Pass1014 note: expression-type metadata now exposes overload-aware operator resolution states for future diagnostic and semantic-colouring consumers. Rendering remains projection-only and performs no parsing or semantic mutation.
+Pass1014 note: expression-type metadata now exposes overload-aware operator resolution states for diagnostic and semantic-colouring consumers. Rendering remains projection-only and performs no parsing or semantic mutation.
 
-Pass1015 note: expression-type metadata now exposes final universal numeric resolution states and range-error metadata for future diagnostic and semantic-colouring consumers. Rendering remains projection-only and performs no parsing or semantic mutation.
+Pass1015 note: expression-type metadata now exposes final universal numeric resolution states and range-error metadata for diagnostic and semantic-colouring consumers. Rendering remains projection-only and performs no parsing or semantic mutation.
 
-Pass1016 note: aggregate expression metadata now exposes record component and array element validation states for future diagnostics and semantic-colouring consumers. Rendering remains projection-only and performs no parsing or semantic mutation.
+Pass1016 note: aggregate expression metadata now exposes record component and array element validation states for diagnostics and semantic-colouring consumers. Rendering remains projection-only and performs no parsing or semantic mutation.
 
 Pass1017: Expression type inference now includes raise-expression/no-return metadata with exception target, message shape, expected result context, deterministic counters, and AUnit coverage.
 
@@ -374,9 +374,9 @@ Pass1073 note: unified diagnostic provenance now accepts overload-ranking proven
 
 Pass1074 note: diagnostic quick-fix skeletons now accept overload-ranking provenance through Editor.Ada_Diagnostic_Quick_Fix_Skeleton.Build_With_Overload_Ranking.  The layer is projection-only, preserves ranked overload evidence for IDE explanation actions, and does not parse, apply edits, mutate buffers, touch workspace state, or perform rendering-side semantic work.
 
-Pass1075 note: diagnostic action routing now joins quick-fix skeletons with diagnostic navigation, panel rows, provenance/explain items, and status-line nearest-target metadata through `Editor.Ada_Diagnostic_Action_Router`. The layer is projection-only and preserves stale-result rejection; it does not parse, mutate buffers, save/reload files, register commands, touch workspace state, or perform rendering-side semantic work.
+Pass1075 note: diagnostic action routing now joins quick-fix skeletons with diagnostic navigation, panel rows, provenance/explain items, status-line nearest-target metadata, and explicit feed edit hints through `Editor.Ada_Diagnostic_Action_Router`. The layer is projection-only and preserves stale-result rejection; it does not parse, mutate buffers, save/reload files, register commands, touch workspace state, or perform rendering-side semantic work.
 
-Pass1076 note: diagnostic command projection now turns diagnostic action routes into deterministic command-facing descriptors through `Editor.Ada_Diagnostic_Command_Projection`. The layer is projection-only and does not register commands, invoke commands, apply edits, parse, mutate buffers, save/reload files, touch workspace state, or perform rendering-side semantic work. Rejected/stale action-route models expose no active command descriptors while preserving rejected-command totals.
+Pass1076 note: diagnostic command projection now turns diagnostic action routes into deterministic command-facing descriptors through `Editor.Ada_Diagnostic_Command_Projection`, preserving explicit feed edit hints as descriptor metadata for executor-owned application. The layer is projection-only and does not register commands, invoke commands, apply edits, parse, mutate buffers, save/reload files, touch workspace state, or perform rendering-side semantic work. Rejected/stale action-route models expose no active command descriptors while preserving rejected-command totals.
 
 Pass1077 note: diagnostic command palette projection now turns diagnostic command descriptors into deterministic command-palette-facing entries through `Editor.Ada_Diagnostic_Command_Palette_Projection`. The layer is projection-only and does not register command aliases, mutate keybindings, invoke commands, apply edits, parse, mutate buffers, save/reload files, touch workspace state, or perform rendering-side semantic work. Rejected/stale command projection models expose no active palette entries while preserving rejected-entry totals.
 
@@ -749,7 +749,7 @@ Pass1249: Added Editor.Ada_Coverage_Proven_Generic_Shared_State_AST_Repair_Legal
 Pass1250 adds cross-unit generic/shared-state RM completion closure legality, consuming prior cross-unit closure plus completed overload, representation/freezing, tasking/protected, and coverage-proven AST repair evidence before accepting dependency-spanning generic/shared-state RM conclusions.
 
 
-Pass1251 does not add colouring rules; it preserves semantic blocker-family identity for future diagnostic/colouring consumers.
+Pass1251 does not add colouring rules; it preserves semantic blocker-family identity for diagnostic/colouring consumers.
 
 ## Pass1252
 
@@ -785,3 +785,5 @@ Pass1264: Added overload RM-completion closure consumer legality. The pass consu
 Pass1266: Tasking/protected RM-completion closure consumer legality now consumes stabilized RM-completion closure evidence and preserves tasking/protected blocker-family identity.
 
 Pass1267: Dataflow RM-completion closure consumer legality now requires stabilized generic/shared-state RM-completion closure evidence before dataflow/initialization RM-completion conclusions are considered current. Blocker-family identity is preserved for closure, dataflow, cross-unit, generic substitution, overload/type, representation/freezing, tasking/protected, elaboration, accessibility, predicates/invariants, multiple prerequisites, and indeterminate states.
+
+Live semantic diagnostic update: expected-type context production now covers syntax-owned declaration defaults, simple assignments, and ordinary return statements, not only call-resolution rows. Return statement action nodes are typed as expression inputs, allowing assignment and return legality to feed live semantic diagnostics for non-call return mismatches while preserving snapshot ownership and keeping rendering projection-only.

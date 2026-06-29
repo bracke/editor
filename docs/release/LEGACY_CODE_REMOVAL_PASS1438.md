@@ -6,8 +6,7 @@ Pass1438 removes the obsolete diagnostic recovery render final status scaffold f
 
 - `src/core/editor-ada_diagnostic_recovery_render_final_status.ads`
 - `src/core/editor-ada_diagnostic_recovery_render_final_status.adb`
-- `tests/src/test_ada_diagnostic_recovery_render_final_status_pass1098.ads`
-- `tests/src/test_ada_diagnostic_recovery_render_final_status_pass1098.adb`
+- the matching diagnostic recovery render final-status regression package
 
 ## Canonical replacement ownership
 

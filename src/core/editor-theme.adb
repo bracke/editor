@@ -288,7 +288,7 @@ package body Editor.Theme is
          when TC_Syntax_Search_Match =>
             return Color (TC_Active_Find_Match_Background);
          when TC_Syntax_Selection =>
-            return Color (TC_Selection_Background);
+            return Color (TC_Text_Default);
       end case;
    end Color;
 

@@ -102,6 +102,11 @@ package Editor.Feature_Search_Results is
       Snapshot_Version : Natural := 0;
       Case_Sensitive   : Boolean := False);
 
+   procedure Begin_External_Result_Set
+     (Results      : in out Search_Results_Feature_State;
+      Query        : String;
+      Source_Label : String := "");
+
    function Best_Rerun_Selection
      (Results         : Search_Results_Feature_State;
       Previous_Buffer : Natural;

@@ -16,9 +16,9 @@ package Editor.Ada_Diagnostic_Action_Router is
    --  Projection-only diagnostic action routing over already-built Ada
    --  diagnostic IDE models.  This package does not apply edits, mutate
    --  buffers, parse, perform file IO, register commands, touch workspace
-   --  state, or perform rendering work.  It only joins quick-fix skeleton
-   --  actions to navigation, panel, status-line, and provenance metadata so
-   --  an IDE consumer can decide how to present an action deterministically.
+   --  state, or perform rendering work.  It joins quick-fix skeleton actions
+   --  and any producer-owned edit hints to navigation, panel, status-line, and
+   --  provenance metadata for deterministic IDE presentation.
 
    subtype Feed_Entry is
      Editor.Ada_Semantic_Diagnostic_Feed.Semantic_Diagnostic_Feed_Entry;
@@ -82,6 +82,11 @@ package Editor.Ada_Diagnostic_Action_Router is
         Editor.Ada_Diagnostic_Provenance.No_Diagnostic_Provenance;
       Status_Target_Available : Boolean := False;
       Has_Edit : Boolean := False;
+      Edit_Start_Line   : Positive := 1;
+      Edit_Start_Column : Positive := 1;
+      Edit_End_Line     : Positive := 1;
+      Edit_End_Column   : Positive := 1;
+      Replacement_Text  : Ada.Strings.Unbounded.Unbounded_String;
       Label    : Ada.Strings.Unbounded.Unbounded_String;
       Detail   : Ada.Strings.Unbounded.Unbounded_String;
       Start_Line   : Positive := 1;

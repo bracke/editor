@@ -29,6 +29,7 @@ with Editor.Buffers;
 with Editor.Bookmarks;
 with Editor.Build_UI;
 with Editor.Build_UI_Actions;
+with Editor.Terminal_Tasks;
 with Editor.Empty_State_Guidance;
 with Editor.Guided_Prompts;
 with Editor.Keybinding_Management;
@@ -583,6 +584,7 @@ package body Editor.Render_Model is
       O.Folding := S.Folding;
       O.Gutter_Markers := S.Gutter_Markers;
       O.Gutter_Marker_Hover := S.Gutter_Marker_Hover;
+      O.Semantic_Popup := S.Semantic_Popup;
       O.Messages := S.Messages;
       declare
          Snapshot : Editor.Bookmarks.Bookmark_Snapshot;
@@ -1699,6 +1701,8 @@ package body Editor.Render_Model is
       end;
 
       O.Build_UI := Editor.Build_UI_Actions.Build_UI_Operability_Snapshot (S);
+      O.Terminal_Tasks :=
+        Editor.Terminal_Tasks.Build_Render_Snapshot (S.Terminal_Tasks);
       O.Keybindings_UI := Editor.Keybinding_Management.Build_Surface_Snapshot;
       O.Settings_UI := Editor.Settings_Management.Build_Current_Surface_Snapshot (S.Settings);
       O.Configuration_Audit_UI :=

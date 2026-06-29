@@ -1,5 +1,6 @@
 with Editor.Build_Output_Details;
 with Editor.Build_UI;
+with Editor.Terminal_Tasks;
 with Editor.Feature_Panel;
 with Editor.Feature_Search_Results;
 with Editor.Guided_Prompts;
@@ -83,6 +84,10 @@ package body Editor.Focus_Management is
          return Focus_Build_Output_Details;
       elsif S.Latest_Build_Result_Focused then
          return Focus_Build_Result_Summary;
+      elsif Editor.Terminal_Tasks.Build_Render_Snapshot
+        (S.Terminal_Tasks).Focused
+      then
+         return Focus_Terminal;
       elsif S.Build_UI.Build_UI_Focused then
          return Focus_Build_UI;
       elsif S.Recent_Projects_Focused then
@@ -139,6 +144,7 @@ package body Editor.Focus_Management is
          when Focus_Outline => return "Outline";
          when Focus_Outline_Filter => return "Outline Filter";
          when Focus_Diagnostics => return "Diagnostics";
+         when Focus_Terminal => return "Terminal";
          when Focus_Build_UI => return "Build Output";
          when Focus_Build_Result_Summary => return "Build Result";
          when Focus_Build_Output_Details => return "Build Output";
@@ -162,6 +168,7 @@ package body Editor.Focus_Management is
          when Focus_File_Tree => return "File Tree";
          when Focus_Outline | Focus_Outline_Filter => return "Outline";
          when Focus_Diagnostics => return "Diagnostics";
+         when Focus_Terminal => return "Terminal";
          when Focus_Build_UI => return "Build Output";
          when Focus_Build_Result_Summary => return "Build Result";
          when Focus_Build_Output_Details => return "Build Output";
@@ -240,6 +247,7 @@ package body Editor.Focus_Management is
             | Focus_Outline
             | Focus_Diagnostics
             | Focus_Project_Search_Results
+            | Focus_Terminal
             | Focus_Build_UI
             | Focus_Build_Result_Summary
             | Focus_Build_Output_Details
@@ -277,6 +285,7 @@ package body Editor.Focus_Management is
             | Focus_Outline
             | Focus_Diagnostics
             | Focus_Project_Search_Results
+            | Focus_Terminal
             | Focus_Build_UI
             | Focus_Build_Result_Summary
             | Focus_Build_Output_Details
@@ -324,6 +333,11 @@ package body Editor.Focus_Management is
             | Editor.Commands.Command_Build_UI_Show
             | Editor.Commands.Command_Build_UI_Toggle
             | Editor.Commands.Command_Build_UI_Focus
+            | Editor.Commands.Command_Build_Result_Focus
+            | Editor.Commands.Command_Build_Output_Details_Focus
+            | Editor.Commands.Command_Terminal_Show
+            | Editor.Commands.Command_Terminal_Toggle
+            | Editor.Commands.Command_Terminal_Focus
             | Editor.Commands.Command_Show_Recent_Projects
             | Editor.Commands.Command_Goto_Line
             | Editor.Commands.Command_Goto_Line_Toggle
@@ -377,6 +391,14 @@ package body Editor.Focus_Management is
             | Editor.Commands.Command_Build_UI_Toggle
             | Editor.Commands.Command_Build_UI_Focus =>
             return Focus_Build_UI;
+         when Editor.Commands.Command_Build_Result_Focus =>
+            return Focus_Build_Result_Summary;
+         when Editor.Commands.Command_Build_Output_Details_Focus =>
+            return Focus_Build_Output_Details;
+         when Editor.Commands.Command_Terminal_Show
+            | Editor.Commands.Command_Terminal_Toggle
+            | Editor.Commands.Command_Terminal_Focus =>
+            return Focus_Terminal;
          when Editor.Commands.Command_Show_Recent_Projects =>
             return Focus_Recent_Projects;
          when Editor.Commands.Command_Goto_Line
@@ -649,6 +671,19 @@ package body Editor.Focus_Management is
       end case;
    end Is_Build_Command_Id;
 
+   function Is_Terminal_Command_Id
+     (Id : Editor.Commands.Command_Id) return Boolean
+   is
+   begin
+      case Id is
+         when Editor.Commands.Command_Terminal_Toggle
+            .. Editor.Commands.Command_Terminal_Cancel_Task =>
+            return True;
+         when others =>
+            return False;
+      end case;
+   end Is_Terminal_Command_Id;
+
    function Is_Recent_Projects_Command_Id
      (Id : Editor.Commands.Command_Id) return Boolean
    is
@@ -907,6 +942,9 @@ package body Editor.Focus_Management is
          when Focus_Diagnostics =>
             return Is_Diagnostics_Command_Id (Id);
 
+         when Focus_Terminal =>
+            return Is_Terminal_Command_Id (Id);
+
          when Focus_Build_UI =>
             return Is_Build_Command_Id (Id);
 
@@ -958,6 +996,7 @@ package body Editor.Focus_Management is
             | Focus_Project_Search_Results
             | Focus_Outline
             | Focus_Diagnostics
+            | Focus_Terminal
             | Focus_Build_UI
             | Focus_Build_Result_Summary
             | Focus_Build_Output_Details
@@ -1268,6 +1307,7 @@ package body Editor.Focus_Management is
       end if;
 
       S.Build_UI.Build_UI_Focused := False;
+      Editor.Terminal_Tasks.Unfocus (S.Terminal_Tasks);
       S.Latest_Build_Result_Focused := False;
       S.Latest_Build_Output_Details.Build_Output_Details_Focused := False;
       S.Recent_Projects_Focused := False;
@@ -1303,6 +1343,7 @@ package body Editor.Focus_Management is
       Clear_Overlay_And_Local_Text_Focus (S);
       Editor.Feature_Panel.Set_Focused (S.Feature_Panel, False);
       S.Build_UI.Build_UI_Focused := False;
+      Editor.Terminal_Tasks.Unfocus (S.Terminal_Tasks);
       S.Latest_Build_Result_Focused := False;
       S.Latest_Build_Output_Details.Build_Output_Details_Focused := False;
       S.Recent_Projects_Focused := False;
@@ -1455,6 +1496,10 @@ package body Editor.Focus_Management is
             end;
          when Focus_Build_UI =>
             Editor.Build_UI.Focus (S.Build_UI);
+         when Focus_Terminal =>
+            Editor.Panels.Set_Visible
+              (S.Panels, Editor.Panels.Bottom_Panel, True);
+            Editor.Terminal_Tasks.Focus (S.Terminal_Tasks);
          when Focus_Build_Result_Summary =>
             --  The latest build result summary is display-only, but it still
             --  needs an explicit transient focus owner so local navigation,
@@ -1498,6 +1543,10 @@ package body Editor.Focus_Management is
             | Editor.Commands.Command_Focus_Problems
             | Editor.Commands.Command_Build_UI_Show
             | Editor.Commands.Command_Build_UI_Focus
+            | Editor.Commands.Command_Build_Result_Focus
+            | Editor.Commands.Command_Build_Output_Details_Focus
+            | Editor.Commands.Command_Terminal_Show
+            | Editor.Commands.Command_Terminal_Focus
             | Editor.Commands.Command_Show_Recent_Projects
             | Editor.Commands.Command_Goto_Line
             | Editor.Commands.Command_Goto_Line_Prefill_Current

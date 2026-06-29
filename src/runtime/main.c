@@ -3,13 +3,13 @@
 #include <string.h>
 
 #include "runtime_glfw.h"
-#include "render_backend.h"
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 void adainit(void);
 void adafinal(void);
+int render_backend_validate_required_shader_assets(void);
 #ifdef __cplusplus
 }
 #endif
@@ -17,8 +17,8 @@ void adafinal(void);
 static void print_usage(const char *program)
 {
     fprintf(stderr,
-            "usage: %s [--runtime-smoke] [--runtime-smoke-frames=N] [--runtime-smoke-resize] [--runtime-smoke-resize-count=N] [--runtime-smoke-zero-framebuffer] [--runtime-smoke-visual-contract] [--runtime-smoke-visual-min-rects=N] [--runtime-smoke-visual-min-glyphs=N] [--runtime-smoke-atlas-min-nonzero=N] [--runtime-smoke-max-seconds=N] [--runtime-check-shaders]\n",
-            program ? program : "editor_app");
+            "usage: %s [PROJECT_PATH | --project PROJECT_PATH | --project=PROJECT_PATH] [--runtime-smoke] [--runtime-smoke-frames=N] [--runtime-smoke-resize] [--runtime-smoke-resize-count=N] [--runtime-smoke-zero-framebuffer] [--runtime-smoke-visual-contract] [--runtime-smoke-visual-min-rects=N] [--runtime-smoke-visual-min-glyphs=N] [--runtime-smoke-atlas-min-nonzero=N] [--runtime-smoke-max-seconds=N] [--runtime-check-shaders]\n",
+            program ? program : "editor");
 }
 
 static int parse_int_suffix(const char *text, int *out_value)
@@ -58,6 +58,30 @@ int main(int argc, char **argv)
 
         if (strcmp(arg, "--runtime-check-shaders") == 0) {
             check_shaders_only = 1;
+        } else if (strcmp(arg, "--project") == 0) {
+            if (i + 1 >= argc || argv[i + 1][0] == '\0') {
+                fprintf(stderr, "missing --project value\n");
+                print_usage(argv[0]);
+                return 2;
+            }
+            if (options.project_path) {
+                fprintf(stderr, "project path specified more than once\n");
+                print_usage(argv[0]);
+                return 2;
+            }
+            options.project_path = argv[++i];
+        } else if (strncmp(arg, "--project=", 10) == 0) {
+            if (arg[10] == '\0') {
+                fprintf(stderr, "missing --project value\n");
+                print_usage(argv[0]);
+                return 2;
+            }
+            if (options.project_path) {
+                fprintf(stderr, "project path specified more than once\n");
+                print_usage(argv[0]);
+                return 2;
+            }
+            options.project_path = arg + 10;
         } else if (strcmp(arg, "--runtime-smoke") == 0) {
             options.smoke_mode = 1;
             if (options.smoke_max_frames <= 0) {
@@ -142,6 +166,13 @@ int main(int argc, char **argv)
         } else if (strcmp(arg, "--help") == 0 || strcmp(arg, "-h") == 0) {
             print_usage(argv[0]);
             return 0;
+        } else if (arg[0] != '-') {
+            if (options.project_path) {
+                fprintf(stderr, "project path specified more than once\n");
+                print_usage(argv[0]);
+                return 2;
+            }
+            options.project_path = arg;
         } else {
             fprintf(stderr, "unknown argument: %s\n", arg);
             print_usage(argv[0]);
@@ -150,7 +181,12 @@ int main(int argc, char **argv)
     }
 
     if (check_shaders_only) {
-        return render_backend_validate_required_shader_assets() ? 0 : 1;
+        int shader_check_rc;
+
+        adainit();
+        shader_check_rc = render_backend_validate_required_shader_assets() ? 0 : 1;
+        adafinal();
+        return shader_check_rc;
     }
 
     adainit();

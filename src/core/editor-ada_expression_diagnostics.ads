@@ -4,6 +4,7 @@ with Editor.Ada_Expression_Types;
 with Editor.Ada_Overload_Ambiguity_Diagnostics;
 with Editor.Ada_View_Aware_Compatibility;
 with Editor.Ada_Dispatching_Call_Legality;
+with Editor.Ada_Overload_Resolution_Legality;
 with Editor.Ada_Overload_Ranking;
 with Editor.Ada_Syntax_Tree;
 
@@ -51,6 +52,7 @@ package Editor.Ada_Expression_Diagnostics is
       From_View_Compatibility : Boolean := False;
       From_Dispatching_Legality : Boolean := False;
       From_Overload_Ranking : Boolean := False;
+      From_Overload_Legality : Boolean := False;
       View_Compatibility : Editor.Ada_View_Aware_Compatibility.View_Compatibility_Id :=
         Editor.Ada_View_Aware_Compatibility.No_View_Compatibility;
       View_Status : Editor.Ada_View_Aware_Compatibility.View_Compatibility_Status :=
@@ -63,6 +65,11 @@ package Editor.Ada_Expression_Diagnostics is
         Editor.Ada_Overload_Ranking.No_Overload_Ranking;
       Overload_Ranking_Status : Editor.Ada_Overload_Ranking.Overload_Ranking_Status :=
         Editor.Ada_Overload_Ranking.Overload_Ranking_Not_Checked;
+      Overload_Legality : Editor.Ada_Overload_Resolution_Legality.Overload_Legality_Id :=
+        Editor.Ada_Overload_Resolution_Legality.No_Overload_Legality;
+      Overload_Legality_Status :
+        Editor.Ada_Overload_Resolution_Legality.Overload_Legality_Status :=
+          Editor.Ada_Overload_Resolution_Legality.Overload_Legality_Not_Checked;
       Candidate_Count  : Natural := 0;
       Selected_Count   : Natural := 0;
       Compatible_Count : Natural := 0;
@@ -72,6 +79,7 @@ package Editor.Ada_Expression_Diagnostics is
       View_Fingerprint  : Natural := 0;
       Dispatching_Fingerprint : Natural := 0;
       Overload_Ranking_Fingerprint : Natural := 0;
+      Overload_Legality_Fingerprint : Natural := 0;
       Start_Line   : Positive := 1;
       Start_Column : Positive := 1;
       End_Line     : Positive := 1;
@@ -128,6 +136,15 @@ package Editor.Ada_Expression_Diagnostics is
       Ranking      : Editor.Ada_Overload_Ranking.Overload_Ranking_Model)
       return Expression_Diagnostic_Model;
 
+   function Build_With_All_Semantic_Causes_Ranking_And_Overload_Legality
+     (Expressions  : Editor.Ada_Expression_Types.Expression_Type_Model;
+      Causes       : Editor.Ada_Overload_Ambiguity_Diagnostics.Overload_Ambiguity_Model;
+      Views        : Editor.Ada_View_Aware_Compatibility.View_Compatibility_Model;
+      Dispatching  : Editor.Ada_Dispatching_Call_Legality.Dispatching_Legality_Model;
+      Ranking      : Editor.Ada_Overload_Ranking.Overload_Ranking_Model;
+      Overloads    : Editor.Ada_Overload_Resolution_Legality.Overload_Legality_Model)
+      return Expression_Diagnostic_Model;
+
    function Has_Diagnostics (Model : Expression_Diagnostic_Model) return Boolean;
    function Diagnostic_Count (Model : Expression_Diagnostic_Model) return Natural;
    function Diagnostic_At
@@ -168,6 +185,10 @@ package Editor.Ada_Expression_Diagnostics is
    function Overload_Ranking_Ambiguous_Diagnostic_Count
      (Model : Expression_Diagnostic_Model) return Natural;
    function Overload_Ranking_Rejection_Diagnostic_Count
+     (Model : Expression_Diagnostic_Model) return Natural;
+   function Overload_Legality_Diagnostic_Count
+     (Model : Expression_Diagnostic_Model) return Natural;
+   function Overload_Legality_Error_Count
      (Model : Expression_Diagnostic_Model) return Natural;
    function Fingerprint (Model : Expression_Diagnostic_Model) return Natural;
 

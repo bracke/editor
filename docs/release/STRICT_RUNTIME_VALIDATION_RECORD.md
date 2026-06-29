@@ -13,9 +13,9 @@ tools/bin/strict_runtime_validation_record
 
 The validation driver forces the same strict gates as `tools/bin/strict_runtime_validation`:
 
-- `EDITOR_REQUIRE_RUNTIME_COMPILE=1` for the C syntax/header gate;
+- `EDITOR_REQUIRE_RUNTIME_COMPILE=1` for the runtime entrypoint/backend gate;
 - `EDITOR_REQUIRE_RUNTIME_LINK=1` for the runtime build/link gate;
-- `EDITOR_REQUIRE_RUNTIME_EXE=1` for the canonical `bin/editor_app` executable;
+- `EDITOR_REQUIRE_RUNTIME_EXE=1` for the canonical `bin/editor` executable;
 - `EDITOR_REQUIRE_SHADER_FRESHNESS=1` for byte-for-byte shader freshness;
 - `EDITOR_REQUIRE_RUNTIME_SMOKE=1` for graphical GLFW/Vulkan launch/render/resize smoke;
 - `EDITOR_REQUIRE_RUNTIME_MISSING_ASSET=1` for the missing-shader negative gate.
@@ -42,9 +42,9 @@ collects signed validation evidence.
 
 A completed report must show PASS for all of these gates:
 
-1. Runtime C syntax/header check.
+1. Runtime C entrypoint/Ada backend check.
 2. Runtime link/build check.
-3. Canonical executable production: `bin/editor_app`.
+3. Canonical executable production: `bin/editor`.
 4. Shader freshness check.
 5. Graphical runtime smoke, including multi-resize, zero-framebuffer restore,
    and font-atlas dirty/upload/cache-hit validation.

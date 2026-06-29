@@ -164,6 +164,11 @@ package Editor.Ada_Tasking_Protected_Legality is
       Index : Positive) return Tasking_Context_Info;
    function Fingerprint (Model : Tasking_Context_Model) return Natural;
 
+   function Build_Contexts_From_Syntax
+     (Tree : Editor.Ada_Syntax_Tree.Tree_Type;
+      Flow : Editor.Ada_Control_Flow_Legality.Flow_Legality_Model)
+      return Tasking_Context_Model;
+
    function Build
      (Contexts : Tasking_Context_Model;
       Flow     : Editor.Ada_Control_Flow_Legality.Flow_Legality_Model)

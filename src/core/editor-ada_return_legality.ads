@@ -1,6 +1,7 @@
 with Ada.Containers.Vectors;
 with Ada.Strings.Unbounded;
 with Editor.Ada_Assignment_Legality;
+with Editor.Ada_Expected_Type_Contexts;
 with Editor.Ada_Syntax_Tree;
 
 package Editor.Ada_Return_Legality is
@@ -113,6 +114,11 @@ package Editor.Ada_Return_Legality is
      (Model : Return_Context_Model;
       Index : Positive) return Return_Context_Info;
    function Fingerprint (Model : Return_Context_Model) return Natural;
+
+   function Build_Contexts_From_Expected_Types
+     (Expected    : Editor.Ada_Expected_Type_Contexts.Expected_Context_Model;
+      Assignments : Editor.Ada_Assignment_Legality.Assignment_Legality_Model)
+      return Return_Context_Model;
 
    function Build
      (Contexts    : Return_Context_Model;

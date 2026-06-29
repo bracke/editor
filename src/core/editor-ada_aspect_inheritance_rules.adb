@@ -51,6 +51,21 @@ package body Editor.Ada_Aspect_Inheritance_Rules is
       return Normalize (Left) = Normalize (Right);
    end Same_Value;
 
+   function Clause_Target_Type_Name (Target : Unbounded_String) return Unbounded_String is
+      Text : constant String := To_String (Target);
+   begin
+      for I in Text'Range loop
+         if Text (I) = Character'Val (39) then
+            if I > Text'First then
+               return Normalize (To_Unbounded_String (Text (Text'First .. I - 1)));
+            else
+               return Null_Unbounded_String;
+            end if;
+         end if;
+      end loop;
+      return Normalize (Target);
+   end Clause_Target_Type_Name;
+
    function Type_For_Target
      (Types  : Editor.Ada_Type_Graph.Type_Model;
       Target : Unbounded_String) return Editor.Ada_Type_Graph.Type_Info is
@@ -84,7 +99,7 @@ package body Editor.Ada_Aspect_Inheritance_Rules is
          begin
             if Is_Inheritable_Property (Check.Clause_Kind)
               and then Check.Clause_Kind = Kind
-              and then Normalize (Check.Target_Name) = Wanted
+              and then Clause_Target_Type_Name (Check.Target_Name) = Wanted
             then
                return Check;
             end if;
@@ -166,7 +181,8 @@ package body Editor.Ada_Aspect_Inheritance_Rules is
                              Editor.Ada_Representation_Legality.Check_At (Legality, Check_Index);
                         begin
                            if Is_Inheritable_Property (Ancestor_Check.Clause_Kind)
-                             and then Normalize (Ancestor_Check.Target_Name) = Ancestor.Normalized_Name
+                             and then Clause_Target_Type_Name (Ancestor_Check.Target_Name) =
+                               Ancestor.Normalized_Name
                            then
                               declare
                                  Explicit : constant Editor.Ada_Representation_Legality.Representation_Legality_Info :=

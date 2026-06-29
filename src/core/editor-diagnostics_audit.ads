@@ -11,6 +11,7 @@ package Editor.Diagnostics_Audit is
       Row_Identity_Stable           : Boolean := False;
       Targets_Validated             : Boolean := False;
       Actions_Routed                : Boolean := False;
+      Editable_Actions_Visible      : Boolean := False;
       Lifecycle_Reset_Stable        : Boolean := False;
       Persistence_Clean             : Boolean := False;
       Feature_Panel_Intact          : Boolean := False;

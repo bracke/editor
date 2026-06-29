@@ -158,6 +158,41 @@ package body Editor.Line_Numbers.Tests is
          "Render packet must emit line-number glyphs on the gutter text layer");
    end Test_Render_Packet_Emits_Gutter_Line_Number_Glyphs;
 
+   procedure Test_Render_Packet_Keeps_Line_Numbers_Inside_Gutter
+     (T : in out AUnit.Test_Cases.Test_Case'Class)
+   is
+      pragma Unreferenced (T);
+      Layout : constant Editor.Layout.Layout_Config := Editor.Layout.Current;
+      Packet : Editor.Render_Packet.Render_Packet;
+      Seen   : Boolean := False;
+      Left   : constant Float :=
+        Float
+          (Editor.Layout.Gutter_Fold_X (Layout)
+           + Editor.Layout.Gutter_Fold_Width);
+      Right  : constant Float :=
+        Editor.Layout.Line_Number_Right_Edge (Layout, 123);
+   begin
+      Prepare_Text ("a" & ASCII.LF & "b" & ASCII.LF & "c");
+      Editor.Input_Bridge.Build_Render_Packet (Packet);
+
+      for I in 0 .. Natural (Packet.Glyph_Count) - 1 loop
+         if Packet.Glyphs (Natural (I)).Layer =
+           Editor.Render_Layers.To_C (Editor.Render_Layers.Gutter_Text_Layer)
+         then
+            Seen := True;
+            Assert
+              (Float (Packet.Glyphs (Natural (I)).X) >= Left,
+               "line-number glyph must not render before the line-number zone");
+            Assert
+              (Float (Packet.Glyphs (Natural (I)).X)
+                 + Float (Packet.Glyphs (Natural (I)).W) <= Right,
+               "line-number glyph must stay inside the gutter line-number column");
+         end if;
+      end loop;
+
+      Assert (Seen, "test must observe at least one gutter line-number glyph");
+   end Test_Render_Packet_Keeps_Line_Numbers_Inside_Gutter;
+
    procedure Test_Folded_Hidden_Rows_Emit_No_Line_Numbers
      (T : in out AUnit.Test_Cases.Test_Case'Class)
    is
@@ -276,6 +311,9 @@ package body Editor.Line_Numbers.Tests is
       AUnit.Test_Cases.Registration.Register_Routine
         (T, Test_Render_Packet_Emits_Gutter_Line_Number_Glyphs'Access,
          "Render Packet Emits Gutter Line Number Glyphs");
+      AUnit.Test_Cases.Registration.Register_Routine
+        (T, Test_Render_Packet_Keeps_Line_Numbers_Inside_Gutter'Access,
+         "Render Packet Keeps Line Numbers Inside Gutter");
       AUnit.Test_Cases.Registration.Register_Routine
         (T, Test_Folded_Hidden_Rows_Emit_No_Line_Numbers'Access,
          "Folded Hidden Rows Emit No Line Numbers");

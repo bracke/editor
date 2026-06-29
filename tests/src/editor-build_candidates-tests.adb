@@ -41,7 +41,8 @@ package body Editor.Build_Candidates.Tests is
 
    function Fixture_Root return String is
    begin
-      return Ada.Directories.Current_Directory & "/phase506_candidate_fixture";
+      Ada.Directories.Create_Path ("/tmp/editor-tests");
+      return "/tmp/editor-tests/phase506_candidate_fixture";
    end Fixture_Root;
 
    procedure Write_File (Path : String; Text : String := "") is
@@ -1113,7 +1114,8 @@ package body Editor.Build_Candidates.Tests is
 
    function Lifecycle_Root (Suffix : String) return String is
    begin
-      return Ada.Directories.Current_Directory & "/phase528_lifecycle_" & Suffix;
+      Ada.Directories.Create_Path ("/tmp/editor-tests");
+      return "/tmp/editor-tests/phase528_lifecycle_" & Suffix;
    end Lifecycle_Root;
 
    procedure Reset_Lifecycle_Root (Suffix : String) is
@@ -1856,10 +1858,11 @@ package body Editor.Build_Candidates.Tests is
      (T : in out AUnit.Test_Cases.Test_Case'Class)
    is
       pragma Unreferenced (T);
-      Root : constant String := Ada.Directories.Current_Directory & "/phase553_$safe;root";
+      Root : constant String := "/tmp/editor-tests/phase553_$safe;root";
       Context : Editor.Build_Working_Context.Build_Working_Context_Record;
       R : Editor.Build_Candidate_Discovery.Build_Candidate_Discovery_Result;
    begin
+      Ada.Directories.Create_Path ("/tmp/editor-tests");
       if Ada.Directories.Exists (Root) then
          Ada.Directories.Delete_Tree (Root);
       end if;

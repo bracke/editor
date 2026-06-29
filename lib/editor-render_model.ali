@@ -6,42 +6,119 @@ A -march=x86-64
 P SS ZX
 
 RN
+RV NO_DISPATCHING_CALLS
 RV NO_EXCEPTION_HANDLERS
 RV NO_EXCEPTION_PROPAGATION
 RV NO_EXCEPTIONS
+RV NO_FLOATING_POINT
 RV NO_IMPLICIT_CONDITIONALS
+RV NO_LOCAL_ALLOCATORS
+RV NO_NESTED_FINALIZATION
+RV NO_SECONDARY_STACK
 RV NO_STANDARD_STORAGE_POOLS
+RV NO_DEFAULT_INITIALIZATION
+RV NO_DYNAMIC_SIZED_OBJECTS
 RV NO_IMPLEMENTATION_PRAGMAS
+RV NO_IMPLICIT_LOOPS
+RV NO_OBSOLESCENT_FEATURES
 
-U editor.render_model%b	editor-render_model.adb	d40f924d NE OO PK
+U editor.render_model%b	editor-render_model.adb	70a51124 NE OO PK
 W ada%s			ada.ads			ada.ali
 W ada.containers%s	a-contai.ads		a-contai.ali
 Z ada.exceptions%s	a-except.adb		a-except.ali
+W ada.strings%s		a-string.ads		a-string.ali
+W ada.strings.fixed%s	a-strfix.adb		a-strfix.ali
 Z ada.strings.text_buffers%s  a-sttebu.adb	a-sttebu.ali
+W ada.strings.unbounded%s  a-strunb.adb		a-strunb.ali
+Z ada.tags%s		a-tags.adb		a-tags.ali
 W editor%s		editor.ads		editor.ali
+W editor.ada_language_model%s  editor-ada_language_model.adb  editor-ada_language_model.ali
+W editor.bookmarks%s	editor-bookmarks.adb	editor-bookmarks.ali
+W editor.buffers%s	editor-buffers.adb	editor-buffers.ali
+W editor.build_ui%s	editor-build_ui.adb	editor-build_ui.ali
+W editor.build_ui_actions%s  editor-build_ui_actions.adb  editor-build_ui_actions.ali
 W editor.cursors%s	editor-cursors.adb	editor-cursors.ali
+W editor.diagnostics%s	editor-diagnostics.adb	editor-diagnostics.ali
+W editor.dirty_lines%s	editor-dirty_lines.adb	editor-dirty_lines.ali
+W editor.empty_state_guidance%s  editor-empty_state_guidance.adb  editor-empty_state_guidance.ali
+W editor.feature_panel%s  editor-feature_panel.adb  editor-feature_panel.ali
+W editor.feature_search_results%s  editor-feature_search_results.adb  editor-feature_search_results.ali
+W editor.folding%s	editor-folding.adb	editor-folding.ali
+W editor.go_to_line%s	editor-go_to_line.adb	editor-go_to_line.ali
+W editor.guided_prompts%s  editor-guided_prompts.adb  editor-guided_prompts.ali
+W editor.gutter_markers%s  editor-gutter_markers.adb  editor-gutter_markers.ali
+W editor.input_field%s	editor-input_field.adb	editor-input_field.ali
+W editor.keybinding_management%s  editor-keybinding_management.adb  editor-keybinding_management.ali
 W editor.layout%s	editor-layout.adb	editor-layout.ali
+W editor.messages%s	editor-messages.adb	editor-messages.ali
+W editor.minimap%s	editor-minimap.adb	editor-minimap.ali
+W editor.outline%s	editor-outline.adb	editor-outline.ali
+W editor.overlay_focus%s  editor-overlay_focus.adb  editor-overlay_focus.ali
+W editor.panel_focus%s	editor-panel_focus.adb	editor-panel_focus.ali
+W editor.project%s	editor-project.adb	editor-project.ali
+W editor.rectangle_selection%s  editor-rectangle_selection.adb  editor-rectangle_selection.ali
+W editor.scrollbars%s	editor-scrollbars.adb	editor-scrollbars.ali
+W editor.search%s	editor-search.adb	editor-search.ali
+W editor.selection%s	editor-selection.adb	editor-selection.ali
+W editor.settings%s	editor-settings.adb	editor-settings.ali
+W editor.settings_management%s  editor-settings_management.adb  editor-settings_management.ali
 W editor.state%s	editor-state.adb	editor-state.ali
+W editor.syntax%s	editor-syntax.adb	editor-syntax.ali
+W editor.syntax_cache%s	editor-syntax_cache.adb	editor-syntax_cache.ali
+W editor.syntax_overlays%s  editor-syntax_overlays.adb  editor-syntax_overlays.ali
+W editor.syntax_semantics%s  editor-syntax_semantics.adb  editor-syntax_semantics.ali
+W editor.terminal_tasks%s  editor-terminal_tasks.adb  editor-terminal_tasks.ali
 W editor.view%s		editor-view.adb		editor-view.ali
+W editor.wrap%s		editor-wrap.adb		editor-wrap.ali
 Z system%s		system.ads		system.ali
+Z system.concat_2%s	s-conca2.adb		s-conca2.ali
+Z system.concat_3%s	s-conca3.adb		s-conca3.ali
 Z system.finalization_primitives%s  s-finpri.adb  s-finpri.ali
+Z system.img_int%s	s-imgint.ads		s-imgint.ali
+Z system.return_stack%s	s-retsta.ads		s-retsta.ali
+Z system.secondary_stack%s  s-secsta.adb	s-secsta.ali
 Z system.soft_links%s	s-soflin.adb		s-soflin.ali
 Z system.standard_library%s  s-stalib.adb	s-stalib.ali
 W text_buffer%s		text_buffer.ads		text_buffer.ali
 
-U editor.render_model%s	editor-render_model.ads	09a33f61 EE NE OO PK
+U editor.render_model%s	editor-render_model.ads	04a491cb EE NE OO PK
 W ada%s			ada.ads			ada.ali
 W ada.containers%s	a-contai.ads		a-contai.ali
 W ada.containers.vectors%s
 Z ada.exceptions%s	a-except.adb		a-except.ali
+W ada.strings%s		a-string.ads		a-string.ali
+W ada.strings.unbounded%s  a-strunb.adb		a-strunb.ali
+Z ada.tags%s		a-tags.adb		a-tags.ali
 W editor%s		editor.ads		editor.ali
+W editor.bookmarks%s	editor-bookmarks.adb	editor-bookmarks.ali
+W editor.build_ui%s	editor-build_ui.adb	editor-build_ui.ali
 W editor.cursors%s	editor-cursors.adb	editor-cursors.ali
+W editor.diagnostics%s	editor-diagnostics.adb	editor-diagnostics.ali
+W editor.empty_state_guidance%s  editor-empty_state_guidance.adb  editor-empty_state_guidance.ali
+W editor.feature_panel%s  editor-feature_panel.adb  editor-feature_panel.ali
+W editor.folding%s	editor-folding.adb	editor-folding.ali
+W editor.guided_prompts%s  editor-guided_prompts.adb  editor-guided_prompts.ali
+W editor.gutter_markers%s  editor-gutter_markers.adb  editor-gutter_markers.ali
+W editor.input_field%s	editor-input_field.adb	editor-input_field.ali
+W editor.keybinding_management%s  editor-keybinding_management.adb  editor-keybinding_management.ali
+W editor.messages%s	editor-messages.adb	editor-messages.ali
+W editor.minimap%s	editor-minimap.adb	editor-minimap.ali
+W editor.overlay_focus%s  editor-overlay_focus.adb  editor-overlay_focus.ali
+W editor.panel_focus%s	editor-panel_focus.adb	editor-panel_focus.ali
+W editor.search%s	editor-search.adb	editor-search.ali
+W editor.settings_management%s  editor-settings_management.adb  editor-settings_management.ali
 W editor.state%s	editor-state.adb	editor-state.ali
+W editor.syntax%s	editor-syntax.adb	editor-syntax.ali
+W editor.terminal_tasks%s  editor-terminal_tasks.adb  editor-terminal_tasks.ali
+W editor.wrap%s		editor-wrap.adb		editor-wrap.ali
 W interfaces%s		interfac.ads		interfac.ali
 W interfaces.c%s	i-c.adb			i-c.ali
 Z system%s		system.ads		system.ali
+Z system.soft_links%s	s-soflin.adb		s-soflin.ali
+Z system.standard_library%s  s-stalib.adb	s-stalib.ali
 
 D ada.ads		20250808065140 76789da1 ada%s
+D a-calend.ads		20250808065140 bf7f3cc9 ada.calendar%s
 D a-charac.ads		20250808065140 2d3ec45b ada.characters%s
 D a-chlat1.ads		20250808065140 e0d72e76 ada.characters.latin_1%s
 D a-contai.ads		20250808065140 61e5e089 ada.containers%s
@@ -52,6 +129,7 @@ D a-finali.ads		20250808065140 bf4f806b ada.finalization%s
 D a-iteint.ads		20250808065140 49a8bee2 ada.iterator_interfaces%s
 D a-stream.ads		20250808065140 17477cbd ada.streams%s
 D a-string.ads		20250808065140 90ac6797 ada.strings%s
+D a-strfix.ads		20250808065140 8648dedb ada.strings.fixed%s
 D a-strmap.ads		20250808065140 1f91ebb6 ada.strings.maps%s
 D a-strsea.ads		20250808065140 18c3c634 ada.strings.search%s
 D a-sttebu.ads		20250808065140 f1ad67a2 ada.strings.text_buffers%s
@@ -59,20 +137,193 @@ D a-strunb.ads		20250808065140 b10770ab ada.strings.unbounded%s
 D a-stuten.ads		20250808065140 c6ced0ae ada.strings.utf_encoding%s
 D a-tags.ads		20250808065140 fbca0ad5 ada.tags%s
 D a-unccon.ads		20250808065140 0e9b276f ada.unchecked_conversion%s
-D editor.ads		20260406185230 16f844c2 editor%s
-D editor-cursors.ads	20260425100454 1f938cf3 editor.cursors%s
-D editor-layout.ads	20260507161022 c205967f editor.layout%s
-D editor-render_model.ads  20260506180927 199ac840 editor.render_model%s
-D editor-render_model.adb  20260506180944 6721e42f editor.render_model%b
-D editor-state.ads	20260503173758 d429238c editor.state%s
-D editor-view.ads	20260425171937 797427fd editor.view%s
+D editor.ads		20260612145959 16f844c2 editor%s
+D editor-ada_accessibility_lifetime_legality.ads  20260623172330 83f0af27 editor.ada_accessibility_lifetime_legality%s
+D editor-ada_aspect_inheritance_rules.ads  20260612145959 dbdd934d editor.ada_aspect_inheritance_rules%s
+D editor-ada_assignment_legality.ads  20260624184557 002deb19 editor.ada_assignment_legality%s
+D editor-ada_body_spec_conformance.ads  20260612145959 c5ced3c5 editor.ada_body_spec_conformance%s
+D editor-ada_call_candidates.ads  20260612145959 0549f3ac editor.ada_call_candidates%s
+D editor-ada_call_profile_filters.ads  20260612145959 68d43a60 editor.ada_call_profile_filters%s
+D editor-ada_call_profile_shapes.ads  20260612145959 e25575da editor.ada_call_profile_shapes%s
+D editor-ada_call_resolution.ads  20260612145959 eafbe88e editor.ada_call_resolution%s
+D editor-ada_child_unit_visibility.ads  20260612145959 84c0bb4d editor.ada_child_unit_visibility%s
+D editor-ada_contract_aspect_legality.ads  20260612145959 ea3d70fb editor.ada_contract_aspect_legality%s
+D editor-ada_control_flow_legality.ads  20260623161253 fc15aa78 editor.ada_control_flow_legality%s
+D editor-ada_conversion_access_aggregate_legality.ads  20260623152635 60bce04f editor.ada_conversion_access_aggregate_legality%s
+D editor-ada_cross_unit_closure.ads  20260612145959 de8fe36a editor.ada_cross_unit_closure%s
+D editor-ada_cross_unit_diagnostics.ads  20260622173145 f02d69d9 editor.ada_cross_unit_diagnostics%s
+D editor-ada_cross_unit_lookup_integration.ads  20260622181304 690f72cc editor.ada_cross_unit_lookup_integration%s
+D editor-ada_cross_unit_representation_targets.ads  20260612145959 5761be93 editor.ada_cross_unit_representation_targets%s
+D editor-ada_cross_unit_semantic_closure.ads  20260623170322 e7d38fc9 editor.ada_cross_unit_semantic_closure%s
+D editor-ada_cross_unit_visibility.ads  20260612145959 e193255d editor.ada_cross_unit_visibility%s
+D editor-ada_declarative_regions.ads  20260612145959 68bb9e3b editor.ada_declarative_regions%s
+D editor-ada_diagnostic_action_router.ads  20260624212548 dd333b7a editor.ada_diagnostic_action_router%s
+D editor-ada_diagnostic_command_projection.ads  20260624212554 d6b8d2a6 editor.ada_diagnostic_command_projection%s
+D editor-ada_diagnostic_navigation.ads  20260612145959 c6c48649 editor.ada_diagnostic_navigation%s
+D editor-ada_diagnostic_panel_projection.ads  20260612145959 6066054f editor.ada_diagnostic_panel_projection%s
+D editor-ada_diagnostic_provenance.ads  20260612145959 db5df586 editor.ada_diagnostic_provenance%s
+D editor-ada_diagnostic_quick_fix_skeleton.ads  20260624212541 64e4770d editor.ada_diagnostic_quick_fix_skeleton%s
+D editor-ada_diagnostic_status_line.ads  20260612145959 8f08930a editor.ada_diagnostic_status_line%s
+D editor-ada_direct_visibility.ads  20260612145959 6ebc1377 editor.ada_direct_visibility%s
+D editor-ada_dispatching_call_legality.ads  20260612145959 87a1024e editor.ada_dispatching_call_legality%s
+D editor-ada_elaboration_dependence_legality.ads  20260612145959 86be3164 editor.ada_elaboration_dependence_legality%s
+D editor-ada_exception_finalization_legality.ads  20260612145959 63b768c1 editor.ada_exception_finalization_legality%s
+D editor-ada_expected_call_filters.ads  20260624181704 eb699626 editor.ada_expected_call_filters%s
+D editor-ada_expected_type_contexts.ads  20260623045744 6e197316 editor.ada_expected_type_contexts%s
+D editor-ada_expression_diagnostics.ads  20260623151049 55ab633b editor.ada_expression_diagnostics%s
+D editor-ada_expression_types.ads  20260623190056 ef5d9762 editor.ada_expression_types%s
+D editor-ada_final_semantic_diagnostic_integration.ads  20260613105222 833c0fd4 editor.ada_final_semantic_diagnostic_integration%s
+D editor-ada_final_semantic_remediation_diagnostic_integration.ads  20260612145959 e4efc231 editor.ada_final_semantic_remediation_diagnostic_integration%s
+D editor-ada_final_semantic_stabilized_diagnostic_integration.ads  20260612145959 1d8132b9 editor.ada_final_semantic_stabilized_diagnostic_integration%s
+D editor-ada_freezing_interactions.ads  20260612145959 d3f90b30 editor.ada_freezing_interactions%s
+D editor-ada_freezing_points.ads  20260612145959 6897a1ac editor.ada_freezing_points%s
+D editor-ada_generic_contract_diagnostics.ads  20260614165504 120c7787 editor.ada_generic_contract_diagnostics%s
+D editor-ada_generic_contracts.ads  20260613110233 3c11f940 editor.ada_generic_contracts%s
+D editor-ada_generic_formal_package_nested_conformance.ads  20260612145959 55234f9e editor.ada_generic_formal_package_nested_conformance%s
+D editor-ada_generic_formal_package_substitutions.ads  20260614165504 4332af6d editor.ada_generic_formal_package_substitutions%s
+D editor-ada_generic_formal_type_conformance.ads  20260612145959 be304434 editor.ada_generic_formal_type_conformance%s
+D editor-ada_generic_instance_freezing_representation_legality.ads  20260623164915 94aeccd0 editor.ada_generic_instance_freezing_representation_legality%s
+D editor-ada_generic_instantiated_body_analysis.ads  20260612145959 82639475 editor.ada_generic_instantiated_body_analysis%s
+D editor-ada_generic_object_default_type_conformance.ads  20260612145959 debc7bb1 editor.ada_generic_object_default_type_conformance%s
+D editor-ada_generic_renaming_visibility.ads  20260613110502 7a838e18 editor.ada_generic_renaming_visibility%s
+D editor-ada_generic_shared_state_final_diagnostic_integration.ads  20260612145959 a8bf92bb editor.ada_generic_shared_state_final_diagnostic_integration%s
+D editor-ada_generic_shared_state_rm_completion_diagnostic_integration.ads  20260612145959 382f0feb editor.ada_generic_shared_state_rm_completion_diagnostic_integration%s
+D editor-ada_generic_view_compatibility.ads  20260612145959 cc6dc65b editor.ada_generic_view_compatibility%s
+D editor-ada_implicit_conversions.ads  20260612145959 4d5bc830 editor.ada_implicit_conversions%s
+D editor-ada_integrated_semantic_closure.ads  20260613104720 02ca8192 editor.ada_integrated_semantic_closure%s
+D editor-ada_language_model.ads  20260613110624 75f1fac9 editor.ada_language_model%s
+D editor-ada_language_service.ads  20260625154758 c7b35ad3 editor.ada_language_service%s
+D editor-ada_limited_view_rules.ads  20260612145959 5f2e9506 editor.ada_limited_view_rules%s
+D editor-ada_nested_body_spec_conformance.ads  20260612145959 386c83b8 editor.ada_nested_body_spec_conformance%s
+D editor-ada_operational_attribute_rules.ads  20260612145959 e0d8d7b8 editor.ada_operational_attribute_rules%s
+D editor-ada_overload_ambiguity_diagnostics.ads  20260612145959 7e809105 editor.ada_overload_ambiguity_diagnostics%s
+D editor-ada_overload_preference_legality.ads  20260623175108 bed87b16 editor.ada_overload_preference_legality%s
+D editor-ada_overload_ranking.ads  20260612145959 7dc84325 editor.ada_overload_ranking%s
+D editor-ada_overload_ranking_provenance.ads  20260613105222 8712de37 editor.ada_overload_ranking_provenance%s
+D editor-ada_overload_resolution_legality.ads  20260623011043 12acc398 editor.ada_overload_resolution_legality%s
+D editor-ada_private_view_visibility.ads  20260612145959 fd49539d editor.ada_private_view_visibility%s
+D editor-ada_private_with_rules.ads  20260612145959 2fffe0e9 editor.ada_private_with_rules%s
+D editor-ada_project_index.ads  20260624154319 c97cbc72 editor.ada_project_index%s
+D editor-ada_record_layout_exact_validation.ads  20260612145959 b988d6f5 editor.ada_record_layout_exact_validation%s
+D editor-ada_record_layout_validation.ads  20260612145959 e31ccee2 editor.ada_record_layout_validation%s
+D editor-ada_record_storage_order_rules.ads  20260612145959 014c62aa editor.ada_record_storage_order_rules%s
+D editor-ada_remaining_rm_edge_stabilized_closure_diagnostic_integration.ads  20260612145959 7778a3ff editor.ada_remaining_rm_edge_stabilized_closure_diagnostic_integration%s
+D editor-ada_remaining_rm_edge_stabilized_diagnostic_integration.ads  20260612145959 7ad1d3a8 editor.ada_remaining_rm_edge_stabilized_diagnostic_integration%s
+D editor-ada_renaming_alias_visibility_legality.ads  20260612145959 1dbb636b editor.ada_renaming_alias_visibility_legality%s
+D editor-ada_representation_diagnostics.ads  20260613110233 a1b3562e editor.ada_representation_diagnostics%s
+D editor-ada_representation_layout_stream_integration_legality.ads  20260612145959 a135313b editor.ada_representation_layout_stream_integration_legality%s
+D editor-ada_representation_legality.ads  20260612145959 b68bfe19 editor.ada_representation_legality%s
+D editor-ada_return_legality.ads  20260623155114 d3098143 editor.ada_return_legality%s
+D editor-ada_rm_completion_closure_consumer_diagnostic_integration.ads  20260612145959 86ee331c editor.ada_rm_completion_closure_consumer_diagnostic_integration%s
+D editor-ada_rm_completion_closure_consumer_stabilized_diagnostic_integration.ads  20260612145959 0b90017e editor.ada_rm_completion_closure_consumer_stabilized_diagnostic_integration%s
+D editor-ada_selected_name_resolution.ads  20260612145959 a5c90013 editor.ada_selected_name_resolution%s
+D editor-ada_selected_representation_targets.ads  20260612145959 c456ffb6 editor.ada_selected_representation_targets%s
+D editor-ada_semantic_colour_projection.ads  20260612145959 59eebf51 editor.ada_semantic_colour_projection%s
+D editor-ada_semantic_diagnostic_feed.ads  20260624205933 42b8beea editor.ada_semantic_diagnostic_feed%s
+D editor-ada_semantic_diagnostic_index.ads  20260612145959 df1939c4 editor.ada_semantic_diagnostic_index%s
+D editor-ada_semantic_diagnostic_snapshot_guards.ads  20260613105041 4522d9a6 editor.ada_semantic_diagnostic_snapshot_guards%s
+D editor-ada_separate_body_stub_rules.ads  20260612145959 bcca85dc editor.ada_separate_body_stub_rules%s
+D editor-ada_static_expressions.ads  20260612145959 55cf2315 editor.ada_static_expressions%s
+D editor-ada_staticness_range_predicate_legality.ads  20260612145959 bf345e22 editor.ada_staticness_range_predicate_legality%s
+D editor-ada_stream_attribute_profile_conformance.ads  20260612145959 298b1ea3 editor.ada_stream_attribute_profile_conformance%s
+D editor-ada_subtype_compatibility.ads  20260616210729 3039b253 editor.ada_subtype_compatibility%s
+D editor-ada_syntax_tree.ads  20260612145959 49a76ced editor.ada_syntax_tree%s
+D editor-ada_tagged_derived_legality.ads  20260623163602 c1a4d139 editor.ada_tagged_derived_legality%s
+D editor-ada_tasking_protected_legality.ads  20260623162422 83eec329 editor.ada_tasking_protected_legality%s
+D editor-ada_type_graph.ads  20260612145959 8a7fdffd editor.ada_type_graph%s
+D editor-ada_unit_completion_order_legality.ads  20260612145959 434ef597 editor.ada_unit_completion_order_legality%s
+D editor-ada_use_type_operators.ads  20260612145959 26d5c2e7 editor.ada_use_type_operators%s
+D editor-ada_use_visibility.ads  20260612145959 7a5a5a17 editor.ada_use_visibility%s
+D editor-ada_view_aware_compatibility.ads  20260624183245 5abfa29c editor.ada_view_aware_compatibility%s
+D editor-ada_wide_semantic_legality_diagnostics.ads  20260623173800 fc4745ee editor.ada_wide_semantic_legality_diagnostics%s
+D editor-bookmarks.ads	20260612145959 4e695f4d editor.bookmarks%s
+D editor-buffer_switcher.ads  20260612152524 fd053b33 editor.buffer_switcher%s
+D editor-buffer_types.ads  20260612151710 a555405e editor.buffer_types%s
+D editor-buffers.ads	20260624195947 6ddf6ec4 editor.buffers%s
+D editor-build_candidate_discovery.ads  20260612145959 5fe98328 editor.build_candidate_discovery%s
+D editor-build_candidate_refresh.ads  20260612145959 d541c976 editor.build_candidate_refresh%s
+D editor-build_candidates.ads  20260612145959 dc89ea7b editor.build_candidates%s
+D editor-build_output_details.ads  20260613095501 1d7c9af2 editor.build_output_details%s
+D editor-build_process_control.ads  20260612145959 28661204 editor.build_process_control%s
+D editor-build_result_summary.ads  20260613095501 5b952273 editor.build_result_summary%s
+D editor-build_runner_policy.ads  20260612145959 623f26a9 editor.build_runner_policy%s
+D editor-build_ui.ads	20260612152524 28a54496 editor.build_ui%s
+D editor-build_ui_actions.ads  20260612145959 26d71ab5 editor.build_ui_actions%s
+D editor-build_working_context.ads  20260612145959 cef9cea9 editor.build_working_context%s
+D editor-command_execution.ads  20260612145959 54c8cc0a editor.command_execution%s
+D editor-commands.ads	20260625160447 5cd3c959 editor.commands%s
+D editor-cursors.ads	20260612145959 1f938cf3 editor.cursors%s
+D editor-diagnostics.ads  20260612145959 41767a50 editor.diagnostics%s
+D editor-dirty_guards.ads  20260612145959 2f2ee9d0 editor.dirty_guards%s
+D editor-dirty_lines.ads  20260612145959 fa543a8e editor.dirty_lines%s
+D editor-empty_state_guidance.ads  20260612145959 3343db6a editor.empty_state_guidance%s
+D editor-executor.ads	20260623200708 16f4790d editor.executor%s
+D editor-external_producers.ads  20260622020154 58ce61fc editor.external_producers%s
+D editor-feature_diagnostics.ads  20260622183317 5963bde1 editor.feature_diagnostics%s
+D editor-feature_messages.ads  20260612145959 2c7a5943 editor.feature_messages%s
+D editor-feature_panel.ads  20260612145959 0bdf4cfc editor.feature_panel%s
+D editor-feature_search_results.ads  20260621220637 634355a7 editor.feature_search_results%s
+D editor-file_tree.ads	20260615223013 349423be editor.file_tree%s
+D editor-file_tree_view.ads  20260612145959 99db49c3 editor.file_tree_view%s
+D editor-folding.ads	20260612145959 860f30d0 editor.folding%s
+D editor-go_to_line.ads	20260612145959 c07ea03c editor.go_to_line%s
+D editor-guided_prompts.ads  20260623200646 4d222b28 editor.guided_prompts%s
+D editor-gutter_markers.ads  20260612145959 304c4eae editor.gutter_markers%s
+D editor-history.ads	20260612145959 b546dbc4 editor.history%s
+D editor-input_field.ads  20260612145959 04b03a00 editor.input_field%s
+D editor-keybinding_management.ads  20260612145959 81e1c626 editor.keybinding_management%s
+D editor-keybindings.ads  20260618195539 adeac332 editor.keybindings%s
+D editor-layout.ads	20260612145959 68c2e77a editor.layout%s
+D editor-messages.ads	20260612151413 205b1944 editor.messages%s
+D editor-minimap.ads	20260612145959 eeb32e87 editor.minimap%s
+D editor-navigation.ads	20260612145959 30defc5f editor.navigation%s
+D editor-navigation_history.ads  20260612145959 b0e3398a editor.navigation_history%s
+D editor-outline.ads	20260612152524 90a00201 editor.outline%s
+D editor-overlay_focus.ads  20260612145959 92ec945e editor.overlay_focus%s
+D editor-panel_focus.ads  20260612145959 a6c95284 editor.panel_focus%s
+D editor-panels.ads	20260612145959 66614da0 editor.panels%s
+D editor-pending_transitions.ads  20260612145959 81c78960 editor.pending_transitions%s
+D editor-problems.ads	20260612145959 a9a08157 editor.problems%s
+D editor-producer_contracts.ads  20260612145959 c3ee4501 editor.producer_contracts%s
+D editor-project.ads	20260612145959 f4d50f6d editor.project%s
+D editor-project_search.ads  20260612195704 b7cf3cc2 editor.project_search%s
+D editor-project_search_bar.ads  20260612145959 c5c12f77 editor.project_search_bar%s
+D editor-quick_open.ads	20260614175339 b8f14db6 editor.quick_open%s
+D editor-recent_buffers.ads  20260612145959 617e4612 editor.recent_buffers%s
+D editor-recent_projects.ads  20260612145959 ee1155f5 editor.recent_projects%s
+D editor-rectangle_selection.ads  20260612145959 16b1a48c editor.rectangle_selection%s
+D editor-render_model.ads  20260623202111 bc18339a editor.render_model%s
+D editor-render_model.adb  20260623202111 70bb2c79 editor.render_model%b
+D editor-scrollbars.ads	20260612145959 9b382f5f editor.scrollbars%s
+D editor-search.ads	20260612145959 dac0e204 editor.search%s
+D editor-search_results.ads  20260612145959 98eded1d editor.search_results%s
+D editor-selection.ads	20260612145959 37bfc5e9 editor.selection%s
+D editor-settings.ads	20260625001341 4905c81e editor.settings%s
+D editor-settings_management.ads  20260612145959 cf741a5b editor.settings_management%s
+D editor-state.ads	20260623202051 79e8fa74 editor.state%s
+D editor-status_bar.ads	20260612145959 879f0640 editor.status_bar%s
+D editor-syntax.ads	20260612145959 d59b0303 editor.syntax%s
+D editor-syntax_cache.ads  20260612164742 637f2470 editor.syntax_cache%s
+D editor-syntax_overlays.ads  20260612145959 4223075c editor.syntax_overlays%s
+D editor-syntax_semantics.ads  20260612145959 a499b10a editor.syntax_semantics%s
+D editor-tab_bar.ads	20260612151839 e26dca3d editor.tab_bar%s
+D editor-terminal_tasks.ads  20260624215136 74aa6602 editor.terminal_tasks%s
+D editor-unicode.ads	20260612145959 552ff3cc editor.unicode%s
+D editor-view.ads	20260612152152 12b5fbb1 editor.view%s
+D editor-view_types.ads	20260612152152 f3042ec7 editor.view_types%s
+D editor-workspace_persistence.ads  20260612202240 a037efc2 editor.workspace_persistence%s
+D editor-wrap.ads	20260612145959 87db665a editor.wrap%s
 D interfac.ads		20250808065140 9111f9c1 interfaces%s
 D i-c.ads		20250808065140 e94c966a interfaces.c%s
 D system.ads		20250808065140 14286b0f system%s
 D s-atocou.ads		20250808065140 dc18efc3 system.atomic_counters%s
+D s-conca2.ads		20250808065140 b5fb73f7 system.concat_2%s
+D s-conca3.ads		20250808065140 8a7a19a2 system.concat_3%s
 D s-exctab.ads		20250808065140 91bef6ef system.exception_table%s
 D s-finpri.ads		20250808065140 5970d55a system.finalization_primitives%s
 D s-finroo.ads		20250808065140 0a7c3ed4 system.finalization_root%s
+D s-imagei.ads		20250808065140 5e131ce0 system.image_i%s
+D s-imgint.ads		20250808065140 67e4edfb system.img_int%s
 D s-memory.ads		20250808065140 18949c1a system.memory%s
 D s-oscons.ads		20250827122531 068e1a91 system.os_constants%s
 D s-oslock.ads		20250808065140 13fa6b78 system.os_locks%s
@@ -90,140 +341,1612 @@ D s-stopoo.ads		20250808065140 e9fa2dd8 system.storage_pools%s
 D s-stratt.ads		20250808065140 516607ae system.stream_attributes%s
 D s-traent.ads		20250808065140 c81cbf8c system.traceback_entries%s
 D s-unstyp.ads		20250808065140 fa2a7f59 system.unsigned_types%s
-D text_backend.ads	20260412181650 6d0030da text_backend%s
-D text_backend-rope_impl.ads  20260427194525 88d12c3a text_backend.rope_impl%s
-D text_buffer.ads	20260427153044 bb9a4056 text_buffer%s
+D s-valspe.ads		20250808065140 f810d31c system.val_spec%s
+D s-vaispe.ads		20250808065140 8280550e system.value_i_spec%s
+D s-vauspe.ads		20250808065140 89269ba5 system.value_u_spec%s
+D s-vs_int.ads		20250808065140 06b6b724 system.vs_int%s
+D s-vs_uns.ads		20250808065140 e7f47a27 system.vs_uns%s
+D text_backend.ads	20260612145959 6d0030da text_backend%s
+D text_backend-rope_impl.ads  20260612145959 0f5d7663 text_backend.rope_impl%s
+D text_buffer.ads	20260612145959 bb9a4056 text_buffer%s
 G a e
-G c Z s b [build_render_snapshot editor__render_model 58 14 none]
-G c Z s s [natural_arrayIP editor__render_model 16 9 none]
-G c Z s s [Tcaret_pos_arrayBIP editor__render_model 18 4 none]
-G c Z s s [Tselection_pos_arrayBIP editor__render_model 21 4 none]
-G c Z s s [render_snapshotDI editor__render_model 24 9 none]
-G c Z s s [render_snapshotDA editor__render_model 24 9 none]
-G c Z s s [render_snapshotDF editor__render_model 24 9 none]
-G c Z s s [render_snapshotIP editor__render_model 24 9 none]
-G r c none [build_render_snapshot editor__render_model 58 14 none] [length text_backend__rope_impl 39 13 none]
-G r c none [build_render_snapshot editor__render_model 58 14 none] [current editor__layout 14 13 none]
-G r c none [build_render_snapshot editor__render_model 58 14 none] [viewport_height editor__view 21 13 none]
-G r c none [build_render_snapshot editor__render_model 58 14 none] [scroll_y editor__view 38 13 none]
-G r c none [build_render_snapshot editor__render_model 58 14 none] [viewport_width editor__view 20 13 none]
-G r c none [build_render_snapshot editor__render_model 58 14 none] [scroll_x editor__view 37 13 none]
+G c Z s b [build_snapshot editor__render_model 331 13 none]
+G c Z s b [build_render_snapshot editor__render_model 334 14 none]
+G c Z s s [natural_arrayIP editor__render_model 41 9 none]
+G c Z s s [Tcaret_pos_arrayBIP editor__render_model 43 4 none]
+G c Z s s [Tselection_pos_arrayBIP editor__render_model 46 4 none]
+G c Z s s [rectangular_selection_row_spanIP editor__render_model 49 9 none]
+G c Z s s [Trectangular_selection_row_span_arrayBIP editor__render_model 55 4 none]
+G c Z s s [Tdiagnostic_range_arrayBIP editor__render_model 58 4 none]
+G c Z s s [Tdiagnostic_range_arrayBDI editor__render_model 58 4 none]
+G c Z s s [Tdiagnostic_range_arrayBDA editor__render_model 58 4 none]
+G c Z s s [Tdiagnostic_range_arrayBDF editor__render_model 58 4 none]
+G c Z s s [Tsearch_match_arrayBIP editor__render_model 61 4 none]
+G c Z s s [render_syntax_spanIP editor__render_model 64 9 none]
+G c Z s s [Trender_syntax_span_arrayBIP editor__render_model 71 4 none]
+G c Z s s [Tvisual_row_info_arrayBIP editor__render_model 74 4 none]
+G c Z s s [render_snapshotDI editor__render_model 77 9 none]
+G c Z s s [render_snapshotDA editor__render_model 77 9 none]
+G c Z s s [render_snapshotDF editor__render_model 77 9 none]
+G c Z s s [render_snapshotIP editor__render_model 77 9 none]
+G c Z b b [natural_text editor__render_model 55 13 none]
+G c Z b b [dirty_close_summary_message editor__render_model 62 13 none]
+G c Z b b [active_find_buffer_token editor__render_model 108 13 none]
+G c Z b b [active_find_source_current editor__render_model 123 13 none]
+G c Z b b [dirty_close_open_buffer_fingerprint editor__render_model 135 13 none]
+G c Z b b [dirty_close_dirty_buffer_fingerprint editor__render_model 154 13 none]
+G c Z b b [dirty_close_buffer_id_token editor__render_model 173 13 none]
+G c Z b b [dirty_close_dirty_buffer_id_list editor__render_model 183 13 none]
+G c Z b b [dirty_close_current_open_set_was_reviewed editor__render_model 207 13 none]
+G c Z b b [dirty_close_current_dirty_set_was_reviewed editor__render_model 237 13 none]
+G c Z b b [dirty_close_current_dirty_set_equals_review editor__render_model 264 13 none]
+G c Z b b [dirty_close_all_buffer_identity_current editor__render_model 276 13 none]
+G c Z b b [dirty_close_all_buffer_review_current editor__render_model 285 13 none]
+G c Z b b [logical_line_length editor__render_model 296 13 none]
+G c Z b b [effective_wrap_col editor__render_model 310 13 none]
+G c Z b b [visual_row_ordinal_for_caret editor__render_model 342 13 none]
+G c Z b b [append_line_starts_for_range editor__render_model 374 14 none]
+G c Z b b [build_unwrapped_visuals editor__render_model 391 14 none]
+G c Z b b [build_wrapped_visuals editor__render_model 445 14 none]
+G c Z b b [total_visible_visual_row_count editor__render_model 530 13 none]
+G r j state_type [build_snapshot editor__render_model 331 13 none] [state_typeDA editor__state 150 9 none]
+G r s minimap_line_info_array [build_snapshot editor__render_model 331 13 none] [minimap_line_info_arrayIP editor__minimap 20 9 none]
+G r s folding_state [build_snapshot editor__render_model 331 13 none] [folding_stateIP editor__folding 22 9 none]
+G r l folding_state [build_snapshot editor__render_model 331 13 none] [folding_stateDI editor__folding 22 9 none]
+G r s gutter_marker_state [build_snapshot editor__render_model 331 13 none] [gutter_marker_stateIP editor__gutter_markers 108 9 none]
+G r l gutter_marker_state [build_snapshot editor__render_model 331 13 none] [gutter_marker_stateDI editor__gutter_markers 108 9 none]
+G r s gutter_marker_hover_state [build_snapshot editor__render_model 331 13 none] [gutter_marker_hover_stateIP editor__gutter_markers 24 9 none]
+G r s semantic_popup_state [build_snapshot editor__render_model 331 13 none] [semantic_popup_stateIP editor__state 136 9 none]
+G r l semantic_popup_state [build_snapshot editor__render_model 331 13 none] [semantic_popup_stateDI editor__state 136 9 none]
+G r s message_state [build_snapshot editor__render_model 331 13 none] [message_stateIP editor__messages 197 9 none]
+G r l message_state [build_snapshot editor__render_model 331 13 none] [message_stateDI editor__messages 197 9 none]
+G r s field_snapshot [build_snapshot editor__render_model 331 13 none] [field_snapshotIP editor__input_field 17 9 none]
+G r l field_snapshot [build_snapshot editor__render_model 331 13 none] [field_snapshotDI editor__input_field 17 9 none]
+G r s build_ui_render_snapshot [build_snapshot editor__render_model 331 13 none] [build_ui_render_snapshotIP editor__build_ui 129 9 none]
+G r l build_ui_render_snapshot [build_snapshot editor__render_model 331 13 none] [build_ui_render_snapshotDI editor__build_ui 129 9 none]
+G r s terminal_task_render_snapshot [build_snapshot editor__render_model 331 13 none] [terminal_task_render_snapshotIP editor__terminal_tasks 63 9 none]
+G r l terminal_task_render_snapshot [build_snapshot editor__render_model 331 13 none] [terminal_task_render_snapshotDI editor__terminal_tasks 63 9 none]
+G r s keybinding_surface_snapshot [build_snapshot editor__render_model 331 13 none] [keybinding_surface_snapshotIP editor__keybinding_management 113 9 none]
+G r l keybinding_surface_snapshot [build_snapshot editor__render_model 331 13 none] [keybinding_surface_snapshotDI editor__keybinding_management 113 9 none]
+G r s settings_surface_snapshot [build_snapshot editor__render_model 331 13 none] [settings_surface_snapshotIP editor__settings_management 181 9 none]
+G r l settings_surface_snapshot [build_snapshot editor__render_model 331 13 none] [settings_surface_snapshotDI editor__settings_management 181 9 none]
+G r s configuration_audit_surface_snapshot [build_snapshot editor__render_model 331 13 none] [configuration_audit_surface_snapshotIP editor__settings_management 92 9 none]
+G r l configuration_audit_surface_snapshot [build_snapshot editor__render_model 331 13 none] [configuration_audit_surface_snapshotDI editor__settings_management 92 9 none]
+G r s settings_command_catalog_snapshot [build_snapshot editor__render_model 331 13 none] [settings_command_catalog_snapshotIP editor__settings_management 395 9 none]
+G r l settings_command_catalog_snapshot [build_snapshot editor__render_model 331 13 none] [settings_command_catalog_snapshotDI editor__settings_management 395 9 none]
+G r s empty_state_snapshot [build_snapshot editor__render_model 331 13 none] [empty_state_snapshotIP editor__empty_state_guidance 101 9 none]
+G r l empty_state_snapshot [build_snapshot editor__render_model 331 13 none] [empty_state_snapshotDI editor__empty_state_guidance 101 9 none]
+G r s prompt_snapshot [build_snapshot editor__render_model 331 13 none] [prompt_snapshotIP editor__guided_prompts 89 9 none]
+G r l prompt_snapshot [build_snapshot editor__render_model 331 13 none] [prompt_snapshotDI editor__guided_prompts 89 9 none]
+G r k prompt_snapshot [build_snapshot editor__render_model 331 13 none] [prompt_snapshotDF editor__guided_prompts 89 9 none]
+G r k empty_state_snapshot [build_snapshot editor__render_model 331 13 none] [empty_state_snapshotDF editor__empty_state_guidance 101 9 none]
+G r k settings_command_catalog_snapshot [build_snapshot editor__render_model 331 13 none] [settings_command_catalog_snapshotDF editor__settings_management 395 9 none]
+G r k configuration_audit_surface_snapshot [build_snapshot editor__render_model 331 13 none] [configuration_audit_surface_snapshotDF editor__settings_management 92 9 none]
+G r k settings_surface_snapshot [build_snapshot editor__render_model 331 13 none] [settings_surface_snapshotDF editor__settings_management 181 9 none]
+G r k keybinding_surface_snapshot [build_snapshot editor__render_model 331 13 none] [keybinding_surface_snapshotDF editor__keybinding_management 113 9 none]
+G r k terminal_task_render_snapshot [build_snapshot editor__render_model 331 13 none] [terminal_task_render_snapshotDF editor__terminal_tasks 63 9 none]
+G r k build_ui_render_snapshot [build_snapshot editor__render_model 331 13 none] [build_ui_render_snapshotDF editor__build_ui 129 9 none]
+G r k field_snapshot [build_snapshot editor__render_model 331 13 none] [field_snapshotDF editor__input_field 17 9 none]
+G r k message_state [build_snapshot editor__render_model 331 13 none] [message_stateDF editor__messages 197 9 none]
+G r k semantic_popup_state [build_snapshot editor__render_model 331 13 none] [semantic_popup_stateDF editor__state 136 9 none]
+G r k gutter_marker_state [build_snapshot editor__render_model 331 13 none] [gutter_marker_stateDF editor__gutter_markers 108 9 none]
+G r k folding_state [build_snapshot editor__render_model 331 13 none] [folding_stateDF editor__folding 22 9 none]
+G r k diagnostic_range [build_snapshot editor__render_model 331 13 none] [diagnostic_rangeDF editor__diagnostics 18 9 none]
+G r c none [build_snapshot editor__render_model 331 13 none] [line_count editor__state 535 13 none]
+G r j folding_state [build_snapshot editor__render_model 331 13 none] [folding_stateDA editor__folding 22 9 none]
+G r j gutter_marker_state [build_snapshot editor__render_model 331 13 none] [gutter_marker_stateDA editor__gutter_markers 108 9 none]
+G r j semantic_popup_state [build_snapshot editor__render_model 331 13 none] [semantic_popup_stateDA editor__state 136 9 none]
+G r j message_state [build_snapshot editor__render_model 331 13 none] [message_stateDA editor__messages 197 9 none]
+G r s bookmark_snapshot [build_snapshot editor__render_model 331 13 none] [bookmark_snapshotIP editor__bookmarks 40 9 none]
+G r l bookmark_snapshot [build_snapshot editor__render_model 331 13 none] [bookmark_snapshotDI editor__bookmarks 40 9 none]
+G r k bookmark_snapshot [build_snapshot editor__render_model 331 13 none] [bookmark_snapshotDF editor__bookmarks 40 9 none]
+G r c none [build_snapshot editor__render_model 331 13 none] [build_snapshot editor__bookmarks 164 14 none]
+G r c none [build_snapshot editor__render_model 331 13 none] [global_registry_for_ui editor__buffers 476 13 none]
+G r s buffer_summary [build_snapshot editor__render_model 331 13 none] [buffer_summaryIP editor__buffer_types 8 9 none]
+G r l buffer_summary [build_snapshot editor__render_model 331 13 none] [buffer_summaryDI editor__buffer_types 8 9 none]
+G r k buffer_summary [build_snapshot editor__render_model 331 13 none] [buffer_summaryDF editor__buffer_types 8 9 none]
+G r s state_type [build_snapshot editor__render_model 331 13 none] [state_typeIP editor__state 150 9 none]
+G r l state_type [build_snapshot editor__render_model 331 13 none] [state_typeDI editor__state 150 9 none]
+G r k state_type [build_snapshot editor__render_model 331 13 none] [state_typeDF editor__state 150 9 none]
+G r s bookmark_row [build_snapshot editor__render_model 331 13 none] [bookmark_rowIP editor__bookmarks 19 9 none]
+G r l bookmark_row [build_snapshot editor__render_model 331 13 none] [bookmark_rowDI editor__bookmarks 19 9 none]
+G r k bookmark_row [build_snapshot editor__render_model 331 13 none] [bookmark_rowDF editor__bookmarks 19 9 none]
+G r j bookmark_row [build_snapshot editor__render_model 331 13 none] [bookmark_rowDA editor__bookmarks 19 9 none]
+G r c none [build_snapshot editor__render_model 331 13 none] [count editor__buffers 173 13 none]
+G r c none [build_snapshot editor__render_model 331 13 none] [summary_at editor__buffers 179 13 none]
+G r j buffer_summary [build_snapshot editor__render_model 331 13 none] [buffer_summaryDA editor__buffer_types 8 9 none]
+G r c none [build_snapshot editor__render_model 331 13 none] [buffer editor__buffers 282 13 none]
+G r c none [build_snapshot editor__render_model 331 13 none] [add_marker editor__gutter_markers 35 14 none]
+G r c none [build_snapshot editor__render_model 331 13 none] [row_for_index editor__state 537 13 none]
+G r c none [build_snapshot editor__render_model 331 13 none] [global_active_buffer editor__buffers 501 13 none]
+G r c none [build_snapshot editor__render_model 331 13 none] [global_count editor__buffers 475 13 none]
+G r c none [build_snapshot editor__render_model 331 13 none] [global_has_buffer_label editor__buffers 523 13 none]
+G r c none [build_snapshot editor__render_model 331 13 none] [global_buffer_label editor__buffers 524 13 none]
+G r c none [build_snapshot editor__render_model 331 13 none] [global_has_buffer_note editor__buffers 527 13 none]
+G r c none [build_snapshot editor__render_model 331 13 none] [global_buffer_note editor__buffers 528 13 none]
+G r c none [build_snapshot editor__render_model 331 13 none] [has_project editor__project 73 13 none]
+G r c none [build_snapshot editor__render_model 331 13 none] [display_name editor__project 85 13 none]
+G r c none [build_snapshot editor__render_model 331 13 none] [global_contains editor__buffers 502 13 none]
+G r c none [build_snapshot editor__render_model 331 13 none] [global_metadata_for editor__buffers 488 13 none]
+G r c none [build_snapshot editor__render_model 331 13 none] [workspace_persistability_label editor__buffers 210 13 none]
+G r c none [build_snapshot editor__render_model 331 13 none] [close_eligibility_label editor__buffers 208 13 none]
+G r c none [build_snapshot editor__render_model 331 13 none] [target editor__panel_focus 18 13 none]
+G r c none [build_snapshot editor__render_model 331 13 none] [bottom_content editor__panel_focus 21 13 none]
+G r c none [build_snapshot editor__render_model 331 13 none] [active_overlay editor__overlay_focus 34 13 none]
+G r c none [build_snapshot editor__render_model 331 13 none] [is_open editor__go_to_line 25 13 none]
+G r c none [build_snapshot editor__render_model 331 13 none] [text editor__go_to_line 27 13 none]
+G r c none [build_snapshot editor__render_model 331 13 none] [error_text editor__go_to_line 29 13 none]
+G r c none [build_snapshot editor__render_model 331 13 none] [snapshot editor__go_to_line 47 13 none]
+G r j field_snapshot [build_snapshot editor__render_model 331 13 none] [field_snapshotDA editor__input_field 17 9 none]
+G r j input_field_state [build_snapshot editor__render_model 331 13 none] [input_field_stateDA editor__input_field 96 9 none]
+G r c none [build_snapshot editor__render_model 331 13 none] [set_text editor__input_field 34 14 none]
+G r c none [build_snapshot editor__render_model 331 13 none] [snapshot editor__input_field 91 13 none]
+G r c none [build_snapshot editor__render_model 331 13 none] [buffer_count editor__buffers 176 13 none]
+G r c none [build_snapshot editor__render_model 331 13 none] [global_summary_for editor__buffers 485 13 none]
+G r c none [build_snapshot editor__render_model 331 13 none] [summary editor__feature_panel 210 13 none]
+G r c none [build_snapshot editor__render_model 331 13 none] [search_input_is_active editor__feature_search_results 36 13 none]
+G r c none [build_snapshot editor__render_model 331 13 none] [filter_input_is_active editor__outline 289 13 none]
+G r c none [build_snapshot editor__render_model 331 13 none] [active_feature editor__feature_panel 156 13 none]
+G r c none [build_snapshot editor__render_model 331 13 none] [wrap_mode editor__view 90 13 none]
+G r c none [build_snapshot editor__render_model 331 13 none] [current editor__layout 20 13 none]
+G r c none [build_snapshot editor__render_model 331 13 none] [current editor__minimap 22 13 none]
+G r c none [build_snapshot editor__render_model 331 13 none] [show_minimap editor__settings 64 13 none]
+G r c none [build_snapshot editor__render_model 331 13 none] [current editor__scrollbars 33 13 none]
+G r c none [build_snapshot editor__render_model 331 13 none] [viewport_width editor__view 30 13 none]
+G r c none [build_snapshot editor__render_model 331 13 none] [effective_viewport_width editor__scrollbars 51 13 none]
+G r c none [build_snapshot editor__render_model 331 13 none] [text_viewport_width editor__layout 270 13 none]
+G r c none [build_snapshot editor__render_model 331 13 none] [text_viewport_width editor__layout 265 13 none]
+G r c none [build_snapshot editor__render_model 331 13 none] [cell_w editor__layout 22 13 none]
+G r c none [build_snapshot editor__render_model 331 13 none] [wrap_column editor__wrap 25 13 none]
+G r c none [build_snapshot editor__render_model 331 13 none] [is_row_hidden editor__folding 79 13 none]
+G r c none [build_snapshot editor__render_model 331 13 none] [line_start editor__state 547 13 none]
+G r c none [build_snapshot editor__render_model 331 13 none] [line_end editor__state 551 13 none]
+G r c none [build_snapshot editor__render_model 331 13 none] [visual_row_count_for_logical_line editor__wrap 35 13 none]
+G r c none [build_snapshot editor__render_model 331 13 none] [visible_row_count editor__folding 115 13 none]
+G r c none [build_snapshot editor__render_model 331 13 none] [viewport_height editor__view 31 13 none]
+G r c none [build_snapshot editor__render_model 331 13 none] [effective_viewport_height editor__scrollbars 55 13 none]
+G r c none [build_snapshot editor__render_model 331 13 none] [text_viewport_height editor__layout 245 13 none]
+G r c none [build_snapshot editor__render_model 331 13 none] [scroll_y editor__view 54 13 none]
+G r c none [build_snapshot editor__render_model 331 13 none] [last_visible_row editor__layout 260 13 none]
+G r c none [build_snapshot editor__render_model 331 13 none] [visible_row_to_document_row editor__folding 97 13 none]
+G r c none [build_snapshot editor__render_model 331 13 none] [fold_start_for_hidden_row editor__folding 70 13 none]
+G r c none [build_snapshot editor__render_model 331 13 none] [document_row_to_visible_row editor__folding 106 13 none]
+G r c none [build_snapshot editor__render_model 331 13 none] [visible_row_count editor__layout 256 13 none]
+G r c none [build_snapshot editor__render_model 331 13 none] [visual_segment editor__wrap 59 13 none]
+G r c none [build_snapshot editor__render_model 331 13 none] [reserved_width editor__minimap 33 13 none]
+G r c none [build_snapshot editor__render_model 331 13 none] [scroll_x editor__view 53 13 none]
+G r c none [build_snapshot editor__render_model 331 13 none] [last_visible_text_column editor__layout 193 13 none]
+G r c none [build_snapshot editor__render_model 331 13 none] [dirty_line_count editor__dirty_lines 26 13 none]
+G r c none [build_snapshot editor__render_model 331 13 none] [kind_for_row editor__dirty_lines 29 13 none]
+G r c none [build_snapshot editor__render_model 331 13 none] [length text_backend__rope_impl 69 13 none]
+G r j diagnostic_range [build_snapshot editor__render_model 331 13 none] [diagnostic_rangeDA editor__diagnostics 18 9 none]
+G r c none [build_snapshot editor__render_model 331 13 none] [validate_active_selection_range editor__selection 79 13 none]
+G r c none [build_snapshot editor__render_model 331 13 none] [selected_character_count editor__selection 91 13 none]
+G r c none [build_snapshot editor__render_model 331 13 none] [selected_line_count editor__selection 97 13 none]
+G r c none [build_snapshot editor__render_model 331 13 none] [has_selection editor__rectangle_selection 32 13 none]
+G r c none [build_snapshot editor__render_model 331 13 none] [row_col_for_index editor__state 541 14 none]
+G r c none [build_snapshot editor__render_model 331 13 none] [selection_left_column editor__rectangle_selection 38 13 none]
+G r c none [build_snapshot editor__render_model 331 13 none] [selection_right_column editor__rectangle_selection 42 13 none]
+G r c none [build_snapshot editor__render_model 331 13 none] [use_syntax_colouring editor__settings 74 13 none]
+G r c none [build_snapshot editor__render_model 331 13 none] [use_semantic_colouring editor__settings 76 13 none]
+G r c none [build_snapshot editor__render_model 331 13 none] [prepare_syntax_for_visible_range editor__state 557 14 none]
+G r c none [build_snapshot editor__render_model 331 13 none] [current_text editor__state 513 13 none]
+G r c none [build_snapshot editor__render_model 331 13 none] [tokens_for_line editor__syntax_cache 32 13 none]
+G r c none [build_snapshot editor__render_model 331 13 none] [use_diagnostic_overlays editor__settings 78 13 none]
+G r c none [build_snapshot editor__render_model 331 13 none] [use_search_overlays editor__settings 80 13 none]
+G r c none [build_snapshot editor__render_model 331 13 none] [merge editor__syntax_overlays 12 13 none]
+G r c none [build_snapshot editor__render_model 331 13 none] [symbol_count editor__ada_language_model 831 13 none]
+G r c none [build_snapshot editor__render_model 331 13 none] [scope_for_position editor__ada_language_model 1210 13 none]
+G r c none [build_snapshot editor__render_model 331 13 none] [kind_for_identifier_in_scope editor__syntax_semantics 49 13 none]
+G r c none [build_snapshot editor__render_model 331 13 none] [kind_for_identifier editor__syntax_semantics 40 13 none]
+G r c none [build_snapshot editor__render_model 331 13 none] [row_y editor__minimap 60 13 none]
+G r c none [build_snapshot editor__render_model 331 13 none] [for_each_char_range text_backend__rope_impl 101 14 none]
+G r c none [build_snapshot editor__render_model 331 13 none] [build_ui_operability_snapshot editor__build_ui_actions 77 13 none]
+G r j build_ui_render_snapshot [build_snapshot editor__render_model 331 13 none] [build_ui_render_snapshotDA editor__build_ui 129 9 none]
+G r c none [build_snapshot editor__render_model 331 13 none] [build_render_snapshot editor__terminal_tasks 142 13 none]
+G r j terminal_task_render_snapshot [build_snapshot editor__render_model 331 13 none] [terminal_task_render_snapshotDA editor__terminal_tasks 63 9 none]
+G r c none [build_snapshot editor__render_model 331 13 none] [build_surface_snapshot editor__keybinding_management 173 13 none]
+G r j keybinding_surface_snapshot [build_snapshot editor__render_model 331 13 none] [keybinding_surface_snapshotDA editor__keybinding_management 113 9 none]
+G r c none [build_snapshot editor__render_model 331 13 none] [build_current_surface_snapshot editor__settings_management 318 13 none]
+G r j settings_surface_snapshot [build_snapshot editor__render_model 331 13 none] [settings_surface_snapshotDA editor__settings_management 181 9 none]
+G r c none [build_snapshot editor__render_model 331 13 none] [build_current_configuration_audit_surface editor__settings_management 451 13 none]
+G r j configuration_audit_surface_snapshot [build_snapshot editor__render_model 331 13 none] [configuration_audit_surface_snapshotDA editor__settings_management 92 9 none]
+G r c none [build_snapshot editor__render_model 331 13 none] [build_current_settings_command_catalog editor__settings_management 448 13 none]
+G r j settings_command_catalog_snapshot [build_snapshot editor__render_model 331 13 none] [settings_command_catalog_snapshotDA editor__settings_management 395 9 none]
+G r c none [build_snapshot editor__render_model 331 13 none] [build_all_empty_state_snapshots editor__empty_state_guidance 119 13 none]
+G r c none [build_snapshot editor__render_model 331 13 none] [empty_state_slot_for_surface editor__empty_state_guidance 223 13 none]
+G r j empty_state_snapshot [build_snapshot editor__render_model 331 13 none] [empty_state_snapshotDA editor__empty_state_guidance 101 9 none]
+G r c none [build_snapshot editor__render_model 331 13 none] [snapshot editor__guided_prompts 161 13 none]
+G r j prompt_snapshot [build_snapshot editor__render_model 331 13 none] [prompt_snapshotDA editor__guided_prompts 89 9 none]
+G r c none [build_render_snapshot editor__render_model 334 14 none] [line_count editor__state 535 13 none]
+G r k folding_state [build_render_snapshot editor__render_model 334 14 none] [folding_stateDF editor__folding 22 9 none]
+G r j folding_state [build_render_snapshot editor__render_model 334 14 none] [folding_stateDA editor__folding 22 9 none]
+G r k gutter_marker_state [build_render_snapshot editor__render_model 334 14 none] [gutter_marker_stateDF editor__gutter_markers 108 9 none]
+G r j gutter_marker_state [build_render_snapshot editor__render_model 334 14 none] [gutter_marker_stateDA editor__gutter_markers 108 9 none]
+G r k semantic_popup_state [build_render_snapshot editor__render_model 334 14 none] [semantic_popup_stateDF editor__state 136 9 none]
+G r j semantic_popup_state [build_render_snapshot editor__render_model 334 14 none] [semantic_popup_stateDA editor__state 136 9 none]
+G r k message_state [build_render_snapshot editor__render_model 334 14 none] [message_stateDF editor__messages 197 9 none]
+G r j message_state [build_render_snapshot editor__render_model 334 14 none] [message_stateDA editor__messages 197 9 none]
+G r s bookmark_snapshot [build_render_snapshot editor__render_model 334 14 none] [bookmark_snapshotIP editor__bookmarks 40 9 none]
+G r l bookmark_snapshot [build_render_snapshot editor__render_model 334 14 none] [bookmark_snapshotDI editor__bookmarks 40 9 none]
+G r k bookmark_snapshot [build_render_snapshot editor__render_model 334 14 none] [bookmark_snapshotDF editor__bookmarks 40 9 none]
+G r c none [build_render_snapshot editor__render_model 334 14 none] [build_snapshot editor__bookmarks 164 14 none]
+G r c none [build_render_snapshot editor__render_model 334 14 none] [global_registry_for_ui editor__buffers 476 13 none]
+G r s buffer_summary [build_render_snapshot editor__render_model 334 14 none] [buffer_summaryIP editor__buffer_types 8 9 none]
+G r l buffer_summary [build_render_snapshot editor__render_model 334 14 none] [buffer_summaryDI editor__buffer_types 8 9 none]
+G r k buffer_summary [build_render_snapshot editor__render_model 334 14 none] [buffer_summaryDF editor__buffer_types 8 9 none]
+G r s state_type [build_render_snapshot editor__render_model 334 14 none] [state_typeIP editor__state 150 9 none]
+G r l state_type [build_render_snapshot editor__render_model 334 14 none] [state_typeDI editor__state 150 9 none]
+G r k state_type [build_render_snapshot editor__render_model 334 14 none] [state_typeDF editor__state 150 9 none]
+G r s bookmark_row [build_render_snapshot editor__render_model 334 14 none] [bookmark_rowIP editor__bookmarks 19 9 none]
+G r l bookmark_row [build_render_snapshot editor__render_model 334 14 none] [bookmark_rowDI editor__bookmarks 19 9 none]
+G r k bookmark_row [build_render_snapshot editor__render_model 334 14 none] [bookmark_rowDF editor__bookmarks 19 9 none]
+G r j bookmark_row [build_render_snapshot editor__render_model 334 14 none] [bookmark_rowDA editor__bookmarks 19 9 none]
+G r c none [build_render_snapshot editor__render_model 334 14 none] [count editor__buffers 173 13 none]
+G r c none [build_render_snapshot editor__render_model 334 14 none] [summary_at editor__buffers 179 13 none]
+G r j buffer_summary [build_render_snapshot editor__render_model 334 14 none] [buffer_summaryDA editor__buffer_types 8 9 none]
+G r c none [build_render_snapshot editor__render_model 334 14 none] [buffer editor__buffers 282 13 none]
+G r j state_type [build_render_snapshot editor__render_model 334 14 none] [state_typeDA editor__state 150 9 none]
+G r c none [build_render_snapshot editor__render_model 334 14 none] [add_marker editor__gutter_markers 35 14 none]
+G r c none [build_render_snapshot editor__render_model 334 14 none] [row_for_index editor__state 537 13 none]
+G r c none [build_render_snapshot editor__render_model 334 14 none] [global_active_buffer editor__buffers 501 13 none]
+G r c none [build_render_snapshot editor__render_model 334 14 none] [global_count editor__buffers 475 13 none]
+G r c none [build_render_snapshot editor__render_model 334 14 none] [global_has_buffer_label editor__buffers 523 13 none]
+G r c none [build_render_snapshot editor__render_model 334 14 none] [global_buffer_label editor__buffers 524 13 none]
+G r c none [build_render_snapshot editor__render_model 334 14 none] [global_has_buffer_note editor__buffers 527 13 none]
+G r c none [build_render_snapshot editor__render_model 334 14 none] [global_buffer_note editor__buffers 528 13 none]
+G r c none [build_render_snapshot editor__render_model 334 14 none] [has_project editor__project 73 13 none]
+G r c none [build_render_snapshot editor__render_model 334 14 none] [display_name editor__project 85 13 none]
+G r c none [build_render_snapshot editor__render_model 334 14 none] [global_contains editor__buffers 502 13 none]
+G r c none [build_render_snapshot editor__render_model 334 14 none] [global_metadata_for editor__buffers 488 13 none]
+G r c none [build_render_snapshot editor__render_model 334 14 none] [workspace_persistability_label editor__buffers 210 13 none]
+G r c none [build_render_snapshot editor__render_model 334 14 none] [close_eligibility_label editor__buffers 208 13 none]
+G r c none [build_render_snapshot editor__render_model 334 14 none] [target editor__panel_focus 18 13 none]
+G r c none [build_render_snapshot editor__render_model 334 14 none] [bottom_content editor__panel_focus 21 13 none]
+G r c none [build_render_snapshot editor__render_model 334 14 none] [active_overlay editor__overlay_focus 34 13 none]
+G r c none [build_render_snapshot editor__render_model 334 14 none] [is_open editor__go_to_line 25 13 none]
+G r c none [build_render_snapshot editor__render_model 334 14 none] [text editor__go_to_line 27 13 none]
+G r c none [build_render_snapshot editor__render_model 334 14 none] [error_text editor__go_to_line 29 13 none]
+G r c none [build_render_snapshot editor__render_model 334 14 none] [snapshot editor__go_to_line 47 13 none]
+G r k field_snapshot [build_render_snapshot editor__render_model 334 14 none] [field_snapshotDF editor__input_field 17 9 none]
+G r j field_snapshot [build_render_snapshot editor__render_model 334 14 none] [field_snapshotDA editor__input_field 17 9 none]
+G r j input_field_state [build_render_snapshot editor__render_model 334 14 none] [input_field_stateDA editor__input_field 96 9 none]
+G r c none [build_render_snapshot editor__render_model 334 14 none] [set_text editor__input_field 34 14 none]
+G r c none [build_render_snapshot editor__render_model 334 14 none] [snapshot editor__input_field 91 13 none]
+G r c none [build_render_snapshot editor__render_model 334 14 none] [buffer_count editor__buffers 176 13 none]
+G r c none [build_render_snapshot editor__render_model 334 14 none] [global_summary_for editor__buffers 485 13 none]
+G r c none [build_render_snapshot editor__render_model 334 14 none] [summary editor__feature_panel 210 13 none]
+G r c none [build_render_snapshot editor__render_model 334 14 none] [search_input_is_active editor__feature_search_results 36 13 none]
+G r c none [build_render_snapshot editor__render_model 334 14 none] [filter_input_is_active editor__outline 289 13 none]
+G r c none [build_render_snapshot editor__render_model 334 14 none] [active_feature editor__feature_panel 156 13 none]
+G r c none [build_render_snapshot editor__render_model 334 14 none] [wrap_mode editor__view 90 13 none]
+G r c none [build_render_snapshot editor__render_model 334 14 none] [current editor__layout 20 13 none]
+G r c none [build_render_snapshot editor__render_model 334 14 none] [current editor__minimap 22 13 none]
+G r c none [build_render_snapshot editor__render_model 334 14 none] [show_minimap editor__settings 64 13 none]
+G r c none [build_render_snapshot editor__render_model 334 14 none] [current editor__scrollbars 33 13 none]
+G r c none [build_render_snapshot editor__render_model 334 14 none] [viewport_width editor__view 30 13 none]
+G r c none [build_render_snapshot editor__render_model 334 14 none] [effective_viewport_width editor__scrollbars 51 13 none]
+G r c none [build_render_snapshot editor__render_model 334 14 none] [text_viewport_width editor__layout 270 13 none]
+G r c none [build_render_snapshot editor__render_model 334 14 none] [text_viewport_width editor__layout 265 13 none]
+G r c none [build_render_snapshot editor__render_model 334 14 none] [cell_w editor__layout 22 13 none]
+G r c none [build_render_snapshot editor__render_model 334 14 none] [wrap_column editor__wrap 25 13 none]
+G r c none [build_render_snapshot editor__render_model 334 14 none] [is_row_hidden editor__folding 79 13 none]
+G r c none [build_render_snapshot editor__render_model 334 14 none] [line_start editor__state 547 13 none]
+G r c none [build_render_snapshot editor__render_model 334 14 none] [line_end editor__state 551 13 none]
+G r c none [build_render_snapshot editor__render_model 334 14 none] [visual_row_count_for_logical_line editor__wrap 35 13 none]
+G r c none [build_render_snapshot editor__render_model 334 14 none] [visible_row_count editor__folding 115 13 none]
+G r c none [build_render_snapshot editor__render_model 334 14 none] [viewport_height editor__view 31 13 none]
+G r c none [build_render_snapshot editor__render_model 334 14 none] [effective_viewport_height editor__scrollbars 55 13 none]
+G r c none [build_render_snapshot editor__render_model 334 14 none] [text_viewport_height editor__layout 245 13 none]
+G r c none [build_render_snapshot editor__render_model 334 14 none] [scroll_y editor__view 54 13 none]
+G r c none [build_render_snapshot editor__render_model 334 14 none] [last_visible_row editor__layout 260 13 none]
+G r c none [build_render_snapshot editor__render_model 334 14 none] [visible_row_to_document_row editor__folding 97 13 none]
+G r c none [build_render_snapshot editor__render_model 334 14 none] [fold_start_for_hidden_row editor__folding 70 13 none]
+G r c none [build_render_snapshot editor__render_model 334 14 none] [document_row_to_visible_row editor__folding 106 13 none]
+G r c none [build_render_snapshot editor__render_model 334 14 none] [visible_row_count editor__layout 256 13 none]
+G r c none [build_render_snapshot editor__render_model 334 14 none] [visual_segment editor__wrap 59 13 none]
+G r c none [build_render_snapshot editor__render_model 334 14 none] [reserved_width editor__minimap 33 13 none]
+G r c none [build_render_snapshot editor__render_model 334 14 none] [scroll_x editor__view 53 13 none]
+G r c none [build_render_snapshot editor__render_model 334 14 none] [last_visible_text_column editor__layout 193 13 none]
+G r c none [build_render_snapshot editor__render_model 334 14 none] [dirty_line_count editor__dirty_lines 26 13 none]
+G r c none [build_render_snapshot editor__render_model 334 14 none] [kind_for_row editor__dirty_lines 29 13 none]
+G r c none [build_render_snapshot editor__render_model 334 14 none] [length text_backend__rope_impl 69 13 none]
+G r k diagnostic_range [build_render_snapshot editor__render_model 334 14 none] [diagnostic_rangeDF editor__diagnostics 18 9 none]
+G r j diagnostic_range [build_render_snapshot editor__render_model 334 14 none] [diagnostic_rangeDA editor__diagnostics 18 9 none]
+G r c none [build_render_snapshot editor__render_model 334 14 none] [validate_active_selection_range editor__selection 79 13 none]
+G r c none [build_render_snapshot editor__render_model 334 14 none] [selected_character_count editor__selection 91 13 none]
+G r c none [build_render_snapshot editor__render_model 334 14 none] [selected_line_count editor__selection 97 13 none]
+G r c none [build_render_snapshot editor__render_model 334 14 none] [has_selection editor__rectangle_selection 32 13 none]
+G r c none [build_render_snapshot editor__render_model 334 14 none] [row_col_for_index editor__state 541 14 none]
+G r c none [build_render_snapshot editor__render_model 334 14 none] [selection_left_column editor__rectangle_selection 38 13 none]
+G r c none [build_render_snapshot editor__render_model 334 14 none] [selection_right_column editor__rectangle_selection 42 13 none]
+G r c none [build_render_snapshot editor__render_model 334 14 none] [use_syntax_colouring editor__settings 74 13 none]
+G r c none [build_render_snapshot editor__render_model 334 14 none] [use_semantic_colouring editor__settings 76 13 none]
+G r c none [build_render_snapshot editor__render_model 334 14 none] [prepare_syntax_for_visible_range editor__state 557 14 none]
+G r c none [build_render_snapshot editor__render_model 334 14 none] [current_text editor__state 513 13 none]
+G r c none [build_render_snapshot editor__render_model 334 14 none] [tokens_for_line editor__syntax_cache 32 13 none]
+G r c none [build_render_snapshot editor__render_model 334 14 none] [use_diagnostic_overlays editor__settings 78 13 none]
+G r c none [build_render_snapshot editor__render_model 334 14 none] [use_search_overlays editor__settings 80 13 none]
+G r c none [build_render_snapshot editor__render_model 334 14 none] [merge editor__syntax_overlays 12 13 none]
+G r c none [build_render_snapshot editor__render_model 334 14 none] [symbol_count editor__ada_language_model 831 13 none]
+G r c none [build_render_snapshot editor__render_model 334 14 none] [scope_for_position editor__ada_language_model 1210 13 none]
+G r c none [build_render_snapshot editor__render_model 334 14 none] [kind_for_identifier_in_scope editor__syntax_semantics 49 13 none]
+G r c none [build_render_snapshot editor__render_model 334 14 none] [kind_for_identifier editor__syntax_semantics 40 13 none]
+G r c none [build_render_snapshot editor__render_model 334 14 none] [row_y editor__minimap 60 13 none]
+G r c none [build_render_snapshot editor__render_model 334 14 none] [for_each_char_range text_backend__rope_impl 101 14 none]
+G r c none [build_render_snapshot editor__render_model 334 14 none] [build_ui_operability_snapshot editor__build_ui_actions 77 13 none]
+G r k build_ui_render_snapshot [build_render_snapshot editor__render_model 334 14 none] [build_ui_render_snapshotDF editor__build_ui 129 9 none]
+G r j build_ui_render_snapshot [build_render_snapshot editor__render_model 334 14 none] [build_ui_render_snapshotDA editor__build_ui 129 9 none]
+G r c none [build_render_snapshot editor__render_model 334 14 none] [build_render_snapshot editor__terminal_tasks 142 13 none]
+G r k terminal_task_render_snapshot [build_render_snapshot editor__render_model 334 14 none] [terminal_task_render_snapshotDF editor__terminal_tasks 63 9 none]
+G r j terminal_task_render_snapshot [build_render_snapshot editor__render_model 334 14 none] [terminal_task_render_snapshotDA editor__terminal_tasks 63 9 none]
+G r c none [build_render_snapshot editor__render_model 334 14 none] [build_surface_snapshot editor__keybinding_management 173 13 none]
+G r k keybinding_surface_snapshot [build_render_snapshot editor__render_model 334 14 none] [keybinding_surface_snapshotDF editor__keybinding_management 113 9 none]
+G r j keybinding_surface_snapshot [build_render_snapshot editor__render_model 334 14 none] [keybinding_surface_snapshotDA editor__keybinding_management 113 9 none]
+G r c none [build_render_snapshot editor__render_model 334 14 none] [build_current_surface_snapshot editor__settings_management 318 13 none]
+G r k settings_surface_snapshot [build_render_snapshot editor__render_model 334 14 none] [settings_surface_snapshotDF editor__settings_management 181 9 none]
+G r j settings_surface_snapshot [build_render_snapshot editor__render_model 334 14 none] [settings_surface_snapshotDA editor__settings_management 181 9 none]
+G r c none [build_render_snapshot editor__render_model 334 14 none] [build_current_configuration_audit_surface editor__settings_management 451 13 none]
+G r k configuration_audit_surface_snapshot [build_render_snapshot editor__render_model 334 14 none] [configuration_audit_surface_snapshotDF editor__settings_management 92 9 none]
+G r j configuration_audit_surface_snapshot [build_render_snapshot editor__render_model 334 14 none] [configuration_audit_surface_snapshotDA editor__settings_management 92 9 none]
+G r c none [build_render_snapshot editor__render_model 334 14 none] [build_current_settings_command_catalog editor__settings_management 448 13 none]
+G r k settings_command_catalog_snapshot [build_render_snapshot editor__render_model 334 14 none] [settings_command_catalog_snapshotDF editor__settings_management 395 9 none]
+G r j settings_command_catalog_snapshot [build_render_snapshot editor__render_model 334 14 none] [settings_command_catalog_snapshotDA editor__settings_management 395 9 none]
+G r c none [build_render_snapshot editor__render_model 334 14 none] [build_all_empty_state_snapshots editor__empty_state_guidance 119 13 none]
+G r c none [build_render_snapshot editor__render_model 334 14 none] [empty_state_slot_for_surface editor__empty_state_guidance 223 13 none]
+G r k empty_state_snapshot [build_render_snapshot editor__render_model 334 14 none] [empty_state_snapshotDF editor__empty_state_guidance 101 9 none]
+G r j empty_state_snapshot [build_render_snapshot editor__render_model 334 14 none] [empty_state_snapshotDA editor__empty_state_guidance 101 9 none]
+G r c none [build_render_snapshot editor__render_model 334 14 none] [snapshot editor__guided_prompts 161 13 none]
+G r k prompt_snapshot [build_render_snapshot editor__render_model 334 14 none] [prompt_snapshotDF editor__guided_prompts 89 9 none]
+G r j prompt_snapshot [build_render_snapshot editor__render_model 334 14 none] [prompt_snapshotDA editor__guided_prompts 89 9 none]
+G r s diagnostic_range [Tdiagnostic_range_arrayBIP editor__render_model 58 4 none] [diagnostic_rangeIP editor__diagnostics 18 9 none]
+G r l diagnostic_range [Tdiagnostic_range_arrayBDI editor__render_model 58 4 none] [diagnostic_rangeDI editor__diagnostics 18 9 none]
+G r k diagnostic_range [Tdiagnostic_range_arrayBDI editor__render_model 58 4 none] [diagnostic_rangeDF editor__diagnostics 18 9 none]
+G r j diagnostic_range [Tdiagnostic_range_arrayBDA editor__render_model 58 4 none] [diagnostic_rangeDA editor__diagnostics 18 9 none]
+G r k diagnostic_range [Tdiagnostic_range_arrayBDF editor__render_model 58 4 none] [diagnostic_rangeDF editor__diagnostics 18 9 none]
+G r s search_match [Tsearch_match_arrayBIP editor__render_model 61 4 none] [search_matchIP editor__search 20 9 none]
+G r s visual_row_info [Tvisual_row_info_arrayBIP editor__render_model 74 4 none] [visual_row_infoIP editor__wrap 13 9 none]
+G r j diagnostic_range [render_snapshotDA editor__render_model 77 9 none] [diagnostic_rangeDA editor__diagnostics 18 9 none]
+G r j folding_state [render_snapshotDA editor__render_model 77 9 none] [folding_stateDA editor__folding 22 9 none]
+G r j gutter_marker_state [render_snapshotDA editor__render_model 77 9 none] [gutter_marker_stateDA editor__gutter_markers 108 9 none]
+G r j semantic_popup_state [render_snapshotDA editor__render_model 77 9 none] [semantic_popup_stateDA editor__state 136 9 none]
+G r j message_state [render_snapshotDA editor__render_model 77 9 none] [message_stateDA editor__messages 197 9 none]
+G r j field_snapshot [render_snapshotDA editor__render_model 77 9 none] [field_snapshotDA editor__input_field 17 9 none]
+G r j build_ui_render_snapshot [render_snapshotDA editor__render_model 77 9 none] [build_ui_render_snapshotDA editor__build_ui 129 9 none]
+G r j terminal_task_render_snapshot [render_snapshotDA editor__render_model 77 9 none] [terminal_task_render_snapshotDA editor__terminal_tasks 63 9 none]
+G r j keybinding_surface_snapshot [render_snapshotDA editor__render_model 77 9 none] [keybinding_surface_snapshotDA editor__keybinding_management 113 9 none]
+G r j settings_surface_snapshot [render_snapshotDA editor__render_model 77 9 none] [settings_surface_snapshotDA editor__settings_management 181 9 none]
+G r j configuration_audit_surface_snapshot [render_snapshotDA editor__render_model 77 9 none] [configuration_audit_surface_snapshotDA editor__settings_management 92 9 none]
+G r j settings_command_catalog_snapshot [render_snapshotDA editor__render_model 77 9 none] [settings_command_catalog_snapshotDA editor__settings_management 395 9 none]
+G r j empty_state_snapshot [render_snapshotDA editor__render_model 77 9 none] [empty_state_snapshotDA editor__empty_state_guidance 101 9 none]
+G r j prompt_snapshot [render_snapshotDA editor__render_model 77 9 none] [prompt_snapshotDA editor__guided_prompts 89 9 none]
+G r k prompt_snapshot [render_snapshotDF editor__render_model 77 9 none] [prompt_snapshotDF editor__guided_prompts 89 9 none]
+G r k empty_state_snapshot [render_snapshotDF editor__render_model 77 9 none] [empty_state_snapshotDF editor__empty_state_guidance 101 9 none]
+G r k settings_command_catalog_snapshot [render_snapshotDF editor__render_model 77 9 none] [settings_command_catalog_snapshotDF editor__settings_management 395 9 none]
+G r k configuration_audit_surface_snapshot [render_snapshotDF editor__render_model 77 9 none] [configuration_audit_surface_snapshotDF editor__settings_management 92 9 none]
+G r k settings_surface_snapshot [render_snapshotDF editor__render_model 77 9 none] [settings_surface_snapshotDF editor__settings_management 181 9 none]
+G r k keybinding_surface_snapshot [render_snapshotDF editor__render_model 77 9 none] [keybinding_surface_snapshotDF editor__keybinding_management 113 9 none]
+G r k terminal_task_render_snapshot [render_snapshotDF editor__render_model 77 9 none] [terminal_task_render_snapshotDF editor__terminal_tasks 63 9 none]
+G r k build_ui_render_snapshot [render_snapshotDF editor__render_model 77 9 none] [build_ui_render_snapshotDF editor__build_ui 129 9 none]
+G r k field_snapshot [render_snapshotDF editor__render_model 77 9 none] [field_snapshotDF editor__input_field 17 9 none]
+G r k message_state [render_snapshotDF editor__render_model 77 9 none] [message_stateDF editor__messages 197 9 none]
+G r k semantic_popup_state [render_snapshotDF editor__render_model 77 9 none] [semantic_popup_stateDF editor__state 136 9 none]
+G r k gutter_marker_state [render_snapshotDF editor__render_model 77 9 none] [gutter_marker_stateDF editor__gutter_markers 108 9 none]
+G r k folding_state [render_snapshotDF editor__render_model 77 9 none] [folding_stateDF editor__folding 22 9 none]
+G r k diagnostic_range [render_snapshotDF editor__render_model 77 9 none] [diagnostic_rangeDF editor__diagnostics 18 9 none]
+G r s minimap_line_info_array [render_snapshotIP editor__render_model 77 9 none] [minimap_line_info_arrayIP editor__minimap 20 9 none]
+G r s folding_state [render_snapshotIP editor__render_model 77 9 none] [folding_stateIP editor__folding 22 9 none]
+G r l folding_state [render_snapshotIP editor__render_model 77 9 none] [folding_stateDI editor__folding 22 9 none]
+G r s gutter_marker_state [render_snapshotIP editor__render_model 77 9 none] [gutter_marker_stateIP editor__gutter_markers 108 9 none]
+G r l gutter_marker_state [render_snapshotIP editor__render_model 77 9 none] [gutter_marker_stateDI editor__gutter_markers 108 9 none]
+G r s gutter_marker_hover_state [render_snapshotIP editor__render_model 77 9 none] [gutter_marker_hover_stateIP editor__gutter_markers 24 9 none]
+G r s semantic_popup_state [render_snapshotIP editor__render_model 77 9 none] [semantic_popup_stateIP editor__state 136 9 none]
+G r l semantic_popup_state [render_snapshotIP editor__render_model 77 9 none] [semantic_popup_stateDI editor__state 136 9 none]
+G r s message_state [render_snapshotIP editor__render_model 77 9 none] [message_stateIP editor__messages 197 9 none]
+G r l message_state [render_snapshotIP editor__render_model 77 9 none] [message_stateDI editor__messages 197 9 none]
+G r s field_snapshot [render_snapshotIP editor__render_model 77 9 none] [field_snapshotIP editor__input_field 17 9 none]
+G r l field_snapshot [render_snapshotIP editor__render_model 77 9 none] [field_snapshotDI editor__input_field 17 9 none]
+G r s build_ui_render_snapshot [render_snapshotIP editor__render_model 77 9 none] [build_ui_render_snapshotIP editor__build_ui 129 9 none]
+G r l build_ui_render_snapshot [render_snapshotIP editor__render_model 77 9 none] [build_ui_render_snapshotDI editor__build_ui 129 9 none]
+G r s terminal_task_render_snapshot [render_snapshotIP editor__render_model 77 9 none] [terminal_task_render_snapshotIP editor__terminal_tasks 63 9 none]
+G r l terminal_task_render_snapshot [render_snapshotIP editor__render_model 77 9 none] [terminal_task_render_snapshotDI editor__terminal_tasks 63 9 none]
+G r s keybinding_surface_snapshot [render_snapshotIP editor__render_model 77 9 none] [keybinding_surface_snapshotIP editor__keybinding_management 113 9 none]
+G r l keybinding_surface_snapshot [render_snapshotIP editor__render_model 77 9 none] [keybinding_surface_snapshotDI editor__keybinding_management 113 9 none]
+G r s settings_surface_snapshot [render_snapshotIP editor__render_model 77 9 none] [settings_surface_snapshotIP editor__settings_management 181 9 none]
+G r l settings_surface_snapshot [render_snapshotIP editor__render_model 77 9 none] [settings_surface_snapshotDI editor__settings_management 181 9 none]
+G r s configuration_audit_surface_snapshot [render_snapshotIP editor__render_model 77 9 none] [configuration_audit_surface_snapshotIP editor__settings_management 92 9 none]
+G r l configuration_audit_surface_snapshot [render_snapshotIP editor__render_model 77 9 none] [configuration_audit_surface_snapshotDI editor__settings_management 92 9 none]
+G r s settings_command_catalog_snapshot [render_snapshotIP editor__render_model 77 9 none] [settings_command_catalog_snapshotIP editor__settings_management 395 9 none]
+G r l settings_command_catalog_snapshot [render_snapshotIP editor__render_model 77 9 none] [settings_command_catalog_snapshotDI editor__settings_management 395 9 none]
+G r s empty_state_snapshot [render_snapshotIP editor__render_model 77 9 none] [empty_state_snapshotIP editor__empty_state_guidance 101 9 none]
+G r l empty_state_snapshot [render_snapshotIP editor__render_model 77 9 none] [empty_state_snapshotDI editor__empty_state_guidance 101 9 none]
+G r s prompt_snapshot [render_snapshotIP editor__render_model 77 9 none] [prompt_snapshotIP editor__guided_prompts 89 9 none]
+G r l prompt_snapshot [render_snapshotIP editor__render_model 77 9 none] [prompt_snapshotDI editor__guided_prompts 89 9 none]
+G r k prompt_snapshot [render_snapshotIP editor__render_model 77 9 none] [prompt_snapshotDF editor__guided_prompts 89 9 none]
+G r k empty_state_snapshot [render_snapshotIP editor__render_model 77 9 none] [empty_state_snapshotDF editor__empty_state_guidance 101 9 none]
+G r k settings_command_catalog_snapshot [render_snapshotIP editor__render_model 77 9 none] [settings_command_catalog_snapshotDF editor__settings_management 395 9 none]
+G r k configuration_audit_surface_snapshot [render_snapshotIP editor__render_model 77 9 none] [configuration_audit_surface_snapshotDF editor__settings_management 92 9 none]
+G r k settings_surface_snapshot [render_snapshotIP editor__render_model 77 9 none] [settings_surface_snapshotDF editor__settings_management 181 9 none]
+G r k keybinding_surface_snapshot [render_snapshotIP editor__render_model 77 9 none] [keybinding_surface_snapshotDF editor__keybinding_management 113 9 none]
+G r k terminal_task_render_snapshot [render_snapshotIP editor__render_model 77 9 none] [terminal_task_render_snapshotDF editor__terminal_tasks 63 9 none]
+G r k build_ui_render_snapshot [render_snapshotIP editor__render_model 77 9 none] [build_ui_render_snapshotDF editor__build_ui 129 9 none]
+G r k field_snapshot [render_snapshotIP editor__render_model 77 9 none] [field_snapshotDF editor__input_field 17 9 none]
+G r k message_state [render_snapshotIP editor__render_model 77 9 none] [message_stateDF editor__messages 197 9 none]
+G r k semantic_popup_state [render_snapshotIP editor__render_model 77 9 none] [semantic_popup_stateDF editor__state 136 9 none]
+G r k gutter_marker_state [render_snapshotIP editor__render_model 77 9 none] [gutter_marker_stateDF editor__gutter_markers 108 9 none]
+G r k folding_state [render_snapshotIP editor__render_model 77 9 none] [folding_stateDF editor__folding 22 9 none]
+G r k diagnostic_range [render_snapshotIP editor__render_model 77 9 none] [diagnostic_rangeDF editor__diagnostics 18 9 none]
+G r c none [active_find_buffer_token editor__render_model 108 13 none] [global_active_buffer editor__buffers 501 13 none]
+G r c none [active_find_buffer_token editor__render_model 108 13 none] [global_count editor__buffers 475 13 none]
+G r c none [active_find_source_current editor__render_model 123 13 none] [global_active_buffer editor__buffers 501 13 none]
+G r c none [active_find_source_current editor__render_model 123 13 none] [global_count editor__buffers 475 13 none]
+G r c none [dirty_close_open_buffer_fingerprint editor__render_model 135 13 none] [global_registry_for_ui editor__buffers 476 13 none]
+G r c none [dirty_close_open_buffer_fingerprint editor__render_model 135 13 none] [buffer_count editor__buffers 176 13 none]
+G r c none [dirty_close_open_buffer_fingerprint editor__render_model 135 13 none] [summary_at editor__buffers 179 13 none]
+G r c none [dirty_close_dirty_buffer_fingerprint editor__render_model 154 13 none] [global_registry_for_ui editor__buffers 476 13 none]
+G r c none [dirty_close_dirty_buffer_fingerprint editor__render_model 154 13 none] [buffer_count editor__buffers 176 13 none]
+G r c none [dirty_close_dirty_buffer_fingerprint editor__render_model 154 13 none] [summary_at editor__buffers 179 13 none]
+G r c none [dirty_close_dirty_buffer_id_list editor__render_model 183 13 none] [global_registry_for_ui editor__buffers 476 13 none]
+G r c none [dirty_close_dirty_buffer_id_list editor__render_model 183 13 none] [buffer_count editor__buffers 176 13 none]
+G r c none [dirty_close_dirty_buffer_id_list editor__render_model 183 13 none] [summary_at editor__buffers 179 13 none]
+G r c none [dirty_close_current_open_set_was_reviewed editor__render_model 207 13 none] [global_registry_for_ui editor__buffers 476 13 none]
+G r c none [dirty_close_current_open_set_was_reviewed editor__render_model 207 13 none] [buffer_count editor__buffers 176 13 none]
+G r c none [dirty_close_current_open_set_was_reviewed editor__render_model 207 13 none] [global_count editor__buffers 475 13 none]
+G r c none [dirty_close_current_open_set_was_reviewed editor__render_model 207 13 none] [summary_at editor__buffers 179 13 none]
+G r c none [dirty_close_current_dirty_set_was_reviewed editor__render_model 237 13 none] [global_registry_for_ui editor__buffers 476 13 none]
+G r c none [dirty_close_current_dirty_set_was_reviewed editor__render_model 237 13 none] [buffer_count editor__buffers 176 13 none]
+G r c none [dirty_close_current_dirty_set_was_reviewed editor__render_model 237 13 none] [summary_at editor__buffers 179 13 none]
+G r c none [dirty_close_current_dirty_set_equals_review editor__render_model 264 13 none] [global_registry_for_ui editor__buffers 476 13 none]
+G r c none [dirty_close_current_dirty_set_equals_review editor__render_model 264 13 none] [buffer_count editor__buffers 176 13 none]
+G r c none [dirty_close_current_dirty_set_equals_review editor__render_model 264 13 none] [summary_at editor__buffers 179 13 none]
+G r c none [dirty_close_all_buffer_identity_current editor__render_model 276 13 none] [global_registry_for_ui editor__buffers 476 13 none]
+G r c none [dirty_close_all_buffer_identity_current editor__render_model 276 13 none] [buffer_count editor__buffers 176 13 none]
+G r c none [dirty_close_all_buffer_identity_current editor__render_model 276 13 none] [summary_at editor__buffers 179 13 none]
+G r c none [dirty_close_all_buffer_identity_current editor__render_model 276 13 none] [global_count editor__buffers 475 13 none]
+G r c none [dirty_close_all_buffer_review_current editor__render_model 285 13 none] [global_registry_for_ui editor__buffers 476 13 none]
+G r c none [dirty_close_all_buffer_review_current editor__render_model 285 13 none] [buffer_count editor__buffers 176 13 none]
+G r c none [dirty_close_all_buffer_review_current editor__render_model 285 13 none] [summary_at editor__buffers 179 13 none]
+G r c none [dirty_close_all_buffer_review_current editor__render_model 285 13 none] [global_count editor__buffers 475 13 none]
+G r c none [logical_line_length editor__render_model 296 13 none] [line_start editor__state 547 13 none]
+G r c none [logical_line_length editor__render_model 296 13 none] [line_end editor__state 551 13 none]
+G r c none [effective_wrap_col editor__render_model 310 13 none] [current editor__layout 20 13 none]
+G r c none [effective_wrap_col editor__render_model 310 13 none] [current editor__minimap 22 13 none]
+G r c none [effective_wrap_col editor__render_model 310 13 none] [show_minimap editor__settings 64 13 none]
+G r c none [effective_wrap_col editor__render_model 310 13 none] [current editor__scrollbars 33 13 none]
+G r c none [effective_wrap_col editor__render_model 310 13 none] [viewport_width editor__view 30 13 none]
+G r c none [effective_wrap_col editor__render_model 310 13 none] [effective_viewport_width editor__scrollbars 51 13 none]
+G r c none [effective_wrap_col editor__render_model 310 13 none] [line_count editor__state 535 13 none]
+G r c none [effective_wrap_col editor__render_model 310 13 none] [text_viewport_width editor__layout 270 13 none]
+G r c none [effective_wrap_col editor__render_model 310 13 none] [text_viewport_width editor__layout 265 13 none]
+G r c none [effective_wrap_col editor__render_model 310 13 none] [cell_w editor__layout 22 13 none]
+G r c none [effective_wrap_col editor__render_model 310 13 none] [wrap_column editor__wrap 25 13 none]
+G r c none [visual_row_ordinal_for_caret editor__render_model 342 13 none] [is_row_hidden editor__folding 79 13 none]
+G r c none [visual_row_ordinal_for_caret editor__render_model 342 13 none] [fold_start_for_hidden_row editor__folding 70 13 none]
+G r c none [visual_row_ordinal_for_caret editor__render_model 342 13 none] [line_start editor__state 547 13 none]
+G r c none [visual_row_ordinal_for_caret editor__render_model 342 13 none] [line_end editor__state 551 13 none]
+G r c none [visual_row_ordinal_for_caret editor__render_model 342 13 none] [visual_row_count_for_logical_line editor__wrap 35 13 none]
+G r c none [append_line_starts_for_range editor__render_model 374 14 none] [line_count editor__state 535 13 none]
+G r c none [append_line_starts_for_range editor__render_model 374 14 none] [line_start editor__state 547 13 none]
+G r c none [build_unwrapped_visuals editor__render_model 391 14 none] [line_count editor__state 535 13 none]
+G r c none [build_unwrapped_visuals editor__render_model 391 14 none] [current editor__layout 20 13 none]
+G r c none [build_unwrapped_visuals editor__render_model 391 14 none] [current editor__minimap 22 13 none]
+G r c none [build_unwrapped_visuals editor__render_model 391 14 none] [show_minimap editor__settings 64 13 none]
+G r c none [build_unwrapped_visuals editor__render_model 391 14 none] [current editor__scrollbars 33 13 none]
+G r c none [build_unwrapped_visuals editor__render_model 391 14 none] [viewport_width editor__view 30 13 none]
+G r c none [build_unwrapped_visuals editor__render_model 391 14 none] [effective_viewport_width editor__scrollbars 51 13 none]
+G r c none [build_unwrapped_visuals editor__render_model 391 14 none] [reserved_width editor__minimap 33 13 none]
+G r c none [build_unwrapped_visuals editor__render_model 391 14 none] [scroll_x editor__view 53 13 none]
+G r c none [build_unwrapped_visuals editor__render_model 391 14 none] [last_visible_text_column editor__layout 193 13 none]
+G r c none [build_unwrapped_visuals editor__render_model 391 14 none] [is_row_hidden editor__folding 79 13 none]
+G r c none [build_unwrapped_visuals editor__render_model 391 14 none] [line_start editor__state 547 13 none]
+G r c none [build_unwrapped_visuals editor__render_model 391 14 none] [line_end editor__state 551 13 none]
+G r c none [build_wrapped_visuals editor__render_model 445 14 none] [line_count editor__state 535 13 none]
+G r c none [build_wrapped_visuals editor__render_model 445 14 none] [current editor__scrollbars 33 13 none]
+G r c none [build_wrapped_visuals editor__render_model 445 14 none] [viewport_height editor__view 31 13 none]
+G r c none [build_wrapped_visuals editor__render_model 445 14 none] [effective_viewport_height editor__scrollbars 55 13 none]
+G r c none [build_wrapped_visuals editor__render_model 445 14 none] [current editor__layout 20 13 none]
+G r c none [build_wrapped_visuals editor__render_model 445 14 none] [visible_row_count editor__layout 256 13 none]
+G r c none [build_wrapped_visuals editor__render_model 445 14 none] [scroll_y editor__view 54 13 none]
+G r c none [build_wrapped_visuals editor__render_model 445 14 none] [is_row_hidden editor__folding 79 13 none]
+G r c none [build_wrapped_visuals editor__render_model 445 14 none] [line_start editor__state 547 13 none]
+G r c none [build_wrapped_visuals editor__render_model 445 14 none] [line_end editor__state 551 13 none]
+G r c none [build_wrapped_visuals editor__render_model 445 14 none] [visual_row_count_for_logical_line editor__wrap 35 13 none]
+G r c none [build_wrapped_visuals editor__render_model 445 14 none] [visual_segment editor__wrap 59 13 none]
+G r c none [total_visible_visual_row_count editor__render_model 530 13 none] [line_count editor__state 535 13 none]
+G r c none [total_visible_visual_row_count editor__render_model 530 13 none] [is_row_hidden editor__folding 79 13 none]
+G r c none [total_visible_visual_row_count editor__render_model 530 13 none] [line_start editor__state 547 13 none]
+G r c none [total_visible_visual_row_count editor__render_model 530 13 none] [line_end editor__state 551 13 none]
+G r c none [total_visible_visual_row_count editor__render_model 530 13 none] [visual_row_count_for_logical_line editor__wrap 35 13 none]
 X 1 ada.ads
-18K9*Ada 22e8 22|3r6 3r26 4r6 23|2r6 2r26
-X 4 a-contai.ads
-16K13*Containers 28e19 22|3w10 3r30 4r10 23|2w10 2r30
+18K9*Ada 22e8 176|3r6 3r26 4r6 5r6 27r6 142r28 161r19 162r9 167r33 168r9
+. 175r39 176r9 177r39 178r9 179r54 180r9 182r47 183r9 200r41 201r9 207r33
+. 208r9 211r33 212r9 213r33 214r9 218r32 219r9 228r31 229r9 230r32 231r9
+. 234r38 235r9 236r38 237r9 239r36 240r9 258r32 259r9 260r38 261r9 276r36
+. 277r9 177|2r6 2r26 3r6 4r6 49r6 49r33 178r11 179r44 183r53 185r16 186r9
+. 199r16 211r9 227r24 241r9 254r24 693r28 833r16 834r66 836r18 837r55 840r16
+. 841r55
+X 5 a-contai.ads
+16K13*Containers 28e19 176|3w10 3r30 4r10 177|2w10 2r30
 22I9*Count_Type<integer>
-X 6 a-convec.ads
-74k24*Vectors 878e27 22|4w21
+X 7 a-convec.ads
+74k24*Vectors 878e27 176|4w21
 81I12*Extended_Index{integer}
-91R9*Vector<8|43R9> 22|39r40[24|7]
-175V13*Length{4|22I9} 23|44s24[24|7] 75s27[24|7] 131s19[20|19] 154s19[20|19]
-190U14*Clear 23|27s21[24|7]
-206V13*Element{integer} 23|86s43[24|7] 89s44[24|7]
-483U14*Append 23|45s24[24|7]
-560V13*First_Index{integer} 23|135s31[20|19] 160s31[20|19]
-570V13*Last_Index{81I12[24|7]} 23|82s54[24|7] 84s54[24|7] 88s38[24|7] 135s55[20|19]
-. 160s55[20|19]
-X 9 a-iteint.ads
+91R9*Vector<9|43R9> 176|96r40[184|55] 206r71[120|36]
+175V13*Length{5|22I9} 177|610s32[120|36] 634s59[120|36] 655s24[137|31] 743s49[179|30]
+. 746s58[137|31] 814s49[179|30] 847s56[179|30] 1067s19[136|19] 1186s19[136|19]
+. 1205s64[137|31] 1329s49[136|19]
+190U14*Clear 177|571s21[184|55]
+217U14*Replace_Element 177|624s35[120|36]
+483U14*Append 177|387s24[184|55]
+560V13*First_Index{integer} 177|611s41[120|36] 635s38[120|36] 1069s62[136|19]
+. 1072s40[136|19] 1075s32[136|19] 1076s55[136|19] 1190s31[136|19]
+570V13*Last_Index{81I12[120|36]} 177|611s72[120|36] 635s69[120|36] 1190s55[136|19]
+X 10 a-iteint.ads
 24h9 Forward_Iterator
-32h9 Reversible_Iterator<24R9[6|119]>
-X 19 editor.ads
-1K9*Editor 5e11 22|1r6 2r6 5r6 5r24 8r9 10r8 59r11 62r5 23|3r6 3r26 4r6 5r6
-. 6r6 8r14 13r11 52r28 52r59 54r13 58r36 60r13 60r36 101r31 101r62 109r32
-. 113r32 121r17 193r5
-X 20 editor-cursors.ads
-3K16*Cursors 35e19 22|2w13 10r15 23|3w13 3r33
-5I12*Cursor_Index{natural} 22|19r40 22r44 23|157r21 158r21 171r42 172r42
-13i7*Pos{5I12} 23|139r52 162r34
-14i7*Anchor{5I12} 23|161r34
-15i7*Virtual_Column{natural} 23|140r63 166r41 178r35 181r35
-16i7*Anchor_Virtual_Column{natural} 23|165r40 176r35 183r35
-X 21 editor-layout.ads
-3K16*Layout 24e18 23|6w13 52r35 52r66 101r38 101r69
-5R9*Layout_Config 12e14 23|52r42 101r45
-8i7*Cell_W{natural} 23|108r23 109r68
-9i7*Cell_H{natural} 23|54r60 60r73 112r23 113r69
-14V13*Current{5R9} 23|52s73 101s76
-X 22 editor-render_model.ads
-8K16*Render_Model 19|1k9 22|62l12 62e24 23|8b21 193l12 193t24
-12N4*Max_Render_Carets 19r18 37r50 23|136r35
-13N4*Max_Render_Selections 22r18 51r54 52r54 23|168r38
-14N4*Max_Visible_Chars 23|106r33
-16A9*Natural_Array(natural)<integer> 37r30 51r34 52r34
-18A9*Caret_Pos_Array(20|5I12)<integer> 36r21
-21A9*Selection_Pos_Array(20|5I12)<integer> 54r25 55r25
-24R9*Render_Snapshot 56e14 60r15 23|14r15
-28i7*Length{natural} 23|21m9 124m15 126r47
-30i7*Text_Base_Index{natural} 23|22m9 99m12 126r27
-35i7*Caret_Count{natural} 23|24m9 143m15
-36a7*Caret_Pos{18A9} 23|25m9 139m18
-37a7*Caret_Virtual_Column{16A9} 23|34m9 140m18
-39r7*Line_Starts{6|91R9[24|7]} 23|27m9 42m9 44r12 45m12 75r15 82r42 84r42
-. 86r31 88r26 89r32
-41i7*Visible_First_Row{natural} 23|28m9 55m15 58m15 68r44
-42i7*Visible_Last_Row{natural} 23|29m9 56m15 59m15 69r44
-51a7*Sel_Start_Virtual_Column{16A9} 23|35m9 175m24 180m24
-52a7*Sel_End_Virtual_Column{16A9} 23|36m9 177m24 182m24
-53i7*Selection_Count{natural} 23|31m9 188m15
-54a7*Sel_Start{21A9} 23|32m9 171m21
-55a7*Sel_End{21A9} 23|33m9 172m21
-58U14*Build_Render_Snapshot 59>7 60<7 23|12b14 191l8 191t29
-59r7 S{24|11R9} 23|13b7 16r53 42r24 73r62 126r77 131r10 135r22 135r46 139r39
-. 140r50 154r10 160r22 160r46 161r21 162r21 165r27 166r28 176r22 178r22 181r22
-. 183r22
-60r7 O{24R9} 23|14b7 21m7 22m7 24m7 25m7 27m7 27r7 28m7 29m7 31m7 32m7 33m7
-. 34m7 35m7 36m7 42m7 44r10 45m10 45r10 55m13 56m13 58m13 59m13 68r42 69r42
-. 75r13 82r40 84r40 86r29 88r24 89r30 99m10 124m13 126r25 126r45 139m16 140m16
-. 143m13 171m19 172m19 175m22 177m22 180m22 182m22 188m13
-X 23 editor-render_model.adb
-16i7 Len{natural}
-52r10 Layout{21|5R9} 54r53 60r66
-68i10 First_Row{natural} 82r29
-69i10 Last_Row{natural} 84r29
-71i10 Start_Pos{natural} 76m13 86m16 99r31 124r48
-72i10 End_Pos{natural} 77m13 89m19 91m19 124r38
-73i10 Len{natural} 77r26 91r30
-81i16 FR{natural} 86r52
-83i16 LR{natural} 88r19 89r53
-101r13 Layout{21|5R9} 108r16 109r61 112r16 113r62
-103i13 Visible_Rows{natural} 113m16 116r16 120r16
-104i13 Visible_Cols{natural} 109m16 116r42 121r40
-106i13 Budget{natural} 119m16 124r59
-133i13 Count{natural} 136r26 138m16 138r25 139r29 140r40 143r30
-135i17 I{integer} 139r49 140r60
-156i13 Count{natural} 168r29 170m19 170r28 171r32 172r30 175r50 177r48 180r50
-. 182r48 188r34
-157i13 A{20|5I12} 161m16 164r19 171r60 172r60 174r22
-158i13 P{20|5I12} 162m16 164r24 171r63 172r63 174r27
-160i17 I{integer} 161r31 162r31 165r37 166r38 176r32 178r32 181r32 183r32
-X 24 editor-state.ads
-5K16*State 22|1w13 5w13 5r31 59r18 23|4w13 13r18 24|47e17
-7K12*Line_Start_Vectors[6|74] 22|39r21 23|10r8
-11R9*State_Type 22|59r24 23|13r24 24|19e14
-12r7*Buffer{51|6R9} 23|16r55 73r64 126r79
-13r7*Carets{6|91R9[20|19]} 23|131r12 135r24 135r48 139r41 140r52 154r12 160r24
-. 160r48 161r23 162r23 165r29 166r30 176r24 178r24 181r24 183r24
-14r7*Line_Starts{6|91R9[7]} 23|42r26
-X 25 editor-view.ads
-4K16*View 23|5w13 54r20 58r43 60r20 60r43 109r39 113r39 121r24 25|47e16
-20V13*Viewport_Width{natural} 23|109s44
-21V13*Viewport_Height{natural} 23|54s25 60s48 113s44
-37V13*Scroll_X{natural} 23|121s29
-38V13*Scroll_Y{natural} 23|58s48 60s25
-X 26 interfac.ads
-47K9*Interfaces 22|6r6 26|247e15
-X 27 i-c.ads
-33K20*C 22|6w17 27|601e17
-X 28 system.ads
+32h9 Reversible_Iterator<24R9[7|119]>
+X 12 a-string.ads
+16K13*Strings 35e16 176|5r10 27r10 142r32 161r23 162r13 167r37 168r13 175r43
+. 176r13 177r43 178r13 179r58 180r13 182r51 183r13 200r45 201r13 207r37 208r13
+. 211r37 212r13 213r37 214r13 218r36 219r13 228r35 229r13 230r36 231r13 234r42
+. 235r13 236r42 237r13 239r40 240r13 258r36 259r13 260r42 261r13 276r40 277r13
+. 177|3w10 4r10 49r10 49r37 178r15 179r48 183r57 185r20 186r13 199r20 211r13
+. 227r28 241r13 254r28 693r32 833r20 834r70 836r22 837r59 840r20 841r59
+33n37*Both{33E9} 177|179r56 834r78 837r67 841r67
+X 13 a-strfix.ads
+49K21*Fixed 1390e22 177|4w18 178r23 227r36 254r36 833r28 836r30 840r28
+252V13*Index{natural} 177|227s42 254s42
+1133V13*Trim{string} 177|178s29 833s34 836s36 840s34
+X 17 a-strunb.ads
+91K21*Unbounded 1641e26 176|5w18 27w18 142r40 161r31 162r21 167r45 168r21
+. 175r51 176r21 177r51 178r21 179r66 180r21 182r59 183r21 200r53 201r21 207r45
+. 208r21 211r45 212r21 213r45 214r21 218r44 219r21 228r43 229r21 230r44 231r21
+. 234r50 235r21 236r50 237r21 239r48 240r21 258r44 259r21 260r50 261r21 276r48
+. 277r21 177|49w18 49r45 183r65 185r28 186r21 199r28 211r21 241r21 693r40
+105R9*Unbounded_String<9|43R9> 1620e15 176|161r41 167r55 175r61 177r61 179r76
+. 182r69 200r63 207r55 211r55 213r55 218r54 228r53 230r54 234r60 236r60 239r58
+. 258r54 260r60 276r58 177|67r17 80r26 183r75 185r38
+109r4*Null_Unbounded_String{105R9} 176|142r50 162r31 168r31 176r31 178r31
+. 180r31 183r31 201r31 212r31 214r31 219r31 229r31 231r31 235r31 237r31 240r31
+. 259r31 261r31 277r31 177|67r37 80r46 186r31 693r50 751r29 780r48 781r48
+. 782r63 784r56 806r18 824r35 849r18 862r63 864r72 867r78 997r35
+111V13*Length{natural} 177|88s22 704s21 714s13 737s21 798s21 825s16 846s25
+. 1266s24
+122V13*To_Unbounded_String{105R9} 176|208s31 177|717s25 749s29 768s18 774s18
+. 791s28 793s9 826s35 828s35 830s35 832s35 839s35 848s18 974s35
+135V13*To_String{string} 177|97s30 103s14 211s31 241s31 617s33 617s69 640s22
+. 640s50 856s45
+159U14*Append 177|69s7 78s10 89s22 91s19 97s13 99s10 102s7 199s38 725s13
+. 730s13
+269V14*"="{boolean} 7|65i19 177|272s47
+X 21 editor.ads
+1K9*Editor 5e11 176|1r6 2r6 6r6 6r24 8r6 9r6 10r6 11r6 12r6 13r6 14r6 15r6
+. 16r6 17r6 18r6 19r6 20r6 21r6 22r6 23r6 24r6 25r6 26r6 29r9 31r8 59r45
+. 62r53 68r21 68r49 75r46 104r19 104r44 114r30 141r28 148r66 149r27 149r57
+. 154r17 155r24 156r29 157r24 158r18 185r33 186r9 187r33 188r9 189r33 190r9
+. 195r33 196r9 206r33 215r33 232r39 241r36 247r36 248r9 279r18 280r24 287r24
+. 294r21 301r9 303r9 311r26 312r31 313r32 314r36 315r29 316r33 317r27 318r37
+. 319r44 326r23 332r11 335r18 338r5 177|5r6 5r26 6r6 7r6 8r6 9r6 10r6 11r6
+. 12r6 13r6 14r6 15r6 16r6 17r6 18r6 19r6 20r6 21r6 22r6 23r6 24r6 25r6 26r6
+. 27r6 28r6 29r6 30r6 31r6 32r6 33r6 34r6 35r6 36r6 37r6 38r6 39r6 40r6 41r6
+. 42r10 43r10 44r10 45r10 46r10 47r10 48r6 51r10 53r14 109r11 114r13 115r18
+. 115r57 117r26 124r11 137r27 138r9 141r25 143r29 144r15 146r27 156r27 157r9
+. 160r25 162r29 163r15 165r27 174r12 187r27 188r9 189r35 193r32 194r15 196r30
+. 208r11 213r27 214r9 215r35 217r10 223r32 224r15 226r30 238r11 243r27 244r9
+. 245r35 249r32 250r15 252r30 265r11 277r11 286r11 297r13 300r44 301r44 311r11
+. 313r25 313r56 314r26 315r9 317r9 318r29 319r9 321r9 322r12 325r13 327r32
+. 334r13 336r32 339r14 339r47 343r18 353r10 355r12 362r20 365r21 375r19 380r39
+. 387r41 392r11 395r38 399r27 399r58 400r27 401r9 403r9 404r29 405r9 407r9
+. 408r12 411r38 412r33 417r9 419r28 421r12 425r17 428r61 446r11 449r43 450r32
+. 451r9 453r9 454r12 461r16 462r19 463r34 472r17 476r21 495r15 503r17 508r21
+. 516r21 531r18 536r10 540r23 541r17 544r18 553r11 555r14 563r18 583r29 590r21
+. 592r10 604r33 605r15 606r24 607r24 608r24 613r33 614r33 615r32 637r34 642r49
+. 644r22 647r25 659r18 662r24 663r22 665r25 666r24 667r22 669r25 692r28 698r43
+. 710r18 720r24 720r52 722r19 723r21 725r48 727r19 728r21 730r44 747r24 749r50
+. 754r31 755r12 757r26 758r21 761r36 762r18 769r21 775r21 787r31 788r33 789r27
+. 790r30 791r49 793r30 794r28 818r48 852r40 855r13 858r33 869r9 894r16 910r34
+. 911r18 914r28 915r27 921r36 922r18 926r34 928r41 929r24 949r34 950r18 952r29
+. 953r27 956r41 957r24 1000r29 1001r12 1006r12 1009r12 1010r30 1012r22 1014r24
+. 1020r18 1026r32 1027r12 1029r12 1030r15 1032r13 1033r16 1035r35 1036r30
+. 1042r35 1045r34 1045r65 1049r34 1052r24 1053r27 1057r21 1060r21 1069r12
+. 1073r23 1084r16 1086r18 1092r15 1098r30 1107r24 1118r10 1122r32 1123r18
+. 1126r24 1127r22 1129r25 1130r24 1131r22 1133r25 1134r24 1142r41 1160r40
+. 1161r60 1216r39 1219r39 1221r52 1222r45 1240r40 1242r40 1278r41 1282r41
+. 1302r29 1303r28 1304r12 1309r22 1314r15 1316r15 1337r19 1338r19 1340r34
+. 1346r27 1348r27 1363r39 1403r19 1405r22 1405r61 1407r16 1414r54 1415r35
+. 1416r57 1417r43 1419r35 1425r16 1432r32 1442r26 1453r27 1479r38 1489r33
+. 1492r25 1493r28 1504r27 1516r38 1528r22 1535r21 1539r52 1541r51 1543r19
+. 1544r19 1546r22 1552r63 1556r25 1558r46 1559r30 1564r41 1572r44 1573r45
+. 1581r43 1583r63 1584r48 1588r54 1596r53 1597r54 1601r51 1631r29 1632r12
+. 1634r12 1636r61 1663r35 1664r15 1666r15 1667r18 1668r18 1669r21 1682r30
+. 1684r30 1690r37 1703r21 1705r9 1706r27 1707r24 1709r9 1712r9 1720r12 1721r14
+. 1725r15 1726r18 1729r15 1730r18 1733r15 1734r18 1737r15 1738r18 1741r15
+. 1742r18 1745r15 1746r18 1749r15 1750r18 1753r15 1754r18 1757r15 1758r18
+. 1760r26 1764r5
+X 75 editor-ada_language_model.ads
+6K16*Ada_Language_Model 1296e30 177|48w13 1581r50 1583r70 1584r55
+183I9*Symbol_Id<integer> 177|1583r89
+831V13*Symbol_Count{natural} 177|1581s69
+1210V13*Scope_For_Position{183I9} 177|1584s74
+X 120 editor-bookmarks.ads
+4K16*Bookmarks 231e21 176|18w13 206r40 177|29w13 590r28 592r17 608r31 637r41
+19R9*Bookmark_Row 34e14 177|608r41 637r51
+25r7*File_Path{17|105R9} 177|617r84 640r37
+27i7*Line_Number{natural} 177|641r34 642r34 646r29
+30b7*Is_Open{boolean} 177|619m29
+31b7*Is_Active{boolean} 177|621m29
+32b7*Is_Dirty{boolean} 177|620m29
+36K12*Bookmark_Row_Vectors[7|74] 176|206r50
+40R9*Bookmark_Snapshot 53e14 177|590r38
+41b7*Bookmarks_Visible{boolean} 177|593r42
+42i7*Bookmark_Count{natural} 177|594r39
+43i7*Bookmark_Selected_Index{natural} 177|595r48
+44r7*Bookmark_Selected_Key_File_Path{17|105R9} 177|596r56
+46i7*Bookmark_Selected_Key_Line_Number{natural} 177|597r58
+47i7*Bookmark_Selected_Key_Column{natural} 177|598r53
+48b7*Bookmark_Selected_Key_Has_Column{boolean} 177|599r57
+49b7*Bookmark_Has_Selected_Key{boolean} 177|600r50
+50r7*Bookmark_Rows{7|91R9[36]} 177|601r38
+51r7*Bookmark_Empty_Message{17|105R9} 177|602r47
+164U14*Build_Snapshot 177|592s27
+X 122 editor-buffer_types.ads
+5I9*Buffer_Id<integer>
+9i7*Id{5I9} 177|146r21 147r59 165r21 166r59 196r24 200r64 226r24 228r63 252r24
+. 255r63 615r73
+11b7*Is_Dirty{boolean} 177|165r66 197r32 253r32 931r33 965r37
+12b7*Is_Active{boolean} 177|621r50
+13b7*Has_Path{boolean} 177|933r36 965r63
+X 123 editor-buffers.ads
+11K16*Buffers 665e19 177|28w13 51r17 114r20 115r25 115r64 117r33 137r34 138r16
+. 141r32 143r36 144r22 146r34 156r34 157r16 160r32 162r36 163r22 165r34 174r19
+. 187r34 188r16 189r42 193r39 194r22 196r37 213r34 214r16 215r42 217r17 223r39
+. 224r22 226r37 243r34 244r16 245r42 249r39 250r22 252r37 604r40 605r22 606r31
+. 613r40 614r40 615r39 720r31 720r59 722r26 723r28 725r55 727r26 728r28 730r51
+. 754r38 755r19 757r33 758r28 761r43 762r25 769r28 775r28 894r23 910r41 911r25
+. 914r35 915r34 921r43 922r25 926r41 928r48 929r31 949r41 950r25 952r36 953r34
+. 956r48 957r31
+13I12*Buffer_Id{122|5I9} 177|51r25 174r27 720r39 754r46 910r49 911r33 949r49
+. 950r33
+14i4*No_Buffer{13I12} 177|115r72 146r42 165r42 196r45 226r45 252r45 722r34
+. 727r34 757r41 914r43 952r44
+23R9*Buffer_Registry 663e14 177|137r42 156r42 187r42 213r42 243r42 604r48
+. 921r51
+57R9*Buffer_Metadata_Snapshot 84e14 177|761r51
+75b7*Stale_Backing_State{boolean} 177|772r27
+79r7*Ownership_Label{17|105R9} 177|765r60
+80r7*Lifecycle_Status_Label{17|105R9} 177|766r60
+82e7*Close_Eligibility{42E9} 177|776r33
+83e7*Workspace_Persistability{50E9} 177|770r33
+151R12*Buffer_Summary{122|8R9} 177|143r44 162r44 193r47 223r47 249r47 606r39
+. 928r56 956r56
+173V13*Count{natural} 177|613s48
+176V13*Buffer_Count{natural} 177|141s40 160s40 189s50 215s50 245s50 926s49
+179V13*Summary_At{151R12} 177|144s30 163s30 194s30 224s30 250s30 614s48 929s39
+208V13*Close_Eligibility_Label{string} 177|775s36
+210V13*Workspace_Persistability_Label{string} 177|769s36
+282V13*Buffer{184|150R9} 177|615s47
+475V13*Global_Count{natural} 177|114s28 217s25 894s31
+476V13*Global_Registry_For_UI{23R9} 177|138s24 157s24 188s24 214s24 244s24
+. 605s30 922s33
+485V13*Global_Summary_For{151R12} 177|957s39
+488V13*Global_Metadata_For{57R9} 177|762s33
+501V13*Global_Active_Buffer{13I12} 177|115s33 117s41 720s67 755s27
+502V13*Global_Contains{boolean} 177|758s36 915s42 953s42
+523V13*Global_Has_Buffer_Label{boolean} 177|723s36
+524V13*Global_Buffer_Label{string} 177|725s63
+527V13*Global_Has_Buffer_Note{boolean} 177|728s36
+528V13*Global_Buffer_Note{string} 177|730s59
+X 131 editor-build_ui.ads
+9K16*Build_UI 410e20 176|20w13 279r25 177|30w13
+129R9*Build_UI_Render_Snapshot 152e14 176|279r34
+X 132 editor-build_ui_actions.ads
+9K16*Build_UI_Actions 102e28 177|31w13 1703r28
+77V13*Build_UI_Operability_Snapshot{131|129R9} 177|1703s45
+X 136 editor-cursors.ads
+3K16*Cursors 35e19 176|2w13 31r15 177|5w13 5r33 1240r47 1242r47 1278r48 1282r48
+5I12*Cursor_Index{natural} 176|44r40 47r44 177|1240r55 1242r55 1278r56 1282r56
+13i7*Pos{5I12} 177|1069r75 1072r53 1193r52 1338r56
+15i7*Virtual_Column{natural} 177|1075r45 1076r68 1194r63
+X 137 editor-diagnostics.ads
+5K16*Diagnostics 110e23 176|11w13 59r52 141r35 177|11w13 45r17 662r31 666r31
+. 692r35 1414r61 1416r64
+7E9*Diagnostic_Severity 13e15 177|45r29
+8n7*Hint{7E9} 176|141r47 177|692r47
+11n7*Warning{7E9} 177|666r43 1416r76
+12n7*Error{7E9} 177|662r43 1414r73
+18R9*Diagnostic_Range 27e14 176|59r64
+19i7*Start_Index{136|5I12} 176|139m13 177|659r51 690m13 1209r53 1240m25 1411r51
+20i7*End_Index{136|5I12} 176|140m13 177|691m13 1210r53 1242m25 1412r51
+21e7*Severity{7E9} 176|141m13 177|661r23 692m13 1244m25 1244r42 1414r43 1416r46
+22r7*Message{17|105R9} 176|142m13 177|693m13 1245m25 1245r42
+24b7*Has_Location{boolean} 176|143m13 177|694m13 1215r54 1246m25 1246r43
+25i7*Start_Row{natural} 176|144m13 177|695m13 1216r27 1219r69 1221r36 1222r75
+. 1247m25 1247r43
+26i7*Start_Column{natural} 176|145m13 177|696m13 1225r69 1248m25 1248r43
+X 139 editor-dirty_lines.ads
+4K16*Dirty_Lines 63e23 177|17w13 1118r17 1122r39 1123r25 1126r31 1130r31
+. 1134r31
+6E9*Dirty_Line_Kind 9e21 177|1122r51
+7n7*Clean_Line{6E9} 177|1134r43
+8n7*Added_Line{6E9} 177|1126r43
+9n7*Modified_Line{6E9} 177|1130r43
+26V13*Dirty_Line_Count{natural} 177|1118s29
+29V13*Kind_For_Row{6E9} 177|1123s37
+X 140 editor-empty_state_guidance.ads
+6K16*Empty_State_Guidance 385e32 176|25w13 311r33 312r38 313r39 314r43 315r36
+. 316r40 317r34 318r44 319r51 177|33w13 1720r19 1721r21 1725r22 1726r25 1729r22
+. 1730r25 1733r22 1734r25 1737r22 1738r25 1741r22 1742r25 1745r22 1746r25
+. 1749r22 1750r25 1753r22 1754r25 1757r22 1758r25
+9n7*Main_Surface{8E9} 177|1726r46
+10n7*File_Tree_Surface{8E9} 177|1730r46
+11n7*Quick_Open_Surface{8E9} 177|1734r46
+12n7*Project_Search_Surface{8E9} 177|1738r46
+13n7*Outline_Surface{8E9} 177|1742r46
+14n7*Diagnostics_Surface{8E9} 177|1746r46
+15n7*Build_Surface{8E9} 177|1750r46
+16n7*Recent_Projects_Surface{8E9} 177|1754r46
+17n7*Configuration_Recovery_Surface{8E9} 177|1758r46
+101R9*Empty_State_Snapshot 112e14 176|311r54 312r59 313r60 314r64 315r57
+. 316r61 317r55 318r65 319r72
+115A9*Empty_State_Snapshot_Array(101R9)<integer> 177|1720r40
+119V13*Build_All_Empty_State_Snapshots{115A9} 177|1721s42
+223V13*Empty_State_Slot_For_Surface{positive} 177|1725s43 1729s43 1733s43
+. 1737s43 1741s43 1745s43 1749s43 1753s43 1757s43
+X 145 editor-feature_panel.ads
+4K16*Feature_Panel 696e25 176|17w13 195r40 196r16 177|23w13 1000r36 1001r19
+. 1010r37
+8E9*Feature_Id 13e27 176|195r54
+9n7*Unknown_Feature{8E9} 176|196r30
+122R9*Feature_Panel_Summary 130e14 177|1000r50
+123b7*Visible{boolean} 177|1003r45
+124b7*Focused{boolean} 177|1004r45
+156V13*Active_Feature{8E9} 177|1010s51
+210V13*Summary{122R9} 177|1001s33
+X 146 editor-feature_search_results.ads
+7K16*Feature_Search_Results 332e34 177|26w13 1006r19
+36V13*Search_Input_Is_Active{boolean} 177|1006s42
+X 149 editor-folding.ads
+3K16*Folding 119e19 176|12w13 154r24 177|14w13 353r17 355r19 362r27 425r24
+. 472r24 503r24 541r24 1020r25 1057r28 1060r28 1084r23 1086r25 1092r22 1340r41
+22R9*Folding_State 24e14 176|154r32
+70V13*Fold_Start_For_Hidden_Row{natural} 177|355s27 1086s33
+79V13*Is_Row_Hidden{boolean} 177|353s25 362s35 425s32 472s32 503s32 541s32
+. 1084s31 1340s49
+97V13*Visible_Row_To_Document_Row{natural} 177|1057s36 1060s36
+106V13*Document_Row_To_Visible_Row{natural} 177|1092s30
+115V13*Visible_Row_Count{natural} 177|1020s33
+X 150 editor-go_to_line.ads
+4K16*Go_To_Line 59e22 177|25w13 790r37 791r56 793r37 794r35
+25V13*Is_Open{boolean} 177|790s48
+27V13*Text{string} 177|791s67
+29V13*Error_Text{string} 177|793s48
+47V13*Snapshot{154|17R9} 177|794s46
+X 151 editor-guided_prompts.ads
+7K16*Guided_Prompts 172e26 176|26w13 326r30 177|34w13 1760r33
+89R9*Prompt_Snapshot 113e14 176|326r45
+161V13*Snapshot{89R9} 177|1760s48
+X 152 editor-gutter_markers.ads
+3K16*Gutter_Markers 112e26 176|13w13 155r31 156r36 177|15w13 644r29 647r32
+. 663r29 665r32 667r29 669r32 1127r29 1129r32 1131r29 1133r32
+6n7*Diagnostic_Error_Marker{5E9} 177|665r47
+7n7*Diagnostic_Warning_Marker{5E9} 177|669r47
+8n7*Bookmark_Marker{5E9} 177|647r47
+9n7*Added_Line_Marker{5E9} 177|1129r47
+10n7*Modified_Line_Marker{5E9} 177|1133r47
+24R9*Gutter_Marker_Hover_State 28e14 176|156r51
+30R9*Gutter_Marker_State 110e14 176|155r46
+35U14*Add_Marker 177|644s44 663s44 667s44 1127s44 1131s44
+X 154 editor-input_field.ads
+3K16*Input_Field 106e23 176|19w13 215r40 232r46 241r43 177|24w13 852r47 855r20
+. 858r40 869r16
+5R9*Input_Field_State 104e14 177|852r59
+17R9*Field_Snapshot 26e14 176|215r52 232r58 241r55
+34U14*Set_Text 177|855s32
+91V13*Snapshot{17R9} 177|858s52 869s28
+X 155 editor-keybinding_management.ads
+5K16*Keybinding_Management 218e33 176|23w13 287r31 177|35w13 1706r34
+113R9*Keybinding_Surface_Snapshot 138e14 176|287r53
+173V13*Build_Surface_Snapshot{113R9} 177|1706s56
+X 157 editor-layout.ads
+6K16*Layout 279e18 177|8w13 313r32 313r63 325r20 334r20 339r54 399r34 399r65
+. 417r16 461r23 462r26 1032r20 1033r23 1045r41 1045r72 1052r31 1666r22 1667r25
+8R9*Layout_Config 18e14 177|313r39 399r41 1045r48
+20V13*Current{8R9} 177|313s70 399s72 462s33 1033s30 1045s79 1667s32
+22V13*Cell_W{positive} 177|339s61
+193V13*Last_Visible_Text_Column{natural} 177|417s23
+245V13*Text_Viewport_Height{natural} 177|1032s27 1666s29
+256V13*Visible_Row_Count{natural} 177|461s30
+260V13*Last_Visible_Row{natural} 177|1052s38
+265V13*Text_Viewport_Width{natural} 177|334s27
+270V13*Text_Viewport_Width{natural} 177|325s27
+X 158 editor-messages.ads
+4K16*Messages 203e20 176|14w13 158r25 177|16w13
+31R9*Message_State 201e14 176|158r34
+X 159 editor-minimap.ads
+3K16*Minimap 80e19 176|10w13 114r37 177|10w13 314r33 315r16 400r34 401r16
+. 411r45 412r40 1631r36 1632r19 1690r44
+5R9*Minimap_Config 10e14 177|314r41 400r42 1631r44
+6b7*Enabled{boolean} 177|317r55 329r24 403r55 1634r58
+7i7*Width{natural} 177|330r24
+8i7*Padding_Left{natural} 177|331r24
+9i7*Padding_Right{natural} 177|332r24
+13i7*Row{natural} 177|682m13 1689m22
+14f7*Start_Y{float} 177|683m13 1690m22
+15f7*Height{float} 177|684m13 1692m22
+16b7*Has_Text{boolean} 177|685m13 1693m22
+17i7*Text_Length{natural} 177|686m13 1694m22
+20A9*Minimap_Line_Info_Array(12R9)<integer> 176|114r45
+22V13*Current{5R9} 177|315s24 401s24 1632s27
+33V13*Reserved_Width{natural} 177|411s53 412s48
+60V13*Row_Y{float} 177|1690s52
+X 162 editor-outline.ads
+6K16*Outline 760e19 177|27w13 1009r19
+289V13*Filter_Input_Is_Active{boolean} 177|1009s27
+X 163 editor-overlay_focus.ads
+3K16*Overlay_Focus 77e25 176|16w13 189r40 190r16 177|22w13 789r34
+5E9*Overlay_Target 13e34 176|189r54
+6n7*No_Overlay{5E9} 176|190r30
+34V13*Active_Overlay{5E9} 177|789s48
+X 164 editor-panel_focus.ads
+1K16*Panel_Focus 52e23 176|15w13 185r40 186r16 187r40 188r16 177|21w13 787r38
+. 788r40
+3E9*Focus_Target 6e26 176|185r52
+4n7*Editor_Text_Focus{3E9} 176|186r28
+8E9*Bottom_Focus_Content 11e28 176|187r52
+9n7*No_Bottom_Focus{8E9} 176|188r28
+18V13*Target{3E9} 177|787s50
+21V13*Bottom_Content{8E9} 177|788s52
+X 169 editor-project.ads
+4K16*Project 191e19 177|20w13 747r31 749r57
+73V13*Has_Project{boolean} 177|747s39
+85V13*Display_Name{string} 177|749s65
+X 175 editor-rectangle_selection.ads
+6K16*Rectangle_Selection 66e31 177|18w13 1337r26 1346r34 1348r34
+32V13*Has_Selection{boolean} 177|1337s46
+38V13*Selection_Left_Column{natural} 177|1346s54
+42V13*Selection_Right_Column{natural} 177|1348s54
+X 176 editor-render_model.ads
+29K16*Render_Model 21|1k9 176|338l12 338e24 177|53b21 1764l12 1764t24
+33N4*Max_Render_Carets 44r18 90r50 177|1191r35
+34N4*Max_Render_Selections 47r18 56r18 124r54 125r54 177|1336r35
+35N4*Max_Visible_Visual_Rows 75r18 177|424r29 456r43 458r13
+36N4*Max_Minimap_Samples 115r15 177|1672r42
+37N4*Max_Render_Diagnostics 59r18 177|1207r35
+38N4*Max_Render_Active_Find_Matches 62r18 177|1271r38
+39N4*Max_Render_Syntax_Spans 72r18 177|1456r24 1477r53 1514r55 1550r38
+41A9*Natural_Array(natural)<integer> 90r30 124r34 125r34
+43A9*Caret_Pos_Array(136|5I12)<integer> 89r21
+46A9*Selection_Pos_Array(136|5I12)<integer> 129r25 130r25
+49R9*Rectangular_Selection_Row_Span 53e14 56r44
+50i7*Row{natural} 134m21 177|1344m25
+51i7*Start_Column{natural} 134m31 177|1345m25
+52i7*End_Column{natural} 134m50 177|1347m25
+55A9*Rectangular_Selection_Row_Span_Array(49R9)<integer> 133r37
+58A9*Diagnostic_Range_Array(137|18R9)<integer> 137r26
+61A9*Search_Match_Array(179|20R9)<integer> 148r33
+64R9*Render_Syntax_Span 69e14 72r46
+65i7*Row{natural} 177|1459m19
+66i7*Start_Index{natural} 177|1460m19
+67i7*End_Index{natural} 177|1461m19
+68e7*Kind{186|27E12} 177|1462m19
+71A9*Render_Syntax_Span_Array(64R9)<integer> 152r27
+74A9*Visual_Row_Info_Array(196|13R9)<integer> 107r30
+77R9*Render_Snapshot 327e14 329r31 336r15 177|378r26 393r18 447r18 564r15
+81i7*Length{natural} 177|567m9 1178m15 1180m15 1183r47 1202r68 1259r68
+83i7*Text_Base_Index{natural} 177|568m9 1176m12 1183r27 1201r48 1202r48 1258r48
+. 1259r48
+88i7*Caret_Count{natural} 177|569m9 1196m15
+89a7*Caret_Pos{43A9} 177|570m9 1193m18
+90a7*Caret_Virtual_Column{41A9} 177|579m9 1194m18
+96r7*Line_Starts{7|91R9[184|55]} 177|387m12 571m9
+97i7*Line_Start_Row_Base{natural} 177|385m9 582m9
+98i7*Total_Line_Count{natural} 177|583m9 1020r65
+99i7*Visible_Line_Count{natural} 177|1015m12 1018m12 1049r58 1054r26
+101i7*Visible_First_Row{natural} 177|396r53 525m9 572m9 1034m15 1041m15 1056m21
+. 1143r56 1339r31 1534r15 1539r33
+102i7*Visible_Last_Row{natural} 177|397r53 526m9 573m9 1035m15 1042m15 1059m21
+. 1144r56 1339r67 1534r38 1541r33
+104e7*Wrap_Mode{196|4E9} 177|1012m9 1014r12 1036r18 1098r18 1107r12
+105i7*Wrap_Col{positive} 177|477r56 496r55 509r36 516r72 1013m9 1016r65 1101r62
+. 1102r74
+106i7*Visible_Visual_Count{natural} 177|442m9 524m9 1022m9 1119r26 1154r15
+. 1158r29
+107a7*Visible_Visual_Rows{74A9} 177|435m18 515m21 1023m9 1121r45 1160r73
+109i7*Primary_Caret_Row{natural} 177|676m9 1068m12 1070r43 1073r53 1091m15
+. 1095m18 1099m18
+110i7*Primary_Caret_Col{natural} 177|677m9 1071m12 1076m15 1088m18 1101r41
+. 1102m18 1102r41
+111i7*Primary_Caret_Logical_Row{natural} 177|678m9 1070m12 1080r42
+113i7*Minimap_Sample_Count{natural} 177|679m9 1698m15
+114a7*Minimap_Samples{159|20A9} 177|680m9 1688m21
+124a7*Sel_Start_Virtual_Column{41A9} 177|580m9 1319m15
+125a7*Sel_End_Virtual_Column{41A9} 177|581m9 1320m15
+126i7*Selection_Count{natural} 177|574m9 1306m12 1312m15 1437r29
+127i7*Selected_Character_Count{natural} 177|575m9 1307m12 1313m15
+128i7*Selected_Line_Count{natural} 177|576m9 1308m12 1315m15
+129a7*Sel_Start{46A9} 177|577m9 1317m15 1440r30
+130a7*Sel_End{46A9} 177|578m9 1318m15 1440r57
+132i7*Rectangular_Selection_Count{natural} 177|1328m9 1352m15
+133a7*Rectangular_Selections{55A9} 177|1343m24
+136i7*Diagnostic_Count{natural} 177|687m9 1253m12 1408r32
+137a7*Diagnostics{58A9} 177|688m9 1239m24 1411r35 1412r35 1414r27 1416r30
+147i7*Active_Find_Match_Count{natural} 177|697m9 1294m12 1426r32
+148a7*Active_Find_Matches{61A9} 177|698m9 1276m24 1429r33 1430r33
+149r7*Active_Find_Match{179|20R9} 177|708m12
+151i7*Syntax_Span_Count{natural} 177|699m9 1627m12
+152a7*Syntax_Spans{71A9} 177|700m9 1458m18
+154r7*Folding{149|22R9} 177|584m9
+155r7*Gutter_Markers{152|30R9} 177|585m9 645m27 664m27 668m27 1128m27 1132m27
+156r7*Gutter_Marker_Hover{152|24R9} 177|586m9
+157r7*Semantic_Popup{184|136R9} 177|587m9
+158r7*Messages{158|31R9} 177|588m9
+159b7*Post_Restore_Feedback_Current{boolean} 177|653m9
+161r7*File_Name{17|105R9} 177|713m12 715m12 717m12 725m23 730m23
+163b7*Is_Dirty{boolean} 177|733m9
+164i7*Total_Find_Match_Count{natural} 177|741m12
+165i7*Total_Diagnostic_Count{natural} 177|746m9
+166b7*Has_Project{boolean} 177|747m9 748r12
+167r7*Project_Label{17|105R9} 177|749m12 751m12
+174b7*Active_Buffer_Has_Metadata{boolean} 177|764m18 779m15
+175r7*Active_Buffer_Ownership_Label{17|105R9} 177|765m18 780m15
+177r7*Active_Buffer_Lifecycle_Label{17|105R9} 177|766m18 781m15
+179r7*Active_Buffer_Workspace_Persistability_Label{17|105R9} 177|767m18 782m15
+181b7*Active_Buffer_Stale_Backing_State{boolean} 177|771m18 783m15
+182r7*Active_Buffer_Close_Eligibility_Label{17|105R9} 177|773m18 784m15
+185e7*Panel_Focus_Target{164|3E9} 177|787m9
+187e7*Bottom_Focus_Content{164|8E9} 177|788m9
+189e7*Active_Overlay{163|5E9} 177|789m9
+191b7*Feature_Panel_Visible{boolean} 177|1003m12
+192b7*Feature_Panel_Focused{boolean} 177|1004m12
+193b7*Search_Query_Input_Active{boolean} 177|1005m12
+194b7*Outline_Filter_Input_Active{boolean} 177|1008m12
+195e7*Active_Feature{145|8E9} 177|1010m12
+197b7*Bookmarks_Visible{boolean} 177|593m12
+198i7*Bookmark_Count{natural} 177|594m12
+199i7*Bookmark_Selected_Index{natural} 177|595m12
+200r7*Bookmark_Selected_Key_File_Path{17|105R9} 177|596m12
+202i7*Bookmark_Selected_Key_Line_Number{natural} 177|597m12
+203i7*Bookmark_Selected_Key_Column{natural} 177|598m12
+204b7*Bookmark_Selected_Key_Has_Column{boolean} 177|599m12
+205b7*Bookmark_Has_Selected_Key{boolean} 177|600m12
+206r7*Bookmark_Rows{7|91R9[120|36]} 177|601m12 610r18 611r27 611r58 612r28
+. 624m21 634r45 635r24 635r55 638r23
+207r7*Bookmark_Empty_Message{17|105R9} 177|602m12
+210b7*Goto_Line_Visible{boolean} 177|790m9
+211r7*Goto_Line_Query{17|105R9} 177|791m9
+213r7*Goto_Line_Error_Message{17|105R9} 177|792m9
+215r7*Goto_Line_Field{154|17R9} 177|794m9
+217b7*Find_Visible{boolean} 177|802m12 823r19
+218r7*Find_Query{17|105R9} 177|803m12 825r26
+220i7*Find_Match_Count{natural} 177|812m12 829r18 837r36 841r36 842r24
+221b7*Find_Case_Sensitive{boolean} 177|807m12
+222b7*Find_Whole_Word{boolean} 177|808m12
+223b7*Find_Matches_Stale{boolean} 177|809m12 827r18
+224b7*Find_Wrapped{boolean} 177|810m12
+225b7*Find_Matches_For_Active_Buffer{boolean} 177|811m12 827r51
+226i7*Find_Selected_Match_Index{natural} 177|816m12 822r45
+227i7*Find_Selected_Match_Ordinal{natural} 177|822m12 831r18 834r36
+228r7*Find_Status_Text{17|105R9} 177|824m15 826m15 828m15 830m15 832m15 839m15
+230r7*Find_Error_Message{17|105R9} 177|844m12
+232r7*Active_Find_Field{154|17R9} 177|858m12
+233b7*Replace_Visible{boolean} 177|860m9 862r15 864r15
+234r7*Replace_Text{17|105R9} 177|861m9
+236r7*Replace_Error_Message{17|105R9} 177|863m9
+238b7*File_Target_Prompt_Visible{boolean} 177|865m9
+239r7*File_Target_Prompt_Label{17|105R9} 177|866m9
+241r7*File_Target_Prompt_Field{154|17R9} 177|868m9
+246b7*Dirty_Close_Prompt_Visible{boolean} 177|870m9
+247e7*Dirty_Close_Scope{184|83E9} 177|871m9
+249b7*Dirty_Close_All_Buffers{boolean} 177|872m9
+250i7*Dirty_Close_Target_Buffer{natural} 177|873m9
+251i7*Dirty_Close_Buffer_Count{natural} 177|874m9
+252i7*Dirty_Close_Buffer_Fingerprint{natural} 177|875m9
+253i7*Dirty_Close_Dirty_Fingerprint{natural} 177|877m9
+258r7*Dirty_Close_Buffer_Ids{17|105R9} 177|879m9
+260r7*Dirty_Close_Dirty_Buffer_Ids{17|105R9} 177|880m9
+262i7*Dirty_Close_Dirty_Count{natural} 177|882m9
+263i7*Dirty_Close_File_Backed_Count{natural} 177|883m9
+264i7*Dirty_Close_Untitled_Count{natural} 177|884m9
+265i7*Dirty_Close_Conflicted_Count{natural} 177|885m9
+266i7*Dirty_Close_Unwritable_Count{natural} 177|886m9
+267i7*Dirty_Close_Missing_Count{natural} 177|887m9
+268i7*Dirty_Close_Save_Failure_Count{natural} 177|888m9
+273b7*Dirty_Close_Save_Action_Available{boolean} 177|891m9 939m18 964m24
+. 968m21
+274b7*Dirty_Close_Discard_Action_Available{boolean} 177|889m9 895m18 897m18
+. 904m18 913m18
+275b7*Dirty_Close_Cancel_Action_Available{boolean} 177|890m9
+276r7*Dirty_Close_Message{17|105R9} 177|974m12 997m12
+279r7*Build_UI{131|129R9} 177|1703m9
+280r7*Terminal_Tasks{191|63R9} 177|1704m9
+287r7*Keybindings_UI{155|113R9} 177|1706m9
+294r7*Settings_UI{183|181R9} 177|1707m9
+300r7*Configuration_Audit_UI{183|92R9} 177|1708m9
+302r7*Settings_Command_Catalog_UI{183|395R9} 177|1711m9
+311r7*Main_Empty_State{140|101R9} 177|1723m12
+312r7*File_Tree_Empty_State{140|101R9} 177|1727m12
+313r7*Quick_Open_Empty_State{140|101R9} 177|1731m12
+314r7*Project_Search_Empty_State{140|101R9} 177|1735m12
+315r7*Outline_Empty_State{140|101R9} 177|1739m12
+316r7*Diagnostics_Empty_State{140|101R9} 177|1743m12
+317r7*Build_Empty_State{140|101R9} 177|1747m12
+318r7*Recent_Projects_Empty_State{140|101R9} 177|1751m12
+319r7*Configuration_Recovery_Empty_State{140|101R9} 177|1755m12
+326r7*Guided_Prompt{151|89R9} 177|1760m9
+329R12*Editor_Snapshot{77R9} 332r43 177|553r43 556r14
+331V13*Build_Snapshot{329R12} 332>7 177|552b13 560l8 560t22
+332r7 S{184|150R9} 177|553b7 555r41
+334U14*Build_Render_Snapshot 335=7 336<7 177|558s7 562b14 1762l8 1762t29
+335r7 S{184|150R9} 177|563b7 583r54 584r20 585r27 586r32 587r27 588r21 592r43
+. 634r13 640r61 642r74 653r42 655r10 656r19 659r46 703r12 704r29 705r25 706r49
+. 709r44 712r10 713r25 714r21 715r25 733r21 736r12 737r29 738r25 739r49 743r27
+. 746r44 747r52 749r79 762r54 787r58 788r68 789r64 790r57 791r73 793r60 794r56
+. 797r12 798r29 799r25 800r49 802r28 804r16 805r18 807r35 808r31 809r34 810r60
+. 811r74 814r27 818r20 820r31 846r33 847r34 852r80 854r13 856r56 860r28 860r61
+. 862r36 864r36 865r39 867r13 867r46 869r38 870r39 871r30 872r36 873r38 874r37
+. 876r9 878r9 879r35 881r9 882r36 883r42 884r39 885r41 886r41 887r38 888r43
+. 890r48 892r10 893r13 896r58 905r59 906r71 911r44 919r13 941r62 943r62 944r74
+. 950r44 973r10 975r17 977r20 979r20 981r20 983r20 989r20 990r20 991r20 992r20
+. 1001r42 1007r15 1009r51 1010r67 1013r41 1016r60 1020r52 1035r60 1042r60
+. 1058r24 1061r24 1067r10 1069r40 1069r43 1069r53 1072r21 1072r31 1073r48
+. 1075r13 1075r23 1076r36 1076r46 1084r46 1087r21 1093r18 1101r21 1108r33
+. 1110r35 1118r47 1123r51 1142r66 1146r40 1152r62 1161r85 1183r77 1186r10
+. 1190r22 1190r46 1193r39 1194r50 1205r50 1206r22 1216r64 1219r64 1221r77
+. 1222r70 1223r56 1227r93 1263r21 1265r16 1266r32 1267r28 1268r52 1270r29
+. 1304r62 1310r25 1314r58 1316r53 1329r10 1329r40 1335r22 1338r51 1340r64
+. 1346r77 1348r78 1363r66 1535r46 1539r77 1541r76 1545m22 1552r88 1559r67
+. 1581r83 1585r51 1589r49 1598r49 1602r46 1636r86 1658r16 1682r55 1684r53
+. 1703r76 1705r54 1707r83 1710r12 1721r75 1760r58
+336r7 O{77R9} 177|564b7 567m7 568m7 569m7 570m7 571m7 571r7 572m7 573m7 574m7
+. 575m7 576m7 577m7 578m7 579m7 580m7 581m7 582m7 583m7 584m7 585m7 586m7
+. 587m7 588m7 593m10 594m10 595m10 596m10 597m10 598m10 599m10 600m10 601m10
+. 602m10 610r16 611r25 611r56 612r26 624m19 624r19 634r43 635r22 635r53 638r21
+. 645m25 645r25 653m7 664m25 664r25 668m25 668r25 676m7 677m7 678m7 679m7
+. 680m7 687m7 688m7 697m7 698m7 699m7 700m7 708m10 713m10 715m10 717m10 725m21
+. 725r21 730m21 730r21 733m7 741m10 746m7 747m7 748r10 749m10 751m10 764m16
+. 765m16 766m16 767m16 771m16 773m16 779m13 780m13 781m13 782m13 783m13 784m13
+. 787m7 788m7 789m7 790m7 791m7 792m7 794m7 802m10 803m10 807m10 808m10 809m10
+. 810m10 811m10 812m10 816m10 822m10 822r43 823r17 824m13 825r24 826m13 827r16
+. 827r49 828m13 829r16 830m13 831r16 832m13 834r34 837r34 839m13 841r34 842r22
+. 844m10 858m10 860m7 861m7 862r13 863m7 864r13 865m7 866m7 868m7 870m7 871m7
+. 872m7 873m7 874m7 875m7 877m7 879m7 880m7 882m7 883m7 884m7 885m7 886m7
+. 887m7 888m7 889m7 890m7 891m7 895m16 897m16 904m16 913m16 939m16 964m22
+. 968m19 974m10 997m10 1003m10 1004m10 1005m10 1008m10 1010m10 1012m7 1013m7
+. 1014r10 1015m10 1016r63 1018m10 1020r63 1022m7 1023m7 1034m13 1035m13 1036r16
+. 1041m13 1042m13 1049r56 1054r24 1056m19 1059m19 1068m10 1070m10 1070r41
+. 1071m10 1073r51 1076m13 1080r40 1088m16 1091m13 1095m16 1098r16 1099m16
+. 1101r39 1101r60 1102m16 1102r39 1102r72 1107r10 1108m36 1110m38 1119r24
+. 1121r43 1128m25 1128r25 1132m25 1132r25 1143r54 1144r54 1146m51 1154r13
+. 1158r27 1160r71 1176m10 1178m13 1180m13 1183r25 1183r45 1193m16 1194m16
+. 1196m13 1201r46 1202r46 1202r66 1239m22 1253m10 1258r46 1259r46 1259r66
+. 1276m22 1294m10 1306m10 1307m10 1308m10 1312m13 1313m13 1315m13 1317m13
+. 1318m13 1319m13 1320m13 1328m7 1339r29 1339r65 1343m22 1352m13 1408r30
+. 1411r33 1412r33 1414r25 1416r28 1426r30 1429r31 1430r31 1437r27 1440r28
+. 1440r55 1458m16 1534r13 1534r36 1539r31 1541r31 1627m10 1688m19 1698m13
+. 1703m7 1704m7 1706m7 1707m7 1708m7 1711m7 1723m10 1727m10 1731m10 1735m10
+. 1739m10 1743m10 1747m10 1751m10 1755m10 1760m7
+X 177 editor-render_model.adb
+55V13 Natural_Text{string} 55b13 55>27 60l8 60t20 71s10 91s39
+55i27 Value{natural} 57r49
+57a7 Image{string} 59r14 59r21 59r40
+62V13 Dirty_Close_Summary_Message{string} 62b13 63>7 64>7 65>7 104l8 104t35
+. 988s17
+63i7 Dirty_Count{natural} 71r24 72r16
+64i7 File_Backed_Count{natural} 77r10 95r18
+65i7 Untitled_Count{natural} 77r40 96r18
+67r7 Message{17|105R9} 70m10 70r10 78m18 78r18 97m21 97r21 99m18 99r18 102m15
+. 102r15 103r25
+80r13 Categories{17|105R9} 88r30 89m30 89r30 91m27 91r27 97r41
+82U23 Add 82b23 83>16 84>16 93l17 93t20 95s13 96s13
+83i16 Count{natural} 87r19 91r53
+84a16 Label{string} 91r68
+108V13 Active_Find_Buffer_Token{natural} 108b13 109>7 121l8 121t32 129s48
+109r7 S{184|150R9} 112r10 113r17 119r17
+123V13 Active_Find_Source_Current{boolean} 123b13 124>7 133l8 133t34 706s21
+. 739s21 800s21 811s46 1268s24
+124r7 S{184|150R9} 127r14 129r12 129r74 131r15 132r24 132r60
+135V13 Dirty_Close_Open_Buffer_Fingerprint{natural} 135b13 152l8 152t43 281s18
+137r7 Registry{123|23R9} 141r54 144r42
+139i7 Fingerprint{natural} 147m16 147r31 151r14
+141i11 Index{integer} 144r52 147r65
+143r13 Item{123|151R12} 146r16 147r54
+154V13 Dirty_Close_Dirty_Buffer_Fingerprint{natural} 154b13 171l8 171t44
+. 290s18
+156r7 Registry{123|23R9} 160r54 163r42
+158i7 Fingerprint{natural} 166m16 166r31 170r14
+160i11 Index{integer} 163r52 166r65
+162r13 Item{123|151R12} 165r16 165r61 166r54
+173V13 Dirty_Close_Buffer_Id_Token{string} 173b13 174>7 181l8 181t35 200s27
+. 228s26 255s26
+174i7 Id{123|13I12} 179r38
+183V13 Dirty_Close_Dirty_Buffer_Id_List{17|105R9} 183b13 205l8 205t40 272s14
+185r7 Result{17|105R9} 200m19 200r19 204r14
+187r7 Registry{123|23R9} 189r64 194r42
+189i7 Count{natural} 191r25
+191i11 Index{integer} 194r52
+193r13 Summary{123|151R12} 196r16 197r24 200r56
+207V13 Dirty_Close_Current_Open_Set_Was_Reviewed{boolean} 207b13 208>7 235l8
+. 235t49 280s14
+208r7 S{184|150R9} 212r12 217r41
+210a7 Review{string} 228r18
+213r7 Registry{123|23R9} 215r64 224r42
+215i7 Count{natural} 221r25
+221i11 Index{integer} 224r52
+223r13 Summary{123|151R12} 226r16 228r55
+237V13 Dirty_Close_Current_Dirty_Set_Was_Reviewed{boolean} 237b13 238>7 262l8
+. 262t50 906s27 944s30
+238r7 S{184|150R9} 242r12
+240a7 Review{string} 255r18
+243r7 Registry{123|23R9} 245r64 250r42
+245i7 Count{natural} 247r25
+247i11 Index{integer} 250r52
+249r13 Summary{123|151R12} 252r16 253r24 255r55
+264V13 Dirty_Close_Current_Dirty_Set_Equals_Review{boolean} 264b13 265>7
+. 274l8 274t51 292s18
+265r7 S{184|150R9} 273r9
+276V13 Dirty_Close_All_Buffer_Identity_Current{boolean} 276b13 277>7 283l8
+. 283t47 289s14 905s18 941s21 943s21
+277r7 S{184|150R9} 280r57 282r11
+285V13 Dirty_Close_All_Buffer_Review_Current{boolean} 285b13 286>7 293l8
+. 293t45 896s19
+286r7 S{184|150R9} 289r55 291r11 292r63
+296V13 Logical_Line_Length{natural} 296b13 297>7 298>7 308l8 308t27 366s24
+. 427s47 477s24 496s18 505s47 545s21
+297r7 S{184|150R9} 300r69 301r67
+298i7 Row{natural} 300r72 301r70
+300i7 Start{natural} 303r18 304r24
+301i7 Stop{natural} 303r10 304r17
+310V13 Effective_Wrap_Col{positive} 310b13 311>7 340l8 340t26 1013s21
+311r7 S{184|150R9} 327r57 336r57
+313r7 Layout{157|8R9} 326r16 335r16
+314r7 Minimap{159|5R9} 317r47 329r16 330r16 331r16 332r16
+316b7 Effective_Minimap_Enabled{boolean} 324r13
+318r7 Scrollbars{178|9R9} 322r40
+320i7 Effective_Viewport_W{natural} 328r16 337r16
+323i7 Text_W{natural} 339r39
+342V13 Visual_Row_Ordinal_For_Caret{natural} 342b13 343>7 344>7 345>7 346>7
+. 372l8 372t36 1100s18
+343r7 S{184|150R9} 353r40 356r15 362r50 366r45
+344i7 Row{natural} 349r34
+345i7 Col{natural} 350r34
+346i7 Wrap_Col{positive} 366r52 371r50
+348i7 Ordinal{natural} 363m16 363r27 371r14
+349i7 Effective_Row{natural} 353r51 354m10 356r26 360r10 361r24
+350i7 Effective_Col{natural} 357m10 371r25
+351b7 Found{boolean} 356m41 356r41
+361i14 R{integer} 362r61 366r48
+374U14 Append_Line_Starts_For_Range 374b14 375>7 376>7 377>7 378=7 389l8
+. 389t36 1146s10
+375r7 S{184|150R9} 380r64 387r66
+376i7 First_Row{natural} 381r52
+377i7 Last_Row{natural} 382r52
+378r7 O{176|77R9} 385m7 387m10 387r10
+380i7 Doc_Last{natural} 381r63 382r62 383r48
+381i7 FR{natural} 385r32 386r18
+382i7 LR{natural} 383r43 383r62 383r74
+383i7 Copy_Last{natural} 386r24
+386i11 Row{integer} 387r69
+391U14 Build_Unwrapped_Visuals 391b14 392>7 393=7 443l8 443t31 1110s10
+392r7 S{184|150R9} 395r63 419r53 425r47 427r68
+393r7 O{176|77R9} 396r51 397r51 435m16 442m7
+395i7 Last_Row{natural} 396r72 397r71
+396i7 FR{natural} 423r18
+397i7 LR{natural} 423r24
+398i7 Count{natural} 424r20 434m16 434r25 435r39 442r33
+399r7 Layout{157|8R9} 418r12
+400r7 Minimap{159|5R9} 403r47 411r69 412r64
+402b7 Effective_Minimap_Enabled{boolean} 410r13 413r16
+404r7 Scrollbars{178|9R9} 408r40
+406i7 Base_Viewport_W{natural} 411r20 412r15 415r15
+409i7 Effective_Viewport_W{natural} 420r12
+416i7 Last_Col{natural} 430r22 432r71
+423i11 Row{integer} 425r58 427r71 436r34
+427i16 Line_Len{natural} 428r83 431r24 432r37
+428i16 Start_Col{natural} 432r60 437r34
+429i16 End_Col{natural} 438r34
+445U14 Build_Wrapped_Visuals 445b14 446>7 447=7 527l8 527t29 1108s10
+446r7 S{184|150R9} 449r68 472r47 477r45 496r39 503r47 505r68
+447r7 O{176|77R9} 477r54 496r53 509r34 515m19 516r70 524m7 525m7 526m7
+449i7 Last_Row{natural} 464r34 468r34 469r34 471r23 492r23 496r42 502r31
+450r7 Scrollbars{178|9R9} 454r41
+452i7 Effective_Viewport_H{natural} 456r13 462r42
+455i7 Visible_Cap{natural} 513r38 519r35
+463i7 Remaining{natural} 479r19 481r33 485m19 485r32
+464i7 First_Row{natural} 480m19 492m10 499r24 500r23 502r18 510r59
+465i7 First_Part{natural} 481m19 493m10 510r74
+466b7 Found{boolean} 482m19 491r14
+467i7 Count{natural} 513r29 514m19 514r28 515r42 519r26 524r33
+468i7 Logical_First{natural} 499m7 525r30
+469i7 Logical_Last{natural} 500m7 517m19 526r29
+471i11 Row{integer} 472r58 477r48 480r32
+474i16 Parts{natural} 479r31 485r44
+502i11 Row{integer} 503r58 505r71 510r53 516r49 517r35
+505i16 Line_Len{natural} 509r24 516r60
+506i16 Parts{natural} 512r42
+510i16 Start_Part{natural} 512r28
+512i20 Part{integer} 516r54
+530V13 Total_Visible_Visual_Row_Count{natural} 530b13 531>7 532>7 550l8 550t38
+. 1016s28
+531r7 S{184|150R9} 536r35 540r48 541r47 545r42
+532i7 Wrap_Col{positive} 545r51
+534i7 Count{natural} 542m13 542r22 549r14
+540i11 Row{integer} 541r58 545r45
+555r7 Copy{184|150R9} 558m30 558r30
+556r7 O{176|329R12} 558m36 559r14
+590r10 Snapshot{120|40R9} 592m56 593r33 594r30 595r39 596r47 597r49 598r44
+. 599r48 600r41 601r29 602r38
+604r13 Registry{123|23R9} 613r55 614r60 615r55
+606r13 Summary{123|151R12} 614m22 614r22 615r65 621r42
+607r13 Buffer{184|150R9} 615m22 615r22 616r25 617r44 620r41
+608r13 Row{120|19R9} 612m19 612r19 617r80 619m25 620m25 621m25 624r55
+611i20 I{integer} 612r43 624r52
+613i23 J{integer} 614r70
+635i17 I{integer} 638r38
+637r19 Row{120|19R9} 640r33 641r30 642r30 646r25
+656r14 D{137|18R9} 659r49 661r21
+658i16 Row{natural} 664r43 668r43
+702b10 Active_Find_Renderable{boolean} 709r16
+720i10 Id{123|13I12} 722r13 723r61 725r84 727r13 728r60 730r79
+735b10 Active_Find_Renderable{boolean} 742r16
+754i10 Active_Id{123|13I12} 757r13 758r53 762r65
+761r16 Metadata{123|57R9} 765r51 766r51 770r24 772r18 776r24
+796b10 Active_Find_Renderable{boolean} 810r28 813r16 817r16 845r16
+852r10 Canonical_Active_Find_Field{154|5R9} 856m16 856r16 858r62
+910i16 Target{123|13I12} 914r18 915r59
+921r16 Registry{123|23R9} 926r63 929r51
+923i16 Dirty_Count{natural} 932m25 932r40 940r22
+924i16 File_Backed_Count{natural} 934m28 934r49 945r30
+926i20 Index{integer} 929r61
+928r22 Summary{123|151R12} 931r25 933r28
+949i16 Target{123|13I12} 952r19 953r59 957r59
+956r22 Summary{123|151R12} 965r29 965r55
+1000r10 Summary{145|122R9} 1003r37 1004r37
+1026r10 Scrollbars{178|9R9} 1030r44
+1028i10 Effective_Viewport_H{natural} 1033r39 1053r57
+1045r16 Layout{157|8R9} 1053r49
+1048i19 First_Visible{natural} 1058r35
+1050i19 Last_Visible{natural} 1061r35
+1080i13 Caret_Doc_Row{natural} 1084r57 1085m16 1087r32 1093r29 1101r24
+1081b13 Fold_Found{boolean} 1087m47 1087r47
+1082b13 Visible_Found{boolean} 1093m44 1093r44 1094r20
+1119i14 I{integer} 1121r66
+1121i16 Row{natural} 1123r66 1128r43 1132r43
+1122e16 Kind{139|6E9} 1125r21
+1142i10 Last_Row{natural} 1143r75 1144r74
+1143i10 FR{natural} 1146r43
+1144i10 LR{natural} 1146r47
+1150i10 Start_Pos{natural} 1155m13 1165m19 1165r45 1171r13 1172m13 1176r31
+. 1177r24 1178r35
+1151i10 End_Pos{natural} 1156m13 1166m19 1166r43 1175m10 1175r34 1177r13
+. 1178r25
+1152i10 Doc_Len{natural} 1175r43
+1158i17 I{integer} 1160r94
+1160r19 Seg{196|13R9} 1161r88 1162r63 1163r63
+1161i19 Row_Start{natural} 1162r51 1163r51
+1162i19 Abs_Start{natural} 1165r56
+1163i19 Abs_End{natural} 1166r52
+1188i13 Count{natural} 1191r26 1192m16 1192r25 1193r29 1194r40 1196r30
+1190i17 I{integer} 1193r49 1194r60
+1201i10 Visible_Start{natural} 1205r27 1234r32 1241r67
+1202i10 Visible_End{natural} 1205r13 1235r42 1243r65
+1203i10 Count{natural} 1207r26 1238m22 1238r31 1239r37 1253r32
+1206r17 D{137|18R9} 1209r51 1210r51 1215r52 1216r25 1219r67 1221r34 1222r73
+. 1225r67 1244r40 1245r40 1246r41 1247r41 1248r41
+1209i19 Start_Pos{natural} 1215r33 1225m28 1226r52 1227r42 1227r61 1228r42
+. 1235r30 1236r40 1241r56
+1210i19 End_Pos{natural} 1215r22 1226m28 1227r31 1228m31 1234r22 1236r30
+. 1243r56
+1218i28 Line_Start{natural} 1225r54
+1220i28 Line_End{natural} 1225r83 1226r67
+1258i10 Visible_Start{natural} 1262r27 1272r50 1281r46
+1259i10 Visible_End{natural} 1262r13 1273r60 1285r46
+1260i10 Count{natural} 1271r29 1275m22 1275r31 1276r45 1294r39
+1270r20 Match{179|20R9} 1272r31 1273r39 1277r41 1280r55 1284r55 1286r41 1287r41
+. 1288r41 1289r41
+1302r10 Selection_Range{181|51R9} 1304m65 1304r65 1317r32 1318r30
+1303e10 Status{181|44E9} 1309r13
+1331i13 Count{natural} 1336r26 1342m22 1342r31 1343r48 1352r46
+1332i13 Row{natural} 1338m61 1339r22 1339r58 1340r75 1344r41
+1333i13 Col{natural} 1338m66
+1335r17 C{136|12R9} 1337r61 1338r54 1346r80 1348r81
+1360i10 Count{natural} 1456r16 1457m16 1457r25 1458r32 1477r45 1514r47 1550r29
+. 1627r33
+1362V19 Line_Text{string} 1362b19 1362>30 1395l14 1395t23 1553s48
+1362i30 Row{natural} 1373r33
+1363a13 Text{string} 1365r32 1366r31 1368r16 1372r22 1376r33 1377r30 1378r30
+. 1385r29 1389r19
+1364i13 Current_Row{natural} 1373r19 1390m19 1390r34
+1365i13 Start{natural} 1374m19 1382r30 1385r35
+1366i13 Stop{natural} 1375m19 1376r25 1377r36 1378r36 1380m22 1380r30 1382r22
+. 1385r44
+1372i17 I{integer} 1374r28 1375r27 1389r25
+1397V19 Intersects{boolean} 1397b19 1397>31 1397>40 1397>47 1397>56 1400l14
+. 1400t24 1409s22 1427s22 1438s19
+1397i31 A_Start{natural} 1399r45
+1397i40 A_End{natural} 1399r20
+1397i47 B_Start{natural} 1399r28
+1397i56 B_End{natural} 1399r55
+1402V19 Overlay_For{188|5E9} 1402b19 1402>32 1402>45 1447l14 1447t25 1480s21
+. 1484s30 1517s21 1521s30
+1402i32 Start_Index{natural} 1410r24 1428r22 1439r19
+1402i45 End_Index{natural} 1410r37 1428r35 1439r32
+1405e13 Result{188|5E9} 1415m25 1417r33 1419m25 1432m22 1446r20
+1408i20 I{integer} 1411r48 1412r48 1414r40 1416r43
+1426i20 I{integer} 1429r54 1430r54
+1437i17 I{integer} 1440r41 1440r66
+1449U20 Append_Span 1449b20 1450>13 1451>13 1452>13 1453>13 1464l14 1464t25
+. 1490s22 1526s19
+1450i13 Row{natural} 1459r34
+1451i13 Start_Index{natural} 1456r69 1460r34
+1452i13 End_Index{natural} 1456r57 1461r34
+1453e13 Kind{186|27E12} 1462r34
+1466U20 Append_Overlay_Only_Spans 1466b20 1467>13 1468>13 1469>13 1498l14
+. 1498t39 1569s37 1617s31 1621s25
+1467i13 Row{natural} 1491r25
+1468i13 Row_Start{natural} 1471r33
+1469i13 Row_End{natural} 1477r28 1483r35
+1471i13 Cursor{natural} 1477r19 1480r34 1480r42 1481r40 1491r30 1495m19
+1479e19 Overlay{188|5E9} 1484r67 1489r22 1493r54
+1481i19 Run_End{natural} 1483r25 1484r43 1484r52 1486m22 1486r33 1491r38
+. 1495r29
+1500U20 Append_Syntax_With_Overlays 1500b20 1501>13 1502>13 1503>13 1504>13
+. 1532l14 1532t41 1607s34
+1501i13 Row{natural} 1527r22
+1502i13 Start_Index{natural} 1506r33
+1503i13 End_Index{natural} 1514r28 1520r35
+1504e13 Base{186|27E12} 1528r52
+1506i13 Cursor{natural} 1514r19 1517r34 1517r42 1518r40 1527r27 1529m19
+1516e19 Overlay{188|5E9} 1521r67 1528r58
+1518i19 Run_End{natural} 1520r25 1521r43 1521r52 1523m22 1523r33 1527r35
+. 1529r29
+1538i16 First_Row{natural} 1545r25 1549r27
+1540i16 Last_Row{natural} 1545r36 1549r40
+1549i20 Row{integer} 1552r91 1553r59 1559r83 1569r64 1585r80 1608r37 1617r58
+. 1621r52
+1552i22 Row_Start{natural} 1554r52 1560r48 1565r66 1566r66 1621r57
+1553a22 Line{string} 1554r64 1575r58 1579r42 1579r48 1579r76
+1554i22 Row_End{natural} 1616r40 1617r71 1621r68
+1558a28 Tokens{186|41A9} 1562r37
+1560i28 Cursor{natural} 1568r49 1569r69 1610r47 1611m37 1616r31 1617r63
+1562r32 T=1562:37{186|35R9} 1564r69 1565r78 1566r78 1574r45 1574r57 1575r45
+. 1579r61 1579r89 1586r61
+1564e34 Base{186|27E12} 1572r37 1588m46 1596r46 1597m46 1601m43 1608r62
+1565i34 Abs_Start{natural} 1568r37 1569r77 1608r42
+1566i34 Abs_End{natural} 1608r53 1610r37 1611r47
+1578a40 Token_Text{string} 1589r68 1598r67 1602r64
+1583i46 Scope{75|183I9} 1589r80
+1631r10 Minimap{159|5R9} 1634r50
+1633b10 Effective_Minimap_Enabled{boolean} 1671r13
+1635i10 Sample_Count{natural} 1672m13 1674r32 1677r25 1680r48 1698r39
+1636i10 Total_Lines{natural} 1672r63 1677r40 1679r25 1680r34 1691r30
+1638V19 Has_Non_Whitespace{boolean} 1638b19 1639>13 1640>13 1660l14 1660t32
+. 1693s37
+1639i13 Start{natural} 1653r24 1658r26
+1640i13 Stop{natural} 1653r16 1658r33
+1642b13 Found{boolean} 1649m19 1659r20
+1644U23 Visit 1644b23 1645>16 1651l17 1651t22 1658r39
+1645e16 Ch{character} 1648r19 1648r38
+1663r13 Scrollbars{178|9R9} 1669r50
+1665i13 Effective_Viewport_H{natural} 1671r48 1691r43
+1674i17 Sample{integer} 1677r57 1680r25 1688r38
+1676i19 Row{natural} 1682r58 1684r56 1689r37 1691r25
+1681i19 Start{natural} 1686r33 1686r51 1693r57
+1683i19 Stop{natural} 1686r25 1686r44 1693r64
+1685i19 Len{natural} 1694r37
+1719a10 Empty_States{140|115A9} 1724r12 1728r12 1732r12 1736r12 1740r12 1744r12
+. 1748r12 1752r12 1756r12
+X 178 editor-scrollbars.ads
+3K16*Scrollbars 177|13w13 318r36 319r16 321r16 404r36 405r16 407r16 450r39
+. 451r16 453r16 1026r39 1027r19 1029r19 1663r42 1664r22 1668r25 178|95e22
+9R9*Scrollbar_Config 177|318r47 404r47 450r50 1026r50 1663r53 178|13e14
+33V13*Current{9R9} 177|319s27 405s27 451s27 1027s30 1664s33
+51V13*Effective_Viewport_Width{natural} 177|321s27 407s27
+55V13*Effective_Viewport_Height{natural} 177|453s27 1029s30 1668s36
+X 179 editor-search.ads
+6K16*Search 176|8w13 62r60 148r73 149r34 149r64 177|37w13 42r17 698r50 710r25
+. 818r55 179|133e18
+8I9*Search_Match_Index<integer> 177|42r24
+9i4*No_Search_Match{8I9} 177|818r62
+20R9*Search_Match 176|62r67 149r41 179|28e14
+21i7*Index{8I9} 177|818r40 820r51 1277m25 1277r47
+22i7*Start_Index{136|5I12} 177|1273r45 1278m25 1280r61 1429r57
+23i7*End_Index{136|5I12} 177|1272r37 1282m25 1284r61 1430r57
+24i7*Start_Row{natural} 177|1286m25 1286r47
+25i7*Start_Column{natural} 177|1287m25 1287r47
+26i7*End_Row{natural} 177|1288m25 1288r47
+27i7*End_Column{natural} 177|1289m25 1289r47
+42r4*No_Match{20R9} 176|148r80 149r71 177|698r57 710r32
+X 181 editor-selection.ads
+6K16*Selection 177|19w13 44r17 1302r36 1303r35 1304r19 1309r29 1314r22 1316r22
+. 181|156e21
+44E9*Selection_Validation_Status 177|44r27 1303r45 181|49e25
+45n7*Selection_Ok{44E9} 177|1309r39
+51R9*Active_Selection_Range 177|1302r46 181|54e14
+52i7*Low{136|5I12} 177|1317r48
+53i7*High{136|5I12} 177|1318r46
+79V13*Validate_Active_Selection_Range{44E9} 177|1304s29
+91V13*Selected_Character_Count{natural} 177|1314s32
+97V13*Selected_Line_Count{natural} 177|1316s32
+X 182 editor-settings.ads
+3K16*Settings 177|12w13 317r16 403r16 1407r23 1425r23 1543r26 1546r29 1556r32
+. 1573r52 1634r19 182|256e20
+64V13*Show_Minimap{boolean} 177|317s25 403s25 1634s28
+74V13*Use_Syntax_Colouring{boolean} 177|1543s35 1556s41
+76V13*Use_Semantic_Colouring{boolean} 177|1546s38 1573s61
+78V13*Use_Diagnostic_Overlays{boolean} 177|1407s32
+80V13*Use_Search_Overlays{boolean} 177|1425s32
+X 183 editor-settings_management.ads
+5K16*Settings_Management 176|24w13 294r28 301r16 303r16 177|36w13 1707r31
+. 1709r16 1712r16 183|463e31
+92R9*Configuration_Audit_Surface_Snapshot 176|301r36 183|101e14
+181R9*Settings_Surface_Snapshot 176|294r48 183|196e14
+318V13*Build_Current_Surface_Snapshot{181R9} 177|1707s51
+395R9*Settings_Command_Catalog_Snapshot 176|303r36 183|403e14
+448V13*Build_Current_Settings_Command_Catalog{395R9} 177|1712s36
+451V13*Build_Current_Configuration_Audit_Surface{92R9} 177|1709s36
+X 184 editor-state.ads
+53K16*State 176|1w13 6w13 6r31 157r31 247r43 248r16 332r18 335r25 177|6w13
+. 109r18 124r18 208r18 238r18 265r18 277r18 286r18 297r20 300r51 301r51 311r18
+. 327r39 336r39 343r25 375r26 380r46 387r48 392r18 395r45 419r35 446r18 449r50
+. 531r25 536r17 540r30 553r18 555r21 563r25 583r36 607r31 642r56 659r25 1035r42
+. 1042r42 1069r19 1073r30 1142r48 1161r67 1216r46 1219r46 1221r59 1222r52
+. 1338r26 1363r46 1535r28 1539r59 1541r58 1544r26 1552r70 1636r68 1682r37
+. 1684r37 184|656e17
+55K12*Line_Start_Vectors[7|74] 176|96r21 177|106r8
+83E9*Dirty_Close_Scope 176|247r49 184|88e37
+84n7*No_Dirty_Close_Scope{83E9} 176|248r22
+91b7*Has_Path{boolean} 177|616r42 634r25 712r22
+92r7*Path{17|105R9} 177|617r61 640r73
+94r7*Display_Name{17|105R9} 177|713r37 714r33 715r37
+96b7*Dirty{boolean} 177|620r58 733r33
+136R9*Semantic_Popup_State 176|157r37 184|148e14
+150R9*State_Type 176|332r24 335r31 177|109r24 124r24 208r24 238r24 265r24
+. 277r24 286r24 297r26 311r24 343r31 375r32 392r24 446r24 531r31 553r24 555r27
+. 563r31 607r37 184|412e14
+151r7*Buffer{231|7R9} 177|1152r64 1183r79 1223r58 1227r95 1658r18
+152r7*Carets{7|91R9[136|19]} 177|1067r12 1069r45 1069r55 1072r23 1072r33
+. 1075r15 1075r25 1076r38 1076r48 1186r12 1190r24 1190r48 1193r41 1194r52
+. 1329r42 1335r24
+158b7*Rect_Select_Active{boolean} 177|1310r27 1329r12
+163r7*Active_Find_Query{17|105R9} 177|704r31 737r31 798r31 805r20 846r35
+. 856r58 1266r34
+164r7*Active_Find_Matches{7|91R9[179|30]} 177|743r29 814r29 847r36 1270r31
+165r7*Active_Find_Match{179|20R9} 177|709r46 818r22 820r33
+166b7*Active_Find_Stale{boolean} 177|705r27 738r27 799r27 809r36 1267r30
+167b7*Active_Find_Wrapped{boolean} 177|810r62
+168b7*Active_Find_Case_Sensitive{boolean} 177|807r37
+169b7*Active_Find_Whole_Word{boolean} 177|808r33
+170i7*Active_Find_Source_Buffer_Token{natural} 177|127r16 129r14 132r26
+173r7*Active_Replace_Text{17|105R9} 177|862r38
+175r7*Active_Replace_Error_Message{17|105R9} 177|864r38
+177b7*Active_Replace_Prompt{boolean} 177|860r30
+178r7*Diagnostics{7|91R9[137|31]} 177|655r12 656r21 746r46 1205r52 1206r24
+180r7*Gutter_Markers{152|30R9} 177|585r29
+181r7*Dirty_Lines{139|11R9} 177|1118r49 1123r53
+182r7*Project{169|14R9} 177|747r54 749r81 762r56
+190r7*Settings{182|40R9} 177|1707r85 1710r14
+192r7*Feature_Panel{145|119R9} 177|1001r44 1010r69
+193r7*Outline{162|109R9} 177|1009r53
+195r7*Feature_Search_Results{146|25R9} 177|1007r17
+207r7*Messages{158|31R9} 177|588r23
+208r7*Active_Find_Input{154|5R9} 177|852r82
+209b7*Active_Find_Prompt{boolean} 177|703r14 736r14 797r14 802r30 804r18
+. 854r15 860r63 1263r23 1265r18
+212r7*Go_To_Line{150|6R9} 177|790r59 791r75 793r62 794r58
+216r7*Bookmarks{120|55R9} 177|592r45
+220r7*Panel_Focus{164|13R9} 177|787r60 788r70
+221r7*Overlay_Focus{163|29R9} 177|789r66
+222r7*Gutter_Marker_Hover{152|24R9} 177|586r34
+223r7*Semantic_Popup{136R9} 177|587r29
+224r7*Folding{149|22R9} 177|353r42 356r17 362r52 425r49 472r49 503r49 541r49
+. 584r22 1020r54 1058r26 1061r26 1084r48 1087r23 1093r20 1340r66
+225r7*File_Info{90R9} 177|616r32 617r51 620r48 634r15 640r63 712r12 713r27
+. 714r23 715r27 733r23
+242i7*Registry_Token{natural} 177|119r19 132r62
+243i7*Active_Buffer_Token{natural} 177|112r12 113r19 131r17
+249r7*Syntax_Cache{187|9R9} 177|1559r69
+250r7*Syntax_Symbols{189|9R9} 177|1598r51 1602r48
+254r7*Syntax_Analysis{75|814R9} 177|1581r85 1585r53 1589r51
+271b7*Post_Restore_Feedback_Current{boolean} 177|653r44
+275b7*File_Target_Prompt_Active{boolean} 177|865r41 867r15
+278r7*File_Target_Prompt_Label{17|105R9} 177|867r48
+280r7*File_Target_Prompt_Input{154|5R9} 177|869r40
+311b7*Dirty_Close_Prompt_Active{boolean} 177|870r41 890r50 892r12 973r12
+312e7*Dirty_Close_Prompt_Scope{83E9} 177|871r32
+313b7*Dirty_Close_Prompt_All_Buffers{boolean} 177|872r38 893r15 919r15 983r22
+314i7*Dirty_Close_Prompt_Buffer{natural} 177|873r40 911r46 950r46
+318i7*Dirty_Close_Prompt_Buffer_Count{natural} 177|217r43 874r39
+322i7*Dirty_Close_Prompt_Buffer_Fingerprint{natural} 177|282r13 876r11
+328r7*Dirty_Close_Prompt_Buffer_Ids{17|105R9} 177|212r14 879r37
+334i7*Dirty_Close_Prompt_Dirty_Fingerprint{natural} 177|291r13 878r11
+340r7*Dirty_Close_Prompt_Dirty_Buffer_Ids{17|105R9} 177|242r14 273r11 881r11
+342i7*Dirty_Close_Prompt_Dirty_Count{natural} 177|882r38 989r22
+343i7*Dirty_Close_Prompt_File_Backed_Count{natural} 177|883r44 990r22
+344i7*Dirty_Close_Prompt_Untitled_Count{natural} 177|884r41 991r22 992r22
+345i7*Dirty_Close_Prompt_Conflicted_Count{natural} 177|885r43 977r22
+346i7*Dirty_Close_Prompt_Unwritable_Count{natural} 177|886r43 979r22
+347i7*Dirty_Close_Prompt_Missing_Count{natural} 177|887r40 981r22
+348i7*Dirty_Close_Prompt_Save_Failure_Count{natural} 177|888r45 975r19
+356r7*Terminal_Tasks{191|87R9} 177|1705r56
+411r7*Guided_Prompt{151|60R9} 177|1760r60
+513V13*Current_Text{string} 177|1363s52
+535V13*Line_Count{natural} 177|327s45 336s45 380s52 395s51 419s41 449s56
+. 536s23 540s36 583s42 642s62 1035s48 1042s48 1142s54 1216s52 1221s65 1535s34
+. 1539s65 1541s64 1636s74
+537V13*Row_For_Index{natural} 177|659s31 1069s25
+541U14*Row_Col_For_Index 177|1338s32
+547V13*Line_Start{136|5I12} 177|300s57 387s54 1073s36 1161s73 1219s52 1222s58
+. 1552s76 1682s43
+551V13*Line_End{136|5I12} 177|301s57 1684s43
+557U14*Prepare_Syntax_For_Visible_Range 177|1544s32
+X 186 editor-syntax.ads
+1K16*Syntax 176|22w13 68r28 68r56 177|41w13 47r17 1453r34 1493r35 1504r34
+. 1558r53 1564r48 1572r51 1596r60 186|81e18
+3E9*Syntax_Kind 177|47r24 186|24e25
+4n7*Plain_Text{3E9} 176|68r63 177|1493r42
+6n7*Identifier{3E9} 177|1572r58 1596r67
+27E12*Token_Kind{3E9} 176|68r35 177|1453r41 1504r41 1564r55
+36i7*Start_Col{natural} 177|1565r80 1574r59 1579r63 1586r63
+37i7*End_Col{natural} 177|1566r80 1574r47 1575r47 1579r91
+38e7*Kind{27E12} 177|1564r71
+41A9*Token_Span_Array(35R9)<integer> 177|1558r60
+X 187 editor-syntax_cache.ads
+4K16*Syntax_Cache 177|38w13 1559r37 187|81e24
+32V13*Tokens_For_Line{186|41A9} 177|1559s50
+X 188 editor-syntax_overlays.ads
+3K16*Syntax_Overlays 177|40w13 46r17 1403r26 1405r29 1405r68 1415r42 1417r50
+. 1419r42 1432r39 1442r33 1479r45 1489r40 1492r32 1516r45 1528r29 188|18e27
+5E9*Overlay_Kind 177|46r33 1403r42 1405r45 1479r61 1516r61 188|10e25
+6n7*No_Overlay{5E9} 177|1405r84 1489r56
+7n7*Diagnostic_Warning_Overlay{5E9} 177|1419r58
+8n7*Diagnostic_Error_Overlay{5E9} 177|1415r58 1417r66
+9n7*Search_Match_Overlay{5E9} 177|1432r55
+10n7*Selection_Overlay{5E9} 177|1442r49
+12V13*Merge{186|27E12} 177|1492s48 1528s45
+X 189 editor-syntax_semantics.ads
+5K16*Syntax_Semantics 177|39w13 1588r61 1597r61 1601r58 189|82e28
+40V13*Kind_For_Identifier{186|27E12} 177|1597s78 1601s75
+49V13*Kind_For_Identifier_In_Scope{186|27E12} 177|1588s78
+X 191 editor-terminal_tasks.ads
+5K16*Terminal_Tasks 176|21w13 280r31 177|32w13 1705r16 191|164e26
+63R9*Terminal_Task_Render_Snapshot 176|280r46 191|85e14
+142V13*Build_Render_Snapshot{63R9} 177|1705s31
+X 193 editor-view.ads
+6K16*View 177|7w13 322r19 408r19 421r19 428r68 454r19 463r41 1012r29 1030r22
+. 1049r41 1053r34 1669r28 193|97e16
+30V13*Viewport_Width{natural} 177|322s24 408s24
+31V13*Viewport_Height{natural} 177|454s24 1030s27 1669s33
+53V13*Scroll_X{natural} 177|421s24 428s73
+54V13*Scroll_Y{natural} 177|463s46 1049s46 1053s39
+90V13*Wrap_Mode{196|4E9} 177|1012s34
+X 196 editor-wrap.ads
+1K16*Wrap 176|9w13 75r53 104r26 104r51 177|9w13 43r17 339r21 365r28 476r28
+. 495r22 508r28 516r28 544r25 1014r31 1036r37 1098r37 1107r31 1160r47 196|65e16
+4E9*Wrap_Mode 176|104r31 177|43r22 196|6e24
+5n7*Wrap_None{4E9} 176|104r56
+6n7*Wrap_At_Viewport{4E9} 177|1014r36 1036r42 1098r42 1107r36
+13R9*Visual_Row_Info 176|75r58 177|1160r52 196|17e14
+14i7*Logical_Row{natural} 176|107m67 177|436m19 1023m44 1121r69 1161r92
+15i7*Start_Col{natural} 176|107m85 177|437m19 1023m62 1162r67
+16i7*End_Col{natural} 176|107m101 177|438m19 1023m78 1163r67
+25V13*Wrap_Column{positive} 177|339s26
+35V13*Visual_Row_Count_For_Logical_Line{positive} 177|365s33 476s33 495s27
+. 508s33 544s30
+59V13*Visual_Segment{13R9} 177|516s33
+X 197 interfac.ads
+47K9*Interfaces 176|7r6 197|247e15
+X 198 i-c.ads
+33K20*C 176|7w17 198|601e17
+X 199 system.ads
 67M9*Address
-X 33 s-memory.ads
-51V13*Alloc{28|67M9} 101i<c,__gnat_malloc>22
+X 208 s-memory.ads
+51V13*Alloc{199|67M9} 101i<c,__gnat_malloc>22
 66U14*Free 102i<c,__gnat_free>22
-74V13*Realloc{28|67M9} 103i<c,__gnat_realloc>22
-X 44 s-stalib.adb
+74V13*Realloc{199|67M9} 103i<c,__gnat_realloc>22
+X 219 s-stalib.adb
 87U14 Break_Start 88i<c,__gnat_break_start>22
-X 51 text_backend-rope_impl.ads
-39V13*Length{natural} 23|16s45 73s54 126s69
-X 52 text_buffer.ads
-4K9*Text_Buffer=4:42 23|1w6 16r33 73r42 126r57
+X 231 text_backend-rope_impl.ads
+69V13*Length{natural} 177|1152s54 1183s69 1223s48 1227s85
+101U14*For_Each_Char_Range 177|1657s25
+X 232 text_buffer.ads
+26K9*Text_Buffer=26:42 177|1w6 1152r42 1183r57 1223r36 1227r73 1657r13
 

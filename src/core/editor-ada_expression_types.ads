@@ -4,6 +4,7 @@ with Editor.Ada_Call_Resolution;
 with Editor.Ada_Expected_Type_Contexts;
 with Editor.Ada_Declarative_Regions;
 with Editor.Ada_Direct_Visibility;
+with Editor.Ada_Project_Index;
 with Editor.Ada_Selected_Name_Resolution;
 with Editor.Ada_Static_Expressions;
 with Editor.Ada_Syntax_Tree;
@@ -585,6 +586,31 @@ package Editor.Ada_Expression_Types is
       Calls      : Editor.Ada_Call_Resolution.Call_Resolution_Model;
       Selected   : Editor.Ada_Selected_Name_Resolution.Selected_Name_Model;
       Expected   : Editor.Ada_Expected_Type_Contexts.Expected_Context_Model)
+      return Expression_Type_Model;
+
+   function Build_With_Cross_Unit_Selected_Names_Operator_Uses_And_Expected
+     (Tree       : Editor.Ada_Syntax_Tree.Tree_Type;
+      Regions    : Editor.Ada_Declarative_Regions.Region_Model;
+      Visibility : Editor.Ada_Direct_Visibility.Visibility_Model;
+      Types      : Editor.Ada_Type_Graph.Type_Model;
+      Static     : Editor.Ada_Static_Expressions.Static_Model;
+      Calls      : Editor.Ada_Call_Resolution.Call_Resolution_Model;
+      Selected   : Editor.Ada_Selected_Name_Resolution.Selected_Name_Model;
+      Primitives : Editor.Ada_Use_Type_Operators.Primitive_Use_Model;
+      Expected   : Editor.Ada_Expected_Type_Contexts.Expected_Context_Model)
+      return Expression_Type_Model;
+
+   function Build_With_Project_Cross_Unit_Selected_Names_Operator_Uses_And_Expected
+     (Tree       : Editor.Ada_Syntax_Tree.Tree_Type;
+      Regions    : Editor.Ada_Declarative_Regions.Region_Model;
+      Visibility : Editor.Ada_Direct_Visibility.Visibility_Model;
+      Types      : Editor.Ada_Type_Graph.Type_Model;
+      Static     : Editor.Ada_Static_Expressions.Static_Model;
+      Calls      : Editor.Ada_Call_Resolution.Call_Resolution_Model;
+      Selected   : Editor.Ada_Selected_Name_Resolution.Selected_Name_Model;
+      Primitives : Editor.Ada_Use_Type_Operators.Primitive_Use_Model;
+      Expected   : Editor.Ada_Expected_Type_Contexts.Expected_Context_Model;
+      Index      : Editor.Ada_Project_Index.Index_State)
       return Expression_Type_Model;
 
    function Build_With_Operator_Uses

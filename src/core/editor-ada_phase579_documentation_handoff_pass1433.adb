@@ -21,7 +21,8 @@ package body Editor.Ada_Phase579_Documentation_Handoff_Pass1433 is
             | Status_Rejected_Reopened_Remaining_Gap
             | Status_Rejected_Speculative_Edge
             | Status_Rejected_Missing_Acceptance_Standard
-            | Status_Rejected_Stale_Documentation_Evidence =>
+            | Status_Rejected_Stale_Documentation_Evidence
+            | Status_Rejected_Duplicate_Section =>
             return Class_Rejected;
          when Status_Indeterminate_Missing_Evidence =>
             return Class_Indeterminate;
@@ -93,7 +94,8 @@ package body Editor.Ada_Phase579_Documentation_Handoff_Pass1433 is
             | Status_Rejected_Reopened_Remaining_Gap
             | Status_Rejected_Speculative_Edge
             | Status_Rejected_Missing_Acceptance_Standard
-            | Status_Rejected_Stale_Documentation_Evidence =>
+            | Status_Rejected_Stale_Documentation_Evidence
+            | Status_Rejected_Duplicate_Section =>
             Model.Rejected_Count := Model.Rejected_Count + 1;
          when Status_Indeterminate_Missing_Evidence =>
             Model.Indeterminate_Count := Model.Indeterminate_Count + 1;
@@ -103,12 +105,38 @@ package body Editor.Ada_Phase579_Documentation_Handoff_Pass1433 is
    end Tally;
 
    function Build (Input : Handoff_Input) return Handoff_Model is
+      function Is_Required_Section (Section : Handoff_Section) return Boolean is
+      begin
+         return Section /= Section_Unknown;
+      end Is_Required_Section;
+
+      function Required_Section_Total return Natural is
+         Count : Natural := 0;
+      begin
+         for Section in Handoff_Section loop
+            if Is_Required_Section (Section) then
+               Count := Count + 1;
+            end if;
+         end loop;
+         return Count;
+      end Required_Section_Total;
+
+      Seen : array (Handoff_Section) of Boolean := (others => False);
       Model : Handoff_Model;
       Status : Handoff_Status;
       Item : Handoff_Entry;
    begin
+      Model.Required_Section_Count := Required_Section_Total;
       for Row of Input.Rows loop
          Status := Evaluate (Row);
+         if Status = Status_Accepted and then Is_Required_Section (Row.Section) then
+            if Seen (Row.Section) then
+               Status := Status_Rejected_Duplicate_Section;
+               Model.Duplicate_Section_Count := Model.Duplicate_Section_Count + 1;
+            else
+               Seen (Row.Section) := True;
+            end if;
+         end if;
          Item.Id := Row.Id;
          Item.Section := Row.Section;
          Item.Status := Status;
@@ -119,6 +147,11 @@ package body Editor.Ada_Phase579_Documentation_Handoff_Pass1433 is
          Model.Handoff_Fingerprint :=
            Model.Handoff_Fingerprint + Item.Result_Fingerprint;
          Tally (Model, Item);
+      end loop;
+      for Section in Handoff_Section loop
+         if Is_Required_Section (Section) and then not Seen (Section) then
+            Model.Missing_Section_Count := Model.Missing_Section_Count + 1;
+         end if;
       end loop;
       return Model;
    end Build;
@@ -139,10 +172,13 @@ package body Editor.Ada_Phase579_Documentation_Handoff_Pass1433 is
 
    function Documentation_Handoff_Complete (Model : Handoff_Model) return Boolean is
    begin
-      return Model.Total_Rows > 0
-        and then Model.Accepted_Count = Model.Total_Rows
+      return Model.Total_Rows = Model.Required_Section_Count
+        and then Model.Required_Section_Count = 5
+        and then Model.Accepted_Count = Model.Required_Section_Count
         and then Model.Rejected_Count = 0
         and then Model.Indeterminate_Count = 0
+        and then Model.Missing_Section_Count = 0
+        and then Model.Duplicate_Section_Count = 0
         and then Model.Handoff_Fingerprint > 0;
    end Documentation_Handoff_Complete;
 

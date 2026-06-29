@@ -40,9 +40,10 @@ package body Editor.Ada_View_Aware_Compatibility is
             | Editor.Ada_Subtype_Compatibility.Subtype_Compatibility_Universal_Integer_To_Real
             | Editor.Ada_Subtype_Compatibility.Subtype_Compatibility_Type_Graph_Exact
             | Editor.Ada_Subtype_Compatibility.Subtype_Compatibility_Type_Graph_Subtype_Of
-            | Editor.Ada_Subtype_Compatibility.Subtype_Compatibility_Type_Graph_Derived_From
             | Editor.Ada_Subtype_Compatibility.Subtype_Compatibility_Type_Graph_Class_Wide =>
             return View_Compatibility_Compatible;
+         when Editor.Ada_Subtype_Compatibility.Subtype_Compatibility_Type_Graph_Derived_From =>
+            return View_Compatibility_Requires_Explicit_Conversion;
          when Editor.Ada_Subtype_Compatibility.Subtype_Compatibility_Private_View_Partial_View =>
             return View_Compatibility_Private_Partial_View;
          when Editor.Ada_Subtype_Compatibility.Subtype_Compatibility_Private_View_Full_View =>
@@ -108,6 +109,8 @@ package body Editor.Ada_View_Aware_Compatibility is
             Model.Limited_Total := Model.Limited_Total + 1;
          when View_Compatibility_Cross_Unit_Unresolved =>
             Model.Unresolved_Total := Model.Unresolved_Total + 1;
+         when View_Compatibility_Requires_Explicit_Conversion =>
+            Model.Explicit_Total := Model.Explicit_Total + 1;
          when View_Compatibility_Known_Incompatible =>
             Model.Incompatible_Total := Model.Incompatible_Total + 1;
          when View_Compatibility_Indeterminate =>

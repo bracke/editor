@@ -6,8 +6,8 @@ The canonical runtime release gate remains a real graphics validation run:
 tools/bin/strict_runtime_validation
 ```
 
-That gate requires the runtime C syntax/header check, the runtime link/build
-check, the canonical `bin/editor_app` executable, the shader freshness check,
+That gate requires the runtime C entrypoint/Ada backend check, the runtime link/build
+check, the canonical `bin/editor` executable, the shader freshness check,
 the graphical GLFW/Vulkan smoke, and the missing-shader negative asset check.
 It should be run on at least one release validation machine with a working GLFW
 and Vulkan stack.

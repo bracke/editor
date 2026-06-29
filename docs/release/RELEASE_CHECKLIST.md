@@ -87,7 +87,7 @@ Only change it to `RELEASE_STATE=RELEASE_CANDIDATE` after
 tools/bin/release_check
 ```
 
-This Ada release tool verifies the expected release-facing files and runs all available build/test gates, including the Ada keyword identifier gate, the dependency-aware runtime C syntax/header gate, the dependency-aware runtime link/build gate, the dependency-aware graphical runtime smoke gate, the supplied-result product-smoke gate, and the real process-runner smoke gate when `gprbuild` is available. Set `EDITOR_REQUIRE_RUNTIME_COMPILE=1`, `EDITOR_REQUIRE_RUNTIME_LINK=1`, `EDITOR_REQUIRE_RUNTIME_EXE=1`, `EDITOR_REQUIRE_SHADER_FRESHNESS=1`, `EDITOR_REQUIRE_RUNTIME_SMOKE=1`, and `EDITOR_REQUIRE_RUNTIME_MISSING_ASSET=1` on release validation machines to make missing GLFW/Vulkan/build/display/runtime dependencies or a missing canonical `bin/editor_app` executable fail the check. For final runtime validation on a supported graphics machine, run `tools/bin/strict_runtime_validation`; it forces the syntax/header, link/build, canonical executable, shader freshness, graphical smoke, and missing-shader negative asset gates into required mode.
+This Ada release tool verifies the expected release-facing files and runs all available build/test gates, including the Ada keyword identifier gate, the dependency-aware runtime C entrypoint/Ada backend gate, the dependency-aware runtime link/build gate, the dependency-aware graphical runtime smoke gate, the supplied-result product-smoke gate, and the real process-runner smoke gate when `gprbuild` is available. Set `EDITOR_REQUIRE_RUNTIME_COMPILE=1`, `EDITOR_REQUIRE_RUNTIME_LINK=1`, `EDITOR_REQUIRE_RUNTIME_EXE=1`, `EDITOR_REQUIRE_SHADER_FRESHNESS=1`, `EDITOR_REQUIRE_RUNTIME_SMOKE=1`, and `EDITOR_REQUIRE_RUNTIME_MISSING_ASSET=1` on release validation machines to make missing GLFW/Vulkan/build/display/runtime dependencies or a missing canonical `bin/editor` executable fail the check. For final runtime validation on a supported graphics machine, run `tools/bin/strict_runtime_validation`; it forces the entrypoint/backend, link/build, canonical executable, shader freshness, graphical smoke, and missing-shader negative asset gates into required mode.
 
 
 
@@ -118,7 +118,7 @@ The gate is intentionally Ada-native. It performs static contract checks for the
 - `tools/bin/product_smoke` passes.
 - `tools/bin/real_build_runner_smoke` passes.
 - `tools/bin/ada_keyword_identifier_check` passes and finds no case-insensitive Ada reserved word used as an object, field, parameter, type, package, entry, procedure, or function identifier.
-- `EDITOR_REQUIRE_RUNTIME_COMPILE=1 tools/bin/runtime_compile_check` passes on a machine with GLFW and Vulkan development headers installed. This is a syntax/header check only.
+- `EDITOR_REQUIRE_RUNTIME_COMPILE=1 tools/bin/runtime_compile_check` passes on a machine with GLFW and Vulkan development headers installed. This is a entrypoint syntax check only.
 - `EDITOR_REQUIRE_RUNTIME_LINK=1 tools/bin/runtime_link_check` passes and builds/links the runtime application through `alr build` or `gprbuild -P editor.gpr`.
 - `EDITOR_REQUIRE_SHADER_FRESHNESS=1 tools/bin/shader_freshness_check` passes on a machine with `glslangValidator`; it recompiles shaders to a temporary directory and proves the checked-in `.spv` files are current.
 - `EDITOR_REQUIRE_RUNTIME_SMOKE=1 tools/bin/runtime_smoke` passes on a machine with GLFW, Vulkan, and a usable display session, and logs bounded presented frames plus a verified resize-triggered swapchain recreation.
@@ -153,7 +153,7 @@ Source archives should not include generated build products, root-level `PHASE*.
 
 ## Runtime asset layout
 
-The Vulkan backend must not assume that the current working directory is the repository root. Shader lookup is release-contractual and must match `README.md` and `src/runtime/render_backend_vulkan.c`. The supported lookup order is:
+The Vulkan backend must not assume that the current working directory is the repository root. Shader lookup is release-contractual and must match `README.md` and `src/runtime/render_backend_vulkan.adb`. The supported lookup order is:
 
 1. `EDITOR_SHADER_DIR`, when set.
 2. The executable directory itself, for minimal colocated bundles.
@@ -188,9 +188,9 @@ EDITOR_REQUIRE_SHADER_FRESHNESS=1 tools/bin/shader_freshness_check
 The freshness gate recompiles each shader to a temporary directory and byte-compares the generated SPIR-V with the checked-in `.spv` files. In non-strict mode it skips cleanly when `glslangValidator` is unavailable. In strict mode, missing `glslangValidator` or stale checked-in binaries fail the release gate.
 The byte comparison is intentionally release-toolchain based. Use one chosen `glslangValidator` version for a release candidate, regenerate shader binaries with `tools/bin/compile_shaders`, and run the strict freshness gate with that same release toolchain. See `docs/release/SHADER_TOOLCHAIN.md`.
 
-## Runtime C syntax gate
+## Runtime entrypoint/backend gate
 
-Run the C syntax gate on a machine with GLFW and Vulkan development headers installed:
+Run the runtime entrypoint/backend gate on a machine with the C compiler installed:
 
 ```sh
 EDITOR_REQUIRE_RUNTIME_COMPILE=1 tools/bin/runtime_compile_check
@@ -199,12 +199,16 @@ EDITOR_REQUIRE_RUNTIME_COMPILE=1 tools/bin/runtime_compile_check
 The gate checks:
 
 - `src/runtime/main.c`;
-- `src/runtime/runtime_glfw.c`;
-- `src/runtime/render_backend_vulkan.c`;
-- availability of `<GLFW/glfw3.h>`;
-- availability of `<vulkan/vulkan.h>`.
+- `src/runtime/runtime_glfw.adb`;
+- `src/runtime/render_backend_vulkan.ads`;
+- `src/runtime/render_backend_vulkan.adb`.
 
-Without `EDITOR_REQUIRE_RUNTIME_COMPILE=1`, missing runtime C dependencies are reported as an explicit skipped check so ordinary source-structure validation can still run on machines without graphics development packages.
+The gate syntax-checks the small C entrypoint, verifies that the Ada GLFW runtime
+and Ada `df_vulkan` backend files are present, and rejects the removed C backend
+files if they reappear. Without `EDITOR_REQUIRE_RUNTIME_COMPILE=1`, missing C
+compiler/runtime dependencies are reported as an explicit skipped check so
+ordinary source-structure validation can still run on machines without graphics
+development packages.
 
 
 ## Runtime graphical smoke gate
@@ -215,7 +219,7 @@ Run the graphical runtime smoke on a machine with GLFW, Vulkan runtime support, 
 EDITOR_REQUIRE_RUNTIME_SMOKE=1 tools/bin/runtime_smoke
 ```
 
-The smoke gate builds or reuses `bin/editor_app`, starts the runtime with `--runtime-smoke`, primes deterministic Ada-like text to exercise Textrender glyph acquisition and atlas upload/clear behavior, renders a bounded number of successfully presented frames, requests a resize through `--runtime-smoke-resize --runtime-smoke-resize-count=3`, verifies that the backend swapchain recreation counter advances, and exits through the normal runtime loop. Without `EDITOR_REQUIRE_RUNTIME_SMOKE=1`, missing build tools, executable, or display/session dependencies are reported as explicit skipped checks so source-structure validation can still run on headless machines.
+The smoke gate builds or reuses `bin/editor`, starts the runtime with `--runtime-smoke`, primes deterministic Ada-like text to exercise Textrender glyph acquisition and atlas upload/clear behavior, renders a bounded number of successfully presented frames, requests a resize through `--runtime-smoke-resize --runtime-smoke-resize-count=3`, verifies that the backend swapchain recreation counter advances, and exits through the normal runtime loop. Without `EDITOR_REQUIRE_RUNTIME_SMOKE=1`, missing build tools, executable, or display/session dependencies are reported as explicit skipped checks so source-structure validation can still run on headless machines.
 
 ## Strict runtime validation driver
 
@@ -238,7 +242,7 @@ strict runtime validation driver on a supported graphics validation machine.
 
 Before release, manually verify the Vulkan runtime resize path on a machine with Vulkan and GLFW development/runtime support:
 
-1. Start `editor_app`.
+1. Start `editor`.
 2. Resize the window repeatedly, including very small sizes.
 3. Minimize and restore the window.
 4. Move the window between monitors if available.
@@ -304,7 +308,7 @@ The editor uses incremental Ada lexical and conservative local semantic highligh
 
 ## Runtime validation split
 
-`run_runtime_compile_check` is syntax/header-only and uses `gcc -fsyntax-only`; it does not prove linker flags, GLFW/Vulkan libraries, or Ada-exported C symbols. `run_runtime_link_check` is the runtime build/link gate and must pass on release validation machines before graphical runtime smoke is considered release evidence.
+`run_runtime_compile_check` is entrypoint syntax-only and uses `gcc -fsyntax-only`; it does not prove linker flags, GLFW/Vulkan libraries, or Ada-exported C symbols. `run_runtime_link_check` is the runtime build/link gate and must pass on release validation machines before graphical runtime smoke is considered release evidence.
 
 
 Runtime smoke font-atlas validation: deterministic text must trigger atlas upload, the recorded upload must have non-zero dimensions and at least `EDITOR_RUNTIME_SMOKE_ATLAS_MIN_NONZERO_BYTES` non-zero rasterized glyph bytes, `Atlas_Dirty` must be cleared after upload, a later cache-hit frame must not redundantly upload the atlas, and the upload dimensions/non-zero-byte count/checksum must remain stable during that cache-hit frame.
@@ -327,7 +331,7 @@ The validation driver forces the strict runtime compile, link, executable, shade
 ### Runtime visual render-contract smoke
 
 
-Runtime smoke execution is bounded by the runtime itself. `tools/bin/runtime_smoke` passes `--runtime-smoke-max-seconds` to `bin/editor_app`; the runtime loop fails with a clear smoke-timeout diagnostic if the requested frames, resize transitions, zero-framebuffer recovery, visual contract, and atlas checks do not complete within `EDITOR_RUNTIME_SMOKE_TIMEOUT_SECONDS` seconds (default `30`). This removes the release gate's dependency on an external `timeout` utility while still preventing normal smoke-loop hangs from being reported as successful validation.
+Runtime smoke execution is bounded by the runtime itself. `tools/bin/runtime_smoke` passes `--runtime-smoke-max-seconds` to `bin/editor`; the runtime loop fails with a clear smoke-timeout diagnostic if the requested frames, resize transitions, zero-framebuffer recovery, visual contract, and atlas checks do not complete within `EDITOR_RUNTIME_SMOKE_TIMEOUT_SECONDS` seconds (default `30`). This removes the release gate's dependency on an external `timeout` utility while still preventing normal smoke-loop hangs from being reported as successful validation.
 
 Runtime smoke now enables a deterministic visual render-contract check by default through `--runtime-smoke-visual-contract` / `EDITOR_RUNTIME_SMOKE_VISUAL_CONTRACT=1`.  The backend records the most recent rendered frame's visible rectangle count, glyph count, geometry checksum, and colour checksum from the packet that was actually recorded into Vulkan command buffers.  The smoke requires at least `EDITOR_RUNTIME_SMOKE_VISUAL_MIN_RECTS` visible rectangle commands and `EDITOR_RUNTIME_SMOKE_VISUAL_MIN_GLYPHS` visible glyph commands, requires nonzero geometry/colour checksums, and keeps the strongest observed metrics across rendered smoke frames so resize-driven layout changes do not cause false failures.  This is a deterministic renderer-contract gate; it complements, but does not replace, future framebuffer readback or golden-image testing.
 
@@ -663,8 +667,8 @@ Phase 579 pass 201: the language validation gate also requires regression covera
 
 ### Phase 579 pass 203 command surface check
 
-- Confirm Outline command documentation exposes only canonical dotted stable names for the daily-use Outline surface: `outline.refresh`, `outline.clear`, `outline.show`, `outline.focus`, and `outline.open-selected`.
-- Confirm legacy dash-style spellings are retained only as negative regression strings in tests/validation gates, not as accepted command names or user-facing documentation.
+- Confirm Outline command documentation exposes canonical dotted stable names for the daily-use Outline surface: `outline.refresh`, `outline.clear`, `outline.show`, `outline.focus`, `outline.open-selected`, `outline.select-current-symbol`, `outline.reveal-current-symbol`, `outline.select-next`, `outline.select-previous`, and the `outline.filter.*` commands.
+- Confirm removed legacy spellings such as `refresh-outline` and `open-selected-outline-item` remain rejected and absent from user-facing documentation. The compatibility aliases `select-current-outline-symbol`, `select-next-outline-item`, and `select-previous-outline-item` may remain accepted only to preserve existing keybinding files; exported defaults and docs must use the canonical dotted names.
 
 Phase 579 pass 204 parser-completeness check: the language-model validation gate requires aspect-specification metadata support, parser detection, and tests proving that package/type/subprogram aspect clauses are retained as declaration metadata without polluting callable profiles or symbol scopes.
 

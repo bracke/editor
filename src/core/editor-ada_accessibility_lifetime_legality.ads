@@ -201,6 +201,10 @@ package Editor.Ada_Accessibility_Lifetime_Legality is
    function Build
      (Contexts : Accessibility_Context_Model) return Accessibility_Legality_Model;
 
+   function Build_Contexts_From_Semantic_Legality
+     (Semantics : Editor.Ada_Conversion_Access_Aggregate_Legality.Semantic_Legality_Model)
+      return Accessibility_Context_Model;
+
    function Legality_Count (Model : Accessibility_Legality_Model) return Natural;
    function Legality_At
      (Model : Accessibility_Legality_Model;

@@ -1,3 +1,5 @@
+with Ada.Strings.Fixed;
+
 with Editor.Command_Surface;
 with Editor.Commands;
 with Editor.External_Producers;
@@ -224,12 +226,15 @@ package body Editor.Diagnostics_Audit is
       end Command_Route_Passes;
    begin
       return Editor.Commands.Stable_Command_Name
-          (Editor.Commands.Command_Diagnostics_Show) = "diagnostics-show"
+          (Editor.Commands.Command_Diagnostics_Show) = "diagnostics.show"
         and then Editor.Commands.Stable_Command_Name
           (Editor.Commands.Command_Diagnostics_Clear) = "diagnostics-clear"
         and then Editor.Commands.Stable_Command_Name
           (Editor.Commands.Command_Diagnostics_Open_Selected) =
             "diagnostics.open-selected"
+        and then Editor.Commands.Stable_Command_Name
+          (Editor.Commands.Command_Diagnostics_Execute_Selected_Action) =
+            "diagnostics.execute-selected-action"
         and then Editor.Commands.Stable_Command_Name
           (Editor.Commands.Command_Diagnostics_Select_Next) =
             "diagnostics.next"
@@ -250,6 +255,8 @@ package body Editor.Diagnostics_Audit is
         and then Command_Route_Passes (Editor.Commands.Command_Diagnostics_Filter_Build)
         and then Command_Route_Passes (Editor.Commands.Command_Diagnostics_Clear_Build)
         and then Command_Route_Passes (Editor.Commands.Command_Diagnostics_Open_Selected)
+        and then Command_Route_Passes
+          (Editor.Commands.Command_Diagnostics_Execute_Selected_Action)
         and then Command_Route_Passes (Editor.Commands.Command_Diagnostics_Select_Next)
         and then Command_Route_Passes (Editor.Commands.Command_Diagnostics_Select_Previous)
         and then Command_Route_Passes (Editor.Commands.Command_Diagnostics_Clear_Selected)
@@ -263,6 +270,38 @@ package body Editor.Diagnostics_Audit is
         and then Command_Route_Passes (Editor.Commands.Command_Diagnostics_Toggle_External_Source)
         and then Command_Route_Passes (Editor.Commands.Command_Diagnostics_Toggle_Unknown_Source);
    end Actions_Routed_Check;
+
+   function Editable_Actions_Visible_Check return Boolean
+   is
+      D     : Editor.Feature_Diagnostics.Diagnostics_Feature_State;
+      Panel : Editor.Feature_Panel.Feature_Panel_State;
+   begin
+      Editor.Feature_Diagnostics.Add_Diagnostic
+        (D,
+         Editor.Feature_Diagnostics.Diagnostic_Warning,
+         "insert missing delimiter",
+         "compiler",
+         Source_Kind       => Editor.Feature_Diagnostics.External_Diagnostic_Source,
+         Has_Target        => True,
+         Target_Buffer     => 1,
+         Target_Line       => 1,
+         Target_Column     => 5,
+         Has_Edit          => True,
+         Edit_Start_Line   => 1,
+         Edit_Start_Column => 5,
+         Edit_End_Line     => 1,
+         Edit_End_Column   => 5,
+         Replacement_Text  => ";");
+
+      Editor.Feature_Diagnostics.Project_Rows (D, Panel);
+
+      return Editor.Feature_Diagnostics.Row_Count (D) = 1
+        and then Editor.Feature_Diagnostics.Item_Has_Edit (D, 1)
+        and then Editor.Feature_Panel.Row_Count (Panel) = 1
+        and then Ada.Strings.Fixed.Index
+          (Editor.Feature_Panel.Row_Detail (Panel, 1),
+           "action: Apply edit") > 0;
+   end Editable_Actions_Visible_Check;
 
    function Lifecycle_Check
      (Diagnostics         : Editor.Feature_Diagnostics.Diagnostics_Feature_State;
@@ -311,6 +350,7 @@ package body Editor.Diagnostics_Audit is
       Review.Targets_Validated :=
         Target_Validation_Check (State.Feature_Diagnostics, State.Registry_Token);
       Review.Actions_Routed := Actions_Routed_Check;
+      Review.Editable_Actions_Visible := Editable_Actions_Visible_Check;
       Review.Lifecycle_Reset_Stable :=
         Lifecycle_Check (State.Feature_Diagnostics, State.Registry_Token);
       Review.Persistence_Clean := Manifest.Persistence_Exclusion_Clean;
@@ -327,6 +367,7 @@ package body Editor.Diagnostics_Audit is
         and then Review.Row_Identity_Stable
         and then Review.Targets_Validated
         and then Review.Actions_Routed
+        and then Review.Editable_Actions_Visible
         and then Review.Lifecycle_Reset_Stable
         and then Review.Persistence_Clean
         and then Review.Feature_Panel_Intact
@@ -357,6 +398,8 @@ package body Editor.Diagnostics_Audit is
          return "Diagnostics: target validation failed";
       elsif not Review.Actions_Routed then
          return "Diagnostics: action route invalid";
+      elsif not Review.Editable_Actions_Visible then
+         return "Diagnostics: editable action projection missing";
       elsif not Review.Lifecycle_Reset_Stable then
          return "Diagnostics: lifecycle reset unstable";
       elsif not Review.Persistence_Clean then

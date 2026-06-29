@@ -43,6 +43,17 @@ package body Editor.Keybinding_Management is
      (Index_Type   => Natural,
       Element_Type => Keybinding_Chord_Row_Snapshot);
 
+   Default_Config_Loaded : Boolean := False;
+   Default_Config : Editor.Keybinding_Config.Keybinding_Config_Model;
+
+   procedure Ensure_Default_Config is
+   begin
+      if not Default_Config_Loaded then
+         Editor.Keybinding_Config.Set_Defaults (Default_Config);
+         Default_Config_Loaded := True;
+      end if;
+   end Ensure_Default_Config;
+
    function Same_Chord
      (L : Editor.Keybindings.Key_Chord;
       R : Editor.Keybindings.Key_Chord) return Boolean
@@ -130,10 +141,9 @@ package body Editor.Keybinding_Management is
      (Command : Editor.Commands.Command_Id;
       Found   : out Boolean) return Editor.Keybindings.Key_Chord
    is
-      Defaults : Editor.Keybinding_Config.Keybinding_Config_Model;
    begin
-      Editor.Keybinding_Config.Set_Defaults (Defaults);
-      return Editor.Keybinding_Config.Chord_For (Defaults, Command, Found);
+      Ensure_Default_Config;
+      return Editor.Keybinding_Config.Chord_For (Default_Config, Command, Found);
    end Default_Chord_For;
 
    function Is_Default_Chord
@@ -198,7 +208,8 @@ package body Editor.Keybinding_Management is
       end if;
       R.Bindable := Assignable;
       R.Non_Bindable := not Assignable;
-      R.Conflicting := Conflicts_With_Default (Command, Active, Has_Active);
+      R.Conflicting := Has_Active and then Has_Default
+        and then not Same_Chord (Active, Default);
       R.Selected := Command = State.Selected;
       if Has_Active and then Has_Default then
          if R.Conflicting then

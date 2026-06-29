@@ -5,6 +5,8 @@ with Ada.Text_IO;
 with Editor_Tool_Common; use Editor_Tool_Common;
 
 procedure Ada_Keyword_Identifier_Check is
+   use type Ada.Directories.File_Kind;
+
    Tool : constant String := "ada_keyword_identifier_check";
 
    Tool_Failed : Boolean := False;

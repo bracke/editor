@@ -21,6 +21,7 @@ with Editor.Command_Palette;
 with Editor.Contextual_Help;
 with Editor.Executor;
 with Editor.Build_UI;
+with Editor.Terminal_Tasks;
 with Editor.Commands;
 with Editor.Settings;
 with Editor.Scrollbars;
@@ -77,6 +78,7 @@ use type Editor.Problems.Problem_Row_Severity;
 use type Editor.Buffers.Buffer_Id;
 use type Editor.Diagnostics.Diagnostic_Index;
 use type Editor.File_Tree.File_Tree_Scan_Status;
+use type Editor.State.Semantic_Popup_Kind;
 use type Editor.Panels.Bottom_Panel_Content;
 use type Editor.Pending_Transition_Bar.Pending_Bar_Action;
 use type Editor.Feature_Panel.Feature_Panel_Row_Kind;
@@ -85,6 +87,7 @@ use type Editor.Project_Search.Project_Search_Status;
 use type Editor.Project_Search.Project_Replace_Preview_Status;
 use type Editor.Build_Result_Summary.Build_Result_Summary_Kind;
 use type Editor.Build_UI.Public_Build_UI_Validation_Status;
+use type Editor.Terminal_Tasks.Terminal_Task_Status;
 use type Editor.Keybinding_Management.Keybinding_Filter;
 use type Editor.Keybinding_Management.Keybinding_Capture_State;
 package body Editor.Render_Packet is
@@ -249,6 +252,8 @@ package body Editor.Render_Packet is
         Editor.Theme.Active_Find_Match;
       Selection_Background_Color : constant Editor.Theme.Color_RGB :=
         Editor.Theme.Selection_Background;
+      Selection_Text_Color : constant Editor.Theme.Color_RGB :=
+        Editor.Theme.Syntax_Color (Editor.Syntax.Selection_Overlay);
       Cursor_Color : constant Editor.Theme.Color_RGB :=
         Editor.Theme.Cursor_Color;
       Minimap_Background_Color : constant Editor.Theme.Color_RGB :=
@@ -1354,6 +1359,50 @@ package body Editor.Render_Packet is
          end if;
       end Screen_Col_For;
 
+      function Selection_Affects_Text_Color return Boolean is
+      begin
+         return Snap.Selection_Count > 0
+           or else Snap.Rectangular_Selection_Count > 0;
+      end Selection_Affects_Text_Color;
+
+      function Text_Cell_Is_Selected
+        (Buffer_Index : Natural;
+         Row          : Natural;
+         Col          : Natural) return Boolean
+      is
+      begin
+         for RIdx in 1 .. Snap.Rectangular_Selection_Count loop
+            declare
+               Span : constant Editor.Render_Model.Rectangular_Selection_Row_Span :=
+                 Snap.Rectangular_Selections (RIdx);
+            begin
+               if Span.Row = Row
+                 and then Col >= Span.Start_Column
+                 and then Col < Span.End_Column
+               then
+                  return True;
+               end if;
+            end;
+         end loop;
+
+         if Snap.Rectangular_Selection_Count > 0 then
+            return False;
+         end if;
+
+         for SIdx in 1 .. Snap.Selection_Count loop
+            declare
+               Sel_Min : constant Natural := Natural (Snap.Sel_Start (SIdx));
+               Sel_Max : constant Natural := Natural (Snap.Sel_End (SIdx));
+            begin
+               if Buffer_Index >= Sel_Min and then Buffer_Index < Sel_Max then
+                  return True;
+               end if;
+            end;
+         end loop;
+
+         return False;
+      end Text_Cell_Is_Selected;
+
       function Baseline_Y (Row : Natural) return Float is
          Text_Height : constant Float := Editor.Fonts.Ascent - Editor.Fonts.Descent;
          Extra : constant Float := Float (Cell_H) - Text_Height;
@@ -2238,6 +2287,195 @@ package body Editor.Render_Packet is
          end case;
       end Problems_Severity_Color;
 
+      procedure Push_Terminal_Tasks_Panel
+        (Packet : in out Render_Packet)
+      is
+         Geometry : constant Editor.Layout.Rect :=
+           Editor.Layout.Panel_Rect
+             (Layout,
+              Editor.Panels.Bottom_Panel,
+              Editor.View.Viewport_Width,
+              Editor.View.Viewport_Height);
+         Splitter : constant Editor.Layout.Rect :=
+           Editor.Layout.Panel_Splitter_Rect
+             (Layout,
+              Editor.Panels.Bottom_Panel,
+              Editor.View.Viewport_Width,
+              Editor.View.Viewport_Height);
+         Snapshot : constant Editor.Terminal_Tasks.Terminal_Task_Render_Snapshot :=
+           Snap.Terminal_Tasks;
+         Capacity_Rows : Natural := 0;
+         Header_Rows : constant Natural := 1;
+         Task_Rows : Natural := 0;
+         Output_Rows : Natural := 0;
+         Text_Columns : Natural := 0;
+         Selected_Background : constant Editor.Theme.Color_RGB :=
+           (if Snapshot.Focused then Problems_Selected_Active_Background_Color
+            else Problems_Selected_Inactive_Background_Color);
+         Selected_Foreground : constant Editor.Theme.Color_RGB :=
+           (if Snapshot.Focused then Problems_Selected_Active_Foreground_Color
+            else Problems_Selected_Inactive_Foreground_Color);
+
+         function Clipped (Text : String) return String is
+         begin
+            if Text_Columns = 0 then
+               return "";
+            elsif Text'Length <= Text_Columns then
+               return Text;
+            else
+               return Ada.Strings.Fixed.Head (Text, Text_Columns);
+            end if;
+         end Clipped;
+
+         function Row_Text
+           (Row : Editor.Terminal_Tasks.Terminal_Task_Row) return String
+         is
+            Program : constant String := To_String (Row.Program_Label);
+            Profile : constant String := To_String (Row.Profile_Label);
+            Status  : constant String := To_String (Row.Status_Label);
+            Label   : constant String :=
+              (if Profile'Length = 0 then To_String (Row.Label)
+               else To_String (Row.Label) & " [" & Profile & "]");
+         begin
+            if Program'Length = 0 then
+               return Label & "  " & Status;
+            else
+               return Label & "  " & Status & "  " & Program;
+            end if;
+         end Row_Text;
+      begin
+         if Geometry.Width = 0 or else Geometry.Height = 0 then
+            return;
+         end if;
+
+         Push_Rect
+           (Packet, Problems_Background_Layer,
+            Float (Geometry.X), Float (Geometry.Y),
+            Float (Geometry.Width), Float (Geometry.Height),
+            Problems_Background_Color.R,
+            Problems_Background_Color.G,
+            Problems_Background_Color.B);
+
+         if Splitter.Width > 0 and then Splitter.Height > 0 then
+            Push_Rect
+              (Packet, Problems_Background_Layer,
+               Float (Splitter.X), Float (Splitter.Y),
+               Float (Splitter.Width), Float (Splitter.Height),
+               Problems_Separator_Color.R,
+               Problems_Separator_Color.G,
+               Problems_Separator_Color.B);
+         end if;
+
+         Capacity_Rows := Geometry.Height / Cell_H;
+         if Capacity_Rows = 0 then
+            return;
+         end if;
+
+         if Geometry.Width > 2 * Cell_W then
+            Text_Columns := (Geometry.Width / Cell_W) - 2;
+         end if;
+
+         Push_Rect
+           (Packet, Problems_Header_Layer,
+            Float (Geometry.X), Float (Geometry.Y),
+            Float (Geometry.Width), Float (Cell_H),
+            Problems_Header_Background_Color.R,
+            Problems_Header_Background_Color.G,
+            Problems_Header_Background_Color.B);
+         Push_Problems_Text
+           (Packet,
+            Clipped
+              ("Terminal  " & To_String (Snapshot.Status_Label)),
+            Float (Geometry.X + Cell_W),
+            Float (Geometry.Y),
+            Problems_Foreground_Color);
+
+         if Capacity_Rows <= Header_Rows then
+            return;
+         end if;
+
+         Task_Rows :=
+           Natural'Min
+             (Snapshot.Row_Count,
+              Natural'Min (3, Capacity_Rows - Header_Rows));
+         Output_Rows := Capacity_Rows - Header_Rows - Task_Rows;
+
+         for I in 1 .. Task_Rows loop
+            declare
+               Row : constant Editor.Terminal_Tasks.Terminal_Task_Row :=
+                 Snapshot.Rows (I);
+               Y : constant Float :=
+                 Float (Geometry.Y + (Header_Rows + I - 1) * Cell_H);
+               Text_Color : Editor.Theme.Color_RGB := Problems_Foreground_Color;
+            begin
+               if Row.Selected then
+                  Push_Rect
+                    (Packet, Problems_Row_Layer,
+                     Float (Geometry.X), Y,
+                     Float (Geometry.Width), Float (Cell_H),
+                     Selected_Background.R,
+                     Selected_Background.G,
+                     Selected_Background.B);
+                  Text_Color := Selected_Foreground;
+               elsif I mod 2 = 0 then
+                  Push_Rect
+                    (Packet, Problems_Row_Layer,
+                     Float (Geometry.X), Y,
+                     Float (Geometry.Width), Float (Cell_H),
+                     Problems_Alternate_Row_Color.R,
+                     Problems_Alternate_Row_Color.G,
+                     Problems_Alternate_Row_Color.B);
+               end if;
+
+               Push_Problems_Text
+                 (Packet, Clipped (Row_Text (Row)),
+                  Float (Geometry.X + Cell_W), Y, Text_Color);
+            end;
+         end loop;
+
+         if Snapshot.Row_Count = 0 and then Output_Rows > 0 then
+            Push_Problems_Text
+              (Packet, Clipped (To_String (Snapshot.Empty_Message)),
+               Float (Geometry.X + Cell_W),
+               Float (Geometry.Y + (Header_Rows + Task_Rows) * Cell_H),
+               Problems_Info_Color);
+         elsif Output_Rows > 0 and then Snapshot.Output_Row_Count > 0 then
+            declare
+               Lines_To_Show : constant Natural :=
+                 Natural'Min (Output_Rows, Snapshot.Output_Row_Count);
+               First_Output_Index : constant Natural :=
+                 Snapshot.Output_Rows.Last_Index - Lines_To_Show + 1;
+            begin
+               for I in 0 .. Lines_To_Show - 1 loop
+                  declare
+                     Source_Index : constant Natural := First_Output_Index + I;
+                     Y : constant Float :=
+                       Float
+                         (Geometry.Y + (Header_Rows + Task_Rows + I) * Cell_H);
+                  begin
+                     Push_Problems_Text
+                       (Packet,
+                        Clipped
+                          (To_String (Snapshot.Output_Rows (Source_Index))),
+                        Float (Geometry.X + Cell_W),
+                        Y,
+                        Problems_Info_Color);
+                  end;
+               end loop;
+            end;
+         end if;
+
+         if Snapshot.Focused then
+            Push_Rect
+              (Packet, Problems_Row_Layer,
+               Float (Geometry.X), Float (Geometry.Y),
+               Float (Geometry.Width), 1.0,
+               Panel_Focus_Border_Color.R,
+               Panel_Focus_Border_Color.G,
+               Panel_Focus_Border_Color.B);
+         end if;
+      end Push_Terminal_Tasks_Panel;
+
       procedure Push_Problems_Panel
         (Packet : in out Render_Packet)
       is
@@ -2573,6 +2811,45 @@ package body Editor.Render_Packet is
          end loop;
       end Push_Active_Find_Prompt_Text;
 
+      procedure Push_Semantic_Popup_Text
+        (Packet : in out Render_Packet;
+         Text   : String;
+         X      : Float;
+         Y      : Float;
+         Color  : Editor.Theme.Color_RGB)
+      is
+         Pen_X : Float := X;
+      begin
+         for Ch of Text loop
+            declare
+               M : Editor.Fonts.Glyph_Metric;
+            begin
+               if Ch /= ASCII.NUL and then Editor.Fonts.Get_Glyph (Ch, M) then
+                  Editor.Fonts.Check_Glyph_Fits_Cell (M, Cell_W, Cell_H);
+                  if M.W > 0.0 and then M.H > 0.0 then
+                     Push_Glyph
+                       (Packet, Semantic_Popup_Text_Layer,
+                        Float'Floor (Pen_X + M.Bearing_X + 0.5),
+                        Float'Floor
+                          (Y
+                           + Float'Max
+                             (0.0,
+                              (Float (Cell_H)
+                               - (Editor.Fonts.Ascent - Editor.Fonts.Descent))
+                              / 2.0)
+                           + Editor.Fonts.Ascent
+                           - M.Bearing_Y
+                           + 0.5),
+                        M.W, M.H,
+                        M.U0, M.V0, M.U1, M.V1,
+                        Color.R, Color.G, Color.B);
+                  end if;
+               end if;
+               Pen_X := Pen_X + Float (Cell_W);
+            end;
+         end loop;
+      end Push_Semantic_Popup_Text;
+
       function Tail_Text
         (Text    : String;
          Columns : Natural) return String
@@ -2586,6 +2863,126 @@ package body Editor.Render_Packet is
             return Text (Text'Last - Columns + 1 .. Text'Last);
          end if;
       end Tail_Text;
+
+      procedure Push_Semantic_Popup
+        (Packet : in out Render_Packet)
+      is
+         Popup : constant Editor.State.Semantic_Popup_State := Snap.Semantic_Popup;
+         Message_Body : constant Editor.Layout.Rect :=
+           Editor.Layout.Editor_Body_Rect
+             (Layout, Editor.View.Viewport_Width, Editor.View.Viewport_Height);
+         Max_Rows : constant Natural :=
+           (case Popup.Kind is
+              when Editor.State.Semantic_Hover_Popup => 2,
+              when Editor.State.Semantic_Completion_Popup =>
+                 Natural'Min
+                   (Editor.State.Max_Semantic_Completion_Items,
+                    Natural'Max (1, Popup.Item_Count)) + 1,
+              when Editor.State.No_Semantic_Popup => 0);
+         Width_Cols : constant Natural := 56;
+         Popup_W : constant Natural :=
+           Natural'Min (Message_Body.Width, Width_Cols * Cell_W);
+         Popup_H : constant Natural :=
+           Natural'Min
+             (Message_Body.Height,
+              Natural'Max (1, Max_Rows) * Cell_H);
+         Text_Cols : constant Natural :=
+           (if Popup_W / Cell_W > 2 then Popup_W / Cell_W - 2 else 1);
+         Anchor_Segment : constant Natural :=
+           Segment_For_Caret (Popup.Anchor_Row, Popup.Anchor_Column);
+         Anchor_X : constant Float :=
+           (if Anchor_Segment > 0
+            then Screen_X
+              (Screen_Col_For
+                 (Snap.Visible_Visual_Rows (Anchor_Segment), Popup.Anchor_Column))
+            else Float (Message_Body.X + Cell_W));
+         Anchor_Y : constant Float :=
+           (if Anchor_Segment > 0
+            then Screen_Y (Anchor_Segment - 1) + Float (Cell_H)
+            else Float (Message_Body.Y + Cell_H));
+         X : constant Float :=
+           Float'Min
+             (Float'Max (Float (Message_Body.X), Anchor_X),
+              Float (Message_Body.X + Message_Body.Width - Popup_W));
+         Y : constant Float :=
+           Float'Min
+             (Float'Max (Float (Message_Body.Y), Anchor_Y),
+              Float (Message_Body.Y + Message_Body.Height - Popup_H));
+         Foreground : constant Editor.Theme.Color_RGB :=
+           Editor.Theme.Command_Palette_Secondary_Foreground;
+         Title_Color : constant Editor.Theme.Color_RGB :=
+           Editor.Theme.Palette_Text;
+         Background : constant Editor.Theme.Color_RGB :=
+           Editor.Theme.Palette_Background;
+         Selected_Background : constant Editor.Theme.Color_RGB :=
+           Editor.Theme.Palette_Selected_Row;
+      begin
+         if not Popup.Active
+           or else Popup.Kind = Editor.State.No_Semantic_Popup
+           or else Popup_W = 0
+           or else Popup_H = 0
+         then
+            return;
+         end if;
+
+         Push_Rect
+           (Packet, Semantic_Popup_Background_Layer,
+            X, Y, Float (Popup_W), Float (Popup_H),
+            Background.R, Background.G, Background.B);
+
+         case Popup.Kind is
+            when Editor.State.Semantic_Hover_Popup =>
+               Push_Semantic_Popup_Text
+                 (Packet,
+                  Tail_Text (To_String (Popup.Title), Text_Cols),
+                  X + Float (Cell_W), Y,
+                  Title_Color);
+               Push_Semantic_Popup_Text
+                 (Packet,
+                  Tail_Text (To_String (Popup.Detail), Text_Cols),
+                  X + Float (Cell_W), Y + Float (Cell_H),
+                  Foreground);
+
+            when Editor.State.Semantic_Completion_Popup =>
+               Push_Semantic_Popup_Text
+                 (Packet,
+                  Tail_Text (To_String (Popup.Title), Text_Cols),
+                  X + Float (Cell_W), Y,
+                  Title_Color);
+               for I in 1 ..
+                 Natural'Min
+                   (Popup.Item_Count, Editor.State.Max_Semantic_Completion_Items)
+               loop
+                  declare
+                     Row_Y : constant Float := Y + Float (I * Cell_H);
+                     Item : constant Editor.State.Semantic_Completion_Item :=
+                       Popup.Items (Editor.State.Semantic_Completion_Item_Index (I));
+                     Label : constant String :=
+                       To_String (Item.Label) &
+                       (if Length (Item.Detail) > 0
+                        then "  " & To_String (Item.Detail)
+                        else "");
+                  begin
+                     if Popup.Selected_Item = I then
+                        Push_Rect
+                          (Packet, Semantic_Popup_Row_Layer,
+                           X, Row_Y, Float (Popup_W), Float (Cell_H),
+                           Selected_Background.R,
+                           Selected_Background.G,
+                           Selected_Background.B);
+                     end if;
+                     Push_Semantic_Popup_Text
+                       (Packet,
+                        Tail_Text (Label, Text_Cols),
+                        X + Float (Cell_W), Row_Y,
+                        Foreground);
+                  end;
+               end loop;
+
+            when Editor.State.No_Semantic_Popup =>
+               null;
+         end case;
+      end Push_Semantic_Popup;
 
       function Active_Find_Match_Text
         (Snap : Editor.Render_Model.Render_Snapshot) return String
@@ -2747,11 +3144,17 @@ package body Editor.Render_Packet is
            Editor.Layout.Editor_Body_Rect
              (Layout, Editor.View.Viewport_Width, Editor.View.Viewport_Height);
          Prompt : constant Editor.Guided_Prompts.Prompt_Snapshot := Snap.Guided_Prompt;
+         Picker_Rows : constant Natural :=
+           (if Prompt.File_Picker_Active
+            then Natural'Min
+              (Editor.Guided_Prompts.Max_File_Picker_Rows,
+               Natural (Prompt.File_Picker_Rows.Length))
+            else 0);
          G : constant Editor.Layout.Rect :=
            (X      => Message_Body.X,
             Y      => Message_Body.Y + Cell_H,
             Width  => Natural'Min (Message_Body.Width, 88 * Cell_W),
-            Height => 3 * Cell_H);
+            Height => (3 + Picker_Rows + (if Prompt.File_Picker_Active then 1 else 0)) * Cell_H);
          Field_X : constant Float := Float (G.X + 18 * Cell_W);
          Field_W : constant Float :=
            Float (if G.Width > 22 * Cell_W then G.Width - 22 * Cell_W else Cell_W);
@@ -2802,6 +3205,60 @@ package body Editor.Render_Packet is
             Float (G.X + Integer (G.Width) - Integer (24 * Cell_W)),
             Float (G.Y + 2 * Cell_H),
             Active_Find_Prompt_Button_Foreground_Color);
+
+         if Prompt.File_Picker_Active then
+            Push_Active_Find_Prompt_Text
+              (Packet,
+               Tail_Text
+                 ("Dir " & To_String (Prompt.File_Picker_Current_Directory),
+                  Natural'Max (1, G.Width / Cell_W - 2)),
+               Float (G.X + Cell_W), Float (G.Y + 3 * Cell_H),
+               Active_Find_Prompt_Foreground_Color);
+
+            if Picker_Rows = 0 then
+               Push_Active_Find_Prompt_Text
+                 (Packet, To_String (Prompt.File_Picker_Status),
+                  Float (G.X + Cell_W), Float (G.Y + 4 * Cell_H),
+                  Active_Find_Prompt_Foreground_Color);
+            else
+               declare
+                  Row_No : Natural := 0;
+               begin
+                  for I in Prompt.File_Picker_Rows.First_Index ..
+                    Prompt.File_Picker_Rows.Last_Index
+                  loop
+                     exit when Row_No >= Picker_Rows;
+
+                     declare
+                        Row : constant Editor.Guided_Prompts.File_Picker_Row :=
+                          Prompt.File_Picker_Rows.Element (I);
+                        Y : constant Float :=
+                          Float (G.Y + (4 + Row_No) * Cell_H);
+                     begin
+                        if I = Prompt.File_Picker_Selected_Index then
+                           Push_Rect
+                             (Packet, Active_Find_Prompt_Field_Layer,
+                              Float (G.X + Cell_W), Y,
+                              Float (G.Width - 2 * Cell_W), Float (Cell_H),
+                              Active_Find_Prompt_Field_Background_Color.R,
+                              Active_Find_Prompt_Field_Background_Color.G,
+                              Active_Find_Prompt_Field_Background_Color.B);
+                        end if;
+
+                        Push_Active_Find_Prompt_Text
+                          (Packet,
+                           Tail_Text
+                             (To_String (Row.Label) & "  " & To_String (Row.Path),
+                              Natural'Max (1, G.Width / Cell_W - 3)),
+                           Float (G.X + 2 * Cell_W), Y,
+                           Active_Find_Prompt_Field_Foreground_Color);
+                     end;
+
+                     Row_No := Row_No + 1;
+                  end loop;
+               end;
+            end if;
+         end if;
       end Push_Guided_Prompt;
 
 
@@ -4906,7 +5363,8 @@ package body Editor.Render_Packet is
                      Push_Fold_Marker (Out_Packet, Seg.Logical_Row, Screen_Row);
                   end if;
 
-                  if Editor.Render_Cache.Row_Is_Valid
+                  if not Selection_Affects_Text_Color
+                    and then Editor.Render_Cache.Row_Is_Valid
                     (Row        => Seg.Logical_Row,
                      Screen_Row => Screen_Row,
                      Row_Start  => Emit_Start,
@@ -4991,12 +5449,12 @@ package body Editor.Render_Packet is
                                  Token_Stop  : Natural;
                                  Kind        : Editor.Syntax.Syntax_Kind)
                               is
-                                 Color : constant Editor.Theme.Color_RGB :=
+                                 Token_Color : constant Editor.Theme.Color_RGB :=
                                    (if Settings.Use_Syntax_Colouring
-                                       or else Kind in Editor.Syntax.Diagnostic_Error
-                                                     | Editor.Syntax.Diagnostic_Warning
-                                                     | Editor.Syntax.Search_Match
-                                                     | Editor.Syntax.Selection_Overlay
+                                      or else Kind in Editor.Syntax.Diagnostic_Error
+                                                    | Editor.Syntax.Diagnostic_Warning
+                                                    | Editor.Syntax.Search_Match
+                                                    | Editor.Syntax.Selection_Overlay
                                     then Editor.Theme.Syntax_Color (Kind)
                                     else Editor.Theme.Text_Default);
                               begin
@@ -5007,7 +5465,14 @@ package body Editor.Render_Packet is
                                            (Line_Text'First + Abs_Index - Row_Start);
                                        Code : constant Editor.Unicode.Code_Point :=
                                          Segment_Codes (Abs_Index - Emit_Start);
+                                       Logical_Col : constant Natural :=
+                                         Abs_Index - Row_Start;
                                        Glyph_Col : constant Natural := Screen_Col_For (Seg, Abs_Index - Row_Start);
+                                       Color : constant Editor.Theme.Color_RGB :=
+                                         (if Text_Cell_Is_Selected
+                                               (Abs_Index, Seg.Logical_Row, Logical_Col)
+                                          then Selection_Text_Color
+                                          else Token_Color);
                                        M : Editor.Fonts.Glyph_Metric;
                                     begin
                                        if Ch /= ASCII.CR
@@ -5077,23 +5542,25 @@ package body Editor.Render_Packet is
                           (Out_Packet, Seg.Logical_Row, Screen_Row, Seg.End_Col + 1);
                      end if;
 
-                     Editor.Render_Cache.Store_Row
-                       (Row         => Seg.Logical_Row,
-                        Screen_Row  => Screen_Row,
-                        Row_Start   => Emit_Start,
-                        Row_End     => Emit_Stop,
-                        Line_Count  => Line_Count,
-                        Scroll_X    => Scroll_X,
-                        Viewport_W  => Effective_Viewport_W,
-                        Viewport_H  => Effective_Viewport_H,
-                        Wrap_Mode   => Snap.Wrap_Mode,
-                        Wrap_Col    => Snap.Wrap_Col,
-                        Is_Current  => Seg.Logical_Row = Current_Row,
-                        Line_Number_Mode => Line_Number_Config.Mode,
-                        Line_Number_Current_Row => Cache_Current_Row,
-                        Packet      => Out_Packet,
-                        First_Glyph => First_Row_Glyph,
-                        Glyph_Count => Natural (Out_Packet.Glyph_Count) - First_Row_Glyph);
+                     if not Selection_Affects_Text_Color then
+                        Editor.Render_Cache.Store_Row
+                          (Row         => Seg.Logical_Row,
+                           Screen_Row  => Screen_Row,
+                           Row_Start   => Emit_Start,
+                           Row_End     => Emit_Stop,
+                           Line_Count  => Line_Count,
+                           Scroll_X    => Scroll_X,
+                           Viewport_W  => Effective_Viewport_W,
+                           Viewport_H  => Effective_Viewport_H,
+                           Wrap_Mode   => Snap.Wrap_Mode,
+                           Wrap_Col    => Snap.Wrap_Col,
+                           Is_Current  => Seg.Logical_Row = Current_Row,
+                           Line_Number_Mode => Line_Number_Config.Mode,
+                           Line_Number_Current_Row => Cache_Current_Row,
+                           Packet      => Out_Packet,
+                           First_Glyph => First_Row_Glyph,
+                           Glyph_Count => Natural (Out_Packet.Glyph_Count) - First_Row_Glyph);
+                     end if;
                   end if;
                   end;
                end loop;
@@ -5284,7 +5751,9 @@ package body Editor.Render_Packet is
          end;
       end if;
 
-      if Editor.Panels.Active_Bottom_Content (Layout.Panels) = Editor.Panels.Search_Results_Content then
+      if Snap.Terminal_Tasks.Visible then
+         Push_Terminal_Tasks_Panel (Out_Packet);
+      elsif Editor.Panels.Active_Bottom_Content (Layout.Panels) = Editor.Panels.Search_Results_Content then
          Push_Search_Results_Panel (Out_Packet);
       else
          Push_Problems_Panel (Out_Packet);
@@ -5293,6 +5762,8 @@ package body Editor.Render_Packet is
       Push_Status_Bar (Out_Packet);
 
       Push_Pending_Transition_Bar (Out_Packet);
+
+      Push_Semantic_Popup (Out_Packet);
 
       Push_Active_Find_Prompt (Out_Packet);
 

@@ -118,8 +118,9 @@ package body Editor.Bookmarks.Tests is
 
    function Phase491_Temp_Path (Name : String) return String is
    begin
+      Ada.Directories.Create_Path ("/tmp/editor-tests");
       return Ada.Directories.Compose
-        (Ada.Directories.Current_Directory, "phase491_" & Name);
+        ("/tmp/editor-tests", "phase491_" & Name);
    end Phase491_Temp_Path;
 
    procedure Phase491_Remove_If_Exists (Path : String) is

@@ -1,13 +1,213 @@
 with Ada.Strings.Fixed;
+with Ada.Directories;
 with Editor.Commands;
 with Editor.Keybindings;
 use type Editor.Commands.Command_Id;
 package body Editor.Guided_Prompts is
+   use type Ada.Directories.File_Kind;
 
    function Trimmed (S : String) return String is
    begin
       return Ada.Strings.Fixed.Trim (S, Ada.Strings.Both);
    end Trimmed;
+
+   function Is_Separator (Ch : Character) return Boolean is
+   begin
+      return Ch = '/' or else Ch = '\';
+   end Is_Separator;
+
+   function Last_Separator_Index (S : String) return Natural is
+   begin
+      for I in reverse S'Range loop
+         if Is_Separator (S (I)) then
+            return I;
+         end if;
+      end loop;
+      return 0;
+   end Last_Separator_Index;
+
+   function Directory_Exists (Path : String) return Boolean is
+   begin
+      return Path'Length > 0
+        and then Ada.Directories.Exists (Path)
+        and then Ada.Directories.Kind (Path) = Ada.Directories.Directory;
+   exception
+      when others =>
+         return False;
+   end Directory_Exists;
+
+   function Safe_Full_Name (Path : String) return String is
+   begin
+      return Ada.Directories.Full_Name (Path);
+   exception
+      when others =>
+         return Path;
+   end Safe_Full_Name;
+
+   function Safe_Containing_Directory (Path : String) return String is
+   begin
+      return Ada.Directories.Containing_Directory (Path);
+   exception
+      when others =>
+         return Ada.Directories.Current_Directory;
+   end Safe_Containing_Directory;
+
+   function Starts_With (Text : String; Prefix : String) return Boolean is
+   begin
+      return Prefix'Length = 0
+        or else (Text'Length >= Prefix'Length
+                 and then Text (Text'First .. Text'First + Prefix'Length - 1) = Prefix);
+   end Starts_With;
+
+   procedure Insert_File_Picker_Row
+     (Rows : in out File_Picker_Row_Vectors.Vector;
+      Row  : File_Picker_Row)
+   is
+      Label : constant String := To_String (Row.Label);
+   begin
+      if Natural (Rows.Length) = 0 then
+         Rows.Append (Row);
+         return;
+      end if;
+
+      for I in Rows.First_Index .. Rows.Last_Index loop
+         if Label < To_String (Rows.Element (I).Label) then
+            Rows.Insert (I, Row);
+            return;
+         end if;
+      end loop;
+
+      Rows.Append (Row);
+   end Insert_File_Picker_Row;
+
+   procedure Refresh_File_Picker (Prompt : in out Prompt_State) is
+      Input       : constant String := Trimmed (Editor.Input_Field.Text (Prompt.Input));
+      Base_Dir    : Unbounded_String := Null_Unbounded_String;
+      Prefix      : Unbounded_String := Null_Unbounded_String;
+      Sep         : Natural := 0;
+      Search      : Ada.Directories.Search_Type;
+      Search_Open : Boolean := False;
+      Filter      : Ada.Directories.Filter_Type :=
+        (Ada.Directories.Ordinary_File => False,
+         Ada.Directories.Directory     => True,
+         Ada.Directories.Special_File  => False);
+
+      procedure Close_Search is
+      begin
+         if Search_Open then
+            Ada.Directories.End_Search (Search);
+            Search_Open := False;
+         end if;
+      exception
+         when others =>
+            Search_Open := False;
+      end Close_Search;
+   begin
+      Prompt.File_Picker_Rows.Clear;
+
+      if Prompt.Kind /= Project_Open_Prompt then
+         Prompt.File_Picker_Active := False;
+         Prompt.File_Picker_Current_Directory := Null_Unbounded_String;
+         Prompt.File_Picker_Selected_Index := 0;
+         Prompt.File_Picker_Status := Null_Unbounded_String;
+         return;
+      end if;
+
+      Prompt.File_Picker_Active := True;
+
+      if Input = "" then
+         Base_Dir := To_Unbounded_String (Ada.Directories.Current_Directory);
+      elsif Directory_Exists (Input) then
+         Base_Dir := To_Unbounded_String (Safe_Full_Name (Input));
+      else
+         Sep := Last_Separator_Index (Input);
+         if Sep = 0 then
+            Base_Dir := To_Unbounded_String (Ada.Directories.Current_Directory);
+            Prefix := To_Unbounded_String (Input);
+         elsif Sep = Input'First then
+            Base_Dir := To_Unbounded_String (Input (Input'First .. Sep));
+            if Sep < Input'Last then
+               Prefix := To_Unbounded_String (Input (Sep + 1 .. Input'Last));
+            end if;
+         else
+            Base_Dir := To_Unbounded_String (Input (Input'First .. Sep - 1));
+            if Sep < Input'Last then
+               Prefix := To_Unbounded_String (Input (Sep + 1 .. Input'Last));
+            end if;
+         end if;
+      end if;
+
+      if not Directory_Exists (To_String (Base_Dir)) then
+         Base_Dir := To_Unbounded_String (Ada.Directories.Current_Directory);
+      end if;
+
+      Base_Dir := To_Unbounded_String (Safe_Full_Name (To_String (Base_Dir)));
+      Prompt.File_Picker_Current_Directory := Base_Dir;
+
+      Prompt.File_Picker_Rows.Append
+        (File_Picker_Row'(Label => To_Unbounded_String ("./"),
+                          Path  => Base_Dir));
+
+      declare
+         Parent : constant String := Safe_Containing_Directory (To_String (Base_Dir));
+      begin
+         Prompt.File_Picker_Rows.Append
+           (File_Picker_Row'(Label => To_Unbounded_String (".."),
+                             Path  => To_Unbounded_String (Parent)));
+      end;
+
+      Ada.Directories.Start_Search
+        (Search    => Search,
+         Directory => To_String (Base_Dir),
+         Pattern   => "*",
+         Filter    => Filter);
+      Search_Open := True;
+
+      while Ada.Directories.More_Entries (Search) loop
+         declare
+            Dir_Entry : Ada.Directories.Directory_Entry_Type;
+         begin
+            Ada.Directories.Get_Next_Entry (Search, Dir_Entry);
+            declare
+               Name : constant String := Ada.Directories.Simple_Name (Dir_Entry);
+            begin
+               if Name /= "."
+                 and then Name /= ".."
+                 and then Starts_With (Name, To_String (Prefix))
+               then
+                  Insert_File_Picker_Row
+                    (Prompt.File_Picker_Rows,
+                     (Label => To_Unbounded_String (Name & "/"),
+                      Path  => To_Unbounded_String (Ada.Directories.Full_Name (Dir_Entry))));
+               end if;
+            end;
+         exception
+            when others =>
+               null;
+         end;
+      end loop;
+      Close_Search;
+
+      if Natural (Prompt.File_Picker_Rows.Length) = 0 then
+         Prompt.File_Picker_Selected_Index := 0;
+         Prompt.File_Picker_Status := To_Unbounded_String ("No directories");
+      else
+         if Prompt.File_Picker_Selected_Index < Prompt.File_Picker_Rows.First_Index
+           or else Prompt.File_Picker_Selected_Index > Prompt.File_Picker_Rows.Last_Index
+         then
+            Prompt.File_Picker_Selected_Index := Prompt.File_Picker_Rows.First_Index;
+         end if;
+         Prompt.File_Picker_Status :=
+           To_Unbounded_String (Natural'Image (Natural (Prompt.File_Picker_Rows.Length)) & " directories");
+      end if;
+   exception
+      when others =>
+         Close_Search;
+         Prompt.File_Picker_Active := True;
+         Prompt.File_Picker_Rows.Clear;
+         Prompt.File_Picker_Selected_Index := 0;
+         Prompt.File_Picker_Status := To_Unbounded_String ("Cannot read directory");
+   end Refresh_File_Picker;
 
    function Contains_Path_Escape (S : String) return Boolean is
       Segment : Unbounded_String := Null_Unbounded_String;
@@ -128,6 +328,34 @@ package body Editor.Guided_Prompts is
       or else Kind = File_Tree_Create_Directory_Prompt
       or else Kind = File_Tree_Rename_Prompt);
 
+   function Is_Ada_Identifier_Start (Ch : Character) return Boolean is
+   begin
+      return (Ch >= 'A' and then Ch <= 'Z')
+        or else (Ch >= 'a' and then Ch <= 'z');
+   end Is_Ada_Identifier_Start;
+
+   function Is_Ada_Identifier_Part (Ch : Character) return Boolean is
+   begin
+      return Is_Ada_Identifier_Start (Ch)
+        or else (Ch >= '0' and then Ch <= '9')
+        or else Ch = '_';
+   end Is_Ada_Identifier_Part;
+
+   function Is_Ada_Identifier (Text : String) return Boolean is
+   begin
+      if Text'Length = 0 or else not Is_Ada_Identifier_Start (Text (Text'First)) then
+         return False;
+      end if;
+
+      for I in Text'First + 1 .. Text'Last loop
+         if not Is_Ada_Identifier_Part (Text (I)) then
+            return False;
+         end if;
+      end loop;
+
+      return True;
+   end Is_Ada_Identifier;
+
    function File_Tree_Invalid_Syntax_Message (Kind : Prompt_Kind) return String is
    begin
       case Kind is
@@ -225,6 +453,63 @@ package body Editor.Guided_Prompts is
       end if;
    end Capture_Chord;
 
+   procedure Move_File_Picker_Selection
+     (Prompt : in out Prompt_State;
+      Offset : Integer)
+   is
+      Count : constant Natural := Natural (Prompt.File_Picker_Rows.Length);
+      Next  : Integer := Integer (Prompt.File_Picker_Selected_Index) + Offset;
+   begin
+      if not Prompt.Active or else not Prompt.File_Picker_Active or else Count = 0 then
+         return;
+      end if;
+
+      if Next < Integer (Prompt.File_Picker_Rows.First_Index) then
+         Next := Integer (Prompt.File_Picker_Rows.Last_Index);
+      elsif Next > Integer (Prompt.File_Picker_Rows.Last_Index) then
+         Next := Integer (Prompt.File_Picker_Rows.First_Index);
+      end if;
+
+      Prompt.File_Picker_Selected_Index := Natural (Next);
+   end Move_File_Picker_Selection;
+
+   function Apply_File_Picker_Selection
+     (Prompt : in out Prompt_State) return Boolean
+   is
+      Found : Boolean := False;
+      Path  : constant String := Selected_File_Picker_Path (Prompt, Found);
+   begin
+      if not Found then
+         return False;
+      end if;
+
+      Editor.Input_Field.Set_Text (Prompt.Input, Path);
+      Prompt.Lifecycle := Prompt_Editing;
+      Prompt.File_Picker_Selected_Index := 0;
+      Validate (Prompt);
+      return True;
+   end Apply_File_Picker_Selection;
+
+   function Selected_File_Picker_Path
+     (Prompt : Prompt_State;
+      Found  : out Boolean) return String
+   is
+   begin
+      if Prompt.Active
+        and then Prompt.File_Picker_Active
+        and then Natural (Prompt.File_Picker_Rows.Length) > 0
+        and then Prompt.File_Picker_Selected_Index >= Prompt.File_Picker_Rows.First_Index
+        and then Prompt.File_Picker_Selected_Index <= Prompt.File_Picker_Rows.Last_Index
+      then
+         Found := True;
+         return To_String
+           (Prompt.File_Picker_Rows.Element (Prompt.File_Picker_Selected_Index).Path);
+      end if;
+
+      Found := False;
+      return "";
+   end Selected_File_Picker_Path;
+
    procedure Validate (Prompt : in out Prompt_State) is
       Text : constant String := Trimmed (Editor.Input_Field.Text (Prompt.Input));
    begin
@@ -290,6 +575,13 @@ package body Editor.Guided_Prompts is
          Prompt.Validation_Message := To_Unbounded_String
            ("Rename expects a single new name");
          Prompt.Lifecycle := Prompt_Blocked;
+      elsif Prompt.Kind = Semantic_Rename_Prompt
+        and then not Is_Ada_Identifier (Text)
+      then
+         Prompt.Validation := Validation_Invalid_Syntax;
+         Prompt.Validation_Message := To_Unbounded_String
+           ("Rename target must be an Ada identifier");
+         Prompt.Lifecycle := Prompt_Blocked;
       elsif Is_File_Tree_Name_Kind (Prompt.Kind)
         and then
           (Contains_Path_Escape (Text)
@@ -317,6 +609,8 @@ package body Editor.Guided_Prompts is
          Prompt.Validation_Message := To_Unbounded_String ("Ready");
          Prompt.Lifecycle := Prompt_Ready_To_Confirm;
       end if;
+
+      Refresh_File_Picker (Prompt);
    end Validate;
 
    procedure Mark_Confirmed (Prompt : in out Prompt_State) is
@@ -370,6 +664,11 @@ package body Editor.Guided_Prompts is
       Prompt.Lifecycle_Command := False;
       Prompt.Configuration_Command := False;
       Prompt.Affected_Count := 0;
+      Prompt.File_Picker_Active := False;
+      Prompt.File_Picker_Current_Directory := Null_Unbounded_String;
+      Prompt.File_Picker_Selected_Index := 0;
+      Prompt.File_Picker_Status := Null_Unbounded_String;
+      Prompt.File_Picker_Rows.Clear;
    end Clear;
 
    function Is_Active (Prompt : Prompt_State) return Boolean is (Prompt.Active);
@@ -415,6 +714,7 @@ package body Editor.Guided_Prompts is
          when File_Tree_Create_File_Prompt => return "Create File";
          when File_Tree_Create_Directory_Prompt => return "Create Directory";
          when File_Tree_Rename_Prompt => return "Rename File or Directory";
+         when Semantic_Rename_Prompt => return "Rename Symbol";
          when Confirmation_Prompt => return "Confirmation";
          when Configuration_Reset_Prompt => return "Reset Configuration";
       end case;
@@ -443,6 +743,11 @@ package body Editor.Guided_Prompts is
       S.Lifecycle_Command := Prompt.Lifecycle_Command;
       S.Configuration_Command := Prompt.Configuration_Command;
       S.Affected_Count := Prompt.Affected_Count;
+      S.File_Picker_Active := Prompt.File_Picker_Active;
+      S.File_Picker_Current_Directory := Prompt.File_Picker_Current_Directory;
+      S.File_Picker_Selected_Index := Prompt.File_Picker_Selected_Index;
+      S.File_Picker_Status := Prompt.File_Picker_Status;
+      S.File_Picker_Rows := Prompt.File_Picker_Rows;
       return S;
    end Snapshot;
 

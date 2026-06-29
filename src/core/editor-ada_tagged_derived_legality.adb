@@ -1,3 +1,5 @@
+with Ada.Characters.Handling;
+with Ada.Strings.Fixed;
 with Ada.Strings.Unbounded; use Ada.Strings.Unbounded;
 
 package body Editor.Ada_Tagged_Derived_Legality is
@@ -5,6 +7,7 @@ package body Editor.Ada_Tagged_Derived_Legality is
    pragma Suppress (Overflow_Check);
 
    use type Editor.Ada_Syntax_Tree.Node_Id;
+   use type Editor.Ada_Syntax_Tree.Node_Kind;
    use type Tagged_Context_Id;
    use type Tagged_Legality_Id;
    use type Tagged_Legality_Status;
@@ -508,6 +511,110 @@ package body Editor.Ada_Tagged_Derived_Legality is
    begin
       return Model.Fingerprint;
    end Fingerprint;
+
+   function Lower (Text : String) return String is
+   begin
+      return Ada.Characters.Handling.To_Lower (Text);
+   end Lower;
+
+   function Contains (Text, Fragment : String) return Boolean is
+   begin
+      return Ada.Strings.Fixed.Index (Text, Fragment) /= 0;
+   end Contains;
+
+   function Tagged_Kind_For_Label
+     (Kind  : Editor.Ada_Syntax_Tree.Node_Kind;
+      Label : String) return Tagged_Context_Kind
+   is
+      L : constant String := Lower (Label);
+   begin
+      if Kind = Editor.Ada_Syntax_Tree.Node_Private_Extension_Declaration then
+         return Tagged_Context_Private_Extension;
+      elsif Kind = Editor.Ada_Syntax_Tree.Node_Abstract_Subprogram_Declaration
+        or else Contains (L, "overriding")
+      then
+         return Tagged_Context_Overriding_Declaration;
+      elsif Kind = Editor.Ada_Syntax_Tree.Node_Type_Declaration then
+         if Contains (L, "interface") then
+            return Tagged_Context_Interface_Derivation;
+         elsif Contains (L, "abstract") then
+            return Tagged_Context_Abstract_Type;
+         elsif Contains (L, "tagged")
+           or else Contains (L, " new ")
+           or else Contains (L, " with ")
+         then
+            return Tagged_Context_Type_Derivation;
+         end if;
+      end if;
+
+      return Tagged_Context_Unknown;
+   end Tagged_Kind_For_Label;
+
+   function Build_Contexts_From_Syntax
+     (Tree        : Editor.Ada_Syntax_Tree.Tree_Type;
+      Dispatching : Editor.Ada_Dispatching_Call_Legality.Dispatching_Legality_Model)
+      return Tagged_Context_Model
+   is
+      Model : Tagged_Context_Model;
+   begin
+      for Index in 1 .. Editor.Ada_Syntax_Tree.Node_Count (Tree) loop
+         declare
+            Node : constant Editor.Ada_Syntax_Tree.Node_Info :=
+              Editor.Ada_Syntax_Tree.Node_At (Tree, Index);
+            Label : constant String := To_String (Node.Label);
+            Kind : constant Tagged_Context_Kind :=
+              Tagged_Kind_For_Label (Node.Kind, Label);
+            Context : Tagged_Context_Info;
+         begin
+            if Kind /= Tagged_Context_Unknown then
+               Context.Id := Tagged_Context_Id (Context_Count (Model) + 1);
+               Context.Kind := Kind;
+               Context.Node := Node.Id;
+               Context.Type_Node := Node.Id;
+               Context.Operation_Node := Node.Id;
+               Context.Type_Name := Node.Label;
+               Context.Operation_Name := Node.Label;
+               Context.Type_Is_Abstract := Contains (Lower (Label), "abstract");
+               Context.Start_Line := Node.Source_Span.Start_Line;
+               Context.Start_Column := Node.Source_Span.Start_Column;
+               Context.End_Line := Node.Source_Span.End_Line;
+               Context.End_Column := Node.Source_Span.End_Column;
+               Add_Context (Model, Context);
+            end if;
+         end;
+      end loop;
+
+      for Index in 1 ..
+        Editor.Ada_Dispatching_Call_Legality.Legality_Count (Dispatching)
+      loop
+         declare
+            Row : constant
+              Editor.Ada_Dispatching_Call_Legality.Dispatching_Legality_Info :=
+              Editor.Ada_Dispatching_Call_Legality.Legality_At
+                (Dispatching, Index);
+            Context : Tagged_Context_Info;
+         begin
+            if Row.Id /=
+              Editor.Ada_Dispatching_Call_Legality.No_Dispatching_Legality
+              and then Row.Node /= Editor.Ada_Syntax_Tree.No_Node
+            then
+               Context.Id := Tagged_Context_Id (Context_Count (Model) + 1);
+               Context.Kind := Tagged_Context_Dispatching_Call;
+               Context.Node := Row.Node;
+               Context.Dispatch_Node := Row.Node;
+               Context.Linked_Dispatch_Expression := Row.Id;
+               Context.Type_Name := Row.Controlling_Subtype;
+               Context.Start_Line := Row.Start_Line;
+               Context.Start_Column := Row.Start_Column;
+               Context.End_Line := Row.End_Line;
+               Context.End_Column := Row.End_Column;
+               Add_Context (Model, Context);
+            end if;
+         end;
+      end loop;
+
+      return Model;
+   end Build_Contexts_From_Syntax;
 
    function Build
      (Contexts    : Tagged_Context_Model;

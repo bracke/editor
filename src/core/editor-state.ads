@@ -38,6 +38,7 @@ with Editor.Recent_Buffers;
 with Editor.Bookmarks;
 with Editor.Commands;
 with Editor.Build_UI;
+with Editor.Terminal_Tasks;
 with Editor.Build_Runner_Policy;
 with Editor.Build_Process_Control;
 with Editor.Build_Result_Summary;
@@ -46,6 +47,7 @@ with Editor.Guided_Prompts;
 with Editor.Syntax_Cache;
 with Editor.Syntax_Semantics;
 with Editor.Ada_Project_Index;
+with Editor.Ada_Language_Service;
 with Editor.Ada_Language_Model;
 
 package Editor.State is
@@ -111,6 +113,39 @@ package Editor.State is
    subtype Reopen_Candidate_Index is Positive range 1 .. Max_Reopen_Candidates;
    type Reopen_Candidate_Array is
      array (Reopen_Candidate_Index) of Ada.Strings.Unbounded.Unbounded_String;
+
+   Max_Semantic_Completion_Items : constant Natural := 12;
+   subtype Semantic_Completion_Item_Index is
+     Positive range 1 .. Max_Semantic_Completion_Items;
+
+   type Semantic_Completion_Item is record
+      Label  : Ada.Strings.Unbounded.Unbounded_String :=
+        Ada.Strings.Unbounded.Null_Unbounded_String;
+      Detail : Ada.Strings.Unbounded.Unbounded_String :=
+        Ada.Strings.Unbounded.Null_Unbounded_String;
+   end record;
+
+   type Semantic_Completion_Item_Array is
+     array (Semantic_Completion_Item_Index) of Semantic_Completion_Item;
+
+   type Semantic_Popup_Kind is
+     (No_Semantic_Popup,
+      Semantic_Hover_Popup,
+      Semantic_Completion_Popup);
+
+   type Semantic_Popup_State is record
+      Active : Boolean := False;
+      Kind   : Semantic_Popup_Kind := No_Semantic_Popup;
+      Anchor_Row : Natural := 0;
+      Anchor_Column : Natural := 0;
+      Title  : Ada.Strings.Unbounded.Unbounded_String :=
+        Ada.Strings.Unbounded.Null_Unbounded_String;
+      Detail : Ada.Strings.Unbounded.Unbounded_String :=
+        Ada.Strings.Unbounded.Null_Unbounded_String;
+      Item_Count : Natural := 0;
+      Selected_Item : Natural := 0;
+      Items : Semantic_Completion_Item_Array := (others => (others => <>));
+   end record;
 
    type State_Type is record
       Buffer             : Text_Buffer.Buffer_Type;
@@ -185,6 +220,7 @@ package Editor.State is
       Panel_Focus      : Editor.Panel_Focus.Panel_Focus_State;
       Overlay_Focus    : Editor.Overlay_Focus.Overlay_Focus_State;
       Gutter_Marker_Hover : Editor.Gutter_Markers.Gutter_Marker_Hover_State;
+      Semantic_Popup   : Semantic_Popup_State;
       Folding           : Editor.Folding.Folding_State;
       File_Info         : File_State;
       --  Phase 542 transient path-only reopen stack.  This is runtime
@@ -220,6 +256,11 @@ package Editor.State is
       --  and is cleared or invalidated by explicit language-index commands and
       --  project/buffer lifecycle paths; it is never persisted.
       Language_Index    : Editor.Ada_Project_Index.Index_State;
+      --  Transient language-service facade state.  It mirrors the project
+      --  language index for model-backed navigation and retains compiler-backed
+      --  diagnostic output from explicit build runs for IDE language consumers.
+      --  It is never persisted.
+      Language_Service  : Editor.Ada_Language_Service.Service_State;
       Syntax_Source_Revision : Natural := Natural'Last;
       Syntax_Source_Buffer_Token : Natural := 0;
       Syntax_Symbols_Revision : Natural := Natural'Last;
@@ -309,6 +350,10 @@ package Editor.State is
       --  workspace, settings, recent-project, keybinding, Diagnostics, or
       --  persistence state.
       Build_UI : Editor.Build_UI.Public_Build_UI_State;
+      --  Transient integrated terminal/task state.  It owns visible task rows,
+      --  selected task, bounded output, and rerun metadata only; it is not
+      --  persisted into workspace/settings files.
+      Terminal_Tasks : Editor.Terminal_Tasks.Terminal_Task_State;
       --  Phase 510 transient latest build.run result summary. It is a
       --  snapshot projection only: no history, rerun payload, process handle,
       --  cancellation token, Diagnostics rows, or persistence state.

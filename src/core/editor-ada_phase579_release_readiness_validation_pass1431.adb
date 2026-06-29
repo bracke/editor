@@ -20,6 +20,7 @@ package body Editor.Ada_Phase579_Release_Readiness_Validation_Pass1431 is
             | Status_Rejected_Unregistered_Test
             | Status_Rejected_Orphan_Source
             | Status_Rejected_Duplicate_Registration
+            | Status_Rejected_Duplicate_Surface
             | Status_Rejected_Reopened_Remaining_Gap
             | Status_Rejected_Stale_Readiness_Evidence
             | Status_Rejected_Release_Documentation_Drift =>
@@ -45,6 +46,22 @@ package body Editor.Ada_Phase579_Release_Readiness_Validation_Pass1431 is
         and then Row.Suite_Fingerprint = Row.Expected_Suite_Fingerprint
         and then Row.Documentation_Fingerprint = Row.Expected_Documentation_Fingerprint;
    end Fingerprints_Fresh;
+
+   function Is_Required_Surface (Surface : Readiness_Surface) return Boolean is
+   begin
+      return Surface /= Surface_Unknown;
+   end Is_Required_Surface;
+
+   function Required_Surface_Total return Natural is
+      Total : Natural := 0;
+   begin
+      for Surface in Readiness_Surface loop
+         if Is_Required_Surface (Surface) then
+            Total := Total + 1;
+         end if;
+      end loop;
+      return Total;
+   end Required_Surface_Total;
 
    function Evaluate (Row : Readiness_Row) return Readiness_Status is
    begin
@@ -96,6 +113,7 @@ package body Editor.Ada_Phase579_Release_Readiness_Validation_Pass1431 is
             | Status_Rejected_Unregistered_Test
             | Status_Rejected_Orphan_Source
             | Status_Rejected_Duplicate_Registration
+            | Status_Rejected_Duplicate_Surface
             | Status_Rejected_Reopened_Remaining_Gap
             | Status_Rejected_Stale_Readiness_Evidence
             | Status_Rejected_Release_Documentation_Drift =>
@@ -108,12 +126,25 @@ package body Editor.Ada_Phase579_Release_Readiness_Validation_Pass1431 is
    end Tally;
 
    function Build (Input : Readiness_Input) return Readiness_Model is
+      Seen   : array (Readiness_Surface) of Boolean := (others => False);
       Model : Readiness_Model;
       Status : Readiness_Status;
       Feed_Item : Readiness_Entry;
    begin
       for Row of Input.Rows loop
          Status := Evaluate (Row);
+         if Status = Status_Validated
+           and then Is_Required_Surface (Row.Surface)
+         then
+            if Seen (Row.Surface) then
+               Status := Status_Rejected_Duplicate_Surface;
+               Model.Duplicate_Surface_Count :=
+                 Model.Duplicate_Surface_Count + 1;
+            else
+               Seen (Row.Surface) := True;
+            end if;
+         end if;
+
          Feed_Item.Id := Row.Id;
          Feed_Item.Surface := Row.Surface;
          Feed_Item.Status := Status;
@@ -125,6 +156,14 @@ package body Editor.Ada_Phase579_Release_Readiness_Validation_Pass1431 is
            Model.Readiness_Fingerprint + Feed_Item.Result_Fingerprint;
          Tally (Model, Feed_Item);
       end loop;
+
+      Model.Required_Surface_Count := Required_Surface_Total;
+      for Surface in Readiness_Surface loop
+         if Is_Required_Surface (Surface) and then not Seen (Surface) then
+            Model.Missing_Surface_Count := Model.Missing_Surface_Count + 1;
+         end if;
+      end loop;
+
       return Model;
    end Build;
 
@@ -144,8 +183,11 @@ package body Editor.Ada_Phase579_Release_Readiness_Validation_Pass1431 is
 
    function Release_Readiness_Achieved (Model : Readiness_Model) return Boolean is
    begin
-      return Model.Total_Rows >= 6
-        and then Model.Validated_Count = Model.Total_Rows
+      return Model.Total_Rows = Model.Required_Surface_Count
+        and then Model.Required_Surface_Count = 7
+        and then Model.Missing_Surface_Count = 0
+        and then Model.Duplicate_Surface_Count = 0
+        and then Model.Validated_Count = Model.Required_Surface_Count
         and then Model.Rejected_Count = 0
         and then Model.Indeterminate_Count = 0
         and then Model.Readiness_Fingerprint > 0;

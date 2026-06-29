@@ -25,8 +25,9 @@ package body Editor.Workspace_Persistence.Tests is
 
    function Temp_Path (Name : String) return String is
    begin
+      Ada.Directories.Create_Path ("/tmp/editor-tests");
       return Ada.Directories.Compose
-        (Ada.Directories.Current_Directory, "phase89_" & Name);
+        ("/tmp/editor-tests", "phase89_" & Name);
    end Temp_Path;
 
    procedure Remove_If_Exists (Path : String) is

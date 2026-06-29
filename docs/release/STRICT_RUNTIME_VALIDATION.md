@@ -143,7 +143,7 @@ Pass1039 update:
 
 ## Pass1048 strict runtime validation note
 
-`Editor.Ada_Diagnostic_Quick_Fix_Skeleton` is projection-only and does not apply edits or build text changes. Rejected stale diagnostic indexes retain rejected counts but expose no active quick-fix candidates.
+`Editor.Ada_Diagnostic_Quick_Fix_Skeleton` is projection-only and does not synthesize or apply edits. Explicit producer-owned feed edit hints may be carried as metadata for executor-owned application. Rejected stale diagnostic indexes retain rejected counts but expose no active quick-fix candidates.
 
 ## Pass1049 strict runtime validation note
 

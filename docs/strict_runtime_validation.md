@@ -191,7 +191,7 @@ Pass1047 adds a diagnostic status-line summary that consumes only `Editor.Ada_Se
 
 ## Pass1048 strict runtime validation note
 
-Pass1048 adds a quick-fix skeleton model that consumes only `Editor.Ada_Semantic_Diagnostic_Index`. Validation focus: no parsing, file IO, dirty-state mutation, source edit generation, command registration, workspace mutation, or rendering-side semantic work is introduced; rejected stale indexes expose no active candidates.
+Pass1048 adds a quick-fix skeleton model that consumes only `Editor.Ada_Semantic_Diagnostic_Index`. Validation focus: no parsing, file IO, dirty-state mutation, source edit synthesis/application, command registration, workspace mutation, or rendering-side semantic work is introduced; explicit producer-owned feed edit hints may be carried as metadata, and rejected stale indexes expose no active candidates.
 
 ## Pass1049 strict runtime validation note
 
@@ -282,9 +282,9 @@ Pass1073 note: unified diagnostic provenance now accepts overload-ranking proven
 
 Pass1074 note: diagnostic quick-fix skeletons now accept overload-ranking provenance through Editor.Ada_Diagnostic_Quick_Fix_Skeleton.Build_With_Overload_Ranking.  The layer is projection-only, preserves ranked overload evidence for IDE explanation actions, and does not parse, apply edits, mutate buffers, touch workspace state, or perform rendering-side semantic work.
 
-Pass1075 note: diagnostic action routing now joins quick-fix skeletons with diagnostic navigation, panel rows, provenance/explain items, and status-line nearest-target metadata through `Editor.Ada_Diagnostic_Action_Router`. The layer is projection-only and preserves stale-result rejection; it does not parse, mutate buffers, save/reload files, register commands, touch workspace state, or perform rendering-side semantic work.
+Pass1075 note: diagnostic action routing now joins quick-fix skeletons with diagnostic navigation, panel rows, provenance/explain items, status-line nearest-target metadata, and explicit feed edit hints through `Editor.Ada_Diagnostic_Action_Router`. The layer is projection-only and preserves stale-result rejection; it does not parse, mutate buffers, save/reload files, register commands, touch workspace state, or perform rendering-side semantic work.
 
-Pass1076 note: diagnostic command projection now turns diagnostic action routes into deterministic command-facing descriptors through `Editor.Ada_Diagnostic_Command_Projection`. The layer is projection-only and does not register commands, invoke commands, apply edits, parse, mutate buffers, save/reload files, touch workspace state, or perform rendering-side semantic work. Rejected/stale action-route models expose no active command descriptors while preserving rejected-command totals.
+Pass1076 note: diagnostic command projection now turns diagnostic action routes into deterministic command-facing descriptors through `Editor.Ada_Diagnostic_Command_Projection`, preserving explicit feed edit hints as descriptor metadata for executor-owned application. The layer is projection-only and does not register commands, invoke commands, apply edits, parse, mutate buffers, save/reload files, touch workspace state, or perform rendering-side semantic work. Rejected/stale action-route models expose no active command descriptors while preserving rejected-command totals.
 
 Pass1077 note: diagnostic command palette projection now turns diagnostic command descriptors into deterministic command-palette-facing entries through `Editor.Ada_Diagnostic_Command_Palette_Projection`. The layer is projection-only and does not register command aliases, mutate keybindings, invoke commands, apply edits, parse, mutate buffers, save/reload files, touch workspace state, or perform rendering-side semantic work. Rejected/stale command projection models expose no active palette entries while preserving rejected-entry totals.
 

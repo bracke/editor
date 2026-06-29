@@ -2,6 +2,7 @@ with AUnit.Assertions;  use AUnit.Assertions;
 with Ada.Containers;
 with AUnit.Test_Cases;
 with AUnit;
+with Ada.Directories;
 with Ada.Strings.Unbounded; use Ada.Strings.Unbounded;
 
 with Editor.Clipboard;
@@ -1119,13 +1120,26 @@ package body Editor.Clipboard.Tests is
    procedure Test_Phase375_Project_Lifecycle_Clears_Clipboard
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
       pragma Unreferenced (T);
-      S : Editor.State.State_Type;
+      S           : Editor.State.State_Type;
+      Project_Dir : constant String :=
+        Ada.Directories.Compose
+          (Ada.Directories.Compose ("/tmp", "editor-tests"),
+           "phase375_clipboard_project_lifecycle");
    begin
       Reset_Transient_State;
       Editor.Buffers.Reset_Global_For_Test;
+      if Ada.Directories.Exists (Project_Dir) then
+         Ada.Directories.Delete_Tree (Project_Dir);
+      end if;
+      Ada.Directories.Create_Path (Project_Dir);
+
       Editor.State.Init (S);
-      Editor.Executor.Execute_Open_Project (S, ".");
+      Editor.Executor.Execute_Open_Project
+        (S,
+         Project_Dir,
+         Refresh_Build_Candidates => False);
       Editor.State.Load_Text (S, "Alpha");
+      Mark_Clean (S);
       Editor.Buffers.Ensure_Global_Registry (S);
       Editor.Buffers.Sync_Global_Active_From_State (S);
       Reset_Transient_State;
@@ -1143,6 +1157,15 @@ package body Editor.Clipboard.Tests is
       Assert (Active_Message_Text (S) = "No active buffer."
               or else Active_Message_Text (S) = "Clipboard is empty",
               "paste after lifecycle cleanup must not restore clipboard text");
+      if Ada.Directories.Exists (Project_Dir) then
+         Ada.Directories.Delete_Tree (Project_Dir);
+      end if;
+   exception
+      when others =>
+         if Ada.Directories.Exists (Project_Dir) then
+            Ada.Directories.Delete_Tree (Project_Dir);
+         end if;
+         raise;
    end Test_Phase375_Project_Lifecycle_Clears_Clipboard;
 
    procedure Test_Phase375_Persistence_And_Non_Goal_Command_Exclusion
@@ -1215,6 +1238,7 @@ package body Editor.Clipboard.Tests is
       end Ctrl;
    begin
       Reset_Transient_State;
+      Editor.State.Init (S);
       Editor.Keybindings.Bind
         (Ctrl (Editor.Keybindings.Key_C), Editor.Commands.Command_Copy);
       Editor.Keybindings.Bind
@@ -1224,7 +1248,6 @@ package body Editor.Clipboard.Tests is
       Editor.Keybindings.Bind
         (Ctrl (Editor.Keybindings.Key_L), Editor.Commands.Command_Clipboard_Clear);
 
-      Editor.State.Init (S);
       Editor.Executor.Execute_No_Log (S, Paste ("Alpha Beta Gamma"));
       Reset_Transient_State;
       Set_Primary_Selection (S, 6, 10);

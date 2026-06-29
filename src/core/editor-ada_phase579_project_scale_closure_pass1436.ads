@@ -23,6 +23,7 @@ package Editor.Ada_Phase579_Project_Scale_Closure_Pass1436 is
      (Status_Not_Checked,
       Status_Accepted,
       Status_Rejected_Missing_Project_Item,
+      Status_Rejected_Duplicate_Project_Area,
       Status_Rejected_Reopened_Remaining_Gap,
       Status_Rejected_Speculative_New_Work,
       Status_Rejected_Unregistered_Test,
@@ -85,6 +86,9 @@ package Editor.Ada_Phase579_Project_Scale_Closure_Pass1436 is
       Accepted_Count : Natural := 0;
       Rejected_Count : Natural := 0;
       Indeterminate_Count : Natural := 0;
+      Required_Area_Count : Natural := 0;
+      Missing_Area_Count : Natural := 0;
+      Duplicate_Area_Count : Natural := 0;
       Closure_Fingerprint : Natural := 0;
    end record;
 

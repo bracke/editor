@@ -1,10 +1,17 @@
 with Ada.Directories;
 with Editor_Tool_Common; use Editor_Tool_Common;
-with GNAT.OS_Lib;
+with Interfaces.C;
+with Interfaces.C.Strings;
 
 procedure Runtime_Smoke is
+   package C renames Interfaces.C;
+   package C_Strings renames Interfaces.C.Strings;
+
    Tool : constant String := "runtime_smoke";
    Tool_Failed : Boolean := False;
+
+   function C_System (Command : C_Strings.chars_ptr) return C.int
+     with Import, Convention => C, External_Name => "system";
 
    procedure Fail (Tool : String; Message : String) is
    begin
@@ -27,34 +34,41 @@ begin
          return;
       end if;
    end if;
-   if not Ada.Directories.Exists ("bin/editor_app") then
+   if not Ada.Directories.Exists ("bin/editor") then
       if Command_Exists ("alr") or else Command_Exists ("gprbuild") then
          Status := Run0 ("tools/bin/runtime_link_check");
          if Status /= 0 then
-            Fail (Tool, "could not build bin/editor_app before smoke");
+            Fail (Tool, "could not build bin/editor before smoke");
          end if;
       elsif Strict ("EDITOR_REQUIRE_RUNTIME_SMOKE") then
-         Fail (Tool, "bin/editor_app missing and no Ada build tool is available");
+         Fail (Tool, "bin/editor missing and no Ada build tool is available");
       else
-         Info (Tool, "neither alr nor gprbuild found and bin/editor_app is not executable; runtime smoke skipped");
+         Info
+           (Tool,
+            "neither alr nor gprbuild found and bin/editor is not "
+            & "executable; runtime smoke skipped");
          return;
       end if;
    end if;
 
    declare
-      Args : GNAT.OS_Lib.Argument_List (1 .. 10) :=
-        (new String'("--runtime-smoke"),
-         new String'("--runtime-smoke-frames=" & Frames),
-         new String'("--runtime-smoke-resize-count=" & Resize_Count),
-         new String'("--runtime-smoke-zero-framebuffer"),
-         new String'("--runtime-smoke-atlas-min-nonzero=" & Atlas_Min),
-         new String'("--runtime-smoke-visual-contract"),
-         new String'("--runtime-smoke-resize"),
-         new String'("--runtime-smoke-max-seconds=" & Timeout_Seconds),
-         new String'("--runtime-smoke-visual-min-rects=" & Env ("EDITOR_RUNTIME_SMOKE_VISUAL_MIN_RECTS", "1")),
-         new String'("--runtime-smoke-visual-min-glyphs=" & Env ("EDITOR_RUNTIME_SMOKE_VISUAL_MIN_GLYPHS", "1")));
+      Command : constant String :=
+        "./bin/editor --runtime-smoke"
+        & " --runtime-smoke-frames=" & Frames
+        & " --runtime-smoke-resize-count=" & Resize_Count
+        & " --runtime-smoke-zero-framebuffer"
+        & " --runtime-smoke-atlas-min-nonzero=" & Atlas_Min
+        & " --runtime-smoke-visual-contract"
+        & " --runtime-smoke-resize"
+        & " --runtime-smoke-max-seconds=" & Timeout_Seconds
+        & " --runtime-smoke-visual-min-rects="
+        & Env ("EDITOR_RUNTIME_SMOKE_VISUAL_MIN_RECTS", "1")
+        & " --runtime-smoke-visual-min-glyphs="
+        & Env ("EDITOR_RUNTIME_SMOKE_VISUAL_MIN_GLYPHS", "1");
+      C_Command : C_Strings.chars_ptr := C_Strings.New_String (Command);
    begin
-      Status := Run ("bin/editor_app", Args);
+      Status := Integer (C_System (C_Command));
+      C_Strings.Free (C_Command);
    end;
    if Status /= 0 then
       Fail (Tool, "runtime smoke failed or exceeded its internal smoke timeout of " & Timeout_Seconds & " seconds");

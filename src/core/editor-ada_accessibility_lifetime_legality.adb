@@ -497,6 +497,113 @@ package body Editor.Ada_Accessibility_Lifetime_Legality is
       return Model;
    end Build;
 
+   function Target_For
+     (Kind : Editor.Ada_Conversion_Access_Aggregate_Legality.Access_Kind)
+      return Access_Target_Kind
+   is
+   begin
+      case Kind is
+         when Editor.Ada_Conversion_Access_Aggregate_Legality.Access_Kind_None =>
+            return Access_Target_None;
+         when Editor.Ada_Conversion_Access_Aggregate_Legality.Access_Kind_Object
+            | Editor.Ada_Conversion_Access_Aggregate_Legality.Access_Kind_Anonymous_Object =>
+            return Access_Target_Object;
+         when Editor.Ada_Conversion_Access_Aggregate_Legality.Access_Kind_Subprogram
+            | Editor.Ada_Conversion_Access_Aggregate_Legality.Access_Kind_Anonymous_Subprogram =>
+            return Access_Target_Subprogram;
+         when Editor.Ada_Conversion_Access_Aggregate_Legality.Access_Kind_Unknown =>
+            return Access_Target_Unknown;
+      end case;
+   end Target_For;
+
+   function Context_Kind_For
+     (Kind : Editor.Ada_Conversion_Access_Aggregate_Legality.Semantic_Context_Kind)
+      return Access_Context_Kind
+   is
+   begin
+      case Kind is
+         when Editor.Ada_Conversion_Access_Aggregate_Legality.Semantic_Context_Access_Conversion =>
+            return Access_Context_Access_Conversion;
+         when Editor.Ada_Conversion_Access_Aggregate_Legality.Semantic_Context_Access_Parameter =>
+            return Access_Context_Anonymous_Access_Parameter;
+         when Editor.Ada_Conversion_Access_Aggregate_Legality.Semantic_Context_Allocator =>
+            return Access_Context_Allocator;
+         when Editor.Ada_Conversion_Access_Aggregate_Legality.Semantic_Context_Null_Assignment =>
+            return Access_Context_Object_Assignment;
+         when others =>
+            return Access_Context_Unknown;
+      end case;
+   end Context_Kind_For;
+
+   function Is_Access_Semantic
+     (Info : Editor.Ada_Conversion_Access_Aggregate_Legality.Semantic_Legality_Info)
+      return Boolean
+   is
+      package SL renames Editor.Ada_Conversion_Access_Aggregate_Legality;
+   begin
+      return Info.Kind in
+          SL.Semantic_Context_Access_Conversion |
+          SL.Semantic_Context_Access_Parameter |
+          SL.Semantic_Context_Allocator |
+          SL.Semantic_Context_Null_Assignment
+        or else Info.Status in
+          SL.Semantic_Legality_Null_Exclusion_Violation |
+          SL.Semantic_Legality_Access_Kind_Mismatch |
+          SL.Semantic_Legality_Accessibility_Indeterminate |
+          SL.Semantic_Legality_Illegal_Access_Conversion |
+          SL.Semantic_Legality_Allocator_Designated_Subtype_Mismatch;
+   end Is_Access_Semantic;
+
+   function Build_Contexts_From_Semantic_Legality
+     (Semantics : Editor.Ada_Conversion_Access_Aggregate_Legality.Semantic_Legality_Model)
+      return Accessibility_Context_Model
+   is
+      package SL renames Editor.Ada_Conversion_Access_Aggregate_Legality;
+      Contexts : Accessibility_Context_Model;
+   begin
+      for Index in 1 .. SL.Legality_Count (Semantics) loop
+         declare
+            S : constant SL.Semantic_Legality_Info :=
+              SL.Legality_At (Semantics, Index);
+            C : Accessibility_Context_Info;
+         begin
+            if Is_Access_Semantic (S) then
+               C.Id := Accessibility_Context_Id (Natural (S.Id));
+               C.Kind := Context_Kind_For (S.Kind);
+               C.Node := S.Node;
+               C.Source_Node := S.Operand_Node;
+               C.Target_Node := S.Target_Node;
+               C.Source_Access := Target_For (S.Operand_Access);
+               C.Target_Access := Target_For (S.Target_Access);
+               C.Source_Is_Null_Literal :=
+                 S.Status = SL.Semantic_Legality_Null_Exclusion_Violation;
+               C.Target_Is_Null_Excluding :=
+                 S.Status = SL.Semantic_Legality_Null_Exclusion_Violation;
+               C.Requires_Dynamic_Check :=
+                 S.Status = SL.Semantic_Legality_Accessibility_Indeterminate;
+               C.Accessibility_Known_Compatible :=
+                 S.Status in
+                   SL.Semantic_Legality_Legal_Access_Conversion |
+                   SL.Semantic_Legality_Legal_Access_Parameter |
+                   SL.Semantic_Legality_Legal_Allocator;
+
+               if S.Status /= SL.Semantic_Legality_Accessibility_Indeterminate then
+                  C.Semantic_Item := S.Id;
+                  C.Semantic_Status := S.Status;
+               end if;
+
+               C.Start_Line := S.Start_Line;
+               C.Start_Column := S.Start_Column;
+               C.End_Line := S.End_Line;
+               C.End_Column := S.End_Column;
+               C.Source_Fingerprint := S.Fingerprint;
+               Add_Context (Contexts, C);
+            end if;
+         end;
+      end loop;
+      return Contexts;
+   end Build_Contexts_From_Semantic_Legality;
+
    function Legality_Count (Model : Accessibility_Legality_Model) return Natural is
    begin
       return Natural (Model.Items.Length);

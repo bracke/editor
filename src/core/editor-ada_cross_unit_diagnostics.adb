@@ -179,7 +179,9 @@ package body Editor.Ada_Cross_Unit_Diagnostics is
       Private_W  : Editor.Ada_Private_With_Rules.Private_With_Model;
       Body_Spec  : Editor.Ada_Body_Spec_Conformance.Body_Spec_Conformance_Model;
       Children   : Editor.Ada_Child_Unit_Visibility.Child_Visibility_Model;
-      Separates  : Editor.Ada_Separate_Body_Stub_Rules.Separate_Body_Stub_Model)
+      Separates  : Editor.Ada_Separate_Body_Stub_Rules.Separate_Body_Stub_Model;
+      Child_Context : Editor.Ada_Child_Unit_Visibility.Child_Visibility_Context :=
+        Editor.Ada_Child_Unit_Visibility.Child_Visibility_Context_External_Client)
       return Cross_Unit_Diagnostic_Model
    is
       Model : Cross_Unit_Diagnostic_Model;
@@ -302,8 +304,14 @@ package body Editor.Ada_Cross_Unit_Diagnostics is
 
       for Index in 1 .. Editor.Ada_Child_Unit_Visibility.Visibility_Count (Children) loop
          declare
-            Info : constant Editor.Ada_Child_Unit_Visibility.Child_Visibility_Info :=
+            Raw : constant Editor.Ada_Child_Unit_Visibility.Child_Visibility_Info :=
               Editor.Ada_Child_Unit_Visibility.Visibility_At (Children, Index);
+            Info : constant Editor.Ada_Child_Unit_Visibility.Child_Visibility_Info :=
+              Editor.Ada_Child_Unit_Visibility.Lookup_Child
+                (Children,
+                 To_String (Raw.Parent_Unit_Name),
+                 To_String (Raw.Child_Unit_Name),
+                 Child_Context);
          begin
             if Info.Status = Editor.Ada_Child_Unit_Visibility.Child_Visibility_Private_Child_Hidden then
                Add (Model, Cross_Unit_Diagnostic_Private_Child_Hidden,
@@ -366,11 +374,15 @@ package body Editor.Ada_Cross_Unit_Diagnostics is
       Body_Spec  : Editor.Ada_Body_Spec_Conformance.Body_Spec_Conformance_Model;
       Children   : Editor.Ada_Child_Unit_Visibility.Child_Visibility_Model;
       Separates  : Editor.Ada_Separate_Body_Stub_Rules.Separate_Body_Stub_Model;
-      Nested     : Editor.Ada_Nested_Body_Spec_Conformance.Nested_Body_Spec_Conformance_Model)
+      Nested     : Editor.Ada_Nested_Body_Spec_Conformance.Nested_Body_Spec_Conformance_Model;
+      Child_Context : Editor.Ada_Child_Unit_Visibility.Child_Visibility_Context :=
+        Editor.Ada_Child_Unit_Visibility.Child_Visibility_Context_External_Client)
       return Cross_Unit_Diagnostic_Model
    is
       Model : Cross_Unit_Diagnostic_Model :=
-        Build (Visibility, Limited_View, Private_W, Body_Spec, Children, Separates);
+        Build
+          (Visibility, Limited_View, Private_W, Body_Spec, Children, Separates,
+           Child_Context);
    begin
       for Index in 1 .. Editor.Ada_Nested_Body_Spec_Conformance.Conformance_Count (Nested) loop
          declare

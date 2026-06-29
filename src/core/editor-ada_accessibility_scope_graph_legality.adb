@@ -557,7 +557,18 @@ package body Editor.Ada_Accessibility_Scope_Graph_Legality is
    begin
       for Row of Model.Rows loop
          if Row.Status in Scope_Legality_Missing_Master | Scope_Legality_Master_Too_Short |
-           Scope_Legality_Static_Level_Too_Deep | Scope_Legality_Dynamic_Level_Unresolved
+           Scope_Legality_Static_Level_Too_Deep | Scope_Legality_Dynamic_Level_Unresolved |
+           Scope_Legality_Allocator_Master_Unresolved |
+           Scope_Legality_Allocator_Master_Too_Short |
+           Scope_Legality_Return_Object_Master_Too_Short |
+           Scope_Legality_Return_Access_Master_Too_Short |
+           Scope_Legality_Return_Master_Unresolved |
+           Scope_Legality_Access_Discriminant_Master_Unresolved |
+           Scope_Legality_Access_Discriminant_Master_Too_Short |
+           Scope_Legality_Generic_Substitution_Master_Mismatch |
+           Scope_Legality_Generic_Substitution_Master_Unresolved |
+           Scope_Legality_Finalization_Master_Unresolved |
+           Scope_Legality_Finalization_Uses_Expired_Master
          then
             Count := Count + 1;
          end if;

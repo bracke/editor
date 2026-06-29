@@ -67,6 +67,8 @@ package body Editor.Ada_Subtype_Compatibility is
          return Numeric_Family_Real_Floating;
       elsif Name = "duration" then
          return Numeric_Family_Real_Fixed;
+      elsif Name = "boolean" then
+         return Numeric_Family_Boolean;
       else
          return Numeric_Family_None;
       end if;

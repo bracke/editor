@@ -7,6 +7,11 @@ with Ada.Strings.Unbounded;
 with Ada.Text_IO;
 
 package body Editor_Tool_Common is
+   use type Ada.Directories.File_Kind;
+   use type Ada.Directories.File_Size;
+   use type GNAT.OS_Lib.File_Descriptor;
+   use type GNAT.OS_Lib.String_Access;
+
    function Env (Name : String; Default : String := "") return String is
    begin
       if Ada.Environment_Variables.Exists (Name) then
@@ -25,6 +30,20 @@ package body Editor_Tool_Common is
    begin
       return Located /= null;
    end Command_Exists;
+
+   function Resolved_Program (Program : String) return String is
+      Located : GNAT.OS_Lib.String_Access;
+   begin
+      if Ada.Directories.Exists (Program) then
+         return Program;
+      end if;
+
+      Located := GNAT.OS_Lib.Locate_Exec_On_Path (Program);
+      if Located = null then
+         return Program;
+      end if;
+      return Located.all;
+   end Resolved_Program;
 
    procedure Info (Tool : String; Message : String) is
    begin
@@ -60,7 +79,7 @@ package body Editor_Tool_Common is
 
    function Run (Program : String; Args : GNAT.OS_Lib.Argument_List) return Integer is
    begin
-      return GNAT.OS_Lib.Spawn (Program, Args);
+      return GNAT.OS_Lib.Spawn (Resolved_Program (Program), Args);
    end Run;
 
    function Run0 (Program : String) return Integer is
@@ -109,7 +128,7 @@ package body Editor_Tool_Common is
       end if;
 
       GNAT.OS_Lib.Spawn
-        (Program_Name            => Program,
+        (Program_Name            => Resolved_Program (Program),
          Args                    => Args,
          Output_File_Descriptor  => FD,
          Return_Code             => Status,
@@ -243,6 +262,17 @@ package body Editor_Tool_Common is
    begin
       return Ada.Strings.Fixed.Index (Output_Text (Result), Needle) /= 0;
    end Output_Contains;
+
+   function AUnit_Output_Passed (Result : Captured_Command_Output) return Boolean is
+   begin
+      return Result.Exit_Code = 0
+        and then not Result.Truncated
+        and then Output_Contains (Result, "Total Tests Run:")
+        and then Output_Contains (Result, "Failed Assertions: 0")
+        and then Output_Contains (Result, "Unexpected Errors: 0")
+        and then not Output_Contains (Result, ASCII.LF & "FAIL ");
+   end AUnit_Output_Passed;
+
    function File_Contains (Path : String; Needle : String) return Boolean is
       F    : Ada.Text_IO.File_Type;
       Line : String (1 .. 4096);

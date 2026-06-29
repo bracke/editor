@@ -210,7 +210,7 @@ package body Editor.Ada_Stream_Attribute_Profile_Conformance is
                      Info.Status := Stream_Profile_Conformance_Arity_Mismatch;
                   elsif Needs_Function (Clause.Clause_Kind)
                     and then not Subtype_Matches_Target
-                      (To_String (Profile.Result_Subtype), To_String (Clause.Target_Name))
+                      (To_String (Profile.Result_Subtype), To_String (Clause.Normalized_Target))
                   then
                      Info.Status := Stream_Profile_Conformance_Result_Mismatch;
                   else

@@ -1,3 +1,6 @@
+with Ada.Characters.Handling;
+with Ada.Strings;
+with Ada.Strings.Fixed;
 with Ada.Strings.Unbounded; use Ada.Strings.Unbounded;
 
 package body Editor.Ada_Declarative_Regions is
@@ -142,7 +145,64 @@ package body Editor.Ada_Declarative_Regions is
       Info.Depth := Region_Depth (Model, Parent);
       Info.Start_Line := Owner.Source_Span.Start_Line;
       Info.End_Line := Owner.Source_Span.End_Line;
-      Info.Label := Owner.Label;
+      case Kind is
+         when Region_Package_Spec =>
+            declare
+               Label : constant String := To_String (Owner.Label);
+               Lower : constant String := Ada.Characters.Handling.To_Lower (Label);
+               Prefix : constant String := "package ";
+            begin
+               if Ada.Strings.Fixed.Index (Lower, Prefix) = 1 then
+                  declare
+                     Tail : constant String :=
+                       Ada.Strings.Fixed.Trim
+                         (Label (Label'First + Prefix'Length .. Label'Last),
+                          Ada.Strings.Both);
+                     Tail_Lower : constant String :=
+                       Ada.Characters.Handling.To_Lower (Tail);
+                  begin
+                     if Ada.Strings.Fixed.Index (Tail_Lower, " is") = Tail_Lower'Last - 2 then
+                        Info.Label := To_Unbounded_String
+                          (Ada.Strings.Fixed.Trim
+                             (Tail (Tail'First .. Tail'Last - 3), Ada.Strings.Both));
+                     else
+                        Info.Label := To_Unbounded_String (Tail);
+                     end if;
+                  end;
+               else
+                  Info.Label := Owner.Label;
+               end if;
+            end;
+         when Region_Package_Body =>
+            declare
+               Label : constant String := To_String (Owner.Label);
+               Lower : constant String := Ada.Characters.Handling.To_Lower (Label);
+               Prefix : constant String := "package body ";
+            begin
+               if Ada.Strings.Fixed.Index (Lower, Prefix) = 1 then
+                  declare
+                     Tail : constant String :=
+                       Ada.Strings.Fixed.Trim
+                         (Label (Label'First + Prefix'Length .. Label'Last),
+                          Ada.Strings.Both);
+                     Tail_Lower : constant String :=
+                       Ada.Characters.Handling.To_Lower (Tail);
+                  begin
+                     if Ada.Strings.Fixed.Index (Tail_Lower, " is") = Tail_Lower'Last - 2 then
+                        Info.Label := To_Unbounded_String
+                          (Ada.Strings.Fixed.Trim
+                             (Tail (Tail'First .. Tail'Last - 3), Ada.Strings.Both));
+                     else
+                        Info.Label := To_Unbounded_String (Tail);
+                     end if;
+                  end;
+               else
+                  Info.Label := Owner.Label;
+               end if;
+            end;
+         when others =>
+            Info.Label := Owner.Label;
+      end case;
       Info.Fingerprint :=
         Natural
           ((Long_Long_Integer (Region_Kind'Pos (Kind)) * 1_000_003

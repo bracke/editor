@@ -52,6 +52,15 @@ with Editor.Ada_Diagnostic_Provenance;
 with Editor.Ada_Diagnostic_Suppression_Baseline;
 with Editor.Ada_Overload_Ambiguity_Diagnostics;
 with Editor.Ada_Overload_Ranking;
+with Editor.Ada_Overload_Resolution_Legality;
+with Editor.Ada_Wide_Semantic_Legality_Diagnostics;
+with Editor.Ada_Assignment_Legality;
+with Editor.Ada_Return_Legality;
+with Editor.Ada_Control_Flow_Legality;
+with Editor.Ada_Tasking_Protected_Legality;
+with Editor.Ada_Tagged_Derived_Legality;
+with Editor.Ada_Generic_Instance_Freezing_Representation_Legality;
+with Editor.Ada_Conversion_Access_Aggregate_Legality;
 with Editor.Ada_Dispatching_Call_Legality;
 with Editor.Ada_Cross_Unit_Representation_Targets;
 with Editor.Ada_Selected_Representation_Targets;
@@ -4037,7 +4046,7 @@ package body Editor.Syntax_Semantics.Tests is
               "unit-family lookup should support role-filtered body targets");
    end Test_Project_Index_Unit_Family_Lists_Validated_Targets;
 
-   procedure Test_Ada_Cross_Unit_Semantic_Closure_Foundation_Pass995
+   procedure Test_Ada_Cross_Unit_Semantic_Closure_Foundation
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
       pragma Unreferenced (T);
       Parent_Analysis : constant Editor.Ada_Language_Model.Analysis_Result :=
@@ -4124,12 +4133,12 @@ package body Editor.Syntax_Semantics.Tests is
               "cross-unit closure should retain the concrete spec-to-body target path");
       Assert (Found_Separate_Parent,
               "cross-unit closure should retain the concrete separate-parent target path");
-   end Test_Ada_Cross_Unit_Semantic_Closure_Foundation_Pass995;
+   end Test_Ada_Cross_Unit_Semantic_Closure_Foundation;
 
 
 
 
-   procedure Test_Ada_Cross_Unit_Context_Dependency_Closure_Pass996
+   procedure Test_Ada_Cross_Unit_Context_Dependency_Closure
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
       pragma Unreferenced (T);
       Lib_Analysis : constant Editor.Ada_Language_Model.Analysis_Result :=
@@ -4247,11 +4256,11 @@ package body Editor.Syntax_Semantics.Tests is
               "context use dependency should resolve to the named library package");
       Assert (Found_Missing,
               "missing with dependency should be represented explicitly instead of disappearing");
-   end Test_Ada_Cross_Unit_Context_Dependency_Closure_Pass996;
+   end Test_Ada_Cross_Unit_Context_Dependency_Closure;
 
 
 
-   procedure Test_Ada_Cross_Unit_Spec_Body_Consistency_Pass997
+   procedure Test_Ada_Cross_Unit_Spec_Body_Consistency
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
       pragma Unreferenced (T);
       Spec_Analysis : constant Editor.Ada_Language_Model.Analysis_Result :=
@@ -4355,13 +4364,13 @@ package body Editor.Syntax_Semantics.Tests is
               "spec without body should be preserved as missing body consistency data");
       Assert (Found_Missing_Spec,
               "body without spec should be preserved as missing spec consistency data");
-   end Test_Ada_Cross_Unit_Spec_Body_Consistency_Pass997;
+   end Test_Ada_Cross_Unit_Spec_Body_Consistency;
 
 
 
 
 
-   procedure Test_Ada_Cross_Unit_Child_Private_Legality_Pass998
+   procedure Test_Ada_Cross_Unit_Child_Private_Legality
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
       pragma Unreferenced (T);
       Parent_Analysis : constant Editor.Ada_Language_Model.Analysis_Result :=
@@ -4453,13 +4462,13 @@ package body Editor.Syntax_Semantics.Tests is
               "private child legality should retain the private-child classification");
       Assert (Found_Missing,
               "missing parent child units should be represented explicitly");
-   end Test_Ada_Cross_Unit_Child_Private_Legality_Pass998;
+   end Test_Ada_Cross_Unit_Child_Private_Legality;
 
 
 
 
 
-   procedure Test_Ada_Cross_Unit_Separate_Body_Legality_Pass999
+   procedure Test_Ada_Cross_Unit_Separate_Body_Legality
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
       pragma Unreferenced (T);
       Parent_Body_Analysis : constant Editor.Ada_Language_Model.Analysis_Result :=
@@ -4540,9 +4549,9 @@ package body Editor.Syntax_Semantics.Tests is
               "resolved separate-body legality should retain separate and parent body metadata");
       Assert (Found_Missing,
               "missing separate-parent legality should retain the parent-name text");
-   end Test_Ada_Cross_Unit_Separate_Body_Legality_Pass999;
+   end Test_Ada_Cross_Unit_Separate_Body_Legality;
 
-   procedure Test_Ada_Cross_Unit_Visibility_Integration_Pass1022
+   procedure Test_Ada_Cross_Unit_Visibility_Integration
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
       pragma Unreferenced (T);
       use type Editor.Ada_Cross_Unit_Visibility.Cross_Unit_Visibility_Status;
@@ -4648,10 +4657,10 @@ package body Editor.Syntax_Semantics.Tests is
       Assert
         (Editor.Ada_Cross_Unit_Visibility.Fingerprint (Visibility) /= 0,
          "cross-unit visibility integration should be fingerprinted deterministically");
-   end Test_Ada_Cross_Unit_Visibility_Integration_Pass1022;
+   end Test_Ada_Cross_Unit_Visibility_Integration;
 
 
-   procedure Test_Ada_Limited_With_Incomplete_View_Rules_Pass1023
+   procedure Test_Ada_Limited_With_Incomplete_View_Rules
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
       pragma Unreferenced (T);
       use type Editor.Ada_Limited_View_Rules.Limited_View_Status;
@@ -4741,10 +4750,10 @@ package body Editor.Syntax_Semantics.Tests is
          and then Editor.Ada_Limited_View_Rules.Nonlimited_View_Count (Rules) >= 1
          and then Editor.Ada_Limited_View_Rules.Fingerprint (Rules) /= 0,
          "limited-view rules should retain deterministic counters and fingerprints");
-   end Test_Ada_Limited_With_Incomplete_View_Rules_Pass1023;
+   end Test_Ada_Limited_With_Incomplete_View_Rules;
 
 
-   procedure Test_Ada_Private_With_Visibility_Constraints_Pass1024
+   procedure Test_Ada_Private_With_Visibility_Constraints
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
       pragma Unreferenced (T);
       use type Editor.Ada_Private_With_Rules.Private_With_Status;
@@ -4869,10 +4878,10 @@ package body Editor.Syntax_Semantics.Tests is
          and then Editor.Ada_Private_With_Rules.Body_Context_Visible_Count (Rules) >= 1
          and then Editor.Ada_Private_With_Rules.Fingerprint (Rules) /= 0,
          "private-with visibility constraints should retain deterministic counters and fingerprints");
-   end Test_Ada_Private_With_Visibility_Constraints_Pass1024;
+   end Test_Ada_Private_With_Visibility_Constraints;
 
 
-   procedure Test_Ada_Body_Spec_Declaration_Conformance_Pass1025
+   procedure Test_Ada_Body_Spec_Declaration_Conformance
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
       pragma Unreferenced (T);
       use type Editor.Ada_Body_Spec_Conformance.Body_Spec_Conformance_Status;
@@ -4979,10 +4988,10 @@ package body Editor.Syntax_Semantics.Tests is
         (First_Info.Fingerprint /= 0
          and then Editor.Ada_Body_Spec_Conformance.Fingerprint (Conformance) /= 0,
          "body/spec conformance metadata should have deterministic fingerprints");
-   end Test_Ada_Body_Spec_Declaration_Conformance_Pass1025;
+   end Test_Ada_Body_Spec_Declaration_Conformance;
 
 
-   procedure Test_Ada_Child_Unit_Visibility_Context_Pass1026
+   procedure Test_Ada_Child_Unit_Visibility_Context
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
       pragma Unreferenced (T);
       use type Editor.Ada_Child_Unit_Visibility.Child_Visibility_Status;
@@ -5088,13 +5097,13 @@ package body Editor.Syntax_Semantics.Tests is
          and then Editor.Ada_Child_Unit_Visibility.Parent_Error_Count (Visibility) >= 1
          and then Editor.Ada_Child_Unit_Visibility.Fingerprint (Visibility) /= 0,
          "child-unit visibility counters and fingerprints should be deterministic");
-   end Test_Ada_Child_Unit_Visibility_Context_Pass1026;
+   end Test_Ada_Child_Unit_Visibility_Context;
 
 
 
 
 
-   procedure Test_Ada_Separate_Body_Stub_Placement_Pass1027
+   procedure Test_Ada_Separate_Body_Stub_Placement
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
       pragma Unreferenced (T);
       use type Editor.Ada_Separate_Body_Stub_Rules.Separate_Body_Stub_Status;
@@ -5182,7 +5191,7 @@ package body Editor.Syntax_Semantics.Tests is
         (Matched.Fingerprint /= 0
          and then Editor.Ada_Separate_Body_Stub_Rules.Fingerprint (Stub_Model) /= 0,
          "separate-body stub placement metadata should have deterministic fingerprints");
-   end Test_Ada_Separate_Body_Stub_Placement_Pass1027;
+   end Test_Ada_Separate_Body_Stub_Placement;
 
 
    procedure Test_Project_Index_Unit_Table_Excludes_Nested_Declarations
@@ -19241,7 +19250,7 @@ package body Editor.Syntax_Semantics.Tests is
    end Test_Language_Model_Token_Cursor_Use_Clause_Recovery_Grammar_Completeness;
 
 
-   procedure Test_Language_Model_Token_Cursor_Use_Clause_Specific_Recovery_Pass875
+   procedure Test_Language_Model_Token_Cursor_Use_Clause_Specific_Recovery
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
       pragma Unreferenced (T);
       Source : constant String :=
@@ -19283,10 +19292,10 @@ package body Editor.Syntax_Semantics.Tests is
       Assert (Editor.Ada_Token_Cursor.Has_Production
                 (Grammar, Editor.Ada_Token_Cursor.Production_Object_Declaration),
               "use-clause specific recovery must continue into the following declaration");
-   end Test_Language_Model_Token_Cursor_Use_Clause_Specific_Recovery_Pass875;
+   end Test_Language_Model_Token_Cursor_Use_Clause_Specific_Recovery;
 
 
-   procedure Test_Language_Model_Token_Cursor_Use_Clause_Recovery_Depth_Pass933
+   procedure Test_Language_Model_Token_Cursor_Use_Clause_Recovery_Depth
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
       pragma Unreferenced (T);
       Source : constant String :=
@@ -19315,10 +19324,10 @@ package body Editor.Syntax_Semantics.Tests is
       Assert (Editor.Ada_Token_Cursor.Has_Production
                 (Grammar, Editor.Ada_Token_Cursor.Production_Object_Declaration),
               "use-clause recovery must continue into the following declaration");
-   end Test_Language_Model_Token_Cursor_Use_Clause_Recovery_Depth_Pass933;
+   end Test_Language_Model_Token_Cursor_Use_Clause_Recovery_Depth;
 
 
-   procedure Test_Language_Model_Token_Cursor_Representation_Item_Recovery_Depth_Pass934
+   procedure Test_Language_Model_Token_Cursor_Representation_Item_Recovery_Depth
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
       pragma Unreferenced (T);
       Source : constant String :=
@@ -19362,10 +19371,10 @@ package body Editor.Syntax_Semantics.Tests is
       Assert (Editor.Ada_Token_Cursor.Has_Production
                 (Grammar, Editor.Ada_Token_Cursor.Production_Recovery_Point),
               "specific representation recovery must preserve generic recovery metadata");
-   end Test_Language_Model_Token_Cursor_Representation_Item_Recovery_Depth_Pass934;
+   end Test_Language_Model_Token_Cursor_Representation_Item_Recovery_Depth;
 
 
-   procedure Test_Language_Model_Token_Cursor_Enumeration_Representation_Recovery_Pass876
+   procedure Test_Language_Model_Token_Cursor_Enumeration_Representation_Recovery
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
       pragma Unreferenced (T);
       Source : constant String :=
@@ -19403,11 +19412,11 @@ package body Editor.Syntax_Semantics.Tests is
       Assert (Editor.Ada_Token_Cursor.Has_Production
                 (Grammar, Editor.Ada_Token_Cursor.Production_Recovery_Point),
               "specific enumeration representation recovery must preserve generic recovery metadata");
-   end Test_Language_Model_Token_Cursor_Enumeration_Representation_Recovery_Pass876;
+   end Test_Language_Model_Token_Cursor_Enumeration_Representation_Recovery;
 
 
 
-   procedure Test_Language_Model_Token_Cursor_Subprogram_Contract_Aspect_Placement_Pass877
+   procedure Test_Language_Model_Token_Cursor_Subprogram_Contract_Aspect_Placement
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
       pragma Unreferenced (T);
       Source : constant String :=
@@ -19461,10 +19470,10 @@ package body Editor.Syntax_Semantics.Tests is
       Assert (Editor.Ada_Token_Cursor.Has_Production
                 (Grammar, Editor.Ada_Token_Cursor.Production_Subprogram_Declaration_Terminator),
               "subprogram spec contract placement must preserve declaration terminators");
-   end Test_Language_Model_Token_Cursor_Subprogram_Contract_Aspect_Placement_Pass877;
+   end Test_Language_Model_Token_Cursor_Subprogram_Contract_Aspect_Placement;
 
 
-   procedure Test_Language_Model_Token_Cursor_Package_Declarative_Item_Recovery_Pass878
+   procedure Test_Language_Model_Token_Cursor_Package_Declarative_Item_Recovery_Case_878
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
       pragma Unreferenced (T);
       Source : constant String :=
@@ -19509,7 +19518,7 @@ package body Editor.Syntax_Semantics.Tests is
                 (Grammar,
                  Editor.Ada_Token_Cursor.Production_Package_Declarative_Recovery_Boundary),
               "specific package declarative recovery must preserve generic package recovery metadata");
-   end Test_Language_Model_Token_Cursor_Package_Declarative_Item_Recovery_Pass878;
+   end Test_Language_Model_Token_Cursor_Package_Declarative_Item_Recovery_Case_878;
 
 
    procedure Test_Language_Model_Token_Cursor_Separate_And_Body_Stub_Grammar_Completeness
@@ -20037,7 +20046,7 @@ package body Editor.Syntax_Semantics.Tests is
    end Test_Language_Model_Token_Cursor_Return_Statement_Depth_Grammar_Completeness;
 
 
-   procedure Test_Language_Model_Token_Cursor_Return_Terminator_Recovery_Pass856
+   procedure Test_Language_Model_Token_Cursor_Return_Terminator_Recovery_Case_856
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
       pragma Unreferenced (T);
       Source : constant String :=
@@ -20064,10 +20073,10 @@ package body Editor.Syntax_Semantics.Tests is
       Assert (Editor.Ada_Token_Cursor.Has_Production
                 (Grammar, Editor.Ada_Token_Cursor.Production_Return_Terminator),
               "well-formed return statements must retain return terminator metadata");
-   end Test_Language_Model_Token_Cursor_Return_Terminator_Recovery_Pass856;
+   end Test_Language_Model_Token_Cursor_Return_Terminator_Recovery_Case_856;
 
 
-   procedure Test_Language_Model_Token_Cursor_Case_Statement_Is_Recovery_Pass866
+   procedure Test_Language_Model_Token_Cursor_Case_Statement_Is_Recovery
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
       pragma Unreferenced (T);
       Source : constant String :=
@@ -20097,9 +20106,9 @@ package body Editor.Syntax_Semantics.Tests is
       Assert (Editor.Ada_Token_Cursor.Has_Production
                 (Grammar, Editor.Ada_Token_Cursor.Production_Call_Statement),
               "case missing-is recovery must leave following statements visible");
-   end Test_Language_Model_Token_Cursor_Case_Statement_Is_Recovery_Pass866;
+   end Test_Language_Model_Token_Cursor_Case_Statement_Is_Recovery;
 
-   procedure Test_Language_Model_Token_Cursor_Case_Choice_Missing_Choice_Recovery_Pass867
+   procedure Test_Language_Model_Token_Cursor_Case_Choice_Missing_Choice_Recovery
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
       pragma Unreferenced (T);
       Source : constant String :=
@@ -20129,9 +20138,9 @@ package body Editor.Syntax_Semantics.Tests is
       Assert (Editor.Ada_Token_Cursor.Has_Production
                 (Grammar, Editor.Ada_Token_Cursor.Production_Call_Statement),
               "case choice recovery must leave following statements visible");
-   end Test_Language_Model_Token_Cursor_Case_Choice_Missing_Choice_Recovery_Pass867;
+   end Test_Language_Model_Token_Cursor_Case_Choice_Missing_Choice_Recovery;
 
-   procedure Test_Language_Model_Token_Cursor_Case_Alternative_Statement_Recovery_Pass868
+   procedure Test_Language_Model_Token_Cursor_Case_Alternative_Statement_Recovery
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
       pragma Unreferenced (T);
       Source : constant String :=
@@ -20161,11 +20170,11 @@ package body Editor.Syntax_Semantics.Tests is
       Assert (Editor.Ada_Token_Cursor.Has_Production
                 (Grammar, Editor.Ada_Token_Cursor.Production_Call_Statement),
               "case alternative statement recovery must leave following statements visible");
-   end Test_Language_Model_Token_Cursor_Case_Alternative_Statement_Recovery_Pass868;
+   end Test_Language_Model_Token_Cursor_Case_Alternative_Statement_Recovery;
 
 
 
-   procedure Test_Language_Model_Token_Cursor_If_Branch_Statement_Recovery_Pass869
+   procedure Test_Language_Model_Token_Cursor_If_Branch_Statement_Recovery
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
       pragma Unreferenced (T);
       Source : constant String :=
@@ -20198,10 +20207,10 @@ package body Editor.Syntax_Semantics.Tests is
       Assert (Editor.Ada_Token_Cursor.Has_Production
                 (Grammar, Editor.Ada_Token_Cursor.Production_Call_Statement),
               "if branch recovery must leave following statements visible");
-   end Test_Language_Model_Token_Cursor_If_Branch_Statement_Recovery_Pass869;
+   end Test_Language_Model_Token_Cursor_If_Branch_Statement_Recovery;
 
 
-   procedure Test_Language_Model_Token_Cursor_Loop_Body_Statement_Recovery_Pass870
+   procedure Test_Language_Model_Token_Cursor_Loop_Body_Statement_Recovery
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
       pragma Unreferenced (T);
       Source : constant String :=
@@ -20232,10 +20241,10 @@ package body Editor.Syntax_Semantics.Tests is
       Assert (Editor.Ada_Token_Cursor.Has_Production
                 (Grammar, Editor.Ada_Token_Cursor.Production_Call_Statement),
               "loop body recovery must leave following statements visible");
-   end Test_Language_Model_Token_Cursor_Loop_Body_Statement_Recovery_Pass870;
+   end Test_Language_Model_Token_Cursor_Loop_Body_Statement_Recovery;
 
 
-   procedure Test_Language_Model_Token_Cursor_Block_Body_Statement_Recovery_Pass871
+   procedure Test_Language_Model_Token_Cursor_Block_Body_Statement_Recovery
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
       pragma Unreferenced (T);
       Source : constant String :=
@@ -20272,10 +20281,10 @@ package body Editor.Syntax_Semantics.Tests is
       Assert (Editor.Ada_Token_Cursor.Has_Production
                 (Grammar, Editor.Ada_Token_Cursor.Production_Call_Statement),
               "block statement recovery must leave following statements visible");
-   end Test_Language_Model_Token_Cursor_Block_Body_Statement_Recovery_Pass871;
+   end Test_Language_Model_Token_Cursor_Block_Body_Statement_Recovery;
 
 
-   procedure Test_Language_Model_Token_Cursor_Case_Alternative_End_Case_Statement_Recovery_Pass872
+   procedure Test_Language_Model_Token_Cursor_Case_Alternative_End_Case_Statement_Recovery
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
       pragma Unreferenced (T);
       Source : constant String :=
@@ -20308,10 +20317,10 @@ package body Editor.Syntax_Semantics.Tests is
       Assert (Editor.Ada_Token_Cursor.Has_Production
                 (Grammar, Editor.Ada_Token_Cursor.Production_Call_Statement),
               "terminal case alternative recovery must leave following statements visible");
-   end Test_Language_Model_Token_Cursor_Case_Alternative_End_Case_Statement_Recovery_Pass872;
+   end Test_Language_Model_Token_Cursor_Case_Alternative_End_Case_Statement_Recovery;
 
 
-   procedure Test_Language_Model_Token_Cursor_Exception_Handler_Statement_Recovery_Pass874
+   procedure Test_Language_Model_Token_Cursor_Exception_Handler_Statement_Recovery
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
       pragma Unreferenced (T);
       Source : constant String :=
@@ -20349,10 +20358,10 @@ package body Editor.Syntax_Semantics.Tests is
       Assert (Editor.Ada_Token_Cursor.Has_Production
                 (Grammar, Editor.Ada_Token_Cursor.Production_Subprogram_Body_End_Terminator),
               "exception-handler recovery must leave enclosing end terminators visible");
-   end Test_Language_Model_Token_Cursor_Exception_Handler_Statement_Recovery_Pass874;
+   end Test_Language_Model_Token_Cursor_Exception_Handler_Statement_Recovery;
 
 
-   procedure Test_Language_Model_Token_Cursor_Formal_Package_Empty_Actual_Recovery_Pass873
+   procedure Test_Language_Model_Token_Cursor_Formal_Package_Empty_Actual_Recovery
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
       pragma Unreferenced (T);
       Source : constant String :=
@@ -20382,10 +20391,10 @@ package body Editor.Syntax_Semantics.Tests is
       Assert (Editor.Ada_Token_Cursor.Has_Production
                 (Grammar, Editor.Ada_Token_Cursor.Production_Recovery_Point),
               "empty formal package actual recovery must expose conservative syntax recovery metadata");
-   end Test_Language_Model_Token_Cursor_Formal_Package_Empty_Actual_Recovery_Pass873;
+   end Test_Language_Model_Token_Cursor_Formal_Package_Empty_Actual_Recovery;
 
 
-   procedure Test_Language_Model_Token_Cursor_Extended_Return_Do_Recovery_Pass865
+   procedure Test_Language_Model_Token_Cursor_Extended_Return_Do_Recovery
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
       pragma Unreferenced (T);
       Source : constant String :=
@@ -20415,7 +20424,7 @@ package body Editor.Syntax_Semantics.Tests is
       Assert (Editor.Ada_Token_Cursor.Has_Production
                 (Grammar, Editor.Ada_Token_Cursor.Production_Call_Statement),
               "extended return missing-do recovery must leave following statements visible");
-   end Test_Language_Model_Token_Cursor_Extended_Return_Do_Recovery_Pass865;
+   end Test_Language_Model_Token_Cursor_Extended_Return_Do_Recovery;
 
 
    procedure Test_Language_Model_Token_Cursor_Subprogram_Body_Declarative_Part_Depth_Grammar_Completeness
@@ -20754,7 +20763,7 @@ package body Editor.Syntax_Semantics.Tests is
               "raise with-message expressions must be parsed structurally");
    end Test_Language_Model_Token_Cursor_Raise_Statement_Grammar_Completeness;
 
-   procedure Test_Language_Model_Token_Cursor_Raise_Expression_Message_Recovery_Pass857
+   procedure Test_Language_Model_Token_Cursor_Raise_Expression_Message_Recovery
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
       pragma Unreferenced (T);
       Source : constant String :=
@@ -20782,10 +20791,10 @@ package body Editor.Syntax_Semantics.Tests is
       Assert (Editor.Ada_Token_Cursor.Has_Production
                 (Grammar, Editor.Ada_Token_Cursor.Production_Null_Statement),
               "raise-expression recovery must leave following statements visible");
-   end Test_Language_Model_Token_Cursor_Raise_Expression_Message_Recovery_Pass857;
+   end Test_Language_Model_Token_Cursor_Raise_Expression_Message_Recovery;
 
 
-   procedure Test_Language_Model_Token_Cursor_Raise_Statement_Message_Recovery_Pass858
+   procedure Test_Language_Model_Token_Cursor_Raise_Statement_Message_Recovery
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
       pragma Unreferenced (T);
       Source : constant String :=
@@ -20816,11 +20825,11 @@ package body Editor.Syntax_Semantics.Tests is
       Assert (Editor.Ada_Token_Cursor.Has_Production
                 (Grammar, Editor.Ada_Token_Cursor.Production_Null_Statement),
               "raise-statement recovery must leave following statements visible");
-   end Test_Language_Model_Token_Cursor_Raise_Statement_Message_Recovery_Pass858;
+   end Test_Language_Model_Token_Cursor_Raise_Statement_Message_Recovery;
 
 
 
-   procedure Test_Language_Model_Token_Cursor_Raise_Statement_Exception_Name_Recovery_Pass862
+   procedure Test_Language_Model_Token_Cursor_Raise_Statement_Exception_Name_Recovery
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
       pragma Unreferenced (T);
       Source : constant String :=
@@ -20851,10 +20860,10 @@ package body Editor.Syntax_Semantics.Tests is
       Assert (Editor.Ada_Token_Cursor.Has_Production
                 (Grammar, Editor.Ada_Token_Cursor.Production_Null_Statement),
               "raise-statement missing-name recovery must leave following statements visible");
-   end Test_Language_Model_Token_Cursor_Raise_Statement_Exception_Name_Recovery_Pass862;
+   end Test_Language_Model_Token_Cursor_Raise_Statement_Exception_Name_Recovery;
 
 
-   procedure Test_Language_Model_Token_Cursor_Label_Missing_Close_Recovery_Pass859
+   procedure Test_Language_Model_Token_Cursor_Label_Missing_Close_Recovery
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
       pragma Unreferenced (T);
       Source : constant String :=
@@ -20883,11 +20892,11 @@ package body Editor.Syntax_Semantics.Tests is
       Assert (Editor.Ada_Token_Cursor.Has_Production
                 (Grammar, Editor.Ada_Token_Cursor.Production_Null_Statement),
               "label recovery must leave following statements visible");
-   end Test_Language_Model_Token_Cursor_Label_Missing_Close_Recovery_Pass859;
+   end Test_Language_Model_Token_Cursor_Label_Missing_Close_Recovery;
 
 
 
-   procedure Test_Language_Model_Token_Cursor_Assignment_Expression_Recovery_Pass860
+   procedure Test_Language_Model_Token_Cursor_Assignment_Expression_Recovery
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
       pragma Unreferenced (T);
       Source : constant String :=
@@ -20916,11 +20925,11 @@ package body Editor.Syntax_Semantics.Tests is
       Assert (Editor.Ada_Token_Cursor.Has_Production
                 (Grammar, Editor.Ada_Token_Cursor.Production_Null_Statement),
               "assignment expression recovery must leave following statements visible");
-   end Test_Language_Model_Token_Cursor_Assignment_Expression_Recovery_Pass860;
+   end Test_Language_Model_Token_Cursor_Assignment_Expression_Recovery;
 
 
 
-   procedure Test_Language_Model_Token_Cursor_Goto_Target_Recovery_Pass861
+   procedure Test_Language_Model_Token_Cursor_Goto_Target_Recovery
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
       pragma Unreferenced (T);
       Source : constant String :=
@@ -20952,7 +20961,7 @@ package body Editor.Syntax_Semantics.Tests is
       Assert (Editor.Ada_Token_Cursor.Has_Production
                 (Grammar, Editor.Ada_Token_Cursor.Production_Null_Statement),
               "goto target recovery must leave following statements visible");
-   end Test_Language_Model_Token_Cursor_Goto_Target_Recovery_Pass861;
+   end Test_Language_Model_Token_Cursor_Goto_Target_Recovery;
 
 
    procedure Test_Language_Model_Token_Cursor_Exit_Goto_Grammar_Completeness
@@ -21354,7 +21363,7 @@ package body Editor.Syntax_Semantics.Tests is
               "declare expressions used in assignments must not break statement parsing");
    end Test_Language_Model_Token_Cursor_Declare_Expression_Grammar_Completeness;
 
-   procedure Test_Language_Model_Token_Cursor_Declare_Expression_Begin_Recovery_Pass839
+   procedure Test_Language_Model_Token_Cursor_Declare_Expression_Begin_Recovery
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
       pragma Unreferenced (T);
       Source : constant String :=
@@ -21381,7 +21390,7 @@ package body Editor.Syntax_Semantics.Tests is
       Assert (Editor.Ada_Token_Cursor.Has_Production
                 (Grammar, Editor.Ada_Token_Cursor.Production_Object_Declaration),
               "declare-expression recovery must leave following declarations visible");
-   end Test_Language_Model_Token_Cursor_Declare_Expression_Begin_Recovery_Pass839;
+   end Test_Language_Model_Token_Cursor_Declare_Expression_Begin_Recovery;
 
    procedure Test_Language_Model_Token_Cursor_Aggregate_Iterator_Grammar_Completeness
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
@@ -22283,7 +22292,7 @@ package body Editor.Syntax_Semantics.Tests is
 
 
 
-   procedure Test_Language_Model_Token_Cursor_Generic_Formal_Subprogram_Default_Recovery_Pass931
+   procedure Test_Language_Model_Token_Cursor_Generic_Formal_Subprogram_Default_Recovery
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
       pragma Unreferenced (T);
       Source : constant String :=
@@ -22320,7 +22329,7 @@ package body Editor.Syntax_Semantics.Tests is
       Assert (Editor.Ada_Token_Cursor.Has_Production
                 (Grammar, Editor.Ada_Token_Cursor.Production_Formal_Subprogram_Default_Box),
               "recovery after a malformed formal subprogram default must retain later box defaults");
-   end Test_Language_Model_Token_Cursor_Generic_Formal_Subprogram_Default_Recovery_Pass931;
+   end Test_Language_Model_Token_Cursor_Generic_Formal_Subprogram_Default_Recovery;
 
 
    procedure Test_Language_Model_Token_Cursor_Generic_Actual_Box_Grammar_Completeness
@@ -22825,7 +22834,7 @@ package body Editor.Syntax_Semantics.Tests is
 
 
 
-   procedure Test_Language_Model_Token_Cursor_Generic_Formal_Type_Edge_Depth_Pass776
+   procedure Test_Language_Model_Token_Cursor_Generic_Formal_Type_Edge_Depth
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
       pragma Unreferenced (T);
       Source : constant String :=
@@ -22873,7 +22882,7 @@ package body Editor.Syntax_Semantics.Tests is
       Assert (Editor.Ada_Token_Cursor.Has_Production
                 (Grammar, Editor.Ada_Token_Cursor.Production_Object_Declaration),
               "parser must recover into the generic unit after hostile formal type edge cases");
-   end Test_Language_Model_Token_Cursor_Generic_Formal_Type_Edge_Depth_Pass776;
+   end Test_Language_Model_Token_Cursor_Generic_Formal_Type_Edge_Depth;
 
 
    procedure Test_Language_Model_Token_Cursor_Type_Declaration_Internal_Grammar_Completeness
@@ -23901,7 +23910,7 @@ package body Editor.Syntax_Semantics.Tests is
               "formal package actual-list recovery must resume at the following generic formal declaration");
    end Test_Language_Model_Token_Cursor_Formal_Package_Actual_Recovery;
 
-   procedure Test_Language_Model_Token_Cursor_Formal_Package_Hostile_Recovery_Pass784
+   procedure Test_Language_Model_Token_Cursor_Formal_Package_Hostile_Recovery
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
       pragma Unreferenced (T);
       Source : constant String :=
@@ -23953,12 +23962,12 @@ package body Editor.Syntax_Semantics.Tests is
       Assert (Editor.Ada_Token_Cursor.Has_Production
                 (Grammar, Editor.Ada_Token_Cursor.Production_Formal_Type_Declaration),
               "formal package hostile recovery must resume at following generic formals");
-   end Test_Language_Model_Token_Cursor_Formal_Package_Hostile_Recovery_Pass784;
+   end Test_Language_Model_Token_Cursor_Formal_Package_Hostile_Recovery;
 
 
 
 
-   procedure Test_Language_Model_Token_Cursor_Formal_Package_Header_Recovery_Pass932
+   procedure Test_Language_Model_Token_Cursor_Formal_Package_Header_Recovery
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
       pragma Unreferenced (T);
       Source : constant String :=
@@ -24005,7 +24014,7 @@ package body Editor.Syntax_Semantics.Tests is
       Assert (Editor.Ada_Token_Cursor.Has_Production
                 (Grammar, Editor.Ada_Token_Cursor.Production_Formal_Type_Declaration),
               "formal package header recovery must resume at following generic formal declarations");
-   end Test_Language_Model_Token_Cursor_Formal_Package_Header_Recovery_Pass932;
+   end Test_Language_Model_Token_Cursor_Formal_Package_Header_Recovery;
 
 
    procedure Test_Language_Model_Token_Cursor_Subprogram_Modifier_Grammar_Completeness
@@ -24657,7 +24666,7 @@ package body Editor.Syntax_Semantics.Tests is
 
 
 
-   procedure Test_Language_Model_Token_Cursor_Select_Alternative_Statement_Recovery_Pass882
+   procedure Test_Language_Model_Token_Cursor_Select_Alternative_Statement_Recovery
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
       pragma Unreferenced (T);
       Source : constant String :=
@@ -24698,10 +24707,10 @@ package body Editor.Syntax_Semantics.Tests is
       Assert (Editor.Ada_Token_Cursor.Has_Production
                 (Grammar, Editor.Ada_Token_Cursor.Production_Object_Declaration),
               "select-statement recovery must continue into following declarations");
-   end Test_Language_Model_Token_Cursor_Select_Alternative_Statement_Recovery_Pass882;
+   end Test_Language_Model_Token_Cursor_Select_Alternative_Statement_Recovery;
 
 
-   procedure Test_Language_Model_Token_Cursor_Select_Guard_Missing_Arrow_Pass787
+   procedure Test_Language_Model_Token_Cursor_Select_Guard_Missing_Arrow
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
       pragma Unreferenced (T);
       Source : constant String :=
@@ -24734,9 +24743,9 @@ package body Editor.Syntax_Semantics.Tests is
       Assert (Editor.Ada_Token_Cursor.Has_Production
                 (Grammar, Editor.Ada_Token_Cursor.Production_Object_Declaration),
               "select guard recovery must continue into following declarations");
-   end Test_Language_Model_Token_Cursor_Select_Guard_Missing_Arrow_Pass787;
+   end Test_Language_Model_Token_Cursor_Select_Guard_Missing_Arrow;
 
-   procedure Test_Language_Model_Token_Cursor_Accept_End_Recovery_Pass788
+   procedure Test_Language_Model_Token_Cursor_Accept_End_Recovery
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
       pragma Unreferenced (T);
       Source : constant String :=
@@ -24776,10 +24785,10 @@ package body Editor.Syntax_Semantics.Tests is
       Assert (Editor.Ada_Token_Cursor.Has_Production
                 (Grammar, Editor.Ada_Token_Cursor.Production_Object_Declaration),
               "accept end recovery must continue into following declarations");
-   end Test_Language_Model_Token_Cursor_Accept_End_Recovery_Pass788;
+   end Test_Language_Model_Token_Cursor_Accept_End_Recovery;
 
 
-   procedure Test_Language_Model_Token_Cursor_Accept_Body_Statement_Recovery_Pass883
+   procedure Test_Language_Model_Token_Cursor_Accept_Body_Statement_Recovery
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
       pragma Unreferenced (T);
       Source : constant String :=
@@ -24822,10 +24831,10 @@ package body Editor.Syntax_Semantics.Tests is
       Assert (Editor.Ada_Token_Cursor.Has_Production
                 (Grammar, Editor.Ada_Token_Cursor.Production_Object_Declaration),
               "accept body recovery must continue into following declarations");
-   end Test_Language_Model_Token_Cursor_Accept_Body_Statement_Recovery_Pass883;
+   end Test_Language_Model_Token_Cursor_Accept_Body_Statement_Recovery;
 
 
-   procedure Test_Language_Model_Token_Cursor_Generic_Formal_Incomplete_Type_Pass884
+   procedure Test_Language_Model_Token_Cursor_Generic_Formal_Incomplete_Type
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
       pragma Unreferenced (T);
       Source : constant String :=
@@ -24861,10 +24870,10 @@ package body Editor.Syntax_Semantics.Tests is
       Assert (Editor.Ada_Token_Cursor.Has_Production
                 (Grammar, Editor.Ada_Token_Cursor.Production_Package_Declaration),
               "formal incomplete type recovery must continue into the following package declaration");
-   end Test_Language_Model_Token_Cursor_Generic_Formal_Incomplete_Type_Pass884;
+   end Test_Language_Model_Token_Cursor_Generic_Formal_Incomplete_Type;
 
 
-   procedure Test_Language_Model_Token_Cursor_Timed_Conditional_Entry_Call_Pass789
+   procedure Test_Language_Model_Token_Cursor_Timed_Conditional_Entry_Call
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
       pragma Unreferenced (T);
       Source : constant String :=
@@ -24905,9 +24914,9 @@ package body Editor.Syntax_Semantics.Tests is
       Assert (Editor.Ada_Token_Cursor.Has_Production
                 (Grammar, Editor.Ada_Token_Cursor.Production_Object_Declaration),
               "timed/conditional entry-call parsing must continue into following declarations");
-   end Test_Language_Model_Token_Cursor_Timed_Conditional_Entry_Call_Pass789;
+   end Test_Language_Model_Token_Cursor_Timed_Conditional_Entry_Call;
 
-   procedure Test_Language_Model_Token_Cursor_Terminate_Alternative_Recovery_Pass791
+   procedure Test_Language_Model_Token_Cursor_Terminate_Alternative_Recovery
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
       pragma Unreferenced (T);
       Source : constant String :=
@@ -24942,9 +24951,9 @@ package body Editor.Syntax_Semantics.Tests is
       Assert (Editor.Ada_Token_Cursor.Has_Production
                 (Grammar, Editor.Ada_Token_Cursor.Production_Object_Declaration),
               "terminate recovery must continue into following declarations");
-   end Test_Language_Model_Token_Cursor_Terminate_Alternative_Recovery_Pass791;
+   end Test_Language_Model_Token_Cursor_Terminate_Alternative_Recovery;
 
-   procedure Test_Language_Model_Token_Cursor_Requeue_Recovery_Pass790
+   procedure Test_Language_Model_Token_Cursor_Requeue_Recovery
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
       pragma Unreferenced (T);
       Source : constant String :=
@@ -24974,9 +24983,9 @@ package body Editor.Syntax_Semantics.Tests is
       Assert (Editor.Ada_Token_Cursor.Has_Production
                 (Grammar, Editor.Ada_Token_Cursor.Production_Object_Declaration),
               "requeue recovery must continue into following declarations");
-   end Test_Language_Model_Token_Cursor_Requeue_Recovery_Pass790;
+   end Test_Language_Model_Token_Cursor_Requeue_Recovery;
 
-   procedure Test_Language_Model_Token_Cursor_Abort_Terminator_Recovery_Pass792
+   procedure Test_Language_Model_Token_Cursor_Abort_Terminator_Recovery
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
       pragma Unreferenced (T);
       Source : constant String :=
@@ -25008,9 +25017,9 @@ package body Editor.Syntax_Semantics.Tests is
       Assert (Editor.Ada_Token_Cursor.Has_Production
                 (Grammar, Editor.Ada_Token_Cursor.Production_Abort_Missing_Terminator_Recovery_Boundary),
               "abort statements missing a semicolon must retain recovery metadata");
-   end Test_Language_Model_Token_Cursor_Abort_Terminator_Recovery_Pass792;
+   end Test_Language_Model_Token_Cursor_Abort_Terminator_Recovery;
 
-   procedure Test_Language_Model_Token_Cursor_Abort_Target_Recovery_Pass855
+   procedure Test_Language_Model_Token_Cursor_Abort_Target_Recovery
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
       pragma Unreferenced (T);
       Source : constant String :=
@@ -25043,9 +25052,9 @@ package body Editor.Syntax_Semantics.Tests is
       Assert (Editor.Ada_Token_Cursor.Has_Production
                 (Grammar, Editor.Ada_Token_Cursor.Production_Null_Statement),
               "abort target recovery must continue into following statements");
-   end Test_Language_Model_Token_Cursor_Abort_Target_Recovery_Pass855;
+   end Test_Language_Model_Token_Cursor_Abort_Target_Recovery;
 
-   procedure Test_Language_Model_Token_Cursor_Delay_Terminator_Recovery_Pass793
+   procedure Test_Language_Model_Token_Cursor_Delay_Terminator_Recovery
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
       pragma Unreferenced (T);
       Source : constant String :=
@@ -25072,10 +25081,10 @@ package body Editor.Syntax_Semantics.Tests is
       Assert (Editor.Ada_Token_Cursor.Has_Production
                 (Grammar, Editor.Ada_Token_Cursor.Production_Delay_Missing_Terminator_Recovery_Boundary),
               "delay statements missing a semicolon must retain recovery metadata");
-   end Test_Language_Model_Token_Cursor_Delay_Terminator_Recovery_Pass793;
+   end Test_Language_Model_Token_Cursor_Delay_Terminator_Recovery;
 
 
-   procedure Test_Language_Model_Token_Cursor_Return_Terminator_Recovery_Pass794
+   procedure Test_Language_Model_Token_Cursor_Return_Terminator_Recovery_Case_794
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
       pragma Unreferenced (T);
       Source : constant String :=
@@ -25110,9 +25119,9 @@ package body Editor.Syntax_Semantics.Tests is
       Assert (Editor.Ada_Token_Cursor.Has_Production
                 (Grammar, Editor.Ada_Token_Cursor.Production_Extended_Return_Missing_End_Recovery_Boundary),
               "extended returns missing end return must retain recovery metadata");
-   end Test_Language_Model_Token_Cursor_Return_Terminator_Recovery_Pass794;
+   end Test_Language_Model_Token_Cursor_Return_Terminator_Recovery_Case_794;
 
-   procedure Test_Language_Model_Token_Cursor_Raise_Terminator_Recovery_Pass795
+   procedure Test_Language_Model_Token_Cursor_Raise_Terminator_Recovery
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
       pragma Unreferenced (T);
       Source : constant String :=
@@ -25140,11 +25149,11 @@ package body Editor.Syntax_Semantics.Tests is
       Assert (Editor.Ada_Token_Cursor.Has_Production
                 (Grammar, Editor.Ada_Token_Cursor.Production_Raise_Missing_Terminator_Recovery_Boundary),
               "raise statements missing a semicolon must retain recovery metadata");
-   end Test_Language_Model_Token_Cursor_Raise_Terminator_Recovery_Pass795;
+   end Test_Language_Model_Token_Cursor_Raise_Terminator_Recovery;
 
 
 
-   procedure Test_Language_Model_Token_Cursor_Exit_Terminator_Recovery_Pass796
+   procedure Test_Language_Model_Token_Cursor_Exit_Terminator_Recovery
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
       pragma Unreferenced (T);
       Source : constant String :=
@@ -25173,11 +25182,11 @@ package body Editor.Syntax_Semantics.Tests is
       Assert (Editor.Ada_Token_Cursor.Has_Production
                 (Grammar, Editor.Ada_Token_Cursor.Production_Exit_Missing_Terminator_Recovery_Boundary),
               "exit statements missing a semicolon must retain recovery metadata");
-   end Test_Language_Model_Token_Cursor_Exit_Terminator_Recovery_Pass796;
+   end Test_Language_Model_Token_Cursor_Exit_Terminator_Recovery;
 
 
 
-   procedure Test_Language_Model_Token_Cursor_Goto_Terminator_Recovery_Pass797
+   procedure Test_Language_Model_Token_Cursor_Goto_Terminator_Recovery
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
       pragma Unreferenced (T);
       Source : constant String :=
@@ -25205,9 +25214,9 @@ package body Editor.Syntax_Semantics.Tests is
       Assert (Editor.Ada_Token_Cursor.Has_Production
                 (Grammar, Editor.Ada_Token_Cursor.Production_Goto_Missing_Terminator_Recovery_Boundary),
               "goto statements missing a semicolon must retain recovery metadata");
-   end Test_Language_Model_Token_Cursor_Goto_Terminator_Recovery_Pass797;
+   end Test_Language_Model_Token_Cursor_Goto_Terminator_Recovery;
 
-   procedure Test_Language_Model_Token_Cursor_Null_Terminator_Recovery_Pass798
+   procedure Test_Language_Model_Token_Cursor_Null_Terminator_Recovery
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
       pragma Unreferenced (T);
       Source : constant String :=
@@ -25228,9 +25237,9 @@ package body Editor.Syntax_Semantics.Tests is
       Assert (Editor.Ada_Token_Cursor.Has_Production
                 (Grammar, Editor.Ada_Token_Cursor.Production_Null_Missing_Terminator_Recovery_Boundary),
               "null statements missing a semicolon must retain recovery metadata");
-   end Test_Language_Model_Token_Cursor_Null_Terminator_Recovery_Pass798;
+   end Test_Language_Model_Token_Cursor_Null_Terminator_Recovery;
 
-   procedure Test_Language_Model_Token_Cursor_Assignment_Terminator_Recovery_Pass799
+   procedure Test_Language_Model_Token_Cursor_Assignment_Terminator_Recovery
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
       pragma Unreferenced (T);
       Source : constant String :=
@@ -25258,9 +25267,9 @@ package body Editor.Syntax_Semantics.Tests is
       Assert (Editor.Ada_Token_Cursor.Has_Production
                 (Grammar, Editor.Ada_Token_Cursor.Production_Assignment_Missing_Terminator_Recovery_Boundary),
               "assignment statements missing a semicolon must retain recovery metadata");
-   end Test_Language_Model_Token_Cursor_Assignment_Terminator_Recovery_Pass799;
+   end Test_Language_Model_Token_Cursor_Assignment_Terminator_Recovery;
 
-   procedure Test_Language_Model_Token_Cursor_Call_Terminator_Recovery_Pass800
+   procedure Test_Language_Model_Token_Cursor_Call_Terminator_Recovery
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
       pragma Unreferenced (T);
       Source : constant String :=
@@ -25287,11 +25296,11 @@ package body Editor.Syntax_Semantics.Tests is
       Assert (Editor.Ada_Token_Cursor.Has_Production
                 (Grammar, Editor.Ada_Token_Cursor.Production_Call_Missing_Terminator_Recovery_Boundary),
               "call statements missing a semicolon must retain recovery metadata");
-   end Test_Language_Model_Token_Cursor_Call_Terminator_Recovery_Pass800;
+   end Test_Language_Model_Token_Cursor_Call_Terminator_Recovery;
 
 
 
-   procedure Test_Language_Model_Token_Cursor_Compound_End_Terminator_Recovery_Pass801
+   procedure Test_Language_Model_Token_Cursor_Compound_End_Terminator_Recovery
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
       pragma Unreferenced (T);
       Source : constant String :=
@@ -25339,10 +25348,10 @@ package body Editor.Syntax_Semantics.Tests is
       Assert (Editor.Ada_Token_Cursor.Has_Production
                 (Grammar, Editor.Ada_Token_Cursor.Production_Block_Missing_End_Terminator_Recovery_Boundary),
               "block ends missing a semicolon must retain block-specific recovery metadata");
-   end Test_Language_Model_Token_Cursor_Compound_End_Terminator_Recovery_Pass801;
+   end Test_Language_Model_Token_Cursor_Compound_End_Terminator_Recovery;
 
 
-   procedure Test_Language_Model_Token_Cursor_Case_End_Terminator_Recovery_Pass802
+   procedure Test_Language_Model_Token_Cursor_Case_End_Terminator_Recovery
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
       pragma Unreferenced (T);
       Source : constant String :=
@@ -25374,9 +25383,9 @@ package body Editor.Syntax_Semantics.Tests is
       Assert (Editor.Ada_Token_Cursor.Has_Production
                 (Grammar, Editor.Ada_Token_Cursor.Production_Case_Missing_End_Terminator_Recovery_Boundary),
               "end case statements missing a semicolon must retain case-specific recovery metadata");
-   end Test_Language_Model_Token_Cursor_Case_End_Terminator_Recovery_Pass802;
+   end Test_Language_Model_Token_Cursor_Case_End_Terminator_Recovery;
 
-   procedure Test_Language_Model_Token_Cursor_Select_End_Terminator_Recovery_Pass803
+   procedure Test_Language_Model_Token_Cursor_Select_End_Terminator_Recovery
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
       pragma Unreferenced (T);
       Source : constant String :=
@@ -25406,9 +25415,9 @@ package body Editor.Syntax_Semantics.Tests is
       Assert (Editor.Ada_Token_Cursor.Has_Production
                 (Grammar, Editor.Ada_Token_Cursor.Production_Select_Missing_End_Terminator_Recovery_Boundary),
               "end select statements missing a semicolon must retain select-specific recovery metadata");
-   end Test_Language_Model_Token_Cursor_Select_End_Terminator_Recovery_Pass803;
+   end Test_Language_Model_Token_Cursor_Select_End_Terminator_Recovery;
 
-   procedure Test_Language_Model_Token_Cursor_Case_Alternative_Missing_Arrow_Pass803
+   procedure Test_Language_Model_Token_Cursor_Case_Alternative_Missing_Arrow
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
       pragma Unreferenced (T);
       Source : constant String :=
@@ -25436,9 +25445,9 @@ package body Editor.Syntax_Semantics.Tests is
       Assert (Editor.Ada_Token_Cursor.Has_Production
                 (Grammar, Editor.Ada_Token_Cursor.Production_Case_Alternative_Recovery_Boundary),
               "case alternatives missing => must still retain shared case-alternative recovery metadata");
-   end Test_Language_Model_Token_Cursor_Case_Alternative_Missing_Arrow_Pass803;
+   end Test_Language_Model_Token_Cursor_Case_Alternative_Missing_Arrow;
 
-   procedure Test_Language_Model_Token_Cursor_If_Missing_Then_Recovery_Pass804
+   procedure Test_Language_Model_Token_Cursor_If_Missing_Then_Recovery
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
       pragma Unreferenced (T);
       Source : constant String :=
@@ -25473,10 +25482,10 @@ package body Editor.Syntax_Semantics.Tests is
       Assert (Editor.Ada_Token_Cursor.Has_Production
                 (Grammar, Editor.Ada_Token_Cursor.Production_If_Statement_Recovery_Boundary),
               "missing-then branches must still retain shared if recovery metadata");
-   end Test_Language_Model_Token_Cursor_If_Missing_Then_Recovery_Pass804;
+   end Test_Language_Model_Token_Cursor_If_Missing_Then_Recovery;
 
 
-   procedure Test_Language_Model_Token_Cursor_Loop_Missing_Loop_Recovery_Pass805
+   procedure Test_Language_Model_Token_Cursor_Loop_Missing_Loop_Recovery
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
       pragma Unreferenced (T);
       Source : constant String :=
@@ -25513,9 +25522,9 @@ package body Editor.Syntax_Semantics.Tests is
       Assert (Editor.Ada_Token_Cursor.Has_Production
                 (Grammar, Editor.Ada_Token_Cursor.Production_Recovery_Point),
               "missing loop keyword recovery must still retain shared recovery-point metadata");
-   end Test_Language_Model_Token_Cursor_Loop_Missing_Loop_Recovery_Pass805;
+   end Test_Language_Model_Token_Cursor_Loop_Missing_Loop_Recovery;
 
-   procedure Test_Language_Model_Token_Cursor_Body_End_Terminator_Recovery_Pass806
+   procedure Test_Language_Model_Token_Cursor_Body_End_Terminator_Recovery
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
       pragma Unreferenced (T);
       Package_Source : constant String :=
@@ -25565,9 +25574,9 @@ package body Editor.Syntax_Semantics.Tests is
       Assert (Editor.Ada_Token_Cursor.Has_Production
                 (Subprogram_Grammar, Editor.Ada_Token_Cursor.Production_Subprogram_Body_Missing_End_Terminator_Recovery_Boundary),
               "subprogram bodies missing end semicolons must retain family-specific recovery metadata");
-   end Test_Language_Model_Token_Cursor_Body_End_Terminator_Recovery_Pass806;
+   end Test_Language_Model_Token_Cursor_Body_End_Terminator_Recovery;
 
-   procedure Test_Language_Model_Token_Cursor_Concurrent_Body_End_Terminator_Recovery_Pass807
+   procedure Test_Language_Model_Token_Cursor_Concurrent_Body_End_Terminator_Recovery
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
       pragma Unreferenced (T);
       Task_Source : constant String :=
@@ -25620,10 +25629,10 @@ package body Editor.Syntax_Semantics.Tests is
       Assert (Editor.Ada_Token_Cursor.Has_Production
                 (Protected_Grammar, Editor.Ada_Token_Cursor.Production_Protected_Body_Operation_End_Keyword),
               "protected operation body end metadata must remain present");
-   end Test_Language_Model_Token_Cursor_Concurrent_Body_End_Terminator_Recovery_Pass807;
+   end Test_Language_Model_Token_Cursor_Concurrent_Body_End_Terminator_Recovery;
 
 
-   procedure Test_Language_Model_Token_Cursor_Entry_Declaration_Terminator_Recovery_Pass808
+   procedure Test_Language_Model_Token_Cursor_Entry_Declaration_Terminator_Recovery
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
       pragma Unreferenced (T);
       Source : constant String :=
@@ -25651,10 +25660,10 @@ package body Editor.Syntax_Semantics.Tests is
       Assert (Editor.Ada_Token_Cursor.Has_Production
                 (Grammar, Editor.Ada_Token_Cursor.Production_Entry_Missing_Terminator_Recovery_Boundary),
               "entry declarations missing semicolons must retain entry-specific recovery metadata");
-   end Test_Language_Model_Token_Cursor_Entry_Declaration_Terminator_Recovery_Pass808;
+   end Test_Language_Model_Token_Cursor_Entry_Declaration_Terminator_Recovery;
 
 
-   procedure Test_Language_Model_Token_Cursor_Entry_Body_End_Recovery_Pass809
+   procedure Test_Language_Model_Token_Cursor_Entry_Body_End_Recovery
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
       pragma Unreferenced (T);
       Source : constant String :=
@@ -25688,11 +25697,11 @@ package body Editor.Syntax_Semantics.Tests is
       Assert (Editor.Ada_Token_Cursor.Has_Production
                 (Grammar, Editor.Ada_Token_Cursor.Production_Entry_Body_Missing_End_Terminator_Recovery_Boundary),
               "entry bodies missing end terminators must retain family-specific recovery metadata");
-   end Test_Language_Model_Token_Cursor_Entry_Body_End_Recovery_Pass809;
+   end Test_Language_Model_Token_Cursor_Entry_Body_End_Recovery;
 
 
 
-   procedure Test_Language_Model_Token_Cursor_Subprogram_Declaration_Terminator_Pass810
+   procedure Test_Language_Model_Token_Cursor_Subprogram_Declaration_Terminator
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
       pragma Unreferenced (T);
       Source : constant String :=
@@ -25718,11 +25727,11 @@ package body Editor.Syntax_Semantics.Tests is
       Assert (Editor.Ada_Token_Cursor.Has_Production
                 (Grammar, Editor.Ada_Token_Cursor.Production_Subprogram_Declaration_Missing_Terminator_Recovery_Boundary),
               "subprogram declarations missing semicolons must retain bounded recovery metadata");
-   end Test_Language_Model_Token_Cursor_Subprogram_Declaration_Terminator_Pass810;
+   end Test_Language_Model_Token_Cursor_Subprogram_Declaration_Terminator;
 
 
 
-   procedure Test_Language_Model_Token_Cursor_Object_Declaration_Terminator_Pass811
+   procedure Test_Language_Model_Token_Cursor_Object_Declaration_Terminator
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
       pragma Unreferenced (T);
       Source : constant String :=
@@ -25751,10 +25760,10 @@ package body Editor.Syntax_Semantics.Tests is
       Assert (Editor.Ada_Token_Cursor.Has_Production
                 (Grammar, Editor.Ada_Token_Cursor.Production_Object_Declaration_Missing_Terminator_Recovery_Boundary),
               "object declarations missing semicolons must retain bounded recovery metadata");
-   end Test_Language_Model_Token_Cursor_Object_Declaration_Terminator_Pass811;
+   end Test_Language_Model_Token_Cursor_Object_Declaration_Terminator;
 
 
-   procedure Test_Language_Model_Token_Cursor_Type_Subtype_Declaration_Terminator_Pass812
+   procedure Test_Language_Model_Token_Cursor_Type_Subtype_Declaration_Terminator
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
       pragma Unreferenced (T);
       Type_Source : constant String :=
@@ -25793,10 +25802,10 @@ package body Editor.Syntax_Semantics.Tests is
       Assert (Editor.Ada_Token_Cursor.Has_Production
                 (Subtype_Grammar, Editor.Ada_Token_Cursor.Production_Subtype_Declaration_Missing_Terminator_Recovery_Boundary),
               "subtype declarations missing semicolons must retain bounded recovery metadata");
-   end Test_Language_Model_Token_Cursor_Type_Subtype_Declaration_Terminator_Pass812;
+   end Test_Language_Model_Token_Cursor_Type_Subtype_Declaration_Terminator;
 
 
-   procedure Test_Language_Model_Token_Cursor_Formal_Package_Actual_Delimiters_Pass814
+   procedure Test_Language_Model_Token_Cursor_Formal_Package_Actual_Delimiters
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
       pragma Unreferenced (T);
       Source : constant String :=
@@ -25830,11 +25839,11 @@ package body Editor.Syntax_Semantics.Tests is
       Assert (Editor.Ada_Token_Cursor.Has_Production
                 (Grammar, Editor.Ada_Token_Cursor.Production_Formal_Package_Actual_Part_Missing_Close_Recovery_Boundary),
               "formal package actual parts missing close delimiters must retain bounded recovery metadata");
-   end Test_Language_Model_Token_Cursor_Formal_Package_Actual_Delimiters_Pass814;
+   end Test_Language_Model_Token_Cursor_Formal_Package_Actual_Delimiters;
 
 
 
-   procedure Test_Language_Model_Token_Cursor_Exception_Declaration_Terminator_Pass815
+   procedure Test_Language_Model_Token_Cursor_Exception_Declaration_Terminator
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
       pragma Unreferenced (T);
       Source : constant String :=
@@ -25865,10 +25874,10 @@ package body Editor.Syntax_Semantics.Tests is
       Assert (Editor.Ada_Token_Cursor.Has_Production
                 (Grammar, Editor.Ada_Token_Cursor.Production_Object_Declaration),
               "exception declaration recovery must leave following object declarations visible");
-   end Test_Language_Model_Token_Cursor_Exception_Declaration_Terminator_Pass815;
+   end Test_Language_Model_Token_Cursor_Exception_Declaration_Terminator;
 
 
-   procedure Test_Language_Model_Token_Cursor_Number_Declaration_Terminator_Pass816
+   procedure Test_Language_Model_Token_Cursor_Number_Declaration_Terminator
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
       pragma Unreferenced (T);
       Source : constant String :=
@@ -25896,10 +25905,10 @@ package body Editor.Syntax_Semantics.Tests is
       Assert (Editor.Ada_Token_Cursor.Has_Production
                 (Grammar, Editor.Ada_Token_Cursor.Production_Object_Declaration),
               "number declaration terminator recovery must leave following object declarations visible");
-   end Test_Language_Model_Token_Cursor_Number_Declaration_Terminator_Pass816;
+   end Test_Language_Model_Token_Cursor_Number_Declaration_Terminator;
 
 
-   procedure Test_Language_Model_Token_Cursor_Generic_Formal_Declaration_Terminator_Pass817
+   procedure Test_Language_Model_Token_Cursor_Generic_Formal_Declaration_Terminator
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
       pragma Unreferenced (T);
       Source : constant String :=
@@ -25941,9 +25950,9 @@ package body Editor.Syntax_Semantics.Tests is
       Assert (Editor.Ada_Token_Cursor.Has_Production
                 (Grammar, Editor.Ada_Token_Cursor.Production_Package_Declaration),
               "generic formal recovery must leave the following package declaration visible");
-   end Test_Language_Model_Token_Cursor_Generic_Formal_Declaration_Terminator_Pass817;
+   end Test_Language_Model_Token_Cursor_Generic_Formal_Declaration_Terminator;
 
-   procedure Test_Language_Model_Token_Cursor_Package_Declaration_End_Terminator_Pass813
+   procedure Test_Language_Model_Token_Cursor_Package_Declaration_End_Terminator
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
       pragma Unreferenced (T);
       Source : constant String :=
@@ -25973,7 +25982,7 @@ package body Editor.Syntax_Semantics.Tests is
       Assert (Editor.Ada_Token_Cursor.Has_Production
                 (Grammar, Editor.Ada_Token_Cursor.Production_Package_Declaration_Missing_End_Terminator_Recovery_Boundary),
               "package declarations missing end semicolons must retain bounded recovery metadata");
-   end Test_Language_Model_Token_Cursor_Package_Declaration_End_Terminator_Pass813;
+   end Test_Language_Model_Token_Cursor_Package_Declaration_End_Terminator;
 
 
    procedure Test_Language_Model_Token_Cursor_Loop_Block_Declare_Depth_Grammar_Completeness
@@ -26250,7 +26259,7 @@ package body Editor.Syntax_Semantics.Tests is
 
 
 
-   procedure Test_Language_Model_Token_Cursor_Subprogram_Contract_Aspect_Placement_Depth_Pass935
+   procedure Test_Language_Model_Token_Cursor_Subprogram_Contract_Aspect_Placement_Depth
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
       pragma Unreferenced (T);
       Source : constant String :=
@@ -26323,11 +26332,11 @@ package body Editor.Syntax_Semantics.Tests is
       Assert (Editor.Ada_Token_Cursor.Has_Production
                 (Grammar, Editor.Ada_Token_Cursor.Production_Recovery_Point),
               "contract-specific recovery must preserve generic recovery metadata");
-   end Test_Language_Model_Token_Cursor_Subprogram_Contract_Aspect_Placement_Depth_Pass935;
+   end Test_Language_Model_Token_Cursor_Subprogram_Contract_Aspect_Placement_Depth;
 
 
 
-   procedure Test_Language_Model_Token_Cursor_Subprogram_Contract_Aspect_Value_Families_Pass936
+   procedure Test_Language_Model_Token_Cursor_Subprogram_Contract_Aspect_Value_Families
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
       pragma Unreferenced (T);
       Source : constant String :=
@@ -26385,11 +26394,11 @@ package body Editor.Syntax_Semantics.Tests is
       Assert (Count_Production
                 (Editor.Ada_Token_Cursor.Production_Subprogram_Contract_Aspect_Placement) >= 2,
               "subprogram contract placement metadata must remain present");
-   end Test_Language_Model_Token_Cursor_Subprogram_Contract_Aspect_Value_Families_Pass936;
+   end Test_Language_Model_Token_Cursor_Subprogram_Contract_Aspect_Value_Families;
 
 
 
-   procedure Test_Language_Model_Token_Cursor_Package_Declarative_Section_Recovery_Depth_Pass937
+   procedure Test_Language_Model_Token_Cursor_Package_Declarative_Section_Recovery_Depth
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
       pragma Unreferenced (T);
       Source : constant String :=
@@ -26436,10 +26445,10 @@ package body Editor.Syntax_Semantics.Tests is
                 (Grammar,
                  Editor.Ada_Token_Cursor.Production_Package_Body_Statement_Sequence),
               "package-body recovery must still reach the body statement sequence");
-   end Test_Language_Model_Token_Cursor_Package_Declarative_Section_Recovery_Depth_Pass937;
+   end Test_Language_Model_Token_Cursor_Package_Declarative_Section_Recovery_Depth;
 
 
-   procedure Test_Language_Model_Token_Cursor_Anonymous_Access_Subprogram_Refinement_Depth_Pass938
+   procedure Test_Language_Model_Token_Cursor_Anonymous_Access_Subprogram_Refinement_Depth
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
       pragma Unreferenced (T);
       Source : constant String :=
@@ -26482,10 +26491,10 @@ package body Editor.Syntax_Semantics.Tests is
       Assert (Editor.Ada_Token_Cursor.Has_Production
                 (Grammar, Editor.Ada_Token_Cursor.Production_Object_Declaration),
               "anonymous access-to-subprogram refinement recovery must continue into following declarations");
-   end Test_Language_Model_Token_Cursor_Anonymous_Access_Subprogram_Refinement_Depth_Pass938;
+   end Test_Language_Model_Token_Cursor_Anonymous_Access_Subprogram_Refinement_Depth;
 
 
-   procedure Test_Language_Model_Token_Cursor_Expression_Recovery_Refinement_Depth_Pass939
+   procedure Test_Language_Model_Token_Cursor_Expression_Recovery_Refinement_Depth
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
       pragma Unreferenced (T);
       Source : constant String :=
@@ -26536,11 +26545,11 @@ package body Editor.Syntax_Semantics.Tests is
       Assert (Editor.Ada_Token_Cursor.Has_Production
                 (Grammar, Editor.Ada_Token_Cursor.Production_Object_Declaration),
               "expression recovery refinements must continue into following declarations");
-   end Test_Language_Model_Token_Cursor_Expression_Recovery_Refinement_Depth_Pass939;
+   end Test_Language_Model_Token_Cursor_Expression_Recovery_Refinement_Depth;
 
 
 
-   procedure Test_Language_Model_Token_Cursor_Name_Grammar_Recovery_Depth_Pass940
+   procedure Test_Language_Model_Token_Cursor_Name_Grammar_Recovery_Depth
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
       pragma Unreferenced (T);
       Source : constant String :=
@@ -26591,12 +26600,12 @@ package body Editor.Syntax_Semantics.Tests is
       Assert (Count_Production
                 (Editor.Ada_Token_Cursor.Production_Object_Declaration) >= 5,
               "name grammar recovery must continue into following declarations");
-   end Test_Language_Model_Token_Cursor_Name_Grammar_Recovery_Depth_Pass940;
+   end Test_Language_Model_Token_Cursor_Name_Grammar_Recovery_Depth;
 
 
 
 
-   procedure Test_Language_Model_Token_Cursor_Entry_Body_Missing_Barrier_Recovery_Pass941
+   procedure Test_Language_Model_Token_Cursor_Entry_Body_Missing_Barrier_Recovery
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
       pragma Unreferenced (T);
       Source : constant String :=
@@ -26633,12 +26642,12 @@ package body Editor.Syntax_Semantics.Tests is
       Assert (Editor.Ada_Token_Cursor.Has_Production
                 (Grammar, Editor.Ada_Token_Cursor.Production_Recovery_Point),
               "entry-body barrier recovery must preserve generic recovery metadata");
-   end Test_Language_Model_Token_Cursor_Entry_Body_Missing_Barrier_Recovery_Pass941;
+   end Test_Language_Model_Token_Cursor_Entry_Body_Missing_Barrier_Recovery;
 
 
 
 
-   procedure Test_Ada_Syntax_Tree_Ada2022_Expression_Node_Coverage_Pass942
+   procedure Test_Ada_Syntax_Tree_Ada2022_Expression_Node_Coverage
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
       pragma Unreferenced (T);
       Source : constant String :=
@@ -26680,11 +26689,11 @@ package body Editor.Syntax_Semantics.Tests is
               "Ada 2022 declare expressions must have syntax-tree nodes");
       Assert (Count_Kind (Editor.Ada_Syntax_Tree.Node_Expression) >= 6,
               "new grammar nodes must remain anchored under expression nodes");
-   end Test_Ada_Syntax_Tree_Ada2022_Expression_Node_Coverage_Pass942;
+   end Test_Ada_Syntax_Tree_Ada2022_Expression_Node_Coverage;
 
 
 
-   procedure Test_Ada_Declarative_Region_Model_Foundation_Pass943
+   procedure Test_Ada_Declarative_Region_Model_Foundation
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
       use type Editor.Ada_Declarative_Regions.Region_Id;
       use type Editor.Ada_Declarative_Regions.Region_Kind;
@@ -26781,11 +26790,11 @@ package body Editor.Syntax_Semantics.Tests is
               "package body region must retain direct nested declarative regions");
       Assert (Editor.Ada_Declarative_Regions.Fingerprint (Model) /= 0,
               "region model must expose a deterministic non-zero fingerprint");
-   end Test_Ada_Declarative_Region_Model_Foundation_Pass943;
+   end Test_Ada_Declarative_Region_Model_Foundation;
 
 
 
-   procedure Test_Ada_Direct_Visibility_Foundation_Pass944
+   procedure Test_Ada_Direct_Visibility_Foundation
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
       use type Editor.Ada_Declarative_Regions.Region_Id;
       use type Editor.Ada_Declarative_Regions.Region_Kind;
@@ -26905,12 +26914,12 @@ package body Editor.Syntax_Semantics.Tests is
               "enclosing package-body declaration must shadow outer homographs for the current pass");
       Assert (Editor.Ada_Direct_Visibility.Fingerprint (Visibility) /= 0,
               "direct-visibility model must expose deterministic non-zero fingerprints");
-   end Test_Ada_Direct_Visibility_Foundation_Pass944;
+   end Test_Ada_Direct_Visibility_Foundation;
 
 
 
 
-   procedure Test_Ada_Use_Visibility_Foundation_Pass945
+   procedure Test_Ada_Use_Visibility_Foundation
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
       use type Editor.Ada_Declarative_Regions.Region_Id;
       use type Editor.Ada_Declarative_Regions.Region_Kind;
@@ -27011,11 +27020,11 @@ package body Editor.Syntax_Semantics.Tests is
               "direct declarations in the current region must still shadow use-clause lookup");
       Assert (Editor.Ada_Use_Visibility.Fingerprint (Uses) /= 0,
               "use-visibility model must expose deterministic non-zero fingerprints");
-   end Test_Ada_Use_Visibility_Foundation_Pass945;
+   end Test_Ada_Use_Visibility_Foundation;
 
 
 
-   procedure Test_Ada_Selected_Name_Resolution_Foundation_Pass946
+   procedure Test_Ada_Selected_Name_Resolution_Foundation
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
       use type Editor.Ada_Declarative_Regions.Region_Id;
       use type Editor.Ada_Declarative_Regions.Region_Kind;
@@ -27109,9 +27118,9 @@ package body Editor.Syntax_Semantics.Tests is
               "built selected-name model must include at least one resolved selected name");
       Assert (Editor.Ada_Selected_Name_Resolution.Fingerprint (Selected) /= 0,
               "selected-name model must expose deterministic non-zero fingerprints");
-   end Test_Ada_Selected_Name_Resolution_Foundation_Pass946;
+   end Test_Ada_Selected_Name_Resolution_Foundation;
 
-   procedure Test_Ada_Use_Type_Operator_Visibility_Foundation_Pass947
+   procedure Test_Ada_Use_Type_Operator_Visibility_Foundation
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
       use type Editor.Ada_Declarative_Regions.Region_Id;
       use type Editor.Ada_Declarative_Regions.Region_Kind;
@@ -27214,9 +27223,9 @@ package body Editor.Syntax_Semantics.Tests is
               "operator lookup must find plus through use-type primitive visibility");
       Assert (Editor.Ada_Use_Type_Operators.Fingerprint (Primitive_Uses) /= 0,
               "use-type primitive model must expose deterministic non-zero fingerprints");
-   end Test_Ada_Use_Type_Operator_Visibility_Foundation_Pass947;
+   end Test_Ada_Use_Type_Operator_Visibility_Foundation;
 
-   procedure Test_Ada_Call_Profile_Shape_Foundation_Pass949
+   procedure Test_Ada_Call_Profile_Shape_Foundation
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
       use type Editor.Ada_Call_Profile_Shapes.Callable_Profile_Status;
       use type Editor.Ada_Call_Profile_Shapes.Actual_Profile_Status;
@@ -27340,10 +27349,10 @@ package body Editor.Syntax_Semantics.Tests is
               "actual profile extraction must distinguish nullary call syntax");
       Assert (Editor.Ada_Call_Profile_Shapes.Fingerprint (Shapes) /= 0,
               "call-profile shape model must expose deterministic non-zero fingerprints");
-   end Test_Ada_Call_Profile_Shape_Foundation_Pass949;
+   end Test_Ada_Call_Profile_Shape_Foundation;
 
 
-   procedure Test_Ada_Call_Profile_Filter_Foundation_Pass950
+   procedure Test_Ada_Call_Profile_Filter_Foundation
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
       use type Editor.Ada_Call_Profile_Filters.Profile_Filter_Status;
       pragma Unreferenced (T);
@@ -27402,10 +27411,10 @@ package body Editor.Syntax_Semantics.Tests is
               "profile filtering must retain formal-name-compatible named actual calls");
       Assert (Editor.Ada_Call_Profile_Filters.Fingerprint (Filters) /= 0,
               "profile-filter model must expose deterministic non-zero fingerprints");
-   end Test_Ada_Call_Profile_Filter_Foundation_Pass950;
+   end Test_Ada_Call_Profile_Filter_Foundation;
 
 
-   procedure Test_Ada_Call_Profile_Formal_Name_Filter_Pass951
+   procedure Test_Ada_Call_Profile_Formal_Name_Filter
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
       use type Editor.Ada_Call_Profile_Filters.Profile_Filter_Status;
       pragma Unreferenced (T);
@@ -27482,10 +27491,10 @@ package body Editor.Syntax_Semantics.Tests is
               "profile filtering must reject calls that omit non-defaulted formals");
       Assert (Editor.Ada_Call_Profile_Filters.Fingerprint (Filters) /= 0,
               "formal-name filter model must keep deterministic fingerprints");
-   end Test_Ada_Call_Profile_Formal_Name_Filter_Pass951;
+   end Test_Ada_Call_Profile_Formal_Name_Filter;
 
 
-   procedure Test_Ada_Expected_Type_Context_Foundation_Pass953
+   procedure Test_Ada_Expected_Type_Context_Foundation
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
       use type Editor.Ada_Expected_Type_Contexts.Expected_Context_Status;
       use type Editor.Ada_Expected_Type_Contexts.Expected_Context_Kind;
@@ -27493,10 +27502,34 @@ package body Editor.Syntax_Semantics.Tests is
       Source : constant String :=
         "package body Client is" & ASCII.LF &
         "   function Make (X : Integer) return Integer is (X);" & ASCII.LF &
+        "   procedure Need_Int (Y : Integer) is null;" & ASCII.LF &
+        "   procedure Need_Pair (X : Boolean; Y : Integer) is null;" & ASCII.LF &
+        "   type Root is tagged null record;" & ASCII.LF &
+        "   type Child is new Root with null record;" & ASCII.LF &
+        "   generic" & ASCII.LF &
+        "      type Element is private;" & ASCII.LF &
+        "   package Box is" & ASCII.LF &
+        "   end Box;" & ASCII.LF &
+        "   package Int_Box is new Box (Integer);" & ASCII.LF &
         "   Value : Integer := Make (1);" & ASCII.LF &
+        "   function Back (X : Integer) return Integer is" & ASCII.LF &
+        "   begin" & ASCII.LF &
+        "      return Make (X);" & ASCII.LF &
+        "   end Back;" & ASCII.LF &
+        "   task Worker is" & ASCII.LF &
+        "      entry Ping;" & ASCII.LF &
+        "   end Worker;" & ASCII.LF &
+        "   task body Worker is" & ASCII.LF &
+        "   begin" & ASCII.LF &
+        "      accept Ping;" & ASCII.LF &
+        "   end Worker;" & ASCII.LF &
         "   procedure Touch is" & ASCII.LF &
         "      Local : Integer := Make (2);" & ASCII.LF &
         "   begin" & ASCII.LF &
+        "      Local := Make (3);" & ASCII.LF &
+        "      Need_Int (Make (4));" & ASCII.LF &
+        "      Need_Pair (False, Make (5));" & ASCII.LF &
+        "      Need_Pair (X => False, Y => Make (6));" & ASCII.LF &
         "      Missing_Context;" & ASCII.LF &
         "   end Touch;" & ASCII.LF &
         "end Client;";
@@ -27521,7 +27554,111 @@ package body Editor.Syntax_Semantics.Tests is
         Editor.Ada_Call_Resolution.Build (Candidates, Filters);
       Expected : constant Editor.Ada_Expected_Type_Contexts.Expected_Context_Model :=
         Editor.Ada_Expected_Type_Contexts.Build
-          (Tree, Regions, Shapes, Resolutions);
+          (Tree, Regions, Visibility, Shapes, Resolutions);
+      Types : constant Editor.Ada_Type_Graph.Type_Model :=
+        Editor.Ada_Type_Graph.Build (Tree, Regions, Visibility);
+      Static : constant Editor.Ada_Static_Expressions.Static_Model :=
+        Editor.Ada_Static_Expressions.Build (Tree, Regions);
+      Freezing : constant Editor.Ada_Freezing_Points.Freezing_Model :=
+        Editor.Ada_Freezing_Points.Build (Tree, Regions, Visibility, Types);
+      Representation : constant Editor.Ada_Representation_Legality.Representation_Legality_Model :=
+        Editor.Ada_Representation_Legality.Build
+          (Tree, Regions, Types, Static, Freezing);
+      Generic_Base : constant Editor.Ada_Generic_Contracts.Generic_Contract_Model :=
+        Editor.Ada_Generic_Contracts.Build_With_Static_And_Type_Graph
+          (Tree, Regions, Visibility, Static, Types);
+      Generic_Nested : constant
+        Editor.Ada_Generic_Formal_Package_Nested_Conformance.Formal_Package_Nested_Model :=
+        Editor.Ada_Generic_Formal_Package_Nested_Conformance.Build
+          (Tree, Generic_Base);
+      Generic_Object_Defaults : constant
+        Editor.Ada_Generic_Object_Default_Type_Conformance.Object_Default_Type_Model :=
+        Editor.Ada_Generic_Object_Default_Type_Conformance.Build
+          (Tree, Generic_Base, Static, Types);
+      Generic_Substitutions : constant
+        Editor.Ada_Generic_Formal_Package_Substitutions.Formal_Package_Substitution_Model :=
+        Editor.Ada_Generic_Formal_Package_Substitutions.Build (Generic_Nested);
+      Exprs : constant Editor.Ada_Expression_Types.Expression_Type_Model :=
+        Editor.Ada_Expression_Types.Build_With_Expected_Contexts
+          (Tree, Regions, Visibility, Types, Static, Resolutions, Expected);
+      Empty_Views : Editor.Ada_View_Aware_Compatibility.View_Compatibility_Model;
+      Generic_Views : constant
+        Editor.Ada_Generic_View_Compatibility.Generic_View_Compatibility_Model :=
+        Editor.Ada_Generic_View_Compatibility.Build
+          (Generic_Object_Defaults, Empty_Views);
+      Generic_Bodies : constant
+        Editor.Ada_Generic_Instantiated_Body_Analysis.Instantiated_Body_Model :=
+        Editor.Ada_Generic_Instantiated_Body_Analysis.Build
+          (Generic_Base, Generic_Views);
+      Assignment_Contexts : constant
+        Editor.Ada_Assignment_Legality.Assignment_Context_Model :=
+        Editor.Ada_Assignment_Legality.Build_Contexts_From_Expected_Types
+          (Expected, Exprs);
+      Assignment_Legality : constant
+        Editor.Ada_Assignment_Legality.Assignment_Legality_Model :=
+        Editor.Ada_Assignment_Legality.Build (Assignment_Contexts, Exprs);
+      Return_Contexts : constant
+        Editor.Ada_Return_Legality.Return_Context_Model :=
+        Editor.Ada_Return_Legality.Build_Contexts_From_Expected_Types
+          (Expected, Assignment_Legality);
+      Return_Legality : constant
+        Editor.Ada_Return_Legality.Return_Legality_Model :=
+        Editor.Ada_Return_Legality.Build (Return_Contexts, Assignment_Legality);
+      Flow_Contexts : constant
+        Editor.Ada_Control_Flow_Legality.Flow_Context_Model :=
+        Editor.Ada_Control_Flow_Legality.Build_Contexts_From_Returns
+          (Return_Legality);
+      Flow_Legality : constant
+        Editor.Ada_Control_Flow_Legality.Flow_Legality_Model :=
+        Editor.Ada_Control_Flow_Legality.Build
+          (Flow_Contexts, Return_Legality);
+      Tasking_Contexts : constant
+        Editor.Ada_Tasking_Protected_Legality.Tasking_Context_Model :=
+        Editor.Ada_Tasking_Protected_Legality.Build_Contexts_From_Syntax
+          (Tree, Flow_Legality);
+      Tasking_Legality : constant
+        Editor.Ada_Tasking_Protected_Legality.Tasking_Legality_Model :=
+        Editor.Ada_Tasking_Protected_Legality.Build
+          (Tasking_Contexts, Flow_Legality);
+      Dispatching : constant
+        Editor.Ada_Dispatching_Call_Legality.Dispatching_Legality_Model :=
+        Editor.Ada_Dispatching_Call_Legality.Build (Exprs);
+      Tagged_Contexts : constant
+        Editor.Ada_Tagged_Derived_Legality.Tagged_Context_Model :=
+        Editor.Ada_Tagged_Derived_Legality.Build_Contexts_From_Syntax
+          (Tree, Dispatching);
+      Tagged_Legality : constant
+        Editor.Ada_Tagged_Derived_Legality.Tagged_Legality_Model :=
+        Editor.Ada_Tagged_Derived_Legality.Build
+          (Tagged_Contexts, Assignment_Legality, Return_Legality, Dispatching);
+      Conversion_Contexts : constant
+        Editor.Ada_Conversion_Access_Aggregate_Legality.Semantic_Context_Model :=
+        Editor.Ada_Conversion_Access_Aggregate_Legality
+          .Build_Contexts_From_Expression_Types (Exprs);
+      Conversion_Legality : constant
+        Editor.Ada_Conversion_Access_Aggregate_Legality.Semantic_Legality_Model :=
+        Editor.Ada_Conversion_Access_Aggregate_Legality.Build
+          (Conversion_Contexts);
+      Instance_Contexts : constant
+        Editor.Ada_Generic_Instance_Freezing_Representation_Legality.Instance_Context_Model :=
+        Editor.Ada_Generic_Instance_Freezing_Representation_Legality.Build_Contexts_From_Models
+          (Generic_Base,
+           Generic_Bodies,
+           Generic_Substitutions,
+           Freezing,
+           Representation);
+      Instance_Legality : constant
+        Editor.Ada_Generic_Instance_Freezing_Representation_Legality.Instance_Legality_Model :=
+        Editor.Ada_Generic_Instance_Freezing_Representation_Legality.Build
+          (Instance_Contexts,
+           Generic_Bodies,
+           Generic_Substitutions,
+           Freezing,
+           Representation,
+           Assignment_Legality,
+           Return_Legality,
+           Conversion_Legality,
+           Tagged_Legality);
    begin
       Assert (Editor.Ada_Expected_Type_Contexts.Has_Expected_Contexts (Expected),
               "expected-type context model must annotate call-shaped syntax nodes");
@@ -27533,16 +27670,84 @@ package body Editor.Syntax_Semantics.Tests is
                 (Expected,
                  Editor.Ada_Expected_Type_Contexts.Expected_Context_Object_Default) >= 1,
               "expected-type context model must classify object default contexts");
+      Assert (Editor.Ada_Expected_Type_Contexts.Count_Kind
+                (Expected,
+                 Editor.Ada_Expected_Type_Contexts.Expected_Context_Assignment_Target) >= 1,
+              "expected-type context model must classify assignment-target contexts");
+      Assert (Editor.Ada_Expected_Type_Contexts.Count_Kind
+                (Expected,
+                 Editor.Ada_Expected_Type_Contexts.Expected_Context_Return_Statement) >= 1,
+              "expected-type context model must classify return-statement contexts");
+      Assert (Editor.Ada_Expected_Type_Contexts.Count_Kind
+                (Expected,
+                 Editor.Ada_Expected_Type_Contexts.Expected_Context_Parameter_Actual) >= 1,
+              "expected-type context model must classify parameter-actual contexts");
       Assert (Editor.Ada_Expected_Type_Contexts.Count_Status
                 (Expected,
                  Editor.Ada_Expected_Type_Contexts.Expected_Context_No_Context) >= 1,
               "expected-type context model must leave context-free calls untyped");
       Assert (Editor.Ada_Expected_Type_Contexts.Fingerprint (Expected) /= 0,
               "expected-type context model must keep deterministic fingerprints");
-   end Test_Ada_Expected_Type_Context_Foundation_Pass953;
+      Assert (Editor.Ada_Assignment_Legality.Context_Count (Assignment_Contexts) >= 1,
+              "assignment legality adapter must consume expected assignment-target contexts");
+      Assert (Editor.Ada_Assignment_Legality.Legality_Count (Assignment_Legality) >= 1,
+              "assignment legality adapter must produce assignment legality rows");
+      Assert (Editor.Ada_Assignment_Legality.Compatible_Count (Assignment_Legality) >= 1,
+              "assignment legality adapter must accept compatible assignment target/source pairs");
+      Assert (Editor.Ada_Assignment_Legality.Fingerprint (Assignment_Legality) /= 0,
+              "assignment legality adapter must keep deterministic fingerprints");
+      Assert (Editor.Ada_Return_Legality.Context_Count (Return_Contexts) >= 1,
+              "return legality adapter must consume expected return-statement contexts");
+      Assert (Editor.Ada_Return_Legality.Legality_Count (Return_Legality) >= 1,
+              "return legality adapter must produce return legality rows");
+      Assert (Editor.Ada_Return_Legality.Compatible_Count (Return_Legality) >= 1,
+              "return legality adapter must accept compatible function returns");
+      Assert (Editor.Ada_Return_Legality.Fingerprint (Return_Legality) /= 0,
+              "return legality adapter must keep deterministic fingerprints");
+      Assert (Editor.Ada_Control_Flow_Legality.Context_Count (Flow_Contexts) >= 1,
+              "control-flow legality adapter must consume return legality rows");
+      Assert (Editor.Ada_Control_Flow_Legality.Legality_Count (Flow_Legality) >= 1,
+              "control-flow legality adapter must produce return-path flow rows");
+      Assert (Editor.Ada_Control_Flow_Legality.Compatible_Count (Flow_Legality) >= 1,
+              "control-flow legality adapter must accept compatible return paths");
+      Assert (Editor.Ada_Control_Flow_Legality.Fingerprint (Flow_Legality) /= 0,
+              "control-flow legality adapter must keep deterministic fingerprints");
+      Assert (Editor.Ada_Tasking_Protected_Legality.Context_Count (Tasking_Contexts) >= 3,
+              "tasking legality adapter must consume tasking syntax nodes");
+      Assert (Editor.Ada_Tasking_Protected_Legality.Legality_Count (Tasking_Legality) >= 3,
+              "tasking legality adapter must produce tasking legality rows");
+      Assert (Editor.Ada_Tasking_Protected_Legality.Compatible_Count (Tasking_Legality) >= 1,
+              "tasking legality adapter must accept conservative tasking contexts");
+      Assert (Editor.Ada_Tasking_Protected_Legality.Fingerprint (Tasking_Legality) /= 0,
+              "tasking legality adapter must keep deterministic fingerprints");
+      Assert (Editor.Ada_Tagged_Derived_Legality.Context_Count (Tagged_Contexts) >= 2,
+              "tagged legality adapter must consume tagged and derived syntax nodes");
+      Assert (Editor.Ada_Tagged_Derived_Legality.Legality_Count (Tagged_Legality) >= 2,
+              "tagged legality adapter must produce tagged legality rows");
+      Assert (Editor.Ada_Tagged_Derived_Legality.Compatible_Count (Tagged_Legality) >= 1,
+              "tagged legality adapter must accept conservative tagged contexts");
+      Assert (Editor.Ada_Tagged_Derived_Legality.Fingerprint (Tagged_Legality) /= 0,
+              "tagged legality adapter must keep deterministic fingerprints");
+      Assert
+        (Editor.Ada_Generic_Instance_Freezing_Representation_Legality.Context_Count
+           (Instance_Contexts) >= 1,
+         "generic instance legality adapter must consume generic instance semantic models");
+      Assert
+        (Editor.Ada_Generic_Instance_Freezing_Representation_Legality.Legality_Count
+           (Instance_Legality) >= 1,
+         "generic instance legality adapter must produce instance legality rows");
+      Assert
+        (Editor.Ada_Generic_Instance_Freezing_Representation_Legality.Legal_Count
+           (Instance_Legality) >= 1,
+         "generic instance legality adapter must accept conservative instance contexts");
+      Assert
+        (Editor.Ada_Generic_Instance_Freezing_Representation_Legality.Fingerprint
+           (Instance_Legality) /= 0,
+         "generic instance legality adapter must keep deterministic fingerprints");
+   end Test_Ada_Expected_Type_Context_Foundation;
 
 
-   procedure Test_Ada_Expected_Call_Filter_Foundation_Pass954
+   procedure Test_Ada_Expected_Call_Filter_Foundation
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
       use type Editor.Ada_Expected_Call_Filters.Expected_Call_Filter_Status;
       pragma Unreferenced (T);
@@ -27598,10 +27803,148 @@ package body Editor.Syntax_Semantics.Tests is
               "expected-call filtering must preserve context-free calls for later diagnostics");
       Assert (Editor.Ada_Expected_Call_Filters.Fingerprint (Expected_Filters) /= 0,
               "expected-call filter model must keep deterministic fingerprints");
-   end Test_Ada_Expected_Call_Filter_Foundation_Pass954;
+   end Test_Ada_Expected_Call_Filter_Foundation;
+
+   procedure Test_Ada_Expected_Call_Filter_Resolves_Result_Overloads
+     (T : in out AUnit.Test_Cases.Test_Case'Class) is
+      use type Editor.Ada_Call_Resolution.Call_Resolution_Status;
+      use type Editor.Ada_Expected_Call_Filters.Expected_Call_Filter_Status;
+      use type Editor.Ada_Call_Profile_Shapes.Callable_Profile_Id;
+      use type Editor.Ada_Overload_Resolution_Legality.Overload_Legality_Status;
+      pragma Unreferenced (T);
+      Source : constant String :=
+        "package body Client is" & ASCII.LF &
+        "   function Make (X : Integer) return Integer is (X);" & ASCII.LF &
+        "   function Make (X : Integer) return Boolean is (True);" & ASCII.LF &
+        "   procedure Need_Int (Y : Integer) is null;" & ASCII.LF &
+        "   procedure Need_Bool (Y : Boolean) is null;" & ASCII.LF &
+        "   procedure Need_Pair (X : Integer; Y : Boolean) is null;" & ASCII.LF &
+        "   procedure Need_Named (Left : Integer; Right : Boolean) is null;" & ASCII.LF &
+        "   A : Integer := Make (1);" & ASCII.LF &
+        "   B : Boolean := Make (2);" & ASCII.LF &
+        "begin" & ASCII.LF &
+        "   A := Make (3);" & ASCII.LF &
+        "   B := Make (4);" & ASCII.LF &
+        "   Need_Int (Make (5));" & ASCII.LF &
+        "   Need_Bool (Make (6));" & ASCII.LF &
+        "   Need_Pair (0, Make (7));" & ASCII.LF &
+        "   Need_Named (Left => 1, Right => Make (8));" & ASCII.LF &
+        "end Client;";
+      Tree : constant Editor.Ada_Syntax_Tree.Tree_Type :=
+        Editor.Ada_Syntax_Tree.Parse (Source);
+      Regions : constant Editor.Ada_Declarative_Regions.Region_Model :=
+        Editor.Ada_Declarative_Regions.Build (Tree);
+      Visibility : constant Editor.Ada_Direct_Visibility.Visibility_Model :=
+        Editor.Ada_Direct_Visibility.Build (Tree, Regions);
+      Uses : constant Editor.Ada_Use_Visibility.Use_Visibility_Model :=
+        Editor.Ada_Use_Visibility.Build (Tree, Regions, Visibility);
+      Primitive_Uses : constant Editor.Ada_Use_Type_Operators.Primitive_Use_Model :=
+        Editor.Ada_Use_Type_Operators.Build (Tree, Regions, Visibility, Uses);
+      Candidates : constant Editor.Ada_Call_Candidates.Call_Candidate_Model :=
+        Editor.Ada_Call_Candidates.Build
+          (Tree, Regions, Visibility, Uses, Primitive_Uses);
+      Shapes : constant Editor.Ada_Call_Profile_Shapes.Profile_Shape_Model :=
+        Editor.Ada_Call_Profile_Shapes.Build (Tree, Regions);
+      Filters : constant Editor.Ada_Call_Profile_Filters.Profile_Filter_Model :=
+        Editor.Ada_Call_Profile_Filters.Build (Candidates, Shapes, Visibility);
+      Resolutions : constant Editor.Ada_Call_Resolution.Call_Resolution_Model :=
+        Editor.Ada_Call_Resolution.Build (Candidates, Filters);
+      Expected : constant Editor.Ada_Expected_Type_Contexts.Expected_Context_Model :=
+        Editor.Ada_Expected_Type_Contexts.Build
+          (Tree, Regions, Visibility, Shapes, Resolutions);
+      Expected_Filters : constant Editor.Ada_Expected_Call_Filters.Expected_Call_Filter_Model :=
+        Editor.Ada_Expected_Call_Filters.Build
+          (Expected, Resolutions, Filters, Shapes);
+      Overload_Contexts :
+        constant Editor.Ada_Overload_Resolution_Legality.Overload_Context_Model :=
+          Editor.Ada_Overload_Resolution_Legality.Build_Contexts_From_Expected_Call_Filters
+            (Expected_Filters);
+      Rankings : Editor.Ada_Overload_Ranking.Overload_Ranking_Model;
+      Wide : Editor.Ada_Wide_Semantic_Legality_Diagnostics.Wide_Semantic_Diagnostic_Model;
+      Overload_Legality :
+        constant Editor.Ada_Overload_Resolution_Legality.Overload_Legality_Model :=
+          Editor.Ada_Overload_Resolution_Legality.Build
+            (Overload_Contexts, Rankings, Wide);
+      Ambiguous_Profile_Count : Natural := 0;
+      Selected_By_Result_Count : Natural := 0;
+      Ambiguous_Selected_Node_Count : Natural := 0;
+   begin
+      for Index in 1 .. Editor.Ada_Call_Resolution.Call_Resolution_Count (Resolutions) loop
+         declare
+            Info : constant Editor.Ada_Call_Resolution.Call_Resolution_Info :=
+              Editor.Ada_Call_Resolution.Call_Resolution_At (Resolutions, Index);
+         begin
+            if Info.Status =
+              Editor.Ada_Call_Resolution.Call_Resolution_Ambiguous_Profile_Match
+            then
+               Ambiguous_Profile_Count := Ambiguous_Profile_Count + 1;
+            end if;
+         end;
+      end loop;
+
+      for Index in 1 .. Editor.Ada_Expected_Call_Filters.Expected_Call_Filter_Count (Expected_Filters) loop
+         declare
+            Info : constant Editor.Ada_Expected_Call_Filters.Expected_Call_Filter_Info :=
+              Editor.Ada_Expected_Call_Filters.Expected_Call_Filter_At
+                (Expected_Filters, Index);
+         begin
+            if Info.Status =
+                 Editor.Ada_Expected_Call_Filters.Expected_Call_Filter_Result_Subtype_Matches
+              and then Info.Callable_Profile /=
+                Editor.Ada_Call_Profile_Shapes.No_Callable_Profile
+            then
+               Selected_By_Result_Count := Selected_By_Result_Count + 1;
+            end if;
+         end;
+      end loop;
+
+      for Index in 1 .. Editor.Ada_Overload_Resolution_Legality.Legality_Count (Overload_Legality) loop
+         declare
+            Row : constant Editor.Ada_Overload_Resolution_Legality.Overload_Legality_Info :=
+              Editor.Ada_Overload_Resolution_Legality.Legality_At
+                (Overload_Legality, Index);
+            Node_Has_Expected_Selection : Boolean := False;
+         begin
+            if Row.Status =
+              Editor.Ada_Overload_Resolution_Legality.Overload_Legality_Ambiguous_After_Preference
+            then
+               for Filter_Index in 1 .. Editor.Ada_Expected_Call_Filters.Expected_Call_Filter_Count (Expected_Filters) loop
+                  declare
+                     Filter : constant Editor.Ada_Expected_Call_Filters.Expected_Call_Filter_Info :=
+                       Editor.Ada_Expected_Call_Filters.Expected_Call_Filter_At
+                         (Expected_Filters, Filter_Index);
+                  begin
+                     if Filter.Call_Node = Row.Node
+                       and then Filter.Status =
+                         Editor.Ada_Expected_Call_Filters.Expected_Call_Filter_Result_Subtype_Matches
+                     then
+                        Node_Has_Expected_Selection := True;
+                     end if;
+                  end;
+               end loop;
+
+               if Node_Has_Expected_Selection then
+                  Ambiguous_Selected_Node_Count := Ambiguous_Selected_Node_Count + 1;
+               end if;
+            end if;
+         end;
+      end loop;
+
+      Assert (Ambiguous_Profile_Count >= 2,
+              "profile-only call resolution must expose result-overload ambiguity");
+      Assert (Selected_By_Result_Count >= 8,
+              "expected-call filtering must select result overloads by defaults, assignments, and positional/named parameter actuals");
+      Assert (Editor.Ada_Overload_Resolution_Legality.Count_Status
+                (Overload_Legality,
+                 Editor.Ada_Overload_Resolution_Legality
+                   .Overload_Legality_Legal_Expected_Type_Preferred) >= 4,
+              "expected-call result selection must feed deduplicated overload legality contexts");
+      Assert (Ambiguous_Selected_Node_Count = 0,
+              "expected-call selected overload nodes must suppress stale ambiguity rows");
+   end Test_Ada_Expected_Call_Filter_Resolves_Result_Overloads;
 
 
-   procedure Test_Ada_Subtype_Compatibility_Foundation_Pass955
+   procedure Test_Ada_Subtype_Compatibility_Foundation
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
       use type Editor.Ada_Subtype_Compatibility.Compatibility_Status;
       use type Editor.Ada_Subtype_Compatibility.Numeric_Family;
@@ -27648,11 +27991,11 @@ package body Editor.Syntax_Semantics.Tests is
               "actual universal integer subtype must be classified separately");
       Assert (Exact.Fingerprint /= 0 and then Universal_Int.Fingerprint /= 0,
               "subtype compatibility entries must keep deterministic fingerprints");
-   end Test_Ada_Subtype_Compatibility_Foundation_Pass955;
+   end Test_Ada_Subtype_Compatibility_Foundation;
 
 
 
-   procedure Test_Ada_Type_Graph_Foundation_Pass956
+   procedure Test_Ada_Type_Graph_Foundation
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
       use type Editor.Ada_Type_Graph.Type_Category;
       use type Editor.Ada_Type_Graph.Type_Id;
@@ -27729,13 +28072,13 @@ package body Editor.Syntax_Semantics.Tests is
               "type graph compatibility must recognize subtypes of derived descendants");
       Assert (Editor.Ada_Type_Graph.Fingerprint (Types) /= 0,
               "type graph must keep a deterministic semantic fingerprint");
-   end Test_Ada_Type_Graph_Foundation_Pass956;
+   end Test_Ada_Type_Graph_Foundation;
 
 
 
 
 
-   procedure Test_Ada_Type_Graph_Private_Classwide_Interface_Pass958
+   procedure Test_Ada_Type_Graph_Private_Classwide_Interface
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
       use type Editor.Ada_Type_Graph.Type_Category;
       use type Editor.Ada_Type_Graph.Type_Id;
@@ -27785,6 +28128,8 @@ package body Editor.Syntax_Semantics.Tests is
           (Tree, Regions, Shapes, Resolutions);
       Types : constant Editor.Ada_Type_Graph.Type_Model :=
         Editor.Ada_Type_Graph.Build (Tree, Regions, Visibility);
+      Static : constant Editor.Ada_Static_Expressions.Static_Model :=
+        Editor.Ada_Static_Expressions.Build (Tree, Regions);
       Expected_Filters : constant Editor.Ada_Expected_Call_Filters.Expected_Call_Filter_Model :=
         Editor.Ada_Expected_Call_Filters.Build_With_Type_Graph
           (Expected, Resolutions, Filters, Shapes, Types);
@@ -27839,14 +28184,14 @@ package body Editor.Syntax_Semantics.Tests is
               "expected-call filtering must accept derived results for class-wide expected contexts");
       Assert (Editor.Ada_Type_Graph.Fingerprint (Types) /= 0,
               "private/class-wide/interface type graph pass must preserve deterministic fingerprints");
-   end Test_Ada_Type_Graph_Private_Classwide_Interface_Pass958;
+   end Test_Ada_Type_Graph_Private_Classwide_Interface;
 
 
 
 
 
 
-   procedure Test_Ada_Freezing_Generic_Private_Body_Interactions_Pass1028
+   procedure Test_Ada_Freezing_Generic_Private_Body_Interactions
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
       pragma Unreferenced (T);
       use type Editor.Ada_Freezing_Interactions.Freezing_Interaction_Status;
@@ -27921,10 +28266,10 @@ package body Editor.Syntax_Semantics.Tests is
       Assert
         (Editor.Ada_Freezing_Interactions.Fingerprint (Interactions) /= 0,
          "freezing interaction metadata should have a deterministic fingerprint");
-   end Test_Ada_Freezing_Generic_Private_Body_Interactions_Pass1028;
+   end Test_Ada_Freezing_Generic_Private_Body_Interactions;
 
 
-   procedure Test_Ada_Cross_Unit_Representation_Target_Resolution_Pass1029
+   procedure Test_Ada_Cross_Unit_Representation_Target_Resolution
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
       pragma Unreferenced (T);
       use type Editor.Ada_Cross_Unit_Representation_Targets.Cross_Unit_Representation_Target_Status;
@@ -28024,10 +28369,10 @@ package body Editor.Syntax_Semantics.Tests is
       Assert
         (Editor.Ada_Cross_Unit_Representation_Targets.Fingerprint (Targets) /= 0,
          "cross-unit representation target resolution should be fingerprinted deterministically");
-   end Test_Ada_Cross_Unit_Representation_Target_Resolution_Pass1029;
+   end Test_Ada_Cross_Unit_Representation_Target_Resolution;
 
 
-   procedure Test_Ada_Freezing_Point_Foundation_Pass984
+   procedure Test_Ada_Freezing_Point_Foundation
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
       use type Editor.Ada_Freezing_Points.Freezing_Status;
       use type Editor.Ada_Freezing_Points.Freezing_Cause;
@@ -28101,10 +28446,10 @@ package body Editor.Syntax_Semantics.Tests is
               "freezing model must classify representation clauses after the freeze point");
       Assert (Editor.Ada_Freezing_Points.Fingerprint (Freezing) /= 0,
               "freezing model must retain deterministic fingerprints");
-   end Test_Ada_Freezing_Point_Foundation_Pass984;
+   end Test_Ada_Freezing_Point_Foundation;
 
 
-   procedure Test_Ada_Representation_Legality_Static_Freezing_Pass985
+   procedure Test_Ada_Representation_Legality_Static_Freezing
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
       use type Editor.Ada_Representation_Legality.Representation_Legality_Status;
       use type Editor.Ada_Representation_Legality.Representation_Value_Status;
@@ -28177,10 +28522,10 @@ package body Editor.Syntax_Semantics.Tests is
               "representation legality must count freezing-order errors deterministically");
       Assert (Editor.Ada_Representation_Legality.Fingerprint (Legality) /= 0,
               "representation legality must retain deterministic fingerprints");
-   end Test_Ada_Representation_Legality_Static_Freezing_Pass985;
+   end Test_Ada_Representation_Legality_Static_Freezing;
 
 
-   procedure Test_Ada_Record_Representation_Component_Legality_Pass986
+   procedure Test_Ada_Record_Representation_Component_Legality
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
       use type Editor.Ada_Representation_Legality.Representation_Legality_Status;
       pragma Unreferenced (T);
@@ -28255,11 +28600,11 @@ package body Editor.Syntax_Semantics.Tests is
               "record representation component legality must count duplicate component clauses");
       Assert (Editor.Ada_Representation_Legality.Fingerprint (Legality) /= 0,
               "record representation component legality must contribute to deterministic fingerprints");
-   end Test_Ada_Record_Representation_Component_Legality_Pass986;
+   end Test_Ada_Record_Representation_Component_Legality;
 
 
 
-   procedure Test_Ada_Record_Layout_Overlap_Size_Alignment_Pass1030
+   procedure Test_Ada_Record_Layout_Overlap_Size_Alignment
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
       use type Editor.Ada_Record_Layout_Validation.Record_Layout_Status;
       pragma Unreferenced (T);
@@ -28325,11 +28670,11 @@ package body Editor.Syntax_Semantics.Tests is
               "record layout validation must expose deterministic overlap counters");
       Assert (Editor.Ada_Record_Layout_Validation.Fingerprint (Layout) /= 0,
               "record layout validation must retain deterministic fingerprints");
-   end Test_Ada_Record_Layout_Overlap_Size_Alignment_Pass1030;
+   end Test_Ada_Record_Layout_Overlap_Size_Alignment;
 
 
 
-   procedure Test_Ada_Record_Layout_Exact_Size_Alignment_Pass1066
+   procedure Test_Ada_Record_Layout_Exact_Size_Alignment
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
       use type Editor.Ada_Record_Layout_Exact_Validation.Exact_Record_Layout_Status;
       pragma Unreferenced (T);
@@ -28423,10 +28768,10 @@ package body Editor.Syntax_Semantics.Tests is
               "exact record layout validation must count exact alignment errors");
       Assert (Editor.Ada_Record_Layout_Exact_Validation.Fingerprint (Exact) /= 0,
               "exact record layout validation must retain deterministic fingerprints");
-   end Test_Ada_Record_Layout_Exact_Size_Alignment_Pass1066;
+   end Test_Ada_Record_Layout_Exact_Size_Alignment;
 
 
-   procedure Test_Ada_Representation_Diagnostics_Exact_Record_Layout_Pass1067
+   procedure Test_Ada_Representation_Diagnostics_Exact_Record_Layout
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
       use type Editor.Ada_Representation_Diagnostics.Representation_Diagnostic_Kind;
       pragma Unreferenced (T);
@@ -28520,10 +28865,10 @@ package body Editor.Syntax_Semantics.Tests is
               "representation diagnostics must count exact record Alignment errors");
       Assert (Editor.Ada_Representation_Diagnostics.Fingerprint (Diagnostics) /= 0,
               "representation diagnostics with exact record layout must retain deterministic fingerprints");
-   end Test_Ada_Representation_Diagnostics_Exact_Record_Layout_Pass1067;
+   end Test_Ada_Representation_Diagnostics_Exact_Record_Layout;
 
 
-   procedure Test_Ada_Record_Storage_Order_Interaction_Pass1031
+   procedure Test_Ada_Record_Storage_Order_Interaction
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
       use type Editor.Ada_Record_Storage_Order_Rules.Storage_Order_Rule_Status;
       pragma Unreferenced (T);
@@ -28599,11 +28944,11 @@ package body Editor.Syntax_Semantics.Tests is
               "storage-order rules must expose deterministic order-conflict counters");
       Assert (Editor.Ada_Record_Storage_Order_Rules.Fingerprint (Orders) /= 0,
               "storage-order rules must retain deterministic fingerprints");
-   end Test_Ada_Record_Storage_Order_Interaction_Pass1031;
+   end Test_Ada_Record_Storage_Order_Interaction;
 
 
 
-   procedure Test_Ada_Operational_Attribute_Duplicate_Conflict_Pass1032
+   procedure Test_Ada_Operational_Attribute_Duplicate_Conflict
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
       use type Editor.Ada_Operational_Attribute_Rules.Operational_Rule_Status;
       pragma Unreferenced (T);
@@ -28664,11 +29009,11 @@ package body Editor.Syntax_Semantics.Tests is
               "operational attribute rules must expose deterministic conflict counters");
       Assert (Editor.Ada_Operational_Attribute_Rules.Fingerprint (Rules) /= 0,
               "operational attribute rules must retain deterministic fingerprints");
-   end Test_Ada_Operational_Attribute_Duplicate_Conflict_Pass1032;
+   end Test_Ada_Operational_Attribute_Duplicate_Conflict;
 
 
 
-   procedure Test_Ada_Aspect_Inheritance_Override_Rules_Pass1033
+   procedure Test_Ada_Aspect_Inheritance_Override_Rules
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
       use type Editor.Ada_Aspect_Inheritance_Rules.Aspect_Inheritance_Status;
       pragma Unreferenced (T);
@@ -28727,11 +29072,11 @@ package body Editor.Syntax_Semantics.Tests is
               "aspect inheritance rules must expose deterministic override conflict counters");
       Assert (Editor.Ada_Aspect_Inheritance_Rules.Fingerprint (Inheritance) /= 0,
               "aspect inheritance rules must retain deterministic fingerprints");
-   end Test_Ada_Aspect_Inheritance_Override_Rules_Pass1033;
+   end Test_Ada_Aspect_Inheritance_Override_Rules;
 
 
 
-   procedure Test_Ada_Generic_Formal_Type_Conformance_Pass1034
+   procedure Test_Ada_Generic_Formal_Type_Conformance
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
       use type Editor.Ada_Generic_Formal_Type_Conformance.Formal_Type_Conformance_Status;
       pragma Unreferenced (T);
@@ -28806,11 +29151,11 @@ package body Editor.Syntax_Semantics.Tests is
               "formal type conformance must expose mismatch counters");
       Assert (Editor.Ada_Generic_Formal_Type_Conformance.Fingerprint (Conformance) /= 0,
               "formal type conformance must retain deterministic fingerprints");
-   end Test_Ada_Generic_Formal_Type_Conformance_Pass1034;
+   end Test_Ada_Generic_Formal_Type_Conformance;
 
 
 
-   procedure Test_Ada_Generic_Formal_Package_Nested_Conformance_Pass1035
+   procedure Test_Ada_Generic_Formal_Package_Nested_Conformance
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
       use type Editor.Ada_Generic_Formal_Package_Nested_Conformance.Formal_Package_Nested_Status;
       pragma Unreferenced (T);
@@ -28871,10 +29216,10 @@ package body Editor.Syntax_Semantics.Tests is
               "formal package nested conformance must expose mismatch counters");
       Assert (Editor.Ada_Generic_Formal_Package_Nested_Conformance.Fingerprint (Nested) /= 0,
               "formal package nested conformance must retain deterministic fingerprints");
-   end Test_Ada_Generic_Formal_Package_Nested_Conformance_Pass1035;
+   end Test_Ada_Generic_Formal_Package_Nested_Conformance;
 
 
-   procedure Test_Ada_Generic_Renaming_Nested_Visibility_Pass1036
+   procedure Test_Ada_Generic_Renaming_Nested_Visibility
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
       use type Editor.Ada_Generic_Renaming_Visibility.Generic_Renaming_Status;
       use type Editor.Ada_Generic_Renaming_Visibility.Nested_Generic_Instantiation_Status;
@@ -28968,10 +29313,10 @@ package body Editor.Syntax_Semantics.Tests is
               "generic renaming visibility must expose direct nested-instance counters");
       Assert (Editor.Ada_Generic_Renaming_Visibility.Fingerprint (Renaming) /= 0,
               "generic renaming visibility must retain deterministic fingerprints");
-   end Test_Ada_Generic_Renaming_Nested_Visibility_Pass1036;
+   end Test_Ada_Generic_Renaming_Nested_Visibility;
 
 
-   procedure Test_Ada_Generic_Object_Default_Type_Conformance_Pass1037
+   procedure Test_Ada_Generic_Object_Default_Type_Conformance
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
       use type Editor.Ada_Generic_Object_Default_Type_Conformance.Object_Default_Type_Status;
       pragma Unreferenced (T);
@@ -29046,11 +29391,11 @@ package body Editor.Syntax_Semantics.Tests is
               "generic object default type conformance must expose range-error counters");
       Assert (Editor.Ada_Generic_Object_Default_Type_Conformance.Fingerprint (Defaults) /= 0,
               "generic object default type conformance must retain deterministic fingerprints");
-   end Test_Ada_Generic_Object_Default_Type_Conformance_Pass1037;
+   end Test_Ada_Generic_Object_Default_Type_Conformance;
 
 
 
-   procedure Test_Ada_Generic_Contract_Diagnostics_Projection_Pass1038
+   procedure Test_Ada_Generic_Contract_Diagnostics_Projection
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
       use type Editor.Ada_Generic_Contract_Diagnostics.Generic_Contract_Diagnostic_Kind;
       use type Editor.Ada_Generic_Contract_Diagnostics.Generic_Contract_Diagnostic_Severity;
@@ -29115,10 +29460,10 @@ package body Editor.Syntax_Semantics.Tests is
       Assert
         (Editor.Ada_Generic_Contract_Diagnostics.Fingerprint (Diags) /= 0,
          "generic contract diagnostics must retain deterministic fingerprints");
-   end Test_Ada_Generic_Contract_Diagnostics_Projection_Pass1038;
+   end Test_Ada_Generic_Contract_Diagnostics_Projection;
 
 
-   procedure Test_Ada_Cross_Unit_Diagnostics_Projection_Pass1039
+   procedure Test_Ada_Cross_Unit_Diagnostics_Projection
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
       pragma Unreferenced (T);
       use type Editor.Ada_Cross_Unit_Diagnostics.Cross_Unit_Diagnostic_Severity;
@@ -29190,6 +29535,8 @@ package body Editor.Syntax_Semantics.Tests is
       Children : Editor.Ada_Child_Unit_Visibility.Child_Visibility_Model;
       Separates : Editor.Ada_Separate_Body_Stub_Rules.Separate_Body_Stub_Model;
       Diags : Editor.Ada_Cross_Unit_Diagnostics.Cross_Unit_Diagnostic_Model;
+      Private_Context_Diags : Editor.Ada_Cross_Unit_Diagnostics.Cross_Unit_Diagnostic_Model;
+      Body_Context_Diags : Editor.Ada_Cross_Unit_Diagnostics.Cross_Unit_Diagnostic_Model;
       First : Editor.Ada_Cross_Unit_Diagnostics.Cross_Unit_Diagnostic_Info;
    begin
       Editor.Ada_Project_Index.Put_Analysis
@@ -29232,6 +29579,12 @@ package body Editor.Syntax_Semantics.Tests is
       Separates := Editor.Ada_Separate_Body_Stub_Rules.Build (Index, Closure);
       Diags := Editor.Ada_Cross_Unit_Diagnostics.Build
         (Visibility, Limited_View, Private_W, Body_Spec, Children, Separates);
+      Private_Context_Diags := Editor.Ada_Cross_Unit_Diagnostics.Build
+        (Visibility, Limited_View, Private_W, Body_Spec, Children, Separates,
+         Editor.Ada_Child_Unit_Visibility.Child_Visibility_Context_Parent_Private_Part);
+      Body_Context_Diags := Editor.Ada_Cross_Unit_Diagnostics.Build
+        (Visibility, Limited_View, Private_W, Body_Spec, Children, Separates,
+         Editor.Ada_Child_Unit_Visibility.Child_Visibility_Context_Parent_Body);
       First := Editor.Ada_Cross_Unit_Diagnostics.Diagnostic_At (Diags, 1);
 
       Assert
@@ -29256,6 +29609,16 @@ package body Editor.Syntax_Semantics.Tests is
          "cross-unit diagnostics must expose private-child visibility restrictions");
       Assert
         (Editor.Ada_Cross_Unit_Diagnostics.Count_Kind
+           (Private_Context_Diags,
+            Editor.Ada_Cross_Unit_Diagnostics.Cross_Unit_Diagnostic_Private_Child_Hidden) = 0,
+         "cross-unit diagnostics must not report private child hidden from parent private-part context");
+      Assert
+        (Editor.Ada_Cross_Unit_Diagnostics.Count_Kind
+           (Body_Context_Diags,
+            Editor.Ada_Cross_Unit_Diagnostics.Cross_Unit_Diagnostic_Private_Child_Hidden) = 0,
+         "cross-unit diagnostics must not report private child hidden from parent body context");
+      Assert
+        (Editor.Ada_Cross_Unit_Diagnostics.Count_Kind
            (Diags, Editor.Ada_Cross_Unit_Diagnostics.Cross_Unit_Diagnostic_Separate_Stub_Missing) >= 1,
          "cross-unit diagnostics must expose separate-body stub-placement errors");
       Assert
@@ -29265,12 +29628,12 @@ package body Editor.Syntax_Semantics.Tests is
       Assert
         (Editor.Ada_Cross_Unit_Diagnostics.Fingerprint (Diags) /= 0,
          "cross-unit diagnostics must retain deterministic fingerprints");
-   end Test_Ada_Cross_Unit_Diagnostics_Projection_Pass1039;
+   end Test_Ada_Cross_Unit_Diagnostics_Projection;
 
 
 
 
-   procedure Test_Ada_Representation_Diagnostics_Projection_Pass1040
+   procedure Test_Ada_Representation_Diagnostics_Projection
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
       use type Editor.Ada_Representation_Diagnostics.Representation_Diagnostic_Severity;
       pragma Unreferenced (T);
@@ -29362,10 +29725,10 @@ package body Editor.Syntax_Semantics.Tests is
       Assert
         (Editor.Ada_Representation_Diagnostics.Fingerprint (Diags) /= 0,
          "representation diagnostics must retain deterministic fingerprints");
-   end Test_Ada_Representation_Diagnostics_Projection_Pass1040;
+   end Test_Ada_Representation_Diagnostics_Projection;
 
 
-   procedure Test_Ada_Semantic_Colour_Diagnostics_Projection_Pass1041
+   procedure Test_Ada_Semantic_Colour_Diagnostics_Projection
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
       pragma Unreferenced (T);
       Source : constant String :=
@@ -29449,9 +29812,9 @@ package body Editor.Syntax_Semantics.Tests is
       Assert
         (Editor.Ada_Semantic_Colour_Projection.Fingerprint (Colours) /= 0,
          "semantic colour projection must retain deterministic fingerprints");
-   end Test_Ada_Semantic_Colour_Diagnostics_Projection_Pass1041;
+   end Test_Ada_Semantic_Colour_Diagnostics_Projection;
 
-   procedure Test_Ada_Semantic_Diagnostic_Snapshot_Guards_Pass1042
+   procedure Test_Ada_Semantic_Diagnostic_Snapshot_Guards
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
       pragma Unreferenced (T);
       Source : constant String :=
@@ -29550,9 +29913,9 @@ package body Editor.Syntax_Semantics.Tests is
         (Editor.Ada_Semantic_Diagnostic_Snapshot_Guards.Fingerprint (Accepted) /= 0
          and then Editor.Ada_Semantic_Diagnostic_Snapshot_Guards.Fingerprint (Rejected) /= 0,
          "semantic diagnostic guards must retain deterministic fingerprints");
-   end Test_Ada_Semantic_Diagnostic_Snapshot_Guards_Pass1042;
+   end Test_Ada_Semantic_Diagnostic_Snapshot_Guards;
 
-   procedure Test_Ada_Enumeration_Representation_Legality_Pass987
+   procedure Test_Ada_Enumeration_Representation_Legality
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
       use type Editor.Ada_Representation_Legality.Representation_Legality_Status;
       pragma Unreferenced (T);
@@ -29649,9 +30012,9 @@ package body Editor.Syntax_Semantics.Tests is
          "enumeration representation legality must count incomplete literal coverage");
       Assert (Editor.Ada_Representation_Legality.Fingerprint (Legality) /= 0,
               "enumeration representation legality must contribute to deterministic fingerprints");
-   end Test_Ada_Enumeration_Representation_Legality_Pass987;
+   end Test_Ada_Enumeration_Representation_Legality;
 
-   procedure Test_Ada_Address_Clause_Legality_Pass988
+   procedure Test_Ada_Address_Clause_Legality
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
       use type Editor.Ada_Representation_Legality.Representation_Legality_Status;
       use type Editor.Ada_Representation_Legality.Address_Value_Status;
@@ -29729,11 +30092,11 @@ package body Editor.Syntax_Semantics.Tests is
               "address clause legality must count static address values deterministically");
       Assert (Editor.Ada_Representation_Legality.Fingerprint (Legality) /= 0,
               "address clause legality must contribute to deterministic fingerprints");
-   end Test_Ada_Address_Clause_Legality_Pass988;
+   end Test_Ada_Address_Clause_Legality;
 
 
 
-   procedure Test_Ada_Size_Alignment_Storage_Legality_Pass989
+   procedure Test_Ada_Size_Alignment_Storage_Legality
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
       use type Editor.Ada_Representation_Legality.Representation_Legality_Status;
       use type Editor.Ada_Language_Model.Representation_Clause_Kind;
@@ -29828,11 +30191,11 @@ package body Editor.Syntax_Semantics.Tests is
          "size/alignment/storage legality must count static value errors deterministically");
       Assert (Editor.Ada_Representation_Legality.Fingerprint (Legality) /= 0,
               "size/alignment/storage legality must contribute to deterministic fingerprints");
-   end Test_Ada_Size_Alignment_Storage_Legality_Pass989;
+   end Test_Ada_Size_Alignment_Storage_Legality;
 
 
 
-   procedure Test_Ada_Interfacing_Representation_Legality_Pass990
+   procedure Test_Ada_Interfacing_Representation_Legality
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
       use type Editor.Ada_Representation_Legality.Representation_Legality_Status;
       use type Editor.Ada_Representation_Legality.Interfacing_Value_Status;
@@ -29942,12 +30305,12 @@ package body Editor.Syntax_Semantics.Tests is
               "interfacing legality must count standalone link-name clauses deterministically");
       Assert (Editor.Ada_Representation_Legality.Fingerprint (Legality) /= 0,
               "interfacing legality must contribute to deterministic fingerprints");
-   end Test_Ada_Interfacing_Representation_Legality_Pass990;
+   end Test_Ada_Interfacing_Representation_Legality;
 
 
 
 
-   procedure Test_Ada_Stream_Attribute_Representation_Legality_Pass991
+   procedure Test_Ada_Stream_Attribute_Representation_Legality
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
       use type Editor.Ada_Representation_Legality.Representation_Legality_Status;
       use type Editor.Ada_Representation_Legality.Stream_Subprogram_Status;
@@ -30023,10 +30386,10 @@ package body Editor.Syntax_Semantics.Tests is
               "stream legality must preserve profile-unknown stream designators deterministically");
       Assert (Editor.Ada_Representation_Legality.Fingerprint (Legality) /= 0,
               "stream legality must contribute to deterministic fingerprints");
-   end Test_Ada_Stream_Attribute_Representation_Legality_Pass991;
+   end Test_Ada_Stream_Attribute_Representation_Legality;
 
 
-   procedure Test_Ada_Stream_Attribute_Profile_Conformance_Pass992
+   procedure Test_Ada_Stream_Attribute_Profile_Conformance
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
       use type Editor.Ada_Representation_Legality.Representation_Legality_Status;
       use type Editor.Ada_Representation_Legality.Stream_Subprogram_Status;
@@ -30122,14 +30485,14 @@ package body Editor.Syntax_Semantics.Tests is
               "resolved stream designators must not remain profile-unknown");
       Assert (Editor.Ada_Representation_Legality.Fingerprint (Legality) /= 0,
               "stream profile conformance must contribute to deterministic fingerprints");
-   end Test_Ada_Stream_Attribute_Profile_Conformance_Pass992;
+   end Test_Ada_Stream_Attribute_Profile_Conformance;
 
 
 
 
 
 
-   procedure Test_Ada_Stream_Attribute_Target_Profile_Conformance_Pass1068
+   procedure Test_Ada_Stream_Attribute_Target_Profile_Conformance
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
       use type Editor.Ada_Stream_Attribute_Profile_Conformance.Stream_Profile_Conformance_Status;
       pragma Unreferenced (T);
@@ -30204,10 +30567,10 @@ package body Editor.Syntax_Semantics.Tests is
               "stream target-profile conformance must count result mismatches");
       Assert (Editor.Ada_Stream_Attribute_Profile_Conformance.Fingerprint (Stream_Profiles) /= 0,
               "stream target-profile conformance must retain deterministic fingerprints");
-   end Test_Ada_Stream_Attribute_Target_Profile_Conformance_Pass1068;
+   end Test_Ada_Stream_Attribute_Target_Profile_Conformance;
 
 
-   procedure Test_Ada_Representation_Diagnostics_Stream_Profile_Conformance_Pass1068
+   procedure Test_Ada_Representation_Diagnostics_Stream_Profile_Conformance
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
       use type Editor.Ada_Representation_Diagnostics.Representation_Diagnostic_Kind;
       pragma Unreferenced (T);
@@ -30284,10 +30647,10 @@ package body Editor.Syntax_Semantics.Tests is
               "representation diagnostics must count stream handler errors");
       Assert (Editor.Ada_Representation_Diagnostics.Fingerprint (Diagnostics) /= 0,
               "representation diagnostics with stream profile conformance must retain deterministic fingerprints");
-   end Test_Ada_Representation_Diagnostics_Stream_Profile_Conformance_Pass1068;
+   end Test_Ada_Representation_Diagnostics_Stream_Profile_Conformance;
 
 
-   procedure Test_Ada_Operational_Attribute_Legality_Pass993
+   procedure Test_Ada_Operational_Attribute_Legality
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
       use type Editor.Ada_Representation_Legality.Representation_Legality_Status;
       use type Editor.Ada_Representation_Legality.Operational_Value_Status;
@@ -30403,9 +30766,9 @@ package body Editor.Syntax_Semantics.Tests is
               "operational legality must count storage-order operational values deterministically");
       Assert (Editor.Ada_Representation_Legality.Fingerprint (Legality) /= 0,
               "operational legality must contribute to deterministic fingerprints");
-   end Test_Ada_Operational_Attribute_Legality_Pass993;
+   end Test_Ada_Operational_Attribute_Legality;
 
-   procedure Test_Ada_Representation_Aspect_Unification_Pass994
+   procedure Test_Ada_Representation_Aspect_Unification
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
       use type Editor.Ada_Language_Model.Representation_Clause_Kind;
       use type Editor.Ada_Language_Model.Representation_Source_Form;
@@ -30488,10 +30851,10 @@ package body Editor.Syntax_Semantics.Tests is
               "unified property count must be source-stable and deterministic");
       Assert (Editor.Ada_Representation_Legality.Fingerprint (Legality) /= 0,
               "aspect unification must contribute to deterministic fingerprints");
-   end Test_Ada_Representation_Aspect_Unification_Pass994;
+   end Test_Ada_Representation_Aspect_Unification;
 
 
-   procedure Test_Ada_Private_View_Visibility_Foundation_Pass982
+   procedure Test_Ada_Private_View_Visibility_Foundation
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
       use type Editor.Ada_Type_Graph.Type_Id;
       use type Editor.Ada_Type_Graph.Type_View_Status;
@@ -30597,11 +30960,11 @@ package body Editor.Syntax_Semantics.Tests is
          "package body must expose the full private view");
       Assert (Editor.Ada_Private_View_Visibility.Fingerprint (Private_Views) /= 0,
               "private-view visibility model must preserve deterministic fingerprints");
-   end Test_Ada_Private_View_Visibility_Foundation_Pass982;
+   end Test_Ada_Private_View_Visibility_Foundation;
 
 
 
-   procedure Test_Ada_Private_View_Subtype_Compatibility_Pass983
+   procedure Test_Ada_Private_View_Subtype_Compatibility
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
       use type Editor.Ada_Type_Graph.Type_Id;
       use type Editor.Ada_Type_Graph.Type_View_Status;
@@ -30702,12 +31065,12 @@ package body Editor.Syntax_Semantics.Tests is
          Assert (Visible_Info.Fingerprint /= Body_Info.Fingerprint,
                  "private-view subtype compatibility must include context in deterministic fingerprints");
       end;
-   end Test_Ada_Private_View_Subtype_Compatibility_Pass983;
+   end Test_Ada_Private_View_Subtype_Compatibility;
 
 
 
 
-   procedure Test_Ada_Implicit_Conversion_Filter_Foundation_Pass959
+   procedure Test_Ada_Implicit_Conversion_Filter_Foundation
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
       use type Editor.Ada_Expected_Call_Filters.Expected_Call_Filter_Status;
       use type Editor.Ada_Implicit_Conversions.Implicit_Conversion_Status;
@@ -30753,9 +31116,47 @@ package body Editor.Syntax_Semantics.Tests is
           (Tree, Regions, Shapes, Resolutions);
       Types : constant Editor.Ada_Type_Graph.Type_Model :=
         Editor.Ada_Type_Graph.Build (Tree, Regions, Visibility);
+      Static : constant Editor.Ada_Static_Expressions.Static_Model :=
+        Editor.Ada_Static_Expressions.Build (Tree, Regions);
       Expected_Filters : constant Editor.Ada_Expected_Call_Filters.Expected_Call_Filter_Model :=
         Editor.Ada_Expected_Call_Filters.Build_With_Type_Graph
           (Expected, Resolutions, Filters, Shapes, Types);
+      Overload_Contexts :
+        constant Editor.Ada_Overload_Resolution_Legality.Overload_Context_Model :=
+          Editor.Ada_Overload_Resolution_Legality.Build_Contexts_From_Expected_Call_Filters
+            (Expected_Filters);
+      Rankings : Editor.Ada_Overload_Ranking.Overload_Ranking_Model;
+      Wide : Editor.Ada_Wide_Semantic_Legality_Diagnostics.Wide_Semantic_Diagnostic_Model;
+      Overload_Legality :
+        constant Editor.Ada_Overload_Resolution_Legality.Overload_Legality_Model :=
+          Editor.Ada_Overload_Resolution_Legality.Build
+            (Overload_Contexts, Rankings, Wide);
+      Expressions : constant Editor.Ada_Expression_Types.Expression_Type_Model :=
+        Editor.Ada_Expression_Types.Build_With_Operator_Uses_And_Expected
+          (Tree, Regions, Visibility, Types, Static, Resolutions,
+           Primitive_Uses, Expected);
+      Overload_Causes : constant
+        Editor.Ada_Overload_Ambiguity_Diagnostics.Overload_Ambiguity_Model :=
+        Editor.Ada_Overload_Ambiguity_Diagnostics.Build (Expressions);
+      Overload_Rankings : constant
+        Editor.Ada_Overload_Ranking.Overload_Ranking_Model :=
+        Editor.Ada_Overload_Ranking.Build (Expressions, Overload_Causes);
+      Views : constant
+        Editor.Ada_View_Aware_Compatibility.View_Compatibility_Model :=
+        Editor.Ada_View_Aware_Compatibility.Build (Expressions);
+      Dispatching : constant
+        Editor.Ada_Dispatching_Call_Legality.Dispatching_Legality_Model :=
+        Editor.Ada_Dispatching_Call_Legality.Build (Expressions);
+      Expression_Diags : constant
+        Editor.Ada_Expression_Diagnostics.Expression_Diagnostic_Model :=
+        Editor.Ada_Expression_Diagnostics
+          .Build_With_All_Semantic_Causes_Ranking_And_Overload_Legality
+            (Expressions,
+             Overload_Causes,
+             Views,
+             Dispatching,
+             Overload_Rankings,
+             Overload_Legality);
       Seen_Derived_Requires_Explicit : Boolean := False;
       Seen_Subtype_Same_Type : Boolean := False;
       Seen_Classwide_Allowed : Boolean := False;
@@ -30769,6 +31170,9 @@ package body Editor.Syntax_Semantics.Tests is
               Editor.Ada_Subtype_Compatibility.Subtype_Compatibility_Type_Graph_Derived_From
               and then Info.Implicit_Conversion =
                 Editor.Ada_Implicit_Conversions.Implicit_Conversion_No_Derived_Type_Conversion
+              and then Info.Status =
+                Editor.Ada_Expected_Call_Filters
+                  .Expected_Call_Filter_Result_Subtype_Requires_Explicit_Conversion
             then
                Seen_Derived_Requires_Explicit := True;
             elsif Info.Compatibility =
@@ -30793,12 +31197,28 @@ package body Editor.Syntax_Semantics.Tests is
               "implicit conversion metadata must keep subtype results assignment-compatible with their base type");
       Assert (Seen_Classwide_Allowed,
               "implicit conversion metadata must allow class-wide expected contexts for descendants");
+      Assert (Editor.Ada_Overload_Resolution_Legality.Count_Status
+                (Overload_Legality,
+                 Editor.Ada_Overload_Resolution_Legality
+                   .Overload_Legality_Legal_Expected_Type_Preferred) = 2,
+              "only subtype and class-wide implicit conversions should select overloads");
+      Assert (Editor.Ada_Overload_Resolution_Legality.Count_Status
+                (Overload_Legality,
+                 Editor.Ada_Overload_Resolution_Legality
+                   .Overload_Legality_Actual_Type_Mismatch) = 1,
+              "derived-type ancestry must remain an explicit-conversion mismatch for overload legality");
+      Assert (Editor.Ada_Expression_Diagnostics.Overload_Legality_Diagnostic_Count
+                (Expression_Diags) >= 1,
+              "expression diagnostics must project overload legality rows into IDE diagnostics");
+      Assert (Editor.Ada_Expression_Diagnostics.Overload_Legality_Error_Count
+                (Expression_Diags) >= 1,
+              "expression diagnostics must preserve overload legality errors");
       Assert (Editor.Ada_Expected_Call_Filters.Fingerprint (Expected_Filters) /= 0,
               "implicit-conversion-aware expected-call filters must keep deterministic fingerprints");
-   end Test_Ada_Implicit_Conversion_Filter_Foundation_Pass959;
+   end Test_Ada_Implicit_Conversion_Filter_Foundation;
 
 
-   procedure Test_Ada_Expected_Call_Filter_Type_Graph_Compatibility_Pass957
+   procedure Test_Ada_Expected_Call_Filter_Type_Graph_Compatibility
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
       use type Editor.Ada_Expected_Call_Filters.Expected_Call_Filter_Status;
       use type Editor.Ada_Subtype_Compatibility.Compatibility_Status;
@@ -30850,8 +31270,13 @@ package body Editor.Syntax_Semantics.Tests is
    begin
       Assert (Editor.Ada_Expected_Call_Filters.Count_Status
                 (Expected_Filters,
-                 Editor.Ada_Expected_Call_Filters.Expected_Call_Filter_Result_Subtype_Compatible) >= 2,
-              "expected-call filtering must accept type-graph derived and subtype result compatibility");
+                 Editor.Ada_Expected_Call_Filters.Expected_Call_Filter_Result_Subtype_Compatible) >= 1,
+              "expected-call filtering must accept subtype result compatibility");
+      Assert (Editor.Ada_Expected_Call_Filters.Count_Status
+                (Expected_Filters,
+                 Editor.Ada_Expected_Call_Filters
+                   .Expected_Call_Filter_Result_Subtype_Requires_Explicit_Conversion) >= 1,
+              "expected-call filtering must require explicit conversions for derived specific types");
       Assert (Editor.Ada_Expected_Call_Filters.Count_Status
                 (Expected_Filters,
                  Editor.Ada_Expected_Call_Filters.Expected_Call_Filter_Result_Subtype_Mismatch) >= 1,
@@ -30893,9 +31318,9 @@ package body Editor.Syntax_Semantics.Tests is
       end;
       Assert (Editor.Ada_Expected_Call_Filters.Fingerprint (Expected_Filters) /= 0,
               "type-graph-aware expected-call filters must keep deterministic fingerprints");
-   end Test_Ada_Expected_Call_Filter_Type_Graph_Compatibility_Pass957;
+   end Test_Ada_Expected_Call_Filter_Type_Graph_Compatibility;
 
-   procedure Test_Ada_Call_Resolution_Profile_Result_Pass952
+   procedure Test_Ada_Call_Resolution_Profile_Result
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
       use type Editor.Ada_Call_Resolution.Call_Resolution_Status;
       pragma Unreferenced (T);
@@ -30951,9 +31376,9 @@ package body Editor.Syntax_Semantics.Tests is
               "call-resolution model must retain pre-profile ambiguity for later overload work");
       Assert (Editor.Ada_Call_Resolution.Fingerprint (Resolutions) /= 0,
               "call-resolution model must keep deterministic fingerprints");
-   end Test_Ada_Call_Resolution_Profile_Result_Pass952;
+   end Test_Ada_Call_Resolution_Profile_Result;
 
-   procedure Test_Ada_Call_Candidate_Foundation_Pass948
+   procedure Test_Ada_Call_Candidate_Foundation
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
       use type Editor.Ada_Declarative_Regions.Region_Id;
       use type Editor.Ada_Declarative_Regions.Region_Kind;
@@ -31073,7 +31498,7 @@ package body Editor.Syntax_Semantics.Tests is
               "call-candidate model must distinguish primitive candidates from use-type visibility");
       Assert (Editor.Ada_Call_Candidates.Fingerprint (Candidates) /= 0,
               "call-candidate model must expose deterministic non-zero fingerprints");
-   end Test_Ada_Call_Candidate_Foundation_Pass948;
+   end Test_Ada_Call_Candidate_Foundation;
 
 
    procedure Test_Language_Model_Token_Cursor_Anonymous_Access_Subprogram_Grammar_Completeness
@@ -31233,7 +31658,7 @@ package body Editor.Syntax_Semantics.Tests is
 
 
 
-   procedure Test_Language_Model_Token_Cursor_Anonymous_Access_Subprogram_Refined_Recovery_Pass879
+   procedure Test_Language_Model_Token_Cursor_Anonymous_Access_Subprogram_Refined_Recovery
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
       pragma Unreferenced (T);
       Source : constant String :=
@@ -31261,10 +31686,10 @@ package body Editor.Syntax_Semantics.Tests is
       Assert (Editor.Ada_Token_Cursor.Has_Production
                 (Grammar, Editor.Ada_Token_Cursor.Production_Object_Declaration),
               "specific anonymous access recovery must continue into following declarations");
-   end Test_Language_Model_Token_Cursor_Anonymous_Access_Subprogram_Refined_Recovery_Pass879;
+   end Test_Language_Model_Token_Cursor_Anonymous_Access_Subprogram_Refined_Recovery;
 
 
-   procedure Test_Language_Model_Token_Cursor_Access_Object_Missing_Subtype_Recovery_Pass929
+   procedure Test_Language_Model_Token_Cursor_Access_Object_Missing_Subtype_Recovery
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
       pragma Unreferenced (T);
       Source : constant String :=
@@ -31299,9 +31724,9 @@ package body Editor.Syntax_Semantics.Tests is
       Assert (Editor.Ada_Token_Cursor.Has_Production
                 (Grammar, Editor.Ada_Token_Cursor.Production_Object_Declaration),
               "access-to-object missing subtype recovery must continue into following declarations");
-   end Test_Language_Model_Token_Cursor_Access_Object_Missing_Subtype_Recovery_Pass929;
+   end Test_Language_Model_Token_Cursor_Access_Object_Missing_Subtype_Recovery;
 
-   procedure Test_Language_Model_Token_Cursor_Access_Definition_Recovery_Depth_Pass930
+   procedure Test_Language_Model_Token_Cursor_Access_Definition_Recovery_Depth
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
       pragma Unreferenced (T);
       Source : constant String :=
@@ -31347,10 +31772,10 @@ package body Editor.Syntax_Semantics.Tests is
       Assert (Editor.Ada_Token_Cursor.Has_Production
                 (Grammar, Editor.Ada_Token_Cursor.Production_Object_Declaration),
               "access-definition recovery depth must continue into following declarations");
-   end Test_Language_Model_Token_Cursor_Access_Definition_Recovery_Depth_Pass930;
+   end Test_Language_Model_Token_Cursor_Access_Definition_Recovery_Depth;
 
 
-   procedure Test_Language_Model_Token_Cursor_Conditional_Expression_Recovery_Pass880
+   procedure Test_Language_Model_Token_Cursor_Conditional_Expression_Recovery
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
       pragma Unreferenced (T);
       Source : constant String :=
@@ -31381,10 +31806,10 @@ package body Editor.Syntax_Semantics.Tests is
       Assert (Editor.Ada_Token_Cursor.Has_Production
                 (Grammar, Editor.Ada_Token_Cursor.Production_Object_Declaration),
               "conditional-expression recovery must continue into following declarations");
-   end Test_Language_Model_Token_Cursor_Conditional_Expression_Recovery_Pass880;
+   end Test_Language_Model_Token_Cursor_Conditional_Expression_Recovery;
 
 
-   procedure Test_Language_Model_Token_Cursor_Selected_Literal_Name_Refinement_Pass881
+   procedure Test_Language_Model_Token_Cursor_Selected_Literal_Name_Refinement
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
       pragma Unreferenced (T);
       Source : constant String :=
@@ -31431,7 +31856,7 @@ package body Editor.Syntax_Semantics.Tests is
       Assert (Editor.Ada_Token_Cursor.Has_Production
                 (Grammar, Editor.Ada_Token_Cursor.Production_Object_Declaration),
               "selected literal name parsing must continue into following declarations");
-   end Test_Language_Model_Token_Cursor_Selected_Literal_Name_Refinement_Pass881;
+   end Test_Language_Model_Token_Cursor_Selected_Literal_Name_Refinement;
 
 
    procedure Test_Language_Model_Token_Cursor_Expression_Name_Edge_Recovery
@@ -32030,7 +32455,7 @@ package body Editor.Syntax_Semantics.Tests is
    end Test_Language_Model_Token_Cursor_Representation_Operational_Item_Grammar_Completeness;
 
 
-   procedure Test_Language_Model_Token_Cursor_Enumeration_Representation_Delimiters_Pass818
+   procedure Test_Language_Model_Token_Cursor_Enumeration_Representation_Delimiters
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
       pragma Unreferenced (T);
       Source : constant String :=
@@ -32072,11 +32497,11 @@ package body Editor.Syntax_Semantics.Tests is
       Assert (Editor.Ada_Token_Cursor.Has_Production
                 (Grammar, Editor.Ada_Token_Cursor.Production_Type_Declaration),
               "missing enumeration representation close recovery must not consume the next declaration");
-   end Test_Language_Model_Token_Cursor_Enumeration_Representation_Delimiters_Pass818;
+   end Test_Language_Model_Token_Cursor_Enumeration_Representation_Delimiters;
 
 
 
-   procedure Test_Language_Model_Token_Cursor_Record_Representation_Delimiters_Pass819
+   procedure Test_Language_Model_Token_Cursor_Record_Representation_Delimiters
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
       pragma Unreferenced (T);
       Source : constant String :=
@@ -32128,10 +32553,10 @@ package body Editor.Syntax_Semantics.Tests is
       Assert (Editor.Ada_Token_Cursor.Has_Production
                 (Grammar, Editor.Ada_Token_Cursor.Production_Object_Declaration),
               "record representation missing-close recovery must not consume the following declaration");
-   end Test_Language_Model_Token_Cursor_Record_Representation_Delimiters_Pass819;
+   end Test_Language_Model_Token_Cursor_Record_Representation_Delimiters;
 
 
-   procedure Test_Language_Model_Token_Cursor_Pragma_Argument_Delimiters_Pass820
+   procedure Test_Language_Model_Token_Cursor_Pragma_Argument_Delimiters
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
       pragma Unreferenced (T);
       Source : constant String :=
@@ -32171,10 +32596,10 @@ package body Editor.Syntax_Semantics.Tests is
       Assert (Editor.Ada_Token_Cursor.Has_Production
                 (Grammar, Editor.Ada_Token_Cursor.Production_Object_Declaration),
               "pragma argument missing-close recovery must not consume the following declaration");
-   end Test_Language_Model_Token_Cursor_Pragma_Argument_Delimiters_Pass820;
+   end Test_Language_Model_Token_Cursor_Pragma_Argument_Delimiters;
 
 
-   procedure Test_Language_Model_Token_Cursor_Call_Actual_Delimiters_Pass821
+   procedure Test_Language_Model_Token_Cursor_Call_Actual_Delimiters
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
       pragma Unreferenced (T);
       Source : constant String :=
@@ -32224,11 +32649,11 @@ package body Editor.Syntax_Semantics.Tests is
       Assert (Editor.Ada_Token_Cursor.Has_Production
                 (Grammar, Editor.Ada_Token_Cursor.Production_Call_Statement),
               "call actual missing-close recovery must not consume the following call statement");
-   end Test_Language_Model_Token_Cursor_Call_Actual_Delimiters_Pass821;
+   end Test_Language_Model_Token_Cursor_Call_Actual_Delimiters;
 
 
 
-   procedure Test_Language_Model_Token_Cursor_Generic_Instantiation_Actual_Delimiters_Pass822
+   procedure Test_Language_Model_Token_Cursor_Generic_Instantiation_Actual_Delimiters
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
       pragma Unreferenced (T);
       Source : constant String :=
@@ -32271,11 +32696,11 @@ package body Editor.Syntax_Semantics.Tests is
       Assert (Editor.Ada_Token_Cursor.Has_Production
                 (Grammar, Editor.Ada_Token_Cursor.Production_Subtype_Declaration),
               "generic actual missing-close recovery must not consume the following declaration");
-   end Test_Language_Model_Token_Cursor_Generic_Instantiation_Actual_Delimiters_Pass822;
+   end Test_Language_Model_Token_Cursor_Generic_Instantiation_Actual_Delimiters;
 
 
 
-   procedure Test_Language_Model_Token_Cursor_Protected_Operation_End_Detail_Pass823
+   procedure Test_Language_Model_Token_Cursor_Protected_Operation_End_Detail
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
       pragma Unreferenced (T);
       Source : constant String :=
@@ -32328,11 +32753,11 @@ package body Editor.Syntax_Semantics.Tests is
       Assert (Editor.Ada_Token_Cursor.Has_Production
                 (Grammar, Editor.Ada_Token_Cursor.Production_Protected_Body_End_Terminator),
               "operation end recovery must leave the protected body terminator visible");
-   end Test_Language_Model_Token_Cursor_Protected_Operation_End_Detail_Pass823;
+   end Test_Language_Model_Token_Cursor_Protected_Operation_End_Detail;
 
 
 
-   procedure Test_Language_Model_Token_Cursor_Record_Representation_Recovery_Pass785
+   procedure Test_Language_Model_Token_Cursor_Record_Representation_Recovery
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
       pragma Unreferenced (T);
       Source : constant String :=
@@ -32379,11 +32804,11 @@ package body Editor.Syntax_Semantics.Tests is
       Assert (Editor.Ada_Token_Cursor.Has_Production
                 (Grammar, Editor.Ada_Token_Cursor.Production_Recovery_Point),
               "record representation recovery must continue to emit the shared bounded recovery marker");
-   end Test_Language_Model_Token_Cursor_Record_Representation_Recovery_Pass785;
+   end Test_Language_Model_Token_Cursor_Record_Representation_Recovery;
 
 
 
-   procedure Test_Language_Model_Token_Cursor_Exception_Handler_Missing_Arrow_Pass786
+   procedure Test_Language_Model_Token_Cursor_Exception_Handler_Missing_Arrow
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
       pragma Unreferenced (T);
       Source : constant String :=
@@ -32411,11 +32836,11 @@ package body Editor.Syntax_Semantics.Tests is
       Assert (Editor.Ada_Token_Cursor.Has_Production
                 (Grammar, Editor.Ada_Token_Cursor.Production_Exception_Handler_Recovery_Boundary),
               "exception handler recovery must continue to emit the shared bounded recovery marker");
-   end Test_Language_Model_Token_Cursor_Exception_Handler_Missing_Arrow_Pass786;
+   end Test_Language_Model_Token_Cursor_Exception_Handler_Missing_Arrow;
 
 
 
-   procedure Test_Language_Model_Token_Cursor_Exception_Handler_Missing_Choice_Pass824
+   procedure Test_Language_Model_Token_Cursor_Exception_Handler_Missing_Choice
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
       pragma Unreferenced (T);
       Source : constant String :=
@@ -32446,10 +32871,10 @@ package body Editor.Syntax_Semantics.Tests is
       Assert (Editor.Ada_Token_Cursor.Has_Production
                 (Grammar, Editor.Ada_Token_Cursor.Production_Exception_Choice_Arrow),
               "choice-list recovery must leave the following arrow available for handler parsing");
-   end Test_Language_Model_Token_Cursor_Exception_Handler_Missing_Choice_Pass824;
+   end Test_Language_Model_Token_Cursor_Exception_Handler_Missing_Choice;
 
 
-   procedure Test_Language_Model_Token_Cursor_Package_Declarative_Item_Recovery_Pass825
+   procedure Test_Language_Model_Token_Cursor_Package_Declarative_Item_Recovery_Case_825
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
       pragma Unreferenced (T);
       Source : constant String :=
@@ -32478,10 +32903,10 @@ package body Editor.Syntax_Semantics.Tests is
       Assert (Editor.Ada_Token_Cursor.Has_Production
                 (Grammar, Editor.Ada_Token_Cursor.Production_Package_Declaration_End_Terminator),
               "declarative item recovery must leave the package end terminator available");
-   end Test_Language_Model_Token_Cursor_Package_Declarative_Item_Recovery_Pass825;
+   end Test_Language_Model_Token_Cursor_Package_Declarative_Item_Recovery_Case_825;
 
 
-   procedure Test_Language_Model_Token_Cursor_Parameter_Profile_Delimiters_Pass826
+   procedure Test_Language_Model_Token_Cursor_Parameter_Profile_Delimiters
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
       pragma Unreferenced (T);
       Source : constant String :=
@@ -32511,10 +32936,10 @@ package body Editor.Syntax_Semantics.Tests is
       Assert (Editor.Ada_Token_Cursor.Has_Production
                 (Grammar, Editor.Ada_Token_Cursor.Production_Subprogram_Declaration_Terminator),
               "parameter-profile recovery must leave surrounding declaration terminators available");
-   end Test_Language_Model_Token_Cursor_Parameter_Profile_Delimiters_Pass826;
+   end Test_Language_Model_Token_Cursor_Parameter_Profile_Delimiters;
 
 
-   procedure Test_Language_Model_Token_Cursor_Discriminant_Part_Delimiters_Pass827
+   procedure Test_Language_Model_Token_Cursor_Discriminant_Part_Delimiters
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
       pragma Unreferenced (T);
       Source : constant String :=
@@ -32551,14 +32976,14 @@ package body Editor.Syntax_Semantics.Tests is
       Assert (Editor.Ada_Token_Cursor.Has_Production
                 (Grammar, Editor.Ada_Token_Cursor.Production_Type_Declaration_Terminator),
               "discriminant-part recovery must leave surrounding type declaration terminators available");
-   end Test_Language_Model_Token_Cursor_Discriminant_Part_Delimiters_Pass827;
+   end Test_Language_Model_Token_Cursor_Discriminant_Part_Delimiters;
 
 
 
 
 
 
-   procedure Test_Language_Model_Token_Cursor_Constraint_Delimiters_Pass828
+   procedure Test_Language_Model_Token_Cursor_Constraint_Delimiters
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
       pragma Unreferenced (T);
       Source : constant String :=
@@ -32607,9 +33032,9 @@ package body Editor.Syntax_Semantics.Tests is
       Assert (Editor.Ada_Token_Cursor.Has_Production
                 (Grammar, Editor.Ada_Token_Cursor.Production_Subtype_Declaration_Terminator),
               "constraint recovery must leave following subtype declaration terminators available");
-   end Test_Language_Model_Token_Cursor_Constraint_Delimiters_Pass828;
+   end Test_Language_Model_Token_Cursor_Constraint_Delimiters;
 
-   procedure Test_Language_Model_Token_Cursor_Aggregate_Delimiters_Pass829
+   procedure Test_Language_Model_Token_Cursor_Aggregate_Delimiters
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
       pragma Unreferenced (T);
       Source : constant String :=
@@ -32651,9 +33076,9 @@ package body Editor.Syntax_Semantics.Tests is
       Assert (Editor.Ada_Token_Cursor.Has_Production
                 (Grammar, Editor.Ada_Token_Cursor.Production_Object_Declaration_Terminator),
               "aggregate recovery must leave following object declaration terminators available");
-   end Test_Language_Model_Token_Cursor_Aggregate_Delimiters_Pass829;
+   end Test_Language_Model_Token_Cursor_Aggregate_Delimiters;
 
-   procedure Test_Language_Model_Token_Cursor_Attribute_Definition_Detail_Pass777
+   procedure Test_Language_Model_Token_Cursor_Attribute_Definition_Detail
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
       pragma Unreferenced (T);
       Source : constant String :=
@@ -32706,11 +33131,11 @@ package body Editor.Syntax_Semantics.Tests is
       Assert (Count_Production
                 (Editor.Ada_Token_Cursor.Production_Representation_Value_Expression) >= 5,
               "attribute-definition clause values must still retain value-expression metadata");
-   end Test_Language_Model_Token_Cursor_Attribute_Definition_Detail_Pass777;
+   end Test_Language_Model_Token_Cursor_Attribute_Definition_Detail;
 
 
 
-   procedure Test_Language_Model_Token_Cursor_Protected_Body_Operation_Depth_Pass778
+   procedure Test_Language_Model_Token_Cursor_Protected_Body_Operation_Depth
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
       pragma Unreferenced (T);
       Source : constant String :=
@@ -32758,10 +33183,10 @@ package body Editor.Syntax_Semantics.Tests is
       Assert (Editor.Ada_Token_Cursor.Has_Production
                 (Grammar, Editor.Ada_Token_Cursor.Production_Protected_Body_Operation_End_Keyword),
               "protected operation bodies must retain end-keyword metadata");
-   end Test_Language_Model_Token_Cursor_Protected_Body_Operation_Depth_Pass778;
+   end Test_Language_Model_Token_Cursor_Protected_Body_Operation_Depth;
 
 
-   procedure Test_Language_Model_Token_Cursor_Parallel_Loop_Depth_Pass779
+   procedure Test_Language_Model_Token_Cursor_Parallel_Loop_Depth
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
       pragma Unreferenced (T);
       Source : constant String :=
@@ -32804,10 +33229,10 @@ package body Editor.Syntax_Semantics.Tests is
       Assert (Editor.Ada_Token_Cursor.Has_Production
                 (Grammar, Editor.Ada_Token_Cursor.Production_Loop_Begin_Keyword),
               "parallel loops must still expose loop begin metadata");
-   end Test_Language_Model_Token_Cursor_Parallel_Loop_Depth_Pass779;
+   end Test_Language_Model_Token_Cursor_Parallel_Loop_Depth;
 
 
-   procedure Test_Language_Model_Token_Cursor_Asynchronous_Select_Depth_Pass780
+   procedure Test_Language_Model_Token_Cursor_Asynchronous_Select_Depth
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
       pragma Unreferenced (T);
       Source : constant String :=
@@ -32840,9 +33265,9 @@ package body Editor.Syntax_Semantics.Tests is
       Assert (Editor.Ada_Token_Cursor.Has_Production
                 (Grammar, Editor.Ada_Token_Cursor.Production_Delay_Until_Statement),
               "triggering delay statements must retain ordinary delay metadata");
-   end Test_Language_Model_Token_Cursor_Asynchronous_Select_Depth_Pass780;
+   end Test_Language_Model_Token_Cursor_Asynchronous_Select_Depth;
 
-   procedure Test_Language_Model_Token_Cursor_If_Expression_Else_Recovery_Pass781
+   procedure Test_Language_Model_Token_Cursor_If_Expression_Else_Recovery
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
       pragma Unreferenced (T);
       Source : constant String :=
@@ -32870,9 +33295,9 @@ package body Editor.Syntax_Semantics.Tests is
       Assert (Editor.Ada_Token_Cursor.Has_Production
                 (Grammar, Editor.Ada_Token_Cursor.Production_If_Expression_Missing_Else_Recovery_Boundary),
               "if expressions missing an else arm must retain bounded recovery metadata");
-   end Test_Language_Model_Token_Cursor_If_Expression_Else_Recovery_Pass781;
+   end Test_Language_Model_Token_Cursor_If_Expression_Else_Recovery;
 
-   procedure Test_Language_Model_Token_Cursor_If_Expression_Then_Recovery_Pass841
+   procedure Test_Language_Model_Token_Cursor_If_Expression_Then_Recovery
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
       pragma Unreferenced (T);
       Source : constant String :=
@@ -32898,11 +33323,11 @@ package body Editor.Syntax_Semantics.Tests is
       Assert (Editor.Ada_Token_Cursor.Has_Production
                 (Grammar, Editor.Ada_Token_Cursor.Production_If_Expression_Else_Dependent_Expression),
               "else-dependent expressions must remain visible after missing-then recovery");
-   end Test_Language_Model_Token_Cursor_If_Expression_Then_Recovery_Pass841;
+   end Test_Language_Model_Token_Cursor_If_Expression_Then_Recovery;
 
 
 
-   procedure Test_Language_Model_Token_Cursor_Case_Expression_Recovery_Pass782
+   procedure Test_Language_Model_Token_Cursor_Case_Expression_Recovery
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
       pragma Unreferenced (T);
       Source : constant String :=
@@ -32932,7 +33357,7 @@ package body Editor.Syntax_Semantics.Tests is
       Assert (Editor.Ada_Token_Cursor.Has_Production
                 (Grammar, Editor.Ada_Token_Cursor.Production_Case_Expression_Missing_Alternative_Recovery_Boundary),
               "case expressions missing alternatives must retain bounded recovery metadata");
-   end Test_Language_Model_Token_Cursor_Case_Expression_Recovery_Pass782;
+   end Test_Language_Model_Token_Cursor_Case_Expression_Recovery;
 
    procedure Test_Language_Model_Token_Cursor_Representation_Pragma_Item_Depth
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
@@ -33066,7 +33491,7 @@ package body Editor.Syntax_Semantics.Tests is
 
 
 
-   procedure Test_Language_Model_Token_Cursor_Renaming_Aspect_Placement_Pass775
+   procedure Test_Language_Model_Token_Cursor_Renaming_Aspect_Placement
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
       pragma Unreferenced (T);
       Source : constant String :=
@@ -33109,7 +33534,7 @@ package body Editor.Syntax_Semantics.Tests is
       Assert (Editor.Ada_Token_Cursor.Has_Production
                 (Grammar, Editor.Ada_Token_Cursor.Production_Renamed_Selected_Target),
               "renaming aspect parsing must not consume selected renamed targets");
-   end Test_Language_Model_Token_Cursor_Renaming_Aspect_Placement_Pass775;
+   end Test_Language_Model_Token_Cursor_Renaming_Aspect_Placement;
 
 
 
@@ -39221,7 +39646,7 @@ package body Editor.Syntax_Semantics.Tests is
 
 
 
-   procedure Test_Language_Model_Token_Cursor_Quantified_Recovery_Pass783
+   procedure Test_Language_Model_Token_Cursor_Quantified_Recovery
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
       pragma Unreferenced (T);
       Source : constant String :=
@@ -39247,11 +39672,11 @@ package body Editor.Syntax_Semantics.Tests is
       Assert (Editor.Ada_Token_Cursor.Has_Production
                 (Grammar, Editor.Ada_Token_Cursor.Production_Object_Declaration),
               "quantified-expression recovery must not consume the following declaration");
-   end Test_Language_Model_Token_Cursor_Quantified_Recovery_Pass783;
+   end Test_Language_Model_Token_Cursor_Quantified_Recovery;
 
 
 
-   procedure Test_Language_Model_Token_Cursor_Quantified_Missing_Quantifier_Pass840
+   procedure Test_Language_Model_Token_Cursor_Quantified_Missing_Quantifier
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
       pragma Unreferenced (T);
       Source : constant String :=
@@ -39283,7 +39708,7 @@ package body Editor.Syntax_Semantics.Tests is
       Assert (Editor.Ada_Token_Cursor.Has_Production
                 (Grammar, Editor.Ada_Token_Cursor.Production_Object_Declaration),
               "quantified-expression recovery must leave following declarations visible");
-   end Test_Language_Model_Token_Cursor_Quantified_Missing_Quantifier_Pass840;
+   end Test_Language_Model_Token_Cursor_Quantified_Missing_Quantifier;
 
 
    procedure Test_Language_Model_Token_Cursor_Allocator_Deep_Grammar_Completeness
@@ -39323,7 +39748,7 @@ package body Editor.Syntax_Semantics.Tests is
    end Test_Language_Model_Token_Cursor_Allocator_Deep_Grammar_Completeness;
 
 
-   procedure Test_Language_Model_Token_Cursor_Allocator_Constraint_Depth_Pass774
+   procedure Test_Language_Model_Token_Cursor_Allocator_Constraint_Depth
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
       pragma Unreferenced (T);
       Source : constant String :=
@@ -39357,7 +39782,7 @@ package body Editor.Syntax_Semantics.Tests is
       Assert (Editor.Ada_Token_Cursor.Has_Production
                 (Grammar, Editor.Ada_Token_Cursor.Production_Allocator_Subtype_Mark),
               "allocator constrained subtype marks must remain visible to semantic consumers");
-   end Test_Language_Model_Token_Cursor_Allocator_Constraint_Depth_Pass774;
+   end Test_Language_Model_Token_Cursor_Allocator_Constraint_Depth;
 
 
    procedure Test_Language_Model_Legality_Checking_First_Pass
@@ -44657,7 +45082,7 @@ package body Editor.Syntax_Semantics.Tests is
    end Test_Language_Model_Token_Cursor_Pragma_Association_Depth;
 
 
-   procedure Test_Language_Model_Token_Cursor_Pragma_Recovery_Depth_Pass885
+   procedure Test_Language_Model_Token_Cursor_Pragma_Recovery_Depth
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
       pragma Unreferenced (T);
       Source : constant String :=
@@ -44691,10 +45116,10 @@ package body Editor.Syntax_Semantics.Tests is
       Assert (Editor.Ada_Token_Cursor.Has_Production
                 (Grammar, Editor.Ada_Token_Cursor.Production_Object_Declaration),
               "pragma recovery must continue into the following declaration");
-   end Test_Language_Model_Token_Cursor_Pragma_Recovery_Depth_Pass885;
+   end Test_Language_Model_Token_Cursor_Pragma_Recovery_Depth;
 
 
-   procedure Test_Language_Model_Token_Cursor_Attribute_Address_Clause_Recovery_Pass886
+   procedure Test_Language_Model_Token_Cursor_Attribute_Address_Clause_Recovery
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
       pragma Unreferenced (T);
       Source : constant String :=
@@ -44739,9 +45164,9 @@ package body Editor.Syntax_Semantics.Tests is
       Assert (Count_Production
                 (Editor.Ada_Token_Cursor.Production_Object_Declaration) >= 3,
               "representation recovery must continue into following object declarations");
-   end Test_Language_Model_Token_Cursor_Attribute_Address_Clause_Recovery_Pass886;
+   end Test_Language_Model_Token_Cursor_Attribute_Address_Clause_Recovery;
 
-   procedure Test_Language_Model_Token_Cursor_Aspect_Placement_Breadth_Pass887
+   procedure Test_Language_Model_Token_Cursor_Aspect_Placement_Breadth
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
       pragma Unreferenced (T);
       Source : constant String :=
@@ -44799,12 +45224,12 @@ package body Editor.Syntax_Semantics.Tests is
       Assert (Editor.Ada_Token_Cursor.Has_Production
                 (Grammar, Editor.Ada_Token_Cursor.Production_Aspect_Association),
               "new placement metadata must preserve ordinary aspect associations");
-   end Test_Language_Model_Token_Cursor_Aspect_Placement_Breadth_Pass887;
+   end Test_Language_Model_Token_Cursor_Aspect_Placement_Breadth;
 
 
 
 
-   procedure Test_Language_Model_Token_Cursor_Case_Expression_Dependent_Recovery_Pass888
+   procedure Test_Language_Model_Token_Cursor_Case_Expression_Dependent_Recovery
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
       pragma Unreferenced (T);
       Source : constant String :=
@@ -44832,10 +45257,10 @@ package body Editor.Syntax_Semantics.Tests is
       Assert (Editor.Ada_Token_Cursor.Has_Production
                 (Grammar, Editor.Ada_Token_Cursor.Production_Object_Declaration),
               "case-expression recovery must continue into following declarations");
-   end Test_Language_Model_Token_Cursor_Case_Expression_Dependent_Recovery_Pass888;
+   end Test_Language_Model_Token_Cursor_Case_Expression_Dependent_Recovery;
 
 
-   procedure Test_Language_Model_Token_Cursor_Name_Attribute_Refinement_Pass889
+   procedure Test_Language_Model_Token_Cursor_Name_Attribute_Refinement
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
       pragma Unreferenced (T);
       Source : constant String :=
@@ -44869,10 +45294,10 @@ package body Editor.Syntax_Semantics.Tests is
       Assert (Editor.Ada_Token_Cursor.Has_Production
                 (Grammar, Editor.Ada_Token_Cursor.Production_Object_Declaration),
               "name/attribute recovery must continue into following declarations");
-   end Test_Language_Model_Token_Cursor_Name_Attribute_Refinement_Pass889;
+   end Test_Language_Model_Token_Cursor_Name_Attribute_Refinement;
 
 
-   procedure Test_Language_Model_Token_Cursor_Task_Protected_Body_Declarative_Recovery_Pass890
+   procedure Test_Language_Model_Token_Cursor_Task_Protected_Body_Declarative_Recovery
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
       pragma Unreferenced (T);
       Source : constant String :=
@@ -44924,10 +45349,10 @@ package body Editor.Syntax_Semantics.Tests is
       Assert (Editor.Ada_Token_Cursor.Has_Production
                 (Grammar, Editor.Ada_Token_Cursor.Production_Package_Body_End_Terminator),
               "task/protected body declarative recovery must preserve enclosing package completion");
-   end Test_Language_Model_Token_Cursor_Task_Protected_Body_Declarative_Recovery_Pass890;
+   end Test_Language_Model_Token_Cursor_Task_Protected_Body_Declarative_Recovery;
 
 
-   procedure Test_Language_Model_Token_Cursor_Reduction_Argument_Recovery_Pass892
+   procedure Test_Language_Model_Token_Cursor_Reduction_Argument_Recovery
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
       pragma Unreferenced (T);
       Source : constant String :=
@@ -44968,11 +45393,11 @@ package body Editor.Syntax_Semantics.Tests is
       Assert (Editor.Ada_Token_Cursor.Has_Production
                 (Grammar, Editor.Ada_Token_Cursor.Production_Object_Declaration),
               "reduction argument recovery must preserve following declarations");
-   end Test_Language_Model_Token_Cursor_Reduction_Argument_Recovery_Pass892;
+   end Test_Language_Model_Token_Cursor_Reduction_Argument_Recovery;
 
 
 
-   procedure Test_Language_Model_Token_Cursor_Quantified_Predicate_Recovery_Pass893
+   procedure Test_Language_Model_Token_Cursor_Quantified_Predicate_Recovery
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
       pragma Unreferenced (T);
       Source : constant String :=
@@ -45001,10 +45426,10 @@ package body Editor.Syntax_Semantics.Tests is
       Assert (Editor.Ada_Token_Cursor.Has_Production
                 (Grammar, Editor.Ada_Token_Cursor.Production_Object_Declaration),
               "quantified predicate recovery must preserve following declarations");
-   end Test_Language_Model_Token_Cursor_Quantified_Predicate_Recovery_Pass893;
+   end Test_Language_Model_Token_Cursor_Quantified_Predicate_Recovery;
 
 
-   procedure Test_Language_Model_Token_Cursor_Declare_Expression_Body_Recovery_Pass894
+   procedure Test_Language_Model_Token_Cursor_Declare_Expression_Body_Recovery
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
       pragma Unreferenced (T);
       Source : constant String :=
@@ -45033,10 +45458,10 @@ package body Editor.Syntax_Semantics.Tests is
       Assert (Editor.Ada_Token_Cursor.Has_Production
                 (Grammar, Editor.Ada_Token_Cursor.Production_Object_Declaration),
               "declare expression body recovery must preserve following declarations");
-   end Test_Language_Model_Token_Cursor_Declare_Expression_Body_Recovery_Pass894;
+   end Test_Language_Model_Token_Cursor_Declare_Expression_Body_Recovery;
 
 
-   procedure Test_Language_Model_Token_Cursor_Iterated_Component_Expression_Recovery_Pass895
+   procedure Test_Language_Model_Token_Cursor_Iterated_Component_Expression_Recovery
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
       pragma Unreferenced (T);
       Source : constant String :=
@@ -45066,10 +45491,10 @@ package body Editor.Syntax_Semantics.Tests is
       Assert (Editor.Ada_Token_Cursor.Has_Production
                 (Grammar, Editor.Ada_Token_Cursor.Production_Object_Declaration),
               "iterated component expression recovery must preserve following declarations");
-   end Test_Language_Model_Token_Cursor_Iterated_Component_Expression_Recovery_Pass895;
+   end Test_Language_Model_Token_Cursor_Iterated_Component_Expression_Recovery;
 
 
-   procedure Test_Language_Model_Token_Cursor_Generic_Actual_Association_Recovery_Pass896
+   procedure Test_Language_Model_Token_Cursor_Generic_Actual_Association_Recovery
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
       pragma Unreferenced (T);
       Source : constant String :=
@@ -45110,10 +45535,10 @@ package body Editor.Syntax_Semantics.Tests is
       Assert (Editor.Ada_Token_Cursor.Has_Production
                 (Grammar, Editor.Ada_Token_Cursor.Production_Object_Declaration),
               "generic actual association recovery must preserve following declarations");
-   end Test_Language_Model_Token_Cursor_Generic_Actual_Association_Recovery_Pass896;
+   end Test_Language_Model_Token_Cursor_Generic_Actual_Association_Recovery;
 
 
-   procedure Test_Language_Model_Token_Cursor_Renaming_Target_Recovery_Pass897
+   procedure Test_Language_Model_Token_Cursor_Renaming_Target_Recovery
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
       pragma Unreferenced (T);
       Source : constant String :=
@@ -45148,10 +45573,10 @@ package body Editor.Syntax_Semantics.Tests is
       Assert (Editor.Ada_Token_Cursor.Has_Production
                 (Grammar, Editor.Ada_Token_Cursor.Production_Object_Declaration),
               "renaming target recovery must preserve following declarations");
-   end Test_Language_Model_Token_Cursor_Renaming_Target_Recovery_Pass897;
+   end Test_Language_Model_Token_Cursor_Renaming_Target_Recovery;
 
 
-   procedure Test_Language_Model_Token_Cursor_Entry_Body_Statement_Recovery_Pass898
+   procedure Test_Language_Model_Token_Cursor_Entry_Body_Statement_Recovery
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
       pragma Unreferenced (T);
       Source : constant String :=
@@ -45189,11 +45614,11 @@ package body Editor.Syntax_Semantics.Tests is
       Assert (Editor.Ada_Token_Cursor.Has_Production
                 (Grammar, Editor.Ada_Token_Cursor.Production_Entry_Body_End_Keyword),
               "entry body statement recovery must preserve following entry body end markers");
-   end Test_Language_Model_Token_Cursor_Entry_Body_Statement_Recovery_Pass898;
+   end Test_Language_Model_Token_Cursor_Entry_Body_Statement_Recovery;
 
 
 
-   procedure Test_Language_Model_Token_Cursor_Entry_Barrier_Condition_Recovery_Pass899
+   procedure Test_Language_Model_Token_Cursor_Entry_Barrier_Condition_Recovery
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
       pragma Unreferenced (T);
       Source : constant String :=
@@ -45237,11 +45662,11 @@ package body Editor.Syntax_Semantics.Tests is
       Assert (Editor.Ada_Token_Cursor.Has_Production
                 (Grammar, Editor.Ada_Token_Cursor.Production_Recovery_Point),
               "barrier recovery must preserve generic recovery metadata");
-   end Test_Language_Model_Token_Cursor_Entry_Barrier_Condition_Recovery_Pass899;
+   end Test_Language_Model_Token_Cursor_Entry_Barrier_Condition_Recovery;
 
 
 
-   procedure Test_Language_Model_Token_Cursor_Entry_Family_Empty_Definition_Recovery_Pass900
+   procedure Test_Language_Model_Token_Cursor_Entry_Family_Empty_Definition_Recovery
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
       pragma Unreferenced (T);
       Source : constant String :=
@@ -45273,11 +45698,11 @@ package body Editor.Syntax_Semantics.Tests is
       Assert (Editor.Ada_Token_Cursor.Has_Production
                 (Grammar, Editor.Ada_Token_Cursor.Production_Recovery_Point),
               "empty entry family recovery must preserve generic recovery metadata");
-   end Test_Language_Model_Token_Cursor_Entry_Family_Empty_Definition_Recovery_Pass900;
+   end Test_Language_Model_Token_Cursor_Entry_Family_Empty_Definition_Recovery;
 
 
 
-   procedure Test_Language_Model_Token_Cursor_Abort_Target_Reserved_Boundary_Recovery_Pass901
+   procedure Test_Language_Model_Token_Cursor_Abort_Target_Reserved_Boundary_Recovery
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
       pragma Unreferenced (T);
       Source : constant String :=
@@ -45311,11 +45736,11 @@ package body Editor.Syntax_Semantics.Tests is
       Assert (Editor.Ada_Token_Cursor.Has_Production
                 (Grammar, Editor.Ada_Token_Cursor.Production_Recovery_Point),
               "abort target reserved-boundary recovery must preserve generic recovery metadata");
-   end Test_Language_Model_Token_Cursor_Abort_Target_Reserved_Boundary_Recovery_Pass901;
+   end Test_Language_Model_Token_Cursor_Abort_Target_Reserved_Boundary_Recovery;
 
 
 
-   procedure Test_Language_Model_Token_Cursor_Requeue_Target_Reserved_Boundary_Recovery_Pass902
+   procedure Test_Language_Model_Token_Cursor_Requeue_Target_Reserved_Boundary_Recovery
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
       pragma Unreferenced (T);
       Source : constant String :=
@@ -45359,9 +45784,9 @@ package body Editor.Syntax_Semantics.Tests is
       Assert (Editor.Ada_Token_Cursor.Has_Production
                 (Grammar, Editor.Ada_Token_Cursor.Production_Recovery_Point),
               "requeue reserved-boundary recovery must preserve generic recovery metadata");
-   end Test_Language_Model_Token_Cursor_Requeue_Target_Reserved_Boundary_Recovery_Pass902;
+   end Test_Language_Model_Token_Cursor_Requeue_Target_Reserved_Boundary_Recovery;
 
-   procedure Test_Language_Model_Token_Cursor_Delay_Expression_Reserved_Boundary_Recovery_Pass903
+   procedure Test_Language_Model_Token_Cursor_Delay_Expression_Reserved_Boundary_Recovery
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
       pragma Unreferenced (T);
       Source : constant String :=
@@ -45398,10 +45823,10 @@ package body Editor.Syntax_Semantics.Tests is
       Assert (Editor.Ada_Token_Cursor.Has_Production
                 (Grammar, Editor.Ada_Token_Cursor.Production_Recovery_Point),
               "delay reserved-boundary recovery must preserve generic recovery metadata");
-   end Test_Language_Model_Token_Cursor_Delay_Expression_Reserved_Boundary_Recovery_Pass903;
+   end Test_Language_Model_Token_Cursor_Delay_Expression_Reserved_Boundary_Recovery;
 
 
-   procedure Test_Language_Model_Token_Cursor_Goto_Target_Reserved_Boundary_Recovery_Pass904
+   procedure Test_Language_Model_Token_Cursor_Goto_Target_Reserved_Boundary_Recovery
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
       pragma Unreferenced (T);
       Source : constant String :=
@@ -45438,10 +45863,10 @@ package body Editor.Syntax_Semantics.Tests is
       Assert (Editor.Ada_Token_Cursor.Has_Production
                 (Grammar, Editor.Ada_Token_Cursor.Production_Recovery_Point),
               "goto reserved-boundary recovery must preserve generic recovery metadata");
-   end Test_Language_Model_Token_Cursor_Goto_Target_Reserved_Boundary_Recovery_Pass904;
+   end Test_Language_Model_Token_Cursor_Goto_Target_Reserved_Boundary_Recovery;
 
 
-   procedure Test_Language_Model_Token_Cursor_Return_Expression_Reserved_Boundary_Recovery_Pass905
+   procedure Test_Language_Model_Token_Cursor_Return_Expression_Reserved_Boundary_Recovery
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
       pragma Unreferenced (T);
       Source : constant String :=
@@ -45472,10 +45897,10 @@ package body Editor.Syntax_Semantics.Tests is
       Assert (Editor.Ada_Token_Cursor.Has_Production
                 (Grammar, Editor.Ada_Token_Cursor.Production_Recovery_Point),
               "return reserved-boundary recovery must preserve generic recovery metadata");
-   end Test_Language_Model_Token_Cursor_Return_Expression_Reserved_Boundary_Recovery_Pass905;
+   end Test_Language_Model_Token_Cursor_Return_Expression_Reserved_Boundary_Recovery;
 
 
-   procedure Test_Language_Model_Token_Cursor_Raise_Target_Reserved_Boundary_Recovery_Pass906
+   procedure Test_Language_Model_Token_Cursor_Raise_Target_Reserved_Boundary_Recovery
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
       pragma Unreferenced (T);
       Source : constant String :=
@@ -45510,9 +45935,9 @@ package body Editor.Syntax_Semantics.Tests is
       Assert (Editor.Ada_Token_Cursor.Has_Production
                 (Grammar, Editor.Ada_Token_Cursor.Production_Recovery_Point),
               "raise reserved-boundary recovery must preserve generic recovery metadata");
-   end Test_Language_Model_Token_Cursor_Raise_Target_Reserved_Boundary_Recovery_Pass906;
+   end Test_Language_Model_Token_Cursor_Raise_Target_Reserved_Boundary_Recovery;
 
-   procedure Test_Language_Model_Token_Cursor_Exit_Target_Reserved_Boundary_Recovery_Pass907
+   procedure Test_Language_Model_Token_Cursor_Exit_Target_Reserved_Boundary_Recovery
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
       pragma Unreferenced (T);
       Source : constant String :=
@@ -45548,11 +45973,11 @@ package body Editor.Syntax_Semantics.Tests is
       Assert (Editor.Ada_Token_Cursor.Has_Production
                 (Grammar, Editor.Ada_Token_Cursor.Production_Recovery_Point),
               "exit reserved-boundary recovery must preserve generic recovery metadata");
-   end Test_Language_Model_Token_Cursor_Exit_Target_Reserved_Boundary_Recovery_Pass907;
+   end Test_Language_Model_Token_Cursor_Exit_Target_Reserved_Boundary_Recovery;
 
 
 
-   procedure Test_Language_Model_Token_Cursor_Assignment_Expression_Reserved_Boundary_Recovery_Pass908
+   procedure Test_Language_Model_Token_Cursor_Assignment_Expression_Reserved_Boundary_Recovery
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
       pragma Unreferenced (T);
       Source : constant String :=
@@ -45585,10 +46010,10 @@ package body Editor.Syntax_Semantics.Tests is
       Assert (Editor.Ada_Token_Cursor.Has_Production
                 (Grammar, Editor.Ada_Token_Cursor.Production_Recovery_Point),
               "assignment reserved-boundary recovery must preserve generic recovery metadata");
-   end Test_Language_Model_Token_Cursor_Assignment_Expression_Reserved_Boundary_Recovery_Pass908;
+   end Test_Language_Model_Token_Cursor_Assignment_Expression_Reserved_Boundary_Recovery;
 
 
-   procedure Test_Language_Model_Token_Cursor_Call_Actual_Association_Recovery_Pass909
+   procedure Test_Language_Model_Token_Cursor_Call_Actual_Association_Recovery
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
       pragma Unreferenced (T);
       Source : constant String :=
@@ -45626,12 +46051,12 @@ package body Editor.Syntax_Semantics.Tests is
       Assert (Editor.Ada_Token_Cursor.Has_Production
                 (Grammar, Editor.Ada_Token_Cursor.Production_Recovery_Point),
               "call actual recovery must preserve generic recovery metadata");
-   end Test_Language_Model_Token_Cursor_Call_Actual_Association_Recovery_Pass909;
+   end Test_Language_Model_Token_Cursor_Call_Actual_Association_Recovery;
 
 
 
 
-   procedure Test_Language_Model_Token_Cursor_If_Elsif_Condition_Recovery_Pass910
+   procedure Test_Language_Model_Token_Cursor_If_Elsif_Condition_Recovery
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
       pragma Unreferenced (T);
       Source : constant String :=
@@ -45674,12 +46099,12 @@ package body Editor.Syntax_Semantics.Tests is
       Assert (Editor.Ada_Token_Cursor.Has_Production
                 (Grammar, Editor.Ada_Token_Cursor.Production_Recovery_Point),
               "if/elsif condition recovery must preserve generic recovery metadata");
-   end Test_Language_Model_Token_Cursor_If_Elsif_Condition_Recovery_Pass910;
+   end Test_Language_Model_Token_Cursor_If_Elsif_Condition_Recovery;
 
 
 
 
-   procedure Test_Language_Model_Token_Cursor_While_Condition_Recovery_Pass911
+   procedure Test_Language_Model_Token_Cursor_While_Condition_Recovery
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
       pragma Unreferenced (T);
       Source : constant String :=
@@ -45717,12 +46142,12 @@ package body Editor.Syntax_Semantics.Tests is
       Assert (Editor.Ada_Token_Cursor.Has_Production
                 (Grammar, Editor.Ada_Token_Cursor.Production_Recovery_Point),
               "while condition recovery must preserve generic recovery metadata");
-   end Test_Language_Model_Token_Cursor_While_Condition_Recovery_Pass911;
+   end Test_Language_Model_Token_Cursor_While_Condition_Recovery;
 
 
 
 
-   procedure Test_Language_Model_Token_Cursor_For_Iterator_Domain_Reserved_Boundary_Recovery_Pass912
+   procedure Test_Language_Model_Token_Cursor_For_Iterator_Domain_Reserved_Boundary_Recovery
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
       pragma Unreferenced (T);
       Source : constant String :=
@@ -45770,9 +46195,9 @@ package body Editor.Syntax_Semantics.Tests is
       Assert (Editor.Ada_Token_Cursor.Has_Production
                 (Grammar, Editor.Ada_Token_Cursor.Production_Recovery_Point),
               "for/iterator domain recovery must preserve generic recovery metadata");
-   end Test_Language_Model_Token_Cursor_For_Iterator_Domain_Reserved_Boundary_Recovery_Pass912;
+   end Test_Language_Model_Token_Cursor_For_Iterator_Domain_Reserved_Boundary_Recovery;
 
-   procedure Test_Language_Model_Token_Cursor_Case_Selector_Reserved_Boundary_Recovery_Pass913
+   procedure Test_Language_Model_Token_Cursor_Case_Selector_Reserved_Boundary_Recovery
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
       pragma Unreferenced (T);
       Source : constant String :=
@@ -45807,10 +46232,10 @@ package body Editor.Syntax_Semantics.Tests is
       Assert (Editor.Ada_Token_Cursor.Has_Production
                 (Grammar, Editor.Ada_Token_Cursor.Production_Recovery_Point),
               "case selector recovery must preserve generic recovery metadata");
-   end Test_Language_Model_Token_Cursor_Case_Selector_Reserved_Boundary_Recovery_Pass913;
+   end Test_Language_Model_Token_Cursor_Case_Selector_Reserved_Boundary_Recovery;
 
 
-   procedure Test_Language_Model_Token_Cursor_Extended_Return_Initializer_Reserved_Boundary_Recovery_Pass914
+   procedure Test_Language_Model_Token_Cursor_Extended_Return_Initializer_Reserved_Boundary_Recovery
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
       pragma Unreferenced (T);
       Source : constant String :=
@@ -45852,10 +46277,10 @@ package body Editor.Syntax_Semantics.Tests is
       Assert (Editor.Ada_Token_Cursor.Has_Production
                 (Grammar, Editor.Ada_Token_Cursor.Production_Recovery_Point),
               "extended return initializer recovery must preserve generic recovery metadata");
-   end Test_Language_Model_Token_Cursor_Extended_Return_Initializer_Reserved_Boundary_Recovery_Pass914;
+   end Test_Language_Model_Token_Cursor_Extended_Return_Initializer_Reserved_Boundary_Recovery;
 
 
-   procedure Test_Language_Model_Token_Cursor_Raise_Message_Reserved_Boundary_Recovery_Pass915
+   procedure Test_Language_Model_Token_Cursor_Raise_Message_Reserved_Boundary_Recovery
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
       pragma Unreferenced (T);
       Source : constant String :=
@@ -45889,11 +46314,11 @@ package body Editor.Syntax_Semantics.Tests is
       Assert (Editor.Ada_Token_Cursor.Has_Production
                 (Grammar, Editor.Ada_Token_Cursor.Production_Recovery_Point),
               "raise message reserved-boundary recovery must preserve generic recovery metadata");
-   end Test_Language_Model_Token_Cursor_Raise_Message_Reserved_Boundary_Recovery_Pass915;
+   end Test_Language_Model_Token_Cursor_Raise_Message_Reserved_Boundary_Recovery;
 
 
 
-   procedure Test_Language_Model_Token_Cursor_Exit_When_Reserved_Boundary_Recovery_Pass916
+   procedure Test_Language_Model_Token_Cursor_Exit_When_Reserved_Boundary_Recovery
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
       pragma Unreferenced (T);
       Source : constant String :=
@@ -45931,12 +46356,12 @@ package body Editor.Syntax_Semantics.Tests is
       Assert (Editor.Ada_Token_Cursor.Has_Production
                 (Grammar, Editor.Ada_Token_Cursor.Production_Recovery_Point),
               "exit-when reserved-boundary recovery must preserve generic recovery metadata");
-   end Test_Language_Model_Token_Cursor_Exit_When_Reserved_Boundary_Recovery_Pass916;
+   end Test_Language_Model_Token_Cursor_Exit_When_Reserved_Boundary_Recovery;
 
 
 
 
-   procedure Test_Language_Model_Token_Cursor_Null_Reserved_Boundary_Recovery_Pass917
+   procedure Test_Language_Model_Token_Cursor_Null_Reserved_Boundary_Recovery
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
       pragma Unreferenced (T);
       Source : constant String :=
@@ -45967,10 +46392,10 @@ package body Editor.Syntax_Semantics.Tests is
       Assert (Editor.Ada_Token_Cursor.Has_Production
                 (Grammar, Editor.Ada_Token_Cursor.Production_Recovery_Point),
               "null reserved-boundary recovery must preserve generic recovery metadata");
-   end Test_Language_Model_Token_Cursor_Null_Reserved_Boundary_Recovery_Pass917;
+   end Test_Language_Model_Token_Cursor_Null_Reserved_Boundary_Recovery;
 
 
-   procedure Test_Language_Model_Token_Cursor_Aggregate_Component_Reserved_Boundary_Recovery_Pass918
+   procedure Test_Language_Model_Token_Cursor_Aggregate_Component_Reserved_Boundary_Recovery
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
       pragma Unreferenced (T);
       Source : constant String :=
@@ -45998,10 +46423,10 @@ package body Editor.Syntax_Semantics.Tests is
       Assert (Editor.Ada_Token_Cursor.Has_Production
                 (Grammar, Editor.Ada_Token_Cursor.Production_Recovery_Point),
               "aggregate component reserved-boundary recovery must preserve generic recovery metadata");
-   end Test_Language_Model_Token_Cursor_Aggregate_Component_Reserved_Boundary_Recovery_Pass918;
+   end Test_Language_Model_Token_Cursor_Aggregate_Component_Reserved_Boundary_Recovery;
 
 
-   procedure Test_Language_Model_Token_Cursor_Object_Initialization_Reserved_Boundary_Recovery_Pass919
+   procedure Test_Language_Model_Token_Cursor_Object_Initialization_Reserved_Boundary_Recovery
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
       pragma Unreferenced (T);
       Source : constant String :=
@@ -46028,13 +46453,13 @@ package body Editor.Syntax_Semantics.Tests is
       Assert (Editor.Ada_Token_Cursor.Has_Production
                 (Grammar, Editor.Ada_Token_Cursor.Production_Recovery_Point),
               "object initializer reserved-boundary recovery must preserve generic recovery metadata");
-   end Test_Language_Model_Token_Cursor_Object_Initialization_Reserved_Boundary_Recovery_Pass919;
+   end Test_Language_Model_Token_Cursor_Object_Initialization_Reserved_Boundary_Recovery;
 
 
 
 
 
-   procedure Test_Language_Model_Token_Cursor_Range_Constraint_Reserved_Boundary_Recovery_Pass920
+   procedure Test_Language_Model_Token_Cursor_Range_Constraint_Reserved_Boundary_Recovery
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
       pragma Unreferenced (T);
       Source : constant String :=
@@ -46067,10 +46492,10 @@ package body Editor.Syntax_Semantics.Tests is
       Assert (Editor.Ada_Token_Cursor.Has_Production
                 (Grammar, Editor.Ada_Token_Cursor.Production_Constraint_Recovery_Boundary),
               "range reserved-boundary recovery must preserve constraint recovery metadata");
-   end Test_Language_Model_Token_Cursor_Range_Constraint_Reserved_Boundary_Recovery_Pass920;
+   end Test_Language_Model_Token_Cursor_Range_Constraint_Reserved_Boundary_Recovery;
 
 
-   procedure Test_Language_Model_Token_Cursor_Digits_Delta_Reserved_Boundary_Recovery_Pass921
+   procedure Test_Language_Model_Token_Cursor_Digits_Delta_Reserved_Boundary_Recovery
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
       pragma Unreferenced (T);
       Source : constant String :=
@@ -46107,9 +46532,9 @@ package body Editor.Syntax_Semantics.Tests is
       Assert (Editor.Ada_Token_Cursor.Has_Production
                 (Grammar, Editor.Ada_Token_Cursor.Production_Digits_Constraint_Expression),
               "valid following digits constraint expressions must remain visible after recovery");
-   end Test_Language_Model_Token_Cursor_Digits_Delta_Reserved_Boundary_Recovery_Pass921;
+   end Test_Language_Model_Token_Cursor_Digits_Delta_Reserved_Boundary_Recovery;
 
-   procedure Test_Language_Model_Token_Cursor_Index_Discriminant_Constraint_Reserved_Boundary_Recovery_Pass922
+   procedure Test_Language_Model_Token_Cursor_Index_Discriminant_Constraint_Reserved_Boundary_Recovery
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
       pragma Unreferenced (T);
       Source : constant String :=
@@ -46156,10 +46581,10 @@ package body Editor.Syntax_Semantics.Tests is
       Assert (Editor.Ada_Token_Cursor.Has_Production
                 (Grammar, Editor.Ada_Token_Cursor.Production_Constraint_Recovery_Boundary),
               "index/discriminant reserved-boundary recovery must preserve constraint recovery metadata");
-   end Test_Language_Model_Token_Cursor_Index_Discriminant_Constraint_Reserved_Boundary_Recovery_Pass922;
+   end Test_Language_Model_Token_Cursor_Index_Discriminant_Constraint_Reserved_Boundary_Recovery;
 
 
-   procedure Test_Language_Model_Token_Cursor_Profile_Default_Reserved_Boundary_Recovery_Pass923
+   procedure Test_Language_Model_Token_Cursor_Profile_Default_Reserved_Boundary_Recovery
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
       pragma Unreferenced (T);
       Source : constant String :=
@@ -46188,10 +46613,10 @@ package body Editor.Syntax_Semantics.Tests is
       Assert (Editor.Ada_Token_Cursor.Has_Production
                 (Grammar, Editor.Ada_Token_Cursor.Production_Subprogram_Declaration_Terminator),
               "following subprogram declaration terminators must remain visible after recovery");
-   end Test_Language_Model_Token_Cursor_Profile_Default_Reserved_Boundary_Recovery_Pass923;
+   end Test_Language_Model_Token_Cursor_Profile_Default_Reserved_Boundary_Recovery;
 
 
-   procedure Test_Language_Model_Token_Cursor_Object_Subtype_Reserved_Boundary_Recovery_Pass924
+   procedure Test_Language_Model_Token_Cursor_Object_Subtype_Reserved_Boundary_Recovery
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
       pragma Unreferenced (T);
       Source : constant String :=
@@ -46219,13 +46644,13 @@ package body Editor.Syntax_Semantics.Tests is
       Assert (Editor.Ada_Token_Cursor.Has_Production
                 (Grammar, Editor.Ada_Token_Cursor.Production_Object_Initialization_Expression),
               "valid following object initializers must remain visible after recovery");
-   end Test_Language_Model_Token_Cursor_Object_Subtype_Reserved_Boundary_Recovery_Pass924;
+   end Test_Language_Model_Token_Cursor_Object_Subtype_Reserved_Boundary_Recovery;
 
 
 
 
 
-   procedure Test_Language_Model_Token_Cursor_Number_Initialization_Reserved_Boundary_Recovery_Pass925
+   procedure Test_Language_Model_Token_Cursor_Number_Initialization_Reserved_Boundary_Recovery
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
       pragma Unreferenced (T);
       Source : constant String :=
@@ -46253,12 +46678,12 @@ package body Editor.Syntax_Semantics.Tests is
       Assert (Editor.Ada_Token_Cursor.Has_Production
                 (Grammar, Editor.Ada_Token_Cursor.Production_Number_Initialization_Expression),
               "valid following number initialization expressions must remain visible after recovery");
-   end Test_Language_Model_Token_Cursor_Number_Initialization_Reserved_Boundary_Recovery_Pass925;
+   end Test_Language_Model_Token_Cursor_Number_Initialization_Reserved_Boundary_Recovery;
 
 
 
 
-   procedure Test_Language_Model_Token_Cursor_Component_Default_Reserved_Boundary_Recovery_Pass926
+   procedure Test_Language_Model_Token_Cursor_Component_Default_Reserved_Boundary_Recovery
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
       pragma Unreferenced (T);
       Source : constant String :=
@@ -46285,11 +46710,11 @@ package body Editor.Syntax_Semantics.Tests is
       Assert (Editor.Ada_Token_Cursor.Has_Production
                 (Grammar, Editor.Ada_Token_Cursor.Production_Component_Default_Expression),
               "valid following component default expressions must remain visible after recovery");
-   end Test_Language_Model_Token_Cursor_Component_Default_Reserved_Boundary_Recovery_Pass926;
+   end Test_Language_Model_Token_Cursor_Component_Default_Reserved_Boundary_Recovery;
 
 
 
-   procedure Test_Language_Model_Token_Cursor_Discriminant_Default_Reserved_Boundary_Recovery_Pass927
+   procedure Test_Language_Model_Token_Cursor_Discriminant_Default_Reserved_Boundary_Recovery
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
       pragma Unreferenced (T);
       Source : constant String :=
@@ -46317,12 +46742,12 @@ package body Editor.Syntax_Semantics.Tests is
       Assert (Editor.Ada_Token_Cursor.Has_Production
                 (Grammar, Editor.Ada_Token_Cursor.Production_Discriminant_Default_Expression),
               "valid following discriminant default expressions must remain visible after recovery");
-   end Test_Language_Model_Token_Cursor_Discriminant_Default_Reserved_Boundary_Recovery_Pass927;
+   end Test_Language_Model_Token_Cursor_Discriminant_Default_Reserved_Boundary_Recovery;
 
 
 
 
-   procedure Test_Language_Model_Token_Cursor_Array_Index_Reserved_Boundary_Recovery_Pass928
+   procedure Test_Language_Model_Token_Cursor_Array_Index_Reserved_Boundary_Recovery
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
       pragma Unreferenced (T);
       Source : constant String :=
@@ -46347,7 +46772,7 @@ package body Editor.Syntax_Semantics.Tests is
       Assert (Editor.Ada_Token_Cursor.Has_Production
                 (Grammar, Editor.Ada_Token_Cursor.Production_Range_Upper_Bound),
               "valid following array index upper bounds must remain visible after recovery");
-   end Test_Language_Model_Token_Cursor_Array_Index_Reserved_Boundary_Recovery_Pass928;
+   end Test_Language_Model_Token_Cursor_Array_Index_Reserved_Boundary_Recovery;
    procedure Test_Language_Model_Token_Cursor_Qualified_Expression_Part_Grammar_Completeness
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
       pragma Unreferenced (T);
@@ -46407,7 +46832,7 @@ package body Editor.Syntax_Semantics.Tests is
 
 
 
-   procedure Test_Language_Model_Token_Cursor_Qualified_Expression_Delimiters_Pass830
+   procedure Test_Language_Model_Token_Cursor_Qualified_Expression_Delimiters
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
       pragma Unreferenced (T);
       Source : constant String :=
@@ -46441,7 +46866,7 @@ package body Editor.Syntax_Semantics.Tests is
       Assert (Editor.Ada_Token_Cursor.Has_Production
                 (Grammar, Editor.Ada_Token_Cursor.Production_Object_Declaration_Terminator),
               "qualified-expression recovery must leave following object declaration terminators available");
-   end Test_Language_Model_Token_Cursor_Qualified_Expression_Delimiters_Pass830;
+   end Test_Language_Model_Token_Cursor_Qualified_Expression_Delimiters;
 
 
 
@@ -46452,7 +46877,7 @@ package body Editor.Syntax_Semantics.Tests is
 
 
 
-   procedure Test_Language_Model_Token_Cursor_Parenthesized_Expression_Delimiters_Pass831
+   procedure Test_Language_Model_Token_Cursor_Parenthesized_Expression_Delimiters
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
       pragma Unreferenced (T);
       Source : constant String :=
@@ -46484,8 +46909,8 @@ package body Editor.Syntax_Semantics.Tests is
       Assert (Editor.Ada_Token_Cursor.Has_Production
                 (Grammar, Editor.Ada_Token_Cursor.Production_Object_Declaration_Terminator),
               "parenthesized-expression recovery must leave following declaration terminators available");
-   end Test_Language_Model_Token_Cursor_Parenthesized_Expression_Delimiters_Pass831;
-   procedure Test_Language_Model_Token_Cursor_Discrete_Choice_List_Separators_Pass832
+   end Test_Language_Model_Token_Cursor_Parenthesized_Expression_Delimiters;
+   procedure Test_Language_Model_Token_Cursor_Discrete_Choice_List_Separators
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
       pragma Unreferenced (T);
       Source : constant String :=
@@ -46514,13 +46939,13 @@ package body Editor.Syntax_Semantics.Tests is
       Assert (Editor.Ada_Token_Cursor.Has_Production
                 (Grammar, Editor.Ada_Token_Cursor.Production_Case_Alternative_Arrow),
               "discrete choice recovery must leave the following case alternative arrow available");
-   end Test_Language_Model_Token_Cursor_Discrete_Choice_List_Separators_Pass832;
+   end Test_Language_Model_Token_Cursor_Discrete_Choice_List_Separators;
 
 
 
 
 
-   procedure Test_Language_Model_Token_Cursor_Enumeration_Type_Delimiters_Pass833
+   procedure Test_Language_Model_Token_Cursor_Enumeration_Type_Delimiters
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
       pragma Unreferenced (T);
       Source : constant String :=
@@ -46551,11 +46976,11 @@ package body Editor.Syntax_Semantics.Tests is
       Assert (Editor.Ada_Token_Cursor.Has_Production
                 (Grammar, Editor.Ada_Token_Cursor.Production_Object_Declaration),
               "enumeration type recovery must leave following declarations visible");
-   end Test_Language_Model_Token_Cursor_Enumeration_Type_Delimiters_Pass833;
+   end Test_Language_Model_Token_Cursor_Enumeration_Type_Delimiters;
 
 
 
-   procedure Test_Language_Model_Token_Cursor_Digits_Delta_Constraint_Expressions_Pass834
+   procedure Test_Language_Model_Token_Cursor_Digits_Delta_Constraint_Expressions
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
       pragma Unreferenced (T);
       Source : constant String :=
@@ -46592,12 +47017,12 @@ package body Editor.Syntax_Semantics.Tests is
       Assert (Editor.Ada_Token_Cursor.Has_Production
                 (Grammar, Editor.Ada_Token_Cursor.Production_Object_Declaration),
               "digits/delta constraint recovery must leave following declarations visible");
-   end Test_Language_Model_Token_Cursor_Digits_Delta_Constraint_Expressions_Pass834;
+   end Test_Language_Model_Token_Cursor_Digits_Delta_Constraint_Expressions;
 
 
 
 
-   procedure Test_Language_Model_Token_Cursor_Range_Constraint_Bounds_Pass835
+   procedure Test_Language_Model_Token_Cursor_Range_Constraint_Bounds
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
       pragma Unreferenced (T);
       Source : constant String :=
@@ -46632,11 +47057,11 @@ package body Editor.Syntax_Semantics.Tests is
       Assert (Editor.Ada_Token_Cursor.Has_Production
                 (Grammar, Editor.Ada_Token_Cursor.Production_Object_Declaration),
               "range-constraint recovery must leave following declarations visible");
-   end Test_Language_Model_Token_Cursor_Range_Constraint_Bounds_Pass835;
+   end Test_Language_Model_Token_Cursor_Range_Constraint_Bounds;
 
 
 
-   procedure Test_Language_Model_Token_Cursor_Attribute_Argument_Delimiters_Pass836
+   procedure Test_Language_Model_Token_Cursor_Attribute_Argument_Delimiters
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
       pragma Unreferenced (T);
       Source : constant String :=
@@ -46672,12 +47097,12 @@ package body Editor.Syntax_Semantics.Tests is
       Assert (Editor.Ada_Token_Cursor.Has_Production
                 (Grammar, Editor.Ada_Token_Cursor.Production_Object_Declaration),
               "attribute-argument recovery must leave following declarations visible");
-   end Test_Language_Model_Token_Cursor_Attribute_Argument_Delimiters_Pass836;
+   end Test_Language_Model_Token_Cursor_Attribute_Argument_Delimiters;
 
 
 
 
-   procedure Test_Language_Model_Token_Cursor_Membership_Choice_List_Separators_Pass837
+   procedure Test_Language_Model_Token_Cursor_Membership_Choice_List_Separators
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
       pragma Unreferenced (T);
       Source : constant String :=
@@ -46706,10 +47131,10 @@ package body Editor.Syntax_Semantics.Tests is
       Assert (Editor.Ada_Token_Cursor.Has_Production
                 (Grammar, Editor.Ada_Token_Cursor.Production_Object_Declaration),
               "membership-choice recovery must leave following declarations visible");
-   end Test_Language_Model_Token_Cursor_Membership_Choice_List_Separators_Pass837;
+   end Test_Language_Model_Token_Cursor_Membership_Choice_List_Separators;
 
 
-   procedure Test_Language_Model_Token_Cursor_Case_Expression_Alternative_Separators_Pass838
+   procedure Test_Language_Model_Token_Cursor_Case_Expression_Alternative_Separators
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
       pragma Unreferenced (T);
       Source : constant String :=
@@ -46737,7 +47162,7 @@ package body Editor.Syntax_Semantics.Tests is
       Assert (Editor.Ada_Token_Cursor.Has_Production
                 (Grammar, Editor.Ada_Token_Cursor.Production_Object_Declaration),
               "case-expression recovery must leave following declarations visible");
-   end Test_Language_Model_Token_Cursor_Case_Expression_Alternative_Separators_Pass838;
+   end Test_Language_Model_Token_Cursor_Case_Expression_Alternative_Separators;
 
 
    procedure Test_Language_Model_Token_Cursor_Name_Grammar_Refinement_Completeness
@@ -46807,7 +47232,7 @@ package body Editor.Syntax_Semantics.Tests is
    end Test_Language_Model_Token_Cursor_Name_Grammar_Refinement_Completeness;
 
 
-   procedure Test_Language_Model_Token_Cursor_Selected_Name_Missing_Selector_Recovery_Pass842
+   procedure Test_Language_Model_Token_Cursor_Selected_Name_Missing_Selector_Recovery
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
       pragma Unreferenced (T);
       Source : constant String :=
@@ -46831,10 +47256,10 @@ package body Editor.Syntax_Semantics.Tests is
       Assert (Editor.Ada_Token_Cursor.Has_Production
                 (Grammar, Editor.Ada_Token_Cursor.Production_Object_Declaration),
               "selected-name missing-selector recovery must leave following declarations visible");
-   end Test_Language_Model_Token_Cursor_Selected_Name_Missing_Selector_Recovery_Pass842;
+   end Test_Language_Model_Token_Cursor_Selected_Name_Missing_Selector_Recovery;
 
 
-   procedure Test_Language_Model_Token_Cursor_Delta_Aggregate_Keyword_Recovery_Pass843
+   procedure Test_Language_Model_Token_Cursor_Delta_Aggregate_Keyword_Recovery
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
       pragma Unreferenced (T);
       Source : constant String :=
@@ -46868,10 +47293,10 @@ package body Editor.Syntax_Semantics.Tests is
       Assert (Editor.Ada_Token_Cursor.Has_Production
                 (Grammar, Editor.Ada_Token_Cursor.Production_Object_Declaration),
               "delta aggregate recovery must leave following declarations visible");
-   end Test_Language_Model_Token_Cursor_Delta_Aggregate_Keyword_Recovery_Pass843;
+   end Test_Language_Model_Token_Cursor_Delta_Aggregate_Keyword_Recovery;
 
 
-   procedure Test_Language_Model_Token_Cursor_Extension_Aggregate_Keyword_Recovery_Pass844
+   procedure Test_Language_Model_Token_Cursor_Extension_Aggregate_Keyword_Recovery
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
       pragma Unreferenced (T);
       Source : constant String :=
@@ -46908,10 +47333,10 @@ package body Editor.Syntax_Semantics.Tests is
       Assert (Editor.Ada_Token_Cursor.Has_Production
                 (Grammar, Editor.Ada_Token_Cursor.Production_Object_Declaration),
               "extension aggregate recovery must leave following declarations visible");
-   end Test_Language_Model_Token_Cursor_Extension_Aggregate_Keyword_Recovery_Pass844;
+   end Test_Language_Model_Token_Cursor_Extension_Aggregate_Keyword_Recovery;
 
 
-   procedure Test_Language_Model_Token_Cursor_Null_Record_Aggregate_Keyword_Recovery_Pass845
+   procedure Test_Language_Model_Token_Cursor_Null_Record_Aggregate_Keyword_Recovery
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
       pragma Unreferenced (T);
       Source : constant String :=
@@ -46942,9 +47367,9 @@ package body Editor.Syntax_Semantics.Tests is
       Assert (Editor.Ada_Token_Cursor.Has_Production
                 (Grammar, Editor.Ada_Token_Cursor.Production_Object_Declaration),
               "null-record aggregate recovery must leave following declarations visible");
-   end Test_Language_Model_Token_Cursor_Null_Record_Aggregate_Keyword_Recovery_Pass845;
+   end Test_Language_Model_Token_Cursor_Null_Record_Aggregate_Keyword_Recovery;
 
-   procedure Test_Language_Model_Token_Cursor_Iterated_Component_Arrow_Recovery_Pass846
+   procedure Test_Language_Model_Token_Cursor_Iterated_Component_Arrow_Recovery
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
       pragma Unreferenced (T);
       Source : constant String :=
@@ -46979,10 +47404,10 @@ package body Editor.Syntax_Semantics.Tests is
       Assert (Editor.Ada_Token_Cursor.Has_Production
                 (Grammar, Editor.Ada_Token_Cursor.Production_Object_Declaration),
               "iterated component recovery must leave following declarations visible");
-   end Test_Language_Model_Token_Cursor_Iterated_Component_Arrow_Recovery_Pass846;
+   end Test_Language_Model_Token_Cursor_Iterated_Component_Arrow_Recovery;
 
 
-   procedure Test_Language_Model_Token_Cursor_Iterated_Component_Domain_Recovery_Pass847
+   procedure Test_Language_Model_Token_Cursor_Iterated_Component_Domain_Recovery
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
       pragma Unreferenced (T);
       Source : constant String :=
@@ -47016,10 +47441,10 @@ package body Editor.Syntax_Semantics.Tests is
       Assert (Editor.Ada_Token_Cursor.Has_Production
                 (Grammar, Editor.Ada_Token_Cursor.Production_Object_Declaration),
               "iterated component domain recovery must leave following declarations visible");
-   end Test_Language_Model_Token_Cursor_Iterated_Component_Domain_Recovery_Pass847;
+   end Test_Language_Model_Token_Cursor_Iterated_Component_Domain_Recovery;
 
 
-   procedure Test_Language_Model_Token_Cursor_Loop_Iteration_Domain_Recovery_Pass848
+   procedure Test_Language_Model_Token_Cursor_Loop_Iteration_Domain_Recovery
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
       pragma Unreferenced (T);
       Source : constant String :=
@@ -47063,10 +47488,10 @@ package body Editor.Syntax_Semantics.Tests is
       Assert (Editor.Ada_Token_Cursor.Has_Production
                 (Grammar, Editor.Ada_Token_Cursor.Production_Call_Statement),
               "loop domain recovery must leave following statements visible");
-   end Test_Language_Model_Token_Cursor_Loop_Iteration_Domain_Recovery_Pass848;
+   end Test_Language_Model_Token_Cursor_Loop_Iteration_Domain_Recovery;
 
 
-   procedure Test_Language_Model_Token_Cursor_Iterator_Filter_Condition_Recovery_Pass849
+   procedure Test_Language_Model_Token_Cursor_Iterator_Filter_Condition_Recovery
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
       pragma Unreferenced (T);
       Source : constant String :=
@@ -47121,9 +47546,9 @@ package body Editor.Syntax_Semantics.Tests is
       Assert (Editor.Ada_Token_Cursor.Has_Production
                 (Grammar, Editor.Ada_Token_Cursor.Production_Object_Declaration),
               "filter-condition recovery must leave following declarations visible");
-   end Test_Language_Model_Token_Cursor_Iterator_Filter_Condition_Recovery_Pass849;
+   end Test_Language_Model_Token_Cursor_Iterator_Filter_Condition_Recovery;
 
-   procedure Test_Language_Model_Token_Cursor_Exit_When_Condition_Recovery_Pass850
+   procedure Test_Language_Model_Token_Cursor_Exit_When_Condition_Recovery
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
       pragma Unreferenced (T);
       Source : constant String :=
@@ -47158,10 +47583,10 @@ package body Editor.Syntax_Semantics.Tests is
       Assert (Editor.Ada_Token_Cursor.Has_Production
                 (Grammar, Editor.Ada_Token_Cursor.Production_Call_Statement),
               "exit-when condition recovery must leave following statements visible");
-   end Test_Language_Model_Token_Cursor_Exit_When_Condition_Recovery_Pass850;
+   end Test_Language_Model_Token_Cursor_Exit_When_Condition_Recovery;
 
 
-   procedure Test_Language_Model_Token_Cursor_Delay_Expression_Recovery_Pass851
+   procedure Test_Language_Model_Token_Cursor_Delay_Expression_Recovery
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
       pragma Unreferenced (T);
       Source : constant String :=
@@ -47202,10 +47627,10 @@ package body Editor.Syntax_Semantics.Tests is
       Assert (Editor.Ada_Token_Cursor.Has_Production
                 (Grammar, Editor.Ada_Token_Cursor.Production_Call_Statement),
               "delay expression recovery must leave following statements visible");
-   end Test_Language_Model_Token_Cursor_Delay_Expression_Recovery_Pass851;
+   end Test_Language_Model_Token_Cursor_Delay_Expression_Recovery;
 
 
-   procedure Test_Language_Model_Token_Cursor_Requeue_Terminator_Recovery_Pass852
+   procedure Test_Language_Model_Token_Cursor_Requeue_Terminator_Recovery
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
       pragma Unreferenced (T);
       Source : constant String :=
@@ -47246,10 +47671,10 @@ package body Editor.Syntax_Semantics.Tests is
       Assert (Editor.Ada_Token_Cursor.Has_Production
                 (Grammar, Editor.Ada_Token_Cursor.Production_Call_Statement),
               "requeue terminator recovery must leave following statements visible");
-   end Test_Language_Model_Token_Cursor_Requeue_Terminator_Recovery_Pass852;
+   end Test_Language_Model_Token_Cursor_Requeue_Terminator_Recovery;
 
 
-   procedure Test_Language_Model_Token_Cursor_Requeue_Target_Recovery_Pass864
+   procedure Test_Language_Model_Token_Cursor_Requeue_Target_Recovery
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
       pragma Unreferenced (T);
       Source : constant String :=
@@ -47290,10 +47715,10 @@ package body Editor.Syntax_Semantics.Tests is
       Assert (Editor.Ada_Token_Cursor.Has_Production
                 (Grammar, Editor.Ada_Token_Cursor.Production_Call_Statement),
               "requeue target recovery must leave following statements visible");
-   end Test_Language_Model_Token_Cursor_Requeue_Target_Recovery_Pass864;
+   end Test_Language_Model_Token_Cursor_Requeue_Target_Recovery;
 
 
-   procedure Test_Language_Model_Token_Cursor_Accept_Terminator_Recovery_Pass853
+   procedure Test_Language_Model_Token_Cursor_Accept_Terminator_Recovery
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
       pragma Unreferenced (T);
       Source : constant String :=
@@ -47334,10 +47759,10 @@ package body Editor.Syntax_Semantics.Tests is
       Assert (Editor.Ada_Token_Cursor.Has_Production
                 (Grammar, Editor.Ada_Token_Cursor.Production_Call_Statement),
               "accept terminator recovery must leave following statements visible");
-   end Test_Language_Model_Token_Cursor_Accept_Terminator_Recovery_Pass853;
+   end Test_Language_Model_Token_Cursor_Accept_Terminator_Recovery;
 
 
-   procedure Test_Language_Model_Token_Cursor_Accept_Entry_Name_Recovery_Pass863
+   procedure Test_Language_Model_Token_Cursor_Accept_Entry_Name_Recovery
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
       pragma Unreferenced (T);
       Source : constant String :=
@@ -47372,10 +47797,10 @@ package body Editor.Syntax_Semantics.Tests is
       Assert (Editor.Ada_Token_Cursor.Has_Production
                 (Grammar, Editor.Ada_Token_Cursor.Production_Call_Statement),
               "accept missing-name recovery must leave following statements visible");
-   end Test_Language_Model_Token_Cursor_Accept_Entry_Name_Recovery_Pass863;
+   end Test_Language_Model_Token_Cursor_Accept_Entry_Name_Recovery;
 
 
-   procedure Test_Language_Model_Token_Cursor_Select_Guard_Condition_Recovery_Pass854
+   procedure Test_Language_Model_Token_Cursor_Select_Guard_Condition_Recovery
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
       pragma Unreferenced (T);
       Source : constant String :=
@@ -47414,7 +47839,7 @@ package body Editor.Syntax_Semantics.Tests is
       Assert (Editor.Ada_Token_Cursor.Has_Production
                 (Grammar, Editor.Ada_Token_Cursor.Production_Call_Statement),
               "select guard condition recovery must leave following statements visible");
-   end Test_Language_Model_Token_Cursor_Select_Guard_Condition_Recovery_Pass854;
+   end Test_Language_Model_Token_Cursor_Select_Guard_Condition_Recovery;
 
 
    procedure Test_Language_Model_Token_Cursor_Extension_Aggregate_Grammar_Completeness
@@ -48638,7 +49063,7 @@ package body Editor.Syntax_Semantics.Tests is
 
 
 
-   procedure Test_Language_Model_Legality_Call_Positional_After_Named_Pass772
+   procedure Test_Language_Model_Legality_Call_Positional_After_Named
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
       pragma Unreferenced (T);
       use type Editor.Ada_Language_Model.Legality_Diagnostic_Kind;
@@ -48668,10 +49093,10 @@ package body Editor.Syntax_Semantics.Tests is
 
       Assert (Seen,
               "calls with a positional actual after a named actual should produce a bounded local diagnostic");
-   end Test_Language_Model_Legality_Call_Positional_After_Named_Pass772;
+   end Test_Language_Model_Legality_Call_Positional_After_Named;
 
 
-   procedure Test_Syntax_Semantics_New_Metadata_Consumers_Pass761
+   procedure Test_Syntax_Semantics_New_Metadata_Consumers
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
       pragma Unreferenced (T);
       Analysis : Editor.Ada_Language_Model.Analysis_Result;
@@ -48793,10 +49218,10 @@ package body Editor.Syntax_Semantics.Tests is
       Assert (Editor.Syntax_Semantics.Kind_For_Identifier (Map, "Volatile") =
               Editor.Syntax.Aspect_Name,
               "aspect-source representation metadata should feed the aspect colouring bucket");
-   end Test_Syntax_Semantics_New_Metadata_Consumers_Pass761;
+   end Test_Syntax_Semantics_New_Metadata_Consumers;
 
 
-   procedure Test_Syntax_Semantics_Metadata_Does_Not_Downgrade_Symbols_Pass771
+   procedure Test_Syntax_Semantics_Metadata_Does_Not_Downgrade_Symbols
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
       pragma Unreferenced (T);
       Analysis : Editor.Ada_Language_Model.Analysis_Result;
@@ -48868,9 +49293,9 @@ package body Editor.Syntax_Semantics.Tests is
         (Editor.Syntax_Semantics.Kind_For_Identifier (Map, "Inline") =
            Editor.Syntax.Subprogram_Identifier,
          "pragma-name metadata must not replace an existing subprogram symbol with a pragma bucket");
-   end Test_Syntax_Semantics_Metadata_Does_Not_Downgrade_Symbols_Pass771;
+   end Test_Syntax_Semantics_Metadata_Does_Not_Downgrade_Symbols;
 
-   procedure Test_Syntax_Semantics_Recovered_Metadata_Suppressed_Pass891
+   procedure Test_Syntax_Semantics_Recovered_Metadata_Suppressed
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
       pragma Unreferenced (T);
       Analysis : Editor.Ada_Language_Model.Analysis_Result;
@@ -48928,9 +49353,9 @@ package body Editor.Syntax_Semantics.Tests is
         (Editor.Syntax_Semantics.Kind_For_Identifier (Map, "Real_Type") =
            Editor.Syntax.Type_Identifier,
          "resolved executable bindings must still retain concrete semantic colouring");
-   end Test_Syntax_Semantics_Recovered_Metadata_Suppressed_Pass891;
+   end Test_Syntax_Semantics_Recovered_Metadata_Suppressed;
 
-   procedure Test_Ada_Static_Expression_Foundation_Pass960
+   procedure Test_Ada_Static_Expression_Foundation
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
       use type Editor.Ada_Static_Expressions.Static_Value_Status;
       pragma Unreferenced (T);
@@ -48986,12 +49411,12 @@ package body Editor.Syntax_Semantics.Tests is
               "static expression model must retain unresolved named static references for diagnostics");
       Assert (Editor.Ada_Static_Expressions.Fingerprint (Statics) /= 0,
               "static expression model must retain deterministic fingerprints");
-   end Test_Ada_Static_Expression_Foundation_Pass960;
+   end Test_Ada_Static_Expression_Foundation;
 
 
 
 
-   procedure Test_Ada_Static_Attribute_Expression_Foundation_Pass961
+   procedure Test_Ada_Static_Attribute_Expression_Foundation
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
       use type Editor.Ada_Static_Expressions.Static_Value_Status;
       pragma Unreferenced (T);
@@ -49079,9 +49504,9 @@ package body Editor.Syntax_Semantics.Tests is
               "static evaluator must retain unsupported attributes without treating them as unresolved names");
       Assert (Editor.Ada_Static_Expressions.Fingerprint (Statics) /= 0,
               "static attribute model must retain deterministic fingerprints");
-   end Test_Ada_Static_Attribute_Expression_Foundation_Pass961;
+   end Test_Ada_Static_Attribute_Expression_Foundation;
 
-   procedure Test_Ada_Static_Enumeration_Position_Foundation_Pass962
+   procedure Test_Ada_Static_Enumeration_Position_Foundation
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
       use type Editor.Ada_Static_Expressions.Static_Value_Status;
       pragma Unreferenced (T);
@@ -49159,10 +49584,10 @@ package body Editor.Syntax_Semantics.Tests is
               "static evaluator must preserve unresolved enumeration Pos operands");
       Assert (Editor.Ada_Static_Expressions.Fingerprint (Statics) /= 0,
               "static enumeration-position model must retain deterministic fingerprints");
-   end Test_Ada_Static_Enumeration_Position_Foundation_Pass962;
+   end Test_Ada_Static_Enumeration_Position_Foundation;
 
 
-   procedure Test_Ada_Static_Modular_Integer_Foundation_Pass963
+   procedure Test_Ada_Static_Modular_Integer_Foundation
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
       use type Editor.Ada_Static_Expressions.Static_Value_Status;
       use type Editor.Ada_Static_Expressions.Static_Modular_Type_Id;
@@ -49218,10 +49643,10 @@ package body Editor.Syntax_Semantics.Tests is
               "static modular reduction must retain unresolved modular type names for diagnostics");
       Assert (Editor.Ada_Static_Expressions.Fingerprint (Statics) /= 0,
               "static modular model must retain deterministic fingerprints");
-   end Test_Ada_Static_Modular_Integer_Foundation_Pass963;
+   end Test_Ada_Static_Modular_Integer_Foundation;
 
 
-   procedure Test_Ada_Static_Real_Numeric_Foundation_Pass964
+   procedure Test_Ada_Static_Real_Numeric_Foundation
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
       use type Editor.Ada_Static_Expressions.Static_Value_Status;
       pragma Unreferenced (T);
@@ -49280,10 +49705,10 @@ package body Editor.Syntax_Semantics.Tests is
               "static expression predicates must classify real numeric values");
       Assert (Editor.Ada_Static_Expressions.Fingerprint (Statics) /= 0,
               "static real arithmetic model must retain deterministic fingerprints");
-   end Test_Ada_Static_Real_Numeric_Foundation_Pass964;
+   end Test_Ada_Static_Real_Numeric_Foundation;
 
 
-   procedure Test_Ada_Static_Fixed_Point_Foundation_Pass965
+   procedure Test_Ada_Static_Fixed_Point_Foundation
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
       use type Editor.Ada_Static_Expressions.Static_Value_Status;
       use type Editor.Ada_Static_Expressions.Static_Fixed_Type_Id;
@@ -49345,10 +49770,10 @@ package body Editor.Syntax_Semantics.Tests is
               "fixed-point static values must participate in numeric static predicates");
       Assert (Editor.Ada_Static_Expressions.Fingerprint (Statics) /= 0,
               "static fixed-point model must retain deterministic fingerprints");
-   end Test_Ada_Static_Fixed_Point_Foundation_Pass965;
+   end Test_Ada_Static_Fixed_Point_Foundation;
 
 
-   procedure Test_Ada_Generic_Contract_Foundation_Pass966
+   procedure Test_Ada_Generic_Contract_Foundation
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
       use type Editor.Ada_Generic_Contracts.Generic_Formal_Kind;
       use type Editor.Ada_Generic_Contracts.Generic_Instance_Status;
@@ -49424,10 +49849,10 @@ package body Editor.Syntax_Semantics.Tests is
               "generic contract model must stage positional and named instantiation actuals");
       Assert (Editor.Ada_Generic_Contracts.Fingerprint (Contracts) /= 0,
               "generic contract model must retain deterministic fingerprints");
-   end Test_Ada_Generic_Contract_Foundation_Pass966;
+   end Test_Ada_Generic_Contract_Foundation;
 
 
-   procedure Test_Ada_Generic_Actual_Matching_Foundation_Pass967
+   procedure Test_Ada_Generic_Actual_Matching_Foundation
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
       use type Editor.Ada_Generic_Contracts.Generic_Actual_Match_Status;
       use type Editor.Ada_Generic_Contracts.Generic_Formal_Kind;
@@ -49490,9 +49915,9 @@ package body Editor.Syntax_Semantics.Tests is
               "instances missing non-defaulted formals must retain deterministic mismatch metadata");
       Assert (Saw_Unknown,
               "unknown named generic actuals must be classified before deeper conformance checks");
-   end Test_Ada_Generic_Actual_Matching_Foundation_Pass967;
+   end Test_Ada_Generic_Actual_Matching_Foundation;
 
-   procedure Test_Ada_Generic_Formal_Actual_Kind_Conformance_Pass968
+   procedure Test_Ada_Generic_Formal_Actual_Kind_Conformance
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
       use type Editor.Ada_Generic_Contracts.Generic_Actual_Match_Status;
       pragma Unreferenced (T);
@@ -49553,12 +49978,12 @@ package body Editor.Syntax_Semantics.Tests is
               "generic actual kind conformance must classify formal-kind mismatches deterministically");
       Assert (Editor.Ada_Generic_Contracts.Fingerprint (Contracts) /= 0,
               "generic formal-kind conformance must retain deterministic fingerprints");
-   end Test_Ada_Generic_Formal_Actual_Kind_Conformance_Pass968;
+   end Test_Ada_Generic_Formal_Actual_Kind_Conformance;
 
 
 
 
-   procedure Test_Ada_Generic_Formal_Subprogram_Profile_Conformance_Pass969
+   procedure Test_Ada_Generic_Formal_Subprogram_Profile_Conformance
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
       use type Editor.Ada_Generic_Contracts.Generic_Actual_Match_Status;
       pragma Unreferenced (T);
@@ -49618,11 +50043,11 @@ package body Editor.Syntax_Semantics.Tests is
               "generic formal subprogram conformance must reject arity mismatches deterministically");
       Assert (Saw_Bad_Result,
               "generic formal subprogram conformance must reject result subtype mismatches deterministically");
-   end Test_Ada_Generic_Formal_Subprogram_Profile_Conformance_Pass969;
+   end Test_Ada_Generic_Formal_Subprogram_Profile_Conformance;
 
 
 
-   procedure Test_Ada_Generic_Formal_Package_Contract_Conformance_Pass970
+   procedure Test_Ada_Generic_Formal_Package_Contract_Conformance
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
       use type Editor.Ada_Generic_Contracts.Generic_Actual_Match_Status;
       use type Editor.Ada_Generic_Contracts.Generic_Formal_Kind;
@@ -49728,11 +50153,11 @@ package body Editor.Syntax_Semantics.Tests is
               "generic formal package contracts must preserve unresolved actual metadata deterministically");
       Assert (Editor.Ada_Generic_Contracts.Fingerprint (Contracts) /= 0,
               "generic formal package contract conformance must retain deterministic fingerprints");
-   end Test_Ada_Generic_Formal_Package_Contract_Conformance_Pass970;
+   end Test_Ada_Generic_Formal_Package_Contract_Conformance;
 
 
 
-   procedure Test_Ada_Generic_Body_Contract_Visibility_Pass971
+   procedure Test_Ada_Generic_Body_Contract_Visibility
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
       use type Editor.Ada_Generic_Contracts.Generic_Body_Contract_Visibility_Status;
       use type Editor.Ada_Generic_Contracts.Generic_Formal_Kind;
@@ -49820,10 +50245,10 @@ package body Editor.Syntax_Semantics.Tests is
               "generic body contract visibility must retain body-not-found metadata deterministically");
       Assert (Editor.Ada_Generic_Contracts.Fingerprint (Contracts) /= 0,
               "generic body contract visibility must contribute to deterministic fingerprints");
-   end Test_Ada_Generic_Body_Contract_Visibility_Pass971;
+   end Test_Ada_Generic_Body_Contract_Visibility;
 
 
-   procedure Test_Ada_Generic_Formal_Subprogram_Overload_Selection_Pass972
+   procedure Test_Ada_Generic_Formal_Subprogram_Overload_Selection
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
       use type Editor.Ada_Generic_Contracts.Generic_Actual_Match_Status;
       pragma Unreferenced (T);
@@ -49894,10 +50319,10 @@ package body Editor.Syntax_Semantics.Tests is
               "generic subprogram actual matching must preserve ambiguous conforming overload metadata deterministically");
       Assert (Editor.Ada_Generic_Contracts.Fingerprint (Contracts) /= 0,
               "generic subprogram overload selection must contribute to deterministic fingerprints");
-   end Test_Ada_Generic_Formal_Subprogram_Overload_Selection_Pass972;
+   end Test_Ada_Generic_Formal_Subprogram_Overload_Selection;
 
 
-   procedure Test_Ada_Generic_Default_Expression_Legality_Pass973
+   procedure Test_Ada_Generic_Default_Expression_Legality
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
       use type Editor.Ada_Generic_Contracts.Generic_Actual_Match_Status;
       pragma Unreferenced (T);
@@ -49968,10 +50393,10 @@ package body Editor.Syntax_Semantics.Tests is
               "generic default-expression legality must retain unresolved object actual metadata");
       Assert (Editor.Ada_Generic_Contracts.Fingerprint (Contracts) /= 0,
               "generic default-expression legality must contribute to deterministic fingerprints");
-   end Test_Ada_Generic_Default_Expression_Legality_Pass973;
+   end Test_Ada_Generic_Default_Expression_Legality;
 
 
-   procedure Test_Ada_Generic_Formal_Subprogram_Mode_Conformance_Pass974
+   procedure Test_Ada_Generic_Formal_Subprogram_Mode_Conformance
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
       use type Editor.Ada_Generic_Contracts.Generic_Actual_Match_Status;
       pragma Unreferenced (T);
@@ -50046,10 +50471,10 @@ package body Editor.Syntax_Semantics.Tests is
               "generic formal subprogram mode conformance must reject same-subtype wrong-mode actuals");
       Assert (Editor.Ada_Generic_Contracts.Fingerprint (Contracts) /= 0,
               "generic formal subprogram mode conformance must contribute to deterministic fingerprints");
-   end Test_Ada_Generic_Formal_Subprogram_Mode_Conformance_Pass974;
+   end Test_Ada_Generic_Formal_Subprogram_Mode_Conformance;
 
 
-   procedure Test_Ada_Generic_Formal_Subprogram_Type_Graph_Conformance_Pass975
+   procedure Test_Ada_Generic_Formal_Subprogram_Type_Graph_Conformance
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
       use type Editor.Ada_Generic_Contracts.Generic_Actual_Match_Status;
       pragma Unreferenced (T);
@@ -50124,11 +50549,11 @@ package body Editor.Syntax_Semantics.Tests is
               "type-graph generic subprogram profile conformance must accept known subtype relationships");
       Assert (Editor.Ada_Generic_Contracts.Fingerprint (Contracts) /= 0,
               "type-graph generic profile conformance must contribute to deterministic fingerprints");
-   end Test_Ada_Generic_Formal_Subprogram_Type_Graph_Conformance_Pass975;
+   end Test_Ada_Generic_Formal_Subprogram_Type_Graph_Conformance;
 
 
 
-   procedure Test_Ada_Generic_Formal_Subprogram_Null_Access_Conformance_Pass976
+   procedure Test_Ada_Generic_Formal_Subprogram_Null_Access_Conformance
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
       use type Editor.Ada_Generic_Contracts.Generic_Actual_Match_Status;
       pragma Unreferenced (T);
@@ -50210,11 +50635,11 @@ package body Editor.Syntax_Semantics.Tests is
               "generic formal subprogram conformance must separate access-profile mismatches from generic profile mismatches");
       Assert (Editor.Ada_Generic_Contracts.Fingerprint (Contracts) /= 0,
               "null/access profile conformance must contribute to deterministic fingerprints");
-   end Test_Ada_Generic_Formal_Subprogram_Null_Access_Conformance_Pass976;
+   end Test_Ada_Generic_Formal_Subprogram_Null_Access_Conformance;
 
 
 
-   procedure Test_Ada_Generic_Formal_Subprogram_Convention_Conformance_Pass977
+   procedure Test_Ada_Generic_Formal_Subprogram_Convention_Conformance
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
       use type Editor.Ada_Generic_Contracts.Generic_Actual_Match_Status;
       pragma Unreferenced (T);
@@ -50291,11 +50716,11 @@ package body Editor.Syntax_Semantics.Tests is
               "generic formal subprogram conformance must reject C actuals for default-Ada formals");
       Assert (Editor.Ada_Generic_Contracts.Fingerprint (Contracts) /= 0,
               "subprogram convention conformance must contribute to deterministic fingerprints");
-   end Test_Ada_Generic_Formal_Subprogram_Convention_Conformance_Pass977;
+   end Test_Ada_Generic_Formal_Subprogram_Convention_Conformance;
 
 
 
-   procedure Test_Ada_Generic_Formal_Subprogram_Default_Conformance_Pass978
+   procedure Test_Ada_Generic_Formal_Subprogram_Default_Conformance
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
       use type Editor.Ada_Generic_Contracts.Generic_Actual_Match_Status;
       pragma Unreferenced (T);
@@ -50372,10 +50797,10 @@ package body Editor.Syntax_Semantics.Tests is
               "generic formal subprogram conformance must accept defaulted actual parameters when the formal does not require a default");
       Assert (Editor.Ada_Generic_Contracts.Fingerprint (Contracts) /= 0,
               "defaulted-parameter profile conformance must contribute to deterministic fingerprints");
-   end Test_Ada_Generic_Formal_Subprogram_Default_Conformance_Pass978;
+   end Test_Ada_Generic_Formal_Subprogram_Default_Conformance;
 
 
-   procedure Test_Ada_Generic_Formal_Subprogram_Class_Wide_Conformance_Pass979
+   procedure Test_Ada_Generic_Formal_Subprogram_Class_Wide_Conformance
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
       use type Editor.Ada_Generic_Contracts.Generic_Actual_Match_Status;
       pragma Unreferenced (T);
@@ -50453,10 +50878,10 @@ package body Editor.Syntax_Semantics.Tests is
               "generic formal subprogram conformance must reject class-wide actuals where the formal expects specific controlling profiles");
       Assert (Editor.Ada_Generic_Contracts.Fingerprint (Contracts) /= 0,
               "class-wide profile conformance must contribute to deterministic fingerprints");
-   end Test_Ada_Generic_Formal_Subprogram_Class_Wide_Conformance_Pass979;
+   end Test_Ada_Generic_Formal_Subprogram_Class_Wide_Conformance;
 
 
-   procedure Test_Ada_Generic_Formal_Subprogram_Name_Conformance_Pass980
+   procedure Test_Ada_Generic_Formal_Subprogram_Name_Conformance
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
       use type Editor.Ada_Generic_Contracts.Generic_Actual_Match_Status;
       pragma Unreferenced (T);
@@ -50513,10 +50938,10 @@ package body Editor.Syntax_Semantics.Tests is
               "generic formal subprogram conformance must reject same-shape actuals with nonconforming parameter names");
       Assert (Editor.Ada_Generic_Contracts.Fingerprint (Contracts) /= 0,
               "parameter-name profile conformance must contribute to deterministic fingerprints");
-   end Test_Ada_Generic_Formal_Subprogram_Name_Conformance_Pass980;
+   end Test_Ada_Generic_Formal_Subprogram_Name_Conformance;
 
 
-   procedure Test_Ada_Generic_Formal_Subprogram_Result_Conformance_Pass981
+   procedure Test_Ada_Generic_Formal_Subprogram_Result_Conformance
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
       use type Editor.Ada_Generic_Contracts.Generic_Actual_Match_Status;
       pragma Unreferenced (T);
@@ -50579,11 +51004,11 @@ package body Editor.Syntax_Semantics.Tests is
               "generic formal subprogram result conformance must reject incompatible function result subtypes");
       Assert (Editor.Ada_Generic_Contracts.Fingerprint (Contracts) /= 0,
               "result-subtype profile conformance must contribute to deterministic fingerprints");
-   end Test_Ada_Generic_Formal_Subprogram_Result_Conformance_Pass981;
+   end Test_Ada_Generic_Formal_Subprogram_Result_Conformance;
 
 
 
-   procedure Test_Ada_Expression_Expected_Type_Propagation_Pass1001
+   procedure Test_Ada_Expression_Expected_Type_Propagation
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
       pragma Unreferenced (T);
       Tree : Editor.Ada_Syntax_Tree.Tree_Type;
@@ -50634,10 +51059,10 @@ package body Editor.Syntax_Semantics.Tests is
       Assert
         (Editor.Ada_Expression_Types.Expected_Propagated_Count (Exprs) >= 1,
          "expression-type model exposes deterministic expected-type propagation counters");
-   end Test_Ada_Expression_Expected_Type_Propagation_Pass1001;
+   end Test_Ada_Expression_Expected_Type_Propagation;
 
 
-   procedure Test_Ada_Expression_Operator_Operand_Inference_Pass1002
+   procedure Test_Ada_Expression_Operator_Operand_Inference
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
       use type Editor.Ada_Expression_Types.Expression_Type_Status;
       use type Editor.Ada_Expression_Types.Operator_Type_Inference_Status;
@@ -50730,10 +51155,10 @@ package body Editor.Syntax_Semantics.Tests is
       Assert
         (Editor.Ada_Expression_Types.Fingerprint (Exprs) /= 0,
          "operator operand/result inference contributes to expression-type fingerprints");
-   end Test_Ada_Expression_Operator_Operand_Inference_Pass1002;
+   end Test_Ada_Expression_Operator_Operand_Inference;
 
 
-   procedure Test_Ada_Expression_Aggregate_Context_Inference_Pass1003
+   procedure Test_Ada_Expression_Aggregate_Context_Inference
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
       use type Editor.Ada_Expression_Types.Expression_Type_Status;
       use type Editor.Ada_Expression_Types.Aggregate_Type_Inference_Status;
@@ -50859,13 +51284,14 @@ package body Editor.Syntax_Semantics.Tests is
       Assert
         (Editor.Ada_Expression_Types.Fingerprint (Exprs) /= 0,
          "aggregate context inference contributes to deterministic expression-type fingerprints");
-   end Test_Ada_Expression_Aggregate_Context_Inference_Pass1003;
+   end Test_Ada_Expression_Aggregate_Context_Inference;
 
 
-   procedure Test_Ada_Expression_Conversion_Qualified_Inference_Pass1004
+   procedure Test_Ada_Expression_Conversion_Qualified_Inference
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
       use type Editor.Ada_Expression_Types.Expression_Type_Status;
       use type Editor.Ada_Expression_Types.Conversion_Type_Inference_Status;
+      use type Editor.Ada_Conversion_Access_Aggregate_Legality.Semantic_Legality_Status;
       pragma Unreferenced (T);
       Tree : Editor.Ada_Syntax_Tree.Tree_Type;
       Root : Editor.Ada_Syntax_Tree.Node_Id;
@@ -50885,6 +51311,8 @@ package body Editor.Syntax_Semantics.Tests is
       Explicit_Info : Editor.Ada_Expression_Types.Expression_Type_Info;
       Mismatch_Info : Editor.Ada_Expression_Types.Expression_Type_Info;
       Qualified_Info : Editor.Ada_Expression_Types.Expression_Type_Info;
+      Conversion_Contexts : Editor.Ada_Conversion_Access_Aggregate_Legality.Semantic_Context_Model;
+      Conversion_Legality : Editor.Ada_Conversion_Access_Aggregate_Legality.Semantic_Legality_Model;
    begin
       Root := Editor.Ada_Syntax_Tree.Add_Node
         (Tree, Editor.Ada_Syntax_Tree.Node_Compilation_Unit,
@@ -50955,10 +51383,33 @@ package body Editor.Syntax_Semantics.Tests is
       Assert
         (Editor.Ada_Expression_Types.Fingerprint (Exprs) /= 0,
          "conversion and qualified-expression inference contributes to deterministic expression-type fingerprints");
-   end Test_Ada_Expression_Conversion_Qualified_Inference_Pass1004;
+      Conversion_Contexts :=
+        Editor.Ada_Conversion_Access_Aggregate_Legality
+          .Build_Contexts_From_Expression_Types (Exprs);
+      Conversion_Legality :=
+        Editor.Ada_Conversion_Access_Aggregate_Legality.Build
+          (Conversion_Contexts);
+      Assert
+        (Editor.Ada_Conversion_Access_Aggregate_Legality.Context_Count
+           (Conversion_Contexts) >= 4,
+         "conversion legality adapter must retain conversion and qualified-expression contexts");
+      Assert
+        (Editor.Ada_Conversion_Access_Aggregate_Legality.Conversion_Count
+           (Conversion_Legality) >= 4,
+         "conversion legality adapter must produce conversion-family legality rows");
+      Assert
+        (Editor.Ada_Conversion_Access_Aggregate_Legality.Count_Status
+           (Conversion_Legality,
+            Editor.Ada_Conversion_Access_Aggregate_Legality.Semantic_Legality_Incompatible_Type) >= 1,
+         "conversion legality adapter must preserve incompatible conversion rows");
+      Assert
+        (Editor.Ada_Conversion_Access_Aggregate_Legality.Fingerprint
+           (Conversion_Legality) /= 0,
+         "conversion legality adapter must feed deterministic legality fingerprints");
+   end Test_Ada_Expression_Conversion_Qualified_Inference;
 
 
-   procedure Test_Ada_Expression_Attribute_Reference_Inference_Pass1005
+   procedure Test_Ada_Expression_Attribute_Reference_Inference
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
       use type Editor.Ada_Expression_Types.Expression_Type_Status;
       use type Editor.Ada_Expression_Types.Attribute_Type_Inference_Status;
@@ -51047,10 +51498,10 @@ package body Editor.Syntax_Semantics.Tests is
       Assert
         (Editor.Ada_Expression_Types.Fingerprint (Exprs) /= 0,
          "attribute-reference inference contributes to deterministic expression-type fingerprints");
-   end Test_Ada_Expression_Attribute_Reference_Inference_Pass1005;
+   end Test_Ada_Expression_Attribute_Reference_Inference;
 
 
-   procedure Test_Ada_Expression_Conditional_Declare_Reduction_Inference_Pass1006
+   procedure Test_Ada_Expression_Conditional_Declare_Reduction_Inference
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
       use type Editor.Ada_Expression_Types.Expression_Type_Status;
       use type Editor.Ada_Expression_Types.Conditional_Type_Inference_Status;
@@ -51143,10 +51594,10 @@ package body Editor.Syntax_Semantics.Tests is
       Assert
         (Editor.Ada_Expression_Types.Fingerprint (Exprs) /= 0,
          "conditional, declare, and reduction inference contributes to deterministic expression-type fingerprints");
-   end Test_Ada_Expression_Conditional_Declare_Reduction_Inference_Pass1006;
+   end Test_Ada_Expression_Conditional_Declare_Reduction_Inference;
 
 
-   procedure Test_Ada_Expression_Membership_Range_Inference_Pass1007
+   procedure Test_Ada_Expression_Membership_Range_Inference
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
       use type Editor.Ada_Expression_Types.Expression_Type_Status;
       use type Editor.Ada_Expression_Types.Membership_Range_Inference_Status;
@@ -51226,10 +51677,10 @@ package body Editor.Syntax_Semantics.Tests is
          and then Editor.Ada_Expression_Types.Range_Resolved_Count (Exprs) >= 1
          and then Editor.Ada_Expression_Types.Fingerprint (Exprs) /= 0,
          "membership and range inference expose deterministic counters and fingerprints");
-   end Test_Ada_Expression_Membership_Range_Inference_Pass1007;
+   end Test_Ada_Expression_Membership_Range_Inference;
 
 
-   procedure Test_Ada_Expression_Target_Name_Update_Inference_Pass1008
+   procedure Test_Ada_Expression_Target_Name_Update_Inference
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
       use type Editor.Ada_Expression_Types.Expression_Type_Status;
       use type Editor.Ada_Expression_Types.Target_Name_Inference_Status;
@@ -51322,12 +51773,12 @@ package body Editor.Syntax_Semantics.Tests is
          and then Editor.Ada_Expression_Types.Target_Name_Context_Required_Count (Exprs) >= 1
          and then Editor.Ada_Expression_Types.Fingerprint (Exprs) /= 0,
          "target-name/update inference exposes deterministic counters and fingerprints");
-   end Test_Ada_Expression_Target_Name_Update_Inference_Pass1008;
+   end Test_Ada_Expression_Target_Name_Update_Inference;
 
 
 
 
-   procedure Test_Ada_Expression_Indexed_Slice_Inference_Pass1009
+   procedure Test_Ada_Expression_Indexed_Slice_Inference
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
       use type Editor.Ada_Expression_Types.Expression_Type_Status;
       use type Editor.Ada_Expression_Types.Indexed_Slice_Inference_Status;
@@ -51397,13 +51848,13 @@ package body Editor.Syntax_Semantics.Tests is
          and then Editor.Ada_Expression_Types.Indexed_Slice_Result_Array_Count (Exprs) >= 1
          and then Editor.Ada_Expression_Types.Fingerprint (Exprs) /= 0,
          "indexed/slice inference exposes deterministic counters and fingerprints");
-   end Test_Ada_Expression_Indexed_Slice_Inference_Pass1009;
+   end Test_Ada_Expression_Indexed_Slice_Inference;
 
 
 
 
 
-   procedure Test_Ada_Expression_Dereference_Access_Inference_Pass1010
+   procedure Test_Ada_Expression_Dereference_Access_Inference
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
       use type Editor.Ada_Expression_Types.Expression_Type_Status;
       use type Editor.Ada_Expression_Types.Dereference_Access_Inference_Status;
@@ -51426,7 +51877,7 @@ package body Editor.Syntax_Semantics.Tests is
       Deref_Info : Editor.Ada_Expression_Types.Expression_Type_Info;
       Access_Info : Editor.Ada_Expression_Types.Expression_Type_Info;
       Bad_Info : Editor.Ada_Expression_Types.Expression_Type_Info;
-      pragma Unreferenced (Access_Type, Access_Def, Pointer_Object, Integer_Object);
+      pragma Unreferenced (Access_Def, Pointer_Object, Integer_Object);
    begin
       Root := Editor.Ada_Syntax_Tree.Add_Node
         (Tree, Editor.Ada_Syntax_Tree.Node_Compilation_Unit,
@@ -51499,11 +51950,11 @@ package body Editor.Syntax_Semantics.Tests is
          and then Editor.Ada_Expression_Types.Access_Result_Resolved_Count (Exprs) >= 1
          and then Editor.Ada_Expression_Types.Fingerprint (Exprs) /= 0,
          "dereference/access inference exposes deterministic counters and fingerprints");
-   end Test_Ada_Expression_Dereference_Access_Inference_Pass1010;
+   end Test_Ada_Expression_Dereference_Access_Inference;
 
 
 
-   procedure Test_Ada_Expression_Allocator_Inference_Pass1011
+   procedure Test_Ada_Expression_Allocator_Inference
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
       use type Editor.Ada_Expression_Types.Expression_Type_Status;
       use type Editor.Ada_Expression_Types.Allocator_Type_Inference_Status;
@@ -51527,7 +51978,7 @@ package body Editor.Syntax_Semantics.Tests is
       Alloc_Info : Editor.Ada_Expression_Types.Expression_Type_Info;
       Free_Info : Editor.Ada_Expression_Types.Expression_Type_Info;
       Bad_Info : Editor.Ada_Expression_Types.Expression_Type_Info;
-      pragma Unreferenced (Access_Type, Access_Def, Alloc_Object, Bad_Object);
+      pragma Unreferenced (Access_Def);
    begin
       Root := Editor.Ada_Syntax_Tree.Add_Node
         (Tree, Editor.Ada_Syntax_Tree.Node_Compilation_Unit,
@@ -51599,10 +52050,10 @@ package body Editor.Syntax_Semantics.Tests is
          and then Editor.Ada_Expression_Types.Allocator_Target_Error_Count (Exprs) >= 1
          and then Editor.Ada_Expression_Types.Fingerprint (Exprs) /= 0,
          "allocator inference exposes deterministic counters and fingerprints");
-   end Test_Ada_Expression_Allocator_Inference_Pass1011;
+   end Test_Ada_Expression_Allocator_Inference;
 
 
-   procedure Test_Ada_Expression_Parameter_Association_Propagation_Pass1012
+   procedure Test_Ada_Expression_Parameter_Association_Propagation
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
       use type Editor.Ada_Expression_Types.Parameter_Association_Inference_Status;
       use type Editor.Ada_Expression_Types.Expected_Type_Propagation_Status;
@@ -51690,10 +52141,10 @@ package body Editor.Syntax_Semantics.Tests is
          and then Editor.Ada_Expression_Types.Parameter_Association_Mismatch_Count (Exprs) >= 1
          and then Editor.Ada_Expression_Types.Fingerprint (Exprs) /= 0,
          "parameter-association propagation exposes deterministic counters and fingerprints");
-   end Test_Ada_Expression_Parameter_Association_Propagation_Pass1012;
+   end Test_Ada_Expression_Parameter_Association_Propagation;
 
 
-   procedure Test_Ada_Expression_Call_Actual_Type_Resolution_Pass1013
+   procedure Test_Ada_Expression_Call_Actual_Type_Resolution
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
       use type Editor.Ada_Expression_Types.Call_Actual_Type_Resolution_Status;
       use type Editor.Ada_Expression_Types.Expression_Type_Status;
@@ -51733,7 +52184,6 @@ package body Editor.Syntax_Semantics.Tests is
       declare
          A : Editor.Ada_Syntax_Tree.Node_Id;
          B : Editor.Ada_Syntax_Tree.Node_Id;
-         pragma Unreferenced (A, B);
       begin
          A := Editor.Ada_Syntax_Tree.Add_Node
            (Tree, Editor.Ada_Syntax_Tree.Node_Positional_Association,
@@ -51816,10 +52266,10 @@ package body Editor.Syntax_Semantics.Tests is
          and then Editor.Ada_Expression_Types.Call_Actual_Type_Unknown_Count (Exprs) >= 1
          and then Editor.Ada_Expression_Types.Fingerprint (Exprs) /= 0,
          "call actual type resolution exposes deterministic counters and fingerprints");
-   end Test_Ada_Expression_Call_Actual_Type_Resolution_Pass1013;
+   end Test_Ada_Expression_Call_Actual_Type_Resolution;
 
 
-   procedure Test_Ada_Expression_Operator_Overload_Resolution_Pass1014
+   procedure Test_Ada_Expression_Operator_Overload_Resolution
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
       use type Editor.Ada_Expression_Types.Operator_Type_Inference_Status;
       pragma Unreferenced (T);
@@ -51887,10 +52337,10 @@ package body Editor.Syntax_Semantics.Tests is
         (Editor.Ada_Expression_Types.Operator_Resolved_Count (Exprs) >= 1
          and then Editor.Ada_Expression_Types.Fingerprint (Exprs) /= 0,
          "operator overload inference contributes deterministic counters and fingerprints");
-   end Test_Ada_Expression_Operator_Overload_Resolution_Pass1014;
+   end Test_Ada_Expression_Operator_Overload_Resolution;
 
 
-   procedure Test_Ada_Expression_Universal_Numeric_Final_Resolution_Pass1015
+   procedure Test_Ada_Expression_Universal_Numeric_Final_Resolution
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
       use type Editor.Ada_Expression_Types.Universal_Numeric_Resolution_Status;
       pragma Unreferenced (T);
@@ -51957,9 +52407,9 @@ package body Editor.Syntax_Semantics.Tests is
       Assert
         (Editor.Ada_Expression_Types.Fingerprint (Exprs) /= 0,
          "universal numeric final resolution contributes deterministic fingerprints");
-   end Test_Ada_Expression_Universal_Numeric_Final_Resolution_Pass1015;
+   end Test_Ada_Expression_Universal_Numeric_Final_Resolution;
 
-   procedure Test_Ada_Expression_Aggregate_Type_Graph_Validation_Pass1016
+   procedure Test_Ada_Expression_Aggregate_Type_Graph_Validation
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
       pragma Unreferenced (T);
       Source : constant String :=
@@ -52008,11 +52458,11 @@ package body Editor.Syntax_Semantics.Tests is
       Assert
         (Editor.Ada_Expression_Types.Fingerprint (Exprs) /= 0,
          "aggregate type-graph validation contributes deterministic fingerprints");
-   end Test_Ada_Expression_Aggregate_Type_Graph_Validation_Pass1016;
+   end Test_Ada_Expression_Aggregate_Type_Graph_Validation;
 
 
 
-   procedure Test_Ada_Expression_Raise_No_Return_Inference_Pass1017
+   procedure Test_Ada_Expression_Raise_No_Return_Inference
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
       pragma Unreferenced (T);
       Source : constant String :=
@@ -52055,10 +52505,10 @@ package body Editor.Syntax_Semantics.Tests is
       Assert
         (Editor.Ada_Expression_Types.Fingerprint (Exprs) /= 0,
          "raise/no-return inference contributes deterministic fingerprints");
-   end Test_Ada_Expression_Raise_No_Return_Inference_Pass1017;
+   end Test_Ada_Expression_Raise_No_Return_Inference;
 
 
-   procedure Test_Ada_Expression_Boolean_Context_Inference_Pass1018
+   procedure Test_Ada_Expression_Boolean_Context_Inference
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
       pragma Unreferenced (T);
       Source : constant String :=
@@ -52108,10 +52558,10 @@ package body Editor.Syntax_Semantics.Tests is
       Assert
         (Editor.Ada_Expression_Types.Fingerprint (Exprs) /= 0,
          "Boolean-context inference contributes deterministic fingerprints");
-   end Test_Ada_Expression_Boolean_Context_Inference_Pass1018;
+   end Test_Ada_Expression_Boolean_Context_Inference;
 
 
-   procedure Test_Ada_Expression_Concatenation_Inference_Pass1019
+   procedure Test_Ada_Expression_Concatenation_Inference
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
       pragma Unreferenced (T);
       Source : constant String :=
@@ -52153,11 +52603,11 @@ package body Editor.Syntax_Semantics.Tests is
       Assert
         (Editor.Ada_Expression_Types.Fingerprint (Exprs) /= 0,
          "concatenation inference contributes deterministic fingerprints");
-   end Test_Ada_Expression_Concatenation_Inference_Pass1019;
+   end Test_Ada_Expression_Concatenation_Inference;
 
 
 
-   procedure Test_Ada_Expression_Dispatching_Call_Inference_Pass1020
+   procedure Test_Ada_Expression_Dispatching_Call_Inference
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
       pragma Unreferenced (T);
       Source : constant String :=
@@ -52197,10 +52647,10 @@ package body Editor.Syntax_Semantics.Tests is
       Assert
         (Editor.Ada_Expression_Types.Fingerprint (Exprs) /= 0,
          "dispatching-call inference contributes deterministic fingerprints");
-   end Test_Ada_Expression_Dispatching_Call_Inference_Pass1020;
+   end Test_Ada_Expression_Dispatching_Call_Inference;
 
 
-   procedure Test_Ada_Expression_Diagnostics_Projection_Pass1021
+   procedure Test_Ada_Expression_Diagnostics_Projection
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
       use type Editor.Ada_Expression_Diagnostics.Expression_Diagnostic_Kind;
       use type Editor.Ada_Expression_Diagnostics.Expression_Diagnostic_Severity;
@@ -52218,7 +52668,6 @@ package body Editor.Syntax_Semantics.Tests is
       Exprs : Editor.Ada_Expression_Types.Expression_Type_Model;
       Diags : Editor.Ada_Expression_Diagnostics.Expression_Diagnostic_Model;
       Diag : Editor.Ada_Expression_Diagnostics.Expression_Diagnostic_Info;
-      pragma Unreferenced (Bad_Object);
    begin
       Root := Editor.Ada_Syntax_Tree.Add_Node
         (Tree, Editor.Ada_Syntax_Tree.Node_Compilation_Unit,
@@ -52258,11 +52707,11 @@ package body Editor.Syntax_Semantics.Tests is
            (Diags, Editor.Ada_Expression_Diagnostics.Expression_Diagnostic_Allocator_Target_Error) >= 1
          and then Editor.Ada_Expression_Diagnostics.Fingerprint (Diags) /= 0,
          "expression diagnostics must expose deterministic counters and fingerprints");
-   end Test_Ada_Expression_Diagnostics_Projection_Pass1021;
+   end Test_Ada_Expression_Diagnostics_Projection;
 
 
 
-   procedure Test_Ada_Semantic_Diagnostic_Feed_Pass1043
+   procedure Test_Ada_Semantic_Diagnostic_Feed
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
       pragma Unreferenced (T);
       Source : constant String :=
@@ -52369,10 +52818,10 @@ package body Editor.Syntax_Semantics.Tests is
         (Editor.Ada_Semantic_Diagnostic_Feed.Rejected_Entry_Count (Rejected_Feed) =
          Editor.Ada_Semantic_Diagnostic_Snapshot_Guards.Rejected_Entry_Count (Rejected_Guarded),
          "semantic diagnostic feed must preserve rejected-entry totals");
-   end Test_Ada_Semantic_Diagnostic_Feed_Pass1043;
+   end Test_Ada_Semantic_Diagnostic_Feed;
 
 
-   procedure Test_Ada_Semantic_Diagnostic_Index_Pass1044
+   procedure Test_Ada_Semantic_Diagnostic_Index
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
       pragma Unreferenced (T);
       Source : constant String :=
@@ -52490,10 +52939,10 @@ package body Editor.Syntax_Semantics.Tests is
         (Editor.Ada_Semantic_Diagnostic_Index.Rejected_Stale (Rejected_Index)
          and then Editor.Ada_Semantic_Diagnostic_Index.Entry_Count (Rejected_Index) = 0,
          "semantic diagnostic index must withhold stale rejected feed entries");
-   end Test_Ada_Semantic_Diagnostic_Index_Pass1044;
+   end Test_Ada_Semantic_Diagnostic_Index;
 
 
-   procedure Test_Ada_Diagnostic_Navigation_Pass1045
+   procedure Test_Ada_Diagnostic_Navigation
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
       pragma Unreferenced (T);
       Source : constant String :=
@@ -52629,10 +53078,10 @@ package body Editor.Syntax_Semantics.Tests is
         (Editor.Ada_Diagnostic_Navigation.Rejected_Target_Count (Rejected_Navigation) =
          Editor.Ada_Semantic_Diagnostic_Index.Rejected_Entry_Count (Rejected_Index),
          "diagnostic navigation must preserve rejected target totals");
-   end Test_Ada_Diagnostic_Navigation_Pass1045;
+   end Test_Ada_Diagnostic_Navigation;
 
 
-   procedure Test_Ada_Diagnostic_Panel_Projection_Pass1046
+   procedure Test_Ada_Diagnostic_Panel_Projection
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
       pragma Unreferenced (T);
       Source : constant String :=
@@ -52767,10 +53216,10 @@ package body Editor.Syntax_Semantics.Tests is
         (Editor.Ada_Diagnostic_Panel_Projection.Rejected_Row_Count (Rejected_Panel) =
          Editor.Ada_Semantic_Diagnostic_Index.Rejected_Entry_Count (Rejected_Index),
          "diagnostic panel projection must preserve rejected row totals");
-   end Test_Ada_Diagnostic_Panel_Projection_Pass1046;
+   end Test_Ada_Diagnostic_Panel_Projection;
 
 
-   procedure Test_Ada_Diagnostic_Status_Line_Pass1047
+   procedure Test_Ada_Diagnostic_Status_Line
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
       pragma Unreferenced (T);
       Source : constant String :=
@@ -52900,11 +53349,11 @@ package body Editor.Syntax_Semantics.Tests is
         (Editor.Ada_Diagnostic_Status_Line.Rejected_Diagnostic_Count (Rejected_Summary) =
          Editor.Ada_Semantic_Diagnostic_Index.Rejected_Entry_Count (Rejected_Index),
          "diagnostic status-line summary must preserve rejected diagnostic totals");
-   end Test_Ada_Diagnostic_Status_Line_Pass1047;
+   end Test_Ada_Diagnostic_Status_Line;
 
 
 
-   procedure Test_Ada_Diagnostic_Provenance_Pass1049
+   procedure Test_Ada_Diagnostic_Provenance
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
       pragma Unreferenced (T);
       Source : constant String :=
@@ -53040,11 +53489,11 @@ package body Editor.Syntax_Semantics.Tests is
         (Editor.Ada_Diagnostic_Provenance.Rejected_Item_Count (Rejected_Provenance) =
          Editor.Ada_Semantic_Diagnostic_Index.Rejected_Entry_Count (Rejected_Index),
          "diagnostic provenance must preserve rejected item totals");
-   end Test_Ada_Diagnostic_Provenance_Pass1049;
+   end Test_Ada_Diagnostic_Provenance;
 
 
 
-   procedure Test_Ada_Diagnostic_Quick_Fix_Skeleton_Pass1048
+   procedure Test_Ada_Diagnostic_Quick_Fix_Skeleton
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
       pragma Unreferenced (T);
       Source : constant String :=
@@ -53121,8 +53570,14 @@ package body Editor.Syntax_Semantics.Tests is
         Editor.Ada_Semantic_Diagnostic_Feed.Build (Accepted_Guarded);
       Rejected_Feed : constant Editor.Ada_Semantic_Diagnostic_Feed.Semantic_Diagnostic_Feed_Model :=
         Editor.Ada_Semantic_Diagnostic_Feed.Build (Rejected_Guarded);
+      Edited_Feed : constant Editor.Ada_Semantic_Diagnostic_Feed.Semantic_Diagnostic_Feed_Model :=
+        Editor.Ada_Semantic_Diagnostic_Feed.With_Edit_Hint
+          (Accepted_Feed,
+           Editor.Ada_Semantic_Diagnostic_Feed.Entry_At (Accepted_Feed, 1).Id,
+           61, 7, 61, 7,
+           "pragma Assert (False);");
       Index : constant Editor.Ada_Semantic_Diagnostic_Index.Semantic_Diagnostic_Index_Model :=
-        Editor.Ada_Semantic_Diagnostic_Index.Build (Accepted_Feed);
+        Editor.Ada_Semantic_Diagnostic_Index.Build (Edited_Feed);
       Rejected_Index : constant Editor.Ada_Semantic_Diagnostic_Index.Semantic_Diagnostic_Index_Model :=
         Editor.Ada_Semantic_Diagnostic_Index.Build (Rejected_Feed);
       Fixes : constant Editor.Ada_Diagnostic_Quick_Fix_Skeleton.Diagnostic_Quick_Fix_Model :=
@@ -53160,13 +53615,14 @@ package body Editor.Syntax_Semantics.Tests is
            (Fixes, Editor.Ada_Semantic_Colour_Projection.Semantic_Colour_From_Representation) > 0,
          "diagnostic quick-fix skeleton must preserve source-family action counters");
       Assert
-        (Editor.Ada_Diagnostic_Quick_Fix_Skeleton.Editable_Candidate_Count (Fixes) = 0,
-         "diagnostic quick-fix skeleton must not expose applying edits in this pass");
+        (Editor.Ada_Diagnostic_Quick_Fix_Skeleton.Editable_Candidate_Count (Fixes) >= 1,
+         "diagnostic quick-fix skeleton exposes explicit feed edit hints");
       Assert
         (Editor.Ada_Diagnostic_Quick_Fix_Skeleton.Has_Candidate (First_Fix)
          and then First_Fix.Fingerprint /= 0
-         and then not First_Fix.Has_Edit,
-         "diagnostic quick-fix skeleton must preserve stable non-editing candidate metadata");
+         and then First_Fix.Has_Edit
+         and then To_String (First_Fix.Replacement_Text) = "pragma Assert (False);",
+         "diagnostic quick-fix skeleton must preserve explicit edit metadata");
       Assert
         (Editor.Ada_Diagnostic_Quick_Fix_Skeleton.Result_Count (Per_Diagnostic) >= 3,
          "diagnostic quick-fix skeleton must query candidates by diagnostic identity");
@@ -53181,10 +53637,10 @@ package body Editor.Syntax_Semantics.Tests is
         (Editor.Ada_Diagnostic_Quick_Fix_Skeleton.Rejected_Candidate_Count (Rejected_Fixes) =
          Editor.Ada_Semantic_Diagnostic_Index.Rejected_Entry_Count (Rejected_Index),
          "diagnostic quick-fix skeleton must preserve rejected candidate totals");
-   end Test_Ada_Diagnostic_Quick_Fix_Skeleton_Pass1048;
+   end Test_Ada_Diagnostic_Quick_Fix_Skeleton;
 
 
-   procedure Test_Ada_Diagnostic_Suppression_Baseline_Pass1050
+   procedure Test_Ada_Diagnostic_Suppression_Baseline
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
       pragma Unreferenced (T);
       Source : constant String :=
@@ -53355,10 +53811,10 @@ package body Editor.Syntax_Semantics.Tests is
             Editor.Ada_Semantic_Diagnostic_Index.Rejected_Entry_Count (Rejected_Index),
             "diagnostic suppression baseline must preserve rejected entry totals");
       end;
-   end Test_Ada_Diagnostic_Suppression_Baseline_Pass1050;
+   end Test_Ada_Diagnostic_Suppression_Baseline;
 
 
-   procedure Test_Ada_Overload_Ambiguity_Diagnostics_Pass1051
+   procedure Test_Ada_Overload_Ambiguity_Diagnostics
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
       pragma Unreferenced (T);
       Tree : Editor.Ada_Syntax_Tree.Tree_Type;
@@ -53469,12 +53925,12 @@ package body Editor.Syntax_Semantics.Tests is
       Assert
         (Editor.Ada_Overload_Ambiguity_Diagnostics.Fingerprint (Model) /= 0,
          "overload ambiguity diagnostics must produce a deterministic fingerprint");
-   end Test_Ada_Overload_Ambiguity_Diagnostics_Pass1051;
+   end Test_Ada_Overload_Ambiguity_Diagnostics;
 
 
 
 
-   procedure Test_Ada_Expression_Diagnostics_Overload_Cause_Integration_Pass1052
+   procedure Test_Ada_Expression_Diagnostics_Overload_Cause_Integration
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
       pragma Unreferenced (T);
       Tree : Editor.Ada_Syntax_Tree.Tree_Type;
@@ -53489,7 +53945,6 @@ package body Editor.Syntax_Semantics.Tests is
       Causes : Editor.Ada_Overload_Ambiguity_Diagnostics.Overload_Ambiguity_Model;
       Model : Editor.Ada_Expression_Diagnostics.Expression_Diagnostic_Model;
       First : Editor.Ada_Expression_Diagnostics.Expression_Diagnostic_Info;
-      pragma Unreferenced (Bad_Call);
    begin
       Root := Editor.Ada_Syntax_Tree.Add_Node
         (Tree, Editor.Ada_Syntax_Tree.Node_Compilation_Unit,
@@ -53556,18 +54011,47 @@ package body Editor.Syntax_Semantics.Tests is
       Assert
         (Editor.Ada_Expression_Diagnostics.Fingerprint (Model) /= 0,
          "expression diagnostics overload-cause projection must produce a deterministic fingerprint");
-   end Test_Ada_Expression_Diagnostics_Overload_Cause_Integration_Pass1052;
+   end Test_Ada_Expression_Diagnostics_Overload_Cause_Integration;
 
 
-   procedure Test_Ada_Cross_Unit_Lookup_Integration_Pass1053
+   procedure Test_Ada_Cross_Unit_Lookup_Integration
      (T : in out AUnit.Test_Cases.Test_Case'Class)
    is
       pragma Unreferenced (T);
+      use type Editor.Ada_Cross_Unit_Lookup_Integration.Cross_Unit_Lookup_Status;
+      Parent_Analysis : constant Editor.Ada_Language_Model.Analysis_Result :=
+        Editor.Ada_Declaration_Parser.Parse
+          ("package Parent is" & ASCII.LF &
+           "end Parent;" & ASCII.LF,
+           "parent.ads");
+      Parent_With_Child_Analysis : constant Editor.Ada_Language_Model.Analysis_Result :=
+        Editor.Ada_Declaration_Parser.Parse
+          ("with Parent.Public_Child;" & ASCII.LF &
+           "package Parent is" & ASCII.LF &
+           "end Parent;" & ASCII.LF,
+           "parent.ads");
+      Public_Child_Analysis : constant Editor.Ada_Language_Model.Analysis_Result :=
+        Editor.Ada_Declaration_Parser.Parse
+          ("package Parent.Public_Child is" & ASCII.LF &
+           "end Parent.Public_Child;" & ASCII.LF,
+           "parent-public_child.ads");
+      Private_Child_Analysis : constant Editor.Ada_Language_Model.Analysis_Result :=
+        Editor.Ada_Declaration_Parser.Parse
+          ("private package Parent.Private_Child is" & ASCII.LF &
+           "end Parent.Private_Child;" & ASCII.LF,
+           "parent-private_child.ads");
       Index      : Editor.Ada_Project_Index.Index_State;
       Closure    : Editor.Ada_Cross_Unit_Closure.Cross_Unit_Closure_Model;
       Visibility : Editor.Ada_Cross_Unit_Visibility.Cross_Unit_Visibility_Model;
+      Children   : Editor.Ada_Child_Unit_Visibility.Child_Visibility_Model;
       Model      : Editor.Ada_Cross_Unit_Lookup_Integration.Cross_Unit_Lookup_Model;
+      Private_Context_Model :
+        Editor.Ada_Cross_Unit_Lookup_Integration.Cross_Unit_Lookup_Model;
+      Body_Context_Model :
+        Editor.Ada_Cross_Unit_Lookup_Integration.Cross_Unit_Lookup_Model;
       Result     : Editor.Ada_Cross_Unit_Lookup_Integration.Cross_Unit_Lookup_Entry;
+      Private_Result :
+        Editor.Ada_Cross_Unit_Lookup_Integration.Cross_Unit_Lookup_Entry;
    begin
       Editor.Ada_Project_Index.Clear (Index);
       Closure := Editor.Ada_Cross_Unit_Closure.Build (Index);
@@ -53590,11 +54074,86 @@ package body Editor.Syntax_Semantics.Tests is
       Assert
         (Editor.Ada_Cross_Unit_Lookup_Integration.Fingerprint (Model) /= 0,
          "cross-unit lookup integration must produce a deterministic fingerprint");
-   end Test_Ada_Cross_Unit_Lookup_Integration_Pass1053;
+
+      Editor.Ada_Project_Index.Put_Analysis
+        (Index, "src/parent.ads", Buffer_Token => 0, Buffer_Revision => 0,
+         Lifecycle_Generation => 0, Analysis => Parent_Analysis);
+      Editor.Ada_Project_Index.Put_Analysis
+        (Index, "src/parent-public_child.ads", Buffer_Token => 0, Buffer_Revision => 0,
+         Lifecycle_Generation => 0, Analysis => Public_Child_Analysis);
+      Editor.Ada_Project_Index.Put_Analysis
+        (Index, "src/parent-private_child.ads", Buffer_Token => 0, Buffer_Revision => 0,
+         Lifecycle_Generation => 0, Analysis => Private_Child_Analysis);
+
+      Closure := Editor.Ada_Cross_Unit_Closure.Build (Index);
+      Visibility := Editor.Ada_Cross_Unit_Visibility.Build (Index, Closure);
+      Children := Editor.Ada_Child_Unit_Visibility.Build (Closure);
+      Model := Editor.Ada_Cross_Unit_Lookup_Integration.Build_With_Children
+        (Visibility, Children, Source_Unit_Name => "Parent");
+      Private_Context_Model :=
+        Editor.Ada_Cross_Unit_Lookup_Integration.Build_With_Children
+          (Visibility, Children, Source_Unit_Name => "Parent",
+           Child_Context =>
+             Editor.Ada_Child_Unit_Visibility.Child_Visibility_Context_Parent_Private_Part);
+      Body_Context_Model :=
+        Editor.Ada_Cross_Unit_Lookup_Integration.Build_With_Children
+          (Visibility, Children, Source_Unit_Name => "Parent",
+           Child_Context =>
+             Editor.Ada_Child_Unit_Visibility.Child_Visibility_Context_Parent_Body);
+
+      Result := Editor.Ada_Cross_Unit_Lookup_Integration.Lookup_Name
+        (Model, "Parent.Public_Child");
+      Private_Result := Editor.Ada_Cross_Unit_Lookup_Integration.Lookup_Name
+        (Model, "Parent.Private_Child");
+      Assert
+        (Result.Status =
+           Editor.Ada_Cross_Unit_Lookup_Integration.Cross_Unit_Lookup_With_Visible,
+         "child-aware lookup must expose public child units as visible targets");
+      Assert
+        (Private_Result.Status =
+           Editor.Ada_Cross_Unit_Lookup_Integration.Cross_Unit_Lookup_Private_View,
+         "child-aware lookup must retain hidden private-child barriers for external context");
+
+      Private_Result := Editor.Ada_Cross_Unit_Lookup_Integration.Lookup_Name
+        (Private_Context_Model, "Parent.Private_Child");
+      Assert
+        (Private_Result.Status =
+           Editor.Ada_Cross_Unit_Lookup_Integration.Cross_Unit_Lookup_With_Visible,
+         "child-aware lookup must expose private children in parent private-part context");
+      Private_Result := Editor.Ada_Cross_Unit_Lookup_Integration.Lookup_Name
+        (Body_Context_Model, "Parent.Private_Child");
+      Assert
+        (Private_Result.Status =
+           Editor.Ada_Cross_Unit_Lookup_Integration.Cross_Unit_Lookup_With_Visible,
+         "child-aware lookup must expose private children in parent body context");
+
+      Editor.Ada_Project_Index.Clear (Index);
+      Editor.Ada_Project_Index.Put_Analysis
+        (Index, "src/parent.ads", Buffer_Token => 0, Buffer_Revision => 0,
+         Lifecycle_Generation => 0, Analysis => Parent_With_Child_Analysis);
+      Editor.Ada_Project_Index.Put_Analysis
+        (Index, "src/parent-public_child.ads", Buffer_Token => 0, Buffer_Revision => 0,
+         Lifecycle_Generation => 0, Analysis => Public_Child_Analysis);
+
+      Closure := Editor.Ada_Cross_Unit_Closure.Build (Index);
+      Visibility := Editor.Ada_Cross_Unit_Visibility.Build (Index, Closure);
+      Children := Editor.Ada_Child_Unit_Visibility.Build (Closure);
+      Model := Editor.Ada_Cross_Unit_Lookup_Integration.Build_With_Children
+        (Visibility, Children, Source_Unit_Name => "Parent");
+      Result := Editor.Ada_Cross_Unit_Lookup_Integration.Lookup_Name
+        (Model, "Parent.Public_Child");
+      Assert
+        (Result.Status =
+           Editor.Ada_Cross_Unit_Lookup_Integration.Cross_Unit_Lookup_With_Visible
+         and then Result.Candidate_Count <= 1
+         and then Editor.Ada_Cross_Unit_Lookup_Integration.Lookup_Count (Model) = 1
+         and then Editor.Ada_Cross_Unit_Lookup_Integration.Visible_Count (Model) = 1,
+         "child-aware lookup must coalesce equivalent with-clause and child-closure candidates");
+   end Test_Ada_Cross_Unit_Lookup_Integration;
 
 
 
-   procedure Test_Ada_Selected_Name_Cross_Unit_Lookup_Consumer_Pass1054
+   procedure Test_Ada_Selected_Name_Cross_Unit_Lookup_Consumer
      (T : in out AUnit.Test_Cases.Test_Case'Class)
    is
       pragma Unreferenced (T);
@@ -53682,11 +54241,98 @@ package body Editor.Syntax_Semantics.Tests is
         (Editor.Ada_Selected_Name_Resolution.Selected_Name_Count (Model) >= 1
          and then Editor.Ada_Selected_Name_Resolution.Fingerprint (Model) /= 0,
          "selected-name build-with-cross-unit must include deterministic cross-unit consumer metadata");
-   end Test_Ada_Selected_Name_Cross_Unit_Lookup_Consumer_Pass1054;
+
+      declare
+         Parent_Analysis : constant Editor.Ada_Language_Model.Analysis_Result :=
+           Editor.Ada_Declaration_Parser.Parse
+             ("package Parent is" & ASCII.LF &
+              "end Parent;" & ASCII.LF,
+              "parent.ads");
+         Private_Child_Analysis : constant Editor.Ada_Language_Model.Analysis_Result :=
+           Editor.Ada_Declaration_Parser.Parse
+             ("private package Parent.Private_Child is" & ASCII.LF &
+              "   Exported : Integer;" & ASCII.LF &
+              "end Parent.Private_Child;" & ASCII.LF,
+              "parent-private_child.ads");
+         Parent_Body_Source : constant String :=
+           "package body Parent is" & ASCII.LF &
+           "   Value : Integer := Parent.Private_Child.Exported;" & ASCII.LF &
+           "end Parent;" & ASCII.LF;
+         Parent_Body_Analysis : constant Editor.Ada_Language_Model.Analysis_Result :=
+           Editor.Ada_Declaration_Parser.Parse (Parent_Body_Source, "parent.adb");
+         Parent_Tree : constant Editor.Ada_Syntax_Tree.Tree_Type :=
+           Editor.Ada_Syntax_Tree.Parse (Parent_Body_Source);
+         Parent_Regions : constant Editor.Ada_Declarative_Regions.Region_Model :=
+           Editor.Ada_Declarative_Regions.Build (Parent_Tree);
+         Parent_Visibility : constant Editor.Ada_Direct_Visibility.Visibility_Model :=
+           Editor.Ada_Direct_Visibility.Build (Parent_Tree, Parent_Regions);
+         Parent_Uses : constant Editor.Ada_Use_Visibility.Use_Visibility_Model :=
+           Editor.Ada_Use_Visibility.Build
+             (Parent_Tree, Parent_Regions, Parent_Visibility);
+         Parent_Index : Editor.Ada_Project_Index.Index_State;
+         Parent_Closure : Editor.Ada_Cross_Unit_Closure.Cross_Unit_Closure_Model;
+         Parent_Cross_Visibility :
+           Editor.Ada_Cross_Unit_Visibility.Cross_Unit_Visibility_Model;
+         Parent_Children : Editor.Ada_Child_Unit_Visibility.Child_Visibility_Model;
+         Parent_Cross_Lookup :
+           Editor.Ada_Cross_Unit_Lookup_Integration.Cross_Unit_Lookup_Model;
+         Parent_Info : Editor.Ada_Selected_Name_Resolution.Selected_Name_Info;
+
+         function Parent_Body_Region return Editor.Ada_Declarative_Regions.Region_Id is
+            Result : Editor.Ada_Declarative_Regions.Region_Id :=
+              Editor.Ada_Declarative_Regions.No_Region;
+         begin
+            for I in 1 .. Editor.Ada_Declarative_Regions.Region_Count (Parent_Regions) loop
+               declare
+                  R : constant Editor.Ada_Declarative_Regions.Region_Info :=
+                    Editor.Ada_Declarative_Regions.Region_At (Parent_Regions, I);
+               begin
+                  if R.Kind = Editor.Ada_Declarative_Regions.Region_Package_Body then
+                     Result := R.Id;
+                  end if;
+               end;
+            end loop;
+            return Result;
+         end Parent_Body_Region;
+      begin
+         Editor.Ada_Project_Index.Put_Analysis
+           (Parent_Index, "src/parent.ads", Buffer_Token => 0, Buffer_Revision => 0,
+            Lifecycle_Generation => 0, Analysis => Parent_Analysis);
+         Editor.Ada_Project_Index.Put_Analysis
+           (Parent_Index, "src/parent-private_child.ads",
+            Buffer_Token => 0, Buffer_Revision => 0,
+            Lifecycle_Generation => 0, Analysis => Private_Child_Analysis);
+         Editor.Ada_Project_Index.Put_Analysis
+           (Parent_Index, "src/parent.adb", Buffer_Token => 0, Buffer_Revision => 0,
+            Lifecycle_Generation => 0, Analysis => Parent_Body_Analysis);
+
+         Parent_Closure := Editor.Ada_Cross_Unit_Closure.Build (Parent_Index);
+         Parent_Cross_Visibility :=
+           Editor.Ada_Cross_Unit_Visibility.Build (Parent_Index, Parent_Closure);
+         Parent_Children := Editor.Ada_Child_Unit_Visibility.Build (Parent_Closure);
+         Parent_Cross_Lookup :=
+           Editor.Ada_Cross_Unit_Lookup_Integration.Build_With_Children
+             (Parent_Cross_Visibility, Parent_Children, Source_Unit_Name => "Parent",
+              Child_Context =>
+                Editor.Ada_Child_Unit_Visibility.Child_Visibility_Context_Parent_Body);
+         Parent_Info :=
+           Editor.Ada_Selected_Name_Resolution.Resolve_Selected_With_Cross_Unit
+             (Parent_Tree, Parent_Regions, Parent_Visibility, Parent_Uses,
+              Parent_Cross_Lookup, Parent_Body_Region,
+              "Parent.Private_Child.Exported");
+
+         Assert
+           (Parent_Info.Status =
+              Editor.Ada_Selected_Name_Resolution.Selected_Name_Cross_Unit_Prefix_Found
+            and then Parent_Info.Cross_Unit_Status =
+              Editor.Ada_Cross_Unit_Lookup_Integration.Cross_Unit_Lookup_With_Visible,
+            "selected-name consumers must resolve private child prefixes through child-aware parent-body lookup");
+      end;
+   end Test_Ada_Selected_Name_Cross_Unit_Lookup_Consumer;
 
 
 
-   procedure Test_Ada_Expression_Cross_Unit_Selected_Name_Inference_Pass1055
+   procedure Test_Ada_Expression_Cross_Unit_Selected_Name_Inference
      (T : in out AUnit.Test_Cases.Test_Case'Class)
    is
       pragma Unreferenced (T);
@@ -53769,10 +54415,96 @@ package body Editor.Syntax_Semantics.Tests is
          and then Length (Info.Cross_Unit_Selected_Selector) > 0
          and then Info.Fingerprint /= 0,
          "cross-unit selected-name expression metadata must retain target, selector, and fingerprint");
-   end Test_Ada_Expression_Cross_Unit_Selected_Name_Inference_Pass1055;
+   end Test_Ada_Expression_Cross_Unit_Selected_Name_Inference;
+
+   procedure Test_Ada_Expression_Selected_Name_Operator_Expected_Combined_Inference
+     (T : in out AUnit.Test_Cases.Test_Case'Class)
+   is
+      pragma Unreferenced (T);
+      Library_Analysis : constant Editor.Ada_Language_Model.Analysis_Result :=
+        Editor.Ada_Declaration_Parser.Parse
+          ("package Library is" & ASCII.LF &
+           "   Exported : Integer;" & ASCII.LF &
+           "end Library;" & ASCII.LF,
+           "library.ads");
+      Client_Source : constant String :=
+        "with Library;" & ASCII.LF &
+        "package body Client is" & ASCII.LF &
+        "   Value : Integer := Library.Exported;" & ASCII.LF &
+        "   Sum : Integer := 1 + 2;" & ASCII.LF &
+        "end Client;" & ASCII.LF;
+      Client_Analysis : constant Editor.Ada_Language_Model.Analysis_Result :=
+        Editor.Ada_Declaration_Parser.Parse (Client_Source, "client.adb");
+      Tree : constant Editor.Ada_Syntax_Tree.Tree_Type :=
+        Editor.Ada_Syntax_Tree.Parse (Client_Source);
+      Regions : constant Editor.Ada_Declarative_Regions.Region_Model :=
+        Editor.Ada_Declarative_Regions.Build (Tree);
+      Visibility : constant Editor.Ada_Direct_Visibility.Visibility_Model :=
+        Editor.Ada_Direct_Visibility.Build (Tree, Regions);
+      Uses : constant Editor.Ada_Use_Visibility.Use_Visibility_Model :=
+        Editor.Ada_Use_Visibility.Build (Tree, Regions, Visibility);
+      Primitive_Uses : constant Editor.Ada_Use_Type_Operators.Primitive_Use_Model :=
+        Editor.Ada_Use_Type_Operators.Build (Tree, Regions, Visibility, Uses);
+      Candidates : constant Editor.Ada_Call_Candidates.Call_Candidate_Model :=
+        Editor.Ada_Call_Candidates.Build
+          (Tree, Regions, Visibility, Uses, Primitive_Uses);
+      Profile_Shapes : constant Editor.Ada_Call_Profile_Shapes.Profile_Shape_Model :=
+        Editor.Ada_Call_Profile_Shapes.Build (Tree, Regions);
+      Profile_Filters : constant Editor.Ada_Call_Profile_Filters.Profile_Filter_Model :=
+        Editor.Ada_Call_Profile_Filters.Build
+          (Candidates, Profile_Shapes, Visibility);
+      Calls : constant Editor.Ada_Call_Resolution.Call_Resolution_Model :=
+        Editor.Ada_Call_Resolution.Build (Candidates, Profile_Filters);
+      Types : constant Editor.Ada_Type_Graph.Type_Model :=
+        Editor.Ada_Type_Graph.Build (Tree, Regions, Visibility);
+      Static : constant Editor.Ada_Static_Expressions.Static_Model :=
+        Editor.Ada_Static_Expressions.Build (Tree, Regions);
+      Expected : constant Editor.Ada_Expected_Type_Contexts.Expected_Context_Model :=
+        Editor.Ada_Expected_Type_Contexts.Build
+          (Tree, Regions, Visibility, Profile_Shapes, Calls);
+      Index : Editor.Ada_Project_Index.Index_State;
+      Closure : Editor.Ada_Cross_Unit_Closure.Cross_Unit_Closure_Model;
+      Cross_Visibility : Editor.Ada_Cross_Unit_Visibility.Cross_Unit_Visibility_Model;
+      Cross_Lookup : Editor.Ada_Cross_Unit_Lookup_Integration.Cross_Unit_Lookup_Model;
+      Selected : Editor.Ada_Selected_Name_Resolution.Selected_Name_Model;
+      Model : Editor.Ada_Expression_Types.Expression_Type_Model;
+   begin
+      Editor.Ada_Project_Index.Clear (Index);
+      Editor.Ada_Project_Index.Put_Analysis
+        (Index, "src/library.ads", Buffer_Token => 0, Buffer_Revision => 0,
+         Lifecycle_Generation => 0, Analysis => Library_Analysis);
+      Editor.Ada_Project_Index.Put_Analysis
+        (Index, "src/client.adb", Buffer_Token => 0, Buffer_Revision => 0,
+         Lifecycle_Generation => 0, Analysis => Client_Analysis);
+
+      Closure := Editor.Ada_Cross_Unit_Closure.Build (Index);
+      Cross_Visibility := Editor.Ada_Cross_Unit_Visibility.Build (Index, Closure);
+      Cross_Lookup := Editor.Ada_Cross_Unit_Lookup_Integration.Build
+        (Cross_Visibility, Source_Unit_Name => "Client");
+      Selected := Editor.Ada_Selected_Name_Resolution.Build_With_Cross_Unit
+        (Tree, Regions, Visibility, Uses, Cross_Lookup);
+      Model :=
+        Editor.Ada_Expression_Types
+          .Build_With_Cross_Unit_Selected_Names_Operator_Uses_And_Expected
+            (Tree, Regions, Visibility, Types, Static, Calls, Selected,
+             Primitive_Uses, Expected);
+
+      Assert
+        (Editor.Ada_Expression_Types.Cross_Unit_Selected_Name_Resolved_Count (Model) >= 1,
+         "combined expression builder should preserve cross-unit selected-name inference");
+      Assert
+        (Editor.Ada_Expression_Types.Expected_Context_Count (Model) >= 1,
+         "combined expression builder should preserve expected-context propagation");
+      Assert
+        (Editor.Ada_Expression_Types.Operator_Resolved_Count (Model) +
+         Editor.Ada_Expression_Types.Operator_Operand_Unknown_Count (Model) +
+         Editor.Ada_Expression_Types.Operator_Overload_Resolved_Count (Model) +
+         Editor.Ada_Expression_Types.Operator_Overload_Unknown_Count (Model) >= 1,
+         "combined expression builder should preserve operator inference evidence");
+   end Test_Ada_Expression_Selected_Name_Operator_Expected_Combined_Inference;
 
 
-   procedure Test_Ada_View_Aware_Compatibility_Pass1056
+   procedure Test_Ada_View_Aware_Compatibility
      (T : in out AUnit.Test_Cases.Test_Case'Class)
    is
       pragma Unreferenced (T);
@@ -53811,6 +54543,7 @@ package body Editor.Syntax_Semantics.Tests is
       Expressions : Editor.Ada_Expression_Types.Expression_Type_Model;
       Model : Editor.Ada_View_Aware_Compatibility.View_Compatibility_Model;
       Hidden : Editor.Ada_Subtype_Compatibility.Compatibility_Info := (others => <>);
+      Derived : Editor.Ada_Subtype_Compatibility.Compatibility_Info := (others => <>);
    begin
       Editor.Ada_Project_Index.Clear (Index);
       Editor.Ada_Project_Index.Put_Analysis
@@ -53844,10 +54577,16 @@ package body Editor.Syntax_Semantics.Tests is
         (Editor.Ada_View_Aware_Compatibility.Classify_Subtype_Compatibility (Hidden) =
            Editor.Ada_View_Aware_Compatibility.View_Compatibility_Private_Full_View_Hidden,
          "private hidden-full-view subtype compatibility must be exposed as a view-aware barrier");
-   end Test_Ada_View_Aware_Compatibility_Pass1056;
+      Derived.Status :=
+        Editor.Ada_Subtype_Compatibility.Subtype_Compatibility_Type_Graph_Derived_From;
+      Assert
+        (Editor.Ada_View_Aware_Compatibility.Classify_Subtype_Compatibility (Derived) =
+           Editor.Ada_View_Aware_Compatibility.View_Compatibility_Requires_Explicit_Conversion,
+         "view-aware compatibility must not report derived specific types as implicit-compatible");
+   end Test_Ada_View_Aware_Compatibility;
 
 
-   procedure Test_Ada_Expression_Diagnostics_View_Compatibility_Pass1057
+   procedure Test_Ada_Expression_Diagnostics_View_Compatibility
      (T : in out AUnit.Test_Cases.Test_Case'Class)
    is
       pragma Unreferenced (T);
@@ -53927,9 +54666,9 @@ package body Editor.Syntax_Semantics.Tests is
       Assert
         (Editor.Ada_Expression_Diagnostics.Fingerprint (Diags) /= 0,
          "view-aware expression diagnostics projection must produce a deterministic fingerprint");
-   end Test_Ada_Expression_Diagnostics_View_Compatibility_Pass1057;
+   end Test_Ada_Expression_Diagnostics_View_Compatibility;
 
-   procedure Test_Ada_Generic_View_Compatibility_Pass1058
+   procedure Test_Ada_Generic_View_Compatibility
      (T : in out AUnit.Test_Cases.Test_Case'Class)
    is
       pragma Unreferenced (T);
@@ -54019,9 +54758,9 @@ package body Editor.Syntax_Semantics.Tests is
       Assert
         (Editor.Ada_Generic_View_Compatibility.Fingerprint (Model) /= 0,
          "generic view compatibility must preserve deterministic fingerprints");
-   end Test_Ada_Generic_View_Compatibility_Pass1058;
+   end Test_Ada_Generic_View_Compatibility;
 
-   procedure Test_Ada_Generic_Contract_Diagnostics_View_Compatibility_Pass1059
+   procedure Test_Ada_Generic_Contract_Diagnostics_View_Compatibility
      (T : in out AUnit.Test_Cases.Test_Case'Class)
    is
       pragma Unreferenced (T);
@@ -54124,11 +54863,11 @@ package body Editor.Syntax_Semantics.Tests is
       Assert
         (Editor.Ada_Generic_Contract_Diagnostics.Fingerprint (Diags) /= 0,
          "generic view diagnostic projection must contribute to deterministic fingerprints");
-   end Test_Ada_Generic_Contract_Diagnostics_View_Compatibility_Pass1059;
+   end Test_Ada_Generic_Contract_Diagnostics_View_Compatibility;
 
 
 
-   procedure Test_Ada_Generic_Instantiated_Body_Analysis_Pass1060
+   procedure Test_Ada_Generic_Instantiated_Body_Analysis
      (T : in out AUnit.Test_Cases.Test_Case'Class)
    is
       pragma Unreferenced (T);
@@ -54201,10 +54940,10 @@ package body Editor.Syntax_Semantics.Tests is
       Assert
         (Editor.Ada_Generic_Instantiated_Body_Analysis.Fingerprint (Bodies) /= 0,
          "instantiated body analysis must produce a deterministic fingerprint");
-   end Test_Ada_Generic_Instantiated_Body_Analysis_Pass1060;
+   end Test_Ada_Generic_Instantiated_Body_Analysis;
 
 
-   procedure Test_Ada_Generic_Contract_Diagnostics_Instantiated_Body_Pass1061
+   procedure Test_Ada_Generic_Contract_Diagnostics_Instantiated_Body
      (T : in out AUnit.Test_Cases.Test_Case'Class)
    is
       pragma Unreferenced (T);
@@ -54275,10 +55014,10 @@ package body Editor.Syntax_Semantics.Tests is
       Assert
         (Editor.Ada_Generic_Contract_Diagnostics.Fingerprint (Diags) /= 0,
          "instantiated body diagnostics must contribute to deterministic diagnostic fingerprints");
-   end Test_Ada_Generic_Contract_Diagnostics_Instantiated_Body_Pass1061;
+   end Test_Ada_Generic_Contract_Diagnostics_Instantiated_Body;
 
 
-   procedure Test_Ada_Nested_Body_Spec_Conformance_Pass1062
+   procedure Test_Ada_Nested_Body_Spec_Conformance
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
       pragma Unreferenced (T);
       use type Editor.Ada_Nested_Body_Spec_Conformance.Nested_Body_Spec_Conformance_Status;
@@ -54340,12 +55079,12 @@ package body Editor.Syntax_Semantics.Tests is
          and then Touch.Fingerprint /= 0
          and then Editor.Ada_Nested_Body_Spec_Conformance.Fingerprint (Nested) /= 0,
          "nested body/spec conformance must preserve identity and deterministic fingerprints");
-   end Test_Ada_Nested_Body_Spec_Conformance_Pass1062;
+   end Test_Ada_Nested_Body_Spec_Conformance;
 
 
 
 
-   procedure Test_Ada_Cross_Unit_Diagnostics_Nested_Body_Spec_Pass1063
+   procedure Test_Ada_Cross_Unit_Diagnostics_Nested_Body_Spec
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
       pragma Unreferenced (T);
       use type Editor.Ada_Cross_Unit_Diagnostics.Cross_Unit_Diagnostic_Severity;
@@ -54417,12 +55156,12 @@ package body Editor.Syntax_Semantics.Tests is
       Assert
         (Editor.Ada_Cross_Unit_Diagnostics.Fingerprint (Diags) /= 0,
          "nested body/spec diagnostics must contribute to deterministic cross-unit fingerprints");
-   end Test_Ada_Cross_Unit_Diagnostics_Nested_Body_Spec_Pass1063;
+   end Test_Ada_Cross_Unit_Diagnostics_Nested_Body_Spec;
 
 
 
 
-   procedure Test_Ada_Selected_Representation_Targets_Pass1064
+   procedure Test_Ada_Selected_Representation_Targets
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
       pragma Unreferenced (T);
       use type Editor.Ada_Selected_Representation_Targets.Selected_Representation_Target_Status;
@@ -54503,10 +55242,10 @@ package body Editor.Syntax_Semantics.Tests is
          and then Info.Fingerprint /= 0
          and then Editor.Ada_Selected_Representation_Targets.Fingerprint (Model) /= 0,
          "selected representation targets must preserve selected target text and deterministic fingerprints");
-   end Test_Ada_Selected_Representation_Targets_Pass1064;
+   end Test_Ada_Selected_Representation_Targets;
 
 
-   procedure Test_Ada_Representation_Diagnostics_Selected_Targets_Pass1065
+   procedure Test_Ada_Representation_Diagnostics_Selected_Targets
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
       pragma Unreferenced (T);
       use type Editor.Ada_Representation_Diagnostics.Representation_Diagnostic_Kind;
@@ -54596,10 +55335,10 @@ package body Editor.Syntax_Semantics.Tests is
       Assert
         (Editor.Ada_Representation_Diagnostics.Fingerprint (Diags) /= 0,
          "selected representation diagnostics must contribute to deterministic representation fingerprints");
-   end Test_Ada_Representation_Diagnostics_Selected_Targets_Pass1065;
+   end Test_Ada_Representation_Diagnostics_Selected_Targets;
 
 
-   procedure Test_Ada_Generic_Formal_Package_Substitutions_Pass1069
+   procedure Test_Ada_Generic_Formal_Package_Substitutions
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
       pragma Unreferenced (T);
       use type Editor.Ada_Generic_Formal_Package_Substitutions.Formal_Package_Substitution_Status;
@@ -54686,12 +55425,12 @@ package body Editor.Syntax_Semantics.Tests is
          and then Last_Diag.Formal_Package_Substitution_Fingerprint /= 0
          and then Length (Last_Diag.Detail) > 0,
          "formal package substitution diagnostics must preserve substitution identity fingerprint and detail");
-   end Test_Ada_Generic_Formal_Package_Substitutions_Pass1069;
+   end Test_Ada_Generic_Formal_Package_Substitutions;
 
 
 
 
-   procedure Test_Ada_Dispatching_Call_Legality_Pass1070
+   procedure Test_Ada_Dispatching_Call_Legality
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
       use type Editor.Ada_Dispatching_Call_Legality.Dispatching_Legality_Id;
       pragma Unreferenced (T);
@@ -54746,10 +55485,10 @@ package body Editor.Syntax_Semantics.Tests is
       Assert
         (Editor.Ada_Expression_Diagnostics.Fingerprint (Diagnostics) /= 0,
          "expression diagnostics must accept dispatching legality metadata as a deterministic input");
-   end Test_Ada_Dispatching_Call_Legality_Pass1070;
+   end Test_Ada_Dispatching_Call_Legality;
 
 
-   procedure Test_Ada_Overload_Ranking_Pass1071
+   procedure Test_Ada_Overload_Ranking
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
       use type Editor.Ada_Overload_Ranking.Overload_Ranking_Id;
       pragma Unreferenced (T);
@@ -54856,7 +55595,7 @@ package body Editor.Syntax_Semantics.Tests is
         (Editor.Ada_Expression_Diagnostics.Overload_Ranking_Diagnostic_Count (Diagnostics) >= 1
          and then Editor.Ada_Expression_Diagnostics.Overload_Ranking_Rejection_Diagnostic_Count (Diagnostics) >= 1,
          "expression diagnostics must project unresolved or rejected overload-ranking causes");
-   end Test_Ada_Overload_Ranking_Pass1071;
+   end Test_Ada_Overload_Ranking;
 
    procedure Register_Tests (T : in out Syntax_Semantics_Test_Case) is
       procedure Add_Test
@@ -54893,7 +55632,7 @@ package body Editor.Syntax_Semantics.Tests is
         (T, Test_Overlong_Scoped_Semantic_Lookup_Degrades'Access,
          "overlong scoped semantic lookup degrades conservatively");
       AUnit.Test_Cases.Registration.Register_Routine
-        (T, Test_Syntax_Semantics_Recovered_Metadata_Suppressed_Pass891'Access,
+        (T, Test_Syntax_Semantics_Recovered_Metadata_Suppressed'Access,
          "semantic colouring suppresses recovered partial metadata names");
       AUnit.Test_Cases.Registration.Register_Routine
         (T, Test_Language_Model_Parser_Drives_Semantics'Access,
@@ -55222,6 +55961,9 @@ package body Editor.Syntax_Semantics.Tests is
       AUnit.Test_Cases.Registration.Register_Routine
         (T, Test_Language_Model_One_Line_Package_Callable_Control_Tail'Access,
          "language model parser keeps compact callable-body control tails callable-local");
+      AUnit.Test_Cases.Registration.Register_Routine
+        (T, Test_Language_Model_One_Line_Package_Callable_Named_End_Tail'Access,
+         "language model parser keeps compact callable named ends callable-local");
       AUnit.Test_Cases.Registration.Register_Routine
         (T, Test_Language_Model_One_Line_Package_Callable_Anonymous_Block_Tail'Access,
          "language model parser keeps anonymous block ends callable-local");
@@ -55738,12 +56480,12 @@ package body Editor.Syntax_Semantics.Tests is
       Add_Test (Routine => Test_Language_Model_Token_Cursor_Use_Clause_Name_List_Grammar_Completeness'Access, Name => "token-cursor grammar parses use-clause name lists structurally");
       Add_Test (Routine => Test_Language_Model_Token_Cursor_Declarative_Use_Clause_Grammar_Completeness'Access, Name => "token-cursor grammar parses declarative use clauses without context ownership");
       Add_Test (Routine => Test_Language_Model_Token_Cursor_Use_Clause_Recovery_Grammar_Completeness'Access, Name => "token-cursor grammar recovers from malformed use-clause lists");
-      Add_Test (Routine => Test_Language_Model_Token_Cursor_Use_Clause_Specific_Recovery_Pass875'Access, Name => "token-cursor grammar records use-clause specific recovery boundaries");
-      Add_Test (Routine => Test_Language_Model_Token_Cursor_Use_Clause_Recovery_Depth_Pass933'Access, Name => "token-cursor grammar records use-clause recovery depth for all/type boundaries");
-      Add_Test (Routine => Test_Language_Model_Token_Cursor_Representation_Item_Recovery_Depth_Pass934'Access, Name => "token-cursor grammar records representation item recovery depth at declaration boundaries");
-      Add_Test (Routine => Test_Language_Model_Token_Cursor_Enumeration_Representation_Recovery_Pass876'Access, Name => "token-cursor grammar records enumeration representation specific recovery boundaries");
-      Add_Test (Routine => Test_Language_Model_Token_Cursor_Subprogram_Contract_Aspect_Placement_Pass877'Access, Name => "token-cursor grammar records subprogram contract aspect placement on specs and bodies");
-      Add_Test (Routine => Test_Language_Model_Token_Cursor_Package_Declarative_Item_Recovery_Pass878'Access, Name => "token-cursor grammar records package declarative item recovery boundaries");
+      Add_Test (Routine => Test_Language_Model_Token_Cursor_Use_Clause_Specific_Recovery'Access, Name => "token-cursor grammar records use-clause specific recovery boundaries");
+      Add_Test (Routine => Test_Language_Model_Token_Cursor_Use_Clause_Recovery_Depth'Access, Name => "token-cursor grammar records use-clause recovery depth for all/type boundaries");
+      Add_Test (Routine => Test_Language_Model_Token_Cursor_Representation_Item_Recovery_Depth'Access, Name => "token-cursor grammar records representation item recovery depth at declaration boundaries");
+      Add_Test (Routine => Test_Language_Model_Token_Cursor_Enumeration_Representation_Recovery'Access, Name => "token-cursor grammar records enumeration representation specific recovery boundaries");
+      Add_Test (Routine => Test_Language_Model_Token_Cursor_Subprogram_Contract_Aspect_Placement'Access, Name => "token-cursor grammar records subprogram contract aspect placement on specs and bodies");
+      Add_Test (Routine => Test_Language_Model_Token_Cursor_Package_Declarative_Item_Recovery_Case_878'Access, Name => "token-cursor grammar records package declarative item recovery boundaries");
       Add_Test (Routine => Test_Language_Model_Token_Cursor_Separate_And_Body_Stub_Grammar_Completeness'Access, Name => "token-cursor grammar parses separate subunits and body stubs structurally");
       Add_Test (Routine => Test_Language_Model_Token_Cursor_Concurrent_Grammar_Completeness'Access, Name => "token-cursor grammar parses task protected and entry-family definitions structurally");
       Add_Test (Routine => Test_Language_Model_Token_Cursor_Entry_Index_And_Accept_Grammar'Access, Name => "token-cursor grammar parses entry indexes and accept statements structurally");
@@ -55759,12 +56501,12 @@ package body Editor.Syntax_Semantics.Tests is
       Add_Test (Routine => Test_Language_Model_Token_Cursor_Abort_Statement_Grammar_Completeness'Access, Name => "token-cursor grammar parses abort task-name lists structurally");
       Add_Test (Routine => Test_Language_Model_Token_Cursor_Exception_Handler_Grammar_Completeness'Access, Name => "token-cursor grammar parses exception choice parameters and choices structurally");
       Add_Test (Routine => Test_Language_Model_Token_Cursor_Exception_Handler_Choice_Depth'Access, Name => "token-cursor grammar deepens exception handler choices structurally");
-      Add_Test (Routine => Test_Language_Model_Token_Cursor_Exception_Handler_Missing_Choice_Pass824'Access, Name => "token-cursor grammar recovers exception handler choice lists with missing choices");
-      Add_Test (Routine => Test_Language_Model_Token_Cursor_Package_Declarative_Item_Recovery_Pass825'Access, Name => "token-cursor grammar distinguishes visible and private package declarative item recovery");
-      Add_Test (Routine => Test_Language_Model_Token_Cursor_Parameter_Profile_Delimiters_Pass826'Access, Name => "token-cursor grammar records parameter profile delimiters separators and recovery");
-      Add_Test (Routine => Test_Language_Model_Token_Cursor_Discriminant_Part_Delimiters_Pass827'Access, Name => "token-cursor grammar records discriminant part delimiters separators and recovery");
-      Add_Test (Routine => Test_Language_Model_Token_Cursor_Constraint_Delimiters_Pass828'Access, Name => "token-cursor grammar records index and discriminant constraint delimiters separators and recovery");
-      Add_Test (Routine => Test_Language_Model_Token_Cursor_Aggregate_Delimiters_Pass829'Access, Name => "token-cursor grammar records aggregate delimiters separators and recovery");
+      Add_Test (Routine => Test_Language_Model_Token_Cursor_Exception_Handler_Missing_Choice'Access, Name => "token-cursor grammar recovers exception handler choice lists with missing choices");
+      Add_Test (Routine => Test_Language_Model_Token_Cursor_Package_Declarative_Item_Recovery_Case_825'Access, Name => "token-cursor grammar distinguishes visible and private package declarative item recovery");
+      Add_Test (Routine => Test_Language_Model_Token_Cursor_Parameter_Profile_Delimiters'Access, Name => "token-cursor grammar records parameter profile delimiters separators and recovery");
+      Add_Test (Routine => Test_Language_Model_Token_Cursor_Discriminant_Part_Delimiters'Access, Name => "token-cursor grammar records discriminant part delimiters separators and recovery");
+      Add_Test (Routine => Test_Language_Model_Token_Cursor_Constraint_Delimiters'Access, Name => "token-cursor grammar records index and discriminant constraint delimiters separators and recovery");
+      Add_Test (Routine => Test_Language_Model_Token_Cursor_Aggregate_Delimiters'Access, Name => "token-cursor grammar records aggregate delimiters separators and recovery");
       Add_Test (Routine => Test_Language_Model_Token_Cursor_Raise_Statement_Grammar_Completeness'Access, Name => "token-cursor grammar parses raise and bare re-raise statements structurally");
       Add_Test (Routine => Test_Language_Model_Token_Cursor_Exit_Goto_Grammar_Completeness'Access, Name => "token-cursor grammar parses exit targets conditions and goto targets structurally");
       Add_Test (Routine => Test_Language_Model_Token_Cursor_Exit_Goto_Null_Delay_Statement_Depth_Grammar_Completeness'Access, Name => "token-cursor grammar parses exit goto null and delay statement refinements");
@@ -55810,7 +56552,7 @@ package body Editor.Syntax_Semantics.Tests is
       Add_Test (Routine => Test_Language_Model_Token_Cursor_Generic_Formal_Object_Default_Grammar_Completeness'Access, Name => "token-cursor grammar parses generic formal object modes and defaults structurally");
       Add_Test (Routine => Test_Language_Model_Token_Cursor_Generic_Formal_Object_Internal_Grammar_Completeness'Access, Name => "token-cursor grammar parses generic formal object internals structurally");
       Add_Test (Routine => Test_Language_Model_Token_Cursor_Formal_Subprogram_Default_Grammar_Completeness'Access, Name => "token-cursor grammar parses formal subprogram defaults structurally");
-      Add_Test (Routine => Test_Language_Model_Token_Cursor_Generic_Formal_Subprogram_Default_Recovery_Pass931'Access, Name => "token-cursor grammar recovers formal subprogram abstract and missing defaults structurally");
+      Add_Test (Routine => Test_Language_Model_Token_Cursor_Generic_Formal_Subprogram_Default_Recovery'Access, Name => "token-cursor grammar recovers formal subprogram abstract and missing defaults structurally");
       Add_Test (Routine => Test_Language_Model_Token_Cursor_Generic_Actual_Box_Grammar_Completeness'Access, Name => "token-cursor grammar parses named generic actual selectors and box defaults structurally");
       Add_Test (Routine => Test_Language_Model_Token_Cursor_Generic_Instantiation_Internal_Grammar_Completeness'Access, Name => "token-cursor grammar parses generic instantiation internals structurally");
       Add_Test (Routine => Test_Language_Model_Token_Cursor_Generic_Instantiation_Depth_Grammar_Completeness'Access, Name => "token-cursor grammar parses generic instantiation actuals and recovery deeply");
@@ -55820,7 +56562,7 @@ package body Editor.Syntax_Semantics.Tests is
       Add_Test (Routine => Test_Language_Model_Token_Cursor_Generic_Formal_Type_Deep_Grammar_Completeness'Access, Name => "token-cursor grammar parses generic formal type definitions deeply and structurally");
       Add_Test (Routine => Test_Language_Model_Token_Cursor_Generic_Formal_Type_Modifier_And_Parent_Grammar_Completeness'Access, Name => "token-cursor grammar retains formal type modifiers parents private extensions and aliased components structurally");
       Add_Test (Routine => Test_Language_Model_Token_Cursor_Generic_Formal_Type_Declaration_Head_Grammar_Completeness'Access, Name => "token-cursor grammar retains generic formal type declaration heads structurally");
-      Add_Test (Routine => Test_Language_Model_Token_Cursor_Generic_Formal_Type_Edge_Depth_Pass776'Access, Name => "token-cursor grammar deepens generic formal type edge recovery and interface metadata");
+      Add_Test (Routine => Test_Language_Model_Token_Cursor_Generic_Formal_Type_Edge_Depth'Access, Name => "token-cursor grammar deepens generic formal type edge recovery and interface metadata");
       Add_Test (Routine => Test_Language_Model_Token_Cursor_Type_Declaration_Internal_Grammar_Completeness'Access, Name => "token-cursor grammar retains type declaration internals structurally");
       Add_Test (Routine => Test_Language_Model_Token_Cursor_Discriminant_Specification_Internal_Grammar_Completeness'Access, Name => "token-cursor grammar retains discriminant specification internals structurally");
       Add_Test (Routine => Test_Language_Model_Token_Cursor_Discriminant_Depth_Grammar_Completeness'Access, Name => "token-cursor grammar deepens discriminant known unknown access default and constraint coverage");
@@ -55839,9 +56581,9 @@ package body Editor.Syntax_Semantics.Tests is
       Add_Test (Routine => Test_Language_Model_Token_Cursor_Formal_Package_Contract_Edge_Cases'Access, Name => "token-cursor grammar retains formal package contract edge cases");
       Add_Test (Routine => Test_Language_Model_Token_Cursor_Formal_Package_Defaulted_Actuals'Access, Name => "token-cursor grammar tags defaulted formal package actual parts");
       Add_Test (Routine => Test_Language_Model_Token_Cursor_Formal_Package_Actual_Recovery'Access, Name => "token-cursor grammar recovers after malformed formal package actual parts");
-      Add_Test (Routine => Test_Language_Model_Token_Cursor_Formal_Package_Hostile_Recovery_Pass784'Access, Name => "token-cursor grammar recovers hostile formal package declarations");
-      Add_Test (Routine => Test_Language_Model_Token_Cursor_Record_Representation_Recovery_Pass785'Access, Name => "token-cursor grammar recovers malformed record representation clauses");
-      Add_Test (Routine => Test_Language_Model_Token_Cursor_Exception_Handler_Missing_Arrow_Pass786'Access, Name => "token-cursor grammar recovers exception handlers missing arrows");
+      Add_Test (Routine => Test_Language_Model_Token_Cursor_Formal_Package_Hostile_Recovery'Access, Name => "token-cursor grammar recovers hostile formal package declarations");
+      Add_Test (Routine => Test_Language_Model_Token_Cursor_Record_Representation_Recovery'Access, Name => "token-cursor grammar recovers malformed record representation clauses");
+      Add_Test (Routine => Test_Language_Model_Token_Cursor_Exception_Handler_Missing_Arrow'Access, Name => "token-cursor grammar recovers exception handlers missing arrows");
       Add_Test (Routine => Test_Language_Model_Token_Cursor_Subprogram_Modifier_Grammar_Completeness'Access, Name => "token-cursor grammar parses overriding null abstract expression and defaulted subprogram forms");
       Add_Test (Routine => Test_Language_Model_Token_Cursor_Subprogram_Body_Internal_Grammar_Completeness'Access, Name => "token-cursor grammar parses subprogram body internals structurally");
       Add_Test (Routine => Test_Language_Model_Token_Cursor_Package_Body_Internal_Grammar_Completeness'Access, Name => "token-cursor grammar parses package body internals structurally");
@@ -55854,108 +56596,108 @@ package body Editor.Syntax_Semantics.Tests is
       Add_Test (Routine => Test_Language_Model_Token_Cursor_Task_Protected_Deep_Grammar_Pass'Access, Name => "token-cursor grammar deepens task/protected operation, entry, accept, and select alternatives");
       Add_Test (Routine => Test_Language_Model_Token_Cursor_Entry_Select_Depth_Grammar_Completeness'Access, Name => "token-cursor grammar deepens entry calls and timed conditional select alternatives");
       Add_Test (Routine => Test_Language_Model_Token_Cursor_Select_Statement_Alternative_Depth'Access, Name => "token-cursor grammar deepens select statement alternatives structurally");
-      Add_Test (Routine => Test_Language_Model_Token_Cursor_Select_Alternative_Statement_Recovery_Pass882'Access, Name => "token-cursor grammar recovers empty select alternative statement sequences");
-      Add_Test (Routine => Test_Language_Model_Token_Cursor_Select_Guard_Missing_Arrow_Pass787'Access, Name => "token-cursor grammar recovers select guards missing arrows");
-      Add_Test (Routine => Test_Language_Model_Token_Cursor_Accept_End_Recovery_Pass788'Access, Name => "token-cursor grammar deepens accept end and missing-end recovery");
-      Add_Test (Routine => Test_Language_Model_Token_Cursor_Accept_Body_Statement_Recovery_Pass883'Access, Name => "token-cursor grammar records empty accept body statement recovery");
-      Add_Test (Routine => Test_Language_Model_Token_Cursor_Generic_Formal_Incomplete_Type_Pass884'Access, Name => "token-cursor grammar parses generic formal incomplete type declarations");
-      Add_Test (Routine => Test_Language_Model_Token_Cursor_Pragma_Recovery_Depth_Pass885'Access, Name => "token-cursor grammar deepens pragma recovery metadata");
-      Add_Test (Routine => Test_Language_Model_Token_Cursor_Attribute_Address_Clause_Recovery_Pass886'Access, Name => "token-cursor grammar recovers malformed attribute and address clauses");
-      Add_Test (Routine => Test_Language_Model_Token_Cursor_Aspect_Placement_Breadth_Pass887'Access, Name => "token-cursor grammar records broader aspect placement families");
-      Add_Test (Routine => Test_Language_Model_Token_Cursor_Case_Expression_Dependent_Recovery_Pass888'Access, Name => "token-cursor grammar recovers case-expression alternatives missing dependent expressions");
-      Add_Test (Routine => Test_Language_Model_Token_Cursor_Name_Attribute_Refinement_Pass889'Access, Name => "token-cursor grammar refines attribute-prefix and incomplete selected-name contexts");
-      Add_Test (Routine => Test_Language_Model_Token_Cursor_Task_Protected_Body_Declarative_Recovery_Pass890'Access, Name => "token-cursor grammar recovers task/protected body declarative items before begin");
-      Add_Test (Routine => Test_Language_Model_Token_Cursor_Reduction_Argument_Recovery_Pass892'Access, Name => "token-cursor grammar recovers malformed reduction attribute argument parts");
-      Add_Test (Routine => Test_Language_Model_Token_Cursor_Quantified_Predicate_Recovery_Pass893'Access, Name => "token-cursor grammar recovers quantified expressions missing predicates");
-      Add_Test (Routine => Test_Language_Model_Token_Cursor_Declare_Expression_Body_Recovery_Pass894'Access, Name => "token-cursor grammar recovers declare expressions missing body expressions");
-      Add_Test (Routine => Test_Language_Model_Token_Cursor_Iterated_Component_Expression_Recovery_Pass895'Access, Name => "token-cursor grammar recovers iterated component associations missing component expressions");
-      Add_Test (Routine => Test_Language_Model_Token_Cursor_Generic_Actual_Association_Recovery_Pass896'Access, Name => "token-cursor grammar recovers malformed generic actual association lists");
-      Add_Test (Routine => Test_Language_Model_Token_Cursor_Renaming_Target_Recovery_Pass897'Access, Name => "token-cursor grammar recovers renamings missing renamed targets");
-      Add_Test (Routine => Test_Language_Model_Token_Cursor_Entry_Body_Statement_Recovery_Pass898'Access, Name => "token-cursor grammar recovers entry bodies missing statement sequences");
-      Add_Test (Routine => Test_Language_Model_Token_Cursor_Entry_Barrier_Condition_Recovery_Pass899'Access, Name => "token-cursor grammar recovers entry barriers missing conditions");
-      Add_Test (Routine => Test_Language_Model_Token_Cursor_Entry_Family_Empty_Definition_Recovery_Pass900'Access, Name => "token-cursor grammar recovers empty entry family definitions");
-      Add_Test (Routine => Test_Language_Model_Token_Cursor_Abort_Target_Reserved_Boundary_Recovery_Pass901'Access, Name => "token-cursor grammar recovers abort target lists at reserved boundaries");
-      Add_Test (Routine => Test_Language_Model_Token_Cursor_Requeue_Target_Reserved_Boundary_Recovery_Pass902'Access, Name => "token-cursor grammar recovers requeue targets at reserved boundaries");
-      Add_Test (Routine => Test_Language_Model_Token_Cursor_Delay_Expression_Reserved_Boundary_Recovery_Pass903'Access, Name => "token-cursor grammar recovers delay expressions at reserved boundaries");
-      Add_Test (Routine => Test_Language_Model_Token_Cursor_Goto_Target_Reserved_Boundary_Recovery_Pass904'Access, Name => "token-cursor grammar recovers goto targets at reserved boundaries");
-      Add_Test (Routine => Test_Language_Model_Token_Cursor_Return_Expression_Reserved_Boundary_Recovery_Pass905'Access, Name => "token-cursor grammar recovers return expressions at reserved boundaries");
-      Add_Test (Routine => Test_Language_Model_Token_Cursor_Raise_Target_Reserved_Boundary_Recovery_Pass906'Access, Name => "token-cursor grammar recovers raise targets at reserved boundaries");
-      Add_Test (Routine => Test_Language_Model_Token_Cursor_Exit_Target_Reserved_Boundary_Recovery_Pass907'Access, Name => "token-cursor grammar recovers exit targets at reserved boundaries");
-      Add_Test (Routine => Test_Language_Model_Token_Cursor_Assignment_Expression_Reserved_Boundary_Recovery_Pass908'Access, Name => "token-cursor grammar recovers assignment expressions at reserved boundaries");
-      Add_Test (Routine => Test_Language_Model_Token_Cursor_Call_Actual_Association_Recovery_Pass909'Access, Name => "token-cursor grammar recovers malformed call actual association lists");
-      Add_Test (Routine => Test_Language_Model_Token_Cursor_If_Elsif_Condition_Recovery_Pass910'Access, Name => "token-cursor grammar recovers if/elsif conditions missing before then");
-      Add_Test (Routine => Test_Language_Model_Token_Cursor_While_Condition_Recovery_Pass911'Access, Name => "token-cursor grammar recovers while conditions missing before loop");
-      Add_Test (Routine => Test_Language_Model_Token_Cursor_For_Iterator_Domain_Reserved_Boundary_Recovery_Pass912'Access, Name => "token-cursor grammar recovers for and iterator domains at reserved boundaries");
-      Add_Test (Routine => Test_Language_Model_Token_Cursor_Case_Selector_Reserved_Boundary_Recovery_Pass913'Access, Name => "token-cursor grammar recovers case selectors at reserved boundaries");
-      Add_Test (Routine => Test_Language_Model_Token_Cursor_Extended_Return_Initializer_Reserved_Boundary_Recovery_Pass914'Access, Name => "token-cursor grammar recovers extended return initializers at reserved boundaries");
-      Add_Test (Routine => Test_Language_Model_Token_Cursor_Raise_Message_Reserved_Boundary_Recovery_Pass915'Access, Name => "token-cursor grammar recovers raise message expressions at reserved boundaries");
-      Add_Test (Routine => Test_Language_Model_Token_Cursor_Exit_When_Reserved_Boundary_Recovery_Pass916'Access, Name => "token-cursor grammar recovers exit-when conditions at reserved boundaries");
-      Add_Test (Routine => Test_Language_Model_Token_Cursor_Null_Reserved_Boundary_Recovery_Pass917'Access, Name => "token-cursor grammar recovers null statements at reserved boundaries");
-      Add_Test (Routine => Test_Language_Model_Token_Cursor_Aggregate_Component_Reserved_Boundary_Recovery_Pass918'Access, Name => "token-cursor grammar recovers aggregate component expressions at reserved boundaries");
-      Add_Test (Routine => Test_Language_Model_Token_Cursor_Object_Initialization_Reserved_Boundary_Recovery_Pass919'Access, Name => "token-cursor grammar recovers object initialization expressions at reserved boundaries");
-      Add_Test (Routine => Test_Language_Model_Token_Cursor_Range_Constraint_Reserved_Boundary_Recovery_Pass920'Access, Name => "token-cursor grammar recovers range constraints at reserved boundaries");
-      Add_Test (Routine => Test_Language_Model_Token_Cursor_Digits_Delta_Reserved_Boundary_Recovery_Pass921'Access, Name => "token-cursor grammar recovers digits and delta constraints at reserved boundaries");
-      Add_Test (Routine => Test_Language_Model_Token_Cursor_Index_Discriminant_Constraint_Reserved_Boundary_Recovery_Pass922'Access, Name => "token-cursor grammar recovers index and discriminant constraints at reserved boundaries");
-      Add_Test (Routine => Test_Language_Model_Token_Cursor_Profile_Default_Reserved_Boundary_Recovery_Pass923'Access, Name => "token-cursor grammar recovers profile default expressions at reserved boundaries");
-      Add_Test (Routine => Test_Language_Model_Token_Cursor_Object_Subtype_Reserved_Boundary_Recovery_Pass924'Access, Name => "token-cursor grammar recovers object subtype indications at reserved boundaries");
-      Add_Test (Routine => Test_Language_Model_Token_Cursor_Number_Initialization_Reserved_Boundary_Recovery_Pass925'Access, Name => "token-cursor grammar recovers number initialization expressions at reserved boundaries");
-      Add_Test (Routine => Test_Language_Model_Token_Cursor_Component_Default_Reserved_Boundary_Recovery_Pass926'Access, Name => "token-cursor grammar recovers component default expressions at reserved boundaries");
-      Add_Test (Routine => Test_Language_Model_Token_Cursor_Discriminant_Default_Reserved_Boundary_Recovery_Pass927'Access, Name => "token-cursor grammar recovers discriminant default expressions at reserved boundaries");
-      Add_Test (Routine => Test_Language_Model_Token_Cursor_Array_Index_Reserved_Boundary_Recovery_Pass928'Access, Name => "token-cursor grammar recovers array index parts at reserved boundaries");
-      Add_Test (Routine => Test_Language_Model_Token_Cursor_Timed_Conditional_Entry_Call_Pass789'Access, Name => "token-cursor grammar deepens timed and conditional entry-call select statements");
-      Add_Test (Routine => Test_Language_Model_Token_Cursor_Requeue_Recovery_Pass790'Access, Name => "token-cursor grammar deepens requeue terminator and missing-abort recovery");
-      Add_Test (Routine => Test_Language_Model_Token_Cursor_Terminate_Alternative_Recovery_Pass791'Access, Name => "token-cursor grammar deepens terminate alternative terminator and recovery metadata");
-      Add_Test (Routine => Test_Language_Model_Token_Cursor_Abort_Terminator_Recovery_Pass792'Access, Name => "token-cursor grammar deepens abort terminator and missing-terminator recovery");
-      Add_Test (Routine => Test_Language_Model_Token_Cursor_Abort_Target_Recovery_Pass855'Access, Name => "token-cursor grammar records abort missing-target recovery metadata");
-      Add_Test (Routine => Test_Language_Model_Token_Cursor_Return_Terminator_Recovery_Pass856'Access, Name => "token-cursor grammar records return missing-terminator recovery metadata");
-      Add_Test (Routine => Test_Language_Model_Token_Cursor_Case_Statement_Is_Recovery_Pass866'Access, Name => "token-cursor grammar records case statement missing-is recovery metadata");
-      Add_Test (Routine => Test_Language_Model_Token_Cursor_Case_Choice_Missing_Choice_Recovery_Pass867'Access, Name => "token-cursor grammar recovers case choices missing after separators");
-      Add_Test (Routine => Test_Language_Model_Token_Cursor_Case_Alternative_Statement_Recovery_Pass868'Access, Name => "token-cursor grammar records case alternatives missing statement sequences");
-      Add_Test (Routine => Test_Language_Model_Token_Cursor_If_Branch_Statement_Recovery_Pass869'Access, Name => "token-cursor grammar records empty if branch statement recovery");
-      Add_Test (Routine => Test_Language_Model_Token_Cursor_Loop_Body_Statement_Recovery_Pass870'Access, Name => "token-cursor grammar records empty loop body statement recovery");
-      Add_Test (Routine => Test_Language_Model_Token_Cursor_Block_Body_Statement_Recovery_Pass871'Access, Name => "token-cursor grammar records empty block statement-sequence recovery");
-      Add_Test (Routine => Test_Language_Model_Token_Cursor_Case_Alternative_End_Case_Statement_Recovery_Pass872'Access, Name => "token-cursor grammar records terminal case alternative statement recovery");
-      Add_Test (Routine => Test_Language_Model_Token_Cursor_Exception_Handler_Statement_Recovery_Pass874'Access, Name => "token-cursor grammar records exception handler statement recovery");
-      Add_Test (Routine => Test_Language_Model_Token_Cursor_Formal_Package_Empty_Actual_Recovery_Pass873'Access, Name => "token-cursor grammar records empty formal package actual recovery");
-      Add_Test (Routine => Test_Language_Model_Token_Cursor_Extended_Return_Do_Recovery_Pass865'Access, Name => "token-cursor grammar records extended-return missing-do recovery metadata");
-      Add_Test (Routine => Test_Language_Model_Token_Cursor_Raise_Expression_Message_Recovery_Pass857'Access, Name => "token-cursor grammar records raise-expression missing-message recovery metadata");
-      Add_Test (Routine => Test_Language_Model_Token_Cursor_Raise_Statement_Message_Recovery_Pass858'Access, Name => "token-cursor grammar records raise-statement missing-message recovery metadata");
-      Add_Test (Routine => Test_Language_Model_Token_Cursor_Raise_Statement_Exception_Name_Recovery_Pass862'Access, Name => "token-cursor grammar records raise-statement missing-exception-name recovery metadata");
-      Add_Test (Routine => Test_Language_Model_Token_Cursor_Label_Missing_Close_Recovery_Pass859'Access, Name => "token-cursor grammar records label missing-close recovery metadata");
-      Add_Test (Routine => Test_Language_Model_Token_Cursor_Assignment_Expression_Recovery_Pass860'Access, Name => "token-cursor grammar records assignment missing-expression recovery metadata");
-      Add_Test (Routine => Test_Language_Model_Token_Cursor_Goto_Target_Recovery_Pass861'Access, Name => "token-cursor grammar records goto missing-target recovery metadata");
-      Add_Test (Routine => Test_Language_Model_Token_Cursor_Delay_Terminator_Recovery_Pass793'Access, Name => "token-cursor grammar deepens delay terminator and missing-terminator recovery");
-      Add_Test (Routine => Test_Language_Model_Token_Cursor_Return_Terminator_Recovery_Pass794'Access, Name => "token-cursor grammar deepens return terminator and extended-return missing-end recovery");
-      Add_Test (Routine => Test_Language_Model_Token_Cursor_Raise_Terminator_Recovery_Pass795'Access, Name => "token-cursor grammar deepens raise terminator and missing-semicolon recovery");
-      Add_Test (Routine => Test_Language_Model_Token_Cursor_Exit_Terminator_Recovery_Pass796'Access, Name => "token-cursor grammar deepens exit terminator and missing-semicolon recovery");
-      Add_Test (Routine => Test_Language_Model_Token_Cursor_Goto_Terminator_Recovery_Pass797'Access, Name => "token-cursor grammar deepens goto terminator and missing-semicolon recovery");
-      Add_Test (Routine => Test_Language_Model_Token_Cursor_Null_Terminator_Recovery_Pass798'Access, Name => "token-cursor grammar deepens null terminator and missing-semicolon recovery");
-      Add_Test (Routine => Test_Language_Model_Token_Cursor_Assignment_Terminator_Recovery_Pass799'Access, Name => "token-cursor grammar deepens assignment terminator and missing-semicolon recovery");
-      Add_Test (Routine => Test_Language_Model_Token_Cursor_Call_Terminator_Recovery_Pass800'Access, Name => "token-cursor grammar deepens call terminator and missing-semicolon recovery");
-      Add_Test (Routine => Test_Language_Model_Token_Cursor_Compound_End_Terminator_Recovery_Pass801'Access, Name => "token-cursor grammar deepens compound end terminator and missing-semicolon recovery");
-      Add_Test (Routine => Test_Language_Model_Token_Cursor_Case_End_Terminator_Recovery_Pass802'Access, Name => "token-cursor grammar deepens case end terminator and missing-semicolon recovery");
-      Add_Test (Routine => Test_Language_Model_Token_Cursor_Select_End_Terminator_Recovery_Pass803'Access, Name => "token-cursor grammar deepens select end terminator and missing-semicolon recovery");
-      Add_Test (Routine => Test_Language_Model_Token_Cursor_Case_Alternative_Missing_Arrow_Pass803'Access, Name => "token-cursor grammar deepens case alternative missing-arrow recovery");
-      Add_Test (Routine => Test_Language_Model_Token_Cursor_If_Missing_Then_Recovery_Pass804'Access, Name => "token-cursor grammar deepens if and elsif missing-then recovery");
-      Add_Test (Routine => Test_Language_Model_Token_Cursor_Loop_Missing_Loop_Recovery_Pass805'Access, Name => "token-cursor grammar deepens loop-scheme missing-loop recovery");
-      Add_Test (Routine => Test_Language_Model_Token_Cursor_Body_End_Terminator_Recovery_Pass806'Access, Name => "token-cursor grammar deepens package and subprogram body end terminator recovery");
-      Add_Test (Routine => Test_Language_Model_Token_Cursor_Concurrent_Body_End_Terminator_Recovery_Pass807'Access, Name => "token-cursor grammar deepens task and protected body end terminator recovery");
-      Add_Test (Routine => Test_Language_Model_Token_Cursor_Entry_Declaration_Terminator_Recovery_Pass808'Access, Name => "token-cursor grammar deepens entry declaration terminator recovery");
-      Add_Test (Routine => Test_Language_Model_Token_Cursor_Entry_Body_End_Recovery_Pass809'Access, Name => "token-cursor grammar deepens entry body end recovery");
-      Add_Test (Routine => Test_Language_Model_Token_Cursor_Subprogram_Declaration_Terminator_Pass810'Access, Name => "token-cursor grammar deepens subprogram declaration terminator recovery");
-      Add_Test (Routine => Test_Language_Model_Token_Cursor_Object_Declaration_Terminator_Pass811'Access, Name => "token-cursor grammar deepens object declaration terminator recovery");
-      Add_Test (Routine => Test_Language_Model_Token_Cursor_Type_Subtype_Declaration_Terminator_Pass812'Access, Name => "token-cursor grammar deepens type and subtype declaration terminator recovery");
-      Add_Test (Routine => Test_Language_Model_Token_Cursor_Package_Declaration_End_Terminator_Pass813'Access, Name => "token-cursor grammar deepens package declaration end terminator recovery");
-      Add_Test (Routine => Test_Language_Model_Token_Cursor_Formal_Package_Actual_Delimiters_Pass814'Access, Name => "token-cursor grammar deepens formal package actual delimiters");
-      Add_Test (Routine => Test_Language_Model_Token_Cursor_Exception_Declaration_Terminator_Pass815'Access, Name => "token-cursor grammar deepens exception declaration terminator recovery");
-      Add_Test (Routine => Test_Language_Model_Token_Cursor_Number_Declaration_Terminator_Pass816'Access, Name => "token-cursor grammar deepens number declaration terminator recovery");
-      Add_Test (Routine => Test_Language_Model_Token_Cursor_Generic_Formal_Declaration_Terminator_Pass817'Access, Name => "token-cursor grammar deepens generic formal declaration terminator recovery");
-      Add_Test (Routine => Test_Language_Model_Token_Cursor_Enumeration_Representation_Delimiters_Pass818'Access, Name => "token-cursor grammar deepens enumeration representation delimiters and missing-close recovery");
-      Add_Test (Routine => Test_Language_Model_Token_Cursor_Record_Representation_Delimiters_Pass819'Access, Name => "token-cursor grammar deepens record representation delimiters and missing-close recovery");
-      Add_Test (Routine => Test_Language_Model_Token_Cursor_Pragma_Argument_Delimiters_Pass820'Access, Name => "token-cursor grammar deepens pragma argument delimiters and missing-close recovery");
-      Add_Test (Routine => Test_Language_Model_Token_Cursor_Call_Actual_Delimiters_Pass821'Access, Name => "token-cursor grammar deepens call and entry-call actual delimiters and missing-close recovery");
-      Add_Test (Routine => Test_Language_Model_Token_Cursor_Generic_Instantiation_Actual_Delimiters_Pass822'Access, Name => "token-cursor grammar deepens generic instantiation actual delimiters and missing-close recovery");
-      Add_Test (Routine => Test_Language_Model_Token_Cursor_Protected_Operation_End_Detail_Pass823'Access, Name => "token-cursor grammar deepens protected operation body end-name and terminator recovery");
+      Add_Test (Routine => Test_Language_Model_Token_Cursor_Select_Alternative_Statement_Recovery'Access, Name => "token-cursor grammar recovers empty select alternative statement sequences");
+      Add_Test (Routine => Test_Language_Model_Token_Cursor_Select_Guard_Missing_Arrow'Access, Name => "token-cursor grammar recovers select guards missing arrows");
+      Add_Test (Routine => Test_Language_Model_Token_Cursor_Accept_End_Recovery'Access, Name => "token-cursor grammar deepens accept end and missing-end recovery");
+      Add_Test (Routine => Test_Language_Model_Token_Cursor_Accept_Body_Statement_Recovery'Access, Name => "token-cursor grammar records empty accept body statement recovery");
+      Add_Test (Routine => Test_Language_Model_Token_Cursor_Generic_Formal_Incomplete_Type'Access, Name => "token-cursor grammar parses generic formal incomplete type declarations");
+      Add_Test (Routine => Test_Language_Model_Token_Cursor_Pragma_Recovery_Depth'Access, Name => "token-cursor grammar deepens pragma recovery metadata");
+      Add_Test (Routine => Test_Language_Model_Token_Cursor_Attribute_Address_Clause_Recovery'Access, Name => "token-cursor grammar recovers malformed attribute and address clauses");
+      Add_Test (Routine => Test_Language_Model_Token_Cursor_Aspect_Placement_Breadth'Access, Name => "token-cursor grammar records broader aspect placement families");
+      Add_Test (Routine => Test_Language_Model_Token_Cursor_Case_Expression_Dependent_Recovery'Access, Name => "token-cursor grammar recovers case-expression alternatives missing dependent expressions");
+      Add_Test (Routine => Test_Language_Model_Token_Cursor_Name_Attribute_Refinement'Access, Name => "token-cursor grammar refines attribute-prefix and incomplete selected-name contexts");
+      Add_Test (Routine => Test_Language_Model_Token_Cursor_Task_Protected_Body_Declarative_Recovery'Access, Name => "token-cursor grammar recovers task/protected body declarative items before begin");
+      Add_Test (Routine => Test_Language_Model_Token_Cursor_Reduction_Argument_Recovery'Access, Name => "token-cursor grammar recovers malformed reduction attribute argument parts");
+      Add_Test (Routine => Test_Language_Model_Token_Cursor_Quantified_Predicate_Recovery'Access, Name => "token-cursor grammar recovers quantified expressions missing predicates");
+      Add_Test (Routine => Test_Language_Model_Token_Cursor_Declare_Expression_Body_Recovery'Access, Name => "token-cursor grammar recovers declare expressions missing body expressions");
+      Add_Test (Routine => Test_Language_Model_Token_Cursor_Iterated_Component_Expression_Recovery'Access, Name => "token-cursor grammar recovers iterated component associations missing component expressions");
+      Add_Test (Routine => Test_Language_Model_Token_Cursor_Generic_Actual_Association_Recovery'Access, Name => "token-cursor grammar recovers malformed generic actual association lists");
+      Add_Test (Routine => Test_Language_Model_Token_Cursor_Renaming_Target_Recovery'Access, Name => "token-cursor grammar recovers renamings missing renamed targets");
+      Add_Test (Routine => Test_Language_Model_Token_Cursor_Entry_Body_Statement_Recovery'Access, Name => "token-cursor grammar recovers entry bodies missing statement sequences");
+      Add_Test (Routine => Test_Language_Model_Token_Cursor_Entry_Barrier_Condition_Recovery'Access, Name => "token-cursor grammar recovers entry barriers missing conditions");
+      Add_Test (Routine => Test_Language_Model_Token_Cursor_Entry_Family_Empty_Definition_Recovery'Access, Name => "token-cursor grammar recovers empty entry family definitions");
+      Add_Test (Routine => Test_Language_Model_Token_Cursor_Abort_Target_Reserved_Boundary_Recovery'Access, Name => "token-cursor grammar recovers abort target lists at reserved boundaries");
+      Add_Test (Routine => Test_Language_Model_Token_Cursor_Requeue_Target_Reserved_Boundary_Recovery'Access, Name => "token-cursor grammar recovers requeue targets at reserved boundaries");
+      Add_Test (Routine => Test_Language_Model_Token_Cursor_Delay_Expression_Reserved_Boundary_Recovery'Access, Name => "token-cursor grammar recovers delay expressions at reserved boundaries");
+      Add_Test (Routine => Test_Language_Model_Token_Cursor_Goto_Target_Reserved_Boundary_Recovery'Access, Name => "token-cursor grammar recovers goto targets at reserved boundaries");
+      Add_Test (Routine => Test_Language_Model_Token_Cursor_Return_Expression_Reserved_Boundary_Recovery'Access, Name => "token-cursor grammar recovers return expressions at reserved boundaries");
+      Add_Test (Routine => Test_Language_Model_Token_Cursor_Raise_Target_Reserved_Boundary_Recovery'Access, Name => "token-cursor grammar recovers raise targets at reserved boundaries");
+      Add_Test (Routine => Test_Language_Model_Token_Cursor_Exit_Target_Reserved_Boundary_Recovery'Access, Name => "token-cursor grammar recovers exit targets at reserved boundaries");
+      Add_Test (Routine => Test_Language_Model_Token_Cursor_Assignment_Expression_Reserved_Boundary_Recovery'Access, Name => "token-cursor grammar recovers assignment expressions at reserved boundaries");
+      Add_Test (Routine => Test_Language_Model_Token_Cursor_Call_Actual_Association_Recovery'Access, Name => "token-cursor grammar recovers malformed call actual association lists");
+      Add_Test (Routine => Test_Language_Model_Token_Cursor_If_Elsif_Condition_Recovery'Access, Name => "token-cursor grammar recovers if/elsif conditions missing before then");
+      Add_Test (Routine => Test_Language_Model_Token_Cursor_While_Condition_Recovery'Access, Name => "token-cursor grammar recovers while conditions missing before loop");
+      Add_Test (Routine => Test_Language_Model_Token_Cursor_For_Iterator_Domain_Reserved_Boundary_Recovery'Access, Name => "token-cursor grammar recovers for and iterator domains at reserved boundaries");
+      Add_Test (Routine => Test_Language_Model_Token_Cursor_Case_Selector_Reserved_Boundary_Recovery'Access, Name => "token-cursor grammar recovers case selectors at reserved boundaries");
+      Add_Test (Routine => Test_Language_Model_Token_Cursor_Extended_Return_Initializer_Reserved_Boundary_Recovery'Access, Name => "token-cursor grammar recovers extended return initializers at reserved boundaries");
+      Add_Test (Routine => Test_Language_Model_Token_Cursor_Raise_Message_Reserved_Boundary_Recovery'Access, Name => "token-cursor grammar recovers raise message expressions at reserved boundaries");
+      Add_Test (Routine => Test_Language_Model_Token_Cursor_Exit_When_Reserved_Boundary_Recovery'Access, Name => "token-cursor grammar recovers exit-when conditions at reserved boundaries");
+      Add_Test (Routine => Test_Language_Model_Token_Cursor_Null_Reserved_Boundary_Recovery'Access, Name => "token-cursor grammar recovers null statements at reserved boundaries");
+      Add_Test (Routine => Test_Language_Model_Token_Cursor_Aggregate_Component_Reserved_Boundary_Recovery'Access, Name => "token-cursor grammar recovers aggregate component expressions at reserved boundaries");
+      Add_Test (Routine => Test_Language_Model_Token_Cursor_Object_Initialization_Reserved_Boundary_Recovery'Access, Name => "token-cursor grammar recovers object initialization expressions at reserved boundaries");
+      Add_Test (Routine => Test_Language_Model_Token_Cursor_Range_Constraint_Reserved_Boundary_Recovery'Access, Name => "token-cursor grammar recovers range constraints at reserved boundaries");
+      Add_Test (Routine => Test_Language_Model_Token_Cursor_Digits_Delta_Reserved_Boundary_Recovery'Access, Name => "token-cursor grammar recovers digits and delta constraints at reserved boundaries");
+      Add_Test (Routine => Test_Language_Model_Token_Cursor_Index_Discriminant_Constraint_Reserved_Boundary_Recovery'Access, Name => "token-cursor grammar recovers index and discriminant constraints at reserved boundaries");
+      Add_Test (Routine => Test_Language_Model_Token_Cursor_Profile_Default_Reserved_Boundary_Recovery'Access, Name => "token-cursor grammar recovers profile default expressions at reserved boundaries");
+      Add_Test (Routine => Test_Language_Model_Token_Cursor_Object_Subtype_Reserved_Boundary_Recovery'Access, Name => "token-cursor grammar recovers object subtype indications at reserved boundaries");
+      Add_Test (Routine => Test_Language_Model_Token_Cursor_Number_Initialization_Reserved_Boundary_Recovery'Access, Name => "token-cursor grammar recovers number initialization expressions at reserved boundaries");
+      Add_Test (Routine => Test_Language_Model_Token_Cursor_Component_Default_Reserved_Boundary_Recovery'Access, Name => "token-cursor grammar recovers component default expressions at reserved boundaries");
+      Add_Test (Routine => Test_Language_Model_Token_Cursor_Discriminant_Default_Reserved_Boundary_Recovery'Access, Name => "token-cursor grammar recovers discriminant default expressions at reserved boundaries");
+      Add_Test (Routine => Test_Language_Model_Token_Cursor_Array_Index_Reserved_Boundary_Recovery'Access, Name => "token-cursor grammar recovers array index parts at reserved boundaries");
+      Add_Test (Routine => Test_Language_Model_Token_Cursor_Timed_Conditional_Entry_Call'Access, Name => "token-cursor grammar deepens timed and conditional entry-call select statements");
+      Add_Test (Routine => Test_Language_Model_Token_Cursor_Requeue_Recovery'Access, Name => "token-cursor grammar deepens requeue terminator and missing-abort recovery");
+      Add_Test (Routine => Test_Language_Model_Token_Cursor_Terminate_Alternative_Recovery'Access, Name => "token-cursor grammar deepens terminate alternative terminator and recovery metadata");
+      Add_Test (Routine => Test_Language_Model_Token_Cursor_Abort_Terminator_Recovery'Access, Name => "token-cursor grammar deepens abort terminator and missing-terminator recovery");
+      Add_Test (Routine => Test_Language_Model_Token_Cursor_Abort_Target_Recovery'Access, Name => "token-cursor grammar records abort missing-target recovery metadata");
+      Add_Test (Routine => Test_Language_Model_Token_Cursor_Return_Terminator_Recovery_Case_856'Access, Name => "token-cursor grammar records return missing-terminator recovery metadata");
+      Add_Test (Routine => Test_Language_Model_Token_Cursor_Case_Statement_Is_Recovery'Access, Name => "token-cursor grammar records case statement missing-is recovery metadata");
+      Add_Test (Routine => Test_Language_Model_Token_Cursor_Case_Choice_Missing_Choice_Recovery'Access, Name => "token-cursor grammar recovers case choices missing after separators");
+      Add_Test (Routine => Test_Language_Model_Token_Cursor_Case_Alternative_Statement_Recovery'Access, Name => "token-cursor grammar records case alternatives missing statement sequences");
+      Add_Test (Routine => Test_Language_Model_Token_Cursor_If_Branch_Statement_Recovery'Access, Name => "token-cursor grammar records empty if branch statement recovery");
+      Add_Test (Routine => Test_Language_Model_Token_Cursor_Loop_Body_Statement_Recovery'Access, Name => "token-cursor grammar records empty loop body statement recovery");
+      Add_Test (Routine => Test_Language_Model_Token_Cursor_Block_Body_Statement_Recovery'Access, Name => "token-cursor grammar records empty block statement-sequence recovery");
+      Add_Test (Routine => Test_Language_Model_Token_Cursor_Case_Alternative_End_Case_Statement_Recovery'Access, Name => "token-cursor grammar records terminal case alternative statement recovery");
+      Add_Test (Routine => Test_Language_Model_Token_Cursor_Exception_Handler_Statement_Recovery'Access, Name => "token-cursor grammar records exception handler statement recovery");
+      Add_Test (Routine => Test_Language_Model_Token_Cursor_Formal_Package_Empty_Actual_Recovery'Access, Name => "token-cursor grammar records empty formal package actual recovery");
+      Add_Test (Routine => Test_Language_Model_Token_Cursor_Extended_Return_Do_Recovery'Access, Name => "token-cursor grammar records extended-return missing-do recovery metadata");
+      Add_Test (Routine => Test_Language_Model_Token_Cursor_Raise_Expression_Message_Recovery'Access, Name => "token-cursor grammar records raise-expression missing-message recovery metadata");
+      Add_Test (Routine => Test_Language_Model_Token_Cursor_Raise_Statement_Message_Recovery'Access, Name => "token-cursor grammar records raise-statement missing-message recovery metadata");
+      Add_Test (Routine => Test_Language_Model_Token_Cursor_Raise_Statement_Exception_Name_Recovery'Access, Name => "token-cursor grammar records raise-statement missing-exception-name recovery metadata");
+      Add_Test (Routine => Test_Language_Model_Token_Cursor_Label_Missing_Close_Recovery'Access, Name => "token-cursor grammar records label missing-close recovery metadata");
+      Add_Test (Routine => Test_Language_Model_Token_Cursor_Assignment_Expression_Recovery'Access, Name => "token-cursor grammar records assignment missing-expression recovery metadata");
+      Add_Test (Routine => Test_Language_Model_Token_Cursor_Goto_Target_Recovery'Access, Name => "token-cursor grammar records goto missing-target recovery metadata");
+      Add_Test (Routine => Test_Language_Model_Token_Cursor_Delay_Terminator_Recovery'Access, Name => "token-cursor grammar deepens delay terminator and missing-terminator recovery");
+      Add_Test (Routine => Test_Language_Model_Token_Cursor_Return_Terminator_Recovery_Case_794'Access, Name => "token-cursor grammar deepens return terminator and extended-return missing-end recovery");
+      Add_Test (Routine => Test_Language_Model_Token_Cursor_Raise_Terminator_Recovery'Access, Name => "token-cursor grammar deepens raise terminator and missing-semicolon recovery");
+      Add_Test (Routine => Test_Language_Model_Token_Cursor_Exit_Terminator_Recovery'Access, Name => "token-cursor grammar deepens exit terminator and missing-semicolon recovery");
+      Add_Test (Routine => Test_Language_Model_Token_Cursor_Goto_Terminator_Recovery'Access, Name => "token-cursor grammar deepens goto terminator and missing-semicolon recovery");
+      Add_Test (Routine => Test_Language_Model_Token_Cursor_Null_Terminator_Recovery'Access, Name => "token-cursor grammar deepens null terminator and missing-semicolon recovery");
+      Add_Test (Routine => Test_Language_Model_Token_Cursor_Assignment_Terminator_Recovery'Access, Name => "token-cursor grammar deepens assignment terminator and missing-semicolon recovery");
+      Add_Test (Routine => Test_Language_Model_Token_Cursor_Call_Terminator_Recovery'Access, Name => "token-cursor grammar deepens call terminator and missing-semicolon recovery");
+      Add_Test (Routine => Test_Language_Model_Token_Cursor_Compound_End_Terminator_Recovery'Access, Name => "token-cursor grammar deepens compound end terminator and missing-semicolon recovery");
+      Add_Test (Routine => Test_Language_Model_Token_Cursor_Case_End_Terminator_Recovery'Access, Name => "token-cursor grammar deepens case end terminator and missing-semicolon recovery");
+      Add_Test (Routine => Test_Language_Model_Token_Cursor_Select_End_Terminator_Recovery'Access, Name => "token-cursor grammar deepens select end terminator and missing-semicolon recovery");
+      Add_Test (Routine => Test_Language_Model_Token_Cursor_Case_Alternative_Missing_Arrow'Access, Name => "token-cursor grammar deepens case alternative missing-arrow recovery");
+      Add_Test (Routine => Test_Language_Model_Token_Cursor_If_Missing_Then_Recovery'Access, Name => "token-cursor grammar deepens if and elsif missing-then recovery");
+      Add_Test (Routine => Test_Language_Model_Token_Cursor_Loop_Missing_Loop_Recovery'Access, Name => "token-cursor grammar deepens loop-scheme missing-loop recovery");
+      Add_Test (Routine => Test_Language_Model_Token_Cursor_Body_End_Terminator_Recovery'Access, Name => "token-cursor grammar deepens package and subprogram body end terminator recovery");
+      Add_Test (Routine => Test_Language_Model_Token_Cursor_Concurrent_Body_End_Terminator_Recovery'Access, Name => "token-cursor grammar deepens task and protected body end terminator recovery");
+      Add_Test (Routine => Test_Language_Model_Token_Cursor_Entry_Declaration_Terminator_Recovery'Access, Name => "token-cursor grammar deepens entry declaration terminator recovery");
+      Add_Test (Routine => Test_Language_Model_Token_Cursor_Entry_Body_End_Recovery'Access, Name => "token-cursor grammar deepens entry body end recovery");
+      Add_Test (Routine => Test_Language_Model_Token_Cursor_Subprogram_Declaration_Terminator'Access, Name => "token-cursor grammar deepens subprogram declaration terminator recovery");
+      Add_Test (Routine => Test_Language_Model_Token_Cursor_Object_Declaration_Terminator'Access, Name => "token-cursor grammar deepens object declaration terminator recovery");
+      Add_Test (Routine => Test_Language_Model_Token_Cursor_Type_Subtype_Declaration_Terminator'Access, Name => "token-cursor grammar deepens type and subtype declaration terminator recovery");
+      Add_Test (Routine => Test_Language_Model_Token_Cursor_Package_Declaration_End_Terminator'Access, Name => "token-cursor grammar deepens package declaration end terminator recovery");
+      Add_Test (Routine => Test_Language_Model_Token_Cursor_Formal_Package_Actual_Delimiters'Access, Name => "token-cursor grammar deepens formal package actual delimiters");
+      Add_Test (Routine => Test_Language_Model_Token_Cursor_Exception_Declaration_Terminator'Access, Name => "token-cursor grammar deepens exception declaration terminator recovery");
+      Add_Test (Routine => Test_Language_Model_Token_Cursor_Number_Declaration_Terminator'Access, Name => "token-cursor grammar deepens number declaration terminator recovery");
+      Add_Test (Routine => Test_Language_Model_Token_Cursor_Generic_Formal_Declaration_Terminator'Access, Name => "token-cursor grammar deepens generic formal declaration terminator recovery");
+      Add_Test (Routine => Test_Language_Model_Token_Cursor_Enumeration_Representation_Delimiters'Access, Name => "token-cursor grammar deepens enumeration representation delimiters and missing-close recovery");
+      Add_Test (Routine => Test_Language_Model_Token_Cursor_Record_Representation_Delimiters'Access, Name => "token-cursor grammar deepens record representation delimiters and missing-close recovery");
+      Add_Test (Routine => Test_Language_Model_Token_Cursor_Pragma_Argument_Delimiters'Access, Name => "token-cursor grammar deepens pragma argument delimiters and missing-close recovery");
+      Add_Test (Routine => Test_Language_Model_Token_Cursor_Call_Actual_Delimiters'Access, Name => "token-cursor grammar deepens call and entry-call actual delimiters and missing-close recovery");
+      Add_Test (Routine => Test_Language_Model_Token_Cursor_Generic_Instantiation_Actual_Delimiters'Access, Name => "token-cursor grammar deepens generic instantiation actual delimiters and missing-close recovery");
+      Add_Test (Routine => Test_Language_Model_Token_Cursor_Protected_Operation_End_Detail'Access, Name => "token-cursor grammar deepens protected operation body end-name and terminator recovery");
       Add_Test (Routine => Test_Language_Model_Token_Cursor_Loop_Iteration_Scheme_Metadata'Access, Name => "token-cursor grammar deepens loop iteration scheme metadata structurally");
       Add_Test (Routine => Test_Language_Model_Token_Cursor_Entry_Family_Index_Depth'Access, Name => "token-cursor grammar deepens entry family index and selected entry-call metadata structurally");
       Add_Test (Routine => Test_Language_Model_Token_Cursor_Variant_Record_Component_Depth'Access, Name => "token-cursor grammar deepens variant record component alternatives structurally");
@@ -55964,110 +56706,111 @@ package body Editor.Syntax_Semantics.Tests is
       Add_Test (Routine => Test_Language_Model_Token_Cursor_Subprogram_Completion_Aspect_Grammar_Completeness'Access, Name => "token-cursor grammar retains aspects after null abstract and expression-function completions");
       Add_Test (Routine => Test_Language_Model_Token_Cursor_Subprogram_Contract_Aspect_Grammar_Completeness'Access, Name => "token-cursor grammar parses subprogram contract aspects structurally");
       Add_Test (Routine => Test_Language_Model_Token_Cursor_Subprogram_Contract_Aspect_Recovery'Access, Name => "token-cursor grammar recovers from malformed contract aspect values");
-      Add_Test (Routine => Test_Language_Model_Token_Cursor_Subprogram_Contract_Aspect_Placement_Depth_Pass935'Access, Name => "token-cursor grammar deepens subprogram contract aspect placement for specs completions and bodies");
-      Add_Test (Routine => Test_Language_Model_Token_Cursor_Subprogram_Contract_Aspect_Value_Families_Pass936'Access, Name => "token-cursor grammar deepens subprogram contract aspect value families and class-wide marks");
-      Add_Test (Routine => Test_Language_Model_Token_Cursor_Package_Declarative_Section_Recovery_Depth_Pass937'Access, Name => "token-cursor grammar deepens package declarative section recovery");
-      Add_Test (Routine => Test_Language_Model_Token_Cursor_Anonymous_Access_Subprogram_Refinement_Depth_Pass938'Access, Name => "token-cursor grammar deepens anonymous access-to-subprogram recovery");
-      Add_Test (Routine => Test_Language_Model_Token_Cursor_Expression_Recovery_Refinement_Depth_Pass939'Access, Name => "token-cursor grammar deepens expression recovery for conditionals cases and reductions");
-      Add_Test (Routine => Test_Language_Model_Token_Cursor_Name_Grammar_Recovery_Depth_Pass940'Access, Name => "token-cursor grammar deepens name grammar recovery for selected names allocators and qualified expressions");
-      Add_Test (Routine => Test_Language_Model_Token_Cursor_Entry_Body_Missing_Barrier_Recovery_Pass941'Access, Name => "token-cursor grammar recovers protected entry bodies missing barriers");
-      Add_Test (Routine => Test_Ada_Syntax_Tree_Ada2022_Expression_Node_Coverage_Pass942'Access, Name => "Ada syntax tree retains Ada 2022 expression grammar nodes for compiler-grade grammar foundation");
-      Add_Test (Routine => Test_Ada_Declarative_Region_Model_Foundation_Pass943'Access, Name => "Ada declarative-region model retains compiler-grade region parentage foundation");
-      Add_Test (Routine => Test_Ada_Direct_Visibility_Foundation_Pass944'Access, Name => "Ada direct-visibility model performs deterministic enclosing-region lookup");
-      Add_Test (Routine => Test_Ada_Use_Visibility_Foundation_Pass945'Access, Name => "Ada use-visibility model layers package use clauses over direct visibility");
-      Add_Test (Routine => Test_Ada_Selected_Name_Resolution_Foundation_Pass946'Access, Name => "Ada selected-name resolution resolves package prefixes and selectors");
-      Add_Test (Routine => Test_Ada_Use_Type_Operator_Visibility_Foundation_Pass947'Access, Name => "Ada use-type operator visibility exposes primitive operator candidates");
-      Add_Test (Routine => Test_Ada_Call_Profile_Shape_Foundation_Pass949'Access, Name => "Ada call-profile shape model extracts callable and actual arity metadata");
-      Add_Test (Routine => Test_Ada_Call_Profile_Filter_Foundation_Pass950'Access, Name => "Ada call-profile filter applies arity and named-actual shape checks");
-      Add_Test (Routine => Test_Ada_Call_Profile_Formal_Name_Filter_Pass951'Access, Name => "Ada call-profile filter matches formal names and defaults");
-      Add_Test (Routine => Test_Ada_Expected_Type_Context_Foundation_Pass953'Access, Name => "Ada expected-type context model annotates call expression contexts");
-      Add_Test (Routine => Test_Ada_Expected_Call_Filter_Foundation_Pass954'Access, Name => "Ada expected-call filter applies expected subtype contexts to call results");
-      Add_Test (Routine => Test_Ada_Subtype_Compatibility_Foundation_Pass955'Access, Name => "Ada subtype compatibility classifies universal numeric expected-type cases");
-      Add_Test (Routine => Test_Ada_Type_Graph_Foundation_Pass956'Access, Name => "Ada type graph resolves declaration-derived subtype ancestry");
-      Add_Test (Routine => Test_Ada_Expected_Call_Filter_Type_Graph_Compatibility_Pass957'Access, Name => "Ada expected-call filters apply declaration-derived type graph compatibility");
-      Add_Test (Routine => Test_Ada_Type_Graph_Private_Classwide_Interface_Pass958'Access, Name => "Ada type graph links private views and supports class-wide/interface compatibility");
-      Add_Test (Routine => Test_Ada_Freezing_Point_Foundation_Pass984'Access, Name => "Ada freezing-point model classifies representation clauses before and after freezing");
-      Add_Test (Routine => Test_Ada_Freezing_Generic_Private_Body_Interactions_Pass1028'Access, Name => "Ada freezing interactions stage generic instances private views and body contexts");
-      Add_Test (Routine => Test_Ada_Cross_Unit_Representation_Target_Resolution_Pass1029'Access, Name => "Ada cross-unit representation targets resolve through with visibility metadata");
-      Add_Test (Routine => Test_Ada_Representation_Legality_Static_Freezing_Pass985'Access, Name => "Ada representation legality uses freezing, target kinds, and static values");
-      Add_Test (Routine => Test_Ada_Record_Representation_Component_Legality_Pass986'Access, Name => "Ada representation legality checks record representation component clauses");
-      Add_Test (Routine => Test_Ada_Record_Layout_Overlap_Size_Alignment_Pass1030'Access, Name => "Ada record layout validation detects component overlap and staged layout errors");
-      Add_Test (Routine => Test_Ada_Record_Layout_Exact_Size_Alignment_Pass1066'Access, Name => "Ada exact record layout validation checks Size and Alignment clauses");
-      Add_Test (Routine => Test_Ada_Representation_Diagnostics_Exact_Record_Layout_Pass1067'Access, Name => "Ada representation diagnostics project exact record layout checks");
-      Add_Test (Routine => Test_Ada_Record_Storage_Order_Interaction_Pass1031'Access, Name => "Ada record storage-order rules classify bit-order and scalar-storage-order interactions");
-      Add_Test (Routine => Test_Ada_Operational_Attribute_Duplicate_Conflict_Pass1032'Access, Name => "Ada operational attribute rules classify duplicates and conflicts");
-      Add_Test (Routine => Test_Ada_Enumeration_Representation_Legality_Pass987'Access, Name => "Ada representation legality checks enumeration representation clauses");
-      Add_Test (Routine => Test_Ada_Address_Clause_Legality_Pass988'Access, Name => "Ada representation legality checks Address clauses");
-      Add_Test (Routine => Test_Ada_Size_Alignment_Storage_Legality_Pass989'Access, Name => "Ada representation legality checks Size, Alignment, and Storage_Size clauses");
-      Add_Test (Routine => Test_Ada_Interfacing_Representation_Legality_Pass990'Access, Name => "Ada representation legality checks Convention, Import, Export, and link-name clauses");
-      Add_Test (Routine => Test_Ada_Stream_Attribute_Representation_Legality_Pass991'Access, Name => "Ada representation legality checks stream attribute clauses");
-      Add_Test (Routine => Test_Ada_Stream_Attribute_Profile_Conformance_Pass992'Access, Name => "Ada representation legality checks stream attribute profile conformance");
-      Add_Test (Routine => Test_Ada_Stream_Attribute_Target_Profile_Conformance_Pass1068'Access, Name => "Ada stream attribute target-profile conformance validates handlers");
-      Add_Test (Routine => Test_Ada_Representation_Diagnostics_Stream_Profile_Conformance_Pass1068'Access, Name => "Ada representation diagnostics project stream profile conformance");
-      Add_Test (Routine => Test_Ada_Operational_Attribute_Legality_Pass993'Access, Name => "Ada representation legality checks operational attributes and storage-order clauses");
-      Add_Test (Routine => Test_Ada_Representation_Aspect_Unification_Pass994'Access, Name => "Ada representation legality unifies aspects and attribute definition clauses");
-      Add_Test (Routine => Test_Ada_Cross_Unit_Semantic_Closure_Foundation_Pass995'Access, Name => "Ada cross-unit semantic closure stages unit family relationships");
-      Add_Test (Routine => Test_Ada_Cross_Unit_Context_Dependency_Closure_Pass996'Access, Name => "Ada cross-unit closure stages context with and use dependencies");
-      Add_Test (Routine => Test_Ada_Cross_Unit_Spec_Body_Consistency_Pass997'Access, Name => "Ada cross-unit closure stages spec body consistency diagnostics");
-      Add_Test (Routine => Test_Ada_Cross_Unit_Child_Private_Legality_Pass998'Access, Name => "Ada cross-unit closure stages child private unit legality");
-      Add_Test (Routine => Test_Ada_Cross_Unit_Separate_Body_Legality_Pass999'Access, Name => "Ada cross-unit closure stages separate body legality");
-      Add_Test (Routine => Test_Ada_Cross_Unit_Visibility_Integration_Pass1022'Access, Name => "Ada cross-unit visibility projects with and use dependencies into semantic lookup");
-      Add_Test (Routine => Test_Ada_Limited_With_Incomplete_View_Rules_Pass1023'Access, Name => "Ada limited-with visibility projects incomplete-view rules into semantic lookup");
-      Add_Test (Routine => Test_Ada_Private_With_Visibility_Constraints_Pass1024'Access, Name => "Ada private-with visibility constraints are projected into semantic lookup");
-      Add_Test (Routine => Test_Ada_Body_Spec_Declaration_Conformance_Pass1025'Access, Name => "Ada body/spec declaration conformance is projected from cross-unit closure");
-      Add_Test (Routine => Test_Ada_Child_Unit_Visibility_Context_Pass1026'Access, Name => "Ada child-unit visibility respects parent and private-child contexts");
-      Add_Test (Routine => Test_Ada_Separate_Body_Stub_Placement_Pass1027'Access, Name => "Ada separate bodies match parent body stubs and placement rules");
-      Add_Test (Routine => Test_Ada_Expression_Expected_Type_Propagation_Pass1001'Access, Name => "Ada expression type model propagates expected types beyond calls");
-      Add_Test (Routine => Test_Ada_Expression_Operator_Operand_Inference_Pass1002'Access, Name => "Ada expression type model infers operator operand and result types");
-      Add_Test (Routine => Test_Ada_Expression_Aggregate_Context_Inference_Pass1003'Access, Name => "Ada expression type model infers aggregate context and component shape");
-      Add_Test (Routine => Test_Ada_Expression_Conversion_Qualified_Inference_Pass1004'Access, Name => "Ada expression type model infers conversions and qualified expressions");
-      Add_Test (Routine => Test_Ada_Expression_Attribute_Reference_Inference_Pass1005'Access, Name => "Ada expression type model infers attribute references");
-      Add_Test (Routine => Test_Ada_Expression_Conditional_Declare_Reduction_Inference_Pass1006'Access, Name => "Ada expression type model infers conditional declare and reduction expressions");
-      Add_Test (Routine => Test_Ada_Expression_Membership_Range_Inference_Pass1007'Access, Name => "Ada expression type model infers membership and range expressions");
-      Add_Test (Routine => Test_Ada_Expression_Target_Name_Update_Inference_Pass1008'Access, Name => "Ada expression type model infers target-name and update expressions");
-      Add_Test (Routine => Test_Ada_Expression_Indexed_Slice_Inference_Pass1009'Access, Name => "Ada expression type model infers indexed components and slices");
-      Add_Test (Routine => Test_Ada_Expression_Dereference_Access_Inference_Pass1010'Access, Name => "Ada expression type model infers dereference and access attributes");
-      Add_Test (Routine => Test_Ada_Expression_Allocator_Inference_Pass1011'Access, Name => "Ada expression type model infers allocator expressions");
-      Add_Test (Routine => Test_Ada_Expression_Parameter_Association_Propagation_Pass1012'Access, Name => "Ada expression type model propagates parameter association expected types");
-      Add_Test (Routine => Test_Ada_Expression_Call_Actual_Type_Resolution_Pass1013'Access, Name => "Ada expression type model resolves calls with actual expression types");
-      Add_Test (Routine => Test_Ada_Expression_Operator_Overload_Resolution_Pass1014'Access, Name => "Ada expression type model resolves overloaded operators with operand types");
-      Add_Test (Routine => Test_Ada_Expression_Universal_Numeric_Final_Resolution_Pass1015'Access, Name => "Ada expression type model resolves universal numeric expressions into expected contexts");
-      Add_Test (Routine => Test_Ada_Private_View_Visibility_Foundation_Pass982'Access, Name => "Ada private-view visibility distinguishes visible, private, and body contexts");
-      Add_Test (Routine => Test_Ada_Private_View_Subtype_Compatibility_Pass983'Access, Name => "Ada subtype compatibility applies private-view visibility context");
-      Add_Test (Routine => Test_Ada_Implicit_Conversion_Filter_Foundation_Pass959'Access, Name => "Ada expected-call filters classify implicit conversion legality after type compatibility");
-      Add_Test (Routine => Test_Ada_Static_Expression_Foundation_Pass960'Access, Name => "Ada static expressions evaluate named numbers and integer constants");
-      Add_Test (Routine => Test_Ada_Static_Attribute_Expression_Foundation_Pass961'Access, Name => "Ada static expressions evaluate subtype attributes and static Pos/Val forms");
-      Add_Test (Routine => Test_Ada_Static_Enumeration_Position_Foundation_Pass962'Access, Name => "Ada static expressions stage enumeration literal positions and Pos/Val metadata");
-      Add_Test (Routine => Test_Ada_Static_Modular_Integer_Foundation_Pass963'Access, Name => "Ada static expressions stage modular integer type modulus and reductions");
-      Add_Test (Routine => Test_Ada_Static_Real_Numeric_Foundation_Pass964'Access, Name => "Ada static expressions evaluate real and universal numeric constants");
-      Add_Test (Routine => Test_Ada_Static_Fixed_Point_Foundation_Pass965'Access, Name => "Ada static expressions stage fixed-point deltas ranges and quantization");
-      Add_Test (Routine => Test_Ada_Generic_Contract_Foundation_Pass966'Access, Name => "Ada generic contract model records formals defaults and instantiation actual shape");
-      Add_Test (Routine => Test_Ada_Generic_Actual_Matching_Foundation_Pass967'Access, Name => "Ada generic contract model classifies formal actual matching");
-      Add_Test (Routine => Test_Ada_Generic_Formal_Actual_Kind_Conformance_Pass968'Access, Name => "Ada generic contract model checks formal actual kind conformance");
-      Add_Test (Routine => Test_Ada_Generic_Formal_Subprogram_Profile_Conformance_Pass969'Access, Name => "Ada generic contract model checks formal subprogram profile conformance");
-      Add_Test (Routine => Test_Ada_Generic_Formal_Package_Contract_Conformance_Pass970'Access, Name => "Ada generic contract model checks formal package contract conformance");
-      Add_Test (Routine => Test_Ada_Generic_Body_Contract_Visibility_Pass971'Access, Name => "Ada generic contract model exposes formal contract visibility in generic bodies");
-      Add_Test (Routine => Test_Ada_Generic_Formal_Subprogram_Overload_Selection_Pass972'Access, Name => "Ada generic contract model selects overloaded subprogram actuals by formal profile");
-      Add_Test (Routine => Test_Ada_Generic_Default_Expression_Legality_Pass973'Access, Name => "Ada generic contract model checks default-expression legality for object formals");
-      Add_Test (Routine => Test_Ada_Generic_Formal_Subprogram_Mode_Conformance_Pass974'Access, Name => "Ada generic contract model checks formal subprogram parameter mode conformance");
-      Add_Test (Routine => Test_Ada_Generic_Formal_Subprogram_Type_Graph_Conformance_Pass975'Access, Name => "Ada generic contract model checks type-graph subprogram profile conformance");
-      Add_Test (Routine => Test_Ada_Generic_Formal_Subprogram_Null_Access_Conformance_Pass976'Access, Name => "Ada generic contract model checks null-exclusion and access-profile subprogram conformance");
-      Add_Test (Routine => Test_Ada_Generic_Formal_Subprogram_Convention_Conformance_Pass977'Access, Name => "Ada generic contract model checks formal subprogram convention conformance");
-      Add_Test (Routine => Test_Ada_Generic_Formal_Subprogram_Default_Conformance_Pass978'Access, Name => "Ada generic contract model checks formal subprogram defaulted-parameter conformance");
-      Add_Test (Routine => Test_Ada_Generic_Formal_Subprogram_Class_Wide_Conformance_Pass979'Access, Name => "Ada generic contract model checks formal subprogram class-wide profile conformance");
-      Add_Test (Routine => Test_Ada_Generic_Formal_Subprogram_Name_Conformance_Pass980'Access, Name => "Ada generic contract model checks formal subprogram parameter-name conformance");
-      Add_Test (Routine => Test_Ada_Generic_Formal_Subprogram_Result_Conformance_Pass981'Access, Name => "Ada generic contract model checks formal subprogram result-subtype conformance");
-      Add_Test (Routine => Test_Ada_Call_Resolution_Profile_Result_Pass952'Access, Name => "Ada call-resolution model classifies profile-filter result sets");
-      Add_Test (Routine => Test_Ada_Call_Candidate_Foundation_Pass948'Access, Name => "Ada call-candidate model collects callable candidates before overload filtering");
+      Add_Test (Routine => Test_Language_Model_Token_Cursor_Subprogram_Contract_Aspect_Placement_Depth'Access, Name => "token-cursor grammar deepens subprogram contract aspect placement for specs completions and bodies");
+      Add_Test (Routine => Test_Language_Model_Token_Cursor_Subprogram_Contract_Aspect_Value_Families'Access, Name => "token-cursor grammar deepens subprogram contract aspect value families and class-wide marks");
+      Add_Test (Routine => Test_Language_Model_Token_Cursor_Package_Declarative_Section_Recovery_Depth'Access, Name => "token-cursor grammar deepens package declarative section recovery");
+      Add_Test (Routine => Test_Language_Model_Token_Cursor_Anonymous_Access_Subprogram_Refinement_Depth'Access, Name => "token-cursor grammar deepens anonymous access-to-subprogram recovery");
+      Add_Test (Routine => Test_Language_Model_Token_Cursor_Expression_Recovery_Refinement_Depth'Access, Name => "token-cursor grammar deepens expression recovery for conditionals cases and reductions");
+      Add_Test (Routine => Test_Language_Model_Token_Cursor_Name_Grammar_Recovery_Depth'Access, Name => "token-cursor grammar deepens name grammar recovery for selected names allocators and qualified expressions");
+      Add_Test (Routine => Test_Language_Model_Token_Cursor_Entry_Body_Missing_Barrier_Recovery'Access, Name => "token-cursor grammar recovers protected entry bodies missing barriers");
+      Add_Test (Routine => Test_Ada_Syntax_Tree_Ada2022_Expression_Node_Coverage'Access, Name => "Ada syntax tree retains Ada 2022 expression grammar nodes for compiler-grade grammar foundation");
+      Add_Test (Routine => Test_Ada_Declarative_Region_Model_Foundation'Access, Name => "Ada declarative-region model retains compiler-grade region parentage foundation");
+      Add_Test (Routine => Test_Ada_Direct_Visibility_Foundation'Access, Name => "Ada direct-visibility model performs deterministic enclosing-region lookup");
+      Add_Test (Routine => Test_Ada_Use_Visibility_Foundation'Access, Name => "Ada use-visibility model layers package use clauses over direct visibility");
+      Add_Test (Routine => Test_Ada_Selected_Name_Resolution_Foundation'Access, Name => "Ada selected-name resolution resolves package prefixes and selectors");
+      Add_Test (Routine => Test_Ada_Use_Type_Operator_Visibility_Foundation'Access, Name => "Ada use-type operator visibility exposes primitive operator candidates");
+      Add_Test (Routine => Test_Ada_Call_Profile_Shape_Foundation'Access, Name => "Ada call-profile shape model extracts callable and actual arity metadata");
+      Add_Test (Routine => Test_Ada_Call_Profile_Filter_Foundation'Access, Name => "Ada call-profile filter applies arity and named-actual shape checks");
+      Add_Test (Routine => Test_Ada_Call_Profile_Formal_Name_Filter'Access, Name => "Ada call-profile filter matches formal names and defaults");
+      Add_Test (Routine => Test_Ada_Expected_Type_Context_Foundation'Access, Name => "Ada expected-type context model annotates call expression contexts");
+      Add_Test (Routine => Test_Ada_Expected_Call_Filter_Foundation'Access, Name => "Ada expected-call filter applies expected subtype contexts to call results");
+      Add_Test (Routine => Test_Ada_Expected_Call_Filter_Resolves_Result_Overloads'Access, Name => "Ada expected-call filter resolves result overloads by expected subtype");
+      Add_Test (Routine => Test_Ada_Subtype_Compatibility_Foundation'Access, Name => "Ada subtype compatibility classifies universal numeric expected-type cases");
+      Add_Test (Routine => Test_Ada_Type_Graph_Foundation'Access, Name => "Ada type graph resolves declaration-derived subtype ancestry");
+      Add_Test (Routine => Test_Ada_Expected_Call_Filter_Type_Graph_Compatibility'Access, Name => "Ada expected-call filters apply declaration-derived type graph compatibility");
+      Add_Test (Routine => Test_Ada_Type_Graph_Private_Classwide_Interface'Access, Name => "Ada type graph links private views and supports class-wide/interface compatibility");
+      Add_Test (Routine => Test_Ada_Freezing_Point_Foundation'Access, Name => "Ada freezing-point model classifies representation clauses before and after freezing");
+      Add_Test (Routine => Test_Ada_Freezing_Generic_Private_Body_Interactions'Access, Name => "Ada freezing interactions stage generic instances private views and body contexts");
+      Add_Test (Routine => Test_Ada_Cross_Unit_Representation_Target_Resolution'Access, Name => "Ada cross-unit representation targets resolve through with visibility metadata");
+      Add_Test (Routine => Test_Ada_Representation_Legality_Static_Freezing'Access, Name => "Ada representation legality uses freezing, target kinds, and static values");
+      Add_Test (Routine => Test_Ada_Record_Representation_Component_Legality'Access, Name => "Ada representation legality checks record representation component clauses");
+      Add_Test (Routine => Test_Ada_Record_Layout_Overlap_Size_Alignment'Access, Name => "Ada record layout validation detects component overlap and staged layout errors");
+      Add_Test (Routine => Test_Ada_Record_Layout_Exact_Size_Alignment'Access, Name => "Ada exact record layout validation checks Size and Alignment clauses");
+      Add_Test (Routine => Test_Ada_Representation_Diagnostics_Exact_Record_Layout'Access, Name => "Ada representation diagnostics project exact record layout checks");
+      Add_Test (Routine => Test_Ada_Record_Storage_Order_Interaction'Access, Name => "Ada record storage-order rules classify bit-order and scalar-storage-order interactions");
+      Add_Test (Routine => Test_Ada_Operational_Attribute_Duplicate_Conflict'Access, Name => "Ada operational attribute rules classify duplicates and conflicts");
+      Add_Test (Routine => Test_Ada_Enumeration_Representation_Legality'Access, Name => "Ada representation legality checks enumeration representation clauses");
+      Add_Test (Routine => Test_Ada_Address_Clause_Legality'Access, Name => "Ada representation legality checks Address clauses");
+      Add_Test (Routine => Test_Ada_Size_Alignment_Storage_Legality'Access, Name => "Ada representation legality checks Size, Alignment, and Storage_Size clauses");
+      Add_Test (Routine => Test_Ada_Interfacing_Representation_Legality'Access, Name => "Ada representation legality checks Convention, Import, Export, and link-name clauses");
+      Add_Test (Routine => Test_Ada_Stream_Attribute_Representation_Legality'Access, Name => "Ada representation legality checks stream attribute clauses");
+      Add_Test (Routine => Test_Ada_Stream_Attribute_Profile_Conformance'Access, Name => "Ada representation legality checks stream attribute profile conformance");
+      Add_Test (Routine => Test_Ada_Stream_Attribute_Target_Profile_Conformance'Access, Name => "Ada stream attribute target-profile conformance validates handlers");
+      Add_Test (Routine => Test_Ada_Representation_Diagnostics_Stream_Profile_Conformance'Access, Name => "Ada representation diagnostics project stream profile conformance");
+      Add_Test (Routine => Test_Ada_Operational_Attribute_Legality'Access, Name => "Ada representation legality checks operational attributes and storage-order clauses");
+      Add_Test (Routine => Test_Ada_Representation_Aspect_Unification'Access, Name => "Ada representation legality unifies aspects and attribute definition clauses");
+      Add_Test (Routine => Test_Ada_Cross_Unit_Semantic_Closure_Foundation'Access, Name => "Ada cross-unit semantic closure stages unit family relationships");
+      Add_Test (Routine => Test_Ada_Cross_Unit_Context_Dependency_Closure'Access, Name => "Ada cross-unit closure stages context with and use dependencies");
+      Add_Test (Routine => Test_Ada_Cross_Unit_Spec_Body_Consistency'Access, Name => "Ada cross-unit closure stages spec body consistency diagnostics");
+      Add_Test (Routine => Test_Ada_Cross_Unit_Child_Private_Legality'Access, Name => "Ada cross-unit closure stages child private unit legality");
+      Add_Test (Routine => Test_Ada_Cross_Unit_Separate_Body_Legality'Access, Name => "Ada cross-unit closure stages separate body legality");
+      Add_Test (Routine => Test_Ada_Cross_Unit_Visibility_Integration'Access, Name => "Ada cross-unit visibility projects with and use dependencies into semantic lookup");
+      Add_Test (Routine => Test_Ada_Limited_With_Incomplete_View_Rules'Access, Name => "Ada limited-with visibility projects incomplete-view rules into semantic lookup");
+      Add_Test (Routine => Test_Ada_Private_With_Visibility_Constraints'Access, Name => "Ada private-with visibility constraints are projected into semantic lookup");
+      Add_Test (Routine => Test_Ada_Body_Spec_Declaration_Conformance'Access, Name => "Ada body/spec declaration conformance is projected from cross-unit closure");
+      Add_Test (Routine => Test_Ada_Child_Unit_Visibility_Context'Access, Name => "Ada child-unit visibility respects parent and private-child contexts");
+      Add_Test (Routine => Test_Ada_Separate_Body_Stub_Placement'Access, Name => "Ada separate bodies match parent body stubs and placement rules");
+      Add_Test (Routine => Test_Ada_Expression_Expected_Type_Propagation'Access, Name => "Ada expression type model propagates expected types beyond calls");
+      Add_Test (Routine => Test_Ada_Expression_Operator_Operand_Inference'Access, Name => "Ada expression type model infers operator operand and result types");
+      Add_Test (Routine => Test_Ada_Expression_Aggregate_Context_Inference'Access, Name => "Ada expression type model infers aggregate context and component shape");
+      Add_Test (Routine => Test_Ada_Expression_Conversion_Qualified_Inference'Access, Name => "Ada expression type model infers conversions and qualified expressions");
+      Add_Test (Routine => Test_Ada_Expression_Attribute_Reference_Inference'Access, Name => "Ada expression type model infers attribute references");
+      Add_Test (Routine => Test_Ada_Expression_Conditional_Declare_Reduction_Inference'Access, Name => "Ada expression type model infers conditional declare and reduction expressions");
+      Add_Test (Routine => Test_Ada_Expression_Membership_Range_Inference'Access, Name => "Ada expression type model infers membership and range expressions");
+      Add_Test (Routine => Test_Ada_Expression_Target_Name_Update_Inference'Access, Name => "Ada expression type model infers target-name and update expressions");
+      Add_Test (Routine => Test_Ada_Expression_Indexed_Slice_Inference'Access, Name => "Ada expression type model infers indexed components and slices");
+      Add_Test (Routine => Test_Ada_Expression_Dereference_Access_Inference'Access, Name => "Ada expression type model infers dereference and access attributes");
+      Add_Test (Routine => Test_Ada_Expression_Allocator_Inference'Access, Name => "Ada expression type model infers allocator expressions");
+      Add_Test (Routine => Test_Ada_Expression_Parameter_Association_Propagation'Access, Name => "Ada expression type model propagates parameter association expected types");
+      Add_Test (Routine => Test_Ada_Expression_Call_Actual_Type_Resolution'Access, Name => "Ada expression type model resolves calls with actual expression types");
+      Add_Test (Routine => Test_Ada_Expression_Operator_Overload_Resolution'Access, Name => "Ada expression type model resolves overloaded operators with operand types");
+      Add_Test (Routine => Test_Ada_Expression_Universal_Numeric_Final_Resolution'Access, Name => "Ada expression type model resolves universal numeric expressions into expected contexts");
+      Add_Test (Routine => Test_Ada_Private_View_Visibility_Foundation'Access, Name => "Ada private-view visibility distinguishes visible, private, and body contexts");
+      Add_Test (Routine => Test_Ada_Private_View_Subtype_Compatibility'Access, Name => "Ada subtype compatibility applies private-view visibility context");
+      Add_Test (Routine => Test_Ada_Implicit_Conversion_Filter_Foundation'Access, Name => "Ada expected-call filters classify implicit conversion legality after type compatibility");
+      Add_Test (Routine => Test_Ada_Static_Expression_Foundation'Access, Name => "Ada static expressions evaluate named numbers and integer constants");
+      Add_Test (Routine => Test_Ada_Static_Attribute_Expression_Foundation'Access, Name => "Ada static expressions evaluate subtype attributes and static Pos/Val forms");
+      Add_Test (Routine => Test_Ada_Static_Enumeration_Position_Foundation'Access, Name => "Ada static expressions stage enumeration literal positions and Pos/Val metadata");
+      Add_Test (Routine => Test_Ada_Static_Modular_Integer_Foundation'Access, Name => "Ada static expressions stage modular integer type modulus and reductions");
+      Add_Test (Routine => Test_Ada_Static_Real_Numeric_Foundation'Access, Name => "Ada static expressions evaluate real and universal numeric constants");
+      Add_Test (Routine => Test_Ada_Static_Fixed_Point_Foundation'Access, Name => "Ada static expressions stage fixed-point deltas ranges and quantization");
+      Add_Test (Routine => Test_Ada_Generic_Contract_Foundation'Access, Name => "Ada generic contract model records formals defaults and instantiation actual shape");
+      Add_Test (Routine => Test_Ada_Generic_Actual_Matching_Foundation'Access, Name => "Ada generic contract model classifies formal actual matching");
+      Add_Test (Routine => Test_Ada_Generic_Formal_Actual_Kind_Conformance'Access, Name => "Ada generic contract model checks formal actual kind conformance");
+      Add_Test (Routine => Test_Ada_Generic_Formal_Subprogram_Profile_Conformance'Access, Name => "Ada generic contract model checks formal subprogram profile conformance");
+      Add_Test (Routine => Test_Ada_Generic_Formal_Package_Contract_Conformance'Access, Name => "Ada generic contract model checks formal package contract conformance");
+      Add_Test (Routine => Test_Ada_Generic_Body_Contract_Visibility'Access, Name => "Ada generic contract model exposes formal contract visibility in generic bodies");
+      Add_Test (Routine => Test_Ada_Generic_Formal_Subprogram_Overload_Selection'Access, Name => "Ada generic contract model selects overloaded subprogram actuals by formal profile");
+      Add_Test (Routine => Test_Ada_Generic_Default_Expression_Legality'Access, Name => "Ada generic contract model checks default-expression legality for object formals");
+      Add_Test (Routine => Test_Ada_Generic_Formal_Subprogram_Mode_Conformance'Access, Name => "Ada generic contract model checks formal subprogram parameter mode conformance");
+      Add_Test (Routine => Test_Ada_Generic_Formal_Subprogram_Type_Graph_Conformance'Access, Name => "Ada generic contract model checks type-graph subprogram profile conformance");
+      Add_Test (Routine => Test_Ada_Generic_Formal_Subprogram_Null_Access_Conformance'Access, Name => "Ada generic contract model checks null-exclusion and access-profile subprogram conformance");
+      Add_Test (Routine => Test_Ada_Generic_Formal_Subprogram_Convention_Conformance'Access, Name => "Ada generic contract model checks formal subprogram convention conformance");
+      Add_Test (Routine => Test_Ada_Generic_Formal_Subprogram_Default_Conformance'Access, Name => "Ada generic contract model checks formal subprogram defaulted-parameter conformance");
+      Add_Test (Routine => Test_Ada_Generic_Formal_Subprogram_Class_Wide_Conformance'Access, Name => "Ada generic contract model checks formal subprogram class-wide profile conformance");
+      Add_Test (Routine => Test_Ada_Generic_Formal_Subprogram_Name_Conformance'Access, Name => "Ada generic contract model checks formal subprogram parameter-name conformance");
+      Add_Test (Routine => Test_Ada_Generic_Formal_Subprogram_Result_Conformance'Access, Name => "Ada generic contract model checks formal subprogram result-subtype conformance");
+      Add_Test (Routine => Test_Ada_Call_Resolution_Profile_Result'Access, Name => "Ada call-resolution model classifies profile-filter result sets");
+      Add_Test (Routine => Test_Ada_Call_Candidate_Foundation'Access, Name => "Ada call-candidate model collects callable candidates before overload filtering");
       Add_Test (Routine => Test_Language_Model_Token_Cursor_Anonymous_Access_Subprogram_Grammar_Completeness'Access, Name => "token-cursor grammar parses anonymous access-to-subprogram profiles structurally");
       Add_Test (Routine => Test_Language_Model_Token_Cursor_Anonymous_Access_Subprogram_Edge_Recovery'Access, Name => "token-cursor grammar recovers anonymous access-to-subprogram edge profiles");
       Add_Test (Routine => Test_Language_Model_Token_Cursor_Anonymous_Access_Protected_Profile_Depth'Access, Name => "token-cursor grammar deepens protected anonymous access-to-subprogram profiles");
-      Add_Test (Routine => Test_Language_Model_Token_Cursor_Anonymous_Access_Subprogram_Refined_Recovery_Pass879'Access, Name => "token-cursor grammar refines anonymous access-to-subprogram recovery boundaries");
-      Add_Test (Routine => Test_Language_Model_Token_Cursor_Access_Object_Missing_Subtype_Recovery_Pass929'Access, Name => "token-cursor grammar recovers access-object definitions missing designated subtypes at reserved boundaries");
-      Add_Test (Routine => Test_Language_Model_Token_Cursor_Access_Definition_Recovery_Depth_Pass930'Access, Name => "token-cursor grammar deepens access all constant protected and result recovery");
-      Add_Test (Routine => Test_Language_Model_Token_Cursor_Formal_Package_Header_Recovery_Pass932'Access, Name => "token-cursor grammar recovers formal package headers and actual ordering");
-      Add_Test (Routine => Test_Language_Model_Token_Cursor_Conditional_Expression_Recovery_Pass880'Access, Name => "token-cursor grammar recovers conditional expression missing operands structurally");
-      Add_Test (Routine => Test_Language_Model_Token_Cursor_Selected_Literal_Name_Refinement_Pass881'Access, Name => "token-cursor grammar refines selected literal names in qualified expressions and allocators");
+      Add_Test (Routine => Test_Language_Model_Token_Cursor_Anonymous_Access_Subprogram_Refined_Recovery'Access, Name => "token-cursor grammar refines anonymous access-to-subprogram recovery boundaries");
+      Add_Test (Routine => Test_Language_Model_Token_Cursor_Access_Object_Missing_Subtype_Recovery'Access, Name => "token-cursor grammar recovers access-object definitions missing designated subtypes at reserved boundaries");
+      Add_Test (Routine => Test_Language_Model_Token_Cursor_Access_Definition_Recovery_Depth'Access, Name => "token-cursor grammar deepens access all constant protected and result recovery");
+      Add_Test (Routine => Test_Language_Model_Token_Cursor_Formal_Package_Header_Recovery'Access, Name => "token-cursor grammar recovers formal package headers and actual ordering");
+      Add_Test (Routine => Test_Language_Model_Token_Cursor_Conditional_Expression_Recovery'Access, Name => "token-cursor grammar recovers conditional expression missing operands structurally");
+      Add_Test (Routine => Test_Language_Model_Token_Cursor_Selected_Literal_Name_Refinement'Access, Name => "token-cursor grammar refines selected literal names in qualified expressions and allocators");
       Add_Test (Routine => Test_Language_Model_Token_Cursor_Expression_Name_Edge_Recovery'Access, Name => "token-cursor grammar recovers expression and name edge cases structurally");
       Add_Test (Routine => Test_Language_Model_Token_Cursor_Case_Statement_Alternative_Depth'Access, Name => "token-cursor grammar deepens case statement alternatives structurally");
       Add_Test (Routine => Test_Language_Model_Token_Cursor_Subtype_Mark_Selected_Selector_Grammar_Completeness'Access, Name => "token-cursor grammar parses selected subtype-mark selectors structurally");
@@ -56079,54 +56822,54 @@ package body Editor.Syntax_Semantics.Tests is
       Add_Test (Routine => Test_Resolver_Generic_Instance_Expression_Inference_Substitutes_Actuals'Access, Name => "resolver substitutes generic actuals during instance expression inference");
       Add_Test (Routine => Test_Language_Model_Token_Cursor_Representation_Clause_Grammar_Completeness'Access, Name => "token-cursor grammar parses attribute enumeration address and record representation clauses");
       Add_Test (Routine => Test_Language_Model_Token_Cursor_Representation_Operational_Item_Grammar_Completeness'Access, Name => "token-cursor grammar parses complete representation and operational items structurally");
-      Add_Test (Routine => Test_Language_Model_Token_Cursor_Attribute_Definition_Detail_Pass777'Access, Name => "token-cursor grammar classifies attribute-definition clause detail structurally");
-      Add_Test (Routine => Test_Language_Model_Token_Cursor_Protected_Body_Operation_Depth_Pass778'Access, Name => "token-cursor grammar classifies protected body operation bodies structurally");
-      Add_Test (Routine => Test_Language_Model_Token_Cursor_Parallel_Loop_Depth_Pass779'Access, Name => "token-cursor grammar classifies parallel loop statements structurally");
-      Add_Test (Routine => Test_Language_Model_Token_Cursor_Asynchronous_Select_Depth_Pass780'Access, Name => "token-cursor grammar classifies asynchronous select statements structurally");
-      Add_Test (Routine => Test_Language_Model_Token_Cursor_If_Expression_Else_Recovery_Pass781'Access, Name => "token-cursor grammar retains if-expression else recovery metadata");
-      Add_Test (Routine => Test_Language_Model_Token_Cursor_If_Expression_Then_Recovery_Pass841'Access, Name => "token-cursor grammar records if-expression then recovery metadata");
-      Add_Test (Routine => Test_Language_Model_Token_Cursor_Selected_Name_Missing_Selector_Recovery_Pass842'Access, Name => "token-cursor grammar records selected-name missing-selector recovery metadata");
-      Add_Test (Routine => Test_Language_Model_Token_Cursor_Delta_Aggregate_Keyword_Recovery_Pass843'Access, Name => "token-cursor grammar records delta aggregate keyword and recovery metadata");
-      Add_Test (Routine => Test_Language_Model_Token_Cursor_Extension_Aggregate_Keyword_Recovery_Pass844'Access, Name => "token-cursor grammar records extension aggregate keyword and recovery metadata");
-      Add_Test (Routine => Test_Language_Model_Token_Cursor_Null_Record_Aggregate_Keyword_Recovery_Pass845'Access, Name => "token-cursor grammar records null-record aggregate keyword and recovery metadata");
-      Add_Test (Routine => Test_Language_Model_Token_Cursor_Iterated_Component_Arrow_Recovery_Pass846'Access, Name => "token-cursor grammar records iterated component association arrow and recovery metadata");
-      Add_Test (Routine => Test_Language_Model_Token_Cursor_Iterated_Component_Domain_Recovery_Pass847'Access, Name => "token-cursor grammar records iterated component association missing-domain recovery metadata");
-      Add_Test (Routine => Test_Language_Model_Token_Cursor_Loop_Iteration_Domain_Recovery_Pass848'Access, Name => "token-cursor grammar records loop iteration missing-domain recovery metadata");
-      Add_Test (Routine => Test_Language_Model_Token_Cursor_Iterator_Filter_Condition_Recovery_Pass849'Access, Name => "token-cursor grammar records iterator-filter missing-condition recovery metadata");
-      Add_Test (Routine => Test_Language_Model_Token_Cursor_Exit_When_Condition_Recovery_Pass850'Access, Name => "token-cursor grammar records exit-when missing-condition recovery metadata");
-      Add_Test (Routine => Test_Language_Model_Token_Cursor_Delay_Expression_Recovery_Pass851'Access, Name => "token-cursor grammar records delay statement missing-expression recovery metadata");
-      Add_Test (Routine => Test_Language_Model_Token_Cursor_Requeue_Terminator_Recovery_Pass852'Access, Name => "token-cursor grammar records requeue missing-terminator recovery metadata");
-      Add_Test (Routine => Test_Language_Model_Token_Cursor_Requeue_Target_Recovery_Pass864'Access, Name => "token-cursor grammar records requeue missing-target recovery metadata");
-      Add_Test (Routine => Test_Language_Model_Token_Cursor_Accept_Terminator_Recovery_Pass853'Access, Name => "token-cursor grammar records accept missing-terminator recovery metadata");
-      Add_Test (Routine => Test_Language_Model_Token_Cursor_Accept_Entry_Name_Recovery_Pass863'Access, Name => "token-cursor grammar records accept missing-entry-name recovery metadata");
-      Add_Test (Routine => Test_Language_Model_Token_Cursor_Select_Guard_Condition_Recovery_Pass854'Access, Name => "token-cursor grammar records select guard missing-condition recovery metadata");
-      Add_Test (Routine => Test_Language_Model_Token_Cursor_Case_Expression_Recovery_Pass782'Access, Name => "token-cursor grammar retains case-expression recovery metadata");
+      Add_Test (Routine => Test_Language_Model_Token_Cursor_Attribute_Definition_Detail'Access, Name => "token-cursor grammar classifies attribute-definition clause detail structurally");
+      Add_Test (Routine => Test_Language_Model_Token_Cursor_Protected_Body_Operation_Depth'Access, Name => "token-cursor grammar classifies protected body operation bodies structurally");
+      Add_Test (Routine => Test_Language_Model_Token_Cursor_Parallel_Loop_Depth'Access, Name => "token-cursor grammar classifies parallel loop statements structurally");
+      Add_Test (Routine => Test_Language_Model_Token_Cursor_Asynchronous_Select_Depth'Access, Name => "token-cursor grammar classifies asynchronous select statements structurally");
+      Add_Test (Routine => Test_Language_Model_Token_Cursor_If_Expression_Else_Recovery'Access, Name => "token-cursor grammar retains if-expression else recovery metadata");
+      Add_Test (Routine => Test_Language_Model_Token_Cursor_If_Expression_Then_Recovery'Access, Name => "token-cursor grammar records if-expression then recovery metadata");
+      Add_Test (Routine => Test_Language_Model_Token_Cursor_Selected_Name_Missing_Selector_Recovery'Access, Name => "token-cursor grammar records selected-name missing-selector recovery metadata");
+      Add_Test (Routine => Test_Language_Model_Token_Cursor_Delta_Aggregate_Keyword_Recovery'Access, Name => "token-cursor grammar records delta aggregate keyword and recovery metadata");
+      Add_Test (Routine => Test_Language_Model_Token_Cursor_Extension_Aggregate_Keyword_Recovery'Access, Name => "token-cursor grammar records extension aggregate keyword and recovery metadata");
+      Add_Test (Routine => Test_Language_Model_Token_Cursor_Null_Record_Aggregate_Keyword_Recovery'Access, Name => "token-cursor grammar records null-record aggregate keyword and recovery metadata");
+      Add_Test (Routine => Test_Language_Model_Token_Cursor_Iterated_Component_Arrow_Recovery'Access, Name => "token-cursor grammar records iterated component association arrow and recovery metadata");
+      Add_Test (Routine => Test_Language_Model_Token_Cursor_Iterated_Component_Domain_Recovery'Access, Name => "token-cursor grammar records iterated component association missing-domain recovery metadata");
+      Add_Test (Routine => Test_Language_Model_Token_Cursor_Loop_Iteration_Domain_Recovery'Access, Name => "token-cursor grammar records loop iteration missing-domain recovery metadata");
+      Add_Test (Routine => Test_Language_Model_Token_Cursor_Iterator_Filter_Condition_Recovery'Access, Name => "token-cursor grammar records iterator-filter missing-condition recovery metadata");
+      Add_Test (Routine => Test_Language_Model_Token_Cursor_Exit_When_Condition_Recovery'Access, Name => "token-cursor grammar records exit-when missing-condition recovery metadata");
+      Add_Test (Routine => Test_Language_Model_Token_Cursor_Delay_Expression_Recovery'Access, Name => "token-cursor grammar records delay statement missing-expression recovery metadata");
+      Add_Test (Routine => Test_Language_Model_Token_Cursor_Requeue_Terminator_Recovery'Access, Name => "token-cursor grammar records requeue missing-terminator recovery metadata");
+      Add_Test (Routine => Test_Language_Model_Token_Cursor_Requeue_Target_Recovery'Access, Name => "token-cursor grammar records requeue missing-target recovery metadata");
+      Add_Test (Routine => Test_Language_Model_Token_Cursor_Accept_Terminator_Recovery'Access, Name => "token-cursor grammar records accept missing-terminator recovery metadata");
+      Add_Test (Routine => Test_Language_Model_Token_Cursor_Accept_Entry_Name_Recovery'Access, Name => "token-cursor grammar records accept missing-entry-name recovery metadata");
+      Add_Test (Routine => Test_Language_Model_Token_Cursor_Select_Guard_Condition_Recovery'Access, Name => "token-cursor grammar records select guard missing-condition recovery metadata");
+      Add_Test (Routine => Test_Language_Model_Token_Cursor_Case_Expression_Recovery'Access, Name => "token-cursor grammar retains case-expression recovery metadata");
       Add_Test (Routine => Test_Language_Model_Token_Cursor_Representation_Pragma_Item_Depth'Access, Name => "token-cursor grammar classifies representation and operational pragmas structurally");
       Add_Test (Routine => Test_Language_Model_Token_Cursor_Pragma_Association_Depth'Access, Name => "token-cursor grammar distinguishes named positional and box pragma arguments");
       Add_Test (Routine => Test_Language_Model_Token_Cursor_Renaming_Declaration_Grammar_Completeness'Access, Name => "token-cursor grammar parses renaming declarations structurally");
       Add_Test (Routine => Test_Language_Model_Token_Cursor_Renaming_Target_Depth_Grammar_Completeness'Access, Name => "token-cursor grammar deepens renaming target structure and recovery");
-      Add_Test (Routine => Test_Language_Model_Token_Cursor_Renaming_Aspect_Placement_Pass775'Access, Name => "token-cursor grammar retains renaming-specific aspect placement");
+      Add_Test (Routine => Test_Language_Model_Token_Cursor_Renaming_Aspect_Placement'Access, Name => "token-cursor grammar retains renaming-specific aspect placement");
       Add_Test (Routine => Test_Language_Model_Token_Cursor_Attribute_Depth_Grammar_Completeness'Access, Name => "token-cursor grammar deepens attribute references arguments and recovery");
       Add_Test (Routine => Test_Language_Model_Token_Cursor_Access_Definition_Gap_Grammar_Completeness'Access, Name => "token-cursor grammar parses access definitions in all declaration/profile contexts structurally");
       Add_Test (Routine => Test_Language_Model_Token_Cursor_Expression_Literal_Grammar_Completeness'Access, Name => "token-cursor grammar retains expression literal structure");
       Add_Test (Routine => Test_Language_Model_Token_Cursor_Compiler_Complete_Expression_Grammar'Access, Name => "token-cursor grammar retains compiler-complete expression structure");
       Add_Test (Routine => Test_Language_Model_Token_Cursor_Case_Expression_Dependent_Grammar_Completeness'Access, Name => "token-cursor grammar retains case-expression dependent expression positions");
       Add_Test (Routine => Test_Language_Model_Token_Cursor_Quantified_Domain_Deep_Grammar_Completeness'Access, Name => "token-cursor grammar parses quantified expression domains filters and predicates deeply");
-      Add_Test (Routine => Test_Language_Model_Token_Cursor_Quantified_Recovery_Pass783'Access, Name => "token-cursor grammar retains quantified-expression recovery metadata");
-      Add_Test (Routine => Test_Language_Model_Token_Cursor_Quantified_Missing_Quantifier_Pass840'Access, Name => "token-cursor grammar records quantified-expression missing-quantifier recovery");
-      Add_Test (Routine => Test_Language_Model_Token_Cursor_Declare_Expression_Begin_Recovery_Pass839'Access, Name => "token-cursor grammar records declare-expression begin keyword and missing-begin recovery");
+      Add_Test (Routine => Test_Language_Model_Token_Cursor_Quantified_Recovery'Access, Name => "token-cursor grammar retains quantified-expression recovery metadata");
+      Add_Test (Routine => Test_Language_Model_Token_Cursor_Quantified_Missing_Quantifier'Access, Name => "token-cursor grammar records quantified-expression missing-quantifier recovery");
+      Add_Test (Routine => Test_Language_Model_Token_Cursor_Declare_Expression_Begin_Recovery'Access, Name => "token-cursor grammar records declare-expression begin keyword and missing-begin recovery");
       Add_Test (Routine => Test_Language_Model_Token_Cursor_Allocator_Deep_Grammar_Completeness'Access, Name => "token-cursor grammar parses allocator subtype and initialization parts deeply");
-      Add_Test (Routine => Test_Language_Model_Token_Cursor_Allocator_Constraint_Depth_Pass774'Access, Name => "token-cursor grammar deepens allocator constraint metadata");
+      Add_Test (Routine => Test_Language_Model_Token_Cursor_Allocator_Constraint_Depth'Access, Name => "token-cursor grammar deepens allocator constraint metadata");
       Add_Test (Routine => Test_Language_Model_Token_Cursor_Qualified_Expression_Part_Grammar_Completeness'Access, Name => "token-cursor grammar parses qualified-expression subtype marks and operands structurally");
-      Add_Test (Routine => Test_Language_Model_Token_Cursor_Qualified_Expression_Delimiters_Pass830'Access, Name => "token-cursor grammar records qualified-expression operand delimiters and recovery");
-      Add_Test (Routine => Test_Language_Model_Token_Cursor_Parenthesized_Expression_Delimiters_Pass831'Access, Name => "token-cursor grammar records parenthesized-expression delimiters and recovery");
-      Add_Test (Routine => Test_Language_Model_Token_Cursor_Discrete_Choice_List_Separators_Pass832'Access, Name => "token-cursor grammar records discrete-choice separators and missing-choice recovery");
-      Add_Test (Routine => Test_Language_Model_Token_Cursor_Enumeration_Type_Delimiters_Pass833'Access, Name => "token-cursor grammar records enumeration-type delimiters separators and recovery");
-      Add_Test (Routine => Test_Language_Model_Token_Cursor_Digits_Delta_Constraint_Expressions_Pass834'Access, Name => "token-cursor grammar records digits and delta constraint expressions and recovery");
-      Add_Test (Routine => Test_Language_Model_Token_Cursor_Range_Constraint_Bounds_Pass835'Access, Name => "token-cursor grammar records range constraint bounds separator and recovery");
-      Add_Test (Routine => Test_Language_Model_Token_Cursor_Attribute_Argument_Delimiters_Pass836'Access, Name => "token-cursor grammar records attribute argument delimiters separators and recovery");
-      Add_Test (Routine => Test_Language_Model_Token_Cursor_Membership_Choice_List_Separators_Pass837'Access, Name => "token-cursor grammar records membership-choice separators and missing-choice recovery");
-      Add_Test (Routine => Test_Language_Model_Token_Cursor_Case_Expression_Alternative_Separators_Pass838'Access, Name => "token-cursor grammar records case-expression alternative separators and missing-alternative recovery");
+      Add_Test (Routine => Test_Language_Model_Token_Cursor_Qualified_Expression_Delimiters'Access, Name => "token-cursor grammar records qualified-expression operand delimiters and recovery");
+      Add_Test (Routine => Test_Language_Model_Token_Cursor_Parenthesized_Expression_Delimiters'Access, Name => "token-cursor grammar records parenthesized-expression delimiters and recovery");
+      Add_Test (Routine => Test_Language_Model_Token_Cursor_Discrete_Choice_List_Separators'Access, Name => "token-cursor grammar records discrete-choice separators and missing-choice recovery");
+      Add_Test (Routine => Test_Language_Model_Token_Cursor_Enumeration_Type_Delimiters'Access, Name => "token-cursor grammar records enumeration-type delimiters separators and recovery");
+      Add_Test (Routine => Test_Language_Model_Token_Cursor_Digits_Delta_Constraint_Expressions'Access, Name => "token-cursor grammar records digits and delta constraint expressions and recovery");
+      Add_Test (Routine => Test_Language_Model_Token_Cursor_Range_Constraint_Bounds'Access, Name => "token-cursor grammar records range constraint bounds separator and recovery");
+      Add_Test (Routine => Test_Language_Model_Token_Cursor_Attribute_Argument_Delimiters'Access, Name => "token-cursor grammar records attribute argument delimiters separators and recovery");
+      Add_Test (Routine => Test_Language_Model_Token_Cursor_Membership_Choice_List_Separators'Access, Name => "token-cursor grammar records membership-choice separators and missing-choice recovery");
+      Add_Test (Routine => Test_Language_Model_Token_Cursor_Case_Expression_Alternative_Separators'Access, Name => "token-cursor grammar records case-expression alternative separators and missing-alternative recovery");
       Add_Test (Routine => Test_Language_Model_Token_Cursor_Name_Grammar_Refinement_Completeness'Access, Name => "token-cursor grammar parses selected literal names qualified expressions and allocators structurally");
       Add_Test (Routine => Test_Language_Model_Token_Cursor_Extension_Aggregate_Grammar_Completeness'Access, Name => "token-cursor grammar parses extension aggregate ancestor and component parts structurally");
       Add_Test (Routine => Test_Language_Model_Token_Cursor_Aggregate_Association_Depth_Grammar_Completeness'Access, Name => "token-cursor grammar retains aggregate choices ranges boxes extension components and recovery structure");
@@ -56191,7 +56934,7 @@ package body Editor.Syntax_Semantics.Tests is
       Add_Test (Routine => Test_Language_Model_Legality_Visibility_Clause_Pass'Access, Name => "language model checks duplicate visibility clause legality");
       Add_Test (Routine => Test_Language_Model_Legality_Block_Label_Exit_Pass'Access, Name => "language model checks block-label and named-exit legality");
       Add_Test (Routine => Test_Language_Model_Legality_Call_Named_Actual_Pass'Access, Name => "language model checks duplicate call named actual legality");
-      Add_Test (Routine => Test_Language_Model_Legality_Call_Positional_After_Named_Pass772'Access, Name => "language model checks positional call actuals after named associations");
+      Add_Test (Routine => Test_Language_Model_Legality_Call_Positional_After_Named'Access, Name => "language model checks positional call actuals after named associations");
       Add_Test (Routine => Test_Language_Model_Legality_Pragma_Named_Argument_Pass'Access, Name => "language model checks duplicate pragma named argument legality");
       Add_Test (Routine => Test_Language_Model_Legality_Aspect_Association_Pass'Access, Name => "language model checks duplicate aspect association legality");
       Add_Test (Routine => Test_Language_Model_Legality_Profile_Parameter_Pass'Access, Name => "language model checks duplicate callable profile parameter legality");
@@ -56199,93 +56942,96 @@ package body Editor.Syntax_Semantics.Tests is
       Add_Test (Routine => Test_Language_Model_Legality_Local_Duplicate_Choice_Pass'Access, Name => "language model checks local duplicate case variant exception and aggregate choices");
       Add_Test (Routine => Test_Language_Model_Pragma_Placement_And_Target_Metadata'Access, Name => "language model retains pragma placement target and argument metadata");
       Add_Test (Routine => Test_Language_Model_Representation_Operational_Projection_Metadata'Access, Name => "language model retains consistent representation and operational clause projection metadata");
-      Add_Test (Routine => Test_Syntax_Semantics_New_Metadata_Consumers_Pass761'Access, Name => "semantic colouring consumes newer Ada language-model metadata families");
-      Add_Test (Routine => Test_Syntax_Semantics_Metadata_Does_Not_Downgrade_Symbols_Pass771'Access, Name => "semantic colouring preserves concrete symbol kinds over metadata fallbacks");
-      Add_Test (Routine => Test_Ada_Expression_Aggregate_Type_Graph_Validation_Pass1016'Access, Name => "Ada expression type model validates aggregates against type graph context");
-      Add_Test (Routine => Test_Ada_Expression_Raise_No_Return_Inference_Pass1017'Access, Name => "Ada expression type model infers raise expressions and no-return calls");
-      Add_Test (Routine => Test_Ada_Expression_Boolean_Context_Inference_Pass1018'Access, Name => "Ada expression type model propagates Boolean contexts into conditions");
-      Add_Test (Routine => Test_Ada_Expression_Concatenation_Inference_Pass1019'Access, Name => "Ada expression type model infers string and array concatenation results");
-      Add_Test (Routine => Test_Ada_Expression_Dispatching_Call_Inference_Pass1020'Access, Name => "Ada expression type model infers dispatching call metadata");
-      Add_Test (Routine => Test_Ada_Expression_Diagnostics_Projection_Pass1021'Access, Name => "Ada expression diagnostics project expression type metadata into stable diagnostics");
-      Add_Test (Routine => Test_Ada_Aspect_Inheritance_Override_Rules_Pass1033'Access, Name => "Ada aspect inheritance rules classify inherited and explicit override properties");
-      Add_Test (Routine => Test_Ada_Generic_Formal_Type_Conformance_Pass1034'Access, Name => "Ada generic formal type conformance checks formal derived private interface and access actuals");
-      Add_Test (Routine => Test_Ada_Generic_Formal_Package_Nested_Conformance_Pass1035'Access, Name => "Ada generic formal package conformance checks nested formal actuals");
-      Add_Test (Routine => Test_Ada_Generic_Renaming_Nested_Visibility_Pass1036'Access, Name => "Ada generic renaming visibility resolves nested generic instantiations");
-      Add_Test (Routine => Test_Ada_Generic_Object_Default_Type_Conformance_Pass1037'Access, Name => "Ada generic object default type conformance checks expression compatibility");
-      Add_Test (Routine => Test_Ada_Generic_Contract_Diagnostics_Projection_Pass1038'Access, Name => "Ada generic contract diagnostics project generic conformance metadata into stable diagnostics");
-      Add_Test (Routine => Test_Ada_Cross_Unit_Diagnostics_Projection_Pass1039'Access, Name => "Ada cross-unit diagnostics project visibility and closure metadata into stable diagnostics");
-      Add_Test (Routine => Test_Ada_Representation_Diagnostics_Projection_Pass1040'Access, Name => "Ada representation diagnostics project legality layout freezing and aspect metadata into stable diagnostics");
-      Add_Test (Routine => Test_Ada_Semantic_Colour_Diagnostics_Projection_Pass1041'Access, Name => "Ada semantic colour projection maps semantic diagnostics to render-safe overlays");
-      Add_Test (Routine => Test_Ada_Semantic_Diagnostic_Snapshot_Guards_Pass1042'Access, Name => "Ada semantic diagnostic snapshot guards reject stale analysis overlays");
-      Add_Test (Routine => Test_Ada_Semantic_Diagnostic_Feed_Pass1043'Access, Name => "Ada semantic diagnostic feed unifies guarded semantic diagnostics for IDE consumers");
-      Add_Test (Routine => Test_Ada_Semantic_Diagnostic_Index_Pass1044'Access, Name => "Ada semantic diagnostic index queries guarded semantic diagnostics for IDE consumers");
-      Add_Test (Routine => Test_Ada_Diagnostic_Navigation_Pass1045'Access, Name => "Ada diagnostic navigation provides deterministic first next previous severity filtered targets");
-      Add_Test (Routine => Test_Ada_Diagnostic_Panel_Projection_Pass1046'Access, Name => "Ada diagnostic panel projection groups guarded semantic diagnostics into stable rows");
+      Add_Test (Routine => Test_Syntax_Semantics_New_Metadata_Consumers'Access, Name => "semantic colouring consumes newer Ada language-model metadata families");
+      Add_Test (Routine => Test_Syntax_Semantics_Metadata_Does_Not_Downgrade_Symbols'Access, Name => "semantic colouring preserves concrete symbol kinds over metadata fallbacks");
+      Add_Test (Routine => Test_Ada_Expression_Aggregate_Type_Graph_Validation'Access, Name => "Ada expression type model validates aggregates against type graph context");
+      Add_Test (Routine => Test_Ada_Expression_Raise_No_Return_Inference'Access, Name => "Ada expression type model infers raise expressions and no-return calls");
+      Add_Test (Routine => Test_Ada_Expression_Boolean_Context_Inference'Access, Name => "Ada expression type model propagates Boolean contexts into conditions");
+      Add_Test (Routine => Test_Ada_Expression_Concatenation_Inference'Access, Name => "Ada expression type model infers string and array concatenation results");
+      Add_Test (Routine => Test_Ada_Expression_Dispatching_Call_Inference'Access, Name => "Ada expression type model infers dispatching call metadata");
+      Add_Test (Routine => Test_Ada_Expression_Diagnostics_Projection'Access, Name => "Ada expression diagnostics project expression type metadata into stable diagnostics");
+      Add_Test (Routine => Test_Ada_Aspect_Inheritance_Override_Rules'Access, Name => "Ada aspect inheritance rules classify inherited and explicit override properties");
+      Add_Test (Routine => Test_Ada_Generic_Formal_Type_Conformance'Access, Name => "Ada generic formal type conformance checks formal derived private interface and access actuals");
+      Add_Test (Routine => Test_Ada_Generic_Formal_Package_Nested_Conformance'Access, Name => "Ada generic formal package conformance checks nested formal actuals");
+      Add_Test (Routine => Test_Ada_Generic_Renaming_Nested_Visibility'Access, Name => "Ada generic renaming visibility resolves nested generic instantiations");
+      Add_Test (Routine => Test_Ada_Generic_Object_Default_Type_Conformance'Access, Name => "Ada generic object default type conformance checks expression compatibility");
+      Add_Test (Routine => Test_Ada_Generic_Contract_Diagnostics_Projection'Access, Name => "Ada generic contract diagnostics project generic conformance metadata into stable diagnostics");
+      Add_Test (Routine => Test_Ada_Cross_Unit_Diagnostics_Projection'Access, Name => "Ada cross-unit diagnostics project visibility and closure metadata into stable diagnostics");
+      Add_Test (Routine => Test_Ada_Representation_Diagnostics_Projection'Access, Name => "Ada representation diagnostics project legality layout freezing and aspect metadata into stable diagnostics");
+      Add_Test (Routine => Test_Ada_Semantic_Colour_Diagnostics_Projection'Access, Name => "Ada semantic colour projection maps semantic diagnostics to render-safe overlays");
+      Add_Test (Routine => Test_Ada_Semantic_Diagnostic_Snapshot_Guards'Access, Name => "Ada semantic diagnostic snapshot guards reject stale analysis overlays");
+      Add_Test (Routine => Test_Ada_Semantic_Diagnostic_Feed'Access, Name => "Ada semantic diagnostic feed unifies guarded semantic diagnostics for IDE consumers");
+      Add_Test (Routine => Test_Ada_Semantic_Diagnostic_Index'Access, Name => "Ada semantic diagnostic index queries guarded semantic diagnostics for IDE consumers");
+      Add_Test (Routine => Test_Ada_Diagnostic_Navigation'Access, Name => "Ada diagnostic navigation provides deterministic first next previous severity filtered targets");
+      Add_Test (Routine => Test_Ada_Diagnostic_Panel_Projection'Access, Name => "Ada diagnostic panel projection groups guarded semantic diagnostics into stable rows");
       Add_Test
-        (Routine => Test_Ada_Diagnostic_Status_Line_Pass1047'Access,
+        (Routine => Test_Ada_Diagnostic_Status_Line'Access,
          Name => "Ada diagnostic status-line summary projects guarded semantic diagnostic totals");
       Add_Test
-        (Routine => Test_Ada_Diagnostic_Quick_Fix_Skeleton_Pass1048'Access,
+        (Routine => Test_Ada_Diagnostic_Quick_Fix_Skeleton'Access,
          Name => "Ada diagnostic quick-fix skeleton projects non-mutating semantic diagnostic actions");
       Add_Test
-        (Routine => Test_Ada_Diagnostic_Provenance_Pass1049'Access,
+        (Routine => Test_Ada_Diagnostic_Provenance'Access,
          Name => "Ada diagnostic provenance explains guarded semantic diagnostic source chains");
       Add_Test
-        (Routine => Test_Ada_Diagnostic_Suppression_Baseline_Pass1050'Access,
+        (Routine => Test_Ada_Diagnostic_Suppression_Baseline'Access,
          Name => "Ada diagnostic suppression baseline classifies diagnostics without mutating buffers");
       Add_Test
-        (Routine => Test_Ada_Overload_Ambiguity_Diagnostics_Pass1051'Access,
+        (Routine => Test_Ada_Overload_Ambiguity_Diagnostics'Access,
          Name => "Ada overload ambiguity diagnostics explain candidate rejection causes");
       Add_Test
-        (Routine => Test_Ada_Expression_Diagnostics_Overload_Cause_Integration_Pass1052'Access,
+        (Routine => Test_Ada_Expression_Diagnostics_Overload_Cause_Integration'Access,
          Name => "Ada expression diagnostics integrates overload ambiguity cause records");
       Add_Test
-        (Routine => Test_Ada_Cross_Unit_Lookup_Integration_Pass1053'Access,
+        (Routine => Test_Ada_Cross_Unit_Lookup_Integration'Access,
          Name => "Ada cross-unit lookup integration exposes context visibility to lookup consumers");
       Add_Test
-        (Routine => Test_Ada_Selected_Name_Cross_Unit_Lookup_Consumer_Pass1054'Access,
+        (Routine => Test_Ada_Selected_Name_Cross_Unit_Lookup_Consumer'Access,
          Name => "Ada selected-name resolution consumes cross-unit lookup metadata");
       Add_Test
-        (Routine => Test_Ada_Expression_Cross_Unit_Selected_Name_Inference_Pass1055'Access,
+        (Routine => Test_Ada_Expression_Cross_Unit_Selected_Name_Inference'Access,
          Name => "Ada expression inference consumes cross-unit selected-name metadata");
       Add_Test
-        (Routine => Test_Ada_View_Aware_Compatibility_Pass1056'Access,
+        (Routine => Test_Ada_Expression_Selected_Name_Operator_Expected_Combined_Inference'Access,
+         Name => "Ada expression inference combines selected names, operators, and expected contexts");
+      Add_Test
+        (Routine => Test_Ada_View_Aware_Compatibility'Access,
          Name => "Ada view-aware compatibility classifies private and limited view barriers");
       Add_Test
-        (Routine => Test_Ada_Expression_Diagnostics_View_Compatibility_Pass1057'Access,
+        (Routine => Test_Ada_Expression_Diagnostics_View_Compatibility'Access,
          Name => "Ada expression diagnostics project private and limited view compatibility barriers");
       Add_Test
-        (Routine => Test_Ada_Generic_View_Compatibility_Pass1058'Access,
+        (Routine => Test_Ada_Generic_View_Compatibility'Access,
          Name => "Ada generic view compatibility distinguishes private and limited barriers");
       Add_Test
-        (Routine => Test_Ada_Generic_Contract_Diagnostics_View_Compatibility_Pass1059'Access,
+        (Routine => Test_Ada_Generic_Contract_Diagnostics_View_Compatibility'Access,
          Name => "Ada generic contract diagnostics project private and limited generic view barriers");
       Add_Test
-        (Routine => Test_Ada_Generic_Instantiated_Body_Analysis_Pass1060'Access,
+        (Routine => Test_Ada_Generic_Instantiated_Body_Analysis'Access,
          Name => "Ada generic instantiated body analysis projects formal substitutions into body contexts");
       Add_Test
-        (Routine => Test_Ada_Generic_Contract_Diagnostics_Instantiated_Body_Pass1061'Access,
+        (Routine => Test_Ada_Generic_Contract_Diagnostics_Instantiated_Body'Access,
          Name => "Ada generic contract diagnostics project instantiated-body substitution issues");
       Add_Test
-        (Routine => Test_Ada_Nested_Body_Spec_Conformance_Pass1062'Access,
+        (Routine => Test_Ada_Nested_Body_Spec_Conformance'Access,
          Name => "Ada nested body spec conformance compares nested declarations");
       Add_Test
-        (Routine => Test_Ada_Cross_Unit_Diagnostics_Nested_Body_Spec_Pass1063'Access,
+        (Routine => Test_Ada_Cross_Unit_Diagnostics_Nested_Body_Spec'Access,
          Name => "Ada cross-unit diagnostics project nested body spec conformance results");
       Add_Test
-        (Routine => Test_Ada_Selected_Representation_Targets_Pass1064'Access,
+        (Routine => Test_Ada_Selected_Representation_Targets'Access,
          Name => "Ada selected representation targets resolve selected names across visible units");
       Add_Test
-        (Routine => Test_Ada_Representation_Diagnostics_Selected_Targets_Pass1065'Access,
+        (Routine => Test_Ada_Representation_Diagnostics_Selected_Targets'Access,
          Name => "Ada representation diagnostics project selected target resolution failures");
       Add_Test
-        (Routine => Test_Ada_Dispatching_Call_Legality_Pass1070'Access,
+        (Routine => Test_Ada_Dispatching_Call_Legality'Access,
          Name => "Ada dispatching call legality classifies controlling operands and diagnostics");
       Add_Test
-        (Routine => Test_Ada_Overload_Ranking_Pass1071'Access,
+        (Routine => Test_Ada_Overload_Ranking'Access,
          Name => "Ada overload ranking classifies implicit conversion and universal numeric tie-breaks");
       Add_Test
-        (Routine => Test_Ada_Generic_Formal_Package_Substitutions_Pass1069'Access,
+        (Routine => Test_Ada_Generic_Formal_Package_Substitutions'Access,
          Name => "Ada generic formal package substitutions expand nested formal package contracts");
 
    end Register_Tests;

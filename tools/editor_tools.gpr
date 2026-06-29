@@ -30,5 +30,8 @@ project Editor_Tools is
 
    package Compiler is
       for Default_Switches ("Ada") use ("-gnat2022", "-gnatyM120");
+      for Switches ("release_check.adb") use ("-gnat2022");
+      for Switches ("release_check_record.adb") use ("-gnat2022");
+      for Switches ("phase579_language_validation_check.adb") use ("-gnat2022");
    end Compiler;
 end Editor_Tools;

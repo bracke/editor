@@ -215,7 +215,7 @@ package body Editor.Ada_Freezing_Representation_Vertical_Slice_Legality is
                Total_Blockers : constant Natural :=
                  R.Late_Blockers + R.View_Blockers + R.Generic_Blockers
                  + R.Operational_Blockers + R.Layout_Blockers
-                 + R.Stream_Blockers + R.Address_Size_Alignment_Blockers
+                 + R.Address_Size_Alignment_Blockers
                  + R.Fingerprint_Blockers + R.Missing_Target_Blockers;
             begin
                if Total_Blockers > 1

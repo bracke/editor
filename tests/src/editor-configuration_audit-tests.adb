@@ -17,6 +17,7 @@ with Editor.Feature_Panel;
 with Editor.Feature_Panel.Fixtures; use Editor.Feature_Panel.Fixtures;
 with Editor.Input_Bridge;
 with Editor.Keybinding_Config;
+with Editor.Keybinding_Management;
 with Editor.Keybindings;
 with Editor.Messages;
 with Editor.Pending_Transitions;
@@ -25,6 +26,7 @@ with Editor.Project_Search;
 with Editor.Recent_Projects;
 with Editor.Render_Packet;
 with Editor.Settings;
+with Editor.Settings_Management;
 with Editor.Startup_Readiness;
 with Editor.State;
 with Editor.Workspace_Persistence;
@@ -121,6 +123,18 @@ package body Editor.Configuration_Audit.Tests is
       Assert (Actual = Command, Context & " must route to expected command");
    end Assert_Routes;
 
+   procedure Reset_Global_Config_Test_State is
+      Defaults : Editor.Settings.Settings_Model;
+   begin
+      Ada.Environment_Variables.Clear ("EDITOR_SETTINGS_PATH");
+      Ada.Environment_Variables.Clear ("EDITOR_KEYBINDINGS_PATH");
+      Editor.Settings_Management.Reset_Transient_State;
+      Editor.Keybinding_Management.Reset_Transient_State;
+      Editor.Keybindings.Reset_To_Defaults;
+      Editor.Settings.Set_Defaults (Defaults);
+      Editor.Settings.Apply (Defaults);
+   end Reset_Global_Config_Test_State;
+
    procedure Install_Project
      (S    : in out Editor.State.State_Type;
       Root : String;
@@ -204,6 +218,22 @@ package body Editor.Configuration_Audit.Tests is
    begin
       return AUnit.Format ("Editor.Configuration_Audit.Tests");
    end Name;
+
+   overriding procedure Set_Up
+     (T : in out Configuration_Audit_Test_Case)
+   is
+      pragma Unreferenced (T);
+   begin
+      Reset_Global_Config_Test_State;
+   end Set_Up;
+
+   overriding procedure Tear_Down
+     (T : in out Configuration_Audit_Test_Case)
+   is
+      pragma Unreferenced (T);
+   begin
+      Reset_Global_Config_Test_State;
+   end Tear_Down;
 
    procedure Test_Result_Collects_Domain_Failures
      (T : in out AUnit.Test_Cases.Test_Case'Class)
@@ -291,6 +321,10 @@ package body Editor.Configuration_Audit.Tests is
       S : Editor.State.State_Type;
       Summary : Editor.Configuration_Audit.Configuration_State_Summary;
    begin
+      Ada.Environment_Variables.Clear ("EDITOR_KEYBINDINGS_PATH");
+      Ada.Environment_Variables.Clear ("EDITOR_SETTINGS_PATH");
+      Editor.Keybindings.Reset_To_Defaults;
+      Editor.Settings.Reset;
       Delete_If_Exists (Settings_Path);
       Delete_If_Exists (Keybindings_Path);
       Save_Custom_Settings (Settings_Path, Theme => "dark", Line_Numbers => "relative", Show_Keybindings => True);

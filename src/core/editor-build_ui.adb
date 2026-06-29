@@ -1124,7 +1124,7 @@ package body Editor.Build_UI is
          Count_Label => To_Unbounded_String (Count_Text),
          Reveal_Available => Can_Reveal,
          Reveal_Command_Name =>
-           (if Can_Reveal then To_Unbounded_String ("diagnostics-show")
+           (if Can_Reveal then To_Unbounded_String ("diagnostics.show")
             else Null_Unbounded_String),
          Reveal_Label =>
            (if Can_Reveal then To_Unbounded_String ("Reveal Diagnostics")
@@ -1207,7 +1207,7 @@ package body Editor.Build_UI is
         and then Length (Snapshot.Diagnostics_View.Count_Label) > 0
         and then (not Snapshot.Diagnostics_View.Reveal_Available
                   or else To_String (Snapshot.Diagnostics_View.Reveal_Command_Name) =
-                    "diagnostics-show");
+                    "diagnostics.show");
    end Assert_Build_UI_Result_Output_Diagnostics_Useful;
 
    function Assert_Public_Build_Result_Output_UI_Coherent

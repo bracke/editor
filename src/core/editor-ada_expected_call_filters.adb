@@ -2,6 +2,7 @@ with Ada.Characters.Handling;
 with Ada.Strings;
 with Ada.Strings.Fixed;
 with Ada.Strings.Unbounded;
+with Editor.Ada_Declarative_Regions;
 with Editor.Ada_Implicit_Conversions;
 with Editor.Ada_Subtype_Compatibility;
 with Editor.Ada_Type_Graph;
@@ -23,6 +24,7 @@ package body Editor.Ada_Expected_Call_Filters is
    use type Editor.Ada_Type_Graph.Type_Id;
    use type Editor.Ada_Subtype_Compatibility.Compatibility_Status;
    use type Editor.Ada_Type_Graph.Compatibility_Status;
+   use type Editor.Ada_Implicit_Conversions.Implicit_Conversion_Status;
 
    function To_String
      (Value : Ada.Strings.Unbounded.Unbounded_String) return String
@@ -107,6 +109,52 @@ package body Editor.Ada_Expected_Call_Filters is
         or else Status = Editor.Ada_Call_Profile_Filters.Profile_Filter_Formal_Name_Compatible;
    end Is_Profile_Compatible;
 
+   function Result_Status
+     (Expected      : String;
+      Result        : String;
+      Compatibility : Editor.Ada_Subtype_Compatibility.Compatibility_Info;
+      Implicit      : Editor.Ada_Implicit_Conversions.Implicit_Conversion_Info)
+      return Expected_Call_Filter_Status is
+   begin
+      if Expected /= "" and then Result = Expected then
+         return Expected_Call_Filter_Result_Subtype_Matches;
+      elsif Editor.Ada_Subtype_Compatibility.Is_Compatible (Compatibility) then
+         if Editor.Ada_Implicit_Conversions.Is_Implicitly_Allowed (Implicit) then
+            return Expected_Call_Filter_Result_Subtype_Compatible;
+         elsif Implicit.Status =
+           Editor.Ada_Implicit_Conversions.Implicit_Conversion_No_Derived_Type_Conversion
+         then
+            return Expected_Call_Filter_Result_Subtype_Requires_Explicit_Conversion;
+         elsif not Editor.Ada_Implicit_Conversions.Is_Decided (Implicit) then
+            return Expected_Call_Filter_Result_Subtype_Indeterminate;
+         else
+            return Expected_Call_Filter_Result_Subtype_Mismatch;
+         end if;
+      elsif Compatibility.Status =
+        Editor.Ada_Subtype_Compatibility.Subtype_Compatibility_Indeterminate
+      then
+         return Expected_Call_Filter_Result_Subtype_Indeterminate;
+      else
+         return Expected_Call_Filter_Result_Subtype_Mismatch;
+      end if;
+   end Result_Status;
+
+   function Expected_Type_Selects
+     (Status : Expected_Call_Filter_Status) return Boolean is
+   begin
+      return Status = Expected_Call_Filter_Result_Subtype_Matches
+        or else Status = Expected_Call_Filter_Result_Subtype_Compatible;
+   end Expected_Type_Selects;
+
+   function Expected_Type_Selects
+     (Status   : Expected_Call_Filter_Status;
+      Implicit : Editor.Ada_Implicit_Conversions.Implicit_Conversion_Info)
+      return Boolean is
+   begin
+      return Expected_Type_Selects (Status)
+        and then Editor.Ada_Implicit_Conversions.Is_Implicitly_Allowed (Implicit);
+   end Expected_Type_Selects;
+
    function First_Compatible_Filter_For_Node
      (Filters : Editor.Ada_Call_Profile_Filters.Profile_Filter_Model;
       Node    : Editor.Ada_Syntax_Tree.Node_Id)
@@ -123,6 +171,68 @@ package body Editor.Ada_Expected_Call_Filters is
       return Editor.Ada_Call_Profile_Filters.Profile_Filter
         (Filters, Editor.Ada_Call_Profile_Filters.No_Profile_Filter);
    end First_Compatible_Filter_For_Node;
+
+   function Callable_Profile_By_Id
+     (Shapes : Editor.Ada_Call_Profile_Shapes.Profile_Shape_Model;
+      Id     : Editor.Ada_Call_Profile_Shapes.Callable_Profile_Id)
+      return Editor.Ada_Call_Profile_Shapes.Callable_Profile_Info;
+
+   function Expected_Compatible_Filter_For_Node
+     (Filters  : Editor.Ada_Call_Profile_Filters.Profile_Filter_Model;
+      Shapes   : Editor.Ada_Call_Profile_Shapes.Profile_Shape_Model;
+      Types    : Editor.Ada_Type_Graph.Type_Model;
+      Node     : Editor.Ada_Syntax_Tree.Node_Id;
+      Region   : Editor.Ada_Declarative_Regions.Region_Id;
+      Expected : String;
+      Use_Types : Boolean)
+      return Editor.Ada_Call_Profile_Filters.Profile_Filter_Info
+   is
+      Filter : Editor.Ada_Call_Profile_Filters.Profile_Filter_Info;
+      Callable : Editor.Ada_Call_Profile_Shapes.Callable_Profile_Info;
+      Selected : Editor.Ada_Call_Profile_Filters.Profile_Filter_Info :=
+        Editor.Ada_Call_Profile_Filters.Profile_Filter
+          (Filters, Editor.Ada_Call_Profile_Filters.No_Profile_Filter);
+      Selected_Count : Natural := 0;
+   begin
+      for Index in 1 .. Editor.Ada_Call_Profile_Filters.Profile_Filter_Count (Filters) loop
+         Filter := Editor.Ada_Call_Profile_Filters.Profile_Filter_At (Filters, Index);
+         if Filter.Call_Node = Node and then Is_Profile_Compatible (Filter.Status) then
+            Callable := Callable_Profile_By_Id (Shapes, Filter.Callable_Profile);
+            if Callable.Id /= Editor.Ada_Call_Profile_Shapes.No_Callable_Profile
+              and then Callable.Status =
+                Editor.Ada_Call_Profile_Shapes.Callable_Profile_Found
+              and then Callable.Has_Result
+            then
+               declare
+                  Result : constant String :=
+                    Normalize (To_String (Callable.Result_Subtype));
+                  Compatibility : constant Editor.Ada_Subtype_Compatibility.Compatibility_Info :=
+                    (if Use_Types then
+                        Editor.Ada_Subtype_Compatibility.Check_With_Type_Graph
+                          (Types, Region, Callable.Region, Expected, Result)
+                     else
+                        Editor.Ada_Subtype_Compatibility.Check (Expected, Result));
+                  Implicit : constant Editor.Ada_Implicit_Conversions.Implicit_Conversion_Info :=
+                    Editor.Ada_Implicit_Conversions.Classify (Compatibility);
+               begin
+                  if Expected_Type_Selects
+                    (Result_Status (Expected, Result, Compatibility, Implicit), Implicit)
+                  then
+                     Selected := Filter;
+                     Selected_Count := Selected_Count + 1;
+                  end if;
+               end;
+            end if;
+         end if;
+      end loop;
+
+      if Selected_Count = 1 then
+         return Selected;
+      else
+         return Editor.Ada_Call_Profile_Filters.Profile_Filter
+           (Filters, Editor.Ada_Call_Profile_Filters.No_Profile_Filter);
+      end if;
+   end Expected_Compatible_Filter_For_Node;
 
    function Callable_Profile_By_Id
      (Shapes : Editor.Ada_Call_Profile_Shapes.Profile_Shape_Model;
@@ -165,14 +275,32 @@ package body Editor.Ada_Expected_Call_Filters is
          Info.Status := Expected_Call_Filter_Context_Not_Found;
       elsif Context.Resolution = Editor.Ada_Call_Resolution.No_Call_Resolution then
          Info.Status := Expected_Call_Filter_No_Call_Resolution;
-      elsif Resolution.Status /= Editor.Ada_Call_Resolution.Call_Resolution_Unique_Profile_Match then
+      elsif Resolution.Status /= Editor.Ada_Call_Resolution.Call_Resolution_Unique_Profile_Match
+        and then Resolution.Status /=
+          Editor.Ada_Call_Resolution.Call_Resolution_Ambiguous_Profile_Match
+      then
          Info.Status := Expected_Call_Filter_No_Unique_Profile;
       else
-         Profile_Filter := First_Compatible_Filter_For_Node (Filters, Context.Node);
+         if Resolution.Status =
+           Editor.Ada_Call_Resolution.Call_Resolution_Ambiguous_Profile_Match
+         then
+            Profile_Filter :=
+              Expected_Compatible_Filter_For_Node
+                (Filters, Shapes, Types, Context.Node, Context.Region,
+                 Expected, Use_Types);
+         else
+            Profile_Filter := First_Compatible_Filter_For_Node (Filters, Context.Node);
+         end if;
          Info.Profile_Filter := Profile_Filter.Id;
          Info.Declaration := Profile_Filter.Declaration;
          if Profile_Filter.Id = Editor.Ada_Call_Profile_Filters.No_Profile_Filter then
-            Info.Status := Expected_Call_Filter_No_Profile_Filter;
+            if Resolution.Status =
+              Editor.Ada_Call_Resolution.Call_Resolution_Ambiguous_Profile_Match
+            then
+               Info.Status := Expected_Call_Filter_No_Unique_Profile;
+            else
+               Info.Status := Expected_Call_Filter_No_Profile_Filter;
+            end if;
          else
             Callable := Callable_Profile_By_Id (Shapes, Profile_Filter.Callable_Profile);
             Info.Callable_Profile := Callable.Id;
@@ -229,17 +357,8 @@ package body Editor.Ada_Expected_Call_Filters is
                      Info.Compatibility := Compatibility.Status;
                      Info.Type_Compatibility := Graph_Status;
                      Info.Implicit_Conversion := Implicit.Status;
-                     if Expected /= "" and then Result = Expected then
-                        Info.Status := Expected_Call_Filter_Result_Subtype_Matches;
-                     elsif Editor.Ada_Subtype_Compatibility.Is_Compatible (Compatibility) then
-                        Info.Status := Expected_Call_Filter_Result_Subtype_Compatible;
-                     elsif Compatibility.Status =
-                       Editor.Ada_Subtype_Compatibility.Subtype_Compatibility_Indeterminate
-                     then
-                        Info.Status := Expected_Call_Filter_Result_Subtype_Indeterminate;
-                     else
-                        Info.Status := Expected_Call_Filter_Result_Subtype_Mismatch;
-                     end if;
+                     Info.Status := Result_Status
+                       (Expected, Result, Compatibility, Implicit);
                   end;
                end;
             end if;

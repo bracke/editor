@@ -1,4 +1,5 @@
 with Ada.Strings.Unbounded;
+with Ada.Containers.Vectors;
 with Editor.Commands;
 with Editor.Input_Field;
 with Editor.Keybindings;
@@ -20,6 +21,7 @@ package Editor.Guided_Prompts is
       File_Tree_Create_File_Prompt,
       File_Tree_Create_Directory_Prompt,
       File_Tree_Rename_Prompt,
+      Semantic_Rename_Prompt,
       Confirmation_Prompt,
       Configuration_Reset_Prompt);
 
@@ -44,6 +46,17 @@ package Editor.Guided_Prompts is
       Prompt_Completed,
       Prompt_Failed);
 
+   Max_File_Picker_Rows : constant Natural := 12;
+
+   type File_Picker_Row is record
+      Label : Unbounded_String := Null_Unbounded_String;
+      Path  : Unbounded_String := Null_Unbounded_String;
+   end record;
+
+   package File_Picker_Row_Vectors is new Ada.Containers.Vectors
+      (Index_Type   => Positive,
+       Element_Type => File_Picker_Row);
+
    type Prompt_State is record
       Active : Boolean := False;
       Kind   : Prompt_Kind := No_Prompt;
@@ -66,6 +79,11 @@ package Editor.Guided_Prompts is
       Lifecycle_Command : Boolean := False;
       Configuration_Command : Boolean := False;
       Affected_Count : Natural := 0;
+      File_Picker_Active : Boolean := False;
+      File_Picker_Current_Directory : Unbounded_String := Null_Unbounded_String;
+      File_Picker_Selected_Index : Natural := 0;
+      File_Picker_Status : Unbounded_String := Null_Unbounded_String;
+      File_Picker_Rows : File_Picker_Row_Vectors.Vector;
    end record;
 
    type Prompt_Snapshot is record
@@ -87,6 +105,11 @@ package Editor.Guided_Prompts is
       Lifecycle_Command : Boolean := False;
       Configuration_Command : Boolean := False;
       Affected_Count : Natural := 0;
+      File_Picker_Active : Boolean := False;
+      File_Picker_Current_Directory : Unbounded_String := Null_Unbounded_String;
+      File_Picker_Selected_Index : Natural := 0;
+      File_Picker_Status : Unbounded_String := Null_Unbounded_String;
+      File_Picker_Rows : File_Picker_Row_Vectors.Vector;
    end record;
 
    procedure Start
@@ -112,6 +135,14 @@ package Editor.Guided_Prompts is
    procedure Capture_Chord
      (Prompt : in out Prompt_State;
       Chord : Editor.Keybindings.Key_Chord);
+   procedure Move_File_Picker_Selection
+     (Prompt : in out Prompt_State;
+      Offset : Integer);
+   function Apply_File_Picker_Selection
+     (Prompt : in out Prompt_State) return Boolean;
+   function Selected_File_Picker_Path
+     (Prompt : Prompt_State;
+      Found  : out Boolean) return String;
    procedure Validate (Prompt : in out Prompt_State);
    procedure Mark_Confirmed (Prompt : in out Prompt_State);
    procedure Mark_Completed (Prompt : in out Prompt_State);

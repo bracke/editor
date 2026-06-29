@@ -207,16 +207,6 @@ package body Editor.Ada_Representation_Legality is
      (Tree           : Editor.Ada_Syntax_Tree.Tree_Type;
       Record_Type    : Editor.Ada_Syntax_Tree.Node_Id;
       Component_Name : String) return Boolean is
-      Type_Node : constant Editor.Ada_Syntax_Tree.Node_Info :=
-        (if Record_Type = Editor.Ada_Syntax_Tree.No_Node then
-            (Id => Editor.Ada_Syntax_Tree.No_Node,
-             Kind => Editor.Ada_Syntax_Tree.Node_Unknown,
-             Source_Span => (1, 1, 1, 1),
-             Parent => Editor.Ada_Syntax_Tree.No_Node,
-             Depth => 0,
-             Label => Null_Unbounded_String,
-             Fingerprint => 0)
-         else Editor.Ada_Syntax_Tree.Node (Tree, Record_Type));
    begin
       if Record_Type = Editor.Ada_Syntax_Tree.No_Node then
          return False;
@@ -228,8 +218,6 @@ package body Editor.Ada_Representation_Legality is
               Editor.Ada_Syntax_Tree.Node_At (Tree, Index);
          begin
             if N.Kind = Editor.Ada_Syntax_Tree.Node_Component_Declaration
-              and then N.Source_Span.Start_Line >= Type_Node.Source_Span.Start_Line
-              and then N.Source_Span.End_Line <= Type_Node.Source_Span.End_Line
               and then Name_List_Contains (Declaration_Name (Tree, N.Id), Component_Name)
             then
                return True;
@@ -245,7 +233,6 @@ package body Editor.Ada_Representation_Legality is
      (Target_Text : String;
       Item_Text   : String;
       Full_Text   : String) return Editor.Ada_Language_Model.Representation_Clause_Kind is
-      pragma Unreferenced (Item_Text);
       Attr : constant String := Attribute_Name (Target_Text);
       Text : constant String := Lower (Full_Text);
       Item : constant String := Trimmed (Item_Text);
@@ -767,17 +754,22 @@ package body Editor.Ada_Representation_Legality is
    function Aspect_Default_Value (Name, Value : String) return String is
       N : constant String := Lower (Name);
       V : constant String := Trimmed (Value);
+      V_Norm : constant String := Lower (V);
    begin
-      if V /= "" then
-         return V;
-      elsif N = "pack" or else N = "atomic" or else N = "volatile"
+      if N = "pack" or else N = "atomic" or else N = "volatile"
         or else N = "independent" or else N = "atomic_components"
         or else N = "volatile_components"
         or else N = "independent_components"
         or else N = "suppress_initialization" or else N = "import"
         or else N = "export"
       then
-         return "True";
+         if V = "" or else V_Norm = N then
+            return "True";
+         else
+            return V;
+         end if;
+      elsif V /= "" then
+         return V;
       else
          return V;
       end if;
@@ -909,10 +901,6 @@ package body Editor.Ada_Representation_Legality is
          Info.Status := Representation_Legality_Target_Ambiguous;
       elsif Info.Freeze_Status = Editor.Ada_Freezing_Points.Representation_Target_Not_Freezable then
          Info.Status := Representation_Legality_Target_Not_Freezable;
-      elsif Info.Freeze_Status = Editor.Ada_Freezing_Points.Representation_After_Freezing then
-         Info.Status := Representation_Legality_After_Freezing;
-      elsif Info.Freeze_Status = Editor.Ada_Freezing_Points.Representation_At_Freezing_Point then
-         Info.Status := Representation_Legality_At_Freezing_Point;
       elsif Operational_Clause (Kind)
         and then not Operational_Target_Compatible
           (Kind, Info.Target_Freezable_Kind, Info.Target_Category)
@@ -953,6 +941,9 @@ package body Editor.Ada_Representation_Legality is
       elsif Stream_Attribute_Clause (Kind)
         and then not Stream_Target_Compatible (Info.Target_Freezable_Kind)
       then
+         if Info.Stream_Status = Stream_Subprogram_Profile_Unknown then
+            Info.Stream_Status := Stream_Subprogram_Designator;
+         end if;
          Info.Status := Representation_Legality_Stream_Target_Incompatible;
       elsif Stream_Attribute_Clause (Kind)
         and then Info.Stream_Status in Stream_Subprogram_Malformed |
@@ -1005,6 +996,10 @@ package body Editor.Ada_Representation_Legality is
          Info.Status := Representation_Legality_Storage_Size_Target_Incompatible;
       elsif not Compatible_Target_Kind (Kind, Info.Target_Category) then
          Info.Status := Representation_Legality_Target_Kind_Mismatch;
+      elsif Info.Freeze_Status = Editor.Ada_Freezing_Points.Representation_After_Freezing then
+         Info.Status := Representation_Legality_After_Freezing;
+      elsif Info.Freeze_Status = Editor.Ada_Freezing_Points.Representation_At_Freezing_Point then
+         Info.Status := Representation_Legality_At_Freezing_Point;
       elsif Static_Value_Required (Kind)
         and then Info.Value_Status not in Representation_Value_Static_Integer |
                                       Representation_Value_Static_Real
@@ -1106,6 +1101,80 @@ package body Editor.Ada_Representation_Legality is
       end;
    end Is_Enumeration_Type_Node;
 
+   function Enumeration_Definition_Text
+     (Tree      : Editor.Ada_Syntax_Tree.Tree_Type;
+      Type_Node : Editor.Ada_Syntax_Tree.Node_Id) return String is
+      Def : constant String :=
+        Trimmed (Child_Label (Tree, Type_Node, Editor.Ada_Syntax_Tree.Node_Declaration_Subtype));
+   begin
+      if Def'Length >= 2
+        and then Def (Def'First) = '('
+        and then Def (Def'Last) = ')'
+      then
+         return Def (Def'First + 1 .. Def'Last - 1);
+      end if;
+      return "";
+   end Enumeration_Definition_Text;
+
+   function Enumeration_Definition_Count (Definition : String) return Natural is
+      Count : Natural := 0;
+      First : Natural := Definition'First;
+   begin
+      if Trimmed (Definition) = "" then
+         return 0;
+      end if;
+
+      for I in Definition'Range loop
+         if Definition (I) = ',' then
+            if Trimmed (Definition (First .. I - 1)) /= "" then
+               Count := Count + 1;
+            end if;
+            First := I + 1;
+         end if;
+      end loop;
+      if First <= Definition'Last and then Trimmed (Definition (First .. Definition'Last)) /= "" then
+         Count := Count + 1;
+      end if;
+      return Count;
+   end Enumeration_Definition_Count;
+
+   function Enumeration_Definition_Name_At
+     (Definition : String;
+      Position   : Positive) return String is
+      Count : Natural := 0;
+      First : Natural := Definition'First;
+   begin
+      for I in Definition'Range loop
+         if Definition (I) = ',' then
+            declare
+               Name : constant String := Trimmed (Definition (First .. I - 1));
+            begin
+               if Name /= "" then
+                  Count := Count + 1;
+                  if Count = Position then
+                     return Name;
+                  end if;
+               end if;
+            end;
+            First := I + 1;
+         end if;
+      end loop;
+
+      if First <= Definition'Last then
+         declare
+            Name : constant String := Trimmed (Definition (First .. Definition'Last));
+         begin
+            if Name /= "" then
+               Count := Count + 1;
+               if Count = Position then
+                  return Name;
+               end if;
+            end if;
+         end;
+      end if;
+      return "";
+   end Enumeration_Definition_Name_At;
+
    function Enumeration_Literal_Count
      (Tree      : Editor.Ada_Syntax_Tree.Tree_Type;
       Type_Node : Editor.Ada_Syntax_Tree.Node_Id) return Natural is
@@ -1126,7 +1195,10 @@ package body Editor.Ada_Representation_Legality is
             end if;
          end;
       end loop;
-      return Count;
+      if Count /= 0 then
+         return Count;
+      end if;
+      return Enumeration_Definition_Count (Enumeration_Definition_Text (Tree, Type_Node));
    end Enumeration_Literal_Count;
 
    function Enumeration_Literal_Name_At
@@ -1154,7 +1226,8 @@ package body Editor.Ada_Representation_Legality is
             end if;
          end;
       end loop;
-      return "";
+      return Enumeration_Definition_Name_At
+        (Enumeration_Definition_Text (Tree, Type_Node), Position);
    end Enumeration_Literal_Name_At;
 
    function Enumeration_Literal_Exists
@@ -1179,6 +1252,13 @@ package body Editor.Ada_Representation_Legality is
                return True;
             end if;
          end;
+      end loop;
+      for Pos in 1 .. Enumeration_Definition_Count (Enumeration_Definition_Text (Tree, Type_Node)) loop
+         if Lower (Enumeration_Definition_Name_At
+                     (Enumeration_Definition_Text (Tree, Type_Node), Pos)) = N
+         then
+            return True;
+         end if;
       end loop;
       return False;
    end Enumeration_Literal_Exists;
@@ -1207,6 +1287,13 @@ package body Editor.Ada_Representation_Legality is
                end if;
             end if;
          end;
+      end loop;
+      for Pos in 1 .. Enumeration_Definition_Count (Enumeration_Definition_Text (Tree, Type_Node)) loop
+         if Lower (Enumeration_Definition_Name_At
+                     (Enumeration_Definition_Text (Tree, Type_Node), Pos)) = N
+         then
+            return Pos;
+         end if;
       end loop;
       return 0;
    end Enumeration_Literal_Position;
@@ -2148,6 +2235,44 @@ package body Editor.Ada_Representation_Legality is
       end case;
    end Stream_Profile_Conforms;
 
+   function Unique_Visible_Declaration
+     (Visibility : Editor.Ada_Direct_Visibility.Visibility_Model;
+      Name       : String) return Editor.Ada_Direct_Visibility.Lookup_Result is
+      use type Editor.Ada_Direct_Visibility.Declaration_Id;
+      Wanted : constant String := Lower (Name);
+      Result : Editor.Ada_Direct_Visibility.Lookup_Result :=
+        (Status => Editor.Ada_Direct_Visibility.Lookup_Not_Found,
+         Declaration => Editor.Ada_Direct_Visibility.No_Declaration,
+         Region => Editor.Ada_Declarative_Regions.No_Region,
+         Match_Count => 0);
+   begin
+      if Wanted = "" then
+         return Result;
+      end if;
+
+      for Index in 1 .. Editor.Ada_Direct_Visibility.Declaration_Count (Visibility) loop
+         declare
+            Decl : constant Editor.Ada_Direct_Visibility.Declaration_Info :=
+              Editor.Ada_Direct_Visibility.Declaration_At (Visibility, Index);
+         begin
+            if To_String (Decl.Normalized) = Wanted then
+               Result.Match_Count := Result.Match_Count + 1;
+               if Result.Declaration = Editor.Ada_Direct_Visibility.No_Declaration then
+                  Result.Declaration := Decl.Id;
+                  Result.Region := Decl.Region;
+               end if;
+            end if;
+         end;
+      end loop;
+
+      if Result.Match_Count = 1 then
+         Result.Status := Editor.Ada_Direct_Visibility.Lookup_Found;
+      elsif Result.Match_Count > 1 then
+         Result.Status := Editor.Ada_Direct_Visibility.Lookup_Ambiguous;
+      end if;
+      return Result;
+   end Unique_Visible_Declaration;
+
    procedure Apply_Stream_Profile_Resolution
      (Model      : in out Representation_Legality_Model;
       Regions    : Editor.Ada_Declarative_Regions.Region_Model;
@@ -2167,10 +2292,15 @@ package body Editor.Ada_Representation_Legality is
                declare
                   Region : constant Editor.Ada_Declarative_Regions.Region_Id :=
                     Deepest_Region_Containing_Line (Regions, Info.Source_Line);
-                  Lookup : constant Editor.Ada_Direct_Visibility.Lookup_Result :=
+                  Lookup : Editor.Ada_Direct_Visibility.Lookup_Result :=
                     Editor.Ada_Direct_Visibility.Lookup_Visible
                       (Visibility, Regions, Region, To_String (Info.Stream_Designator));
                begin
+                  if Lookup.Status = Editor.Ada_Direct_Visibility.Lookup_Not_Found then
+                     Lookup := Unique_Visible_Declaration
+                       (Visibility, To_String (Info.Stream_Designator));
+                  end if;
+
                   if Lookup.Status = Editor.Ada_Direct_Visibility.Lookup_Found then
                      declare
                         Decl : constant Editor.Ada_Direct_Visibility.Declaration_Info :=

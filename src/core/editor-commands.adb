@@ -1255,6 +1255,12 @@ package body Editor.Commands is
             Cmd.Kind := Split_Current_Line_At_Caret;
          when Command_Trim_Trailing_Whitespace =>
             Cmd.Kind := Trim_Trailing_Whitespace;
+         when Command_Format_Buffer =>
+            Cmd.Kind := Trim_Trailing_Whitespace;
+         when Command_Format_Selected_Text =>
+            Cmd.Kind := Trim_Trailing_Whitespace;
+         when Command_Toggle_Format_On_Save =>
+            Cmd.Kind := Toggle_Format_On_Save;
          when Command_Char_Delete_Previous =>
             Cmd.Kind := Delete_Previous_Character;
          when Command_Char_Delete_Next =>
@@ -1992,6 +1998,16 @@ package body Editor.Commands is
             Cmd.Kind := Build_UI_Hide;
          when Command_Build_UI_Focus =>
             Cmd.Kind := Build_UI_Focus;
+         when Command_Build_Result_Focus =>
+            Cmd.Kind := Build_Result_Focus;
+         when Command_Build_Output_Details_Focus =>
+            Cmd.Kind := Build_Output_Details_Focus;
+         when Command_Build_Output_Details_Select_Stdout =>
+            Cmd.Kind := Build_Output_Details_Select_Stdout;
+         when Command_Build_Output_Details_Select_Stderr =>
+            Cmd.Kind := Build_Output_Details_Select_Stderr;
+         when Command_Build_Output_Details_Select_Merged =>
+            Cmd.Kind := Build_Output_Details_Select_Merged;
          when Command_Build_Select_Next_Candidate =>
             Cmd.Kind := Build_Select_Next_Candidate;
          when Command_Build_Select_Previous_Candidate =>
@@ -2030,6 +2046,26 @@ package body Editor.Commands is
             Cmd.Kind := Goto_Body;
          when Command_Goto_Spec =>
             Cmd.Kind := Goto_Spec;
+         when Command_Find_References =>
+            Cmd.Kind := Find_References;
+         when Command_Workspace_Symbols =>
+            Cmd.Kind := Workspace_Symbols;
+         when Command_Show_Hover =>
+            Cmd.Kind := Show_Hover;
+         when Command_Show_Completions =>
+            Cmd.Kind := Show_Completions;
+         when Command_Semantic_Completion_Select_Next =>
+            Cmd.Kind := Semantic_Completion_Select_Next;
+         when Command_Semantic_Completion_Select_Previous =>
+            Cmd.Kind := Semantic_Completion_Select_Previous;
+         when Command_Semantic_Completion_Accept =>
+            Cmd.Kind := Semantic_Completion_Accept;
+         when Command_Semantic_Popup_Dismiss =>
+            Cmd.Kind := Semantic_Popup_Dismiss;
+         when Command_Rename_Symbol_Preview =>
+            Cmd.Kind := Rename_Symbol_Preview;
+         when Command_Rename_Symbol_Apply =>
+            Cmd.Kind := Rename_Symbol_Apply;
          when Command_Semantic_Refresh_Buffer =>
             Cmd.Kind := Semantic_Refresh_Buffer;
          when Command_Semantic_Refresh_Project_Index =>
@@ -2120,6 +2156,8 @@ package body Editor.Commands is
             Cmd.Kind := Diagnostics_Clear_Build;
          when Command_Diagnostics_Open_Selected =>
             Cmd.Kind := Diagnostics_Open_Selected;
+         when Command_Diagnostics_Execute_Selected_Action =>
+            Cmd.Kind := Diagnostics_Execute_Selected_Action;
          when Command_Diagnostics_Select_Next =>
             Cmd.Kind := Diagnostics_Select_Next;
          when Command_Diagnostics_Select_Previous =>
@@ -2144,6 +2182,32 @@ package body Editor.Commands is
             Cmd.Kind := Diagnostics_Toggle_External_Source;
          when Command_Diagnostics_Toggle_Unknown_Source =>
             Cmd.Kind := Diagnostics_Toggle_Unknown_Source;
+         when Command_Run_Project =>
+            Cmd.Kind := Run_Project;
+         when Command_Run_Tests =>
+            Cmd.Kind := Run_Tests;
+         when Command_Terminal_Toggle =>
+            Cmd.Kind := Terminal_Toggle;
+         when Command_Terminal_Show =>
+            Cmd.Kind := Terminal_Show;
+         when Command_Terminal_Hide =>
+            Cmd.Kind := Terminal_Hide;
+         when Command_Terminal_Focus =>
+            Cmd.Kind := Terminal_Focus;
+         when Command_Terminal_Clear =>
+            Cmd.Kind := Terminal_Clear;
+         when Command_Terminal_Clear_Output =>
+            Cmd.Kind := Terminal_Clear_Output;
+         when Command_Terminal_Select_Next_Task =>
+            Cmd.Kind := Terminal_Select_Next_Task;
+         when Command_Terminal_Select_Previous_Task =>
+            Cmd.Kind := Terminal_Select_Previous_Task;
+         when Command_Terminal_Run_Selected_Task =>
+            Cmd.Kind := Terminal_Run_Selected_Task;
+         when Command_Terminal_Rerun_Last_Task =>
+            Cmd.Kind := Terminal_Rerun_Last_Task;
+         when Command_Terminal_Cancel_Task =>
+            Cmd.Kind := Terminal_Cancel_Task;
          when Command_Clear_Selected_Message =>
             Cmd.Kind := Clear_Selected_Message;
          when Command_Copy_Selected_Message_Text =>
@@ -3254,6 +3318,27 @@ package body Editor.Commands is
                Name        => "Trim Trailing Whitespace",
                Description => "Remove trailing spaces and tabs from the active buffer",
                Category    => Edit_Category,
+               Visibility  => Palette_Command);
+         when Command_Format_Buffer =>
+            return Make_Descriptor
+              (Id          => Id,
+               Name        => "Format Buffer",
+               Description => "Apply the explicit buffer formatting action to the active buffer.",
+               Category    => Edit_Category,
+               Visibility  => Palette_Command);
+         when Command_Format_Selected_Text =>
+            return Make_Descriptor
+              (Id          => Id,
+               Name        => "Format Selection",
+               Description => "Apply the explicit selection formatting action to selected logical lines.",
+               Category    => Edit_Category,
+               Visibility  => Palette_Command);
+         when Command_Toggle_Format_On_Save =>
+            return Make_Descriptor
+              (Id          => Id,
+               Name        => "Toggle Format On Save",
+               Description => "Toggle automatic formatting before file saves.",
+               Category    => Settings_Category,
                Visibility  => Palette_Command);
          when Command_Char_Delete_Previous =>
             return Make_Descriptor
@@ -5633,6 +5718,76 @@ package body Editor.Commands is
                Description => "Open the spec target for the selected Outline symbol when available.",
                Category    => Navigation_Category,
                Visibility  => Palette_Command);
+         when Command_Find_References =>
+            return Make_Descriptor
+              (Id          => Id,
+               Name        => "Find References",
+               Description => "Show indexed references for the selected Outline symbol.",
+               Category    => Navigation_Category,
+               Visibility  => Palette_Command);
+         when Command_Workspace_Symbols =>
+            return Make_Descriptor
+              (Id          => Id,
+               Name        => "Workspace Symbols",
+               Description => "Show indexed workspace symbols matching the selected Outline symbol.",
+               Category    => Navigation_Category,
+               Visibility  => Palette_Command);
+         when Command_Show_Hover =>
+            return Make_Descriptor
+              (Id          => Id,
+               Name        => "Show Hover",
+               Description => "Show indexed language details for the selected Outline symbol.",
+               Category    => Navigation_Category,
+               Visibility  => Palette_Command);
+         when Command_Show_Completions =>
+            return Make_Descriptor
+              (Id          => Id,
+               Name        => "Show Completions",
+               Description => "Show indexed language completion candidates matching the selected Outline symbol prefix.",
+               Category    => Navigation_Category,
+               Visibility  => Palette_Command);
+         when Command_Semantic_Completion_Select_Next =>
+            return Make_Descriptor
+              (Id          => Id,
+               Name        => "Select Next Completion",
+               Description => "Move to the next item in the visible completion menu.",
+               Category    => Navigation_Category,
+               Visibility  => Hidden_Command);
+         when Command_Semantic_Completion_Select_Previous =>
+            return Make_Descriptor
+              (Id          => Id,
+               Name        => "Select Previous Completion",
+               Description => "Move to the previous item in the visible completion menu.",
+               Category    => Navigation_Category,
+               Visibility  => Hidden_Command);
+         when Command_Semantic_Completion_Accept =>
+            return Make_Descriptor
+              (Id          => Id,
+               Name        => "Accept Completion",
+               Description => "Insert the selected item from the visible completion menu.",
+               Category    => Navigation_Category,
+               Visibility  => Hidden_Command);
+         when Command_Semantic_Popup_Dismiss =>
+            return Make_Descriptor
+              (Id          => Id,
+               Name        => "Dismiss Semantic Popup",
+               Description => "Close the visible hover or completion popup.",
+               Category    => Navigation_Category,
+               Visibility  => Hidden_Command);
+         when Command_Rename_Symbol_Preview =>
+            return Make_Descriptor
+              (Id          => Id,
+               Name        => "Preview Rename Symbol",
+               Description => "Preview the indexed rename impact for the selected Outline symbol without editing files.",
+               Category    => Navigation_Category,
+               Visibility  => Palette_Command);
+         when Command_Rename_Symbol_Apply =>
+            return Make_Descriptor
+              (Id          => Id,
+               Name        => "Apply Rename Symbol",
+               Description => "Apply a conflict-free indexed rename for the selected Outline symbol in the active buffer.",
+               Category    => Navigation_Category,
+               Visibility  => Palette_Command);
          when Command_Semantic_Refresh_Buffer =>
             return Make_Descriptor
               (Id          => Id,
@@ -5948,6 +6103,13 @@ package body Editor.Commands is
                Description => "Open the file location for the selected Diagnostic when available.",
                Category    => Panel_Category,
                Visibility  => Palette_Command);
+         when Command_Diagnostics_Execute_Selected_Action =>
+            return Make_Descriptor
+              (Id          => Id,
+               Name        => "Execute Selected Diagnostic Action",
+               Description => "Execute the primary code action for the selected Diagnostic when available.",
+               Category    => Panel_Category,
+               Visibility  => Palette_Command);
          when Command_Diagnostics_Select_Next =>
             return Make_Descriptor
               (Id          => Id,
@@ -6116,6 +6278,122 @@ package body Editor.Commands is
                Description => "Dismiss all messages.",
                Category    => Message_Category,
                Visibility  => Palette_Command);
+         when Command_Run_Project =>
+            declare
+               D : Command_Descriptor := Make_Descriptor
+                 (Id          => Id,
+                  Name        => "Project: Run",
+                  Description => "Run the default project task through the structured project task runner.",
+                  Category    => Project_Category,
+                  Visibility  => Palette_Command);
+            begin
+               D.Bindable := False;
+               return D;
+            end;
+         when Command_Run_Tests =>
+            declare
+               D : Command_Descriptor := Make_Descriptor
+                 (Id          => Id,
+                  Name        => "Project: Run Tests",
+                  Description => "Run the default project test task through the structured project task runner.",
+                  Category    => Project_Category,
+                  Visibility  => Palette_Command);
+            begin
+               D.Bindable := False;
+               return D;
+            end;
+         when Command_Terminal_Toggle =>
+            return Make_Descriptor
+              (Id          => Id,
+               Name        => "Terminal: Toggle",
+               Description => "Show or hide the integrated terminal and task panel.",
+               Category    => Panel_Category,
+               Visibility  => Palette_Command);
+         when Command_Terminal_Show =>
+            return Make_Descriptor
+              (Id          => Id,
+               Name        => "Terminal: Show",
+               Description => "Show the integrated terminal and task panel.",
+               Category    => Panel_Category,
+               Visibility  => Palette_Command);
+         when Command_Terminal_Hide =>
+            return Make_Descriptor
+              (Id          => Id,
+               Name        => "Terminal: Hide",
+               Description => "Hide the integrated terminal and task panel.",
+               Category    => Panel_Category,
+               Visibility  => Palette_Command);
+         when Command_Terminal_Focus =>
+            return Make_Descriptor
+              (Id          => Id,
+               Name        => "Terminal: Focus",
+               Description => "Show and focus the integrated terminal and task panel.",
+               Category    => Panel_Category,
+               Visibility  => Palette_Command);
+         when Command_Terminal_Clear =>
+            return Make_Descriptor
+              (Id          => Id,
+               Name        => "Terminal: Clear Tasks",
+               Description => "Clear terminal task rows and output.",
+               Category    => Panel_Category,
+               Visibility  => Palette_Command);
+         when Command_Terminal_Clear_Output =>
+            return Make_Descriptor
+              (Id          => Id,
+               Name        => "Terminal: Clear Output",
+               Description => "Clear bounded terminal output while preserving task rows.",
+               Category    => Panel_Category,
+               Visibility  => Palette_Command);
+         when Command_Terminal_Select_Next_Task =>
+            return Make_Descriptor
+              (Id          => Id,
+               Name        => "Terminal: Select Next Task",
+               Description => "Move terminal task selection to the next row.",
+               Category    => Panel_Category,
+               Visibility  => Palette_Command);
+         when Command_Terminal_Select_Previous_Task =>
+            return Make_Descriptor
+              (Id          => Id,
+               Name        => "Terminal: Select Previous Task",
+               Description => "Move terminal task selection to the previous row.",
+               Category    => Panel_Category,
+               Visibility  => Palette_Command);
+         when Command_Terminal_Run_Selected_Task =>
+            declare
+               D : Command_Descriptor := Make_Descriptor
+                 (Id          => Id,
+                  Name        => "Terminal: Run Selected Task",
+                  Description => "Run the selected structured terminal task.",
+                  Category    => Project_Category,
+                  Visibility  => Palette_Command);
+            begin
+               D.Bindable := False;
+               return D;
+            end;
+         when Command_Terminal_Rerun_Last_Task =>
+            declare
+               D : Command_Descriptor := Make_Descriptor
+                 (Id          => Id,
+                  Name        => "Terminal: Rerun Last Task",
+                  Description => "Run the most recently executed terminal task again.",
+                  Category    => Project_Category,
+                  Visibility  => Palette_Command);
+            begin
+               D.Bindable := False;
+               return D;
+            end;
+         when Command_Terminal_Cancel_Task =>
+            declare
+               D : Command_Descriptor := Make_Descriptor
+                 (Id          => Id,
+                  Name        => "Terminal: Cancel Task",
+                  Description => "Request cancellation of the active terminal task when a backend is running it.",
+                  Category    => Project_Category,
+                  Visibility  => Palette_Command);
+            begin
+               D.Bindable := False;
+               return D;
+            end;
          when Command_Build_UI_Toggle =>
             return Make_Descriptor
               (Id          => Id,
@@ -6143,6 +6421,41 @@ package body Editor.Commands is
                Name        => "Focus Build Output",
                Description => "Show and focus the build output panel without changing request, candidate, or confirmation state.",
                Category    => Panel_Category,
+               Visibility  => Palette_Command);
+         when Command_Build_Result_Focus =>
+            return Make_Descriptor
+              (Id          => Id,
+               Name        => "Build: Focus Latest Result",
+               Description => "Focus the latest build result summary when a result is available.",
+               Category    => Panel_Category,
+               Visibility  => Palette_Command);
+         when Command_Build_Output_Details_Focus =>
+            return Make_Descriptor
+              (Id          => Id,
+               Name        => "Build: Focus Output Details",
+               Description => "Focus the latest build stdout/stderr details when output details are available.",
+               Category    => Panel_Category,
+               Visibility  => Palette_Command);
+         when Command_Build_Output_Details_Select_Stdout =>
+            return Make_Descriptor
+              (Id          => Id,
+               Name        => "Build: Select Stdout Output",
+               Description => "Show stdout as the selected latest build output stream.",
+               Category    => Project_Category,
+               Visibility  => Palette_Command);
+         when Command_Build_Output_Details_Select_Stderr =>
+            return Make_Descriptor
+              (Id          => Id,
+               Name        => "Build: Select Stderr Output",
+               Description => "Show stderr as the selected latest build output stream.",
+               Category    => Project_Category,
+               Visibility  => Palette_Command);
+         when Command_Build_Output_Details_Select_Merged =>
+            return Make_Descriptor
+              (Id          => Id,
+               Name        => "Build: Select Merged Output",
+               Description => "Show merged stdout/stderr as the selected latest build output stream.",
+               Category    => Project_Category,
                Visibility  => Palette_Command);
          when Command_Build_Select_Next_Candidate =>
             return Make_Descriptor
@@ -6769,6 +7082,12 @@ package body Editor.Commands is
             | Command_Goto_Declaration
             | Command_Goto_Body
             | Command_Goto_Spec
+            | Command_Find_References
+            | Command_Workspace_Symbols
+            | Command_Show_Hover
+            | Command_Show_Completions
+            | Command_Rename_Symbol_Preview
+            | Command_Rename_Symbol_Apply
             | Command_Semantic_Refresh_Buffer
             | Command_Semantic_Refresh_Project_Index
             | Command_Language_Index_Clear
@@ -6814,6 +7133,7 @@ package body Editor.Commands is
             | Command_Diagnostics_Filter_Build
             | Command_Diagnostics_Clear_Build
             | Command_Diagnostics_Open_Selected
+            | Command_Diagnostics_Execute_Selected_Action
             | Command_Diagnostics_Select_Next
             | Command_Diagnostics_Select_Previous
             | Command_Diagnostics_Clear_Selected
@@ -6855,6 +7175,11 @@ package body Editor.Commands is
    begin
       return Id in Command_Build_Run
         | Command_Build_Cancel
+        | Command_Build_Result_Focus
+        | Command_Build_Output_Details_Focus
+        | Command_Build_Output_Details_Select_Stdout
+        | Command_Build_Output_Details_Select_Stderr
+        | Command_Build_Output_Details_Select_Merged
         | Command_Build_Select_Next_Candidate
         | Command_Build_Select_Previous_Candidate
         | Command_Build_Clear_Selected_Candidate
@@ -7394,6 +7719,12 @@ package body Editor.Commands is
             | Command_Goto_Declaration
             | Command_Goto_Body
             | Command_Goto_Spec
+            | Command_Find_References
+            | Command_Workspace_Symbols
+            | Command_Show_Hover
+            | Command_Show_Completions
+            | Command_Rename_Symbol_Preview
+            | Command_Rename_Symbol_Apply
             | Command_Semantic_Refresh_Buffer
             | Command_Semantic_Refresh_Project_Index
             | Command_Language_Index_Clear
@@ -7439,6 +7770,7 @@ package body Editor.Commands is
             | Command_Diagnostics_Filter_Build
             | Command_Diagnostics_Clear_Build
             | Command_Diagnostics_Open_Selected
+            | Command_Diagnostics_Execute_Selected_Action
             | Command_Diagnostics_Select_Next
             | Command_Diagnostics_Select_Previous
             | Command_Diagnostics_Clear_Selected
@@ -7489,6 +7821,8 @@ package body Editor.Commands is
             | Command_Line_Join_Next
             | Command_Line_Split_At_Caret
             | Command_Trim_Trailing_Whitespace
+            | Command_Format_Buffer
+            | Command_Format_Selected_Text
             | Command_Char_Delete_Previous
             | Command_Char_Delete_Next
             | Command_Word_Delete_Previous
@@ -7529,6 +7863,8 @@ package body Editor.Commands is
          return "command-palette.show-command-help";
       elsif Id = Command_Open_Project then
          return "project.open";
+      elsif Id = Command_Open_File then
+         return "file.open";
       elsif Id = Command_Refresh_Outline then
          return "outline.refresh";
       elsif Id = Command_Refresh_Outline_Project_Index then
@@ -7539,6 +7875,26 @@ package body Editor.Commands is
          return "outline.goto-body";
       elsif Id = Command_Goto_Spec then
          return "outline.goto-spec";
+      elsif Id = Command_Find_References then
+         return "semantic.find-references";
+      elsif Id = Command_Workspace_Symbols then
+         return "semantic.workspace-symbols";
+      elsif Id = Command_Show_Hover then
+         return "semantic.show-hover";
+      elsif Id = Command_Show_Completions then
+         return "semantic.show-completions";
+      elsif Id = Command_Semantic_Completion_Select_Next then
+         return "semantic.completion.select-next";
+      elsif Id = Command_Semantic_Completion_Select_Previous then
+         return "semantic.completion.select-previous";
+      elsif Id = Command_Semantic_Completion_Accept then
+         return "semantic.completion.accept";
+      elsif Id = Command_Semantic_Popup_Dismiss then
+         return "semantic.popup.dismiss";
+      elsif Id = Command_Rename_Symbol_Preview then
+         return "semantic.rename-symbol-preview";
+      elsif Id = Command_Rename_Symbol_Apply then
+         return "semantic.rename-symbol-apply";
       elsif Id = Command_Semantic_Refresh_Buffer then
          return "semantic.refresh-buffer";
       elsif Id = Command_Semantic_Refresh_Project_Index then
@@ -7555,6 +7911,38 @@ package body Editor.Commands is
          return "outline.focus";
       elsif Id = Command_Open_Selected_Outline_Item then
          return "outline.open-selected";
+      elsif Id = Command_Select_Current_Outline_Symbol then
+         return "outline.select-current-symbol";
+      elsif Id = Command_Select_Next_Outline_Item then
+         return "outline.select-next";
+      elsif Id = Command_Select_Previous_Outline_Item then
+         return "outline.select-previous";
+      elsif Id = Command_Run_Project then
+         return "project.run";
+      elsif Id = Command_Run_Tests then
+         return "project.test";
+      elsif Id = Command_Terminal_Toggle then
+         return "terminal.toggle";
+      elsif Id = Command_Terminal_Show then
+         return "terminal.show";
+      elsif Id = Command_Terminal_Hide then
+         return "terminal.hide";
+      elsif Id = Command_Terminal_Focus then
+         return "terminal.focus";
+      elsif Id = Command_Terminal_Clear then
+         return "terminal.clear";
+      elsif Id = Command_Terminal_Clear_Output then
+         return "terminal.clear-output";
+      elsif Id = Command_Terminal_Select_Next_Task then
+         return "terminal.select-next-task";
+      elsif Id = Command_Terminal_Select_Previous_Task then
+         return "terminal.select-previous-task";
+      elsif Id = Command_Terminal_Run_Selected_Task then
+         return "terminal.run-selected-task";
+      elsif Id = Command_Terminal_Rerun_Last_Task then
+         return "terminal.rerun-last-task";
+      elsif Id = Command_Terminal_Cancel_Task then
+         return "terminal.cancel-task";
       elsif Id = Command_Build_Run then
          return "build.run";
       elsif Id = Command_Build_UI_Toggle then
@@ -7565,6 +7953,16 @@ package body Editor.Commands is
          return "build.ui.hide";
       elsif Id = Command_Build_UI_Focus then
          return "build.ui.focus";
+      elsif Id = Command_Build_Result_Focus then
+         return "build.result.focus";
+      elsif Id = Command_Build_Output_Details_Focus then
+         return "build.output-details.focus";
+      elsif Id = Command_Build_Output_Details_Select_Stdout then
+         return "build.output-details.select-stdout";
+      elsif Id = Command_Build_Output_Details_Select_Stderr then
+         return "build.output-details.select-stderr";
+      elsif Id = Command_Build_Output_Details_Select_Merged then
+         return "build.output-details.select-merged";
       elsif Id = Command_Build_Select_Next_Candidate then
          return "build.select-next-candidate";
       elsif Id = Command_Build_Select_Previous_Candidate then
@@ -7595,6 +7993,8 @@ package body Editor.Commands is
          return "build.cancel";
       elsif Id = Command_Build_Run_User_Opt_In_Test_Seam then
          return "build.run-user-opt-in-test-seam";
+      elsif Id = Command_Diagnostics_Show then
+         return "diagnostics.show";
       elsif Id = Command_Startup_Show_Summary then
          return "startup.show-summary";
       elsif Id = Command_Configuration_Recover_Show then
@@ -7675,6 +8075,8 @@ package body Editor.Commands is
          return "diagnostics.clear-build";
       elsif Id = Command_Diagnostics_Open_Selected then
          return "diagnostics.open-selected";
+      elsif Id = Command_Diagnostics_Execute_Selected_Action then
+         return "diagnostics.execute-selected-action";
       elsif Id = Command_Diagnostics_Select_Next then
          return "diagnostics.next";
       elsif Id = Command_Diagnostics_Select_Previous then
@@ -7753,6 +8155,12 @@ package body Editor.Commands is
          return "edit.line.split-at-caret";
       elsif Id = Command_Trim_Trailing_Whitespace then
          return "edit.trim-trailing-whitespace";
+      elsif Id = Command_Format_Buffer then
+         return "edit.format-buffer";
+      elsif Id = Command_Format_Selected_Text then
+         return "edit.format.selection";
+      elsif Id = Command_Toggle_Format_On_Save then
+         return "file.format-on-save";
       elsif Id = Command_Char_Delete_Previous then
          return "edit.char.delete-previous";
       elsif Id = Command_Char_Delete_Next then
@@ -7882,13 +8290,13 @@ package body Editor.Commands is
       elsif Id = Command_Bookmark_Toggle then
          return "bookmark.toggle";
       elsif Id = Command_Open_Quick_Open then
-         return "project.quick-open.show";
+         return "quick-open.show";
       elsif Id = Command_Close_Quick_Open then
          return "project.quick-open.hide";
       elsif Id = Command_Toggle_Quick_Open then
          return "project.quick-open.toggle";
       elsif Id = Command_Accept_Quick_Open then
-         return "project.quick-open.open-selected";
+         return "quick-open.open-selected";
       elsif Id = Command_Quick_Open_Next_Result then
          return "project.quick-open.next";
       elsif Id = Command_Quick_Open_Previous_Result then
@@ -8386,7 +8794,7 @@ package body Editor.Commands is
       then
          Found := True;
          return Command_Open_Selected_Recent_Project;
-      elsif N = "file.open" then
+      elsif N = "file.open" or else N = "open-file" then
          Found := True;
          return Command_Open_File;
       elsif N = "file.save" then
@@ -8456,6 +8864,44 @@ package body Editor.Commands is
       elsif N = "outline.goto-spec" then
          Found := True;
          return Command_Goto_Spec;
+      elsif N = "semantic.find-references" then
+         Found := True;
+         return Command_Find_References;
+      elsif N = "semantic.workspace-symbols"
+        or else N = "workspace.symbols"
+        or else N = "workspace-symbols"
+      then
+         Found := True;
+         return Command_Workspace_Symbols;
+      elsif N = "semantic.show-hover" then
+         Found := True;
+         return Command_Show_Hover;
+      elsif N = "semantic.show-completions" then
+         Found := True;
+         return Command_Show_Completions;
+      elsif N = "semantic.completion.select-next" then
+         Found := True;
+         return Command_Semantic_Completion_Select_Next;
+      elsif N = "semantic.completion.select-previous" then
+         Found := True;
+         return Command_Semantic_Completion_Select_Previous;
+      elsif N = "semantic.completion.accept" then
+         Found := True;
+         return Command_Semantic_Completion_Accept;
+      elsif N = "semantic.popup.dismiss" then
+         Found := True;
+         return Command_Semantic_Popup_Dismiss;
+      elsif N = "semantic.rename-symbol-preview"
+        or else N = "refactor.rename-symbol-preview"
+        or else N = "refactor.rename-symbol"
+      then
+         Found := True;
+         return Command_Rename_Symbol_Preview;
+      elsif N = "semantic.rename-symbol-apply"
+        or else N = "refactor.rename-symbol-apply"
+      then
+         Found := True;
+         return Command_Rename_Symbol_Apply;
       elsif N = "semantic.refresh-buffer" then
          Found := True;
          return Command_Semantic_Refresh_Buffer;
@@ -8481,11 +8927,18 @@ package body Editor.Commands is
       then
          Found := True;
          return Command_Open_Selected_Outline_Item;
+      elsif N = "outline.select-current-symbol"
+        or else N = "select-current-outline-symbol"
+      then
+         Found := True;
+         return Command_Select_Current_Outline_Symbol;
       elsif N = "outline.select-next"
+        or else N = "select-next-outline-item"
       then
          Found := True;
          return Command_Select_Next_Outline_Item;
       elsif N = "outline.select-previous"
+        or else N = "select-previous-outline-item"
       then
          Found := True;
          return Command_Select_Previous_Outline_Item;
@@ -8509,9 +8962,6 @@ package body Editor.Commands is
       then
          Found := True;
          return Command_Previous_Buffer;
-      elsif N = "buffer.close" then
-         Found := True;
-         return Command_Close_Active_Buffer;
       elsif N = "buffer.close-all-clean"
       then
          Found := True;
@@ -8519,6 +8969,45 @@ package body Editor.Commands is
       elsif N = "workspace.restore" then
          Found := True;
          return Command_Restore_Workspace_State;
+      elsif N = "project.run" then
+         Found := True;
+         return Command_Run_Project;
+      elsif N = "project.test" or else N = "test.run" then
+         Found := True;
+         return Command_Run_Tests;
+      elsif N = "terminal.toggle" then
+         Found := True;
+         return Command_Terminal_Toggle;
+      elsif N = "terminal.show" then
+         Found := True;
+         return Command_Terminal_Show;
+      elsif N = "terminal.hide" then
+         Found := True;
+         return Command_Terminal_Hide;
+      elsif N = "terminal.focus" then
+         Found := True;
+         return Command_Terminal_Focus;
+      elsif N = "terminal.clear" then
+         Found := True;
+         return Command_Terminal_Clear;
+      elsif N = "terminal.clear-output" then
+         Found := True;
+         return Command_Terminal_Clear_Output;
+      elsif N = "terminal.select-next-task" then
+         Found := True;
+         return Command_Terminal_Select_Next_Task;
+      elsif N = "terminal.select-previous-task" then
+         Found := True;
+         return Command_Terminal_Select_Previous_Task;
+      elsif N = "terminal.run-selected-task" then
+         Found := True;
+         return Command_Terminal_Run_Selected_Task;
+      elsif N = "terminal.rerun-last-task" then
+         Found := True;
+         return Command_Terminal_Rerun_Last_Task;
+      elsif N = "terminal.cancel-task" then
+         Found := True;
+         return Command_Terminal_Cancel_Task;
       elsif N = "build.run" then
          Found := True;
          return Command_Build_Run;
@@ -8534,6 +9023,21 @@ package body Editor.Commands is
       elsif N = "build.ui.focus" then
          Found := True;
          return Command_Build_UI_Focus;
+      elsif N = "build.result.focus" then
+         Found := True;
+         return Command_Build_Result_Focus;
+      elsif N = "build.output-details.focus" then
+         Found := True;
+         return Command_Build_Output_Details_Focus;
+      elsif N = "build.output-details.select-stdout" then
+         Found := True;
+         return Command_Build_Output_Details_Select_Stdout;
+      elsif N = "build.output-details.select-stderr" then
+         Found := True;
+         return Command_Build_Output_Details_Select_Stderr;
+      elsif N = "build.output-details.select-merged" then
+         Found := True;
+         return Command_Build_Output_Details_Select_Merged;
       elsif N = "build.select-next-candidate" then
          Found := True;
          return Command_Build_Select_Next_Candidate;
@@ -8579,7 +9083,7 @@ package body Editor.Commands is
       elsif N = "build.run-user-opt-in-test-seam" then
          Found := True;
          return Command_Build_Run_User_Opt_In_Test_Seam;
-      elsif N = "diagnostics.show" then
+      elsif N = "diagnostics.show" or else N = "diagnostics-show" then
          Found := True;
          return Command_Diagnostics_Show;
       elsif N = "diagnostics.hide" then
@@ -8606,6 +9110,11 @@ package body Editor.Commands is
       elsif N = "diagnostics.open-selected" then
          Found := True;
          return Command_Diagnostics_Open_Selected;
+      elsif N = "diagnostics.execute-selected-action"
+        or else N = "diagnostics.code-action"
+      then
+         Found := True;
+         return Command_Diagnostics_Execute_Selected_Action;
       elsif N = "diagnostics.filter-all" then
          Found := True;
          return Command_Diagnostics_Show_All;
@@ -8783,6 +9292,22 @@ package body Editor.Commands is
       elsif N = "edit.trim-trailing-whitespace" then
          Found := True;
          return Command_Trim_Trailing_Whitespace;
+      elsif N = "edit.format-buffer"
+        or else N = "edit.format.document"
+        or else N = "format-buffer"
+      then
+         Found := True;
+         return Command_Format_Buffer;
+      elsif N = "edit.format.selection"
+        or else N = "format-selection"
+      then
+         Found := True;
+         return Command_Format_Selected_Text;
+      elsif N = "file.format-on-save"
+        or else N = "edit.format.on-save"
+      then
+         Found := True;
+         return Command_Toggle_Format_On_Save;
       elsif N = "edit.char.delete-previous" then
          Found := True;
          return Command_Char_Delete_Previous;

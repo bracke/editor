@@ -1,7 +1,10 @@
 with Interfaces.C;
+with Interfaces.C.Strings;
 
 
 package body Editor.Runtime_C_API is
+   use type Interfaces.C.Strings.chars_ptr;
+
    Viewport_W : C_Int := 800;
    Viewport_H : C_Int := 600;
    Atlas_Is_Dirty : Boolean := True;
@@ -18,6 +21,14 @@ package body Editor.Runtime_C_API is
       Viewport_H := 600;
       Atlas_Is_Dirty := True;
    end Editor_Init;
+
+   procedure Editor_Open_Project_Path
+     (Path : Interfaces.C.Strings.chars_ptr)
+   is
+      pragma Unreferenced (Path);
+   begin
+      null;
+   end Editor_Open_Project_Path;
 
    procedure Editor_Handle_Platform_Event (Ev : Platform_Event) is
       pragma Unreferenced (Ev);

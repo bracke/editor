@@ -48,9 +48,11 @@ with Editor.Navigation_History;
 with Editor.Build_UI;
 with Editor.Build_Result_Summary;
 with Editor.Build_Output_Details;
+with Editor.Terminal_Tasks;
 with Editor.Syntax_Cache;
 with Editor.Syntax_Semantics;
 with Editor.Ada_Project_Index;
+with Editor.Ada_Language_Service;
 with Editor.Ada_Declaration_Parser;
 with Editor.Ada_Language_Model;
 with Editor.Syntax;
@@ -1332,6 +1334,7 @@ package body Editor.State is
       --  switching a project must not leave indexed Outline/semantic targets
       --  from the previous lifecycle visible to later commands.
       Editor.Ada_Project_Index.Clear (S.Language_Index);
+      Editor.Ada_Language_Service.Clear (S.Language_Service);
 
       --  Phase 538 repeated-use hardening: project close/switch/reload must
       --  remove all transient public-build workflow state, not only the
@@ -1344,6 +1347,7 @@ package body Editor.State is
       S.Latest_Build_Result_Focused := False;
       S.Latest_Build_Output_Details :=
         Editor.Build_Output_Details.Empty_Output_Details;
+      Editor.Terminal_Tasks.Clear (S.Terminal_Tasks);
       S.Recent_Projects_Focused := False;
 
       Clear_File_Target_Prompt (S);

@@ -432,6 +432,8 @@ package body Editor.Ada_Project_Index is
       Index.Index_Fingerprint := 0;
    end Clear;
 
+   function Same_Path (Left : String; Right : String) return Boolean;
+
    procedure Put_Analysis
      (Index                : in out Index_State;
       Path                 : String;
@@ -448,7 +450,7 @@ package body Editor.Ada_Project_Index is
          Fingerprint          => Editor.Ada_Language_Model.Fingerprint (Analysis));
    begin
       for I in 1 .. Natural (Index.Files.Length) loop
-         if To_String (Index.Files.Element (I).Key.Path) = Path then
+         if Same_Path (To_String (Index.Files.Element (I).Key.Path), Path) then
             Index.Files.Replace_Element (I, (Key => Key, Analysis => Analysis));
             Recompute (Index);
             return;
@@ -464,8 +466,6 @@ package body Editor.Ada_Project_Index is
       Index.Files.Append (Indexed_File'(Key => Key, Analysis => Analysis));
       Recompute (Index);
    end Put_Analysis;
-
-   function Same_Path (Left : String; Right : String) return Boolean;
 
    function Same_Or_Descendant_Path (Path : String; Root_Path : String) return Boolean is
       function Normalized (Text : String) return String is
@@ -645,6 +645,27 @@ package body Editor.Ada_Project_Index is
       return False;
    end Contains_Current;
 
+   function Current_Analysis_Fingerprint
+     (Index                : Index_State;
+      Path                 : String;
+      Buffer_Token         : Natural;
+      Buffer_Revision      : Natural;
+      Lifecycle_Generation : Natural) return Natural
+   is
+   begin
+      for F of Index.Files loop
+         if Same_Path (To_String (F.Key.Path), Path)
+           and then F.Key.Buffer_Token = Buffer_Token
+           and then F.Key.Buffer_Revision = Buffer_Revision
+           and then F.Key.Lifecycle_Generation = Lifecycle_Generation
+         then
+            return F.Key.Fingerprint;
+         end if;
+      end loop;
+
+      return 0;
+   end Current_Analysis_Fingerprint;
+
 
    function Contains_Key
      (Index : Index_State;
@@ -711,7 +732,8 @@ package body Editor.Ada_Project_Index is
 
    function Resolve
      (Index : Index_State;
-      Name  : String) return Index_Resolution_Result
+      Name  : String;
+      Max_Matches : Natural := 0) return Index_Resolution_Result
    is
       Result : Index_Resolution_Result;
    begin
@@ -729,6 +751,14 @@ package body Editor.Ada_Project_Index is
                  Editor.Ada_Language_Model.Symbol_At (F.Analysis, I);
             begin
                if Symbol_Matches (F.Analysis, S, Name) then
+                  if Max_Matches > 0
+                    and then Natural (Result.Matches.Length) >= Max_Matches
+                  then
+                     Result.Overflow := True;
+                     Result.Overflow := Result.Overflow or else Index.Index_Overflow;
+                     return Result;
+                  end if;
+
                   Result.Matches.Append
                     (Indexed_Symbol'(Path   => F.Key.Path,
                       Key    => F.Key,
@@ -912,9 +942,14 @@ package body Editor.Ada_Project_Index is
      (Candidate : Indexed_Symbol) return String
    is
       Target : constant String := To_String (Candidate.Symbol.Target_Name);
+      Profile : constant String := To_String (Candidate.Symbol.Profile_Summary);
       Detail : Unbounded_String :=
         To_Unbounded_String (Symbol_Kind_Label (Candidate.Symbol.Kind));
    begin
+      if Profile'Length > 0 then
+         Append (Detail, " ");
+         Append (Detail, Profile);
+      end if;
       if Candidate.Symbol.Flags.Is_Body then
          Append (Detail, ", body");
       end if;
@@ -1351,6 +1386,21 @@ package body Editor.Ada_Project_Index is
       Result : Unique_Target_Result;
       Parent_Name : constant String := To_String (Separate_Body.Symbol.Target_Name);
       Res : constant Unit_Resolution_Result := Resolve_Unit (Index, Parent_Name, Unit_Any);
+
+      procedure Consider (U : Indexed_Unit) is
+         S : constant Indexed_Symbol :=
+           (Path   => U.Path,
+            Key    => U.Key,
+            Symbol => U.Symbol);
+      begin
+         if Result.Available then
+            Result.Available := False;
+            Result.Ambiguous := True;
+         else
+            Result.Available := True;
+            Result.Target := S;
+         end if;
+      end Consider;
    begin
       Result.Overflow := Res.Overflow;
 
@@ -1364,20 +1414,32 @@ package body Editor.Ada_Project_Index is
       for I in Res.Matches.First_Index .. Res.Matches.Last_Index loop
          declare
             U : constant Indexed_Unit := Res.Matches (I);
-            S : constant Indexed_Symbol :=
-              (Path   => U.Path,
-               Key    => U.Key,
-               Symbol => U.Symbol);
          begin
             if Is_Separate_Body_Parent_Target (U.Symbol) then
-               if Result.Available then
-                  Result.Available := False;
-                  Result.Ambiguous := True;
+               Consider (U);
+               if Result.Ambiguous then
                   return Result;
                end if;
+            end if;
+         end;
+      end loop;
 
-               Result.Available := True;
-               Result.Target := S;
+      if Result.Available then
+         return Result;
+      end if;
+
+      --  Prefer the declaration/spec when available for navigation, but a
+      --  body-only index still resolves separate-body legality and stub
+      --  checks through the enclosing body.
+      for I in Res.Matches.First_Index .. Res.Matches.Last_Index loop
+         declare
+            U : constant Indexed_Unit := Res.Matches (I);
+         begin
+            if U.Role in Unit_Package_Body | Unit_Subprogram_Body then
+               Consider (U);
+               if Result.Ambiguous then
+                  return Result;
+               end if;
             end if;
          end;
       end loop;

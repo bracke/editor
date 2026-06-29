@@ -31,6 +31,7 @@ package Editor.Ada_Wide_Semantic_Legality_Diagnostics is
       Wide_Semantic_Diagnostic_Tagged_Derived,
       Wide_Semantic_Diagnostic_Generic_Instance,
       Wide_Semantic_Diagnostic_Cross_Unit,
+      Wide_Semantic_Diagnostic_Accessibility_Lifetime,
       Wide_Semantic_Diagnostic_Unknown);
 
    type Wide_Semantic_Diagnostic_Severity is
@@ -47,6 +48,7 @@ package Editor.Ada_Wide_Semantic_Legality_Diagnostics is
       Wide_Semantic_Diagnostic_Tagged_Derived_Error,
       Wide_Semantic_Diagnostic_Generic_Instance_Error,
       Wide_Semantic_Diagnostic_Cross_Unit_Error,
+      Wide_Semantic_Diagnostic_Accessibility_Lifetime_Error,
       Wide_Semantic_Diagnostic_View_Barrier,
       Wide_Semantic_Diagnostic_Static_Range_Error,
       Wide_Semantic_Diagnostic_Unresolved_Semantic_State,

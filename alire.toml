@@ -9,7 +9,7 @@ licenses = "MIT"
 website = ""
 tags = ["editor"]
 
-executables = ["editor_app"]
+executables = ["editor"]
 project-files = ["editor.gpr"]
 
 [[actions]]
@@ -27,3 +27,9 @@ textrender = "*"
 
 [[pins]]
 textrender = { path='../textrender' }
+
+[[depends-on]]
+openglada_glfw = "~0.9.0"
+
+[[depends-on]]
+df_vulkan = "~0.1.0"

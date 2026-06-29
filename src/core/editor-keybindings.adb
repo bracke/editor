@@ -235,6 +235,29 @@ package body Editor.Keybindings is
       return Result;
    end Register_Outline_Keybindings;
 
+   function Register_Daily_Workflow_Keybindings
+      return Default_Keybinding_Registration_Result
+   is
+      Result : Default_Keybinding_Registration_Result;
+   begin
+      --  Daily product-loop defaults intentionally use familiar chords where
+      --  they do not conflict with text editing or existing core navigation.
+      --  build.run remains unbound because it is explicit-consent gated.
+      Register_Default_If_Free
+        (Result, Chord (Key_F1),
+         Editor.Commands.Command_Palette_Show_Command_Help);
+      Register_Default_If_Free
+        (Result, Chord (Key_O, Ctrl => True),
+         Editor.Commands.Command_Open_File);
+      Register_Default_If_Free
+        (Result, Chord (Key_O, Ctrl => True, Alt => True),
+         Editor.Commands.Command_Open_Project);
+      Register_Default_If_Free
+        (Result, Chord (Key_M, Ctrl => True, Alt => True),
+         Editor.Commands.Command_Diagnostics_Show);
+      return Result;
+   end Register_Daily_Workflow_Keybindings;
+
    function Resolve
      (Chord : Key_Chord;
       Id    : out Editor.Commands.Command_Id) return Binding_Result
@@ -776,6 +799,16 @@ package body Editor.Keybindings is
       Bind (Chord (Key_End, Ctrl => True, Shift => True), Editor.Commands.Command_Select_Document_End);
       Bind (Chord (Key_Left, Ctrl => True, Shift => True), Editor.Commands.Command_Select_Word_Left);
       Bind (Chord (Key_Right, Ctrl => True, Shift => True), Editor.Commands.Command_Select_Word_Right);
+
+      declare
+         Registered : constant Default_Keybinding_Registration_Result :=
+           Register_Daily_Workflow_Keybindings;
+      begin
+         pragma Assert
+           (Registered.Registered_Count + Registered.Conflict_Count =
+              Registered.Requested_Count,
+            "daily workflow keybinding default registration accounting mismatch");
+      end;
 
       declare
          Registered : constant Default_Keybinding_Registration_Result :=

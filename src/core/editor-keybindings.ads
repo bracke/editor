@@ -113,6 +113,13 @@ package Editor.Keybindings is
    function Register_Outline_Keybindings
       return Default_Keybinding_Registration_Result;
 
+   --  Register conservative daily-workflow defaults without overwriting
+   --  existing chords. These bindings improve discoverability for help,
+   --  project/file opening, and diagnostics while leaving guarded build.run
+   --  unbound by default.
+   function Register_Daily_Workflow_Keybindings
+      return Default_Keybinding_Registration_Result;
+
    function Resolve
      (Chord : Key_Chord;
       Id    : out Editor.Commands.Command_Id) return Binding_Result;

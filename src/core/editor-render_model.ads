@@ -18,6 +18,7 @@ with Editor.Feature_Panel;
 with Editor.Bookmarks;
 with Editor.Input_Field;
 with Editor.Build_UI;
+with Editor.Terminal_Tasks;
 with Editor.Syntax;
 with Editor.Keybinding_Management;
 with Editor.Settings_Management;
@@ -153,6 +154,7 @@ package Editor.Render_Model is
       Folding : Editor.Folding.Folding_State;
       Gutter_Markers : Editor.Gutter_Markers.Gutter_Marker_State;
       Gutter_Marker_Hover : Editor.Gutter_Markers.Gutter_Marker_Hover_State;
+      Semantic_Popup : Editor.State.Semantic_Popup_State;
       Messages : Editor.Messages.Message_State;
       Post_Restore_Feedback_Current : Boolean := False;
 
@@ -275,6 +277,7 @@ package Editor.Render_Model is
         Ada.Strings.Unbounded.Null_Unbounded_String;
 
       Build_UI : Editor.Build_UI.Build_UI_Render_Snapshot;
+      Terminal_Tasks : Editor.Terminal_Tasks.Terminal_Task_Render_Snapshot;
 
       --  Phase 565 keybinding-management projection.  This is a derived,
       --  render-facing snapshot only: it carries visibility, filter, capture,

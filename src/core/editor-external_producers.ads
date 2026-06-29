@@ -51,6 +51,13 @@ package Editor.External_Producers is
       Target_Buffer : Natural := Editor.Feature_Diagnostics.No_Buffer;
       Target_Line   : Natural := 0;
       Target_Column : Natural := 0;
+      Has_Edit          : Boolean := False;
+      Edit_Start_Line   : Natural := 0;
+      Edit_Start_Column : Natural := 0;
+      Edit_End_Line     : Natural := 0;
+      Edit_End_Column   : Natural := 0;
+      Replacement_Text  : Ada.Strings.Unbounded.Unbounded_String :=
+        Ada.Strings.Unbounded.Null_Unbounded_String;
    end record;
 
    package External_Diagnostic_Record_Vectors is new Ada.Containers.Vectors

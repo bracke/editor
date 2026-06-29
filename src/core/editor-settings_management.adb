@@ -20,7 +20,7 @@ package body Editor.Settings_Management is
       Description  : Unbounded_String;
    end record;
 
-   Descriptors : constant array (Positive range 1 .. 9) of Setting_Descriptor :=
+   Descriptors : constant array (Positive range 1 .. 10) of Setting_Descriptor :=
      ((To_Unbounded_String (Editor.Settings.Setting_Name_Theme),
        Appearance_Setting,
        Setting_Enum,
@@ -41,6 +41,11 @@ package body Editor.Settings_Management is
        Setting_Boolean,
        To_Unbounded_String ("true"),
        To_Unbounded_String ("Enable or disable cursor blinking.")),
+      (To_Unbounded_String (Editor.Settings.Setting_Name_Format_On_Save),
+       Editor_Setting,
+       Setting_Boolean,
+       To_Unbounded_String ("false"),
+       To_Unbounded_String ("Format the active buffer automatically before file saves.")),
       (To_Unbounded_String (Editor.Settings.Setting_Name_Minimap_Visible),
        View_Setting,
        Setting_Boolean,
@@ -310,6 +315,8 @@ package body Editor.Settings_Management is
          return Editor.Settings.Cursor_Style_Name (Settings);
       elsif K = Editor.Settings.Setting_Name_Cursor_Blink then
          return Bool_Image (Editor.Settings.Cursor_Blink (Settings));
+      elsif K = Editor.Settings.Setting_Name_Format_On_Save then
+         return Bool_Image (Editor.Settings.Format_On_Save (Settings));
       elsif K = Editor.Settings.Setting_Name_Minimap_Visible then
          return Bool_Image (Editor.Settings.Minimap_Visible (Settings));
       elsif K = Editor.Settings.Setting_Name_Scrollbars_Visible then
@@ -450,6 +457,8 @@ package body Editor.Settings_Management is
    begin
       if K = Editor.Settings.Setting_Name_Cursor_Blink then
          Editor.Settings.Set_Cursor_Blink (Settings, Value);
+      elsif K = Editor.Settings.Setting_Name_Format_On_Save then
+         Editor.Settings.Set_Format_On_Save (Settings, Value);
       elsif K = Editor.Settings.Setting_Name_Minimap_Visible then
          Editor.Settings.Set_Minimap_Visible (Settings, Value);
       elsif K = Editor.Settings.Setting_Name_Scrollbars_Visible then
@@ -675,7 +684,9 @@ package body Editor.Settings_Management is
       K : constant String := Lower (Trimmed (Key));
    begin
       return (S = "appearance" and then K = "theme")
-        or else (S = "editor" and then (K = "line-numbers" or else K = "cursor-style" or else K = "cursor-blink"))
+        or else (S = "editor" and then
+                   (K = "line-numbers" or else K = "cursor-style"
+                    or else K = "cursor-blink" or else K = "format-on-save"))
         or else (S = "view" and then (K = "minimap-visible" or else K = "scrollbars-visible"))
         or else (S = "command-palette" and then
                    (K = "show-unavailable" or else K = "show-keybindings" or else K = "show-selected-description"));
@@ -696,6 +707,7 @@ package body Editor.Settings_Management is
       elsif K = "cursor-blink" or else K = "minimap-visible" or else K = "scrollbars-visible"
         or else K = "show-unavailable" or else K = "show-keybindings"
         or else K = "show-selected-description"
+        or else K = "format-on-save"
       then
          return Valid_Boolean (V, B);
       else
@@ -1067,6 +1079,7 @@ package body Editor.Settings_Management is
         ("theme=" & Editor.Settings.Theme_Id (Settings) & ASCII.LF &
          "line-numbers=" & Editor.Settings.Line_Number_Mode_Name (Settings) & ASCII.LF &
          "cursor-style=" & Editor.Settings.Cursor_Style_Name (Settings) & ASCII.LF &
+         "format-on-save=" & Bool_Image (Editor.Settings.Format_On_Save (Settings)) & ASCII.LF &
          "show-keybindings=" & Bool_Image (Editor.Settings.Command_Palette_Show_Keybindings (Settings)),
          Domain);
       Result.Domain_Summary := To_Unbounded_String (Domain_Audit_Summary (Domain));
@@ -1577,6 +1590,7 @@ package body Editor.Settings_Management is
         ("theme=" & Editor.Settings.Theme_Id (Settings) & ASCII.LF &
          "line-numbers=" & Editor.Settings.Line_Number_Mode_Name (Settings) & ASCII.LF &
          "cursor-style=" & Editor.Settings.Cursor_Style_Name (Settings) & ASCII.LF &
+         "format-on-save=" & Bool_Image (Editor.Settings.Format_On_Save (Settings)) & ASCII.LF &
          "show-keybindings=" &
            Bool_Image (Editor.Settings.Command_Palette_Show_Keybindings (Settings)),
          Domain_Audit);
@@ -2038,7 +2052,7 @@ package body Editor.Settings_Management is
       Status   : Setting_Update_Status;
    begin
       Editor.Settings.Set_Defaults (Settings);
-      if Setting_Count /= 9 then
+      if Setting_Count /= 10 then
          return False;
       end if;
       if not Assert_Settings_Surface_Render_Is_Observational then

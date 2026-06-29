@@ -17,6 +17,7 @@ procedure Editor_Real_Build_Runner_Smoke is
    use type Editor.Build_Output_Details.Build_Output_Stream_Selection;
    use type Editor.External_Producers.Build_Run_Status;
    use type Editor.External_Producers.Process_Output_Capture_Mode;
+   use type Editor.External_Producers.Process_Output_Stream;
    use type Editor.External_Producers.Process_Run_Status;
 
    package Stream_IO renames Ada.Streams.Stream_IO;
@@ -107,7 +108,7 @@ procedure Editor_Real_Build_Runner_Smoke is
       return
         (Tool => Editor.External_Producers.GPRbuild_Tool,
          Provenance => Editor.External_Producers.Build_Request_From_User_Opt_In,
-         Working_Label => To_Unbounded_String (Root),
+         Working_Label => Null_Unbounded_String,
          Command_Label => To_Unbounded_String ("gprbuild -q -P smoke_project.gpr"),
          Arguments => Null_Unbounded_String,
          Structured_Arguments => Args);
@@ -238,6 +239,28 @@ begin
    Build_Fixture (Valid => True);
    Success_Result := Editor.External_Producers.Run_Build_Command_With_Gate
      (S, Smoke_Request, Gate);
+   if Success_Result.Build_Result.Status /=
+     Editor.External_Producers.Build_Run_Succeeded
+   then
+      Ada.Text_IO.Put_Line
+        (Ada.Text_IO.Standard_Error,
+         "editor_real_build_runner_smoke: valid fixture status="
+         & Editor.External_Producers.Build_Run_Status'Image
+             (Success_Result.Build_Result.Status)
+         & " message=" & To_String (Success_Result.Command_Message));
+      if Length (Success_Result.Build_Result.Stdout_Text) > 0 then
+         Ada.Text_IO.Put_Line
+           (Ada.Text_IO.Standard_Error,
+            "editor_real_build_runner_smoke: stdout="
+            & To_String (Success_Result.Build_Result.Stdout_Text));
+      end if;
+      if Length (Success_Result.Build_Result.Stderr_Text) > 0 then
+         Ada.Text_IO.Put_Line
+           (Ada.Text_IO.Standard_Error,
+            "editor_real_build_runner_smoke: stderr="
+            & To_String (Success_Result.Build_Result.Stderr_Text));
+      end if;
+   end if;
    Check (Success_Result.Build_Result.Status =
             Editor.External_Producers.Build_Run_Succeeded,
           "real gprbuild runner did not report success for a valid fixture");

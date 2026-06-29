@@ -411,7 +411,13 @@ package body Editor.Dogfood_Workflow is
         and then Missing (Keybindings_Text, "test-only")
         and then Missing (Keybindings_Text, "auto-consent")
         and then Missing (Keybindings_Text, "auto-run")
-        and then Missing (Keybindings_Text, "bypass-dirty-guard");
+        and then Missing (Keybindings_Text, "bypass-dirty-guard")
+        and then Missing (Keybindings_Text, "open-project=Ctrl+O")
+        and then Missing (Keybindings_Text, "project.open=Ctrl+O")
+        and then Missing (Keybindings_Text, "build-run=Ctrl+")
+        and then Missing (Keybindings_Text, "build.run=Ctrl+")
+        and then Missing (Keybindings_Text, "build-run=F")
+        and then Missing (Keybindings_Text, "build.run=F");
    end Assert_Default_Keybindings_Safe;
 
    function Assert_Milestone_Startup_And_Dogfood_Readiness_Coherent
@@ -894,20 +900,20 @@ package body Editor.Dogfood_Workflow is
          when Product_Open_File_From_Quick_Open => return "quick-open.show";
          when Product_Edit_Buffer => return "text input path";
          when Product_Save_Buffer => return "file.save";
-         when Product_Reload_Buffer => return "file.reload";
-         when Product_Revert_Buffer => return "file.revert";
+         when Product_Reload_Buffer => return "file.reload-buffer";
+         when Product_Revert_Buffer => return "file.revert-buffer";
          when Product_Create_File => return "file-tree.create-file";
          when Product_Create_Directory => return "file-tree.create-directory";
-         when Product_Rename_File_Or_Directory => return "file-tree.rename";
-         when Product_Delete_File_Or_Directory => return "file-tree.delete";
-         when Product_Search_Project => return "search.project";
-         when Product_Navigate_Search_Result => return "search.open-selected";
+         when Product_Rename_File_Or_Directory => return "file-tree.rename-selected";
+         when Product_Delete_File_Or_Directory => return "file-tree.delete-selected";
+         when Product_Search_Project => return "project.search.run";
+         when Product_Navigate_Search_Result => return "project.search.open-selected";
          when Product_View_Outline => return "outline.show";
          when Product_Run_Build => return "build.run";
-         when Product_Inspect_Build_Output => return "build.output.show";
+         when Product_Inspect_Build_Output => return "build.ui.show";
          when Product_Inspect_Diagnostics => return "diagnostics.show";
          when Product_Switch_Buffers => return "buffer.switch-next";
-         when Product_Close_Active_Buffer => return "buffer.close";
+         when Product_Close_Active_Buffer => return "file.close-buffer";
          when Product_Close_Project => return "project.close";
          when Product_Switch_Project => return "project.switch";
          when Product_Restore_Workspace => return "workspace.restore";
@@ -1410,28 +1416,28 @@ package body Editor.Dogfood_Workflow is
         and then Contains (Product_Text, "file.open")
         and then Contains (Product_Text, "file.save")
         and then Contains (Product_Text, "file.save-as")
-        and then Contains (Product_Text, "file.reload")
-        and then Contains (Product_Text, "file.revert")
+        and then Contains (Product_Text, "file.reload-buffer")
+        and then Contains (Product_Text, "file.revert-buffer")
         and then Contains (Product_Text, "file-tree.refresh")
         and then Contains (Product_Text, "file-tree.create-file")
         and then Contains (Product_Text, "file-tree.create-directory")
-        and then Contains (Product_Text, "file-tree.rename")
-        and then Contains (Product_Text, "file-tree.delete")
+        and then Contains (Product_Text, "file-tree.rename-selected")
+        and then Contains (Product_Text, "file-tree.delete-selected")
         and then Contains (Product_Text, "quick-open.show")
         and then Contains (Product_Text, "quick-open.open-selected")
-        and then Contains (Product_Text, "search.project")
-        and then Contains (Product_Text, "search.open-selected")
+        and then Contains (Product_Text, "project.search.run")
+        and then Contains (Product_Text, "project.search.open-selected")
         and then Contains (Product_Text, "outline.show")
         and then Contains (Product_Text, "build.run")
-        and then Contains (Product_Text, "build.output.show")
-        and then Contains (Product_Text, "build.output.toggle")
-        and then Contains (Product_Text, "build.output.hide")
-        and then Contains (Product_Text, "build.output.focus")
+        and then Contains (Product_Text, "build.ui.show")
+        and then Contains (Product_Text, "build.ui.toggle")
+        and then Contains (Product_Text, "build.ui.hide")
+        and then Contains (Product_Text, "build.ui.focus")
         and then Contains (Product_Text, "diagnostics.show")
         and then Contains (Product_Text, "buffer.switch-next")
         and then Contains (Product_Text, "buffer.switch-previous")
-        and then Contains (Product_Text, "buffer.close")
-        and then Contains (Product_Text, "buffer.close-all-clean")
+        and then Contains (Product_Text, "file.close-buffer")
+        and then Contains (Product_Text, "file.close-clean-buffers")
         and then Contains (Product_Text, "workspace.restore")
         and then Missing_Case_Insensitive (Product_Text, "buffer id")
         and then Missing_Case_Insensitive (Product_Text, "route id")

@@ -69,8 +69,9 @@ package body Editor.Buffer_Switcher.Tests is
 
    function Phase576_Temp_Path (Name : String) return String is
    begin
+      Ada.Directories.Create_Path ("/tmp/editor-tests");
       return Ada.Directories.Compose
-        (Ada.Directories.Current_Directory, "phase576_" & Name);
+        ("/tmp/editor-tests", "phase576_" & Name);
    end Phase576_Temp_Path;
 
    procedure Phase576_Write_Bytes (Path : String; Bytes : String) is
@@ -354,7 +355,6 @@ package body Editor.Buffer_Switcher.Tests is
       S : Editor.Buffer_Switcher.Buffer_Switcher_State;
       Alpha, Beta, Untitled : Editor.Buffers.Buffer_Id;
       Config : constant Editor.Buffer_Switcher.Buffer_Switcher_Config := (others => <>);
-      pragma Unreferenced (Alpha, Untitled);
    begin
       Build_Registry (Registry, Alpha, Beta, Untitled);
       Editor.Buffer_Switcher.Open (S);
@@ -377,7 +377,6 @@ package body Editor.Buffer_Switcher.Tests is
       S : Editor.Buffer_Switcher.Buffer_Switcher_State;
       Alpha, Beta, Untitled : Editor.Buffers.Buffer_Id;
       Config : constant Editor.Buffer_Switcher.Buffer_Switcher_Config := (others => <>);
-      pragma Unreferenced (Alpha, Beta, Untitled);
    begin
       Build_Registry (Registry, Alpha, Beta, Untitled);
       Editor.Buffer_Switcher.Open (S);
@@ -399,7 +398,6 @@ package body Editor.Buffer_Switcher.Tests is
       Alpha, Beta, Untitled : Editor.Buffers.Buffer_Id;
       Config : constant Editor.Buffer_Switcher.Buffer_Switcher_Config := (others => <>);
       Closed : Boolean := False;
-      pragma Unreferenced (Beta, Untitled);
    begin
       Build_Registry (Registry, Alpha, Beta, Untitled);
       Editor.Buffers.Buffer_Access (Registry, Alpha).File_Info.Dirty := True;
@@ -501,7 +499,6 @@ package body Editor.Buffer_Switcher.Tests is
       S : Editor.Buffer_Switcher.Buffer_Switcher_State;
       Alpha, Beta, Untitled : Editor.Buffers.Buffer_Id;
       Config : constant Editor.Buffer_Switcher.Buffer_Switcher_Config := (others => <>);
-      pragma Unreferenced (Untitled);
    begin
       Build_Registry (Registry, Alpha, Beta, Untitled);
       Editor.Buffers.Set_Buffer_Label (Registry, Alpha, "test");
@@ -524,7 +521,6 @@ package body Editor.Buffer_Switcher.Tests is
       S : Editor.Buffer_Switcher.Buffer_Switcher_State;
       Alpha, Beta, Untitled : Editor.Buffers.Buffer_Id;
       Config : constant Editor.Buffer_Switcher.Buffer_Switcher_Config := (others => <>);
-      pragma Unreferenced (Beta, Untitled);
    begin
       Build_Registry (Registry, Alpha, Beta, Untitled);
       Editor.Buffers.Assign_Buffer_Group (Registry, Alpha, "core");
@@ -548,7 +544,6 @@ package body Editor.Buffer_Switcher.Tests is
       S : Editor.Buffer_Switcher.Buffer_Switcher_State;
       Alpha, Beta, Untitled : Editor.Buffers.Buffer_Id;
       Config : constant Editor.Buffer_Switcher.Buffer_Switcher_Config := (others => <>);
-      pragma Unreferenced (Alpha, Beta, Untitled);
    begin
       Build_Registry (Registry, Alpha, Beta, Untitled);
       Editor.Buffer_Switcher.Open (S);
@@ -579,7 +574,6 @@ package body Editor.Buffer_Switcher.Tests is
       S : Editor.Buffer_Switcher.Buffer_Switcher_State;
       Alpha, Beta, Untitled : Editor.Buffers.Buffer_Id;
       Config : constant Editor.Buffer_Switcher.Buffer_Switcher_Config := (others => <>);
-      pragma Unreferenced (Untitled);
    begin
       Build_Registry (Registry, Alpha, Beta, Untitled);
       Editor.Buffers.Assign_Buffer_Group (Registry, Alpha, "core");
@@ -691,7 +685,6 @@ package body Editor.Buffer_Switcher.Tests is
       S : Editor.Buffer_Switcher.Buffer_Switcher_State;
       Alpha, Beta, Untitled : Editor.Buffers.Buffer_Id;
       Config : constant Editor.Buffer_Switcher.Buffer_Switcher_Config := (others => <>);
-      pragma Unreferenced (Untitled);
    begin
       Build_Registry (Registry, Alpha, Beta, Untitled);
       Editor.Buffers.Set_Buffer_Label (Registry, Alpha, "test");
@@ -747,7 +740,6 @@ package body Editor.Buffer_Switcher.Tests is
       S : Editor.Buffer_Switcher.Buffer_Switcher_State;
       Alpha, Beta, Untitled : Editor.Buffers.Buffer_Id;
       Config : constant Editor.Buffer_Switcher.Buffer_Switcher_Config := (others => <>);
-      pragma Unreferenced (Untitled);
    begin
       Build_Registry (Registry, Alpha, Beta, Untitled);
 
@@ -783,7 +775,6 @@ package body Editor.Buffer_Switcher.Tests is
       S : Editor.Buffer_Switcher.Buffer_Switcher_State;
       Alpha, Beta, Untitled : Editor.Buffers.Buffer_Id;
       Config : constant Editor.Buffer_Switcher.Buffer_Switcher_Config := (others => <>);
-      pragma Unreferenced (Untitled);
    begin
       Build_Registry (Registry, Alpha, Beta, Untitled);
       Editor.Buffers.Set_Buffer_Note (Registry, Beta, "aaa note that would sort first if notes mattered");
@@ -816,7 +807,6 @@ package body Editor.Buffer_Switcher.Tests is
       S : Editor.Buffer_Switcher.Buffer_Switcher_State;
       Alpha, Beta, Untitled : Editor.Buffers.Buffer_Id;
       Config : constant Editor.Buffer_Switcher.Buffer_Switcher_Config := (others => <>);
-      pragma Unreferenced (Alpha, Untitled);
    begin
       Build_Registry (Registry, Alpha, Beta, Untitled);
       Editor.Buffer_Switcher.Open (S);
@@ -2297,7 +2287,6 @@ package body Editor.Buffer_Switcher.Tests is
       Dirty_Count : Natural := 0;
       Closed_Count : Natural := 0;
       Snapshot : Editor.Buffer_Switcher.Switcher_Batch_State_Snapshot;
-      pragma Unreferenced (D);
    begin
       Build_Phase302_Registry (Registry, A, B, C, D);
       Editor.Buffer_Switcher.Open (S);
@@ -2332,7 +2321,6 @@ package body Editor.Buffer_Switcher.Tests is
          Registry_2 : Editor.Buffers.Buffer_Registry;
          S_2 : Editor.Buffer_Switcher.Buffer_Switcher_State;
          A_2, B_2, C_2, D_2 : Editor.Buffers.Buffer_Id;
-         pragma Unreferenced (C_2, D_2);
       begin
          Build_Phase302_Registry (Registry_2, A_2, B_2, C_2, D_2);
          Editor.Buffer_Switcher.Open (S_2);
@@ -2370,7 +2358,6 @@ package body Editor.Buffer_Switcher.Tests is
       Remaining : Natural := 0;
       Closed_Count : Natural := 0;
       Snapshot : Editor.Buffer_Switcher.Switcher_Batch_State_Snapshot;
-      pragma Unreferenced (D);
    begin
       Build_Phase302_Registry (Registry, A, B, C, D);
       Editor.Buffer_Switcher.Open (S);
@@ -2447,7 +2434,6 @@ package body Editor.Buffer_Switcher.Tests is
       Applied : Natural := 0;
       Skipped : Natural := 0;
       Snapshot : Editor.Buffer_Switcher.Switcher_Batch_State_Snapshot;
-      pragma Unreferenced (D, Name);
    begin
       Build_Phase302_Registry (Registry, A, B, C, D);
       Editor.Buffer_Switcher.Open (S);
@@ -2513,7 +2499,6 @@ package body Editor.Buffer_Switcher.Tests is
       Applied : Natural := 0;
       Skipped : Natural := 0;
       Snapshot : Editor.Buffer_Switcher.Switcher_Batch_State_Snapshot;
-      pragma Unreferenced (Name);
    begin
       Build_Phase302_Registry (Registry, A, B, C, D);
       Editor.Buffer_Switcher.Open (S);
@@ -2576,7 +2561,6 @@ package body Editor.Buffer_Switcher.Tests is
       Applied : Natural := 0;
       Skipped : Natural := 0;
       Snapshot : Editor.Buffer_Switcher.Switcher_Batch_State_Snapshot;
-      pragma Unreferenced (D);
    begin
       Build_Phase302_Registry (Registry, A, B, C, D);
       Editor.Buffer_Switcher.Open (S);
@@ -2640,7 +2624,6 @@ package body Editor.Buffer_Switcher.Tests is
       Remaining : Natural := 0;
       Config : constant Editor.Buffer_Switcher.Buffer_Switcher_Config := (others => <>);
       Snapshot : Editor.Buffer_Switcher.Switcher_Batch_State_Snapshot;
-      pragma Unreferenced (D);
    begin
       Build_Phase302_Registry (Registry, A, B, C, D);
       Editor.Buffer_Switcher.Open (S);
@@ -2695,7 +2678,6 @@ package body Editor.Buffer_Switcher.Tests is
       Before : Editor.Buffer_Switcher.Switcher_Batch_State_Snapshot;
       After : Editor.Buffer_Switcher.Switcher_Batch_State_Snapshot;
       Config : constant Editor.Buffer_Switcher.Buffer_Switcher_Config := (others => <>);
-      pragma Unreferenced (D);
    begin
       Build_Phase302_Registry (Registry, A, B, C, D);
       Editor.Buffer_Switcher.Open (S);
@@ -2762,7 +2744,6 @@ package body Editor.Buffer_Switcher.Tests is
       Remaining : Natural := 0;
       Closed : Boolean := False;
       Snapshot : Editor.Buffer_Switcher.Switcher_Batch_State_Snapshot;
-      pragma Unreferenced (D);
    begin
       Build_Phase302_Registry (Registry, A, B, C, D);
       Editor.Buffer_Switcher.Open (S);
@@ -2810,7 +2791,6 @@ package body Editor.Buffer_Switcher.Tests is
       Remaining : Natural := 0;
       Closed_Count : Natural := 0;
       Snapshot : Editor.Buffer_Switcher.Switcher_Batch_State_Snapshot;
-      pragma Unreferenced (C, D);
    begin
       Build_Phase302_Registry (Registry, A, B, C, D);
       Editor.Buffer_Switcher.Open (S);
@@ -2864,7 +2844,6 @@ package body Editor.Buffer_Switcher.Tests is
       Applied : Natural := 0;
       Skipped : Natural := 0;
       Snapshot : Editor.Buffer_Switcher.Switcher_Batch_State_Snapshot;
-      pragma Unreferenced (Name, Target);
    begin
       Build_Phase302_Registry (Registry, A, B, C, D);
       Editor.Buffer_Switcher.Open (S);
@@ -2948,7 +2927,6 @@ package body Editor.Buffer_Switcher.Tests is
       Before_Selected : Natural;
       Before_Rows     : Natural;
       Hints : Editor.Buffer_Switcher_Contextual_Hints.Switcher_Contextual_Hint_Vectors.Vector;
-      pragma Unreferenced (Beta);
    begin
       Setup_Global_Switcher_State (S, Alpha, Beta);
       Before_Selected := Editor.Buffer_Switcher.Selected_Row_Index (S.Buffer_Switcher);
@@ -2994,7 +2972,6 @@ package body Editor.Buffer_Switcher.Tests is
       Alpha, Beta : Editor.Buffers.Buffer_Id;
       Count, Dirty_Count : Natural := 0;
       Hints : Editor.Buffer_Switcher_Contextual_Hints.Switcher_Contextual_Hint_Vectors.Vector;
-      pragma Unreferenced (Beta, Dirty_Count);
    begin
       Setup_Global_Switcher_State (S, Alpha, Beta);
 
@@ -3040,7 +3017,6 @@ package body Editor.Buffer_Switcher.Tests is
         (Key       => Editor.Keybindings.Key_M,
          Modifiers => (Ctrl => True, Shift => False, Alt => False, Meta => False));
       Hints : Editor.Buffer_Switcher_Contextual_Hints.Switcher_Contextual_Hint_Vectors.Vector;
-      pragma Unreferenced (Alpha, Beta);
    begin
       Setup_Global_Switcher_State (S, Alpha, Beta);
       Editor.Keybindings.Clear;
@@ -3208,7 +3184,6 @@ package body Editor.Buffer_Switcher.Tests is
       S : Editor.Buffer_Switcher.Buffer_Switcher_State;
       Alpha, Beta, Untitled : Editor.Buffers.Buffer_Id;
       Row : Editor.Buffer_Switcher.Buffer_Switcher_Row;
-      pragma Unreferenced (Beta, Untitled);
    begin
       Build_Registry (Registry, Alpha, Beta, Untitled);
       Editor.Buffers.Set_Active_Buffer (Registry, Alpha);
@@ -3283,7 +3258,6 @@ package body Editor.Buffer_Switcher.Tests is
       S : Editor.Buffer_Switcher.Buffer_Switcher_State;
       Alpha, Beta, Untitled, Reopened : Editor.Buffers.Buffer_Id;
       Closed : Boolean := False;
-      pragma Unreferenced (Beta, Untitled);
    begin
       Build_Registry (Registry, Alpha, Beta, Untitled);
       Editor.Buffer_Switcher.Open (S);
@@ -3318,7 +3292,6 @@ package body Editor.Buffer_Switcher.Tests is
       S : Editor.Buffer_Switcher.Buffer_Switcher_State;
       App : Editor.State.State_Type;
       Alpha, Beta, Untitled : Editor.Buffers.Buffer_Id;
-      pragma Unreferenced (Untitled);
    begin
       Build_Registry (Registry, Alpha, Beta, Untitled);
       Editor.Buffers.Set_Active_Buffer (Registry, Alpha);
@@ -3356,7 +3329,6 @@ package body Editor.Buffer_Switcher.Tests is
       S : Editor.Buffer_Switcher.Buffer_Switcher_State;
       Alpha, Beta, Untitled : Editor.Buffers.Buffer_Id;
       Row : Editor.Buffer_Switcher.Buffer_Switcher_Row;
-      pragma Unreferenced (Beta, Untitled);
    begin
       Build_Registry (Registry, Alpha, Beta, Untitled);
       Set_Buffer_Association_For_Test
@@ -3410,7 +3382,6 @@ package body Editor.Buffer_Switcher.Tests is
       Hidden_S  : Editor.Buffer_Switcher.Buffer_Switcher_State;
       Alpha, Beta, Untitled, Reopened : Editor.Buffers.Buffer_Id;
       Closed : Boolean := False;
-      pragma Unreferenced (Untitled);
    begin
       Build_Registry (Registry, Alpha, Beta, Untitled);
       Editor.Buffers.Set_Active_Buffer (Registry, Alpha);
@@ -3513,7 +3484,6 @@ package body Editor.Buffer_Switcher.Tests is
       S : Editor.Buffer_Switcher.Buffer_Switcher_State;
       Alpha, Beta, Untitled : Editor.Buffers.Buffer_Id;
       Before_Count : Natural;
-      pragma Unreferenced (Beta, Untitled);
    begin
       Build_Registry (Registry, Alpha, Beta, Untitled);
       Editor.Buffer_Switcher.Open (S);
@@ -3551,7 +3521,6 @@ package body Editor.Buffer_Switcher.Tests is
       S : Editor.Buffer_Switcher.Buffer_Switcher_State;
       App : Editor.State.State_Type;
       Alpha, Beta, Untitled : Editor.Buffers.Buffer_Id;
-      pragma Unreferenced (Untitled);
    begin
       Build_Registry (Registry, Alpha, Beta, Untitled);
       Set_Buffer_Association_For_Test
@@ -3593,7 +3562,6 @@ package body Editor.Buffer_Switcher.Tests is
       Registry : Editor.Buffers.Buffer_Registry;
       Stale_S, Fresh_S : Editor.Buffer_Switcher.Buffer_Switcher_State;
       Alpha, Beta, Untitled : Editor.Buffers.Buffer_Id;
-      pragma Unreferenced (Beta, Untitled);
    begin
       Build_Registry (Registry, Alpha, Beta, Untitled);
       Editor.Buffer_Switcher.Open (Stale_S);
@@ -3626,7 +3594,6 @@ package body Editor.Buffer_Switcher.Tests is
       S : Editor.Buffer_Switcher.Buffer_Switcher_State;
       Alpha, Beta, Untitled : Editor.Buffers.Buffer_Id;
       Row : Editor.Buffer_Switcher.Buffer_Switcher_Row;
-      pragma Unreferenced (Beta, Untitled);
    begin
       Build_Registry (Registry, Alpha, Beta, Untitled);
       Editor.Buffer_Switcher.Open (S);
@@ -3727,7 +3694,6 @@ package body Editor.Buffer_Switcher.Tests is
       Registry : Editor.Buffers.Buffer_Registry;
       S : Editor.Buffer_Switcher.Buffer_Switcher_State;
       Alpha, Beta, Untitled : Editor.Buffers.Buffer_Id;
-      pragma Unreferenced (Beta, Untitled);
       Row : Editor.Buffer_Switcher.Buffer_Switcher_Row;
    begin
       Build_Registry (Registry, Alpha, Beta, Untitled);
@@ -3767,7 +3733,6 @@ package body Editor.Buffer_Switcher.Tests is
       S : Editor.Buffer_Switcher.Buffer_Switcher_State;
       App : Editor.State.State_Type;
       Alpha, Beta, Untitled : Editor.Buffers.Buffer_Id;
-      pragma Unreferenced (Untitled);
    begin
       Build_Registry (Registry, Alpha, Beta, Untitled);
       Editor.Buffers.Set_Active_Buffer (Registry, Alpha);
@@ -3806,7 +3771,6 @@ package body Editor.Buffer_Switcher.Tests is
       S : Editor.Buffer_Switcher.Buffer_Switcher_State;
       Alpha, Beta, Untitled, Reopened : Editor.Buffers.Buffer_Id;
       Closed : Boolean := False;
-      pragma Unreferenced (Beta, Untitled);
       Before_Count : Natural := 0;
    begin
       Build_Registry (Registry, Alpha, Beta, Untitled);
@@ -3918,7 +3882,6 @@ package body Editor.Buffer_Switcher.Tests is
       Alpha, Beta, Untitled, Reopened : Editor.Buffers.Buffer_Id;
       Closed : Boolean := False;
       Before_Count : Natural;
-      pragma Unreferenced (Untitled);
    begin
       Build_Registry (Registry, Alpha, Beta, Untitled);
       Editor.Buffers.Set_Active_Buffer (Registry, Alpha);
@@ -4003,7 +3966,6 @@ package body Editor.Buffer_Switcher.Tests is
       S : Editor.Buffer_Switcher.Buffer_Switcher_State;
       Alpha, Beta, Untitled : Editor.Buffers.Buffer_Id;
       Before_Count : Natural;
-      pragma Unreferenced (Beta, Untitled);
    begin
       Build_Registry (Registry, Alpha, Beta, Untitled);
       Editor.Buffers.Set_Active_Buffer (Registry, Alpha);
@@ -4038,7 +4000,6 @@ package body Editor.Buffer_Switcher.Tests is
       S : Editor.Buffer_Switcher.Buffer_Switcher_State;
       App : Editor.State.State_Type;
       Alpha, Beta, Untitled : Editor.Buffers.Buffer_Id;
-      pragma Unreferenced (Untitled);
    begin
       Build_Registry (Registry, Alpha, Beta, Untitled);
       Editor.Buffers.Set_Active_Buffer (Registry, Alpha);
@@ -4090,7 +4051,6 @@ package body Editor.Buffer_Switcher.Tests is
       Alpha, Beta, Untitled : Editor.Buffers.Buffer_Id;
       Stale_Row : Editor.Buffer_Switcher.Buffer_Switcher_Row;
       Fresh_Row : Editor.Buffer_Switcher.Buffer_Switcher_Row;
-      pragma Unreferenced (Beta, Untitled);
    begin
       Build_Registry (Registry, Alpha, Beta, Untitled);
       Editor.Buffers.Set_Active_Buffer (Registry, Alpha);
@@ -5306,7 +5266,6 @@ package body Editor.Buffer_Switcher.Tests is
                 Registry_Order      => I));
 
             A := Editor.Executor.Command_Availability (S, Id);
-            pragma Unreferenced (A);
             Assert (Natural (Editor.Buffers.Global_Active_Buffer) = Before_Active,
                     "Phase 576 Buffer List availability must not switch buffers");
             Assert (Editor.Buffers.Global_Count = Before_Count,
@@ -5988,7 +5947,6 @@ package body Editor.Buffer_Switcher.Tests is
       Alpha, Beta, Untitled : Editor.Buffers.Buffer_Id;
       Closed   : Boolean := False;
       Audit    : Editor.Buffer_Switcher.Selected_Buffer_List_Audit;
-      pragma Unreferenced (Alpha, Untitled);
    begin
       Build_Registry (Registry, Alpha, Beta, Untitled);
       Editor.Buffer_Switcher.Open (S);

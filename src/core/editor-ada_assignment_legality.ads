@@ -1,6 +1,7 @@
 with Ada.Containers.Vectors;
 with Ada.Strings.Unbounded;
 with Editor.Ada_Expression_Types;
+with Editor.Ada_Expected_Type_Contexts;
 with Editor.Ada_Static_Expressions;
 with Editor.Ada_Subtype_Compatibility;
 with Editor.Ada_Syntax_Tree;
@@ -142,6 +143,11 @@ package Editor.Ada_Assignment_Legality is
       Index : Positive) return Assignment_Context_Info;
    function Fingerprint (Model : Assignment_Context_Model) return Natural;
 
+   function Build_Contexts_From_Expected_Types
+     (Expected    : Editor.Ada_Expected_Type_Contexts.Expected_Context_Model;
+      Expressions : Editor.Ada_Expression_Types.Expression_Type_Model)
+      return Assignment_Context_Model;
+
    function Build
      (Contexts   : Assignment_Context_Model;
       Expressions : Editor.Ada_Expression_Types.Expression_Type_Model)
@@ -151,6 +157,13 @@ package Editor.Ada_Assignment_Legality is
      (Contexts    : Assignment_Context_Model;
       Expressions : Editor.Ada_Expression_Types.Expression_Type_Model;
       Views       : Editor.Ada_View_Aware_Compatibility.View_Compatibility_Model)
+      return Assignment_Legality_Model;
+
+   function Build_With_Type_Graph
+     (Contexts    : Assignment_Context_Model;
+      Expressions : Editor.Ada_Expression_Types.Expression_Type_Model;
+      Views       : Editor.Ada_View_Aware_Compatibility.View_Compatibility_Model;
+      Types       : Editor.Ada_Type_Graph.Type_Model)
       return Assignment_Legality_Model;
 
    function Legality_Count (Model : Assignment_Legality_Model) return Natural;

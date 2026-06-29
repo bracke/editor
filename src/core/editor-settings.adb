@@ -190,6 +190,15 @@ package body Editor.Settings is
       end if;
    end Set_Show_Diagnostics;
 
+   function Format_On_Save return Boolean is (State.Format_On_Save);
+   procedure Set_Format_On_Save (Enabled : Boolean) is
+   begin
+      if State.Format_On_Save /= Enabled then
+         State.Format_On_Save := Enabled;
+         Bump_Version;
+      end if;
+   end Set_Format_On_Save;
+
    procedure Toggle_Show_Minimap is begin Set_Show_Minimap (not State.Show_Minimap); end Toggle_Show_Minimap;
    procedure Toggle_Show_Line_Numbers is begin Set_Show_Line_Numbers (not State.Show_Line_Numbers); end Toggle_Show_Line_Numbers;
    procedure Toggle_Highlight_Current_Line is begin Set_Highlight_Current_Line (not State.Highlight_Current_Line); end Toggle_Highlight_Current_Line;
@@ -200,6 +209,7 @@ package body Editor.Settings is
    procedure Toggle_Use_Diagnostic_Overlays is begin Set_Use_Diagnostic_Overlays (not State.Use_Diagnostic_Overlays); end Toggle_Use_Diagnostic_Overlays;
    procedure Toggle_Use_Search_Overlays is begin Set_Use_Search_Overlays (not State.Use_Search_Overlays); end Toggle_Use_Search_Overlays;
    procedure Toggle_Show_Diagnostics is begin Set_Show_Diagnostics (not State.Show_Diagnostics); end Toggle_Show_Diagnostics;
+   procedure Toggle_Format_On_Save is begin Set_Format_On_Save (not State.Format_On_Save); end Toggle_Format_On_Save;
 
    function Setting_Name_Theme return String is ("theme");
    function Setting_Name_Line_Numbers return String is ("line-numbers");
@@ -210,6 +220,7 @@ package body Editor.Settings is
    function Setting_Name_Command_Palette_Show_Unavailable return String is ("show-unavailable");
    function Setting_Name_Command_Palette_Show_Keybindings return String is ("show-keybindings");
    function Setting_Name_Command_Palette_Show_Selected_Description return String is ("show-selected-description");
+   function Setting_Name_Format_On_Save return String is ("format-on-save");
 
    function Settings_Status_Label (Status : Settings_Status) return String is
    begin
@@ -252,6 +263,8 @@ package body Editor.Settings is
          return "Show keybindings";
       elsif Key = Setting_Name_Command_Palette_Show_Selected_Description then
          return "Show selected command details";
+      elsif Key = Setting_Name_Format_On_Save then
+         return "Format on save";
       else
          return "Unknown setting";
       end if;
@@ -273,7 +286,6 @@ package body Editor.Settings is
    is
       Key : constant String := Lower (Setting_Name);
       Bool_Value : Boolean := False;
-      pragma Unreferenced (Bool_Value);
    begin
       if Settings_Display_Label (Key) = "Unknown setting" then
          return "Unknown setting.";
@@ -303,6 +315,7 @@ package body Editor.Settings is
         or else Key = Setting_Name_Command_Palette_Show_Unavailable
         or else Key = Setting_Name_Command_Palette_Show_Keybindings
         or else Key = Setting_Name_Command_Palette_Show_Selected_Description
+        or else Key = Setting_Name_Format_On_Save
       then
          if Valid_Boolean (Value, Bool_Value) then
             return "Setting is valid.";
@@ -455,6 +468,18 @@ package body Editor.Settings is
       Settings.Command_Palette_Show_Selected_Description := Visible;
    end Set_Command_Palette_Show_Selected_Description;
 
+   function Format_On_Save (Settings : Settings_Model) return Boolean is
+   begin
+      return Settings.Format_On_Save_Value;
+   end Format_On_Save;
+
+   procedure Set_Format_On_Save
+     (Settings : in out Settings_Model;
+      Enabled  : Boolean) is
+   begin
+      Settings.Format_On_Save_Value := Enabled;
+   end Set_Format_On_Save;
+
    procedure Normalize (Settings : in out Settings_Model) is
    begin
       Settings.Format_Version := 1;
@@ -489,6 +514,7 @@ package body Editor.Settings is
         and then L.Cursor_Blink_Value = R.Cursor_Blink_Value
         and then L.Minimap_Visible_Value = R.Minimap_Visible_Value
         and then L.Scrollbars_Visible_Value = R.Scrollbars_Visible_Value
+        and then L.Format_On_Save_Value = R.Format_On_Save_Value
         and then L.Command_Palette_Show_Unavailable = R.Command_Palette_Show_Unavailable
         and then L.Command_Palette_Show_Keybindings = R.Command_Palette_Show_Keybindings
         and then L.Command_Palette_Show_Selected_Description =
@@ -515,6 +541,7 @@ package body Editor.Settings is
       Set_Cursor_Blink (Result, Editor.Cursor.Current_Blink.Blink_Enabled);
       Set_Minimap_Visible (Result, Editor.Minimap.Enabled);
       Set_Scrollbars_Visible (Result, Editor.Scrollbars.Enabled);
+      Set_Format_On_Save (Result, Editor.Settings.Format_On_Save);
       Set_Command_Palette_Show_Unavailable
         (Result, Palette.Show_Unavailable_Commands);
       Set_Command_Palette_Show_Keybindings
@@ -581,6 +608,7 @@ package body Editor.Settings is
       Editor.Cursor.Set_Current (Cursor);
       Editor.Cursor.Set_Blink_Enabled (Cursor_Blink (Normalized));
       State.Cursor_Blink_Enabled := Cursor_Blink (Normalized);
+      State.Format_On_Save := Format_On_Save (Normalized);
       Summary.Cursor_Applied := True;
 
       Minimap.Enabled := Minimap_Visible (Normalized);
@@ -613,7 +641,6 @@ package body Editor.Settings is
 
    procedure Apply (Settings : Settings_Model) is
       Summary : Settings_Apply_Summary;
-      pragma Unreferenced (Summary);
    begin
       Apply (Settings, Summary);
    end Apply;
@@ -678,6 +705,7 @@ package body Editor.Settings is
       Ada.Text_IO.Put_Line (File, "line-numbers=" & Line_Number_Mode_Name (S));
       Ada.Text_IO.Put_Line (File, "cursor-style=" & Cursor_Style_Name (S));
       Ada.Text_IO.Put_Line (File, "cursor-blink=" & Bool_Image (Cursor_Blink (S)));
+      Ada.Text_IO.Put_Line (File, "format-on-save=" & Bool_Image (Format_On_Save (S)));
       Ada.Text_IO.Put_Line (File, "[view]");
       Ada.Text_IO.Put_Line (File, "minimap-visible=" & Bool_Image (Minimap_Visible (S)));
       Ada.Text_IO.Put_Line (File, "scrollbars-visible=" & Bool_Image (Scrollbars_Visible (S)));
@@ -884,6 +912,13 @@ package body Editor.Settings is
                            Set_Cursor_Blink (Settings, Value_B);
                         else
                            Set_Cursor_Blink (Settings, True);
+                           Note_Defaulted_Value (Status);
+                        end if;
+                     elsif Sec = "editor" and then Key = "format-on-save" then
+                        if Valid_Boolean (Val, Value_B) then
+                           Set_Format_On_Save (Settings, Value_B);
+                        else
+                           Set_Format_On_Save (Settings, False);
                            Note_Defaulted_Value (Status);
                         end if;
                      elsif Sec = "view" and then Key = "minimap-visible" then

@@ -66,7 +66,13 @@ package body Editor.External_Producers.Tests is
       Has_Target : Boolean := False;
       Buffer : Natural := 0;
       Line : Natural := 0;
-      Column : Natural := 0)
+      Column : Natural := 0;
+      Has_Edit : Boolean := False;
+      Edit_Start_Line : Natural := 0;
+      Edit_Start_Column : Natural := 0;
+      Edit_End_Line : Natural := 0;
+      Edit_End_Column : Natural := 0;
+      Replacement_Text : String := "")
       return Editor.External_Producers.External_Diagnostic_Record
    is
    begin
@@ -77,7 +83,13 @@ package body Editor.External_Producers.Tests is
          Has_Target    => Has_Target,
          Target_Buffer => Buffer,
          Target_Line   => Line,
-         Target_Column => Column);
+         Target_Column => Column,
+         Has_Edit          => Has_Edit,
+         Edit_Start_Line   => Edit_Start_Line,
+         Edit_Start_Column => Edit_Start_Column,
+         Edit_End_Line     => Edit_End_Line,
+         Edit_End_Column   => Edit_End_Column,
+         Replacement_Text  => To_Unbounded_String (Replacement_Text));
    end Rec;
 
    function CRec
@@ -175,6 +187,91 @@ package body Editor.External_Producers.Tests is
       Assert (Editor.Feature_Diagnostics.Item_Has_Target (S.Feature_Diagnostics, 1),
               "valid external target is stored through Diagnostics target metadata");
    end Test_External_Producer_Ingests_Diagnostics_Through_Diagnostics_API;
+
+   procedure Test_External_Producer_Ingests_Diagnostic_Edit_Metadata
+     (T : in out AUnit.Test_Cases.Test_Case'Class)
+   is
+      pragma Unreferenced (T);
+      S : Editor.State.State_Type;
+      Items : Editor.External_Producers.External_Diagnostic_Record_Array;
+      Result : Editor.External_Producers.Producer_Batch_Result;
+   begin
+      Prepare_State (S);
+      Items.Append
+        (Rec
+           ("missing semicolon",
+            Source => "gnat",
+            Has_Target => True,
+            Buffer => S.Registry_Token,
+            Line => 1,
+            Column => 6,
+            Has_Edit => True,
+            Edit_Start_Line => 1,
+            Edit_Start_Column => 6,
+            Edit_End_Line => 1,
+            Edit_End_Column => 6,
+            Replacement_Text => " ; "));
+      Items.Append
+        (Rec
+           ("bad target edit",
+            Has_Target => True,
+            Buffer => S.Registry_Token + 99,
+            Line => 1,
+            Column => 1,
+            Has_Edit => True,
+            Edit_Start_Line => 1,
+            Edit_Start_Column => 1,
+            Edit_End_Line => 1,
+            Edit_End_Column => 1,
+            Replacement_Text => "ignored"));
+      Items.Append
+        (Rec
+           ("multi-line edit",
+            Source => "gnat",
+            Has_Target => True,
+            Buffer => S.Registry_Token,
+            Line => 2,
+            Column => 1,
+            Has_Edit => True,
+            Edit_Start_Line => 2,
+            Edit_Start_Column => 1,
+            Edit_End_Line => 3,
+            Edit_End_Column => 4,
+            Replacement_Text => "begin" & ASCII.LF & "   null;"));
+
+      Result := Editor.External_Producers.Ingest_Diagnostic_Batch
+        (S, Compiler_Source, Items);
+
+      Assert (Result.Accepted_Count = 3,
+              "external edit diagnostics are accepted for review");
+      Assert (Editor.Feature_Diagnostics.Item_Has_Edit (S.Feature_Diagnostics, 1),
+              "valid external edit metadata is stored through Diagnostics");
+      Assert (Editor.Feature_Diagnostics.Item_Edit_Start_Line
+                (S.Feature_Diagnostics, 1) = 1,
+              "external edit start line is preserved");
+      Assert (Editor.Feature_Diagnostics.Item_Edit_Start_Column
+                (S.Feature_Diagnostics, 1) = 6,
+              "external edit start column is preserved");
+      Assert (Editor.Feature_Diagnostics.Item_Edit_End_Column
+                (S.Feature_Diagnostics, 1) = 6,
+              "external edit end column is preserved");
+      Assert (Editor.Feature_Diagnostics.Item_Replacement_Text
+                (S.Feature_Diagnostics, 1) = " ; ",
+              "external edit replacement text preserves significant whitespace");
+      Assert (not Editor.Feature_Diagnostics.Item_Has_Edit
+                (S.Feature_Diagnostics, 2),
+              "external edit metadata is dropped for stale buffer targets");
+      Assert (Editor.Feature_Diagnostics.Item_Has_Edit
+                (S.Feature_Diagnostics, 3),
+              "external multi-line edit metadata is stored through Diagnostics");
+      Assert (Editor.Feature_Diagnostics.Item_Edit_End_Line
+                (S.Feature_Diagnostics, 3) = 3,
+              "external multi-line edit end line is preserved");
+      Assert (Editor.Feature_Diagnostics.Item_Replacement_Text
+                (S.Feature_Diagnostics, 3) =
+              "begin" & ASCII.LF & "   null;",
+              "external multi-line edit replacement text is preserved");
+   end Test_External_Producer_Ingests_Diagnostic_Edit_Metadata;
 
    procedure Test_External_Producer_Batch_Preserves_Input_Order
      (T : in out AUnit.Test_Cases.Test_Case'Class)
@@ -3722,7 +3819,7 @@ package body Editor.External_Producers.Tests is
               "explicit test gate routes output through diagnostics ingestion");
    end Test_Build_Gate_Allows_Test_Fed_Result_When_Explicit;
 
-   procedure Test_Build_Gate_Real_Runner_Not_Available_When_Platform_Runner_Missing
+   procedure Test_Build_Gate_Real_Runner_Executes_Version_Command
      (T : in out AUnit.Test_Cases.Test_Case'Class)
    is
       pragma Unreferenced (T);
@@ -3732,20 +3829,24 @@ package body Editor.External_Producers.Tests is
       Prepare_State (S);
       Result := Editor.External_Producers.Run_Build_Command_With_Gate
         (S,
-         (Tool          => Editor.External_Producers.Alire_Build_Tool,
+         (Tool          => Editor.External_Producers.GPRbuild_Tool,
           Provenance    => Editor.External_Producers.Build_Request_From_User_Opt_In,
           Working_Label => Null_Unbounded_String,
-          Command_Label => To_Unbounded_String ("alr build"),
+          Command_Label => To_Unbounded_String ("gprbuild --version"),
           Arguments     => Null_Unbounded_String,
           Structured_Arguments =>
-            Editor.External_Producers.Build_Process_Argument_Vector ("build")),
+            Editor.External_Producers.Build_Process_Argument_Vector ("--version")),
          Editor.External_Producers.Build_Real_Execution_Gate (Consent => Editor.External_Producers.Build_Consent_User_Confirmed),
          Editor.External_Producers.Build_Process_Run_Result (Editor.External_Producers.Process_Run_Succeeded));
-      Assert (Result.Build_Result.Status = Editor.External_Producers.Build_Run_Not_Available,
-              "validated real gate remains unavailable without platform runner");
-      Assert (To_String (Result.Command_Message) = "Build: real execution unavailable",
-              "real unavailable feedback is distinct");
-   end Test_Build_Gate_Real_Runner_Not_Available_When_Platform_Runner_Missing;
+      Assert (Result.Build_Result.Status = Editor.External_Producers.Build_Run_Succeeded,
+              "validated real gate executes a bounded version command");
+      Assert (Result.Build_Result.Has_Exit_Code
+              and then Result.Build_Result.Exit_Code = 0,
+              "real version command preserves successful exit code");
+      Assert (Ada.Strings.Fixed.Index
+                (To_String (Result.Command_Message), "Build: succeeded") = 1,
+              "real success feedback starts with successful status");
+   end Test_Build_Gate_Real_Runner_Executes_Version_Command;
 
    procedure Test_Build_Gate_Diagnostics_Ingestion_Disabled_Does_Not_Mutate_Diagnostics
      (T : in out AUnit.Test_Cases.Test_Case'Class)
@@ -5037,6 +5138,8 @@ package body Editor.External_Producers.Tests is
                         "External producer identity is deterministic");
       Register_Routine (T, Test_External_Producer_Ingests_Diagnostics_Through_Diagnostics_API'Access,
                         "External producer ingests diagnostics through Diagnostics API");
+      Register_Routine (T, Test_External_Producer_Ingests_Diagnostic_Edit_Metadata'Access,
+                        "External producer ingests diagnostic edit metadata");
       Register_Routine (T, Test_External_Producer_Batch_Preserves_Input_Order'Access,
                         "External producer batch preserves input order");
       Register_Routine (T, Test_External_Producer_Invalid_Target_Becomes_Untargeted'Access,
@@ -5334,8 +5437,8 @@ package body Editor.External_Producers.Tests is
                         "build gate invalid process request does not call runner");
       Register_Routine (T, Test_Build_Gate_Allows_Test_Fed_Result_When_Explicit'Access,
                         "build gate allows test-fed result when explicit");
-      Register_Routine (T, Test_Build_Gate_Real_Runner_Not_Available_When_Platform_Runner_Missing'Access,
-                        "build gate real runner unavailable when platform runner missing");
+      Register_Routine (T, Test_Build_Gate_Real_Runner_Executes_Version_Command'Access,
+                        "build gate real runner executes version command");
       Register_Routine (T, Test_Build_Gate_Diagnostics_Ingestion_Disabled_Does_Not_Mutate_Diagnostics'Access,
                         "build gate diagnostics ingestion disabled does not mutate diagnostics");
       Register_Routine (T, Test_Build_Gate_Diagnostics_Ingestion_Enabled_Uses_Line_Pipeline'Access,

@@ -457,6 +457,96 @@ package body Editor.Ada_Tasking_Protected_Legality is
       return Model.Fingerprint;
    end Fingerprint;
 
+   function Kind_From_Node
+     (Kind : Editor.Ada_Syntax_Tree.Node_Kind) return Tasking_Context_Kind is
+   begin
+      case Kind is
+         when Editor.Ada_Syntax_Tree.Node_Task_Type_Declaration |
+              Editor.Ada_Syntax_Tree.Node_Task_Declaration |
+              Editor.Ada_Syntax_Tree.Node_Single_Task_Declaration =>
+            return Tasking_Context_Task_Type;
+         when Editor.Ada_Syntax_Tree.Node_Task_Body =>
+            return Tasking_Context_Task_Body;
+         when Editor.Ada_Syntax_Tree.Node_Protected_Type_Declaration |
+              Editor.Ada_Syntax_Tree.Node_Protected_Declaration |
+              Editor.Ada_Syntax_Tree.Node_Single_Protected_Declaration =>
+            return Tasking_Context_Protected_Type;
+         when Editor.Ada_Syntax_Tree.Node_Protected_Body =>
+            return Tasking_Context_Protected_Body;
+         when Editor.Ada_Syntax_Tree.Node_Entry_Declaration =>
+            return Tasking_Context_Entry_Declaration;
+         when Editor.Ada_Syntax_Tree.Node_Entry_Body |
+              Editor.Ada_Syntax_Tree.Node_Entry_Body_Stub =>
+            return Tasking_Context_Entry_Body;
+         when Editor.Ada_Syntax_Tree.Node_Accept_Statement =>
+            return Tasking_Context_Accept_Statement;
+         when Editor.Ada_Syntax_Tree.Node_Requeue_Statement =>
+            return Tasking_Context_Requeue_Statement;
+         when Editor.Ada_Syntax_Tree.Node_Select_Statement =>
+            return Tasking_Context_Select_Statement;
+         when others =>
+            return Tasking_Context_Unknown;
+      end case;
+   end Kind_From_Node;
+
+   function Build_Contexts_From_Syntax
+     (Tree : Editor.Ada_Syntax_Tree.Tree_Type;
+      Flow : Editor.Ada_Control_Flow_Legality.Flow_Legality_Model)
+      return Tasking_Context_Model
+   is
+      Model : Tasking_Context_Model;
+   begin
+      for Index in 1 .. Editor.Ada_Syntax_Tree.Node_Count (Tree) loop
+         declare
+            Node : constant Editor.Ada_Syntax_Tree.Node_Info :=
+              Editor.Ada_Syntax_Tree.Node_At (Tree, Index);
+            Kind : constant Tasking_Context_Kind := Kind_From_Node (Node.Kind);
+            Flow_Row : constant Editor.Ada_Control_Flow_Legality.Flow_Legality_Info :=
+              Editor.Ada_Control_Flow_Legality.First_For_Node (Flow, Node.Id);
+            Context : Tasking_Context_Info;
+         begin
+            if Kind /= Tasking_Context_Unknown then
+               Context.Id :=
+                 Tasking_Context_Id (Context_Count (Model) + 1);
+               Context.Kind := Kind;
+               Context.Node := Node.Id;
+               Context.Start_Line := Node.Source_Span.Start_Line;
+               Context.Start_Column := Node.Source_Span.Start_Column;
+               Context.End_Line := Node.Source_Span.End_Line;
+               Context.End_Column := Node.Source_Span.End_Column;
+
+               case Kind is
+                  when Tasking_Context_Task_Body |
+                       Tasking_Context_Protected_Body =>
+                     Context.Body_Node := Node.Id;
+                     Context.Unit_Name := Node.Label;
+                  when Tasking_Context_Task_Type |
+                       Tasking_Context_Protected_Type =>
+                     Context.Spec_Node := Node.Id;
+                     Context.Unit_Name := Node.Label;
+                  when Tasking_Context_Entry_Declaration |
+                       Tasking_Context_Entry_Body |
+                       Tasking_Context_Accept_Statement |
+                       Tasking_Context_Requeue_Statement |
+                       Tasking_Context_Protected_Entry =>
+                     Context.Entry_Node := Node.Id;
+                     Context.Entry_Name := Node.Label;
+                  when others =>
+                     Context.Unit_Name := Node.Label;
+               end case;
+
+               if Flow_Row.Id /= Editor.Ada_Control_Flow_Legality.No_Flow_Legality then
+                  Context.Flow_Legality := Flow_Row.Id;
+               end if;
+
+               Add_Context (Model, Context);
+            end if;
+         end;
+      end loop;
+
+      return Model;
+   end Build_Contexts_From_Syntax;
+
    function Build
      (Contexts : Tasking_Context_Model;
       Flow     : Editor.Ada_Control_Flow_Legality.Flow_Legality_Model)

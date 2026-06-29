@@ -199,7 +199,7 @@ Pass1053 update:
 Pass1054 update:
 - Verify that selected-name cross-unit lookup metadata remains local-first and deterministic.
 - Verify that stale or missing cross-unit visibility does not create renderer-side parsing, file IO, dirty-state mutation, or command/workspace mutation.
-- Keep imported-unit selector lookup as a future semantic closure item; this pass only connects cross-unit prefix visibility into selected-name consumers.
+- Imported-unit selector lookup is no longer a future semantic-closure item for live diagnostics: Pass1055 and later live-service coverage route project cross-unit selected-name typing into expression, assignment, return, and semantic diagnostic-feed consumers.
 
 Pass1055: cross-unit selected-name expression inference added; expression metadata now preserves cross-unit selected-name target/selector identity and deterministic counters while maintaining snapshot-owned analysis invariants.
 
@@ -264,9 +264,9 @@ Pass1073 note: unified diagnostic provenance now accepts overload-ranking proven
 
 Pass1074 note: diagnostic quick-fix skeletons now accept overload-ranking provenance through Editor.Ada_Diagnostic_Quick_Fix_Skeleton.Build_With_Overload_Ranking.  The layer is projection-only, preserves ranked overload evidence for IDE explanation actions, and does not parse, apply edits, mutate buffers, touch workspace state, or perform rendering-side semantic work.
 
-Pass1075 note: diagnostic action routing now joins quick-fix skeletons with diagnostic navigation, panel rows, provenance/explain items, and status-line nearest-target metadata through `Editor.Ada_Diagnostic_Action_Router`. The layer is projection-only and preserves stale-result rejection; it does not parse, mutate buffers, save/reload files, register commands, touch workspace state, or perform rendering-side semantic work.
+Pass1075 note: diagnostic action routing now joins quick-fix skeletons with diagnostic navigation, panel rows, provenance/explain items, status-line nearest-target metadata, and explicit feed edit hints through `Editor.Ada_Diagnostic_Action_Router`. The layer is projection-only and preserves stale-result rejection; it does not parse, mutate buffers, save/reload files, register commands, touch workspace state, or perform rendering-side semantic work.
 
-Pass1076 note: diagnostic command projection now turns diagnostic action routes into deterministic command-facing descriptors through `Editor.Ada_Diagnostic_Command_Projection`. The layer is projection-only and does not register commands, invoke commands, apply edits, parse, mutate buffers, save/reload files, touch workspace state, or perform rendering-side semantic work. Rejected/stale action-route models expose no active command descriptors while preserving rejected-command totals.
+Pass1076 note: diagnostic command projection now turns diagnostic action routes into deterministic command-facing descriptors through `Editor.Ada_Diagnostic_Command_Projection`, preserving explicit feed edit hints as descriptor metadata for executor-owned application. The layer is projection-only and does not register commands, invoke commands, apply edits, parse, mutate buffers, save/reload files, touch workspace state, or perform rendering-side semantic work. Rejected/stale action-route models expose no active command descriptors while preserving rejected-command totals.
 
 Pass1077 note: diagnostic command palette projection now turns diagnostic command descriptors into deterministic command-palette-facing entries through `Editor.Ada_Diagnostic_Command_Palette_Projection`. The layer is projection-only and does not register command aliases, mutate keybindings, invoke commands, apply edits, parse, mutate buffers, save/reload files, touch workspace state, or perform rendering-side semantic work. Rejected/stale command projection models expose no active palette entries while preserving rejected-entry totals.
 
@@ -621,3 +621,5 @@ Pass1264: Added overload RM-completion closure consumer legality. The pass consu
 Pass1266: Tasking/protected RM-completion closure consumer legality now consumes stabilized RM-completion closure evidence and preserves tasking/protected blocker-family identity.
 
 Pass1267: Dataflow RM-completion closure consumer legality now requires stabilized generic/shared-state RM-completion closure evidence before dataflow/initialization RM-completion conclusions are considered current. Blocker-family identity is preserved for closure, dataflow, cross-unit, generic substitution, overload/type, representation/freezing, tasking/protected, elaboration, accessibility, predicates/invariants, multiple prerequisites, and indeterminate states.
+
+Live semantic diagnostic pass: `Editor.Ada_Expected_Type_Contexts` now adds expected-subtype contexts from syntax-owned declaration defaults, simple assignments, and ordinary return statements in addition to call-resolution rows. `Editor.Ada_Expression_Types` types statement action nodes, so the production `Editor.Ada_Live_Semantic_Diagnostics` path emits live assignment/return mismatch diagnostics for non-call expressions without renderer parsing or editor-state mutation. Regression coverage is in `Test_Ada_Language_Service_Integration` for ordinary assignment and return type mismatches.

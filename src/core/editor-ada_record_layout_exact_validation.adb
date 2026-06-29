@@ -26,8 +26,20 @@ package body Editor.Ada_Record_Layout_Exact_Validation is
    end Abs_Natural;
 
    function Normalize (Name : String) return String is
+      Tick : Natural := 0;
    begin
-      return Ada.Characters.Handling.To_Lower (Name);
+      for I in Name'Range loop
+         if Character'Pos (Name (I)) = 39 then
+            Tick := I;
+            exit;
+         end if;
+      end loop;
+
+      if Tick /= 0 and then Tick > Name'First then
+         return Ada.Characters.Handling.To_Lower (Name (Name'First .. Tick - 1));
+      else
+         return Ada.Characters.Handling.To_Lower (Name);
+      end if;
    end Normalize;
 
    function Is_Power_Of_Two (Value : Long_Long_Integer) return Boolean is

@@ -1,5 +1,6 @@
 with Ada.Containers.Vectors;
 with Ada.Strings.Unbounded;
+with Editor.Ada_Expression_Types;
 with Editor.Ada_Static_Expressions;
 with Editor.Ada_Syntax_Tree;
 with Editor.Ada_View_Aware_Compatibility;
@@ -160,6 +161,10 @@ package Editor.Ada_Conversion_Access_Aggregate_Legality is
      (Model : Semantic_Context_Model;
       Index : Positive) return Semantic_Context_Info;
    function Fingerprint (Model : Semantic_Context_Model) return Natural;
+
+   function Build_Contexts_From_Expression_Types
+     (Expressions : Editor.Ada_Expression_Types.Expression_Type_Model)
+      return Semantic_Context_Model;
 
    function Build (Contexts : Semantic_Context_Model) return Semantic_Legality_Model;
 

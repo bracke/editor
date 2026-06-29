@@ -235,7 +235,8 @@ package body Editor.Ada_Expression_Control_Target_AST_Repair_Legality is
       Row.Message := To_Unbounded_String (Message_For (Status));
       Row.Detail := To_Unbounded_String
         ("construct=" & To_String (Info.Construct_Name) &
-         "; normalized=" & To_String (Info.Normalized_Construct_Name));
+         "; normalized=" & To_String (Info.Normalized_Construct_Name) &
+         "; consumer=" & Audit.Semantic_Consumer_Family'Image (Info.Consumer));
       Row.Source_Fingerprint := Info.Source_Fingerprint;
       Row.Fingerprint := FP;
       Row.Start_Line := Info.Start_Line;

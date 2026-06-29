@@ -722,7 +722,13 @@ package body Editor.External_Producers is
             Has_Target    => False,
             Target_Buffer => Editor.Feature_Diagnostics.No_Buffer,
             Target_Line   => 0,
-            Target_Column => 0);
+            Target_Column => 0,
+            Has_Edit          => False,
+            Edit_Start_Line   => 0,
+            Edit_Start_Column => 0,
+            Edit_End_Line     => 0,
+            Edit_End_Column   => 0,
+            Replacement_Text  => Null_Unbounded_String);
       end if;
    end Normalize_Parsed_Compiler_Diagnostic;
 
@@ -3514,8 +3520,12 @@ package body Editor.External_Producers is
    is
       Program : constant String :=
         Ada.Strings.Fixed.Trim (To_String (Request.Program_Label), Both);
-      Working : constant String :=
+      Requested_Working : constant String :=
         Ada.Strings.Fixed.Trim (To_String (Request.Working_Label), Both);
+      Working : constant String :=
+        (if Requested_Working'Length = 0
+         then Ada.Directories.Current_Directory
+         else Requested_Working);
       Stdout_Capture_File : constant String :=
         Build_Output_Capture_Path (Working, Program & "_stdout");
       Stderr_Capture_File : constant String :=
@@ -3843,8 +3853,6 @@ package body Editor.External_Producers is
    begin
       if not Validate_Process_Run_Request_For_Real_Execution (Request, Policy) then
          return Build_Process_Run_Result (Process_Run_Rejected);
-      elsif Working'Length = 0 then
-         return Build_Process_Run_Result (Process_Run_Not_Available);
       end if;
 
       return Execute_With_Native_Process_Supervisor;
@@ -8294,12 +8302,12 @@ package body Editor.External_Producers is
          Supplied_Success);
       Real_Command := Run_Build_Command_With_Gate
         (S,
-         (Tool          => Alire_Build_Tool,
+         (Tool          => GPRbuild_Tool,
           Provenance    => Build_Request_From_User_Opt_In,
           Working_Label => Null_Unbounded_String,
-          Command_Label => To_Unbounded_String ("alr build"),
+          Command_Label => To_Unbounded_String ("gprbuild --version"),
           Arguments     => Null_Unbounded_String,
-          Structured_Arguments => Build_Process_Argument_Vector ("build")),
+          Structured_Arguments => Build_Process_Argument_Vector ("--version")),
          Build_Real_Execution_Gate (Consent => Build_Consent_User_Confirmed), Supplied_Success);
       Opaque_Command := Run_Build_Command_With_Gate
         (S,
@@ -8319,9 +8327,11 @@ package body Editor.External_Producers is
         and then Test_Command.Diagnostic_Result.Ingestion.Parse_Input_Count = 0
         and then To_String (Test_Command.Command_Message) =
           "Build: succeeded, diagnostics ingestion disabled"
-        and then Real_Command.Build_Result.Status = Build_Run_Not_Available
-        and then To_String (Real_Command.Command_Message) =
-          "Build: real execution unavailable"
+        and then Real_Command.Build_Result.Status = Build_Run_Succeeded
+        and then Real_Command.Build_Result.Has_Exit_Code
+        and then Real_Command.Build_Result.Exit_Code = 0
+        and then Ada.Strings.Fixed.Index
+          (To_String (Real_Command.Command_Message), "Build: succeeded") = 1
         and then Opaque_Command.Build_Result.Status = Build_Run_Rejected
         and then To_String (Opaque_Command.Command_Message) =
           "Build: structured arguments required";
@@ -9026,7 +9036,13 @@ package body Editor.External_Producers is
          Has_Target    => Has_Target_Metadata,
          Target_Buffer => (if Has_Target_Metadata then Resolution.Buffer else 0),
          Target_Line   => (if Has_Target_Metadata then Input.Line else 0),
-         Target_Column => (if Has_Target_Metadata then Input.Column else 0));
+         Target_Column => (if Has_Target_Metadata then Input.Column else 0),
+         Has_Edit          => False,
+         Edit_Start_Line   => 0,
+         Edit_Start_Column => 0,
+         Edit_End_Line     => 0,
+         Edit_End_Column   => 0,
+         Replacement_Text  => Null_Unbounded_String);
    end Normalize_Compiler_Diagnostic;
 
    function Normalize_Compiler_Diagnostic_Batch
@@ -9167,7 +9183,13 @@ package body Editor.External_Producers is
          Has_Target    => Item.Has_Target,
          Target_Buffer => Item.Target_Buffer,
          Target_Line   => Item.Target_Line,
-         Target_Column => Item.Target_Column);
+         Target_Column => Item.Target_Column,
+         Has_Edit          => Item.Has_Edit,
+         Edit_Start_Line   => Item.Edit_Start_Line,
+         Edit_Start_Column => Item.Edit_Start_Column,
+         Edit_End_Line     => Item.Edit_End_Line,
+         Edit_End_Column   => Item.Edit_End_Column,
+         Replacement_Text  => Item.Replacement_Text);
    end Normalize_External_Diagnostic_Record;
 
    procedure Add_Normalized_Record
@@ -9220,6 +9242,12 @@ package body Editor.External_Producers is
          Target_Line    => (if Store_Target_Metadata then Item.Target_Line else 0),
          Target_Column  =>
            (if Store_Target_Metadata then Item.Target_Column else 0),
+         Has_Edit          => Item.Has_Edit and then Store_Target_Metadata,
+         Edit_Start_Line   => Item.Edit_Start_Line,
+         Edit_Start_Column => Item.Edit_Start_Column,
+         Edit_End_Line     => Item.Edit_End_Line,
+         Edit_End_Column   => Item.Edit_End_Column,
+         Replacement_Text  => To_String (Item.Replacement_Text),
          Build_Produced => Producer.Kind = Build_Diagnostics_Producer);
    end Add_Normalized_Record;
 

@@ -45,7 +45,8 @@ use type Editor.Build_Result_Summary.Diagnostics_Ingestion_Summary_Status;
 
    function Fixture_Root return String is
    begin
-      return Ada.Directories.Current_Directory & "/phase555_execution_fixture";
+      Ada.Directories.Create_Path ("/tmp/editor-tests");
+      return "/tmp/editor-tests/phase555_execution_fixture";
    end Fixture_Root;
 
    procedure Write_File (Path : String; Text : String := "") is
@@ -359,7 +360,7 @@ use type Editor.Build_Result_Summary.Diagnostics_Ingestion_Summary_Status;
               and then Snapshot.Diagnostics_View.Reveal_Available,
               "Build UI exposes output availability and scalar diagnostics reveal state");
       Assert (To_String (Snapshot.Diagnostics_View.Reveal_Command_Name) =
-                "diagnostics-show",
+                "diagnostics.show",
               "Build UI diagnostics reveal remains a command name, not owned rows");
       Assert (Editor.Build_Execution_Workflow.Assert_Build_Render_Does_Not_Run_Or_Parse
                 (S),

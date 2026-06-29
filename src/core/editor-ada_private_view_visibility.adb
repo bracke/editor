@@ -74,6 +74,19 @@ package body Editor.Ada_Private_View_Visibility is
          end;
       end loop;
 
+      for Index in 1 .. Editor.Ada_Syntax_Tree.Node_Count (Tree) loop
+         declare
+            Node : constant Editor.Ada_Syntax_Tree.Node_Info :=
+              Editor.Ada_Syntax_Tree.Node_At (Tree, Index);
+         begin
+            if Node.Kind = Editor.Ada_Syntax_Tree.Node_Private_Part
+              and then Node.Source_Span.Start_Line >= Package_Reg.Start_Line
+            then
+               return Node.Id;
+            end if;
+         end;
+      end loop;
+
       return Editor.Ada_Syntax_Tree.No_Node;
    end Find_Private_Part_Node;
 

@@ -222,6 +222,30 @@ package body Editor.Ada_Generic_Renaming_Visibility is
       return Editor.Ada_Declarative_Regions.No_Region;
    end Formal_Region_For_Generic_Name;
 
+   function Declaration_By_Name
+     (Visibility : Editor.Ada_Direct_Visibility.Visibility_Model;
+      Name       : String) return Editor.Ada_Direct_Visibility.Declaration_Id
+   is
+      N : constant String := Normalize (Name);
+   begin
+      if N = "" then
+         return Editor.Ada_Direct_Visibility.No_Declaration;
+      end if;
+
+      for Index in 1 .. Editor.Ada_Direct_Visibility.Declaration_Count (Visibility) loop
+         declare
+            Decl : constant Editor.Ada_Direct_Visibility.Declaration_Info :=
+              Editor.Ada_Direct_Visibility.Declaration_At (Visibility, Index);
+         begin
+            if Normalize (To_String (Decl.Name)) = N then
+               return Decl.Id;
+            end if;
+         end;
+      end loop;
+
+      return Editor.Ada_Direct_Visibility.No_Declaration;
+   end Declaration_By_Name;
+
    function Is_Nested_Region
      (Regions : Editor.Ada_Declarative_Regions.Region_Model;
       Region  : Editor.Ada_Declarative_Regions.Region_Id) return Boolean
@@ -398,7 +422,17 @@ package body Editor.Ada_Generic_Renaming_Visibility is
                   if Name = "" or else Target = "" then
                      Info.Status := Generic_Renaming_Malformed;
                   elsif Lookup.Status = Editor.Ada_Direct_Visibility.Lookup_Not_Found then
-                     Info.Status := Generic_Renaming_Target_Unresolved;
+                     Info.Target_Region := Formal_Region_For_Generic_Name
+                       (Contracts, Target);
+                     Info.Target_Formal_Count := Formal_Count_In_Region
+                       (Contracts, Info.Target_Region);
+                     if Info.Target_Formal_Count /= 0 then
+                        Info.Target_Declaration := Declaration_By_Name (Visibility, Target);
+                        Info.Candidate_Count := 1;
+                        Info.Status := Generic_Renaming_Target_Resolved;
+                     else
+                        Info.Status := Generic_Renaming_Target_Unresolved;
+                     end if;
                   elsif Lookup.Status = Editor.Ada_Direct_Visibility.Lookup_Ambiguous then
                      Info.Status := Generic_Renaming_Target_Ambiguous;
                   else
@@ -469,7 +503,17 @@ package body Editor.Ada_Generic_Renaming_Visibility is
                Info.Formal_Count := Rename.Target_Formal_Count;
                Info.Status := Nested_Generic_Instantiation_Renamed_Target;
             elsif Lookup.Status = Editor.Ada_Direct_Visibility.Lookup_Not_Found then
-               Info.Status := Nested_Generic_Instantiation_Target_Unresolved;
+               Info.Formal_Region := Formal_Region_For_Generic_Name
+                 (Contracts, Target);
+               Info.Formal_Count := Formal_Count_In_Region
+                 (Contracts, Info.Formal_Region);
+               if Info.Formal_Count /= 0 then
+                  Info.Resolved_Generic := Declaration_By_Name (Visibility, Target);
+                  Info.Candidate_Count := 1;
+                  Info.Status := Nested_Generic_Instantiation_Direct_Target;
+               else
+                  Info.Status := Nested_Generic_Instantiation_Target_Unresolved;
+               end if;
             elsif Lookup.Status = Editor.Ada_Direct_Visibility.Lookup_Ambiguous then
                Info.Status := Nested_Generic_Instantiation_Target_Ambiguous;
             else

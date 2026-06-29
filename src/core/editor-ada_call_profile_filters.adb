@@ -128,10 +128,14 @@ package body Editor.Ada_Call_Profile_Filters is
         or else Candidate.Declaration = Editor.Ada_Direct_Visibility.No_Declaration
       then
          return Profile_Filter_Candidate_Unresolved;
-      elsif Actual.Id = Editor.Ada_Call_Profile_Shapes.No_Actual_Profile then
-         return Profile_Filter_No_Actual_Profile;
       elsif Callable.Id = Editor.Ada_Call_Profile_Shapes.No_Callable_Profile then
          return Profile_Filter_No_Callable_Profile;
+      elsif Actual.Id = Editor.Ada_Call_Profile_Shapes.No_Actual_Profile then
+         if Required_Count = 0 then
+            return Profile_Filter_Arity_Compatible;
+         else
+            return Profile_Filter_No_Actual_Profile;
+         end if;
       elsif Actual.Status = Editor.Ada_Call_Profile_Shapes.Actual_Profile_Malformed then
          return Profile_Filter_Actual_Profile_Malformed;
       elsif Callable.Status = Editor.Ada_Call_Profile_Shapes.Callable_Profile_Malformed then

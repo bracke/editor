@@ -5,6 +5,11 @@ package body Editor.Ada_Conversion_Access_Aggregate_Legality is
    pragma Suppress (Overflow_Check);
 
    use type Editor.Ada_Syntax_Tree.Node_Id;
+   use type Editor.Ada_Expression_Types.Aggregate_Type_Inference_Status;
+   use type Editor.Ada_Expression_Types.Allocator_Type_Inference_Status;
+   use type Editor.Ada_Expression_Types.Conversion_Type_Inference_Status;
+   use type Editor.Ada_Expression_Types.Expression_Type_Status;
+   use type Editor.Ada_Expression_Types.Universal_Numeric_Resolution_Status;
    use type Editor.Ada_Static_Expressions.Static_Value_Status;
    use type Editor.Ada_View_Aware_Compatibility.View_Compatibility_Status;
    use type Semantic_Context_Id;
@@ -500,6 +505,150 @@ package body Editor.Ada_Conversion_Access_Aggregate_Legality is
    begin
       return Model.Model_Fingerprint;
    end Fingerprint;
+
+   function Is_Conversion_Context
+     (Info : Editor.Ada_Expression_Types.Expression_Type_Info) return Boolean is
+   begin
+      return Info.Status in
+        Editor.Ada_Expression_Types.Expression_Type_Conversion |
+        Editor.Ada_Expression_Types.Expression_Type_Qualified
+        or else Info.Conversion_Status not in
+          Editor.Ada_Expression_Types.Conversion_Type_Not_Checked |
+          Editor.Ada_Expression_Types.Conversion_Type_Not_Conversion;
+   end Is_Conversion_Context;
+
+   function Is_Aggregate_Context
+     (Info : Editor.Ada_Expression_Types.Expression_Type_Info) return Boolean is
+   begin
+      return Info.Status = Editor.Ada_Expression_Types.Expression_Type_Aggregate
+        or else Info.Aggregate_Status not in
+          Editor.Ada_Expression_Types.Aggregate_Type_Not_Checked |
+          Editor.Ada_Expression_Types.Aggregate_Type_Not_Aggregate;
+   end Is_Aggregate_Context;
+
+   function Is_Allocator_Context
+     (Info : Editor.Ada_Expression_Types.Expression_Type_Info) return Boolean is
+   begin
+      return Info.Status = Editor.Ada_Expression_Types.Expression_Type_Allocator
+        or else Info.Allocator_Status not in
+          Editor.Ada_Expression_Types.Allocator_Type_Not_Checked |
+          Editor.Ada_Expression_Types.Allocator_Type_Not_Allocator;
+   end Is_Allocator_Context;
+
+   function Build_Contexts_From_Expression_Types
+     (Expressions : Editor.Ada_Expression_Types.Expression_Type_Model)
+      return Semantic_Context_Model
+   is
+      Model : Semantic_Context_Model;
+   begin
+      for Index in 1 .. Editor.Ada_Expression_Types.Expression_Type_Count (Expressions) loop
+         declare
+            Expr    : constant Editor.Ada_Expression_Types.Expression_Type_Info :=
+              Editor.Ada_Expression_Types.Expression_Type_At (Expressions, Index);
+            Context : Semantic_Context_Info;
+         begin
+            if Is_Conversion_Context (Expr) then
+               Context.Kind :=
+                 (if Expr.Status = Editor.Ada_Expression_Types.Expression_Type_Qualified then
+                    Semantic_Context_Qualified_Expression
+                  else
+                    Semantic_Context_Conversion);
+               Context.Node := Expr.Node;
+               Context.Target_Node := Expr.Node;
+               Context.Operand_Node := Expr.Node;
+               Context.Target_Subtype := Expr.Conversion_Target_Subtype;
+               Context.Normalized_Target_Subtype := Expr.Normalized_Conversion_Target_Subtype;
+               Context.Operand_Subtype := Expr.Conversion_Operand_Subtype;
+               Context.Normalized_Operand_Subtype := Expr.Normalized_Conversion_Operand_Subtype;
+               if Length (Context.Operand_Subtype) = 0 then
+                  Context.Operand_Subtype := Expr.Inferred_Subtype;
+               end if;
+               if Length (Context.Normalized_Operand_Subtype) = 0 then
+                  Context.Normalized_Operand_Subtype := Expr.Normalized_Subtype;
+               end if;
+               Context.Is_Numeric_Target :=
+                 Length (Expr.Normalized_Conversion_Target_Subtype) > 0;
+               Context.Is_Numeric_Operand :=
+                 Expr.Conversion_Compatible_Operand_Count > 0
+                 or else Expr.Conversion_Explicit_Operand_Count > 0;
+               Context.Operand_Is_Universal_Numeric :=
+                 Expr.Universal_Numeric_Status not in
+                   Editor.Ada_Expression_Types.Universal_Numeric_Not_Checked |
+                   Editor.Ada_Expression_Types.Universal_Numeric_Not_Universal;
+               Context.Operand_Static_Status := Expr.Static_Status;
+               Context.Start_Line := Expr.Start_Line;
+               Context.End_Line := Expr.End_Line;
+               Context.Fingerprint := Expr.Fingerprint;
+               Add_Context (Model, Context);
+            end if;
+
+            if Is_Aggregate_Context (Expr) then
+               Context := (others => <>);
+               Context.Kind :=
+                 (case Expr.Aggregate_Status is
+                    when Editor.Ada_Expression_Types.Aggregate_Type_Array_Context |
+                         Editor.Ada_Expression_Types.Aggregate_Type_Array_Elements_Compatible |
+                         Editor.Ada_Expression_Types.Aggregate_Type_Array_Element_Mismatch |
+                         Editor.Ada_Expression_Types.Aggregate_Type_Array_Element_Unknown =>
+                       Semantic_Context_Array_Aggregate,
+                    when Editor.Ada_Expression_Types.Aggregate_Type_Record_Context |
+                         Editor.Ada_Expression_Types.Aggregate_Type_Record_Components_Compatible |
+                         Editor.Ada_Expression_Types.Aggregate_Type_Record_Component_Missing |
+                         Editor.Ada_Expression_Types.Aggregate_Type_Record_Component_Duplicate =>
+                       Semantic_Context_Record_Aggregate,
+                    when Editor.Ada_Expression_Types.Aggregate_Type_Container_Context =>
+                       Semantic_Context_Container_Aggregate,
+                    when others =>
+                       Semantic_Context_Aggregate);
+               Context.Node := Expr.Node;
+               Context.Target_Node := Expr.Node;
+               Context.Operand_Node := Expr.Node;
+               Context.Target_Subtype := Expr.Inferred_Subtype;
+               Context.Normalized_Target_Subtype := Expr.Normalized_Subtype;
+               Context.Operand_Subtype := Expr.Aggregate_Element_Subtype;
+               Context.Normalized_Operand_Subtype := Expr.Normalized_Aggregate_Element_Subtype;
+               Context.Aggregate_Component_Count := Expr.Aggregate_Component_Count;
+               Context.Aggregate_Expected_Component_Count :=
+                 Expr.Aggregate_Record_Component_Compatible_Count
+                 + Expr.Aggregate_Record_Component_Missing_Count
+                 + Expr.Aggregate_Record_Component_Duplicate_Count;
+               Context.Aggregate_Has_Duplicate_Component :=
+                 Expr.Aggregate_Record_Component_Duplicate_Count > 0;
+               Context.Aggregate_Has_Component_Type_Mismatch :=
+                 Expr.Aggregate_Array_Element_Mismatch_Count > 0
+                 or else Expr.Aggregate_Mismatch_Count > 0;
+               Context.Aggregate_Has_Index_Coverage_Error :=
+                 Expr.Aggregate_Array_Element_Unknown_Count > 0;
+               Context.Start_Line := Expr.Start_Line;
+               Context.End_Line := Expr.End_Line;
+               Context.Fingerprint := Expr.Fingerprint;
+               Add_Context (Model, Context);
+            end if;
+
+            if Is_Allocator_Context (Expr) then
+               Context := (others => <>);
+               Context.Kind := Semantic_Context_Allocator;
+               Context.Node := Expr.Node;
+               Context.Target_Node := Expr.Node;
+               Context.Operand_Node := Expr.Node;
+               Context.Target_Subtype := Expr.Allocator_Expected_Access_Subtype;
+               Context.Normalized_Target_Subtype :=
+                 Expr.Normalized_Allocator_Expected_Access_Subtype;
+               Context.Operand_Subtype := Expr.Allocator_Designated_Subtype;
+               Context.Normalized_Operand_Subtype :=
+                 Expr.Normalized_Allocator_Designated_Subtype;
+               Context.Target_Access := Access_Kind_Object;
+               Context.Operand_Access := Access_Kind_Object;
+               Context.Start_Line := Expr.Start_Line;
+               Context.End_Line := Expr.End_Line;
+               Context.Fingerprint := Expr.Fingerprint;
+               Add_Context (Model, Context);
+            end if;
+         end;
+      end loop;
+
+      return Model;
+   end Build_Contexts_From_Expression_Types;
 
    function Build (Contexts : Semantic_Context_Model) return Semantic_Legality_Model is
       Model : Semantic_Legality_Model;

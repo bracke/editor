@@ -12,8 +12,9 @@ package Editor.Ada_Diagnostic_Command_Projection is
    --  Projection-only command-facing descriptors for Ada diagnostic actions.
    --  This package does not register commands, invoke commands, apply edits,
    --  mutate buffers, parse, save/reload files, touch workspace state, or do
-   --  rendering work.  It turns routed diagnostic actions into stable command
-   --  descriptors that a later UI/command layer may display or bind explicitly.
+   --  rendering work.  It turns routed diagnostic actions, including explicit
+   --  producer-owned edit hints, into stable command descriptors for later
+   --  UI/command layers.
 
    subtype Feed_Entry is
      Editor.Ada_Semantic_Diagnostic_Feed.Semantic_Diagnostic_Feed_Entry;
@@ -68,6 +69,11 @@ package Editor.Ada_Diagnostic_Command_Projection is
       Display_Label : Ada.Strings.Unbounded.Unbounded_String;
       Detail : Ada.Strings.Unbounded.Unbounded_String;
       Has_Edit : Boolean := False;
+      Edit_Start_Line   : Positive := 1;
+      Edit_Start_Column : Positive := 1;
+      Edit_End_Line     : Positive := 1;
+      Edit_End_Column   : Positive := 1;
+      Replacement_Text  : Ada.Strings.Unbounded.Unbounded_String;
       Start_Line   : Positive := 1;
       Start_Column : Positive := 1;
       End_Line     : Positive := 1;

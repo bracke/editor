@@ -1,7 +1,7 @@
 # Runtime smoke validation
 
 The runtime smoke gate is the release-facing check for the graphical GLFW/Vulkan
-entry point.  It complements two earlier gates: `tools/bin/runtime_compile_check`, which is a C syntax/header check using `gcc -fsyntax-only`, and `tools/bin/runtime_link_check`, which builds and links the runtime application through `alr build` or `gprbuild -P editor.gpr`. The smoke gate proves that the built executable can create a GLFW window,
+entry point.  It complements two earlier gates: `tools/bin/runtime_compile_check`, which checks the C entrypoint and Ada backend files, and `tools/bin/runtime_link_check`, which builds and links the runtime application through `alr build` or `gprbuild -P editor.gpr`. The smoke gate proves that the built executable can create a GLFW window,
 create the Vulkan backend, render a bounded number of frames, request a resize,
 and exit through the normal runtime loop.
 
@@ -29,17 +29,17 @@ For the complete runtime release-machine gate use:
 tools/bin/strict_runtime_validation
 ```
 
-The strict validation driver forces the C runtime syntax/header gate, the runtime link/build gate, the canonical `bin/editor_app` executable requirement (`EDITOR_REQUIRE_RUNTIME_EXE=1`), the shader freshness gate (`EDITOR_REQUIRE_SHADER_FRESHNESS=1`), the graphical GLFW/Vulkan smoke gate, and the missing-shader negative asset check into required mode.
+The strict validation driver forces the C runtime entrypoint syntax gate, the runtime link/build gate, the canonical `bin/editor` executable requirement (`EDITOR_REQUIRE_RUNTIME_EXE=1`), the shader freshness gate (`EDITOR_REQUIRE_SHADER_FRESHNESS=1`), the graphical GLFW/Vulkan smoke gate, and the missing-shader negative asset check into required mode.
 
 In normal mode the script is dependency-aware.  If no display session, build
 system, or executable is available, it reports a skipped check instead of making
 ordinary source-structure validation fail on headless machines.  In strict mode,
 those missing prerequisites fail the gate.
 
-The smoke command line accepted by `editor_app` is:
+The smoke command line accepted by `editor` is:
 
 ```sh
-bin/editor_app --runtime-smoke --runtime-smoke-frames=8 --runtime-smoke-resize --runtime-smoke-resize-count=3 --runtime-smoke-zero-framebuffer --runtime-smoke-max-seconds=30
+bin/editor --runtime-smoke --runtime-smoke-frames=8 --runtime-smoke-resize --runtime-smoke-resize-count=3 --runtime-smoke-zero-framebuffer --runtime-smoke-max-seconds=30
 ```
 
 `--runtime-smoke` hides the window where GLFW supports it, primes the editor
@@ -93,7 +93,7 @@ tools/bin/runtime_missing_asset_check
 ```
 
 The script sets `EDITOR_SHADER_DIR` to a temporary empty directory, sets
-`EDITOR_SHADER_DIR_ONLY=1`, and runs `bin/editor_app --runtime-check-shaders`.
+`EDITOR_SHADER_DIR_ONLY=1`, and runs `bin/editor --runtime-check-shaders`.
 In that mode the runtime intentionally disables the executable-relative and
 system fallback shader lookup paths, so the check expects the executable to fail
 with a nonzero status and a `runtime asset error` message.  Because this path
@@ -131,7 +131,7 @@ Runtime smoke resize validation is multi-resize by default: `tools/bin/runtime_s
 
 ## Display-independent shader asset check
 
-`bin/editor_app --runtime-check-shaders` validates that all required shader assets can be resolved through the normal runtime lookup contract without creating a GLFW window or Vulkan device. The missing-asset gate uses this path with `EDITOR_SHADER_DIR_ONLY=1` and an empty `EDITOR_SHADER_DIR`, so shader packaging failures can be tested without a graphical session.
+`bin/editor --runtime-check-shaders` validates that all required shader assets can be resolved through the normal runtime lookup contract without creating a GLFW window or Vulkan device. The missing-asset gate uses this path with `EDITOR_SHADER_DIR_ONLY=1` and an empty `EDITOR_SHADER_DIR`, so shader packaging failures can be tested without a graphical session.
 
 Runtime smoke font-atlas summary: deterministic text must produce non-zero rasterized glyph pixels, avoid redundant atlas upload on cache-hit frames, honor EDITOR_RUNTIME_SMOKE_ATLAS_MIN_NONZERO_BYTES, and the checksum must remain stable during cache-hit validation.
 
@@ -149,7 +149,7 @@ The validation driver forces the strict runtime compile, link, executable, shade
 ### Runtime visual render-contract smoke
 
 
-Runtime smoke execution is bounded by the runtime itself. `tools/bin/runtime_smoke` passes `--runtime-smoke-max-seconds` to `bin/editor_app`; the runtime loop fails with a clear smoke-timeout diagnostic if the requested frames, resize transitions, zero-framebuffer recovery, visual contract, and atlas checks do not complete within `EDITOR_RUNTIME_SMOKE_TIMEOUT_SECONDS` seconds (default `30`). This removes the release gate's dependency on an external `timeout` utility while still preventing normal smoke-loop hangs from being reported as successful validation.
+Runtime smoke execution is bounded by the runtime itself. `tools/bin/runtime_smoke` passes `--runtime-smoke-max-seconds` to `bin/editor`; the runtime loop fails with a clear smoke-timeout diagnostic if the requested frames, resize transitions, zero-framebuffer recovery, visual contract, and atlas checks do not complete within `EDITOR_RUNTIME_SMOKE_TIMEOUT_SECONDS` seconds (default `30`). This removes the release gate's dependency on an external `timeout` utility while still preventing normal smoke-loop hangs from being reported as successful validation.
 
 Runtime smoke now enables a deterministic visual render-contract check by default through `--runtime-smoke-visual-contract` / `EDITOR_RUNTIME_SMOKE_VISUAL_CONTRACT=1`.  The backend records the most recent rendered frame's visible rectangle count, glyph count, geometry checksum, and colour checksum from the packet that was actually recorded into Vulkan command buffers.  The smoke requires at least `EDITOR_RUNTIME_SMOKE_VISUAL_MIN_RECTS` visible rectangle commands and `EDITOR_RUNTIME_SMOKE_VISUAL_MIN_GLYPHS` visible glyph commands, requires nonzero geometry/colour checksums, and keeps the strongest observed metrics across rendered smoke frames so resize-driven layout changes do not cause false failures.  This is a deterministic renderer-contract gate; it complements, but does not replace, future framebuffer readback or golden-image testing.
 

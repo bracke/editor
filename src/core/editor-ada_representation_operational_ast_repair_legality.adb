@@ -172,6 +172,12 @@ package body Editor.Ada_Representation_Operational_AST_Repair_Legality is
       end case;
    end Message_For;
 
+   function Consumer_Detail
+     (Consumer : Audit.Semantic_Consumer_Family) return String is
+   begin
+      return Audit.Semantic_Consumer_Family'Image (Consumer);
+   end Consumer_Detail;
+
    function Make_Row
      (Info : Representation_Operational_AST_Repair_Context_Info)
       return Representation_Operational_AST_Repair_Info is
@@ -197,7 +203,8 @@ package body Editor.Ada_Representation_Operational_AST_Repair_Legality is
       Row.Message := To_Unbounded_String (Message_For (Status));
       Row.Detail := To_Unbounded_String
         ("construct=" & To_String (Info.Construct_Name) &
-         "; normalized=" & To_String (Info.Normalized_Construct_Name));
+         "; normalized=" & To_String (Info.Normalized_Construct_Name) &
+         "; consumer=" & Consumer_Detail (Info.Consumer));
       Row.Source_Fingerprint := Info.Source_Fingerprint;
       Row.Fingerprint := FP;
       Row.Start_Line := Info.Start_Line;

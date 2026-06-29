@@ -9,7 +9,7 @@ RN
 RV NO_IMPLEMENTATION_PRAGMAS
 RV NO_ELABORATION_CODE
 
-U editor.clipboard%b	editor-clipboard.adb	c0374fbf OO PK
+U editor.clipboard%b	editor-clipboard.adb	42e371cb OO PK
 W ada%s			ada.ads			ada.ali
 W ada.strings%s		a-string.ads		a-string.ali
 Z ada.strings.text_buffers%s  a-sttebu.adb	a-sttebu.ali
@@ -20,7 +20,7 @@ Z system.return_stack%s	s-retsta.ads		s-retsta.ali
 Z system.soft_links%s	s-soflin.adb		s-soflin.ali
 Z system.standard_library%s  s-stalib.adb	s-stalib.ali
 
-U editor.clipboard%s	editor-clipboard.ads	73623acc EE NE OO PK
+U editor.clipboard%s	editor-clipboard.ads	a6ec2594 EE NE OO PK
 W ada%s			ada.ads			ada.ali
 W ada.strings%s		a-string.ads		a-string.ali
 W ada.strings.unbounded%s  a-strunb.adb		a-strunb.ali
@@ -40,9 +40,9 @@ D a-strunb.ads		20250808065140 b10770ab ada.strings.unbounded%s
 D a-stuten.ads		20250808065140 c6ced0ae ada.strings.utf_encoding%s
 D a-tags.ads		20250808065140 fbca0ad5 ada.tags%s
 D a-unccon.ads		20250808065140 0e9b276f ada.unchecked_conversion%s
-D editor.ads		20260406185230 16f844c2 editor%s
-D editor-clipboard.ads	20260425115545 d49d0ea5 editor.clipboard%s
-D editor-clipboard.adb	20260425115612 a5ad31b1 editor.clipboard%b
+D editor.ads		20260612145959 16f844c2 editor%s
+D editor-clipboard.ads	20260612145959 011311fd editor.clipboard%s
+D editor-clipboard.adb	20260612145959 f2f7109d editor.clipboard%b
 D interfac.ads		20250808065140 9111f9c1 interfaces%s
 D i-c.ads		20250808065140 e94c966a interfaces.c%s
 D system.ads		20250808065140 14286b0f system%s
@@ -66,28 +66,31 @@ D s-stratt.ads		20250808065140 516607ae system.stream_attributes%s
 D s-traent.ads		20250808065140 c81cbf8c system.traceback_entries%s
 D s-unstyp.ads		20250808065140 fa2a7f59 system.unsigned_types%s
 G a e
-G c Z s b [set_text editor__clipboard 5 14 none]
-G c Z s b [get_text editor__clipboard 8 13 none]
-G c Z s b [has_text editor__clipboard 11 13 none]
+G c Z s b [set_text editor__clipboard 9 14 none]
+G c Z s b [get_text editor__clipboard 12 13 none]
+G c Z s b [has_text editor__clipboard 15 13 none]
+G c Z s b [clear editor__clipboard 17 14 none]
 X 1 ada.ads
-18K9*Ada 22e8 16|1r6 6r14 9r13 17|1r6 1r33
+18K9*Ada 22e8 16|1r6 10r14 13r13 17|1r6 1r33
 X 7 a-string.ads
-16K13*Strings 35e16 16|1r10 6r18 9r17 17|1r10 1r37
+16K13*Strings 35e16 16|1r10 10r18 13r17 17|1r10 1r37
 X 11 a-strunb.ads
-91K21*Unbounded 1641e26 16|1w18 6r26 9r25 17|1w18 1r45
-105R9*Unbounded_String<5|43R9> 1620e15 16|6r36 9r35 17|5r18 7r31 12r29
-109r4*Null_Unbounded_String{105R9} 17|5r38
-111V13*Length{natural} 17|19s14
+91K21*Unbounded 1641e26 16|1w18 10r26 13r25 17|1w18 1r45
+105R9*Unbounded_String<5|43R9> 1620e15 16|10r36 13r35 17|5r25 8r31 18r29
+109r4*Null_Unbounded_String{105R9} 17|5r45 23r17 34r25
+111V13*Length{natural} 17|10s10
 X 15 editor.ads
-1K9*Editor 5e11 16|3r9 13r5 17|3r14 22r5
+1K9*Editor 5e11 16|3r9 19r5 17|3r14 38r5
 X 16 editor-clipboard.ads
-3K16*Clipboard 15|1k9 16|13l12 13e21 17|3b21 22l12 22t21
-5U14*Set_Text 6>7 17|7b14 10l8 10t16
-6r7 Text{11|105R9} 17|7b24 9r22
-8V13*Get_Text{11|105R9} 17|12b13 15l8 15t16
-11V13*Has_Text{boolean} 17|17b13 20l8 20t16
+3K16*Clipboard 15|1k9 16|19l12 19e21 17|3b21 38l12 38t21
+9U14*Set_Text 10>7 17|8b14 16l8 16t16
+10r7 Text{11|105R9} 17|8b24 10r18 13r28
+12V13*Get_Text{11|105R9} 17|18b13 25l8 25t16
+15V13*Has_Text{boolean} 17|27b13 30l8 30t16
+17U14*Clear 17|11s10 32b14 36l8 36t13
 X 17 editor-clipboard.adb
-5r4 Stored_Text{11|105R9} 9m7 14r14 19r22
+5r4 Clipboard_Text{11|105R9} 13m10 21r17 34m7
+6b4 Clipboard_Has_Text{boolean} 14m10 20r10 29r14 35m7
 X 20 system.ads
 67M9*Address
 X 25 s-memory.ads

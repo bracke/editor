@@ -8,22 +8,21 @@ P ZX
 RN
 RV NO_IMPLEMENTATION_PRAGMAS
 
-U editor.font_config%s	editor-font_config.ads	a72cd3a5 NE OO PK
+U editor.font_config%s	editor-font_config.ads	94ccf89c NE OO PK
 W editor%s		editor.ads		editor.ali
 
-D editor.ads		20260406185230 16f844c2 editor%s
-D editor-font_config.ads  20260504170749 b1d49767 editor.font_config%s
+D editor.ads		20260612145959 16f844c2 editor%s
+D editor-font_config.ads  20260612145959 8234bc5e editor.font_config%s
 D system.ads		20250808065140 14286b0f system%s
 G a e
 X 1 editor.ads
-1K9*Editor 5e11 2|1r9 16r5
+1K9*Editor 5e11 2|1r9 15r5
 X 2 editor-font_config.ads
-1K16*Font_Config 1|1k9 2|16l12 16e23
+1K16*Font_Config 1|1k9 2|15l12 15e23
 3a4*Font_Path{string}
-6i4*Pixel_Size{positive}
-8i4*Cell_Width{positive}
-9i4*Cell_Height{positive}
+6i4*Font_Size_Px{positive}
+8i4*Cell_W{positive}
+9i4*Cell_H{positive}
 11i4*Atlas_Width{positive}
 12i4*Atlas_Height{positive}
-14i4*Gutter_Width{natural}
 

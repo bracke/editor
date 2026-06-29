@@ -2155,6 +2155,84 @@ package body Editor.Outline_Extractor is
       return To_String (Combined);
    end Header_Text_From;
 
+   function Instantiation_Target_Text_From
+     (Lines      : Line_Vectors.Vector;
+      Start_Line : Natural) return String
+   is
+      Combined : Unbounded_String;
+      Limit    : constant Natural :=
+        Natural'Min (Natural (Lines.Length), Start_Line + 8);
+   begin
+      if Start_Line = 0 or else Lines.Is_Empty then
+         return "";
+      end if;
+
+      for L in Start_Line .. Limit loop
+         declare
+            Raw     : constant String := To_String (Lines (L - 1));
+            Clean   : constant String := Editor.Ada_Syntax_Core.Strip_Comment_Safely (Raw);
+            Code    : constant String := Editor.Ada_Syntax_Core.Sanitize_Line (Clean);
+            Trimmed : constant String := Trim_Code_Whitespace (Code);
+         begin
+            if Trimmed'Length > 0 then
+               if Length (Combined) > 0 then
+                  Append (Combined, " ");
+               end if;
+               Append (Combined, Trimmed);
+
+               if Has_Code_Character (Trimmed, ';') then
+                  exit;
+               end if;
+            end if;
+         end;
+      end loop;
+
+      declare
+         Header : constant String := To_String (Combined);
+         Lower  : constant String := Ada.Strings.Fixed.Translate
+           (Header, Ada.Strings.Maps.Constants.Lower_Case_Map);
+         Pos    : constant Natural := Ada.Strings.Fixed.Index (Lower, "is new ");
+      begin
+         if Pos = 0 then
+            return "";
+         end if;
+
+         declare
+            Start : Natural := Pos + 7;
+            Stop  : Natural := Header'Last;
+         begin
+            while Start <= Header'Last
+              and then (Header (Start) = ' '
+                        or else Header (Start) = Ada.Characters.Latin_1.HT)
+            loop
+               Start := Start + 1;
+            end loop;
+
+            for I in Start .. Header'Last loop
+               if Header (I) = ';' or else Header (I) = '(' then
+                  Stop := I - 1;
+                  exit;
+               end if;
+            end loop;
+
+            while Stop >= Start
+              and then (Header (Stop) = ' '
+                        or else Header (Stop) = Ada.Characters.Latin_1.HT)
+            loop
+               if Stop = Start then
+                  return "";
+               end if;
+               Stop := Stop - 1;
+            end loop;
+
+            if Start > Stop then
+               return "";
+            end if;
+            return Header (Start .. Stop);
+         end;
+      end;
+   end Instantiation_Target_Text_From;
+
    function Header_Starts_With_Function (Header : String) return Boolean
    is
       Normalized : constant String := Normalize_Structure_Line (Header);
@@ -3477,8 +3555,42 @@ package body Editor.Outline_Extractor is
 
                   Item.Detail := To_Unbounded_String
                     (Detail_Text (Positive (Item.Line), "instantiation"));
+                  if Item.Kind in Editor.Outline.Outline_Procedure
+                    | Editor.Outline.Outline_Function
+                  then
+                     declare
+                        Target : constant String :=
+                          Instantiation_Target_Text_From (Lines, Item.Line);
+                     begin
+                        if Target'Length > 0 then
+                           Item.Detail := To_Unbounded_String
+                             (Detail_Text
+                                (Positive (Item.Line),
+                                 "instantiation is new " & Target));
+                        end if;
+                     end;
+                  end if;
                   Decrement_Subsequent_Nested_Depths
                     (Result, I, Item.Depth);
+               end;
+            end if;
+
+            if (Item.Kind = Editor.Outline.Outline_Procedure
+                or else Item.Kind = Editor.Outline.Outline_Function)
+              and then Primary_Detail_Form (To_String (Item.Detail)) = "instantiation"
+              and then Ada.Strings.Fixed.Index
+                (To_String (Item.Detail), " is new ") = 0
+            then
+               declare
+                  Target : constant String :=
+                    Instantiation_Target_Text_From (Lines, Item.Line);
+               begin
+                  if Target'Length > 0 then
+                     Item.Detail := To_Unbounded_String
+                       (Detail_Text
+                          (Positive (Item.Line),
+                           "instantiation is new " & Target));
+                  end if;
                end;
             end if;
 
@@ -3486,6 +3598,42 @@ package body Editor.Outline_Extractor is
               and then Header_Is_Body_Stub (Lines, Item.Line)
             then
                Decrement_Subsequent_Nested_Depths (Result, I, Item.Depth);
+            end if;
+
+            if (Item.Kind = Editor.Outline.Outline_Procedure
+                or else Item.Kind = Editor.Outline.Outline_Function)
+              and then Form = "body"
+              and then not Header_Is_Instantiation (Lines, Item.Line)
+              and then not Header_Is_Body_Stub (Lines, Item.Line)
+              and then not Has_Token (Header, "begin")
+              and then not Header_Is_Subprogram_Body (Header)
+            then
+               declare
+                  Current : constant String := To_String (Item.Label);
+               begin
+                  if Starts_With (Current, "generic procedure body ") then
+                     Item.Label := To_Unbounded_String
+                       (Replace_Label_Prefix
+                          (Current, "generic procedure body ",
+                           "generic procedure "));
+                  elsif Starts_With (Current, "generic function body ") then
+                     Item.Label := To_Unbounded_String
+                       (Replace_Label_Prefix
+                          (Current, "generic function body ",
+                           "generic function "));
+                  elsif Starts_With (Current, "procedure body ") then
+                     Item.Label := To_Unbounded_String
+                       (Replace_Label_Prefix
+                          (Current, "procedure body ", "procedure "));
+                  elsif Starts_With (Current, "function body ") then
+                     Item.Label := To_Unbounded_String
+                       (Replace_Label_Prefix
+                          (Current, "function body ", "function "));
+                  end if;
+
+                  Item.Detail := To_Unbounded_String
+                    (Detail_Text (Positive (Item.Line), "declaration"));
+               end;
             end if;
 
             if Item.Kind = Editor.Outline.Outline_Function
@@ -3525,7 +3673,7 @@ package body Editor.Outline_Extractor is
 
             if (Item.Kind = Editor.Outline.Outline_Procedure
                 or else Item.Kind = Editor.Outline.Outline_Function)
-              and then Form = "body"
+              and then Primary_Detail_Form (To_String (Item.Detail)) = "body"
               and then not Header_Is_Instantiation (Lines, Item.Line)
             then
                declare
@@ -4540,6 +4688,7 @@ package body Editor.Outline_Extractor is
             if Item_May_Have_Structure_Range (Item)
               and then Start_Line > 0
               and then Start_Line <= Natural (Lines.Length)
+              and then Form /= "declaration"
               and then not (Form = "body"
                             and then Is_Separate_Body_Stub (Lines, Start_Line))
             then

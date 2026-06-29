@@ -5,6 +5,7 @@ with AUnit.Test_Filters;
 with Ada.Command_Line;
 with Ada.Directories;
 with All_Suites;
+with Editor.Build_Command;
 with Editor.Fonts.Init;
 with Editor.Recent_Projects;
 
@@ -22,4 +23,9 @@ begin
    end if;
 
    Runner (Reporter, Options);
+   Editor.Build_Command.Stop_Public_Build_Workers_For_Application_Exit;
+exception
+   when others =>
+      Editor.Build_Command.Stop_Public_Build_Workers_For_Application_Exit;
+      raise;
 end Tests;

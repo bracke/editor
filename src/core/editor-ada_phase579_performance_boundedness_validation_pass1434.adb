@@ -20,6 +20,7 @@ package body Editor.Ada_Phase579_Performance_Boundedness_Validation_Pass1434 is
             | Status_Rejected_Stale_Result_Accepted
             | Status_Rejected_Nondeterministic_Replay
             | Status_Rejected_Index_Traversal_Unbounded
+            | Status_Rejected_Duplicate_Scenario
             | Status_Rejected_Consumer_Disagreement
             | Status_Rejected_Reopened_Remaining_Gap
             | Status_Rejected_Stale_Evidence =>
@@ -47,6 +48,22 @@ package body Editor.Ada_Phase579_Performance_Boundedness_Validation_Pass1434 is
         and then Row.Schedule_Fingerprint = Row.Expected_Schedule_Fingerprint
         and then Row.Consumer_Fingerprint = Row.Expected_Consumer_Fingerprint;
    end Fingerprints_Fresh;
+
+   function Is_Required_Scenario (Scenario : Scenario_Kind) return Boolean is
+   begin
+      return Scenario /= Scenario_Unknown;
+   end Is_Required_Scenario;
+
+   function Required_Scenario_Total return Natural is
+      Total : Natural := 0;
+   begin
+      for Scenario in Scenario_Kind loop
+         if Is_Required_Scenario (Scenario) then
+            Total := Total + 1;
+         end if;
+      end loop;
+      return Total;
+   end Required_Scenario_Total;
 
    function Evaluate (Row : Boundedness_Row) return Boundedness_Status is
    begin
@@ -95,6 +112,7 @@ package body Editor.Ada_Phase579_Performance_Boundedness_Validation_Pass1434 is
             | Status_Rejected_Stale_Result_Accepted
             | Status_Rejected_Nondeterministic_Replay
             | Status_Rejected_Index_Traversal_Unbounded
+            | Status_Rejected_Duplicate_Scenario
             | Status_Rejected_Consumer_Disagreement
             | Status_Rejected_Reopened_Remaining_Gap
             | Status_Rejected_Stale_Evidence =>
@@ -107,12 +125,25 @@ package body Editor.Ada_Phase579_Performance_Boundedness_Validation_Pass1434 is
    end Tally;
 
    function Build (Input : Boundedness_Input) return Boundedness_Model is
+      Seen   : array (Scenario_Kind) of Boolean := (others => False);
       Model : Boundedness_Model;
       Status : Boundedness_Status;
       Item : Boundedness_Entry;
    begin
       for Row of Input.Rows loop
          Status := Evaluate (Row);
+         if Status = Status_Accepted
+           and then Is_Required_Scenario (Row.Scenario)
+         then
+            if Seen (Row.Scenario) then
+               Status := Status_Rejected_Duplicate_Scenario;
+               Model.Duplicate_Scenario_Count :=
+                 Model.Duplicate_Scenario_Count + 1;
+            else
+               Seen (Row.Scenario) := True;
+            end if;
+         end if;
+
          Item.Id := Row.Id;
          Item.Scenario := Row.Scenario;
          Item.Status := Status;
@@ -124,6 +155,14 @@ package body Editor.Ada_Phase579_Performance_Boundedness_Validation_Pass1434 is
            Model.Performance_Fingerprint + Item.Result_Fingerprint;
          Tally (Model, Item);
       end loop;
+
+      Model.Required_Scenario_Count := Required_Scenario_Total;
+      for Scenario in Scenario_Kind loop
+         if Is_Required_Scenario (Scenario) and then not Seen (Scenario) then
+            Model.Missing_Scenario_Count := Model.Missing_Scenario_Count + 1;
+         end if;
+      end loop;
+
       return Model;
    end Build;
 
@@ -145,8 +184,11 @@ package body Editor.Ada_Phase579_Performance_Boundedness_Validation_Pass1434 is
    function Performance_Boundedness_Complete
      (Model : Boundedness_Model) return Boolean is
    begin
-      return Model.Total_Rows > 0
-        and then Model.Accepted_Count = Model.Total_Rows
+      return Model.Total_Rows = Model.Required_Scenario_Count
+        and then Model.Required_Scenario_Count = 7
+        and then Model.Missing_Scenario_Count = 0
+        and then Model.Duplicate_Scenario_Count = 0
+        and then Model.Accepted_Count = Model.Required_Scenario_Count
         and then Model.Rejected_Count = 0
         and then Model.Indeterminate_Count = 0
         and then Model.Performance_Fingerprint > 0;

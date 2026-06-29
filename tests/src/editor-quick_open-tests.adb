@@ -143,8 +143,9 @@ package body Editor.Quick_Open.Tests is
 
    function Temp_Path (Name : String) return String is
    begin
+      Ada.Directories.Create_Path ("/tmp/editor-tests");
       return Ada.Directories.Compose
-        (Ada.Directories.Current_Directory, "phase72_" & Name);
+        ("/tmp/editor-tests", "phase72_" & Name);
    end Temp_Path;
 
    procedure Remove_File_If_Exists (Path : String) is
@@ -1820,7 +1821,7 @@ package body Editor.Quick_Open.Tests is
          True);
       Assert_Command_Surface
         (Editor.Commands.Command_Open_Quick_Open,
-         "project.quick-open.show",
+         "quick-open.show",
          Editor.Commands.Project_Category,
          Editor.Commands.Palette_Command,
          True);
@@ -1862,7 +1863,7 @@ package body Editor.Quick_Open.Tests is
          True);
       Assert_Command_Surface
         (Editor.Commands.Command_Accept_Quick_Open,
-         "project.quick-open.open-selected",
+         "quick-open.open-selected",
          Editor.Commands.Project_Category,
          Editor.Commands.Hidden_Command,
          True,
@@ -2064,16 +2065,16 @@ package body Editor.Quick_Open.Tests is
    begin
       Assert (Editor.Commands.Stable_Command_Name
                 (Editor.Commands.Command_Open_Quick_Open) =
-              "project.quick-open.show",
-              "Project Quick Open show command must have the frozen stable name");
+              "quick-open.show",
+              "Project Quick Open show command must have the canonical stable name");
       Assert (Editor.Commands.Stable_Command_Name
                 (Editor.Commands.Command_Toggle_Quick_Open) =
               "project.quick-open.toggle",
               "Project Quick Open toggle command must have the frozen stable name");
       Assert (Editor.Commands.Stable_Command_Name
                 (Editor.Commands.Command_Accept_Quick_Open) =
-              "project.quick-open.open-selected",
-              "Project Quick Open open-selected command must have the frozen stable name");
+              "quick-open.open-selected",
+              "Project Quick Open open-selected command must have the canonical stable name");
       Assert (Editor.Commands.Stable_Command_Name
                 (Editor.Commands.Command_Quick_Open_Query_Set) =
               "project.quick-open.query.set",

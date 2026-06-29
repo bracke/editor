@@ -168,6 +168,17 @@ package Editor.Ada_Cross_Unit_Semantic_Closure is
       Instances   : Editor.Ada_Generic_Instance_Freezing_Representation_Legality.Instance_Legality_Model)
       return Cross_Unit_Semantic_Model;
 
+   function Build_Local_Contexts_From_Legality
+     (Source_Unit_Name : String;
+      Assignments : Editor.Ada_Assignment_Legality.Assignment_Legality_Model;
+      Returns     : Editor.Ada_Return_Legality.Return_Legality_Model;
+      Expressions : Editor.Ada_Conversion_Access_Aggregate_Legality.Semantic_Legality_Model;
+      Flow        : Editor.Ada_Control_Flow_Legality.Flow_Legality_Model;
+      Tasking     : Editor.Ada_Tasking_Protected_Legality.Tasking_Legality_Model;
+      Tagged_Model      : Editor.Ada_Tagged_Derived_Legality.Tagged_Legality_Model;
+      Instances   : Editor.Ada_Generic_Instance_Freezing_Representation_Legality.Instance_Legality_Model)
+      return Cross_Unit_Semantic_Context_Model;
+
    function Semantic_Count (Model : Cross_Unit_Semantic_Model) return Natural;
    function Semantic_At
      (Model : Cross_Unit_Semantic_Model;

@@ -27,6 +27,7 @@ package Editor.Ada_Phase579_Performance_Boundedness_Validation_Pass1434 is
       Status_Rejected_Stale_Result_Accepted,
       Status_Rejected_Nondeterministic_Replay,
       Status_Rejected_Index_Traversal_Unbounded,
+      Status_Rejected_Duplicate_Scenario,
       Status_Rejected_Consumer_Disagreement,
       Status_Rejected_Reopened_Remaining_Gap,
       Status_Rejected_Stale_Evidence,
@@ -91,6 +92,9 @@ package Editor.Ada_Phase579_Performance_Boundedness_Validation_Pass1434 is
       Accepted_Count : Natural := 0;
       Rejected_Count : Natural := 0;
       Indeterminate_Count : Natural := 0;
+      Required_Scenario_Count : Natural := 0;
+      Missing_Scenario_Count : Natural := 0;
+      Duplicate_Scenario_Count : Natural := 0;
       Performance_Fingerprint : Natural := 0;
    end record;
 

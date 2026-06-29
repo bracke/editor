@@ -186,6 +186,11 @@ package body Editor.Keybinding_Config is
       Add_Default (Config, Editor.Keybindings.Key_X, Editor.Commands.Command_Cut, Ctrl => True);
       Add_Default (Config, Editor.Keybindings.Key_V, Editor.Commands.Command_Paste, Ctrl => True);
 
+      Add_Default (Config, Editor.Keybindings.Key_F1, Editor.Commands.Command_Palette_Show_Command_Help);
+      Add_Default (Config, Editor.Keybindings.Key_O, Editor.Commands.Command_Open_File, Ctrl => True);
+      Add_Default (Config, Editor.Keybindings.Key_O, Editor.Commands.Command_Open_Project, Ctrl => True, Alt => True);
+      Add_Default (Config, Editor.Keybindings.Key_M, Editor.Commands.Command_Diagnostics_Show, Ctrl => True, Alt => True);
+
       Add_Default (Config, Editor.Keybindings.Key_F2, Editor.Commands.Command_Next_Bookmark);
       Add_Default (Config, Editor.Keybindings.Key_F2, Editor.Commands.Command_Previous_Bookmark, Shift => True);
       Add_Default (Config, Editor.Keybindings.Key_F2, Editor.Commands.Command_Toggle_Bookmark, Ctrl => True);

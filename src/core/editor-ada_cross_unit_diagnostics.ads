@@ -72,7 +72,9 @@ package Editor.Ada_Cross_Unit_Diagnostics is
       Private_W  : Editor.Ada_Private_With_Rules.Private_With_Model;
       Body_Spec  : Editor.Ada_Body_Spec_Conformance.Body_Spec_Conformance_Model;
       Children   : Editor.Ada_Child_Unit_Visibility.Child_Visibility_Model;
-      Separates  : Editor.Ada_Separate_Body_Stub_Rules.Separate_Body_Stub_Model)
+      Separates  : Editor.Ada_Separate_Body_Stub_Rules.Separate_Body_Stub_Model;
+      Child_Context : Editor.Ada_Child_Unit_Visibility.Child_Visibility_Context :=
+        Editor.Ada_Child_Unit_Visibility.Child_Visibility_Context_External_Client)
       return Cross_Unit_Diagnostic_Model;
 
    function Build_With_Nested
@@ -82,7 +84,9 @@ package Editor.Ada_Cross_Unit_Diagnostics is
       Body_Spec  : Editor.Ada_Body_Spec_Conformance.Body_Spec_Conformance_Model;
       Children   : Editor.Ada_Child_Unit_Visibility.Child_Visibility_Model;
       Separates  : Editor.Ada_Separate_Body_Stub_Rules.Separate_Body_Stub_Model;
-      Nested     : Editor.Ada_Nested_Body_Spec_Conformance.Nested_Body_Spec_Conformance_Model)
+      Nested     : Editor.Ada_Nested_Body_Spec_Conformance.Nested_Body_Spec_Conformance_Model;
+      Child_Context : Editor.Ada_Child_Unit_Visibility.Child_Visibility_Context :=
+        Editor.Ada_Child_Unit_Visibility.Child_Visibility_Context_External_Client)
       return Cross_Unit_Diagnostic_Model;
 
    function Has_Diagnostics (Model : Cross_Unit_Diagnostic_Model) return Boolean;

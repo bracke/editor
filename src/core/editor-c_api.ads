@@ -1,4 +1,5 @@
 with Interfaces.C;
+with Interfaces.C.Strings;
 with Editor.Bridge;
 with Editor.Render_Packet;
 
@@ -6,6 +7,11 @@ package Editor.C_API is
 
    procedure Editor_Init;
    pragma Export (C, Editor_Init, "editor_init");
+
+   procedure Editor_Open_Project_Path
+     (Path : Interfaces.C.Strings.chars_ptr);
+   pragma Export
+     (C, Editor_Open_Project_Path, "editor_open_project_path");
 
    procedure Editor_Handle_Platform_Event
      (Ev : Editor.Bridge.Platform_Event);

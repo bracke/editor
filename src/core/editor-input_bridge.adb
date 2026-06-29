@@ -1,5 +1,6 @@
 with Editor.Instance;
 with Editor.Commands;
+with Editor.Command_Execution;
 with Editor.Render_Model;
 with Editor.View;
 with Text_Buffer;
@@ -17,6 +18,7 @@ with Editor.Line_Numbers;
 with Editor.Minimap;
 with Editor.Command_Palette;
 with Editor.Settings;
+with Editor.Settings_Management;
 with Editor.Keybindings;
 with Editor.Keybinding_Config;
 with Editor.Keybinding_Management;
@@ -58,6 +60,7 @@ with Editor.Focus_Management;
 with Editor.Guided_Prompts;
 with Editor.Build_Command;
 with Editor.External_Producers;
+with Editor.Terminal_Tasks;
 
 --  Render Pipeline Contract:
 --
@@ -78,6 +81,8 @@ package body Editor.Input_Bridge is
 
    use Editor.State;
 use type Editor.Commands.Command_Id;
+use type Editor.State.Semantic_Popup_Kind;
+use type Editor.Command_Execution.Command_Execution_Status;
 use type Editor.Commands.Command_Kind;
 use type Editor.File_Tree_View.File_Tree_View_Zone;
 use type Editor.File_Tree.File_Tree_Node_Id;
@@ -135,9 +140,41 @@ use type Editor.Guided_Prompts.Prompt_Kind;
          --  Keep the transient Project Search replace-mode bit coherent for
          --  render/status before a preview is generated.
          Editor.Project_Search.Set_Replace_Mode_Active
-           (The_Editor.State.Project_Search, True);
+         (The_Editor.State.Project_Search, True);
       end if;
    end Sync_Project_Search_Replace_Mode_From_Bar;
+
+   procedure Clear_Semantic_Popup is
+   begin
+      The_Editor.State.Semantic_Popup :=
+        (Active => False,
+         Kind => Editor.State.No_Semantic_Popup,
+         Anchor_Row => 0,
+         Anchor_Column => 0,
+         Title => Null_Unbounded_String,
+         Detail => Null_Unbounded_String,
+         Item_Count => 0,
+         Selected_Item => 0,
+         Items => (others => (others => <>)));
+      Editor.Render_Cache.Invalidate_All;
+   end Clear_Semantic_Popup;
+
+   procedure Refresh_Or_Clear_Semantic_Completion_Popup is
+      Result : Editor.Executor.Command_Execution_Result;
+   begin
+      if The_Editor.State.Semantic_Popup.Active
+        and then The_Editor.State.Semantic_Popup.Kind =
+          Editor.State.Semantic_Completion_Popup
+      then
+         Result := Editor.Executor.Execute_Command_With_Result
+           (The_Editor.State, Editor.Commands.Command_Show_Completions);
+         if Result.Status /= Editor.Executor.Command_Executed then
+            Clear_Semantic_Popup;
+         end if;
+      elsif The_Editor.State.Semantic_Popup.Active then
+         Clear_Semantic_Popup;
+      end if;
+   end Refresh_Or_Clear_Semantic_Completion_Popup;
 
    function Is_Text_Entry_Workflow_Event
      (Cmd : Editor.Commands.Command) return Boolean
@@ -209,7 +246,9 @@ use type Editor.Guided_Prompts.Prompt_Kind;
          return Routed_To_Guided_Prompt;
       elsif Focus /= Text_Entry_Editor_Buffer then
          return No_Editor_Text_Focus;
-      elsif Editor.Buffers.Global_Active_Buffer = Editor.Buffers.No_Buffer then
+      elsif Editor.Buffers.Global_Active_Buffer = Editor.Buffers.No_Buffer
+        and then not Editor.State.Has_Active_Buffer (The_Editor.State)
+      then
          return No_Active_Buffer;
       elsif The_Editor.State.Carets.Is_Empty then
          return No_Caret_Location;
@@ -312,6 +351,7 @@ use type Editor.Guided_Prompts.Prompt_Kind;
    end Preview_Text_Entry_Command_Id;
 
    procedure Confirm_Guided_Prompt;
+   procedure Accept_Guided_Prompt_Enter;
 
    procedure Execute_Text_Entry_Command_Id
      (Id    : Editor.Commands.Command_Id;
@@ -330,6 +370,9 @@ use type Editor.Guided_Prompts.Prompt_Kind;
             | Routed_To_Delete_Next_Word
             | Routed_To_Line_Split =>
             Editor.Executor.Execute_Command (The_Editor.State, Id, Shift);
+            if The_Editor.State.Semantic_Popup.Active then
+               Refresh_Or_Clear_Semantic_Completion_Popup;
+            end if;
             Editor.Render_Cache.Invalidate_All;
          when Routed_To_Guided_Prompt =>
             case Id is
@@ -339,7 +382,7 @@ use type Editor.Guided_Prompts.Prompt_Kind;
                   Editor.Guided_Prompts.Delete_Forward (The_Editor.State.Guided_Prompt);
                when Editor.Commands.Command_Insert_Newline
                   | Editor.Commands.Command_Line_Split_At_Caret =>
-                  Confirm_Guided_Prompt;
+                  Accept_Guided_Prompt_Enter;
                when others =>
                   null;
             end case;
@@ -618,6 +661,29 @@ use type Editor.Guided_Prompts.Prompt_Kind;
                end if;
             end;
             Report_Info ("Enter new name.");
+         when Editor.Commands.Command_Rename_Symbol_Preview
+            | Editor.Commands.Command_Rename_Symbol_Apply =>
+            declare
+               Symbol : constant String :=
+                 Editor.Executor.Current_Semantic_Symbol_Name (The_Editor.State);
+            begin
+               Editor.Guided_Prompts.Start
+                 (The_Editor.State.Guided_Prompt,
+                  Editor.Guided_Prompts.Semantic_Rename_Prompt,
+                  Id,
+                  "Rename Symbol",
+                  "Enter the new Ada identifier for the selected symbol.",
+                  "Ada Semantics",
+                  Confirm_Label =>
+                    (if Id = Editor.Commands.Command_Rename_Symbol_Apply
+                     then "Rename"
+                     else "Preview"));
+               if Symbol'Length > 0 then
+                  Editor.Guided_Prompts.Update_Input
+                    (The_Editor.State.Guided_Prompt, Symbol);
+               end if;
+            end;
+            Report_Info ("Enter new symbol name.");
          when Editor.Commands.Command_File_Tree_Delete_Selected =>
             declare
                Selected_Row : constant Natural :=
@@ -722,6 +788,8 @@ use type Editor.Guided_Prompts.Prompt_Kind;
             | Editor.Commands.Command_File_Tree_Create_File
             | Editor.Commands.Command_File_Tree_Create_Directory
             | Editor.Commands.Command_File_Tree_Rename_Selected
+            | Editor.Commands.Command_Rename_Symbol_Preview
+            | Editor.Commands.Command_Rename_Symbol_Apply
             | Editor.Commands.Command_Delete_Buffer_File
             | Editor.Commands.Command_Revert_Active_Buffer
             | Editor.Commands.Command_File_Tree_Delete_Selected
@@ -780,8 +848,16 @@ use type Editor.Guided_Prompts.Prompt_Kind;
    procedure Confirm_Guided_Prompt is
       Prompt_Id : constant Editor.Commands.Command_Id :=
         The_Editor.State.Guided_Prompt.Owning_Command;
+      Selected_Found : Boolean := False;
+      Selected_Path  : constant String :=
+        Editor.Guided_Prompts.Selected_File_Picker_Path
+          (The_Editor.State.Guided_Prompt, Selected_Found);
       Input_Text : constant String :=
-        Editor.Guided_Prompts.Input_Text (The_Editor.State.Guided_Prompt);
+        (if The_Editor.State.Guided_Prompt.Kind =
+              Editor.Guided_Prompts.Project_Open_Prompt
+            and then Selected_Found
+         then Selected_Path
+         else Editor.Guided_Prompts.Input_Text (The_Editor.State.Guided_Prompt));
    begin
       if not Editor.Guided_Prompts.Is_Active (The_Editor.State.Guided_Prompt) then
          return;
@@ -842,7 +918,8 @@ use type Editor.Guided_Prompts.Prompt_Kind;
                when Editor.Guided_Prompts.Settings_Value_Prompt
                   | Editor.Guided_Prompts.File_Tree_Create_File_Prompt
                   | Editor.Guided_Prompts.File_Tree_Create_Directory_Prompt
-                  | Editor.Guided_Prompts.File_Tree_Rename_Prompt =>
+                  | Editor.Guided_Prompts.File_Tree_Rename_Prompt
+                  | Editor.Guided_Prompts.Semantic_Rename_Prompt =>
                   Cmd.Text := To_Unbounded_String (Input_Text);
                when Editor.Guided_Prompts.Confirmation_Prompt =>
                   --  Confirmation prompts do not expose a reusable path/name
@@ -860,6 +937,40 @@ use type Editor.Guided_Prompts.Prompt_Kind;
       end if;
       Editor.Render_Cache.Invalidate_All;
    end Confirm_Guided_Prompt;
+
+   function Guided_Prompt_Selected_File_Picker_Label return String is
+      Prompt : constant Editor.Guided_Prompts.Prompt_State :=
+        The_Editor.State.Guided_Prompt;
+   begin
+      if Prompt.Active
+        and then Prompt.File_Picker_Active
+        and then Natural (Prompt.File_Picker_Rows.Length) > 0
+        and then Prompt.File_Picker_Selected_Index >= Prompt.File_Picker_Rows.First_Index
+        and then Prompt.File_Picker_Selected_Index <= Prompt.File_Picker_Rows.Last_Index
+      then
+         return To_String
+           (Prompt.File_Picker_Rows.Element
+              (Prompt.File_Picker_Selected_Index).Label);
+      end if;
+
+      return "";
+   end Guided_Prompt_Selected_File_Picker_Label;
+
+   procedure Accept_Guided_Prompt_Enter is
+   begin
+      if The_Editor.State.Guided_Prompt.Kind =
+           Editor.Guided_Prompts.Project_Open_Prompt
+        and then Guided_Prompt_Selected_File_Picker_Label /= ""
+        and then Guided_Prompt_Selected_File_Picker_Label /= "./"
+        and then Editor.Guided_Prompts.Apply_File_Picker_Selection
+          (The_Editor.State.Guided_Prompt)
+      then
+         Report_Info ("Directory selected.");
+         Editor.Render_Cache.Invalidate_All;
+      else
+         Confirm_Guided_Prompt;
+      end if;
+   end Accept_Guided_Prompt_Enter;
 
    procedure Execute_Command_Id
      (Id    : Editor.Commands.Command_Id;
@@ -921,10 +1032,16 @@ use type Editor.Guided_Prompts.Prompt_Kind;
            or else Id = Editor.Commands.Command_File_Tree_Create_File
            or else Id = Editor.Commands.Command_File_Tree_Create_Directory
            or else Id = Editor.Commands.Command_File_Tree_Rename_Selected
+           or else Id = Editor.Commands.Command_Rename_Symbol_Preview
+           or else Id = Editor.Commands.Command_Rename_Symbol_Apply
          then
             declare
                Availability : constant Editor.Commands.Command_Availability :=
-                 Editor.Executor.Command_Availability (The_Editor.State, Id);
+                 Editor.Executor.Command_Availability
+                   (The_Editor.State,
+                    (if Id = Editor.Commands.Command_Rename_Symbol_Apply
+                     then Editor.Commands.Command_Rename_Symbol_Preview
+                     else Id));
             begin
                if not Editor.Commands.Is_Available (Availability) then
                   Report_Info (Editor.Commands.Unavailable_Reason (Availability));
@@ -1326,6 +1443,8 @@ use type Editor.Guided_Prompts.Prompt_Kind;
             | Editor.Commands.Command_Line_Join_Next
             | Editor.Commands.Command_Line_Split_At_Caret
             | Editor.Commands.Command_Trim_Trailing_Whitespace
+            | Editor.Commands.Command_Format_Buffer
+            | Editor.Commands.Command_Format_Selected_Text
             | Editor.Commands.Command_Char_Delete_Previous
             | Editor.Commands.Command_Char_Delete_Next
             | Editor.Commands.Command_Word_Delete_Previous
@@ -1432,6 +1551,7 @@ use type Editor.Guided_Prompts.Prompt_Kind;
             | Editor.Commands.Command_Diagnostics_Filter_Build
             | Editor.Commands.Command_Diagnostics_Clear_Build
             | Editor.Commands.Command_Diagnostics_Open_Selected
+            | Editor.Commands.Command_Diagnostics_Execute_Selected_Action
             | Editor.Commands.Command_Diagnostics_Select_Next
             | Editor.Commands.Command_Diagnostics_Select_Previous
             | Editor.Commands.Command_Diagnostics_Clear_Selected
@@ -2987,13 +3107,17 @@ use type Editor.Guided_Prompts.Prompt_Kind;
                 (The_Editor.State.Folding, Document_Rows));
       Scrollbars    : constant Editor.Scrollbars.Scrollbar_Config :=
         Editor.Scrollbars.Current;
-      Effective_H   : constant Natural :=
+      Raw_Effective_H : constant Natural :=
         Editor.Scrollbars.Effective_Viewport_Height
           (Editor.View.Viewport_Height, Scrollbars);
+      Effective_H   : constant Natural :=
+        (if Raw_Effective_H = 0 then Editor.View.Viewport_Height else Raw_Effective_H);
       Minimap_H     : constant Natural :=
-        Editor.Layout.Text_Viewport_Height (Layout, Effective_H);
+        Natural'Max
+          (Editor.Layout.Cell_H,
+           Editor.Layout.Text_Viewport_Height (Layout, Effective_H));
       Viewport_Rows : constant Natural :=
-        Editor.Layout.Visible_Row_Count (Layout, Effective_H);
+        Natural'Max (1, Editor.Layout.Visible_Row_Count (Layout, Effective_H));
       Target_Document_Row : Natural :=
         Editor.Minimap.Row_For_Y
           (Y                => Y,
@@ -3041,11 +3165,15 @@ use type Editor.Guided_Prompts.Prompt_Kind;
       Effective_W : constant Natural :=
         Editor.Scrollbars.Effective_Viewport_Width
           (Editor.View.Viewport_Width, Scrollbars);
+      Raw_Effective_H : constant Natural :=
+        Editor.Scrollbars.Effective_Viewport_Height
+          (Editor.View.Viewport_Height, Scrollbars);
       Effective_H : constant Natural :=
-        Editor.Layout.Text_Viewport_Height
-          (Layout,
-           Editor.Scrollbars.Effective_Viewport_Height
-             (Editor.View.Viewport_Height, Scrollbars));
+        Natural'Max
+          (Editor.Layout.Cell_H,
+           Editor.Layout.Text_Viewport_Height
+             (Layout,
+              (if Raw_Effective_H = 0 then Editor.View.Viewport_Height else Raw_Effective_H)));
    begin
       if not Is_Minimap_Pointer_Command (Cmd.Kind) then
          Minimap_Drag_Active := False;
@@ -4318,6 +4446,17 @@ use type Editor.Guided_Prompts.Prompt_Kind;
       Initialized := True;
    end Reset;
 
+   procedure Open_Project_Path
+     (Path : String)
+   is
+   begin
+      pragma Assert (Initialized,
+         "Input_Bridge must be initialized before opening a project path");
+
+      Editor.Executor.Execute_Open_Project (The_Editor.State, Path);
+      Editor.Render_Cache.Invalidate_All;
+   end Open_Project_Path;
+
    ------------------------------------------------------------------
    -- Command dispatch
    ------------------------------------------------------------------
@@ -4337,7 +4476,19 @@ use type Editor.Guided_Prompts.Prompt_Kind;
                Editor.Guided_Prompts.Cancel (The_Editor.State.Guided_Prompt);
                Report_Info ("Prompt cancelled.");
             when Editor.Keybindings.Key_Enter =>
-               Confirm_Guided_Prompt;
+               Accept_Guided_Prompt_Enter;
+            when Editor.Keybindings.Key_Up =>
+               Editor.Guided_Prompts.Move_File_Picker_Selection
+                 (The_Editor.State.Guided_Prompt, -1);
+            when Editor.Keybindings.Key_Down =>
+               Editor.Guided_Prompts.Move_File_Picker_Selection
+                 (The_Editor.State.Guided_Prompt, 1);
+            when Editor.Keybindings.Key_Right =>
+               if Editor.Guided_Prompts.Apply_File_Picker_Selection
+                 (The_Editor.State.Guided_Prompt)
+               then
+                  Report_Info ("Directory selected.");
+               end if;
             when Editor.Keybindings.Key_Backspace =>
                Editor.Guided_Prompts.Backspace (The_Editor.State.Guided_Prompt);
             when Editor.Keybindings.Key_Delete =>
@@ -4491,6 +4642,83 @@ use type Editor.Guided_Prompts.Prompt_Kind;
          end;
       end if;
 
+      if Editor.Settings_Management.Current_Settings_Surface_Focused
+        and then Editor.Settings_Management.Current_Settings_Surface_Visible
+        and then not Chord.Modifiers.Ctrl
+        and then not Chord.Modifiers.Shift
+        and then not Chord.Modifiers.Alt
+        and then not Chord.Modifiers.Meta
+      then
+         declare
+            UI     : Editor.Settings_Management.Settings_Editor_State :=
+              Editor.Settings_Management.Current_Settings_Editor_State;
+            Status : Editor.Settings_Management.Setting_Update_Status;
+         begin
+            case Chord.Key is
+               when Editor.Keybindings.Key_Down =>
+                  Editor.Settings_Management.Select_Next_Setting (UI);
+                  Editor.Settings_Management.Set_Current_Settings_Editor_State (UI);
+                  Report_Info ("Settings selection changed.");
+                  Editor.Render_Cache.Invalidate_All;
+                  Editor.Cursor.Notify_Input
+                    (Float (Editor.View.Current_Time_Seconds));
+                  return;
+               when Editor.Keybindings.Key_Up =>
+                  Editor.Settings_Management.Select_Previous_Setting (UI);
+                  Editor.Settings_Management.Set_Current_Settings_Editor_State (UI);
+                  Report_Info ("Settings selection changed.");
+                  Editor.Render_Cache.Invalidate_All;
+                  Editor.Cursor.Notify_Input
+                    (Float (Editor.View.Current_Time_Seconds));
+                  return;
+               when Editor.Keybindings.Key_Enter =>
+                  if Editor.Settings_Management.Has_Pending_Reset_All (UI) then
+                     Editor.Settings_Management.Confirm_Reset_All_Settings
+                       (The_Editor.State.Settings, UI, Status);
+                  else
+                     Editor.Settings_Management.Execute_Settings_Surface_Command
+                       (Editor.Settings_Management.Settings_Action_Toggle_Selected,
+                        The_Editor.State.Settings, UI, Status);
+                  end if;
+                  Editor.Settings_Management.Set_Current_Settings_Editor_State (UI);
+                  Report_Info
+                    (Editor.Settings_Management.Update_Status_Label (Status));
+                  Editor.Render_Cache.Invalidate_All;
+                  Editor.Cursor.Notify_Input
+                    (Float (Editor.View.Current_Time_Seconds));
+                  return;
+               when Editor.Keybindings.Key_Delete =>
+                  Editor.Settings_Management.Execute_Settings_Surface_Command
+                    (Editor.Settings_Management.Settings_Action_Reset_Selected,
+                     The_Editor.State.Settings, UI, Status);
+                  Editor.Settings_Management.Set_Current_Settings_Editor_State (UI);
+                  Report_Info
+                    (Editor.Settings_Management.Update_Status_Label (Status));
+                  Editor.Render_Cache.Invalidate_All;
+                  Editor.Cursor.Notify_Input
+                    (Float (Editor.View.Current_Time_Seconds));
+                  return;
+               when Editor.Keybindings.Key_Escape =>
+                  if Editor.Settings_Management.Has_Pending_Reset_All (UI) then
+                     Editor.Settings_Management.Cancel_Reset_All_Settings
+                       (UI, Status);
+                     Report_Info
+                       (Editor.Settings_Management.Update_Status_Label (Status));
+                  else
+                     Editor.Settings_Management.Hide_Settings (UI);
+                     Report_Info ("Settings hidden.");
+                  end if;
+                  Editor.Settings_Management.Set_Current_Settings_Editor_State (UI);
+                  Editor.Render_Cache.Invalidate_All;
+                  Editor.Cursor.Notify_Input
+                    (Float (Editor.View.Current_Time_Seconds));
+                  return;
+               when others =>
+                  null;
+            end case;
+         end;
+      end if;
+
       if The_Editor.State.Active_Find_Prompt
         and then
           ((not Editor.Overlay_Focus.Has_Active_Overlay
@@ -4510,6 +4738,60 @@ use type Editor.Guided_Prompts.Prompt_Kind;
             when Editor.Keybindings.Key_Escape =>
                Cmd.Kind := Editor.Commands.Active_Find_Hide;
                Editor.Instance.Execute (The_Editor, Cmd);
+               Editor.Cursor.Notify_Input
+                 (Float (Editor.View.Current_Time_Seconds));
+               return;
+            when others =>
+               null;
+         end case;
+      end if;
+
+      if The_Editor.State.Semantic_Popup.Active
+        and then Chord.Key = Editor.Keybindings.Key_Escape
+      then
+         Execute_Command_Id (Editor.Commands.Command_Semantic_Popup_Dismiss);
+         Editor.Cursor.Notify_Input
+           (Float (Editor.View.Current_Time_Seconds));
+         return;
+      end if;
+
+      if The_Editor.State.Semantic_Popup.Active
+        and then The_Editor.State.Semantic_Popup.Kind =
+          Editor.State.Semantic_Completion_Popup
+      then
+         case Chord.Key is
+            when Editor.Keybindings.Key_Enter =>
+               Execute_Command_Id
+                 (Editor.Commands.Command_Semantic_Completion_Accept);
+               Editor.Cursor.Notify_Input
+                 (Float (Editor.View.Current_Time_Seconds));
+               return;
+            when Editor.Keybindings.Key_Escape =>
+               Execute_Command_Id
+                 (Editor.Commands.Command_Semantic_Popup_Dismiss);
+               Editor.Cursor.Notify_Input
+                 (Float (Editor.View.Current_Time_Seconds));
+               return;
+            when Editor.Keybindings.Key_Down =>
+               Execute_Command_Id
+                 (Editor.Commands.Command_Semantic_Completion_Select_Next);
+               Editor.Cursor.Notify_Input
+                 (Float (Editor.View.Current_Time_Seconds));
+               return;
+            when Editor.Keybindings.Key_Up =>
+               Execute_Command_Id
+                 (Editor.Commands.Command_Semantic_Completion_Select_Previous);
+               Editor.Cursor.Notify_Input
+                 (Float (Editor.View.Current_Time_Seconds));
+               return;
+            when Editor.Keybindings.Key_Tab =>
+               if Chord.Modifiers.Shift then
+                  Execute_Command_Id
+                    (Editor.Commands.Command_Semantic_Completion_Select_Previous);
+               else
+                  Execute_Command_Id
+                    (Editor.Commands.Command_Semantic_Completion_Select_Next);
+               end if;
                Editor.Cursor.Notify_Input
                  (Float (Editor.View.Current_Time_Seconds));
                return;
@@ -5017,6 +5299,100 @@ use type Editor.Guided_Prompts.Prompt_Kind;
             end case;
             Editor.Cursor.Notify_Input
               (Float (Editor.View.Current_Time_Seconds));
+         elsif The_Editor.State.Build_UI.Build_UI_Focused then
+            case Chord.Key is
+               when Editor.Keybindings.Key_Up =>
+                  Execute_Command_Id
+                    (Editor.Commands.Command_Build_Select_Previous_Candidate);
+               when Editor.Keybindings.Key_Down =>
+                  Execute_Command_Id
+                    (Editor.Commands.Command_Build_Select_Next_Candidate);
+               when Editor.Keybindings.Key_Enter =>
+                  Execute_Command_Id (Editor.Commands.Command_Build_Run);
+               when Editor.Keybindings.Key_Escape =>
+                  Execute_Command_Id (Editor.Commands.Command_Focus_Editor_Text);
+               when Editor.Keybindings.Key_Delete =>
+                  Execute_Command_Id
+                    (Editor.Commands.Command_Build_Clear_Selected_Candidate);
+               when others =>
+                  null;
+            end case;
+            Editor.Cursor.Notify_Input
+              (Float (Editor.View.Current_Time_Seconds));
+         elsif The_Editor.State.Latest_Build_Result_Focused then
+            case Chord.Key is
+               when Editor.Keybindings.Key_Enter =>
+                  Execute_Command_Id
+                    (Editor.Commands.Command_Build_Output_Details_Focus);
+               when Editor.Keybindings.Key_Escape =>
+                  Execute_Command_Id (Editor.Commands.Command_Focus_Editor_Text);
+               when others =>
+                  null;
+            end case;
+            Editor.Cursor.Notify_Input
+              (Float (Editor.View.Current_Time_Seconds));
+         elsif The_Editor.State.Latest_Build_Output_Details.Build_Output_Details_Focused then
+            case Chord.Key is
+               when Editor.Keybindings.Key_Left =>
+                  Execute_Command_Id
+                    (Editor.Commands.Command_Build_Output_Details_Select_Stdout);
+               when Editor.Keybindings.Key_Right =>
+                  Execute_Command_Id
+                    (Editor.Commands.Command_Build_Output_Details_Select_Stderr);
+               when Editor.Keybindings.Key_Up | Editor.Keybindings.Key_Down =>
+                  Execute_Command_Id
+                    (Editor.Commands.Command_Build_Output_Details_Select_Merged);
+               when Editor.Keybindings.Key_Escape =>
+                  Execute_Command_Id (Editor.Commands.Command_Focus_Editor_Text);
+               when others =>
+                  null;
+            end case;
+            Editor.Cursor.Notify_Input
+              (Float (Editor.View.Current_Time_Seconds));
+         elsif Editor.Terminal_Tasks.Build_Render_Snapshot
+             (The_Editor.State.Terminal_Tasks).Focused
+         then
+            case Chord.Key is
+               when Editor.Keybindings.Key_Up =>
+                  Execute_Command_Id
+                    (Editor.Commands.Command_Terminal_Select_Previous_Task);
+               when Editor.Keybindings.Key_Down =>
+                  Execute_Command_Id
+                    (Editor.Commands.Command_Terminal_Select_Next_Task);
+               when Editor.Keybindings.Key_Enter =>
+                  Execute_Command_Id
+                    (Editor.Commands.Command_Terminal_Run_Selected_Task);
+               when Editor.Keybindings.Key_Escape =>
+                  Execute_Command_Id (Editor.Commands.Command_Focus_Editor_Text);
+               when Editor.Keybindings.Key_Delete =>
+                  Execute_Command_Id
+                    (Editor.Commands.Command_Terminal_Clear_Output);
+               when others =>
+                  null;
+            end case;
+            Editor.Cursor.Notify_Input
+              (Float (Editor.View.Current_Time_Seconds));
+         elsif The_Editor.State.Recent_Projects_Focused then
+            case Chord.Key is
+               when Editor.Keybindings.Key_Up =>
+                  Execute_Command_Id
+                    (Editor.Commands.Command_Select_Previous_Recent_Project);
+               when Editor.Keybindings.Key_Down =>
+                  Execute_Command_Id
+                    (Editor.Commands.Command_Select_Next_Recent_Project);
+               when Editor.Keybindings.Key_Enter =>
+                  Execute_Command_Id
+                    (Editor.Commands.Command_Open_Selected_Recent_Project);
+               when Editor.Keybindings.Key_Escape =>
+                  Execute_Command_Id (Editor.Commands.Command_Focus_Editor_Text);
+               when Editor.Keybindings.Key_Delete =>
+                  Execute_Command_Id
+                    (Editor.Commands.Command_Remove_Selected_Recent_Project);
+               when others =>
+                  null;
+            end case;
+            Editor.Cursor.Notify_Input
+              (Float (Editor.View.Current_Time_Seconds));
          elsif Editor.Panel_Focus.Bottom_Panel_Has_Focus (The_Editor.State.Panel_Focus) then
             if Editor.Panel_Focus.Bottom_Content (The_Editor.State.Panel_Focus) =
               Editor.Panel_Focus.Search_Results_Focus
@@ -5426,7 +5802,7 @@ use type Editor.Guided_Prompts.Prompt_Kind;
                   --  the active buffer while capture is active.
                   null;
                elsif Cmd.Ch = ASCII.LF or else Cmd.Ch = ASCII.CR then
-                  Confirm_Guided_Prompt;
+                  Accept_Guided_Prompt_Enter;
                elsif Cmd.Ch = ASCII.ESC then
                   Editor.Guided_Prompts.Cancel (The_Editor.State.Guided_Prompt);
                   Report_Info ("Prompt cancelled.");
@@ -5444,7 +5820,7 @@ use type Editor.Guided_Prompts.Prompt_Kind;
                | Editor.Commands.Delete_Next_Character =>
                Editor.Guided_Prompts.Delete_Forward (The_Editor.State.Guided_Prompt);
             when Editor.Commands.Split_Current_Line_At_Caret =>
-               Confirm_Guided_Prompt;
+               Accept_Guided_Prompt_Enter;
             when others =>
                null;
          end case;
@@ -5635,23 +6011,21 @@ use type Editor.Guided_Prompts.Prompt_Kind;
          return;
       end if;
 
-      --  Preserve an active minimap drag before giving scrollbar hit-testing
-      --  priority for fresh pointer presses.  This keeps the Phase 33 minimap
-      --  drag contract intact while ensuring scrollbar clicks are routed
-      --  before ordinary text/gutter hit-testing.
+      --  Minimap hit-testing owns the minimap region before scrollbars so a
+      --  minimap click cannot be interpreted as a vertical scrollbar action.
       if Minimap_Drag_Active and then Handle_Minimap_Pointer (Cmd) then
          Editor.Cursor.Notify_Input
            (Float (Editor.View.Current_Time_Seconds));
          return;
       end if;
 
-      if Handle_Scrollbar_Pointer (Cmd) then
+      if Handle_Minimap_Pointer (Cmd) then
          Editor.Cursor.Notify_Input
            (Float (Editor.View.Current_Time_Seconds));
          return;
       end if;
 
-      if Handle_Minimap_Pointer (Cmd) then
+      if Handle_Scrollbar_Pointer (Cmd) then
          Editor.Cursor.Notify_Input
            (Float (Editor.View.Current_Time_Seconds));
          return;
@@ -5712,6 +6086,9 @@ use type Editor.Guided_Prompts.Prompt_Kind;
                      | Routed_To_Line_Split =>
                      Editor.Instance.Execute
                        (The_Editor, Canonical_Text_Entry_Command (Cmd));
+                     if The_Editor.State.Semantic_Popup.Active then
+                        Refresh_Or_Clear_Semantic_Completion_Popup;
+                     end if;
                   when others =>
                      null;
                end case;

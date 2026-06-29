@@ -191,8 +191,6 @@ package body Editor.Ada_Overload_Preference_Legality is
    begin
       if not Has_Overload then
          return Preference_Legality_No_Legal_Overload_Input;
-      elsif not Overload_Is_Legal (Overload.Status) then
-         return Preference_Legality_Linked_Overload_Legality_Error;
       elsif Context.Homograph_Tie_Count > 0 then
          return Preference_Legality_Ambiguous_Homograph_Tie;
       elsif Context.Visibility_Tie_Count > 0 then
@@ -207,6 +205,8 @@ package body Editor.Ada_Overload_Preference_Legality is
          return Preference_Legality_Ambiguous_Conversion_Tie;
       elsif Context.Remaining_Ambiguous_Count > 0 then
          return Preference_Legality_Ambiguous_After_RM_Preferences;
+      elsif not Overload_Is_Legal (Overload.Status) then
+         return Preference_Legality_Linked_Overload_Legality_Error;
       elsif Context.Direct_Visibility_Count = 1 and then Context.Use_Visibility_Count > 0 then
          return Preference_Legality_Legal_Direct_Visibility_Preferred;
       elsif Context.Use_Visibility_Count = 1 and then Context.Direct_Visibility_Count = 0 then
@@ -390,6 +390,89 @@ package body Editor.Ada_Overload_Preference_Legality is
       end loop;
       return Model;
    end Build;
+
+   function Context_Kind_For
+     (Kind : ORL.Overload_Context_Kind) return Preference_Context_Kind is
+   begin
+      case Kind is
+         when ORL.Overload_Context_Call =>
+            return Preference_Context_Call;
+         when ORL.Overload_Context_Operator =>
+            return Preference_Context_Operator;
+         when ORL.Overload_Context_Dispatching_Call =>
+            return Preference_Context_Dispatching_Call;
+         when ORL.Overload_Context_Attribute_Call =>
+            return Preference_Context_Attribute_Call;
+         when ORL.Overload_Context_Generic_Actual_Subprogram =>
+            return Preference_Context_Generic_Actual_Subprogram;
+         when ORL.Overload_Context_Unknown =>
+            return Preference_Context_Unknown;
+      end case;
+   end Context_Kind_For;
+
+   function Build_Contexts_From_Overload_Legality
+     (Overloads : ORL.Overload_Legality_Model) return Preference_Context_Model
+   is
+      Contexts : Preference_Context_Model;
+   begin
+      for Index in 1 .. ORL.Legality_Count (Overloads) loop
+         declare
+            O : constant ORL.Overload_Legality_Info :=
+              ORL.Legality_At (Overloads, Index);
+            C : Preference_Context_Info;
+         begin
+            if ORL.Has_Legality (O) then
+               C.Id := Preference_Context_Id (Natural (O.Id));
+               C.Kind := Context_Kind_For (O.Kind);
+               C.Node := O.Node;
+               C.Designator := O.Designator;
+               C.Legal_Candidate_Count := O.Selected_Count;
+               C.Selected_Profile_Count := O.Selected_Count;
+               C.Rejected_Candidate_Count := O.Rejected_Count;
+               C.Start_Line := O.Start_Line;
+               C.Start_Column := O.Start_Column;
+               C.End_Line := O.End_Line;
+               C.End_Column := O.End_Column;
+               C.Source_Fingerprint := O.Fingerprint;
+
+               case O.Status is
+                  when ORL.Overload_Legality_Legal_Exact =>
+                     C.Exact_Profile_Count := O.Selected_Count;
+                  when ORL.Overload_Legality_Legal_Expected_Type_Preferred =>
+                     C.Expected_Type_Profile_Count := O.Selected_Count;
+                  when ORL.Overload_Legality_Legal_Universal_Integer_Preferred =>
+                     C.Universal_Integer_Count := O.Selected_Count;
+                  when ORL.Overload_Legality_Legal_Universal_Real_Preferred =>
+                     C.Universal_Real_Count := O.Selected_Count;
+                  when ORL.Overload_Legality_Legal_Primitive_Operator_Preferred =>
+                     C.Primitive_Operator_Count := O.Selected_Count;
+                  when ORL.Overload_Legality_Legal_Implicit_Numeric_Conversion =>
+                     C.Implicit_Conversion_Count := O.Selected_Count;
+                  when ORL.Overload_Legality_Legal_Class_Wide_Conversion =>
+                     C.Class_Wide_Count := O.Selected_Count;
+                  when ORL.Overload_Legality_Legal_Access_Conversion =>
+                     C.Access_Conversion_Count := O.Selected_Count;
+                  when ORL.Overload_Legality_Legal_Named_Actual_Profile =>
+                     C.Named_Actual_Count := O.Selected_Count;
+                  when ORL.Overload_Legality_Legal_Defaulted_Formal_Profile =>
+                     C.Defaulted_Formal_Count := O.Selected_Count;
+                  when ORL.Overload_Legality_Ambiguous_After_Preference =>
+                     C.Remaining_Ambiguous_Count := O.Candidate_Count;
+                     C.Selected_Profile_Count := O.Candidate_Count;
+                  when ORL.Overload_Legality_Profile_Mismatch =>
+                     C.Profile_Tie_Count := O.Candidate_Count;
+                  when ORL.Overload_Legality_Actual_Type_Mismatch =>
+                     C.Expected_Type_Tie_Count := O.Candidate_Count;
+                  when others =>
+                     null;
+               end case;
+
+               Add_Context (Contexts, C);
+            end if;
+         end;
+      end loop;
+      return Contexts;
+   end Build_Contexts_From_Overload_Legality;
 
    function Legality_Count (Model : Preference_Legality_Model) return Natural is
    begin

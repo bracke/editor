@@ -160,6 +160,10 @@ package Editor.Ada_Control_Flow_Legality is
       Index : Positive) return Flow_Context_Info;
    function Fingerprint (Model : Flow_Context_Model) return Natural;
 
+   function Build_Contexts_From_Returns
+     (Returns : Editor.Ada_Return_Legality.Return_Legality_Model)
+      return Flow_Context_Model;
+
    function Build
      (Contexts : Flow_Context_Model;
       Returns  : Editor.Ada_Return_Legality.Return_Legality_Model)

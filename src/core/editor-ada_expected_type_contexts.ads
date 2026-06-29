@@ -3,17 +3,19 @@ with Ada.Strings.Unbounded;
 with Editor.Ada_Call_Profile_Shapes;
 with Editor.Ada_Call_Resolution;
 with Editor.Ada_Declarative_Regions;
+with Editor.Ada_Direct_Visibility;
 with Editor.Ada_Syntax_Tree;
 
 package Editor.Ada_Expected_Type_Contexts is
 
    --  Compiler-grade semantic staging layer for expected-type propagation.
    --  This package attaches deterministic expected-subtype context metadata to
-   --  call-shaped expression nodes after profile-based call resolution.  It is
-   --  intentionally context-only: it does not yet prove type compatibility,
-   --  perform implicit-conversion legality, or resolve overloaded expressions
-   --  by expected type.  Later passes can consume these records as the first
-   --  expected-type input to full overload resolution and type checking.
+   --  call-shaped expression nodes after profile-based call resolution.  It
+   --  covers declaration defaults, return statements, simple assignment
+   --  targets, and nested positional/named parameter actuals.  It is
+   --  intentionally context-only: type compatibility, implicit-conversion
+   --  legality, and final overload selection are handled by later semantic
+   --  consumers.
 
    type Expected_Context_Kind is
      (Expected_Context_None,
@@ -57,6 +59,14 @@ package Editor.Ada_Expected_Type_Contexts is
    type Expected_Context_Model is private;
 
    procedure Clear (Model : in out Expected_Context_Model);
+
+   function Build
+     (Tree        : Editor.Ada_Syntax_Tree.Tree_Type;
+      Regions     : Editor.Ada_Declarative_Regions.Region_Model;
+      Visibility  : Editor.Ada_Direct_Visibility.Visibility_Model;
+      Profiles    : Editor.Ada_Call_Profile_Shapes.Profile_Shape_Model;
+      Resolutions : Editor.Ada_Call_Resolution.Call_Resolution_Model)
+      return Expected_Context_Model;
 
    function Build
      (Tree        : Editor.Ada_Syntax_Tree.Tree_Type;

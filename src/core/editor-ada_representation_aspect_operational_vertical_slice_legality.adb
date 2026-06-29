@@ -216,10 +216,10 @@ package body Editor.Ada_Representation_Aspect_Operational_Vertical_Slice_Legalit
          end if;
       end if;
 
-      if Has_Duplicate_Before (Items, I) then
-         R.Duplicate_Blockers := R.Duplicate_Blockers + 1;
-      elsif Has_Conflicting_Unified_Item (Items, I) then
+      if Has_Conflicting_Unified_Item (Items, I) then
          R.Conflict_Blockers := R.Conflict_Blockers + 1;
+      elsif Has_Duplicate_Before (Items, I) then
+         R.Duplicate_Blockers := R.Duplicate_Blockers + 1;
       end if;
 
       if not I.Static_Expression then

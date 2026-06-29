@@ -25,6 +25,9 @@ package Editor.Input_Bridge is
 
    procedure Reset;
 
+   procedure Open_Project_Path
+     (Path : String);
+
    procedure Handle
      (Cmd : Editor.Commands.Command);
 

@@ -1,5 +1,6 @@
 with Ada.Containers.Vectors;
 with Ada.Strings.Unbounded;
+with Editor.Ada_Child_Unit_Visibility;
 with Editor.Ada_Cross_Unit_Visibility;
 with Editor.Ada_Direct_Visibility;
 
@@ -55,6 +56,14 @@ package Editor.Ada_Cross_Unit_Lookup_Integration is
      (Visibility       : Editor.Ada_Cross_Unit_Visibility.Cross_Unit_Visibility_Model;
       Source_Unit_Name : String) return Cross_Unit_Lookup_Model;
 
+   function Build_With_Children
+     (Visibility       : Editor.Ada_Cross_Unit_Visibility.Cross_Unit_Visibility_Model;
+      Children         : Editor.Ada_Child_Unit_Visibility.Child_Visibility_Model;
+      Source_Unit_Name : String;
+      Child_Context    : Editor.Ada_Child_Unit_Visibility.Child_Visibility_Context :=
+        Editor.Ada_Child_Unit_Visibility.Child_Visibility_Context_External_Client)
+      return Cross_Unit_Lookup_Model;
+
    function Lookup_Count (Model : Cross_Unit_Lookup_Model) return Natural;
    function Lookup_At
      (Model : Cross_Unit_Lookup_Model;
@@ -77,7 +86,6 @@ package Editor.Ada_Cross_Unit_Lookup_Integration is
    function Missing_Count (Model : Cross_Unit_Lookup_Model) return Natural;
    function Ambiguous_Count (Model : Cross_Unit_Lookup_Model) return Natural;
    function Overflow_Count (Model : Cross_Unit_Lookup_Model) return Natural;
-   function Local_Precedence_Count (Model : Cross_Unit_Lookup_Model) return Natural;
    function Fingerprint (Model : Cross_Unit_Lookup_Model) return Natural;
 
 private
@@ -92,7 +100,6 @@ private
       Missing_Total          : Natural := 0;
       Ambiguous_Total        : Natural := 0;
       Overflow_Total         : Natural := 0;
-      Local_Precedence_Total : Natural := 0;
       Result_Fingerprint     : Natural := 0;
    end record;
 

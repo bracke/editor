@@ -3,6 +3,7 @@ with Ada.Strings.Unbounded;
 with Editor.Ada_Semantic_Colour_Projection;
 with Editor.Ada_Semantic_Diagnostic_Snapshot_Guards;
 with Editor.Ada_Syntax_Tree;
+with Editor.Ada_Overload_Preference_Legality;
 limited with Editor.Ada_Final_Semantic_Diagnostic_Integration;
 limited with Editor.Ada_Final_Semantic_Remediation_Diagnostic_Integration;
 limited with Editor.Ada_Final_Semantic_Stabilized_Diagnostic_Integration;
@@ -51,6 +52,12 @@ package Editor.Ada_Semantic_Diagnostic_Feed is
       Start_Column : Positive := 1;
       End_Line     : Positive := 1;
       End_Column   : Positive := 1;
+      Has_Edit      : Boolean := False;
+      Edit_Start_Line   : Positive := 1;
+      Edit_Start_Column : Positive := 1;
+      Edit_End_Line     : Positive := 1;
+      Edit_End_Column   : Positive := 1;
+      Replacement_Text  : Ada.Strings.Unbounded.Unbounded_String;
       Source_Fingerprint : Natural := 0;
       Fingerprint        : Natural := 0;
    end record;
@@ -68,6 +75,16 @@ package Editor.Ada_Semantic_Diagnostic_Feed is
       Wide    : Editor.Ada_Wide_Semantic_Legality_Diagnostics.Wide_Semantic_Diagnostic_Model;
       Wide_Input_Current : Boolean := True;
       Wide_Rejected_Count : Natural := 0)
+      return Semantic_Diagnostic_Feed_Model;
+
+   function Build_With_Wide_Legality_And_Overload_Preference
+     (Guarded : Editor.Ada_Semantic_Diagnostic_Snapshot_Guards.Guarded_Semantic_Diagnostic_Model;
+      Wide    : Editor.Ada_Wide_Semantic_Legality_Diagnostics.Wide_Semantic_Diagnostic_Model;
+      Preference : Editor.Ada_Overload_Preference_Legality.Preference_Legality_Model;
+      Wide_Input_Current : Boolean := True;
+      Wide_Rejected_Count : Natural := 0;
+      Preference_Input_Current : Boolean := True;
+      Preference_Rejected_Count : Natural := 0)
       return Semantic_Diagnostic_Feed_Model;
 
    function Build_With_Integrated_Closure
@@ -148,6 +165,17 @@ package Editor.Ada_Semantic_Diagnostic_Feed is
    function Entry_At
      (Model : Semantic_Diagnostic_Feed_Model;
       Index : Positive) return Semantic_Diagnostic_Feed_Entry;
+
+   function With_Edit_Hint
+     (Model             : Semantic_Diagnostic_Feed_Model;
+      Entry_Id          : Semantic_Diagnostic_Feed_Id;
+      Edit_Start_Line   : Positive;
+      Edit_Start_Column : Positive;
+      Edit_End_Line     : Positive;
+      Edit_End_Column   : Positive;
+      Replacement_Text  : String) return Semantic_Diagnostic_Feed_Model;
+   --  Return a copy of Model with an explicit producer-owned edit hint attached
+   --  to Entry_Id when the feed is current and the edit range is forward.
 
    function Error_Count (Model : Semantic_Diagnostic_Feed_Model) return Natural;
    function Warning_Count (Model : Semantic_Diagnostic_Feed_Model) return Natural;

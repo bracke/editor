@@ -44,6 +44,119 @@ package body Editor.Ada_Declaration_Parser is
         or else C = Ada.Characters.Latin_1.LF;
    end Is_Static_Space;
 
+   function Trim_Static_Space (Text : String) return String is
+      First : Natural := Text'First;
+      Last  : Natural := Text'Last;
+   begin
+      if Text'Length = 0 then
+         return "";
+      end if;
+
+      while First <= Text'Last and then Is_Static_Space (Text (First)) loop
+         First := First + 1;
+      end loop;
+
+      while Last >= Text'First and then Is_Static_Space (Text (Last)) loop
+         if Last = Text'First then
+            exit;
+         end if;
+         Last := Last - 1;
+      end loop;
+
+      if First > Last or else Is_Static_Space (Text (Last)) then
+         return "";
+      else
+         return Text (First .. Last);
+      end if;
+   exception
+      when Constraint_Error =>
+         return Trim (Text);
+   end Trim_Static_Space;
+
+   function Normalize_Character_Pos_Static_Operands (Text : String) return String is
+      Result : Unbounded_String;
+      I      : Natural := Text'First;
+      Marker : constant String := "character'pos";
+
+      function Matches_Character_Pos (Index : Natural) return Boolean is
+         Last : constant Natural := Index + Marker'Length - 1;
+      begin
+         return Last <= Text'Last
+           and then Lower (Text (Index .. Last)) = Marker
+           and then (Index = Text'First or else not Is_Word_Char (Text (Index - 1)))
+           and then (Last = Text'Last or else not Is_Word_Char (Text (Last + 1)));
+      exception
+         when Constraint_Error =>
+            return False;
+      end Matches_Character_Pos;
+   begin
+      while I <= Text'Last loop
+         if Matches_Character_Pos (I) then
+            declare
+               Pos  : Natural := I + Marker'Length;
+               C    : Character := Character'Val (0);
+               Has_C : Boolean := False;
+               Done : Boolean := False;
+            begin
+               while Pos <= Text'Last and then Is_Static_Space (Text (Pos)) loop
+                  Pos := Pos + 1;
+               end loop;
+
+               if Pos <= Text'Last and then Text (Pos) = '(' then
+                  Pos := Pos + 1;
+                  while Pos <= Text'Last and then Is_Static_Space (Text (Pos)) loop
+                     Pos := Pos + 1;
+                  end loop;
+
+                  if Pos + 3 <= Text'Last
+                    and then Text (Pos) = Character'Val (39)
+                    and then Text (Pos + 1) = Character'Val (39)
+                    and then Text (Pos + 2) = Character'Val (39)
+                    and then Text (Pos + 3) = Character'Val (39)
+                  then
+                     C := Character'Val (39);
+                     Has_C := True;
+                     Pos := Pos + 4;
+                  elsif Pos + 2 <= Text'Last
+                    and then Text (Pos) = Character'Val (39)
+                    and then Text (Pos + 2) = Character'Val (39)
+                  then
+                     C := Text (Pos + 1);
+                     Has_C := True;
+                     Pos := Pos + 3;
+                  end if;
+
+                  while Pos <= Text'Last and then Is_Static_Space (Text (Pos)) loop
+                     Pos := Pos + 1;
+                  end loop;
+
+                  if Has_C
+                    and then Pos <= Text'Last
+                    and then Text (Pos) = ')'
+                  then
+                     Append (Result, Natural'Image (Character'Pos (C)));
+                     I := Pos + 1;
+                     Done := True;
+                  end if;
+               end if;
+
+               if not Done then
+                  Append (Result, Text (I));
+                  I := I + 1;
+               end if;
+            end;
+         else
+            Append (Result, Text (I));
+            I := I + 1;
+         end if;
+      end loop;
+
+      return To_String (Result);
+   exception
+      when Constraint_Error =>
+         return Text;
+   end Normalize_Character_Pos_Static_Operands;
+
 
    function Normalize_Static_Attribute_Spacing (Text : String) return String is
       Result : Unbounded_String;
@@ -1972,6 +2085,110 @@ package body Editor.Ada_Declaration_Parser is
          return Representation_Component_Size_Clause;
       elsif Ada.Strings.Fixed.Index (T, "'small") /= 0 then
          return Representation_Small_Clause;
+      elsif Ada.Strings.Fixed.Index (T, "'pack") /= 0 then
+         return Representation_Pack_Clause;
+      elsif Ada.Strings.Fixed.Index (T, "'atomic_components") /= 0 then
+         return Representation_Atomic_Components_Clause;
+      elsif Ada.Strings.Fixed.Index (T, "'volatile_components") /= 0 then
+         return Representation_Volatile_Components_Clause;
+      elsif Ada.Strings.Fixed.Index (T, "'independent_components") /= 0 then
+         return Representation_Independent_Components_Clause;
+      elsif Ada.Strings.Fixed.Index (T, "'atomic") /= 0 then
+         return Representation_Atomic_Clause;
+      elsif Ada.Strings.Fixed.Index (T, "'volatile_function") /= 0 then
+         return Representation_Volatile_Function_Clause;
+      elsif Ada.Strings.Fixed.Index (T, "'volatile") /= 0 then
+         return Representation_Volatile_Clause;
+      elsif Ada.Strings.Fixed.Index (T, "'independent") /= 0 then
+         return Representation_Independent_Clause;
+      elsif Ada.Strings.Fixed.Index (T, "'suppress_initialization") /= 0 then
+         return Representation_Suppress_Initialization_Clause;
+      elsif Ada.Strings.Fixed.Index (T, "'priority") /= 0 then
+         return Representation_Priority_Clause;
+      elsif Ada.Strings.Fixed.Index (T, "'interrupt_priority") /= 0 then
+         return Representation_Interrupt_Priority_Clause;
+      elsif Ada.Strings.Fixed.Index (T, "'cpu") /= 0 then
+         return Representation_CPU_Clause;
+      elsif Ada.Strings.Fixed.Index (T, "'dispatching_domain") /= 0 then
+         return Representation_Dispatching_Domain_Clause;
+      elsif Ada.Strings.Fixed.Index (T, "'relative_deadline") /= 0 then
+         return Representation_Relative_Deadline_Clause;
+      elsif Ada.Strings.Fixed.Index (T, "'max_entry_queue_length") /= 0 then
+         return Representation_Max_Entry_Queue_Length_Clause;
+      elsif Ada.Strings.Fixed.Index (T, "'pre") /= 0 then
+         if Ada.Strings.Fixed.Index (T, "'pre'class") /= 0 then
+            return Representation_Pre_Class_Clause;
+         else
+            return Representation_Pre_Clause;
+         end if;
+      elsif Ada.Strings.Fixed.Index (T, "'post") /= 0 then
+         if Ada.Strings.Fixed.Index (T, "'post'class") /= 0 then
+            return Representation_Post_Class_Clause;
+         else
+            return Representation_Post_Clause;
+         end if;
+      elsif Ada.Strings.Fixed.Index (T, "'global") /= 0 then
+         return Representation_Global_Clause;
+      elsif Ada.Strings.Fixed.Index (T, "'depends") /= 0 then
+         return Representation_Depends_Clause;
+      elsif Ada.Strings.Fixed.Index (T, "'nonblocking") /= 0 then
+         return Representation_Nonblocking_Clause;
+      elsif Ada.Strings.Fixed.Index (T, "'always_terminates") /= 0 then
+         return Representation_Always_Terminates_Clause;
+      elsif Ada.Strings.Fixed.Index (T, "'inline_always") /= 0 then
+         return Representation_Inline_Always_Clause;
+      elsif Ada.Strings.Fixed.Index (T, "'inline") /= 0 then
+         return Representation_Inline_Clause;
+      elsif Ada.Strings.Fixed.Index (T, "'no_inline") /= 0 then
+         return Representation_No_Inline_Clause;
+      elsif Ada.Strings.Fixed.Index (T, "'no_return") /= 0 then
+         return Representation_No_Return_Clause;
+      elsif Ada.Strings.Fixed.Index (T, "'discard_names") /= 0 then
+         return Representation_Discard_Names_Clause;
+      elsif Ada.Strings.Fixed.Index (T, "'volatile_function") /= 0 then
+         return Representation_Volatile_Function_Clause;
+      elsif Ada.Strings.Fixed.Index (T, "'attach_handler") /= 0 then
+         return Representation_Attach_Handler_Clause;
+      elsif Ada.Strings.Fixed.Index (T, "'elaborate_body") /= 0 then
+         return Representation_Elaborate_Body_Clause;
+      elsif Ada.Strings.Fixed.Index (T, "'remote_access_type") /= 0 then
+         return Representation_Remote_Access_Type_Clause;
+      elsif Ada.Strings.Fixed.Index (T, "'exclusive_functions") /= 0 then
+         return Representation_Exclusive_Functions_Clause;
+      elsif Ada.Strings.Fixed.Index (T, "'side_effects") /= 0 then
+         return Representation_Side_Effects_Clause;
+      elsif Ada.Strings.Fixed.Index (T, "'no_caching") /= 0 then
+         return Representation_No_Caching_Clause;
+      elsif Ada.Strings.Fixed.Index (T, "'spark_mode") /= 0 then
+         return Representation_SPARK_Mode_Clause;
+      elsif Ada.Strings.Fixed.Index (T, "'no_elaboration_code") /= 0 then
+         return Representation_No_Elaboration_Code_Clause;
+      elsif Ada.Strings.Fixed.Index (T, "'linker_section") /= 0 then
+         return Representation_Linker_Section_Clause;
+      elsif Ada.Strings.Fixed.Index (T, "'machine_attribute") /= 0 then
+         return Representation_Machine_Attribute_Clause;
+      elsif Ada.Strings.Fixed.Index (T, "'reviewable") /= 0 then
+         return Representation_Reviewable_Clause;
+      elsif Ada.Strings.Fixed.Index (T, "'suppress_debug_info") /= 0 then
+         return Representation_Suppress_Debug_Info_Clause;
+      elsif Ada.Strings.Fixed.Index (T, "'suppress") /= 0 then
+         return Representation_Suppress_Clause;
+      elsif Ada.Strings.Fixed.Index (T, "'unsuppress") /= 0 then
+         return Representation_Unsuppress_Clause;
+      elsif Ada.Strings.Fixed.Index (T, "'assertion_policy") /= 0 then
+         return Representation_Assertion_Policy_Clause;
+      elsif Ada.Strings.Fixed.Index (T, "'check_policy") /= 0 then
+         return Representation_Check_Policy_Clause;
+      elsif Ada.Strings.Fixed.Index (T, "'debug_policy") /= 0 then
+         return Representation_Debug_Policy_Clause;
+      elsif Ada.Strings.Fixed.Index (T, "'restrictions") /= 0 then
+         return Representation_Restrictions_Clause;
+      elsif Ada.Strings.Fixed.Index (T, "'restriction_warnings") /= 0 then
+         return Representation_Restriction_Warnings_Clause;
+      elsif Ada.Strings.Fixed.Index (T, "'profile") /= 0 then
+         return Representation_Profile_Clause;
+      elsif Ada.Strings.Fixed.Index (T, "'dimension_system") /= 0 then
+         return Representation_Dimension_System_Clause;
       else
          return Representation_Record_Clause;
       end if;
@@ -6559,6 +6776,19 @@ package body Editor.Ada_Declaration_Parser is
                Local_Pending_Separate_Target : String (Pending_Separate_Target'Range) := Pending_Separate_Target;
                Local_Pending_Separate_Target_Len : Natural := Pending_Separate_Target_Len;
 
+               function Owner_Is_Callable return Boolean is
+               begin
+                  if Owner = No_Symbol then
+                     return False;
+                  end if;
+
+                  declare
+                     Info : constant Symbol_Info := Symbol (Analysis, Owner);
+                  begin
+                     return Info.Kind in Symbol_Procedure | Symbol_Function | Symbol_Operator_Function;
+                  end;
+               end Owner_Is_Callable;
+
                procedure Parse_Tail_Segment
                  (First : Natural;
                   Last  : Natural)
@@ -6586,6 +6816,17 @@ package body Editor.Ada_Declaration_Parser is
                      return;
                   elsif Segment_Lower'Length >= 3
                     and then Starts_With_Word (Segment_Lower, "end")
+                  then
+                     return;
+                  elsif Owner_Is_Callable
+                    and then
+                      ((Contains (Segment_Lower, "return ")
+                        and then Contains (Segment_Lower, " end return"))
+                       or else (Contains (Segment_Lower, "return ")
+                                and then Contains (Segment_Lower, ":")
+                                and then Contains (Segment_Lower, " do"))
+                       or else Contains (Segment_Lower, ": declare")
+                       or else Contains (Segment_Lower, ": begin"))
                   then
                      return;
                   end if;
@@ -7133,19 +7374,6 @@ package body Editor.Ada_Declaration_Parser is
                      return "";
                   end if;
                end Compact_Callable_Name_At;
-
-               function Owner_Is_Callable return Boolean is
-               begin
-                  if Owner = No_Symbol then
-                     return False;
-                  end if;
-
-                  declare
-                     Info : constant Symbol_Info := Symbol (Analysis, Owner);
-                  begin
-                     return Info.Kind in Symbol_Procedure | Symbol_Function | Symbol_Operator_Function;
-                  end;
-               end Owner_Is_Callable;
 
                procedure Emit_Local_Compact_Callable (Pos : Natural) is
                   Is_Function : constant Boolean := Tail_Token_At (Pos, "function");
@@ -10280,6 +10508,161 @@ package body Editor.Ada_Declaration_Parser is
       Mark_Statement_Awareness;
 
       if Pending_Aspect_Owner /= No_Symbol then
+         declare
+            function Is_Bare_Aspect_Line return Boolean is
+               Code : constant String :=
+                 Trim (Editor.Ada_Syntax_Core.Sanitize_Line (Raw_Line));
+               Segment : constant String :=
+                 (if Code'Length > 0 and then Code (Code'Last) = ';'
+                  then Trim (Code (Code'First .. Code'Last - 1))
+                  else Code);
+            begin
+               if Segment = ""
+                 or else Ada.Strings.Fixed.Index (Segment, "=>") /= 0
+                 or else Ada.Strings.Fixed.Index (Segment, ":") /= 0
+                 or else Ada.Strings.Fixed.Index (Segment, "(") /= 0
+                 or else Ada.Strings.Fixed.Index (Segment, ")") /= 0
+                 or else Ada.Strings.Fixed.Index (Segment, " ") /= 0
+                 or else Ada.Strings.Fixed.Index
+                   (Segment, Ada.Characters.Latin_1.HT & "") /= 0
+               then
+                  return False;
+               end if;
+
+               for C of Segment loop
+                  if not (Is_Word_Char (C) or else C = Character'Val (39)) then
+                     return False;
+                  end if;
+               end loop;
+
+               return Representation_Kind_For
+                 ("Target" & Character'Val (39) & Segment, "True") /=
+                 Representation_Record_Clause;
+            exception
+               when Constraint_Error =>
+                  return False;
+            end Is_Bare_Aspect_Line;
+
+            procedure Add_Pending_Aspect_Line is
+               Code : constant String :=
+                 Trim (Editor.Ada_Syntax_Core.Sanitize_Line (Raw_Line));
+               Segment : constant String :=
+                 (if Starts_With_Word (Lower (Code), "with")
+                  then Trim (Code (Code'First + 4 .. Code'Last))
+                  else Code);
+               Clean : constant String :=
+                 (if Segment'Length > 0
+                    and then (Segment (Segment'Last) = ','
+                              or else Segment (Segment'Last) = ';')
+                  then Trim (Segment (Segment'First .. Segment'Last - 1))
+                  else Segment);
+               Arrow : constant Natural := Ada.Strings.Fixed.Index (Clean, "=>");
+               Aspect_Name : constant String :=
+                 (if Arrow /= 0 then Trim (Clean (Clean'First .. Arrow - 1))
+                  else Clean);
+               Raw_Value : constant String :=
+                 (if Arrow /= 0 and then Arrow + 2 <= Clean'Last
+                  then Trim (Clean (Arrow + 2 .. Clean'Last))
+                  else "");
+               Value_Comma : constant Natural :=
+                 Ada.Strings.Fixed.Index (Raw_Value, ",");
+               Value : constant String :=
+                 (if Raw_Value = "" then "True"
+                  elsif Value_Comma /= 0 then
+                    Trim (Raw_Value (Raw_Value'First .. Value_Comma - 1))
+                  elsif Ends_With (Lower (Raw_Value), " is")
+                    and then Raw_Value'Length > 3
+                  then Trim (Raw_Value (Raw_Value'First .. Raw_Value'Last - 3))
+                  else Raw_Value);
+               Owner_Info : constant Symbol_Info :=
+                 Symbol (Analysis, Pending_Aspect_Owner);
+               Target_Text : constant String := To_String (Owner_Info.Name);
+               Kind : constant Representation_Clause_Kind :=
+                 Representation_Kind_For
+                   (Target_Text & Character'Val (39) & Aspect_Name, Value);
+            begin
+               if Aspect_Name = "" or else Kind = Representation_Record_Clause then
+                  return;
+               end if;
+
+               Add_Representation_Clause
+                 (Analysis,
+                  Target_Symbol => Pending_Aspect_Owner,
+                  Target_Name => Target_Text,
+                  Kind => Kind,
+                  Attribute_Name => Aspect_Name,
+                  Item_Text => Value,
+                  Source_Form => Representation_Source_Aspect,
+                  Source_Span =>
+                    (Line_Number,
+                     First_Non_Blank_Column (Raw_Line),
+                     Line_Number,
+                     Positive'Max
+                       (First_Non_Blank_Column (Raw_Line),
+                       First_Non_Blank_Column (Raw_Line) + Clean'Length - 1)));
+
+               if Value_Comma /= 0 and then Value_Comma + 1 <= Raw_Value'Last then
+                  declare
+                     Rest : constant String :=
+                       Trim (Raw_Value (Value_Comma + 1 .. Raw_Value'Last));
+                     Rest_Arrow : constant Natural :=
+                       Ada.Strings.Fixed.Index (Rest, "=>");
+                     Rest_Name : constant String :=
+                       (if Rest_Arrow /= 0
+                        then Trim (Rest (Rest'First .. Rest_Arrow - 1))
+                        else Rest);
+                     Rest_Value_Raw : constant String :=
+                       (if Rest_Arrow /= 0 and then Rest_Arrow + 2 <= Rest'Last
+                        then Trim (Rest (Rest_Arrow + 2 .. Rest'Last))
+                        else "");
+                     Rest_Comma : constant Natural :=
+                       Ada.Strings.Fixed.Index (Rest_Value_Raw, ",");
+                     Rest_Value : constant String :=
+                       (if Rest_Value_Raw = "" then "True"
+                        elsif Rest_Comma /= 0 then
+                          Trim
+                            (Rest_Value_Raw
+                               (Rest_Value_Raw'First .. Rest_Comma - 1))
+                        elsif Ends_With (Lower (Rest_Value_Raw), " is")
+                          and then Rest_Value_Raw'Length > 3
+                        then
+                          Trim
+                            (Rest_Value_Raw
+                               (Rest_Value_Raw'First ..
+                                Rest_Value_Raw'Last - 3))
+                        else Rest_Value_Raw);
+                     Rest_Kind : constant Representation_Clause_Kind :=
+                       Representation_Kind_For
+                         (Target_Text & Character'Val (39) & Rest_Name,
+                          Rest_Value);
+                  begin
+                     if Rest_Name /= ""
+                       and then Rest_Kind /= Representation_Record_Clause
+                     then
+                        Add_Representation_Clause
+                          (Analysis,
+                           Target_Symbol => Pending_Aspect_Owner,
+                           Target_Name => Target_Text,
+                           Kind => Rest_Kind,
+                           Attribute_Name => Rest_Name,
+                           Item_Text => Rest_Value,
+                           Source_Form => Representation_Source_Aspect,
+                           Source_Span =>
+                             (Line_Number,
+                              First_Non_Blank_Column (Raw_Line),
+                              Line_Number,
+                              Positive'Max
+                                (First_Non_Blank_Column (Raw_Line),
+                                 First_Non_Blank_Column (Raw_Line)
+                                 + Rest'Length - 1)));
+                     end if;
+                  end;
+               end if;
+            exception
+               when Constraint_Error =>
+                  null;
+            end Add_Pending_Aspect_Line;
+         begin
          --  Ada aspect specifications may be split after the declaration
          --  header:
          --     procedure P
@@ -10304,15 +10687,26 @@ package body Editor.Ada_Declaration_Parser is
          elsif Ada.Strings.Fixed.Index (Lower_Line, "=>") /= 0
            and then not Starts_With_Declaration_Or_Metadata
          then
+            Add_Pending_Aspect_Line;
             Editor.Ada_Language_Model.Mark_Symbol_Aspect_Specification
               (Analysis, Pending_Aspect_Owner);
             if Has_Code_Char (Lower_Line, ';') then
                Pending_Aspect_Owner := No_Symbol;
             end if;
             return;
+         elsif Is_Bare_Aspect_Line
+           and then not Starts_With_Declaration_Or_Metadata
+           and then Has_Code_Char (Lower_Line, ';')
+         then
+            Add_Pending_Aspect_Line;
+            Editor.Ada_Language_Model.Mark_Symbol_Aspect_Specification
+              (Analysis, Pending_Aspect_Owner);
+            Pending_Aspect_Owner := No_Symbol;
+            return;
          else
             Pending_Aspect_Owner := No_Symbol;
          end if;
+         end;
       end if;
 
       Mark_Context_Clause_Awareness
@@ -12808,7 +13202,85 @@ package body Editor.Ada_Declaration_Parser is
 
          declare
             New_Id : constant Symbol_Id := Emit;
+
+            procedure Add_Trailing_Bare_Aspect is
+               Code : constant String :=
+                 Trim (Editor.Ada_Syntax_Core.Sanitize_Line (Raw_Line));
+               Lower_Code : constant String := Lower (Code);
+               With_Pos : constant Natural :=
+                 Ada.Strings.Fixed.Index (Lower_Code, " with ");
+               Stop_Pos : Natural := 0;
+               Stop_Is  : Boolean := False;
+               Last_Comma : Natural := 0;
+               Aspect_Start : Natural := 0;
+            begin
+               if New_Id = No_Symbol or else With_Pos = 0 then
+                  return;
+               end if;
+
+               Stop_Pos := Ada.Strings.Fixed.Index (Lower_Code, " is");
+               Stop_Is := Stop_Pos /= 0;
+               if not Stop_Is then
+                  Stop_Pos := Ada.Strings.Fixed.Index (Lower_Code, ";");
+               end if;
+               if Stop_Pos = 0 or else Stop_Pos <= With_Pos + 6 then
+                  return;
+               end if;
+
+               for I in With_Pos + 6 .. Stop_Pos - 1 loop
+                  if Code (I) = ',' then
+                     Last_Comma := I;
+                  end if;
+               end loop;
+
+               if Last_Comma /= 0 then
+                  Aspect_Start := Last_Comma + 1;
+               elsif Stop_Is then
+                  Aspect_Start := With_Pos + 6;
+               else
+                  return;
+               end if;
+
+               declare
+                  Aspect_Name : constant String :=
+                    Trim (Code (Aspect_Start .. Stop_Pos - 1));
+                  Owner_Info : constant Symbol_Info := Symbol (Analysis, New_Id);
+                  Target_Text : constant String := To_String (Owner_Info.Name);
+                  Kind : constant Representation_Clause_Kind :=
+                    Representation_Kind_For
+                      (Target_Text & Character'Val (39) & Aspect_Name, "True");
+               begin
+                  if Aspect_Name = ""
+                    or else Ada.Strings.Fixed.Index (Aspect_Name, "=>") /= 0
+                    or else Kind = Representation_Record_Clause
+                  then
+                     return;
+                  end if;
+
+                  Add_Representation_Clause
+                    (Analysis,
+                     Target_Symbol => New_Id,
+                     Target_Name => Target_Text,
+                     Kind => Kind,
+                     Attribute_Name => Aspect_Name,
+                     Item_Text => "True",
+                     Source_Form => Representation_Source_Aspect,
+                     Source_Span =>
+                       (Line_Number,
+                        First_Non_Blank_Column (Raw_Line),
+                        Line_Number,
+                        Positive'Max
+                          (First_Non_Blank_Column (Raw_Line),
+                           First_Non_Blank_Column (Raw_Line)
+                           + Aspect_Name'Length - 1)));
+               end;
+            exception
+               when Constraint_Error =>
+                  null;
+            end Add_Trailing_Bare_Aspect;
          begin
+            Add_Trailing_Bare_Aspect;
+
             if New_Id /= No_Symbol
               and then Kind = Symbol_Generic_Formal_Type
               and then Name_Len > 0
@@ -13143,8 +13615,9 @@ package body Editor.Ada_Declaration_Parser is
 
 
    procedure Project_Syntax_Tree_Into_Model
-     (Analysis : in out Analysis_Result;
-      Tree     : Editor.Ada_Syntax_Tree.Tree_Type)
+     (Analysis    : in out Analysis_Result;
+      Tree        : Editor.Ada_Syntax_Tree.Tree_Type;
+      Source_Text : String)
    is
       use Editor.Ada_Syntax_Tree;
 
@@ -13278,6 +13751,106 @@ package body Editor.Ada_Declaration_Parser is
       function First_Child_Label
         (Parent : Node_Id;
          Kind   : Node_Kind) return String;
+
+      function Source_Index_For
+        (Line   : Positive;
+         Column : Positive) return Natural
+      is
+         Current_Line : Positive := 1;
+         I            : Natural := Source_Text'First;
+      begin
+         if Source_Text'Length = 0 then
+            return 0;
+         end if;
+
+         while I <= Source_Text'Last and then Current_Line < Line loop
+            if Source_Text (I) = Ada.Characters.Latin_1.LF then
+               Current_Line := Current_Line + 1;
+            end if;
+            I := I + 1;
+         end loop;
+
+         if Current_Line /= Line then
+            return 0;
+         end if;
+
+         return Natural'Min
+           (Source_Text'Last, I + Natural (Column) - 1);
+      exception
+         when Constraint_Error =>
+            return 0;
+      end Source_Index_For;
+
+      function Full_Declaration_Default_Text
+        (N             : Node_Info;
+         Existing_Text : String) return String
+      is
+         Start_Index : constant Natural :=
+           Source_Index_For (N.Source_Span.Start_Line, N.Source_Span.Start_Column);
+         Stop_Index  : Natural := 0;
+         Assign_Pos  : Natural := 0;
+         I           : Natural;
+      begin
+         if Start_Index = 0 then
+            return Existing_Text;
+         end if;
+
+         I := Start_Index;
+         while I <= Source_Text'Last loop
+            if Source_Text (I) = '"' then
+               I := I + 1;
+               while I <= Source_Text'Last loop
+                  if Source_Text (I) = '"' then
+                     if I < Source_Text'Last and then Source_Text (I + 1) = '"' then
+                        I := I + 2;
+                     else
+                        I := I + 1;
+                        exit;
+                     end if;
+                  else
+                     I := I + 1;
+                  end if;
+               end loop;
+            elsif Source_Text (I) = Character'Val (39)
+              and then I + 2 <= Source_Text'Last
+              and then Source_Text (I + 2) = Character'Val (39)
+            then
+               I := I + 3;
+            elsif Source_Text (I) = ';' then
+               Stop_Index := I - 1;
+               exit;
+            else
+               I := I + 1;
+            end if;
+         end loop;
+
+         if Stop_Index = 0 or else Stop_Index < Start_Index then
+            return Existing_Text;
+         end if;
+
+         declare
+            Segment : constant String := Source_Text (Start_Index .. Stop_Index);
+         begin
+            Assign_Pos := Ada.Strings.Fixed.Index (Segment, ":=");
+            if Assign_Pos = 0 or else Assign_Pos + 2 > Segment'Last then
+               return Existing_Text;
+            end if;
+
+            declare
+               Full_Default : constant String :=
+                 Trim (Segment (Assign_Pos + 2 .. Segment'Last));
+            begin
+               if Full_Default = "" then
+                  return Existing_Text;
+               else
+                  return Full_Default;
+               end if;
+            end;
+         end;
+      exception
+         when Constraint_Error =>
+            return Existing_Text;
+      end Full_Declaration_Default_Text;
 
       function Is_Declaration_Node (Kind : Node_Kind) return Boolean is
       begin
@@ -13471,6 +14044,8 @@ package body Editor.Ada_Declaration_Parser is
         (Node  : Node_Info;
          Owner : Symbol_Id) return Pragma_Placement_Kind
       is
+         Name : constant String :=
+           Lower (Pragma_Metadata_Name (To_String (Node.Label)));
       begin
          if Node.Kind = Node_Pragma_Statement then
             if Has_Ancestor_Kind (Node.Id, Node_Statement_Alternative)
@@ -13478,6 +14053,18 @@ package body Editor.Ada_Declaration_Parser is
               or else Has_Ancestor_Kind (Node.Id, Node_When_Alternative)
             then
                return Pragma_Placement_Alternative;
+            elsif Name = "inline"
+              or else Name = "inline_always"
+              or else Name = "no_inline"
+              or else Name = "no_return"
+              or else Name = "atomic"
+              or else Name = "volatile"
+              or else Name = "independent"
+              or else Name = "import"
+              or else Name = "export"
+              or else Name = "convention"
+            then
+               return Pragma_Placement_Declaration;
             else
                return Pragma_Placement_Statement;
             end if;
@@ -13884,7 +14471,8 @@ package body Editor.Ada_Declaration_Parser is
          elsif Starts_With_Word (L, "body") then
             return Clean_Projected_Declaration_Name (Strip_Leading_Body);
          elsif Ends_With (L, " is") and then T'Length > 3 then
-            return Trim (T (T'First .. T'Last - 3));
+            return Clean_Projected_Declaration_Name
+              (Trim (T (T'First .. T'Last - 3)));
          end if;
 
          for I in T'Range loop
@@ -14090,7 +14678,7 @@ package body Editor.Ada_Declaration_Parser is
                declare
                   S : constant Symbol_Info := Symbol_At (Analysis, Positive (Direct));
                begin
-                  if S.Kind = Symbol_Rename then
+                  if S.Kind = Symbol_Rename or else S.Flags.Is_Rename then
                      declare
                         Inner : constant Symbol_Id :=
                           Resolve_Renamed_Metadata_Target (S, Depth + 1);
@@ -14136,7 +14724,9 @@ package body Editor.Ada_Declaration_Parser is
                   Prefix_Info : constant Symbol_Info :=
                     Symbol_At (Analysis, Positive (Prefix_Symbol));
                begin
-                  if Prefix_Info.Kind = Symbol_Rename then
+                  if Prefix_Info.Kind = Symbol_Rename
+                    or else Prefix_Info.Flags.Is_Rename
+                  then
                      declare
                         Renamed : constant Symbol_Id :=
                           Resolve_Renamed_Metadata_Target (Prefix_Info);
@@ -14181,7 +14771,9 @@ package body Editor.Ada_Declaration_Parser is
                Direct_Info : constant Symbol_Info :=
                  Symbol_At (Analysis, Positive (Direct));
             begin
-               if Direct_Info.Kind = Symbol_Rename then
+               if Direct_Info.Kind = Symbol_Rename
+                 or else Direct_Info.Flags.Is_Rename
+               then
                   declare
                      Renamed : constant Symbol_Id :=
                        Resolve_Renamed_Metadata_Target (Direct_Info);
@@ -14425,6 +15017,7 @@ package body Editor.Ada_Declaration_Parser is
          Attribute : String;
          Value     : out Natural) return Boolean;
       function Static_Numeric_Name_Exists (Name : String) return Boolean;
+      function Static_Subtype_Root (Name : String) return String;
       function Static_Discrete_Literal_Position
         (Type_Name    : String;
          Literal_Text : String;
@@ -14443,7 +15036,6 @@ package body Editor.Ada_Declaration_Parser is
          Natural_Value : Natural := 0;
          Integer_Valid : Boolean := False;
          Integer_Value : Integer := 0;
-         pragma Unreferenced (Natural_Value, Integer_Value);
 
          function Text_Is_Static_Numeric_Expression return Boolean is
             T          : constant String := Trim (Text);
@@ -14650,6 +15242,14 @@ package body Editor.Ada_Declaration_Parser is
          if N = "" then
             return False;
          end if;
+
+         declare
+            Root : constant String := Static_Subtype_Root (Name);
+         begin
+            if Root /= N and then Static_Type_Modulus (Root, Value) then
+               return True;
+            end if;
+         end;
 
          for I in 1 .. Static_Type_Range_Count loop
             if To_String (Static_Type_Ranges (I).Normalized_Name) = N
@@ -15529,6 +16129,8 @@ package body Editor.Ada_Declaration_Parser is
                     (Trim (Raw_Attr (Open_Pos + 1 .. Close_Pos - 1)));
                   declare
                      Dim_Source : constant String := To_String (Dim_Text);
+                     Normalized_Dim_Source : constant String :=
+                       Normalize_Character_Pos_Static_Operands (Dim_Source);
                      Signed_Dim : Integer := 0;
                   begin
                      --  Pass 611: accept a static integer expression for the
@@ -15537,7 +16139,8 @@ package body Editor.Ada_Declaration_Parser is
                      --  ``String (S'Range (1 + 0))`` aligned with the
                      --  bound-attribute paths that already evaluate
                      --  dimension expressions before requiring value 1.
-                     Parse_Static_Integer (Dim_Source, Has_Dim, Signed_Dim);
+                     Parse_Static_Integer
+                       (Normalized_Dim_Source, Has_Dim, Signed_Dim);
                      if not Has_Dim or else Signed_Dim /= 1 then
                         return;
                      end if;
@@ -16106,7 +16709,7 @@ package body Editor.Ada_Declaration_Parser is
             Attribute_Name : String;
             Value          : out Natural) return Boolean
          is
-            Q           : constant String := Trim (Qualified_Text);
+            Q           : constant String := Trim_Static_Space (Qualified_Text);
             Quote_Index : Natural := 0;
             J           : Natural;
          begin
@@ -16295,7 +16898,7 @@ package body Editor.Ada_Declaration_Parser is
         (Indexed_Text : String;
          Position     : out Natural) return Boolean
       is
-         T          : constant String := Trim (Indexed_Text);
+         T          : constant String := Trim_Static_Space (Indexed_Text);
          Open_Paren : Natural := 0;
          Int_Valid  : Boolean := False;
          Int_Index  : Integer := 0;
@@ -16367,8 +16970,10 @@ package body Editor.Ada_Declaration_Parser is
          end if;
 
          declare
-            Name_Text  : constant String := Trim (T (T'First .. Open_Paren - 1));
-            Index_Text : constant String := Trim (T (Open_Paren + 1 .. T'Last - 1));
+            Name_Text  : constant String :=
+              Trim_Static_Space (T (T'First .. Open_Paren - 1));
+            Index_Text : constant String :=
+              Trim_Static_Space (T (Open_Paren + 1 .. T'Last - 1));
          begin
             if Name_Text = "" or else Index_Text = "" then
                return False;
@@ -16431,7 +17036,7 @@ package body Editor.Ada_Declaration_Parser is
         (Slice_Text : String;
          Image_Text : out Unbounded_String) return Boolean
       is
-         T           : constant String := Trim (Slice_Text);
+         T           : constant String := Trim_Static_Space (Slice_Text);
          Open_Paren  : Natural := 0;
          Dot_Dot     : Natural := 0;
          Depth       : Integer := 0;
@@ -16537,9 +17142,12 @@ package body Editor.Ada_Declaration_Parser is
          end if;
 
          declare
-            Name_Text : constant String := Trim (T (T'First .. Open_Paren - 1));
-            Low_Text  : constant String := Trim (T (Open_Paren + 1 .. Dot_Dot - 1));
-            High_Text : constant String := Trim (T (Dot_Dot + 2 .. T'Last - 1));
+            Name_Text : constant String :=
+              Trim_Static_Space (T (T'First .. Open_Paren - 1));
+            Low_Text  : constant String :=
+              Trim_Static_Space (T (Open_Paren + 1 .. Dot_Dot - 1));
+            High_Text : constant String :=
+              Trim_Static_Space (T (Dot_Dot + 2 .. T'Last - 1));
          begin
             if Name_Text = "" or else Low_Text = "" or else High_Text = "" then
                return False;
@@ -16629,7 +17237,7 @@ package body Editor.Ada_Declaration_Parser is
         (Default_Text : String;
          Image_Text   : out Unbounded_String) return Boolean
       is
-         D      : constant String := Trim (Default_Text);
+         D      : constant String := Trim_Static_Space (Default_Text);
          Buffer : String (1 .. Natural'Max (D'Length, 1));
          Last   : Natural := 0;
          I      : Natural;
@@ -16732,7 +17340,7 @@ package body Editor.Ada_Declaration_Parser is
            (Text       : String;
             Image_Out  : out Unbounded_String) return Boolean
          is
-            Q : constant String := Trim (Text);
+            Q : constant String := Trim_Static_Space (Text);
             Quote_Index : Natural := 0;
             Open_Pos    : Natural := 0;
          begin
@@ -18147,17 +18755,28 @@ package body Editor.Ada_Declaration_Parser is
             null;
       end Register_Static_Subtype_Range_From_Base;
 
+      function Strip_Constant_Subtype_Prefix (Subtype_Text : String) return String
+      is
+         Raw_T : constant String := Trim (Subtype_Text);
+         Raw_L : constant String := Lower (Raw_T);
+      begin
+         if Starts_With_Word (Raw_L, "constant")
+           and then Raw_T'Length > 8
+         then
+            return Trim (Raw_T (Raw_T'First + 8 .. Raw_T'Last));
+         else
+            return Raw_T;
+         end if;
+      exception
+         when Constraint_Error =>
+            return Trim (Subtype_Text);
+      end Strip_Constant_Subtype_Prefix;
+
       function Static_Constant_Default_Compatible
         (Subtype_Text : String;
          Default_Text : String) return Boolean
       is
-         Raw_T : constant String := Trim (Subtype_Text);
-         Raw_L : constant String := Lower (Raw_T);
-         T : constant String :=
-           (if Starts_With_Word (Raw_L, "constant")
-            and then Raw_T'Length > 8
-            then Trim (Raw_T (Raw_T'First + 8 .. Raw_T'Last))
-            else Raw_T);
+         T : constant String := Strip_Constant_Subtype_Prefix (Subtype_Text);
          Valid : Boolean := False;
          Value : Integer := 0;
          Has_Low  : Boolean := False;
@@ -18174,6 +18793,10 @@ package body Editor.Ada_Declaration_Parser is
              (Static_Subtype_Root (T), Has_Low, Low, Has_High, High)
          then
             return True;
+         end if;
+
+         if not Has_Low and then not Has_High then
+            return False;
          end if;
 
          Parse_Static_Integer (Default_Text, Valid, Value);
@@ -18263,7 +18886,9 @@ package body Editor.Ada_Declaration_Parser is
 
       procedure Register_Static_Declaration_Metadata (N : Node_Info; Name : String) is
          Subtype_Text : constant String := First_Child_Label (N.Id, Node_Declaration_Subtype);
-         Default_Text : constant String := First_Child_Label (N.Id, Node_Declaration_Default);
+         Default_Text : constant String :=
+           Full_Declaration_Default_Text
+             (N, First_Child_Label (N.Id, Node_Declaration_Default));
          L : constant String := Lower (Trim (Subtype_Text));
          At_Range : constant Natural := Ada.Strings.Fixed.Index (L, "range");
          At_Dots : constant Natural := Ada.Strings.Fixed.Index (Subtype_Text, "..");
@@ -18365,23 +18990,32 @@ package body Editor.Ada_Declaration_Parser is
             --  retains discrete typed constants so forms such as
             --  Color'Pos (Default_Color) can be evaluated without pretending
             --  the literal object is a universal integer.
-            if Static_Constant_Default_Compatible (Subtype_Text, Default_Text) then
-               if Is_Static_Numeric_Value (Default_Text) then
-                  Register_Static_Numeric_Name (Name);
+            declare
+               Constant_Subtype_Text : constant String :=
+                 Strip_Constant_Subtype_Prefix (Subtype_Text);
+            begin
+               if Static_Constant_Default_Compatible
+                 (Constant_Subtype_Text, Default_Text)
+               then
+                  if Is_Static_Numeric_Value (Default_Text) then
+                     Register_Static_Numeric_Name (Name);
+                  end if;
+                  Register_Static_Named_Number (Name, Default_Text);
                end if;
-               Register_Static_Named_Number (Name, Default_Text);
-            end if;
 
-            if Is_Simple_Static_Type_Name (Subtype_Text) then
-               Register_Static_Discrete_Constant
-                 (Name, Subtype_Text, Default_Text);
-            end if;
+               if Is_Simple_Static_Type_Name (Constant_Subtype_Text) then
+                  Register_Static_Discrete_Constant
+                    (Name, Constant_Subtype_Text, Default_Text);
+               end if;
 
-            if Static_Subtype_Root (Subtype_Text) = "string"
-              or else Static_Subtype_Root (Subtype_Text) = "standard.string"
-            then
-               Register_Static_String_Constant (Name, Subtype_Text, Default_Text);
-            end if;
+               if Static_Subtype_Root (Constant_Subtype_Text) = "string"
+                 or else Static_Subtype_Root (Constant_Subtype_Text) =
+                   "standard.string"
+               then
+                  Register_Static_String_Constant
+                    (Name, Constant_Subtype_Text, Default_Text);
+               end if;
+            end;
          elsif N.Kind = Node_Type_Declaration
            and then L'Length >= 2
            and then L (L'First) = '('
@@ -19460,9 +20094,18 @@ package body Editor.Ada_Declaration_Parser is
                                                 end if;
                                              end loop;
                                           elsif T (Pos) = Character'Val (39)
+                                            and then Pos + 3 <= T'Last
+                                            and then T (Pos + 1) = Character'Val (39)
+                                            and then T (Pos + 2) = Character'Val (39)
+                                            and then T (Pos + 3) = Character'Val (39)
+                                          then
+                                             Literal_Stop := Pos + 3;
+                                             Pos := Pos + 4;
+                                          elsif T (Pos) = Character'Val (39)
                                             and then Pos + 2 <= T'Last
                                             and then T (Pos + 2) = Character'Val (39)
                                           then
+                                             Literal_Stop := Pos + 2;
                                              Pos := Pos + 3;
                                           elsif T (Pos) = '(' then
                                              Depth := Depth + 1;
@@ -21854,14 +22497,20 @@ package body Editor.Ada_Declaration_Parser is
       end Is_Attribute_Definition_Aspect_Name;
 
       function Aspect_Default_Value (Name : String; Value : String) return String is
-         V : constant String := Trim (Value);
+         Raw_V : constant String := Trim (Value);
+         V : constant String :=
+           (if Ends_With (Lower (Raw_V), " is") and then Raw_V'Length > 3
+            then Trim (Raw_V (Raw_V'First .. Raw_V'Last - 3))
+            else Raw_V);
          Kind : constant Representation_Clause_Kind :=
            Representation_Kind_For ("Target'" & Trim (Name), V);
       begin
-         if V /= "" then
-            return V;
-         elsif Is_Boolean_Representation_Property (Kind) then
+         if Is_Boolean_Representation_Property (Kind)
+           and then (V = "" or else Normalize_Name (V) = Normalize_Name (Name))
+         then
             return "True";
+         elsif V /= "" then
+            return V;
          else
             return V;
          end if;
@@ -21985,7 +22634,30 @@ package body Editor.Ada_Declaration_Parser is
          Base_Name  : constant String := Attribute_Base_Name (Raw_Target);
          Kind       : constant Representation_Clause_Kind :=
            Representation_Kind_For (Raw_Target, Item_Text, To_String (N.Label));
-         Target     : constant Symbol_Id := Find_Metadata_Target (Base_Name);
+         function Scoped_Target return Symbol_Id is
+            Owner : constant Symbol_Id := Ancestor_Symbol (N.Id);
+            Wanted : constant String := Normalize_Name (Base_Name);
+         begin
+            if Has_Dot (Base_Name) or else Owner = No_Symbol then
+               return Find_Metadata_Target (Base_Name);
+            end if;
+
+            for I in reverse 1 .. Symbol_Count (Analysis) loop
+               declare
+                  S : constant Symbol_Info := Symbol_At (Analysis, I);
+               begin
+                  if S.Parent_Symbol = Owner
+                    and then To_String (S.Normalized_Name) = Wanted
+                    and then S.Source_Span.Start_Line <= N.Source_Span.Start_Line
+                  then
+                     return S.Id;
+                  end if;
+               end;
+            end loop;
+
+            return Find_Metadata_Target (Base_Name);
+         end Scoped_Target;
+         Target     : constant Symbol_Id := Scoped_Target;
          Has_Value  : Boolean := False;
          Value      : Natural := 0;
 
@@ -22221,7 +22893,12 @@ package body Editor.Ada_Declaration_Parser is
                      elsif Arrow /= 0 then Trim (Label_Text (Label_Text'First .. Arrow - 1))
                      else Trim (Label_Text));
                   Raw_Aspect_Value : constant String :=
-                    (if Named_Aspect /= "" then Trim (Value_Child)
+                    (if Named_Aspect /= ""
+                       and then Arrow = 0
+                       and then Normalize_Name (Value_Child) =
+                         Normalize_Name (Named_Aspect)
+                     then ""
+                     elsif Named_Aspect /= "" then Trim (Value_Child)
                      elsif Value_Child /= "" then Trim (Value_Child)
                      elsif Arrow /= 0 and then Arrow + 2 <= Label_Text'Last then
                         Trim (Label_Text (Arrow + 2 .. Label_Text'Last))
@@ -22268,18 +22945,142 @@ package body Editor.Ada_Declaration_Parser is
             elsif N.Kind = Node_Generic_Actual_Part then
                declare
                   Flags : Declaration_Flags := (others => False);
-                  Owner : constant Symbol_Id := Ancestor_Symbol (N.Id);
+                  function Enclosing_Instantiation_Symbol return Symbol_Id is
+                     Best : Symbol_Id := No_Symbol;
+                     Best_Span : Natural := Natural'Last;
+
+                     function Span_Contains
+                       (Outer : Editor.Ada_Language_Model.Source_Range;
+                        Inner : Editor.Ada_Syntax_Tree.Source_Range) return Boolean is
+                     begin
+                        return
+                          (Outer.Start_Line < Inner.Start_Line
+                           or else (Outer.Start_Line = Inner.Start_Line
+                                    and then Outer.Start_Column <= Inner.Start_Column))
+                          and then
+                          (Outer.End_Line > Inner.End_Line
+                           or else (Outer.End_Line = Inner.End_Line
+                                    and then Outer.End_Column >= Inner.End_Column));
+                     end Span_Contains;
+                  begin
+                     for Index in 1 .. Symbol_Count (Analysis) loop
+                        declare
+                           S : constant Symbol_Info := Symbol_At (Analysis, Index);
+                           Span_Size : constant Natural :=
+                             (S.Source_Span.End_Line - S.Source_Span.Start_Line) * 1000
+                             + S.Source_Span.End_Column;
+                        begin
+                           if S.Kind = Symbol_Instantiation
+                             and then Span_Contains (S.Source_Span, N.Source_Span)
+                             and then Span_Size < Best_Span
+                           then
+                              Best := S.Id;
+                              Best_Span := Span_Size;
+                           end if;
+                        end;
+                     end loop;
+                     if Best = No_Symbol then
+                        for Index in 1 .. Symbol_Count (Analysis) loop
+                           declare
+                              S : constant Symbol_Info := Symbol_At (Analysis, Index);
+                           begin
+                              if S.Kind = Symbol_Instantiation
+                                and then S.Source_Span.Start_Line = N.Source_Span.Start_Line
+                              then
+                                 return S.Id;
+                              end if;
+                           end;
+                        end loop;
+                     end if;
+                     return Best;
+                  end Enclosing_Instantiation_Symbol;
+
+                  Owner : constant Symbol_Id :=
+                    (if Enclosing_Instantiation_Symbol /= No_Symbol
+                     then Enclosing_Instantiation_Symbol
+                     else Ancestor_Symbol (N.Id));
+                  Label : constant String := Trim (To_String (N.Label));
+
+                  procedure Add_Positional_Actuals_From_Label is
+                     First : Natural := Label'First;
+                     Depth : Natural := 0;
+
+                     procedure Add_Segment (Last : Natural) is
+                        Actual : constant String := Trim (Label (First .. Last));
+                     begin
+                        if Actual /= "" then
+                           Add_Generic_Actual
+                             (Analysis,
+                              Instance_Symbol => Owner,
+                              Formal_Name     => "",
+                              Actual_Name     => Actual,
+                              Position        => Generic_Actual_Count (Analysis, Owner) + 1,
+                              Source_Span     => To_Model_Range (N.Source_Span));
+                        end if;
+                     end Add_Segment;
+                  begin
+                     if Owner = No_Symbol
+                       or else Label = ""
+                       or else Has_Child_Kind (N.Id, Node_Generic_Actual_Association)
+                     then
+                        return;
+                     end if;
+
+                     for I in Label'Range loop
+                        if Label (I) = '(' then
+                           Depth := Depth + 1;
+                        elsif Label (I) = ')' and then Depth > 0 then
+                           Depth := Depth - 1;
+                        elsif Label (I) = ',' and then Depth = 0 then
+                           if I > First then
+                              Add_Segment (I - 1);
+                           end if;
+                           First := I + 1;
+                        end if;
+                     end loop;
+
+                     if First <= Label'Last then
+                        Add_Segment (Label'Last);
+                     end if;
+                  end Add_Positional_Actuals_From_Label;
                begin
                   Flags.Has_Generic_Actual_Part_Metadata := True;
                   if Owner /= No_Symbol then
                      Merge_Symbol_Flags (Analysis, Owner, Flags);
+                     Add_Positional_Actuals_From_Label;
                   end if;
                end;
             elsif N.Kind = Node_Generic_Actual_Association then
                declare
-                  Owner : constant Symbol_Id := Ancestor_Symbol (N.Id);
+                  function Instantiation_On_Line return Symbol_Id is
+                  begin
+                     for Index in 1 .. Symbol_Count (Analysis) loop
+                        declare
+                           S : constant Symbol_Info := Symbol_At (Analysis, Index);
+                        begin
+                           if S.Kind = Symbol_Instantiation
+                             and then S.Source_Span.Start_Line = N.Source_Span.Start_Line
+                           then
+                              return S.Id;
+                           end if;
+                        end;
+                     end loop;
+                     return No_Symbol;
+                  end Instantiation_On_Line;
+
+                  Ancestor : constant Symbol_Id := Ancestor_Symbol (N.Id);
+                  Line_Instance : constant Symbol_Id := Instantiation_On_Line;
+                  Owner : constant Symbol_Id :=
+                    (if Ancestor /= No_Symbol
+                       and then Symbol (Analysis, Ancestor).Kind = Symbol_Instantiation
+                     then Ancestor
+                     elsif Line_Instance /= No_Symbol then Line_Instance
+                     else Ancestor);
                   Formal : constant String := First_Child_Label (N.Id, Node_Generic_Actual_Formal);
-                  Actual : constant String := First_Child_Label (N.Id, Node_Generic_Actual_Value);
+                  Child_Actual : constant String :=
+                    First_Child_Label (N.Id, Node_Generic_Actual_Value);
+                  Actual : constant String :=
+                    (if Child_Actual /= "" then Child_Actual else Trim (To_String (N.Label)));
                begin
                   if Owner /= No_Symbol and then Actual /= "" then
                      Add_Generic_Actual
@@ -22718,6 +23519,30 @@ package body Editor.Ada_Declaration_Parser is
          Base_Column : Positive)
       is
          I : Natural := Expr'First;
+
+         function Has_Top_Level_Arrow (Args : String) return Boolean is
+            Depth : Natural := 0;
+            P     : Natural := Args'First;
+         begin
+            while P <= Args'Last loop
+               if Args (P) = '(' then
+                  Depth := Depth + 1;
+               elsif Args (P) = ')' then
+                  if Depth > 0 then
+                     Depth := Depth - 1;
+                  end if;
+               elsif Depth = 0
+                 and then P < Args'Last
+                 and then Args (P) = '='
+                 and then Args (P + 1) = '>'
+               then
+                  return True;
+               end if;
+               P := P + 1;
+            end loop;
+
+            return False;
+         end Has_Top_Level_Arrow;
       begin
          --  Pass 762: retain syntax/model hints for call-shaped ambiguity.
          --  These hints are intentionally resolver-facing metadata only: they
@@ -22754,6 +23579,7 @@ package body Editor.Ada_Declaration_Parser is
                         Candidate : constant String := Expr (Start .. Stop - 1);
                         Leaf      : constant String := Last_Selected_Part (Candidate);
                         Prefix_Last : Natural := 0;
+                        Close     : constant Natural := Call_Right_Paren (Expr, Next);
                      begin
                         if Leaf'Length /= 0
                           and then not Is_Executable_Scan_Keyword (Leaf)
@@ -22815,6 +23641,12 @@ package body Editor.Ada_Declaration_Parser is
                                  Base_Column + Start - Expr'First);
                            elsif Is_Indexable_Target
                                    (Candidate, Line, Base_Column + Start - Expr'First)
+                             or else
+                               (not Has_Dot
+                                and then Close /= 0
+                                and then Next + 1 <= Close - 1
+                                and then not Has_Top_Level_Arrow
+                                  (Expr (Next + 1 .. Close - 1)))
                            then
                               Add_Binding
                                 (Binding_Call_Indexed_Prefix,
@@ -25844,6 +26676,14 @@ package body Editor.Ada_Declaration_Parser is
       function Is_Convention_Identifier (Text : String) return Boolean is
          T : constant String := Trim (Text);
       begin
+         if T'Length > 0 and then T (T'Last) = ';' then
+            if T'Last = T'First then
+               return False;
+            else
+               return Is_Convention_Identifier (T (T'First .. T'Last - 1));
+            end if;
+         end if;
+
          if T = "" then
             return False;
          end if;
@@ -25883,6 +26723,15 @@ package body Editor.Ada_Declaration_Parser is
       function Is_Known_Convention_Identifier (Text : String) return Boolean is
          T : constant String := Lower (Trim (Text));
       begin
+         if T'Length > 0 and then T (T'Last) = ';' then
+            if T'Last = T'First then
+               return False;
+            else
+               return Is_Known_Convention_Identifier
+                 (T (T'First .. T'Last - 1));
+            end if;
+         end if;
+
          --  RM-defined convention identifiers plus common interfacing
          --  conventions used by mainstream Ada implementations.  Unknown
          --  conventions are reported as bounded-model legality diagnostics
@@ -25905,7 +26754,6 @@ package body Editor.Ada_Declaration_Parser is
          T : constant String := Trim (Text);
          L : constant String := Lower (T);
          Seen_Digit : Boolean := False;
-         Seen_Dot   : Boolean := False;
          I          : Natural := T'First;
 
          function Looks_Static_Numeric_Name (Name : String) return Boolean is
@@ -25937,10 +26785,6 @@ package body Editor.Ada_Declaration_Parser is
                   end if;
                   I := I + 1;
                when '.' =>
-                  if Seen_Dot then
-                     return False;
-                  end if;
-                  Seen_Dot := True;
                   I := I + 1;
                when '+' | '-' =>
                   I := I + 1;
@@ -27215,7 +28059,6 @@ package body Editor.Ada_Declaration_Parser is
                   if Completion.Id /= Target.Id
                     and then Same_Text (Completion.Normalized_Name, Target.Normalized_Name)
                     and then Completion.Kind in Symbol_Type | Symbol_Record_Type
-                    and then not Completion.Flags.Is_Private
                     and then Line_Before (Clause.Source_Span, Completion.Source_Span)
                   then
                      Add_Legality_Diagnostic
@@ -27477,6 +28320,11 @@ package body Editor.Ada_Declaration_Parser is
                   Applies := Current.Parent_Symbol /= No_Symbol;
                   Family_Name (1 .. 16) := "record component";
                   Family_Len := 16;
+               when Symbol_Object =>
+                  Duplicate_Kind := Legality_Duplicate_Record_Component_Name;
+                  Applies := Current.Parent_Symbol /= No_Symbol;
+                  Family_Name (1 .. 16) := "record component";
+                  Family_Len := 16;
                when Symbol_Discriminant =>
                   Duplicate_Kind := Legality_Duplicate_Discriminant_Name;
                   Applies := Current.Parent_Symbol /= No_Symbol;
@@ -27507,6 +28355,9 @@ package body Editor.Ada_Declaration_Parser is
                        (case Current.Kind is
                           when Symbol_Record_Component =>
                              Previous.Kind = Symbol_Record_Component
+                             and then Previous.Parent_Symbol = Current.Parent_Symbol,
+                          when Symbol_Object =>
+                             Previous.Kind = Symbol_Object
                              and then Previous.Parent_Symbol = Current.Parent_Symbol,
                           when Symbol_Discriminant =>
                              Previous.Kind = Symbol_Discriminant
@@ -28549,7 +29400,7 @@ package body Editor.Ada_Declaration_Parser is
                        (Analysis,
                         Legality_Convention_Identifier_Unknown,
                         "Convention representation attribute uses an unknown convention identifier",
-                        Legality_Warning,
+                        Legality_Error,
                         Current.Target_Symbol,
                         No_Symbol,
                         Current.Source_Span);
@@ -29625,7 +30476,7 @@ package body Editor.Ada_Declaration_Parser is
       end if;
 
       if Editor.Ada_Syntax_Tree.Has_Nodes (Syntax_Tree_Value) then
-         Project_Syntax_Tree_Into_Model (Analysis, Syntax_Tree_Value);
+         Project_Syntax_Tree_Into_Model (Analysis, Syntax_Tree_Value, Text);
       end if;
       Add_Executable_Bindings_From_Text (Analysis, Text);
       Add_Legality_Diagnostics (Analysis);

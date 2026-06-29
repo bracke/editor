@@ -6,12 +6,25 @@ with Ada.Strings.Unbounded; use Ada.Strings.Unbounded;
 with Ada.Text_IO;
 with Editor.Recent_Projects;
 with Editor.Buffer_Switcher;
+with Editor.Input_Bridge;
+with Editor.Keybindings;
+with Editor.Project;
 with Editor.State;
 
 package body Editor.Recent_Projects.Tests is
 
    use type Editor.Recent_Projects.Recent_Project_Status;
    use type Ada.Directories.File_Kind;
+
+   function Key
+     (Code : Editor.Keybindings.Key_Code) return Editor.Keybindings.Key_Chord
+   is
+   begin
+      return
+        (Key       => Code,
+         Modifiers => (Ctrl => False, Shift => False,
+                       Alt => False, Meta => False));
+   end Key;
 
    function Name
      (T : Recent_Projects_Test_Case) return AUnit.Message_String
@@ -23,8 +36,9 @@ package body Editor.Recent_Projects.Tests is
 
    function Temp_Path (Name : String) return String is
    begin
+      Ada.Directories.Create_Path ("/tmp/editor-tests");
       return Ada.Directories.Compose
-        (Ada.Directories.Current_Directory, "phase92_" & Name);
+        ("/tmp/editor-tests", "phase92_" & Name);
    end Temp_Path;
 
    procedure Remove_If_Exists (Path : String) is
@@ -477,6 +491,72 @@ package body Editor.Recent_Projects.Tests is
               "row label must not project Outline state");
    end Test_Phase559_Row_Label_Is_Lightweight_Projection;
 
+   procedure Test_Focused_Recent_Projects_Keyboard_Routes_Through_Input_Bridge
+     (T : in out AUnit.Test_Cases.Test_Case'Class)
+   is
+      pragma Unreferenced (T);
+      Root_A : constant String := Temp_Path ("recent_keyboard_a");
+      Root_B : constant String := Temp_Path ("recent_keyboard_b");
+      S      : Editor.State.State_Type;
+      After  : Editor.State.State_Type;
+   begin
+      Remove_If_Exists (Root_A);
+      Remove_If_Exists (Root_B);
+      Ada.Directories.Create_Path (Root_A);
+      Ada.Directories.Create_Path (Root_B);
+
+      Editor.Recent_Projects.Add_Or_Promote
+        (S.Recent_Projects, Root_A, "recent-a", 1);
+      Editor.Recent_Projects.Add_Or_Promote
+        (S.Recent_Projects, Root_B, "recent-b", 2);
+      S.Recent_Projects_Focused := True;
+      S.Recent_Project_Selected_Index := 1;
+      Editor.Input_Bridge.Set_State_For_Test (S);
+
+      Editor.Input_Bridge.Handle_Key_Chord
+        (Key (Editor.Keybindings.Key_Down));
+      After := Editor.Input_Bridge.Get_State_For_Test;
+      Assert (After.Recent_Project_Selected_Index = 2,
+              "Down selects next focused recent project through Input_Bridge");
+
+      Editor.Input_Bridge.Handle_Key_Chord
+        (Key (Editor.Keybindings.Key_Up));
+      After := Editor.Input_Bridge.Get_State_For_Test;
+      Assert (After.Recent_Project_Selected_Index = 1,
+              "Up selects previous focused recent project through Input_Bridge");
+
+      Editor.Input_Bridge.Handle_Key_Chord
+        (Key (Editor.Keybindings.Key_Enter));
+      After := Editor.Input_Bridge.Get_State_For_Test;
+      Assert (Editor.Project.Has_Project (After.Project),
+              "Enter opens the selected recent project through Input_Bridge");
+
+      After.Recent_Projects_Focused := True;
+      After.Recent_Project_Selected_Index := 1;
+      Editor.Input_Bridge.Set_State_For_Test (After);
+      Editor.Input_Bridge.Handle_Key_Chord
+        (Key (Editor.Keybindings.Key_Delete));
+      After := Editor.Input_Bridge.Get_State_For_Test;
+      Assert (Editor.Recent_Projects.Count (After.Recent_Projects) = 1,
+              "Delete removes the selected focused recent project");
+
+      After.Recent_Projects_Focused := True;
+      Editor.Input_Bridge.Set_State_For_Test (After);
+      Editor.Input_Bridge.Handle_Key_Chord
+        (Key (Editor.Keybindings.Key_Escape));
+      After := Editor.Input_Bridge.Get_State_For_Test;
+      Assert (not After.Recent_Projects_Focused,
+              "Escape returns focused recent projects to editor text");
+
+      Remove_If_Exists (Root_A);
+      Remove_If_Exists (Root_B);
+   exception
+      when others =>
+         Remove_If_Exists (Root_A);
+         Remove_If_Exists (Root_B);
+         raise;
+   end Test_Focused_Recent_Projects_Keyboard_Routes_Through_Input_Bridge;
+
    procedure Register_Tests
      (T : in out Recent_Projects_Test_Case)
    is
@@ -506,6 +586,9 @@ package body Editor.Recent_Projects.Tests is
                         "Phase 559 unsupported project reference is dropped");
       Register_Routine (T, Test_Phase559_Row_Label_Is_Lightweight_Projection'Access,
                         "Phase 559 row label is lightweight projection");
+      Register_Routine
+        (T, Test_Focused_Recent_Projects_Keyboard_Routes_Through_Input_Bridge'Access,
+         "focused recent projects keyboard routes through Input_Bridge");
    end Register_Tests;
 
 end Editor.Recent_Projects.Tests;

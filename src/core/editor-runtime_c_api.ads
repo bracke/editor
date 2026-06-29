@@ -1,4 +1,5 @@
 with Interfaces.C;
+with Interfaces.C.Strings;
 with System;
 
 package Editor.Runtime_C_API is
@@ -67,6 +68,10 @@ package Editor.Runtime_C_API is
 
    procedure Editor_Init;
    pragma Export (C, Editor_Init, "editor_init");
+
+   procedure Editor_Open_Project_Path
+     (Path : Interfaces.C.Strings.chars_ptr);
+   pragma Export (C, Editor_Open_Project_Path, "editor_open_project_path");
 
    procedure Editor_Handle_Platform_Event (Ev : Platform_Event);
    pragma Export (C, Editor_Handle_Platform_Event, "editor_handle_platform_event");

@@ -3,8 +3,10 @@ with Editor.Bridge;
 with Editor.View;
 with Editor.Render_Packet;
 with Interfaces.C;
+with Interfaces.C.Strings;
 
 package body Editor.C_API is
+   use type Interfaces.C.Strings.chars_ptr;
 
    Should_Quit : Boolean := False;
    Have_Last_Tick_Time : Boolean := False;
@@ -18,6 +20,18 @@ package body Editor.C_API is
       Have_Last_Tick_Time := False;
       Last_Tick_Time := 0.0;
    end Editor_Init;
+
+   procedure Editor_Open_Project_Path
+     (Path : Interfaces.C.Strings.chars_ptr)
+   is
+   begin
+      if Path = Interfaces.C.Strings.Null_Ptr then
+         return;
+      end if;
+
+      Editor.Input_Bridge.Open_Project_Path
+        (Interfaces.C.Strings.Value (Path));
+   end Editor_Open_Project_Path;
 
    procedure Editor_Handle_Platform_Event
      (Ev : Editor.Bridge.Platform_Event) is

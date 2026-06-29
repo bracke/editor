@@ -52,6 +52,7 @@ package Editor_Tool_Common is
    function Output_Contains
      (Result : Captured_Command_Output;
       Needle : String) return Boolean;
+   function AUnit_Output_Passed (Result : Captured_Command_Output) return Boolean;
    function Read_Text_Bounded
      (Path      : String;
       Max_Bytes : Positive := Default_Max_Captured_Output;

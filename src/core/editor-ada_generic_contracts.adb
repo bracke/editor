@@ -243,6 +243,34 @@ package body Editor.Ada_Generic_Contracts is
      (Tree : Editor.Ada_Syntax_Tree.Tree_Type;
       Node : Editor.Ada_Syntax_Tree.Node_Id) return String
    is
+      function Convention_From_Label (Label : String) return String is
+         Lower : constant String := Normalize (Label);
+         Marker : constant String := "convention =>";
+         Pos : constant Natural := Ada.Strings.Fixed.Index (Lower, Marker);
+         First : Natural;
+         Last  : Natural;
+      begin
+         if Pos = 0 then
+            return "";
+         end if;
+         First := Pos + Marker'Length;
+         while First <= Lower'Last and then Lower (First) = ' ' loop
+            First := First + 1;
+         end loop;
+         if First > Lower'Last then
+            return "";
+         end if;
+         Last := First;
+         while Last <= Lower'Last
+           and then Lower (Last) /= ','
+           and then Lower (Last) /= ';'
+           and then Lower (Last) /= ' '
+         loop
+            Last := Last + 1;
+         end loop;
+         return Trim (Lower (First .. Last - 1));
+      end Convention_From_Label;
+
       function Find_In_Subtree
         (Current : Editor.Ada_Syntax_Tree.Node_Id) return String
       is
@@ -287,7 +315,16 @@ package body Editor.Ada_Generic_Contracts is
       if Node = Editor.Ada_Syntax_Tree.No_Node then
          return "";
       end if;
-      return Find_In_Subtree (Node);
+      declare
+         Found : constant String := Find_In_Subtree (Node);
+      begin
+         if Found /= "" then
+            return Found;
+         else
+            return Convention_From_Label
+              (To_String (Editor.Ada_Syntax_Tree.Node (Tree, Node).Label));
+         end if;
+      end;
    end Explicit_Convention_For_Declaration;
 
    function Convention_For_Declaration
@@ -886,6 +923,30 @@ package body Editor.Ada_Generic_Contracts is
       return Trim (T (Pos + 2 .. Last));
    end Default_Text_From_Label;
 
+   function Result_Subtype_From_Label (Text : String) return String is
+      T : constant String := Trim (Text);
+      N : constant String := Normalize (T);
+      R : constant Natural := Ada.Strings.Fixed.Index (N, " return ");
+      Last : Natural := T'Last;
+   begin
+      if R = 0 then
+         return "";
+      end if;
+      for I in R + 8 .. T'Last loop
+         if T (I) = ';' then
+            Last := I - 1;
+            exit;
+         elsif I + 3 <= T'Last and then Normalize (T (I .. I + 3)) = " is " then
+            Last := I - 1;
+            exit;
+         end if;
+      end loop;
+      if R + 8 > Last then
+         return "";
+      end if;
+      return Normalize (T (R + 8 .. Last));
+   end Result_Subtype_From_Label;
+
 
    function Delimited_Text_At
      (List  : String;
@@ -1138,6 +1199,8 @@ package body Editor.Ada_Generic_Contracts is
    is
       Profile : constant String :=
         Child_Label (Tree, Node, Editor.Ada_Syntax_Tree.Node_Declaration_Profile);
+      Mode_Text : constant String :=
+        Normalize (Child_Label (Tree, Node, Editor.Ada_Syntax_Tree.Node_Declaration_Mode));
       Result_Text : constant String :=
         Trim (Child_Label (Tree, Node, Editor.Ada_Syntax_Tree.Node_Declaration_Result));
       Segment_First : Natural := Profile'First;
@@ -1193,7 +1256,11 @@ package body Editor.Ada_Generic_Contracts is
       Result := To_Unbounded_String (Normalize (Result_Text));
       Malformed := False;
 
-      if Profile /= "" then
+      if Profile /= ""
+        and then not
+          (Mode_Text = "expression function"
+           and then Ada.Strings.Fixed.Index (Profile, ":") = 0)
+      then
          for I in Profile'Range loop
             if Profile (I) = ';' then
                if I > Segment_First then
@@ -1521,6 +1588,37 @@ package body Editor.Ada_Generic_Contracts is
       Expected_Type : Editor.Ada_Type_Graph.Type_Id;
       Actual_Type   : Editor.Ada_Type_Graph.Type_Id;
 
+      function Builtin_Root (Name : String) return String is
+         N : constant String := Normalize (Name);
+      begin
+         if N = "integer" or else N = "natural" or else N = "positive" then
+            return "integer";
+         elsif N = "float" or else N = "long_float" or else N = "short_float" then
+            return "float";
+         elsif N = "string" then
+            return "string";
+         else
+            return "";
+         end if;
+      end Builtin_Root;
+
+      function Type_Info_For_Id
+        (Id : Editor.Ada_Type_Graph.Type_Id) return Editor.Ada_Type_Graph.Type_Info
+      is
+      begin
+         for Index in 1 .. Editor.Ada_Type_Graph.Type_Count (Types) loop
+            declare
+               Info : constant Editor.Ada_Type_Graph.Type_Info :=
+                 Editor.Ada_Type_Graph.Type_At (Types, Index);
+            begin
+               if Info.Id = Id then
+                  return Info;
+               end if;
+            end;
+         end loop;
+         return Editor.Ada_Type_Graph.Type_At (Types, 1);
+      end Type_Info_For_Id;
+
       function Has_Class (Text : String) return Boolean is
          Lower : constant String := Ada.Characters.Handling.To_Lower (Normalize (Text));
       begin
@@ -1550,6 +1648,25 @@ package body Editor.Ada_Generic_Contracts is
 
       Expected_Type := Type_Id_For_Profile_Subtype (Types, Formal_Region, Strip_Class (Expected));
       Actual_Type := Type_Id_For_Profile_Subtype (Types, Actual_Region, Strip_Class (Actual));
+      if Expected_Type = Editor.Ada_Type_Graph.No_Type
+        and then Actual_Type /= Editor.Ada_Type_Graph.No_Type
+      then
+         declare
+            Actual_Info : constant Editor.Ada_Type_Graph.Type_Info :=
+              Type_Info_For_Id (Actual_Type);
+         begin
+            if To_String (Actual_Info.Normalized_Base) = Strip_Class (Expected) then
+               return Profile_Type_Conformance_Compatible;
+            end if;
+         end;
+      elsif Expected_Type = Editor.Ada_Type_Graph.No_Type
+        and then Actual_Type = Editor.Ada_Type_Graph.No_Type
+        and then Builtin_Root (Expected) /= ""
+        and then Builtin_Root (Actual) /= ""
+        and then Builtin_Root (Expected) /= Builtin_Root (Actual)
+      then
+         return Profile_Type_Conformance_Mismatch;
+      end if;
       if Expected_Type = Editor.Ada_Type_Graph.No_Type
         or else Actual_Type = Editor.Ada_Type_Graph.No_Type
       then
@@ -1590,6 +1707,7 @@ package body Editor.Ada_Generic_Contracts is
       Check_Type_Graph : Boolean;
       Formal     : Generic_Formal_Info;
       Decl       : Editor.Ada_Direct_Visibility.Declaration_Info;
+      Ignore_Names : Boolean;
       Type_Status : out Profile_Type_Conformance_Status;
       Result_Status : out Profile_Type_Conformance_Status) return Boolean
    is
@@ -1625,7 +1743,8 @@ package body Editor.Ada_Generic_Contracts is
 
       if Actual_Parameters /= Formal.Formal_Parameter_Count
         or else To_String (Actual_Modes) /= To_String (Formal.Formal_Parameter_Modes)
-        or else To_String (Actual_Names) /= To_String (Formal.Formal_Parameter_Names)
+        or else (not Ignore_Names
+                 and then To_String (Actual_Names) /= To_String (Formal.Formal_Parameter_Names))
         or else not Parameter_Defaults_Conform
           (To_String (Formal.Formal_Parameter_Defaults), To_String (Actual_Defaults))
         or else Actual_Has_Result /= Formal.Formal_Has_Result
@@ -2149,7 +2268,7 @@ package body Editor.Ada_Generic_Contracts is
                         begin
                            if Profile_Matches_Formal
                              (Model, Instance, Tree, Types, Check_Type_Graph,
-                              Formal, Decl, Type_Status, Result_Status)
+                              Formal, Decl, True, Type_Status, Result_Status)
                            then
                               Info.Compatible_Count := Info.Compatible_Count + 1;
                               if Type_Status = Profile_Type_Conformance_Compatible then
@@ -2160,6 +2279,12 @@ package body Editor.Ada_Generic_Contracts is
                               end if;
                               if Info.Selected = Editor.Ada_Direct_Visibility.No_Declaration then
                                  Info.Selected := Decl.Id;
+                              end if;
+                              if Profile_Name_Mismatch_Formal
+                                (Model, Instance, Tree, Formal, Decl)
+                              then
+                                 Info.Name_Mismatch_Count :=
+                                   Info.Name_Mismatch_Count + 1;
                               end if;
                            elsif Type_Status = Profile_Type_Conformance_Mismatch then
                               Info.Type_Mismatch_Count := Info.Type_Mismatch_Count + 1;
@@ -2255,6 +2380,11 @@ package body Editor.Ada_Generic_Contracts is
                   Info.Status := Subprogram_Profile_Result_Mismatch;
                elsif Info.Compatible_Count = 0 then
                   Info.Status := Subprogram_Profile_No_Profile_Match;
+               elsif Info.Compatible_Count = 1
+                 and then Info.Name_Mismatch_Count /= 0
+               then
+                  Info.Status := Subprogram_Profile_Name_Mismatch;
+                  Info.Selected := Editor.Ada_Direct_Visibility.No_Declaration;
                elsif Info.Compatible_Count = 1 then
                   Info.Status := Subprogram_Profile_Selected;
                else
@@ -2375,8 +2505,13 @@ package body Editor.Ada_Generic_Contracts is
       Info.Has_Default := Default /= "" or else Contains (Label, ":=")
         or else Contains (Ada.Characters.Handling.To_Lower (Label), " is <>")
         or else Contains (Ada.Characters.Handling.To_Lower (Label), " is null")
-        or else Contains (Ada.Characters.Handling.To_Lower (Label), " is abstract");
-      Info.Default_Text := To_Unbounded_String (Effective_Default);
+        or else Contains (Ada.Characters.Handling.To_Lower (Label), " is abstract")
+        or else (Kind = Generic_Formal_Package and then Formal_Package_Has_Box_Actuals (Label));
+      Info.Default_Text :=
+        To_Unbounded_String
+          (if Effective_Default /= "" then Effective_Default
+           elsif Kind = Generic_Formal_Package and then Formal_Package_Has_Box_Actuals (Label) then "<>"
+           else "");
       if Kind = Generic_Formal_Subprogram then
          Analyze_Subprogram_Profile
            (Tree, Node.Id, Param_Count, Param_Subtypes, Param_Modes, Param_Names, Param_Defaults, Has_Result,
@@ -2388,6 +2523,16 @@ package body Editor.Ada_Generic_Contracts is
          Info.Formal_Parameter_Defaults := Param_Defaults;
          Info.Formal_Subprogram_Convention :=
            To_Unbounded_String (Convention_For_Declaration (Tree, Node.Id));
+         if Has_Result = False then
+            declare
+               Label_Result : constant String := Result_Subtype_From_Label (Label);
+            begin
+               if Label_Result /= "" then
+                  Has_Result := True;
+                  Result_Subtype := To_Unbounded_String (Label_Result);
+               end if;
+            end;
+         end if;
          Info.Formal_Has_Result := Has_Result;
          Info.Formal_Result_Subtype := Result_Subtype;
       elsif Kind = Generic_Formal_Package then
@@ -2557,7 +2702,7 @@ package body Editor.Ada_Generic_Contracts is
    is
       Id       : constant Generic_Actual_Match_Id :=
         Generic_Actual_Match_Id (Natural (Model.Actual_Matches.Length) + 1);
-      Lookup   : constant Editor.Ada_Direct_Visibility.Lookup_Result :=
+      Lookup   : Editor.Ada_Direct_Visibility.Lookup_Result :=
         Editor.Ada_Direct_Visibility.Lookup_Visible
           (Visibility, Regions, Instance.Region, To_String (Instance.Normalized_Generic));
       Info     : Generic_Actual_Match_Info := Empty_Actual_Match;
@@ -2565,6 +2710,68 @@ package body Editor.Ada_Generic_Contracts is
       Formal_Region : Editor.Ada_Declarative_Regions.Region_Id :=
         Editor.Ada_Declarative_Regions.No_Region;
       Formal_Names : Unbounded_String := Null_Unbounded_String;
+
+      function Generic_Declaration_For_Package
+        (Package_Name : String) return Editor.Ada_Direct_Visibility.Declaration_Id
+      is
+         Wanted : constant String := Normalize (Package_Name);
+         Package_Region : Editor.Ada_Declarative_Regions.Region_Id :=
+           Editor.Ada_Declarative_Regions.No_Region;
+         Found : Editor.Ada_Direct_Visibility.Declaration_Id :=
+           Editor.Ada_Direct_Visibility.No_Declaration;
+      begin
+         for I in 1 .. Editor.Ada_Direct_Visibility.Declaration_Count (Visibility) loop
+            declare
+               D : constant Editor.Ada_Direct_Visibility.Declaration_Info :=
+                 Editor.Ada_Direct_Visibility.Declaration_At (Visibility, I);
+            begin
+               if D.Kind = Editor.Ada_Direct_Visibility.Declaration_Package
+                 and then To_String (D.Normalized) = Wanted
+               then
+                  if Package_Region /= Editor.Ada_Declarative_Regions.No_Region then
+                     return Editor.Ada_Direct_Visibility.No_Declaration;
+                  end if;
+                  Package_Region := D.Region;
+               end if;
+            end;
+         end loop;
+
+         if Package_Region = Editor.Ada_Declarative_Regions.No_Region then
+            return Editor.Ada_Direct_Visibility.No_Declaration;
+         end if;
+
+         for I in 1 .. Editor.Ada_Direct_Visibility.Declaration_Count (Visibility) loop
+            declare
+               D : constant Editor.Ada_Direct_Visibility.Declaration_Info :=
+                 Editor.Ada_Direct_Visibility.Declaration_At (Visibility, I);
+            begin
+               if D.Kind = Editor.Ada_Direct_Visibility.Declaration_Generic
+                 and then Editor.Ada_Declarative_Regions.Region_For_Node (Regions, D.Node) = Package_Region
+               then
+                  if Found /= Editor.Ada_Direct_Visibility.No_Declaration then
+                     return Editor.Ada_Direct_Visibility.No_Declaration;
+                  end if;
+                  Found := D.Id;
+               end if;
+            end;
+         end loop;
+         if Found = Editor.Ada_Direct_Visibility.No_Declaration then
+            for I in 1 .. Editor.Ada_Direct_Visibility.Declaration_Count (Visibility) loop
+               declare
+                  D : constant Editor.Ada_Direct_Visibility.Declaration_Info :=
+                    Editor.Ada_Direct_Visibility.Declaration_At (Visibility, I);
+               begin
+                  if D.Kind = Editor.Ada_Direct_Visibility.Declaration_Generic then
+                     if Found /= Editor.Ada_Direct_Visibility.No_Declaration then
+                        return Editor.Ada_Direct_Visibility.No_Declaration;
+                     end if;
+                     Found := D.Id;
+                  end if;
+               end;
+            end loop;
+         end if;
+         return Found;
+      end Generic_Declaration_For_Package;
    begin
       Info.Id := Id;
       Info.Instance := Instance.Id;
@@ -2578,7 +2785,27 @@ package body Editor.Ada_Generic_Contracts is
       if Instance.Status /= Generic_Instance_Record_Valid then
          Info.Status := Generic_Actual_Match_Instance_Malformed;
       elsif Lookup.Status = Editor.Ada_Direct_Visibility.Lookup_Not_Found then
-         Info.Status := Generic_Actual_Match_Generic_Not_Found;
+         declare
+            Fallback : constant Editor.Ada_Direct_Visibility.Declaration_Id :=
+              Generic_Declaration_For_Package (To_String (Instance.Normalized_Generic));
+         begin
+            if Fallback = Editor.Ada_Direct_Visibility.No_Declaration then
+               Info.Status := Generic_Actual_Match_Generic_Not_Found;
+            else
+               Lookup :=
+                 (Status => Editor.Ada_Direct_Visibility.Lookup_Found,
+                  Declaration => Fallback,
+                  Region => Instance.Region,
+                  Match_Count => 1);
+               Info.Status := Generic_Actual_Match_Valid;
+            end if;
+         end;
+      end if;
+
+      if Info.Status = Generic_Actual_Match_Instance_Malformed
+        or else Info.Status = Generic_Actual_Match_Generic_Not_Found
+      then
+         null;
       elsif Lookup.Status = Editor.Ada_Direct_Visibility.Lookup_Ambiguous then
          Info.Status := Generic_Actual_Match_Generic_Ambiguous;
       else
@@ -2703,12 +2930,6 @@ package body Editor.Ada_Generic_Contracts is
                                        Info.Subprogram_Profile_Overload_Candidates :=
                                          Info.Subprogram_Profile_Overload_Candidates
                                          + Selection.Candidate_Count;
-                                       Info.Subprogram_Profile_Null_Exclusion_Mismatched_Formals :=
-                                         Info.Subprogram_Profile_Null_Exclusion_Mismatched_Formals
-                                         + Selection.Null_Exclusion_Mismatch_Count;
-                                       Info.Subprogram_Profile_Access_Profile_Mismatched_Formals :=
-                                         Info.Subprogram_Profile_Access_Profile_Mismatched_Formals
-                                         + Selection.Access_Profile_Mismatch_Count;
                                        Info.Subprogram_Profile_Type_Compatible_Formals :=
                                          Info.Subprogram_Profile_Type_Compatible_Formals
                                          + Selection.Type_Compatible_Count;
@@ -2792,7 +3013,7 @@ package body Editor.Ada_Generic_Contracts is
                                  end if;
 
                                  if Formal_Info.Kind = Generic_Formal_Package
-                                   and then Kind_Result = Generic_Formal_Actual_Kind_Matches
+                                   and then Kind_Result /= Generic_Formal_Actual_Kind_Mismatch
                                  then
                                     Package_Result := Check_Formal_Package_Contract
                                       (Tree, Visibility, Regions, Instance.Region,
@@ -2868,7 +3089,9 @@ package body Editor.Ada_Generic_Contracts is
                      Info.Status := Generic_Actual_Match_Formal_Subprogram_Class_Wide_Mismatch;
                   elsif Info.Subprogram_Profile_Name_Mismatched_Formals /= 0 then
                      Info.Status := Generic_Actual_Match_Formal_Subprogram_Name_Mismatch;
-                  elsif Info.Subprogram_Profile_Result_Mismatched_Formals /= 0 then
+                  elsif Check_Type_Graph
+                    and then Info.Subprogram_Profile_Result_Mismatched_Formals /= 0
+                  then
                      Info.Status := Generic_Actual_Match_Formal_Subprogram_Result_Mismatch;
                   elsif Info.Subprogram_Profile_Mismatched_Formals /= 0 then
                      Info.Status := Generic_Actual_Match_Formal_Subprogram_Profile_Mismatch;
@@ -2982,6 +3205,84 @@ package body Editor.Ada_Generic_Contracts is
         (Visibility, Editor.Ada_Direct_Visibility.No_Declaration);
    end Body_Declaration_For_Generic;
 
+   function Body_Node_For_Generic
+     (Tree : Editor.Ada_Syntax_Tree.Tree_Type;
+      Name : String) return Editor.Ada_Syntax_Tree.Node_Id
+   is
+      N : constant String := Normalize (Name);
+
+      function Body_Name (Label : String) return String is
+         Lower : constant String := Normalize (Label);
+         Prefix : constant String := "package body ";
+         Subp_Body : constant String := " body ";
+         Start : Natural := 0;
+         Last  : Natural;
+      begin
+         if Ada.Strings.Fixed.Index (Lower, Prefix) = Lower'First then
+            Start := Lower'First + Prefix'Length;
+         else
+            declare
+               Pos : constant Natural := Ada.Strings.Fixed.Index (Lower, Subp_Body);
+            begin
+               if Pos /= 0 then
+                  Start := Pos + Subp_Body'Length;
+               end if;
+            end;
+         end if;
+
+         if Start = 0 or else Start > Lower'Last then
+            return "";
+         end if;
+
+         Last := Ada.Strings.Fixed.Index (Lower (Start .. Lower'Last), " is");
+         if Last /= 0 then
+            Last := Last - 1;
+         else
+            Last := Lower'Last;
+         end if;
+         return Trim (Lower (Start .. Last));
+      end Body_Name;
+   begin
+      for Index in 1 .. Editor.Ada_Syntax_Tree.Node_Count (Tree) loop
+         declare
+            Node : constant Editor.Ada_Syntax_Tree.Node_Info :=
+              Editor.Ada_Syntax_Tree.Node_At (Tree, Index);
+         begin
+            if (Node.Kind = Editor.Ada_Syntax_Tree.Node_Package_Body
+                or else Node.Kind = Editor.Ada_Syntax_Tree.Node_Subprogram_Body)
+              and then Body_Name (To_String (Node.Label)) = N
+            then
+               return Node.Id;
+            end if;
+         end;
+      end loop;
+      return Editor.Ada_Syntax_Tree.No_Node;
+   end Body_Node_For_Generic;
+
+   function Contract_Declaration_For_Generic
+     (Visibility    : Editor.Ada_Direct_Visibility.Visibility_Model;
+      Formal_Region : Editor.Ada_Declarative_Regions.Region_Id)
+      return Editor.Ada_Direct_Visibility.Declaration_Info
+   is
+   begin
+      for Index in 1 .. Editor.Ada_Direct_Visibility.Declaration_Count (Visibility) loop
+         declare
+            Candidate : constant Editor.Ada_Direct_Visibility.Declaration_Info :=
+              Editor.Ada_Direct_Visibility.Declaration_At (Visibility, Index);
+         begin
+            if Candidate.Region = Formal_Region
+              and then
+                (Candidate.Kind = Editor.Ada_Direct_Visibility.Declaration_Package
+                 or else Candidate.Kind = Editor.Ada_Direct_Visibility.Declaration_Subprogram)
+            then
+               return Candidate;
+            end if;
+         end;
+      end loop;
+      return Editor.Ada_Direct_Visibility.Declaration
+        (Visibility, Editor.Ada_Direct_Visibility.No_Declaration);
+   end Contract_Declaration_For_Generic;
+
    procedure Add_Body_Contract_Visibility
      (Model      : in out Generic_Contract_Model;
       Tree       : Editor.Ada_Syntax_Tree.Tree_Type;
@@ -2996,16 +3297,35 @@ package body Editor.Ada_Generic_Contracts is
         Editor.Ada_Syntax_Tree.Node (Tree, Generic_Decl.Node);
       Formal_Region : constant Editor.Ada_Declarative_Regions.Region_Id :=
         Editor.Ada_Declarative_Regions.Region_For_Node (Regions, Generic_Decl.Node);
+      Contract_Decl : Editor.Ada_Direct_Visibility.Declaration_Info :=
+        Contract_Declaration_For_Generic (Visibility, Formal_Region);
       Body_Decl : constant Editor.Ada_Direct_Visibility.Declaration_Info :=
-        Body_Declaration_For_Generic (Tree, Visibility, To_String (Generic_Decl.Normalized));
+        Body_Declaration_For_Generic
+          (Tree, Visibility,
+           (if Contract_Decl.Id /= Editor.Ada_Direct_Visibility.No_Declaration
+            then To_String (Contract_Decl.Normalized)
+            else To_String (Generic_Decl.Normalized)));
+      Body_Node : constant Editor.Ada_Syntax_Tree.Node_Id :=
+        (if Body_Decl.Id /= Editor.Ada_Direct_Visibility.No_Declaration
+         then Body_Decl.Node
+         else Body_Node_For_Generic
+           (Tree,
+            (if Contract_Decl.Id /= Editor.Ada_Direct_Visibility.No_Declaration
+             then To_String (Contract_Decl.Normalized)
+             else To_String (Generic_Decl.Normalized))));
       Info : Generic_Body_Contract_Visibility_Info := Empty_Body_Contract_Visibility;
    begin
       Info.Id := Id;
       Info.Generic_Declaration := Generic_Decl.Id;
       Info.Generic_Node := Generic_Decl.Node;
       Info.Generic_Formal_Region := Formal_Region;
-      Info.Name := Generic_Decl.Name;
-      Info.Normalized_Name := Generic_Decl.Normalized;
+      if Contract_Decl.Id /= Editor.Ada_Direct_Visibility.No_Declaration then
+         Info.Name := Contract_Decl.Name;
+         Info.Normalized_Name := Contract_Decl.Normalized;
+      else
+         Info.Name := Generic_Decl.Name;
+         Info.Normalized_Name := Generic_Decl.Normalized;
+      end if;
       Info.Start_Line := Generic_Decl.Start_Line;
       Info.End_Line := Generic_Decl.End_Line;
 
@@ -3018,14 +3338,14 @@ package body Editor.Ada_Generic_Contracts is
             end if;
          end loop;
 
-         if Body_Decl.Id = Editor.Ada_Direct_Visibility.No_Declaration then
+         if Body_Node = Editor.Ada_Syntax_Tree.No_Node then
             Info.Status := Generic_Body_Contract_Body_Not_Found;
          else
             Info.Body_Declaration := Body_Decl.Id;
-            Info.Body_Node := Body_Decl.Node;
+            Info.Body_Node := Body_Node;
             Info.Body_Region := Editor.Ada_Declarative_Regions.Region_For_Node
-              (Regions, Body_Decl.Node);
-            Info.End_Line := Body_Decl.End_Line;
+              (Regions, Body_Node);
+            Info.End_Line := Editor.Ada_Syntax_Tree.Node (Tree, Body_Node).Source_Span.End_Line;
             for Formal_Info of Model.Formals loop
                if Formal_Info.Region = Formal_Region then
                   if Direct_Body_Shadow

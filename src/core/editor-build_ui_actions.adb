@@ -98,6 +98,7 @@ package body Editor.Build_UI_Actions is
       Count : constant Natural := Natural (S.Build_UI.Build_Candidates.Length);
       Selected : constant String := To_String (S.Build_UI.Selected_Build_Candidate_Id);
       Next_Index : Natural := 0;
+      Found_Next : Boolean := False;
    begin
       if Count = 0 then
          return;
@@ -111,9 +112,10 @@ package body Editor.Build_UI_Actions is
             else
                Next_Index := I + 1;
             end if;
+            Found_Next := True;
          end if;
       end loop;
-      if Next_Index = 0 then
+      if not Found_Next then
          Next_Index := S.Build_UI.Build_Candidates.First_Index;
       end if;
       Editor.Build_UI.Select_Build_Candidate
@@ -127,6 +129,7 @@ package body Editor.Build_UI_Actions is
       Count : constant Natural := Natural (S.Build_UI.Build_Candidates.Length);
       Selected : constant String := To_String (S.Build_UI.Selected_Build_Candidate_Id);
       Previous_Index : Natural := 0;
+      Found_Previous : Boolean := False;
    begin
       if Count = 0 then
          return;
@@ -140,9 +143,10 @@ package body Editor.Build_UI_Actions is
             else
                Previous_Index := I - 1;
             end if;
+            Found_Previous := True;
          end if;
       end loop;
-      if Previous_Index = 0 then
+      if not Found_Previous then
          Previous_Index := S.Build_UI.Build_Candidates.Last_Index;
       end if;
       Editor.Build_UI.Select_Build_Candidate

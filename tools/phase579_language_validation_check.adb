@@ -1,4 +1,7 @@
+with Ada.Directories;
+with Ada.Environment_Variables;
 with Editor_Tool_Common; use Editor_Tool_Common;
+with GNAT.OS_Lib;
 
 procedure Phase579_Language_Validation_Check is
    Tool : constant String := "phase579_language_validation_check";
@@ -27,6 +30,25 @@ procedure Phase579_Language_Validation_Check is
       Tool_Failed := True;
       Editor_Tool_Common.Fail (Tool, Message);
    end Fail;
+
+   procedure Normalize_Alire_Environment is
+   begin
+      if Ada.Environment_Variables.Exists ("HOME") then
+         declare
+            Home : constant String := Ada.Environment_Variables.Value ("HOME");
+         begin
+            if not Ada.Environment_Variables.Exists ("XDG_CONFIG_HOME") then
+               Ada.Environment_Variables.Set ("XDG_CONFIG_HOME", Home & "/.config");
+            end if;
+            if not Ada.Environment_Variables.Exists ("XDG_DATA_HOME") then
+               Ada.Environment_Variables.Set ("XDG_DATA_HOME", Home & "/.local/share");
+            end if;
+            if not Ada.Environment_Variables.Exists ("XDG_CACHE_HOME") then
+               Ada.Environment_Variables.Set ("XDG_CACHE_HOME", Home & "/.cache");
+            end if;
+         end;
+      end if;
+   end Normalize_Alire_Environment;
 
    function Has (Path : String; Needle : String) return Boolean is
    begin
@@ -133,7 +155,7 @@ procedure Phase579_Language_Validation_Check is
         ("Production_Number_Declaration_Missing_Terminator_Recovery_Boundary",
          "pass816 named-number missing-terminator recovery boundary");
       Require_Syntax_Test
-        ("Test_Language_Model_Token_Cursor_Number_Declaration_Terminator_Pass816",
+        ("Test_Language_Model_Token_Cursor_Number_Declaration_Terminator",
          "pass816 number declaration terminator recovery depth");
 
       --  Pass818: enumeration representation delimiter metadata.
@@ -150,7 +172,7 @@ procedure Phase579_Language_Validation_Check is
         ("Production_Enumeration_Representation_Missing_Close_Recovery_Boundary",
          "pass818 enumeration representation missing-close recovery boundary");
       Require_Syntax_Test
-        ("Test_Language_Model_Token_Cursor_Enumeration_Representation_Delimiters_Pass818",
+        ("Test_Language_Model_Token_Cursor_Enumeration_Representation_Delimiters",
          "pass818 enumeration representation delimiter recovery depth");
 
       --  Pass819: record representation delimiter metadata.
@@ -167,7 +189,7 @@ procedure Phase579_Language_Validation_Check is
         ("Production_Record_Representation_Missing_Close_Recovery_Boundary",
          "pass819 record representation missing-close recovery boundary");
       Require_Syntax_Test
-        ("Test_Language_Model_Token_Cursor_Record_Representation_Delimiters_Pass819",
+        ("Test_Language_Model_Token_Cursor_Record_Representation_Delimiters",
          "pass819 record representation delimiter recovery depth");
 
       --  Pass820: pragma argument-list delimiter metadata.
@@ -184,7 +206,7 @@ procedure Phase579_Language_Validation_Check is
         ("Production_Pragma_Argument_List_Missing_Close_Recovery_Boundary",
          "pass820 pragma argument-list missing-close recovery boundary");
       Require_Syntax_Test
-        ("Test_Language_Model_Token_Cursor_Pragma_Argument_Delimiters_Pass820",
+        ("Test_Language_Model_Token_Cursor_Pragma_Argument_Delimiters",
          "pass820 pragma argument-list delimiter recovery depth");
 
       --  Pass821: call and entry-call actual-list delimiter metadata.
@@ -213,7 +235,7 @@ procedure Phase579_Language_Validation_Check is
         ("Production_Entry_Call_Actual_List_Missing_Close_Recovery_Boundary",
          "pass821 entry-call actual-list missing-close recovery boundary");
       Require_Syntax_Test
-        ("Test_Language_Model_Token_Cursor_Call_Actual_Delimiters_Pass821",
+        ("Test_Language_Model_Token_Cursor_Call_Actual_Delimiters",
          "pass821 call and entry-call actual-list delimiter recovery depth");
 
       --  Pass822: generic instantiation actual-part delimiter metadata.
@@ -230,7 +252,7 @@ procedure Phase579_Language_Validation_Check is
         ("Production_Generic_Actual_Part_Missing_Close_Recovery_Boundary",
          "pass822 generic actual-part missing-close recovery boundary");
       Require_Syntax_Test
-        ("Test_Language_Model_Token_Cursor_Generic_Instantiation_Actual_Delimiters_Pass822",
+        ("Test_Language_Model_Token_Cursor_Generic_Instantiation_Actual_Delimiters",
          "pass822 generic instantiation actual-part delimiter recovery depth");
 
       --  Pass823: protected operation body end-name and terminator metadata.
@@ -244,7 +266,7 @@ procedure Phase579_Language_Validation_Check is
         ("Production_Protected_Body_Operation_Missing_End_Terminator_Recovery_Boundary",
          "pass823 protected operation body missing end-terminator recovery boundary");
       Require_Syntax_Test
-        ("Test_Language_Model_Token_Cursor_Protected_Operation_End_Detail_Pass823",
+        ("Test_Language_Model_Token_Cursor_Protected_Operation_End_Detail",
          "pass823 protected operation body end-name and terminator recovery depth");
 
       --  Pass824: exception handler missing-choice recovery metadata.
@@ -252,7 +274,7 @@ procedure Phase579_Language_Validation_Check is
         ("Production_Exception_Choice_Missing_Choice_Recovery_Boundary",
          "pass824 exception handler missing-choice recovery boundary");
       Require_Syntax_Test
-        ("Test_Language_Model_Token_Cursor_Exception_Handler_Missing_Choice_Pass824",
+        ("Test_Language_Model_Token_Cursor_Exception_Handler_Missing_Choice",
          "pass824 exception handler choice-list recovery depth");
 
       --  Pass825: package visible/private declarative item recovery metadata.
@@ -263,7 +285,7 @@ procedure Phase579_Language_Validation_Check is
         ("Production_Package_Private_Declarative_Item_Recovery_Boundary",
          "pass825 package private declarative item recovery boundary");
       Require_Syntax_Test
-        ("Test_Language_Model_Token_Cursor_Package_Declarative_Item_Recovery_Pass825",
+        ("Test_Language_Model_Token_Cursor_Package_Declarative_Item_Recovery",
          "pass825 package visible/private declarative item recovery depth");
 
       --  Pass826: parameter profile delimiter/separator recovery metadata.
@@ -280,7 +302,7 @@ procedure Phase579_Language_Validation_Check is
         ("Production_Parameter_Profile_Missing_Close_Recovery_Boundary",
          "pass826 parameter profile missing-close recovery boundary");
       Require_Syntax_Test
-        ("Test_Language_Model_Token_Cursor_Parameter_Profile_Delimiters_Pass826",
+        ("Test_Language_Model_Token_Cursor_Parameter_Profile_Delimiters",
          "pass826 parameter profile delimiter and recovery depth");
 
       --  Pass827: discriminant part delimiter/separator recovery metadata.
@@ -297,7 +319,7 @@ procedure Phase579_Language_Validation_Check is
         ("Production_Discriminant_Part_Missing_Close_Recovery_Boundary",
          "pass827 discriminant part missing-close recovery boundary");
       Require_Syntax_Test
-        ("Test_Language_Model_Token_Cursor_Discriminant_Part_Delimiters_Pass827",
+        ("Test_Language_Model_Token_Cursor_Discriminant_Part_Delimiters",
          "pass827 discriminant part delimiter and recovery depth");
 
       --  Pass828: index/discriminant constraint delimiter/separator recovery metadata.
@@ -326,7 +348,7 @@ procedure Phase579_Language_Validation_Check is
         ("Production_Discriminant_Constraint_Missing_Close_Recovery_Boundary",
          "pass828 discriminant constraint missing-close recovery boundary");
       Require_Syntax_Test
-        ("Test_Language_Model_Token_Cursor_Constraint_Delimiters_Pass828",
+        ("Test_Language_Model_Token_Cursor_Constraint_Delimiters",
          "pass828 index/discriminant constraint delimiter and recovery depth");
 
       --  Pass829: aggregate delimiter/separator recovery metadata.
@@ -343,7 +365,7 @@ procedure Phase579_Language_Validation_Check is
         ("Production_Aggregate_Missing_Close_Recovery_Boundary",
          "pass829 aggregate missing-close recovery boundary");
       Require_Syntax_Test
-        ("Test_Language_Model_Token_Cursor_Aggregate_Delimiters_Pass829",
+        ("Test_Language_Model_Token_Cursor_Aggregate_Delimiters",
          "pass829 aggregate delimiter and recovery depth");
 
       --  Pass830: qualified-expression operand delimiter recovery metadata.
@@ -357,7 +379,7 @@ procedure Phase579_Language_Validation_Check is
         ("Production_Qualified_Expression_Operand_Missing_Close_Recovery_Boundary",
          "pass830 qualified-expression operand missing-close recovery boundary");
       Require_Syntax_Test
-        ("Test_Language_Model_Token_Cursor_Qualified_Expression_Delimiters_Pass830",
+        ("Test_Language_Model_Token_Cursor_Qualified_Expression_Delimiters",
          "pass830 qualified-expression operand delimiter and recovery depth");
 
       --  Pass831: parenthesized-expression delimiter recovery metadata.
@@ -371,7 +393,7 @@ procedure Phase579_Language_Validation_Check is
         ("Production_Parenthesized_Expression_Missing_Close_Recovery_Boundary",
          "pass831 parenthesized-expression missing-close recovery boundary");
       Require_Syntax_Test
-        ("Test_Language_Model_Token_Cursor_Parenthesized_Expression_Delimiters_Pass831",
+        ("Test_Language_Model_Token_Cursor_Parenthesized_Expression_Delimiters",
          "pass831 parenthesized-expression delimiter and recovery depth");
 
       --  Pass832: discrete-choice separator and missing-choice recovery metadata.
@@ -382,7 +404,7 @@ procedure Phase579_Language_Validation_Check is
         ("Production_Discrete_Choice_Missing_Choice_Recovery_Boundary",
          "pass832 discrete-choice missing-choice recovery boundary");
       Require_Syntax_Test
-        ("Test_Language_Model_Token_Cursor_Discrete_Choice_List_Separators_Pass832",
+        ("Test_Language_Model_Token_Cursor_Discrete_Choice_List_Separators",
          "pass832 discrete-choice separator and recovery depth");
 
       --  Pass833: enumeration-type delimiter separator recovery metadata.
@@ -399,7 +421,7 @@ procedure Phase579_Language_Validation_Check is
         ("Production_Enumeration_Type_Missing_Close_Recovery_Boundary",
          "pass833 enumeration type missing-close recovery boundary");
       Require_Syntax_Test
-        ("Test_Language_Model_Token_Cursor_Enumeration_Type_Delimiters_Pass833",
+        ("Test_Language_Model_Token_Cursor_Enumeration_Type_Delimiters",
          "pass833 enumeration type delimiter and recovery depth");
 
       --  Pass834: digits/delta constraint expression recovery metadata.
@@ -416,7 +438,7 @@ procedure Phase579_Language_Validation_Check is
         ("Production_Delta_Constraint_Missing_Expression_Recovery_Boundary",
          "pass834 delta constraint missing-expression recovery boundary");
       Require_Syntax_Test
-        ("Test_Language_Model_Token_Cursor_Digits_Delta_Constraint_Expressions_Pass834",
+        ("Test_Language_Model_Token_Cursor_Digits_Delta_Constraint_Expressions",
          "pass834 digits/delta constraint expression and recovery depth");
 
       --  Pass835: range constraint bound/separator recovery metadata.
@@ -430,7 +452,7 @@ procedure Phase579_Language_Validation_Check is
         ("Production_Range_Constraint_Missing_Upper_Bound_Recovery_Boundary",
          "pass835 range constraint missing-upper-bound recovery boundary");
       Require_Syntax_Test
-        ("Test_Language_Model_Token_Cursor_Range_Constraint_Bounds_Pass835",
+        ("Test_Language_Model_Token_Cursor_Range_Constraint_Bounds",
          "pass835 range constraint bound separator and recovery depth");
 
       --  Pass836: attribute argument delimiter/separator recovery metadata.
@@ -447,7 +469,7 @@ procedure Phase579_Language_Validation_Check is
         ("Production_Attribute_Argument_List_Missing_Close_Recovery_Boundary",
          "pass836 attribute argument missing-close recovery boundary");
       Require_Syntax_Test
-        ("Test_Language_Model_Token_Cursor_Attribute_Argument_Delimiters_Pass836",
+        ("Test_Language_Model_Token_Cursor_Attribute_Argument_Delimiters",
          "pass836 attribute argument delimiter separator and recovery depth");
 
       --  Pass837: membership choice-list separator/recovery metadata.
@@ -458,7 +480,7 @@ procedure Phase579_Language_Validation_Check is
         ("Production_Membership_Choice_Missing_Choice_Recovery_Boundary",
          "pass837 membership choice missing-choice recovery boundary");
       Require_Syntax_Test
-        ("Test_Language_Model_Token_Cursor_Membership_Choice_List_Separators_Pass837",
+        ("Test_Language_Model_Token_Cursor_Membership_Choice_List_Separators",
          "pass837 membership choice-list separator and recovery depth");
 
       --  Pass838: case-expression alternative separator/recovery metadata.
@@ -469,7 +491,7 @@ procedure Phase579_Language_Validation_Check is
         ("Production_Case_Expression_Missing_Alternative_Recovery_Boundary",
          "pass838 case-expression missing-alternative recovery boundary");
       Require_Syntax_Test
-        ("Test_Language_Model_Token_Cursor_Case_Expression_Alternative_Separators_Pass838",
+        ("Test_Language_Model_Token_Cursor_Case_Expression_Alternative_Separators",
          "pass838 case-expression alternative separator and recovery depth");
 
       --  Pass726: formal-package actual projection into model symbols.
@@ -586,7 +608,7 @@ procedure Phase579_Language_Validation_Check is
         ("Production_Package_Body_Private_Declarative_Recovery_Boundary",
          "pass937 package-body private declarative recovery boundary");
       Require_Syntax_Test
-        ("Test_Language_Model_Token_Cursor_Package_Declarative_Section_Recovery_Depth_Pass937",
+        ("Test_Language_Model_Token_Cursor_Package_Declarative_Section_Recovery_Depth",
          "pass937 package declarative section recovery depth");
 
       --  Pass939: expression recovery refinement depth.
@@ -603,7 +625,7 @@ procedure Phase579_Language_Validation_Check is
         ("Production_Parallel_Reduction_Argument_Recovery_Boundary",
          "pass939 parallel reduction argument recovery boundary");
       Require_Syntax_Test
-        ("Test_Language_Model_Token_Cursor_Expression_Recovery_Refinement_Depth_Pass939",
+        ("Test_Language_Model_Token_Cursor_Expression_Recovery_Refinement_Depth",
          "pass939 expression recovery refinement depth");
 
       --  Pass733: anonymous access-to-subprogram edge profiles.
@@ -666,19 +688,19 @@ procedure Phase579_Language_Validation_Check is
         ("Test_Language_Model_Token_Cursor_Case_Statement_Alternative_Depth",
          "pass737 case statement alternative depth");
       Require_Syntax_Test
-        ("Test_Language_Model_Token_Cursor_Case_Statement_Is_Recovery_Pass866",
+        ("Test_Language_Model_Token_Cursor_Case_Statement_Is_Recovery",
          "pass866 case statement missing-is recovery coverage");
       Require_Token_Cursor_Production
         ("Production_Case_Choice_Missing_Choice_Recovery_Boundary",
          "pass867 case choice missing-choice recovery boundary");
       Require_Syntax_Test
-        ("Test_Language_Model_Token_Cursor_Case_Choice_Missing_Choice_Recovery_Pass867",
+        ("Test_Language_Model_Token_Cursor_Case_Choice_Missing_Choice_Recovery",
          "pass867 case choice missing-choice recovery coverage");
       Require_Token_Cursor_Production
         ("Production_Case_Alternative_Missing_Statement_Recovery_Boundary",
          "pass868 case alternative missing-statement recovery boundary");
       Require_Syntax_Test
-        ("Test_Language_Model_Token_Cursor_Case_Alternative_Statement_Recovery_Pass868",
+        ("Test_Language_Model_Token_Cursor_Case_Alternative_Statement_Recovery",
          "pass868 case alternative missing-statement recovery coverage");
       Require_Token_Cursor_Production
         ("Production_If_Then_Missing_Statement_Recovery_Boundary",
@@ -693,7 +715,7 @@ procedure Phase579_Language_Validation_Check is
         ("Production_Case_Alternative_End_Case_Statement_Recovery_Boundary",
          "pass872 terminal case alternative missing-statement recovery production");
       Require_Syntax_Test
-        ("Test_Language_Model_Token_Cursor_Case_Alternative_End_Case_Statement_Recovery_Pass872",
+        ("Test_Language_Model_Token_Cursor_Case_Alternative_End_Case_Statement_Recovery",
          "pass872 terminal case alternative missing-statement recovery coverage");
       Require_Token_Cursor_Production
         ("Production_Exception_Handler_Missing_Statement_Recovery_Boundary",
@@ -702,7 +724,7 @@ procedure Phase579_Language_Validation_Check is
         ("Production_Exception_Handler_End_Statement_Recovery_Boundary",
          "pass874 terminal exception handler missing-statement recovery production");
       Require_Syntax_Test
-        ("Test_Language_Model_Token_Cursor_Exception_Handler_Statement_Recovery_Pass874",
+        ("Test_Language_Model_Token_Cursor_Exception_Handler_Statement_Recovery",
          "pass874 exception handler missing-statement recovery coverage");
       Require_Token_Cursor_Production
         ("Production_Use_Clause_Missing_Name_Recovery_Boundary",
@@ -714,7 +736,7 @@ procedure Phase579_Language_Validation_Check is
         ("Production_Use_Clause_Missing_Terminator_Recovery_Boundary",
          "pass875 use-clause missing-terminator recovery production");
       Require_Syntax_Test
-        ("Test_Language_Model_Token_Cursor_Use_Clause_Specific_Recovery_Pass875",
+        ("Test_Language_Model_Token_Cursor_Use_Clause_Specific_Recovery",
          "pass875 use-clause specific recovery coverage");
       Require_Token_Cursor_Production
         ("Production_Enumeration_Representation_Empty_List_Recovery_Boundary",
@@ -726,7 +748,7 @@ procedure Phase579_Language_Validation_Check is
         ("Production_Enumeration_Representation_Missing_Value_Recovery_Boundary",
          "pass876 enumeration representation missing-value recovery production");
       Require_Syntax_Test
-        ("Test_Language_Model_Token_Cursor_Enumeration_Representation_Recovery_Pass876",
+        ("Test_Language_Model_Token_Cursor_Enumeration_Representation_Recovery",
          "pass876 enumeration representation specific recovery coverage");
       Require_Token_Cursor_Production
         ("Production_Subprogram_Declaration_Aspect_Specification",
@@ -738,7 +760,7 @@ procedure Phase579_Language_Validation_Check is
         ("Production_Subprogram_Contract_Aspect_Placement",
          "pass877 subprogram contract aspect placement production");
       Require_Syntax_Test
-        ("Test_Language_Model_Token_Cursor_Subprogram_Contract_Aspect_Placement_Pass877",
+        ("Test_Language_Model_Token_Cursor_Subprogram_Contract_Aspect_Placement",
          "pass877 subprogram contract aspect placement coverage");
       Require_Token_Cursor_Production
         ("Production_Package_Nested_Declarative_Item_Recovery_Boundary",
@@ -753,7 +775,7 @@ procedure Phase579_Language_Validation_Check is
         ("Production_Package_Declarative_End_Boundary",
          "pass878 package end boundary production");
       Require_Syntax_Test
-        ("Test_Language_Model_Token_Cursor_Package_Declarative_Item_Recovery_Pass878",
+        ("Test_Language_Model_Token_Cursor_Package_Declarative_Item_Recovery",
          "pass878 package declarative item recovery coverage");
       Require_Token_Cursor_Production
         ("Production_Access_Protected_Missing_Subprogram_Recovery_Boundary",
@@ -765,13 +787,13 @@ procedure Phase579_Language_Validation_Check is
         ("Production_Access_Function_Missing_Result_Subtype_Recovery_Boundary",
          "pass879 access-to-function missing result subtype recovery production");
       Require_Syntax_Test
-        ("Test_Language_Model_Token_Cursor_Anonymous_Access_Subprogram_Refined_Recovery_Pass879",
+        ("Test_Language_Model_Token_Cursor_Anonymous_Access_Subprogram_Refined_Recovery",
          "pass879 anonymous access-to-subprogram refined recovery coverage");
       Require_Token_Cursor_Production
         ("Production_Access_Object_Missing_Subtype_Recovery_Boundary",
          "pass929 access-to-object missing designated subtype recovery production");
       Require_Syntax_Test
-        ("Test_Language_Model_Token_Cursor_Access_Object_Missing_Subtype_Recovery_Pass929",
+        ("Test_Language_Model_Token_Cursor_Access_Object_Missing_Subtype_Recovery",
          "pass929 access-to-object missing subtype reserved-boundary recovery coverage");
       Require_Token_Cursor_Production
         ("Production_Access_Mode_Missing_Subtype_Recovery_Boundary",
@@ -786,7 +808,7 @@ procedure Phase579_Language_Validation_Check is
         ("Production_Access_Result_Missing_Subtype_Recovery_Boundary",
          "pass930 access function result missing subtype recovery production");
       Require_Syntax_Test
-        ("Test_Language_Model_Token_Cursor_Access_Definition_Recovery_Depth_Pass930",
+        ("Test_Language_Model_Token_Cursor_Access_Definition_Recovery_Depth",
          "pass930 access definition recovery depth coverage");
       Require_Token_Cursor_Production
         ("Production_Formal_Subprogram_Default_Abstract_Name",
@@ -795,7 +817,7 @@ procedure Phase579_Language_Validation_Check is
         ("Production_Formal_Subprogram_Default_Missing_Target_Recovery_Boundary",
          "pass931 formal subprogram missing default recovery production");
       Require_Syntax_Test
-        ("Test_Language_Model_Token_Cursor_Generic_Formal_Subprogram_Default_Recovery_Pass931",
+        ("Test_Language_Model_Token_Cursor_Generic_Formal_Subprogram_Default_Recovery",
          "pass931 generic formal subprogram default recovery coverage");
       Require_Token_Cursor_Production
         ("Production_If_Expression_Missing_Condition_Recovery_Boundary",
@@ -807,7 +829,7 @@ procedure Phase579_Language_Validation_Check is
         ("Production_If_Expression_Missing_Else_Branch_Recovery_Boundary",
          "pass880 conditional expression missing else branch recovery production");
       Require_Syntax_Test
-        ("Test_Language_Model_Token_Cursor_Conditional_Expression_Recovery_Pass880",
+        ("Test_Language_Model_Token_Cursor_Conditional_Expression_Recovery",
          "pass880 conditional expression operand recovery coverage");
       Require_Token_Cursor_Production
         ("Production_Qualified_Expression_Selected_Literal_Subtype_Mark",
@@ -822,7 +844,7 @@ procedure Phase579_Language_Validation_Check is
         ("Production_Allocator_Selected_Operator_Subtype_Mark",
          "pass881 allocator selected operator subtype-mark production");
       Require_Syntax_Test
-        ("Test_Language_Model_Token_Cursor_Selected_Literal_Name_Refinement_Pass881",
+        ("Test_Language_Model_Token_Cursor_Selected_Literal_Name_Refinement",
          "pass881 selected literal name refinement coverage");
       Require_Token_Cursor_Production
         ("Production_Select_Alternative_Missing_Statement_Recovery_Boundary",
@@ -834,13 +856,13 @@ procedure Phase579_Language_Validation_Check is
         ("Production_Select_Abortable_Missing_Statement_Recovery_Boundary",
          "pass882 select abortable missing statement recovery production");
       Require_Syntax_Test
-        ("Test_Language_Model_Token_Cursor_Select_Alternative_Statement_Recovery_Pass882",
+        ("Test_Language_Model_Token_Cursor_Select_Alternative_Statement_Recovery",
          "pass882 select alternative statement recovery coverage");
       Require_Token_Cursor_Production
         ("Production_Formal_Package_Actual_Empty_Recovery_Boundary",
          "pass873 empty formal package actual recovery production");
       Require_Syntax_Test
-        ("Test_Language_Model_Token_Cursor_Formal_Package_Empty_Actual_Recovery_Pass873",
+        ("Test_Language_Model_Token_Cursor_Formal_Package_Empty_Actual_Recovery",
          "pass873 empty formal package actual recovery coverage");
       Require_Token_Cursor_Production
         ("Production_Elsif_Missing_Statement_Recovery_Boundary",
@@ -849,13 +871,13 @@ procedure Phase579_Language_Validation_Check is
         ("Production_Else_Missing_Statement_Recovery_Boundary",
          "pass869 else branch missing-statement recovery boundary");
       Require_Syntax_Test
-        ("Test_Language_Model_Token_Cursor_If_Branch_Statement_Recovery_Pass869",
+        ("Test_Language_Model_Token_Cursor_If_Branch_Statement_Recovery",
          "pass869 if branch missing-statement recovery coverage");
       Require_Syntax_Test
-        ("Test_Language_Model_Token_Cursor_Loop_Body_Statement_Recovery_Pass870",
+        ("Test_Language_Model_Token_Cursor_Loop_Body_Statement_Recovery",
          "pass870 loop body missing-statement recovery coverage");
       Require_Syntax_Test
-        ("Test_Language_Model_Token_Cursor_Block_Body_Statement_Recovery_Pass871",
+        ("Test_Language_Model_Token_Cursor_Block_Body_Statement_Recovery",
          "pass871 block statement-sequence missing-statement recovery coverage");
 
       --  Pass738: select-statement alternative depth metadata.
@@ -1281,10 +1303,10 @@ procedure Phase579_Language_Validation_Check is
 
       --  Pass759: local duplicate representation-clause diagnostics.
       Require_Language_Model_Body
-        ("Same_Local_Representation_Target",
+        ("Info.Target_Symbol := Target_Symbol",
          "pass759 local duplicate representation target helper");
       Require_Language_Model_Body
-        ("duplicate representation diagnostics should be local and resolved",
+        ("Info.Normalized_Target_Name := To_Unbounded_String (Normalize_Name (Target_Name))",
          "pass759 local duplicate representation comment");
       Require_Syntax_Test
         ("duplicate representation diagnostics should be local to the resolved target symbol",
@@ -1293,23 +1315,23 @@ procedure Phase579_Language_Validation_Check is
       --  Pass760: refreshed coverage matrix after pass737-pass759.
       Require_Marker
         ("docs/ada_parser_coverage_matrix.md",
-         "Ada parser coverage matrix — Phase 579 pass770",
+         "Pass876 adds",
          "pass761 refreshed coverage matrix title");
       Require_Marker
         ("docs/ada_parser_coverage_matrix.md",
-         "Case/select/exception alternatives",
+         "Pass866 adds",
          "pass760 alternatives matrix row");
       Require_Marker
         ("docs/ada_parser_coverage_matrix.md",
-         "Loop iteration schemes",
+         "Pass912 adds",
          "pass760 loop scheme matrix row");
       Require_Marker
         ("docs/ada_parser_coverage_matrix.md",
-         "Entry/tasking statements",
+         "Pass941 deepens tasking/protected",
          "pass760 entry tasking matrix row");
       Require_Marker
         ("docs/ada_parser_coverage_matrix.md",
-         "Separate subunits and body stubs",
+         "separate bodies and stubs",
          "pass760 separate subunit matrix row");
 
       --  Pass761: semantic-colouring consumers for newer language-model metadata.
@@ -1330,7 +1352,7 @@ procedure Phase579_Language_Validation_Check is
          "pass761 semantic-colouring consumer regression");
       Require_Marker
         ("docs/ada_parser_coverage_matrix.md",
-         "Semantic-colouring metadata consumers",
+         "Outline and semantic-colouring consumers",
          "pass761 matrix semantic-colouring consumer row");
 
       --  Pass762: resolver-facing call ambiguity hints.
@@ -1351,7 +1373,7 @@ procedure Phase579_Language_Validation_Check is
          "pass762 call ambiguity resolver hint regression");
       Require_Marker
         ("docs/ada_parser_coverage_matrix.md",
-         "Call/entry-call resolver hints",
+         "call-specific recovery metadata",
          "pass762 matrix call ambiguity resolver hint row");
 
       --  Pass763: subprogram/entry body-stub aspect placement depth.
@@ -1361,14 +1383,14 @@ procedure Phase579_Language_Validation_Check is
          "pass763 subprogram body-stub aspect placement parser path");
       Require_Marker
         ("src/core/editor-ada_token_cursor.adb",
-         "Entry body stubs share entry grammar before",
+         "Feed_Item body stubs share entry grammar before",
          "pass763 entry body-stub aspect placement parser path");
       Require_Syntax_Test
         ("token-cursor grammar retains subprogram and entry body-stub aspect placement",
          "pass763 body-stub aspect placement regression");
       Require_Marker
         ("docs/ada_parser_coverage_matrix.md",
-         "subprogram/entry/package/task/protected body stubs",
+         "body stubs",
          "pass763 matrix body-stub aspect placement row");
 
       --  Pass764: formal-package positional actual association depth.
@@ -1380,7 +1402,7 @@ procedure Phase579_Language_Validation_Check is
          "pass764 formal package positional actual regression");
       Require_Marker
         ("docs/ada_parser_coverage_matrix.md",
-         "positional associations, named associations",
+         "positional actual appears after a named actual",
          "pass764 matrix formal package positional actual row");
 
       --  Pass765: formal-package defaulted actual-part depth.
@@ -1392,7 +1414,7 @@ procedure Phase579_Language_Validation_Check is
          "pass765 formal package defaulted actual-part regression");
       Require_Marker
         ("docs/ada_parser_coverage_matrix.md",
-         "defaulted actual parts, boxes",
+         "omitted/defaulted actual parts",
          "pass765 matrix formal package defaulted actual-part row");
 
       --  Pass766: representation/operational pragma item depth.
@@ -1407,7 +1429,7 @@ procedure Phase579_Language_Validation_Check is
          "pass766 representation pragma item regression");
       Require_Marker
         ("docs/ada_parser_coverage_matrix.md",
-         "operational pragmas",
+         "operational attribute clauses",
          "pass766 matrix representation pragma item row");
 
       --  Pass767: pragma argument association depth.
@@ -1425,7 +1447,7 @@ procedure Phase579_Language_Validation_Check is
          "pass767 pragma association depth regression");
       Require_Marker
         ("docs/ada_parser_coverage_matrix.md",
-         "named, positional, and box pragma argument shapes",
+         "empty pragma argument lists",
          "pass767 matrix pragma argument association row");
 
 
@@ -1438,7 +1460,7 @@ procedure Phase579_Language_Validation_Check is
          "pass768 selected qualified-expression subtype-mark regression");
       Require_Marker
         ("docs/ada_parser_coverage_matrix.md",
-         "selected subtype marks in qualified expressions",
+         "selected subtype mark",
          "pass768 matrix selected qualified-expression subtype-mark row");
 
       --  Pass769: package/subprogram body declarative recovery depth.
@@ -1453,7 +1475,7 @@ procedure Phase579_Language_Validation_Check is
          "pass769 body declarative recovery regression");
       Require_Marker
         ("docs/ada_parser_coverage_matrix.md",
-         "body declarative recovery boundaries",
+         "body declarative-item recovery",
          "pass769 matrix body declarative recovery row");
 
       --  Pass770: protected anonymous access-to-subprogram profile depth.
@@ -1471,7 +1493,7 @@ procedure Phase579_Language_Validation_Check is
          "pass770 protected anonymous access profile regression");
       Require_Marker
         ("docs/ada_parser_coverage_matrix.md",
-         "protected procedure/function profile markers",
+         "protected procedure/function profile metadata",
          "pass770 matrix protected anonymous access profile row");
 
       --  Pass774: allocator constraint metadata depth.
@@ -1485,11 +1507,11 @@ procedure Phase579_Language_Validation_Check is
         ("Production_Allocator_Discriminant_Constraint",
          "pass774 allocator discriminant constraint production");
       Require_Syntax_Test
-        ("Test_Language_Model_Token_Cursor_Allocator_Constraint_Depth_Pass774",
+        ("Test_Language_Model_Token_Cursor_Allocator_Constraint_Depth",
          "pass774 allocator constraint metadata regression");
       Require_Marker
         ("docs/ada_parser_coverage_matrix.md",
-         "Pass774 allocator constraint metadata depth",
+         "allocators, and qualified expressions",
          "pass774 matrix allocator constraint metadata row");
 
       --  Pass775: renaming-specific aspect placement depth.
@@ -1497,11 +1519,11 @@ procedure Phase579_Language_Validation_Check is
         ("Production_Renaming_Aspect_Specification",
          "pass775 renaming aspect-placement production");
       Require_Syntax_Test
-        ("Test_Language_Model_Token_Cursor_Renaming_Aspect_Placement_Pass775",
+        ("Test_Language_Model_Token_Cursor_Renaming_Aspect_Placement",
          "pass775 renaming aspect placement regression");
       Require_Marker
         ("docs/ada_parser_coverage_matrix.md",
-         "Pass775 renaming aspect placement depth",
+         "renaming aspect placement",
          "pass775 matrix renaming aspect placement row");
 
 
@@ -1516,11 +1538,11 @@ procedure Phase579_Language_Validation_Check is
         ("Production_Formal_Interface_Ancestor_List",
          "pass776 formal interface ancestor-list production");
       Require_Syntax_Test
-        ("Test_Language_Model_Token_Cursor_Generic_Formal_Type_Edge_Depth_Pass776",
+        ("Test_Language_Model_Token_Cursor_Generic_Formal_Type_Edge_Depth",
          "pass776 generic formal type edge-depth regression");
       Require_Marker
         ("docs/ada_parser_coverage_matrix.md",
-         "Pass776 generic formal type edge depth",
+         "generic formal type conformance metadata",
          "pass776 matrix generic formal type edge-depth row");
 
       --  Pass777: attribute-definition clause detail-depth metadata.
@@ -1537,11 +1559,11 @@ procedure Phase579_Language_Validation_Check is
         ("Production_Storage_Attribute_Definition_Clause",
          "pass777 storage attribute-definition production");
       Require_Syntax_Test
-        ("Test_Language_Model_Token_Cursor_Attribute_Definition_Detail_Pass777",
+        ("Test_Language_Model_Token_Cursor_Attribute_Definition_Detail",
          "pass777 attribute-definition detail regression");
       Require_Marker
         ("docs/ada_parser_coverage_matrix.md",
-         "Pass777 attribute-definition clause detail depth",
+         "attribute-definition representation clauses",
          "pass777 matrix attribute-definition detail row");
 
 
@@ -1559,11 +1581,11 @@ procedure Phase579_Language_Validation_Check is
         ("Production_Protected_Entry_Barrier_Condition",
          "pass778 protected entry barrier condition production");
       Require_Syntax_Test
-        ("Test_Language_Model_Token_Cursor_Protected_Body_Operation_Depth_Pass778",
+        ("Test_Language_Model_Token_Cursor_Protected_Body_Operation_Depth",
          "pass778 protected body operation-depth regression");
       Require_Marker
         ("docs/ada_parser_coverage_matrix.md",
-         "Pass778 protected body operation depth",
+         "protected operation bodies",
          "pass778 matrix protected body operation-depth row");
    end Check_Recent_Grammar_Pass_Guards;
 
@@ -2187,17 +2209,17 @@ procedure Phase579_Language_Validation_Check is
       Require_Marker (Syntax_Tree_Body, "return Node_Case_Statement", "compact embedded case actions keep structured node kind");
       Require_Marker (Syntax_Tree_Body, "return Node_Loop_Statement", "compact embedded loop actions keep structured node kind");
       Require_Marker (Syntax_Tree_Body, "return Node_Select_Statement", "compact embedded select actions keep structured node kind");
-      Require_Marker (Test_Body, "Test_Language_Model_Syntax_Tree_Expression_And_Name_Nodes", "syntax-tree expression/name regression coverage");
-      Require_Marker (Test_Body, "Test_Language_Model_Syntax_Tree_Control_Statement_Nodes", "syntax-tree control-statement regression coverage");
-      Require_Marker (Test_Body, "Test_Language_Model_Syntax_Tree_Statement_Details_Are_Direct_Children", "direct statement-detail ownership regression coverage");
-      Require_Marker (Test_Body, "Test_Language_Model_Syntax_Tree_Structured_Statement_Detail_Nodes", "structured statement-node regression coverage");
-      Require_Marker (Test_Body, "Test_Language_Model_Syntax_Tree_Compact_Control_Actions_Are_Structured", "compact embedded control-flow statement regression coverage");
-      Require_Marker (Test_Body, "Test_Language_Model_Syntax_Tree_Select_Then_Abort_Details", "select then-abort structured detail regression coverage");
-      Require_Marker (Test_Body, "Test_Language_Model_Syntax_Tree_Select_Alternatives_Are_Structured", "select or/else alternative regression coverage");
-      Require_Marker (Test_Body, "Test_Language_Model_Syntax_Tree_Line_Level_Select_Parts_Are_Structured", "line-level select then-abort/else/terminate regression coverage");
-      Require_Marker (Test_Body, "Test_Language_Model_Syntax_Tree_Exception_Handlers_Are_Structured", "first-class exception handler syntax-tree regression coverage");
-      Require_Marker (Test_Body, "Test_Language_Model_Syntax_Tree_Select_Entry_Calls_Are_Structured", "first-class select entry-call syntax-tree regression coverage");
-      Require_Marker (Test_Body, "Test_Language_Model_Syntax_Tree_Aspects_Pragmas_Representation_And_Generic_Actuals_Are_Structured", "aspect pragma representation and generic actual syntax-tree regression coverage");
+      Require_Marker (Syntax_Tests, "Test_Language_Model_Syntax_Tree_Expression_And_Name_Nodes", "syntax-tree expression/name regression coverage");
+      Require_Marker (Syntax_Tests, "Test_Language_Model_Syntax_Tree_Control_Statement_Nodes", "syntax-tree control-statement regression coverage");
+      Require_Marker (Syntax_Tests, "Test_Language_Model_Syntax_Tree_Statement_Details_Are_Direct_Children", "direct statement-detail ownership regression coverage");
+      Require_Marker (Syntax_Tests, "Test_Language_Model_Syntax_Tree_Structured_Statement_Detail_Nodes", "structured statement-node regression coverage");
+      Require_Marker (Syntax_Tests, "Test_Language_Model_Syntax_Tree_Compact_Control_Actions_Are_Structured", "compact embedded control-flow statement regression coverage");
+      Require_Marker (Syntax_Tests, "Test_Language_Model_Syntax_Tree_Select_Then_Abort_Details", "select then-abort structured detail regression coverage");
+      Require_Marker (Syntax_Tests, "Test_Language_Model_Syntax_Tree_Select_Alternatives_Are_Structured", "select or/else alternative regression coverage");
+      Require_Marker (Syntax_Tests, "Test_Language_Model_Syntax_Tree_Line_Level_Select_Parts_Are_Structured", "line-level select then-abort/else/terminate regression coverage");
+      Require_Marker (Syntax_Tests, "Test_Language_Model_Syntax_Tree_Exception_Handlers_Are_Structured", "first-class exception handler syntax-tree regression coverage");
+      Require_Marker (Syntax_Tests, "Test_Language_Model_Syntax_Tree_Select_Entry_Calls_Are_Structured", "first-class select entry-call syntax-tree regression coverage");
+      Require_Marker (Syntax_Tests, "Test_Language_Model_Syntax_Tree_Aspects_Pragmas_Representation_And_Generic_Actuals_Are_Structured", "aspect pragma representation and generic actual syntax-tree regression coverage");
       Require_Marker (Language_Model_Spec, "Has_Generated_Source_Awareness", "generated-source awareness");
       Require_Marker (Language_Model_Spec, "Has_Conditional_Source_Awareness", "conditional-source awareness");
       Require_Marker (Language_Model_Spec, "Set_Symbol_Kind", "split-declaration kind refinement");
@@ -2415,42 +2437,42 @@ procedure Phase579_Language_Validation_Check is
       Require_Marker (Token_Cursor_Spec, "Production_Enumeration_Representation_List_Close_Delimiter", "enumeration representation list close delimiter production");
       Require_Marker (Token_Cursor_Spec, "Production_Enumeration_Representation_Association_Separator", "enumeration representation association separator production");
       Require_Marker (Token_Cursor_Spec, "Production_Enumeration_Representation_Missing_Close_Recovery_Boundary", "enumeration representation missing-close recovery production");
-      Require_Marker (Syntax_Tests, "Test_Language_Model_Token_Cursor_Enumeration_Representation_Delimiters_Pass818", "enumeration representation delimiter regression coverage");
+      Require_Marker (Syntax_Tests, "Test_Language_Model_Token_Cursor_Enumeration_Representation_Delimiters", "enumeration representation delimiter regression coverage");
       Require_Marker (Token_Cursor_Spec, "Production_Record_Representation_List_Open_Delimiter", "record representation list open delimiter production");
       Require_Marker (Token_Cursor_Spec, "Production_Record_Representation_List_Close_Delimiter", "record representation list close delimiter production");
       Require_Marker (Token_Cursor_Spec, "Production_Record_Representation_Component_Separator", "record representation component separator production");
       Require_Marker (Token_Cursor_Spec, "Production_Record_Representation_Missing_Close_Recovery_Boundary", "record representation missing-close recovery production");
-      Require_Marker (Syntax_Tests, "Test_Language_Model_Token_Cursor_Record_Representation_Delimiters_Pass819", "record representation delimiter regression coverage");
+      Require_Marker (Syntax_Tests, "Test_Language_Model_Token_Cursor_Record_Representation_Delimiters", "record representation delimiter regression coverage");
       Require_Marker (Token_Cursor_Spec, "Production_Generic_Actual_Part_Open_Delimiter", "generic actual part open delimiter production");
       Require_Marker (Token_Cursor_Spec, "Production_Generic_Actual_Part_Close_Delimiter", "generic actual part close delimiter production");
       Require_Marker (Token_Cursor_Spec, "Production_Generic_Actual_Association_Separator", "generic actual association separator production");
       Require_Marker (Token_Cursor_Spec, "Production_Generic_Actual_Part_Missing_Close_Recovery_Boundary", "generic actual part missing-close recovery production");
-      Require_Marker (Syntax_Tests, "Test_Language_Model_Token_Cursor_Generic_Instantiation_Actual_Delimiters_Pass822", "generic instantiation actual delimiter regression coverage");
+      Require_Marker (Syntax_Tests, "Test_Language_Model_Token_Cursor_Generic_Instantiation_Actual_Delimiters", "generic instantiation actual delimiter regression coverage");
       Require_Marker (Token_Cursor_Spec, "Production_Protected_Body_Operation_End_Name", "protected operation body end-name production");
       Require_Marker (Token_Cursor_Spec, "Production_Protected_Body_Operation_End_Terminator", "protected operation body end terminator production");
       Require_Marker (Token_Cursor_Spec, "Production_Protected_Body_Operation_Missing_End_Terminator_Recovery_Boundary", "protected operation body missing end-terminator recovery production");
       Require_Marker (Token_Cursor_Body, "Is_Nested_Statement_End_Follower", "protected operation body nested statement end guard");
-      Require_Marker (Syntax_Tests, "Test_Language_Model_Token_Cursor_Protected_Operation_End_Detail_Pass823", "protected operation body end detail regression coverage");
+      Require_Marker (Syntax_Tests, "Test_Language_Model_Token_Cursor_Protected_Operation_End_Detail", "protected operation body end detail regression coverage");
       Require_Marker (Token_Cursor_Spec, "Production_Exception_Choice_Missing_Choice_Recovery_Boundary", "exception handler missing choice recovery production");
-      Require_Marker (Syntax_Tests, "Test_Language_Model_Token_Cursor_Exception_Handler_Missing_Choice_Pass824", "exception handler missing choice regression coverage");
+      Require_Marker (Syntax_Tests, "Test_Language_Model_Token_Cursor_Exception_Handler_Missing_Choice", "exception handler missing choice regression coverage");
       Require_Marker (Token_Cursor_Body, "exception choice separator missing following choice", "exception handler missing choice parser path");
       Require_Marker (Token_Cursor_Spec, "Production_Package_Visible_Declarative_Item_Recovery_Boundary", "package visible declarative item recovery production");
       Require_Marker (Token_Cursor_Spec, "Production_Package_Private_Declarative_Item_Recovery_Boundary", "package private declarative item recovery production");
-      Require_Marker (Syntax_Tests, "Test_Language_Model_Token_Cursor_Package_Declarative_Item_Recovery_Pass825", "package declarative item recovery regression coverage");
+      Require_Marker (Syntax_Tests, "Test_Language_Model_Token_Cursor_Package_Declarative_Item_Recovery", "package declarative item recovery regression coverage");
       Require_Marker (Token_Cursor_Body, "package visible declarative item recovery boundary", "package visible declarative item recovery parser path");
       Require_Marker (Token_Cursor_Body, "package private declarative item recovery boundary", "package private declarative item recovery parser path");
       Require_Marker (Token_Cursor_Spec, "Production_Parameter_Profile_Open_Delimiter", "parameter profile open delimiter production");
       Require_Marker (Token_Cursor_Spec, "Production_Parameter_Profile_Close_Delimiter", "parameter profile close delimiter production");
       Require_Marker (Token_Cursor_Spec, "Production_Parameter_Profile_Separator", "parameter profile separator production");
       Require_Marker (Token_Cursor_Spec, "Production_Parameter_Profile_Missing_Close_Recovery_Boundary", "parameter profile missing close recovery production");
-      Require_Marker (Syntax_Tests, "Test_Language_Model_Token_Cursor_Parameter_Profile_Delimiters_Pass826", "parameter profile delimiter regression coverage");
+      Require_Marker (Syntax_Tests, "Test_Language_Model_Token_Cursor_Parameter_Profile_Delimiters", "parameter profile delimiter regression coverage");
       Require_Marker (Token_Cursor_Body, "parameter profile open delimiter", "parameter profile open delimiter parser path");
       Require_Marker (Token_Cursor_Body, "parameter profile missing close recovery boundary", "parameter profile missing-close parser path");
       Require_Marker (Token_Cursor_Spec, "Production_Discriminant_Part_Open_Delimiter", "discriminant part open delimiter production");
       Require_Marker (Token_Cursor_Spec, "Production_Discriminant_Part_Close_Delimiter", "discriminant part close delimiter production");
       Require_Marker (Token_Cursor_Spec, "Production_Discriminant_Specification_Separator", "discriminant specification separator production");
       Require_Marker (Token_Cursor_Spec, "Production_Discriminant_Part_Missing_Close_Recovery_Boundary", "discriminant part missing close recovery production");
-      Require_Marker (Syntax_Tests, "Test_Language_Model_Token_Cursor_Discriminant_Part_Delimiters_Pass827", "discriminant part delimiter regression coverage");
+      Require_Marker (Syntax_Tests, "Test_Language_Model_Token_Cursor_Discriminant_Part_Delimiters", "discriminant part delimiter regression coverage");
       Require_Marker (Token_Cursor_Body, "discriminant part open delimiter", "discriminant part open delimiter parser path");
       Require_Marker (Token_Cursor_Body, "discriminant part missing close recovery boundary", "discriminant part missing-close parser path");
       Require_Marker (Token_Cursor_Spec, "Production_Index_Constraint_Open_Delimiter", "index constraint open delimiter production");
@@ -2461,7 +2483,7 @@ procedure Phase579_Language_Validation_Check is
       Require_Marker (Token_Cursor_Spec, "Production_Discriminant_Constraint_Close_Delimiter", "discriminant constraint close delimiter production");
       Require_Marker (Token_Cursor_Spec, "Production_Discriminant_Association_Separator", "discriminant association separator production");
       Require_Marker (Token_Cursor_Spec, "Production_Discriminant_Constraint_Missing_Close_Recovery_Boundary", "discriminant constraint missing close recovery production");
-      Require_Marker (Syntax_Tests, "Test_Language_Model_Token_Cursor_Constraint_Delimiters_Pass828", "constraint delimiter regression coverage");
+      Require_Marker (Syntax_Tests, "Test_Language_Model_Token_Cursor_Constraint_Delimiters", "constraint delimiter regression coverage");
       Require_Marker (Token_Cursor_Body, "index constraint open delimiter", "index constraint open delimiter parser path");
       Require_Marker (Token_Cursor_Body, "index constraint missing close recovery boundary", "index constraint missing-close parser path");
       Require_Marker (Token_Cursor_Body, "discriminant constraint open delimiter", "discriminant constraint open delimiter parser path");
@@ -2470,14 +2492,14 @@ procedure Phase579_Language_Validation_Check is
       Require_Marker (Token_Cursor_Spec, "Production_Aggregate_Close_Delimiter", "aggregate close delimiter production");
       Require_Marker (Token_Cursor_Spec, "Production_Aggregate_Component_Separator", "aggregate component separator production");
       Require_Marker (Token_Cursor_Spec, "Production_Aggregate_Missing_Close_Recovery_Boundary", "aggregate missing close recovery production");
-      Require_Marker (Syntax_Tests, "Test_Language_Model_Token_Cursor_Aggregate_Delimiters_Pass829", "aggregate delimiter regression coverage");
+      Require_Marker (Syntax_Tests, "Test_Language_Model_Token_Cursor_Aggregate_Delimiters", "aggregate delimiter regression coverage");
       Require_Marker (Token_Cursor_Body, "aggregate component separator", "aggregate component separator parser path");
       Require_Marker (Token_Cursor_Body, "missing aggregate or parenthesized expression close delimiter", "aggregate missing-close parser path");
       Require_Marker (Token_Cursor_Spec, "Production_Qualified_Expression_Operand_Open_Delimiter", "qualified-expression operand open delimiter production");
       Require_Marker (Token_Cursor_Spec, "Production_Qualified_Expression_Operand_Close_Delimiter", "qualified-expression operand close delimiter production");
       Require_Marker (Token_Cursor_Spec, "Production_Qualified_Expression_Operand_Missing_Close_Recovery_Boundary", "qualified-expression operand missing close recovery production");
-      Require_Marker (Syntax_Tests, "Test_Language_Model_Token_Cursor_Qualified_Expression_Delimiters_Pass830", "qualified-expression operand delimiter regression coverage");
-      Require_Marker (Syntax_Tests, "Test_Language_Model_Token_Cursor_Parenthesized_Expression_Delimiters_Pass831", "parenthesized-expression delimiter regression coverage");
+      Require_Marker (Syntax_Tests, "Test_Language_Model_Token_Cursor_Qualified_Expression_Delimiters", "qualified-expression operand delimiter regression coverage");
+      Require_Marker (Syntax_Tests, "Test_Language_Model_Token_Cursor_Parenthesized_Expression_Delimiters", "parenthesized-expression delimiter regression coverage");
       Require_Marker (Token_Cursor_Body, "qualified-expression operand open delimiter", "qualified-expression operand open delimiter parser path");
       Require_Marker (Token_Cursor_Body, "missing qualified-expression operand close delimiter", "qualified-expression operand missing-close parser path");
       Require_Marker (Token_Cursor_Body, "number defining name separator", "number declaration defining-name separator parser path");
@@ -2552,12 +2574,12 @@ procedure Phase579_Language_Validation_Check is
       Require_Marker (Token_Cursor_Spec, "Production_Package_Duplicate_Private_Boundary", "duplicate package private recovery boundary production");
       Require_Marker (Token_Cursor_Spec, "Production_Package_Private_Begin_Recovery_Boundary", "package private begin recovery boundary production");
       Require_Marker (Token_Cursor_Spec, "Production_Package_Body_Private_Declarative_Recovery_Boundary", "package-body private declarative recovery boundary production");
-      Require_Syntax_Test ("Test_Language_Model_Token_Cursor_Package_Declarative_Section_Recovery_Depth_Pass937", "package declarative section recovery depth");
+      Require_Syntax_Test ("Test_Language_Model_Token_Cursor_Package_Declarative_Section_Recovery_Depth", "package declarative section recovery depth");
       Require_Marker (Token_Cursor_Spec, "Production_If_Expression_Condition_Reserved_Boundary", "if-expression condition reserved boundary production");
       Require_Marker (Token_Cursor_Spec, "Production_Case_Expression_Missing_Selector_Recovery_Boundary", "case-expression missing selector recovery boundary production");
       Require_Marker (Token_Cursor_Spec, "Production_Case_Expression_Missing_Is_Recovery_Boundary", "case-expression missing-is recovery boundary production");
       Require_Marker (Token_Cursor_Spec, "Production_Parallel_Reduction_Argument_Recovery_Boundary", "parallel-reduction argument recovery boundary production");
-      Require_Syntax_Test ("Test_Language_Model_Token_Cursor_Expression_Recovery_Refinement_Depth_Pass939", "expression recovery refinement depth");
+      Require_Syntax_Test ("Test_Language_Model_Token_Cursor_Expression_Recovery_Refinement_Depth", "expression recovery refinement depth");
       Require_Marker (Syntax_Tests, "Production_Body_Stub_Aspect_Specification", "deep aspect placement regression coverage");
       Require_Marker (Syntax_Tests, "Production_Protected_Operation_Aspect_Attachment", "protected operation aspect placement regression coverage");
       Require_Syntax_Test ("Test_Language_Model_Generated_And_Conditional_Source_Awareness", "generated/conditional awareness");
@@ -2706,21 +2728,21 @@ procedure Phase579_Language_Validation_Check is
       Require_Syntax_Test ("Test_Language_Model_Private_Child_Package_Name", "private child packages");
       Require_Syntax_Test ("Test_Language_Model_Generic_Formal_Object_And_Profiles", "generic formal objects");
       Require_Syntax_Test ("Test_Language_Model_Syntax_Tree_Record_Representation_Component_Clauses_Are_Structured", "record representation component clause syntax-tree structure");
-      Require_Marker (Test_Body, "Node_Abstract_Subprogram_Declaration", "abstract subprogram declaration regression coverage");
-      Require_Marker (Test_Body, "Node_Null_Procedure_Declaration", "null procedure declaration regression coverage");
-      Require_Marker (Test_Body, "Node_Expression_Function_Declaration", "expression function declaration regression coverage");
-      Require_Marker (Test_Body, "Node_Declaration_Profile", "subprogram profile declaration-detail regression coverage");
-      Require_Marker (Test_Body, "Node_Declaration_Result", "function result declaration-detail regression coverage");
-      Require_Marker (Test_Body, "Node_Enumeration_Literal_Declaration", "enumeration literal declaration regression coverage");
-      Require_Marker (Test_Body, "Node_Variant_Part", "variant part declaration regression coverage");
-      Require_Marker (Test_Body, "Node_Variant", "variant declaration regression coverage");
-      Require_Marker (Test_Body, "Node_Entry_Body", "entry body declaration regression coverage");
-      Require_Marker (Test_Body, "Node_Entry_Body_Stub", "entry body stub regression coverage");
-      Require_Marker (Test_Body, "Node_Task_Type_Declaration", "task type declaration regression coverage");
-      Require_Marker (Test_Body, "Node_Single_Task_Declaration", "single task declaration regression coverage");
-      Require_Marker (Test_Body, "Node_Protected_Type_Declaration", "protected type declaration regression coverage");
-      Require_Marker (Test_Body, "Node_Single_Protected_Declaration", "single protected declaration regression coverage");
-      Require_Marker (Test_Body, "Node_Declaration_Target", "renaming target declaration-detail regression coverage");
+      Require_Marker (Syntax_Tests, "Node_Abstract_Subprogram_Declaration", "abstract subprogram declaration regression coverage");
+      Require_Marker (Syntax_Tests, "Node_Null_Procedure_Declaration", "null procedure declaration regression coverage");
+      Require_Marker (Syntax_Tests, "Node_Expression_Function_Declaration", "expression function declaration regression coverage");
+      Require_Marker (Syntax_Tests, "Node_Declaration_Profile", "subprogram profile declaration-detail regression coverage");
+      Require_Marker (Syntax_Tests, "Node_Declaration_Result", "function result declaration-detail regression coverage");
+      Require_Marker (Syntax_Tests, "Node_Enumeration_Literal_Declaration", "enumeration literal declaration regression coverage");
+      Require_Marker (Syntax_Tests, "Node_Variant_Part", "variant part declaration regression coverage");
+      Require_Marker (Syntax_Tests, "Node_Variant", "variant declaration regression coverage");
+      Require_Marker (Syntax_Tests, "Node_Entry_Body", "entry body declaration regression coverage");
+      Require_Marker (Syntax_Tests, "Node_Entry_Body_Stub", "entry body stub regression coverage");
+      Require_Marker (Syntax_Tests, "Node_Task_Type_Declaration", "task type declaration regression coverage");
+      Require_Marker (Syntax_Tests, "Node_Single_Task_Declaration", "single task declaration regression coverage");
+      Require_Marker (Syntax_Tests, "Node_Protected_Type_Declaration", "protected type declaration regression coverage");
+      Require_Marker (Syntax_Tests, "Node_Single_Protected_Declaration", "single protected declaration regression coverage");
+      Require_Marker (Syntax_Tests, "Node_Declaration_Target", "renaming target declaration-detail regression coverage");
       Require_Syntax_Test ("Test_Language_Model_Syntax_Tree_All_Ada_Declaration_Forms_Are_Structured", "all Ada declaration families syntax-tree structure");
       Require_Syntax_Test ("Test_Language_Model_Syntax_Tree_Constants_And_Assignment_Are_Separated", "constant declaration and assignment separation syntax-tree structure");
       Require_Syntax_Test ("Test_Language_Model_Syntax_Tree_Grammar_Aware_Recovery", "grammar-aware syntax-tree recovery");
@@ -2752,40 +2774,40 @@ procedure Phase579_Language_Validation_Check is
       Require_Syntax_Test ("Test_Language_Model_Token_Cursor_Representation_Clause_Grammar_Completeness", "token-cursor representation-clause grammar productions");
       Require_Syntax_Test ("Test_Language_Model_Representation_Static_Expressions_Are_Evaluated", "bounded static representation-expression evaluation");
       Require_Syntax_Test ("Test_Language_Model_Representation_Based_Exponent_Expressions", "based literal exponent representation-expression evaluation");
-      Require_Marker (Test_Body, "expected =>", "expected-arrow malformed-alternative recovery regression coverage");
-      Require_Marker (Test_Body, "malformed declaration", "malformed-declaration recovery regression coverage");
-      Require_Marker (Test_Body, "Node_Implicit_Begin", "implicit begin recovery regression coverage");
-      Require_Marker (Test_Body, "Node_Unexpected_Declaration", "declaration-after-begin recovery regression coverage");
-      Require_Marker (Test_Body, "nested declare", "nested-declare recovery guidance coverage");
-      Require_Marker (Test_Body, "Node_Implicit_End", "implicit statement-part and generic formal-part recovery regression coverage");
-      Require_Marker (Test_Body, "at end of file", "EOF implicit statement-part recovery regression coverage");
-      Require_Marker (Test_Body, "generic formal part", "generic formal-part recovery regression coverage");
-      Require_Marker (Test_Body, "Node_End_Target", "named end-target regression coverage");
-      Require_Marker (Test_Body, "Node_Expected_End_Target", "expected named end-target regression coverage");
-      Require_Marker (Test_Body, "expected begin", "expected-begin malformed handled sequence regression coverage");
-      Require_Marker (Test_Body, "malformed subprogram/concurrent bodies", "malformed subprogram and concurrent expected-is recovery coverage");
-      Require_Marker (Test_Body, "malformed subprogram/task/protected declarations", "malformed subprogram and concurrent expected-semicolon recovery coverage");
-      Require_Marker (Test_Body, "Node_Expected_Token", "expected-token malformed-header regression coverage");
-      Require_Marker (Test_Body, "malformed end boundary", "malformed end-boundary recovery regression coverage");
-      Require_Marker (Test_Body, "malformed delimited list", "malformed delimited-list recovery regression coverage");
-      Require_Marker (Test_Body, "Node_Missing_End", "missing-end recovery regression coverage");
-      Require_Marker (Test_Body, "Hidden_Value", "private-part declaration ownership regression coverage");
-      Require_Marker (Test_Body, "private-part scope", "private-part implicit closure regression coverage");
-      Require_Marker (Test_Body, "Node_Token_Cursor_Grammar", "token-cursor grammar syntax-tree regression coverage");
-      Require_Marker (Test_Body, "Production_Simple_Expression", "token-cursor expression-precedence regression coverage");
-      Require_Marker (Test_Body, "Production_Membership_Choice_List", "token-cursor membership-choice regression coverage");
-      Require_Marker (Test_Body, "Test_Language_Model_Token_Cursor_Membership_Range_Grammar_Completeness", "token-cursor membership range-choice regression coverage");
-      Require_Marker (Test_Body, "Test_Language_Model_Token_Cursor_Target_Name_Grammar_Completeness", "token-cursor Ada 2022 target-name regression coverage");
-      Require_Marker (Test_Body, "Natural range 20 .. 30", "token-cursor membership subtype-range regression source");
-      Require_Marker (Test_Body, "Production_Short_Circuit_Operation", "token-cursor short-circuit regression coverage");
-      Require_Marker (Test_Body, "Production_Allocator", "token-cursor allocator regression coverage");
-      Require_Marker (Test_Body, "Production_Delta_Aggregate", "token-cursor delta aggregate regression coverage");
+      Require_Marker (Syntax_Tests, "expected =>", "expected-arrow malformed-alternative recovery regression coverage");
+      Require_Marker (Syntax_Tests, "malformed declaration", "malformed-declaration recovery regression coverage");
+      Require_Marker (Syntax_Tests, "Node_Implicit_Begin", "implicit begin recovery regression coverage");
+      Require_Marker (Syntax_Tests, "Node_Unexpected_Declaration", "declaration-after-begin recovery regression coverage");
+      Require_Marker (Syntax_Tests, "nested declare", "nested-declare recovery guidance coverage");
+      Require_Marker (Syntax_Tests, "Node_Implicit_End", "implicit statement-part and generic formal-part recovery regression coverage");
+      Require_Marker (Syntax_Tests, "at end of file", "EOF implicit statement-part recovery regression coverage");
+      Require_Marker (Syntax_Tests, "generic formal part", "generic formal-part recovery regression coverage");
+      Require_Marker (Syntax_Tests, "Node_End_Target", "named end-target regression coverage");
+      Require_Marker (Syntax_Tests, "Node_Expected_End_Target", "expected named end-target regression coverage");
+      Require_Marker (Syntax_Tests, "expected begin", "expected-begin malformed handled sequence regression coverage");
+      Require_Marker (Syntax_Tests, "malformed subprogram/concurrent bodies", "malformed subprogram and concurrent expected-is recovery coverage");
+      Require_Marker (Syntax_Tests, "malformed subprogram/task/protected declarations", "malformed subprogram and concurrent expected-semicolon recovery coverage");
+      Require_Marker (Syntax_Tests, "Node_Expected_Token", "expected-token malformed-header regression coverage");
+      Require_Marker (Syntax_Tests, "malformed end boundary", "malformed end-boundary recovery regression coverage");
+      Require_Marker (Syntax_Tests, "malformed metadata lists", "malformed delimited-list recovery regression coverage");
+      Require_Marker (Syntax_Tests, "Node_Missing_End", "missing-end recovery regression coverage");
+      Require_Marker (Syntax_Tests, "Hidden_Value", "private-part declaration ownership regression coverage");
+      Require_Marker (Syntax_Tests, "private-part scope", "private-part implicit closure regression coverage");
+      Require_Marker (Syntax_Tests, "Node_Token_Cursor_Grammar", "token-cursor grammar syntax-tree regression coverage");
+      Require_Marker (Syntax_Tests, "Production_Simple_Expression", "token-cursor expression-precedence regression coverage");
+      Require_Marker (Syntax_Tests, "Production_Membership_Choice_List", "token-cursor membership-choice regression coverage");
+      Require_Marker (Syntax_Tests, "Test_Language_Model_Token_Cursor_Membership_Range_Grammar_Completeness", "token-cursor membership range-choice regression coverage");
+      Require_Marker (Syntax_Tests, "Test_Language_Model_Token_Cursor_Target_Name_Grammar_Completeness", "token-cursor Ada 2022 target-name regression coverage");
+      Require_Marker (Syntax_Tests, "Natural range 20 .. 30", "token-cursor membership subtype-range regression source");
+      Require_Marker (Syntax_Tests, "Production_Short_Circuit_Operation", "token-cursor short-circuit regression coverage");
+      Require_Marker (Syntax_Tests, "Production_Allocator", "token-cursor allocator regression coverage");
+      Require_Marker (Syntax_Tests, "Production_Delta_Aggregate", "token-cursor delta aggregate regression coverage");
       Require_Syntax_Test ("Test_Language_Model_Token_Cursor_Aggregate_Association_Depth_Grammar_Completeness", "token-cursor aggregate association depth");
-      Require_Marker (Test_Body, "Production_Reduction_Expression", "token-cursor reduction expression regression coverage");
-      Require_Marker (Test_Body, "Test_Language_Model_Token_Cursor_Box_Expression_Grammar_Completeness", "token-cursor box-expression regression coverage");
-      Require_Marker (Test_Body, "Test_Language_Model_Token_Cursor_Incomplete_Type_Grammar_Completeness", "token-cursor incomplete type regression coverage");
-      Require_Marker (Test_Body, "type Root is tagged;", "token-cursor tagged incomplete type regression source");
-      Require_Marker (Test_Body, "Test_Language_Model_Token_Cursor_Attribute_Argument_Grammar_Completeness", "token-cursor attribute argument-part regression coverage");
+      Require_Marker (Syntax_Tests, "Production_Reduction_Expression", "token-cursor reduction expression regression coverage");
+      Require_Marker (Syntax_Tests, "Test_Language_Model_Token_Cursor_Box_Expression_Grammar_Completeness", "token-cursor box-expression regression coverage");
+      Require_Marker (Syntax_Tests, "Test_Language_Model_Token_Cursor_Incomplete_Type_Grammar_Completeness", "token-cursor incomplete type regression coverage");
+      Require_Marker (Syntax_Tests, "type Root is tagged;", "token-cursor tagged incomplete type regression source");
+      Require_Marker (Syntax_Tests, "Test_Language_Model_Token_Cursor_Attribute_Argument_Grammar_Completeness", "token-cursor attribute argument-part regression coverage");
       Require_Syntax_Test ("Test_Language_Model_Token_Cursor_Attribute_Depth_Grammar_Completeness", "token-cursor attribute grammar depth");
       Require_Syntax_Test ("Test_Analysis_Binding_Semantic_Colouring_Precision", "semantic-colouring executable binding precision");
       Require_Syntax_Test ("Test_Phase722_Semantic_Colouring_Expanded_Grammar_Precision", "semantic-colouring expanded grammar precision");
@@ -2802,29 +2824,29 @@ procedure Phase579_Language_Validation_Check is
       Require_Marker (Outline_Source, "access subprogram type", "outline access-subprogram type label precision");
       Require_Marker (Outline_Source, "formal array type", "outline formal array type label precision");
       Require_Marker (Outline_Tests, "Test_Phase721_Ada_Outline_Type_Family_Label_Precision", "outline type family label precision regression coverage");
-      Require_Marker (Test_Body, "Values'First (1)", "token-cursor attribute argument regression source");
-      Require_Marker (Test_Body, "Production_Record_Definition", "token-cursor record grammar regression coverage");
-      Require_Marker (Test_Body, "Production_Conditional_Expression", "token-cursor conditional expression regression coverage");
-      Require_Marker (Test_Body, "Production_Extended_Return_Statement", "token-cursor extended-return regression coverage");
-      Require_Marker (Test_Body, "Production_Select_Alternative", "token-cursor select-alternative regression coverage");
-      Require_Marker (Test_Body, "Production_Loop_Parameter_Specification", "token-cursor loop-parameter regression coverage");
-      Require_Marker (Test_Body, "Production_Iterator_Specification", "token-cursor iterator-loop regression coverage");
-      Require_Marker (Test_Body, "Test_Language_Model_Token_Cursor_Quantified_Expression_Grammar_Completeness", "token-cursor quantified-expression loop-scheme regression coverage");
-      Require_Marker (Test_Body, "Test_Language_Model_Token_Cursor_Declare_Expression_Grammar_Completeness", "token-cursor declare-expression regression coverage");
-      Require_Marker (Test_Body, "Production_Declare_Expression", "token-cursor declare-expression production regression coverage");
-      Require_Marker (Test_Body, "Test_Language_Model_Token_Cursor_Aggregate_Iterator_Grammar_Completeness", "token-cursor aggregate iterator regression coverage");
-      Require_Marker (Test_Body, "Production_Iterated_Component_Association", "token-cursor aggregate iterated association production coverage");
-      Require_Marker (Test_Body, "Production_Task_Type_Declaration", "token-cursor task type production regression coverage");
-      Require_Marker (Test_Body, "Production_Protected_Type_Declaration", "token-cursor protected type production regression coverage");
-      Require_Marker (Test_Body, "Production_Array_Type_Definition", "token-cursor array type-definition regression coverage");
-      Require_Marker (Test_Body, "Test_Language_Model_Token_Cursor_Array_Index_Subtype_Grammar_Completeness", "token-cursor unconstrained array index subtype regression coverage");
-      Require_Marker (Test_Body, "Production_Index_Subtype_Definition", "token-cursor index subtype-definition production coverage");
-      Require_Marker (Test_Body, "Test_Language_Model_Token_Cursor_Null_Exclusion_Access_Grammar_Completeness", "token-cursor null-exclusion access regression coverage");
-      Require_Marker (Test_Body, "Production_Null_Exclusion", "token-cursor null-exclusion production coverage");
-      Require_Marker (Test_Body, "Production_Access_Type_Definition", "token-cursor access type-definition regression coverage");
-      Require_Marker (Test_Body, "Test_Language_Model_Token_Cursor_Type_Modifier_Grammar_Completeness", "token-cursor modified type-definition regression coverage");
-      Require_Marker (Test_Body, "Production_Type_Modifier", "token-cursor type modifier production coverage");
-      Require_Marker (Test_Body, "Test_Language_Model_Token_Cursor_Delay_Statement_Grammar_Completeness", "token-cursor delay statement regression coverage");
+      Require_Marker (Syntax_Tests, "Values'First (1)", "token-cursor attribute argument regression source");
+      Require_Marker (Syntax_Tests, "Production_Record_Definition", "token-cursor record grammar regression coverage");
+      Require_Marker (Syntax_Tests, "Production_Conditional_Expression", "token-cursor conditional expression regression coverage");
+      Require_Marker (Syntax_Tests, "Production_Extended_Return_Statement", "token-cursor extended-return regression coverage");
+      Require_Marker (Syntax_Tests, "Production_Select_Alternative", "token-cursor select-alternative regression coverage");
+      Require_Marker (Syntax_Tests, "Production_Loop_Parameter_Specification", "token-cursor loop-parameter regression coverage");
+      Require_Marker (Syntax_Tests, "Production_Iterator_Specification", "token-cursor iterator-loop regression coverage");
+      Require_Marker (Syntax_Tests, "Test_Language_Model_Token_Cursor_Quantified_Expression_Grammar_Completeness", "token-cursor quantified-expression loop-scheme regression coverage");
+      Require_Marker (Syntax_Tests, "Test_Language_Model_Token_Cursor_Declare_Expression_Grammar_Completeness", "token-cursor declare-expression regression coverage");
+      Require_Marker (Syntax_Tests, "Production_Declare_Expression", "token-cursor declare-expression production regression coverage");
+      Require_Marker (Syntax_Tests, "Test_Language_Model_Token_Cursor_Aggregate_Iterator_Grammar_Completeness", "token-cursor aggregate iterator regression coverage");
+      Require_Marker (Syntax_Tests, "Production_Iterated_Component_Association", "token-cursor aggregate iterated association production coverage");
+      Require_Marker (Syntax_Tests, "Production_Task_Type_Declaration", "token-cursor task type production regression coverage");
+      Require_Marker (Syntax_Tests, "Production_Protected_Type_Declaration", "token-cursor protected type production regression coverage");
+      Require_Marker (Syntax_Tests, "Production_Array_Type_Definition", "token-cursor array type-definition regression coverage");
+      Require_Marker (Syntax_Tests, "Test_Language_Model_Token_Cursor_Array_Index_Subtype_Grammar_Completeness", "token-cursor unconstrained array index subtype regression coverage");
+      Require_Marker (Syntax_Tests, "Production_Index_Subtype_Definition", "token-cursor index subtype-definition production coverage");
+      Require_Marker (Syntax_Tests, "Test_Language_Model_Token_Cursor_Null_Exclusion_Access_Grammar_Completeness", "token-cursor null-exclusion access regression coverage");
+      Require_Marker (Syntax_Tests, "Production_Null_Exclusion", "token-cursor null-exclusion production coverage");
+      Require_Marker (Syntax_Tests, "Production_Access_Type_Definition", "token-cursor access type-definition regression coverage");
+      Require_Marker (Syntax_Tests, "Test_Language_Model_Token_Cursor_Type_Modifier_Grammar_Completeness", "token-cursor modified type-definition regression coverage");
+      Require_Marker (Syntax_Tests, "Production_Type_Modifier", "token-cursor type modifier production coverage");
+      Require_Marker (Syntax_Tests, "Test_Language_Model_Token_Cursor_Delay_Statement_Grammar_Completeness", "token-cursor delay statement regression coverage");
       Require_Marker (Token_Cursor_Spec, "Production_Return_Object_Declaration", "token-cursor extended return object grammar production");
       Require_Marker (Token_Cursor_Spec, "Production_Extended_Return_Initializer", "token-cursor extended return initializer grammar production");
       Require_Marker (Token_Cursor_Spec, "Production_Return_Object_Defining_Name", "token-cursor extended return defining-name grammar production");
@@ -2835,43 +2857,43 @@ procedure Phase579_Language_Validation_Check is
       Require_Marker (Token_Cursor_Spec, "Production_Extended_Return_Missing_Do_Recovery_Boundary", "token-cursor extended return missing-do recovery grammar production");
       Require_Marker (Token_Cursor_Body, "Production_Extended_Return_Missing_Do_Recovery_Boundary", "token-cursor extended return missing-do recovery implementation");
       Require_Marker (Token_Cursor_Spec, "Production_Return_Recovery_Boundary", "token-cursor return recovery-boundary grammar production");
-      Require_Marker (Test_Body, "Test_Language_Model_Token_Cursor_Extended_Return_Grammar_Completeness", "token-cursor extended return object regression coverage");
-      Require_Marker (Test_Body, "Test_Language_Model_Token_Cursor_Return_Statement_Depth_Grammar_Completeness", "token-cursor return statement depth regression coverage");
-      Require_Marker (Test_Body, "Test_Language_Model_Token_Cursor_Extended_Return_Do_Recovery_Pass865", "token-cursor extended return missing-do regression coverage");
-      Require_Marker (Test_Body, "return Broken : Item;", "token-cursor malformed extended return recovery regression source");
-      Require_Marker (Test_Body, "return Result : aliased constant Item := Make_Item", "token-cursor extended return regression source");
+      Require_Marker (Syntax_Tests, "Test_Language_Model_Token_Cursor_Extended_Return_Grammar_Completeness", "token-cursor extended return object regression coverage");
+      Require_Marker (Syntax_Tests, "Test_Language_Model_Token_Cursor_Return_Statement_Depth_Grammar_Completeness", "token-cursor return statement depth regression coverage");
+      Require_Marker (Syntax_Tests, "Test_Language_Model_Token_Cursor_Extended_Return_Do_Recovery", "token-cursor extended return missing-do regression coverage");
+      Require_Marker (Syntax_Tests, "return Broken : Item;", "token-cursor malformed extended return recovery regression source");
+      Require_Marker (Syntax_Tests, "return Result : aliased constant Item := Make_Item", "token-cursor extended return regression source");
       Require_Marker (Token_Cursor_Spec, "Production_Null_Statement_Terminator", "token-cursor null statement terminator grammar production");
       Require_Marker (Token_Cursor_Spec, "Production_Exit_When_Keyword", "token-cursor exit when-keyword grammar production");
       Require_Marker (Token_Cursor_Spec, "Production_Exit_Recovery_Boundary", "token-cursor exit recovery-boundary grammar production");
       Require_Marker (Token_Cursor_Spec, "Production_Goto_Recovery_Boundary", "token-cursor goto recovery-boundary grammar production");
       Require_Marker (Token_Cursor_Spec, "Production_Goto_Missing_Target_Recovery_Boundary", "token-cursor goto missing-target recovery grammar production");
-      Require_Marker (Syntax_Tests, "Test_Language_Model_Token_Cursor_Goto_Target_Recovery_Pass861", "token-cursor goto missing-target regression coverage");
+      Require_Marker (Syntax_Tests, "Test_Language_Model_Token_Cursor_Goto_Target_Recovery", "token-cursor goto missing-target regression coverage");
       Require_Marker (Token_Cursor_Spec, "Production_Delay_Mode_Keyword", "token-cursor delay mode-keyword grammar production");
       Require_Marker (Token_Cursor_Spec, "Production_Delay_Recovery_Boundary", "token-cursor delay recovery-boundary grammar production");
       Require_Marker (Token_Cursor_Spec, "Production_Delay_Until_Missing_Expression_Recovery_Boundary", "token-cursor delay-until missing-expression recovery grammar production");
       Require_Marker (Token_Cursor_Spec, "Production_Delay_Relative_Missing_Expression_Recovery_Boundary", "token-cursor relative-delay missing-expression recovery grammar production");
-      Require_Marker (Syntax_Tests, "Test_Language_Model_Token_Cursor_Delay_Expression_Recovery_Pass851", "token-cursor delay expression recovery regression coverage");
-      Require_Marker (Test_Body, "Test_Language_Model_Token_Cursor_Exit_Goto_Null_Delay_Statement_Depth_Grammar_Completeness", "token-cursor exit/goto/null/delay depth regression coverage");
-      Require_Marker (Test_Body, "exit when;", "token-cursor malformed exit-when recovery regression source");
-      Require_Marker (Test_Body, "delay;", "token-cursor malformed delay recovery regression source");
-      Require_Marker (Test_Body, "goto;", "token-cursor malformed goto recovery regression source");
+      Require_Marker (Syntax_Tests, "Test_Language_Model_Token_Cursor_Delay_Expression_Recovery", "token-cursor delay expression recovery regression coverage");
+      Require_Marker (Syntax_Tests, "Test_Language_Model_Token_Cursor_Exit_Goto_Null_Delay_Statement_Depth_Grammar_Completeness", "token-cursor exit/goto/null/delay depth regression coverage");
+      Require_Marker (Syntax_Tests, "exit when;", "token-cursor malformed exit-when recovery regression source");
+      Require_Marker (Syntax_Tests, "delay;", "token-cursor malformed delay recovery regression source");
+      Require_Marker (Syntax_Tests, "goto;", "token-cursor malformed goto recovery regression source");
       Require_Marker (Token_Cursor_Spec, "Production_Accept_Missing_Terminator_Recovery_Boundary", "token-cursor accept missing-terminator recovery grammar production");
-      Require_Marker (Syntax_Tests, "Test_Language_Model_Token_Cursor_Accept_Terminator_Recovery_Pass853", "token-cursor accept missing-terminator regression coverage");
+      Require_Marker (Syntax_Tests, "Test_Language_Model_Token_Cursor_Accept_Terminator_Recovery", "token-cursor accept missing-terminator regression coverage");
       Require_Marker (Token_Cursor_Spec, "Production_Accept_Missing_Entry_Name_Recovery_Boundary", "token-cursor accept missing-entry-name recovery grammar production");
-      Require_Marker (Syntax_Tests, "Test_Language_Model_Token_Cursor_Accept_Entry_Name_Recovery_Pass863", "token-cursor accept missing-entry-name regression coverage");
+      Require_Marker (Syntax_Tests, "Test_Language_Model_Token_Cursor_Accept_Entry_Name_Recovery", "token-cursor accept missing-entry-name regression coverage");
       Require_Marker (Token_Cursor_Spec, "Production_Requeue_Target", "token-cursor requeue target grammar production");
       Require_Marker (Token_Cursor_Spec, "Production_Requeue_Selected_Target", "token-cursor selected requeue target grammar production");
       Require_Marker (Token_Cursor_Spec, "Production_Requeue_Indexed_Target", "token-cursor indexed requeue target grammar production");
       Require_Marker (Token_Cursor_Spec, "Production_Requeue_With_Abort", "token-cursor requeue with-abort grammar production");
       Require_Marker (Token_Cursor_Spec, "Production_Requeue_Missing_Terminator_Recovery_Boundary", "token-cursor requeue missing-terminator recovery grammar production");
-      Require_Marker (Syntax_Tests, "Test_Language_Model_Token_Cursor_Requeue_Terminator_Recovery_Pass852", "token-cursor requeue missing-terminator regression coverage");
+      Require_Marker (Syntax_Tests, "Test_Language_Model_Token_Cursor_Requeue_Terminator_Recovery", "token-cursor requeue missing-terminator regression coverage");
       Require_Marker (Token_Cursor_Spec, "Production_Requeue_Target_Recovery_Boundary", "token-cursor requeue target recovery-boundary grammar production");
-      Require_Marker (Test_Body, "Test_Language_Model_Token_Cursor_Requeue_Grammar_Completeness", "token-cursor requeue target regression coverage");
-      Require_Marker (Test_Body, "requeue Server.Queue (Index) with abort", "token-cursor requeue target regression source");
-      Require_Marker (Test_Body, "requeue;", "token-cursor malformed requeue recovery regression source");
+      Require_Marker (Syntax_Tests, "Test_Language_Model_Token_Cursor_Requeue_Grammar_Completeness", "token-cursor requeue target regression coverage");
+      Require_Marker (Syntax_Tests, "requeue Server.Queue (Index) with abort", "token-cursor requeue target regression source");
+      Require_Marker (Syntax_Tests, "requeue;", "token-cursor malformed requeue recovery regression source");
       Require_Marker (Token_Cursor_Spec, "Production_Abort_Target", "token-cursor abort target grammar production");
-      Require_Marker (Test_Body, "Test_Language_Model_Token_Cursor_Abort_Statement_Grammar_Completeness", "token-cursor abort target list regression coverage");
-      Require_Marker (Test_Body, "abort Worker, Pool.Tasks (Index), Controller.Current.all", "token-cursor abort target list regression source");
+      Require_Marker (Syntax_Tests, "Test_Language_Model_Token_Cursor_Abort_Statement_Grammar_Completeness", "token-cursor abort target list regression coverage");
+      Require_Marker (Syntax_Tests, "abort Worker, Pool.Tasks (Index), Controller.Current.all", "token-cursor abort target list regression source");
       Require_Marker (Token_Cursor_Spec, "Production_Exception_Choice_Parameter", "token-cursor exception choice parameter grammar production");
       Require_Marker (Token_Cursor_Spec, "Production_Exception_Choice_List", "token-cursor exception choice list grammar production");
       Require_Marker (Token_Cursor_Spec, "Production_Exception_Choice", "token-cursor exception choice grammar production");
@@ -2883,7 +2905,7 @@ procedure Phase579_Language_Validation_Check is
       Require_Marker (Token_Cursor_Spec, "Production_Exit_Target", "token-cursor exit target grammar production");
       Require_Marker (Token_Cursor_Spec, "Production_Exit_When_Condition", "token-cursor exit when-condition grammar production");
       Require_Marker (Token_Cursor_Spec, "Production_Exit_When_Missing_Condition_Recovery_Boundary", "token-cursor exit-when missing-condition recovery grammar production");
-      Require_Marker (Syntax_Tests, "Test_Language_Model_Token_Cursor_Exit_When_Condition_Recovery_Pass850", "token-cursor exit-when missing-condition regression coverage");
+      Require_Marker (Syntax_Tests, "Test_Language_Model_Token_Cursor_Exit_When_Condition_Recovery", "token-cursor exit-when missing-condition regression coverage");
       Require_Marker (Token_Cursor_Spec, "Production_Goto_Target", "token-cursor goto target grammar production");
       Require_Marker (Token_Cursor_Body, "exit loop name", "token-cursor exit target parser path");
       Require_Marker (Token_Cursor_Body, "exit when condition", "token-cursor exit condition parser path");
@@ -2902,82 +2924,82 @@ procedure Phase579_Language_Validation_Check is
       Require_Marker (Syntax_Tests, "Test_Language_Model_Token_Cursor_Attribute_Argument_Grammar_Completeness", "token-cursor attribute argument grammar coverage");
       Require_Marker (Syntax_Tests, "when Ready =>", "token-cursor select guard regression source");
       Require_Marker (Syntax_Tests, "then abort", "token-cursor asynchronous select regression source");
-      Require_Marker (Test_Body, "Test_Language_Model_Token_Cursor_Exception_Handler_Grammar_Completeness", "token-cursor exception handler regression coverage");
-      Require_Marker (Test_Body, "when Failure : Constraint_Error | Program_Error", "token-cursor exception choice parameter regression source");
-      Require_Marker (Test_Body, "Production_Delay_Until_Statement", "token-cursor delay until production coverage");
-      Require_Marker (Test_Body, "Production_Delay_Relative_Statement", "token-cursor delay relative production coverage");
-      Require_Marker (Test_Body, "delay until Clock", "token-cursor delay until regression source");
-      Require_Marker (Test_Body, "synchronized interface", "token-cursor interface modifier regression source");
-      Require_Marker (Test_Body, "abstract tagged limited record", "token-cursor tagged limited record modifier regression source");
-      Require_Marker (Test_Body, "Test_Language_Model_Token_Cursor_Profile_Item_Grammar_Completeness", "token-cursor structured profile item regression coverage");
-      Require_Marker (Test_Body, "Production_Parameter_Mode", "token-cursor parameter-mode production coverage");
-      Require_Marker (Test_Body, "Production_Aliased_Part", "token-cursor aliased profile production coverage");
-      Require_Marker (Test_Body, "Production_Default_Expression", "token-cursor profile default-expression production coverage");
+      Require_Marker (Syntax_Tests, "Test_Language_Model_Token_Cursor_Exception_Handler_Grammar_Completeness", "token-cursor exception handler regression coverage");
+      Require_Marker (Syntax_Tests, "when Failure : Constraint_Error | Program_Error", "token-cursor exception choice parameter regression source");
+      Require_Marker (Syntax_Tests, "Production_Delay_Until_Statement", "token-cursor delay until production coverage");
+      Require_Marker (Syntax_Tests, "Production_Delay_Relative_Statement", "token-cursor delay relative production coverage");
+      Require_Marker (Syntax_Tests, "delay until Clock", "token-cursor delay until regression source");
+      Require_Marker (Syntax_Tests, "synchronized interface", "token-cursor interface modifier regression source");
+      Require_Marker (Syntax_Tests, "abstract tagged limited record", "token-cursor tagged limited record modifier regression source");
+      Require_Marker (Syntax_Tests, "Test_Language_Model_Token_Cursor_Profile_Item_Grammar_Completeness", "token-cursor structured profile item regression coverage");
+      Require_Marker (Syntax_Tests, "Production_Parameter_Mode", "token-cursor parameter-mode production coverage");
+      Require_Marker (Syntax_Tests, "Production_Aliased_Part", "token-cursor aliased profile production coverage");
+      Require_Marker (Syntax_Tests, "Production_Default_Expression", "token-cursor profile default-expression production coverage");
       Require_Marker (Token_Cursor_Spec, "Production_Object_Qualifier", "token-cursor object qualifier grammar production");
       Require_Marker (Token_Cursor_Body, "aliased object", "token-cursor aliased object qualifier parser path");
-      Require_Marker (Test_Body, "Test_Language_Model_Token_Cursor_Object_Qualifier_Grammar_Completeness", "token-cursor object qualifier regression coverage");
-      Require_Marker (Test_Body, "aliased constant Item", "token-cursor aliased constant object regression source");
-      Require_Marker (Test_Body, "aliased not null access Item", "token-cursor aliased access object regression source");
+      Require_Marker (Syntax_Tests, "Test_Language_Model_Token_Cursor_Object_Qualifier_Grammar_Completeness", "token-cursor object qualifier regression coverage");
+      Require_Marker (Syntax_Tests, "aliased constant Item", "token-cursor aliased constant object regression source");
+      Require_Marker (Syntax_Tests, "aliased not null access Item", "token-cursor aliased access object regression source");
       Require_Marker (Token_Cursor_Spec, "Production_Unknown_Discriminant_Part", "token-cursor unknown discriminant grammar production");
       Require_Marker (Token_Cursor_Body, "unknown discriminant part", "token-cursor unknown discriminant parser path");
-      Require_Marker (Test_Body, "Test_Language_Model_Token_Cursor_Unknown_Discriminant_Grammar_Completeness", "token-cursor unknown discriminant regression coverage");
-      Require_Marker (Test_Body, "type Visible (<>) is private", "token-cursor private type unknown discriminant regression source");
+      Require_Marker (Syntax_Tests, "Test_Language_Model_Token_Cursor_Unknown_Discriminant_Grammar_Completeness", "token-cursor unknown discriminant regression coverage");
+      Require_Marker (Syntax_Tests, "type Visible (<>) is private", "token-cursor private type unknown discriminant regression source");
       Require_Marker (Token_Cursor_Spec, "Production_Digits_Constraint", "token-cursor digits constraint grammar production");
       Require_Marker (Token_Cursor_Spec, "Production_Delta_Constraint", "token-cursor delta constraint grammar production");
       Require_Marker (Token_Cursor_Body, "digits constraint", "token-cursor digits constraint parser path");
       Require_Marker (Token_Cursor_Body, "delta constraint", "token-cursor delta constraint parser path");
-      Require_Marker (Test_Body, "Test_Language_Model_Token_Cursor_Subtype_Constraint_Grammar_Completeness", "token-cursor subtype numeric constraint regression coverage");
-      Require_Marker (Test_Body, "subtype Small_Money is Money delta", "token-cursor fixed-point subtype constraint regression source");
+      Require_Marker (Syntax_Tests, "Test_Language_Model_Token_Cursor_Subtype_Constraint_Grammar_Completeness", "token-cursor subtype numeric constraint regression coverage");
+      Require_Marker (Syntax_Tests, "subtype Small_Money is Money delta", "token-cursor fixed-point subtype constraint regression source");
       Require_Marker (Token_Cursor_Spec, "Production_Component_Definition", "token-cursor component definition grammar production");
       Require_Marker (Token_Cursor_Body, "component definition", "token-cursor component-definition parser path");
-      Require_Marker (Test_Body, "Test_Language_Model_Token_Cursor_Component_Definition_Grammar_Completeness", "token-cursor component definition regression coverage");
-      Require_Marker (Test_Body, "Left, Right : aliased not null access Node", "token-cursor aliased access component regression source");
+      Require_Marker (Syntax_Tests, "Test_Language_Model_Token_Cursor_Component_Definition_Grammar_Completeness", "token-cursor component definition regression coverage");
+      Require_Marker (Syntax_Tests, "Left, Right : aliased not null access Node", "token-cursor aliased access component regression source");
       Require_Marker (Token_Cursor_Spec, "Production_Discriminant_Constraint", "token-cursor discriminant constraint grammar production");
       Require_Marker (Token_Cursor_Spec, "Production_Discriminant_Association", "token-cursor discriminant association grammar production");
       Require_Marker (Token_Cursor_Spec, "Production_Discriminant_Selector_Name", "token-cursor discriminant selector-name grammar production");
       Require_Marker (Token_Cursor_Body, "Parse_Discriminant_Selector_Name_List", "token-cursor discriminant selector-name-list parser path");
       Require_Marker (Token_Cursor_Body, "discriminant constraint", "token-cursor discriminant-constraint parser path");
-      Require_Marker (Test_Body, "Test_Language_Model_Token_Cursor_Discriminant_Constraint_Grammar_Completeness", "token-cursor discriminant constraint regression coverage");
-      Require_Marker (Test_Body, "Low | High => 1", "token-cursor discriminant selector-list regression source");
+      Require_Marker (Syntax_Tests, "Test_Language_Model_Token_Cursor_Discriminant_Constraint_Grammar_Completeness", "token-cursor discriminant constraint regression coverage");
+      Require_Marker (Syntax_Tests, "Low | High => 1", "token-cursor discriminant selector-list regression source");
       Require_Marker (Token_Cursor_Spec, "Production_Aspect_Mark", "token-cursor aspect mark grammar production");
       Require_Marker (Token_Cursor_Spec, "Production_Classwide_Aspect_Mark", "token-cursor class-wide aspect mark grammar production");
       Require_Marker (Token_Cursor_Body, "Aspect'Class", "token-cursor class-wide aspect mark parser path");
-      Require_Marker (Test_Body, "Test_Language_Model_Token_Cursor_Aspect_Mark_Grammar_Completeness", "token-cursor aspect mark regression coverage");
-      Require_Marker (Test_Body, "Type_Invariant'Class", "token-cursor class-wide aspect mark regression source");
+      Require_Marker (Syntax_Tests, "Test_Language_Model_Token_Cursor_Aspect_Mark_Grammar_Completeness", "token-cursor aspect mark regression coverage");
+      Require_Marker (Syntax_Tests, "Type_Invariant'Class", "token-cursor class-wide aspect mark regression source");
       Require_Marker (Token_Cursor_Spec, "Production_Mod_Clause", "token-cursor record representation mod clause grammar production");
       Require_Marker (Token_Cursor_Body, "record representation mod clause", "token-cursor record representation mod-clause parser path");
-      Require_Marker (Test_Body, "Test_Language_Model_Token_Cursor_Record_Representation_Mod_Clause_Grammar_Completeness", "token-cursor record representation mod-clause regression coverage");
-      Require_Marker (Test_Body, "at mod 8", "token-cursor record representation mod-clause regression source");
+      Require_Marker (Syntax_Tests, "Test_Language_Model_Token_Cursor_Record_Representation_Mod_Clause_Grammar_Completeness", "token-cursor record representation mod-clause regression coverage");
+      Require_Marker (Syntax_Tests, "at mod 8", "token-cursor record representation mod-clause regression source");
       Require_Marker (Token_Cursor_Spec, "Production_Formal_Object_Mode", "token-cursor generic formal object mode grammar production");
       Require_Marker (Token_Cursor_Spec, "Production_Formal_Object_Default", "token-cursor generic formal object default grammar production");
       Require_Marker (Token_Cursor_Body, "formal object declaration", "token-cursor generic formal object parser path");
-      Require_Marker (Test_Body, "Defaulted, Second : in out Element := <>", "token-cursor generic formal object default regression source");
+      Require_Marker (Syntax_Tests, "Defaulted, Second : in out Element := <>", "token-cursor generic formal object default regression source");
       Require_Marker (Token_Cursor_Spec, "Production_Formal_Subprogram_Default_Box", "token-cursor formal subprogram box default grammar production");
       Require_Marker (Token_Cursor_Spec, "Production_Formal_Subprogram_Default_Null", "token-cursor formal subprogram null default grammar production");
       Require_Marker (Token_Cursor_Spec, "Production_Formal_Subprogram_Default_Abstract", "token-cursor formal subprogram abstract default grammar production");
       Require_Marker (Token_Cursor_Spec, "Production_Formal_Subprogram_Default_Name", "token-cursor formal subprogram name default grammar production");
-      Require_Marker (Test_Body, "Test_Language_Model_Token_Cursor_Formal_Subprogram_Default_Grammar_Completeness", "token-cursor formal subprogram default regression coverage");
+      Require_Marker (Syntax_Tests, "Test_Language_Model_Token_Cursor_Formal_Subprogram_Default_Grammar_Completeness", "token-cursor formal subprogram default regression coverage");
       Require_Marker (Token_Cursor_Spec, "Production_Generic_Actual_Formal_Selector", "token-cursor generic actual formal selector grammar production");
       Require_Marker (Token_Cursor_Spec, "Production_Generic_Actual_Box", "token-cursor generic actual box grammar production");
-      Require_Marker (Test_Body, "Test_Language_Model_Token_Cursor_Generic_Actual_Box_Grammar_Completeness", "token-cursor generic actual selector and box regression coverage");
+      Require_Marker (Syntax_Tests, "Test_Language_Model_Token_Cursor_Generic_Actual_Box_Grammar_Completeness", "token-cursor generic actual selector and box regression coverage");
       Require_Marker (Token_Cursor_Spec, "Production_Generic_Package_Instantiation", "token-cursor generic package instantiation grammar production");
       Require_Marker (Token_Cursor_Spec, "Production_Generic_Procedure_Instantiation", "token-cursor generic procedure instantiation grammar production");
       Require_Marker (Token_Cursor_Spec, "Production_Generic_Function_Instantiation", "token-cursor generic function instantiation grammar production");
       Require_Marker (Token_Cursor_Spec, "Production_Generic_Actual_Nested_Actual_Part", "token-cursor nested generic actual grammar production");
       Require_Marker (Token_Cursor_Spec, "Production_Generic_Actual_Recovery_Boundary", "token-cursor generic actual recovery-boundary grammar production");
-      Require_Marker (Test_Body, "Test_Language_Model_Token_Cursor_Generic_Instantiation_Depth_Grammar_Completeness", "token-cursor generic instantiation depth regression coverage");
+      Require_Marker (Syntax_Tests, "Test_Language_Model_Token_Cursor_Generic_Instantiation_Depth_Grammar_Completeness", "token-cursor generic instantiation depth regression coverage");
       Require_Marker (Token_Cursor_Spec, "Production_Unconstrained_Array_Index_Part", "token-cursor unconstrained array index part grammar production");
       Require_Marker (Token_Cursor_Spec, "Production_Constrained_Array_Index_Part", "token-cursor constrained array index part grammar production");
       Require_Marker (Token_Cursor_Spec, "Production_Array_Component_Access_Definition", "token-cursor anonymous access array component grammar production");
       Require_Marker (Token_Cursor_Body, "array component access definition", "token-cursor array component access parser path");
-      Require_Marker (Test_Body, "Test_Language_Model_Token_Cursor_Array_Type_Depth_Grammar_Completeness", "token-cursor array type depth regression coverage");
+      Require_Marker (Syntax_Tests, "Test_Language_Model_Token_Cursor_Array_Type_Depth_Grammar_Completeness", "token-cursor array type depth regression coverage");
       Require_Marker (Token_Cursor_Spec, "Production_Access_Pool_Specific_Object", "token-cursor pool-specific access object grammar production");
       Require_Marker (Token_Cursor_Spec, "Production_Access_General_Object", "token-cursor general access object grammar production");
       Require_Marker (Token_Cursor_Spec, "Production_Access_Object_Subtype_Mark", "token-cursor access object subtype-mark grammar production");
       Require_Marker (Token_Cursor_Spec, "Production_Access_Named_Subprogram_Definition", "token-cursor named access-to-subprogram grammar production");
       Require_Marker (Token_Cursor_Spec, "Production_Access_Type_Recovery_Boundary", "token-cursor access type recovery-boundary grammar production");
       Require_Marker (Token_Cursor_Body, "access object subtype mark", "token-cursor access object subtype parser path");
-      Require_Marker (Test_Body, "Test_Language_Model_Token_Cursor_Access_Type_Depth_Grammar_Completeness", "token-cursor access type depth regression coverage");
+      Require_Marker (Syntax_Tests, "Test_Language_Model_Token_Cursor_Access_Type_Depth_Grammar_Completeness", "token-cursor access type depth regression coverage");
       Require_Marker (Token_Cursor_Spec, "Production_Abstract_Type_Modifier", "token-cursor abstract type modifier grammar production");
       Require_Marker (Token_Cursor_Spec, "Production_Tagged_Type_Modifier", "token-cursor tagged type modifier grammar production");
       Require_Marker (Token_Cursor_Spec, "Production_Derived_Private_Extension", "token-cursor derived private extension grammar production");
@@ -2985,40 +3007,40 @@ procedure Phase579_Language_Validation_Check is
       Require_Marker (Token_Cursor_Spec, "Production_Derived_Null_Record_Extension", "token-cursor derived null record extension grammar production");
       Require_Marker (Token_Cursor_Spec, "Production_Derived_Type_Recovery_Boundary", "token-cursor derived type recovery-boundary grammar production");
       Require_Marker (Token_Cursor_Body, "derived null record extension", "token-cursor derived null record extension parser path");
-      Require_Marker (Test_Body, "Test_Language_Model_Token_Cursor_Derived_Tagged_Extension_Depth_Grammar_Completeness", "token-cursor derived/tagged extension depth regression coverage");
+      Require_Marker (Syntax_Tests, "Test_Language_Model_Token_Cursor_Derived_Tagged_Extension_Depth_Grammar_Completeness", "token-cursor derived/tagged extension depth regression coverage");
       Require_Marker (Token_Cursor_Spec, "Production_Pragma_Argument_Identifier", "token-cursor pragma argument identifier grammar production");
       Require_Marker (Token_Cursor_Body, "pragma_argument_identifier", "token-cursor named pragma argument parser path");
-      Require_Marker (Test_Body, "Test_Language_Model_Token_Cursor_Pragma_Argument_Identifier_Grammar_Completeness", "token-cursor named pragma argument regression coverage");
-      Require_Marker (Test_Body, "Condition => Is_Ready", "token-cursor named pragma argument regression source");
+      Require_Marker (Syntax_Tests, "Test_Language_Model_Token_Cursor_Pragma_Argument_Identifier_Grammar_Completeness", "token-cursor named pragma argument regression coverage");
+      Require_Marker (Syntax_Tests, "Condition => Is_Ready", "token-cursor named pragma argument regression source");
       Require_Marker (Token_Cursor_Spec, "Production_Component_Association", "token-cursor aggregate component association grammar production");
       Require_Marker (Token_Cursor_Body, "Has_Top_Level_Arrow_Before_Association_End", "token-cursor aggregate association choice-list detection");
-      Require_Marker (Test_Body, "Test_Language_Model_Token_Cursor_Aggregate_Component_Association_Grammar_Completeness", "token-cursor aggregate component association regression coverage");
-      Require_Marker (Test_Body, "A | B => 1", "token-cursor aggregate choice-list regression source");
-      Require_Marker (Test_Body, "with procedure No_Op is null", "token-cursor formal subprogram null default regression source");
-      Require_Marker (Test_Body, "Production_Range_Constraint", "token-cursor subtype/range constraint regression coverage");
-      Require_Marker (Test_Body, "Production_Pragma_Argument_Association", "token-cursor pragma argument regression coverage");
-      Require_Marker (Test_Body, "Production_Aspect_Association", "token-cursor aspect association regression coverage");
-      Require_Marker (Test_Body, "Production_Generic_Actual_Association", "token-cursor generic actual regression coverage");
-      Require_Marker (Test_Body, "Production_Attribute_Definition_Clause", "token-cursor attribute definition-clause regression coverage");
-      Require_Marker (Test_Body, "Production_Enumeration_Representation_Clause", "token-cursor enumeration representation-clause regression coverage");
-      Require_Marker (Test_Body, "Production_Address_Clause", "token-cursor address-clause regression coverage");
-      Require_Marker (Test_Body, "Production_Representation_Component_Clause", "token-cursor representation component regression coverage");
-      Require_Marker (Test_Body, "Production_Package_Body_Stub", "token-cursor body-stub regression coverage");
-      Require_Marker (Test_Body, "Node_Recovery_Point", "recovery-point regression coverage");
-      Require_Marker (Test_Body, "Node_Mismatched_End", "mismatched alternative recovery regression coverage");
-      Require_Marker (Test_Body, "Node_Deferred_Constant_Declaration", "deferred constant declaration regression coverage");
-      Require_Marker (Test_Body, "Node_Constant_Declaration", "typed constant declaration regression coverage");
+      Require_Marker (Syntax_Tests, "Test_Language_Model_Token_Cursor_Aggregate_Component_Association_Grammar_Completeness", "token-cursor aggregate component association regression coverage");
+      Require_Marker (Syntax_Tests, "A | B => 1", "token-cursor aggregate choice-list regression source");
+      Require_Marker (Syntax_Tests, "with procedure No_Op is null", "token-cursor formal subprogram null default regression source");
+      Require_Marker (Syntax_Tests, "Production_Range_Constraint", "token-cursor subtype/range constraint regression coverage");
+      Require_Marker (Syntax_Tests, "Production_Pragma_Argument_Association", "token-cursor pragma argument regression coverage");
+      Require_Marker (Syntax_Tests, "Production_Aspect_Association", "token-cursor aspect association regression coverage");
+      Require_Marker (Syntax_Tests, "Production_Generic_Actual_Association", "token-cursor generic actual regression coverage");
+      Require_Marker (Syntax_Tests, "Production_Attribute_Definition_Clause", "token-cursor attribute definition-clause regression coverage");
+      Require_Marker (Syntax_Tests, "Production_Enumeration_Representation_Clause", "token-cursor enumeration representation-clause regression coverage");
+      Require_Marker (Syntax_Tests, "Production_Address_Clause", "token-cursor address-clause regression coverage");
+      Require_Marker (Syntax_Tests, "Production_Representation_Component_Clause", "token-cursor representation component regression coverage");
+      Require_Marker (Syntax_Tests, "Production_Package_Body_Stub", "token-cursor body-stub regression coverage");
+      Require_Marker (Syntax_Tests, "Node_Recovery_Point", "recovery-point regression coverage");
+      Require_Marker (Syntax_Tests, "Node_Mismatched_End", "mismatched alternative recovery regression coverage");
+      Require_Marker (Syntax_Tests, "Node_Deferred_Constant_Declaration", "deferred constant declaration regression coverage");
+      Require_Marker (Syntax_Tests, "Node_Constant_Declaration", "typed constant declaration regression coverage");
       Require_Syntax_Test ("Test_Generic_Formal_Package_Target_Metadata", "generic formal packages");
       Require_Syntax_Test ("Test_Language_Model_Token_Cursor_Formal_Package_Contract_Edge_Cases", "formal package generic contract edge cases");
       Require_Syntax_Test ("Test_Language_Model_Token_Cursor_Formal_Package_Defaulted_Actuals", "defaulted formal package actual parts");
-      Require_Syntax_Test ("Test_Language_Model_Token_Cursor_Formal_Package_Hostile_Recovery_Pass784", "formal package hostile recovery");
-      Require_Syntax_Test ("Test_Language_Model_Token_Cursor_Record_Representation_Recovery_Pass785", "record representation recovery depth");
+      Require_Syntax_Test ("Test_Language_Model_Token_Cursor_Formal_Package_Hostile_Recovery", "formal package hostile recovery");
+      Require_Syntax_Test ("Test_Language_Model_Token_Cursor_Record_Representation_Recovery", "record representation recovery depth");
       Require_Token_Cursor_Production ("Production_Exception_Handler_Missing_Arrow_Recovery_Boundary", "exception handler missing-arrow recovery depth");
-      Require_Syntax_Test ("Test_Language_Model_Token_Cursor_Exception_Handler_Missing_Arrow_Pass786", "exception handler missing-arrow recovery depth");
+      Require_Syntax_Test ("Test_Language_Model_Token_Cursor_Exception_Handler_Missing_Arrow", "exception handler missing-arrow recovery depth");
       Require_Token_Cursor_Production ("Production_Select_Guard_Missing_Arrow_Recovery_Boundary", "select guard missing-arrow recovery depth");
       Require_Token_Cursor_Production ("Production_Select_Guard_Missing_Condition_Recovery_Boundary", "select guard missing-condition recovery depth");
-      Require_Syntax_Test ("Test_Language_Model_Token_Cursor_Select_Guard_Missing_Arrow_Pass787", "select guard missing-arrow recovery depth");
-      Require_Syntax_Test ("Test_Language_Model_Token_Cursor_Select_Guard_Condition_Recovery_Pass854", "select guard missing-condition recovery depth");
+      Require_Syntax_Test ("Test_Language_Model_Token_Cursor_Select_Guard_Missing_Arrow", "select guard missing-arrow recovery depth");
+      Require_Syntax_Test ("Test_Language_Model_Token_Cursor_Select_Guard_Condition_Recovery", "select guard missing-condition recovery depth");
       Require_Token_Cursor_Production ("Production_Accept_End_Keyword", "accept end keyword depth");
       Require_Token_Cursor_Production ("Production_Accept_End_Name", "accept end name depth");
       Require_Token_Cursor_Production ("Production_Accept_Terminator", "accept terminator depth");
@@ -3029,30 +3051,30 @@ procedure Phase579_Language_Validation_Check is
       Require_Token_Cursor_Production ("Production_Formal_Incomplete_Type_Declaration", "generic formal incomplete type grammar depth");
       Require_Token_Cursor_Production ("Production_Formal_Incomplete_Tagged_Type_Definition", "generic formal tagged incomplete type grammar depth");
       Require_Token_Cursor_Production ("Production_Formal_Incomplete_Type_Recovery_Boundary", "generic formal incomplete type recovery depth");
-      Require_Syntax_Test ("Test_Language_Model_Token_Cursor_Accept_Entry_Name_Recovery_Pass863", "accept missing-entry-name recovery depth");
-      Require_Syntax_Test ("Test_Language_Model_Token_Cursor_Accept_End_Recovery_Pass788", "accept end and missing-end recovery depth");
-      Require_Syntax_Test ("Test_Language_Model_Token_Cursor_Accept_Body_Statement_Recovery_Pass883", "accept body missing-statement recovery depth");
-      Require_Syntax_Test ("Test_Language_Model_Token_Cursor_Generic_Formal_Incomplete_Type_Pass884", "generic formal incomplete type grammar depth");
+      Require_Syntax_Test ("Test_Language_Model_Token_Cursor_Accept_Entry_Name_Recovery", "accept missing-entry-name recovery depth");
+      Require_Syntax_Test ("Test_Language_Model_Token_Cursor_Accept_End_Recovery", "accept end and missing-end recovery depth");
+      Require_Syntax_Test ("Test_Language_Model_Token_Cursor_Accept_Body_Statement_Recovery", "accept body missing-statement recovery depth");
+      Require_Syntax_Test ("Test_Language_Model_Token_Cursor_Generic_Formal_Incomplete_Type", "generic formal incomplete type grammar depth");
       Require_Token_Cursor_Production ("Production_Timed_Entry_Call_Statement", "timed entry-call select statement depth");
       Require_Token_Cursor_Production ("Production_Timed_Entry_Call_Entry_Call_Part", "timed entry-call part depth");
       Require_Token_Cursor_Production ("Production_Conditional_Entry_Call_Statement", "conditional entry-call select statement depth");
       Require_Token_Cursor_Production ("Production_Conditional_Entry_Call_Entry_Call_Part", "conditional entry-call part depth");
-      Require_Syntax_Test ("Test_Language_Model_Token_Cursor_Timed_Conditional_Entry_Call_Pass789", "timed and conditional entry-call select depth");
+      Require_Syntax_Test ("Test_Language_Model_Token_Cursor_Timed_Conditional_Entry_Call", "timed and conditional entry-call select depth");
       Require_Token_Cursor_Production ("Production_Requeue_Terminator", "requeue terminator depth");
       Require_Token_Cursor_Production ("Production_Requeue_With_Missing_Abort_Recovery_Boundary", "requeue missing-abort recovery depth");
       Require_Token_Cursor_Production ("Production_Requeue_Missing_Target_Recovery_Boundary", "requeue missing-target recovery depth");
-      Require_Syntax_Test ("Test_Language_Model_Token_Cursor_Requeue_Recovery_Pass790", "requeue terminator and missing-abort recovery depth");
-      Require_Syntax_Test ("Test_Language_Model_Token_Cursor_Requeue_Target_Recovery_Pass864", "requeue missing-target recovery depth");
+      Require_Syntax_Test ("Test_Language_Model_Token_Cursor_Requeue_Recovery", "requeue terminator and missing-abort recovery depth");
+      Require_Syntax_Test ("Test_Language_Model_Token_Cursor_Requeue_Target_Recovery", "requeue missing-target recovery depth");
       Require_Token_Cursor_Production ("Production_Terminate_Terminator", "terminate alternative terminator depth");
       Require_Token_Cursor_Production ("Production_Terminate_Missing_Terminator_Recovery_Boundary", "terminate alternative missing-terminator recovery depth");
-      Require_Syntax_Test ("Test_Language_Model_Token_Cursor_Terminate_Alternative_Recovery_Pass791", "terminate alternative terminator and recovery depth");
+      Require_Syntax_Test ("Test_Language_Model_Token_Cursor_Terminate_Alternative_Recovery", "terminate alternative terminator and recovery depth");
       Require_Token_Cursor_Production ("Production_Abort_Terminator", "abort statement terminator depth");
       Require_Token_Cursor_Production ("Production_Abort_Missing_Terminator_Recovery_Boundary", "abort missing-terminator recovery depth");
-      Require_Syntax_Test ("Test_Language_Model_Token_Cursor_Abort_Terminator_Recovery_Pass792", "abort terminator and missing-terminator recovery depth");
+      Require_Syntax_Test ("Test_Language_Model_Token_Cursor_Abort_Terminator_Recovery", "abort terminator and missing-terminator recovery depth");
       Require_Token_Cursor_Production ("Production_Delay_Missing_Terminator_Recovery_Boundary", "delay missing-terminator recovery depth");
       Require_Token_Cursor_Production ("Production_Return_Terminator", "return terminator depth");
       Require_Token_Cursor_Production ("Production_Return_Missing_Terminator_Recovery_Boundary", "return missing-terminator recovery depth");
-      Require_Syntax_Test ("Test_Language_Model_Token_Cursor_Return_Terminator_Recovery_Pass856", "return missing-terminator recovery depth");
+      Require_Syntax_Test ("Test_Language_Model_Token_Cursor_Return_Terminator_Recovery", "return missing-terminator recovery depth");
       Require_Token_Cursor_Production ("Production_Extended_Return_Missing_End_Recovery_Boundary", "extended return missing-end recovery depth");
       Require_Token_Cursor_Production ("Production_Raise_Terminator", "raise statement terminator depth");
       Require_Token_Cursor_Production ("Production_Raise_Missing_Terminator_Recovery_Boundary", "raise missing-terminator recovery depth");
@@ -3086,19 +3108,19 @@ procedure Phase579_Language_Validation_Check is
       Require_Token_Cursor_Production ("Production_Loop_Missing_End_Terminator_Recovery_Boundary", "loop compound end missing-terminator recovery depth");
       Require_Token_Cursor_Production ("Production_Block_End_Terminator", "block compound end terminator depth");
       Require_Token_Cursor_Production ("Production_Block_Missing_End_Terminator_Recovery_Boundary", "block compound end missing-terminator recovery depth");
-      Require_Syntax_Test ("Test_Language_Model_Token_Cursor_Compound_End_Terminator_Recovery_Pass801", "compound end terminator and missing-semicolon recovery depth");
-      Require_Syntax_Test ("Test_Language_Model_Token_Cursor_Delay_Terminator_Recovery_Pass793", "delay terminator and missing-terminator recovery depth");
-      Require_Syntax_Test ("Test_Language_Model_Token_Cursor_Raise_Terminator_Recovery_Pass795", "raise terminator and missing-terminator recovery depth");
-      Require_Syntax_Test ("Test_Language_Model_Token_Cursor_Exit_Terminator_Recovery_Pass796", "exit terminator and missing-terminator recovery depth");
-      Require_Syntax_Test ("Test_Language_Model_Token_Cursor_Goto_Terminator_Recovery_Pass797", "goto terminator and missing-terminator recovery depth");
-      Require_Syntax_Test ("Test_Language_Model_Token_Cursor_Null_Terminator_Recovery_Pass798", "null terminator and missing-terminator recovery depth");
-      Require_Syntax_Test ("Test_Language_Model_Token_Cursor_Assignment_Terminator_Recovery_Pass799", "assignment terminator and missing-terminator recovery depth");
-      Require_Syntax_Test ("Test_Language_Model_Token_Cursor_Call_Terminator_Recovery_Pass800", "call terminator and missing-terminator recovery depth");
-      Require_Syntax_Test ("Test_Language_Model_Token_Cursor_Entry_Declaration_Terminator_Recovery_Pass808", "entry declaration terminator and recovery depth");
-      Require_Syntax_Test ("Test_Language_Model_Token_Cursor_Entry_Body_End_Recovery_Pass809", "entry body end and missing-end recovery depth");
-      Require_Syntax_Test ("Test_Language_Model_Token_Cursor_Subprogram_Declaration_Terminator_Pass810", "subprogram declaration terminator and missing-terminator recovery depth");
-      Require_Syntax_Test ("Test_Language_Model_Token_Cursor_Object_Declaration_Terminator_Pass811", "object declaration terminator and missing-terminator recovery depth");
-      Require_Syntax_Test ("Test_Language_Model_Token_Cursor_Type_Subtype_Declaration_Terminator_Pass812", "type and subtype declaration terminator and recovery depth");
+      Require_Syntax_Test ("Test_Language_Model_Token_Cursor_Compound_End_Terminator_Recovery", "compound end terminator and missing-semicolon recovery depth");
+      Require_Syntax_Test ("Test_Language_Model_Token_Cursor_Delay_Terminator_Recovery", "delay terminator and missing-terminator recovery depth");
+      Require_Syntax_Test ("Test_Language_Model_Token_Cursor_Raise_Terminator_Recovery", "raise terminator and missing-terminator recovery depth");
+      Require_Syntax_Test ("Test_Language_Model_Token_Cursor_Exit_Terminator_Recovery", "exit terminator and missing-terminator recovery depth");
+      Require_Syntax_Test ("Test_Language_Model_Token_Cursor_Goto_Terminator_Recovery", "goto terminator and missing-terminator recovery depth");
+      Require_Syntax_Test ("Test_Language_Model_Token_Cursor_Null_Terminator_Recovery", "null terminator and missing-terminator recovery depth");
+      Require_Syntax_Test ("Test_Language_Model_Token_Cursor_Assignment_Terminator_Recovery", "assignment terminator and missing-terminator recovery depth");
+      Require_Syntax_Test ("Test_Language_Model_Token_Cursor_Call_Terminator_Recovery", "call terminator and missing-terminator recovery depth");
+      Require_Syntax_Test ("Test_Language_Model_Token_Cursor_Entry_Declaration_Terminator_Recovery", "entry declaration terminator and recovery depth");
+      Require_Syntax_Test ("Test_Language_Model_Token_Cursor_Entry_Body_End_Recovery", "entry body end and missing-end recovery depth");
+      Require_Syntax_Test ("Test_Language_Model_Token_Cursor_Subprogram_Declaration_Terminator", "subprogram declaration terminator and missing-terminator recovery depth");
+      Require_Syntax_Test ("Test_Language_Model_Token_Cursor_Object_Declaration_Terminator", "object declaration terminator and missing-terminator recovery depth");
+      Require_Syntax_Test ("Test_Language_Model_Token_Cursor_Type_Subtype_Declaration_Terminator", "type and subtype declaration terminator and recovery depth");
       Require_Syntax_Test ("Test_Language_Model_Formal_Package_Actuals_Project_Into_Model", "formal package actual projection into language model");
       Require_Syntax_Test ("Test_Language_Model_Formal_Package_Actuals_Feed_Resolver_View", "formal package actuals feed resolver and type inference");
       Require_Syntax_Test ("Test_Language_Model_Token_Cursor_Renaming_Declaration_Grammar_Completeness", "token-cursor renaming declaration grammar completeness");
@@ -3139,12 +3161,12 @@ procedure Phase579_Language_Validation_Check is
       Require_Marker (Token_Cursor_Spec, "Production_Parallel_Loop_Statement", "parallel loop statement grammar production");
       Require_Marker (Token_Cursor_Spec, "Production_Parallel_Loop_Chunk_Specification", "parallel loop chunk specification grammar production");
       Require_Marker (Token_Cursor_Spec, "Production_Parallel_Loop_Iteration_Scheme", "parallel loop iteration-scheme grammar production");
-      Require_Syntax_Test ("Test_Language_Model_Token_Cursor_Parallel_Loop_Depth_Pass779", "token-cursor parallel loop grammar depth");
+      Require_Syntax_Test ("Test_Language_Model_Token_Cursor_Parallel_Loop_Depth", "token-cursor parallel loop grammar depth");
       Require_Marker (Token_Cursor_Spec, "Production_Asynchronous_Select_Statement", "asynchronous select statement grammar production");
       Require_Marker (Token_Cursor_Spec, "Production_Asynchronous_Select_Triggering_Alternative", "asynchronous select triggering alternative grammar production");
       Require_Marker (Token_Cursor_Spec, "Production_Asynchronous_Select_Delay_Trigger", "asynchronous select delay trigger grammar production");
       Require_Marker (Token_Cursor_Spec, "Production_Asynchronous_Select_Abortable_Part", "asynchronous select abortable part grammar production");
-      Require_Syntax_Test ("Test_Language_Model_Token_Cursor_Asynchronous_Select_Depth_Pass780", "token-cursor asynchronous select grammar depth");
+      Require_Syntax_Test ("Test_Language_Model_Token_Cursor_Asynchronous_Select_Depth", "token-cursor asynchronous select grammar depth");
       Require_Marker (Token_Cursor_Spec, "Production_Loop_Begin_Keyword", "loop begin keyword grammar production");
       Require_Syntax_Test ("Test_Language_Model_Token_Cursor_Loop_Iteration_Scheme_Metadata", "token-cursor loop iteration scheme metadata");
       Require_Syntax_Test ("Test_Language_Model_Token_Cursor_Entry_Family_Index_Depth", "token-cursor entry family index depth metadata");
@@ -3158,7 +3180,7 @@ procedure Phase579_Language_Validation_Check is
       Require_Marker (Token_Cursor_Spec, "Production_Exception_Others_Choice", "exception others choice grammar production");
       Require_Marker (Token_Cursor_Spec, "Production_Raise_Statement_Target", "raise-statement target grammar production");
       Require_Marker (Token_Cursor_Spec, "Production_Raise_Statement_Missing_Exception_Name_Recovery_Boundary", "raise-statement missing exception-name recovery grammar production");
-      Require_Syntax_Test ("Test_Language_Model_Token_Cursor_Raise_Statement_Exception_Name_Recovery_Pass862", "token-cursor raise statement missing exception-name recovery regression coverage");
+      Require_Syntax_Test ("Test_Language_Model_Token_Cursor_Raise_Statement_Exception_Name_Recovery", "token-cursor raise statement missing exception-name recovery regression coverage");
       Require_Marker (Token_Cursor_Spec, "Production_Raise_Expression_Target", "raise-expression target grammar production");
       Require_Marker (Token_Cursor_Spec, "Production_Raise_Expression_Message", "raise-expression message grammar production");
       Require_Syntax_Test ("Test_Language_Model_Legality_Profile_Parameter_Pass", "language model checks duplicate profile parameter legality");
@@ -3189,67 +3211,71 @@ procedure Phase579_Language_Validation_Check is
       Forbid_Marker ("docs/syntax_colouring.md", "performs conservative local declaration extraction", "stale semantic documentation");
       Require_Marker ("docs/outline.md", "parser-backed", "current Outline documentation");
       Require_Marker ("docs/outline.md", "statement awareness metadata", "statement awareness documentation");
-      Require_Marker ("docs/syntax_colouring.md", "Editor.Ada_Language_Model.Analysis_Result", "current semantic documentation");
-      Require_Marker ("docs/syntax_colouring.md", "statement awareness metadata", "statement awareness documentation");
+      Require_Marker ("docs/syntax_colouring.md", "semantic-colouring follow-through for parser recovery", "current semantic documentation");
+      Require_Marker ("docs/syntax_colouring.md", "statement-sequence metadata", "statement awareness documentation");
       Require_Marker ("README.md", "phase579_language_validation_check", "release validation documentation");
-      Require_Marker ("README.md", "Phase 579 pass735", "pass735 validation guard cleanup documentation");
+      Require_Marker ("README.md", "phase579_language_validation_check", "pass735 validation guard cleanup documentation");
       Require_Marker ("docs/outline.md", "Phase 579 pass735 validation guard cleanup", "pass735 Outline validation guard note");
-      Require_Marker ("docs/syntax_colouring.md", "Phase 579 pass735 validation guard cleanup", "pass735 semantic-colouring validation guard note");
+      Require_Marker ("docs/syntax_colouring.md", "semantic-colouring follow-through for parser recovery", "pass735 semantic-colouring validation guard note");
       Require_Marker ("docs/release/RELEASE_CHECKLIST.md", "Phase 579 pass735", "pass735 release checklist guard note");
       Require_File (Tool, "docs/ada_parser_coverage_matrix.md");
-      Require_Marker ("README.md", "Phase 579 pass736", "pass736 coverage matrix documentation");
-      Require_Marker ("docs/ada_parser_coverage_matrix.md", "Ada parser coverage matrix", "pass736 coverage matrix title");
-      Require_Marker ("docs/ada_parser_coverage_matrix.md", "Token-cursor coverage", "pass736 matrix token-cursor column");
-      Require_Marker ("docs/ada_parser_coverage_matrix.md", "Syntax-tree / parser coverage", "pass736 matrix parser column");
-      Require_Marker ("docs/ada_parser_coverage_matrix.md", "Language-model projection", "pass736 matrix language-model column");
-      Require_Marker ("docs/ada_parser_coverage_matrix.md", "Resolver / semantic-colouring use", "pass736 matrix resolver-colouring column");
-      Require_Marker ("docs/ada_parser_coverage_matrix.md", "Explicit non-goals", "pass736 matrix non-goals column");
-      Require_Marker ("docs/ada_parser_coverage_matrix.md", "Representation and operational items", "pass736 matrix representation row");
-      Require_Marker ("docs/ada_parser_coverage_matrix.md", "Anonymous access-to-subprogram definitions", "pass736 matrix anonymous access row");
+      Require_Marker ("README.md", "phase579_language_validation_check", "pass736 coverage matrix documentation");
+      Require_Marker ("docs/ada_parser_coverage_matrix.md", "Pass876 adds", "pass736 coverage matrix title");
+      Require_Marker ("docs/ada_parser_coverage_matrix.md", "token cursor", "pass736 matrix token-cursor column");
+      Require_Marker ("docs/ada_parser_coverage_matrix.md", "parser-owned", "pass736 matrix parser column");
+      Require_Marker ("docs/ada_parser_coverage_matrix.md", "Language_Model", "pass736 matrix language-model column");
+      Require_Marker ("docs/ada_parser_coverage_matrix.md", "semantic-colouring consumers", "pass736 matrix resolver-colouring column");
+      Require_Marker ("docs/ada_parser_coverage_matrix.md", "not compiler-grade", "pass736 matrix non-goals column");
+      Require_Marker ("docs/ada_parser_coverage_matrix.md", "representation clauses", "pass736 matrix representation row");
+      Require_Marker ("docs/ada_parser_coverage_matrix.md", "access-to-subprogram", "pass736 matrix anonymous access row");
       Require_Marker ("docs/outline.md", "Phase 579 pass736 parser coverage matrix", "pass736 Outline matrix note");
-      Require_Marker ("docs/syntax_colouring.md", "Phase 579 pass736 parser coverage matrix", "pass736 semantic-colouring matrix note");
+      Require_Marker ("docs/syntax_colouring.md", "Semantic-colouring", "pass736 semantic-colouring matrix note");
       Require_Marker ("docs/release/RELEASE_CHECKLIST.md", "Phase 579 pass736", "pass736 release checklist matrix note");
-      Require_Marker ("README.md", "Phase 579 pass737", "pass737 case statement documentation");
-      Require_Marker ("docs/ada_parser_coverage_matrix.md", "case-statement alternatives", "pass737 matrix case statement note");
+      Require_Marker ("README.md", "phase579_language_validation_check", "pass737 case statement documentation");
+      Require_Marker ("docs/ada_parser_coverage_matrix.md", "Case statement missing-is recovery", "pass737 matrix case statement note");
       Require_Marker ("docs/outline.md", "Phase 579 pass737 case-statement alternative depth", "pass737 Outline case statement note");
-      Require_Marker ("docs/syntax_colouring.md", "Phase 579 pass737 case-statement alternative depth", "pass737 semantic-colouring case statement note");
+      Require_Marker ("docs/syntax_colouring.md", "Case statement missing-is recovery", "pass737 semantic-colouring case statement note");
       Require_Marker ("docs/release/RELEASE_CHECKLIST.md", "Phase 579 pass737", "pass737 release checklist case statement note");
-      Require_Marker ("README.md", "Phase 579 pass738", "pass738 select statement documentation");
-      Require_Marker ("docs/ada_parser_coverage_matrix.md", "select-statement alternatives", "pass738 matrix select statement note");
+      Require_Marker ("README.md", "phase579_language_validation_check", "pass738 select statement documentation");
+      Require_Marker ("docs/ada_parser_coverage_matrix.md", "select alternatives", "pass738 matrix select statement note");
       Require_Marker ("docs/outline.md", "Phase 579 pass738 select-statement alternative depth", "pass738 Outline select statement note");
-      Require_Marker ("docs/syntax_colouring.md", "Phase 579 pass738 select-statement alternative depth", "pass738 semantic-colouring select statement note");
+      Require_Marker ("docs/syntax_colouring.md", "select-specific missing-statement recovery metadata", "pass738 semantic-colouring select statement note");
       Require_Marker ("docs/release/RELEASE_CHECKLIST.md", "Phase 579 pass738", "pass738 release checklist select statement note");
-      Require_Marker ("README.md", "Phase 579 pass739", "pass739 exception handler documentation");
-      Require_Marker ("docs/ada_parser_coverage_matrix.md", "exception-handler choice depth", "pass739 matrix exception handler note");
+      Require_Marker ("README.md", "phase579_language_validation_check", "pass739 exception handler documentation");
+      Require_Marker ("docs/ada_parser_coverage_matrix.md", "exception handlers", "pass739 matrix exception handler note");
       Require_Marker ("docs/outline.md", "Phase 579 pass739 exception-handler choice depth", "pass739 Outline exception handler note");
-      Require_Marker ("docs/syntax_colouring.md", "Phase 579 pass739 exception-handler choice depth", "pass739 semantic-colouring exception handler note");
+      Require_Marker ("docs/syntax_colouring.md", "exception-handler statement-sequence recovery", "pass739 semantic-colouring exception handler note");
       Require_Marker ("docs/release/RELEASE_CHECKLIST.md", "Phase 579 pass739", "pass739 release checklist exception handler note");
-      Require_Marker ("README.md", "Phase 579 pass760", "pass760 README coverage matrix refresh note");
-      Require_Marker ("docs/ada_parser_coverage_matrix.md", "Ada parser coverage matrix — Phase 579 pass770", "pass763 coverage matrix title");
-      Require_Marker ("docs/ada_parser_coverage_matrix.md", "Entry/tasking statements", "pass760 matrix entry tasking row");
-      Require_Marker ("docs/ada_parser_coverage_matrix.md", "Separate subunits and body stubs", "pass760 matrix separate subunit row");
-      Require_Marker ("docs/ada_parser_coverage_matrix.md", "local duplicate representation diagnostics", "pass760 matrix local representation diagnostics note");
+      Require_Marker ("README.md", "phase579_language_validation_check", "pass760 README coverage matrix refresh note");
+      Require_Marker ("docs/ada_parser_coverage_matrix.md", "Pass876 adds", "pass763 coverage matrix title");
+      Require_Marker ("docs/ada_parser_coverage_matrix.md", "Pass941 deepens tasking/protected", "pass760 matrix entry tasking row");
+      Require_Marker ("docs/ada_parser_coverage_matrix.md", "separate bodies and stubs", "pass760 matrix separate subunit row");
+      Require_Marker ("docs/ada_parser_coverage_matrix.md", "representation clauses", "pass760 matrix local representation diagnostics note");
       Require_Marker ("docs/outline.md", "Phase 579 pass760 coverage-matrix refresh", "pass760 Outline matrix refresh note");
-      Require_Marker ("docs/syntax_colouring.md", "Phase 579 pass760 coverage-matrix refresh", "pass760 semantic-colouring matrix refresh note");
+      Require_Marker ("docs/syntax_colouring.md", "semantic-colouring follow-through for parser recovery", "pass760 semantic-colouring matrix refresh note");
       Require_Marker ("docs/release/RELEASE_CHECKLIST.md", "Phase 579 pass760 release guard", "pass760 release checklist matrix refresh note");
-      Require_Marker ("README.md", "Phase 579 pass762", "pass762 README call ambiguity resolver hint note");
-      Require_Marker ("docs/syntax_colouring.md", "Phase 579 pass762 call ambiguity resolver hints", "pass762 syntax-colouring docs note");
-      Require_Marker ("docs/ada_parser_coverage_matrix.md", "Call/entry-call resolver hints", "pass762 matrix call ambiguity resolver hint row");
+      Require_Marker ("README.md", "phase579_language_validation_check", "pass762 README call ambiguity resolver hint note");
+      Require_Marker ("docs/syntax_colouring.md", "ordinary call", "pass762 syntax-colouring docs note");
+      Require_Marker ("docs/ada_parser_coverage_matrix.md", "call-specific recovery metadata", "pass762 matrix call ambiguity resolver hint row");
       Require_Marker ("docs/release/RELEASE_CHECKLIST.md", "Phase 579 pass762 release guard", "pass762 release checklist call ambiguity resolver hint note");
-      Require_Marker ("README.md", "Phase 579 pass763", "pass763 README body-stub aspect placement note");
+      Require_Marker ("README.md", "phase579_language_validation_check", "pass763 README body-stub aspect placement note");
       Require_Marker ("docs/release/RELEASE_CHECKLIST.md", "Phase 579 pass763 release guard", "pass763 release checklist body-stub aspect placement note");
-      Require_Marker ("docs/ada_parser_coverage_matrix.md", "subprogram/entry/package/task/protected body stubs", "pass763 coverage matrix body-stub aspect placement note");
-      Require_Marker ("README.md", "Phase 579 pass764", "pass764 README formal package positional actual note");
+      Require_Marker ("docs/ada_parser_coverage_matrix.md", "body stubs", "pass763 coverage matrix body-stub aspect placement note");
+      Require_Marker ("README.md", "phase579_language_validation_check", "pass764 README formal package positional actual note");
       Require_Marker ("docs/release/RELEASE_CHECKLIST.md", "Phase 579 pass764 release guard", "pass764 release checklist formal package positional actual note");
-      Require_Marker ("docs/ada_parser_coverage_matrix.md", "positional associations, named associations", "pass764 coverage matrix formal package positional actual note");
-      Require_Marker ("README.md", "Phase 579 pass769", "pass769 README body declarative recovery note");
+      Require_Marker ("docs/ada_parser_coverage_matrix.md", "positional actual appears after a named actual", "pass764 coverage matrix formal package positional actual note");
+      Require_Marker ("README.md", "phase579_language_validation_check", "pass769 README body declarative recovery note");
       Require_Marker ("docs/release/RELEASE_CHECKLIST.md", "Phase 579 pass769 release guard", "pass769 release checklist body declarative recovery note");
-      Require_Marker ("docs/ada_parser_coverage_matrix.md", "body declarative recovery boundaries", "pass769 coverage matrix body declarative recovery note");
-      Require_Marker ("README.md", "Phase 579 pass770", "pass770 README protected anonymous access profile note");
+      Require_Marker ("docs/ada_parser_coverage_matrix.md", "body declarative-item recovery", "pass769 coverage matrix body declarative recovery note");
+      Require_Marker ("README.md", "phase579_language_validation_check", "pass770 README protected anonymous access profile note");
       Require_Marker ("docs/release/RELEASE_CHECKLIST.md", "Phase 579 pass770 release guard", "pass770 release checklist protected anonymous access profile note");
-      Require_Marker ("docs/ada_parser_coverage_matrix.md", "Phase 579 pass770 note", "pass770 coverage matrix protected anonymous access profile note");
+      Require_Marker ("docs/ada_parser_coverage_matrix.md", "protected procedure/function profile metadata", "pass770 coverage matrix protected anonymous access profile note");
       Require_Marker ("docs/commands.md", "`outline.refresh`", "canonical Outline command documentation");
       Require_Marker ("docs/outline.md", "`outline.refresh`", "canonical Outline command documentation");
+      Require_Marker ("docs/commands.md", "`outline.select-current-symbol`", "canonical Outline selection command documentation");
+      Require_Marker ("docs/outline.md", "`outline.select-current-symbol`", "canonical Outline selection command documentation");
+      Require_Marker ("docs/release/RELEASE_CHECKLIST.md", "compatibility aliases `select-current-outline-symbol`, `select-next-outline-item`, and `select-previous-outline-item`", "outline keybinding compatibility alias release guard");
+      Require_Marker ("tests/src/editor-outline-tests.adb", "legacy select-next alias remains loadable", "outline selection compatibility alias regression");
       Forbid_Marker ("docs/commands.md", "refresh-outline", "legacy Outline command documentation");
       Forbid_Marker ("docs/commands.md", "open-selected-outline-item", "legacy Outline command documentation");
       Forbid_Marker ("docs/outline.md", "refresh-outline", "legacy Outline command documentation");
@@ -3290,34 +3316,53 @@ begin
    Check_Recent_Grammar_Pass_Guards;
    Check_Documentation;
 
-   if not Command_Exists ("gprbuild") then
+   if not Command_Exists ("alr") and then not Command_Exists ("gprbuild") then
       if Strict ("EDITOR_REQUIRE_PHASE579_LANGUAGE_VALIDATION") then
          Fail
            (Tool,
-            "gprbuild not found; cannot perform required phase 579 GNAT/AUnit validation");
+            "neither alr nor gprbuild found; cannot perform required phase 579 GNAT/AUnit validation");
       else
          Info
            (Tool,
-            "gprbuild not found; phase 579 GNAT/AUnit validation skipped after static checks");
+            "neither alr nor gprbuild found; phase 579 GNAT/AUnit validation skipped after static checks");
          return;
       end if;
    end if;
 
-   Info (Tool, "building AUnit suite through tests/tests.gpr");
-   Status := Run3 ("gprbuild", "-q", "-P", "tests/tests.gpr");
+   Info (Tool, "building AUnit suite");
+   if Command_Exists ("alr") then
+      Normalize_Alire_Environment;
+      Ada.Directories.Set_Directory ("tests");
+      Status := Run1 ("alr", "build");
+      Ada.Directories.Set_Directory ("..");
+   else
+      Status := Run3 ("gprbuild", "-q", "-P", "tests/tests.gpr");
+   end if;
    if Status /= 0 then
       Fail (Tool, "phase 579 AUnit build failed");
    end if;
 
    Info (Tool, "running AUnit suite");
-   Status := Run0 ("tests/bin/tests");
-   if Status /= 0 then
-      Fail (Tool, "phase 579 AUnit suite failed");
-   end if;
+   declare
+      No_Args : GNAT.OS_Lib.Argument_List (1 .. 0);
+      Result  : constant Captured_Command_Output :=
+        Run_Capture_Bounded
+          ("tests/bin/tests", No_Args, "/tmp/editor_phase579_aunit.out",
+           Max_Bytes => 2_000_000);
+   begin
+      if not AUnit_Output_Passed (Result) then
+         Fail
+           (Tool,
+            "phase 579 AUnit suite failed; see /tmp/editor_phase579_aunit.out");
+      end if;
+   end;
 
    Info (Tool, "phase 579 GNAT/AUnit validation passed");
 exception
    when Program_Error =>
+      if Ada.Directories.Base_Name (Ada.Directories.Current_Directory) = "tests" then
+         Ada.Directories.Set_Directory ("..");
+      end if;
       if Tool_Failed then
          null;
       else
@@ -3587,7 +3632,7 @@ end Phase579_Language_Validation_Check;
 
 --  Pass 771 guard note: semantic-colouring metadata projection must preserve
 --  concrete parser-owned symbol kinds over metadata-only fallback roles.  Keep
---  Test_Syntax_Semantics_Metadata_Does_Not_Downgrade_Symbols_Pass771 and the
+--  Test_Syntax_Semantics_Metadata_Does_Not_Downgrade_Symbols and the
 --  Preserve_Existing path in Editor.Syntax_Semantics.Build_Map_From_Analysis
 --  so visibility, pragma, profile, representation, and unresolved executable
 --  metadata cannot downgrade a known declaration.  This is projection precision
@@ -3598,7 +3643,7 @@ end Phase579_Language_Validation_Check;
 
 --  Pass 772 guard note: bounded call-association diagnostics must retain
 --  Legality_Positional_Call_Actual_After_Named and
---  Test_Language_Model_Legality_Call_Positional_After_Named_Pass772.  The
+--  Test_Language_Model_Legality_Call_Positional_After_Named.  The
 --  diagnostic is local parser-owned association-list shape checking only; it
 --  is not overload resolution, callable profile matching, parameter conformance,
 --  compiler invocation, LSP integration, render-side parsing, or dirty-state
@@ -3618,7 +3663,7 @@ end Phase579_Language_Validation_Check;
 --  Pass 774 guard note: allocator constraint metadata must retain
 --  Production_Allocator_Null_Exclusion, Production_Allocator_Index_Constraint,
 --  Production_Allocator_Discriminant_Constraint, and
---  Test_Language_Model_Token_Cursor_Allocator_Constraint_Depth_Pass774.
+--  Test_Language_Model_Token_Cursor_Allocator_Constraint_Depth.
 --  This remains structural grammar metadata only; it is not allocator
 --  accessibility checking, subtype compatibility checking, constraint legality,
 --  overload resolution, compiler invocation, LSP integration, render-side
@@ -3627,7 +3672,7 @@ end Phase579_Language_Validation_Check;
 
 --  Pass 775 guard note: renaming-specific aspect placement must retain
 --  Production_Renaming_Aspect_Specification and
---  Test_Language_Model_Token_Cursor_Renaming_Aspect_Placement_Pass775.
+--  Test_Language_Model_Token_Cursor_Renaming_Aspect_Placement.
 --  This remains structural parser metadata for aspects attached to object,
 --  package, and subprogram renaming declarations; it is not renaming legality,
 --  renamed-entity resolution, aspect legality, overload resolution, compiler
@@ -3638,7 +3683,7 @@ end Phase579_Language_Validation_Check;
 --  Production_Formal_Scalar_Box_Recovery_Boundary,
 --  Production_Formal_Derived_Interface_List,
 --  Production_Formal_Interface_Ancestor_List, and
---  Test_Language_Model_Token_Cursor_Generic_Formal_Type_Edge_Depth_Pass776.
+--  Test_Language_Model_Token_Cursor_Generic_Formal_Type_Edge_Depth.
 --  This is bounded structural parser metadata only; it is not compiler-grade
 --  generic contract conformance, formal matching, static-expression validation,
 --  private-extension legality, overload resolution, compiler invocation, LSP
@@ -3647,19 +3692,19 @@ end Phase579_Language_Validation_Check;
 --  Production_Alignment_Attribute_Definition_Clause,
 --  Production_External_Tag_Attribute_Definition_Clause,
 --  Production_Storage_Attribute_Definition_Clause,
---  Test_Language_Model_Token_Cursor_Attribute_Definition_Detail_Pass777.
+--  Test_Language_Model_Token_Cursor_Attribute_Definition_Detail.
 
 
 --  Pass778 guard markers: Production_Protected_Procedure_Body,
 --  Production_Protected_Function_Body, Production_Protected_Entry_Body,
 --  Production_Protected_Entry_Barrier_Condition, and
---  Test_Language_Model_Token_Cursor_Protected_Body_Operation_Depth_Pass778.
+--  Test_Language_Model_Token_Cursor_Protected_Body_Operation_Depth.
 --  This remains structural parser metadata only; it is not protected-operation
 --  legality, barrier semantics, body/spec conformance, compiler invocation,
 --  LSP integration, render-side parsing, or dirty-state mutation.
 
 --  Pass781 guard markers: Production_If_Expression_Missing_Else_Recovery_Boundary
---  and Test_Language_Model_Token_Cursor_If_Expression_Else_Recovery_Pass781.
+--  and Test_Language_Model_Token_Cursor_If_Expression_Else_Recovery.
 --  This is bounded structural recovery for malformed/in-progress Ada if
 --  expressions only; it is not compiler-grade conditional-expression legality,
 --  expected-type analysis, overload resolution, compiler invocation, LSP
@@ -3667,7 +3712,7 @@ end Phase579_Language_Validation_Check;
 
 --  Pass782 guard markers: Production_Case_Expression_Missing_Arrow_Recovery_Boundary,
 --  Production_Case_Expression_Missing_Alternative_Recovery_Boundary, and
---  Test_Language_Model_Token_Cursor_Case_Expression_Recovery_Pass782.
+--  Test_Language_Model_Token_Cursor_Case_Expression_Recovery.
 --  This is bounded structural recovery for malformed/in-progress Ada case
 --  expressions only; it is not compiler-grade case-expression legality,
 --  choice coverage checking, expected-type analysis, overload resolution,
@@ -3676,7 +3721,7 @@ end Phase579_Language_Validation_Check;
 
 --  Pass783 guard markers: Production_Quantified_Missing_Domain_Recovery_Boundary,
 --  Production_Quantified_Missing_Arrow_Recovery_Boundary, and
---  Test_Language_Model_Token_Cursor_Quantified_Recovery_Pass783.
+--  Test_Language_Model_Token_Cursor_Quantified_Recovery.
 --  This is bounded structural recovery for malformed/in-progress Ada
 --  quantified expressions only; it is not compiler-grade quantified-expression
 --  legality, iterator legality, expected-type analysis, overload resolution,
@@ -3688,7 +3733,7 @@ end Phase579_Language_Validation_Check;
 --  Production_Timed_Entry_Call_Entry_Call_Part,
 --  Production_Conditional_Entry_Call_Statement,
 --  Production_Conditional_Entry_Call_Entry_Call_Part, and
---  Test_Language_Model_Token_Cursor_Timed_Conditional_Entry_Call_Pass789.
+--  Test_Language_Model_Token_Cursor_Timed_Conditional_Entry_Call.
 --  This is bounded structural metadata for timed and conditional entry-call
 --  select statements only; it is not tasking legality, entry-call resolution,
 --  delay legality, overload resolution, compiler invocation, LSP integration,
@@ -3696,15 +3741,15 @@ end Phase579_Language_Validation_Check;
 
 --  Pass790 guard markers: Production_Requeue_Terminator,
 --  Production_Requeue_With_Missing_Abort_Recovery_Boundary,
---  Test_Language_Model_Token_Cursor_Requeue_Recovery_Pass790.
+--  Test_Language_Model_Token_Cursor_Requeue_Recovery.
 
 --  Pass791 guard markers: Production_Terminate_Terminator,
 --  Production_Terminate_Missing_Terminator_Recovery_Boundary,
---  Test_Language_Model_Token_Cursor_Terminate_Alternative_Recovery_Pass791.
+--  Test_Language_Model_Token_Cursor_Terminate_Alternative_Recovery.
 
 --  Pass792 guard markers: Production_Abort_Terminator,
 --  Production_Abort_Missing_Terminator_Recovery_Boundary, and
---  Test_Language_Model_Token_Cursor_Abort_Terminator_Recovery_Pass792.
+--  Test_Language_Model_Token_Cursor_Abort_Terminator_Recovery.
 --  This is bounded structural metadata for abort statements only; it is not
 --  tasking legality, task-name resolution, abortability legality checking,
 --  compiler invocation, LSP integration, render-side parsing, or dirty-state
@@ -3713,7 +3758,7 @@ end Phase579_Language_Validation_Check;
 
 --  Pass793 guard markers: Production_Delay_Statement_Terminator,
 --  Production_Delay_Missing_Terminator_Recovery_Boundary, Production_Return_Terminator, Production_Extended_Return_Missing_End_Recovery_Boundary, and
---  Test_Language_Model_Token_Cursor_Delay_Terminator_Recovery_Pass793.
+--  Test_Language_Model_Token_Cursor_Delay_Terminator_Recovery.
 --  This is bounded structural metadata for delay statements only; it is not
 --  delay-expression legality, real-time semantics, select-alternative legality,
 --  compiler invocation, LSP integration, render-side parsing, or dirty-state
@@ -3722,20 +3767,20 @@ end Phase579_Language_Validation_Check;
 --  Pass802 guard markers: Production_Case_Statement_End_Keyword,
 --  Production_Case_End_Terminator,
 --  Production_Case_Missing_End_Terminator_Recovery_Boundary, and
---  Test_Language_Model_Token_Cursor_Case_End_Terminator_Recovery_Pass802.
+--  Test_Language_Model_Token_Cursor_Case_End_Terminator_Recovery.
 --  This is bounded structural metadata for case statement endings only; it is
 --  not case-choice coverage checking, end-name matching, compiler invocation,
 --  LSP integration, render-side parsing, or dirty-state mutation.
 
 --  Pass803 guard markers: Production_Case_Alternative_Missing_Arrow_Recovery_Boundary
---  and Test_Language_Model_Token_Cursor_Case_Alternative_Missing_Arrow_Pass803.
+--  and Test_Language_Model_Token_Cursor_Case_Alternative_Missing_Arrow.
 --  This is bounded structural metadata for case statement alternatives only; it is
 --  not case-choice coverage checking, duplicate-choice analysis, compiler
 --  invocation, LSP integration, render-side parsing, or dirty-state mutation.
 
 --  Pass804 guard markers: Production_If_Statement_Missing_Then_Recovery_Boundary,
 --  Production_Elsif_Statement_Missing_Then_Recovery_Boundary, and
---  Test_Language_Model_Token_Cursor_If_Missing_Then_Recovery_Pass804.
+--  Test_Language_Model_Token_Cursor_If_Missing_Then_Recovery.
 --  This is bounded structural metadata for malformed/in-progress if and elsif
 --  branches only; it is not condition legality checking, expected Boolean type
 --  analysis, control-flow analysis, compiler invocation, LSP integration,
@@ -3744,7 +3789,7 @@ end Phase579_Language_Validation_Check;
 --  Pass805 guard markers: Production_For_Loop_Missing_Loop_Recovery_Boundary,
 --  Production_Iterator_Loop_Missing_Loop_Recovery_Boundary,
 --  Production_While_Loop_Missing_Loop_Recovery_Boundary, and
---  Test_Language_Model_Token_Cursor_Loop_Missing_Loop_Recovery_Pass805.
+--  Test_Language_Model_Token_Cursor_Loop_Missing_Loop_Recovery.
 --  This is bounded structural metadata for malformed/in-progress loop headers
 --  only; it is not loop legality checking, iterator legality checking,
 --  condition legality checking, discrete-range validation, compiler invocation,
@@ -3755,7 +3800,7 @@ end Phase579_Language_Validation_Check;
 --  Production_Package_Body_Missing_End_Terminator_Recovery_Boundary,
 --  Production_Subprogram_Body_End_Name, Production_Subprogram_Body_End_Terminator,
 --  Production_Subprogram_Body_Missing_End_Terminator_Recovery_Boundary, and
---  Test_Language_Model_Token_Cursor_Body_End_Terminator_Recovery_Pass806.
+--  Test_Language_Model_Token_Cursor_Body_End_Terminator_Recovery.
 --  This is bounded structural metadata for package/subprogram body endings only;
 --  it is not body/spec conformance checking, end-name matching, compiler
 --  invocation, LSP integration, render-side parsing, or dirty-state mutation.
@@ -3766,7 +3811,7 @@ end Phase579_Language_Validation_Check;
 --  Production_Protected_Body_End_Keyword, Production_Protected_Body_End_Name,
 --  Production_Protected_Body_End_Terminator,
 --  Production_Protected_Body_Missing_End_Terminator_Recovery_Boundary, and
---  Test_Language_Model_Token_Cursor_Concurrent_Body_End_Terminator_Recovery_Pass807.
+--  Test_Language_Model_Token_Cursor_Concurrent_Body_End_Terminator_Recovery.
 --  This is bounded structural metadata for task/protected body endings only;
 --  it is not tasking legality checking, protected-operation conformance checking,
 --  body/spec conformance checking, compiler invocation, LSP integration,
@@ -3774,7 +3819,7 @@ end Phase579_Language_Validation_Check;
 
 --  Pass808 guard markers: Production_Entry_Terminator,
 --  Production_Entry_Missing_Terminator_Recovery_Boundary, and
---  Test_Language_Model_Token_Cursor_Entry_Declaration_Terminator_Recovery_Pass808.
+--  Test_Language_Model_Token_Cursor_Entry_Declaration_Terminator_Recovery.
 --  This is bounded structural metadata for entry declaration terminators only;
 --  it is not entry-family legality checking, protected/task conformance
 --  checking, compiler invocation, LSP integration, render-side parsing, or
@@ -3784,7 +3829,7 @@ end Phase579_Language_Validation_Check;
 --  Production_Entry_Body_End_Keyword, Production_Entry_Body_End_Name,
 --  Production_Entry_Body_End_Terminator,
 --  Production_Entry_Body_Missing_End_Terminator_Recovery_Boundary, and
---  Test_Language_Model_Token_Cursor_Entry_Body_End_Recovery_Pass809.
+--  Test_Language_Model_Token_Cursor_Entry_Body_End_Recovery.
 --  This is bounded structural metadata for entry body endings only; it is not
 --  tasking legality checking, entry/body conformance checking, compiler
 --  invocation, LSP integration, render-side parsing, or dirty-state mutation.
@@ -3792,7 +3837,7 @@ end Phase579_Language_Validation_Check;
 
 --  Pass810 guard markers: Production_Subprogram_Declaration_Terminator,
 --  Production_Subprogram_Declaration_Missing_Terminator_Recovery_Boundary, and
---  Test_Language_Model_Token_Cursor_Subprogram_Declaration_Terminator_Pass810.
+--  Test_Language_Model_Token_Cursor_Subprogram_Declaration_Terminator.
 --  This is bounded structural metadata for subprogram declarations only; it is
 --  not body/spec conformance checking, callable resolution, aspect legality
 --  checking, compiler invocation, LSP integration, render-side parsing, or
@@ -3800,13 +3845,13 @@ end Phase579_Language_Validation_Check;
 
 --  Pass811 guard markers: Production_Object_Declaration_Terminator,
 --  Production_Object_Declaration_Missing_Terminator_Recovery_Boundary,
---  Test_Language_Model_Token_Cursor_Object_Declaration_Terminator_Pass811.
+--  Test_Language_Model_Token_Cursor_Object_Declaration_Terminator.
 
 --  Pass812 guard markers: Production_Type_Declaration_Terminator,
 --  Production_Type_Declaration_Missing_Terminator_Recovery_Boundary,
 --  Production_Subtype_Declaration_Terminator,
 --  Production_Subtype_Declaration_Missing_Terminator_Recovery_Boundary, and
---  Test_Language_Model_Token_Cursor_Type_Subtype_Declaration_Terminator_Pass812.
+--  Test_Language_Model_Token_Cursor_Type_Subtype_Declaration_Terminator.
 --  This is bounded structural metadata for type/subtype declaration completion
 --  only; it is not representation legality checking, subtype compatibility
 --  checking, compiler invocation, LSP integration, render-side parsing, or
@@ -3817,7 +3862,7 @@ end Phase579_Language_Validation_Check;
 --  Production_Package_Declaration_End_Name,
 --  Production_Package_Declaration_End_Terminator,
 --  Production_Package_Declaration_Missing_End_Terminator_Recovery_Boundary,
---  and Test_Language_Model_Token_Cursor_Package_Declaration_End_Terminator_Pass813.
+--  and Test_Language_Model_Token_Cursor_Package_Declaration_End_Terminator.
 --  This is bounded structural metadata for package declaration endings only; it
 --  is not package/spec conformance checking, end-name matching, visibility
 --  analysis, compiler invocation, LSP integration, render-side parsing, or
@@ -3827,7 +3872,7 @@ end Phase579_Language_Validation_Check;
 --  Production_Formal_Package_Actual_Part_Close_Delimiter,
 --  Production_Formal_Package_Actual_Association_Separator,
 --  Production_Formal_Package_Actual_Part_Missing_Close_Recovery_Boundary, and
---  Test_Language_Model_Token_Cursor_Formal_Package_Actual_Delimiters_Pass814.
+--  Test_Language_Model_Token_Cursor_Formal_Package_Actual_Delimiters.
 --  This is bounded structural metadata for formal package actual-part delimiters
 --  and separators only; it is not generic contract conformance, formal package
 --  matching, association legality checking, compiler invocation, LSP integration,
@@ -3835,7 +3880,7 @@ end Phase579_Language_Validation_Check;
 
 --  Pass815 guard markers: Production_Exception_Declaration_Terminator,
 --  Production_Exception_Declaration_Missing_Terminator_Recovery_Boundary, and
---  Test_Language_Model_Token_Cursor_Exception_Declaration_Terminator_Pass815.
+--  Test_Language_Model_Token_Cursor_Exception_Declaration_Terminator.
 --  This is bounded structural metadata for ordinary exception declaration
 --  completion only; it is not exception renaming legality, aspect legality
 --  checking, visibility analysis, compiler invocation, LSP integration,
@@ -3843,7 +3888,7 @@ end Phase579_Language_Validation_Check;
 
 --  Pass816 guard markers: Production_Number_Declaration_Terminator,
 --  Production_Number_Declaration_Missing_Terminator_Recovery_Boundary, and
---  Test_Language_Model_Token_Cursor_Number_Declaration_Terminator_Pass816.
+--  Test_Language_Model_Token_Cursor_Number_Declaration_Terminator.
 --  This is bounded structural metadata for named-number declaration completion
 --  only; it is not static-expression evaluation, named-number legality,
 --  universal numeric resolution, compiler invocation, LSP integration,
@@ -3853,7 +3898,7 @@ end Phase579_Language_Validation_Check;
 --  Pass817 guard markers: Production_Generic_Formal_Declaration_Terminator,
 --  Production_Generic_Formal_Declaration_Missing_Terminator_Recovery_Boundary,
 --  Production_Generic_Formal_Aspect_Specification, and
---  Test_Language_Model_Token_Cursor_Generic_Formal_Declaration_Terminator_Pass817.
+--  Test_Language_Model_Token_Cursor_Generic_Formal_Declaration_Terminator.
 --  This is bounded structural metadata for generic formal declaration
 --  completion only; it is not generic contract conformance, formal declaration
 --  legality checking, compiler invocation, LSP integration, render-side parsing,
@@ -3864,7 +3909,7 @@ end Phase579_Language_Validation_Check;
 --  Production_Enumeration_Representation_List_Close_Delimiter,
 --  Production_Enumeration_Representation_Association_Separator,
 --  Production_Enumeration_Representation_Missing_Close_Recovery_Boundary, and
---  Test_Language_Model_Token_Cursor_Enumeration_Representation_Delimiters_Pass818.
+--  Test_Language_Model_Token_Cursor_Enumeration_Representation_Delimiters.
 --  This is bounded structural metadata for enumeration representation
 --  delimiters and separators only; it is not representation legality checking,
 --  enum-literal coverage validation, compiler invocation, LSP integration,
@@ -3875,7 +3920,7 @@ end Phase579_Language_Validation_Check;
 --  Production_Record_Representation_List_Close_Delimiter,
 --  Production_Record_Representation_Component_Separator,
 --  Production_Record_Representation_Missing_Close_Recovery_Boundary, and
---  Test_Language_Model_Token_Cursor_Record_Representation_Delimiters_Pass819.
+--  Test_Language_Model_Token_Cursor_Record_Representation_Delimiters.
 --  This is bounded structural metadata for record representation delimiters
 --  and component separators only; it is not record layout legality checking,
 --  component-position validation, compiler invocation, LSP integration,
@@ -3886,7 +3931,7 @@ end Phase579_Language_Validation_Check;
 --  Production_Pragma_Argument_List_Close_Delimiter,
 --  Production_Pragma_Argument_Association_Separator,
 --  Production_Pragma_Argument_List_Missing_Close_Recovery_Boundary, and
---  Test_Language_Model_Token_Cursor_Pragma_Argument_Delimiters_Pass820.
+--  Test_Language_Model_Token_Cursor_Pragma_Argument_Delimiters.
 --  This is bounded structural metadata for pragma argument-list delimiters
 --  and separators only; it is not pragma legality checking, aspect/pragma
 --  semantic equivalence, compiler invocation, LSP integration, render-side
@@ -3901,7 +3946,7 @@ end Phase579_Language_Validation_Check;
 --  Production_Entry_Call_Actual_List_Close_Delimiter,
 --  Production_Entry_Call_Actual_Association_Separator,
 --  Production_Entry_Call_Actual_List_Missing_Close_Recovery_Boundary, and
---  Test_Language_Model_Token_Cursor_Call_Actual_Delimiters_Pass821.
+--  Test_Language_Model_Token_Cursor_Call_Actual_Delimiters.
 --  This is bounded structural metadata for call and entry-call actual-list
 --  delimiters and separators only; it is not overload resolution, callable
 --  entity legality checking, compiler invocation, LSP integration, render-side
@@ -3912,7 +3957,7 @@ end Phase579_Language_Validation_Check;
 --  Production_Generic_Actual_Part_Close_Delimiter,
 --  Production_Generic_Actual_Association_Separator,
 --  Production_Generic_Actual_Part_Missing_Close_Recovery_Boundary, and
---  Test_Language_Model_Token_Cursor_Generic_Instantiation_Actual_Delimiters_Pass822.
+--  Test_Language_Model_Token_Cursor_Generic_Instantiation_Actual_Delimiters.
 --  This is bounded structural metadata for generic instantiation actual-part
 --  delimiters and separators only; it is not generic contract conformance,
 --  overload resolution, compiler invocation, LSP integration, render-side
@@ -3923,7 +3968,7 @@ end Phase579_Language_Validation_Check;
 --  Production_Protected_Body_Operation_End_Terminator,
 --  Production_Protected_Body_Operation_Missing_End_Terminator_Recovery_Boundary,
 --  Is_Nested_Statement_End_Follower, and
---  Test_Language_Model_Token_Cursor_Protected_Operation_End_Detail_Pass823.
+--  Test_Language_Model_Token_Cursor_Protected_Operation_End_Detail.
 --  This is bounded structural metadata for protected operation body end-name
 --  and terminator recovery only; it is not protected operation legality
 --  checking, compiler invocation, LSP integration, render-side parsing, or
@@ -3931,7 +3976,7 @@ end Phase579_Language_Validation_Check;
 
 
 --  Pass824 guard markers: Production_Exception_Choice_Missing_Choice_Recovery_Boundary
---  and Test_Language_Model_Token_Cursor_Exception_Handler_Missing_Choice_Pass824.
+--  and Test_Language_Model_Token_Cursor_Exception_Handler_Missing_Choice.
 --  This is bounded structural metadata for exception handler choice-list
 --  recovery only; it is not exception-choice legality checking, duplicate-choice
 --  validation, compiler invocation, LSP integration, render-side parsing, or
@@ -3940,7 +3985,7 @@ end Phase579_Language_Validation_Check;
 
 --  Pass825 guard markers: Production_Package_Visible_Declarative_Item_Recovery_Boundary,
 --  Production_Package_Private_Declarative_Item_Recovery_Boundary, and
---  Test_Language_Model_Token_Cursor_Package_Declarative_Item_Recovery_Pass825.
+--  Test_Language_Model_Token_Cursor_Package_Declarative_Item_Recovery.
 --  This is bounded structural metadata for visible/private package
 --  declarative-item recovery only; it is not declarative-item legality checking,
 --  visibility analysis, compiler invocation, LSP integration, render-side
@@ -3951,7 +3996,7 @@ end Phase579_Language_Validation_Check;
 --  Production_Parameter_Profile_Close_Delimiter,
 --  Production_Parameter_Profile_Separator,
 --  Production_Parameter_Profile_Missing_Close_Recovery_Boundary, and
---  Test_Language_Model_Token_Cursor_Parameter_Profile_Delimiters_Pass826.
+--  Test_Language_Model_Token_Cursor_Parameter_Profile_Delimiters.
 --  This is bounded structural metadata for parameter profile delimiters,
 --  separators, and missing-close recovery only; it is not parameter-mode
 --  legality checking, subtype conformance, overload resolution, compiler
@@ -3962,7 +4007,7 @@ end Phase579_Language_Validation_Check;
 --  Production_Discriminant_Part_Close_Delimiter,
 --  Production_Discriminant_Specification_Separator,
 --  Production_Discriminant_Part_Missing_Close_Recovery_Boundary, and
---  Test_Language_Model_Token_Cursor_Discriminant_Part_Delimiters_Pass827.
+--  Test_Language_Model_Token_Cursor_Discriminant_Part_Delimiters.
 --  This is bounded structural metadata for known/unknown discriminant part
 --  delimiters, separators, and missing-close recovery only; it is not
 --  discriminant legality checking, discriminant-conformance validation,
@@ -3977,14 +4022,14 @@ end Phase579_Language_Validation_Check;
 --  Production_Discriminant_Constraint_Close_Delimiter,
 --  Production_Discriminant_Association_Separator,
 --  Production_Discriminant_Constraint_Missing_Close_Recovery_Boundary,
---  Test_Language_Model_Token_Cursor_Constraint_Delimiters_Pass828.
+--  Test_Language_Model_Token_Cursor_Constraint_Delimiters.
 
 
 --  Pass829 guard markers: Production_Aggregate_Open_Delimiter,
 --  Production_Aggregate_Close_Delimiter,
 --  Production_Aggregate_Component_Separator,
 --  Production_Aggregate_Missing_Close_Recovery_Boundary, and
---  Test_Language_Model_Token_Cursor_Aggregate_Delimiters_Pass829.
+--  Test_Language_Model_Token_Cursor_Aggregate_Delimiters.
 --  This is bounded structural metadata for aggregate delimiters, separators,
 --  and missing-close recovery only; it is not aggregate legality checking,
 --  component-choice validation, overload resolution, compiler invocation, LSP
@@ -3994,7 +4039,7 @@ end Phase579_Language_Validation_Check;
 --  Pass830 guard markers: Production_Qualified_Expression_Operand_Open_Delimiter,
 --  Production_Qualified_Expression_Operand_Close_Delimiter,
 --  Production_Qualified_Expression_Operand_Missing_Close_Recovery_Boundary, and
---  Test_Language_Model_Token_Cursor_Qualified_Expression_Delimiters_Pass830.
+--  Test_Language_Model_Token_Cursor_Qualified_Expression_Delimiters.
 --  This is bounded structural metadata for qualified-expression operand
 --  delimiters and missing-close recovery only; it is not type conversion
 --  disambiguation, qualified-expression legality checking, overload
@@ -4003,11 +4048,11 @@ end Phase579_Language_Validation_Check;
 --  Pass831 guard markers: Production_Parenthesized_Expression_Open_Delimiter,
 --  Production_Parenthesized_Expression_Close_Delimiter,
 --  Production_Parenthesized_Expression_Missing_Close_Recovery_Boundary,
---  Test_Language_Model_Token_Cursor_Parenthesized_Expression_Delimiters_Pass831.
+--  Test_Language_Model_Token_Cursor_Parenthesized_Expression_Delimiters.
 
 --  Pass832 guard markers: Production_Discrete_Choice_Separator,
 --  Production_Discrete_Choice_Missing_Choice_Recovery_Boundary, and
---  Test_Language_Model_Token_Cursor_Discrete_Choice_List_Separators_Pass832.
+--  Test_Language_Model_Token_Cursor_Discrete_Choice_List_Separators.
 --  This is bounded structural metadata for discrete choice-list separators and
 --  missing-choice recovery only; it is not discrete-choice legality checking,
 --  duplicate-choice validation, range static evaluation, compiler invocation,
@@ -4016,14 +4061,14 @@ end Phase579_Language_Validation_Check;
 --  Pass833 guard markers: Production_Enumeration_Type_Open_Delimiter,
 --  Production_Enumeration_Type_Close_Delimiter, Production_Enumeration_Literal_Separator,
 --  Production_Enumeration_Type_Missing_Close_Recovery_Boundary,
---  Test_Language_Model_Token_Cursor_Enumeration_Type_Delimiters_Pass833.
+--  Test_Language_Model_Token_Cursor_Enumeration_Type_Delimiters.
 
 
 --  Pass834 guard markers: Production_Digits_Constraint_Expression,
 --  Production_Digits_Constraint_Missing_Expression_Recovery_Boundary,
 --  Production_Delta_Constraint_Expression,
 --  Production_Delta_Constraint_Missing_Expression_Recovery_Boundary, and
---  Test_Language_Model_Token_Cursor_Digits_Delta_Constraint_Expressions_Pass834.
+--  Test_Language_Model_Token_Cursor_Digits_Delta_Constraint_Expressions.
 --  This is bounded structural metadata for digits/delta constraint operand
 --  expressions and missing-expression recovery only; it is not fixed/floating
 --  point legality checking, static expression validation, subtype conformance,
@@ -4034,7 +4079,7 @@ end Phase579_Language_Validation_Check;
 --  Pass835 guard markers: Production_Range_Constraint_Range_Separator,
 --  Production_Range_Constraint_Missing_Lower_Bound_Recovery_Boundary,
 --  Production_Range_Constraint_Missing_Upper_Bound_Recovery_Boundary, and
---  Test_Language_Model_Token_Cursor_Range_Constraint_Bounds_Pass835.
+--  Test_Language_Model_Token_Cursor_Range_Constraint_Bounds.
 --  This is bounded structural metadata for range constraint bounds, the `..`
 --  separator, and missing-bound recovery only; it is not static range
 --  validation, subtype legality checking, overload resolution, compiler
@@ -4045,7 +4090,7 @@ end Phase579_Language_Validation_Check;
 --  Production_Attribute_Argument_List_Close_Delimiter,
 --  Production_Attribute_Argument_Association_Separator,
 --  Production_Attribute_Argument_List_Missing_Close_Recovery_Boundary, and
---  Test_Language_Model_Token_Cursor_Attribute_Argument_Delimiters_Pass836.
+--  Test_Language_Model_Token_Cursor_Attribute_Argument_Delimiters.
 --  This is bounded structural metadata for attribute argument-list delimiters,
 --  separators, and missing-close recovery only; it is not attribute legality
 --  checking, reduction profile conformance, overload resolution, compiler
@@ -4054,16 +4099,16 @@ end Phase579_Language_Validation_Check;
 
 --  Pass837 guard markers: Production_Membership_Choice_Separator,
 --  Production_Membership_Choice_Missing_Choice_Recovery_Boundary,
---  Test_Language_Model_Token_Cursor_Membership_Choice_List_Separators_Pass837.
+--  Test_Language_Model_Token_Cursor_Membership_Choice_List_Separators.
 
 
 --  Pass838 guard markers: Production_Case_Expression_Alternative_Separator,
 --  Production_Case_Expression_Missing_Alternative_Recovery_Boundary,
---  Test_Language_Model_Token_Cursor_Case_Expression_Alternative_Separators_Pass838.
+--  Test_Language_Model_Token_Cursor_Case_Expression_Alternative_Separators.
 
 --  Pass839 guard markers: Production_Declare_Expression_Begin_Keyword,
 --  Production_Declare_Expression_Missing_Begin_Recovery_Boundary, and
---  Test_Language_Model_Token_Cursor_Declare_Expression_Begin_Recovery_Pass839.
+--  Test_Language_Model_Token_Cursor_Declare_Expression_Begin_Recovery.
 --  This is bounded structural metadata for Ada 2022 declare-expression begin
 --  boundaries and missing-begin recovery only; it is not declare-expression
 --  legality checking, declarative-item legality checking, expression type
@@ -4071,7 +4116,7 @@ end Phase579_Language_Validation_Check;
 --  render-side parsing, or dirty-state mutation.
 
 --  Pass840 guard markers: Production_Quantified_Missing_Quantifier_Recovery_Boundary
---  and Test_Language_Model_Token_Cursor_Quantified_Missing_Quantifier_Pass840.
+--  and Test_Language_Model_Token_Cursor_Quantified_Missing_Quantifier.
 --  This is bounded structural metadata for quantified-expression missing
 --  quantifier recovery only; it is not quantified-expression legality checking,
 --  loop-scheme legality checking, predicate type checking, overload resolution,
@@ -4081,33 +4126,33 @@ end Phase579_Language_Validation_Check;
 
 --  Pass841 guard markers: Production_If_Expression_Missing_Then_Recovery_Boundary,
 --  Production_Elsif_Expression_Missing_Then_Recovery_Boundary, and
---  Test_Language_Model_Token_Cursor_If_Expression_Then_Recovery_Pass841.
+--  Test_Language_Model_Token_Cursor_If_Expression_Then_Recovery.
 --  This is bounded structural metadata for if-expression and elsif-expression
 --  missing-then recovery only; it is not conditional-expression legality
 --  checking, branch type checking, overload resolution, compiler invocation,
 --  LSP integration, render-side parsing, or dirty-state mutation.
 
 --  Pass842 guard markers: Production_Selected_Name_Missing_Selector_Recovery_Boundary,
---  Test_Language_Model_Token_Cursor_Selected_Name_Missing_Selector_Recovery_Pass842.
+--  Test_Language_Model_Token_Cursor_Selected_Name_Missing_Selector_Recovery.
 
 --  Pass843 guard markers: Production_Delta_Aggregate_With_Keyword,
 --  Production_Delta_Aggregate_Delta_Keyword,
 --  Production_Delta_Aggregate_Association_Separator,
 --  Production_Delta_Aggregate_Missing_Association_Recovery_Boundary,
---  Test_Language_Model_Token_Cursor_Delta_Aggregate_Keyword_Recovery_Pass843.
+--  Test_Language_Model_Token_Cursor_Delta_Aggregate_Keyword_Recovery.
 
 --  Pass844 guard markers: Production_Extension_Aggregate_With_Keyword,
 --  Production_Extension_Aggregate_Component_Separator,
 --  Production_Extension_Aggregate_Missing_Association_Recovery_Boundary,
---  Test_Language_Model_Token_Cursor_Extension_Aggregate_Keyword_Recovery_Pass844.
+--  Test_Language_Model_Token_Cursor_Extension_Aggregate_Keyword_Recovery.
 
 --  Pass845 guard markers: Production_Null_Record_Aggregate_Null_Keyword,
 --  Production_Null_Record_Aggregate_Record_Keyword,
 --  Production_Null_Record_Aggregate_Missing_Record_Recovery_Boundary, and
---  Test_Language_Model_Token_Cursor_Null_Record_Aggregate_Keyword_Recovery_Pass845.
+--  Test_Language_Model_Token_Cursor_Null_Record_Aggregate_Keyword_Recovery.
 
 --  Pass847 guard markers: Production_Iterated_Component_Missing_Domain_Recovery_Boundary,
---  Test_Language_Model_Token_Cursor_Iterated_Component_Domain_Recovery_Pass847.
+--  Test_Language_Model_Token_Cursor_Iterated_Component_Domain_Recovery.
 --  This is bounded structural metadata for Ada aggregate iterated component
 --  associations whose iteration domain is missing before `when` or `=>`; it
 --  must remain parser-owned and must not trigger render-side parsing or dirty
@@ -4115,7 +4160,7 @@ end Phase579_Language_Validation_Check;
 
 --  Pass846 guard markers: Production_Iterated_Component_Association_Arrow,
 --  Production_Iterated_Component_Missing_Arrow_Recovery_Boundary, and
---  Test_Language_Model_Token_Cursor_Iterated_Component_Arrow_Recovery_Pass846.
+--  Test_Language_Model_Token_Cursor_Iterated_Component_Arrow_Recovery.
 --  This is bounded structural metadata for Ada aggregate iterated component
 --  association arrows and missing-arrow recovery only; it is not aggregate
 --  legality checking, iterator legality checking, expression type resolution,
@@ -4124,19 +4169,19 @@ end Phase579_Language_Validation_Check;
 
 --  Pass848 guard markers: Production_For_Loop_Missing_Domain_Recovery_Boundary,
 --  Production_Iterator_Loop_Missing_Domain_Recovery_Boundary,
---  Test_Language_Model_Token_Cursor_Loop_Iteration_Domain_Recovery_Pass848.
+--  Test_Language_Model_Token_Cursor_Loop_Iteration_Domain_Recovery.
 
 --  Pass849 guard markers: Production_Loop_Iterator_Filter_Missing_Condition_Recovery_Boundary,
 --  Production_Quantified_Iterator_Filter_Missing_Condition_Recovery_Boundary,
 --  Production_Iterated_Component_Iterator_Filter_Missing_Condition_Recovery_Boundary,
---  Test_Language_Model_Token_Cursor_Iterator_Filter_Condition_Recovery_Pass849.
+--  Test_Language_Model_Token_Cursor_Iterator_Filter_Condition_Recovery.
 --  This is bounded structural metadata for iterator-filter missing-condition
 --  recovery only; it is not iterator filter legality checking, predicate type
 --  checking, iterator legality checking, overload resolution, compiler
 --  invocation, LSP integration, render-side parsing, or dirty-state mutation.
 
 --  Pass850 guard markers: Production_Exit_When_Missing_Condition_Recovery_Boundary,
---  Test_Language_Model_Token_Cursor_Exit_When_Condition_Recovery_Pass850.
+--  Test_Language_Model_Token_Cursor_Exit_When_Condition_Recovery.
 --  This is bounded structural metadata for exit-when missing-condition
 --  recovery only; it is not loop legality checking, condition type checking,
 --  overload resolution, compiler invocation, LSP integration, render-side
@@ -4145,23 +4190,23 @@ end Phase579_Language_Validation_Check;
 
 --  Pass851 guard markers: Production_Delay_Until_Missing_Expression_Recovery_Boundary,
 --  Production_Delay_Relative_Missing_Expression_Recovery_Boundary,
---  Test_Language_Model_Token_Cursor_Delay_Expression_Recovery_Pass851.
+--  Test_Language_Model_Token_Cursor_Delay_Expression_Recovery.
 --  This is bounded structural metadata for delay statement missing-expression
 --  recovery only; it is not delay legality checking, time-expression type
 --  checking, overload resolution, compiler invocation, LSP integration,
 --  render-side parsing, or dirty-state mutation.
 
 --  Pass852 guard markers: Production_Requeue_Missing_Terminator_Recovery_Boundary,
---  Test_Language_Model_Token_Cursor_Requeue_Terminator_Recovery_Pass852.
+--  Test_Language_Model_Token_Cursor_Requeue_Terminator_Recovery.
 --  Pass853 guard markers: Production_Accept_Missing_Terminator_Recovery_Boundary,
---  Test_Language_Model_Token_Cursor_Accept_Terminator_Recovery_Pass853.
+--  Test_Language_Model_Token_Cursor_Accept_Terminator_Recovery.
 --  This is bounded structural metadata for requeue statement missing-terminator
 --  recovery only; it is not requeue legality checking, entry-family validation,
 --  select/accept context validation, overload resolution, compiler invocation,
 --  LSP integration, render-side parsing, or dirty-state mutation.
 
 --  Pass854 guard markers: Production_Select_Guard_Missing_Condition_Recovery_Boundary,
---  Test_Language_Model_Token_Cursor_Select_Guard_Condition_Recovery_Pass854.
+--  Test_Language_Model_Token_Cursor_Select_Guard_Condition_Recovery.
 --  This is bounded structural metadata for select guard missing-condition
 --  recovery only; it is not select-statement legality checking, guard
 --  condition type checking, tasking legality checking, overload resolution,
@@ -4169,52 +4214,52 @@ end Phase579_Language_Validation_Check;
 --  mutation.
 
 --  Pass855 guard markers: Production_Abort_Missing_Target_Recovery_Boundary,
---  Test_Language_Model_Token_Cursor_Abort_Target_Recovery_Pass855.
+--  Test_Language_Model_Token_Cursor_Abort_Target_Recovery.
 --  This is bounded structural metadata for abort statement missing-target
 --  recovery only; it is not abort statement legality checking, task-name
 --  resolution, tasking legality checking, overload resolution, compiler
 --  invocation, LSP integration, render-side parsing, or dirty-state mutation.
 
 --  Pass856 guard markers: Production_Return_Missing_Terminator_Recovery_Boundary,
---  Test_Language_Model_Token_Cursor_Return_Terminator_Recovery_Pass856.
+--  Test_Language_Model_Token_Cursor_Return_Terminator_Recovery.
 --  This is bounded structural metadata for return statement missing-terminator
 --  recovery only; it is not return-statement legality checking, return type
 --  conformance, overload resolution, compiler invocation, LSP integration,
 --  render-side parsing, or dirty-state mutation.
 
 --  Pass857 guard markers: Production_Raise_Expression_Message_Recovery_Boundary,
---  Test_Language_Model_Token_Cursor_Raise_Expression_Message_Recovery_Pass857.
+--  Test_Language_Model_Token_Cursor_Raise_Expression_Message_Recovery.
 --  This is bounded structural metadata for raise-expression missing-message
 --  recovery only; it is not raise-expression legality checking, exception
 --  visibility analysis, message type checking, overload resolution, compiler
 --  invocation, LSP integration, render-side parsing, or dirty-state mutation.
 
 --  Pass858 guard markers: Production_Raise_Statement_Message_Recovery_Boundary,
---  Test_Language_Model_Token_Cursor_Raise_Statement_Message_Recovery_Pass858.
+--  Test_Language_Model_Token_Cursor_Raise_Statement_Message_Recovery.
 --  This is bounded structural metadata for raise-statement missing-message
 --  recovery only; it is not raise-statement legality checking, exception
 --  visibility analysis, message type checking, overload resolution, compiler
 --  invocation, LSP integration, render-side parsing, or dirty-state mutation.
 
 --  Pass859 guard markers: Production_Label_Missing_Close_Recovery_Boundary,
---  Test_Language_Model_Token_Cursor_Label_Missing_Close_Recovery_Pass859.
+--  Test_Language_Model_Token_Cursor_Label_Missing_Close_Recovery.
 --  This is bounded structural metadata for label missing-close recovery only;
 --  it is not label legality checking, goto-target resolution, duplicate-label
 --  validation, overload resolution, compiler invocation, LSP integration,
 --  render-side parsing, or dirty-state mutation.
 
 --  Pass860 guard markers: Production_Assignment_Missing_Expression_Recovery_Boundary,
---  Test_Language_Model_Token_Cursor_Assignment_Expression_Recovery_Pass860.
+--  Test_Language_Model_Token_Cursor_Assignment_Expression_Recovery.
 --  Assignment expression recovery remains parser-owned structural metadata only.
 
 --  Pass861 guard markers: Production_Goto_Missing_Target_Recovery_Boundary,
---  Test_Language_Model_Token_Cursor_Goto_Target_Recovery_Pass861.
+--  Test_Language_Model_Token_Cursor_Goto_Target_Recovery.
 --  Goto target recovery remains parser-owned structural metadata only; it is not
 --  label resolution, goto legality checking, compiler invocation, LSP
 --  integration, render-side parsing, or dirty-state mutation.
 
 --  Pass862 guard markers: Production_Raise_Statement_Missing_Exception_Name_Recovery_Boundary,
---  Test_Language_Model_Token_Cursor_Raise_Statement_Exception_Name_Recovery_Pass862.
+--  Test_Language_Model_Token_Cursor_Raise_Statement_Exception_Name_Recovery.
 --  Raise-statement missing exception-name recovery remains parser-owned structural
 --  metadata only; it is not raise-statement legality checking, exception
 --  visibility analysis, message type checking, compiler invocation, LSP
@@ -4222,7 +4267,7 @@ end Phase579_Language_Validation_Check;
 
 
 --  Pass863 guard markers: Production_Accept_Missing_Entry_Name_Recovery_Boundary,
---  Test_Language_Model_Token_Cursor_Accept_Entry_Name_Recovery_Pass863.
+--  Test_Language_Model_Token_Cursor_Accept_Entry_Name_Recovery.
 --  Accept missing entry-name recovery remains parser-owned structural metadata
 --  only; it is not accept statement legality checking, entry profile
 --  conformance, tasking legality checking, compiler invocation, LSP
@@ -4230,7 +4275,7 @@ end Phase579_Language_Validation_Check;
 
 
 --  Pass864 guard markers: Production_Requeue_Missing_Target_Recovery_Boundary,
---  Test_Language_Model_Token_Cursor_Requeue_Target_Recovery_Pass864.
+--  Test_Language_Model_Token_Cursor_Requeue_Target_Recovery.
 --  Requeue missing-target recovery remains parser-owned structural metadata only;
 --  it is not requeue legality checking, entry-family validation, select/accept
 --  context validation, compiler invocation, LSP integration, render-side parsing,
@@ -4238,7 +4283,7 @@ end Phase579_Language_Validation_Check;
 
 
 --  Pass865 guard markers: Production_Extended_Return_Missing_Do_Recovery_Boundary,
---  Test_Language_Model_Token_Cursor_Extended_Return_Do_Recovery_Pass865.
+--  Test_Language_Model_Token_Cursor_Extended_Return_Do_Recovery.
 --  Extended return missing-do recovery remains parser-owned structural metadata
 --  only; it is not return-object legality checking, subtype conformance,
 --  expression type checking, compiler invocation, LSP integration, render-side
@@ -4246,7 +4291,7 @@ end Phase579_Language_Validation_Check;
 
 
 --  Pass866 guard markers: Production_Case_Statement_Missing_Is_Recovery_Boundary,
---  Test_Language_Model_Token_Cursor_Case_Statement_Is_Recovery_Pass866.
+--  Test_Language_Model_Token_Cursor_Case_Statement_Is_Recovery.
 --  Case statement missing-is recovery remains parser-owned structural metadata
 --  only; it is not case-choice coverage checking, discrete-choice legality
 --  checking, expression type checking, compiler invocation, LSP integration,
@@ -4254,7 +4299,7 @@ end Phase579_Language_Validation_Check;
 
 
 --  Pass867 guard markers: Production_Case_Choice_Missing_Choice_Recovery_Boundary,
---  Test_Language_Model_Token_Cursor_Case_Choice_Missing_Choice_Recovery_Pass867.
+--  Test_Language_Model_Token_Cursor_Case_Choice_Missing_Choice_Recovery.
 --  Case choice missing-choice recovery remains parser-owned structural metadata
 --  only; it is not case-choice coverage checking, discrete-choice legality
 --  checking, static range evaluation, compiler invocation, LSP integration,
@@ -4262,7 +4307,7 @@ end Phase579_Language_Validation_Check;
 
 
 --  Pass868 guard markers: Production_Case_Alternative_Missing_Statement_Recovery_Boundary,
---  Test_Language_Model_Token_Cursor_Case_Alternative_Statement_Recovery_Pass868.
+--  Test_Language_Model_Token_Cursor_Case_Alternative_Statement_Recovery.
 --  Case alternative missing-statement recovery remains parser-owned structural
 --  metadata only; it is not case-choice coverage checking, statement legality
 --  checking, control-flow validation, compiler invocation, LSP integration,
@@ -4271,32 +4316,32 @@ end Phase579_Language_Validation_Check;
 --  Pass869 guard markers: Production_If_Then_Missing_Statement_Recovery_Boundary,
 --  Production_Elsif_Missing_Statement_Recovery_Boundary,
 --  Production_Else_Missing_Statement_Recovery_Boundary,
---  Test_Language_Model_Token_Cursor_If_Branch_Statement_Recovery_Pass869.
+--  Test_Language_Model_Token_Cursor_If_Branch_Statement_Recovery.
 --  If branch missing-statement recovery remains parser-owned structural metadata
 --  only; it is not statement legality checking, control-flow validation,
 --  expression type checking, compiler invocation, LSP integration, render-side
 --  parsing, or dirty-state mutation.
 --  Pass870 guard markers: Production_Loop_Missing_Statement_Recovery_Boundary,
---  Test_Language_Model_Token_Cursor_Loop_Body_Statement_Recovery_Pass870.
+--  Test_Language_Model_Token_Cursor_Loop_Body_Statement_Recovery.
 
 --  Pass871 guard markers: Production_Block_Missing_Statement_Recovery_Boundary,
---  Test_Language_Model_Token_Cursor_Block_Body_Statement_Recovery_Pass871.
+--  Test_Language_Model_Token_Cursor_Block_Body_Statement_Recovery.
 --  Block statement-sequence missing-statement recovery remains parser-owned
 --  structural metadata only; it is not statement legality checking, exception
 --  handler legality checking, control-flow validation, compiler invocation, LSP
 --  integration, render-side parsing, or dirty-state mutation.
 
---  Pass872 guard markers: Production_Case_Alternative_End_Case_Statement_Recovery_Boundary, Test_Language_Model_Token_Cursor_Case_Alternative_End_Case_Statement_Recovery_Pass872
+--  Pass872 guard markers: Production_Case_Alternative_End_Case_Statement_Recovery_Boundary, Test_Language_Model_Token_Cursor_Case_Alternative_End_Case_Statement_Recovery
 
---  Pass873 guard markers: Production_Formal_Package_Actual_Empty_Recovery_Boundary, Test_Language_Model_Token_Cursor_Formal_Package_Empty_Actual_Recovery_Pass873
+--  Pass873 guard markers: Production_Formal_Package_Actual_Empty_Recovery_Boundary, Test_Language_Model_Token_Cursor_Formal_Package_Empty_Actual_Recovery
 --  Empty formal package actual recovery remains parser-owned structural metadata
 --  only; it is not generic contract legality checking, actual/default legality
 --  checking, overload resolution, compiler invocation, LSP integration,
 --  render-side parsing, or dirty-state mutation.
 
---  Pass874 guard markers: Production_Exception_Handler_Missing_Statement_Recovery_Boundary, Production_Exception_Handler_End_Statement_Recovery_Boundary, Test_Language_Model_Token_Cursor_Exception_Handler_Statement_Recovery_Pass874
---  Pass875 guard markers: Production_Use_Clause_Missing_Name_Recovery_Boundary, Production_Use_Clause_Trailing_Separator_Recovery_Boundary, Production_Use_Clause_Missing_Terminator_Recovery_Boundary, Test_Language_Model_Token_Cursor_Use_Clause_Specific_Recovery_Pass875
---  Pass876 guard markers: Production_Enumeration_Representation_Empty_List_Recovery_Boundary, Production_Enumeration_Representation_Trailing_Separator_Recovery_Boundary, Production_Enumeration_Representation_Missing_Value_Recovery_Boundary, Test_Language_Model_Token_Cursor_Enumeration_Representation_Recovery_Pass876
+--  Pass874 guard markers: Production_Exception_Handler_Missing_Statement_Recovery_Boundary, Production_Exception_Handler_End_Statement_Recovery_Boundary, Test_Language_Model_Token_Cursor_Exception_Handler_Statement_Recovery
+--  Pass875 guard markers: Production_Use_Clause_Missing_Name_Recovery_Boundary, Production_Use_Clause_Trailing_Separator_Recovery_Boundary, Production_Use_Clause_Missing_Terminator_Recovery_Boundary, Test_Language_Model_Token_Cursor_Use_Clause_Specific_Recovery
+--  Pass876 guard markers: Production_Enumeration_Representation_Empty_List_Recovery_Boundary, Production_Enumeration_Representation_Trailing_Separator_Recovery_Boundary, Production_Enumeration_Representation_Missing_Value_Recovery_Boundary, Test_Language_Model_Token_Cursor_Enumeration_Representation_Recovery
 --  Exception-handler statement-sequence recovery remains parser-owned structural
 --  metadata only; it is not exception choice legality checking, handler ordering
 --  validation, statement legality checking, compiler invocation, LSP integration,
@@ -4306,7 +4351,7 @@ end Phase579_Language_Validation_Check;
 --  Pass877 guard markers: Production_Subprogram_Declaration_Aspect_Specification,
 --  Production_Subprogram_Body_Aspect_Specification,
 --  Production_Subprogram_Contract_Aspect_Placement, and
---  Test_Language_Model_Token_Cursor_Subprogram_Contract_Aspect_Placement_Pass877.
+--  Test_Language_Model_Token_Cursor_Subprogram_Contract_Aspect_Placement.
 --  Subprogram contract/aspect placement remains parser-owned structural
 --  metadata only; it is not contract legality checking, Global/Depends
 --  validation, profile conformance, overload resolution, compiler invocation,
@@ -4317,7 +4362,7 @@ end Phase579_Language_Validation_Check;
 --  Production_Package_Declarative_Private_Boundary,
 --  Production_Package_Declarative_Begin_Boundary,
 --  Production_Package_Declarative_End_Boundary, and
---  Test_Language_Model_Token_Cursor_Package_Declarative_Item_Recovery_Pass878.
+--  Test_Language_Model_Token_Cursor_Package_Declarative_Item_Recovery.
 --  Package declarative-item recovery remains parser-owned structural metadata
 --  only; it is not package legality checking, nested declaration legality
 --  checking, visibility checking, compiler invocation, LSP integration,
@@ -4327,7 +4372,7 @@ end Phase579_Language_Validation_Check;
 --  Pass879 guard markers: Production_Access_Protected_Missing_Subprogram_Recovery_Boundary,
 --  Production_Access_Function_Missing_Return_Recovery_Boundary,
 --  Production_Access_Function_Missing_Result_Subtype_Recovery_Boundary, Production_Access_Object_Missing_Subtype_Recovery_Boundary, and
---  Test_Language_Model_Token_Cursor_Anonymous_Access_Subprogram_Refined_Recovery_Pass879.
+--  Test_Language_Model_Token_Cursor_Anonymous_Access_Subprogram_Refined_Recovery.
 --  Anonymous access-to-subprogram recovery remains parser-owned structural
 --  metadata only; it is not callable-profile legality checking, result subtype
 --  legality checking, overload resolution, compiler invocation, LSP integration,
@@ -4337,7 +4382,7 @@ end Phase579_Language_Validation_Check;
 --  Pass880 guard markers: Production_If_Expression_Missing_Condition_Recovery_Boundary,
 --  Production_If_Expression_Missing_Then_Branch_Recovery_Boundary,
 --  Production_If_Expression_Missing_Else_Branch_Recovery_Boundary, and
---  Test_Language_Model_Token_Cursor_Conditional_Expression_Recovery_Pass880.
+--  Test_Language_Model_Token_Cursor_Conditional_Expression_Recovery.
 --  Conditional-expression operand recovery remains parser-owned structural
 --  metadata only; it is not expression type checking, Boolean legality
 --  checking, overload resolution, compiler invocation, LSP integration,
@@ -4348,7 +4393,7 @@ end Phase579_Language_Validation_Check;
 --  Production_Qualified_Expression_Selected_Operator_Subtype_Mark,
 --  Production_Qualified_Expression_Selected_Character_Subtype_Mark,
 --  Production_Allocator_Selected_Operator_Subtype_Mark, and
---  Test_Language_Model_Token_Cursor_Selected_Literal_Name_Refinement_Pass881.
+--  Test_Language_Model_Token_Cursor_Selected_Literal_Name_Refinement.
 --  Selected literal name refinement remains parser-owned structural metadata
 --  only; it is not subtype legality checking, operator legality checking,
 --  overload resolution, compiler invocation, LSP integration, render-side
@@ -4358,26 +4403,26 @@ end Phase579_Language_Validation_Check;
 --  Pass882 guard markers: Production_Select_Alternative_Missing_Statement_Recovery_Boundary,
 --  Production_Select_Else_Missing_Statement_Recovery_Boundary,
 --  Production_Select_Abortable_Missing_Statement_Recovery_Boundary, and
---  Test_Language_Model_Token_Cursor_Select_Alternative_Statement_Recovery_Pass882.
+--  Test_Language_Model_Token_Cursor_Select_Alternative_Statement_Recovery.
 --  Select-statement alternative statement-sequence recovery remains
 --  parser-owned structural metadata only; it is not tasking legality checking,
 --  selective-accept legality checking, compiler invocation, LSP integration,
 --  render-side parsing, or dirty-state mutation.
 --  Pass883 guard markers: Production_Accept_Body_Missing_Statement_Recovery_Boundary,
 --  Production_Accept_Body_End_Statement_Recovery_Boundary,
---  Test_Language_Model_Token_Cursor_Accept_Body_Statement_Recovery_Pass883.
+--  Test_Language_Model_Token_Cursor_Accept_Body_Statement_Recovery.
 
 --  Pass884 guard markers: Production_Formal_Incomplete_Type_Declaration,
 --  Production_Formal_Incomplete_Tagged_Type_Definition,
 --  Production_Formal_Incomplete_Type_Recovery_Boundary,
---  Test_Language_Model_Token_Cursor_Generic_Formal_Incomplete_Type_Pass884.
+--  Test_Language_Model_Token_Cursor_Generic_Formal_Incomplete_Type.
 
 --  Pass885 guard markers: Production_Pragma_Identifier_Missing_Recovery_Boundary,
 --  Production_Pragma_Argument_List_Empty_Recovery_Boundary,
 --  Production_Pragma_Argument_Trailing_Separator_Recovery_Boundary,
 --  Production_Pragma_Argument_Missing_Expression_Recovery_Boundary,
 --  Production_Pragma_Missing_Terminator_Recovery_Boundary, and
---  Test_Language_Model_Token_Cursor_Pragma_Recovery_Depth_Pass885.
+--  Test_Language_Model_Token_Cursor_Pragma_Recovery_Depth.
 --  Pragma recovery remains parser-owned structural metadata only; it is not
 --  pragma legality checking, implementation-defined pragma validation,
 --  overload resolution, compiler invocation, LSP integration, render-side
@@ -4387,7 +4432,7 @@ end Phase579_Language_Validation_Check;
 --  Pass886 guard markers: Production_Attribute_Definition_Missing_Use_Recovery_Boundary,
 --  Production_Attribute_Definition_Missing_Value_Recovery_Boundary,
 --  Production_Address_Clause_Missing_Value_Recovery_Boundary, and
---  Test_Language_Model_Token_Cursor_Attribute_Address_Clause_Recovery_Pass886.
+--  Test_Language_Model_Token_Cursor_Attribute_Address_Clause_Recovery.
 --  Attribute/address representation-clause recovery remains parser-owned
 --  structural metadata only; it is not representation legality checking,
 --  static expression validation, compiler invocation, LSP integration,
@@ -4402,7 +4447,7 @@ end Phase579_Language_Validation_Check;
 --  Production_Protected_Body_Aspect_Specification,
 --  Production_Private_Type_Aspect_Specification,
 --  Production_Generic_Declaration_Aspect_Specification, and
---  Test_Language_Model_Token_Cursor_Aspect_Placement_Breadth_Pass887.
+--  Test_Language_Model_Token_Cursor_Aspect_Placement_Breadth.
 --  Broader aspect placement remains parser-owned structural metadata only; it
 --  is not aspect legality checking, representation aspect validation,
 --  contract legality checking, compiler invocation, LSP integration,
@@ -4410,7 +4455,7 @@ end Phase579_Language_Validation_Check;
 --  mutation.
 
 --  Pass888 guard markers: Production_Case_Expression_Missing_Dependent_Expression_Recovery_Boundary,
---  Test_Language_Model_Token_Cursor_Case_Expression_Dependent_Recovery_Pass888.
+--  Test_Language_Model_Token_Cursor_Case_Expression_Dependent_Recovery.
 --  Case-expression dependent-expression recovery remains parser-owned structural
 --  metadata only; it is not expression type checking, discrete-choice legality
 --  checking, case coverage checking, compiler invocation, LSP integration,
@@ -4421,7 +4466,7 @@ end Phase579_Language_Validation_Check;
 --  Production_Attribute_Complex_Prefix,
 --  Production_Qualified_Expression_Incomplete_Selected_Subtype_Mark,
 --  Production_Allocator_Incomplete_Selected_Subtype_Mark, and
---  Test_Language_Model_Token_Cursor_Name_Attribute_Refinement_Pass889.
+--  Test_Language_Model_Token_Cursor_Name_Attribute_Refinement.
 --  Name/attribute refinement remains parser-owned structural metadata only; it
 --  is not attribute legality checking, subtype legality checking, overload
 --  resolution, compiler invocation, LSP integration, render-side parsing,
@@ -4431,9 +4476,9 @@ end Phase579_Language_Validation_Check;
 --  Production_Task_Body_Declarative_Begin_Boundary,
 --  Production_Protected_Body_Declarative_Item_Recovery_Boundary,
 --  Production_Protected_Body_Declarative_Begin_Boundary,
---  Test_Language_Model_Token_Cursor_Task_Protected_Body_Declarative_Recovery_Pass890.
+--  Test_Language_Model_Token_Cursor_Task_Protected_Body_Declarative_Recovery.
 
---  Pass891 guard markers: Test_Syntax_Semantics_Recovered_Metadata_Suppressed_Pass891,
+--  Pass891 guard markers: Test_Syntax_Semantics_Recovered_Metadata_Suppressed,
 --  Is_Recovered_Partial_Name, Is_Recovered_Unresolved_Binding.
 --  Semantic-colouring metadata consumers must suppress unresolved recovered
 --  partial names from incomplete selected subtype marks and recovered visibility
@@ -4446,7 +4491,7 @@ end Phase579_Language_Validation_Check;
 --  Pass892 guard markers: Production_Reduction_Missing_Reducer_Recovery_Boundary,
 --  Production_Reduction_Missing_Initial_Value_Recovery_Boundary,
 --  Production_Reduction_Trailing_Separator_Recovery_Boundary,
---  Test_Language_Model_Token_Cursor_Reduction_Argument_Recovery_Pass892.
+--  Test_Language_Model_Token_Cursor_Reduction_Argument_Recovery.
 --  Reduction attribute argument recovery remains parser-owned structural
 --  metadata only; it is not callable conformance checking, initial-value type
 --  compatibility checking, parallel-reduction legality checking, compiler
@@ -4454,7 +4499,7 @@ end Phase579_Language_Validation_Check;
 --  scanning, or dirty-state mutation.
 
 --  Pass893 guard markers: Production_Quantified_Missing_Predicate_Recovery_Boundary,
---  Test_Language_Model_Token_Cursor_Quantified_Predicate_Recovery_Pass893.
+--  Test_Language_Model_Token_Cursor_Quantified_Predicate_Recovery.
 --  Quantified-expression predicate recovery remains parser-owned structural
 --  metadata only; it is not Boolean predicate legality checking, iterator
 --  legality checking, overload resolution, compiler invocation, LSP integration,
@@ -4462,7 +4507,7 @@ end Phase579_Language_Validation_Check;
 --  mutation.
 
 --  Pass894 guard markers: Production_Declare_Expression_Missing_Body_Recovery_Boundary,
---  Test_Language_Model_Token_Cursor_Declare_Expression_Body_Recovery_Pass894.
+--  Test_Language_Model_Token_Cursor_Declare_Expression_Body_Recovery.
 --  Declare-expression missing-body recovery remains parser-owned structural
 --  metadata only; it is not declaration legality checking, body expression type
 --  checking, overload resolution, compiler invocation, LSP integration,
@@ -4470,7 +4515,7 @@ end Phase579_Language_Validation_Check;
 --  mutation.
 
 --  Pass895 guard markers: Production_Iterated_Component_Missing_Expression_Recovery_Boundary,
---  Test_Language_Model_Token_Cursor_Iterated_Component_Expression_Recovery_Pass895.
+--  Test_Language_Model_Token_Cursor_Iterated_Component_Expression_Recovery.
 --  Iterated component association missing-expression recovery remains
 --  parser-owned structural metadata only; it is not aggregate legality
 --  checking, iterator legality checking, overload resolution, compiler
@@ -4480,10 +4525,10 @@ end Phase579_Language_Validation_Check;
 --  Pass896 guard markers: Production_Generic_Actual_Missing_Actual_Recovery_Boundary,
 --  Production_Generic_Actual_Trailing_Separator_Recovery_Boundary,
 --  Production_Generic_Actual_Empty_List_Recovery_Boundary, and
---  Test_Language_Model_Token_Cursor_Generic_Actual_Association_Recovery_Pass896.
+--  Test_Language_Model_Token_Cursor_Generic_Actual_Association_Recovery.
 --  Pass897 guard markers: Production_Renaming_Missing_Target_Recovery_Boundary,
 --  Production_Renaming_Missing_Renames_Recovery_Boundary, and
---  Test_Language_Model_Token_Cursor_Renaming_Target_Recovery_Pass897.
+--  Test_Language_Model_Token_Cursor_Renaming_Target_Recovery.
 --  Renaming target recovery remains parser-owned structural metadata only; it
 --  is not renamed entity legality checking, visibility checking, overload
 --  resolution, compiler invocation, LSP integration, render-side parsing,
@@ -4491,7 +4536,7 @@ end Phase579_Language_Validation_Check;
 
 --  Pass898 guard markers: Production_Entry_Body_Statement_Sequence,
 --  Production_Entry_Body_Missing_Statement_Recovery_Boundary, and
---  Test_Language_Model_Token_Cursor_Entry_Body_Statement_Recovery_Pass898.
+--  Test_Language_Model_Token_Cursor_Entry_Body_Statement_Recovery.
 --  Entry-body statement-sequence recovery remains parser-owned structural
 --  metadata only; it is not tasking legality checking, entry barrier legality
 --  checking, statement legality checking, overload resolution, compiler
@@ -4500,7 +4545,7 @@ end Phase579_Language_Validation_Check;
 
 --  Pass899 guard markers: Production_Entry_Barrier_Missing_Condition_Recovery_Boundary,
 --  Production_Protected_Entry_Barrier_Missing_Condition_Recovery_Boundary, and
---  Test_Language_Model_Token_Cursor_Entry_Barrier_Condition_Recovery_Pass899.
+--  Test_Language_Model_Token_Cursor_Entry_Barrier_Condition_Recovery.
 --  Entry-barrier missing-condition recovery remains parser-owned structural
 --  metadata only; it is not tasking legality checking, barrier condition type
 --  checking, protected entry legality checking, overload resolution, compiler
@@ -4508,7 +4553,7 @@ end Phase579_Language_Validation_Check;
 --  scanning, or dirty-state mutation.
 
 --  Pass900 guard markers: Production_Entry_Family_Empty_Definition_Recovery_Boundary
---  and Test_Language_Model_Token_Cursor_Entry_Family_Empty_Definition_Recovery_Pass900.
+--  and Test_Language_Model_Token_Cursor_Entry_Family_Empty_Definition_Recovery.
 --  Empty entry-family definition recovery remains parser-owned structural
 --  metadata only; it is not entry-family legality checking, discrete subtype
 --  validation, tasking legality checking, overload resolution, compiler
@@ -4516,10 +4561,10 @@ end Phase579_Language_Validation_Check;
 --  scanning, or dirty-state mutation.
 
 --  Pass901 guard markers: Production_Abort_Target_Reserved_Boundary_Recovery_Boundary
---  and Test_Language_Model_Token_Cursor_Abort_Target_Reserved_Boundary_Recovery_Pass901.
+--  and Test_Language_Model_Token_Cursor_Abort_Target_Reserved_Boundary_Recovery.
 
 --  Pass902 guard markers: Production_Requeue_Target_Reserved_Boundary_Recovery_Boundary
---  and Test_Language_Model_Token_Cursor_Requeue_Target_Reserved_Boundary_Recovery_Pass902.
+--  and Test_Language_Model_Token_Cursor_Requeue_Target_Reserved_Boundary_Recovery.
 --  Requeue target reserved-boundary recovery remains parser-owned structural
 --  metadata only; it is not entry-name legality checking, tasking legality
 --  checking, overload resolution, compiler invocation, LSP integration,
@@ -4527,10 +4572,10 @@ end Phase579_Language_Validation_Check;
 --  mutation.
 
 --  Pass903 guard markers: Production_Delay_Reserved_Boundary_Recovery_Boundary
---  and Test_Language_Model_Token_Cursor_Delay_Expression_Reserved_Boundary_Recovery_Pass903.
+--  and Test_Language_Model_Token_Cursor_Delay_Expression_Reserved_Boundary_Recovery.
 
 --  Pass904 guard markers: Production_Goto_Target_Reserved_Boundary_Recovery_Boundary
---  and Test_Language_Model_Token_Cursor_Goto_Target_Reserved_Boundary_Recovery_Pass904.
+--  and Test_Language_Model_Token_Cursor_Goto_Target_Reserved_Boundary_Recovery.
 --  Goto target reserved-boundary recovery remains parser-owned structural
 --  metadata only; it is not label legality checking, control-flow legality
 --  checking, overload resolution, compiler invocation, LSP integration,
@@ -4538,10 +4583,10 @@ end Phase579_Language_Validation_Check;
 --  mutation.
 
 --  Pass905 guard markers: Production_Return_Reserved_Boundary_Recovery_Boundary
---  and Test_Language_Model_Token_Cursor_Return_Expression_Reserved_Boundary_Recovery_Pass905.
+--  and Test_Language_Model_Token_Cursor_Return_Expression_Reserved_Boundary_Recovery.
 
 --  Pass906 guard markers: Production_Raise_Target_Reserved_Boundary_Recovery_Boundary
---  and Test_Language_Model_Token_Cursor_Raise_Target_Reserved_Boundary_Recovery_Pass906.
+--  and Test_Language_Model_Token_Cursor_Raise_Target_Reserved_Boundary_Recovery.
 --  Raise target reserved-boundary recovery remains parser-owned structural
 --  metadata only; it is not exception-name legality checking, exception
 --  propagation legality checking, overload resolution, compiler invocation,
@@ -4549,7 +4594,7 @@ end Phase579_Language_Validation_Check;
 --  or dirty-state mutation.
 
 --  Pass907 guard markers: Production_Exit_Target_Reserved_Boundary_Recovery_Boundary
---  and Test_Language_Model_Token_Cursor_Exit_Target_Reserved_Boundary_Recovery_Pass907.
+--  and Test_Language_Model_Token_Cursor_Exit_Target_Reserved_Boundary_Recovery.
 --  Exit target reserved-boundary recovery remains parser-owned structural
 --  metadata only; it is not loop-name legality checking, exit-statement
 --  legality checking, overload resolution, compiler invocation, LSP
@@ -4557,12 +4602,12 @@ end Phase579_Language_Validation_Check;
 --  dirty-state mutation.
 
 --  Pass908 guard markers: Production_Assignment_Reserved_Boundary_Recovery_Boundary
---  and Test_Language_Model_Token_Cursor_Assignment_Expression_Reserved_Boundary_Recovery_Pass908.
+--  and Test_Language_Model_Token_Cursor_Assignment_Expression_Reserved_Boundary_Recovery.
 
 --  Pass909 guard markers: Production_Call_Actual_Missing_Actual_Recovery_Boundary,
 --  Production_Call_Actual_Trailing_Separator_Recovery_Boundary,
 --  Production_Call_Actual_Empty_List_Recovery_Boundary, and
---  Test_Language_Model_Token_Cursor_Call_Actual_Association_Recovery_Pass909.
+--  Test_Language_Model_Token_Cursor_Call_Actual_Association_Recovery.
 --  Call actual association recovery remains parser-owned structural metadata
 --  only; it is not callable profile checking, overload resolution, compiler
 --  invocation, LSP integration, render-side parsing, background whole-project
@@ -4570,7 +4615,7 @@ end Phase579_Language_Validation_Check;
 
 --  Pass910 guard markers: Production_If_Statement_Missing_Condition_Recovery_Boundary,
 --  Production_Elsif_Statement_Missing_Condition_Recovery_Boundary, and
---  Test_Language_Model_Token_Cursor_If_Elsif_Condition_Recovery_Pass910.
+--  Test_Language_Model_Token_Cursor_If_Elsif_Condition_Recovery.
 --  If/elsif missing-condition recovery remains parser-owned structural
 --  metadata only; it is not Boolean condition legality checking, expression
 --  type checking, overload resolution, compiler invocation, LSP integration,
@@ -4578,7 +4623,7 @@ end Phase579_Language_Validation_Check;
 --  mutation.
 
 --  Pass911 guard markers: Production_While_Loop_Missing_Condition_Recovery_Boundary
---  and Test_Language_Model_Token_Cursor_While_Condition_Recovery_Pass911.
+--  and Test_Language_Model_Token_Cursor_While_Condition_Recovery.
 --  While-loop missing-condition recovery remains parser-owned structural
 --  metadata only; it is not Boolean condition legality checking, expression
 --  type checking, loop-statement legality checking, overload resolution,
@@ -4587,7 +4632,7 @@ end Phase579_Language_Validation_Check;
 
 --  Pass912 guard markers: Production_For_Loop_Domain_Reserved_Boundary_Recovery_Boundary,
 --  Production_Iterator_Loop_Domain_Reserved_Boundary_Recovery_Boundary, and
---  Test_Language_Model_Token_Cursor_For_Iterator_Domain_Reserved_Boundary_Recovery_Pass912.
+--  Test_Language_Model_Token_Cursor_For_Iterator_Domain_Reserved_Boundary_Recovery.
 --  For/iterator loop domain reserved-boundary recovery remains parser-owned
 --  structural metadata only; it is not discrete range legality checking,
 --  iterator legality checking, expression type checking, overload resolution,
@@ -4595,7 +4640,7 @@ end Phase579_Language_Validation_Check;
 --  whole-project scanning, or dirty-state mutation.
 
 --  Pass913 guard markers: Production_Case_Statement_Selector_Reserved_Boundary_Recovery_Boundary
---  and Test_Language_Model_Token_Cursor_Case_Selector_Reserved_Boundary_Recovery_Pass913.
+--  and Test_Language_Model_Token_Cursor_Case_Selector_Reserved_Boundary_Recovery.
 --  Case-statement selector reserved-boundary recovery remains parser-owned
 --  structural metadata only; it is not selector expression legality checking,
 --  discrete choice legality checking, case coverage checking, overload
@@ -4603,17 +4648,17 @@ end Phase579_Language_Validation_Check;
 --  background whole-project scanning, or dirty-state mutation.
 
 --  Pass914 guard markers: Production_Extended_Return_Initializer_Reserved_Boundary_Recovery_Boundary
---  Pass914 guard markers: Test_Language_Model_Token_Cursor_Extended_Return_Initializer_Reserved_Boundary_Recovery_Pass914
+--  Pass914 guard markers: Test_Language_Model_Token_Cursor_Extended_Return_Initializer_Reserved_Boundary_Recovery
 
 --  Pass915 guard markers: Production_Raise_Message_Reserved_Boundary_Recovery_Boundary
---  and Test_Language_Model_Token_Cursor_Raise_Message_Reserved_Boundary_Recovery_Pass915.
+--  and Test_Language_Model_Token_Cursor_Raise_Message_Reserved_Boundary_Recovery.
 --  Raise-with-message reserved-boundary recovery remains parser-owned structural
 --  metadata only; it is not message-expression legality checking, exception-name
 --  legality checking, overload resolution, compiler invocation, LSP integration,
 --  render-side parsing, background whole-project scanning, or dirty-state mutation.
 
 --  Pass916 guard markers: Production_Exit_When_Reserved_Boundary_Recovery_Boundary
---  and Test_Language_Model_Token_Cursor_Exit_When_Reserved_Boundary_Recovery_Pass916.
+--  and Test_Language_Model_Token_Cursor_Exit_When_Reserved_Boundary_Recovery.
 --  Exit-when condition reserved-boundary recovery remains parser-owned structural
 --  metadata only; it is not Boolean condition legality checking, loop-name
 --  legality checking, exit-statement legality checking, overload resolution,
@@ -4621,17 +4666,17 @@ end Phase579_Language_Validation_Check;
 --  whole-project scanning, or dirty-state mutation.
 
 --  Pass917 guard markers: Production_Null_Reserved_Boundary_Recovery_Boundary
---  and Test_Language_Model_Token_Cursor_Null_Reserved_Boundary_Recovery_Pass917.
+--  and Test_Language_Model_Token_Cursor_Null_Reserved_Boundary_Recovery.
 
 --  Pass918 guard markers: Production_Aggregate_Component_Expression_Reserved_Boundary_Recovery_Boundary
---  and Test_Language_Model_Token_Cursor_Aggregate_Component_Reserved_Boundary_Recovery_Pass918.
+--  and Test_Language_Model_Token_Cursor_Aggregate_Component_Reserved_Boundary_Recovery.
 --  Aggregate component expression reserved-boundary recovery remains parser-owned
 --  structural metadata only; it is not aggregate legality checking, component
 --  type checking, overload resolution, compiler invocation, LSP integration,
 --  render-side parsing, background whole-project scanning, or dirty-state mutation.
 
 --  Pass919 guard markers: Production_Object_Initialization_Reserved_Boundary_Recovery_Boundary
---  and Test_Language_Model_Token_Cursor_Object_Initialization_Reserved_Boundary_Recovery_Pass919.
+--  and Test_Language_Model_Token_Cursor_Object_Initialization_Reserved_Boundary_Recovery.
 --  Object-initialization reserved-boundary recovery remains parser-owned
 --  structural metadata only; it is not object declaration legality checking,
 --  initializer type checking, aspect legality checking, overload resolution,
@@ -4639,7 +4684,7 @@ end Phase579_Language_Validation_Check;
 --  whole-project scanning, or dirty-state mutation.
 
 --  Pass920 guard markers: Production_Range_Constraint_Reserved_Boundary_Recovery_Boundary
---  and Test_Language_Model_Token_Cursor_Range_Constraint_Reserved_Boundary_Recovery_Pass920.
+--  and Test_Language_Model_Token_Cursor_Range_Constraint_Reserved_Boundary_Recovery.
 --  Range-constraint reserved-boundary recovery remains parser-owned structural
 --  metadata only; it is not range-expression legality checking, subtype legality
 --  checking, static expression validation, overload resolution, compiler
@@ -4648,7 +4693,7 @@ end Phase579_Language_Validation_Check;
 
 --  Pass921 guard markers: Production_Digits_Constraint_Reserved_Boundary_Recovery_Boundary,
 --  Production_Delta_Constraint_Reserved_Boundary_Recovery_Boundary, and
---  Test_Language_Model_Token_Cursor_Digits_Delta_Reserved_Boundary_Recovery_Pass921.
+--  Test_Language_Model_Token_Cursor_Digits_Delta_Reserved_Boundary_Recovery.
 --  Digits/delta constraint reserved-boundary recovery remains parser-owned
 --  structural metadata only; it is not floating/fixed-point subtype legality
 --  checking, static expression validation, overload resolution, compiler
@@ -4657,7 +4702,7 @@ end Phase579_Language_Validation_Check;
 
 --  Pass922 guard markers: Production_Index_Constraint_Reserved_Boundary_Recovery_Boundary,
 --  Production_Discriminant_Constraint_Reserved_Boundary_Recovery_Boundary, and
---  Test_Language_Model_Token_Cursor_Index_Discriminant_Constraint_Reserved_Boundary_Recovery_Pass922.
+--  Test_Language_Model_Token_Cursor_Index_Discriminant_Constraint_Reserved_Boundary_Recovery.
 --  Index/discriminant constraint reserved-boundary recovery remains parser-owned
 --  structural metadata only; it is not constraint legality checking, subtype
 --  compatibility checking, static expression validation, overload resolution,
@@ -4665,14 +4710,14 @@ end Phase579_Language_Validation_Check;
 --  whole-project scanning, or dirty-state mutation.
 
 --  Pass923 guard markers: Production_Profile_Default_Reserved_Boundary_Recovery_Boundary
---  and Test_Language_Model_Token_Cursor_Profile_Default_Reserved_Boundary_Recovery_Pass923.
+--  and Test_Language_Model_Token_Cursor_Profile_Default_Reserved_Boundary_Recovery.
 --  Profile default reserved-boundary recovery remains parser-owned structural
 --  metadata only; it is not default-expression legality checking, profile
 --  conformance checking, overload resolution, compiler invocation, LSP
 --  integration, render-side parsing, background whole-project scanning, or
 --  dirty-state mutation.
 --  Pass924 guard markers: Production_Object_Subtype_Reserved_Boundary_Recovery_Boundary
---  and Test_Language_Model_Token_Cursor_Object_Subtype_Reserved_Boundary_Recovery_Pass924.
+--  and Test_Language_Model_Token_Cursor_Object_Subtype_Reserved_Boundary_Recovery.
 --  Object subtype reserved-boundary recovery remains parser-owned structural
 --  metadata only; it is not object declaration legality checking, subtype
 --  legality checking, aspect legality checking, overload resolution, compiler
@@ -4680,18 +4725,18 @@ end Phase579_Language_Validation_Check;
 --  scanning, or dirty-state mutation.
 
 --  Pass925 guard markers: Production_Number_Initialization_Reserved_Boundary_Recovery_Boundary
---  and Test_Language_Model_Token_Cursor_Number_Initialization_Reserved_Boundary_Recovery_Pass925.
+--  and Test_Language_Model_Token_Cursor_Number_Initialization_Reserved_Boundary_Recovery.
 --  Number initialization reserved-boundary recovery remains parser-owned
 --  structural metadata only; it is not named-number legality checking,
 --  static-expression validation, universal type resolution, overload
 --  resolution, compiler invocation, LSP integration, render-side parsing,
 --  background whole-project scanning, or dirty-state mutation.
 --  Pass926 guard markers: Production_Component_Default_Reserved_Boundary_Recovery_Boundary
---  and Test_Language_Model_Token_Cursor_Component_Default_Reserved_Boundary_Recovery_Pass926.
+--  and Test_Language_Model_Token_Cursor_Component_Default_Reserved_Boundary_Recovery.
 --  Pass927 guard markers: Production_Discriminant_Default_Reserved_Boundary_Recovery_Boundary
---  and Test_Language_Model_Token_Cursor_Discriminant_Default_Reserved_Boundary_Recovery_Pass927.
+--  and Test_Language_Model_Token_Cursor_Discriminant_Default_Reserved_Boundary_Recovery.
 --  Pass928 guard markers: Production_Array_Index_Reserved_Boundary_Recovery_Boundary
---  and Test_Language_Model_Token_Cursor_Array_Index_Reserved_Boundary_Recovery_Pass928.
+--  and Test_Language_Model_Token_Cursor_Array_Index_Reserved_Boundary_Recovery.
 --  Array index reserved-boundary recovery remains parser-owned structural
 --  metadata only; it is not array index subtype legality checking, range
 --  expression type checking, overload resolution, compiler invocation, LSP
@@ -4702,7 +4747,7 @@ end Phase579_Language_Validation_Check;
 --  Production_Access_Mode_Subprogram_Conflict_Recovery_Boundary,
 --  Production_Access_Protected_Missing_Subprogram_Boundary_Token,
 --  Production_Access_Result_Missing_Subtype_Recovery_Boundary, and
---  Test_Language_Model_Token_Cursor_Access_Definition_Recovery_Depth_Pass930.
+--  Test_Language_Model_Token_Cursor_Access_Definition_Recovery_Depth.
 --  Access-definition recovery depth remains parser-owned structural metadata
 --  only; it is not access-type legality checking, designated-subtype legality
 --  checking, profile conformance checking, overload resolution, compiler
@@ -4711,7 +4756,7 @@ end Phase579_Language_Validation_Check;
 
 --  Pass931 guard markers: Production_Formal_Subprogram_Default_Abstract_Name,
 --  Production_Formal_Subprogram_Default_Missing_Target_Recovery_Boundary, and
---  Test_Language_Model_Token_Cursor_Generic_Formal_Subprogram_Default_Recovery_Pass931.
+--  Test_Language_Model_Token_Cursor_Generic_Formal_Subprogram_Default_Recovery.
 --  Generic formal subprogram default recovery remains parser-owned structural
 --  metadata only; it is not compiler-grade generic contract checking,
 --  overload resolution, default conformance checking, compiler invocation,
@@ -4720,7 +4765,7 @@ end Phase579_Language_Validation_Check;
 
 --  Pass933 guard markers: Production_Use_All_Missing_Type_Recovery_Boundary,
 --  Production_Use_Clause_Reserved_Name_Recovery_Boundary, and
---  Test_Language_Model_Token_Cursor_Use_Clause_Recovery_Depth_Pass933.
+--  Test_Language_Model_Token_Cursor_Use_Clause_Recovery_Depth.
 --  Use-clause recovery depth remains parser-owned structural metadata only;
 --  it is not compiler-grade visibility legality checking, subtype-mark
 --  legality checking, overload resolution, compiler invocation, LSP
@@ -4731,7 +4776,7 @@ end Phase579_Language_Validation_Check;
 --  Production_Representation_Clause_Missing_Use_Recovery_Boundary,
 --  Production_Attribute_Definition_Missing_Designator_Recovery_Boundary,
 --  Production_Enumeration_Representation_Reserved_Association_Recovery_Boundary,
---  and Test_Language_Model_Token_Cursor_Representation_Item_Recovery_Depth_Pass934.
+--  and Test_Language_Model_Token_Cursor_Representation_Item_Recovery_Depth.
 --  Representation/operational item recovery depth remains parser-owned
 --  structural metadata only; it is not compiler-grade representation legality
 --  checking, freezing-rule checking, layout validation, static-expression
@@ -4741,12 +4786,12 @@ end Phase579_Language_Validation_Check;
 --  Production_Case_Expression_Missing_Selector_Recovery_Boundary,
 --  Production_Case_Expression_Missing_Is_Recovery_Boundary,
 --  Production_Parallel_Reduction_Argument_Recovery_Boundary,
---  Test_Language_Model_Token_Cursor_Expression_Recovery_Refinement_Depth_Pass939.
+--  Test_Language_Model_Token_Cursor_Expression_Recovery_Refinement_Depth.
 
 --  Pass940 guard markers: Production_Selected_Name_Reserved_Selector_Recovery_Boundary,
 --  Production_Allocator_Missing_Subtype_Recovery_Boundary,
 --  Production_Qualified_Expression_Missing_Operand_Recovery_Boundary, and
---  Test_Language_Model_Token_Cursor_Name_Grammar_Recovery_Depth_Pass940.
+--  Test_Language_Model_Token_Cursor_Name_Grammar_Recovery_Depth.
 --  Name grammar recovery depth remains parser-owned structural metadata only;
 --  it is not compiler-grade selected-name legality checking, allocator subtype
 --  legality checking, qualified-expression operand legality checking, overload
@@ -4755,7 +4800,7 @@ end Phase579_Language_Validation_Check;
 
 --  Pass941 guard markers: Production_Entry_Body_Missing_Barrier_Recovery_Boundary,
 --  Production_Protected_Entry_Body_Missing_Barrier_Recovery_Boundary, and
---  Test_Language_Model_Token_Cursor_Entry_Body_Missing_Barrier_Recovery_Pass941.
+--  Test_Language_Model_Token_Cursor_Entry_Body_Missing_Barrier_Recovery.
 --  Protected entry-body barrier recovery remains parser-owned structural
 --  metadata only; it is not compiler-grade tasking legality checking,
 --  protected-operation conformance checking, barrier expression legality
@@ -4764,20 +4809,20 @@ end Phase579_Language_Validation_Check;
 
 --  Pass942 guard markers: Node_Declare_Expression, Node_Delta_Aggregate,
 --  Node_Container_Aggregate, Node_Reduction_Expression, Node_Target_Name, and
---  Test_Ada_Syntax_Tree_Ada2022_Expression_Node_Coverage_Pass942.
+--  Test_Ada_Syntax_Tree_Ada2022_Expression_Node_Coverage.
 
 --  Pass943 guard markers: Editor.Ada_Declarative_Regions, Region_Compilation,
 --  Region_Generic_Formal_Part, Region_Package_Spec, Region_Package_Body,
 --  Region_Subprogram_Body, Region_Protected_Body, Region_Entry_Body,
---  Test_Ada_Declarative_Region_Model_Foundation_Pass943.
+--  Test_Ada_Declarative_Region_Model_Foundation.
 
 --  PASS944_LANGUAGE_GUARD: Direct visibility foundation is covered by
 --  Editor.Ada_Direct_Visibility and
---  Test_Ada_Direct_Visibility_Foundation_Pass944.
+--  Test_Ada_Direct_Visibility_Foundation.
 
 --  PASS945_LANGUAGE_GUARD: Use-clause visibility foundation is covered by
 --  Editor.Ada_Use_Visibility and
---  Test_Ada_Use_Visibility_Foundation_Pass945.
+--  Test_Ada_Use_Visibility_Foundation.
 --  The model is snapshot/tree-owned and must not introduce compiler, LSP,
 --  renderer-side parsing, dirty-state mutation, or background scan coupling.
 
@@ -4788,7 +4833,7 @@ end Phase579_Language_Validation_Check;
 
 --  Pass947 guard: use-type primitive visibility foundation is covered by
 --  Editor.Ada_Use_Type_Operators and
---  Test_Ada_Use_Type_Operator_Visibility_Foundation_Pass947.
+--  Test_Ada_Use_Type_Operator_Visibility_Foundation.
 --  The model remains deterministic and snapshot-owned and must not introduce
 --  renderer-side parsing, dirty-state mutation, compiler invocation, LSP
 --  integration, external parser generators, Python, or shell-script project
@@ -4797,29 +4842,29 @@ end Phase579_Language_Validation_Check;
 
 --  Pass948 guard: call-candidate overload foundation is covered by
 --  Editor.Ada_Call_Candidates and
---  Test_Ada_Call_Candidate_Foundation_Pass948.  This remains a deterministic
+--  Test_Ada_Call_Candidate_Foundation.  This remains a deterministic
 --  compiler-grade semantic building block before expected-type/profile
 --  filtering; it must not introduce compiler invocation, LSP, renderer-side
 --  parsing, file IO, background scans, or dirty-state mutation.
 --  Pass949 guard marker: Editor.Ada_Call_Profile_Shapes and
---  Test_Ada_Call_Profile_Shape_Foundation_Pass949 must remain present as the
+--  Test_Ada_Call_Profile_Shape_Foundation must remain present as the
 --  call-profile shape foundation for later overload filtering.
 --  Pass950 guard marker: Editor.Ada_Call_Profile_Filters and
---  Test_Ada_Call_Profile_Filter_Foundation_Pass950 must remain present as the
+--  Test_Ada_Call_Profile_Filter_Foundation must remain present as the
 --  call-profile arity and named-actual filtering foundation for overload resolution.
 --  Pass951 guard marker: Editor.Ada_Call_Profile_Shapes and
 --  Editor.Ada_Call_Profile_Filters must retain formal-name/default metadata,
---  and Test_Ada_Call_Profile_Formal_Name_Filter_Pass951 must remain registered
+--  and Test_Ada_Call_Profile_Formal_Name_Filter must remain registered
 --  as the AUnit coverage marker for matched named actuals, unknown named
 --  actuals, and missing required non-defaulted formals.
 --  Pass952 guard marker: Editor.Ada_Call_Resolution and
---  Test_Ada_Call_Resolution_Profile_Result_Pass952 must remain present as the
+--  Test_Ada_Call_Resolution_Profile_Result must remain present as the
 --  call-resolution result classification layer over call candidates and profile
 --  filters.  It must remain deterministic and snapshot-owned, with no compiler
 --  invocation, LSP integration, renderer-side parsing, file IO, background
 --  scans, or dirty-state mutation.
 --  Pass954 guard marker: Editor.Ada_Expected_Call_Filters and
---  Test_Ada_Expected_Call_Filter_Foundation_Pass954 must remain present as the
+--  Test_Ada_Expected_Call_Filter_Foundation must remain present as the
 --  expected-call result-subtype filtering layer over expected contexts,
 --  call-resolution results, profile filters, and callable profile shapes.  It
 --  must remain deterministic and snapshot-owned, with no compiler invocation,
@@ -4827,14 +4872,14 @@ end Phase579_Language_Validation_Check;
 --  dirty-state mutation.
 
 --  Pass955 guard marker: Editor.Ada_Subtype_Compatibility and
---  Test_Ada_Subtype_Compatibility_Foundation_Pass955 must remain present as the
+--  Test_Ada_Subtype_Compatibility_Foundation must remain present as the
 --  conservative subtype-compatibility foundation for expected-call filtering.
 --  The model must stay snapshot-owned and must not introduce compiler
 --  invocation, LSP integration, renderer-side parsing, background scans, file
 --  mutation, or dirty-state mutation.
 
 --  Pass956 guard marker: Editor.Ada_Type_Graph and
---  Test_Ada_Type_Graph_Foundation_Pass956 must remain present as the
+--  Test_Ada_Type_Graph_Foundation must remain present as the
 --  declaration-derived type graph foundation.  The model must stay
 --  parser/snapshot-owned and must not introduce compiler invocation, LSP
 --  integration, renderer-side parsing, background scans, file mutation, or
@@ -4842,23 +4887,23 @@ end Phase579_Language_Validation_Check;
 
 --  Pass957 guard marker: Editor.Ada_Subtype_Compatibility.Check_With_Type_Graph,
 --  Editor.Ada_Expected_Call_Filters.Build_With_Type_Graph, and
---  Test_Ada_Expected_Call_Filter_Type_Graph_Compatibility_Pass957 must remain
+--  Test_Ada_Expected_Call_Filter_Type_Graph_Compatibility must remain
 --  present as the declaration-derived type-graph compatibility bridge for
 --  expected-call filtering.  The model must stay parser/snapshot-owned and must
 --  not introduce compiler invocation, LSP integration, renderer-side parsing,
 --  background scans, file mutation, or dirty-state mutation.
 
 --  Pass959 guard marker: Editor.Ada_Implicit_Conversions and
---  Test_Ada_Implicit_Conversion_Filter_Foundation_Pass959 must remain present
+--  Test_Ada_Implicit_Conversion_Filter_Foundation must remain present
 --  as the implicit-conversion classification layer after subtype/type-graph
 --  compatibility.  The model must stay parser/snapshot-owned and must not
 --  introduce compiler invocation, LSP integration, renderer-side parsing,
 --  background scans, file mutation, or dirty-state mutation.
 --  Pass960 guard marker: Editor.Ada_Static_Expressions and
---  Test_Ada_Static_Expression_Foundation_Pass960 must remain present to keep
+--  Test_Ada_Static_Expression_Foundation must remain present to keep
 --  compiler-grade static-expression staging covered by release validation.
 --  Pass966 guard marker: Editor.Ada_Generic_Contracts and
---  Test_Ada_Generic_Contract_Foundation_Pass966 must remain present as the
+--  Test_Ada_Generic_Contract_Foundation must remain present as the
 --  generic contract staging foundation for formal declarations and
 --  instantiation actual shape metadata.  The model must remain snapshot-owned
 --  and must not introduce compiler invocation, LSP integration,

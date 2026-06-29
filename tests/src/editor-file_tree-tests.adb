@@ -29,8 +29,9 @@ package body Editor.File_Tree.Tests is
 
    function Temp_Path (Name : String) return String is
    begin
+      Ada.Directories.Create_Path ("/tmp/editor-tests");
       return Ada.Directories.Compose
-        (Ada.Directories.Current_Directory, "phase55_" & Name);
+        ("/tmp/editor-tests", "phase55_" & Name);
    end Temp_Path;
 
    procedure Remove_File_If_Exists (Path : String) is
@@ -859,10 +860,10 @@ package body Editor.File_Tree.Tests is
       Root       : constant String := Temp_Path ("phase572_absolute_create");
       Outside_File : constant String :=
         Ada.Directories.Compose
-          (Ada.Directories.Current_Directory, "phase572_absolute_outside.adb");
+          ("/tmp/editor-tests", "phase572_absolute_outside.adb");
       Outside_Dir : constant String :=
         Ada.Directories.Compose
-          (Ada.Directories.Current_Directory, "phase572_absolute_outside_dir");
+          ("/tmp/editor-tests", "phase572_absolute_outside_dir");
       S          : Editor.State.State_Type;
       Opened     : Editor.Project.Project_Open_Result;
       Msg_Found  : Boolean := False;

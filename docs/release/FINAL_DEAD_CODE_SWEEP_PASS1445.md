@@ -4,14 +4,7 @@ Pass1445 completes project-scale cleanup item 6: final dead-code sweep.
 
 ## Removed orphan tests
 
-The sweep removes off-suite legacy tests that were already pruned from Core_Suite and no longer define production or required regression coverage:
-
-- `tests/src/test_ada_repair_gated_diagnostic_integration_pass1150.ads`
-- `tests/src/test_ada_repair_gated_diagnostic_integration_pass1150.adb`
-- `tests/src/test_ada_final_semantic_remediation_worklist_legality_pass1204.ads`
-- `tests/src/test_ada_final_semantic_remediation_worklist_legality_pass1204.adb`
-- `tests/src/test_ada_remaining_rm_edge_stabilized_closure_search_index_pass1294.ads`
-- `tests/src/test_ada_remaining_rm_edge_stabilized_closure_search_index_pass1294.adb`
+The sweep removes off-suite legacy tests that were already pruned from Core_Suite and no longer define production or required regression coverage. The removed coverage belonged to the old repair-gated diagnostic integration, final semantic remediation worklist, and remaining-RM-edge stabilized search-index test packages.
 
 ## Retained regression dependencies
 

@@ -1458,6 +1458,8 @@ package body Editor.Buffers.Tests is
       null;
       Assert (not Editor.Buffers.Global_Contains (Label_Id),
         "Phase 432: removed removed-name reopen must not restore labeled cleanup state");
+      Editor.Executor.Execute_Open_File (S, Label_Path);
+      Reopened_Id := Editor.Buffers.Global_Active_Buffer;
       Assert (not Editor.Buffers.Global_Has_Buffer_Note (Reopened_Id),
         "Phase 273: label reopen path must not smuggle note state either");
 
@@ -3874,6 +3876,9 @@ package body Editor.Buffers.Tests is
       AUnit.Test_Cases.Registration.Register_Routine
         (T, Test_Phase431_Read_Only_Close_Projections_Are_Side_Effect_Free'Access,
          "Phase431 Read Only Close Projections Are Side Effect Free");
+      AUnit.Test_Cases.Registration.Register_Routine
+        (T, Test_Phase432_Close_Surface_Is_Canonical_And_Removed_Name_Hidden'Access,
+         "Phase432 Close Surface Is Canonical And Removed Name Hidden");
    end Register_Tests;
 
 end Editor.Buffers.Tests;

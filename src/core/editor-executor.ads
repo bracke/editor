@@ -83,6 +83,9 @@ package Editor.Executor is
    function Pending_Transition_Is_Still_Valid
      (State : Editor.State.State_Type) return Boolean;
 
+   function Current_Semantic_Symbol_Name
+     (State : Editor.State.State_Type) return String;
+
    --  Clear stale pending-transition state without reporting.  User-visible
    --  retry/action paths report their own single outcome message.
    procedure Invalidate_Pending_Transition_If_Stale

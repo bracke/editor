@@ -18,7 +18,8 @@ package Editor.Ada_Subtype_Compatibility is
       Numeric_Family_Real_Floating,
       Numeric_Family_Real_Fixed,
       Numeric_Family_Universal_Integer,
-      Numeric_Family_Universal_Real);
+      Numeric_Family_Universal_Real,
+      Numeric_Family_Boolean);
 
    type Compatibility_Status is
      (Subtype_Compatibility_Not_Checked,

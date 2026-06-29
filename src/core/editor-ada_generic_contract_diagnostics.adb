@@ -285,7 +285,13 @@ package body Editor.Ada_Generic_Contract_Diagnostics is
       Info.Instantiated_Body := Body_Info.Id;
       Info.Instantiated_Body_Status := Body_Info.Status;
       Info.Instantiated_Body_Fingerprint := Body_Info.Fingerprint;
-      Info.Body_Contract := Body_Info.Body_Contract;
+      if Body_Info.Status =
+        Editor.Ada_Generic_Instantiated_Body_Analysis.Instantiated_Body_No_Body_Contract
+      then
+         Info.Body_Contract := Editor.Ada_Generic_Contracts.No_Generic_Body_Contract_Visibility;
+      else
+         Info.Body_Contract := Body_Info.Body_Contract;
+      end if;
       Info.Generic_View := Body_Info.Generic_View;
       Info.Generic_View_Status := Body_Info.Generic_View_Status;
       Info.Generic_View_Fingerprint := Body_Info.Fingerprint;

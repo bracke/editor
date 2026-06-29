@@ -4,6 +4,11 @@ with Editor.Unicode;
 
 package body Editor.Fonts is
 
+   The_Backend : aliased Textrender.Renderer;
+
+   function Backend return access Textrender.Renderer is
+     (The_Backend'Access);
+
    function Get_Glyph
      (Ch     : Character;
       Metric : out Glyph_Metric) return Boolean
@@ -34,7 +39,7 @@ package body Editor.Fonts is
       pragma Assert (Editor.Fonts.Init.Is_Initialized,
          "Editor font system must be initialized before glyph lookup");
 
-      Status := Textrender.Get_Glyph (Textrender.Codepoint (CP), M);
+      Status := Textrender.Get_Glyph (The_Backend, Textrender.Codepoint (CP), M);
 
       if Status /= Textrender.Success
         and then Status /= Textrender.Glyph_Missing
@@ -42,7 +47,8 @@ package body Editor.Fonts is
          --  Last-ditch safe fallback. Textrender normally maps missing glyphs
          --  internally, but render packet construction must never crash on a
          --  Unicode scalar value unsupported by the active font.
-         Status := Textrender.Get_Glyph (Textrender.Codepoint (Character'Pos ('?')), M);
+         Status :=
+           Textrender.Get_Glyph (The_Backend, Textrender.Codepoint (Character'Pos ('?')), M);
       end if;
 
       if Status /= Textrender.Success
@@ -53,8 +59,8 @@ package body Editor.Fonts is
       end if;
 
       Metric :=
-        (W         => M.W,
-         H         => M.H,
+        (W         => Float (M.W),
+         H         => Float (M.H),
          U0        => M.U0,
          V0        => M.V0,
          U1        => M.U1,
@@ -68,12 +74,12 @@ package body Editor.Fonts is
 
    function Ascent return Float is
    begin
-      return Textrender.Ascent;
+      return Textrender.Ascent (The_Backend);
    end Ascent;
 
    function Descent return Float is
    begin
-      return Textrender.Descent;
+      return Textrender.Descent (The_Backend);
    end Descent;
 
    function Monospace_Cell_Width return Float is

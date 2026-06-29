@@ -49,8 +49,9 @@ procedure Strict_Runtime_Preflight is
 begin
    Require_File (Tool, "editor.gpr");
    Require_File (Tool, "src/runtime/main.c");
-   Require_File (Tool, "src/runtime/runtime_glfw.c");
-   Require_File (Tool, "src/runtime/render_backend_vulkan.c");
+   Require_File (Tool, "src/runtime/runtime_glfw.adb");
+   Require_File (Tool, "src/runtime/render_backend_vulkan.ads");
+   Require_File (Tool, "src/runtime/render_backend_vulkan.adb");
    Require_File (Tool, "src/runtime/shaders/rect.vert.spv");
    Require_File (Tool, "src/runtime/shaders/rect.frag.spv");
    Require_File (Tool, "src/runtime/shaders/text.vert.spv");
@@ -73,9 +74,16 @@ begin
         or else Strict ("EDITOR_REQUIRE_RUNTIME_SMOKE")
         or else Strict ("EDITOR_REQUIRE_RUNTIME_LINK")
       then
-         Fail (Tool, "strict runtime validation preflight failed with" & Natural'Image (Missing) & " missing requirement(s)");
+         Fail
+           (Tool,
+            "strict runtime validation preflight failed with"
+            & Natural'Image (Missing) & " missing requirement(s)");
       else
-         Info (Tool, "strict runtime validation preflight found" & Natural'Image (Missing) & " missing requirement(s); skipped in non-strict mode");
+         Info
+           (Tool,
+            "strict runtime validation preflight found"
+            & Natural'Image (Missing)
+            & " missing requirement(s); skipped in non-strict mode");
          return;
       end if;
    end if;

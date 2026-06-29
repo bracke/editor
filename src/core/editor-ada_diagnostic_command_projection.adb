@@ -85,6 +85,12 @@ package body Editor.Ada_Diagnostic_Command_Projection is
       H := Mix (H, Diagnostic_Command_Kind'Pos (Descriptor.Command_Kind) + 1);
       H := Mix
         (H, Diagnostic_Command_Availability'Pos (Descriptor.Availability) + 1);
+      H := Mix (H, Boolean'Pos (Descriptor.Has_Edit) + 1);
+      H := Mix (H, Descriptor.Edit_Start_Line);
+      H := Mix (H, Descriptor.Edit_Start_Column);
+      H := Mix (H, Descriptor.Edit_End_Line);
+      H := Mix (H, Descriptor.Edit_End_Column);
+      H := Mix (H, Length (Descriptor.Replacement_Text) + 1);
       H := Mix (H, Descriptor.Start_Line);
       H := Mix (H, Descriptor.Start_Column);
       H := Mix (H, Descriptor.Route_Fingerprint + 1);
@@ -192,6 +198,11 @@ package body Editor.Ada_Diagnostic_Command_Projection is
             Descriptor.Display_Label := Route.Label;
             Descriptor.Detail := Route.Detail;
             Descriptor.Has_Edit := Route.Has_Edit;
+            Descriptor.Edit_Start_Line := Route.Edit_Start_Line;
+            Descriptor.Edit_Start_Column := Route.Edit_Start_Column;
+            Descriptor.Edit_End_Line := Route.Edit_End_Line;
+            Descriptor.Edit_End_Column := Route.Edit_End_Column;
+            Descriptor.Replacement_Text := Route.Replacement_Text;
             Descriptor.Start_Line := Route.Start_Line;
             Descriptor.Start_Column := Route.Start_Column;
             Descriptor.End_Line := Route.End_Line;

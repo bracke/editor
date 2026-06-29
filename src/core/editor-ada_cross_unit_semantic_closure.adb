@@ -568,6 +568,156 @@ package body Editor.Ada_Cross_Unit_Semantic_Closure is
       return Model;
    end Build;
 
+   function Build_Local_Contexts_From_Legality
+     (Source_Unit_Name : String;
+      Assignments : AL.Assignment_Legality_Model;
+      Returns     : RL.Return_Legality_Model;
+      Expressions : EL.Semantic_Legality_Model;
+      Flow        : FL.Flow_Legality_Model;
+      Tasking     : TL.Tasking_Legality_Model;
+      Tagged_Model      : TD.Tagged_Legality_Model;
+      Instances   : GI.Instance_Legality_Model)
+      return Cross_Unit_Semantic_Context_Model
+   is
+      Model  : Cross_Unit_Semantic_Context_Model;
+      Next   : Cross_Unit_Semantic_Context_Id := No_Cross_Unit_Semantic_Context;
+      Source : constant Unbounded_String := To_Unbounded_String (Source_Unit_Name);
+
+      procedure Add (Context : Cross_Unit_Semantic_Context_Info) is
+         Item : Cross_Unit_Semantic_Context_Info := Context;
+      begin
+         Next := Next + 1;
+         Item.Id := Next;
+         Item.Source_Unit_Name := Source;
+         Add_Context (Model, Item);
+      end Add;
+   begin
+      for Index in 1 .. AL.Legality_Count (Assignments) loop
+         declare
+            Info    : constant AL.Assignment_Legality_Info :=
+              AL.Legality_At (Assignments, Index);
+            Context : Cross_Unit_Semantic_Context_Info;
+         begin
+            Context.Kind := Cross_Unit_Semantic_Assignment;
+            Context.Node :=
+              (if Info.Target_Node /= Editor.Ada_Syntax_Tree.No_Node
+               then Info.Target_Node
+               else Info.Source_Node);
+            Context.Linked_Assignment := Info.Context;
+            Context.Start_Line := Info.Start_Line;
+            Context.Start_Column := Info.Start_Column;
+            Context.End_Line := Info.End_Line;
+            Context.End_Column := Info.End_Column;
+            Context.Fingerprint := Info.Fingerprint;
+            Add (Context);
+         end;
+      end loop;
+
+      for Index in 1 .. RL.Legality_Count (Returns) loop
+         declare
+            Info    : constant RL.Return_Legality_Info := RL.Legality_At (Returns, Index);
+            Context : Cross_Unit_Semantic_Context_Info;
+         begin
+            Context.Kind := Cross_Unit_Semantic_Return;
+            Context.Node := Info.Return_Node;
+            Context.Linked_Return := Info.Context;
+            Context.Start_Line := Info.Start_Line;
+            Context.Start_Column := Info.Start_Column;
+            Context.End_Line := Info.End_Line;
+            Context.End_Column := Info.End_Column;
+            Context.Fingerprint := Info.Fingerprint;
+            Add (Context);
+         end;
+      end loop;
+
+      for Index in 1 .. EL.Legality_Count (Expressions) loop
+         declare
+            Info    : constant EL.Semantic_Legality_Info :=
+              EL.Legality_At (Expressions, Index);
+            Context : Cross_Unit_Semantic_Context_Info;
+         begin
+            Context.Kind := Cross_Unit_Semantic_Expression;
+            Context.Node := Info.Node;
+            Context.Linked_Expression := Info.Context;
+            Context.Start_Line := Info.Start_Line;
+            Context.End_Line := Info.End_Line;
+            Context.Fingerprint := Info.Fingerprint;
+            Add (Context);
+         end;
+      end loop;
+
+      for Index in 1 .. FL.Legality_Count (Flow) loop
+         declare
+            Info    : constant FL.Flow_Legality_Info := FL.Legality_At (Flow, Index);
+            Context : Cross_Unit_Semantic_Context_Info;
+         begin
+            Context.Kind := Cross_Unit_Semantic_Control_Flow;
+            Context.Node := Info.Node;
+            Context.Linked_Flow := Info.Context;
+            Context.Start_Line := Info.Start_Line;
+            Context.Start_Column := Info.Start_Column;
+            Context.End_Line := Info.End_Line;
+            Context.End_Column := Info.End_Column;
+            Context.Fingerprint := Info.Fingerprint;
+            Add (Context);
+         end;
+      end loop;
+
+      for Index in 1 .. TL.Legality_Count (Tasking) loop
+         declare
+            Info    : constant TL.Tasking_Legality_Info :=
+              TL.Legality_At (Tasking, Index);
+            Context : Cross_Unit_Semantic_Context_Info;
+         begin
+            Context.Kind := Cross_Unit_Semantic_Tasking_Protected;
+            Context.Node := Info.Node;
+            Context.Linked_Tasking := Info.Context;
+            Context.Start_Line := Info.Start_Line;
+            Context.Start_Column := Info.Start_Column;
+            Context.End_Line := Info.End_Line;
+            Context.End_Column := Info.End_Column;
+            Context.Fingerprint := Info.Fingerprint;
+            Add (Context);
+         end;
+      end loop;
+
+      for Index in 1 .. TD.Legality_Count (Tagged_Model) loop
+         declare
+            Info    : constant TD.Tagged_Legality_Info :=
+              TD.Legality_At (Tagged_Model, Index);
+            Context : Cross_Unit_Semantic_Context_Info;
+         begin
+            Context.Kind := Cross_Unit_Semantic_Tagged_Derived;
+            Context.Node := Info.Node;
+            Context.Linked_Tagged := Info.Context;
+            Context.Start_Line := Info.Start_Line;
+            Context.Start_Column := Info.Start_Column;
+            Context.End_Line := Info.End_Line;
+            Context.End_Column := Info.End_Column;
+            Context.Fingerprint := Info.Fingerprint;
+            Add (Context);
+         end;
+      end loop;
+
+      for Index in 1 .. GI.Legality_Count (Instances) loop
+         declare
+            Info    : constant GI.Instance_Legality_Info :=
+              GI.Legality_At (Instances, Index);
+            Context : Cross_Unit_Semantic_Context_Info;
+         begin
+            Context.Kind := Cross_Unit_Semantic_Generic_Instance;
+            Context.Node := Info.Node;
+            Context.Linked_Instance := Info.Context;
+            Context.Start_Line := 1;
+            Context.End_Line := 1;
+            Context.Fingerprint := Info.Fingerprint;
+            Add (Context);
+         end;
+      end loop;
+
+      return Model;
+   end Build_Local_Contexts_From_Legality;
+
    function Semantic_Count (Model : Cross_Unit_Semantic_Model) return Natural is
    begin
       return Natural (Model.Entries.Length);

@@ -1,5 +1,6 @@
 with Editor.Syntax;
 package body Editor.Syntax_State is
+   use type Editor.Syntax.Lexical_State;
 
    function Is_Stateful (State : Line_Start_State) return Boolean is
    begin

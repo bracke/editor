@@ -759,12 +759,12 @@ Pass952 exposes parser-owned call-resolution result metadata through `Editor.Ada
 
 ### Pass953 expected-type context foundation
 
-Added `Editor.Ada_Expected_Type_Contexts` to attach deterministic expected-subtype context metadata to call-shaped expression nodes in declaration defaults and return contexts. This is a compiler-grade semantic staging layer for later expected-type overload filtering and type checking; it does not yet complete full type compatibility, implicit conversion legality, generic contracts, freezing/representation legality, or cross-unit semantic closure.
+Added `Editor.Ada_Expected_Type_Contexts` to attach deterministic expected-subtype context metadata to call-shaped expression nodes and syntax-owned declaration defaults, simple assignments, and ordinary return statements. The model now feeds expected-type overload filtering, expression typing, assignment legality, return legality, and live semantic diagnostics while remaining snapshot-owned and free of renderer-side parsing or editor-state mutation.
 
 
 ### Pass953 expected-type context foundation
 
-Added `Editor.Ada_Expected_Type_Contexts` to attach deterministic expected-subtype context metadata to call-shaped expression nodes in declaration defaults and return contexts. This is a compiler-grade semantic staging layer for later expected-type overload filtering and type checking; it does not yet complete full type compatibility, implicit conversion legality, generic contracts, freezing/representation legality, or cross-unit semantic closure.
+Added `Editor.Ada_Expected_Type_Contexts` to attach deterministic expected-subtype context metadata to call-shaped expression nodes and syntax-owned declaration defaults, simple assignments, and ordinary return statements. The model now feeds expected-type overload filtering, expression typing, assignment legality, return legality, and live semantic diagnostics while remaining snapshot-owned and free of renderer-side parsing or editor-state mutation.
 
 ### Phase 579 pass954 — expected-call result-subtype filtering
 
@@ -994,9 +994,9 @@ Pass1064 adds `Editor.Ada_Selected_Representation_Targets`, a deterministic repr
 
 Representation clauses that target selected names now contribute diagnostics for private/limited view barriers, missing or ambiguous prefixes, bounded lookup overflow, selector failures, and unresolved selected targets. The colouring path remains a projection consumer of guarded diagnostics.
 
-Pass1075 note: diagnostic action routing now joins quick-fix skeletons with diagnostic navigation, panel rows, provenance/explain items, and status-line nearest-target metadata through `Editor.Ada_Diagnostic_Action_Router`. The layer is projection-only and preserves stale-result rejection; it does not parse, mutate buffers, save/reload files, register commands, touch workspace state, or perform rendering-side semantic work.
+Pass1075 note: diagnostic action routing now joins quick-fix skeletons with diagnostic navigation, panel rows, provenance/explain items, status-line nearest-target metadata, and explicit feed edit hints through `Editor.Ada_Diagnostic_Action_Router`. The layer is projection-only and preserves stale-result rejection; it does not parse, mutate buffers, save/reload files, register commands, touch workspace state, or perform rendering-side semantic work.
 
-Pass1076 note: diagnostic command projection now turns diagnostic action routes into deterministic command-facing descriptors through `Editor.Ada_Diagnostic_Command_Projection`. The layer is projection-only and does not register commands, invoke commands, apply edits, parse, mutate buffers, save/reload files, touch workspace state, or perform rendering-side semantic work. Rejected/stale action-route models expose no active command descriptors while preserving rejected-command totals.
+Pass1076 note: diagnostic command projection now turns diagnostic action routes into deterministic command-facing descriptors through `Editor.Ada_Diagnostic_Command_Projection`, preserving explicit feed edit hints as descriptor metadata for executor-owned application. The layer is projection-only and does not register commands, invoke commands, apply edits, parse, mutate buffers, save/reload files, touch workspace state, or perform rendering-side semantic work. Rejected/stale action-route models expose no active command descriptors while preserving rejected-command totals.
 
 Pass1077 note: diagnostic command palette projection now turns diagnostic command descriptors into deterministic command-palette-facing entries through `Editor.Ada_Diagnostic_Command_Palette_Projection`. The layer is projection-only and does not register command aliases, mutate keybindings, invoke commands, apply edits, parse, mutate buffers, save/reload files, touch workspace state, or perform rendering-side semantic work. Rejected/stale command projection models expose no active palette entries while preserving rejected-entry totals.
 
@@ -1182,3 +1182,5 @@ Pass1262 adds Editor.Ada_Generic_Shared_State_RM_Completion_Stabilization_Gate_L
 \nPass1265: Added representation RM-completion closure consumer legality. The pass consumes stabilized generic/shared-state RM-completion closure rows before representation/freezing RM hard-case conclusions may be trusted, while preserving blocker-family identity for closure, representation, cross-unit, overload/type, tasking, elaboration, accessibility, dataflow, and fingerprint blockers.
 
 Pass1266: Tasking/protected RM-completion closure consumer legality now consumes stabilized RM-completion closure evidence and preserves tasking/protected blocker-family identity.
+
+Live semantic diagnostic update: expected-type contexts now include syntax-owned declaration defaults, simple assignments, and ordinary return statements as production inputs, and return action nodes participate in expression typing. The live diagnostic pipeline therefore reports non-call assignment/return subtype mismatches through the existing wide semantic diagnostic feed without renderer parsing, file mutation, or dirty-state mutation.

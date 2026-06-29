@@ -1200,15 +1200,15 @@ package body Editor.Render_Model.Tests is
       pragma Unreferenced (T);
    begin
       Assert
-      (Textrender.Atlas_Width > 0,
+      (Textrender.Atlas_Width (Editor.Fonts.Backend.all) > 0,
          "Font atlas width must be positive");
 
       Assert
-      (Textrender.Atlas_Height > 0,
+      (Textrender.Atlas_Height (Editor.Fonts.Backend.all) > 0,
          "Font atlas height must be positive");
 
       Assert
-      (Textrender.Atlas_Pixels /= null,
+      (Textrender.Atlas_Pixels (Editor.Fonts.Backend.all) /= null,
          "Font atlas pixels must not be null");
    end Test_Font_Atlas_Is_Valid;
 
@@ -1219,10 +1219,10 @@ package body Editor.Render_Model.Tests is
 
       M : Editor.Fonts.Glyph_Metric;
    begin
-      Textrender.Clear_Atlas_Dirty;
+      Textrender.Clear_Atlas_Dirty (Editor.Fonts.Backend.all);
 
       Assert
-      (not Textrender.Atlas_Dirty,
+      (not Textrender.Atlas_Dirty (Editor.Fonts.Backend.all),
          "Atlas must be clean after clear");
 
       Assert
@@ -1232,10 +1232,10 @@ package body Editor.Render_Model.Tests is
       --  If Z was already cached by earlier tests, this may stay False.
       --  So this test only verifies the clear path unless test ordering guarantees
       --  an uncached glyph.
-      Textrender.Clear_Atlas_Dirty;
+      Textrender.Clear_Atlas_Dirty (Editor.Fonts.Backend.all);
 
       Assert
-      (not Textrender.Atlas_Dirty,
+      (not Textrender.Atlas_Dirty (Editor.Fonts.Backend.all),
          "Atlas must be clean after second clear");
    end Test_Font_Atlas_Dirty_On_New_Glyph;
 
@@ -1715,45 +1715,51 @@ package body Editor.Render_Model.Tests is
               "Active Find prompt text layer C ABI value must be 39");
       Assert (To_C (Active_Find_Prompt_Caret_Layer) = 40,
               "Active Find prompt caret layer C ABI value must be 40");
-      Assert (To_C (Quick_Open_Background_Layer) = 41,
-              "Quick Open background layer C ABI value must be 41");
-      Assert (To_C (Quick_Open_Field_Layer) = 42,
-              "Quick Open field layer C ABI value must be 42");
-      Assert (To_C (Quick_Open_Result_Layer) = 43,
-              "Quick Open result layer C ABI value must be 43");
-      Assert (To_C (Quick_Open_Selected_Result_Layer) = 44,
-              "Quick Open selected-result layer C ABI value must be 44");
-      Assert (To_C (Quick_Open_Text_Layer) = 45,
-              "Quick Open text layer C ABI value must be 45");
-      Assert (To_C (Quick_Open_Caret_Layer) = 46,
-              "Quick Open caret layer C ABI value must be 46");
-      Assert (To_C (Project_Search_Bar_Background_Layer) = 47,
-              "Project Search Bar background layer C ABI value must be 47");
-      Assert (To_C (Project_Search_Bar_Field_Layer) = 48,
-              "Project Search Bar field layer C ABI value must be 48");
-      Assert (To_C (Project_Search_Bar_Button_Layer) = 49,
-              "Project Search Bar button layer C ABI value must be 49");
-      Assert (To_C (Project_Search_Bar_Text_Layer) = 50,
-              "Project Search Bar text layer C ABI value must be 50");
-      Assert (To_C (Project_Search_Bar_Caret_Layer) = 51,
-              "Project Search Bar caret layer C ABI value must be 51");
-      Assert (To_C (Pending_Transition_Background_Layer) = 52,
-              "Pending transition background layer C ABI value must be 52");
-      Assert (To_C (Pending_Transition_Text_Layer) = 53,
-              "Pending transition text layer C ABI value must be 53");
-      Assert (To_C (Pending_Transition_Action_Layer) = 54,
-              "Pending transition action layer C ABI value must be 54");
-      Assert (To_C (Message_Background_Layer) = 55,
-              "Message background layer C ABI value must be 55");
-      Assert (To_C (Message_Text_Layer) = 56,
-              "Message text layer C ABI value must be 56");
-      Assert (To_C (Palette_Background_Layer) = 57,
-              "Palette background layer C ABI value must be 57");
-      Assert (To_C (Palette_Selection_Layer) = 58,
-              "Palette selection layer C ABI value must be 58");
-      Assert (To_C (Palette_Text_Layer) = 59,
-              "Palette text layer C ABI value must be 59");
-      Assert (Editor.Render_Layers.Layer_Count = 60,
+      Assert (To_C (Semantic_Popup_Background_Layer) = 41,
+              "Semantic popup background layer C ABI value must be 41");
+      Assert (To_C (Semantic_Popup_Row_Layer) = 42,
+              "Semantic popup row layer C ABI value must be 42");
+      Assert (To_C (Semantic_Popup_Text_Layer) = 43,
+              "Semantic popup text layer C ABI value must be 43");
+      Assert (To_C (Quick_Open_Background_Layer) = 44,
+              "Quick Open background layer C ABI value must be 44");
+      Assert (To_C (Quick_Open_Field_Layer) = 45,
+              "Quick Open field layer C ABI value must be 45");
+      Assert (To_C (Quick_Open_Result_Layer) = 46,
+              "Quick Open result layer C ABI value must be 46");
+      Assert (To_C (Quick_Open_Selected_Result_Layer) = 47,
+              "Quick Open selected-result layer C ABI value must be 47");
+      Assert (To_C (Quick_Open_Text_Layer) = 48,
+              "Quick Open text layer C ABI value must be 48");
+      Assert (To_C (Quick_Open_Caret_Layer) = 49,
+              "Quick Open caret layer C ABI value must be 49");
+      Assert (To_C (Project_Search_Bar_Background_Layer) = 50,
+              "Project Search Bar background layer C ABI value must be 50");
+      Assert (To_C (Project_Search_Bar_Field_Layer) = 51,
+              "Project Search Bar field layer C ABI value must be 51");
+      Assert (To_C (Project_Search_Bar_Button_Layer) = 52,
+              "Project Search Bar button layer C ABI value must be 52");
+      Assert (To_C (Project_Search_Bar_Text_Layer) = 53,
+              "Project Search Bar text layer C ABI value must be 53");
+      Assert (To_C (Project_Search_Bar_Caret_Layer) = 54,
+              "Project Search Bar caret layer C ABI value must be 54");
+      Assert (To_C (Pending_Transition_Background_Layer) = 55,
+              "Pending transition background layer C ABI value must be 55");
+      Assert (To_C (Pending_Transition_Text_Layer) = 56,
+              "Pending transition text layer C ABI value must be 56");
+      Assert (To_C (Pending_Transition_Action_Layer) = 57,
+              "Pending transition action layer C ABI value must be 57");
+      Assert (To_C (Message_Background_Layer) = 58,
+              "Message background layer C ABI value must be 58");
+      Assert (To_C (Message_Text_Layer) = 59,
+              "Message text layer C ABI value must be 59");
+      Assert (To_C (Palette_Background_Layer) = 60,
+              "Palette background layer C ABI value must be 60");
+      Assert (To_C (Palette_Selection_Layer) = 61,
+              "Palette selection layer C ABI value must be 61");
+      Assert (To_C (Palette_Text_Layer) = 62,
+              "Palette text layer C ABI value must be 62");
+      Assert (Editor.Render_Layers.Layer_Count = 63,
               "Layer count must stay synchronized with the C ABI enum");
    end Test_C_ABI_Layer_Values_Are_Stable;
 
@@ -1870,7 +1876,7 @@ package body Editor.Render_Model.Tests is
       (Editor.Layout.Line_Number_Cell_X
          (Layout, Line_Count, Digit_From_Right => 2)
        = Editor.Layout.Line_Number_Right_Edge (Layout, Line_Count)
-         - 2.0 * Float (Editor.Layout.Cell_W),
+         - 3.0 * Float (Editor.Layout.Cell_W),
          "Line-number digit placement must be owned by Editor.Layout");
 
       Assert
@@ -2222,13 +2228,13 @@ package body Editor.Render_Model.Tests is
 
       Editor.Minimap.Set_Enabled (False);
       Editor.Input_Bridge.Build_Render_Packet (Packet);
-      Textrender.Clear_Atlas_Dirty;
+      Textrender.Clear_Atlas_Dirty (Editor.Fonts.Backend.all);
 
       Editor.Minimap.Set_Enabled (True);
       Editor.Input_Bridge.Build_Render_Packet (Packet);
 
       Assert
-        (not Textrender.Atlas_Dirty,
+        (not Textrender.Atlas_Dirty (Editor.Fonts.Backend.all),
          "Rect-only minimap rendering must not dirty the font atlas");
 
       Editor.Minimap.Set_Current (Old);
@@ -2436,6 +2442,58 @@ package body Editor.Render_Model.Tests is
             "Comment text glyph must use comment theme colour");
       end;
    end Test_Render_Packet_Uses_Syntax_Colors;
+
+
+   procedure Test_Selected_Syntax_Text_Uses_Readable_Foreground
+     (T : in out AUnit.Test_Cases.Test_Case'Class) is
+      pragma Unreferenced (T);
+
+      S      : Editor.State.State_Type;
+      Packet : Editor.Render_Packet.Render_Packet;
+      Layout : constant Editor.Layout.Layout_Config := Editor.Layout.Current;
+   begin
+      Editor.State.Init (S);
+      Editor.Executor.Execute_No_Log (S, Paste ("procedure X is"));
+      S.Carets.Clear;
+      S.Carets.Append
+        (Caret_State'
+           (Pos                   => 9,
+            Anchor                => 0,
+            Virtual_Column        => 0,
+            Anchor_Virtual_Column => 0));
+
+      Set_Render_State_For_Test (S);
+      Editor.View.Reset_Scroll;
+      Editor.View.Set_Viewport
+        (Width  => Editor.Layout.Gutter_Width_For_Line_Count (Layout, 1)
+                   + Editor.Layout.Cell_W * 32,
+         Height => Editor.Layout.Cell_H * 4);
+
+      Editor.Input_Bridge.Build_Render_Packet (Packet);
+
+      declare
+         Selected_Keyword_Glyph : constant Natural :=
+           Text_Glyph_Index (Packet, Layout, 0, 1);
+      begin
+         Assert
+           (Glyph_Has_Color
+              (Packet.Glyphs (Selected_Keyword_Glyph),
+               Editor.Theme.Syntax_Color (Editor.Syntax.Selection_Overlay)),
+            "Selected syntax-highlighted text must use selection foreground");
+
+         Assert
+           (not Glyph_Has_Color
+              (Packet.Glyphs (Selected_Keyword_Glyph),
+               Editor.Theme.Syntax_Color (Editor.Syntax.Keyword)),
+            "Selected syntax-highlighted text must not keep low-contrast token colour");
+
+         Assert
+           (not Glyph_Has_Color
+              (Packet.Glyphs (Selected_Keyword_Glyph),
+               Editor.Theme.Selection_Background),
+            "Selected text foreground must differ from the selection background");
+      end;
+   end Test_Selected_Syntax_Text_Uses_Readable_Foreground;
 
 
    procedure Test_Render_Snapshot_Splits_Overlay_Inside_Syntax_Token
@@ -2664,6 +2722,12 @@ package body Editor.Render_Model.Tests is
            (Editor.Theme.Syntax_Color (Editor.Syntax.Keyword),
             Editor.Theme.Syntax_Color (Editor.Syntax.Comment)),
          "Keyword and comment syntax colours must differ");
+
+      Assert
+        (not Colors_Are_Equal
+           (Editor.Theme.Syntax_Color (Editor.Syntax.Selection_Overlay),
+            Editor.Theme.Selection_Background),
+         "Selection foreground and background colours must differ");
 
       Assert
         (not Colors_Are_Equal
@@ -4876,6 +4940,9 @@ package body Editor.Render_Model.Tests is
       AUnit.Test_Cases.Registration.Register_Routine
         (T, Test_Render_Packet_Uses_Syntax_Colors'Access,
          "Render Packet Uses Syntax Colors");
+      AUnit.Test_Cases.Registration.Register_Routine
+        (T, Test_Selected_Syntax_Text_Uses_Readable_Foreground'Access,
+         "Selected Syntax Text Uses Readable Foreground");
       AUnit.Test_Cases.Registration.Register_Routine
         (T, Test_Render_Snapshot_Splits_Overlay_Inside_Syntax_Token'Access,
          "Render Snapshot Splits Overlay Inside Syntax Token");

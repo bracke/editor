@@ -66,9 +66,9 @@ D a-stuten.ads		20250808065140 c6ced0ae ada.strings.utf_encoding%s
 D a-tags.ads		20250808065140 fbca0ad5 ada.tags%s
 D a-unccon.ads		20250808065140 0e9b276f ada.unchecked_conversion%s
 D a-uncdea.ads		20250808065140 c3a8ac65 ada.unchecked_deallocation%s
-D editor.ads		20260406185230 16f844c2 editor%s
-D editor-cursors.ads	20260425100454 1f938cf3 editor.cursors%s
-D editor-cursors.adb	20260413170533 ece92ecb editor.cursors%b
+D editor.ads		20260612145959 16f844c2 editor%s
+D editor-cursors.ads	20260612145959 1f938cf3 editor.cursors%s
+D editor-cursors.adb	20260612145959 ece92ecb editor.cursors%b
 D interfac.ads		20250808065140 9111f9c1 interfaces%s
 D i-c.ads		20250808065140 e94c966a interfaces.c%s
 D system.ads		20250808065140 14286b0f system%s

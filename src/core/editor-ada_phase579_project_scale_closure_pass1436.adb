@@ -16,6 +16,7 @@ package body Editor.Ada_Phase579_Project_Scale_Closure_Pass1436 is
          when Status_Accepted =>
             return Class_Accepted;
          when Status_Rejected_Missing_Project_Item
+            | Status_Rejected_Duplicate_Project_Area
             | Status_Rejected_Reopened_Remaining_Gap
             | Status_Rejected_Speculative_New_Work
             | Status_Rejected_Unregistered_Test
@@ -44,6 +45,22 @@ package body Editor.Ada_Phase579_Project_Scale_Closure_Pass1436 is
         and then Row.Documentation_Fingerprint = Row.Expected_Documentation_Fingerprint
         and then Row.Closure_Fingerprint = Row.Expected_Closure_Fingerprint;
    end Fingerprints_Fresh;
+
+   function Is_Required_Area (Area : Closure_Area) return Boolean is
+   begin
+      return Area /= Area_Unknown;
+   end Is_Required_Area;
+
+   function Required_Area_Total return Natural is
+      Total : Natural := 0;
+   begin
+      for Area in Closure_Area loop
+         if Is_Required_Area (Area) then
+            Total := Total + 1;
+         end if;
+      end loop;
+      return Total;
+   end Required_Area_Total;
 
    function Evaluate (Row : Closure_Row) return Closure_Status is
    begin
@@ -86,6 +103,7 @@ package body Editor.Ada_Phase579_Project_Scale_Closure_Pass1436 is
          when Status_Accepted =>
             Model.Accepted_Count := Model.Accepted_Count + 1;
          when Status_Rejected_Missing_Project_Item
+            | Status_Rejected_Duplicate_Project_Area
             | Status_Rejected_Reopened_Remaining_Gap
             | Status_Rejected_Speculative_New_Work
             | Status_Rejected_Unregistered_Test
@@ -101,12 +119,22 @@ package body Editor.Ada_Phase579_Project_Scale_Closure_Pass1436 is
    end Tally;
 
    function Build (Input : Closure_Input) return Closure_Model is
+      Seen   : array (Closure_Area) of Boolean := (others => False);
       Model : Closure_Model;
       Status : Closure_Status;
       Item : Closure_Entry;
    begin
       for Row of Input.Rows loop
          Status := Evaluate (Row);
+         if Status = Status_Accepted and then Is_Required_Area (Row.Area) then
+            if Seen (Row.Area) then
+               Status := Status_Rejected_Duplicate_Project_Area;
+               Model.Duplicate_Area_Count := Model.Duplicate_Area_Count + 1;
+            else
+               Seen (Row.Area) := True;
+            end if;
+         end if;
+
          Item.Id := Row.Id;
          Item.Area := Row.Area;
          Item.Status := Status;
@@ -118,6 +146,14 @@ package body Editor.Ada_Phase579_Project_Scale_Closure_Pass1436 is
            Model.Closure_Fingerprint + Item.Result_Fingerprint;
          Tally (Model, Item);
       end loop;
+
+      Model.Required_Area_Count := Required_Area_Total;
+      for Area in Closure_Area loop
+         if Is_Required_Area (Area) and then not Seen (Area) then
+            Model.Missing_Area_Count := Model.Missing_Area_Count + 1;
+         end if;
+      end loop;
+
       return Model;
    end Build;
 
@@ -139,7 +175,10 @@ package body Editor.Ada_Phase579_Project_Scale_Closure_Pass1436 is
    function Phase579_Project_Scale_Closed (Model : Closure_Model) return Boolean is
    begin
       return Model.Total_Rows = 7
-        and then Model.Accepted_Count = Model.Total_Rows
+        and then Model.Required_Area_Count = 7
+        and then Model.Missing_Area_Count = 0
+        and then Model.Duplicate_Area_Count = 0
+        and then Model.Accepted_Count = Model.Required_Area_Count
         and then Model.Rejected_Count = 0
         and then Model.Indeterminate_Count = 0
         and then Model.Closure_Fingerprint > 0;

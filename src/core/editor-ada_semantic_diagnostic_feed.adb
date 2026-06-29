@@ -1,4 +1,5 @@
 with Ada.Strings.Unbounded; use Ada.Strings.Unbounded;
+with Editor.Ada_Overload_Preference_Legality;
 with Editor.Ada_Wide_Semantic_Legality_Diagnostics;
 with Editor.Ada_Integrated_Semantic_Closure;
 with Editor.Ada_Final_Semantic_Diagnostic_Integration;
@@ -17,7 +18,9 @@ package body Editor.Ada_Semantic_Diagnostic_Feed is
    pragma Suppress (Overflow_Check);
 
    use type Editor.Ada_Semantic_Colour_Projection.Semantic_Colour_Source;
+   use type Editor.Ada_Overload_Preference_Legality.Preference_Legality_Status;
    use type Editor.Syntax.Token_Kind;
+   use type Semantic_Diagnostic_Feed_Id;
 
    function Mix (A, B : Natural) return Natural is
    begin
@@ -61,6 +64,8 @@ package body Editor.Ada_Semantic_Diagnostic_Feed is
             return Editor.Ada_Semantic_Colour_Projection.Semantic_Colour_From_Generic_Contract;
          when Editor.Ada_Wide_Semantic_Legality_Diagnostics.Wide_Semantic_Diagnostic_Cross_Unit =>
             return Editor.Ada_Semantic_Colour_Projection.Semantic_Colour_From_Cross_Unit;
+         when Editor.Ada_Wide_Semantic_Legality_Diagnostics.Wide_Semantic_Diagnostic_Accessibility_Lifetime =>
+            return Editor.Ada_Semantic_Colour_Projection.Semantic_Colour_From_Expression;
          when Editor.Ada_Wide_Semantic_Legality_Diagnostics.Wide_Semantic_Diagnostic_Assignment
             | Editor.Ada_Wide_Semantic_Legality_Diagnostics.Wide_Semantic_Diagnostic_Return
             | Editor.Ada_Wide_Semantic_Legality_Diagnostics.Wide_Semantic_Diagnostic_Conversion_Access_Aggregate
@@ -71,6 +76,55 @@ package body Editor.Ada_Semantic_Diagnostic_Feed is
             return Editor.Ada_Semantic_Colour_Projection.Semantic_Colour_From_Expression;
       end case;
    end Source_Of;
+
+   function Preference_Is_Legal
+     (Status : Editor.Ada_Overload_Preference_Legality.Preference_Legality_Status)
+      return Boolean is
+   begin
+      return Status in
+        Editor.Ada_Overload_Preference_Legality.Preference_Legality_Legal_Exact_Profile |
+        Editor.Ada_Overload_Preference_Legality.Preference_Legality_Legal_Direct_Visibility_Preferred |
+        Editor.Ada_Overload_Preference_Legality.Preference_Legality_Legal_Use_Visibility_Preferred |
+        Editor.Ada_Overload_Preference_Legality.Preference_Legality_Legal_Expected_Type_Profile_Preferred |
+        Editor.Ada_Overload_Preference_Legality.Preference_Legality_Legal_Primitive_Operator_Preferred |
+        Editor.Ada_Overload_Preference_Legality.Preference_Legality_Legal_Dispatching_Primitive_Preferred |
+        Editor.Ada_Overload_Preference_Legality.Preference_Legality_Legal_Universal_Integer_Preferred |
+        Editor.Ada_Overload_Preference_Legality.Preference_Legality_Legal_Universal_Real_Preferred |
+        Editor.Ada_Overload_Preference_Legality.Preference_Legality_Legal_Implicit_Conversion_Preferred |
+        Editor.Ada_Overload_Preference_Legality.Preference_Legality_Legal_Class_Wide_Preferred |
+        Editor.Ada_Overload_Preference_Legality.Preference_Legality_Legal_Access_Conversion_Preferred |
+        Editor.Ada_Overload_Preference_Legality.Preference_Legality_Legal_Named_Actual_Profile_Preferred |
+        Editor.Ada_Overload_Preference_Legality.Preference_Legality_Legal_Defaulted_Formal_Profile_Preferred;
+   end Preference_Is_Legal;
+
+   function Preference_Is_Ambiguous
+     (Status : Editor.Ada_Overload_Preference_Legality.Preference_Legality_Status)
+      return Boolean is
+   begin
+      return Status in
+        Editor.Ada_Overload_Preference_Legality.Preference_Legality_Ambiguous_Homograph_Tie |
+        Editor.Ada_Overload_Preference_Legality.Preference_Legality_Ambiguous_Visibility_Tie |
+        Editor.Ada_Overload_Preference_Legality.Preference_Legality_Ambiguous_Profile_Tie |
+        Editor.Ada_Overload_Preference_Legality.Preference_Legality_Ambiguous_Expected_Type_Tie |
+        Editor.Ada_Overload_Preference_Legality.Preference_Legality_Ambiguous_Universal_Numeric_Tie |
+        Editor.Ada_Overload_Preference_Legality.Preference_Legality_Ambiguous_Conversion_Tie |
+        Editor.Ada_Overload_Preference_Legality.Preference_Legality_Ambiguous_After_RM_Preferences;
+   end Preference_Is_Ambiguous;
+
+   function Preference_Severity_Of
+     (Status : Editor.Ada_Overload_Preference_Legality.Preference_Legality_Status)
+      return Semantic_Diagnostic_Feed_Severity is
+   begin
+      if Preference_Is_Ambiguous (Status)
+        or else Status = Editor.Ada_Overload_Preference_Legality.Preference_Legality_Unknown
+        or else Status = Editor.Ada_Overload_Preference_Legality.Preference_Legality_Indeterminate
+        or else Status = Editor.Ada_Overload_Preference_Legality.Preference_Legality_No_Legal_Overload_Input
+      then
+         return Semantic_Diagnostic_Feed_Warning;
+      else
+         return Semantic_Diagnostic_Feed_Error;
+      end if;
+   end Preference_Severity_Of;
 
 
 
@@ -474,12 +528,54 @@ package body Editor.Ada_Semantic_Diagnostic_Feed is
       H := Mix (H, Feed_Item.Start_Column);
       H := Mix (H, Feed_Item.End_Line);
       H := Mix (H, Feed_Item.End_Column);
+      H := Mix (H, Boolean'Pos (Feed_Item.Has_Edit) + 1);
+      H := Mix (H, Feed_Item.Edit_Start_Line);
+      H := Mix (H, Feed_Item.Edit_Start_Column);
+      H := Mix (H, Feed_Item.Edit_End_Line);
+      H := Mix (H, Feed_Item.Edit_End_Column);
+      for C of To_String (Feed_Item.Replacement_Text) loop
+         H := Mix (H, Character'Pos (C));
+      end loop;
       H := Mix (H, Feed_Item.Source_Fingerprint);
       for C of S loop
          H := Mix (H, Character'Pos (C));
       end loop;
       return H;
    end Entry_Fingerprint;
+
+   procedure Recompute_Summary (Model : in out Semantic_Diagnostic_Feed_Model) is
+      Previous_Status : constant Semantic_Diagnostic_Feed_Status := Model.Feed_Status;
+      Previous_Rejected : constant Natural := Model.Rejected_Total;
+   begin
+      Model.Feed_Status := Previous_Status;
+      Model.Error_Total := 0;
+      Model.Warning_Total := 0;
+      Model.Info_Total := 0;
+      Model.Rejected_Total := Previous_Rejected;
+      Model.Result_Fingerprint := 0;
+
+      for I in 1 .. Natural (Model.Entries.Length) loop
+         declare
+            Item : Semantic_Diagnostic_Feed_Entry := Model.Entries.Element (I);
+         begin
+            Item.Fingerprint := Entry_Fingerprint (Item);
+            Model.Entries.Replace_Element (I, Item);
+            case Item.Severity is
+               when Semantic_Diagnostic_Feed_Error =>
+                  Model.Error_Total := Model.Error_Total + 1;
+               when Semantic_Diagnostic_Feed_Warning =>
+                  Model.Warning_Total := Model.Warning_Total + 1;
+               when Semantic_Diagnostic_Feed_Info =>
+                  Model.Info_Total := Model.Info_Total + 1;
+            end case;
+            Model.Result_Fingerprint := Mix (Model.Result_Fingerprint, Item.Fingerprint);
+         end;
+      end loop;
+
+      if Previous_Status = Semantic_Diagnostic_Feed_Rejected_Stale then
+         Model.Result_Fingerprint := Mix (Model.Result_Fingerprint, Previous_Rejected + 1);
+      end if;
+   end Recompute_Summary;
 
    procedure Clear (Model : in out Semantic_Diagnostic_Feed_Model) is
    begin
@@ -546,6 +642,50 @@ package body Editor.Ada_Semantic_Diagnostic_Feed is
       return Model;
    end Build;
 
+   function With_Edit_Hint
+     (Model             : Semantic_Diagnostic_Feed_Model;
+      Entry_Id          : Semantic_Diagnostic_Feed_Id;
+      Edit_Start_Line   : Positive;
+      Edit_Start_Column : Positive;
+      Edit_End_Line     : Positive;
+      Edit_End_Column   : Positive;
+      Replacement_Text  : String) return Semantic_Diagnostic_Feed_Model
+   is
+      Result : Semantic_Diagnostic_Feed_Model := Model;
+      Forward_Range : constant Boolean :=
+        Edit_End_Line > Edit_Start_Line
+        or else
+          (Edit_End_Line = Edit_Start_Line
+           and then Edit_End_Column >= Edit_Start_Column);
+   begin
+      if Result.Feed_Status /= Semantic_Diagnostic_Feed_Current
+        or else Entry_Id = No_Semantic_Diagnostic_Feed_Entry
+        or else not Forward_Range
+      then
+         return Result;
+      end if;
+
+      for I in 1 .. Natural (Result.Entries.Length) loop
+         declare
+            Item : Semantic_Diagnostic_Feed_Entry := Result.Entries.Element (I);
+         begin
+            if Item.Id = Entry_Id then
+               Item.Has_Edit := True;
+               Item.Edit_Start_Line := Edit_Start_Line;
+               Item.Edit_Start_Column := Edit_Start_Column;
+               Item.Edit_End_Line := Edit_End_Line;
+               Item.Edit_End_Column := Edit_End_Column;
+               Item.Replacement_Text := To_Unbounded_String (Replacement_Text);
+               Result.Entries.Replace_Element (I, Item);
+               Recompute_Summary (Result);
+               return Result;
+            end if;
+         end;
+      end loop;
+
+      return Result;
+   end With_Edit_Hint;
+
    function Build_With_Wide_Legality
      (Guarded : Editor.Ada_Semantic_Diagnostic_Snapshot_Guards.Guarded_Semantic_Diagnostic_Model;
       Wide    : Editor.Ada_Wide_Semantic_Legality_Diagnostics.Wide_Semantic_Diagnostic_Model;
@@ -611,6 +751,81 @@ package body Editor.Ada_Semantic_Diagnostic_Feed is
              Editor.Ada_Wide_Semantic_Legality_Diagnostics.Fingerprint (Wide));
       return Model;
    end Build_With_Wide_Legality;
+
+   function Build_With_Wide_Legality_And_Overload_Preference
+     (Guarded : Editor.Ada_Semantic_Diagnostic_Snapshot_Guards.Guarded_Semantic_Diagnostic_Model;
+      Wide    : Editor.Ada_Wide_Semantic_Legality_Diagnostics.Wide_Semantic_Diagnostic_Model;
+      Preference : Editor.Ada_Overload_Preference_Legality.Preference_Legality_Model;
+      Wide_Input_Current : Boolean := True;
+      Wide_Rejected_Count : Natural := 0;
+      Preference_Input_Current : Boolean := True;
+      Preference_Rejected_Count : Natural := 0)
+      return Semantic_Diagnostic_Feed_Model
+   is
+      Model : Semantic_Diagnostic_Feed_Model :=
+        Build_With_Wide_Legality
+          (Guarded, Wide, Wide_Input_Current, Wide_Rejected_Count);
+   begin
+      if not Preference_Input_Current then
+         Clear (Model);
+         Model.Feed_Status := Semantic_Diagnostic_Feed_Rejected_Stale;
+         Model.Rejected_Total := Preference_Rejected_Count;
+         Model.Result_Fingerprint :=
+           Mix (Editor.Ada_Overload_Preference_Legality.Fingerprint (Preference),
+                Preference_Rejected_Count + 1);
+         return Model;
+      end if;
+
+      if Model.Feed_Status = Semantic_Diagnostic_Feed_Rejected_Stale then
+         Model.Rejected_Total :=
+           Model.Rejected_Total + Preference_Rejected_Count;
+         Model.Result_Fingerprint :=
+           Mix (Model.Result_Fingerprint,
+                Editor.Ada_Overload_Preference_Legality.Fingerprint (Preference));
+         return Model;
+      end if;
+
+      for Index in 1 .. Editor.Ada_Overload_Preference_Legality.Legality_Count (Preference) loop
+         declare
+            Preference_Entry : constant Editor.Ada_Overload_Preference_Legality.Preference_Legality_Info :=
+              Editor.Ada_Overload_Preference_Legality.Legality_At (Preference, Index);
+            Feed_Item : Semantic_Diagnostic_Feed_Entry;
+         begin
+            if Preference_Entry.Status /= Editor.Ada_Overload_Preference_Legality.Preference_Legality_Not_Checked
+              and then not Preference_Is_Legal (Preference_Entry.Status)
+            then
+               Feed_Item.Id := Semantic_Diagnostic_Feed_Id (Natural (Model.Entries.Length) + 1);
+               Feed_Item.Source := Editor.Ada_Semantic_Colour_Projection.Semantic_Colour_From_Expression;
+               Feed_Item.Severity := Preference_Severity_Of (Preference_Entry.Status);
+               Feed_Item.Token := Editor.Syntax.Identifier;
+               Feed_Item.Node := Preference_Entry.Node;
+               Feed_Item.Message := Preference_Entry.Message;
+               Feed_Item.Start_Line := Preference_Entry.Start_Line;
+               Feed_Item.Start_Column := Preference_Entry.Start_Column;
+               Feed_Item.End_Line := Preference_Entry.End_Line;
+               Feed_Item.End_Column := Preference_Entry.End_Column;
+               Feed_Item.Source_Fingerprint := Preference_Entry.Fingerprint;
+               Feed_Item.Fingerprint := Entry_Fingerprint (Feed_Item);
+
+               Model.Entries.Append (Feed_Item);
+               case Feed_Item.Severity is
+                  when Semantic_Diagnostic_Feed_Error =>
+                     Model.Error_Total := Model.Error_Total + 1;
+                  when Semantic_Diagnostic_Feed_Warning =>
+                     Model.Warning_Total := Model.Warning_Total + 1;
+                  when Semantic_Diagnostic_Feed_Info =>
+                     Model.Info_Total := Model.Info_Total + 1;
+               end case;
+               Model.Result_Fingerprint := Mix (Model.Result_Fingerprint, Feed_Item.Fingerprint);
+            end if;
+         end;
+      end loop;
+
+      Model.Result_Fingerprint :=
+        Mix (Model.Result_Fingerprint,
+             Editor.Ada_Overload_Preference_Legality.Fingerprint (Preference));
+      return Model;
+   end Build_With_Wide_Legality_And_Overload_Preference;
 
 
    function Build_With_Integrated_Closure

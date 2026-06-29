@@ -1,28 +1,40 @@
 with "editor_core.gpr";
+with "opengl-glfw.gpr";
 
 project Editor is
+   Df_Vulkan_Prefix := external ("DF_VULKAN_ALIRE_PREFIX");
 
-   for Source_Dirs use ("src/runtime");
+   for Source_Dirs use ("src/runtime", Df_Vulkan_Prefix & "/src");
    for Object_Dir use "obj/app";
    for Exec_Dir use "bin";
    for Create_Missing_Dirs use "True";
    for Main use ("main.c");
+   for Source_Files use
+     ("main.c",
+      "glfw-windows-native.ads",
+      "glfw-windows-native.adb",
+      "runtime_glfw.ads",
+      "runtime_glfw.adb",
+      "render_backend_vulkan.ads",
+      "render_backend_vulkan.adb",
+      "vk.ads");
 
-   for Languages use ("C");
+   for Languages use ("Ada", "C");
 
    package Builder is
-      for Executable ("main.c") use "editor_app";
+      for Executable ("main.c") use "editor";
    end Builder;
 
    package Compiler is
       for Default_Switches ("Ada") use ("-gnat2022", "-gnatyM120", "-gnatX", "-gnata");
+      for Switches ("vk.ads") use ("-gnat2022", "-gnatX", "-gnata");
       for Default_Switches ("C") use
         ("-O0", "-g", "-Isrc/runtime", "-Isrc/third_party");
    end Compiler;
 
    package Linker is
       for Default_Switches ("C") use
-        ("-lglfw", "-lvulkan", "-ldl", "-lpthread", "-lm");
+        ("-lvulkan", "-ldl", "-lpthread", "-lm");
    end Linker;
 
    package Install is

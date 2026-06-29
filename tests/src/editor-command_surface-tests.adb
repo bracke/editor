@@ -28,6 +28,7 @@ with Editor.Build_Working_Context;
 with Editor.Lifecycle_Guidance;
 with Editor.Project;
 with Editor.Pending_Transitions;
+with Editor.Recent_Projects;
 with Editor.Settings;
 with Editor.State;
 with Editor.Overlay_Focus;
@@ -899,6 +900,7 @@ package body Editor.Command_Surface.Tests is
       end Reason;
    begin
       Editor.State.Init (S);
+      Editor.Recent_Projects.Clear (S.Recent_Projects);
 
       Assert (Reason (Editor.Commands.Command_Close_Project) = "No project open.",
               "Close Project must be disabled without a project");
@@ -1351,14 +1353,17 @@ package body Editor.Command_Surface.Tests is
       R     : Editor.Executor.Command_Execution_Result;
       Found : Boolean := False;
       Msg   : Editor.Messages.Editor_Message;
+      Settings_Path : constant String := "/tmp/editor-tests/phase111-invalid-settings.tmp";
+      Keybindings_Path : constant String := "/tmp/editor-tests/phase111-invalid-keybindings.tmp";
    begin
+      Ada.Directories.Create_Path ("/tmp/editor-tests");
       Ada.Environment_Variables.Set
-        ("EDITOR_SETTINGS_PATH", "phase111-invalid-settings.tmp");
+        ("EDITOR_SETTINGS_PATH", Settings_Path);
       Ada.Environment_Variables.Set
-        ("EDITOR_KEYBINDINGS_PATH", "phase111-invalid-keybindings.tmp");
+        ("EDITOR_KEYBINDINGS_PATH", Keybindings_Path);
 
-      Write_Invalid_File ("phase111-invalid-settings.tmp");
-      Write_Invalid_File ("phase111-invalid-keybindings.tmp");
+      Write_Invalid_File (Settings_Path);
+      Write_Invalid_File (Keybindings_Path);
 
       Editor.State.Init (S);
       R := Editor.Executor.Execute_Command_With_Result
@@ -1422,6 +1427,8 @@ package body Editor.Command_Surface.Tests is
    procedure Test_Phase_111_Configuration_Command_Domain_Isolation
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
       pragma Unreferenced (T);
+      Settings_Path : constant String := "/tmp/editor-tests/phase111-command-surface-settings.tmp";
+      Keybindings_Path : constant String := "/tmp/editor-tests/phase111-command-surface-keybindings.tmp";
 
       procedure Check (Id : Editor.Commands.Command_Id; Label : String) is
          S              : Editor.State.State_Type;
@@ -1446,10 +1453,11 @@ package body Editor.Command_Surface.Tests is
                  Label & " must not create or clear pending transitions");
       end Check;
    begin
+      Ada.Directories.Create_Path ("/tmp/editor-tests");
       Ada.Environment_Variables.Set
-        ("EDITOR_SETTINGS_PATH", "phase111-command-surface-settings.tmp");
+        ("EDITOR_SETTINGS_PATH", Settings_Path);
       Ada.Environment_Variables.Set
-        ("EDITOR_KEYBINDINGS_PATH", "phase111-command-surface-keybindings.tmp");
+        ("EDITOR_KEYBINDINGS_PATH", Keybindings_Path);
 
       Check (Editor.Commands.Command_Save_Settings, "Save Settings");
       Check (Editor.Commands.Command_Reload_Settings, "Reload Settings");
@@ -3923,11 +3931,22 @@ package body Editor.Command_Surface.Tests is
       pragma Unreferenced (T);
       use Editor.External_Producers;
       S : Editor.State.State_Type;
+      Found : Boolean;
+      Round : Editor.Commands.Command_Id;
    begin
       Editor.State.Init (S);
       Assert (not Editor.Commands.Is_Public_Build_Command
                 (Editor.Commands.Command_Diagnostics_Show),
               "unrelated public diagnostics command must not count as public build");
+      Assert (Editor.Commands.Stable_Command_Name
+                (Editor.Commands.Command_Diagnostics_Execute_Selected_Action) =
+              "diagnostics.execute-selected-action",
+              "diagnostic selected action command exposes canonical stable id");
+      Round := Editor.Commands.Command_Id_From_Stable_Name
+        ("diagnostics.code-action", Found);
+      Assert (Found and then Round =
+              Editor.Commands.Command_Diagnostics_Execute_Selected_Action,
+              "diagnostic selected action command keeps code-action alias");
       Assert (Run_Public_Build_Command_Hard_Freeze_Audit (S).Passed,
               "unrelated public commands must not affect build hard-freeze");
    end Test_Public_Build_Unrelated_Public_Command_Does_Not_Affect_Freeze;
@@ -5554,6 +5573,15 @@ package body Editor.Command_Surface.Tests is
          Editor.Commands.Command_Goto_Declaration,
          Editor.Commands.Command_Goto_Body,
          Editor.Commands.Command_Goto_Spec,
+         Editor.Commands.Command_Find_References,
+         Editor.Commands.Command_Show_Hover,
+         Editor.Commands.Command_Show_Completions,
+         Editor.Commands.Command_Semantic_Completion_Select_Next,
+         Editor.Commands.Command_Semantic_Completion_Select_Previous,
+         Editor.Commands.Command_Semantic_Completion_Accept,
+         Editor.Commands.Command_Semantic_Popup_Dismiss,
+         Editor.Commands.Command_Rename_Symbol_Preview,
+         Editor.Commands.Command_Rename_Symbol_Apply,
          Editor.Commands.Command_Semantic_Refresh_Buffer,
          Editor.Commands.Command_Semantic_Refresh_Project_Index,
          Editor.Commands.Command_Language_Index_Clear,
@@ -5565,6 +5593,7 @@ package body Editor.Command_Surface.Tests is
          Editor.Commands.Command_Build_UI_Hide,
          Editor.Commands.Command_Build_UI_Focus,
          Editor.Commands.Command_Diagnostics_Show,
+         Editor.Commands.Command_Diagnostics_Execute_Selected_Action,
          Editor.Commands.Command_Next_Buffer,
          Editor.Commands.Command_Previous_Buffer,
          Editor.Commands.Command_Close_Active_Buffer,
@@ -5669,9 +5698,19 @@ package body Editor.Command_Surface.Tests is
          (To_Unbounded_String ("outline.goto-declaration"),
           Editor.Commands.Command_Goto_Declaration),
          (To_Unbounded_String ("outline.goto-body"),
-          Editor.Commands.Command_Goto_Body),
+         Editor.Commands.Command_Goto_Body),
          (To_Unbounded_String ("outline.goto-spec"),
           Editor.Commands.Command_Goto_Spec),
+         (To_Unbounded_String ("semantic.find-references"),
+          Editor.Commands.Command_Find_References),
+         (To_Unbounded_String ("semantic.show-hover"),
+         Editor.Commands.Command_Show_Hover),
+         (To_Unbounded_String ("semantic.show-completions"),
+         Editor.Commands.Command_Show_Completions),
+         (To_Unbounded_String ("semantic.rename-symbol-preview"),
+          Editor.Commands.Command_Rename_Symbol_Preview),
+         (To_Unbounded_String ("semantic.rename-symbol-apply"),
+          Editor.Commands.Command_Rename_Symbol_Apply),
          (To_Unbounded_String ("semantic.refresh-buffer"),
           Editor.Commands.Command_Semantic_Refresh_Buffer),
          (To_Unbounded_String ("semantic.refresh-project-index"),
@@ -5702,6 +5741,50 @@ package body Editor.Command_Surface.Tests is
                  "IDE-grade language command descriptor must be user-facing: " &
                  To_String (E.Name));
       end loop;
+
+      Round := Editor.Commands.Command_Id_From_Stable_Name
+        ("refactor.rename-symbol", Found);
+      Assert (Found and then Round = Editor.Commands.Command_Rename_Symbol_Preview,
+              "Refactor rename alias should resolve to semantic rename preview");
+      Round := Editor.Commands.Command_Id_From_Stable_Name
+        ("refactor.rename-symbol-preview", Found);
+      Assert (Found and then Round = Editor.Commands.Command_Rename_Symbol_Preview,
+              "Refactor rename preview alias should resolve to semantic rename preview");
+      Round := Editor.Commands.Command_Id_From_Stable_Name
+        ("refactor.rename-symbol-apply", Found);
+      Assert (Found and then Round = Editor.Commands.Command_Rename_Symbol_Apply,
+              "Refactor rename apply alias should resolve to semantic rename apply");
+
+      declare
+         Hidden_Expected : constant Expected_Command_Array :=
+           ((To_Unbounded_String ("semantic.completion.select-next"),
+             Editor.Commands.Command_Semantic_Completion_Select_Next),
+            (To_Unbounded_String ("semantic.completion.select-previous"),
+             Editor.Commands.Command_Semantic_Completion_Select_Previous),
+            (To_Unbounded_String ("semantic.completion.accept"),
+             Editor.Commands.Command_Semantic_Completion_Accept),
+            (To_Unbounded_String ("semantic.popup.dismiss"),
+             Editor.Commands.Command_Semantic_Popup_Dismiss));
+      begin
+         for E of Hidden_Expected loop
+            Round := Editor.Commands.Command_Id_From_Stable_Name
+              (To_String (E.Name), Found);
+            Assert (Found and then Round = E.Id,
+                    "IDE-grade popup command must resolve by canonical id: " &
+                    To_String (E.Name));
+            Assert (Editor.Commands.Stable_Command_Name (E.Id) = To_String (E.Name),
+                    "IDE-grade popup command must expose canonical stable id: " &
+                    To_String (E.Name));
+            D := Editor.Commands.Descriptor (E.Id);
+            Assert (D.Visibility = Editor.Commands.Hidden_Command,
+                    "IDE-grade popup command must stay hidden: " &
+                    To_String (E.Name));
+            Assert (To_String (D.Name)'Length > 0
+                      and then To_String (D.Description)'Length > 0,
+                    "IDE-grade popup command descriptor must be user-facing: " &
+                    To_String (E.Name));
+         end loop;
+      end;
 
       --  Pass 172: descriptor-specific project-refresh checks must live
       --  outside the expected-command enumeration loop.
@@ -7173,6 +7256,10 @@ package body Editor.Command_Surface.Tests is
      (T : in out Command_Surface_Test_Case)
    is
    begin
+      AUnit.Test_Cases.Registration.Register_Routine
+        (T, Test_Phase_564_Command_Palette_Route_Audit_Rejects_Payloads'Access,
+         "Phase 564 Command Palette Route Audit Rejects Payloads");
+
       AUnit.Test_Cases.Registration.Register_Routine
         (T, Test_Phase_317_Switcher_Command_Reference_Metadata'Access,
          "Phase 317 Switcher Command Reference Metadata");

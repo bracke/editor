@@ -160,6 +160,11 @@ package Editor.Ada_Tagged_Derived_Legality is
       Index : Positive) return Tagged_Context_Info;
    function Fingerprint (Model : Tagged_Context_Model) return Natural;
 
+   function Build_Contexts_From_Syntax
+     (Tree        : Editor.Ada_Syntax_Tree.Tree_Type;
+      Dispatching : Editor.Ada_Dispatching_Call_Legality.Dispatching_Legality_Model)
+      return Tagged_Context_Model;
+
    function Build
      (Contexts    : Tagged_Context_Model;
       Assignments : Editor.Ada_Assignment_Legality.Assignment_Legality_Model;

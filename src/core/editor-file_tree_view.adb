@@ -644,8 +644,23 @@ package body Editor.File_Tree_View is
       elsif Max_Columns <= Ellipsis'Length then
          return Ellipsis (Ellipsis'First .. Ellipsis'First + Max_Columns - 1);
       else
-         return Label (Label'First .. Label'First + Max_Columns - Ellipsis'Length - 1)
-           & Ellipsis;
+         declare
+            Prefix : constant String :=
+              Label (Label'First
+                     .. Label'First + Max_Columns - Ellipsis'Length - 1);
+            Last   : Integer := Prefix'Last;
+         begin
+            if Last >= Prefix'First
+              and then (Prefix (Last) = '.' or else Prefix (Last) = ' ')
+            then
+               Last := Last - 1;
+            end if;
+            if Last < Prefix'First then
+               return Ellipsis;
+            else
+               return Prefix (Prefix'First .. Last) & Ellipsis;
+            end if;
+         end;
       end if;
    end Truncate_Label;
 

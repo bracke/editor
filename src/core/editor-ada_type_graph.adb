@@ -168,6 +168,8 @@ package body Editor.Ada_Type_Graph is
       Node : Editor.Ada_Syntax_Tree.Node_Id) return String
    is
       use type Editor.Ada_Syntax_Tree.Node_Kind;
+      Node_Info : constant Editor.Ada_Syntax_Tree.Node_Info :=
+        Editor.Ada_Syntax_Tree.Node (Tree, Node);
    begin
       for Index in 1 .. Editor.Ada_Syntax_Tree.Child_Count (Tree, Node) loop
          declare
@@ -180,6 +182,21 @@ package body Editor.Ada_Type_Graph is
             end if;
          end;
       end loop;
+      declare
+         Label  : constant String := Trim (To_String (Node_Info.Label));
+         Lower  : constant String := Normalize (Label);
+         Is_Pos : constant Natural := Ada.Strings.Fixed.Index (Lower, " is ");
+      begin
+         if Is_Pos /= 0 then
+            declare
+               Tail : constant String := Trim (Label (Is_Pos + 4 .. Label'Last));
+            begin
+               if Tail /= "" then
+                  return Tail;
+               end if;
+            end;
+         end if;
+      end;
       return "";
    end Declaration_Subtype_Text;
 
@@ -438,13 +455,28 @@ package body Editor.Ada_Type_Graph is
       Name   : String) return Type_Id
    is
       Wanted : constant String := Normalize (Name);
+      Candidate : Type_Id := No_Type;
    begin
       for Info of Model.Types loop
          if Info.Region = Region and then To_String (Info.Normalized_Name) = Wanted then
             return Info.Id;
          end if;
       end loop;
-      return No_Type;
+
+      --  Callable profiles and expression contexts can be attached to nested
+      --  body regions while their subtype marks are declared in the enclosing
+      --  declarative part.  The type graph API intentionally does not carry the
+      --  region parent model, so keep this fallback conservative: only resolve
+      --  a non-local subtype mark when it has a single declaration in the graph.
+      for Info of Model.Types loop
+         if To_String (Info.Normalized_Name) = Wanted then
+            if Candidate /= No_Type then
+               return No_Type;
+            end if;
+            Candidate := Info.Id;
+         end if;
+      end loop;
+      return Candidate;
    end Lookup_Type;
 
    function Is_Derived_From

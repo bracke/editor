@@ -32,6 +32,21 @@ package body Editor.Ada_Cross_Unit_Closure is
       end case;
    end Role_Image;
 
+   function Parent_Name_For_Child (Unit_Name : String) return String is
+      Dot : Natural := 0;
+   begin
+      for I in Unit_Name'Range loop
+         if Unit_Name (I) = '.' then
+            Dot := I;
+         end if;
+      end loop;
+
+      if Dot = 0 or else Dot = Unit_Name'First then
+         return "";
+      end if;
+      return Unit_Name (Unit_Name'First .. Dot - 1);
+   end Parent_Name_For_Child;
+
    function Kind_Image (Kind : Cross_Unit_Link_Kind) return String is
    begin
       case Kind is
@@ -564,7 +579,12 @@ package body Editor.Ada_Cross_Unit_Closure is
       Info.Child_Unit_Name := Unit.Unit_Name;
       Info.Child_Path := Unit.Path;
       Info.Child_Role := Unit.Role;
-      Info.Parent_Unit_Name := Target_Name_For (Target);
+      if Target.Available then
+         Info.Parent_Unit_Name := Target_Name_For (Target);
+      else
+         Info.Parent_Unit_Name :=
+           To_Unbounded_String (Parent_Name_For_Child (To_String (Unit.Unit_Name)));
+      end if;
       Info.Parent_Path := Target_Path_For (Target);
       Info.Parent_Role := Target_Role;
       Info.Is_Private_Child := Is_Private;

@@ -2,3 +2,13 @@
 /bin/
 /alire/
 /config/
+/build/
+/lib/*.a
+/lib/*.ali
+/tools/bin/
+/tools/obj/
+/*.ali
+/*.o
+/README_PASS*.txt
+/phase*
+/tests/phase*

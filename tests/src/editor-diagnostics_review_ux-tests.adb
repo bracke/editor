@@ -380,6 +380,119 @@ package body Editor.Diagnostics_Review_UX.Tests is
               "line-only diagnostics are not reported as unavailable merely because column is absent");
    end Test_Line_Only_Diagnostic_Target_Is_Valid_And_Labelled;
 
+   procedure Test_Diagnostic_Edit_Metadata_Is_Validated_And_Bounded
+     (T : in out AUnit.Test_Cases.Test_Case'Class)
+   is
+      pragma Unreferenced (T);
+      D : Editor.Feature_Diagnostics.Diagnostics_Feature_State;
+      Long_Replacement : constant String
+        (1 .. Editor.Feature_Diagnostics.Max_Diagnostic_Message_Text_Length + 10) :=
+          (others => 'x');
+   begin
+      Editor.Feature_Diagnostics.Add_Diagnostic
+        (D,
+         Severity      => Editor.Feature_Diagnostics.Diagnostic_Error,
+         Message       => "editable diagnostic",
+         Source_Label  => "src/main.adb",
+         Source_Kind   => Editor.Feature_Diagnostics.Editor_Diagnostic_Source,
+         Has_Target    => True,
+         Target_Buffer => 77,
+         Target_Line   => 9,
+         Target_Column => 4,
+         Has_Edit          => True,
+         Edit_Start_Line   => 9,
+         Edit_Start_Column => 8,
+         Edit_End_Line     => 9,
+         Edit_End_Column   => 8,
+         Replacement_Text  => Long_Replacement);
+
+      Assert (Editor.Feature_Diagnostics.Item_Has_Edit (D, 1),
+              "valid diagnostic edit metadata is retained");
+      Assert
+        (Editor.Feature_Diagnostics.Item_Edit_Start_Line (D, 1) = 9
+         and then Editor.Feature_Diagnostics.Item_Edit_Start_Column (D, 1) = 8
+         and then Editor.Feature_Diagnostics.Item_Edit_End_Line (D, 1) = 9
+         and then Editor.Feature_Diagnostics.Item_Edit_End_Column (D, 1) = 8,
+         "valid diagnostic edit span is retained");
+      Assert
+        (Editor.Feature_Diagnostics.Item_Replacement_Text (D, 1)'Length =
+         Editor.Feature_Diagnostics.Max_Diagnostic_Message_Text_Length,
+         "diagnostic replacement text is bounded at ingestion");
+      declare
+         Panel : Editor.Feature_Panel.Feature_Panel_State;
+      begin
+         Editor.Feature_Diagnostics.Project_Rows (D, Panel);
+         Assert
+           (Contains (Editor.Feature_Panel.Row_Detail (Panel, 1),
+                      "action: Apply edit"),
+            "diagnostic projection exposes executable edit action metadata");
+      end;
+
+      Editor.Feature_Diagnostics.Add_Diagnostic
+        (D,
+         Severity      => Editor.Feature_Diagnostics.Diagnostic_Error,
+         Message       => "edit without target",
+         Source_Label  => "src/main.adb",
+         Source_Kind   => Editor.Feature_Diagnostics.Editor_Diagnostic_Source,
+         Has_Target    => False,
+         Has_Edit      => True,
+         Edit_Start_Line   => 1,
+         Edit_Start_Column => 1,
+         Edit_End_Line     => 1,
+         Edit_End_Column   => 1,
+         Replacement_Text  => ";");
+      Assert (not Editor.Feature_Diagnostics.Item_Has_Edit (D, 2),
+              "diagnostic edit metadata is dropped when the row has no target");
+
+      Editor.Feature_Diagnostics.Add_Diagnostic
+        (D,
+         Severity      => Editor.Feature_Diagnostics.Diagnostic_Error,
+         Message       => "invalid edit span",
+         Source_Label  => "src/main.adb",
+         Source_Kind   => Editor.Feature_Diagnostics.Editor_Diagnostic_Source,
+         Has_Target    => True,
+         Target_Buffer => 77,
+         Target_Line   => 9,
+         Target_Column => 4,
+         Has_Edit          => True,
+         Edit_Start_Line   => 9,
+         Edit_Start_Column => 8,
+         Edit_End_Line     => 9,
+         Edit_End_Column   => 7,
+         Replacement_Text  => ";");
+      Assert (not Editor.Feature_Diagnostics.Item_Has_Edit (D, 3),
+              "diagnostic edit metadata is dropped when the edit span is invalid");
+
+      Editor.Feature_Diagnostics.Add_Diagnostic
+        (D,
+         Severity      => Editor.Feature_Diagnostics.Diagnostic_Warning,
+         Message       => "multi-line edit",
+         Source_Label  => "src/main.adb",
+         Source_Kind   => Editor.Feature_Diagnostics.Editor_Diagnostic_Source,
+         Has_Target    => True,
+         Target_Buffer => 77,
+         Target_Line   => 10,
+         Target_Column => 1,
+         Has_Edit          => True,
+         Edit_Start_Line   => 10,
+         Edit_Start_Column => 1,
+         Edit_End_Line     => 12,
+         Edit_End_Column   => 4,
+         Replacement_Text  => "begin" & ASCII.LF & "   null;" & ASCII.LF & "end;");
+      Assert (Editor.Feature_Diagnostics.Item_Has_Edit (D, 4),
+              "multi-line diagnostic edit metadata is retained");
+      Assert
+        (Editor.Feature_Diagnostics.Item_Edit_Start_Line (D, 4) = 10
+         and then Editor.Feature_Diagnostics.Item_Edit_Start_Column (D, 4) = 1
+         and then Editor.Feature_Diagnostics.Item_Edit_End_Line (D, 4) = 12
+         and then Editor.Feature_Diagnostics.Item_Edit_End_Column (D, 4) = 4,
+         "multi-line diagnostic edit span is retained");
+      Assert
+        (Editor.Feature_Diagnostics.Item_Replacement_Text (D, 4) =
+         "begin" & ASCII.LF & "   null;" & ASCII.LF & "end;",
+         "multi-line diagnostic replacement text is retained");
+   end Test_Diagnostic_Edit_Metadata_Is_Validated_And_Bounded;
+
 
    procedure Test_External_Producer_Preserves_Line_Only_And_Partial_Target_Metadata
      (T : in out AUnit.Test_Cases.Test_Case'Class)
@@ -400,7 +513,13 @@ package body Editor.Diagnostics_Review_UX.Tests is
          Has_Target    => True,
          Target_Buffer => Token,
          Target_Line   => 1,
-         Target_Column => 0);
+         Target_Column => 0,
+         Has_Edit          => False,
+         Edit_Start_Line   => 0,
+         Edit_Start_Column => 0,
+         Edit_End_Line     => 0,
+         Edit_End_Column   => 0,
+         Replacement_Text  => Null_Unbounded_String);
       Result := Editor.External_Producers.Ingest_Diagnostic_Record
         (S,
          Editor.External_Producers.Build_Compiler_Diagnostics_Producer_Source,
@@ -425,7 +544,13 @@ package body Editor.Diagnostics_Review_UX.Tests is
          Has_Target    => True,
          Target_Buffer => Token,
          Target_Line   => 0,
-         Target_Column => 0);
+         Target_Column => 0,
+         Has_Edit          => False,
+         Edit_Start_Line   => 0,
+         Edit_Start_Column => 0,
+         Edit_End_Line     => 0,
+         Edit_End_Column   => 0,
+         Replacement_Text  => Null_Unbounded_String);
       Result := Editor.External_Producers.Ingest_Diagnostic_Record
         (S,
          Editor.External_Producers.Build_Compiler_Diagnostics_Producer_Source,
@@ -467,7 +592,13 @@ package body Editor.Diagnostics_Review_UX.Tests is
          Has_Target    => True,
          Target_Buffer => Token,
          Target_Line   => 999,
-         Target_Column => 1);
+         Target_Column => 1,
+         Has_Edit          => False,
+         Edit_Start_Line   => 0,
+         Edit_Start_Column => 0,
+         Edit_End_Line     => 0,
+         Edit_End_Column   => 0,
+         Replacement_Text  => Null_Unbounded_String);
       Result := Editor.External_Producers.Ingest_Diagnostic_Record
         (S,
          Editor.External_Producers.Build_Compiler_Diagnostics_Producer_Source,
@@ -703,7 +834,13 @@ package body Editor.Diagnostics_Review_UX.Tests is
          Has_Target    => False,
          Target_Buffer => Editor.Feature_Diagnostics.No_Buffer,
          Target_Line   => 0,
-         Target_Column => 0);
+         Target_Column => 0,
+         Has_Edit          => False,
+         Edit_Start_Line   => 0,
+         Edit_Start_Column => 0,
+         Edit_End_Line     => 0,
+         Edit_End_Column   => 0,
+         Replacement_Text  => Null_Unbounded_String);
       Result : Editor.Producer_Contracts.Producer_Result;
    begin
       Result := Editor.External_Producers.Ingest_Diagnostic_Record
@@ -2139,6 +2276,9 @@ package body Editor.Diagnostics_Review_UX.Tests is
       Register_Routine
         (T, Test_Line_Only_Diagnostic_Target_Is_Valid_And_Labelled'Access,
          "Phase 557 line-only diagnostic targets navigate to line start");
+      Register_Routine
+        (T, Test_Diagnostic_Edit_Metadata_Is_Validated_And_Bounded'Access,
+         "Diagnostics edit metadata is validated and bounded");
       Register_Routine
         (T, Test_External_Producer_Preserves_Line_Only_And_Partial_Target_Metadata'Access,
          "Phase 557 external producers preserve line-only and partial target metadata");

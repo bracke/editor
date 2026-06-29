@@ -8,11 +8,10 @@ P SS ZX
 RN
 RV NO_EXCEPTION_HANDLERS
 RV NO_EXCEPTIONS
-RV NO_IMPLICIT_CONDITIONALS
 RV NO_STANDARD_STORAGE_POOLS
 RV NO_IMPLEMENTATION_PRAGMAS
 
-U editor.executor.rectangular%b  editor-executor-rectangular.adb  1f346466 NE OO PK
+U editor.executor.rectangular%b  editor-executor-rectangular.adb  e78c5485 NE OO PK
 W ada%s			ada.ads			ada.ali
 W ada.containers%s	a-contai.ads		a-contai.ali
 Z ada.exceptions%s	a-except.adb		a-except.ali
@@ -21,13 +20,13 @@ W editor%s		editor.ads		editor.ali
 W editor.commands%s	editor-commands.adb	editor-commands.ali
 W editor.cursors%s	editor-cursors.adb	editor-cursors.ali
 W editor.executor%s	editor-executor.adb	editor-executor.ali
-W editor.navigation%s	editor-navigation.adb	editor-navigation.ali
+W editor.rectangle_selection%s  editor-rectangle_selection.adb  editor-rectangle_selection.ali
 W editor.state%s	editor-state.adb	editor-state.ali
 Z system%s		system.ads		system.ali
 Z system.finalization_primitives%s  s-finpri.adb  s-finpri.ali
 Z system.soft_links%s	s-soflin.adb		s-soflin.ali
 
-U editor.executor.rectangular%s  editor-executor-rectangular.ads  f1d2828c EE NE OO PK
+U editor.executor.rectangular%s  editor-executor-rectangular.ads  e7dca3e4 EE NE OO PK
 W editor%s		editor.ads		editor.ali
 W editor.commands%s	editor-commands.adb	editor-commands.ali
 W editor.cursors%s	editor-cursors.adb	editor-cursors.ali
@@ -35,6 +34,7 @@ W editor.executor%s	editor-executor.adb	editor-executor.ali
 W editor.state%s	editor-state.adb	editor-state.ali
 
 D ada.ads		20250808065140 76789da1 ada%s
+D a-calend.ads		20250808065140 bf7f3cc9 ada.calendar%s
 D a-charac.ads		20250808065140 2d3ec45b ada.characters%s
 D a-chlat1.ads		20250808065140 e0d72e76 ada.characters.latin_1%s
 D a-contai.ads		20250808065140 61e5e089 ada.containers%s
@@ -52,14 +52,172 @@ D a-strunb.ads		20250808065140 b10770ab ada.strings.unbounded%s
 D a-stuten.ads		20250808065140 c6ced0ae ada.strings.utf_encoding%s
 D a-tags.ads		20250808065140 fbca0ad5 ada.tags%s
 D a-unccon.ads		20250808065140 0e9b276f ada.unchecked_conversion%s
-D editor.ads		20260406185230 16f844c2 editor%s
-D editor-commands.ads	20260425121135 91ba1af2 editor.commands%s
-D editor-cursors.ads	20260425100454 1f938cf3 editor.cursors%s
-D editor-executor.ads	20260424193939 60525236 editor.executor%s
-D editor-executor-rectangular.ads  20260424191237 cb806537 editor.executor.rectangular%s
-D editor-executor-rectangular.adb  20260425103818 5b2bcef2 editor.executor.rectangular%b
-D editor-navigation.ads	20260423150640 b47a9aa7 editor.navigation%s
-D editor-state.ads	20260503173758 d429238c editor.state%s
+D editor.ads		20260612145959 16f844c2 editor%s
+D editor-ada_accessibility_lifetime_legality.ads  20260623172330 83f0af27 editor.ada_accessibility_lifetime_legality%s
+D editor-ada_aspect_inheritance_rules.ads  20260612145959 dbdd934d editor.ada_aspect_inheritance_rules%s
+D editor-ada_assignment_legality.ads  20260624184557 002deb19 editor.ada_assignment_legality%s
+D editor-ada_body_spec_conformance.ads  20260612145959 c5ced3c5 editor.ada_body_spec_conformance%s
+D editor-ada_call_candidates.ads  20260612145959 0549f3ac editor.ada_call_candidates%s
+D editor-ada_call_profile_filters.ads  20260612145959 68d43a60 editor.ada_call_profile_filters%s
+D editor-ada_call_profile_shapes.ads  20260612145959 e25575da editor.ada_call_profile_shapes%s
+D editor-ada_call_resolution.ads  20260612145959 eafbe88e editor.ada_call_resolution%s
+D editor-ada_child_unit_visibility.ads  20260612145959 84c0bb4d editor.ada_child_unit_visibility%s
+D editor-ada_contract_aspect_legality.ads  20260612145959 ea3d70fb editor.ada_contract_aspect_legality%s
+D editor-ada_control_flow_legality.ads  20260623161253 fc15aa78 editor.ada_control_flow_legality%s
+D editor-ada_conversion_access_aggregate_legality.ads  20260623152635 60bce04f editor.ada_conversion_access_aggregate_legality%s
+D editor-ada_cross_unit_closure.ads  20260612145959 de8fe36a editor.ada_cross_unit_closure%s
+D editor-ada_cross_unit_diagnostics.ads  20260622173145 f02d69d9 editor.ada_cross_unit_diagnostics%s
+D editor-ada_cross_unit_lookup_integration.ads  20260622181304 690f72cc editor.ada_cross_unit_lookup_integration%s
+D editor-ada_cross_unit_representation_targets.ads  20260612145959 5761be93 editor.ada_cross_unit_representation_targets%s
+D editor-ada_cross_unit_semantic_closure.ads  20260623170322 e7d38fc9 editor.ada_cross_unit_semantic_closure%s
+D editor-ada_cross_unit_visibility.ads  20260612145959 e193255d editor.ada_cross_unit_visibility%s
+D editor-ada_declarative_regions.ads  20260612145959 68bb9e3b editor.ada_declarative_regions%s
+D editor-ada_diagnostic_action_router.ads  20260624212548 dd333b7a editor.ada_diagnostic_action_router%s
+D editor-ada_diagnostic_command_projection.ads  20260624212554 d6b8d2a6 editor.ada_diagnostic_command_projection%s
+D editor-ada_diagnostic_navigation.ads  20260612145959 c6c48649 editor.ada_diagnostic_navigation%s
+D editor-ada_diagnostic_panel_projection.ads  20260612145959 6066054f editor.ada_diagnostic_panel_projection%s
+D editor-ada_diagnostic_provenance.ads  20260612145959 db5df586 editor.ada_diagnostic_provenance%s
+D editor-ada_diagnostic_quick_fix_skeleton.ads  20260624212541 64e4770d editor.ada_diagnostic_quick_fix_skeleton%s
+D editor-ada_diagnostic_status_line.ads  20260612145959 8f08930a editor.ada_diagnostic_status_line%s
+D editor-ada_direct_visibility.ads  20260612145959 6ebc1377 editor.ada_direct_visibility%s
+D editor-ada_dispatching_call_legality.ads  20260612145959 87a1024e editor.ada_dispatching_call_legality%s
+D editor-ada_elaboration_dependence_legality.ads  20260612145959 86be3164 editor.ada_elaboration_dependence_legality%s
+D editor-ada_exception_finalization_legality.ads  20260612145959 63b768c1 editor.ada_exception_finalization_legality%s
+D editor-ada_expected_call_filters.ads  20260624181704 eb699626 editor.ada_expected_call_filters%s
+D editor-ada_expected_type_contexts.ads  20260623045744 6e197316 editor.ada_expected_type_contexts%s
+D editor-ada_expression_diagnostics.ads  20260623151049 55ab633b editor.ada_expression_diagnostics%s
+D editor-ada_expression_types.ads  20260623190056 ef5d9762 editor.ada_expression_types%s
+D editor-ada_final_semantic_diagnostic_integration.ads  20260613105222 833c0fd4 editor.ada_final_semantic_diagnostic_integration%s
+D editor-ada_final_semantic_remediation_diagnostic_integration.ads  20260612145959 e4efc231 editor.ada_final_semantic_remediation_diagnostic_integration%s
+D editor-ada_final_semantic_stabilized_diagnostic_integration.ads  20260612145959 1d8132b9 editor.ada_final_semantic_stabilized_diagnostic_integration%s
+D editor-ada_freezing_interactions.ads  20260612145959 d3f90b30 editor.ada_freezing_interactions%s
+D editor-ada_freezing_points.ads  20260612145959 6897a1ac editor.ada_freezing_points%s
+D editor-ada_generic_contract_diagnostics.ads  20260614165504 120c7787 editor.ada_generic_contract_diagnostics%s
+D editor-ada_generic_contracts.ads  20260613110233 3c11f940 editor.ada_generic_contracts%s
+D editor-ada_generic_formal_package_nested_conformance.ads  20260612145959 55234f9e editor.ada_generic_formal_package_nested_conformance%s
+D editor-ada_generic_formal_package_substitutions.ads  20260614165504 4332af6d editor.ada_generic_formal_package_substitutions%s
+D editor-ada_generic_formal_type_conformance.ads  20260612145959 be304434 editor.ada_generic_formal_type_conformance%s
+D editor-ada_generic_instance_freezing_representation_legality.ads  20260623164915 94aeccd0 editor.ada_generic_instance_freezing_representation_legality%s
+D editor-ada_generic_instantiated_body_analysis.ads  20260612145959 82639475 editor.ada_generic_instantiated_body_analysis%s
+D editor-ada_generic_object_default_type_conformance.ads  20260612145959 debc7bb1 editor.ada_generic_object_default_type_conformance%s
+D editor-ada_generic_renaming_visibility.ads  20260613110502 7a838e18 editor.ada_generic_renaming_visibility%s
+D editor-ada_generic_shared_state_final_diagnostic_integration.ads  20260612145959 a8bf92bb editor.ada_generic_shared_state_final_diagnostic_integration%s
+D editor-ada_generic_shared_state_rm_completion_diagnostic_integration.ads  20260612145959 382f0feb editor.ada_generic_shared_state_rm_completion_diagnostic_integration%s
+D editor-ada_generic_view_compatibility.ads  20260612145959 cc6dc65b editor.ada_generic_view_compatibility%s
+D editor-ada_implicit_conversions.ads  20260612145959 4d5bc830 editor.ada_implicit_conversions%s
+D editor-ada_integrated_semantic_closure.ads  20260613104720 02ca8192 editor.ada_integrated_semantic_closure%s
+D editor-ada_language_model.ads  20260613110624 75f1fac9 editor.ada_language_model%s
+D editor-ada_language_service.ads  20260625154758 c7b35ad3 editor.ada_language_service%s
+D editor-ada_limited_view_rules.ads  20260612145959 5f2e9506 editor.ada_limited_view_rules%s
+D editor-ada_nested_body_spec_conformance.ads  20260612145959 386c83b8 editor.ada_nested_body_spec_conformance%s
+D editor-ada_operational_attribute_rules.ads  20260612145959 e0d8d7b8 editor.ada_operational_attribute_rules%s
+D editor-ada_overload_ambiguity_diagnostics.ads  20260612145959 7e809105 editor.ada_overload_ambiguity_diagnostics%s
+D editor-ada_overload_preference_legality.ads  20260623175108 bed87b16 editor.ada_overload_preference_legality%s
+D editor-ada_overload_ranking.ads  20260612145959 7dc84325 editor.ada_overload_ranking%s
+D editor-ada_overload_ranking_provenance.ads  20260613105222 8712de37 editor.ada_overload_ranking_provenance%s
+D editor-ada_overload_resolution_legality.ads  20260623011043 12acc398 editor.ada_overload_resolution_legality%s
+D editor-ada_private_view_visibility.ads  20260612145959 fd49539d editor.ada_private_view_visibility%s
+D editor-ada_private_with_rules.ads  20260612145959 2fffe0e9 editor.ada_private_with_rules%s
+D editor-ada_project_index.ads  20260624154319 c97cbc72 editor.ada_project_index%s
+D editor-ada_record_layout_exact_validation.ads  20260612145959 b988d6f5 editor.ada_record_layout_exact_validation%s
+D editor-ada_record_layout_validation.ads  20260612145959 e31ccee2 editor.ada_record_layout_validation%s
+D editor-ada_record_storage_order_rules.ads  20260612145959 014c62aa editor.ada_record_storage_order_rules%s
+D editor-ada_remaining_rm_edge_stabilized_closure_diagnostic_integration.ads  20260612145959 7778a3ff editor.ada_remaining_rm_edge_stabilized_closure_diagnostic_integration%s
+D editor-ada_remaining_rm_edge_stabilized_diagnostic_integration.ads  20260612145959 7ad1d3a8 editor.ada_remaining_rm_edge_stabilized_diagnostic_integration%s
+D editor-ada_renaming_alias_visibility_legality.ads  20260612145959 1dbb636b editor.ada_renaming_alias_visibility_legality%s
+D editor-ada_representation_diagnostics.ads  20260613110233 a1b3562e editor.ada_representation_diagnostics%s
+D editor-ada_representation_layout_stream_integration_legality.ads  20260612145959 a135313b editor.ada_representation_layout_stream_integration_legality%s
+D editor-ada_representation_legality.ads  20260612145959 b68bfe19 editor.ada_representation_legality%s
+D editor-ada_return_legality.ads  20260623155114 d3098143 editor.ada_return_legality%s
+D editor-ada_rm_completion_closure_consumer_diagnostic_integration.ads  20260612145959 86ee331c editor.ada_rm_completion_closure_consumer_diagnostic_integration%s
+D editor-ada_rm_completion_closure_consumer_stabilized_diagnostic_integration.ads  20260612145959 0b90017e editor.ada_rm_completion_closure_consumer_stabilized_diagnostic_integration%s
+D editor-ada_selected_name_resolution.ads  20260612145959 a5c90013 editor.ada_selected_name_resolution%s
+D editor-ada_selected_representation_targets.ads  20260612145959 c456ffb6 editor.ada_selected_representation_targets%s
+D editor-ada_semantic_colour_projection.ads  20260612145959 59eebf51 editor.ada_semantic_colour_projection%s
+D editor-ada_semantic_diagnostic_feed.ads  20260624205933 42b8beea editor.ada_semantic_diagnostic_feed%s
+D editor-ada_semantic_diagnostic_index.ads  20260612145959 df1939c4 editor.ada_semantic_diagnostic_index%s
+D editor-ada_semantic_diagnostic_snapshot_guards.ads  20260613105041 4522d9a6 editor.ada_semantic_diagnostic_snapshot_guards%s
+D editor-ada_separate_body_stub_rules.ads  20260612145959 bcca85dc editor.ada_separate_body_stub_rules%s
+D editor-ada_static_expressions.ads  20260612145959 55cf2315 editor.ada_static_expressions%s
+D editor-ada_staticness_range_predicate_legality.ads  20260612145959 bf345e22 editor.ada_staticness_range_predicate_legality%s
+D editor-ada_stream_attribute_profile_conformance.ads  20260612145959 298b1ea3 editor.ada_stream_attribute_profile_conformance%s
+D editor-ada_subtype_compatibility.ads  20260616210729 3039b253 editor.ada_subtype_compatibility%s
+D editor-ada_syntax_tree.ads  20260612145959 49a76ced editor.ada_syntax_tree%s
+D editor-ada_tagged_derived_legality.ads  20260623163602 c1a4d139 editor.ada_tagged_derived_legality%s
+D editor-ada_tasking_protected_legality.ads  20260623162422 83eec329 editor.ada_tasking_protected_legality%s
+D editor-ada_type_graph.ads  20260612145959 8a7fdffd editor.ada_type_graph%s
+D editor-ada_unit_completion_order_legality.ads  20260612145959 434ef597 editor.ada_unit_completion_order_legality%s
+D editor-ada_use_type_operators.ads  20260612145959 26d5c2e7 editor.ada_use_type_operators%s
+D editor-ada_use_visibility.ads  20260612145959 7a5a5a17 editor.ada_use_visibility%s
+D editor-ada_view_aware_compatibility.ads  20260624183245 5abfa29c editor.ada_view_aware_compatibility%s
+D editor-ada_wide_semantic_legality_diagnostics.ads  20260623173800 fc4745ee editor.ada_wide_semantic_legality_diagnostics%s
+D editor-bookmarks.ads	20260612145959 4e695f4d editor.bookmarks%s
+D editor-buffer_switcher.ads  20260612152524 fd053b33 editor.buffer_switcher%s
+D editor-buffer_types.ads  20260612151710 a555405e editor.buffer_types%s
+D editor-buffers.ads	20260624195947 6ddf6ec4 editor.buffers%s
+D editor-build_candidates.ads  20260612145959 dc89ea7b editor.build_candidates%s
+D editor-build_output_details.ads  20260613095501 1d7c9af2 editor.build_output_details%s
+D editor-build_process_control.ads  20260612145959 28661204 editor.build_process_control%s
+D editor-build_result_summary.ads  20260613095501 5b952273 editor.build_result_summary%s
+D editor-build_runner_policy.ads  20260612145959 623f26a9 editor.build_runner_policy%s
+D editor-build_ui.ads	20260612152524 28a54496 editor.build_ui%s
+D editor-build_working_context.ads  20260612145959 cef9cea9 editor.build_working_context%s
+D editor-command_execution.ads  20260612145959 54c8cc0a editor.command_execution%s
+D editor-commands.ads	20260625160447 5cd3c959 editor.commands%s
+D editor-cursors.ads	20260612145959 1f938cf3 editor.cursors%s
+D editor-diagnostics.ads  20260612145959 41767a50 editor.diagnostics%s
+D editor-dirty_guards.ads  20260612145959 2f2ee9d0 editor.dirty_guards%s
+D editor-dirty_lines.ads  20260612145959 fa543a8e editor.dirty_lines%s
+D editor-executor.ads	20260623200708 16f4790d editor.executor%s
+D editor-executor-rectangular.ads  20260612145959 cb806537 editor.executor.rectangular%s
+D editor-executor-rectangular.adb  20260612145959 61f0ca69 editor.executor.rectangular%b
+D editor-external_producers.ads  20260622020154 58ce61fc editor.external_producers%s
+D editor-feature_diagnostics.ads  20260622183317 5963bde1 editor.feature_diagnostics%s
+D editor-feature_messages.ads  20260612145959 2c7a5943 editor.feature_messages%s
+D editor-feature_panel.ads  20260612145959 0bdf4cfc editor.feature_panel%s
+D editor-feature_search_results.ads  20260621220637 634355a7 editor.feature_search_results%s
+D editor-file_tree.ads	20260615223013 349423be editor.file_tree%s
+D editor-file_tree_view.ads  20260612145959 99db49c3 editor.file_tree_view%s
+D editor-folding.ads	20260612145959 860f30d0 editor.folding%s
+D editor-go_to_line.ads	20260612145959 c07ea03c editor.go_to_line%s
+D editor-guided_prompts.ads  20260623200646 4d222b28 editor.guided_prompts%s
+D editor-gutter_markers.ads  20260612145959 304c4eae editor.gutter_markers%s
+D editor-history.ads	20260612145959 b546dbc4 editor.history%s
+D editor-input_field.ads  20260612145959 04b03a00 editor.input_field%s
+D editor-keybindings.ads  20260618195539 adeac332 editor.keybindings%s
+D editor-layout.ads	20260612145959 68c2e77a editor.layout%s
+D editor-messages.ads	20260612151413 205b1944 editor.messages%s
+D editor-navigation.ads	20260612145959 30defc5f editor.navigation%s
+D editor-navigation_history.ads  20260612145959 b0e3398a editor.navigation_history%s
+D editor-outline.ads	20260612152524 90a00201 editor.outline%s
+D editor-overlay_focus.ads  20260612145959 92ec945e editor.overlay_focus%s
+D editor-panel_focus.ads  20260612145959 a6c95284 editor.panel_focus%s
+D editor-panels.ads	20260612145959 66614da0 editor.panels%s
+D editor-pending_transitions.ads  20260612145959 81c78960 editor.pending_transitions%s
+D editor-problems.ads	20260612145959 a9a08157 editor.problems%s
+D editor-producer_contracts.ads  20260612145959 c3ee4501 editor.producer_contracts%s
+D editor-project.ads	20260612145959 f4d50f6d editor.project%s
+D editor-project_search.ads  20260612195704 b7cf3cc2 editor.project_search%s
+D editor-project_search_bar.ads  20260612145959 c5c12f77 editor.project_search_bar%s
+D editor-quick_open.ads	20260614175339 b8f14db6 editor.quick_open%s
+D editor-recent_buffers.ads  20260612145959 617e4612 editor.recent_buffers%s
+D editor-recent_projects.ads  20260612145959 ee1155f5 editor.recent_projects%s
+D editor-rectangle_selection.ads  20260612145959 16b1a48c editor.rectangle_selection%s
+D editor-search.ads	20260612145959 dac0e204 editor.search%s
+D editor-search_results.ads  20260612145959 98eded1d editor.search_results%s
+D editor-selection.ads	20260612145959 37bfc5e9 editor.selection%s
+D editor-settings.ads	20260625001341 4905c81e editor.settings%s
+D editor-state.ads	20260623202051 79e8fa74 editor.state%s
+D editor-status_bar.ads	20260612145959 879f0640 editor.status_bar%s
+D editor-syntax.ads	20260612145959 d59b0303 editor.syntax%s
+D editor-syntax_cache.ads  20260612164742 637f2470 editor.syntax_cache%s
+D editor-syntax_semantics.ads  20260612145959 a499b10a editor.syntax_semantics%s
+D editor-tab_bar.ads	20260612151839 e26dca3d editor.tab_bar%s
+D editor-terminal_tasks.ads  20260624215136 74aa6602 editor.terminal_tasks%s
+D editor-unicode.ads	20260612145959 552ff3cc editor.unicode%s
+D editor-view_types.ads	20260612152152 f3042ec7 editor.view_types%s
+D editor-workspace_persistence.ads  20260612202240 a037efc2 editor.workspace_persistence%s
+D editor-wrap.ads	20260612145959 87db665a editor.wrap%s
 D interfac.ads		20250808065140 9111f9c1 interfaces%s
 D i-c.ads		20250808065140 e94c966a interfaces.c%s
 D system.ads		20250808065140 14286b0f system%s
@@ -82,117 +240,124 @@ D s-stopoo.ads		20250808065140 e9fa2dd8 system.storage_pools%s
 D s-stratt.ads		20250808065140 516607ae system.stream_attributes%s
 D s-traent.ads		20250808065140 c81cbf8c system.traceback_entries%s
 D s-unstyp.ads		20250808065140 fa2a7f59 system.unsigned_types%s
-D text_backend.ads	20260412181650 6d0030da text_backend%s
-D text_backend-rope_impl.ads  20260427194525 88d12c3a text_backend.rope_impl%s
-D text_buffer.ads	20260427153044 bb9a4056 text_buffer%s
+D text_backend.ads	20260612145959 6d0030da text_backend%s
+D text_backend-rope_impl.ads  20260612145959 0f5d7663 text_backend.rope_impl%s
+D text_buffer.ads	20260612145959 bb9a4056 text_buffer%s
 G a e
 G c Z s b [execute editor__executor__rectangular 7 14 none]
 G c Z b b [safe_caret editor__executor__rectangular 9 13 none]
 G c Z b b [start_rectangle editor__executor__rectangular 19 14 none]
-G c Z b b [drag_rectangle editor__executor__rectangular 48 14 none]
-G r c none [execute editor__executor__rectangular 7 14 none] [index_for_point editor__navigation 30 13 none]
-G r c none [execute editor__executor__rectangular 7 14 none] [line_column_for_index editor__navigation 19 14 none]
-G r c none [execute editor__executor__rectangular 7 14 none] [has_row editor__navigation 11 13 none]
-G r c none [execute editor__executor__rectangular 7 14 none] [line_length editor__navigation 15 13 none]
-G r c none [execute editor__executor__rectangular 7 14 none] [index_for_line_column editor__navigation 25 13 none]
-G r c none [execute editor__executor__rectangular 7 14 none] [normalize_carets editor__state 43 14 none]
-G r c none [start_rectangle editor__executor__rectangular 19 14 none] [index_for_point editor__navigation 30 13 none]
-G r c none [start_rectangle editor__executor__rectangular 19 14 none] [line_column_for_index editor__navigation 19 14 none]
-G r c none [drag_rectangle editor__executor__rectangular 48 14 none] [index_for_point editor__navigation 30 13 none]
-G r c none [drag_rectangle editor__executor__rectangular 48 14 none] [line_column_for_index editor__navigation 19 14 none]
-G r c none [drag_rectangle editor__executor__rectangular 48 14 none] [has_row editor__navigation 11 13 none]
-G r c none [drag_rectangle editor__executor__rectangular 48 14 none] [line_length editor__navigation 15 13 none]
-G r c none [drag_rectangle editor__executor__rectangular 48 14 none] [index_for_line_column editor__navigation 25 13 none]
-G r c none [drag_rectangle editor__executor__rectangular 48 14 none] [normalize_carets editor__state 43 14 none]
+G c Z b b [start_rectangle_at_caret editor__executor__rectangular 43 14 none]
+G c Z b b [drag_rectangle editor__executor__rectangular 73 14 none]
+G r c none [execute editor__executor__rectangular 7 14 none] [point_to_row_col editor__rectangle_selection 21 14 none]
+G r c none [execute editor__executor__rectangular 7 14 none] [normalize editor__rectangle_selection 15 13 none]
+G r c none [execute editor__executor__rectangular 7 14 none] [build_carets editor__rectangle_selection 28 14 none]
+G r c none [execute editor__executor__rectangular 7 14 none] [row_col_for_index editor__state 541 14 none]
+G r c none [start_rectangle editor__executor__rectangular 19 14 none] [point_to_row_col editor__rectangle_selection 21 14 none]
+G r c none [start_rectangle editor__executor__rectangular 19 14 none] [normalize editor__rectangle_selection 15 13 none]
+G r c none [start_rectangle editor__executor__rectangular 19 14 none] [build_carets editor__rectangle_selection 28 14 none]
+G r c none [start_rectangle_at_caret editor__executor__rectangular 43 14 none] [row_col_for_index editor__state 541 14 none]
+G r c none [start_rectangle_at_caret editor__executor__rectangular 43 14 none] [normalize editor__rectangle_selection 15 13 none]
+G r c none [start_rectangle_at_caret editor__executor__rectangular 43 14 none] [build_carets editor__rectangle_selection 28 14 none]
+G r c none [drag_rectangle editor__executor__rectangular 73 14 none] [point_to_row_col editor__rectangle_selection 21 14 none]
+G r c none [drag_rectangle editor__executor__rectangular 73 14 none] [normalize editor__rectangle_selection 15 13 none]
+G r c none [drag_rectangle editor__executor__rectangular 73 14 none] [build_carets editor__rectangle_selection 28 14 none]
 X 1 ada.ads
-18K9*Ada 22e8 24|5r6 5r29
-X 4 a-contai.ads
-16K13*Containers 28e19 24|5w10 5r33
+18K9*Ada 22e8 138|5r6 5r29
+X 5 a-contai.ads
+16K13*Containers 28e19 138|5w10 5r33
 22I9*Count_Type<integer>
-X 6 a-convec.ads
-91R9*Vector<8|43R9>
-175V13*Length{4|22I9} 24|12s19[21|19] 112s19[21|19]
-190U14*Clear 24|36s16[21|19] 85s16[21|19]
-483U14*Append 24|37s16[21|19] 103s22[21|19] 113s19[21|19]
-560V13*First_Index{integer} 24|15s36[21|19]
-X 9 a-iteint.ads
+X 7 a-convec.ads
+91R9*Vector<9|43R9>
+175V13*Length{5|22I9} 138|12s19[132|19] 52s19[132|19] 143s25[132|19]
+190U14*Clear 138|147s28[132|19]
+483U14*Append 138|148s28[132|19]
+560V13*First_Index{integer} 138|15s36[132|19] 54s35[132|19] 55s32[132|19]
+. 56s39[132|19] 145s67[132|19]
+X 10 a-iteint.ads
 24h9 Forward_Iterator
-32h9 Reversible_Iterator<24R9[6|119]>
-X 19 editor.ads
-1K9*Editor 5e11 23|1r6 2r6 3r6 5r9 8r37 9r30 10r34 13r5 24|1r6 2r6 2r29 3r6
-. 3r29 4r6 4r29 7r14 10r11 20r37 49r37 121r7 128r37 129r30 137r15 145r15
-. 158r5
-X 20 editor-commands.ads
-5K16*Commands 75e20 23|2w13 9r37 24|2w13 2r36 129r37 137r22 145r22
-26n7*Start_Rectangle_Selection{10E9} 24|137r31
-27n7*Drag_Rectangle_To_Point{10E9} 24|145r31
-56R9*Command 71e14 23|9r46 24|129r46
-57e7*Kind{10E9} 24|136r16
-64i7*Click_X{natural} 24|140r44 148r44
-65i7*Click_Y{natural} 24|141r44 149r44
-X 21 editor-cursors.ads
-3K16*Cursors 35e19 23|3w13 10r41 24|3w13 3r36
-5I12*Cursor_Index{natural} 23|10r49 24|10r43 23r34 26r22 52r34 55r30 64r11
-. 65r11 90r15 97r15 130r34
-12R9*Caret_State 17e14 24|37r24 103r30 113r27
-13i7*Pos{5I12} 24|15r49 38m10 104m16 114m13
-14i7*Anchor{5I12} 24|39m10 105m16 115m13
-15i7*Virtual_Column{natural} 24|40m10 106m16 116m13
-16i7*Anchor_Virtual_Column{natural} 24|41m10 107m16 117m13
-X 22 editor-executor.ads
-7K16*Executor 19|1k9 22|26e20 23|5r16 13r12 24|7r21 158r12
-X 23 editor-executor-rectangular.ads
-5K25*Rectangular 22|7k16 23|13l21 13e32 24|7b30 158l21 158t32
-7U14*Execute 8=7 9>7 10<7 11<7 24|127b14 156l8 156t15
-8r7 S{26|11R9} 24|128b7 133r32 134r31 139m40 147m40
-9r7 Cmd{20|56R9} 24|129b7 136r12 140r40 141r40 148r40 149r40
-10i7 New_Caret{21|5I12} 24|130b7 133m7 142m40 150m40
-11i7 New_Preferred_Column{natural} 24|131b7 134m7 143m40 151m40
-X 24 editor-executor-rectangular.adb
-9V13 Safe_Caret{21|5I12} 9b13 10>7 17l8 17t18 123s20 133s20
-10r7 S{26|11R9} 12r10 15r17 15r27
-19U14 Start_Rectangle 19b14 20=7 21>7 22>7 23<7 24<7 46l8 46t23 68s10 138s13
-20r7 S{26|11R9} 26r55 30r30 32m7 33m7 34m7 36m7 36r7 37m7 37r7 69r13 139r16
-21i7 X{natural} 26r58 70r13 140r16
-22i7 Y{natural} 26r61 71r13 141r16
-23i7 New_Caret{21|5I12} 44m7 72r13 142r16
-24i7 New_Preferred_Column{natural} 45m7 73r13 143r16
-26i7 Pos{21|5I12} 30r42 38r17 39r20 44r20
-27i7 Row{natural} 30m48 33r28
-28i7 Col{natural} 30m53 34r28 45r31
-48U14 Drag_Rectangle 48b14 49=7 50>7 51>7 52<7 53<7 125l8 125t22 146s13
-49r7 S{26|11R9} 55r63 67r14 69m37 77r30 79r33 80r33 82r33 83r33 85m7 85r7
-. 88r22 92r21 94r57 99r21 101r58 103m13 103r13 112r10 113m10 113r10 121m38
-. 123r32 147r16
-50i7 X{natural} 55r66 70r37 148r16
-51i7 Y{natural} 55r69 71r37 149r16
-52i7 New_Caret{21|5I12} 72m37 123m7 150r16
-53i7 New_Preferred_Column{natural} 73m37 124m7 151r16
-55i7 Pos{21|5I12} 77r42 114r20 115r23
-56i7 Current_Row{natural} 77m48 79r52 80r52
-57i7 Current_Col{natural} 77m61 82r52 83r52 124r31
-59i7 First_Row{natural} 79m7 87r18
-60i7 Last_Row{natural} 80m7 87r31
-61i7 Left_Col{natural} 82m7 94r34
-62i7 Right_Col{natural} 83m7 101r34
-64i7 A{21|5I12} 89m13 105r26
-65i7 P{21|5I12} 96m13 104r23
-87i11 Row{integer} 88r25 93r21 94r60 100r21 101r61
-X 25 editor-navigation.ads
-4K16*Navigation 24|4w13 4r36 25|49e22
-11V13*Has_Row{boolean} 24|88s13
-15V13*Line_Length{natural} 24|94s44 101s45
-19U14*Line_Column_For_Index 24|30s7 77s7
-25V13*Index_For_Line_Column{natural} 24|91s18 98s18
-30V13*Index_For_Point{21|5I12} 24|26s38 55s46
-X 26 editor-state.ads
-5K16*State 23|1w13 8r44 24|1w13 10r18 20r44 49r44 121r14 128r44 26|47e17
-11R9*State_Type 23|8r50 24|10r24 20r50 49r50 128r50 26|19e14
-13r7*Carets{6|91R9[21|19]} 24|12r12 15r19 15r29 36m9 37m9 85m9 103m15 112r12
-. 113m12
-15i7*Preferred_Column{natural} 24|134r33
-16b7*Rect_Select_Active{boolean} 24|32m9 67r16
-17i7*Rect_Anchor_Row{natural} 24|33m9 79r35 80r35
-18i7*Rect_Anchor_Col{natural} 24|34m9 82r35 83r35
-43U14*Normalize_Carets 24|121s20
+32h9 Reversible_Iterator<24R9[7|119]>
+X 16 a-strunb.ads
+269V14*"="{boolean} 7|65i19
+X 20 editor.ads
+1K9*Editor 5e11 137|1r6 2r6 3r6 5r9 8r37 9r30 10r34 13r5 138|1r6 2r6 2r29
+. 3r6 3r29 4r6 7r14 10r11 20r37 28r13 30r7 36r12 37r7 44r37 50r13 53r10 66r12
+. 67r7 74r37 82r21 94r7 97r12 103r7 110r37 111r30 119r15 127r15 133r15 141r15
+. 163r5
+X 131 editor-commands.ads
+6K16*Commands 1802e20 137|2w13 9r37 138|2w13 2r36 111r37 119r22 127r22 133r22
+. 141r22
+1223n7*Start_Rectangle_Selection{1187E9} 138|119r31
+1224n7*Start_Rectangle_At_Caret{1187E9} 138|127r31
+1225n7*Drag_Rectangle_To_Point{1187E9} 138|133r31
+1226n7*Clear_Rectangle_Selection{1187E9} 138|141r31
+1773R9*Command 1793e14 137|9r46 138|111r46
+1774e7*Kind{1187E9} 138|118r16
+1783i7*Click_X{natural} 138|122r44 136r44
+1784i7*Click_Y{natural} 138|123r44 137r44
+X 132 editor-cursors.ads
+3K16*Cursors 35e19 137|3w13 10r41 138|3w13 3r36
+5I12*Cursor_Index{natural} 137|10r49 138|10r43 23r34 45r34 77r34 112r34 145r32
+12R9*Caret_State 17e14 138|149r22
+13i7*Pos{5I12} 138|15r49 54r48 145r80 150m25
+14i7*Anchor{5I12} 138|151m25
+15i7*Virtual_Column{natural} 138|55r45 56r52 152m25
+16i7*Anchor_Virtual_Column{natural} 138|153m25
+X 136 editor-executor.ads
+21K16*Executor 20|1k9 136|1192e20 137|5r16 13r12 138|7r21 163r12
+X 137 editor-executor-rectangular.ads
+5K25*Rectangular 136|21k16 137|13l21 13e32 138|7b30 163l21 163t32
+7U14*Execute 8=7 9>7 10<7 11<7 138|109b14 161l8 161t15
+8r7 S{175|150R9} 138|110b7 115r32 116r31 121m40 129m40 135m40 142m13 143r16
+. 145r48 145r58 147m19 147r19 148m19 148r19
+9r7 Cmd{131|1773R9} 138|111b7 118r12 122r40 123r40 136r40 137r40
+10i7 New_Caret{132|5I12} 138|112b7 115m7 124m40 130m40 138m40 154m19
+11i7 New_Preferred_Column{natural} 138|113b7 116m7 125m40 131m40 139m40
+X 138 editor-executor-rectangular.adb
+9V13 Safe_Caret{132|5I12} 9b13 10>7 17l8 17t18 39s20 69s20 105s20 115s20
+10r7 S{175|150R9} 12r10 15r17 15r27
+19U14 Start_Rectangle 19b14 20=7 21>7 22>7 23<7 24<7 41l8 41t23 85s10 120s13
+20r7 S{175|150R9} 30r52 32m7 33m7 34m7 37m48 39r32 86r13 121r16
+21i7 X{natural} 30r55 87r13 122r16
+22i7 Y{natural} 30r58 88r13 123r16
+23i7 New_Caret{132|5I12} 39m7 89r13 124r16
+24i7 New_Preferred_Column{natural} 40m7 90r13 125r16
+26i7 Row{natural} 30m61 33r28 36r50 36r60
+27i7 Col{natural} 30m66 34r28 36r55 36r65 40r31
+28r7 R{170|8R9} 36m7 37r51
+43U14 Start_Rectangle_At_Caret 43b14 44=7 45<7 46<7 71l8 71t32 128s13
+44r7 S{175|150R9} 52r10 54r13 54r16 54r26 55r13 55r23 56r20 56r30 60m7 61m7
+. 62m7 67m48 69r32 129r16
+45i7 New_Caret{132|5I12} 69m7 130r16
+46i7 New_Preferred_Column{natural} 70m7 131r16
+48i7 Row{natural} 54m53 61r28 66r50 66r60
+49i7 Col{natural} 54m58 56m13 62r28 66r55 66r65 70r31
+50r7 R{170|8R9} 66m7 67r51
+73U14 Drag_Rectangle 73b14 74=7 75>7 76>7 77<7 78<7 107l8 107t22 134s13
+74r7 S{175|150R9} 84r14 86m37 95r10 98r10 99r10 103m48 105r32 135r16
+75i7 X{natural} 87r37 95r13 136r16
+76i7 Y{natural} 88r37 95r16 137r16
+77i7 New_Caret{132|5I12} 89m37 105m7 138r16
+78i7 New_Preferred_Column{natural} 90m37 106m7 139r16
+80i7 Current_Row{natural} 95m19 100r10
+81i7 Current_Col{natural} 95m32 101r10 106r31
+82r7 R{170|8R9} 97m7 103r51
+145i19 P{132|5I12} 150r50 151r50 154r32
+X 170 editor-rectangle_selection.ads
+6K16*Rectangle_Selection 138|4w13 28r20 30r14 36r19 37r14 50r20 66r19 67r14
+. 82r28 94r14 97r19 103r14 170|66e31
+8R9*Rectangle_Range 138|28r40 50r40 82r48 170|13e14
+15V13*Normalize{8R9} 138|36s39 66s39 97s39
+21U14*Point_To_Row_Col 138|30s34 94s34
+28U14*Build_Carets 138|37s34 67s34 103s34
+X 175 editor-state.ads
+53K16*State 137|1w13 8r44 138|1w13 10r18 20r44 44r44 53r17 74r44 110r44 175|656e17
+150R9*State_Type 137|8r50 138|10r24 20r50 44r50 74r50 110r50 175|412e14
+152r7*Carets{7|91R9[132|19]} 138|12r12 15r19 15r29 52r12 54r18 54r28 55r15
+. 55r25 56r22 56r32 143r18 145r50 145r60 147m21 148m21
+157i7*Preferred_Column{natural} 138|116r33
+158b7*Rect_Select_Active{boolean} 138|32m9 60m9 84r16 142m15
+159i7*Rect_Anchor_Row{natural} 138|33m9 61m9 98r12
+160i7*Rect_Anchor_Col{natural} 138|34m9 62m9 99r12
+541U14*Row_Col_For_Index 138|53s23
 

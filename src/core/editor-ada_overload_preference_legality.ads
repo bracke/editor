@@ -135,6 +135,10 @@ package Editor.Ada_Overload_Preference_Legality is
      (Overloads : Editor.Ada_Overload_Resolution_Legality.Overload_Legality_Model;
       Contexts  : Preference_Context_Model) return Preference_Legality_Model;
 
+   function Build_Contexts_From_Overload_Legality
+     (Overloads : Editor.Ada_Overload_Resolution_Legality.Overload_Legality_Model)
+      return Preference_Context_Model;
+
    function Legality_Count (Model : Preference_Legality_Model) return Natural;
    function Legality_At
      (Model : Preference_Legality_Model;

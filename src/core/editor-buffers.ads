@@ -474,6 +474,12 @@ package Editor.Buffers is
 
    function Global_Count return Natural;
    function Global_Registry_For_UI return Buffer_Registry;
+   function Global_Buffer
+     (Id : Buffer_Id) return Buffer_State;
+   procedure Global_Replace_Buffer_Contents
+     (Id       : Buffer_Id;
+      Contents : String;
+      Replaced : out Boolean);
    function Global_Summary_At
      (Index : Positive) return Buffer_Summary;
    function Global_Summary_For

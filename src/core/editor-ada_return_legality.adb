@@ -1,10 +1,13 @@
 with Ada.Strings.Unbounded; use Ada.Strings.Unbounded;
+with Editor.Ada_Expected_Type_Contexts;
 
 package body Editor.Ada_Return_Legality is
 
    pragma Suppress (Overflow_Check);
 
    use type Editor.Ada_Assignment_Legality.Assignment_Context_Id;
+   use type Editor.Ada_Expected_Type_Contexts.Expected_Context_Kind;
+   use type Editor.Ada_Expected_Type_Contexts.Expected_Context_Status;
    use type Editor.Ada_Syntax_Tree.Node_Id;
 
    function Mix (Left, Right : Natural) return Natural is
@@ -236,6 +239,48 @@ package body Editor.Ada_Return_Legality is
    begin
       return Model.Model_Fingerprint;
    end Fingerprint;
+
+   function Build_Contexts_From_Expected_Types
+     (Expected    : Editor.Ada_Expected_Type_Contexts.Expected_Context_Model;
+      Assignments : Editor.Ada_Assignment_Legality.Assignment_Legality_Model)
+      return Return_Context_Model
+   is
+      package ETC renames Editor.Ada_Expected_Type_Contexts;
+      package AL renames Editor.Ada_Assignment_Legality;
+      Model : Return_Context_Model;
+   begin
+      for Index in 1 .. ETC.Expected_Context_Count (Expected) loop
+         declare
+            Expected_Row : constant ETC.Expected_Context_Info :=
+              ETC.Expected_Context_At (Expected, Index);
+            Assignment : constant AL.Assignment_Legality_Info :=
+              AL.First_For_Target_Node (Assignments, Expected_Row.Context_Node);
+            Context : Return_Context_Info;
+         begin
+            if Expected_Row.Kind = ETC.Expected_Context_Return_Statement
+              and then Expected_Row.Status = ETC.Expected_Context_Found
+            then
+               Context.Kind := Return_Context_Function_Return;
+               Context.Unit_Node := Expected_Row.Context_Node;
+               Context.Return_Node := Expected_Row.Context_Node;
+               Context.Expression_Node := Expected_Row.Node;
+               Context.Assignment_Context := Assignment.Context;
+               Context.Expected_Result_Subtype := Expected_Row.Expected_Subtype;
+               Context.Has_Expression :=
+                 Expected_Row.Node /= Editor.Ada_Syntax_Tree.No_Node;
+               Context.Is_Function_Context := True;
+               Context.Is_Procedure_Context := False;
+               Context.Start_Line := Expected_Row.Start_Line;
+               Context.End_Line := Expected_Row.End_Line;
+               Context.Fingerprint :=
+                 Mix (Expected_Row.Fingerprint, Assignment.Fingerprint + 1);
+               Add_Context (Model, Context);
+            end if;
+         end;
+      end loop;
+
+      return Model;
+   end Build_Contexts_From_Expected_Types;
 
    function Map_Assignment_Status
      (Context    : Return_Context_Info;

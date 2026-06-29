@@ -28,7 +28,8 @@ package body Editor.Ada_Phase579_Architecture_Cleanup_Pass1429 is
             | Status_Rejected_Obsolete_Scaffold_Export
             | Status_Rejected_Pass_Churn_Intent
             | Status_Rejected_Reopened_Remaining_Gap
-            | Status_Rejected_Fingerprint_Mismatch =>
+            | Status_Rejected_Fingerprint_Mismatch
+            | Status_Rejected_Duplicate_Surface =>
             return Class_Rejected;
          when Status_Indeterminate_Missing_Cleanup_Evidence =>
             return Class_Indeterminate;
@@ -134,7 +135,8 @@ package body Editor.Ada_Phase579_Architecture_Cleanup_Pass1429 is
             | Status_Rejected_Obsolete_Scaffold_Export
             | Status_Rejected_Pass_Churn_Intent
             | Status_Rejected_Reopened_Remaining_Gap
-            | Status_Rejected_Fingerprint_Mismatch =>
+            | Status_Rejected_Fingerprint_Mismatch
+            | Status_Rejected_Duplicate_Surface =>
             Model.Rejected_Count := Model.Rejected_Count + 1;
          when Status_Indeterminate_Missing_Cleanup_Evidence =>
             Model.Indeterminate_Count := Model.Indeterminate_Count + 1;
@@ -144,13 +146,53 @@ package body Editor.Ada_Phase579_Architecture_Cleanup_Pass1429 is
    end Tally;
 
    function Build (Input : Cleanup_Input) return Cleanup_Model is
+      function Is_Required_Surface (Surface : Architecture_Surface) return Boolean is
+      begin
+         return Surface /= Surface_Unknown;
+      end Is_Required_Surface;
+
+      function Required_Surface_Total return Natural is
+         Count : Natural := 0;
+      begin
+         for Surface in Architecture_Surface loop
+            if Is_Required_Surface (Surface) then
+               Count := Count + 1;
+            end if;
+         end loop;
+         return Count;
+      end Required_Surface_Total;
+
+      function Is_Coverage_Status (Status : Cleanup_Status) return Boolean is
+      begin
+         case Status is
+            when Status_Canonical_Production_Surface
+               | Status_Quarantined_Historical_Scaffold
+               | Status_Release_Documented
+               | Status_Test_Harness_Covered =>
+               return True;
+            when others =>
+               return False;
+         end case;
+      end Is_Coverage_Status;
+
+      Seen : array (Architecture_Surface) of Boolean := (others => False);
       Model : Cleanup_Model;
    begin
+      Model.Required_Surface_Count := Required_Surface_Total;
       for Row of Input.Rows loop
          declare
-            Status : constant Cleanup_Status := Evaluate (Row);
+            Status : Cleanup_Status := Evaluate (Row);
             Feed_Item : Cleanup_Entry;
          begin
+            if Is_Coverage_Status (Status) and then Is_Required_Surface (Row.Surface) then
+               if Seen (Row.Surface) then
+                  Status := Status_Rejected_Duplicate_Surface;
+                  Model.Duplicate_Surface_Count := Model.Duplicate_Surface_Count + 1;
+               else
+                  Seen (Row.Surface) := True;
+               end if;
+            end if;
+
             Feed_Item.Id := Row.Id;
             Feed_Item.Surface := Row.Surface;
             Feed_Item.Status := Status;
@@ -162,6 +204,11 @@ package body Editor.Ada_Phase579_Architecture_Cleanup_Pass1429 is
             Model.Audit_Fingerprint := Model.Audit_Fingerprint + Feed_Item.Result_Fingerprint;
             Tally (Model, Feed_Item);
          end;
+      end loop;
+      for Surface in Architecture_Surface loop
+         if Is_Required_Surface (Surface) and then not Seen (Surface) then
+            Model.Missing_Surface_Count := Model.Missing_Surface_Count + 1;
+         end if;
       end loop;
       return Model;
    end Build;
@@ -182,13 +229,16 @@ package body Editor.Ada_Phase579_Architecture_Cleanup_Pass1429 is
 
    function Final_Cleanup_Achieved (Model : Cleanup_Model) return Boolean is
    begin
-      return Model.Total_Rows > 0
-        and then Model.Canonical_Count > 0
-        and then Model.Quarantined_Count > 0
-        and then Model.Documented_Count > 0
-        and then Model.Test_Count > 0
+      return Model.Total_Rows = Model.Required_Surface_Count
+        and then Model.Required_Surface_Count = 10
+        and then Model.Canonical_Count = 7
+        and then Model.Quarantined_Count = 1
+        and then Model.Documented_Count = 1
+        and then Model.Test_Count = 1
         and then Model.Rejected_Count = 0
-        and then Model.Indeterminate_Count = 0;
+        and then Model.Indeterminate_Count = 0
+        and then Model.Missing_Surface_Count = 0
+        and then Model.Duplicate_Surface_Count = 0;
    end Final_Cleanup_Achieved;
 
 end Editor.Ada_Phase579_Architecture_Cleanup_Pass1429;

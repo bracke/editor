@@ -407,6 +407,12 @@ package body Editor.Ada_Call_Profile_Shapes is
         Trim (Child_Label (Tree, Node.Id, Editor.Ada_Syntax_Tree.Node_Declaration_Name));
       Profile : constant String :=
         Child_Label (Tree, Node.Id, Editor.Ada_Syntax_Tree.Node_Declaration_Profile);
+      Effective_Profile : constant String :=
+        (if Node.Kind = Editor.Ada_Syntax_Tree.Node_Expression_Function_Declaration
+           and then Profile /= ""
+           and then not Contains (Profile, ":")
+         then ""
+         else Profile);
       Result  : constant String :=
         Trim (Child_Label (Tree, Node.Id, Editor.Ada_Syntax_Tree.Node_Declaration_Result));
       Param_Count : Natural := 0;
@@ -419,11 +425,9 @@ package body Editor.Ada_Call_Profile_Shapes is
       Status      : Callable_Profile_Status := Callable_Profile_Found;
    begin
       Analyze_Profile_Formals
-        (Profile, Param_Count, Defaulted_Count, Formal_Names, Defaulted_Names,
+        (Effective_Profile, Param_Count, Defaulted_Count, Formal_Names, Defaulted_Names,
          Malformed);
-      if Profile = "" then
-         Status := Callable_Profile_No_Profile;
-      elsif Malformed then
+      if Malformed then
          Status := Callable_Profile_Malformed;
       end if;
 

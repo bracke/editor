@@ -74,7 +74,22 @@ package body Editor.Feature_Search_Results is
 
          if Match_End <= Max_Length - 3 then
             Stop_Pos := Max_Length - 3;
-            return Trimmed (Trimmed'First .. Trimmed'First + Stop_Pos - 1) & "...";
+            declare
+               Prefix : constant String :=
+                 Trimmed (Trimmed'First .. Trimmed'First + Stop_Pos - 1);
+               Last   : Integer := Prefix'Last;
+            begin
+               if Last >= Prefix'First
+                 and then (Prefix (Last) = '.' or else Prefix (Last) = ' ')
+               then
+                  Last := Last - 1;
+               end if;
+               if Last < Prefix'First then
+                  return "...";
+               else
+                  return Prefix (Prefix'First .. Last) & "...";
+               end if;
+            end;
          elsif Match_Start >= Trimmed'Length - (Max_Length - 3) + 1 then
             Start_Pos := Trimmed'Length - (Max_Length - 3) + 1;
             return "..." & Trimmed (Trimmed'First + Start_Pos - 1 .. Trimmed'Last);
@@ -92,9 +107,23 @@ package body Editor.Feature_Search_Results is
                Start_Pos := Trimmed'Length - Context_Body + 1;
             end if;
             Stop_Pos := Start_Pos + Context_Body - 1;
-            return "..."
-              & Trimmed (Trimmed'First + Start_Pos - 1 .. Trimmed'First + Stop_Pos - 1)
-              & "...";
+            declare
+               Body_Text : constant String :=
+                 Trimmed (Trimmed'First + Start_Pos - 1
+                          .. Trimmed'First + Stop_Pos - 1);
+               Last      : Integer := Body_Text'Last;
+            begin
+               if Last >= Body_Text'First
+                 and then (Body_Text (Last) = '.' or else Body_Text (Last) = ' ')
+               then
+                  Last := Last - 1;
+               end if;
+               if Last < Body_Text'First then
+                  return "......";
+               else
+                  return "..." & Body_Text (Body_Text'First .. Last) & "...";
+               end if;
+            end;
          end if;
       end;
    end Truncate_Search_Result_Context;
@@ -491,6 +520,26 @@ package body Editor.Feature_Search_Results is
       end loop;
       Assert_Search_Results_State_Consistent (Results);
    end Run_Active_Buffer_Search;
+
+   procedure Begin_External_Result_Set
+     (Results      : in out Search_Results_Feature_State;
+      Query        : String;
+      Source_Label : String := "")
+   is
+   begin
+      Results.Rows.Clear;
+      Results.Query_Text := To_Unbounded_String (Query);
+      Results.Has_Query := Query'Length > 0;
+      Results.Match_Count := 0;
+      Results.Searched_Buffer := No_Buffer;
+      Results.Searched_Label := To_Unbounded_String (Source_Label);
+      Results.Snapshot_Version := 0;
+      Results.Results_Stale := False;
+      Results.Search_Input_Active := False;
+      Editor.Input_Field.Clear (Results.Search_Input);
+      Results.History_Cursor := 0;
+      Assert_Search_Results_State_Consistent (Results);
+   end Begin_External_Result_Set;
 
    function Best_Rerun_Selection
      (Results         : Search_Results_Feature_State;

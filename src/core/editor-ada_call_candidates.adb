@@ -124,6 +124,36 @@ package body Editor.Ada_Call_Candidates is
         or else Kind = Editor.Ada_Syntax_Tree.Node_Call_Statement;
    end Is_Call_Node;
 
+   function Is_Implicit_Parameterless_Call_Node
+     (Tree : Editor.Ada_Syntax_Tree.Tree_Type;
+      Node : Editor.Ada_Syntax_Tree.Node_Info) return Boolean
+   is
+      use type Editor.Ada_Syntax_Tree.Node_Kind;
+      Parent : Editor.Ada_Syntax_Tree.Node_Info;
+   begin
+      if Node.Kind /= Editor.Ada_Syntax_Tree.Node_Name
+        or else Node.Parent = Editor.Ada_Syntax_Tree.No_Node
+      then
+         return False;
+      end if;
+
+      Parent := Editor.Ada_Syntax_Tree.Node (Tree, Node.Parent);
+      return Parent.Kind = Editor.Ada_Syntax_Tree.Node_Expression
+        and then Trim (To_String (Parent.Label)) = Trim (To_String (Node.Label));
+   end Is_Implicit_Parameterless_Call_Node;
+
+   function Is_Callable_Declaration
+     (Visibility  : Editor.Ada_Direct_Visibility.Visibility_Model;
+      Declaration : Editor.Ada_Direct_Visibility.Declaration_Id) return Boolean
+   is
+      use type Editor.Ada_Direct_Visibility.Declaration_Kind;
+      Decl : constant Editor.Ada_Direct_Visibility.Declaration_Info :=
+        Editor.Ada_Direct_Visibility.Declaration (Visibility, Declaration);
+   begin
+      return Decl.Kind = Editor.Ada_Direct_Visibility.Declaration_Subprogram
+        or else Decl.Kind = Editor.Ada_Direct_Visibility.Declaration_Formal_Subprogram;
+   end Is_Callable_Declaration;
+
    function Candidate_Source_For
      (Direct     : Editor.Ada_Direct_Visibility.Lookup_Result;
       Primitive  : Editor.Ada_Direct_Visibility.Lookup_Result)
@@ -207,6 +237,41 @@ package body Editor.Ada_Call_Candidates is
       Mix (Model, Info.Fingerprint);
    end Add_Candidate;
 
+   procedure Add_Direct_Ambiguous_Callable_Candidates
+     (Model      : in out Call_Candidate_Model;
+      Visibility : Editor.Ada_Direct_Visibility.Visibility_Model;
+      Node       : Editor.Ada_Syntax_Tree.Node_Info;
+      Region     : Editor.Ada_Declarative_Regions.Region_Id;
+      Name       : String;
+      Lookup     : Editor.Ada_Direct_Visibility.Lookup_Result;
+      Added      : out Natural)
+   is
+      Wanted : constant String := Normalize (Name);
+      Decl_Id : Editor.Ada_Direct_Visibility.Declaration_Id;
+      Decl    : Editor.Ada_Direct_Visibility.Declaration_Info;
+   begin
+      Added := 0;
+      if Lookup.Region = Editor.Ada_Declarative_Regions.No_Region then
+         return;
+      end if;
+
+      for Index in 1 .. Editor.Ada_Direct_Visibility.Direct_Declaration_Count
+        (Visibility, Lookup.Region)
+      loop
+         Decl_Id := Editor.Ada_Direct_Visibility.Direct_Declaration_At
+           (Visibility, Lookup.Region, Index);
+         Decl := Editor.Ada_Direct_Visibility.Declaration (Visibility, Decl_Id);
+         if To_String (Decl.Normalized) = Wanted
+           and then Is_Callable_Declaration (Visibility, Decl.Id)
+         then
+            Add_Candidate
+              (Model, Node, Region, Name, Candidate_Direct_Visible, Decl.Id,
+               Call_Candidate_Found, Lookup.Match_Count);
+            Added := Added + 1;
+         end if;
+      end loop;
+   end Add_Direct_Ambiguous_Callable_Candidates;
+
    procedure Clear (Model : in out Call_Candidate_Model) is
    begin
       Model.Candidates.Clear;
@@ -230,7 +295,9 @@ package body Editor.Ada_Call_Candidates is
             Node : constant Editor.Ada_Syntax_Tree.Node_Info :=
               Editor.Ada_Syntax_Tree.Node_At (Tree, Index);
          begin
-            if Is_Call_Node (Node.Kind) then
+            if Is_Call_Node (Node.Kind)
+              or else Is_Implicit_Parameterless_Call_Node (Tree, Node)
+            then
                declare
                   Name : constant String := Clean_Call_Name (To_String (Node.Label));
                   Region : constant Editor.Ada_Declarative_Regions.Region_Id :=
@@ -246,6 +313,7 @@ package body Editor.Ada_Call_Candidates is
                   Status : Call_Candidate_Status := Call_Candidate_No_Candidates;
                   Decl   : Editor.Ada_Direct_Visibility.Declaration_Id := Combined.Declaration;
                   Count  : Natural := Combined.Match_Count;
+                  Added_Ambiguous : Natural := 0;
                begin
                   if Name = "" then
                      Status := Call_Candidate_No_Call_Name;
@@ -254,7 +322,21 @@ package body Editor.Ada_Call_Candidates is
                   elsif Combined.Status = Editor.Ada_Direct_Visibility.Lookup_Not_Found then
                      Status := Call_Candidate_No_Candidates;
                   elsif Combined.Status = Editor.Ada_Direct_Visibility.Lookup_Ambiguous then
+                     if Direct.Status = Editor.Ada_Direct_Visibility.Lookup_Ambiguous
+                       and then Primitive.Status =
+                         Editor.Ada_Direct_Visibility.Lookup_Not_Found
+                     then
+                        Add_Direct_Ambiguous_Callable_Candidates
+                          (Model, Visibility, Node, Region, Name, Direct,
+                           Added_Ambiguous);
+                     end if;
                      Status := Call_Candidate_Ambiguous;
+                  elsif not Is_Call_Node (Node.Kind)
+                    and then not Is_Callable_Declaration (Visibility, Combined.Declaration)
+                  then
+                     Status := Call_Candidate_No_Candidates;
+                     Count := 0;
+                     Decl := Editor.Ada_Direct_Visibility.No_Declaration;
                   else
                      Status := Call_Candidate_Found;
                   end if;

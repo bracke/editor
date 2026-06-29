@@ -15,9 +15,11 @@ package Editor.Ada_Expected_Call_Filters is
    --  Compiler-grade overload-resolution building block.  This model applies
    --  expected-subtype context metadata to profile-filtered call candidates.
    --  It can optionally consult the declaration-derived type graph for exact,
-   --  subtype, derived, and known-different-root relationships.  It does not
-   --  yet prove private-view completion, class-wide/interface compatibility,
-   --  implicit conversion legality, or full profile conformance.
+   --  subtype, derived, class-wide, and known-different-root relationships.
+   --  Compatibility metadata is kept distinct from Ada implicit-conversion
+   --  legality, so derived-type ancestry remains diagnostic evidence unless an
+   --  explicit conversion is present.  It does not yet prove full interface
+   --  conformance or full profile conformance.
 
    type Expected_Call_Filter_Status is
      (Expected_Call_Filter_Not_Checked,
@@ -30,6 +32,7 @@ package Editor.Ada_Expected_Call_Filters is
       Expected_Call_Filter_Callable_Has_No_Result,
       Expected_Call_Filter_Result_Subtype_Matches,
       Expected_Call_Filter_Result_Subtype_Compatible,
+      Expected_Call_Filter_Result_Subtype_Requires_Explicit_Conversion,
       Expected_Call_Filter_Result_Subtype_Mismatch,
       Expected_Call_Filter_Result_Subtype_Indeterminate);
 

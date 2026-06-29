@@ -1,7 +1,6 @@
 V "GNAT Lib v13"
 A -gnat2022
 A -gnatX
-A -gnata
 P SS ZX
 
 RN
@@ -21,7 +20,7 @@ RV NO_DYNAMIC_SIZED_OBJECTS
 RV NO_IMPLICIT_LOOPS
 RV NO_ELABORATION_CODE
 
-U editor.ada_syntax_tree%b  editor-ada_syntax_tree.adb  1b4fc775 NE OO PK
+U editor.ada_syntax_tree%b  editor-ada_syntax_tree.adb  1c8aab2c NE OO PK
 W ada%s			ada.ads			ada.ali
 W ada.characters%s	a-charac.ads		a-charac.ali
 W ada.characters.latin_1%s  a-chlat1.ads	a-chlat1.ali
@@ -63,7 +62,6 @@ Z ada.tags%s		a-tags.adb		a-tags.ali
 Z ada.unchecked_deallocation%s
 W editor%s		editor.ads		editor.ali
 Z system%s		system.ads		system.ali
-Z system.assertions%s	s-assert.adb		s-assert.ali
 Z system.finalization_masters%s  s-finmas.adb	s-finmas.ali
 Z system.pool_global%s	s-pooglo.adb		s-pooglo.ali
 Z system.put_images%s	s-putima.adb		s-putima.ali
@@ -79,7 +77,6 @@ Z system.strings.stream_ops%s  s-ststop.adb	s-ststop.ali
 Z system.wch_stw%s	s-wchstw.adb		s-wchstw.ali
 
 D ada.ads		20240521074738 76789da1 ada%s
-D a-assert.ads		20240521074737 ba465f5c ada.assertions%s
 D a-charac.ads		20240521074737 2d3ec45b ada.characters%s
 D a-chlat1.ads		20240521074737 e0d72e76 ada.characters.latin_1%s
 D a-contai.ads		20240521074737 61e5e089 ada.containers%s
@@ -106,12 +103,11 @@ D a-uncdea.ads		20240521074738 c3a8ac65 ada.unchecked_deallocation%s
 D editor.ads		20260612145959 16f844c2 editor%s
 D editor-ada_syntax_core.ads  20260612145959 c8d2d8dd editor.ada_syntax_core%s
 D editor-ada_syntax_tree.ads  20260612145959 49a76ced editor.ada_syntax_tree%s
-D editor-ada_syntax_tree.adb  20260614195852 c937b507 editor.ada_syntax_tree%b
+D editor-ada_syntax_tree.adb  20260617011830 cef2d95e editor.ada_syntax_tree%b
 D editor-ada_token_cursor.ads  20260613110233 cb11f6fc editor.ada_token_cursor%s
 D interfac.ads		20240521074738 15f799c2 interfaces%s
 D i-c.ads		20240521074738 5c5a6c17 interfaces.c%s
 D system.ads		20240521074738 426dafb8 system%s
-D s-assert.ads		20240521074738 9c4520c7 system.assertions%s
 D s-atocou.ads		20240521074738 dc18efc3 system.atomic_counters%s
 D s-atocou.adb		20240521074738 6fe685de system.atomic_counters%b
 D s-atopri.ads		20240521074738 1b132436 system.atomic_primitives%s
@@ -316,444 +312,452 @@ G c Z b b [mix editor__ada_syntax_tree 95 14 none]
 G c Z b b [strip_declaration_prefixes editor__ada_syntax_tree 149 13 none]
 G c Z b b [classify_line editor__ada_syntax_tree 182 13 none]
 G c Z b b [opens_scope editor__ada_syntax_tree 343 13 none]
-G c Z b b [is_end_node editor__ada_syntax_tree 401 13 none]
-G c Z b b [is_alternative_node editor__ada_syntax_tree 406 13 none]
-G c Z b b [expected_end_label editor__ada_syntax_tree 417 13 none]
-G c Z b b [strip_terminator editor__ada_syntax_tree 459 13 none]
-G c Z b b [segment_before editor__ada_syntax_tree 460 13 none]
-G c Z b b [segment_after editor__ada_syntax_tree 461 13 none]
-G c Z b b [add_declaration_detail_nodes editor__ada_syntax_tree 463 14 none]
-G c Z b b [end_target_text editor__ada_syntax_tree 471 13 none]
-G c Z b b [opening_target_text editor__ada_syntax_tree 524 13 none]
-G c Z b b [same_ada_name editor__ada_syntax_tree 597 13 none]
-G c Z b b [end_matches_kind editor__ada_syntax_tree 602 13 none]
-G c Z b b [alternative_has_grammar_owner editor__ada_syntax_tree 653 13 none]
-G c Z b b [is_transient_statement_part editor__ada_syntax_tree 689 13 none]
-G c Z b b [end_implicitly_closes_statement_part editor__ada_syntax_tree 697 13 none]
-G c Z b b [is_identifier_start editor__ada_syntax_tree 733 13 none]
-G c Z b b [is_identifier_part editor__ada_syntax_tree 738 13 none]
-G c Z b b [is_keyword editor__ada_syntax_tree 743 13 none]
-G c Z b b [is_character_literal_at editor__ada_syntax_tree 808 13 none]
-G c Z b b [code_preserving_literals_for_retention editor__ada_syntax_tree 819 13 none]
-G c Z b b [segment_between_first_parens editor__ada_syntax_tree 857 13 none]
-G c Z b b [strip_leading_with editor__ada_syntax_tree 902 13 none]
-G c Z b b [top_level_arrow_position editor__ada_syntax_tree 915 13 none]
-G c Z b b [has_top_level_arrow editor__ada_syntax_tree 949 13 none]
-G c Z b b [split_before_top_level_arrow editor__ada_syntax_tree 954 13 none]
-G c Z b b [split_after_top_level_arrow editor__ada_syntax_tree 966 13 none]
-G c Z b b [add_syntax_child editor__ada_syntax_tree 976 14 none]
-G c Z b b [looks_like_literal editor__ada_syntax_tree 993 13 none]
-G c Z b b [has_operator editor__ada_syntax_tree 1010 13 none]
-G c Z b b [add_name_tokens editor__ada_syntax_tree 1024 14 none]
-G c Z b b [add_expression_nodes editor__ada_syntax_tree 1057 14 none]
-G c Z b b [last_column_for editor__ada_syntax_tree 1173 13 none]
-G c Z b b [add_detail_node editor__ada_syntax_tree 1181 14 none]
-G c Z b b [add_association_list_nodes editor__ada_syntax_tree 1210 14 none]
-G c Z b b [declaration_name_text editor__ada_syntax_tree 1319 13 none]
-G c Z b b [subprogram_name_text editor__ada_syntax_tree 1370 13 none]
-G c Z b b [subprogram_profile_text editor__ada_syntax_tree 1398 13 none]
-G c Z b b [subprogram_result_text editor__ada_syntax_tree 1408 13 none]
-G c Z b b [add_discriminant_nodes editor__ada_syntax_tree 1600 14 none]
-G c Z b b [add_enumeration_literal_nodes editor__ada_syntax_tree 1617 14 none]
-G c Z b b [add_aspect_specification_nodes editor__ada_syntax_tree 1681 14 none]
-G c Z b b [add_generic_actual_part_nodes editor__ada_syntax_tree 1702 14 none]
-G c Z b b [add_representation_clause_detail_nodes editor__ada_syntax_tree 1723 14 none]
-G c Z b b [add_representation_component_clause_detail_nodes editor__ada_syntax_tree 1777 14 none]
-G c Z b b [add_representation_clause_nodes editor__ada_syntax_tree 1801 14 none]
-G c Z b b [first_semicolon editor__ada_syntax_tree 1822 13 none]
-G c Z b b [statement_node_kind editor__ada_syntax_tree 1832 13 none]
-G c Z b b [attach_statement_details editor__ada_syntax_tree 1894 14 none]
-G c Z b b [attach_syntax_details editor__ada_syntax_tree 2007 14 none]
-G c Z b b [add_structured_statement_node editor__ada_syntax_tree 2015 14 none]
-G c Z b b [add_action_sequence editor__ada_syntax_tree 2042 14 none]
-G c Z b b [add_header_recovery_details editor__ada_syntax_tree 2121 14 none]
+G c Z b b [is_end_node editor__ada_syntax_tree 403 13 none]
+G c Z b b [is_alternative_node editor__ada_syntax_tree 408 13 none]
+G c Z b b [expected_end_label editor__ada_syntax_tree 419 13 none]
+G c Z b b [strip_terminator editor__ada_syntax_tree 461 13 none]
+G c Z b b [segment_before editor__ada_syntax_tree 462 13 none]
+G c Z b b [segment_after editor__ada_syntax_tree 463 13 none]
+G c Z b b [add_declaration_detail_nodes editor__ada_syntax_tree 465 14 none]
+G c Z b b [end_target_text editor__ada_syntax_tree 473 13 none]
+G c Z b b [opening_target_text editor__ada_syntax_tree 526 13 none]
+G c Z b b [same_ada_name editor__ada_syntax_tree 605 13 none]
+G c Z b b [end_matches_kind editor__ada_syntax_tree 610 13 none]
+G c Z b b [alternative_has_grammar_owner editor__ada_syntax_tree 661 13 none]
+G c Z b b [is_transient_statement_part editor__ada_syntax_tree 697 13 none]
+G c Z b b [end_implicitly_closes_statement_part editor__ada_syntax_tree 705 13 none]
+G c Z b b [is_identifier_start editor__ada_syntax_tree 741 13 none]
+G c Z b b [is_identifier_part editor__ada_syntax_tree 746 13 none]
+G c Z b b [is_keyword editor__ada_syntax_tree 751 13 none]
+G c Z b b [if_condition_text editor__ada_syntax_tree 816 13 none]
+G c Z b b [if_action_text editor__ada_syntax_tree 842 13 none]
+G c Z b b [is_character_literal_at editor__ada_syntax_tree 863 13 none]
+G c Z b b [code_preserving_literals_for_retention editor__ada_syntax_tree 874 13 none]
+G c Z b b [segment_between_first_parens editor__ada_syntax_tree 912 13 none]
+G c Z b b [segment_between_first_parens_after editor__ada_syntax_tree 957 13 none]
+G c Z b b [strip_leading_with editor__ada_syntax_tree 978 13 none]
+G c Z b b [top_level_arrow_position editor__ada_syntax_tree 991 13 none]
+G c Z b b [has_top_level_arrow editor__ada_syntax_tree 1025 13 none]
+G c Z b b [split_before_top_level_arrow editor__ada_syntax_tree 1030 13 none]
+G c Z b b [split_after_top_level_arrow editor__ada_syntax_tree 1042 13 none]
+G c Z b b [add_syntax_child editor__ada_syntax_tree 1052 14 none]
+G c Z b b [looks_like_literal editor__ada_syntax_tree 1069 13 none]
+G c Z b b [has_operator editor__ada_syntax_tree 1086 13 none]
+G c Z b b [add_name_tokens editor__ada_syntax_tree 1100 14 none]
+G c Z b b [add_expression_nodes editor__ada_syntax_tree 1133 14 none]
+G c Z b b [last_column_for editor__ada_syntax_tree 1265 13 none]
+G c Z b b [add_detail_node editor__ada_syntax_tree 1273 14 none]
+G c Z b b [add_association_list_nodes editor__ada_syntax_tree 1318 14 none]
+G c Z b b [declaration_name_text editor__ada_syntax_tree 1432 13 none]
+G c Z b b [subprogram_name_text editor__ada_syntax_tree 1483 13 none]
+G c Z b b [subprogram_profile_text editor__ada_syntax_tree 1511 13 none]
+G c Z b b [subprogram_result_text editor__ada_syntax_tree 1521 13 none]
+G c Z b b [add_discriminant_nodes editor__ada_syntax_tree 1713 14 none]
+G c Z b b [add_enumeration_literal_nodes editor__ada_syntax_tree 1730 14 none]
+G c Z b b [add_aspect_specification_nodes editor__ada_syntax_tree 1794 14 none]
+G c Z b b [add_generic_actual_part_nodes editor__ada_syntax_tree 1815 14 none]
+G c Z b b [add_representation_clause_detail_nodes editor__ada_syntax_tree 1836 14 none]
+G c Z b b [add_representation_component_clause_detail_nodes editor__ada_syntax_tree 1890 14 none]
+G c Z b b [add_representation_clause_nodes editor__ada_syntax_tree 1914 14 none]
+G c Z b b [first_semicolon editor__ada_syntax_tree 1935 13 none]
+G c Z b b [statement_node_kind editor__ada_syntax_tree 1945 13 none]
+G c Z b b [attach_statement_details editor__ada_syntax_tree 2007 14 none]
+G c Z b b [attach_syntax_details editor__ada_syntax_tree 2120 14 none]
+G c Z b b [add_structured_statement_node editor__ada_syntax_tree 2128 14 none]
+G c Z b b [add_action_sequence editor__ada_syntax_tree 2155 14 none]
+G c Z b b [add_header_recovery_details editor__ada_syntax_tree 2234 14 none]
 G r c none [parse editor__ada_syntax_tree 199 13 none] [parse editor__ada_token_cursor 1209 13 none]
 G r c none [parse editor__ada_syntax_tree 199 13 none] [production_count editor__ada_token_cursor 1210 13 none]
 G r c none [parse editor__ada_syntax_tree 199 13 none] [production_at editor__ada_token_cursor 1211 13 none]
 G r c none [parse editor__ada_syntax_tree 199 13 none] [sanitize_line editor__ada_syntax_core 9 13 none]
 G r c none [classify_line editor__ada_syntax_tree 182 13 none] [sanitize_line editor__ada_syntax_core 9 13 none]
 X 1 ada.ads
-16K9*Ada 20e8 28|1r6 2r6 183r21 216r32 29|1r6 2r6 3r6 4r6 5r6 5r33 15r14
-. 15r46 20r14 20r41 49r14 783r40 795r40 1732r16 1733r16 3304r24 3308r69 3328r34
-X 3 a-charac.ads
-16K13*Characters 18e19 29|1r10 3304r28 3308r73 3328r38
-X 4 a-chlat1.ads
-16K24*Latin_1 294e27 29|1w21 3304r39 3308r84 3328r49
-33e4*LF{character} 29|3304r47
-36e4*CR{character} 29|3308r92 3328r57
-X 5 a-contai.ads
-16K13*Containers 28e19 28|1r10 216r36
+16K9*Ada 20e8 27|1r6 2r6 183r21 216r32 28|1r6 2r6 3r6 4r6 5r6 5r33 15r14
+. 15r46 20r14 20r41 49r14 791r40 803r40 1845r16 1846r16 3471r24 3475r69 3495r34
+X 2 a-charac.ads
+16K13*Characters 18e19 28|1r10 3471r28 3475r73 3495r38
+X 3 a-chlat1.ads
+16K24*Latin_1 294e27 28|1w21 3471r39 3475r84 3495r49
+33e4*LF{character} 28|3471r47
+36e4*CR{character} 28|3475r92 3495r57
+X 4 a-contai.ads
+16K13*Containers 28e19 27|1r10 216r36
 22I9*Count_Type<integer>
-X 9 a-convec.ads
-62I9 Index_Type 28|217r7
-63+9 Element_Type 28|218r7
-74k24*Vectors 878e27 28|1w21 216r47
-91R9*Vector<12|43R9> 28|221r41[216]
-175V13*Length{5|22I9} 29|118s61[28|216] 3349s34[28|216] 3359s66[28|216] 3369s38[28|216]
-187V13*Is_Empty{boolean} 29|3344s29[28|216]
-190U14*Clear 29|105s18[28|216]
-483U14*Append 29|141s18[28|216]
-X 13 a-iteint.ads
+X 8 a-convec.ads
+62I9 Index_Type 27|217r7
+63+9 Element_Type 27|218r7
+74k24*Vectors 878e27 27|1w21 216r47
+91R9*Vector<11|43R9> 27|221r41[216]
+175V13*Length{4|22I9} 28|118s61[27|216] 3516s34[27|216] 3526s66[27|216] 3536s38[27|216]
+187V13*Is_Empty{boolean} 28|3511s29[27|216]
+190U14*Clear 28|105s18[27|216]
+483U14*Append 28|141s18[27|216]
+X 12 a-iteint.ads
 24h9 Forward_Iterator
-32h9 Reversible_Iterator<24R9[9|119]>
-X 15 a-string.ads
-16K13*Strings 35e16 28|2r10 183r25 29|2w10 3r10 4r10 5r10 5r37 15r18 15r50
-. 20r18 20r45 49r18 783r44 795r44 1732r20 1733r20
-33n37*Both{33E9} 29|20r53
-X 16 a-strfix.ads
-49K21*Fixed 1433e22 29|3w18 15r26 20r26 49r26 783r52 795r52
-253V13*Index{natural} 29|49s32 783s58 795s58
-758V13*Translate{string} 29|15s32
-1156V13*Trim{string} 29|20s32
-X 17 a-strmap.ads
-51K21*Maps 651e21 29|4r18 15r58
+32h9 Reversible_Iterator<24R9[8|119]>
+X 14 a-string.ads
+16K13*Strings 35e16 27|2r10 183r25 28|2w10 3r10 4r10 5r10 5r37 15r18 15r50
+. 20r18 20r45 49r18 791r44 803r44 1845r20 1846r20
+33n37*Both{33E9} 28|20r53
+X 15 a-strfix.ads
+49K21*Fixed 1433e22 28|3w18 15r26 20r26 49r26 791r52 803r52
+253V13*Index{natural} 28|49s32 791s58 803s58
+758V13*Translate{string} 28|15s32
+1156V13*Trim{string} 28|20s32
+X 16 a-strmap.ads
+51K21*Maps 651e21 28|4r18 15r58
 260A9*Character_Mapping(character)
-X 18 a-stmaco.ads
-38K26*Constants 915e31 29|4w23 15r63
-54a4*Lower_Case_Map{17|260A9} 29|15r73
-X 21 a-strunb.ads
-85K21*Unbounded 766e26 28|2w18 183r33 29|5w18 5r45 1732r28 1733r28
-91R9*Unbounded_String<12|43R9> 745e15 28|183r43 29|150r11 483r14 1331r14
-. 1373r15 1411r15 1443r15 1444r21 1732r38 1733r38
-95r4*Null_Unbounded_String{91R9} 29|161r24 167r24 173r24 483r34 1411r35 1443r35
-. 1444r41 1732r58 1733r58 3361r58 3371r58
-108V13*To_Unbounded_String{91R9} 29|126s21 150s31 159s24 165s24 171s24 488s18
-. 490s18 492s18 494s18 496s18 498s18 500s18 502s18 504s18 506s18 508s18 1331s34
-. 1334s18 1336s18 1338s18 1340s18 1342s18 1344s18 1346s18 1348s18 1373s35
-. 1376s18 1378s18 1417s15 1449s21 1458s24 1460s24 1464s21 1466s21 1472s21
-. 1478s21 1480s21 1482s21 1484s21 1560s25 1740s20 1741s18 1743s20 1744s18
-121V13*To_String{string} 29|154s39 512s42 1352s36 1382s36 1419s36 1489s10
-. 1490s77 1561s23 1564s32 1567s31 1568s16 1570s69 1748s65 1750s63 1753s41
-. 2788s35 3042s26
-X 26 editor.ads
-1K9*Editor 5e11 28|4r9 226r5 29|6r6 7r6 9r14 183r39 3025r29 3026r12 3029r40
-. 3038r32 3039r18 3041r18 3072r21 3411r5
-X 27 editor-ada_syntax_core.ads
-1K16*Ada_Syntax_Core 49e27 29|6w13 183r46 3072r28
-9V13*Sanitize_Line{string} 29|183s62 3072s44
-X 28 editor-ada_syntax_tree.ads
-4K16*Ada_Syntax_Tree 26|1k9 28|170E9 226l12 226e27 29|9b21 3411l12 3411t27
-12E9*Node_Kind 165e20 179r21 193r16 29|112r16 130r24 182r50 343r33 401r33
-. 406r41 417r40 469r16 524r41 602r40 654r21 655r21 689r49 698r19 699r19 981r16
-. 1186r16 1216r26 1229r26 1230r26 1439r16 1832r56 1897r24 2010r16 2024r24
-. 2126r16 2345r16 2685r36 2719r19 2758r40 2815r20 2826r40 2848r44 2869r54
-. 2879r53 2903r44 2999r38 3001r38 3067r33 3076r24 3098r38
-13n7*Node_Compilation_Unit{12E9} 29|2688r20 2838r65 3003r24 3294r36
-14n7*Node_Token_Cursor_Grammar{12E9} 29|3032r19
-15n7*Node_Grammar_Production{12E9} 29|3046r28
-16n7*Node_Context_Clause{12E9} 29|3137r37
-17n7*Node_With_Clause{12E9} 29|191r17 193r17 195r17 3094r32 3131r23
-18n7*Node_Use_Clause{12E9} 29|197r17 203r17 3132r31
-19n7*Node_Pragma{12E9} 29|199r17 2323r15 2643r15 3070r32 3092r32 3133r30
-20n7*Node_Pragma_Name{12E9} 29|2624r53 2644r53
-21n7*Node_Pragma_Argument{12E9} 29|1258r18 2628r79 2649r79
-22n7*Node_Pragma_Argument_Association{12E9} 29|1261r52
-23n7*Node_Aspect_Specification{12E9} 29|1696r16 2328r15 2438r15 3095r24
-24n7*Node_Aspect_Association{12E9} 29|1252r18 1699r45 2440r66
-25n7*Node_Aspect_Name{12E9} 29|1253r39
-26n7*Node_Aspect_Value{12E9} 29|1202r27 1253r57
-27n7*Node_Representation_Clause{12E9} 29|208r17 376r15 431r15 622r29 1816r16
-. 2329r15 2452r15 3192r42 3198r42
-28n7*Node_Representation_Target{12E9} 29|1748r37 1794r37
-29n7*Node_Representation_Item{12E9} 29|1750r37 1796r37 2458r39
-30n7*Node_Representation_Component_Clause{12E9} 29|2330r15 2454r15 3202r27
-31n7*Node_Representation_Mod_Clause{12E9} 29|2331r15 2456r15 3196r27
-32n7*Node_Generic_Actual_Part{12E9} 29|1717r16 2332r15 2441r15 3127r24
-33n7*Node_Generic_Actual_Association{12E9} 29|1254r18 1720r48 2450r51
-34n7*Node_Generic_Actual_Formal{12E9} 29|1255r39
-35n7*Node_Generic_Actual_Value{12E9} 29|1203r27 1255r67
-36n7*Node_Package_Declaration{12E9} 29|247r17 347r15 438r15 561r15 637r26
-. 705r25 1447r15 2201r15 2355r15 2851r20 2905r24 3100r32
-37n7*Node_Package_Body{12E9} 29|241r17 347r42 438r42 557r15 638r29 672r31
-. 723r22 1447r42 2201r42 2356r15 2871r24 2906r27
-38n7*Node_Subprogram_Declaration{12E9} 29|262r20 1450r15 1493r17 1548r17
-. 1578r17 2216r15 2357r15 2852r27 2907r27 3101r39
-39n7*Node_Abstract_Subprogram_Declaration{12E9} 29|254r20 1451r15 1495r24
-. 1526r17 1550r24 1580r24 2217r15 2358r15 2853r27 2908r27
-40n7*Node_Null_Procedure_Declaration{12E9} 29|256r20 1452r15 1496r24 1528r20
-. 1551r24 1581r24 2218r15 2359r15 2854r27 2909r27
-41n7*Node_Expression_Function_Declaration{12E9} 29|258r20 1453r15 1497r24
-. 1530r20 1552r24 1582r24 2219r15 2360r15 2855r27 2910r27
-42n7*Node_Subprogram_Body{12E9} 29|260r20 356r15 440r15 565r15 639r29 671r31
-. 724r25 1450r45 1494r24 1549r24 1579r24 2208r15 2361r15 2856r27 2872r27
-. 2911r27 3102r39
-43n7*Node_Type_Declaration{12E9} 29|270r20 370r15 430r15 620r26 1462r15 2236r15
-. 2362r15 2396r23 2405r23 2912r27 3103r39 3165r40 3174r43 3180r43
-44n7*Node_Subtype_Declaration{12E9} 29|273r17 1465r15 2245r15 2363r15 2405r60
-. 2913r27 3104r39
-45n7*Node_Object_Declaration{12E9} 29|333r17 1473r15 2252r15 2364r15 2407r26
-. 2914r27 3105r39 3170r40 3176r40
-46n7*Node_Constant_Declaration{12E9} 29|331r17 1473r41 1532r20 2253r15 2365r15
-. 2408r30 2915r27
-47n7*Node_Deferred_Constant_Declaration{12E9} 29|329r17 1474r15 1534r20 2254r15
-. 2366r15 2409r30 2916r27
-48n7*Node_Number_Declaration{12E9} 29|327r17 1474r52 1536r20 2255r15 2367r15
-. 2410r30 2917r27
-49n7*Node_Component_Declaration{12E9} 29|1475r15 2256r15 2368r15 2488r37
-. 2492r72 2918r27 3178r27
-50n7*Node_Discriminant_Specification{12E9} 29|1256r18 1475r44 1611r48 2258r15
-. 2369r15 2919r27
-51n7*Node_Parameter_Specification{12E9} 29|1256r52 1476r15 2257r15 2370r15
-. 2920r27
-52n7*Node_Formal_Object_Declaration{12E9} 29|1476r46 2263r15 2371r15 2921r27
-. 3172r27
-53n7*Node_Formal_Type_Declaration{12E9} 29|1463r52 2264r15 2372r15 2922r27
-. 3167r27
-54n7*Node_Formal_Subprogram_Declaration{12E9} 29|1454r15 1498r24 1553r24
-. 1583r24 2265r15 2373r15 2923r27 3091r24
-55n7*Node_Formal_Package_Declaration{12E9} 29|1479r15 2266r15 2422r15 2924r27
-. 3085r24 3117r27
-56n7*Node_Exception_Declaration{12E9} 29|1477r15 2259r15 2374r15 2925r27
-. 3106r39
-57n7*Node_Generic_Declaration{12E9} 29|210r17 349r15 449r15 2375r15 2926r27
-. 3082r39 3087r39 3164r42 3169r42 3236r42
-58n7*Node_Rename_Declaration{12E9} 29|243r17 250r20 325r17 1448r15 1509r17
-. 2260r15 2376r15 2927r27
-59n7*Node_Instantiation{12E9} 29|245r17 252r20 1448r41 2261r15 2417r15 2928r27
-. 3107r39 3115r67 3120r27
-60n7*Node_Separate_Body{12E9} 29|212r17 2377r15 2929r27
-61n7*Node_Task_Declaration{12E9} 29|351r15 1467r15 2378r15
-62n7*Node_Task_Type_Declaration{12E9} 29|223r17 351r39 433r15 573r15 624r26
-. 706r28 1467r39 1538r20 2227r15 2379r15 2930r27
-63n7*Node_Single_Task_Declaration{12E9} 29|225r17 352r15 433r44 575r15 625r29
-. 707r28 1468r15 1540r20 2228r15 2380r15 2931r27
-64n7*Node_Task_Body{12E9} 29|221r17 352r46 433r75 571r15 626r29 640r29 673r31
-. 725r25 1468r46 2209r15 2381r15 2873r27 2932r27
-65n7*Node_Protected_Declaration{12E9} 29|353r15 1469r15 2382r15
-66n7*Node_Protected_Type_Declaration{12E9} 29|229r17 353r44 435r15 579r15
-. 628r26 708r28 1469r44 1542r20 2229r15 2383r15 2933r27
-67n7*Node_Single_Protected_Declaration{12E9} 29|231r17 354r15 435r49 581r15
-. 629r29 709r28 1470r15 1544r20 2230r15 2384r15 2934r27
-68n7*Node_Protected_Body{12E9} 29|227r17 354r51 436r15 577r15 630r29 641r29
-. 674r31 726r25 1470r51 2210r15 2385r15 2935r27
-69n7*Node_Entry_Declaration{12E9} 29|238r20 1471r15 2262r15 2386r15 2936r27
-70n7*Node_Entry_Body{12E9} 29|236r20 381r15 442r15 583r15 642r29 675r31 727r25
-. 1471r40 1515r17 1555r24 1585r24 2312r15 2387r15 2874r27 2937r27
-71n7*Node_Entry_Body_Stub{12E9} 29|234r20 1471r58 1520r20 1556r24 1586r24
-. 2212r15 2388r15 2938r27
-72n7*Node_Private_Part{12E9} 29|201r17 385r15 451r15 704r22 2389r15
-73n7*Node_Incomplete_Type_Declaration{12E9} 29|268r20 1462r39 2390r15 2939r27
-74n7*Node_Private_Extension_Declaration{12E9} 29|266r20 430r39 621r29 1463r15
-. 2236r39 2391r15 2397r30 2405r100 2940r27 3175r51 3181r51
-75n7*Node_Body_Stub{12E9} 29|219r17 1454r52 1499r24 1554r24 1584r24 2211r15
-. 2392r15 2941r27
-76n7*Node_Choice_Parameter_Specification{12E9} 29|1481r15 2393r15 2942r27
-77n7*Node_Enumeration_Literal_Declaration{12E9} 29|1483r15 1651r25 2394r15
-. 2943r27
-78n7*Node_Variant_Part{12E9} 29|383r15 428r15 612r29 681r28 2282r15 2460r15
-. 2944r27 3184r27 3186r43
-79n7*Node_Variant{12E9} 29|383r35 414r24 428r35 613r29 680r15 682r31 2288r15
-. 2464r15 2945r27 3187r51 3190r27
-80n7*Node_Declaration_Name{12E9} 29|1490r54
-81n7*Node_Declaration_Subtype{12E9} 29|1563r43 1570r43 1574r40
-82n7*Node_Declaration_Default{12E9} 29|1201r27 1566r43
-83n7*Node_Declaration_Mode{12E9} 29|1523r54 1527r54 1529r54 1531r54 1533r54
-. 1535r54 1537r54 1539r54 1541r54 1543r54 1545r54 1590r54 1592r54 1594r54
-. 1596r54
-84n7*Node_Declaration_Profile{12E9} 29|1502r40 1516r54 1521r54
-85n7*Node_Declaration_Result{12E9} 29|1505r40
-86n7*Node_Declaration_Target{12E9} 29|1511r40
-87n7*Node_Begin_Block{12E9} 29|275r17 446r36 645r29 670r28 691r21 1856r17
-. 2599r15 2881r24 3157r45 3254r43 3265r35
-88n7*Node_If_Statement{12E9} 29|277r17 360r15 420r15 606r26 660r28 1837r17
-. 2270r15 2502r15 2882r27
-89n7*Node_Case_Statement{12E9} 29|279r17 362r15 422r15 610r26 664r28 1843r17
-. 2278r15 2524r15 2883r27 3182r40
-90n7*Node_Loop_Statement{12E9} 29|283r17 364r15 424r15 587r15 615r26 1852r17
-. 2292r15 2580r15 2884r27
-91n7*Node_Declare_Block{12E9} 29|285r17 366r15 446r15 644r29 729r25 1854r17
-. 2594r15 2876r27 2885r27
-92n7*Node_Select_Statement{12E9} 29|287r17 368r15 426r15 617r26 667r28 1858r17
-. 2298r15 2604r15 2886r27 3204r42 3210r42
-93n7*Node_Accept_Statement{12E9} 29|291r17 379r15 444r15 585r15 643r29 676r31
-. 728r25 1864r17 1991r37 2304r15 2618r15 2875r27 2887r27
-94n7*Node_Entry_Call_Statement{12E9} 29|1979r15 2639r15 2888r27 3213r27
-95n7*Node_Return_Statement{12E9} 29|303r17 1870r17 1907r18 1925r15 2630r15
-. 2889r27
-96n7*Node_Raise_Statement{12E9} 29|305r17 1872r17 1908r18 1927r15 2631r15
-. 2890r27
-97n7*Node_Assignment_Statement{12E9} 29|335r17 1886r17 1972r15 2638r15 2891r27
-98n7*Node_Call_Statement{12E9} 29|337r17 1888r17 1991r15 2640r15 2892r27
-. 3211r40
-99n7*Node_Null_Statement{12E9} 29|321r17 1868r17 2641r15 2893r27
-100n7*Node_Exit_Statement{12E9} 29|307r17 1874r17 1909r18 1938r15 2632r15
-. 2894r27
-101n7*Node_Goto_Statement{12E9} 29|309r17 1876r17 1910r18 1949r15 2633r15
-. 2895r27
-102n7*Node_Requeue_Statement{12E9} 29|311r17 1880r17 1912r18 1961r15 2634r15
-. 2896r27
-103n7*Node_Delay_Statement{12E9} 29|313r17 1878r17 1911r18 1951r15 2635r15
-. 2897r27
-104n7*Node_Abort_Statement{12E9} 29|315r17 1882r17 1913r18 1970r15 2636r15
-. 2898r27
-105n7*Node_Terminate_Statement{12E9} 29|317r17 1884r17 2637r15 2899r27 3206r49
-106n7*Node_Label{12E9} 29|319r17 2651r15 2900r27
-107n7*Node_Statement_Sequence{12E9} 29|2095r16
-108n7*Node_Statement_Action{12E9} 29|1195r20 1262r65 1273r52 1926r59 1977r45
-109n7*Node_Statement_Alternative{12E9} 29|1921r56 2036r42 2063r44 2068r58
-. 2073r44 2466r39 2534r39 2549r56 2557r56 2565r39 2575r42
-110n7*Node_Statement_Target{12E9} 29|1196r27 1262r42 1270r52 1277r52 1930r48
-. 1936r62 1941r48 1947r62 1950r59 1964r48 1968r62 1971r59 1974r45 1983r48
-. 1989r62 1994r48 2000r62 2645r53 2652r53
-111n7*Node_Statement_Condition{12E9} 29|1197r27 1518r54 1944r48 1955r48 1959r62
-. 2504r39 2513r39 2537r39 2568r39 2583r42
-112n7*Node_Statement_Selector{12E9} 29|1198r27 2462r39 2526r39 2587r42
+X 17 a-stmaco.ads
+38K26*Constants 915e31 28|4w23 15r63
+54a4*Lower_Case_Map{16|260A9} 28|15r73
+X 20 a-strunb.ads
+85K21*Unbounded 766e26 27|2w18 183r33 28|5w18 5r45 1845r28 1846r28
+91R9*Unbounded_String<11|43R9> 745e15 27|183r43 28|150r11 485r14 1444r14
+. 1486r15 1524r15 1556r15 1557r21 1845r38 1846r38
+95r4*Null_Unbounded_String{91R9} 28|161r24 167r24 173r24 485r34 1524r35 1556r35
+. 1557r41 1845r58 1846r58 3528r58 3538r58
+108V13*To_Unbounded_String{91R9} 28|126s21 150s31 159s24 165s24 171s24 490s18
+. 492s18 494s18 496s18 498s18 500s18 502s18 504s18 506s18 508s18 510s18 1444s34
+. 1447s18 1449s18 1451s18 1453s18 1455s18 1457s18 1459s18 1461s18 1486s35
+. 1489s18 1491s18 1530s15 1562s21 1571s24 1573s24 1577s21 1579s21 1585s21
+. 1591s21 1593s21 1595s21 1597s21 1673s25 1853s20 1854s18 1856s20 1857s18
+121V13*To_String{string} 28|154s39 514s42 1465s36 1495s36 1532s36 1602s10
+. 1603s77 1674s23 1677s32 1680s31 1681s16 1683s69 1861s65 1863s63 1866s41
+. 2949s35 3203s26
+X 25 editor.ads
+1K9*Editor 5e11 27|4r9 226r5 28|6r6 7r6 9r14 183r39 3186r29 3187r12 3190r40
+. 3199r32 3200r18 3202r18 3578r5
+X 26 editor-ada_syntax_core.ads
+1K16*Ada_Syntax_Core 49e27 28|6w13 183r46
+9V13*Sanitize_Line{string} 28|183s62
+X 27 editor-ada_syntax_tree.ads
+4K16*Ada_Syntax_Tree 25|1k9 27|170E9 226l12 226e27 28|9b21 3578l12 3578t27
+12E9*Node_Kind 165e20 179r21 193r16 28|112r16 130r24 182r50 343r33 403r33
+. 408r41 419r40 471r16 526r41 610r40 662r21 663r21 697r49 706r19 707r19 1057r16
+. 1278r16 1324r26 1337r26 1338r26 1552r16 1945r56 2010r24 2123r16 2137r24
+. 2239r16 2458r16 2828r36 2871r19 2889r37 2919r40 2976r20 2987r40 3009r44
+. 3030r54 3040r53 3064r44 3160r38 3162r38 3228r33 3234r24 3256r38
+13n7*Node_Compilation_Unit{12E9} 28|2831r20 2999r65 3164r24 3461r36
+14n7*Node_Token_Cursor_Grammar{12E9} 28|3193r19
+15n7*Node_Grammar_Production{12E9} 28|3207r28
+16n7*Node_Context_Clause{12E9} 28|3295r37
+17n7*Node_With_Clause{12E9} 28|191r17 193r17 195r17 3252r32 3289r23
+18n7*Node_Use_Clause{12E9} 28|197r17 203r17 3290r31
+19n7*Node_Pragma{12E9} 28|199r17 2436r15 2779r15 3250r32 3291r30
+20n7*Node_Pragma_Name{12E9} 28|2760r53 2780r53
+21n7*Node_Pragma_Argument{12E9} 28|1371r18 2764r79 2785r79
+22n7*Node_Pragma_Argument_Association{12E9} 28|1374r52
+23n7*Node_Aspect_Specification{12E9} 28|1809r16 2441r15 2551r15 3253r24
+24n7*Node_Aspect_Association{12E9} 28|1360r18 1812r45 2553r66
+25n7*Node_Aspect_Name{12E9} 28|1361r39
+26n7*Node_Aspect_Value{12E9} 28|1309r30 1361r57
+27n7*Node_Representation_Clause{12E9} 28|208r17 378r15 433r15 630r29 1929r16
+. 2442r15 2565r15 3359r42 3365r42
+28n7*Node_Representation_Target{12E9} 28|1861r37 1907r37
+29n7*Node_Representation_Item{12E9} 28|1863r37 1909r37 2571r39
+30n7*Node_Representation_Component_Clause{12E9} 28|2443r15 2567r15 3369r27
+31n7*Node_Representation_Mod_Clause{12E9} 28|2444r15 2569r15 3363r27
+32n7*Node_Generic_Actual_Part{12E9} 28|1830r16 2445r15 2554r15 3285r24
+33n7*Node_Generic_Actual_Association{12E9} 28|1362r18 1833r48 2563r51
+34n7*Node_Generic_Actual_Formal{12E9} 28|1363r39
+35n7*Node_Generic_Actual_Value{12E9} 28|1310r30 1363r67
+36n7*Node_Package_Declaration{12E9} 28|247r17 347r15 440r15 569r15 645r26
+. 713r25 1560r15 2314r15 2468r15 3012r20 3066r24 3258r32
+37n7*Node_Package_Body{12E9} 28|241r17 347r42 440r42 565r15 646r29 680r31
+. 731r22 1560r42 2314r42 2469r15 3032r24 3067r27
+38n7*Node_Subprogram_Declaration{12E9} 28|262r20 1563r15 1606r17 1661r17
+. 1691r17 2329r15 2470r15 3013r27 3068r27 3259r39
+39n7*Node_Abstract_Subprogram_Declaration{12E9} 28|254r20 1564r15 1608r24
+. 1639r17 1663r24 1693r24 2330r15 2471r15 3014r27 3069r27
+40n7*Node_Null_Procedure_Declaration{12E9} 28|256r20 1565r15 1609r24 1641r20
+. 1664r24 1694r24 2331r15 2472r15 3015r27 3070r27
+41n7*Node_Expression_Function_Declaration{12E9} 28|258r20 1566r15 1610r24
+. 1643r20 1665r24 1695r24 2332r15 2473r15 3016r27 3071r27
+42n7*Node_Subprogram_Body{12E9} 28|260r20 356r15 442r15 573r15 647r29 679r31
+. 732r25 1563r45 1607r24 1662r24 1692r24 2321r15 2474r15 3017r27 3033r27
+. 3072r27 3260r39
+43n7*Node_Type_Declaration{12E9} 28|270r20 372r15 432r15 628r26 1575r15 2349r15
+. 2475r15 2509r23 2518r23 3073r27 3261r39 3332r40 3341r43 3347r43
+44n7*Node_Subtype_Declaration{12E9} 28|273r17 1578r15 2358r15 2476r15 2518r60
+. 3074r27 3262r39
+45n7*Node_Object_Declaration{12E9} 28|333r17 1586r15 2365r15 2477r15 2520r26
+. 3075r27 3263r39 3337r40 3343r40
+46n7*Node_Constant_Declaration{12E9} 28|331r17 1586r41 1645r20 2366r15 2478r15
+. 2521r30 3076r27
+47n7*Node_Deferred_Constant_Declaration{12E9} 28|329r17 1587r15 1647r20 2367r15
+. 2479r15 2522r30 3077r27
+48n7*Node_Number_Declaration{12E9} 28|327r17 1587r52 1649r20 2368r15 2480r15
+. 2523r30 3078r27
+49n7*Node_Component_Declaration{12E9} 28|1588r15 2369r15 2481r15 2601r37
+. 2605r72 3079r27 3345r27
+50n7*Node_Discriminant_Specification{12E9} 28|1369r18 1588r44 1724r48 2371r15
+. 2482r15 3080r27
+51n7*Node_Parameter_Specification{12E9} 28|1369r52 1589r15 2370r15 2483r15
+. 3081r27
+52n7*Node_Formal_Object_Declaration{12E9} 28|1589r46 2376r15 2484r15 3082r27
+. 3339r27
+53n7*Node_Formal_Type_Declaration{12E9} 28|1576r52 2377r15 2485r15 3083r27
+. 3334r27
+54n7*Node_Formal_Subprogram_Declaration{12E9} 28|1567r15 1611r24 1666r24
+. 1696r24 2378r15 2486r15 3084r27 3249r24
+55n7*Node_Formal_Package_Declaration{12E9} 28|1592r15 2379r15 2535r15 3085r27
+. 3243r24 3275r27
+56n7*Node_Exception_Declaration{12E9} 28|1590r15 2372r15 2487r15 3086r27
+. 3264r39
+57n7*Node_Generic_Declaration{12E9} 28|210r17 349r15 451r15 2488r15 3087r27
+. 3240r39 3245r39 3331r42 3336r42 3403r42
+58n7*Node_Rename_Declaration{12E9} 28|243r17 250r20 325r17 1561r15 1622r17
+. 2373r15 2489r15 3088r27
+59n7*Node_Instantiation{12E9} 28|245r17 252r20 1561r41 2374r15 2530r15 3089r27
+. 3265r39 3273r67 3278r27
+60n7*Node_Separate_Body{12E9} 28|212r17 2490r15 3090r27
+61n7*Node_Task_Declaration{12E9} 28|351r15 1580r15 2491r15
+62n7*Node_Task_Type_Declaration{12E9} 28|223r17 351r39 435r15 581r15 632r26
+. 714r28 1580r39 1651r20 2340r15 2492r15 3091r27
+63n7*Node_Single_Task_Declaration{12E9} 28|225r17 352r15 435r44 583r15 633r29
+. 715r28 1581r15 1653r20 2341r15 2493r15 3092r27
+64n7*Node_Task_Body{12E9} 28|221r17 352r46 435r75 579r15 634r29 648r29 681r31
+. 733r25 1581r46 2322r15 2494r15 3034r27 3093r27
+65n7*Node_Protected_Declaration{12E9} 28|353r15 1582r15 2495r15
+66n7*Node_Protected_Type_Declaration{12E9} 28|229r17 353r44 437r15 587r15
+. 636r26 716r28 1582r44 1655r20 2342r15 2496r15 3094r27
+67n7*Node_Single_Protected_Declaration{12E9} 28|231r17 354r15 437r49 589r15
+. 637r29 717r28 1583r15 1657r20 2343r15 2497r15 3095r27
+68n7*Node_Protected_Body{12E9} 28|227r17 354r51 438r15 585r15 638r29 649r29
+. 682r31 734r25 1583r51 2323r15 2498r15 3096r27
+69n7*Node_Entry_Declaration{12E9} 28|238r20 1584r15 2375r15 2499r15 3097r27
+70n7*Node_Entry_Body{12E9} 28|236r20 383r15 444r15 591r15 650r29 683r31 735r25
+. 1584r40 1628r17 1668r24 1698r24 2425r15 2500r15 3035r27 3098r27
+71n7*Node_Entry_Body_Stub{12E9} 28|234r20 1584r58 1633r20 1669r24 1699r24
+. 2325r15 2501r15 3099r27
+72n7*Node_Private_Part{12E9} 28|201r17 387r15 453r15 712r22 2502r15
+73n7*Node_Incomplete_Type_Declaration{12E9} 28|268r20 1575r39 2503r15 3100r27
+74n7*Node_Private_Extension_Declaration{12E9} 28|266r20 432r39 629r29 1576r15
+. 2349r39 2504r15 2510r30 2518r100 3101r27 3342r51 3348r51
+75n7*Node_Body_Stub{12E9} 28|219r17 1567r52 1612r24 1667r24 1697r24 2324r15
+. 2505r15 3102r27
+76n7*Node_Choice_Parameter_Specification{12E9} 28|1594r15 2506r15 3103r27
+77n7*Node_Enumeration_Literal_Declaration{12E9} 28|1596r15 1764r25 2507r15
+. 3104r27
+78n7*Node_Variant_Part{12E9} 28|385r15 430r15 620r29 689r28 2395r15 2573r15
+. 3105r27 3351r27 3353r43
+79n7*Node_Variant{12E9} 28|385r35 416r24 430r35 621r29 688r15 690r31 2401r15
+. 2577r15 3106r27 3354r51 3357r27
+80n7*Node_Declaration_Name{12E9} 28|1603r54
+81n7*Node_Declaration_Subtype{12E9} 28|1676r43 1683r43 1687r40
+82n7*Node_Declaration_Default{12E9} 28|1308r30 1679r43
+83n7*Node_Declaration_Mode{12E9} 28|1636r54 1640r54 1642r54 1644r54 1646r54
+. 1648r54 1650r54 1652r54 1654r54 1656r54 1658r54 1703r54 1705r54 1707r54
+. 1709r54
+84n7*Node_Declaration_Profile{12E9} 28|1615r40 1629r54 1634r54
+85n7*Node_Declaration_Result{12E9} 28|1618r40
+86n7*Node_Declaration_Target{12E9} 28|1624r40
+87n7*Node_Begin_Block{12E9} 28|275r17 368r15 448r36 653r29 678r28 699r21
+. 1969r17 2735r15 3042r24 3324r45 3421r43 3432r35
+88n7*Node_If_Statement{12E9} 28|277r17 360r15 422r15 614r26 668r28 1950r17
+. 2383r15 2615r15 3043r27
+89n7*Node_Case_Statement{12E9} 28|279r17 362r15 424r15 618r26 672r28 1956r17
+. 2391r15 2644r15 3044r27 3349r40
+90n7*Node_Loop_Statement{12E9} 28|283r17 364r15 426r15 595r15 623r26 1965r17
+. 2405r15 2712r15 3045r27
+91n7*Node_Declare_Block{12E9} 28|285r17 366r15 448r15 652r29 737r25 1967r17
+. 2730r15 3037r27 3046r27
+92n7*Node_Select_Statement{12E9} 28|287r17 370r15 428r15 625r26 675r28 1971r17
+. 2411r15 2740r15 3047r27 3371r42 3377r42
+93n7*Node_Accept_Statement{12E9} 28|291r17 381r15 446r15 593r15 651r29 684r31
+. 736r25 1977r17 2104r37 2417r15 2754r15 3036r27 3048r27
+94n7*Node_Entry_Call_Statement{12E9} 28|2092r15 2775r15 3049r27 3380r27
+95n7*Node_Return_Statement{12E9} 28|303r17 1983r17 2020r18 2038r15 2766r15
+. 3050r27
+96n7*Node_Raise_Statement{12E9} 28|305r17 1985r17 2021r18 2040r15 2767r15
+. 3051r27
+97n7*Node_Assignment_Statement{12E9} 28|335r17 1999r17 2085r15 2774r15 3052r27
+98n7*Node_Call_Statement{12E9} 28|337r17 2001r17 2104r15 2776r15 3053r27
+. 3378r40
+99n7*Node_Null_Statement{12E9} 28|321r17 1981r17 2777r15 3054r27
+100n7*Node_Exit_Statement{12E9} 28|307r17 1987r17 2022r18 2051r15 2768r15
+. 3055r27
+101n7*Node_Goto_Statement{12E9} 28|309r17 1989r17 2023r18 2062r15 2769r15
+. 3056r27
+102n7*Node_Requeue_Statement{12E9} 28|311r17 1993r17 2025r18 2074r15 2770r15
+. 3057r27
+103n7*Node_Delay_Statement{12E9} 28|313r17 1991r17 2024r18 2064r15 2771r15
+. 3058r27
+104n7*Node_Abort_Statement{12E9} 28|315r17 1995r17 2026r18 2083r15 2772r15
+. 3059r27
+105n7*Node_Terminate_Statement{12E9} 28|317r17 1997r17 2773r15 3060r27 3373r49
+106n7*Node_Label{12E9} 28|319r17 2787r15 3061r27
+107n7*Node_Statement_Sequence{12E9} 28|2208r16
+108n7*Node_Statement_Action{12E9} 28|1302r23 1375r65 1386r52 2039r59 2090r45
+109n7*Node_Statement_Alternative{12E9} 28|2034r56 2149r42 2176r44 2181r58
+. 2186r44 2579r39 2654r39 2673r56 2685r56 2697r39 2707r42
+110n7*Node_Statement_Target{12E9} 28|1303r30 1366r52 1375r42 1383r52 1390r52
+. 2043r48 2049r62 2054r48 2060r62 2063r59 2077r48 2081r62 2084r59 2087r45
+. 2096r48 2102r62 2107r48 2113r62 2781r53 2788r53
+111n7*Node_Statement_Condition{12E9} 28|1304r30 1631r54 2057r48 2068r48 2072r62
+. 2617r39 2629r39 2657r39 2700r39 2715r42
+112n7*Node_Statement_Selector{12E9} 28|1305r30 2575r39 2646r39 2719r42
 113n7*Node_Statement_Profile{12E9}
-114n7*Node_Statement_Arguments{12E9} 29|1199r27 1265r52 1986r48 1997r48 2647r56
-115n7*Node_Statement_Message{12E9} 29|1200r27 1933r48
-116n7*Node_Statement_Mode{12E9} 29|1953r62 1958r62 1966r62 1980r59 2078r58
-. 2543r56 2555r56 2606r56 2609r56 2613r56
-117n7*Node_Expression{12E9} 29|1073r31
-118n7*Node_Name{12E9} 29|1046r67
-119n7*Node_Selected_Name{12E9} 29|1156r57
-120n7*Node_Attribute_Reference{12E9} 29|1100r57
-121n7*Node_Indexed_Component{12E9} 29|1165r60
-122n7*Node_Slice{12E9} 29|1162r60
-123n7*Node_Function_Call{12E9} 29|1164r60
-124n7*Node_Operator_Expression{12E9} 29|1153r57
-125n7*Node_Literal{12E9} 29|1076r57
-126n7*Node_Qualified_Expression{12E9} 29|1098r57
-127n7*Node_Aggregate{12E9} 29|1160r60
-128n7*Node_Conditional_Expression{12E9} 29|1120r57
-129n7*Node_Case_Expression{12E9} 29|1123r57
-130n7*Node_Quantified_Expression{12E9} 29|1128r57
-131n7*Node_Declare_Expression{12E9} 29|1131r57
-132n7*Node_Delta_Aggregate{12E9} 29|1134r57
-133n7*Node_Container_Aggregate{12E9} 29|1146r57
-134n7*Node_Reduction_Expression{12E9} 29|1140r57
-135n7*Node_Iterator_Specification{12E9} 29|1147r57
-136n7*Node_Target_Name{12E9} 29|1150r57
-137n7*Node_Range_Expression{12E9} 29|1103r57 1798r37
-138n7*Node_Membership_Expression{12E9} 29|1106r57
-139n7*Node_Short_Circuit_Expression{12E9} 29|1109r57
-140n7*Node_Unary_Expression{12E9} 29|1114r57
-141n7*Node_Parenthesized_Expression{12E9} 29|1117r57
-142n7*Node_Explicit_Dereference{12E9} 29|1095r57
-143n7*Node_Allocator{12E9} 29|1092r57
-144n7*Node_Association{12E9} 29|1079r57 1084r57
-145n7*Node_Named_Association{12E9} 29|1080r57 1771r54
-146n7*Node_Positional_Association{12E9} 29|1085r57
-147n7*Node_Pragma_Statement{12E9} 29|1866r17 1991r61 2323r29 2623r15 3093r24
-148n7*Node_Elsif_Part{12E9} 29|293r17 387r15 408r21 420r35 607r29 659r15
-. 661r31 1839r17 2274r15 2511r15
-149n7*Node_Else_Part{12E9} 29|295r17 388r15 409r24 420r53 608r29 659r33 662r31
-. 1841r17 2519r15 3205r41
-150n7*Node_When_Alternative{12E9} 29|297r17 389r15 410r24 422r37 611r29 663r15
-. 665r31 1845r17 2286r15 2532r15 3188r40 3222r40
-151n7*Node_Select_Alternative{12E9} 29|289r17 299r17 393r15 411r24 426r39
-. 618r29 666r15 668r31 1847r17 1860r17 2541r15 3208r27 3215r42 3218r27 3227r26
-. 3228r41
-152n7*Node_Exception_Handler{12E9} 29|390r15 412r24 447r40 648r29 677r15
-. 679r31 694r24 2287r15 2563r15 3221r51 3224r27
-153n7*Node_Exception_Section{12E9} 29|301r17 391r15 413r24 447r15 647r29
-. 669r15 678r28 693r24 1862r17 2572r15 3155r29 3220r43
-154n7*Node_End{12E9} 29|323r17 403r21 2319r15 2654r15
-155n7*Node_Recovery_Point{12E9} 29|2135r19 2145r19 2185r19 2779r16 2964r13
-. 2984r19 3058r25
-156n7*Node_Implicit_Begin{12E9} 29|446r55 646r29 692r24 2979r19 3255r51
-157n7*Node_Unexpected_Declaration{12E9} 29|2956r19
-158n7*Node_Implicit_End{12E9} 29|2766r25 3010r22 3244r25
-159n7*Node_Missing_End{12E9} 29|2771r25 2829r22 3015r22
-160n7*Node_Unexpected_End{12E9} 29|2751r16
-161n7*Node_Mismatched_End{12E9} 29|2796r31 2841r19
-162n7*Node_End_Target{12E9} 29|2659r59 2807r25
-163n7*Node_Expected_End_Target{12E9} 29|2804r25
-164n7*Node_Expected_Token{12E9} 29|2138r60 2148r60 2188r60 2962r13 2990r13
-165n7*Node_Unknown{12E9} 179r34 29|189r17 339r17 1890r17 3360r41 3370r41
+114n7*Node_Statement_Arguments{12E9} 28|1306r30 1378r52 2099r48 2110r48 2783r56
+115n7*Node_Statement_Message{12E9} 28|1307r30 2046r48
+116n7*Node_Statement_Mode{12E9} 28|2066r62 2071r62 2079r62 2093r59 2191r58
+. 2663r56 2683r56 2742r56 2745r56 2749r56
+117n7*Node_Expression{12E9} 28|1149r31
+118n7*Node_Name{12E9} 28|1122r67
+119n7*Node_Selected_Name{12E9} 28|1243r57
+120n7*Node_Attribute_Reference{12E9} 28|1176r57
+121n7*Node_Indexed_Component{12E9} 28|1257r60
+122n7*Node_Slice{12E9} 28|1254r60
+123n7*Node_Function_Call{12E9} 28|1256r60
+124n7*Node_Operator_Expression{12E9} 28|1240r57
+125n7*Node_Literal{12E9} 28|1152r57
+126n7*Node_Qualified_Expression{12E9} 28|1174r57
+127n7*Node_Aggregate{12E9} 28|1252r60
+128n7*Node_Conditional_Expression{12E9} 28|1207r57
+129n7*Node_Case_Expression{12E9} 28|1210r57
+130n7*Node_Quantified_Expression{12E9} 28|1215r57
+131n7*Node_Declare_Expression{12E9} 28|1218r57
+132n7*Node_Delta_Aggregate{12E9} 28|1221r57
+133n7*Node_Container_Aggregate{12E9} 28|1233r57
+134n7*Node_Reduction_Expression{12E9} 28|1227r57
+135n7*Node_Iterator_Specification{12E9} 28|1234r57
+136n7*Node_Target_Name{12E9} 28|1237r57
+137n7*Node_Range_Expression{12E9} 28|1179r57 1911r37
+138n7*Node_Membership_Expression{12E9} 28|1182r57
+139n7*Node_Short_Circuit_Expression{12E9} 28|1185r57
+140n7*Node_Unary_Expression{12E9} 28|1201r57
+141n7*Node_Parenthesized_Expression{12E9} 28|1204r57
+142n7*Node_Explicit_Dereference{12E9} 28|1171r57
+143n7*Node_Allocator{12E9} 28|1168r57
+144n7*Node_Association{12E9} 28|1155r57 1160r57 1247r60
+145n7*Node_Named_Association{12E9} 28|1156r57 1884r54
+146n7*Node_Positional_Association{12E9} 28|1161r57 1248r60
+147n7*Node_Pragma_Statement{12E9} 28|1979r17 2104r61 2436r29 2759r15 3251r24
+148n7*Node_Elsif_Part{12E9} 28|293r17 389r15 410r21 422r35 615r29 667r15
+. 669r31 1952r17 2387r15 2627r15
+149n7*Node_Else_Part{12E9} 28|295r17 390r15 411r24 422r53 616r29 667r33 670r31
+. 1954r17 2639r15 3372r41
+150n7*Node_When_Alternative{12E9} 28|297r17 391r15 412r24 424r37 619r29 671r15
+. 673r31 1958r17 2399r15 2652r15 3313r43 3355r40 3389r40
+151n7*Node_Select_Alternative{12E9} 28|289r17 299r17 395r15 413r24 428r39
+. 626r29 674r15 676r31 1960r17 1973r17 2661r15 3375r27 3382r42 3385r27 3394r26
+. 3395r41
+152n7*Node_Exception_Handler{12E9} 28|392r15 414r24 449r40 656r29 685r15
+. 687r31 702r24 2400r15 2695r15 2864r36 3315r54 3317r30 3388r51 3391r27
+153n7*Node_Exception_Section{12E9} 28|301r17 393r15 415r24 449r15 655r29
+. 677r15 686r28 701r24 1975r17 2704r15 3314r46 3322r29 3387r43
+154n7*Node_End{12E9} 28|323r17 405r21 2432r15 2790r15
+155n7*Node_Recovery_Point{12E9} 28|2248r19 2258r19 2298r19 2940r16 3125r13
+. 3145r19 3219r25
+156n7*Node_Implicit_Begin{12E9} 28|448r55 654r29 700r24 3140r19 3422r51
+157n7*Node_Unexpected_Declaration{12E9} 28|3117r19
+158n7*Node_Implicit_End{12E9} 28|2927r25 3171r22 3411r25
+159n7*Node_Missing_End{12E9} 28|2932r25 2990r22 3176r22
+160n7*Node_Unexpected_End{12E9} 28|2912r16
+161n7*Node_Mismatched_End{12E9} 28|2957r31 3002r19
+162n7*Node_End_Target{12E9} 28|2796r59 2968r25
+163n7*Node_Expected_End_Target{12E9} 28|2965r25
+164n7*Node_Expected_Token{12E9} 28|528r20 1283r17 2251r60 2261r60 2301r60
+. 3123r13 3151r13
+165n7*Node_Unknown{12E9} 179r34 28|189r17 339r17 2003r17 3527r41 3537r41
 167I9*Node_Id<integer> 168r23 178r21 181r21 195r16 197r37 203r44 204r42 207r53
-. 210r16 211r33 222r28 29|114r16 116r37 118r21 118r32 465r16 978r16 986r17
-. 1026r16 1059r16 1066r15 1183r16 1190r15 1212r26 1226r20 1435r16 1602r16
-. 1619r16 1650r35 1683r16 1689r14 1704r16 1710r17 1725r16 1779r16 1803r16
-. 1809r16 1896r24 2009r16 2017r24 2025r15 2044r24 2051r15 2123r16 2132r21
-. 2142r21 2182r21 2344r16 2487r49 2669r21 2673r62 2675r31 2677r38 2693r34
-. 2720r19 2725r20 2757r40 2785r37 2795r42 2825r40 2952r30 2953r21 2973r32
-. 2975r23 2976r23 2998r38 3027r20 3045r38 3057r35 3074r24 3075r24 3077r28
-. 3136r38 3142r39 3240r46 3352r44 3357r42 3377r53 3390r16 3391r33
-168i4*No_Node{167I9} 178r32 181r32 195r27 222r39 29|106r25 114r27 142r27
-. 2673r84 2675r42 2704r42 3077r39 3096r44 3114r49 3253r45 3262r45 3274r49
-. 3277r61 3281r42 3295r30 3359r15 3360r24 3361r28 3370r24 3371r28 3403r14
-170R9*Source_Range 175e14 180r27 194r22 29|113r22
-171i7*Start_Line{positive} 29|131r38
-172i7*Start_Column{positive} 29|132r38
-173i7*End_Line{positive} 29|133r38
-174i7*End_Column{positive} 29|134r38
-177R9*Node_Info 185e14 204r58 205r65 218r23 29|119r14 2786r37 2974r32 3241r46
-. 3357r58 3367r65
-178i7*Id{167I9} 29|121m12 3360m18 3370m18 3399r28
-179e7*Kind{12E9} 29|122m12 2690r56 2735r63 2758r76 2763r74 2788r29 2999r74
-. 3002r86 3098r86 3115r60 3116r68 3119r68 3360m33 3370m33
-180r7*Source_Span{170R9} 29|123m12 3360m55 3370m55
-181i7*Parent{167I9} 29|124m12 3361m18 3371m18 3381r18 3396r18
-182i7*Depth{natural} 29|125m12 2759r75 2780r44 2798r46 2803r51 2806r51 2830r45
-. 2958r39 2961r48 2964r63 2981r31 2986r36 2989r40 3000r72 3244r71 3277r103
-. 3281r84 3361m37 3371m37
-183r7*Label{21|91R9} 29|126m12 2788r56 3361m49 3371m49
-184i7*Fingerprint{natural} 29|139m15 145r23 3362m18 3372m18
+. 210r16 211r33 222r28 28|114r16 116r37 118r21 118r32 467r16 1054r16 1062r17
+. 1102r16 1135r16 1142r15 1275r16 1281r15 1320r26 1334r20 1548r16 1715r16
+. 1732r16 1763r35 1796r16 1802r14 1817r16 1823r17 1838r16 1892r16 1916r16
+. 1922r16 2009r24 2122r16 2130r24 2138r15 2157r24 2164r15 2236r16 2245r21
+. 2255r21 2295r21 2457r16 2600r49 2793r34 2812r21 2816r62 2818r31 2820r38
+. 2836r34 2872r19 2877r20 2918r40 2946r37 2956r42 2986r40 3113r30 3114r21
+. 3134r32 3136r23 3137r23 3159r38 3188r20 3206r38 3218r35 3232r24 3233r24
+. 3235r28 3294r38 3300r39 3407r46 3519r44 3524r42 3544r53 3557r16 3558r33
+168i4*No_Node{167I9} 178r32 181r32 195r27 222r39 28|106r25 114r27 142r27
+. 2799r37 2816r84 2818r42 2847r42 3235r39 3254r44 3272r49 3420r45 3429r45
+. 3441r49 3444r61 3448r42 3462r30 3526r15 3527r24 3528r28 3537r24 3538r28
+. 3570r14
+170R9*Source_Range 175e14 180r27 194r22 28|113r22
+171i7*Start_Line{positive} 28|131r38
+172i7*Start_Column{positive} 28|132r38
+173i7*End_Line{positive} 28|133r38
+174i7*End_Column{positive} 28|134r38
+177R9*Node_Info 185e14 204r58 205r65 218r23 28|119r14 2947r37 3135r32 3408r46
+. 3524r58 3534r65
+178i7*Id{167I9} 28|121m12 3527m18 3537m18 3566r28
+179e7*Kind{12E9} 28|122m12 2833r56 2889r79 2919r76 2924r74 2949r29 3160r74
+. 3163r86 3256r86 3273r60 3274r68 3277r68 3527m33 3537m33
+180r7*Source_Span{170R9} 28|123m12 3527m55 3537m55
+181i7*Parent{167I9} 28|124m12 2793r61 3528m18 3538m18 3548r18 3563r18
+182i7*Depth{natural} 28|125m12 2802r56 2920r75 2941r44 2959r46 2964r51 2967r51
+. 2991r45 3119r39 3122r48 3125r63 3142r31 3147r36 3150r40 3161r72 3411r71
+. 3444r103 3448r84 3528m37 3538m37
+183r7*Label{20|91R9} 28|126m12 2949r56 3528m49 3538m49
+184i7*Fingerprint{natural} 28|139m15 145r23 3529m18 3539m18
 187R9*Tree_Type 189r35 192r23 199r42 201r31 202r32 203r26 204r26 205r29 207r33
-. 209r16 213r33 220c9 224e14 29|95r33 103r35 111r23 464r23 977r23 1025r23
-. 1058r23 1182r23 1211r33 1434r23 1601r23 1618r23 1682r23 1703r23 1724r23
-. 1778r23 1802r23 1895r31 2008r23 2016r31 2043r31 2122r23 2343r23 2667r42
-. 2668r21 3342r31 3347r32 3352r26 3357r26 3367r29 3377r33 3389r16 3406r33
-189U14*Clear 189=21 29|103b14 108l8 108t13 3293s7
-189r21 Tree{187R9} 29|103b21 105m7 105r7 106m7 107m7
-191V13*Add_Node{167I9} 192=7 193>7 194>7 195>7 196>7 197>7 29|110b13 147l8
-. 147t16 989s21 1073s15 1193s16 1247s19 1650s46 1695s15 1716s15 1815s17 2031s15
-. 2094s14 2134s22 2144s22 2184s22 2487s60 2727s21 2795s53 2955s22 2978s24
-. 2983s22 3031s20 3045s49 3057s46 3137s21 3143s24 3275s28 3294s20
-192r7 Tree{187R9} 29|111b7 118r50 141m7 141r7 142r10 143m10 145m12
-193e7 Kind{12E9} 29|112b7 122r20 130r39
-194r7 Source_Span{170R9} 29|113b7 123r27 131r26 132r26 133r26 134r26
-195i7 Parent{167I9} 29|114b7 124r22 135r35
-196i7 Depth{natural} 29|115b7 125r21 136r26
-197a7 Label{string} 29|116b7 126r42 137r37
-199V13*Parse{187R9} 199>20 29|2667b13 3340l8 3340t13
-199a20 Text{string} 29|2667b20 2670r33 3026r43 3299r10 3303r16 3304r13 3308r51
-. 3312r29 3317r20 3324r24 3326r35 3328r16 3332r26
-201V13*Has_Nodes{boolean} 201>24 29|3342b13 3345l8 3345t17
-201r24 Tree{187R9} 29|3342b24 3344r18
-202V13*Node_Count{natural} 202>25 29|3347b13 3350l8 3350t18
-202r25 Tree{187R9} 29|3347b25 3349r23
-203V13*Root{167I9} 203>19 29|3352b13 3355l8 3355t12
-203r19 Tree{187R9} 29|3352b19 3354r14
-204V13*Node{177R9} 204>19 204>37 29|2690s17 2735s34 2758s53 2759s52 2763s35
-. 2780s16 2786s50 2830s22 2958s20 2961s29 2964s44 2974s45 2999s51 3000s49
-. 3002s43 3098s51 3115s25 3116s33 3119s33 3241s59 3277s74 3281s55 3357b13
-. 3365l8 3365t12
-204r19 Tree{187R9} 29|3357b19 3359r55 3364r14
-204i37 Id{167I9} 29|3357b37 3359r10 3359r40 3364r36
-205V13*Node_At{177R9} 205>22 205>40 29|3367b13 3375l8 3375t15
-205r22 Tree{187R9} 29|3367b22 3369r27 3374r14
-205i40 Index{positive} 29|3367b40 3369r10 3374r26
-207V13*Child_Count{natural} 207>26 207>44 29|3377b13 3386l8 3386t19
-207r26 Tree{187R9} 29|3377b26 3380r19
-207i44 Parent{167I9} 29|3377b44 3381r27
-208V13*Child_At{167I9} 209>7 210>7 211>7 29|3388b13 3404l8 3404t16
-209r7 Tree{187R9} 29|3389b7 3395r19
-210i7 Parent{167I9} 29|3390b7 3396r27
-211i7 Index{positive} 29|3391b7 3398r24
-213V13*Fingerprint{natural} 213>26 29|3406b13 3409l8 3409t19
-213r26 Tree{187R9} 29|3406b26 3408r14
-216K12 Node_Vectors[9|74] 221r28
-221r7*Nodes{9|91R9[216]} 29|105m12 118r55 141m12 3344r23 3349r28 3359r60
-. 3364r19 3369r32 3374r19 3380r24 3395r24
-222i7*Root_Node{167I9} 29|106m12 142r15 143m15 3354r19
-223i7*Result_Fingerprint{natural} 29|98r26 100m12 107m12 3408r19
-X 29 editor-ada_syntax_tree.adb
+. 209r16 213r33 220c9 224e14 28|95r33 103r35 111r23 466r23 1053r23 1101r23
+. 1134r23 1274r23 1319r33 1547r23 1714r23 1731r23 1795r23 1816r23 1837r23
+. 1891r23 1915r23 2008r31 2121r23 2129r31 2156r31 2235r23 2456r23 2810r42
+. 2811r21 3509r31 3514r32 3519r26 3524r26 3534r29 3544r33 3556r16 3573r33
+189U14*Clear 189=21 28|103b14 108l8 108t13 3460s7
+189r21 Tree{187R9} 28|103b21 105m7 105r7 106m7 107m7
+191V13*Add_Node{167I9} 192=7 193>7 194>7 195>7 196>7 197>7 28|110b13 147l8
+. 147t16 1065s21 1149s15 1288s22 1300s19 1355s19 1763s46 1808s15 1829s15
+. 1928s17 2144s15 2207s14 2247s22 2257s22 2297s22 2600s60 2879s21 2956s53
+. 3116s22 3139s24 3144s22 3192s20 3206s49 3218s46 3295s21 3301s24 3442s28
+. 3461s20
+192r7 Tree{187R9} 28|111b7 118r50 141m7 141r7 142r10 143m10 145m12
+193e7 Kind{12E9} 28|112b7 122r20 130r39
+194r7 Source_Span{170R9} 28|113b7 123r27 131r26 132r26 133r26 134r26
+195i7 Parent{167I9} 28|114b7 124r22 135r35
+196i7 Depth{natural} 28|115b7 125r21 136r26
+197a7 Label{string} 28|116b7 126r42 137r37
+199V13*Parse{187R9} 199>20 28|2810b13 3507l8 3507t13
+199a20 Text{string} 28|2810b20 2813r33 3187r43 3466r10 3470r16 3471r13 3475r51
+. 3479r29 3484r20 3491r24 3493r35 3495r16 3499r26
+201V13*Has_Nodes{boolean} 201>24 28|3509b13 3512l8 3512t17
+201r24 Tree{187R9} 28|3509b24 3511r18
+202V13*Node_Count{natural} 202>25 28|3514b13 3517l8 3517t18
+202r25 Tree{187R9} 28|3514b25 3516r23
+203V13*Root{167I9} 203>19 28|3519b13 3522l8 3522t12
+203r19 Tree{187R9} 28|3519b19 3521r14
+204V13*Node{177R9} 204>19 204>37 28|2793s45 2802s36 2833s17 2889s50 2919s53
+. 2920s52 2924s35 2941s16 2947s50 2991s22 3119s20 3122s29 3125s44 3135s45
+. 3160s51 3161s49 3163s43 3256s51 3273s25 3274s33 3277s33 3408s59 3444s74
+. 3448s55 3524b13 3532l8 3532t12
+204r19 Tree{187R9} 28|3524b19 3526r55 3531r14
+204i37 Id{167I9} 28|3524b37 3526r10 3526r40 3531r36
+205V13*Node_At{177R9} 205>22 205>40 28|3534b13 3542l8 3542t15
+205r22 Tree{187R9} 28|3534b22 3536r27 3541r14
+205i40 Index{positive} 28|3534b40 3536r10 3541r26
+207V13*Child_Count{natural} 207>26 207>44 28|3544b13 3553l8 3553t19
+207r26 Tree{187R9} 28|3544b26 3547r19
+207i44 Parent{167I9} 28|3544b44 3548r27
+208V13*Child_At{167I9} 209>7 210>7 211>7 28|3555b13 3571l8 3571t16
+209r7 Tree{187R9} 28|3556b7 3562r19
+210i7 Parent{167I9} 28|3557b7 3563r27
+211i7 Index{positive} 28|3558b7 3565r24
+213V13*Fingerprint{natural} 213>26 28|3573b13 3576l8 3576t19
+213r26 Tree{187R9} 28|3573b26 3575r14
+216K12 Node_Vectors[8|74] 221r28
+221r7*Nodes{8|91R9[216]} 28|105m12 118r55 141m12 3511r23 3516r28 3526r60
+. 3531r19 3536r32 3541r19 3547r24 3562r24
+222i7*Root_Node{167I9} 28|106m12 142r15 143m15 3521r19
+223i7*Result_Fingerprint{natural} 28|98r26 100m12 107m12 3575r19
+X 28 editor-ada_syntax_tree.adb
 13V13 Lower{string} 13b13 13>20 16l8 16t13 65s30 72s30 78s30 155s39 185s33
-. 186s35 344s30 473s34 526s34 545s26 547s26 599s14 599s36 603s30 702s30 744s30
-. 783s65 783s79 795s65 795s79 904s30 995s30 1011s30 1065s34 1321s34 1372s34
-. 1386s26 1388s26 1410s34 1421s23 1442s34 1625s34 1731s35 1834s30 1904s34
-. 2057s39 2129s30 2350s30 2849s33 3078s43
+. 186s35 344s30 475s34 529s34 541s38 607s14 607s36 611s30 710s30 752s30 791s65
+. 791s79 803s65 803s79 818s34 844s34 961s30 980s30 1071s30 1087s30 1141s34
+. 1434s34 1485s34 1499s26 1501s26 1523s34 1534s23 1555s34 1738s34 1844s35
+. 1947s30 2017s34 2170s39 2242s30 2463s30 2622s61 2634s61 2667s64 2677s64
+. 2689s64 2725s61 2798s29 3010s33 3236s43
 13a20 S{string} 15r43
 18V13 Trim{string} 18b13 18>19 21l8 21t12 150s52 159s45 165s45 171s45 183s33
-. 480s17 512s36 533s17 537s36 599s21 599s43 774s30 777s17 786s17 790s17 805s14
-. 899s14 903s30 910s17 958s17 962s17 972s17 994s30 1328s17 1365s20 1376s39
-. 1378s39 1393s20 1422s20 1424s20 1426s20 1428s20 1560s46 1646s36 1833s30
-. 2050s34 2056s39 2432s16 2483s24 3069s12
+. 482s17 514s36 528s45 536s17 540s36 556s20 607s21 607s43 782s30 785s17 794s17
+. 798s17 813s14 817s34 839s14 843s34 860s14 954s14 979s30 986s17 1034s17
+. 1038s17 1048s17 1070s30 1285s40 1441s17 1478s20 1489s39 1491s39 1506s20
+. 1535s20 1537s20 1539s20 1541s20 1673s46 1759s36 1946s30 2163s34 2169s39
+. 2545s16 2596s24 3230s12
 18a19 S{string} 20r38
-23V13 Is_Word_Char{boolean} 23b13 23>27 29l8 29t20 44s44
+23V13 Is_Word_Char{boolean} 23b13 23>27 29l8 29t20 44s44 829s53 850s53
 23e27 C{character} 25r15 25r33 26r18 26r36 27r18 27r36 28r17
-31V13 Starts_With{boolean} 31b13 31>26 31>32 35l8 35t19 40s14 318s13 3113s19
+31V13 Starts_With{boolean} 31b13 31>26 31>32 35l8 35t19 40s14 318s13 3271s19
 31a26 Text{string} 33r14 34r18 34r24 34r38
 31a32 Prefix{string} 33r29 34r51 34r72
 37V13 Starts_With_Word{boolean} 37b13 37>31 37>37 45l8 45t24 157s16 163s19
@@ -762,18 +766,19 @@ X 29 editor-ada_syntax_tree.adb
 . 232s13 240s13 242s13 244s13 246s13 248s13 248s55 255s16 257s16 264s13 272s13
 . 274s13 276s13 278s13 280s13 280s50 281s17 284s13 286s13 288s13 290s13 292s13
 . 294s13 296s13 298s13 300s13 302s13 304s13 306s13 308s13 310s13 312s13 314s13
-. 316s13 320s13 322s13 394s24 485s14 487s13 489s13 491s13 493s13 495s13 497s13
-. 499s13 501s13 503s13 505s13 558s16 562s16 566s16 568s19 605s10 609s13 614s13
-. 616s13 619s13 623s13 627s13 631s13 714s10 715s17 716s17 717s17 718s17 906s10
-. 1021s17 1021s53 1087s10 1091s10 1111s10 1111s46 1119s39 1122s41 1126s17
-. 1130s10 1333s35 1335s13 1337s13 1339s13 1341s13 1343s13 1345s13 1347s13
-. 1375s10 1377s13 1413s14 1455s16 1456s23 1595s46 1632s17 1739s10 1742s13
-. 1836s10 1838s13 1840s13 1842s13 1844s13 1846s13 1848s13 1849s17 1850s17
-. 1853s13 1855s13 1857s13 1859s13 1861s13 1863s13 1865s13 1867s13 1869s13
-. 1871s13 1873s13 1875s13 1877s13 1879s13 1881s13 1883s13 1952s16 2059s34
-. 2061s16 2067s16 2071s16 2077s16 2081s16 2293s17 2293s53 2542s16 2548s19
-. 2554s19 2581s16 2585s19 2614s19 2858s20 2859s23 2860s23 2861s23 2862s23
-. 2863s23 2864s23 3083s24 3088s25 3089s33 3193s27 3216s27
+. 316s13 320s13 322s13 396s24 487s14 489s13 491s13 493s13 495s13 497s13 499s13
+. 501s13 503s13 505s13 507s13 566s16 570s16 574s16 576s19 613s10 617s13 622s13
+. 624s13 627s13 631s13 635s13 639s13 722s10 723s17 724s17 725s17 726s17 982s10
+. 1097s17 1097s53 1163s10 1167s10 1198s10 1198s46 1206s39 1209s41 1213s17
+. 1217s10 1446s35 1448s13 1450s13 1452s13 1454s13 1456s13 1458s13 1460s13
+. 1488s10 1490s13 1526s14 1568s16 1569s23 1708s46 1745s17 1852s10 1855s13
+. 1949s10 1951s13 1953s13 1955s13 1957s13 1959s13 1961s13 1962s17 1963s17
+. 1966s13 1968s13 1970s13 1972s13 1974s13 1976s13 1978s13 1980s13 1982s13
+. 1984s13 1986s13 1988s13 1990s13 1992s13 1994s13 1996s13 2065s16 2172s34
+. 2174s16 2180s16 2184s16 2190s16 2194s16 2406s17 2406s53 2622s43 2634s43
+. 2662s16 2667s46 2672s19 2677s46 2682s19 2689s46 2713s16 2717s19 2725s43
+. 2750s19 3019s20 3020s23 3021s23 3022s23 3023s23 3024s23 3025s23 3241s24
+. 3246s25 3247s33 3360s27 3383s27
 37a31 Text{string} 40r27 43r16 44r22 44r58
 37a37 Word{string} 40r33 43r29
 38i7 After{natural} 43m7 44r14 44r64
@@ -781,25 +786,25 @@ X 29 editor-ada_syntax_tree.adb
 . 81s18 157s53 190s54 192s54 202s51 202s82 205s19 205s49 206s22 217s18 233s13
 . 235s16 235s48 242s54 244s54 249s13 251s16 253s16 255s59 257s58 259s16 265s13
 . 267s16 267s47 288s51 318s44 324s13 324s83 334s13 336s13 336s39 348s24 355s24
-. 357s24 358s28 359s28 361s24 363s24 365s24 367s24 369s24 371s21 371s53 372s29
-. 373s29 374s28 375s28 377s20 378s28 380s20 380s53 382s24 395s28 516s16 541s16
-. 543s16 545s16 547s16 549s16 588s16 1013s14 1013s42 1014s17 1014s45 1015s17
-. 1015s45 1016s17 1016s45 1017s17 1017s46 1018s17 1018s47 1019s17 1019s47
-. 1020s17 1020s47 1078s10 1083s13 1083s44 1083s75 1087s49 1091s46 1094s10
-. 1097s10 1099s13 1102s10 1105s10 1105s39 1108s10 1108s45 1119s10 1122s10
-. 1125s10 1125s42 1130s50 1133s10 1136s10 1137s17 1138s17 1142s11 1142s41
-. 1143s18 1144s18 1144s49 1149s10 1155s10 1158s10 1158s41 1161s16 1354s13
-. 1356s16 1358s16 1360s16 1362s16 1384s13 1386s16 1388s16 1390s16 1401s10
-. 1413s59 1421s13 1423s16 1425s16 1509s50 1559s13 1561s13 1572s13 1589s13
-. 1591s13 1593s13 1595s13 1609s32 1633s21 1635s25 1636s25 1637s25 1638s25
-. 1639s25 1640s25 1641s25 1642s25 1739s47 1742s50 1755s13 1859s51 1885s13
-. 1887s13 1887s39 1928s16 1939s16 1962s16 1981s16 1992s16 2061s54 2077s54
-. 2153s17 2202s20 2203s28 2204s28 2213s20 2220s16 2222s19 2222s50 2231s16
-. 2237s20 2239s23 2240s28 2246s20 2271s20 2275s20 2279s20 2283s20 2289s20
-. 2294s28 2299s16 2300s28 2305s16 2305s45 2307s19 2309s19 2313s20 2316s20
-. 2402s16 2413s19 2419s16 2435s16 2485s46 2528s16 2542s54 2573s16 2573s48
-. 2595s16 2605s16 2612s19 2620s16 2626s16 2646s16 3118s25 3194s27 3199s27
-. 3200s27
+. 357s24 358s28 359s28 361s24 363s24 365s24 367s24 369s24 371s24 373s21 373s53
+. 374s29 375s29 376s28 377s28 379s20 380s28 382s20 382s53 384s24 397s28 518s16
+. 545s16 547s16 549s16 551s16 557s16 596s16 1089s14 1089s42 1090s17 1090s45
+. 1091s17 1091s45 1092s17 1092s45 1093s17 1093s46 1094s17 1094s47 1095s17
+. 1095s47 1096s17 1096s47 1154s10 1159s13 1159s44 1159s75 1163s49 1167s46
+. 1170s10 1173s10 1175s13 1178s10 1181s10 1181s39 1184s10 1184s45 1186s13
+. 1191s16 1206s10 1209s10 1212s10 1212s42 1217s50 1220s10 1223s10 1224s17
+. 1225s17 1229s11 1229s41 1230s18 1231s18 1231s49 1236s10 1242s10 1245s10
+. 1245s41 1246s17 1253s16 1467s13 1469s16 1471s16 1473s16 1475s16 1497s13
+. 1499s16 1501s16 1503s16 1514s10 1526s59 1534s13 1536s16 1538s16 1622s50
+. 1672s13 1674s13 1685s13 1702s13 1704s13 1706s13 1708s13 1722s32 1746s21
+. 1748s25 1749s25 1750s25 1751s25 1752s25 1753s25 1754s25 1755s25 1852s47
+. 1855s50 1868s13 1972s51 1998s13 2000s13 2000s39 2041s16 2052s16 2075s16
+. 2094s16 2105s16 2174s54 2190s54 2266s17 2315s20 2316s28 2317s28 2326s20
+. 2333s16 2335s19 2335s50 2344s16 2350s20 2352s23 2353s28 2359s20 2384s20
+. 2388s20 2392s20 2396s20 2402s20 2407s28 2412s16 2413s28 2418s16 2418s45
+. 2420s19 2422s19 2426s20 2429s20 2515s16 2526s19 2532s16 2548s16 2598s46
+. 2648s16 2662s54 2705s16 2705s48 2731s16 2741s16 2748s19 2756s16 2762s16
+. 2782s16 2798s19 3276s25 3361s27 3366s27 3367s27
 47a23 Text{string} 49r39
 47a29 Fragment{string} 49r45
 52V13 Has_Declaration_Colon{boolean} 52b13 52>36 62l8 62t29 324s48 332s13
@@ -821,22 +826,22 @@ X 29 editor-ada_syntax_tree.adb
 87m7 H{86M12} 90m10 90r15 92r23
 89e11 C=89:16{character} 90r57
 95U14 Mix 95b14 95=19 95>44 101l8 101t11 145s7
-95r19 Tree{28|187R9} 98r21 100m7
+95r19 Tree{27|187R9} 98r21 100m7
 95i44 Value{natural} 98r68
 96M12 Hash_Value 97r24 98r9 98r56 100r53
 97m7 Mixed{96M12} 100r43
-118i7 Id{28|167I9} 121r18 143r28 146r14
-119r7 Info{28|177R9} 121m7 122m7 123m7 124m7 125m7 126m7 139m10 141r26 145r18
+118i7 Id{27|167I9} 121r18 143r28 146r14
+119r7 Info{27|177R9} 121m7 122m7 123m7 124m7 125m7 126m7 139m10 141r26 145r18
 128M15 Hash_Value 129r33 130r12 131r14 132r14 133r14 134r14 135r14 136r14
 . 137r14 139r55
 129m10 Fingerprint{128M15} 139r39
 149V13 Strip_Declaration_Prefixes{string} 149b13 149>41 180l8 180t34 184s33
 149a41 Text{string} 150r58
-150r7 T{21|91R9} 154r50 159m19 161m19 165m19 167m19 171m19 173m19
+150r7 T{20|91R9} 154r50 159m19 161m19 165m19 167m19 171m19 173m19
 154a13 Work{string} 155r46 158r19 159r51 159r57 159r76 164r19 165r51 165r57
 . 165r76 170r19 171r51 171r57 171r75 176r23
 155a13 L{string} 157r34 157r63 163r37 169r37
-182V13 Classify_Line{28|12E9} 182b13 182>28 341l8 341t21 3067s46
+182V13 Classify_Line{27|12E9} 182b13 182>28 341l8 341t21 3228s46
 182a28 Line{string} 183r77
 183a7 Code{string} 184r61 186r42
 184a7 Lead{string} 185r40
@@ -850,777 +855,814 @@ X 29 editor-ada_syntax_tree.adb
 . 306r31 308r31 310r31 312r31 314r31 316r31 318r26 318r54 320r31 322r31 324r23
 . 324r71 324r93 326r41 328r52 330r43 332r36 334r23 336r23 336r49
 186a7 Full_L{string}
-343V13 Opens_Scope{boolean} 343b13 343>26 343>44 399l8 399t19 3286s22
-343e26 Kind{28|12E9} 346r12
+343V13 Opens_Scope{boolean} 343b13 343>26 343>44 401l8 401t19 3453s22
+343e26 Kind{27|12E9} 346r12
 343a44 Code{string} 344r37
 344a7 L{string} 348r34 355r34 357r34 358r38 359r38 361r34 363r34 365r34 367r34
-. 369r34 371r31 371r63 372r39 373r39 374r38 375r38 377r30 378r38 380r30 380r63
-. 382r34 394r42 395r38
-401V13 Is_End_Node{boolean} 401b13 401>26 404l8 404t19 3151s19 3284s19
-401e26 Kind{28|12E9} 403r14
-406V13 Is_Alternative_Node{boolean} 406b13 406>34 415l8 415t27 2712s21 2820s13
-. 3153s22 3230s27 3270s19
-406e34 Kind{28|12E9} 408r14 409r17 410r17 411r17 412r17 413r17 414r17
-417V13 Expected_End_Label{string} 417b13 417>33 456l8 456t26 2767s48 2772s37
-. 2831s34 3011s45 3016s34
-417e33 Kind{28|12E9} 419r12
-459V13 Strip_Terminator{string} 459>31 472s34 525s34 773b13 780l8 780t24
-. 984s34 1064s34 1189s34 1218s38 1225s39 1320s34 1371s34 1399s34 1409s34
-. 1441s34 1624s34 1730s35 1784s37 1808s35 1903s34 2023s34
-459a31 Text{string} 773b31 774r36
-460V13 Segment_Before{string} 460>29 460>35 517s20 542s20 544s20 546s20 548s20
-. 550s20 589s23 782b13 792l8 792t22 1081s61 1088s61 1355s20 1357s20 1359s20
-. 1361s20 1363s20 1385s20 1387s20 1389s20 1391s20 1422s26 1424s26 1426s26
-. 1519s27 1564s16 1740s41 1743s41 1785s37 1786s37 1931s19 1942s19 1965s19
-. 1975s16 1984s19 1995s19 2064s16 2074s16 2412s61 2463s16 2467s16 2505s16
-. 2514s16 2527s16 2535s16 2538s16 2566s16 2569s16 2576s19 2584s19 2588s19
-. 2608s57 2624s71 2644s71 2645s76
-460a29 Text{string} 782b29 783r72 786r23 787r27 790r23 790r29
-460a35 Marker{string} 782b35 783r86
-461V13 Segment_After{string} 461>28 461>34 794b13 806l8 806t21 1082s61 1088s77
-. 1089s61 1417s36 1512s13 1519s43 1560s52 1567s16 1575s13 1688s53 1740s57
-. 1741s39 1743s57 1744s39 1786s53 1787s37 1907s44 1908s44 1909s44 1910s44
-. 1911s44 1912s44 1913s44 1934s19 1945s19 1956s19 1978s16 1987s19 1998s19
-. 2064s32 2066s44 2070s44 2074s32 2080s44 2414s64 2459s16 2463s32 2467s32
-. 2469s43 2505s32 2506s38 2509s42 2514s32 2515s33 2517s42 2520s33 2522s42
-. 2527s32 2530s42 2535s32 2538s32 2540s39 2544s36 2546s45 2550s36 2552s45
-. 2558s36 2560s45 2566s32 2569s32 2571s39 2576s35 2578s42 2584s35 2588s35
-. 2590s33 2592s42 2597s42 2600s33 2602s42 2608s42 2611s42 2616s42 2621s60
-. 2647s82
-461a28 Text{string} 794b28 795r72 802r18 805r20 805r35
-461a34 Marker{string} 794b34 795r86 801r29
-463U14 Add_Declaration_Detail_Nodes 464=7 465>7 466>7 467>7 468>7 469>7 1257s16
-. 1433b14 1598l8 1598t36 2395s13 2423s13 2491s28
-464r7 Tree{28|187R9} 1434b7 1490m27 1502m13 1505m13 1511m13 1516m27 1518m27
-. 1521m27 1523m27 1527m27 1529m27 1531m27 1533m27 1535m27 1537m27 1539m27
-. 1541m27 1543m27 1545m27 1563m16 1566m16 1570m16 1574m13 1590m27 1592m27
-. 1594m27 1596m27
-465i7 Parent{28|167I9} 1435b7 1490r33 1502r19 1505r19 1511r19 1516r33 1518r33
-. 1521r33 1523r33 1527r33 1529r33 1531r33 1533r33 1535r33 1537r33 1539r33
-. 1541r33 1543r33 1545r33 1563r22 1566r22 1570r22 1574r19 1590r33 1592r33
-. 1594r33 1596r33
-466i7 Depth{natural} 1436b7 1490r41 1502r27 1505r27 1511r27 1516r41 1518r41
-. 1521r41 1523r41 1527r41 1529r41 1531r41 1533r41 1535r41 1537r41 1539r41
-. 1541r41 1543r41 1545r41 1563r30 1566r30 1570r30 1574r27 1590r41 1592r41
-. 1594r41 1596r41
-467i7 Line{positive} 1437b7 1490r48 1502r34 1505r34 1511r34 1516r48 1518r48
-. 1521r48 1523r48 1527r48 1529r48 1531r48 1533r48 1535r48 1537r48 1539r48
-. 1541r48 1543r48 1545r48 1563r37 1566r37 1570r37 1574r34 1590r48 1592r48
-. 1594r48 1596r48
-468a7 Code{string} 1438b7 1441r52
-469e7 Kind{28|12E9} 1439b7 1446r12 1493r10 1494r17 1495r17 1496r17 1497r17
-. 1498r17 1499r17 1509r10 1515r10 1520r13 1526r10 1528r13 1530r13 1532r13
-. 1534r13 1536r13 1538r13 1540r13 1542r13 1544r13 1548r10 1549r17 1550r17
-. 1551r17 1552r17 1553r17 1554r17 1555r17 1556r17 1578r10 1579r17 1580r17
-. 1581r17 1582r17 1583r17 1584r17 1585r17 1586r17
-471V13 End_Target_Text{string} 471b13 471>30 522l8 522t23 2656s44 2789s47
-471a30 Code{string} 472r52
-472a7 Clean{string} 473r41 477r13 480r23 480r30 480r61
-473a7 L{string} 485r32 487r31 489r31 491r31 493r31 495r31 497r31 499r31 501r31
-. 503r31 505r31
-475V16 Drop_Prefix{string} 475b16 475>29 481l11 481t22 488s39 490s39 492s39
-. 494s39 496s39 498s39 500s39 502s39 504s39 506s39 508s39
-475a29 Prefix{string} 477r29 480r44
-483r7 Tail{21|91R9} 488m10 490m10 492m10 494m10 496m10 498m10 500m10 502m10
-. 504m10 506m10 508m10 512r53
-512a10 Work{string} 514r13 516r26 517r36 519r20
-524V13 Opening_Target_Text{string} 524b13 524>34 524>52 595l8 595t27 2787s47
-524e34 Kind{28|12E9} 556r12
-524a52 Label{string} 525r52
-525a7 Clean{string} 526r41 530r13 533r23 533r30 533r61 589r39
-526a7 L{string} 558r34 562r34 566r34 568r37 588r26
-528V16 After_Prefix{string} 528b16 528>30 534l11 534t23 559s35 563s35 567s35
-. 569s35 572s32 574s32 576s32 578s32 580s32 582s32 584s32 586s32
-528a30 Prefix{string} 530r29 533r44
-536V16 First_Name{string} 536b16 536>28 554l11 554t21 559s23 563s23 567s23
-. 569s23 572s20 574s20 576s20 578s20 580s20 582s20 584s20 586s20
-536a28 Text{string} 537r42
-537a10 Work{string} 539r13 541r26 542r36 543r26 544r36 545r33 546r36 547r33
-. 548r36 549r26 550r36 552r20
-597V13 Same_Ada_Name{boolean} 597b13 597>28 597>43 600l8 600t21 2792s31
-597a28 Left{string} 599r27
-597a43 Right{string} 599r49
-602V13 End_Matches_Kind{boolean} 602b13 602>31 602>51 651l8 651t24 2735s16
-602e31 Opener{28|12E9} 606r17 607r20 608r20 610r17 611r20 612r20 613r20 615r17
-. 617r17 618r20 620r17 621r20 622r20 624r17 625r20 626r20 628r17 629r20 630r20
-. 637r17 638r20 639r20 640r20 641r20 642r20 643r20 644r20 645r20 646r20 647r20
-. 648r20
-602a51 End_Code{string} 603r37
-603a7 L{string} 605r28 609r31 614r31 616r31 619r31 623r31 627r31 631r31
-653V13 Alternative_Has_Grammar_Owner{boolean} 653b13 654>7 655>7 686l8 686t37
-. 2822s28 2838s28
-654e7 Alternative{28|12E9} 658r12
-655e7 Owner{28|12E9} 660r20 661r23 662r23 664r20 665r23 667r20 668r23 670r20
-. 671r23 672r23 673r23 674r23 675r23 676r23 678r20 679r23 681r20 682r23
-689V13 Is_Transient_Statement_Part{boolean} 689b13 689>42 695l8 695t35 710s17
-689e42 Kind{28|12E9} 691r14 692r17 693r17 694r17
-697V13 End_Implicitly_Closes_Statement_Part{boolean} 697b13 698>7 699>7 700>7
-. 730l8 730t44 2762s30 3006s27
-698e7 Transient{28|12E9} 704r10 710r46
-699e7 Owner{28|12E9} 705r17 706r20 707r20 708r20 709r20 723r14 724r17 725r17
-. 726r17 727r17 728r17 729r17
-700a7 End_Code{string} 702r37
-702a7 L{string} 714r28 715r35 716r35 717r35 718r35
-733V13 Is_Identifier_Start{boolean} 733b13 733>34 736l8 736t27 740s14 1034s13
-733e34 C{character} 735r15 735r33 735r52 735r70
-738V13 Is_Identifier_Part{boolean} 738b13 738>33 741l8 741t26 1039s48
-738e33 C{character} 740r35 740r47 740r65 740r83
-743V13 Is_Keyword{boolean} 743b13 743>25 771l8 771t18 1045s26
-743a25 Word{string} 744r37
-744a7 L{string} 746r14 746r34 746r52 747r17 747r38 747r59 748r17 748r35 748r53
-. 749r17 749r34 749r54 750r17 750r36 750r59 751r17 751r37 751r57 752r17 752r34
-. 752r53 753r17 753r35 753r55 754r17 754r36 754r54 755r17 755r39 755r58 756r17
-. 756r34 756r58 757r17 757r39 757r58 758r17 758r35 758r53 759r17 759r34 759r51
-. 760r17 760r35 760r60 761r17 761r38 761r60 762r17 762r41 762r61 763r17 763r38
-. 763r56 764r17 764r39 764r60 765r17 765r38 765r61 766r17 766r39 766r66 767r17
-. 767r36 767r60 768r17 768r36 768r56 769r17 769r36 769r56 770r17
-774a7 T{string} 776r10 776r32 776r35 777r23 777r26 777r37 779r14
-783i7 Marker_Pos{natural} 785r10 787r13 790r43
-795i7 Marker_Pos{natural} 798r10 801r16
-796i7 First{natural} 801m7 802r10 805r26
-808V13 Is_Character_Literal_At{boolean} 808b13 809>7 809>22 809>37 815l8
-. 815t31 837s16 877s16 933s16 1297s16
-809a7 Text{string} 813r18 814r18
-809i22 Pos{natural} 812r14 813r24 814r24
-809i37 Last{natural} 812r25
-819V13 Code_Preserving_Literals_For_Retention{string} 819b13 819>53 855l8
-. 855t46 3071s21
-819a53 Line{string} 821r30 828r18 830r16 831r28 831r47 837r41 837r50 839r16
-. 841r16 842r30 843r21 845r20 848r23 848r29 854r14
-820b7 In_String{boolean} 829r13 834m19 840m13
-821i7 I{natural} 828r13 830r22 831r19 831r53 832m19 832r24 837r47 838m13
-. 838r18 839r22 841r22 842r21 843r27 845r16 848r43 851m10 851r15
-857V13 Segment_Between_First_Parens{string} 857b13 857>43 900l8 900t36 1402s17
-. 1517s27 1522s27 1607s35 1626s34 1709s36 1760s22 1761s22 2432s22 2444s22
-. 2445s21 2628s42 2649s42
-857a43 Text{string} 862r30 868r18 870r16 871r28 871r47 877r41 877r50 879r16
-. 881r16 886r16 899r20
-858i7 Open_Pos{natural} 882r16 883m16 896r10 896r66 899r26
-859i7 Close_Pos{natural} 889m16 896r31 896r53 899r42
-860i7 Level{natural} 885m13 885r22 886r40 887m13 887r22 888r16
-861b7 In_String{boolean} 869r13 874m19 880m13
-862i7 I{natural} 868r13 870r22 871r19 871r53 872m19 872r24 877r47 878m13
-. 878r18 879r22 881r22 883r28 886r22 889r29 893m10 893r15
-902V13 Strip_Leading_With{string} 902b13 902>33 913l8 913t26 1688s33 2440s39
-902a33 Text{string} 903r36
-903a7 T{string} 904r37 907r13 910r23 910r26 910r41 912r14
-904a7 L{string} 906r28
-915V13 Top_Level_Arrow_Position{natural} 915b13 915>39 947l8 947t32 951s14
-. 955s35 967s35
-915a39 Text{string} 918r30 920r10 924r18 926r16 927r28 927r47 933r41 933r50
-. 935r16 937r16 939r16 941r16 941r40
-916i7 Level{natural} 938m13 938r22 939r40 940m13 940r22 941r68
-917b7 In_String{boolean} 925r13 930m19 936m13
-918i7 I{natural} 924r13 926r22 927r19 927r53 928m19 928r24 933r47 934m13
-. 934r18 935r22 937r22 939r22 941r22 941r46 942r20 944m10 944r15
-949V13 Has_Top_Level_Arrow{boolean} 949b13 949>34 952l8 952t27 1235s16 1259s19
-. 1268s19
-949a34 Text{string} 951r40
-954V13 Split_Before_Top_Level_Arrow{string} 954b13 954>43 964l8 964t36 1232s40
-. 1271s22
-954a43 Text{string} 955r61 958r23 959r21 962r23 962r29
-955i7 Arrow{natural} 957r10 959r13 962r43
-966V13 Split_After_Top_Level_Arrow{string} 966b13 966>42 974l8 974t35 1233s40
-. 1274s22
-966a42 Text{string} 967r61 969r40 972r23 972r42
-967i7 Arrow{natural} 969r10 969r28 972r29
-976U14 Add_Syntax_Child 976b14 977=7 978>7 979>7 980>7 981>7 982>7 991l8
-. 991t24 1046s22 1076s10 1079s10 1080s10 1084s10 1085s10 1092s10 1095s10
-. 1098s10 1100s10 1103s10 1106s10 1109s10 1114s10 1117s10 1120s10 1123s10
-. 1128s10 1131s10 1134s10 1140s10 1146s10 1147s10 1150s10 1153s10 1156s10
-. 1160s13 1162s13 1164s13 1165s13
-977r7 Tree{28|187R9} 989m31 989r31
-978i7 Parent{28|167I9} 989r73
-979i7 Depth{natural} 989r81
-980i7 Line{positive} 989r44 989r53
-981e7 Kind{28|12E9} 989r37
-982a7 Label{string} 984r52
-984a7 Clean{string} 985r46 985r75 988r10 989r88
-985i7 Last_Column{positive} 989r59
-986i7 Ignored{28|167I9} 989m10
-993V13 Looks_Like_Literal{boolean} 993b13 993>33 1008l8 1008t26 1075s10
-993a33 Text{string} 994r36
-994a7 T{string} 995r37 997r10 1000r15 1000r18 1000r43 1000r46 1001r17 1001r20
-. 1002r18 1003r27 1003r30 1004r27 1004r30
-995a7 L{string} 1005r17 1006r17 1007r17
-1010V13 Has_Operator{boolean} 1010b13 1010>27 1022l8 1022t20 1152s10
-1010a27 Text{string} 1011r37
-1011a7 L{string} 1013r24 1013r52 1014r27 1014r55 1015r27 1015r55 1016r27
-. 1016r55 1017r27 1017r56 1018r27 1018r57 1019r27 1019r57 1020r27 1020r57
-. 1021r35 1021r71
-1024U14 Add_Name_Tokens 1024b14 1025=7 1026>7 1027>7 1028>7 1029>7 1055l8
-. 1055t23 1169s7 2653s13
-1025r7 Tree{28|187R9} 1046m40
-1026i7 Parent{28|167I9} 1046r46
-1027i7 Depth{natural} 1046r54
-1028i7 Line{positive} 1046r61
-1029a7 Text{string} 1031r22 1033r18 1034r34 1039r29 1039r68 1043r45
-1031i7 I{natural} 1033r13 1034r40 1036r44 1037r35 1049m16 1052m13 1052r18
-1036i16 First{natural} 1043r51
-1037i16 Last{natural} 1039r22 1039r74 1040m19 1040r27 1043r60 1049r21
-1043a19 Word{string} 1045r38 1046r78
-1057U14 Add_Expression_Nodes 1057b14 1058=7 1059>7 1060>7 1061>7 1062>7 1081s10
-. 1082s10 1088s10 1089s10 1170l8 1170t28 1205s13 2406s16 2412s16 2414s19
-1058r7 Tree{28|187R9} 1073m25 1073r25 1076m28 1079m28 1080m28 1081m32 1082m32
-. 1084m28 1085m28 1088m32 1089m32 1092m28 1095m28 1098m28 1100m28 1103m28
-. 1106m28 1109m28 1114m28 1117m28 1120m28 1123m28 1128m28 1131m28 1134m28
-. 1140m28 1146m28 1147m28 1150m28 1153m28 1156m28 1160m31 1162m31 1164m31
-. 1165m31 1169m24
-1059i7 Parent{28|167I9} 1073r78
-1060i7 Depth{natural} 1073r86 1076r40 1079r40 1080r40 1081r44 1082r44 1084r40
-. 1085r40 1088r44 1089r44 1092r40 1095r40 1098r40 1100r40 1103r40 1106r40
-. 1109r40 1114r40 1117r40 1120r40 1123r40 1128r40 1131r40 1134r40 1140r40
-. 1146r40 1147r40 1150r40 1153r40 1156r40 1160r43 1162r43 1164r43 1165r43
-. 1169r36
-1061i7 Line{positive} 1073r49 1073r58 1076r51 1079r51 1080r51 1081r55 1082r55
-. 1084r51 1085r51 1088r55 1089r55 1092r51 1095r51 1098r51 1100r51 1103r51
-. 1106r51 1109r51 1114r51 1117r51 1120r51 1123r51 1128r51 1131r51 1134r51
-. 1140r51 1146r51 1147r51 1150r51 1153r51 1156r51 1160r54 1162r54 1164r54
-. 1165r54 1169r47
-1062a7 Text{string} 1064r52
-1064a7 Clean{string} 1065r41 1067r46 1067r75 1069r10 1073r93 1075r30 1076r71
-. 1078r20 1079r75 1080r81 1081r77 1082r76 1083r23 1083r54 1083r85 1084r75
-. 1085r86 1088r92 1089r76 1092r73 1095r84 1097r20 1098r84 1099r23 1100r83
-. 1102r20 1103r80 1106r85 1109r88 1112r18 1112r45 1112r52 1112r79 1112r86
-. 1114r80 1116r10 1116r37 1116r44 1116r72 1116r79 1117r88 1120r86 1123r79
-. 1128r85 1131r82 1134r79 1140r84 1143r28 1144r28 1144r59 1146r83 1147r86
-. 1149r20 1152r24 1153r83 1155r20 1156r77 1158r20 1158r51 1159r13 1159r20
-. 1160r76 1161r26 1162r72 1164r80 1165r84 1169r53
-1065a7 L{string} 1087r28 1087r59 1091r28 1091r56 1094r20 1105r20 1105r49
-. 1108r20 1108r55 1111r28 1111r64 1119r20 1119r57 1122r20 1122r59 1125r20
-. 1125r52 1126r35 1130r28 1130r60 1133r20 1136r20 1137r27 1138r27 1142r21
-. 1142r51
-1066i7 Expr{28|167I9} 1073m7 1076r34 1079r34 1080r34 1081r38 1082r38 1084r34
-. 1085r34 1088r38 1089r38 1092r34 1095r34 1098r34 1100r34 1103r34 1106r34
-. 1109r34 1114r34 1117r34 1120r34 1123r34 1128r34 1131r34 1134r34 1140r34
-. 1146r34 1147r34 1150r34 1153r34 1156r34 1160r37 1162r37 1164r37 1165r37
-. 1169r30
-1067i7 Last_Column{positive} 1073r64
-1173V13 Last_Column_For{positive} 1173b13 1173>30 1179l8 1179t23 1194s41
-. 1248s53 1652s35 1696s59 1718s26 1817s26 2032s38 2096s26 2136s29 2146s29
-. 2186s29 2489s47 2728s41 2797s47 2957s35 2980s35 2985s35
-1173a30 Text{string} 1175r10 1178r24
-1181U14 Add_Detail_Node 1181b14 1182=7 1183>7 1184>7 1185>7 1186>7 1187>7
-. 1208l8 1208t23 1236s16 1237s16 1239s16 1260s19 1264s19 1269s19 1272s19
-. 1276s19 1490s10 1501s10 1504s10 1510s10 1516s10 1518s10 1521s10 1523s10
-. 1527s10 1529s10 1531s10 1533s10 1535s10 1537s10 1539s10 1541s10 1543s10
-. 1545s10 1562s13 1565s13 1569s13 1573s10 1590s10 1592s10 1594s10 1596s10
-. 1747s7 1749s7 1793s7 1795s7 1797s7 1921s10 1926s13 1929s16 1932s16 1936s16
-. 1940s16 1943s16 1947s16 1950s13 1953s16 1954s16 1958s16 1959s16 1963s16
-. 1966s16 1968s16 1971s13 1973s13 1976s13 1980s13 1982s16 1985s16 1989s16
-. 1993s16 1996s16 2000s16 2035s10 2062s13 2068s13 2072s13 2078s13 2138s10
-. 2148s10 2188s10 2457s13 2461s13 2465s13 2503s13 2512s13 2525s13 2533s13
-. 2536s13 2543s16 2549s16 2555s16 2557s16 2564s13 2567s13 2574s16 2582s16
-. 2586s16 2606s16 2609s16 2613s16 2624s13 2644s13 2645s13 2647s16 2652s13
-. 2659s19 2802s22 2805s22 2960s10 2988s10
-1182r7 Tree{28|187R9} 1194m13 1194r13 1205m35
-1183i7 Parent{28|167I9} 1194r67
-1184i7 Depth{natural} 1194r75 1205r45
-1185i7 Line{positive} 1194r26 1194r35 1205r56
-1186e7 Kind{28|12E9} 1194r19 1195r13 1196r20 1197r20 1198r20 1199r20 1200r20
-. 1201r20 1202r20 1203r20
-1187a7 Label{string} 1189r52
-1189a7 Clean{string} 1192r10 1194r58 1194r82 1205r62
-1190i7 Id{28|167I9} 1193m10 1205r41
-1210U14 Add_Association_List_Nodes 1210b14 1211=7 1212>7 1213>7 1214>7 1215>7
-. 1216>7 1317l8 1317t34 1610s10 1698s7 1719s7 1770s16 2439s13 2449s16 2627s16
-. 2648s16
-1211r7 Tree{28|187R9} 1236m33 1237m33 1239m33 1248m13 1248r13 1257m46 1261m22
-. 1265m22 1270m22 1273m22 1277m22
-1212i7 Parent{28|167I9} 1249r13
-1213i7 Depth{natural} 1236r46 1237r46 1239r46 1249r21 1257r59 1261r35 1265r35
-. 1270r35 1273r35 1277r35
-1214i7 Line{positive} 1236r57 1237r57 1239r57 1248r38 1248r47 1257r70 1261r46
-. 1265r46 1270r46 1273r46 1277r46
-1215a7 Text{string} 1218r56
-1216e7 Association_Kind{28|12E9} 1248r19 1251r15 1257r85
-1218a7 Clean{string} 1282r10 1286r16 1287r12 1288r18 1290r16 1291r28 1291r48
-. 1297r41 1297r51 1299r16 1301r16 1303r16 1305r16 1307r33 1314r19 1315r27
-. 1315r43
-1219i7 Start{natural} 1286m7 1306r20 1307r40 1309m13 1314r10 1315r34
-1220i7 Level{natural} 1302m13 1302r22 1303r41 1304m13 1304r22 1305r41
-1221b7 In_String{boolean} 1289r13 1294m19 1300m13
-1222i7 I{natural} 1287m7 1288r13 1290r23 1291r19 1291r55 1292m19 1292r24
-. 1297r48 1298m13 1298r18 1299r23 1301r23 1303r23 1305r23 1306r16 1307r49
-. 1309r22 1311m10 1311r15
-1224U17 Add_Association 1224b17 1224>34 1280l11 1280t26 1307s16 1315s10
-1224a34 Raw{string} 1225r57
-1225a10 Segment{string} 1232r70 1233r69 1235r37 1239r75 1243r13 1248r70 1249r28
-. 1257r76 1259r40 1261r86 1265r78 1268r40 1271r52 1274r51 1277r75
-1226i10 Assoc{28|167I9} 1236r39 1237r39 1239r39 1247m10 1257r52 1261r28 1265r28
-. 1270r28 1273r28 1277r28
-1228U20 Add_Key_Value_Details 1228b20 1229>13 1230>13 1241l14 1241t35 1253s16
-. 1255s16 1262s19
-1229e13 Key_Node{28|12E9} 1236r63
-1230e13 Value_Node{28|12E9} 1237r63 1239r63
-1232a13 Key{string} 1236r73
-1233a13 Value{string} 1237r75
-1319V13 Declaration_Name_Text{string} 1319b13 1319>36 1319>51 1368l8 1368t29
-. 1449s42 1460s45 1464s42 1466s42 1472s42 1478s42 1480s42 1482s42
-1319a36 Code{string} 1320r52
-1319a51 Lead_Word{string} 1333r10 1333r56 1334r51
-1320a7 Clean{string} 1321r41 1325r22 1328r23 1328r30 1328r53 1331r55
-1321a7 L{string} 1333r53 1335r31 1337r31 1339r31 1341r31 1343r31 1345r31
-. 1347r31
-1323V16 Drop_First{string} 1323b16 1323>28 1329l11 1329t21 1334s39 1336s39
-. 1338s39 1340s39 1342s39 1344s39 1346s39 1348s39
-1323i28 Count{natural} 1325r13 1328r44
-1331r7 Tail{21|91R9} 1334m10 1336m10 1338m10 1340m10 1342m10 1344m10 1346m10
-. 1348m10 1352r47
-1352a10 Work{string} 1354r23 1355r36 1356r26 1357r36 1358r26 1359r36 1360r26
-. 1361r36 1362r26 1363r36 1365r26
-1370V13 Subprogram_Name_Text{string} 1370b13 1370>35 1396l8 1396t28 1458s45
-1370a35 Code{string} 1371r52
-1371a7 Clean{string} 1372r41 1373r56 1375r52 1376r45 1376r52 1376r71 1377r56
-. 1378r45 1378r52 1378r71
-1372a7 L{string} 1375r28 1377r31
-1373r7 Work{21|91R9} 1376m10 1378m10 1382r47
-1382a10 Tail{string} 1384r23 1385r36 1386r33 1387r36 1388r33 1389r36 1390r26
-. 1391r36 1393r26
-1398V13 Subprogram_Profile_Text{string} 1398b13 1398>38 1406l8 1406t31 1503s13
-1398a38 Code{string} 1399r52
-1399a7 Clean{string} 1401r20 1402r47
-1408V13 Subprogram_Result_Text{string} 1408b13 1408>37 1431l8 1431t30 1506s13
-1408a37 Code{string} 1409r52
-1409a7 Clean{string} 1410r41 1417r51
-1410a7 L{string} 1413r32 1413r69
-1411r7 Tail{21|91R9} 1417m7 1419r47
-1419a10 Work{string} 1421r30 1422r42 1423r26 1424r42 1425r26 1426r42 1428r26
-1441a7 Clean{string} 1442r41 1449r65 1458r67 1460r68 1464r65 1466r65 1472r65
-. 1478r65 1480r65 1482r65 1484r42 1503r38 1506r37 1512r28 1517r57 1519r58
-. 1522r57 1559r23 1560r67 1575r28
-1442a7 L{string} 1455r34 1456r41 1509r60 1572r23 1589r23 1591r23 1593r23
-. 1595r23 1595r64
-1443r7 Name{21|91R9} 1449m13 1458m16 1460m16 1464m13 1466m13 1472m13 1478m13
-. 1480m13 1482m13 1484m13 1489r21 1490r88
-1444r7 After_Colon{21|91R9} 1560m10 1561r34 1564r43 1567r42 1568r27 1570r80
-1600U14 Add_Discriminant_Nodes 1600b14 1601=7 1602>7 1603>7 1604>7 1605>7
-. 1613l8 1613t30 2399s16
-1601r7 Tree{28|187R9} 1611m13
-1602i7 Parent{28|167I9} 1611r19
-1603i7 Depth{natural} 1611r27
-1604i7 Line{positive} 1611r34
-1605a7 Code{string} 1607r65
-1607a7 Inside{string} 1609r10 1609r42 1611r40
-1617U14 Add_Enumeration_Literal_Nodes 1617b14 1618=7 1619>7 1620>7 1621>7
-. 1622>7 1679l8 1679t37 2400s16
-1618r7 Tree{28|187R9} 1651m19 1651r19
-1619i7 Parent{28|167I9} 1652r60
-1620i7 Depth{natural} 1652r68
-1621i7 Line{positive} 1652r20 1652r29
-1622a7 Code{string} 1624r52
-1624a7 Clean{string} 1625r41 1626r64
-1625a7 L{string} 1632r35 1633r31 1635r35 1636r35 1637r35 1638r35 1639r35
-. 1640r35 1641r35 1642r35
-1626a7 Items{string} 1634r21 1663r16 1664r16 1665r13 1667r16 1669r16 1671r26
-. 1676r19 1677r20 1677r36
-1627i7 Start{natural} 1663m7 1670r20 1671r33 1673m13 1676r10 1677r27
-1628i7 Level{natural} 1666m13 1666r22 1667r41 1668m13 1668r22 1669r41
-1630V16 Looks_Like_Enumeration_Type{boolean} 1630b16 1643l11 1643t38 1659s14
-1645U17 Add_Item 1645b17 1645>27 1657l11 1657t19 1671s16 1677s10
-1645a27 Raw{string} 1646r42
-1646a10 Item{string} 1648r13 1652r52 1652r75
-1650i16 Ignored{28|167I9}
-1664i11 I{integer} 1665r20 1667r23 1669r23 1670r16 1671r42 1673r22
-1681U14 Add_Aspect_Specification_Nodes 1681b14 1682=7 1683>7 1684>7 1685>7
-. 1686>7 1700l8 1700t38 2403s16 2420s16 2436s16
-1682r7 Tree{28|187R9} 1696m10 1696r10 1699m10
-1683i7 Parent{28|167I9} 1697r10
-1684i7 Depth{natural} 1697r18 1699r22
-1685i7 Line{positive} 1696r44 1696r53 1699r33
-1686a7 Text{string} 1688r68
-1688a7 Tail{string} 1691r10 1696r76 1697r25 1699r39
-1689i7 Spec{28|167I9} 1695m7 1699r16
-1702U14 Add_Generic_Actual_Part_Nodes 1702b14 1703=7 1704>7 1705>7 1706>7
-. 1707>7 1721l8 1721t37 2418s13 2433s16
-1703r7 Tree{28|187R9} 1717m10 1717r10 1720m10
-1704i7 Parent{28|167I9} 1718r54
-1705i7 Depth{natural} 1718r62 1720r22
-1706i7 Line{positive} 1718r11 1718r20 1720r33
-1707a7 Text{string} 1709r66
-1709a7 Actuals{string} 1712r10 1718r43 1718r69 1720r39
-1710i7 Part{28|167I9} 1716m7 1720r16
-1723U14 Add_Representation_Clause_Detail_Nodes 1723b14 1724=7 1725>7 1726>7
-. 1727>7 1728>7 1775l8 1775t46 1818s7 2453s13
-1724r7 Tree{28|187R9} 1748m10 1750m10 1771m19
-1725i7 Clause{28|167I9} 1748r16 1750r16 1771r25
-1726i7 Depth{natural} 1748r24 1750r24 1771r33
-1727i7 Line{positive} 1748r31 1750r31 1771r40
-1728a7 Text{string} 1730r53
-1730a7 Clean{string} 1731r42 1735r10 1740r72 1741r54 1743r72 1744r54
-1731a7 L{string} 1739r28 1739r57 1742r31 1742r60
-1732r7 Target{21|91R9} 1740m10 1743m10 1748r76
-1733r7 Item{21|91R9} 1741m10 1744m10 1750r74 1753r52
-1753a10 Item_Text{string} 1755r23 1756r21 1756r46 1756r57 1760r52 1761r52
-. 1763r22
-1759a16 Assocs{string} 1771r46
-1777U14 Add_Representation_Component_Clause_Detail_Nodes 1777b14 1778=7 1779>7
-. 1780>7 1781>7 1782>7 1799l8 1799t56 2455s13
-1778r7 Tree{28|187R9} 1794m10 1796m10 1798m10
-1779i7 Clause{28|167I9} 1794r16 1796r16 1798r16
-1780i7 Depth{natural} 1794r24 1796r24 1798r24
-1781i7 Line{positive} 1794r31 1796r31 1798r31
-1782a7 Text{string} 1784r55
-1784a7 Clean{string} 1785r53 1786r68 1787r52 1789r10
-1785a7 Target{string} 1794r65
-1786a7 Location{string} 1796r71
-1787a7 Bits{string} 1798r60
-1801U14 Add_Representation_Clause_Nodes 1801b14 1802=7 1803>7 1804>7 1805>7
-. 1806>7 1820l8 1820t39
-1802r7 Tree{28|187R9} 1816m10 1816r10 1819m10
-1803i7 Parent{28|167I9} 1817r52
-1804i7 Depth{natural} 1817r60 1819r24
-1805i7 Line{positive} 1817r11 1817r20 1819r35
-1806a7 Text{string} 1808r53
-1808a7 Clean{string} 1811r10 1817r43 1817r67 1819r41
-1809i7 Clause{28|167I9} 1815m7 1819r16
-1822V13 First_Semicolon{natural} 1822b13 1822>30 1830l8 1830t23 2506s21 2515s16
-. 2520s16 2544s19 2550s19 2558s19 2590s16 2600s16
-1822a30 Text{string} 1824r16 1825r13
-1824i11 I{integer} 1825r19 1826r20
-1832V13 Statement_Node_Kind{28|12E9} 1832b13 1832>34 1892l8 1892t27 2024s37
-1832a34 Text{string} 1833r36
-1833a7 T{string} 1834r37 1885r23 1887r23 1887r49 1887r65
-1834a7 L{string} 1836r28 1838r31 1840r31 1842r31 1844r31 1846r31 1848r31
-. 1849r35 1850r35 1853r31 1855r31 1857r31 1859r31 1859r61 1861r31 1863r31
-. 1865r31 1867r31 1869r31 1871r31 1873r31 1875r31 1877r31 1879r31 1881r31
-. 1883r31
-1894U14 Attach_Statement_Details 1894b14 1895=7 1896>7 1897>7 1898>7 1899>7
-. 1900>7 1901>7 2005l8 2005t32 2619s13 2625s13 2642s13
-1895r7 Tree{28|187R9} 1921m27 1926m30 1930m19 1933m19 1936m33 1941m19 1944m19
-. 1947m33 1950m30 1953m33 1955m19 1958m33 1959m33 1964m19 1966m33 1968m33
-. 1971m30 1974m16 1977m16 1980m30 1983m19 1986m19 1989m33 1994m19 1997m19
-. 2000m33
-1896i7 Stmt{28|167I9} 1921r33 1926r36 1930r25 1933r25 1936r39 1941r25 1944r25
-. 1947r39 1950r36 1953r39 1955r25 1958r39 1959r39 1964r25 1966r39 1968r39
-. 1971r36 1974r22 1977r22 1980r36 1983r25 1986r25 1989r39 1994r25 1997r25
-. 2000r39
-1897e7 Kind{28|12E9} 1906r15 1924r12
-1898i7 Depth{natural} 1921r39 1926r42 1930r31 1933r31 1936r45 1941r31 1944r31
-. 1947r45 1950r42 1953r45 1955r31 1958r45 1959r45 1964r31 1966r45 1968r45
-. 1971r42 1974r28 1977r28 1980r42 1983r31 1986r31 1989r45 1994r31 1997r31
-. 2000r45
-1899i7 Line{positive} 1921r50 1926r53 1930r42 1933r42 1936r56 1941r42 1944r42
-. 1947r56 1950r53 1953r56 1955r42 1958r56 1959r56 1964r42 1966r56 1968r56
-. 1971r53 1974r39 1977r39 1980r53 1983r42 1986r42 1989r56 1994r42 1997r42
-. 2000r56
-1900a7 Text{string} 1903r52
-1901b7 Is_Alternative{boolean} 1920r10
-1903a7 Clean{string} 1904r41 1907r59 1908r59 1909r59 1910r59 1911r59 1912r59
-. 1913r59 1916r10 1921r84 1956r34 1975r32 1978r31 1981r26 1984r35 1987r34
-. 1989r85 1992r26 1995r35 1998r34 2000r85
-1904a7 L{string} 1928r26 1939r26 1952r34 1962r26
-1905a7 Tail{string} 1926r82 1931r35 1934r34 1936r85 1942r35 1945r34 1947r85
-. 1950r82 1959r88 1965r35 1968r85 1971r82
-2007U14 Attach_Syntax_Details 2008=7 2009>7 2010>7 2011>7 2012>7 2013>7 2039s7
-. 2342b14 2665l8 2665t29 3146s22 3279s16
-2008r7 Tree{28|187R9} 2343b7 2353m36 2395m43 2399m40 2400m47 2403m48 2406m38
-. 2412m38 2414m41 2418m44 2420m48 2423m43 2433m47 2436m48 2440m16 2450m19
-. 2453m53 2455m63 2458m16 2462m16 2466m16 2488m31 2488r31 2492m31 2495m46
-. 2504m16 2509m19 2513m16 2517m19 2522m19 2526m16 2530m19 2534m16 2537m16
-. 2540m16 2543m33 2546m22 2549m33 2552m22 2555m33 2557m33 2560m22 2565m16
-. 2568m16 2571m16 2575m19 2578m19 2583m19 2587m19 2592m19 2597m19 2602m19
-. 2606m33 2608m19 2609m33 2611m19 2613m33 2616m19 2619m39 2621m37 2624m30
-. 2625m39 2628m19 2642m39 2644m30 2645m30 2647m33 2649m19 2652m30 2653m30
-. 2659m36
-2009i7 Id{28|167I9} 2344b7 2353r42 2395r49 2399r46 2400r53 2403r54 2406r44
-. 2412r44 2414r47 2418r50 2420r54 2423r49 2433r53 2436r54 2440r22 2450r25
-. 2453r59 2455r69 2458r22 2462r22 2466r22 2489r73 2495r52 2504r22 2509r25
-. 2513r22 2517r25 2522r25 2526r22 2530r25 2534r22 2537r22 2540r22 2543r39
-. 2546r28 2549r39 2552r28 2555r39 2557r39 2560r28 2565r22 2568r22 2571r22
-. 2575r25 2578r25 2583r25 2587r25 2592r25 2597r25 2602r25 2606r39 2608r25
-. 2609r39 2611r25 2613r39 2616r25 2619r45 2621r43 2624r36 2625r45 2628r25
-. 2642r45 2644r36 2645r36 2647r39 2649r25 2652r36 2653r36 2659r42
-2010e7 Kind{28|12E9} 2345b7 2353r59 2354r12 2395r72 2396r16 2397r23 2405r16
-. 2405r53 2405r93 2407r19 2408r23 2409r23 2410r23 2423r72 2619r49 2625r49
-. 2642r49
-2011a7 Code{string} 2346b7 2350r37 2353r65 2395r66 2399r63 2400r70 2403r71
-. 2406r61 2412r77 2413r29 2414r79 2418r67 2420r71 2423r66 2432r52 2433r70
-. 2436r71 2440r59 2444r52 2445r51 2447r21 2453r76 2455r86 2459r31 2463r47
-. 2467r47 2469r58 2505r47 2506r53 2509r57 2514r47 2515r48 2517r57 2520r48
-. 2522r57 2527r47 2530r57 2535r47 2538r47 2540r54 2544r51 2546r60 2550r51
-. 2552r60 2558r51 2560r60 2566r47 2569r47 2571r54 2576r50 2578r57 2584r50
-. 2588r50 2590r48 2592r57 2597r57 2600r48 2602r57 2608r73 2611r57 2616r57
-. 2619r72 2621r75 2624r87 2625r72 2626r26 2628r72 2642r72 2644r87 2645r92
-. 2646r26 2647r97 2649r72 2652r76 2653r53 2656r61
-2012i7 Line{positive} 2347b7 2353r53 2395r60 2399r57 2400r64 2403r65 2406r55
-. 2412r55 2414r58 2418r61 2420r65 2423r60 2433r64 2436r65 2440r33 2450r36
-. 2453r70 2455r80 2458r33 2462r33 2466r33 2489r32 2489r41 2492r59 2495r63
-. 2504r33 2509r36 2513r33 2517r36 2522r36 2526r33 2530r36 2534r33 2537r33
-. 2540r33 2543r50 2546r39 2549r50 2552r39 2555r50 2557r50 2560r39 2565r33
-. 2568r33 2571r33 2575r36 2578r36 2583r36 2587r36 2592r36 2597r36 2602r36
-. 2606r50 2608r36 2609r50 2611r36 2613r50 2616r36 2619r66 2621r54 2624r47
-. 2625r66 2628r36 2642r66 2644r47 2645r47 2647r50 2649r36 2652r47 2653r47
-. 2659r53
-2013i7 Depth{natural} 2348b7 2353r46 2395r53 2399r50 2400r57 2403r58 2406r48
-. 2412r48 2414r51 2418r54 2420r58 2423r53 2433r57 2436r58 2440r26 2450r29
-. 2453r63 2455r73 2458r26 2462r26 2466r26 2489r77 2492r48 2495r56 2504r26
-. 2509r29 2513r26 2517r29 2522r29 2526r26 2530r29 2534r26 2537r26 2540r26
-. 2543r43 2546r32 2549r43 2552r32 2555r43 2557r43 2560r32 2565r26 2568r26
-. 2571r26 2575r29 2578r29 2583r29 2587r29 2592r29 2597r29 2602r29 2606r43
-. 2608r29 2609r43 2611r29 2613r43 2616r29 2619r55 2621r47 2624r40 2625r55
-. 2628r29 2642r55 2644r40 2645r40 2647r43 2649r29 2652r40 2653r40 2659r46
-2015U14 Add_Structured_Statement_Node 2015b14 2016=7 2017>7 2018>7 2019>7
-. 2020>7 2021>7 2040l8 2040t37 2065s13 2069s13 2075s13 2079s13 2082s13 2085s13
-2016r7 Tree{28|187R9} 2032m10 2032r10 2036m13 2039m30
-2017i7 Parent{28|167I9} 2032r64
-2018i7 Depth{natural} 2032r72 2036r25 2039r61
-2019i7 Line{positive} 2032r23 2032r32 2036r36 2039r55
-2020a7 Text{string} 2023r52
-2021b7 Is_Alternative{boolean} 2034r10
-2023a7 Clean{string} 2024r58 2027r10 2032r55 2032r79 2036r70 2039r48
-2024e7 Kind{28|12E9} 2032r16 2039r42
-2025i7 Stmt{28|167I9} 2031m7 2036r19 2039r36
-2042U14 Add_Action_Sequence 2042b14 2043=7 2044>7 2045>7 2046>7 2047>7 2048>7
-. 2118l8 2118t27 2495s25 2508s16 2516s16 2521s16 2529s16 2539s13 2545s19
-. 2551s19 2559s19 2570s13 2577s16 2591s16 2596s16 2601s16 2607s16 2610s16
-. 2615s16 2621s16
-2043r7 Tree{28|187R9} 2063m16 2066m16 2068m30 2070m16 2073m16 2076m16 2078m30
-. 2080m16 2083m16 2086m16 2095m10 2095r10
-2044i7 Parent{28|167I9} 2096r52
-2045i7 Depth{natural} 2063r27 2066r27 2068r41 2070r27 2073r27 2076r27 2078r41
-. 2080r27 2083r27 2086r27 2096r60
-2046i7 Line{positive} 2063r38 2066r38 2068r52 2070r38 2073r38 2076r38 2078r52
-. 2080r38 2083r38 2086r38 2096r11 2096r20
-2047a7 Text{string} 2050r40
-2048b7 Is_Alternative{boolean} 2086r53
-2050a7 Clean{string} 2090r10 2096r43 2096r67 2098r16 2099r22 2101r28 2102r16
-. 2109r33 2109r49 2112r33
-2051i7 Seq{28|167I9} 2063r22 2066r22 2068r36 2070r22 2073r22 2076r22 2078r36
-. 2080r22 2083r22 2086r22 2094m7
-2052i7 Start{natural} 2098m7 2099r13 2101r19 2109r40 2111r23 2112r40 2113m13
-. 2115m13 2115r22
-2053i7 Semi{natural} 2100m10 2103m16 2108r13 2111r16 2112r49 2113r22
-2055U17 Add_Action_Segment 2055b17 2055>37 2088l11 2088t29 2109s13 2112s13
-2055a37 Raw_Segment{string} 2056r45
-2056a10 Segment{string} 2057r46 2059r13 2064r47 2066r59 2070r59 2074r47 2076r44
-. 2080r59 2083r44 2086r44
-2057a10 L{string} 2059r52 2061r34 2061r64 2067r34 2071r34 2077r34 2077r64
-. 2081r34
-2101i14 I{integer} 2102r23 2103r24
-2121U14 Add_Header_Recovery_Details 2121b14 2122=7 2123>7 2124>7 2125>7 2126>7
-. 2127>7 2340l8 2340t35 2353s7
-2122r7 Tree{28|187R9} 2135m13 2135r13 2138m27 2145m13 2145r13 2148m27 2185m13
-. 2185r13 2188m27
-2123i7 Parent{28|167I9} 2136r57 2146r54 2186r54
-2124i7 Depth{natural} 2136r65 2138r43 2146r62 2148r43 2186r62 2188r43
-2125i7 Line{positive} 2136r14 2136r23 2138r54 2146r14 2146r23 2148r54 2186r14
-. 2186r23 2188r54
-2126e7 Kind{28|12E9} 2200r12
-2127a7 Code{string} 2129r37 2146r46 2147r67 2159r20 2170r20 2186r46 2187r56
-. 2272r38 2276r38 2280r36 2284r36 2290r36 2296r38 2302r40 2310r36 2314r38
-. 2317r36
-2129a7 L{string} 2153r27 2202r30 2203r38 2204r38 2213r30 2220r26 2222r29
-. 2222r60 2231r26 2237r30 2239r33 2240r38 2246r30 2271r30 2275r30 2279r30
-. 2283r30 2289r30 2293r35 2293r71 2294r38 2299r26 2300r38 2305r26 2305r55
-. 2307r29 2309r29 2313r30 2316r30
-2131U17 Add_Expected 2131b17 2131>31 2131>47 2139l11 2139t23 2272s16 2276s16
-. 2280s16 2284s16 2290s16 2296s16 2302s16 2310s16 2314s16 2317s16
-2131a31 Token{string} 2137r45 2138r81
-2131a47 Context{string} 2136r46 2137r62
-2132i10 Recovery{28|167I9} 2134m10 2138r33
-2141U17 Add_Expected_Declaration_Token 2141b17 2141>49 2149l11 2149t41 2206s16
-. 2214s16 2223s16 2225s16 2234s16 2238s16 2243s16 2247s16 2250s16 2268s16
-2141a49 Token{string} 2147r50 2148r81
-2142i10 Recovery{28|167I9} 2144m10 2148r33
-2151V16 Has_Terminator{boolean} 2151b16 2154l11 2154t25 2224s23 2233s23 2241s28
-. 2249s20 2267s20 2320s20 2325s20 2334s20
-2156V16 Open_Paren_Count{natural} 2156b16 2165l11 2165t27 2193s13 2195s36
-2157i10 Count{natural} 2161m16 2161r25 2164r17
-2159e14 Ch=2159:20{character} 2160r16
-2167V16 Close_Paren_Count{natural} 2167b16 2176l11 2176t28 2193s32 2195s16
-2168i10 Count{natural} 2172m16 2172r25 2175r17
-2170e14 Ch=2170:20{character} 2171r16
-2178U17 Add_Expected_Token 2178b17 2179>10 2180>10 2189l11 2189t29 2194s13
-. 2196s13 2321s16 2326s16 2335s16
-2179a10 Token{string} 2187r39 2188r81
-2180a10 Context{string} 2187r13
-2182i10 Recovery{28|167I9} 2184m10 2188r33
-2191U17 Add_Unbalanced_Paren_Recovery 2191b17 2198l11 2198t40 2324s13 2333s13
-2350a7 L{string} 2402r26 2419r26 2435r26 2528r26 2542r34 2542r64 2548r37
-. 2554r37 2573r26 2573r58 2581r34 2585r37 2595r26 2605r26 2612r29 2614r37
-. 2620r26
-2351i7 Semi{natural} 2506m13 2507r16
-2443a16 Actuals{string} 2450r42
-2469a16 Decls{string} 2470r35 2473r22 2473r52 2475r37 2476r25 2483r47 2483r63
-. 2483r80
-2470i16 Start{natural} 2473r43 2475r28 2483r54 2483r87 2499m19
-2471i16 Semi{natural} 2474m19 2477m25 2483r33 2483r96 2498r29 2499r28
-2475i23 I{integer} 2476r32 2477r33
-2482a22 Piece{string} 2485r25 2485r56 2489r64 2489r88 2492r65 2494r28 2495r69
-2487i28 Component{28|167I9} 2492r37
-2656a16 Target{string} 2658r19 2659r76
-2668r7 Tree{28|187R9} 2690r23 2728m13 2728r13 2735r40 2758r59 2759r58 2763r41
-. 2780r22 2786r56 2796m25 2796r25 2803m25 2803r25 2806m25 2806r25 2830r28
-. 2956m13 2956r13 2958r26 2961m13 2961r13 2961r35 2964r50 2974r51 2979m13
-. 2979r13 2984m13 2984r13 2989m13 2989r13 2999r57 3000r55 3002r49 3032m13
-. 3032r13 3046m22 3046r22 3058m19 3058r19 3098r57 3115r31 3116r39 3119r39
-. 3137m31 3137r31 3143m34 3143r34 3146m45 3146r45 3241r65 3275m38 3275r38
-. 3277r80 3280m19 3280r19 3281r61 3293m14 3293r14 3294m30 3294r30 3300r17
-. 3339r14
-2669i7 Root_Node{28|167I9} 2680r20 2751r37 2841r40 3033r13 3139r31 3294m7
-2670i7 Line_Start{positive} 3308r31 3311r31 3312r35 3318m16 3324r10 3331r28
-. 3332r32
-2671i7 Line_Number{positive} 3312r60 3314r33 3320m13 3320r28 3332r57 3337r25
-2672i7 Max_Depth{positive} 2673r48 2695r27
-2673a7 Scope_Stack(28|167I9) 2682r17 2690r29 2697m13 2704m13 2735r46 2757r51
-. 2763r47 2785r48 2998r49 3002r55
-2674i7 Scope_Depth{natural} 2679r13 2682r30 2687r13 2690r42 2695r13 2696m13
-. 2696r28 2697r26 2703r13 2704r26 2705m13 2705r28 2711r16 2734r32 2753m13
-. 2754r30 2755r19 2757r64 2821r19 2837r16 2996r16 2998r62 3002r22 3002r68
-. 3005r19 3081r16 3086r19 3092r53 3094r58 3132r56 3156r30 3163r19 3168r22
-. 3173r22 3179r22 3185r22 3191r22 3197r22 3203r22 3209r22 3214r22 3219r22
-. 3229r27 3235r19 3252r19 3261r19 3277r118 3281r99
-2675i7 Last_Significant_Node{28|167I9} 3096r19 3098r63 3109r44 3114r24 3115r37
-. 3116r45 3119r45 3128r35 3147m22 3282m16
-2677V16 Current_Parent{28|167I9} 2677b16 2683l11 2683t25 2779s37 2780s28
-. 2825s51 2952s41 2973s43 3240s57 3274s83
-2685V16 Current_Kind{28|12E9} 2685b16 2691l11 2691t23 2712s42 2822s65 2826s53
-. 3082s24 3087s24 3157s30 3164s27 3169s27 3174s28 3175s36 3180s28 3181s36
-. 3186s28 3187s36 3192s27 3198s27 3204s27 3210s27 3215s27 3220s28 3221s36
-. 3230s48 3236s27 3254s28 3255s36 3263s58
-2693U17 Push_Scope 2693b17 2693>29 2699l11 2699t21 2991s10 3287s19
-2693i29 Id{28|167I9} 2697r42
-2701U17 Pop_Scope 2701b17 2707l11 2707t20 2714s13 2775s19 2833s19 3018s16
-. 3159s22 3248s22 3285s19
-2709U17 Pop_Alternative_Scope 2709b17 2716l11 2716t32 2746s10 3154s19 3232s19
-2718U17 Add_Recovery_Node 2718b17 2719>10 2720>10 2721>10 2722>10 2723>10
-. 2730l11 2730t28 2750s13 2765s22 2770s22 2778s13 2828s19 2840s16 2963s10
-. 3009s19 3014s19 3243s22
-2719e10 Kind{28|12E9} 2728r19
-2720i10 Parent{28|167I9} 2729r13
-2721i10 Depth{natural} 2729r21
-2722i10 Line{positive} 2728r26 2728r35
-2723a10 Label{string} 2728r58 2729r28
-2725i10 Ignored{28|167I9} 2727m10
-2732V16 Matching_End_Depth{natural} 2732b16 2732>36 2740l11 2740t29 2747s25
-2732a36 End_Code{string} 2735r69
-2734i14 D{integer} 2735r59 2736r23
-2742U17 Recover_To_End_Boundary 2742b17 2742>42 2742>61 2812l11 2812t34 3152s19
-2742a42 End_Code{string} 2744r67 2747r45 2752r32 2763r80 2768r40 2773r40
-. 2789r64 2797r64
-2742i61 Line_No{positive} 2751r51 2766r71 2771r70 2780r55 2797r26 2797r38
-. 2803r62 2806r62
-2743i10 Match_Depth{natural} 2747m10 2749r13 2754r16 2755r33 2761r22 2763r60
-. 2783r13 2785r61
-2744a10 Label=2744:65{string} 2780r64
-2757i19 Open_Node{28|167I9} 2758r65 2759r64 2766r44 2771r43
-2758e19 Open_Kind{28|12E9} 2763r24 2767r68 2772r57
-2759i19 Open_Depth{natural} 2766r55 2771r54
-2785i16 Open_Node{28|167I9} 2786r62 2798r25
-2786r16 Open_Info{28|177R9} 2788r19 2788r46 2798r36 2803r41 2806r41
-2787a16 Expected{string} 2791r19 2792r46 2800r42 2804r51
-2789a16 Actual{string} 2791r43 2792r56 2799r52 2807r42
-2795i22 Recovery{28|167I9} 2803r31 2806r31
-2814U17 Recover_Alternative_Owner 2814b17 2815>10 2816>10 2817>10 2845l11
-. 2845t36 3271s19
-2815e10 Kind{28|12E9} 2820r34 2822r59 2838r59
-2816i10 Line_No{positive} 2830r56 2841r54
-2817a10 Code{string} 2832r37 2842r43
-2825i19 Open_Node{28|167I9} 2829r40 2830r34
-2826e19 Open_Kind{28|12E9} 2831r54
-2848V16 Starts_Generic_Unit{boolean} 2848b16 2848>37 2848>55 2867l11 2867t30
-. 3237s27
-2848e37 Kind{28|12E9} 2851r13 2852r20 2853r20 2854r20 2855r20 2856r20
-2848a55 Code{string} 2849r40
-2849a10 L{string} 2858r38 2859r41 2860r41 2861r41 2862r41 2863r41 2864r41
-2869V16 Allows_Handled_Statement_Part{boolean} 2869b16 2869>47 2877l11 2877t40
-. 3263s27
-2869e47 Kind{28|12E9} 2871r17 2872r20 2873r20 2874r20 2875r20 2876r20
-2879V16 Is_Executable_Statement_Node{boolean} 2879b16 2879>46 2901l11 2901t39
-. 3264s27
-2879e46 Kind{28|12E9} 2881r17 2882r20 2883r20 2884r20 2885r20 2886r20 2887r20
-. 2888r20 2889r20 2890r20 2891r20 2892r20 2893r20 2894r20 2895r20 2896r20
-. 2897r20 2898r20 2899r20 2900r20
-2903V16 Is_Declaration_Node{boolean} 2903b16 2903>37 2946l11 2946t30 3256s27
-2903e37 Kind{28|12E9} 2905r17 2906r20 2907r20 2908r20 2909r20 2910r20 2911r20
-. 2912r20 2913r20 2914r20 2915r20 2916r20 2917r20 2918r20 2919r20 2920r20
-. 2921r20 2922r20 2923r20 2924r20 2925r20 2926r20 2927r20 2928r20 2929r20
-. 2930r20 2931r20 2932r20 2933r20 2934r20 2935r20 2936r20 2937r20 2938r20
-. 2939r20 2940r20 2941r20 2942r20 2943r20 2944r20 2945r20
-2948U17 Add_Unexpected_Declaration_Recovery 2948b17 2949>10 2950>10 2967l11
-. 2967t46 3258s19
-2949i10 Line_No{positive} 2957r14 2957r26 2961r59 2965r13
-2950a10 Code{string} 2957r52 2959r68
-2952i10 Owner{28|167I9} 2958r13 2958r32 2961r41 2964r56
-2953i10 Recovery{28|167I9} 2955m10 2961r19 2964r34
-2969U17 Insert_Implicit_Begin_Before 2969b17 2970>10 2971>10 2992l11 2992t39
-. 3267s19
-2970i10 Line_No{positive} 2980r14 2980r26 2985r14 2985r26 2989r51
-2971a10 Code{string} 2980r52 2982r40 2985r52 2987r68
-2973i10 Owner{28|167I9} 2974r57 2981r13
-2974r10 Owner_Info{28|177R9} 2981r20 2986r25 2989r29
-2975i10 Begin_Node{28|167I9} 2978m10 2986r13 2991r22
-2976i10 Recovery{28|167I9} 2983m10 2989r19
-2994U17 Add_EOF_Recovery 2994b17 2994>35 3021l11 3021t27 3337s7
-2994i35 Line_No{positive} 3010r68 3015r67
-2998i16 Open_Node{28|167I9} 2999r63 3000r61 3010r41 3015r40
-2999e16 Open_Kind{28|12E9} 3007r21 3011r65 3016r54
-3000i16 Open_Depth{natural} 3010r52 3015r51
-3001e16 Owner_Kind{28|12E9} 3007r32
-3024U17 Attach_Token_Cursor_Grammar 3024b17 3064l11 3064t38 3297s7
-3025r10 Grammar{30|1194R9} 3029r82 3039r57
-3027i10 Parent{28|167I9} 3031m10 3048r22 3058r60
-3028i10 Limit{natural} 3036r31 3055r21
-3029i10 Count{natural} 3035r28 3055r13
-3035i14 Index{integer} 3036r23 3039r66
-3038r16 Prod{30|1185R9} 3041r65 3042r37 3047r23 3047r34 3047r47 3047r58
-3040a16 Label=3042:24{string} 3048r33
-3045i19 Ignored{28|167I9}
-3057i16 Ignored{28|167I9}
-3066U17 Add_Line 3066b17 3066>27 3066>42 3291l11 3291t19 3312s19 3314s19
-. 3332s16
-3066a27 Line{string} 3067r61 3071r61 3072r59 3073r49 3073r77
-3066i42 Line_No{positive} 3138r32 3138r44 3143r47 3143r59 3146r70 3152r50
-. 3245r25 3258r56 3267r49 3271r52 3275r51 3275r63 3280r47
-3067e10 Classified{28|12E9} 3070r19 3076r37 3092r19 3094r19 3165r27 3170r27
-. 3176r27 3182r27 3188r27 3205r28 3206r36 3211r27 3222r27 3228r27
-3068a10 Code{string} 3078r50 3080r13 3144r46 3146r64 3152r44 3237r54 3246r75
-. 3258r65 3267r58 3271r61 3278r38 3280r41 3286r41
-3073i10 Last_Column{positive} 3138r53 3143r68 3275r72
-3074i10 Parent{28|167I9} 3274m16 3276r38
-3075i10 New_Node{28|167I9} 3275m16 3280r25 3282r41 3287r31
-3076e10 Kind{28|12E9} 3085m16 3091m16 3093m16 3095m16 3127m16 3131r16 3132r24
-. 3133r23 3143r40 3146r58 3151r32 3153r43 3155r22 3167m19 3172m19 3178m19
-. 3184m19 3190m19 3196m19 3202m19 3208m19 3213m19 3218m19 3224m19 3227r19
-. 3237r48 3256r48 3264r57 3265r27 3270r40 3271r46 3275r44 3280r35 3284r32
-. 3286r35
-3077i10 Parent_Override{28|167I9} 3109m25 3128m16 3247m22 3253r27 3262r27
-. 3274r30 3274r62 3277r42 3277r86 3281r23 3281r67
-3078a10 L{string} 3083r42 3088r43 3089r51 3113r32 3118r35 3193r45 3194r37
-. 3199r37 3200r37 3216r45
-3098e22 Prev{28|12E9} 3100r25 3101r32 3102r32 3103r32 3104r32 3105r32 3106r32
-. 3107r32
-3136i19 Context{28|167I9} 3144r34
-3142i22 Child{28|167I9} 3146r51 3147r47
-3240i22 Generic_Node{28|167I9} 3241r71 3244r44 3247r41
-3241r22 Generic_Info{28|177R9} 3244r58
-3303i11 I{integer} 3304r19 3306r38 3317r16 3318r30
-3306i16 Line_End{natural} 3308r19 3308r57 3309m19 3309r31 3311r19 3312r49
-3326i13 Line_End{natural} 3328r22 3329m16 3329r28 3331r16 3332r46
-3378i7 Count{natural} 3382m13 3382r22 3385r14
-3380r11 Info{28|177R9} 3381r13
-3393i7 Count{natural} 3397m13 3397r22 3398r16
-3395r11 Info{28|177R9} 3396r13 3399r23
-X 30 editor-ada_token_cursor.ads
-4K16*Ada_Token_Cursor 29|7w13 3025r36 3026r19 3029r47 3038r39 3039r25 3041r25
-. 30|1240e28
-29E9*Production_Kind 29|3041r42 30|1183e33
-1185R9*Production_Info 29|3038r56 30|1190e14
-1186e7*Kind{29E9} 29|3041r70
-1187i7*Line{positive} 29|3047r28 3047r52
-1188i7*Column{positive} 29|3047r39 3047r63
-1189r7*Label{21|91R9} 29|3042r42
-1194R9*Grammar_Result 29|3025r53 30|1238e14
-1209V13*Parse{1194R9} 29|3026s36
-1210V13*Production_Count{natural} 29|3029s64
-1211V13*Production_At{1185R9} 29|3039s42
-X 33 system.ads
+. 369r34 371r34 373r31 373r63 374r39 375r39 376r38 377r38 379r30 380r38 382r30
+. 382r63 384r34 396r42 397r38
+403V13 Is_End_Node{boolean} 403b13 403>26 406l8 406t19 3309s19 3451s19
+403e26 Kind{27|12E9} 405r14
+408V13 Is_Alternative_Node{boolean} 408b13 408>34 417l8 417t27 2855s21 2981s13
+. 3311s22 3397s27 3437s19
+408e34 Kind{27|12E9} 410r14 411r17 412r17 413r17 414r17 415r17 416r17
+419V13 Expected_End_Label{string} 419b13 419>33 458l8 458t26 2928s48 2933s37
+. 2992s34 3172s45 3177s34
+419e33 Kind{27|12E9} 421r12
+461V13 Strip_Terminator{string} 461>31 474s34 528s63 781b13 788l8 788t24
+. 1060s34 1140s34 1297s37 1326s38 1333s39 1433s34 1484s34 1512s34 1522s34
+. 1554s34 1737s34 1843s35 1897s37 1921s35 2016s34 2136s34
+461a31 Text{string} 781b31 782r36
+462V13 Segment_Before{string} 462>29 462>35 519s20 546s20 548s20 550s20 552s20
+. 558s20 597s23 790b13 800l8 800t22 1157s61 1164s61 1188s45 1193s45 1468s20
+. 1470s20 1472s20 1474s20 1476s20 1498s20 1500s20 1502s20 1504s20 1535s26
+. 1537s26 1539s26 1632s27 1677s16 1853s41 1856s41 1898s37 1899s37 2044s19
+. 2055s19 2078s19 2088s16 2097s19 2108s19 2177s16 2187s16 2525s61 2576s16
+. 2580s16 2647s16 2655s16 2658s16 2698s16 2701s16 2708s19 2716s19 2720s19
+. 2744s57 2760s71 2780s71 2781s76
+462a29 Text{string} 790b29 791r72 794r23 795r27 798r23 798r29
+462a35 Marker{string} 790b35 791r86
+463V13 Segment_After{string} 463>28 463>34 802b13 814l8 814t21 1158s61 1164s77
+. 1165s61 1190s45 1195s45 1530s36 1625s13 1632s43 1673s52 1680s16 1688s13
+. 1801s53 1853s57 1854s39 1856s57 1857s39 1899s53 1900s37 2020s44 2021s44
+. 2022s44 2023s44 2024s44 2025s44 2026s44 2047s19 2058s19 2069s19 2091s16
+. 2100s19 2111s19 2177s32 2179s44 2183s44 2187s32 2193s44 2527s64 2572s16
+. 2576s32 2580s32 2582s43 2640s33 2642s42 2647s32 2650s42 2655s32 2658s32
+. 2660s39 2665s45 2675s45 2687s45 2698s32 2701s32 2703s39 2708s35 2710s42
+. 2716s35 2720s35 2723s42 2733s42 2736s33 2738s42 2744s42 2747s42 2752s42
+. 2757s60 2783s82
+463a28 Text{string} 802b28 803r72 810r18 813r20 813r35
+463a34 Marker{string} 802b34 803r86 809r29
+465U14 Add_Declaration_Detail_Nodes 466=7 467>7 468>7 469>7 470>7 471>7 1370s16
+. 1546b14 1711l8 1711t36 2508s13 2536s13 2604s28
+466r7 Tree{27|187R9} 1547b7 1603m27 1615m13 1618m13 1624m13 1629m27 1631m27
+. 1634m27 1636m27 1640m27 1642m27 1644m27 1646m27 1648m27 1650m27 1652m27
+. 1654m27 1656m27 1658m27 1676m16 1679m16 1683m16 1687m13 1703m27 1705m27
+. 1707m27 1709m27
+467i7 Parent{27|167I9} 1548b7 1603r33 1615r19 1618r19 1624r19 1629r33 1631r33
+. 1634r33 1636r33 1640r33 1642r33 1644r33 1646r33 1648r33 1650r33 1652r33
+. 1654r33 1656r33 1658r33 1676r22 1679r22 1683r22 1687r19 1703r33 1705r33
+. 1707r33 1709r33
+468i7 Depth{natural} 1549b7 1603r41 1615r27 1618r27 1624r27 1629r41 1631r41
+. 1634r41 1636r41 1640r41 1642r41 1644r41 1646r41 1648r41 1650r41 1652r41
+. 1654r41 1656r41 1658r41 1676r30 1679r30 1683r30 1687r27 1703r41 1705r41
+. 1707r41 1709r41
+469i7 Line{positive} 1550b7 1603r48 1615r34 1618r34 1624r34 1629r48 1631r48
+. 1634r48 1636r48 1640r48 1642r48 1644r48 1646r48 1648r48 1650r48 1652r48
+. 1654r48 1656r48 1658r48 1676r37 1679r37 1683r37 1687r34 1703r48 1705r48
+. 1707r48 1709r48
+470a7 Code{string} 1551b7 1554r52
+471e7 Kind{27|12E9} 1552b7 1559r12 1606r10 1607r17 1608r17 1609r17 1610r17
+. 1611r17 1612r17 1622r10 1628r10 1633r13 1639r10 1641r13 1643r13 1645r13
+. 1647r13 1649r13 1651r13 1653r13 1655r13 1657r13 1661r10 1662r17 1663r17
+. 1664r17 1665r17 1666r17 1667r17 1668r17 1669r17 1691r10 1692r17 1693r17
+. 1694r17 1695r17 1696r17 1697r17 1698r17 1699r17
+473V13 End_Target_Text{string} 473b13 473>30 524l8 524t23 2792s44 2885s38
+. 2950s47
+473a30 Code{string} 474r52
+474a7 Clean{string} 475r41 479r13 482r23 482r30 482r61
+475a7 L{string} 487r32 489r31 491r31 493r31 495r31 497r31 499r31 501r31 503r31
+. 505r31 507r31
+477V16 Drop_Prefix{string} 477b16 477>29 483l11 483t22 490s39 492s39 494s39
+. 496s39 498s39 500s39 502s39 504s39 506s39 508s39 510s39
+477a29 Prefix{string} 479r29 482r44
+485r7 Tail{20|91R9} 490m10 492m10 494m10 496m10 498m10 500m10 502m10 504m10
+. 506m10 508m10 510m10 514r53
+514a10 Work{string} 516r13 518r26 519r36 521r20
+526V13 Opening_Target_Text{string} 526b13 526>34 526>52 603l8 603t27 2948s47
+526e34 Kind{27|12E9} 528r13 564r12
+526a52 Label{string} 528r51 528r81
+527a7 Clean{string} 529r41 533r13 536r23 536r30 536r61 597r39
+529a7 L{string} 566r34 570r34 574r34 576r37 596r26
+531V16 After_Prefix{string} 531b16 531>30 537l11 537t23 567s35 571s35 575s35
+. 577s35 580s32 582s32 584s32 586s32 588s32 590s32 592s32 594s32
+531a30 Prefix{string} 533r29 536r44
+539V16 First_Name{string} 539b16 539>28 562l11 562t21 567s23 571s23 575s23
+. 577s23 580s20 582s20 584s20 586s20 588s20 590s20 592s20 594s20
+539a28 Text{string} 540r42
+540a10 Work{string} 541r45 543r13 545r26 546r36 547r26 548r36 550r36 552r36
+. 553r16 556r26 556r32 556r46 557r26 558r36 560r20
+541a10 L_Work{string} 549r26 551r26 554r21 554r29 554r48
+605V13 Same_Ada_Name{boolean} 605b13 605>28 605>43 608l8 608t21 2953s31
+605a28 Left{string} 607r27
+605a43 Right{string} 607r49
+610V13 End_Matches_Kind{boolean} 610b13 610>31 610>51 659l8 659t24 2895s22
+610e31 Opener{27|12E9} 614r17 615r20 616r20 618r17 619r20 620r20 621r20 623r17
+. 625r17 626r20 628r17 629r20 630r20 632r17 633r20 634r20 636r17 637r20 638r20
+. 645r17 646r20 647r20 648r20 649r20 650r20 651r20 652r20 653r20 654r20 655r20
+. 656r20
+610a51 End_Code{string} 611r37
+611a7 L{string} 613r28 617r31 622r31 624r31 627r31 631r31 635r31 639r31
+661V13 Alternative_Has_Grammar_Owner{boolean} 661b13 662>7 663>7 694l8 694t37
+. 2983s28 2999s28
+662e7 Alternative{27|12E9} 666r12
+663e7 Owner{27|12E9} 668r20 669r23 670r23 672r20 673r23 675r20 676r23 678r20
+. 679r23 680r23 681r23 682r23 683r23 684r23 686r20 687r23 689r20 690r23
+697V13 Is_Transient_Statement_Part{boolean} 697b13 697>42 703l8 703t35 718s17
+. 2892s27
+697e42 Kind{27|12E9} 699r14 700r17 701r17 702r17
+705V13 End_Implicitly_Closes_Statement_Part{boolean} 705b13 706>7 707>7 708>7
+. 738l8 738t44 2923s30 3167s27
+706e7 Transient{27|12E9} 712r10 718r46
+707e7 Owner{27|12E9} 713r17 714r20 715r20 716r20 717r20 731r14 732r17 733r17
+. 734r17 735r17 736r17 737r17
+708a7 End_Code{string} 710r37
+710a7 L{string} 722r28 723r35 724r35 725r35 726r35
+741V13 Is_Identifier_Start{boolean} 741b13 741>34 744l8 744t27 748s14 1110s13
+741e34 C{character} 743r15 743r33 743r52 743r70
+746V13 Is_Identifier_Part{boolean} 746b13 746>33 749l8 749t26 1115s48
+746e33 C{character} 748r35 748r47 748r65 748r83
+751V13 Is_Keyword{boolean} 751b13 751>25 779l8 779t18 1121s26
+751a25 Word{string} 752r37
+752a7 L{string} 754r14 754r34 754r52 755r17 755r38 755r59 756r17 756r35 756r53
+. 757r17 757r34 757r54 758r17 758r36 758r59 759r17 759r37 759r57 760r17 760r34
+. 760r53 761r17 761r35 761r55 762r17 762r36 762r54 763r17 763r39 763r58 764r17
+. 764r34 764r58 765r17 765r39 765r58 766r17 766r35 766r53 767r17 767r34 767r51
+. 768r17 768r35 768r60 769r17 769r38 769r60 770r17 770r41 770r61 771r17 771r38
+. 771r56 772r17 772r39 772r60 773r17 773r38 773r61 774r17 774r39 774r66 775r17
+. 775r36 775r60 776r17 776r36 776r56 777r17 777r36 777r56 778r17
+782a7 T{string} 784r10 784r32 784r35 785r23 785r26 785r37 787r14
+791i7 Marker_Pos{natural} 793r10 795r13 798r43
+803i7 Marker_Pos{natural} 806r10 809r16
+804i7 First{natural} 809m7 810r10 813r26
+816V13 If_Condition_Text{string} 816b13 816>32 816>38 840l8 840t25 2618s16
+. 2630s16
+816a32 Code{string} 817r40
+816a38 Prefix{string} 819r40
+817a7 Clean{string} 818r41 819r26 822r22 822r42 826r16 827r22 829r30 839r20
+818a7 L{string} 828r21 829r67
+819i7 Start{natural} 822r13 822r49 823m10 823r19 835r43 839r27
+820i7 Then_Pos{natural} 831m13 835r10 835r31 839r36
+826i11 I{integer} 827r13 828r24 828r29 829r22 829r70 831r25
+842V13 If_Action_Text{string} 842b13 842>29 861l8 861t22 2620s42 2632s42
+842a29 Code{string} 843r40
+843a7 Clean{string} 844r41 847r16 848r22 850r30 856r46 860r20 860r43
+844a7 L{string} 849r21 850r67
+845i7 Then_Pos{natural} 852m13 856r10 856r31 860r27
+847i11 I{integer} 848r13 849r24 849r29 850r22 850r70 852r25
+863V13 Is_Character_Literal_At{boolean} 863b13 864>7 864>22 864>37 870l8
+. 870t31 892s16 932s16 1009s16 1410s16
+864a7 Text{string} 868r18 869r18
+864i22 Pos{natural} 867r14 868r24 869r24
+864i37 Last{natural} 867r25
+874V13 Code_Preserving_Literals_For_Retention{string} 874b13 874>53 910l8
+. 910t46 3230s18
+874a53 Line{string} 876r30 883r18 885r16 886r28 886r47 892r41 892r50 894r16
+. 896r16 897r30 898r21 900r20 903r23 903r29 909r14
+875b7 In_String{boolean} 884r13 889m19 895m13
+876i7 I{natural} 883r13 885r22 886r19 886r53 887m19 887r24 892r47 893m13
+. 893r18 894r22 896r22 897r21 898r27 900r16 903r43 906m10 906r15
+912V13 Segment_Between_First_Parens{string} 912b13 912>43 955l8 955t36 968s23
+. 1515s17 1630s27 1635s27 1720s35 1822s36 1873s22 1874s22 2545s22 2557s22
+. 2558s21 2764s42 2785s42
+912a43 Text{string} 917r30 923r18 925r16 926r28 926r47 932r41 932r50 934r16
+. 936r16 941r16 954r20
+913i7 Open_Pos{natural} 937r16 938m16 951r10 951r66 954r26
+914i7 Close_Pos{natural} 944m16 951r31 951r53 954r42
+915i7 Level{natural} 940m13 940r22 941r40 942m13 942r22 943r16
+916b7 In_String{boolean} 924r13 929m19 935m13
+917i7 I{natural} 923r13 925r22 926r19 926r53 927m19 927r24 932r47 933m13
+. 933r18 934r22 936r22 938r28 941r22 944r29 948m10 948r15
+957V13 Segment_Between_First_Parens_After{string} 957b13 958>7 959>7 976l8
+. 976t42 1739s34
+958a7 Text{string} 961r37 967r37 969r19 969r46
+959a7 Marker{string} 964r17 965r33 965r54 967r20 969r29
+961a7 L{string} 963r16 964r38 965r21
+963i11 I{integer} 964r13 965r24 965r29 967r16 969r25
+978V13 Strip_Leading_With{string} 978b13 978>33 989l8 989t26 1801s33 2553s39
+978a33 Text{string} 979r36
+979a7 T{string} 980r37 983r13 986r23 986r26 986r41 988r14
+980a7 L{string} 982r28
+991V13 Top_Level_Arrow_Position{natural} 991b13 991>39 1023l8 1023t32 1027s14
+. 1031s35 1043s35
+991a39 Text{string} 994r30 996r10 1000r18 1002r16 1003r28 1003r47 1009r41
+. 1009r50 1011r16 1013r16 1015r16 1017r16 1017r40
+992i7 Level{natural} 1014m13 1014r22 1015r40 1016m13 1016r22 1017r68
+993b7 In_String{boolean} 1001r13 1006m19 1012m13
+994i7 I{natural} 1000r13 1002r22 1003r19 1003r53 1004m19 1004r24 1009r47
+. 1010m13 1010r18 1011r22 1013r22 1015r22 1017r22 1017r46 1018r20 1020m10
+. 1020r15
+1025V13 Has_Top_Level_Arrow{boolean} 1025b13 1025>34 1028l8 1028t27 1343s16
+. 1364s19 1372s19 1381s19
+1025a34 Text{string} 1027r40
+1030V13 Split_Before_Top_Level_Arrow{string} 1030b13 1030>43 1040l8 1040t36
+. 1340s40 1367s22 1384s22
+1030a43 Text{string} 1031r61 1034r23 1035r21 1038r23 1038r29
+1031i7 Arrow{natural} 1033r10 1035r13 1038r43
+1042V13 Split_After_Top_Level_Arrow{string} 1042b13 1042>42 1050l8 1050t35
+. 1341s40 1387s22
+1042a42 Text{string} 1043r61 1045r40 1048r23 1048r42
+1043i7 Arrow{natural} 1045r10 1045r28 1048r29
+1052U14 Add_Syntax_Child 1052b14 1053=7 1054>7 1055>7 1056>7 1057>7 1058>7
+. 1067l8 1067t24 1122s22 1152s10 1155s10 1156s10 1160s10 1161s10 1168s10
+. 1171s10 1174s10 1176s10 1179s10 1182s10 1185s10 1201s10 1204s10 1207s10
+. 1210s10 1215s10 1218s10 1221s10 1227s10 1233s10 1234s10 1237s10 1240s10
+. 1243s10 1247s13 1248s13 1252s13 1254s13 1256s13 1257s13
+1053r7 Tree{27|187R9} 1065m31 1065r31
+1054i7 Parent{27|167I9} 1065r73
+1055i7 Depth{natural} 1065r81
+1056i7 Line{positive} 1065r44 1065r53
+1057e7 Kind{27|12E9} 1065r37
+1058a7 Label{string} 1060r52
+1060a7 Clean{string} 1061r46 1061r75 1064r10 1065r88
+1061i7 Last_Column{positive} 1065r59
+1062i7 Ignored{27|167I9} 1065m10
+1069V13 Looks_Like_Literal{boolean} 1069b13 1069>33 1084l8 1084t26 1151s10
+1069a33 Text{string} 1070r36
+1070a7 T{string} 1071r37 1073r10 1076r15 1076r18 1076r43 1076r46 1077r17
+. 1077r20 1078r18 1079r27 1079r30 1080r27 1080r30
+1071a7 L{string} 1081r17 1082r17 1083r17
+1086V13 Has_Operator{boolean} 1086b13 1086>27 1098l8 1098t20 1239s10
+1086a27 Text{string} 1087r37
+1087a7 L{string} 1089r24 1089r52 1090r27 1090r55 1091r27 1091r55 1092r27
+. 1092r55 1093r27 1093r56 1094r27 1094r57 1095r27 1095r57 1096r27 1096r57
+. 1097r35 1097r71
+1100U14 Add_Name_Tokens 1100b14 1101=7 1102>7 1103>7 1104>7 1105>7 1131l8
+. 1131t23 1261s7 2789s13
+1101r7 Tree{27|187R9} 1122m40
+1102i7 Parent{27|167I9} 1122r46
+1103i7 Depth{natural} 1122r54
+1104i7 Line{positive} 1122r61
+1105a7 Text{string} 1107r22 1109r18 1110r34 1115r29 1115r68 1119r45
+1107i7 I{natural} 1109r13 1110r40 1112r44 1113r35 1125m16 1128m13 1128r18
+1112i16 First{natural} 1119r51
+1113i16 Last{natural} 1115r22 1115r74 1116m19 1116r27 1119r60 1125r21
+1119a19 Word{string} 1121r38 1122r78
+1133U14 Add_Expression_Nodes 1133b14 1134=7 1135>7 1136>7 1137>7 1138>7 1157s10
+. 1158s10 1164s10 1165s10 1187s13 1189s13 1192s13 1194s13 1262l8 1262t28
+. 1312s16 2519s16 2525s16 2527s19
+1134r7 Tree{27|187R9} 1149m25 1149r25 1152m28 1155m28 1156m28 1157m32 1158m32
+. 1160m28 1161m28 1164m32 1165m32 1168m28 1171m28 1174m28 1176m28 1179m28
+. 1182m28 1185m28 1188m16 1190m16 1193m16 1195m16 1201m28 1204m28 1207m28
+. 1210m28 1215m28 1218m28 1221m28 1227m28 1233m28 1234m28 1237m28 1240m28
+. 1243m28 1247m31 1248m31 1252m31 1254m31 1256m31 1257m31 1261m24
+1135i7 Parent{27|167I9} 1149r78
+1136i7 Depth{natural} 1149r86 1152r40 1155r40 1156r40 1157r44 1158r44 1160r40
+. 1161r40 1164r44 1165r44 1168r40 1171r40 1174r40 1176r40 1179r40 1182r40
+. 1185r40 1188r28 1190r28 1193r28 1195r28 1201r40 1204r40 1207r40 1210r40
+. 1215r40 1218r40 1221r40 1227r40 1233r40 1234r40 1237r40 1240r40 1243r40
+. 1247r43 1248r43 1252r43 1254r43 1256r43 1257r43 1261r36
+1137i7 Line{positive} 1149r49 1149r58 1152r51 1155r51 1156r51 1157r55 1158r55
+. 1160r51 1161r51 1164r55 1165r55 1168r51 1171r51 1174r51 1176r51 1179r51
+. 1182r51 1185r51 1188r39 1190r39 1193r39 1195r39 1201r51 1204r51 1207r51
+. 1210r51 1215r51 1218r51 1221r51 1227r51 1233r51 1234r51 1237r51 1240r51
+. 1243r51 1247r54 1248r54 1252r54 1254r54 1256r54 1257r54 1261r47
+1138a7 Text{string} 1140r52
+1140a7 Clean{string} 1141r41 1143r46 1143r75 1145r10 1149r93 1151r30 1152r71
+. 1154r20 1155r75 1156r81 1157r77 1158r76 1159r23 1159r54 1159r85 1160r75
+. 1161r86 1164r92 1165r76 1168r73 1171r84 1173r20 1174r84 1175r23 1176r83
+. 1178r20 1179r80 1182r85 1185r88 1188r61 1190r60 1193r61 1195r60 1199r18
+. 1199r45 1199r52 1199r79 1199r86 1201r80 1203r10 1203r37 1203r44 1203r72
+. 1203r79 1204r88 1207r86 1210r79 1215r85 1218r82 1221r79 1227r84 1230r28
+. 1231r28 1231r59 1233r83 1234r86 1236r20 1239r24 1240r83 1242r20 1243r77
+. 1245r20 1245r51 1246r27 1247r78 1248r89 1251r13 1251r20 1252r76 1253r26
+. 1254r72 1256r80 1257r84 1261r53
+1141a7 L{string} 1163r28 1163r59 1167r28 1167r56 1170r20 1181r20 1181r49
+. 1184r20 1184r55 1186r23 1191r26 1198r28 1198r64 1206r20 1206r57 1209r20
+. 1209r59 1212r20 1212r52 1213r35 1217r28 1217r60 1220r20 1223r20 1224r27
+. 1225r27 1229r21 1229r51
+1142i7 Expr{27|167I9} 1149m7 1152r34 1155r34 1156r34 1157r38 1158r38 1160r34
+. 1161r34 1164r38 1165r38 1168r34 1171r34 1174r34 1176r34 1179r34 1182r34
+. 1185r34 1188r22 1190r22 1193r22 1195r22 1201r34 1204r34 1207r34 1210r34
+. 1215r34 1218r34 1221r34 1227r34 1233r34 1234r34 1237r34 1240r34 1243r34
+. 1247r37 1248r37 1252r37 1254r37 1256r37 1257r37 1261r30
+1143i7 Last_Column{positive} 1149r64
+1265V13 Last_Column_For{positive} 1265b13 1265>30 1271l8 1271t23 1289s47
+. 1301s44 1356s53 1765s35 1809s59 1831s26 1930s26 2145s38 2209s26 2249s29
+. 2259s29 2299s29 2602s47 2880s41 2958s47 3118s35 3141s35 3146s35
+1265a30 Text{string} 1267r10 1270r24
+1273U14 Add_Detail_Node 1273b14 1274=7 1275>7 1276>7 1277>7 1278>7 1279>7
+. 1316l8 1316t23 1344s16 1345s16 1347s16 1365s19 1373s19 1377s19 1382s19
+. 1385s19 1389s19 1603s10 1614s10 1617s10 1623s10 1629s10 1631s10 1634s10
+. 1636s10 1640s10 1642s10 1644s10 1646s10 1648s10 1650s10 1652s10 1654s10
+. 1656s10 1658s10 1675s13 1678s13 1682s13 1686s10 1703s10 1705s10 1707s10
+. 1709s10 1860s7 1862s7 1906s7 1908s7 1910s7 2034s10 2039s13 2042s16 2045s16
+. 2049s16 2053s16 2056s16 2060s16 2063s13 2066s16 2067s16 2071s16 2072s16
+. 2076s16 2079s16 2081s16 2084s13 2086s13 2089s13 2093s13 2095s16 2098s16
+. 2102s16 2106s16 2109s16 2113s16 2148s10 2175s13 2181s13 2185s13 2191s13
+. 2251s10 2261s10 2301s10 2570s13 2574s13 2578s13 2616s13 2628s13 2645s13
+. 2653s13 2656s13 2663s16 2673s16 2683s16 2685s16 2696s13 2699s13 2706s16
+. 2714s16 2718s16 2742s16 2745s16 2749s16 2760s13 2780s13 2781s13 2783s16
+. 2788s13 2796s19 2963s22 2966s22 3121s10 3149s10
+1274r7 Tree{27|187R9} 1289m19 1289r19 1301m16 1301r16 1312m38
+1275i7 Parent{27|167I9} 1290r19 1301r70
+1276i7 Depth{natural} 1290r27 1301r78 1312r48
+1277i7 Line{positive} 1289r32 1289r41 1301r29 1301r38 1312r59
+1278e7 Kind{27|12E9} 1283r10 1289r25 1301r22 1302r16 1303r23 1304r23 1305r23
+. 1306r23 1307r23 1308r23 1309r23 1310r23
+1279a7 Label{string} 1285r46 1297r55
+1281i7 Id{27|167I9} 1288m16 1300m13 1312r44
+1285a13 Token{string} 1287r16 1289r64 1290r34
+1297a10 Clean{string} 1299r13 1301r61 1301r85 1312r65
+1318U14 Add_Association_List_Nodes 1318b14 1319=7 1320>7 1321>7 1322>7 1323>7
+. 1324>7 1430l8 1430t34 1723s10 1811s7 1832s7 1883s16 2552s13 2562s16 2763s16
+. 2784s16
+1319r7 Tree{27|187R9} 1344m33 1345m33 1347m33 1356m13 1356r13 1366m22 1370m46
+. 1374m22 1378m22 1383m22 1386m22 1390m22
+1320i7 Parent{27|167I9} 1357r13
+1321i7 Depth{natural} 1344r46 1345r46 1347r46 1357r21 1366r35 1370r59 1374r35
+. 1378r35 1383r35 1386r35 1390r35
+1322i7 Line{positive} 1344r57 1345r57 1347r57 1356r38 1356r47 1366r46 1370r70
+. 1374r46 1378r46 1383r46 1386r46 1390r46
+1323a7 Text{string} 1326r56
+1324e7 Association_Kind{27|12E9} 1356r19 1359r15 1370r85
+1326a7 Clean{string} 1395r10 1399r16 1400r12 1401r18 1403r16 1404r28 1404r48
+. 1410r41 1410r51 1412r16 1414r16 1416r16 1418r16 1420r33 1427r19 1428r27
+. 1428r43
+1327i7 Start{natural} 1399m7 1419r20 1420r40 1422m13 1427r10 1428r34
+1328i7 Level{natural} 1415m13 1415r22 1416r41 1417m13 1417r22 1418r41
+1329b7 In_String{boolean} 1402r13 1407m19 1413m13
+1330i7 I{natural} 1400m7 1401r13 1403r23 1404r19 1404r55 1405m19 1405r24
+. 1410r48 1411m13 1411r18 1412r23 1414r23 1416r23 1418r23 1419r16 1420r49
+. 1422r22 1424m10 1424r15
+1332U17 Add_Association 1332b17 1332>34 1393l11 1393t26 1420s16 1428s10
+1332a34 Raw{string} 1333r57
+1333a10 Segment{string} 1340r70 1341r69 1343r37 1347r75 1351r13 1356r70 1357r28
+. 1364r40 1367r52 1370r76 1372r40 1374r86 1378r78 1381r40 1384r52 1387r51
+. 1390r75
+1334i10 Assoc{27|167I9} 1344r39 1345r39 1347r39 1355m10 1366r28 1370r52 1374r28
+. 1378r28 1383r28 1386r28 1390r28
+1336U20 Add_Key_Value_Details 1336b20 1337>13 1338>13 1349l14 1349t35 1361s16
+. 1363s16 1375s19
+1337e13 Key_Node{27|12E9} 1344r63
+1338e13 Value_Node{27|12E9} 1345r63 1347r63
+1340a13 Key{string} 1344r73
+1341a13 Value{string} 1345r75
+1432V13 Declaration_Name_Text{string} 1432b13 1432>36 1432>51 1481l8 1481t29
+. 1562s42 1573s45 1577s42 1579s42 1585s42 1591s42 1593s42 1595s42
+1432a36 Code{string} 1433r52
+1432a51 Lead_Word{string} 1446r10 1446r56 1447r51
+1433a7 Clean{string} 1434r41 1438r22 1441r23 1441r30 1441r53 1444r55
+1434a7 L{string} 1446r53 1448r31 1450r31 1452r31 1454r31 1456r31 1458r31
+. 1460r31
+1436V16 Drop_First{string} 1436b16 1436>28 1442l11 1442t21 1447s39 1449s39
+. 1451s39 1453s39 1455s39 1457s39 1459s39 1461s39
+1436i28 Count{natural} 1438r13 1441r44
+1444r7 Tail{20|91R9} 1447m10 1449m10 1451m10 1453m10 1455m10 1457m10 1459m10
+. 1461m10 1465r47
+1465a10 Work{string} 1467r23 1468r36 1469r26 1470r36 1471r26 1472r36 1473r26
+. 1474r36 1475r26 1476r36 1478r26
+1483V13 Subprogram_Name_Text{string} 1483b13 1483>35 1509l8 1509t28 1571s45
+1483a35 Code{string} 1484r52
+1484a7 Clean{string} 1485r41 1486r56 1488r52 1489r45 1489r52 1489r71 1490r56
+. 1491r45 1491r52 1491r71
+1485a7 L{string} 1488r28 1490r31
+1486r7 Work{20|91R9} 1489m10 1491m10 1495r47
+1495a10 Tail{string} 1497r23 1498r36 1499r33 1500r36 1501r33 1502r36 1503r26
+. 1504r36 1506r26
+1511V13 Subprogram_Profile_Text{string} 1511b13 1511>38 1519l8 1519t31 1616s13
+1511a38 Code{string} 1512r52
+1512a7 Clean{string} 1514r20 1515r47
+1521V13 Subprogram_Result_Text{string} 1521b13 1521>37 1544l8 1544t30 1619s13
+1521a37 Code{string} 1522r52
+1522a7 Clean{string} 1523r41 1530r51
+1523a7 L{string} 1526r32 1526r69
+1524r7 Tail{20|91R9} 1530m7 1532r47
+1532a10 Work{string} 1534r30 1535r42 1536r26 1537r42 1538r26 1539r42 1541r26
+1554a7 Clean{string} 1555r41 1562r65 1571r67 1573r68 1577r65 1579r65 1585r65
+. 1591r65 1593r65 1595r65 1597r42 1616r38 1619r37 1625r28 1630r57 1632r58
+. 1635r57 1672r23 1673r67 1688r28
+1555a7 L{string} 1568r34 1569r41 1622r60 1685r23 1702r23 1704r23 1706r23
+. 1708r23 1708r64
+1556r7 Name{20|91R9} 1562m13 1571m16 1573m16 1577m13 1579m13 1585m13 1591m13
+. 1593m13 1595m13 1597m13 1602r21 1603r88
+1557r7 After_Colon{20|91R9} 1673m10 1674r34 1677r43 1680r42 1681r27 1683r80
+1713U14 Add_Discriminant_Nodes 1713b14 1714=7 1715>7 1716>7 1717>7 1718>7
+. 1726l8 1726t30 2512s16
+1714r7 Tree{27|187R9} 1724m13
+1715i7 Parent{27|167I9} 1724r19
+1716i7 Depth{natural} 1724r27
+1717i7 Line{positive} 1724r34
+1718a7 Code{string} 1720r65
+1720a7 Inside{string} 1722r10 1722r42 1724r40
+1730U14 Add_Enumeration_Literal_Nodes 1730b14 1731=7 1732>7 1733>7 1734>7
+. 1735>7 1792l8 1792t37 2513s16
+1731r7 Tree{27|187R9} 1764m19 1764r19
+1732i7 Parent{27|167I9} 1765r60
+1733i7 Depth{natural} 1765r68
+1734i7 Line{positive} 1765r20 1765r29
+1735a7 Code{string} 1737r52
+1737a7 Clean{string} 1738r41 1739r70
+1738a7 L{string} 1745r35 1746r31 1748r35 1749r35 1750r35 1751r35 1752r35
+. 1753r35 1754r35 1755r35
+1739a7 Items{string} 1747r21 1776r16 1777r16 1778r13 1780r16 1782r16 1784r26
+. 1789r19 1790r20 1790r36
+1740i7 Start{natural} 1776m7 1783r20 1784r33 1786m13 1789r10 1790r27
+1741i7 Level{natural} 1779m13 1779r22 1780r41 1781m13 1781r22 1782r41
+1743V16 Looks_Like_Enumeration_Type{boolean} 1743b16 1756l11 1756t38 1772s14
+1758U17 Add_Item 1758b17 1758>27 1770l11 1770t19 1784s16 1790s10
+1758a27 Raw{string} 1759r42
+1759a10 Item{string} 1761r13 1765r52 1765r75
+1763i16 Ignored{27|167I9}
+1777i11 I{integer} 1778r20 1780r23 1782r23 1783r16 1784r42 1786r22
+1794U14 Add_Aspect_Specification_Nodes 1794b14 1795=7 1796>7 1797>7 1798>7
+. 1799>7 1813l8 1813t38 2516s16 2533s16 2549s16 2801s19
+1795r7 Tree{27|187R9} 1809m10 1809r10 1812m10
+1796i7 Parent{27|167I9} 1810r10
+1797i7 Depth{natural} 1810r18 1812r22
+1798i7 Line{positive} 1809r44 1809r53 1812r33
+1799a7 Text{string} 1801r68
+1801a7 Tail{string} 1804r10 1809r76 1810r25 1812r39
+1802i7 Spec{27|167I9} 1808m7 1812r16
+1815U14 Add_Generic_Actual_Part_Nodes 1815b14 1816=7 1817>7 1818>7 1819>7
+. 1820>7 1834l8 1834t37 2531s13 2546s16
+1816r7 Tree{27|187R9} 1830m10 1830r10 1833m10
+1817i7 Parent{27|167I9} 1831r54
+1818i7 Depth{natural} 1831r62 1833r22
+1819i7 Line{positive} 1831r11 1831r20 1833r33
+1820a7 Text{string} 1822r66
+1822a7 Actuals{string} 1825r10 1831r43 1831r69 1833r39
+1823i7 Part{27|167I9} 1829m7 1833r16
+1836U14 Add_Representation_Clause_Detail_Nodes 1836b14 1837=7 1838>7 1839>7
+. 1840>7 1841>7 1888l8 1888t46 1931s7 2566s13
+1837r7 Tree{27|187R9} 1861m10 1863m10 1884m19
+1838i7 Clause{27|167I9} 1861r16 1863r16 1884r25
+1839i7 Depth{natural} 1861r24 1863r24 1884r33
+1840i7 Line{positive} 1861r31 1863r31 1884r40
+1841a7 Text{string} 1843r53
+1843a7 Clean{string} 1844r42 1848r10 1853r72 1854r54 1856r72 1857r54
+1844a7 L{string} 1852r28 1852r57 1855r31 1855r60
+1845r7 Target{20|91R9} 1853m10 1856m10 1861r76
+1846r7 Item{20|91R9} 1854m10 1857m10 1863r74 1866r52
+1866a10 Item_Text{string} 1868r23 1869r21 1869r46 1869r57 1873r52 1874r52
+. 1876r22
+1872a16 Assocs{string} 1884r46
+1890U14 Add_Representation_Component_Clause_Detail_Nodes 1890b14 1891=7 1892>7
+. 1893>7 1894>7 1895>7 1912l8 1912t56 2568s13
+1891r7 Tree{27|187R9} 1907m10 1909m10 1911m10
+1892i7 Clause{27|167I9} 1907r16 1909r16 1911r16
+1893i7 Depth{natural} 1907r24 1909r24 1911r24
+1894i7 Line{positive} 1907r31 1909r31 1911r31
+1895a7 Text{string} 1897r55
+1897a7 Clean{string} 1898r53 1899r68 1900r52 1902r10
+1898a7 Target{string} 1907r65
+1899a7 Location{string} 1909r71
+1900a7 Bits{string} 1911r60
+1914U14 Add_Representation_Clause_Nodes 1914b14 1915=7 1916>7 1917>7 1918>7
+. 1919>7 1933l8 1933t39
+1915r7 Tree{27|187R9} 1929m10 1929r10 1932m10
+1916i7 Parent{27|167I9} 1930r52
+1917i7 Depth{natural} 1930r60 1932r24
+1918i7 Line{positive} 1930r11 1930r20 1932r35
+1919a7 Text{string} 1921r53
+1921a7 Clean{string} 1924r10 1930r43 1930r67 1932r41
+1922i7 Clause{27|167I9} 1928m7 1932r16
+1935V13 First_Semicolon{natural} 1935b13 1935>30 1943l8 1943t23 2640s16 2736s16
+1935a30 Text{string} 1937r16 1938r13
+1937i11 I{integer} 1938r19 1939r20
+1945V13 Statement_Node_Kind{27|12E9} 1945b13 1945>34 2005l8 2005t27 2137s37
+1945a34 Text{string} 1946r36
+1946a7 T{string} 1947r37 1998r23 2000r23 2000r49 2000r65
+1947a7 L{string} 1949r28 1951r31 1953r31 1955r31 1957r31 1959r31 1961r31
+. 1962r35 1963r35 1966r31 1968r31 1970r31 1972r31 1972r61 1974r31 1976r31
+. 1978r31 1980r31 1982r31 1984r31 1986r31 1988r31 1990r31 1992r31 1994r31
+. 1996r31
+2007U14 Attach_Statement_Details 2007b14 2008=7 2009>7 2010>7 2011>7 2012>7
+. 2013>7 2014>7 2118l8 2118t32 2755s13 2761s13 2778s13
+2008r7 Tree{27|187R9} 2034m27 2039m30 2043m19 2046m19 2049m33 2054m19 2057m19
+. 2060m33 2063m30 2066m33 2068m19 2071m33 2072m33 2077m19 2079m33 2081m33
+. 2084m30 2087m16 2090m16 2093m30 2096m19 2099m19 2102m33 2107m19 2110m19
+. 2113m33
+2009i7 Stmt{27|167I9} 2034r33 2039r36 2043r25 2046r25 2049r39 2054r25 2057r25
+. 2060r39 2063r36 2066r39 2068r25 2071r39 2072r39 2077r25 2079r39 2081r39
+. 2084r36 2087r22 2090r22 2093r36 2096r25 2099r25 2102r39 2107r25 2110r25
+. 2113r39
+2010e7 Kind{27|12E9} 2019r15 2037r12
+2011i7 Depth{natural} 2034r39 2039r42 2043r31 2046r31 2049r45 2054r31 2057r31
+. 2060r45 2063r42 2066r45 2068r31 2071r45 2072r45 2077r31 2079r45 2081r45
+. 2084r42 2087r28 2090r28 2093r42 2096r31 2099r31 2102r45 2107r31 2110r31
+. 2113r45
+2012i7 Line{positive} 2034r50 2039r53 2043r42 2046r42 2049r56 2054r42 2057r42
+. 2060r56 2063r53 2066r56 2068r42 2071r56 2072r56 2077r42 2079r56 2081r56
+. 2084r53 2087r39 2090r39 2093r53 2096r42 2099r42 2102r56 2107r42 2110r42
+. 2113r56
+2013a7 Text{string} 2016r52
+2014b7 Is_Alternative{boolean} 2033r10
+2016a7 Clean{string} 2017r41 2020r59 2021r59 2022r59 2023r59 2024r59 2025r59
+. 2026r59 2029r10 2034r84 2069r34 2088r32 2091r31 2094r26 2097r35 2100r34
+. 2102r85 2105r26 2108r35 2111r34 2113r85
+2017a7 L{string} 2041r26 2052r26 2065r34 2075r26
+2018a7 Tail{string} 2039r82 2044r35 2047r34 2049r85 2055r35 2058r34 2060r85
+. 2063r82 2072r88 2078r35 2081r85 2084r82
+2120U14 Attach_Syntax_Details 2121=7 2122>7 2123>7 2124>7 2125>7 2126>7 2152s7
+. 2455b14 2808l8 2808t29 3304s22 3446s16
+2121r7 Tree{27|187R9} 2456b7 2466m36 2508m43 2512m40 2513m47 2516m48 2519m38
+. 2525m38 2527m41 2531m44 2533m48 2536m43 2546m47 2549m48 2553m16 2563m19
+. 2566m53 2568m63 2571m16 2575m16 2579m16 2601m31 2601r31 2605m31 2608m46
+. 2617m16 2624m22 2629m16 2636m22 2642m19 2646m16 2650m19 2654m16 2657m16
+. 2660m16 2663m33 2669m25 2673m33 2679m25 2683m33 2685m33 2691m25 2697m16
+. 2700m16 2703m16 2707m19 2710m19 2715m19 2719m19 2727m22 2733m19 2738m19
+. 2742m33 2744m19 2745m33 2747m19 2749m33 2752m19 2755m39 2757m37 2760m30
+. 2761m39 2764m19 2778m39 2780m30 2781m30 2783m33 2785m19 2788m30 2789m30
+. 2793r51 2796m36 2802m22 2802r42
+2122i7 Id{27|167I9} 2457b7 2466r42 2508r49 2512r46 2513r53 2516r54 2519r44
+. 2525r44 2527r47 2531r50 2533r54 2536r49 2546r53 2549r54 2553r22 2563r25
+. 2566r59 2568r69 2571r22 2575r22 2579r22 2602r73 2608r52 2617r22 2624r28
+. 2629r22 2636r28 2642r25 2646r22 2650r25 2654r22 2657r22 2660r22 2663r39
+. 2669r31 2673r39 2679r31 2683r39 2685r39 2691r31 2697r22 2700r22 2703r22
+. 2707r25 2710r25 2715r25 2719r25 2727r28 2733r25 2738r25 2742r39 2744r25
+. 2745r39 2747r25 2749r39 2752r25 2755r45 2757r43 2760r36 2761r45 2764r25
+. 2778r45 2780r36 2781r36 2783r39 2785r25 2788r36 2789r36 2793r57 2796r42
+2123e7 Kind{27|12E9} 2458b7 2466r59 2467r12 2508r72 2509r16 2510r23 2518r16
+. 2518r53 2518r93 2520r19 2521r23 2522r23 2523r23 2536r72 2755r49 2761r49
+. 2778r49
+2124a7 Code{string} 2459b7 2463r37 2466r65 2508r66 2512r63 2513r70 2516r71
+. 2519r61 2525r77 2526r29 2527r79 2531r67 2533r71 2536r66 2545r52 2546r70
+. 2549r71 2553r59 2557r52 2558r51 2560r21 2566r76 2568r86 2572r31 2576r47
+. 2580r47 2582r58 2618r35 2620r58 2630r35 2632r58 2640r48 2642r57 2647r47
+. 2650r57 2655r47 2658r47 2660r54 2665r60 2675r60 2687r60 2698r47 2701r47
+. 2703r54 2708r50 2710r57 2716r50 2720r50 2723r57 2733r57 2736r48 2738r57
+. 2744r73 2747r57 2752r57 2755r72 2757r75 2760r87 2761r72 2762r26 2764r72
+. 2778r72 2780r87 2781r92 2782r26 2783r97 2785r72 2788r76 2789r53 2792r61
+. 2798r36 2802r73
+2125i7 Line{positive} 2460b7 2466r53 2508r60 2512r57 2513r64 2516r65 2519r55
+. 2525r55 2527r58 2531r61 2533r65 2536r60 2546r64 2549r65 2553r33 2563r36
+. 2566r70 2568r80 2571r33 2575r33 2579r33 2602r32 2602r41 2605r59 2608r63
+. 2617r33 2624r39 2629r33 2636r39 2642r36 2646r33 2650r36 2654r33 2657r33
+. 2660r33 2663r50 2669r42 2673r50 2679r42 2683r50 2685r50 2691r42 2697r33
+. 2700r33 2703r33 2707r36 2710r36 2715r36 2719r36 2727r39 2733r36 2738r36
+. 2742r50 2744r36 2745r50 2747r36 2749r50 2752r36 2755r66 2757r54 2760r47
+. 2761r66 2764r36 2778r66 2780r47 2781r47 2783r50 2785r36 2788r47 2789r47
+. 2796r53 2802r67
+2126i7 Depth{natural} 2461b7 2466r46 2508r53 2512r50 2513r57 2516r58 2519r48
+. 2525r48 2527r51 2531r54 2533r58 2536r53 2546r57 2549r58 2553r26 2563r29
+. 2566r63 2568r73 2571r26 2575r26 2579r26 2602r77 2605r48 2608r56 2617r26
+. 2624r32 2629r26 2636r32 2642r29 2646r26 2650r29 2654r26 2657r26 2660r26
+. 2663r43 2669r35 2673r43 2679r35 2683r43 2685r43 2691r35 2697r26 2700r26
+. 2703r26 2707r29 2710r29 2715r29 2719r29 2727r32 2733r29 2738r29 2742r43
+. 2744r29 2745r43 2747r29 2749r43 2752r29 2755r55 2757r47 2760r40 2761r55
+. 2764r29 2778r55 2780r40 2781r40 2783r43 2785r29 2788r40 2789r40 2796r46
+2128U14 Add_Structured_Statement_Node 2128b14 2129=7 2130>7 2131>7 2132>7
+. 2133>7 2134>7 2153l8 2153t37 2178s13 2182s13 2188s13 2192s13 2195s13 2198s13
+2129r7 Tree{27|187R9} 2145m10 2145r10 2149m13 2152m30
+2130i7 Parent{27|167I9} 2145r64
+2131i7 Depth{natural} 2145r72 2149r25 2152r61
+2132i7 Line{positive} 2145r23 2145r32 2149r36 2152r55
+2133a7 Text{string} 2136r52
+2134b7 Is_Alternative{boolean} 2147r10
+2136a7 Clean{string} 2137r58 2140r10 2145r55 2145r79 2149r70 2152r48
+2137e7 Kind{27|12E9} 2145r16 2152r42
+2138i7 Stmt{27|167I9} 2144m7 2149r19 2152r36
+2155U14 Add_Action_Sequence 2155b14 2156=7 2157>7 2158>7 2159>7 2160>7 2161>7
+. 2231l8 2231t27 2608s25 2623s19 2635s19 2641s16 2649s16 2659s13 2668s22
+. 2678s22 2690s22 2702s13 2709s16 2726s19 2732s16 2737s16 2743s16 2746s16
+. 2751s16 2757s16
+2156r7 Tree{27|187R9} 2176m16 2179m16 2181m30 2183m16 2186m16 2189m16 2191m30
+. 2193m16 2196m16 2199m16 2208m10 2208r10
+2157i7 Parent{27|167I9} 2209r52
+2158i7 Depth{natural} 2176r27 2179r27 2181r41 2183r27 2186r27 2189r27 2191r41
+. 2193r27 2196r27 2199r27 2209r60
+2159i7 Line{positive} 2176r38 2179r38 2181r52 2183r38 2186r38 2189r38 2191r52
+. 2193r38 2196r38 2199r38 2209r11 2209r20
+2160a7 Text{string} 2163r40
+2161b7 Is_Alternative{boolean} 2199r53
+2163a7 Clean{string} 2203r10 2209r43 2209r67 2211r16 2212r22 2214r28 2215r16
+. 2222r33 2222r49 2225r33
+2164i7 Seq{27|167I9} 2176r22 2179r22 2181r36 2183r22 2186r22 2189r22 2191r36
+. 2193r22 2196r22 2199r22 2207m7
+2165i7 Start{natural} 2211m7 2212r13 2214r19 2222r40 2224r23 2225r40 2226m13
+. 2228m13 2228r22
+2166i7 Semi{natural} 2213m10 2216m16 2221r13 2224r16 2225r49 2226r22
+2168U17 Add_Action_Segment 2168b17 2168>37 2201l11 2201t29 2222s13 2225s13
+2168a37 Raw_Segment{string} 2169r45
+2169a10 Segment{string} 2170r46 2172r13 2177r47 2179r59 2183r59 2187r47 2189r44
+. 2193r59 2196r44 2199r44
+2170a10 L{string} 2172r52 2174r34 2174r64 2180r34 2184r34 2190r34 2190r64
+. 2194r34
+2214i14 I{integer} 2215r23 2216r24
+2234U14 Add_Header_Recovery_Details 2234b14 2235=7 2236>7 2237>7 2238>7 2239>7
+. 2240>7 2453l8 2453t35 2466s7
+2235r7 Tree{27|187R9} 2248m13 2248r13 2251m27 2258m13 2258r13 2261m27 2298m13
+. 2298r13 2301m27
+2236i7 Parent{27|167I9} 2249r57 2259r54 2299r54
+2237i7 Depth{natural} 2249r65 2251r43 2259r62 2261r43 2299r62 2301r43
+2238i7 Line{positive} 2249r14 2249r23 2251r54 2259r14 2259r23 2261r54 2299r14
+. 2299r23 2301r54
+2239e7 Kind{27|12E9} 2313r12
+2240a7 Code{string} 2242r37 2259r46 2260r67 2272r20 2283r20 2299r46 2300r56
+. 2385r38 2389r38 2393r36 2397r36 2403r36 2409r38 2415r40 2423r36 2427r38
+. 2430r36
+2242a7 L{string} 2266r27 2315r30 2316r38 2317r38 2326r30 2333r26 2335r29
+. 2335r60 2344r26 2350r30 2352r33 2353r38 2359r30 2384r30 2388r30 2392r30
+. 2396r30 2402r30 2406r35 2406r71 2407r38 2412r26 2413r38 2418r26 2418r55
+. 2420r29 2422r29 2426r30 2429r30
+2244U17 Add_Expected 2244b17 2244>31 2244>47 2252l11 2252t23 2385s16 2389s16
+. 2393s16 2397s16 2403s16 2409s16 2415s16 2423s16 2427s16 2430s16
+2244a31 Token{string} 2250r45 2251r81
+2244a47 Context{string} 2249r46 2250r62
+2245i10 Recovery{27|167I9} 2247m10 2251r33
+2254U17 Add_Expected_Declaration_Token 2254b17 2254>49 2262l11 2262t41 2319s16
+. 2327s16 2336s16 2338s16 2347s16 2351s16 2356s16 2360s16 2363s16 2381s16
+2254a49 Token{string} 2260r50 2261r81
+2255i10 Recovery{27|167I9} 2257m10 2261r33
+2264V16 Has_Terminator{boolean} 2264b16 2267l11 2267t25 2337s23 2346s23 2354s28
+. 2362s20 2380s20 2433s20 2438s20 2447s20
+2269V16 Open_Paren_Count{natural} 2269b16 2278l11 2278t27 2306s13 2308s36
+2270i10 Count{natural} 2274m16 2274r25 2277r17
+2272e14 Ch=2272:20{character} 2273r16
+2280V16 Close_Paren_Count{natural} 2280b16 2289l11 2289t28 2306s32 2308s16
+2281i10 Count{natural} 2285m16 2285r25 2288r17
+2283e14 Ch=2283:20{character} 2284r16
+2291U17 Add_Expected_Token 2291b17 2292>10 2293>10 2302l11 2302t29 2307s13
+. 2309s13 2434s16 2439s16 2448s16
+2292a10 Token{string} 2300r39 2301r81
+2293a10 Context{string} 2300r13
+2295i10 Recovery{27|167I9} 2297m10 2301r33
+2304U17 Add_Unbalanced_Paren_Recovery 2304b17 2311l11 2311t40 2437s13 2446s13
+2463a7 L{string} 2515r26 2532r26 2548r26 2648r26 2662r34 2662r64 2672r37
+. 2682r37 2705r26 2705r58 2713r34 2717r37 2731r26 2741r26 2748r29 2750r37
+. 2756r26
+2464i7 Semi{natural}
+2556a16 Actuals{string} 2563r42
+2582a16 Decls{string} 2583r35 2586r22 2586r52 2588r37 2589r25 2596r47 2596r63
+. 2596r80
+2583i16 Start{natural} 2586r43 2588r28 2596r54 2596r87 2612m19
+2584i16 Semi{natural} 2587m19 2590m25 2596r33 2596r96 2611r29 2612r28
+2588i23 I{integer} 2589r32 2590r33
+2595a22 Piece{string} 2598r25 2598r56 2602r64 2602r88 2605r65 2607r28 2608r69
+2600i28 Component{27|167I9} 2605r37
+2620a16 Tail{string} 2622r19 2622r68 2624r45
+2632a16 Tail{string} 2634r19 2634r68 2636r45
+2665a19 Tail{string} 2667r22 2667r71 2669r48
+2675a19 Tail{string} 2677r22 2677r71 2679r48
+2687a19 Tail{string} 2689r22 2689r71 2691r48
+2723a16 Tail{string} 2725r19 2725r68 2727r45
+2792a16 Target{string} 2795r19 2796r76
+2793i16 Parent{27|167I9} 2799r27 2802r28 2802r48
+2811r7 Tree{27|187R9} 2833r23 2880m13 2880r13 2889r56 2919r59 2920r58 2924r41
+. 2941r22 2947r56 2957m25 2957r25 2964m25 2964r25 2967m25 2967r25 2991r28
+. 3117m13 3117r13 3119r26 3122m13 3122r13 3122r35 3125r50 3135r51 3140m13
+. 3140r13 3145m13 3145r13 3150m13 3150r13 3160r57 3161r55 3163r49 3193m13
+. 3193r13 3207m22 3207r22 3219m19 3219r19 3256r57 3273r31 3274r39 3277r39
+. 3295m31 3295r31 3301m34 3301r34 3304m45 3304r45 3408r65 3442m38 3442r38
+. 3444r80 3447m19 3447r19 3448r61 3460m14 3460r14 3461m30 3461r30 3467r17
+. 3506r14
+2812i7 Root_Node{27|167I9} 2823r20 2912r37 3002r40 3194r13 3297r31 3461m7
+2813i7 Line_Start{positive} 3475r31 3478r31 3479r35 3485m16 3491r10 3498r28
+. 3499r32
+2814i7 Line_Number{positive} 3479r60 3481r33 3487m13 3487r28 3499r57 3504r25
+2815i7 Max_Depth{positive} 2816r48 2838r27
+2816a7 Scope_Stack(27|167I9) 2825r17 2833r29 2840m13 2847m13 2889r62 2918r51
+. 2924r47 2946r48 3159r49 3163r55
+2817i7 Scope_Depth{natural} 2822r13 2825r30 2830r13 2833r42 2838r13 2839m13
+. 2839r28 2840r26 2846r13 2847r26 2848m13 2848r28 2854r16 2863r16 2887r32
+. 2914m13 2915r30 2916r19 2918r64 2982r19 2998r16 3157r16 3159r62 3163r22
+. 3163r68 3166r19 3239r16 3244r19 3250r53 3252r58 3290r56 3312r22 3323r30
+. 3330r19 3335r22 3340r22 3346r22 3352r22 3358r22 3364r22 3370r22 3376r22
+. 3381r22 3386r22 3396r27 3402r19 3419r19 3428r19 3444r118 3448r99
+2818i7 Last_Significant_Node{27|167I9} 3254r19 3256r63 3267r44 3272r24 3273r37
+. 3274r45 3277r45 3286r35 3305m22 3449m16
+2820V16 Current_Parent{27|167I9} 2820b16 2826l11 2826t25 2940s37 2941s28
+. 2986s51 3113s41 3134s43 3407s57 3441s83
+2828V16 Current_Kind{27|12E9} 2828b16 2834l11 2834t23 2855s42 2864s21 2983s65
+. 2987s53 3240s24 3245s24 3314s31 3315s39 3324s30 3331s27 3336s27 3341s28
+. 3342s36 3347s28 3348s36 3353s28 3354s36 3359s27 3365s27 3371s27 3377s27
+. 3382s27 3387s28 3388s36 3397s48 3403s27 3421s28 3422s36 3430s58
+2836U17 Push_Scope 2836b17 2836>29 2842l11 2842t21 3152s10 3454s19
+2836i29 Id{27|167I9} 2840r42
+2844U17 Pop_Scope 2844b17 2850l11 2850t20 2857s13 2866s13 2936s19 2994s19
+. 3179s16 3326s22 3415s22 3452s19
+2852U17 Pop_Alternative_Scope 2852b17 2859l11 2859t32 2907s10 3320s22 3399s19
+2861U17 Pop_Exception_Handler_Scope 2861b17 2868l11 2868t38 3318s22
+2870U17 Add_Recovery_Node 2870b17 2871>10 2872>10 2873>10 2874>10 2875>10
+. 2882l11 2882t28 2911s13 2926s22 2931s22 2939s13 2989s19 3001s16 3124s10
+. 3170s19 3175s19 3410s22
+2871e10 Kind{27|12E9} 2880r19
+2872i10 Parent{27|167I9} 2881r13
+2873i10 Depth{natural} 2881r21
+2874i10 Line{positive} 2880r26 2880r35
+2875a10 Label{string} 2880r58 2881r28
+2877i10 Ignored{27|167I9} 2879m10
+2884V16 Matching_End_Depth{natural} 2884b16 2884>36 2901l11 2901t29 2908s25
+2884a36 End_Code{string} 2885r55 2895r51
+2885a10 Target{string} 2891r19
+2887i14 D{integer} 2889r75 2896r26
+2889e16 Candidate{27|12E9} 2892r56 2895r40
+2903U17 Recover_To_End_Boundary 2903b17 2903>42 2903>61 2973l11 2973t34 3310s19
+2903a42 End_Code{string} 2905r67 2908r45 2913r32 2924r80 2929r40 2934r40
+. 2950r64 2958r64
+2903i61 Line_No{positive} 2912r51 2927r71 2932r70 2941r55 2958r26 2958r38
+. 2964r62 2967r62
+2904i10 Match_Depth{natural} 2908m10 2910r13 2915r16 2916r33 2922r22 2924r60
+. 2944r13 2946r61
+2905a10 Label=2905:65{string} 2941r64
+2918i19 Open_Node{27|167I9} 2919r65 2920r64 2927r44 2932r43
+2919e19 Open_Kind{27|12E9} 2924r24 2928r68 2933r57
+2920i19 Open_Depth{natural} 2927r55 2932r54
+2946i16 Open_Node{27|167I9} 2947r62 2959r25
+2947r16 Open_Info{27|177R9} 2949r19 2949r46 2959r36 2964r41 2967r41
+2948a16 Expected{string} 2952r19 2953r46 2961r42 2965r51
+2950a16 Actual{string} 2952r43 2953r56 2960r52 2968r42
+2956i22 Recovery{27|167I9} 2964r31 2967r31
+2975U17 Recover_Alternative_Owner 2975b17 2976>10 2977>10 2978>10 3006l11
+. 3006t36 3438s19
+2976e10 Kind{27|12E9} 2981r34 2983r59 2999r59
+2977i10 Line_No{positive} 2991r56 3002r54
+2978a10 Code{string} 2993r37 3003r43
+2986i19 Open_Node{27|167I9} 2990r40 2991r34
+2987e19 Open_Kind{27|12E9} 2992r54
+3009V16 Starts_Generic_Unit{boolean} 3009b16 3009>37 3009>55 3028l11 3028t30
+. 3404s27
+3009e37 Kind{27|12E9} 3012r13 3013r20 3014r20 3015r20 3016r20 3017r20
+3009a55 Code{string} 3010r40
+3010a10 L{string} 3019r38 3020r41 3021r41 3022r41 3023r41 3024r41 3025r41
+3030V16 Allows_Handled_Statement_Part{boolean} 3030b16 3030>47 3038l11 3038t40
+. 3430s27
+3030e47 Kind{27|12E9} 3032r17 3033r20 3034r20 3035r20 3036r20 3037r20
+3040V16 Is_Executable_Statement_Node{boolean} 3040b16 3040>46 3062l11 3062t39
+. 3431s27
+3040e46 Kind{27|12E9} 3042r17 3043r20 3044r20 3045r20 3046r20 3047r20 3048r20
+. 3049r20 3050r20 3051r20 3052r20 3053r20 3054r20 3055r20 3056r20 3057r20
+. 3058r20 3059r20 3060r20 3061r20
+3064V16 Is_Declaration_Node{boolean} 3064b16 3064>37 3107l11 3107t30 3423s27
+3064e37 Kind{27|12E9} 3066r17 3067r20 3068r20 3069r20 3070r20 3071r20 3072r20
+. 3073r20 3074r20 3075r20 3076r20 3077r20 3078r20 3079r20 3080r20 3081r20
+. 3082r20 3083r20 3084r20 3085r20 3086r20 3087r20 3088r20 3089r20 3090r20
+. 3091r20 3092r20 3093r20 3094r20 3095r20 3096r20 3097r20 3098r20 3099r20
+. 3100r20 3101r20 3102r20 3103r20 3104r20 3105r20 3106r20
+3109U17 Add_Unexpected_Declaration_Recovery 3109b17 3110>10 3111>10 3128l11
+. 3128t46 3425s19
+3110i10 Line_No{positive} 3118r14 3118r26 3122r59 3126r13
+3111a10 Code{string} 3118r52 3120r68
+3113i10 Owner{27|167I9} 3119r13 3119r32 3122r41 3125r56
+3114i10 Recovery{27|167I9} 3116m10 3122r19 3125r34
+3130U17 Insert_Implicit_Begin_Before 3130b17 3131>10 3132>10 3153l11 3153t39
+. 3434s19
+3131i10 Line_No{positive} 3141r14 3141r26 3146r14 3146r26 3150r51
+3132a10 Code{string} 3141r52 3143r40 3146r52 3148r68
+3134i10 Owner{27|167I9} 3135r57 3142r13
+3135r10 Owner_Info{27|177R9} 3142r20 3147r25 3150r29
+3136i10 Begin_Node{27|167I9} 3139m10 3147r13 3152r22
+3137i10 Recovery{27|167I9} 3144m10 3150r19
+3155U17 Add_EOF_Recovery 3155b17 3155>35 3182l11 3182t27 3504s7
+3155i35 Line_No{positive} 3171r68 3176r67
+3159i16 Open_Node{27|167I9} 3160r63 3161r61 3171r41 3176r40
+3160e16 Open_Kind{27|12E9} 3168r21 3172r65 3177r54
+3161i16 Open_Depth{natural} 3171r52 3176r51
+3162e16 Owner_Kind{27|12E9} 3168r32
+3185U17 Attach_Token_Cursor_Grammar 3185b17 3225l11 3225t38 3464s7
+3186r10 Grammar{29|1194R9} 3190r82 3200r57
+3188i10 Parent{27|167I9} 3192m10 3209r22 3219r60
+3189i10 Limit{natural} 3197r31 3216r21
+3190i10 Count{natural} 3196r28 3216r13
+3196i14 Index{integer} 3197r23 3200r66
+3199r16 Prod{29|1185R9} 3202r65 3203r37 3208r23 3208r34 3208r47 3208r58
+3201a16 Label=3203:24{string} 3209r33
+3206i19 Ignored{27|167I9}
+3218i16 Ignored{27|167I9}
+3227U17 Add_Line 3227b17 3227>27 3227>42 3458l11 3458t19 3479s19 3481s19
+. 3499s16
+3227a27 Line{string} 3228r61 3230r58 3231r49 3231r77
+3227i42 Line_No{positive} 3296r32 3296r44 3301r47 3301r59 3304r70 3310r50
+. 3412r25 3425r56 3434r49 3438r52 3442r51 3442r63 3447r47
+3228e10 Classified{27|12E9} 3234r37 3250r19 3252r19 3313r30 3332r27 3337r27
+. 3343r27 3349r27 3355r27 3372r28 3373r36 3378r27 3389r27 3395r27
+3229a10 Code{string} 3236r50 3238r13 3302r46 3304r64 3310r44 3404r54 3413r75
+. 3425r65 3434r58 3438r61 3445r38 3447r41 3453r41
+3231i10 Last_Column{positive} 3296r53 3301r68 3442r72
+3232i10 Parent{27|167I9} 3441m16 3443r38
+3233i10 New_Node{27|167I9} 3442m16 3447r25 3449r41 3454r31
+3234e10 Kind{27|12E9} 3243m16 3249m16 3251m16 3253m16 3285m16 3289r16 3290r24
+. 3291r23 3301r40 3304r58 3309r32 3311r43 3317m22 3322r22 3334m19 3339m19
+. 3345m19 3351m19 3357m19 3363m19 3369m19 3375m19 3380m19 3385m19 3391m19
+. 3394r19 3404r48 3423r48 3431r57 3432r27 3437r40 3438r46 3442r44 3447r35
+. 3451r32 3453r35
+3235i10 Parent_Override{27|167I9} 3267m25 3286m16 3414m22 3420r27 3429r27
+. 3441r30 3441r62 3444r42 3444r86 3448r23 3448r67
+3236a10 L{string} 3241r42 3246r43 3247r51 3271r32 3276r35 3360r45 3361r37
+. 3366r37 3367r37 3383r45
+3256e22 Prev{27|12E9} 3258r25 3259r32 3260r32 3261r32 3262r32 3263r32 3264r32
+. 3265r32
+3294i19 Context{27|167I9} 3302r34
+3300i22 Child{27|167I9} 3304r51 3305r47
+3407i22 Generic_Node{27|167I9} 3408r71 3411r44 3414r41
+3408r22 Generic_Info{27|177R9} 3411r58
+3470i11 I{integer} 3471r19 3473r38 3484r16 3485r30
+3473i16 Line_End{natural} 3475r19 3475r57 3476m19 3476r31 3478r19 3479r49
+3493i13 Line_End{natural} 3495r22 3496m16 3496r28 3498r16 3499r46
+3545i7 Count{natural} 3549m13 3549r22 3552r14
+3547r11 Info{27|177R9} 3548r13
+3560i7 Count{natural} 3564m13 3564r22 3565r16
+3562r11 Info{27|177R9} 3563r13 3566r23
+X 29 editor-ada_token_cursor.ads
+4K16*Ada_Token_Cursor 28|7w13 3186r36 3187r19 3190r47 3199r39 3200r25 3202r25
+. 29|1240e28
+29E9*Production_Kind 28|3202r42 29|1183e33
+1185R9*Production_Info 28|3199r56 29|1190e14
+1186e7*Kind{29E9} 28|3202r70
+1187i7*Line{positive} 28|3208r28 3208r52
+1188i7*Column{positive} 28|3208r39 3208r63
+1189r7*Label{20|91R9} 28|3203r42
+1194R9*Grammar_Result 28|3186r53 29|1238e14
+1209V13*Parse{1194R9} 28|3187s36
+1210V13*Production_Count{natural} 28|3190s64
+1211V13*Production_At{1185R9} 28|3200s42
+X 32 system.ads
 67M9*Address
-X 45 s-memory.ads
-51V13*Alloc{33|67M9} 101i<c,__gnat_malloc>22
+X 43 s-memory.ads
+51V13*Alloc{32|67M9} 101i<c,__gnat_malloc>22
 66U14*Free 102i<c,__gnat_free>22
-74V13*Realloc{33|67M9} 103i<c,__gnat_realloc>22
-X 54 s-stalib.adb
+74V13*Realloc{32|67M9} 103i<c,__gnat_realloc>22
+X 52 s-stalib.adb
 87U14 Break_Start 88i<c,__gnat_break_start>22
 

@@ -53,6 +53,7 @@ package Editor.Settings is
       Use_Diagnostic_Overlays  : Boolean := True;
       Use_Search_Overlays      : Boolean := True;
       Show_Diagnostics         : Boolean := True;
+      Format_On_Save           : Boolean := False;
    end record;
 
    function Current return Settings_State;
@@ -80,6 +81,8 @@ package Editor.Settings is
    procedure Set_Use_Search_Overlays (Enabled : Boolean);
    function Show_Diagnostics return Boolean;
    procedure Set_Show_Diagnostics (Enabled : Boolean);
+   function Format_On_Save return Boolean;
+   procedure Set_Format_On_Save (Enabled : Boolean);
 
    procedure Toggle_Show_Minimap;
    procedure Toggle_Show_Line_Numbers;
@@ -91,6 +94,7 @@ package Editor.Settings is
    procedure Toggle_Use_Diagnostic_Overlays;
    procedure Toggle_Use_Search_Overlays;
    procedure Toggle_Show_Diagnostics;
+   procedure Toggle_Format_On_Save;
 
    --  Stable persisted setting identifiers.  These are file-format keys, not
    --  user-facing command labels.
@@ -103,6 +107,7 @@ package Editor.Settings is
    function Setting_Name_Command_Palette_Show_Unavailable return String;
    function Setting_Name_Command_Palette_Show_Keybindings return String;
    function Setting_Name_Command_Palette_Show_Selected_Description return String;
+   function Setting_Name_Format_On_Save return String;
 
    --  Return stable user-facing labels for persisted settings and load/save
    --  statuses. These helpers are display-only and never mutate settings.
@@ -183,6 +188,11 @@ package Editor.Settings is
      (Settings : in out Settings_Model;
       Visible  : Boolean);
 
+   function Format_On_Save (Settings : Settings_Model) return Boolean;
+   procedure Set_Format_On_Save
+     (Settings : in out Settings_Model;
+      Enabled  : Boolean);
+
    --  Normalize unsupported optional values to built-in defaults.
    --  @param Settings settings model to normalize
    procedure Normalize (Settings : in out Settings_Model);
@@ -237,6 +247,7 @@ private
       Cursor_Blink_Value                : Boolean := True;
       Minimap_Visible_Value             : Boolean := True;
       Scrollbars_Visible_Value          : Boolean := True;
+      Format_On_Save_Value              : Boolean := False;
       Command_Palette_Show_Unavailable  : Boolean := True;
       Command_Palette_Show_Keybindings  : Boolean := True;
       Command_Palette_Show_Selected_Description : Boolean := True;

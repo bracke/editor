@@ -170,7 +170,6 @@ package body Editor.Gutter.Tests is
    procedure Test_Fold_Marker_Zone_Has_Priority
      (T : in out AUnit.Test_Cases.Test_Case'Class)
    is
-      pragma Unreferenced (T);
    begin
       Test_Hit_Test_Fold_Marker_Zone (T);
    end Test_Fold_Marker_Zone_Has_Priority;

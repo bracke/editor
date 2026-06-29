@@ -1,5 +1,6 @@
 with AUnit.Assertions; use AUnit.Assertions;
 with AUnit.Test_Cases;
+with Ada.Environment_Variables;
 with Ada.Strings.Fixed;
 with Ada.Text_IO;
 with Ada.Strings.Unbounded; use Ada.Strings.Unbounded;
@@ -352,6 +353,8 @@ package body Editor.Feature_Integration.Tests is
       Before          : Editor.State.State_Type;
       After           : Editor.State.State_Type;
    begin
+      Ada.Environment_Variables.Clear ("EDITOR_KEYBINDINGS_PATH");
+      Editor.Keybindings.Reset_To_Defaults;
       Editor.State.Init (S);
       Editor.Settings.Set_Command_Palette_Show_Keybindings (S.Settings, True);
       Editor.Keybindings.Reset_To_Defaults;

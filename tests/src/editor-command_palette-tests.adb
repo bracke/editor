@@ -8,6 +8,7 @@ with Interfaces.C;
 with Editor.Command_Palette;
 with Editor.Executor;
 with Editor.Commands;
+with Editor.Ada_Diagnostic_Command_Projection;
 use type Editor.Commands.Command_Id;
 use type Editor.Commands.Command_Category;
 use type Editor.Commands.Command_Visibility;
@@ -21,6 +22,9 @@ with Editor.Messages;
 with Editor.Input_Bridge;
 with Editor.Input_Field;
 with Editor.Keybindings;
+with Editor.Feature_Diagnostics;
+with Editor.Feature_Panel;
+with Editor.Feature_Panel_Controller;
 with Editor.Render_Model;
 with Editor.Render_Packet;
 with Editor.Render_Layers;
@@ -706,6 +710,50 @@ package body Editor.Command_Palette.Tests is
               "Close Buffer command id should close the active clean buffer");
    end Test_Buffer_Command_Id_Dispatch;
 
+   procedure Test_Diagnostic_Action_Command_Id_Dispatch
+     (T : in out AUnit.Test_Cases.Test_Case'Class)
+   is
+      pragma Unreferenced (T);
+      S      : Editor.State.State_Type;
+      After  : Editor.State.State_Type;
+      Msg    : Editor.Messages.Editor_Message;
+      Found  : Boolean := False;
+      Shown  : Boolean;
+   begin
+      Editor.Buffers.Reset_Global_For_Test;
+      Editor.State.Init (S);
+      Editor.State.Load_Text (S, "line 1" & ASCII.LF);
+      Editor.Feature_Diagnostics.Add_Diagnostic
+        (S.Feature_Diagnostics,
+         Editor.Feature_Diagnostics.Diagnostic_Warning,
+         "semantic diagnostic with no action",
+         Source_Label  => "semantic",
+         Source_Kind   => Editor.Feature_Diagnostics.Editor_Diagnostic_Source,
+         Has_Target    => True,
+         Target_Buffer => S.Active_Buffer_Token,
+         Target_Line   => 1,
+         Target_Column => 1,
+         Primary_Action_Kind =>
+           Editor.Ada_Diagnostic_Command_Projection.Diagnostic_Command_None);
+      Shown := Editor.Feature_Panel_Controller.Show_Feature
+        (S, Editor.Feature_Panel.Diagnostics_Feature);
+      Assert (Shown, "diagnostic action command-id fixture shows diagnostics");
+      Editor.Feature_Panel.Select_Row (S.Feature_Panel, 1);
+      Editor.Input_Bridge.Set_State_For_Test (S);
+
+      Editor.Input_Bridge.Execute_Command_Id
+        (Editor.Commands.Command_Diagnostics_Execute_Selected_Action);
+      After := Editor.Input_Bridge.Get_State_For_Test;
+      Msg := Editor.Messages.Active_Message (After.Messages, Found);
+
+      Assert (Editor.Messages.Count (After.Messages) > 0,
+              "diagnostic action command id dispatches through the input bridge");
+      Assert (Found
+              and then Editor.Messages.Text (Msg) = "Diagnostic action unavailable",
+              "diagnostic action command id reports executor feedback; got '" &
+              (if Found then Editor.Messages.Text (Msg) else "<none>") & "'");
+   end Test_Diagnostic_Action_Command_Id_Dispatch;
+
    procedure Test_Save_As_Descriptor_Requires_Path
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
       pragma Unreferenced (T);
@@ -1299,12 +1347,12 @@ package body Editor.Command_Palette.Tests is
       Editor.Keybindings.Reset_To_Defaults;
       Editor.Command_Palette.Reset;
       Editor.Command_Palette.Open;
-      Editor.Command_Palette.Insert_Text ("open file");
+      Editor.Command_Palette.Insert_Text ("run build");
 
       Editor.Executor.Command_Palette_Candidates (S, Candidates);
 
       for Candidate of Candidates loop
-         if Candidate.Id = Editor.Commands.Command_Open_File then
+         if Candidate.Id = Editor.Commands.Command_Build_Run then
             Found := True;
             Assert (not Candidate.Has_Keybinding,
                     "Unbound command candidate must not report a keybinding");
@@ -1313,7 +1361,7 @@ package body Editor.Command_Palette.Tests is
          end if;
       end loop;
 
-      Assert (Found, "Open File candidate must be present");
+      Assert (Found, "Run Build candidate must be present");
    end Test_Phase85_Unbound_Candidate_Has_No_Keybinding;
 
    procedure Test_Phase85_Unavailable_Candidate_Still_Shows_Keybinding
@@ -3176,6 +3224,9 @@ package body Editor.Command_Palette.Tests is
       AUnit.Test_Cases.Registration.Register_Routine
         (T, Test_Buffer_Command_Id_Dispatch'Access,
          "Buffer Command Id Dispatch");
+      AUnit.Test_Cases.Registration.Register_Routine
+        (T, Test_Diagnostic_Action_Command_Id_Dispatch'Access,
+         "Diagnostic Action Command Id Dispatch");
       AUnit.Test_Cases.Registration.Register_Routine
         (T, Test_Save_As_Descriptor_Requires_Path'Access,
          "Save As Descriptor Requires Path");

@@ -173,6 +173,36 @@ package body Editor.Ada_Direct_Visibility is
       Node : Editor.Ada_Syntax_Tree.Node_Info) return String
    is
       use type Editor.Ada_Syntax_Tree.Node_Kind;
+
+      function Word_After (Text : String; Prefix : String) return String is
+         Start : Natural := Text'First + Prefix'Length;
+         Stop  : Natural := Start;
+      begin
+         while Start <= Text'Last and then Text (Start) = ' ' loop
+            Start := Start + 1;
+         end loop;
+         Stop := Start;
+         while Stop <= Text'Last
+           and then Text (Stop) /= ' '
+           and then Text (Stop) /= ';'
+           and then Text (Stop) /= '('
+        loop
+            Stop := Stop + 1;
+         end loop;
+         if Start <= Text'Last and then Stop > Start then
+            return Text (Start .. Stop - 1);
+         end if;
+         return "";
+      end Word_After;
+
+      function Name_Before_Colon (Text : String) return String is
+         Colon : constant Natural := Ada.Strings.Fixed.Index (Text, ":");
+      begin
+         if Colon > Text'First then
+            return Trim (Text (Text'First .. Colon - 1));
+         end if;
+         return "";
+      end Name_Before_Colon;
    begin
       for Index in 1 .. Editor.Ada_Syntax_Tree.Child_Count (Tree, Node.Id) loop
          declare
@@ -181,13 +211,82 @@ package body Editor.Ada_Direct_Visibility is
                 (Tree, Editor.Ada_Syntax_Tree.Child_At (Tree, Node.Id, Index));
          begin
             if Child.Kind = Editor.Ada_Syntax_Tree.Node_Declaration_Name then
-               return Trim (To_String (Child.Label));
+               declare
+                  Name_Text : constant String := Trim (To_String (Child.Label));
+                  Lower_Name : constant String := Normalize (Name_Text);
+               begin
+                  if Ada.Strings.Fixed.Index (Lower_Name, "body ") = 1 then
+                     return Word_After (Name_Text, "body ");
+                  elsif Ada.Strings.Fixed.Index (Lower_Name, "package body ") = 1 then
+                     return Word_After (Name_Text, "package body ");
+                  elsif Ada.Strings.Fixed.Index (Lower_Name, "package ") = 1 then
+                     return Word_After (Name_Text, "package ");
+                  elsif Ada.Strings.Fixed.Index (Lower_Name, "type ") = 1 then
+                     return Word_After (Name_Text, "type ");
+                  elsif Ada.Strings.Fixed.Index (Lower_Name, "subtype ") = 1 then
+                     return Word_After (Name_Text, "subtype ");
+                  elsif Ada.Strings.Fixed.Index (Lower_Name, "with function ") = 1 then
+                     return Word_After (Name_Text, "with function ");
+                  elsif Ada.Strings.Fixed.Index (Lower_Name, "with procedure ") = 1 then
+                     return Word_After (Name_Text, "with procedure ");
+                  elsif Ada.Strings.Fixed.Index (Lower_Name, "with package ") = 1 then
+                     return Word_After (Name_Text, "with package ");
+                  elsif Ada.Strings.Fixed.Index (Lower_Name, "procedure ") = 1 then
+                     return Word_After (Name_Text, "procedure ");
+                  elsif Ada.Strings.Fixed.Index (Lower_Name, "function ") = 1 then
+                     return Word_After (Name_Text, "function ");
+                  elsif Ada.Strings.Fixed.Index (Name_Text, " ") > 0 then
+                     return Word_After (Name_Text, "");
+                  else
+                     return Name_Text;
+                  end if;
+               end;
             end if;
          end;
       end loop;
 
       if Node.Kind = Editor.Ada_Syntax_Tree.Node_Enumeration_Literal_Declaration then
          return Trim (To_String (Node.Label));
+      end if;
+
+      if Is_Declarative_Node (Node.Kind)
+        and then Trim (To_String (Node.Label)) /= ""
+      then
+         declare
+            Label : constant String := Trim (To_String (Node.Label));
+            Lower : constant String := Normalize (Label);
+         begin
+            if Ada.Strings.Fixed.Index (Lower, "package body ") = 1 then
+               return Word_After (Label, "package body ");
+            elsif Ada.Strings.Fixed.Index (Lower, "package ") = 1 then
+               return Word_After (Label, "package ");
+            elsif Ada.Strings.Fixed.Index (Lower, "type ") = 1 then
+               return Word_After (Label, "type ");
+            elsif Ada.Strings.Fixed.Index (Lower, "subtype ") = 1 then
+               return Word_After (Label, "subtype ");
+            elsif Ada.Strings.Fixed.Index (Lower, "with function ") = 1 then
+               return Word_After (Label, "with function ");
+            elsif Ada.Strings.Fixed.Index (Lower, "with procedure ") = 1 then
+               return Word_After (Label, "with procedure ");
+            elsif Ada.Strings.Fixed.Index (Lower, "with package ") = 1 then
+               return Word_After (Label, "with package ");
+            elsif Node.Kind = Editor.Ada_Syntax_Tree.Node_Object_Declaration
+              or else Node.Kind = Editor.Ada_Syntax_Tree.Node_Constant_Declaration
+              or else Node.Kind = Editor.Ada_Syntax_Tree.Node_Deferred_Constant_Declaration
+              or else Node.Kind = Editor.Ada_Syntax_Tree.Node_Component_Declaration
+              or else Node.Kind = Editor.Ada_Syntax_Tree.Node_Discriminant_Specification
+              or else Node.Kind = Editor.Ada_Syntax_Tree.Node_Parameter_Specification
+              or else Node.Kind = Editor.Ada_Syntax_Tree.Node_Formal_Object_Declaration
+            then
+               return Name_Before_Colon (Label);
+            elsif Ada.Strings.Fixed.Index (Lower, "procedure ") = 1 then
+               return Word_After (Label, "procedure ");
+            elsif Ada.Strings.Fixed.Index (Lower, "function ") = 1 then
+               return Word_After (Label, "function ");
+            else
+               return Label;
+            end if;
+         end;
       end if;
 
       return "";
@@ -263,6 +362,7 @@ package body Editor.Ada_Direct_Visibility is
       Regions : Editor.Ada_Declarative_Regions.Region_Model)
       return Visibility_Model
    is
+      use type Editor.Ada_Syntax_Tree.Node_Kind;
       Model : Visibility_Model;
    begin
       Clear (Model);
@@ -272,7 +372,9 @@ package body Editor.Ada_Direct_Visibility is
             Node : constant Editor.Ada_Syntax_Tree.Node_Info :=
               Editor.Ada_Syntax_Tree.Node_At (Tree, Index);
          begin
-            if Is_Declarative_Node (Node.Kind) then
+            if Is_Declarative_Node (Node.Kind)
+              and then Node.Kind /= Editor.Ada_Syntax_Tree.Node_Package_Body
+            then
                Add_Declaration
                  (Model,
                   To_Declaration_Kind (Node.Kind),

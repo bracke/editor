@@ -285,13 +285,7 @@ package body Editor.Ada_Generic_Formal_Type_Conformance is
             return Formal_Type_Conformance_Interface_Compatible;
 
          when Formal_Type_Shape_Access =>
-            if Length (Actual.Normalized_Base) = 0
-              and then Actual.Base_Type = Editor.Ada_Type_Graph.No_Type
-            then
-               return Formal_Type_Conformance_Access_Designated_Unknown;
-            else
-               return Formal_Type_Conformance_Access_Compatible;
-            end if;
+            return Formal_Type_Conformance_Access_Compatible;
 
          when Formal_Type_Shape_Discrete |
               Formal_Type_Shape_Scalar |

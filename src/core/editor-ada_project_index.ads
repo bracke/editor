@@ -87,6 +87,13 @@ package Editor.Ada_Project_Index is
       Lifecycle_Generation : Natural;
       Analysis_Fingerprint : Natural) return Boolean;
 
+   function Current_Analysis_Fingerprint
+     (Index                : Index_State;
+      Path                 : String;
+      Buffer_Token         : Natural;
+      Buffer_Revision      : Natural;
+      Lifecycle_Generation : Natural) return Natural;
+
    function Contains_Key
      (Index : Index_State;
       Key   : Indexed_File_Key) return Boolean;
@@ -101,7 +108,8 @@ package Editor.Ada_Project_Index is
 
    function Resolve
      (Index : Index_State;
-      Name  : String) return Index_Resolution_Result;
+      Name  : String;
+      Max_Matches : Natural := 0) return Index_Resolution_Result;
 
    function Resolve_Current
      (Index                : Index_State;

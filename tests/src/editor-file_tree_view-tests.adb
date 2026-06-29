@@ -36,8 +36,9 @@ package body Editor.File_Tree_View.Tests is
 
    function Temp_Path (Name : String) return String is
    begin
+      Ada.Directories.Create_Path ("/tmp/editor-tests");
       return Ada.Directories.Compose
-        (Ada.Directories.Current_Directory, "phase57_view_" & Name);
+        ("/tmp/editor-tests", "phase57_view_" & Name);
    end Temp_Path;
 
    procedure Remove_File_If_Exists (Path : String) is

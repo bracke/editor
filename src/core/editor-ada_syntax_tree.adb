@@ -2790,9 +2790,16 @@ package body Editor.Ada_Syntax_Tree is
          when Node_End =>
             declare
                Target : constant String := End_Target_Text (Code);
+               Parent : constant Node_Id := Node (Tree, Id).Parent;
             begin
                if Target /= "" then
                   Add_Detail_Node (Tree, Id, Depth, Line, Node_End_Target, Target);
+               end if;
+               if Contains (Lower (Code), " with ")
+                 and then Parent /= No_Node
+               then
+                  Add_Aspect_Specification_Nodes
+                    (Tree, Parent, Node (Tree, Parent).Depth + 1, Line, Code);
                end if;
             end;
          when others =>

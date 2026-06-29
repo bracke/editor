@@ -57,7 +57,8 @@ procedure Shader_Freshness_Check is
       end if;
       if not Files_Equal (Tmp, Checked) then
          Fail (Tool, "checked-in SPIR-V is stale for " & Src
-               & "; run tools/bin/compile_shaders --record-toolchain-manifest with the recorded release shader toolchain");
+               & "; run tools/bin/compile_shaders --record-toolchain-manifest"
+               & " with the recorded release shader toolchain");
       end if;
    end Check;
 
@@ -95,9 +96,15 @@ begin
 
       if Require_Manifest then
          if Recorded_Version = "" then
-            Fail (Tool, "shader toolchain manifest does not contain GLSLANG_VALIDATOR_VERSION_FIRST_LINE");
+            Fail
+              (Tool,
+               "shader toolchain manifest does not contain "
+               & "GLSLANG_VALIDATOR_VERSION_FIRST_LINE");
          elsif Recorded_Version = "UNRECORDED" then
-            Fail (Tool, "shader toolchain manifest is still UNRECORDED; run tools/bin/compile_shaders --record-toolchain-manifest");
+            Fail
+              (Tool,
+               "shader toolchain manifest is still UNRECORDED; run "
+               & "tools/bin/compile_shaders --record-toolchain-manifest");
          elsif Recorded_Version /= Current_Version then
             Fail (Tool, "glslangValidator toolchain mismatch; recorded '" & Recorded_Version
                   & "' but current is '" & Current_Version
@@ -106,7 +113,10 @@ begin
       elsif Recorded_Version /= "" and then Recorded_Version /= "UNRECORDED"
         and then Recorded_Version /= Current_Version
       then
-         Info (Tool, "warning: current glslangValidator differs from recorded release toolchain; strict mode would fail");
+         Info
+           (Tool,
+            "warning: current glslangValidator differs from recorded "
+            & "release toolchain; strict mode would fail");
       end if;
    end;
 

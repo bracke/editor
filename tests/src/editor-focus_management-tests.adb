@@ -678,6 +678,15 @@ package body Editor.Focus_Management.Tests is
          Editor.Focus_Management.Focus_Build_UI,
          "Build UI focus command should have an auditable focus target");
       Assert
+        (Editor.Focus_Management.Command_Is_Surface_Entry
+           (Editor.Commands.Command_Terminal_Show),
+         "Terminal show should be classified as a surface-entry command");
+      Assert
+        (Editor.Focus_Management.Focus_Target_For_Surface_Command
+           (Editor.Commands.Command_Terminal_Focus) =
+         Editor.Focus_Management.Focus_Terminal,
+         "Terminal focus command should have an auditable focus target");
+      Assert
         (Editor.Focus_Management.Focus_Target_For_Surface_Command
            (Editor.Commands.Command_Show_Recent_Projects) =
          Editor.Focus_Management.Focus_Recent_Projects,
@@ -990,6 +999,15 @@ package body Editor.Focus_Management.Tests is
         (not Editor.Focus_Management.Command_Focuses_Surface_After_Execution
            (Editor.Commands.Command_Toggle_Quick_Open),
          "toggle commands must not force focus after execution because they may close the surface");
+
+      Assert
+        (Editor.Focus_Management.Command_Focuses_Surface_After_Execution
+           (Editor.Commands.Command_Terminal_Focus),
+         "Terminal focus should opt into post-execution focus application");
+      Assert
+        (not Editor.Focus_Management.Command_Focuses_Surface_After_Execution
+           (Editor.Commands.Command_Terminal_Toggle),
+         "Terminal toggle should not force focus after execution");
 
       Editor.Focus_Management.Apply_Command_Focus_Result
         (S, Editor.Commands.Command_Focus_Editor_Text);

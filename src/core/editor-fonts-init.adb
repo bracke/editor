@@ -14,7 +14,8 @@ package body Editor.Fonts.Init is
 
       Status :=
         Textrender.Load_Font
-          (Path         => Editor.Font_Config.Font_Path,
+          (R            => Editor.Fonts.Backend.all,
+           Path         => Editor.Font_Config.Font_Path,
            Pixel_Size   => Editor.Font_Config.Font_Size_Px,
            Cell_Width   => Editor.Font_Config.Cell_W,
            Cell_Height  => Editor.Font_Config.Cell_H,

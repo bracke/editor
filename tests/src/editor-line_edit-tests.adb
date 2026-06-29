@@ -1383,8 +1383,6 @@ package body Editor.Line_Edit.Tests is
       Assert_Not_Exposed ("edit.indent.block");
       Assert_Not_Exposed ("edit.indent.smart");
       Assert_Not_Exposed ("edit.indent.auto");
-      Assert_Not_Exposed ("edit.format.document");
-      Assert_Not_Exposed ("edit.format.selection");
       Assert_Not_Exposed ("edit.tabs.convert-to-spaces");
       Assert_Not_Exposed ("edit.tabs.convert-to-tabs");
    end Test_Phase385_Indent_Command_Descriptors;
@@ -1988,8 +1986,8 @@ package body Editor.Line_Edit.Tests is
               "selected-line indentation command must remain absent");
       Id := Editor.Commands.Command_Id_From_Stable_Name
         ("edit.format.document", Found);
-      Assert (not Found and then Id = Editor.Commands.No_Command,
-              "format-document command must remain absent");
+      Assert (Found and then Id = Editor.Commands.Command_Format_Buffer,
+              "format-document must resolve to the explicit buffer formatter");
       Id := Editor.Commands.Command_Id_From_Stable_Name
         ("edit.tabs.convert-to-spaces", Found);
       Assert (not Found and then Id = Editor.Commands.No_Command,
@@ -4126,12 +4124,12 @@ procedure Test_Phase389_Line_Comment_Command_Descriptors
                           "Phase 391 document comment command must remain absent");
       Assert_Not_Exposed ("edit.comment.region",
                           "Phase 391 region comment command must remain absent");
-      Assert_Not_Exposed ("edit.format.document",
-                          "Phase 391 format document command must remain absent");
-      Assert_Not_Exposed ("edit.format.selection",
-                          "Phase 391 format selection command must remain absent");
-      Assert_Not_Exposed ("edit.format.on-save",
-                          "Phase 391 format-on-save command must remain absent");
+      Assert
+        (Editor.Commands.Command_Id_From_Stable_Name
+           ("edit.format.on-save", Found) =
+         Editor.Commands.Command_Toggle_Format_On_Save
+         and then Found,
+         "format-on-save alias should resolve to the persisted save formatter command");
    end Test_Phase391_Read_Only_Routes_Feature_Independence_And_Persistence;
 
 procedure Test_Phase392_Canonical_Line_Comment_Path_And_Persistence_Exclusion
@@ -5202,8 +5200,6 @@ procedure Test_Phase392_Canonical_Line_Comment_Path_And_Persistence_Exclusion
       Assert_Not_Exposed ("edit.line.join-paragraph");
       Assert_Not_Exposed ("edit.line.split");
       Assert_Not_Exposed ("edit.paragraph.reflow");
-      Assert_Not_Exposed ("edit.format.document");
-      Assert_Not_Exposed ("edit.format.selection");
       Assert_Not_Exposed ("edit.join.smart");
       Assert_Not_Exposed ("edit.join.language-aware");
    end Test_Phase395_Join_Next_Active_Buffer_Routes_Features_And_Persistence;
@@ -6426,8 +6422,6 @@ procedure Test_Phase396_Line_Join_Canonical_Behavior_And_Persistence
       Assert_Not_Exposed ("edit.line.split-all");
       Assert_Not_Exposed ("edit.line.split-paragraph");
       Assert_Not_Exposed ("edit.paragraph.reflow");
-      Assert_Not_Exposed ("edit.format.document");
-      Assert_Not_Exposed ("edit.format.selection");
       Assert_Not_Exposed ("edit.split.smart");
       Assert_Not_Exposed ("edit.split.language-aware");
       Assert_Not_Exposed ("edit.newline.auto-indent");
@@ -9861,7 +9855,6 @@ procedure Test_Phase408_Character_Delete_Canonical_Routes_State_And_Persistence
       Snapshot       : Editor.Render_Model.Render_Snapshot;
       Workspace      : Editor.Workspace_Persistence.Workspace_Snapshot;
       Summary        : Unbounded_String;
-      pragma Unreferenced (Snapshot);
    begin
       Editor.History.Undo_Stack.Clear;
       Editor.History.Redo_Stack.Clear;
@@ -12242,12 +12235,60 @@ procedure Test_Phase412_Selection_Delete_Canonical_State_Only_Workflow
         (Editor.Commands.Is_Text_Editing_Command
            (Editor.Commands.Command_Trim_Trailing_Whitespace),
          "trim trailing whitespace must be classified as text editing");
+      Assert
+        (Editor.Commands.Stable_Command_Name
+           (Editor.Commands.Command_Format_Buffer) =
+         "edit.format-buffer",
+         "format buffer stable name mismatch");
+      Assert
+        (Editor.Commands.Descriptor
+           (Editor.Commands.Command_Format_Buffer).Category =
+         Editor.Commands.Edit_Category,
+         "format buffer must be an Edit command");
+      Assert
+        (Editor.Commands.Is_Bindable_Command
+           (Editor.Commands.Command_Format_Buffer),
+         "format buffer must be bindable");
+      Assert
+        (Editor.Commands.Is_Text_Editing_Command
+           (Editor.Commands.Command_Format_Buffer),
+         "format buffer must be classified as text editing");
+      Assert
+        (Editor.Commands.Stable_Command_Name
+           (Editor.Commands.Command_Format_Selected_Text) =
+         "edit.format.selection",
+         "format selection stable name mismatch");
+      Assert
+        (Editor.Commands.Descriptor
+           (Editor.Commands.Command_Format_Selected_Text).Category =
+         Editor.Commands.Edit_Category,
+         "format selection must be an Edit command");
+      Assert
+        (Editor.Commands.Is_Bindable_Command
+           (Editor.Commands.Command_Format_Selected_Text),
+         "format selection must be bindable");
+      Assert
+        (Editor.Commands.Is_Text_Editing_Command
+           (Editor.Commands.Command_Format_Selected_Text),
+         "format selection must be classified as text editing");
       Id := Editor.Commands.Command_Id_From_Stable_Name
         ("edit.trim-trailing-whitespace", Found);
       Assert (Found, "trim trailing whitespace stable name must resolve");
       Assert
         (Id = Editor.Commands.Command_Trim_Trailing_Whitespace,
          "trim trailing whitespace stable name resolves wrong command");
+      Id := Editor.Commands.Command_Id_From_Stable_Name
+        ("edit.format-buffer", Found);
+      Assert (Found, "format buffer stable name must resolve");
+      Assert
+        (Id = Editor.Commands.Command_Format_Buffer,
+         "format buffer stable name resolves wrong command");
+      Id := Editor.Commands.Command_Id_From_Stable_Name
+        ("edit.format.selection", Found);
+      Assert (Found, "format selection stable name must resolve");
+      Assert
+        (Id = Editor.Commands.Command_Format_Selected_Text,
+         "format selection stable name resolves wrong command");
    end Test_Phase540_Trim_Trailing_Whitespace_Command_Surface;
 
    procedure Test_Phase540_Expected_Command_Names_Resolve
@@ -12295,7 +12336,113 @@ procedure Test_Phase412_Selection_Delete_Canonical_State_Only_Workflow
       Assert_Resolves ("edit.join-lines", Editor.Commands.Command_Line_Join_Next);
       Assert_Resolves ("edit.split-line", Editor.Commands.Command_Line_Split_At_Caret);
       Assert_Resolves ("edit.trim-trailing-whitespace", Editor.Commands.Command_Trim_Trailing_Whitespace);
+      Assert_Resolves ("edit.format-buffer", Editor.Commands.Command_Format_Buffer);
+      Assert_Resolves ("edit.format.document", Editor.Commands.Command_Format_Buffer);
+      Assert_Resolves ("edit.format.selection", Editor.Commands.Command_Format_Selected_Text);
    end Test_Phase540_Expected_Command_Names_Resolve;
+
+   procedure Test_Format_Buffer_Uses_Explicit_Whitespace_Formatter
+     (T : in out AUnit.Test_Cases.Test_Case'Class)
+   is
+      pragma Unreferenced (T);
+      S : Editor.State.State_Type;
+      Found : Boolean := False;
+      Id : Editor.Commands.Command_Id := Editor.Commands.No_Command;
+   begin
+      Editor.History.Undo_Stack.Clear;
+      Editor.History.Redo_Stack.Clear;
+      Editor.State.Init (S);
+      Editor.State.Load_Text
+        (S, "procedure P is  " & ASCII.LF &
+            "begin" & ASCII.HT & ASCII.LF &
+            "   null;" & ASCII.LF &
+            "end P;");
+      Editor.State.Set_Dirty (S, False);
+      Set_Caret (S, 1);
+
+      Editor.Executor.Execute_Command
+        (S, Editor.Commands.Command_Format_Buffer);
+
+      Assert_Buffer_Text
+        (S, "procedure P is" & ASCII.LF &
+            "begin" & ASCII.LF &
+            "   null;" & ASCII.LF &
+            "end P;",
+         "format buffer should apply the explicit active-buffer formatter");
+      Assert (Message_Text (S) = "Trimmed trailing whitespace",
+              "format buffer should report the formatter edit result");
+      Assert (Editor.State.Is_Dirty (S),
+              "format buffer should dirty the active buffer only when text changes");
+      Assert (Natural (Editor.History.Undo_Stack.Length) = 1,
+              "format buffer should create one undoable edit group");
+
+      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Undo);
+      Assert_Buffer_Text
+        (S, "procedure P is  " & ASCII.LF &
+            "begin" & ASCII.HT & ASCII.LF &
+            "   null;" & ASCII.LF &
+            "end P;",
+         "format buffer undo should restore original text");
+
+      Id := Editor.Commands.Command_Id_From_Stable_Name
+        ("file.format-on-save", Found);
+      Assert (Found and then Id = Editor.Commands.Command_Toggle_Format_On_Save,
+              "format buffer command surface should expose format-on-save toggle");
+   end Test_Format_Buffer_Uses_Explicit_Whitespace_Formatter;
+
+   procedure Test_Format_Selection_Uses_Selected_Line_Formatter
+     (T : in out AUnit.Test_Cases.Test_Case'Class)
+   is
+      pragma Unreferenced (T);
+      S : Editor.State.State_Type;
+      A : Editor.Commands.Command_Availability;
+   begin
+      Editor.History.Undo_Stack.Clear;
+      Editor.History.Redo_Stack.Clear;
+      Editor.State.Init (S);
+      Editor.State.Load_Text
+        (S, "one  " & ASCII.LF & "two  " & ASCII.LF & "three" & ASCII.HT);
+      Editor.State.Set_Dirty (S, False);
+      Set_Caret (S, 1);
+      Assert
+        (Editor.Commands.Command_Format_Selected_Text /=
+         Editor.Commands.Command_Find_From_Selection,
+         "format selection command id must not alias find-from-selection");
+      Assert
+        (Editor.Commands.Command_Format_Selected_Text /=
+         Editor.Commands.Command_Project_Search_From_Selection,
+         "format selection command id must not alias project-search-from-selection");
+
+      A := Editor.Executor.Command_Availability
+        (S, Editor.Commands.Command_Format_Selected_Text);
+      Assert
+        (A.Status = Editor.Commands.Command_Unavailable,
+         "format selection must require an active selection");
+      Assert
+        (Editor.Commands.Unavailable_Reason (A) = "No selected text",
+         "format selection no-selection availability reason mismatch: "
+         & Editor.Commands.Unavailable_Reason (A));
+
+      Set_Primary_Selection (S, 7, 10);
+
+      Editor.Executor.Execute_Command
+        (S, Editor.Commands.Command_Format_Selected_Text);
+
+      Assert_Buffer_Text
+        (S, "one  " & ASCII.LF & "two" & ASCII.LF & "three" & ASCII.HT,
+         "format selection should apply only to selected logical lines");
+      Assert (Message_Text (S) = "Trimmed trailing whitespace",
+              "format selection should report the formatter edit result");
+      Assert (Editor.State.Is_Dirty (S),
+              "format selection should dirty the active buffer when text changes");
+      Assert (Natural (Editor.History.Undo_Stack.Length) = 1,
+              "format selection should create one undoable edit group");
+
+      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Undo);
+      Assert_Buffer_Text
+        (S, "one  " & ASCII.LF & "two  " & ASCII.LF & "three" & ASCII.HT,
+         "format selection undo should restore original selected-line text");
+   end Test_Format_Selection_Uses_Selected_Line_Formatter;
 
    procedure Test_Phase540_Trim_Trailing_Whitespace_Edit_Group
      (T : in out AUnit.Test_Cases.Test_Case'Class)
@@ -12555,6 +12702,12 @@ procedure Test_Phase412_Selection_Delete_Canonical_State_Only_Workflow
       AUnit.Test_Cases.Registration.Register_Routine
         (T, Test_Phase540_Expected_Command_Names_Resolve'Access,
          "Phase 540 Expected Command Names Resolve");
+      AUnit.Test_Cases.Registration.Register_Routine
+        (T, Test_Format_Buffer_Uses_Explicit_Whitespace_Formatter'Access,
+         "Format Buffer Uses Explicit Whitespace Formatter");
+      AUnit.Test_Cases.Registration.Register_Routine
+        (T, Test_Format_Selection_Uses_Selected_Line_Formatter'Access,
+         "Format Selection Uses Selected Line Formatter");
       AUnit.Test_Cases.Registration.Register_Routine
         (T, Test_Phase540_Trim_Trailing_Whitespace_Edit_Group'Access,
          "Phase 540 Trim Trailing Whitespace Edit Group");

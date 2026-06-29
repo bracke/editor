@@ -20,7 +20,6 @@ with Editor.Input_Bridge;
 with Editor.Outline;
 with Editor.Project;
 with Editor.Project_Search;
-with Editor.Quick_Open;
 with Editor.Render_Packet;
 with Editor.State;
 with Editor.Test_Helper;
@@ -151,7 +150,7 @@ procedure Editor_Product_Smoke is
       return
         (Tool => Editor.External_Producers.GPRbuild_Tool,
          Provenance => Editor.External_Producers.Build_Request_From_User_Opt_In,
-         Working_Label => To_Unbounded_String (Root),
+         Working_Label => Null_Unbounded_String,
          Command_Label => To_Unbounded_String ("gprbuild -P smoke_project.gpr"),
          Arguments => Null_Unbounded_String,
          Structured_Arguments => Args);

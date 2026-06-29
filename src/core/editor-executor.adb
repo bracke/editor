@@ -1,6 +1,7 @@
 with Text_Buffer;
 with Editor.State;
 use type Editor.State.Dirty_Close_Scope;
+use type Editor.State.Semantic_Popup_Kind;
 with Editor.Cursors;    use Editor.Cursors;
 with Editor.Commands;   use Editor.Commands;
 with Editor.History;    use Editor.History;
@@ -91,8 +92,10 @@ with Editor.Command_Execution;
 use type Editor.Command_Execution.Command_Execution_Status;
 with Editor.External_Producers;
 use type Editor.External_Producers.Build_Run_Status;
+use type Editor.External_Producers.Process_Run_Status;
 with Editor.Build_UI;
 use type Editor.Build_UI.Public_Build_Tool_Selection;
+with Editor.Terminal_Tasks;
 with Editor.Build_Candidates;
 with Editor.Build_UI_Actions;
 with Editor.Build_Candidate_Refresh;
@@ -111,9 +114,18 @@ with Editor.Recent_Buffers;
 with Editor.Message_Producers;
 with Editor.Outline;
 use type Editor.Outline.Outline_Item_Kind;
+use type Editor.Outline.Outline_Freshness;
 with Editor.Outline_Extractor;
 with Editor.Ada_Declaration_Parser;
 with Editor.Ada_Language_Model;
+with Editor.Ada_Language_Service;
+use type Editor.Ada_Language_Service.Service_Status;
+with Editor.Ada_Live_Semantic_Diagnostics;
+with Editor.Ada_Diagnostic_Action_Execution;
+use type Editor.Ada_Diagnostic_Action_Execution.Diagnostic_Action_Execution_Effect;
+use type Editor.Ada_Diagnostic_Action_Execution.Diagnostic_Action_Execution_Status;
+with Editor.Ada_Diagnostic_Command_Projection;
+use type Editor.Ada_Diagnostic_Command_Projection.Diagnostic_Command_Kind;
 with Editor.Ada_Project_Index;
 with Editor.Syntax_Semantics;
 with Ada.Strings.Unbounded; use Ada.Strings.Unbounded;
@@ -126,6 +138,33 @@ with Ada.Text_IO;
 with Ada.IO_Exceptions;
 
 package body Editor.Executor is
+
+   type Selected_Outline_Semantic_Symbol is record
+      Available : Boolean := False;
+      Name      : Unbounded_String := Null_Unbounded_String;
+      Kind      : Editor.Ada_Language_Model.Symbol_Kind :=
+        Editor.Ada_Language_Model.Symbol_Unknown;
+      Profile   : Unbounded_String := Null_Unbounded_String;
+   end record;
+
+   function Current_Semantic_Symbol
+     (S : Editor.State.State_Type) return Selected_Outline_Semantic_Symbol;
+
+   function Current_Language_Service
+     (S : Editor.State.State_Type)
+      return Editor.Ada_Language_Service.Service_State;
+
+   function Semantic_Declaration_Target
+     (S       : Editor.State.State_Type;
+      Service : in out Editor.Ada_Language_Service.Service_State;
+      Symbol  : Selected_Outline_Semantic_Symbol)
+      return Editor.Ada_Language_Service.Language_Target;
+
+   function Semantic_Hover
+     (S       : Editor.State.State_Type;
+      Service : in out Editor.Ada_Language_Service.Service_State;
+      Name    : String)
+      return Editor.Ada_Language_Service.Hover_Result;
 
    function File_Conflict_Prompt_Is_Valid
      (S : Editor.State.State_Type) return Boolean;
@@ -457,6 +496,65 @@ package body Editor.Executor is
       return Ends_With (Lower, ".adb") or else Ends_With (Lower, ".ads");
    end Is_Ada_Source_Path;
 
+   function To_Feature_Severity
+     (Severity : Editor.Ada_Language_Service.Semantic_Diagnostic_Severity)
+      return Editor.Feature_Diagnostics.Diagnostic_Severity
+   is
+   begin
+      case Severity is
+         when Editor.Ada_Language_Service.Semantic_Error =>
+            return Editor.Feature_Diagnostics.Diagnostic_Error;
+         when Editor.Ada_Language_Service.Semantic_Warning =>
+            return Editor.Feature_Diagnostics.Diagnostic_Warning;
+         when Editor.Ada_Language_Service.Semantic_Info =>
+            return Editor.Feature_Diagnostics.Diagnostic_Info;
+         when Editor.Ada_Language_Service.Semantic_Hint =>
+            return Editor.Feature_Diagnostics.Diagnostic_Note;
+      end case;
+   end To_Feature_Severity;
+
+   procedure Publish_Service_Diagnostics_To_Feature
+     (S            : in out Editor.State.State_Type;
+      Path         : String;
+      Buffer_Token : Natural)
+   is
+      Removed : Natural;
+      Added   : Natural := 0;
+   begin
+      Removed := Editor.Feature_Diagnostics.Clear_Diagnostics_By_Source_And_Label
+        (S.Feature_Diagnostics,
+         Editor.Feature_Diagnostics.Editor_Diagnostic_Source,
+         Path);
+
+      for I in 1 ..
+        Editor.Ada_Language_Service.Semantic_Diagnostic_Count_For_Path
+          (S.Language_Service, Path)
+      loop
+         declare
+            Diagnostic : constant Editor.Ada_Language_Service.Semantic_Diagnostic :=
+              Editor.Ada_Language_Service.Semantic_Diagnostic_At_For_Path
+                (S.Language_Service, Path, I);
+         begin
+            Editor.Feature_Diagnostics.Add_Diagnostic
+              (S.Feature_Diagnostics,
+               Severity      => To_Feature_Severity (Diagnostic.Severity),
+               Message       => To_String (Diagnostic.Message),
+               Source_Label  => Path,
+               Source_Kind   => Editor.Feature_Diagnostics.Editor_Diagnostic_Source,
+               Has_Target    => Diagnostic.Has_Location and then Buffer_Token /= 0,
+               Target_Buffer => Buffer_Token,
+               Target_Line   => (if Diagnostic.Has_Location then Diagnostic.Line else 0),
+               Target_Column => (if Diagnostic.Has_Location then Diagnostic.Column else 0));
+            Added := Added + 1;
+         end;
+      end loop;
+
+      if Removed > 0 or else Added > 0 then
+         Editor.Feature_Diagnostics.Reconcile_Diagnostics_After_Row_Change
+           (S.Feature_Diagnostics, S.Feature_Panel);
+      end if;
+   end Publish_Service_Diagnostics_To_Feature;
+
    procedure Refresh_Project_Language_Index
      (S                  : in out Editor.State.State_Type;
       Build_Semantics    : Boolean;
@@ -496,6 +594,15 @@ package body Editor.Executor is
               (S.Syntax_Symbols, Analysis);
             S.Syntax_Symbols_Revision := Editor.State.Current_Buffer_Revision (S);
             S.Syntax_Symbols_Buffer_Token := Active_Buffer_Token;
+            Editor.Ada_Live_Semantic_Diagnostics.Publish
+              (S.Language_Service,
+               Path,
+               Text,
+               Buffer_Token,
+               Buffer_Revision,
+               Lifecycle_Generation,
+               Analysis);
+            Publish_Service_Diagnostics_To_Feature (S, Path, Buffer_Token);
          end if;
       end Index_Text;
 
@@ -503,7 +610,7 @@ package body Editor.Executor is
          Registry : constant Editor.Buffers.Buffer_Registry :=
            Editor.Buffers.Global_Registry_For_UI;
       begin
-         --  Phase 579 pass 184: explicit project refresh must not be limited
+         --  Phase 579 pass 184: project refresh must not be limited
          --  to filesystem/project-list contents plus the active buffer.  Open
          --  file-backed Ada buffers may hold unsaved text for project files
          --  that were already indexed from disk, or newly opened files whose
@@ -645,7 +752,105 @@ package body Editor.Executor is
 
       Indexed_File_Count := Editor.Ada_Project_Index.File_Count (S.Language_Index);
       Indexed_Symbols := Editor.Ada_Project_Index.Symbol_Count (S.Language_Index);
+      Editor.Ada_Language_Service.Put_Index
+        (S.Language_Service, S.Language_Index);
+      if Build_Semantics then
+         if Active_Path'Length > 0 and then Is_Ada_Source_Path (Active_Path) then
+            Editor.Ada_Live_Semantic_Diagnostics.Publish
+              (S.Language_Service,
+               Active_Path,
+               Active_Text,
+               Active_Buffer_Token,
+               Editor.State.Current_Buffer_Revision (S),
+               Editor.State.Current_Lifecycle_Generation (S),
+               S.Syntax_Analysis);
+         end if;
+
+         Editor.Ada_Live_Semantic_Diagnostics.Publish_Cross_Unit
+           (S.Language_Service, S.Language_Index);
+
+         for I in 1 .. Editor.Ada_Project_Index.File_Count (S.Language_Index) loop
+            declare
+               Key : constant Editor.Ada_Project_Index.Indexed_File_Key :=
+                 Editor.Ada_Project_Index.File_Key_At (S.Language_Index, I);
+            begin
+               Publish_Service_Diagnostics_To_Feature
+                 (S, To_String (Key.Path), Key.Buffer_Token);
+            end;
+         end loop;
+      end if;
    end Refresh_Project_Language_Index;
+
+   procedure Load_Global_Active_Preserving_Language_Index
+     (S : in out Editor.State.State_Type)
+   is
+      Saved_Index : constant Editor.Ada_Project_Index.Index_State :=
+        S.Language_Index;
+      Saved_Service : constant Editor.Ada_Language_Service.Service_State :=
+        S.Language_Service;
+   begin
+      Editor.Buffers.Load_Global_Active_Into_State (S);
+      S.Language_Index := Saved_Index;
+      S.Language_Service := Saved_Service;
+   end Load_Global_Active_Preserving_Language_Index;
+
+   procedure Rebuild_Language_Index_After_File_Lifecycle
+     (S : in out Editor.State.State_Type)
+   is
+      Saved_Project : constant Editor.Project.Project_State := S.Project;
+      Indexed_Files : Natural := 0;
+      Indexed_Symbols : Natural := 0;
+      Skipped_Files : Natural := 0;
+      Read_Errors : Natural := 0;
+   begin
+      Refresh_Project_Language_Index
+        (S,
+         Build_Semantics    => True,
+         Indexed_File_Count => Indexed_Files,
+         Indexed_Symbols    => Indexed_Symbols,
+         Skipped_File_Count => Skipped_Files,
+         Read_Error_Count   => Read_Errors);
+
+      if Indexed_Files = Natural'Last
+        and then Indexed_Symbols = Natural'Last
+        and then Skipped_Files = Natural'Last
+        and then Read_Errors = Natural'Last
+      then
+         null;
+      end if;
+
+      S.Project := Saved_Project;
+   end Rebuild_Language_Index_After_File_Lifecycle;
+
+   procedure Clear_Service_Semantic_Diagnostics_From_Feature
+     (S : in out Editor.State.State_Type)
+   is
+      Removed : Natural := 0;
+   begin
+      for I in 1 ..
+        Editor.Ada_Language_Service.Semantic_Diagnostic_Count (S.Language_Service)
+      loop
+         declare
+            Diagnostic : constant Editor.Ada_Language_Service.Semantic_Diagnostic :=
+              Editor.Ada_Language_Service.Semantic_Diagnostic_At
+                (S.Language_Service, I);
+            Path : constant String := To_String (Diagnostic.Path);
+         begin
+            if Path'Length > 0 then
+               Removed := Removed +
+                 Editor.Feature_Diagnostics.Clear_Diagnostics_By_Source_And_Label
+                   (S.Feature_Diagnostics,
+                    Editor.Feature_Diagnostics.Editor_Diagnostic_Source,
+                    Path);
+            end if;
+         end;
+      end loop;
+
+      if Removed > 0 then
+         Editor.Feature_Diagnostics.Reconcile_Diagnostics_After_Row_Change
+           (S.Feature_Diagnostics, S.Feature_Panel);
+      end if;
+   end Clear_Service_Semantic_Diagnostics_From_Feature;
 
    function Has_Find_Target_Buffer
      (S : Editor.State.State_Type) return Boolean;
@@ -825,7 +1030,7 @@ package body Editor.Executor is
          Editor.Buffers.Sync_Global_Active_From_State (S);
          Editor.Buffers.Global_Set_Active_Buffer
            (Editor.Buffers.Buffer_Id (Target_Buffer));
-         Editor.Buffers.Load_Global_Active_Into_State (S);
+         Load_Global_Active_Preserving_Language_Index (S);
          return True;
       else
          return False;
@@ -952,7 +1157,7 @@ package body Editor.Executor is
       return (Default_Lifetime_Ms   => 3_000,
               Error_Lifetime_Ms     => 5_000,
               Max_Visible_Messages  => 3,
-              Max_Text_Columns      => 96,
+              Max_Text_Columns      => 220,
               Replace_Same_Category => True);
    end Default_Message_Config;
 
@@ -1099,6 +1304,199 @@ package body Editor.Executor is
    function Has_Indexed_Outline_Target
      (S  : Editor.State.State_Type;
       Id : Editor.Commands.Command_Id) return Boolean;
+
+   function Selected_Outline_Language_Command_Availability
+     (S  : Editor.State.State_Type;
+      Id : Editor.Commands.Command_Id)
+      return Editor.Commands.Command_Availability;
+
+   function Semantic_Completion_Popup_Is_Active
+     (S : Editor.State.State_Type) return Boolean;
+
+   function Service_Status_Image
+     (Status : Editor.Ada_Language_Service.Service_Status) return String;
+
+   procedure Append_Replace_Op
+     (Cmd          : in out Editor.Commands.Command;
+      Pos          : Cursor_Index;
+      Delete_Count : Natural;
+      Insert_Text  : Unbounded_String);
+
+   function Rename_Preview_Is_Open_Buffers_Applyable
+     (S       : Editor.State.State_Type;
+      Preview : Editor.Ada_Language_Service.Rename_Preview;
+      Reason  : out Unbounded_String) return Boolean
+   is
+      Old_Name : constant String := To_String (Preview.Old_Name);
+      New_Name : constant String := To_String (Preview.New_Name);
+      function Buffer_For_Target
+        (Target : Editor.Ada_Language_Service.Language_Target)
+         return Editor.State.State_Type
+      is
+         Found : Boolean := False;
+         Id    : Editor.Buffers.Buffer_Id := Editor.Buffers.No_Buffer;
+         Open  : Editor.Files.File_Open_Result;
+         Temp  : Editor.State.State_Type;
+      begin
+         if Target.Key.Buffer_Token = S.Active_Buffer_Token then
+            return S;
+         elsif Target.Key.Buffer_Token /= 0
+           and then Editor.Buffers.Global_Contains
+             (Editor.Buffers.Buffer_Id (Target.Key.Buffer_Token))
+         then
+            return Editor.Buffers.Global_Buffer
+              (Editor.Buffers.Buffer_Id (Target.Key.Buffer_Token));
+         end if;
+
+         Id := Editor.Buffers.Global_Find_By_Path
+           (To_String (Target.Target.Path), Found);
+         if Found then
+            return Editor.Buffers.Global_Buffer (Id);
+         end if;
+
+         Open := Editor.Files.Open_File (To_String (Target.Target.Path));
+         if Open.Status = Editor.Files.File_Open_Ok then
+            Editor.State.Initialize (Temp);
+            Editor.State.Replace_Buffer_Contents
+              (Temp, To_String (Open.Contents));
+            Temp.File_Info.Has_Path := True;
+            Temp.File_Info.Path := Open.Path;
+            Temp.File_Info.Display_Name := Open.Display_Name;
+            return Temp;
+         end if;
+
+         return S;
+      end Buffer_For_Target;
+
+      function Target_State_Available
+        (Target : Editor.Ada_Language_Service.Language_Target) return Boolean
+      is
+         Found : Boolean := False;
+      begin
+         if Target.Key.Buffer_Token = S.Active_Buffer_Token then
+            return True;
+         elsif Target.Key.Buffer_Token /= 0
+           and then Editor.Buffers.Global_Contains
+             (Editor.Buffers.Buffer_Id (Target.Key.Buffer_Token))
+         then
+            return True;
+         end if;
+
+         declare
+            Ignored : constant Editor.Buffers.Buffer_Id :=
+              Editor.Buffers.Global_Find_By_Path
+                (To_String (Target.Target.Path), Found);
+            pragma Unreferenced (Ignored);
+         begin
+            if Found then
+               return True;
+            end if;
+         end;
+
+         return Editor.Files.Open_File (To_String (Target.Target.Path)).Status =
+           Editor.Files.File_Open_Ok;
+      end Target_State_Available;
+   begin
+      Reason := Null_Unbounded_String;
+
+      if Preview.Status /= Editor.Ada_Language_Service.Service_Success then
+         Reason := To_Unbounded_String
+           ("Rename apply unavailable for " & Old_Name & ": " &
+            Service_Status_Image (Preview.Status) & ".");
+         return False;
+      elsif Preview.Conflict_Count > 0 then
+         Reason := To_Unbounded_String
+           ("Rename apply blocked for " & Old_Name & ": conflicts.");
+         return False;
+      elsif Preview.Edit_Count = 0 then
+         Reason := To_Unbounded_String
+           ("Rename apply unavailable for " & Old_Name & ": no edits.");
+         return False;
+      elsif S.Active_Buffer_Token = 0 then
+         Reason := To_Unbounded_String
+           ("Rename apply unavailable for " & Old_Name & ": no active buffer.");
+         return False;
+      end if;
+
+      for Target of Preview.Edits loop
+         if not Target_State_Available (Target) then
+            Reason := To_Unbounded_String
+              ("Rename apply unavailable for " & Old_Name &
+               ": target file unavailable.");
+            return False;
+         else
+            declare
+               Target_State : constant Editor.State.State_Type :=
+                 Buffer_For_Target (Target);
+               Found_Open_By_Path : Boolean := False;
+               Open_By_Path_Id : constant Editor.Buffers.Buffer_Id :=
+                 Editor.Buffers.Global_Find_By_Path
+                   (To_String (Target.Target.Path), Found_Open_By_Path);
+               pragma Unreferenced (Open_By_Path_Id);
+               Open_Target : constant Boolean :=
+                 Target.Key.Buffer_Token = S.Active_Buffer_Token
+                 or else
+                   (Target.Key.Buffer_Token /= 0
+                    and then Editor.Buffers.Global_Contains
+                      (Editor.Buffers.Buffer_Id (Target.Key.Buffer_Token)));
+            begin
+               if Open_Target
+                 and then not Feature_Target_Position_Is_Valid
+                   (Target_State, Target.Key.Buffer_Token,
+                    Target.Target.Line, Target.Target.Column)
+               then
+                  Reason := To_Unbounded_String
+                    ("Rename apply unavailable for " & Old_Name &
+                     ": stale edit target.");
+                  return False;
+               elsif (not Open_Target)
+                 and then
+                   (Target.Target.Line = 0
+                    or else Target.Target.Column = 0
+                    or else Target.Target.Line >
+                      Editor.State.Line_Count (Target_State)
+                    or else Target.Target.Column - 1 >
+                      Editor.Navigation.Line_Length
+                        (Target_State, Target.Target.Line - 1))
+               then
+                  Reason := To_Unbounded_String
+                    ("Rename apply unavailable for " & Old_Name &
+                     ": stale edit target.");
+                  return False;
+               elsif Target.Target.Column = 0
+                 or else Target.Target.Column - 1 + Old_Name'Length >
+                   Editor.Navigation.Line_Length
+                     (Target_State, Target.Target.Line - 1)
+               then
+                  Reason := To_Unbounded_String
+                    ("Rename apply unavailable for " & Old_Name &
+                     ": stale edit target.");
+                  return False;
+               else
+                  declare
+                     Pos : constant Natural :=
+                       Index_For_Line_Column
+                         (Target_State, Target.Target.Line - 1,
+                          Target.Target.Column - 1);
+                     Current : constant String :=
+                       To_String
+                         (Extract_Text
+                            (Target_State.Buffer, Pos, Old_Name'Length));
+                  begin
+                     if Current /= Old_Name and then Current /= New_Name then
+                        Reason := To_Unbounded_String
+                          ("Rename apply unavailable for " & Old_Name &
+                           ": stale edit target.");
+                        return False;
+                     end if;
+                  end;
+               end if;
+            end;
+         end if;
+      end loop;
+
+      return True;
+   end Rename_Preview_Is_Open_Buffers_Applyable;
 
    function Command_Availability
      (S  : Editor.State.State_Type;
@@ -1676,6 +2074,8 @@ package body Editor.Executor is
                   | Command_Line_Join_Next
                   | Command_Line_Split_At_Caret
                   | Command_Trim_Trailing_Whitespace
+                  | Command_Format_Buffer
+                  | Command_Format_Selected_Text
                   | Command_Char_Delete_Previous
                   | Command_Char_Delete_Next
                   | Command_Word_Delete_Previous
@@ -1754,10 +2154,6 @@ package body Editor.Executor is
                  or else Length (Effective_File.Path) = 0
                then
                   return Editor.Commands.Unavailable ("No file path for active buffer");
-               elsif Effective_File.Dirty then
-                  null;
-               else
-                  return Editor.Commands.Unavailable ("No changes to save");
                end if;
 
                return Editor.Commands.Available;
@@ -1991,11 +2387,26 @@ package body Editor.Executor is
             end if;
             return Editor.Commands.Available;
 
-         when Command_Trim_Trailing_Whitespace =>
+         when Command_Trim_Trailing_Whitespace
+            | Command_Format_Buffer =>
             if not Has_Buffer then
                return Editor.Commands.Unavailable ("No active buffer.");
             elsif S.Carets.Length = 0 then
                return Editor.Commands.Unavailable ("No caret location");
+            elsif not Trim_Trailing_Whitespace_Would_Change then
+               return Editor.Commands.Unavailable ("No trailing whitespace");
+            end if;
+            return Editor.Commands.Available;
+
+         when Command_Format_Selected_Text =>
+            if not Has_Buffer then
+               return Editor.Commands.Unavailable ("No active buffer.");
+            elsif S.Carets.Length = 0 then
+               return Editor.Commands.Unavailable ("No caret location");
+            elsif not Editor.Selection.Has_Selection (S)
+              and then not S.Rect_Select_Active
+            then
+               return Editor.Commands.Unavailable ("No selection");
             elsif not Trim_Trailing_Whitespace_Would_Change then
                return Editor.Commands.Unavailable ("No trailing whitespace");
             end if;
@@ -2472,6 +2883,7 @@ package body Editor.Executor is
             | Command_Toggle_Scrollbars
             | Command_Toggle_Line_Numbers
             | Command_Toggle_Line_Number_Mode
+            | Command_Toggle_Format_On_Save
             | Command_Set_Absolute_Line_Numbers
             | Command_Set_Relative_Line_Numbers
             | Command_Set_Hybrid_Line_Numbers
@@ -4249,12 +4661,33 @@ package body Editor.Executor is
             return Editor.Commands.Available;
 
          when Command_Goto_Declaration =>
-            if not Editor.Feature_Panel.Is_Visible (S.Feature_Panel) then
-               return Editor.Commands.Unavailable (Editor.Outline.Reason_Feature_Panel_Hidden);
-            elsif not Has_Selected_Outline_Activation_Target (S) then
-               return Editor.Commands.Unavailable (Editor.Outline.Reason_No_Outline_Item_Selected);
+            if Editor.Feature_Panel.Is_Visible (S.Feature_Panel)
+              and then Has_Selected_Outline_Activation_Target (S)
+            then
+               return Editor.Commands.Available;
+            else
+               declare
+                  Symbol  : constant Selected_Outline_Semantic_Symbol :=
+                    Current_Semantic_Symbol (S);
+                  Service : Editor.Ada_Language_Service.Service_State :=
+                    Current_Language_Service (S);
+                  Target  : Editor.Ada_Language_Service.Language_Target;
+               begin
+                  if not Symbol.Available then
+                     return Editor.Commands.Unavailable
+                       ("No semantic symbol at cursor or Outline selection.");
+                  end if;
+
+                  Target := Semantic_Declaration_Target (S, Service, Symbol);
+                  if Target.Status = Editor.Ada_Language_Service.Service_Success then
+                     return Editor.Commands.Available;
+                  end if;
+
+                  return Editor.Commands.Unavailable
+                    ("Declaration unavailable for " & To_String (Symbol.Name) &
+                     ": " & Service_Status_Image (Target.Status) & ".");
+               end;
             end if;
-            return Editor.Commands.Available;
 
          when Command_Goto_Body
             | Command_Goto_Spec =>
@@ -4271,6 +4704,28 @@ package body Editor.Executor is
                return Editor.Commands.Unavailable ("Outline indexed target unavailable");
             end if;
             return Editor.Commands.Available;
+
+         when Command_Find_References
+            | Command_Workspace_Symbols
+            | Command_Show_Hover
+            | Command_Show_Completions
+            | Command_Rename_Symbol_Preview
+            | Command_Rename_Symbol_Apply =>
+            return Selected_Outline_Language_Command_Availability (S, Id);
+
+         when Command_Semantic_Completion_Select_Next
+            | Command_Semantic_Completion_Select_Previous
+            | Command_Semantic_Completion_Accept =>
+            if Semantic_Completion_Popup_Is_Active (S) then
+               return Editor.Commands.Available;
+            end if;
+            return Editor.Commands.Unavailable ("No completion menu is open.");
+
+         when Command_Semantic_Popup_Dismiss =>
+            if S.Semantic_Popup.Active then
+               return Editor.Commands.Available;
+            end if;
+            return Editor.Commands.Unavailable ("No semantic popup is open.");
 
          when Command_Language_Index_Clear
             | Command_Language_Index_Status =>
@@ -4481,7 +4936,8 @@ package body Editor.Executor is
             | Command_Show_Search_Results_Feature =>
             return Editor.Commands.Available;
 
-         when Command_Diagnostics_Open_Selected =>
+         when Command_Diagnostics_Open_Selected
+            | Command_Diagnostics_Execute_Selected_Action =>
             if Editor.Feature_Diagnostics.Is_Empty (S.Feature_Diagnostics) then
                return Editor.Commands.Unavailable ("No diagnostics");
             elsif not Editor.Feature_Diagnostics.Has_Selected_Diagnostic
@@ -4496,12 +4952,12 @@ package body Editor.Executor is
                     (S.Feature_Diagnostics, S.Feature_Panel));
             else
                declare
-                  Id : constant Editor.Feature_Diagnostics.Diagnostic_Id :=
+                  Diagnostic_Id : constant Editor.Feature_Diagnostics.Diagnostic_Id :=
                     Editor.Feature_Diagnostics.Selected_Diagnostic_Id
                       (S.Feature_Diagnostics, S.Feature_Panel);
                   Mapped : constant Natural :=
                     Editor.Feature_Diagnostics.Map_Diagnostic_Id_To_Item
-                      (S.Feature_Diagnostics, Id);
+                      (S.Feature_Diagnostics, Diagnostic_Id);
                   Target_Buffer : constant Natural :=
                     (if Mapped = 0 then 0 else
                        Editor.Feature_Diagnostics.Item_Target_Buffer
@@ -4538,6 +4994,32 @@ package body Editor.Executor is
                      return Editor.Commands.Unavailable
                        (Diagnostic_Availability_Reason
                           (S, Mapped, Target_Buffer, Target_Line, Target_Column));
+                  elsif Id = Command_Diagnostics_Execute_Selected_Action
+                    and then Editor.Feature_Diagnostics.Item_Primary_Action_Kind
+                      (S.Feature_Diagnostics, Positive (Mapped)) =
+                        Editor.Ada_Diagnostic_Command_Projection.Diagnostic_Command_None
+                  then
+                     return Editor.Commands.Unavailable
+                       ("Diagnostic action unavailable");
+                  elsif Id = Command_Diagnostics_Execute_Selected_Action
+                    and then Editor.Feature_Diagnostics.Item_Has_Edit
+                      (S.Feature_Diagnostics, Positive (Mapped))
+                    and then
+                      (not Feature_Target_Position_Is_Valid
+                         (S, Target_Buffer,
+                          Editor.Feature_Diagnostics.Item_Edit_Start_Line
+                            (S.Feature_Diagnostics, Positive (Mapped)),
+                          Editor.Feature_Diagnostics.Item_Edit_Start_Column
+                            (S.Feature_Diagnostics, Positive (Mapped)))
+                       or else not Feature_Target_Position_Is_Valid
+                         (S, Target_Buffer,
+                          Editor.Feature_Diagnostics.Item_Edit_End_Line
+                            (S.Feature_Diagnostics, Positive (Mapped)),
+                          Editor.Feature_Diagnostics.Item_Edit_End_Column
+                            (S.Feature_Diagnostics, Positive (Mapped))))
+                  then
+                     return Editor.Commands.Unavailable
+                       ("Diagnostic edit unavailable: stale edit target");
                   end if;
                end;
             end if;
@@ -4701,6 +5183,39 @@ package body Editor.Executor is
             end if;
             return Editor.Commands.Available;
 
+         when Command_Run_Project
+            | Command_Run_Tests =>
+            if not Editor.Project.Has_Project (S.Project) then
+               return Editor.Commands.Unavailable ("No project is open.");
+            end if;
+            return Editor.Commands.Available;
+
+         when Command_Terminal_Toggle
+            | Command_Terminal_Show
+            | Command_Terminal_Hide
+            | Command_Terminal_Focus
+            | Command_Terminal_Clear
+            | Command_Terminal_Clear_Output =>
+            return Editor.Commands.Available;
+
+         when Command_Terminal_Select_Next_Task
+            | Command_Terminal_Select_Previous_Task
+            | Command_Terminal_Run_Selected_Task =>
+            if not Editor.Terminal_Tasks.Has_Selected_Task (S.Terminal_Tasks) then
+               return Editor.Commands.Unavailable ("No terminal task selected");
+            end if;
+            return Editor.Commands.Available;
+
+         when Command_Terminal_Rerun_Last_Task =>
+            if not Editor.Terminal_Tasks.Can_Rerun_Last (S.Terminal_Tasks) then
+               return Editor.Commands.Unavailable ("No terminal task has run");
+            end if;
+            return Editor.Commands.Available;
+
+         when Command_Terminal_Cancel_Task =>
+            return Editor.Commands.Unavailable
+              ("No cancellable terminal task is running");
+
          when Command_Build_UI_Toggle
             | Command_Build_UI_Show
             | Command_Build_UI_Hide
@@ -4712,6 +5227,21 @@ package body Editor.Executor is
             | Command_Build_Toggle_Diagnostics_Ingestion
             | Command_Build_Cycle_Output_Limit
             | Command_Build_Clear_Consent =>
+            return Editor.Commands.Available;
+
+         when Command_Build_Result_Focus =>
+            if not S.Latest_Build_Result.Has_Result then
+               return Editor.Commands.Unavailable ("No build result");
+            end if;
+            return Editor.Commands.Available;
+
+         when Command_Build_Output_Details_Focus
+            | Command_Build_Output_Details_Select_Stdout
+            | Command_Build_Output_Details_Select_Stderr
+            | Command_Build_Output_Details_Select_Merged =>
+            if not S.Latest_Build_Output_Details.Has_Output_Details then
+               return Editor.Commands.Unavailable ("No build output details");
+            end if;
             return Editor.Commands.Available;
 
          when Command_Build_Select_Next_Candidate
@@ -4763,7 +5293,10 @@ package body Editor.Executor is
          when Command_Switch_Project =>
             return Editor.Commands.Unavailable ("No target project selected");
 
-         when Command_Open_File | Command_Open_Project | Command_Switch_Buffer =>
+         when Command_Open_Project =>
+            return Editor.Commands.Available;
+
+         when Command_Open_File | Command_Switch_Buffer =>
             return Editor.Commands.Unavailable ("Command not available here");
       end case;
    end Command_Availability;
@@ -5378,6 +5911,31 @@ package body Editor.Executor is
       Name := To_Unbounded_String (Strip_Prefix (To_String (Name), "generic function "));
       Name := To_Unbounded_String (Strip_Prefix (To_String (Name), "function body "));
       Name := To_Unbounded_String (Strip_Prefix (To_String (Name), "function "));
+      Name := To_Unbounded_String (Strip_Prefix (To_String (Name), "record extension type "));
+      Name := To_Unbounded_String (Strip_Prefix (To_String (Name), "private extension type "));
+      Name := To_Unbounded_String (Strip_Prefix (To_String (Name), "null extension type "));
+      Name := To_Unbounded_String (Strip_Prefix (To_String (Name), "variant record type "));
+      Name := To_Unbounded_String (Strip_Prefix (To_String (Name), "record type "));
+      Name := To_Unbounded_String (Strip_Prefix (To_String (Name), "task body "));
+      Name := To_Unbounded_String (Strip_Prefix (To_String (Name), "task type "));
+      Name := To_Unbounded_String (Strip_Prefix (To_String (Name), "task "));
+      Name := To_Unbounded_String (Strip_Prefix (To_String (Name), "protected body "));
+      Name := To_Unbounded_String (Strip_Prefix (To_String (Name), "protected type "));
+      Name := To_Unbounded_String (Strip_Prefix (To_String (Name), "protected "));
+      Name := To_Unbounded_String (Strip_Prefix (To_String (Name), "entry "));
+      Name := To_Unbounded_String (Strip_Prefix (To_String (Name), "type "));
+      Name := To_Unbounded_String (Strip_Prefix (To_String (Name), "subtype "));
+      Name := To_Unbounded_String (Strip_Prefix (To_String (Name), "field "));
+      Name := To_Unbounded_String (Strip_Prefix (To_String (Name), "discriminant "));
+      Name := To_Unbounded_String (Strip_Prefix (To_String (Name), "literal "));
+      Name := To_Unbounded_String (Strip_Prefix (To_String (Name), "object "));
+      Name := To_Unbounded_String (Strip_Prefix (To_String (Name), "constant "));
+      Name := To_Unbounded_String (Strip_Prefix (To_String (Name), "exception "));
+      Name := To_Unbounded_String (Strip_Prefix (To_String (Name), "generic formal package "));
+      Name := To_Unbounded_String (Strip_Prefix (To_String (Name), "generic formal procedure "));
+      Name := To_Unbounded_String (Strip_Prefix (To_String (Name), "generic formal function "));
+      Name := To_Unbounded_String (Strip_Prefix (To_String (Name), "generic formal type "));
+      Name := To_Unbounded_String (Strip_Prefix (To_String (Name), "generic formal object "));
       Name := To_Unbounded_String (Strip_Prefix (To_String (Name), "separate body "));
       Name := To_Unbounded_String (Strip_Trailing_Word (To_String (Name), " renames"));
       Name := To_Unbounded_String (Strip_Trailing_Word (To_String (Name), " instantiation"));
@@ -5409,6 +5967,31 @@ package body Editor.Executor is
    begin
       return Strip_Prefix (Label, "separate body ") /= Label;
    end Outline_Row_Is_Separate_Body;
+
+   function Current_File_Has_Indexed_Separate_Body
+     (S           : Editor.State.State_Type;
+      Name        : String) return Boolean
+   is
+      Matches : constant Editor.Ada_Project_Index.Index_Resolution_Result :=
+        Editor.Ada_Project_Index.Resolve (S.Language_Index, Name);
+      Path : constant String :=
+        (if S.File_Info.Has_Path then To_String (S.File_Info.Path) else "");
+   begin
+      if Path'Length = 0 or else Matches.Overflow then
+         return False;
+      end if;
+
+      for Match of Matches.Matches loop
+         if To_String (Match.Path) = Path
+           and then Match.Symbol.Kind =
+             Editor.Ada_Language_Model.Symbol_Separate_Body
+         then
+            return True;
+         end if;
+      end loop;
+
+      return False;
+   end Current_File_Has_Indexed_Separate_Body;
 
    function Outline_Row_Profile
      (S           : Editor.State.State_Type;
@@ -5453,27 +6036,15 @@ package body Editor.Executor is
       return "";
    end Outline_Row_Profile;
 
-   function Find_Indexed_Outline_Target
-     (S  : Editor.State.State_Type;
-      Id : Editor.Commands.Command_Id) return Outline_Indexed_Target
+   function Selected_Outline_Symbol
+     (S : Editor.State.State_Type) return Selected_Outline_Semantic_Symbol
    is
-      Panel_Row : Natural := 0;
+      Panel_Row   : Natural := 0;
       Outline_Row : Natural := 0;
-      Name : Unbounded_String := Null_Unbounded_String;
-      Row_Kind : Editor.Outline.Outline_Item_Kind := Editor.Outline.Outline_Unknown;
-      Row_Is_Body : Boolean := False;
-      Row_Profile : Unbounded_String := Null_Unbounded_String;
-      Wanted : Editor.Ada_Language_Model.Symbol_Kind := Editor.Ada_Language_Model.Symbol_Unknown;
-
-      function Separate_Body_Parent_Kind_Matches
-        (Symbol : Editor.Ada_Language_Model.Symbol_Info) return Boolean
-      is
-      begin
-         --  Pass 178: use the shared language-model predicate so Outline
-         --  navigation and tests agree on valid separate-body parent targets.
-         return Editor.Ada_Language_Model.Is_Separate_Body_Parent_Target (Symbol);
-      end Separate_Body_Parent_Kind_Matches;
-
+      Row_Kind    : Editor.Outline.Outline_Item_Kind := Editor.Outline.Outline_Unknown;
+      Name        : Unbounded_String := Null_Unbounded_String;
+      Kind        : Editor.Ada_Language_Model.Symbol_Kind :=
+        Editor.Ada_Language_Model.Symbol_Unknown;
    begin
       if not Editor.Feature_Panel.Is_Visible (S.Feature_Panel)
         or else not Editor.Feature_Panel.Has_Selection (S.Feature_Panel)
@@ -5498,84 +6069,1429 @@ package body Editor.Executor is
       end if;
 
       Row_Kind := Editor.Outline.Item_Kind (S.Outline, Positive (Outline_Row));
+      case Row_Kind is
+         when Editor.Outline.Outline_Package =>
+            Kind := Editor.Ada_Language_Model.Symbol_Package;
+         when Editor.Outline.Outline_Package_Body =>
+            Kind := Editor.Ada_Language_Model.Symbol_Package_Body;
+         when Editor.Outline.Outline_Procedure =>
+            Kind := Editor.Ada_Language_Model.Symbol_Procedure;
+         when Editor.Outline.Outline_Function =>
+            Kind := Editor.Ada_Language_Model.Symbol_Function;
+         when Editor.Outline.Outline_Subprogram =>
+            Kind := Editor.Ada_Language_Model.Symbol_Procedure;
+         when Editor.Outline.Outline_Type =>
+            Kind := Editor.Ada_Language_Model.Symbol_Type;
+         when Editor.Outline.Outline_Task =>
+            Kind := Editor.Ada_Language_Model.Symbol_Task;
+         when Editor.Outline.Outline_Protected =>
+            Kind := Editor.Ada_Language_Model.Symbol_Protected;
+         when Editor.Outline.Outline_Field =>
+            Kind := Editor.Ada_Language_Model.Symbol_Record_Component;
+         when Editor.Outline.Outline_Discriminant =>
+            Kind := Editor.Ada_Language_Model.Symbol_Discriminant;
+         when Editor.Outline.Outline_Enum_Literal =>
+            Kind := Editor.Ada_Language_Model.Symbol_Enumeration_Literal;
+         when Editor.Outline.Outline_Exception =>
+            Kind := Editor.Ada_Language_Model.Symbol_Exception;
+         when Editor.Outline.Outline_Object =>
+            Kind := Editor.Ada_Language_Model.Symbol_Object;
+         when Editor.Outline.Outline_Generic_Formal =>
+            Kind := Editor.Ada_Language_Model.Symbol_Generic_Formal_Type;
+         when others =>
+            Kind := Editor.Ada_Language_Model.Symbol_Unknown;
+      end case;
+
+      if Kind = Editor.Ada_Language_Model.Symbol_Unknown then
+         return (others => <>);
+      end if;
+
+      return
+        (Available => True,
+         Name      => Name,
+         Kind      => Kind,
+         Profile   => To_Unbounded_String
+           (Outline_Row_Profile (S, Positive (Outline_Row))));
+   end Selected_Outline_Symbol;
+
+   function Is_Ada_Identifier_Start (Ch : Character) return Boolean is
+   begin
+      return (Ch >= 'A' and then Ch <= 'Z')
+        or else (Ch >= 'a' and then Ch <= 'z');
+   end Is_Ada_Identifier_Start;
+
+   function Is_Ada_Identifier_Part (Ch : Character) return Boolean is
+   begin
+      return Is_Ada_Identifier_Start (Ch)
+        or else (Ch >= '0' and then Ch <= '9')
+        or else Ch = '_';
+   end Is_Ada_Identifier_Part;
+
+   function Caret_Semantic_Symbol
+     (S : Editor.State.State_Type) return Selected_Outline_Semantic_Symbol
+   is
+      Text       : constant String := Editor.State.Current_Text (S);
+      Caret_Pos  : Natural := 0;
+      Probe      : Natural;
+      First_Char : Natural;
+      Last_Char  : Natural;
+   begin
+      if Text'Length = 0 or else S.Carets.Length = 0 then
+         return (others => <>);
+      end if;
+
+      Caret_Pos := Natural (S.Carets (S.Carets.First_Index).Pos);
+      if Caret_Pos >= Text'Length then
+         Probe := Text'Last;
+      else
+         Probe := Text'First + Caret_Pos;
+      end if;
+
+      if not Is_Ada_Identifier_Part (Text (Probe))
+        and then Probe > Text'First
+        and then Is_Ada_Identifier_Part (Text (Probe - 1))
+      then
+         Probe := Probe - 1;
+      end if;
+
+      if not Is_Ada_Identifier_Part (Text (Probe)) then
+         return (others => <>);
+      end if;
+
+      First_Char := Probe;
+      while First_Char > Text'First
+        and then Is_Ada_Identifier_Part (Text (First_Char - 1))
+      loop
+         First_Char := First_Char - 1;
+      end loop;
+
+      Last_Char := Probe;
+      while Last_Char < Text'Last
+        and then Is_Ada_Identifier_Part (Text (Last_Char + 1))
+      loop
+         Last_Char := Last_Char + 1;
+      end loop;
+
+      if not Is_Ada_Identifier_Start (Text (First_Char)) then
+         return (others => <>);
+      end if;
+
+      return
+        (Available => True,
+         Name      => To_Unbounded_String (Text (First_Char .. Last_Char)),
+         Kind      => Editor.Ada_Language_Model.Symbol_Unknown,
+         Profile   => Null_Unbounded_String);
+   end Caret_Semantic_Symbol;
+
+   function Current_Semantic_Symbol
+     (S : Editor.State.State_Type) return Selected_Outline_Semantic_Symbol
+   is
+      Outline_Symbol : constant Selected_Outline_Semantic_Symbol :=
+        Selected_Outline_Symbol (S);
+   begin
+      if Outline_Symbol.Available then
+         return Outline_Symbol;
+      end if;
+
+      return Caret_Semantic_Symbol (S);
+   end Current_Semantic_Symbol;
+
+   function Current_Completion_Symbol
+     (S : Editor.State.State_Type) return Selected_Outline_Semantic_Symbol
+   is
+      Caret_Symbol : constant Selected_Outline_Semantic_Symbol :=
+        Caret_Semantic_Symbol (S);
+   begin
+      if Caret_Symbol.Available then
+         return Caret_Symbol;
+      end if;
+
+      return Selected_Outline_Symbol (S);
+   end Current_Completion_Symbol;
+
+   function Current_Semantic_Symbol_Name
+     (State : Editor.State.State_Type) return String
+   is
+      Symbol : constant Selected_Outline_Semantic_Symbol :=
+        Current_Semantic_Symbol (State);
+   begin
+      if Symbol.Available then
+         return To_String (Symbol.Name);
+      end if;
+
+      return "";
+   end Current_Semantic_Symbol_Name;
+
+   function Service_Status_Image
+     (Status : Editor.Ada_Language_Service.Service_Status) return String
+   is
+   begin
+      case Status is
+         when Editor.Ada_Language_Service.Service_Success =>
+            return "success";
+         when Editor.Ada_Language_Service.Service_Unavailable =>
+            return "unavailable";
+         when Editor.Ada_Language_Service.Service_Ambiguous =>
+            return "ambiguous";
+         when Editor.Ada_Language_Service.Service_Overflow =>
+            return "overflow";
+         when Editor.Ada_Language_Service.Service_Stale =>
+            return "stale";
+      end case;
+   end Service_Status_Image;
+
+   function Current_Language_Service
+     (S : Editor.State.State_Type)
+      return Editor.Ada_Language_Service.Service_State
+   is
+      Service_Status : constant Editor.Ada_Language_Service.Index_Status :=
+        Editor.Ada_Language_Service.Status (S.Language_Service);
+      Index_Status : constant Editor.Ada_Language_Service.Index_Status :=
+        Editor.Ada_Language_Service.Status (S.Language_Index);
+   begin
+      if Service_Status.File_Count = Index_Status.File_Count
+        and then Service_Status.Unit_Count = Index_Status.Unit_Count
+        and then Service_Status.Symbol_Count = Index_Status.Symbol_Count
+        and then Service_Status.Fingerprint = Index_Status.Fingerprint
+        and then Service_Status.Overflowed = Index_Status.Overflowed
+      then
+         return S.Language_Service;
+      end if;
+
+      return Editor.Ada_Language_Service.From_Index (S.Language_Index);
+   end Current_Language_Service;
+
+   procedure Ensure_Current_Language_Service
+     (S : in out Editor.State.State_Type)
+   is
+      Service_Status : constant Editor.Ada_Language_Service.Index_Status :=
+        Editor.Ada_Language_Service.Status (S.Language_Service);
+      Index_Status : constant Editor.Ada_Language_Service.Index_Status :=
+        Editor.Ada_Language_Service.Status (S.Language_Index);
+   begin
+      if Service_Status.File_Count /= Index_Status.File_Count
+        or else Service_Status.Unit_Count /= Index_Status.Unit_Count
+        or else Service_Status.Symbol_Count /= Index_Status.Symbol_Count
+        or else Service_Status.Fingerprint /= Index_Status.Fingerprint
+        or else Service_Status.Overflowed /= Index_Status.Overflowed
+      then
+         Editor.Ada_Language_Service.Put_Index
+         (S.Language_Service, S.Language_Index);
+      end if;
+   end Ensure_Current_Language_Service;
+
+   function Current_Semantic_Analysis_Fingerprint
+     (S    : Editor.State.State_Type;
+      Path : String) return Natural
+   is
+      Indexed_Fingerprint : constant Natural :=
+        Editor.Ada_Project_Index.Current_Analysis_Fingerprint
+          (S.Language_Index,
+           Path,
+           S.Active_Buffer_Token,
+           Editor.State.Current_Buffer_Revision (S),
+           Editor.State.Current_Lifecycle_Generation (S));
+   begin
+      if Indexed_Fingerprint /= 0 then
+         return Indexed_Fingerprint;
+      end if;
+
+      return Editor.Ada_Language_Model.Fingerprint (S.Syntax_Analysis);
+   end Current_Semantic_Analysis_Fingerprint;
+
+   function Semantic_Declaration_Target
+     (S       : Editor.State.State_Type;
+      Service : in out Editor.Ada_Language_Service.Service_State;
+      Symbol  : Selected_Outline_Semantic_Symbol)
+      return Editor.Ada_Language_Service.Language_Target
+   is
+      Name         : constant String := To_String (Symbol.Name);
+      Current_File : constant Editor.State.File_State :=
+        Editor.State.Current_File (S);
+      Target       : Editor.Ada_Language_Service.Language_Target;
+      Req          : Editor.Ada_Language_Service.Semantic_Request_Id;
+   begin
+      if Current_File.Has_Path
+        and then S.Active_Buffer_Token /= 0
+      then
+         declare
+            Current_Path : constant String := To_String (Current_File.Path);
+            Fingerprint  : constant Natural :=
+              Current_Semantic_Analysis_Fingerprint (S, Current_Path);
+         begin
+            Req := Editor.Ada_Language_Service.Begin_Semantic_Request
+              (Service,
+               Editor.Ada_Language_Service.Semantic_Request_Goto_Declaration,
+               Editor.Ada_Language_Service.Semantic_Current_Request_Query_Key
+                 (Editor.Ada_Language_Service.Semantic_Request_Goto_Declaration,
+                  Name, Current_Path,
+                  S.Active_Buffer_Token,
+                  Editor.State.Current_Buffer_Revision (S),
+                  Editor.State.Current_Lifecycle_Generation (S),
+                  Fingerprint,
+                  Detail => Editor.Ada_Language_Model.Symbol_Kind'Image
+                    (Symbol.Kind)));
+            Target := Editor.Ada_Language_Service.Request_Goto_Declaration_Current
+              (Service, Req, Name, Symbol.Kind, Current_Path,
+               S.Active_Buffer_Token,
+               Editor.State.Current_Buffer_Revision (S),
+               Editor.State.Current_Lifecycle_Generation (S),
+               Fingerprint);
+         end;
+      else
+         Req := Editor.Ada_Language_Service.Begin_Semantic_Request
+           (Service,
+            Editor.Ada_Language_Service.Semantic_Request_Goto_Declaration,
+            Editor.Ada_Language_Service.Semantic_Request_Query_Key
+              (Editor.Ada_Language_Service.Semantic_Request_Goto_Declaration,
+               Name,
+               Detail => Editor.Ada_Language_Model.Symbol_Kind'Image
+                 (Symbol.Kind)));
+         Target := Editor.Ada_Language_Service.Request_Goto_Declaration
+           (Service, Req, Name, Symbol.Kind);
+      end if;
+
+      if Target.Status = Editor.Ada_Language_Service.Service_Success
+        or else Symbol.Kind /= Editor.Ada_Language_Model.Symbol_Unknown
+      then
+         return Target;
+      end if;
+
+      declare
+         Hover : constant Editor.Ada_Language_Service.Hover_Result :=
+           Semantic_Hover (S, Service, Name);
+      begin
+         if Hover.Status = Editor.Ada_Language_Service.Service_Success then
+            return
+              (Status => Hover.Status,
+               Target => Hover.Target,
+               Key    => Hover.Key,
+               Name   => Hover.Label,
+               Detail => Hover.Detail);
+         end if;
+
+         Target.Status := Hover.Status;
+      end;
+
+      return Target;
+   end Semantic_Declaration_Target;
+
+   function Active_Outline_Source_Is_Current
+     (S : Editor.State.State_Type) return Boolean
+   is
+      Current_File : constant Editor.State.File_State :=
+        Editor.State.Current_File (S);
+      Freshness : Editor.Outline.Outline_Freshness;
+   begin
+      if not Current_File.Has_Path
+        or else S.Active_Buffer_Token = 0
+      then
+         return True;
+      end if;
+
+      Freshness := Editor.Outline.Freshness_For_Active_Buffer
+        (S.Outline,
+         S.Active_Buffer_Token,
+         Editor.State.Current_Buffer_Revision (S));
+      return Freshness /= Editor.Outline.Outline_Stale;
+   end Active_Outline_Source_Is_Current;
+
+   function Semantic_Find_References
+     (S       : Editor.State.State_Type;
+      Service : in out Editor.Ada_Language_Service.Service_State;
+      Name    : String)
+      return Editor.Ada_Language_Service.Language_Target_Set
+   is
+      Current_File : constant Editor.State.File_State :=
+        Editor.State.Current_File (S);
+      Req : Editor.Ada_Language_Service.Semantic_Request_Id;
+   begin
+      if Current_File.Has_Path
+        and then S.Active_Buffer_Token /= 0
+      then
+         declare
+            Current_Path : constant String := To_String (Current_File.Path);
+            Fingerprint  : constant Natural :=
+              Current_Semantic_Analysis_Fingerprint (S, Current_Path);
+         begin
+            Req := Editor.Ada_Language_Service.Begin_Semantic_Request
+              (Service,
+               Editor.Ada_Language_Service.Semantic_Request_Find_References,
+               Editor.Ada_Language_Service.Semantic_Current_Request_Query_Key
+                 (Editor.Ada_Language_Service.Semantic_Request_Find_References,
+                  Name, Current_Path,
+                  S.Active_Buffer_Token,
+                  Editor.State.Current_Buffer_Revision (S),
+                  Editor.State.Current_Lifecycle_Generation (S),
+                  Fingerprint));
+            return Editor.Ada_Language_Service.Request_Find_Current_References
+              (Service, Req, Name, Current_Path,
+               S.Active_Buffer_Token,
+               Editor.State.Current_Buffer_Revision (S),
+               Editor.State.Current_Lifecycle_Generation (S),
+               Fingerprint);
+         end;
+      end if;
+
+      Req := Editor.Ada_Language_Service.Begin_Semantic_Request
+        (Service, Editor.Ada_Language_Service.Semantic_Request_Find_References,
+         Name);
+      return Editor.Ada_Language_Service.Request_Find_References
+        (Service, Req, Name);
+   end Semantic_Find_References;
+
+   function Semantic_Workspace_Symbols
+     (Service : in out Editor.Ada_Language_Service.Service_State;
+      Query   : String)
+      return Editor.Ada_Language_Service.Language_Target_Set
+   is
+      Req : constant Editor.Ada_Language_Service.Semantic_Request_Id :=
+        Editor.Ada_Language_Service.Begin_Semantic_Request
+          (Service,
+           Editor.Ada_Language_Service.Semantic_Request_Workspace_Symbols,
+           Query);
+   begin
+      return Editor.Ada_Language_Service.Request_Workspace_Symbols
+        (Service, Req, Query);
+   end Semantic_Workspace_Symbols;
+
+   function Semantic_Hover
+     (S       : Editor.State.State_Type;
+      Service : in out Editor.Ada_Language_Service.Service_State;
+      Name    : String)
+      return Editor.Ada_Language_Service.Hover_Result
+   is
+      Current_File : constant Editor.State.File_State :=
+        Editor.State.Current_File (S);
+      Req : Editor.Ada_Language_Service.Semantic_Request_Id;
+   begin
+      if Current_File.Has_Path
+        and then S.Active_Buffer_Token /= 0
+      then
+         declare
+            Current_Path : constant String := To_String (Current_File.Path);
+            Fingerprint  : constant Natural :=
+              Current_Semantic_Analysis_Fingerprint (S, Current_Path);
+         begin
+            Req := Editor.Ada_Language_Service.Begin_Semantic_Request
+              (Service, Editor.Ada_Language_Service.Semantic_Request_Hover,
+               Editor.Ada_Language_Service.Semantic_Current_Request_Query_Key
+                 (Editor.Ada_Language_Service.Semantic_Request_Hover,
+                  Name, Current_Path,
+                  S.Active_Buffer_Token,
+                  Editor.State.Current_Buffer_Revision (S),
+                  Editor.State.Current_Lifecycle_Generation (S),
+                  Fingerprint));
+            return Editor.Ada_Language_Service.Request_Hover_Current
+              (Service, Req, Name, Current_Path,
+               S.Active_Buffer_Token,
+               Editor.State.Current_Buffer_Revision (S),
+               Editor.State.Current_Lifecycle_Generation (S),
+               Fingerprint);
+         end;
+      end if;
+
+      Req := Editor.Ada_Language_Service.Begin_Semantic_Request
+        (Service, Editor.Ada_Language_Service.Semantic_Request_Hover, Name);
+      return Editor.Ada_Language_Service.Request_Hover (Service, Req, Name);
+   end Semantic_Hover;
+
+   function Semantic_Complete
+     (S       : Editor.State.State_Type;
+      Service : in out Editor.Ada_Language_Service.Service_State;
+      Prefix  : String;
+      Limit   : Positive)
+      return Editor.Ada_Language_Service.Completion_Result
+   is
+      Current_File : constant Editor.State.File_State :=
+        Editor.State.Current_File (S);
+      Req : Editor.Ada_Language_Service.Semantic_Request_Id;
+   begin
+      if Current_File.Has_Path
+        and then S.Active_Buffer_Token /= 0
+      then
+         declare
+            Current_Path : constant String := To_String (Current_File.Path);
+            Fingerprint  : constant Natural :=
+              Current_Semantic_Analysis_Fingerprint (S, Current_Path);
+         begin
+            Req := Editor.Ada_Language_Service.Begin_Semantic_Request
+              (Service, Editor.Ada_Language_Service.Semantic_Request_Completion,
+               Editor.Ada_Language_Service.Semantic_Current_Request_Query_Key
+                 (Editor.Ada_Language_Service.Semantic_Request_Completion,
+                  Prefix, Current_Path,
+                  S.Active_Buffer_Token,
+                  Editor.State.Current_Buffer_Revision (S),
+                  Editor.State.Current_Lifecycle_Generation (S),
+                  Fingerprint,
+                  Detail => Positive'Image (Limit)));
+            return Editor.Ada_Language_Service.Request_Complete_Current
+              (Service, Req, Prefix, Current_Path,
+               S.Active_Buffer_Token,
+               Editor.State.Current_Buffer_Revision (S),
+               Editor.State.Current_Lifecycle_Generation (S),
+               Fingerprint,
+               Limit);
+         end;
+      end if;
+
+      Req := Editor.Ada_Language_Service.Begin_Semantic_Request
+        (Service, Editor.Ada_Language_Service.Semantic_Request_Completion,
+         Editor.Ada_Language_Service.Semantic_Request_Query_Key
+           (Editor.Ada_Language_Service.Semantic_Request_Completion,
+            Prefix, Detail => Positive'Image (Limit)));
+      return Editor.Ada_Language_Service.Request_Complete
+        (Service, Req, Prefix, Limit);
+   end Semantic_Complete;
+
+   function Is_Semantic_Identifier_Character
+     (Code : Wide_Wide_Character) return Boolean
+   is
+      Pos : constant Natural := Wide_Wide_Character'Pos (Code);
+   begin
+      return (Pos >= Character'Pos ('A') and then Pos <= Character'Pos ('Z'))
+        or else (Pos >= Character'Pos ('a') and then Pos <= Character'Pos ('z'))
+        or else (Pos >= Character'Pos ('0') and then Pos <= Character'Pos ('9'))
+        or else Code = '_';
+   end Is_Semantic_Identifier_Character;
+
+   procedure Clear_Semantic_Popup (S : in out Editor.State.State_Type) is
+   begin
+      S.Semantic_Popup :=
+        (Active => False,
+         Kind => Editor.State.No_Semantic_Popup,
+         Anchor_Row => 0,
+         Anchor_Column => 0,
+         Title => Null_Unbounded_String,
+         Detail => Null_Unbounded_String,
+         Item_Count => 0,
+         Selected_Item => 0,
+         Items => (others => (others => <>)));
+   end Clear_Semantic_Popup;
+
+   function Semantic_Completion_Popup_Is_Active
+     (S : Editor.State.State_Type) return Boolean
+   is
+   begin
+      return S.Semantic_Popup.Active
+        and then S.Semantic_Popup.Kind = Editor.State.Semantic_Completion_Popup
+        and then S.Semantic_Popup.Item_Count > 0
+        and then S.Semantic_Popup.Selected_Item in 1 .. S.Semantic_Popup.Item_Count;
+   end Semantic_Completion_Popup_Is_Active;
+
+   procedure Execute_Semantic_Completion_Select
+     (S    : in out Editor.State.State_Type;
+      Next : Boolean)
+   is
+      Count : constant Natural := S.Semantic_Popup.Item_Count;
+   begin
+      if not Semantic_Completion_Popup_Is_Active (S) then
+         return;
+      end if;
+
+      if Next then
+         S.Semantic_Popup.Selected_Item :=
+           (if S.Semantic_Popup.Selected_Item >= Count
+            then 1
+            else S.Semantic_Popup.Selected_Item + 1);
+      else
+         S.Semantic_Popup.Selected_Item :=
+           (if S.Semantic_Popup.Selected_Item <= 1
+            then Count
+            else S.Semantic_Popup.Selected_Item - 1);
+      end if;
+
+      Editor.Render_Cache.Invalidate_All;
+   end Execute_Semantic_Completion_Select;
+
+   procedure Execute_Semantic_Completion_Accept
+     (S : in out Editor.State.State_Type)
+   is
+      Label : Unbounded_String;
+      Start_Pos : Natural;
+      End_Pos   : Natural;
+      Caret     : Natural;
+      Len       : Natural;
+      Cmd       : Editor.Commands.Command;
+      Before    : Editor.State.State_Type;
+      Before_Text : Unbounded_String;
+   begin
+      if not Semantic_Completion_Popup_Is_Active (S) then
+         return;
+      end if;
+
+      Label :=
+        S.Semantic_Popup.Items
+          (Editor.State.Semantic_Completion_Item_Index
+             (S.Semantic_Popup.Selected_Item)).Label;
+      if Length (Label) = 0 then
+         return;
+      end if;
+
+      Len := Buffer_Length (S);
+      Caret := Natural'Min (Natural (Safe_Caret (S)), Len);
+      Start_Pos := Caret;
+      End_Pos := Caret;
+
+      while Start_Pos > 0
+        and then Is_Semantic_Identifier_Character
+          (Text_Buffer.Code_Point_At (S.Buffer, Start_Pos - 1))
+      loop
+         Start_Pos := Start_Pos - 1;
+      end loop;
+
+      while End_Pos < Len
+        and then Is_Semantic_Identifier_Character
+          (Text_Buffer.Code_Point_At (S.Buffer, End_Pos))
+      loop
+         End_Pos := End_Pos + 1;
+      end loop;
+
+      Cmd.Kind := Apply_Replace_Batch;
+      Append_Replace_Op
+        (Cmd, Cursor_Index (Start_Pos), End_Pos - Start_Pos, Label);
+
+      Editor.Buffers.Ensure_Global_Registry (S);
+      Before := S;
+      Before_Text := To_Unbounded_String (Editor.State.Current_Text (S));
+      Editor.Executor.History.Apply_Replace_Batch_Command (S, Cmd);
+      if Editor.State.Current_Text (S) /= To_String (Before_Text) then
+         declare
+            New_Pos : constant Cursor_Index :=
+              Cursor_Index
+                (Start_Pos
+                 + Text_Buffer.UTF8_Code_Point_Count (To_String (Label)));
+            C : Caret_State := S.Carets (S.Carets.First_Index);
+         begin
+            C.Pos := New_Pos;
+            C.Anchor := New_Pos;
+            C.Virtual_Column := 0;
+            C.Anchor_Virtual_Column := 0;
+            S.Carets.Replace_Element (S.Carets.First_Index, C);
+         end;
+         Editor.State.Load_Text (Before, To_String (Before_Text));
+         Editor.Executor.History.Log_Edit (Before, S, Cmd);
+         Editor.Buffers.Sync_Global_Active_From_State (S);
+      end if;
+
+      Clear_Semantic_Popup (S);
+      Report_Info (S, "Accepted completion " & To_String (Label) & ".");
+      Editor.Render_Cache.Invalidate_All;
+   end Execute_Semantic_Completion_Accept;
+
+   function Semantic_Rename_Preview
+     (S        : Editor.State.State_Type;
+      Service  : in out Editor.Ada_Language_Service.Service_State;
+      Old_Name : String;
+      New_Name : String)
+      return Editor.Ada_Language_Service.Rename_Preview
+   is
+      Current_File : constant Editor.State.File_State :=
+        Editor.State.Current_File (S);
+      Req : Editor.Ada_Language_Service.Semantic_Request_Id;
+   begin
+      if Current_File.Has_Path
+        and then S.Active_Buffer_Token /= 0
+      then
+         declare
+            Current_Path : constant String := To_String (Current_File.Path);
+            Fingerprint  : constant Natural :=
+              Current_Semantic_Analysis_Fingerprint (S, Current_Path);
+         begin
+            Req := Editor.Ada_Language_Service.Begin_Semantic_Request
+              (Service, Editor.Ada_Language_Service.Semantic_Request_Rename,
+               Editor.Ada_Language_Service.Semantic_Current_Request_Query_Key
+                 (Editor.Ada_Language_Service.Semantic_Request_Rename,
+                  Old_Name, Current_Path,
+                  S.Active_Buffer_Token,
+                  Editor.State.Current_Buffer_Revision (S),
+                  Editor.State.Current_Lifecycle_Generation (S),
+                  Fingerprint,
+                  Detail => New_Name));
+            return Editor.Ada_Language_Service.Request_Preview_Rename_Current
+              (Service, Req, Old_Name, New_Name, Current_Path,
+               S.Active_Buffer_Token,
+               Editor.State.Current_Buffer_Revision (S),
+               Editor.State.Current_Lifecycle_Generation (S),
+               Fingerprint);
+         end;
+      end if;
+
+      Req := Editor.Ada_Language_Service.Begin_Semantic_Request
+        (Service, Editor.Ada_Language_Service.Semantic_Request_Rename,
+         Editor.Ada_Language_Service.Semantic_Request_Query_Key
+           (Editor.Ada_Language_Service.Semantic_Request_Rename,
+            Old_Name, Detail => New_Name));
+      return Editor.Ada_Language_Service.Request_Preview_Rename
+        (Service, Req, Old_Name, New_Name);
+   end Semantic_Rename_Preview;
+
+   function Diagnostic_Action_Effect_Label
+     (Effect : Editor.Ada_Diagnostic_Action_Execution.Diagnostic_Action_Execution_Effect)
+      return String
+   is
+   begin
+      case Effect is
+         when Editor.Ada_Diagnostic_Action_Execution.Diagnostic_Action_Effect_Navigate =>
+            return "navigate";
+         when Editor.Ada_Diagnostic_Action_Execution.Diagnostic_Action_Effect_Explain =>
+            return "explain";
+         when Editor.Ada_Diagnostic_Action_Execution.Diagnostic_Action_Effect_Edit =>
+            return "edit";
+         when Editor.Ada_Diagnostic_Action_Execution.Diagnostic_Action_Effect_Review_Expression =>
+            return "review expression";
+         when Editor.Ada_Diagnostic_Action_Execution.Diagnostic_Action_Effect_Review_Overload_Ranking =>
+            return "review overload ranking";
+         when Editor.Ada_Diagnostic_Action_Execution.Diagnostic_Action_Effect_Review_Generic =>
+            return "review generic";
+         when Editor.Ada_Diagnostic_Action_Execution.Diagnostic_Action_Effect_Review_Cross_Unit =>
+            return "review cross-unit";
+         when Editor.Ada_Diagnostic_Action_Execution.Diagnostic_Action_Effect_Review_Representation =>
+            return "review representation";
+         when Editor.Ada_Diagnostic_Action_Execution.Diagnostic_Action_Effect_None =>
+            return "none";
+      end case;
+   end Diagnostic_Action_Effect_Label;
+
+   function Selected_Outline_Language_Command_Availability
+     (S  : Editor.State.State_Type;
+      Id : Editor.Commands.Command_Id)
+      return Editor.Commands.Command_Availability
+   is
+      Symbol  : constant Selected_Outline_Semantic_Symbol :=
+        (if Id = Editor.Commands.Command_Show_Completions
+         then Current_Completion_Symbol (S)
+         else Current_Semantic_Symbol (S));
+      Service : Editor.Ada_Language_Service.Service_State :=
+        Current_Language_Service (S);
+      Name    : constant String := To_String (Symbol.Name);
+   begin
+      if not Symbol.Available then
+         return Editor.Commands.Unavailable ("No semantic symbol at cursor or Outline selection.");
+      end if;
+
+      case Id is
+         when Editor.Commands.Command_Find_References =>
+            declare
+               Result : constant Editor.Ada_Language_Service.Language_Target_Set :=
+                 Semantic_Find_References (S, Service, Name);
+            begin
+               if Result.Status = Editor.Ada_Language_Service.Service_Success then
+                  return Editor.Commands.Available;
+               end if;
+               return Editor.Commands.Unavailable
+                 ("References unavailable for " & Name & ": " &
+                 Service_Status_Image (Result.Status) & ".");
+            end;
+
+         when Editor.Commands.Command_Workspace_Symbols =>
+            declare
+               Result : constant Editor.Ada_Language_Service.Language_Target_Set :=
+                 Semantic_Workspace_Symbols (Service, Name);
+            begin
+               if Result.Status = Editor.Ada_Language_Service.Service_Success then
+                  return Editor.Commands.Available;
+               end if;
+               return Editor.Commands.Unavailable
+                 ("Workspace symbols unavailable for " & Name & ": " &
+                  Service_Status_Image (Result.Status) & ".");
+            end;
+
+         when Editor.Commands.Command_Show_Hover =>
+            declare
+               Result : constant Editor.Ada_Language_Service.Hover_Result :=
+                 Semantic_Hover (S, Service, Name);
+            begin
+               if Result.Status = Editor.Ada_Language_Service.Service_Success then
+                  return Editor.Commands.Available;
+               end if;
+               return Editor.Commands.Unavailable
+                 ("Hover unavailable for " & Name & ": " &
+                  Service_Status_Image (Result.Status) & ".");
+            end;
+
+         when Editor.Commands.Command_Show_Completions =>
+            declare
+               Result : constant Editor.Ada_Language_Service.Completion_Result :=
+                 Semantic_Complete (S, Service, Name, 20);
+            begin
+               if Result.Status = Editor.Ada_Language_Service.Service_Success then
+                  return Editor.Commands.Available;
+               end if;
+               return Editor.Commands.Unavailable
+                 ("Completions unavailable for " & Name & ": " &
+                  Service_Status_Image (Result.Status) & ".");
+            end;
+
+         when Editor.Commands.Command_Rename_Symbol_Preview =>
+            declare
+               Result : constant Editor.Ada_Language_Service.Rename_Preview :=
+                 Semantic_Rename_Preview
+                   (S, Service, Name, Name & "_Renamed");
+            begin
+               if Result.Status = Editor.Ada_Language_Service.Service_Success
+                 or else Result.Status = Editor.Ada_Language_Service.Service_Ambiguous
+               then
+                  return Editor.Commands.Available;
+               end if;
+               return Editor.Commands.Unavailable
+                 ("Rename preview unavailable for " & Name & ": " &
+                 Service_Status_Image (Result.Status) & ".");
+            end;
+
+         when Editor.Commands.Command_Rename_Symbol_Apply =>
+            declare
+               Result : constant Editor.Ada_Language_Service.Rename_Preview :=
+                 Semantic_Rename_Preview
+                   (S, Service, Name, Name & "_Renamed");
+               Reason : Unbounded_String;
+            begin
+               if Rename_Preview_Is_Open_Buffers_Applyable (S, Result, Reason) then
+                  return Editor.Commands.Available;
+               end if;
+               return Editor.Commands.Unavailable (To_String (Reason));
+            end;
+
+         when others =>
+            return Editor.Commands.Unavailable ("Unsupported language command.");
+      end case;
+   end Selected_Outline_Language_Command_Availability;
+
+   function Execute_Selected_Outline_Language_Command
+     (S  : in out Editor.State.State_Type;
+      Id : Editor.Commands.Command_Id;
+      Target_Name : String := "")
+      return Editor.Command_Execution.Command_Execution_Result
+   is
+      Symbol  : constant Selected_Outline_Semantic_Symbol :=
+        (if Id = Editor.Commands.Command_Show_Completions
+         then Current_Completion_Symbol (S)
+         else Current_Semantic_Symbol (S));
+      Name    : constant String := To_String (Symbol.Name);
+      Rename_To : constant String :=
+        (if Target_Name'Length > 0 then Target_Name else Name & "_Renamed");
+   begin
+      Ensure_Current_Language_Service (S);
+      if not Symbol.Available then
+         Report_Info (S, "No semantic symbol at cursor or Outline selection.");
+         Editor.Render_Cache.Invalidate_All;
+         return Editor.Command_Execution.Unavailable (Id);
+      end if;
+
+      case Id is
+         when Editor.Commands.Command_Find_References =>
+            declare
+               Result : constant Editor.Ada_Language_Service.Language_Target_Set :=
+                 Semantic_Find_References (S, S.Language_Service, Name);
+            begin
+               if Result.Status = Editor.Ada_Language_Service.Service_Success then
+                  Editor.Feature_Search_Results.Begin_External_Result_Set
+                    (S.Feature_Search_Results,
+                     Query        => "references: " & Name,
+                     Source_Label => "Ada semantic references");
+
+                  for Target of Result.Targets loop
+                     declare
+                        Path   : constant String := To_String (Target.Target.Path);
+                        Line   : constant Natural := Target.Target.Line;
+                        Column : constant Natural := Target.Target.Column;
+                        Label  : constant String :=
+                          Name & " at " & Path & ":" &
+                          Ada.Strings.Fixed.Trim (Natural'Image (Line), Ada.Strings.Both) &
+                          ":" &
+                          Ada.Strings.Fixed.Trim (Natural'Image (Column), Ada.Strings.Both);
+                     begin
+                        Editor.Feature_Search_Results.Add_Search_Result
+                          (S.Feature_Search_Results,
+                           Label         => Label,
+                           Source_Label  => Path,
+                           Has_Target    => Target.Key.Buffer_Token /= 0,
+                           Target_Buffer => Target.Key.Buffer_Token,
+                           Target_Line   => Line,
+                           Target_Column => Column,
+                           Query         => Name,
+                           Match_Line    => Line,
+                           Match_Column  => Column,
+                           Match_Length  => Name'Length);
+                     end;
+                  end loop;
+
+                  Editor.Feature_Search_Results.Reconcile_Search_Results_After_Row_Change
+                    (S.Feature_Search_Results, S.Feature_Panel,
+                     Select_First_When_Available => True);
+                  Editor.Panels.Set_Bottom_Content
+                    (S.Panels, Editor.Panels.Search_Results_Content);
+                  Editor.Panels.Set_Visible
+                    (S.Panels, Editor.Panels.Bottom_Panel, True);
+                  if Editor.Panel_Focus.Bottom_Panel_Has_Focus (S.Panel_Focus) then
+                     Editor.Focus_Management.Set_Focus_Owner
+                       (S, Editor.Focus_Management.Focus_Project_Search_Results);
+                  end if;
+                  Editor.Panels.Set_Current (S.Panels);
+                  Report_Info
+                    (S,
+                     "References for " & Name & ":" &
+                     Natural'Image (Natural (Result.Targets.Length)) & ".");
+                  Editor.Render_Cache.Invalidate_All;
+                  return Editor.Command_Execution.Executed (Id);
+               end if;
+
+               Report_Info
+                 (S, "References unavailable for " & Name & ": " &
+                  Service_Status_Image (Result.Status) & ".");
+               Editor.Render_Cache.Invalidate_All;
+               return Editor.Command_Execution.Unavailable (Id);
+            end;
+
+         when Editor.Commands.Command_Workspace_Symbols =>
+            declare
+               Result : constant Editor.Ada_Language_Service.Language_Target_Set :=
+                 Semantic_Workspace_Symbols (S.Language_Service, Name);
+            begin
+               if Result.Status = Editor.Ada_Language_Service.Service_Success then
+                  Editor.Feature_Search_Results.Begin_External_Result_Set
+                    (S.Feature_Search_Results,
+                     Query        => "symbols: " & Name,
+                     Source_Label => "Ada workspace symbols");
+
+                  for Target of Result.Targets loop
+                     declare
+                        Path   : constant String := To_String (Target.Target.Path);
+                        Line   : constant Natural := Target.Target.Line;
+                        Column : constant Natural := Target.Target.Column;
+                        Symbol_Name : constant String := To_String (Target.Name);
+                        Label  : constant String :=
+                          Symbol_Name & " at " & Path & ":" &
+                          Ada.Strings.Fixed.Trim (Natural'Image (Line), Ada.Strings.Both) &
+                          ":" &
+                          Ada.Strings.Fixed.Trim (Natural'Image (Column), Ada.Strings.Both);
+                     begin
+                        Editor.Feature_Search_Results.Add_Search_Result
+                          (S.Feature_Search_Results,
+                           Label         => Label,
+                           Source_Label  => Path,
+                           Has_Target    => Target.Key.Buffer_Token /= 0,
+                           Target_Buffer => Target.Key.Buffer_Token,
+                           Target_Line   => Line,
+                           Target_Column => Column,
+                           Query         => Name,
+                           Match_Line    => Line,
+                           Match_Column  => Column,
+                           Match_Length  => Symbol_Name'Length);
+                     end;
+                  end loop;
+
+                  Editor.Feature_Search_Results.Reconcile_Search_Results_After_Row_Change
+                    (S.Feature_Search_Results, S.Feature_Panel,
+                     Select_First_When_Available => True);
+                  Editor.Panels.Set_Bottom_Content
+                    (S.Panels, Editor.Panels.Search_Results_Content);
+                  Editor.Panels.Set_Visible
+                    (S.Panels, Editor.Panels.Bottom_Panel, True);
+                  if Editor.Panel_Focus.Bottom_Panel_Has_Focus (S.Panel_Focus) then
+                     Editor.Focus_Management.Set_Focus_Owner
+                       (S, Editor.Focus_Management.Focus_Project_Search_Results);
+                  end if;
+                  Editor.Panels.Set_Current (S.Panels);
+                  Report_Info
+                    (S,
+                     "Workspace symbols for " & Name & ":" &
+                     Natural'Image (Natural (Result.Targets.Length)) & ".");
+                  Editor.Render_Cache.Invalidate_All;
+                  return Editor.Command_Execution.Executed (Id);
+               end if;
+
+               Report_Info
+                 (S, "Workspace symbols unavailable for " & Name & ": " &
+                  Service_Status_Image (Result.Status) & ".");
+               Editor.Render_Cache.Invalidate_All;
+               return Editor.Command_Execution.Unavailable (Id);
+            end;
+
+         when Editor.Commands.Command_Show_Hover =>
+            declare
+               Result : constant Editor.Ada_Language_Service.Hover_Result :=
+                 Semantic_Hover (S, S.Language_Service, Name);
+            begin
+               if Result.Status = Editor.Ada_Language_Service.Service_Success then
+                  declare
+                     Anchor_Row : Natural := 0;
+                     Anchor_Col : Natural := 0;
+                     Path   : constant String := To_String (Result.Target.Path);
+                     Line   : constant Natural := Result.Target.Line;
+                     Column : constant Natural := Result.Target.Column;
+                     Detail : constant String := To_String (Result.Detail);
+                     Label  : constant String :=
+                       "hover " & To_String (Result.Label) &
+                       (if Detail'Length > 0 then " - " & Detail else "") &
+                       " at " & Path & ":" &
+                       Ada.Strings.Fixed.Trim (Natural'Image (Line), Ada.Strings.Both) &
+                       ":" &
+                        Ada.Strings.Fixed.Trim (Natural'Image (Column), Ada.Strings.Both);
+                  begin
+                     Editor.State.Row_Col_For_Index
+                       (S, Safe_Caret (S), Anchor_Row, Anchor_Col);
+                     S.Semantic_Popup :=
+                       (Active => True,
+                        Kind => Editor.State.Semantic_Hover_Popup,
+                        Anchor_Row => Anchor_Row,
+                        Anchor_Column => Anchor_Col,
+                        Title => Result.Label,
+                        Detail => Result.Detail,
+                        Item_Count => 0,
+                        Selected_Item => 0,
+                        Items => (others => (others => <>)));
+                     Editor.Feature_Search_Results.Begin_External_Result_Set
+                       (S.Feature_Search_Results,
+                        Query        => "hover: " & Name,
+                        Source_Label => "Ada semantic hover");
+                     Editor.Feature_Search_Results.Add_Search_Result
+                       (S.Feature_Search_Results,
+                        Label         => Label,
+                        Source_Label  => Path,
+                        Has_Target    => Result.Key.Buffer_Token /= 0,
+                        Target_Buffer => Result.Key.Buffer_Token,
+                        Target_Line   => Line,
+                        Target_Column => Column,
+                        Query         => Name,
+                        Match_Line    => Line,
+                        Match_Column  => Column,
+                        Match_Length  => Name'Length);
+                     Editor.Feature_Search_Results.Reconcile_Search_Results_After_Row_Change
+                       (S.Feature_Search_Results, S.Feature_Panel,
+                        Select_First_When_Available => True);
+                  end;
+                  Report_Info
+                    (S,
+                     "Hover: " & To_String (Result.Label) &
+                     (if Length (Result.Detail) > 0
+                      then " - " & To_String (Result.Detail)
+                      else "") & ".");
+                  Editor.Render_Cache.Invalidate_All;
+                  return Editor.Command_Execution.Executed (Id);
+               end if;
+
+               Report_Info
+                 (S, "Hover unavailable for " & Name & ": " &
+                  Service_Status_Image (Result.Status) & ".");
+               Editor.Render_Cache.Invalidate_All;
+               return Editor.Command_Execution.Unavailable (Id);
+            end;
+
+         when Editor.Commands.Command_Show_Completions =>
+            declare
+               Result : constant Editor.Ada_Language_Service.Completion_Result :=
+                 Semantic_Complete (S, S.Language_Service, Name, 20);
+            begin
+               if Result.Status = Editor.Ada_Language_Service.Service_Success then
+                  declare
+                     Anchor_Row : Natural := 0;
+                     Anchor_Col : Natural := 0;
+                     Popup : Editor.State.Semantic_Popup_State;
+                     Row : Natural := 0;
+                  begin
+                     Editor.State.Row_Col_For_Index
+                       (S, Safe_Caret (S), Anchor_Row, Anchor_Col);
+                     Popup.Active := True;
+                     Popup.Kind := Editor.State.Semantic_Completion_Popup;
+                     Popup.Anchor_Row := Anchor_Row;
+                     Popup.Anchor_Column := Anchor_Col;
+                     Popup.Title := To_Unbounded_String ("Completions for " & Name);
+                     Popup.Selected_Item :=
+                       (if Result.Items.Length > 0 then 1 else 0);
+                     for Item of Result.Items loop
+                        exit when Row >= Editor.State.Max_Semantic_Completion_Items;
+                        Row := Row + 1;
+                        Popup.Items (Editor.State.Semantic_Completion_Item_Index (Row)) :=
+                          (Label  => Item.Label,
+                           Detail => Item.Detail);
+                     end loop;
+                     Popup.Item_Count := Row;
+                     S.Semantic_Popup := Popup;
+                  end;
+
+                  Editor.Feature_Search_Results.Begin_External_Result_Set
+                    (S.Feature_Search_Results,
+                     Query        => "completions: " & Name,
+                     Source_Label => "Ada semantic completions");
+
+                  for Item of Result.Items loop
+                     declare
+                        Path   : constant String := To_String (Item.Target.Path);
+                        Line   : constant Natural := Item.Target.Line;
+                        Column : constant Natural := Item.Target.Column;
+                        Item_Label : constant String := To_String (Item.Label);
+                        Detail : constant String := To_String (Item.Detail);
+                        Label  : constant String :=
+                          Item_Label &
+                          (if Detail'Length > 0 then " - " & Detail else "") &
+                          " at " & Path & ":" &
+                          Ada.Strings.Fixed.Trim (Natural'Image (Line), Ada.Strings.Both) &
+                          ":" &
+                          Ada.Strings.Fixed.Trim (Natural'Image (Column), Ada.Strings.Both);
+                     begin
+                        Editor.Feature_Search_Results.Add_Search_Result
+                          (S.Feature_Search_Results,
+                           Label         => Label,
+                           Source_Label  => Path,
+                           Has_Target    => Item.Key.Buffer_Token /= 0,
+                           Target_Buffer => Item.Key.Buffer_Token,
+                           Target_Line   => Line,
+                           Target_Column => Column,
+                           Query         => Name,
+                           Match_Line    => Line,
+                           Match_Column  => Column,
+                           Match_Length  => Item_Label'Length);
+                     end;
+                  end loop;
+
+                  Editor.Feature_Search_Results.Reconcile_Search_Results_After_Row_Change
+                    (S.Feature_Search_Results, S.Feature_Panel,
+                     Select_First_When_Available => True);
+                  Report_Info
+                    (S,
+                     "Completions for " & Name & ":" &
+                     Natural'Image (Natural (Result.Items.Length)) & ".");
+                  Editor.Render_Cache.Invalidate_All;
+                  return Editor.Command_Execution.Executed (Id);
+               end if;
+
+               Report_Info
+                 (S, "Completions unavailable for " & Name & ": " &
+                  Service_Status_Image (Result.Status) & ".");
+               Editor.Render_Cache.Invalidate_All;
+               return Editor.Command_Execution.Unavailable (Id);
+            end;
+
+         when Editor.Commands.Command_Rename_Symbol_Preview =>
+            declare
+               Result : constant Editor.Ada_Language_Service.Rename_Preview :=
+                 Semantic_Rename_Preview
+                   (S, S.Language_Service, Name, Rename_To);
+            begin
+               if Result.Status = Editor.Ada_Language_Service.Service_Success
+                 or else Result.Status = Editor.Ada_Language_Service.Service_Ambiguous
+               then
+                  Editor.Feature_Search_Results.Begin_External_Result_Set
+                    (S.Feature_Search_Results,
+                     Query        => "rename: " & Name & " -> " & Rename_To,
+                     Source_Label => "Ada semantic rename preview");
+
+                  for Target of Result.Edits loop
+                     declare
+                        Path   : constant String := To_String (Target.Target.Path);
+                        Line   : constant Natural := Target.Target.Line;
+                        Column : constant Natural := Target.Target.Column;
+                        Label  : constant String :=
+                          "edit " & Name & " -> " & Rename_To & " at " &
+                          Path & ":" &
+                          Ada.Strings.Fixed.Trim (Natural'Image (Line), Ada.Strings.Both) &
+                          ":" &
+                          Ada.Strings.Fixed.Trim (Natural'Image (Column), Ada.Strings.Both);
+                     begin
+                        Editor.Feature_Search_Results.Add_Search_Result
+                          (S.Feature_Search_Results,
+                           Label         => Label,
+                           Source_Label  => Path,
+                           Has_Target    => Target.Key.Buffer_Token /= 0,
+                           Target_Buffer => Target.Key.Buffer_Token,
+                           Target_Line   => Line,
+                           Target_Column => Column,
+                           Query         => Name,
+                           Match_Line    => Line,
+                           Match_Column  => Column,
+                           Match_Length  => Name'Length);
+                     end;
+                  end loop;
+
+                  for Target of Result.Conflicts loop
+                     declare
+                        Path   : constant String := To_String (Target.Target.Path);
+                        Line   : constant Natural := Target.Target.Line;
+                        Column : constant Natural := Target.Target.Column;
+                        Conflict_Name : constant String := To_String (Target.Name);
+                        Label  : constant String :=
+                          "conflict " & Conflict_Name & " at " & Path & ":" &
+                          Ada.Strings.Fixed.Trim (Natural'Image (Line), Ada.Strings.Both) &
+                          ":" &
+                          Ada.Strings.Fixed.Trim (Natural'Image (Column), Ada.Strings.Both);
+                     begin
+                        Editor.Feature_Search_Results.Add_Search_Result
+                          (S.Feature_Search_Results,
+                           Label         => Label,
+                           Source_Label  => Path,
+                           Has_Target    => Target.Key.Buffer_Token /= 0,
+                           Target_Buffer => Target.Key.Buffer_Token,
+                           Target_Line   => Line,
+                           Target_Column => Column,
+                           Query         => Conflict_Name,
+                           Match_Line    => Line,
+                           Match_Column  => Column,
+                           Match_Length  => Conflict_Name'Length);
+                     end;
+                  end loop;
+
+                  Editor.Feature_Search_Results.Reconcile_Search_Results_After_Row_Change
+                    (S.Feature_Search_Results, S.Feature_Panel,
+                     Select_First_When_Available => True);
+                  Editor.Panels.Set_Bottom_Content
+                    (S.Panels, Editor.Panels.Search_Results_Content);
+                  Editor.Panels.Set_Visible
+                    (S.Panels, Editor.Panels.Bottom_Panel, True);
+                  if Editor.Panel_Focus.Bottom_Panel_Has_Focus (S.Panel_Focus) then
+                     Editor.Focus_Management.Set_Focus_Owner
+                       (S, Editor.Focus_Management.Focus_Project_Search_Results);
+                  end if;
+                  Editor.Panels.Set_Current (S.Panels);
+                  Report_Info
+                    (S,
+                     "Rename preview for " & Name & ":" &
+                     Natural'Image (Result.Edit_Count) & " edits," &
+                     Natural'Image (Result.Conflict_Count) & " conflicts.");
+                  Editor.Render_Cache.Invalidate_All;
+                  return Editor.Command_Execution.Executed (Id);
+               end if;
+
+               Report_Info
+                 (S, "Rename preview unavailable for " & Name & ": " &
+                  Service_Status_Image (Result.Status) & ".");
+               Editor.Render_Cache.Invalidate_All;
+               return Editor.Command_Execution.Unavailable (Id);
+            end;
+
+         when Editor.Commands.Command_Rename_Symbol_Apply =>
+            declare
+               Result : constant Editor.Ada_Language_Service.Rename_Preview :=
+                 Semantic_Rename_Preview
+                   (S, S.Language_Service, Name, Rename_To);
+               Reason : Unbounded_String;
+               Applied_Count : Natural := 0;
+               Processed : Editor.Ada_Language_Service.Language_Target_Vectors.Vector;
+
+               function Same_Apply_Target
+                 (Left, Right : Editor.Ada_Language_Service.Language_Target)
+                  return Boolean
+               is
+               begin
+                  if Left.Key.Buffer_Token /= 0
+                    and then Right.Key.Buffer_Token /= 0
+                  then
+                     return Left.Key.Buffer_Token = Right.Key.Buffer_Token;
+                  end if;
+
+                  return To_String (Left.Target.Path) =
+                    To_String (Right.Target.Path);
+               end Same_Apply_Target;
+            begin
+               Editor.Buffers.Ensure_Global_Registry (S);
+
+               if not Rename_Preview_Is_Open_Buffers_Applyable (S, Result, Reason) then
+                  Report_Info (S, To_String (Reason));
+                  Editor.Render_Cache.Invalidate_All;
+                  return Editor.Command_Execution.Unavailable (Id);
+               end if;
+
+               for Target of Result.Edits loop
+                  declare
+                     Already_Processed : Boolean := False;
+                  begin
+                     for Seen of Processed loop
+                        if Same_Apply_Target (Seen, Target) then
+                           Already_Processed := True;
+                           exit;
+                        end if;
+                     end loop;
+
+                     if not Already_Processed then
+                        declare
+                           Found_Open : Boolean := False;
+                           Buffer_Id  : Editor.Buffers.Buffer_Id :=
+                             Editor.Buffers.No_Buffer;
+                           Buffer_State : Editor.State.State_Type;
+                           Open_Result : Editor.Files.File_Open_Result;
+                           Cmd : Editor.Commands.Command;
+                           Before_Text : Unbounded_String;
+                           Replaced : Boolean := False;
+                        begin
+                           if Target.Key.Buffer_Token = S.Active_Buffer_Token then
+                              Buffer_Id := Editor.Buffers.Buffer_Id
+                                (S.Active_Buffer_Token);
+                              Found_Open := True;
+                              Buffer_State := S;
+                           elsif Target.Key.Buffer_Token /= 0
+                             and then Editor.Buffers.Global_Contains
+                               (Editor.Buffers.Buffer_Id
+                                  (Target.Key.Buffer_Token))
+                           then
+                              Buffer_Id := Editor.Buffers.Buffer_Id
+                                (Target.Key.Buffer_Token);
+                              Found_Open := True;
+                              Buffer_State :=
+                                Editor.Buffers.Global_Buffer (Buffer_Id);
+                           else
+                              Buffer_Id := Editor.Buffers.Global_Find_By_Path
+                                (To_String (Target.Target.Path), Found_Open);
+                              if Found_Open then
+                                 Buffer_State :=
+                                   Editor.Buffers.Global_Buffer (Buffer_Id);
+                              else
+                                 Open_Result := Editor.Files.Open_File
+                                   (To_String (Target.Target.Path));
+                                 Editor.State.Initialize (Buffer_State);
+                                 Editor.State.Replace_Buffer_Contents
+                                   (Buffer_State,
+                                    To_String (Open_Result.Contents));
+                                 Buffer_State.File_Info.Has_Path := True;
+                                 Buffer_State.File_Info.Path :=
+                                   Open_Result.Path;
+                                 Buffer_State.File_Info.Display_Name :=
+                                   Open_Result.Display_Name;
+                              end if;
+                           end if;
+
+                           Before_Text := To_Unbounded_String
+                             (Editor.State.Current_Text (Buffer_State));
+                           Cmd.Kind := Editor.Commands.Apply_Replace_Batch;
+
+                           for Edit of Result.Edits loop
+                              if Same_Apply_Target (Edit, Target) then
+                                 declare
+                                    Pos : constant Natural :=
+                                      Index_For_Line_Column
+                                        (Buffer_State,
+                                         Edit.Target.Line - 1,
+                                         Edit.Target.Column - 1);
+                                    Current : constant String :=
+                                      To_String
+                                        (Extract_Text
+                                           (Buffer_State.Buffer, Pos,
+                                            Name'Length));
+                                 begin
+                                    if Current = Name then
+                                       Append_Replace_Op
+                                         (Cmd, Cursor_Index (Pos),
+                                          Name'Length,
+                                          To_Unbounded_String (Rename_To));
+                                    end if;
+                                 end;
+                              end if;
+                           end loop;
+
+                           if Cmd.Positions.Length > 0 then
+                              Editor.Executor.History.Apply_Replace_Batch_Command
+                                (Buffer_State, Cmd);
+                              if Editor.State.Current_Text (Buffer_State) /=
+                                Before_Text
+                              then
+                                 if Found_Open then
+                                    Editor.Buffers.Global_Replace_Buffer_Contents
+                                      (Buffer_Id,
+                                       Editor.State.Current_Text
+                                         (Buffer_State),
+                                       Replaced);
+                                 else
+                                    Replaced :=
+                                      Editor.Files.Save_File
+                                        (To_String (Target.Target.Path),
+                                         Editor.State.Current_Text
+                                           (Buffer_State)).Status =
+                                      Editor.Files.File_Save_Ok;
+                                 end if;
+
+                                 if Replaced then
+                                    if Found_Open then
+                                       Editor.Ada_Project_Index.Invalidate_Buffer
+                                         (S.Language_Index,
+                                          Natural (Buffer_Id));
+                                       Editor.Ada_Language_Service.Invalidate_Buffer
+                                         (S.Language_Service,
+                                          Natural (Buffer_Id));
+                                    else
+                                       Editor.Ada_Project_Index.Invalidate_Path
+                                         (S.Language_Index,
+                                          To_String (Target.Target.Path));
+                                       Editor.Ada_Language_Service.Invalidate_Path
+                                         (S.Language_Service,
+                                          To_String (Target.Target.Path));
+                                    end if;
+
+                                    Applied_Count :=
+                                      Applied_Count +
+                                      Natural (Cmd.Positions.Length);
+                                 end if;
+                              end if;
+                           end if;
+                        end;
+
+                        Processed.Append (Target);
+                     end if;
+                  end;
+               end loop;
+
+               if Applied_Count = 0 then
+                  Report_Info
+                    (S, "Rename apply for " & Name & ": no edits.");
+                  Editor.Render_Cache.Invalidate_All;
+                  return Editor.Command_Execution.No_Op (Id);
+               end if;
+
+               Editor.Buffers.Load_Global_Active_Into_State (S);
+
+               Report_Info
+                 (S,
+                  "Rename applied for " & Name & ":" &
+                  Natural'Image (Applied_Count) & " edits.");
+               Editor.Render_Cache.Invalidate_All;
+               return Editor.Command_Execution.Executed (Id);
+            end;
+
+         when others =>
+            return Editor.Command_Execution.Unavailable (Id);
+      end case;
+   end Execute_Selected_Outline_Language_Command;
+
+   function Find_Indexed_Outline_Target
+     (S             : Editor.State.State_Type;
+      Id            : Editor.Commands.Command_Id;
+      Service       : in out Editor.Ada_Language_Service.Service_State;
+      Track_Request : Boolean := False) return Outline_Indexed_Target
+   is
+      Panel_Row : Natural := 0;
+      Outline_Row : Natural := 0;
+      Name : Unbounded_String := Null_Unbounded_String;
+      Row_Kind : Editor.Outline.Outline_Item_Kind := Editor.Outline.Outline_Unknown;
+      Row_Is_Body : Boolean := False;
+      Row_Profile : Unbounded_String := Null_Unbounded_String;
+      Wanted : Editor.Ada_Language_Model.Symbol_Kind := Editor.Ada_Language_Model.Symbol_Unknown;
+   begin
+      if not Editor.Feature_Panel.Is_Visible (S.Feature_Panel)
+        or else not Editor.Feature_Panel.Has_Selection (S.Feature_Panel)
+      then
+         return (others => <>);
+      elsif not Active_Outline_Source_Is_Current (S) then
+         return (others => <>);
+      end if;
+
+      Panel_Row := Editor.Feature_Panel.Selected_Row (S.Feature_Panel);
+      Outline_Row := Editor.Outline.Map_Panel_Row_To_Outline_Row
+        (S.Outline, S.Feature_Panel, Panel_Row);
+      if Outline_Row = 0
+        or else not Editor.Outline.Validate_Outline_Row_For_Selection
+          (S.Outline, S.Feature_Panel, Panel_Row)
+      then
+         return (others => <>);
+      end if;
+
+      Name := To_Unbounded_String
+        (Outline_Row_Base_Name (S, Positive (Outline_Row)));
+      if Length (Name) = 0 then
+         return (others => <>);
+      end if;
+
+      Row_Kind := Editor.Outline.Item_Kind (S.Outline, Positive (Outline_Row));
       Row_Is_Body := Outline_Row_Is_Body (S, Positive (Outline_Row));
       Row_Profile := To_Unbounded_String
         (Outline_Row_Profile (S, Positive (Outline_Row)));
-
-      if Id = Editor.Commands.Command_Goto_Spec
-        and then Outline_Row_Is_Separate_Body (S, Positive (Outline_Row))
-      then
-         --  Pass 177: separate bodies retain their parent unit in
-         --  Symbol.Target_Name.  Use the selected separate-body row only to
-         --  validate the source subunit, then navigate to an indexed parent
-         --  declaration instead of trying to pair by the subunit body name.
-         --  Pass 196 keeps this path aligned with ordinary body/spec
-         --  navigation: overflowed or duplicate parent candidates degrade to
-         --  unavailable rather than selecting the first retained match.
-         declare
-            Body_Res : constant Editor.Ada_Project_Index.Index_Resolution_Result :=
-              Editor.Ada_Project_Index.Resolve (S.Language_Index, To_String (Name));
-            Found_Parent : Boolean := False;
-            Parent_Target : Outline_Indexed_Target := (others => <>);
-         begin
-            if Body_Res.Overflow or else Body_Res.Matches.Length = 0 then
-               return (others => <>);
-            end if;
-
-            for I in Body_Res.Matches.First_Index .. Body_Res.Matches.Last_Index loop
-               declare
-                  Body_Match : constant Editor.Ada_Project_Index.Indexed_Symbol :=
-                    Body_Res.Matches (I);
-                  Parent_Name : constant String :=
-                    To_String (Body_Match.Symbol.Target_Name);
-               begin
-                  if Body_Match.Symbol.Kind = Editor.Ada_Language_Model.Symbol_Separate_Body
-                    and then Parent_Name'Length /= 0
-                  then
-                     declare
-                        Parent_Res : constant Editor.Ada_Project_Index.Index_Resolution_Result :=
-                          Editor.Ada_Project_Index.Resolve
-                            (S.Language_Index, Parent_Name);
-                     begin
-                        if Parent_Res.Overflow then
-                           return (others => <>);
-                        end if;
-
-                        if Parent_Res.Matches.Length /= 0 then
-                           for J in Parent_Res.Matches.First_Index .. Parent_Res.Matches.Last_Index loop
-                              declare
-                                 Parent_Match : constant Editor.Ada_Project_Index.Indexed_Symbol :=
-                                   Parent_Res.Matches (J);
-                              begin
-                                 if Separate_Body_Parent_Kind_Matches (Parent_Match.Symbol)
-                                 then
-                                    if Found_Parent then
-                                       return (others => <>);
-                                    end if;
-
-                                    Found_Parent := True;
-                                    Parent_Target :=
-                                      (Available => True,
-                                       Path      => Parent_Match.Path,
-                                       Key       => Parent_Match.Key,
-                                       Line      => Parent_Match.Symbol.Source_Span.Start_Line,
-                                       Column    => Parent_Match.Symbol.Source_Span.Start_Column);
-                                 end if;
-                              end;
-                           end loop;
-                        end if;
-                     end;
-                  end if;
-               end;
-            end loop;
-
-            if Found_Parent then
-               return Parent_Target;
-            end if;
-         end;
-
-         return (others => <>);
-      end if;
 
       if Id = Editor.Commands.Command_Goto_Body then
          if Row_Kind = Editor.Outline.Outline_Package then
@@ -5592,7 +7508,12 @@ package body Editor.Executor is
             return (others => <>);
          end if;
       elsif Id = Editor.Commands.Command_Goto_Spec then
-         if Row_Kind = Editor.Outline.Outline_Package_Body then
+         if Outline_Row_Is_Separate_Body (S, Positive (Outline_Row))
+           or else Current_File_Has_Indexed_Separate_Body
+             (S, To_String (Name))
+         then
+            Wanted := Editor.Ada_Language_Model.Symbol_Separate_Body;
+         elsif Row_Kind = Editor.Outline.Outline_Package_Body then
             Wanted := Editor.Ada_Language_Model.Symbol_Package;
          elsif Row_Kind = Editor.Outline.Outline_Procedure
            and then Row_Is_Body
@@ -5609,30 +7530,101 @@ package body Editor.Executor is
          return (others => <>);
       end if;
 
+      if Track_Request then
+         declare
+            Req : constant Editor.Ada_Language_Service.Semantic_Request_Id :=
+              Editor.Ada_Language_Service.Begin_Semantic_Request
+                (Service,
+                 (if Id = Editor.Commands.Command_Goto_Body
+                  then Editor.Ada_Language_Service.Semantic_Request_Goto_Body
+                  else Editor.Ada_Language_Service.Semantic_Request_Goto_Spec),
+                 Editor.Ada_Language_Service.Semantic_Request_Query_Key
+                   ((if Id = Editor.Commands.Command_Goto_Body
+                     then Editor.Ada_Language_Service.Semantic_Request_Goto_Body
+                     else Editor.Ada_Language_Service.Semantic_Request_Goto_Spec),
+                    To_String (Name),
+                    To_String (Row_Profile),
+                    Detail => Editor.Ada_Language_Model.Symbol_Kind'Image
+                      (Wanted)));
+            Target_Set : constant Editor.Ada_Language_Service.Language_Target_Set :=
+              (if Id = Editor.Commands.Command_Goto_Body then
+                 Editor.Ada_Language_Service.Request_Goto_Body
+                   (Service, Req, To_String (Name), Wanted,
+                    To_String (Row_Profile))
+               else
+                 Editor.Ada_Language_Service.Request_Goto_Spec
+                   (Service, Req, To_String (Name), Wanted,
+                    To_String (Row_Profile)));
+         begin
+            if Target_Set.Status = Editor.Ada_Language_Service.Service_Success
+              and then Natural (Target_Set.Targets.Length) = 1
+            then
+               declare
+                  Target : constant Editor.Ada_Language_Service.Language_Target :=
+                    Target_Set.Targets (Target_Set.Targets.First_Index);
+               begin
+                  return
+                    (Available => True,
+                     Path      => Target.Target.Path,
+                     Key       => Target.Key,
+                     Line      => Target.Target.Line,
+                     Column    => Target.Target.Column);
+               end;
+            end if;
+         end;
+
+         return (others => <>);
+      end if;
+
+      if Row_Kind = Editor.Outline.Outline_Package
+        or else Row_Kind = Editor.Outline.Outline_Package_Body
+      then
+         declare
+            Unit_Target : constant Editor.Ada_Project_Index.Unique_Target_Result :=
+              Editor.Ada_Project_Index.Resolve_Unique_Unit_Target
+                (S.Language_Index,
+                 To_String (Name),
+                 (if Id = Editor.Commands.Command_Goto_Body then
+                    Editor.Ada_Project_Index.Unit_Package_Body
+                  else
+                    Editor.Ada_Project_Index.Unit_Package_Spec));
+         begin
+            if Unit_Target.Available then
+               return
+                 (Available => True,
+                  Path      => Unit_Target.Target.Path,
+                  Key       => Unit_Target.Target.Key,
+                  Line      => Unit_Target.Target.Symbol.Source_Span.Start_Line,
+                  Column    => Unit_Target.Target.Symbol.Source_Span.Start_Column);
+            elsif Unit_Target.Ambiguous or else Unit_Target.Overflow then
+               return (others => <>);
+            end if;
+         end;
+      end if;
+
       declare
-         --  Pass 186: body/spec navigation keeps parser-owned callable
-         --  profile summaries as overload filters.  Pass 193 moves the final
-         --  target selection into the project index so duplicate candidates
-         --  degrade to unavailable instead of first-match navigation.
-         Target : constant Editor.Ada_Project_Index.Unique_Target_Result :=
-           Editor.Ada_Project_Index.Resolve_Unique_Navigation_Target
-             (S.Language_Index,
-              To_String (Name),
-              Wanted,
-              Want_Body                   => Id = Editor.Commands.Command_Goto_Body,
-              Profile_Summary             => To_String (Row_Profile),
-              Require_Profile             => Length (Row_Profile) > 0,
-              Accept_Generic_Package_Spec => Row_Kind = Editor.Outline.Outline_Package_Body,
-              Accept_Generic_Subprogram   => Row_Kind = Editor.Outline.Outline_Procedure,
-              Accept_Operator_Function    => Row_Kind = Editor.Outline.Outline_Function);
+         Target_Set : constant Editor.Ada_Language_Service.Language_Target_Set :=
+           (if Id = Editor.Commands.Command_Goto_Body then
+              Editor.Ada_Language_Service.Goto_Body
+                (Service, To_String (Name), Wanted, To_String (Row_Profile))
+            else
+              Editor.Ada_Language_Service.Goto_Spec
+                (Service, To_String (Name), Wanted, To_String (Row_Profile)));
       begin
-         if Target.Available then
-            return
-              (Available => True,
-               Path      => Target.Target.Path,
-               Key       => Target.Target.Key,
-               Line      => Target.Target.Symbol.Source_Span.Start_Line,
-               Column    => Target.Target.Symbol.Source_Span.Start_Column);
+         if Target_Set.Status = Editor.Ada_Language_Service.Service_Success
+           and then Natural (Target_Set.Targets.Length) = 1
+         then
+            declare
+               Target : constant Editor.Ada_Language_Service.Language_Target :=
+                 Target_Set.Targets (Target_Set.Targets.First_Index);
+            begin
+               return
+                 (Available => True,
+                  Path      => Target.Target.Path,
+                  Key       => Target.Key,
+                  Line      => Target.Target.Line,
+                  Column    => Target.Target.Column);
+            end;
          end if;
       end;
 
@@ -5643,8 +7635,10 @@ package body Editor.Executor is
      (S  : Editor.State.State_Type;
       Id : Editor.Commands.Command_Id) return Boolean
    is
+      Service : Editor.Ada_Language_Service.Service_State :=
+        Current_Language_Service (S);
    begin
-      return Find_Indexed_Outline_Target (S, Id).Available;
+      return Find_Indexed_Outline_Target (S, Id, Service).Available;
    end Has_Indexed_Outline_Target;
 
    function Navigate_To_Indexed_Outline_Target
@@ -5683,7 +7677,16 @@ package body Editor.Executor is
       if not S.File_Info.Has_Path
         or else not Same_Target_Path (To_String (S.File_Info.Path), Path)
       then
-         Execute_Open_File (S, Path);
+         declare
+            Saved_Index : constant Editor.Ada_Project_Index.Index_State :=
+              S.Language_Index;
+            Saved_Service : constant Editor.Ada_Language_Service.Service_State :=
+              S.Language_Service;
+         begin
+            Execute_Open_File (S, Path);
+            S.Language_Index := Saved_Index;
+            S.Language_Service := Saved_Service;
+         end;
       end if;
 
       if not S.File_Info.Has_Path
@@ -5823,7 +7826,16 @@ package body Editor.Executor is
                return False;
             end if;
             Editor.Buffers.Global_Set_Active_Buffer (Id);
-            Editor.Buffers.Load_Global_Active_Into_State (S);
+            declare
+               Saved_Index : constant Editor.Ada_Project_Index.Index_State :=
+                 S.Language_Index;
+               Saved_Service : constant Editor.Ada_Language_Service.Service_State :=
+                 S.Language_Service;
+            begin
+               Editor.Buffers.Load_Global_Active_Into_State (S);
+               S.Language_Index := Saved_Index;
+               S.Language_Service := Saved_Service;
+            end;
             Editor.Recent_Buffers.Mark_Activated (S.Recent_Buffers, Natural (Id));
          else
             if not Ada.Directories.Exists (Path) then
@@ -6656,6 +8668,48 @@ package body Editor.Executor is
    --  must stay owned by this package and must not become public mutation
    --  bypasses.  Availability checks remain side-effect-free and each handler
    --  should produce one primary command outcome.
+   function Is_Terminal_Task_Command
+     (Id : Editor.Commands.Command_Id) return Boolean
+   is
+   begin
+      return Id in Editor.Commands.Command_Terminal_Toggle
+        .. Editor.Commands.Command_Terminal_Cancel_Task;
+   end Is_Terminal_Task_Command;
+
+   procedure Ensure_Terminal_Project_Tasks
+     (S : in out Editor.State.State_Type)
+   is
+   begin
+      if Editor.Project.Has_Project (S.Project) then
+         Editor.Terminal_Tasks.Ensure_Project_Default_Tasks
+           (S.Terminal_Tasks, Editor.Project.Root_Path (S.Project));
+      end if;
+   end Ensure_Terminal_Project_Tasks;
+
+   function Terminal_Process_Status_Message
+     (Status : Editor.External_Producers.Process_Run_Status) return String
+   is
+   begin
+      case Status is
+         when Editor.External_Producers.Process_Run_Succeeded =>
+            return "Terminal task succeeded.";
+         when Editor.External_Producers.Process_Run_Failed
+            | Editor.External_Producers.Process_Run_Execution_Error
+            | Editor.External_Producers.Process_Run_Output_Truncated =>
+            return "Terminal task failed.";
+         when Editor.External_Producers.Process_Run_Not_Available =>
+            return "Terminal task is not available.";
+         when Editor.External_Producers.Process_Run_Rejected =>
+            return "Terminal task rejected.";
+         when Editor.External_Producers.Process_Run_Timed_Out =>
+            return "Terminal task timed out.";
+         when Editor.External_Producers.Process_Run_Cancelled =>
+            return "Terminal task cancelled.";
+         when Editor.External_Producers.Process_Run_Cancellation_Unsupported =>
+            return "Terminal task cancellation is not supported.";
+      end case;
+   end Terminal_Process_Status_Message;
+
    function Execute_Command_With_Result
      (S     : in out Editor.State.State_Type;
       Id    : Editor.Commands.Command_Id;
@@ -6963,6 +9017,10 @@ package body Editor.Executor is
                      Report_Error (S, "Could not split line");
                   when Editor.Commands.Command_Trim_Trailing_Whitespace =>
                      Report_Error (S, "Could not trim trailing whitespace");
+                  when Editor.Commands.Command_Format_Buffer =>
+                     Report_Error (S, "Could not format buffer");
+                  when Editor.Commands.Command_Format_Selected_Text =>
+                     Report_Error (S, "Could not format selection");
                   when Editor.Commands.Command_Char_Delete_Previous =>
                      Report_Error (S, "Could not delete previous character");
                   when Editor.Commands.Command_Char_Delete_Next =>
@@ -7018,6 +9076,10 @@ package body Editor.Executor is
             Execute_Previous_Buffer (S);
          end if;
          return Editor.Command_Execution.No_Op (Id);
+      end if;
+
+      if Is_Terminal_Task_Command (Id) then
+         Ensure_Terminal_Project_Tasks (S);
       end if;
 
       Availability := Command_Availability (S, Id);
@@ -7091,6 +9153,176 @@ package body Editor.Executor is
             Editor.Render_Cache.Invalidate_All;
             return Editor.Command_Execution.Executed (Id);
 
+         when Editor.Commands.Command_Run_Project
+            | Editor.Commands.Command_Run_Tests =>
+            declare
+               Profile : constant Editor.Terminal_Tasks.Terminal_Task_Profile :=
+                 (if Id = Editor.Commands.Command_Run_Project
+                  then Editor.Terminal_Tasks.Task_Profile_Run
+                  else Editor.Terminal_Tasks.Task_Profile_Test);
+               Policy : constant Editor.External_Producers.Process_Execution_Policy :=
+                 (Mode                     =>
+                    Editor.External_Producers.Process_Execution_Real_Allowed,
+                  Allow_Real_Execution     => True,
+                  Allow_Shell              => False,
+                  Max_Output_Bytes         => 262_144,
+                  Require_Absolute_Program => False,
+                  Timeout_Milliseconds     => 600_000);
+               Selected : Boolean := False;
+               Result : Editor.External_Producers.Process_Run_Result;
+            begin
+               Ensure_Terminal_Project_Tasks (S);
+               Selected :=
+                 Editor.Terminal_Tasks.Select_First_Profile
+                   (S.Terminal_Tasks, Profile);
+               if not Selected then
+                  Report_Info (S, "Project task unavailable.");
+                  Editor.Render_Cache.Invalidate_All;
+                  return Editor.Command_Execution.Unavailable (Id);
+               end if;
+
+               Editor.Terminal_Tasks.Show (S.Terminal_Tasks);
+               Result :=
+                 Editor.External_Producers.Execute_Process_Request_Real_Gated
+                   (Editor.Terminal_Tasks.Selected_Task_Request
+                      (S.Terminal_Tasks),
+                    Policy);
+               Editor.Terminal_Tasks.Run_Selected_With_Result
+                 (S.Terminal_Tasks, Result);
+               Report_Info (S, Terminal_Process_Status_Message (Result.Status));
+               Editor.Render_Cache.Invalidate_All;
+               if Result.Status =
+                 Editor.External_Producers.Process_Run_Succeeded
+               then
+                  return Editor.Command_Execution.Executed (Id);
+               elsif Result.Status =
+                 Editor.External_Producers.Process_Run_Not_Available
+               then
+                  return Editor.Command_Execution.Unavailable (Id);
+               else
+                  return Editor.Command_Execution.Failed (Id);
+               end if;
+            end;
+
+         when Editor.Commands.Command_Terminal_Toggle =>
+            Editor.Terminal_Tasks.Toggle (S.Terminal_Tasks);
+            Report_Info (S, "Terminal toggled.");
+            Editor.Render_Cache.Invalidate_All;
+            return Editor.Command_Execution.Executed (Id);
+
+         when Editor.Commands.Command_Terminal_Show =>
+            Editor.Terminal_Tasks.Show (S.Terminal_Tasks);
+            Report_Info (S, "Terminal shown.");
+            Editor.Render_Cache.Invalidate_All;
+            return Editor.Command_Execution.Executed (Id);
+
+         when Editor.Commands.Command_Terminal_Hide =>
+            Editor.Terminal_Tasks.Hide (S.Terminal_Tasks);
+            Report_Info (S, "Terminal hidden.");
+            Editor.Render_Cache.Invalidate_All;
+            return Editor.Command_Execution.Executed (Id);
+
+         when Editor.Commands.Command_Terminal_Focus =>
+            Editor.Terminal_Tasks.Focus (S.Terminal_Tasks);
+            Report_Info (S, "Terminal focused.");
+            Editor.Render_Cache.Invalidate_All;
+            return Editor.Command_Execution.Executed (Id);
+
+         when Editor.Commands.Command_Terminal_Clear =>
+            Editor.Terminal_Tasks.Clear (S.Terminal_Tasks);
+            Report_Info (S, "Terminal tasks cleared.");
+            Editor.Render_Cache.Invalidate_All;
+            return Editor.Command_Execution.Executed (Id);
+
+         when Editor.Commands.Command_Terminal_Clear_Output =>
+            Editor.Terminal_Tasks.Clear_Output (S.Terminal_Tasks);
+            Report_Info (S, "Terminal output cleared.");
+            Editor.Render_Cache.Invalidate_All;
+            return Editor.Command_Execution.Executed (Id);
+
+         when Editor.Commands.Command_Terminal_Select_Next_Task =>
+            Editor.Terminal_Tasks.Select_Next (S.Terminal_Tasks);
+            Report_Info (S, "Terminal task selection changed.");
+            Editor.Render_Cache.Invalidate_All;
+            return Editor.Command_Execution.Executed (Id);
+
+         when Editor.Commands.Command_Terminal_Select_Previous_Task =>
+            Editor.Terminal_Tasks.Select_Previous (S.Terminal_Tasks);
+            Report_Info (S, "Terminal task selection changed.");
+            Editor.Render_Cache.Invalidate_All;
+            return Editor.Command_Execution.Executed (Id);
+
+         when Editor.Commands.Command_Terminal_Run_Selected_Task =>
+            declare
+               Policy : constant Editor.External_Producers.Process_Execution_Policy :=
+                 (Mode                     =>
+                    Editor.External_Producers.Process_Execution_Real_Allowed,
+                  Allow_Real_Execution     => True,
+                  Allow_Shell              => False,
+                  Max_Output_Bytes         => 262_144,
+                  Require_Absolute_Program => False,
+                  Timeout_Milliseconds     => 600_000);
+               Result : constant Editor.External_Producers.Process_Run_Result :=
+                 Editor.External_Producers.Execute_Process_Request_Real_Gated
+                   (Editor.Terminal_Tasks.Selected_Task_Request
+                      (S.Terminal_Tasks),
+                    Policy);
+            begin
+               Editor.Terminal_Tasks.Run_Selected_With_Result
+                 (S.Terminal_Tasks, Result);
+               Report_Info (S, Terminal_Process_Status_Message (Result.Status));
+               Editor.Render_Cache.Invalidate_All;
+               if Result.Status =
+                 Editor.External_Producers.Process_Run_Succeeded
+               then
+                  return Editor.Command_Execution.Executed (Id);
+               elsif Result.Status =
+                 Editor.External_Producers.Process_Run_Not_Available
+               then
+                  return Editor.Command_Execution.Unavailable (Id);
+               else
+                  return Editor.Command_Execution.Failed (Id);
+               end if;
+            end;
+
+         when Editor.Commands.Command_Terminal_Rerun_Last_Task =>
+            declare
+               Policy : constant Editor.External_Producers.Process_Execution_Policy :=
+                 (Mode                     =>
+                    Editor.External_Producers.Process_Execution_Real_Allowed,
+                  Allow_Real_Execution     => True,
+                  Allow_Shell              => False,
+                  Max_Output_Bytes         => 262_144,
+                  Require_Absolute_Program => False,
+                  Timeout_Milliseconds     => 600_000);
+               Result : constant Editor.External_Producers.Process_Run_Result :=
+                 Editor.External_Producers.Execute_Process_Request_Real_Gated
+                   (Editor.Terminal_Tasks.Last_Task_Request
+                      (S.Terminal_Tasks),
+                    Policy);
+            begin
+               Editor.Terminal_Tasks.Rerun_Last_With_Result
+                 (S.Terminal_Tasks, Result);
+               Report_Info (S, Terminal_Process_Status_Message (Result.Status));
+               Editor.Render_Cache.Invalidate_All;
+               if Result.Status =
+                 Editor.External_Producers.Process_Run_Succeeded
+               then
+                  return Editor.Command_Execution.Executed (Id);
+               elsif Result.Status =
+                 Editor.External_Producers.Process_Run_Not_Available
+               then
+                  return Editor.Command_Execution.Unavailable (Id);
+               else
+                  return Editor.Command_Execution.Failed (Id);
+               end if;
+            end;
+
+         when Editor.Commands.Command_Terminal_Cancel_Task =>
+            Report_Info (S, "No cancellable terminal task is running.");
+            Editor.Render_Cache.Invalidate_All;
+            return Editor.Command_Execution.Unavailable (Id);
+
          when Editor.Commands.Command_Build_UI_Toggle =>
             Editor.Build_UI_Actions.Toggle_Build_UI (S);
             Report_Info (S, "Build Output toggled.");
@@ -7112,6 +9344,44 @@ package body Editor.Executor is
          when Editor.Commands.Command_Build_UI_Focus =>
             Editor.Build_UI_Actions.Focus_Build_UI (S);
             Report_Info (S, "Build Output focused.");
+            Editor.Render_Cache.Invalidate_All;
+            return Editor.Command_Execution.Executed (Id);
+
+         when Editor.Commands.Command_Build_Result_Focus =>
+            Editor.Focus_Management.Set_Focus_Owner
+              (S, Editor.Focus_Management.Focus_Build_Result_Summary);
+            Report_Info (S, "Build result focused.");
+            Editor.Render_Cache.Invalidate_All;
+            return Editor.Command_Execution.Executed (Id);
+
+         when Editor.Commands.Command_Build_Output_Details_Focus =>
+            Editor.Focus_Management.Set_Focus_Owner
+              (S, Editor.Focus_Management.Focus_Build_Output_Details);
+            Report_Info (S, "Build output details focused.");
+            Editor.Render_Cache.Invalidate_All;
+            return Editor.Command_Execution.Executed (Id);
+
+         when Editor.Commands.Command_Build_Output_Details_Select_Stdout =>
+            Editor.Build_Output_Details.Select_Output_Stream
+              (S.Latest_Build_Output_Details,
+               Editor.Build_Output_Details.Build_Output_Stream_Stdout);
+            Report_Info (S, "Build output stream set to stdout.");
+            Editor.Render_Cache.Invalidate_All;
+            return Editor.Command_Execution.Executed (Id);
+
+         when Editor.Commands.Command_Build_Output_Details_Select_Stderr =>
+            Editor.Build_Output_Details.Select_Output_Stream
+              (S.Latest_Build_Output_Details,
+               Editor.Build_Output_Details.Build_Output_Stream_Stderr);
+            Report_Info (S, "Build output stream set to stderr.");
+            Editor.Render_Cache.Invalidate_All;
+            return Editor.Command_Execution.Executed (Id);
+
+         when Editor.Commands.Command_Build_Output_Details_Select_Merged =>
+            Editor.Build_Output_Details.Select_Output_Stream
+              (S.Latest_Build_Output_Details,
+               Editor.Build_Output_Details.Build_Output_Stream_Merged);
+            Report_Info (S, "Build output stream set to merged.");
             Editor.Render_Cache.Invalidate_All;
             return Editor.Command_Execution.Executed (Id);
 
@@ -7380,6 +9650,8 @@ package body Editor.Executor is
             | Editor.Commands.Command_Line_Join_Next
             | Editor.Commands.Command_Line_Split_At_Caret
             | Editor.Commands.Command_Trim_Trailing_Whitespace
+            | Editor.Commands.Command_Format_Buffer
+            | Editor.Commands.Command_Format_Selected_Text
             | Editor.Commands.Command_Char_Delete_Previous
             | Editor.Commands.Command_Char_Delete_Next
             | Editor.Commands.Command_Word_Delete_Previous
@@ -8561,6 +10833,11 @@ package body Editor.Executor is
                  (if S.File_Info.Has_Path
                   then To_String (S.File_Info.Path)
                   else To_String (S.File_Info.Display_Name));
+               Buffer_Token : constant Natural := Active_Feature_Buffer_Token (S);
+               Buffer_Revision : constant Natural :=
+                 Editor.State.Current_Buffer_Revision (S);
+               Lifecycle_Generation : constant Natural :=
+                 Editor.State.Current_Lifecycle_Generation (S);
                Analysis : constant Editor.Ada_Language_Model.Analysis_Result :=
                  Editor.Ada_Declaration_Parser.Parse (Text, Label);
             begin
@@ -8568,8 +10845,29 @@ package body Editor.Executor is
                S.Syntax_Analysis := Analysis;
                Editor.Syntax_Semantics.Build_Map_From_Analysis
                  (S.Syntax_Symbols, Analysis);
-               S.Syntax_Symbols_Revision := Editor.State.Current_Buffer_Revision (S);
-               S.Syntax_Symbols_Buffer_Token := Active_Feature_Buffer_Token (S);
+               S.Syntax_Symbols_Revision := Buffer_Revision;
+               S.Syntax_Symbols_Buffer_Token := Buffer_Token;
+               if Label'Length > 0 and then Is_Ada_Source_Path (Label) then
+                  Editor.Ada_Project_Index.Put_Analysis
+                    (S.Language_Index,
+                     Label,
+                     Buffer_Token,
+                     Buffer_Revision,
+                     Lifecycle_Generation,
+                     Analysis);
+                  Editor.Ada_Language_Service.Put_Index
+                    (S.Language_Service, S.Language_Index);
+                  Editor.Ada_Live_Semantic_Diagnostics.Publish
+                    (S.Language_Service,
+                     Label,
+                     Text,
+                     Buffer_Token,
+                     Buffer_Revision,
+                     Lifecycle_Generation,
+                     Analysis);
+                  Publish_Service_Diagnostics_To_Feature
+                    (S, Label, Buffer_Token);
+               end if;
                Report_Info
                  (S,
                   "Semantic colouring refreshed for active buffer: " &
@@ -8605,38 +10903,231 @@ package body Editor.Executor is
             end;
 
          when Editor.Commands.Command_Language_Index_Clear =>
+            Clear_Service_Semantic_Diagnostics_From_Feature (S);
             Editor.Ada_Project_Index.Clear (S.Language_Index);
+            Editor.Ada_Language_Service.Clear (S.Language_Service);
             Report_Info (S, "Language index cleared.");
             Editor.Render_Cache.Invalidate_All;
             return Result_After_Command (Id);
 
          when Editor.Commands.Command_Language_Index_Status =>
-            Report_Info
-              (S,
-               "Language index status: " &
-               Natural'Image (Editor.Ada_Project_Index.File_Count (S.Language_Index)) &
-               " files, " &
-               Natural'Image (Editor.Ada_Project_Index.Symbol_Count (S.Language_Index)) &
-               " symbols, overflow=" &
-               (if Editor.Ada_Project_Index.Overflowed (S.Language_Index) then "true" else "false") &
-               ", fingerprint=" &
-               Natural'Image (Editor.Ada_Project_Index.Fingerprint (S.Language_Index)) &
-               ".");
+            declare
+               Compiler : constant
+                 Editor.Ada_Language_Service.Compiler_Backend_Status :=
+                   Editor.Ada_Language_Service.Compiler_Status
+                     (S.Language_Service);
+               Backend : constant
+                 Editor.Ada_Language_Service.Semantic_Backend_Status :=
+                   Editor.Ada_Language_Service.Backend_Status
+                     (S.Language_Service);
+               Caps : constant
+                 Editor.Ada_Language_Service.Language_Service_Capabilities :=
+                   Editor.Ada_Language_Service.Capabilities
+                     (S.Language_Service);
+               Semantic : constant
+                 Editor.Ada_Language_Service.Semantic_Diagnostic_Status :=
+                   Editor.Ada_Language_Service.Semantic_Diagnostics_Status
+                     (S.Language_Service);
+               Current_File : constant Editor.State.File_State :=
+                 Editor.State.Current_File (S);
+               Active_Compiler : constant
+                 Editor.Ada_Language_Service.Compiler_Backend_Status :=
+                 (if Current_File.Has_Path
+                  then Editor.Ada_Language_Service.Compiler_Status_For_Path
+                    (S.Language_Service, To_String (Current_File.Path))
+                  else (others => <>));
+               Active_Semantic : constant
+                 Editor.Ada_Language_Service.Semantic_Diagnostic_Status :=
+                 (if Current_File.Has_Path
+                  then Editor.Ada_Language_Service.Semantic_Diagnostics_Status_For_Path
+                    (S.Language_Service, To_String (Current_File.Path))
+                  else (others => <>));
+               function Img (Value : Natural) return String is
+               begin
+                  return Ada.Strings.Fixed.Trim (Natural'Image (Value), Ada.Strings.Both);
+               end Img;
+
+               function Ready_Label
+                 (Supported : Boolean;
+                  Ready     : Boolean) return String is
+               begin
+                  if not Supported then
+                     return "-";
+                  elsif Ready then
+                     return "+";
+                  else
+                     return "!";
+                  end if;
+               end Ready_Label;
+
+               function Request_Kind_Label
+                 (Kind : Editor.Ada_Language_Service.Semantic_Request_Kind)
+                  return String
+               is
+               begin
+                  case Kind is
+                     when Editor.Ada_Language_Service.Semantic_Request_None =>
+                        return "none";
+                     when Editor.Ada_Language_Service.Semantic_Request_Goto_Declaration =>
+                        return "declaration";
+                     when Editor.Ada_Language_Service.Semantic_Request_Goto_Body =>
+                        return "body";
+                     when Editor.Ada_Language_Service.Semantic_Request_Goto_Spec =>
+                        return "spec";
+                     when Editor.Ada_Language_Service.Semantic_Request_Find_References =>
+                        return "references";
+                     when Editor.Ada_Language_Service.Semantic_Request_Workspace_Symbols =>
+                        return "workspace-symbols";
+                     when Editor.Ada_Language_Service.Semantic_Request_Completion =>
+                        return "completion";
+                     when Editor.Ada_Language_Service.Semantic_Request_Hover =>
+                        return "hover";
+                     when Editor.Ada_Language_Service.Semantic_Request_Rename =>
+                        return "rename";
+                  end case;
+               end Request_Kind_Label;
+
+               function Request_Status_Label
+                 (Status :
+                    Editor.Ada_Language_Service.Semantic_Request_Status_Kind)
+                  return String
+               is
+               begin
+                  case Status is
+                     when Editor.Ada_Language_Service.Semantic_Request_No_Request =>
+                        return "none";
+                     when Editor.Ada_Language_Service.Semantic_Request_Pending =>
+                        return "pending";
+                     when Editor.Ada_Language_Service.Semantic_Request_Completed =>
+                        return "completed";
+                     when Editor.Ada_Language_Service.Semantic_Request_Cancelled =>
+                        return "cancelled";
+                     when Editor.Ada_Language_Service.Semantic_Request_Superseded =>
+                        return "superseded";
+                     when Editor.Ada_Language_Service.Semantic_Request_Stale =>
+                        return "stale";
+                  end case;
+               end Request_Status_Label;
+            begin
+               Report_Info
+                 (S,
+                  "Language index status:" &
+                  "backend=" &
+                  Editor.Ada_Language_Service.Backend_Label (Backend) &
+                  " files symbols" &
+                  " compiler=" &
+                  (if Compiler.Has_Run
+                   then Img (Compiler.Diagnostic_Count)
+                   else "not-run") &
+                  (if Compiler.Has_Run
+                   then " warn=" & Img (Compiler.Warning_Count)
+                   else "") &
+                  " d=" &
+                  (if Current_File.Has_Path
+                   then Img (Active_Compiler.Diagnostic_Count)
+                   else "none") &
+                  " semantic=" &
+                  Img (Semantic.Diagnostic_Count) &
+                  (if Semantic.Overflowed then " overflow" else "") &
+                  " sd=" &
+                  (if Current_File.Has_Path
+                   then Img (Active_Semantic.Diagnostic_Count)
+                   else "none") &
+                  " rq=" &
+                  Request_Kind_Label (Backend.Active_Request_Kind) &
+                  "/" &
+                  Request_Status_Label (Backend.Active_Request_Status) &
+                  " cancel=" &
+                  (if Backend.Semantic_Requests_Cancellable then "yes" else "no") &
+                  " prev=" &
+                  Request_Status_Label (Backend.Previous_Request_Status) &
+                  " caps=nav" &
+                  Ready_Label
+                    (Caps.Navigation_Supported, Caps.Navigation_Ready) &
+                  ",ref" &
+                  Ready_Label
+                    (Caps.References_Supported, Caps.References_Ready) &
+                  ",sym" &
+                  Ready_Label
+                    (Caps.Workspace_Symbols_Supported,
+                     Caps.Workspace_Symbols_Ready) &
+                  ",cmp" &
+                  Ready_Label
+                    (Caps.Completion_Supported, Caps.Completion_Ready) &
+                  ",hov" &
+                  Ready_Label (Caps.Hover_Supported, Caps.Hover_Ready) &
+                  ",ren" &
+                  Ready_Label
+                    (Caps.Rename_Preview_Supported,
+                     Caps.Rename_Preview_Ready) &
+                  ",diag" &
+                  Ready_Label
+                    (Caps.Diagnostics_Supported,
+                     Caps.Internal_Diagnostics_Ready
+                       or else Caps.Compiler_Diagnostics_Ready) &
+                  ",req" &
+                  Ready_Label
+                    (Caps.Request_Lifecycle_Supported,
+                     Caps.Request_Cancellation_Available));
+            end;
             Editor.Render_Cache.Invalidate_All;
             return Result_After_Command (Id);
 
          when Editor.Commands.Command_Goto_Declaration =>
-            --  The active Outline row already carries the validated declaration
-            --  target.  Keep this command as the canonical declaration-nav name
-            --  while sharing the existing stale-row and lifecycle checks.
-            return Execute_Command_With_Result (S, Editor.Commands.Command_Open_Selected_Outline_Item);
+            if Editor.Feature_Panel.Is_Visible (S.Feature_Panel)
+              and then Has_Selected_Outline_Activation_Target (S)
+            then
+               --  The active Outline row already carries the validated
+               --  declaration target.  Keep this path sharing the existing
+               --  stale-row and lifecycle checks.
+               return Execute_Command_With_Result
+                 (S, Editor.Commands.Command_Open_Selected_Outline_Item);
+            else
+               declare
+                  Symbol  : constant Selected_Outline_Semantic_Symbol :=
+                    Current_Semantic_Symbol (S);
+                  Target  : Editor.Ada_Language_Service.Language_Target;
+               begin
+                  Ensure_Current_Language_Service (S);
+                  if not Symbol.Available then
+                     Report_Info
+                       (S, "No semantic symbol at cursor or Outline selection.");
+                     Editor.Render_Cache.Invalidate_All;
+                     return Editor.Command_Execution.Unavailable (Id);
+                  end if;
+
+                  Target := Semantic_Declaration_Target
+                    (S, S.Language_Service, Symbol);
+                  if Target.Status = Editor.Ada_Language_Service.Service_Success
+                    and then Navigate_To_Indexed_Outline_Target
+                      (S,
+                       (Available => True,
+                        Path      => Target.Target.Path,
+                        Key       => Target.Key,
+                        Line      => Target.Target.Line,
+                        Column    => Target.Target.Column))
+                  then
+                     Editor.Render_Cache.Invalidate_All;
+                     return Result_After_Command (Id);
+                  end if;
+
+                  Report_Info
+                    (S,
+                     "Declaration unavailable for " & To_String (Symbol.Name) &
+                     ": " & Service_Status_Image (Target.Status) & ".");
+                  Editor.Render_Cache.Invalidate_All;
+                  return Editor.Command_Execution.Unavailable (Id);
+               end;
+            end if;
 
          when Editor.Commands.Command_Goto_Body
             | Editor.Commands.Command_Goto_Spec =>
             declare
-               Target : constant Outline_Indexed_Target :=
-                 Find_Indexed_Outline_Target (S, Id);
+               Target : Outline_Indexed_Target;
             begin
+               Ensure_Current_Language_Service (S);
+               Target := Find_Indexed_Outline_Target
+                 (S, Id, S.Language_Service, Track_Request => True);
                if Navigate_To_Indexed_Outline_Target (S, Target) then
                   Editor.Render_Cache.Invalidate_All;
                   return Result_After_Command (Id);
@@ -8646,6 +11137,41 @@ package body Editor.Executor is
                Editor.Render_Cache.Invalidate_All;
                return Editor.Command_Execution.Unavailable (Id);
             end;
+
+         when Editor.Commands.Command_Find_References
+            | Editor.Commands.Command_Workspace_Symbols
+            | Editor.Commands.Command_Show_Hover
+            | Editor.Commands.Command_Show_Completions
+            | Editor.Commands.Command_Rename_Symbol_Preview
+            | Editor.Commands.Command_Rename_Symbol_Apply =>
+            return Execute_Selected_Outline_Language_Command (S, Id);
+
+         when Editor.Commands.Command_Semantic_Completion_Select_Next =>
+            Execute_Semantic_Completion_Select (S, Next => True);
+            return Result_After_Command (Id);
+
+         when Editor.Commands.Command_Semantic_Completion_Select_Previous =>
+            Execute_Semantic_Completion_Select (S, Next => False);
+            return Result_After_Command (Id);
+
+         when Editor.Commands.Command_Semantic_Completion_Accept =>
+            if not Semantic_Completion_Popup_Is_Active (S) then
+               Report_Info (S, "No completion menu is open.");
+               Editor.Render_Cache.Invalidate_All;
+               return Editor.Command_Execution.Unavailable (Id);
+            end if;
+            Execute_Semantic_Completion_Accept (S);
+            return Result_After_Command (Id);
+
+         when Editor.Commands.Command_Semantic_Popup_Dismiss =>
+            if not S.Semantic_Popup.Active then
+               Report_Info (S, "No semantic popup is open.");
+               Editor.Render_Cache.Invalidate_All;
+               return Editor.Command_Execution.Unavailable (Id);
+            end if;
+            Clear_Semantic_Popup (S);
+            Editor.Render_Cache.Invalidate_All;
+            return Result_After_Command (Id);
 
          when Editor.Commands.Command_Clear_Outline =>
             if not Editor.Outline.Has_Items (S.Outline) then
@@ -9572,6 +12098,303 @@ package body Editor.Executor is
                return Editor.Command_Execution.No_Op (Id);
             end;
 
+         when Editor.Commands.Command_Diagnostics_Execute_Selected_Action =>
+            declare
+               package Action_Execution renames Editor.Ada_Diagnostic_Action_Execution;
+               package Action_Commands renames Editor.Ada_Diagnostic_Command_Projection;
+
+               Row : constant Natural := Editor.Feature_Panel.Selected_Row (S.Feature_Panel);
+               Item_Index : constant Natural :=
+                 Editor.Feature_Diagnostics.Map_Diagnostic_Row_To_Item
+                   (S.Feature_Diagnostics, S.Feature_Panel, Row,
+                    Editor.Feature_Panel.Projection_Generation (S.Feature_Panel));
+            begin
+               if Item_Index = 0 then
+                  Report_Info (S, Editor.Feature_Diagnostics.Message_No_Selected_Diagnostic);
+                  Editor.Render_Cache.Invalidate_All;
+                  return Editor.Command_Execution.No_Op (Id);
+               end if;
+
+               declare
+                  Descriptor : Action_Commands.Diagnostic_Command_Descriptor;
+                  Action_Result : Action_Execution.Diagnostic_Action_Execution_Result;
+               begin
+                  Descriptor.Id :=
+                    Action_Commands.Diagnostic_Command_Descriptor_Id
+                      (Natural
+                         (Editor.Feature_Diagnostics.Item_Id
+                            (S.Feature_Diagnostics, Positive (Item_Index))));
+                  Descriptor.Command_Kind :=
+                    Editor.Feature_Diagnostics.Item_Primary_Action_Kind
+                      (S.Feature_Diagnostics, Positive (Item_Index));
+                  Descriptor.Availability :=
+                    (if Editor.Feature_Diagnostics.Item_Is_Stale
+                          (S.Feature_Diagnostics, Positive (Item_Index))
+                     then Action_Commands.Diagnostic_Command_Rejected_Stale
+                     elsif Editor.Feature_Diagnostics.Item_Has_Target
+                          (S.Feature_Diagnostics, Positive (Item_Index))
+                       and then Descriptor.Command_Kind /=
+                         Action_Commands.Diagnostic_Command_None
+                     then Action_Commands.Diagnostic_Command_Available
+                     else Action_Commands.Diagnostic_Command_Missing_Target);
+                  Descriptor.Display_Label :=
+                    To_Unbounded_String
+                      ("Diagnostic action: " &
+                       Editor.Feature_Diagnostics.Item_Display_Label
+                         (S.Feature_Diagnostics, Positive (Item_Index)));
+                  Descriptor.Detail :=
+                    To_Unbounded_String
+                      (Editor.Feature_Diagnostics.Item_Source_Display_Label
+                         (S.Feature_Diagnostics, Positive (Item_Index)));
+                  Descriptor.Has_Edit :=
+                    Editor.Feature_Diagnostics.Item_Has_Edit
+                      (S.Feature_Diagnostics, Positive (Item_Index));
+                  if Descriptor.Has_Edit then
+                     Descriptor.Edit_Start_Line :=
+                       Positive'Max
+                         (1, Positive
+                           (Editor.Feature_Diagnostics.Item_Edit_Start_Line
+                              (S.Feature_Diagnostics, Positive (Item_Index))));
+                     Descriptor.Edit_Start_Column :=
+                       Positive'Max
+                         (1, Positive
+                           (Editor.Feature_Diagnostics.Item_Edit_Start_Column
+                              (S.Feature_Diagnostics, Positive (Item_Index))));
+                     Descriptor.Edit_End_Line :=
+                       Positive'Max
+                         (1, Positive
+                           (Editor.Feature_Diagnostics.Item_Edit_End_Line
+                              (S.Feature_Diagnostics, Positive (Item_Index))));
+                     Descriptor.Edit_End_Column :=
+                       Positive'Max
+                         (1, Positive
+                           (Editor.Feature_Diagnostics.Item_Edit_End_Column
+                              (S.Feature_Diagnostics, Positive (Item_Index))));
+                     Descriptor.Replacement_Text :=
+                       To_Unbounded_String
+                         (Editor.Feature_Diagnostics.Item_Replacement_Text
+                            (S.Feature_Diagnostics, Positive (Item_Index)));
+                  end if;
+                  Descriptor.Start_Line :=
+                    Positive'Max
+                      (1, Positive
+                        (Natural'Max
+                           (1, Editor.Feature_Diagnostics.Item_Target_Line
+                             (S.Feature_Diagnostics, Positive (Item_Index)))));
+                  Descriptor.Start_Column :=
+                    Positive'Max
+                      (1, Positive
+                        (Natural'Max
+                           (1, Editor.Feature_Diagnostics.Item_Target_Column
+                             (S.Feature_Diagnostics, Positive (Item_Index)))));
+                  Descriptor.End_Line := Descriptor.Start_Line;
+                  Descriptor.End_Column := Descriptor.Start_Column;
+
+                  Action_Result := Action_Execution.Execute (Descriptor);
+                  if Action_Result.Status =
+                    Action_Execution.Diagnostic_Action_Execution_Rejected_Stale
+                  then
+                     Report_Info (S, To_String (Action_Result.Message));
+                     Editor.Render_Cache.Invalidate_All;
+                     return Editor.Command_Execution.Unavailable (Id);
+                  elsif not Action_Execution.Is_Success (Action_Result) then
+                     Report_Info (S, To_String (Action_Result.Message));
+                     Editor.Render_Cache.Invalidate_All;
+                     return Editor.Command_Execution.Unavailable (Id);
+                  elsif Action_Result.Effect =
+                    Action_Execution.Diagnostic_Action_Effect_Navigate
+                  then
+                     declare
+                        Activation : Command_Execution_Result :=
+                          Execute_Diagnostic_Row_Activation
+                            (S, Row,
+                             Editor.Feature_Panel.Projection_Generation (S.Feature_Panel));
+                     begin
+                        if Activation.Status = Command_Executed then
+                           return Result_After_Command (Id);
+                        end if;
+                        return Editor.Command_Execution.No_Op (Id);
+                     end;
+                  elsif Action_Result.Effect =
+                    Action_Execution.Diagnostic_Action_Effect_Edit
+                  then
+                     declare
+                        Target_Buffer : constant Natural :=
+                          Editor.Feature_Diagnostics.Item_Target_Buffer
+                            (S.Feature_Diagnostics, Positive (Item_Index));
+                        Active_Buffer : constant Natural :=
+                          Active_Feature_Buffer_Token (S);
+                        Replacement : constant Unbounded_String :=
+                          Action_Result.Replacement_Text;
+                        Delete_Count : Natural := 0;
+                        Pos : Natural := 0;
+                        End_Pos : Natural := 0;
+                        Cmd : Editor.Commands.Command;
+                        Before : Editor.State.State_Type;
+                        Before_Text : Unbounded_String;
+                        Target_State : Editor.State.State_Type;
+                        Target_Id : constant Editor.Buffers.Buffer_Id :=
+                          Editor.Buffers.Buffer_Id (Target_Buffer);
+                        Replaced : Boolean := False;
+                     begin
+                        Editor.Buffers.Ensure_Global_Registry (S);
+
+                        if Target_Buffer = Active_Buffer then
+                           Target_State := S;
+                        elsif Target_Buffer /= 0
+                          and then Editor.Buffers.Global_Contains (Target_Id)
+                        then
+                           Target_State := Editor.Buffers.Global_Buffer
+                             (Target_Id);
+                        else
+                           Report_Info
+                             (S, "Diagnostic edit unavailable: target buffer is not open");
+                           Editor.Render_Cache.Invalidate_All;
+                           return Editor.Command_Execution.Unavailable (Id);
+                        end if;
+
+                        if Action_Result.Edit_Start_Line = 0
+                          or else Action_Result.Edit_Start_Column = 0
+                          or else Action_Result.Edit_End_Line = 0
+                          or else Action_Result.Edit_End_Column = 0
+                          or else Natural (Action_Result.Edit_Start_Line) >
+                            Editor.State.Line_Count (Target_State)
+                          or else Natural (Action_Result.Edit_End_Line) >
+                            Editor.State.Line_Count (Target_State)
+                          or else
+                            Natural (Action_Result.Edit_Start_Column) - 1 >
+                              Editor.Navigation.Line_Length
+                                (Target_State,
+                                 Natural (Action_Result.Edit_Start_Line) - 1)
+                          or else
+                            Natural (Action_Result.Edit_End_Column) - 1 >
+                              Editor.Navigation.Line_Length
+                                (Target_State,
+                                 Natural (Action_Result.Edit_End_Line) - 1)
+                        then
+                           Report_Info
+                             (S, "Diagnostic edit unavailable: stale edit target");
+                           Editor.Render_Cache.Invalidate_All;
+                           return Editor.Command_Execution.Unavailable (Id);
+                        end if;
+
+                        Pos :=
+                          Index_For_Line_Column
+                            (Target_State,
+                             Natural (Action_Result.Edit_Start_Line) - 1,
+                             Natural (Action_Result.Edit_Start_Column) - 1);
+                        End_Pos :=
+                          Index_For_Line_Column
+                            (Target_State,
+                             Natural (Action_Result.Edit_End_Line) - 1,
+                             Natural (Action_Result.Edit_End_Column) - 1);
+                        if End_Pos < Pos then
+                           Report_Info
+                             (S, "Diagnostic edit unavailable: stale edit target");
+                           Editor.Render_Cache.Invalidate_All;
+                           return Editor.Command_Execution.Unavailable (Id);
+                        end if;
+                        Delete_Count := End_Pos - Pos;
+                        Cmd.Kind := Editor.Commands.Apply_Replace_Batch;
+                        Append_Replace_Op
+                          (Cmd, Cursor_Index (Pos), Delete_Count, Replacement);
+
+                        if Target_Buffer = Active_Buffer then
+                           Before := S;
+                           Before_Text :=
+                             To_Unbounded_String
+                               (Editor.State.Current_Text (S));
+                           Editor.Executor.History.Apply_Replace_Batch_Command
+                             (S, Cmd);
+                           if Editor.State.Current_Text (S) /=
+                             To_String (Before_Text)
+                           then
+                              Editor.State.Load_Text
+                                (Before, To_String (Before_Text));
+                              Editor.Executor.History.Log_Edit
+                                (Before, S, Cmd);
+                              Editor.Buffers.Sync_Global_Active_From_State (S);
+                              Editor.Ada_Project_Index.Invalidate_Buffer
+                                (S.Language_Index, Target_Buffer);
+                              Editor.Ada_Language_Service.Invalidate_Buffer
+                                (S.Language_Service, Target_Buffer);
+                           end if;
+                        else
+                           Before_Text :=
+                             To_Unbounded_String
+                               (Editor.State.Current_Text (Target_State));
+                           Editor.Executor.History.Apply_Replace_Batch_Command
+                             (Target_State, Cmd);
+                           if Editor.State.Current_Text (Target_State) /=
+                             To_String (Before_Text)
+                           then
+                              Editor.Buffers.Global_Replace_Buffer_Contents
+                                (Target_Id,
+                                 Editor.State.Current_Text (Target_State),
+                                 Replaced);
+                              if Replaced then
+                                 Editor.Ada_Project_Index.Invalidate_Buffer
+                                   (S.Language_Index, Target_Buffer);
+                                 Editor.Ada_Language_Service.Invalidate_Buffer
+                                   (S.Language_Service, Target_Buffer);
+                              end if;
+                           end if;
+                        end if;
+
+                        Report_Info (S, To_String (Action_Result.Message));
+                        Editor.Render_Cache.Invalidate_All;
+                        return Result_After_Command (Id);
+                     end;
+                  else
+                     declare
+                        Match_Length : constant Natural :=
+                          (if Action_Result.End_Line = Action_Result.Start_Line
+                             and then Action_Result.End_Column >=
+                               Action_Result.Start_Column
+                           then Natural (Action_Result.End_Column) -
+                             Natural (Action_Result.Start_Column) + 1
+                           else 1);
+                     begin
+                        Editor.Feature_Search_Results.Begin_External_Result_Set
+                          (S.Feature_Search_Results,
+                           Query        => "diagnostic action: " &
+                             Diagnostic_Action_Effect_Label (Action_Result.Effect),
+                           Source_Label => "Ada diagnostic action");
+                        Editor.Feature_Search_Results.Add_Search_Result
+                          (S.Feature_Search_Results,
+                           Label         => To_String (Action_Result.Message),
+                           Source_Label  => To_String (Descriptor.Detail),
+                           Has_Target    => Editor.Feature_Diagnostics.Item_Has_Target
+                             (S.Feature_Diagnostics, Positive (Item_Index)),
+                           Target_Buffer => Editor.Feature_Diagnostics.Item_Target_Buffer
+                             (S.Feature_Diagnostics, Positive (Item_Index)),
+                           Target_Line   => Action_Result.Start_Line,
+                           Target_Column => Action_Result.Start_Column,
+                           Query         => Diagnostic_Action_Effect_Label
+                             (Action_Result.Effect),
+                           Match_Line    => Action_Result.Start_Line,
+                           Match_Column  => Action_Result.Start_Column,
+                           Match_Length  => Match_Length);
+                        Editor.Feature_Search_Results.Reconcile_Search_Results_After_Row_Change
+                          (S.Feature_Search_Results, S.Feature_Panel,
+                           Select_First_When_Available => True);
+                        Editor.Panels.Set_Bottom_Content
+                          (S.Panels, Editor.Panels.Search_Results_Content);
+                        Editor.Panels.Set_Visible
+                          (S.Panels, Editor.Panels.Bottom_Panel, True);
+                        if Editor.Panel_Focus.Bottom_Panel_Has_Focus (S.Panel_Focus) then
+                           Editor.Focus_Management.Set_Focus_Owner
+                             (S, Editor.Focus_Management.Focus_Project_Search_Results);
+                        end if;
+                        Editor.Panels.Set_Current (S.Panels);
+                        Report_Info (S, To_String (Action_Result.Message));
+                        Editor.Render_Cache.Invalidate_All;
+                        return Result_After_Command (Id);
+                     end;
+                  end if;
+               end;
+            end;
+
          when Editor.Commands.Command_Diagnostics_Select_Next =>
             if Editor.Feature_Panel.Active_Feature (S.Feature_Panel) /=
               Editor.Feature_Panel.Diagnostics_Feature
@@ -10050,6 +12873,14 @@ package body Editor.Executor is
          when Editor.Commands.Command_Toggle_Line_Numbers =>
             Editor.Settings.Toggle_Show_Line_Numbers;
             Editor.Render_Cache.Invalidate_All;
+            return Result_After_Command (Id);
+
+         when Editor.Commands.Command_Toggle_Format_On_Save =>
+            Editor.Settings.Toggle_Format_On_Save;
+            Report_Info
+              (S, (if Editor.Settings.Format_On_Save
+                   then "Format on save enabled"
+                   else "Format on save disabled"));
             return Result_After_Command (Id);
 
          when Editor.Commands.Command_Toggle_Line_Number_Mode =>
@@ -14178,6 +17009,7 @@ package body Editor.Executor is
    begin
       Editor.Project.Refresh_Known_Files (S.Project, Result);
       if Result.Status = Editor.Project.Project_File_Refresh_Ok then
+         Rebuild_Language_Index_After_File_Lifecycle (S);
          if Editor.Quick_Open.Is_Open (S.Quick_Open) then
             Recompute_Quick_Open (S);
          end if;
@@ -15296,6 +18128,8 @@ package body Editor.Executor is
          Clear_Project_Transition_State (S);
          Editor.Clipboard.Clear;
          Editor.Project.Apply_Open_Result (S.Project, Result);
+         Editor.Terminal_Tasks.Ensure_Project_Default_Tasks
+           (S.Terminal_Tasks, Editor.Project.Root_Path (S.Project));
          if Refresh_Build_Candidates then
             declare
                Context : constant Editor.Build_Working_Context.Build_Working_Context_Record :=
@@ -15335,6 +18169,7 @@ package body Editor.Executor is
          if Tree_Result.Status = Editor.File_Tree.File_Tree_Scan_Ok then
             S.File_Tree := Tree;
             Populate_Project_Known_Files_From_File_Tree (S);
+            Rebuild_Language_Index_After_File_Lifecycle (S);
             Validate_File_Tree_View (S);
             Editor.Project_Search.Clear (S.Project_Search);
             if Editor.Quick_Open.Is_Open (S.Quick_Open) then
@@ -15399,6 +18234,7 @@ package body Editor.Executor is
       Result : Editor.Files.File_Open_Result;
       Found  : Boolean := False;
       Id     : Editor.Buffers.Buffer_Id := Editor.Buffers.No_Buffer;
+      Preserve_Open_Find_State : Boolean := False;
 
       function Same_File_Path (Left, Right : String) return Boolean is
       begin
@@ -15415,8 +18251,31 @@ package body Editor.Executor is
            and then Editor.State.Current_Text (S) = "";
       end Current_State_Is_Disposable_Initial_Untitled;
 
+      procedure Load_Global_Active_Preserving_Language_Index is
+         Saved_Index : constant Editor.Ada_Project_Index.Index_State :=
+           S.Language_Index;
+         Saved_Service : constant Editor.Ada_Language_Service.Service_State :=
+           S.Language_Service;
+      begin
+         Editor.Buffers.Load_Global_Active_Into_State (S);
+         S.Language_Index := Saved_Index;
+         S.Language_Service := Saved_Service;
+      end Load_Global_Active_Preserving_Language_Index;
+
       procedure Clear_Explicit_Open_Find_State is
       begin
+         if Preserve_Open_Find_State then
+            Editor.Input_Field.Set_Text
+              (S.Active_Find_Input, To_String (S.Active_Find_Query));
+            S.Active_Find_Matches.Clear;
+            S.Active_Find_Match := Editor.Search.No_Match;
+            S.Active_Find_Stale := Length (S.Active_Find_Query) > 0;
+            S.Active_Find_Wrapped := False;
+            S.Active_Find_Source_Buffer_Token := 0;
+            S.Active_Replace_Error_Message := Null_Unbounded_String;
+            return;
+         end if;
+
          Editor.Input_Field.Clear (S.Active_Find_Input);
          S.Active_Find_Query := Null_Unbounded_String;
          S.Active_Find_Matches.Clear;
@@ -15462,6 +18321,7 @@ package body Editor.Executor is
             Capture_Active_File_Token (S);
             Editor.Buffers.Sync_Global_Active_From_State (S);
          end if;
+         Rebuild_Language_Index_After_File_Lifecycle (S);
          Editor.Recent_Buffers.Mark_Activated
            (S.Recent_Buffers, Natural (Editor.Buffers.Global_Active_Buffer));
          Report_Info_Append
@@ -15474,11 +18334,12 @@ package body Editor.Executor is
       Id := Editor.Buffers.Global_Find_By_Path (Path, Found);
       if Found then
          Editor.Buffers.Global_Set_Active_Buffer (Id);
-         Editor.Buffers.Load_Global_Active_Into_State (S);
+         Load_Global_Active_Preserving_Language_Index;
          if not S.File_Info.File_Token_Known then
             Capture_Active_File_Token (S);
             Editor.Buffers.Sync_Global_Active_From_State (S);
          end if;
+         Rebuild_Language_Index_After_File_Lifecycle (S);
          Editor.Recent_Buffers.Mark_Activated (S.Recent_Buffers, Natural (Id));
          Report_Info_Append
            (S,
@@ -15517,14 +18378,20 @@ package body Editor.Executor is
             end if;
          end if;
 
+         Preserve_Open_Find_State :=
+           Editor.Buffers.Global_Registry_Current_For (S)
+           and then Editor.Buffers.Global_Count > 0
+           and then S.File_Info.Has_Path;
+
          Id := Editor.Buffers.Global_Find_By_Path (To_String (Result.Path), Found);
          if Found then
             Editor.Buffers.Global_Set_Active_Buffer (Id);
-            Editor.Buffers.Load_Global_Active_Into_State (S);
+            Load_Global_Active_Preserving_Language_Index;
             if not S.File_Info.File_Token_Known then
                Capture_Active_File_Token (S);
                Editor.Buffers.Sync_Global_Active_From_State (S);
             end if;
+            Rebuild_Language_Index_After_File_Lifecycle (S);
             Editor.Recent_Buffers.Mark_Activated (S.Recent_Buffers, Natural (Id));
             Report_Info_Append
               (S,
@@ -15538,7 +18405,7 @@ package body Editor.Executor is
             Display_Name => To_String (Result.Display_Name),
             Contents     => To_String (Result.Contents),
             New_Id       => Id);
-         Editor.Buffers.Load_Global_Active_Into_State (S);
+         Load_Global_Active_Preserving_Language_Index;
          Clear_Explicit_Open_Find_State;
          --  Phase 574: successful command-boundary reads capture the
          --  best-effort file identity token immediately.  Without this, a
@@ -15546,6 +18413,7 @@ package body Editor.Executor is
          --  token and save could fall back to pre-conflict Phase 573 behavior.
          Capture_Active_File_Token (S);
          Editor.Buffers.Sync_Global_Active_From_State (S);
+         Rebuild_Language_Index_After_File_Lifecycle (S);
          Editor.Recent_Buffers.Mark_Activated (S.Recent_Buffers, Natural (Id));
          Report_Success (S, "Opened " & To_String (Result.Display_Name));
       else
@@ -17138,7 +20006,7 @@ package body Editor.Executor is
       then
          Editor.Buffers.Global_Set_Active_Buffer
            (Editor.Buffers.Buffer_Id (S.File_Conflict_Prompt_Buffer));
-         Editor.Buffers.Load_Global_Active_Into_State (S);
+         Load_Global_Active_Preserving_Language_Index (S);
       end if;
    end Load_File_Conflict_Buffer;
 
@@ -17170,6 +20038,24 @@ package body Editor.Executor is
       Editor.Buffers.Sync_Global_Active_From_State (S);
    end Mark_Active_Buffer_Saved;
 
+   procedure Clear_Dirty_Close_Prompt
+     (S : in out Editor.State.State_Type);
+
+   procedure Apply_Format_On_Save_If_Enabled
+     (S : in out Editor.State.State_Type)
+   is
+      Cmd    : Editor.Commands.Command :=
+        Editor.Commands.Command_For_Id (Editor.Commands.Command_Format_Buffer);
+      Status : Editor.Executor.Edits.Line_Edit_Status;
+   begin
+      if not Editor.Settings.Format_On_Save then
+         return;
+      end if;
+
+      Execute_No_Log_With_Status (S, Cmd, Status);
+      Editor.Buffers.Sync_Global_Active_From_State (S);
+   end Apply_Format_On_Save_If_Enabled;
+
    procedure Execute_Save
      (S : in out Editor.State.State_Type)
    is
@@ -17181,7 +20067,10 @@ package body Editor.Executor is
       --  serialization, active-buffer file write, post-success baseline
       --  update, retained clean no-op, and deterministic failure reporting.
       Clear_Restore_Feedback_Current (S);
-      if File_Lifecycle_Confirmation_Pending (S) then
+      if S.File_Conflict_Prompt_Active
+        or else (File_Lifecycle_Confirmation_Pending (S)
+                 and then not S.Dirty_Close_Prompt_Active)
+      then
          Report_Warning (S, "Command unavailable while confirmation is pending");
          return;
       end if;
@@ -17233,7 +20122,11 @@ package body Editor.Executor is
          Editor.Buffers.Sync_Global_Active_From_State (S);
          Report_Error (S, "File is not writable");
          return;
-      elsif not S.File_Info.Dirty then
+      end if;
+
+      Apply_Format_On_Save_If_Enabled (S);
+
+      if not S.File_Info.Dirty then
          Report_Info (S, "No changes to save");
          return;
       end if;
@@ -17242,8 +20135,10 @@ package body Editor.Executor is
 
       if Editor.Files.Is_Success (Result) then
          Mark_Active_Buffer_Saved (S, Result);
+         Clear_Dirty_Close_Prompt (S);
          File_Lifecycle_Invalidate_Derived_State
            (S, "Derived state is stale after save");
+         Rebuild_Language_Index_After_File_Lifecycle (S);
          Editor.Buffers.Sync_Global_Active_From_State (S);
          if S.File_Info.Has_Path and then Visible_Restore_Message_In_History (S) then
             Report_Success_Append
@@ -17289,7 +20184,7 @@ package body Editor.Executor is
       if S.Active_Buffer_Token = Natural (Active_Id) then
          Editor.Buffers.Sync_Global_Active_From_State (S);
       else
-         Editor.Buffers.Load_Global_Active_Into_State (S);
+         Load_Global_Active_Preserving_Language_Index (S);
       end if;
 
       return True;
@@ -17422,10 +20317,14 @@ package body Editor.Executor is
       --  navigation.  Also remove the current source path when available.
       if Source_Path'Length > 0 then
          Editor.Ada_Project_Index.Invalidate_Path (S.Language_Index, Source_Path);
+         Editor.Ada_Language_Service.Invalidate_Path
+           (S.Language_Service, Source_Path);
       end if;
       if S.Active_Buffer_Token /= 0 then
          Editor.Ada_Project_Index.Invalidate_Buffer
            (S.Language_Index, S.Active_Buffer_Token);
+         Editor.Ada_Language_Service.Invalidate_Buffer
+           (S.Language_Service, S.Active_Buffer_Token);
       end if;
 
       if To_String (S.Build_UI.Selected_Build_Candidate_Id)'Length > 0 then
@@ -17527,6 +20426,7 @@ package body Editor.Executor is
            (S, Reload_Path, Reload_Display);
          File_Lifecycle_Invalidate_Derived_State
            (S, "Derived state is stale after reload");
+         Rebuild_Language_Index_After_File_Lifecycle (S);
          Report_Success (S, "Buffer reloaded");
       end;
    end Execute_Reload_Active_Buffer;
@@ -17738,7 +20638,10 @@ package body Editor.Executor is
       Previous_File : Editor.State.File_State;
       Result        : Editor.Files.File_Rename_Result;
    begin
-      if File_Lifecycle_Confirmation_Pending (S) then
+      if S.File_Conflict_Prompt_Active
+        or else (File_Lifecycle_Confirmation_Pending (S)
+                 and then not S.Dirty_Close_Prompt_Active)
+      then
          Report_Warning (S, "Command unavailable while confirmation is pending");
          return;
       end if;
@@ -17779,6 +20682,7 @@ package body Editor.Executor is
          end if;
          File_Lifecycle_Invalidate_Derived_State
            (S, "Derived state is stale after rename");
+         Rebuild_Language_Index_After_File_Lifecycle (S);
          Report_Success (S, "Buffer file renamed");
       else
          S.File_Info := Previous_File;
@@ -17836,7 +20740,10 @@ package body Editor.Executor is
       Previous_File : Editor.State.File_State;
       Result        : Editor.Files.File_Delete_Result;
    begin
-      if File_Lifecycle_Confirmation_Pending (S) then
+      if S.File_Conflict_Prompt_Active
+        or else (File_Lifecycle_Confirmation_Pending (S)
+                 and then not S.Dirty_Close_Prompt_Active)
+      then
          Report_Warning (S, "Command unavailable while confirmation is pending");
          return;
       end if;
@@ -17869,6 +20776,7 @@ package body Editor.Executor is
          end if;
          File_Lifecycle_Invalidate_Derived_State
            (S, "Derived state is stale after delete");
+         Rebuild_Language_Index_After_File_Lifecycle (S);
          Report_Success (S, "Buffer file deleted");
       else
          S.File_Info := Previous_File;
@@ -18028,6 +20936,7 @@ package body Editor.Executor is
          end if;
          File_Lifecycle_Invalidate_Derived_State
            (S, "Derived state is stale after move");
+         Rebuild_Language_Index_After_File_Lifecycle (S);
          Report_Success (S, "Buffer file moved");
       else
          S.File_Info := Previous_File;
@@ -18107,6 +21016,7 @@ package body Editor.Executor is
       Clear_File_Conflict_Prompt (S);
       File_Lifecycle_Invalidate_Derived_State
         (S, "Derived state is stale after reload");
+      Rebuild_Language_Index_After_File_Lifecycle (S);
       Report_Success (S, "File reloaded from disk");
    end Execute_File_Conflict_Reload_From_Disk;
 
@@ -18173,6 +21083,7 @@ package body Editor.Executor is
          Mark_Active_Buffer_Saved (S, Result);
          File_Lifecycle_Invalidate_Derived_State
            (S, "Derived state is stale after overwrite");
+         Rebuild_Language_Index_After_File_Lifecycle (S);
          Clear_File_Conflict_Prompt (S);
          if Resume_Close
            and then Resume_Buffer /= Editor.Buffers.No_Buffer
@@ -18232,6 +21143,17 @@ package body Editor.Executor is
       Conflicted        : Natural := 0;
       Untitled          : Natural := 0;
 
+      procedure Load_Global_Active_Preserving_Language_Index is
+         Saved_Index : constant Editor.Ada_Project_Index.Index_State :=
+           S.Language_Index;
+         Saved_Service : constant Editor.Ada_Language_Service.Service_State :=
+           S.Language_Service;
+      begin
+         Editor.Buffers.Load_Global_Active_Into_State (S);
+         S.Language_Index := Saved_Index;
+         S.Language_Service := Saved_Service;
+      end Load_Global_Active_Preserving_Language_Index;
+
       function Save_Current_File_Backed_Buffer
         (Status : out Editor.Files.File_Save_Status) return Boolean
       is
@@ -18272,6 +21194,8 @@ package body Editor.Executor is
             Editor.Buffers.Sync_Global_Active_From_State (S);
             return False;
          end if;
+
+         Apply_Format_On_Save_If_Enabled (S);
 
          Result := Editor.Files.Save_File
            (Path     => To_String (S.File_Info.Path),
@@ -18342,7 +21266,7 @@ package body Editor.Executor is
                     and then Buffer_State.File_Info.Has_Path
                   then
                      Editor.Buffers.Global_Set_Active_Buffer (Summary.Id);
-                     Editor.Buffers.Load_Global_Active_Into_State (S);
+                     Load_Global_Active_Preserving_Language_Index;
                      declare
                         Status : Editor.Files.File_Save_Status;
                      begin
@@ -18388,7 +21312,7 @@ package body Editor.Executor is
         and then Editor.Buffers.Global_Contains (Original)
       then
          Editor.Buffers.Global_Set_Active_Buffer (Original);
-         Editor.Buffers.Load_Global_Active_Into_State (S);
+         Load_Global_Active_Preserving_Language_Index;
       end if;
 
       if Saved > 0 then
@@ -18401,6 +21325,27 @@ package body Editor.Executor is
          --  file-backed buffer changed on disk.
          File_Lifecycle_Invalidate_Derived_State
            (S, "Derived state is stale after save all");
+         declare
+            Indexed_Files : Natural := 0;
+            Indexed_Symbols : Natural := 0;
+            Skipped_Files : Natural := 0;
+            Read_Errors : Natural := 0;
+         begin
+            Refresh_Project_Language_Index
+              (S,
+               Build_Semantics    => True,
+               Indexed_File_Count => Indexed_Files,
+               Indexed_Symbols    => Indexed_Symbols,
+               Skipped_File_Count => Skipped_Files,
+               Read_Error_Count   => Read_Errors);
+            if Indexed_Files = Natural'Last
+              and then Indexed_Symbols = Natural'Last
+              and then Skipped_Files = Natural'Last
+              and then Read_Errors = Natural'Last
+            then
+               null;
+            end if;
+         end;
          Editor.Buffers.Sync_Global_Active_From_State (S);
       end if;
 
@@ -18502,7 +21447,16 @@ package body Editor.Executor is
       then
          S.Active_Buffer_Token := 0;
       else
-         Editor.Buffers.Load_Global_Active_Into_State (S);
+         declare
+            Saved_Index : constant Editor.Ada_Project_Index.Index_State :=
+              S.Language_Index;
+            Saved_Service : constant Editor.Ada_Language_Service.Service_State :=
+              S.Language_Service;
+         begin
+            Editor.Buffers.Load_Global_Active_Into_State (S);
+            S.Language_Index := Saved_Index;
+            S.Language_Service := Saved_Service;
+         end;
       end if;
       Invalidate_Pending_Transition_If_Stale (S);
       if Editor.Panels.Is_Visible (S.Panels, Editor.Panels.Bottom_Panel)
@@ -22677,7 +25631,7 @@ package body Editor.Executor is
                   if S.Active_Buffer_Token = Natural (Target_Id) then
                      Editor.Buffers.Sync_Global_Active_From_State (S);
                   else
-                     Editor.Buffers.Load_Global_Active_Into_State (S);
+                     Load_Global_Active_Preserving_Language_Index (S);
                   end if;
                end;
                declare
@@ -22706,6 +25660,7 @@ package body Editor.Executor is
                   Update_Saved_Baseline_After_Reload (S, Reload_Path, Reload_Display);
                   File_Lifecycle_Invalidate_Derived_State
                     (S, "Derived state is stale after reload");
+                  Rebuild_Language_Index_After_File_Lifecycle (S);
                   Editor.Pending_Transitions.Clear (S.Pending_Transitions);
                   Report_Success (S, "Buffer reloaded");
                end;
@@ -22723,7 +25678,7 @@ package body Editor.Executor is
                   if S.Active_Buffer_Token = Natural (Target_Id) then
                      Editor.Buffers.Sync_Global_Active_From_State (S);
                   else
-                     Editor.Buffers.Load_Global_Active_Into_State (S);
+                     Load_Global_Active_Preserving_Language_Index (S);
                   end if;
                end;
                declare
@@ -22752,6 +25707,7 @@ package body Editor.Executor is
                   Update_Saved_Baseline_After_Revert (S, Revert_Path, Revert_Display);
                   File_Lifecycle_Invalidate_Derived_State
                     (S, "Derived state is stale after revert");
+                  Rebuild_Language_Index_After_File_Lifecycle (S);
                   Editor.Pending_Transitions.Clear (S.Pending_Transitions);
                   Report_Success (S, "Buffer reverted");
                end;
@@ -22942,16 +25898,14 @@ package body Editor.Executor is
       --  target write, then active-buffer association/baseline/dirty update only
       --  after write success.
       Clear_Restore_Feedback_Current (S);
-      if File_Lifecycle_Confirmation_Pending (S) then
+      if S.File_Conflict_Prompt_Active
+        or else (File_Lifecycle_Confirmation_Pending (S)
+                 and then not S.Dirty_Close_Prompt_Active)
+      then
          Report_Warning (S, "Command unavailable while confirmation is pending");
          return;
       end if;
       Resolve_Active_Buffer_Save_As_Source (S);
-
-      Previous_File := S.File_Info;
-      Previous_Dirty := S.File_Info.Dirty;
-      Previous_Saved := S.File_Info.Saved_Generation;
-      Previous_Valid := S.File_Info.Baseline_Valid;
 
       if not Active_Buffer_Save_Target_Available (S) then
          Report_Info (S, "No active buffer.");
@@ -22964,13 +25918,22 @@ package body Editor.Executor is
          return;
       end if;
 
+      Apply_Format_On_Save_If_Enabled (S);
+
+      Previous_File := S.File_Info;
+      Previous_Dirty := S.File_Info.Dirty;
+      Previous_Saved := S.File_Info.Saved_Generation;
+      Previous_Valid := S.File_Info.Baseline_Valid;
+
       Parent_Missing := Save_As_Target_Parent_Missing (Path);
       Result := Write_Active_Buffer_Text_To_Save_As_Target (S, Path);
 
       if Editor.Files.Is_Success (Result) then
          Mark_Active_Buffer_Saved_As (S, Result);
+         Clear_Dirty_Close_Prompt (S);
          File_Lifecycle_Invalidate_Derived_State
            (S, "Derived state is stale after save as");
+         Rebuild_Language_Index_After_File_Lifecycle (S);
          Editor.Buffers.Sync_Global_Active_From_State (S);
          Report_Success (S, "Saved file as");
       else
@@ -23023,6 +25986,17 @@ package body Editor.Executor is
         and then not S.File_Info.Has_Path
         and then not S.File_Info.Dirty
         and then Editor.State.Current_Text (S) = "";
+
+      procedure Load_Global_Active_Preserving_Language_Index is
+         Saved_Index : constant Editor.Ada_Project_Index.Index_State :=
+           S.Language_Index;
+         Saved_Service : constant Editor.Ada_Language_Service.Service_State :=
+           S.Language_Service;
+      begin
+         Editor.Buffers.Load_Global_Active_Into_State (S);
+         S.Language_Index := Saved_Index;
+         S.Language_Service := Saved_Service;
+      end Load_Global_Active_Preserving_Language_Index;
    begin
       Editor.Buffers.Ensure_Global_Registry (S);
 
@@ -23033,10 +26007,10 @@ package body Editor.Executor is
               (S.Recent_Buffers, Natural (Editor.Buffers.Global_Active_Buffer));
          end if;
          Editor.Buffers.Global_Add_Untitled_Buffer (Id);
-         Editor.Buffers.Load_Global_Active_Into_State (S);
+         Load_Global_Active_Preserving_Language_Index;
       elsif Editor.Buffers.Global_Count = 0 then
          Editor.Buffers.Global_Add_Untitled_Buffer (Id);
-         Editor.Buffers.Load_Global_Active_Into_State (S);
+         Load_Global_Active_Preserving_Language_Index;
       else
          Id := Editor.Buffers.Global_Active_Buffer;
          Editor.Buffers.Sync_Global_Active_From_State (S);
@@ -23095,7 +26069,16 @@ package body Editor.Executor is
          end if;
       end;
       Editor.Buffers.Global_Set_Active_Buffer (Id);
-      Editor.Buffers.Load_Global_Active_Into_State (S);
+      declare
+         Saved_Index : constant Editor.Ada_Project_Index.Index_State :=
+           S.Language_Index;
+         Saved_Service : constant Editor.Ada_Language_Service.Service_State :=
+           S.Language_Service;
+      begin
+         Editor.Buffers.Load_Global_Active_Into_State (S);
+         S.Language_Index := Saved_Index;
+         S.Language_Service := Saved_Service;
+      end;
       Record_Navigation_If_Current_Changed (S, Before_Location);
       Editor.Recent_Buffers.Mark_Activated
         (S.Recent_Buffers, Natural (Id), Preserve_Traversal => Recent_Traversal);
@@ -23363,7 +26346,16 @@ package body Editor.Executor is
       then
          S.Active_Buffer_Token := 0;
       else
-         Editor.Buffers.Load_Global_Active_Into_State (S);
+         declare
+            Saved_Index : constant Editor.Ada_Project_Index.Index_State :=
+              S.Language_Index;
+            Saved_Service : constant Editor.Ada_Language_Service.Service_State :=
+              S.Language_Service;
+         begin
+            Editor.Buffers.Load_Global_Active_Into_State (S);
+            S.Language_Index := Saved_Index;
+            S.Language_Service := Saved_Service;
+         end;
       end if;
 
       Invalidate_Pending_Transition_If_Stale (S);
@@ -25108,14 +28100,20 @@ package body Editor.Executor is
       if Old_Path'Length > 0 then
          Editor.Ada_Project_Index.Invalidate_Path_Subtree
            (S.Language_Index, Old_Path);
+         Editor.Ada_Language_Service.Invalidate_Path_Subtree
+           (S.Language_Service, Old_Path);
       end if;
       if New_Path'Length > 0 then
          Editor.Ada_Project_Index.Invalidate_Path_Subtree
            (S.Language_Index, New_Path);
+         Editor.Ada_Language_Service.Invalidate_Path_Subtree
+           (S.Language_Service, New_Path);
       end if;
       if Affects_Active_File and then S.Active_Buffer_Token /= 0 then
          Editor.Ada_Project_Index.Invalidate_Buffer
            (S.Language_Index, S.Active_Buffer_Token);
+         Editor.Ada_Language_Service.Invalidate_Buffer
+           (S.Language_Service, S.Active_Buffer_Token);
          Editor.Syntax_Semantics.Clear (S.Syntax_Symbols);
          Editor.Ada_Language_Model.Clear (S.Syntax_Analysis);
          S.Syntax_Symbols_Revision := Natural'Last;
@@ -25563,7 +28561,7 @@ package body Editor.Executor is
                New_Root      => To_String (Target),
                Rebased_Count => Rebased_Count);
             if Rebased_Count > 0 then
-               Editor.Buffers.Load_Global_Active_Into_State (S);
+               Load_Global_Active_Preserving_Language_Index (S);
                if Active_Buffer_Was_Renamed then
                   --  Phase 579 pass 35: renaming an already-open clean file
                   --  is a navigation workflow as well as a File Tree mutation.
@@ -25698,7 +28696,7 @@ package body Editor.Executor is
                   Editor.Focus_Management.Set_Focus_Owner
                     (S, Editor.Focus_Management.Focus_File_Tree);
                else
-                  Editor.Buffers.Load_Global_Active_Into_State (S);
+                  Load_Global_Active_Preserving_Language_Index (S);
                   if Active_Buffer_Was_Deleted then
                      --  Phase 579 pass 36: deleting the active clean buffer
                      --  from the File Tree is also a buffer-switch workflow
@@ -29906,6 +32904,22 @@ package body Editor.Executor is
             Editor.Invariants.Check (S);
             return;
 
+         when Run_Project
+            | Run_Tests
+            | Terminal_Toggle
+            | Terminal_Show
+            | Terminal_Hide
+            | Terminal_Focus
+            | Terminal_Clear
+            | Terminal_Clear_Output
+            | Terminal_Select_Next_Task
+            | Terminal_Select_Previous_Task
+            | Terminal_Run_Selected_Task
+            | Terminal_Rerun_Last_Task
+            | Terminal_Cancel_Task =>
+            Editor.Invariants.Check (S);
+            return;
+
          when Copy_Selection | Cut_Selection | Paste_Clipboard | Clear_Clipboard =>
             Editor.Executor.Clipboard.Execute (S, Cmd);
             Editor.Invariants.Check (S);
@@ -30819,6 +33833,74 @@ package body Editor.Executor is
             Editor.Invariants.Check (S);
             return;
 
+         when Find_References =>
+            Execute_Command (S, Command_Find_References);
+            Editor.Invariants.Check (S);
+            return;
+
+         when Workspace_Symbols =>
+            Execute_Command (S, Command_Workspace_Symbols);
+            Editor.Invariants.Check (S);
+            return;
+
+         when Show_Hover =>
+            Execute_Command (S, Command_Show_Hover);
+            Editor.Invariants.Check (S);
+            return;
+
+         when Show_Completions =>
+            Execute_Command (S, Command_Show_Completions);
+            Editor.Invariants.Check (S);
+            return;
+
+         when Semantic_Completion_Select_Next =>
+            Execute_Command (S, Command_Semantic_Completion_Select_Next);
+            Editor.Invariants.Check (S);
+            return;
+
+         when Semantic_Completion_Select_Previous =>
+            Execute_Command (S, Command_Semantic_Completion_Select_Previous);
+            Editor.Invariants.Check (S);
+            return;
+
+         when Semantic_Completion_Accept =>
+            Execute_Command (S, Command_Semantic_Completion_Accept);
+            Editor.Invariants.Check (S);
+            return;
+
+         when Semantic_Popup_Dismiss =>
+            Execute_Command (S, Command_Semantic_Popup_Dismiss);
+            Editor.Invariants.Check (S);
+            return;
+
+         when Rename_Symbol_Preview =>
+            declare
+               Ignored : constant Editor.Command_Execution.Command_Execution_Result :=
+                 Execute_Selected_Outline_Language_Command
+                   (S,
+                    Command_Rename_Symbol_Preview,
+                    To_String (Cmd.Text));
+               pragma Unreferenced (Ignored);
+            begin
+               null;
+            end;
+            Editor.Invariants.Check (S);
+            return;
+
+         when Rename_Symbol_Apply =>
+            declare
+               Ignored : constant Editor.Command_Execution.Command_Execution_Result :=
+                 Execute_Selected_Outline_Language_Command
+                   (S,
+                    Command_Rename_Symbol_Apply,
+                    To_String (Cmd.Text));
+               pragma Unreferenced (Ignored);
+            begin
+               null;
+            end;
+            Editor.Invariants.Check (S);
+            return;
+
          when Semantic_Refresh_Buffer =>
             Execute_Command (S, Command_Semantic_Refresh_Buffer);
             Editor.Invariants.Check (S);
@@ -31359,6 +34441,15 @@ package body Editor.Executor is
             Report_Info
               (S, (if Editor.Scrollbars.Enabled then "Scrollbars shown" else "Scrollbars hidden"));
             Editor.Render_Cache.Invalidate_All;
+            Editor.Invariants.Check (S);
+            return;
+
+         when Toggle_Format_On_Save =>
+            Editor.Settings.Toggle_Format_On_Save;
+            Report_Info
+              (S, (if Editor.Settings.Format_On_Save
+                   then "Format on save enabled"
+                   else "Format on save disabled"));
             Editor.Invariants.Check (S);
             return;
 
@@ -32040,6 +35131,11 @@ package body Editor.Executor is
             Editor.Invariants.Check (S);
             return;
 
+         when Diagnostics_Execute_Selected_Action =>
+            Execute_Command (S, Command_Diagnostics_Execute_Selected_Action);
+            Editor.Invariants.Check (S);
+            return;
+
          when Diagnostics_Select_Next =>
             Execute_Command (S, Command_Diagnostics_Select_Next);
             Editor.Invariants.Check (S);
@@ -32296,11 +35392,15 @@ package body Editor.Executor is
                if Source_Path'Length > 0 then
                   Editor.Ada_Project_Index.Invalidate_Path
                     (S.Language_Index, Source_Path);
+                  Editor.Ada_Language_Service.Invalidate_Path
+                    (S.Language_Service, Source_Path);
                end if;
 
                if S.Active_Buffer_Token /= 0 then
                   Editor.Ada_Project_Index.Invalidate_Buffer
                     (S.Language_Index, S.Active_Buffer_Token);
+                  Editor.Ada_Language_Service.Invalidate_Buffer
+                    (S.Language_Service, S.Active_Buffer_Token);
                end if;
 
                Editor.Syntax_Semantics.Clear (S.Syntax_Symbols);

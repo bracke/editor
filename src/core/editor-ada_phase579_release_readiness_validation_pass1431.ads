@@ -27,6 +27,7 @@ package Editor.Ada_Phase579_Release_Readiness_Validation_Pass1431 is
       Status_Rejected_Unregistered_Test,
       Status_Rejected_Orphan_Source,
       Status_Rejected_Duplicate_Registration,
+      Status_Rejected_Duplicate_Surface,
       Status_Rejected_Reopened_Remaining_Gap,
       Status_Rejected_Stale_Readiness_Evidence,
       Status_Rejected_Release_Documentation_Drift,
@@ -90,6 +91,9 @@ package Editor.Ada_Phase579_Release_Readiness_Validation_Pass1431 is
       Validated_Count : Natural := 0;
       Rejected_Count : Natural := 0;
       Indeterminate_Count : Natural := 0;
+      Required_Surface_Count : Natural := 0;
+      Missing_Surface_Count : Natural := 0;
+      Duplicate_Surface_Count : Natural := 0;
       Readiness_Fingerprint : Natural := 0;
    end record;
 

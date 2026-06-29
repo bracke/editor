@@ -287,7 +287,6 @@ package body Editor.Ada_Freezing_Points is
          begin
             if Node.Kind = Editor.Ada_Syntax_Tree.Node_Object_Declaration
               or else Node.Kind = Editor.Ada_Syntax_Tree.Node_Constant_Declaration
-              or else Node.Kind = Editor.Ada_Syntax_Tree.Node_Component_Declaration
             then
                declare
                   Subtype_Text : constant String :=

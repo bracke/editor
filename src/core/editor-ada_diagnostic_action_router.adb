@@ -50,6 +50,12 @@ package body Editor.Ada_Diagnostic_Action_Router is
       H := Mix (H, Route.Panel_Fingerprint + 1);
       H := Mix (H, Route.Provenance_Fingerprint + 1);
       H := Mix (H, Route.Status_Fingerprint + 1);
+      H := Mix (H, Boolean'Pos (Route.Has_Edit) + 1);
+      H := Mix (H, Route.Edit_Start_Line);
+      H := Mix (H, Route.Edit_Start_Column);
+      H := Mix (H, Route.Edit_End_Line);
+      H := Mix (H, Route.Edit_End_Column);
+      H := Mix (H, Length (Route.Replacement_Text) + 1);
       H := Mix (H, Route.Start_Line);
       H := Mix (H, Route.Start_Column);
       return H;
@@ -272,6 +278,11 @@ package body Editor.Ada_Diagnostic_Action_Router is
             Route.Provenance_Item := (if Has_Prov then Prov.Id else Editor.Ada_Diagnostic_Provenance.No_Diagnostic_Provenance);
             Route.Status_Target_Available := Has_Status;
             Route.Has_Edit := Candidate.Has_Edit;
+            Route.Edit_Start_Line := Candidate.Edit_Start_Line;
+            Route.Edit_Start_Column := Candidate.Edit_Start_Column;
+            Route.Edit_End_Line := Candidate.Edit_End_Line;
+            Route.Edit_End_Column := Candidate.Edit_End_Column;
+            Route.Replacement_Text := Candidate.Replacement_Text;
             Route.Label := Candidate.Label;
             Route.Detail := Candidate.Detail;
             Route.Start_Line := Candidate.Start_Line;

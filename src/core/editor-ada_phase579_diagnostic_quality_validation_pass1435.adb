@@ -19,6 +19,7 @@ package body Editor.Ada_Phase579_Diagnostic_Quality_Validation_Pass1435 is
             | Status_Rejected_Unstable_Blocker_Family
             | Status_Rejected_Wrong_Severity
             | Status_Rejected_Duplicate_Flood
+            | Status_Rejected_Duplicate_Scenario
             | Status_Rejected_Misleading_Final_State
             | Status_Rejected_Consumer_Disagreement
             | Status_Rejected_Reopened_Remaining_Gap
@@ -47,6 +48,23 @@ package body Editor.Ada_Phase579_Diagnostic_Quality_Validation_Pass1435 is
         and then Row.Consumer_Fingerprint = Row.Expected_Consumer_Fingerprint
         and then Row.Projection_Fingerprint = Row.Expected_Projection_Fingerprint;
    end Fingerprints_Fresh;
+
+   function Is_Required_Scenario
+     (Scenario : Diagnostic_Scenario_Kind) return Boolean is
+   begin
+      return Scenario /= Scenario_Unknown;
+   end Is_Required_Scenario;
+
+   function Required_Scenario_Total return Natural is
+      Total : Natural := 0;
+   begin
+      for Scenario in Diagnostic_Scenario_Kind loop
+         if Is_Required_Scenario (Scenario) then
+            Total := Total + 1;
+         end if;
+      end loop;
+      return Total;
+   end Required_Scenario_Total;
 
    function Evaluate (Row : Diagnostic_Row) return Diagnostic_Status is
    begin
@@ -95,6 +113,7 @@ package body Editor.Ada_Phase579_Diagnostic_Quality_Validation_Pass1435 is
             | Status_Rejected_Unstable_Blocker_Family
             | Status_Rejected_Wrong_Severity
             | Status_Rejected_Duplicate_Flood
+            | Status_Rejected_Duplicate_Scenario
             | Status_Rejected_Misleading_Final_State
             | Status_Rejected_Consumer_Disagreement
             | Status_Rejected_Reopened_Remaining_Gap
@@ -108,12 +127,25 @@ package body Editor.Ada_Phase579_Diagnostic_Quality_Validation_Pass1435 is
    end Tally;
 
    function Build (Input : Diagnostic_Input) return Diagnostic_Model is
+      Seen   : array (Diagnostic_Scenario_Kind) of Boolean := (others => False);
       Model : Diagnostic_Model;
       Status : Diagnostic_Status;
       Item : Diagnostic_Entry;
    begin
       for Row of Input.Rows loop
          Status := Evaluate (Row);
+         if Status = Status_Accepted
+           and then Is_Required_Scenario (Row.Scenario)
+         then
+            if Seen (Row.Scenario) then
+               Status := Status_Rejected_Duplicate_Scenario;
+               Model.Duplicate_Scenario_Count :=
+                 Model.Duplicate_Scenario_Count + 1;
+            else
+               Seen (Row.Scenario) := True;
+            end if;
+         end if;
+
          Item.Id := Row.Id;
          Item.Scenario := Row.Scenario;
          Item.Status := Status;
@@ -124,6 +156,14 @@ package body Editor.Ada_Phase579_Diagnostic_Quality_Validation_Pass1435 is
          Model.Quality_Fingerprint := Model.Quality_Fingerprint + Item.Result_Fingerprint;
          Tally (Model, Item);
       end loop;
+
+      Model.Required_Scenario_Count := Required_Scenario_Total;
+      for Scenario in Diagnostic_Scenario_Kind loop
+         if Is_Required_Scenario (Scenario) and then not Seen (Scenario) then
+            Model.Missing_Scenario_Count := Model.Missing_Scenario_Count + 1;
+         end if;
+      end loop;
+
       return Model;
    end Build;
 
@@ -145,8 +185,11 @@ package body Editor.Ada_Phase579_Diagnostic_Quality_Validation_Pass1435 is
    function Diagnostic_Quality_Complete
      (Model : Diagnostic_Model) return Boolean is
    begin
-      return Model.Total_Rows > 0
-        and then Model.Accepted_Count = Model.Total_Rows
+      return Model.Total_Rows = Model.Required_Scenario_Count
+        and then Model.Required_Scenario_Count = 8
+        and then Model.Missing_Scenario_Count = 0
+        and then Model.Duplicate_Scenario_Count = 0
+        and then Model.Accepted_Count = Model.Required_Scenario_Count
         and then Model.Rejected_Count = 0
         and then Model.Indeterminate_Count = 0
         and then Model.Quality_Fingerprint > 0;

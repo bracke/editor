@@ -94,8 +94,37 @@ package body Editor.Contextual_Help.Tests is
       Assert (Shortcut_Text (Command, True) = "",
               "Internal/public-build test-seam command must not be hinted");
       Assert (Index (With_Shortcut ("Run build", Command, True), "F12") = 0,
-              "Build shortcut text must not leak into help");
+         "Build shortcut text must not leak into help");
    end Test_Public_Build_Command_Is_Never_Hinted;
+
+   procedure Test_Daily_Workflow_Defaults_Appear_In_Help
+     (T : in out AUnit.Test_Cases.Test_Case'Class)
+   is
+      pragma Unreferenced (T);
+   begin
+      Editor.Keybindings.Reset_To_Defaults;
+
+      Assert
+        (Shortcut_Text
+           (Editor.Commands.Command_Palette_Show_Command_Help, True) = "F1",
+         "Command help must expose the F1 daily workflow shortcut");
+      Assert
+        (With_Shortcut
+           ("Open file", Editor.Commands.Command_Open_File, True) =
+         "Open file [Ctrl+O]",
+         "Open File help text must expose the Ctrl+O daily workflow shortcut");
+      Assert
+        (Shortcut_Text
+           (Editor.Commands.Command_Open_Project, True) = "Ctrl+Alt+O",
+         "Open Project help must expose the Ctrl+Alt+O daily workflow shortcut");
+      Assert
+        (Shortcut_Text
+           (Editor.Commands.Command_Diagnostics_Show, True) = "Ctrl+Alt+M",
+         "Diagnostics help must expose the Ctrl+Alt+M daily workflow shortcut");
+      Assert
+        (Shortcut_Text (Editor.Commands.Command_Build_Run, True) = "",
+         "Run Build must remain unhinted because it is intentionally unbound");
+   end Test_Daily_Workflow_Defaults_Appear_In_Help;
 
    procedure Test_Focus_Hints_Are_Compact
      (T : in out AUnit.Test_Cases.Test_Case'Class)
@@ -299,6 +328,9 @@ package body Editor.Contextual_Help.Tests is
       AUnit.Test_Cases.Registration.Register_Routine
         (T, Test_Public_Build_Command_Is_Never_Hinted'Access,
          "Public Build Command Is Never Hinted");
+      AUnit.Test_Cases.Registration.Register_Routine
+        (T, Test_Daily_Workflow_Defaults_Appear_In_Help'Access,
+         "Daily Workflow Defaults Appear In Help");
       AUnit.Test_Cases.Registration.Register_Routine
         (T, Test_Focus_Hints_Are_Compact'Access,
          "Focus Hints Are Compact");

@@ -582,15 +582,14 @@ package body Editor.Ada_Language_Model is
       Info : Profile_Parameter_Info;
       H    : Natural := Analysis.Result_Fingerprint;
    begin
-      if Owner_Symbol = No_Symbol
-        or else Parameter_Symbol = No_Symbol
-        or else Name'Length = 0
-      then
+      if Name'Length = 0 then
          return;
       end if;
 
-      if Natural (Owner_Symbol) > Natural (Analysis.Symbols.Length)
-        or else Natural (Parameter_Symbol) > Natural (Analysis.Symbols.Length)
+      if (Owner_Symbol /= No_Symbol
+          and then Natural (Owner_Symbol) > Natural (Analysis.Symbols.Length))
+        or else (Parameter_Symbol /= No_Symbol
+                 and then Natural (Parameter_Symbol) > Natural (Analysis.Symbols.Length))
       then
          return;
       end if;
@@ -713,11 +712,13 @@ package body Editor.Ada_Language_Model is
       Info : Generic_Formal_Type_Info;
       H    : Natural := Analysis.Result_Fingerprint;
    begin
-      if Formal_Symbol = No_Symbol or else Name'Length = 0 then
+      if Name'Length = 0 then
          return;
       end if;
 
-      if Natural (Formal_Symbol) > Natural (Analysis.Symbols.Length) then
+      if Formal_Symbol /= No_Symbol
+        and then Natural (Formal_Symbol) > Natural (Analysis.Symbols.Length)
+      then
          return;
       end if;
 
@@ -1301,6 +1302,12 @@ package body Editor.Ada_Language_Model is
       Info.Severity := Severity;
       Info.Primary_Symbol := Primary_Symbol;
       Info.Related_Symbol := Related_Symbol;
+      if Primary_Symbol /= No_Symbol
+        and then Natural (Primary_Symbol) <= Natural (Analysis.Symbols.Length)
+      then
+         Info.Target_Name :=
+           Analysis.Symbols.Element (Positive (Primary_Symbol)).Name;
+      end if;
       Info.Message := To_Unbounded_String (Message);
       Info.Source_Span := Source_Span;
 

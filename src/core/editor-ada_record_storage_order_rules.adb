@@ -15,8 +15,21 @@ package body Editor.Ada_Record_Storage_Order_Rules is
    end Mix;
 
    function Normalize (Text : Unbounded_String) return String is
+      S    : constant String := To_String (Text);
+      Tick : Natural := 0;
    begin
-      return Ada.Characters.Handling.To_Lower (To_String (Text));
+      for I in S'Range loop
+         if Character'Pos (S (I)) = 39 then
+            Tick := I;
+            exit;
+         end if;
+      end loop;
+
+      if Tick /= 0 and then Tick > S'First then
+         return Ada.Characters.Handling.To_Lower (S (S'First .. Tick - 1));
+      else
+         return Ada.Characters.Handling.To_Lower (S);
+      end if;
    end Normalize;
 
    function Order_For

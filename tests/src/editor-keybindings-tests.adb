@@ -117,6 +117,22 @@ package body Editor.Keybindings.Tests is
         (Chord (Editor.Keybindings.Key_S, Ctrl => True),
          Editor.Commands.Command_Save_File,
          "Ctrl+S");
+      Assert_Resolves
+        (Chord (Editor.Keybindings.Key_F1),
+         Editor.Commands.Command_Palette_Show_Command_Help,
+         "F1 command help");
+      Assert_Resolves
+        (Chord (Editor.Keybindings.Key_O, Ctrl => True),
+         Editor.Commands.Command_Open_File,
+         "Ctrl+O open file");
+      Assert_Resolves
+        (Chord (Editor.Keybindings.Key_O, Ctrl => True, Alt => True),
+         Editor.Commands.Command_Open_Project,
+         "Ctrl+Alt+O open project");
+      Assert_Resolves
+        (Chord (Editor.Keybindings.Key_M, Ctrl => True, Alt => True),
+         Editor.Commands.Command_Diagnostics_Show,
+         "Ctrl+Alt+M diagnostics");
       declare
          Actual : Editor.Commands.Command_Id := Editor.Commands.No_Command;
       begin
@@ -461,7 +477,7 @@ package body Editor.Keybindings.Tests is
               "Save File primary binding must be Ctrl+S");
 
       Info := Editor.Keybindings.Primary_Binding_For_Command
-        (Editor.Commands.Command_Open_File);
+        (Editor.Commands.Command_Build_Run);
       Assert (not Info.Has_Binding,
               "Unbound visible commands must report no primary binding");
       Assert (Length (Info.Display) = 0,
@@ -586,6 +602,39 @@ package body Editor.Keybindings.Tests is
         (Found and then Id = Editor.Commands.Command_Save_File,
          "Phase 105 stable command name must resolve to its command id");
       Assert
+        (Editor.Commands.Stable_Command_Name (Editor.Commands.Command_Open_File)
+         = "file.open",
+         "Phase 105 open-file command exports canonical stable name");
+      Id := Editor.Commands.Command_Id_From_Stable_Name ("open-file", Found);
+      Assert
+        (Found and then Id = Editor.Commands.Command_Open_File,
+         "Phase 105 legacy open-file keybinding name remains loadable");
+      Assert
+        (Editor.Commands.Stable_Command_Name
+           (Editor.Commands.Command_Diagnostics_Show) = "diagnostics.show",
+         "Phase 105 diagnostics command exports canonical stable name");
+      Id := Editor.Commands.Command_Id_From_Stable_Name ("diagnostics-show", Found);
+      Assert
+        (Found and then Id = Editor.Commands.Command_Diagnostics_Show,
+         "Phase 105 legacy diagnostics-show keybinding name remains loadable");
+      Assert
+        (Editor.Commands.Stable_Command_Name
+           (Editor.Commands.Command_Open_Quick_Open) = "quick-open.show",
+         "Phase 105 quick-open command exports canonical stable name");
+      Id := Editor.Commands.Command_Id_From_Stable_Name ("project.quick-open.show", Found);
+      Assert
+        (Found and then Id = Editor.Commands.Command_Open_Quick_Open,
+         "Phase 105 legacy project.quick-open.show keybinding name remains loadable");
+      Assert
+        (Editor.Commands.Stable_Command_Name
+           (Editor.Commands.Command_Accept_Quick_Open) = "quick-open.open-selected",
+         "Phase 105 quick-open accept command exports canonical stable name");
+      Id := Editor.Commands.Command_Id_From_Stable_Name
+        ("project.quick-open.open-selected", Found);
+      Assert
+        (Found and then Id = Editor.Commands.Command_Accept_Quick_Open,
+         "Phase 105 legacy project.quick-open.open-selected keybinding name remains loadable");
+      Assert
         (Editor.Commands.Is_Bindable_Command (Editor.Commands.Command_Save_Keybindings),
          "Phase 105 keybinding commands must be bindable concrete commands");
       Assert
@@ -697,7 +746,7 @@ package body Editor.Keybindings.Tests is
          "editor-keybindings-version=1" & ASCII.LF &
          "[bindings]" & ASCII.LF &
          "file.save=Ctrl+P" & ASCII.LF &
-         "project.quick-open.show=Ctrl+P" & ASCII.LF);
+         "quick-open.show=Ctrl+P" & ASCII.LF);
 
       Editor.Keybinding_Config.Load_From_File (Path, Config, Status);
       Assert
@@ -821,8 +870,11 @@ package body Editor.Keybindings.Tests is
         (Ada.Strings.Fixed.Index (To_String (Text), "editor-keybindings-version=1") > 0,
          "Serialized keybindings must include version header");
       Assert
-        (Ada.Strings.Fixed.Index (To_String (Text), "project.quick-open.show=none") > 0,
-         "Explicit unbind must be serialized as none");
+        (Ada.Strings.Fixed.Index (To_String (Text), "project.quick-open.show=none") = 0,
+         "Explicit quick-open unbind must not serialize legacy command name");
+      Assert
+        (Ada.Strings.Fixed.Index (To_String (Text), "quick-open.show=none") > 0,
+         "Explicit quick-open unbind must be serialized with canonical command name");
       Assert
         (Ada.Strings.Fixed.Index (To_String (Text), "file.save=Ctrl+Alt+S") > 0,
          "Custom chord must be serialized canonically");
@@ -1050,6 +1102,89 @@ package body Editor.Keybindings.Tests is
          Editor.Commands.Command_Reveal_Current_Outline_Symbol,
          "Alt+Shift+F12 reveal current outline symbol");
    end Test_Outline_Keybindings_Register_Defaults;
+
+   procedure Test_Daily_Workflow_Keybindings_Register_Defaults
+     (T : in out AUnit.Test_Cases.Test_Case'Class) is
+      pragma Unreferenced (T);
+      Result : Editor.Keybindings.Default_Keybinding_Registration_Result;
+   begin
+      Editor.Keybindings.Clear;
+      Result := Editor.Keybindings.Register_Daily_Workflow_Keybindings;
+      Assert (Result.Requested_Count = 4,
+              "daily workflow defaults should consider four conservative chords");
+      Assert (Result.Registered_Count = 4 and then Result.Conflict_Count = 0,
+              "daily workflow defaults should register into an empty keybinding table");
+      Assert_Resolves
+        (Chord (Editor.Keybindings.Key_F1),
+         Editor.Commands.Command_Palette_Show_Command_Help,
+         "F1 command help");
+      Assert_Resolves
+        (Chord (Editor.Keybindings.Key_O, Ctrl => True),
+         Editor.Commands.Command_Open_File,
+         "Ctrl+O open file");
+      Assert_Resolves
+        (Chord (Editor.Keybindings.Key_O, Ctrl => True, Alt => True),
+         Editor.Commands.Command_Open_Project,
+         "Ctrl+Alt+O open project");
+      Assert_Resolves
+        (Chord (Editor.Keybindings.Key_M, Ctrl => True, Alt => True),
+         Editor.Commands.Command_Diagnostics_Show,
+         "Ctrl+Alt+M diagnostics");
+   end Test_Daily_Workflow_Keybindings_Register_Defaults;
+
+   procedure Test_Daily_Workflow_Keybindings_Do_Not_Overwrite_User_Bindings
+     (T : in out AUnit.Test_Cases.Test_Case'Class) is
+      pragma Unreferenced (T);
+      Result : Editor.Keybindings.Default_Keybinding_Registration_Result;
+      User_Chord : constant Editor.Keybindings.Key_Chord :=
+        Chord (Editor.Keybindings.Key_O, Ctrl => True);
+   begin
+      Editor.Keybindings.Clear;
+      Editor.Keybindings.Bind
+        (User_Chord, Editor.Commands.Command_Open_Quick_Open);
+      Result := Editor.Keybindings.Register_Daily_Workflow_Keybindings;
+      Assert (Result.Requested_Count = 4,
+              "daily workflow defaults should report every candidate chord");
+      Assert (Result.Registered_Count = 3 and then Result.Conflict_Count = 1,
+              "daily workflow defaults should count the occupied chord as a conflict");
+      Assert_Resolves
+        (User_Chord, Editor.Commands.Command_Open_Quick_Open,
+         "daily workflow defaults must not overwrite user Ctrl+O binding");
+   end Test_Daily_Workflow_Keybindings_Do_Not_Overwrite_User_Bindings;
+
+   procedure Test_Daily_Workflow_Keybinding_Config_Defaults
+     (T : in out AUnit.Test_Cases.Test_Case'Class) is
+      pragma Unreferenced (T);
+      Config : Editor.Keybinding_Config.Keybinding_Config_Model;
+      Found  : Boolean := False;
+      Bound  : Editor.Keybindings.Key_Chord;
+   begin
+      Editor.Keybinding_Config.Set_Defaults (Config);
+
+      Bound := Editor.Keybinding_Config.Chord_For
+        (Config, Editor.Commands.Command_Palette_Show_Command_Help, Found);
+      Assert
+        (Found and then Editor.Keybindings.Format_Chord (Bound) = "F1",
+         "daily workflow config defaults must expose F1 command help");
+
+      Bound := Editor.Keybinding_Config.Chord_For
+        (Config, Editor.Commands.Command_Open_File, Found);
+      Assert
+        (Found and then Editor.Keybindings.Format_Chord (Bound) = "Ctrl+O",
+         "daily workflow config defaults must expose Ctrl+O open file");
+
+      Bound := Editor.Keybinding_Config.Chord_For
+        (Config, Editor.Commands.Command_Open_Project, Found);
+      Assert
+        (Found and then Editor.Keybindings.Format_Chord (Bound) = "Ctrl+Alt+O",
+         "daily workflow config defaults must expose Ctrl+Alt+O open project");
+
+      Bound := Editor.Keybinding_Config.Chord_For
+        (Config, Editor.Commands.Command_Diagnostics_Show, Found);
+      Assert
+        (Found and then Editor.Keybindings.Format_Chord (Bound) = "Ctrl+Alt+M",
+         "daily workflow config defaults must expose Ctrl+Alt+M diagnostics");
+   end Test_Daily_Workflow_Keybinding_Config_Defaults;
 
    procedure Test_Outline_Keybindings_Do_Not_Overwrite_User_Bindings
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
@@ -1874,9 +2009,10 @@ package body Editor.Keybindings.Tests is
       Snapshot : Editor.Keybinding_Management.Keybinding_Surface_Snapshot;
       Actual : Editor.Commands.Command_Id := Editor.Commands.No_Command;
       Custom : constant Editor.Keybindings.Key_Chord :=
-        Chord (Editor.Keybindings.Key_M, Ctrl => True, Alt => True);
+        Chord (Editor.Keybindings.Key_S, Ctrl => True, Alt => True);
    begin
       Editor.Keybindings.Reset_To_Defaults;
+      Editor.Keybinding_Management.Reset_Transient_State;
       Editor.Keybinding_Management.Clear_Selection;
       Editor.Keybinding_Management.Select_Command (Editor.Commands.Command_Find_Show);
       Editor.Keybinding_Management.Assign_Selected
@@ -1923,16 +2059,21 @@ package body Editor.Keybindings.Tests is
       pragma Unreferenced (T);
       Status : Editor.Keybinding_Management.Keybinding_Action_Status;
       Actual : Editor.Commands.Command_Id := Editor.Commands.No_Command;
-      Save_Chord : constant Editor.Keybindings.Key_Chord :=
-        Chord (Editor.Keybindings.Key_S, Ctrl => True);
+      Custom : constant Editor.Keybindings.Key_Chord :=
+        Chord (Editor.Keybindings.Key_S, Ctrl => True, Alt => True);
    begin
       Editor.Keybindings.Reset_To_Defaults;
+      Editor.Keybinding_Management.Reset_Transient_State;
       Editor.Keybinding_Management.Show;
       Editor.Keybinding_Management.Focus;
+      Editor.Keybinding_Management.Select_Command (Editor.Commands.Command_Save_File);
+      Editor.Keybinding_Management.Assign_Selected
+        (Custom, Confirm_Conflict => False, Status => Status);
+      Assert (Status = Editor.Keybinding_Management.Keybinding_Action_Ok,
+              "Phase 565 reset transient setup must create a custom binding");
       Editor.Keybinding_Management.Set_Query ("build");
       Editor.Keybinding_Management.Set_Filter
         (Editor.Keybinding_Management.Filter_Unbound);
-      Editor.Keybinding_Management.Select_Command (Editor.Commands.Command_Save_File);
       Editor.Keybinding_Management.Request_Reset_To_Defaults (Status);
       Assert (Status = Editor.Keybinding_Management.Keybinding_Action_Reset_Confirmation_Pending,
               "Phase 565 reset transient setup must create pending reset state");
@@ -1960,7 +2101,7 @@ package body Editor.Keybindings.Tests is
               "Phase 565 transient reset must clear pending confirmation state");
       Assert (Editor.Keybinding_Management.Latest_Message = "",
               "Phase 565 transient reset must clear local latest-message state");
-      Assert (Editor.Keybindings.Resolve (Save_Chord, Actual) =
+      Assert (Editor.Keybindings.Resolve (Custom, Actual) =
               Editor.Keybindings.Bound_Command
               and then Actual = Editor.Commands.Command_Save_File,
               "Phase 565 transient reset must not reset or mutate runtime keybindings");
@@ -1973,11 +2114,12 @@ package body Editor.Keybindings.Tests is
       Status : Editor.Keybinding_Management.Keybinding_Action_Status;
       Availability : Editor.Commands.Command_Availability;
       Custom : constant Editor.Keybindings.Key_Chord :=
-        Chord (Editor.Keybindings.Key_M, Ctrl => True, Alt => True);
+        Chord (Editor.Keybindings.Key_S, Ctrl => True, Alt => True);
       Actual : Editor.Commands.Command_Id := Editor.Commands.No_Command;
    begin
       Editor.State.Init (S);
       Editor.Keybindings.Reset_To_Defaults;
+      Editor.Keybinding_Management.Reset_Transient_State;
       Editor.Keybinding_Management.Hide;
       Editor.Keybinding_Management.Show;
       Editor.Keybinding_Management.Focus;
@@ -2031,11 +2173,12 @@ package body Editor.Keybindings.Tests is
       Status : Editor.Keybinding_Management.Keybinding_Action_Status;
       Availability : Editor.Commands.Command_Availability;
       Custom : constant Editor.Keybindings.Key_Chord :=
-        Chord (Editor.Keybindings.Key_N, Ctrl => True, Alt => True);
+        Chord (Editor.Keybindings.Key_S, Ctrl => True, Alt => True);
       Actual : Editor.Commands.Command_Id := Editor.Commands.No_Command;
    begin
       Editor.State.Init (S);
       Editor.Keybindings.Reset_To_Defaults;
+      Editor.Keybinding_Management.Reset_Transient_State;
       Editor.Keybinding_Management.Hide;
       Editor.Keybinding_Management.Show;
       Editor.Keybinding_Management.Focus;
@@ -2540,6 +2683,15 @@ package body Editor.Keybindings.Tests is
       AUnit.Test_Cases.Registration.Register_Routine
         (T, Test_Outline_Keybindings_Register_Defaults'Access,
          "Phase 131 outline keybindings register defaults");
+      AUnit.Test_Cases.Registration.Register_Routine
+        (T, Test_Daily_Workflow_Keybindings_Register_Defaults'Access,
+         "Daily workflow keybindings register defaults");
+      AUnit.Test_Cases.Registration.Register_Routine
+        (T, Test_Daily_Workflow_Keybindings_Do_Not_Overwrite_User_Bindings'Access,
+         "Daily workflow keybindings do not overwrite user bindings");
+      AUnit.Test_Cases.Registration.Register_Routine
+        (T, Test_Daily_Workflow_Keybinding_Config_Defaults'Access,
+         "Daily workflow keybinding config defaults match runtime defaults");
       AUnit.Test_Cases.Registration.Register_Routine
         (T, Test_Outline_Keybindings_Do_Not_Overwrite_User_Bindings'Access,
          "Phase 131 outline keybindings do not overwrite user bindings");

@@ -75,7 +75,7 @@ conditional/generated-source handling beyond retained awareness markers
 language-server integration
 ```
 
-Complex declarations may be omitted or approximated. The feature is now suitable for richer current-buffer and explicitly indexed-buffer navigation, while refactoring and compiler-grade semantic navigation remain non-goals.
+Complex declarations may be omitted or approximated. The feature is now suitable for richer current-buffer and explicitly indexed-buffer navigation plus bounded semantic rename consumers. Broader compiler-grade refactoring and GNAT-equivalent semantic navigation remain outside the Outline extractor's scope.
 
 ## Item model and invariants
 
@@ -135,7 +135,7 @@ Feature-panel Enter routes to `outline.open-selected` only when the selected row
 
 Outline runtime items are not workspace/session state, global settings, keybinding configuration, or recent-project data. Persistence files must not serialize `Outline_State`, extraction results, snapshot identities, outline labels/details, line/column metadata, or synthetic fixture rows.
 
-Keybinding files may contain outline command stable names only when the user explicitly configures chords for those commands: `outline.refresh`, `outline.clear`, `outline.show`, `outline.focus`, `outline.open-selected`, `outline.select-next` / `outline.filter.next-match`, and `outline.select-previous` / `outline.filter.previous-match`.
+Keybinding files may contain outline command stable names when defaults are exported or when the user explicitly configures chords. Focused outline defaults include `outline.refresh` on `Ctrl+F12`, `outline.open-selected` on `Alt+Enter`, `outline.select-next` / `outline.select-previous` on `Alt+F3` / `Alt+Shift+F3`, and `outline.select-current-symbol` / `outline.reveal-current-symbol` on `Alt+F12` / `Alt+Shift+F12`. `outline.show`, `outline.clear`, and `outline.focus` stay palette/user-configured unless explicitly bound.
 
 ## Input and rendering
 
@@ -148,7 +148,7 @@ Rendering remains Feature_Panel-driven. `Editor.Outline` does not render directl
 The current outline feature is a parser-backed active-buffer outline using the shared Ada language model. Future work should be added deliberately and tested independently:
 
 ```text
-automatic whole-project outline/indexing beyond explicit bounded refresh paths
+filesystem-watcher-driven background outline/indexing beyond current lifecycle-owned bounded refresh paths
 separate subunit and cross-file symbol support
 more complete Ada grammar support
 LSP-backed outline provider
@@ -616,7 +616,7 @@ Phase 579 pass 170 wires the transient Ada project language index into existing 
 
 ### pass 171 explicit project-file index refresh
 
-Phase 579 pass 171 changes `outline.refresh-project-index` from active-buffer-only indexing to explicit project-file indexing. The command refreshes known project files, parses `.ads` and `.adb` files from disk without saving or reloading buffers, uses the active immutable buffer snapshot for the current file when paths match, clears the transient index before rebuilding it, and reports indexed/skipped/read-error counts. This makes project-wide Outline/navigation lookup state command-driven instead of render-driven while preserving bounded `Editor.Ada_Project_Index` limits.
+Phase 579 pass 171 changes `outline.refresh-project-index` from active-buffer-only indexing to project-file indexing. The command refreshes known project files, parses `.ads` and `.adb` files from disk without saving or reloading buffers, uses the active immutable buffer snapshot for the current file when paths match, clears the transient index before rebuilding it, and reports indexed/skipped/read-error counts. Project-wide Outline/navigation lookup state remains executor-owned instead of render-driven while preserving bounded `Editor.Ada_Project_Index` limits.
 
 Phase 579 pass 172 fixes the command-surface regression coverage added for the IDE-grade language command set: the expected-command descriptor loop is now closed before the project-refresh descriptor assertions. This keeps `outline.refresh-project-index` and the other canonical language commands covered as individual stable ids while also preserving separate assertions for the project-file refresh wording.
 
@@ -658,12 +658,12 @@ Phase 579 pass 181 keeps Outline-driven and language-model-driven semantic colou
 
 Phase 579 pass 182 closes the remaining file-lifecycle integration gap for indexed Outline targets. Active-buffer rename, move, and delete operations now invalidate the previous backing path as well as the active token/new association. File Tree create/rename/delete invalidates exact and descendant language-index paths so directory-level mutations cannot leave cross-file Outline body/spec or separate-body targets pointing at removed or rebased Ada source files.
 
-Phase 579 pass 183 completeness: exact Ada project-index path invalidation now uses the same separator and trailing-slash normalization as subtree invalidation. Active-buffer lifecycle operations such as reload, revert, save-as, rename, and move may hand the language index a platform-native path spelling while explicit project refresh retained a normalized project path. Exact invalidation now removes the same indexed Outline/navigation row in either spelling, preventing stale declaration/body/spec targets from surviving only because `/` and `\` or a trailing separator differed.
+Phase 579 pass 183 completeness: exact Ada project-index path invalidation now uses the same separator and trailing-slash normalization as subtree invalidation. Active-buffer lifecycle operations such as reload, revert, save-as, rename, and move may hand the language index a platform-native path spelling while project refresh retained a normalized project path. Exact invalidation now removes the same indexed Outline/navigation row in either spelling, preventing stale declaration/body/spec targets from surviving only because `/` and `\` or a trailing separator differed.
 
 ### Phase 579 pass 184 project-index open-buffer overlay
 
 `outline.refresh-project-index` now overlays every open file-backed Ada buffer
-onto the explicit project language index after the filesystem/project-file pass.
+onto the project language index after the filesystem/project-file pass.
 This means an inactive open buffer with unsaved text is indexed from its
 immutable editor snapshot instead of leaving the project-wide Outline/navigation
 index on the older disk contents.  The active buffer still uses the active-state
@@ -671,7 +671,7 @@ stamps, and the refresh remains bounded by `Editor.Ada_Project_Index.Max_Index_F
 
 ### Phase 579 pass 185 completeness: open-buffer index priority
 
-Phase 579 pass 185 makes explicit project language-index refresh prefer editor-owned snapshots before filesystem snapshots. The active Ada buffer and other open file-backed Ada buffers are indexed before the project file scan, so unsaved open-buffer analyses cannot be starved when a large project reaches the bounded index budget. Disk rows whose normalized paths are already represented by an open-buffer snapshot are skipped rather than replacing the editor-owned parser analysis.
+Phase 579 pass 185 makes project language-index refresh prefer editor-owned snapshots before filesystem snapshots. The active Ada buffer and other open file-backed Ada buffers are indexed before the project file scan, so unsaved open-buffer analyses cannot be starved when a large project reaches the bounded index budget. Disk rows whose normalized paths are already represented by an open-buffer snapshot are skipped rather than replacing the editor-owned parser analysis.
 
 ### Phase 579 pass 186 profile-aware callable navigation
 

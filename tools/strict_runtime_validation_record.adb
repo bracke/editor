@@ -142,9 +142,9 @@ begin
    Put ("A report with skipped gates is not final runtime release approval.");
    Put ("");
    Put ("## Required gates");
-   Put ("- Runtime C syntax/header gate");
+   Put ("- Runtime C entrypoint/Ada backend gate");
    Put ("- Runtime link/build gate");
-   Put ("- Canonical `bin/editor_app` executable gate");
+   Put ("- Canonical `bin/editor` executable gate");
    Put ("- Shader toolchain manifest gate");
    Put ("- Shader freshness gate");
    Put ("- Graphical GLFW/Vulkan smoke gate");
@@ -167,16 +167,28 @@ begin
    Capture_Info_Arg1 ("gcc", "gcc", "--version", "toolchain-gcc");
    Capture_Info_Arg1 ("gprbuild", "gprbuild", "--version", "toolchain-gprbuild");
    Capture_Info_Arg1 ("alr", "alr", "--version", "toolchain-alr");
-   Capture_Info_Arg1 ("glslangValidator", "glslangValidator", "--version", "toolchain-glslangvalidator");
+   --  Report output file: toolchain-glslangvalidator.out
+   Capture_Info_Arg1
+     ("glslangValidator",
+      "glslangValidator",
+      "--version",
+      "toolchain-glslangvalidator");
    Capture_Info_Arg1 ("vulkaninfo", "vulkaninfo", "--summary", "toolchain-vulkaninfo");
 
    Step ("strict runtime preflight", "tools/bin/strict_runtime_preflight", "gate-strict-runtime-preflight");
    Step ("runtime compile check", "tools/bin/runtime_compile_check", "gate-runtime-compile");
    Step ("runtime link check", "tools/bin/runtime_link_check", "gate-runtime-link");
-   Step ("shader toolchain manifest check", "tools/bin/shader_toolchain_manifest_check", "gate-shader-toolchain-manifest");
+   Step
+     ("shader toolchain manifest check",
+      "tools/bin/shader_toolchain_manifest_check",
+      "gate-shader-toolchain-manifest");
    Step ("shader freshness check", "tools/bin/shader_freshness_check", "gate-shader-freshness");
+   --  Report output file: gate-runtime-smoke.out
    Step ("runtime smoke", "tools/bin/runtime_smoke", "gate-runtime-smoke");
-   Step ("missing shader negative check", "tools/bin/runtime_missing_asset_check", "gate-runtime-missing-asset");
+   Step
+     ("missing shader negative check",
+      "tools/bin/runtime_missing_asset_check",
+      "gate-runtime-missing-asset");
 
    Put ("# Final result");
    Put ("PASS: strict runtime validation completed successfully.");

@@ -15,6 +15,7 @@ package Editor.Focus_Management is
       Focus_Outline,
       Focus_Outline_Filter,
       Focus_Diagnostics,
+      Focus_Terminal,
       Focus_Build_UI,
       Focus_Build_Result_Summary,
       Focus_Build_Output_Details,

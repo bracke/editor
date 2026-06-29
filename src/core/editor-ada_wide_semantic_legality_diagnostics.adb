@@ -541,6 +541,7 @@ package body Editor.Ada_Wide_Semantic_Legality_Diagnostics is
       return Model;
    end Build;
 
+
    function Diagnostic_Count (Model : Wide_Semantic_Diagnostic_Model) return Natural is
    begin
       return Natural (Model.Diagnostics.Length);

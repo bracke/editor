@@ -150,7 +150,12 @@ package body Editor.Ada_Diagnostic_Quick_Fix_Skeleton is
       Result.Node := Item.Diagnostic.Node;
       Result.Label := To_Unbounded_String (Label);
       Result.Detail := To_Unbounded_String (Detail);
-      Result.Has_Edit := False;
+      Result.Has_Edit := Item.Diagnostic.Has_Edit;
+      Result.Edit_Start_Line := Item.Diagnostic.Edit_Start_Line;
+      Result.Edit_Start_Column := Item.Diagnostic.Edit_Start_Column;
+      Result.Edit_End_Line := Item.Diagnostic.Edit_End_Line;
+      Result.Edit_End_Column := Item.Diagnostic.Edit_End_Column;
+      Result.Replacement_Text := Item.Diagnostic.Replacement_Text;
       Result.Start_Line := Item.Diagnostic.Start_Line;
       Result.Start_Column := Item.Diagnostic.Start_Column;
       Result.End_Line := Item.Diagnostic.End_Line;
@@ -165,7 +170,17 @@ package body Editor.Ada_Diagnostic_Quick_Fix_Skeleton is
                  (Item.Diagnostic.Fingerprint + 1,
                   Mix (Action_Slot (Action),
                        Mix (Severity_Slot (Result.Severity),
-                            Result.Ranking_Fingerprint + 1))))));
+                            Mix
+                              (Boolean'Pos (Result.Has_Edit) + 1,
+                               Mix
+                                 (Result.Edit_Start_Line,
+                                  Mix
+                                    (Result.Edit_Start_Column,
+                                     Mix
+                                       (Result.Edit_End_Line,
+                                        Mix
+                                          (Result.Edit_End_Column,
+                                           Length (Result.Replacement_Text) + 1)))))))))));
       return Result;
    end Make_Candidate;
 

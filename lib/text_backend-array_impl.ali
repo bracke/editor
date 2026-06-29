@@ -6,74 +6,104 @@ A -march=x86-64
 P ZX
 
 RN
+RV NO_ACCESS_SUBPROGRAMS
+RV NO_IMPLICIT_CONDITIONALS
+RV NO_DYNAMIC_SIZED_OBJECTS
 RV NO_IMPLEMENTATION_PRAGMAS
 
-U text_backend.array_impl%b  text_backend-array_impl.adb  e8c12d28 NE OO PK
+U text_backend.array_impl%b  text_backend-array_impl.adb  3bb0ef6c NE OO PK
 W text_backend%s	text_backend.ads	text_backend.ali
 
-U text_backend.array_impl%s  text_backend-array_impl.ads  543cdd0a EE NE OO PK
+U text_backend.array_impl%s  text_backend-array_impl.ads  a51d1036 EE NE OO PK
 W text_backend%s	text_backend.ads	text_backend.ali
 
 D system.ads		20250808065140 14286b0f system%s
-D text_backend.ads	20260412181650 6d0030da text_backend%s
-D text_backend-array_impl.ads  20260412175142 393cedd0 text_backend.array_impl%s
-D text_backend-array_impl.adb  20260415191929 d1fdc0f8 text_backend.array_impl%b
+D text_backend.ads	20260612145959 6d0030da text_backend%s
+D text_backend-array_impl.ads  20260612145959 c81d20ec text_backend.array_impl%s
+D text_backend-array_impl.adb  20260612145959 f3adcf80 text_backend.array_impl%b
 G a e
 G c Z s b [clear text_backend__array_impl 5 14 none]
-G c Z s b [insert text_backend__array_impl 7 14 none]
-G c Z s b [insert_range text_backend__array_impl 12 14 none]
-G c Z s b [delete text_backend__array_impl 18 14 none]
-G c Z s b [delete_range text_backend__array_impl 22 14 none]
-G c Z s b [replace_range text_backend__array_impl 24 14 none]
-G c Z s b [length text_backend__array_impl 30 13 none]
-G c Z s b [element text_backend__array_impl 32 13 none]
-G c Z s s [char_arrayIP text_backend__array_impl 40 9 none]
-G c Z s s [buffer_typeIP text_backend__array_impl 42 9 none]
+G c Z s b [set_text text_backend__array_impl 7 14 none]
+G c Z s b [insert text_backend__array_impl 11 14 none]
+G c Z s b [insert_range text_backend__array_impl 16 14 none]
+G c Z s b [delete text_backend__array_impl 22 14 none]
+G c Z s b [delete_range text_backend__array_impl 26 14 none]
+G c Z s b [replace_range text_backend__array_impl 28 14 none]
+G c Z s b [length text_backend__array_impl 34 13 none]
+G c Z s b [for_each_char text_backend__array_impl 36 14 none]
+G c Z s b [for_each_char_range text_backend__array_impl 40 14 none]
+G c Z s b [element text_backend__array_impl 46 13 none]
+G c Z s s [char_arrayIP text_backend__array_impl 54 9 none]
+G c Z s s [buffer_typeIP text_backend__array_impl 56 9 none]
 X 2 text_backend.ads
-1K9*Text_Backend 10e17 3|1r9 47r5 4|1r14 129r5
+1K9*Text_Backend 10e17 3|1r9 61r5 4|1r14 175r5
 X 3 text_backend-array_impl.ads
-1K22*Array_Impl 2|1k9 3|38E12 47l18 47e28 4|1b27 129l18 129t28
-3R9*Buffer_Type 5r32 8r22 13r23 19r22 22r39 25r22 30r25 33r15 42c9 45e14
-. 4|3r32 11r19 41r20 54r19 80r19 100r19 111r25 119r15
+1K22*Array_Impl 2|1k9 3|52E12 61l18 61e28 4|1b27 175l18 175t28
+3R9*Buffer_Type 5r32 8r21 12r22 17r23 23r22 26r39 29r22 34r25 37r12 41r15
+. 47r15 56c9 59e14 4|3r32 12r21 25r19 55r20 68r19 94r19 114r19 125r25 134r12
+. 145r15 165r15
 5U14*Clear 5=21 4|3b14 6l8 6t13
 5r21 B{3R9} 4|3b21 5m7
-7U14*Insert 8=7 9>7 10>7 4|10b14 36l5 36t11 47s10 106s4
-8r7 B{3R9} 4|11b4 16r7 16r16 21r16 22m7 22r17 23m7 23r15 30r26 31m7 31r25
-. 34m4 35m4 35r14
-9i7 Index{natural} 4|12b4 21r7 28r9
-10e7 Ch{character} 4|13b4 23r26 34r18
-12U14*Insert_Range 13=8 14>7 15>7 16>7 4|40b14 49l8 49t20
-13r8 B{3R9} 4|41b5 47m18
-14i7 Index{natural} 4|42b7 47r21
-15e7 Ch{character} 4|43b7 47r32
-16i7 Count{natural} 4|44b7 46r21
-18U14*Delete 19=7 20>7 4|53b11 75l5 75t11 93s7
-19r7 B{3R9} 4|54b4 58r7 62r16 64m7 64r17 70r18 71m7 71r21 74m4 74r14
-20i7 Index{natural} 4|55b4 62r7 68r9
-22U14*Delete_Range 22=28 22>52 22>59 4|79b11 95l5 95t17 105s4
-22r28 B{3R9} 4|80b4 92r26 93m15
-22i52 Start{natural} 4|81b4 92r17 93r18
-22i59 Span{natural} 4|82b4 84r7 91r18
-24U14*Replace_Range 25=8 26>7 27>7 28>7 4|99b11 107l5 107t18
-25r8 B{3R9} 4|100b4 105m18 106m12
-26i7 Start{natural} 4|101b4 105r21 106r15
-27i7 Span{natural} 4|102b4 105r28
-28e7 Ch{character} 4|103b4 106r22
-30V13*Length{natural} 30>21 4|111b13 114l8 114t14
-30r21 B{3R9} 4|111b21 113r14
-32V13*Element{character} 33>7 34>7 4|118b13 127l8 127t15
-33r7 B{3R9} 4|119b7 122r36 126r14
-34i7 Index{natural} 4|120b7 122r10 122r28 126r22
-38I12 Buffer_Index{natural}
-40A9 Char_Array(character)<integer> 43r14
-43a7*Data{40A9} 4|16r18 23m9 31m9 31r27 34m6 71m9 71r23 126r16
-44i7*Last{natural} 4|5m9 16r9 21r18 22m9 22r19 23r17 30r28 35m6 35r16 58r9
-. 62r18 64m9 64r19 70r20 74m6 74r16 92r28 113r16 122r38
+7U14*Set_Text 8=7 9>7 4|11b14 20l8 20t16
+8r7 B{3R9} 4|12b7 14r57 16m7 18m10
+9a7 Text{string} 4|13b7 14r44 18r24 18r30
+11U14*Insert 12=7 13>7 14>7 4|24b14 50l5 50t11 61s10 120s4
+12r7 B{3R9} 4|25b4 30r7 30r16 35r16 36m7 36r17 37m7 37r15 44r26 45m7 45r25
+. 48m4 49m4 49r14
+13i7 Index{natural} 4|26b4 35r7 42r9
+14e7 Ch{character} 4|27b4 37r26 48r18
+16U14*Insert_Range 17=8 18>7 19>7 20>7 4|54b14 63l8 63t20
+17r8 B{3R9} 4|55b5 61m18
+18i7 Index{natural} 4|56b7 61r21
+19e7 Ch{character} 4|57b7 61r32
+20i7 Count{natural} 4|58b7 60r21
+22U14*Delete 23=7 24>7 4|67b11 89l5 89t11 107s7
+23r7 B{3R9} 4|68b4 72r7 76r16 78m7 78r17 84r18 85m7 85r21 88m4 88r14
+24i7 Index{natural} 4|69b4 76r7 82r9
+26U14*Delete_Range 26=28 26>52 26>59 4|93b11 109l5 109t17 119s4
+26r28 B{3R9} 4|94b4 106r26 107m15
+26i52 Start{natural} 4|95b4 106r17 107r18
+26i59 Span{natural} 4|96b4 98r7 105r18
+28U14*Replace_Range 29=8 30>7 31>7 32>7 4|113b11 121l5 121t18
+29r8 B{3R9} 4|114b4 119m18 120m12
+30i7 Start{natural} 4|115b4 119r21 120r15
+31i7 Span{natural} 4|116b4 119r28
+32e7 Ch{character} 4|117b4 120r22
+34V13*Length{natural} 34>21 4|125b13 128l8 128t14
+34r21 B{3R9} 4|125b21 127r14
+36U14*For_Each_Char 37>7 38^7 4|133b14 140l8 140t21
+37r7 B{3R9} 4|134b7 137r21 138r14
+38p7 Fn 4|135b7 138r10
+38e39 Ch{character}
+40U14*For_Each_Char_Range 41>7 42>7 43>7 44^7 4|144b14 160l8 160t27
+41r7 B{3R9} 4|145b7 150r59 151r54 158r14
+42i7 Start{natural} 4|146b7 150r48 153r18
+43i7 Stop{natural} 4|147b7 151r48 153r10
+44p7 Fn 4|148b7 158r10
+44e42 Ch{character}
+46V13*Element{character} 47>7 48>7 4|164b13 173l8 173t15
+47r7 B{3R9} 4|165b7 168r36 172r14
+48i7 Index{natural} 4|166b7 168r10 168r28 172r22
+52I12 Buffer_Index{natural}
+54A9 Char_Array(character)<integer> 57r14
+57a7*Data{54A9} 4|14r59 18m12 30r18 37m9 45m9 45r27 48m6 85m9 85r23 138r16
+. 158r16 172r16
+58i7*Last{natural} 4|5m9 16m9 30r9 35r18 36m9 36r19 37r17 44r28 49m6 49r16
+. 72r9 76r18 78m9 78r19 84r20 88m6 88r16 106r28 127r16 137r23 150r61 151r56
+. 168r38
 X 4 text_backend-array_impl.adb
-14i4 I{positive} 28m4 30r21 34r12
-30i8 J{integer} 31r15 31r33
-46i11 I{integer}
-56i4 I{positive} 68m4 70r13
-70i8 J{integer} 71r15 71r29
-91i8 I{integer}
+14i7 N{natural} 16r17 17r21
+17i11 I{integer} 18r18 18r43
+28i4 I{positive} 42m4 44r21 48r12
+44i8 J{integer} 45r15 45r33
+60i11 I{integer}
+70i4 I{positive} 82m4 84r13
+84i8 J{integer} 85r15 85r29
+105i8 I{integer}
+135e39 Ch{character}
+137i11 I{integer} 138r22
+148e42 Ch{character}
+150i7 First{natural} 153r32 157r16
+151i7 Last{natural} 153r40 157r25
+157i11 I{integer} 158r22
 

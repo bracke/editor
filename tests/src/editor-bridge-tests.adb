@@ -458,39 +458,6 @@ package body Editor.Bridge.Tests is
    end Test_Undo_Redo_Packet;
 
    -------------------------------------------------------------------------
-   --  Shift-click selection through bridge
-   -------------------------------------------------------------------------
-
-   --  procedure Test_Shift_Click_Selection_Packet
-   --    (T : in out AUnit.Test_Cases.Test_Case'Class) is
-   --     pragma Unreferenced (T);
-
-   --     Packet : Editor.Render_Packet.Render_Packet;
-   --  begin
-   --     Reset_Bridge;
-
-   --     Send_Char ('a');
-   --     Send_Char ('b');
-   --     Send_Char ('c');
-   --     Send_Char ('d');
-
-   --     Click_At (18, 10, Shift => False);
-   --     Send_Event
-   --       (Kind  => Editor.Bridge.Mouse_Down,
-   --        Shift => True,
-   --        X     => 58,
-   --        Y     => 10);
-   --     Drag_To (58, 10, Shift => True);
-
-   --     Get_Packet (Packet);
-
-   --     Assert (Glyph_Count (Packet) = 4,
-   --             "Shift-click selection must not change glyph count");
-   --     Assert (Rect_Count (Packet) >= 2,
-   --             "Shift-click selection must add a selection rectangle");
-   --  end Test_Shift_Click_Selection_Packet;
-
-   -------------------------------------------------------------------------
    --  Home / End through bridge
    -------------------------------------------------------------------------
 
@@ -652,10 +619,6 @@ package body Editor.Bridge.Tests is
 
       AUnit.Test_Cases.Registration.Register_Routine
         (T, Test_Undo_Redo_Packet'Access, "Undo Redo Packet");
-
-  --    AUnit.Test_Cases.Registration.Register_Routine
-  --      (T, Test_Shift_Click_Selection_Packet'Access,
-  --       "Shift Click Selection Packet");
 
       AUnit.Test_Cases.Registration.Register_Routine
         (T, Test_Home_End_Packet'Access, "Home End Packet");

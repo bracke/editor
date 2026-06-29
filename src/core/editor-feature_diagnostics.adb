@@ -244,6 +244,12 @@ package body Editor.Feature_Diagnostics is
         (Source_Label, Max_Diagnostic_Source_Label_Text_Length, "");
    end Normalize_Source_Label;
 
+   function Normalize_Replacement_Text (Replacement_Text : String) return String is
+   begin
+      return Bounded_Text
+        (Replacement_Text, Max_Diagnostic_Message_Text_Length, "");
+   end Normalize_Replacement_Text;
+
    function Panel_Severity
      (Severity : Diagnostic_Severity) return Editor.Feature_Panel.Feature_Row_Severity
    is
@@ -293,6 +299,7 @@ package body Editor.Feature_Diagnostics is
    begin
       return Source_Display_Label (Item) &
         " | producer: " & Producer_Label (Item) &
+        (if Item.Has_Edit then " | action: Apply edit" else "") &
         (if Target_Label'Length = 0 then "" else " | " & Target_Label) &
         (if Item.Is_Stale then " | stale diagnostic" else "");
    end Detail_For;
@@ -540,6 +547,9 @@ package body Editor.Feature_Diagnostics is
             pragma Assert
               (Length (Item.Source_Label) <= Max_Diagnostic_Source_Label_Text_Length,
                "diagnostic source label text must be bounded at ingestion");
+            pragma Assert
+              (Length (Item.Replacement_Text) <= Max_Diagnostic_Message_Text_Length,
+               "diagnostic replacement text must be bounded at ingestion");
             if I > 1 then
                pragma Assert
                  (Diagnostics.Rows.Element (I - 2).Id < Item.Id,
@@ -603,13 +613,34 @@ package body Editor.Feature_Diagnostics is
       Target_Buffer : Natural := No_Buffer;
       Target_Line   : Natural := 0;
       Target_Column : Natural := 0;
-      Build_Produced : Boolean := False)
+      Build_Produced : Boolean := False;
+      Primary_Action_Kind :
+        Editor.Ada_Diagnostic_Command_Projection.Diagnostic_Command_Kind :=
+          Editor.Ada_Diagnostic_Command_Projection.Diagnostic_Command_Navigate_To_Diagnostic;
+      Has_Edit : Boolean := False;
+      Edit_Start_Line   : Natural := 0;
+      Edit_Start_Column : Natural := 0;
+      Edit_End_Line     : Natural := 0;
+      Edit_End_Column   : Natural := 0;
+      Replacement_Text  : String := "")
    is
       Effective_Target : constant Boolean := Has_Target
         and then Target_Buffer /= No_Buffer
         and then Target_Line > 0;
       Effective_Build_Produced : constant Boolean :=
         Build_Produced and then Source_Kind = External_Diagnostic_Source;
+      Effective_Edit : constant Boolean :=
+        Has_Edit
+        and then Effective_Target
+        and then Edit_Start_Line > 0
+        and then Edit_Start_Column > 0
+        and then Edit_End_Line > 0
+        and then Edit_End_Column > 0
+        and then
+          (Edit_End_Line > Edit_Start_Line
+           or else
+             (Edit_End_Line = Edit_Start_Line
+              and then Edit_End_Column >= Edit_Start_Column));
       New_Id : constant Diagnostic_Id := Diagnostics.Next_Id;
    begin
       Diagnostics.Rows.Append
@@ -628,7 +659,16 @@ package body Editor.Feature_Diagnostics is
           Target_Line       => (if Has_Target then Target_Line else 0),
           Target_Column     => (if Effective_Target then Target_Column else 0),
           Is_Stale          => False,
-          Is_Build_Produced => Effective_Build_Produced));
+          Is_Build_Produced => Effective_Build_Produced,
+          Primary_Action_Kind => Primary_Action_Kind,
+          Has_Edit          => Effective_Edit,
+          Edit_Start_Line   => (if Effective_Edit then Edit_Start_Line else 0),
+          Edit_Start_Column => (if Effective_Edit then Edit_Start_Column else 0),
+          Edit_End_Line     => (if Effective_Edit then Edit_End_Line else 0),
+          Edit_End_Column   => (if Effective_Edit then Edit_End_Column else 0),
+          Replacement_Text  =>
+            To_Unbounded_String
+              ((if Effective_Edit then Normalize_Replacement_Text (Replacement_Text) else ""))));
       if Diagnostics.Next_Id = Diagnostic_Id'Last then
          Diagnostics.Next_Id := Diagnostic_Id'Last;
       else
@@ -771,6 +811,63 @@ package body Editor.Feature_Diagnostics is
    begin
       return Is_Build_Produced_Item (Item);
    end Item_Is_Build_Produced;
+
+   function Item_Primary_Action_Kind
+     (Diagnostics : Diagnostics_Feature_State;
+      Index       : Positive)
+      return Editor.Ada_Diagnostic_Command_Projection.Diagnostic_Command_Kind
+   is
+   begin
+      return Item_At (Diagnostics, Index).Primary_Action_Kind;
+   end Item_Primary_Action_Kind;
+
+   function Item_Has_Edit
+     (Diagnostics : Diagnostics_Feature_State;
+      Index       : Positive) return Boolean
+   is
+   begin
+      return Item_At (Diagnostics, Index).Has_Edit;
+   end Item_Has_Edit;
+
+   function Item_Edit_Start_Line
+     (Diagnostics : Diagnostics_Feature_State;
+      Index       : Positive) return Natural
+   is
+   begin
+      return Item_At (Diagnostics, Index).Edit_Start_Line;
+   end Item_Edit_Start_Line;
+
+   function Item_Edit_Start_Column
+     (Diagnostics : Diagnostics_Feature_State;
+      Index       : Positive) return Natural
+   is
+   begin
+      return Item_At (Diagnostics, Index).Edit_Start_Column;
+   end Item_Edit_Start_Column;
+
+   function Item_Edit_End_Line
+     (Diagnostics : Diagnostics_Feature_State;
+      Index       : Positive) return Natural
+   is
+   begin
+      return Item_At (Diagnostics, Index).Edit_End_Line;
+   end Item_Edit_End_Line;
+
+   function Item_Edit_End_Column
+     (Diagnostics : Diagnostics_Feature_State;
+      Index       : Positive) return Natural
+   is
+   begin
+      return Item_At (Diagnostics, Index).Edit_End_Column;
+   end Item_Edit_End_Column;
+
+   function Item_Replacement_Text
+     (Diagnostics : Diagnostics_Feature_State;
+      Index       : Positive) return String
+   is
+   begin
+      return To_String (Item_At (Diagnostics, Index).Replacement_Text);
+   end Item_Replacement_Text;
 
    function Visible_Row_Count
      (Diagnostics : Diagnostics_Feature_State) return Natural
@@ -1691,6 +1788,34 @@ package body Editor.Feature_Diagnostics is
       Assert_Diagnostics_State_Consistent (Diagnostics);
       return Removed;
    end Clear_Diagnostics_By_Source;
+
+   function Clear_Diagnostics_By_Source_And_Label
+     (Diagnostics  : in out Diagnostics_Feature_State;
+      Source_Kind  : Diagnostic_Source_Kind;
+      Source_Label : String) return Natural
+   is
+      Normalized_Label : constant String := Normalize_Source_Label (Source_Label);
+      Removed : Natural := 0;
+      I       : Diagnostic_Row_Vectors.Extended_Index := Diagnostics.Rows.First_Index;
+   begin
+      while I <= Diagnostics.Rows.Last_Index loop
+         declare
+            Item : constant Diagnostic_Item := Diagnostics.Rows.Element (I);
+         begin
+            if Item.Source_Kind = Source_Kind
+              and then To_String (Item.Source_Label) = Normalized_Label
+            then
+               Diagnostics.Rows.Delete (I);
+               Removed := Removed + 1;
+            else
+               I := I + 1;
+            end if;
+         end;
+      end loop;
+      Reset_Exhausted_Projection_Predicates (Diagnostics);
+      Assert_Diagnostics_State_Consistent (Diagnostics);
+      return Removed;
+   end Clear_Diagnostics_By_Source_And_Label;
 
    procedure Reconcile_Diagnostics_Selection_After_Delete
      (Diagnostics     : Diagnostics_Feature_State;

@@ -63,7 +63,7 @@ package body Editor.Ada_Tasking_Protected_Final_Effects_Legality is
          return Final_Tasking_Protected_State_Mutation_Blocker;
       elsif Has (Img, "CALLS_ENTRY") then
          return Final_Tasking_Protected_Function_Entry_Call_Blocker;
-      elsif Has (Img, "BARRIER") and then Has (Img, "BOOLEAN") then
+      elsif (Has (Img, "BARRIER") or else Has (Img, "GUARD")) and then Has (Img, "BOOLEAN") then
          return Final_Tasking_Barrier_Not_Boolean_Blocker;
       elsif Has (Img, "BARRIER") or else Has (Img, "GUARD") then
          return Final_Tasking_Barrier_Side_Effect_Blocker;
@@ -102,10 +102,10 @@ package body Editor.Ada_Tasking_Protected_Final_Effects_Legality is
          return Final_Tasking_Not_Checked;
       elsif Has (Img, "INDETERMINATE") or else Has (Img, "NOT_CHECKED") then
          return Final_Tasking_Indeterminate;
-      elsif Has (Img, "PREDICATE") or else Has (Img, "INVARIANT") or else Has (Img, "CONTRACT") then
-         return Final_Tasking_Predicate_Invariant_Blocker;
       elsif Has (Img, "READ_BEFORE_WRITE") or else Has (Img, "INITIAL") or else Has (Img, "ASSIGN") or else Has (Img, "MERGE") then
          return Final_Tasking_Initialization_Blocker;
+      elsif Has (Img, "PREDICATE") or else Has (Img, "INVARIANT") or else Has (Img, "CONTRACT") then
+         return Final_Tasking_Predicate_Invariant_Blocker;
       elsif Has (Img, "LIFETIME") or else Has (Img, "ACCESS") then
          return Final_Tasking_Lifetime_Accessibility_Blocker;
       elsif Has (Img, "DISCRIMINANT") or else Has (Img, "VARIANT") then

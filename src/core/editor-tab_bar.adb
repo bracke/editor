@@ -147,11 +147,7 @@ package body Editor.Tab_Bar is
               Buffer_Id => Editor.Buffer_Types.No_Buffer);
    end Hit_Test;
 
-   function Display_Text
-     (Summary : Editor.Buffer_Types.Buffer_Summary;
-      Columns : Natural) return String
-   is
-      Text : constant String := To_String (Summary.Display_Name);
+   function Truncate_Tail (Text : String; Columns : Natural) return String is
    begin
       if Columns = 0 then
          return "";
@@ -160,24 +156,36 @@ package body Editor.Tab_Bar is
       elsif Columns <= 3 then
          return Text (Text'First .. Text'First + Columns - 1);
       else
-         return Text (Text'First .. Text'First + Columns - 4) & "...";
+         declare
+            Prefix : constant String :=
+              Text (Text'First .. Text'First + Columns - 4);
+            Last   : Integer := Prefix'Last;
+         begin
+            if Last >= Prefix'First
+              and then (Prefix (Last) = '.' or else Prefix (Last) = ' ')
+            then
+               Last := Last - 1;
+            end if;
+            if Last < Prefix'First then
+               return "...";
+            else
+               return Prefix (Prefix'First .. Last) & "...";
+            end if;
+         end;
       end if;
+   end Truncate_Tail;
+
+   function Display_Text
+     (Summary : Editor.Buffer_Types.Buffer_Summary;
+      Columns : Natural) return String is
+   begin
+      return Truncate_Tail (To_String (Summary.Display_Name), Columns);
    end Display_Text;
 
    function Empty_Display_Text
-     (Columns : Natural) return String
-   is
-      Text : constant String := Editor.Contextual_Help.Empty_Open_Buffers_Text;
+     (Columns : Natural) return String is
    begin
-      if Columns = 0 then
-         return "";
-      elsif Text'Length <= Columns then
-         return Text;
-      elsif Columns <= 3 then
-         return Text (Text'First .. Text'First + Columns - 1);
-      else
-         return Text (Text'First .. Text'First + Columns - 4) & "...";
-      end if;
+      return Truncate_Tail (Editor.Contextual_Help.Empty_Open_Buffers_Text, Columns);
    end Empty_Display_Text;
 
 end Editor.Tab_Bar;

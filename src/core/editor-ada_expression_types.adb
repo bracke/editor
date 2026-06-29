@@ -2,6 +2,7 @@ with Ada.Characters.Handling;
 with Ada.Strings;
 with Ada.Strings.Fixed;
 with Ada.Strings.Unbounded;
+with Editor.Ada_Language_Model;
 with Editor.Ada_Use_Type_Operators;
 
 package body Editor.Ada_Expression_Types is
@@ -620,6 +621,21 @@ package body Editor.Ada_Expression_Types is
       return T;
    end Primary_Name;
 
+   function Simple_Name (Text : String) return String is
+      T : constant String := Primary_Name (Text);
+   begin
+      for I in reverse T'Range loop
+         if T (I) = '.' then
+            if I < T'Last then
+               return T (I + 1 .. T'Last);
+            else
+               return "";
+            end if;
+         end if;
+      end loop;
+      return T;
+   end Simple_Name;
+
    function Prefix_Before (Text : String; Mark : Character) return String is
       T : constant String := Trim (Text);
    begin
@@ -1131,6 +1147,14 @@ package body Editor.Ada_Expression_Types is
       return "";
    end Infer_Operand_Subtype;
 
+   function Lookup_Operand_Subtype_Text
+     (Tree       : Editor.Ada_Syntax_Tree.Tree_Type;
+      Regions    : Editor.Ada_Declarative_Regions.Region_Model;
+      Visibility : Editor.Ada_Direct_Visibility.Visibility_Model;
+      Static     : Editor.Ada_Static_Expressions.Static_Model;
+      Region     : Editor.Ada_Declarative_Regions.Region_Id;
+      Text       : String) return String;
+
    function Count_Commas (Text : String) return Natural is
       Result : Natural := 0;
    begin
@@ -1141,6 +1165,69 @@ package body Editor.Ada_Expression_Types is
       end loop;
       return Result;
    end Count_Commas;
+
+   function Strip_Aggregate_Delimiters (Text : String) return String is
+      T : constant String := Trim (Text);
+   begin
+      if T'Length >= 2 and then T (T'First) = '(' and then T (T'Last) = ')' then
+         return Trim (T (T'First + 1 .. T'Last - 1));
+      else
+         return T;
+      end if;
+   end Strip_Aggregate_Delimiters;
+
+   function Top_Level_Association_Count (Text : String) return Natural is
+      T : constant String := Strip_Aggregate_Delimiters (Text);
+      Depth : Natural := 0;
+      Count : Natural := 1;
+   begin
+      if T = "" then
+         return 0;
+      end if;
+
+      for C of T loop
+         if C = '(' then
+            Depth := Depth + 1;
+         elsif C = ')' and then Depth > 0 then
+            Depth := Depth - 1;
+         elsif C = ',' and then Depth = 0 then
+            Count := Count + 1;
+         end if;
+      end loop;
+
+      return Count;
+   end Top_Level_Association_Count;
+
+   function Top_Level_Association_At (Text : String; Index : Positive) return String is
+      T : constant String := Strip_Aggregate_Delimiters (Text);
+      Depth : Natural := 0;
+      Current : Positive := 1;
+      Start : Natural := T'First;
+   begin
+      if T = "" then
+         return "";
+      end if;
+
+      for I in T'Range loop
+         if T (I) = '(' then
+            Depth := Depth + 1;
+         elsif T (I) = ')' and then Depth > 0 then
+            Depth := Depth - 1;
+         elsif T (I) = ',' and then Depth = 0 then
+            if Current = Index then
+               return Trim (T (Start .. I - 1));
+            end if;
+            Current := Current + 1;
+            Start := I + 1;
+         end if;
+      end loop;
+
+      if Current = Index and then Start <= T'Last then
+         return Trim (T (Start .. T'Last));
+      else
+         return "";
+      end if;
+   end Top_Level_Association_At;
 
    function Looks_Record_Aggregate (Text : String) return Boolean is
       T : constant String := Normalize (Text);
@@ -1166,10 +1253,68 @@ package body Editor.Ada_Expression_Types is
          return Trim (T (P + Mark'Length .. T'Last));
       elsif Contains (N, "string") then
          return "Character";
+      elsif Contains (N, "integer_array") then
+         return "Integer";
+      elsif N'Length > 6 and then N (N'Last - 5 .. N'Last) = "_array" then
+         declare
+            Base : constant String := T (T'First .. T'Last - 6);
+         begin
+            if Base /= "" then
+               return Base;
+            else
+               return "";
+            end if;
+         end;
       else
          return "";
       end if;
    end Extract_Array_Element_Subtype;
+
+   function Array_Element_Subtype_For
+     (Tree   : Editor.Ada_Syntax_Tree.Tree_Type;
+      Types  : Editor.Ada_Type_Graph.Type_Model;
+      Region : Editor.Ada_Declarative_Regions.Region_Id;
+      Expected : String) return String
+   is
+      Direct : constant String := Extract_Array_Element_Subtype (Expected);
+      T_Id : Editor.Ada_Type_Graph.Type_Id;
+   begin
+      if Direct /= "" then
+         return Direct;
+      end if;
+
+      T_Id := Editor.Ada_Type_Graph.Lookup_Type (Types, Region, Expected);
+      if T_Id = Editor.Ada_Type_Graph.No_Type then
+         return "";
+      end if;
+
+      declare
+         Info : constant Editor.Ada_Type_Graph.Type_Info :=
+           Editor.Ada_Type_Graph.Type_Node (Types, T_Id);
+      begin
+         if To_String (Info.Base_Subtype) /= "" then
+            declare
+               Base_Element : constant String :=
+                 Extract_Array_Element_Subtype (To_String (Info.Base_Subtype));
+            begin
+               if Base_Element /= "" then
+                  return Base_Element;
+               end if;
+            end;
+         end if;
+
+         if Info.Node /= Editor.Ada_Syntax_Tree.No_Node then
+            declare
+               N : constant Editor.Ada_Syntax_Tree.Node_Info :=
+                 Editor.Ada_Syntax_Tree.Node (Tree, Info.Node);
+            begin
+               return Extract_Array_Element_Subtype (To_String (N.Label));
+            end;
+         end if;
+      end;
+
+      return "";
+   end Array_Element_Subtype_For;
 
    function Extract_Array_Index_Subtype (Expected : String) return String is
       T : constant String := Trim (Expected);
@@ -1319,7 +1464,14 @@ package body Editor.Ada_Expression_Types is
 
    function Extract_Designator_Before_Call (Text : String) return String is
       T : constant String := Trim (Text);
+      Last : Natural := T'Last;
    begin
+      while Last >= T'First and then T (Last) = ';' loop
+         if Last = T'First then
+            return "";
+         end if;
+         Last := Last - 1;
+      end loop;
       for I in T'Range loop
          if T (I) = '(' then
             if I = T'First then
@@ -1329,7 +1481,7 @@ package body Editor.Ada_Expression_Types is
             end if;
          end if;
       end loop;
-      return "";
+      return Trim (T (T'First .. Last));
    end Extract_Designator_Before_Call;
 
    function Extract_First_Actual_Text (Text : String) return String is
@@ -1395,6 +1547,29 @@ package body Editor.Ada_Expression_Types is
            C = Editor.Ada_Type_Graph.Type_Compatibility_Class_Wide;
       end if;
    end Subtype_Compatible_By_Graph;
+
+   function Universal_Compatible_By_Category
+     (Types    : Editor.Ada_Type_Graph.Type_Model;
+      Region   : Editor.Ada_Declarative_Regions.Region_Id;
+      Actual   : String;
+      Expected : String) return Boolean
+   is
+      A : constant String := Normalize (Actual);
+      Category : constant Editor.Ada_Type_Graph.Type_Category :=
+        Type_Category_For_Subtype (Types, Region, Expected);
+   begin
+      if A = "universal_integer" then
+         return Category in Editor.Ada_Type_Graph.Type_Category_Integer |
+                            Editor.Ada_Type_Graph.Type_Category_Modular |
+                            Editor.Ada_Type_Graph.Type_Category_Floating |
+                            Editor.Ada_Type_Graph.Type_Category_Fixed;
+      elsif A = "universal_real" then
+         return Category in Editor.Ada_Type_Graph.Type_Category_Floating |
+                            Editor.Ada_Type_Graph.Type_Category_Fixed;
+      else
+         return False;
+      end if;
+   end Universal_Compatible_By_Category;
 
    function Operand_Subtype_From_Text
      (Static : Editor.Ada_Static_Expressions.Static_Model;
@@ -1484,6 +1659,14 @@ package body Editor.Ada_Expression_Types is
          elsif Lookup.Status /= Editor.Ada_Direct_Visibility.Lookup_Found then
             Info.Conversion_Status := Conversion_Type_Target_Unresolved;
             return;
+         else
+            Info.Declaration := Lookup.Declaration;
+            Info.Type_Id := Editor.Ada_Type_Graph.Type_For_Declaration (Types, Lookup.Declaration);
+            Info.Status := (if Node.Kind = Editor.Ada_Syntax_Tree.Node_Qualified_Expression then
+                               Expression_Type_Qualified else Expression_Type_Conversion);
+            Info.Inferred_Subtype := To_Unbounded_String (Target);
+            Info.Normalized_Subtype := To_Unbounded_String (Normalize (Target));
+            Info.Conversion_Status := Conversion_Type_Target_Resolved;
          end if;
       end if;
 
@@ -1506,7 +1689,8 @@ package body Editor.Ada_Expression_Types is
       Info.Normalized_Conversion_Operand_Subtype := To_Unbounded_String (Normalize (Operand));
       if Subtype_Compatible_By_Graph (Types, Region, Target, Operand) or else
         Normalize (Target) = Normalize (Operand) or else
-        Is_Universal_Compatible (Normalize (Operand), Normalize (Target))
+        Is_Universal_Compatible (Normalize (Operand), Normalize (Target)) or else
+        Universal_Compatible_By_Category (Types, Region, Operand, Target)
       then
          Info.Conversion_Status := Conversion_Type_Operand_Compatible;
          Info.Conversion_Compatible_Operand_Count := 1;
@@ -1534,10 +1718,10 @@ package body Editor.Ada_Expression_Types is
       Childs : constant Natural := Editor.Ada_Syntax_Tree.Child_Count (Tree, Node.Id);
       Named  : Natural := 0;
       Positional : Natural := 0;
-      Element : constant String := Extract_Array_Element_Subtype (Expected);
       Index   : constant String := Extract_Array_Index_Subtype (Expected);
       Region  : constant Editor.Ada_Declarative_Regions.Region_Id :=
         Region_For_Line (Regions, Node.Source_Span.Start_Line);
+      Element : constant String := Array_Element_Subtype_For (Tree, Types, Region, Expected);
       Expected_Category : constant Editor.Ada_Type_Graph.Type_Category :=
         Type_Category_For_Subtype (Types, Region, Expected);
       Record_Missing : Natural := 0;
@@ -1557,7 +1741,7 @@ package body Editor.Ada_Expression_Types is
 
       Info.Aggregate_Status := Aggregate_Type_Context_Required;
       Info.Aggregate_Component_Count :=
-        (if Childs > 0 then Childs else Count_Commas (Text) + 1);
+        (if Childs > 0 then Childs else Top_Level_Association_Count (Text));
 
       for I in 1 .. Childs loop
          declare
@@ -1581,9 +1765,9 @@ package body Editor.Ada_Expression_Types is
 
       if Childs = 0 then
          if Contains (Text, "=>") then
-            Named := Count_Commas (Text) + 1;
+            Named := Top_Level_Association_Count (Text);
          elsif Trim (Text) /= "" then
-            Positional := Count_Commas (Text) + 1;
+            Positional := Top_Level_Association_Count (Text);
          end if;
       end if;
 
@@ -1664,6 +1848,41 @@ package body Editor.Ada_Expression_Types is
             end;
          end loop;
 
+         if Childs = 0 then
+            for I in 1 .. Top_Level_Association_Count (Text) loop
+               declare
+                  Assoc : constant String := Top_Level_Association_At (Text, I);
+                  Name : constant String := Aggregate_Association_Name (Assoc);
+               begin
+                  if Name /= "" then
+                     declare
+                        Seen : Natural := 0;
+                     begin
+                        for J in 1 .. Top_Level_Association_Count (Text) loop
+                           if Normalize (Aggregate_Association_Name
+                              (Top_Level_Association_At (Text, J))) =
+                             Normalize (Name)
+                           then
+                              Seen := Seen + 1;
+                           end if;
+                        end loop;
+                        if Seen > 1 then
+                           Record_Duplicate := Record_Duplicate + 1;
+                        elsif Record_Component_Known (Tree, Types, Region, Expected, Name) then
+                           Record_Compatible := Record_Compatible + 1;
+                        elsif Editor.Ada_Type_Graph.Lookup_Type (Types, Region, Expected) /=
+                          Editor.Ada_Type_Graph.No_Type
+                        then
+                           Record_Missing := Record_Missing + 1;
+                        else
+                           Info.Aggregate_Unknown_Count := Info.Aggregate_Unknown_Count + 1;
+                        end if;
+                     end;
+                  end if;
+               end;
+            end loop;
+         end if;
+
          Info.Aggregate_Record_Component_Compatible_Count := Record_Compatible;
          Info.Aggregate_Record_Component_Missing_Count := Record_Missing;
          Info.Aggregate_Record_Component_Duplicate_Count := Record_Duplicate;
@@ -1698,8 +1917,21 @@ package body Editor.Ada_Expression_Types is
             end;
          end loop;
 
-         if Childs = 0 and then Element /= "" and then Positional > 0 then
-            Array_Unknown := Positional;
+         if Childs = 0 then
+            for I in 1 .. Top_Level_Association_Count (Text) loop
+               declare
+                  Value : constant String := Aggregate_Association_Value
+                    (Top_Level_Association_At (Text, I));
+               begin
+                  if Element = "" then
+                     Array_Unknown := Array_Unknown + 1;
+                  elsif Looks_Element_Compatible (Value, Element) then
+                     Array_Compatible := Array_Compatible + 1;
+                  else
+                     Array_Mismatch := Array_Mismatch + 1;
+                  end if;
+               end;
+            end loop;
          end if;
 
          Info.Aggregate_Array_Element_Compatible_Count := Array_Compatible;
@@ -1727,8 +1959,6 @@ package body Editor.Ada_Expression_Types is
         and then Info.Aggregate_Status /= Aggregate_Type_Record_Component_Duplicate
         and then Info.Aggregate_Status /= Aggregate_Type_Array_Element_Mismatch
         and then Info.Aggregate_Status /= Aggregate_Type_Array_Element_Unknown
-        and then Info.Aggregate_Status /= Aggregate_Type_Record_Components_Compatible
-        and then Info.Aggregate_Status /= Aggregate_Type_Array_Elements_Compatible
       then
          Info.Aggregate_Status := Aggregate_Type_Compatible;
       end if;
@@ -1745,37 +1975,67 @@ package body Editor.Ada_Expression_Types is
       Node       : Editor.Ada_Syntax_Tree.Node_Info)
    is
       Symbol : constant String := Operator_Symbol_From_Text (To_String (Node.Label));
-      Left   : constant String :=
-        Infer_Operand_Subtype (Tree, Regions, Visibility, Types, Static, Calls, Node, 1);
-      Right  : constant String :=
-        Infer_Operand_Subtype (Tree, Regions, Visibility, Types, Static, Calls, Node, 2);
-      NL     : constant String := Normalize (Left);
-      NR     : constant String := Normalize (Right);
-      Has_Right : constant Boolean := Right /= "";
+      Left_U : Ada.Strings.Unbounded.Unbounded_String :=
+        To_Unbounded_String
+          (Infer_Operand_Subtype (Tree, Regions, Visibility, Types, Static, Calls, Node, 1));
+      Right_U : Ada.Strings.Unbounded.Unbounded_String :=
+        To_Unbounded_String
+          (Infer_Operand_Subtype (Tree, Regions, Visibility, Types, Static, Calls, Node, 2));
+      NL     : Ada.Strings.Unbounded.Unbounded_String;
+      NR     : Ada.Strings.Unbounded.Unbounded_String;
+      Has_Right : Boolean := False;
    begin
       Info.Operator_Status := Operator_Type_Not_Operator;
       if Symbol = "" then
          return;
       end if;
 
+      if To_String (Left_U) = "" or else To_String (Right_U) = "" then
+         declare
+            Text : constant String := To_String (Node.Label);
+            NText : constant String := Normalize (Text);
+            Mark : constant String := " " & Normalize (Symbol) & " ";
+            Pos : constant Natural := Ada.Strings.Fixed.Index (NText, Mark);
+         begin
+            if Pos /= 0 then
+               if To_String (Left_U) = "" and then Pos > Text'First then
+                  Left_U := To_Unbounded_String
+                    (Lookup_Operand_Subtype_Text
+                       (Tree, Regions, Visibility, Static, Info.Region,
+                        Text (Text'First .. Pos - 1)));
+               end if;
+               if To_String (Right_U) = "" and then Pos + Mark'Length <= Text'Last then
+                  Right_U := To_Unbounded_String
+                    (Lookup_Operand_Subtype_Text
+                       (Tree, Regions, Visibility, Static, Info.Region,
+                        Text (Pos + Mark'Length .. Text'Last)));
+               end if;
+            end if;
+         end;
+      end if;
+
+      NL := To_Unbounded_String (Normalize (To_String (Left_U)));
+      NR := To_Unbounded_String (Normalize (To_String (Right_U)));
+      Has_Right := To_String (Right_U) /= "";
+
       Info.Operator_Status := Operator_Type_Not_Checked;
       Info.Operator_Symbol := To_Unbounded_String (Symbol);
-      Info.Left_Operand_Subtype := To_Unbounded_String (Left);
-      Info.Right_Operand_Subtype := To_Unbounded_String (Right);
-      Info.Normalized_Left_Operand_Subtype := To_Unbounded_String (NL);
-      Info.Normalized_Right_Operand_Subtype := To_Unbounded_String (NR);
+      Info.Left_Operand_Subtype := Left_U;
+      Info.Right_Operand_Subtype := Right_U;
+      Info.Normalized_Left_Operand_Subtype := NL;
+      Info.Normalized_Right_Operand_Subtype := NR;
 
-      if Left = "ambiguous" or else Right = "ambiguous" then
+      if To_String (Left_U) = "ambiguous" or else To_String (Right_U) = "ambiguous" then
          Info.Operator_Status := Operator_Type_Ambiguous;
          Info.Status := Expression_Type_Operator_Unknown;
          Info.Candidate_Count := 2;
          return;
-      elsif Left = "" and then not (Symbol = "+" or else Symbol = "-" or else Symbol = "not") then
+      elsif To_String (Left_U) = "" and then not (Symbol = "+" or else Symbol = "-" or else Symbol = "not") then
          Info.Operator_Status := Operator_Type_Operand_Unknown;
          Info.Operator_Unknown_Operand_Count := 1;
          Info.Status := Expression_Type_Operator_Unknown;
          return;
-      elsif Has_Right and then Right = "" then
+      elsif Has_Right and then To_String (Right_U) = "" then
          Info.Operator_Status := Operator_Type_Operand_Unknown;
          Info.Operator_Unknown_Operand_Count := 1;
          Info.Status := Expression_Type_Operator_Unknown;
@@ -1783,8 +2043,8 @@ package body Editor.Ada_Expression_Types is
       end if;
 
       if Is_Boolean_Operator (Symbol) then
-         if (Left = "" or else NL = "boolean") and then
-           (not Has_Right or else NR = "boolean" or else Right = "")
+         if (To_String (Left_U) = "" or else To_String (NL) = "boolean") and then
+           (not Has_Right or else To_String (NR) = "boolean" or else To_String (Right_U) = "")
          then
             Info.Operator_Status := Operator_Type_Resolved_Predefined;
             Info.Operator_Compatible_Operand_Count := (if Has_Right then 2 else 1);
@@ -1799,8 +2059,8 @@ package body Editor.Ada_Expression_Types is
             Info.Status := Expression_Type_Operator_Unknown;
          end if;
       elsif Is_Relational_Operator (Symbol) then
-         if Has_Right and then (NL = NR or else
-           (Is_Numeric_Family (Left) and then Is_Numeric_Family (Right)))
+         if Has_Right and then (To_String (NL) = To_String (NR) or else
+           (Is_Numeric_Family (To_String (Left_U)) and then Is_Numeric_Family (To_String (Right_U))))
          then
             Info.Operator_Status := Operator_Type_Resolved_Predefined;
             Info.Operator_Compatible_Operand_Count := 2;
@@ -1809,7 +2069,7 @@ package body Editor.Ada_Expression_Types is
             Info.Normalized_Operator_Result_Subtype := To_Unbounded_String ("boolean");
             Info.Inferred_Subtype := Info.Operator_Result_Subtype;
             Info.Normalized_Subtype := Info.Normalized_Operator_Result_Subtype;
-         elsif not Has_Right or else Right = "" then
+         elsif not Has_Right or else To_String (Right_U) = "" then
             Info.Operator_Status := Operator_Type_Operand_Unknown;
             Info.Operator_Unknown_Operand_Count := 1;
          else
@@ -1818,12 +2078,12 @@ package body Editor.Ada_Expression_Types is
             Info.Status := Expression_Type_Operator_Unknown;
          end if;
       elsif Is_Numeric_Operator (Symbol) then
-         if (Left = "" or else Is_Numeric_Family (Left)) and then
-           (not Has_Right or else Is_Numeric_Family (Right))
+         if (To_String (Left_U) = "" or else Is_Numeric_Family (To_String (Left_U))) and then
+           (not Has_Right or else Is_Numeric_Family (To_String (Right_U)))
          then
             Info.Operator_Status := Operator_Type_Resolved_Predefined;
             Info.Operator_Compatible_Operand_Count := (if Has_Right then 2 else 1);
-            if Is_Real_Family (Left) or else Is_Real_Family (Right) or else Looks_Real (To_String (Node.Label)) then
+            if Is_Real_Family (To_String (Left_U)) or else Is_Real_Family (To_String (Right_U)) or else Looks_Real (To_String (Node.Label)) then
                Info.Operator_Result_Subtype := To_Unbounded_String ("Universal_Real");
                Info.Normalized_Operator_Result_Subtype := To_Unbounded_String ("universal_real");
             else
@@ -1847,7 +2107,8 @@ package body Editor.Ada_Expression_Types is
 
 
    function Lookup_Operand_Subtype_Text
-     (Regions    : Editor.Ada_Declarative_Regions.Region_Model;
+     (Tree       : Editor.Ada_Syntax_Tree.Tree_Type;
+      Regions    : Editor.Ada_Declarative_Regions.Region_Model;
       Visibility : Editor.Ada_Direct_Visibility.Visibility_Model;
       Static     : Editor.Ada_Static_Expressions.Static_Model;
       Region     : Editor.Ada_Declarative_Regions.Region_Id;
@@ -1855,6 +2116,16 @@ package body Editor.Ada_Expression_Types is
    is
       Literal : constant String := Operand_Subtype_From_Text (Static, Region, Text);
       Lookup  : Editor.Ada_Direct_Visibility.Lookup_Result;
+
+      function Subtype_For_Declaration
+        (Decl : Editor.Ada_Direct_Visibility.Declaration_Info) return String
+      is
+         Subtype_Text : constant String :=
+           Subtype_From_Declaration_Label
+             (To_String (Editor.Ada_Syntax_Tree.Node (Tree, Decl.Node).Label));
+      begin
+         return Subtype_Text;
+      end Subtype_For_Declaration;
    begin
       if Literal /= "" then
          return Literal;
@@ -1866,7 +2137,7 @@ package body Editor.Ada_Expression_Types is
          declare
             Decl : constant Editor.Ada_Direct_Visibility.Declaration_Info :=
               Editor.Ada_Direct_Visibility.Declaration (Visibility, Lookup.Declaration);
-            Subtype_Text : constant String := "";
+            Subtype_Text : constant String := Subtype_For_Declaration (Decl);
          begin
             if Subtype_Text /= "" then
                return Subtype_Text;
@@ -1877,6 +2148,36 @@ package body Editor.Ada_Expression_Types is
       elsif Lookup.Status = Editor.Ada_Direct_Visibility.Lookup_Ambiguous then
          return "ambiguous";
       else
+         declare
+            Wanted : constant String := Normalize (Primary_Name (Text));
+            Found  : Editor.Ada_Direct_Visibility.Declaration_Id :=
+              Editor.Ada_Direct_Visibility.No_Declaration;
+         begin
+            for I in 1 .. Editor.Ada_Direct_Visibility.Declaration_Count (Visibility) loop
+               declare
+                  Decl : constant Editor.Ada_Direct_Visibility.Declaration_Info :=
+                    Editor.Ada_Direct_Visibility.Declaration_At (Visibility, I);
+               begin
+                  if Normalize (To_String (Decl.Name)) = Wanted
+                    and then (Decl.Kind = Editor.Ada_Direct_Visibility.Declaration_Object
+                              or else Decl.Kind = Editor.Ada_Direct_Visibility.Declaration_Number)
+                  then
+                     if Found /= Editor.Ada_Direct_Visibility.No_Declaration then
+                        return "";
+                     end if;
+                     Found := Decl.Id;
+                  end if;
+               end;
+            end loop;
+            if Found /= Editor.Ada_Direct_Visibility.No_Declaration then
+               declare
+                  Decl : constant Editor.Ada_Direct_Visibility.Declaration_Info :=
+                    Editor.Ada_Direct_Visibility.Declaration (Visibility, Found);
+               begin
+                  return Subtype_For_Declaration (Decl);
+               end;
+            end if;
+         end;
          return "";
       end if;
    end Lookup_Operand_Subtype_Text;
@@ -1909,7 +2210,8 @@ package body Editor.Ada_Expression_Types is
    end Split_Concatenation_Text;
 
    procedure Apply_Concatenation_Inference
-     (Regions    : Editor.Ada_Declarative_Regions.Region_Model;
+     (Tree       : Editor.Ada_Syntax_Tree.Tree_Type;
+      Regions    : Editor.Ada_Declarative_Regions.Region_Model;
       Visibility : Editor.Ada_Direct_Visibility.Visibility_Model;
       Types      : Editor.Ada_Type_Graph.Type_Model;
       Static     : Editor.Ada_Static_Expressions.Static_Model;
@@ -1925,20 +2227,26 @@ package body Editor.Ada_Expression_Types is
    begin
       Info.Concatenation_Status := Concatenation_Type_Not_Concatenation;
       if Symbol /= "&" then
-         return;
+         Split_Concatenation_Text (To_String (Info.Expression_Text), Left_Text_U, Right_Text_U);
+         if To_String (Left_Text_U) = "" or else To_String (Right_Text_U) = "" then
+            return;
+         end if;
+         Info.Operator_Symbol := To_Unbounded_String ("&");
       end if;
 
       if To_String (Left_U) = "" or else To_String (Right_U) = "" then
-         Split_Concatenation_Text (To_String (Info.Expression_Text), Left_Text_U, Right_Text_U);
+         if To_String (Left_Text_U) = "" and then To_String (Right_Text_U) = "" then
+            Split_Concatenation_Text (To_String (Info.Expression_Text), Left_Text_U, Right_Text_U);
+         end if;
          if To_String (Left_U) = "" then
-            Left_U := To_Unbounded_String
+           Left_U := To_Unbounded_String
               (Lookup_Operand_Subtype_Text
-                 (Regions, Visibility, Static, Info.Region, To_String (Left_Text_U)));
+                 (Tree, Regions, Visibility, Static, Info.Region, To_String (Left_Text_U)));
          end if;
          if To_String (Right_U) = "" then
-            Right_U := To_Unbounded_String
+           Right_U := To_Unbounded_String
               (Lookup_Operand_Subtype_Text
-                 (Regions, Visibility, Static, Info.Region, To_String (Right_Text_U)));
+                 (Tree, Regions, Visibility, Static, Info.Region, To_String (Right_Text_U)));
          end if;
       end if;
 
@@ -2064,6 +2372,21 @@ package body Editor.Ada_Expression_Types is
       end if;
 
       Candidate_Count := Direct.Match_Count + Direct_Quoted.Match_Count + Primitive.Match_Count;
+      if Candidate_Count = 0 and then Use_Primitives then
+         for I in 1 .. Editor.Ada_Use_Type_Operators.Primitive_Use_Count (Primitives) loop
+            declare
+               P : constant Editor.Ada_Use_Type_Operators.Primitive_Use_Info :=
+                 Editor.Ada_Use_Type_Operators.Primitive_Use_At (Primitives, I);
+            begin
+               if P.Status = Editor.Ada_Use_Type_Operators.Primitive_Use_Found
+                 and then P.Is_Operator
+                 and then To_String (P.Normalized_Primitive) = Normalize (Symbol)
+               then
+                  Candidate_Count := Candidate_Count + 1;
+               end if;
+            end;
+         end loop;
+      end if;
       Info.Operator_Overload_Candidate_Count := Candidate_Count;
 
       if Candidate_Count = 0 then
@@ -2077,8 +2400,7 @@ package body Editor.Ada_Expression_Types is
                  Editor.Ada_Use_Type_Operators.Primitive_Use_At (Primitives, I);
                PT : constant String := To_String (P.Normalized_Type_Name);
             begin
-               if P.Clause_Region = Info.Region
-                 and then P.Status = Editor.Ada_Use_Type_Operators.Primitive_Use_Found
+               if P.Status = Editor.Ada_Use_Type_Operators.Primitive_Use_Found
                  and then P.Is_Operator
                  and then To_String (P.Normalized_Primitive) = Normalize (Symbol)
                then
@@ -2142,7 +2464,6 @@ package body Editor.Ada_Expression_Types is
       Static     : Editor.Ada_Static_Expressions.Static_Model;
       Calls      : Editor.Ada_Call_Resolution.Call_Resolution_Model;
       Node       : Editor.Ada_Syntax_Tree.Node_Info) return Expression_Type_Info;
-
 
    procedure Apply_Target_Name_Update_Inference
      (Tree       : Editor.Ada_Syntax_Tree.Tree_Type;
@@ -2225,6 +2546,7 @@ package body Editor.Ada_Expression_Types is
                  Editor.Ada_Syntax_Tree.Node (Tree, Child_Id);
                Child_Info : constant Expression_Type_Info :=
                  Infer_One (Tree, Regions, Visibility, Types, Static, Calls, Child);
+               Child_Name : constant String := Normalize (To_String (Child.Label));
             begin
                if Child.Kind /= Editor.Ada_Syntax_Tree.Node_Target_Name and then
                  To_String (Child_Info.Normalized_Subtype) /= ""
@@ -2232,6 +2554,15 @@ package body Editor.Ada_Expression_Types is
                   Has_Source := True;
                   Info.Target_Name_Source_Subtype := Child_Info.Inferred_Subtype;
                   Info.Normalized_Target_Name_Source_Subtype := Child_Info.Normalized_Subtype;
+                  exit;
+               elsif Child.Kind = Editor.Ada_Syntax_Tree.Node_Name
+                 and then To_String (Expected) /= ""
+                 and then Child_Name /= ""
+                 and then Contains (Normalize (To_String (Node.Label)), Child_Name & " with")
+               then
+                  Has_Source := True;
+                  Info.Target_Name_Source_Subtype := Info.Expected_Subtype;
+                  Info.Normalized_Target_Name_Source_Subtype := Info.Normalized_Expected_Subtype;
                   exit;
                end if;
             end;
@@ -2656,7 +2987,6 @@ package body Editor.Ada_Expression_Types is
    is
       T : constant String := Trim (Text);
       NT : constant String := Normalize (T);
-      pragma Unreferenced (Tree);
    begin
       if T = "" then
          return "";
@@ -2741,14 +3071,22 @@ package body Editor.Ada_Expression_Types is
       end if;
       declare
          Tail : constant String := Trim (Original (Original'First + R + 7 - 1 .. Original'Last));
+         Normalized_Tail : constant String := Normalize (Tail);
          Semi : constant Natural := Ada.Strings.Fixed.Index (Tail, ";");
-         Is_Pos : constant Natural := Ada.Strings.Fixed.Index (Normalize (Tail), " is");
+         Is_Pos : constant Natural := Ada.Strings.Fixed.Index (Normalized_Tail, " is");
+         Body_Pos : constant Natural := Ada.Strings.Fixed.Index (Normalized_Tail, " is ");
+         Stop_Pos : constant Natural :=
+           (if Body_Pos /= 0 then Body_Pos
+            elsif Is_Pos /= 0 then Is_Pos
+            else Semi);
          End_Pos : Natural := 0;
       begin
-         if Semi /= 0 then
+         if Stop_Pos /= 0 and then Semi /= 0 then
+            End_Pos := Natural'Min (Stop_Pos, Semi) - 1;
+         elsif Stop_Pos /= 0 then
+            End_Pos := Stop_Pos - 1;
+         elsif Semi /= 0 then
             End_Pos := Semi - 1;
-         elsif Is_Pos /= 0 then
-            End_Pos := Is_Pos - 1;
          else
             End_Pos := Tail'Length;
          end if;
@@ -2814,9 +3152,10 @@ package body Editor.Ada_Expression_Types is
 
       if Decl = Editor.Ada_Direct_Visibility.No_Declaration then
          declare
+            Designator : constant String := Extract_Designator_Before_Call (To_String (Node.Label));
             Lookup : constant Editor.Ada_Direct_Visibility.Lookup_Result :=
               Editor.Ada_Direct_Visibility.Lookup_Visible
-                (Visibility, Regions, Region, Extract_Designator_Before_Call (To_String (Node.Label)));
+                (Visibility, Regions, Region, Designator);
          begin
             Candidate_Count := Lookup.Match_Count;
             if Lookup.Status = Editor.Ada_Direct_Visibility.Lookup_Found then
@@ -2828,9 +3167,38 @@ package body Editor.Ada_Expression_Types is
                Info.Candidate_Count := Lookup.Match_Count;
                return;
             else
-               Info.Call_Actual_Type_Status := Call_Actual_Type_Unresolved_Call;
-               Info.Status := Expression_Type_Call_Unresolved;
-               return;
+               declare
+                  Wanted : constant String := Normalize (Simple_Name (Designator));
+               begin
+                  for I in 1 .. Editor.Ada_Direct_Visibility.Declaration_Count (Visibility) loop
+                     declare
+                        D : constant Editor.Ada_Direct_Visibility.Declaration_Info :=
+                          Editor.Ada_Direct_Visibility.Declaration_At (Visibility, I);
+                     begin
+                        if Normalize (To_String (D.Name)) = Wanted
+                          and then (D.Kind = Editor.Ada_Direct_Visibility.Declaration_Subprogram
+                                    or else D.Kind = Editor.Ada_Direct_Visibility.Declaration_Entry
+                                    or else D.Kind = Editor.Ada_Direct_Visibility.Declaration_Formal_Subprogram)
+                        then
+                           if Decl /= Editor.Ada_Direct_Visibility.No_Declaration then
+                              Info.Call_Actual_Type_Status := Call_Actual_Type_Ambiguous_Call;
+                              Info.Call_Actual_Type_Candidate_Count := Candidate_Count + 1;
+                              Info.Status := Expression_Type_Call_Ambiguous;
+                              Info.Candidate_Count := Candidate_Count + 1;
+                              return;
+                           end if;
+                           Decl := D.Id;
+                           Candidate_Count := 1;
+                        end if;
+                     end;
+                  end loop;
+
+                  if Decl = Editor.Ada_Direct_Visibility.No_Declaration then
+                     Info.Call_Actual_Type_Status := Call_Actual_Type_Unresolved_Call;
+                     Info.Status := Expression_Type_Call_Unresolved;
+                     return;
+                  end if;
+               end;
             end if;
          end;
       end if;
@@ -3027,6 +3395,35 @@ package body Editor.Ada_Expression_Types is
       Actual_Text : constant String := Actual_Expression_Text (To_String (Node.Label));
       Decl : Editor.Ada_Direct_Visibility.Declaration_Id := Editor.Ada_Direct_Visibility.No_Declaration;
       Candidate_Count : Natural := 0;
+
+      function Unique_Call_Target
+        (Name : String) return Editor.Ada_Direct_Visibility.Declaration_Id
+      is
+         Wanted : constant String := Normalize (Name);
+         Found  : Editor.Ada_Direct_Visibility.Declaration_Id :=
+           Editor.Ada_Direct_Visibility.No_Declaration;
+      begin
+         if Wanted = "" then
+            return Editor.Ada_Direct_Visibility.No_Declaration;
+         end if;
+         for I in 1 .. Editor.Ada_Direct_Visibility.Declaration_Count (Visibility) loop
+            declare
+               D : constant Editor.Ada_Direct_Visibility.Declaration_Info :=
+                 Editor.Ada_Direct_Visibility.Declaration_At (Visibility, I);
+            begin
+               if Normalize (To_String (D.Name)) = Wanted
+                 and then (D.Kind = Editor.Ada_Direct_Visibility.Declaration_Subprogram
+                           or else D.Kind = Editor.Ada_Direct_Visibility.Declaration_Entry)
+               then
+                  if Found /= Editor.Ada_Direct_Visibility.No_Declaration then
+                     return Editor.Ada_Direct_Visibility.No_Declaration;
+                  end if;
+                  Found := D.Id;
+               end if;
+            end;
+         end loop;
+         return Found;
+      end Unique_Call_Target;
    begin
       Info.Parameter_Association_Status := Parameter_Association_Not_Parameter;
       if Node.Parent = Editor.Ada_Syntax_Tree.No_Node then
@@ -3055,6 +3452,9 @@ package body Editor.Ada_Expression_Types is
          return;
       end if;
 
+      if Info.Status = Expression_Type_Not_Checked then
+         Info.Status := Expression_Type_Indeterminate;
+      end if;
       Info.Parameter_Association_Call := Call.Id;
       Info.Parameter_Association_Position := Actual_Position_In_Call (Tree, Call.Id, Assoc);
       if Assoc.Kind = Editor.Ada_Syntax_Tree.Node_Named_Association then
@@ -3084,8 +3484,13 @@ package body Editor.Ada_Expression_Types is
                Info.Candidate_Count := Lookup.Match_Count;
                return;
             else
-               Info.Parameter_Association_Status := Parameter_Association_Formal_Context_Unresolved;
-               return;
+               Decl := Unique_Call_Target
+                 (Extract_Designator_Before_Call (To_String (Call.Label)));
+               if Decl = Editor.Ada_Direct_Visibility.No_Declaration then
+                  Info.Parameter_Association_Status := Parameter_Association_Formal_Context_Unresolved;
+                  return;
+               end if;
+               Candidate_Count := 1;
             end if;
          end;
       end if;
@@ -3251,22 +3656,55 @@ package body Editor.Ada_Expression_Types is
    end Apply_Integer_Range_Metadata;
 
    procedure Apply_Universal_Numeric_Resolution
-     (Static  : Editor.Ada_Static_Expressions.Static_Model;
+     (Tree    : Editor.Ada_Syntax_Tree.Tree_Type;
+      Static  : Editor.Ada_Static_Expressions.Static_Model;
       Regions : Editor.Ada_Declarative_Regions.Region_Model;
       Info    : in out Expression_Type_Info;
       Node    : Editor.Ada_Syntax_Tree.Node_Info)
    is
       Inferred : constant String := To_String (Info.Normalized_Subtype);
-      Expected : constant String := To_String (Info.Expected_Subtype);
-      NExpected : constant String := To_String (Info.Normalized_Expected_Subtype);
+      Expected_U : Ada.Strings.Unbounded.Unbounded_String := Info.Expected_Subtype;
+      NExpected_U : Ada.Strings.Unbounded.Unbounded_String := Info.Normalized_Expected_Subtype;
       Region : constant Editor.Ada_Declarative_Regions.Region_Id :=
         Region_For_Line (Regions, Node.Source_Span.Start_Line);
       Value : Editor.Ada_Static_Expressions.Static_Value_Info;
    begin
       Info.Universal_Numeric_Status := Universal_Numeric_Not_Universal;
 
-      if Expected = "" or else NExpected = "" then
-         return;
+      if To_String (Expected_U) = "" or else To_String (NExpected_U) = "" then
+         declare
+            Current : Editor.Ada_Syntax_Tree.Node_Id := Node.Parent;
+         begin
+            while Current /= Editor.Ada_Syntax_Tree.No_Node loop
+               declare
+                  Anc : constant Editor.Ada_Syntax_Tree.Node_Info :=
+                    Editor.Ada_Syntax_Tree.Node (Tree, Current);
+               begin
+                  if Anc.Kind = Editor.Ada_Syntax_Tree.Node_Declaration_Default
+                    and then Anc.Parent /= Editor.Ada_Syntax_Tree.No_Node
+                  then
+                     declare
+                        Decl_Node : constant Editor.Ada_Syntax_Tree.Node_Info :=
+                          Editor.Ada_Syntax_Tree.Node (Tree, Anc.Parent);
+                        Subtype_Text : constant String :=
+                          Subtype_From_Declaration_Label (To_String (Decl_Node.Label));
+                     begin
+                        if Subtype_Text /= "" then
+                           Expected_U := To_Unbounded_String (Subtype_Text);
+                           NExpected_U := To_Unbounded_String (Normalize (Subtype_Text));
+                           Info.Expected_Subtype := Expected_U;
+                           Info.Normalized_Expected_Subtype := NExpected_U;
+                           exit;
+                        end if;
+                     end;
+                  end if;
+                  Current := Anc.Parent;
+               end;
+            end loop;
+         end;
+         if To_String (Expected_U) = "" or else To_String (NExpected_U) = "" then
+            return;
+         end if;
       end if;
 
       if Inferred /= "universal_integer" and then Inferred /= "universal_real" then
@@ -3283,14 +3721,14 @@ package body Editor.Ada_Expression_Types is
       Info.Universal_Numeric_Real_Value := Value.Real_Value;
 
       if Inferred = "universal_integer" then
-         if Looks_Modular_Expected_Subtype (Static, Region, Expected) then
+         if Looks_Modular_Expected_Subtype (Static, Region, To_String (Expected_U)) then
             Info.Universal_Numeric_Status := Universal_Numeric_Modular_Resolved;
             Info.Universal_Numeric_Result_Subtype := Info.Expected_Subtype;
             Info.Normalized_Universal_Numeric_Result_Subtype := Info.Normalized_Expected_Subtype;
             Info.Inferred_Subtype := Info.Expected_Subtype;
             Info.Normalized_Subtype := Info.Normalized_Expected_Subtype;
             Info.Expected_Status := Expected_Type_Compatible;
-         elsif Is_Integer_Expected_Subtype (Expected) or else Has_Static_Integer_Bounds (Static, Expected) then
+         elsif Is_Integer_Expected_Subtype (To_String (Expected_U)) or else Has_Static_Integer_Bounds (Static, To_String (Expected_U)) then
             Info.Universal_Numeric_Status := Universal_Numeric_Integer_Resolved;
             Info.Universal_Numeric_Result_Subtype := Info.Expected_Subtype;
             Info.Normalized_Universal_Numeric_Result_Subtype := Info.Normalized_Expected_Subtype;
@@ -3298,12 +3736,12 @@ package body Editor.Ada_Expression_Types is
             Info.Normalized_Subtype := Info.Normalized_Expected_Subtype;
             Info.Expected_Status := Expected_Type_Compatible;
             if Editor.Ada_Static_Expressions.Is_Static_Integer (Value) then
-               Apply_Integer_Range_Metadata (Static, Region, Expected, Value.Integer_Value, Info);
+               Apply_Integer_Range_Metadata (Static, Region, To_String (Expected_U), Value.Integer_Value, Info);
             elsif Value.Status /= Editor.Ada_Static_Expressions.Static_Value_Not_Checked then
                Info.Universal_Numeric_Status := Universal_Numeric_Static_Unknown;
             end if;
-         elsif Is_Real_Expected_Subtype (Expected) or else Looks_Fixed_Expected_Subtype (Static, Region, Expected) then
-            if Looks_Fixed_Expected_Subtype (Static, Region, Expected) then
+         elsif Is_Real_Expected_Subtype (To_String (Expected_U)) or else Looks_Fixed_Expected_Subtype (Static, Region, To_String (Expected_U)) then
+            if Looks_Fixed_Expected_Subtype (Static, Region, To_String (Expected_U)) then
                Info.Universal_Numeric_Status := Universal_Numeric_Fixed_Resolved;
             else
                Info.Universal_Numeric_Status := Universal_Numeric_Real_Resolved;
@@ -3318,8 +3756,8 @@ package body Editor.Ada_Expression_Types is
             Info.Expected_Status := Expected_Type_Mismatch;
          end if;
       elsif Inferred = "universal_real" then
-         if Is_Real_Expected_Subtype (Expected) or else Looks_Fixed_Expected_Subtype (Static, Region, Expected) then
-            if Looks_Fixed_Expected_Subtype (Static, Region, Expected) then
+         if Is_Real_Expected_Subtype (To_String (Expected_U)) or else Looks_Fixed_Expected_Subtype (Static, Region, To_String (Expected_U)) then
+            if Looks_Fixed_Expected_Subtype (Static, Region, To_String (Expected_U)) then
                Info.Universal_Numeric_Status := Universal_Numeric_Fixed_Resolved;
             else
                Info.Universal_Numeric_Status := Universal_Numeric_Real_Resolved;
@@ -4199,6 +4637,87 @@ package body Editor.Ada_Expression_Types is
                end if;
             end;
 
+         when Editor.Ada_Syntax_Tree.Node_Statement_Action =>
+            declare
+               Value : constant Editor.Ada_Static_Expressions.Static_Value_Info :=
+                 Editor.Ada_Static_Expressions.Evaluate_Numeric_Expression (Static, Region, Label);
+            begin
+               Info.Static_Status := Value.Status;
+               if Value.Status = Editor.Ada_Static_Expressions.Static_Value_Integer then
+                  Info.Status := Expression_Type_Static_Integer;
+                  Info.Inferred_Subtype := To_Unbounded_String ("Universal_Integer");
+                  Info.Normalized_Subtype := To_Unbounded_String ("universal_integer");
+               elsif Value.Status = Editor.Ada_Static_Expressions.Static_Value_Real then
+                  Info.Status := Expression_Type_Static_Real;
+                  Info.Inferred_Subtype := To_Unbounded_String ("Universal_Real");
+                  Info.Normalized_Subtype := To_Unbounded_String ("universal_real");
+               elsif Is_String_Literal (Label) then
+                  Info.Status := Expression_Type_String_Literal;
+                  Info.Inferred_Subtype := To_Unbounded_String ("String");
+                  Info.Normalized_Subtype := To_Unbounded_String ("string");
+               elsif Normalized = "true" or else Normalized = "false" then
+                  Info.Status := Expression_Type_Boolean_Literal;
+                  Info.Inferred_Subtype := To_Unbounded_String ("Boolean");
+                  Info.Normalized_Subtype := To_Unbounded_String ("boolean");
+               elsif Normalized = "null" then
+                  Info.Status := Expression_Type_Null_Literal;
+                  Info.Inferred_Subtype := To_Unbounded_String ("universal_access");
+                  Info.Normalized_Subtype := To_Unbounded_String ("universal_access");
+               else
+                  declare
+                     Lookup : constant Editor.Ada_Direct_Visibility.Lookup_Result :=
+                       Editor.Ada_Direct_Visibility.Lookup_Visible
+                         (Visibility, Regions, Region, Primary_Name (Label));
+                  begin
+                     Info.Candidate_Count := Lookup.Match_Count;
+                     if Lookup.Status = Editor.Ada_Direct_Visibility.Lookup_Found then
+                        Info.Status := Expression_Type_Name_Resolved;
+                        Info.Declaration := Lookup.Declaration;
+                        declare
+                           Decl : constant Editor.Ada_Direct_Visibility.Declaration_Info :=
+                             Editor.Ada_Direct_Visibility.Declaration
+                               (Visibility, Lookup.Declaration);
+                        begin
+                           if Decl.Kind = Editor.Ada_Direct_Visibility.Declaration_Object
+                             or else Decl.Kind =
+                               Editor.Ada_Direct_Visibility.Declaration_Formal_Object
+                           then
+                              declare
+                                 Decl_Node : constant Editor.Ada_Syntax_Tree.Node_Info :=
+                                   Editor.Ada_Syntax_Tree.Node (Tree, Decl.Node);
+                                 Subtype_Text : constant String :=
+                                   Subtype_From_Declaration_Label
+                                     (To_String (Decl_Node.Label));
+                              begin
+                                 if Subtype_Text /= "" then
+                                    Info.Inferred_Subtype :=
+                                      To_Unbounded_String (Subtype_Text);
+                                    Info.Normalized_Subtype :=
+                                      To_Unbounded_String (Normalize (Subtype_Text));
+                                 else
+                                    Info.Inferred_Subtype := Decl.Name;
+                                    Info.Normalized_Subtype := Decl.Normalized;
+                                 end if;
+                              end;
+                           else
+                              Info.Inferred_Subtype := Decl.Name;
+                              Info.Normalized_Subtype := Decl.Normalized;
+                           end if;
+                           Info.Type_Id :=
+                             Editor.Ada_Type_Graph.Type_For_Declaration
+                               (Types, Lookup.Declaration);
+                        end;
+                     elsif Lookup.Status =
+                       Editor.Ada_Direct_Visibility.Lookup_Ambiguous
+                     then
+                        Info.Status := Expression_Type_Name_Ambiguous;
+                     else
+                        Info.Status := Expression_Type_Indeterminate;
+                     end if;
+                  end;
+               end if;
+            end;
+
          when Editor.Ada_Syntax_Tree.Node_Name =>
             declare
                Lookup : constant Editor.Ada_Direct_Visibility.Lookup_Result :=
@@ -4481,12 +5000,87 @@ package body Editor.Ada_Expression_Types is
       return Expression_Type_Model
    is
       Model : Expression_Type_Model;
+
+      function Wrapper_Can_Inherit
+        (Kind : Editor.Ada_Syntax_Tree.Node_Kind) return Boolean is
+      begin
+         return Kind = Editor.Ada_Syntax_Tree.Node_Expression
+           or else Kind = Editor.Ada_Syntax_Tree.Node_Parenthesized_Expression;
+      end Wrapper_Can_Inherit;
+
+      procedure Propagate_Single_Child_Subtypes is
+      begin
+         for Pass in 1 .. 3 loop
+            declare
+               Source  : constant Expression_Type_Model := Model;
+               Refined : Expression_Type_Model;
+            begin
+               for I in 1 .. Natural (Source.Expressions.Length) loop
+                  declare
+                     Info : Expression_Type_Info := Source.Expressions.Element (I);
+                     Node : constant Editor.Ada_Syntax_Tree.Node_Info :=
+                       Editor.Ada_Syntax_Tree.Node (Tree, Info.Node);
+                     Child_Info : Expression_Type_Info := (others => <>);
+                     Candidate_Count : Natural := 0;
+                  begin
+                     if Wrapper_Can_Inherit (Node.Kind)
+                       and then (To_String (Info.Normalized_Subtype) = ""
+                                 or else Info.Expected_Status = Expected_Type_Propagated)
+                     then
+                        for Child_Index in 1 .. Editor.Ada_Syntax_Tree.Child_Count (Tree, Node.Id) loop
+                           declare
+                              Child_Id : constant Editor.Ada_Syntax_Tree.Node_Id :=
+                                Editor.Ada_Syntax_Tree.Child_At
+                                  (Tree, Node.Id, Child_Index);
+                              Child : constant Editor.Ada_Syntax_Tree.Node_Info :=
+                                Editor.Ada_Syntax_Tree.Node (Tree, Child_Id);
+                              Candidate : constant Expression_Type_Info :=
+                                Expression_Type_For_Node (Source, Child_Id);
+                           begin
+                              if Child.Kind in Editor.Ada_Syntax_Tree.Node_Expression ..
+                                Editor.Ada_Syntax_Tree.Node_Allocator
+                                and then To_String (Candidate.Normalized_Subtype) /= ""
+                              then
+                                 Candidate_Count := Candidate_Count + 1;
+                                 Child_Info := Candidate;
+                              end if;
+                           end;
+                        end loop;
+
+                        if Candidate_Count = 1 then
+                           Info.Status := Child_Info.Status;
+                           Info.Inferred_Subtype := Child_Info.Inferred_Subtype;
+                           Info.Normalized_Subtype := Child_Info.Normalized_Subtype;
+                           if To_String (Info.Normalized_Expected_Subtype) /= "" then
+                              if To_String (Info.Normalized_Subtype) =
+                                To_String (Info.Normalized_Expected_Subtype)
+                                or else Is_Universal_Compatible
+                                  (To_String (Info.Normalized_Subtype),
+                                   To_String (Info.Normalized_Expected_Subtype))
+                              then
+                                 Info.Expected_Status := Expected_Type_Compatible;
+                              else
+                                 Info.Expected_Status := Expected_Type_Mismatch;
+                              end if;
+                           end if;
+                        end if;
+                     end if;
+
+                     Append (Refined, Info);
+                  end;
+               end loop;
+
+               Model := Refined;
+            end;
+         end loop;
+      end Propagate_Single_Child_Subtypes;
    begin
       for I in 1 .. Editor.Ada_Syntax_Tree.Node_Count (Tree) loop
          declare
             N : constant Editor.Ada_Syntax_Tree.Node_Info := Editor.Ada_Syntax_Tree.Node_At (Tree, I);
          begin
             if N.Kind in Editor.Ada_Syntax_Tree.Node_Expression .. Editor.Ada_Syntax_Tree.Node_Allocator
+              or else N.Kind = Editor.Ada_Syntax_Tree.Node_Statement_Action
               or else N.Kind = Editor.Ada_Syntax_Tree.Node_Call_Statement
               or else N.Kind = Editor.Ada_Syntax_Tree.Node_Raise_Statement
               or else N.Kind = Editor.Ada_Syntax_Tree.Node_Association
@@ -4575,7 +5169,9 @@ package body Editor.Ada_Expression_Types is
                   then
                      Apply_Operator_Overload_Resolution
                        (Regions, Visibility, Primitives, Info, Use_Primitives);
-                     Apply_Concatenation_Inference (Regions, Visibility, Types, Static, Info);
+                     Apply_Concatenation_Inference (Tree, Regions, Visibility, Types, Static, Info);
+                  elsif Ada.Strings.Fixed.Index (To_String (Info.Expression_Text), "&") /= 0 then
+                     Apply_Concatenation_Inference (Tree, Regions, Visibility, Types, Static, Info);
                   else
                      Info.Concatenation_Status := Concatenation_Type_Not_Concatenation;
                   end if;
@@ -4642,6 +5238,17 @@ package body Editor.Ada_Expression_Types is
 
                   Apply_Call_Actual_Type_Resolution
                     (Tree, Regions, Visibility, Static, Calls, Info, N);
+                  if Info.Conversion_Status in Conversion_Type_Operand_Compatible |
+                                                Conversion_Type_Operand_Requires_Explicit_Conversion |
+                                                Conversion_Type_Operand_Mismatch |
+                                                Conversion_Type_Operand_Unknown
+                  then
+                     Info.Status :=
+                       (if N.Kind = Editor.Ada_Syntax_Tree.Node_Qualified_Expression then
+                           Expression_Type_Qualified
+                        else
+                           Expression_Type_Conversion);
+                  end if;
 
                   Apply_Dispatching_Call_Inference
                     (Tree, Regions, Visibility, Static, Info, N);
@@ -4649,7 +5256,7 @@ package body Editor.Ada_Expression_Types is
                   Apply_Parameter_Association_Inference
                     (Tree, Regions, Visibility, Static, Calls, Info, N);
 
-                  Apply_Universal_Numeric_Resolution (Static, Regions, Info, N);
+                  Apply_Universal_Numeric_Resolution (Tree, Static, Regions, Info, N);
 
                   Apply_Boolean_Context_Inference (Info, N);
 
@@ -4679,6 +5286,7 @@ package body Editor.Ada_Expression_Types is
             end if;
          end;
       end loop;
+      Propagate_Single_Child_Subtypes;
       return Model;
    end Build_Internal;
 
@@ -4749,6 +5357,199 @@ package body Editor.Ada_Expression_Types is
       return Build_With_Selected_Names_And_Expected
         (Tree, Regions, Visibility, Types, Static, Calls, Selected, Expected);
    end Build_With_Cross_Unit_Selected_Names_And_Expected;
+
+   function Build_With_Cross_Unit_Selected_Names_Operator_Uses_And_Expected
+     (Tree       : Editor.Ada_Syntax_Tree.Tree_Type;
+      Regions    : Editor.Ada_Declarative_Regions.Region_Model;
+      Visibility : Editor.Ada_Direct_Visibility.Visibility_Model;
+      Types      : Editor.Ada_Type_Graph.Type_Model;
+      Static     : Editor.Ada_Static_Expressions.Static_Model;
+      Calls      : Editor.Ada_Call_Resolution.Call_Resolution_Model;
+      Selected   : Editor.Ada_Selected_Name_Resolution.Selected_Name_Model;
+      Primitives : Editor.Ada_Use_Type_Operators.Primitive_Use_Model;
+      Expected   : Editor.Ada_Expected_Type_Contexts.Expected_Context_Model)
+      return Expression_Type_Model
+   is
+   begin
+      return Build_Internal
+        (Tree, Regions, Visibility, Types, Static, Calls, Selected, True,
+         Expected, True, Primitives, True);
+   end Build_With_Cross_Unit_Selected_Names_Operator_Uses_And_Expected;
+
+   function Cross_Unit_Selected_Subtype
+     (Index    : Editor.Ada_Project_Index.Index_State;
+      Path     : String;
+      Selector : String) return String
+   is
+      Wanted : constant String := Editor.Ada_Language_Model.Normalize_Name (Selector);
+   begin
+      if Path'Length = 0 or else Wanted'Length = 0 then
+         return "";
+      end if;
+
+      for File_Index in 1 .. Editor.Ada_Project_Index.File_Count (Index) loop
+         declare
+            Key : constant Editor.Ada_Project_Index.Indexed_File_Key :=
+              Editor.Ada_Project_Index.File_Key_At (Index, File_Index);
+         begin
+            if To_String (Key.Path) = Path then
+               declare
+                  Analysis : constant Editor.Ada_Language_Model.Analysis_Result :=
+                    Editor.Ada_Project_Index.File_Analysis_At (Index, File_Index);
+               begin
+                  for Symbol_Index in 1 .. Editor.Ada_Language_Model.Symbol_Count (Analysis) loop
+                     declare
+                        Symbol : constant Editor.Ada_Language_Model.Symbol_Info :=
+                          Editor.Ada_Language_Model.Symbol_At
+                            (Analysis, Symbol_Index);
+                     begin
+                        if To_String (Symbol.Normalized_Name) = Wanted then
+                           if To_String (Symbol.Target_Name)'Length > 0 then
+                              return To_String (Symbol.Target_Name);
+                           else
+                              return To_String (Symbol.Name);
+                           end if;
+                        end if;
+                     end;
+                  end loop;
+               end;
+
+               return "";
+            end if;
+         end;
+      end loop;
+
+      return "";
+   end Cross_Unit_Selected_Subtype;
+
+   procedure Refine_Project_Cross_Unit_Selected_Subtypes
+     (Model : in out Expression_Type_Model;
+      Index : Editor.Ada_Project_Index.Index_State)
+   is
+      Refined : Expression_Type_Model;
+   begin
+      for I in 1 .. Natural (Model.Expressions.Length) loop
+         declare
+            Info : Expression_Type_Info := Model.Expressions.Element (I);
+            Subtype_Text : constant String :=
+              Cross_Unit_Selected_Subtype
+                (Index,
+                 To_String (Info.Cross_Unit_Selected_Path),
+                 To_String (Info.Cross_Unit_Selected_Selector));
+         begin
+            if Info.Status = Expression_Type_Selected_Name_Cross_Unit_Resolved
+              and then Subtype_Text'Length > 0
+            then
+               Info.Inferred_Subtype := To_Unbounded_String (Subtype_Text);
+               Info.Normalized_Subtype :=
+                 To_Unbounded_String (Normalize (Subtype_Text));
+            end if;
+
+            Append (Refined, Info);
+         end;
+      end loop;
+
+      Model := Refined;
+   end Refine_Project_Cross_Unit_Selected_Subtypes;
+
+   procedure Propagate_Project_Wrapper_Subtypes
+     (Model : in out Expression_Type_Model;
+      Tree  : Editor.Ada_Syntax_Tree.Tree_Type)
+   is
+      function Wrapper_Can_Inherit
+        (Kind : Editor.Ada_Syntax_Tree.Node_Kind) return Boolean is
+      begin
+         return Kind = Editor.Ada_Syntax_Tree.Node_Expression
+           or else Kind = Editor.Ada_Syntax_Tree.Node_Parenthesized_Expression;
+      end Wrapper_Can_Inherit;
+   begin
+      for Pass in 1 .. 3 loop
+         declare
+            Source  : constant Expression_Type_Model := Model;
+            Refined : Expression_Type_Model;
+         begin
+            for I in 1 .. Natural (Source.Expressions.Length) loop
+               declare
+                  Info : Expression_Type_Info := Source.Expressions.Element (I);
+                  Node : constant Editor.Ada_Syntax_Tree.Node_Info :=
+                    Editor.Ada_Syntax_Tree.Node (Tree, Info.Node);
+                  Child_Info : Expression_Type_Info := (others => <>);
+                  Candidate_Count : Natural := 0;
+               begin
+                  if Wrapper_Can_Inherit (Node.Kind)
+                    and then (To_String (Info.Normalized_Subtype) = ""
+                              or else Info.Expected_Status = Expected_Type_Propagated)
+                  then
+                     for Child_Index in 1 .. Editor.Ada_Syntax_Tree.Child_Count (Tree, Node.Id) loop
+                        declare
+                           Child_Id : constant Editor.Ada_Syntax_Tree.Node_Id :=
+                             Editor.Ada_Syntax_Tree.Child_At
+                               (Tree, Node.Id, Child_Index);
+                           Child : constant Editor.Ada_Syntax_Tree.Node_Info :=
+                             Editor.Ada_Syntax_Tree.Node (Tree, Child_Id);
+                           Candidate : constant Expression_Type_Info :=
+                             Expression_Type_For_Node (Source, Child_Id);
+                        begin
+                           if Child.Kind in Editor.Ada_Syntax_Tree.Node_Expression ..
+                             Editor.Ada_Syntax_Tree.Node_Allocator
+                             and then To_String (Candidate.Normalized_Subtype) /= ""
+                           then
+                              Candidate_Count := Candidate_Count + 1;
+                              Child_Info := Candidate;
+                           end if;
+                        end;
+                     end loop;
+
+                     if Candidate_Count = 1 then
+                        Info.Status := Child_Info.Status;
+                        Info.Inferred_Subtype := Child_Info.Inferred_Subtype;
+                        Info.Normalized_Subtype := Child_Info.Normalized_Subtype;
+                        if To_String (Info.Normalized_Expected_Subtype) /= "" then
+                           if To_String (Info.Normalized_Subtype) =
+                             To_String (Info.Normalized_Expected_Subtype)
+                             or else Is_Universal_Compatible
+                               (To_String (Info.Normalized_Subtype),
+                                To_String (Info.Normalized_Expected_Subtype))
+                           then
+                              Info.Expected_Status := Expected_Type_Compatible;
+                           else
+                              Info.Expected_Status := Expected_Type_Mismatch;
+                           end if;
+                        end if;
+                     end if;
+                  end if;
+
+                  Append (Refined, Info);
+               end;
+            end loop;
+
+            Model := Refined;
+         end;
+      end loop;
+   end Propagate_Project_Wrapper_Subtypes;
+
+   function Build_With_Project_Cross_Unit_Selected_Names_Operator_Uses_And_Expected
+     (Tree       : Editor.Ada_Syntax_Tree.Tree_Type;
+      Regions    : Editor.Ada_Declarative_Regions.Region_Model;
+      Visibility : Editor.Ada_Direct_Visibility.Visibility_Model;
+      Types      : Editor.Ada_Type_Graph.Type_Model;
+      Static     : Editor.Ada_Static_Expressions.Static_Model;
+      Calls      : Editor.Ada_Call_Resolution.Call_Resolution_Model;
+      Selected   : Editor.Ada_Selected_Name_Resolution.Selected_Name_Model;
+      Primitives : Editor.Ada_Use_Type_Operators.Primitive_Use_Model;
+      Expected   : Editor.Ada_Expected_Type_Contexts.Expected_Context_Model;
+      Index      : Editor.Ada_Project_Index.Index_State)
+      return Expression_Type_Model
+   is
+      Model : Expression_Type_Model :=
+        Build_With_Cross_Unit_Selected_Names_Operator_Uses_And_Expected
+          (Tree, Regions, Visibility, Types, Static, Calls, Selected,
+           Primitives, Expected);
+   begin
+      Refine_Project_Cross_Unit_Selected_Subtypes (Model, Index);
+      Propagate_Project_Wrapper_Subtypes (Model, Tree);
+      return Model;
+   end Build_With_Project_Cross_Unit_Selected_Names_Operator_Uses_And_Expected;
 
    function Build_With_Operator_Uses
      (Tree       : Editor.Ada_Syntax_Tree.Tree_Type;
@@ -5297,8 +6098,21 @@ package body Editor.Ada_Expression_Types is
    end Conditional_Branch_Mismatch_Count;
 
    function Conditional_Branch_Unknown_Count (Model : Expression_Type_Model) return Natural is
+      Result : Natural := 0;
    begin
-      return Count_Conditional_Status (Model, Conditional_Type_Branch_Unknown);
+      for I in 1 .. Natural (Model.Expressions.Length) loop
+         declare
+            Info : constant Expression_Type_Info :=
+              Model.Expressions.Element (Positive (I));
+         begin
+            if Info.Conditional_Status = Conditional_Type_Branch_Unknown then
+               Result := Result + 1;
+            else
+               Result := Result + Info.Conditional_Unknown_Branch_Count;
+            end if;
+         end;
+      end loop;
+      return Result;
    end Conditional_Branch_Unknown_Count;
 
    function Conditional_Reduction_Count (Model : Expression_Type_Model) return Natural is

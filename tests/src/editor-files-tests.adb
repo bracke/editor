@@ -34,6 +34,7 @@ with Editor.Navigation_History;
 with Editor.Overlay_Focus;
 with Editor.Pending_Transitions;
 with Editor.Search;
+with Editor.Settings;
 with Editor.View;
 with Editor.Workspace_Persistence;
 with Text_Buffer;
@@ -66,8 +67,9 @@ package body Editor.Files.Tests is
 
    function Temp_Path (Name : String) return String is
    begin
+      Ada.Directories.Create_Path ("/tmp/editor-tests");
       return Ada.Directories.Compose
-        (Ada.Directories.Current_Directory, Name);
+        ("/tmp/editor-tests", Name);
    end Temp_Path;
 
    procedure Write_Bytes (Path : String; Bytes : String) is
@@ -507,7 +509,8 @@ package body Editor.Files.Tests is
       pragma Unreferenced (T);
       S             : Editor.State.State_Type;
       Path          : constant String := Temp_Path ("phase233_alias.txt");
-      Relative_Path : constant String := "phase49_phase233_alias.txt";
+      Alias_Path    : constant String :=
+        "/tmp/editor-tests/../editor-tests/phase233_alias.txt";
       First_Id      : Editor.Buffers.Buffer_Id;
       Before_Count  : Natural;
    begin
@@ -525,7 +528,7 @@ package body Editor.Files.Tests is
       Editor.Buffers.Sync_Global_Active_From_State (S);
       Write_Bytes (Path, "disk-two");
 
-      Editor.Executor.Execute_Open_File (S, Relative_Path);
+      Editor.Executor.Execute_Open_File (S, Alias_Path);
 
       Assert (Editor.Buffers.Global_Count = Before_Count,
         "Phase 233: opening the same file through a relative alias must not duplicate buffers");
@@ -788,6 +791,39 @@ package body Editor.Files.Tests is
       Assert (To_String (S.File_Info.Path) = Path, "Save_File should store path");
       Remove_If_Exists (Path);
    end Test_Save_Writes_Buffer_And_Cleans_State;
+
+   procedure Test_Format_On_Save_Trims_Before_File_Save
+     (T : in out AUnit.Test_Cases.Test_Case'Class) is
+      pragma Unreferenced (T);
+      S    : Editor.State.State_Type;
+      Path : constant String := Temp_Path ("format_on_save_trims.txt");
+   begin
+      Editor.Settings.Set_Format_On_Save (False);
+      Remove_If_Exists (Path);
+
+      Editor.State.Init (S);
+      Editor.State.Load_Text
+        (S, "one  " & ASCII.LF & "two" & ASCII.HT);
+      S.File_Info.Has_Path := True;
+      S.File_Info.Path := To_Unbounded_String (Path);
+      S.File_Info.Display_Name := To_Unbounded_String ("format_on_save_trims.txt");
+      Editor.State.Set_Dirty (S, True);
+
+      Editor.Executor.Execute_Command
+        (S, Editor.Commands.Command_Toggle_Format_On_Save);
+      Assert (Editor.Settings.Format_On_Save,
+              "format-on-save toggle should enable the persisted setting");
+
+      Editor.Executor.Execute_Save (S);
+
+      Assert (Read_Bytes (Path) = "one" & ASCII.LF & "two",
+              "format-on-save should trim trailing spaces before writing");
+      Assert (not Editor.State.Is_Dirty (S),
+              "format-on-save save should leave the buffer clean after write");
+
+      Editor.Settings.Set_Format_On_Save (False);
+      Remove_If_Exists (Path);
+   end Test_Format_On_Save_Trims_Before_File_Save;
 
    procedure Test_Edit_After_Save_Marks_Dirty
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
@@ -2800,7 +2836,6 @@ package body Editor.Files.Tests is
       end if;
       declare
          Packet : Editor.Render_Packet.Render_Packet;
-         pragma Unreferenced (Packet);
       begin
          Editor.Input_Bridge.Set_State_For_Test (S);
          Editor.Render_Packet.Build_Render_Packet (Packet);
@@ -3361,7 +3396,6 @@ package body Editor.Files.Tests is
       end if;
       declare
          Packet : Editor.Render_Packet.Render_Packet;
-         pragma Unreferenced (Packet);
       begin
          Editor.Input_Bridge.Set_State_For_Test (S);
          Editor.Render_Packet.Build_Render_Packet (Packet);
@@ -4733,8 +4767,8 @@ package body Editor.Files.Tests is
       Assert (not Found and then Id = Editor.Commands.No_Command,
         "Phase 427: non-goal autosave command must not be exposed");
       Id := Editor.Commands.Command_Id_From_Stable_Name ("file.format-on-save", Found);
-      Assert (not Found and then Id = Editor.Commands.No_Command,
-        "Phase 427: non-goal format-on-save command must not be exposed");
+      Assert (Found and then Id = Editor.Commands.Command_Toggle_Format_On_Save,
+        "Phase 427: format-on-save command should be exposed without mutating Save As state");
       Id := Editor.Commands.Command_Id_From_Stable_Name ("workspace.save-buffer-text", Found);
       Assert (not Found and then Id = Editor.Commands.No_Command,
         "Phase 427: non-goal workspace text persistence command must not be exposed");
@@ -10986,7 +11020,6 @@ procedure Test_Phase454_Copy_Validation_Order_And_Active_Source_Reliability
       end if;
       declare
          Packet : Editor.Render_Packet.Render_Packet;
-         pragma Unreferenced (Packet);
       begin
          Editor.Input_Bridge.Set_State_For_Test (S);
          Editor.Render_Packet.Build_Render_Packet (Packet);
@@ -11856,7 +11889,6 @@ procedure Test_Phase456_Copy_Source_Validation_And_Target_Canonicalization
       end if;
       declare
          Packet : Editor.Render_Packet.Render_Packet;
-         pragma Unreferenced (Packet);
       begin
          Editor.Input_Bridge.Set_State_For_Test (S);
          Editor.Render_Packet.Build_Render_Packet (Packet);
@@ -12036,7 +12068,6 @@ procedure Test_Phase460_Move_Canonical_State_And_Persistence_Cleanup
       end if;
       declare
          Packet : Editor.Render_Packet.Render_Packet;
-         pragma Unreferenced (Packet);
       begin
          Editor.Input_Bridge.Set_State_For_Test (S);
          Editor.Render_Packet.Build_Render_Packet (Packet);
@@ -17013,6 +17044,9 @@ procedure Test_Phase477_File_Lifecycle_Cross_Command_Sequence_Milestone_Freeze
       AUnit.Test_Cases.Registration.Register_Routine
         (T, Test_Save_Writes_Buffer_And_Cleans_State'Access,
          "Save Writes Buffer And Cleans State");
+      AUnit.Test_Cases.Registration.Register_Routine
+        (T, Test_Format_On_Save_Trims_Before_File_Save'Access,
+         "Format On Save Trims Before File Save");
       AUnit.Test_Cases.Registration.Register_Routine
         (T, Test_Edit_After_Save_Marks_Dirty'Access,
          "Edit After Save Marks Dirty");

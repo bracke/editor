@@ -383,7 +383,22 @@ package body Editor.Command_Palette is
       elsif Max_Columns = 1 then
          return "~";
       else
-         return Text (Text'First .. Text'First + Max_Columns - 2) & "~";
+         declare
+            Prefix : constant String :=
+              Text (Text'First .. Text'First + Max_Columns - 2);
+            Last   : Integer := Prefix'Last;
+         begin
+            if Last >= Prefix'First
+              and then (Prefix (Last) = '.' or else Prefix (Last) = ' ')
+            then
+               Last := Last - 1;
+            end if;
+            if Last < Prefix'First then
+               return "~";
+            else
+               return Prefix (Prefix'First .. Last) & "~";
+            end if;
+         end;
       end if;
    end Truncate_With_Ellipsis;
 

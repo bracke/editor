@@ -18,8 +18,12 @@ package body Editor.Ada_Generic_Instance_Freezing_Representation_Legality is
    use type Editor.Ada_Generic_Contracts.Generic_Instance_Id;
    use type Editor.Ada_Syntax_Tree.Node_Id;
    use type EL.Semantic_Context_Id;
+   use type FR.Freezable_Id;
+   use type FR.Freezing_Cause;
+   use type FR.Representation_Freezing_Status;
    use type FR.Freezing_Status;
    use type RL.Return_Context_Id;
+   use type RP.Representation_Legality_Status;
    use type TD.Tagged_Context_Id;
 
    function Mix (Left, Right : Natural) return Natural is
@@ -436,6 +440,226 @@ package body Editor.Ada_Generic_Instance_Freezing_Representation_Legality is
    begin
       return Model.Model_Fingerprint;
    end Fingerprint;
+
+   function Instance_For_Node
+     (Contracts : Editor.Ada_Generic_Contracts.Generic_Contract_Model;
+      Node      : Editor.Ada_Syntax_Tree.Node_Id)
+      return Editor.Ada_Generic_Contracts.Generic_Instance_Info
+   is
+      use type Editor.Ada_Generic_Contracts.Generic_Instance_Id;
+      Empty : Editor.Ada_Generic_Contracts.Generic_Instance_Info;
+   begin
+      if Node = Editor.Ada_Syntax_Tree.No_Node then
+         return Empty;
+      end if;
+
+      for Index in 1 .. Editor.Ada_Generic_Contracts.Instance_Count (Contracts) loop
+         declare
+            Instance : constant Editor.Ada_Generic_Contracts.Generic_Instance_Info :=
+              Editor.Ada_Generic_Contracts.Instance_At (Contracts, Index);
+         begin
+            if Instance.Node = Node then
+               return Instance;
+            end if;
+         end;
+      end loop;
+
+      return Empty;
+   end Instance_For_Node;
+
+   function Instance_For_Id
+     (Contracts : Editor.Ada_Generic_Contracts.Generic_Contract_Model;
+      Id        : Editor.Ada_Generic_Contracts.Generic_Instance_Id)
+      return Editor.Ada_Generic_Contracts.Generic_Instance_Info
+   is
+   begin
+      if Id = Editor.Ada_Generic_Contracts.No_Generic_Instance then
+         return (others => <>);
+      end if;
+
+      return Editor.Ada_Generic_Contracts.Instance (Contracts, Id);
+   end Instance_For_Id;
+
+   function Formal_For_Id
+     (Contracts : Editor.Ada_Generic_Contracts.Generic_Contract_Model;
+      Id        : Editor.Ada_Generic_Contracts.Generic_Formal_Id)
+      return Editor.Ada_Generic_Contracts.Generic_Formal_Info
+   is
+      use type Editor.Ada_Generic_Contracts.Generic_Formal_Id;
+   begin
+      if Id = Editor.Ada_Generic_Contracts.No_Generic_Formal then
+         return (others => <>);
+      end if;
+
+      return Editor.Ada_Generic_Contracts.Formal (Contracts, Id);
+   end Formal_For_Id;
+
+   function Target_Freezable
+     (Freezing : FR.Freezing_Model;
+      Target   : FR.Freezable_Id) return FR.Freezable_Info is
+   begin
+      if Target = FR.No_Freezable then
+         return (others => <>);
+      end if;
+
+      return FR.Freezable_Node (Freezing, Target);
+   end Target_Freezable;
+
+   function Build_Contexts_From_Models
+     (Contracts       : Editor.Ada_Generic_Contracts.Generic_Contract_Model;
+      Bodies          : GB.Instantiated_Body_Model;
+      Formal_Packages : FP.Formal_Package_Substitution_Model;
+      Freezing        : FR.Freezing_Model;
+      Representation  : RP.Representation_Legality_Model)
+      return Instance_Context_Model
+   is
+      Model : Instance_Context_Model;
+      Next  : Instance_Context_Id := No_Instance_Context;
+
+      procedure Add (Context : Instance_Context_Info) is
+         Item : Instance_Context_Info := Context;
+      begin
+         Next := Next + 1;
+         Item.Id := Next;
+         Add_Context (Model, Item);
+      end Add;
+   begin
+      for Index in 1 .. Editor.Ada_Generic_Contracts.Instance_Count (Contracts) loop
+         declare
+            Instance : constant Editor.Ada_Generic_Contracts.Generic_Instance_Info :=
+              Editor.Ada_Generic_Contracts.Instance_At (Contracts, Index);
+            Context  : Instance_Context_Info;
+         begin
+            Context.Kind := Instance_Context_Generic_Instance;
+            Context.Node := Instance.Node;
+            Context.Instance_Node := Instance.Node;
+            Context.Instance := Instance.Id;
+            Context.Instance_Name := Instance.Name;
+            Context.Target_Name := Instance.Generic_Name;
+            Context.Start_Line := Instance.Start_Line;
+            Context.End_Line := Instance.End_Line;
+            Context.Fingerprint := Instance.Fingerprint;
+            Add (Context);
+         end;
+      end loop;
+
+      for Index in 1 .. GB.Substitution_Count (Bodies) loop
+         declare
+            Substitution : constant GB.Instantiated_Body_Substitution_Info :=
+              GB.Substitution_At (Bodies, Index);
+            Instance : constant Editor.Ada_Generic_Contracts.Generic_Instance_Info :=
+              Instance_For_Id (Contracts, Substitution.Instance);
+            Context  : Instance_Context_Info;
+         begin
+            Context.Kind := Instance_Context_Body_Substitution;
+            Context.Node := Substitution.Instance_Node;
+            Context.Instance_Node := Substitution.Instance_Node;
+            Context.Formal_Node := Substitution.Formal_Node;
+            Context.Body_Node := Substitution.Body_Node;
+            Context.Instance := Substitution.Instance;
+            Context.Formal := Substitution.Formal;
+            Context.Body_Substitution := Substitution.Id;
+            Context.Instance_Name := Instance.Name;
+            Context.Formal_Name := Substitution.Formal_Name;
+            Context.Target_Name := Substitution.Formal_Name;
+            Context.Body_Status := Substitution.Status;
+            Context.Start_Line := Substitution.Start_Line;
+            Context.End_Line := Substitution.End_Line;
+            Context.Fingerprint := Substitution.Fingerprint;
+            Add (Context);
+         end;
+      end loop;
+
+      for Index in 1 .. FP.Substitution_Count (Formal_Packages) loop
+         declare
+            Substitution : constant FP.Formal_Package_Substitution_Info :=
+              FP.Substitution_At (Formal_Packages, Index);
+            Instance     : constant Editor.Ada_Generic_Contracts.Generic_Instance_Info :=
+              Instance_For_Id (Contracts, Substitution.Instance);
+            Formal       : constant Editor.Ada_Generic_Contracts.Generic_Formal_Info :=
+              Formal_For_Id (Contracts, Substitution.Formal);
+            Context      : Instance_Context_Info;
+         begin
+            Context.Kind := Instance_Context_Formal_Package_Substitution;
+            Context.Node := Substitution.Instance_Node;
+            Context.Instance_Node := Substitution.Instance_Node;
+            Context.Formal_Node := Substitution.Formal_Node;
+            Context.Instance := Substitution.Instance;
+            Context.Formal := Substitution.Formal;
+            Context.Formal_Package_Substitution := Substitution.Id;
+            Context.Instance_Name := Instance.Name;
+            Context.Formal_Name := Substitution.Formal_Name;
+            Context.Target_Name :=
+              (if Length (Substitution.Expected_Generic) > 0
+               then Substitution.Expected_Generic
+               else Formal.Formal_Package_Generic_Name);
+            Context.Formal_Package_Status := Substitution.Status;
+            Context.Start_Line := Substitution.Start_Line;
+            Context.End_Line := Substitution.End_Line;
+            Context.Fingerprint := Substitution.Fingerprint;
+            Add (Context);
+         end;
+      end loop;
+
+      for Index in 1 .. FR.Freezable_Count (Freezing) loop
+         declare
+            Freezable : constant FR.Freezable_Info := FR.Freezable_At (Freezing, Index);
+            Instance  : constant Editor.Ada_Generic_Contracts.Generic_Instance_Info :=
+              Instance_For_Node (Contracts, Freezable.First_Freeze_Node);
+            Context   : Instance_Context_Info;
+         begin
+            if Freezable.Cause = FR.Freezing_Cause_Instantiation then
+               Context.Kind := Instance_Context_Instance_Freezing;
+               Context.Node := Freezable.First_Freeze_Node;
+               Context.Instance_Node := Instance.Node;
+               Context.Instance := Instance.Id;
+               Context.Freezable := Freezable.Id;
+               Context.Instance_Name := Instance.Name;
+               Context.Target_Name := Freezable.Name;
+               Context.Freeze_Status := Freezable.Status;
+               Context.Instance_Freezes_Target := Freezable.Status = FR.Freezing_Frozen;
+               Context.Start_Line := Freezable.First_Freeze_Line;
+               Context.End_Line := Freezable.First_Freeze_Line;
+               Context.Fingerprint := Freezable.Fingerprint;
+               Add (Context);
+            end if;
+         end;
+      end loop;
+
+      for Index in 1 .. RP.Check_Count (Representation) loop
+         declare
+            Check     : constant RP.Representation_Legality_Info :=
+              RP.Check_At (Representation, Index);
+            Freezable : constant FR.Freezable_Info :=
+              Target_Freezable (Freezing, Check.Target);
+            Instance  : constant Editor.Ada_Generic_Contracts.Generic_Instance_Info :=
+              Instance_For_Node (Contracts, Freezable.First_Freeze_Node);
+            Context   : Instance_Context_Info;
+         begin
+            if Freezable.Cause = FR.Freezing_Cause_Instantiation then
+               Context.Kind := Instance_Context_Representation_Item;
+               Context.Node := Check.Clause_Node;
+               Context.Instance_Node := Instance.Node;
+               Context.Representation_Node := Check.Clause_Node;
+               Context.Instance := Instance.Id;
+               Context.Freezable := Check.Target;
+               Context.Instance_Name := Instance.Name;
+               Context.Target_Name := Check.Target_Name;
+               Context.Freeze_Status := Freezable.Status;
+               Context.Representation_Status := Check.Status;
+               Context.Representation_After_Instance_Freezing :=
+                 Check.Status = RP.Representation_Legality_After_Freezing
+                 or else Check.Freeze_Status = FR.Representation_After_Freezing;
+               Context.Start_Line := Check.Source_Line;
+               Context.End_Line := Check.Source_Line;
+               Context.Fingerprint := Check.Fingerprint;
+               Add (Context);
+            end if;
+         end;
+      end loop;
+
+      return Model;
+   end Build_Contexts_From_Models;
 
    function Classify
      (Context     : Instance_Context_Info;

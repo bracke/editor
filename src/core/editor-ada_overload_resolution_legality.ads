@@ -1,5 +1,6 @@
 with Ada.Containers.Vectors;
 with Ada.Strings.Unbounded;
+with Editor.Ada_Expected_Call_Filters;
 with Editor.Ada_Overload_Ranking;
 with Editor.Ada_Syntax_Tree;
 with Editor.Ada_Wide_Semantic_Legality_Diagnostics;
@@ -128,6 +129,10 @@ package Editor.Ada_Overload_Resolution_Legality is
    procedure Add_Context
      (Model : in out Overload_Context_Model;
       Info  : Overload_Context_Info);
+
+   function Build_Contexts_From_Expected_Call_Filters
+     (Filters : Editor.Ada_Expected_Call_Filters.Expected_Call_Filter_Model)
+      return Overload_Context_Model;
 
    function Context_Count (Model : Overload_Context_Model) return Natural;
    function Context_At

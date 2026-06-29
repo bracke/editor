@@ -22,6 +22,7 @@ package body Editor.Ada_Phase579_Real_Ada_Corpus_Validation_Pass1430 is
             | Status_Rejected_False_Negative
             | Status_Rejected_Missing_Diagnostic_Span
             | Status_Rejected_Duplicate_Diagnostic_Flood
+            | Status_Rejected_Duplicate_Family
             | Status_Rejected_Consumer_Disagreement
             | Status_Rejected_Stale_Corpus_Evidence =>
             return Class_Rejected;
@@ -55,6 +56,23 @@ package body Editor.Ada_Phase579_Real_Ada_Corpus_Validation_Pass1430 is
         and then Row.Snapshot_Owned
         and then not Row.Reopened_Remaining_Gap;
    end Consumers_Agree;
+
+   function Is_Required_Family
+     (Family : Corpus_Scenario_Family) return Boolean is
+   begin
+      return Family /= Family_Unknown;
+   end Is_Required_Family;
+
+   function Required_Family_Total return Natural is
+      Total : Natural := 0;
+   begin
+      for Family in Corpus_Scenario_Family loop
+         if Is_Required_Family (Family) then
+            Total := Total + 1;
+         end if;
+      end loop;
+      return Total;
+   end Required_Family_Total;
 
    function Evaluate (Row : Corpus_Row) return Corpus_Status is
    begin
@@ -134,6 +152,7 @@ package body Editor.Ada_Phase579_Real_Ada_Corpus_Validation_Pass1430 is
             | Status_Rejected_False_Negative
             | Status_Rejected_Missing_Diagnostic_Span
             | Status_Rejected_Duplicate_Diagnostic_Flood
+            | Status_Rejected_Duplicate_Family
             | Status_Rejected_Consumer_Disagreement
             | Status_Rejected_Stale_Corpus_Evidence =>
             Model.Rejected_Count := Model.Rejected_Count + 1;
@@ -145,13 +164,26 @@ package body Editor.Ada_Phase579_Real_Ada_Corpus_Validation_Pass1430 is
    end Tally;
 
    function Build (Input : Corpus_Input) return Corpus_Model is
+      Seen  : array (Corpus_Scenario_Family) of Boolean := (others => False);
       Model : Corpus_Model;
    begin
       for Row of Input.Rows loop
          declare
-            Status : constant Corpus_Status := Evaluate (Row);
+            Status : Corpus_Status := Evaluate (Row);
             Feed_Item : Corpus_Entry;
          begin
+            if Class_For_Status (Status) = Class_Validated
+              and then Is_Required_Family (Row.Family)
+            then
+               if Seen (Row.Family) then
+                  Status := Status_Rejected_Duplicate_Family;
+                  Model.Duplicate_Family_Count :=
+                    Model.Duplicate_Family_Count + 1;
+               else
+                  Seen (Row.Family) := True;
+               end if;
+            end if;
+
             Feed_Item.Id := Row.Id;
             Feed_Item.Family := Row.Family;
             Feed_Item.Status := Status;
@@ -165,6 +197,14 @@ package body Editor.Ada_Phase579_Real_Ada_Corpus_Validation_Pass1430 is
             Tally (Model, Feed_Item);
          end;
       end loop;
+
+      Model.Required_Family_Count := Required_Family_Total;
+      for Family in Corpus_Scenario_Family loop
+         if Is_Required_Family (Family) and then not Seen (Family) then
+            Model.Missing_Family_Count := Model.Missing_Family_Count + 1;
+         end if;
+      end loop;
+
       return Model;
    end Build;
 
@@ -184,7 +224,10 @@ package body Editor.Ada_Phase579_Real_Ada_Corpus_Validation_Pass1430 is
 
    function Corpus_Validation_Achieved (Model : Corpus_Model) return Boolean is
    begin
-      return Model.Total_Rows >= 5
+      return Model.Total_Rows = Model.Required_Family_Count
+        and then Model.Required_Family_Count = 9
+        and then Model.Missing_Family_Count = 0
+        and then Model.Duplicate_Family_Count = 0
         and then Model.Legal_Accepted_Count > 0
         and then Model.Illegal_Rejected_Count > 0
         and then Model.Runtime_Check_Count > 0

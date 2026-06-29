@@ -18,29 +18,36 @@ RV NO_IMPLEMENTATION_PRAGMAS
 RV NO_IMPLICIT_LOOPS
 RV NO_OBSOLESCENT_FEATURES
 
-U editor.bridge%b	editor-bridge.adb	70dcbf92 NE OO PK
+U editor.bridge%b	editor-bridge.adb	d312d326 NE OO PK
 W ada%s			ada.ads			ada.ali
 Z ada.exceptions%s	a-except.adb		a-except.ali
+W ada.strings%s		a-string.ads		a-string.ali
 Z ada.strings.text_buffers%s  a-sttebu.adb	a-sttebu.ali
+W ada.strings.unbounded%s  a-strunb.adb		a-strunb.ali
 W ada.text_io%s		a-textio.adb		a-textio.ali
 W editor%s		editor.ads		editor.ali
 W editor.commands%s	editor-commands.adb	editor-commands.ali
 W editor.input_bridge%s	editor-input_bridge.adb	editor-input_bridge.ali
+W editor.keybindings%s	editor-keybindings.adb	editor-keybindings.ali
+W editor.unicode%s	editor-unicode.adb	editor-unicode.ali
+W editor.utf8%s		editor-utf8.adb		editor-utf8.ali
 W editor.view%s		editor-view.adb		editor-view.ali
 W interfaces%s		interfac.ads		interfac.ali
 W interfaces.c%s	i-c.adb			i-c.ali
 Z system%s		system.ads		system.ali
 Z system.finalization_primitives%s  s-finpri.adb  s-finpri.ali
 Z system.return_stack%s	s-retsta.ads		s-retsta.ali
+Z system.secondary_stack%s  s-secsta.adb	s-secsta.ali
 Z system.soft_links%s	s-soflin.adb		s-soflin.ali
 Z system.standard_library%s  s-stalib.adb	s-stalib.ali
 
-U editor.bridge%s	editor-bridge.ads	ced6e2b8 EE NE OO PK
+U editor.bridge%s	editor-bridge.ads	b734ca14 EE NE OO PK
 W editor%s		editor.ads		editor.ali
 W interfaces%s		interfac.ads		interfac.ali
 W interfaces.c%s	i-c.adb			i-c.ali
 
 D ada.ads		20250808065140 76789da1 ada%s
+D a-calend.ads		20250808065140 bf7f3cc9 ada.calendar%s
 D a-charac.ads		20250808065140 2d3ec45b ada.characters%s
 D a-chlat1.ads		20250808065140 e0d72e76 ada.characters.latin_1%s
 D a-contai.ads		20250808065140 61e5e089 ada.containers%s
@@ -60,18 +67,181 @@ D a-stuten.ads		20250808065140 c6ced0ae ada.strings.utf_encoding%s
 D a-tags.ads		20250808065140 fbca0ad5 ada.tags%s
 D a-textio.ads		20250808065140 34ef47de ada.text_io%s
 D a-unccon.ads		20250808065140 0e9b276f ada.unchecked_conversion%s
-D editor.ads		20260406185230 16f844c2 editor%s
-D editor-bridge.ads	20260423163753 31623010 editor.bridge%s
-D editor-bridge.adb	20260504161707 2c4cc3fb editor.bridge%b
-D editor-commands.ads	20260425121135 91ba1af2 editor.commands%s
-D editor-cursors.ads	20260425100454 1f938cf3 editor.cursors%s
-D editor-input_bridge.ads  20260503175602 589fa0c2 editor.input_bridge%s
-D editor-layout.ads	20260507161022 c205967f editor.layout%s
-D editor-render_layers.ads  20260507151952 102cb6cb editor.render_layers%s
-D editor-render_model.ads  20260506180927 199ac840 editor.render_model%s
-D editor-render_packet.ads  20260507152512 974dcbed editor.render_packet%s
-D editor-state.ads	20260503173758 d429238c editor.state%s
-D editor-view.ads	20260425171937 797427fd editor.view%s
+D editor.ads		20260612145959 16f844c2 editor%s
+D editor-ada_accessibility_lifetime_legality.ads  20260623172330 83f0af27 editor.ada_accessibility_lifetime_legality%s
+D editor-ada_aspect_inheritance_rules.ads  20260612145959 dbdd934d editor.ada_aspect_inheritance_rules%s
+D editor-ada_assignment_legality.ads  20260624184557 002deb19 editor.ada_assignment_legality%s
+D editor-ada_body_spec_conformance.ads  20260612145959 c5ced3c5 editor.ada_body_spec_conformance%s
+D editor-ada_call_candidates.ads  20260612145959 0549f3ac editor.ada_call_candidates%s
+D editor-ada_call_profile_filters.ads  20260612145959 68d43a60 editor.ada_call_profile_filters%s
+D editor-ada_call_profile_shapes.ads  20260612145959 e25575da editor.ada_call_profile_shapes%s
+D editor-ada_call_resolution.ads  20260612145959 eafbe88e editor.ada_call_resolution%s
+D editor-ada_child_unit_visibility.ads  20260612145959 84c0bb4d editor.ada_child_unit_visibility%s
+D editor-ada_contract_aspect_legality.ads  20260612145959 ea3d70fb editor.ada_contract_aspect_legality%s
+D editor-ada_control_flow_legality.ads  20260623161253 fc15aa78 editor.ada_control_flow_legality%s
+D editor-ada_conversion_access_aggregate_legality.ads  20260623152635 60bce04f editor.ada_conversion_access_aggregate_legality%s
+D editor-ada_cross_unit_closure.ads  20260612145959 de8fe36a editor.ada_cross_unit_closure%s
+D editor-ada_cross_unit_diagnostics.ads  20260622173145 f02d69d9 editor.ada_cross_unit_diagnostics%s
+D editor-ada_cross_unit_lookup_integration.ads  20260622181304 690f72cc editor.ada_cross_unit_lookup_integration%s
+D editor-ada_cross_unit_representation_targets.ads  20260612145959 5761be93 editor.ada_cross_unit_representation_targets%s
+D editor-ada_cross_unit_semantic_closure.ads  20260623170322 e7d38fc9 editor.ada_cross_unit_semantic_closure%s
+D editor-ada_cross_unit_visibility.ads  20260612145959 e193255d editor.ada_cross_unit_visibility%s
+D editor-ada_declarative_regions.ads  20260612145959 68bb9e3b editor.ada_declarative_regions%s
+D editor-ada_diagnostic_action_router.ads  20260624212548 dd333b7a editor.ada_diagnostic_action_router%s
+D editor-ada_diagnostic_command_projection.ads  20260624212554 d6b8d2a6 editor.ada_diagnostic_command_projection%s
+D editor-ada_diagnostic_navigation.ads  20260612145959 c6c48649 editor.ada_diagnostic_navigation%s
+D editor-ada_diagnostic_panel_projection.ads  20260612145959 6066054f editor.ada_diagnostic_panel_projection%s
+D editor-ada_diagnostic_provenance.ads  20260612145959 db5df586 editor.ada_diagnostic_provenance%s
+D editor-ada_diagnostic_quick_fix_skeleton.ads  20260624212541 64e4770d editor.ada_diagnostic_quick_fix_skeleton%s
+D editor-ada_diagnostic_status_line.ads  20260612145959 8f08930a editor.ada_diagnostic_status_line%s
+D editor-ada_direct_visibility.ads  20260612145959 6ebc1377 editor.ada_direct_visibility%s
+D editor-ada_dispatching_call_legality.ads  20260612145959 87a1024e editor.ada_dispatching_call_legality%s
+D editor-ada_elaboration_dependence_legality.ads  20260612145959 86be3164 editor.ada_elaboration_dependence_legality%s
+D editor-ada_exception_finalization_legality.ads  20260612145959 63b768c1 editor.ada_exception_finalization_legality%s
+D editor-ada_expected_call_filters.ads  20260624181704 eb699626 editor.ada_expected_call_filters%s
+D editor-ada_expected_type_contexts.ads  20260623045744 6e197316 editor.ada_expected_type_contexts%s
+D editor-ada_expression_diagnostics.ads  20260623151049 55ab633b editor.ada_expression_diagnostics%s
+D editor-ada_expression_types.ads  20260623190056 ef5d9762 editor.ada_expression_types%s
+D editor-ada_final_semantic_diagnostic_integration.ads  20260613105222 833c0fd4 editor.ada_final_semantic_diagnostic_integration%s
+D editor-ada_final_semantic_remediation_diagnostic_integration.ads  20260612145959 e4efc231 editor.ada_final_semantic_remediation_diagnostic_integration%s
+D editor-ada_final_semantic_stabilized_diagnostic_integration.ads  20260612145959 1d8132b9 editor.ada_final_semantic_stabilized_diagnostic_integration%s
+D editor-ada_freezing_interactions.ads  20260612145959 d3f90b30 editor.ada_freezing_interactions%s
+D editor-ada_freezing_points.ads  20260612145959 6897a1ac editor.ada_freezing_points%s
+D editor-ada_generic_contract_diagnostics.ads  20260614165504 120c7787 editor.ada_generic_contract_diagnostics%s
+D editor-ada_generic_contracts.ads  20260613110233 3c11f940 editor.ada_generic_contracts%s
+D editor-ada_generic_formal_package_nested_conformance.ads  20260612145959 55234f9e editor.ada_generic_formal_package_nested_conformance%s
+D editor-ada_generic_formal_package_substitutions.ads  20260614165504 4332af6d editor.ada_generic_formal_package_substitutions%s
+D editor-ada_generic_formal_type_conformance.ads  20260612145959 be304434 editor.ada_generic_formal_type_conformance%s
+D editor-ada_generic_instance_freezing_representation_legality.ads  20260623164915 94aeccd0 editor.ada_generic_instance_freezing_representation_legality%s
+D editor-ada_generic_instantiated_body_analysis.ads  20260612145959 82639475 editor.ada_generic_instantiated_body_analysis%s
+D editor-ada_generic_object_default_type_conformance.ads  20260612145959 debc7bb1 editor.ada_generic_object_default_type_conformance%s
+D editor-ada_generic_renaming_visibility.ads  20260613110502 7a838e18 editor.ada_generic_renaming_visibility%s
+D editor-ada_generic_shared_state_final_diagnostic_integration.ads  20260612145959 a8bf92bb editor.ada_generic_shared_state_final_diagnostic_integration%s
+D editor-ada_generic_shared_state_rm_completion_diagnostic_integration.ads  20260612145959 382f0feb editor.ada_generic_shared_state_rm_completion_diagnostic_integration%s
+D editor-ada_generic_view_compatibility.ads  20260612145959 cc6dc65b editor.ada_generic_view_compatibility%s
+D editor-ada_implicit_conversions.ads  20260612145959 4d5bc830 editor.ada_implicit_conversions%s
+D editor-ada_integrated_semantic_closure.ads  20260613104720 02ca8192 editor.ada_integrated_semantic_closure%s
+D editor-ada_language_model.ads  20260613110624 75f1fac9 editor.ada_language_model%s
+D editor-ada_language_service.ads  20260625154758 c7b35ad3 editor.ada_language_service%s
+D editor-ada_limited_view_rules.ads  20260612145959 5f2e9506 editor.ada_limited_view_rules%s
+D editor-ada_nested_body_spec_conformance.ads  20260612145959 386c83b8 editor.ada_nested_body_spec_conformance%s
+D editor-ada_operational_attribute_rules.ads  20260612145959 e0d8d7b8 editor.ada_operational_attribute_rules%s
+D editor-ada_overload_ambiguity_diagnostics.ads  20260612145959 7e809105 editor.ada_overload_ambiguity_diagnostics%s
+D editor-ada_overload_preference_legality.ads  20260623175108 bed87b16 editor.ada_overload_preference_legality%s
+D editor-ada_overload_ranking.ads  20260612145959 7dc84325 editor.ada_overload_ranking%s
+D editor-ada_overload_ranking_provenance.ads  20260613105222 8712de37 editor.ada_overload_ranking_provenance%s
+D editor-ada_overload_resolution_legality.ads  20260623011043 12acc398 editor.ada_overload_resolution_legality%s
+D editor-ada_private_view_visibility.ads  20260612145959 fd49539d editor.ada_private_view_visibility%s
+D editor-ada_private_with_rules.ads  20260612145959 2fffe0e9 editor.ada_private_with_rules%s
+D editor-ada_project_index.ads  20260624154319 c97cbc72 editor.ada_project_index%s
+D editor-ada_record_layout_exact_validation.ads  20260612145959 b988d6f5 editor.ada_record_layout_exact_validation%s
+D editor-ada_record_layout_validation.ads  20260612145959 e31ccee2 editor.ada_record_layout_validation%s
+D editor-ada_record_storage_order_rules.ads  20260612145959 014c62aa editor.ada_record_storage_order_rules%s
+D editor-ada_remaining_rm_edge_stabilized_closure_diagnostic_integration.ads  20260612145959 7778a3ff editor.ada_remaining_rm_edge_stabilized_closure_diagnostic_integration%s
+D editor-ada_remaining_rm_edge_stabilized_diagnostic_integration.ads  20260612145959 7ad1d3a8 editor.ada_remaining_rm_edge_stabilized_diagnostic_integration%s
+D editor-ada_renaming_alias_visibility_legality.ads  20260612145959 1dbb636b editor.ada_renaming_alias_visibility_legality%s
+D editor-ada_representation_diagnostics.ads  20260613110233 a1b3562e editor.ada_representation_diagnostics%s
+D editor-ada_representation_layout_stream_integration_legality.ads  20260612145959 a135313b editor.ada_representation_layout_stream_integration_legality%s
+D editor-ada_representation_legality.ads  20260612145959 b68bfe19 editor.ada_representation_legality%s
+D editor-ada_return_legality.ads  20260623155114 d3098143 editor.ada_return_legality%s
+D editor-ada_rm_completion_closure_consumer_diagnostic_integration.ads  20260612145959 86ee331c editor.ada_rm_completion_closure_consumer_diagnostic_integration%s
+D editor-ada_rm_completion_closure_consumer_stabilized_diagnostic_integration.ads  20260612145959 0b90017e editor.ada_rm_completion_closure_consumer_stabilized_diagnostic_integration%s
+D editor-ada_selected_name_resolution.ads  20260612145959 a5c90013 editor.ada_selected_name_resolution%s
+D editor-ada_selected_representation_targets.ads  20260612145959 c456ffb6 editor.ada_selected_representation_targets%s
+D editor-ada_semantic_colour_projection.ads  20260612145959 59eebf51 editor.ada_semantic_colour_projection%s
+D editor-ada_semantic_diagnostic_feed.ads  20260624205933 42b8beea editor.ada_semantic_diagnostic_feed%s
+D editor-ada_semantic_diagnostic_index.ads  20260612145959 df1939c4 editor.ada_semantic_diagnostic_index%s
+D editor-ada_semantic_diagnostic_snapshot_guards.ads  20260613105041 4522d9a6 editor.ada_semantic_diagnostic_snapshot_guards%s
+D editor-ada_separate_body_stub_rules.ads  20260612145959 bcca85dc editor.ada_separate_body_stub_rules%s
+D editor-ada_static_expressions.ads  20260612145959 55cf2315 editor.ada_static_expressions%s
+D editor-ada_staticness_range_predicate_legality.ads  20260612145959 bf345e22 editor.ada_staticness_range_predicate_legality%s
+D editor-ada_stream_attribute_profile_conformance.ads  20260612145959 298b1ea3 editor.ada_stream_attribute_profile_conformance%s
+D editor-ada_subtype_compatibility.ads  20260616210729 3039b253 editor.ada_subtype_compatibility%s
+D editor-ada_syntax_tree.ads  20260612145959 49a76ced editor.ada_syntax_tree%s
+D editor-ada_tagged_derived_legality.ads  20260623163602 c1a4d139 editor.ada_tagged_derived_legality%s
+D editor-ada_tasking_protected_legality.ads  20260623162422 83eec329 editor.ada_tasking_protected_legality%s
+D editor-ada_type_graph.ads  20260612145959 8a7fdffd editor.ada_type_graph%s
+D editor-ada_unit_completion_order_legality.ads  20260612145959 434ef597 editor.ada_unit_completion_order_legality%s
+D editor-ada_use_type_operators.ads  20260612145959 26d5c2e7 editor.ada_use_type_operators%s
+D editor-ada_use_visibility.ads  20260612145959 7a5a5a17 editor.ada_use_visibility%s
+D editor-ada_view_aware_compatibility.ads  20260624183245 5abfa29c editor.ada_view_aware_compatibility%s
+D editor-ada_wide_semantic_legality_diagnostics.ads  20260623173800 fc4745ee editor.ada_wide_semantic_legality_diagnostics%s
+D editor-bookmarks.ads	20260612145959 4e695f4d editor.bookmarks%s
+D editor-bridge.ads	20260612145959 488018bc editor.bridge%s
+D editor-bridge.adb	20260613095501 b86cffc6 editor.bridge%b
+D editor-buffer_switcher.ads  20260612152524 fd053b33 editor.buffer_switcher%s
+D editor-buffer_types.ads  20260612151710 a555405e editor.buffer_types%s
+D editor-buffers.ads	20260624195947 6ddf6ec4 editor.buffers%s
+D editor-build_candidates.ads  20260612145959 dc89ea7b editor.build_candidates%s
+D editor-build_output_details.ads  20260613095501 1d7c9af2 editor.build_output_details%s
+D editor-build_process_control.ads  20260612145959 28661204 editor.build_process_control%s
+D editor-build_result_summary.ads  20260613095501 5b952273 editor.build_result_summary%s
+D editor-build_runner_policy.ads  20260612145959 623f26a9 editor.build_runner_policy%s
+D editor-build_ui.ads	20260612152524 28a54496 editor.build_ui%s
+D editor-build_working_context.ads  20260612145959 cef9cea9 editor.build_working_context%s
+D editor-command_execution.ads  20260612145959 54c8cc0a editor.command_execution%s
+D editor-commands.ads	20260625160447 5cd3c959 editor.commands%s
+D editor-cursors.ads	20260612145959 1f938cf3 editor.cursors%s
+D editor-diagnostics.ads  20260612145959 41767a50 editor.diagnostics%s
+D editor-dirty_guards.ads  20260612145959 2f2ee9d0 editor.dirty_guards%s
+D editor-dirty_lines.ads  20260612145959 fa543a8e editor.dirty_lines%s
+D editor-empty_state_guidance.ads  20260612145959 3343db6a editor.empty_state_guidance%s
+D editor-executor.ads	20260623200708 16f4790d editor.executor%s
+D editor-external_producers.ads  20260622020154 58ce61fc editor.external_producers%s
+D editor-feature_diagnostics.ads  20260622183317 5963bde1 editor.feature_diagnostics%s
+D editor-feature_messages.ads  20260612145959 2c7a5943 editor.feature_messages%s
+D editor-feature_panel.ads  20260612145959 0bdf4cfc editor.feature_panel%s
+D editor-feature_search_results.ads  20260621220637 634355a7 editor.feature_search_results%s
+D editor-file_tree.ads	20260615223013 349423be editor.file_tree%s
+D editor-file_tree_view.ads  20260612145959 99db49c3 editor.file_tree_view%s
+D editor-folding.ads	20260612145959 860f30d0 editor.folding%s
+D editor-go_to_line.ads	20260612145959 c07ea03c editor.go_to_line%s
+D editor-guided_prompts.ads  20260623200646 4d222b28 editor.guided_prompts%s
+D editor-gutter_markers.ads  20260612145959 304c4eae editor.gutter_markers%s
+D editor-history.ads	20260612145959 b546dbc4 editor.history%s
+D editor-input_bridge.ads  20260617204415 b9b781e4 editor.input_bridge%s
+D editor-input_field.ads  20260612145959 04b03a00 editor.input_field%s
+D editor-keybinding_management.ads  20260612145959 81e1c626 editor.keybinding_management%s
+D editor-keybindings.ads  20260618195539 adeac332 editor.keybindings%s
+D editor-layout.ads	20260612145959 68c2e77a editor.layout%s
+D editor-messages.ads	20260612151413 205b1944 editor.messages%s
+D editor-minimap.ads	20260612145959 eeb32e87 editor.minimap%s
+D editor-navigation.ads	20260612145959 30defc5f editor.navigation%s
+D editor-navigation_history.ads  20260612145959 b0e3398a editor.navigation_history%s
+D editor-outline.ads	20260612152524 90a00201 editor.outline%s
+D editor-overlay_focus.ads  20260612145959 92ec945e editor.overlay_focus%s
+D editor-panel_focus.ads  20260612145959 a6c95284 editor.panel_focus%s
+D editor-panels.ads	20260612145959 66614da0 editor.panels%s
+D editor-pending_transitions.ads  20260612145959 81c78960 editor.pending_transitions%s
+D editor-problems.ads	20260612145959 a9a08157 editor.problems%s
+D editor-producer_contracts.ads  20260612145959 c3ee4501 editor.producer_contracts%s
+D editor-project.ads	20260612145959 f4d50f6d editor.project%s
+D editor-project_search.ads  20260612195704 b7cf3cc2 editor.project_search%s
+D editor-project_search_bar.ads  20260612145959 c5c12f77 editor.project_search_bar%s
+D editor-quick_open.ads	20260614175339 b8f14db6 editor.quick_open%s
+D editor-recent_buffers.ads  20260612145959 617e4612 editor.recent_buffers%s
+D editor-recent_projects.ads  20260612145959 ee1155f5 editor.recent_projects%s
+D editor-render_layers.ads  20260623202111 f038ab72 editor.render_layers%s
+D editor-render_model.ads  20260623202111 bc18339a editor.render_model%s
+D editor-render_packet.ads  20260612145959 ab21aa24 editor.render_packet%s
+D editor-search.ads	20260612145959 dac0e204 editor.search%s
+D editor-search_results.ads  20260612145959 98eded1d editor.search_results%s
+D editor-selection.ads	20260612145959 37bfc5e9 editor.selection%s
+D editor-settings.ads	20260625001341 4905c81e editor.settings%s
+D editor-settings_management.ads  20260612145959 cf741a5b editor.settings_management%s
+D editor-state.ads	20260623202051 79e8fa74 editor.state%s
+D editor-status_bar.ads	20260612145959 879f0640 editor.status_bar%s
+D editor-syntax.ads	20260612145959 d59b0303 editor.syntax%s
+D editor-syntax_cache.ads  20260612164742 637f2470 editor.syntax_cache%s
+D editor-syntax_semantics.ads  20260612145959 a499b10a editor.syntax_semantics%s
+D editor-tab_bar.ads	20260612151839 e26dca3d editor.tab_bar%s
+D editor-terminal_tasks.ads  20260624215136 74aa6602 editor.terminal_tasks%s
+D editor-unicode.ads	20260612145959 552ff3cc editor.unicode%s
+D editor-utf8.ads	20260612145959 404e16b1 editor.utf8%s
+D editor-view.ads	20260612152152 12b5fbb1 editor.view%s
+D editor-view_types.ads	20260612152152 f3042ec7 editor.view_types%s
+D editor-workspace_persistence.ads  20260612202240 a037efc2 editor.workspace_persistence%s
+D editor-wrap.ads	20260612145959 87db665a editor.wrap%s
 D interfac.ads		20250808065140 9111f9c1 interfaces%s
 D i-c.ads		20250808065140 e94c966a interfaces.c%s
 D i-cstrea.ads		20250808065140 ffd01b9d interfaces.c_streams%s
@@ -100,151 +270,237 @@ D s-stratt.ads		20250808065140 516607ae system.stream_attributes%s
 D s-traent.ads		20250808065140 c81cbf8c system.traceback_entries%s
 D s-unstyp.ads		20250808065140 fa2a7f59 system.unsigned_types%s
 D s-wchcon.ads		20250808065140 d9032363 system.wch_con%s
-D text_backend.ads	20260412181650 6d0030da text_backend%s
-D text_backend-rope_impl.ads  20260427194525 88d12c3a text_backend.rope_impl%s
-D text_buffer.ads	20260427153044 bb9a4056 text_buffer%s
+D text_backend.ads	20260612145959 6d0030da text_backend%s
+D text_backend-rope_impl.ads  20260612145959 0f5d7663 text_backend.rope_impl%s
+D text_buffer.ads	20260612145959 bb9a4056 text_buffer%s
 G a e
-G c Z s b [editor_init editor__bridge 66 14 none]
-G c Z s b [editor_handle_event editor__bridge 68 14 none]
-G c Z s s [platform_eventIP editor__bridge 55 9 none]
-G c Z b b [send_break_group editor__bridge 8 14 none]
-G c Z b b [to_bool editor__bridge 15 13 none]
-G c Z b b [to_natural editor__bridge 20 13 none]
-G c Z b b [to_command editor__bridge 29 13 none]
-G r c none [editor_init editor__bridge 66 14 none] [reset editor__input_bridge 17 14 none]
-G r c none [editor_init editor__bridge 66 14 none] [reset_scroll editor__view 11 14 none]
-G r s command [editor_handle_event editor__bridge 68 14 none] [commandIP editor__commands 56 9 none]
-G r l command [editor_handle_event editor__bridge 68 14 none] [commandDI editor__commands 56 9 none]
-G r k command [editor_handle_event editor__bridge 68 14 none] [commandDF editor__commands 56 9 none]
-G r j command [editor_handle_event editor__bridge 68 14 none] [commandDA editor__commands 56 9 none]
-G r c none [editor_handle_event editor__bridge 68 14 none] [handle editor__input_bridge 19 14 none]
-G r s command [send_break_group editor__bridge 8 14 none] [commandIP editor__commands 56 9 none]
-G r l command [send_break_group editor__bridge 8 14 none] [commandDI editor__commands 56 9 none]
-G r k command [send_break_group editor__bridge 8 14 none] [commandDF editor__commands 56 9 none]
-G r c none [send_break_group editor__bridge 8 14 none] [handle editor__input_bridge 19 14 none]
-G r s command [to_command editor__bridge 29 13 none] [commandIP editor__commands 56 9 none]
-G r l command [to_command editor__bridge 29 13 none] [commandDI editor__commands 56 9 none]
-G r k command [to_command editor__bridge 29 13 none] [commandDF editor__commands 56 9 none]
-G r j command [to_command editor__bridge 29 13 none] [commandDA editor__commands 56 9 none]
+G c Z s b [editor_init editor__bridge 83 14 none]
+G c Z s b [editor_handle_event editor__bridge 85 14 none]
+G c Z s s [platform_eventIP editor__bridge 70 9 none]
+G c Z b b [send_break_group editor__bridge 12 14 none]
+G c Z b b [to_bool editor__bridge 19 13 none]
+G c Z b b [to_natural editor__bridge 24 13 none]
+G c Z b b [primary_modifier editor__bridge 33 13 none]
+G c Z b b [to_key_chord editor__bridge 41 13 none]
+G c Z b b [to_character_key_chord editor__bridge 103 13 none]
+G c Z b b [to_command editor__bridge 153 13 none]
+G r c none [editor_init editor__bridge 83 14 none] [reset editor__input_bridge 26 14 none]
+G r c none [editor_init editor__bridge 83 14 none] [reset_scroll editor__view 21 14 none]
+G r s key_chord [editor_handle_event editor__bridge 85 14 none] [key_chordIP editor__keybindings 48 9 none]
+G r s command [editor_handle_event editor__bridge 85 14 none] [commandIP editor__commands 1773 9 none]
+G r l command [editor_handle_event editor__bridge 85 14 none] [commandDI editor__commands 1773 9 none]
+G r k command [editor_handle_event editor__bridge 85 14 none] [commandDF editor__commands 1773 9 none]
+G r c none [editor_handle_event editor__bridge 85 14 none] [handle editor__input_bridge 31 14 none]
+G r c none [editor_handle_event editor__bridge 85 14 none] [handle_key_chord editor__input_bridge 81 14 none]
+G r c none [editor_handle_event editor__bridge 85 14 none] [is_valid_scalar editor__unicode 6 13 none]
+G r c none [editor_handle_event editor__bridge 85 14 none] [encode_utf8 editor__utf8 14 13 none]
+G r j command [editor_handle_event editor__bridge 85 14 none] [commandDA editor__commands 1773 9 none]
+G r c none [editor_handle_event editor__bridge 85 14 none] [handle_wheel editor__input_bridge 75 14 none]
+G r s command [send_break_group editor__bridge 12 14 none] [commandIP editor__commands 1773 9 none]
+G r l command [send_break_group editor__bridge 12 14 none] [commandDI editor__commands 1773 9 none]
+G r k command [send_break_group editor__bridge 12 14 none] [commandDF editor__commands 1773 9 none]
+G r c none [send_break_group editor__bridge 12 14 none] [handle editor__input_bridge 31 14 none]
+G r s command [to_command editor__bridge 153 13 none] [commandIP editor__commands 1773 9 none]
+G r l command [to_command editor__bridge 153 13 none] [commandDI editor__commands 1773 9 none]
+G r k command [to_command editor__bridge 153 13 none] [commandDF editor__commands 1773 9 none]
+G r c none [to_command editor__bridge 153 13 none] [is_valid_scalar editor__unicode 6 13 none]
+G r c none [to_command editor__bridge 153 13 none] [encode_utf8 editor__utf8 14 13 none]
+G r j command [to_command editor__bridge 153 13 none] [commandDA editor__commands 1773 9 none]
 X 1 ada.ads
-18K9*Ada 22e8 23|5r6
-X 10 a-iteint.ads
+18K9*Ada 22e8 123|5r6 6r6 6r33
+X 11 a-iteint.ads
 24h9 Forward_Iterator
-32h9 Reversible_Iterator<24R9[6|119]>
-X 19 a-textio.ads
-58K13*Text_IO 785e16 23|5w10
-X 21 editor.ads
-1K9*Editor 5e11 22|3r9 71r5 23|1r6 2r6 3r6 6r14 9r13 11r19 12r7 30r35 32r13
-. 43r25 48r28 50r28 55r28 57r28 61r25 64r25 67r25 70r25 73r25 76r25 80r28
-. 82r28 87r28 89r28 93r25 96r25 100r28 102r28 104r28 106r28 111r28 113r28
-. 117r25 120r25 123r25 126r25 134r7 135r7 141r22 156r7 159r5
-X 22 editor-bridge.ads
-3K16*Bridge 21|1k9 22|71l12 71e18 23|6b21 159l12 159t18
-5I12*C_Int{34|62I9} 57r15 58r15 59r15 60r15 61r15 62r15
-12E9*Event_Kind 31e26 32r26 34r8 56r15
-13n7*Char_Input{12E9} 35r7 56r29 23|42r15 144r15
-14n7*Key_Left{12E9} 36r7 23|46r15
-15n7*Key_Right{12E9} 37r7 23|53r15
-16n7*Key_Up{12E9} 38r7 23|60r15
-17n7*Key_Down{12E9} 39r7 23|63r15
-18n7*Key_Home{12E9} 40r7 23|66r15
-19n7*Key_End{12E9} 41r7 23|69r15
-20n7*Key_Page_Up{12E9} 42r7 23|72r15
-21n7*Key_Page_Down{12E9} 43r7 23|75r15
-22n7*Key_Backspace{12E9} 44r7 23|78r15
-23n7*Key_Delete{12E9} 45r7 23|85r15
-24n7*Key_Undo{12E9} 46r7 23|92r15
-25n7*Key_Redo{12E9} 47r7 23|95r15
-26n7*Mouse_Down{12E9} 48r7 23|98r15
-27n7*Mouse_Drag{12E9} 49r7 23|109r15 149r15
-28n7*Select_Word{12E9} 50r7 23|116r15
-29n7*Select_Line{12E9} 51r7 23|119r15
-30n7*Add_Caret{12E9} 52r7 23|122r15
-31n7*Clear_Extra_Carets{12E9} 53r7 23|125r15
-55R9*Platform_Event 63e14 64r39 69r12 23|30r12 139r10
-56e7*Kind{12E9} 23|41r15 143r15
-57i7*Ch{5I12} 23|44r50 145r19
-58i7*Shift{5I12} 23|34r32
-59i7*Ctrl{5I12} 23|35r32
-60i7*Alt{5I12} 23|36r32
-61i7*X{5I12} 23|38r37
-62i7*Y{5I12} 23|39r37
-66U14*Editor_Init 23|132b14 136l8 136t19
-68U14*Editor_Handle_Event 69>7 23|138b14 157l8 157t27
-69r7 Ev{55R9} 23|139b5 141r61 143r12 145r16
-X 23 editor-bridge.adb
-8U14 Send_Break_Group 8b14 13l8 13t24 146s16 153s13
-9r7 Cmd{24|56R9} 11m7 12r35
-15V13 To_Bool{boolean} 15b13 15>22 18l8 18t15 34s20 35s20 36s20
-15i22 V{34|62I9} 17r14
-20V13 To_Natural{natural} 20b13 20>25 27l8 27t18 38s22 39s22
-20i25 V{34|62I9} 22r10 25r26
-29V13 To_Command{24|56R9} 29b13 30>7 130l8 130t18 141s49
-30r7 Ev{22|55R9} 34r29 35r29 36r29 38r34 39r34 41r12 44r47
-32r7 Cmd{24|56R9} 34m7 35m7 36m7 38m7 39m7 43m13 44m13 47r16 48m16 50m16
-. 54r16 55m16 57m16 61m13 64m13 67m13 70m13 73m13 76m13 79r16 80m16 82m16
-. 86r16 87m16 89m16 93m13 96m13 99r16 99r35 100m16 101r19 102m16 103r19 104m16
-. 106m16 110r16 110r35 111m16 113m16 117m13 120m13 123m13 126m13 129r14
-141r7 Cmd{24|56R9} 156r35
-X 24 editor-commands.ads
-5K16*Commands 23|2w13 9r20 11r26 30r42 32r20 43r32 48r35 50r35 55r35 57r35
-. 61r32 64r32 67r32 70r32 73r32 76r32 80r35 82r35 87r35 89r35 93r32 96r32
-. 100r35 102r35 104r35 106r35 111r35 113r35 117r32 120r32 123r32 126r32 141r29
-. 24|75e20
-11n7*Insert_Char{10E9} 23|43r41
-12n7*Delete_Char{10E9} 23|82r44
-13n7*Forward_Delete_Char{10E9} 23|89r44
-14n7*Delete_Word_Left{10E9} 23|80r44
-15n7*Delete_Word_Right{10E9} 23|87r44
-16n7*Move_Left{10E9} 23|50r44
-17n7*Move_Right{10E9} 23|57r44
-18n7*Move_Up{10E9} 23|61r41
-19n7*Move_Down{10E9} 23|64r41
-20n7*Move_Home{10E9} 23|67r41
-21n7*Move_End{10E9} 23|70r41
-22n7*Move_Page_Up{10E9} 23|73r41
-23n7*Move_Page_Down{10E9} 23|76r41
-24n7*Move_To_Point{10E9} 23|106r44
-25n7*Drag_To_Point{10E9} 23|104r44 113r44
-26n7*Start_Rectangle_Selection{10E9} 23|100r44
-27n7*Drag_Rectangle_To_Point{10E9} 23|111r44
-28n7*Add_Caret_At_Point{10E9} 23|102r44 123r41
-29n7*Clear_Extra_Carets{10E9} 23|126r41
-30n7*Select_Word_At_Point{10E9} 23|117r41
-31n7*Select_Line_At_Point{10E9} 23|120r41
-32n7*Move_Word_Left{10E9} 23|48r44
-33n7*Move_Word_Right{10E9} 23|55r44
-34n7*Undo{10E9} 23|93r41
-35n7*Redo{10E9} 23|96r41
-36n7*Break_Group{10E9} 23|11r35
-56R9*Command 23|9r29 30r51 32r29 141r38 24|71e14
-57e7*Kind{10E9} 23|11m11 43m17 48m20 50m20 55m20 57m20 61m17 64m17 67m17
-. 70m17 73m17 76m17 80m20 82m20 87m20 89m20 93m17 96m17 100m20 102m20 104m20
-. 106m20 111m20 113m20 117m17 120m17 123m17 126m17
-60e7*Ch{character} 23|44m17
-61b7*Shift{boolean} 23|34m11 99r20 103r23 110r20
-62b7*Ctrl{boolean} 23|35m11 47r20 54r20 79r20 86r20
-63b7*Alt{boolean} 23|36m11 99r39 101r23 110r39
-64i7*Click_X{natural} 23|38m11
-65i7*Click_Y{natural} 23|39m11
-X 26 editor-input_bridge.ads
-15K16*Input_Bridge 23|1w13 12r14 134r14 156r14 26|35e24
-17U14*Reset 23|134s27
-19U14*Handle 23|12s27 156s27
-X 32 editor-view.ads
-4K16*View 23|3w13 135r14 32|47e16
-11U14*Reset_Scroll 23|135s19
-X 33 interfac.ads
-47K9*Interfaces 22|1r6 5r21 23|4r6 4r24 15r26 20r29 145r24 33|247e15
-X 34 i-c.ads
-33K20*C 22|1w17 5r32 23|4w17 4r35 15r37 20r40 145r35 34|601e17
-62I9*int<integer> 22|5r34 23|15r39 20r42 145r37
-X 36 system.ads
+32h9 Reversible_Iterator<24R9[7|119]>
+X 13 a-string.ads
+16K13*Strings 35e16 123|6r10 6r37
+X 17 a-strunb.ads
+91K21*Unbounded 1641e26 123|6w18 6r45
+122V13*To_Unbounded_String{105R9} 123|186s31 191s28
+269V14*"="{boolean} 7|65i19
+X 20 a-textio.ads
+58K13*Text_IO 785e16 123|5w10
+X 22 editor.ads
+1K9*Editor 5e11 122|3r9 88r5 123|1r6 2r6 3r6 7r6 8r6 9r6 10r14 13r13 15r19
+. 16r7 43r19 54r26 56r26 58r26 60r26 62r26 64r26 66r26 68r26 70r26 72r26
+. 74r26 76r26 78r26 80r26 83r26 87r26 90r26 93r26 105r19 123r26 125r26 127r26
+. 129r26 131r26 133r26 135r26 137r26 139r26 141r26 143r26 145r26 154r35 156r13
+. 167r25 171r35 172r21 174r22 177r34 180r42 186r52 189r28 191r49 196r28 198r28
+. 200r28 202r28 207r28 209r28 213r25 216r25 219r25 222r25 225r25 233r7 234r7
+. 240r15 247r19 253r16 257r13 260r13 268r13 273r16 278r5
+X 122 editor-bridge.ads
+3K16*Bridge 22|1k9 122|88l12 88e18 123|10b21 278l12 278t18
+5I12*C_Int{198|62I9} 73r15 74r15 75r15 76r17 77r17 78r17 79r17
+6M12*C_Codepoint{198|71M9} 72r15
+13E9*Event_Kind 39e19 40r26 42r8 71r15
+14n7*Char_Input{13E9} 43r7 71r29 123|166r15 243r15
+15n7*Key_Left{13E9} 44r7 123|53r15
+16n7*Key_Right{13E9} 45r7 123|55r15
+17n7*Key_Up{13E9} 46r7 123|57r15
+18n7*Key_Down{13E9} 47r7 123|59r15
+19n7*Key_Home{13E9} 48r7 123|61r15
+20n7*Key_End{13E9} 49r7 123|63r15
+21n7*Key_Page_Up{13E9} 50r7 123|65r15
+22n7*Key_Page_Down{13E9} 51r7 123|67r15
+23n7*Key_Backspace{13E9} 52r7 123|69r15
+24n7*Key_Delete{13E9} 53r7 123|71r15
+25n7*Key_Undo{13E9} 54r7 123|79r15
+26n7*Key_Redo{13E9} 55r7 123|82r15
+27n7*Key_Save{13E9} 56r7 123|86r15
+28n7*Mouse_Down{13E9} 57r7 123|194r15 266r15
+29n7*Mouse_Drag{13E9} 58r7 123|205r15 256r15
+30n7*Select_Word{13E9} 59r7 123|215r15 266r28
+31n7*Select_Line{13E9} 60r7 123|218r15 266r42
+32n7*Add_Caret{13E9} 61r7 123|221r15 266r56
+33n7*Clear_Extra_Carets{13E9} 62r7 123|92r15
+34n7*Open_Command_Palette{13E9} 63r7 123|89r15
+35n7*Mouse_Move{13E9} 64r7 123|212r15 256r28
+36n7*Key_Tab{13E9} 65r7 123|73r15
+37n7*Key_F2{13E9} 66r7 123|75r15
+38n7*Key_F3{13E9} 67r7 123|77r15
+39n7*Mouse_Wheel{13E9} 68r7 123|259r15
+70R9*Platform_Event 80e14 81r39 86r12 123|33r36 42r15 104r15 154r12 238r10
+71e7*Kind{13E9} 123|52r15 165r15 242r15
+72m7*Ch{6M12} 123|107r45 168r19 170r58 250r22
+73i7*Shift{5I12} 123|48r31 117r31 158r32
+74i7*Ctrl{5I12} 123|38r26 159r32 244r28
+75i7*Alt{5I12} 123|49r31 118r31 160r32 244r54
+76i7*X{5I12} 123|162r37 261r42
+77i7*Y{5I12} 123|163r37 262r42
+78i7*Wheel_X{5I12} 123|263r39
+79i7*Wheel_Y{5I12} 123|264r39
+83U14*Editor_Init 123|231b14 235l8 235t19
+85U14*Editor_Handle_Event 86>7 123|237b14 276l8 276t27
+86r7 Ev{70R9} 123|238b5 242r12 244r25 244r51 246r43 250r19 253r56 257r53
+. 261r39 262r39 263r36 264r36 268r53 272r30
+X 123 editor-bridge.adb
+12U14 Send_Break_Group 12b14 17l8 17t24 245s16 251s19 267s13 271s13
+13r7 Cmd{135|1773R9} 15m7 16r35
+19V13 To_Bool{boolean} 19b13 19>22 22l8 22t15 38s14 48s19 49s19 117s19 118s19
+. 158s20 159s20 160s20 244s16 244s42
+19i22 V{198|62I9} 21r14
+24V13 To_Natural{natural} 24b13 24>25 31l8 31t18 162s22 163s22 261s27 262s27
+24i25 V{198|62I9} 26r10 29r26
+33V13 Primary_Modifier{boolean} 33b13 33>31 39l8 39t24 47s19 116s19
+33r31 Ev{122|70R9} 38r23
+41V13 To_Key_Chord{boolean} 41b13 42>7 43<7 100l8 100t20 272s16
+42r7 Ev{122|70R9} 47r37 48r28 49r28 52r12
+43r7 Chord{157|48R9} 46m7 54m13 56m13 58m13 60m13 62m13 64m13 66m13 68m13
+. 70m13 72m13 74m13 76m13 78m13 80m13 81m13 83m13 84m13 85m13 87m13 88m13
+. 90m13 91m13 93m13 94m13
+103V13 To_Character_Key_Chord{boolean} 103b13 104>7 105<7 151l8 151t30 246s19
+104r7 Ev{122|70R9} 107r42 116r37 117r28 118r28
+105r7 Chord{157|48R9} 115m7 123m13 125m13 127m13 129m13 131m13 133m13 135m13
+. 137m13 139m13 141m13 143m13 145m13
+107i7 Raw{natural} 110r10 114r28
+108e7 Ch{character} 114m7 121r12
+153V13 To_Command{135|1773R9} 153b13 154>7 229l8 229t18 253s44 257s41 268s41
+154r7 Ev{122|70R9} 158r29 159r29 160r29 162r34 163r34 165r12 168r16 170r55
+156r7 Cmd{135|1773R9} 158m7 159m7 160m7 162m7 163m7 167m13 175m22 177m22
+. 181m22 183m22 186m19 186r77 189m16 190m16 191m16 191r74 195r16 195r35 196m16
+. 197r19 198m16 199r19 200m16 202m16 206r16 206r35 207m16 209m16 213m13 216m13
+. 219m13 222m13 225m13 228r14
+170i19 Raw{natural} 172r52 180r22 181r47
+171e19 Code{191|2E12} 174r54 175r34 180r74
+240r7 Chord{157|48R9} 246m47 246r47 247r57 272m34 272r34 273r54
+X 135 editor-commands.ads
+6K16*Commands 123|2w13 13r20 15r26 154r42 156r20 167r32 196r35 198r35 200r35
+. 202r35 207r35 209r35 213r32 216r32 219r32 222r32 225r32 135|1802e20
+1188n7*Insert_Text_Input{1187E9} 123|167r41
+1220n7*Move_To_Point{1187E9} 123|202r44
+1221n7*Pointer_Hover{1187E9} 123|213r41
+1222n7*Drag_To_Point{1187E9} 123|200r44 209r44
+1223n7*Start_Rectangle_Selection{1187E9} 123|196r44
+1225n7*Drag_Rectangle_To_Point{1187E9} 123|207r44
+1227n7*Add_Caret_At_Point{1187E9} 123|198r44 222r41
+1233n7*Select_Word_At_Point{1187E9} 123|216r41
+1234n7*Select_Line_At_Point{1187E9} 123|219r41
+1247n7*Break_Group{1187E9} 123|15r35 225r41
+1773R9*Command 123|13r29 154r51 156r29 135|1793e14
+1774e7*Kind{1187E9} 123|15m11 167m17 196m20 198m20 200m20 202m20 207m20 209m20
+. 213m17 216m17 219m17 222m17 225m17
+1778e7*Ch{character} 123|181m26 183m26 190m20
+1779e7*Code{191|2E12} 123|175m26 177m26 186r81 189m20 191r78
+1780b7*Shift{boolean} 123|158m11 195r20 199r23 206r20
+1781b7*Ctrl{boolean} 123|159m11
+1782b7*Alt{boolean} 123|160m11 195r39 197r23 206r39
+1783i7*Click_X{natural} 123|162m11
+1784i7*Click_Y{natural} 123|163m11
+1786r7*Text{17|105R9} 123|186m23 191m20
+X 154 editor-input_bridge.ads
+24K16*Input_Bridge 123|1w13 16r14 233r14 247r26 253r23 257r20 260r20 268r20
+. 273r23 154|146e24
+26U14*Reset 123|233s27
+31U14*Handle 123|16s27 253s36 257s33 268s33
+75U14*Handle_Wheel 123|260s33
+76i7 X{natural} 123|261r16
+77i7 Y{natural} 123|262r16
+78i7 Delta_X{integer} 123|263r16
+79i7 Delta_Y{integer} 123|264r16
+81U14*Handle_Key_Chord 123|247s39 273s36
+X 157 editor-keybindings.ads
+4K16*Keybindings 123|9w13 43r26 54r33 56r33 58r33 60r33 62r33 64r33 66r33
+. 68r33 70r33 72r33 74r33 76r33 78r33 80r33 83r33 87r33 90r33 93r33 105r26
+. 123r33 125r33 127r33 129r33 131r33 133r33 135r33 137r33 139r33 141r33 143r33
+. 145r33 240r22 157|238e23
+7n7*Key_Left{6E9} 123|54r45
+8n7*Key_Right{6E9} 123|56r45
+9n7*Key_Up{6E9} 123|58r45
+10n7*Key_Down{6E9} 123|60r45
+11n7*Key_Home{6E9} 123|62r45
+12n7*Key_End{6E9} 123|64r45
+13n7*Key_Page_Up{6E9} 123|66r45
+14n7*Key_Page_Down{6E9} 123|68r45
+15n7*Key_Backspace{6E9} 123|70r45
+16n7*Key_Delete{6E9} 123|72r45
+18n7*Key_Escape{6E9} 123|93r45
+19n7*Key_A{6E9} 123|123r45
+20n7*Key_S{6E9} 123|87r45 125r45
+21n7*Key_C{6E9} 123|127r45
+22n7*Key_X{6E9} 123|129r45
+23n7*Key_V{6E9} 123|131r45
+24n7*Key_F{6E9} 123|133r45
+26n7*Key_H{6E9} 123|135r45
+28n7*Key_P{6E9} 123|90r45 137r45
+31n7*Key_M{6E9} 123|139r45
+32n7*Key_L{6E9} 123|141r45
+34n7*Key_F2{6E9} 123|76r45
+35n7*Key_F3{6E9} 123|78r45
+37n7*Key_Tab{6E9} 123|74r45
+38n7*Key_Z{6E9} 123|80r45 143r45
+39n7*Key_Y{6E9} 123|83r45 145r45
+42b7*Ctrl{boolean} 123|47m10 81m29 84m29 88m29 91m29 94m33 116m10
+43b7*Shift{boolean} 123|48m10 85m29 94m48 117m10
+44b7*Alt{boolean} 123|49m10 94m64 118m10
+45b7*Meta{boolean} 123|50m10 94m78 119m10
+48R9*Key_Chord 123|43r38 105r38 240r34 157|51e14
+49e7*Key{6E9} 123|54m19 56m19 58m19 60m19 62m19 64m19 66m19 68m19 70m19 72m19
+. 74m19 76m19 78m19 80m19 83m19 87m19 90m19 93m19 123m19 125m19 127m19 129m19
+. 131m19 133m19 135m19 137m19 139m19 141m19 143m19 145m19
+50r7*Modifiers{41R9} 123|46m13 81m19 84m19 85m19 88m19 91m19 94m19 115m13
+X 191 editor-unicode.ads
+1K16*Unicode 123|7w13 171r42 172r28 174r29 177r41 180r49 189r35 191|8e19
+2E12*Code_Point{wide_wide_character} 123|171r50 172r36
+4e4*Replacement_Character{2E12} 123|177r49 189r43
+6V13*Is_Valid_Scalar{boolean} 123|174s37 180s57
+X 192 editor-utf8.ads
+3K16*UTF8 123|8w13 186r59 191r56 192|24e16
+14V13*Encode_UTF8{string} 123|186s64 191s61
+X 193 editor-view.ads
+6K16*View 123|3w13 234r14 193|97e16
+21U14*Reset_Scroll 123|234s19
+X 197 interfac.ads
+47K9*Interfaces 122|1r6 5r21 6r27 123|4r6 4r24 19r26 24r29 168r25 250r27
+. 197|247e15
+X 198 i-c.ads
+33K20*C 122|1w17 5r32 6r38 123|4w17 4r35 19r37 24r40 168r36 250r38 198|601e17
+62I9*int<integer> 122|5r34 123|19r39 24r42
+71M9*unsigned 122|6r40 123|168r38 250r40
+X 200 system.ads
 67M9*Address
-X 43 s-memory.ads
-51V13*Alloc{36|67M9} 101i<c,__gnat_malloc>22
+X 207 s-memory.ads
+51V13*Alloc{200|67M9} 101i<c,__gnat_malloc>22
 66U14*Free 102i<c,__gnat_free>22
-74V13*Realloc{36|67M9} 103i<c,__gnat_realloc>22
-X 54 s-stalib.adb
+74V13*Realloc{200|67M9} 103i<c,__gnat_realloc>22
+X 218 s-stalib.adb
 87U14 Break_Start 88i<c,__gnat_break_start>22
 

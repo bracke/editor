@@ -1,5 +1,6 @@
 with Ada.Containers.Vectors;
 with Ada.Strings.Unbounded;
+with Editor.Ada_Diagnostic_Command_Projection;
 with Editor.Feature_Panel;
 
 package Editor.Feature_Diagnostics is
@@ -57,7 +58,16 @@ package Editor.Feature_Diagnostics is
       Target_Buffer : Natural := No_Buffer;
       Target_Line   : Natural := 0;
       Target_Column : Natural := 0;
-      Build_Produced : Boolean := False);
+      Build_Produced : Boolean := False;
+      Primary_Action_Kind :
+        Editor.Ada_Diagnostic_Command_Projection.Diagnostic_Command_Kind :=
+          Editor.Ada_Diagnostic_Command_Projection.Diagnostic_Command_Navigate_To_Diagnostic;
+      Has_Edit : Boolean := False;
+      Edit_Start_Line   : Natural := 0;
+      Edit_Start_Column : Natural := 0;
+      Edit_End_Line     : Natural := 0;
+      Edit_End_Column   : Natural := 0;
+      Replacement_Text  : String := "");
    --  A target is navigable when Has_Target is True, Target_Buffer is set,
    --  and Target_Line is positive. Target_Column = 0 is a line-only target
    --  and is normalized to line start by open-selected navigation. Non-navigable
@@ -103,6 +113,35 @@ package Editor.Feature_Diagnostics is
    function Item_Is_Build_Produced
      (Diagnostics : Diagnostics_Feature_State;
       Index       : Positive) return Boolean;
+
+   function Item_Primary_Action_Kind
+     (Diagnostics : Diagnostics_Feature_State;
+      Index       : Positive)
+      return Editor.Ada_Diagnostic_Command_Projection.Diagnostic_Command_Kind;
+
+   function Item_Has_Edit
+     (Diagnostics : Diagnostics_Feature_State;
+      Index       : Positive) return Boolean;
+
+   function Item_Edit_Start_Line
+     (Diagnostics : Diagnostics_Feature_State;
+      Index       : Positive) return Natural;
+
+   function Item_Edit_Start_Column
+     (Diagnostics : Diagnostics_Feature_State;
+      Index       : Positive) return Natural;
+
+   function Item_Edit_End_Line
+     (Diagnostics : Diagnostics_Feature_State;
+      Index       : Positive) return Natural;
+
+   function Item_Edit_End_Column
+     (Diagnostics : Diagnostics_Feature_State;
+      Index       : Positive) return Natural;
+
+   function Item_Replacement_Text
+     (Diagnostics : Diagnostics_Feature_State;
+      Index       : Positive) return String;
 
    function Count_By_Severity
      (Diagnostics : Diagnostics_Feature_State) return Diagnostics_Severity_Counts;
@@ -362,6 +401,11 @@ package Editor.Feature_Diagnostics is
      (Diagnostics : in out Diagnostics_Feature_State;
       Source_Kind : Diagnostic_Source_Kind) return Natural;
 
+   function Clear_Diagnostics_By_Source_And_Label
+     (Diagnostics  : in out Diagnostics_Feature_State;
+      Source_Kind  : Diagnostic_Source_Kind;
+      Source_Label : String) return Natural;
+
    procedure Reconcile_Diagnostics_Selection_After_Delete
      (Diagnostics     : Diagnostics_Feature_State;
       Panel           : in out Editor.Feature_Panel.Feature_Panel_State;
@@ -465,6 +509,15 @@ private
       Target_Column     : Natural := 0;
       Is_Stale          : Boolean := False;
       Is_Build_Produced : Boolean := False;
+      Primary_Action_Kind :
+        Editor.Ada_Diagnostic_Command_Projection.Diagnostic_Command_Kind :=
+          Editor.Ada_Diagnostic_Command_Projection.Diagnostic_Command_Navigate_To_Diagnostic;
+      Has_Edit          : Boolean := False;
+      Edit_Start_Line   : Natural := 0;
+      Edit_Start_Column : Natural := 0;
+      Edit_End_Line     : Natural := 0;
+      Edit_End_Column   : Natural := 0;
+      Replacement_Text  : Ada.Strings.Unbounded.Unbounded_String;
    end record;
 
    package Diagnostic_Row_Vectors is new Ada.Containers.Vectors

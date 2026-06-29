@@ -28,6 +28,7 @@ package Editor.Ada_Phase579_Documentation_Handoff_Pass1433 is
       Status_Rejected_Speculative_Edge,
       Status_Rejected_Missing_Acceptance_Standard,
       Status_Rejected_Stale_Documentation_Evidence,
+      Status_Rejected_Duplicate_Section,
       Status_Indeterminate_Missing_Evidence);
 
    type Handoff_Result_Class is
@@ -83,6 +84,9 @@ package Editor.Ada_Phase579_Documentation_Handoff_Pass1433 is
       Accepted_Count : Natural := 0;
       Rejected_Count : Natural := 0;
       Indeterminate_Count : Natural := 0;
+      Required_Section_Count : Natural := 0;
+      Missing_Section_Count : Natural := 0;
+      Duplicate_Section_Count : Natural := 0;
       Handoff_Fingerprint : Natural := 0;
    end record;
 

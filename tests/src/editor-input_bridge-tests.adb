@@ -1,11 +1,13 @@
 with AUnit.Assertions; use AUnit.Assertions;
 with AUnit.Test_Cases;
 with Ada.Directories;
+with Interfaces.C.Strings;
 with Ada.Streams;
 with Ada.Streams.Stream_IO;
 with Ada.Strings.Unbounded; use Ada.Strings.Unbounded;
 with Ada.Strings.Fixed; use Ada.Strings.Fixed;
 with Editor.Buffers;
+with Editor.C_API;
 with Editor.Commands;
 with Editor.Workspace_Persistence;
 with Editor.Navigation_History;
@@ -44,14 +46,17 @@ package body Editor.Input_Bridge.Tests is
    use type Editor.Input_Bridge.Text_Entry_Focus_Target;
    use type Editor.Input_Bridge.Text_Entry_Route_Result;
    use type Editor.Commands.Command_Id;
+   use type Editor.Guided_Prompts.Prompt_Kind;
    use type Editor.Guided_Prompts.Prompt_Validation_State;
+   use type Interfaces.C.Strings.chars_ptr;
 
    package Stream_IO renames Ada.Streams.Stream_IO;
 
    function Temp_Path (Name : String) return String is
    begin
+      Ada.Directories.Create_Path ("/tmp/editor-tests");
       return Ada.Directories.Compose
-        (Ada.Directories.Current_Directory, "phase57_input_" & Name);
+        ("/tmp/editor-tests", "phase57_input_" & Name);
    end Temp_Path;
 
    procedure Remove_File_If_Exists (Path : String) is
@@ -2064,6 +2069,247 @@ package body Editor.Input_Bridge.Tests is
    end Test_Phase572_File_Tree_Mutation_Prompts_Check_Availability_Before_Start;
 
 
+   procedure Test_Open_Project_Command_Starts_Path_Prompt
+     (T : in out AUnit.Test_Cases.Test_Case'Class)
+   is
+      pragma Unreferenced (T);
+      S            : Editor.State.State_Type;
+      Availability : Editor.Commands.Command_Availability;
+      Snapshot     : Editor.Guided_Prompts.Prompt_Snapshot;
+   begin
+      Editor.State.Init (S);
+      Availability :=
+        Editor.Executor.Command_Availability
+          (S, Editor.Commands.Command_Open_Project);
+
+      Assert (Editor.Commands.Is_Available (Availability),
+              "Open Project must be selectable from the command palette");
+
+      Editor.Input_Bridge.Set_State_For_Test (S);
+      Editor.Input_Bridge.Execute_Command_Id
+        (Editor.Commands.Command_Open_Project);
+      S := Editor.Input_Bridge.Get_State_For_Test;
+      Snapshot := Editor.Guided_Prompts.Snapshot (S.Guided_Prompt);
+
+      Assert (Snapshot.Active,
+              "Open Project command must start a path prompt");
+      Assert (Snapshot.Kind = Editor.Guided_Prompts.Project_Open_Prompt,
+              "Open Project prompt uses the project-open prompt kind");
+      Assert (To_String (Snapshot.Confirm_Label) = "Open",
+              "Open Project prompt exposes the Open confirmation action");
+   end Test_Open_Project_Command_Starts_Path_Prompt;
+
+
+   procedure Test_Runtime_C_API_Open_Project_Path_Opens_Project
+     (T : in out AUnit.Test_Cases.Test_Case'Class)
+   is
+      pragma Unreferenced (T);
+      Root : constant String := Temp_Path ("runtime_c_api_open_project");
+      Path : Interfaces.C.Strings.chars_ptr :=
+        Interfaces.C.Strings.New_String (Root);
+      S    : Editor.State.State_Type;
+   begin
+      Build_Fixture (Root);
+
+      Editor.C_API.Editor_Init;
+      Editor.C_API.Editor_Open_Project_Path (Path);
+      S := Editor.Input_Bridge.Get_State_For_Test;
+
+      Assert (Editor.Project.Has_Project (S.Project),
+              "runtime C API project path must open a project");
+      Assert (Editor.Project.Root_Path (S.Project) = Root,
+              "runtime C API project path must become the active project root");
+
+      Interfaces.C.Strings.Free (Path);
+      Cleanup_Fixture (Root);
+   exception
+      when others =>
+         if Path /= Interfaces.C.Strings.Null_Ptr then
+            Interfaces.C.Strings.Free (Path);
+         end if;
+         Cleanup_Fixture (Root);
+         raise;
+   end Test_Runtime_C_API_Open_Project_Path_Opens_Project;
+
+
+   procedure Test_Open_Project_Prompt_Shows_Directory_Picker
+     (T : in out AUnit.Test_Cases.Test_Case'Class)
+   is
+      pragma Unreferenced (T);
+      Root     : constant String := Temp_Path ("open_project_picker");
+      A_Dir    : constant String := Ada.Directories.Compose (Root, "a_dir");
+      Prompt   : Editor.Guided_Prompts.Prompt_State;
+      Snapshot : Editor.Guided_Prompts.Prompt_Snapshot;
+      Found    : Boolean := False;
+      Selected : Unbounded_String := Null_Unbounded_String;
+   begin
+      Build_Fixture (Root);
+
+      Editor.Guided_Prompts.Start
+        (Prompt,
+         Editor.Guided_Prompts.Project_Open_Prompt,
+         Editor.Commands.Command_Open_Project,
+         "Open Project",
+         "Enter project path.",
+         "Project",
+         Confirm_Label => "Open");
+      Editor.Guided_Prompts.Update_Input (Prompt, Root);
+      Snapshot := Editor.Guided_Prompts.Snapshot (Prompt);
+
+      Assert (Snapshot.File_Picker_Active,
+              "Open Project prompt must expose a directory picker");
+      Assert (Natural (Snapshot.File_Picker_Rows.Length) >= 3,
+              "directory picker includes current, parent, and child directories");
+      Assert (To_String (Snapshot.File_Picker_Current_Directory) =
+                Ada.Directories.Full_Name (Root),
+              "directory picker tracks the typed directory");
+
+      for Row of Snapshot.File_Picker_Rows loop
+         if To_String (Row.Label) = "a_dir/" then
+            Found := True;
+            Selected := Row.Path;
+            exit;
+         end if;
+      end loop;
+
+      Assert (Found, "directory picker lists child project directories");
+      Assert (To_String (Selected) = Ada.Directories.Full_Name (A_Dir),
+              "directory picker row carries the child directory path");
+
+      Cleanup_Fixture (Root);
+   exception
+      when others =>
+         Cleanup_Fixture (Root);
+         raise;
+   end Test_Open_Project_Prompt_Shows_Directory_Picker;
+
+
+   procedure Test_Open_Project_Picker_Selection_Can_Browse_And_Open
+     (T : in out AUnit.Test_Cases.Test_Case'Class)
+   is
+      pragma Unreferenced (T);
+      Root  : constant String := Temp_Path ("open_project_picker_accept");
+      A_Dir : constant String := Ada.Directories.Compose (Root, "a_dir");
+      S     : Editor.State.State_Type;
+      Found : Boolean := False;
+      Path  : Unbounded_String := Null_Unbounded_String;
+   begin
+      Build_Fixture (Root);
+      Editor.State.Init (S);
+      Editor.Input_Bridge.Set_State_For_Test (S);
+      Editor.Input_Bridge.Execute_Command_Id
+        (Editor.Commands.Command_Open_Project);
+      S := Editor.Input_Bridge.Get_State_For_Test;
+
+      Editor.Guided_Prompts.Update_Input (S.Guided_Prompt, Root);
+      for I in 1 .. Natural (S.Guided_Prompt.File_Picker_Rows.Length) loop
+         if To_String (S.Guided_Prompt.File_Picker_Rows.Element (Positive (I)).Label) =
+           "a_dir/"
+         then
+            S.Guided_Prompt.File_Picker_Selected_Index := Positive (I);
+            Found := True;
+            Path := S.Guided_Prompt.File_Picker_Rows.Element (Positive (I)).Path;
+            exit;
+         end if;
+      end loop;
+
+      Assert (Found, "picker selection test must find child directory row");
+      Assert (To_String (Path) = Ada.Directories.Full_Name (A_Dir),
+              "picker selection carries expected child path");
+
+      Editor.Input_Bridge.Set_State_For_Test (S);
+      Editor.Input_Bridge.Handle_Key_Chord
+        ((Key       => Editor.Keybindings.Key_Right,
+          Modifiers => (others => False)));
+      S := Editor.Input_Bridge.Get_State_For_Test;
+      Assert (Editor.Guided_Prompts.Input_Text (S.Guided_Prompt) =
+                Ada.Directories.Full_Name (A_Dir),
+              "Right applies the selected directory to the path field");
+
+      Editor.Input_Bridge.Set_State_For_Test (S);
+      Editor.Input_Bridge.Handle_Key_Chord
+        ((Key       => Editor.Keybindings.Key_Enter,
+          Modifiers => (others => False)));
+      S := Editor.Input_Bridge.Get_State_For_Test;
+
+      Assert (Editor.Project.Has_Project (S.Project),
+              "Enter opens the picker-selected project directory");
+      Assert (Editor.Project.Root_Path (S.Project) =
+                Ada.Directories.Full_Name (A_Dir),
+              "picker-selected directory becomes the active project root");
+
+      Cleanup_Fixture (Root);
+   exception
+      when others =>
+         Cleanup_Fixture (Root);
+         raise;
+   end Test_Open_Project_Picker_Selection_Can_Browse_And_Open;
+
+
+   procedure Test_Open_Project_Picker_Runtime_Enter_Browses_Selected_Directory
+     (T : in out AUnit.Test_Cases.Test_Case'Class)
+   is
+      pragma Unreferenced (T);
+      Root  : constant String := Temp_Path ("open_project_picker_runtime_enter");
+      A_Dir : constant String := Ada.Directories.Compose (Root, "a_dir");
+      S     : Editor.State.State_Type;
+      Found : Boolean := False;
+      Enter : Editor.Commands.Command;
+   begin
+      Build_Fixture (Root);
+      Editor.State.Init (S);
+      Editor.Input_Bridge.Set_State_For_Test (S);
+      Editor.Input_Bridge.Execute_Command_Id
+        (Editor.Commands.Command_Open_Project);
+      S := Editor.Input_Bridge.Get_State_For_Test;
+
+      Editor.Guided_Prompts.Update_Input (S.Guided_Prompt, Root);
+      for I in 1 .. Natural (S.Guided_Prompt.File_Picker_Rows.Length) loop
+         if To_String (S.Guided_Prompt.File_Picker_Rows.Element (Positive (I)).Label) =
+           "a_dir/"
+         then
+            S.Guided_Prompt.File_Picker_Selected_Index := Positive (I);
+            Found := True;
+            exit;
+         end if;
+      end loop;
+      Assert (Found, "runtime Enter picker setup must find child directory row");
+
+      Editor.Input_Bridge.Set_State_For_Test (S);
+      Enter.Kind := Editor.Commands.Insert_Text_Input;
+      Enter.Ch := ASCII.LF;
+      Enter.Text := To_Unbounded_String (String'(1 => ASCII.LF));
+      Editor.Input_Bridge.Handle (Enter);
+      S := Editor.Input_Bridge.Get_State_For_Test;
+
+      Assert (Editor.Guided_Prompts.Is_Active (S.Guided_Prompt),
+              "runtime Enter on child directory browses instead of closing prompt");
+      Assert (Editor.Guided_Prompts.Input_Text (S.Guided_Prompt) =
+                Ada.Directories.Full_Name (A_Dir),
+              "runtime Enter applies selected directory to the path field");
+
+      Enter := (others => <>);
+      Enter.Kind := Editor.Commands.Insert_Text_Input;
+      Enter.Ch := ASCII.LF;
+      Enter.Text := To_Unbounded_String (String'(1 => ASCII.LF));
+      Editor.Input_Bridge.Set_State_For_Test (S);
+      Editor.Input_Bridge.Handle (Enter);
+      S := Editor.Input_Bridge.Get_State_For_Test;
+
+      Assert (Editor.Project.Has_Project (S.Project),
+              "second runtime Enter opens the current selected directory");
+      Assert (Editor.Project.Root_Path (S.Project) =
+                Ada.Directories.Full_Name (A_Dir),
+              "runtime Enter opens the browsed directory as project root");
+
+      Cleanup_Fixture (Root);
+   exception
+      when others =>
+         Cleanup_Fixture (Root);
+         raise;
+   end Test_Open_Project_Picker_Runtime_Enter_Browses_Selected_Directory;
+
+
    procedure Test_Phase572_File_Tree_Rename_Prompt_Prefills_Selected_Name
      (T : in out AUnit.Test_Cases.Test_Case'Class)
    is
@@ -2267,6 +2513,21 @@ package body Editor.Input_Bridge.Tests is
       AUnit.Test_Cases.Registration.Register_Routine
         (T, Test_Phase572_File_Tree_Mutation_Prompts_Check_Availability_Before_Start'Access,
          "Phase 572 file tree mutation prompts check availability before start");
+      AUnit.Test_Cases.Registration.Register_Routine
+        (T, Test_Open_Project_Command_Starts_Path_Prompt'Access,
+         "Open Project command starts a path prompt");
+      AUnit.Test_Cases.Registration.Register_Routine
+        (T, Test_Runtime_C_API_Open_Project_Path_Opens_Project'Access,
+         "runtime C API opens project path");
+      AUnit.Test_Cases.Registration.Register_Routine
+        (T, Test_Open_Project_Prompt_Shows_Directory_Picker'Access,
+         "Open Project prompt shows a directory picker");
+      AUnit.Test_Cases.Registration.Register_Routine
+        (T, Test_Open_Project_Picker_Selection_Can_Browse_And_Open'Access,
+         "Open Project picker selection can browse and open");
+      AUnit.Test_Cases.Registration.Register_Routine
+        (T, Test_Open_Project_Picker_Runtime_Enter_Browses_Selected_Directory'Access,
+         "Open Project picker runtime Enter browses selected directory");
       AUnit.Test_Cases.Registration.Register_Routine
         (T, Test_Phase572_File_Tree_Rename_Prompt_Prefills_Selected_Name'Access,
          "Phase 572 file tree rename prompt pre-fills selected name");

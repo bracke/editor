@@ -32,6 +32,7 @@ package Editor.Ada_Phase579_Diagnostic_Quality_Validation_Pass1435 is
       Status_Rejected_Unstable_Blocker_Family,
       Status_Rejected_Wrong_Severity,
       Status_Rejected_Duplicate_Flood,
+      Status_Rejected_Duplicate_Scenario,
       Status_Rejected_Misleading_Final_State,
       Status_Rejected_Consumer_Disagreement,
       Status_Rejected_Reopened_Remaining_Gap,
@@ -94,6 +95,9 @@ package Editor.Ada_Phase579_Diagnostic_Quality_Validation_Pass1435 is
       Accepted_Count : Natural := 0;
       Rejected_Count : Natural := 0;
       Indeterminate_Count : Natural := 0;
+      Required_Scenario_Count : Natural := 0;
+      Missing_Scenario_Count : Natural := 0;
+      Duplicate_Scenario_Count : Natural := 0;
       Quality_Fingerprint : Natural := 0;
    end record;
 

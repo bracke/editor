@@ -10,10 +10,10 @@ with Editor.Syntax;
 package Editor.Ada_Diagnostic_Quick_Fix_Skeleton is
 
    --  Projection-only quick-fix candidate model over the snapshot-guarded Ada
-   --  semantic diagnostic index.  This package does not apply edits, build
-   --  text changes, mutate buffers, parse, save, reload, register commands,
-   --  touch workspace state, or perform rendering work.  It only exposes
-   --  deterministic action skeletons that later UI layers may display.
+   --  semantic diagnostic index.  This package does not synthesize or apply
+   --  edits, mutate buffers, parse, save, reload, register commands, touch
+   --  workspace state, or perform rendering work.  It can carry explicit
+   --  producer-owned edit hints as metadata for executor-owned application.
 
    subtype Feed_Entry is
      Editor.Ada_Semantic_Diagnostic_Feed.Semantic_Diagnostic_Feed_Entry;
@@ -64,6 +64,11 @@ package Editor.Ada_Diagnostic_Quick_Fix_Skeleton is
       Label       : Ada.Strings.Unbounded.Unbounded_String;
       Detail      : Ada.Strings.Unbounded.Unbounded_String;
       Has_Edit    : Boolean := False;
+      Edit_Start_Line   : Positive := 1;
+      Edit_Start_Column : Positive := 1;
+      Edit_End_Line     : Positive := 1;
+      Edit_End_Column   : Positive := 1;
+      Replacement_Text  : Ada.Strings.Unbounded.Unbounded_String;
       Ranking_Provenance :
         Editor.Ada_Overload_Ranking_Provenance.Overload_Ranking_Provenance_Id :=
           Editor.Ada_Overload_Ranking_Provenance.No_Overload_Ranking_Provenance;

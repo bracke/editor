@@ -24,6 +24,7 @@ package Editor.Ada_View_Aware_Compatibility is
       View_Compatibility_Limited_Full_View_Hidden,
       View_Compatibility_Cross_Unit_Private_View,
       View_Compatibility_Cross_Unit_Unresolved,
+      View_Compatibility_Requires_Explicit_Conversion,
       View_Compatibility_Known_Incompatible,
       View_Compatibility_Indeterminate);
 
@@ -97,6 +98,7 @@ private
       Private_Total       : Natural := 0;
       Limited_Total       : Natural := 0;
       Unresolved_Total    : Natural := 0;
+      Explicit_Total      : Natural := 0;
       Incompatible_Total  : Natural := 0;
       Indeterminate_Total : Natural := 0;
       Model_Fingerprint   : Natural := 0;

@@ -258,8 +258,6 @@ package body Editor.Ada_Enumeration_Representation_Vertical_Slice_Legality is
                end if;
                if Clause_Count_For (Items, T.Id) < T.Literal_Count then
                   R.Incomplete_Clause_Blockers := 1;
-               elsif Clause_Count_For (Items, T.Id) > T.Literal_Count then
-                  R.Extra_Literal_Blockers := 1;
                end if;
                if T.Has_Stream_Attributes and then not T.Stream_Profile_Compatible then
                   R.Stream_Profile_Blockers := 1;
@@ -281,6 +279,11 @@ package body Editor.Ada_Enumeration_Representation_Vertical_Slice_Legality is
 
             if L.Id = No_Literal or else L.Enum_Type /= I.Enum_Type then
                R.Missing_Literal_Blockers := 1;
+               if T.Id /= No_Enum_Type
+                 and then Clause_Count_For (Items, T.Id) > T.Literal_Count
+               then
+                  R.Extra_Literal_Blockers := 1;
+               end if;
             else
                if L.Source_Fingerprint /= L.Expected_Source_Fingerprint then
                   R.Source_Fingerprint_Blockers := R.Source_Fingerprint_Blockers + 1;
@@ -303,13 +306,13 @@ package body Editor.Ada_Enumeration_Representation_Vertical_Slice_Legality is
                R.Negative_Code_Blockers := 1;
             end if;
             if T.Id /= No_Enum_Type and then Limit > 0
-              and then I.Code_Static and then I.Code >= Integer (Limit)
+              and then I.Code >= Integer (Limit)
             then
                R.Code_Size_Blockers := 1;
             end if;
             if I.Requires_Monotonic_Order and then L.Id /= No_Literal
               and then Previous_Code (Items, Literals, I) /= Integer'First
-              and then I.Code <= Previous_Code (Items, Literals, I)
+              and then I.Code < Previous_Code (Items, Literals, I)
             then
                R.Non_Monotonic_Blockers := 1;
             end if;

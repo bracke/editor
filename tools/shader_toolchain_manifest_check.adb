@@ -62,9 +62,16 @@ begin
         or else State = ""
       then
          if Require_Recorded then
-            Fail (Tool, "shader toolchain manifest is unrecorded; run tools/bin/compile_shaders --record-toolchain-manifest with the release glslangValidator");
+            Fail
+              (Tool,
+               "shader toolchain manifest is unrecorded; run "
+               & "tools/bin/compile_shaders --record-toolchain-manifest "
+               & "with the release glslangValidator");
          else
-            Info (Tool, "shader toolchain manifest is UNRECORDED; this is allowed for source snapshots but strict release validation will fail");
+            Info
+              (Tool,
+               "shader toolchain manifest is UNRECORDED; this is allowed "
+               & "for source snapshots but strict release validation will fail");
             return;
          end if;
       end if;

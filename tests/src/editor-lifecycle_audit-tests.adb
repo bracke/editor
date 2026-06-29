@@ -92,6 +92,7 @@ package body Editor.Lifecycle_Audit.Tests is
    begin
       Editor.Buffers.Reset_Global_For_Test;
       Editor.State.Init (S);
+      Editor.Recent_Projects.Clear (S.Recent_Projects);
       Install_Project (S, "/tmp/editor-phase100-a", "editor-phase100-a");
       S.File_Info :=
         (Has_Path     => True,
@@ -213,6 +214,7 @@ package body Editor.Lifecycle_Audit.Tests is
    begin
       Editor.Buffers.Reset_Global_For_Test;
       Editor.State.Init (S);
+      Editor.Recent_Projects.Clear (S.Recent_Projects);
       Editor.Settings.Set_Defaults (Model);
       Editor.Settings.Set_Theme_Id (Model, "dark");
       Editor.Settings.Set_Line_Number_Mode_Name (Model, "relative");

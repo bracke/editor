@@ -8,7 +8,7 @@ P SS ZX
 RN
 RV NO_IMPLEMENTATION_PRAGMAS
 
-U text_buffer%s		text_buffer.ads		5e4b5cb6 NE OO
+U text_buffer%s		text_buffer.ads		d9c706ef NE OO
 Z ada.strings.text_buffers%s  a-sttebu.adb	a-sttebu.ali
 W text_backend%s	text_backend.ads	text_backend.ali
 W text_backend.rope_impl%s  text_backend-rope_impl.adb  text_backend-rope_impl.ali
@@ -27,6 +27,8 @@ D a-strunb.ads		20250808065140 b10770ab ada.strings.unbounded%s
 D a-stuten.ads		20250808065140 c6ced0ae ada.strings.utf_encoding%s
 D a-tags.ads		20250808065140 fbca0ad5 ada.tags%s
 D a-unccon.ads		20250808065140 0e9b276f ada.unchecked_conversion%s
+D editor.ads		20260612145959 16f844c2 editor%s
+D editor-unicode.ads	20260612145959 552ff3cc editor.unicode%s
 D interfac.ads		20250808065140 9111f9c1 interfaces%s
 D i-c.ads		20250808065140 e94c966a interfaces.c%s
 D system.ads		20250808065140 14286b0f system%s
@@ -49,14 +51,14 @@ D s-stopoo.ads		20250808065140 e9fa2dd8 system.storage_pools%s
 D s-stratt.ads		20250808065140 516607ae system.stream_attributes%s
 D s-traent.ads		20250808065140 c81cbf8c system.traceback_entries%s
 D s-unstyp.ads		20250808065140 fa2a7f59 system.unsigned_types%s
-D text_backend.ads	20260412181650 6d0030da text_backend%s
-D text_backend-rope_impl.ads  20260427194525 88d12c3a text_backend.rope_impl%s
-D text_buffer.ads	20260427153044 bb9a4056 text_buffer%s
+D text_backend.ads	20260612145959 6d0030da text_backend%s
+D text_backend-rope_impl.ads  20260612145959 0f5d7663 text_backend.rope_impl%s
+D text_buffer.ads	20260612145959 bb9a4056 text_buffer%s
 G a e
-X 37 text_backend.ads
-1K9*Text_Backend 10e17 39|1w6 2r6 4r29
-X 38 text_backend-rope_impl.ads
-4K22*Rope_Impl 85e27 39|2w19 4r42
-X 39 text_buffer.ads
-4K9*Text_Buffer=4:42
+X 39 text_backend.ads
+1K9*Text_Backend 10e17 41|1w6 2r6 26r29
+X 40 text_backend-rope_impl.ads
+5K22*Rope_Impl 172e27 41|2w19 26r42
+X 41 text_buffer.ads
+26K9*Text_Buffer=26:42
 

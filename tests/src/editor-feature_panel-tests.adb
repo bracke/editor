@@ -457,8 +457,9 @@ package body Editor.Feature_Panel.Tests is
 
    function Temp_Path (Name : String) return String is
    begin
+      Ada.Directories.Create_Path ("/tmp/editor-tests");
       return Ada.Directories.Compose
-        (Ada.Directories.Current_Directory, "phase118_" & Name);
+        ("/tmp/editor-tests", "phase118_" & Name);
    end Temp_Path;
 
    function Read_Text (Path : String) return String is
@@ -3256,6 +3257,7 @@ package body Editor.Feature_Panel.Tests is
    is
       pragma Unreferenced (T);
       D : Editor.Feature_Diagnostics.Diagnostics_Feature_State;
+      D2 : Editor.Feature_Diagnostics.Diagnostics_Feature_State;
       Removed : Natural := 0;
    begin
       Editor.Feature_Diagnostics.Add_Diagnostic
@@ -3297,6 +3299,25 @@ package body Editor.Feature_Panel.Tests is
         and then not Editor.Feature_Diagnostics.Source_Is_Visible
           (D, Editor.Feature_Diagnostics.Project_Diagnostic_Source),
               "phase 156 source subset clear preserves active filter state");
+
+      Editor.Feature_Diagnostics.Add_Diagnostic
+        (D2, Editor.Feature_Diagnostics.Diagnostic_Error, "first semantic", "src/a.adb",
+         Source_Kind => Editor.Feature_Diagnostics.Editor_Diagnostic_Source);
+      Editor.Feature_Diagnostics.Add_Diagnostic
+        (D2, Editor.Feature_Diagnostics.Diagnostic_Error, "second semantic", "src/b.adb",
+         Source_Kind => Editor.Feature_Diagnostics.Editor_Diagnostic_Source);
+      Editor.Feature_Diagnostics.Add_Diagnostic
+        (D2, Editor.Feature_Diagnostics.Diagnostic_Error, "external same path", "src/a.adb",
+         Source_Kind => Editor.Feature_Diagnostics.External_Diagnostic_Source);
+      Removed := Editor.Feature_Diagnostics.Clear_Diagnostics_By_Source_And_Label
+        (D2, Editor.Feature_Diagnostics.Editor_Diagnostic_Source, "src/a.adb");
+      Assert (Removed = 1,
+              "phase 156 clear by source and label removes only exact producer rows");
+      Assert (Editor.Feature_Diagnostics.Row_Count (D2) = 2
+              and then Editor.Feature_Diagnostics.Item_Source_Label (D2, 1) = "src/b.adb"
+              and then Editor.Feature_Diagnostics.Item_Source_Kind (D2, 2) =
+                Editor.Feature_Diagnostics.External_Diagnostic_Source,
+              "phase 156 clear by source and label preserves other labels and source kinds");
    end Test_Phase156_Diagnostics_Clear_By_Severity_And_Source_Preserve_Filters;
 
 
@@ -3590,6 +3611,10 @@ package body Editor.Feature_Panel.Tests is
               "phase 206 Diagnostics filters compose deterministically");
       Assert (Review.Targets_Validated,
               "phase 206 Diagnostics targets remain validated");
+      Assert (Review.Actions_Routed,
+              "phase 206 Diagnostics action commands remain routed");
+      Assert (Review.Editable_Actions_Visible,
+              "phase 206 Diagnostics editable actions remain visible");
       Assert (Review.Feature_Panel_Intact,
               "phase 206 Feature Panel sentinel stays healthy");
       Assert (Review.Command_Surface_Intact,
@@ -3677,6 +3702,12 @@ package body Editor.Feature_Panel.Tests is
       Assert (Editor.Diagnostics_Audit.Build_Diagnostics_Contract_Review_Feedback (Review) =
                 "Diagnostics: target validation failed",
               "phase 206 target-validation failure feedback is deterministic");
+      Review := (others => True);
+      Review.Review_Passed := False;
+      Review.Editable_Actions_Visible := False;
+      Assert (Editor.Diagnostics_Audit.Build_Diagnostics_Contract_Review_Feedback (Review) =
+                "Diagnostics: editable action projection missing",
+              "phase 206 editable-action projection failure feedback is deterministic");
       Review := (others => True);
       Review.Review_Passed := False;
       Review.Public_Build_Guardrail_Intact := False;
@@ -6198,6 +6229,9 @@ package body Editor.Feature_Panel.Tests is
                         "Phase 150 repeated Outline/Messages/Search switch preserves isolation");
       Register_Routine (T, Test_Phase150_Search_Long_Session_Query_History_Remains_Bounded'Access,
                         "Phase 150 long session search query history remains bounded");
+      Register_Routine
+        (T, Test_Phase231_Feature_Panel_Scroll_Clamps_And_Preserves_Selection'Access,
+         "Phase231 Feature Panel Scroll Clamps And Preserves Selection");
 
       Register_Routine
         (T, Test_Phase207_Messages_Row_Display_Empty_And_Long_Text'Access,

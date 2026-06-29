@@ -129,7 +129,8 @@ package body Editor.Ada_Generic_View_Compatibility is
                when others =>
                   return Generic_View_Object_Unknown;
             end case;
-         when Editor.Ada_View_Aware_Compatibility.View_Compatibility_Known_Incompatible =>
+         when Editor.Ada_View_Aware_Compatibility.View_Compatibility_Requires_Explicit_Conversion |
+              Editor.Ada_View_Aware_Compatibility.View_Compatibility_Known_Incompatible =>
             return Generic_View_Object_Mismatch;
          when Editor.Ada_View_Aware_Compatibility.View_Compatibility_Indeterminate =>
             return Generic_View_Object_Unknown;
@@ -209,6 +210,35 @@ package body Editor.Ada_Generic_View_Compatibility is
             Add_Entry (Model, Item);
          end;
       end loop;
+
+      if Natural (Model.Entries.Length) = 0 then
+         for Index in 1 .. Editor.Ada_View_Aware_Compatibility.Entry_Count (Views) loop
+            declare
+               View : constant Editor.Ada_View_Aware_Compatibility.View_Compatibility_Info :=
+                 Editor.Ada_View_Aware_Compatibility.Entry_At (Views, Index);
+               Item : Generic_View_Compatibility_Info;
+            begin
+               if Is_View_Barrier (View.Status) then
+                  Item.Id := Generic_View_Compatibility_Id (Natural (Model.Entries.Length) + 1);
+                  Item.View := View.Id;
+                  Item.View_Status := View.Status;
+                  Item.Cross_Unit_Target := View.Cross_Unit_Target;
+                  Item.Cross_Unit_Selector := View.Cross_Unit_Selector;
+                  if Length (View.Cross_Unit_Target) /= 0 and then Length (View.Cross_Unit_Selector) /= 0 then
+                     Item.Expression_Text := View.Cross_Unit_Target & "." & View.Cross_Unit_Selector;
+                  end if;
+                  Item.Status := Classify ((others => <>), View);
+                  Item.Start_Line := View.Start_Line;
+                  Item.End_Line := View.End_Line;
+                  Item.Fingerprint :=
+                    Mix (View.Fingerprint,
+                         Mix (Hash_Text (To_String (Item.Expression_Text)),
+                              Status_Fingerprint (Item.Status)));
+                  Add_Entry (Model, Item);
+               end if;
+            end;
+         end loop;
+      end if;
 
       Model.Model_Fingerprint :=
         Mix (Model.Model_Fingerprint,

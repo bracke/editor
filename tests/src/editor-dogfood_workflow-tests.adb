@@ -10,9 +10,11 @@ with Editor.Build_Candidate_Refresh;
 with Editor.Build_Candidates;
 with Editor.Build_Command;
 with Editor.Build_Output_Details;
+with Editor.Build_Result_Summary;
 with Editor.Build_Runner_Policy;
 with Editor.Build_UI;
 with Editor.Build_Working_Context;
+with Editor.Ada_Language_Service;
 with Editor.Buffers;
 with Editor.Command_Palette;
 with Editor.Command_Route_Audit;
@@ -52,6 +54,7 @@ package body Editor.Dogfood_Workflow.Tests is
    use type Editor.Commands.Command_Availability_Status;
    use type Editor.Commands.Command_Id;
    use type Editor.Commands.Command_Visibility;
+   use type Editor.Ada_Language_Service.Compiler_Diagnostic_Severity;
    use type Editor.External_Producers.Build_Run_Status;
    use type Editor.File_Tree.File_Tree_Node_Id;
    use type Editor.Focus_Management.Focus_Owner;
@@ -72,12 +75,14 @@ package body Editor.Dogfood_Workflow.Tests is
 
    function Temp_Root return String is
    begin
-      return Ada.Directories.Current_Directory & "/phase535_dogfood_project";
+      Ada.Directories.Create_Path ("/tmp/editor-tests");
+      return "/tmp/editor-tests/phase535_dogfood_project";
    end Temp_Root;
 
    function Temp_Config_Root return String is
    begin
-      return Ada.Directories.Current_Directory & "/phase535_dogfood_config";
+      Ada.Directories.Create_Path ("/tmp/editor-tests");
+      return "/tmp/editor-tests/phase535_dogfood_config";
    end Temp_Config_Root;
 
    procedure Remove_Tree_If_Exists (Path : String) is
@@ -279,6 +284,7 @@ package body Editor.Dogfood_Workflow.Tests is
       Found         : Boolean := False;
       Node          : Editor.File_Tree.File_Tree_Node_Id;
       Row           : Natural := 0;
+      Diagnostic_Row : Natural := 0;
       QO_Result     : Editor.Quick_Open.Quick_Open_Result;
       Search_Result : Editor.Project_Search.Project_Search_Result;
       QO_Snapshot   : Editor.Quick_Open.Quick_Open_Snapshot;
@@ -290,9 +296,15 @@ package body Editor.Dogfood_Workflow.Tests is
       Build_Run     : Editor.Command_Execution.Command_Execution_Result;
       Supplied_Process : Editor.External_Producers.Process_Run_Result;
       Build_Command_Result : Editor.External_Producers.Build_Command_Result;
+      Compiler_Status : Editor.Ada_Language_Service.Compiler_Backend_Status;
+      Compiler_Diagnostic : Editor.Ada_Language_Service.Compiler_Diagnostic;
       Diagnostic_Open : Editor.Command_Execution.Command_Execution_Result;
       Workspace_Save : Editor.Command_Execution.Command_Execution_Result;
       Workspace_Restore : Editor.Command_Execution.Command_Execution_Result;
+      Saved_Latest_Build_Result :
+        Editor.Build_Result_Summary.Latest_Build_Result_Summary;
+      Saved_Latest_Build_Output_Details :
+        Editor.Build_Output_Details.Latest_Build_Output_Details;
       Workspace     : Editor.Workspace_Persistence.Workspace_Snapshot;
       Loaded        : Editor.Workspace_Persistence.Workspace_Snapshot;
       Status        : Editor.Workspace_Persistence.Workspace_Persistence_Status;
@@ -451,11 +463,22 @@ package body Editor.Dogfood_Workflow.Tests is
               "real File Tree rename marks Project Search results stale");
       Assert (Editor.Quick_Open.Results_Are_Stale (S.Quick_Open),
               "real File Tree rename marks Quick Open candidates stale");
-      Assert (Editor.Feature_Diagnostics.Item_Is_Stale (S.Feature_Diagnostics, 1),
+      Diagnostic_Row := 0;
+      for I in 1 .. Editor.Feature_Diagnostics.Row_Count (S.Feature_Diagnostics) loop
+         if Editor.Feature_Diagnostics.Item_Source_Label (S.Feature_Diagnostics, I) =
+           "src/new_widget.adb"
+         then
+            Diagnostic_Row := I;
+         end if;
+      end loop;
+      Assert (Diagnostic_Row > 0,
+              "real File Tree rename preserves the seeded Diagnostics source row");
+      Assert (Editor.Feature_Diagnostics.Item_Is_Stale
+                (S.Feature_Diagnostics, Diagnostic_Row),
               "real File Tree rename marks matching Diagnostics source rows stale");
       Editor.Feature_Diagnostics.Project_Rows
         (S.Feature_Diagnostics, S.Feature_Panel);
-      Editor.Feature_Panel.Select_Row (S.Feature_Panel, 1);
+      Editor.Feature_Panel.Select_Row (S.Feature_Panel, Diagnostic_Row);
       Assert (not Editor.Commands.Is_Available
                 (Editor.Executor.Command_Availability
                    (S, Editor.Commands.Command_Diagnostics_Open_Selected)),
@@ -711,10 +734,39 @@ package body Editor.Dogfood_Workflow.Tests is
               "public build.run frontdoor consumes the deterministic bounded process result");
       Assert (Build_Command_Result.Diagnostic_Result.Ingestion.Ingestion_Result.Accepted_Count >= 1,
               "public build.run ingests diagnostics through the Diagnostics-owned seam");
+      Compiler_Status :=
+        Editor.Ada_Language_Service.Compiler_Status (S.Language_Service);
+      Assert (Compiler_Status.Has_Run
+              and then Compiler_Status.Accepted_Count >= 1
+              and then Compiler_Status.Warning_Count >= 1,
+              "public build.run feeds compiler diagnostics into the language service");
+      Compiler_Diagnostic :=
+        Editor.Ada_Language_Service.Compiler_Diagnostic_At
+          (S.Language_Service, 1);
+      Assert (Compiler_Diagnostic.Severity =
+                Editor.External_Producers.Compiler_Warning,
+              "public build.run preserves compiler diagnostic severity");
+      Assert (Compiler_Diagnostic.Has_Location
+              and then Compiler_Diagnostic.Line = 2
+              and then Compiler_Diagnostic.Column = 4,
+              "public build.run preserves compiler diagnostic source location");
+      Build_Run := Editor.Executor.Execute_Command_With_Result
+        (S, Editor.Commands.Command_Semantic_Refresh_Project_Index);
+      Assert (Build_Run.Status = Editor.Command_Execution.Command_Executed,
+              "semantic project refresh executes after public build.run");
+      Compiler_Status :=
+        Editor.Ada_Language_Service.Compiler_Status (S.Language_Service);
+      Assert (Compiler_Status.Has_Run
+              and then Compiler_Status.Warning_Count >= 1
+              and then Editor.Ada_Language_Service.Compiler_Diagnostic_Count
+                (S.Language_Service) >= 1,
+              "semantic project refresh preserves compiler-backed language diagnostics");
       Assert (S.Latest_Build_Result.Has_Result,
               "Build latest result summary is updated by the public build frontdoor");
       Assert (S.Latest_Build_Output_Details.Has_Output_Details,
               "Build output details are captured by the public build frontdoor");
+      Saved_Latest_Build_Result := S.Latest_Build_Result;
+      Saved_Latest_Build_Output_Details := S.Latest_Build_Output_Details;
       Editor.Build_Output_Details.Show_Output_Details (S.Latest_Build_Output_Details);
       Build_View := Editor.Build_UI.Build_Render_Snapshot
         (S.Build_UI, S.Latest_Build_Result, S.Latest_Build_Output_Details);
@@ -726,8 +778,20 @@ package body Editor.Dogfood_Workflow.Tests is
               "Build UI exposes Diagnostics reveal when diagnostics are represented");
       Assert (Editor.Feature_Diagnostics.Row_Count (S.Feature_Diagnostics) >= 1,
               "Diagnostics surface owns the resulting diagnostic rows");
+      Diagnostic_Row := 0;
+      for I in 1 .. Editor.Feature_Diagnostics.Row_Count (S.Feature_Diagnostics) loop
+         if Ada.Strings.Fixed.Index
+           (Editor.Feature_Diagnostics.Item_Message (S.Feature_Diagnostics, I),
+            "dogfood diagnostic") > 0
+         then
+            Diagnostic_Row := I;
+            exit;
+         end if;
+      end loop;
+      Assert (Diagnostic_Row > 0,
+              "Diagnostics surface includes the build diagnostic target");
       Editor.Feature_Diagnostics.Project_Rows (S.Feature_Diagnostics, S.Feature_Panel);
-      Editor.Feature_Panel.Select_Row (S.Feature_Panel, 1);
+      Editor.Feature_Panel.Select_Row (S.Feature_Panel, Diagnostic_Row);
       Editor.Focus_Management.Set_Focus_Owner
         (S, Editor.Focus_Management.Focus_Diagnostics);
       Diagnostic_Open := Editor.Executor.Execute_Command_With_Result
@@ -737,6 +801,10 @@ package body Editor.Dogfood_Workflow.Tests is
       Assert (Editor.Focus_Management.Effective_Focus_Owner (S) =
                 Editor.Focus_Management.Focus_Editor,
               "Diagnostics target navigation returns focus to editor text");
+      Editor.Executor.Execute_Open_File (S, Source_Path);
+      Assert (S.File_Info.Has_Path
+                and then To_String (S.File_Info.Path) = Source_Path,
+              "workspace fixture saves the intended active source file");
 
       --  Workspace persistence retains structural state only.
       Editor.Workspace_Persistence.Clear (Workspace);
@@ -837,8 +905,8 @@ package body Editor.Dogfood_Workflow.Tests is
          Source_Label => "pre-restore",
          Build_Produced => True);
       Editor.Executor.Execute_Command (S2, Editor.Commands.Command_Build_UI_Show);
-      S2.Latest_Build_Result := S.Latest_Build_Result;
-      S2.Latest_Build_Output_Details := S.Latest_Build_Output_Details;
+      S2.Latest_Build_Result := Saved_Latest_Build_Result;
+      S2.Latest_Build_Output_Details := Saved_Latest_Build_Output_Details;
       Editor.Guided_Prompts.Start
         (S2.Guided_Prompt,
          Editor.Guided_Prompts.Search_Query_Prompt,
@@ -966,7 +1034,7 @@ package body Editor.Dogfood_Workflow.Tests is
       Recent_Text : constant String :=
         "recent_project=tests/fixtures/dogfood_project" & ASCII.LF;
       Keybindings_Text : constant String :=
-        "open-project=Ctrl+O" & ASCII.LF &
+        "project.open=Ctrl+Alt+O" & ASCII.LF &
         "quick-open=Ctrl+P" & ASCII.LF &
         "save-file=Ctrl+S" & ASCII.LF &
         "command-palette=Ctrl+Shift+P" & ASCII.LF;
@@ -1011,6 +1079,12 @@ package body Editor.Dogfood_Workflow.Tests is
       Assert (Editor.Dogfood_Workflow.Assert_Default_Keybindings_Safe
                 (Keybindings_Text),
               "default keybinding text contains no payload or unsafe shortcut policy");
+      Assert (not Editor.Dogfood_Workflow.Assert_Default_Keybindings_Safe
+                ("open-project=Ctrl+O" & ASCII.LF),
+              "default keybinding policy rejects legacy project-open Ctrl+O");
+      Assert (not Editor.Dogfood_Workflow.Assert_Default_Keybindings_Safe
+                ("build-run=Ctrl+B" & ASCII.LF),
+              "default keybinding policy rejects bound build-run shortcuts");
       Assert (Editor.Dogfood_Workflow.Assert_Product_Artifacts_No_Demo_State
                 (Product_Text),
               "product milestone artifacts expose no demo or placeholder rows");
@@ -1043,10 +1117,10 @@ package body Editor.Dogfood_Workflow.Tests is
         "project=/tmp/dogfood" & ASCII.LF &
         "project=/tmp/other" & ASCII.LF;
       Keybindings_Text : constant String :=
-        "open-project=Ctrl+O" & ASCII.LF &
+        "project.open=Ctrl+Alt+O" & ASCII.LF &
         "quick-open=Ctrl+P" & ASCII.LF &
         "project-search=Ctrl+Shift+F" & ASCII.LF &
-        "build-run=Ctrl+B" & ASCII.LF;
+        "build-run=none" & ASCII.LF;
       Product_Text : constant String :=
         "startup=no-project" & ASCII.LF &
         "empty-state=real" & ASCII.LF &
@@ -1332,6 +1406,7 @@ package body Editor.Dogfood_Workflow.Tests is
       Buffer             : Editor.Buffers.Buffer_Id := Editor.Buffers.No_Buffer;
       Project_A_Root     : Unbounded_String := Null_Unbounded_String;
       Project_A_Row_Count : Natural := 0;
+      Project_A_Diagnostic_Remains : Boolean := False;
    begin
       Remove_Tree_If_Exists (Root_A);
       Remove_Tree_If_Exists (Root_B);
@@ -1405,6 +1480,7 @@ package body Editor.Dogfood_Workflow.Tests is
       Assert (Editor.Outline.Has_Items (S.Outline),
               "Project A Outline state is populated before switch");
 
+      Editor.Feature_Diagnostics.Clear_Diagnostics (S.Feature_Diagnostics);
       Editor.Feature_Diagnostics.Add_Diagnostic
         (S.Feature_Diagnostics,
          Editor.Feature_Diagnostics.Diagnostic_Warning,
@@ -1488,7 +1564,15 @@ package body Editor.Dogfood_Workflow.Tests is
               "confirmed switch clears Project A Search results");
       Assert (not Editor.Outline.Has_Items (S.Outline),
               "confirmed switch clears Project A Outline state");
-      Assert (Editor.Feature_Diagnostics.Row_Count (S.Feature_Diagnostics) = 0,
+      Project_A_Diagnostic_Remains := False;
+      for I in 1 .. Editor.Feature_Diagnostics.Row_Count (S.Feature_Diagnostics) loop
+         if Editor.Feature_Diagnostics.Item_Message (S.Feature_Diagnostics, I) =
+           "Project A diagnostic"
+         then
+            Project_A_Diagnostic_Remains := True;
+         end if;
+      end loop;
+      Assert (not Project_A_Diagnostic_Remains,
               "confirmed switch clears Project A Diagnostics rows");
       Assert (Editor.File_Tree.Visible_Row_Count (S.File_Tree) > 0,
               "confirmed switch installs Project B File Tree");
@@ -1525,10 +1609,10 @@ package body Editor.Dogfood_Workflow.Tests is
       Recent_Text : constant String :=
         "project=/tmp/dogfood" & ASCII.LF;
       Keybindings_Text : constant String :=
-        "open-project=Ctrl+O" & ASCII.LF &
+        "project.open=Ctrl+Alt+O" & ASCII.LF &
         "quick-open=Ctrl+P" & ASCII.LF &
         "project-search=Ctrl+Shift+F" & ASCII.LF &
-        "build-run=Ctrl+B" & ASCII.LF;
+        "build-run=none" & ASCII.LF;
       Product_Text : constant String :=
         "startup=no-project" & ASCII.LF &
         "empty-state=real" & ASCII.LF &
@@ -2149,28 +2233,28 @@ package body Editor.Dogfood_Workflow.Tests is
         "file.open" & ASCII.LF &
         "file.save" & ASCII.LF &
         "file.save-as" & ASCII.LF &
-        "file.reload" & ASCII.LF &
-        "file.revert" & ASCII.LF &
+        "file.reload-buffer" & ASCII.LF &
+        "file.revert-buffer" & ASCII.LF &
         "file-tree.refresh" & ASCII.LF &
         "file-tree.create-file" & ASCII.LF &
         "file-tree.create-directory" & ASCII.LF &
-        "file-tree.rename" & ASCII.LF &
-        "file-tree.delete" & ASCII.LF &
+        "file-tree.rename-selected" & ASCII.LF &
+        "file-tree.delete-selected" & ASCII.LF &
         "quick-open.show" & ASCII.LF &
         "quick-open.open-selected" & ASCII.LF &
-        "search.project" & ASCII.LF &
-        "search.open-selected" & ASCII.LF &
+        "project.search.run" & ASCII.LF &
+        "project.search.open-selected" & ASCII.LF &
         "outline.show" & ASCII.LF &
         "build.run" & ASCII.LF &
-        "build.output.show" & ASCII.LF &
-        "build.output.toggle" & ASCII.LF &
-        "build.output.hide" & ASCII.LF &
-        "build.output.focus" & ASCII.LF &
+        "build.ui.show" & ASCII.LF &
+        "build.ui.toggle" & ASCII.LF &
+        "build.ui.hide" & ASCII.LF &
+        "build.ui.focus" & ASCII.LF &
         "diagnostics.show" & ASCII.LF &
         "buffer.switch-next" & ASCII.LF &
         "buffer.switch-previous" & ASCII.LF &
-        "buffer.close" & ASCII.LF &
-        "buffer.close-all-clean" & ASCII.LF &
+        "file.close-buffer" & ASCII.LF &
+        "file.close-clean-buffers" & ASCII.LF &
         "workspace.restore" & ASCII.LF;
    begin
       Assert (Editor.Dogfood_Workflow.Product_Workflow_Command
@@ -3296,12 +3380,12 @@ package body Editor.Dogfood_Workflow.Tests is
       Assert_Resolves ("file.save-as",
                        Editor.Commands.Command_Save_File_As,
                        "file.save-as");
-      Assert_Resolves ("file.reload",
+      Assert_Resolves ("file.reload-buffer",
                        Editor.Commands.Command_Reload_Active_Buffer,
-                       "file.reload");
-      Assert_Resolves ("file.revert",
+                       "file.reload-buffer");
+      Assert_Resolves ("file.revert-buffer",
                        Editor.Commands.Command_Revert_Active_Buffer,
-                       "file.revert");
+                       "file.revert-buffer");
       Assert_Resolves ("file-tree.refresh",
                        Editor.Commands.Command_Refresh_File_Tree,
                        "file-tree.refresh");
@@ -3314,42 +3398,66 @@ package body Editor.Dogfood_Workflow.Tests is
       Assert_Resolves ("file-tree.create-directory",
                        Editor.Commands.Command_File_Tree_Create_Directory,
                        "file-tree.create-directory");
+      Assert_Resolves ("file-tree.rename-selected",
+                       Editor.Commands.Command_File_Tree_Rename_Selected,
+                       "file-tree.rename-selected");
       Assert_Resolves ("file-tree.rename",
                        Editor.Commands.Command_File_Tree_Rename_Selected,
-                       "file-tree.rename");
+                       "file-tree.rename compatibility alias");
+      Assert_Resolves ("file-tree.delete-selected",
+                       Editor.Commands.Command_File_Tree_Delete_Selected,
+                       "file-tree.delete-selected");
       Assert_Resolves ("file-tree.delete",
                        Editor.Commands.Command_File_Tree_Delete_Selected,
-                       "file-tree.delete");
+                       "file-tree.delete compatibility alias");
       Assert_Resolves ("quick-open.show",
                        Editor.Commands.Command_Open_Quick_Open,
                        "quick-open.show");
       Assert_Resolves ("quick-open.open-selected",
                        Editor.Commands.Command_Accept_Quick_Open,
                        "quick-open.open-selected");
+      Assert_Resolves ("project.search.run",
+                       Editor.Commands.Command_Run_Project_Search,
+                       "project.search.run");
       Assert_Resolves ("search.project",
                        Editor.Commands.Command_Run_Project_Search,
-                       "search.project");
+                       "search.project compatibility alias");
+      Assert_Resolves ("project.search.open-selected",
+                       Editor.Commands.Command_Open_Selected_Project_Search_Result,
+                       "project.search.open-selected");
       Assert_Resolves ("search.open-selected",
                        Editor.Commands.Command_Open_Selected_Project_Search_Result,
-                       "search.open-selected");
+                       "search.open-selected compatibility alias");
       Assert_Resolves ("outline.show",
                        Editor.Commands.Command_Show_Outline,
                        "outline.show");
       Assert_Resolves ("build.run",
                        Editor.Commands.Command_Build_Run,
                        "build.run");
+      Assert_Resolves ("build.ui.show",
+                       Editor.Commands.Command_Build_UI_Show,
+                       "build.ui.show");
       Assert_Resolves ("build.output.show",
                        Editor.Commands.Command_Build_UI_Show,
-                       "build.output.show");
+                       "build.output.show compatibility alias");
+      Assert_Resolves ("build.ui.toggle",
+                       Editor.Commands.Command_Build_UI_Toggle,
+                       "build.ui.toggle");
       Assert_Resolves ("build.output.toggle",
                        Editor.Commands.Command_Build_UI_Toggle,
-                       "build.output.toggle");
+                       "build.output.toggle compatibility alias");
+      Assert_Resolves ("build.ui.hide",
+                       Editor.Commands.Command_Build_UI_Hide,
+                       "build.ui.hide");
       Assert_Resolves ("build.output.hide",
                        Editor.Commands.Command_Build_UI_Hide,
-                       "build.output.hide");
+                       "build.output.hide compatibility alias");
+      Assert_Resolves ("build.ui.focus",
+                       Editor.Commands.Command_Build_UI_Focus,
+                       "build.ui.focus");
       Assert_Resolves ("build.output.focus",
                        Editor.Commands.Command_Build_UI_Focus,
-                       "build.output.focus");
+                       "build.output.focus compatibility alias");
       Assert_Resolves ("diagnostics.show",
                        Editor.Commands.Command_Diagnostics_Show,
                        "diagnostics.show");
@@ -3359,12 +3467,15 @@ package body Editor.Dogfood_Workflow.Tests is
       Assert_Resolves ("buffer.switch-previous",
                        Editor.Commands.Command_Previous_Buffer,
                        "buffer.switch-previous");
-      Assert_Resolves ("buffer.close",
+      Assert_Resolves ("file.close-buffer",
                        Editor.Commands.Command_Close_Active_Buffer,
-                       "buffer.close");
+                       "file.close-buffer");
+      Assert_Resolves ("file.close-clean-buffers",
+                       Editor.Commands.Command_Close_All_Clean_Buffers,
+                       "file.close-clean-buffers");
       Assert_Resolves ("buffer.close-all-clean",
                        Editor.Commands.Command_Close_All_Clean_Buffers,
-                       "buffer.close-all-clean");
+                       "buffer.close-all-clean compatibility alias");
       Assert_Resolves ("workspace.restore",
                        Editor.Commands.Command_Restore_Workspace_State,
                        "workspace.restore");
@@ -3483,29 +3594,29 @@ package body Editor.Dogfood_Workflow.Tests is
       Check ("file.open", "Open File", True);
       Check ("file.save", "Save File", True);
       Check ("file.save-as", "Save File As", True);
-      Check ("file.reload", "Reload File", True);
-      Check ("file.revert", "Revert File", True);
+      Check ("file.reload-buffer", "Reload File", True);
+      Check ("file.revert-buffer", "Revert File", True);
       Check ("file-tree.refresh", "Refresh File Tree", True);
       Check ("file-tree.open-selected", "Open Selected File", True);
       Check ("file-tree.create-file", "Create File", True);
       Check ("file-tree.create-directory", "Create Directory", True);
-      Check ("file-tree.rename", "Rename File or Directory", True);
-      Check ("file-tree.delete", "Delete File or Directory", True);
+      Check ("file-tree.rename-selected", "Rename File or Directory", True);
+      Check ("file-tree.delete-selected", "Delete File or Directory", True);
       Check ("quick-open.show", "Quick Open", True);
       Check ("quick-open.open-selected", "Open Selected Quick Open Result", False);
-      Check ("search.project", "Search Project", True);
-      Check ("search.open-selected", "Open Selected Project Search Result", True);
+      Check ("project.search.run", "Search Project", True);
+      Check ("project.search.open-selected", "Open Selected Project Search Result", True);
       Check ("outline.show", "Show Outline", True);
       Check ("build.run", "Run Build", True);
-      Check ("build.output.show", "Show Build Output", True);
-      Check ("build.output.toggle", "Toggle Build Output", True);
-      Check ("build.output.hide", "Hide Build Output", True);
-      Check ("build.output.focus", "Focus Build Output", True);
+      Check ("build.ui.show", "Show Build Output", True);
+      Check ("build.ui.toggle", "Toggle Build Output", True);
+      Check ("build.ui.hide", "Hide Build Output", True);
+      Check ("build.ui.focus", "Focus Build Output", True);
       Check ("diagnostics.show", "Show Diagnostics", True);
       Check ("buffer.switch-next", "Next Buffer", True);
       Check ("buffer.switch-previous", "Previous Buffer", True);
-      Check ("buffer.close", "Close Buffer", True);
-      Check ("buffer.close-all-clean", "Close All Clean Buffers", True);
+      Check ("file.close-buffer", "Close Buffer", True);
+      Check ("file.close-clean-buffers", "Close All Clean Buffers", True);
       Check ("workspace.restore", "Restore Workspace", True);
 
       for Id in Editor.Commands.Command_Id loop

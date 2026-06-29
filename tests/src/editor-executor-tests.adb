@@ -10,6 +10,7 @@ with Editor.Test_Helper;
 with Editor.View;
 with Editor.Layout;
 with Editor.Input_Bridge;
+with Editor.Guided_Prompts;
 with Ada.Directories;
 with Ada.Streams;
 with Ada.Streams.Stream_IO;
@@ -50,8 +51,15 @@ with Editor.Feature_Messages;
 with Editor.Feature_Diagnostics;
 with Editor.Feature_Search_Results;
 with Editor.Feature_Panel;
+with Editor.Feature_Panel_Controller;
 with Editor.Outline;
 with Editor.Outline.Fixtures; use Editor.Outline.Fixtures;
+with Editor.Ada_Language_Model;
+with Editor.Ada_Diagnostic_Command_Projection;
+with Editor.Ada_Project_Index;
+with Editor.Ada_Language_Service;
+with Editor.Syntax_Semantics;
+with Editor.External_Producers;
 with Editor.Workspace_Persistence;
 with Editor.Configuration_Audit;
 with Editor.Render_Model;
@@ -70,11 +78,14 @@ package body Editor.Executor.Tests is
    use type Editor.Dirty_Lines.Dirty_Line_Kind;
    use type Editor.Search.Search_Match_Index;
    use type Editor.Panels.Bottom_Panel_Content;
+   use type Editor.State.Semantic_Popup_Kind;
+   use type Editor.Guided_Prompts.Prompt_Kind;
    use type Editor.Project_Search.Project_Search_Status;
    use type Editor.Project_Search_Bar.Project_Search_Bar_Zone;
    use type Editor.Panel_Focus.Focus_Target;
    use type Editor.Panel_Focus.Bottom_Focus_Content;
    use type Editor.Overlay_Focus.Overlay_Target;
+   use type Editor.Ada_Diagnostic_Command_Projection.Diagnostic_Command_Kind;
    use type Editor.Go_To_Line.Go_To_Line_Validation_Status;
    use type Editor.Pending_Transitions.Pending_Transition_Kind;
    use type Editor.Quick_Open.Quick_Open_File_Kind_Filter;
@@ -82,19 +93,26 @@ package body Editor.Executor.Tests is
    use type Editor.Command_Execution.Command_Execution_Status;
    use type Editor.Commands.Command_Id;
    use type Editor.Workspace_Persistence.Workspace_Persistence_Status;
+   use type Editor.Ada_Language_Service.Index_Status;
+   use type Editor.Ada_Language_Service.Semantic_Request_Kind;
+   use type Editor.Ada_Language_Service.Semantic_Request_Status_Kind;
+   use type Editor.Feature_Diagnostics.Diagnostic_Source_Kind;
    use type Editor.State.Dirty_Close_Scope;
    use type Editor.Project.Project_File_Refresh_Status;
    use type Editor.Outline.Outline_Refresh_Status;
+   use type Editor.Outline.Outline_Item_Kind;
    use type Editor.Build_UI.Build_Candidate_Refresh_Status;
    use type Editor.Project_Search.Project_Search_File_Kind_Filter;
    use type Editor.Quick_Open.Quick_Open_Priority_Mode;
+   use type Editor.Files.File_Open_Status;
 
    package Stream_IO renames Ada.Streams.Stream_IO;
 
    function Temp_Path (Name : String) return String is
    begin
+      Ada.Directories.Create_Path ("/tmp/editor-tests");
       return Ada.Directories.Compose
-        (Ada.Directories.Current_Directory, "phase57_exec_" & Name);
+        ("/tmp/editor-tests", "phase57_exec_" & Name);
    end Temp_Path;
 
    function Executor_Recent_Config_Dir return String is
@@ -5353,6 +5371,3011 @@ package body Editor.Executor.Tests is
       Editor.Buffers.Reset_Global_For_Test;
    end Test_Phase334_Query_Edit_And_Refresh_Clear_Results;
 
+   procedure Test_Semantic_Find_References_Projects_Search_Result_Rows
+     (T : in out AUnit.Test_Cases.Test_Case'Class)
+   is
+      pragma Unreferenced (T);
+      package LM renames Editor.Ada_Language_Model;
+
+      S        : Editor.State.State_Type;
+      Analysis : LM.Analysis_Result;
+      Ignored  : LM.Symbol_Id;
+      Avail    : Editor.Commands.Command_Availability;
+      Result   : Editor.Executor.Command_Execution_Result;
+   begin
+      Init_Executor_Test_State (S);
+      Editor.State.Load_Text
+        (S,
+         "@outline procedure Run" & ASCII.LF &
+         "body line" & ASCII.LF);
+      if S.Active_Buffer_Token = 0 then
+         S.Active_Buffer_Token := 1;
+      end if;
+
+      Result := Editor.Executor.Execute_Command_With_Result
+        (S, Editor.Commands.Command_Refresh_Outline);
+      Assert (Result.Status = Editor.Executor.Command_Executed,
+              "semantic reference fixture refreshes Outline");
+
+      Editor.Outline.Select_Item (S.Outline, 1);
+      Editor.Outline.Set_Rows_From_Outline (S.Outline, S.Feature_Panel);
+      Editor.Feature_Panel.Set_Visible (S.Feature_Panel, True);
+      Editor.Feature_Panel.Select_Row (S.Feature_Panel, 1);
+      S.Carets.Replace_Element
+        (S.Carets.First_Index,
+         Editor.Cursors.Caret_State'
+           (Pos => 20, Anchor => 20,
+            Virtual_Column => 0, Anchor_Virtual_Column => 0));
+
+      Ignored := LM.Add_Symbol
+        (Analysis, "Run", LM.Symbol_Procedure,
+         (Start_Line => 1, Start_Column => 20, End_Line => 1, End_Column => 22));
+      Ignored := LM.Add_Symbol
+        (Analysis, "Run_Renamed", LM.Symbol_Procedure,
+         (Start_Line => 2, Start_Column => 4, End_Line => 2, End_Column => 14));
+      Ignored := LM.Add_Symbol
+        (Analysis, "Run", LM.Symbol_Procedure,
+         (Start_Line => 2, Start_Column => 4, End_Line => 2, End_Column => 6));
+      Editor.Ada_Project_Index.Put_Analysis
+        (S.Language_Index, "/project/run.adb",
+         Buffer_Token         => S.Active_Buffer_Token,
+         Buffer_Revision      => S.Buffer_Revision,
+         Lifecycle_Generation => S.Lifecycle_Generation,
+         Analysis             => Analysis);
+
+      Avail := Editor.Executor.Command_Availability
+        (S, Editor.Commands.Command_Find_References);
+      Assert (Editor.Commands.Is_Available (Avail),
+              "semantic find references is available when the index can answer");
+      Assert (Editor.Ada_Language_Service.Active_Semantic_Request
+                (S.Language_Service).Status =
+              Editor.Ada_Language_Service.Semantic_Request_No_Request,
+              "semantic command availability does not mutate tracked requests");
+
+      Result := Editor.Executor.Execute_Command_With_Result
+        (S, Editor.Commands.Command_Find_References);
+
+      Assert (Result.Status = Editor.Executor.Command_Executed,
+              "semantic find references command executes from selected Outline row");
+      Assert (Editor.Ada_Language_Service.Active_Semantic_Request
+                (S.Language_Service).Kind =
+              Editor.Ada_Language_Service.Semantic_Request_Find_References
+              and then Editor.Ada_Language_Service.Active_Semantic_Request
+                (S.Language_Service).Status =
+              Editor.Ada_Language_Service.Semantic_Request_Completed,
+              "semantic find references execution records a completed request");
+      Assert (Editor.Feature_Search_Results.Row_Count (S.Feature_Search_Results) = 2,
+              "semantic references are projected into Search Results rows");
+      Assert (Editor.Feature_Search_Results.Query_Text (S.Feature_Search_Results) =
+              "references: Run",
+              "semantic references label the Search Results query");
+      Assert (Editor.Feature_Search_Results.Item_Has_Target
+                (S.Feature_Search_Results, 1),
+              "open-buffer semantic reference row is navigable");
+      Assert (Editor.Feature_Search_Results.Item_Target_Buffer
+                (S.Feature_Search_Results, 1) = S.Active_Buffer_Token,
+              "semantic reference row targets the live buffer token");
+      Assert (Editor.Panels.Is_Visible (S.Panels, Editor.Panels.Bottom_Panel)
+              and then Editor.Panels.Active_Bottom_Content (S.Panels) =
+                Editor.Panels.Search_Results_Content,
+              "semantic find references shows the Search Results panel");
+      Assert (Editor.Feature_Panel.Selected_Row (S.Feature_Panel) = 1,
+              "semantic references select the first projected row");
+
+      Editor.Buffers.Reset_Global_For_Test;
+   end Test_Semantic_Find_References_Projects_Search_Result_Rows;
+
+   procedure Test_Semantic_Workspace_Symbols_Project_Search_Result_Rows
+     (T : in out AUnit.Test_Cases.Test_Case'Class)
+   is
+      pragma Unreferenced (T);
+      package LM renames Editor.Ada_Language_Model;
+
+      S        : Editor.State.State_Type;
+      Analysis : LM.Analysis_Result;
+      Other    : LM.Analysis_Result;
+      Ignored  : LM.Symbol_Id;
+      Avail    : Editor.Commands.Command_Availability;
+      Result   : Editor.Executor.Command_Execution_Result;
+   begin
+      Init_Executor_Test_State (S);
+      Editor.State.Load_Text
+        (S,
+         "@outline procedure Run" & ASCII.LF &
+         "body line" & ASCII.LF);
+      if S.Active_Buffer_Token = 0 then
+         S.Active_Buffer_Token := 1;
+      end if;
+
+      Result := Editor.Executor.Execute_Command_With_Result
+        (S, Editor.Commands.Command_Refresh_Outline);
+      Assert (Result.Status = Editor.Executor.Command_Executed,
+              "semantic workspace symbol fixture refreshes Outline");
+
+      Editor.Outline.Select_Item (S.Outline, 1);
+      Editor.Outline.Set_Rows_From_Outline (S.Outline, S.Feature_Panel);
+      Editor.Feature_Panel.Set_Visible (S.Feature_Panel, True);
+      Editor.Feature_Panel.Select_Row (S.Feature_Panel, 1);
+      S.Carets.Replace_Element
+        (S.Carets.First_Index,
+         Editor.Cursors.Caret_State'
+           (Pos => 20, Anchor => 20,
+            Virtual_Column => 0, Anchor_Virtual_Column => 0));
+
+      Ignored := LM.Add_Symbol
+        (Analysis, "Run", LM.Symbol_Procedure,
+         (Start_Line => 1, Start_Column => 20, End_Line => 1, End_Column => 22));
+      Ignored := LM.Add_Symbol
+        (Analysis, "Run_Helper", LM.Symbol_Procedure,
+         (Start_Line => 2, Start_Column => 4, End_Line => 2, End_Column => 13));
+      Ignored := LM.Add_Symbol
+        (Other, "Runner", LM.Symbol_Procedure,
+         (Start_Line => 3, Start_Column => 4, End_Line => 3, End_Column => 9));
+      Editor.Ada_Project_Index.Put_Analysis
+        (S.Language_Index, "/project/run.adb",
+         Buffer_Token         => S.Active_Buffer_Token,
+         Buffer_Revision      => S.Buffer_Revision,
+         Lifecycle_Generation => S.Lifecycle_Generation,
+         Analysis             => Analysis);
+      Editor.Ada_Project_Index.Put_Analysis
+        (S.Language_Index, "/project/other.ads",
+         Buffer_Token         => 22,
+         Buffer_Revision      => 1,
+         Lifecycle_Generation => S.Lifecycle_Generation,
+         Analysis             => Other);
+
+      Avail := Editor.Executor.Command_Availability
+        (S, Editor.Commands.Command_Workspace_Symbols);
+      Assert (Editor.Commands.Is_Available (Avail),
+              "semantic workspace symbols are available when the index can answer");
+      Assert (Editor.Ada_Language_Service.Active_Semantic_Request
+                (S.Language_Service).Status =
+              Editor.Ada_Language_Service.Semantic_Request_No_Request,
+              "workspace symbol availability does not mutate tracked requests");
+
+      Result := Editor.Executor.Execute_Command_With_Result
+        (S, Editor.Commands.Command_Workspace_Symbols);
+
+      Assert (Result.Status = Editor.Executor.Command_Executed,
+              "semantic workspace symbols command executes from selected Outline row");
+      Assert (Editor.Ada_Language_Service.Active_Semantic_Request
+                (S.Language_Service).Kind =
+              Editor.Ada_Language_Service.Semantic_Request_Workspace_Symbols
+              and then Editor.Ada_Language_Service.Active_Semantic_Request
+                (S.Language_Service).Status =
+              Editor.Ada_Language_Service.Semantic_Request_Completed,
+              "workspace symbols execution records a completed request");
+      Assert (Editor.Feature_Search_Results.Row_Count (S.Feature_Search_Results) = 3,
+              "workspace symbols are projected into Search Results rows");
+      Assert (Editor.Feature_Search_Results.Query_Text (S.Feature_Search_Results) =
+              "symbols: Run",
+              "workspace symbols label the Search Results query");
+      Assert (Editor.Feature_Search_Results.Item_Has_Target
+                (S.Feature_Search_Results, 1),
+              "workspace symbol row is navigable");
+      Assert (Editor.Panels.Is_Visible (S.Panels, Editor.Panels.Bottom_Panel)
+              and then Editor.Panels.Active_Bottom_Content (S.Panels) =
+                Editor.Panels.Search_Results_Content,
+              "semantic workspace symbols show the Search Results panel");
+
+      Editor.Buffers.Reset_Global_For_Test;
+   end Test_Semantic_Workspace_Symbols_Project_Search_Result_Rows;
+
+   procedure Test_Semantic_Completions_Project_Search_Result_Rows
+     (T : in out AUnit.Test_Cases.Test_Case'Class)
+   is
+      pragma Unreferenced (T);
+      package LM renames Editor.Ada_Language_Model;
+
+      S        : Editor.State.State_Type;
+      Analysis : LM.Analysis_Result;
+      Ignored  : LM.Symbol_Id;
+      Avail    : Editor.Commands.Command_Availability;
+      Result   : Editor.Executor.Command_Execution_Result;
+      Snapshot : Editor.Render_Model.Render_Snapshot;
+   begin
+      Init_Executor_Test_State (S);
+      Editor.State.Load_Text
+        (S,
+         "@outline procedure R" & ASCII.LF &
+         "body line" & ASCII.LF);
+
+      Result := Editor.Executor.Execute_Command_With_Result
+        (S, Editor.Commands.Command_Refresh_Outline);
+      Assert (Result.Status = Editor.Executor.Command_Executed,
+              "semantic completion fixture refreshes Outline");
+
+      Editor.Outline.Select_Item (S.Outline, 1);
+      Editor.Outline.Set_Rows_From_Outline (S.Outline, S.Feature_Panel);
+      Editor.Feature_Panel.Set_Visible (S.Feature_Panel, True);
+      Editor.Feature_Panel.Select_Row (S.Feature_Panel, 1);
+      S.Carets.Replace_Element
+        (S.Carets.First_Index,
+         Editor.Cursors.Caret_State'
+           (Pos => 20, Anchor => 20,
+            Virtual_Column => 0, Anchor_Virtual_Column => 0));
+
+      Ignored := LM.Add_Symbol
+        (Analysis, "R", LM.Symbol_Procedure,
+         (Start_Line => 1, Start_Column => 20, End_Line => 1, End_Column => 20));
+      Ignored := LM.Add_Symbol
+        (Analysis, "Render", LM.Symbol_Procedure,
+         (Start_Line => 2, Start_Column => 4, End_Line => 2, End_Column => 9));
+      Ignored := LM.Add_Symbol
+        (Analysis, "Run", LM.Symbol_Procedure,
+         (Start_Line => 3, Start_Column => 4, End_Line => 3, End_Column => 6));
+      Editor.Ada_Project_Index.Put_Analysis
+        (S.Language_Index, "/project/run.adb",
+         Buffer_Token         => S.Active_Buffer_Token,
+         Buffer_Revision      => S.Buffer_Revision,
+         Lifecycle_Generation => S.Lifecycle_Generation,
+         Analysis             => Analysis);
+
+      Avail := Editor.Executor.Command_Availability
+        (S, Editor.Commands.Command_Show_Completions);
+      Assert (Editor.Commands.Is_Available (Avail),
+              "semantic completions are available when the index can answer");
+
+      Result := Editor.Executor.Execute_Command_With_Result
+        (S, Editor.Commands.Command_Show_Completions);
+
+      Assert (Result.Status = Editor.Executor.Command_Executed,
+              "semantic completion command executes from selected Outline row");
+      Assert (Editor.Ada_Language_Service.Active_Semantic_Request
+                (S.Language_Service).Kind =
+              Editor.Ada_Language_Service.Semantic_Request_Completion
+              and then Editor.Ada_Language_Service.Active_Semantic_Request
+                (S.Language_Service).Status =
+              Editor.Ada_Language_Service.Semantic_Request_Completed,
+              "semantic completion execution records a completed request");
+      Assert (Editor.Feature_Search_Results.Row_Count (S.Feature_Search_Results) = 3,
+              "semantic completions are projected into Search Results rows");
+      Assert (Editor.Feature_Search_Results.Query_Text (S.Feature_Search_Results) =
+              "completions: R",
+              "semantic completions label the Search Results query");
+      Assert (Editor.Feature_Search_Results.Item_Has_Target
+                (S.Feature_Search_Results, 1),
+              "open-buffer semantic completion row is navigable");
+      Assert (Editor.Feature_Search_Results.Item_Target_Buffer
+                (S.Feature_Search_Results, 1) = S.Active_Buffer_Token,
+              "semantic completion row targets the live buffer token");
+      Assert (S.Semantic_Popup.Active
+              and then S.Semantic_Popup.Kind = Editor.State.Semantic_Completion_Popup,
+              "semantic completions show a native completion popup");
+      Assert (S.Semantic_Popup.Item_Count = 3
+              and then To_String (S.Semantic_Popup.Items (1).Label) = "R",
+              "semantic completion popup carries bounded completion rows");
+      Assert (not Editor.Panels.Is_Visible (S.Panels, Editor.Panels.Bottom_Panel),
+              "semantic completions do not force-open the Search Results panel");
+      Assert (Editor.Feature_Panel.Selected_Row (S.Feature_Panel) = 1,
+              "semantic completions select the first projected row");
+      Editor.Render_Model.Build_Render_Snapshot (S, Snapshot);
+      Assert (Snapshot.Semantic_Popup.Active
+              and then Snapshot.Semantic_Popup.Kind =
+                Editor.State.Semantic_Completion_Popup,
+              "render snapshot exposes semantic completion popup");
+
+      Result := Editor.Executor.Execute_Command_With_Result
+        (S, Editor.Commands.Command_Semantic_Completion_Select_Next);
+      Assert (Result.Status = Editor.Executor.Command_Executed,
+              "semantic completion popup selects next row");
+      Assert (S.Semantic_Popup.Selected_Item = 2
+              and then To_String (S.Semantic_Popup.Items (2).Label) = "Render",
+              "semantic completion next selects the next candidate");
+
+      Result := Editor.Executor.Execute_Command_With_Result
+        (S, Editor.Commands.Command_Semantic_Completion_Select_Previous);
+      Assert (Result.Status = Editor.Executor.Command_Executed,
+              "semantic completion popup selects previous row");
+      Assert (S.Semantic_Popup.Selected_Item = 1,
+              "semantic completion previous wraps back to first candidate");
+
+      Result := Editor.Executor.Execute_Command_With_Result
+        (S, Editor.Commands.Command_Semantic_Popup_Dismiss);
+      Assert (Result.Status = Editor.Executor.Command_Executed,
+              "semantic popup dismiss executes");
+      Assert (not S.Semantic_Popup.Active,
+              "semantic popup dismiss clears the popup");
+
+      Result := Editor.Executor.Execute_Command_With_Result
+        (S, Editor.Commands.Command_Show_Completions);
+      Assert (Result.Status = Editor.Executor.Command_Executed,
+              "semantic completion command can reopen popup after dismiss");
+      Result := Editor.Executor.Execute_Command_With_Result
+        (S, Editor.Commands.Command_Semantic_Completion_Select_Next);
+      Assert (Result.Status = Editor.Executor.Command_Executed,
+              "semantic completion popup can select candidate before accept");
+      Result := Editor.Executor.Execute_Command_With_Result
+        (S, Editor.Commands.Command_Semantic_Completion_Accept);
+      Assert (Result.Status = Editor.Executor.Command_Executed,
+              "semantic completion accept executes");
+      Assert (Editor.State.Current_Text (S) =
+              "@outline procedure Render" & ASCII.LF &
+              "body line" & ASCII.LF,
+              "semantic completion accept replaces the identifier at the caret");
+      Assert (not S.Semantic_Popup.Active,
+              "semantic completion accept closes the popup");
+
+      Editor.Buffers.Reset_Global_For_Test;
+   end Test_Semantic_Completions_Project_Search_Result_Rows;
+
+   procedure Test_Semantic_Hover_Projects_Search_Result_Row
+     (T : in out AUnit.Test_Cases.Test_Case'Class)
+   is
+      pragma Unreferenced (T);
+      package LM renames Editor.Ada_Language_Model;
+
+      S        : Editor.State.State_Type;
+      Analysis : LM.Analysis_Result;
+      Ignored  : LM.Symbol_Id;
+      Avail    : Editor.Commands.Command_Availability;
+      Result   : Editor.Executor.Command_Execution_Result;
+      Snapshot : Editor.Render_Model.Render_Snapshot;
+   begin
+      Init_Executor_Test_State (S);
+      Editor.State.Load_Text
+        (S,
+         "@outline procedure Run" & ASCII.LF &
+         "body line" & ASCII.LF);
+
+      Result := Editor.Executor.Execute_Command_With_Result
+        (S, Editor.Commands.Command_Refresh_Outline);
+      Assert (Result.Status = Editor.Executor.Command_Executed,
+              "semantic hover fixture refreshes Outline");
+
+      Editor.Outline.Select_Item (S.Outline, 1);
+      Editor.Outline.Set_Rows_From_Outline (S.Outline, S.Feature_Panel);
+      Editor.Feature_Panel.Set_Visible (S.Feature_Panel, True);
+      Editor.Feature_Panel.Select_Row (S.Feature_Panel, 1);
+
+      Ignored := LM.Add_Symbol
+        (Analysis, "Run", LM.Symbol_Procedure,
+         (Start_Line => 1, Start_Column => 20, End_Line => 1, End_Column => 22),
+         Profile_Summary => "(Count : Natural)");
+      Editor.Ada_Project_Index.Put_Analysis
+        (S.Language_Index, "/project/run.ads",
+         Buffer_Token         => S.Active_Buffer_Token,
+         Buffer_Revision      => S.Buffer_Revision,
+         Lifecycle_Generation => S.Lifecycle_Generation,
+         Analysis             => Analysis);
+
+      Avail := Editor.Executor.Command_Availability
+        (S, Editor.Commands.Command_Show_Hover);
+      Assert (Editor.Commands.Is_Available (Avail),
+              "semantic hover is available when the index can answer");
+
+      Result := Editor.Executor.Execute_Command_With_Result
+        (S, Editor.Commands.Command_Show_Hover);
+
+      Assert (Result.Status = Editor.Executor.Command_Executed,
+              "semantic hover command executes from selected Outline row");
+      Assert (Editor.Ada_Language_Service.Active_Semantic_Request
+                (S.Language_Service).Kind =
+              Editor.Ada_Language_Service.Semantic_Request_Hover
+              and then Editor.Ada_Language_Service.Active_Semantic_Request
+                (S.Language_Service).Status =
+              Editor.Ada_Language_Service.Semantic_Request_Completed,
+              "semantic hover execution records a completed request");
+      Assert (Editor.Feature_Search_Results.Row_Count (S.Feature_Search_Results) = 1,
+              "semantic hover is projected into a Search Results row");
+      Assert (Editor.Feature_Search_Results.Query_Text (S.Feature_Search_Results) =
+              "hover: Run",
+              "semantic hover labels the Search Results query");
+      Assert (Editor.Feature_Search_Results.Item_Has_Target
+                (S.Feature_Search_Results, 1),
+              "open-buffer semantic hover row is navigable");
+      Assert (Editor.Feature_Search_Results.Item_Target_Buffer
+                (S.Feature_Search_Results, 1) = S.Active_Buffer_Token,
+              "semantic hover row targets the live buffer token");
+      Assert (S.Semantic_Popup.Active
+              and then S.Semantic_Popup.Kind = Editor.State.Semantic_Hover_Popup,
+              "semantic hover shows a native hover popup");
+      Assert (To_String (S.Semantic_Popup.Title) = "Run"
+              and then To_String (S.Semantic_Popup.Detail) =
+                "procedure (Count : Natural)",
+              "semantic hover popup carries label and detail");
+      Assert (not Editor.Panels.Is_Visible (S.Panels, Editor.Panels.Bottom_Panel),
+              "semantic hover does not force-open the Search Results panel");
+      Assert (Editor.Feature_Panel.Selected_Row (S.Feature_Panel) = 1,
+              "semantic hover selects the projected row");
+      Editor.Render_Model.Build_Render_Snapshot (S, Snapshot);
+      Assert (Snapshot.Semantic_Popup.Active
+              and then Snapshot.Semantic_Popup.Kind =
+                Editor.State.Semantic_Hover_Popup,
+              "render snapshot exposes semantic hover popup");
+
+      Editor.Buffers.Reset_Global_For_Test;
+   end Test_Semantic_Hover_Projects_Search_Result_Row;
+
+   procedure Test_Semantic_Rename_Preview_Projects_Search_Result_Rows
+     (T : in out AUnit.Test_Cases.Test_Case'Class)
+   is
+      pragma Unreferenced (T);
+      package LM renames Editor.Ada_Language_Model;
+
+      S        : Editor.State.State_Type;
+      Analysis : LM.Analysis_Result;
+      Ignored  : LM.Symbol_Id;
+      Avail    : Editor.Commands.Command_Availability;
+      Result   : Editor.Executor.Command_Execution_Result;
+   begin
+      Init_Executor_Test_State (S);
+      Editor.State.Load_Text
+        (S,
+         "@outline procedure Run" & ASCII.LF &
+         "body line" & ASCII.LF);
+
+      Result := Editor.Executor.Execute_Command_With_Result
+        (S, Editor.Commands.Command_Refresh_Outline);
+      Assert (Result.Status = Editor.Executor.Command_Executed,
+              "semantic rename fixture refreshes Outline");
+
+      Editor.Outline.Select_Item (S.Outline, 1);
+      Editor.Outline.Set_Rows_From_Outline (S.Outline, S.Feature_Panel);
+      Editor.Feature_Panel.Set_Visible (S.Feature_Panel, True);
+      Editor.Feature_Panel.Select_Row (S.Feature_Panel, 1);
+
+      Ignored := LM.Add_Symbol
+        (Analysis, "Run", LM.Symbol_Procedure,
+         (Start_Line => 1, Start_Column => 20, End_Line => 1, End_Column => 22));
+      Ignored := LM.Add_Symbol
+        (Analysis, "Run", LM.Symbol_Procedure,
+         (Start_Line => 2, Start_Column => 4, End_Line => 2, End_Column => 6));
+      Ignored := LM.Add_Symbol
+        (Analysis, "Run_Renamed", LM.Symbol_Procedure,
+         (Start_Line => 3, Start_Column => 4, End_Line => 3, End_Column => 14));
+      Editor.Ada_Project_Index.Put_Analysis
+        (S.Language_Index, "/project/run.adb",
+         Buffer_Token         => S.Active_Buffer_Token,
+         Buffer_Revision      => S.Buffer_Revision,
+         Lifecycle_Generation => S.Lifecycle_Generation,
+         Analysis             => Analysis);
+
+      Avail := Editor.Executor.Command_Availability
+        (S, Editor.Commands.Command_Rename_Symbol_Preview);
+      Assert (Editor.Commands.Is_Available (Avail),
+              "semantic rename preview is available when the index can answer");
+
+      Result := Editor.Executor.Execute_Command_With_Result
+        (S, Editor.Commands.Command_Rename_Symbol_Preview);
+
+      Assert (Result.Status = Editor.Executor.Command_Executed,
+              "semantic rename preview executes even when conflicts are projected");
+      Assert (Editor.Ada_Language_Service.Active_Semantic_Request
+                (S.Language_Service).Kind =
+              Editor.Ada_Language_Service.Semantic_Request_Rename
+              and then Editor.Ada_Language_Service.Active_Semantic_Request
+                (S.Language_Service).Status =
+              Editor.Ada_Language_Service.Semantic_Request_Completed,
+              "semantic rename preview execution records a completed request");
+      Assert (Editor.Feature_Search_Results.Row_Count (S.Feature_Search_Results) = 3,
+              "semantic rename preview projects edit and conflict rows");
+      Assert (Editor.Feature_Search_Results.Query_Text (S.Feature_Search_Results) =
+              "rename: Run -> Run_Renamed",
+              "semantic rename preview labels the Search Results query");
+      Assert (Editor.Feature_Search_Results.Item_Has_Target
+                (S.Feature_Search_Results, 1),
+              "open-buffer semantic rename row is navigable");
+      Assert (Editor.Feature_Search_Results.Item_Target_Buffer
+                (S.Feature_Search_Results, 1) = S.Active_Buffer_Token,
+              "semantic rename row targets the live buffer token");
+      Assert (Editor.Panels.Is_Visible (S.Panels, Editor.Panels.Bottom_Panel)
+              and then Editor.Panels.Active_Bottom_Content (S.Panels) =
+                Editor.Panels.Search_Results_Content,
+              "semantic rename preview shows the Search Results panel");
+      Assert (Editor.Feature_Panel.Selected_Row (S.Feature_Panel) = 1,
+              "semantic rename preview selects the first projected row");
+
+      Editor.Buffers.Reset_Global_For_Test;
+   end Test_Semantic_Rename_Preview_Projects_Search_Result_Rows;
+
+   procedure Test_Semantic_Rename_Apply_Updates_Active_Buffer
+     (T : in out AUnit.Test_Cases.Test_Case'Class)
+   is
+      pragma Unreferenced (T);
+      package LM renames Editor.Ada_Language_Model;
+
+      S        : Editor.State.State_Type;
+      Analysis : LM.Analysis_Result;
+      Ignored  : LM.Symbol_Id;
+      Avail    : Editor.Commands.Command_Availability;
+      Result   : Editor.Executor.Command_Execution_Result;
+   begin
+      Init_Executor_Test_State (S);
+      Editor.State.Load_Text
+        (S,
+         "@outline procedure Run" & ASCII.LF &
+         "body line" & ASCII.LF);
+
+      Result := Editor.Executor.Execute_Command_With_Result
+        (S, Editor.Commands.Command_Refresh_Outline);
+      Assert (Result.Status = Editor.Executor.Command_Executed,
+              "semantic rename-apply fixture refreshes Outline");
+
+      Editor.Outline.Select_Item (S.Outline, 1);
+      Editor.Outline.Set_Rows_From_Outline (S.Outline, S.Feature_Panel);
+      Editor.Feature_Panel.Set_Visible (S.Feature_Panel, True);
+      Editor.Feature_Panel.Select_Row (S.Feature_Panel, 1);
+
+      Ignored := LM.Add_Symbol
+        (Analysis, "Run", LM.Symbol_Procedure,
+         (Start_Line => 1, Start_Column => 20, End_Line => 1, End_Column => 22));
+      Editor.Ada_Project_Index.Put_Analysis
+        (S.Language_Index, "/project/run.adb",
+         Buffer_Token         => S.Active_Buffer_Token,
+         Buffer_Revision      => S.Buffer_Revision,
+         Lifecycle_Generation => S.Lifecycle_Generation,
+         Analysis             => Analysis);
+
+      Avail := Editor.Executor.Command_Availability
+        (S, Editor.Commands.Command_Rename_Symbol_Apply);
+      Assert (Editor.Commands.Is_Available (Avail),
+              "semantic rename apply is available for conflict-free active-buffer edits");
+
+      Result := Editor.Executor.Execute_Command_With_Result
+        (S, Editor.Commands.Command_Rename_Symbol_Apply);
+
+      Assert (Result.Status = Editor.Executor.Command_Executed,
+              "semantic rename apply executes through command surface");
+      Assert (Editor.State.Current_Text (S) =
+              "@outline procedure Run_Renamed" & ASCII.LF &
+              "body line" & ASCII.LF,
+              "semantic rename apply mutates the active buffer text");
+      Assert (Latest_Message_Text (S) =
+              "Rename applied for Run: 1 edits.",
+              "semantic rename apply reports applied edit count");
+
+      Editor.Buffers.Reset_Global_For_Test;
+   end Test_Semantic_Rename_Apply_Updates_Active_Buffer;
+
+   procedure Test_Semantic_Rename_Apply_Updates_Open_Buffers
+     (T : in out AUnit.Test_Cases.Test_Case'Class)
+   is
+      pragma Unreferenced (T);
+      package LM renames Editor.Ada_Language_Model;
+
+      S        : Editor.State.State_Type;
+      Active_Id : Editor.Buffers.Buffer_Id;
+      Other_Id  : Editor.Buffers.Buffer_Id;
+      Active_Analysis : LM.Analysis_Result;
+      Other_Analysis  : LM.Analysis_Result;
+      Other_State     : Editor.State.State_Type;
+      Ignored  : LM.Symbol_Id;
+      Result   : Editor.Executor.Command_Execution_Result;
+   begin
+      Init_Executor_Test_State (S);
+      Editor.Buffers.Reset_Global_For_Test;
+      Editor.Buffers.Global_Add_File_Buffer
+        ("/project/run.adb", "run.adb",
+         "@outline procedure Run" & ASCII.LF &
+         "body line" & ASCII.LF,
+         Active_Id);
+      Editor.Buffers.Global_Add_File_Buffer
+        ("/project/use_run.adb", "use_run.adb",
+         "procedure Run is null;" & ASCII.LF,
+         Other_Id);
+      Editor.Buffers.Global_Set_Active_Buffer (Active_Id);
+      Editor.Buffers.Load_Global_Active_Into_State (S);
+
+      Result := Editor.Executor.Execute_Command_With_Result
+        (S, Editor.Commands.Command_Refresh_Outline);
+      Assert (Result.Status = Editor.Executor.Command_Executed,
+              "open-buffer rename fixture refreshes Outline");
+
+      Editor.Outline.Select_Item (S.Outline, 1);
+      Editor.Outline.Set_Rows_From_Outline (S.Outline, S.Feature_Panel);
+      Editor.Feature_Panel.Set_Visible (S.Feature_Panel, True);
+      Editor.Feature_Panel.Select_Row (S.Feature_Panel, 1);
+
+      Other_State := Editor.Buffers.Global_Buffer (Other_Id);
+      Ignored := LM.Add_Symbol
+        (Active_Analysis, "Run", LM.Symbol_Procedure,
+         (Start_Line => 1, Start_Column => 20, End_Line => 1, End_Column => 22));
+      Ignored := LM.Add_Symbol
+        (Other_Analysis, "Run", LM.Symbol_Procedure,
+         (Start_Line => 1, Start_Column => 11, End_Line => 1, End_Column => 13));
+      Editor.Ada_Project_Index.Put_Analysis
+        (S.Language_Index, "/project/run.adb",
+         Buffer_Token         => Natural (Active_Id),
+         Buffer_Revision      => S.Buffer_Revision,
+         Lifecycle_Generation => S.Lifecycle_Generation,
+         Analysis             => Active_Analysis);
+      Editor.Ada_Project_Index.Put_Analysis
+        (S.Language_Index, "/project/use_run.adb",
+         Buffer_Token         => Natural (Other_Id),
+         Buffer_Revision      => Other_State.Buffer_Revision,
+         Lifecycle_Generation => Other_State.Lifecycle_Generation,
+         Analysis             => Other_Analysis);
+      Editor.Ada_Language_Service.Put_Index
+        (S.Language_Service, S.Language_Index);
+
+      Result := Editor.Executor.Execute_Command_With_Result
+        (S, Editor.Commands.Command_Rename_Symbol_Apply);
+
+      Assert (Result.Status = Editor.Executor.Command_Executed,
+              "semantic rename apply handles all affected open buffers");
+      Assert (Editor.State.Current_Text (S) =
+              "@outline procedure Run_Renamed" & ASCII.LF &
+              "body line" & ASCII.LF,
+              "semantic rename apply updates the active buffer");
+      Assert (Editor.State.Current_Text
+                (Editor.Buffers.Global_Buffer (Other_Id)) =
+              "procedure Run_Renamed is null;" & ASCII.LF,
+              "semantic rename apply updates another open buffer");
+      Assert (Latest_Message_Text (S) =
+              "Rename applied for Run: 2 edits.",
+              "semantic rename apply reports cross-buffer edit count");
+      Assert (not Editor.Ada_Project_Index.Contains_Path
+                    (S.Language_Index, "/project/run.adb")
+              and then not Editor.Ada_Project_Index.Contains_Path
+                    (S.Language_Index, "/project/use_run.adb"),
+              "semantic rename apply invalidates changed open-buffer index entries");
+      Assert (Editor.Ada_Language_Service.Status (S.Language_Service) =
+              Editor.Ada_Language_Service.Status (S.Language_Index),
+              "semantic rename apply keeps language service and index invalidation aligned");
+
+      Editor.Buffers.Reset_Global_For_Test;
+   end Test_Semantic_Rename_Apply_Updates_Open_Buffers;
+
+   procedure Test_Semantic_Rename_Apply_Updates_Unopened_File
+     (T : in out AUnit.Test_Cases.Test_Case'Class)
+   is
+      pragma Unreferenced (T);
+      package LM renames Editor.Ada_Language_Model;
+
+      S        : Editor.State.State_Type;
+      Active_Analysis : LM.Analysis_Result;
+      Disk_Analysis   : LM.Analysis_Result;
+      Ignored  : LM.Symbol_Id;
+      Result   : Editor.Executor.Command_Execution_Result;
+      Root      : constant String := Temp_Path ("semantic_rename_disk");
+      Disk_Path : constant String := Ada.Directories.Compose (Root, "use_run.adb");
+      Reloaded  : Editor.Files.File_Open_Result;
+   begin
+      Remove_Tree_If_Exists (Root);
+      Ada.Directories.Create_Directory (Root);
+      Write_Bytes (Disk_Path, "procedure Run is null;" & ASCII.LF);
+
+      Init_Executor_Test_State (S);
+      Editor.State.Load_Text
+        (S,
+         "@outline procedure Run" & ASCII.LF &
+         "body line" & ASCII.LF);
+
+      Result := Editor.Executor.Execute_Command_With_Result
+        (S, Editor.Commands.Command_Refresh_Outline);
+      Assert (Result.Status = Editor.Executor.Command_Executed,
+              "disk rename fixture refreshes Outline");
+
+      Editor.Outline.Select_Item (S.Outline, 1);
+      Editor.Outline.Set_Rows_From_Outline (S.Outline, S.Feature_Panel);
+      Editor.Feature_Panel.Set_Visible (S.Feature_Panel, True);
+      Editor.Feature_Panel.Select_Row (S.Feature_Panel, 1);
+
+      Ignored := LM.Add_Symbol
+        (Active_Analysis, "Run", LM.Symbol_Procedure,
+         (Start_Line => 1, Start_Column => 20, End_Line => 1, End_Column => 22));
+      Ignored := LM.Add_Symbol
+        (Disk_Analysis, "Run", LM.Symbol_Procedure,
+         (Start_Line => 1, Start_Column => 11, End_Line => 1, End_Column => 13));
+      Editor.Ada_Project_Index.Put_Analysis
+        (S.Language_Index, "/project/run.adb",
+         Buffer_Token         => S.Active_Buffer_Token,
+         Buffer_Revision      => S.Buffer_Revision,
+         Lifecycle_Generation => S.Lifecycle_Generation,
+         Analysis             => Active_Analysis);
+      Editor.Ada_Project_Index.Put_Analysis
+        (S.Language_Index, Disk_Path,
+         Buffer_Token         => 0,
+         Buffer_Revision      => 0,
+         Lifecycle_Generation => 0,
+         Analysis             => Disk_Analysis);
+      Editor.Ada_Language_Service.Put_Index
+        (S.Language_Service, S.Language_Index);
+
+      Result := Editor.Executor.Execute_Command_With_Result
+        (S, Editor.Commands.Command_Rename_Symbol_Apply);
+
+      Assert (Result.Status = Editor.Executor.Command_Executed,
+              "status=" &
+              Editor.Executor.Command_Execution_Status'Image (Result.Status)
+              & " message=" & Latest_Message_Text (S));
+      Reloaded := Editor.Files.Open_File (Disk_Path);
+      Assert (Reloaded.Status = Editor.Files.File_Open_Ok
+              and then To_String (Reloaded.Contents) =
+                "procedure Run_Renamed is null;" & ASCII.LF,
+              "semantic rename apply saves the unopened file edit");
+      Assert (Latest_Message_Text (S) =
+              "Rename applied for Run: 2 edits.",
+              "semantic rename apply counts open and unopened file edits");
+      Assert (not Editor.Ada_Project_Index.Contains_Path
+                    (S.Language_Index, "/project/run.adb")
+              and then not Editor.Ada_Project_Index.Contains_Path
+                    (S.Language_Index, Disk_Path),
+              "semantic rename apply invalidates changed disk-backed index entries");
+      Assert (Editor.Ada_Language_Service.Status (S.Language_Service) =
+              Editor.Ada_Language_Service.Status (S.Language_Index),
+              "semantic rename apply invalidates disk-backed language service entries");
+
+      Remove_Tree_If_Exists (Root);
+      Editor.Buffers.Reset_Global_For_Test;
+   end Test_Semantic_Rename_Apply_Updates_Unopened_File;
+
+   procedure Test_Semantic_Rename_Uses_Prompt_Target
+     (T : in out AUnit.Test_Cases.Test_Case'Class)
+   is
+      pragma Unreferenced (T);
+      package LM renames Editor.Ada_Language_Model;
+
+      S        : Editor.State.State_Type;
+      Analysis : LM.Analysis_Result;
+      Ignored  : LM.Symbol_Id;
+      Cmd      : Editor.Commands.Command;
+   begin
+      Init_Executor_Test_State (S);
+      Editor.State.Load_Text
+        (S,
+         "@outline procedure Run" & ASCII.LF &
+         "body line" & ASCII.LF);
+
+      Cmd := Editor.Commands.Command_For_Id
+        (Editor.Commands.Command_Refresh_Outline);
+      Editor.Executor.Execute_No_Log (S, Cmd);
+
+      Editor.Outline.Select_Item (S.Outline, 1);
+      Editor.Outline.Set_Rows_From_Outline (S.Outline, S.Feature_Panel);
+      Editor.Feature_Panel.Set_Visible (S.Feature_Panel, True);
+      Editor.Feature_Panel.Select_Row (S.Feature_Panel, 1);
+      S.Carets.Replace_Element
+        (S.Carets.First_Index,
+         Editor.Cursors.Caret_State'
+           (Pos => 20, Anchor => 20,
+            Virtual_Column => 0, Anchor_Virtual_Column => 0));
+
+      Ignored := LM.Add_Symbol
+        (Analysis, "Run", LM.Symbol_Procedure,
+         (Start_Line => 1, Start_Column => 20, End_Line => 1, End_Column => 22));
+      Editor.Ada_Project_Index.Put_Analysis
+        (S.Language_Index, "/project/run.adb",
+         Buffer_Token         => S.Active_Buffer_Token,
+         Buffer_Revision      => S.Buffer_Revision,
+         Lifecycle_Generation => S.Lifecycle_Generation,
+         Analysis             => Analysis);
+
+      Cmd := Editor.Commands.Command_For_Id
+        (Editor.Commands.Command_Rename_Symbol_Preview);
+      Cmd.Text := To_Unbounded_String ("Run_Custom");
+      Editor.Executor.Execute_No_Log (S, Cmd);
+      Assert (Editor.Feature_Search_Results.Query_Text (S.Feature_Search_Results) =
+              "rename: Run -> Run_Custom",
+              "semantic rename preview must use the prompted target name");
+
+      Cmd := Editor.Commands.Command_For_Id
+        (Editor.Commands.Command_Rename_Symbol_Apply);
+      Cmd.Text := To_Unbounded_String ("Run_Custom");
+      Editor.Executor.Execute_No_Log (S, Cmd);
+      Assert (Editor.State.Current_Text (S) =
+              "@outline procedure Run_Custom" & ASCII.LF &
+              "body line" & ASCII.LF,
+              "semantic rename apply must use the prompted target name");
+      Assert (Latest_Message_Text (S) =
+              "Rename applied for Run: 1 edits.",
+              "prompted semantic rename reports applied edit count");
+
+      Editor.Buffers.Reset_Global_For_Test;
+   end Test_Semantic_Rename_Uses_Prompt_Target;
+
+   procedure Test_Semantic_Rename_Rejects_Reserved_Prompt_Target
+     (T : in out AUnit.Test_Cases.Test_Case'Class)
+   is
+      pragma Unreferenced (T);
+      package LM renames Editor.Ada_Language_Model;
+
+      S        : Editor.State.State_Type;
+      Analysis : LM.Analysis_Result;
+      Ignored  : LM.Symbol_Id;
+      Cmd      : Editor.Commands.Command;
+   begin
+      Init_Executor_Test_State (S);
+      Editor.State.Load_Text
+        (S,
+         "@outline procedure Run" & ASCII.LF &
+         "body line" & ASCII.LF);
+
+      Cmd := Editor.Commands.Command_For_Id
+        (Editor.Commands.Command_Refresh_Outline);
+      Editor.Executor.Execute_No_Log (S, Cmd);
+
+      Editor.Outline.Select_Item (S.Outline, 1);
+      Editor.Outline.Set_Rows_From_Outline (S.Outline, S.Feature_Panel);
+      Editor.Feature_Panel.Set_Visible (S.Feature_Panel, True);
+      Editor.Feature_Panel.Select_Row (S.Feature_Panel, 1);
+      S.Carets.Replace_Element
+        (S.Carets.First_Index,
+         Editor.Cursors.Caret_State'
+           (Pos => 20, Anchor => 20,
+            Virtual_Column => 0, Anchor_Virtual_Column => 0));
+
+      Ignored := LM.Add_Symbol
+        (Analysis, "Run", LM.Symbol_Procedure,
+         (Start_Line => 1, Start_Column => 20, End_Line => 1, End_Column => 22));
+      Editor.Ada_Project_Index.Put_Analysis
+        (S.Language_Index, "/project/run.adb",
+         Buffer_Token         => S.Active_Buffer_Token,
+         Buffer_Revision      => S.Buffer_Revision,
+         Lifecycle_Generation => S.Lifecycle_Generation,
+         Analysis             => Analysis);
+
+      Cmd := Editor.Commands.Command_For_Id
+        (Editor.Commands.Command_Rename_Symbol_Preview);
+      Cmd.Text := To_Unbounded_String ("return");
+      Editor.Executor.Execute_No_Log (S, Cmd);
+      Assert (Latest_Message_Text (S) =
+              "Rename preview unavailable for Run: unavailable.",
+              "semantic rename preview rejects reserved prompted target names");
+      Assert (Editor.Feature_Search_Results.Row_Count (S.Feature_Search_Results) = 0,
+              "reserved prompted rename preview projects no stale rows");
+
+      Cmd := Editor.Commands.Command_For_Id
+        (Editor.Commands.Command_Rename_Symbol_Apply);
+      Cmd.Text := To_Unbounded_String ("return");
+      Editor.Executor.Execute_No_Log (S, Cmd);
+      Assert (Editor.State.Current_Text (S) =
+              "@outline procedure Run" & ASCII.LF &
+              "body line" & ASCII.LF,
+              "semantic rename apply leaves text unchanged for reserved target names");
+      Assert (Latest_Message_Text (S) =
+              "Rename apply unavailable for Run: unavailable.",
+              "semantic rename apply reports reserved prompted target rejection");
+
+      Editor.Buffers.Reset_Global_For_Test;
+   end Test_Semantic_Rename_Rejects_Reserved_Prompt_Target;
+
+   procedure Test_Semantic_Rename_Command_Starts_Guided_Prompt
+     (T : in out AUnit.Test_Cases.Test_Case'Class)
+   is
+      pragma Unreferenced (T);
+      package LM renames Editor.Ada_Language_Model;
+
+      S        : Editor.State.State_Type;
+      Analysis : LM.Analysis_Result;
+      Ignored  : LM.Symbol_Id;
+   begin
+      Init_Executor_Test_State (S);
+      Editor.State.Load_Text
+        (S,
+         "@outline procedure Run" & ASCII.LF &
+         "body line" & ASCII.LF);
+      Ignored := LM.Add_Symbol
+        (Analysis, "Run", LM.Symbol_Procedure,
+         (Start_Line => 1, Start_Column => 20, End_Line => 1, End_Column => 22));
+      Editor.Ada_Project_Index.Put_Analysis
+        (S.Language_Index, "/project/run.adb",
+         Buffer_Token         => S.Active_Buffer_Token,
+         Buffer_Revision      => S.Buffer_Revision,
+         Lifecycle_Generation => S.Lifecycle_Generation,
+         Analysis             => Analysis);
+      S.Carets.Replace_Element
+        (S.Carets.First_Index,
+         Editor.Cursors.Caret_State'
+           (Pos => 20, Anchor => 20,
+            Virtual_Column => 0, Anchor_Virtual_Column => 0));
+
+      Editor.Input_Bridge.Set_State_For_Test (S);
+      Editor.Input_Bridge.Execute_Command_Id
+        (Editor.Commands.Command_Rename_Symbol_Apply);
+      S := Editor.Input_Bridge.Get_State_For_Test;
+
+      Assert (Editor.Guided_Prompts.Is_Active (S.Guided_Prompt),
+              "semantic rename apply command should open a guided prompt even when the default target conflicts");
+      Assert (S.Guided_Prompt.Kind = Editor.Guided_Prompts.Semantic_Rename_Prompt,
+              "semantic rename prompt kind is exposed to the GUI");
+      Assert (Editor.Guided_Prompts.Input_Text (S.Guided_Prompt) = "Run",
+              "semantic rename prompt pre-fills the current symbol name");
+      Assert (To_String (S.Guided_Prompt.Confirm_Label) = "Rename",
+              "semantic rename apply prompt uses the apply confirmation label");
+
+      Editor.Buffers.Reset_Global_For_Test;
+   end Test_Semantic_Rename_Command_Starts_Guided_Prompt;
+
+   procedure Test_Semantic_Rename_Apply_Blocks_Conflicts
+     (T : in out AUnit.Test_Cases.Test_Case'Class)
+   is
+      pragma Unreferenced (T);
+      package LM renames Editor.Ada_Language_Model;
+
+      S        : Editor.State.State_Type;
+      Analysis : LM.Analysis_Result;
+      Ignored  : LM.Symbol_Id;
+      Avail    : Editor.Commands.Command_Availability;
+      Result   : Editor.Executor.Command_Execution_Result;
+   begin
+      Init_Executor_Test_State (S);
+      Editor.State.Load_Text
+        (S,
+         "@outline procedure Run" & ASCII.LF &
+         "body line" & ASCII.LF);
+
+      Result := Editor.Executor.Execute_Command_With_Result
+        (S, Editor.Commands.Command_Refresh_Outline);
+      Assert (Result.Status = Editor.Executor.Command_Executed,
+              "semantic rename conflict fixture refreshes Outline");
+
+      Editor.Outline.Select_Item (S.Outline, 1);
+      Editor.Outline.Set_Rows_From_Outline (S.Outline, S.Feature_Panel);
+      Editor.Feature_Panel.Set_Visible (S.Feature_Panel, True);
+      Editor.Feature_Panel.Select_Row (S.Feature_Panel, 1);
+
+      Ignored := LM.Add_Symbol
+        (Analysis, "Run", LM.Symbol_Procedure,
+         (Start_Line => 1, Start_Column => 20, End_Line => 1, End_Column => 22));
+      Ignored := LM.Add_Symbol
+        (Analysis, "Run_Renamed", LM.Symbol_Procedure,
+         (Start_Line => 2, Start_Column => 4, End_Line => 2, End_Column => 14));
+      Editor.Ada_Project_Index.Put_Analysis
+        (S.Language_Index, "/project/run.adb",
+         Buffer_Token         => S.Active_Buffer_Token,
+         Buffer_Revision      => S.Buffer_Revision,
+         Lifecycle_Generation => S.Lifecycle_Generation,
+         Analysis             => Analysis);
+
+      Avail := Editor.Executor.Command_Availability
+        (S, Editor.Commands.Command_Rename_Symbol_Apply);
+      Assert (not Editor.Commands.Is_Available (Avail),
+              "semantic rename apply is unavailable when preview has conflicts");
+      Assert (Editor.Commands.Unavailable_Reason (Avail) =
+              "Rename apply unavailable for Run: ambiguous.",
+              "semantic rename apply reports conflict status through availability");
+
+      Result := Editor.Executor.Execute_Command_With_Result
+        (S, Editor.Commands.Command_Rename_Symbol_Apply);
+      Assert (Result.Status = Editor.Executor.Command_Unavailable,
+              "semantic rename apply does not execute conflicted previews");
+      Assert (Editor.State.Current_Text (S) =
+              "@outline procedure Run" & ASCII.LF &
+              "body line" & ASCII.LF,
+              "semantic rename apply leaves conflicted text unchanged");
+
+      Editor.Buffers.Reset_Global_For_Test;
+   end Test_Semantic_Rename_Apply_Blocks_Conflicts;
+
+   procedure Test_Semantic_Outline_Commands_Unavailable_Without_Index
+     (T : in out AUnit.Test_Cases.Test_Case'Class)
+   is
+      pragma Unreferenced (T);
+
+      S      : Editor.State.State_Type;
+      Avail  : Editor.Commands.Command_Availability;
+      Result : Editor.Executor.Command_Execution_Result;
+   begin
+      Init_Executor_Test_State (S);
+      Editor.State.Load_Text
+        (S,
+         "@outline procedure Run" & ASCII.LF &
+         "body line" & ASCII.LF);
+
+      Result := Editor.Executor.Execute_Command_With_Result
+        (S, Editor.Commands.Command_Refresh_Outline);
+      Assert (Result.Status = Editor.Executor.Command_Executed,
+              "semantic availability fixture refreshes Outline");
+
+      Editor.Outline.Select_Item (S.Outline, 1);
+      Editor.Outline.Set_Rows_From_Outline (S.Outline, S.Feature_Panel);
+      Editor.Feature_Panel.Set_Visible (S.Feature_Panel, True);
+      Editor.Feature_Panel.Select_Row (S.Feature_Panel, 1);
+
+      Avail := Editor.Executor.Command_Availability
+        (S, Editor.Commands.Command_Find_References);
+      Assert (not Editor.Commands.Is_Available (Avail),
+              "find references must not be offered without an index answer");
+      Assert (Editor.Commands.Unavailable_Reason (Avail) =
+              "References unavailable for Run: unavailable.",
+              "find references reports the language service reason");
+
+      Avail := Editor.Executor.Command_Availability
+        (S, Editor.Commands.Command_Show_Hover);
+      Assert (not Editor.Commands.Is_Available (Avail),
+              "hover must not be offered without an index answer");
+      Assert (Editor.Commands.Unavailable_Reason (Avail) =
+              "Hover unavailable for Run: unavailable.",
+              "hover reports the language service reason");
+
+      Avail := Editor.Executor.Command_Availability
+        (S, Editor.Commands.Command_Show_Completions);
+      Assert (not Editor.Commands.Is_Available (Avail),
+              "completions must not be offered without an index answer");
+      Assert (Editor.Commands.Unavailable_Reason (Avail) =
+              "Completions unavailable for Run: unavailable.",
+              "completions report the language service reason");
+
+      Avail := Editor.Executor.Command_Availability
+        (S, Editor.Commands.Command_Rename_Symbol_Preview);
+      Assert (not Editor.Commands.Is_Available (Avail),
+              "rename preview must not be offered without an index answer");
+      Assert (Editor.Commands.Unavailable_Reason (Avail) =
+              "Rename preview unavailable for Run: unavailable.",
+              "rename preview reports the language service reason");
+
+      Result := Editor.Executor.Execute_Command_With_Result
+        (S, Editor.Commands.Command_Find_References);
+      Assert (Result.Status = Editor.Executor.Command_Unavailable,
+              "executing unavailable semantic commands remains blocked");
+      Assert (Editor.Feature_Search_Results.Row_Count (S.Feature_Search_Results) = 0,
+              "unavailable semantic commands must not project stale Search Results");
+
+      Editor.Buffers.Reset_Global_For_Test;
+   end Test_Semantic_Outline_Commands_Unavailable_Without_Index;
+
+   procedure Test_Semantic_Commands_Use_Caret_When_Outline_Hidden
+     (T : in out AUnit.Test_Cases.Test_Case'Class)
+   is
+      pragma Unreferenced (T);
+      package LM renames Editor.Ada_Language_Model;
+
+      S        : Editor.State.State_Type;
+      Analysis : LM.Analysis_Result;
+      Ignored  : LM.Symbol_Id;
+      Avail    : Editor.Commands.Command_Availability;
+      Result   : Editor.Executor.Command_Execution_Result;
+   begin
+      Init_Executor_Test_State (S);
+      Editor.State.Load_Text
+        (S,
+         "@outline procedure Run" & ASCII.LF &
+         "body line" & ASCII.LF);
+
+      Result := Editor.Executor.Execute_Command_With_Result
+        (S, Editor.Commands.Command_Refresh_Outline);
+      Assert (Result.Status = Editor.Executor.Command_Executed,
+              "semantic hidden-panel fixture refreshes Outline");
+
+      Editor.Outline.Select_Item (S.Outline, 1);
+      Editor.Outline.Set_Rows_From_Outline (S.Outline, S.Feature_Panel);
+      Editor.Feature_Panel.Set_Visible (S.Feature_Panel, True);
+      Editor.Feature_Panel.Select_Row (S.Feature_Panel, 1);
+
+      Ignored := LM.Add_Symbol
+        (Analysis, "Run", LM.Symbol_Procedure,
+         (Start_Line => 1, Start_Column => 20, End_Line => 1, End_Column => 22));
+      Editor.Ada_Project_Index.Put_Analysis
+        (S.Language_Index, "/project/run.adb",
+         Buffer_Token         => S.Active_Buffer_Token,
+         Buffer_Revision      => S.Buffer_Revision,
+         Lifecycle_Generation => S.Lifecycle_Generation,
+         Analysis             => Analysis);
+
+      Editor.Feature_Panel.Set_Visible (S.Feature_Panel, False);
+      S.Carets.Replace_Element
+        (S.Carets.First_Index,
+         Editor.Cursors.Caret_State'
+           (Pos => 20, Anchor => 20,
+            Virtual_Column => 0, Anchor_Virtual_Column => 0));
+
+      Avail := Editor.Executor.Command_Availability
+        (S, Editor.Commands.Command_Find_References);
+      Assert (Editor.Commands.Is_Available (Avail),
+              "hidden Outline does not block caret semantic command availability");
+
+      Result := Editor.Executor.Execute_Command_With_Result
+        (S, Editor.Commands.Command_Find_References);
+      Assert (Result.Status = Editor.Executor.Command_Executed,
+              "hidden Outline still allows caret semantic command execution");
+      Assert (Editor.Feature_Search_Results.Row_Count (S.Feature_Search_Results) = 1,
+              "caret semantic command projects semantic results");
+
+      Editor.Buffers.Reset_Global_For_Test;
+   end Test_Semantic_Commands_Use_Caret_When_Outline_Hidden;
+
+   procedure Test_Semantic_Goto_Declaration_Uses_Caret_Symbol
+     (T : in out AUnit.Test_Cases.Test_Case'Class)
+   is
+      pragma Unreferenced (T);
+      package LM renames Editor.Ada_Language_Model;
+
+      S        : Editor.State.State_Type;
+      Analysis : LM.Analysis_Result;
+      Ignored  : LM.Symbol_Id;
+      Avail    : Editor.Commands.Command_Availability;
+      Result   : Editor.Executor.Command_Execution_Result;
+   begin
+      Init_Executor_Test_State (S);
+      Editor.State.Load_Text
+        (S,
+         "@outline procedure Run" & ASCII.LF &
+         "Run;" & ASCII.LF);
+      S.File_Info.Has_Path := True;
+      S.File_Info.Path := To_Unbounded_String ("/project/run.adb");
+      S.File_Info.Display_Name := To_Unbounded_String ("run.adb");
+      S.Carets.Replace_Element
+        (S.Carets.First_Index,
+         Editor.Cursors.Caret_State'
+           (Pos => 24, Anchor => 24,
+            Virtual_Column => 0, Anchor_Virtual_Column => 0));
+
+      Ignored := LM.Add_Symbol
+        (Analysis, "Run", LM.Symbol_Procedure,
+         (Start_Line => 1, Start_Column => 20, End_Line => 1, End_Column => 22));
+      Editor.Ada_Project_Index.Put_Analysis
+        (S.Language_Index, "/project/run.adb",
+         Buffer_Token         => S.Active_Buffer_Token,
+         Buffer_Revision      => S.Buffer_Revision,
+         Lifecycle_Generation => S.Lifecycle_Generation,
+         Analysis             => Analysis);
+
+      Editor.Feature_Panel.Set_Visible (S.Feature_Panel, False);
+
+      Avail := Editor.Executor.Command_Availability
+        (S, Editor.Commands.Command_Goto_Declaration);
+      Assert (Editor.Commands.Is_Available (Avail),
+              "goto declaration is available from the caret symbol");
+
+      Result := Editor.Executor.Execute_Command_With_Result
+        (S, Editor.Commands.Command_Goto_Declaration);
+      Assert (Result.Status = Editor.Executor.Command_Executed,
+              "goto declaration executes from the caret symbol");
+      Assert (Editor.Ada_Language_Service.Active_Semantic_Request
+                (S.Language_Service).Kind =
+              Editor.Ada_Language_Service.Semantic_Request_Goto_Declaration
+              and then Editor.Ada_Language_Service.Active_Semantic_Request
+                (S.Language_Service).Status =
+              Editor.Ada_Language_Service.Semantic_Request_Completed,
+              "goto declaration execution records a completed semantic request");
+      Assert (Active_Caret_Line (S) = 1,
+              "caret goto declaration moves to the indexed declaration line");
+
+      Editor.Buffers.Reset_Global_For_Test;
+   end Test_Semantic_Goto_Declaration_Uses_Caret_Symbol;
+
+   procedure Test_Semantic_Outline_Commands_Block_Overflowed_Index
+     (T : in out AUnit.Test_Cases.Test_Case'Class)
+   is
+      pragma Unreferenced (T);
+      package LM renames Editor.Ada_Language_Model;
+
+      S        : Editor.State.State_Type;
+      Analysis : LM.Analysis_Result;
+      Ignored  : LM.Symbol_Id;
+      Avail    : Editor.Commands.Command_Availability;
+      Result   : Editor.Executor.Command_Execution_Result;
+   begin
+      Init_Executor_Test_State (S);
+      Editor.State.Load_Text
+        (S,
+         "@outline procedure Run" & ASCII.LF &
+         "body line" & ASCII.LF);
+
+      Result := Editor.Executor.Execute_Command_With_Result
+        (S, Editor.Commands.Command_Refresh_Outline);
+      Assert (Result.Status = Editor.Executor.Command_Executed,
+              "semantic overflow fixture refreshes Outline");
+
+      Editor.Outline.Select_Item (S.Outline, 1);
+      Editor.Outline.Set_Rows_From_Outline (S.Outline, S.Feature_Panel);
+      Editor.Feature_Panel.Set_Visible (S.Feature_Panel, True);
+      Editor.Feature_Panel.Select_Row (S.Feature_Panel, 1);
+
+      for I in 1 .. 201 loop
+         Ignored := LM.Add_Symbol
+           (Analysis, "Run", LM.Symbol_Procedure,
+            (Start_Line => Positive (I), Start_Column => 4,
+             End_Line => Positive (I), End_Column => 6));
+      end loop;
+      Assert (not LM.Overflowed (Analysis),
+              "semantic overflow test must exercise service cap");
+
+      Editor.Ada_Project_Index.Put_Analysis
+        (S.Language_Index, "/project/repeated.adb",
+         Buffer_Token         => S.Active_Buffer_Token,
+         Buffer_Revision      => S.Buffer_Revision,
+         Lifecycle_Generation => S.Lifecycle_Generation,
+         Analysis             => Analysis);
+
+      Avail := Editor.Executor.Command_Availability
+        (S, Editor.Commands.Command_Find_References);
+      Assert (not Editor.Commands.Is_Available (Avail),
+              "overflowed references must not be offered");
+      Assert (Editor.Commands.Unavailable_Reason (Avail) =
+              "References unavailable for Run: overflow.",
+              "overflowed references report the bounded service reason");
+
+      Avail := Editor.Executor.Command_Availability
+        (S, Editor.Commands.Command_Rename_Symbol_Preview);
+      Assert (not Editor.Commands.Is_Available (Avail),
+              "overflowed rename preview must not be offered");
+      Assert (Editor.Commands.Unavailable_Reason (Avail) =
+              "Rename preview unavailable for Run: overflow.",
+              "overflowed rename reports the bounded service reason");
+
+      Result := Editor.Executor.Execute_Command_With_Result
+        (S, Editor.Commands.Command_Find_References);
+      Assert (Result.Status = Editor.Executor.Command_Unavailable,
+              "overflowed semantic execution remains blocked");
+      Assert (Latest_Message_Text (S) = "References unavailable for Run: overflow.",
+              "overflowed semantic execution reports the bounded service reason");
+      Assert (Editor.Feature_Search_Results.Row_Count (S.Feature_Search_Results) = 0,
+              "overflowed semantic commands must not project partial Search Results");
+
+      Editor.Buffers.Reset_Global_For_Test;
+   end Test_Semantic_Outline_Commands_Block_Overflowed_Index;
+
+   procedure Test_Semantic_Outline_Commands_Report_Stale_Current_Index
+     (T : in out AUnit.Test_Cases.Test_Case'Class)
+   is
+      pragma Unreferenced (T);
+      package LM renames Editor.Ada_Language_Model;
+
+      S        : Editor.State.State_Type;
+      Analysis : LM.Analysis_Result;
+      Ignored  : LM.Symbol_Id;
+      Avail    : Editor.Commands.Command_Availability;
+      Result   : Editor.Executor.Command_Execution_Result;
+      Live_Token : constant Natural := 1;
+      Stale_Revision : Natural;
+   begin
+      Init_Executor_Test_State (S);
+      Editor.State.Load_Text
+        (S,
+         "@outline procedure Run" & ASCII.LF &
+         "body line" & ASCII.LF);
+
+      Result := Editor.Executor.Execute_Command_With_Result
+        (S, Editor.Commands.Command_Refresh_Outline);
+      Assert (Result.Status = Editor.Executor.Command_Executed,
+              "semantic stale-current fixture refreshes Outline");
+
+      Editor.Outline.Select_Item (S.Outline, 1);
+      Editor.Outline.Set_Rows_From_Outline (S.Outline, S.Feature_Panel);
+      Editor.Feature_Panel.Set_Visible (S.Feature_Panel, True);
+      Editor.Feature_Panel.Select_Row (S.Feature_Panel, 1);
+      S.File_Info.Has_Path := True;
+      S.File_Info.Path := To_Unbounded_String ("/project/run.adb");
+      S.File_Info.Display_Name := To_Unbounded_String ("run.adb");
+      S.Active_Buffer_Token := Live_Token;
+
+      Ignored := LM.Add_Symbol
+        (Analysis, "Run", LM.Symbol_Procedure,
+         (Start_Line => 1, Start_Column => 20, End_Line => 1, End_Column => 22));
+      Stale_Revision :=
+        (if S.Buffer_Revision > 0 then S.Buffer_Revision - 1
+         else S.Buffer_Revision + 1);
+      Editor.Ada_Project_Index.Put_Analysis
+        (S.Language_Index, "/project/run.adb",
+         Buffer_Token         => Live_Token,
+         Buffer_Revision      => Stale_Revision,
+         Lifecycle_Generation => S.Lifecycle_Generation,
+         Analysis             => Analysis);
+
+      Avail := Editor.Executor.Command_Availability
+        (S, Editor.Commands.Command_Find_References);
+      Assert (not Editor.Commands.Is_Available (Avail),
+              "stale current references must not be offered");
+      Assert (Editor.Commands.Unavailable_Reason (Avail) =
+              "References unavailable for Run: stale.",
+              "stale current references report the stale service reason");
+
+      Avail := Editor.Executor.Command_Availability
+        (S, Editor.Commands.Command_Show_Hover);
+      Assert (not Editor.Commands.Is_Available (Avail),
+              "stale current hover must not be offered");
+      Assert (Editor.Commands.Unavailable_Reason (Avail) =
+              "Hover unavailable for Run: stale.",
+              "stale current hover reports the stale service reason");
+
+      Avail := Editor.Executor.Command_Availability
+        (S, Editor.Commands.Command_Show_Completions);
+      Assert (not Editor.Commands.Is_Available (Avail),
+              "stale current completions must not be offered");
+      Assert (Editor.Commands.Unavailable_Reason (Avail) =
+              "Completions unavailable for Run: stale.",
+              "stale current completions report the stale service reason");
+
+      Avail := Editor.Executor.Command_Availability
+        (S, Editor.Commands.Command_Rename_Symbol_Preview);
+      Assert (not Editor.Commands.Is_Available (Avail),
+              "stale current rename preview must not be offered");
+      Assert (Editor.Commands.Unavailable_Reason (Avail) =
+              "Rename preview unavailable for Run: stale.",
+              "stale current rename preview reports the stale service reason");
+
+      Avail := Editor.Executor.Command_Availability
+        (S, Editor.Commands.Command_Rename_Symbol_Apply);
+      Assert (not Editor.Commands.Is_Available (Avail),
+              "stale current rename apply must not be offered");
+      Assert (Editor.Commands.Unavailable_Reason (Avail) =
+              "Rename apply unavailable for Run: stale.",
+              "stale current rename apply reports the stale service reason");
+
+      Result := Editor.Executor.Execute_Command_With_Result
+        (S, Editor.Commands.Command_Find_References);
+      Assert (Result.Status = Editor.Executor.Command_Unavailable,
+              "stale current semantic execution remains blocked");
+      Assert (Latest_Message_Text (S) = "References unavailable for Run: stale.",
+              "stale current execution reports the stale service reason");
+      Assert (Editor.Feature_Search_Results.Row_Count (S.Feature_Search_Results) = 0,
+              "stale current references must not project stale Search Results");
+
+      Result := Editor.Executor.Execute_Command_With_Result
+        (S, Editor.Commands.Command_Show_Hover);
+      Assert (Result.Status = Editor.Executor.Command_Unavailable,
+              "stale current hover execution remains blocked");
+      Assert (Latest_Message_Text (S) = "Hover unavailable for Run: stale.",
+              "stale current hover execution reports the stale service reason");
+
+      Result := Editor.Executor.Execute_Command_With_Result
+        (S, Editor.Commands.Command_Show_Completions);
+      Assert (Result.Status = Editor.Executor.Command_Unavailable,
+              "stale current completion execution remains blocked");
+      Assert (Latest_Message_Text (S) = "Completions unavailable for Run: stale.",
+              "stale current completion execution reports the stale service reason");
+
+      Result := Editor.Executor.Execute_Command_With_Result
+        (S, Editor.Commands.Command_Rename_Symbol_Preview);
+      Assert (Result.Status = Editor.Executor.Command_Unavailable,
+              "stale current rename preview execution remains blocked");
+      Assert (Latest_Message_Text (S) = "Rename preview unavailable for Run: stale.",
+              "stale current rename preview execution reports the stale service reason");
+
+      Result := Editor.Executor.Execute_Command_With_Result
+        (S, Editor.Commands.Command_Rename_Symbol_Apply);
+      Assert (Result.Status = Editor.Executor.Command_Unavailable,
+              "stale current rename apply execution remains blocked");
+      Assert (Latest_Message_Text (S) = "Rename apply unavailable for Run: stale.",
+              "stale current rename apply execution reports the stale service reason");
+
+      Editor.Feature_Panel.Set_Visible (S.Feature_Panel, False);
+      S.Carets.Replace_Element
+        (S.Carets.First_Index,
+         Editor.Cursors.Caret_State'
+           (Pos => 20, Anchor => 20,
+            Virtual_Column => 0, Anchor_Virtual_Column => 0));
+
+      Avail := Editor.Executor.Command_Availability
+        (S, Editor.Commands.Command_Goto_Declaration);
+      Assert (not Editor.Commands.Is_Available (Avail),
+              "stale current caret goto declaration must not be offered");
+      Assert (Editor.Commands.Unavailable_Reason (Avail) =
+              "Declaration unavailable for Run: stale.",
+              "stale current caret goto declaration reports stale reason");
+
+      Result := Editor.Executor.Execute_Command_With_Result
+        (S, Editor.Commands.Command_Goto_Declaration);
+      Assert (Result.Status = Editor.Executor.Command_Unavailable,
+              "stale current caret goto declaration remains blocked");
+      Assert (Latest_Message_Text (S) = "Declaration unavailable for Run: stale.",
+              "stale current caret goto declaration execution reports stale reason");
+
+      Editor.Buffers.Reset_Global_For_Test;
+   end Test_Semantic_Outline_Commands_Report_Stale_Current_Index;
+
+   procedure Test_Semantic_Outline_Commands_Block_Stale_Edit_Index
+     (T : in out AUnit.Test_Cases.Test_Case'Class)
+   is
+      pragma Unreferenced (T);
+      package LM renames Editor.Ada_Language_Model;
+
+      S        : Editor.State.State_Type;
+      Analysis : LM.Analysis_Result;
+      Ignored  : LM.Symbol_Id;
+      Avail    : Editor.Commands.Command_Availability;
+      Result   : Editor.Executor.Command_Execution_Result;
+      Cmd      : Editor.Commands.Command;
+   begin
+      Init_Executor_Test_State (S);
+      Editor.State.Load_Text
+        (S,
+         "@outline procedure Run" & ASCII.LF &
+         "body line" & ASCII.LF);
+
+      Result := Editor.Executor.Execute_Command_With_Result
+        (S, Editor.Commands.Command_Refresh_Outline);
+      Assert (Result.Status = Editor.Executor.Command_Executed,
+              "semantic stale-edit fixture refreshes Outline");
+
+      Editor.Outline.Select_Item (S.Outline, 1);
+      Editor.Outline.Set_Rows_From_Outline (S.Outline, S.Feature_Panel);
+      Editor.Feature_Panel.Set_Visible (S.Feature_Panel, True);
+      Editor.Feature_Panel.Select_Row (S.Feature_Panel, 1);
+
+      Ignored := LM.Add_Symbol
+        (Analysis, "Run", LM.Symbol_Procedure,
+         (Start_Line => 1, Start_Column => 20, End_Line => 1, End_Column => 22));
+      Editor.Ada_Project_Index.Put_Analysis
+        (S.Language_Index, "/project/run.adb",
+         Buffer_Token         => S.Active_Buffer_Token,
+         Buffer_Revision      => S.Buffer_Revision,
+         Lifecycle_Generation => S.Lifecycle_Generation,
+         Analysis             => Analysis);
+
+      Avail := Editor.Executor.Command_Availability
+        (S, Editor.Commands.Command_Find_References);
+      Assert (Editor.Commands.Is_Available (Avail),
+              "semantic stale-edit setup starts with an answerable index");
+
+      Cmd.Kind := Editor.Commands.Insert_Text_Input;
+      Cmd.Ch := 'x';
+      Cmd.Text := To_Unbounded_String ("x");
+      Cmd.Code := Wide_Wide_Character'Val (0);
+      Cmd.Shift := False;
+      Cmd.Click_X := 0;
+      Cmd.Click_Y := 0;
+      Editor.Executor.Execute_No_Log (S, Cmd);
+
+      Avail := Editor.Executor.Command_Availability
+        (S, Editor.Commands.Command_Find_References);
+      Assert (not Editor.Commands.Is_Available (Avail),
+              "semantic commands must not be offered after editing indexed text");
+      Assert (Editor.Commands.Unavailable_Reason (Avail) =
+              "References unavailable for Run: unavailable.",
+              "stale edit invalidation reports the missing fresh index answer");
+
+      Result := Editor.Executor.Execute_Command_With_Result
+        (S, Editor.Commands.Command_Find_References);
+      Assert (Result.Status = Editor.Executor.Command_Unavailable,
+              "stale edit semantic execution remains blocked");
+      Assert (Editor.Feature_Search_Results.Row_Count (S.Feature_Search_Results) = 0,
+              "stale edit semantic commands must not project stale Search Results");
+
+      Editor.Buffers.Reset_Global_For_Test;
+   end Test_Semantic_Outline_Commands_Block_Stale_Edit_Index;
+
+   procedure Test_Language_Index_Project_Workflow_Commands
+     (T : in out AUnit.Test_Cases.Test_Case'Class)
+   is
+      pragma Unreferenced (T);
+      Root : constant String := Temp_Path ("language_index_project_workflow");
+      Src  : constant String := Ada.Directories.Compose (Root, "src");
+      Main_Path : constant String := Ada.Directories.Compose (Src, "main.adb");
+      Lib_Path  : constant String := Ada.Directories.Compose (Src, "lib.ads");
+      Note_Path : constant String := Ada.Directories.Compose (Src, "notes.txt");
+      S      : Editor.State.State_Type;
+      Result : Editor.Executor.Command_Execution_Result;
+      Msg    : Unbounded_String;
+      Lines  : Editor.External_Producers.Diagnostic_Text_Line_Array;
+   begin
+      Editor.Buffers.Reset_Global_For_Test;
+      Remove_Tree_If_Exists (Root);
+      Ada.Directories.Create_Path (Src);
+      Write_Bytes
+        (Main_Path,
+         "with Lib;" & ASCII.LF &
+         "procedure Main is" & ASCII.LF &
+         "begin" & ASCII.LF &
+         "   Lib.Run;" & ASCII.LF &
+         "end Main;" & ASCII.LF);
+      Write_Bytes
+        (Lib_Path,
+         "package Lib is" & ASCII.LF &
+         "   procedure Run;" & ASCII.LF &
+         "end Lib;" & ASCII.LF);
+      Write_Bytes (Note_Path, "not Ada" & ASCII.LF);
+
+      Init_Executor_Test_State (S);
+      Editor.Executor.Execute_Open_Project (S, Root);
+      Editor.Executor.Execute_Open_File (S, Main_Path);
+
+      Result := Editor.Executor.Execute_Command_With_Result
+        (S, Editor.Commands.Command_Refresh_Outline_Project_Index);
+      Assert (Result.Status = Editor.Executor.Command_Executed,
+              "language project index refresh command executes");
+      Assert (Editor.Ada_Project_Index.File_Count (S.Language_Index) >= 2,
+              "language project index refresh indexes project Ada files");
+      Assert (Editor.Ada_Project_Index.Symbol_Count (S.Language_Index) >= 2,
+              "language project index refresh records project symbols");
+      Assert (Editor.Ada_Language_Service.Status (S.Language_Service) =
+              Editor.Ada_Language_Service.Status (S.Language_Index),
+              "language project index refresh syncs language service");
+      Msg := To_Unbounded_String (Latest_Message_Text (S));
+      Assert (Ada.Strings.Fixed.Index
+                (To_String (Msg), "Language project index refreshed:") > 0,
+              "language project index refresh reports user-facing summary");
+
+      Result := Editor.Executor.Execute_Command_With_Result
+        (S, Editor.Commands.Command_Language_Index_Status);
+      Assert (Result.Status = Editor.Executor.Command_Executed,
+              "language index status command executes");
+      Msg := To_Unbounded_String (Latest_Message_Text (S));
+      Assert (Ada.Strings.Fixed.Index
+                (To_String (Msg), "Language index status:") > 0,
+              "language index status reports a status prefix");
+      Assert (Ada.Strings.Fixed.Index (To_String (Msg), "files") > 0
+              and then Ada.Strings.Fixed.Index (To_String (Msg), "symbols") > 0,
+              "language index status reports indexed files and symbols");
+      Assert (Ada.Strings.Fixed.Index
+                (To_String (Msg), "backend=internal-index") > 0
+              and then Ada.Strings.Fixed.Index
+                (To_String (Msg), "compiler=not-run") > 0,
+              "language index status reports semantic backend state");
+      Assert (Ada.Strings.Fixed.Index
+                (To_String (Msg), "d=0") > 0,
+              "language index status reports no active-file compiler diagnostics before compiler run");
+      Assert (Ada.Strings.Fixed.Index
+                (To_String (Msg), "rq=none/none") > 0
+              and then Ada.Strings.Fixed.Index
+                (To_String (Msg), "cancel=no") > 0
+              and then Ada.Strings.Fixed.Index
+                (To_String (Msg), "prev=none") > 0,
+              "language index status reports semantic request lifecycle state");
+      Assert (Ada.Strings.Fixed.Index
+                (To_String (Msg), "caps=nav+") > 0
+              and then Ada.Strings.Fixed.Index
+                (To_String (Msg), "ref+") > 0
+              and then Ada.Strings.Fixed.Index
+                (To_String (Msg), "cmp+") > 0
+              and then Ada.Strings.Fixed.Index
+                (To_String (Msg), "hov+") > 0
+              and then Ada.Strings.Fixed.Index
+                (To_String (Msg), "ren+") > 0
+              and then Ada.Strings.Fixed.Index
+                (To_String (Msg), "req!") > 0,
+              "language index status reports ready language-service capabilities");
+
+      Lines.Append
+        (To_Unbounded_String
+           ("compiler run completed without diagnostics"));
+      Editor.Ada_Language_Service.Put_Compiler_Diagnostic_Lines
+        (S.Language_Service, Lines, Tool_Name => "gnat", Run_Fingerprint => 76);
+      Result := Editor.Executor.Execute_Command_With_Result
+        (S, Editor.Commands.Command_Language_Index_Status);
+      Assert (Result.Status = Editor.Executor.Command_Executed,
+              "language index status command executes after clean compiler run");
+      Msg := To_Unbounded_String (Latest_Message_Text (S));
+      Assert (Ada.Strings.Fixed.Index
+                (To_String (Msg), "backend=internal-index") > 0
+              and then Ada.Strings.Fixed.Index
+                (To_String (Msg), "compiler=0") > 0,
+              "clean compiler run does not promote inactive diagnostics backend");
+      Assert (Ada.Strings.Fixed.Index
+                (To_String (Msg), "d=0") > 0,
+              "clean compiler run reports zero active-file compiler diagnostics");
+      Lines.Clear;
+
+      Lines.Append
+        (To_Unbounded_String
+           ("src/main.adb:4:4: warning: status diagnostic"));
+      Lines.Append
+        (To_Unbounded_String
+           ("src/lib.ads:2:4: error: unrelated active-file status diagnostic"));
+      Editor.Ada_Language_Service.Put_Compiler_Diagnostic_Lines
+        (S.Language_Service, Lines, Tool_Name => "gnat", Run_Fingerprint => 77);
+      Result := Editor.Executor.Execute_Command_With_Result
+        (S, Editor.Commands.Command_Language_Index_Status);
+      Assert (Result.Status = Editor.Executor.Command_Executed,
+              "language index status command executes with compiler backend");
+      Msg := To_Unbounded_String (Latest_Message_Text (S));
+      Assert (Ada.Strings.Fixed.Index
+                (To_String (Msg), "backend=gnat-compiler") > 0
+              and then Ada.Strings.Fixed.Index
+                (To_String (Msg), "compiler=") > 0
+              and then Ada.Strings.Fixed.Index (To_String (Msg), "warn=") > 0,
+              "language index status reports compiler-backed diagnostics");
+      Assert (Ada.Strings.Fixed.Index
+                (To_String (Msg), "d=1") > 0,
+              "language index status reports compiler diagnostics for the active file only");
+
+      Result := Editor.Executor.Execute_Command_With_Result
+        (S, Editor.Commands.Command_Language_Index_Clear);
+      Assert (Result.Status = Editor.Executor.Command_Executed,
+              "language index clear command executes");
+      Assert (Editor.Ada_Project_Index.File_Count (S.Language_Index) = 0,
+              "language index clear removes indexed files");
+      Assert (Editor.Ada_Project_Index.Symbol_Count (S.Language_Index) = 0,
+              "language index clear removes indexed symbols");
+      Assert (Editor.Ada_Language_Service.Status (S.Language_Service) =
+              Editor.Ada_Language_Service.Status (S.Language_Index),
+              "language index clear syncs language service");
+      Assert (Latest_Message_Text (S) = "Language index cleared.",
+              "language index clear reports deterministic feedback");
+
+      Result := Editor.Executor.Execute_Command_With_Result
+        (S, Editor.Commands.Command_Language_Index_Status);
+      Assert (Result.Status = Editor.Executor.Command_Executed,
+              "language index status command executes after clear");
+      Msg := To_Unbounded_String (Latest_Message_Text (S));
+      Assert (Ada.Strings.Fixed.Index
+                (To_String (Msg), "caps=nav!") > 0
+              and then Ada.Strings.Fixed.Index
+                (To_String (Msg), "ref!") > 0
+              and then Ada.Strings.Fixed.Index
+                (To_String (Msg), "cmp!") > 0
+              and then Ada.Strings.Fixed.Index
+                (To_String (Msg), "hov!") > 0
+              and then Ada.Strings.Fixed.Index
+                (To_String (Msg), "ren!") > 0
+              and then Ada.Strings.Fixed.Index
+                (To_String (Msg), "req!") > 0,
+              "language index status reports not-ready capabilities after clear");
+
+      Result := Editor.Executor.Execute_Command_With_Result
+        (S, Editor.Commands.Command_Semantic_Refresh_Project_Index);
+      Assert (Result.Status = Editor.Executor.Command_Executed,
+              "semantic project index refresh command executes");
+      Assert (Editor.Ada_Project_Index.File_Count (S.Language_Index) >= 2,
+              "semantic project refresh rebuilds project language index");
+      Assert (Editor.Ada_Language_Service.Status (S.Language_Service) =
+              Editor.Ada_Language_Service.Status (S.Language_Index),
+              "semantic project refresh syncs language service");
+      Assert (Editor.Syntax_Semantics.Symbol_Count (S.Syntax_Symbols) > 0,
+              "semantic project refresh updates active-buffer semantic map");
+      Assert (S.Syntax_Symbols_Buffer_Token = S.Active_Buffer_Token,
+              "semantic project refresh stamps active-buffer semantic token");
+      Assert (S.Syntax_Symbols_Revision = S.Buffer_Revision,
+              "semantic project refresh stamps active-buffer semantic revision");
+      Msg := To_Unbounded_String (Latest_Message_Text (S));
+      Assert (Ada.Strings.Fixed.Index
+                (To_String (Msg), "Semantic project index refreshed:") > 0,
+              "semantic project refresh reports user-facing summary");
+
+      Remove_Tree_If_Exists (Root);
+      Editor.Buffers.Reset_Global_For_Test;
+   exception
+      when others =>
+         Remove_Tree_If_Exists (Root);
+         Editor.Buffers.Reset_Global_For_Test;
+         raise;
+   end Test_Language_Index_Project_Workflow_Commands;
+
+   procedure Test_Language_Index_Auto_Refreshes_Project_Lifecycle
+     (T : in out AUnit.Test_Cases.Test_Case'Class)
+   is
+      pragma Unreferenced (T);
+      Root : constant String := Temp_Path ("language_index_auto_project_lifecycle");
+      Src  : constant String := Ada.Directories.Compose (Root, "src");
+      Main_Path : constant String := Ada.Directories.Compose (Src, "main.adb");
+      Lib_Path  : constant String := Ada.Directories.Compose (Src, "lib.ads");
+      Extra_Path : constant String := Ada.Directories.Compose (Src, "extra.ads");
+      S : Editor.State.State_Type;
+   begin
+      Editor.Buffers.Reset_Global_For_Test;
+      Remove_Tree_If_Exists (Root);
+      Ada.Directories.Create_Path (Src);
+      Write_Bytes
+        (Main_Path,
+         "with Lib;" & ASCII.LF &
+         "procedure Main is" & ASCII.LF &
+         "begin" & ASCII.LF &
+         "   Lib.Run;" & ASCII.LF &
+         "end Main;" & ASCII.LF);
+      Write_Bytes
+        (Lib_Path,
+         "package Lib is" & ASCII.LF &
+         "   procedure Run;" & ASCII.LF &
+         "end Lib;" & ASCII.LF);
+
+      Init_Executor_Test_State (S);
+      Editor.Executor.Execute_Open_Project (S, Root);
+
+      Assert (Editor.Ada_Project_Index.File_Count (S.Language_Index) >= 2,
+              "project open should automatically index project Ada files");
+      Assert (Editor.Ada_Project_Index.Symbol_Count (S.Language_Index) >= 2,
+              "project open should automatically retain project symbols");
+      Assert (Editor.Ada_Language_Service.Status (S.Language_Service) =
+              Editor.Ada_Language_Service.Status (S.Language_Index),
+              "automatic project index should sync the language service");
+
+      Editor.Executor.Execute_Open_File (S, Main_Path);
+      Assert (Editor.Syntax_Semantics.Symbol_Count (S.Syntax_Symbols) > 0,
+              "opening an Ada file should prepare active-buffer semantic state");
+      Assert (S.Syntax_Symbols_Buffer_Token = S.Active_Buffer_Token,
+              "automatic file-open semantics should stamp the active buffer");
+      Assert (S.Syntax_Symbols_Revision = S.Buffer_Revision,
+              "automatic file-open semantics should stamp the active revision");
+
+      Write_Bytes
+        (Extra_Path,
+         "package Extra is" & ASCII.LF &
+         "   Value : constant Integer := 1;" & ASCII.LF &
+         "end Extra;" & ASCII.LF);
+      Editor.Executor.Execute_Refresh_Project_Files (S);
+
+      Assert (Editor.Ada_Project_Index.Contains_Path (S.Language_Index, Extra_Path),
+              "project file refresh should automatically refresh language index rows");
+      Assert (Editor.Ada_Language_Service.Status (S.Language_Service) =
+              Editor.Ada_Language_Service.Status (S.Language_Index),
+              "project file refresh should keep language service in sync");
+
+      Remove_Tree_If_Exists (Root);
+      Editor.Buffers.Reset_Global_For_Test;
+   exception
+      when others =>
+         Remove_Tree_If_Exists (Root);
+         Editor.Buffers.Reset_Global_For_Test;
+         raise;
+   end Test_Language_Index_Auto_Refreshes_Project_Lifecycle;
+
+   procedure Test_Semantic_Refresh_Publishes_Live_Diagnostics
+     (T : in out AUnit.Test_Cases.Test_Case'Class)
+   is
+      pragma Unreferenced (T);
+      Root : constant String := Temp_Path ("semantic_refresh_live_diagnostics");
+      Path : constant String := Ada.Directories.Compose (Root, "live_semantic.ads");
+      S      : Editor.State.State_Type;
+      Result : Editor.Executor.Command_Execution_Result;
+      First_Count  : Natural;
+      Second_Count : Natural;
+   begin
+      Editor.Buffers.Reset_Global_For_Test;
+      Remove_Tree_If_Exists (Root);
+      Ada.Directories.Create_Path (Root);
+      Write_Bytes
+        (Path,
+         "package Live_Semantic is" & ASCII.LF &
+         "   type Word is record" & ASCII.LF &
+         "      A : Integer;" & ASCII.LF &
+         "      B : Integer;" & ASCII.LF &
+         "   end record;" & ASCII.LF &
+         "   for Word use record" & ASCII.LF &
+         "      A at 0 range 0 .. 7;" & ASCII.LF &
+         "      B at 0 range 4 .. 15;" & ASCII.LF &
+         "   end record;" & ASCII.LF &
+         "end Live_Semantic;" & ASCII.LF);
+
+      Init_Executor_Test_State (S);
+      Editor.Executor.Execute_Open_File (S, Path);
+
+      Result := Editor.Executor.Execute_Command_With_Result
+        (S, Editor.Commands.Command_Semantic_Refresh_Project_Index);
+      Assert (Result.Status = Editor.Executor.Command_Executed,
+              "semantic refresh executes for active Ada file");
+      Assert (Editor.Ada_Language_Service.Semantic_Diagnostic_Count_For_Path
+                (S.Language_Service, Path) > 0,
+              "semantic refresh publishes live diagnostics to language service");
+      Assert (Editor.Feature_Diagnostics.Row_Count (S.Feature_Diagnostics) > 0,
+              "semantic refresh projects live diagnostics to Diagnostics");
+      Assert (Editor.Feature_Diagnostics.Item_Source_Label
+                (S.Feature_Diagnostics, 1) = Path,
+              "live Diagnostics rows retain file source labels");
+      Assert (Editor.Feature_Diagnostics.Item_Source_Kind
+                (S.Feature_Diagnostics, 1) =
+              Editor.Feature_Diagnostics.Editor_Diagnostic_Source,
+              "live semantic Diagnostics rows use editor semantic source kind");
+      Assert (Editor.Feature_Diagnostics.Item_Has_Target
+                (S.Feature_Diagnostics, 1),
+              "live semantic Diagnostics rows are navigable");
+      Assert (Editor.Feature_Diagnostics.Item_Target_Buffer
+                (S.Feature_Diagnostics, 1) = S.Active_Buffer_Token,
+              "live semantic Diagnostics rows target the active buffer snapshot");
+
+      First_Count := Editor.Feature_Diagnostics.Row_Count (S.Feature_Diagnostics);
+      Result := Editor.Executor.Execute_Command_With_Result
+        (S, Editor.Commands.Command_Semantic_Refresh_Project_Index);
+      Assert (Result.Status = Editor.Executor.Command_Executed,
+              "repeated semantic refresh executes");
+      Second_Count := Editor.Feature_Diagnostics.Row_Count (S.Feature_Diagnostics);
+      Assert (Second_Count = First_Count,
+              "repeated semantic refresh replaces live Diagnostics rows without duplicates");
+
+      Result := Editor.Executor.Execute_Command_With_Result
+        (S, Editor.Commands.Command_Language_Index_Status);
+      Assert (Result.Status = Editor.Executor.Command_Executed,
+              "language index status executes after live semantic diagnostics");
+      Assert (Ada.Strings.Fixed.Index
+                (Latest_Message_Text (S), "semantic=") > 0
+              and then Ada.Strings.Fixed.Index
+                (Latest_Message_Text (S), "sd=") > 0,
+              "language index status reports semantic diagnostics totals and active-file count");
+
+      Result := Editor.Executor.Execute_Command_With_Result
+        (S, Editor.Commands.Command_Language_Index_Clear);
+      Assert (Result.Status = Editor.Executor.Command_Executed,
+              "language index clear executes after live diagnostics");
+      Assert (Editor.Ada_Language_Service.Semantic_Diagnostic_Count
+                (S.Language_Service) = 0,
+              "language index clear removes live semantic backend diagnostics");
+      Assert (Editor.Feature_Diagnostics.Row_Count (S.Feature_Diagnostics) = 0,
+              "language index clear removes projected live semantic Diagnostics rows");
+
+      Remove_Tree_If_Exists (Root);
+      Editor.Buffers.Reset_Global_For_Test;
+   exception
+      when others =>
+         Remove_Tree_If_Exists (Root);
+         Editor.Buffers.Reset_Global_For_Test;
+         raise;
+   end Test_Semantic_Refresh_Publishes_Live_Diagnostics;
+
+   procedure Test_Semantic_Buffer_Refresh_Publishes_Live_Diagnostics
+     (T : in out AUnit.Test_Cases.Test_Case'Class)
+   is
+      pragma Unreferenced (T);
+      Root : constant String := Temp_Path ("semantic_buffer_refresh_live_diagnostics");
+      Path : constant String := Ada.Directories.Compose (Root, "buffer_live_semantic.ads");
+      S      : Editor.State.State_Type;
+      Result : Editor.Executor.Command_Execution_Result;
+      First_Count  : Natural;
+      Second_Count : Natural;
+   begin
+      Editor.Buffers.Reset_Global_For_Test;
+      Remove_Tree_If_Exists (Root);
+      Ada.Directories.Create_Path (Root);
+      Write_Bytes
+        (Path,
+         "package Buffer_Live_Semantic is" & ASCII.LF &
+         "   type Word is record" & ASCII.LF &
+         "      A : Integer;" & ASCII.LF &
+         "      B : Integer;" & ASCII.LF &
+         "   end record;" & ASCII.LF &
+         "   for Word use record" & ASCII.LF &
+         "      A at 0 range 0 .. 7;" & ASCII.LF &
+         "      B at 0 range 4 .. 15;" & ASCII.LF &
+         "   end record;" & ASCII.LF &
+         "end Buffer_Live_Semantic;" & ASCII.LF);
+
+      Init_Executor_Test_State (S);
+      Editor.Executor.Execute_Open_File (S, Path);
+
+      Result := Editor.Executor.Execute_Command_With_Result
+        (S, Editor.Commands.Command_Semantic_Refresh_Buffer);
+      Assert (Result.Status = Editor.Executor.Command_Executed,
+              "semantic buffer refresh executes for active Ada file");
+      Assert (Editor.Ada_Project_Index.Contains_Path (S.Language_Index, Path),
+              "semantic buffer refresh indexes the active buffer analysis");
+      Assert (Editor.Ada_Language_Service.Semantic_Diagnostic_Count_For_Path
+                (S.Language_Service, Path) > 0,
+              "semantic buffer refresh publishes live diagnostics to language service");
+      Assert (Editor.Feature_Diagnostics.Row_Count (S.Feature_Diagnostics) > 0,
+              "semantic buffer refresh projects live diagnostics to Diagnostics");
+      Assert (Editor.Feature_Diagnostics.Item_Source_Label
+                (S.Feature_Diagnostics, 1) = Path,
+              "buffer live Diagnostics rows retain file source labels");
+      Assert (Editor.Feature_Diagnostics.Item_Target_Buffer
+                (S.Feature_Diagnostics, 1) = S.Active_Buffer_Token,
+              "buffer live Diagnostics rows target the active buffer snapshot");
+
+      First_Count := Editor.Feature_Diagnostics.Row_Count (S.Feature_Diagnostics);
+      Result := Editor.Executor.Execute_Command_With_Result
+        (S, Editor.Commands.Command_Semantic_Refresh_Buffer);
+      Assert (Result.Status = Editor.Executor.Command_Executed,
+              "repeated semantic buffer refresh executes");
+      Second_Count := Editor.Feature_Diagnostics.Row_Count (S.Feature_Diagnostics);
+      Assert (Second_Count = First_Count,
+              "repeated semantic buffer refresh replaces live Diagnostics rows without duplicates");
+
+      Result := Editor.Executor.Execute_Command_With_Result
+        (S, Editor.Commands.Command_Language_Index_Clear);
+      Assert (Result.Status = Editor.Executor.Command_Executed,
+              "language index clear executes after buffer live diagnostics");
+      Assert (Editor.Feature_Diagnostics.Row_Count (S.Feature_Diagnostics) = 0,
+              "language index clear removes buffer-projected live Diagnostics rows");
+
+      Remove_Tree_If_Exists (Root);
+      Editor.Buffers.Reset_Global_For_Test;
+   exception
+      when others =>
+         Remove_Tree_If_Exists (Root);
+         Editor.Buffers.Reset_Global_For_Test;
+         raise;
+   end Test_Semantic_Buffer_Refresh_Publishes_Live_Diagnostics;
+
+   procedure Test_Semantic_Project_Refresh_Projects_Cross_Unit_Diagnostics
+     (T : in out AUnit.Test_Cases.Test_Case'Class)
+   is
+      pragma Unreferenced (T);
+      Root : constant String := Temp_Path ("semantic_project_refresh_cross_unit");
+      Src  : constant String := Ada.Directories.Compose (Root, "src");
+      Path : constant String := Ada.Directories.Compose (Src, "client.ads");
+      S      : Editor.State.State_Type;
+      Result : Editor.Executor.Command_Execution_Result;
+      Found_Service : Boolean := False;
+      Found_Feature : Boolean := False;
+   begin
+      Editor.Buffers.Reset_Global_For_Test;
+      Remove_Tree_If_Exists (Root);
+      Ada.Directories.Create_Path (Src);
+      Write_Bytes
+        (Path,
+         "with Missing_Dep;" & ASCII.LF &
+         "package Client is" & ASCII.LF &
+         "end Client;" & ASCII.LF);
+
+      Init_Executor_Test_State (S);
+      Editor.Executor.Execute_Open_Project (S, Root);
+      Editor.Executor.Execute_Open_File (S, Path);
+
+      Result := Editor.Executor.Execute_Command_With_Result
+        (S, Editor.Commands.Command_Semantic_Refresh_Project_Index);
+      Assert (Result.Status = Editor.Executor.Command_Executed,
+              "semantic project refresh executes for cross-unit fixture");
+
+      for I in 1 .. Editor.Ada_Language_Service.Semantic_Diagnostic_Count
+        (S.Language_Service)
+      loop
+         declare
+            Diagnostic : constant Editor.Ada_Language_Service.Semantic_Diagnostic :=
+              Editor.Ada_Language_Service.Semantic_Diagnostic_At
+                (S.Language_Service, I);
+         begin
+            if To_String (Diagnostic.Path) = Path
+              and then Ada.Strings.Fixed.Index
+                (To_String (Diagnostic.Source), "live-semantic-cross-unit") > 0
+              and then Ada.Strings.Fixed.Index
+                (To_String (Diagnostic.Message), "missing") > 0
+            then
+               Found_Service := True;
+            end if;
+         end;
+      end loop;
+
+      for I in 1 .. Editor.Feature_Diagnostics.Row_Count (S.Feature_Diagnostics) loop
+         if Editor.Feature_Diagnostics.Item_Source_Label (S.Feature_Diagnostics, I) = Path
+           and then Ada.Strings.Fixed.Index
+             (Editor.Feature_Diagnostics.Item_Message (S.Feature_Diagnostics, I),
+              "cross-unit") > 0
+         then
+            Found_Feature := True;
+         end if;
+      end loop;
+
+      Assert (Found_Service,
+              "semantic project refresh publishes cross-unit diagnostics to language service");
+      Assert (Found_Feature,
+              "semantic project refresh projects cross-unit diagnostics to Diagnostics");
+
+      Remove_Tree_If_Exists (Root);
+      Editor.Buffers.Reset_Global_For_Test;
+   exception
+      when others =>
+         Remove_Tree_If_Exists (Root);
+         Editor.Buffers.Reset_Global_For_Test;
+         raise;
+   end Test_Semantic_Project_Refresh_Projects_Cross_Unit_Diagnostics;
+
+   procedure Test_Indexed_Outline_Body_Spec_Navigation_Workflow
+     (T : in out AUnit.Test_Cases.Test_Case'Class)
+   is
+      pragma Unreferenced (T);
+      Root : constant String := Temp_Path ("indexed_outline_body_spec");
+      Spec_Path : constant String := Ada.Directories.Compose (Root, "demo.ads");
+      Body_Path : constant String := Ada.Directories.Compose (Root, "demo.adb");
+      Sep_Path  : constant String := Ada.Directories.Compose (Root, "demo-run.adb");
+      S : Editor.State.State_Type;
+      Result : Editor.Executor.Command_Execution_Result;
+      Avail  : Editor.Commands.Command_Availability;
+      Unit_Target : Editor.Ada_Project_Index.Unique_Target_Result;
+      Symbol_Targets : Editor.Ada_Project_Index.Index_Resolution_Result;
+      Spec_Row : Natural := 0;
+      Body_Row : Natural := 0;
+      Sep_Row  : Natural := 0;
+   begin
+      Editor.Buffers.Reset_Global_For_Test;
+      Remove_Tree_If_Exists (Root);
+      Ada.Directories.Create_Path (Root);
+      Write_Bytes
+        (Spec_Path,
+         "package Demo is" & ASCII.LF &
+         "   procedure Run;" & ASCII.LF &
+         "end Demo;" & ASCII.LF);
+      Write_Bytes
+        (Body_Path,
+         "package body Demo is" & ASCII.LF &
+         "   procedure Run is separate;" & ASCII.LF &
+         "end Demo;" & ASCII.LF);
+      Write_Bytes
+        (Sep_Path,
+         "separate (Demo)" & ASCII.LF &
+         "procedure Run is" & ASCII.LF &
+         "begin" & ASCII.LF &
+         "   null;" & ASCII.LF &
+         "end Run;" & ASCII.LF);
+
+      Init_Executor_Test_State (S);
+      Editor.Executor.Execute_Open_Project (S, Root);
+      Editor.Executor.Execute_Open_File (S, Spec_Path);
+
+      Result := Editor.Executor.Execute_Command_With_Result
+        (S, Editor.Commands.Command_Semantic_Refresh_Project_Index);
+      Assert (Result.Status = Editor.Executor.Command_Executed,
+              "indexed body/spec fixture refreshes semantic project index");
+
+      Result := Editor.Executor.Execute_Command_With_Result
+        (S, Editor.Commands.Command_Refresh_Outline);
+      Assert (Result.Status = Editor.Executor.Command_Executed,
+              "indexed body/spec fixture refreshes spec Outline");
+      for I in 1 .. Editor.Outline.Item_Count (S.Outline) loop
+         if Editor.Outline.Item_Kind (S.Outline, I) =
+           Editor.Outline.Outline_Package
+         then
+            Spec_Row := I;
+            exit;
+         end if;
+      end loop;
+      Assert (Spec_Row /= 0, "indexed body/spec fixture exposes spec package row");
+      Editor.Outline.Select_Item (S.Outline, Spec_Row);
+      Editor.Outline.Set_Rows_From_Outline (S.Outline, S.Feature_Panel);
+      Editor.Feature_Panel.Set_Visible (S.Feature_Panel, True);
+      Editor.Feature_Panel.Select_Row (S.Feature_Panel, Spec_Row);
+
+      Avail := Editor.Executor.Command_Availability
+        (S, Editor.Commands.Command_Goto_Body);
+      Assert (Editor.Commands.Is_Available (Avail),
+              "indexed package spec row offers goto body");
+      Result := Editor.Executor.Execute_Command_With_Result
+        (S, Editor.Commands.Command_Goto_Body);
+      Assert (Result.Status = Editor.Executor.Command_Executed,
+              "indexed package spec row navigates to body");
+      Assert (S.File_Info.Has_Path
+              and then To_String (S.File_Info.Path) = Body_Path,
+              "goto body opens indexed body file");
+      Assert (Active_Caret_Line (S) = 1,
+              "goto body places caret on indexed body declaration");
+      Assert (Editor.Ada_Language_Service.Active_Semantic_Request
+                (S.Language_Service).Kind =
+              Editor.Ada_Language_Service.Semantic_Request_Goto_Body
+              and then Editor.Ada_Language_Service.Active_Semantic_Request
+                (S.Language_Service).Status =
+              Editor.Ada_Language_Service.Semantic_Request_Completed,
+              "goto body execution records a completed semantic request");
+
+      Result := Editor.Executor.Execute_Command_With_Result
+        (S, Editor.Commands.Command_Refresh_Outline);
+      Assert (Result.Status = Editor.Executor.Command_Executed,
+              "indexed body/spec fixture refreshes body Outline");
+      for I in 1 .. Editor.Outline.Item_Count (S.Outline) loop
+         if Editor.Outline.Item_Kind (S.Outline, I) =
+           Editor.Outline.Outline_Package_Body
+         then
+            Body_Row := I;
+            exit;
+         end if;
+      end loop;
+      Assert (Body_Row /= 0, "indexed body/spec fixture exposes package body row");
+      Editor.Outline.Select_Item (S.Outline, Body_Row);
+      Editor.Outline.Set_Rows_From_Outline (S.Outline, S.Feature_Panel);
+      Editor.Feature_Panel.Set_Visible (S.Feature_Panel, True);
+      Editor.Feature_Panel.Select_Row (S.Feature_Panel, Body_Row);
+
+      Unit_Target := Editor.Ada_Project_Index.Resolve_Unique_Unit_Target
+        (S.Language_Index, "Demo", Editor.Ada_Project_Index.Unit_Package_Spec);
+      Symbol_Targets := Editor.Ada_Project_Index.Resolve (S.Language_Index, "Demo");
+      Assert (Natural (Symbol_Targets.Matches.Length) >= 2,
+              "indexed body/spec fixture retains ordinary Demo symbols; found" &
+              Natural'Image (Natural (Symbol_Targets.Matches.Length)));
+      Assert (Unit_Target.Available,
+              "indexed package spec unit target is available for Demo; units" &
+              Natural'Image (Editor.Ada_Project_Index.Unit_Count (S.Language_Index)) &
+              ", ambiguous=" & Boolean'Image (Unit_Target.Ambiguous) &
+              ", overflow=" & Boolean'Image (Unit_Target.Overflow));
+      Avail := Editor.Executor.Command_Availability
+        (S, Editor.Commands.Command_Goto_Spec);
+      Assert (Editor.Commands.Is_Available (Avail),
+              "indexed package body row offers goto spec from label '" &
+              Editor.Outline.Item_Label (S.Outline, Body_Row) & "': " &
+              Editor.Commands.Unavailable_Reason (Avail));
+      Result := Editor.Executor.Execute_Command_With_Result
+        (S, Editor.Commands.Command_Goto_Spec);
+      Assert (Result.Status = Editor.Executor.Command_Executed,
+              "indexed package body row navigates to spec");
+      Assert (S.File_Info.Has_Path
+              and then To_String (S.File_Info.Path) = Spec_Path,
+              "goto spec opens indexed spec file");
+      Assert (Active_Caret_Line (S) = 1,
+              "goto spec places caret on indexed spec declaration");
+      Assert (Editor.Ada_Language_Service.Active_Semantic_Request
+                (S.Language_Service).Kind =
+              Editor.Ada_Language_Service.Semantic_Request_Goto_Spec
+              and then Editor.Ada_Language_Service.Active_Semantic_Request
+                (S.Language_Service).Status =
+              Editor.Ada_Language_Service.Semantic_Request_Completed,
+              "goto spec execution records a completed semantic request");
+
+      Editor.Executor.Execute_Open_File (S, Sep_Path);
+      Result := Editor.Executor.Execute_Command_With_Result
+        (S, Editor.Commands.Command_Refresh_Outline);
+      Assert (Result.Status = Editor.Executor.Command_Executed,
+              "indexed body/spec fixture refreshes separate subunit Outline");
+      for I in 1 .. Editor.Outline.Item_Count (S.Outline) loop
+         if Editor.Outline.Item_Kind (S.Outline, I) =
+           Editor.Outline.Outline_Procedure
+           and then Ada.Strings.Fixed.Index
+             (Editor.Outline.Item_Label (S.Outline, I), "Run") > 0
+         then
+            Sep_Row := I;
+            exit;
+         end if;
+      end loop;
+      Assert (Sep_Row /= 0,
+              "indexed body/spec fixture exposes separate procedure body row");
+      Editor.Outline.Select_Item (S.Outline, Sep_Row);
+      Editor.Outline.Set_Rows_From_Outline (S.Outline, S.Feature_Panel);
+      Editor.Feature_Panel.Set_Visible (S.Feature_Panel, True);
+      Editor.Feature_Panel.Select_Row (S.Feature_Panel, Sep_Row);
+
+      Avail := Editor.Executor.Command_Availability
+        (S, Editor.Commands.Command_Goto_Spec);
+      Assert (Editor.Commands.Is_Available (Avail),
+              "indexed separate procedure body row offers goto spec from label '" &
+              Editor.Outline.Item_Label (S.Outline, Sep_Row) & "': " &
+              Editor.Commands.Unavailable_Reason (Avail));
+      Result := Editor.Executor.Execute_Command_With_Result
+        (S, Editor.Commands.Command_Goto_Spec);
+      Assert (Result.Status = Editor.Executor.Command_Executed,
+              "indexed separate procedure body row navigates to parent spec");
+      Assert (S.File_Info.Has_Path
+              and then To_String (S.File_Info.Path) = Spec_Path,
+              "separate procedure goto spec opens indexed parent spec file");
+      Assert (Editor.Ada_Language_Service.Active_Semantic_Request
+                (S.Language_Service).Kind =
+              Editor.Ada_Language_Service.Semantic_Request_Goto_Spec
+              and then Editor.Ada_Language_Service.Active_Semantic_Request
+                (S.Language_Service).Status =
+              Editor.Ada_Language_Service.Semantic_Request_Completed,
+              "separate procedure goto spec records a completed semantic request");
+
+      Editor.Executor.Execute_Open_File (S, Spec_Path);
+      Result := Editor.Executor.Execute_Command_With_Result
+        (S, Editor.Commands.Command_Refresh_Outline);
+      Assert (Result.Status = Editor.Executor.Command_Executed,
+              "stale body/spec fixture refreshes spec Outline again");
+      Spec_Row := 0;
+      for I in 1 .. Editor.Outline.Item_Count (S.Outline) loop
+         if Editor.Outline.Item_Kind (S.Outline, I) =
+           Editor.Outline.Outline_Package
+         then
+            Spec_Row := I;
+            exit;
+         end if;
+      end loop;
+      Assert (Spec_Row /= 0, "stale body/spec fixture exposes spec package row");
+      Editor.Outline.Select_Item (S.Outline, Spec_Row);
+      Editor.Outline.Set_Rows_From_Outline (S.Outline, S.Feature_Panel);
+      Editor.Feature_Panel.Set_Visible (S.Feature_Panel, True);
+      Editor.Feature_Panel.Select_Row (S.Feature_Panel, Spec_Row);
+      Editor.Executor.Execute_No_Log (S, Editor.Test_Helper.Insert (0, 'X'));
+      Assert (Editor.Ada_Language_Service.Status (S.Language_Service) =
+              Editor.Ada_Language_Service.Status (S.Language_Index),
+              "command-kind text edits invalidate language service with project index");
+
+      Avail := Editor.Executor.Command_Availability
+        (S, Editor.Commands.Command_Goto_Body);
+      Assert (not Editor.Commands.Is_Available (Avail),
+              "stale selected package spec row does not offer goto body");
+      Assert (Editor.Commands.Unavailable_Reason (Avail) =
+              "Outline indexed target unavailable",
+              "stale selected package spec row reports indexed target unavailable");
+      Result := Editor.Executor.Execute_Command_With_Result
+        (S, Editor.Commands.Command_Goto_Body);
+      Assert (Result.Status = Editor.Executor.Command_Unavailable,
+              "stale selected package spec row cannot execute goto body");
+
+      Remove_Tree_If_Exists (Root);
+      Editor.Buffers.Reset_Global_For_Test;
+   exception
+      when others =>
+         Remove_Tree_If_Exists (Root);
+         Editor.Buffers.Reset_Global_For_Test;
+         raise;
+   end Test_Indexed_Outline_Body_Spec_Navigation_Workflow;
+
+   procedure Test_Language_Index_Survives_Buffer_Switcher_Accept
+     (T : in out AUnit.Test_Cases.Test_Case'Class)
+   is
+      pragma Unreferenced (T);
+      Root : constant String := Temp_Path ("language_index_buffer_switcher");
+      Src  : constant String := Ada.Directories.Compose (Root, "src");
+      Main_Path : constant String := Ada.Directories.Compose (Src, "main.adb");
+      Lib_Path  : constant String := Ada.Directories.Compose (Src, "lib.ads");
+      S : Editor.State.State_Type;
+      Result : Editor.Executor.Command_Execution_Result;
+      Targets : Editor.Ada_Project_Index.Index_Resolution_Result;
+   begin
+      Editor.Buffers.Reset_Global_For_Test;
+      Remove_Tree_If_Exists (Root);
+      Ada.Directories.Create_Path (Src);
+      Write_Bytes
+        (Main_Path,
+         "with Lib;" & ASCII.LF &
+         "procedure Main is" & ASCII.LF &
+         "begin" & ASCII.LF &
+         "   Lib.Run;" & ASCII.LF &
+         "end Main;" & ASCII.LF);
+      Write_Bytes
+        (Lib_Path,
+         "package Lib is" & ASCII.LF &
+         "   procedure Run;" & ASCII.LF &
+         "end Lib;" & ASCII.LF);
+
+      Init_Executor_Test_State (S);
+      Editor.Executor.Execute_Open_Project (S, Root);
+      Editor.Executor.Execute_Open_File (S, Main_Path);
+      Editor.Executor.Execute_Open_File (S, Lib_Path);
+
+      Result := Editor.Executor.Execute_Command_With_Result
+        (S, Editor.Commands.Command_Semantic_Refresh_Project_Index);
+      Assert (Result.Status = Editor.Executor.Command_Executed,
+              "language index buffer-switcher fixture refreshes project index");
+      Assert (Editor.Ada_Project_Index.File_Count (S.Language_Index) >= 2,
+              "language index buffer-switcher fixture indexed both files");
+
+      Editor.Executor.Execute_Open_Buffer_Switcher (S);
+      Assert (Editor.Buffer_Switcher.Is_Open (S.Buffer_Switcher),
+              "language index buffer-switcher fixture opens Buffer List");
+      Editor.Executor.Execute_Buffer_Switcher_Insert_Text (S, "main");
+      Assert (Editor.Buffer_Switcher.Row_Count (S.Buffer_Switcher) = 1,
+              "language index buffer-switcher fixture filters to main");
+      Editor.Executor.Execute_Accept_Buffer_Switcher (S);
+
+      Assert (S.File_Info.Has_Path
+              and then To_String (S.File_Info.Path) = Main_Path,
+              "buffer-switcher accept focuses main source");
+      Assert (Editor.Ada_Project_Index.File_Count (S.Language_Index) >= 2,
+              "buffer-switcher accept preserves project language index files");
+      Assert (Editor.Ada_Project_Index.Symbol_Count (S.Language_Index) >= 2,
+              "buffer-switcher accept preserves project language index symbols");
+      Targets := Editor.Ada_Project_Index.Resolve (S.Language_Index, "Lib");
+      Assert (Natural (Targets.Matches.Length) >= 1,
+              "buffer-switcher accept keeps cross-file Lib symbol available");
+
+      Remove_Tree_If_Exists (Root);
+      Editor.Buffers.Reset_Global_For_Test;
+   exception
+      when others =>
+         Remove_Tree_If_Exists (Root);
+         Editor.Buffers.Reset_Global_For_Test;
+         raise;
+   end Test_Language_Index_Survives_Buffer_Switcher_Accept;
+
+   procedure Test_Language_Index_Survives_Navigation_Back
+     (T : in out AUnit.Test_Cases.Test_Case'Class)
+   is
+      pragma Unreferenced (T);
+      Root : constant String := Temp_Path ("language_index_navigation_back");
+      Src  : constant String := Ada.Directories.Compose (Root, "src");
+      Main_Path : constant String := Ada.Directories.Compose (Src, "main.adb");
+      Lib_Path  : constant String := Ada.Directories.Compose (Src, "lib.ads");
+      S : Editor.State.State_Type;
+      Result : Editor.Executor.Command_Execution_Result;
+      Main_Id : Editor.Buffers.Buffer_Id := Editor.Buffers.No_Buffer;
+      Targets : Editor.Ada_Project_Index.Index_Resolution_Result;
+   begin
+      Editor.Buffers.Reset_Global_For_Test;
+      Remove_Tree_If_Exists (Root);
+      Ada.Directories.Create_Path (Src);
+      Write_Bytes
+        (Main_Path,
+         "with Lib;" & ASCII.LF &
+         "procedure Main is" & ASCII.LF &
+         "begin" & ASCII.LF &
+         "   Lib.Run;" & ASCII.LF &
+         "end Main;" & ASCII.LF);
+      Write_Bytes
+        (Lib_Path,
+         "package Lib is" & ASCII.LF &
+         "   procedure Run;" & ASCII.LF &
+         "end Lib;" & ASCII.LF);
+
+      Init_Executor_Test_State (S);
+      Editor.Executor.Execute_Open_Project (S, Root);
+      Editor.Executor.Execute_Open_File (S, Main_Path);
+      Main_Id := Editor.Buffers.Global_Active_Buffer;
+      Editor.Executor.Execute_Open_File (S, Lib_Path);
+
+      Result := Editor.Executor.Execute_Command_With_Result
+        (S, Editor.Commands.Command_Semantic_Refresh_Project_Index);
+      Assert (Result.Status = Editor.Executor.Command_Executed,
+              "language index navigation fixture refreshes project index");
+      Assert (Editor.Ada_Project_Index.File_Count (S.Language_Index) >= 2,
+              "language index navigation fixture indexed both files");
+
+      Editor.Navigation_History.Clear (S.Navigation_History);
+      Editor.Executor.Execute_Switch_Buffer (S, Main_Id);
+      Assert (S.File_Info.Has_Path
+              and then To_String (S.File_Info.Path) = Main_Path,
+              "language index navigation fixture switches to main");
+      Assert (Editor.Navigation_History.Back_Count (S.Navigation_History) = 1,
+              "language index navigation fixture records previous lib buffer");
+
+      Result := Editor.Executor.Execute_Command_With_Result
+        (S, Editor.Commands.Command_Navigation_Back);
+      Assert (Result.Status = Editor.Executor.Command_Executed,
+              "navigate back executes for indexed open buffer target");
+      Assert (S.File_Info.Has_Path
+              and then To_String (S.File_Info.Path) = Lib_Path,
+              "navigate back focuses lib source");
+      Assert (Editor.Ada_Project_Index.File_Count (S.Language_Index) >= 2,
+              "navigate back preserves project language index files");
+      Assert (Editor.Ada_Project_Index.Symbol_Count (S.Language_Index) >= 2,
+              "navigate back preserves project language index symbols");
+      Targets := Editor.Ada_Project_Index.Resolve (S.Language_Index, "Lib");
+      Assert (Natural (Targets.Matches.Length) >= 1,
+              "navigate back keeps cross-file Lib symbol available");
+
+      Remove_Tree_If_Exists (Root);
+      Editor.Buffers.Reset_Global_For_Test;
+   exception
+      when others =>
+         Remove_Tree_If_Exists (Root);
+         Editor.Buffers.Reset_Global_For_Test;
+         raise;
+   end Test_Language_Index_Survives_Navigation_Back;
+
+   procedure Test_Language_Index_Survives_Close_Active_Buffer
+     (T : in out AUnit.Test_Cases.Test_Case'Class)
+   is
+      pragma Unreferenced (T);
+      Root : constant String := Temp_Path ("language_index_close_active");
+      Src  : constant String := Ada.Directories.Compose (Root, "src");
+      Main_Path : constant String := Ada.Directories.Compose (Src, "main.adb");
+      Lib_Path  : constant String := Ada.Directories.Compose (Src, "lib.ads");
+      S : Editor.State.State_Type;
+      Result : Editor.Executor.Command_Execution_Result;
+      Targets : Editor.Ada_Project_Index.Index_Resolution_Result;
+   begin
+      Editor.Buffers.Reset_Global_For_Test;
+      Remove_Tree_If_Exists (Root);
+      Ada.Directories.Create_Path (Src);
+      Write_Bytes
+        (Main_Path,
+         "with Lib;" & ASCII.LF &
+         "procedure Main is" & ASCII.LF &
+         "begin" & ASCII.LF &
+         "   Lib.Run;" & ASCII.LF &
+         "end Main;" & ASCII.LF);
+      Write_Bytes
+        (Lib_Path,
+         "package Lib is" & ASCII.LF &
+         "   procedure Run;" & ASCII.LF &
+         "end Lib;" & ASCII.LF);
+
+      Init_Executor_Test_State (S);
+      Editor.Executor.Execute_Open_Project (S, Root);
+      Editor.Executor.Execute_Open_File (S, Main_Path);
+      Editor.Executor.Execute_Open_File (S, Lib_Path);
+
+      Result := Editor.Executor.Execute_Command_With_Result
+        (S, Editor.Commands.Command_Semantic_Refresh_Project_Index);
+      Assert (Result.Status = Editor.Executor.Command_Executed,
+              "language index close-active fixture refreshes project index");
+      Assert (Editor.Ada_Project_Index.File_Count (S.Language_Index) >= 2,
+              "language index close-active fixture indexed both files");
+
+      Result := Editor.Executor.Execute_Command_With_Result
+        (S, Editor.Commands.Command_Close_Active_Buffer);
+      Assert (Result.Status = Editor.Executor.Command_Executed,
+              "close active buffer executes for clean indexed source");
+      Assert (S.File_Info.Has_Path
+              and then To_String (S.File_Info.Path) = Main_Path,
+              "close active buffer focuses remaining source");
+      Assert (Editor.Ada_Project_Index.File_Count (S.Language_Index) >= 2,
+              "close active buffer preserves project language index files");
+      Assert (Editor.Ada_Project_Index.Symbol_Count (S.Language_Index) >= 2,
+              "close active buffer preserves project language index symbols");
+      Targets := Editor.Ada_Project_Index.Resolve (S.Language_Index, "Lib");
+      Assert (Natural (Targets.Matches.Length) >= 1,
+              "close active buffer keeps closed-file Lib symbol available");
+
+      Remove_Tree_If_Exists (Root);
+      Editor.Buffers.Reset_Global_For_Test;
+   exception
+      when others =>
+         Remove_Tree_If_Exists (Root);
+         Editor.Buffers.Reset_Global_For_Test;
+         raise;
+   end Test_Language_Index_Survives_Close_Active_Buffer;
+
+   procedure Test_Language_Index_Survives_New_Buffer
+     (T : in out AUnit.Test_Cases.Test_Case'Class)
+   is
+      pragma Unreferenced (T);
+      Root : constant String := Temp_Path ("language_index_new_buffer");
+      Src  : constant String := Ada.Directories.Compose (Root, "src");
+      Main_Path : constant String := Ada.Directories.Compose (Src, "main.adb");
+      Lib_Path  : constant String := Ada.Directories.Compose (Src, "lib.ads");
+      S : Editor.State.State_Type;
+      Result : Editor.Executor.Command_Execution_Result;
+      Targets : Editor.Ada_Project_Index.Index_Resolution_Result;
+   begin
+      Editor.Buffers.Reset_Global_For_Test;
+      Remove_Tree_If_Exists (Root);
+      Ada.Directories.Create_Path (Src);
+      Write_Bytes
+        (Main_Path,
+         "with Lib;" & ASCII.LF &
+         "procedure Main is" & ASCII.LF &
+         "begin" & ASCII.LF &
+         "   Lib.Run;" & ASCII.LF &
+         "end Main;" & ASCII.LF);
+      Write_Bytes
+        (Lib_Path,
+         "package Lib is" & ASCII.LF &
+         "   procedure Run;" & ASCII.LF &
+         "end Lib;" & ASCII.LF);
+
+      Init_Executor_Test_State (S);
+      Editor.Executor.Execute_Open_Project (S, Root);
+      Editor.Executor.Execute_Open_File (S, Main_Path);
+
+      Result := Editor.Executor.Execute_Command_With_Result
+        (S, Editor.Commands.Command_Semantic_Refresh_Project_Index);
+      Assert (Result.Status = Editor.Executor.Command_Executed,
+              "language index new-buffer fixture refreshes project index");
+      Assert (Editor.Ada_Project_Index.File_Count (S.Language_Index) >= 2,
+              "language index new-buffer fixture indexed both files");
+
+      Editor.Executor.Execute_New_Buffer (S);
+
+      Assert (not S.File_Info.Has_Path,
+              "new buffer creates an untitled active buffer");
+      Assert (Editor.Ada_Project_Index.File_Count (S.Language_Index) >= 2,
+              "new buffer preserves project language index files");
+      Assert (Editor.Ada_Project_Index.Symbol_Count (S.Language_Index) >= 2,
+              "new buffer preserves project language index symbols");
+      Targets := Editor.Ada_Project_Index.Resolve (S.Language_Index, "Lib");
+      Assert (Natural (Targets.Matches.Length) >= 1,
+              "new buffer keeps cross-file Lib symbol available");
+
+      Remove_Tree_If_Exists (Root);
+      Editor.Buffers.Reset_Global_For_Test;
+   exception
+      when others =>
+         Remove_Tree_If_Exists (Root);
+         Editor.Buffers.Reset_Global_For_Test;
+         raise;
+   end Test_Language_Index_Survives_New_Buffer;
+
+   procedure Test_Language_Index_Survives_Save_All
+     (T : in out AUnit.Test_Cases.Test_Case'Class)
+   is
+      pragma Unreferenced (T);
+      Root : constant String := Temp_Path ("language_index_save_all");
+      Src  : constant String := Ada.Directories.Compose (Root, "src");
+      Main_Path : constant String := Ada.Directories.Compose (Src, "main.adb");
+      Lib_Path  : constant String := Ada.Directories.Compose (Src, "lib.ads");
+      S : Editor.State.State_Type;
+      Result : Editor.Executor.Command_Execution_Result;
+      Main_Id : Editor.Buffers.Buffer_Id := Editor.Buffers.No_Buffer;
+      Targets : Editor.Ada_Project_Index.Index_Resolution_Result;
+   begin
+      Editor.Buffers.Reset_Global_For_Test;
+      Remove_Tree_If_Exists (Root);
+      Ada.Directories.Create_Path (Src);
+      Write_Bytes
+        (Main_Path,
+         "with Lib;" & ASCII.LF &
+         "procedure Main is" & ASCII.LF &
+         "begin" & ASCII.LF &
+         "   Lib.Run;" & ASCII.LF &
+         "end Main;" & ASCII.LF);
+      Write_Bytes
+        (Lib_Path,
+         "package Lib is" & ASCII.LF &
+         "   procedure Run;" & ASCII.LF &
+         "end Lib;" & ASCII.LF);
+
+      Init_Executor_Test_State (S);
+      Editor.Executor.Execute_Open_Project (S, Root);
+      Editor.Executor.Execute_Open_File (S, Main_Path);
+      Main_Id := Editor.Buffers.Global_Active_Buffer;
+      Editor.Executor.Execute_Open_File (S, Lib_Path);
+      Set_Buffer_Text
+        (S,
+         "package Lib is" & ASCII.LF &
+         "   procedure Run;" & ASCII.LF &
+         "   procedure Extra;" & ASCII.LF &
+         "end Lib;" & ASCII.LF);
+      S.File_Info.Dirty := True;
+      Editor.Buffers.Sync_Global_Active_From_State (S);
+      Editor.Executor.Execute_Switch_Buffer (S, Main_Id);
+
+      Result := Editor.Executor.Execute_Command_With_Result
+        (S, Editor.Commands.Command_Semantic_Refresh_Project_Index);
+      Assert (Result.Status = Editor.Executor.Command_Executed,
+              "language index save-all fixture refreshes project index");
+      Assert (Editor.Ada_Project_Index.File_Count (S.Language_Index) >= 2,
+              "language index save-all fixture indexed both files");
+
+      Result := Editor.Executor.Execute_Command_With_Result
+        (S, Editor.Commands.Command_Save_All);
+      Assert (Result.Status = Editor.Executor.Command_Executed,
+              "save all executes for inactive dirty file-backed buffer");
+      Assert (S.File_Info.Has_Path
+              and then To_String (S.File_Info.Path) = Main_Path,
+              "save all restores original active source");
+      Assert (Editor.Ada_Project_Index.File_Count (S.Language_Index) >= 2,
+              "save all preserves project language index files");
+      Assert (Editor.Ada_Project_Index.Symbol_Count (S.Language_Index) >= 2,
+              "save all preserves project language index symbols");
+      Targets := Editor.Ada_Project_Index.Resolve (S.Language_Index, "Lib");
+      Assert (Natural (Targets.Matches.Length) >= 1,
+              "save all keeps cross-file Lib symbol available");
+
+      Remove_Tree_If_Exists (Root);
+      Editor.Buffers.Reset_Global_For_Test;
+   exception
+      when others =>
+         Remove_Tree_If_Exists (Root);
+         Editor.Buffers.Reset_Global_For_Test;
+         raise;
+   end Test_Language_Index_Survives_Save_All;
+
+   procedure Test_Language_Index_Survives_Save_File
+     (T : in out AUnit.Test_Cases.Test_Case'Class)
+   is
+      pragma Unreferenced (T);
+      Root : constant String := Temp_Path ("language_index_save_file");
+      Src  : constant String := Ada.Directories.Compose (Root, "src");
+      Main_Path : constant String := Ada.Directories.Compose (Src, "main.adb");
+      Lib_Path  : constant String := Ada.Directories.Compose (Src, "lib.ads");
+      S : Editor.State.State_Type;
+      Result : Editor.Executor.Command_Execution_Result;
+      Targets : Editor.Ada_Project_Index.Index_Resolution_Result;
+   begin
+      Editor.Buffers.Reset_Global_For_Test;
+      Remove_Tree_If_Exists (Root);
+      Ada.Directories.Create_Path (Src);
+      Write_Bytes
+        (Main_Path,
+         "with Lib;" & ASCII.LF &
+         "procedure Main is" & ASCII.LF &
+         "begin" & ASCII.LF &
+         "   Lib.Run;" & ASCII.LF &
+         "end Main;" & ASCII.LF);
+      Write_Bytes
+        (Lib_Path,
+         "package Lib is" & ASCII.LF &
+         "   procedure Run;" & ASCII.LF &
+         "end Lib;" & ASCII.LF);
+
+      Init_Executor_Test_State (S);
+      Editor.Executor.Execute_Open_Project (S, Root);
+      Editor.Executor.Execute_Open_File (S, Main_Path);
+      Editor.Executor.Execute_Open_File (S, Lib_Path);
+      Set_Buffer_Text
+        (S,
+         "package Lib is" & ASCII.LF &
+         "   procedure Run;" & ASCII.LF &
+         "   procedure Saved;" & ASCII.LF &
+         "end Lib;" & ASCII.LF);
+      S.File_Info.Dirty := True;
+      Editor.Buffers.Sync_Global_Active_From_State (S);
+
+      Result := Editor.Executor.Execute_Command_With_Result
+        (S, Editor.Commands.Command_Semantic_Refresh_Project_Index);
+      Assert (Result.Status = Editor.Executor.Command_Executed,
+              "save-file fixture refreshes project language index");
+      Assert (Editor.Ada_Project_Index.File_Count (S.Language_Index) >= 2,
+              "save-file fixture indexed both files");
+
+      Result := Editor.Executor.Execute_Command_With_Result
+        (S, Editor.Commands.Command_Save_File);
+      Assert (Result.Status = Editor.Executor.Command_Executed,
+              "save file executes for dirty file-backed buffer");
+      Assert (not S.File_Info.Dirty,
+              "save file clears dirty state");
+      Assert (Editor.Ada_Project_Index.File_Count (S.Language_Index) >= 2,
+              "save file rebuilds project language index files");
+      Assert (Editor.Ada_Project_Index.Symbol_Count (S.Language_Index) >= 2,
+              "save file rebuilds project language index symbols");
+      Assert (Editor.Ada_Language_Service.Status (S.Language_Service) =
+              Editor.Ada_Language_Service.Status (S.Language_Index),
+              "save file rebuild syncs language service index");
+      Targets := Editor.Ada_Project_Index.Resolve (S.Language_Index, "Lib");
+      Assert (Natural (Targets.Matches.Length) >= 1,
+              "save file keeps cross-file Lib symbol available");
+
+      Remove_Tree_If_Exists (Root);
+      Editor.Buffers.Reset_Global_For_Test;
+   exception
+      when others =>
+         Remove_Tree_If_Exists (Root);
+         Editor.Buffers.Reset_Global_For_Test;
+         raise;
+   end Test_Language_Index_Survives_Save_File;
+
+   procedure Test_Language_Index_Survives_Reload_Confirmation
+     (T : in out AUnit.Test_Cases.Test_Case'Class)
+   is
+      pragma Unreferenced (T);
+      Root : constant String := Temp_Path ("language_index_reload_confirm");
+      Src  : constant String := Ada.Directories.Compose (Root, "src");
+      Main_Path : constant String := Ada.Directories.Compose (Src, "main.adb");
+      Lib_Path  : constant String := Ada.Directories.Compose (Src, "lib.ads");
+      S : Editor.State.State_Type;
+      Result : Editor.Executor.Command_Execution_Result;
+      Targets : Editor.Ada_Project_Index.Index_Resolution_Result;
+   begin
+      Editor.Buffers.Reset_Global_For_Test;
+      Remove_Tree_If_Exists (Root);
+      Ada.Directories.Create_Path (Src);
+      Write_Bytes
+        (Main_Path,
+         "with Lib;" & ASCII.LF &
+         "procedure Main is" & ASCII.LF &
+         "begin" & ASCII.LF &
+         "   Lib.Run;" & ASCII.LF &
+         "end Main;" & ASCII.LF);
+      Write_Bytes
+        (Lib_Path,
+         "package Lib is" & ASCII.LF &
+         "   procedure Run;" & ASCII.LF &
+         "end Lib;" & ASCII.LF);
+
+      Init_Executor_Test_State (S);
+      Editor.Executor.Execute_Open_Project (S, Root);
+      Editor.Executor.Execute_Open_File (S, Main_Path);
+      Editor.Executor.Execute_Open_File (S, Lib_Path);
+      Set_Buffer_Text
+        (S,
+         "package Lib is" & ASCII.LF &
+         "   procedure Run;" & ASCII.LF &
+         "   procedure Unsaved;" & ASCII.LF &
+         "end Lib;" & ASCII.LF);
+      S.File_Info.Dirty := True;
+      Editor.Buffers.Sync_Global_Active_From_State (S);
+
+      Result := Editor.Executor.Execute_Command_With_Result
+        (S, Editor.Commands.Command_Semantic_Refresh_Project_Index);
+      Assert (Result.Status = Editor.Executor.Command_Executed,
+              "reload confirmation fixture refreshes project language index");
+      Assert (Editor.Ada_Project_Index.File_Count (S.Language_Index) >= 2,
+              "reload confirmation fixture indexed both files");
+
+      Write_Bytes
+        (Lib_Path,
+         "package Lib is" & ASCII.LF &
+         "   procedure Run;" & ASCII.LF &
+         "   procedure From_Disk;" & ASCII.LF &
+         "end Lib;" & ASCII.LF);
+      Editor.Executor.Execute_Reload_Active_Buffer (S);
+      Assert (Editor.Pending_Transitions.Has_Pending (S.Pending_Transitions),
+              "dirty reload creates a confirmation prompt");
+      Editor.Executor.Execute_Command
+        (S, Editor.Commands.Command_Retry_Pending_Transition);
+
+      Assert (not Editor.Pending_Transitions.Has_Pending (S.Pending_Transitions),
+              "reload confirmation clears the prompt");
+      Assert (not S.File_Info.Dirty,
+              "reload confirmation clears dirty state");
+      Assert (Ada.Strings.Fixed.Index (Editor.State.Current_Text (S), "From_Disk") > 0,
+              "reload confirmation installs disk text");
+      Assert (Editor.Ada_Project_Index.File_Count (S.Language_Index) >= 2,
+              "reload confirmation rebuilds project language index files");
+      Assert (Editor.Ada_Project_Index.Symbol_Count (S.Language_Index) >= 2,
+              "reload confirmation rebuilds project language index symbols");
+      Targets := Editor.Ada_Project_Index.Resolve (S.Language_Index, "Lib");
+      Assert (Natural (Targets.Matches.Length) >= 1,
+              "reload confirmation keeps cross-file Lib symbol available");
+
+      Remove_Tree_If_Exists (Root);
+      Editor.Buffers.Reset_Global_For_Test;
+   exception
+      when others =>
+         Remove_Tree_If_Exists (Root);
+         Editor.Buffers.Reset_Global_For_Test;
+         raise;
+   end Test_Language_Index_Survives_Reload_Confirmation;
+
+   procedure Test_Language_Index_Survives_Revert_Confirmation
+     (T : in out AUnit.Test_Cases.Test_Case'Class)
+   is
+      pragma Unreferenced (T);
+      Root : constant String := Temp_Path ("language_index_revert_confirm");
+      Src  : constant String := Ada.Directories.Compose (Root, "src");
+      Main_Path : constant String := Ada.Directories.Compose (Src, "main.adb");
+      Lib_Path  : constant String := Ada.Directories.Compose (Src, "lib.ads");
+      S : Editor.State.State_Type;
+      Result : Editor.Executor.Command_Execution_Result;
+      Targets : Editor.Ada_Project_Index.Index_Resolution_Result;
+   begin
+      Editor.Buffers.Reset_Global_For_Test;
+      Remove_Tree_If_Exists (Root);
+      Ada.Directories.Create_Path (Src);
+      Write_Bytes
+        (Main_Path,
+         "with Lib;" & ASCII.LF &
+         "procedure Main is" & ASCII.LF &
+         "begin" & ASCII.LF &
+         "   Lib.Run;" & ASCII.LF &
+         "end Main;" & ASCII.LF);
+      Write_Bytes
+        (Lib_Path,
+         "package Lib is" & ASCII.LF &
+         "   procedure Run;" & ASCII.LF &
+         "   procedure From_Disk;" & ASCII.LF &
+         "end Lib;" & ASCII.LF);
+
+      Init_Executor_Test_State (S);
+      Editor.Executor.Execute_Open_Project (S, Root);
+      Editor.Executor.Execute_Open_File (S, Main_Path);
+      Editor.Executor.Execute_Open_File (S, Lib_Path);
+      Set_Buffer_Text
+        (S,
+         "package Lib is" & ASCII.LF &
+         "   procedure Run;" & ASCII.LF &
+         "   procedure Unsaved;" & ASCII.LF &
+         "end Lib;" & ASCII.LF);
+      S.File_Info.Dirty := True;
+      Editor.Buffers.Sync_Global_Active_From_State (S);
+
+      Result := Editor.Executor.Execute_Command_With_Result
+        (S, Editor.Commands.Command_Semantic_Refresh_Project_Index);
+      Assert (Result.Status = Editor.Executor.Command_Executed,
+              "revert confirmation fixture refreshes project language index");
+      Assert (Editor.Ada_Project_Index.File_Count (S.Language_Index) >= 2,
+              "revert confirmation fixture indexed both files");
+
+      Editor.Executor.Execute_Command
+        (S, Editor.Commands.Command_Revert_Active_Buffer);
+      Assert (Editor.Pending_Transitions.Has_Pending (S.Pending_Transitions),
+              "dirty revert creates a confirmation prompt");
+      Editor.Executor.Execute_Command
+        (S, Editor.Commands.Command_Retry_Pending_Transition);
+
+      Assert (not Editor.Pending_Transitions.Has_Pending (S.Pending_Transitions),
+              "revert confirmation clears the prompt");
+      Assert (not S.File_Info.Dirty,
+              "revert confirmation clears dirty state");
+      Assert (Ada.Strings.Fixed.Index (Editor.State.Current_Text (S), "From_Disk") > 0,
+              "revert confirmation restores disk text");
+      Assert (Editor.Ada_Project_Index.File_Count (S.Language_Index) >= 2,
+              "revert confirmation rebuilds project language index files");
+      Assert (Editor.Ada_Project_Index.Symbol_Count (S.Language_Index) >= 2,
+              "revert confirmation rebuilds project language index symbols");
+      Targets := Editor.Ada_Project_Index.Resolve (S.Language_Index, "Lib");
+      Assert (Natural (Targets.Matches.Length) >= 1,
+              "revert confirmation keeps cross-file Lib symbol available");
+
+      Remove_Tree_If_Exists (Root);
+      Editor.Buffers.Reset_Global_For_Test;
+   exception
+      when others =>
+         Remove_Tree_If_Exists (Root);
+         Editor.Buffers.Reset_Global_For_Test;
+         raise;
+   end Test_Language_Index_Survives_Revert_Confirmation;
+
+   procedure Test_Language_Index_Survives_File_Conflict_Reload
+     (T : in out AUnit.Test_Cases.Test_Case'Class)
+   is
+      pragma Unreferenced (T);
+      Root : constant String := Temp_Path ("language_index_conflict_reload");
+      Src  : constant String := Ada.Directories.Compose (Root, "src");
+      Main_Path : constant String := Ada.Directories.Compose (Src, "main.adb");
+      Lib_Path  : constant String := Ada.Directories.Compose (Src, "lib.ads");
+      S : Editor.State.State_Type;
+      Result : Editor.Executor.Command_Execution_Result;
+      Targets : Editor.Ada_Project_Index.Index_Resolution_Result;
+   begin
+      Editor.Buffers.Reset_Global_For_Test;
+      Remove_Tree_If_Exists (Root);
+      Ada.Directories.Create_Path (Src);
+      Write_Bytes
+        (Main_Path,
+         "with Lib;" & ASCII.LF &
+         "procedure Main is" & ASCII.LF &
+         "begin" & ASCII.LF &
+         "   Lib.Run;" & ASCII.LF &
+         "end Main;" & ASCII.LF);
+      Write_Bytes
+        (Lib_Path,
+         "package Lib is" & ASCII.LF &
+         "   procedure Run;" & ASCII.LF &
+         "end Lib;" & ASCII.LF);
+
+      Init_Executor_Test_State (S);
+      Editor.Executor.Execute_Open_Project (S, Root);
+      Editor.Executor.Execute_Open_File (S, Main_Path);
+      Editor.Executor.Execute_Open_File (S, Lib_Path);
+      Set_Buffer_Text
+        (S,
+         "package Lib is" & ASCII.LF &
+         "   procedure Run;" & ASCII.LF &
+         "   procedure Unsaved;" & ASCII.LF &
+         "end Lib;" & ASCII.LF);
+      S.File_Info.Dirty := True;
+      Editor.Buffers.Sync_Global_Active_From_State (S);
+
+      Result := Editor.Executor.Execute_Command_With_Result
+        (S, Editor.Commands.Command_Semantic_Refresh_Project_Index);
+      Assert (Result.Status = Editor.Executor.Command_Executed,
+              "file-conflict reload fixture refreshes project language index");
+      Assert (Editor.Ada_Project_Index.File_Count (S.Language_Index) >= 2,
+              "file-conflict reload fixture indexed both files");
+
+      Write_Bytes
+        (Lib_Path,
+         "package Lib is" & ASCII.LF &
+         "   procedure Run;" & ASCII.LF &
+         "   procedure From_Disk;" & ASCII.LF &
+         "end Lib;" & ASCII.LF);
+      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Save_File);
+      Assert (S.File_Conflict_Prompt_Active,
+              "save conflict opens file conflict prompt");
+
+      Editor.Executor.Execute_Command
+        (S, Editor.Commands.Command_File_Conflict_Reload_From_Disk);
+
+      Assert (not S.File_Conflict_Prompt_Active,
+              "file-conflict reload clears prompt");
+      Assert (not S.File_Info.Dirty,
+              "file-conflict reload clears dirty state");
+      Assert (Ada.Strings.Fixed.Index (Editor.State.Current_Text (S), "From_Disk") > 0,
+              "file-conflict reload installs disk text");
+      Assert (Editor.Ada_Project_Index.File_Count (S.Language_Index) >= 2,
+              "file-conflict reload rebuilds project language index files");
+      Assert (Editor.Ada_Project_Index.Symbol_Count (S.Language_Index) >= 2,
+              "file-conflict reload rebuilds project language index symbols");
+      Targets := Editor.Ada_Project_Index.Resolve (S.Language_Index, "Lib");
+      Assert (Natural (Targets.Matches.Length) >= 1,
+              "file-conflict reload keeps cross-file Lib symbol available");
+
+      Remove_Tree_If_Exists (Root);
+      Editor.Buffers.Reset_Global_For_Test;
+   exception
+      when others =>
+         Remove_Tree_If_Exists (Root);
+         Editor.Buffers.Reset_Global_For_Test;
+         raise;
+   end Test_Language_Index_Survives_File_Conflict_Reload;
+
+   procedure Test_Language_Index_Survives_File_Conflict_Overwrite
+     (T : in out AUnit.Test_Cases.Test_Case'Class)
+   is
+      pragma Unreferenced (T);
+      Root : constant String := Temp_Path ("language_index_conflict_overwrite");
+      Src  : constant String := Ada.Directories.Compose (Root, "src");
+      Main_Path : constant String := Ada.Directories.Compose (Src, "main.adb");
+      Lib_Path  : constant String := Ada.Directories.Compose (Src, "lib.ads");
+      S : Editor.State.State_Type;
+      Result : Editor.Executor.Command_Execution_Result;
+      Reloaded : Editor.Files.File_Open_Result;
+      Targets : Editor.Ada_Project_Index.Index_Resolution_Result;
+   begin
+      Editor.Buffers.Reset_Global_For_Test;
+      Remove_Tree_If_Exists (Root);
+      Ada.Directories.Create_Path (Src);
+      Write_Bytes
+        (Main_Path,
+         "with Lib;" & ASCII.LF &
+         "procedure Main is" & ASCII.LF &
+         "begin" & ASCII.LF &
+         "   Lib.Run;" & ASCII.LF &
+         "end Main;" & ASCII.LF);
+      Write_Bytes
+        (Lib_Path,
+         "package Lib is" & ASCII.LF &
+         "   procedure Run;" & ASCII.LF &
+         "end Lib;" & ASCII.LF);
+
+      Init_Executor_Test_State (S);
+      Editor.Executor.Execute_Open_Project (S, Root);
+      Editor.Executor.Execute_Open_File (S, Main_Path);
+      Editor.Executor.Execute_Open_File (S, Lib_Path);
+      Set_Buffer_Text
+        (S,
+         "package Lib is" & ASCII.LF &
+         "   procedure Run;" & ASCII.LF &
+         "   procedure Unsaved;" & ASCII.LF &
+         "end Lib;" & ASCII.LF);
+      S.File_Info.Dirty := True;
+      Editor.Buffers.Sync_Global_Active_From_State (S);
+
+      Result := Editor.Executor.Execute_Command_With_Result
+        (S, Editor.Commands.Command_Semantic_Refresh_Project_Index);
+      Assert (Result.Status = Editor.Executor.Command_Executed,
+              "file-conflict overwrite fixture refreshes project language index");
+      Assert (Editor.Ada_Project_Index.File_Count (S.Language_Index) >= 2,
+              "file-conflict overwrite fixture indexed both files");
+
+      Write_Bytes
+        (Lib_Path,
+         "package Lib is" & ASCII.LF &
+         "   procedure Run;" & ASCII.LF &
+         "   procedure External;" & ASCII.LF &
+         "end Lib;" & ASCII.LF);
+      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Save_File);
+      Assert (S.File_Conflict_Prompt_Active,
+              "save conflict opens overwrite prompt");
+
+      Editor.Executor.Execute_Command
+        (S, Editor.Commands.Command_File_Conflict_Overwrite_Disk);
+
+      Assert (not S.File_Conflict_Prompt_Active,
+              "file-conflict overwrite clears prompt");
+      Assert (not S.File_Info.Dirty,
+              "file-conflict overwrite clears dirty state");
+      Reloaded := Editor.Files.Open_File (Lib_Path);
+      Assert (Editor.Files.Is_Success (Reloaded)
+              and then Ada.Strings.Fixed.Index
+                (To_String (Reloaded.Contents), "Unsaved") > 0,
+              "file-conflict overwrite writes buffer text to disk");
+      Assert (Editor.Ada_Project_Index.File_Count (S.Language_Index) >= 2,
+              "file-conflict overwrite rebuilds project language index files");
+      Assert (Editor.Ada_Project_Index.Symbol_Count (S.Language_Index) >= 2,
+              "file-conflict overwrite rebuilds project language index symbols");
+      Targets := Editor.Ada_Project_Index.Resolve (S.Language_Index, "Lib");
+      Assert (Natural (Targets.Matches.Length) >= 1,
+              "file-conflict overwrite keeps cross-file Lib symbol available");
+
+      Remove_Tree_If_Exists (Root);
+      Editor.Buffers.Reset_Global_For_Test;
+   exception
+      when others =>
+         Remove_Tree_If_Exists (Root);
+         Editor.Buffers.Reset_Global_For_Test;
+         raise;
+   end Test_Language_Index_Survives_File_Conflict_Overwrite;
+
+   procedure Test_Language_Index_Survives_Diagnostic_Open_Selected
+     (T : in out AUnit.Test_Cases.Test_Case'Class)
+   is
+      pragma Unreferenced (T);
+      Root : constant String := Temp_Path ("language_index_diagnostic_open");
+      Src  : constant String := Ada.Directories.Compose (Root, "src");
+      Main_Path : constant String := Ada.Directories.Compose (Src, "main.adb");
+      Lib_Path  : constant String := Ada.Directories.Compose (Src, "lib.ads");
+      S : Editor.State.State_Type;
+      Result : Editor.Executor.Command_Execution_Result;
+      Main_Id : Editor.Buffers.Buffer_Id := Editor.Buffers.No_Buffer;
+      Shown : Boolean := False;
+      Targets : Editor.Ada_Project_Index.Index_Resolution_Result;
+   begin
+      Editor.Buffers.Reset_Global_For_Test;
+      Remove_Tree_If_Exists (Root);
+      Ada.Directories.Create_Path (Src);
+      Write_Bytes
+        (Main_Path,
+         "with Lib;" & ASCII.LF &
+         "procedure Main is" & ASCII.LF &
+         "begin" & ASCII.LF &
+         "   Lib.Run;" & ASCII.LF &
+         "end Main;" & ASCII.LF);
+      Write_Bytes
+        (Lib_Path,
+         "package Lib is" & ASCII.LF &
+         "   procedure Run;" & ASCII.LF &
+         "end Lib;" & ASCII.LF);
+
+      Init_Executor_Test_State (S);
+      Editor.Executor.Execute_Open_Project (S, Root);
+      Editor.Executor.Execute_Open_File (S, Main_Path);
+      Main_Id := Editor.Buffers.Global_Active_Buffer;
+      Editor.Executor.Execute_Open_File (S, Lib_Path);
+
+      Result := Editor.Executor.Execute_Command_With_Result
+        (S, Editor.Commands.Command_Semantic_Refresh_Project_Index);
+      Assert (Result.Status = Editor.Executor.Command_Executed,
+              "diagnostic-open fixture refreshes project language index");
+      Assert (Editor.Ada_Project_Index.File_Count (S.Language_Index) >= 2,
+              "diagnostic-open fixture indexed both files");
+
+      Editor.Feature_Diagnostics.Clear_Diagnostics (S.Feature_Diagnostics);
+      Editor.Feature_Diagnostics.Add_Diagnostic
+        (S.Feature_Diagnostics,
+         Editor.Feature_Diagnostics.Diagnostic_Error,
+         "inactive-buffer semantic diagnostic",
+         Source_Label  => "semantic",
+         Source_Kind   => Editor.Feature_Diagnostics.Editor_Diagnostic_Source,
+         Has_Target    => True,
+         Target_Buffer => Natural (Main_Id),
+         Target_Line   => 4,
+         Target_Column => 4);
+      Shown := Editor.Feature_Panel_Controller.Show_Feature
+        (S, Editor.Feature_Panel.Diagnostics_Feature);
+      Assert (Shown, "diagnostics feature is shown for inactive target test");
+      Editor.Feature_Panel.Select_Row (S.Feature_Panel, 1);
+
+      Result := Editor.Executor.Execute_Command_With_Result
+        (S, Editor.Commands.Command_Diagnostics_Open_Selected);
+      Assert (Result.Status = Editor.Executor.Command_Executed,
+              "diagnostic open selected executes for inactive target buffer");
+      Assert (Editor.Buffers.Global_Active_Buffer = Main_Id,
+              "diagnostic open selected focuses inactive target buffer");
+      Assert (Editor.Ada_Project_Index.File_Count (S.Language_Index) >= 2,
+              "diagnostic open selected preserves project language index files");
+      Assert (Editor.Ada_Project_Index.Symbol_Count (S.Language_Index) >= 2,
+              "diagnostic open selected preserves project language index symbols");
+      Targets := Editor.Ada_Project_Index.Resolve (S.Language_Index, "Lib");
+      Assert (Natural (Targets.Matches.Length) >= 1,
+              "diagnostic open selected keeps cross-file Lib symbol available");
+
+      Remove_Tree_If_Exists (Root);
+      Editor.Buffers.Reset_Global_For_Test;
+   exception
+      when others =>
+         Remove_Tree_If_Exists (Root);
+         Editor.Buffers.Reset_Global_For_Test;
+         raise;
+   end Test_Language_Index_Survives_Diagnostic_Open_Selected;
+
    procedure Test_Phase76_Focus_Search_Results_Shows_And_Focuses
      (T : in out AUnit.Test_Cases.Test_Case'Class)
    is
@@ -6577,6 +9600,9 @@ package body Editor.Executor.Tests is
         (S, Editor.Commands.Command_Diagnostics_Open_Selected,
          "No diagnostics.", "diagnostic activation without diagnostics");
       Assert_Unavailable_Reason
+        (S, Editor.Commands.Command_Diagnostics_Execute_Selected_Action,
+         "No diagnostics.", "diagnostic action without diagnostics");
+      Assert_Unavailable_Reason
         (S, Editor.Commands.Command_Clear_Selected_Message,
          "No messages", "message action without messages");
 
@@ -6656,6 +9682,10 @@ package body Editor.Executor.Tests is
         (S, Editor.Commands.Command_Diagnostics_Open_Selected);
       Assert (not Editor.Commands.Is_Available (A),
               "diagnostics open selected remains unavailable without diagnostics");
+      A := Editor.Executor.Command_Availability
+        (S, Editor.Commands.Command_Diagnostics_Execute_Selected_Action);
+      Assert (not Editor.Commands.Is_Available (A),
+              "diagnostics selected action remains unavailable without diagnostics");
 
       Assert (Editor.State.Current_Text (S) = To_String (Before_Text),
               "availability must not mutate active buffer text");
@@ -6666,6 +9696,638 @@ package body Editor.Executor.Tests is
       Assert (Editor.File_Tree.Visible_Row_Count (S.File_Tree) = Before_File_Tree_Rows,
               "availability must not mutate File Tree rows");
    end Test_Phase224_Availability_Checks_Are_Side_Effect_Free;
+
+   procedure Test_Diagnostics_Execute_Selected_Action_Navigates
+     (T : in out AUnit.Test_Cases.Test_Case'Class)
+   is
+      pragma Unreferenced (T);
+      S      : Editor.State.State_Type;
+      Result : Editor.Executor.Command_Execution_Result;
+      Availability : Editor.Commands.Command_Availability;
+      Shown  : Boolean;
+   begin
+      Init_Executor_Test_State (S);
+      Editor.State.Load_Text
+        (S,
+         "line 1" & ASCII.LF &
+         "line 2" & ASCII.LF &
+         "line 3" & ASCII.LF);
+      Move_Caret_To_Line (S, 1);
+
+      Editor.Feature_Diagnostics.Add_Diagnostic
+        (S.Feature_Diagnostics,
+         Editor.Feature_Diagnostics.Diagnostic_Error,
+         "semantic action target",
+         Source_Label  => "semantic",
+         Source_Kind   => Editor.Feature_Diagnostics.Editor_Diagnostic_Source,
+         Has_Target    => True,
+         Target_Buffer => S.Active_Buffer_Token,
+         Target_Line   => 3,
+         Target_Column => 1);
+      Shown := Editor.Feature_Panel_Controller.Show_Feature
+        (S, Editor.Feature_Panel.Diagnostics_Feature);
+      Assert (Shown, "diagnostics feature is shown for selected action test");
+      Editor.Feature_Panel.Select_Row (S.Feature_Panel, 1);
+
+      Result := Editor.Executor.Execute_Command_With_Result
+        (S, Editor.Commands.Command_Diagnostics_Execute_Selected_Action);
+
+      Assert (Result.Status = Editor.Executor.Command_Executed,
+              "selected diagnostic action executes through command surface");
+      Assert (Active_Caret_Line (S) = 3,
+              "selected diagnostic action applies navigation effect");
+
+      Editor.Buffers.Reset_Global_For_Test;
+   end Test_Diagnostics_Execute_Selected_Action_Navigates;
+
+   procedure Test_Diagnostics_Execute_Selected_Explain_Action_Reports
+     (T : in out AUnit.Test_Cases.Test_Case'Class)
+   is
+      pragma Unreferenced (T);
+      S      : Editor.State.State_Type;
+      Result : Editor.Executor.Command_Execution_Result;
+      Availability : Editor.Commands.Command_Availability;
+      Shown  : Boolean;
+      Expected_Message : Unbounded_String;
+   begin
+      Init_Executor_Test_State (S);
+      Editor.State.Load_Text
+        (S,
+         "line 1" & ASCII.LF &
+         "line 2" & ASCII.LF &
+         "line 3" & ASCII.LF);
+      Move_Caret_To_Line (S, 1);
+
+      Editor.Feature_Diagnostics.Add_Diagnostic
+        (S.Feature_Diagnostics,
+         Editor.Feature_Diagnostics.Diagnostic_Error,
+         "semantic explain action",
+         Source_Label  => "semantic",
+         Source_Kind   => Editor.Feature_Diagnostics.Editor_Diagnostic_Source,
+         Has_Target    => True,
+         Target_Buffer => S.Active_Buffer_Token,
+         Target_Line   => 3,
+         Target_Column => 1,
+         Primary_Action_Kind =>
+           Editor.Ada_Diagnostic_Command_Projection.Diagnostic_Command_Explain_Diagnostic);
+      Shown := Editor.Feature_Panel_Controller.Show_Feature
+        (S, Editor.Feature_Panel.Diagnostics_Feature);
+      Assert (Shown, "diagnostics feature is shown for selected explain action test");
+      Editor.Feature_Panel.Select_Row (S.Feature_Panel, 1);
+      Expected_Message := To_Unbounded_String
+        ("Diagnostic action: " &
+         Editor.Feature_Diagnostics.Item_Display_Label (S.Feature_Diagnostics, 1));
+
+      Result := Editor.Executor.Execute_Command_With_Result
+        (S, Editor.Commands.Command_Diagnostics_Execute_Selected_Action);
+
+      Assert (Result.Status = Editor.Executor.Command_Executed,
+              "selected diagnostic explain action executes through action model");
+      Assert (Active_Caret_Line (S) = 1,
+              "selected diagnostic explain action must not navigate");
+      Assert (Latest_Message_Text (S) = To_String (Expected_Message),
+              "selected diagnostic explain action reports projected action label");
+      Assert (Editor.Feature_Search_Results.Row_Count (S.Feature_Search_Results) = 1,
+              "selected diagnostic explain action projects a review row");
+      Assert (Editor.Feature_Search_Results.Query_Text (S.Feature_Search_Results) =
+              "diagnostic action: explain",
+              "selected diagnostic explain action labels Search Results");
+      Assert (Editor.Feature_Search_Results.Item_Has_Target
+                (S.Feature_Search_Results, 1),
+              "selected diagnostic explain action row is source-navigable");
+      Assert (Editor.Feature_Search_Results.Item_Target_Buffer
+                (S.Feature_Search_Results, 1) = S.Active_Buffer_Token,
+              "selected diagnostic explain action row targets the live buffer");
+      Assert (Editor.Panels.Is_Visible (S.Panels, Editor.Panels.Bottom_Panel)
+              and then Editor.Panels.Active_Bottom_Content (S.Panels) =
+                Editor.Panels.Search_Results_Content,
+              "selected diagnostic explain action shows Search Results");
+
+      Editor.Buffers.Reset_Global_For_Test;
+   end Test_Diagnostics_Execute_Selected_Explain_Action_Reports;
+
+   procedure Test_Diagnostics_Execute_Selected_Edit_Action_Applies
+     (T : in out AUnit.Test_Cases.Test_Case'Class)
+   is
+      pragma Unreferenced (T);
+      S      : Editor.State.State_Type;
+      Result : Editor.Executor.Command_Execution_Result;
+      Undo_Result : Editor.Executor.Command_Execution_Result;
+      Shown  : Boolean;
+   begin
+      Init_Executor_Test_State (S);
+      Editor.State.Load_Text
+        (S,
+         "procedure Demo is" & ASCII.LF &
+         "begin" & ASCII.LF &
+         "   null" & ASCII.LF &
+         "end Demo;" & ASCII.LF);
+      Move_Caret_To_Line (S, 1);
+
+      Editor.Feature_Diagnostics.Add_Diagnostic
+        (S.Feature_Diagnostics,
+         Editor.Feature_Diagnostics.Diagnostic_Error,
+         "missing semicolon",
+         Source_Label  => "semantic",
+         Source_Kind   => Editor.Feature_Diagnostics.Editor_Diagnostic_Source,
+         Has_Target    => True,
+         Target_Buffer => S.Active_Buffer_Token,
+         Target_Line   => 3,
+         Target_Column => 8,
+         Primary_Action_Kind =>
+           Editor.Ada_Diagnostic_Command_Projection.Diagnostic_Command_Explain_Diagnostic,
+         Has_Edit          => True,
+         Edit_Start_Line   => 3,
+         Edit_Start_Column => 8,
+         Edit_End_Line     => 3,
+         Edit_End_Column   => 8,
+         Replacement_Text  => ";");
+      Shown := Editor.Feature_Panel_Controller.Show_Feature
+        (S, Editor.Feature_Panel.Diagnostics_Feature);
+      Assert (Shown, "diagnostics feature is shown for selected edit action test");
+      Editor.Feature_Panel.Select_Row (S.Feature_Panel, 1);
+
+      Result := Editor.Executor.Execute_Command_With_Result
+        (S, Editor.Commands.Command_Diagnostics_Execute_Selected_Action);
+
+      Assert (Result.Status = Editor.Executor.Command_Executed,
+              "selected diagnostic edit action executes");
+      Assert
+        (Editor.State.Current_Text (S) =
+         "procedure Demo is" & ASCII.LF &
+         "begin" & ASCII.LF &
+         "   null;" & ASCII.LF &
+         "end Demo;" & ASCII.LF,
+         "selected diagnostic edit action applies the replacement payload");
+      Assert (Active_Caret_Line (S) = 1,
+              "selected diagnostic edit action does not navigate");
+
+      Undo_Result := Editor.Executor.Execute_Command_With_Result
+        (S, Editor.Commands.Command_Undo);
+      Assert (Undo_Result.Status = Editor.Executor.Command_Executed,
+              "selected diagnostic edit action records undo history");
+      Assert
+        (Editor.State.Current_Text (S) =
+         "procedure Demo is" & ASCII.LF &
+         "begin" & ASCII.LF &
+         "   null" & ASCII.LF &
+         "end Demo;" & ASCII.LF,
+         "selected diagnostic edit action is undoable, got: " &
+         Editor.State.Current_Text (S));
+
+      Editor.Buffers.Reset_Global_For_Test;
+   end Test_Diagnostics_Execute_Selected_Edit_Action_Applies;
+
+   procedure Test_Diagnostics_Execute_Selected_Multiline_Edit_Action_Applies
+     (T : in out AUnit.Test_Cases.Test_Case'Class)
+   is
+      pragma Unreferenced (T);
+      S      : Editor.State.State_Type;
+      Result : Editor.Executor.Command_Execution_Result;
+      Undo_Result : Editor.Executor.Command_Execution_Result;
+      Shown  : Boolean;
+   begin
+      Init_Executor_Test_State (S);
+      Editor.State.Load_Text
+        (S,
+         "procedure Demo is" & ASCII.LF &
+         "begin" & ASCII.LF &
+         "   null;" & ASCII.LF &
+         "end Demo;" & ASCII.LF);
+      Move_Caret_To_Line (S, 1);
+
+      Editor.Feature_Diagnostics.Add_Diagnostic
+        (S.Feature_Diagnostics,
+         Editor.Feature_Diagnostics.Diagnostic_Warning,
+         "expand null statement",
+         Source_Label  => "semantic",
+         Source_Kind   => Editor.Feature_Diagnostics.Editor_Diagnostic_Source,
+         Has_Target    => True,
+         Target_Buffer => S.Active_Buffer_Token,
+         Target_Line   => 3,
+         Target_Column => 4,
+         Primary_Action_Kind =>
+           Editor.Ada_Diagnostic_Command_Projection.Diagnostic_Command_Explain_Diagnostic,
+         Has_Edit          => True,
+         Edit_Start_Line   => 3,
+         Edit_Start_Column => 4,
+         Edit_End_Line     => 3,
+         Edit_End_Column   => 9,
+         Replacement_Text  =>
+           "declare" & ASCII.LF &
+           "   pragma Assert (True);" & ASCII.LF &
+           "begin" & ASCII.LF &
+           "   null;" & ASCII.LF &
+           "end;");
+      Shown := Editor.Feature_Panel_Controller.Show_Feature
+        (S, Editor.Feature_Panel.Diagnostics_Feature);
+      Assert (Shown, "diagnostics feature is shown for selected multi-line edit action test");
+      Editor.Feature_Panel.Select_Row (S.Feature_Panel, 1);
+
+      Result := Editor.Executor.Execute_Command_With_Result
+        (S, Editor.Commands.Command_Diagnostics_Execute_Selected_Action);
+
+      Assert (Result.Status = Editor.Executor.Command_Executed,
+              "selected diagnostic multi-line edit action executes");
+      Assert
+        (Editor.State.Current_Text (S) =
+         "procedure Demo is" & ASCII.LF &
+         "begin" & ASCII.LF &
+         "   declare" & ASCII.LF &
+         "   pragma Assert (True);" & ASCII.LF &
+         "begin" & ASCII.LF &
+         "   null;" & ASCII.LF &
+         "end;" & ASCII.LF &
+         "end Demo;" & ASCII.LF,
+         "selected diagnostic multi-line edit action applies replacement text");
+      Assert (Active_Caret_Line (S) = 1,
+              "selected diagnostic multi-line edit action does not navigate");
+
+      Undo_Result := Editor.Executor.Execute_Command_With_Result
+        (S, Editor.Commands.Command_Undo);
+      Assert (Undo_Result.Status = Editor.Executor.Command_Executed,
+              "selected diagnostic multi-line edit action records undo history");
+      Assert
+        (Editor.State.Current_Text (S) =
+         "procedure Demo is" & ASCII.LF &
+         "begin" & ASCII.LF &
+         "   null;" & ASCII.LF &
+         "end Demo;" & ASCII.LF,
+         "selected diagnostic multi-line edit action is undoable");
+
+      Editor.Buffers.Reset_Global_For_Test;
+   end Test_Diagnostics_Execute_Selected_Multiline_Edit_Action_Applies;
+
+   procedure Test_Diagnostics_Execute_Selected_Edit_Action_Updates_Open_Buffer
+     (T : in out AUnit.Test_Cases.Test_Case'Class)
+   is
+      pragma Unreferenced (T);
+      package LM renames Editor.Ada_Language_Model;
+
+      S          : Editor.State.State_Type;
+      Active_Id  : Editor.Buffers.Buffer_Id;
+      Target_Id  : Editor.Buffers.Buffer_Id;
+      Analysis   : LM.Analysis_Result;
+      Ignored    : LM.Symbol_Id;
+      Result     : Editor.Executor.Command_Execution_Result;
+      Available  : Editor.Commands.Command_Availability;
+      Shown      : Boolean;
+   begin
+      Init_Executor_Test_State (S);
+      Editor.Buffers.Reset_Global_For_Test;
+      Editor.Buffers.Global_Add_File_Buffer
+        ("/project/main.adb", "main.adb",
+         "procedure Main is null;" & ASCII.LF,
+         Active_Id);
+      Editor.Buffers.Global_Add_File_Buffer
+        ("/project/worker.adb", "worker.adb",
+         "procedure Worker is" & ASCII.LF &
+         "begin" & ASCII.LF &
+         "   null" & ASCII.LF &
+         "end Worker;" & ASCII.LF,
+         Target_Id);
+      Editor.Buffers.Global_Set_Active_Buffer (Active_Id);
+      Editor.Buffers.Load_Global_Active_Into_State (S);
+
+      Ignored := LM.Add_Symbol
+        (Analysis, "Worker", LM.Symbol_Procedure,
+         (Start_Line => 1, Start_Column => 11, End_Line => 1, End_Column => 16));
+      Editor.Ada_Project_Index.Put_Analysis
+        (S.Language_Index, "/project/worker.adb",
+         Buffer_Token         => Natural (Target_Id),
+         Buffer_Revision      =>
+           Editor.Buffers.Global_Buffer (Target_Id).Buffer_Revision,
+         Lifecycle_Generation =>
+           Editor.Buffers.Global_Buffer (Target_Id).Lifecycle_Generation,
+         Analysis             => Analysis);
+      Editor.Ada_Language_Service.Put_Index
+        (S.Language_Service, S.Language_Index);
+
+      Editor.Feature_Diagnostics.Add_Diagnostic
+        (S.Feature_Diagnostics,
+         Editor.Feature_Diagnostics.Diagnostic_Error,
+         "missing semicolon",
+         Source_Label  => "semantic",
+         Source_Kind   => Editor.Feature_Diagnostics.Editor_Diagnostic_Source,
+         Has_Target    => True,
+         Target_Buffer => Natural (Target_Id),
+         Target_Line   => 3,
+         Target_Column => 8,
+         Primary_Action_Kind =>
+           Editor.Ada_Diagnostic_Command_Projection.Diagnostic_Command_Explain_Diagnostic,
+         Has_Edit          => True,
+         Edit_Start_Line   => 3,
+         Edit_Start_Column => 8,
+         Edit_End_Line     => 3,
+         Edit_End_Column   => 8,
+         Replacement_Text  => ";");
+      Shown := Editor.Feature_Panel_Controller.Show_Feature
+        (S, Editor.Feature_Panel.Diagnostics_Feature);
+      Assert (Shown, "diagnostics feature is shown for inactive-buffer edit action test");
+      Editor.Feature_Panel.Select_Row (S.Feature_Panel, 1);
+
+      Available := Editor.Executor.Command_Availability
+        (S, Editor.Commands.Command_Diagnostics_Execute_Selected_Action);
+      Assert (Editor.Commands.Is_Available (Available),
+              "selected diagnostic edit action is available for inactive open buffer");
+
+      Result := Editor.Executor.Execute_Command_With_Result
+        (S, Editor.Commands.Command_Diagnostics_Execute_Selected_Action);
+
+      Assert (Result.Status = Editor.Executor.Command_Executed,
+              "selected diagnostic edit action executes for inactive open buffer");
+      Assert
+        (Editor.State.Current_Text (S) =
+         "procedure Main is null;" & ASCII.LF,
+         "inactive-buffer diagnostic edit leaves active buffer unchanged");
+      Assert
+        (Editor.State.Current_Text (Editor.Buffers.Global_Buffer (Target_Id)) =
+         "procedure Worker is" & ASCII.LF &
+         "begin" & ASCII.LF &
+         "   null;" & ASCII.LF &
+         "end Worker;" & ASCII.LF,
+         "selected diagnostic edit action updates the inactive open buffer");
+      Assert (not Editor.Ada_Project_Index.Contains_Path
+                    (S.Language_Index, "/project/worker.adb"),
+              "inactive-buffer diagnostic edit invalidates changed semantic index entry");
+      Assert (Editor.Ada_Language_Service.Status (S.Language_Service) =
+              Editor.Ada_Language_Service.Status (S.Language_Index),
+              "inactive-buffer diagnostic edit keeps service invalidation aligned");
+
+      Editor.Buffers.Reset_Global_For_Test;
+   end Test_Diagnostics_Execute_Selected_Edit_Action_Updates_Open_Buffer;
+
+   procedure Test_Diagnostics_Execute_Selected_Edit_Rejects_Invalid_End
+     (T : in out AUnit.Test_Cases.Test_Case'Class)
+   is
+      pragma Unreferenced (T);
+      S      : Editor.State.State_Type;
+      Result : Editor.Executor.Command_Execution_Result;
+      Availability : Editor.Commands.Command_Availability;
+      Shown  : Boolean;
+   begin
+      Init_Executor_Test_State (S);
+      Editor.State.Load_Text
+        (S,
+         "procedure Demo is" & ASCII.LF &
+         "begin" & ASCII.LF &
+         "   null;" & ASCII.LF &
+         "end Demo;" & ASCII.LF);
+
+      Editor.Feature_Diagnostics.Add_Diagnostic
+        (S.Feature_Diagnostics,
+         Editor.Feature_Diagnostics.Diagnostic_Error,
+         "replace statement",
+         Source_Label  => "semantic",
+         Source_Kind   => Editor.Feature_Diagnostics.Editor_Diagnostic_Source,
+         Has_Target    => True,
+         Target_Buffer => S.Active_Buffer_Token,
+         Target_Line   => 3,
+         Target_Column => 4,
+         Primary_Action_Kind =>
+           Editor.Ada_Diagnostic_Command_Projection.Diagnostic_Command_Explain_Diagnostic,
+         Has_Edit          => True,
+         Edit_Start_Line   => 3,
+         Edit_Start_Column => 4,
+         Edit_End_Line     => 3,
+         Edit_End_Column   => 200,
+         Replacement_Text  => "raise Program_Error;");
+      Shown := Editor.Feature_Panel_Controller.Show_Feature
+        (S, Editor.Feature_Panel.Diagnostics_Feature);
+      Assert (Shown, "diagnostics feature is shown for invalid edit-end test");
+      Editor.Feature_Panel.Select_Row (S.Feature_Panel, 1);
+
+      Availability := Editor.Executor.Command_Availability
+        (S, Editor.Commands.Command_Diagnostics_Execute_Selected_Action);
+      Assert (not Editor.Commands.Is_Available (Availability),
+              "selected diagnostic edit action preflight rejects invalid edit end");
+      Assert
+        (Editor.Commands.Unavailable_Reason (Availability) =
+         "Diagnostic edit unavailable: stale edit target",
+         "invalid diagnostic edit end should report the executor rejection reason");
+
+      Result := Editor.Executor.Execute_Command_With_Result
+        (S, Editor.Commands.Command_Diagnostics_Execute_Selected_Action);
+
+      Assert (Result.Status = Editor.Executor.Command_Unavailable,
+              "selected diagnostic edit action rejects out-of-range edit end");
+      Assert
+        (Editor.State.Current_Text (S) =
+         "procedure Demo is" & ASCII.LF &
+         "begin" & ASCII.LF &
+         "   null;" & ASCII.LF &
+         "end Demo;" & ASCII.LF,
+         "invalid diagnostic edit end must leave buffer unchanged");
+
+      Editor.Buffers.Reset_Global_For_Test;
+   end Test_Diagnostics_Execute_Selected_Edit_Rejects_Invalid_End;
+
+   procedure Test_Diagnostics_Execute_Selected_Review_Action_Projects
+     (T : in out AUnit.Test_Cases.Test_Case'Class)
+   is
+      pragma Unreferenced (T);
+      S      : Editor.State.State_Type;
+      Result : Editor.Executor.Command_Execution_Result;
+      Shown  : Boolean;
+      Expected_Message : Unbounded_String;
+   begin
+      Init_Executor_Test_State (S);
+      Editor.State.Load_Text
+        (S,
+         "with Lib;" & ASCII.LF &
+         "procedure Main is null;" & ASCII.LF);
+      Move_Caret_To_Line (S, 1);
+
+      Editor.Feature_Diagnostics.Add_Diagnostic
+        (S.Feature_Diagnostics,
+         Editor.Feature_Diagnostics.Diagnostic_Warning,
+         "semantic cross-unit review",
+         Source_Label  => "semantic",
+         Source_Kind   => Editor.Feature_Diagnostics.Editor_Diagnostic_Source,
+         Has_Target    => True,
+         Target_Buffer => S.Active_Buffer_Token,
+         Target_Line   => 2,
+         Target_Column => 11,
+         Primary_Action_Kind =>
+           Editor.Ada_Diagnostic_Command_Projection.Diagnostic_Command_Review_Cross_Unit);
+      Shown := Editor.Feature_Panel_Controller.Show_Feature
+        (S, Editor.Feature_Panel.Diagnostics_Feature);
+      Assert (Shown, "diagnostics feature is shown for selected review action test");
+      Editor.Feature_Panel.Select_Row (S.Feature_Panel, 1);
+      Expected_Message := To_Unbounded_String
+        ("Diagnostic action: " &
+         Editor.Feature_Diagnostics.Item_Display_Label (S.Feature_Diagnostics, 1));
+
+      Result := Editor.Executor.Execute_Command_With_Result
+        (S, Editor.Commands.Command_Diagnostics_Execute_Selected_Action);
+
+      Assert (Result.Status = Editor.Executor.Command_Executed,
+              "selected diagnostic review action executes through action model");
+      Assert (Active_Caret_Line (S) = 1,
+              "selected diagnostic review action must not navigate");
+      Assert (Latest_Message_Text (S) = To_String (Expected_Message),
+              "selected diagnostic review action reports projected action label");
+      Assert (Editor.Feature_Search_Results.Row_Count (S.Feature_Search_Results) = 1,
+              "selected diagnostic review action projects a review row");
+      Assert (Editor.Feature_Search_Results.Query_Text (S.Feature_Search_Results) =
+              "diagnostic action: review cross-unit",
+              "selected diagnostic review action labels Search Results");
+      Assert (Editor.Feature_Search_Results.Item_Target_Line
+                (S.Feature_Search_Results, 1) = 2,
+              "selected diagnostic review action row preserves target line");
+      Assert (Editor.Feature_Search_Results.Item_Target_Column
+                (S.Feature_Search_Results, 1) = 11,
+              "selected diagnostic review action row preserves target column");
+      Assert (Editor.Feature_Search_Results.Item_Match_Length
+                (S.Feature_Search_Results, 1) = 1,
+              "selected diagnostic review action row carries action span");
+      Assert (Editor.Panels.Is_Visible (S.Panels, Editor.Panels.Bottom_Panel)
+              and then Editor.Panels.Active_Bottom_Content (S.Panels) =
+                Editor.Panels.Search_Results_Content,
+              "selected diagnostic review action shows Search Results");
+
+      Editor.Buffers.Reset_Global_For_Test;
+   end Test_Diagnostics_Execute_Selected_Review_Action_Projects;
+
+   procedure Test_Diagnostics_Execute_Selected_Action_Rejects_No_Action
+     (T : in out AUnit.Test_Cases.Test_Case'Class)
+   is
+      pragma Unreferenced (T);
+      S           : Editor.State.State_Type;
+      Result      : Editor.Executor.Command_Execution_Result;
+      Shown       : Boolean;
+      Open_Avail  : Editor.Commands.Command_Availability;
+      Action_Avail : Editor.Commands.Command_Availability;
+   begin
+      Init_Executor_Test_State (S);
+      Editor.State.Load_Text
+        (S,
+         "line 1" & ASCII.LF &
+         "line 2" & ASCII.LF);
+
+      Editor.Feature_Diagnostics.Add_Diagnostic
+        (S.Feature_Diagnostics,
+         Editor.Feature_Diagnostics.Diagnostic_Warning,
+         "semantic diagnostic with no action",
+         Source_Label  => "semantic",
+         Source_Kind   => Editor.Feature_Diagnostics.Editor_Diagnostic_Source,
+         Has_Target    => True,
+         Target_Buffer => S.Active_Buffer_Token,
+         Target_Line   => 2,
+         Target_Column => 1,
+         Primary_Action_Kind =>
+           Editor.Ada_Diagnostic_Command_Projection.Diagnostic_Command_None);
+      Shown := Editor.Feature_Panel_Controller.Show_Feature
+        (S, Editor.Feature_Panel.Diagnostics_Feature);
+      Assert (Shown, "diagnostics feature is shown for no-action test");
+      Editor.Feature_Panel.Select_Row (S.Feature_Panel, 1);
+
+      Open_Avail := Editor.Executor.Command_Availability
+        (S, Editor.Commands.Command_Diagnostics_Open_Selected);
+      Action_Avail := Editor.Executor.Command_Availability
+        (S, Editor.Commands.Command_Diagnostics_Execute_Selected_Action);
+
+      Assert (Editor.Commands.Is_Available (Open_Avail),
+              "diagnostic with no primary action can still be opened");
+      Assert (not Editor.Commands.Is_Available (Action_Avail),
+              "diagnostic with no primary action must not advertise action execution");
+      Assert (Editor.Commands.Unavailable_Reason (Action_Avail) =
+              "Diagnostic action unavailable",
+              "no-action diagnostic availability reports action-specific reason");
+
+      Result := Editor.Executor.Execute_Command_With_Result
+        (S, Editor.Commands.Command_Diagnostics_Execute_Selected_Action);
+
+      Assert (Result.Status = Editor.Executor.Command_Unavailable,
+              "no-action diagnostic execution is classified unavailable");
+      Assert (Latest_Message_Text (S) = "Diagnostic action unavailable",
+              "no-action diagnostic execution reports availability reason");
+      Assert (Editor.Feature_Search_Results.Row_Count (S.Feature_Search_Results) = 0,
+              "no-action diagnostic must not project stale Search Results");
+
+      Editor.Buffers.Reset_Global_For_Test;
+   end Test_Diagnostics_Execute_Selected_Action_Rejects_No_Action;
+
+   procedure Test_Diagnostics_Execute_Selected_Action_Rejects_Missing_Target
+     (T : in out AUnit.Test_Cases.Test_Case'Class)
+   is
+      pragma Unreferenced (T);
+      S      : Editor.State.State_Type;
+      Result : Editor.Executor.Command_Execution_Result;
+      Shown  : Boolean;
+   begin
+      Init_Executor_Test_State (S);
+      Editor.State.Load_Text (S, "line 1" & ASCII.LF);
+
+      Editor.Feature_Diagnostics.Add_Diagnostic
+        (S.Feature_Diagnostics,
+         Editor.Feature_Diagnostics.Diagnostic_Warning,
+         "semantic action without target",
+         Source_Label => "semantic",
+         Source_Kind  => Editor.Feature_Diagnostics.Editor_Diagnostic_Source,
+         Has_Target   => False);
+      Shown := Editor.Feature_Panel_Controller.Show_Feature
+        (S, Editor.Feature_Panel.Diagnostics_Feature);
+      Assert (Shown, "diagnostics feature is shown for missing-target action test");
+      Editor.Feature_Panel.Select_Row (S.Feature_Panel, 1);
+
+      Result := Editor.Executor.Execute_Command_With_Result
+        (S, Editor.Commands.Command_Diagnostics_Execute_Selected_Action);
+
+      Assert (Result.Status = Editor.Executor.Command_Unavailable,
+              "selected diagnostic action with no target is unavailable");
+      Assert (Latest_Message_Text (S) = "Target no longer exists.",
+              "missing-target selected diagnostic action reports diagnostic target reason");
+
+      Editor.Buffers.Reset_Global_For_Test;
+   end Test_Diagnostics_Execute_Selected_Action_Rejects_Missing_Target;
+
+   procedure Test_Diagnostics_Execute_Selected_Action_Rejects_Stale_Target
+     (T : in out AUnit.Test_Cases.Test_Case'Class)
+   is
+      pragma Unreferenced (T);
+      S      : Editor.State.State_Type;
+      Result : Editor.Executor.Command_Execution_Result;
+      Shown  : Boolean;
+   begin
+      Init_Executor_Test_State (S);
+      Editor.State.Load_Text
+        (S,
+         "line 1" & ASCII.LF &
+         "line 2" & ASCII.LF &
+         "line 3" & ASCII.LF);
+      Move_Caret_To_Line (S, 1);
+
+      Editor.Feature_Diagnostics.Add_Diagnostic
+        (S.Feature_Diagnostics,
+         Editor.Feature_Diagnostics.Diagnostic_Error,
+         "stale semantic action target",
+         Source_Label  => "semantic",
+         Source_Kind   => Editor.Feature_Diagnostics.Editor_Diagnostic_Source,
+         Has_Target    => True,
+         Target_Buffer => S.Active_Buffer_Token,
+         Target_Line   => 3,
+         Target_Column => 1);
+      Editor.Feature_Diagnostics.Mark_Diagnostics_For_Buffer_Stale
+        (S.Feature_Diagnostics, S.Active_Buffer_Token);
+      Shown := Editor.Feature_Panel_Controller.Show_Feature
+        (S, Editor.Feature_Panel.Diagnostics_Feature);
+      Assert (Shown, "diagnostics feature is shown for stale selected action test");
+      Editor.Feature_Panel.Select_Row (S.Feature_Panel, 1);
+
+      Result := Editor.Executor.Execute_Command_With_Result
+        (S, Editor.Commands.Command_Diagnostics_Execute_Selected_Action);
+
+      Assert (Result.Status = Editor.Executor.Command_Unavailable,
+              "stale selected diagnostic action is unavailable");
+      Assert (Active_Caret_Line (S) = 1,
+              "stale selected diagnostic action must not navigate");
+      Assert
+        (Latest_Message_Text (S) = "Target is stale; refresh required.",
+         "stale selected diagnostic action reports canonical stale rejection");
+
+      Editor.Buffers.Reset_Global_For_Test;
+   end Test_Diagnostics_Execute_Selected_Action_Rejects_Stale_Target;
 
    procedure Test_Phase224_Palette_Disabled_Reason_Matches_Executor
      (T : in out AUnit.Test_Cases.Test_Case'Class)
@@ -15182,6 +18844,77 @@ package body Editor.Executor.Tests is
       Editor.File_Tree_View.Set_Selected_Row_Index (S.File_Tree_View, Row);
    end Select_File_Tree_Test_Path;
 
+   procedure Test_Language_Index_Survives_File_Tree_Rename_Active_Non_Ada
+     (T : in out AUnit.Test_Cases.Test_Case'Class)
+   is
+      pragma Unreferenced (T);
+      Root : constant String := Temp_Path ("language_index_file_tree_rename");
+      Main_Path : constant String := Ada.Directories.Compose (Root, "main.adb");
+      Lib_Path  : constant String := Ada.Directories.Compose (Root, "lib.ads");
+      Notes_Path : constant String := Ada.Directories.Compose (Root, "notes.txt");
+      Renamed_Path : constant String :=
+        Ada.Directories.Compose (Root, "notes-renamed.txt");
+      S : Editor.State.State_Type;
+      Cmd : Editor.Commands.Command :=
+        Editor.Commands.Command_For_Id
+          (Editor.Commands.Command_File_Tree_Rename_Selected);
+      Result : Editor.Executor.Command_Execution_Result;
+      Targets : Editor.Ada_Project_Index.Index_Resolution_Result;
+   begin
+      Editor.Buffers.Reset_Global_For_Test;
+      Remove_Tree_If_Exists (Root);
+      Ada.Directories.Create_Path (Root);
+      Write_Bytes
+        (Main_Path,
+         "with Lib;" & ASCII.LF &
+         "procedure Main is" & ASCII.LF &
+         "begin" & ASCII.LF &
+         "   Lib.Run;" & ASCII.LF &
+         "end Main;" & ASCII.LF);
+      Write_Bytes
+        (Lib_Path,
+         "package Lib is" & ASCII.LF &
+         "   procedure Run;" & ASCII.LF &
+         "end Lib;" & ASCII.LF);
+      Write_Bytes (Notes_Path, "notes" & ASCII.LF);
+
+      Init_Executor_Test_State (S);
+      Editor.Executor.Execute_Open_Project (S, Root);
+      Editor.Executor.Execute_Open_File (S, Main_Path);
+      Editor.Executor.Execute_Open_File (S, Lib_Path);
+      Editor.Executor.Execute_Open_File (S, Notes_Path);
+
+      Result := Editor.Executor.Execute_Command_With_Result
+        (S, Editor.Commands.Command_Semantic_Refresh_Project_Index);
+      Assert (Result.Status = Editor.Executor.Command_Executed,
+              "file-tree rename fixture refreshes project language index");
+      Assert (Editor.Ada_Project_Index.File_Count (S.Language_Index) >= 2,
+              "file-tree rename fixture indexed Ada project files");
+
+      Select_File_Tree_Test_Path (S, "notes.txt");
+      Cmd.Text := To_Unbounded_String ("notes-renamed.txt");
+      Editor.Executor.Execute_No_Log (S, Cmd);
+
+      Assert (S.File_Info.Has_Path
+              and then To_String (S.File_Info.Path) = Renamed_Path,
+              "file-tree rename rebases active non-Ada buffer");
+      Assert (Editor.Ada_Project_Index.File_Count (S.Language_Index) >= 2,
+              "file-tree rename preserves unrelated Ada language index files");
+      Assert (Editor.Ada_Project_Index.Symbol_Count (S.Language_Index) >= 2,
+              "file-tree rename preserves unrelated Ada language index symbols");
+      Targets := Editor.Ada_Project_Index.Resolve (S.Language_Index, "Lib");
+      Assert (Natural (Targets.Matches.Length) >= 1,
+              "file-tree rename keeps cross-file Lib symbol available");
+
+      Remove_Tree_If_Exists (Root);
+      Editor.Buffers.Reset_Global_For_Test;
+   exception
+      when others =>
+         Remove_Tree_If_Exists (Root);
+         Editor.Buffers.Reset_Global_For_Test;
+         raise;
+   end Test_Language_Index_Survives_File_Tree_Rename_Active_Non_Ada;
+
    procedure Test_Phase572_Rename_Active_File_Invalidates_Derived_State
      (T : in out AUnit.Test_Cases.Test_Case'Class)
    is
@@ -15194,6 +18927,8 @@ package body Editor.Executor.Tests is
       Cmd      : Editor.Commands.Command :=
         Editor.Commands.Command_For_Id
           (Editor.Commands.Command_File_Tree_Rename_Selected);
+      Analysis : Editor.Ada_Language_Model.Analysis_Result;
+      Ignored  : Editor.Ada_Language_Model.Symbol_Id;
    begin
       Remove_Tree_If_Exists (Root);
       Build_Fixture (Root);
@@ -15206,6 +18941,21 @@ package body Editor.Executor.Tests is
       Editor.Project.Apply_Open_Result (S.Project, Open_Res);
       S.File_Tree := Editor.File_Tree.Scan_Project (Root);
       Editor.Executor.Execute_Open_File (S, Old_Path);
+      Ignored := Editor.Ada_Language_Model.Add_Symbol
+        (Analysis, "Renamed_File_Target",
+         Editor.Ada_Language_Model.Symbol_Object,
+         (Start_Line => 1, Start_Column => 1, End_Line => 1, End_Column => 3));
+      Editor.Ada_Project_Index.Put_Analysis
+        (S.Language_Index, Old_Path,
+         Buffer_Token         => S.Active_Buffer_Token,
+         Buffer_Revision      => S.Buffer_Revision,
+         Lifecycle_Generation => S.Lifecycle_Generation,
+         Analysis             => Analysis);
+      Editor.Ada_Language_Service.Put_Index
+        (S.Language_Service, S.Language_Index);
+      Assert (Editor.Ada_Language_Service.Status (S.Language_Service) =
+              Editor.Ada_Language_Service.Status (S.Language_Index),
+              "Phase 572 rename setup mirrors language service and index");
 
       declare
          Result : constant Editor.Outline.Outline_Refresh_Result :=
@@ -15241,6 +18991,11 @@ package body Editor.Executor.Tests is
               "Phase 572 rename of active file must clear stale diagnostics feature rows");
       Assert (Editor.Project_Search.Is_Stale (S.Project_Search),
               "Phase 572 rename must mark project search state stale");
+      Assert (Editor.Ada_Project_Index.File_Count (S.Language_Index) = 0,
+              "Phase 572 rename drops stale language index rows for the moved file");
+      Assert (Editor.Ada_Language_Service.Status (S.Language_Service) =
+              Editor.Ada_Language_Service.Status (S.Language_Index),
+              "Phase 572 rename invalidates language service with project index");
 
       Remove_Tree_If_Exists (Root);
       Editor.Buffers.Reset_Global_For_Test;
@@ -15874,6 +19629,36 @@ package body Editor.Executor.Tests is
         (T, Test_Phase224_Availability_Checks_Are_Side_Effect_Free'Access,
          "Phase 224 availability checks are side-effect-free");
       AUnit.Test_Cases.Registration.Register_Routine
+        (T, Test_Diagnostics_Execute_Selected_Action_Navigates'Access,
+         "Diagnostics execute selected action navigates");
+      AUnit.Test_Cases.Registration.Register_Routine
+        (T, Test_Diagnostics_Execute_Selected_Explain_Action_Reports'Access,
+         "Diagnostics execute selected explain action reports without navigation");
+      AUnit.Test_Cases.Registration.Register_Routine
+        (T, Test_Diagnostics_Execute_Selected_Edit_Action_Applies'Access,
+         "Diagnostics execute selected edit action applies replacement");
+      AUnit.Test_Cases.Registration.Register_Routine
+        (T, Test_Diagnostics_Execute_Selected_Multiline_Edit_Action_Applies'Access,
+         "Diagnostics execute selected edit action applies multi-line replacement");
+      AUnit.Test_Cases.Registration.Register_Routine
+        (T, Test_Diagnostics_Execute_Selected_Edit_Action_Updates_Open_Buffer'Access,
+         "Diagnostics execute selected edit action updates open buffer");
+      AUnit.Test_Cases.Registration.Register_Routine
+        (T, Test_Diagnostics_Execute_Selected_Edit_Rejects_Invalid_End'Access,
+         "Diagnostics execute selected edit action rejects invalid edit end");
+      AUnit.Test_Cases.Registration.Register_Routine
+        (T, Test_Diagnostics_Execute_Selected_Review_Action_Projects'Access,
+         "Diagnostics execute selected review action projects Search Results");
+      AUnit.Test_Cases.Registration.Register_Routine
+        (T, Test_Diagnostics_Execute_Selected_Action_Rejects_No_Action'Access,
+         "Diagnostics execute selected action rejects no-action rows");
+      AUnit.Test_Cases.Registration.Register_Routine
+        (T, Test_Diagnostics_Execute_Selected_Action_Rejects_Missing_Target'Access,
+         "Diagnostics execute selected action rejects missing target");
+      AUnit.Test_Cases.Registration.Register_Routine
+        (T, Test_Diagnostics_Execute_Selected_Action_Rejects_Stale_Target'Access,
+         "Diagnostics execute selected action rejects stale target");
+      AUnit.Test_Cases.Registration.Register_Routine
         (T, Test_Phase224_Palette_Disabled_Reason_Matches_Executor'Access,
          "Phase 224 palette disabled reason matches executor");
       AUnit.Test_Cases.Registration.Register_Routine
@@ -16161,6 +19946,114 @@ package body Editor.Executor.Tests is
       AUnit.Test_Cases.Registration.Register_Routine
         (T, Test_Phase334_Query_Edit_And_Refresh_Clear_Results'Access,
          "Phase 334 query edits and project refresh clear Project Search results");
+      AUnit.Test_Cases.Registration.Register_Routine
+        (T, Test_Semantic_Find_References_Projects_Search_Result_Rows'Access,
+         "Semantic find references projects Search Results rows");
+      AUnit.Test_Cases.Registration.Register_Routine
+        (T, Test_Semantic_Workspace_Symbols_Project_Search_Result_Rows'Access,
+         "Semantic workspace symbols project Search Results rows");
+      AUnit.Test_Cases.Registration.Register_Routine
+        (T, Test_Semantic_Completions_Project_Search_Result_Rows'Access,
+         "Semantic completions project Search Results rows");
+      AUnit.Test_Cases.Registration.Register_Routine
+        (T, Test_Semantic_Hover_Projects_Search_Result_Row'Access,
+         "Semantic hover projects Search Results row");
+      AUnit.Test_Cases.Registration.Register_Routine
+        (T, Test_Semantic_Rename_Preview_Projects_Search_Result_Rows'Access,
+         "Semantic rename preview projects Search Results rows");
+      AUnit.Test_Cases.Registration.Register_Routine
+        (T, Test_Semantic_Rename_Apply_Updates_Active_Buffer'Access,
+         "Semantic rename apply updates active buffer");
+      AUnit.Test_Cases.Registration.Register_Routine
+        (T, Test_Semantic_Rename_Apply_Updates_Open_Buffers'Access,
+         "Semantic rename apply updates open buffers");
+      AUnit.Test_Cases.Registration.Register_Routine
+        (T, Test_Semantic_Rename_Apply_Updates_Unopened_File'Access,
+         "Semantic rename apply updates unopened file");
+      AUnit.Test_Cases.Registration.Register_Routine
+        (T, Test_Semantic_Rename_Uses_Prompt_Target'Access,
+         "Semantic rename uses prompted target name");
+      AUnit.Test_Cases.Registration.Register_Routine
+        (T, Test_Semantic_Rename_Rejects_Reserved_Prompt_Target'Access,
+         "Semantic rename rejects reserved prompted target names");
+      AUnit.Test_Cases.Registration.Register_Routine
+        (T, Test_Semantic_Rename_Command_Starts_Guided_Prompt'Access,
+         "Semantic rename command starts guided prompt");
+      AUnit.Test_Cases.Registration.Register_Routine
+        (T, Test_Semantic_Rename_Apply_Blocks_Conflicts'Access,
+         "Semantic rename apply blocks conflicted previews");
+      AUnit.Test_Cases.Registration.Register_Routine
+        (T, Test_Semantic_Outline_Commands_Unavailable_Without_Index'Access,
+         "Semantic Outline commands require language index answers");
+      AUnit.Test_Cases.Registration.Register_Routine
+        (T, Test_Semantic_Commands_Use_Caret_When_Outline_Hidden'Access,
+         "Semantic commands use caret when Outline hidden");
+      AUnit.Test_Cases.Registration.Register_Routine
+        (T, Test_Semantic_Goto_Declaration_Uses_Caret_Symbol'Access,
+         "Semantic goto declaration uses caret symbol");
+      AUnit.Test_Cases.Registration.Register_Routine
+        (T, Test_Semantic_Outline_Commands_Block_Overflowed_Index'Access,
+         "Semantic Outline commands block overflowed language index answers");
+      AUnit.Test_Cases.Registration.Register_Routine
+        (T, Test_Semantic_Outline_Commands_Report_Stale_Current_Index'Access,
+         "Semantic Outline commands report stale current language index answers");
+      AUnit.Test_Cases.Registration.Register_Routine
+        (T, Test_Semantic_Outline_Commands_Block_Stale_Edit_Index'Access,
+         "Semantic Outline commands block stale edit language index answers");
+      AUnit.Test_Cases.Registration.Register_Routine
+        (T, Test_Language_Index_Project_Workflow_Commands'Access,
+         "Language index project workflow commands refresh status and clear");
+      AUnit.Test_Cases.Registration.Register_Routine
+        (T, Test_Language_Index_Auto_Refreshes_Project_Lifecycle'Access,
+         "Language index auto refreshes project lifecycle");
+      AUnit.Test_Cases.Registration.Register_Routine
+        (T, Test_Semantic_Refresh_Publishes_Live_Diagnostics'Access,
+         "Semantic refresh publishes live diagnostics");
+      AUnit.Test_Cases.Registration.Register_Routine
+        (T, Test_Semantic_Buffer_Refresh_Publishes_Live_Diagnostics'Access,
+         "Semantic buffer refresh publishes live diagnostics");
+      AUnit.Test_Cases.Registration.Register_Routine
+        (T, Test_Semantic_Project_Refresh_Projects_Cross_Unit_Diagnostics'Access,
+         "Semantic project refresh projects cross-unit diagnostics");
+      AUnit.Test_Cases.Registration.Register_Routine
+        (T, Test_Indexed_Outline_Body_Spec_Navigation_Workflow'Access,
+         "Indexed Outline body spec navigation workflow");
+      AUnit.Test_Cases.Registration.Register_Routine
+        (T, Test_Language_Index_Survives_Buffer_Switcher_Accept'Access,
+         "Language index survives Buffer List accept");
+      AUnit.Test_Cases.Registration.Register_Routine
+        (T, Test_Language_Index_Survives_Navigation_Back'Access,
+         "Language index survives navigation history back");
+      AUnit.Test_Cases.Registration.Register_Routine
+        (T, Test_Language_Index_Survives_Close_Active_Buffer'Access,
+         "Language index survives close active buffer");
+      AUnit.Test_Cases.Registration.Register_Routine
+        (T, Test_Language_Index_Survives_New_Buffer'Access,
+         "Language index survives new buffer");
+      AUnit.Test_Cases.Registration.Register_Routine
+        (T, Test_Language_Index_Survives_Save_All'Access,
+         "Language index survives save all");
+      AUnit.Test_Cases.Registration.Register_Routine
+        (T, Test_Language_Index_Survives_Save_File'Access,
+         "Language index survives save file");
+      AUnit.Test_Cases.Registration.Register_Routine
+        (T, Test_Language_Index_Survives_Reload_Confirmation'Access,
+         "Language index survives reload confirmation");
+      AUnit.Test_Cases.Registration.Register_Routine
+        (T, Test_Language_Index_Survives_Revert_Confirmation'Access,
+         "Language index survives revert confirmation");
+      AUnit.Test_Cases.Registration.Register_Routine
+        (T, Test_Language_Index_Survives_File_Conflict_Reload'Access,
+         "Language index survives file-conflict reload");
+      AUnit.Test_Cases.Registration.Register_Routine
+        (T, Test_Language_Index_Survives_File_Conflict_Overwrite'Access,
+         "Language index survives file-conflict overwrite");
+      AUnit.Test_Cases.Registration.Register_Routine
+        (T, Test_Language_Index_Survives_Diagnostic_Open_Selected'Access,
+         "Language index survives diagnostic open selected");
+      AUnit.Test_Cases.Registration.Register_Routine
+        (T, Test_Language_Index_Survives_File_Tree_Rename_Active_Non_Ada'Access,
+         "Language index survives File Tree rename of active non-Ada buffer");
       AUnit.Test_Cases.Registration.Register_Routine
         (T, Test_Phase76_Focus_Search_Results_Shows_And_Focuses'Access,
          "Phase 76 focuses Search Results and shows the bottom panel");

@@ -14,13 +14,33 @@ The outline command family is a current daily-use product surface:
 | `outline.select-next` / `outline.filter.next-match` | Select Next Outline Symbol | Panels | Moves Outline selection to the next visible selectable row and requests reveal in the feature panel. |
 | `outline.select-previous` / `outline.filter.previous-match` | Select Previous Outline Symbol | Panels | Moves Outline selection to the previous visible selectable row and requests reveal in the feature panel. |
 
-These commands are executable without default keybindings and can be bound by user keybinding configuration through their stable names.
+The command surface is bindable through stable names. The default outline keybindings cover focused navigation actions only: `outline.refresh` uses `Ctrl+F12`, `outline.open-selected` uses `Alt+Enter`, `outline.select-next` / `outline.select-previous` use `Alt+F3` / `Alt+Shift+F3`, and `outline.select-current-symbol` / `outline.reveal-current-symbol` use `Alt+F12` / `Alt+Shift+F12`. `outline.show`, `outline.clear`, and `outline.focus` remain palette/user-configured commands unless a user keybinding file binds them.
 
 Canonical messages include `Outline refreshed`, `Outline cleared`, `Outline shown`, `Outline focused`, `Outline current symbol revealed`, and `Outline item has no target`. Canonical unavailable reasons include `No active buffer`, `No outline items`, `No outline item selected`, `Feature panel hidden`, `Feature panel already shown`, `Feature panel already focused`, and `Outline belongs to another buffer`.
 
 Availability checks must be side-effect-free: they do not refresh outline state, project rows, show/focus panels, mutate selection, emit messages, inspect source text, parse files, or repair stale feature-panel rows. Command palette, keybinding dispatch, direct executor calls, and feature-panel Enter routing must all dispatch outline command-like actions through `Command_Id` and `Editor.Executor` without adapter messages.
 
-Descriptor text may describe the parser-backed Ada language-model extractor and selected-row navigation, but it must not claim GNAT-equivalent legality checking, automatic background project scans, LSP semantics, or refactoring support.
+Descriptor text may describe the parser-backed Ada language-model extractor, selected-row navigation, and bounded semantic rename support, but it must not claim GNAT-equivalent legality checking, automatic background project scans, LSP semantics, or broad refactoring support.
+
+## Integrated terminal/task commands
+
+The Terminal command family is the structured project task runner surface:
+
+| Stable name | Label | Category | Current behavior |
+| --- | --- | --- | --- |
+| `terminal.show` | Terminal: Show | Panels | Shows the bottom Terminal panel and prepares default project tasks when a project is open. |
+| `terminal.toggle` | Terminal: Toggle | Panels | Shows or hides the Terminal panel and prepares default project tasks when a project is open. |
+| `terminal.hide` | Terminal: Hide | Panels | Hides the Terminal panel without clearing rows or output. |
+| `terminal.focus` | Terminal: Focus | Panels | Shows and focuses the Terminal panel. |
+| `terminal.select-next-task` | Terminal: Select Next Task | Panels | Moves selection to the next terminal task row. |
+| `terminal.select-previous-task` | Terminal: Select Previous Task | Panels | Moves selection to the previous terminal task row. |
+| `terminal.run-selected-task` | Terminal: Run Selected Task | Build | Runs the selected structured task request with shell execution disabled and appends bounded stdout/stderr output. |
+| `terminal.rerun-last-task` | Terminal: Rerun Last Task | Build | Re-executes the last terminal task request retained in the current project-scoped terminal state. |
+| `terminal.clear-output` | Terminal: Clear Output | Panels | Clears bounded Terminal output while preserving task rows. |
+| `terminal.clear` | Terminal: Clear Tasks | Panels | Clears task rows, output, selection, and rerun state. |
+| `terminal.cancel-task` | Terminal: Cancel Task | Build | Currently reports unavailable when no cancellable terminal task is running. |
+
+Project open/switch seeds `alr build`, `alr build --development`, `alr build --release`, `alr build --validation`, and `alr test` task rows for the active project root. Terminal state is transient and project-scoped: project reset/switch clears task rows and output, workspace persistence does not restore terminal output or rerun payloads, and Diagnostics ingestion remains owned by Build Output.
 
 ## Phase 385 current-line indentation commands
 
@@ -40,7 +60,7 @@ Phase 385 deliberately does not add selected-line indentation, block indentation
 The Ada language-analysis command surface is canonical and intentionally uses dot-form product names only:
 
 - `outline.refresh-project-index` refreshes the transient Ada language index from known project Ada source files, using the active buffer snapshot for the current file when applicable.
-- `outline.goto-declaration` opens the validated declaration target for the selected Outline row.
+- `outline.goto-declaration` opens the validated declaration target for the selected Outline row, or the semantic declaration target for the identifier under or immediately before the editor caret when no Outline row is selected.
 - `outline.goto-body` opens an indexed package, ordinary subprogram, or generic subprogram body target for the selected Outline row when an explicit project language-index refresh has retained a matching body.
 - `outline.goto-spec` opens an indexed package, ordinary subprogram, or generic subprogram spec target for the selected body Outline row when an explicit project language-index refresh has retained a matching spec.
 - `semantic.refresh-buffer` rebuilds active-buffer semantic-colouring data from the parser-owned Ada language model.
@@ -49,6 +69,8 @@ The Ada language-analysis command surface is canonical and intentionally uses do
 - `language.index.status` reports indexed file count, symbol count, overflow state, and fingerprint.
 
 These commands do not add aliases, do not save or reload files, and do not perform rendering-side parsing.
+
+Phase 579 caret-language pass: semantic references, hover, completions, rename preview/apply, and go-to-declaration are no longer blocked only because the Outline panel is hidden. They prefer the selected Outline row when one is valid, otherwise they resolve the Ada identifier under or immediately before the active editor caret through the same transient language service and preserve the existing unavailable, overflow, ambiguous, and stale result policy.
 
 Pass 176 completes generic subprogram spec/body navigation for the canonical Outline commands by stripping `generic subprogram` labels and accepting `Symbol_Generic_Subprogram` project-index targets with parser-owned `Is_Body` metadata.
 
@@ -62,7 +84,7 @@ Pass 176 completes generic subprogram spec/body navigation for the canonical Out
 
 ### Phase 579 pass 179 edit invalidation
 
-Language-index commands remain explicit, but ordinary text edits now invalidate the active source path and buffer token inside the transient Ada project index. Navigation commands such as `outline.goto-body` and `outline.goto-spec` therefore require a refreshed index after edits before they can use parser-owned cross-file targets again.
+Ordinary text edits invalidate the active source path and buffer token inside the transient Ada project index. Navigation commands such as `outline.goto-body` and `outline.goto-spec` therefore require fresh parser-owned index data after edits before they can use cross-file targets again; lifecycle-owned refresh paths rebuild that data on project/file transitions, while the explicit language-index commands remain available as manual rebuild/status tools.
 
 ### Phase 579 pass 180 visible-range semantic rebuild
 
@@ -74,7 +96,7 @@ The semantic refresh commands continue to build bounded in-memory maps. Pass 181
 
 ### Phase 579 pass 182 completeness: language index lifecycle safety
 
-The language-index commands remain explicit refresh operations. Pass 182 completes their lifecycle safety by invalidating indexed rows after active-buffer rename/move/delete and File Tree create/rename/delete. `outline.goto-body`, `outline.goto-spec`, and semantic refresh commands therefore cannot reuse project-index entries for files that were moved, deleted, or rebased through editor workflows.
+Pass 182 completes language-index lifecycle safety by invalidating indexed rows after active-buffer rename/move/delete and File Tree create/rename/delete. `outline.goto-body`, `outline.goto-spec`, and semantic refresh commands therefore cannot reuse project-index entries for files that were moved, deleted, or rebased through editor workflows.
 
 Phase 579 pass 183 completeness: language-index lifecycle commands and file lifecycle hooks now share normalized exact-path invalidation. `language.index.status` therefore cannot report stale indexed Ada rows after reload/revert/save-as/rename/move only because the invalidation path used `\` separators or a trailing separator while the project refresh stored `/` separators.
 
@@ -83,12 +105,12 @@ Phase 579 pass 183 completeness: language-index lifecycle commands and file life
 `outline.refresh-project-index` and `semantic.refresh-project-index` now index
 known project Ada source files and then overlay open file-backed Ada buffers from
 editor-owned snapshots.  Inactive open buffers with unsaved text are therefore
-part of explicit project-wide language refresh without saving, reloading, or
+part of project-wide language refresh without saving, reloading, or
 mutating dirty state.
 
 ### Phase 579 pass 185 open-buffer project-index priority
 
-`outline.refresh-project-index` and `semantic.refresh-project-index` now index open Ada buffers before scanning remaining project files from disk. The commands still use explicit bounded refresh only, but open-buffer snapshots have priority over filesystem contents and normalized path containment prevents a later disk row from replacing an already indexed editor-owned buffer row.
+`outline.refresh-project-index` and `semantic.refresh-project-index` now index open Ada buffers before scanning remaining project files from disk. These commands remain bounded manual rebuild tools, while project open/switch, project-file refresh, and file-open/file-lifecycle paths also rebuild the same transient language index through executor-owned lifecycle hooks. Open-buffer snapshots have priority over filesystem contents and normalized path containment prevents a later disk row from replacing an already indexed editor-owned buffer row.
 
 ### Phase 579 pass 186 profile-aware `outline.goto-body` / `outline.goto-spec`
 

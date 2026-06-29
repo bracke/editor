@@ -30,6 +30,10 @@ Use these user-facing messages for normal workflow results and precondition fail
 - Build failed.
 - Build Output shown.
 - No build output captured.
+- Terminal shown.
+- Terminal task selection changed.
+- Terminal task succeeded.
+- Terminal task failed.
 - Diagnostics updated.
 - No diagnostics.
 - External modification detected.
@@ -54,30 +58,51 @@ These command names are the daily-use product surface. Selection-accept commands
 | file.open | Open File | command palette / explicit path input |
 | file.save | Save File | command palette / keybinding |
 | file.save-as | Save File As | command palette / prompt |
-| file.reload | Reload File | command palette |
-| file.revert | Revert File | command palette / confirmation when dirty |
+| file.reload-buffer | Reload File | command palette |
+| file.revert-buffer | Revert File | command palette / confirmation when dirty |
 | file-tree.refresh | Refresh File Tree | command palette / File Tree |
 | file-tree.open-selected | Open Selected File | File Tree action |
 | file-tree.create-file | Create File | command palette / File Tree prompt |
 | file-tree.create-directory | Create Directory | command palette / File Tree prompt |
-| file-tree.rename | Rename File or Directory | command palette / File Tree prompt |
-| file-tree.delete | Delete File or Directory | command palette / confirmation |
+| file-tree.rename-selected | Rename File or Directory | command palette / File Tree prompt |
+| file-tree.delete-selected | Delete File or Directory | command palette / confirmation |
 | quick-open.show | Quick Open | command palette / keybinding |
 | quick-open.open-selected | Open Selected Quick Open Result | Quick Open action |
-| search.project | Search Project | command palette / search bar |
-| search.open-selected | Open Selected Project Search Result | search results action |
+| project.search.show | Project Search | command palette / keybinding |
+| project.search.run | Search Project | command palette / search bar |
+| project.search.open-selected | Open Selected Project Search Result | search results action |
 | outline.show | Show Outline | command palette |
+| refactor.rename-symbol / refactor.rename-symbol-preview / semantic.rename-symbol-preview | Preview Rename Symbol | command palette |
+| refactor.rename-symbol-apply / semantic.rename-symbol-apply | Apply Rename Symbol | command palette |
+| edit.format-buffer / edit.format.document | Format Buffer | command palette |
+| edit.format.selection | Format Selection | command palette |
+| file.format-on-save / edit.format.on-save | Toggle Format On Save | command palette |
 | build.run | Run Build | command palette |
 | build.cancel | Cancel Build | command palette |
-| build.output.show | Show Build Output | command palette |
-| build.output.toggle | Toggle Build Output | command palette |
-| build.output.hide | Hide Build Output | command palette |
-| build.output.focus | Focus Build Output | command palette |
+| build.ui.show | Show Build Output | command palette |
+| build.ui.toggle | Toggle Build Output | command palette |
+| build.ui.hide | Hide Build Output | command palette |
+| build.ui.focus | Focus Build Output | command palette |
+| project.run | Project Run | command palette |
+| project.test | Project Run Tests | command palette |
+| terminal.show | Show Terminal | command palette |
+| terminal.toggle | Toggle Terminal | command palette |
+| terminal.hide | Hide Terminal | command palette |
+| terminal.focus | Focus Terminal | command palette |
+| terminal.run-selected-task | Run Selected Terminal Task | command palette / Terminal panel |
+| terminal.rerun-last-task | Rerun Last Terminal Task | command palette / Terminal panel |
+| terminal.select-next-task | Select Next Terminal Task | command palette / Terminal panel |
+| terminal.select-previous-task | Select Previous Terminal Task | command palette / Terminal panel |
+| terminal.clear-output | Clear Terminal Output | command palette |
+| terminal.clear | Clear Terminal Tasks | command palette |
+| terminal.cancel-task | Cancel Terminal Task | command palette |
 | diagnostics.show | Show Diagnostics | command palette |
-| buffer.switch-next | Next Buffer | command palette / keybinding |
-| buffer.switch-previous | Previous Buffer | command palette / keybinding |
-| buffer.close | Close Buffer | command palette / keybinding |
-| buffer.close-all-clean | Close All Clean Buffers | command palette |
+| buffer.switch-next | Next Buffer | command palette |
+| buffer.switch-previous | Previous Buffer | command palette |
+| buffers.recent.next | Next Recent Buffer | keybinding |
+| buffers.recent.previous | Previous Recent Buffer | keybinding |
+| file.close-buffer | Close Buffer | command palette / keybinding |
+| file.close-clean-buffers | Close All Clean Buffers | command palette |
 | workspace.restore | Restore Workspace | command palette / startup recovery |
 
 ## Prompt policy
@@ -103,31 +128,40 @@ Every product prompt has a title, short help text, accepted input shape, validat
 
 | Workflow | Command ID | Palette label | Default keybinding | Preconditions | Prompt behavior | Success status | Failure status | Focus result | Workspace persistence effect | Dirty-buffer behavior | Diagnostic/build-output effect |
 |---|---|---|---|---|---|---|---|---|---|---|---|
-| Empty editor state | command-palette.show-command-help | Show Command Help | none | none | no prompt | Command Palette available. | No command selected. | originating surface | no change | preserves dirty buffers | no change |
-| Open project | project.open | Open Project | implementation default if bound | valid project path | Open Project prompt or explicit path input | Project opened. | Project open cancelled. | File Tree, or editor when a restored active file is valid | saves/restores active project identity through workspace rules | blocks if dirty project switch review is required | clears stale project-scoped diagnostics/build state unless intentionally refreshed |
-| Open file from File Tree | file-tree.open-selected | Open Selected File | Enter from File Tree | project open and file node selected | no prompt | File opened. | No file selected. | editor buffer | active file may be persisted | focuses existing buffer or opens file-backed buffer; preserves other dirty buffers | no change |
-| Open file from Quick Open | quick-open.show / quick-open.open-selected | Quick Open / Open Selected Quick Open Result | implementation default if bound | project open and result selected | query input belongs to Quick Open | File opened. | No file selected. | editor buffer | active file may be persisted | focuses existing buffer or opens file-backed buffer | no change |
+| Empty editor state | command-palette.show-command-help | Show Command Help | F1 | none | no prompt | Command Palette available. | No command selected. | originating surface | no change | preserves dirty buffers | no change |
+| Open project | project.open | Open Project | Ctrl+Alt+O | valid project path | Open Project prompt or explicit path input | Project opened. | Open project failed/cancelled. | File Tree, or editor when a restored active file is valid | saves/restores active project identity through workspace rules | blocks if dirty project switch review is required | clears stale project-scoped diagnostics/build state, refreshes project files, rebuilds the transient Ada language index, and may publish live semantic diagnostics |
+| Open file from File Tree | file-tree.open-selected / file.open | Open Selected File / Open File | Enter from File Tree / Ctrl+O | project open and file node selected, or explicit file path | prompt only for explicit file open without path | File opened. | No file selected. | editor buffer | active file may be persisted | focuses existing buffer or opens file-backed buffer; preserves other dirty buffers | rebuilds active-buffer semantic state and syncs the transient Ada language index |
+| Open file from Quick Open | quick-open.show / quick-open.open-selected | Quick Open / Open Selected Quick Open Result | Ctrl+P / Enter from Quick Open | project open and result selected | query input belongs to Quick Open | File opened. | No file selected. | editor buffer | active file may be persisted | focuses existing buffer or opens file-backed buffer | rebuilds active-buffer semantic state and syncs the transient Ada language index |
 | Edit buffer | text input path | Edit Buffer | text input | active editable buffer | no prompt | Buffer edited. | No active buffer. | editor buffer | dirty state is not persisted as text | marks active buffer dirty | marks Outline/Search/Diagnostics stale only where current implementation already tracks it |
-| Save buffer | file.save | Save File | implementation default if bound | active file-backed or saveable buffer | Save As prompt only when no backing path exists | File saved. | File could not be saved. | editor buffer | active file remains persisted; dirty text is not persisted separately | clears dirty state on success | no build output change; diagnostics remain explicit |
-| Reload buffer | file.reload | Reload File | none | active file-backed buffer | confirmation when dirty | File reloaded. | File could not be reloaded. | editor buffer | no new transient persistence | cancellation preserves dirty text | dependent panels become stale/cleared according to existing policy |
-| Revert buffer | file.revert | Revert File | none | active file-backed buffer | confirmation when dirty | File reverted. | Revert cancelled. | editor buffer | no new transient persistence | cancellation preserves dirty text | dependent panels become stale/cleared according to existing policy |
-| Create file | file-tree.create-file | Create File | none | project open | Create File prompt | File created. | File could not be created. | File Tree, or new file buffer if current implementation opens it | project file discovery updates after refresh | preserves dirty buffers | Quick Open/Search require refresh; diagnostics for old targets remain explicit/stale |
-| Create directory | file-tree.create-directory | Create Directory | none | project open | Create Directory prompt | Directory created. | Directory could not be created. | File Tree | project file discovery updates after refresh | preserves dirty buffers | Quick Open/Search require refresh |
-| Rename file/directory | file-tree.rename | Rename File or Directory | none | selected File Tree item | Rename File or Directory prompt | File or directory renamed. | File or directory could not be renamed. | renamed open file buffer if open, otherwise File Tree | workspace active path updates only when active buffer target changes | updates backing path for open clean file; dirty targets require explicit lifecycle decision | marks stale targets in Search/Quick Open/Diagnostics visibly |
-| Delete file/directory | file-tree.delete | Delete File or Directory | none | selected File Tree item | Delete File or Directory confirmation | File or directory deleted. | Delete cancelled. | next valid File Tree item, or editor if the active buffer closes | deleted active path is not silently recreated | dirty open target requires explicit decision; cancellation preserves text | marks stale targets visibly; no silent repair |
-| Search project | search.project | Search Project | implementation default if bound | project open and query available | Project Search query prompt/bar | Search complete. | No project open. | Project Search Results | query/results are transient unless already intentionally supported | preserves dirty buffers | no build output change |
-| Navigate search result | search.open-selected | Open Selected Project Search Result | Enter from results | selected fresh result | no prompt | Opened search result. | No search result selected. | editor buffer at match | active file may be persisted | focuses existing/opened file; preserves dirty buffers | stale/missing result reports a clear status |
-| View outline | outline.show | Show Outline | implementation default if bound | active buffer with supported outline behavior | no prompt | Outline shown. | Outline unavailable. | Outline | outline rows remain transient | preserves dirty buffers | no build output change |
+| Save buffer | file.save | Save File | Ctrl+S | active file-backed or saveable buffer | Save As prompt only when no backing path exists | File saved. | File could not be saved. | editor buffer | active file remains persisted; dirty text is not persisted separately | clears dirty state on success | no build output change; rebuilds affected Ada language-index rows and live semantic diagnostics when the saved buffer is Ada source |
+| Reload buffer | file.reload-buffer | Reload File | none | active file-backed buffer | confirmation when dirty | File reloaded. | File could not be reloaded. | editor buffer | no new transient persistence | cancellation preserves dirty text | dependent panels become stale/cleared according to existing policy |
+| Revert buffer | file.revert-buffer | Revert File | none | active file-backed buffer | confirmation when dirty | File reverted. | Revert cancelled. | editor buffer | no new transient persistence | cancellation preserves dirty text | dependent panels become stale/cleared according to existing policy |
+| Create file | file-tree.create-file | Create File | none | project open | Create File prompt | File created. | File could not be created. | File Tree, or new file buffer if current implementation opens it | project file discovery refreshes through the File Tree/project lifecycle path | preserves dirty buffers | refreshes file discovery surfaces, stales old search/diagnostic targets where applicable, and refreshes language-index lifecycle state |
+| Create directory | file-tree.create-directory | Create Directory | none | project open | Create Directory prompt | Directory created. | Directory could not be created. | File Tree | project file discovery refreshes through the File Tree/project lifecycle path | preserves dirty buffers | refreshes file discovery surfaces and language-index lifecycle state |
+| Rename file/directory | file-tree.rename-selected | Rename File or Directory | none | selected File Tree item | Rename File or Directory prompt | File or directory renamed. | File or directory could not be renamed. | renamed open file buffer if open, otherwise File Tree | workspace active path updates only when active buffer target changes | updates backing path for open clean file; dirty targets require explicit lifecycle decision | marks stale targets in Search/Quick Open/Diagnostics visibly |
+| Delete file/directory | file-tree.delete-selected | Delete File or Directory | none | selected File Tree item | Delete File or Directory confirmation | File or directory deleted. | Delete cancelled. | next valid File Tree item, or editor if the active buffer closes | deleted active path is not silently recreated | dirty open target requires explicit decision; cancellation preserves text | marks stale targets visibly; no silent repair |
+| Search project | project.search.show / project.search.run | Project Search / Search Project | Ctrl+Shift+F opens Project Search; run from search bar | project open and query available | Project Search query prompt/bar | Search complete. | No project open. | Project Search Results | query/results are transient unless already intentionally supported | preserves dirty buffers | no build output change |
+| Navigate search result | project.search.open-selected | Open Selected Project Search Result | Enter from results | selected fresh result | no prompt | Opened search result. | No search result selected. | editor buffer at match | active file may be persisted | focuses existing/opened file; preserves dirty buffers | stale/missing result reports a clear status |
+| View outline | outline.show / outline.refresh | Show Outline / Refresh Outline | none for Show Outline; Ctrl+F12 refreshes Outline | active buffer with supported outline behavior | no prompt | Outline shown or refreshed. | Outline unavailable. | Outline | outline rows remain transient | preserves dirty buffers | no build output change |
+| Preview rename symbol | refactor.rename-symbol / refactor.rename-symbol-preview / semantic.rename-symbol-preview | Preview Rename Symbol | none by default | selected Outline symbol with indexed semantic evidence | uses prompted replacement when supplied; otherwise deterministic default | Rename preview for symbol. | Rename preview unavailable. | Search Results | preview rows are transient | does not edit buffers | no build output change |
+| Apply rename symbol | refactor.rename-symbol-apply / semantic.rename-symbol-apply | Apply Rename Symbol | none by default | selected Outline symbol with conflict-free open-buffer rename preview | uses prompted replacement when supplied; otherwise deterministic default | Rename applied for symbol. | Rename apply unavailable. | editor/search results | no new persistence; edits dirty affected open buffers | applies conflict-free active/open-buffer text edits only | no build output change |
+| Format buffer | edit.format-buffer / edit.format.document | Format Buffer | none by default | active buffer and formatter changes available | no prompt | Trimmed trailing whitespace. | No trailing whitespace. | editor buffer | active buffer text becomes dirty when changed | explicit manual edit; save also formats first when format-on-save is enabled | no diagnostics/build output change |
+| Format selection | edit.format.selection | Format Selection | none by default | active selection and formatter changes available | no prompt | Trimmed trailing whitespace. | No selected text. / No trailing whitespace. | editor buffer | active buffer text becomes dirty when changed | explicit manual edit only | no diagnostics/build output change |
+| Toggle format on save | file.format-on-save / edit.format.on-save | Toggle Format On Save | none by default | always available | no prompt | Format on save enabled. / Format on save disabled. | none expected | editor settings | persisted as `format-on-save` in settings | save/save-as/save-all format dirty file text before writing when enabled | no diagnostics/build output change |
 | Run build | build.run | Run Build | none by default | project open and configured build request ready | build configuration/confirmation prompt when needed | Build started. | Build command is not configured. | Build Output | build result/output are transient unless already intentionally supported | preserves dirty buffers | updates build output and diagnostics consistently when results exist |
 | Cancel active build | build.cancel | Cancel Build | none by default | active public build job | no prompt | Build cancellation requested. | No active build job. | Build Output | cancellation state is transient active-job state only | preserves dirty buffers | latest build result/output mark cancellation as partial until the runner/job acknowledges completion |
-| Inspect build output | build.output.show | Show Build Output | none | build output panel available | no prompt | Build Output shown. | No build output captured. | Build Output | no new persistence | preserves dirty buffers | empty state explains there is no build output |
-| Inspect diagnostics | diagnostics.show | Show Diagnostics | implementation default if bound | none | no prompt | Diagnostics shown. | No diagnostics. | Diagnostics panel | diagnostics are transient unless already intentionally supported | preserves dirty buffers | empty state is useful; populated state opens targets through normal navigation |
-| Switch buffers | buffer.switch-next / buffer.switch-previous | Next Buffer / Previous Buffer | implementation default if bound | another buffer exists | no prompt | Buffer switched. | No other buffer. | editor buffer | active buffer may be persisted | preserves dirty buffers | no change |
-| Close active buffer | buffer.close | Close Buffer | implementation default if bound | active buffer exists | dirty close review when needed | Buffer closed. | Cannot close buffer while dirty changes need review. | next buffer or empty editor state | closed active file removed from active workspace selection | cancellation preserves dirty text | clears buffer-owned transient target state where applicable |
+| Inspect build output | build.ui.show | Show Build Output | none | build output panel available | no prompt | Build Output shown. | No build output captured. | Build Output | no new persistence | preserves dirty buffers | empty state explains there is no build output |
+| Run terminal task | terminal.show / terminal.run-selected-task | Show Terminal / Run Selected Terminal Task | none by default | project open and selected terminal task; project open seeds default Alire build, run, development/release/validation build, and test tasks | no prompt; executes structured argv without shell expansion | Terminal task succeeded. | No terminal task selected. | Terminal | terminal rows/output are project-scoped transient state | preserves dirty buffers | bounded terminal output updates; Diagnostics are not implicitly changed |
+| Run project | project.run | Project: Run | none by default | project open; project task seeding provides an Alire run task | no prompt; executes structured argv without shell expansion | Terminal task succeeded. | No project is open. | Terminal | terminal output is project-scoped transient state | preserves dirty buffers | bounded terminal output updates; Diagnostics are not implicitly changed |
+| Run project tests | project.test | Project: Run Tests | none by default | project open; project task seeding provides an Alire test task | no prompt; executes structured argv without shell expansion | Terminal task succeeded. | No project is open. | Terminal | terminal output is project-scoped transient state | preserves dirty buffers | bounded terminal output updates; Diagnostics are not implicitly changed |
+| Rerun terminal task | terminal.rerun-last-task | Rerun Last Terminal Task | none by default | a terminal task has run in the current project state | no prompt | Terminal task succeeded. | No terminal task has run. | Terminal | rerun payload is transient only | preserves dirty buffers | bounded terminal output appends the rerun result |
+| Inspect diagnostics | diagnostics.show | Show Diagnostics | Ctrl+Alt+M | none | no prompt | Diagnostics shown. | No diagnostics. | Diagnostics panel | diagnostics are transient unless already intentionally supported | preserves dirty buffers | empty state is useful; populated state opens targets through normal navigation |
+| Switch buffers | buffers.recent.next / buffers.recent.previous; buffer.switch-next / buffer.switch-previous from palette | Next Recent Buffer / Previous Recent Buffer; Next Buffer / Previous Buffer | Ctrl+Shift+Tab / Ctrl+Tab use recent traversal | another buffer exists | no prompt | Buffer switched. | No other buffer. | editor buffer | active buffer may be persisted | preserves dirty buffers | no change |
+| Close active buffer | file.close-buffer | Close Buffer | Ctrl+W | active buffer exists | dirty close review when needed | Buffer closed. | Cannot close buffer while dirty changes need review. | next buffer or empty editor state | closed active file removed from active workspace selection | cancellation preserves dirty text | clears buffer-owned transient target state where applicable |
 | Close project | project.close | Close Project | none | project open | dirty close review when needed | Project closed. | Cannot close project while dirty buffers need review. | Empty editor state | current project removed from active workspace state | cancellation preserves dirty buffers | project-scoped Search/Quick Open/Outline/Diagnostics/Build state cleared |
 | Switch project | project.switch | Switch Project | none | target project path | dirty project switch review when needed | Project opened. | Project switch cancelled. | File Tree, or restored editor buffer when valid | new project identity persisted by workspace rules | cancellation preserves dirty buffers and previous project | clears previous project-scoped transient state |
 | Restore workspace | workspace.restore | Restore Workspace | none | workspace file exists and references valid state | no prompt except existing recovery UI | Workspace restored. | Workspace could not be restored. | restored active editor buffer when valid, otherwise File Tree/empty state | restores valid project/buffers/focus only | does not persist or recreate dirty state | does not restore stale build/diagnostic transient state unless explicitly supported |
-| Quit | host quit lifecycle | Quit | implementation default if bound | none | dirty quit review when needed | Ready to quit. | Dirty buffers need review before quitting. | previous focus restored if cancelled | no invalid state recreated | cancellation preserves dirty buffers | no change |
+| Quit | host quit lifecycle | Quit | host/OS shortcut | none | dirty quit review when needed | Ready to quit. | Dirty buffers need review before quitting. | previous focus restored if cancelled | no invalid state recreated | cancellation preserves dirty buffers | no change |
 
 ## Cross-surface rules
 
@@ -137,13 +171,15 @@ Quick Open, Project Search, Outline, and Diagnostics all navigate by opening/foc
 
 Build has one execution entry point, `build.run`, and one process-control entry point, `build.cancel`, which is available only while the transient active build-job model reports an active job. Build output and Diagnostics must describe the same result state: empty build output means there is no captured build output, and empty Diagnostics means there are no diagnostic rows. A populated build result may update both surfaces, but neither surface should contradict the other.
 
+Terminal tasks are a separate structured task-runner surface. Opening or switching to a project seeds `alr build`, `alr build --development`, `alr build --release`, `alr build --validation`, and `alr test` rows for that project root, and Terminal show/focus/run commands prepare those rows if they are missing. Terminal output is bounded, project-scoped, and transient; it is not restored by workspace reload and does not replace Build Output diagnostics ingestion.
+
 Workspace restore must continue the previous session only when the referenced project, files, and focus target are valid. Dirty text, prompts, stale conflicts, build output, diagnostics, search results, Quick Open results, and outline rows remain transient unless a feature explicitly owns persistence for them.
 
 
 
 ## Integrated workflow coverage
 
-The current dogfood suite covers the supported daily loop end to end: command discovery, project open, File Tree navigation, editing, save/save-as/reload/revert, Quick Open, Project Search, Outline, build execution, Build Output, Diagnostics, buffer switching, clean and dirty buffer close, project close/switch, workspace restore, and host quit readiness. These scenarios are behavior coverage for existing commands; they must not add duplicate command families or surface-only command vocabulary.
+The current dogfood suite covers the supported daily loop end to end: command discovery, project open, File Tree navigation, editing, save/save-as/reload/revert, Quick Open, Project Search, Outline, build execution, Build Output, Terminal tasks, Diagnostics, buffer switching, clean and dirty buffer close, project close/switch, workspace restore, and host quit readiness. These scenarios are behavior coverage for existing commands; they must not add duplicate command families or surface-only command vocabulary.
 
 Dirty-buffer lifecycle decisions are shared across active-buffer close, project close, project switch, and quit readiness. Cancelling a destructive decision must preserve text, dirty state, active buffer identity, project identity, and focus. Discard/save paths may proceed only after the relevant guard accepts the decision.
 

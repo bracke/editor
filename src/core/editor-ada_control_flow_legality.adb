@@ -210,6 +210,51 @@ package body Editor.Ada_Control_Flow_Legality is
       return False;
    end Return_Is_Error;
 
+   function Is_Compatible_Return
+     (Status : Editor.Ada_Return_Legality.Return_Legality_Status)
+      return Boolean is
+   begin
+      return Status in
+        Editor.Ada_Return_Legality.Return_Legality_Procedure_Return_Compatible |
+        Editor.Ada_Return_Legality.Return_Legality_Function_Return_Compatible |
+        Editor.Ada_Return_Legality.Return_Legality_Extended_Return_Compatible;
+   end Is_Compatible_Return;
+
+   function Build_Contexts_From_Returns
+     (Returns : Editor.Ada_Return_Legality.Return_Legality_Model)
+      return Flow_Context_Model
+   is
+      Model : Flow_Context_Model;
+   begin
+      for Index in 1 .. Editor.Ada_Return_Legality.Legality_Count (Returns) loop
+         declare
+            Return_Row : constant Editor.Ada_Return_Legality.Return_Legality_Info :=
+              Editor.Ada_Return_Legality.Legality_At (Returns, Index);
+            Context : Flow_Context_Info;
+         begin
+            if Return_Row.Id /= Editor.Ada_Return_Legality.No_Return_Legality
+              and then Return_Row.Return_Node /= Editor.Ada_Syntax_Tree.No_Node
+            then
+               Context.Kind := Flow_Context_Subprogram_Body;
+               Context.Node := Return_Row.Return_Node;
+               Context.Target_Node := Return_Row.Expression_Node;
+               Context.Return_Legality := Return_Row.Id;
+               Context.Subprogram_Requires_Return := Return_Row.Is_Function_Context;
+               Context.Subprogram_Has_Complete_Return_Path :=
+                 Is_Compatible_Return (Return_Row.Status);
+               Context.Start_Line := Return_Row.Start_Line;
+               Context.Start_Column := Return_Row.Start_Column;
+               Context.End_Line := Return_Row.End_Line;
+               Context.End_Column := Return_Row.End_Column;
+               Context.Fingerprint := Return_Row.Fingerprint;
+               Add_Context (Model, Context);
+            end if;
+         end;
+      end loop;
+
+      return Model;
+   end Build_Contexts_From_Returns;
+
    function Classify
      (Context : Flow_Context_Info;
       Returns : Editor.Ada_Return_Legality.Return_Legality_Model)
