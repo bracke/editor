@@ -3469,17 +3469,6 @@ package body Editor.Ada_Declaration_Parser is
       end Add_Same_Line_Callable_Groups;
 
 
-      function Starts_With_Package_Segment
-        (Segment         : String;
-         In_Generic_List : Boolean) return Boolean
-      is
-         S : constant String := Lower (Trim (Strip_Prefixes (Segment)));
-      begin
-         return Starts_With (S, "package body ")
-           or else Starts_With_Word (S, "package")
-           or else (In_Generic_List and then Starts_With (S, "with package "));
-      end Starts_With_Package_Segment;
-
       function Has_Same_Line_Package_Group return Boolean is
       begin
          return Same_Line_Declarations.Has_Same_Line_Package_Group
@@ -3487,127 +3476,12 @@ package body Editor.Ada_Declaration_Parser is
       end Has_Same_Line_Package_Group;
 
       procedure Add_Same_Line_Package_Groups is
-         Code          : constant String := Editor.Ada_Syntax_Core.Sanitize_Line (Raw_Line);
-         Segment_Start : Natural := Raw_Line'First;
-         Nesting       : Natural := 0;
          Parent        : constant Symbol_Id :=
            Scope_Stack (Natural'Min (Depth, Max_Scope_Nesting));
-
-         procedure Add_Segment
-           (First : Natural;
-            Last  : Natural)
-         is
-         begin
-            if First > Last then
-               return;
-            end if;
-
-            declare
-               Segment       : constant String := Trim (Raw_Line (First .. Last));
-               Work          : constant String := Strip_Prefixes (Segment);
-               Segment_Lower : constant String := Lower (Work);
-               Segment_Name  : String (1 .. 256) := (others => ' ');
-               Name_Len      : Natural := 0;
-               Segment_Target : String (1 .. 256) := (others => ' ');
-               Target_Len    : Natural := 0;
-               Segment_Kind  : Symbol_Kind := Symbol_Unknown;
-               Segment_Flags : Declaration_Flags :=
-                 (Is_Private => Flags.Is_Private
-                                or else Starts_With (Lower (Segment), "private package "),
-                  others     => False);
-
-               procedure Set_Local_Name (Value : String) is
-                  Len : constant Natural := Natural'Min (Value'Length, Segment_Name'Length);
-               begin
-                  Name_Len := Len;
-                  if Len > 0 then
-                     Segment_Name (1 .. Len) := Value (Value'First .. Value'First + Len - 1);
-                  end if;
-               end Set_Local_Name;
-
-               procedure Set_Local_Target (Value : String) is
-                  Len : constant Natural := Natural'Min (Value'Length, Segment_Target'Length);
-               begin
-                  Target_Len := Len;
-                  if Len > 0 then
-                     Segment_Target (1 .. Len) := Value (Value'First .. Value'First + Len - 1);
-                  end if;
-               end Set_Local_Target;
-            begin
-               if Pending_Generic and then Starts_With (Segment_Lower, "with package ") then
-                  Segment_Kind := Symbol_Generic_Formal_Package;
-                  Segment_Flags.Is_Generic := True;
-                  Segment_Flags.Is_Instantiation := Has_Token (Segment_Lower, "new");
-                  Set_Local_Name (Read_Name (Work, Work'First + 13, True));
-                  if Segment_Flags.Is_Instantiation then
-                     Set_Local_Target (Target_After (Work, "new"));
-                  end if;
-               elsif Starts_With (Segment_Lower, "package body ") then
-                  Segment_Kind := Symbol_Package_Body;
-                  Set_Local_Name (Read_Name (Work, Work'First + 13, True));
-               elsif Starts_With_Word (Segment_Lower, "package") then
-                  Segment_Flags.Is_Rename := Has_Token (Segment_Lower, "renames");
-                  Segment_Flags.Is_Instantiation := Has_Token (Segment_Lower, "new");
-                  Segment_Kind :=
-                    (if Segment_Flags.Is_Instantiation then Symbol_Instantiation
-                     else Symbol_Package);
-                  Set_Local_Name (Read_Name (Work, Work'First + 7, True));
-                  if Segment_Flags.Is_Rename then
-                     Set_Local_Target (Target_After (Work, "renames"));
-                  elsif Segment_Flags.Is_Instantiation then
-                     Set_Local_Target (Target_After (Work, "new"));
-                  end if;
-               else
-                  return;
-               end if;
-
-               if Name_Len = 0 then
-                  return;
-               end if;
-
-               declare
-                  Name_Text : constant String := Segment_Name (1 .. Name_Len);
-                  Name_Pos  : constant Natural :=
-                    Ada.Strings.Fixed.Index (Raw_Line (First .. Last), Name_Text);
-                  Col       : constant Positive :=
-                    (if Name_Pos = 0 then First_Non_Blank_Column (Raw_Line)
-                     else Positive (Name_Pos - Raw_Line'First + 1));
-                  Ignored   : constant Symbol_Id := Add_Symbol
-                    (Analysis, Name_Text, Segment_Kind,
-                     (Line_Number, Col, Line_Number,
-                      Positive'Max (Col, Col + Name_Text'Length - 1)),
-                     Col, Enclosing_Scope => Scope_Id (Natural (Parent)),
-                     Parent_Symbol => Parent, Depth => Depth,
-                     Flags => Segment_Flags,
-                     Target_Name =>
-                       (if Target_Len = 0 then ""
-                        else Segment_Target (1 .. Target_Len)));
-               begin
-                  null;
-               end;
-            end;
-         end Add_Segment;
       begin
-         --  Multiple package declarations, package renames/instantiations,
-         --  or generic formal package declarations may be compacted onto
-         --  one physical source line.  Split only at top-level semicolons
-         --  so generic actual parameter associations remain metadata.
-         for I in Code'Range loop
-            if Code (I) = '(' then
-               Nesting := Nesting + 1;
-            elsif Code (I) = ')' then
-               if Nesting > 0 then
-                  Nesting := Nesting - 1;
-               end if;
-            elsif Code (I) = ';' and then Nesting = 0 then
-               Add_Segment (Segment_Start, I - 1);
-               Segment_Start := I + 1;
-            end if;
-         end loop;
-
-         if Segment_Start <= Raw_Line'Last then
-            Add_Segment (Segment_Start, Raw_Line'Last);
-         end if;
+         Same_Line_Emitters.Add_Same_Line_Package_Groups
+           (Analysis, Raw_Line, Line_Number, Depth, Parent,
+            Flags.Is_Private, Pending_Generic);
       end Add_Same_Line_Package_Groups;
 
       function Starts_With_Concurrent_Segment (Segment : String) return Boolean is
