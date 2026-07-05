@@ -1,4 +1,5 @@
 with Editor.Instance;
+with Editor.Input_Bridge.Command_Routing;
 with Editor.Input_Bridge.Gutter_Pointer_Handlers;
 with Editor.Input_Bridge.Build_UI_Pointer_Handlers;
 with Editor.Input_Bridge.Keybinding_Handlers;
@@ -9,6 +10,7 @@ with Editor.Input_Bridge.Pointer_Routing;
 with Editor.Input_Bridge.Pointer_Scroll_Handlers;
 with Editor.Input_Bridge.Pointer_State;
 with Editor.Input_Bridge.Render_Access;
+with Editor.Input_Bridge.Settings_Handlers;
 with Editor.Input_Bridge.Text_Entry_Routing;
 with Editor.Input_Bridge.Wheel_Handlers;
 with Editor.Commands;
@@ -966,19 +968,15 @@ use type Editor.Guided_Prompts.Prompt_Kind;
          return;
       end if;
 
-      if Pending_Confirmation_Active
-        and then Editor.Focus_Management.Command_Is_Conflicting_While_Pending (Id)
+      if Editor.Input_Bridge.Command_Routing.Handle_Pending_Confirmation_Gate
+        (The_Editor.State, Id, Report_Info'Access)
       then
-         Report_Info ("Command unavailable while confirmation is pending");
-         Editor.Render_Cache.Invalidate_All;
          return;
       end if;
 
-      if not Editor.Focus_Management.Command_May_Run_In_Current_Focus
-        (The_Editor.State, Id)
+      if Editor.Input_Bridge.Command_Routing.Handle_Current_Focus_Gate
+        (The_Editor.State, Id, Report_Info'Access)
       then
-         Report_Info ("Command unavailable for current focus");
-         Editor.Render_Cache.Invalidate_All;
          return;
       end if;
 
@@ -3375,81 +3373,10 @@ use type Editor.Guided_Prompts.Prompt_Kind;
          return;
       end if;
 
-      if Editor.Settings_Management.Current_Settings_Surface_Focused
-        and then Editor.Settings_Management.Current_Settings_Surface_Visible
-        and then not Chord.Modifiers.Ctrl
-        and then not Chord.Modifiers.Shift
-        and then not Chord.Modifiers.Alt
-        and then not Chord.Modifiers.Meta
+      if Editor.Input_Bridge.Settings_Handlers.Handle_Settings_Chord
+        (The_Editor.State, Chord, Report_Info'Access)
       then
-         declare
-            UI     : Editor.Settings_Management.Settings_Editor_State :=
-              Editor.Settings_Management.Current_Settings_Editor_State;
-            Status : Editor.Settings_Management.Setting_Update_Status;
-         begin
-            case Chord.Key is
-               when Editor.Keybindings.Key_Down =>
-                  Editor.Settings_Management.Select_Next_Setting (UI);
-                  Editor.Settings_Management.Set_Current_Settings_Editor_State (UI);
-                  Report_Info ("Settings selection changed.");
-                  Editor.Render_Cache.Invalidate_All;
-                  Editor.Cursor.Notify_Input
-                    (Float (Editor.View.Current_Time_Seconds));
-                  return;
-               when Editor.Keybindings.Key_Up =>
-                  Editor.Settings_Management.Select_Previous_Setting (UI);
-                  Editor.Settings_Management.Set_Current_Settings_Editor_State (UI);
-                  Report_Info ("Settings selection changed.");
-                  Editor.Render_Cache.Invalidate_All;
-                  Editor.Cursor.Notify_Input
-                    (Float (Editor.View.Current_Time_Seconds));
-                  return;
-               when Editor.Keybindings.Key_Enter =>
-                  if Editor.Settings_Management.Has_Pending_Reset_All (UI) then
-                     Editor.Settings_Management.Confirm_Reset_All_Settings
-                       (The_Editor.State.Settings, UI, Status);
-                  else
-                     Editor.Settings_Management.Execute_Settings_Surface_Command
-                       (Editor.Settings_Management.Settings_Action_Toggle_Selected,
-                        The_Editor.State.Settings, UI, Status);
-                  end if;
-                  Editor.Settings_Management.Set_Current_Settings_Editor_State (UI);
-                  Report_Info
-                    (Editor.Settings_Management.Update_Status_Label (Status));
-                  Editor.Render_Cache.Invalidate_All;
-                  Editor.Cursor.Notify_Input
-                    (Float (Editor.View.Current_Time_Seconds));
-                  return;
-               when Editor.Keybindings.Key_Delete =>
-                  Editor.Settings_Management.Execute_Settings_Surface_Command
-                    (Editor.Settings_Management.Settings_Action_Reset_Selected,
-                     The_Editor.State.Settings, UI, Status);
-                  Editor.Settings_Management.Set_Current_Settings_Editor_State (UI);
-                  Report_Info
-                    (Editor.Settings_Management.Update_Status_Label (Status));
-                  Editor.Render_Cache.Invalidate_All;
-                  Editor.Cursor.Notify_Input
-                    (Float (Editor.View.Current_Time_Seconds));
-                  return;
-               when Editor.Keybindings.Key_Escape =>
-                  if Editor.Settings_Management.Has_Pending_Reset_All (UI) then
-                     Editor.Settings_Management.Cancel_Reset_All_Settings
-                       (UI, Status);
-                     Report_Info
-                       (Editor.Settings_Management.Update_Status_Label (Status));
-                  else
-                     Editor.Settings_Management.Hide_Settings (UI);
-                     Report_Info ("Settings hidden.");
-                  end if;
-                  Editor.Settings_Management.Set_Current_Settings_Editor_State (UI);
-                  Editor.Render_Cache.Invalidate_All;
-                  Editor.Cursor.Notify_Input
-                    (Float (Editor.View.Current_Time_Seconds));
-                  return;
-               when others =>
-                  null;
-            end case;
-         end;
+         return;
       end if;
 
       if The_Editor.State.Active_Find_Prompt

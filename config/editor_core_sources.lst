@@ -1153,6 +1153,8 @@ editor-input_bridge-render_access.adb
 editor-input_bridge-render_access.ads
 editor-input_bridge-build_ui_pointer_handlers.adb
 editor-input_bridge-build_ui_pointer_handlers.ads
+editor-input_bridge-command_routing.adb
+editor-input_bridge-command_routing.ads
 editor-input_bridge-gutter_pointer_handlers.adb
 editor-input_bridge-gutter_pointer_handlers.ads
 editor-input_bridge-keybinding_handlers.adb
@@ -1169,6 +1171,8 @@ editor-input_bridge-pointer_scroll_handlers.adb
 editor-input_bridge-pointer_scroll_handlers.ads
 editor-input_bridge-pointer_state.adb
 editor-input_bridge-pointer_state.ads
+editor-input_bridge-settings_handlers.adb
+editor-input_bridge-settings_handlers.ads
 editor-input_bridge-text_entry_routing.adb
 editor-input_bridge-text_entry_routing.ads
 editor-input_bridge-wheel_handlers.adb
