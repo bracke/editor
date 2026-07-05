@@ -1,5 +1,8 @@
 with Editor.Instance;
 with Editor.Input_Bridge.Gutter_Pointer_Handlers;
+with Editor.Input_Bridge.Panel_Bars_Pointer_Handlers;
+with Editor.Input_Bridge.Panel_Feature_Problems_Pointer_Handlers;
+with Editor.Input_Bridge.Panel_Tree_Search_Pointer_Handlers;
 with Editor.Input_Bridge.Pointer_Routing;
 with Editor.Input_Bridge.Pointer_Scroll_Handlers;
 with Editor.Input_Bridge.Pointer_State;
@@ -3068,61 +3071,26 @@ use type Editor.Guided_Prompts.Prompt_Kind;
 
 
 
+   procedure Execute_Pending_Bar_Command
+     (Id : Editor.Commands.Command_Id)
+   is
+   begin
+      Execute_Command_Id (Id);
+   end Execute_Pending_Bar_Command;
+
+   procedure Execute_Problems_Header_Command
+     (Id : Editor.Commands.Command_Id)
+   is
+   begin
+      Editor.Executor.Execute_Command (The_Editor.State, Id);
+   end Execute_Problems_Header_Command;
+
    function Handle_Pending_Transition_Bar_Pointer
      (Cmd : Editor.Commands.Command) return Boolean
    is
-      Layout_Config : constant Editor.Layout.Layout_Config := Editor.Layout.Current;
-      Config : constant Editor.Pending_Transition_Bar.Pending_Bar_Config := (others => <>);
-      Snapshot : constant Editor.Pending_Transition_Bar.Pending_Bar_Snapshot :=
-        Editor.Pending_Transition_Bar.Build_Snapshot
-          (The_Editor.State.Pending_Transitions, Config);
-      Status_Y : constant Integer :=
-        Editor.Layout.Status_Bar_Y (Layout_Config, Editor.View.Viewport_Height);
-      Bar_Y : constant Integer :=
-        Integer'Max (Layout_Config.Origin_Y, Status_Y - Integer (Editor.Layout.Cell_H));
-      Bar_Layout : Editor.Pending_Transition_Bar.Pending_Bar_Layout;
-      Hit : Editor.Pending_Transition_Bar.Pending_Bar_Hit_Result;
    begin
-      if Cmd.Kind /= Editor.Commands.Move_To_Point
-        and then Cmd.Kind /= Editor.Commands.Pointer_Hover
-      then
-         return False;
-      end if;
-
-      if not Editor.Pending_Transition_Bar.Is_Visible (Snapshot) then
-         return False;
-      end if;
-
-      Bar_Layout := Editor.Pending_Transition_Bar.Layout
-        (Snapshot => Snapshot,
-         Bounds_X => Layout_Config.Origin_X,
-         Bounds_Y => Bar_Y,
-         Bounds_W => Integer (Editor.View.Viewport_Width),
-         Cell_W   => Editor.Layout.Cell_W,
-         Cell_H   => Editor.Layout.Cell_H);
-
-      Hit := Editor.Pending_Transition_Bar.Hit_Test
-        (Snapshot, Bar_Layout, Integer (Cmd.Click_X), Integer (Cmd.Click_Y));
-
-      case Hit.Zone is
-         when Editor.Pending_Transition_Bar.Outside_Pending_Bar =>
-            return False;
-
-         when Editor.Pending_Transition_Bar.Pending_Bar_Background =>
-            Pointer_State.Reset_All;
-            Editor.State.Clear_Gutter_Marker_Hover (The_Editor.State);
-            return True;
-
-         when Editor.Pending_Transition_Bar.Pending_Bar_Action_Zone =>
-            Pointer_State.Reset_All;
-            Editor.State.Clear_Gutter_Marker_Hover (The_Editor.State);
-            if Cmd.Kind = Editor.Commands.Move_To_Point then
-               Execute_Command_Id
-                 (Editor.Pending_Transition_Bar.Command_For_Action (Hit.Action));
-               Editor.Render_Cache.Invalidate_All;
-            end if;
-            return True;
-      end case;
+      return Panel_Bars_Pointer_Handlers.Handle_Pending_Transition_Bar_Pointer
+        (The_Editor.State, Cmd, Execute_Pending_Bar_Command'Access);
    end Handle_Pending_Transition_Bar_Pointer;
 
 
@@ -3287,112 +3255,17 @@ use type Editor.Guided_Prompts.Prompt_Kind;
    function Handle_Tab_Bar_Pointer
      (Cmd : Editor.Commands.Command) return Boolean
    is
-      Layout : constant Editor.Layout.Layout_Config := Editor.Layout.Current;
-      Hit : Editor.Tab_Bar.Tab_Hit_Result;
-      Registry : Editor.Buffers.Buffer_Registry;
    begin
-      if not Is_Minimap_Pointer_Command (Cmd.Kind)
-        and then Cmd.Kind /= Editor.Commands.Pointer_Hover
-      then
-         return False;
-      end if;
-
-      if not Editor.Tab_Bar.Enabled (Layout.Tab_Bar)
-        or else Integer (Cmd.Click_Y) < Integer (Editor.Layout.Tab_Bar_Y (Layout))
-        or else Integer (Cmd.Click_Y) >=
-          Integer (Editor.Layout.Tab_Bar_Y (Layout)
-                   + Editor.Layout.Tab_Bar_Height (Layout))
-      then
-         return False;
-      end if;
-
-      Editor.Buffers.Ensure_Global_Registry (The_Editor.State);
-      Registry := Editor.Buffers.Global_Registry_For_UI;
-
-      declare
-         Count : constant Natural := Editor.Buffers.Buffer_Count (Registry);
-         Summaries : Editor.Tab_Bar.Tab_Buffer_Summary_Array (1 .. Count);
-      begin
-         for I in Summaries'Range loop
-            Summaries (I) := Editor.Buffers.Summary_At (Registry, I);
-         end loop;
-
-         Hit := Editor.Tab_Bar.Hit_Test
-        (Config         => Layout.Tab_Bar,
-         Buffers        => Summaries,
-         Viewport_Width => Editor.View.Viewport_Width,
-         Cell_W         => Editor.Layout.Cell_W,
-         Cell_H         => Editor.Layout.Cell_H,
-         X              => Integer (Cmd.Click_X),
-         Y              => Integer (Cmd.Click_Y),
-         Origin_X       => Layout.Origin_X,
-         Origin_Y       => Layout.Origin_Y);
-      end;
-
-      case Hit.Zone is
-         when Editor.Tab_Bar.Outside_Tab_Bar =>
-            return False;
-
-         when Editor.Tab_Bar.Tab_Bar_Background_Zone
-            | Editor.Tab_Bar.Tab_Overflow_Zone =>
-            Pointer_State.Reset_All;
-            Editor.State.Clear_Gutter_Marker_Hover (The_Editor.State);
-            return True;
-
-         when Editor.Tab_Bar.Tab_Body_Zone =>
-            Pointer_State.Reset_All;
-            Editor.State.Clear_Gutter_Marker_Hover (The_Editor.State);
-            if Cmd.Kind = Editor.Commands.Move_To_Point
-              and then Hit.Buffer_Id /= Editor.Buffers.No_Buffer
-            then
-               Editor.Executor.File_Open_Commands.Execute_Switch_Buffer
-                 (The_Editor.State, Hit.Buffer_Id);
-               Editor.Focus_Management.Restore_Focus_To_Editor
-                 (The_Editor.State);
-            end if;
-            return True;
-
-         when Editor.Tab_Bar.Tab_Close_Zone =>
-            Pointer_State.Reset_All;
-            Editor.State.Clear_Gutter_Marker_Hover (The_Editor.State);
-            if Cmd.Kind = Editor.Commands.Move_To_Point
-              and then Hit.Buffer_Id /= Editor.Buffers.No_Buffer
-            then
-               Editor.Executor.Buffer_Close_Commands.Execute_Close_Buffer
-                 (The_Editor.State, Hit.Buffer_Id);
-               Editor.Focus_Management.Restore_Focus_To_Editor
-                 (The_Editor.State);
-            end if;
-            return True;
-      end case;
+      return Panel_Bars_Pointer_Handlers.Handle_Tab_Bar_Pointer
+        (The_Editor.State, Cmd);
    end Handle_Tab_Bar_Pointer;
 
    function Handle_Status_Bar_Pointer
      (Cmd : Editor.Commands.Command) return Boolean
    is
-      Layout : constant Editor.Layout.Layout_Config := Editor.Layout.Current;
    begin
-      if not Is_Minimap_Pointer_Command (Cmd.Kind)
-        and then Cmd.Kind /= Editor.Commands.Pointer_Hover
-      then
-         return False;
-      end if;
-
-      if Editor.Layout.Is_In_Status_Bar
-           (Config          => Layout,
-            X               => Integer (Cmd.Click_X),
-            Y               => Integer (Cmd.Click_Y),
-            Viewport_Width  => Editor.View.Viewport_Width,
-            Viewport_Height => Editor.View.Viewport_Height)
-      then
-         Pointer_State.Set_Minimap_Drag_Active (False);
-         Pointer_State.Clear_Scrollbar_Drag;
-         Pointer_State.Clear_Gutter_Line_Selection;
-         Editor.State.Clear_Gutter_Marker_Hover (The_Editor.State);
-         return True;
-      end if;
-
-      return False;
+      return Panel_Bars_Pointer_Handlers.Handle_Status_Bar_Pointer
+        (The_Editor.State, Cmd);
    end Handle_Status_Bar_Pointer;
 
 
@@ -3400,510 +3273,41 @@ use type Editor.Guided_Prompts.Prompt_Kind;
    function Handle_Panel_Splitter_Pointer
      (Cmd : Editor.Commands.Command) return Boolean
    is
-      Layout : constant Editor.Layout.Layout_Config := Editor.Layout.Current;
-
-      procedure Synchronize_File_Tree_Width is
-      begin
-         Editor.File_Tree_View.Set_Current_Width_In_Columns
-           (Editor.Panels.Current_Size
-              (The_Editor.State.Panels, Editor.Panels.File_Tree_Panel));
-         Editor.Panels.Set_Current (The_Editor.State.Panels);
-      end Synchronize_File_Tree_Width;
    begin
-      if Editor.Panels.Resize_Active (The_Editor.State.Panels) then
-         declare
-            Resize : constant Editor.Panels.Panel_Resize_State :=
-              Editor.Panels.Resize_State (The_Editor.State.Panels);
-         begin
-            if Cmd.Kind = Editor.Commands.Drag_To_Point
-              or else Cmd.Kind = Editor.Commands.Drag_Rectangle_To_Point
-            then
-               Editor.Panels.Update_Resize
-                 (Panels      => The_Editor.State.Panels,
-                  Mouse_X     => Integer (Cmd.Click_X),
-                  Mouse_Y     => Integer (Cmd.Click_Y),
-                  Cell_Width  => Editor.Layout.Cell_W,
-                  Cell_Height => Editor.Layout.Cell_H);
-               if Resize.Panel = Editor.Panels.File_Tree_Panel then
-                  Synchronize_File_Tree_Width;
-               else
-                  Editor.Panels.Set_Current (The_Editor.State.Panels);
-               end if;
-               Editor.Render_Cache.Invalidate_All;
-               return True;
-            elsif Cmd.Kind = Editor.Commands.Pointer_Hover then
-               return True;
-            else
-               Editor.Panels.End_Resize (The_Editor.State.Panels);
-               if Resize.Panel = Editor.Panels.File_Tree_Panel then
-                  Synchronize_File_Tree_Width;
-               else
-                  Editor.Panels.Set_Current (The_Editor.State.Panels);
-               end if;
-               Editor.Render_Cache.Invalidate_All;
-               return True;
-            end if;
-         end;
-      end if;
-
-      if Cmd.Kind /= Editor.Commands.Move_To_Point then
-         return False;
-      end if;
-
-      for Id in Editor.Panels.Panel_Id loop
-         if Editor.Layout.Is_In_Panel_Splitter
-              (Config          => Layout,
-               Id              => Id,
-               X               => Integer (Cmd.Click_X),
-               Y               => Integer (Cmd.Click_Y),
-               Viewport_Width  => Editor.View.Viewport_Width,
-               Viewport_Height => Editor.View.Viewport_Height)
-         then
-            Pointer_State.Reset_All;
-            Editor.State.Clear_Gutter_Marker_Hover (The_Editor.State);
-            Editor.Panels.Begin_Resize
-              (Panels  => The_Editor.State.Panels,
-               Id      => Id,
-               Mouse_X => Integer (Cmd.Click_X),
-               Mouse_Y => Integer (Cmd.Click_Y));
-            Editor.Panels.Set_Current (The_Editor.State.Panels);
-            Editor.Render_Cache.Invalidate_All;
-            return True;
-         end if;
-      end loop;
-
-      return False;
+      return Panel_Bars_Pointer_Handlers.Handle_Panel_Splitter_Pointer
+        (The_Editor.State, Cmd);
    end Handle_Panel_Splitter_Pointer;
 
    function Handle_File_Tree_Pointer
      (Cmd : Editor.Commands.Command) return Boolean
    is
-      Layout : constant Editor.Layout.Layout_Config := Editor.Layout.Current;
-      Panel_Rect : constant Editor.Layout.Rect :=
-        Editor.Layout.Panel_Rect
-          (Layout,
-           Editor.Panels.File_Tree_Panel,
-           Editor.View.Viewport_Width,
-           Editor.View.Viewport_Height);
-      Geometry : constant Editor.File_Tree_View.File_Tree_Geometry :=
-        (X      => Panel_Rect.X,
-         Y      => Panel_Rect.Y,
-         Width  => Panel_Rect.Width,
-         Height => Panel_Rect.Height);
-      Hit : Editor.File_Tree_View.File_Tree_Hit_Result;
    begin
-      if not Is_Minimap_Pointer_Command (Cmd.Kind)
-        and then Cmd.Kind /= Editor.Commands.Pointer_Hover
-      then
-         return False;
-      end if;
-
-      Hit := Editor.File_Tree_View.Hit_Test
-        (Geometry => Geometry,
-         Config   => Layout.File_Tree_View,
-         Tree     => The_Editor.State.File_Tree,
-         State    => The_Editor.State.File_Tree_View,
-         X        => Integer (Cmd.Click_X),
-         Y        => Integer (Cmd.Click_Y));
-
-      if Hit.Zone /= Editor.File_Tree_View.Outside_File_Tree then
-         Pointer_State.Set_Minimap_Drag_Active (False);
-         Pointer_State.Clear_Scrollbar_Drag;
-         Pointer_State.Clear_Gutter_Line_Selection;
-         Editor.State.Clear_Gutter_Marker_Hover (The_Editor.State);
-
-         if Cmd.Kind = Editor.Commands.Move_To_Point then
-            declare
-               Action : constant Editor.File_Tree_View.File_Tree_Action :=
-                 Editor.File_Tree_View.Action_For_Hit
-                   (The_Editor.State.File_Tree, Hit);
-            begin
-               Editor.Focus_Management.Set_Focus_Owner
-                 (The_Editor.State, Editor.Focus_Management.Focus_File_Tree);
-               Editor.Executor.File_Tree_Navigation_Commands.Execute_File_Tree_Action
-                 (The_Editor.State, Hit);
-               if Action = Editor.File_Tree_View.Open_File_Action then
-                  Editor.Focus_Management.Restore_Focus_To_Editor
-                    (The_Editor.State);
-               end if;
-            end;
-            Editor.Render_Cache.Invalidate_All;
-         end if;
-
-         return True;
-      end if;
-
-      return False;
+      return Panel_Tree_Search_Pointer_Handlers.Handle_File_Tree_Pointer
+        (The_Editor.State, Cmd);
    end Handle_File_Tree_Pointer;
 
    function Handle_Search_Results_Panel_Pointer
      (Cmd : Editor.Commands.Command) return Boolean
    is
-      Layout : constant Editor.Layout.Layout_Config := Editor.Layout.Current;
-      Config : constant Editor.Search_Results.Search_Results_View_Config := (others => <>);
-      Panel  : constant Editor.Layout.Rect :=
-        Editor.Layout.Panel_Rect
-          (Layout,
-           Editor.Panels.Bottom_Panel,
-           Editor.View.Viewport_Width,
-           Editor.View.Viewport_Height);
-      Snapshot : Editor.Search_Results.Search_Results_Snapshot;
-      Hit      : Editor.Search_Results.Search_Results_Hit_Result;
    begin
-      if not Is_Minimap_Pointer_Command (Cmd.Kind)
-        and then Cmd.Kind /= Editor.Commands.Pointer_Hover
-      then
-         return False;
-      end if;
-
-      if not Editor.Panels.Is_Visible (The_Editor.State.Panels, Editor.Panels.Bottom_Panel)
-        or else Editor.Panels.Active_Bottom_Content (The_Editor.State.Panels)
-          /= Editor.Panels.Search_Results_Content
-      then
-         return False;
-      end if;
-
-      Snapshot := Editor.Search_Results.Visible_Snapshot
-        (Editor.Search_Results.Build_Snapshot
-           (The_Editor.State.Project_Search, Config,
-            Editor.Buffers.Global_Registry_For_UI),
-         The_Editor.State.Search_Results_View,
-         (if Editor.Layout.Cell_H = 0 then 0 else Panel.Height / Editor.Layout.Cell_H));
-      Hit := Editor.Search_Results.Hit_Test
-        (Panel_Rect  => Panel,
-         Config      => Config,
-         Snapshot    => Snapshot,
-         Cell_Height => Editor.Layout.Cell_H,
-         X           => Integer (Cmd.Click_X),
-         Y           => Integer (Cmd.Click_Y));
-
-      if Hit.Zone /= Editor.Search_Results.Outside_Search_Results then
-         Pointer_State.Set_Minimap_Drag_Active (False);
-         Pointer_State.Clear_Scrollbar_Drag;
-         Pointer_State.Clear_Gutter_Line_Selection;
-         Editor.State.Clear_Gutter_Marker_Hover (The_Editor.State);
-
-         if Cmd.Kind = Editor.Commands.Move_To_Point then
-            Editor.Focus_Management.Set_Focus_Owner
-              (The_Editor.State,
-               Editor.Focus_Management.Focus_Project_Search_Results);
-            if Hit.Zone = Editor.Search_Results.Search_Results_Match_Row_Zone then
-               Editor.Executor.Project_Search_Result_Commands.Execute_Open_Project_Search_Result
-                 (The_Editor.State, Hit.Result_Index);
-               Editor.Focus_Management.Restore_Focus_To_Editor
-                 (The_Editor.State);
-            elsif Hit.Zone = Editor.Search_Results.Search_Results_File_Row_Zone then
-               declare
-                  Found : Boolean := False;
-                  First : constant Natural :=
-                    Editor.Search_Results.First_Result_In_File_Group
-                      (Snapshot, Hit.Row_Index, Found);
-               begin
-                  if Found then
-                     Editor.Project_Search.Set_Selected_Result_Index
-                       (The_Editor.State.Project_Search, First);
-                     Editor.Render_Cache.Invalidate_All;
-                  end if;
-               end;
-            end if;
-         end if;
-
-         return True;
-      end if;
-
-      return False;
+      return Panel_Tree_Search_Pointer_Handlers.Handle_Search_Results_Panel_Pointer
+        (The_Editor.State, Cmd);
    end Handle_Search_Results_Panel_Pointer;
 
    function Handle_Feature_Panel_Pointer
      (Cmd : Editor.Commands.Command) return Boolean
    is
-      Layout : constant Editor.Layout.Layout_Config := Editor.Layout.Current;
-      Width  : constant Natural :=
-        Natural'Min (280, Editor.View.Viewport_Width);
-      X0     : constant Integer := Integer (Editor.View.Viewport_Width) - Integer (Width);
-      Y0     : constant Integer := Editor.Layout.Text_Viewport_Y (Layout);
-      Height : constant Natural :=
-        Editor.Layout.Text_Viewport_Height
-          (Layout, Editor.View.Viewport_Height);
-      Row    : Natural := 0;
-      Gen    : constant Natural :=
-        Editor.Feature_Panel.Projection_Generation
-          (The_Editor.State.Feature_Panel);
    begin
-      if not Is_Minimap_Pointer_Command (Cmd.Kind)
-        and then Cmd.Kind /= Editor.Commands.Pointer_Hover
-      then
-         return False;
-      end if;
-
-      if not Editor.Feature_Panel.Is_Visible (The_Editor.State.Feature_Panel) then
-         return False;
-      end if;
-
-      if Integer (Cmd.Click_X) < X0
-        or else Integer (Cmd.Click_X) >= X0 + Integer (Width)
-        or else Integer (Cmd.Click_Y) < Y0
-        or else Integer (Cmd.Click_Y) >= Y0 + Integer (Height)
-      then
-         return False;
-      end if;
-
-      Pointer_State.Reset_All;
-      Editor.State.Clear_Gutter_Marker_Hover (The_Editor.State);
-
-      if Cmd.Kind = Editor.Commands.Pointer_Hover then
-         return True;
-      end if;
-
-      if Editor.Layout.Cell_H /= 0
-        and then Integer (Cmd.Click_Y) >= Y0 + Integer (Editor.Layout.Cell_H)
-      then
-         Row := Editor.Feature_Panel.Visible_Row_To_Row_Index
-           (The_Editor.State.Feature_Panel,
-            Natural ((Integer (Cmd.Click_Y) - Y0) / Integer (Editor.Layout.Cell_H)));
-      end if;
-
-      if Cmd.Kind = Editor.Commands.Move_To_Point then
-         Editor.Focus_Management.Clear_Transient_Focus_Owners (The_Editor.State);
-         Editor.Feature_Panel.Set_Focused (The_Editor.State.Feature_Panel, True);
-         case Editor.Feature_Panel.Active_Feature (The_Editor.State.Feature_Panel) is
-            when Editor.Feature_Panel.Outline_Feature =>
-               declare
-                  Result : constant Editor.Executor.Command_Execution_Result :=
-                    Editor.Executor.Outline_Commands.Execute_Outline_Row_Click
-                      (The_Editor.State, Row, Gen);
-                  pragma Unreferenced (Result);
-               begin
-                  null;
-               end;
-
-            when Editor.Feature_Panel.Messages_Feature =>
-               declare
-                  Result : constant Editor.Executor.Command_Execution_Result :=
-                    Editor.Executor.Message_Commands.Execute_Message_Row_Click
-                      (The_Editor.State, Row, Gen);
-                  pragma Unreferenced (Result);
-               begin
-                  null;
-               end;
-
-            when Editor.Feature_Panel.Search_Results_Feature
-               | Editor.Feature_Panel.Diagnostics_Feature =>
-               if Row /= 0
-                 and then Editor.Feature_Panel.Projection_Row_Index_Is_Valid
-                   (The_Editor.State.Feature_Panel, Row)
-                 and then Editor.Feature_Panel.Row_Is_Selectable
-                   (The_Editor.State.Feature_Panel, Positive (Row))
-               then
-                  Editor.Feature_Panel.Select_Row
-                    (The_Editor.State.Feature_Panel, Row);
-                  Editor.Render_Cache.Invalidate_All;
-               end if;
-
-            when Editor.Feature_Panel.Unknown_Feature =>
-               null;
-         end case;
-      elsif Cmd.Kind = Editor.Commands.Select_Word_At_Point
-        or else Cmd.Kind = Editor.Commands.Select_Line_At_Point
-      then
-         case Editor.Feature_Panel.Active_Feature (The_Editor.State.Feature_Panel) is
-            when Editor.Feature_Panel.Outline_Feature =>
-               declare
-                  Result : constant Editor.Executor.Command_Execution_Result :=
-                    Editor.Executor.Outline_Commands.Execute_Outline_Row_Activation
-                      (The_Editor.State, Row, Gen);
-                  pragma Unreferenced (Result);
-               begin
-                  Editor.Focus_Management.Restore_Focus_To_Editor
-                    (The_Editor.State);
-               end;
-
-            when Editor.Feature_Panel.Messages_Feature =>
-               declare
-                  Result : constant Editor.Executor.Command_Execution_Result :=
-                    Editor.Executor.Message_Commands.Execute_Message_Row_Activation
-                      (The_Editor.State, Row, Gen);
-                  pragma Unreferenced (Result);
-               begin
-                  null;
-               end;
-
-            when Editor.Feature_Panel.Search_Results_Feature =>
-               declare
-                  Result : constant Editor.Executor.Command_Execution_Result :=
-                    Editor.Executor.Search_Results_Commands
-                      .Execute_Search_Result_Row_Activation
-                      (The_Editor.State, Row, Gen);
-                  pragma Unreferenced (Result);
-               begin
-                  Editor.Focus_Management.Restore_Focus_To_Editor
-                    (The_Editor.State);
-               end;
-
-            when Editor.Feature_Panel.Diagnostics_Feature =>
-               declare
-                  Result : constant Editor.Executor.Command_Execution_Result :=
-                    Editor.Executor.Diagnostics_Commands
-                      .Execute_Diagnostic_Row_Activation
-                        (The_Editor.State, Row, Gen);
-                  pragma Unreferenced (Result);
-               begin
-                  Editor.Focus_Management.Restore_Focus_To_Editor
-                    (The_Editor.State);
-               end;
-
-            when Editor.Feature_Panel.Unknown_Feature =>
-               null;
-         end case;
-      end if;
-
-      return True;
+      return Panel_Feature_Problems_Pointer_Handlers.Handle_Feature_Panel_Pointer
+        (The_Editor.State, Cmd);
    end Handle_Feature_Panel_Pointer;
 
    function Handle_Problems_Panel_Pointer
      (Cmd : Editor.Commands.Command) return Boolean
    is
-      Layout : constant Editor.Layout.Layout_Config := Editor.Layout.Current;
-      Config : constant Editor.Problems.Problems_View_Config :=
-        (Enabled_By_Default      => False,
-         Header_Height_In_Rows   => 1,
-         Row_Height_In_Rows      => 1,
-         Show_Header             => True,
-         Show_File_Name          => False,
-         Show_Severity           => True,
-         Show_Row_Column         => True,
-         Maximum_Message_Columns => 120);
-      Panel  : constant Editor.Layout.Rect :=
-        Editor.Layout.Panel_Rect
-          (Layout,
-           Editor.Panels.Bottom_Panel,
-           Editor.View.Viewport_Width,
-           Editor.View.Viewport_Height);
-      Full_Snapshot    : Editor.Problems.Problems_Snapshot;
-      Visible_Snapshot : Editor.Problems.Problems_Snapshot;
-      Visible_Rows     : Natural := 0;
-      Hit              : Editor.Problems.Problems_Hit_Result;
    begin
-      if not Is_Minimap_Pointer_Command (Cmd.Kind)
-        and then Cmd.Kind /= Editor.Commands.Pointer_Hover
-      then
-         return False;
-      end if;
-
-      if not Editor.Panels.Is_Visible (The_Editor.State.Panels, Editor.Panels.Bottom_Panel)
-        or else Editor.Panels.Active_Bottom_Content (The_Editor.State.Panels)
-          /= Editor.Panels.Problems_Content
-      then
-         return False;
-      end if;
-
-      Full_Snapshot := Editor.Problems.Build_Snapshot (The_Editor.State.Diagnostics);
-      if Editor.Layout.Cell_H /= 0 then
-         Visible_Rows := Panel.Height / Editor.Layout.Cell_H;
-         if Visible_Rows > 1 then
-            Visible_Rows := Visible_Rows - 1;
-         end if;
-      end if;
-      Visible_Snapshot := Editor.Problems.Visible_Snapshot
-        (Full_Snapshot, The_Editor.State.Problems_View, Visible_Rows);
-
-      Hit := Editor.Problems.Hit_Test
-        (Panel_Rect  => Panel,
-         Config      => Config,
-         Snapshot    => Visible_Snapshot,
-         Cell_Height => Editor.Layout.Cell_H,
-         X           => Integer (Cmd.Click_X),
-         Y           => Integer (Cmd.Click_Y));
-
-      if Hit.Zone /= Editor.Problems.Outside_Problems then
-         Pointer_State.Set_Minimap_Drag_Active (False);
-         Pointer_State.Clear_Scrollbar_Drag;
-         Pointer_State.Clear_Gutter_Line_Selection;
-         Editor.State.Clear_Gutter_Marker_Hover (The_Editor.State);
-
-         if Cmd.Kind = Editor.Commands.Move_To_Point then
-            Editor.Focus_Management.Set_Focus_Owner
-              (The_Editor.State, Editor.Focus_Management.Focus_Diagnostics);
-         end if;
-
-         if Cmd.Kind = Editor.Commands.Move_To_Point
-           and then Hit.Zone = Editor.Problems.Problems_Row_Zone
-           and then Hit.Diagnostic_Index /= Editor.Diagnostics.No_Diagnostic
-         then
-            declare
-               Found : Boolean := False;
-               Row   : constant Natural :=
-                 Editor.Problems.Row_For_Diagnostic
-                   (Full_Snapshot, Hit.Diagnostic_Index, Found);
-            begin
-               if Found then
-                  Editor.Problems.Set_Selected_Row_Index
-                    (The_Editor.State.Problems_View, Row);
-               end if;
-            end;
-            Editor.Executor.Diagnostics_Commands.Execute_Jump_To_Diagnostic
-              (The_Editor.State, Hit.Diagnostic_Index);
-            Editor.Focus_Management.Restore_Focus_To_Editor
-              (The_Editor.State);
-         elsif Cmd.Kind = Editor.Commands.Move_To_Point
-           and then Hit.Zone = Editor.Problems.Problems_Header_Zone
-         then
-            declare
-               Relative_X : constant Natural :=
-                 Natural (Integer'Max (0, Integer (Cmd.Click_X) - Panel.X));
-               Action : constant Editor.Problems.Problems_Header_Action :=
-                 Editor.Problems.Header_Action_At_X (Panel.Width, Relative_X);
-            begin
-               case Action is
-                  when Editor.Problems.Problems_Header_Filter_Action =>
-                  if Editor.Problems.Severity_Filter
-                       (The_Editor.State.Problems_View) =
-                     Editor.Problems.Problems_Show_Errors
-                  then
-                     Editor.Executor.Execute_Command
-                       (The_Editor.State,
-                        Editor.Commands.Command_Problems_Filter_All);
-                  else
-                     Editor.Executor.Execute_Command
-                       (The_Editor.State,
-                        Editor.Commands.Command_Problems_Filter_Errors);
-                  end if;
-
-                  when Editor.Problems.Problems_Header_Sort_Action =>
-                  case The_Editor.State.Problems_View.Sort_Mode is
-                     when Editor.Problems.Problems_Sort_By_Location =>
-                        Editor.Executor.Execute_Command
-                          (The_Editor.State,
-                           Editor.Commands.Command_Problems_Sort_By_Severity);
-                     when Editor.Problems.Problems_Sort_By_Severity =>
-                        Editor.Executor.Execute_Command
-                          (The_Editor.State,
-                           Editor.Commands.Command_Problems_Sort_By_Source);
-                     when Editor.Problems.Problems_Sort_By_Source =>
-                        Editor.Executor.Execute_Command
-                          (The_Editor.State,
-                           Editor.Commands.Command_Problems_Sort_By_Location);
-                  end case;
-
-                  when Editor.Problems.Problems_Header_Group_Action =>
-                  case The_Editor.State.Problems_View.Group_Mode is
-                     when Editor.Problems.Problems_Group_By_Severity =>
-                        Editor.Executor.Execute_Command
-                          (The_Editor.State,
-                           Editor.Commands.Command_Problems_Group_By_Source);
-                     when Editor.Problems.Problems_Group_By_Source =>
-                        Editor.Executor.Execute_Command
-                          (The_Editor.State,
-                           Editor.Commands.Command_Problems_Group_By_Severity);
-                  end case;
-               end case;
-            end;
-         end if;
-
-         return True;
-      end if;
-
-      return False;
+      return Panel_Feature_Problems_Pointer_Handlers.Handle_Problems_Panel_Pointer
+        (The_Editor.State, Cmd, Execute_Problems_Header_Command'Access);
    end Handle_Problems_Panel_Pointer;
 
    ------------------------------------------------------------------

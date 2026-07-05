@@ -3108,97 +3108,14 @@ package body Editor.Ada_Declaration_Parser is
       Depth       : Natural;
       Parent      : Symbol_Id)
    is
-      Code          : constant String := Editor.Ada_Syntax_Core.Sanitize_Line (Raw_Line);
-      Segment_Start : Natural := Raw_Line'First;
-
-      procedure Add_Component_Segment
-        (First : Natural;
-         Last  : Natural)
-      is
-         Colon      : Natural := 0;
-         Arrow_Last : Natural := 0;
-         Start_Pos  : Natural := First;
-      begin
-         if First > Last then
-            return;
-         end if;
-
-         --  Variant record alternatives are commonly written as:
-         --     when Small => Count : Natural;
-         --  A plain object-name pass over the full segment would learn the
-         --  Ada keyword "when" and the choice names before the component
-         --  colon.  Restrict component extraction to the declaration slice
-         --  after the last association arrow that appears before the colon.
-         for I in First .. Last loop
-            if Code (I) = ':' then
-               Colon := I;
-               exit;
-            elsif I < Last and then Code (I) = '=' and then Code (I + 1) = '>' then
-               Arrow_Last := I + 1;
-            end if;
-         end loop;
-
-         if Colon = 0 then
-            return;
-         end if;
-
-         if Arrow_Last /= 0 and then Arrow_Last < Colon then
-            Start_Pos := Arrow_Last + 1;
-            while Start_Pos <= Last
-              and then (Raw_Line (Start_Pos) = ' '
-                        or else Raw_Line (Start_Pos) = Ada.Characters.Latin_1.HT)
-            loop
-               Start_Pos := Start_Pos + 1;
-            end loop;
-         end if;
-
-         if Start_Pos <= Last then
-            declare
-               Segment_Flags : Declaration_Flags := (others => False);
-            begin
-               Segment_Flags.Has_Null_Exclusion :=
-                 Has_Null_Exclusion (Raw_Line (Start_Pos .. Last));
-               Segment_Flags.Has_Aliased_Metadata :=
-                 Has_Aliased_Metadata (Raw_Line (Start_Pos .. Last));
-               Mark_Declaration_Form_Metadata
-                 (Segment_Flags, Raw_Line (Start_Pos .. Last));
-               Add_Object_Names
-                 (Analysis, Raw_Line (Start_Pos .. Last), Line_Number,
-                  Depth, Parent, Symbol_Record_Component,
-                  Column_Base => Start_Pos - Raw_Line'First,
-                  Flags => Segment_Flags);
-            end;
-         end if;
-      end Add_Component_Segment;
    begin
-      --  Ada allows multiple component_item declarations on one physical
-      --  line.  Split the sanitized line on top-level semicolons and
-      --  preserve absolute source columns for each emitted component symbol.
-      --  Semicolons inside anonymous access-to-subprogram profiles, subtype
-      --  constraints, or other parenthesized component metadata must remain
-      --  part of the component declaration; otherwise profile parameters such
-      --  as ``B`` in ``Callback : access procedure (A : T; B : T);`` would be
-      --  learned as bogus record components.
-      declare
-         Nesting : Natural := 0;
-      begin
-         for I in Code'Range loop
-            if Code (I) = '(' then
-               Nesting := Nesting + 1;
-            elsif Code (I) = ')' then
-               if Nesting > 0 then
-                  Nesting := Nesting - 1;
-               end if;
-            elsif Code (I) = ';' and then Nesting = 0 then
-               Add_Component_Segment (Segment_Start, I - 1);
-               Segment_Start := I + 1;
-            end if;
-         end loop;
-      end;
-
-      if Segment_Start <= Raw_Line'Last then
-         Add_Component_Segment (Segment_Start, Raw_Line'Last);
-      end if;
+      Declaration_Collectors.Add_Record_Component_Names
+        (Analysis      => Analysis,
+         Raw_Line      => Raw_Line,
+         Line_Number   => Line_Number,
+         Depth         => Depth,
+         Parent        => Parent,
+         Mark_Metadata => Mark_Declaration_Form_Metadata'Access);
    end Add_Record_Component_Names;
 
    procedure Add_Enumeration_Literals

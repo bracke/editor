@@ -59,4 +59,14 @@ package Editor.Ada_Declaration_Parser.Declaration_Collectors is
       Depth       : Natural;
       Parent      : Symbol_Id);
 
+   procedure Add_Record_Component_Names
+     (Analysis      : in out Analysis_Result;
+      Raw_Line      : String;
+      Line_Number   : Positive;
+      Depth         : Natural;
+      Parent        : Symbol_Id;
+      Mark_Metadata : not null access procedure
+        (Flags : in out Declaration_Flags;
+         Line  : String));
+
 end Editor.Ada_Declaration_Parser.Declaration_Collectors;

@@ -1,10 +1,17 @@
 with Editor.Ada_Declaration_Parser.Lexical_Helpers;
 with Editor.Ada_Declaration_Parser.Target_Helpers;
 with Editor.Ada_Syntax_Core;
+with Ada.Characters.Latin_1;
 
 package body Editor.Ada_Declaration_Parser.Declaration_Collectors is
 
    use Editor.Ada_Declaration_Parser.Lexical_Helpers;
+
+   function Has_Aliased_Metadata (Line : String) return Boolean is
+      Code : constant String := Lower (Editor.Ada_Syntax_Core.Sanitize_Line (Line));
+   begin
+      return Has_Token (Code, "aliased");
+   end Has_Aliased_Metadata;
 
    procedure Add_Object_Names_Collecting
      (Analysis        : in out Analysis_Result;
@@ -247,5 +254,94 @@ package body Editor.Ada_Declaration_Parser.Declaration_Collectors is
             Symbol_Discriminant);
       end if;
    end Add_Discriminant_Names;
+
+   procedure Add_Record_Component_Names
+     (Analysis      : in out Analysis_Result;
+      Raw_Line      : String;
+      Line_Number   : Positive;
+      Depth         : Natural;
+      Parent        : Symbol_Id;
+      Mark_Metadata : not null access procedure
+        (Flags : in out Declaration_Flags;
+         Line  : String))
+   is
+      Code          : constant String := Editor.Ada_Syntax_Core.Sanitize_Line (Raw_Line);
+      Segment_Start : Natural := Raw_Line'First;
+
+      procedure Add_Component_Segment
+        (First : Natural;
+         Last  : Natural)
+      is
+         Colon      : Natural := 0;
+         Arrow_Last : Natural := 0;
+         Start_Pos  : Natural := First;
+      begin
+         if First > Last then
+            return;
+         end if;
+
+         for I in First .. Last loop
+            if Code (I) = ':' then
+               Colon := I;
+               exit;
+            elsif I < Last and then Code (I) = '=' and then Code (I + 1) = '>' then
+               Arrow_Last := I + 1;
+            end if;
+         end loop;
+
+         if Colon = 0 then
+            return;
+         end if;
+
+         if Arrow_Last /= 0 and then Arrow_Last < Colon then
+            Start_Pos := Arrow_Last + 1;
+            while Start_Pos <= Last
+              and then (Raw_Line (Start_Pos) = ' '
+                        or else Raw_Line (Start_Pos) = Ada.Characters.Latin_1.HT)
+            loop
+               Start_Pos := Start_Pos + 1;
+            end loop;
+         end if;
+
+         if Start_Pos <= Last then
+            declare
+               Segment_Flags : Declaration_Flags := (others => False);
+            begin
+               Segment_Flags.Has_Null_Exclusion :=
+                 Has_Null_Exclusion (Raw_Line (Start_Pos .. Last));
+               Segment_Flags.Has_Aliased_Metadata :=
+                 Has_Aliased_Metadata (Raw_Line (Start_Pos .. Last));
+               Mark_Metadata.all
+                 (Segment_Flags, Raw_Line (Start_Pos .. Last));
+               Add_Object_Names
+                 (Analysis, Raw_Line (Start_Pos .. Last), Line_Number,
+                  Depth, Parent, Symbol_Record_Component,
+                  Column_Base => Start_Pos - Raw_Line'First,
+                  Flags => Segment_Flags);
+            end;
+         end if;
+      end Add_Component_Segment;
+   begin
+      declare
+         Nesting : Natural := 0;
+      begin
+         for I in Code'Range loop
+            if Code (I) = '(' then
+               Nesting := Nesting + 1;
+            elsif Code (I) = ')' then
+               if Nesting > 0 then
+                  Nesting := Nesting - 1;
+               end if;
+            elsif Code (I) = ';' and then Nesting = 0 then
+               Add_Component_Segment (Segment_Start, I - 1);
+               Segment_Start := I + 1;
+            end if;
+         end loop;
+      end;
+
+      if Segment_Start <= Raw_Line'Last then
+         Add_Component_Segment (Segment_Start, Raw_Line'Last);
+      end if;
+   end Add_Record_Component_Names;
 
 end Editor.Ada_Declaration_Parser.Declaration_Collectors;
