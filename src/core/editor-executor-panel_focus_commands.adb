@@ -3,6 +3,7 @@ with Editor.Command_Execution;
 with Editor.Commands;
 with Editor.Executor;
 with Editor.Executor.Search_Commands;
+with Editor.Executor.Search_Results_Commands;
 with Editor.Focus_Management;
 with Editor.Layout;
 with Editor.Panel_Focus;
@@ -88,7 +89,7 @@ package body Editor.Executor.Panel_Focus_Commands is
      (S : in out Editor.State.State_Type)
    is
    begin
-      Editor.Executor.Search_Commands.Execute_Focus_Search_Results (S);
+      Editor.Executor.Search_Results_Commands.Execute_Focus_Search_Results (S);
    end Execute_Focus_Search_Results;
 
    function Problems_Visible_Row_Count return Natural

@@ -14,6 +14,10 @@ with Editor.Executor.Structural;
 with Editor.Executor.Navigation;
 with Editor.Executor.Find_Replace_Commands;
 with Editor.Executor.Navigation_Commands;
+with Editor.Executor.Availability;
+with Editor.Executor.Command_Palette_Projection;
+with Editor.Executor.Shared_Services;
+with Editor.Executor.Pending_Transition_Policy;
 with Editor.Executor.Search_Commands;
 with Editor.Executor.Search_Results_Commands;
 with Editor.Executor.Message_Commands;
@@ -38,7 +42,6 @@ with Editor.Executor.Buffer_Switcher_Surface_Commands;
 with Editor.Executor.Command_Surface_Commands;
 with Editor.Executor.Buffer_Close_Commands;
 with Editor.Executor.File_Open_Commands;
-with Editor.Executor.File_Save_Commands;
 with Editor.Executor.File_Target_Prompt_Commands;
 with Editor.Executor.File_Lifecycle_Commands;
 with Editor.Executor.Project_Lifecycle_Commands;
@@ -174,92 +177,47 @@ with Ada.Text_IO;
 with Ada.IO_Exceptions;
 
 package body Editor.Executor is
-
-   function File_Conflict_Prompt_Is_Valid
-     (S : Editor.State.State_Type) return Boolean;
-
-   procedure Clear_File_Conflict_Prompt
-     (S : in out Editor.State.State_Type);
-
-   function Project_Dirty_Buffer_Summary
-     (S : Editor.State.State_Type)
-      return Editor.Dirty_Guards.Dirty_Buffer_Summary;
-
    function Has_Primary_Selection
      (S : Editor.State.State_Type) return Boolean;
-
    procedure Collapse_All_Selections
      (S : in out Editor.State.State_Type);
-
    procedure Recompute_Buffer_Switcher
      (S : in out Editor.State.State_Type);
 
-   function Active_File_External_Status
-     (S : Editor.State.State_Type) return Editor.Files.File_External_Change_Status;
-
-   function External_Status_Code
-     (Status : Editor.Files.File_External_Change_Status) return Natural;
-
-   function Pending_File_State_Still_Current
-     (Target : Editor.Pending_Transitions.Pending_Transition_Target)
-      return Boolean;
-
-   function Current_Project_Lifecycle_Buffer_Sets
-     (S : in out Editor.State.State_Type)
-      return Editor.Buffers.Buffer_Project_Lifecycle_Sets;
-
-
    function Primary_Cursor_Line_Of_Buffer
      (Id : Editor.Buffers.Buffer_Id) return Natural;
-
    procedure Normalize_Switcher_Preview_Target
      (S : in out Editor.State.State_Type);
-
    procedure Close_Buffer_By_Discard
      (S      : in out Editor.State.State_Type;
       Id     : Editor.Buffers.Buffer_Id;
       Closed : out Boolean);
-
    function Dirty_Buffer_Summary_For_All_Buffers
      return Editor.Dirty_Guards.Dirty_Buffer_Summary;
-
    function Dirty_Buffer_Summary_For_All_Buffers
      (Project : Editor.Project.Project_State)
       return Editor.Dirty_Guards.Dirty_Buffer_Summary;
-
    function Dirty_Close_Open_Buffer_Fingerprint return Natural;
-
    function Dirty_Close_Dirty_Buffer_Fingerprint return Natural;
-
    function Dirty_Close_Open_Buffer_Id_List return Ada.Strings.Unbounded.Unbounded_String;
-
    function Dirty_Close_Dirty_Buffer_Id_List return Ada.Strings.Unbounded.Unbounded_String;
-
    function Dirty_Close_Current_Dirty_Set_Was_Reviewed
      (S : Editor.State.State_Type) return Boolean;
-
    function Dirty_Close_Current_Dirty_Set_Equals_Review
      (S : Editor.State.State_Type) return Boolean;
-
    function Dirty_Close_Current_Open_Set_Was_Reviewed
      (S : Editor.State.State_Type) return Boolean;
-
    function Dirty_Close_All_Buffer_Identity_Current
      (S : Editor.State.State_Type) return Boolean;
-
    function Dirty_Close_All_Buffer_Review_Current
      (S : Editor.State.State_Type) return Boolean;
-
    function Dirty_Close_Start_Message
      (All_Buffers : Boolean;
       Summary     : Editor.Dirty_Guards.Dirty_Buffer_Summary) return String;
-
    function Marked_Open_Count (S : Editor.State.State_Type) return Natural;
-
    function Selected_Switcher_Buffer
      (S     : Editor.State.State_Type;
       Found : out Boolean) return Editor.Buffer_Switcher.Buffer_Switcher_Row;
-
    function Active_Feature_Buffer_Token
      (S : Editor.State.State_Type) return Natural
    is
@@ -274,7 +232,6 @@ package body Editor.Executor is
          return S.Registry_Token;
       end if;
    end Active_Feature_Buffer_Token;
-
    function Ends_With
      (Text   : String;
       Suffix : String) return Boolean
@@ -283,7 +240,6 @@ package body Editor.Executor is
       return Text'Length >= Suffix'Length
         and then Text (Text'Last - Suffix'Length + 1 .. Text'Last) = Suffix;
    end Ends_With;
-
    function Is_Ada_Source_Path
      (Path : String) return Boolean
    is
@@ -291,7 +247,6 @@ package body Editor.Executor is
    begin
       return Ends_With (Lower, ".adb") or else Ends_With (Lower, ".ads");
    end Is_Ada_Source_Path;
-
    function To_Feature_Severity
      (Severity : Editor.Ada_Language_Service.Semantic_Diagnostic_Severity)
       return Editor.Feature_Diagnostics.Diagnostic_Severity
@@ -308,7 +263,6 @@ package body Editor.Executor is
             return Editor.Feature_Diagnostics.Diagnostic_Note;
       end case;
    end To_Feature_Severity;
-
    procedure Publish_Service_Diagnostics_To_Feature
      (S            : in out Editor.State.State_Type;
       Path         : String;
@@ -358,7 +312,6 @@ package body Editor.Executor is
            (S.Feature_Diagnostics, S.Feature_Panel);
       end if;
    end Publish_Service_Diagnostics_To_Feature;
-
    procedure Refresh_Project_Language_Index
      (S                  : in out Editor.State.State_Type;
       Build_Semantics    : Boolean;
@@ -584,7 +537,6 @@ package body Editor.Executor is
          end loop;
       end if;
    end Refresh_Project_Language_Index;
-
    procedure Load_Global_Active_Preserving_Language_Index
      (S : in out Editor.State.State_Type)
    is
@@ -597,7 +549,6 @@ package body Editor.Executor is
       S.Language_Index := Saved_Index;
       S.Language_Service := Saved_Service;
    end Load_Global_Active_Preserving_Language_Index;
-
    procedure Rebuild_Language_Index_After_File_Lifecycle
      (S : in out Editor.State.State_Type)
    is
@@ -625,7 +576,6 @@ package body Editor.Executor is
 
       S.Project := Saved_Project;
    end Rebuild_Language_Index_After_File_Lifecycle;
-
    procedure Clear_Service_Semantic_Diagnostics_From_Feature
      (S : in out Editor.State.State_Type)
    is
@@ -655,10 +605,8 @@ package body Editor.Executor is
            (S.Feature_Diagnostics, S.Feature_Panel);
       end if;
    end Clear_Service_Semantic_Diagnostics_From_Feature;
-
    function Has_Find_Target_Buffer
      (S : Editor.State.State_Type) return Boolean;
-
    function Feature_Target_Buffer_Is_Current
      (S             : Editor.State.State_Type;
       Target_Buffer : Natural) return Boolean
@@ -667,7 +615,6 @@ package body Editor.Executor is
       return Target_Buffer /= 0
         and then Target_Buffer = Active_Feature_Buffer_Token (S);
    end Feature_Target_Buffer_Is_Current;
-
    function Feature_Target_Buffer_Exists
      (S             : Editor.State.State_Type;
       Target_Buffer : Natural) return Boolean
@@ -682,7 +629,6 @@ package body Editor.Executor is
            (Editor.Buffers.Buffer_Id (Target_Buffer));
       end if;
    end Feature_Target_Buffer_Exists;
-
    function Feature_Target_Position_Is_Valid
      (S             : Editor.State.State_Type;
       Target_Buffer : Natural;
@@ -706,7 +652,6 @@ package body Editor.Executor is
       return Line <= Editor.State.Line_Count (Target_State)
         and then Column - 1 <= Editor.Navigation.Line_Length (Target_State, Line - 1);
    end Feature_Target_Position_Is_Valid;
-
    function Feature_Target_Line_Count
      (S             : Editor.State.State_Type;
       Target_Buffer : Natural) return Natural
@@ -727,7 +672,6 @@ package body Editor.Executor is
 
       return Editor.State.Line_Count (Target_State);
    end Feature_Target_Line_Count;
-
    function Feature_Target_Line_Length
      (S             : Editor.State.State_Type;
       Target_Buffer : Natural;
@@ -753,7 +697,6 @@ package body Editor.Executor is
 
       return Editor.Navigation.Line_Length (Target_State, Line - 1);
    end Feature_Target_Line_Length;
-
    function Diagnostic_Target_Failure_Label
      (S             : Editor.State.State_Type;
       Mapped        : Natural;
@@ -797,7 +740,6 @@ package body Editor.Executor is
          return "Navigation target unavailable.";
       end if;
    end Diagnostic_Target_Failure_Label;
-
    function Diagnostic_Availability_Reason
      (S             : Editor.State.State_Type;
       Mapped        : Natural;
@@ -819,7 +761,6 @@ package body Editor.Executor is
          return Label;
       end if;
    end Diagnostic_Availability_Reason;
-
    function Diagnostic_Quick_Fix_Action_Availability
      (S                : Editor.State.State_Type;
       Diagnostic_Index : Natural;
@@ -895,7 +836,6 @@ package body Editor.Executor is
          return Editor.Commands.Available;
       end if;
    end Diagnostic_Quick_Fix_Action_Availability;
-
    function Focus_Feature_Target_Buffer
      (S             : in out Editor.State.State_Type;
       Target_Buffer : Natural) return Boolean
@@ -950,9 +890,6 @@ package body Editor.Executor is
    use type Editor.Feature_Panel.Feature_Id;
 
    use Cursors_Vector;
-
-
-
    procedure Apply_Feature_Target_Handoff
      (S             : in out Editor.State.State_Type;
       Target_Row    : Natural;
@@ -1011,32 +948,16 @@ package body Editor.Executor is
       Editor.Focus_Management.Restore_Focus_To_Editor (S);
    end Apply_Feature_Target_Handoff;
 
-
    function Current_Message_Time_Ms return Natural
    is
-      Now : constant Duration := Editor.View.Current_Time_Seconds;
    begin
-      if Now <= 0.0 then
-         return 0;
-      elsif Now >= Duration (Natural'Last / 1000) then
-         return Natural'Last;
-      else
-         return Natural (Float (Now) * 1000.0);
-      end if;
+      return Editor.Executor.Shared_Services.Current_Message_Time_Ms;
    end Current_Message_Time_Ms;
-
    function Default_Message_Config return Editor.Messages.Message_Config
    is
    begin
-      return (Default_Lifetime_Ms   => 3_000,
-              Error_Lifetime_Ms     => 5_000,
-              Max_Visible_Messages  => 3,
-              Max_Text_Columns      => 220,
-              Replace_Same_Category => True);
+      return Editor.Executor.Shared_Services.Default_Message_Config;
    end Default_Message_Config;
-
-
-
    function Normalize_Project_Path_For_Command (Path : String) return String is
       Result : String (Path'Range);
    begin
@@ -1049,7 +970,6 @@ package body Editor.Executor is
       end loop;
       return Result;
    end Normalize_Project_Path_For_Command;
-
    function Active_Buffer_Known_Project_File
      (S     : Editor.State.State_Type;
       Found : out Boolean) return String
@@ -1095,7 +1015,6 @@ package body Editor.Executor is
 
       return "";
    end Active_Buffer_Known_Project_File;
-
    function File_Lifecycle_Confirmation_Pending
      (S : Editor.State.State_Type) return Boolean
    is
@@ -1122,7 +1041,6 @@ package body Editor.Executor is
              | Editor.Pending_Transitions.Pending_Revert_Active_Buffer;
       end;
    end File_Lifecycle_Confirmation_Pending;
-
 
    function Has_Selected_Outline_Activation_Target
      (S : Editor.State.State_Type) return Boolean
@@ -1174,7 +1092,6 @@ package body Editor.Executor is
              (S, Target_Buffer, Target_Line, Target_Column);
       end;
    end Has_Selected_Outline_Activation_Target;
-
    function Rename_Preview_Is_Open_Buffers_Applyable
      (S       : Editor.State.State_Type;
       Preview : Editor.Ada_Language_Service.Rename_Preview;
@@ -1351,1660 +1268,90 @@ package body Editor.Executor is
 
       return True;
    end Rename_Preview_Is_Open_Buffers_Applyable;
-
    function Current_Semantic_Symbol_Name
      (State : Editor.State.State_Type) return String
    is
    begin
       return Editor.Executor.Semantic_Commands.Current_Semantic_Symbol_Name (State);
    end Current_Semantic_Symbol_Name;
-
    function Command_Availability
      (S  : Editor.State.State_Type;
       Id : Editor.Commands.Command_Id)
       return Editor.Commands.Command_Availability
    is
-      function Has_Buffer return Boolean is
-      begin
-         return Editor.State.Has_Active_Buffer (S);
-      end Has_Buffer;
-
-      function Has_Project return Boolean is
-      begin
-         return Editor.Project.Has_Project (S.Project);
-      end Has_Project;
-
-      Lifecycle_Handled : Boolean := False;
-      Lifecycle_Result  : Editor.Commands.Command_Availability :=
-        Editor.Commands.Available;
    begin
-      --  while a destructive dirty lifecycle operation is waiting
-      --  for explicit retry/cancel, other guarded lifecycle commands are
-      --  unavailable instead of replacing the pending payload through
-      --  availability-visible command paths.  Save All, Close Clean, Retry,
-      --  and Cancel remain available so the user can resolve the state.
-
-      --  completeness: an active guided prompt owns the current
-      --  multi-step workflow.  Availability remains observational, but command
-      --  surfaces must not advertise a second lifecycle/destructive/configuration
-      --  prompt while the first prompt or confirmation is pending.  Cancel stays
-      --  available so the user can leave the modal prompt atomically.
-      if Editor.Guided_Prompts.Is_Active (S.Guided_Prompt) then
-         --  completeness pass 5: prompt focus is modal at the
-         --  command-surface level, not only inside Input_Bridge dispatch.
-         --  Confirmation/entry is handled by prompt-local input paths; normal
-         --  command availability must not advertise unrelated mutations while
-         --  transient prompt input or confirmation payload is active.
-         case Id is
-            when Command_Cancel =>
-               return Editor.Commands.Available;
-            when Command_Restore_Workspace_State =>
-               return Editor.Commands.Available;
-            when No_Command =>
-               return Editor.Commands.Unavailable ("No command");
-            when others =>
-               if Editor.Guided_Prompts.Is_Confirmation (S.Guided_Prompt) then
-                  return Editor.Commands.Unavailable
-                    ("Command unavailable while confirmation is pending");
-               else
-                  return Editor.Commands.Unavailable ("Another prompt is active");
-               end if;
-         end case;
-      end if;
-
-      Editor.Executor.File_Lifecycle_Commands.Lifecycle_Command_Availability
-        (S, Id, Lifecycle_Handled, Lifecycle_Result);
-      if Lifecycle_Handled then
-         return Lifecycle_Result;
-      end if;
-
-      case Id is
-         when No_Command =>
-            return Editor.Commands.Unavailable ("No command selected");
-
-         when Command_Save_File .. Command_Move_Buffer_File
-            | Command_Confirm_Close_Save .. Command_Cancel_Close
-            | Command_Cancel_Pending_Transition
-              .. Command_Discard_Pending_Transition =>
-            raise Program_Error with
-              "lifecycle availability should be handled before parent switch";
-
-         when Command_Reveal_Active_File_In_Tree =>
-            return Editor.Executor.File_Tree_Commands
-              .File_Tree_Command_Availability (S, Id);
-
-         when Command_Toggle_Bookmark
-            =>
-            if not Has_Buffer then
-               return Editor.Commands.Unavailable ("No active buffer.");
-            end if;
-            return Editor.Commands.Available;
-
-         when Command_Move_Left
-            | Command_Move_Right
-            | Command_Move_Up
-            | Command_Move_Down
-            | Command_Move_Line_Start
-            | Command_Move_Line_End
-            | Command_Move_Document_Start
-            | Command_Move_Document_End
-            | Command_Move_Word_Left
-            | Command_Move_Word_Right
-            | Command_Page_Up
-            | Command_Page_Down =>
-            return Editor.Executor.Navigation_Commands
-              .Navigation_Command_Availability (S, Id);
-
-         when Command_Select_Left
-            | Command_Select_Right
-            | Command_Select_Up
-            | Command_Select_Down
-            | Command_Select_Word_Left
-            | Command_Select_Word_Right
-            | Command_Select_Word
-            | Command_Select_Line
-            | Command_Start_Rectangular_Selection
-            | Command_Clear_Rectangular_Selection
-            | Command_Extend_Selection_Line_Up
-            | Command_Extend_Selection_Line_Down
-            | Command_Select_Line_Start
-            | Command_Select_Line_End
-            | Command_Select_Document_Start
-            | Command_Select_Document_End
-            | Command_Select_Page_Up
-            | Command_Select_Page_Down =>
-            return Editor.Executor.Selection_Commands
-              .Selection_Command_Availability (S, Id);
-
-         when Command_Insert_Newline
-            | Command_Goto_Start
-            | Command_Goto_End =>
-            return Editor.Executor.Navigation_Commands
-              .Navigation_Command_Availability (S, Id);
-
-         when Command_Copy =>
-            return Editor.Executor.Editing_Commands
-              .Editing_Command_Availability (S, Id);
-
-         when Command_Cut =>
-            return Editor.Executor.Editing_Commands
-              .Editing_Command_Availability (S, Id);
-
-         when Command_Paste =>
-            return Editor.Executor.Editing_Commands
-              .Editing_Command_Availability (S, Id);
-
-         when Command_Clipboard_Clear =>
-            return Editor.Executor.Editing_Commands
-              .Editing_Command_Availability (S, Id);
-
-         when Command_Select_All =>
-            return Editor.Executor.Selection_Commands
-              .Selection_Command_Availability (S, Id);
-
-         when Command_Selection_Clear =>
-            return Editor.Executor.Selection_Commands
-              .Selection_Command_Availability (S, Id);
-
-         when Command_Selection_Delete =>
-            return Editor.Executor.Editing_Commands
-              .Editing_Command_Availability (S, Id);
-
-         when Command_Trim_Trailing_Whitespace
-            | Command_Format_Buffer =>
-            return Editor.Executor.Editing_Commands
-              .Editing_Command_Availability (S, Id);
-
-         when Command_Format_Selected_Text =>
-            return Editor.Executor.Editing_Commands
-              .Editing_Command_Availability (S, Id);
-
-         when Command_Line_Delete
-            | Command_Line_Duplicate
-            | Command_Line_Move_Up
-            | Command_Line_Move_Down
-            | Command_Indent_Increase
-            | Command_Indent_Decrease
-            | Command_Comment_Line
-            | Command_Uncomment_Line
-            | Command_Toggle_Line_Comment
-            | Command_Line_Join_Next
-            | Command_Line_Split_At_Caret
-            | Command_Char_Delete_Previous
-            | Command_Char_Delete_Next
-            | Command_Word_Delete_Previous
-            | Command_Word_Delete_Next =>
-            return Editor.Executor.Editing_Commands
-              .Editing_Command_Availability (S, Id);
-
-         when Command_Goto_Line
-            | Command_Goto_Line_Toggle =>
-            return Editor.Executor.Command_Surface_Commands
-              .Command_Surface_Command_Availability (S, Id);
-
-         when Command_Goto_Line_Prefill_Current =>
-            return Editor.Executor.Command_Surface_Commands
-              .Command_Surface_Command_Availability (S, Id);
-
-         when Command_Navigation_Back =>
-            return Editor.Executor.Navigation_Commands
-              .Navigation_Command_Availability (S, Id);
-
-         when Command_Navigation_Forward =>
-            return Editor.Executor.Navigation_Commands
-              .Navigation_Command_Availability (S, Id);
-
-         when Command_Navigation_History_Clear =>
-            return Editor.Executor.Navigation_Commands
-              .Navigation_Command_Availability (S, Id);
-
-         when Command_Reopen_Closed_Buffer =>
-            return Editor.Executor.File_Lifecycle_Commands
-              .Lifecycle_Command_Availability (S, Id);
-
-         when Command_Close_Active_Buffer =>
-            return Editor.Executor.File_Lifecycle_Commands
-              .Lifecycle_Command_Availability (S, Id);
-
-         when Command_Close_Other_Buffers =>
-            return Editor.Executor.File_Lifecycle_Commands
-              .Lifecycle_Command_Availability (S, Id);
-
-         when Command_Project_Search_From_Selection
-            =>
-            return Editor.Executor.Search_Commands
-              .Project_Search_Command_Availability (S, Id);
-
-         when Command_Project_Search_From_Active_Word
-            | Command_Project_Search_Active_Directory =>
-            return Editor.Executor.Search_Commands
-              .Project_Search_Command_Availability (S, Id);
-
-         when Command_Find_From_Selection =>
-            return Editor.Executor.Find_Replace_Commands
-              .Find_Replace_Command_Availability (S, Id);
-
-         when Command_Find_From_Active_Word =>
-            return Editor.Executor.Find_Replace_Commands
-              .Find_Replace_Command_Availability (S, Id);
-
-         when Command_Save_All =>
-            return Editor.Executor.File_Lifecycle_Commands
-              .Lifecycle_Command_Availability (S, Id);
-
-         when Command_Close_All_Buffers =>
-            return Editor.Executor.File_Lifecycle_Commands
-              .Lifecycle_Command_Availability (S, Id);
-
-         when Command_Close_All_Clean_Buffers =>
-            return Editor.Executor.File_Lifecycle_Commands
-              .Lifecycle_Command_Availability (S, Id);
-
-
-         when Command_Pin_Buffer =>
-            return Editor.Executor.Buffer_Metadata_Commands
-              .Buffer_Metadata_Command_Availability (S, Id);
-
-         when Command_Unpin_Buffer =>
-            return Editor.Executor.Buffer_Metadata_Commands
-              .Buffer_Metadata_Command_Availability (S, Id);
-
-         when Command_Toggle_Buffer_Pin =>
-            return Editor.Executor.Buffer_Metadata_Commands
-              .Buffer_Metadata_Command_Availability (S, Id);
-
-         when Command_Set_Buffer_Label
-            | Command_Edit_Buffer_Label
-            | Command_Show_Buffer_Label
-            | Command_Set_Buffer_Note
-            | Command_Edit_Buffer_Note
-            | Command_Show_Buffer_Note =>
-            return Editor.Executor.Buffer_Metadata_Commands
-              .Buffer_Metadata_Command_Availability (S, Id);
-
-         when Command_Clear_Buffer_Label =>
-            return Editor.Executor.Buffer_Metadata_Commands
-              .Buffer_Metadata_Command_Availability (S, Id);
-
-         when Command_Clear_Buffer_Note =>
-            return Editor.Executor.Buffer_Metadata_Commands
-              .Buffer_Metadata_Command_Availability (S, Id);
-
-         when Command_Assign_Buffer_Group =>
-            return Editor.Executor.Buffer_Metadata_Commands
-              .Buffer_Metadata_Command_Availability (S, Id);
-
-         when Command_Clear_Buffer_Group =>
-            return Editor.Executor.Buffer_Metadata_Commands
-              .Buffer_Metadata_Command_Availability (S, Id);
-
-         when Command_Switch_Buffer_Group
-            | Command_Next_Buffer_Group
-            | Command_Previous_Buffer_Group =>
-            if Id = Command_Switch_Buffer_Group then
-               return Editor.Executor.Buffer_Metadata_Commands
-                 .Buffer_Metadata_Command_Availability (S, Id);
-            else
-               return Editor.Executor.Buffer_Navigation_Commands
-                 .Buffer_Navigation_Command_Availability (S, Id);
-            end if;
-
-         when Command_Show_All_Buffer_Groups =>
-            return Editor.Executor.Buffer_Metadata_Commands
-              .Buffer_Metadata_Command_Availability (S, Id);
-
-         when Command_Next_Buffer | Command_Previous_Buffer =>
-            return Editor.Executor.Buffer_Navigation_Commands
-              .Buffer_Navigation_Command_Availability (S, Id);
-
-         when Command_Previous_Recent_Buffer =>
-            return Editor.Executor.Buffer_Navigation_Commands
-              .Buffer_Navigation_Command_Availability (S, Id);
-
-         when Command_Next_Recent_Buffer =>
-            return Editor.Executor.Buffer_Navigation_Commands
-              .Buffer_Navigation_Command_Availability (S, Id);
-
-         when Command_Open_Buffer_Switcher =>
-            return Editor.Executor.Buffer_Switcher_Surface_Commands
-              .Buffer_Switcher_Surface_Command_Availability (S, Id);
-
-         when Command_Buffer_Switcher_Filter_Clear =>
-            return Editor.Executor.Buffer_Switcher_Surface_Commands
-              .Buffer_Switcher_Surface_Command_Availability (S, Id);
-
-         when Command_Buffer_Switcher_Filter_Pinned =>
-            return Editor.Executor.Buffer_Switcher_Surface_Commands
-              .Buffer_Switcher_Surface_Command_Availability (S, Id);
-
-         when Command_Buffer_Switcher_Filter_Group =>
-            return Editor.Executor.Buffer_Switcher_Surface_Commands
-              .Buffer_Switcher_Surface_Command_Availability (S, Id);
-
-         when Command_Buffer_Switcher_Filter_Label =>
-            return Editor.Executor.Buffer_Switcher_Surface_Commands
-              .Buffer_Switcher_Surface_Command_Availability (S, Id);
-
-         when Command_Buffer_Switcher_Filter_Noted =>
-            return Editor.Executor.Buffer_Switcher_Surface_Commands
-              .Buffer_Switcher_Surface_Command_Availability (S, Id);
-
-         when Command_Buffer_Switcher_Sort_Default
-            | Command_Buffer_Switcher_Sort_Recent
-            | Command_Buffer_Switcher_Sort_Name
-            | Command_Buffer_Switcher_Sort_Pinned
-            | Command_Buffer_Switcher_Sort_Group
-            | Command_Buffer_Switcher_Sort_Label
-            | Command_Buffer_Switcher_Sort_Next
-            | Command_Buffer_Switcher_Sort_Previous =>
-            return Editor.Executor.Buffer_Switcher_Surface_Commands
-              .Buffer_Switcher_Surface_Command_Availability (S, Id);
-
-         when Command_Open_Quick_Open =>
-            return Editor.Executor.Command_Surface_Commands
-              .Command_Surface_Command_Availability (S, Id);
-
-         when Command_Toggle_Quick_Open =>
-            return Editor.Executor.Command_Surface_Commands
-              .Command_Surface_Command_Availability (S, Id);
-
-         when Command_Refresh_File_Tree
-            | Command_Refresh_Project_Files
-            | Command_Focus_File_Tree =>
-            return Editor.Executor.File_Tree_Commands
-              .File_Tree_Command_Availability (S, Id);
-
-         when Command_Quick_Open_Reveal_Active
-            | Command_Quick_Open_Scope_Active_Directory =>
-            return Editor.Executor.Command_Surface_Commands
-              .Command_Surface_Command_Availability (S, Id);
-
-         when Command_Quick_Open_Priority_Toggle
-            | Command_Quick_Open_Priority_Clear =>
-            return Editor.Executor.Command_Surface_Commands
-              .Command_Surface_Command_Availability (S, Id);
-
-         when Command_Quick_Open_Create_From_Query
-            | Command_Quick_Open_Create_With_Parents_From_Query =>
-            return Editor.Executor.Command_Surface_Commands
-              .Command_Surface_Command_Availability (S, Id);
-
-         when Command_Undo =>
-            return Editor.Executor.Editing_Commands
-              .Editing_Command_Availability (S, Id);
-
-         when Command_Redo =>
-            return Editor.Executor.Editing_Commands
-              .Editing_Command_Availability (S, Id);
-
-         when Command_Edit_History_Clear =>
-            return Editor.Executor.Editing_Commands
-              .Editing_Command_Availability (S, Id);
-
-         when Command_Project_Files_Summary =>
-            return Editor.Executor.File_Tree_Commands
-              .File_Tree_Command_Availability (S, Id);
-
-         when Command_Palette_Show_Command_Help =>
-            return Editor.Executor.Command_Surface_Commands
-              .Command_Surface_Command_Availability (S, Id);
-
-         when Command_Open_Project_Search_Bar
-            | Command_Toggle_Project_Search_Bar =>
-            return Editor.Executor.Search_Commands
-              .Project_Search_Command_Availability (S, Id);
-
-         when Command_New_Buffer =>
-            return Editor.Executor.File_Open_Commands
-              .File_Open_Command_Availability (S, Id);
-
-         when Command_Open_Command_Palette
-            | Command_Cancel =>
-            return Editor.Executor.Command_Surface_Commands
-              .Command_Surface_Command_Availability (S, Id);
-
-         when Command_Toggle_Problems_Panel
-            | Command_Focus_Editor_Text =>
-            return Editor.Executor.Panel_Focus_Commands
-              .Panel_Focus_Command_Availability (S, Id);
-
-         when Command_Toggle_Theme
-            | Command_Set_Theme_Light
-            | Command_Set_Theme_Dark
-            | Command_Toggle_Minimap
-            | Command_Toggle_Scrollbars
-            | Command_Toggle_Line_Numbers
-            | Command_Toggle_Format_On_Save
-            | Command_Toggle_Line_Number_Mode
-            | Command_Set_Absolute_Line_Numbers
-            | Command_Set_Relative_Line_Numbers
-            | Command_Set_Hybrid_Line_Numbers
-            | Command_Toggle_Current_Line_Highlight
-            | Command_Toggle_Cursor_Blink
-            | Command_Toggle_Syntax_Colouring
-            | Command_Toggle_Diagnostics
-            | Command_Toggle_Cursor_Style =>
-            return Editor.Executor.Editor_Preferences_Commands
-              .Editor_Preferences_Command_Availability (S, Id);
-
-         when Command_Run_Project_Search_From_Bar =>
-            return Editor.Executor.Search_Commands
-              .Project_Search_Command_Availability (S, Id);
-
-         when Command_Rerun_Project_Search | Command_Run_Project_Search =>
-            return Editor.Executor.Search_Commands
-              .Project_Search_Command_Availability (S, Id);
-
-         when Command_Clear_Project_Search =>
-            return Editor.Executor.Search_Commands
-              .Project_Search_Command_Availability (S, Id);
-
-         when Command_Open_Selected_Project_Search_Result =>
-            return Editor.Executor.Search_Commands
-              .Project_Search_Command_Availability (S, Id);
-
-         when Command_Next_Project_Search_Result
-            | Command_Previous_Project_Search_Result =>
-            return Editor.Executor.Search_Commands
-              .Project_Search_Command_Availability (S, Id);
-
-         when Command_First_Project_Search_Result
-            | Command_Last_Project_Search_Result =>
-            return Editor.Executor.Search_Commands
-              .Project_Search_Command_Availability (S, Id);
-
-         when Command_Reveal_Active_Project_Search_Result =>
-            return Editor.Executor.Search_Commands
-              .Project_Search_Command_Availability (S, Id);
-
-         when Command_Project_Search_Scope_Selected_Directory =>
-            return Editor.Executor.Search_Commands
-              .Project_Search_Command_Availability (S, Id);
-
-         when Command_Project_Search_Kind_Next
-            | Command_Project_Search_Kind_Previous
-            | Command_Project_Search_Kind_Clear
-            | Command_Project_Search_Scope_Clear
-            | Command_Project_Search_Case_Toggle
-            | Command_Project_Search_Case_Clear
-            | Command_Project_Search_Whole_Word_Toggle
-            | Command_Project_Search_Whole_Word_Clear
-            | Command_Project_Search_Regex_Toggle
-            | Command_Project_Search_Regex_Clear
-            | Command_Project_Search_Include_Filter_Clear
-            | Command_Project_Search_Exclude_Filter_Clear =>
-            return Editor.Executor.Search_Commands
-              .Project_Search_Command_Availability (S, Id);
-
-         when Command_Project_Search_Scope_Set =>
-            return Editor.Executor.Search_Commands
-              .Project_Search_Command_Availability (S, Id);
-
-         when Command_Project_Search_Include_Filter_Set
-            | Command_Project_Search_Exclude_Filter_Set =>
-            return Editor.Executor.Search_Commands
-              .Project_Search_Command_Availability (S, Id);
-
-         when Command_Project_Search_Replace_Preview =>
-            return Editor.Executor.Search_Commands
-              .Project_Search_Command_Availability (S, Id);
-
-         when Command_Project_Search_Replace_Clear_Preview =>
-            return Editor.Executor.Search_Commands
-              .Project_Search_Command_Availability (S, Id);
-
-         when Command_Project_Search_Replace_Toggle_Selected
-            | Command_Project_Search_Replace_Include_Selected
-            | Command_Project_Search_Replace_Exclude_Selected
-            | Command_Project_Search_Replace_Include_File
-            | Command_Project_Search_Replace_Exclude_File
-            | Command_Project_Search_Replace_Include_All
-            | Command_Project_Search_Replace_Exclude_All =>
-            return Editor.Executor.Search_Commands
-              .Project_Search_Command_Availability (S, Id);
-
-         when Command_Project_Search_Replace_Selected =>
-            return Editor.Executor.Search_Commands
-              .Project_Search_Command_Availability (S, Id);
-
-         when Command_Project_Search_Replace_All_Included =>
-            return Editor.Executor.Search_Commands
-              .Project_Search_Command_Availability (S, Id);
-
-         when Command_Search_Results_Open_Selected =>
-            return Editor.Executor.Search_Commands
-              .Project_Search_Command_Availability (S, Id);
-
-         when Command_Focus_Search_Results
-            | Command_Show_Search_Results_Panel =>
-            return Editor.Executor.Search_Commands
-              .Project_Search_Command_Availability (S, Id);
-
-         when Command_Search_Results_Move_Up
-            | Command_Search_Results_Move_Down
-            | Command_Search_Results_Page_Up
-            | Command_Search_Results_Page_Down =>
-            return Editor.Executor.Search_Commands
-              .Project_Search_Command_Availability (S, Id);
-
-         when Command_Clear_Bookmarks =>
-            return Editor.Executor.Bookmark_Commands
-              .Bookmark_Command_Availability (S, Id);
-
-         when Command_Next_Bookmark
-            | Command_Previous_Bookmark
-            | Command_Clear_All_Bookmarks =>
-            return Editor.Executor.Bookmark_Commands
-              .Bookmark_Command_Availability (S, Id);
-
-         when Command_Bookmark_Toggle_Current_Location =>
-            return Editor.Executor.Bookmark_Commands
-              .Bookmark_Command_Availability (S, Id);
-
-         when Command_Bookmark_Clear_All =>
-            return Editor.Executor.Bookmark_Commands
-              .Bookmark_Command_Availability (S, Id);
-
-         when Command_Bookmark_Next
-            | Command_Bookmark_Previous
-            | Command_Bookmark_Goto_Next
-            | Command_Bookmark_Goto_Previous =>
-            return Editor.Executor.Bookmark_Commands
-              .Bookmark_Command_Availability (S, Id);
-
-         when Command_Bookmark_Open_Selected
-            | Command_Bookmark_Remove_Selected =>
-            return Editor.Executor.Bookmark_Commands
-              .Bookmark_Command_Availability (S, Id);
-
-         when Command_Bookmark_Reveal_Current =>
-            return Editor.Executor.Bookmark_Commands
-              .Bookmark_Command_Availability (S, Id);
-
-         when Command_Bookmark_Show | Command_Bookmark_Toggle =>
-            return Editor.Executor.Bookmark_Commands
-              .Bookmark_Command_Availability (S, Id);
-
-         when Command_Bookmark_Hide =>
-            return Editor.Executor.Bookmark_Commands
-              .Bookmark_Command_Availability (S, Id);
-
-         when Command_Next_Diagnostic
-            | Command_Previous_Diagnostic =>
-            return Editor.Executor.Diagnostics_Commands
-              .Diagnostics_Command_Availability (S, Id);
-
-         when Command_Focus_Problems =>
-            return Editor.Executor.Panel_Focus_Commands
-              .Panel_Focus_Command_Availability (S, Id);
-
-         when Command_Problems_Move_Up
-            | Command_Problems_Move_Down
-            | Command_Problems_Page_Up
-            | Command_Problems_Page_Down =>
-            return Editor.Executor.Diagnostics_Commands
-              .Diagnostics_Command_Availability (S, Id);
-
-         when Command_Problems_Open_Selected =>
-            return Editor.Executor.Diagnostics_Commands
-              .Diagnostics_Command_Availability (S, Id);
-
-         when Command_Problems_Filter_All
-            | Command_Problems_Filter_Errors
-            | Command_Problems_Filter_Warnings
-            | Command_Problems_Filter_Info
-            | Command_Problems_Filter_Hints
-            | Command_Problems_Sort_By_Location
-            | Command_Problems_Sort_By_Severity
-            | Command_Problems_Sort_By_Source
-            | Command_Problems_Group_By_Severity
-            | Command_Problems_Group_By_Source =>
-            return Editor.Executor.Diagnostics_Commands
-              .Diagnostics_Command_Availability (S, Id);
-
-         when Command_Close_Quick_Open =>
-            return Editor.Executor.Command_Surface_Commands
-              .Command_Surface_Command_Availability (S, Id);
-
-         when Command_Accept_Quick_Open =>
-            return Editor.Executor.Command_Surface_Commands
-              .Command_Surface_Command_Availability (S, Id);
-
-         when Command_Quick_Open_Next_Result
-            | Command_Quick_Open_Previous_Result =>
-            return Editor.Executor.Command_Surface_Commands
-              .Command_Surface_Command_Availability (S, Id);
-
-         when Command_Quick_Open_Query_Set =>
-            return Editor.Executor.Command_Surface_Commands
-              .Command_Surface_Command_Availability (S, Id);
-
-         when Command_Quick_Open_Query_Clear =>
-            return Editor.Executor.Command_Surface_Commands
-              .Command_Surface_Command_Availability (S, Id);
-
-         when Command_Quick_Open_Kind_Next
-            | Command_Quick_Open_Kind_Previous =>
-            return Editor.Executor.Command_Surface_Commands
-              .Command_Surface_Command_Availability (S, Id);
-
-         when Command_Quick_Open_Kind_Clear =>
-            return Editor.Executor.Command_Surface_Commands
-              .Command_Surface_Command_Availability (S, Id);
-
-         when Command_Quick_Open_Scope_Set =>
-            return Editor.Executor.Command_Surface_Commands
-              .Command_Surface_Command_Availability (S, Id);
-
-         when Command_Quick_Open_Scope_Clear =>
-            return Editor.Executor.Command_Surface_Commands
-              .Command_Surface_Command_Availability (S, Id);
-
-         when Command_Quick_Open_Scope_From_Selected =>
-            return Editor.Executor.Command_Surface_Commands
-              .Command_Surface_Command_Availability (S, Id);
-
-         when Command_Quick_Open_Scope_Parent =>
-            return Editor.Executor.Command_Surface_Commands
-              .Command_Surface_Command_Availability (S, Id);
-
-         when Command_Close_Buffer_Switcher =>
-            return Editor.Executor.Buffer_Switcher_Surface_Commands
-              .Buffer_Switcher_Surface_Command_Availability (S, Id);
-
-         when Command_Accept_Buffer_Switcher =>
-            return Editor.Executor.Buffer_Switcher_Surface_Commands
-              .Buffer_Switcher_Surface_Command_Availability (S, Id);
-
-         when Command_Buffer_Switcher_Next_Result
-            | Command_Buffer_Switcher_Previous_Result =>
-            return Editor.Executor.Buffer_Switcher_Surface_Commands
-              .Buffer_Switcher_Surface_Command_Availability (S, Id);
-
-         when Command_Buffer_Switcher_Selected_Close
-            | Command_Buffer_Switcher_Selected_Toggle_Pin
-            | Command_Buffer_Switcher_Selected_Group_Assign
-            | Command_Buffer_Switcher_Selected_Label_Set
-            | Command_Buffer_Switcher_Selected_Note_Set =>
-            return Editor.Executor.Buffer_Switcher_Selected_Commands
-              .Buffer_Switcher_Selected_Command_Availability (S, Id);
-
-         when Command_Buffer_Switcher_Selected_Pin =>
-            return Editor.Executor.Buffer_Switcher_Selected_Commands
-              .Buffer_Switcher_Selected_Command_Availability (S, Id);
-
-         when Command_Buffer_Switcher_Selected_Unpin =>
-            return Editor.Executor.Buffer_Switcher_Selected_Commands
-              .Buffer_Switcher_Selected_Command_Availability (S, Id);
-
-         when Command_Buffer_Switcher_Selected_Group_Clear =>
-            return Editor.Executor.Buffer_Switcher_Selected_Commands
-              .Buffer_Switcher_Selected_Command_Availability (S, Id);
-
-         when Command_Buffer_Switcher_Selected_Label_Clear =>
-            return Editor.Executor.Buffer_Switcher_Selected_Commands
-              .Buffer_Switcher_Selected_Command_Availability (S, Id);
-
-         when Command_Buffer_Switcher_Selected_Note_Clear =>
-            return Editor.Executor.Buffer_Switcher_Selected_Commands
-              .Buffer_Switcher_Selected_Command_Availability (S, Id);
-
-         when Command_Buffer_Switcher_Preview_Toggle
-            | Command_Buffer_Switcher_Preview_Show =>
-            return Editor.Executor.Buffer_Switcher_Preview_Commands
-              .Buffer_Switcher_Preview_Command_Availability (S, Id);
-
-         when Command_Buffer_Switcher_Mark_Toggle
-            | Command_Buffer_Switcher_Mark_Set
-            | Command_Buffer_Switcher_Mark_Clear
-            | Command_Buffer_Switcher_Mark_Clear_All
-            | Command_Buffer_Switcher_Mark_Close_Marked
-            | Command_Buffer_Switcher_Mark_Pin_Marked
-            | Command_Buffer_Switcher_Mark_Unpin_Marked
-            | Command_Buffer_Switcher_Mark_Clear_Metadata
-            | Command_Buffer_Switcher_Mark_Group_Assign
-            | Command_Buffer_Switcher_Mark_Group_Clear
-            | Command_Buffer_Switcher_Mark_Label_Set
-            | Command_Buffer_Switcher_Mark_Label_Clear
-            | Command_Buffer_Switcher_Mark_Note_Set
-            | Command_Buffer_Switcher_Mark_Note_Clear =>
-            return Editor.Executor.Buffer_Switcher_Mark_Commands
-              .Buffer_Switcher_Mark_Command_Availability (S, Id);
-
-         when Command_Buffer_Switcher_Mark_Confirm =>
-            return Editor.Executor.Buffer_Switcher_Mark_Commands
-              .Buffer_Switcher_Mark_Command_Availability (S, Id);
-
-         when Command_Buffer_Switcher_Mark_Cancel =>
-            return Editor.Executor.Buffer_Switcher_Mark_Commands
-              .Buffer_Switcher_Mark_Command_Availability (S, Id);
-
-         when Command_Buffer_Switcher_Mark_Review_Toggle
-            | Command_Buffer_Switcher_Mark_Review_Show
-            | Command_Buffer_Switcher_Mark_Review_Hide
-            | Command_Buffer_Switcher_Mark_Summary =>
-            return Editor.Executor.Buffer_Switcher_Mark_Commands
-              .Buffer_Switcher_Mark_Command_Availability (S, Id);
-
-         when Command_Buffer_Switcher_Pending_Mark_Review_Toggle
-            | Command_Buffer_Switcher_Pending_Mark_Review_Show
-            | Command_Buffer_Switcher_Pending_Mark_Review_Hide
-            | Command_Buffer_Switcher_Pending_Mark_Summary
-            | Command_Buffer_Switcher_Pending_Mark_Remove_Selected
-            | Command_Buffer_Switcher_Pending_Mark_Restore_Last_Pruned
-            | Command_Buffer_Switcher_Pending_Mark_Pruned_Summary
-            | Command_Buffer_Switcher_Pending_Mark_Dirty_Summary
-            | Command_Buffer_Switcher_Pending_Mark_Dirty_Next
-            | Command_Buffer_Switcher_Pending_Mark_Dirty_Previous
-            | Command_Buffer_Switcher_Pending_Mark_Dirty_Remove_Selected
-            | Command_Buffer_Switcher_Pending_Mark_Dirty_Prune_Preview
-            | Command_Buffer_Switcher_Pending_Mark_Dirty_Prune_Apply
-            | Command_Buffer_Switcher_Pending_Mark_Dirty_Prune_Apply_Confirm
-            | Command_Buffer_Switcher_Pending_Mark_Dirty_Prune_Apply_Cancel
-            | Command_Buffer_Switcher_Pending_Mark_Dirty_Prune_Apply_Summary
-            | Command_Buffer_Switcher_Pending_Mark_Dirty_Prune_Apply_Next
-            | Command_Buffer_Switcher_Pending_Mark_Dirty_Prune_Apply_Previous
-            | Command_Buffer_Switcher_Pending_Mark_Dirty_Prune_Apply_Review_Toggle
-            | Command_Buffer_Switcher_Pending_Mark_Dirty_Prune_Apply_Review_Show
-            | Command_Buffer_Switcher_Pending_Mark_Dirty_Prune_Apply_Review_Hide
-            | Command_Buffer_Switcher_Pending_Mark_Dirty_Prune_Apply_Remove_Selected
-            | Command_Buffer_Switcher_Pending_Mark_Dirty_Prune_Apply_Restore_Last_Removed
-            | Command_Buffer_Switcher_Pending_Mark_Dirty_Prune_Apply_Removed_Summary
-            | Command_Buffer_Switcher_Pending_Mark_Dirty_Prune_Apply_Removed_Next
-            | Command_Buffer_Switcher_Pending_Mark_Dirty_Prune_Apply_Removed_Previous
-            | Command_Buffer_Switcher_Pending_Mark_Dirty_Prune_Apply_Clear_Stale
-            | Command_Buffer_Switcher_Pending_Mark_Dirty_Prune_Apply_Stale_Summary
-            | Command_Buffer_Switcher_Pending_Mark_Dirty_Prune_Cancel
-            | Command_Buffer_Switcher_Pending_Mark_Dirty_Prune_Summary
-            | Command_Buffer_Switcher_Pending_Mark_Dirty_Prune_Next
-            | Command_Buffer_Switcher_Pending_Mark_Dirty_Prune_Previous
-            | Command_Buffer_Switcher_Pending_Mark_Dirty_Prune_Review_Toggle
-            | Command_Buffer_Switcher_Pending_Mark_Dirty_Prune_Review_Show
-            | Command_Buffer_Switcher_Pending_Mark_Dirty_Prune_Review_Hide
-            | Command_Buffer_Switcher_Pending_Mark_Dirty_Prune_Remove_Selected
-            | Command_Buffer_Switcher_Pending_Mark_Dirty_Prune_Restore_Last_Removed
-            | Command_Buffer_Switcher_Pending_Mark_Dirty_Prune_Removed_Summary
-            | Command_Buffer_Switcher_Pending_Mark_Dirty_Prune_Removed_Next
-            | Command_Buffer_Switcher_Pending_Mark_Dirty_Prune_Removed_Previous
-            | Command_Buffer_Switcher_Pending_Mark_Dirty_Prune_Clear_Stale
-            | Command_Buffer_Switcher_Pending_Mark_Dirty_Prune_Stale_Summary
-            | Command_Buffer_Switcher_Pending_Mark_Pruned_Next
-            | Command_Buffer_Switcher_Pending_Mark_Pruned_Previous
-            | Command_Buffer_Switcher_Pending_Mark_Pruned_Review_Toggle
-            | Command_Buffer_Switcher_Pending_Mark_Pruned_Review_Show
-            | Command_Buffer_Switcher_Pending_Mark_Pruned_Review_Hide
-            | Command_Buffer_Switcher_Pending_Mark_Restore_Selected_Pruned =>
-            return Editor.Executor.Buffer_Switcher_Pending_Mark_Commands
-              .Buffer_Switcher_Pending_Mark_Command_Availability (S, Id);
-
-         when Command_Buffer_Switcher_Mark_Next
-            | Command_Buffer_Switcher_Mark_Previous =>
-            return Editor.Executor.Buffer_Switcher_Mark_Commands
-              .Buffer_Switcher_Mark_Command_Availability (S, Id);
-
-         when Command_Buffer_Switcher_Pending_Mark_Next
-            | Command_Buffer_Switcher_Pending_Mark_Previous =>
-            return Editor.Executor.Buffer_Switcher_Pending_Mark_Commands
-              .Buffer_Switcher_Pending_Mark_Command_Availability (S, Id);
-
-         when Command_Buffer_Switcher_Mark_Invert_Visible
-            | Command_Buffer_Switcher_Mark_Visible =>
-            return Editor.Executor.Buffer_Switcher_Mark_Commands
-              .Buffer_Switcher_Mark_Command_Availability (S, Id);
-
-         when Command_Buffer_Switcher_Mark_Clear_Visible =>
-            return Editor.Executor.Buffer_Switcher_Mark_Commands
-              .Buffer_Switcher_Mark_Command_Availability (S, Id);
-
-         when Command_Buffer_Switcher_Mark_Pinned =>
-            return Editor.Executor.Buffer_Switcher_Mark_Commands
-              .Buffer_Switcher_Mark_Command_Availability (S, Id);
-
-         when Command_Buffer_Switcher_Mark_Group =>
-            return Editor.Executor.Buffer_Switcher_Mark_Commands
-              .Buffer_Switcher_Mark_Command_Availability (S, Id);
-
-         when Command_Buffer_Switcher_Mark_Label =>
-            return Editor.Executor.Buffer_Switcher_Mark_Commands
-              .Buffer_Switcher_Mark_Command_Availability (S, Id);
-
-         when Command_Buffer_Switcher_Mark_Noted =>
-            return Editor.Executor.Buffer_Switcher_Mark_Commands
-              .Buffer_Switcher_Mark_Command_Availability (S, Id);
-
-         when Command_Buffer_Switcher_Preview_Hide =>
-            return Editor.Executor.Buffer_Switcher_Preview_Commands
-              .Buffer_Switcher_Preview_Command_Availability (S, Id);
-
-         when Command_Buffer_Switcher_Preview_Next_Line
-            | Command_Buffer_Switcher_Preview_Previous_Line
-            | Command_Buffer_Switcher_Preview_Center_Cursor =>
-            return Editor.Executor.Buffer_Switcher_Preview_Commands
-              .Buffer_Switcher_Preview_Command_Availability (S, Id);
-
-         when Command_Goto_Line_Query_Set =>
-            return Editor.Executor.Command_Surface_Commands
-              .Command_Surface_Command_Availability (S, Id);
-
-         when Command_Goto_Line_Query_Clear =>
-            return Editor.Executor.Command_Surface_Commands
-              .Command_Surface_Command_Availability (S, Id);
-
-         when Command_Close_Goto_Line =>
-            return Editor.Executor.Command_Surface_Commands
-              .Command_Surface_Command_Availability (S, Id);
-
-         when Command_Accept_Goto_Line =>
-            return Editor.Executor.Command_Surface_Commands
-              .Command_Surface_Command_Availability (S, Id);
-
-         when Command_Find_Show
-            | Command_Find_Toggle
-            | Command_Replace_Show
-            | Command_Replace_Toggle =>
-            return Editor.Executor.Find_Replace_Commands
-              .Find_Replace_Command_Availability (S, Id);
-
-         when Command_Find_Hide =>
-            return Editor.Executor.Find_Replace_Commands
-              .Find_Replace_Command_Availability (S, Id);
-
-         when Command_Replace_Hide =>
-            return Editor.Executor.Find_Replace_Commands
-              .Find_Replace_Command_Availability (S, Id);
-
-         when Command_Replace_Text_Set =>
-            return Editor.Executor.Find_Replace_Commands
-              .Find_Replace_Command_Availability (S, Id);
-
-         when Command_Replace_Text_Clear =>
-            return Editor.Executor.Find_Replace_Commands
-              .Find_Replace_Command_Availability (S, Id);
-
-         when Command_Find_Query_Set =>
-            return Editor.Executor.Find_Replace_Commands
-              .Find_Replace_Command_Availability (S, Id);
-
-         when Command_Find_Case_Toggle =>
-            return Editor.Executor.Find_Replace_Commands
-              .Find_Replace_Command_Availability (S, Id);
-
-         when Command_Find_Case_Clear =>
-            return Editor.Executor.Find_Replace_Commands
-              .Find_Replace_Command_Availability (S, Id);
-
-         when Command_Find_Whole_Word_Toggle =>
-            return Editor.Executor.Find_Replace_Commands
-              .Find_Replace_Command_Availability (S, Id);
-
-         when Command_Find_Whole_Word_Clear =>
-            return Editor.Executor.Find_Replace_Commands
-              .Find_Replace_Command_Availability (S, Id);
-
-         when Command_Find_Query_Clear =>
-            return Editor.Executor.Find_Replace_Commands
-              .Find_Replace_Command_Availability (S, Id);
-
-         when Command_Active_Find_Next
-            | Command_Active_Find_Previous
-            | Command_Find_First
-            | Command_Find_Last
-            | Command_Find_Reveal_Current
-            | Command_Replace_Current
-            | Command_Replace_All =>
-            return Editor.Executor.Find_Replace_Commands
-              .Find_Replace_Command_Availability (S, Id);
-
-         when Command_Close_Project_Search_Bar =>
-            return Editor.Executor.Search_Commands
-              .Project_Search_Command_Availability (S, Id);
-
-         when Command_Move_Project_Search_Selection_Up
-            | Command_Move_Project_Search_Selection_Down =>
-            return Editor.Executor.Search_Commands
-              .Project_Search_Command_Availability (S, Id);
-
-         when Command_Problems_Focus_Editor
-            | Command_Toggle_Bottom_Panel_Focus =>
-            return Editor.Executor.Panel_Focus_Commands
-              .Panel_Focus_Command_Availability (S, Id);
-
-         when Command_File_Tree_Move_Up
-            | Command_File_Tree_Move_Down
-            | Command_File_Tree_Page_Up
-            | Command_File_Tree_Page_Down =>
-            return Editor.Executor.File_Tree_Commands
-              .File_Tree_Command_Availability (S, Id);
-
-         when Command_File_Tree_Open_Selected =>
-            return Editor.Executor.File_Tree_Commands
-              .File_Tree_Command_Availability (S, Id);
-
-         when Command_File_Tree_Create_File
-            | Command_File_Tree_Create_Directory
-            | Command_File_Tree_Rename_Selected
-            | Command_File_Tree_Delete_Selected =>
-            return Editor.Executor.File_Tree_Commands
-              .File_Tree_Command_Availability (S, Id);
-
-         when Command_File_Tree_Expand_Selected
-            | Command_File_Tree_Collapse_Selected
-            | Command_File_Tree_Toggle_Selected =>
-            return Editor.Executor.File_Tree_Commands
-              .File_Tree_Command_Availability (S, Id);
-
-         when Command_File_Tree_Collapse_All =>
-            return Editor.Executor.File_Tree_Commands
-              .File_Tree_Command_Availability (S, Id);
-
-         when Command_File_Tree_Expand_To_Active_File =>
-            return Editor.Executor.File_Tree_Commands
-              .File_Tree_Command_Availability (S, Id);
-
-         when Command_Show_Recent_Projects =>
-            return Editor.Executor.Project_Lifecycle_Commands
-              .Project_Lifecycle_Command_Availability (S, Id);
-
-         when Command_Clear_Recent_Projects =>
-            return Editor.Executor.Project_Lifecycle_Commands
-              .Project_Lifecycle_Command_Availability (S, Id);
-
-         when Command_Open_Selected_Recent_Project =>
-            return Editor.Executor.Project_Lifecycle_Commands
-              .Project_Lifecycle_Command_Availability (S, Id);
-
-         when Command_Remove_Selected_Recent_Project =>
-            return Editor.Executor.Project_Lifecycle_Commands
-              .Project_Lifecycle_Command_Availability (S, Id);
-
-         when Command_Remove_Missing_Recent_Projects =>
-            return Editor.Executor.Project_Lifecycle_Commands
-              .Project_Lifecycle_Command_Availability (S, Id);
-
-         when Command_Select_Next_Recent_Project
-            | Command_Select_Previous_Recent_Project =>
-            return Editor.Executor.Project_Lifecycle_Commands
-              .Project_Lifecycle_Command_Availability (S, Id);
-
-         when Command_Save_Settings
-            | Command_Reload_Settings
-            | Command_Reset_Settings_To_Defaults
-            | Command_Validate_Keybindings
-            | Command_Keybindings_Show
-            | Command_Keybindings_Focus
-            | Command_Keybindings_Filter_Conflicts
-            | Command_Keybindings_Filter_Unbound
-            | Command_Keybindings_Clear_Filter =>
-            return Editor.Executor.Configuration_Commands
-              .Configuration_Command_Availability (S, Id);
-
-         when Command_Startup_Show_Summary =>
-            return Editor.Executor.Configuration_Commands
-              .Configuration_Command_Availability (S, Id);
-
-         when Command_Configuration_Recover_Show
-            | Command_Configuration_Audit =>
-            return Editor.Executor.Configuration_Commands
-              .Configuration_Command_Availability (S, Id);
-
-         when Command_Configuration_Reset_All_Confirm
-            | Command_Configuration_Reset_All_Cancel =>
-            return Editor.Executor.Configuration_Commands
-              .Configuration_Command_Availability (S, Id);
-
-         when Command_Configuration_Reset_Settings
-            | Command_Configuration_Reset_Keybindings
-            | Command_Configuration_Reset_Workspace
-            | Command_Configuration_Reset_Recent_Projects
-            | Command_Configuration_Reset_All
-            | Command_Configuration_Save_Clean_Settings
-            | Command_Configuration_Save_Clean_Keybindings
-            | Command_Configuration_Save_Clean_Workspace
-            | Command_Configuration_Save_Clean_Recent_Projects =>
-            return Editor.Executor.Configuration_Commands
-              .Configuration_Command_Availability (S, Id);
-
-         when Command_Keybindings_Cancel_Capture =>
-            return Editor.Executor.Configuration_Commands
-              .Configuration_Command_Availability (S, Id);
-
-         when Command_Save_Keybindings
-            | Command_Reload_Keybindings =>
-            return Editor.Executor.Configuration_Commands
-              .Configuration_Command_Availability (S, Id);
-
-         when Command_Keybindings_Assign_Selected =>
-            return Editor.Executor.Configuration_Commands
-              .Configuration_Command_Availability (S, Id);
-
-         when Command_Keybindings_Remove_Selected =>
-            return Editor.Executor.Configuration_Commands
-              .Configuration_Command_Availability (S, Id);
-
-         when Command_Keybindings_Reset_To_Defaults =>
-            return Editor.Executor.Configuration_Commands
-              .Configuration_Command_Availability (S, Id);
-
-         when Command_Save_Workspace_State
-            | Command_Restore_Workspace_State
-            | Command_Clear_Workspace_State =>
-            return Editor.Executor.Workspace_Commands
-              .Workspace_Command_Availability (S, Id);
-
-         when Command_Toggle_Feature_Panel
-            | Command_Show_Feature_Panel
-            | Command_Hide_Feature_Panel
-            | Command_Focus_Feature_Panel
-            | Command_Clear_Feature_Panel
-            | Command_Feature_Panel_Open_Selected
-            | Command_Feature_Panel_Select_Next
-            | Command_Feature_Panel_Select_Previous =>
-            return Editor.Executor.Feature_Panel_Commands
-              .Feature_Panel_Command_Availability (S, Id);
-
-         when Command_Refresh_Outline =>
-            return Editor.Executor.Outline_Commands
-              .Outline_Command_Availability (S, Id);
-
-         when Command_Refresh_Outline_Project_Index
-            | Command_Semantic_Refresh_Buffer
-            | Command_Semantic_Refresh_Project_Index
-            | Command_Goto_Declaration
-            | Command_Goto_Body
-            | Command_Goto_Spec
-            | Command_Find_References
-            | Command_Workspace_Symbols
-            | Command_Show_Hover
-            | Command_Show_Completions
-            | Command_Rename_Symbol_Preview
-            | Command_Rename_Symbol_Apply
-            | Command_Semantic_Completion_Select_Next
-            | Command_Semantic_Completion_Select_Previous
-            | Command_Semantic_Completion_Accept
-            | Command_Semantic_Popup_Dismiss =>
-            return Editor.Executor.Semantic_Commands.Semantic_Command_Availability
-              (S, Id);
-
-         when Command_Language_Index_Clear
-            | Command_Language_Index_Status =>
-            return Editor.Executor.Semantic_Commands.Semantic_Command_Availability
-              (S, Id);
-
-         when Command_Clear_Outline =>
-            return Editor.Executor.Outline_Commands
-              .Outline_Command_Availability (S, Id);
-
-         when Command_Show_Outline =>
-            return Editor.Executor.Outline_Commands
-              .Outline_Command_Availability (S, Id);
-
-         when Command_Focus_Outline =>
-            return Editor.Executor.Outline_Commands
-              .Outline_Command_Availability (S, Id);
-
-         when Command_Open_Selected_Outline_Item =>
-            return Editor.Executor.Outline_Commands
-              .Outline_Command_Availability (S, Id);
-
-         when Command_Next_Outline_Symbol
-            | Command_Previous_Outline_Symbol =>
-            return Editor.Executor.Outline_Commands
-              .Outline_Command_Availability (S, Id);
-
-         when Command_Select_Current_Outline_Symbol
-            | Command_Reveal_Current_Outline_Symbol =>
-            return Editor.Executor.Outline_Commands
-              .Outline_Command_Availability (S, Id);
-
-         when Command_Select_Next_Outline_Item
-            | Command_Select_Previous_Outline_Item =>
-            return Editor.Executor.Outline_Commands
-              .Outline_Command_Availability (S, Id);
-
-         when Command_Focus_Outline_Filter
-            | Command_Filter_Outline
-            | Command_Toggle_Outline_Filter
-            | Command_Outline_Filter_History_Previous
-            | Command_Outline_Filter_History_Next =>
-            return Editor.Executor.Outline_Commands
-              .Outline_Command_Availability (S, Id);
-
-         when Command_Clear_Outline_Filter
-            | Command_Clear_Outline_Filter_History =>
-            return Editor.Executor.Outline_Commands
-              .Outline_Command_Availability (S, Id);
-
-         when Command_Show_Messages
-            =>
-            return Editor.Executor.Message_Commands
-              .Message_Command_Availability (S, Id);
-
-         when Command_Diagnostics_Show
-            | Command_Diagnostics_Toggle_Info
-            | Command_Diagnostics_Toggle_Warnings
-            | Command_Diagnostics_Toggle_Errors
-            | Command_Diagnostics_Show_All
-            | Command_Diagnostics_Toggle_Editor_Source
-            | Command_Diagnostics_Toggle_File_Source
-            | Command_Diagnostics_Toggle_Project_Source
-            | Command_Diagnostics_Toggle_External_Source
-            | Command_Diagnostics_Toggle_Unknown_Source =>
-            return Editor.Executor.Diagnostics_Commands
-              .Diagnostics_Command_Availability (S, Id);
-
-         when Command_Search_Results_Focus_Query
-            | Command_Search_Results_Query_History_Previous
-            | Command_Search_Results_Query_History_Next
-            | Command_Search_Results_Toggle_Case_Sensitive
-            | Command_Show_Search_Results_Feature =>
-            return Editor.Executor.Search_Results_Commands
-              .Search_Results_Command_Availability (S, Id);
-
-         when Command_Diagnostics_Open_Selected
-            | Command_Diagnostic_Open_Source
-            | Command_Diagnostics_Execute_Selected_Action
-            | Command_Diagnostic_Apply_Quick_Fix =>
-            return Editor.Executor.Diagnostics_Commands
-              .Diagnostics_Command_Availability (S, Id);
-
-         when Command_Diagnostic_Suppress_Selected =>
-            return Editor.Executor.Diagnostics_Commands
-              .Diagnostics_Command_Availability (S, Id);
-
-         when Command_Diagnostic_Show_Suppressed
-            | Command_Diagnostic_Restore_Last_Suppressed
-            | Command_Diagnostic_Restore_Selected_Suppressed
-            | Command_Diagnostic_Clear_Suppressed =>
-            return Editor.Executor.Diagnostics_Commands
-              .Diagnostics_Command_Availability (S, Id);
-
-         when Command_Diagnostics_Clear_Selected
-            | Command_Diagnostics_Copy_Selected_Text =>
-            return Editor.Executor.Diagnostics_Commands
-              .Diagnostics_Command_Availability (S, Id);
-
-         when Command_Diagnostics_Select_Next
-            | Command_Diagnostics_Select_Previous =>
-            return Editor.Executor.Diagnostics_Commands
-              .Diagnostics_Command_Availability (S, Id);
-
-         when Command_Diagnostics_Clear_Info =>
-            return Editor.Executor.Diagnostics_Commands
-              .Diagnostics_Command_Availability (S, Id);
-
-         when Command_Diagnostics_Clear_Warnings =>
-            return Editor.Executor.Diagnostics_Commands
-              .Diagnostics_Command_Availability (S, Id);
-
-         when Command_Diagnostics_Clear_Errors =>
-            return Editor.Executor.Diagnostics_Commands
-              .Diagnostics_Command_Availability (S, Id);
-
-         when Command_Diagnostics_Clear_Filter =>
-            return Editor.Executor.Diagnostics_Commands
-              .Diagnostics_Command_Availability (S, Id);
-
-         when Command_Diagnostics_Filter_Errors
-            | Command_Diagnostics_Filter_Warnings
-            | Command_Diagnostics_Filter_Info_Notes =>
-            return Editor.Executor.Diagnostics_Commands
-              .Diagnostics_Command_Availability (S, Id);
-
-         when Command_Diagnostics_Filter_Build =>
-            return Editor.Executor.Diagnostics_Commands
-              .Diagnostics_Command_Availability (S, Id);
-
-         when Command_Diagnostics_Filter_Source =>
-            return Editor.Executor.Diagnostics_Commands
-              .Diagnostics_Command_Availability (S, Id);
-
-         when Command_Diagnostics_Clear_Build =>
-            return Editor.Executor.Diagnostics_Commands
-              .Diagnostics_Command_Availability (S, Id);
-
-         when Command_Search_Results_Search_Active_Buffer =>
-            return Editor.Executor.Search_Results_Commands
-              .Search_Results_Command_Availability (S, Id);
-
-         when Command_Search_Results_Repeat_Active_Buffer =>
-            return Editor.Executor.Search_Results_Commands
-              .Search_Results_Command_Availability (S, Id);
-
-         when Command_Clear_Search_Results_Feature
-            | Command_Diagnostics_Clear =>
-            if Id = Command_Clear_Search_Results_Feature then
-               return Editor.Executor.Search_Results_Commands
-                 .Search_Results_Command_Availability (S, Id);
-            else
-               return Editor.Executor.Diagnostics_Commands
-                 .Diagnostics_Command_Availability (S, Id);
-            end if;
-
-         when Command_Toggle_Message_Info
-            | Command_Toggle_Message_Warnings
-            | Command_Toggle_Message_Errors
-            | Command_Show_All_Messages
-            | Command_Clear_Message_Filter =>
-            return Editor.Executor.Message_Commands
-              .Message_Command_Availability (S, Id);
-
-         when Command_Clear_Messages
-            | Command_Clear_Info_Messages
-            | Command_Clear_Warning_Messages
-            | Command_Clear_Error_Messages =>
-            return Editor.Executor.Message_Commands
-              .Message_Command_Availability (S, Id);
-
-         when Command_Clear_Selected_Message
-            | Command_Copy_Selected_Message_Text =>
-            return Editor.Executor.Message_Commands
-              .Message_Command_Availability (S, Id);
-
-         when Command_Dismiss_Latest_Message | Command_Dismiss_All_Messages =>
-            return Editor.Executor.Message_Commands
-              .Message_Command_Availability (S, Id);
-
-         when Command_Run_Project
-            | Command_Run_Tests =>
-            return Editor.Executor.Terminal_Commands
-              .Terminal_Command_Availability (S, Id);
-
-         when Command_Terminal_Toggle
-            | Command_Terminal_Show
-            | Command_Terminal_Hide
-            | Command_Terminal_Focus
-            | Command_Terminal_Clear
-            | Command_Terminal_Clear_Output =>
-            return Editor.Executor.Terminal_Commands
-              .Terminal_Command_Availability (S, Id);
-
-         when Command_Terminal_Select_Next_Task
-            | Command_Terminal_Select_Previous_Task
-            | Command_Terminal_Run_Selected_Task =>
-            return Editor.Executor.Terminal_Commands
-              .Terminal_Command_Availability (S, Id);
-
-         when Command_Terminal_Rerun_Last_Task =>
-            return Editor.Executor.Terminal_Commands
-              .Terminal_Command_Availability (S, Id);
-
-         when Command_Terminal_Cancel_Task =>
-            return Editor.Executor.Terminal_Commands
-              .Terminal_Command_Availability (S, Id);
-
-         when Command_Build_UI_Toggle
-            | Command_Build_UI_Show
-            | Command_Build_UI_Hide
-            | Command_Build_UI_Focus
-            | Command_Build_Set_Mode_Default
-            | Command_Build_Set_Mode_Debug
-            | Command_Build_Set_Mode_Release
-            | Command_Build_Set_Mode_Validation
-            | Command_Build_Toggle_Diagnostics_Ingestion
-            | Command_Build_Cycle_Output_Limit
-            | Command_Build_Clear_Consent =>
-            return Editor.Executor.Build_Commands
-              .Build_Command_Availability (S, Id);
-
-         when Command_Build_Refresh_Candidates =>
-            return Editor.Executor.Build_Commands
-              .Build_Command_Availability (S, Id);
-
-         when Command_Build_Result_Focus =>
-            return Editor.Executor.Build_Commands
-              .Build_Command_Availability (S, Id);
-
-         when Command_Build_Output_Details_Focus
-            | Command_Build_Output_Details_Select_Stdout
-            | Command_Build_Output_Details_Select_Stderr
-            | Command_Build_Output_Details_Select_Merged =>
-            return Editor.Executor.Build_Commands
-              .Build_Command_Availability (S, Id);
-
-         when Command_Build_Select_First_Candidate
-            | Command_Build_Select_Next_Candidate
-            | Command_Build_Select_Previous_Candidate =>
-            return Editor.Executor.Build_Commands
-              .Build_Command_Availability (S, Id);
-
-         when Command_Build_Clear_Selected_Candidate =>
-            return Editor.Executor.Build_Commands
-              .Build_Command_Availability (S, Id);
-
-         when Command_Build_Toggle_Option_Verbose
-            | Command_Build_Toggle_Option_Keep_Going =>
-            return Editor.Executor.Build_Commands
-              .Build_Command_Availability (S, Id);
-
-         when Command_Build_Acknowledge_Consent =>
-            return Editor.Executor.Build_Commands
-              .Build_Command_Availability (S, Id);
-
-         when Command_Build_Run =>
-            return Editor.Executor.Build_Commands
-              .Build_Command_Availability (S, Id);
-
-         when Command_Build_Cancel =>
-            return Editor.Executor.Build_Commands
-              .Build_Command_Availability (S, Id);
-
-         when Command_Build_Run_User_Opt_In_Test_Seam =>
-            return Editor.Executor.Build_Commands
-              .Build_Command_Availability (S, Id);
-
-         when Command_Close_Project
-            | Command_Clear_Project =>
-            return Editor.Executor.Project_Lifecycle_Commands
-              .Project_Lifecycle_Command_Availability (S, Id);
-
-         when Command_Switch_Project =>
-            return Editor.Executor.Project_Lifecycle_Commands
-              .Project_Lifecycle_Command_Availability (S, Id);
-
-         when Command_Open_Project =>
-            return Editor.Executor.Project_Lifecycle_Commands
-              .Project_Lifecycle_Command_Availability (S, Id);
-
-         when Command_Open_File | Command_Switch_Buffer =>
-            return Editor.Executor.File_Open_Commands
-              .File_Open_Command_Availability (S, Id);
-      end case;
+      return Editor.Executor.Availability.Command_Availability (S, Id);
    end Command_Availability;
-
-
-   function Lower (Text : String) return String
-   is
-   begin
-      return Ada.Characters.Handling.To_Lower (Text);
-   end Lower;
 
    procedure Command_Palette_Candidates
      (S      : Editor.State.State_Type;
       Result : out Editor.Commands.Command_Palette_Candidate_Vectors.Vector)
    is
-      All_Commands : constant Editor.Commands.Command_Descriptor_Vectors.Vector :=
-        Editor.Commands.Palette_Commands;
-      Query : constant String :=
-        To_String (Editor.Command_Palette.Current.Query);
-      Score : Natural := 0;
-
-      function Starts_With (Text : String; Prefix : String) return Boolean is
-      begin
-         return Text'Length >= Prefix'Length
-           and then Text (Text'First .. Text'First + Prefix'Length - 1) = Prefix;
-      end Starts_With;
-
-      function Relevance_Boost (Id : Editor.Commands.Command_Id) return Natural is
-         Stable : constant String := Editor.Commands.Stable_Command_Name (Id);
-         Previous : constant Editor.Overlay_Focus.Previous_Focus_Target :=
-           Editor.Overlay_Focus.Previous_Focus (S.Overlay_Focus);
-      begin
-         --  while the Command Palette owns overlay focus, rank
-         --  commands for the surface that opened it. This is pure projection
-         --  metadata: it never changes focus, injects row payloads, or hides
-         --  unrelated commands.
-         case Previous is
-            when Editor.Overlay_Focus.Previous_File_Tree =>
-               if Starts_With (Stable, "file-tree.") then
-                  return 50;
-               end if;
-            when Editor.Overlay_Focus.Previous_Search_Results =>
-               if Starts_With (Stable, "project-search.")
-                 or else Starts_With (Stable, "search-results.")
-               then
-                  return 50;
-               end if;
-            when Editor.Overlay_Focus.Previous_Problems =>
-               if Starts_With (Stable, "diagnostics.")
-                 or else Starts_With (Stable, "problems.")
-               then
-                  return 50;
-               end if;
-            when Editor.Overlay_Focus.Previous_Editor_Text
-               | Editor.Overlay_Focus.Previous_None =>
-               null;
-         end case;
-         return 0;
-      end Relevance_Boost;
-
-      function State_Context_For
-        (Id : Editor.Commands.Command_Id) return String
-      is
-         Stable : constant String := Editor.Commands.Stable_Command_Name (Id);
-      begin
-         if Starts_With (Stable, "problems.") then
-            return
-              "Current Problems view: filter "
-              & Editor.Problems.Severity_Filter_Label
-                  (S.Problems_View.Severity_Filter)
-              & ", sort "
-              & Editor.Problems.Sort_Mode_Label (S.Problems_View.Sort_Mode)
-              & ", group "
-              & Editor.Problems.Group_Mode_Label (S.Problems_View.Group_Mode)
-              & ".";
-         elsif Starts_With (Stable, "diagnostics.") then
-            return
-              "Diagnostics review state: suppressed "
-              & Ada.Strings.Fixed.Trim
-                  (Natural'Image
-                     (Editor.Feature_Diagnostics.Suppressed_Diagnostic_Count
-                        (S.Feature_Diagnostics)),
-                   Ada.Strings.Both)
-              & ", visible "
-              & Ada.Strings.Fixed.Trim
-                  (Natural'Image
-                     (Editor.Feature_Diagnostics.Visible_Row_Count
-                        (S.Feature_Diagnostics)),
-                   Ada.Strings.Both)
-              & ".";
-         elsif Starts_With (Stable, "build.") then
-            declare
-               Snapshot : constant Editor.Build_UI.Build_UI_Render_Snapshot :=
-                 Editor.Build_UI_Actions.Build_UI_Operability_Snapshot (S);
-               Selected : constant Natural :=
-                 Editor.Build_UI.Selected_Action_Row
-                   (S.Build_UI, Natural (Snapshot.Actions.Length));
-               Selected_Label : constant String :=
-                 (if Selected = 0 then "none"
-                  else To_String (Snapshot.Actions.Element (Selected - 1).Label));
-            begin
-               return
-                 "Current Build UI state: "
-                 & (if Snapshot.Visible then "visible" else "hidden")
-                 & ", selected action " & Selected_Label
-                 & ", "
-                 & To_String (Snapshot.Request_Status_Label)
-                 & ", "
-                 & To_String (Snapshot.Run_Command_Status_Label)
-                 & ".";
-            end;
-         else
-            return "";
-         end if;
-      end State_Context_For;
-
    begin
-      Result.Clear;
-      Editor.Command_Palette.Clear_Command_State_Contexts;
-
-      for D of All_Commands loop
-         declare
-            Binding : constant Editor.Keybindings.Command_Keybinding_Info :=
-              Editor.Keybindings.Primary_Binding_For_Command (D.Id);
-         begin
-            Score := Editor.Command_Palette.Metadata_Match_Score
-              (Label          => To_String (D.Name),
-               Stable_Name    => Editor.Commands.Stable_Command_Name (D.Id),
-               Category_Label => Editor.Commands.Discoverability_Category_Label
-                 (D.Id),
-               Description    => To_String (D.Description),
-               Keybinding     =>
-                 (if Editor.Command_Palette.Current_Config.Show_Keybindings
-                  then To_String (Binding.Display)
-                  else ""),
-               Query          => Query);
-            if Score > 0 then
-               Score := Score + Relevance_Boost (D.Id);
-            end if;
-         end;
-
-         if Score > 0 then
-            declare
-               A : constant Editor.Commands.Command_Availability :=
-                 Command_Availability (S, D.Id);
-            begin
-               declare
-                  Binding : constant Editor.Keybindings.Command_Keybinding_Info :=
-                    Editor.Keybindings.Primary_Binding_For_Command (D.Id);
-               begin
-                  declare
-                     Candidate : constant Editor.Commands.Command_Palette_Candidate :=
-                        (Id                 => D.Id,
-                        Label              => D.Name,
-                        Description        => D.Description,
-                        Category           => D.Category,
-                        Category_Label     => To_Unbounded_String
-                          (Editor.Commands.Discoverability_Category_Label (D.Id)),
-                        Available          => Editor.Commands.Is_Available (A),
-                        Reason             => A.Reason,
-                        Has_Keybinding     => D.Bindable and then Binding.Has_Binding,
-                        Keybinding_Display => Binding.Display,
-                        Reference_Summary  => D.Summary,
-                        Family             => D.Family,
-                        Effect_Classification => D.Effect_Classification,
-                        Match_Score        => Score,
-                        Registry_Order     => Editor.Command_Palette.Descriptor_Registry_Order (D.Id));
-                  begin
-                     if Editor.Command_Palette.Candidate_Passes_Transient_Filters
-                          (Candidate)
-                     then
-                        Editor.Command_Palette.Set_Command_State_Context
-                          (D.Id, State_Context_For (D.Id));
-                        Result.Append (Candidate);
-                     end if;
-                  end;
-               end;
-            end;
-         end if;
-      end loop;
-
-      Editor.Command_Palette.Sort_Candidates (Result);
+      Editor.Executor.Command_Palette_Projection.Command_Palette_Candidates
+        (S, Result);
    end Command_Palette_Candidates;
-
    procedure Report_Info
      (S    : in out Editor.State.State_Type;
       Text : String)
    is
    begin
-      Editor.Messages.Push_Info
-        (S.Messages, Editor.Commands.Normalize_Workflow_Message (Text),
-         Current_Message_Time_Ms, Default_Message_Config);
+      Editor.Executor.Shared_Services.Report_Info (S, Text);
    end Report_Info;
-
    procedure Report_Info_Raw
      (S    : in out Editor.State.State_Type;
       Text : String)
    is
    begin
-      Editor.Messages.Push_Info
-        (S.Messages, Text, Current_Message_Time_Ms, Default_Message_Config);
+      Editor.Executor.Shared_Services.Report_Info_Raw (S, Text);
    end Report_Info_Raw;
-
-   function Append_Message_Config return Editor.Messages.Message_Config
+   function Command_Requires_Explicit_Target
+     (Id : Editor.Commands.Command_Id) return Boolean
    is
-      Config : Editor.Messages.Message_Config := Default_Message_Config;
    begin
-      Config.Max_Visible_Messages := Natural'Last / 2;
-      Config.Replace_Same_Category := False;
-      return Config;
-   end Append_Message_Config;
-
+      return Editor.Executor.Shared_Services.Command_Requires_Explicit_Target (Id);
+   end Command_Requires_Explicit_Target;
    procedure Report_Info_Append
      (S    : in out Editor.State.State_Type;
       Text : String)
    is
    begin
-      Editor.Messages.Push_Info
-        (S.Messages, Editor.Commands.Normalize_Workflow_Message (Text),
-         Current_Message_Time_Ms, Append_Message_Config);
+      Editor.Executor.Shared_Services.Report_Info_Append (S, Text);
    end Report_Info_Append;
-
    procedure Report_Success_Append
      (S    : in out Editor.State.State_Type;
       Text : String)
    is
    begin
-      Editor.Messages.Push_Success
-        (S.Messages, Text, Current_Message_Time_Ms, Append_Message_Config);
+      Editor.Executor.Shared_Services.Report_Success_Append (S, Text);
    end Report_Success_Append;
-
    function Visible_Restore_Message_In_History
      (S : Editor.State.State_Type) return Boolean
    is
-      Now    : constant Natural := Current_Message_Time_Ms;
-      Config : constant Editor.Messages.Message_Config := Default_Message_Config;
-      Count  : constant Natural :=
-        Editor.Messages.Visible_Count (S.Messages, Now, Config);
    begin
-      for I in 1 .. Count loop
-         declare
-            Text : constant String :=
-              Editor.Messages.Text
-                (Editor.Messages.Visible_Message (S.Messages, I, Now, Config));
-         begin
-            if Text = "Workspace restored."
-              or else Ada.Strings.Fixed.Index
-                (Text, "Workspace restored. restore details:") = Text'First
-              or else Text = "Workspace restored with missing entries skipped."
-              or else Ada.Strings.Fixed.Index
-                (Text, "Workspace restored with missing entries skipped. restore details:") =
-                  Text'First
-            then
-               return True;
-            end if;
-         end;
-      end loop;
-      return False;
+      return Editor.Executor.Shared_Services.Visible_Restore_Message_In_History (S);
    end Visible_Restore_Message_In_History;
-
    procedure Report_Warning_Raw
      (S    : in out Editor.State.State_Type;
       Text : String)
    is
    begin
-      Editor.Messages.Push_Warning
-        (S.Messages, Text, Current_Message_Time_Ms, Default_Message_Config);
+      Editor.Executor.Shared_Services.Report_Warning_Raw (S, Text);
    end Report_Warning_Raw;
-
-
-   function Command_Requires_Explicit_Target
-     (Id : Editor.Commands.Command_Id) return Boolean
-   is
-   begin
-      return Editor.Commands.Command_Requires_Explicit_Target (Id);
-   end Command_Requires_Explicit_Target;
-
    procedure Report_Success
      (S    : in out Editor.State.State_Type;
       Text : String)
    is
    begin
-      Editor.Messages.Push_Success
-        (S.Messages, Text, Current_Message_Time_Ms, Default_Message_Config);
+      Editor.Executor.Shared_Services.Report_Success (S, Text);
    end Report_Success;
-
    procedure Report_Warning
      (S    : in out Editor.State.State_Type;
       Text : String)
    is
    begin
-      Editor.Messages.Push_Warning
-        (S.Messages, Editor.Commands.Normalize_Workflow_Message (Text),
-         Current_Message_Time_Ms, Default_Message_Config);
+      Editor.Executor.Shared_Services.Report_Warning (S, Text);
    end Report_Warning;
-
-
-
    function Current_Navigation_Location
      (S      : Editor.State.State_Type;
       Reason : Editor.Navigation_History.Navigation_History_Reason :=
@@ -3035,7 +1382,6 @@ package body Editor.Executor is
          Reason         => Reason);
    end Current_Navigation_Location;
 
-
    function Structured_File_Navigation_Target
      (Path   : String;
       Line   : Natural := 1;
@@ -3059,7 +1405,6 @@ package body Editor.Executor is
          Viewport_Row   => 0,
          Reason         => Reason);
    end Structured_File_Navigation_Target;
-
    procedure Record_Navigation_From_Current
      (S      : in out Editor.State.State_Type;
       Reason : Editor.Navigation_History.Navigation_History_Reason)
@@ -3068,7 +1413,6 @@ package body Editor.Executor is
       Editor.Navigation_History.Record_Explicit_Navigation
         (S.Navigation_History, Current_Navigation_Location (S, Reason));
    end Record_Navigation_From_Current;
-
    function Same_Navigation_Place
      (S        : Editor.State.State_Type;
       Location : Editor.Navigation_History.Navigation_Location) return Boolean
@@ -3077,7 +1421,6 @@ package body Editor.Executor is
       return Editor.Navigation_History.Locations_Equal
         (Current_Navigation_Location (S), Location);
    end Same_Navigation_Place;
-
    procedure Record_Navigation_If_Target_Changed
      (S        : in out Editor.State.State_Type;
       Previous : Editor.Navigation_History.Navigation_Location;
@@ -3087,7 +1430,6 @@ package body Editor.Executor is
       Editor.Navigation_History.Record_Explicit_Navigation_If_Target_Changed
         (S.Navigation_History, Previous, Target);
    end Record_Navigation_If_Target_Changed;
-
    procedure Record_Navigation_If_Current_Changed
      (S        : in out Editor.State.State_Type;
       Previous : Editor.Navigation_History.Navigation_Location)
@@ -3096,9 +1438,6 @@ package body Editor.Executor is
       Record_Navigation_If_Target_Changed
         (S, Previous, Current_Navigation_Location (S));
    end Record_Navigation_If_Current_Changed;
-
-
-
    function Navigation_Target_Is_Valid
      (S        : Editor.State.State_Type;
       Location : Editor.Navigation_History.Navigation_Location) return Boolean
@@ -3142,7 +1481,6 @@ package body Editor.Executor is
         and then Location.Column <= Editor.Navigation.Line_Length
           (Target_State, Location.Line - 1);
    end Navigation_Target_Is_Valid;
-
    function Apply_Navigation_Location
      (S        : in out Editor.State.State_Type;
       Location : Editor.Navigation_History.Navigation_Location;
@@ -3216,17 +1554,13 @@ package body Editor.Executor is
       Status := Navigation_Applied;
       return True;
    end Apply_Navigation_Location;
-
    procedure Report_Error
      (S    : in out Editor.State.State_Type;
       Text : String)
    is
    begin
-      Editor.Messages.Push_Error
-        (S.Messages, Editor.Commands.Normalize_Workflow_Message (Text),
-         Current_Message_Time_Ms, Default_Message_Config);
+      Editor.Executor.Shared_Services.Report_Error (S, Text);
    end Report_Error;
-
    procedure Clear_Restore_Feedback_Current
      (S : in out Editor.State.State_Type)
    is
@@ -3234,7 +1568,6 @@ package body Editor.Executor is
       S.Post_Restore_Feedback_Current := False;
       S.Last_Restore_Summary_Available := False;
    end Clear_Restore_Feedback_Current;
-
    procedure Mark_Restore_Summary_Current
      (S       : in out Editor.State.State_Type;
       Summary : Editor.Workspace_Persistence.Workspace_Restore_Summary)
@@ -3243,7 +1576,6 @@ package body Editor.Executor is
       Editor.Executor.Workspace_Commands.Mark_Restore_Summary_Current
         (S, Summary);
    end Mark_Restore_Summary_Current;
-
    procedure Report_Restore_Success
      (S    : in out Editor.State.State_Type;
       Text : String)
@@ -3251,7 +1583,6 @@ package body Editor.Executor is
    begin
       Editor.Executor.Workspace_Commands.Report_Restore_Success (S, Text);
    end Report_Restore_Success;
-
    procedure Report_Restore_Warning
      (S    : in out Editor.State.State_Type;
       Text : String)
@@ -3259,21 +1590,18 @@ package body Editor.Executor is
    begin
       Editor.Executor.Workspace_Commands.Report_Restore_Warning (S, Text);
    end Report_Restore_Warning;
-
    procedure Report_Target_Unavailable
      (S : in out Editor.State.State_Type)
    is
    begin
       Report_Info (S, "Navigation target unavailable.");
    end Report_Target_Unavailable;
-
    procedure Report_No_Selection
      (S : in out Editor.State.State_Type)
    is
    begin
       Report_Info (S, "No selection");
    end Report_No_Selection;
-
    function Count_Text
      (Count    : Natural;
       Singular : String;
@@ -3286,39 +1614,15 @@ package body Editor.Executor is
          return Ada.Strings.Fixed.Trim (Natural'Image (Count), Ada.Strings.Both) & " " & Plural;
       end if;
    end Count_Text;
-
    function Check_Dirty_Transition
      (State : Editor.State.State_Type;
       Kind  : Editor.Dirty_Guards.Dirty_Transition_Kind)
       return Editor.Dirty_Guards.Dirty_Transition_Result
    is
-      Summary : Editor.Dirty_Guards.Dirty_Buffer_Summary :=
-        Editor.Buffers.Global_Categorized_Dirty_Buffer_Summary (State.Project);
    begin
-      if Editor.Buffers.Global_Count = 0 then
-         Summary :=
-           (Dirty_Count       => (if State.File_Info.Dirty then 1 else 0),
-            Untitled_Count    =>
-              (if State.File_Info.Dirty and then not State.File_Info.Has_Path
-               then 1 else 0),
-            File_Backed_Count =>
-              (if State.File_Info.Dirty and then State.File_Info.Has_Path
-               then 1 else 0));
-      end if;
-
-      return Editor.Dirty_Guards.Guard_Transition (Kind, Summary);
+      return Editor.Executor.Pending_Transition_Policy.Check_Dirty_Transition
+        (State, Kind);
    end Check_Dirty_Transition;
-
-   procedure Report_Dirty_Block
-     (S      : in out Editor.State.State_Type;
-      Result : Editor.Dirty_Guards.Dirty_Transition_Result)
-   is
-   begin
-      Report_Warning_Raw (S, Editor.Dirty_Guards.Reason (Result));
-   end Report_Dirty_Block;
-
-
-
    function Pending_Target_For
      (Kind      : Editor.Pending_Transitions.Pending_Transition_Kind;
       Path      : String := "";
@@ -3326,426 +1630,67 @@ package body Editor.Executor is
       Buffer_Id : Editor.Buffers.Buffer_Id := Editor.Buffers.No_Buffer)
       return Editor.Pending_Transitions.Pending_Transition_Target
    is
-      Target : Editor.Pending_Transitions.Pending_Transition_Target;
-      Normalized : Unbounded_String := Null_Unbounded_String;
    begin
-      Target.Kind := Kind;
-      if Path'Length > 0 then
-         declare
-            Canonical : constant String :=
-              Editor.Recent_Projects.Normalized_Root_Path (Path);
-         begin
-            if Canonical'Length > 0 then
-               Normalized := To_Unbounded_String (Canonical);
-            else
-               Normalized := To_Unbounded_String (Path);
-            end if;
-         end;
-         Target.Path := Normalized;
-         Target.Has_Path := True;
-      end if;
-      if Display'Length > 0 then
-         Target.Display := To_Unbounded_String (Display);
-      end if;
-      if Buffer_Id /= Editor.Buffers.No_Buffer then
-         Target.Buffer_Id := Natural (Buffer_Id);
-         Target.Has_Buffer := True;
-      end if;
-      return Target;
+      return Editor.Executor.Pending_Transition_Policy.Pending_Target_For
+        (Kind, Path, Display, Buffer_Id);
    end Pending_Target_For;
-
    procedure Set_Pending_Dirty_Transition
      (S      : in out Editor.State.State_Type;
       Target : Editor.Pending_Transitions.Pending_Transition_Target;
       Guard  : Editor.Dirty_Guards.Dirty_Transition_Result)
    is
-      Captured_Target : Editor.Pending_Transitions.Pending_Transition_Target := Target;
    begin
-      --  a dirty lifecycle command may create one transient
-      --  confirmation payload, but a later conflicting lifecycle command must
-      --  not overwrite that payload.  The user must explicitly cancel or retry
-      --  the pending operation first.
-
-      if Editor.Pending_Transitions.Has_Pending (S.Pending_Transitions) then
-         Report_Warning (S, "Command unavailable while confirmation is pending");
-         return;
-      end if;
-
-      --  completeness: dirty reload/revert confirmations are
-      --  destructive file reads.  Capture the command-boundary disk state
-      --  that the user is being asked to accept, so retry can reject the
-      --  prompt if the backing file changes again before confirmation.
-      if Captured_Target.Kind in Editor.Pending_Transitions.Pending_Reload_Active_Buffer
-          | Editor.Pending_Transitions.Pending_Revert_Active_Buffer
-        and then Captured_Target.Has_Path
-      then
-         declare
-            Status : constant Editor.Files.File_External_Change_Status :=
-              Active_File_External_Status (S);
-            Found  : Boolean := False;
-            Label  : constant String :=
-              Editor.Files.Current_Token_Label
-                (To_String (Captured_Target.Path), Found);
-         begin
-            Captured_Target.Observed_File_Status_Code :=
-              External_Status_Code (Status);
-            Captured_Target.Has_Observed_File_Status := True;
-            if Found then
-               Captured_Target.Observed_File_Token_Label :=
-                 To_Unbounded_String (Label);
-               Captured_Target.Has_Observed_File_Token := True;
-            end if;
-         end;
-      end if;
-
-      --  completeness: project switch/close confirmations must be
-      --  bound to the project context that produced them.  If another route
-      --  changes the active project before retry, the stale confirmation is
-      --  rejected rather than closing/switching a different project.
-      if Captured_Target.Kind in Editor.Pending_Transitions.Pending_Switch_Project
-          | Editor.Pending_Transitions.Pending_Close_Project
-          | Editor.Pending_Transitions.Pending_Clear_Project
-          | Editor.Pending_Transitions.Pending_Clear_Workspace_State
-        and then Editor.Project.Has_Project (S.Project)
-      then
-         Captured_Target.Source_Path :=
-           To_Unbounded_String
-             (Editor.Recent_Projects.Normalized_Root_Path
-                (Editor.Project.Root_Path (S.Project)));
-         Captured_Target.Has_Source_Path := True;
-      end if;
-
-      Editor.Pending_Transitions.Set_Pending
-        (S.Pending_Transitions, Captured_Target, Guard.Summary);
-      Report_Dirty_Block (S, Guard);
+      Editor.Executor.Pending_Transition_Policy.Set_Pending_Dirty_Transition
+        (S, Target, Guard);
    end Set_Pending_Dirty_Transition;
-
-   function Recent_Project_List_Contains
-     (S    : Editor.State.State_Type;
-      Path : String) return Boolean
-   is
-      Normalized : constant String :=
-        Editor.Recent_Projects.Normalized_Root_Path (Path);
-   begin
-      if Normalized'Length = 0 then
-         return False;
-      end if;
-
-      for Index in 1 .. Editor.Recent_Projects.Count (S.Recent_Projects) loop
-         declare
-            Item : constant Editor.Recent_Projects.Recent_Project_Entry :=
-              Editor.Recent_Projects.Item (S.Recent_Projects, Index);
-         begin
-            if Editor.Recent_Projects.Normalized_Root_Path
-                 (To_String (Item.Root_Path)) = Normalized
-            then
-               return True;
-            end if;
-         end;
-      end loop;
-
-      return False;
-   end Recent_Project_List_Contains;
-
-   function Project_Switch_Target_Is_Usable
-     (Path : String) return Boolean
-   is
-      Result      : constant Editor.Project.Project_Open_Result :=
-        Editor.Project.Open_Project (Path);
-      Tree        : Editor.File_Tree.File_Tree_State;
-      Tree_Result : Editor.File_Tree.File_Tree_Scan_Result;
-   begin
-      if not Editor.Project.Is_Success (Result) then
-         return False;
-      end if;
-
-      --  completeness: pending switch retry must apply the same
-      --  target-tree preflight as the first switch attempt.  A target that is
-      --  still a directory but no longer scannable is stale/unusable and must
-      --  not survive into the mutating switch path.
-      Tree := Editor.File_Tree.Scan_Project (To_String (Result.Root_Path));
-      Tree_Result := Editor.File_Tree.Scan_Status (Tree);
-      return Tree_Result.Status = Editor.File_Tree.File_Tree_Scan_Ok;
-   end Project_Switch_Target_Is_Usable;
-
    function Pending_Target_Is_Valid
      (S      : Editor.State.State_Type;
       Target : Editor.Pending_Transitions.Pending_Transition_Target) return Boolean
    is
-      Path : constant String := To_String (Target.Path);
    begin
-      case Target.Kind is
-         when Editor.Pending_Transitions.No_Pending_Transition =>
-            return False;
-         when Editor.Pending_Transitions.Pending_Close_Buffer =>
-            return Target.Has_Buffer
-              and then Editor.Buffers.Global_Contains
-                (Editor.Buffers.Buffer_Id (Target.Buffer_Id));
-         when Editor.Pending_Transitions.Pending_Reload_Active_Buffer
-            | Editor.Pending_Transitions.Pending_Revert_Active_Buffer =>
-            if not Target.Has_Buffer
-              or else not Editor.Buffers.Global_Contains
-                (Editor.Buffers.Buffer_Id (Target.Buffer_Id))
-            then
-               return False;
-            end if;
-
-            declare
-               Buffer_State : constant Editor.State.State_Type :=
-                 Editor.Buffers.Buffer
-                   (Editor.Buffers.Global_Registry_For_UI,
-                    Editor.Buffers.Buffer_Id (Target.Buffer_Id));
-            begin
-               --  completeness: dirty reload/revert confirmations
-               --  are bound to the buffer association that produced the
-               --  prompt.  A later Save As, file association change, or
-               --  dirty resolution must make the transient confirmation stale
-               --  rather than reloading/reverting a different backing file.
-               if Target.Has_Path then
-                  return Buffer_State.File_Info.Has_Path
-                    and then Editor.Recent_Projects.Normalized_Root_Path
-                      (To_String (Buffer_State.File_Info.Path)) =
-                        To_String (Target.Path)
-                    and then Buffer_State.File_Info.Dirty
-                    and then Pending_File_State_Still_Current (Target);
-               else
-                  return Buffer_State.File_Info.Has_Path
-                    and then Buffer_State.File_Info.Dirty
-                    and then Pending_File_State_Still_Current (Target);
-               end if;
-            end;
-         when Editor.Pending_Transitions.Pending_Close_All_Buffers =>
-            return Editor.Buffers.Global_Count > 0;
-         when Editor.Pending_Transitions.Pending_Close_Other_Buffers =>
-            return Target.Has_Buffer
-              and then Editor.Buffers.Global_Contains
-                (Editor.Buffers.Buffer_Id (Target.Buffer_Id));
-         when Editor.Pending_Transitions.Pending_Open_Project =>
-            return Target.Has_Path
-              and then Path'Length > 0
-              and then Editor.Project.Is_Success
-                (Editor.Project.Open_Project (Path));
-         when Editor.Pending_Transitions.Pending_Switch_Project =>
-            return Target.Has_Path
-              and then Path'Length > 0
-              and then (not Target.Has_Source_Path
-                or else (Editor.Project.Has_Project (S.Project)
-                  and then Editor.Recent_Projects.Normalized_Root_Path
-                    (Editor.Project.Root_Path (S.Project)) =
-                      To_String (Target.Source_Path)))
-              and then Project_Switch_Target_Is_Usable (Path);
-         when Editor.Pending_Transitions.Pending_Open_Recent_Project =>
-            return Target.Has_Path
-              and then Path'Length > 0
-              and then Recent_Project_List_Contains (S, Path)
-              and then Editor.Project.Is_Success
-                (Editor.Project.Open_Project (Path));
-         when Editor.Pending_Transitions.Pending_Restore_Workspace =>
-            return Target.Has_Path
-              and then Path'Length > 0
-              and then Editor.Project.Has_Project (S.Project)
-              and then Editor.Recent_Projects.Normalized_Root_Path
-                (Editor.Project.Root_Path (S.Project)) =
-                  Editor.Recent_Projects.Normalized_Root_Path (Path)
-              and then Ada.Directories.Exists
-               (Editor.Workspace_Persistence.Session_File_Path (Path));
-         when Editor.Pending_Transitions.Pending_Clear_Workspace_State =>
-            return Target.Has_Path
-              and then Path'Length > 0
-              and then Editor.Project.Has_Project (S.Project)
-              and then (not Target.Has_Source_Path
-                or else Editor.Recent_Projects.Normalized_Root_Path
-                  (Editor.Project.Root_Path (S.Project)) =
-                    To_String (Target.Source_Path))
-              and then Editor.Recent_Projects.Normalized_Root_Path
-                (Editor.Project.Root_Path (S.Project)) =
-                  Editor.Recent_Projects.Normalized_Root_Path (Path)
-              and then Ada.Directories.Exists
-                (Editor.Workspace_Persistence.Session_File_Path (Path));
-         when Editor.Pending_Transitions.Pending_Close_Project
-            | Editor.Pending_Transitions.Pending_Clear_Project =>
-            if not Editor.Project.Has_Project (S.Project) then
-               return False;
-            elsif Target.Has_Source_Path then
-               return Editor.Recent_Projects.Normalized_Root_Path
-                   (Editor.Project.Root_Path (S.Project)) = To_String (Target.Source_Path);
-            elsif Target.Has_Path then
-               return Editor.Recent_Projects.Normalized_Root_Path
-                   (Editor.Project.Root_Path (S.Project)) =
-                 Editor.Recent_Projects.Normalized_Root_Path (Path);
-            else
-               return True;
-            end if;
-      end case;
+      return Editor.Executor.Pending_Transition_Policy.Pending_Target_Is_Valid
+        (S, Target);
    end Pending_Target_Is_Valid;
-
    function Pending_Transition_Is_Still_Valid
      (State : Editor.State.State_Type) return Boolean
    is
    begin
-      return Editor.Pending_Transitions.Has_Pending (State.Pending_Transitions)
-        and then Pending_Target_Is_Valid
-          (State, Editor.Pending_Transitions.Target (State.Pending_Transitions));
+      return Editor.Executor.Pending_Transition_Policy.Pending_Transition_Is_Still_Valid
+        (State);
    end Pending_Transition_Is_Still_Valid;
-
-   function Same_Pending_Project_Path
-     (Target : Editor.Pending_Transitions.Pending_Transition_Target;
-      Path   : String) return Boolean
-   is
-   begin
-      return Target.Has_Path
-        and then Editor.Recent_Projects.Normalized_Root_Path
-          (To_String (Target.Path)) = Editor.Recent_Projects.Normalized_Root_Path (Path);
-   end Same_Pending_Project_Path;
-
    function Pending_Project_Open_Command_Matches
      (S                   : Editor.State.State_Type;
       Path                : String;
       Recent_Project_Open : Boolean;
       Explicit_Switch     : Boolean) return Boolean
    is
-      Target : constant Editor.Pending_Transitions.Pending_Transition_Target :=
-        Editor.Pending_Transitions.Target (S.Pending_Transitions);
    begin
-      if not Editor.Pending_Transitions.Has_Pending (S.Pending_Transitions) then
-         return True;
-      end if;
-
-      if Explicit_Switch then
-         return Target.Kind = Editor.Pending_Transitions.Pending_Switch_Project
-           and then Same_Pending_Project_Path (Target, Path);
-      elsif Recent_Project_Open then
-         return Target.Kind = Editor.Pending_Transitions.Pending_Open_Recent_Project
-           and then Same_Pending_Project_Path (Target, Path);
-      else
-         return Target.Kind = Editor.Pending_Transitions.Pending_Open_Project
-           and then Same_Pending_Project_Path (Target, Path);
-      end if;
+      return Editor.Executor.Pending_Transition_Policy.Pending_Project_Open_Command_Matches
+        (S, Path, Recent_Project_Open, Explicit_Switch);
    end Pending_Project_Open_Command_Matches;
-
    function Pending_Project_Close_Command_Matches
      (S : Editor.State.State_Type) return Boolean
    is
-      Target : constant Editor.Pending_Transitions.Pending_Transition_Target :=
-        Editor.Pending_Transitions.Target (S.Pending_Transitions);
    begin
-      return not Editor.Pending_Transitions.Has_Pending (S.Pending_Transitions)
-        or else Target.Kind in Editor.Pending_Transitions.Pending_Close_Project
-          | Editor.Pending_Transitions.Pending_Clear_Project;
+      return Editor.Executor.Pending_Transition_Policy.Pending_Project_Close_Command_Matches
+        (S);
    end Pending_Project_Close_Command_Matches;
-
    procedure Invalidate_Pending_Transition_If_Stale
      (State : in out Editor.State.State_Type)
    is
    begin
-      if Editor.Pending_Transitions.Has_Pending (State.Pending_Transitions)
-        and then not Pending_Transition_Is_Still_Valid (State)
-      then
-         Editor.Pending_Transitions.Clear (State.Pending_Transitions);
-      end if;
+      Editor.Executor.Pending_Transition_Policy.Invalidate_Pending_Transition_If_Stale
+        (State);
    end Invalidate_Pending_Transition_If_Stale;
-
-   function Guard_For_Pending_Target
-     (Target : Editor.Pending_Transitions.Pending_Transition_Target)
-      return Editor.Dirty_Guards.Dirty_Transition_Kind
-   is
-   begin
-      case Target.Kind is
-         when Editor.Pending_Transitions.Pending_Close_Buffer
-            | Editor.Pending_Transitions.Pending_Reload_Active_Buffer
-            | Editor.Pending_Transitions.Pending_Revert_Active_Buffer =>
-            return Editor.Dirty_Guards.Close_Buffer_Transition;
-         when Editor.Pending_Transitions.Pending_Close_All_Buffers
-            | Editor.Pending_Transitions.Pending_Close_Other_Buffers =>
-            return Editor.Dirty_Guards.Close_All_Buffers_Transition;
-         when Editor.Pending_Transitions.Pending_Open_Project =>
-            return Editor.Dirty_Guards.Open_Project_Transition;
-         when Editor.Pending_Transitions.Pending_Switch_Project =>
-            return Editor.Dirty_Guards.Switch_Project_Transition;
-         when Editor.Pending_Transitions.Pending_Open_Recent_Project =>
-            return Editor.Dirty_Guards.Open_Recent_Project_Transition;
-         when Editor.Pending_Transitions.Pending_Restore_Workspace =>
-            return Editor.Dirty_Guards.Restore_Workspace_Transition;
-         when Editor.Pending_Transitions.Pending_Clear_Workspace_State =>
-            return Editor.Dirty_Guards.Clear_Project_Transition;
-         when Editor.Pending_Transitions.Pending_Close_Project =>
-            return Editor.Dirty_Guards.Close_Project_Transition;
-         when Editor.Pending_Transitions.Pending_Clear_Project
-            | Editor.Pending_Transitions.No_Pending_Transition =>
-            return Editor.Dirty_Guards.Clear_Project_Transition;
-      end case;
-   end Guard_For_Pending_Target;
-
-   function Pending_Close_Buffer_Guard
-     (Target : Editor.Pending_Transitions.Pending_Transition_Target)
-      return Editor.Dirty_Guards.Dirty_Transition_Result
-   is
-      Buffer_State : Editor.State.State_Type;
-      Summary      : Editor.Dirty_Guards.Dirty_Buffer_Summary;
-   begin
-      if not Target.Has_Buffer
-        or else not Editor.Buffers.Global_Contains
-          (Editor.Buffers.Buffer_Id (Target.Buffer_Id))
-      then
-         return Editor.Dirty_Guards.Allowed
-           ((Dirty_Count       => 0,
-             Untitled_Count    => 0,
-             File_Backed_Count => 0));
-      end if;
-
-      Buffer_State := Editor.Buffers.Buffer
-        (Editor.Buffers.Global_Registry_For_UI,
-         Editor.Buffers.Buffer_Id (Target.Buffer_Id));
-
-      Summary :=
-        (Dirty_Count       => (if Buffer_State.File_Info.Dirty then 1 else 0),
-         Untitled_Count    =>
-           (if Buffer_State.File_Info.Dirty
-             and then not Buffer_State.File_Info.Has_Path
-            then 1 else 0),
-         File_Backed_Count =>
-           (if Buffer_State.File_Info.Dirty
-             and then Buffer_State.File_Info.Has_Path
-            then 1 else 0));
-
-      return Editor.Dirty_Guards.Guard_Transition
-        (Editor.Dirty_Guards.Close_Buffer_Transition, Summary);
-   end Pending_Close_Buffer_Guard;
-
    function Check_Pending_Transition
      (S      : Editor.State.State_Type;
       Target : Editor.Pending_Transitions.Pending_Transition_Target)
       return Editor.Dirty_Guards.Dirty_Transition_Result
    is
    begin
-      if Target.Kind = Editor.Pending_Transitions.Pending_Close_Buffer then
-         return Pending_Close_Buffer_Guard (Target);
-      end if;
-
-      if Target.Kind = Editor.Pending_Transitions.Pending_Clear_Workspace_State then
-         return Editor.Dirty_Guards.Allowed
-           ((Dirty_Count       => 0,
-             Untitled_Count    => 0,
-             File_Backed_Count => 0));
-      end if;
-
-      --  completeness: switch/close retry must re-check the same
-      --  project-owned dirty-buffer scope that created the pending
-      --  confirmation.  Outside-project dirty buffers are retained across
-      --  project switch/close and must not keep a resolved project transition
-      --  blocked on retry.
-      if Target.Kind in Editor.Pending_Transitions.Pending_Switch_Project
-          | Editor.Pending_Transitions.Pending_Close_Project
-          | Editor.Pending_Transitions.Pending_Clear_Project
-      then
-         return Editor.Dirty_Guards.Guard_Transition
-           (Guard_For_Pending_Target (Target),
-            Project_Dirty_Buffer_Summary (S));
-      end if;
-
-      return Check_Dirty_Transition (S, Guard_For_Pending_Target (Target));
+      return Editor.Executor.Pending_Transition_Policy.Check_Pending_Transition
+        (S, Target);
    end Check_Pending_Transition;
-
    function Restore_Summary_Message
       (Summary : Editor.Workspace_Persistence.Workspace_Restore_Summary;
       Partial : Boolean) return String
@@ -3754,7 +1699,6 @@ package body Editor.Executor is
       return Editor.Executor.Workspace_Commands.Restore_Summary_Message
         (Summary, Partial);
    end Restore_Summary_Message;
-
    procedure Report_Workspace_Load_Status
      (S      : in out Editor.State.State_Type;
       Status : Editor.Workspace_Persistence.Workspace_Persistence_Status)
@@ -3763,26 +1707,6 @@ package body Editor.Executor is
       Editor.Executor.Workspace_Commands.Report_Workspace_Load_Status
         (S, Status);
    end Report_Workspace_Load_Status;
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
    --  command-extension boundary.  Execute_Command_With_Result
    --  remains the single audited mutation boundary for user commands.  Future
    --  family helpers may be grouped internally as file/edit/search/project/
@@ -3797,7 +1721,6 @@ package body Editor.Executor is
       return Id in Editor.Commands.Command_Terminal_Toggle
         .. Editor.Commands.Command_Terminal_Cancel_Task;
    end Is_Terminal_Task_Command;
-
    function Execute_Command_With_Result
      (S     : in out Editor.State.State_Type;
       Id    : Editor.Commands.Command_Id;
@@ -4191,7 +2114,7 @@ package body Editor.Executor is
          end;
       end if;
 
-      if Editor.Executor.File_Save_Commands
+      if Editor.Executor.File_Target_Prompt_Commands
         .Command_Requires_File_Target_Prompt (Id)
       then
          Editor.Executor.File_Target_Prompt_Commands.Open_File_Target_Prompt (S, Id);
@@ -4681,7 +2604,6 @@ package body Editor.Executor is
       end if;
       return Result_After_Command (Id);
    end Execute_Command_With_Result;
-
    function Execute_User_Opt_In_Build_Command
      (S               : in out Editor.State.State_Type;
       Context         : Editor.External_Producers.User_Opt_In_Build_Command_Context;
@@ -4700,7 +2622,6 @@ package body Editor.Executor is
       return Editor.External_Producers.Execute_User_Opt_In_Build_Command
         (S, Context, Supplied_Result);
    end Execute_User_Opt_In_Build_Command;
-
    procedure Execute_Command
      (S     : in out Editor.State.State_Type;
       Id    : Editor.Commands.Command_Id;
@@ -4723,11 +2644,9 @@ package body Editor.Executor is
       end if;
    end Execute_Command;
 
-
    ------------------------------------------------------------------------
    --  overlay-focus helpers
    ------------------------------------------------------------------------
-
    function Is_Focus_Target_Still_Valid
      (S      : Editor.State.State_Type;
       Target : Editor.Overlay_Focus.Previous_Focus_Target) return Boolean
@@ -4754,7 +2673,6 @@ package body Editor.Executor is
             return False;
       end case;
    end Is_Focus_Target_Still_Valid;
-
    procedure Restore_Previous_Overlay_Focus
      (S      : in out Editor.State.State_Type;
       Target : Editor.Overlay_Focus.Previous_Focus_Target)
@@ -4769,7 +2687,6 @@ package body Editor.Executor is
       --  an unrelated higher-priority transient owner.
       Editor.Focus_Management.Restore_Previous_Focus_Or_Editor (S);
    end Restore_Previous_Overlay_Focus;
-
    procedure Close_Overlay_Surface
      (S       : in out Editor.State.State_Type;
       Overlay : Editor.Overlay_Focus.Overlay_Target)
@@ -4809,7 +2726,6 @@ package body Editor.Executor is
             null;
       end case;
    end Close_Overlay_Surface;
-
    procedure Clear_Lower_Priority_Focus_For_Overlay
      (S : in out Editor.State.State_Type)
    is
@@ -4835,7 +2751,6 @@ package body Editor.Executor is
          Editor.Outline.Deactivate_Filter_Input (S.Outline);
       end if;
    end Clear_Lower_Priority_Focus_For_Overlay;
-
 
    procedure Activate_Overlay
      (S       : in out Editor.State.State_Type;
@@ -4921,7 +2836,6 @@ package body Editor.Executor is
       Editor.Render_Cache.Invalidate_All;
    end Activate_Overlay;
 
-
    procedure Deactivate_Active_Overlay_Only
      (S      : in out Editor.State.State_Type;
       Reason : Editor.Overlay_Focus.Overlay_Dismissal_Reason)
@@ -4939,7 +2853,6 @@ package body Editor.Executor is
       Editor.Overlay_Focus.Dismiss (S.Overlay_Focus, Reason);
       Editor.Render_Cache.Invalidate_All;
    end Deactivate_Active_Overlay_Only;
-
    procedure Dismiss_Active_Overlay
      (S      : in out Editor.State.State_Type;
       Reason : Editor.Overlay_Focus.Overlay_Dismissal_Reason)
@@ -4959,17 +2872,14 @@ package body Editor.Executor is
       Editor.Render_Cache.Invalidate_All;
    end Dismiss_Active_Overlay;
 
-
    ------------------------------------------------------------------------
    --  Primary caret helpers
    ------------------------------------------------------------------------
-
    function Primary_Caret_Index
      (S : Editor.State.State_Type) return Extended_Index is
    begin
       return S.Carets.First_Index;
    end Primary_Caret_Index;
-
    function Safe_Caret
      (S : Editor.State.State_Type) return Cursor_Index is
    begin
@@ -4979,7 +2889,6 @@ package body Editor.Executor is
          return S.Carets (Primary_Caret_Index (S)).Pos;
       end if;
    end Safe_Caret;
-
 
    --  cursor/current-symbol synchronization seam.  Cursor movement
    --  may update the passive current-symbol state from the latest accepted
@@ -5039,7 +2948,6 @@ package body Editor.Executor is
       Editor.Outline.Set_Rows_From_Outline (S.Outline, S.Feature_Panel);
       Editor.Render_Cache.Invalidate_All;
    end Sync_Current_Outline_Symbol_From_Caret;
-
    function Safe_Anchor
      (S : Editor.State.State_Type) return Cursor_Index is
    begin
@@ -5049,7 +2957,6 @@ package body Editor.Executor is
          return S.Carets (Primary_Caret_Index (S)).Anchor;
       end if;
    end Safe_Anchor;
-
    function Has_Primary_Selection
      (S : Editor.State.State_Type) return Boolean is
    begin
@@ -5060,7 +2967,6 @@ package body Editor.Executor is
            (S.Carets (Primary_Caret_Index (S)));
       end if;
    end Has_Primary_Selection;
-
    procedure Set_Primary_Caret
      (S   : in out Editor.State.State_Type;
       Pos : Cursor_Index) is
@@ -5080,7 +2986,6 @@ package body Editor.Executor is
          S.Carets.Replace_Element (Primary_Caret_Index (S), C);
       end if;
    end Set_Primary_Caret;
-
    procedure Set_Primary_Selection
      (S      : in out Editor.State.State_Type;
       Anchor : Cursor_Index;
@@ -5101,7 +3006,6 @@ package body Editor.Executor is
          S.Carets.Replace_Element (Primary_Caret_Index (S), C);
       end if;
    end Set_Primary_Selection;
-
    procedure Collapse_All_Selections
      (S : in out Editor.State.State_Type) is
       C : Caret_State;
@@ -5116,27 +3020,22 @@ package body Editor.Executor is
          S.Carets.Replace_Element (I, C);
       end loop;
    end Collapse_All_Selections;
-
    procedure Collapse_Selection_To_Caret
      (S : in out Editor.State.State_Type; New_Caret : Cursor_Index) is
    begin
       Set_Primary_Caret (S, New_Caret);
    end Collapse_Selection_To_Caret;
-
    ------------------------------------------------------------------------
    -- Text helpers
    ------------------------------------------------------------------------
-
    function One_Char_Text (Ch : Character) return Unbounded_String is
    begin
       return To_Unbounded_String (String'(1 => Ch));
    end One_Char_Text;
-
    function Empty_Text return Unbounded_String is
    begin
       return Null_Unbounded_String;
    end Empty_Text;
-
    procedure Append_Replace_Op
      (Cmd          : in out Editor.Commands.Command;
       Pos          : Cursor_Index;
@@ -5147,7 +3046,6 @@ package body Editor.Executor is
       Cmd.Delete_Counts.Append (Delete_Count);
       Cmd.Insert_Texts.Append (Insert_Text);
    end Append_Replace_Op;
-
    function Extract_Text
      (Buffer : Text_Buffer.Buffer_Type;
       Pos    : Natural;
@@ -5166,7 +3064,6 @@ package body Editor.Executor is
 
       return Result;
    end Extract_Text;
-
    procedure Insert_Text_At
      (Buffer : in out Text_Buffer.Buffer_Type;
       Pos    : Natural;
@@ -5182,7 +3079,6 @@ package body Editor.Executor is
          Text_Buffer.Insert (Buffer, Pos + Natural (I - S'First), S (I));
       end loop;
    end Insert_Text_At;
-
 
    function File_Tree_Status_Message
      (Result : Editor.File_Tree.File_Tree_Scan_Result) return String
@@ -5209,7 +3105,6 @@ package body Editor.Executor is
             return "file tree read error";
       end case;
    end File_Tree_Status_Message;
-
    function File_Tree_Refresh_Failure_Message
      (Result : Editor.File_Tree.File_Tree_Scan_Result) return String
    is
@@ -5235,7 +3130,6 @@ package body Editor.Executor is
             return "File Tree unavailable";
       end case;
    end File_Tree_Refresh_Failure_Message;
-
    function Selected_Single_Line_Text
      (S     : Editor.State.State_Type;
       Found : out Boolean) return String
@@ -5273,35 +3167,30 @@ package body Editor.Executor is
         (Extract_Text
            (S.Buffer, Natural (Start_Pos), Natural (End_Pos - Start_Pos)));
    end Selected_Single_Line_Text;
-
    function Has_Find_Target_Buffer
      (S : Editor.State.State_Type) return Boolean
    is
    begin
       return Editor.Executor.Find_Replace_Commands.Has_Find_Target_Buffer (S);
    end Has_Find_Target_Buffer;
-
    procedure Recompute_Quick_Open
      (S : in out Editor.State.State_Type)
    is
    begin
       Editor.Executor.Command_Surface_Commands.Recompute_Quick_Open (S);
    end Recompute_Quick_Open;
-
    procedure Recompute_Buffer_Switcher
      (S : in out Editor.State.State_Type)
    is
    begin
       Editor.Executor.Buffer_Switcher_Shared.Recompute_Buffer_Switcher (S);
    end Recompute_Buffer_Switcher;
-
    function Primary_Cursor_Line_Of_Buffer
      (Id : Editor.Buffers.Buffer_Id) return Natural
    is
    begin
       return Editor.Executor.Buffer_Switcher_Shared.Primary_Cursor_Line_Of_Buffer (Id);
    end Primary_Cursor_Line_Of_Buffer;
-
    procedure Normalize_Switcher_Preview_Target
      (S : in out Editor.State.State_Type)
    is
@@ -5309,12 +3198,10 @@ package body Editor.Executor is
       Editor.Executor.Buffer_Switcher_Shared.Normalize_Switcher_Preview_Target
         (S);
    end Normalize_Switcher_Preview_Target;
-
    function Natural_Image_Trimmed (Value : Natural) return String is
    begin
       return Ada.Strings.Fixed.Trim (Natural'Image (Value), Ada.Strings.Both);
    end Natural_Image_Trimmed;
-
    function File_Count_Text (Count : Natural) return String is
    begin
       if Count = 1 then
@@ -5323,7 +3210,6 @@ package body Editor.Executor is
          return Natural_Image_Trimmed (Count) & " files";
       end if;
    end File_Count_Text;
-
    function Format_Project_File_Refresh_Message
      (Result : Editor.Project.Project_File_Refresh_Result) return String
    is
@@ -5356,7 +3242,6 @@ package body Editor.Executor is
       end if;
       return To_String (Text);
    end Format_Project_File_Refresh_Message;
-
    function Format_Project_File_Summary_Message
      (S : Editor.State.State_Type) return String
    is
@@ -5405,7 +3290,6 @@ package body Editor.Executor is
          return "Project files: " & Natural_Image_Trimmed (Count) & " known files";
       end if;
    end Format_Project_File_Summary_Message;
-
    procedure Apply_Project_Open_Workspace_Policy
      (S      : in out Editor.State.State_Type;
       Config : Editor.Workspace_Persistence.Workspace_Lifecycle_Config :=
@@ -5415,30 +3299,12 @@ package body Editor.Executor is
       Editor.Executor.Project_Lifecycle_Commands.Apply_Project_Open_Workspace_Policy
         (S, Config);
    end Apply_Project_Open_Workspace_Policy;
-
-   function Project_Dirty_Buffer_Summary
-     (S : Editor.State.State_Type)
-      return Editor.Dirty_Guards.Dirty_Buffer_Summary
-   is
-   begin
-      return Editor.Executor.Project_Lifecycle_Commands.Project_Dirty_Buffer_Summary (S);
-   end Project_Dirty_Buffer_Summary;
-
-   function Current_Project_Lifecycle_Buffer_Sets
-     (S : in out Editor.State.State_Type)
-      return Editor.Buffers.Buffer_Project_Lifecycle_Sets
-   is
-   begin
-      return Editor.Executor.Project_Lifecycle_Commands.Current_Project_Lifecycle_Buffer_Sets (S);
-   end Current_Project_Lifecycle_Buffer_Sets;
-
    procedure Populate_Project_Known_Files_From_File_Tree
      (S : in out Editor.State.State_Type)
    is
    begin
       Editor.Executor.Project_Lifecycle_Commands.Populate_Project_Known_Files_From_File_Tree (S);
    end Populate_Project_Known_Files_From_File_Tree;
-
    function Existing_File_Tree_File_Target
      (Path : String) return Boolean
    is
@@ -5450,9 +3316,6 @@ package body Editor.Executor is
       when others =>
          return False;
    end Existing_File_Tree_File_Target;
-
-
-
    procedure Restore_Workspace_Snapshot
      (S        : in out Editor.State.State_Type;
       Snapshot : Editor.Workspace_Persistence.Workspace_Snapshot;
@@ -5463,7 +3326,6 @@ package body Editor.Executor is
       Editor.Executor.Workspace_Commands.Restore_Workspace_Snapshot
         (S, Snapshot, Status, Summary);
    end Restore_Workspace_Snapshot;
-
    procedure Restore_Workspace_Snapshot
      (S        : in out Editor.State.State_Type;
       Snapshot : Editor.Workspace_Persistence.Workspace_Snapshot;
@@ -5473,7 +3335,6 @@ package body Editor.Executor is
       Editor.Executor.Workspace_Commands.Restore_Workspace_Snapshot
         (S, Snapshot, Status);
    end Restore_Workspace_Snapshot;
-
    function Save_Failure_Recovery_Message
      (Result : Editor.Files.File_Save_Result) return String
    is
@@ -5481,7 +3342,6 @@ package body Editor.Executor is
    begin
       return "Could not save file";
    end Save_Failure_Recovery_Message;
-
    function Read_Failure_Recovery_Message
      (Result    : Editor.Files.File_Open_Result;
       Operation : String) return String
@@ -5490,47 +3350,6 @@ package body Editor.Executor is
    begin
       return "Could not " & Operation & " buffer";
    end Read_Failure_Recovery_Message;
-
-   function Active_File_External_Status
-     (S : Editor.State.State_Type) return Editor.Files.File_External_Change_Status
-   is
-   begin
-      return Editor.Executor.File_Lifecycle_Commands.Active_File_External_Status
-        (S);
-   end Active_File_External_Status;
-
-   function External_Status_Code
-     (Status : Editor.Files.File_External_Change_Status) return Natural
-   is
-   begin
-      return Editor.Executor.File_Lifecycle_Commands.External_Status_Code
-        (Status);
-   end External_Status_Code;
-
-   function Pending_File_State_Still_Current
-     (Target : Editor.Pending_Transitions.Pending_Transition_Target)
-      return Boolean
-   is
-   begin
-      return
-        Editor.Executor.File_Lifecycle_Commands
-          .Pending_File_State_Still_Current (Target);
-   end Pending_File_State_Still_Current;
-
-   procedure Clear_File_Conflict_Prompt
-     (S : in out Editor.State.State_Type)
-   is
-   begin
-      Editor.Executor.File_Lifecycle_Commands.Clear_File_Conflict_Prompt (S);
-   end Clear_File_Conflict_Prompt;
-
-   function File_Conflict_Prompt_Is_Valid
-     (S : Editor.State.State_Type) return Boolean
-   is
-   begin
-      return Editor.Executor.File_Lifecycle_Commands.File_Conflict_Prompt_Is_Valid (S);
-   end File_Conflict_Prompt_Is_Valid;
-
    procedure Finalize_Cleanup_Buffer_Close
      (S          : in out Editor.State.State_Type;
       Id         : Editor.Buffers.Buffer_Id;
@@ -5540,7 +3359,6 @@ package body Editor.Executor is
       Editor.Executor.File_Lifecycle_Commands.Finalize_Cleanup_Buffer_Close
         (S, Id, Was_Active);
    end Finalize_Cleanup_Buffer_Close;
-
    function Dirty_Close_Start_Message
      (All_Buffers : Boolean;
       Summary     : Editor.Dirty_Guards.Dirty_Buffer_Summary) return String
@@ -5549,7 +3367,6 @@ package body Editor.Executor is
       return Editor.Executor.File_Lifecycle_Commands.Dirty_Close_Start_Message
         (All_Buffers, Summary);
    end Dirty_Close_Start_Message;
-
    function Dirty_Buffer_Summary_For_All_Buffers
      return Editor.Dirty_Guards.Dirty_Buffer_Summary
    is
@@ -5558,7 +3375,6 @@ package body Editor.Executor is
         Editor.Executor.File_Lifecycle_Commands
           .Dirty_Buffer_Summary_For_All_Buffers;
    end Dirty_Buffer_Summary_For_All_Buffers;
-
    function Dirty_Buffer_Summary_For_All_Buffers
      (Project : Editor.Project.Project_State)
       return Editor.Dirty_Guards.Dirty_Buffer_Summary
@@ -5567,62 +3383,52 @@ package body Editor.Executor is
       return Editor.Executor.File_Lifecycle_Commands.Dirty_Buffer_Summary_For_All_Buffers
         (Project);
    end Dirty_Buffer_Summary_For_All_Buffers;
-
    function Dirty_Close_Open_Buffer_Fingerprint return Natural is
    begin
       return Editor.Executor.File_Lifecycle_Commands.Dirty_Close_Open_Buffer_Fingerprint;
    end Dirty_Close_Open_Buffer_Fingerprint;
-
    function Dirty_Close_Dirty_Buffer_Fingerprint return Natural is
    begin
       return Editor.Executor.File_Lifecycle_Commands.Dirty_Close_Dirty_Buffer_Fingerprint;
    end Dirty_Close_Dirty_Buffer_Fingerprint;
-
    function Dirty_Close_Open_Buffer_Id_List return Ada.Strings.Unbounded.Unbounded_String is
    begin
       return Editor.Executor.File_Lifecycle_Commands.Dirty_Close_Open_Buffer_Id_List;
    end Dirty_Close_Open_Buffer_Id_List;
-
    function Dirty_Close_Dirty_Buffer_Id_List return Ada.Strings.Unbounded.Unbounded_String is
    begin
       return Editor.Executor.File_Lifecycle_Commands.Dirty_Close_Dirty_Buffer_Id_List;
    end Dirty_Close_Dirty_Buffer_Id_List;
-
    function Dirty_Close_Current_Dirty_Set_Was_Reviewed
      (S : Editor.State.State_Type) return Boolean
    is
    begin
       return Editor.Executor.File_Lifecycle_Commands.Dirty_Close_Current_Dirty_Set_Was_Reviewed (S);
    end Dirty_Close_Current_Dirty_Set_Was_Reviewed;
-
    function Dirty_Close_Current_Dirty_Set_Equals_Review
      (S : Editor.State.State_Type) return Boolean
    is
    begin
       return Editor.Executor.File_Lifecycle_Commands.Dirty_Close_Current_Dirty_Set_Equals_Review (S);
    end Dirty_Close_Current_Dirty_Set_Equals_Review;
-
    function Dirty_Close_Current_Open_Set_Was_Reviewed
      (S : Editor.State.State_Type) return Boolean
    is
    begin
       return Editor.Executor.File_Lifecycle_Commands.Dirty_Close_Current_Open_Set_Was_Reviewed (S);
    end Dirty_Close_Current_Open_Set_Was_Reviewed;
-
    function Dirty_Close_All_Buffer_Identity_Current
      (S : Editor.State.State_Type) return Boolean
    is
    begin
       return Editor.Executor.File_Lifecycle_Commands.Dirty_Close_All_Buffer_Identity_Current (S);
    end Dirty_Close_All_Buffer_Identity_Current;
-
    function Dirty_Close_All_Buffer_Review_Current
      (S : Editor.State.State_Type) return Boolean
    is
    begin
       return Editor.Executor.File_Lifecycle_Commands.Dirty_Close_All_Buffer_Review_Current (S);
    end Dirty_Close_All_Buffer_Review_Current;
-
    procedure Start_Dirty_Close_Prompt
      (S           : in out Editor.State.State_Type;
       Scope       : Editor.State.Dirty_Close_Scope;
@@ -5634,7 +3440,6 @@ package body Editor.Executor is
       Editor.Executor.File_Lifecycle_Commands.Start_Dirty_Close_Prompt
         (S, Scope, All_Buffers, Buffer_Id, Summary);
    end Start_Dirty_Close_Prompt;
-
    procedure Close_Buffer_By_Discard
      (S      : in out Editor.State.State_Type;
       Id     : Editor.Buffers.Buffer_Id;
@@ -5644,18 +3449,15 @@ package body Editor.Executor is
       Editor.Executor.File_Lifecycle_Commands.Close_Buffer_By_Discard
         (S, Id, Closed);
    end Close_Buffer_By_Discard;
-
    function Trimmed_Command_Text (Text : String) return String is
    begin
       return Ada.Strings.Fixed.Trim (Text, Ada.Strings.Both);
    end Trimmed_Command_Text;
-
    function Valid_Buffer_Label_Text (Text : String) return Boolean is
    begin
       return Editor.Executor.Buffer_Metadata_Commands.Valid_Buffer_Label_Text
         (Text);
    end Valid_Buffer_Label_Text;
-
    function Selected_Switcher_Buffer
      (S     : Editor.State.State_Type;
       Found : out Boolean) return Editor.Buffer_Switcher.Buffer_Switcher_Row
@@ -5663,7 +3465,6 @@ package body Editor.Executor is
    begin
       return Editor.Executor.Buffer_Switcher_Shared.Selected_Switcher_Buffer (S, Found);
    end Selected_Switcher_Buffer;
-
    procedure Recompute_Buffer_Switcher_After_Selected_Action
      (S              : in out Editor.State.State_Type;
       Preferred_Id   : Editor.Buffers.Buffer_Id;
@@ -5672,20 +3473,17 @@ package body Editor.Executor is
    begin
       Editor.Executor.Buffer_Switcher_Shared.Recompute_Buffer_Switcher_After_Selected_Action (S, Preferred_Id, Fallback_Index);
    end Recompute_Buffer_Switcher_After_Selected_Action;
-
    function Marked_Open_Count (S : Editor.State.State_Type) return Natural
    is
    begin
       return Editor.Executor.Buffer_Switcher_Shared.Marked_Open_Count (S);
    end Marked_Open_Count;
-
    procedure Recompute_Buffer_Switcher_After_Marked_Action
      (S : in out Editor.State.State_Type)
    is
    begin
       Editor.Executor.Buffer_Switcher_Shared.Recompute_Buffer_Switcher_After_Marked_Action (S);
    end Recompute_Buffer_Switcher_After_Marked_Action;
-
    function Save_As_Target_Parent_Missing
      (Path : String) return Boolean
    is
@@ -5696,20 +3494,17 @@ package body Editor.Executor is
       when others =>
          return False;
    end Save_As_Target_Parent_Missing;
-
    procedure Clear_Reopen_Candidate
      (S : in out Editor.State.State_Type)
    is
    begin
       Editor.Executor.File_Lifecycle_Commands.Clear_Reopen_Candidate (S);
    end Clear_Reopen_Candidate;
-
    function Problems_Visible_Row_Count return Natural
    is
    begin
       return Editor.Executor.Panel_Focus_Commands.Problems_Visible_Row_Count;
    end Problems_Visible_Row_Count;
-
    procedure Ensure_Problems_Selection_Visible
      (S : in out Editor.State.State_Type)
    is
@@ -5720,7 +3515,6 @@ package body Editor.Executor is
       Editor.Problems.Ensure_Selected_Row_Visible
         (S.Problems_View, Snapshot, Problems_Visible_Row_Count);
    end Ensure_Problems_Selection_Visible;
-
    function File_Tree_Visible_Row_Count_For_View return Natural
    is
       Layout : constant Editor.Layout.Layout_Config := Editor.Layout.Current;
@@ -5737,7 +3531,6 @@ package body Editor.Executor is
          return Natural'Max (1, Panel.Height / Editor.Layout.Cell_H);
       end if;
    end File_Tree_Visible_Row_Count_For_View;
-
    procedure Validate_File_Tree_View
      (S : in out Editor.State.State_Type)
    is
@@ -5746,7 +3539,6 @@ package body Editor.Executor is
       Editor.File_Tree_View.Ensure_Selected_Row_Visible
         (S.File_Tree_View, S.File_Tree, File_Tree_Visible_Row_Count_For_View);
    end Validate_File_Tree_View;
-
    function Selected_File_Tree_Node
      (S     : Editor.State.State_Type;
       Found : out Boolean) return Editor.File_Tree.File_Tree_Node_Id
@@ -5755,7 +3547,6 @@ package body Editor.Executor is
       return Editor.File_Tree_View.Node_For_Row
         (S.File_Tree, Editor.File_Tree_View.Selected_Row_Index (S.File_Tree_View), Found);
    end Selected_File_Tree_Node;
-
    procedure Select_File_Tree_Node
      (S    : in out Editor.State.State_Type;
       Node : Editor.File_Tree.File_Tree_Node_Id)
@@ -5769,29 +3560,24 @@ package body Editor.Executor is
          Validate_File_Tree_View (S);
       end if;
    end Select_File_Tree_Node;
-
    function Search_Results_Visible_Row_Count return Natural
    is
    begin
-      return Editor.Executor.Search_Commands.Search_Results_Visible_Row_Count;
+      return Editor.Executor.Search_Results_Commands.Search_Results_Visible_Row_Count;
    end Search_Results_Visible_Row_Count;
-
    procedure Ensure_Search_Result_Visible
      (S : in out Editor.State.State_Type)
    is
    begin
-      Editor.Executor.Search_Commands.Ensure_Search_Result_Visible (S);
+      Editor.Executor.Search_Results_Commands.Ensure_Search_Result_Visible (S);
    end Ensure_Search_Result_Visible;
-
    ------------------------------------------------------------------------
    -- Secondary helpers expected elsewhere in the codebase
    ------------------------------------------------------------------------
-
    procedure Normalize_Carets (S : in out Editor.State.State_Type) is
    begin
       Editor.State.Normalize_Carets (S);
    end Normalize_Carets;
-
    procedure Add_Caret_At_Point
      (S : in out Editor.State.State_Type; X : Natural; Y : Natural)
    is
@@ -5805,7 +3591,6 @@ package body Editor.Executor is
       ));
       Editor.State.Normalize_Carets (S);
    end Add_Caret_At_Point;
-
    procedure Keep_Only_Primary_Caret
      (S : in out Editor.State.State_Type) is
       Primary : Caret_State := (
@@ -5822,7 +3607,6 @@ package body Editor.Executor is
       S.Carets.Clear;
       S.Carets.Append (Primary);
    end Keep_Only_Primary_Caret;
-
    procedure Select_Word_At_Point
      (S         : in out Editor.State.State_Type;
       X         : Natural;
@@ -5837,7 +3621,6 @@ package body Editor.Executor is
       Editor.Executor.Selection_Commands.Execute_Select_Word_At (S, Row, Col);
       New_Caret := Safe_Caret (S);
    end Select_Word_At_Point;
-
    procedure Select_Line_At_Point
      (S         : in out Editor.State.State_Type;
       X         : Natural;
@@ -5852,7 +3635,6 @@ package body Editor.Executor is
       Editor.Executor.Selection_Commands.Execute_Select_Line_At (S, Row);
       New_Caret := Safe_Caret (S);
    end Select_Line_At_Point;
-
    procedure Drag_To_Point
      (S         : in out Editor.State.State_Type;
       X         : Natural;
@@ -5877,7 +3659,6 @@ package body Editor.Executor is
       end if;
       New_Caret := Pos;
    end Drag_To_Point;
-
    function Preferred_Column_For_Caret
      (S : Editor.State.State_Type;
       C : Cursor_Index) return Natural is
@@ -5887,7 +3668,6 @@ package body Editor.Executor is
       Line_Column_For_Index (S, Natural (C), Row, Col);
       return Col;
    end Preferred_Column_For_Caret;
-
 
    procedure Move_All_Carets_Vertically
      (S          : in out Editor.State.State_Type;
@@ -5921,7 +3701,6 @@ package body Editor.Executor is
       Normalize_Carets (S);
       New_Caret := Safe_Caret (S);
    end Move_All_Carets_Vertically;
-
    procedure Move_All_Carets_By_Word
      (S         : in out Editor.State.State_Type;
       Move_Left : Boolean;
@@ -5949,7 +3728,6 @@ package body Editor.Executor is
       Normalize_Carets (S);
       New_Caret := Safe_Caret (S);
    end Move_All_Carets_By_Word;
-
    procedure Move_All_Carets_To_Line_Boundary
      (S          : in out Editor.State.State_Type;
       To_Home    : Boolean;
@@ -5983,7 +3761,6 @@ package body Editor.Executor is
       Normalize_Carets (S);
       New_Caret := Safe_Caret (S);
    end Move_All_Carets_To_Line_Boundary;
-
    procedure Move_All_Carets_By_Page
      (S          : in out Editor.State.State_Type;
       Delta_Rows : Integer;
@@ -6016,7 +3793,6 @@ package body Editor.Executor is
       Normalize_Carets (S);
       New_Caret := Safe_Caret (S);
    end Move_All_Carets_By_Page;
-
 
    procedure Reveal_Search_Match
      (S : in out Editor.State.State_Type)
@@ -6066,11 +3842,9 @@ package body Editor.Executor is
          Desired_Scroll => Desired);
       Editor.View.Clear_User_Scroll_Override;
    end Reveal_Search_Match;
-
    ------------------------------------------------------------------------
    -- Main executor
    ------------------------------------------------------------------------
-
    procedure Execute_No_Log_With_Status
      (S : in out Editor.State.State_Type;
       Cmd : Command;
@@ -6550,7 +4324,7 @@ package body Editor.Executor is
             | File_Conflict_Reload_From_Disk
             | File_Conflict_Overwrite_Disk
             | File_Conflict_Cancel =>
-            Editor.Executor.File_Save_Commands.Execute_File_Save_Kind
+            Editor.Executor.File_Lifecycle_Commands.Execute_Lifecycle_Kind
               (S, Cmd);
             Editor.Invariants.Check (S);
             return;
@@ -6573,7 +4347,7 @@ package body Editor.Executor is
 
          when Cancel_Pending_Transition
             | Retry_Pending_Transition =>
-            Editor.Executor.File_Save_Commands.Execute_File_Save_Kind
+            Editor.Executor.File_Lifecycle_Commands.Execute_Lifecycle_Kind
               (S, Cmd);
             Editor.Invariants.Check (S);
             return;
@@ -7059,7 +4833,6 @@ package body Editor.Executor is
       Editor.Invariants.Check (S);
       end;
    end Execute_No_Log_With_Status;
-
    procedure Execute_No_Log
      (S : in out Editor.State.State_Type;
       Cmd : Command)

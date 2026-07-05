@@ -15,7 +15,6 @@ with Editor.Commands;
 with Editor.Dirty_Guards;
 with Editor.Executor;
 with Editor.Executor.Buffer_Switcher_Shared;
-with Editor.Executor.File_Save_Commands;
 with Editor.Executor.File_Save_Basic_Commands;
 with Editor.Executor.Project_Lifecycle_Commands;
 with Editor.Executor.Workspace_Commands;

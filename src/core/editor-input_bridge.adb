@@ -48,7 +48,6 @@ with Editor.Executor.Bookmark_Commands;
 with Editor.Executor.Diagnostics_Commands;
 with Editor.Executor.Buffer_Switcher_Surface_Commands;
 with Editor.Executor.Command_Surface_Commands;
-with Editor.Executor.File_Save_Commands;
 with Editor.Executor.File_Target_Prompt_Commands;
 with Editor.Executor.File_Tree_Navigation_Commands;
 with Editor.Executor.File_Tree_Commands;

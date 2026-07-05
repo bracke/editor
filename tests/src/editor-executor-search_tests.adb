@@ -14,6 +14,7 @@ with Editor.Executor.Project_Search_Surface_Commands;
 with Editor.Executor.Project_Lifecycle_Commands;
 with Editor.Executor.Project_Search_Replace_Commands;
 with Editor.Executor.Search_Commands;
+with Editor.Executor.Search_Results_Commands;
 with Editor.Feature_Panel;
 with Editor.Feature_Search_Results;
 with Editor.Go_To_Line;
@@ -64,7 +65,7 @@ package body Editor.Executor.Search_Tests is
       Editor.Executor.Project_Search_Result_Commands.Execute_Run_Project_Search (S, "needle");
       Editor.Panels.Set_Visible (S.Panels, Editor.Panels.Bottom_Panel, False);
 
-      Editor.Executor.Search_Commands.Execute_Focus_Search_Results (S);
+      Editor.Executor.Search_Results_Commands.Execute_Focus_Search_Results (S);
 
       Assert
         (Editor.Panels.Is_Visible (S.Panels, Editor.Panels.Bottom_Panel),
@@ -102,7 +103,7 @@ package body Editor.Executor.Search_Tests is
 
       Editor.Executor.Project_Lifecycle_Commands.Execute_Open_Project (S, Root);
       Editor.Executor.Project_Search_Result_Commands.Execute_Run_Project_Search (S, "needle");
-      Editor.Executor.Search_Commands.Execute_Focus_Search_Results (S);
+      Editor.Executor.Search_Results_Commands.Execute_Focus_Search_Results (S);
 
       Assert
         (Editor.Project_Search.Result_Count (S.Project_Search) = 3,
@@ -111,7 +112,7 @@ package body Editor.Executor.Search_Tests is
         (Editor.Project_Search.Selected_Result_Index (S.Project_Search) = 1,
          "search should start with the first result selected");
 
-      Editor.Executor.Search_Commands.Execute_Search_Results_Move_Down (S);
+      Editor.Executor.Search_Results_Commands.Execute_Search_Results_Move_Down (S);
 
       Assert
         (Editor.Project_Search.Selected_Result_Index (S.Project_Search) = 2,
@@ -124,8 +125,8 @@ package body Editor.Executor.Search_Tests is
            Editor.Panel_Focus.Search_Results_Focus,
          "focused movement should keep Search Results focus");
 
-      Editor.Executor.Search_Commands.Execute_Search_Results_Move_Up (S);
-      Editor.Executor.Search_Commands.Execute_Search_Results_Move_Up (S);
+      Editor.Executor.Search_Results_Commands.Execute_Search_Results_Move_Up (S);
+      Editor.Executor.Search_Results_Commands.Execute_Search_Results_Move_Up (S);
 
       Assert
         (Editor.Project_Search.Selected_Result_Index (S.Project_Search) = 1,
@@ -153,9 +154,9 @@ package body Editor.Executor.Search_Tests is
 
       Editor.Executor.Project_Lifecycle_Commands.Execute_Open_Project (S, Root);
       Editor.Executor.Project_Search_Result_Commands.Execute_Run_Project_Search (S, "needle");
-      Editor.Executor.Search_Commands.Execute_Focus_Search_Results (S);
-      Editor.Executor.Search_Commands.Execute_Search_Results_Move_Down (S);
-      Editor.Executor.Search_Commands.Execute_Search_Results_Open_Selected (S);
+      Editor.Executor.Search_Results_Commands.Execute_Focus_Search_Results (S);
+      Editor.Executor.Search_Results_Commands.Execute_Search_Results_Move_Down (S);
+      Editor.Executor.Search_Results_Commands.Execute_Search_Results_Open_Selected (S);
 
       Assert
         (To_String (S.File_Info.Display_Name) = "needle_multi.txt",
@@ -195,8 +196,8 @@ package body Editor.Executor.Search_Tests is
 
       Editor.Executor.Project_Lifecycle_Commands.Execute_Open_Project (S, Root);
       Editor.Executor.Project_Search_Result_Commands.Execute_Run_Project_Search (S, "needle");
-      Editor.Executor.Search_Commands.Execute_Focus_Search_Results (S);
-      Editor.Executor.Search_Commands.Execute_Search_Results_Close_Or_Hide (S);
+      Editor.Executor.Search_Results_Commands.Execute_Focus_Search_Results (S);
+      Editor.Executor.Search_Results_Commands.Execute_Search_Results_Close_Or_Hide (S);
 
       Assert
         (Editor.Panel_Focus.Editor_Text_Has_Focus (S.Panel_Focus),

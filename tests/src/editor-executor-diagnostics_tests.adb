@@ -12,6 +12,7 @@ with Editor.Cursors;
 with Editor.Executor.Diagnostics_Commands;
 with Editor.Executor.Panel_Focus_Commands;
 with Editor.Executor.Search_Commands;
+with Editor.Executor.Search_Results_Commands;
 with Editor.Executor.Test_Support; use Editor.Executor.Test_Support;
 with Editor.Feature_Diagnostics;
 with Editor.Feature_Panel;
@@ -399,7 +400,7 @@ package body Editor.Executor.Diagnostics_Tests is
 
       Editor.Executor.Panel_Focus_Commands.Execute_Focus_Search_Results (S);
       Editor.Feature_Panel.Select_Row (S.Feature_Panel, 2);
-      Editor.Executor.Search_Commands.Execute_Search_Results_Open_Selected (S);
+      Editor.Executor.Search_Results_Commands.Execute_Search_Results_Open_Selected (S);
 
       Assert
         (Editor.Feature_Search_Results.Query_Text (S.Feature_Search_Results) =

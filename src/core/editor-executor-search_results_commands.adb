@@ -3,19 +3,28 @@ with Ada.Strings.Unbounded;
 with Editor.Command_Execution;
 with Editor.Commands;
 with Editor.Executor;
-with Editor.Executor.Search_Commands;
+with Editor.Executor.Project_Search_Result_Commands;
 with Editor.Feature_Panel;
 with Editor.Feature_Panel_Controller;
 with Editor.Feature_Search_Results;
 with Editor.Focus_Management;
+with Editor.Layout;
+with Editor.Panel_Focus;
+with Editor.Panels;
+with Editor.Project_Search;
 with Editor.Render_Cache;
+with Editor.Search_Results;
 with Editor.State;
+with Editor.View;
 
 package body Editor.Executor.Search_Results_Commands is
 
    use Ada.Strings.Unbounded;
    use Editor.Commands;
+   use type Editor.Command_Execution.Command_Execution_Status;
+   use type Editor.Feature_Panel.Feature_Id;
    use type Editor.Feature_Search_Results.External_Result_Set_Kind;
+   use type Editor.Panels.Bottom_Panel_Content;
 
    function Search_Results_Command_Availability
      (S  : Editor.State.State_Type;
@@ -114,6 +123,161 @@ package body Editor.Executor.Search_Results_Commands is
    begin
       Report_Info (S, "Navigation target unavailable.");
    end Report_Target_Unavailable;
+
+   function Search_Results_Visible_Row_Count return Natural
+   is
+      Layout : constant Editor.Layout.Layout_Config := Editor.Layout.Current;
+      Panel  : constant Editor.Layout.Rect :=
+        Editor.Layout.Panel_Rect
+          (Layout,
+           Editor.Panels.Bottom_Panel,
+           Editor.View.Viewport_Width,
+           Editor.View.Viewport_Height);
+   begin
+      if Editor.Layout.Cell_H = 0 then
+         return 1;
+      else
+         return Natural'Max (1, Panel.Height / Editor.Layout.Cell_H);
+      end if;
+   end Search_Results_Visible_Row_Count;
+
+   procedure Ensure_Search_Result_Visible
+     (S : in out Editor.State.State_Type)
+   is
+      Snapshot : constant Editor.Search_Results.Search_Results_Snapshot :=
+        Editor.Search_Results.Build_Snapshot (S.Project_Search, (others => <>));
+   begin
+      Editor.Search_Results.Ensure_Selected_Row_Visible
+        (S.Search_Results_View,
+         Snapshot,
+         Editor.Project_Search.Selected_Result_Index (S.Project_Search),
+         Search_Results_Visible_Row_Count);
+   end Ensure_Search_Result_Visible;
+
+   procedure Execute_Focus_Search_Results
+     (S : in out Editor.State.State_Type)
+   is
+   begin
+      if Editor.Panels.Is_Visible (S.Panels, Editor.Panels.Bottom_Panel)
+        and then Editor.Panels.Active_Bottom_Content (S.Panels) =
+          Editor.Panels.Search_Results_Content
+      then
+         Editor.Focus_Management.Set_Focus_Owner
+           (S, Editor.Focus_Management.Focus_Project_Search_Results);
+      elsif Editor.Project_Search.Result_Count (S.Project_Search) > 0 then
+         Editor.Focus_Management.Set_Focus_Owner
+           (S, Editor.Focus_Management.Focus_Project_Search_Results);
+      else
+         Report_Info (S, "No project search results");
+      end if;
+      Editor.Panels.Set_Current (S.Panels);
+      Editor.Render_Cache.Invalidate_All;
+   end Execute_Focus_Search_Results;
+
+   procedure Execute_Search_Results_Move_Up
+     (S : in out Editor.State.State_Type)
+   is
+   begin
+      if Editor.Project_Search.Result_Count (S.Project_Search) = 0 then
+         Report_Info (S, "No project search results");
+      else
+         Editor.Project_Search.Move_Selected_Result
+           (S.Project_Search, Editor.Project_Search.Previous_Result, False);
+         Ensure_Search_Result_Visible (S);
+         Editor.Focus_Management.Set_Focus_Owner
+           (S, Editor.Focus_Management.Focus_Project_Search_Results);
+      end if;
+      Editor.Render_Cache.Invalidate_All;
+   end Execute_Search_Results_Move_Up;
+
+   procedure Execute_Search_Results_Move_Down
+     (S : in out Editor.State.State_Type)
+   is
+   begin
+      if Editor.Project_Search.Result_Count (S.Project_Search) = 0 then
+         Report_Info (S, "No project search results");
+      else
+         Editor.Project_Search.Move_Selected_Result
+           (S.Project_Search, Editor.Project_Search.Next_Result, False);
+         Ensure_Search_Result_Visible (S);
+         Editor.Focus_Management.Set_Focus_Owner
+           (S, Editor.Focus_Management.Focus_Project_Search_Results);
+      end if;
+      Editor.Render_Cache.Invalidate_All;
+   end Execute_Search_Results_Move_Down;
+
+   procedure Execute_Search_Results_Page_Up
+     (S : in out Editor.State.State_Type)
+   is
+      Steps : constant Natural := Search_Results_Visible_Row_Count;
+   begin
+      if Editor.Project_Search.Result_Count (S.Project_Search) = 0 then
+         Report_Info (S, "No project search results");
+      else
+         for I in 1 .. Steps loop
+            Editor.Project_Search.Move_Selected_Result
+              (S.Project_Search, Editor.Project_Search.Previous_Result, False);
+         end loop;
+         Ensure_Search_Result_Visible (S);
+         Editor.Focus_Management.Set_Focus_Owner
+           (S, Editor.Focus_Management.Focus_Project_Search_Results);
+      end if;
+      Editor.Render_Cache.Invalidate_All;
+   end Execute_Search_Results_Page_Up;
+
+   procedure Execute_Search_Results_Page_Down
+     (S : in out Editor.State.State_Type)
+   is
+      Steps : constant Natural := Search_Results_Visible_Row_Count;
+   begin
+      if Editor.Project_Search.Result_Count (S.Project_Search) = 0 then
+         Report_Info (S, "No project search results");
+      else
+         for I in 1 .. Steps loop
+            Editor.Project_Search.Move_Selected_Result
+              (S.Project_Search, Editor.Project_Search.Next_Result, False);
+         end loop;
+         Ensure_Search_Result_Visible (S);
+         Editor.Focus_Management.Set_Focus_Owner
+           (S, Editor.Focus_Management.Focus_Project_Search_Results);
+      end if;
+      Editor.Render_Cache.Invalidate_All;
+   end Execute_Search_Results_Page_Down;
+
+   procedure Execute_Search_Results_Open_Selected
+     (S : in out Editor.State.State_Type)
+   is
+   begin
+      if Editor.Feature_Panel.Active_Feature (S.Feature_Panel) =
+        Editor.Feature_Panel.Search_Results_Feature
+        and then Editor.Feature_Panel.Has_Selection (S.Feature_Panel)
+      then
+         declare
+            Result : constant Editor.Executor.Command_Execution_Result :=
+              Execute_Search_Result_Row_Activation
+                (S, Editor.Feature_Panel.Selected_Row (S.Feature_Panel));
+         begin
+            if Result.Status = Editor.Executor.Command_Executed then
+               Editor.Focus_Management.Restore_Focus_To_Editor (S);
+               Editor.Render_Cache.Invalidate_All;
+               return;
+            end if;
+         end;
+      end if;
+
+      Editor.Executor.Project_Search_Result_Commands
+        .Execute_Open_Selected_Project_Search_Result (S);
+      Editor.Focus_Management.Restore_Focus_To_Editor (S);
+      Editor.Render_Cache.Invalidate_All;
+   end Execute_Search_Results_Open_Selected;
+
+   procedure Execute_Search_Results_Close_Or_Hide
+     (S : in out Editor.State.State_Type)
+   is
+   begin
+      Editor.Focus_Management.Restore_Focus_To_Editor (S);
+      Editor.Render_Cache.Invalidate_All;
+   end Execute_Search_Results_Close_Or_Hide;
 
    function Execute_Search_Results_Command
      (S  : in out Editor.State.State_Type;
@@ -392,24 +556,22 @@ package body Editor.Executor.Search_Results_Commands is
    begin
       case Kind is
          when Search_Results_Move_Up =>
-            Editor.Executor.Search_Commands.Execute_Search_Results_Move_Up (S);
+            Execute_Search_Results_Move_Up (S);
 
          when Search_Results_Move_Down =>
-            Editor.Executor.Search_Commands.Execute_Search_Results_Move_Down (S);
+            Execute_Search_Results_Move_Down (S);
 
          when Search_Results_Page_Up =>
-            Editor.Executor.Search_Commands.Execute_Search_Results_Page_Up (S);
+            Execute_Search_Results_Page_Up (S);
 
          when Search_Results_Page_Down =>
-            Editor.Executor.Search_Commands.Execute_Search_Results_Page_Down (S);
+            Execute_Search_Results_Page_Down (S);
 
          when Search_Results_Open_Selected =>
-            Editor.Executor.Search_Commands.Execute_Search_Results_Open_Selected
-              (S);
+            Execute_Search_Results_Open_Selected (S);
 
          when Search_Results_Close_Or_Hide =>
-            Editor.Executor.Search_Commands.Execute_Search_Results_Close_Or_Hide
-              (S);
+            Execute_Search_Results_Close_Or_Hide (S);
 
          when Search_Results_Search_Active_Buffer =>
             Run (Command_Search_Results_Search_Active_Buffer);

@@ -6,6 +6,7 @@ with Editor.Buffers.Tests;
 with Editor.Clipboard.Tests;
 with Editor.Core_Editing_Workflow.Tests;
 with Editor.Dirty_Lines.Tests;
+with Editor.Files.Target_Prompt_Tests;
 with Editor.Files.Tests;
 with Editor.Go_To_Line.Tests;
 with Editor.History.Tests;
@@ -44,6 +45,7 @@ package body Editor_Core_Suite is
       Ret.Add_Test (new Editor.Bridge.Tests.Bridge_Test_Case);
       Ret.Add_Test (new Editor.Buffers.Tests.Buffers_Test_Case);
       Ret.Add_Test (new Editor.Clipboard.Tests.Clipboard_Test_Case);
+      Ret.Add_Test (new Editor.Files.Target_Prompt_Tests.Target_Prompt_Test_Case);
       Ret.Add_Test (new Editor.Files.Tests.Files_Test_Case);
       Ret.Add_Test (new Editor.Settings.Tests.Settings_Test_Case);
       Ret.Add_Test (new Editor.Settings_Management.Tests.Settings_Management_Test_Case);

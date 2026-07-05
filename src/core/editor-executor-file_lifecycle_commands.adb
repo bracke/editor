@@ -656,6 +656,69 @@ package body Editor.Executor.File_Lifecycle_Commands is
       return Result_After_Command (S, Id, Before_Messages);
    end Execute_Lifecycle_Result_Command;
 
+   procedure Execute_Lifecycle_Kind
+     (S   : in out Editor.State.State_Type;
+      Cmd : Editor.Commands.Command)
+   is
+   begin
+      case Cmd.Kind is
+         when Save_File =>
+            Editor.Executor.File_Save_Basic_Commands.Execute_Save (S);
+
+         when Save_File_As =>
+            Editor.Executor.File_Save_Basic_Commands.Execute_Save_As
+              (S, To_String (Cmd.Path));
+
+         when Save_All =>
+            Editor.Executor.File_Save_Basic_Commands.Execute_Save_All (S);
+
+         when Reload_Active_Buffer =>
+            Editor.Executor.File_Save_Basic_Commands
+              .Execute_Reload_Active_Buffer (S);
+
+         when Revert_Active_Buffer =>
+            Editor.Executor.File_Save_Basic_Commands
+              .Execute_Revert_Active_Buffer (S);
+
+         when Rename_Buffer_File =>
+            Editor.Executor.File_Operation_Commands.Execute_Rename_Buffer_File
+              (S, To_String (Cmd.Path));
+
+         when Delete_Buffer_File =>
+            Editor.Executor.File_Operation_Commands.Execute_Delete_Buffer_File
+              (S);
+
+         when Copy_Buffer_File =>
+            Editor.Executor.File_Operation_Commands.Execute_Copy_Buffer_File
+              (S, To_String (Cmd.Path));
+
+         when Move_Buffer_File =>
+            Editor.Executor.File_Operation_Commands.Execute_Move_Buffer_File
+              (S, To_String (Cmd.Path));
+
+         when File_Conflict_Keep_Buffer =>
+            Execute_File_Conflict_Keep_Buffer (S);
+
+         when File_Conflict_Reload_From_Disk =>
+            Execute_File_Conflict_Reload_From_Disk (S);
+
+         when File_Conflict_Overwrite_Disk =>
+            Execute_File_Conflict_Overwrite_Disk (S);
+
+         when File_Conflict_Cancel =>
+            Execute_File_Conflict_Cancel (S);
+
+         when Cancel_Pending_Transition =>
+            Execute_Cancel_Pending_Transition (S);
+
+         when Retry_Pending_Transition =>
+            Execute_Retry_Pending_Transition (S);
+
+         when others =>
+            raise Program_Error with "unsupported lifecycle command kind";
+      end case;
+   end Execute_Lifecycle_Kind;
+
    procedure Report_Info_Raw
      (S    : in out Editor.State.State_Type;
       Text : String)
