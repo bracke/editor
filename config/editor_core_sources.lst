@@ -1159,6 +1159,8 @@ editor-input_bridge-pointer_state.adb
 editor-input_bridge-pointer_state.ads
 editor-input_bridge-text_entry_routing.adb
 editor-input_bridge-text_entry_routing.ads
+editor-input_bridge-wheel_handlers.adb
+editor-input_bridge-wheel_handlers.ads
 editor-input_bridge.adb
 editor-input_bridge.ads
 editor-input_field.adb

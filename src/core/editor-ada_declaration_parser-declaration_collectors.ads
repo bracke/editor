@@ -32,4 +32,31 @@ package Editor.Ada_Declaration_Parser.Declaration_Collectors is
       Column_Base : Natural := 0;
       Flags       : Declaration_Flags := (others => False));
 
+   procedure Add_Object_Names
+     (Analysis    : in out Analysis_Result;
+      Raw_Line    : String;
+      Line_Number : Positive;
+      Depth       : Natural;
+      Parent      : Symbol_Id;
+      Kind        : Symbol_Kind;
+      Column_Base : Natural := 0;
+      Flags       : Declaration_Flags := (others => False));
+
+   procedure Add_Object_Name_Groups
+     (Analysis    : in out Analysis_Result;
+      Raw_Line    : String;
+      Line_Number : Positive;
+      Depth       : Natural;
+      Parent      : Symbol_Id;
+      Kind        : Symbol_Kind;
+      Column_Base : Natural := 0;
+      Flags       : Declaration_Flags := (others => False));
+
+   procedure Add_Discriminant_Names
+     (Analysis    : in out Analysis_Result;
+      Raw_Line    : String;
+      Line_Number : Positive;
+      Depth       : Natural;
+      Parent      : Symbol_Id);
+
 end Editor.Ada_Declaration_Parser.Declaration_Collectors;

@@ -2913,48 +2913,16 @@ package body Editor.Ada_Declaration_Parser is
       Column_Base : Natural := 0;
       Flags       : Declaration_Flags := (others => False))
    is
-      Code          : constant String := Editor.Ada_Syntax_Core.Sanitize_Line (Raw_Line);
-      Segment_Start : Natural := Raw_Line'First;
    begin
-      --  Ada declaration lists use semicolons between discriminant/profile
-      --  groups.  Add_Object_Names is intentionally colon-gated and only
-      --  consumes one group, so split semicolon-separated groups here while
-      --  preserving source-column offsets for each emitted symbol.  Keep
-      --  semicolons inside parenthesized metadata, such as anonymous
-      --  access-to-subprogram profiles, inside the current declaration so
-      --  profile parameters do not become bogus object/formal symbols.
-      declare
-         Nesting : Natural := 0;
-      begin
-         for I in Code'Range loop
-            if Code (I) = '(' then
-               Nesting := Nesting + 1;
-            elsif Code (I) = ')' then
-               if Nesting > 0 then
-                  Nesting := Nesting - 1;
-               else
-                  exit;
-               end if;
-            elsif Code (I) = ';' and then Nesting = 0 then
-               if I > Segment_Start then
-                  Add_Object_Names
-                    (Analysis, Raw_Line (Segment_Start .. I - 1), Line_Number,
-                     Depth, Parent, Kind,
-                     Column_Base => Column_Base + Segment_Start - Raw_Line'First,
-                     Flags => Flags);
-               end if;
-               Segment_Start := I + 1;
-            end if;
-         end loop;
-      end;
-
-      if Segment_Start <= Raw_Line'Last then
-         Add_Object_Names
-           (Analysis, Raw_Line (Segment_Start .. Raw_Line'Last), Line_Number,
-            Depth, Parent, Kind,
-            Column_Base => Column_Base + Segment_Start - Raw_Line'First,
-            Flags => Flags);
-      end if;
+      Declaration_Collectors.Add_Object_Name_Groups
+        (Analysis    => Analysis,
+         Raw_Line    => Raw_Line,
+         Line_Number => Line_Number,
+         Depth       => Depth,
+         Parent      => Parent,
+         Kind        => Kind,
+         Column_Base => Column_Base,
+         Flags       => Flags);
    end Add_Object_Name_Groups;
 
 
@@ -3126,62 +3094,9 @@ package body Editor.Ada_Declaration_Parser is
       Depth       : Natural;
       Parent      : Symbol_Id)
    is
-      Code    : constant String := Editor.Ada_Syntax_Core.Sanitize_Line (Raw_Line);
-      Open    : Natural := 0;
-      Close   : Natural := 0;
-      Nesting : Natural := 0;
    begin
-      --  A same-line discriminant part appears inside the type header:
-      --     type Rec (Id : Natural) is record
-      --  Reusing Add_Object_Names on the full line would incorrectly learn
-      --  the Ada keyword/type name before the discriminant colon.  Restrict
-      --  extraction to the parenthesized discriminant slice when present.
-      --  scans the discriminant parentheses with nesting rather than
-      --  stopping at the first ``)``.  Ada access discriminants can contain
-      --  anonymous access-to-subprogram profiles such as
-      --     Callback : access procedure (Left : T; Right : T)
-      --  and those inner parentheses/semicolons are metadata, not the end of
-      --  the discriminant part and not separate discriminants.
-      for I in Code'Range loop
-         if Code (I) = '(' then
-            Open := I;
-            exit;
-         elsif Code (I) = ';' then
-            exit;
-         end if;
-      end loop;
-
-      if Open /= 0 then
-         Nesting := 1;
-         for I in Open + 1 .. Code'Last loop
-            if Code (I) = '(' then
-               Nesting := Nesting + 1;
-            elsif Code (I) = ')' then
-               if Nesting > 1 then
-                  Nesting := Nesting - 1;
-               else
-                  Close := I;
-                  exit;
-               end if;
-            end if;
-         end loop;
-
-         if Close /= 0 and then Close > Open + 1 then
-            Add_Object_Name_Groups
-              (Analysis, Raw_Line (Open + 1 .. Close - 1), Line_Number,
-               Depth, Parent, Symbol_Discriminant,
-               Column_Base => Open - Raw_Line'First + 1);
-         elsif Open < Raw_Line'Last then
-            Add_Object_Name_Groups
-              (Analysis, Raw_Line (Open + 1 .. Raw_Line'Last), Line_Number,
-               Depth, Parent, Symbol_Discriminant,
-               Column_Base => Open - Raw_Line'First + 1);
-         end if;
-      else
-         Add_Object_Name_Groups
-           (Analysis, Raw_Line, Line_Number, Depth, Parent,
-            Symbol_Discriminant);
-      end if;
+      Declaration_Collectors.Add_Discriminant_Names
+        (Analysis, Raw_Line, Line_Number, Depth, Parent);
    end Add_Discriminant_Names;
 
 
@@ -4639,47 +4554,9 @@ package body Editor.Ada_Declaration_Parser is
       end Starts_With_Callable_Segment;
 
       function Has_Same_Line_Callable_Group return Boolean is
-         Code          : constant String := Editor.Ada_Syntax_Core.Sanitize_Line (Raw_Line);
-         Segment_Start : Natural := Raw_Line'First;
-         Nesting       : Natural := 0;
-         Seen_First    : Boolean := False;
       begin
-         if Code'Length = 0 then
-            return False;
-         end if;
-
-         for I in Code'Range loop
-            if Code (I) = '(' then
-               Nesting := Nesting + 1;
-            elsif Code (I) = ')' then
-               if Nesting > 0 then
-                  Nesting := Nesting - 1;
-               end if;
-            elsif Code (I) = ';' and then Nesting = 0 then
-               declare
-                  Segment : constant String := Raw_Line (Segment_Start .. I - 1);
-               begin
-                  if not Seen_First then
-                     if not Starts_With_Callable_Segment (Segment) then
-                        return False;
-                     end if;
-                     Seen_First := True;
-                  else
-                     if Starts_With_Callable_Segment (Segment) then
-                        return True;
-                     end if;
-                  end if;
-               end;
-               Segment_Start := I + 1;
-            end if;
-         end loop;
-
-         if Seen_First and then Segment_Start <= Raw_Line'Last then
-            return Starts_With_Callable_Segment
-              (Raw_Line (Segment_Start .. Raw_Line'Last));
-         end if;
-
-         return False;
+         return Same_Line_Declarations.Has_Same_Line_Callable_Group
+           (Raw_Line);
       end Has_Same_Line_Callable_Group;
 
       procedure Add_Same_Line_Callable_Groups is
@@ -4901,54 +4778,9 @@ package body Editor.Ada_Declaration_Parser is
       end Starts_With_Package_Segment;
 
       function Has_Same_Line_Package_Group return Boolean is
-         Code          : constant String := Editor.Ada_Syntax_Core.Sanitize_Line (Raw_Line);
-         Segment_Start : Natural := Raw_Line'First;
-         Nesting       : Natural := 0;
-         Seen_First    : Boolean := False;
       begin
-         if not Starts_With_Package_Segment (Raw_Line, Pending_Generic) then
-            return False;
-         elsif Has_Token (Decl_Lower, "is")
-           and then not Has_Token (Decl_Lower, "new")
-           and then not Has_Token (Decl_Lower, "renames")
-         then
-            --  A compact package/package-body declaration owns a tail that
-            --  must be parsed under that package.  The same-line package group
-            --  splitter is only for independent package declarations, renames,
-            --  instantiations, and generic formal package declarations.
-            return False;
-         end if;
-
-         for I in Code'Range loop
-            if Code (I) = '(' then
-               Nesting := Nesting + 1;
-            elsif Code (I) = ')' then
-               if Nesting > 0 then
-                  Nesting := Nesting - 1;
-               end if;
-            elsif Code (I) = ';' and then Nesting = 0 then
-               if Segment_Start <= I - 1
-                 and then Starts_With_Package_Segment
-                   (Raw_Line (Segment_Start .. I - 1), Pending_Generic)
-               then
-                  if Seen_First then
-                     return True;
-                  end if;
-                  Seen_First := True;
-               end if;
-               Segment_Start := I + 1;
-            end if;
-         end loop;
-
-         if Segment_Start <= Raw_Line'Last
-           and then Starts_With_Package_Segment
-             (Raw_Line (Segment_Start .. Raw_Line'Last), Pending_Generic)
-           and then Seen_First
-         then
-            return True;
-         end if;
-
-         return False;
+         return Same_Line_Declarations.Has_Same_Line_Package_Group
+           (Raw_Line, Decl_Lower, Pending_Generic);
       end Has_Same_Line_Package_Group;
 
       procedure Add_Same_Line_Package_Groups is
@@ -5086,50 +4918,9 @@ package body Editor.Ada_Declaration_Parser is
       end Starts_With_Concurrent_Segment;
 
       function Has_Same_Line_Concurrent_Group return Boolean is
-         Code          : constant String := Editor.Ada_Syntax_Core.Sanitize_Line (Raw_Line);
-         Segment_Start : Natural := Raw_Line'First;
-         Nesting       : Natural := 0;
-         Seen_First    : Boolean := False;
       begin
-         if not Starts_With_Concurrent_Segment (Decl) then
-            return False;
-         elsif Has_Token (Decl_Lower, "is") then
-            --  A compact task/protected declaration with its own operation
-            --  tail must be emitted as a scope owner and reparsed through
-            --  Parse_Compact_Scope_Tail.  Treating its internal semicolons
-            --  as sibling concurrent declarations loses the protected/task
-            --  parent for entries and operations.
-            return False;
-         end if;
-
-         for I in Code'Range loop
-            if Code (I) = '(' then
-               Nesting := Nesting + 1;
-            elsif Code (I) = ')' then
-               if Nesting > 0 then
-                  Nesting := Nesting - 1;
-               end if;
-            elsif Code (I) = ';' and then Nesting = 0 then
-               if Segment_Start <= I - 1
-                 and then Starts_With_Concurrent_Segment (Raw_Line (Segment_Start .. I - 1))
-               then
-                  if Seen_First then
-                     return True;
-                  end if;
-                  Seen_First := True;
-               end if;
-               Segment_Start := I + 1;
-            end if;
-         end loop;
-
-         if Segment_Start <= Raw_Line'Last
-           and then Starts_With_Concurrent_Segment (Raw_Line (Segment_Start .. Raw_Line'Last))
-           and then Seen_First
-         then
-            return True;
-         end if;
-
-         return False;
+         return Same_Line_Declarations.Has_Same_Line_Concurrent_Group
+           (Raw_Line, Decl, Decl_Lower);
       end Has_Same_Line_Concurrent_Group;
 
       procedure Add_Same_Line_Concurrent_Groups is
