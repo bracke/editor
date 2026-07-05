@@ -24,4 +24,6 @@ package Editor.Ada_Declaration_Parser.Target_Helpers is
 
    function Interface_Target_From_Line_Start (Line : String) return String;
 
+   function Subtype_Target_After_Is (Line : String) return String;
+
 end Editor.Ada_Declaration_Parser.Target_Helpers;

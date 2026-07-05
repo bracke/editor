@@ -11,6 +11,7 @@ with Editor.Ada_Declaration_Parser.Name_Profile_Helpers;
 with Editor.Ada_Declaration_Parser.Pragma_Helpers;
 with Editor.Ada_Declaration_Parser.Profile_Parameter_Collectors;
 with Editor.Ada_Declaration_Parser.Same_Line_Declarations;
+with Editor.Ada_Declaration_Parser.Same_Line_Emitters;
 with Editor.Ada_Declaration_Parser.Target_Helpers;
 with Editor.Ada_Syntax_Core;
 with Editor.Ada_Syntax_Tree;
@@ -2245,37 +2246,8 @@ package body Editor.Ada_Declaration_Parser is
 
 
    function Subtype_Target_After_Is (Line : String) return String is
-      L      : constant String := Lower (Editor.Ada_Syntax_Core.Sanitize_Line (Line));
-      Is_Pos : constant Natural := Ada.Strings.Fixed.Index (L, " is");
-      Start  : Natural;
    begin
-      if Is_Pos = 0 then
-         return "";
-      end if;
-
-      Start := Line'First + (Is_Pos - L'First) + 3;
-      while Start <= Line'Last
-        and then (Line (Start) = ' ' or else Line (Start) = Ada.Characters.Latin_1.HT)
-      loop
-         Start := Start + 1;
-      end loop;
-
-      if Start + 7 <= Line'Last
-        and then Lower (Line (Start .. Start + 7)) = "not null"
-      then
-         Start := Start + 8;
-         while Start <= Line'Last
-           and then (Line (Start) = ' ' or else Line (Start) = Ada.Characters.Latin_1.HT)
-         loop
-            Start := Start + 1;
-         end loop;
-      end if;
-
-      if Start > Line'Last then
-         return "";
-      end if;
-
-      return Read_Subtype_Mark (Line, Positive (Start), True);
+      return Target_Helpers.Subtype_Target_After_Is (Line);
    end Subtype_Target_After_Is;
 
    function Subtype_Target_From_Line_Start (Line : String) return String is
@@ -3152,70 +3124,11 @@ package body Editor.Ada_Declaration_Parser is
       end Has_Same_Line_Subtype_Group;
 
       procedure Add_Same_Line_Subtype_Groups is
-         Code          : constant String := Editor.Ada_Syntax_Core.Sanitize_Line (Raw_Line);
-         Segment_Start : Natural := Raw_Line'First;
          Parent        : constant Symbol_Id :=
            Scope_Stack (Natural'Min (Depth, Max_Scope_Nesting));
-
-         procedure Add_Segment
-           (First : Natural;
-            Last  : Natural)
-         is
-         begin
-            if First > Last then
-               return;
-            end if;
-
-            declare
-               Segment       : constant String := Trim (Raw_Line (First .. Last));
-               Segment_Lower : constant String := Lower (Segment);
-            begin
-               if not Starts_With_Word (Segment_Lower, "subtype") then
-                  return;
-               end if;
-
-               declare
-                  Segment_Name : constant String := Read_Name (Segment, Segment'First + 7, True);
-                  Name_Pos     : constant Natural :=
-                    Ada.Strings.Fixed.Index (Raw_Line (First .. Last), Segment_Name);
-                  Col          : constant Positive :=
-                    (if Name_Pos = 0 then First_Non_Blank_Column (Raw_Line) else Positive (Name_Pos));
-                  Segment_Flags : constant Declaration_Flags :=
-                    (Is_Private => Flags.Is_Private, others => False);
-               begin
-                  if Segment_Name'Length /= 0 then
-                     declare
-                        Ignored : constant Symbol_Id := Add_Symbol
-                          (Analysis, Segment_Name, Symbol_Subtype,
-                           (Line_Number, Col, Line_Number,
-                            Positive'Max (Col, Col + Segment_Name'Length - 1)),
-                           Col, Enclosing_Scope => Scope_Id (Natural (Parent)),
-                           Parent_Symbol => Parent, Depth => Depth,
-                           Flags => Segment_Flags,
-                           Target_Name => Subtype_Target_After_Is (Segment));
-                     begin
-                        null;
-                     end;
-                  end if;
-               end;
-            end;
-         end Add_Segment;
       begin
-         --  Multiple subtype declarations may be placed on one physical
-         --  source line.  The normal declaration branch emits one symbol for
-         --  the leading declaration, so split only when a later segment also
-         --  starts with the Ada subtype keyword.  Other semicolon-separated
-         --  declaration families continue through their dedicated parsers.
-         for I in Code'Range loop
-            if Code (I) = ';' then
-               Add_Segment (Segment_Start, I - 1);
-               Segment_Start := I + 1;
-            end if;
-         end loop;
-
-         if Segment_Start <= Raw_Line'Last then
-            Add_Segment (Segment_Start, Raw_Line'Last);
-         end if;
+         Same_Line_Emitters.Add_Same_Line_Subtype_Groups
+           (Analysis, Raw_Line, Line_Number, Depth, Parent, Flags.Is_Private);
       end Add_Same_Line_Subtype_Groups;
 
       function Has_Same_Line_Type_Group return Boolean is

@@ -1,4 +1,5 @@
 with Editor.Instance;
+with Editor.Input_Bridge.Active_Find_Key_Handlers;
 with Editor.Input_Bridge.Command_Routing;
 with Editor.Input_Bridge.Gutter_Pointer_Handlers;
 with Editor.Input_Bridge.Build_UI_Pointer_Handlers;
@@ -930,20 +931,12 @@ use type Editor.Guided_Prompts.Prompt_Kind;
            or else Id = Editor.Commands.Command_Rename_Symbol_Preview
            or else Id = Editor.Commands.Command_Rename_Symbol_Apply
          then
-            declare
-               Availability : constant Editor.Commands.Command_Availability :=
-                 Editor.Executor.Command_Availability
-                   (The_Editor.State,
-                    (if Id = Editor.Commands.Command_Rename_Symbol_Apply
-                     then Editor.Commands.Command_Rename_Symbol_Preview
-                     else Id));
-            begin
-               if not Editor.Commands.Is_Available (Availability) then
-                  Report_Info (Editor.Commands.Unavailable_Reason (Availability));
-                  Editor.Render_Cache.Invalidate_All;
-                  return;
-               end if;
-            end;
+            if Editor.Input_Bridge.Command_Routing
+              .Handle_Guided_Prompt_Start_Availability_Gate
+                (The_Editor.State, Id, Report_Info'Access)
+            then
+               return;
+            end if;
          end if;
          Start_Guided_Prompt_For_Command (Id);
          Editor.Cursor.Notify_Input (Float (Editor.View.Current_Time_Seconds));
@@ -3302,6 +3295,17 @@ use type Editor.Guided_Prompts.Prompt_Kind;
       begin
          Execute_Command_Id (Command_Id);
       end Execute_Command_Id_Default;
+
+      procedure Execute_Active_Find_Previous_Default is
+      begin
+         Execute_Command_Id (Editor.Commands.Command_Active_Find_Previous);
+      end Execute_Active_Find_Previous_Default;
+
+      procedure Hide_Active_Find_Default is
+      begin
+         Cmd.Kind := Editor.Commands.Active_Find_Hide;
+         Editor.Instance.Execute (The_Editor, Cmd);
+      end Hide_Active_Find_Default;
    begin
       pragma Assert (Initialized,
          "Input_Bridge must be initialized before handling key chords");
@@ -3382,31 +3386,12 @@ use type Editor.Guided_Prompts.Prompt_Kind;
          return;
       end if;
 
-      if The_Editor.State.Active_Find_Prompt
-        and then
-          ((not Editor.Overlay_Focus.Has_Active_Overlay
-              (The_Editor.State.Overlay_Focus))
-           or else Editor.Overlay_Focus.Is_Active
-             (The_Editor.State.Overlay_Focus,
-              Editor.Overlay_Focus.Active_Find_Prompt_Overlay))
+      if Editor.Input_Bridge.Active_Find_Key_Handlers.Handle_Active_Find_Key
+        (The_Editor.State, Chord,
+         Execute_Active_Find_Previous_Default'Access,
+         Hide_Active_Find_Default'Access)
       then
-         case Chord.Key is
-            when Editor.Keybindings.Key_Enter =>
-               if Chord.Modifiers.Shift then
-                  Execute_Command_Id (Editor.Commands.Command_Active_Find_Previous);
-                  Editor.Cursor.Notify_Input
-                    (Float (Editor.View.Current_Time_Seconds));
-                  return;
-               end if;
-            when Editor.Keybindings.Key_Escape =>
-               Cmd.Kind := Editor.Commands.Active_Find_Hide;
-               Editor.Instance.Execute (The_Editor, Cmd);
-               Editor.Cursor.Notify_Input
-                 (Float (Editor.View.Current_Time_Seconds));
-               return;
-            when others =>
-               null;
-         end case;
+         return;
       end if;
 
       if Editor.Input_Bridge.Semantic_Popup_Key_Handlers.Handle_Semantic_Popup_Key

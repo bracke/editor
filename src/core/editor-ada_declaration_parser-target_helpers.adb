@@ -450,4 +450,38 @@ package body Editor.Ada_Declaration_Parser.Target_Helpers is
       end;
    end Interface_Target_From_Line_Start;
 
+   function Subtype_Target_After_Is (Line : String) return String is
+      L      : constant String := Lower (Editor.Ada_Syntax_Core.Sanitize_Line (Line));
+      Is_Pos : constant Natural := Ada.Strings.Fixed.Index (L, " is");
+      Start  : Natural;
+   begin
+      if Is_Pos = 0 then
+         return "";
+      end if;
+
+      Start := Line'First + (Is_Pos - L'First) + 3;
+      while Start <= Line'Last
+        and then (Line (Start) = ' ' or else Line (Start) = Ada.Characters.Latin_1.HT)
+      loop
+         Start := Start + 1;
+      end loop;
+
+      if Start + 7 <= Line'Last
+        and then Lower (Line (Start .. Start + 7)) = "not null"
+      then
+         Start := Start + 8;
+         while Start <= Line'Last
+           and then (Line (Start) = ' ' or else Line (Start) = Ada.Characters.Latin_1.HT)
+         loop
+            Start := Start + 1;
+         end loop;
+      end if;
+
+      if Start > Line'Last then
+         return "";
+      end if;
+
+      return Read_Subtype_Mark (Line, Positive (Start), True);
+   end Subtype_Target_After_Is;
+
 end Editor.Ada_Declaration_Parser.Target_Helpers;
