@@ -6,6 +6,8 @@ package Editor.Ada_Declaration_Parser.Target_Helpers is
 
    function Array_Element_Target (Line : String) return String;
 
+   function Access_Subprogram_Profile (Line : String) return String;
+
    function Access_Object_Target (Line : String) return String;
 
    function Object_Target_After_Colon (Line : String) return String;

@@ -8,6 +8,7 @@ with Editor.Ada_Declaration_Parser.Lexical_Helpers;
 with Editor.Ada_Declaration_Parser.Line_Dispatch;
 with Editor.Ada_Declaration_Parser.Name_Profile_Helpers;
 with Editor.Ada_Declaration_Parser.Pragma_Helpers;
+with Editor.Ada_Declaration_Parser.Profile_Parameter_Collectors;
 with Editor.Ada_Declaration_Parser.Same_Line_Declarations;
 with Editor.Ada_Declaration_Parser.Target_Helpers;
 with Editor.Ada_Syntax_Core;
@@ -2473,147 +2474,8 @@ package body Editor.Ada_Declaration_Parser is
 
 
    function Access_Subprogram_Profile (Line : String) return String is
-      --  Access-to-subprogram profiles may be ordinary or protected:
-      --     access procedure (...)
-      --     access protected procedure (...)
-      --  Protected access-to-subprogram result profiles use the same reader
-      --  so functions returning anonymous protected callbacks do not stamp
-      --  "protected" as a target subtype.  Preserve the protected prefix as
-      --  profile metadata and still keep anonymous profile parameters out of
-      --  the language-model symbol tree.
-      L          : constant String := Lower (Editor.Ada_Syntax_Core.Sanitize_Line (Line));
-      Access_Pos : constant Natural := Token_Source_Position (Line, "access");
-      Start      : Natural := 0;
-
-      function Top_Level_Semicolon (First, Last : Natural) return Natural is
-         Nesting : Natural := 0;
-      begin
-         if First > Last then
-            return 0;
-         end if;
-
-         for I in First .. Last loop
-            declare
-               Code_Pos : constant Natural := L'First + (I - Line'First);
-               Ch       : constant Character := L (Code_Pos);
-            begin
-               if Ch = '(' then
-                  Nesting := Nesting + 1;
-               elsif Ch = ')' then
-                  if Nesting > 0 then
-                     Nesting := Nesting - 1;
-                  end if;
-               elsif Ch = ';' and then Nesting = 0 then
-                  return I;
-               end if;
-            end;
-         end loop;
-
-         return 0;
-      end Top_Level_Semicolon;
    begin
-      if Access_Pos /= 0 then
-         declare
-            After_Access : constant Natural := L'First + (Access_Pos - Line'First) + 6;
-         begin
-            if After_Access <= L'Last then
-               declare
-                  Tail : constant String := L (After_Access .. L'Last);
-                  Protected_Proc_Pos : constant Natural :=
-                    Ada.Strings.Fixed.Index (Tail, "protected procedure");
-                  Protected_Func_Pos : constant Natural :=
-                    Ada.Strings.Fixed.Index (Tail, "protected function");
-                  Proc_Pos : constant Natural :=
-                    Ada.Strings.Fixed.Index (Tail, "procedure");
-                  Func_Pos : constant Natural :=
-                    Ada.Strings.Fixed.Index (Tail, "function");
-               begin
-                  if Protected_Proc_Pos /= 0 then
-                     Start := Protected_Proc_Pos;
-                  elsif Protected_Func_Pos /= 0 then
-                     Start := Protected_Func_Pos;
-                  elsif Proc_Pos /= 0 then
-                     Start := Proc_Pos;
-                  elsif Func_Pos /= 0 then
-                     Start := Func_Pos;
-                  end if;
-               end;
-            end if;
-         end;
-      else
-         declare
-            Source_First : Natural := Line'First;
-            Source_Last  : Natural := Line'Last;
-         begin
-            while Source_First <= Source_Last
-              and then (Line (Source_First) = ' '
-                        or else Line (Source_First) = Ada.Characters.Latin_1.HT)
-            loop
-               Source_First := Source_First + 1;
-            end loop;
-
-            while Source_Last >= Source_First
-              and then (Line (Source_Last) = ' '
-                        or else Line (Source_Last) = Ada.Characters.Latin_1.HT)
-            loop
-               Source_Last := Source_Last - 1;
-            end loop;
-
-            if Source_First <= Source_Last then
-               declare
-                  Trimmed_Line  : constant String := Line (Source_First .. Source_Last);
-                  Lower_Trimmed : constant String := Lower (Trimmed_Line);
-               begin
-                  if Starts_With_Word (Lower_Trimmed, "procedure")
-                    or else Starts_With_Word (Lower_Trimmed, "function")
-                    or else Starts_With_Word (Lower_Trimmed, "protected procedure")
-                    or else Starts_With_Word (Lower_Trimmed, "protected function")
-                  then
-                     declare
-                        Stop : Natural := Source_Last;
-                        Semi : constant Natural :=
-                          Top_Level_Semicolon (Source_First, Source_Last);
-                     begin
-                        if Semi /= 0 then
-                           Stop := Semi - 1;
-                        end if;
-                        if Stop < Source_First then
-                           return "";
-                        end if;
-                        return Trim (Line (Source_First .. Stop));
-                     end;
-                  end if;
-               end;
-            end if;
-         end;
-      end if;
-
-      if Start = 0 then
-         return "";
-      end if;
-
-      declare
-         Source_Start : constant Natural := Line'First + (Start - L'First);
-         Stop         : Natural := Line'Last;
-         Semi         : constant Natural :=
-           Top_Level_Semicolon (Source_Start, Line'Last);
-         With_Pos     : constant Natural :=
-           Ada.Strings.Fixed.Index
-             (Lower (Editor.Ada_Syntax_Core.Sanitize_Line
-                (Line (Source_Start .. Line'Last))), " with ");
-      begin
-         if Semi /= 0 then
-            Stop := Natural'Min (Stop, Semi - 1);
-         end if;
-         if With_Pos /= 0 then
-            Stop := Natural'Min
-              (Stop, Source_Start + (With_Pos - 1) - 1);
-         end if;
-         if Stop < Source_Start then
-            return "";
-         end if;
-         return Trim (Line (Source_Start .. Stop));
-      end;
+      return Target_Helpers.Access_Subprogram_Profile (Line);
    end Access_Subprogram_Profile;
 
    function Access_Object_Target (Line : String) return String is
@@ -3612,46 +3474,9 @@ package body Editor.Ada_Declaration_Parser is
      (Raw_Line      : String;
       Declared_Name : String) return Boolean
    is
-      Code     : constant String := Editor.Ada_Syntax_Core.Sanitize_Line (Raw_Line);
-      Name_Pos : constant Natural := Declaration_Name_Position (Raw_Line, Declared_Name);
-      Open     : Natural := 0;
-      Nesting  : Natural := 0;
    begin
-      if Declared_Name'Length = 0 then
-         return False;
-      end if;
-
-      if Name_Pos = 0 then
-         return not Has_Code_Char (Raw_Line, ';')
-           and then not Has_Token (Lower (Code), "is");
-      end if;
-
-      for I in Name_Pos + Declared_Name'Length .. Code'Last loop
-         if Code (I) = '(' then
-            Open := I;
-            exit;
-         elsif Code (I) = ';' or else Has_Token (Code (I .. Code'Last), "is") then
-            return False;
-         end if;
-      end loop;
-
-      if Open = 0 then
-         return not Has_Code_Char (Raw_Line, ';')
-           and then not Has_Token (Lower (Code), "is");
-      end if;
-
-      for I in Open + 1 .. Code'Last loop
-         if Code (I) = '(' then
-            Nesting := Nesting + 1;
-         elsif Code (I) = ')' then
-            if Nesting = 0 then
-               return False;
-            end if;
-            Nesting := Nesting - 1;
-         end if;
-      end loop;
-
-      return True;
+      return Profile_Parameter_Collectors.Profile_Still_Open
+        (Raw_Line, Declared_Name);
    end Profile_Still_Open;
 
    procedure Add_Profile_Parameter_Names_Continuation

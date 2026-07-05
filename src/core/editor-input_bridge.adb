@@ -1,6 +1,7 @@
 with Editor.Instance;
 with Editor.Input_Bridge.Gutter_Pointer_Handlers;
 with Editor.Input_Bridge.Build_UI_Pointer_Handlers;
+with Editor.Input_Bridge.Keybinding_Handlers;
 with Editor.Input_Bridge.Panel_Bars_Pointer_Handlers;
 with Editor.Input_Bridge.Panel_Feature_Problems_Pointer_Handlers;
 with Editor.Input_Bridge.Panel_Tree_Search_Pointer_Handlers;
@@ -3368,112 +3369,10 @@ use type Editor.Guided_Prompts.Prompt_Kind;
          return;
       end if;
 
-      --  keybinding assignment capture owns the key chord before
-      --  ordinary global resolution or editor text entry.  Captured chords are
-      --  normalized by the keybinding model and stored only as
-      --  chord -> stable command name mappings; this path never builds a
-      --  command payload, file path, row id, or result id.
-      if Editor.Keybinding_Management.Current_Capture_State
-        /= Editor.Keybinding_Management.Capture_Inactive
+      if Editor.Input_Bridge.Keybinding_Handlers.Handle_Keybinding_Chord
+        (Chord, Report_Info'Access)
       then
-         declare
-            Status : Editor.Keybinding_Management.Keybinding_Action_Status;
-         begin
-            if Chord.Key = Editor.Keybindings.Key_Escape then
-               Editor.Keybinding_Management.Cancel_Capture (Status);
-            elsif Editor.Keybinding_Management.Has_Pending_Conflict
-              and then Chord.Key = Editor.Keybindings.Key_Enter
-            then
-               Editor.Keybinding_Management.Confirm_Pending_Assignment (Status);
-            elsif Editor.Keybinding_Management.Has_Pending_Conflict then
-               --  A replacement conflict is an explicit confirmation state.
-               --  While it is pending, only Enter confirms and Escape cancels;
-               --  any other chord is consumed and must not assign a different
-               --  binding or execute through the ordinary resolver.
-               Status := Editor.Keybinding_Management.Keybinding_Action_Confirmation_Pending;
-            else
-               Editor.Keybinding_Management.Assign_Selected
-                 (Chord, Confirm_Conflict => False, Status => Status);
-            end if;
-
-            if Status = Editor.Keybinding_Management.Keybinding_Action_Ok then
-               Report_Info (Editor.Keybinding_Management.Latest_Message);
-            else
-               Report_Info
-                 (Editor.Keybinding_Management.Action_Status_Label (Status));
-            end if;
-         end;
-
-         Editor.Render_Cache.Invalidate_All;
-         Editor.Cursor.Notify_Input
-           (Float (Editor.View.Current_Time_Seconds));
          return;
-      end if;
-
-      --  when the keybinding management surface owns focus,
-      --  plain navigation keys are local to that surface and are consumed
-      --  before global keybinding resolution. This prevents ordinary editor
-      --  movement/editing commands from firing while the user is selecting
-      --  a command row for assignment or removal. Modified chords still flow
-      --  through the normal resolver unless capture mode is active above.
-      if Editor.Keybinding_Management.Is_Focused
-        and then Editor.Keybinding_Management.Is_Visible
-        and then not Chord.Modifiers.Ctrl
-        and then not Chord.Modifiers.Shift
-        and then not Chord.Modifiers.Alt
-        and then not Chord.Modifiers.Meta
-      then
-         declare
-            Status : Editor.Keybinding_Management.Keybinding_Action_Status;
-         begin
-            case Chord.Key is
-               when Editor.Keybindings.Key_Down =>
-                  Editor.Keybinding_Management.Select_Next_Row;
-                  Report_Info (Editor.Keybinding_Management.Latest_Message);
-                  Editor.Render_Cache.Invalidate_All;
-                  Editor.Cursor.Notify_Input
-                    (Float (Editor.View.Current_Time_Seconds));
-                  return;
-               when Editor.Keybindings.Key_Up =>
-                  Editor.Keybinding_Management.Select_Previous_Row;
-                  Report_Info (Editor.Keybinding_Management.Latest_Message);
-                  Editor.Render_Cache.Invalidate_All;
-                  Editor.Cursor.Notify_Input
-                    (Float (Editor.View.Current_Time_Seconds));
-                  return;
-               when Editor.Keybindings.Key_Enter =>
-                  if Editor.Keybinding_Management.Has_Pending_Reset then
-                     Editor.Keybinding_Management.Confirm_Reset_To_Defaults (Status);
-                  else
-                     Editor.Keybinding_Management.Begin_Assign_Selected (Status);
-                  end if;
-
-                  if Status = Editor.Keybinding_Management.Keybinding_Action_Ok then
-                     Report_Info (Editor.Keybinding_Management.Latest_Message);
-                  else
-                     Report_Info
-                       (Editor.Keybinding_Management.Action_Status_Label (Status));
-                  end if;
-                  Editor.Render_Cache.Invalidate_All;
-                  Editor.Cursor.Notify_Input
-                    (Float (Editor.View.Current_Time_Seconds));
-                  return;
-               when Editor.Keybindings.Key_Escape =>
-                  if Editor.Keybinding_Management.Has_Pending_Reset then
-                     Editor.Keybinding_Management.Cancel_Reset_To_Defaults (Status);
-                     Report_Info (Editor.Keybinding_Management.Action_Status_Label (Status));
-                  else
-                     Editor.Keybinding_Management.Hide;
-                     Report_Info ("Keybindings hidden.");
-                  end if;
-                  Editor.Render_Cache.Invalidate_All;
-                  Editor.Cursor.Notify_Input
-                    (Float (Editor.View.Current_Time_Seconds));
-                  return;
-               when others =>
-                  null;
-            end case;
-         end;
       end if;
 
       if Editor.Settings_Management.Current_Settings_Surface_Focused
