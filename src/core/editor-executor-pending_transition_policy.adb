@@ -5,6 +5,7 @@ with Editor.Dirty_Guards;
 with Editor.Executor.File_Lifecycle_Commands;
 with Editor.Executor.Project_Lifecycle_Commands;
 with Editor.Executor.Shared_Services;
+use Editor.Executor.Shared_Services;
 with Editor.Files;
 with Editor.File_Tree;
 with Editor.Pending_Transitions;

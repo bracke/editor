@@ -2,6 +2,8 @@ with Editor.Buffer_Switcher;
 with Editor.Buffers;
 use type Editor.Buffers.Buffer_Id;
 with Editor.Executor;
+with Editor.Executor.Shared_Services;
+use Editor.Executor.Shared_Services;
 with Editor.Project;
 with Editor.Recent_Buffers;
 with Editor.Render_Cache;
@@ -85,7 +87,7 @@ package body Editor.Executor.Buffer_Switcher_Shared is
      (S : in out Editor.State.State_Type)
    is
    begin
-      Editor.Executor.Report_Info (S, "No selected buffer");
+      Editor.Executor.Shared_Services.Report_Info (S, "No selected buffer");
    end Report_No_Selected_Switcher_Buffer;
 
    function Marked_Open_Count (S : Editor.State.State_Type) return Natural is

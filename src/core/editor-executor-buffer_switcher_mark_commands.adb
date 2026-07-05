@@ -6,6 +6,8 @@ with Editor.Buffers;
 with Editor.Command_Execution;
 with Editor.Commands;
 with Editor.Executor;
+with Editor.Executor.Shared_Services;
+use Editor.Executor.Shared_Services;
 with Editor.Executor.Buffer_Switcher_Shared;
 with Editor.Messages;
 with Editor.Overlay_Focus;
@@ -20,7 +22,7 @@ package body Editor.Executor.Buffer_Switcher_Mark_Commands is
 
    procedure Report_Info
      (S    : in out Editor.State.State_Type;
-      Text : String) renames Editor.Executor.Report_Info;
+      Text : String) renames Editor.Executor.Shared_Services.Report_Info;
 
    function Selected_Switcher_Buffer
      (S     : Editor.State.State_Type;
@@ -290,9 +292,9 @@ package body Editor.Executor.Buffer_Switcher_Mark_Commands is
       end if;
       Editor.Buffer_Switcher.Toggle_Mark (S.Buffer_Switcher, Row.Id);
       if Editor.Buffer_Switcher.Is_Marked (S.Buffer_Switcher, Row.Id) then
-         Editor.Executor.Report_Success (S, "Marked " & To_String (Row.Display_Label));
+         Editor.Executor.Shared_Services.Report_Success (S, "Marked " & To_String (Row.Display_Label));
       else
-         Editor.Executor.Report_Success (S, "Unmarked " & To_String (Row.Display_Label));
+         Editor.Executor.Shared_Services.Report_Success (S, "Unmarked " & To_String (Row.Display_Label));
       end if;
       Recompute_Buffer_Switcher_After_Marked_Action (S);
       Editor.Render_Cache.Invalidate_All;
@@ -310,7 +312,7 @@ package body Editor.Executor.Buffer_Switcher_Mark_Commands is
          return;
       end if;
       Editor.Buffer_Switcher.Set_Mark (S.Buffer_Switcher, Row.Id);
-      Editor.Executor.Report_Success (S, "Marked " & To_String (Row.Display_Label));
+      Editor.Executor.Shared_Services.Report_Success (S, "Marked " & To_String (Row.Display_Label));
       Recompute_Buffer_Switcher_After_Marked_Action (S);
       Editor.Render_Cache.Invalidate_All;
    end Execute_Buffer_Switcher_Mark_Set;
@@ -327,7 +329,7 @@ package body Editor.Executor.Buffer_Switcher_Mark_Commands is
          return;
       end if;
       Editor.Buffer_Switcher.Clear_Mark (S.Buffer_Switcher, Row.Id);
-      Editor.Executor.Report_Success (S, "Unmarked " & To_String (Row.Display_Label));
+      Editor.Executor.Shared_Services.Report_Success (S, "Unmarked " & To_String (Row.Display_Label));
       Recompute_Buffer_Switcher_After_Marked_Action (S);
       Editor.Render_Cache.Invalidate_All;
    end Execute_Buffer_Switcher_Mark_Clear;
@@ -338,10 +340,10 @@ package body Editor.Executor.Buffer_Switcher_Mark_Commands is
       Count : constant Natural := Editor.Buffer_Switcher.Marked_Count (S.Buffer_Switcher);
    begin
       if Count = 0 then
-         Editor.Executor.Report_Info (S, "No marked buffers");
+         Editor.Executor.Shared_Services.Report_Info (S, "No marked buffers");
       else
          Editor.Buffer_Switcher.Clear_All_Marks (S.Buffer_Switcher);
-         Editor.Executor.Report_Success (S, "Cleared " & Switcher_Image (Count) & " marks");
+         Editor.Executor.Shared_Services.Report_Success (S, "Cleared " & Switcher_Image (Count) & " marks");
       end if;
       Recompute_Buffer_Switcher_After_Marked_Action (S);
       Editor.Render_Cache.Invalidate_All;
@@ -354,10 +356,10 @@ package body Editor.Executor.Buffer_Switcher_Mark_Commands is
       Unmarked : Natural := 0;
    begin
       if Editor.Buffer_Switcher.Row_Count (S.Buffer_Switcher) = 0 then
-         Editor.Executor.Report_Info (S, "No visible buffers");
+         Editor.Executor.Shared_Services.Report_Info (S, "No visible buffers");
       else
          Editor.Buffer_Switcher.Invert_Visible_Marks (S.Buffer_Switcher, Marked, Unmarked);
-         Editor.Executor.Report_Success
+         Editor.Executor.Shared_Services.Report_Success
            (S, "Marked " & Switcher_Image (Marked) & " visible buffers; unmarked "
             & Switcher_Image (Unmarked) & " visible buffers");
       end if;
@@ -372,10 +374,10 @@ package body Editor.Executor.Buffer_Switcher_Mark_Commands is
       Count : Natural := 0;
    begin
       if Editor.Buffer_Switcher.Row_Count (S.Buffer_Switcher) = 0 then
-         Editor.Executor.Report_Info (S, "No visible buffers");
+         Editor.Executor.Shared_Services.Report_Info (S, "No visible buffers");
       else
          Editor.Buffer_Switcher.Mark_Visible_Marks (S.Buffer_Switcher, Count);
-         Editor.Executor.Report_Success (S, "Marked " & Switcher_Image (Count) & " visible buffers");
+         Editor.Executor.Shared_Services.Report_Success (S, "Marked " & Switcher_Image (Count) & " visible buffers");
       end if;
       Recompute_Buffer_Switcher_After_Marked_Action (S);
       Editor.Render_Cache.Invalidate_All;
@@ -387,13 +389,13 @@ package body Editor.Executor.Buffer_Switcher_Mark_Commands is
       Count : Natural := 0;
    begin
       if Editor.Buffer_Switcher.Row_Count (S.Buffer_Switcher) = 0 then
-         Editor.Executor.Report_Info (S, "No visible buffers");
+         Editor.Executor.Shared_Services.Report_Info (S, "No visible buffers");
       else
          Editor.Buffer_Switcher.Clear_Visible_Marks (S.Buffer_Switcher, Count);
          if Count = 0 then
-            Editor.Executor.Report_Info (S, "No visible marked buffers");
+            Editor.Executor.Shared_Services.Report_Info (S, "No visible marked buffers");
          else
-            Editor.Executor.Report_Success (S, "Cleared marks from " & Switcher_Image (Count) & " visible buffers");
+            Editor.Executor.Shared_Services.Report_Success (S, "Cleared marks from " & Switcher_Image (Count) & " visible buffers");
          end if;
       end if;
       Recompute_Buffer_Switcher_After_Marked_Action (S);
@@ -407,9 +409,9 @@ package body Editor.Executor.Buffer_Switcher_Mark_Commands is
       Editor.Buffer_Switcher.Show_Marked_Review (S.Buffer_Switcher);
       Recompute_Buffer_Switcher_After_Marked_Action (S);
       if Editor.Buffer_Switcher.Marked_Count (S.Buffer_Switcher) = 0 then
-         Editor.Executor.Report_Info (S, "No marked buffers");
+         Editor.Executor.Shared_Services.Report_Info (S, "No marked buffers");
       else
-         Editor.Executor.Report_Success (S, "Marked review shown");
+         Editor.Executor.Shared_Services.Report_Success (S, "Marked review shown");
       end if;
       Editor.Render_Cache.Invalidate_All;
    end Execute_Buffer_Switcher_Mark_Review_Show;
@@ -420,7 +422,7 @@ package body Editor.Executor.Buffer_Switcher_Mark_Commands is
    begin
       Editor.Buffer_Switcher.Hide_Marked_Review (S.Buffer_Switcher);
       Recompute_Buffer_Switcher_After_Marked_Action (S);
-      Editor.Executor.Report_Success (S, "Marked review hidden");
+      Editor.Executor.Shared_Services.Report_Success (S, "Marked review hidden");
       Editor.Render_Cache.Invalidate_All;
    end Execute_Buffer_Switcher_Mark_Review_Hide;
 
@@ -441,9 +443,9 @@ package body Editor.Executor.Buffer_Switcher_Mark_Commands is
    begin
       if Editor.Buffer_Switcher.Select_Next_Marked_Buffer (S.Buffer_Switcher) then
          Normalize_Switcher_Preview_Target (S);
-         Editor.Executor.Report_Success (S, "Selected next marked buffer");
+         Editor.Executor.Shared_Services.Report_Success (S, "Selected next marked buffer");
       else
-         Editor.Executor.Report_Info (S, "No marked buffers");
+         Editor.Executor.Shared_Services.Report_Info (S, "No marked buffers");
       end if;
       Editor.Render_Cache.Invalidate_All;
    end Execute_Buffer_Switcher_Mark_Next;
@@ -454,9 +456,9 @@ package body Editor.Executor.Buffer_Switcher_Mark_Commands is
    begin
       if Editor.Buffer_Switcher.Select_Previous_Marked_Buffer (S.Buffer_Switcher) then
          Normalize_Switcher_Preview_Target (S);
-         Editor.Executor.Report_Success (S, "Selected previous marked buffer");
+         Editor.Executor.Shared_Services.Report_Success (S, "Selected previous marked buffer");
       else
-         Editor.Executor.Report_Info (S, "No marked buffers");
+         Editor.Executor.Shared_Services.Report_Info (S, "No marked buffers");
       end if;
       Editor.Render_Cache.Invalidate_All;
    end Execute_Buffer_Switcher_Mark_Previous;
@@ -470,9 +472,9 @@ package body Editor.Executor.Buffer_Switcher_Mark_Commands is
       Editor.Buffers.Sync_Global_Active_From_State (S);
       Count := Marked_Open_Count (S);
       if Count = 0 then
-         Editor.Executor.Report_Info (S, "No marked buffers");
+         Editor.Executor.Shared_Services.Report_Info (S, "No marked buffers");
       else
-         Editor.Executor.Report_Info (S, "Marked buffers:" & Natural'Image (Count));
+         Editor.Executor.Shared_Services.Report_Info (S, "Marked buffers:" & Natural'Image (Count));
       end if;
       Editor.Render_Cache.Invalidate_All;
    end Execute_Buffer_Switcher_Mark_Summary;
@@ -495,10 +497,10 @@ package body Editor.Executor.Buffer_Switcher_Mark_Commands is
          end;
       end loop;
       if Count = 0 then
-         Editor.Executor.Report_Info (S, "No pinned buffers");
+         Editor.Executor.Shared_Services.Report_Info (S, "No pinned buffers");
       else
          Recompute_Buffer_Switcher_After_Marked_Action (S);
-         Editor.Executor.Report_Success (S, "Marked " & Switcher_Image (Count) & " pinned buffers");
+         Editor.Executor.Shared_Services.Report_Success (S, "Marked " & Switcher_Image (Count) & " pinned buffers");
       end if;
       Editor.Render_Cache.Invalidate_All;
    end Execute_Buffer_Switcher_Mark_Pinned;
@@ -512,7 +514,7 @@ package body Editor.Executor.Buffer_Switcher_Mark_Commands is
       Count : Natural := 0;
    begin
       if Group'Length = 0 then
-         Editor.Executor.Report_Info (S, "No group name");
+         Editor.Executor.Shared_Services.Report_Info (S, "No group name");
          return;
       end if;
       Editor.Buffers.Ensure_Global_Registry (S);
@@ -531,12 +533,12 @@ package body Editor.Executor.Buffer_Switcher_Mark_Commands is
          end;
       end loop;
       if not Has_Groups then
-         Editor.Executor.Report_Info (S, "No buffer groups");
+         Editor.Executor.Shared_Services.Report_Info (S, "No buffer groups");
       elsif Count = 0 then
-         Editor.Executor.Report_Info (S, "No matching open buffers");
+         Editor.Executor.Shared_Services.Report_Info (S, "No matching open buffers");
       else
          Recompute_Buffer_Switcher_After_Marked_Action (S);
-         Editor.Executor.Report_Success (S, "Marked " & Switcher_Image (Count) & " buffers in group " & Group);
+         Editor.Executor.Shared_Services.Report_Success (S, "Marked " & Switcher_Image (Count) & " buffers in group " & Group);
       end if;
       Editor.Render_Cache.Invalidate_All;
    end Execute_Buffer_Switcher_Mark_Group;
@@ -550,7 +552,7 @@ package body Editor.Executor.Buffer_Switcher_Mark_Commands is
       Count : Natural := 0;
    begin
       if Text'Length = 0 then
-         Editor.Executor.Report_Info (S, "No label text");
+         Editor.Executor.Shared_Services.Report_Info (S, "No label text");
          return;
       end if;
       Editor.Buffers.Ensure_Global_Registry (S);
@@ -569,12 +571,12 @@ package body Editor.Executor.Buffer_Switcher_Mark_Commands is
          end;
       end loop;
       if not Has_Labels then
-         Editor.Executor.Report_Info (S, "No buffer labels");
+         Editor.Executor.Shared_Services.Report_Info (S, "No buffer labels");
       elsif Count = 0 then
-         Editor.Executor.Report_Info (S, "No matching open buffers");
+         Editor.Executor.Shared_Services.Report_Info (S, "No matching open buffers");
       else
          Recompute_Buffer_Switcher_After_Marked_Action (S);
-         Editor.Executor.Report_Success (S, "Marked " & Switcher_Image (Count) & " buffers with label " & Text);
+         Editor.Executor.Shared_Services.Report_Success (S, "Marked " & Switcher_Image (Count) & " buffers with label " & Text);
       end if;
       Editor.Render_Cache.Invalidate_All;
    end Execute_Buffer_Switcher_Mark_Label;
@@ -597,10 +599,10 @@ package body Editor.Executor.Buffer_Switcher_Mark_Commands is
          end;
       end loop;
       if Count = 0 then
-         Editor.Executor.Report_Info (S, "No noted buffers");
+         Editor.Executor.Shared_Services.Report_Info (S, "No noted buffers");
       else
          Recompute_Buffer_Switcher_After_Marked_Action (S);
-         Editor.Executor.Report_Success (S, "Marked " & Switcher_Image (Count) & " noted buffers");
+         Editor.Executor.Shared_Services.Report_Success (S, "Marked " & Switcher_Image (Count) & " noted buffers");
       end if;
       Editor.Render_Cache.Invalidate_All;
    end Execute_Buffer_Switcher_Mark_Noted;
@@ -614,14 +616,14 @@ package body Editor.Executor.Buffer_Switcher_Mark_Commands is
       Editor.Buffers.Sync_Global_Active_From_State (S);
       Count := Marked_Open_Count (S);
       if Count = 0 then
-         Editor.Executor.Report_Info (S, "No marked buffers");
+         Editor.Executor.Shared_Services.Report_Info (S, "No marked buffers");
          return;
       end if;
       for I in 1 .. Count loop
          Editor.Buffers.Global_Pin_Buffer (Marked_Open_Id_At (S, I));
       end loop;
       Recompute_Buffer_Switcher_After_Marked_Action (S);
-      Editor.Executor.Report_Success (S, "Pinned " & Switcher_Image (Count) & " marked buffers");
+      Editor.Executor.Shared_Services.Report_Success (S, "Pinned " & Switcher_Image (Count) & " marked buffers");
    end Execute_Buffer_Switcher_Mark_Pin_Marked;
 
    procedure Execute_Buffer_Switcher_Mark_Unpin_Marked
@@ -633,14 +635,14 @@ package body Editor.Executor.Buffer_Switcher_Mark_Commands is
       Editor.Buffers.Sync_Global_Active_From_State (S);
       Count := Marked_Open_Count (S);
       if Count = 0 then
-         Editor.Executor.Report_Info (S, "No marked buffers");
+         Editor.Executor.Shared_Services.Report_Info (S, "No marked buffers");
          return;
       end if;
       for I in 1 .. Count loop
          Editor.Buffers.Global_Unpin_Buffer (Marked_Open_Id_At (S, I));
       end loop;
       Recompute_Buffer_Switcher_After_Marked_Action (S);
-      Editor.Executor.Report_Success (S, "Unpinned " & Switcher_Image (Count) & " marked buffers");
+      Editor.Executor.Shared_Services.Report_Success (S, "Unpinned " & Switcher_Image (Count) & " marked buffers");
    end Execute_Buffer_Switcher_Mark_Unpin_Marked;
 
    procedure Execute_Buffer_Switcher_Mark_Clear_Metadata
@@ -652,7 +654,7 @@ package body Editor.Executor.Buffer_Switcher_Mark_Commands is
       Editor.Buffers.Sync_Global_Active_From_State (S);
       Count := Marked_Open_Count (S);
       if Count = 0 then
-         Editor.Executor.Report_Info (S, "No marked buffers");
+         Editor.Executor.Shared_Services.Report_Info (S, "No marked buffers");
          return;
       end if;
       for I in 1 .. Count loop
@@ -665,7 +667,7 @@ package body Editor.Executor.Buffer_Switcher_Mark_Commands is
          end;
       end loop;
       Recompute_Buffer_Switcher_After_Marked_Action (S);
-      Editor.Executor.Report_Success (S, "Cleared metadata for " & Switcher_Image (Count) & " marked buffers");
+      Editor.Executor.Shared_Services.Report_Success (S, "Cleared metadata for " & Switcher_Image (Count) & " marked buffers");
    end Execute_Buffer_Switcher_Mark_Clear_Metadata;
 
    procedure Execute_Buffer_Switcher_Mark_Group_Assign
@@ -677,14 +679,14 @@ package body Editor.Executor.Buffer_Switcher_Mark_Commands is
       Applied : Natural := 0;
    begin
       if Group'Length = 0 then
-         Editor.Executor.Report_Info (S, "No group name");
+         Editor.Executor.Shared_Services.Report_Info (S, "No group name");
          return;
       end if;
       Editor.Buffers.Ensure_Global_Registry (S);
       Editor.Buffers.Sync_Global_Active_From_State (S);
       Count := Marked_Open_Count (S);
       if Count = 0 then
-         Editor.Executor.Report_Info (S, "No marked buffers");
+         Editor.Executor.Shared_Services.Report_Info (S, "No marked buffers");
          return;
       end if;
       declare
@@ -702,11 +704,11 @@ package body Editor.Executor.Buffer_Switcher_Mark_Commands is
          end loop;
       end;
       if Applied = 0 then
-         Editor.Executor.Report_Info (S, "No marked buffers");
+         Editor.Executor.Shared_Services.Report_Info (S, "No marked buffers");
          return;
       end if;
       Recompute_Buffer_Switcher_After_Marked_Action (S);
-      Editor.Executor.Report_Success (S, "Assigned " & Switcher_Image (Applied) & " marked buffers to group " & Group);
+      Editor.Executor.Shared_Services.Report_Success (S, "Assigned " & Switcher_Image (Applied) & " marked buffers to group " & Group);
    end Execute_Buffer_Switcher_Mark_Group_Assign;
 
    procedure Execute_Buffer_Switcher_Mark_Group_Clear
@@ -719,7 +721,7 @@ package body Editor.Executor.Buffer_Switcher_Mark_Commands is
       Editor.Buffers.Sync_Global_Active_From_State (S);
       Count := Marked_Open_Count (S);
       if Count = 0 then
-         Editor.Executor.Report_Info (S, "No marked buffers");
+         Editor.Executor.Shared_Services.Report_Info (S, "No marked buffers");
          return;
       end if;
       declare
@@ -737,11 +739,11 @@ package body Editor.Executor.Buffer_Switcher_Mark_Commands is
          end loop;
       end;
       if Applied = 0 then
-         Editor.Executor.Report_Info (S, "No marked buffers");
+         Editor.Executor.Shared_Services.Report_Info (S, "No marked buffers");
          return;
       end if;
       Recompute_Buffer_Switcher_After_Marked_Action (S);
-      Editor.Executor.Report_Success (S, "Cleared group from " & Switcher_Image (Applied) & " marked buffers");
+      Editor.Executor.Shared_Services.Report_Success (S, "Cleared group from " & Switcher_Image (Applied) & " marked buffers");
    end Execute_Buffer_Switcher_Mark_Group_Clear;
 
    procedure Execute_Buffer_Switcher_Mark_Label_Set
@@ -753,17 +755,17 @@ package body Editor.Executor.Buffer_Switcher_Mark_Commands is
       Applied : Natural := 0;
    begin
       if Text'Length > Editor.Buffers.Max_Buffer_Label_Length then
-         Editor.Executor.Report_Info (S, "Label too long");
+         Editor.Executor.Shared_Services.Report_Info (S, "Label too long");
          return;
       elsif not Editor.Executor.Valid_Buffer_Label_Text (Text) then
-         Editor.Executor.Report_Info (S, "Invalid label");
+         Editor.Executor.Shared_Services.Report_Info (S, "Invalid label");
          return;
       end if;
       Editor.Buffers.Ensure_Global_Registry (S);
       Editor.Buffers.Sync_Global_Active_From_State (S);
       Count := Marked_Open_Count (S);
       if Count = 0 then
-         Editor.Executor.Report_Info (S, "No marked buffers");
+         Editor.Executor.Shared_Services.Report_Info (S, "No marked buffers");
          return;
       end if;
       declare
@@ -785,14 +787,14 @@ package body Editor.Executor.Buffer_Switcher_Mark_Commands is
          end loop;
       end;
       if Applied = 0 then
-         Editor.Executor.Report_Info (S, "No marked buffers");
+         Editor.Executor.Shared_Services.Report_Info (S, "No marked buffers");
          return;
       end if;
       Recompute_Buffer_Switcher_After_Marked_Action (S);
       if Text'Length = 0 then
-         Editor.Executor.Report_Success (S, "Cleared label from " & Switcher_Image (Applied) & " marked buffers");
+         Editor.Executor.Shared_Services.Report_Success (S, "Cleared label from " & Switcher_Image (Applied) & " marked buffers");
       else
-         Editor.Executor.Report_Success (S, "Label set on " & Switcher_Image (Applied) & " marked buffers: " & Text);
+         Editor.Executor.Shared_Services.Report_Success (S, "Label set on " & Switcher_Image (Applied) & " marked buffers: " & Text);
       end if;
    end Execute_Buffer_Switcher_Mark_Label_Set;
 
@@ -806,7 +808,7 @@ package body Editor.Executor.Buffer_Switcher_Mark_Commands is
       Editor.Buffers.Sync_Global_Active_From_State (S);
       Count := Marked_Open_Count (S);
       if Count = 0 then
-         Editor.Executor.Report_Info (S, "No marked buffers");
+         Editor.Executor.Shared_Services.Report_Info (S, "No marked buffers");
          return;
       end if;
       declare
@@ -824,11 +826,11 @@ package body Editor.Executor.Buffer_Switcher_Mark_Commands is
          end loop;
       end;
       if Applied = 0 then
-         Editor.Executor.Report_Info (S, "No marked buffers");
+         Editor.Executor.Shared_Services.Report_Info (S, "No marked buffers");
          return;
       end if;
       Recompute_Buffer_Switcher_After_Marked_Action (S);
-      Editor.Executor.Report_Success (S, "Cleared label from " & Switcher_Image (Applied) & " marked buffers");
+      Editor.Executor.Shared_Services.Report_Success (S, "Cleared label from " & Switcher_Image (Applied) & " marked buffers");
    end Execute_Buffer_Switcher_Mark_Label_Clear;
 
    procedure Execute_Buffer_Switcher_Mark_Note_Set
@@ -840,14 +842,14 @@ package body Editor.Executor.Buffer_Switcher_Mark_Commands is
       Applied : Natural := 0;
    begin
       if Text'Length > Editor.Buffers.Max_Buffer_Note_Length then
-         Editor.Executor.Report_Info (S, "Note too long");
+         Editor.Executor.Shared_Services.Report_Info (S, "Note too long");
          return;
       end if;
       Editor.Buffers.Ensure_Global_Registry (S);
       Editor.Buffers.Sync_Global_Active_From_State (S);
       Count := Marked_Open_Count (S);
       if Count = 0 then
-         Editor.Executor.Report_Info (S, "No marked buffers");
+         Editor.Executor.Shared_Services.Report_Info (S, "No marked buffers");
          return;
       end if;
       declare
@@ -869,14 +871,14 @@ package body Editor.Executor.Buffer_Switcher_Mark_Commands is
          end loop;
       end;
       if Applied = 0 then
-         Editor.Executor.Report_Info (S, "No marked buffers");
+         Editor.Executor.Shared_Services.Report_Info (S, "No marked buffers");
          return;
       end if;
       Recompute_Buffer_Switcher_After_Marked_Action (S);
       if Text'Length = 0 then
-         Editor.Executor.Report_Success (S, "Cleared note from " & Switcher_Image (Applied) & " marked buffers");
+         Editor.Executor.Shared_Services.Report_Success (S, "Cleared note from " & Switcher_Image (Applied) & " marked buffers");
       else
-         Editor.Executor.Report_Success (S, "Note set on " & Switcher_Image (Applied) & " marked buffers");
+         Editor.Executor.Shared_Services.Report_Success (S, "Note set on " & Switcher_Image (Applied) & " marked buffers");
       end if;
    end Execute_Buffer_Switcher_Mark_Note_Set;
 
@@ -890,7 +892,7 @@ package body Editor.Executor.Buffer_Switcher_Mark_Commands is
       Editor.Buffers.Sync_Global_Active_From_State (S);
       Count := Marked_Open_Count (S);
       if Count = 0 then
-         Editor.Executor.Report_Info (S, "No marked buffers");
+         Editor.Executor.Shared_Services.Report_Info (S, "No marked buffers");
          return;
       end if;
       declare
@@ -908,11 +910,11 @@ package body Editor.Executor.Buffer_Switcher_Mark_Commands is
          end loop;
       end;
       if Applied = 0 then
-         Editor.Executor.Report_Info (S, "No marked buffers");
+         Editor.Executor.Shared_Services.Report_Info (S, "No marked buffers");
          return;
       end if;
       Recompute_Buffer_Switcher_After_Marked_Action (S);
-      Editor.Executor.Report_Success (S, "Cleared note from " & Switcher_Image (Applied) & " marked buffers");
+      Editor.Executor.Shared_Services.Report_Success (S, "Cleared note from " & Switcher_Image (Applied) & " marked buffers");
    end Execute_Buffer_Switcher_Mark_Note_Clear;
 
    procedure Execute_Buffer_Switcher_Mark_Close_Marked
@@ -929,13 +931,13 @@ package body Editor.Executor.Buffer_Switcher_Mark_Commands is
          Count,
          Dirty_Count);
       if Count = 0 then
-         Editor.Executor.Report_Info (S, "No marked buffers");
+         Editor.Executor.Shared_Services.Report_Info (S, "No marked buffers");
          return;
       end if;
       if Dirty_Count = 0 then
-         Editor.Executor.Report_Info (S, "Confirm close " & Switcher_Image (Count) & " marked buffers");
+         Editor.Executor.Shared_Services.Report_Info (S, "Confirm close " & Switcher_Image (Count) & " marked buffers");
       else
-         Editor.Executor.Report_Info
+         Editor.Executor.Shared_Services.Report_Info
            (S, "Confirm close " & Switcher_Image (Count) & " marked buffers; "
             & Switcher_Image (Dirty_Count) & " dirty buffer may be blocked");
       end if;
@@ -948,12 +950,12 @@ package body Editor.Executor.Buffer_Switcher_Mark_Commands is
       if Editor.Buffer_Switcher.Pending_Marked_Action (S.Buffer_Switcher) =
         Editor.Buffer_Switcher.No_Pending_Marked_Action
       then
-         Editor.Executor.Report_Info (S, "No pending marked action");
+         Editor.Executor.Shared_Services.Report_Info (S, "No pending marked action");
          return;
       end if;
       Editor.Buffer_Switcher.Clear_Pending_Marked_Action (S.Buffer_Switcher);
       Recompute_Buffer_Switcher_After_Marked_Action (S);
-      Editor.Executor.Report_Info (S, "Marked close cancelled");
+      Editor.Executor.Shared_Services.Report_Info (S, "Marked close cancelled");
    end Execute_Buffer_Switcher_Mark_Cancel;
 
    procedure Execute_Buffer_Switcher_Mark_Confirm
@@ -970,7 +972,7 @@ package body Editor.Executor.Buffer_Switcher_Mark_Commands is
       if Editor.Buffer_Switcher.Pending_Marked_Action (S.Buffer_Switcher) /=
         Editor.Buffer_Switcher.Pending_Marked_Close
       then
-         Editor.Executor.Report_Info (S, "No pending marked action");
+         Editor.Executor.Shared_Services.Report_Info (S, "No pending marked action");
          return;
       end if;
 
@@ -1014,17 +1016,17 @@ package body Editor.Executor.Buffer_Switcher_Mark_Commands is
 
       if Seen_Open_Count = 0 then
          Recompute_Buffer_Switcher_After_Selected_Action (S, Preferred, Fallback);
-         Editor.Executor.Report_Info (S, "No pending marked buffers remain open");
+         Editor.Executor.Shared_Services.Report_Info (S, "No pending marked buffers remain open");
          return;
       end if;
 
       Recompute_Buffer_Switcher_After_Selected_Action (S, Preferred, Fallback);
       if Closed_Count = 0 and then Kept_Count > 0 then
-         Editor.Executor.Report_Info (S, "Close blocked for " & Switcher_Image (Kept_Count) & " dirty buffers");
+         Editor.Executor.Shared_Services.Report_Info (S, "Close blocked for " & Switcher_Image (Kept_Count) & " dirty buffers");
       elsif Kept_Count = 0 then
-         Editor.Executor.Report_Success (S, "Closed " & Switcher_Image (Closed_Count) & " marked buffers");
+         Editor.Executor.Shared_Services.Report_Success (S, "Closed " & Switcher_Image (Closed_Count) & " marked buffers");
       else
-         Editor.Executor.Report_Success
+         Editor.Executor.Shared_Services.Report_Success
            (S, "Closed " & Switcher_Image (Closed_Count) & " marked buffers; "
             & Switcher_Image (Kept_Count) & " dirty buffer kept");
       end if;

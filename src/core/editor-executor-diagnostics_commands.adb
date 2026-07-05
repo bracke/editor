@@ -1,3 +1,5 @@
+with Editor.Executor.Shared_Services;
+use Editor.Executor.Shared_Services;
 with Ada.Strings;
 with Ada.Strings.Fixed;
 with Ada.Strings.Unbounded;
@@ -504,6 +506,128 @@ package body Editor.Executor.Diagnostics_Commands is
          return "Navigation target unavailable.";
       end if;
    end Diagnostic_Target_Failure_Label;
+
+   function Feature_Target_Position_Is_Valid
+     (S             : Editor.State.State_Type;
+      Target_Buffer : Natural;
+      Line          : Natural;
+      Column        : Natural) return Boolean
+   is
+      Target_State : Editor.State.State_Type;
+   begin
+      if Target_Buffer = 0 or else Line = 0 or else Column = 0 then
+         return False;
+      elsif Feature_Target_Buffer_Is_Current (S, Target_Buffer) then
+         Target_State := S;
+      elsif Editor.Buffers.Global_Contains
+        (Editor.Buffers.Buffer_Id (Target_Buffer))
+      then
+         Target_State := Editor.Buffers.Buffer
+           (Editor.Buffers.Global_Registry_For_UI,
+            Editor.Buffers.Buffer_Id (Target_Buffer));
+      else
+         return False;
+      end if;
+
+      return Line <= Editor.State.Line_Count (Target_State)
+        and then Column - 1 <= Editor.Navigation.Line_Length
+          (Target_State, Line - 1);
+   end Feature_Target_Position_Is_Valid;
+
+   function Diagnostic_Availability_Reason
+     (S             : Editor.State.State_Type;
+      Mapped        : Natural;
+      Target_Buffer : Natural;
+      Line          : Natural;
+      Column        : Natural) return String
+   is
+      Label : constant String := Diagnostic_Target_Failure_Label
+        (S, Mapped, Target_Buffer, Line, Column);
+   begin
+      if Label = "Target no longer exists." then
+         return Label;
+      elsif Label'Length > 0 and then Label (Label'Last) = '.' then
+         return Label (Label'First .. Label'Last - 1);
+      else
+         return Label;
+      end if;
+   end Diagnostic_Availability_Reason;
+
+   function Diagnostic_Quick_Fix_Action_Availability
+     (S                : Editor.State.State_Type;
+      Diagnostic_Index : Natural;
+      Action_Index     : Natural)
+      return Editor.Commands.Command_Availability
+   is
+      Target_Buffer : constant Natural :=
+        (if Diagnostic_Index = 0
+           or else Diagnostic_Index >
+             Editor.Feature_Diagnostics.Row_Count (S.Feature_Diagnostics)
+         then 0
+         else Editor.Feature_Diagnostics.Item_Target_Buffer
+           (S.Feature_Diagnostics, Positive (Diagnostic_Index)));
+      Target_Line : constant Natural :=
+        (if Diagnostic_Index = 0
+           or else Diagnostic_Index >
+             Editor.Feature_Diagnostics.Row_Count (S.Feature_Diagnostics)
+         then 0
+         else Editor.Feature_Diagnostics.Item_Target_Line
+           (S.Feature_Diagnostics, Positive (Diagnostic_Index)));
+      Target_Column : constant Natural :=
+        (if Diagnostic_Index = 0
+           or else Diagnostic_Index >
+             Editor.Feature_Diagnostics.Row_Count (S.Feature_Diagnostics)
+         then 0
+         else Natural'Max
+           (1, Editor.Feature_Diagnostics.Item_Target_Column
+                 (S.Feature_Diagnostics, Positive (Diagnostic_Index))));
+   begin
+      if Editor.Feature_Diagnostics.Is_Empty (S.Feature_Diagnostics) then
+         return Editor.Commands.Unavailable ("No diagnostics");
+      elsif Diagnostic_Index = 0
+        or else Diagnostic_Index >
+          Editor.Feature_Diagnostics.Row_Count (S.Feature_Diagnostics)
+      then
+         return Editor.Commands.Unavailable
+           ("Diagnostic quick fix is no longer available");
+      elsif Action_Index = 0
+        or else Action_Index >
+          Editor.Feature_Diagnostics.Item_Quick_Fix_Action_Count
+            (S.Feature_Diagnostics, Positive (Diagnostic_Index))
+      then
+         return Editor.Commands.Unavailable
+           (Editor.Feature_Diagnostics
+              .Quick_Fix_Action_Intrinsic_Unavailable_Reason
+                (S.Feature_Diagnostics,
+                 Positive (Diagnostic_Index),
+                 Action_Index));
+      elsif Editor.Feature_Diagnostics.Item_Is_Stale
+        (S.Feature_Diagnostics, Positive (Diagnostic_Index))
+      then
+         return Editor.Commands.Unavailable
+           (Editor.Commands.Reason_Target_Stale);
+      elsif not Editor.Feature_Diagnostics.Validate_Diagnostic_Target
+          (S.Feature_Diagnostics, Positive (Diagnostic_Index), Target_Buffer)
+        or else not Feature_Target_Position_Is_Valid
+          (S, Target_Buffer, Target_Line, Target_Column)
+      then
+         return Editor.Commands.Unavailable
+           (Diagnostic_Availability_Reason
+              (S, Diagnostic_Index, Target_Buffer, Target_Line, Target_Column));
+      elsif not Editor.Feature_Diagnostics
+        .Quick_Fix_Action_Is_Intrinsically_Available
+          (S.Feature_Diagnostics, Positive (Diagnostic_Index), Action_Index)
+      then
+         return Editor.Commands.Unavailable
+           (Editor.Feature_Diagnostics
+              .Quick_Fix_Action_Intrinsic_Unavailable_Reason
+                (S.Feature_Diagnostics,
+                 Positive (Diagnostic_Index),
+                 Action_Index));
+      else
+         return Editor.Commands.Available;
+      end if;
+   end Diagnostic_Quick_Fix_Action_Availability;
 
    function Diagnostic_Action_Effect_Label
      (Effect : Editor.Ada_Diagnostic_Action_Execution.Diagnostic_Action_Execution_Effect)
@@ -1753,7 +1877,7 @@ package body Editor.Executor.Diagnostics_Commands is
         Editor.Layout.Current;
    begin
       if not Target.Found then
-         Editor.Executor.Report_Warning (S, "Diagnostic not found");
+         Editor.Executor.Shared_Services.Report_Warning (S, "Diagnostic not found");
          Editor.Render_Cache.Invalidate_All;
          return;
       end if;
@@ -1813,7 +1937,7 @@ package body Editor.Executor.Diagnostics_Commands is
         Editor.Diagnostics.No_Diagnostic;
    begin
       if Editor.Diagnostics.Diagnostic_Count (S.Diagnostics) = 0 then
-         Editor.Executor.Report_Info (S, "No diagnostics");
+         Editor.Executor.Shared_Services.Report_Info (S, "No diagnostics");
          Editor.Render_Cache.Invalidate_All;
          return;
       end if;
@@ -1840,7 +1964,7 @@ package body Editor.Executor.Diagnostics_Commands is
       if Found then
          Execute_Jump_To_Diagnostic (S, Index);
       else
-         Editor.Executor.Report_Info (S, "No diagnostics");
+         Editor.Executor.Shared_Services.Report_Info (S, "No diagnostics");
          Editor.Render_Cache.Invalidate_All;
       end if;
    end Execute_Next_Diagnostic;
@@ -1855,7 +1979,7 @@ package body Editor.Executor.Diagnostics_Commands is
         Editor.Diagnostics.No_Diagnostic;
    begin
       if Editor.Diagnostics.Diagnostic_Count (S.Diagnostics) = 0 then
-         Editor.Executor.Report_Info (S, "No diagnostics");
+         Editor.Executor.Shared_Services.Report_Info (S, "No diagnostics");
          Editor.Render_Cache.Invalidate_All;
          return;
       end if;
@@ -1882,7 +2006,7 @@ package body Editor.Executor.Diagnostics_Commands is
       if Found then
          Execute_Jump_To_Diagnostic (S, Index);
       else
-         Editor.Executor.Report_Info (S, "No diagnostics");
+         Editor.Executor.Shared_Services.Report_Info (S, "No diagnostics");
          Editor.Render_Cache.Invalidate_All;
       end if;
    end Execute_Previous_Diagnostic;
@@ -1899,7 +2023,7 @@ package body Editor.Executor.Diagnostics_Commands is
       if Found then
          Execute_Jump_To_Diagnostic (S, Index);
       else
-         Editor.Executor.Report_Warning (S, "Diagnostic not found");
+         Editor.Executor.Shared_Services.Report_Warning (S, "Diagnostic not found");
          Editor.Render_Cache.Invalidate_All;
       end if;
    end Execute_Jump_To_Diagnostic_On_Row;

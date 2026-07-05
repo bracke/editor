@@ -13,6 +13,7 @@ with Editor.Build_UI;
 with Editor.Command_Execution;
 with Editor.Commands;
 with Editor.Executor.File_Tree_Commands;
+with Editor.Executor.Pending_Transition_Policy;
 with Editor.Executor.File_Tree_Navigation_Commands;
 with Editor.Executor.File_Open_Commands;
 with Editor.Executor.Project_Lifecycle_Commands;
@@ -295,9 +296,9 @@ package body Editor.Executor.Project_Workspace_File_Tree_Tests is
       Editor.Pending_Transitions.Set_Pending
         (S.Pending_Transitions, Target, Pending_Test_Summary);
 
-      Assert (not Editor.Executor.Pending_Transition_Is_Still_Valid (S),
+      Assert (not Editor.Executor.Pending_Transition_Policy.Pending_Transition_Is_Still_Valid (S),
               "empty-path pending open-project target must be stale");
-      Editor.Executor.Invalidate_Pending_Transition_If_Stale (S);
+      Editor.Executor.Pending_Transition_Policy.Invalidate_Pending_Transition_If_Stale (S);
       Assert (not Editor.Pending_Transitions.Has_Pending (S.Pending_Transitions),
               "stale pending open-project target must clear deterministically");
    end Test_Pending_Invalid_Open_Project_Clears_Silently;
@@ -319,9 +320,9 @@ package body Editor.Executor.Project_Workspace_File_Tree_Tests is
       Editor.Pending_Transitions.Set_Pending
         (S.Pending_Transitions, Target, Pending_Test_Summary);
 
-      Assert (not Editor.Executor.Pending_Transition_Is_Still_Valid (S),
+      Assert (not Editor.Executor.Pending_Transition_Policy.Pending_Transition_Is_Still_Valid (S),
               "pending close-buffer target must be stale after target disappears");
-      Editor.Executor.Invalidate_Pending_Transition_If_Stale (S);
+      Editor.Executor.Pending_Transition_Policy.Invalidate_Pending_Transition_If_Stale (S);
       Assert (not Editor.Pending_Transitions.Has_Pending (S.Pending_Transitions),
               "stale pending close-buffer target must clear deterministically");
    end Test_Pending_Invalid_Close_Buffer_Clears_Silently;

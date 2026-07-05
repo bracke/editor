@@ -20,6 +20,7 @@ with Editor.Search;
 with Editor.Command_Palette;
 with Editor.Contextual_Help;
 with Editor.Executor;
+with Editor.Executor.Command_Palette_Projection;
 with Editor.Build_UI;
 with Editor.Build_UI_Actions;
 with Editor.Build_UI_Panel_Layout;
@@ -4527,7 +4528,7 @@ package body Editor.Render_Packet is
             return;
          end if;
 
-         Editor.Executor.Command_Palette_Candidates (S, Candidates);
+         Editor.Executor.Command_Palette_Projection.Command_Palette_Candidates (S, Candidates);
          Editor.Command_Palette.Reconcile_Selection (Candidates);
          Snapshot := Editor.Command_Palette.Build_Snapshot (Candidates, Config);
 

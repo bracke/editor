@@ -5,6 +5,8 @@ with Ada.Strings.Unbounded; use Ada.Strings.Unbounded;
 with Editor.Buffers;
 use type Editor.Buffers.Buffer_Id;
 with Editor.Executor;
+with Editor.Executor.Shared_Services;
+use Editor.Executor.Shared_Services;
 with Editor.File_Tree;
 use type Editor.File_Tree.File_Tree_Node_Id;
 use type Editor.File_Tree.File_Tree_Scan_Status;
@@ -147,10 +149,10 @@ package body Editor.Executor.Project_File_Index_Commands is
             Editor.Executor.Recompute_Quick_Open (S);
          end if;
          Editor.Project_Search.Clear_Results_Preserve_Query (S.Project_Search);
-         Editor.Executor.Report_Success
+         Editor.Executor.Shared_Services.Report_Success
            (S, Format_Project_File_Refresh_Message (Result));
       else
-         Editor.Executor.Report_Error
+         Editor.Executor.Shared_Services.Report_Error
            (S, "Could not refresh project files: "
             & (if Length (Result.Failure_Reason) > 0
                then To_String (Result.Failure_Reason)
@@ -163,7 +165,7 @@ package body Editor.Executor.Project_File_Index_Commands is
      (S : in out Editor.State.State_Type)
    is
    begin
-      Editor.Executor.Report_Info (S, Format_Project_File_Summary_Message (S));
+      Editor.Executor.Shared_Services.Report_Info (S, Format_Project_File_Summary_Message (S));
       Editor.Render_Cache.Invalidate_All;
    end Execute_Project_Files_Summary;
 
@@ -185,25 +187,25 @@ package body Editor.Executor.Project_File_Index_Commands is
       end if;
 
       if Editor.Buffers.Global_Active_Buffer = Editor.Buffers.No_Buffer then
-         Editor.Executor.Report_Info (S, "No active buffer.");
+         Editor.Executor.Shared_Services.Report_Info (S, "No active buffer.");
          return;
       elsif not S.File_Info.Has_Path or else Length (S.File_Info.Path) = 0 then
-         Editor.Executor.Report_Info (S, "Active buffer has no file path");
+         Editor.Executor.Shared_Services.Report_Info (S, "Active buffer has no file path");
          return;
       elsif not Editor.Project.Has_Project (S.Project) then
-         Editor.Executor.Report_Warning (S, "No project open");
+         Editor.Executor.Shared_Services.Report_Warning (S, "No project open");
          return;
       end if;
 
       Path := S.File_Info.Path;
       if not Ada.Directories.Exists (To_String (Path)) then
-         Editor.Executor.Report_Warning (S, "Active file no longer exists");
+         Editor.Executor.Shared_Services.Report_Warning (S, "Active file no longer exists");
          return;
       elsif not Editor.Project.Is_Under_Project (S.Project, To_String (Path)) then
-         Editor.Executor.Report_Info (S, "Active file is outside the current project");
+         Editor.Executor.Shared_Services.Report_Info (S, "Active file is outside the current project");
          return;
       elsif Editor.File_Tree.Is_Empty (S.File_Tree) then
-         Editor.Executor.Report_Info (S, "File Tree unavailable");
+         Editor.Executor.Shared_Services.Report_Info (S, "File Tree unavailable");
          return;
       end if;
 
@@ -214,7 +216,7 @@ package body Editor.Executor.Project_File_Index_Commands is
          Node := Editor.File_Tree.Find_By_Path (S.File_Tree, Relative_Path, Found);
       end;
       if not Found or else Node = Editor.File_Tree.No_File_Tree_Node then
-         Editor.Executor.Report_Info (S, "File Tree refresh required");
+         Editor.Executor.Shared_Services.Report_Info (S, "File Tree refresh required");
          return;
       end if;
 
@@ -232,9 +234,9 @@ package body Editor.Executor.Project_File_Index_Commands is
            (S.File_Tree_View, S.File_Tree, Editor.File_Tree.Visible_Row_Count (S.File_Tree));
          Editor.Focus_Management.Set_Focus_Owner
            (S, Editor.Focus_Management.Focus_File_Tree);
-         Editor.Executor.Report_Success (S, "Active file revealed in File Tree");
+         Editor.Executor.Shared_Services.Report_Success (S, "Active file revealed in File Tree");
       else
-         Editor.Executor.Report_Info (S, "File Tree row unavailable");
+         Editor.Executor.Shared_Services.Report_Info (S, "File Tree row unavailable");
       end if;
    end Execute_Reveal_Active_File_In_Tree;
 
@@ -256,7 +258,7 @@ package body Editor.Executor.Project_File_Index_Commands is
       if not Editor.Project.Has_Project (S.Project) then
          Editor.File_Tree.Clear (S.File_Tree);
          Editor.File_Tree_View.Clear_View (S.File_Tree_View);
-         Editor.Executor.Report_Warning (S, "No project open");
+         Editor.Executor.Shared_Services.Report_Warning (S, "No project open");
          return;
       end if;
 
@@ -325,16 +327,16 @@ package body Editor.Executor.Project_File_Index_Commands is
          if Ada.Strings.Fixed.Index
            (To_String (Result.Error_Text), "limit reached") /= 0
          then
-            Editor.Executor.Report_Warning (S, "File Tree refresh limit reached");
+            Editor.Executor.Shared_Services.Report_Warning (S, "File Tree refresh limit reached");
          elsif Selection_Disappeared then
-            Editor.Executor.Report_Warning
+            Editor.Executor.Shared_Services.Report_Warning
               (S, "File tree refreshed; selected path no longer exists");
          elsif Length (Result.Error_Text) > 0 then
-            Editor.Executor.Report_Warning
+            Editor.Executor.Shared_Services.Report_Warning
               (S, "File tree refreshed with warnings: " &
                     To_String (Result.Error_Text));
          else
-            Editor.Executor.Report_Success (S, "File tree refreshed");
+            Editor.Executor.Shared_Services.Report_Success (S, "File tree refreshed");
          end if;
       else
          Editor.File_Tree.Clear (S.File_Tree);
@@ -344,7 +346,7 @@ package body Editor.Executor.Project_File_Index_Commands is
          if Editor.Quick_Open.Is_Open (S.Quick_Open) then
             Editor.Executor.Recompute_Quick_Open (S);
          end if;
-         Editor.Executor.Report_Error
+         Editor.Executor.Shared_Services.Report_Error
            (S, "File tree refresh failed: " & File_Tree_Refresh_Failure_Message (Result));
       end if;
    end Execute_Refresh_File_Tree;

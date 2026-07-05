@@ -4,6 +4,8 @@ with Editor.Buffers;
 with Editor.Command_Execution;
 with Editor.Commands;
 with Editor.Executor;
+with Editor.Executor.Shared_Services;
+use Editor.Executor.Shared_Services;
 with Editor.Executor.Buffer_Navigation_Commands;
 with Editor.Messages;
 use type Editor.Messages.Message_Severity;
@@ -136,11 +138,11 @@ package body Editor.Executor.Buffer_Metadata_Commands is
 
    procedure Report_Info
      (S    : in out Editor.State.State_Type;
-      Text : String) renames Editor.Executor.Report_Info;
+      Text : String) renames Editor.Executor.Shared_Services.Report_Info;
 
    procedure Report_Success
      (S    : in out Editor.State.State_Type;
-      Text : String) renames Editor.Executor.Report_Success;
+      Text : String) renames Editor.Executor.Shared_Services.Report_Success;
 
    function Trimmed_Command_Text (Text : String) return String
       renames Editor.Executor.Trimmed_Command_Text;

@@ -1,5 +1,7 @@
 with Editor.Command_Execution;
 with Editor.Executor;
+with Editor.Executor.Shared_Services;
+use Editor.Executor.Shared_Services;
 with Editor.Executor.Diagnostics_Commands;
 with Editor.Executor.Message_Commands;
 with Editor.Executor.Outline_Commands;
@@ -23,7 +25,7 @@ package body Editor.Executor.Feature_Panel_Commands is
 
    procedure Report_Info
      (S    : in out Editor.State.State_Type;
-      Text : String) renames Editor.Executor.Report_Info;
+      Text : String) renames Editor.Executor.Shared_Services.Report_Info;
 
    function Feature_Panel_Command_Availability
      (S  : Editor.State.State_Type;

@@ -15,6 +15,8 @@ with Editor.Command_Palette;
 with Editor.Commands; use Editor.Commands;
 with Editor.Cursors;
 with Editor.Executor;
+with Editor.Executor.Shared_Services;
+use Editor.Executor.Shared_Services;
 with Editor.Executor.File_Lifecycle_Commands;
 with Editor.Executor.File_Open_Commands;
 with Editor.Executor.Navigation_Commands;
@@ -497,12 +499,12 @@ package body Editor.Executor.Command_Surface_Commands is
    is
    begin
       if not Editor.Command_Palette.Is_Open then
-         Editor.Executor.Report_Info (S, "Command Palette closed.");
+         Editor.Executor.Shared_Services.Report_Info (S, "Command Palette closed.");
          return;
       end if;
 
       Editor.Command_Palette.Toggle_Show_Help_Row;
-      Editor.Executor.Report_Info (S, "Command help display toggled");
+      Editor.Executor.Shared_Services.Report_Info (S, "Command help display toggled");
       Editor.Render_Cache.Invalidate_All;
    end Execute_Palette_Show_Command_Help;
 
@@ -543,7 +545,7 @@ package body Editor.Executor.Command_Surface_Commands is
       case Id is
          when Command_Palette_Show_Command_Help =>
             if not Editor.Command_Palette.Is_Open then
-               Editor.Executor.Report_Info (S, "Command Palette closed.");
+               Editor.Executor.Shared_Services.Report_Info (S, "Command Palette closed.");
                return Editor.Command_Execution.Unavailable (Id);
             end if;
             Execute_Palette_Show_Command_Help (S);
@@ -556,12 +558,12 @@ package body Editor.Executor.Command_Surface_Commands is
                return Editor.Command_Execution.Cancelled (Id);
             elsif S.File_Conflict_Prompt_Active then
                Editor.Executor.File_Lifecycle_Commands.Clear_File_Conflict_Prompt (S);
-               Editor.Executor.Report_Info (S, "File conflict cancelled");
+               Editor.Executor.Shared_Services.Report_Info (S, "File conflict cancelled");
                Editor.Render_Cache.Invalidate_All;
                return Editor.Command_Execution.Cancelled (Id);
             elsif Editor.Guided_Prompts.Is_Active (S.Guided_Prompt) then
                Editor.Guided_Prompts.Cancel (S.Guided_Prompt);
-               Editor.Executor.Report_Info (S, "Prompt cancelled.");
+               Editor.Executor.Shared_Services.Report_Info (S, "Prompt cancelled.");
                Editor.Render_Cache.Invalidate_All;
                return Editor.Command_Execution.Cancelled (Id);
             elsif Editor.Overlay_Focus.Has_Active_Overlay (S.Overlay_Focus) then
@@ -598,14 +600,14 @@ package body Editor.Executor.Command_Surface_Commands is
    begin
       if Count = 0 then
          if not Editor.Project.Has_Project (S.Project) then
-            Editor.Executor.Report_Info (S, "No project open");
+            Editor.Executor.Shared_Services.Report_Info (S, "No project open");
          elsif Editor.Project.Known_File_Count (S.Project) = 0 then
-            Editor.Executor.Report_Info (S, "No project files");
+            Editor.Executor.Shared_Services.Report_Info (S, "No project files");
          else
-            Editor.Executor.Report_Info (S, "No Quick Open matches.");
+            Editor.Executor.Shared_Services.Report_Info (S, "No Quick Open matches.");
          end if;
       else
-         Editor.Executor.Report_Info (S, "Quick Open shown");
+         Editor.Executor.Shared_Services.Report_Info (S, "Quick Open shown");
       end if;
    end Report_Quick_Open_Shown;
 
@@ -630,7 +632,7 @@ package body Editor.Executor.Command_Surface_Commands is
          Editor.Quick_Open.Close (S.Quick_Open);
          Editor.Render_Cache.Invalidate_All;
       end if;
-      Editor.Executor.Report_Info (S, "Quick Open hidden");
+      Editor.Executor.Shared_Services.Report_Info (S, "Quick Open hidden");
    end Execute_Close_Quick_Open;
 
    procedure Execute_Toggle_Quick_Open
@@ -703,17 +705,17 @@ package body Editor.Executor.Command_Surface_Commands is
       Editor.Executor.Clear_Restore_Feedback_Current (S);
 
       if not Editor.Project.Has_Project (S.Project) then
-         Editor.Executor.Report_Warning (S, "No project open");
+         Editor.Executor.Shared_Services.Report_Warning (S, "No project open");
          Editor.Render_Cache.Invalidate_All;
          return;
       elsif not Found then
-         Editor.Executor.Report_Warning (S, "No Quick Open selection");
+         Editor.Executor.Shared_Services.Report_Warning (S, "No Quick Open selection");
          Editor.Render_Cache.Invalidate_All;
          return;
       end if;
 
       if not Selected_File_Still_Known then
-         Editor.Executor.Report_Error (S, "Selected file is no longer in project");
+         Editor.Executor.Shared_Services.Report_Error (S, "Selected file is no longer in project");
          Recompute_Quick_Open (S);
          Editor.Render_Cache.Invalidate_All;
          return;
@@ -731,7 +733,7 @@ package body Editor.Executor.Command_Surface_Commands is
             if Current_State_Is_Disposable_Initial_Untitled then
                S.Active_Buffer_Token := 0;
             end if;
-            Editor.Executor.Report_Error (S, "Could not open " & Label & ": "
+            Editor.Executor.Shared_Services.Report_Error (S, "Could not open " & Label & ": "
                & (case Preflight.Status is
                     when Editor.Files.File_Open_Not_Found => "file not found",
                     when Editor.Files.File_Open_Permission_Denied => "permission denied",
@@ -818,15 +820,15 @@ package body Editor.Executor.Command_Surface_Commands is
    begin
       if Editor.Quick_Open.Result_Count (S.Quick_Open) = 0 then
          if not Editor.Project.Has_Project (S.Project) then
-            Editor.Executor.Report_Info (S, "No project open");
+            Editor.Executor.Shared_Services.Report_Info (S, "No project open");
          elsif Editor.Project.Known_File_Count (S.Project) = 0 then
-            Editor.Executor.Report_Info (S, "No project files");
+            Editor.Executor.Shared_Services.Report_Info (S, "No project files");
          else
-            Editor.Executor.Report_Info (S, "No Quick Open matches.");
+            Editor.Executor.Shared_Services.Report_Info (S, "No Quick Open matches.");
          end if;
       else
          Move_Quick_Open_Selection_By_Snapshot (S, Forward => True);
-         Editor.Executor.Report_Info (S, "Selected next Quick Open candidate");
+         Editor.Executor.Shared_Services.Report_Info (S, "Selected next Quick Open candidate");
       end if;
       Editor.Render_Cache.Invalidate_All;
    end Execute_Quick_Open_Next_Result;
@@ -837,15 +839,15 @@ package body Editor.Executor.Command_Surface_Commands is
    begin
       if Editor.Quick_Open.Result_Count (S.Quick_Open) = 0 then
          if not Editor.Project.Has_Project (S.Project) then
-            Editor.Executor.Report_Info (S, "No project open");
+            Editor.Executor.Shared_Services.Report_Info (S, "No project open");
          elsif Editor.Project.Known_File_Count (S.Project) = 0 then
-            Editor.Executor.Report_Info (S, "No project files");
+            Editor.Executor.Shared_Services.Report_Info (S, "No project files");
          else
-            Editor.Executor.Report_Info (S, "No Quick Open matches.");
+            Editor.Executor.Shared_Services.Report_Info (S, "No Quick Open matches.");
          end if;
       else
          Move_Quick_Open_Selection_By_Snapshot (S, Forward => False);
-         Editor.Executor.Report_Info (S, "Selected previous Quick Open candidate");
+         Editor.Executor.Shared_Services.Report_Info (S, "Selected previous Quick Open candidate");
       end if;
       Editor.Render_Cache.Invalidate_All;
    end Execute_Quick_Open_Previous_Result;
@@ -860,14 +862,14 @@ package body Editor.Executor.Command_Surface_Commands is
          Recompute_Quick_Open (S);
          if Editor.Quick_Open.Result_Count (S.Quick_Open) = 0 then
             if not Editor.Project.Has_Project (S.Project) then
-               Editor.Executor.Report_Info (S, "No project open");
+               Editor.Executor.Shared_Services.Report_Info (S, "No project open");
             elsif Editor.Project.Known_File_Count (S.Project) = 0 then
-               Editor.Executor.Report_Info (S, "No project files");
+               Editor.Executor.Shared_Services.Report_Info (S, "No project files");
             else
-               Editor.Executor.Report_Info (S, "No Quick Open matches.");
+               Editor.Executor.Shared_Services.Report_Info (S, "No Quick Open matches.");
             end if;
          else
-            Editor.Executor.Report_Info (S, "Quick Open query set");
+            Editor.Executor.Shared_Services.Report_Info (S, "Quick Open query set");
          end if;
       end if;
    end Execute_Quick_Open_Set_Query;
@@ -878,11 +880,11 @@ package body Editor.Executor.Command_Surface_Commands is
    begin
       if Editor.Quick_Open.Is_Open (S.Quick_Open) then
          if Editor.Quick_Open.Query_Text (S.Quick_Open)'Length = 0 then
-            Editor.Executor.Report_Info (S, "No Quick Open query to clear");
+            Editor.Executor.Shared_Services.Report_Info (S, "No Quick Open query to clear");
          else
             Editor.Quick_Open.Set_Query_Text (S.Quick_Open, "");
             Recompute_Quick_Open (S);
-            Editor.Executor.Report_Info (S, "Quick Open query cleared");
+            Editor.Executor.Shared_Services.Report_Info (S, "Quick Open query cleared");
          end if;
       end if;
    end Execute_Quick_Open_Clear_Query;
@@ -894,14 +896,14 @@ package body Editor.Executor.Command_Surface_Commands is
    begin
       if Editor.Quick_Open.Is_Open (S.Quick_Open) then
          if not Editor.Project.Has_Project (S.Project) then
-            Editor.Executor.Report_Info (S, "No project open");
+            Editor.Executor.Shared_Services.Report_Info (S, "No project open");
             Editor.Render_Cache.Invalidate_All;
             return;
          end if;
 
          Editor.Quick_Open.Cycle_File_Kind_Next (S.Quick_Open);
          Recompute_Quick_Open (S);
-         Editor.Executor.Report_Info (S, "Quick Open filter: " &
+         Editor.Executor.Shared_Services.Report_Info (S, "Quick Open filter: " &
             Editor.Quick_Open.File_Kind_Filter_Name
               (Editor.Quick_Open.File_Kind_Filter (S.Quick_Open)));
       end if;
@@ -913,14 +915,14 @@ package body Editor.Executor.Command_Surface_Commands is
    begin
       if Editor.Quick_Open.Is_Open (S.Quick_Open) then
          if not Editor.Project.Has_Project (S.Project) then
-            Editor.Executor.Report_Info (S, "No project open");
+            Editor.Executor.Shared_Services.Report_Info (S, "No project open");
             Editor.Render_Cache.Invalidate_All;
             return;
          end if;
 
          Editor.Quick_Open.Cycle_File_Kind_Previous (S.Quick_Open);
          Recompute_Quick_Open (S);
-         Editor.Executor.Report_Info (S, "Quick Open filter: " &
+         Editor.Executor.Shared_Services.Report_Info (S, "Quick Open filter: " &
             Editor.Quick_Open.File_Kind_Filter_Name
               (Editor.Quick_Open.File_Kind_Filter (S.Quick_Open)));
       end if;
@@ -932,15 +934,15 @@ package body Editor.Executor.Command_Surface_Commands is
    begin
       if Editor.Quick_Open.Is_Open (S.Quick_Open) then
          if not Editor.Project.Has_Project (S.Project) then
-            Editor.Executor.Report_Info (S, "No project open");
+            Editor.Executor.Shared_Services.Report_Info (S, "No project open");
             Editor.Render_Cache.Invalidate_All;
             return;
          elsif Editor.Quick_Open.File_Kind_Filter (S.Quick_Open) = Editor.Quick_Open.All_Files then
-            Editor.Executor.Report_Info (S, "No Quick Open file-kind filter to clear");
+            Editor.Executor.Shared_Services.Report_Info (S, "No Quick Open file-kind filter to clear");
          else
             Editor.Quick_Open.Clear_File_Kind_Filter (S.Quick_Open);
             Recompute_Quick_Open (S);
-            Editor.Executor.Report_Info (S, "Quick Open filter: All");
+            Editor.Executor.Shared_Services.Report_Info (S, "Quick Open filter: All");
          end if;
       end if;
    end Execute_Quick_Open_Kind_Clear;
@@ -975,16 +977,16 @@ package body Editor.Executor.Command_Surface_Commands is
    begin
       if Editor.Quick_Open.Is_Open (S.Quick_Open) then
          if not Editor.Project.Has_Project (S.Project) then
-            Editor.Executor.Report_Info (S, "No project open");
+            Editor.Executor.Shared_Services.Report_Info (S, "No project open");
          elsif Quick_Open_Scope_Has_Parent_Traversal (Text) then
-            Editor.Executor.Report_Info (S, "Invalid Quick Open scope");
+            Editor.Executor.Shared_Services.Report_Info (S, "Invalid Quick Open scope");
          else
             Editor.Quick_Open.Set_Path_Scope (S.Quick_Open, Text);
             Recompute_Quick_Open (S);
             if Scope'Length = 0 then
-               Editor.Executor.Report_Info (S, "Quick Open scope cleared");
+               Editor.Executor.Shared_Services.Report_Info (S, "Quick Open scope cleared");
             else
-               Editor.Executor.Report_Info (S, "Quick Open scope: " & Scope);
+               Editor.Executor.Shared_Services.Report_Info (S, "Quick Open scope: " & Scope);
             end if;
          end if;
       end if;
@@ -996,15 +998,15 @@ package body Editor.Executor.Command_Surface_Commands is
    begin
       if Editor.Quick_Open.Is_Open (S.Quick_Open) then
          if not Editor.Project.Has_Project (S.Project) then
-            Editor.Executor.Report_Info (S, "No project open");
+            Editor.Executor.Shared_Services.Report_Info (S, "No project open");
             Editor.Render_Cache.Invalidate_All;
             return;
          elsif Editor.Quick_Open.Path_Scope (S.Quick_Open)'Length = 0 then
-            Editor.Executor.Report_Info (S, "No Quick Open scope");
+            Editor.Executor.Shared_Services.Report_Info (S, "No Quick Open scope");
          else
             Editor.Quick_Open.Clear_Path_Scope (S.Quick_Open);
             Recompute_Quick_Open (S);
-            Editor.Executor.Report_Info (S, "Quick Open scope cleared");
+            Editor.Executor.Shared_Services.Report_Info (S, "Quick Open scope cleared");
          end if;
       end if;
    end Execute_Quick_Open_Scope_Clear;
@@ -1018,18 +1020,18 @@ package body Editor.Executor.Command_Surface_Commands is
    begin
       if Editor.Quick_Open.Is_Open (S.Quick_Open) then
          if not Editor.Project.Has_Project (S.Project) then
-            Editor.Executor.Report_Info (S, "No project open");
+            Editor.Executor.Shared_Services.Report_Info (S, "No project open");
             Editor.Render_Cache.Invalidate_All;
             return;
          elsif not Found then
-            Editor.Executor.Report_Info (S, "No Quick Open selection");
+            Editor.Executor.Shared_Services.Report_Info (S, "No Quick Open selection");
          else
             Editor.Quick_Open.Set_Path_Scope_From_Selected (S.Quick_Open, Found);
             Recompute_Quick_Open (S);
             if Scope'Length = 0 then
-               Editor.Executor.Report_Info (S, "Quick Open scope cleared");
+               Editor.Executor.Shared_Services.Report_Info (S, "Quick Open scope cleared");
             else
-               Editor.Executor.Report_Info (S, "Quick Open scope: " & Scope);
+               Editor.Executor.Shared_Services.Report_Info (S, "Quick Open scope: " & Scope);
             end if;
          end if;
       end if;
@@ -1045,18 +1047,18 @@ package body Editor.Executor.Command_Surface_Commands is
    begin
       if Editor.Quick_Open.Is_Open (S.Quick_Open) then
          if not Editor.Project.Has_Project (S.Project) then
-            Editor.Executor.Report_Info (S, "No project open");
+            Editor.Executor.Shared_Services.Report_Info (S, "No project open");
             Editor.Render_Cache.Invalidate_All;
             return;
          elsif not Found then
-            Editor.Executor.Report_Info (S, "No Quick Open scope");
+            Editor.Executor.Shared_Services.Report_Info (S, "No Quick Open scope");
          else
             Editor.Quick_Open.Move_Path_Scope_To_Parent (S.Quick_Open, Found);
             Recompute_Quick_Open (S);
             if Parent'Length = 0 then
-               Editor.Executor.Report_Info (S, "Quick Open scope cleared");
+               Editor.Executor.Shared_Services.Report_Info (S, "Quick Open scope cleared");
             else
-               Editor.Executor.Report_Info (S, "Quick Open scope: " & Parent);
+               Editor.Executor.Shared_Services.Report_Info (S, "Quick Open scope: " & Parent);
             end if;
          end if;
       end if;
@@ -1103,19 +1105,19 @@ package body Editor.Executor.Command_Surface_Commands is
       Query      : constant String := Quick_Open_Reveal_Query_For_Path (Path);
    begin
       if not Editor.Project.Has_Project (S.Project) then
-         Editor.Executor.Report_Info (S, "No project open");
+         Editor.Executor.Shared_Services.Report_Info (S, "No project open");
          Editor.Render_Cache.Invalidate_All;
          return;
       elsif not Editor.State.Has_Active_Buffer (S) then
-         Editor.Executor.Report_Info (S, "No active buffer.");
+         Editor.Executor.Shared_Services.Report_Info (S, "No active buffer.");
          Editor.Render_Cache.Invalidate_All;
          return;
       elsif Editor.Project.Known_File_Count (S.Project) = 0 then
-         Editor.Executor.Report_Info (S, "No project files.");
+         Editor.Executor.Shared_Services.Report_Info (S, "No project files.");
          Editor.Render_Cache.Invalidate_All;
          return;
       elsif not Found_Path then
-         Editor.Executor.Report_Info (S, "Active buffer is not a known project file");
+         Editor.Executor.Shared_Services.Report_Info (S, "Active buffer is not a known project file");
          Editor.Render_Cache.Invalidate_All;
          return;
       end if;
@@ -1134,9 +1136,9 @@ package body Editor.Executor.Command_Surface_Commands is
       Editor.Quick_Open.Select_Path (S.Quick_Open, Path, Selected);
 
       if Selected then
-         Editor.Executor.Report_Info (S, "Quick Open selected active file: " & Path);
+         Editor.Executor.Shared_Services.Report_Info (S, "Quick Open selected active file: " & Path);
       else
-         Editor.Executor.Report_Info (S, "Active buffer is not a known project file");
+         Editor.Executor.Shared_Services.Report_Info (S, "Active buffer is not a known project file");
       end if;
       Editor.Render_Cache.Invalidate_All;
    end Execute_Quick_Open_Reveal_Active;
@@ -1153,19 +1155,19 @@ package body Editor.Executor.Command_Surface_Commands is
       Scope      : constant String := Editor.Quick_Open.Directory_Scope_Of_Path (Path);
    begin
       if not Editor.Project.Has_Project (S.Project) then
-         Editor.Executor.Report_Info (S, "No project open");
+         Editor.Executor.Shared_Services.Report_Info (S, "No project open");
          Editor.Render_Cache.Invalidate_All;
          return;
       elsif not Editor.State.Has_Active_Buffer (S) then
-         Editor.Executor.Report_Info (S, "No active buffer.");
+         Editor.Executor.Shared_Services.Report_Info (S, "No active buffer.");
          Editor.Render_Cache.Invalidate_All;
          return;
       elsif Editor.Project.Known_File_Count (S.Project) = 0 then
-         Editor.Executor.Report_Info (S, "No project files.");
+         Editor.Executor.Shared_Services.Report_Info (S, "No project files.");
          Editor.Render_Cache.Invalidate_All;
          return;
       elsif not Found_Path then
-         Editor.Executor.Report_Info (S, "Active buffer is not a known project file");
+         Editor.Executor.Shared_Services.Report_Info (S, "Active buffer is not a known project file");
          Editor.Render_Cache.Invalidate_All;
          return;
       end if;
@@ -1185,11 +1187,11 @@ package body Editor.Executor.Command_Surface_Commands is
       Editor.Quick_Open.Select_Path (S.Quick_Open, Path, Selected);
 
       if not Selected then
-         Editor.Executor.Report_Info (S, "Active buffer is not a known project file");
+         Editor.Executor.Shared_Services.Report_Info (S, "Active buffer is not a known project file");
       elsif Scope'Length = 0 then
-         Editor.Executor.Report_Info (S, "Quick Open scope cleared");
+         Editor.Executor.Shared_Services.Report_Info (S, "Quick Open scope cleared");
       else
-         Editor.Executor.Report_Info (S, "Quick Open scope: " & Scope);
+         Editor.Executor.Shared_Services.Report_Info (S, "Quick Open scope: " & Scope);
       end if;
       Editor.Render_Cache.Invalidate_All;
    end Execute_Quick_Open_Scope_Active_Directory;
@@ -1234,18 +1236,18 @@ package body Editor.Executor.Command_Surface_Commands is
       Editor.Executor.Clear_Restore_Feedback_Current (S);
 
       if not Editor.Project.Has_Project (S.Project) then
-         Editor.Executor.Report_Warning (S, "No project open");
+         Editor.Executor.Shared_Services.Report_Warning (S, "No project open");
          Editor.Render_Cache.Invalidate_All;
          return;
       elsif Editor.Project.Root_Path (S.Project)'Length = 0 then
-         Editor.Executor.Report_Warning (S, "No project open.");
+         Editor.Executor.Shared_Services.Report_Warning (S, "No project open.");
          Editor.Render_Cache.Invalidate_All;
          return;
       elsif not Editor.Overlay_Focus.Is_Active
         (S.Overlay_Focus, Editor.Overlay_Focus.Quick_Open_Overlay)
         or else not Editor.Quick_Open.Is_Open (S.Quick_Open)
       then
-         Editor.Executor.Report_Warning (S, "Quick Open is not visible");
+         Editor.Executor.Shared_Services.Report_Warning (S, "Quick Open is not visible");
          Editor.Render_Cache.Invalidate_All;
          return;
       end if;
@@ -1253,11 +1255,11 @@ package body Editor.Executor.Command_Surface_Commands is
       Target := Editor.Quick_Open.Create_Target_From_Query (S.Quick_Open);
       case Target.Status is
          when Editor.Quick_Open.Quick_Open_Create_Target_No_Query =>
-            Editor.Executor.Report_Warning (S, "No Quick Open query");
+            Editor.Executor.Shared_Services.Report_Warning (S, "No Quick Open query");
             Editor.Render_Cache.Invalidate_All;
             return;
          when Editor.Quick_Open.Quick_Open_Create_Target_Invalid_Path =>
-            Editor.Executor.Report_Warning (S, "Invalid project file path");
+            Editor.Executor.Shared_Services.Report_Warning (S, "Invalid project file path");
             Editor.Render_Cache.Invalidate_All;
             return;
          when Editor.Quick_Open.Quick_Open_Create_Target_Ok =>
@@ -1274,29 +1276,29 @@ package body Editor.Executor.Command_Surface_Commands is
          when Editor.Project.Project_Create_Path_Ok =>
             null;
          when Editor.Project.Project_Create_Path_No_Project =>
-            Editor.Executor.Report_Warning (S, "No project open");
+            Editor.Executor.Shared_Services.Report_Warning (S, "No project open");
             Editor.Render_Cache.Invalidate_All;
             return;
          when Editor.Project.Project_Create_Path_Invalid_Root =>
-            Editor.Executor.Report_Warning (S, "No project open.");
+            Editor.Executor.Shared_Services.Report_Warning (S, "No project open.");
             Editor.Render_Cache.Invalidate_All;
             return;
          when Editor.Project.Project_Create_Path_Ignored =>
-            Editor.Executor.Report_Warning (S, "Path is ignored by project rules: " & To_String (Rel_Path));
+            Editor.Executor.Shared_Services.Report_Warning (S, "Path is ignored by project rules: " & To_String (Rel_Path));
             Editor.Render_Cache.Invalidate_All;
             return;
          when Editor.Project.Project_Create_Path_Ignore_Read_Error =>
-            Editor.Executor.Report_Warning (S, To_String (Rule_Check.Failure_Reason));
+            Editor.Executor.Shared_Services.Report_Warning (S, To_String (Rule_Check.Failure_Reason));
             Editor.Render_Cache.Invalidate_All;
             return;
       end case;
 
       if Editor.Project.Has_Known_File (S.Project, To_String (Rel_Path)) then
-         Editor.Executor.Report_Warning (S, "Project file already exists: " & To_String (Rel_Path));
+         Editor.Executor.Shared_Services.Report_Warning (S, "Project file already exists: " & To_String (Rel_Path));
          Editor.Render_Cache.Invalidate_All;
          return;
       elsif Ada.Directories.Exists (To_String (Abs_Path)) then
-         Editor.Executor.Report_Warning (S, "File already exists: " & To_String (Rel_Path));
+         Editor.Executor.Shared_Services.Report_Warning (S, "File already exists: " & To_String (Rel_Path));
          Editor.Render_Cache.Invalidate_All;
          return;
       end if;
@@ -1319,7 +1321,7 @@ package body Editor.Executor.Command_Surface_Commands is
       if not Ada.Directories.Exists (To_String (Parent_Abs))
         or else Ada.Directories.Kind (To_String (Parent_Abs)) /= Ada.Directories.Directory
       then
-         Editor.Executor.Report_Warning (S, "Parent directory does not exist: " & To_String (Parent_Rel));
+         Editor.Executor.Shared_Services.Report_Warning (S, "Parent directory does not exist: " & To_String (Parent_Rel));
          Editor.Render_Cache.Invalidate_All;
          return;
       end if;
@@ -1342,7 +1344,7 @@ package body Editor.Executor.Command_Surface_Commands is
                      null;
                end;
             end if;
-            Editor.Executor.Report_Error (S, "Could not create " & To_String (Rel_Path) & ": permission denied");
+            Editor.Executor.Shared_Services.Report_Error (S, "Could not create " & To_String (Rel_Path) & ": permission denied");
             Editor.Render_Cache.Invalidate_All;
             return;
          when others =>
@@ -1354,7 +1356,7 @@ package body Editor.Executor.Command_Surface_Commands is
                      null;
                end;
             end if;
-            Editor.Executor.Report_Error (S, "Could not create " & To_String (Rel_Path) & ": filesystem error");
+            Editor.Executor.Shared_Services.Report_Error (S, "Could not create " & To_String (Rel_Path) & ": filesystem error");
             Editor.Render_Cache.Invalidate_All;
             return;
       end;
@@ -1370,7 +1372,7 @@ package body Editor.Executor.Command_Surface_Commands is
 
       Open_Check := Editor.Files.Open_File (To_String (Abs_Path));
       if not Editor.Files.Is_Success (Open_Check) then
-         Editor.Executor.Report_Error (S, "Created " & To_String (Rel_Path)
+         Editor.Executor.Shared_Services.Report_Error (S, "Created " & To_String (Rel_Path)
             & " but could not open it: " & Open_Failure_Text (Open_Check));
          Editor.Render_Cache.Invalidate_All;
          return;
@@ -1401,7 +1403,7 @@ package body Editor.Executor.Command_Surface_Commands is
          Editor.Quick_Open.Close (S.Quick_Open);
       end if;
       Editor.Focus_Management.Restore_Focus_To_Editor (S);
-      Editor.Executor.Report_Success (S, "Created " & To_String (Rel_Path));
+      Editor.Executor.Shared_Services.Report_Success (S, "Created " & To_String (Rel_Path));
       Editor.Render_Cache.Invalidate_All;
    end Execute_Quick_Open_Create_From_Query;
 
@@ -1525,18 +1527,18 @@ package body Editor.Executor.Command_Surface_Commands is
       Editor.Executor.Clear_Restore_Feedback_Current (S);
 
       if not Editor.Project.Has_Project (S.Project) then
-         Editor.Executor.Report_Warning (S, "No project open");
+         Editor.Executor.Shared_Services.Report_Warning (S, "No project open");
          Editor.Render_Cache.Invalidate_All;
          return;
       elsif Editor.Project.Root_Path (S.Project)'Length = 0 then
-         Editor.Executor.Report_Warning (S, "No project open.");
+         Editor.Executor.Shared_Services.Report_Warning (S, "No project open.");
          Editor.Render_Cache.Invalidate_All;
          return;
       elsif not Editor.Overlay_Focus.Is_Active
         (S.Overlay_Focus, Editor.Overlay_Focus.Quick_Open_Overlay)
         or else not Editor.Quick_Open.Is_Open (S.Quick_Open)
       then
-         Editor.Executor.Report_Warning (S, "Quick Open is not visible");
+         Editor.Executor.Shared_Services.Report_Warning (S, "Quick Open is not visible");
          Editor.Render_Cache.Invalidate_All;
          return;
       end if;
@@ -1544,11 +1546,11 @@ package body Editor.Executor.Command_Surface_Commands is
       Target := Editor.Quick_Open.Create_Target_From_Query (S.Quick_Open);
       case Target.Status is
          when Editor.Quick_Open.Quick_Open_Create_Target_No_Query =>
-            Editor.Executor.Report_Warning (S, "No Quick Open query");
+            Editor.Executor.Shared_Services.Report_Warning (S, "No Quick Open query");
             Editor.Render_Cache.Invalidate_All;
             return;
          when Editor.Quick_Open.Quick_Open_Create_Target_Invalid_Path =>
-            Editor.Executor.Report_Warning (S, "Invalid project file path");
+            Editor.Executor.Shared_Services.Report_Warning (S, "Invalid project file path");
             Editor.Render_Cache.Invalidate_All;
             return;
          when Editor.Quick_Open.Quick_Open_Create_Target_Ok =>
@@ -1565,29 +1567,29 @@ package body Editor.Executor.Command_Surface_Commands is
          when Editor.Project.Project_Create_Path_Ok =>
             null;
          when Editor.Project.Project_Create_Path_No_Project =>
-            Editor.Executor.Report_Warning (S, "No project open");
+            Editor.Executor.Shared_Services.Report_Warning (S, "No project open");
             Editor.Render_Cache.Invalidate_All;
             return;
          when Editor.Project.Project_Create_Path_Invalid_Root =>
-            Editor.Executor.Report_Warning (S, "No project open.");
+            Editor.Executor.Shared_Services.Report_Warning (S, "No project open.");
             Editor.Render_Cache.Invalidate_All;
             return;
          when Editor.Project.Project_Create_Path_Ignored =>
-            Editor.Executor.Report_Warning (S, "Path is ignored by project rules: " & To_String (Rel_Path));
+            Editor.Executor.Shared_Services.Report_Warning (S, "Path is ignored by project rules: " & To_String (Rel_Path));
             Editor.Render_Cache.Invalidate_All;
             return;
          when Editor.Project.Project_Create_Path_Ignore_Read_Error =>
-            Editor.Executor.Report_Warning (S, To_String (Rule_Check.Failure_Reason));
+            Editor.Executor.Shared_Services.Report_Warning (S, To_String (Rule_Check.Failure_Reason));
             Editor.Render_Cache.Invalidate_All;
             return;
       end case;
 
       if Editor.Project.Has_Known_File (S.Project, To_String (Rel_Path)) then
-         Editor.Executor.Report_Warning (S, "Project file already exists: " & To_String (Rel_Path));
+         Editor.Executor.Shared_Services.Report_Warning (S, "Project file already exists: " & To_String (Rel_Path));
          Editor.Render_Cache.Invalidate_All;
          return;
       elsif Ada.Directories.Exists (To_String (Abs_Path)) then
-         Editor.Executor.Report_Warning (S, "File already exists: " & To_String (Rel_Path));
+         Editor.Executor.Shared_Services.Report_Warning (S, "File already exists: " & To_String (Rel_Path));
          Editor.Render_Cache.Invalidate_All;
          return;
       end if;
@@ -1599,7 +1601,7 @@ package body Editor.Executor.Command_Surface_Commands is
          Ensure_Parent_Directories
            (To_String (Rel_Path), Failed, Failure_Message);
          if Failed then
-            Editor.Executor.Report_Error (S, To_String (Failure_Message));
+            Editor.Executor.Shared_Services.Report_Error (S, To_String (Failure_Message));
             Editor.Render_Cache.Invalidate_All;
             return;
          end if;
@@ -1623,7 +1625,7 @@ package body Editor.Executor.Command_Surface_Commands is
                      null;
                end;
             end if;
-            Editor.Executor.Report_Error (S, "Could not create " & To_String (Rel_Path) & ": permission denied");
+            Editor.Executor.Shared_Services.Report_Error (S, "Could not create " & To_String (Rel_Path) & ": permission denied");
             Editor.Render_Cache.Invalidate_All;
             return;
          when others =>
@@ -1635,7 +1637,7 @@ package body Editor.Executor.Command_Surface_Commands is
                      null;
                end;
             end if;
-            Editor.Executor.Report_Error (S, "Could not create " & To_String (Rel_Path) & ": filesystem error");
+            Editor.Executor.Shared_Services.Report_Error (S, "Could not create " & To_String (Rel_Path) & ": filesystem error");
             Editor.Render_Cache.Invalidate_All;
             return;
       end;
@@ -1651,7 +1653,7 @@ package body Editor.Executor.Command_Surface_Commands is
 
       Open_Check := Editor.Files.Open_File (To_String (Abs_Path));
       if not Editor.Files.Is_Success (Open_Check) then
-         Editor.Executor.Report_Error (S, "Created " & To_String (Rel_Path)
+         Editor.Executor.Shared_Services.Report_Error (S, "Created " & To_String (Rel_Path)
             & " but could not open it: " & Open_Failure_Text (Open_Check));
          Editor.Render_Cache.Invalidate_All;
          return;
@@ -1678,7 +1680,7 @@ package body Editor.Executor.Command_Surface_Commands is
          Editor.Quick_Open.Close (S.Quick_Open);
       end if;
       Editor.Focus_Management.Restore_Focus_To_Editor (S);
-      Editor.Executor.Report_Success (S, "Created " & To_String (Rel_Path));
+      Editor.Executor.Shared_Services.Report_Success (S, "Created " & To_String (Rel_Path));
       Editor.Render_Cache.Invalidate_All;
    end Execute_Quick_Open_Create_With_Parents_From_Query;
 
@@ -1687,14 +1689,14 @@ package body Editor.Executor.Command_Surface_Commands is
    is
    begin
       if not Editor.Project.Has_Project (S.Project) then
-         Editor.Executor.Report_Info (S, "No project open");
+         Editor.Executor.Shared_Services.Report_Info (S, "No project open");
          Editor.Render_Cache.Invalidate_All;
          return;
       elsif not Editor.Overlay_Focus.Is_Active
         (S.Overlay_Focus, Editor.Overlay_Focus.Quick_Open_Overlay)
         or else not Editor.Quick_Open.Is_Open (S.Quick_Open)
       then
-         Editor.Executor.Report_Info (S, "Quick Open is not visible");
+         Editor.Executor.Shared_Services.Report_Info (S, "Quick Open is not visible");
          Editor.Render_Cache.Invalidate_All;
          return;
       end if;
@@ -1704,9 +1706,9 @@ package body Editor.Executor.Command_Surface_Commands is
 
       case Editor.Quick_Open.Priority_Mode (S.Quick_Open) is
          when Editor.Quick_Open.Open_Recent =>
-            Editor.Executor.Report_Info (S, "Quick Open priority: Open/Recent");
+            Editor.Executor.Shared_Services.Report_Info (S, "Quick Open priority: Open/Recent");
          when Editor.Quick_Open.Path =>
-            Editor.Executor.Report_Info (S, "Quick Open priority: Path");
+            Editor.Executor.Shared_Services.Report_Info (S, "Quick Open priority: Path");
       end case;
       Editor.Render_Cache.Invalidate_All;
    end Execute_Quick_Open_Priority_Toggle;
@@ -1717,25 +1719,25 @@ package body Editor.Executor.Command_Surface_Commands is
    is
    begin
       if not Editor.Project.Has_Project (S.Project) then
-         Editor.Executor.Report_Info (S, "No project open");
+         Editor.Executor.Shared_Services.Report_Info (S, "No project open");
          Editor.Render_Cache.Invalidate_All;
          return;
       elsif not Editor.Overlay_Focus.Is_Active
         (S.Overlay_Focus, Editor.Overlay_Focus.Quick_Open_Overlay)
         or else not Editor.Quick_Open.Is_Open (S.Quick_Open)
       then
-         Editor.Executor.Report_Info (S, "Quick Open is not visible");
+         Editor.Executor.Shared_Services.Report_Info (S, "Quick Open is not visible");
          Editor.Render_Cache.Invalidate_All;
          return;
       elsif Editor.Quick_Open.Priority_Mode (S.Quick_Open) = Editor.Quick_Open.Path then
-         Editor.Executor.Report_Info (S, "Quick Open priority already Path");
+         Editor.Executor.Shared_Services.Report_Info (S, "Quick Open priority already Path");
          Editor.Render_Cache.Invalidate_All;
          return;
       end if;
 
       Editor.Quick_Open.Clear_Priority_Mode (S.Quick_Open);
       Recompute_Quick_Open (S);
-      Editor.Executor.Report_Info (S, "Quick Open priority: Path");
+      Editor.Executor.Shared_Services.Report_Info (S, "Quick Open priority: Path");
       Editor.Render_Cache.Invalidate_All;
    end Execute_Quick_Open_Priority_Clear;
 

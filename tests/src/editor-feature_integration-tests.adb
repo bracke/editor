@@ -5,9 +5,11 @@ with Ada.Strings.Fixed;
 with Ada.Text_IO;
 with Ada.Strings.Unbounded; use Ada.Strings.Unbounded;
 with Editor.Command_Domain;
+with Editor.Command_Palette;
 with Editor.Command_Route_Audit;
 with Editor.Commands;
 with Editor.Executor;
+with Editor.Executor.Command_Palette_Projection;
 with Editor.Keybinding_Config;
 with Editor.Keybindings;
 with Editor.Messages;
@@ -318,8 +320,9 @@ package body Editor.Feature_Integration.Tests is
       Found      : Boolean := False;
       D          : Editor.Commands.Command_Descriptor;
    begin
+      Editor.Command_Palette.Reset;
       Editor.State.Init (S);
-      Editor.Executor.Command_Palette_Candidates (S, Candidates);
+      Editor.Executor.Command_Palette_Projection.Command_Palette_Candidates (S, Candidates);
 
       for C of Candidates loop
          if C.Id = Editor.Commands.Command_Toggle_Problems_Panel then

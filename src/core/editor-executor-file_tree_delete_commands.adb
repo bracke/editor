@@ -5,6 +5,8 @@ with Editor.Buffers;
 use type Editor.Buffers.Buffer_Id;
 with Editor.Commands;
 with Editor.Executor;
+with Editor.Executor.Shared_Services;
+use Editor.Executor.Shared_Services;
 with Editor.Executor.File_Tree_Mutation_Commands;
 with Editor.File_Tree;
 use type Editor.File_Tree.File_Tree_Node_Id;
@@ -29,31 +31,31 @@ package body Editor.Executor.File_Tree_Delete_Commands is
       Active_Buffer_Was_Deleted : Boolean := False;
    begin
       if not Editor.Project.Has_Project (S.Project) then
-         Editor.Executor.Report_Warning (S, "No project open");
+         Editor.Executor.Shared_Services.Report_Warning (S, "No project open");
          return;
       elsif not Found then
-         Editor.Executor.Report_Warning (S, "No File Tree node selected");
+         Editor.Executor.Shared_Services.Report_Warning (S, "No File Tree node selected");
          return;
       elsif Summary.Parent = Editor.File_Tree.No_File_Tree_Node then
-         Editor.Executor.Report_Warning (S, "Cannot delete project root");
+         Editor.Executor.Shared_Services.Report_Warning (S, "Cannot delete project root");
          return;
       elsif not Editor.Project.Is_Under_Project
         (S.Project, To_String (Summary.Absolute_Path))
       then
-         Editor.Executor.Report_Error (S, "Target path is outside the project");
+         Editor.Executor.Shared_Services.Report_Error (S, "Target path is outside the project");
          return;
       elsif not Ada.Directories.Exists (To_String (Summary.Absolute_Path)) then
-         Editor.Executor.Report_Warning (S, "Target no longer exists.");
+         Editor.Executor.Shared_Services.Report_Warning (S, "Target no longer exists.");
          return;
       elsif not Editor.Executor.File_Tree_Mutation_Commands
         .File_Tree_Source_Project_Bounded (S, Summary)
       then
-         Editor.Executor.Report_Error (S, "Target path is outside the project");
+         Editor.Executor.Shared_Services.Report_Error (S, "Target path is outside the project");
          return;
       elsif not Editor.Executor.File_Tree_Mutation_Commands
         .File_Tree_Source_Matches_Filesystem (Summary)
       then
-         Editor.Executor.Report_Warning
+         Editor.Executor.Shared_Services.Report_Warning
            (S, Editor.Commands.Reason_File_Tree_Item_Stale);
          return;
       elsif not Editor.Executor.File_Tree_Mutation_Commands
@@ -62,19 +64,19 @@ package body Editor.Executor.File_Tree_Delete_Commands is
          --  Delete remains confirmation-first at the filesystem mutation
          --  boundary; unconfirmed routes must not reveal impact-specific
          --  outcomes or mutate state.
-         Editor.Executor.Report_Info (S, "Delete cancelled.");
+         Editor.Executor.Shared_Services.Report_Info (S, "Delete cancelled.");
          return;
       elsif Editor.Executor.File_Tree_Mutation_Commands
         .Open_Buffer_Blocks_File_Tree_Mutation
           (S, To_String (Summary.Absolute_Path), For_Delete => True)
       then
-         Editor.Executor.Report_Info (S, "Dirty buffer preserved.");
+         Editor.Executor.Shared_Services.Report_Info (S, "Dirty buffer preserved.");
          return;
       elsif Summary.Kind = Editor.File_Tree.Directory_Node
         and then not Editor.Executor.File_Tree_Mutation_Commands
           .Directory_Is_Empty (To_String (Summary.Absolute_Path))
       then
-         Editor.Executor.Report_Warning (S, "Directory is not empty");
+         Editor.Executor.Shared_Services.Report_Warning (S, "Directory is not empty");
          return;
       end if;
 
@@ -134,23 +136,23 @@ package body Editor.Executor.File_Tree_Delete_Commands is
                Editor.Executor.File_Tree_Mutation_Commands.Select_File_Tree_Path
                  (S, To_String (Parent_After_Delete));
             end if;
-            Editor.Executor.Report_Success
+            Editor.Executor.Shared_Services.Report_Success
               (S, Editor.Executor.File_Tree_Mutation_Commands
                     .File_Tree_Outcome_Kind_Label (Summary.Kind)
                   & " deleted.");
          else
-            Editor.Executor.Report_Warning
+            Editor.Executor.Shared_Services.Report_Warning
               (S, Editor.Executor.File_Tree_Mutation_Commands
                     .File_Tree_Outcome_Kind_Label (Summary.Kind)
                   & " deleted; refresh failed.");
          end if;
       exception
          when Ada.Directories.Name_Error =>
-            Editor.Executor.Report_Error (S, "Target no longer exists.");
+            Editor.Executor.Shared_Services.Report_Error (S, "Target no longer exists.");
          when Ada.Directories.Use_Error =>
-            Editor.Executor.Report_Error (S, "Permission denied");
+            Editor.Executor.Shared_Services.Report_Error (S, "Permission denied");
          when others =>
-            Editor.Executor.Report_Error (S, "Could not delete File Tree item");
+            Editor.Executor.Shared_Services.Report_Error (S, "Could not delete File Tree item");
       end;
    end Execute_File_Tree_Delete_Selected;
 

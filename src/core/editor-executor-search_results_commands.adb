@@ -3,6 +3,8 @@ with Ada.Strings.Unbounded;
 with Editor.Command_Execution;
 with Editor.Commands;
 with Editor.Executor;
+with Editor.Executor.Shared_Services;
+use Editor.Executor.Shared_Services;
 with Editor.Executor.Project_Search_Result_Commands;
 with Editor.Feature_Panel;
 with Editor.Feature_Panel_Controller;
@@ -83,7 +85,7 @@ package body Editor.Executor.Search_Results_Commands is
 
    procedure Report_Info
      (S    : in out Editor.State.State_Type;
-      Text : String) renames Editor.Executor.Report_Info;
+      Text : String) renames Editor.Executor.Shared_Services.Report_Info;
 
    function Active_Feature_Buffer_Token
      (S : Editor.State.State_Type) return Natural

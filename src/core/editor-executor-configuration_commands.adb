@@ -1,3 +1,5 @@
+with Editor.Executor.Shared_Services;
+use Editor.Executor.Shared_Services;
 with Ada.Directories;
 with Ada.Strings.Unbounded; use Ada.Strings.Unbounded;
 

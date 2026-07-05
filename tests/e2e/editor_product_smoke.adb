@@ -17,6 +17,7 @@ with Editor.Command_Palette;
 with Editor.Commands;
 with Editor.Diagnostics;
 with Editor.Executor;
+with Editor.Executor.Command_Palette_Projection;
 with Editor.Executor.File_Save_Commands;
 with Editor.Executor.File_Save_Basic_Commands;
 with Editor.Executor.File_Open_Commands;
@@ -503,7 +504,7 @@ procedure Editor_Product_Smoke is
          Editor.Command_Palette.Reset;
          Editor.Command_Palette.Open;
          Editor.Command_Palette.Insert_Text (Query);
-         Editor.Executor.Command_Palette_Candidates (S, Candidates);
+         Editor.Executor.Command_Palette_Projection.Command_Palette_Candidates (S, Candidates);
          Check (Natural (Candidates.Length) > 0,
                 "command palette execution query produced no candidates: " & Query);
          Check (Candidates.Element (0).Id = Expected,
@@ -520,7 +521,7 @@ procedure Editor_Product_Smoke is
          Editor.Command_Palette.Reset;
          Editor.Command_Palette.Open;
          Editor.Command_Palette.Insert_Text (Query);
-         Editor.Executor.Command_Palette_Candidates (S, Candidates);
+         Editor.Executor.Command_Palette_Projection.Command_Palette_Candidates (S, Candidates);
          Check (Natural (Candidates.Length) > 0,
                 "command palette query produced no candidates: " & Query);
          Check (Candidates.Element (0).Id = Expected,

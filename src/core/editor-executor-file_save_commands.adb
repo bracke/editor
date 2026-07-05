@@ -14,6 +14,9 @@ with Editor.Buffer_Switcher;
 with Editor.Commands;
 with Editor.Dirty_Guards;
 with Editor.Executor;
+with Editor.Executor.Shared_Services;
+use Editor.Executor.Shared_Services;
+with Editor.Executor.Pending_Transition_Policy;
 with Editor.Executor.Buffer_Switcher_Shared;
 with Editor.Executor.Project_Lifecycle_Commands;
 with Editor.Executor.Workspace_Commands;
@@ -365,7 +368,7 @@ package body Editor.Executor.File_Save_Commands is
       S.File_Info.Unreadable_Target_Surfaced :=
         Kind = Editor.State.Backing_File_Unreadable;
       Editor.Buffers.Sync_Global_Active_From_State (S);
-      Editor.Executor.Report_Warning (S, Reason);
+      Editor.Executor.Shared_Services.Report_Warning (S, Reason);
    end Start_File_Conflict_Prompt;
 
    function File_Conflict_Prompt_Disk_State_Is_Current
@@ -746,7 +749,7 @@ package body Editor.Executor.File_Save_Commands is
    is
    begin
       Clear_File_Conflict_Prompt (S);
-      Editor.Executor.Report_Info (S, "File conflict cancelled");
+      Editor.Executor.Shared_Services.Report_Info (S, "File conflict cancelled");
    end Execute_File_Conflict_Cancel;
 
    procedure Execute_File_Conflict_Keep_Buffer
@@ -755,7 +758,7 @@ package body Editor.Executor.File_Save_Commands is
    begin
       if not File_Conflict_Prompt_Is_Valid (S) then
          Clear_File_Conflict_Prompt (S);
-         Editor.Executor.Report_Warning (S, "Conflict prompt is stale");
+         Editor.Executor.Shared_Services.Report_Warning (S, "Conflict prompt is stale");
          return;
       end if;
       Load_File_Conflict_Buffer (S);
@@ -764,7 +767,7 @@ package body Editor.Executor.File_Save_Commands is
       --  changed/replaced, missing, or unreadable.  Keep-buffer must not
       --  collapse every conflict kind into a generic changed-on-disk label.
       Editor.Buffers.Sync_Global_Active_From_State (S);
-      Editor.Executor.Report_Info (S, "Kept buffer changes; file remains conflicted");
+      Editor.Executor.Shared_Services.Report_Info (S, "Kept buffer changes; file remains conflicted");
    end Execute_File_Conflict_Keep_Buffer;
 
    procedure Execute_File_Conflict_Reload_From_Disk
@@ -776,7 +779,7 @@ package body Editor.Executor.File_Save_Commands is
    begin
       if not File_Conflict_Prompt_Is_Valid (S) then
          Clear_File_Conflict_Prompt (S);
-         Editor.Executor.Report_Warning (S, "Conflict prompt is stale");
+         Editor.Executor.Shared_Services.Report_Warning (S, "Conflict prompt is stale");
          return;
       end if;
       Load_File_Conflict_Buffer (S);
@@ -794,7 +797,7 @@ package body Editor.Executor.File_Save_Commands is
              | Editor.Files.File_Open_Is_Directory
              | Editor.Files.File_Open_Invalid_Path;
          Editor.Buffers.Sync_Global_Active_From_State (S);
-         Editor.Executor.Report_Error (S, "Could not reload file; buffer unchanged");
+         Editor.Executor.Shared_Services.Report_Error (S, "Could not reload file; buffer unchanged");
          return;
       end if;
       Apply_Reloaded_Text_After_Read (S, Result.Contents);
@@ -804,7 +807,7 @@ package body Editor.Executor.File_Save_Commands is
       File_Lifecycle_Invalidate_Derived_State
         (S, "Derived state is stale after reload");
       Editor.Executor.Rebuild_Language_Index_After_File_Lifecycle (S);
-      Editor.Executor.Report_Success (S, "File reloaded from disk");
+      Editor.Executor.Shared_Services.Report_Success (S, "File reloaded from disk");
    end Execute_File_Conflict_Reload_From_Disk;
 
    procedure Execute_File_Conflict_Overwrite_Disk
@@ -819,7 +822,7 @@ package body Editor.Executor.File_Save_Commands is
    begin
       if not File_Conflict_Prompt_Is_Valid (S) then
          Clear_File_Conflict_Prompt (S);
-         Editor.Executor.Report_Warning (S, "Conflict prompt is stale");
+         Editor.Executor.Shared_Services.Report_Warning (S, "Conflict prompt is stale");
          return;
       end if;
 
@@ -856,12 +859,12 @@ package body Editor.Executor.File_Save_Commands is
                   end if;
                end;
             elsif Closed then
-               Editor.Executor.Report_Info (S, "Buffer closed");
+               Editor.Executor.Shared_Services.Report_Info (S, "Buffer closed");
             else
-               Editor.Executor.Report_Info (S, "No changes to overwrite");
+               Editor.Executor.Shared_Services.Report_Info (S, "No changes to overwrite");
             end if;
          else
-            Editor.Executor.Report_Info (S, "No changes to overwrite");
+            Editor.Executor.Shared_Services.Report_Info (S, "No changes to overwrite");
          end if;
          return;
       end if;
@@ -896,12 +899,12 @@ package body Editor.Executor.File_Save_Commands is
                   end if;
                end;
             elsif Closed then
-               Editor.Executor.Report_Success (S, "Overwrite confirmed; buffer closed");
+               Editor.Executor.Shared_Services.Report_Success (S, "Overwrite confirmed; buffer closed");
             else
-               Editor.Executor.Report_Success (S, "Overwrite confirmed");
+               Editor.Executor.Shared_Services.Report_Success (S, "Overwrite confirmed");
             end if;
          else
-            Editor.Executor.Report_Success (S, "Overwrite confirmed");
+            Editor.Executor.Shared_Services.Report_Success (S, "Overwrite confirmed");
          end if;
       else
          S.File_Info.Last_Save_Failed := True;
@@ -914,7 +917,7 @@ package body Editor.Executor.File_Save_Commands is
              | Editor.Files.File_Save_Write_Error
              | Editor.Files.File_Save_Is_Directory;
          Editor.Buffers.Sync_Global_Active_From_State (S);
-         Editor.Executor.Report_Error (S, "Overwrite failed; buffer remains dirty");
+         Editor.Executor.Shared_Services.Report_Error (S, "Overwrite failed; buffer remains dirty");
       end if;
    end Execute_File_Conflict_Overwrite_Disk;
 
@@ -925,7 +928,7 @@ package body Editor.Executor.File_Save_Commands is
       Guard  : Editor.Dirty_Guards.Dirty_Transition_Result;
    begin
       if not Editor.Pending_Transitions.Has_Pending (S.Pending_Transitions) then
-         Editor.Executor.Report_Info (S, Editor.Dirty_Guards.No_Pending_Transition_Message);
+         Editor.Executor.Shared_Services.Report_Info (S, Editor.Dirty_Guards.No_Pending_Transition_Message);
          return;
       end if;
 
@@ -933,7 +936,7 @@ package body Editor.Executor.File_Save_Commands is
       Editor.Buffers.Ensure_Global_Registry (S);
       Editor.Buffers.Sync_Global_Active_From_State (S);
 
-      if not Editor.Executor.Pending_Target_Is_Valid (S, Target) then
+      if not Editor.Executor.Pending_Transition_Policy.Pending_Target_Is_Valid (S, Target) then
          if Target.Kind = Editor.Pending_Transitions.Pending_Restore_Workspace
            and then Target.Has_Path
            and then Editor.Project.Has_Project (S.Project)
@@ -945,7 +948,7 @@ package body Editor.Executor.File_Save_Commands is
                 (To_String (Target.Path)))
          then
             Editor.Pending_Transitions.Clear (S.Pending_Transitions);
-            Editor.Executor.Report_Info (S, "No workspace state");
+            Editor.Executor.Shared_Services.Report_Info (S, "No workspace state");
          else
             Editor.Pending_Transitions.Clear (S.Pending_Transitions);
             --  completeness: stale dirty reload/revert prompts are
@@ -955,11 +958,11 @@ package body Editor.Executor.File_Save_Commands is
             --  text was preserved.
             case Target.Kind is
                when Editor.Pending_Transitions.Pending_Reload_Active_Buffer =>
-                  Editor.Executor.Report_Warning (S, "Reload confirmation is no longer valid");
+                  Editor.Executor.Shared_Services.Report_Warning (S, "Reload confirmation is no longer valid");
                when Editor.Pending_Transitions.Pending_Revert_Active_Buffer =>
-                  Editor.Executor.Report_Warning (S, "Revert confirmation is no longer valid");
+                  Editor.Executor.Shared_Services.Report_Warning (S, "Revert confirmation is no longer valid");
                when others =>
-                  Editor.Executor.Report_Warning (S, Editor.Dirty_Guards.Pending_Transition_No_Longer_Valid_Message);
+                  Editor.Executor.Shared_Services.Report_Warning (S, Editor.Dirty_Guards.Pending_Transition_No_Longer_Valid_Message);
             end case;
          end if;
          return;
@@ -1005,7 +1008,7 @@ package body Editor.Executor.File_Save_Commands is
                          | Editor.Files.File_Open_Invalid_Path;
                      Editor.Buffers.Sync_Global_Active_From_State (S);
                      Editor.Pending_Transitions.Clear (S.Pending_Transitions);
-                     Editor.Executor.Report_Error (S, Read_Failure_Recovery_Message (Result, "reload"));
+                     Editor.Executor.Shared_Services.Report_Error (S, Read_Failure_Recovery_Message (Result, "reload"));
                      return;
                   end if;
                   Apply_Reloaded_Text_After_Read (S, Result.Contents);
@@ -1015,7 +1018,7 @@ package body Editor.Executor.File_Save_Commands is
                     (S, "Derived state is stale after reload");
                   Editor.Executor.Rebuild_Language_Index_After_File_Lifecycle (S);
                   Editor.Pending_Transitions.Clear (S.Pending_Transitions);
-                  Editor.Executor.Report_Success (S, "Buffer reloaded");
+                  Editor.Executor.Shared_Services.Report_Success (S, "Buffer reloaded");
                end;
             end if;
             return;
@@ -1052,7 +1055,7 @@ package body Editor.Executor.File_Save_Commands is
                          | Editor.Files.File_Open_Invalid_Path;
                      Editor.Buffers.Sync_Global_Active_From_State (S);
                      Editor.Pending_Transitions.Clear (S.Pending_Transitions);
-                     Editor.Executor.Report_Error (S, Read_Failure_Recovery_Message (Result, "revert"));
+                     Editor.Executor.Shared_Services.Report_Error (S, Read_Failure_Recovery_Message (Result, "revert"));
                      return;
                   end if;
                   Apply_Reverted_Text_After_Read (S, Result.Contents);
@@ -1062,7 +1065,7 @@ package body Editor.Executor.File_Save_Commands is
                     (S, "Derived state is stale after revert");
                   Editor.Executor.Rebuild_Language_Index_After_File_Lifecycle (S);
                   Editor.Pending_Transitions.Clear (S.Pending_Transitions);
-                  Editor.Executor.Report_Success (S, "Buffer reverted");
+                  Editor.Executor.Shared_Services.Report_Success (S, "Buffer reverted");
                end;
             end if;
             return;
@@ -1070,9 +1073,9 @@ package body Editor.Executor.File_Save_Commands is
             null;
       end case;
 
-      Guard := Editor.Executor.Check_Pending_Transition (S, Target);
+      Guard := Editor.Executor.Pending_Transition_Policy.Check_Pending_Transition (S, Target);
       if not Editor.Dirty_Guards.Is_Allowed (Guard) then
-         Editor.Executor.Report_Warning (S, Editor.Dirty_Guards.Save_Or_Resolve_Changes_First_Message);
+         Editor.Executor.Shared_Services.Report_Warning (S, Editor.Dirty_Guards.Save_Or_Resolve_Changes_First_Message);
          return;
       end if;
 
@@ -1119,7 +1122,7 @@ package body Editor.Executor.File_Save_Commands is
       --  project opens and workspace restores clear themselves through their
       --  normal guarded path.  Close-buffer retry clears once the target buffer
       --  has actually gone away.
-      Editor.Executor.Invalidate_Pending_Transition_If_Stale (S);
+      Editor.Executor.Pending_Transition_Policy.Invalidate_Pending_Transition_If_Stale (S);
    end Execute_Retry_Pending_Transition;
 
    function Save_As_Target_Parent_Missing
@@ -1240,7 +1243,7 @@ package body Editor.Executor.File_Save_Commands is
    is
    begin
       if not Editor.Pending_Transitions.Has_Pending (S.Pending_Transitions) then
-         Editor.Executor.Report_Info
+         Editor.Executor.Shared_Services.Report_Info
            (S, Editor.Dirty_Guards.No_Pending_Transition_Message);
          return;
       end if;
@@ -1268,7 +1271,7 @@ package body Editor.Executor.File_Save_Commands is
                  Editor.Dirty_Guards.Pending_Transition_Canceled_Message);
       begin
          Editor.Pending_Transitions.Clear (S.Pending_Transitions);
-         Editor.Executor.Report_Info (S, Message);
+         Editor.Executor.Shared_Services.Report_Info (S, Message);
       end;
    end Execute_Cancel_Pending_Transition;
 

@@ -2,6 +2,8 @@ with Editor.Build_UI_Actions;
 with Editor.Command_Execution;
 with Editor.Commands;
 with Editor.Executor;
+with Editor.Executor.Shared_Services;
+use Editor.Executor.Shared_Services;
 with Editor.Executor.Search_Commands;
 with Editor.Executor.Search_Results_Commands;
 with Editor.Focus_Management;
@@ -54,7 +56,7 @@ package body Editor.Executor.Panel_Focus_Commands is
 
    procedure Report_Info
      (S    : in out Editor.State.State_Type;
-      Text : String) renames Editor.Executor.Report_Info;
+      Text : String) renames Editor.Executor.Shared_Services.Report_Info;
 
    procedure Execute_Toggle_Problems_Panel
      (S : in out Editor.State.State_Type)

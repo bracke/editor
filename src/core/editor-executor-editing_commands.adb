@@ -7,6 +7,8 @@ with Editor.Clipboard;
 with Editor.Command_Execution;
 with Editor.Commands;
 with Editor.Executor;
+with Editor.Executor.Shared_Services;
+use Editor.Executor.Shared_Services;
 with Editor.Executor.Clipboard;
 with Editor.Executor.Edits;
 with Editor.Executor.History;
@@ -24,15 +26,15 @@ package body Editor.Executor.Editing_Commands is
 
    procedure Report_Info
      (S    : in out Editor.State.State_Type;
-      Text : String) renames Editor.Executor.Report_Info;
+      Text : String) renames Editor.Executor.Shared_Services.Report_Info;
 
    procedure Report_Success
      (S    : in out Editor.State.State_Type;
-      Text : String) renames Editor.Executor.Report_Success;
+      Text : String) renames Editor.Executor.Shared_Services.Report_Success;
 
    procedure Report_Error
      (S    : in out Editor.State.State_Type;
-      Text : String) renames Editor.Executor.Report_Error;
+      Text : String) renames Editor.Executor.Shared_Services.Report_Error;
 
    function Has_Buffer (S : Editor.State.State_Type) return Boolean is
    begin

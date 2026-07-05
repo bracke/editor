@@ -9,6 +9,8 @@ with Editor.Commands;
 with Editor.Cursors;
 with Editor.Diagnostics;
 with Editor.Executor;
+with Editor.Executor.Shared_Services;
+use Editor.Executor.Shared_Services;
 with Editor.Executor.File_Open_Commands;
 with Editor.Folding;
 with Editor.Gutter_Markers;
@@ -112,11 +114,11 @@ package body Editor.Executor.Bookmark_Commands is
 
    procedure Report_Info
      (S    : in out Editor.State.State_Type;
-      Text : String) renames Editor.Executor.Report_Info;
+      Text : String) renames Editor.Executor.Shared_Services.Report_Info;
 
    procedure Report_Warning
      (S    : in out Editor.State.State_Type;
-      Text : String) renames Editor.Executor.Report_Warning;
+      Text : String) renames Editor.Executor.Shared_Services.Report_Warning;
 
    function Safe_Caret
      (S : Editor.State.State_Type) return Editor.Cursors.Cursor_Index

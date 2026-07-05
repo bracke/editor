@@ -14,6 +14,8 @@ with Editor.Buffer_Switcher;
 with Editor.Commands;
 with Editor.Dirty_Guards;
 with Editor.Executor;
+with Editor.Executor.Shared_Services;
+use Editor.Executor.Shared_Services;
 with Editor.Executor.Buffer_Switcher_Shared;
 with Editor.Feature_Messages;
 with Editor.Feature_Panel_Controller;
@@ -194,7 +196,7 @@ package body Editor.Executor.File_Open_Commands is
          Editor.Executor.Rebuild_Language_Index_After_File_Lifecycle (S);
          Editor.Recent_Buffers.Mark_Activated
            (S.Recent_Buffers, Natural (Editor.Buffers.Global_Active_Buffer));
-         Editor.Executor.Report_Info_Append (S,
+         Editor.Executor.Shared_Services.Report_Info_Append (S,
             "Focused existing buffer " & To_String (S.File_Info.Display_Name)
             & "; disk was not reloaded");
          return;
@@ -210,7 +212,7 @@ package body Editor.Executor.File_Open_Commands is
          end if;
          Editor.Executor.Rebuild_Language_Index_After_File_Lifecycle (S);
          Editor.Recent_Buffers.Mark_Activated (S.Recent_Buffers, Natural (Id));
-         Editor.Executor.Report_Info_Append (S,
+         Editor.Executor.Shared_Services.Report_Info_Append (S,
             "Focused existing buffer " & To_String (S.File_Info.Display_Name)
             & "; disk was not reloaded");
          return;
@@ -261,7 +263,7 @@ package body Editor.Executor.File_Open_Commands is
             end if;
             Editor.Executor.Rebuild_Language_Index_After_File_Lifecycle (S);
             Editor.Recent_Buffers.Mark_Activated (S.Recent_Buffers, Natural (Id));
-            Editor.Executor.Report_Info_Append (S,
+            Editor.Executor.Shared_Services.Report_Info_Append (S,
                "Focused existing buffer " & To_String (S.File_Info.Display_Name)
                & "; disk was not reloaded");
             return;
@@ -282,9 +284,9 @@ package body Editor.Executor.File_Open_Commands is
          Editor.Buffers.Sync_Global_Active_From_State (S);
          Editor.Executor.Rebuild_Language_Index_After_File_Lifecycle (S);
          Editor.Recent_Buffers.Mark_Activated (S.Recent_Buffers, Natural (Id));
-         Editor.Executor.Report_Success (S, "Opened " & To_String (Result.Display_Name));
+         Editor.Executor.Shared_Services.Report_Success (S, "Opened " & To_String (Result.Display_Name));
       else
-         Editor.Executor.Report_Error (S, "Open failed: " & Editor.Files.Status_Message (Result));
+         Editor.Executor.Shared_Services.Report_Error (S, "Open failed: " & Editor.Files.Status_Message (Result));
          Editor.Message_Producers.Post_Message
            (S,
             Editor.Feature_Messages.Error_Message,
@@ -339,7 +341,7 @@ package body Editor.Executor.File_Open_Commands is
       if Id /= Editor.Buffers.No_Buffer then
          Editor.Recent_Buffers.Mark_Activated (S.Recent_Buffers, Natural (Id));
       end if;
-      Editor.Executor.Report_Info (S, "New buffer");
+      Editor.Executor.Shared_Services.Report_Info (S, "New buffer");
    end Execute_New_Buffer;
 
    procedure Execute_Switch_Buffer
@@ -361,7 +363,7 @@ package body Editor.Executor.File_Open_Commands is
    begin
       Editor.Buffers.Ensure_Global_Registry (S);
       if not Editor.Buffers.Global_Contains (Id) then
-         Editor.Executor.Report_Error (S, "Switch buffer failed: invalid buffer");
+         Editor.Executor.Shared_Services.Report_Error (S, "Switch buffer failed: invalid buffer");
          return;
       end if;
 
@@ -417,7 +419,7 @@ package body Editor.Executor.File_Open_Commands is
          end;
       end if;
       if Emit_Feedback and then not Active_Message_Is_Non_Info then
-         Editor.Executor.Report_Info (S, "Switched to " & To_String (S.File_Info.Display_Name));
+         Editor.Executor.Shared_Services.Report_Info (S, "Switched to " & To_String (S.File_Info.Display_Name));
       end if;
    end Execute_Switch_Buffer;
 
@@ -533,12 +535,12 @@ package body Editor.Executor.File_Open_Commands is
       --  Undo/Redo, caret/selection, Find/Replace, Navigation, Text Feed_Item, or
       --  render state.
       if not S.Has_Reopen_Candidate or else Candidate_Path'Length = 0 then
-         Editor.Executor.Report_Info (S, "No closed buffer to reopen");
+         Editor.Executor.Shared_Services.Report_Info (S, "No closed buffer to reopen");
          return;
       end if;
 
       if not Ada.Directories.Exists (Candidate_Path) then
-         Editor.Executor.Report_Error (S, "Could not reopen closed buffer");
+         Editor.Executor.Shared_Services.Report_Error (S, "Could not reopen closed buffer");
          return;
       end if;
 
@@ -547,11 +549,11 @@ package body Editor.Executor.File_Open_Commands is
 
       if Reopen_Target_Is_Active (S, Candidate_Path) then
          Pop_Reopen_Candidate (S);
-         Editor.Executor.Report_Success (S, "Reopened " & Display);
+         Editor.Executor.Shared_Services.Report_Success (S, "Reopened " & Display);
       else
          --  Failed canonical open/read attempts preserve the candidate so a
          --  later retry can succeed after the filesystem condition is fixed.
-         Editor.Executor.Report_Error (S, "Could not reopen closed file");
+         Editor.Executor.Shared_Services.Report_Error (S, "Could not reopen closed file");
       end if;
    end Execute_Reopen_Closed_Buffer;
 
@@ -592,7 +594,7 @@ package body Editor.Executor.File_Open_Commands is
       case Cmd.Kind is
          when Open_File =>
             if Length (Cmd.Path) = 0 then
-               Editor.Executor.Report_Info (S, "Open File requires a path");
+               Editor.Executor.Shared_Services.Report_Info (S, "Open File requires a path");
             else
                declare
                   Before_Location : constant Editor.Navigation_History.Navigation_Location :=

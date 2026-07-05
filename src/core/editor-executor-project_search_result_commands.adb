@@ -1,3 +1,5 @@
+with Editor.Executor.Shared_Services;
+use Editor.Executor.Shared_Services;
 with Ada.Directories;
 with Ada.Strings.Fixed;
 with Ada.Strings.Unbounded; use Ada.Strings.Unbounded;
@@ -32,11 +34,11 @@ package body Editor.Executor.Project_Search_Result_Commands is
 
    procedure Report_Info
      (S    : in out Editor.State.State_Type;
-      Text : String) renames Editor.Executor.Report_Info;
+      Text : String) renames Editor.Executor.Shared_Services.Report_Info;
 
    procedure Report_Warning
      (S    : in out Editor.State.State_Type;
-      Text : String) renames Editor.Executor.Report_Warning;
+      Text : String) renames Editor.Executor.Shared_Services.Report_Warning;
 
    procedure Show_Search_Results_Panel
      (S : in out Editor.State.State_Type)

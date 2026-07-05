@@ -1,7 +1,42 @@
 with Editor.Commands;
+with Editor.Executor;
+with Editor.Navigation_History;
 with Editor.State;
 
 package Editor.Executor.Navigation_Commands is
+
+
+   function Current_Navigation_Location
+     (S      : Editor.State.State_Type;
+      Reason : Editor.Navigation_History.Navigation_History_Reason :=
+        Editor.Navigation_History.Navigation_Reason_Unknown)
+      return Editor.Navigation_History.Navigation_Location;
+
+   function Structured_File_Navigation_Target
+     (Path   : String;
+      Line   : Natural := 1;
+      Column : Natural := 0;
+      Reason : Editor.Navigation_History.Navigation_History_Reason :=
+        Editor.Navigation_History.Navigation_Reason_Unknown)
+      return Editor.Navigation_History.Navigation_Location;
+
+   procedure Record_Navigation_If_Target_Changed
+     (S        : in out Editor.State.State_Type;
+      Previous : Editor.Navigation_History.Navigation_Location;
+      Target   : Editor.Navigation_History.Navigation_Location);
+
+   procedure Record_Navigation_If_Current_Changed
+     (S        : in out Editor.State.State_Type;
+      Previous : Editor.Navigation_History.Navigation_Location);
+
+   function Same_Navigation_Place
+     (S        : Editor.State.State_Type;
+      Location : Editor.Navigation_History.Navigation_Location) return Boolean;
+
+   function Apply_Navigation_Location
+     (S        : in out Editor.State.State_Type;
+      Location : Editor.Navigation_History.Navigation_Location;
+      Status   : out Editor.Executor.Navigation_Apply_Status) return Boolean;
 
    function Navigation_Command_Availability
      (S  : Editor.State.State_Type;

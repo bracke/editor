@@ -14,6 +14,9 @@ with Editor.Build_UI;
 with Editor.Commands;
 with Editor.Dirty_Guards;
 with Editor.Executor;
+with Editor.Executor.Shared_Services;
+use Editor.Executor.Shared_Services;
+with Editor.Executor.Pending_Transition_Policy;
 with Editor.Executor.Buffer_Close_Commands;
 with Editor.Feature_Diagnostics;
 with Editor.Files;
@@ -281,7 +284,7 @@ package body Editor.Executor.File_Save_Basic_Commands is
       S.File_Info.Unreadable_Target_Surfaced :=
         Kind = Editor.State.Backing_File_Unreadable;
       Editor.Buffers.Sync_Global_Active_From_State (S);
-      Editor.Executor.Report_Warning (S, Reason);
+      Editor.Executor.Shared_Services.Report_Warning (S, Reason);
    end Start_File_Conflict_Prompt;
 
    procedure Mark_Active_Buffer_Saved
@@ -341,19 +344,19 @@ package body Editor.Executor.File_Save_Basic_Commands is
         or else (Editor.Executor.File_Lifecycle_Confirmation_Pending (S)
                  and then not S.Dirty_Close_Prompt_Active)
       then
-         Editor.Executor.Report_Warning (S, "Command unavailable while confirmation is pending");
+         Editor.Executor.Shared_Services.Report_Warning (S, "Command unavailable while confirmation is pending");
          return;
       end if;
       Resolve_Active_Buffer_Save_Target (S);
 
       if not Active_Buffer_Save_Target_Available (S) then
-         Editor.Executor.Report_Info (S, "No active buffer.");
+         Editor.Executor.Shared_Services.Report_Info (S, "No active buffer.");
          return;
       elsif not Validate_Active_Buffer_Save_Target (S) then
          S.File_Info.Last_Save_Failed := True;
          S.File_Info.Missing_Target_Surfaced := True;
          Editor.Buffers.Sync_Global_Active_From_State (S);
-         Editor.Executor.Report_Info (S, "No file path for active buffer");
+         Editor.Executor.Shared_Services.Report_Info (S, "No file path for active buffer");
          return;
       end if;
 
@@ -390,14 +393,14 @@ package body Editor.Executor.File_Save_Basic_Commands is
          S.File_Info.Last_Save_Failed := True;
          S.File_Info.Unwritable_Target_Surfaced := True;
          Editor.Buffers.Sync_Global_Active_From_State (S);
-         Editor.Executor.Report_Error (S, "File is not writable");
+         Editor.Executor.Shared_Services.Report_Error (S, "File is not writable");
          return;
       end if;
 
       Apply_Format_On_Save_If_Enabled (S);
 
       if not S.File_Info.Dirty then
-         Editor.Executor.Report_Info (S, "No changes to save");
+         Editor.Executor.Shared_Services.Report_Info (S, "No changes to save");
          return;
       end if;
 
@@ -411,9 +414,9 @@ package body Editor.Executor.File_Save_Basic_Commands is
          Editor.Executor.Rebuild_Language_Index_After_File_Lifecycle (S);
          Editor.Buffers.Sync_Global_Active_From_State (S);
          if S.File_Info.Has_Path and then Editor.Executor.Visible_Restore_Message_In_History (S) then
-            Editor.Executor.Report_Success_Append (S, "Saved " & To_String (S.File_Info.Display_Name));
+            Editor.Executor.Shared_Services.Report_Success_Append (S, "Saved " & To_String (S.File_Info.Display_Name));
          else
-            Editor.Executor.Report_Success_Append (S, "Saved file");
+            Editor.Executor.Shared_Services.Report_Success_Append (S, "Saved file");
          end if;
       else
          S.File_Info.Last_Save_Failed := True;
@@ -426,7 +429,7 @@ package body Editor.Executor.File_Save_Basic_Commands is
              | Editor.Files.File_Save_Write_Error
              | Editor.Files.File_Save_Is_Directory;
          Editor.Buffers.Sync_Global_Active_From_State (S);
-         Editor.Executor.Report_Error (S, Save_Failure_Recovery_Message (Result));
+         Editor.Executor.Shared_Services.Report_Error (S, Save_Failure_Recovery_Message (Result));
       end if;
    end Execute_Save;
 
@@ -647,14 +650,14 @@ package body Editor.Executor.File_Save_Basic_Commands is
       --  canonical file read, text replacement after read success, baseline
       --  update after replacement, and retained buffer-local lifecycle policy.
       if not Resolve_Active_Buffer_Reload_Target (S) then
-         Editor.Executor.Report_Info (S, "No active buffer.");
+         Editor.Executor.Shared_Services.Report_Info (S, "No active buffer.");
          return;
       elsif not Validate_Active_Buffer_Associated_Path_For_Reload (S) then
-         Editor.Executor.Report_Info (S, "No file path for active buffer");
+         Editor.Executor.Shared_Services.Report_Info (S, "No file path for active buffer");
          return;
       elsif Dirty_Buffer_Reload_Blocked (S) then
-         Editor.Executor.Set_Pending_Dirty_Transition (S,
-            Editor.Executor.Pending_Target_For (Editor.Pending_Transitions.Pending_Reload_Active_Buffer,
+         Editor.Executor.Pending_Transition_Policy.Set_Pending_Dirty_Transition (S,
+            Editor.Executor.Pending_Transition_Policy.Pending_Target_For (Editor.Pending_Transitions.Pending_Reload_Active_Buffer,
                Path => To_String (S.File_Info.Path),
                Display => To_String (S.File_Info.Display_Name),
                Buffer_Id => Editor.Buffers.Global_Active_Buffer),
@@ -683,7 +686,7 @@ package body Editor.Executor.File_Save_Basic_Commands is
                 | Editor.Files.File_Open_Is_Directory
                 | Editor.Files.File_Open_Invalid_Path;
             Editor.Buffers.Sync_Global_Active_From_State (S);
-            Editor.Executor.Report_Error (S, Read_Failure_Recovery_Message (Result, "reload"));
+            Editor.Executor.Shared_Services.Report_Error (S, Read_Failure_Recovery_Message (Result, "reload"));
             return;
          end if;
 
@@ -694,7 +697,7 @@ package body Editor.Executor.File_Save_Basic_Commands is
          File_Lifecycle_Invalidate_Derived_State
            (S, "Derived state is stale after reload");
          Editor.Executor.Rebuild_Language_Index_After_File_Lifecycle (S);
-         Editor.Executor.Report_Success (S, "Buffer reloaded");
+         Editor.Executor.Shared_Services.Report_Success (S, "Buffer reloaded");
       end;
    end Execute_Reload_Active_Buffer;
 
@@ -750,17 +753,17 @@ package body Editor.Executor.File_Save_Basic_Commands is
       --  read success, baseline update only after replacement, and retained
       --  buffer-local destructive text-replacement lifecycle policy.
       if not Resolve_Active_Buffer_Revert_Target (S) then
-         Editor.Executor.Report_Info (S, "No active buffer.");
+         Editor.Executor.Shared_Services.Report_Info (S, "No active buffer.");
          return;
       elsif not Validate_Active_Buffer_Associated_Path_For_Revert (S) then
-         Editor.Executor.Report_Info (S, "No file path for active buffer");
+         Editor.Executor.Shared_Services.Report_Info (S, "No file path for active buffer");
          return;
       elsif not Dirty_Buffer_Revert_Eligible (S) then
-         Editor.Executor.Report_Info (S, "No changes to revert");
+         Editor.Executor.Shared_Services.Report_Info (S, "No changes to revert");
          return;
       else
-         Editor.Executor.Set_Pending_Dirty_Transition (S,
-            Editor.Executor.Pending_Target_For (Editor.Pending_Transitions.Pending_Revert_Active_Buffer,
+         Editor.Executor.Pending_Transition_Policy.Set_Pending_Dirty_Transition (S,
+            Editor.Executor.Pending_Transition_Policy.Pending_Target_For (Editor.Pending_Transitions.Pending_Revert_Active_Buffer,
                Path => To_String (S.File_Info.Path),
                Display => To_String (S.File_Info.Display_Name),
                Buffer_Id => Editor.Buffers.Global_Active_Buffer),
@@ -892,7 +895,7 @@ package body Editor.Executor.File_Save_Basic_Commands is
       end Save_Current_File_Backed_Buffer;
    begin
       if Editor.Executor.File_Lifecycle_Confirmation_Pending (S) then
-         Editor.Executor.Report_Warning (S, "Command unavailable while confirmation is pending");
+         Editor.Executor.Shared_Services.Report_Warning (S, "Command unavailable while confirmation is pending");
          return;
       end if;
 
@@ -1037,11 +1040,11 @@ package body Editor.Executor.File_Save_Basic_Commands is
          end if;
 
          if Length (Message) = 0 then
-            Editor.Executor.Report_Info (S, Editor.Dirty_Guards.No_Dirty_File_Backed_Buffers_Message);
+            Editor.Executor.Shared_Services.Report_Info (S, Editor.Dirty_Guards.No_Dirty_File_Backed_Buffers_Message);
          elsif Failed > 0 or else Conflicted > 0 then
-            Editor.Executor.Report_Warning (S, To_String (Message));
+            Editor.Executor.Shared_Services.Report_Warning (S, To_String (Message));
          else
-            Editor.Executor.Report_Success (S, To_String (Message));
+            Editor.Executor.Shared_Services.Report_Success (S, To_String (Message));
          end if;
       end;
    end Execute_Save_All;
@@ -1179,19 +1182,19 @@ package body Editor.Executor.File_Save_Basic_Commands is
         or else (Editor.Executor.File_Lifecycle_Confirmation_Pending (S)
                  and then not S.Dirty_Close_Prompt_Active)
       then
-         Editor.Executor.Report_Warning (S, "Command unavailable while confirmation is pending");
+         Editor.Executor.Shared_Services.Report_Warning (S, "Command unavailable while confirmation is pending");
          return;
       end if;
       Resolve_Active_Buffer_Save_As_Source (S);
 
       if not Active_Buffer_Save_Target_Available (S) then
-         Editor.Executor.Report_Info (S, "No active buffer.");
+         Editor.Executor.Shared_Services.Report_Info (S, "No active buffer.");
          return;
       elsif Path'Length = 0 then
-         Editor.Executor.Report_Error (S, "No target path for Save As");
+         Editor.Executor.Shared_Services.Report_Error (S, "No target path for Save As");
          return;
       elsif not Validate_Save_As_Target_Path (Path) then
-         Editor.Executor.Report_Error (S, "Invalid Save As target");
+         Editor.Executor.Shared_Services.Report_Error (S, "Invalid Save As target");
          return;
       end if;
 
@@ -1212,7 +1215,7 @@ package body Editor.Executor.File_Save_Basic_Commands is
            (S, "Derived state is stale after save as");
          Editor.Executor.Rebuild_Language_Index_After_File_Lifecycle (S);
          Editor.Buffers.Sync_Global_Active_From_State (S);
-         Editor.Executor.Report_Success (S, "Saved file as");
+         Editor.Executor.Shared_Services.Report_Success (S, "Saved file as");
       else
          --  Preserve all editor-owned success state on failure.  No association,
          --  saved baseline, dirty state, Undo/Redo, Find/Replace, Clipboard,
@@ -1238,15 +1241,15 @@ package body Editor.Executor.File_Save_Basic_Commands is
              (Result.Status = Editor.Files.File_Save_Invalid_Path
               and then not Parent_Missing)
          then
-            Editor.Executor.Report_Error (S, "Invalid Save As target");
+            Editor.Executor.Shared_Services.Report_Error (S, "Invalid Save As target");
          elsif Result.Status = Editor.Files.File_Save_Parent_Unavailable
            or else Parent_Missing
          then
-            Editor.Executor.Report_Error (S, "Could not save file as");
+            Editor.Executor.Shared_Services.Report_Error (S, "Could not save file as");
          elsif Result.Status = Editor.Files.File_Save_Permission_Denied then
-            Editor.Executor.Report_Error (S, "Could not save file as");
+            Editor.Executor.Shared_Services.Report_Error (S, "Could not save file as");
          else
-            Editor.Executor.Report_Error (S, "Could not save file as");
+            Editor.Executor.Shared_Services.Report_Error (S, "Could not save file as");
          end if;
       end if;
    end Execute_Save_As;

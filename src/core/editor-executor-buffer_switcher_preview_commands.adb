@@ -3,6 +3,8 @@ with Editor.Buffers;
 with Editor.Command_Execution;
 with Editor.Commands;
 with Editor.Executor;
+with Editor.Executor.Shared_Services;
+use Editor.Executor.Shared_Services;
 with Editor.Executor.Buffer_Switcher_Shared;
 with Editor.Messages;
 with Editor.Overlay_Focus;
@@ -59,7 +61,7 @@ package body Editor.Executor.Buffer_Switcher_Preview_Commands is
      (S : in out Editor.State.State_Type)
    is
    begin
-      Editor.Executor.Report_Info (S, "No selected buffer");
+      Editor.Executor.Shared_Services.Report_Info (S, "No selected buffer");
    end Report_No_Selected_Switcher_Buffer;
 
    function Visible_Preview_Availability
@@ -145,7 +147,7 @@ package body Editor.Executor.Buffer_Switcher_Preview_Commands is
         (S.Buffer_Switcher, Row.Id,
          Editor.Executor.Buffer_Switcher_Shared.Primary_Cursor_Line_Of_Buffer
            (Row.Id));
-      Editor.Executor.Report_Info (S, "Switcher preview shown");
+      Editor.Executor.Shared_Services.Report_Info (S, "Switcher preview shown");
       Editor.Render_Cache.Invalidate_All;
    end Execute_Buffer_Switcher_Preview_Show;
 
@@ -154,7 +156,7 @@ package body Editor.Executor.Buffer_Switcher_Preview_Commands is
    is
    begin
       Editor.Buffer_Switcher.Hide_Preview (S.Buffer_Switcher);
-      Editor.Executor.Report_Info (S, "Switcher preview hidden");
+      Editor.Executor.Shared_Services.Report_Info (S, "Switcher preview hidden");
       Editor.Render_Cache.Invalidate_All;
    end Execute_Buffer_Switcher_Preview_Hide;
 
@@ -193,7 +195,7 @@ package body Editor.Executor.Buffer_Switcher_Preview_Commands is
         (S.Buffer_Switcher, Row.Id,
          Editor.Executor.Buffer_Switcher_Shared.Primary_Cursor_Line_Of_Buffer
            (Row.Id));
-      Editor.Executor.Report_Info (S, "Preview at cursor");
+      Editor.Executor.Shared_Services.Report_Info (S, "Preview at cursor");
       Editor.Render_Cache.Invalidate_All;
    end Execute_Buffer_Switcher_Preview_Center_Cursor;
 

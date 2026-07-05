@@ -9,6 +9,8 @@ with Editor.Buffers;
 use type Editor.Buffers.Buffer_Id;
 with Editor.Build_UI;
 with Editor.Executor;
+with Editor.Executor.Shared_Services;
+use Editor.Executor.Shared_Services;
 with Editor.Feature_Diagnostics;
 with Editor.Files;
 use type Editor.Files.File_Copy_Status;
@@ -210,28 +212,28 @@ package body Editor.Executor.File_Operation_Commands is
         or else (Editor.Executor.File_Lifecycle_Confirmation_Pending (S)
                  and then not S.Dirty_Close_Prompt_Active)
       then
-         Editor.Executor.Report_Warning (S, "Command unavailable while confirmation is pending");
+         Editor.Executor.Shared_Services.Report_Warning (S, "Command unavailable while confirmation is pending");
          return;
       end if;
 
       if not Resolve_Active_Buffer_Associated_File_Operation_Source (S) then
-         Editor.Executor.Report_Info (S, "No active buffer.");
+         Editor.Executor.Shared_Services.Report_Info (S, "No active buffer.");
          return;
       end if;
 
       Previous_File := S.File_Info;
 
       if not Validate_Active_Buffer_Associated_Path_For_File_Operation (S) then
-         Editor.Executor.Report_Info (S, "No file path for active buffer");
+         Editor.Executor.Shared_Services.Report_Info (S, "No file path for active buffer");
          return;
       elsif not Require_Clean_Active_Associated_Buffer_For_File_Operation (S) then
-         Editor.Executor.Report_Info (S, "Dirty buffer file cannot be renamed");
+         Editor.Executor.Shared_Services.Report_Info (S, "Dirty buffer file cannot be renamed");
          return;
       elsif not Validate_Associated_File_Operation_Target_Path (Path) then
-         Editor.Executor.Report_Error (S, "Invalid rename target");
+         Editor.Executor.Shared_Services.Report_Error (S, "Invalid rename target");
          return;
       elsif Validate_Associated_File_Operation_Target_Collision (S, Path) then
-         Editor.Executor.Report_Error (S, "Rename target already exists");
+         Editor.Executor.Shared_Services.Report_Error (S, "Rename target already exists");
          return;
       end if;
 
@@ -251,17 +253,17 @@ package body Editor.Executor.File_Operation_Commands is
          File_Lifecycle_Invalidate_Derived_State
            (S, "Derived state is stale after rename");
          Editor.Executor.Rebuild_Language_Index_After_File_Lifecycle (S);
-         Editor.Executor.Report_Success (S, "Buffer file renamed");
+         Editor.Executor.Shared_Services.Report_Success (S, "Buffer file renamed");
       else
          S.File_Info := Previous_File;
          Editor.Buffers.Sync_Global_Active_From_State (S);
 
          if Result.Status = Editor.Files.File_Rename_Invalid_Target then
-            Editor.Executor.Report_Error (S, "Invalid rename target");
+            Editor.Executor.Shared_Services.Report_Error (S, "Invalid rename target");
          elsif Result.Status = Editor.Files.File_Rename_Target_Exists then
-            Editor.Executor.Report_Error (S, "Rename target already exists");
+            Editor.Executor.Shared_Services.Report_Error (S, "Rename target already exists");
          else
-            Editor.Executor.Report_Error (S, "Could not rename buffer file");
+            Editor.Executor.Shared_Services.Report_Error (S, "Could not rename buffer file");
          end if;
       end if;
    end Execute_Rename_Buffer_File;
@@ -312,22 +314,22 @@ package body Editor.Executor.File_Operation_Commands is
         or else (Editor.Executor.File_Lifecycle_Confirmation_Pending (S)
                  and then not S.Dirty_Close_Prompt_Active)
       then
-         Editor.Executor.Report_Warning (S, "Command unavailable while confirmation is pending");
+         Editor.Executor.Shared_Services.Report_Warning (S, "Command unavailable while confirmation is pending");
          return;
       end if;
 
       if not Resolve_Active_Buffer_Associated_File_Operation_Source (S) then
-         Editor.Executor.Report_Info (S, "No active buffer.");
+         Editor.Executor.Shared_Services.Report_Info (S, "No active buffer.");
          return;
       end if;
 
       Previous_File := S.File_Info;
 
       if not Validate_Active_Buffer_Associated_Path_For_File_Operation (S) then
-         Editor.Executor.Report_Info (S, "No file path for active buffer");
+         Editor.Executor.Shared_Services.Report_Info (S, "No file path for active buffer");
          return;
       elsif not Require_Clean_Active_Associated_Buffer_For_File_Operation (S) then
-         Editor.Executor.Report_Info (S, "Dirty buffer file cannot be deleted");
+         Editor.Executor.Shared_Services.Report_Info (S, "Dirty buffer file cannot be deleted");
          return;
       end if;
 
@@ -345,11 +347,11 @@ package body Editor.Executor.File_Operation_Commands is
          File_Lifecycle_Invalidate_Derived_State
            (S, "Derived state is stale after delete");
          Editor.Executor.Rebuild_Language_Index_After_File_Lifecycle (S);
-         Editor.Executor.Report_Success (S, "Buffer file deleted");
+         Editor.Executor.Shared_Services.Report_Success (S, "Buffer file deleted");
       else
          S.File_Info := Previous_File;
          Editor.Buffers.Sync_Global_Active_From_State (S);
-         Editor.Executor.Report_Error (S, "Could not delete buffer file");
+         Editor.Executor.Shared_Services.Report_Error (S, "Could not delete buffer file");
       end if;
    end Execute_Delete_Buffer_File;
 
@@ -375,28 +377,28 @@ package body Editor.Executor.File_Operation_Commands is
       Result        : Editor.Files.File_Copy_Result;
    begin
       if Editor.Executor.File_Lifecycle_Confirmation_Pending (S) then
-         Editor.Executor.Report_Warning (S, "Command unavailable while confirmation is pending");
+         Editor.Executor.Shared_Services.Report_Warning (S, "Command unavailable while confirmation is pending");
          return;
       end if;
 
       if not Resolve_Active_Buffer_Associated_File_Operation_Source (S) then
-         Editor.Executor.Report_Info (S, "No active buffer.");
+         Editor.Executor.Shared_Services.Report_Info (S, "No active buffer.");
          return;
       end if;
 
       Previous_File := S.File_Info;
 
       if not Validate_Active_Buffer_Associated_Path_For_File_Operation (S) then
-         Editor.Executor.Report_Info (S, "No file path for active buffer");
+         Editor.Executor.Shared_Services.Report_Info (S, "No file path for active buffer");
          return;
       elsif not Require_Clean_Active_Associated_Buffer_For_File_Operation (S) then
-         Editor.Executor.Report_Info (S, "Dirty buffer file cannot be copied");
+         Editor.Executor.Shared_Services.Report_Info (S, "Dirty buffer file cannot be copied");
          return;
       elsif not Validate_Associated_File_Operation_Target_Path (Path) then
-         Editor.Executor.Report_Error (S, "Invalid copy target");
+         Editor.Executor.Shared_Services.Report_Error (S, "Invalid copy target");
          return;
       elsif Validate_Associated_File_Operation_Target_Collision (S, Path) then
-         Editor.Executor.Report_Error (S, "Copy target already exists");
+         Editor.Executor.Shared_Services.Report_Error (S, "Copy target already exists");
          return;
       end if;
 
@@ -409,17 +411,17 @@ package body Editor.Executor.File_Operation_Commands is
          --  text-entry, and reopen candidate state exactly.
          S.File_Info := Previous_File;
          Editor.Buffers.Sync_Global_Active_From_State (S);
-         Editor.Executor.Report_Success (S, "Buffer file copied");
+         Editor.Executor.Shared_Services.Report_Success (S, "Buffer file copied");
       else
          S.File_Info := Previous_File;
          Editor.Buffers.Sync_Global_Active_From_State (S);
 
          if Result.Status = Editor.Files.File_Copy_Invalid_Target then
-            Editor.Executor.Report_Error (S, "Invalid copy target");
+            Editor.Executor.Shared_Services.Report_Error (S, "Invalid copy target");
          elsif Result.Status = Editor.Files.File_Copy_Target_Exists then
-            Editor.Executor.Report_Error (S, "Copy target already exists");
+            Editor.Executor.Shared_Services.Report_Error (S, "Copy target already exists");
          else
-            Editor.Executor.Report_Error (S, "Could not copy buffer file");
+            Editor.Executor.Shared_Services.Report_Error (S, "Could not copy buffer file");
          end if;
       end if;
    end Execute_Copy_Buffer_File;
@@ -465,28 +467,28 @@ package body Editor.Executor.File_Operation_Commands is
       Result        : Editor.Files.File_Move_Result;
    begin
       if Editor.Executor.File_Lifecycle_Confirmation_Pending (S) then
-         Editor.Executor.Report_Warning (S, "Command unavailable while confirmation is pending");
+         Editor.Executor.Shared_Services.Report_Warning (S, "Command unavailable while confirmation is pending");
          return;
       end if;
 
       if not Resolve_Active_Buffer_Associated_File_Operation_Source (S) then
-         Editor.Executor.Report_Info (S, "No active buffer.");
+         Editor.Executor.Shared_Services.Report_Info (S, "No active buffer.");
          return;
       end if;
 
       Previous_File := S.File_Info;
 
       if not Validate_Active_Buffer_Associated_Path_For_File_Operation (S) then
-         Editor.Executor.Report_Info (S, "No file path for active buffer");
+         Editor.Executor.Shared_Services.Report_Info (S, "No file path for active buffer");
          return;
       elsif not Require_Clean_Active_Associated_Buffer_For_File_Operation (S) then
-         Editor.Executor.Report_Info (S, "Dirty buffer file cannot be moved");
+         Editor.Executor.Shared_Services.Report_Info (S, "Dirty buffer file cannot be moved");
          return;
       elsif not Validate_Associated_File_Operation_Target_Path (Path) then
-         Editor.Executor.Report_Error (S, "Invalid move target");
+         Editor.Executor.Shared_Services.Report_Error (S, "Invalid move target");
          return;
       elsif Validate_Associated_File_Operation_Target_Collision (S, Path) then
-         Editor.Executor.Report_Error (S, "Move target already exists");
+         Editor.Executor.Shared_Services.Report_Error (S, "Move target already exists");
          return;
       end if;
 
@@ -505,17 +507,17 @@ package body Editor.Executor.File_Operation_Commands is
          File_Lifecycle_Invalidate_Derived_State
            (S, "Derived state is stale after move");
          Editor.Executor.Rebuild_Language_Index_After_File_Lifecycle (S);
-         Editor.Executor.Report_Success (S, "Buffer file moved");
+         Editor.Executor.Shared_Services.Report_Success (S, "Buffer file moved");
       else
          S.File_Info := Previous_File;
          Editor.Buffers.Sync_Global_Active_From_State (S);
 
          if Result.Status = Editor.Files.File_Move_Invalid_Target then
-            Editor.Executor.Report_Error (S, "Invalid move target");
+            Editor.Executor.Shared_Services.Report_Error (S, "Invalid move target");
          elsif Result.Status = Editor.Files.File_Move_Target_Exists then
-            Editor.Executor.Report_Error (S, "Move target already exists");
+            Editor.Executor.Shared_Services.Report_Error (S, "Move target already exists");
          else
-            Editor.Executor.Report_Error (S, "Could not move buffer file");
+            Editor.Executor.Shared_Services.Report_Error (S, "Could not move buffer file");
          end if;
       end if;
    end Execute_Move_Buffer_File;

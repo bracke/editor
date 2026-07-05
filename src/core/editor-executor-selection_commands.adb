@@ -6,6 +6,8 @@ with Editor.Command_Execution;
 with Editor.Commands;
 with Editor.Cursors; use Editor.Cursors;
 with Editor.Executor;
+with Editor.Executor.Shared_Services;
+use Editor.Executor.Shared_Services;
 with Editor.Executor.Navigation;
 with Editor.Folding;
 with Editor.Invariants;
@@ -76,15 +78,15 @@ package body Editor.Executor.Selection_Commands is
 
    procedure Report_Info
      (S    : in out Editor.State.State_Type;
-      Text : String) renames Editor.Executor.Report_Info;
+      Text : String) renames Editor.Executor.Shared_Services.Report_Info;
 
    procedure Report_Success
      (S    : in out Editor.State.State_Type;
-      Text : String) renames Editor.Executor.Report_Success;
+      Text : String) renames Editor.Executor.Shared_Services.Report_Success;
 
    procedure Report_Error
      (S    : in out Editor.State.State_Type;
-      Text : String) renames Editor.Executor.Report_Error;
+      Text : String) renames Editor.Executor.Shared_Services.Report_Error;
 
    function Safe_Caret
      (S : Editor.State.State_Type) return Cursor_Index

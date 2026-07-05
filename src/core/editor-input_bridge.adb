@@ -1,4 +1,5 @@
 with Editor.Instance;
+with Editor.Input_Bridge.Render_Access;
 with Editor.Commands;
 with Editor.Command_Execution;
 with Editor.Render_Model;
@@ -42,6 +43,7 @@ with Editor.Panels;
 with Editor.Buffers;
 with Editor.Tab_Bar;
 with Editor.Executor;
+with Editor.Executor.Command_Palette_Projection;
 with Editor.Executor.Buffer_Close_Commands;
 with Editor.Executor.File_Open_Commands;
 with Editor.Executor.Bookmark_Commands;
@@ -1698,7 +1700,7 @@ use type Editor.Guided_Prompts.Prompt_Kind;
            Editor.Command_Palette.Current.Selected_Command_Id;
          Still_Visible : Boolean := Preferred = Editor.Commands.No_Command;
       begin
-         Editor.Executor.Command_Palette_Candidates
+         Editor.Executor.Command_Palette_Projection.Command_Palette_Candidates
            (The_Editor.State, Candidates);
          Editor.Command_Palette.Visible_Candidates (Candidates, Visible_Candidates);
 
@@ -1751,7 +1753,7 @@ use type Editor.Guided_Prompts.Prompt_Kind;
 
                if Candidate.Id = Editor.Commands.Command_Palette_Show_Command_Help then
                   Execute_Command_Id (Candidate.Id);
-                  Editor.Executor.Command_Palette_Candidates
+                  Editor.Executor.Command_Palette_Projection.Command_Palette_Candidates
                     (The_Editor.State, Candidates);
                   Editor.Command_Palette.Visible_Candidates
                     (Candidates, Visible_Candidates);
@@ -1822,7 +1824,7 @@ use type Editor.Guided_Prompts.Prompt_Kind;
             declare
                Candidates : Editor.Commands.Command_Palette_Candidate_Vectors.Vector;
             begin
-               Editor.Executor.Command_Palette_Candidates
+               Editor.Executor.Command_Palette_Projection.Command_Palette_Candidates
                  (The_Editor.State, Candidates);
                Editor.Command_Palette.Move_Selection_By_Candidates
                  (Candidates, -1);
@@ -1832,7 +1834,7 @@ use type Editor.Guided_Prompts.Prompt_Kind;
             declare
                Candidates : Editor.Commands.Command_Palette_Candidate_Vectors.Vector;
             begin
-               Editor.Executor.Command_Palette_Candidates
+               Editor.Executor.Command_Palette_Projection.Command_Palette_Candidates
                  (The_Editor.State, Candidates);
                Editor.Command_Palette.Move_Selection_By_Candidates
                  (Candidates, 1);
@@ -6193,7 +6195,7 @@ use type Editor.Guided_Prompts.Prompt_Kind;
          return False;
       end if;
 
-      Editor.Executor.Command_Palette_Candidates (The_Editor.State, Candidates);
+      Editor.Executor.Command_Palette_Projection.Command_Palette_Candidates (The_Editor.State, Candidates);
       Editor.Command_Palette.Reconcile_Selection (Candidates);
       Snapshot := Editor.Command_Palette.Build_Snapshot (Candidates, Config);
 
@@ -6806,17 +6808,8 @@ use type Editor.Guided_Prompts.Prompt_Kind;
       pragma Assert (Initialized,
          "Input_Bridge must be initialized before rendering");
 
-      Editor.Buffers.Ensure_Global_Registry (The_Editor.State);
-      Editor.Buffers.Sync_Global_Active_From_State (The_Editor.State);
-      if Editor.Settings.Use_Syntax_Colouring then
-         Editor.State.Prepare_Syntax_For_Visible_Range
-           (The_Editor.State,
-            0,
-            (if Editor.State.Line_Count (The_Editor.State) = 0 then 0
-             else Editor.State.Line_Count (The_Editor.State) - 1),
-            Editor.Settings.Use_Semantic_Colouring);
-      end if;
-      Editor.Render_Model.Build_Render_Snapshot (The_Editor.State, Out_Snapshot);
+      Editor.Input_Bridge.Render_Access.Get_Render_Snapshot
+        (The_Editor.State, Out_Snapshot);
    end Get_Render_Snapshot;
 
    procedure Get_File_Tree_For_Render
@@ -6826,7 +6819,8 @@ use type Editor.Guided_Prompts.Prompt_Kind;
       pragma Assert (Initialized,
          "Input_Bridge must be initialized before rendering file tree");
 
-      Out_Tree := The_Editor.State.File_Tree;
+      Out_Tree := Editor.Input_Bridge.Render_Access.File_Tree_For_Render
+        (The_Editor.State);
    end Get_File_Tree_For_Render;
 
    procedure Get_Problems_For_Render
@@ -6836,33 +6830,16 @@ use type Editor.Guided_Prompts.Prompt_Kind;
       pragma Assert (Initialized,
          "Input_Bridge must be initialized before rendering problems");
 
-      declare
-         Layout : constant Editor.Layout.Layout_Config := Editor.Layout.Current;
-         Panel  : constant Editor.Layout.Rect :=
-           Editor.Layout.Panel_Rect
-             (Layout,
-              Editor.Panels.Bottom_Panel,
-              Editor.View.Viewport_Width,
-              Editor.View.Viewport_Height);
-         Full   : constant Editor.Problems.Problems_Snapshot :=
-           Editor.Problems.Build_Snapshot (The_Editor.State.Diagnostics);
-         Rows   : Natural :=
-           (if Editor.Layout.Cell_H = 0 then 0 else Panel.Height / Editor.Layout.Cell_H);
-      begin
-         if Rows > 1 then
-            Rows := Rows - 1;
-         end if;
-         Out_Snapshot := Editor.Problems.Visible_Snapshot
-           (Full, The_Editor.State.Problems_View, Rows);
-      end;
+      Out_Snapshot := Editor.Input_Bridge.Render_Access.Problems_For_Render
+        (The_Editor.State);
    end Get_Problems_For_Render;
 
    function Problems_Total_Count_For_Render return Natural is
    begin
       pragma Assert (Initialized,
          "Input_Bridge must be initialized before rendering problem count");
-      return Editor.Problems.Row_Count
-        (Editor.Problems.Build_Snapshot (The_Editor.State.Diagnostics));
+      return Editor.Input_Bridge.Render_Access.Problems_Total_Count_For_Render
+        (The_Editor.State);
    end Problems_Total_Count_For_Render;
 
    procedure Get_Search_Results_For_Render
@@ -6872,80 +6849,64 @@ use type Editor.Guided_Prompts.Prompt_Kind;
       pragma Assert (Initialized,
          "Input_Bridge must be initialized before rendering search results");
 
-      declare
-         Layout : constant Editor.Layout.Layout_Config := Editor.Layout.Current;
-         Panel  : constant Editor.Layout.Rect :=
-           Editor.Layout.Panel_Rect
-             (Layout,
-              Editor.Panels.Bottom_Panel,
-              Editor.View.Viewport_Width,
-              Editor.View.Viewport_Height);
-         Full   : constant Editor.Search_Results.Search_Results_Snapshot :=
-           Editor.Search_Results.Build_Snapshot
-             (The_Editor.State.Project_Search, (others => <>),
-              Editor.Buffers.Global_Registry_For_UI);
-      begin
-         Out_Snapshot := Editor.Search_Results.Visible_Snapshot
-           (Full,
-            The_Editor.State.Search_Results_View,
-            (if Editor.Layout.Cell_H = 0 then 0 else Panel.Height / Editor.Layout.Cell_H));
-      end;
+      Out_Snapshot := Editor.Input_Bridge.Render_Access.Search_Results_For_Render
+        (The_Editor.State);
    end Get_Search_Results_For_Render;
 
    function Search_Results_Focused_For_Render return Boolean is
    begin
       pragma Assert (Initialized,
          "Input_Bridge must be initialized before rendering focus state");
-      return Editor.Panel_Focus.Bottom_Panel_Has_Focus (The_Editor.State.Panel_Focus)
-        and then Editor.Panel_Focus.Bottom_Content (The_Editor.State.Panel_Focus) =
-          Editor.Panel_Focus.Search_Results_Focus;
+      return Editor.Input_Bridge.Render_Access.Search_Results_Focused_For_Render
+        (The_Editor.State);
    end Search_Results_Focused_For_Render;
 
    function Problems_Focused_For_Render return Boolean is
    begin
       pragma Assert (Initialized,
          "Input_Bridge must be initialized before rendering focus state");
-      return Editor.Panel_Focus.Bottom_Panel_Has_Focus (The_Editor.State.Panel_Focus)
-        and then Editor.Panel_Focus.Bottom_Content (The_Editor.State.Panel_Focus) =
-          Editor.Panel_Focus.Problems_Focus;
+      return Editor.Input_Bridge.Render_Access.Problems_Focused_For_Render
+        (The_Editor.State);
    end Problems_Focused_For_Render;
 
    function File_Tree_Focused_For_Render return Boolean is
    begin
       pragma Assert (Initialized,
          "Input_Bridge must be initialized before rendering file tree focus state");
-      return Editor.Panel_Focus.File_Tree_Has_Focus (The_Editor.State.Panel_Focus)
-        and then Editor.Project.Has_Project (The_Editor.State.Project)
-        and then Editor.Panels.Is_Visible
-          (The_Editor.State.Panels, Editor.Panels.File_Tree_Panel);
+      return Editor.Input_Bridge.Render_Access.File_Tree_Focused_For_Render
+        (The_Editor.State);
    end File_Tree_Focused_For_Render;
 
    function Feature_Panel_For_Render return Editor.Feature_Panel.Feature_Panel_State is
    begin
       pragma Assert (Initialized,
          "Input_Bridge must be initialized before rendering feature panel");
-      return The_Editor.State.Feature_Panel;
+      return Editor.Input_Bridge.Render_Access.Feature_Panel_For_Render
+        (The_Editor.State);
    end Feature_Panel_For_Render;
 
    function Feature_Panel_Focused_For_Render return Boolean is
    begin
       pragma Assert (Initialized,
          "Input_Bridge must be initialized before rendering feature panel focus state");
-      return Editor.Feature_Panel.Is_Focused (The_Editor.State.Feature_Panel);
+      return Editor.Input_Bridge.Render_Access.Feature_Panel_Focused_For_Render
+        (The_Editor.State);
    end Feature_Panel_Focused_For_Render;
 
    function File_Tree_View_For_Render return Editor.File_Tree_View.File_Tree_View_State is
    begin
       pragma Assert (Initialized,
          "Input_Bridge must be initialized before rendering file tree view state");
-      return The_Editor.State.File_Tree_View;
+      return Editor.Input_Bridge.Render_Access.File_Tree_View_For_Render
+        (The_Editor.State);
    end File_Tree_View_For_Render;
 
    function Problems_View_For_Render return Editor.Problems.Problems_View_State is
    begin
       pragma Assert (Initialized,
          "Input_Bridge must be initialized before rendering problems view state");
-      return The_Editor.State.Problems_View;
+      return Editor.Input_Bridge.Render_Access.Problems_View_For_Render
+        (The_Editor.State);
    end Problems_View_For_Render;
 
    function Project_Search_For_Render
@@ -6954,17 +6915,15 @@ use type Editor.Guided_Prompts.Prompt_Kind;
    begin
       pragma Assert (Initialized,
          "Input_Bridge must be initialized before rendering project search");
-      return The_Editor.State.Project_Search;
+      return Editor.Input_Bridge.Render_Access.Project_Search_For_Render
+        (The_Editor.State);
    end Project_Search_For_Render;
 
    function Active_Diagnostic_For_Render return Editor.Diagnostics.Diagnostic_Index
    is
    begin
-      if The_Editor.State.Active_Diagnostic.Has_Active then
-         return The_Editor.State.Active_Diagnostic.Index;
-      else
-         return Editor.Diagnostics.No_Diagnostic;
-      end if;
+      return Editor.Input_Bridge.Render_Access.Active_Diagnostic_For_Render
+        (The_Editor.State);
    end Active_Diagnostic_For_Render;
 
    procedure Tick_Async_Build_Jobs is

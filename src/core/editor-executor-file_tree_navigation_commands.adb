@@ -1,6 +1,8 @@
 with Ada.Strings.Unbounded; use Ada.Strings.Unbounded;
 
 with Editor.Executor;
+with Editor.Executor.Shared_Services;
+use Editor.Executor.Shared_Services;
 with Editor.Executor.File_Open_Commands;
 with Editor.Executor.Project_File_Index_Commands;
 with Editor.File_Tree;
@@ -23,7 +25,7 @@ package body Editor.Executor.File_Tree_Navigation_Commands is
       Editor.Executor.Clear_Restore_Feedback_Current (S);
 
       if not Editor.Project.Has_Project (S.Project) then
-         Editor.Executor.Report_Warning (S, "No project open");
+         Editor.Executor.Shared_Services.Report_Warning (S, "No project open");
          Editor.Focus_Management.Restore_Focus_To_Editor (S);
          Editor.Render_Cache.Invalidate_All;
          return;
@@ -85,10 +87,10 @@ package body Editor.Executor.File_Tree_Navigation_Commands is
       Summary : Editor.File_Tree.File_Tree_Node_Summary;
    begin
       if not Editor.Project.Has_Project (S.Project) then
-         Editor.Executor.Report_Warning (S, "No project open");
+         Editor.Executor.Shared_Services.Report_Warning (S, "No project open");
          return;
       elsif not Found then
-         Editor.Executor.Report_Warning (S, "No File Tree node selected");
+         Editor.Executor.Shared_Services.Report_Warning (S, "No File Tree node selected");
          return;
       end if;
 
@@ -98,7 +100,7 @@ package body Editor.Executor.File_Tree_Navigation_Commands is
          --  only.  Directory activation remains explicit through
          --  expand/collapse/toggle commands, so status/directory rows cannot
          --  masquerade as file opens.
-         Editor.Executor.Report_Warning (S, "Selected row is not a file");
+         Editor.Executor.Shared_Services.Report_Warning (S, "Selected row is not a file");
       elsif not Editor.Project.Is_Under_Project
         (S.Project, To_String (Summary.Absolute_Path))
       then
@@ -108,7 +110,7 @@ package body Editor.Executor.File_Tree_Navigation_Commands is
          --  the Executor.  Opening a selected File Tree row must not become an
          --  escape hatch to a recent-project or absolute path outside the
          --  active project root.
-         Editor.Executor.Report_Error (S, "Target path is outside the project");
+         Editor.Executor.Shared_Services.Report_Error (S, "Target path is outside the project");
       else
          --  Use the canonical explicit open/focus route rather than a
          --  File-Tree-specific filesystem preflight.  Existing buffers,
@@ -157,7 +159,7 @@ package body Editor.Executor.File_Tree_Navigation_Commands is
                  and then not Editor.Project.Is_Under_Project
                    (S.Project, To_String (Summary.Absolute_Path))
                then
-                  Editor.Executor.Report_Error
+                  Editor.Executor.Shared_Services.Report_Error
                     (S, "Target path is outside the project");
                else
                   Editor.File_Tree.Toggle_Expanded (S.File_Tree, Node);
@@ -174,7 +176,7 @@ package body Editor.Executor.File_Tree_Navigation_Commands is
                  and then not Editor.Project.Is_Under_Project
                    (S.Project, To_String (Summary.Absolute_Path))
                then
-                  Editor.Executor.Report_Error
+                  Editor.Executor.Shared_Services.Report_Error
                     (S, "Target path is outside the project");
                else
                   Editor.Executor.File_Open_Commands.Execute_Open_File
@@ -196,7 +198,7 @@ package body Editor.Executor.File_Tree_Navigation_Commands is
          --  before the same project-context and boundary checks used by the
          --  actual row action.
          if not Editor.Project.Has_Project (S.Project) then
-            Editor.Executor.Report_Warning (S, "No project open");
+            Editor.Executor.Shared_Services.Report_Warning (S, "No project open");
             return;
          elsif not Editor.File_Tree.Contains (S.File_Tree, Hit.Node_Id) then
             return;
@@ -208,7 +210,7 @@ package body Editor.Executor.File_Tree_Navigation_Commands is
                if not Editor.Project.Is_Under_Project
                  (S.Project, To_String (Summary.Absolute_Path))
                then
-                  Editor.Executor.Report_Error
+                  Editor.Executor.Shared_Services.Report_Error
                     (S, "Target path is outside the project");
                   return;
                end if;
@@ -232,10 +234,10 @@ package body Editor.Executor.File_Tree_Navigation_Commands is
       Summary : Editor.File_Tree.File_Tree_Node_Summary;
    begin
       if not Editor.Project.Has_Project (S.Project) then
-         Editor.Executor.Report_Warning (S, "No project open");
+         Editor.Executor.Shared_Services.Report_Warning (S, "No project open");
          return;
       elsif not Found then
-         Editor.Executor.Report_Warning (S, "No File Tree node selected");
+         Editor.Executor.Shared_Services.Report_Warning (S, "No File Tree node selected");
          return;
       end if;
 
@@ -243,19 +245,19 @@ package body Editor.Executor.File_Tree_Navigation_Commands is
       if not Editor.Project.Is_Under_Project
         (S.Project, To_String (Summary.Absolute_Path))
       then
-         Editor.Executor.Report_Error (S, "Target path is outside the project");
+         Editor.Executor.Shared_Services.Report_Error (S, "Target path is outside the project");
          return;
       elsif Summary.Kind /= Editor.File_Tree.Directory_Node then
-         Editor.Executor.Report_Warning (S, "Selected row is not a directory");
+         Editor.Executor.Shared_Services.Report_Warning (S, "Selected row is not a directory");
          return;
       end if;
 
       if Summary.Is_Expanded then
-         Editor.Executor.Report_Info (S, "File Tree directory already expanded");
+         Editor.Executor.Shared_Services.Report_Info (S, "File Tree directory already expanded");
       else
          Editor.File_Tree.Set_Expanded (S.File_Tree, Node, True);
          Editor.Executor.Select_File_Tree_Node (S, Node);
-         Editor.Executor.Report_Success (S, "File Tree directory expanded");
+         Editor.Executor.Shared_Services.Report_Success (S, "File Tree directory expanded");
       end if;
 
       Editor.Executor.Validate_File_Tree_View (S);
@@ -270,10 +272,10 @@ package body Editor.Executor.File_Tree_Navigation_Commands is
       Summary : Editor.File_Tree.File_Tree_Node_Summary;
    begin
       if not Editor.Project.Has_Project (S.Project) then
-         Editor.Executor.Report_Warning (S, "No project open");
+         Editor.Executor.Shared_Services.Report_Warning (S, "No project open");
          return;
       elsif not Found then
-         Editor.Executor.Report_Warning (S, "No File Tree node selected");
+         Editor.Executor.Shared_Services.Report_Warning (S, "No File Tree node selected");
          return;
       end if;
 
@@ -281,20 +283,20 @@ package body Editor.Executor.File_Tree_Navigation_Commands is
       if not Editor.Project.Is_Under_Project
         (S.Project, To_String (Summary.Absolute_Path))
       then
-         Editor.Executor.Report_Error (S, "Target path is outside the project");
+         Editor.Executor.Shared_Services.Report_Error (S, "Target path is outside the project");
          return;
       elsif Summary.Kind /= Editor.File_Tree.Directory_Node then
-         Editor.Executor.Report_Warning (S, "Selected row is not a directory");
+         Editor.Executor.Shared_Services.Report_Warning (S, "Selected row is not a directory");
          return;
       elsif not Summary.Is_Expanded then
-         Editor.Executor.Report_Info (S, "File Tree directory already collapsed");
+         Editor.Executor.Shared_Services.Report_Info (S, "File Tree directory already collapsed");
          return;
       end if;
 
       Editor.File_Tree.Set_Expanded (S.File_Tree, Node, False);
       Editor.Executor.Select_File_Tree_Node (S, Node);
       Editor.Executor.Validate_File_Tree_View (S);
-      Editor.Executor.Report_Success (S, "File Tree directory collapsed");
+      Editor.Executor.Shared_Services.Report_Success (S, "File Tree directory collapsed");
       Editor.Render_Cache.Invalidate_All;
    end Execute_File_Tree_Collapse_Selected;
 
@@ -306,10 +308,10 @@ package body Editor.Executor.File_Tree_Navigation_Commands is
       Summary : Editor.File_Tree.File_Tree_Node_Summary;
    begin
       if not Editor.Project.Has_Project (S.Project) then
-         Editor.Executor.Report_Warning (S, "No project open");
+         Editor.Executor.Shared_Services.Report_Warning (S, "No project open");
          return;
       elsif not Found then
-         Editor.Executor.Report_Warning (S, "No File Tree node selected");
+         Editor.Executor.Shared_Services.Report_Warning (S, "No File Tree node selected");
          return;
       end if;
 
@@ -317,10 +319,10 @@ package body Editor.Executor.File_Tree_Navigation_Commands is
       if not Editor.Project.Is_Under_Project
         (S.Project, To_String (Summary.Absolute_Path))
       then
-         Editor.Executor.Report_Error (S, "Target path is outside the project");
+         Editor.Executor.Shared_Services.Report_Error (S, "Target path is outside the project");
          return;
       elsif Summary.Kind /= Editor.File_Tree.Directory_Node then
-         Editor.Executor.Report_Warning (S, "Selected row is not a directory");
+         Editor.Executor.Shared_Services.Report_Warning (S, "Selected row is not a directory");
          return;
       end if;
 
@@ -328,9 +330,9 @@ package body Editor.Executor.File_Tree_Navigation_Commands is
       Editor.Executor.Select_File_Tree_Node (S, Node);
       Editor.Executor.Validate_File_Tree_View (S);
       if Summary.Is_Expanded then
-         Editor.Executor.Report_Success (S, "File Tree directory collapsed");
+         Editor.Executor.Shared_Services.Report_Success (S, "File Tree directory collapsed");
       else
-         Editor.Executor.Report_Success (S, "File Tree directory expanded");
+         Editor.Executor.Shared_Services.Report_Success (S, "File Tree directory expanded");
       end if;
       Editor.Render_Cache.Invalidate_All;
    end Execute_File_Tree_Toggle_Selected;
@@ -342,17 +344,17 @@ package body Editor.Executor.File_Tree_Navigation_Commands is
    is
    begin
       if not Editor.Project.Has_Project (S.Project) then
-         Editor.Executor.Report_Warning (S, "No project open");
+         Editor.Executor.Shared_Services.Report_Warning (S, "No project open");
          return;
       elsif Editor.File_Tree.Is_Empty (S.File_Tree) then
-         Editor.Executor.Report_Warning (S, "File Tree unavailable");
+         Editor.Executor.Shared_Services.Report_Warning (S, "File Tree unavailable");
          return;
       end if;
 
       Editor.File_Tree.Collapse_All (S.File_Tree);
       Editor.File_Tree_View.Set_Selected_Row_Index (S.File_Tree_View, 1);
       Editor.Executor.Validate_File_Tree_View (S);
-      Editor.Executor.Report_Success (S, "File Tree collapsed");
+      Editor.Executor.Shared_Services.Report_Success (S, "File Tree collapsed");
       Editor.Render_Cache.Invalidate_All;
    end Execute_File_Tree_Collapse_All;
 

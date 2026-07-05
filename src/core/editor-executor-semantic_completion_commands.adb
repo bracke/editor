@@ -6,6 +6,8 @@ with Editor.Buffers;
 with Editor.Commands;
 with Editor.Cursors;
 with Editor.Executor;
+with Editor.Executor.Shared_Services;
+use Editor.Executor.Shared_Services;
 with Editor.Executor.History;
 with Editor.Render_Cache;
 with Editor.State;
@@ -148,7 +150,7 @@ package body Editor.Executor.Semantic_Completion_Commands is
       end if;
 
       Clear_Semantic_Popup (S);
-      Editor.Executor.Report_Info (S, "Accepted completion " & To_String (Label) & ".");
+      Editor.Executor.Shared_Services.Report_Info (S, "Accepted completion " & To_String (Label) & ".");
       Editor.Render_Cache.Invalidate_All;
    end Execute_Semantic_Completion_Accept;
 

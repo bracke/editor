@@ -1,3 +1,5 @@
+with Editor.Executor.Shared_Services;
+use Editor.Executor.Shared_Services;
 with Ada.Strings.Unbounded;
 use Ada.Strings.Unbounded;
 with Editor.Buffers;
@@ -726,7 +728,7 @@ package body Editor.Executor.File_Lifecycle_Commands is
       Config : Editor.Messages.Message_Config;
    begin
       Editor.Messages.Push_Info
-        (S.Messages, Text, Editor.Executor.Current_Message_Time_Ms, Config);
+        (S.Messages, Text, Editor.Executor.Shared_Services.Current_Message_Time_Ms, Config);
    end Report_Info_Raw;
 
    procedure Execute_Open_File

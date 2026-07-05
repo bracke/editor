@@ -10,6 +10,7 @@ with Editor.Command_Route_Audit;
 with Editor.Command_Palette;
 with Editor.Cursors;
 with Editor.Executor;
+with Editor.Executor.Command_Palette_Projection;
 with Editor.Gutter_Markers;
 with Editor.Input_Bridge;
 with Editor.Keybindings;
@@ -897,7 +898,7 @@ package body Editor.Keybindings.Tests is
          Editor.Commands.Command_Save_File,
          Chord (Editor.Keybindings.Key_S, Ctrl => True, Alt => True));
       Editor.Keybinding_Config.Apply_To_Runtime (Config);
-      Editor.Executor.Command_Palette_Candidates (S, Candidates);
+      Editor.Executor.Command_Palette_Projection.Command_Palette_Candidates (S, Candidates);
       for Candidate of Candidates loop
          if Candidate.Id = Editor.Commands.Command_Save_File then
             Seen := True;

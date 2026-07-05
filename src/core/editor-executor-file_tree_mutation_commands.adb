@@ -13,6 +13,8 @@ with Editor.Build_Candidates;
 with Editor.Build_UI;
 with Editor.Commands;
 with Editor.Executor;
+with Editor.Executor.Shared_Services;
+use Editor.Executor.Shared_Services;
 with Editor.Feature_Diagnostics;
 with Editor.File_Tree;
 use type Editor.File_Tree.File_Tree_Node_Id;
@@ -1025,7 +1027,7 @@ package body Editor.Executor.File_Tree_Mutation_Commands is
       File       : Ada.Text_IO.File_Type;
    begin
       if not Editor.Project.Has_Project (S.Project) then
-         Editor.Executor.Report_Warning (S, "No project open");
+         Editor.Executor.Shared_Services.Report_Warning (S, "No project open");
          return;
       elsif Input'Length = 0 then
          --  completeness: execution-time validation must mirror the
@@ -1033,14 +1035,14 @@ package body Editor.Executor.File_Tree_Mutation_Commands is
          --  Even if a command reaches the Executor without prompt-local text,
          --  the operation should report the operation-model name guidance
          --  rather than a generic malformed-name diagnostic.
-         Editor.Executor.Report_Error (S, "Enter a name.");
+         Editor.Executor.Shared_Services.Report_Error (S, "Enter a name.");
          return;
       elsif Contains_Control_File_Tree_Input_Character (Input) then
          --  completeness pass 33: reject raw control characters
          --  before host-path classification.  A prompt such as "/tmp/\n"
          --  is malformed editor input, not merely an outside-project path,
          --  and must receive the canonical invalid file-name diagnostic.
-         Editor.Executor.Report_Error (S, "Invalid file name");
+         Editor.Executor.Shared_Services.Report_Error (S, "Invalid file name");
          return;
       elsif Is_Windows_Drive_Qualified_File_Tree_Input (Input)
         and then not Is_Windows_Drive_Absolute_File_Tree_Input (Input)
@@ -1051,10 +1053,10 @@ package body Editor.Executor.File_Tree_Mutation_Commands is
          --  treating it as a reusable host-path payload or a boundary-only
          --  error.  Drive-rooted forms continue through the absolute-path
          --  branch and report the project-boundary violation.
-         Editor.Executor.Report_Error (S, "Invalid file name");
+         Editor.Executor.Shared_Services.Report_Error (S, "Invalid file name");
          return;
       elsif File_Tree_Input_Is_Absolute (Input) then
-         Editor.Executor.Report_Error (S, Absolute_File_Tree_Input_Message (S, Input));
+         Editor.Executor.Shared_Services.Report_Error (S, Absolute_File_Tree_Input_Message (S, Input));
          return;
       elsif Contains_Parent_Traversal (Input)
         or else Has_Trailing_Path_Separator (Input)
@@ -1067,7 +1069,7 @@ package body Editor.Executor.File_Tree_Mutation_Commands is
          --  validation must reject the same syntax class before the generic
          --  project-boundary fallback so confirm-time diagnostics remain
          --  aligned with the guided prompt.
-         Editor.Executor.Report_Error (S, "Invalid file name");
+         Editor.Executor.Shared_Services.Report_Error (S, "Invalid file name");
          return;
       end if;
 
@@ -1091,10 +1093,10 @@ package body Editor.Executor.File_Tree_Mutation_Commands is
               or else not File_Tree_Source_Matches_Filesystem
                 (Selected_Summary)
             then
-               Editor.Executor.Report_Warning (S, Editor.Commands.Reason_File_Tree_Item_Stale);
+               Editor.Executor.Shared_Services.Report_Warning (S, Editor.Commands.Reason_File_Tree_Item_Stale);
                return;
             elsif not File_Tree_Source_Project_Bounded (S, Selected_Summary) then
-               Editor.Executor.Report_Error (S, "Target path is outside the project");
+               Editor.Executor.Shared_Services.Report_Error (S, "Target path is outside the project");
                return;
             end if;
          end if;
@@ -1103,19 +1105,19 @@ package body Editor.Executor.File_Tree_Mutation_Commands is
       if not Base_Found
         and then not File_Tree_Input_Has_Explicit_Directory (Input)
       then
-         Editor.Executor.Report_Warning (S, "No target directory selected");
+         Editor.Executor.Shared_Services.Report_Warning (S, "No target directory selected");
          return;
       elsif not Project_Bounded_File_Tree_Target (S, Input, Base, Target) then
-         Editor.Executor.Report_Error (S, "Target path is outside the project");
+         Editor.Executor.Shared_Services.Report_Error (S, "Target path is outside the project");
          return;
       elsif Ada.Directories.Exists (To_String (Target)) then
-         Editor.Executor.Report_Error (S, "Target already exists");
+         Editor.Executor.Shared_Services.Report_Error (S, "Target already exists");
          return;
       elsif Editor.Buffers.Global_Has_File_Under_Path (To_String (Target)) then
-         Editor.Executor.Report_Error (S, "Open buffer already represents target path");
+         Editor.Executor.Shared_Services.Report_Error (S, "Open buffer already represents target path");
          return;
       elsif not File_Tree_Parent_Directory_Available (S, To_String (Target)) then
-         Editor.Executor.Report_Error (S, "Parent directory unavailable");
+         Editor.Executor.Shared_Services.Report_Error (S, "Parent directory unavailable");
          return;
       end if;
 
@@ -1126,15 +1128,15 @@ package body Editor.Executor.File_Tree_Mutation_Commands is
            (S, To_String (Target));
          if Refresh_File_Tree_Model_After_Operation (S) then
             Select_File_Tree_Path (S, To_String (Target));
-            Editor.Executor.Report_Success (S, "File created.");
+            Editor.Executor.Shared_Services.Report_Success (S, "File created.");
          else
-            Editor.Executor.Report_Warning (S, "File created; refresh failed.");
+            Editor.Executor.Shared_Services.Report_Warning (S, "File created; refresh failed.");
          end if;
       exception
          when Ada.Directories.Name_Error | Ada.IO_Exceptions.Name_Error =>
-            Editor.Executor.Report_Error (S, "Invalid file name");
+            Editor.Executor.Shared_Services.Report_Error (S, "Invalid file name");
          when Ada.IO_Exceptions.Use_Error =>
-            Editor.Executor.Report_Error (S, "Permission denied");
+            Editor.Executor.Shared_Services.Report_Error (S, "Permission denied");
          when others =>
             begin
                if Ada.Text_IO.Is_Open (File) then
@@ -1143,7 +1145,7 @@ package body Editor.Executor.File_Tree_Mutation_Commands is
             exception
                when others => null;
             end;
-            Editor.Executor.Report_Error (S, "Could not create file");
+            Editor.Executor.Shared_Services.Report_Error (S, "Could not create file");
       end;
    end Execute_File_Tree_Create_File;
 
@@ -1157,18 +1159,18 @@ package body Editor.Executor.File_Tree_Mutation_Commands is
       Target     : Unbounded_String := Null_Unbounded_String;
    begin
       if not Editor.Project.Has_Project (S.Project) then
-         Editor.Executor.Report_Warning (S, "No project open");
+         Editor.Executor.Shared_Services.Report_Warning (S, "No project open");
          return;
       elsif Input'Length = 0 then
          --  completeness: keep empty create-directory execution
          --  aligned with the prompt-owned validation surface.
-         Editor.Executor.Report_Error (S, "Enter a name.");
+         Editor.Executor.Shared_Services.Report_Error (S, "Enter a name.");
          return;
       elsif Contains_Control_File_Tree_Input_Character (Input) then
          --  completeness pass 33: reject raw control characters
          --  before host-path classification.  Malformed prompt text should
          --  not be reported as an absolute/outside-project target.
-         Editor.Executor.Report_Error (S, "Invalid directory name");
+         Editor.Executor.Shared_Services.Report_Error (S, "Invalid directory name");
          return;
       elsif Is_Windows_Drive_Qualified_File_Tree_Input (Input)
         and then not Is_Windows_Drive_Absolute_File_Tree_Input (Input)
@@ -1177,10 +1179,10 @@ package body Editor.Executor.File_Tree_Mutation_Commands is
          --  execution-time validation aligned for drive-relative text.  It is
          --  malformed File Tree input, not a project-relative directory target
          --  and not a persisted filesystem payload.
-         Editor.Executor.Report_Error (S, "Invalid directory name");
+         Editor.Executor.Shared_Services.Report_Error (S, "Invalid directory name");
          return;
       elsif File_Tree_Input_Is_Absolute (Input) then
-         Editor.Executor.Report_Error (S, Absolute_File_Tree_Input_Message (S, Input));
+         Editor.Executor.Shared_Services.Report_Error (S, Absolute_File_Tree_Input_Message (S, Input));
          return;
       elsif Contains_Parent_Traversal (Input)
         or else Has_Trailing_Path_Separator (Input)
@@ -1193,7 +1195,7 @@ package body Editor.Executor.File_Tree_Mutation_Commands is
          --  current-directory segments, empty segments, and trailing
          --  separators are malformed input rather than shell-normalized
          --  directory paths.
-         Editor.Executor.Report_Error (S, "Invalid directory name");
+         Editor.Executor.Shared_Services.Report_Error (S, "Invalid directory name");
          return;
       end if;
 
@@ -1217,10 +1219,10 @@ package body Editor.Executor.File_Tree_Mutation_Commands is
               or else not File_Tree_Source_Matches_Filesystem
                 (Selected_Summary)
             then
-               Editor.Executor.Report_Warning (S, Editor.Commands.Reason_File_Tree_Item_Stale);
+               Editor.Executor.Shared_Services.Report_Warning (S, Editor.Commands.Reason_File_Tree_Item_Stale);
                return;
             elsif not File_Tree_Source_Project_Bounded (S, Selected_Summary) then
-               Editor.Executor.Report_Error (S, "Target path is outside the project");
+               Editor.Executor.Shared_Services.Report_Error (S, "Target path is outside the project");
                return;
             end if;
          end if;
@@ -1229,19 +1231,19 @@ package body Editor.Executor.File_Tree_Mutation_Commands is
       if not Base_Found
         and then not File_Tree_Input_Has_Explicit_Directory (Input)
       then
-         Editor.Executor.Report_Warning (S, "No target directory selected");
+         Editor.Executor.Shared_Services.Report_Warning (S, "No target directory selected");
          return;
       elsif not Project_Bounded_File_Tree_Target (S, Input, Base, Target) then
-         Editor.Executor.Report_Error (S, "Target path is outside the project");
+         Editor.Executor.Shared_Services.Report_Error (S, "Target path is outside the project");
          return;
       elsif Ada.Directories.Exists (To_String (Target)) then
-         Editor.Executor.Report_Error (S, "Target already exists");
+         Editor.Executor.Shared_Services.Report_Error (S, "Target already exists");
          return;
       elsif Editor.Buffers.Global_Has_File_Under_Path (To_String (Target)) then
-         Editor.Executor.Report_Error (S, "Open buffer already represents target path");
+         Editor.Executor.Shared_Services.Report_Error (S, "Open buffer already represents target path");
          return;
       elsif not File_Tree_Parent_Directory_Available (S, To_String (Target)) then
-         Editor.Executor.Report_Error (S, "Parent directory unavailable");
+         Editor.Executor.Shared_Services.Report_Error (S, "Parent directory unavailable");
          return;
       end if;
 
@@ -1251,17 +1253,17 @@ package body Editor.Executor.File_Tree_Mutation_Commands is
            (S, To_String (Target));
          if Refresh_File_Tree_Model_After_Operation (S) then
             Select_File_Tree_Path (S, To_String (Target));
-            Editor.Executor.Report_Success (S, "Directory created.");
+            Editor.Executor.Shared_Services.Report_Success (S, "Directory created.");
          else
-            Editor.Executor.Report_Warning (S, "Directory created; refresh failed.");
+            Editor.Executor.Shared_Services.Report_Warning (S, "Directory created; refresh failed.");
          end if;
       exception
          when Ada.Directories.Name_Error =>
-            Editor.Executor.Report_Error (S, "Invalid directory name");
+            Editor.Executor.Shared_Services.Report_Error (S, "Invalid directory name");
          when Ada.Directories.Use_Error =>
-            Editor.Executor.Report_Error (S, "Permission denied");
+            Editor.Executor.Shared_Services.Report_Error (S, "Permission denied");
          when others =>
-            Editor.Executor.Report_Error (S, "Could not create directory");
+            Editor.Executor.Shared_Services.Report_Error (S, "Could not create directory");
       end;
    end Execute_File_Tree_Create_Directory;
 
@@ -1278,27 +1280,27 @@ package body Editor.Executor.File_Tree_Mutation_Commands is
       Active_Buffer_Was_Renamed : Boolean := False;
    begin
       if not Editor.Project.Has_Project (S.Project) then
-         Editor.Executor.Report_Warning (S, "No project open");
+         Editor.Executor.Shared_Services.Report_Warning (S, "No project open");
          return;
       elsif not Found then
-         Editor.Executor.Report_Warning (S, "No File Tree node selected");
+         Editor.Executor.Shared_Services.Report_Warning (S, "No File Tree node selected");
          return;
       elsif not Editor.Project.Is_Under_Project
         (S.Project, To_String (Summary.Absolute_Path))
       then
-         Editor.Executor.Report_Error (S, "Target path is outside the project");
+         Editor.Executor.Shared_Services.Report_Error (S, "Target path is outside the project");
          return;
       elsif Summary.Parent = Editor.File_Tree.No_File_Tree_Node then
          --  The project-root row is a real directory node, but it is not a
          --  valid rename source.  Report the project-root constraint before
          --  validating prompt text so root rename attempts cannot be confused
          --  with malformed user input.
-         Editor.Executor.Report_Warning (S, "Cannot rename project root");
+         Editor.Executor.Shared_Services.Report_Warning (S, "Cannot rename project root");
          return;
       elsif Input'Length = 0 then
          --  completeness: rename uses the same empty-name
          --  validation language as the guided prompt.
-         Editor.Executor.Report_Error (S, "Enter a name.");
+         Editor.Executor.Shared_Services.Report_Error (S, "Enter a name.");
          return;
       elsif Ada.Strings.Fixed.Index (Input, "/") /= 0
         or else Ada.Strings.Fixed.Index (Input, "\") /= 0
@@ -1309,7 +1311,7 @@ package body Editor.Executor.File_Tree_Mutation_Commands is
          --  keep execution aligned so Command Palette/keybinding routes that
          --  reach the Executor without prompt-local blocking do not degrade to
          --  a generic invalid-target message.
-         Editor.Executor.Report_Error (S, "Rename expects a single new name");
+         Editor.Executor.Shared_Services.Report_Error (S, "Rename expects a single new name");
          return;
       elsif Is_Windows_Drive_Qualified_File_Tree_Input (Input)
         or else Contains_Control_File_Tree_Input_Character (Input)
@@ -1321,21 +1323,21 @@ package body Editor.Executor.File_Tree_Mutation_Commands is
          --  every host so prompts such as "C:tmp" or "C:/tmp" cannot be
          --  interpreted as a colon-containing filename or as an accidental
          --  absolute path variant.
-         Editor.Executor.Report_Error (S, "Invalid rename target");
+         Editor.Executor.Shared_Services.Report_Error (S, "Invalid rename target");
          return;
       elsif not Ada.Directories.Exists (To_String (Summary.Absolute_Path)) then
-         Editor.Executor.Report_Warning (S, "Target no longer exists.");
+         Editor.Executor.Shared_Services.Report_Warning (S, "Target no longer exists.");
          return;
       elsif not File_Tree_Source_Project_Bounded (S, Summary) then
-         Editor.Executor.Report_Error (S, "Target path is outside the project");
+         Editor.Executor.Shared_Services.Report_Error (S, "Target path is outside the project");
          return;
       elsif not File_Tree_Source_Matches_Filesystem (Summary) then
-         Editor.Executor.Report_Warning (S, Editor.Commands.Reason_File_Tree_Item_Stale);
+         Editor.Executor.Shared_Services.Report_Warning (S, Editor.Commands.Reason_File_Tree_Item_Stale);
          return;
       elsif Open_Buffer_Blocks_File_Tree_Mutation
         (S, To_String (Summary.Absolute_Path))
       then
-         Editor.Executor.Report_Info (S, "Dirty buffer preserved.");
+         Editor.Executor.Shared_Services.Report_Info (S, "Dirty buffer preserved.");
          return;
       end if;
 
@@ -1348,7 +1350,7 @@ package body Editor.Executor.File_Tree_Mutation_Commands is
           (To_String (S.File_Info.Path), To_String (Summary.Absolute_Path));
 
       if not Editor.Project.Is_Under_Project (S.Project, To_String (Target)) then
-         Editor.Executor.Report_Error (S, "Target path is outside the project");
+         Editor.Executor.Shared_Services.Report_Error (S, "Target path is outside the project");
          return;
       elsif Same_Or_Descendant_File_Tree_Path
         (To_String (Summary.Absolute_Path), To_String (Target))
@@ -1359,16 +1361,16 @@ package body Editor.Executor.File_Tree_Mutation_Commands is
          --  neither a conflict nor a successful mutation.  Reject it
          --  explicitly before the generic target-exists check so the workflow
          --  does not report a misleading collision for an unchanged name.
-         Editor.Executor.Report_Warning (S, "Rename target is unchanged");
+         Editor.Executor.Shared_Services.Report_Warning (S, "Rename target is unchanged");
          return;
       elsif not File_Tree_Parent_Directory_Available (S, To_String (Target)) then
-         Editor.Executor.Report_Error (S, "Parent directory unavailable");
+         Editor.Executor.Shared_Services.Report_Error (S, "Parent directory unavailable");
          return;
       elsif Ada.Directories.Exists (To_String (Target)) then
-         Editor.Executor.Report_Error (S, "Target already exists");
+         Editor.Executor.Shared_Services.Report_Error (S, "Target already exists");
          return;
       elsif Editor.Buffers.Global_Has_File_Under_Path (To_String (Target)) then
-         Editor.Executor.Report_Error (S, "Open buffer already represents target path");
+         Editor.Executor.Shared_Services.Report_Error (S, "Open buffer already represents target path");
          return;
       end if;
 
@@ -1407,20 +1409,20 @@ package body Editor.Executor.File_Tree_Mutation_Commands is
 
          if Refresh_File_Tree_Model_After_Operation (S) then
             Select_File_Tree_Path (S, To_String (Target));
-            Editor.Executor.Report_Success
+            Editor.Executor.Shared_Services.Report_Success
               (S, File_Tree_Outcome_Kind_Label (Summary.Kind) & " renamed.");
          else
-            Editor.Executor.Report_Warning
+            Editor.Executor.Shared_Services.Report_Warning
               (S, File_Tree_Outcome_Kind_Label (Summary.Kind)
                     & " renamed; refresh failed.");
          end if;
       exception
          when Ada.Directories.Name_Error =>
-            Editor.Executor.Report_Error (S, "Invalid rename target");
+            Editor.Executor.Shared_Services.Report_Error (S, "Invalid rename target");
          when Ada.Directories.Use_Error =>
-            Editor.Executor.Report_Error (S, "Permission denied");
+            Editor.Executor.Shared_Services.Report_Error (S, "Permission denied");
          when others =>
-            Editor.Executor.Report_Error (S, "Could not rename File Tree item");
+            Editor.Executor.Shared_Services.Report_Error (S, "Could not rename File Tree item");
       end;
    end Execute_File_Tree_Rename_Selected;
 

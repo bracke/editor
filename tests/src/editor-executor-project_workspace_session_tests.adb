@@ -1,3 +1,4 @@
+with Editor.Executor.Command_Palette_Projection;
 with AUnit.Assertions; use AUnit.Assertions;
 with AUnit.Test_Cases;
 with Ada.Containers; use type Ada.Containers.Count_Type;
@@ -539,7 +540,7 @@ package body Editor.Executor.Project_Workspace_Session_Tests is
       Reload_A := Editor.Executor.Command_Availability (S, Editor.Commands.Command_Reload_Active_Buffer);
       Close_A := Editor.Executor.Command_Availability (S, Editor.Commands.Command_Close_Active_Buffer);
       Feature_A := Editor.Executor.Command_Availability (S, Editor.Commands.Command_Feature_Panel_Open_Selected);
-      Editor.Executor.Command_Palette_Candidates (S, Candidates);
+      Editor.Executor.Command_Palette_Projection.Command_Palette_Candidates (S, Candidates);
 
       for C of Candidates loop
          if C.Id = Editor.Commands.Command_Save_File then

@@ -14,6 +14,9 @@ with Editor.Buffer_Switcher;
 with Editor.Commands;
 with Editor.Dirty_Guards;
 with Editor.Executor;
+with Editor.Executor.Shared_Services;
+use Editor.Executor.Shared_Services;
+with Editor.Executor.Pending_Transition_Policy;
 with Editor.Executor.Buffer_Switcher_Shared;
 with Editor.Executor.File_Save_Basic_Commands;
 with Editor.Executor.Project_Lifecycle_Commands;
@@ -119,7 +122,7 @@ package body Editor.Executor.Buffer_Close_Commands is
             S.Language_Service := Saved_Service;
          end;
       end if;
-      Editor.Executor.Invalidate_Pending_Transition_If_Stale (S);
+      Editor.Executor.Pending_Transition_Policy.Invalidate_Pending_Transition_If_Stale (S);
       if Editor.Panels.Is_Visible (S.Panels, Editor.Panels.Bottom_Panel)
         and then Editor.Panels.Active_Bottom_Content (S.Panels) =
           Editor.Panels.Problems_Content
@@ -535,7 +538,7 @@ package body Editor.Executor.Buffer_Close_Commands is
       else
          S.Active_Buffer_Token := 0;
       end if;
-      Editor.Executor.Report_Info (S, "Closed " & Natural_Text (Closed_Total) & " buffers");
+      Editor.Executor.Shared_Services.Report_Info (S, "Closed " & Natural_Text (Closed_Total) & " buffers");
    end Execute_Close_All_Buffers_Confirmed;
 
    procedure Execute_Close_Other_Buffers_Confirmed
@@ -577,7 +580,7 @@ package body Editor.Executor.Buffer_Close_Commands is
          Editor.Buffers.Global_Set_Active_Buffer (Active);
          Editor.Buffers.Load_Global_Active_Into_State (S);
       end if;
-      Editor.Executor.Report_Info (S, "Closed " & Natural_Text (Closed_Total) & " other buffers");
+      Editor.Executor.Shared_Services.Report_Info (S, "Closed " & Natural_Text (Closed_Total) & " other buffers");
    end Execute_Close_Other_Buffers_Confirmed;
    procedure Execute_Close_Other_Buffers
      (S : in out Editor.State.State_Type)
@@ -594,7 +597,7 @@ package body Editor.Executor.Buffer_Close_Commands is
       Active := Editor.Buffers.Global_Active_Buffer;
 
       if Active = Editor.Buffers.No_Buffer then
-         Editor.Executor.Report_Info (S, "No active buffer.");
+         Editor.Executor.Shared_Services.Report_Info (S, "No active buffer.");
          return;
       end if;
 
@@ -652,8 +655,8 @@ package body Editor.Executor.Buffer_Close_Commands is
          Editor.Buffers.Global_Set_Active_Buffer (Active);
       end if;
       Editor.Buffers.Load_Global_Active_Into_State (S);
-      Editor.Executor.Invalidate_Pending_Transition_If_Stale (S);
-      Editor.Executor.Report_Info (S, Cleanup_Feedback
+      Editor.Executor.Pending_Transition_Policy.Invalidate_Pending_Transition_If_Stale (S);
+      Editor.Executor.Shared_Services.Report_Info (S, Cleanup_Feedback
           (Closed_Total, Skipped, Skipped_Pinned, "Buffers: no other unpinned clean buffers to close"));
    end Execute_Close_Other_Buffers;
 
@@ -757,7 +760,7 @@ package body Editor.Executor.Buffer_Close_Commands is
       S.Dirty_Close_Prompt_File_Backed_Count := Summary.File_Backed_Count;
       S.Dirty_Close_Prompt_Untitled_Count := Summary.Untitled_Count;
       Capture_Dirty_Close_File_State_Counts (S, All_Buffers, Buffer_Id);
-      Editor.Executor.Report_Warning (S, Dirty_Close_Start_Message (All_Buffers, Summary));
+      Editor.Executor.Shared_Services.Report_Warning (S, Dirty_Close_Start_Message (All_Buffers, Summary));
    end Start_Dirty_Close_Prompt;
 
    procedure Close_Buffer_By_Discard
@@ -903,7 +906,7 @@ package body Editor.Executor.Buffer_Close_Commands is
                  (S, Editor.Buffers.Buffer_Id (Target.Buffer_Id));
             else
                Editor.Pending_Transitions.Clear (S.Pending_Transitions);
-               Editor.Executor.Report_Warning (S, Editor.Commands.Reason_Close_Review_Stale);
+               Editor.Executor.Shared_Services.Report_Warning (S, Editor.Commands.Reason_Close_Review_Stale);
             end if;
          when Editor.Pending_Transitions.Pending_Open_Project
             | Editor.Pending_Transitions.Pending_Switch_Project
@@ -948,7 +951,7 @@ package body Editor.Executor.Buffer_Close_Commands is
       Kept   : Natural := 0;
    begin
       if not Editor.Pending_Transitions.Has_Pending (S.Pending_Transitions) then
-         Editor.Executor.Report_Info (S, Editor.Dirty_Guards.No_Pending_Transition_Message);
+         Editor.Executor.Shared_Services.Report_Info (S, Editor.Dirty_Guards.No_Pending_Transition_Message);
          return;
       end if;
 
@@ -956,22 +959,22 @@ package body Editor.Executor.Buffer_Close_Commands is
       if Target.Kind in Editor.Pending_Transitions.Pending_Reload_Active_Buffer
           | Editor.Pending_Transitions.Pending_Revert_Active_Buffer
       then
-         Editor.Executor.Report_Warning (S, "Reload/revert requires its own explicit confirmation");
+         Editor.Executor.Shared_Services.Report_Warning (S, "Reload/revert requires its own explicit confirmation");
          return;
       elsif Target.Kind = Editor.Pending_Transitions.Pending_Clear_Workspace_State then
-         Editor.Executor.Report_Warning (S, "Clear workspace requires Retry to confirm");
+         Editor.Executor.Shared_Services.Report_Warning (S, "Clear workspace requires Retry to confirm");
          return;
       end if;
 
-      if not Editor.Executor.Pending_Target_Is_Valid (S, Target) then
+      if not Editor.Executor.Pending_Transition_Policy.Pending_Target_Is_Valid (S, Target) then
          Editor.Pending_Transitions.Clear (S.Pending_Transitions);
-         Editor.Executor.Report_Warning (S, Editor.Dirty_Guards.Pending_Transition_No_Longer_Valid_Message);
+         Editor.Executor.Shared_Services.Report_Warning (S, Editor.Dirty_Guards.Pending_Transition_No_Longer_Valid_Message);
          return;
       end if;
 
       Discard_Dirty_Buffers_For_Pending_Target (S, Target, Closed, Kept);
       if Kept > 0 then
-         Editor.Executor.Report_Error (S, "Could not discard all affected dirty buffers");
+         Editor.Executor.Shared_Services.Report_Error (S, "Could not discard all affected dirty buffers");
          return;
       end if;
 
@@ -1019,9 +1022,9 @@ package body Editor.Executor.Buffer_Close_Commands is
 
       if Target.Kind = Editor.Pending_Transitions.Pending_Close_Buffer then
          if Closed > 0 then
-            Editor.Executor.Report_Info (S, "Buffer closed");
+            Editor.Executor.Shared_Services.Report_Info (S, "Buffer closed");
          else
-            Editor.Executor.Report_Info (S, "No affected dirty buffers to discard");
+            Editor.Executor.Shared_Services.Report_Info (S, "No affected dirty buffers to discard");
          end if;
       end if;
    end Execute_Discard_Pending_Transition;
@@ -1031,11 +1034,11 @@ package body Editor.Executor.Buffer_Close_Commands is
    is
    begin
       if not S.Dirty_Close_Prompt_Active then
-         Editor.Executor.Report_Info (S, "No close confirmation pending");
+         Editor.Executor.Shared_Services.Report_Info (S, "No close confirmation pending");
          return;
       end if;
       Clear_Dirty_Close_Prompt (S);
-      Editor.Executor.Report_Info (S, "Close cancelled");
+      Editor.Executor.Shared_Services.Report_Info (S, "Close cancelled");
    end Execute_Cancel_Close;
 
    procedure Execute_Confirm_Close_Discard
@@ -1048,7 +1051,7 @@ package body Editor.Executor.Buffer_Close_Commands is
       Was_Selected : Boolean := False;
    begin
       if not S.Dirty_Close_Prompt_Active then
-         Editor.Executor.Report_Info (S, "No close confirmation pending");
+         Editor.Executor.Shared_Services.Report_Info (S, "No close confirmation pending");
          return;
       end if;
 
@@ -1065,7 +1068,7 @@ package body Editor.Executor.Buffer_Close_Commands is
            or else not Dirty_Close_Current_Dirty_Set_Was_Reviewed (S)
          then
             Clear_Dirty_Close_Prompt (S);
-            Editor.Executor.Report_Warning (S, Editor.Commands.Reason_Close_Review_Stale);
+            Editor.Executor.Shared_Services.Report_Warning (S, Editor.Commands.Reason_Close_Review_Stale);
             return;
          end if;
       end if;
@@ -1129,14 +1132,14 @@ package body Editor.Executor.Buffer_Close_Commands is
 
       if Kept_Total = 0 then
          if Was_All then
-            Editor.Executor.Report_Info (S, "All buffers closed");
+            Editor.Executor.Shared_Services.Report_Info (S, "All buffers closed");
          elsif Closed_Total = 1 then
-            Editor.Executor.Report_Info (S, "Buffer closed");
+            Editor.Executor.Shared_Services.Report_Info (S, "Buffer closed");
          else
-            Editor.Executor.Report_Info (S, "No buffers closed");
+            Editor.Executor.Shared_Services.Report_Info (S, "No buffers closed");
          end if;
       else
-         Editor.Executor.Report_Error (S, "Could not close buffer");
+         Editor.Executor.Shared_Services.Report_Error (S, "Could not close buffer");
       end if;
    end Execute_Confirm_Close_Discard;
 
@@ -1151,7 +1154,7 @@ package body Editor.Executor.Buffer_Close_Commands is
       Closed          : Boolean := False;
    begin
       if not S.Dirty_Close_Prompt_Active then
-         Editor.Executor.Report_Info (S, "No close confirmation pending");
+         Editor.Executor.Shared_Services.Report_Info (S, "No close confirmation pending");
          return;
       end if;
 
@@ -1169,7 +1172,7 @@ package body Editor.Executor.Buffer_Close_Commands is
            or else not Dirty_Close_Current_Dirty_Set_Was_Reviewed (S)
          then
             Clear_Dirty_Close_Prompt (S);
-            Editor.Executor.Report_Warning (S, Editor.Commands.Reason_Close_Review_Stale);
+            Editor.Executor.Shared_Services.Report_Warning (S, Editor.Commands.Reason_Close_Review_Stale);
             return;
          end if;
       end if;
@@ -1215,7 +1218,7 @@ package body Editor.Executor.Buffer_Close_Commands is
                               S.File_Conflict_Close_After_Overwrite_Selected := False;
                               S.File_Conflict_Close_After_Overwrite_All_Buffers := True;
                               Clear_Dirty_Close_Prompt (S);
-                              Editor.Executor.Report_Warning (S, "File conflict requires resolution");
+                              Editor.Executor.Shared_Services.Report_Warning (S, "File conflict requires resolution");
                               return;
                            end if;
                         end if;
@@ -1249,7 +1252,7 @@ package body Editor.Executor.Buffer_Close_Commands is
                --  prompt snapshot was still present; do not keep a dead prompt
                --  alive as a save failure.
                Clear_Dirty_Close_Prompt (S);
-               Editor.Executor.Report_Info (S, "No buffers closed");
+               Editor.Executor.Shared_Services.Report_Info (S, "No buffers closed");
                return;
             elsif not Editor.Buffers.Global_Summary_For (Target).Is_Dirty then
                --  completeness pass 15: confirmation revalidates
@@ -1265,7 +1268,7 @@ package body Editor.Executor.Buffer_Close_Commands is
                end if;
             elsif not Editor.Buffers.Global_Summary_For (Target).Has_Path then
                S.Dirty_Close_Prompt_Save_Failure_Count := 1;
-               Editor.Executor.Report_Error (S, "Save As required before saving this buffer");
+               Editor.Executor.Shared_Services.Report_Error (S, "Save As required before saving this buffer");
                return;
             else
                Editor.Buffers.Global_Set_Active_Buffer (Target);
@@ -1321,7 +1324,7 @@ package body Editor.Executor.Buffer_Close_Commands is
                         S.File_Conflict_Close_After_Overwrite_All_Buffers := Resume_All;
                      end;
                   end if;
-                  Editor.Executor.Report_Warning (S, "File conflict requires resolution");
+                  Editor.Executor.Shared_Services.Report_Warning (S, "File conflict requires resolution");
                   return;
                end if;
                if Editor.Buffers.Global_Contains (Target)
@@ -1362,11 +1365,11 @@ package body Editor.Executor.Buffer_Close_Commands is
 
       if Failed = 0 then
          if Was_All then
-            Editor.Executor.Report_Info (S, "All buffers closed");
+            Editor.Executor.Shared_Services.Report_Info (S, "All buffers closed");
          elsif Closed_Count = 1 then
-            Editor.Executor.Report_Info (S, "Buffer closed");
+            Editor.Executor.Shared_Services.Report_Info (S, "Buffer closed");
          else
-            Editor.Executor.Report_Info (S, "No buffers closed");
+            Editor.Executor.Shared_Services.Report_Info (S, "No buffers closed");
          end if;
       else
          if Was_All then
@@ -1390,10 +1393,10 @@ package body Editor.Executor.Buffer_Close_Commands is
                   Clear_Dirty_Close_Prompt (S);
                end if;
             end;
-            Editor.Executor.Report_Error (S, "Save failed; some buffers remain open");
+            Editor.Executor.Shared_Services.Report_Error (S, "Save failed; some buffers remain open");
          else
             S.Dirty_Close_Prompt_Save_Failure_Count := Failed;
-            Editor.Executor.Report_Error (S, "Save failed; buffer remains open");
+            Editor.Executor.Shared_Services.Report_Error (S, "Save failed; buffer remains open");
          end if;
       end if;
    end Execute_Confirm_Close_Save;
@@ -1407,7 +1410,7 @@ package body Editor.Executor.Buffer_Close_Commands is
       Editor.Buffers.Sync_Global_Active_From_State (S);
 
       if Editor.Buffers.Global_Count = 0 then
-         Editor.Executor.Report_Info (S, "No buffers to close");
+         Editor.Executor.Shared_Services.Report_Info (S, "No buffers to close");
          return;
       end if;
 
@@ -1430,7 +1433,7 @@ package body Editor.Executor.Buffer_Close_Commands is
       Closed       : Boolean := False;
    begin
       if Editor.Executor.File_Lifecycle_Confirmation_Pending (S) then
-         Editor.Executor.Report_Warning (S, "Command unavailable while confirmation is pending");
+         Editor.Executor.Shared_Services.Report_Warning (S, "Command unavailable while confirmation is pending");
          return;
       end if;
 
@@ -1486,12 +1489,12 @@ package body Editor.Executor.Buffer_Close_Commands is
       end;
 
       Editor.Buffers.Load_Global_Active_Into_State (S);
-      Editor.Executor.Invalidate_Pending_Transition_If_Stale (S);
+      Editor.Executor.Pending_Transition_Policy.Invalidate_Pending_Transition_If_Stale (S);
       if Editor.Buffer_Switcher.Is_Open (S.Buffer_Switcher) then
          Editor.Executor.Buffer_Switcher_Shared.Recompute_Buffer_Switcher (S);
          Editor.Executor.Buffer_Switcher_Shared.Normalize_Switcher_Preview_Target (S);
       end if;
-      Editor.Executor.Report_Info (S, Cleanup_Feedback
+      Editor.Executor.Shared_Services.Report_Info (S, Cleanup_Feedback
           (Closed_Total, Skipped, Skipped_Pinned, "Buffers: no unpinned clean buffers to close"));
    end Execute_Close_All_Clean_Buffers;
 
@@ -1531,10 +1534,10 @@ package body Editor.Executor.Buffer_Close_Commands is
 
       declare
          Guard : constant Editor.Dirty_Guards.Dirty_Transition_Result :=
-           Editor.Executor.Check_Dirty_Transition (S, Editor.Dirty_Guards.Close_Buffer_Transition);
+           Editor.Executor.Pending_Transition_Policy.Check_Dirty_Transition (S, Editor.Dirty_Guards.Close_Buffer_Transition);
       begin
-         Editor.Executor.Set_Pending_Dirty_Transition (S,
-            Editor.Executor.Pending_Target_For (Editor.Pending_Transitions.Pending_Close_Buffer,
+         Editor.Executor.Pending_Transition_Policy.Set_Pending_Dirty_Transition (S,
+            Editor.Executor.Pending_Transition_Policy.Pending_Target_For (Editor.Pending_Transitions.Pending_Close_Buffer,
                Display   => Editor.Buffers.Global_Display_Name (Id),
                Buffer_Id => Id),
             Guard);
@@ -1585,7 +1588,7 @@ package body Editor.Executor.Buffer_Close_Commands is
          end;
       end if;
 
-      Editor.Executor.Invalidate_Pending_Transition_If_Stale (S);
+      Editor.Executor.Pending_Transition_Policy.Invalidate_Pending_Transition_If_Stale (S);
       if Editor.Panels.Is_Visible (S.Panels, Editor.Panels.Bottom_Panel)
         and then Editor.Panels.Active_Bottom_Content (S.Panels) =
           Editor.Panels.Problems_Content
@@ -1623,10 +1626,10 @@ package body Editor.Executor.Buffer_Close_Commands is
       Id := Resolve_Active_Buffer_Close_Target (S);
 
       if Id = Editor.Buffers.No_Buffer then
-         Editor.Executor.Report_Info (S, "No active buffer.");
+         Editor.Executor.Shared_Services.Report_Info (S, "No active buffer.");
          return;
       elsif not Editor.Buffers.Global_Contains (Id) then
-         Editor.Executor.Report_Error (S, "Could not close buffer");
+         Editor.Executor.Shared_Services.Report_Error (S, "Could not close buffer");
          return;
       end if;
 
@@ -1661,9 +1664,9 @@ package body Editor.Executor.Buffer_Close_Commands is
             Editor.Executor.File_Open_Commands.Register_Reopen_Candidate_After_Close (S, To_String (Candidate_Path), To_String (Candidate_Label));
          end if;
          Finish_Active_Buffer_Close_Lifecycle (S, Id);
-         Editor.Executor.Report_Info (S, "Buffer closed");
+         Editor.Executor.Shared_Services.Report_Info (S, "Buffer closed");
       else
-         Editor.Executor.Report_Error (S, "Could not close buffer");
+         Editor.Executor.Shared_Services.Report_Error (S, "Could not close buffer");
       end if;
    end Execute_Close_Active_Buffer;
 
@@ -1679,9 +1682,9 @@ package body Editor.Executor.Buffer_Close_Commands is
       if Id = Editor.Buffers.Global_Active_Buffer then
          Execute_Close_Active_Buffer (S);
       elsif Id = Editor.Buffers.No_Buffer then
-         Editor.Executor.Report_Info (S, "No active buffer.");
+         Editor.Executor.Shared_Services.Report_Info (S, "No active buffer.");
       else
-         Editor.Executor.Report_Error (S, "Could not close buffer");
+         Editor.Executor.Shared_Services.Report_Error (S, "Could not close buffer");
       end if;
    end Execute_Close_Buffer;
 

@@ -1,3 +1,5 @@
+with Editor.Executor.Shared_Services;
+use Editor.Executor.Shared_Services;
 with Ada.Directories;
 with Ada.Containers;
 with Ada.Strings.Fixed;
@@ -32,15 +34,15 @@ package body Editor.Executor.Project_Search_Replace_Commands is
 
    procedure Report_Info
      (S    : in out Editor.State.State_Type;
-      Text : String) renames Editor.Executor.Report_Info;
+      Text : String) renames Editor.Executor.Shared_Services.Report_Info;
 
    procedure Report_Success
      (S    : in out Editor.State.State_Type;
-      Text : String) renames Editor.Executor.Report_Success;
+      Text : String) renames Editor.Executor.Shared_Services.Report_Success;
 
    procedure Report_Warning
      (S    : in out Editor.State.State_Type;
-      Text : String) renames Editor.Executor.Report_Warning;
+      Text : String) renames Editor.Executor.Shared_Services.Report_Warning;
 
    function Image_Of (Value : Natural) return String is
    begin

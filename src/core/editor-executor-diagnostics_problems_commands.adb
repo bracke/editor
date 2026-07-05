@@ -1,6 +1,8 @@
 with Editor.Commands;
 with Editor.Diagnostics;
 with Editor.Executor;
+with Editor.Executor.Shared_Services;
+use Editor.Executor.Shared_Services;
 with Editor.Executor.Diagnostics_Commands;
 with Editor.Executor.Panel_Focus_Commands;
 with Editor.Focus_Management;
@@ -22,7 +24,7 @@ package body Editor.Executor.Diagnostics_Problems_Commands is
    begin
       if Editor.Problems.Row_Count (Snapshot) = 0 then
          Editor.Problems.Ensure_Valid_Selection (S.Problems_View, Snapshot);
-         Editor.Executor.Report_Info (S, "No problems");
+         Editor.Executor.Shared_Services.Report_Info (S, "No problems");
       else
          Editor.Problems.Move_Selection
            (S.Problems_View, Snapshot, Editor.Problems.Previous_Row, True);
@@ -43,7 +45,7 @@ package body Editor.Executor.Diagnostics_Problems_Commands is
    begin
       if Editor.Problems.Row_Count (Snapshot) = 0 then
          Editor.Problems.Ensure_Valid_Selection (S.Problems_View, Snapshot);
-         Editor.Executor.Report_Info (S, "No problems");
+         Editor.Executor.Shared_Services.Report_Info (S, "No problems");
       else
          Editor.Problems.Move_Selection
            (S.Problems_View, Snapshot, Editor.Problems.Next_Row, True);
@@ -88,7 +90,7 @@ package body Editor.Executor.Diagnostics_Problems_Commands is
       Problem_Row : Editor.Problems.Problem_Row;
    begin
       if not Found or else Diagnostic_Index = Editor.Diagnostics.No_Diagnostic then
-         Editor.Executor.Report_Info (S, "No diagnostic selected");
+         Editor.Executor.Shared_Services.Report_Info (S, "No diagnostic selected");
          Editor.Render_Cache.Invalidate_All;
          return;
       end if;
@@ -96,7 +98,7 @@ package body Editor.Executor.Diagnostics_Problems_Commands is
       Problem_Row := Editor.Problems.Row
         (Snapshot, Positive (Editor.Problems.Selected_Row_Index (S.Problems_View)));
       if not Editor.Problems.Row_Has_Target (Problem_Row) then
-         Editor.Executor.Report_Info
+         Editor.Executor.Shared_Services.Report_Info
            (S, Editor.Problems.Row_Target_Unavailable_Label (Problem_Row));
          Editor.Render_Cache.Invalidate_All;
          return;
@@ -128,7 +130,7 @@ package body Editor.Executor.Diagnostics_Problems_Commands is
         (S.Panels, Editor.Panels.Bottom_Panel, True);
       Editor.Focus_Management.Set_Focus_Owner
         (S, Editor.Focus_Management.Focus_Diagnostics);
-      Editor.Executor.Report_Info
+      Editor.Executor.Shared_Services.Report_Info
         (S, "Problems filter: "
          & Editor.Problems.Severity_Filter_Label (Filter));
       Editor.Panels.Set_Current (S.Panels);
@@ -157,11 +159,11 @@ package body Editor.Executor.Diagnostics_Problems_Commands is
         (S, Editor.Focus_Management.Focus_Diagnostics);
       case Sort is
          when Editor.Problems.Problems_Sort_By_Location =>
-            Editor.Executor.Report_Info (S, "Problems sort: location");
+            Editor.Executor.Shared_Services.Report_Info (S, "Problems sort: location");
          when Editor.Problems.Problems_Sort_By_Severity =>
-            Editor.Executor.Report_Info (S, "Problems sort: severity");
+            Editor.Executor.Shared_Services.Report_Info (S, "Problems sort: severity");
          when Editor.Problems.Problems_Sort_By_Source =>
-            Editor.Executor.Report_Info (S, "Problems sort: source");
+            Editor.Executor.Shared_Services.Report_Info (S, "Problems sort: source");
       end case;
       Editor.Panels.Set_Current (S.Panels);
       Editor.Render_Cache.Invalidate_All;
@@ -189,9 +191,9 @@ package body Editor.Executor.Diagnostics_Problems_Commands is
         (S, Editor.Focus_Management.Focus_Diagnostics);
       case Group is
          when Editor.Problems.Problems_Group_By_Severity =>
-            Editor.Executor.Report_Info (S, "Problems group: severity");
+            Editor.Executor.Shared_Services.Report_Info (S, "Problems group: severity");
          when Editor.Problems.Problems_Group_By_Source =>
-            Editor.Executor.Report_Info (S, "Problems group: source");
+            Editor.Executor.Shared_Services.Report_Info (S, "Problems group: source");
       end case;
       Editor.Panels.Set_Current (S.Panels);
       Editor.Render_Cache.Invalidate_All;

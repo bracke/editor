@@ -9,6 +9,8 @@ with Editor.Build_Working_Context;
 with Editor.Command_Execution;
 with Editor.Commands;
 with Editor.Executor;
+with Editor.Executor.Shared_Services;
+use Editor.Executor.Shared_Services;
 with Editor.External_Producers;
 with Editor.Project;
 with Editor.Render_Cache;
@@ -119,7 +121,7 @@ package body Editor.Executor.Build_Commands is
 
    procedure Report_Info
      (S    : in out Editor.State.State_Type;
-      Text : String) renames Editor.Executor.Report_Info;
+      Text : String) renames Editor.Executor.Shared_Services.Report_Info;
 
    function Execute_Build_Command
      (S  : in out Editor.State.State_Type;

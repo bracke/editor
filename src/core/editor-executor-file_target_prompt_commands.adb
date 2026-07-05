@@ -2,6 +2,8 @@ with Ada.Strings.Unbounded; use Ada.Strings.Unbounded;
 
 with Editor.Commands;
 with Editor.Executor;
+with Editor.Executor.Shared_Services;
+use Editor.Executor.Shared_Services;
 with Editor.Executor.File_Operation_Commands;
 with Editor.Executor.File_Save_Basic_Commands;
 with Editor.Input_Field;
@@ -72,9 +74,9 @@ package body Editor.Executor.File_Target_Prompt_Commands is
               Editor.Commands.Unavailable_Reason (Availability);
          begin
             if Reason = "Command unavailable while confirmation is pending." then
-               Editor.Executor.Report_Warning (S, Reason);
+               Editor.Executor.Shared_Services.Report_Warning (S, Reason);
             else
-               Editor.Executor.Report_Info (S, Reason);
+               Editor.Executor.Shared_Services.Report_Info (S, Reason);
             end if;
          end;
          return;

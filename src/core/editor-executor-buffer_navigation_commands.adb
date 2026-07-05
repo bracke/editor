@@ -1,6 +1,8 @@
 with Editor.Buffers;
 with Editor.Commands;
 with Editor.Executor;
+with Editor.Executor.Shared_Services;
+use Editor.Executor.Shared_Services;
 with Editor.Executor.File_Open_Commands;
 with Editor.Recent_Buffers;
 with Editor.State;
@@ -63,11 +65,11 @@ package body Editor.Executor.Buffer_Navigation_Commands is
 
    procedure Report_Info
      (S    : in out Editor.State.State_Type;
-      Text : String) renames Editor.Executor.Report_Info;
+      Text : String) renames Editor.Executor.Shared_Services.Report_Info;
 
    procedure Report_Success
      (S    : in out Editor.State.State_Type;
-      Text : String) renames Editor.Executor.Report_Success;
+      Text : String) renames Editor.Executor.Shared_Services.Report_Success;
 
    procedure Execute_Switch_Buffer
      (S                : in out Editor.State.State_Type;

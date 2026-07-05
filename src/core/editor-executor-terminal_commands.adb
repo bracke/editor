@@ -1,6 +1,8 @@
 with Editor.Command_Execution;
 with Editor.Commands;
 with Editor.Executor;
+with Editor.Executor.Shared_Services;
+use Editor.Executor.Shared_Services;
 with Editor.External_Producers;
 with Editor.Project;
 with Editor.Render_Cache;
@@ -63,7 +65,7 @@ package body Editor.Executor.Terminal_Commands is
 
    procedure Report_Info
      (S    : in out Editor.State.State_Type;
-      Text : String) renames Editor.Executor.Report_Info;
+      Text : String) renames Editor.Executor.Shared_Services.Report_Info;
 
    procedure Ensure_Terminal_Project_Tasks
      (S : in out Editor.State.State_Type)

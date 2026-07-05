@@ -91,32 +91,8 @@ package Editor.Executor is
       Action_Index     : Natural)
       return Editor.Commands.Command_Availability;
 
-   function Check_Dirty_Transition
-     (State : Editor.State.State_Type;
-      Kind  : Editor.Dirty_Guards.Dirty_Transition_Kind)
-      return Editor.Dirty_Guards.Dirty_Transition_Result;
-
-   --  Return whether the currently stored pending transition still points at
-   --  live editor/project/workspace state.  This is side-effect-free.
-   function Pending_Transition_Is_Still_Valid
-     (State : Editor.State.State_Type) return Boolean;
-
-   function Pending_Project_Open_Command_Matches
-     (S                   : Editor.State.State_Type;
-      Path                : String;
-      Recent_Project_Open : Boolean;
-      Explicit_Switch     : Boolean) return Boolean;
-
-   function Pending_Project_Close_Command_Matches
-     (S : Editor.State.State_Type) return Boolean;
-
    function Current_Semantic_Symbol_Name
      (State : Editor.State.State_Type) return String;
-
-   --  Clear stale pending-transition state without reporting.  User-visible
-   --  retry/action paths report their own single outcome message.
-   procedure Invalidate_Pending_Transition_If_Stale
-     (State : in out Editor.State.State_Type);
 
    --  Execute a stable user-command id through the guarded command boundary.
    --  Availability is checked first and unavailable commands report exactly
@@ -158,18 +134,6 @@ package Editor.Executor is
          Stdout_Truncated => False,
          Stderr_Truncated => False))
       return Editor.External_Producers.Build_Command_Result;
-
-   --  Build the current command-palette candidate snapshot, including
-   --  context-aware availability and unavailable reasons.
-   --  @param S editor state to inspect.
-   --  @param Result filtered command candidates in deterministic display order.
-   procedure Command_Palette_Candidates
-     (S      : Editor.State.State_Type;
-      Result : out Editor.Commands.Command_Palette_Candidate_Vectors.Vector);
-
-   --  Descriptor-owned explicit-target query mirrored for executor callers.
-   function Command_Requires_Explicit_Target
-     (Id : Editor.Commands.Command_Id) return Boolean;
 
    function File_Tree_Status_Message
      (Result : Editor.File_Tree.File_Tree_Scan_Result) return String;
@@ -296,32 +260,6 @@ package Editor.Executor is
    --  Internal support surface for executor child command packages.  These
    --  preserve the public executor entry points while allowing command-family
    --  implementations to move out of the parent body.
-   procedure Report_Info
-     (S    : in out Editor.State.State_Type;
-      Text : String);
-
-   procedure Report_Success
-     (S    : in out Editor.State.State_Type;
-      Text : String);
-
-   procedure Report_Warning
-     (S    : in out Editor.State.State_Type;
-      Text : String);
-
-   procedure Report_Error
-     (S    : in out Editor.State.State_Type;
-      Text : String);
-
-   function Current_Message_Time_Ms return Natural;
-
-   procedure Report_Info_Append
-     (S    : in out Editor.State.State_Type;
-      Text : String);
-
-   procedure Report_Success_Append
-     (S    : in out Editor.State.State_Type;
-      Text : String);
-
    function Visible_Restore_Message_In_History
      (S : Editor.State.State_Type) return Boolean;
 
@@ -330,27 +268,6 @@ package Editor.Executor is
 
    function File_Lifecycle_Confirmation_Pending
      (S : Editor.State.State_Type) return Boolean;
-
-   function Pending_Target_Is_Valid
-     (S      : Editor.State.State_Type;
-      Target : Editor.Pending_Transitions.Pending_Transition_Target) return Boolean;
-
-   function Pending_Target_For
-     (Kind      : Editor.Pending_Transitions.Pending_Transition_Kind;
-      Path      : String := "";
-      Display   : String := "";
-      Buffer_Id : Editor.Buffers.Buffer_Id := Editor.Buffers.No_Buffer)
-      return Editor.Pending_Transitions.Pending_Transition_Target;
-
-   procedure Set_Pending_Dirty_Transition
-     (S      : in out Editor.State.State_Type;
-      Target : Editor.Pending_Transitions.Pending_Transition_Target;
-      Guard  : Editor.Dirty_Guards.Dirty_Transition_Result);
-
-   function Check_Pending_Transition
-     (S      : Editor.State.State_Type;
-      Target : Editor.Pending_Transitions.Pending_Transition_Target)
-      return Editor.Dirty_Guards.Dirty_Transition_Result;
 
    procedure Clear_Restore_Feedback_Current
      (S : in out Editor.State.State_Type);

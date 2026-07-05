@@ -18,6 +18,9 @@ package Editor.Executor.Workspace_Commands is
      (S      : in out Editor.State.State_Type;
       Status : Editor.Workspace_Persistence.Workspace_Persistence_Status);
 
+   procedure Clear_Restore_Feedback_Current
+     (S : in out Editor.State.State_Type);
+
    procedure Mark_Restore_Summary_Current
      (S       : in out Editor.State.State_Type;
       Summary : Editor.Workspace_Persistence.Workspace_Restore_Summary);

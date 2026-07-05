@@ -800,6 +800,8 @@ editor-ada_tasking_rm_completion_closure_consumer_legality.adb
 editor-ada_tasking_rm_completion_closure_consumer_legality.ads
 editor-ada_tasking_shared_state_final_legality.adb
 editor-ada_tasking_shared_state_final_legality.ads
+editor-ada_token_cursor-tokenization.adb
+editor-ada_token_cursor-tokenization.ads
 editor-ada_token_cursor.adb
 editor-ada_token_cursor.ads
 editor-ada_type_graph.adb
@@ -961,6 +963,8 @@ editor-executor-feature_panel_commands.adb
 editor-executor-feature_panel_commands.ads
 editor-executor-panel_focus_commands.adb
 editor-executor-panel_focus_commands.ads
+editor-executor-overlay_commands.adb
+editor-executor-overlay_commands.ads
 editor-executor-pending_transition_policy.adb
 editor-executor-pending_transition_policy.ads
 editor-executor-terminal_commands.adb
@@ -985,6 +989,8 @@ editor-executor-command_palette_projection.adb
 editor-executor-command_palette_projection.ads
 editor-executor-command_surface_commands.adb
 editor-executor-command_surface_commands.ads
+editor-executor-command_result_commands.adb
+editor-executor-command_result_commands.ads
 editor-executor-diagnostics_commands.adb
 editor-executor-diagnostics_commands.ads
 editor-executor-diagnostics_problems_commands.adb
@@ -1093,6 +1099,8 @@ editor-history.adb
 editor-history.ads
 editor-input.adb
 editor-input.ads
+editor-input_bridge-render_access.adb
+editor-input_bridge-render_access.ads
 editor-input_bridge.adb
 editor-input_bridge.ads
 editor-input_field.adb

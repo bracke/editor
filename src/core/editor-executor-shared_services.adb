@@ -1,3 +1,5 @@
+with Editor.Executor.Shared_Services;
+use Editor.Executor.Shared_Services;
 with Ada.Strings;
 with Ada.Strings.Fixed;
 with Editor.Commands;

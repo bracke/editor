@@ -4,6 +4,8 @@ with Editor.Clipboard;
 with Editor.Command_Execution;
 with Editor.Commands;
 with Editor.Executor;
+with Editor.Executor.Shared_Services;
+use Editor.Executor.Shared_Services;
 with Editor.Feature_Messages;
 with Editor.Feature_Panel;
 with Editor.Feature_Panel_Controller;
@@ -60,7 +62,7 @@ package body Editor.Executor.Message_Commands is
 
    procedure Report_Info
      (S    : in out Editor.State.State_Type;
-      Text : String) renames Editor.Executor.Report_Info;
+      Text : String) renames Editor.Executor.Shared_Services.Report_Info;
 
    function Feature_Target_Position_Is_Valid
      (S             : Editor.State.State_Type;

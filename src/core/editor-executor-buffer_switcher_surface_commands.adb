@@ -4,6 +4,8 @@ with Editor.Commands;
 with Editor.Executor.Buffer_Switcher_Shared;
 with Editor.Executor.File_Open_Commands;
 with Editor.Executor;
+with Editor.Executor.Shared_Services;
+use Editor.Executor.Shared_Services;
 with Editor.Focus_Management;
 with Editor.Render_Cache;
 with Editor.Overlay_Focus;
@@ -187,20 +189,20 @@ package body Editor.Executor.Buffer_Switcher_Surface_Commands is
    begin
       if Count = 0 then
          if Metadata_Filter'Length > 0 then
-            Editor.Executor.Report_Info (S, "No matching open buffers");
+            Editor.Executor.Shared_Services.Report_Info (S, "No matching open buffers");
          elsif Filter'Length = 0 then
-            Editor.Executor.Report_Info (S, "Buffers: 0 open");
+            Editor.Executor.Shared_Services.Report_Info (S, "Buffers: 0 open");
          else
-            Editor.Executor.Report_Info (S, "Buffers: no matches");
+            Editor.Executor.Shared_Services.Report_Info (S, "Buffers: no matches");
          end if;
       elsif Metadata_Filter'Length > 0 then
-         Editor.Executor.Report_Info (S, "Switcher filter: " & Metadata_Filter);
+         Editor.Executor.Shared_Services.Report_Info (S, "Switcher filter: " & Metadata_Filter);
       elsif Filter'Length = 0 then
-         Editor.Executor.Report_Info (S, "Buffers:" & Natural'Image (Count) & " open");
+         Editor.Executor.Shared_Services.Report_Info (S, "Buffers:" & Natural'Image (Count) & " open");
       elsif Count = 1 then
-         Editor.Executor.Report_Info (S, "Buffers: 1 match");
+         Editor.Executor.Shared_Services.Report_Info (S, "Buffers: 1 match");
       else
-         Editor.Executor.Report_Info (S, "Buffers:" & Natural'Image (Count) & " matches");
+         Editor.Executor.Shared_Services.Report_Info (S, "Buffers:" & Natural'Image (Count) & " matches");
       end if;
    end Report_Buffer_Switcher_Count;
 
@@ -238,11 +240,11 @@ package body Editor.Executor.Buffer_Switcher_Surface_Commands is
    begin
       Editor.Executor.Clear_Restore_Feedback_Current (S);
       if not Found or else Row.Id = Editor.Buffers.No_Buffer then
-         Editor.Executor.Report_Warning (S, "Buffer switcher: no buffer selected");
+         Editor.Executor.Shared_Services.Report_Warning (S, "Buffer switcher: no buffer selected");
          Editor.Render_Cache.Invalidate_All;
          return;
       elsif not Editor.Buffers.Global_Contains (Row.Id) then
-         Editor.Executor.Report_Warning (S, "Selected buffer is no longer open");
+         Editor.Executor.Shared_Services.Report_Warning (S, "Selected buffer is no longer open");
          Editor.Render_Cache.Invalidate_All;
          return;
       end if;
@@ -257,7 +259,7 @@ package body Editor.Executor.Buffer_Switcher_Surface_Commands is
       end if;
       Editor.Executor.File_Open_Commands.Execute_Switch_Buffer (S, Row.Id, Emit_Feedback => False);
       Editor.Focus_Management.Restore_Focus_To_Editor (S);
-      Editor.Executor.Report_Info (S, "Buffer switched");
+      Editor.Executor.Shared_Services.Report_Info (S, "Buffer switched");
       Editor.Render_Cache.Invalidate_All;
    end Execute_Accept_Buffer_Switcher;
 
@@ -323,7 +325,7 @@ package body Editor.Executor.Buffer_Switcher_Surface_Commands is
       else
          Editor.Render_Cache.Invalidate_All;
       end if;
-      Editor.Executor.Report_Success (S, "Switcher filter cleared");
+      Editor.Executor.Shared_Services.Report_Success (S, "Switcher filter cleared");
    end Execute_Buffer_Switcher_Filter_Clear;
 
    procedure Execute_Buffer_Switcher_Filter_Pinned
@@ -347,9 +349,9 @@ package body Editor.Executor.Buffer_Switcher_Surface_Commands is
    begin
       Editor.Buffers.Ensure_Global_Registry (S);
       if not Editor.Buffers.Global_Has_Buffer_Groups then
-         Editor.Executor.Report_Info (S, "No buffer groups");
+         Editor.Executor.Shared_Services.Report_Info (S, "No buffer groups");
       elsif Group'Length = 0 then
-         Editor.Executor.Report_Info (S, "No group name");
+         Editor.Executor.Shared_Services.Report_Info (S, "No group name");
       else
          Editor.Buffer_Switcher.Set_Group_Filter (S.Buffer_Switcher, Group);
          if not Editor.Buffer_Switcher.Is_Open (S.Buffer_Switcher) then
@@ -380,9 +382,9 @@ package body Editor.Executor.Buffer_Switcher_Surface_Commands is
    begin
       Editor.Buffers.Ensure_Global_Registry (S);
       if not Any_Labelled_Buffer then
-         Editor.Executor.Report_Info (S, "No buffer labels");
+         Editor.Executor.Shared_Services.Report_Info (S, "No buffer labels");
       elsif Text'Length = 0 then
-         Editor.Executor.Report_Info (S, "No buffer label");
+         Editor.Executor.Shared_Services.Report_Info (S, "No buffer label");
       else
          Editor.Buffer_Switcher.Set_Label_Filter (S.Buffer_Switcher, Text);
          if not Editor.Buffer_Switcher.Is_Open (S.Buffer_Switcher) then
@@ -411,7 +413,7 @@ package body Editor.Executor.Buffer_Switcher_Surface_Commands is
      (S : in out Editor.State.State_Type)
    is
    begin
-      Editor.Executor.Report_Info
+      Editor.Executor.Shared_Services.Report_Info
         (S, "Switcher sort: " &
          Editor.Buffer_Switcher.Sort_Mode_Description (S.Buffer_Switcher));
    end Report_Buffer_Switcher_Sort;

@@ -11,6 +11,7 @@ with Editor.Keybindings;
 with Editor.Project;
 with Editor.Commands;
 with Editor.Executor;
+with Editor.Executor.Command_Palette_Projection;
 with Editor.Executor.File_Save_Commands;
 with Editor.Executor.File_Save_Basic_Commands;
 with Editor.Executor.Buffer_Close_Commands;
@@ -2328,7 +2329,7 @@ package body Editor.Buffers.Tests is
       Editor.Render_Model.Build_Render_Snapshot (S, Snap);
       A := Editor.Executor.Command_Availability
         (S, Editor.Commands.Command_Close_Active_Buffer);
-      Editor.Executor.Command_Palette_Candidates (S, Candidates);
+      Editor.Executor.Command_Palette_Projection.Command_Palette_Candidates (S, Candidates);
 
       Assert (Editor.Commands.Is_Available (A),
         "dirty close availability is available and still side-effect-free");
@@ -2587,7 +2588,7 @@ package body Editor.Buffers.Tests is
       Editor.Render_Model.Build_Render_Snapshot (S, Snap);
       A := Editor.Executor.Command_Availability
         (S, Editor.Commands.Command_Reopen_Closed_Buffer);
-      Editor.Executor.Command_Palette_Candidates (S, Candidates);
+      Editor.Executor.Command_Palette_Projection.Command_Palette_Candidates (S, Candidates);
 
       Assert (Editor.Commands.Is_Available (A),
         "reopen availability must depend on candidate presence, not filesystem probing");
@@ -2913,7 +2914,7 @@ package body Editor.Buffers.Tests is
       Editor.Render_Model.Build_Render_Snapshot (S, Snap);
       A := Editor.Executor.Command_Availability
         (S, Editor.Commands.Command_Reopen_Closed_Buffer);
-      Editor.Executor.Command_Palette_Candidates (S, Candidates);
+      Editor.Executor.Command_Palette_Projection.Command_Palette_Candidates (S, Candidates);
       Assert (Editor.Commands.Is_Available (A),
         "reopen availability must depend on candidate presence only");
       Assert (S.Has_Reopen_Candidate and then To_String (S.Reopen_Candidate_Path) = Path,

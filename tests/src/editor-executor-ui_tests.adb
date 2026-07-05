@@ -1,3 +1,4 @@
+with Editor.Executor.Command_Palette_Projection;
 with AUnit.Assertions; use AUnit.Assertions;
 with AUnit.Test_Cases;
 with Ada.Containers; use type Ada.Containers.Count_Type;
@@ -753,7 +754,7 @@ package body Editor.Executor.UI_Tests is
       Expected := To_Unbounded_String
         (Availability_Reason (S, Editor.Commands.Command_Save_File));
 
-      Editor.Executor.Command_Palette_Candidates (S, Candidates);
+      Editor.Executor.Command_Palette_Projection.Command_Palette_Candidates (S, Candidates);
       for Candidate of Candidates loop
          if Candidate.Id = Editor.Commands.Command_Save_File then
             Found := True;

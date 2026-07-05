@@ -1,3 +1,5 @@
+with Editor.Executor.Shared_Services;
+use Editor.Executor.Shared_Services;
 with Editor.Commands;
 with Editor.Executor.Project_Search_Result_Commands;
 with Editor.Executor.Search_Commands;
@@ -13,7 +15,7 @@ package body Editor.Executor.Project_Search_Surface_Commands is
 
    procedure Report_Info
      (S    : in out Editor.State.State_Type;
-      Text : String) renames Editor.Executor.Report_Info;
+      Text : String) renames Editor.Executor.Shared_Services.Report_Info;
 
    procedure Activate_Overlay
      (S       : in out Editor.State.State_Type;

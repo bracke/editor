@@ -7,6 +7,7 @@ with Ada.Characters.Handling;
 with Interfaces.C;
 with Editor.Command_Palette;
 with Editor.Executor;
+with Editor.Executor.Command_Palette_Projection;
 with Editor.Commands;
 with Editor.Ada_Diagnostic_Command_Projection;
 use type Editor.Commands.Command_Id;
@@ -939,7 +940,7 @@ package body Editor.Command_Palette.Tests is
       Editor.Command_Palette.Open;
       Editor.Command_Palette.Insert_Text ("quick open");
 
-      Editor.Executor.Command_Palette_Candidates (S, Candidates);
+      Editor.Executor.Command_Palette_Projection.Command_Palette_Candidates (S, Candidates);
 
       for Candidate of Candidates loop
          if Candidate.Id = Editor.Commands.Command_Open_Quick_Open then
@@ -1349,7 +1350,7 @@ package body Editor.Command_Palette.Tests is
       Editor.Command_Palette.Open;
       Editor.Command_Palette.Insert_Text ("save file");
 
-      Editor.Executor.Command_Palette_Candidates (S, Candidates);
+      Editor.Executor.Command_Palette_Projection.Command_Palette_Candidates (S, Candidates);
 
       for Candidate of Candidates loop
          if Candidate.Id = Editor.Commands.Command_Save_File then
@@ -1377,7 +1378,7 @@ package body Editor.Command_Palette.Tests is
       Editor.Command_Palette.Open;
       Editor.Command_Palette.Insert_Text ("run build");
 
-      Editor.Executor.Command_Palette_Candidates (S, Candidates);
+      Editor.Executor.Command_Palette_Projection.Command_Palette_Candidates (S, Candidates);
 
       for Candidate of Candidates loop
          if Candidate.Id = Editor.Commands.Command_Build_Run then
@@ -1519,7 +1520,7 @@ package body Editor.Command_Palette.Tests is
       Editor.Command_Palette.Open;
       Editor.Command_Palette.Insert_Text ("quick open");
 
-      Editor.Executor.Command_Palette_Candidates (S, Candidates);
+      Editor.Executor.Command_Palette_Projection.Command_Palette_Candidates (S, Candidates);
 
       for Candidate of Candidates loop
          if Candidate.Id = Editor.Commands.Command_Open_Quick_Open then
@@ -1548,7 +1549,7 @@ package body Editor.Command_Palette.Tests is
       Editor.Command_Palette.Open;
       Editor.Command_Palette.Insert_Text ("ctrl+s");
 
-      Editor.Executor.Command_Palette_Candidates (S, Candidates);
+      Editor.Executor.Command_Palette_Projection.Command_Palette_Candidates (S, Candidates);
       declare
          Found : Boolean := False;
       begin
@@ -1586,7 +1587,7 @@ package body Editor.Command_Palette.Tests is
       Editor.Command_Palette.Set_Current_Config (Config);
       Editor.Command_Palette.Insert_Text ("ctrl+s");
 
-      Editor.Executor.Command_Palette_Candidates (S, Candidates);
+      Editor.Executor.Command_Palette_Projection.Command_Palette_Candidates (S, Candidates);
       for Candidate of Candidates loop
          if Candidate.Id = Editor.Commands.Command_Save_File then
             Found_Save := True;
@@ -1941,7 +1942,7 @@ package body Editor.Command_Palette.Tests is
       Assert (Filtered.Element (0).Id = Editor.Commands.Command_Save_File,
               "Stable command id query should match Save File");
 
-      Editor.Executor.Command_Palette_Candidates (S, Candidates);
+      Editor.Executor.Command_Palette_Projection.Command_Palette_Candidates (S, Candidates);
       for Candidate of Candidates loop
          if Candidate.Id = Editor.Commands.Command_Save_File then
             Found_In_Executor := True;
@@ -2031,7 +2032,7 @@ package body Editor.Command_Palette.Tests is
                  "Build test-seam command must not be exposed by descriptor filtering");
       end loop;
 
-      Editor.Executor.Command_Palette_Candidates (S, Candidates);
+      Editor.Executor.Command_Palette_Projection.Command_Palette_Candidates (S, Candidates);
       for Candidate of Candidates loop
          Assert (Candidate.Id /= Editor.Commands.Command_Build_Run_User_Opt_In_Test_Seam,
                  "Build test-seam command must not be exposed by executor palette candidates");
@@ -2222,7 +2223,7 @@ package body Editor.Command_Palette.Tests is
       function Save_Binding return String is
       begin
          Candidates.Clear;
-         Editor.Executor.Command_Palette_Candidates (S, Candidates);
+         Editor.Executor.Command_Palette_Projection.Command_Palette_Candidates (S, Candidates);
          for Candidate of Candidates loop
             if Candidate.Id = Editor.Commands.Command_Save_File then
                if Candidate.Has_Keybinding then
@@ -2289,7 +2290,7 @@ package body Editor.Command_Palette.Tests is
       Editor.Command_Palette.Reset;
       Editor.Command_Palette.Open;
       Editor.Command_Palette.Insert_Text ("build");
-      Editor.Executor.Command_Palette_Candidates (S, Candidates);
+      Editor.Executor.Command_Palette_Projection.Command_Palette_Candidates (S, Candidates);
 
       for Candidate of Candidates loop
          if Candidate.Id = Editor.Commands.Command_Build_Run then
@@ -2751,7 +2752,7 @@ package body Editor.Command_Palette.Tests is
       Editor.Command_Palette.Reset;
       Editor.Command_Palette.Open;
       Editor.Command_Palette.Insert_Text ("command-palette.show-command-help");
-      Editor.Executor.Command_Palette_Candidates (S, Candidates);
+      Editor.Executor.Command_Palette_Projection.Command_Palette_Candidates (S, Candidates);
 
       for Candidate of Candidates loop
          if Candidate.Id = Editor.Commands.Command_Palette_Show_Command_Help then
@@ -3049,7 +3050,7 @@ package body Editor.Command_Palette.Tests is
          Editor.Overlay_Focus.Command_Palette_Overlay,
          Editor.Overlay_Focus.Previous_File_Tree);
 
-      Editor.Executor.Command_Palette_Candidates (S, Candidates);
+      Editor.Executor.Command_Palette_Projection.Command_Palette_Candidates (S, Candidates);
 
       Assert (Candidates.Length > 0,
               "Command Palette must project candidates for relevance ranking");
@@ -3213,7 +3214,7 @@ package body Editor.Command_Palette.Tests is
          Editor.Command_Palette.Reset;
          Editor.Command_Palette.Open;
          Editor.Command_Palette.Insert_Text (Query);
-         Editor.Executor.Command_Palette_Candidates (S, Candidates);
+         Editor.Executor.Command_Palette_Projection.Command_Palette_Candidates (S, Candidates);
          Assert (Candidates.Length > 0,
                  "command palette query '" & Query & "' should produce candidates");
          Assert (Candidates.Element (0).Id = Id,
@@ -3266,7 +3267,7 @@ package body Editor.Command_Palette.Tests is
          Editor.Command_Palette.Reset;
          Editor.Command_Palette.Open;
          Editor.Command_Palette.Insert_Text (Query);
-         Editor.Executor.Command_Palette_Candidates (S, Candidates);
+         Editor.Executor.Command_Palette_Projection.Command_Palette_Candidates (S, Candidates);
          Assert (Candidates.Length > 0,
                  "command palette query '" & Query & "' should produce candidates");
          Assert (Candidates.Element (0).Id = Id,
@@ -3331,7 +3332,7 @@ package body Editor.Command_Palette.Tests is
          Editor.Command_Palette.Reset;
          Editor.Command_Palette.Open;
          Editor.Command_Palette.Insert_Text (Query);
-         Editor.Executor.Command_Palette_Candidates (S, Candidates);
+         Editor.Executor.Command_Palette_Projection.Command_Palette_Candidates (S, Candidates);
          Assert (Candidates.Length > 0,
                  "command palette query '" & Query & "' should produce candidates");
 
@@ -3437,7 +3438,7 @@ package body Editor.Command_Palette.Tests is
       Editor.Command_Palette.Reset;
       Editor.Command_Palette.Open;
       Editor.Command_Palette.Insert_Text ("save");
-      Editor.Executor.Command_Palette_Candidates (S, Candidates);
+      Editor.Executor.Command_Palette_Projection.Command_Palette_Candidates (S, Candidates);
       Availability := Editor.Executor.Command_Availability
         (S, Editor.Commands.Command_Save_File);
 

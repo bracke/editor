@@ -6,6 +6,9 @@ with Editor.Command_Execution;
 with Editor.Commands;
 with Editor.Dirty_Guards;
 with Editor.Executor;
+with Editor.Executor.Shared_Services;
+use Editor.Executor.Shared_Services;
+with Editor.Executor.Pending_Transition_Policy;
 with Editor.Executor.Buffer_Switcher_Shared;
 with Editor.Feature_Messages;
 with Editor.Feature_Panel_Controller;
@@ -25,7 +28,7 @@ package body Editor.Executor.Buffer_Switcher_Selected_Commands is
 
    procedure Report_Info
      (S    : in out Editor.State.State_Type;
-      Text : String) renames Editor.Executor.Report_Info;
+      Text : String) renames Editor.Executor.Shared_Services.Report_Info;
 
    procedure Report_No_Selected_Switcher_Buffer
      (S : in out Editor.State.State_Type)
@@ -153,13 +156,13 @@ package body Editor.Executor.Buffer_Switcher_Selected_Commands is
          else
             Editor.Buffers.Load_Global_Active_Into_State (S);
          end if;
-         Editor.Executor.Invalidate_Pending_Transition_If_Stale (S);
+         Editor.Executor.Pending_Transition_Policy.Invalidate_Pending_Transition_If_Stale (S);
          Report_Info (S, "Closed " & To_String (Name));
          Editor.Executor.Buffer_Switcher_Shared
            .Recompute_Buffer_Switcher_After_Selected_Action
              (S, Editor.Buffers.No_Buffer, Fallback_Index);
       else
-         Editor.Executor.Report_Warning
+         Editor.Executor.Shared_Services.Report_Warning
            (S, "Close blocked: " & To_String (Name) &
              " has unsaved changes");
          Editor.Executor.Buffer_Switcher_Shared
@@ -212,7 +215,7 @@ package body Editor.Executor.Buffer_Switcher_Selected_Commands is
       end if;
       Name := To_Unbounded_String (Editor.Buffers.Global_Display_Name (Row.Id));
       Editor.Buffers.Global_Pin_Buffer (Row.Id);
-      Editor.Executor.Report_Success (S, "Pinned " & To_String (Name));
+      Editor.Executor.Shared_Services.Report_Success (S, "Pinned " & To_String (Name));
       Editor.Executor.Buffer_Switcher_Shared
         .Recompute_Buffer_Switcher_After_Selected_Action
           (S, Row.Id, Fallback_Index);
@@ -235,7 +238,7 @@ package body Editor.Executor.Buffer_Switcher_Selected_Commands is
       end if;
       Name := To_Unbounded_String (Editor.Buffers.Global_Display_Name (Row.Id));
       Editor.Buffers.Global_Unpin_Buffer (Row.Id);
-      Editor.Executor.Report_Success (S, "Unpinned " & To_String (Name));
+      Editor.Executor.Shared_Services.Report_Success (S, "Unpinned " & To_String (Name));
       Editor.Executor.Buffer_Switcher_Shared
         .Recompute_Buffer_Switcher_After_Selected_Action
           (S, Row.Id, Fallback_Index);
@@ -261,9 +264,9 @@ package body Editor.Executor.Buffer_Switcher_Selected_Commands is
       Was_Pinned := Editor.Buffers.Global_Is_Buffer_Pinned (Row.Id);
       Editor.Buffers.Global_Toggle_Buffer_Pin (Row.Id);
       if Was_Pinned then
-         Editor.Executor.Report_Success (S, "Unpinned " & To_String (Name));
+         Editor.Executor.Shared_Services.Report_Success (S, "Unpinned " & To_String (Name));
       else
-         Editor.Executor.Report_Success (S, "Pinned " & To_String (Name));
+         Editor.Executor.Shared_Services.Report_Success (S, "Pinned " & To_String (Name));
       end if;
       Editor.Executor.Buffer_Switcher_Shared
         .Recompute_Buffer_Switcher_After_Selected_Action
@@ -295,7 +298,7 @@ package body Editor.Executor.Buffer_Switcher_Selected_Commands is
       Display := To_Unbounded_String
         (Editor.Buffers.Global_Display_Name (Row.Id));
       Editor.Buffers.Global_Assign_Buffer_Group (Row.Id, Group);
-      Editor.Executor.Report_Success
+      Editor.Executor.Shared_Services.Report_Success
         (S, "Assigned " & To_String (Display) & " to group " & Group);
       Editor.Executor.Buffer_Switcher_Shared
         .Recompute_Buffer_Switcher_After_Selected_Action
@@ -320,7 +323,7 @@ package body Editor.Executor.Buffer_Switcher_Selected_Commands is
       Display := To_Unbounded_String
         (Editor.Buffers.Global_Display_Name (Row.Id));
       Editor.Buffers.Global_Clear_Buffer_Group (Row.Id);
-      Editor.Executor.Report_Success
+      Editor.Executor.Shared_Services.Report_Success
         (S, "Cleared group for " & To_String (Display));
       Editor.Executor.Buffer_Switcher_Shared
         .Recompute_Buffer_Switcher_After_Selected_Action
@@ -356,11 +359,11 @@ package body Editor.Executor.Buffer_Switcher_Selected_Commands is
         (Editor.Buffers.Global_Display_Name (Row.Id));
       if Text'Length = 0 then
          Editor.Buffers.Global_Clear_Buffer_Label (Row.Id);
-         Editor.Executor.Report_Success
+         Editor.Executor.Shared_Services.Report_Success
            (S, "Label cleared for " & To_String (Display));
       else
          Editor.Buffers.Global_Set_Buffer_Label (Row.Id, Text);
-         Editor.Executor.Report_Success
+         Editor.Executor.Shared_Services.Report_Success
            (S, "Label set for " & To_String (Display) & ": " & Text);
       end if;
       Editor.Executor.Buffer_Switcher_Shared
@@ -386,7 +389,7 @@ package body Editor.Executor.Buffer_Switcher_Selected_Commands is
       Display := To_Unbounded_String
         (Editor.Buffers.Global_Display_Name (Row.Id));
       Editor.Buffers.Global_Clear_Buffer_Label (Row.Id);
-      Editor.Executor.Report_Success
+      Editor.Executor.Shared_Services.Report_Success
         (S, "Label cleared for " & To_String (Display));
       Editor.Executor.Buffer_Switcher_Shared
         .Recompute_Buffer_Switcher_After_Selected_Action
@@ -419,11 +422,11 @@ package body Editor.Executor.Buffer_Switcher_Selected_Commands is
         (Editor.Buffers.Global_Display_Name (Row.Id));
       if Text'Length = 0 then
          Editor.Buffers.Global_Clear_Buffer_Note (Row.Id);
-         Editor.Executor.Report_Success
+         Editor.Executor.Shared_Services.Report_Success
            (S, "Note cleared for " & To_String (Display));
       else
          Editor.Buffers.Global_Set_Buffer_Note (Row.Id, Text);
-         Editor.Executor.Report_Success
+         Editor.Executor.Shared_Services.Report_Success
            (S, "Note set for " & To_String (Display));
       end if;
       Editor.Executor.Buffer_Switcher_Shared
@@ -449,7 +452,7 @@ package body Editor.Executor.Buffer_Switcher_Selected_Commands is
       Display := To_Unbounded_String
         (Editor.Buffers.Global_Display_Name (Row.Id));
       Editor.Buffers.Global_Clear_Buffer_Note (Row.Id);
-      Editor.Executor.Report_Success
+      Editor.Executor.Shared_Services.Report_Success
         (S, "Note cleared for " & To_String (Display));
       Editor.Executor.Buffer_Switcher_Shared
         .Recompute_Buffer_Switcher_After_Selected_Action

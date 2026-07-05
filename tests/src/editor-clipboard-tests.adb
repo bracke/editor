@@ -15,6 +15,7 @@ with Editor.Render_Model;
 with Editor.Search;
 with Editor.Cursors; use Editor.Cursors;
 with Editor.Executor;
+with Editor.Executor.Command_Palette_Projection;
 with Editor.Executor.Buffer_Close_Commands;
 with Editor.Executor.File_Open_Commands;
 with Editor.Executor.Find_Replace_Commands;
@@ -1043,7 +1044,7 @@ package body Editor.Clipboard.Tests is
 
       Before_Text := To_Unbounded_String (Editor.State.Current_Text (S));
       Before_Clip := Editor.Clipboard.Get_Text;
-      Editor.Executor.Command_Palette_Candidates (S, Candidates);
+      Editor.Executor.Command_Palette_Projection.Command_Palette_Candidates (S, Candidates);
 
       Assert_Stable ("edit.copy", Editor.Commands.Command_Copy);
       Assert_Stable ("edit.cut", Editor.Commands.Command_Cut);
