@@ -8,6 +8,7 @@ with Editor.Ada_Declaration_Parser.Lexical_Helpers;
 with Editor.Ada_Declaration_Parser.Line_Dispatch;
 with Editor.Ada_Declaration_Parser.Name_Profile_Helpers;
 with Editor.Ada_Declaration_Parser.Pragma_Helpers;
+with Editor.Ada_Declaration_Parser.Same_Line_Declarations;
 with Editor.Ada_Syntax_Core;
 with Editor.Ada_Syntax_Tree;
 
@@ -4418,23 +4419,9 @@ package body Editor.Ada_Declaration_Parser is
 
 
       function Has_Same_Line_Subtype_Group return Boolean is
-         Code : constant String := Editor.Ada_Syntax_Core.Sanitize_Line (Raw_Line);
       begin
-         if not Starts_With_Word (Decl_Lower, "subtype")
-           or else Code'Length <= 8
-         then
-            return False;
-         end if;
-
-         for I in Code'First .. Code'Last - 8 loop
-            if Code (I) = ';'
-              and then Starts_With_Word (Lower (Trim (Code (I + 1 .. Code'Last))), "subtype")
-            then
-               return True;
-            end if;
-         end loop;
-
-         return False;
+         return Same_Line_Declarations.Has_Same_Line_Subtype_Group
+           (Raw_Line, Decl_Lower);
       end Has_Same_Line_Subtype_Group;
 
       procedure Add_Same_Line_Subtype_Groups is
@@ -4505,31 +4492,9 @@ package body Editor.Ada_Declaration_Parser is
       end Add_Same_Line_Subtype_Groups;
 
       function Has_Same_Line_Type_Group return Boolean is
-         Code    : constant String := Editor.Ada_Syntax_Core.Sanitize_Line (Raw_Line);
-         Nesting : Natural := 0;
       begin
-         if not Starts_With_Word (Decl_Lower, "type")
-           or else Code'Length <= 5
-         then
-            return False;
-         end if;
-
-         for I in Code'First .. Code'Last - 5 loop
-            if Code (I) = '(' then
-               Nesting := Nesting + 1;
-            elsif Code (I) = ')' then
-               if Nesting > 0 then
-                  Nesting := Nesting - 1;
-               end if;
-            elsif Code (I) = ';'
-              and then Nesting = 0
-              and then Starts_With_Word (Lower (Trim (Code (I + 1 .. Code'Last))), "type")
-            then
-               return True;
-            end if;
-         end loop;
-
-         return False;
+         return Same_Line_Declarations.Has_Same_Line_Type_Group
+           (Raw_Line, Decl_Lower);
       end Has_Same_Line_Type_Group;
 
       procedure Add_Enumeration_Literals_From_Segment
