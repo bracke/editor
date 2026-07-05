@@ -1,5 +1,6 @@
 with Editor.Instance;
 with Editor.Input_Bridge.Pointer_Routing;
+with Editor.Input_Bridge.Pointer_State;
 with Editor.Input_Bridge.Render_Access;
 with Editor.Input_Bridge.Text_Entry_Routing;
 with Editor.Commands;
@@ -139,13 +140,6 @@ use type Editor.Keybinding_Management.Keybinding_Action_Status;
 use type Editor.Guided_Prompts.Prompt_Kind;
    The_Editor : Editor.Instance.Editor_Instance;
    Initialized : Boolean := False;
-   Minimap_Drag_Active : Boolean := False;
-
-   type Gutter_Line_Selection_State is record
-      Active     : Boolean := False;
-      Anchor_Row : Natural := 0;
-   end record;
-
    function Overlay_Or_Local_Text_Input_Active return Boolean is
    begin
       return Editor.Focus_Management.Overlay_Input_Owns_Text (The_Editor.State);
@@ -292,17 +286,6 @@ use type Editor.Guided_Prompts.Prompt_Kind;
             null;
       end case;
    end Execute_Text_Entry_Command_Id;
-
-   Gutter_Line_Selection : Gutter_Line_Selection_State;
-
-   type Scrollbar_Drag_State is record
-      Active      : Boolean := False;
-      Orientation : Editor.Scrollbars.Scrollbar_Orientation :=
-        Editor.Scrollbars.Vertical_Scrollbar;
-      Drag_Offset : Natural := 0;
-   end record;
-
-   Scrollbar_Drag : Scrollbar_Drag_State;
 
    procedure For_Each_Text_Char_Range
    (Start : Natural;
@@ -3071,21 +3054,23 @@ use type Editor.Guided_Prompts.Prompt_Kind;
               (if Raw_Effective_H = 0 then Editor.View.Viewport_Height else Raw_Effective_H)));
    begin
       if not Is_Minimap_Pointer_Command (Cmd.Kind) then
-         Minimap_Drag_Active := False;
+         Pointer_State.Set_Minimap_Drag_Active (False);
          return False;
       end if;
 
       if not Config.Enabled or else not Editor.Settings.Show_Minimap then
-         Minimap_Drag_Active := False;
+         Pointer_State.Set_Minimap_Drag_Active (False);
          return False;
       end if;
 
-      if Is_Minimap_Drag_Command (Cmd.Kind) and then Minimap_Drag_Active then
+      if Is_Minimap_Drag_Command (Cmd.Kind)
+        and then Pointer_State.Minimap_Drag_Active
+      then
          Scroll_From_Minimap_Y (Cmd.Click_Y);
          return True;
       end if;
 
-      Minimap_Drag_Active := False;
+      Pointer_State.Set_Minimap_Drag_Active (False);
 
       if Editor.Minimap.Contains_Point
            (X               => Cmd.Click_X,
@@ -3095,7 +3080,7 @@ use type Editor.Guided_Prompts.Prompt_Kind;
             Viewport_Height => Effective_H,
             Config          => Config)
       then
-         Minimap_Drag_Active := True;
+         Pointer_State.Set_Minimap_Drag_Active (True);
          Scroll_From_Minimap_Y (Cmd.Click_Y);
          return True;
       end if;
@@ -3168,8 +3153,8 @@ use type Editor.Guided_Prompts.Prompt_Kind;
       Desired_Top   : Natural := 0;
       Desired_Row   : Natural := 0;
    begin
-      if Y > Scrollbar_Drag.Drag_Offset then
-         Desired_Top := Y - Scrollbar_Drag.Drag_Offset;
+      if Y > Pointer_State.Scrollbar_Drag_Offset then
+         Desired_Top := Y - Pointer_State.Scrollbar_Drag_Offset;
       else
          Desired_Top := 0;
       end if;
@@ -3227,8 +3212,8 @@ use type Editor.Guided_Prompts.Prompt_Kind;
       Desired_Left : Natural := 0;
       Desired_Col  : Natural := 0;
    begin
-      if X > Scrollbar_Drag.Drag_Offset then
-         Desired_Left := X - Scrollbar_Drag.Drag_Offset;
+      if X > Pointer_State.Scrollbar_Drag_Offset then
+         Desired_Left := X - Pointer_State.Scrollbar_Drag_Offset;
       else
          Desired_Left := 0;
       end if;
@@ -3304,17 +3289,17 @@ use type Editor.Guided_Prompts.Prompt_Kind;
       Hit : Editor.Scrollbars.Scrollbar_Hit;
    begin
       if not Is_Scrollbar_Pointer_Command (Cmd.Kind) then
-         Scrollbar_Drag.Active := False;
+         Pointer_State.Clear_Scrollbar_Drag;
          return False;
       end if;
 
       if not Config.Enabled then
-         Scrollbar_Drag.Active := False;
+         Pointer_State.Clear_Scrollbar_Drag;
          return False;
       end if;
 
-      if Is_Scrollbar_Drag_Command (Cmd.Kind) and then Scrollbar_Drag.Active then
-         case Scrollbar_Drag.Orientation is
+      if Is_Scrollbar_Drag_Command (Cmd.Kind) and then Pointer_State.Scrollbar_Drag_Active then
+         case Pointer_State.Scrollbar_Drag_Orientation is
             when Editor.Scrollbars.Vertical_Scrollbar =>
                Scroll_From_Vertical_Thumb (Cmd.Click_Y);
             when Editor.Scrollbars.Horizontal_Scrollbar =>
@@ -3323,17 +3308,15 @@ use type Editor.Guided_Prompts.Prompt_Kind;
          return True;
       end if;
 
-      Scrollbar_Drag.Active := False;
+      Pointer_State.Clear_Scrollbar_Drag;
 
       Hit := Editor.Scrollbars.Hit_Test (Vertical, Cmd.Click_X, Cmd.Click_Y);
       if Hit = Editor.Scrollbars.Scrollbar_Thumb_Hit then
-         Scrollbar_Drag.Active := True;
-         Scrollbar_Drag.Orientation := Editor.Scrollbars.Vertical_Scrollbar;
-         if Cmd.Click_Y > Natural (Vertical.Thumb.Y) then
-            Scrollbar_Drag.Drag_Offset := Cmd.Click_Y - Natural (Vertical.Thumb.Y);
-         else
-            Scrollbar_Drag.Drag_Offset := 0;
-         end if;
+         Pointer_State.Start_Scrollbar_Drag
+           (Editor.Scrollbars.Vertical_Scrollbar,
+            (if Cmd.Click_Y > Natural (Vertical.Thumb.Y)
+             then Cmd.Click_Y - Natural (Vertical.Thumb.Y)
+             else 0));
          return True;
       elsif Hit = Editor.Scrollbars.Scrollbar_Track_Hit then
          if Float (Cmd.Click_Y) < Vertical.Thumb.Y then
@@ -3353,13 +3336,11 @@ use type Editor.Guided_Prompts.Prompt_Kind;
 
       Hit := Editor.Scrollbars.Hit_Test (Horizontal, Cmd.Click_X, Cmd.Click_Y);
       if Hit = Editor.Scrollbars.Scrollbar_Thumb_Hit then
-         Scrollbar_Drag.Active := True;
-         Scrollbar_Drag.Orientation := Editor.Scrollbars.Horizontal_Scrollbar;
-         if Cmd.Click_X > Natural (Horizontal.Thumb.X) then
-            Scrollbar_Drag.Drag_Offset := Cmd.Click_X - Natural (Horizontal.Thumb.X);
-         else
-            Scrollbar_Drag.Drag_Offset := 0;
-         end if;
+         Pointer_State.Start_Scrollbar_Drag
+           (Editor.Scrollbars.Horizontal_Scrollbar,
+            (if Cmd.Click_X > Natural (Horizontal.Thumb.X)
+             then Cmd.Click_X - Natural (Horizontal.Thumb.X)
+             else 0));
          return True;
       elsif Hit = Editor.Scrollbars.Scrollbar_Track_Hit then
          if Float (Cmd.Click_X) < Horizontal.Thumb.X then
@@ -3466,23 +3447,23 @@ use type Editor.Guided_Prompts.Prompt_Kind;
         Editor.Gutter_Markers.No_Marker_Action;
    begin
       if not Is_Gutter_Pointer_Command (Cmd.Kind) then
-         Gutter_Line_Selection.Active := False;
+         Pointer_State.Clear_Gutter_Line_Selection;
          Editor.State.Clear_Gutter_Marker_Hover (The_Editor.State);
          return False;
       end if;
 
-      if Is_Gutter_Drag_Command (Cmd.Kind) and then Gutter_Line_Selection.Active then
+      if Is_Gutter_Drag_Command (Cmd.Kind) and then Pointer_State.Gutter_Line_Selection_Active then
          Doc_Row := Editor.Gutter.Document_Row_For_Y
            (Y             => Cmd.Click_Y,
             Layout        => Layout,
             Scroll_Y      => Editor.View.Scroll_Y,
             Folding       => The_Editor.State.Folding,
             Document_Rows => Doc_Count);
-         Select_Gutter_Line_Range (Gutter_Line_Selection.Anchor_Row, Doc_Row);
+         Select_Gutter_Line_Range (Pointer_State.Gutter_Line_Selection_Anchor_Row, Doc_Row);
          return True;
       end if;
 
-      Gutter_Line_Selection.Active := False;
+      Pointer_State.Clear_Gutter_Line_Selection;
 
       Hit := Editor.Gutter.Hit_Test_Result
         (X               => Cmd.Click_X,
@@ -3598,7 +3579,7 @@ use type Editor.Guided_Prompts.Prompt_Kind;
                end if;
             end;
 
-            Gutter_Line_Selection.Active := False;
+            Pointer_State.Clear_Gutter_Line_Selection;
             return True;
 
          when Editor.Gutter.Fold_Marker_Zone =>
@@ -3617,8 +3598,7 @@ use type Editor.Guided_Prompts.Prompt_Kind;
                return True;
             end if;
 
-            Gutter_Line_Selection.Active := True;
-            Gutter_Line_Selection.Anchor_Row := Doc_Row;
+            Pointer_State.Start_Gutter_Line_Selection (Doc_Row);
             Select_Gutter_Line_Range (Doc_Row, Doc_Row);
             return True;
 
@@ -3629,8 +3609,7 @@ use type Editor.Guided_Prompts.Prompt_Kind;
                return True;
             end if;
 
-            Gutter_Line_Selection.Active := True;
-            Gutter_Line_Selection.Anchor_Row := Doc_Row;
+            Pointer_State.Start_Gutter_Line_Selection (Doc_Row);
             Select_Gutter_Line_Range (Doc_Row, Doc_Row);
             return True;
       end case;
@@ -3692,16 +3671,12 @@ use type Editor.Guided_Prompts.Prompt_Kind;
             return False;
 
          when Editor.Pending_Transition_Bar.Pending_Bar_Background =>
-            Minimap_Drag_Active := False;
-            Scrollbar_Drag.Active := False;
-            Gutter_Line_Selection.Active := False;
+            Pointer_State.Reset_All;
             Editor.State.Clear_Gutter_Marker_Hover (The_Editor.State);
             return True;
 
          when Editor.Pending_Transition_Bar.Pending_Bar_Action_Zone =>
-            Minimap_Drag_Active := False;
-            Scrollbar_Drag.Active := False;
-            Gutter_Line_Selection.Active := False;
+            Pointer_State.Reset_All;
             Editor.State.Clear_Gutter_Marker_Hover (The_Editor.State);
             if Cmd.Kind = Editor.Commands.Move_To_Point then
                Execute_Command_Id
@@ -3804,9 +3779,7 @@ use type Editor.Guided_Prompts.Prompt_Kind;
          return False;
       end if;
 
-      Minimap_Drag_Active := False;
-      Scrollbar_Drag.Active := False;
-      Gutter_Line_Selection.Active := False;
+      Pointer_State.Reset_All;
       Editor.State.Clear_Gutter_Marker_Hover (The_Editor.State);
 
       if Cmd.Kind = Editor.Commands.Pointer_Hover then
@@ -3924,16 +3897,12 @@ use type Editor.Guided_Prompts.Prompt_Kind;
 
          when Editor.Tab_Bar.Tab_Bar_Background_Zone
             | Editor.Tab_Bar.Tab_Overflow_Zone =>
-            Minimap_Drag_Active := False;
-            Scrollbar_Drag.Active := False;
-            Gutter_Line_Selection.Active := False;
+            Pointer_State.Reset_All;
             Editor.State.Clear_Gutter_Marker_Hover (The_Editor.State);
             return True;
 
          when Editor.Tab_Bar.Tab_Body_Zone =>
-            Minimap_Drag_Active := False;
-            Scrollbar_Drag.Active := False;
-            Gutter_Line_Selection.Active := False;
+            Pointer_State.Reset_All;
             Editor.State.Clear_Gutter_Marker_Hover (The_Editor.State);
             if Cmd.Kind = Editor.Commands.Move_To_Point
               and then Hit.Buffer_Id /= Editor.Buffers.No_Buffer
@@ -3946,9 +3915,7 @@ use type Editor.Guided_Prompts.Prompt_Kind;
             return True;
 
          when Editor.Tab_Bar.Tab_Close_Zone =>
-            Minimap_Drag_Active := False;
-            Scrollbar_Drag.Active := False;
-            Gutter_Line_Selection.Active := False;
+            Pointer_State.Reset_All;
             Editor.State.Clear_Gutter_Marker_Hover (The_Editor.State);
             if Cmd.Kind = Editor.Commands.Move_To_Point
               and then Hit.Buffer_Id /= Editor.Buffers.No_Buffer
@@ -3980,9 +3947,9 @@ use type Editor.Guided_Prompts.Prompt_Kind;
             Viewport_Width  => Editor.View.Viewport_Width,
             Viewport_Height => Editor.View.Viewport_Height)
       then
-         Minimap_Drag_Active := False;
-         Scrollbar_Drag.Active := False;
-         Gutter_Line_Selection.Active := False;
+         Pointer_State.Set_Minimap_Drag_Active (False);
+         Pointer_State.Clear_Scrollbar_Drag;
+         Pointer_State.Clear_Gutter_Line_Selection;
          Editor.State.Clear_Gutter_Marker_Hover (The_Editor.State);
          return True;
       end if;
@@ -4054,9 +4021,7 @@ use type Editor.Guided_Prompts.Prompt_Kind;
                Viewport_Width  => Editor.View.Viewport_Width,
                Viewport_Height => Editor.View.Viewport_Height)
          then
-            Minimap_Drag_Active := False;
-            Scrollbar_Drag.Active := False;
-            Gutter_Line_Selection.Active := False;
+            Pointer_State.Reset_All;
             Editor.State.Clear_Gutter_Marker_Hover (The_Editor.State);
             Editor.Panels.Begin_Resize
               (Panels  => The_Editor.State.Panels,
@@ -4104,9 +4069,9 @@ use type Editor.Guided_Prompts.Prompt_Kind;
          Y        => Integer (Cmd.Click_Y));
 
       if Hit.Zone /= Editor.File_Tree_View.Outside_File_Tree then
-         Minimap_Drag_Active := False;
-         Scrollbar_Drag.Active := False;
-         Gutter_Line_Selection.Active := False;
+         Pointer_State.Set_Minimap_Drag_Active (False);
+         Pointer_State.Clear_Scrollbar_Drag;
+         Pointer_State.Clear_Gutter_Line_Selection;
          Editor.State.Clear_Gutter_Marker_Hover (The_Editor.State);
 
          if Cmd.Kind = Editor.Commands.Move_To_Point then
@@ -4175,9 +4140,9 @@ use type Editor.Guided_Prompts.Prompt_Kind;
          Y           => Integer (Cmd.Click_Y));
 
       if Hit.Zone /= Editor.Search_Results.Outside_Search_Results then
-         Minimap_Drag_Active := False;
-         Scrollbar_Drag.Active := False;
-         Gutter_Line_Selection.Active := False;
+         Pointer_State.Set_Minimap_Drag_Active (False);
+         Pointer_State.Clear_Scrollbar_Drag;
+         Pointer_State.Clear_Gutter_Line_Selection;
          Editor.State.Clear_Gutter_Marker_Hover (The_Editor.State);
 
          if Cmd.Kind = Editor.Commands.Move_To_Point then
@@ -4245,9 +4210,7 @@ use type Editor.Guided_Prompts.Prompt_Kind;
          return False;
       end if;
 
-      Minimap_Drag_Active := False;
-      Scrollbar_Drag.Active := False;
-      Gutter_Line_Selection.Active := False;
+      Pointer_State.Reset_All;
       Editor.State.Clear_Gutter_Marker_Hover (The_Editor.State);
 
       if Cmd.Kind = Editor.Commands.Pointer_Hover then
@@ -4415,9 +4378,9 @@ use type Editor.Guided_Prompts.Prompt_Kind;
          Y           => Integer (Cmd.Click_Y));
 
       if Hit.Zone /= Editor.Problems.Outside_Problems then
-         Minimap_Drag_Active := False;
-         Scrollbar_Drag.Active := False;
-         Gutter_Line_Selection.Active := False;
+         Pointer_State.Set_Minimap_Drag_Active (False);
+         Pointer_State.Clear_Scrollbar_Drag;
+         Pointer_State.Clear_Gutter_Line_Selection;
          Editor.State.Clear_Gutter_Marker_Hover (The_Editor.State);
 
          if Cmd.Kind = Editor.Commands.Move_To_Point then
@@ -4518,10 +4481,8 @@ use type Editor.Guided_Prompts.Prompt_Kind;
       Editor.File_Tree_View.Reset;
       Editor.Panels.Initialize_Defaults (The_Editor.State.Panels);
       Editor.Panels.Set_Current (The_Editor.State.Panels);
-      Minimap_Drag_Active := False;
-      Gutter_Line_Selection.Active := False;
+      Pointer_State.Reset_All;
       Editor.State.Clear_Gutter_Marker_Hover (The_Editor.State);
-      Scrollbar_Drag.Active := False;
       Editor.Panels.End_Resize (The_Editor.State.Panels);
       Editor.Panels.Set_Current (The_Editor.State.Panels);
       Editor.Scrollbars.Reset;
@@ -6553,7 +6514,7 @@ use type Editor.Guided_Prompts.Prompt_Kind;
 
       --  Minimap hit-testing owns the minimap region before scrollbars so a
       --  minimap click cannot be interpreted as a vertical scrollbar action.
-      if Minimap_Drag_Active and then Handle_Minimap_Pointer (Cmd) then
+      if Pointer_State.Minimap_Drag_Active and then Handle_Minimap_Pointer (Cmd) then
          Editor.Cursor.Notify_Input
            (Float (Editor.View.Current_Time_Seconds));
          return;
@@ -6838,10 +6799,8 @@ use type Editor.Guided_Prompts.Prompt_Kind;
       Editor.Command_Palette.Reset;
       Editor.File_Tree_View.Reset;
       Editor.Panels.Set_Current (The_Editor.State.Panels);
-      Minimap_Drag_Active := False;
-      Gutter_Line_Selection.Active := False;
+      Pointer_State.Reset_All;
       Editor.State.Clear_Gutter_Marker_Hover (The_Editor.State);
-      Scrollbar_Drag.Active := False;
       Editor.Panels.End_Resize (The_Editor.State.Panels);
       Editor.Panels.Set_Current (The_Editor.State.Panels);
       Editor.Scrollbars.Reset;
