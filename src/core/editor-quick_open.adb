@@ -631,7 +631,7 @@ package body Editor.Quick_Open is
       --  deleted file before the owning Quick Open command recomputes.
       State.Results.Clear;
       State.Results_Stale := True;
-      --  completeness pass 34: known/filtered counts are part of
+      --  known/filtered counts are part of
       --  the retained candidate projection.  A File Tree mutation must not
       --  leave stale candidate totals visible to snapshots while result rows
       --  have been cleared; the next explicit Quick Open recompute owns

@@ -17,11 +17,10 @@ with Editor.Command_Palette;
 with Editor.Commands;
 with Editor.Diagnostics;
 with Editor.Executor;
+with Editor.Executor.Command_Surface_Commands;
 with Editor.Executor.Command_Palette_Projection;
-with Editor.Executor.File_Save_Commands;
 with Editor.Executor.File_Save_Basic_Commands;
 with Editor.Executor.File_Open_Commands;
-with Editor.Executor.File_Tree_Commands;
 with Editor.Executor.Project_File_Index_Commands;
 with Editor.Executor.Project_Lifecycle_Commands;
 with Editor.Executor.Workspace_Commands;
@@ -677,7 +676,7 @@ procedure Editor_Product_Smoke is
 
    procedure Run_Quick_Open_File_Tree_Scenario is
    begin
-      Editor.Executor.Execute_Open_Quick_Open (S);
+      Editor.Executor.Command_Surface_Commands.Execute_Open_Quick_Open (S);
       Editor.Quick_Open.Set_Query_Text (S.Quick_Open, "main.adb");
       Editor.Quick_Open.Recompute_Results (S.Quick_Open, S.Project, (others => <>));
       Check (Editor.Quick_Open.Result_Count (S.Quick_Open) >= 1,

@@ -40,7 +40,7 @@ package body Editor.Syntax_Semantics is
       if Len = 0 then
          return;
       elsif Key'Length > Stored_Name'Length then
-         --  Pass 139: do not silently truncate semantic keys.  Truncation can
+         --  do not silently truncate semantic keys.  Truncation can
          --  make two distinct long Ada identifiers share the same retained
          --  prefix and miscolour an unrelated token.  Treat an overlong name
          --  as bounded semantic overflow and leave it unclassified instead.
@@ -588,7 +588,7 @@ package body Editor.Syntax_Semantics is
          end;
       end loop;
 
-      --  Pass 722: executable-statement semantic bindings are parser-owned
+      --  executable-statement semantic bindings are parser-owned
       --  metadata, not render-side parsing.  Classify only definition-like or
       --  syntax-role-safe unresolved bindings.  Selector-like roles introduced
       --  by the generic/aggregate grammar-depth passes intentionally degrade to
@@ -706,7 +706,7 @@ package body Editor.Syntax_Semantics is
       if Len = 0 then
          return Editor.Syntax.Identifier;
       elsif Key'Length > Stored_Name'Length then
-         --  Pass 181 completeness: lookup must mirror Add's no-truncation
+         --  completeness: lookup must mirror Add's no-truncation
          --  policy.  An overlong token sharing the first 64 columns with a
          --  retained short declaration must not be coloured as that shorter
          --  symbol.  Long identifiers degrade conservatively to lexical
@@ -737,7 +737,7 @@ package body Editor.Syntax_Semantics is
       if Name'Length = 0 then
          return Editor.Syntax.Identifier;
       elsif Name'Length > Stored_Name'Length then
-         --  Pass 190 completeness: the parser-backed scoped semantic path must
+         --  completeness: the parser-backed scoped semantic path must
          --  obey the same bounded-name policy as the flat Semantic_Map.  The
          --  render path may receive a retained language-model symbol with an
          --  overlong Ada identifier, but colouring that token would bypass the

@@ -985,7 +985,7 @@ package body Editor.State is
       Editor.Syntax_Semantics.Clear (S.Syntax_Symbols);
       S.Syntax_Analysis := Analysis;
 
-      --  pass 180 completeness: visible-range syntax preparation
+      --  completeness: visible-range syntax preparation
       --  now builds semantic colouring from the shared parser-owned Ada
       --  language model.  This keeps the normal render preparation path aligned
       --  with semantic.refresh-buffer and avoids re-projecting through Outline
@@ -1366,7 +1366,7 @@ package body Editor.State is
       S.Search_Results_View.Top_Row := 1;
       Editor.Problems.Clear_View (S.Problems_View);
       Editor.Feature_Panel_Controller.Reset_All_Features_For_Project_Close (S);
-      --  completeness pass 170: the Ada project language index is
+      --  the Ada project language index is
       --  project-scoped transient analysis state.  Closing, clearing, or
       --  switching a project must not leave indexed Outline/semantic targets
       --  from the previous lifecycle visible to later commands.

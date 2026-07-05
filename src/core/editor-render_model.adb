@@ -265,7 +265,7 @@ package body Editor.Render_Model is
      (S : Editor.State.State_Type) return Boolean
    is
    begin
-      --  completeness pass 33: render mirrors the Executor's exact
+      --  render mirrors the Executor's exact
       --  dirty-set equality guard.  Fingerprints are useful stale-review
       --  summaries but exact transient dirty-id text decides whether Save/
       --  Discard may be shown for an unchanged review.
@@ -898,7 +898,7 @@ package body Editor.Render_Model is
             elsif Dirty_Close_All_Buffer_Review_Current (S) then
                O.Dirty_Close_Discard_Action_Available := True;
             else
-               --  completeness pass 22: render mirrors Executor
+               --  render mirrors Executor
                --  discard revalidation.  An unchanged all-buffer review
                --  whose dirty buffers all became clean can still be
                --  confirmed as close-only; changed or newly dirty state
@@ -958,7 +958,7 @@ package body Editor.Render_Model is
                      Summary : constant Editor.Buffers.Buffer_Summary :=
                        Editor.Buffers.Global_Summary_For (Target);
                   begin
-                     --  completeness pass 26: mirror Executor
+                     --  mirror Executor
                      --  live revalidation for single-buffer prompts.  Do not
                      --  expose Save from stale prompt counts when a target
                      --  loses its path, and do expose it when the target gained
@@ -983,7 +983,7 @@ package body Editor.Render_Model is
              elsif S.Dirty_Close_Prompt_Missing_Count > 0 then
                 "Missing backing file blocks save-and-close"
              elsif S.Dirty_Close_Prompt_All_Buffers then
-                --  completeness pass 32: render should expose the
+                --  render should expose the
                 --  same reviewed dirty-set summary as the Executor outcome
                 --  message.  This is still an inert snapshot projection; it
                 --  does not carry a close payload or mutate/persist anything.
@@ -1593,7 +1593,7 @@ package body Editor.Render_Model is
                                                (S.Syntax_Analysis, Token_Text, Scope);
                                           end;
 
-                                          --  Pass 188: scope-aware lookup is preferred for parser-owned
+                                          --  scope-aware lookup is preferred for parser-owned
                                           --  symbols.  The bounded flat map remains a fallback
                                           --  for conservative legacy/line-learned entries and
                                           --  parser gaps.

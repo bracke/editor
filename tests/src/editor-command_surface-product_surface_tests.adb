@@ -908,7 +908,7 @@ package body Editor.Command_Surface.Product_Surface_Tests is
          end loop;
       end;
 
-      --  Pass 172: descriptor-specific project-refresh checks must live
+      --  descriptor-specific project-refresh checks must live
       --  outside the expected-command enumeration loop.
 
       D := Editor.Commands.Descriptor
@@ -927,7 +927,7 @@ package body Editor.Command_Surface.Product_Surface_Tests is
              (To_String (D.Description), "known project Ada source files") > 0,
          "semantic project-index refresh must describe project-file indexing");
 
-      --  Pass 173: body/spec navigation must be a real indexed target
+      --  body/spec navigation must be a real indexed target
       --  command surface, not a permanently reserved unavailable placeholder.
       D := Editor.Commands.Descriptor (Editor.Commands.Command_Goto_Body);
       Assert

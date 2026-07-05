@@ -181,7 +181,7 @@ package body Editor.Executor.Buffer_Close_Commands is
          end if;
       end if;
 
-      --  completeness pass 30: close-all review feedback should
+      --  close-all review feedback should
       --  summarize the affected dirty set when the prompt is opened, not only
       --  show a generic confirmation message.  This remains transient UI
       --  feedback and does not persist the candidate list or dirty text.
@@ -274,7 +274,7 @@ package body Editor.Executor.Buffer_Close_Commands is
               Editor.Buffers.Summary_At (Registry, Index);
          begin
             if Item.Id /= Editor.Buffers.No_Buffer then
-               --  completeness pass 19: all-buffer close review
+               --  all-buffer close review
                --  staleness must detect same-count buffer replacement, not
                --  only count changes.  The fingerprint is transient prompt
                --  state over buffer identities only; it never carries text or
@@ -298,7 +298,7 @@ package body Editor.Executor.Buffer_Close_Commands is
               Editor.Buffers.Summary_At (Registry, Index);
          begin
             if Item.Id /= Editor.Buffers.No_Buffer and then Item.Is_Dirty then
-               --  completeness pass 20: all-buffer close review
+               --  all-buffer close review
                --  staleness must detect a clean buffer becoming dirty after
                --  the prompt is opened.  That newly dirty text was not part
                --  of the explicit review and must not be saved/discarded by
@@ -397,7 +397,7 @@ package body Editor.Executor.Buffer_Close_Commands is
      (S : Editor.State.State_Type) return Boolean
    is
    begin
-      --  completeness pass 33: the arithmetic dirty-buffer
+      --  the arithmetic dirty-buffer
       --  fingerprint is only a cheap stale-review guard.  It must not be the
       --  sole proof that the dirty set is unchanged, because two different
       --  dirty identity sets can collide arithmetically.  The exact transient
@@ -806,7 +806,7 @@ package body Editor.Executor.Buffer_Close_Commands is
                  (Sets.Project_Close_Affected, Id);
             end;
          when Editor.Pending_Transitions.Pending_Close_Other_Buffers =>
-            --  completeness pass 34: close-other discard review is
+            --  close-other discard review is
             --  scoped to the active buffer captured when the confirmation was
             --  opened.  Do not rebase the destructive discard set onto a later
             --  active-buffer change, because that would allow an unreviewed
@@ -898,7 +898,7 @@ package body Editor.Executor.Buffer_Close_Commands is
          when Editor.Pending_Transitions.Pending_Close_All_Buffers =>
             Execute_Close_All_Buffers_Confirmed (S);
          when Editor.Pending_Transitions.Pending_Close_Other_Buffers =>
-            --  completeness pass 34: continue the operation against
+            --  continue the operation against
             --  the reviewed active buffer captured in the pending transition,
             --  not whatever buffer happens to be active at confirmation time.
             if Target.Has_Buffer then
@@ -978,7 +978,7 @@ package body Editor.Executor.Buffer_Close_Commands is
          return;
       end if;
 
-      --  completeness pass 31: pending close-buffer discard is a
+      --  pending close-buffer discard is a
       --  close confirmation for the reviewed buffer, not only a dirty-text
       --  discard operation.  If the buffer became clean while the transient
       --  pending transition was visible, the dirty-discard loop above has no
@@ -1097,7 +1097,7 @@ package body Editor.Executor.Buffer_Close_Commands is
             if Target = Editor.Buffers.No_Buffer
               or else not Editor.Buffers.Global_Contains (Target)
             then
-               --  completeness pass 17: confirmation revalidates
+               --  confirmation revalidates
                --  that the prompt target still exists.  A stale close review
                --  must not report a destructive discard failure or keep a
                --  dead buffer id in transient state; it simply resolves with
@@ -1116,7 +1116,7 @@ package body Editor.Executor.Buffer_Close_Commands is
 
       Clear_Dirty_Close_Prompt (S);
       if Was_Selected then
-         --  completeness pass 6: a dirty selected-buffer close is
+         --  a dirty selected-buffer close is
          --  confirmed by no-payload commands after the buffer switcher command
          --  that opened the review has returned.  Rebuild the switcher projection
          --  here so stale selected rows do not survive a confirmed close.
@@ -1246,7 +1246,7 @@ package body Editor.Executor.Buffer_Close_Commands is
               Editor.Buffers.Buffer_Id (S.Dirty_Close_Prompt_Buffer);
          begin
             if not Editor.Buffers.Global_Contains (Target) then
-               --  completeness pass 17: stale single-buffer close
+               --  stale single-buffer close
                --  review resolves without mutation.  The target may have been
                --  closed by another already-confirmed lifecycle path while the
                --  prompt snapshot was still present; do not keep a dead prompt
@@ -1255,7 +1255,7 @@ package body Editor.Executor.Buffer_Close_Commands is
                Editor.Executor.Shared_Services.Report_Info (S, "No buffers closed");
                return;
             elsif not Editor.Buffers.Global_Summary_For (Target).Is_Dirty then
-               --  completeness pass 15: confirmation revalidates
+               --  confirmation revalidates
                --  the target immediately before mutation.  If the buffer was
                --  saved or otherwise became clean while the prompt was active,
                --  save-and-close must not write it again; it can close through
@@ -1346,7 +1346,7 @@ package body Editor.Executor.Buffer_Close_Commands is
       if Failed = 0 then
          Clear_Dirty_Close_Prompt (S);
          if Was_Selected then
-            --  completeness pass 6: dirty selected-buffer
+            --  dirty selected-buffer
             --  save-and-close is also resolved after the original switcher
             --  command returned, so refresh the switcher rows after the close.
             Editor.Executor.Buffer_Switcher_Shared.Recompute_Buffer_Switcher (S);
@@ -1373,7 +1373,7 @@ package body Editor.Executor.Buffer_Close_Commands is
          end if;
       else
          if Was_All then
-            --  completeness pass 23: close-all save-and-close may
+            --  close-all save-and-close may
             --  partially succeed before encountering an unbacked buffer or a
             --  save failure.  Rebuild the transient review over the remaining
             --  live dirty buffers so the next confirmation is not rejected as

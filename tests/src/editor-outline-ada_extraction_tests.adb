@@ -2538,9 +2538,9 @@ package body Editor.Outline.Ada_Extraction_Tests is
    begin
       Assert (Editor.Outline_Extractor.Status (Result) =
                 Editor.Outline_Extractor.Extraction_Ok,
-              "pass 707 outline extraction succeeds for expanded Ada constructs");
+              "outline extraction succeeds for expanded Ada constructs");
       Assert (Editor.Outline_Extractor.Item_Count (Result) = 9,
-              "pass 707 outline keeps formal package, variant record, variant field, entry family, exception, and stub rows");
+              "outline keeps formal package, variant record, variant field, entry family, exception, and stub rows");
 
       Editor.Outline_Extractor.Apply_To_Outline (Result, O);
       Assert (Item_Label (O, 1) = "formal package Formal",
@@ -2585,9 +2585,9 @@ package body Editor.Outline.Ada_Extraction_Tests is
    begin
       Assert (Editor.Outline_Extractor.Status (Result) =
                 Editor.Outline_Extractor.Extraction_Ok,
-              "pass 721 outline extraction succeeds for expanded type families");
+              "outline extraction succeeds for expanded type families");
       Assert (Editor.Outline_Extractor.Item_Count (Result) = 7,
-              "pass 721 outline keeps formal type rows and package type rows");
+              "outline keeps formal type rows and package type rows");
 
       Editor.Outline_Extractor.Apply_To_Outline (Result, O);
       Assert (Item_Label (O, 1) = "formal array type Formal_Vector",
@@ -2788,10 +2788,10 @@ package body Editor.Outline.Ada_Extraction_Tests is
          "Ada outline extracts entries instantiations and child packages");
       Register_Routine
         (T, Test_Ada_Outline_Precision_For_Expanded_Constructs'Access,
-         "pass 707 Ada outline precision for expanded constructs");
+         "Ada outline precision for expanded constructs");
       Register_Routine
         (T, Test_Ada_Outline_Type_Family_Label_Precision'Access,
-         "pass 721 Ada outline type family label precision");
+         "Ada outline type family label precision");
    end Register_Tests;
 
 end Editor.Outline.Ada_Extraction_Tests;

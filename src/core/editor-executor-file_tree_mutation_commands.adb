@@ -916,7 +916,7 @@ package body Editor.Executor.File_Tree_Mutation_Commands is
       Editor.Project_Search.Mark_Replace_Preview_Stale (S.Project_Search);
       Editor.Quick_Open.Mark_Stale (S.Quick_Open);
 
-      --  pass 182: File Tree create/rename/delete changes the set
+      --  File Tree create/rename/delete changes the set
       --  of project source paths independently of active-buffer commands.
       --  Invalidate exact and subtree paths so indexed cross-file Outline and
       --  semantic navigation never points at removed, moved, or rebased Ada
@@ -1038,7 +1038,7 @@ package body Editor.Executor.File_Tree_Mutation_Commands is
          Editor.Executor.Shared_Services.Report_Error (S, "Enter a name.");
          return;
       elsif Contains_Control_File_Tree_Input_Character (Input) then
-         --  completeness pass 33: reject raw control characters
+         --  reject raw control characters
          --  before host-path classification.  A prompt such as "/tmp/\n"
          --  is malformed editor input, not merely an outside-project path,
          --  and must receive the canonical invalid file-name diagnostic.
@@ -1167,7 +1167,7 @@ package body Editor.Executor.File_Tree_Mutation_Commands is
          Editor.Executor.Shared_Services.Report_Error (S, "Enter a name.");
          return;
       elsif Contains_Control_File_Tree_Input_Character (Input) then
-         --  completeness pass 33: reject raw control characters
+         --  reject raw control characters
          --  before host-path classification.  Malformed prompt text should
          --  not be reported as an absolute/outside-project target.
          Editor.Executor.Shared_Services.Report_Error (S, "Invalid directory name");
@@ -1389,7 +1389,7 @@ package body Editor.Executor.File_Tree_Mutation_Commands is
             if Rebased_Count > 0 then
                Editor.Executor.Load_Global_Active_Preserving_Language_Index (S);
                if Active_Buffer_Was_Renamed then
-                  --  pass 35: renaming an already-open clean file
+                  --  renaming an already-open clean file
                   --  is a navigation workflow as well as a File Tree mutation.
                   --  Once the buffer backing path has been rebased, return
                   --  focus to the renamed buffer so the daily loop continues

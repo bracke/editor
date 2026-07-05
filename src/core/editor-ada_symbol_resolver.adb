@@ -54,7 +54,7 @@ package body Editor.Ada_Symbol_Resolver is
          return True;
       end if;
 
-      --  Pass 154: the compatibility resolver must follow the same
+      --  the compatibility resolver must follow the same
       --  conservative selected-name boundary as Resolve_In_Scope.  An
       --  unselected lookup such as Widget must not bind to a stored dotted
       --  declaration such as Inner.Widget merely because the leaf matches;
@@ -88,7 +88,7 @@ package body Editor.Ada_Symbol_Resolver is
          return True;
       end if;
 
-      --  Pass 153: scoped unselected lookup must not treat the leaf of a
+      --  scoped unselected lookup must not treat the leaf of a
       --  selected/dotted declaration name as an ordinary direct declaration in
       --  the current lexical scope.  Otherwise a stored child such as
       --  Inner.Widget can satisfy an unselected lookup for Widget and leak
@@ -129,7 +129,7 @@ package body Editor.Ada_Symbol_Resolver is
       end if;
 
       if Selected then
-         --  Pass 134: a selected-name query must not degrade to a leaf-only
+         --  a selected-name query must not degrade to a leaf-only
          --  match.  Doing so lets Missing.Widget bind to an unrelated Widget
          --  declaration and creates exactly the false positives the shared
          --  IDE-grade model is meant to avoid.  Callers with a concrete
@@ -247,7 +247,7 @@ package body Editor.Ada_Symbol_Resolver is
             end;
          end loop;
 
-         --  Pass 355: a use-clause target may be a selected nested package
+         --  a use-clause target may be a selected nested package
          --  whose declaration is retained as a leaf child under its enclosing
          --  package, e.g. ``package Parent is package Child is ...`` followed
          --  by ``use Parent.Child``.  Resolve the prefix first, then accept
@@ -643,7 +643,7 @@ package body Editor.Ada_Symbol_Resolver is
    begin
       if From_Scope /= No_Symbol then
          if Natural (From_Scope) > Symbol_Count (Analysis) then
-            --  Pass 146: an invalid lexical scope stamp must not silently walk
+            --  an invalid lexical scope stamp must not silently walk
             --  back to the root scope.  Stale outline/navigation/semantic callers
             --  can otherwise resolve root declarations through a scope id that no
             --  longer exists in the bounded analysis result.
@@ -652,7 +652,7 @@ package body Editor.Ada_Symbol_Resolver is
          end if;
 
          if not Is_Declaration_Owner (Symbol (Analysis, From_Scope).Kind) then
-            --  Pass 166: a numerically valid symbol id is not necessarily a
+            --  a numerically valid symbol id is not necessarily a
             --  lexical scope.  Value-like rows such as objects, components, or
             --  literals must not be accepted as resolver starting scopes, or
             --  malformed rows with matching Enclosing_Scope metadata can leak
@@ -674,7 +674,7 @@ package body Editor.Ada_Symbol_Resolver is
                if N = Wanted
                  and then Scope_Is_Visible (Analysis, S.Enclosing_Scope, From_Scope)
                then
-                  --  Pass 151: exact dotted declarations are still preferred,
+                  --  exact dotted declarations are still preferred,
                   --  but they must be root-owned units or declarations visible
                   --  from the caller's lexical scope chain.  Otherwise an
                   --  unrelated nested declaration with the same preserved
@@ -710,7 +710,7 @@ package body Editor.Ada_Symbol_Resolver is
                        and then Ada.Strings.Unbounded.To_String (S.Normalized_Name) =
                          Normalize_Name (Leaf)
                      then
-                        --  Pass 168: selected-prefix lookup must use the same
+                        --  selected-prefix lookup must use the same
                         --  synchronized ownership boundary as child and
                         --  overload enumeration.  After Pkg resolves, Pkg.Name
                         --  may bind only to a direct declaration whose lexical
@@ -723,7 +723,7 @@ package body Editor.Ada_Symbol_Resolver is
                   end;
                end loop;
 
-               --  Pass 367: selected-name lookup through a generic package
+               --  selected-name lookup through a generic package
                --  instance exposes declarations retained inside the generic
                --  template as an expanded, conservative instance view.  The
                --  resolver returns the template symbol id so existing semantic
@@ -805,7 +805,7 @@ package body Editor.Ada_Symbol_Resolver is
             end if;
          end;
 
-         --  Pass 350: scoped selected-name lookup has the same false-positive
+         --  scoped selected-name lookup has the same false-positive
          --  boundary as compatibility Resolve.  If neither an exact selected
          --  declaration nor a resolved selected prefix produced a child match,
          --  the query must degrade to no match.  Falling through into the
@@ -819,7 +819,7 @@ package body Editor.Ada_Symbol_Resolver is
       --  more matching declarations wins; multiple matches in that same scope
       --  are retained as an overload set.
       loop
-         --  Pass 150: malformed parser/test data can create a cyclic parent
+         --  malformed parser/test data can create a cyclic parent
          --  chain even when the starting scope id itself is in range.  Bound
          --  lexical walking by the number of retained symbols so stale or
          --  corrupt scope ownership degrades to no match instead of looping
@@ -830,7 +830,7 @@ package body Editor.Ada_Symbol_Resolver is
          if Current /= No_Symbol
            and then Natural (Current) > Symbol_Count (Analysis)
          then
-            --  Pass 152: do not perform one lookup iteration through an
+            --  do not perform one lookup iteration through an
             --  impossible parent scope.  Corrupt Parent_Symbol metadata can
             --  otherwise set Current to a stale id and expose orphaned rows
             --  whose Enclosing_Scope carries that same impossible number.
@@ -841,7 +841,7 @@ package body Editor.Ada_Symbol_Resolver is
          if Current /= No_Symbol
            and then not Is_Declaration_Owner (Symbol (Analysis, Current).Kind)
          then
-            --  Pass 166: parent-chain walking must also stop if corrupt
+            --  parent-chain walking must also stop if corrupt
             --  metadata reaches a value-like symbol.  Only declaration-owning
             --  symbols may act as lexical scopes for scoped resolver lookup.
             Result.Matches.Clear;
@@ -1199,7 +1199,7 @@ package body Editor.Ada_Symbol_Resolver is
          return "";
       end if;
 
-      --  Pass 368: expression inference through a selected generic package
+      --  expression inference through a selected generic package
       --  instance must substitute the instance actual for formal result/object
       --  types.  Resolve_In_Scope returns the retained template symbol id for
       --  Instance.Child, so callers need this small effective-view layer;
@@ -1992,7 +1992,7 @@ package body Editor.Ada_Symbol_Resolver is
             return False;
          end if;
 
-         --  Pass 357: Ada calls may omit formals that have default
+         --  Ada calls may omit formals that have default
          --  expressions.  Match positional actuals to the next available
          --  formal, match named associations by formal name, and then require
          --  every unmatched formal to carry retained default metadata.  The

@@ -124,7 +124,7 @@ package body Editor.Ada_Project_Index is
       if Remaining = 0
         or else Natural (Symbol.Parent_Symbol) > Symbol_Count (Analysis)
       then
-         --  Pass 160: project-index qualified-name construction must be
+         --  project-index qualified-name construction must be
          --  bounded by the retained symbol table.  Malformed parser/test data
          --  can otherwise create cyclic Parent_Symbol chains and make a
          --  project-wide lookup recurse forever while preparing selected-name
@@ -139,7 +139,7 @@ package body Editor.Ada_Project_Index is
            Editor.Ada_Language_Model.Symbol (Analysis, Symbol.Parent_Symbol);
       begin
          if not Editor.Ada_Language_Model.Is_Declaration_Owner (Parent.Kind) then
-            --  Pass 164: use the shared language-model declaration-owner
+            --  use the shared language-model declaration-owner
             --  predicate for project-index selected-name construction, so the
             --  index cannot drift from child/overload ownership rules.
             Truncated := True;
@@ -201,7 +201,7 @@ package body Editor.Ada_Project_Index is
       end if;
 
       if Has_Dot (To_String (Symbol.Name)) then
-         --  Pass 161: keep project-wide unselected lookup aligned with the
+         --  keep project-wide unselected lookup aligned with the
          --  scoped resolver.  A declaration stored with selected/dotted source
          --  spelling is not a direct declaration of its leaf in the current
          --  project index, so Widget must not bind to Inner.Widget merely
@@ -269,7 +269,7 @@ package body Editor.Ada_Project_Index is
    is
       use Editor.Ada_Language_Model;
    begin
-      --  Pass 366: the cross-file Ada unit table must represent library
+      --  the cross-file Ada unit table must represent library
       --  units, not every nested declaration that happens to be package-like
       --  or subprogram-like.  Nested packages/subprograms retain ordinary
       --  symbol-index lookup, but they are not spec/body/separate file-level
@@ -357,7 +357,7 @@ package body Editor.Ada_Project_Index is
 
    procedure Rebuild_Units (Index : in out Index_State) is
    begin
-      --  Pass 362: keep Ada unit relationships as first-class project-index
+      --  keep Ada unit relationships as first-class project-index
       --  state keyed by normalized Ada unit name.  Rebuilding from retained
       --  file analyses after every mutation keeps path/buffer/lifecycle
       --  invalidation simple and prevents stale unit rows from outliving their
@@ -385,7 +385,7 @@ package body Editor.Ada_Project_Index is
       Rebuild_Units (Index);
 
       for F of Index.Files loop
-         --  Pass 140: project-index fingerprints must include the indexed
+         --  project-index fingerprints must include the indexed
          --  path as well as the buffer/revision/lifecycle/fingerprint stamps.
          --  Otherwise two different project files with identical analysis and
          --  ownership numbers can produce the same aggregate stamp, weakening
@@ -400,7 +400,7 @@ package body Editor.Ada_Project_Index is
              1));
       end loop;
 
-      --  Pass 141: include the bounded file-table overflow bit in the
+      --  include the bounded file-table overflow bit in the
       --  aggregate fingerprint.  A failed Put_Analysis past Max_Index_Files
       --  changes the conservative validity state even though no new file row is
       --  appended; status/navigation consumers must be able to observe that
@@ -542,7 +542,7 @@ package body Editor.Ada_Project_Index is
    procedure Invalidate_Path (Index : in out Index_State; Path : String) is
       I : Positive := 1;
    begin
-      --  pass 183: exact path invalidation uses the same slash and
+      --  exact path invalidation uses the same slash and
       --  trailing-separator normalization as subtree invalidation.  Active
       --  buffer reload/revert/save-as and file lifecycle hooks may receive
       --  platform-native path spellings, while project refresh stores the
@@ -610,7 +610,7 @@ package body Editor.Ada_Project_Index is
    begin
       while I <= Natural (Index.Files.Length) loop
          if Index.Files.Element (I).Key.Lifecycle_Generation = Lifecycle_Generation then
-            --  Pass 137: delete exactly the matching element and keep I
+            --  delete exactly the matching element and keep I
             --  stationary so adjacent files from the same lifecycle
             --  generation are checked next.  A second delete at the same
             --  index can remove unrelated survivor files or raise when the
@@ -672,7 +672,7 @@ package body Editor.Ada_Project_Index is
       Key   : Indexed_File_Key) return Boolean
    is
    begin
-      --  Pass 200: indexed navigation targets carry the exact parser-owned
+      --  indexed navigation targets carry the exact parser-owned
       --  file key they were resolved from.  The executor revalidates that key
       --  immediately before navigation so a stale availability projection
       --  cannot jump after a project-index clear, lifecycle invalidation, or
@@ -738,7 +738,7 @@ package body Editor.Ada_Project_Index is
       Result : Index_Resolution_Result;
    begin
       for F of Index.Files loop
-         --  Pass 135: propagate per-file language-model overflow through
+         --  propagate per-file language-model overflow through
          --  project-index resolution.  A non-full index can still contain a
          --  truncated bounded analysis result, and semantic callers must know
          --  to degrade unresolved identifiers conservatively.
@@ -787,7 +787,7 @@ package body Editor.Ada_Project_Index is
               (F.Key, Path, Buffer_Token, Buffer_Revision,
                Lifecycle_Generation, Analysis_Fingerprint)
          then
-            --  Pass 135: current-stamped navigation/semantic lookups must not
+            --  current-stamped navigation/semantic lookups must not
             --  hide analysis overflow just because the path/token/revision
             --  stamp itself is current.
             Result.Overflow := Result.Overflow
@@ -923,7 +923,7 @@ package body Editor.Ada_Project_Index is
       Prefix   : constant String :=
         (if Path'Length = 0 then Position else Path & ":" & Position);
    begin
-      --  Pass 370: ambiguity-aware navigation needs stable, user-presentable
+      --  ambiguity-aware navigation needs stable, user-presentable
       --  labels for chooser rows.  Keep this formatter pure and table-driven:
       --  it uses only validated indexed-symbol metadata and never opens files,
       --  scans the filesystem, mutates buffers, or guesses a target.
@@ -1139,7 +1139,7 @@ package body Editor.Ada_Project_Index is
       Result.Overflow := Res.Overflow;
 
       if Res.Overflow then
-         --  Pass 196: declaration/body/spec navigation is a safety-critical
+         --  declaration/body/spec navigation is a safety-critical
          --  consumer of the project index.  When either the file table or any
          --  retained per-file analysis overflowed, the index cannot prove that
          --  the visible candidate set is complete.  Do not return a seemingly
@@ -1162,7 +1162,7 @@ package body Editor.Ada_Project_Index is
               and then Profile_Matches (Match.Symbol)
             then
                if Result.Available then
-                  --  Pass 193: declaration/body/spec navigation must not pick
+                  --  declaration/body/spec navigation must not pick
                   --  the first same-name indexed target when multiple current
                   --  candidates still satisfy the requested kind/body/profile
                   --  filters.  Ambiguity degrades to no target so commands
@@ -1312,7 +1312,7 @@ package body Editor.Ada_Project_Index is
          end loop;
       end Append_Unit_Matches;
    begin
-      --  Pass 369: ambiguity-aware IDE navigation consumers need the same
+      --  ambiguity-aware IDE navigation consumers need the same
       --  validated targets that unique goto-spec/body uses, but without
       --  forcing ambiguous families to collapse to unavailable.  Return the
       --  complete candidate set so UI code can present a deterministic chooser
@@ -1516,7 +1516,7 @@ package body Editor.Ada_Project_Index is
       Parent_Name : constant String := Parent_Unit_Name (Unit_Name);
       Empty       : Unique_Target_Result;
    begin
-      --  Pass 363: child-unit relationships are now explicit unit-table
+      --  child-unit relationships are now explicit unit-table
       --  lookups rather than name scans.  This lets navigation/index
       --  consumers ask for the indexed parent of Parent.Child while preserving
       --  the same conservative unavailable/ambiguous/overflow behaviour used
@@ -1573,7 +1573,7 @@ package body Editor.Ada_Project_Index is
       Result      : Unit_Resolution_Result;
       Parent_Name : constant String := Unit_Name_For_Target (Index, Parent);
    begin
-      --  Pass 364: expose the inverse of parent lookup.  Consumers can ask
+      --  expose the inverse of parent lookup.  Consumers can ask
       --  which directly indexed child units belong to an indexed parent unit
       --  without scanning file paths or falling back to leaf-name symbol
       --  matches.  Grandchildren are intentionally excluded so callers can
@@ -1615,7 +1615,7 @@ package body Editor.Ada_Project_Index is
       Result    : Unit_Resolution_Result;
       Unit_Name : constant String := Unit_Name_For_Target (Index, From);
    begin
-      --  Pass 365: expose the complete indexed family for a unit identity so
+      --  expose the complete indexed family for a unit identity so
       --  navigation consumers can present all validated spec/body/separate
       --  targets without leaf-name scans.  This is deliberately table-driven:
       --  duplicates are returned as multiple matches for caller disambiguation,
@@ -1725,7 +1725,7 @@ package body Editor.Ada_Project_Index is
 
    function Overflowed (Index : Index_State) return Boolean is
    begin
-      --  Pass 138: the public aggregate overflow flag must include both
+      --  the public aggregate overflow flag must include both
       --  the index file-table budget and every bounded per-file analysis.
       --  A project index can stay within Max_Index_Files while still
       --  containing an analysis truncated at Max_Analysis_Symbols; status

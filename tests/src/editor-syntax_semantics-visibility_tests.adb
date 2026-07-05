@@ -1327,7 +1327,7 @@ package body Editor.Syntax_Semantics.Visibility_Tests is
       Package_Id : Editor.Ada_Language_Model.Symbol_Id;
       Run_Id     : Editor.Ada_Language_Model.Symbol_Id;
    begin
-      --  pass 189: the scope bridge must not keep using the
+      --  the scope bridge must not keep using the
       --  deepest owner that merely started before the token after that
       --  owner's parser-retained source range has ended.
       Package_Id := Editor.Ada_Language_Model.Add_Symbol

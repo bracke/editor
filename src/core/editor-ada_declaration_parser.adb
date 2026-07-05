@@ -3,6 +3,7 @@ with Ada.Strings;
 with Ada.Strings.Fixed;
 with Ada.Strings.Maps.Constants;
 with Ada.Strings.Unbounded; use Ada.Strings.Unbounded;
+with Editor.Ada_Declaration_Parser.Lexical_Helpers;
 with Editor.Ada_Syntax_Core;
 with Editor.Ada_Syntax_Tree;
 
@@ -14,34 +15,22 @@ package body Editor.Ada_Declaration_Parser is
 
    function Lower (S : String) return String is
    begin
-      return Ada.Strings.Fixed.Translate (S, Ada.Strings.Maps.Constants.Lower_Case_Map);
+      return Lexical_Helpers.Lower (S);
    end Lower;
 
    function Trim (S : String) return String is
    begin
-      return Ada.Strings.Fixed.Trim (S, Ada.Strings.Both);
+      return Lexical_Helpers.Trim (S);
    end Trim;
 
    function Is_Word_Char (C : Character) return Boolean is
    begin
-      return (C >= 'A' and then C <= 'Z')
-        or else (C >= 'a' and then C <= 'z')
-        or else (C >= '0' and then C <= '9')
-        or else C = '_';
+      return Lexical_Helpers.Is_Word_Char (C);
    end Is_Word_Char;
 
    function Is_Static_Space (C : Character) return Boolean is
    begin
-      --  Pass 594: bounded static-expression helpers accept the ordinary
-      --  Ada separator characters that can appear inside source expressions,
-      --  not only literal space.  This keeps qualifier and attribute parsing
-      --  stable for tab-indented or formatter-produced static expressions.
-      return C = ' '
-        or else C = Ada.Characters.Latin_1.HT
-        or else C = Ada.Characters.Latin_1.VT
-        or else C = Ada.Characters.Latin_1.FF
-        or else C = Ada.Characters.Latin_1.CR
-        or else C = Ada.Characters.Latin_1.LF;
+      return Lexical_Helpers.Is_Static_Space (C);
    end Is_Static_Space;
 
    function Trim_Static_Space (Text : String) return String is
@@ -162,7 +151,7 @@ package body Editor.Ada_Declaration_Parser is
       Result : Unbounded_String;
       I      : Integer := Text'First;
    begin
-      --  Pass 625: bounded static-expression scanners canonicalize the
+      --  bounded static-expression scanners canonicalize the
       --  Ada separator whitespace that can appear between an attribute
       --  apostrophe and its designator.  This keeps chained scalar forms
       --  such as ``Primary_Color' Base'(Blue)`` on the same path as
@@ -783,7 +772,7 @@ package body Editor.Ada_Declaration_Parser is
       Close_Pos : constant Natural := Ada.Strings.Fixed.Index (Code, ")");
       Colon_Pos : constant Natural := Ada.Strings.Fixed.Index (Code, ":");
    begin
-      --  Pass 232: retain bounded subtype/discriminant/index constraint
+      --  retain bounded subtype/discriminant/index constraint
       --  awareness on the owning declaration.  This covers declarations such
       --  as constrained subtypes, constrained objects, and constrained array
       --  type forms without learning bounds, discriminant actuals, or index
@@ -2800,7 +2789,7 @@ package body Editor.Ada_Declaration_Parser is
 
       function Is_Valid_Ada_Identifier_Component (Word : String) return Boolean is
       begin
-         --  Pass 132: compact tail owner names are not full declarations yet,
+         --  compact tail owner names are not full declarations yet,
          --  but they must still look like Ada identifiers before they can own
          --  a synthetic compact region.  This rejects malformed/in-progress
          --  owner spellings such as ``Bad__Name`` or ``Trailing_`` while still
@@ -2906,7 +2895,7 @@ package body Editor.Ada_Declaration_Parser is
            or else Word = "xor";
       end Is_Ada_Reserved_Word;
    begin
-      --  Pass 130: compact one-line tail trackers are deliberately not full
+      --  compact one-line tail trackers are deliberately not full
       --  parsers; they only decide whether a compact nested owner must be kept
       --  whole before the real parser reparses it.  Reject any empty owner or
       --  selected-name component that is an Ada reserved word, rather than only
@@ -2916,7 +2905,7 @@ package body Editor.Ada_Declaration_Parser is
       if Lower_Name'Length = 0 then
          return True;
       elsif Lower_Name (Lower_Name'First) = '"' then
-         --  Pass 131: quoted owner names are valid only for Ada operator
+         --  quoted owner names are valid only for Ada operator
          --  functions.  Do not let arbitrary string-literal-looking compact
          --  callable names create synthetic owners while the user is typing
          --  malformed source.
@@ -4485,7 +4474,7 @@ package body Editor.Ada_Declaration_Parser is
       --  declaration segment so later declarations are not hidden behind the
       --  first semicolon.  Split only at top-level semicolons: semicolons
       --  inside anonymous access-to-subprogram profiles are metadata, not
-      --  declaration separators.  Pass 95 keeps generic-formal object
+      --  declaration separators.  keeps generic-formal object
       --  profile semicolons inside Add_Object_Declaration_Groups itself.
       --  Source columns and per-segment value kind
       --  are preserved by carrying the segment offset and recomputing
@@ -4528,7 +4517,7 @@ package body Editor.Ada_Declaration_Parser is
       --  Reusing Add_Object_Names on the full line would incorrectly learn
       --  the Ada keyword/type name before the discriminant colon.  Restrict
       --  extraction to the parenthesized discriminant slice when present.
-      --  Pass 99 scans the discriminant parentheses with nesting rather than
+      --  scans the discriminant parentheses with nesting rather than
       --  stopping at the first ``)``.  Ada access discriminants can contain
       --  anonymous access-to-subprogram profiles such as
       --     Callback : access procedure (Left : T; Right : T)
@@ -6977,7 +6966,7 @@ package body Editor.Ada_Declaration_Parser is
 
                function End_Is_Metadata_Or_Control (Pos : Natural) return Boolean is
                begin
-                  --  Pass 127: keep compact tail end filtering in one place.
+                  --  keep compact tail end filtering in one place.
                   --  Anonymous block, compact callable, protected/task, and
                   --  nested package trackers must all ignore metadata/control
                   --  terminators such as ``end case`` and ``end if`` so only
@@ -7006,7 +6995,7 @@ package body Editor.Ada_Declaration_Parser is
                      return False;
                   end if;
 
-                  --  Pass 128: an incomplete ``package is`` fragment inside a
+                  --  an incomplete ``package is`` fragment inside a
                   --  compact tail should not create a nameless compact package
                   --  region.  Keep malformed/in-progress source bounded by
                   --  requiring a package name before nested-scope tracking.
@@ -7037,7 +7026,7 @@ package body Editor.Ada_Declaration_Parser is
 
                function Is_Selected_Name_Char (C : Character) return Boolean is
                begin
-                  --  Pass 110: compact nested package bodies can use selected
+                  --  compact nested package bodies can use selected
                   --  names.  Keep the full selected package name so an inner
                   --  same-prefix terminator such as ``end Parent;`` cannot
                   --  close ``package body Parent.Child is`` before the exact
@@ -7063,7 +7052,7 @@ package body Editor.Ada_Declaration_Parser is
                      end if;
                   end Append;
                begin
-                  --  Pass 113: Ada selected names may be written with layout
+                  --  Ada selected names may be written with layout
                   --  around dots.  Normalize compact tracking names so
                   --  ``Parent . Child`` opens and closes as ``parent.child``;
                   --  otherwise the one-line tail splitter can close at an
@@ -7165,7 +7154,7 @@ package body Editor.Ada_Declaration_Parser is
                function Anonymous_Begin_Name_At (Pos : Natural) return String is
                   J : Natural := Pos;
                begin
-                  --  Pass 125: a bare block may be labelled as
+                  --  a bare block may be labelled as
                   --  ``Name : begin ... end Name;``.  The compact tail
                   --  splitter must remember that label; otherwise the named
                   --  block end is not consumed as the anonymous inner block
@@ -7472,8 +7461,7 @@ package body Editor.Ada_Declaration_Parser is
                   --  An anonymous ``end;`` is a valid callable terminator.
                   --  A named ``end Some_Block;`` inside the callable body is
                   --  not.  Keep the compact callable region open unless the
-                  --  optional name matches the callable opener.  Pass 111
-                  --  extends this to selected-name child-unit subprogram
+                  --  optional name matches the callable opener.  --  extends this to selected-name child-unit subprogram
                   --  bodies, so ``procedure Parent.Child is`` closes only at
                   --  ``end Parent.Child;`` and not at an inner ``end Parent;``.
                   if J > Tail_Lower'Last or else Tail_Lower (J) = ';' then
@@ -7594,7 +7582,7 @@ package body Editor.Ada_Declaration_Parser is
                      declare
                         Found : constant String := Compact_Selected_Name_At (J);
                      begin
-                        --  Pass 112: protected/task bodies can also be selected child
+                        --  protected/task bodies can also be selected child
                         --  units in compact package tails.  Match the full selected
                         --  name so ``protected body Parent.Lock is`` cannot close at
                         --  an inner same-prefix terminator such as ``end Parent;``.
@@ -7634,7 +7622,7 @@ package body Editor.Ada_Declaration_Parser is
                   --  itself contain semicolon-separated parameter groups, so
                   --  scan the callable header using delimiter depth before
                   --  deciding that a semicolon ends the declaration header.
-                  --  Pass 100 keeps compact expression functions and null/body
+                  --  keeps compact expression functions and null/body
                   --  stubs out of this nesting path: they terminate at their
                   --  own semicolon and do not have a following matching end.
                   if not (Tail_Token_At (Pos, "procedure")
@@ -7643,7 +7631,7 @@ package body Editor.Ada_Declaration_Parser is
                      return False;
                   end if;
 
-                  --  Pass 128: malformed/in-progress compact callable text
+                  --  malformed/in-progress compact callable text
                   --  such as ``procedure is ...`` must not open an anonymous
                   --  callable region in the enclosing package-tail splitter.
                   --  Without a real callable name, a later anonymous ``end;``
@@ -7727,7 +7715,7 @@ package body Editor.Ada_Declaration_Parser is
                      return False;
                   end if;
 
-                  --  Pass 128: reject nameless compact protected/task fragments
+                  --  reject nameless compact protected/task fragments
                   --  before opening a concurrent-scope region.  This keeps
                   --  malformed source bounded and avoids a synthetic anonymous
                   --  concurrent owner swallowing following package-tail
@@ -7767,7 +7755,7 @@ package body Editor.Ada_Declaration_Parser is
                   J       : Natural := Pos;
                   Nesting : Natural := 0;
                begin
-                  --  Pass 118: only ``accept ... do ... end`` owns an inner
+                  --  only ``accept ... do ... end`` owns an inner
                   --  anonymous end marker.  A compact ``accept Feed_Item;`` has no
                   --  matching end; treating it as anonymous-block nesting
                   --  would cause the surrounding compact callable/package tail
@@ -7821,18 +7809,18 @@ package body Editor.Ada_Declaration_Parser is
                     and then (End_Is_Metadata_Or_Control (I)
                               or else End_Matches_Anonymous_Block (I))
                   then
-                     --  Pass 119: compact anonymous ``declare`` blocks and
+                     --  compact anonymous ``declare`` blocks and
                      --  ``accept ... do`` bodies can contain control statements
                      --  before their own terminator.  Do not spend the
                      --  anonymous-block nesting level on inner ``end if`` /
                      --  ``end loop`` / metadata terminators; otherwise a later
                      --  anonymous ``end;`` can look like the surrounding
                      --  callable or package end and reopen the enclosing scope
-                     --  too early.  Pass 123 adds a small name stack for
+                     --  too early.  adds a small name stack for
                      --  anonymous declare/accept bodies so a local compact
                      --  callable end such as ``end Local_Run;`` inside the
                      --  anonymous block cannot spend the anonymous block's own
-                     --  later ``end;`` marker.  Pass 129 lets mismatched named
+                     --  later ``end;`` marker.  lets mismatched named
                      --  ends fall through so compact local callable ends still
                      --  close the callable stack.
                      if not End_Is_Metadata_Or_Control (I) then
@@ -7842,7 +7830,7 @@ package body Editor.Ada_Declaration_Parser is
                     and then Record_Nesting > 0
                     and then Tail_Token_At (I, "end")
                   then
-                     --  Pass 104: nested compact records inside one-line
+                     --  nested compact records inside one-line
                      --  package tails may contain variant parts.  An inner
                      --  ``end case`` must not close the record nesting region
                      --  for the enclosing package-tail splitter; only the
@@ -7856,7 +7844,7 @@ package body Editor.Ada_Declaration_Parser is
                     and then (End_Is_Metadata_Or_Control (I)
                               or else End_Matches_Compact_Scope (I))
                   then
-                     --  Pass 109: a compact nested package can contain its
+                     --  a compact nested package can contain its
                      --  own compact callable/concurrent bodies or named block
                      --  terminators.  Do not close the nested package region
                      --  merely because an inner declaration says ``end Run;``;
@@ -7873,14 +7861,14 @@ package body Editor.Ada_Declaration_Parser is
                     and then Callable_Body_Nesting > 0
                     and then Tail_Token_At (I, "end")
                   then
-                     --  Pass 105: compact callable bodies inside one-line
+                     --  compact callable bodies inside one-line
                      --  package tails may declare compact record types,
                      --  including variant parts.  Their inner ``end record``
                      --  and ``end case`` markers must not close the callable
                      --  body nesting for the enclosing package-tail splitter;
                      --  otherwise local declarations after the record leak
                      --  into the package scope.
-                     --  Pass 106 extends that protection to compact control
+                     --  extends that protection to compact control
                      --  statements inside callable bodies.  Same-line
                      --  ``end if`` / ``end loop`` / ``end select`` markers
                      --  terminate statements, not the callable body, so they
@@ -7902,7 +7890,7 @@ package body Editor.Ada_Declaration_Parser is
                      --  tails: nested record/variant metadata and callable
                      --  operation bodies inside the concurrent declaration
                      --  must not terminate the concurrent region being kept
-                     --  whole.  Pass 108 also keeps statement terminators
+                     --  whole.  also keeps statement terminators
                      --  and operation/body names from reopening the enclosing
                      --  package-tail splitter before the protected/task
                      --  declaration's own end marker.
@@ -7922,14 +7910,13 @@ package body Editor.Ada_Declaration_Parser is
                     and then Anonymous_Block_Nesting = 0
                     and then Tail_Token_At (I, "begin")
                   then
-                     --  Pass 120: after a compact callable body's own begin
+                     --  after a compact callable body's own begin
                      --  has been seen, a later bare ``begin ... end;`` inside
                      --  the same one-line callable is an anonymous block.  Keep
                      --  that inner anonymous ``end;`` from closing the compact
                      --  callable region before the callable's matching named
                      --  end marker.  The first begin belongs to the callable
-                     --  body itself and is only recorded, not nested.  Pass 126
-                     --  keeps this begin tracking on the innermost compact
+                     --  body itself and is only recorded, not nested.  --  keeps this begin tracking on the innermost compact
                      --  owner: if the callable currently contains a compact
                      --  protected/task or nested package body, the begin belongs
                      --  to that inner owner and must not mark the enclosing
@@ -7947,13 +7934,13 @@ package body Editor.Ada_Declaration_Parser is
                     and then Anonymous_Block_Nesting = 0
                     and then Tail_Token_At (I, "begin")
                   then
-                     --  Pass 122: compact protected/task bodies can contain
+                     --  compact protected/task bodies can contain
                      --  operation bodies and bare anonymous ``begin ... end;``
                      --  blocks on the same line.  The first begin seen while a
                      --  concurrent scope is being kept whole belongs to the
                      --  nested operation body; later bare begins are anonymous
                      --  blocks whose ``end;`` must not close the protected/task
-                     --  scope before its matching end marker.  Pass 126 mirrors
+                     --  scope before its matching end marker.  mirrors
                      --  the innermost-owner rule here: a protected/task region
                      --  nested inside a compact package body should not spend
                      --  the package body's own begin state.
@@ -7969,7 +7956,7 @@ package body Editor.Ada_Declaration_Parser is
                     and then Anonymous_Block_Nesting = 0
                     and then Tail_Token_At (I, "begin")
                   then
-                     --  Pass 122: compact nested package bodies can likewise
+                     --  compact nested package bodies can likewise
                      --  contain bare anonymous blocks after their own optional
                      --  begin.  Keep those inner anonymous ends from reopening
                      --  the enclosing package tail early.
@@ -11824,7 +11811,7 @@ package body Editor.Ada_Declaration_Parser is
                         end if;
                      end Append;
                   begin
-                     --  Pass 115: compact generic package/unit tails must not
+                     --  compact generic package/unit tails must not
                      --  close at an inner named subprogram or block terminator.
                      --  Keep the opener name and normalize selected names with
                      --  optional spaces around dots so only the matching unit
@@ -11939,7 +11926,7 @@ package body Editor.Ada_Declaration_Parser is
                   is
                      J : Natural := Pos;
                   begin
-                     --  Pass 125: mirror labelled bare-block handling for
+                     --  mirror labelled bare-block handling for
                      --  compact ``generic;`` tails.
                      if Pos <= Tail_Lower'First then
                         return "";
@@ -12172,7 +12159,7 @@ package body Editor.Ada_Declaration_Parser is
                     (Pos : Natural) return Boolean
                   is
                   begin
-                     --  Pass 127: mirror the package-tail centralized end
+                     --  mirror the package-tail centralized end
                      --  filtering for compact ``generic;`` tails so anonymous
                      --  blocks and compact generic units share the same
                      --  metadata/control terminator rules.
@@ -12256,7 +12243,7 @@ package body Editor.Ada_Declaration_Parser is
                      --  itself may also be a compact one-line scope with its
                      --  own semicolon-separated declarations:
                      --     generic; package G is A : Integer; B : Integer; end G;
-                     --  Pass 116 also keeps compact protected/task scopes that
+                     --  also keeps compact protected/task scopes that
                      --  appear inside that generic unit whole, so their entries
                      --  and operations cannot be split into the enclosing
                      --  generic package tail.  Keep that whole unit together so
@@ -12286,7 +12273,7 @@ package body Editor.Ada_Declaration_Parser is
                         return False;
                      end if;
 
-                     --  Pass 129: mirror the compact package-tail malformed
+                     --  mirror the compact package-tail malformed
                      --  owner guard for same-line ``generic;`` tails.  A
                      --  compact generic tail can contain in-progress text such
                      --  as ``generic; package is ...`` or ``generic; function
@@ -12349,7 +12336,7 @@ package body Editor.Ada_Declaration_Parser is
                      J       : Natural := Pos;
                      Nesting : Natural := 0;
                   begin
-                     --  Pass 118: mirror compact package-tail accept handling
+                     --  mirror compact package-tail accept handling
                      --  for same-line ``generic;`` tails.  Only accept
                      --  statements with a top-level ``do`` own a matching end;
                      --  compact ``accept Feed_Item;`` declarations/statements must
@@ -12396,12 +12383,12 @@ package body Editor.Ada_Declaration_Parser is
                        and then (Generic_End_Is_Metadata_Or_Control (I)
                                  or else Generic_End_Matches_Anonymous_Block (I))
                      then
-                        --  Pass 119: mirror compact package-tail anonymous
+                        --  mirror compact package-tail anonymous
                         --  block handling for same-line ``generic;`` tails.
                         --  Inner control or metadata terminators inside an
                         --  anonymous declare/accept body must not consume the
                         --  anonymous nesting level before the actual anonymous
-                        --  block terminator.  Pass 124 mirrors the package-tail
+                        --  block terminator.  mirrors the package-tail
                         --  anonymous block name stack here, so local compact
                         --  callables inside named generic declare blocks cannot
                         --  consume the enclosing anonymous block's own end.
@@ -12414,7 +12401,7 @@ package body Editor.Ada_Declaration_Parser is
                        and then (Generic_End_Is_Metadata_Or_Control (I)
                                  or else End_Matches_Compact_Generic_Unit (I))
                      then
-                        --  Pass 114: compact generic unit tails can contain
+                        --  compact generic unit tails can contain
                         --  nested callable/concurrent bodies or record/variant
                         --  metadata before the generic unit's own ``end``.
                         --  Do not close the generic-unit segment on statement
@@ -12438,7 +12425,7 @@ package body Editor.Ada_Declaration_Parser is
                        and then Generic_Anonymous_Block_Nesting = 0
                        and then Tail_Token_At (I, "begin")
                      then
-                        --  Pass 121: mirror compact package-tail bare-block
+                        --  mirror compact package-tail bare-block
                         --  handling for same-line ``generic;`` tails.  The
                         --  first ``begin`` belongs to the current compact
                         --  package/callable body; later bare ``begin ... end;``
@@ -13174,7 +13161,7 @@ package body Editor.Ada_Declaration_Parser is
            and then not Flags.Is_Rename
            and then not Flags.Is_Separate
          then
-            --  Pass 175: retain callable body/spec metadata so indexed
+            --  retain callable body/spec metadata so indexed
             --  Outline navigation can safely pair subprogram declarations
             --  with their bodies instead of treating same-name callables as
             --  indistinguishable overload candidates.
@@ -13184,7 +13171,7 @@ package body Editor.Ada_Declaration_Parser is
          if Name_Len > 0
            and then Is_Invalid_Compact_Owner_Name (Name (1 .. Name_Len))
          then
-            --  Pass 130: keep malformed/in-progress declarations from
+            --  keep malformed/in-progress declarations from
             --  learning Ada reserved words as real language-model symbols in
             --  the fallback declaration path as well as in compact tail
             --  splitters.  If the malformed declaration was the generic unit
@@ -15691,14 +15678,14 @@ package body Editor.Ada_Declaration_Parser is
             L        : constant String := Lower (T);
             Range_At : Natural := 0;
          begin
-            --  Pass 590: a String index constraint may spell each
+            --  a String index constraint may spell each
             --  discrete_range as a subtype indication, for example
             --  ``String (Positive range 2 .. 6)``.  The parser slice that
             --  reaches this routine gives the low side as
             --  ``Positive range 2``; retain only the range expression before
             --  feeding the bounded static integer evaluator.
             --
-            --  Pass 609: find that leading subtype-indication marker with a
+            --  find that leading subtype-indication marker with a
             --  bounded Ada scanner instead of a raw substring search.  Direct
             --  static String bounds such as ``String'(""range"")'First`` may
             --  legally contain the word ``range`` inside a quoted literal;
@@ -15814,7 +15801,7 @@ package body Editor.Ada_Declaration_Parser is
               and then Static_String_Subtype_Bounds (I).Has_First
               and then Static_String_Subtype_Bounds (I).Has_Last
             then
-               --  Pass 591: a constrained String subtype alias inherits the
+               --  a constrained String subtype alias inherits the
                --  retained bounds of its constrained base.  Without copying
                --  this metadata, ``subtype Alias is Offset_Name`` retained
                --  the root String compatibility but lost Alias'First,
@@ -15856,7 +15843,7 @@ package body Editor.Ada_Declaration_Parser is
             L        : constant String := Lower (S);
             Range_At : Natural := 0;
          begin
-            --  Pass 607: a copied String index constraint may be wrapped in
+            --  a copied String index constraint may be wrapped in
             --  a discrete subtype indication, e.g.
             --  ``String (Positive range Offset_Name'Range)``.  Strip only
             --  that leading subtype-mark/range marker before looking for the
@@ -15867,7 +15854,7 @@ package body Editor.Ada_Declaration_Parser is
             begin
                while J <= L'Last loop
                   if L (J) = '"' then
-                     --  Pass 608: do not mistake the word ``range`` inside a
+                     --  do not mistake the word ``range`` inside a
                      --  string literal operand, e.g. String'(""range"")'Range,
                      --  for a leading discrete subtype indication marker.
                      --  Skip doubled quotes with the same bounded scanner used
@@ -15927,7 +15914,7 @@ package body Editor.Ada_Declaration_Parser is
                return;
             end if;
 
-         --  Pass 613: choose the apostrophe that introduces the copied
+         --  choose the apostrophe that introduces the copied
          --  Source_Span attribute, not merely the last apostrophe in the source
          --  text.  Dimension expressions may themselves contain attributes
          --  such as Character'Pos and character literals such as '')'', so a
@@ -16032,14 +16019,14 @@ package body Editor.Ada_Declaration_Parser is
             Attr_Name   : Unbounded_String;
             Dim_Text    : Unbounded_String;
          begin
-            --  Pass 597: Ada permits an index constraint to be copied from a
+            --  Ada permits an index constraint to be copied from a
             --  statically known constrained String subtype or object with a
             --  range attribute, for example ``String (Offset_Name'Range)`` or
             --  ``String (Offset_Object'Range)``.  Reuse the retained First/Last
             --  metadata rather than requiring the source to be re-spelled as
             --  ``X'First .. X'Last``.
             --
-            --  Pass 601: accept the optional one-dimensional array attribute
+            --  accept the optional one-dimensional array attribute
             --  argument on the copied range as well, for example
             --  ``String (Offset_Name'Range (1))`` and the equivalent object
             --  form.  Dimension values other than 1 stay outside the bounded
@@ -16060,7 +16047,7 @@ package body Editor.Ada_Declaration_Parser is
                begin
                   while J <= Raw_Attr'Last loop
                      if Raw_Attr (J) = '"' then
-                        --  Pass 612: the copied Source_Span attribute may carry a
+                        --  the copied Source_Span attribute may carry a
                         --  static expression dimension.  Match only real
                         --  expression parentheses here; skip Ada string
                         --  literals so text such as ")" does not close the
@@ -16084,7 +16071,7 @@ package body Editor.Ada_Declaration_Parser is
                        and then J + 2 <= Raw_Attr'Last
                        and then Raw_Attr (J + 2) = Character'Val (39)
                      then
-                        --  Pass 612: likewise skip character literals such as
+                        --  likewise skip character literals such as
                         --  '')'' before parenthesis matching, so expressions
                         --  like S'Range (1 + Character'Pos ('')'') -
                         --  Character'Pos ('')'')) are handed to the static
@@ -16133,7 +16120,7 @@ package body Editor.Ada_Declaration_Parser is
                        Normalize_Character_Pos_Static_Operands (Dim_Source);
                      Signed_Dim : Integer := 0;
                   begin
-                     --  Pass 611: accept a static integer expression for the
+                     --  accept a static integer expression for the
                      --  optional one-dimensional Source_Span attribute argument,
                      --  not just a bare natural literal.  This keeps
                      --  ``String (S'Range (1 + 0))`` aligned with the
@@ -16187,7 +16174,7 @@ package body Editor.Ada_Declaration_Parser is
                            Natural'Image (Static_String_Constants (I).First),
                            Natural'Image (Static_String_Constants (I).Last));
                      else
-                        --  Pass 602: a named unconstrained static String
+                        --  a named unconstrained static String
                         --  constant still has a statically known one-
                         --  dimensional range.  Allow later constrained
                         --  String subtypes to copy that range via
@@ -16211,7 +16198,7 @@ package body Editor.Ada_Declaration_Parser is
                   end if;
                end loop;
 
-               --  Pass 603: copy ranges from direct static String expression
+               --  copy ranges from direct static String expression
                --  prefixes as well as named objects/subtypes.  This admits
                --  bounded forms such as
                --  ``subtype Inline_Range_Name is String
@@ -16267,7 +16254,7 @@ package body Editor.Ada_Declaration_Parser is
               and then Static_String_Subtype_Bounds (I).Has_First
               and then Static_String_Subtype_Bounds (I).Has_Last
             then
-               --  Pass 586: String subtype qualification/constant retention now
+               --  String subtype qualification/constant retention now
                --  honors statically known constrained subtype lengths.  Ada
                --  array qualification can slide bounds, but the number of
                --  components must match; null ranges have length zero.
@@ -16313,7 +16300,7 @@ package body Editor.Ada_Declaration_Parser is
               and then Static_String_Subtype_Bounds (I).Has_First
               and then Static_String_Subtype_Bounds (I).Has_Last
             then
-               --  Pass 587: the same retained constrained String subtype
+               --  the same retained constrained String subtype
                --  bounds used for qualification length checks are now exposed
                --  to static attribute evaluation.  This keeps bounded
                --  representation expressions such as Small_Name'First,
@@ -16403,7 +16390,7 @@ package body Editor.Ada_Declaration_Parser is
             return;
          end if;
 
-         --  Pass 555: subtype aliases and scalar derivations keep the
+         --  subtype aliases and scalar derivations keep the
          --  retained discrete-literal position map of their base type.  Source_Span
          --  metadata alone is not sufficient for forms such as
          --  Primary'Pos (Blue), because Blue is a literal, not an integer
@@ -16413,7 +16400,7 @@ package body Editor.Ada_Declaration_Parser is
             Register_Static_Enumeration_Literal (Name, "False", 0);
             Register_Static_Enumeration_Literal (Name, "True", 1);
          elsif Static_Type_Is_Character (Base_Name) then
-            --  Pass 556: Character subtype aliases and scalar derivations keep
+            --  Character subtype aliases and scalar derivations keep
             --  character-literal static operand compatibility without storing
             --  all predefined character literals in the enumeration table.
             --  This enables forms such as Letter'Pos ('A'), Letter'Val (65),
@@ -16484,7 +16471,7 @@ package body Editor.Ada_Declaration_Parser is
            and then L (L'First + 2) = Character'Val (39)
            and then L (L'First + 3) = Character'Val (39)
          then
-            --  Pass 579: Ada spells an apostrophe character literal as four
+            --  Ada spells an apostrophe character literal as four
             --  consecutive apostrophes.  Keep this decoded at the shared
             --  discrete-character boundary so Character'Pos, typed Character
             --  constants, and string concatenation all agree on the value.
@@ -16568,7 +16555,7 @@ package body Editor.Ada_Declaration_Parser is
                declare
                   C : constant Character := Character'Val (Position);
                begin
-                  --  Pass 580: preserve Ada's doubled apostrophe spelling when
+                  --  preserve Ada's doubled apostrophe spelling when
                   --  producing Character'Image for the apostrophe character.
                   --  The source-level image is four apostrophes (''''), not the
                   --  three-character text that a naive quote + char + quote
@@ -16741,7 +16728,7 @@ package body Editor.Ada_Declaration_Parser is
                then
                   J := J + 3;
                elsif Q (J) = Character'Val (39) then
-                  --  Pass 593: tolerate Ada whitespace between the
+                  --  tolerate Ada whitespace between the
                   --  qualification apostrophe and the opening parenthesis in
                   --  bounded static String qualification, e.g.
                   --  String' (""Green"")'Length.  Character literals are
@@ -16793,7 +16780,7 @@ package body Editor.Ada_Declaration_Parser is
                   return False;
                end if;
 
-               --  Pass 615: rely on the canonical subtype root here so
+               --  rely on the canonical subtype root here so
                --  fully qualified predefined String qualifiers such as
                --  Standard.String'(""Green"")'Length feed the exact same
                --  bounded static String bound path as the unqualified
@@ -16814,7 +16801,7 @@ package body Editor.Ada_Declaration_Parser is
                   return False;
                end if;
 
-               --  Pass 588: qualified array expressions of constrained
+               --  qualified array expressions of constrained
                --  String subtypes carry the subtype bounds, not only the
                --  component count of the operand image.  Preserve the bounded
                --  subtype First/Last metadata when it is known, and fall back
@@ -16857,7 +16844,7 @@ package body Editor.Ada_Declaration_Parser is
          end if;
 
          if not Static_String_Constant_Value (Name, Image_Text) then
-            --  Pass 584: array bounds over a bounded static String expression
+            --  array bounds over a bounded static String expression
             --  are static even when the prefix is not a retained object name.
             --  This admits forms such as String'(""Gr"" & ""een"")'Length
             --  and (""Green"" (1 .. 3))'Last through the same string image
@@ -16867,7 +16854,7 @@ package body Editor.Ada_Declaration_Parser is
             end if;
          end if;
 
-         --  Pass 570: retained static String objects expose the predefined
+         --  retained static String objects expose the predefined
          --  bounds that come from their static initial value.  This remains
          --  intentionally bounded to string objects/constants registered by
          --  the static string environment; array types and arbitrary objects
@@ -16908,7 +16895,7 @@ package body Editor.Ada_Declaration_Parser is
          Image_Text : Unbounded_String;
 
          procedure Locate_Top_Level_Index_Open is
-            --  Pass 585: choose the final top-level indexing suffix rather
+            --  choose the final top-level indexing suffix rather
             --  than the first parenthesized subexpression.  That keeps
             --  String-qualified prefixes such as String'("Green") (1)
             --  available to the same bounded static string path as literals.
@@ -16985,7 +16972,7 @@ package body Editor.Ada_Declaration_Parser is
             end if;
 
             if not Static_String_Constant_Value (Name_Text, Image_Text) then
-               --  Pass 578/585: allow indexing over any bounded static string
+               --  /585: allow indexing over any bounded static string
                --  expression prefix, not only a named retained constant.  This
                --  covers direct literals such as ``"Green" (1)``, qualified
                --  strings such as ``String'("Green") (1)``, and
@@ -16999,7 +16986,7 @@ package body Editor.Ada_Declaration_Parser is
             declare
                S : constant String := To_String (Image_Text);
             begin
-               --  Pass 589: indexing over qualified constrained String
+               --  indexing over qualified constrained String
                --  prefixes must use the prefix bounds, not blindly rebase
                --  the image at one.  This preserves forms such as
                --  Offset_Name'(""Green"") (2), where the first component is
@@ -17052,7 +17039,7 @@ package body Editor.Ada_Declaration_Parser is
          Source_Text : Unbounded_String;
 
          procedure Locate_Top_Level_Slice_Open is
-            --  Pass 585: slice prefixes can themselves be qualified static
+            --  slice prefixes can themselves be qualified static
             --  String expressions.  Record the final top-level slice suffix
             --  so String'("Green") (1 .. 2) is evaluated through the existing
             --  static image and range-checking path.
@@ -17163,7 +17150,7 @@ package body Editor.Ada_Declaration_Parser is
             end if;
 
             if not Static_String_Constant_Value (Name_Text, Source_Text) then
-               --  Pass 578/585: slice prefixes can themselves be bounded
+               --  /585: slice prefixes can themselves be bounded
                --  static string expressions.  This lets direct literals,
                --  qualified string expressions, and previously computed string
                --  expressions be sliced without first naming an intermediate
@@ -17176,7 +17163,7 @@ package body Editor.Ada_Declaration_Parser is
             declare
                S : constant String := To_String (Source_Text);
             begin
-               --  Pass 589: slices over qualified constrained String prefixes
+               --  slices over qualified constrained String prefixes
                --  are checked against the prefix bounds.  The stored image is
                --  still contiguous, so convert source indexes through the
                --  retained lower bound before slicing the image text.
@@ -17188,7 +17175,7 @@ package body Editor.Ada_Declaration_Parser is
                   Last_Index := S'Length;
                end if;
 
-               --  Pass 577: preserve Ada null-slice staticness.  A slice
+               --  preserve Ada null-slice staticness.  A slice
                --  whose static range is null, such as S (3 .. 2), is still a
                --  static string expression and can initialize retained string
                --  constants.  Keep the accepted case bounded to an in-range
@@ -17400,7 +17387,7 @@ package body Editor.Ada_Declaration_Parser is
       begin
          Image_Text := Null_Unbounded_String;
 
-         --  Pass 568: string-valued static expressions can be composed from
+         --  string-valued static expressions can be composed from
          --  retained string literals, named string constants, and scalar Image
          --  attributes using Ada's string concatenation operator.  Keep this
          --  bounded and expression-local: only top-level ``&`` is split, while
@@ -17411,7 +17398,7 @@ package body Editor.Ada_Declaration_Parser is
               (Trim (D (D'First + 1 .. D'Last - 1)), Image_Text);
          end if;
 
-         --  Pass 583: String-compatible qualified expressions preserve
+         --  String-compatible qualified expressions preserve
          --  staticness.  This keeps bounded forms such as
          --  ``String'("Gr" & "een")`` and constrained-string subtype
          --  qualifications on the same retained image path as literals,
@@ -17460,7 +17447,7 @@ package body Editor.Ada_Declaration_Parser is
             end if;
          end;
 
-         --  Pass 575: retained static string constants now also support
+         --  retained static string constants now also support
          --  bounded one-dimensional slices.  The slice result remains a static
          --  string, so it can initialize another string constant or feed
          --  scalar Value through concatenation while sharing the same range
@@ -17474,7 +17461,7 @@ package body Editor.Ada_Declaration_Parser is
             end if;
          end;
 
-         --  Pass 574: retained static string constants also support bounded
+         --  retained static string constants also support bounded
          --  one-dimensional indexing as a Character-valued static operand.
          --  This lets expressions such as ``Name (2) & "ed"`` feed scalar
          --  Value while preserving index range checks through the retained
@@ -17491,7 +17478,7 @@ package body Editor.Ada_Declaration_Parser is
             end if;
          end;
 
-         --  Pass 573: Ada static string concatenation is overloaded for
+         --  Ada static string concatenation is overloaded for
          --  String/Character operands as well as String/String operands.
          --  Treat a bounded character literal as a one-character static
          --  string so expressions such as ``"Gr" & 'e' & "en"`` can feed
@@ -17509,7 +17496,7 @@ package body Editor.Ada_Declaration_Parser is
             end if;
          end;
 
-         --  Pass 581: a retained Character static constant is also a valid
+         --  a retained Character static constant is also a valid
          --  one-character operand for Ada string concatenation.  Keep this
          --  narrower than arbitrary discrete constants: only constants whose
          --  retained subtype is Character-compatible are projected to String.
@@ -17525,7 +17512,7 @@ package body Editor.Ada_Declaration_Parser is
             end if;
          end;
 
-         --  Pass 582: the same one-character projection is now applied
+         --  the same one-character projection is now applied
          --  to any bounded Character-valued static expression, not only a
          --  literal, indexed element, or retained object name.  This covers
          --  direct operands such as Character'Val (71) and
@@ -17568,7 +17555,7 @@ package body Editor.Ada_Declaration_Parser is
             return True;
          end if;
 
-         --  Pass 567: retain bounded static string constants initialized by
+         --  retain bounded static string constants initialized by
          --  scalar Image attributes.  That lets T'Value(Name) reuse the same
          --  image text path as the inline T'Value(T'Image (...)) form.
          declare
@@ -17629,7 +17616,7 @@ package body Editor.Ada_Declaration_Parser is
                            return Static_Discrete_Position_Image
                              (To_String (Prefix_Base), Arg_Pos, Image_Text);
                         elsif Attr_Name = "image" then
-                           --  Pass 572: bounded scalar Image support now also
+                           --  bounded scalar Image support now also
                            --  covers retained integer/modular scalar types.
                            --  Ada Image for signed integer values includes a
                            --  leading blank for nonnegative values and a minus
@@ -17710,7 +17697,7 @@ package body Editor.Ada_Declaration_Parser is
             return;
          end if;
 
-         --  Pass 592: a String object declared with a constrained subtype
+         --  a String object declared with a constrained subtype
          --  keeps that object's array bounds for predefined attribute and
          --  index/slice static evaluation.  Earlier passes retained subtype
          --  and qualified-expression bounds, but a named constant such as
@@ -17762,7 +17749,7 @@ package body Editor.Ada_Declaration_Parser is
       begin
          Position := 0;
 
-         --  Pass 568: scalar Value accepts a bounded static string expression,
+         --  scalar Value accepts a bounded static string expression,
          --  not only a single literal/name/Image form.  Route concatenated
          --  expressions through the shared string evaluator before resolving
          --  the resulting image text as a discrete literal.
@@ -17800,7 +17787,7 @@ package body Editor.Ada_Declaration_Parser is
                return False;
             end if;
 
-            --  Pass 565: scalar Value attributes consume a static string and
+            --  scalar Value attributes consume a static string and
             --  produce a discrete value.  Resolve the bounded image text through
             --  the same literal table used by Pos/Succ/Pred so enumeration,
             --  Boolean, Character, subtype aliases, and derived scalar types keep
@@ -17810,7 +17797,7 @@ package body Editor.Ada_Declaration_Parser is
               (Type_Name, Trim (Buffer (Buffer'First .. Last)), Position);
          end if;
 
-         --  Pass 567: T'Value can consume a retained static string constant.
+         --  T'Value can consume a retained static string constant.
          --  The stored payload is already the decoded image text, so resolve
          --  it exactly like an inline string-literal image.
          declare
@@ -17822,7 +17809,7 @@ package body Editor.Ada_Declaration_Parser is
             end if;
          end;
 
-         --  Pass 566: a static scalar Image attribute is a static string and
+         --  a static scalar Image attribute is a static string and
          --  can therefore feed Value in the bounded discrete evaluator.  Keep
          --  this intentionally narrow: only whole ``Prefix'Image (Operand)``
          --  forms are accepted, and the resulting discrete value is checked
@@ -17918,7 +17905,7 @@ package body Editor.Ada_Declaration_Parser is
       begin
          Value := 0;
 
-         --  Pass 576: scalar integer Value attributes are static when their
+         --  scalar integer Value attributes are static when their
          --  operand is a retained static string expression.  This complements
          --  the existing discrete-literal Value path: Integer'Value (" -12"),
          --  Natural'Value (Name), and subtype-mark Value over concatenated
@@ -17974,7 +17961,7 @@ package body Editor.Ada_Declaration_Parser is
             end if;
          end loop;
 
-         --  Pass 561: a discrete constant declared with a constrained subtype
+         --  a discrete constant declared with a constrained subtype
          --  is still an object of the base scalar type for static attribute
          --  operands.  Resolve retained subtype aliases before rejecting the
          --  constant, so ``Color'Pos (Default_Primary)`` and
@@ -18064,7 +18051,7 @@ package body Editor.Ada_Declaration_Parser is
             return False;
          end if;
 
-         --  Pass 564: discrete static expressions are expressions too; allow
+         --  discrete static expressions are expressions too; allow
          --  a whole parenthesized literal/constant/attribute expression to
          --  feed typed discrete constants and scalar attribute operands.
          --  This keeps ``Default : constant Color := (Green);`` and
@@ -18075,7 +18062,7 @@ package body Editor.Ada_Declaration_Parser is
               (Type_Name, Trim (D (D'First + 1 .. D'Last - 1)), Position);
          end if;
 
-         --  Pass 574: a static string component selection is a static
+         --  a static string component selection is a static
          --  Character value.  Allow it to initialize Character-compatible
          --  discrete constants and feed Character'Pos/Value-style operands
          --  without accepting arbitrary array indexing.
@@ -18091,7 +18078,7 @@ package body Editor.Ada_Declaration_Parser is
             return Static_Value_In_Type_Range (Type_Name, Position);
          end if;
 
-         --  Pass 563: retain discrete constants initialized from scalar
+         --  retain discrete constants initialized from scalar
          --  bound attributes, for example ``Default : constant Color :=
          --  Color'First;`` and ``Last_Primary : constant Primary :=
          --  Primary'Last;``.  These attributes produce discrete values and
@@ -18167,7 +18154,7 @@ package body Editor.Ada_Declaration_Parser is
                null;
          end;
 
-         --  Pass 562: retain discrete constants whose defaults are scalar
+         --  retain discrete constants whose defaults are scalar
          --  attribute functions that produce a discrete value.  This closes
          --  the static-environment gap for declarations such as
          --  ``Default : constant Color := Color'Val (1);`` and chained forms
@@ -18179,7 +18166,7 @@ package body Editor.Ada_Declaration_Parser is
             procedure Locate_Outer_Attribute_Open is
                I : Natural := D'First;
             begin
-               --  Pass 627: locate the attribute-call opening parenthesis
+               --  locate the attribute-call opening parenthesis
                --  with the same bounded literal awareness used by the later
                --  operand scanners.  A discrete default can contain character
                --  or string literals before a scanner has fully classified the
@@ -18269,7 +18256,7 @@ package body Editor.Ada_Declaration_Parser is
                             (To_String (Prefix_Base), T)
                         then
                            if Attr_Name = "val" then
-                              --  Pass 626: retained discrete defaults using
+                              --  retained discrete defaults using
                               --  T'Val accept the same bounded natural static
                               --  expressions as representation arithmetic, not
                               --  only a single numeric literal.  This keeps
@@ -18324,7 +18311,7 @@ package body Editor.Ada_Declaration_Parser is
                                  return True;
                               end if;
                            elsif Attr_Name = "min" or else Attr_Name = "max" then
-                              --  Pass 618: Min/Max have two discrete
+                              --  Min/Max have two discrete
                               --  operands, but either operand can itself be a
                               --  nested static attribute expression.  Select
                               --  the separating comma only at the top level so
@@ -18412,7 +18399,7 @@ package body Editor.Ada_Declaration_Parser is
                null;
          end;
 
-         --  Pass 560: retain discrete constants whose defaults are qualified
+         --  retain discrete constants whose defaults are qualified
          --  static expressions, for example ``Default : constant Color :=
          --  Color'(Green);``.  Earlier passes handled qualified numeric
          --  expressions, but a qualified enumeration/Boolean/Character
@@ -18420,7 +18407,7 @@ package body Editor.Ada_Declaration_Parser is
          --  environment and therefore could not feed later ``T'Pos`` or
          --  ``T'Succ`` representation expressions.
          --
-         --  Pass 616: accept the same Ada separator whitespace between the
+         --  accept the same Ada separator whitespace between the
          --  qualification apostrophe and opening parenthesis that the String
          --  static evaluator already accepts.  This keeps
          --  ``Character' ('A')`` and ``Color' (Green)`` on the retained
@@ -18485,13 +18472,13 @@ package body Editor.Ada_Declaration_Parser is
                   Operand_Type := Prefix_Base;
                end if;
 
-               --  Pass 623: a qualified discrete expression may use a
+               --  a qualified discrete expression may use a
                --  compatible subtype mark, not only the declared constant
                --  type itself.  Evaluate the operand against the qualifier
                --  subtype first so its static range is enforced, then check
                --  the resulting value against the declared object subtype.
                --
-               --  Pass 624: if the qualifier explicitly names 'Base, widen
+               --  if the qualifier explicitly names 'Base, widen
                --  the operand check to the scalar root.  ``Primary'Base'(Blue)``
                --  must be accepted as a Color-compatible operand even though
                --  ``Blue`` is outside the constrained subtype Primary; the
@@ -18660,7 +18647,7 @@ package body Editor.Ada_Declaration_Parser is
          end loop;
 
          if Position > 0 then
-            --  Pass 552: enumeration scalar types provide static position
+            --  enumeration scalar types provide static position
             --  metadata.  The retained evaluator maps their literals to
             --  universal-integer positions for T'Pos and range-checks T'Val.
             Store_Static_Type_Range (Name, 0, Integer (Position - 1));
@@ -18739,7 +18726,7 @@ package body Editor.Ada_Declaration_Parser is
          end if;
 
          if Low_Valid and then High_Valid and then Low_Value <= High_Value then
-            --  Pass 558: constrained scalar subtypes preserve the base type's
+            --  constrained scalar subtypes preserve the base type's
             --  discrete literal/category metadata while narrowing the retained
             --  static range.  This keeps expressions such as
             --  Primary'Pos (Green), Primary'Succ (Red), and modular subtype
@@ -18906,7 +18893,7 @@ package body Editor.Ada_Declaration_Parser is
             J := At_Paren + 1;
             while J <= Subtype_Text'Last loop
                if Subtype_Text (J) = '"' then
-                  --  Pass 610: only a top-level ``..`` separates explicit
+                  --  only a top-level ``..`` separates explicit
                   --  String index bounds.  A retained static String prefix
                   --  can itself contain text such as ``""..""`` before a
                   --  copied Source_Span attribute; skip string literals so that
@@ -18986,7 +18973,7 @@ package body Editor.Ada_Declaration_Parser is
             --  representation expressions.  Deferred constants deliberately
             --  do not enter this table.  A typed constant only enters the
             --  static environment when its default is compatible with the
-            --  retained integer/modular range of that subtype.  Pass 559 also
+            --  retained integer/modular range of that subtype.  also
             --  retains discrete typed constants so forms such as
             --  Color'Pos (Default_Color) can be evaluated without pretending
             --  the literal object is a universal integer.
@@ -19064,12 +19051,12 @@ package body Editor.Ada_Declaration_Parser is
          elsif N.Kind = Node_Subtype_Declaration
            and then Is_String_Index_Subtype
          then
-            --  Pass 583: constrained String subtypes keep a bounded alias to
+            --  constrained String subtypes keep a bounded alias to
             --  String for static string qualification and constant retention.
-            --  Pass 586 also retains simple static bounds so qualification
+            --  also retains simple static bounds so qualification
             --  and constant retention reject values whose component count does
             --  not match the constrained subtype length.
-            --  Pass 606: recognise fully qualified Standard.String index
+            --  recognise fully qualified Standard.String index
             --  constraints as the same bounded one-dimensional String model.
             --  Without this, ``subtype S is Standard.String (2 .. 6)`` kept
             --  neither First/Last/Length metadata nor constrained
@@ -19375,7 +19362,7 @@ package body Editor.Ada_Declaration_Parser is
             Start := Pos;
             Stop := 0;
 
-            --  Pass 621: scalar Value operands can be static string
+            --  scalar Value operands can be static string
             --  expressions that themselves contain attribute calls.  Match
             --  the right parenthesis of the outer Value call while skipping
             --  nested parentheses and Ada literals, so
@@ -19448,7 +19435,7 @@ package body Editor.Ada_Declaration_Parser is
             Skip_Spaces (Pos);
             Literal_Start := Pos;
 
-            --  Pass 620: when the arithmetic evaluator falls back from the
+            --  when the arithmetic evaluator falls back from the
             --  numeric-expression path to the discrete-expression path, keep
             --  the operand scanner literal-aware and parenthesis-aware.
             --  Scalar attributes such as T'Min/T'Max use this helper for
@@ -19579,7 +19566,7 @@ package body Editor.Ada_Declaration_Parser is
                         end loop;
 
                         if Open_Pos <= T'Last and then T (Open_Pos) = '(' then
-                           --  Pass 598: a qualified expression such as
+                           --  a qualified expression such as
                            --  String'(...) or String' (...) can itself be the
                            --  static String prefix.  Skip the qualifier quote
                            --  and any Ada separator characters before the
@@ -19624,7 +19611,7 @@ package body Editor.Ada_Declaration_Parser is
                      return False;
                   end if;
 
-                  --  Pass 599: allow Ada separator characters between the
+                  --  allow Ada separator characters between the
                   --  bound-attribute apostrophe and the designator in direct
                   --  static String prefixes, for example
                   --  String' (""Gr"" & ""een"")' Length.  Name-based
@@ -19690,7 +19677,7 @@ package body Editor.Ada_Declaration_Parser is
                return False;
             end if;
 
-            --  Pass 584: direct static String expressions may be used as
+            --  direct static String expressions may be used as
             --  the prefix of Length/First/Last without naming an intermediate
             --  constant, for example String'(""Gr"" & ""een"")'Length.
             if Parse_Static_String_Bound_Primary (Pos, Result) then
@@ -19698,7 +19685,7 @@ package body Editor.Ada_Declaration_Parser is
             end if;
 
             if At_Word (Pos, "abs") then
-               --  Pass 551: Ada static expressions include the unary abs
+               --  Ada static expressions include the unary abs
                --  operator.  For Natural-valued representation clauses, keep
                --  the bounded fast path for nonnegative operands and add the
                --  common parenthesized signed form, for example abs (-8),
@@ -19873,7 +19860,7 @@ package body Editor.Ada_Declaration_Parser is
                            end if;
 
                            if Attr_Name = "min" or else Attr_Name = "max" then
-                              --  Pass 548: scalar T'Min/T'Max are static scalar
+                              --  scalar T'Min/T'Max are static scalar
                               --  functions.  Evaluate the two static operands and
                               --  keep the result only when both operands are
                               --  compatible with the retained subtype range.
@@ -19930,7 +19917,7 @@ package body Editor.Ada_Declaration_Parser is
                            end if;
 
                            if Attr_Name = "succ" or else Attr_Name = "pred" then
-                              --  Pass 549: scalar successor/predecessor attributes are
+                              --  scalar successor/predecessor attributes are
                               --  static for discrete operands when both the operand and
                               --  the resulting adjacent value remain in the retained
                               --  subtype range.
@@ -19980,7 +19967,7 @@ package body Editor.Ada_Declaration_Parser is
                            end if;
 
                            if Attr_Name = "value" then
-                              --  Pass 565: scalar T'Value (static_string) yields a
+                              --  scalar T'Value (static_string) yields a
                               --  discrete value and can therefore feed integer-valued
                               --  representation expressions through the retained
                               --  position model.
@@ -20033,7 +20020,7 @@ package body Editor.Ada_Declaration_Parser is
                            end if;
 
                            if Attr_Name = "pos" or else Attr_Name = "val" then
-                              --  Pass 552: retain enumeration-literal position
+                              --  retain enumeration-literal position
                               --  evaluation in addition to the integer-like Pos/Val
                               --  path.  T'Pos (Literal) now resolves through the
                               --  enumeration metadata captured from the type
@@ -20067,7 +20054,7 @@ package body Editor.Ada_Declaration_Parser is
                                     Pos := Operand_Start;
                                     Skip_Spaces (Pos);
                                     Literal_Start := Pos;
-                                    --  Pass 619: T'Pos accepts nested static
+                                    --  T'Pos accepts nested static
                                     --  discrete expressions, not only a bare
                                     --  literal/constant token.  Match the
                                     --  closing parenthesis at the outer level
@@ -20156,7 +20143,7 @@ package body Editor.Ada_Declaration_Parser is
                            end if;
 
                            if Attr_Name = "base" then
-                              --  Pass 545: a subtype mark followed by 'Base is still a
+                              --  a subtype mark followed by 'Base is still a
                               --  scalar subtype mark for static attribute/qualification
                               --  purposes in the retained evaluator.  Handle common
                               --  chained forms such as T'Base'First, T'Base'Last, and
@@ -20191,7 +20178,7 @@ package body Editor.Ada_Declaration_Parser is
                                           Base_Type_Name : constant String :=
                                             Static_Subtype_Root (Name_Text);
                                        begin
-                                          --  Pass 628: chained 'Base scalar attributes in
+                                          --  chained 'Base scalar attributes in
                                           --  representation expressions use the scalar
                                           --  root for operand and result range checks.
                                           --  Thus Primary_Color'Base'Val (2) and
@@ -20313,8 +20300,8 @@ package body Editor.Ada_Declaration_Parser is
                                                 Operand_Stop  : Natural := 0;
                                                 Operand_Value : Natural := 0;
                                              begin
-                                                --  Pass 622: keep T'Base'Value in parity with
-                                                --  the direct T'Value scanner from pass 621.
+                                                --  keep T'Base'Value in parity with
+                                                --  the direct T'Value scanner from .
                                                 --  Nested static string operands such as
                                                 --  Color'Base'Image (Blue) must be scanned as
                                                 --  a complete operand instead of stopping at
@@ -20453,7 +20440,7 @@ package body Editor.Ada_Declaration_Parser is
                              or else Attr_Name = "first"
                              or else Attr_Name = "last"
                            then
-                              --  Pass 571: retained bounded static string constants
+                              --  retained bounded static string constants
                               --  also accept the one-dimensional array attribute
                               --  spelling S'Length (1), S'First (1), and S'Last (1).
                               --  The dimension argument is consumed and must statically
@@ -20872,7 +20859,7 @@ package body Editor.Ada_Declaration_Parser is
                      end loop;
 
                      if Open_Pos <= T'Last and then T (Open_Pos) = '(' then
-                        --  Pass 604: signed String index-constraint bounds can
+                        --  signed String index-constraint bounds can
                         --  now use direct static String bound attributes such
                         --  as String'("Green")'First.  Skip qualification
                         --  apostrophes here just like the Natural-valued
@@ -20991,7 +20978,7 @@ package body Editor.Ada_Declaration_Parser is
             end if;
 
             if At_Word (Pos, "abs") then
-               --  Pass 551: signed static expressions support Ada unary abs,
+               --  signed static expressions support Ada unary abs,
                --  preserving range metadata construction from negative bounds
                --  while returning the universal-integer absolute value.
                Pos := Pos + 3;
@@ -21092,7 +21079,7 @@ package body Editor.Ada_Declaration_Parser is
                            if Static_String_Subtype_Bound_Value
                                 (Name_Text, Attr_Name, Attr_Value)
                            then
-                              --  Pass 595: constrained String subtype bounds
+                              --  constrained String subtype bounds
                               --  are available to the signed static integer
                               --  evaluator too.  This lets later String
                               --  index constraints reuse earlier retained
@@ -21100,7 +21087,7 @@ package body Editor.Ada_Declaration_Parser is
                               --  ``subtype Derived is String
                               --  (Offset_Name'First .. Offset_Name'Last);``.
                               --
-                              --  Pass 600: accept the optional one-dimensional
+                              --  accept the optional one-dimensional
                               --  array attribute argument as well, for example
                               --  ``Offset_Name'First (1)`` in a later String
                               --  index constraint.  Only dimension 1 is static
@@ -21132,7 +21119,7 @@ package body Editor.Ada_Declaration_Parser is
                            if Static_String_Constant_Bound_Value
                                 (Name_Text, Attr_Name, Attr_Value)
                            then
-                              --  Pass 596: constrained String object bounds are
+                              --  constrained String object bounds are
                               --  static signed-integer operands as well.  This
                               --  carries retained object bounds into later
                               --  index constraints such as ``String
@@ -21140,7 +21127,7 @@ package body Editor.Ada_Declaration_Parser is
                               --  instead of exposing them only to representation
                               --  expressions.
                               --
-                              --  Pass 600: mirror the subtype path for
+                              --  mirror the subtype path for
                               --  one-dimensional array attribute arguments on
                               --  retained constrained String objects.
                               Skip_Spaces (Pos);
@@ -21170,7 +21157,7 @@ package body Editor.Ada_Declaration_Parser is
                            if Static_String_Bound_Value
                                 (Name_Text, Attr_Name, Attr_Value)
                            then
-                              --  Pass 605: unconstrained retained String
+                              --  unconstrained retained String
                               --  constants also have static one-dimensional
                               --  First/Last/Length values.  The representation
                               --  evaluator already exposed those bounds, but
@@ -21206,7 +21193,7 @@ package body Editor.Ada_Declaration_Parser is
                            end if;
 
                            if Attr_Name = "min" or else Attr_Name = "max" then
-                              --  Pass 548: scalar T'Min/T'Max remain static in
+                              --  scalar T'Min/T'Max remain static in
                               --  signed expressions; both operands must satisfy the
                               --  retained subtype range before the result is reused.
                               Skip_Spaces (Pos);
@@ -21267,7 +21254,7 @@ package body Editor.Ada_Declaration_Parser is
                            end if;
 
                            if Attr_Name = "succ" or else Attr_Name = "pred" then
-                              --  Pass 549: signed static expressions also evaluate
+                              --  signed static expressions also evaluate
                               --  discrete successor/predecessor attribute functions,
                               --  while preserving subtype range compatibility.
                               Skip_Spaces (Pos);
@@ -21321,7 +21308,7 @@ package body Editor.Ada_Declaration_Parser is
                            end if;
 
                            if Attr_Name = "value" then
-                              --  Pass 565: scalar T'Value (static_string) yields a
+                              --  scalar T'Value (static_string) yields a
                               --  discrete value and can therefore feed signed
                               --  static expressions through the retained position
                               --  model.
@@ -21366,7 +21353,7 @@ package body Editor.Ada_Declaration_Parser is
                            end if;
 
                            if Attr_Name = "pos" or else Attr_Name = "val" then
-                              --  Pass 552: signed static expressions also resolve
+                              --  signed static expressions also resolve
                               --  enumeration literal positions for T'Pos (Literal).
                               --  Numeric T'Val operands continue to be checked against
                               --  the retained scalar range before becoming universal
@@ -21404,7 +21391,7 @@ package body Editor.Ada_Declaration_Parser is
                                     Pos := Operand_Start;
                                     Skip_Spaces (Pos);
                                     Literal_Start := Pos;
-                                    --  Pass 619: signed static expressions use
+                                    --  signed static expressions use
                                     --  the same outer-level T'Pos operand scan
                                     --  as the Natural-valued path, so nested
                                     --  static discrete expressions are retained
@@ -21483,7 +21470,7 @@ package body Editor.Ada_Declaration_Parser is
                            end if;
 
                            if Attr_Name = "base" then
-                              --  Pass 545: preserve chained scalar base attributes in
+                              --  preserve chained scalar base attributes in
                               --  signed static expressions as well as natural ones.
                               Skip_Spaces (Pos);
                               if Pos <= T'Last and then T (Pos) = Character'Val (39) then
@@ -21760,7 +21747,7 @@ package body Editor.Ada_Declaration_Parser is
                              or else Attr_Name = "first"
                              or else Attr_Name = "last"
                            then
-                              --  Pass 571: signed static expressions share the
+                              --  signed static expressions share the
                               --  retained String'First/String'Last/String'Length
                               --  source and now consume optional dimension-1 array
                               --  attribute arguments such as S'Last (1).
@@ -23393,7 +23380,7 @@ package body Editor.Ada_Declaration_Parser is
          I     : Natural := Args'First;
          Depth : Natural := 0;
       begin
-         --  Pass 393: retain named actual associations from executable calls
+         --  retain named actual associations from executable calls
          --  as their own semantic binding kind.  This is intentionally
          --  bounded: only top-level Name => associations in the current call
          --  argument list are retained; nested aggregates/calls are handled by
@@ -23544,7 +23531,7 @@ package body Editor.Ada_Declaration_Parser is
             return False;
          end Has_Top_Level_Arrow;
       begin
-         --  Pass 762: retain syntax/model hints for call-shaped ambiguity.
+         --  retain syntax/model hints for call-shaped ambiguity.
          --  These hints are intentionally resolver-facing metadata only: they
          --  identify selected prefixes, selected operation leaves, indexed
          --  prefixes, and entry-family candidate shapes without choosing an
@@ -23778,7 +23765,7 @@ package body Editor.Ada_Declaration_Parser is
          K  : constant Symbol_Kind := Symbol_Kind_For_Target (Id);
          Leaf : constant String := Normalize_Name (Last_Selected_Part (Name));
       begin
-         --  Pass 404: an entry-family call has the same surface shape as an
+         --  an entry-family call has the same surface shape as an
          --  indexed object name: Entry_Name (Index).  When the prefix resolves
          --  to a retained entry declaration, preserve the parenthesized index
          --  as tasking metadata instead of array-index metadata.
@@ -23824,7 +23811,7 @@ package body Editor.Ada_Declaration_Parser is
       function Is_Executable_Aspect_Name (Name : String) return Boolean is
          L : constant String := Lower (Name);
       begin
-         --  Pass 399: contract/assertion-like aspects contain executable
+         --  contract/assertion-like aspects contain executable
          --  expressions even though they live on declaration lines.
          return L = "pre"
            or else L = "post"
@@ -23937,7 +23924,7 @@ package body Editor.Ada_Declaration_Parser is
             end if;
          end Next_Quantifier;
       begin
-         --  Pass 392: retain quantified-expression local names without
+         --  retain quantified-expression local names without
          --  treating the expression as a full compiler AST.  This covers
          --  "for all I in Source_Span => ..." and "for some Item of Items => ..."
          --  in executable expressions and assertion pragmas.  Unknown
@@ -24052,7 +24039,7 @@ package body Editor.Ada_Declaration_Parser is
               and then (Last = LExpr'Last or else not Is_Name_Char (LExpr (Last + 1)));
          end Word_At;
       begin
-         --  Pass 395: retain bounded Ada conditional-expression metadata.
+         --  retain bounded Ada conditional-expression metadata.
          --  This is intentionally expression-shape retention rather than a
          --  full expression AST: simple leading names from the condition and
          --  both result branches are enough for safe semantic colouring and
@@ -24187,7 +24174,7 @@ package body Editor.Ada_Declaration_Parser is
             return True;
          end Is_Statement_Raise;
       begin
-         --  Pass 396: retain raise-expression exception targets separately
+         --  retain raise-expression exception targets separately
          --  from statement-level raise targets.  This remains a bounded
          --  expression scan: ``raise E`` only contributes metadata when it is
          --  embedded in another expression, and unresolved targets degrade
@@ -24253,7 +24240,7 @@ package body Editor.Ada_Declaration_Parser is
          LExpr : constant String := Lower (Expr);
          Search_From : Natural := LExpr'First;
       begin
-         --  Pass 397: retain Ada 2022 delta aggregate base/component names
+         --  retain Ada 2022 delta aggregate base/component names
          --  as executable expression bindings.  This stays deliberately
          --  syntactic: it records the base leading name before "with delta"
          --  and top-level component associations after it, without attempting
@@ -24390,7 +24377,7 @@ package body Editor.Ada_Declaration_Parser is
               and then (Last = LExpr'Last or else not Is_Name_Char (LExpr (Last + 1)));
          end Word_At;
       begin
-         --  Pass 394: retain bounded Ada case-expression selector/choice
+         --  retain bounded Ada case-expression selector/choice
          --  metadata.  This intentionally does not build a full expression AST;
          --  it records only leading names from simple case expressions so
          --  semantic colouring/navigation can distinguish them from statement
@@ -24498,7 +24485,7 @@ package body Editor.Ada_Declaration_Parser is
       is
          I : Natural := Expr'First;
       begin
-         --  Pass 379: retain additional expression/name binding shapes that
+         --  retain additional expression/name binding shapes that
          --  are useful for IDE semantic colouring and navigation but still
          --  bounded and conservative: array indexing/slicing, explicit
          --  dereference, allocators, named aggregate associations, and
@@ -24602,7 +24589,7 @@ package body Editor.Ada_Declaration_Parser is
                               Close : constant Natural := Matching_Right_Paren (Expr, Next);
                            begin
                               if Close /= 0 then
-                                 --  Pass 398: retain explicit type-conversion
+                                 --  retain explicit type-conversion
                                  --  targets separately from call targets and
                                  --  index/slice prefixes.  This is deliberately
                                  --  conservative: the prefix must resolve to a
@@ -24656,7 +24643,7 @@ package body Editor.Ada_Declaration_Parser is
                                  Attr_Stop := Attr_Stop + 1;
                               end loop;
 
-                              --  Pass 380: retain attribute prefixes as
+                              --  retain attribute prefixes as
                               --  executable name bindings.  This makes
                               --  Obj'Length, T'Size, and T'Image (...)
                               --  navigable/colourable by the prefix symbol
@@ -25057,7 +25044,7 @@ package body Editor.Ada_Declaration_Parser is
             end;
          end if;
 
-         --  Pass 382: retain named statement/block labels that are written in
+         --  retain named statement/block labels that are written in
          --  Ada's prefix-label form (for example Main_Loop : loop, Worker :
          --  declare, and Region : begin).  These are distinct from <<Label>>
          --  declarations and allow same-snapshot navigation from exit targets
@@ -25094,7 +25081,7 @@ package body Editor.Ada_Declaration_Parser is
             end if;
          end;
 
-         --  Pass 465: retain each top-level named argument in executable
+         --  retain each top-level named argument in executable
          --  assertion pragmas.  Pragmas such as Assert and Loop_Invariant can
          --  contain executable Boolean expressions, while representation/import
          --  pragmas should not create statement-level semantic bindings.
@@ -25138,12 +25125,12 @@ package body Editor.Ada_Declaration_Parser is
             end;
          end if;
 
-         --  Pass 381: retain executable transfer/tasking name targets
+         --  retain executable transfer/tasking name targets
          --  that are neither declarations nor ordinary calls.  These are
          --  useful for same-snapshot navigation/colouring while remaining
          --  conservative: only the syntactic target name is retained and
          --  unresolved targets degrade through No_Symbol.
-         --  Pass 383: retain return-statement expression targets and
+         --  retain return-statement expression targets and
          --  extended-return object declarations as executable bindings.
          --  This makes return-specific names navigable/colourable without
          --  treating function specifications (which also contain the word
@@ -25381,7 +25368,7 @@ package body Editor.Ada_Declaration_Parser is
                      Ada.Strings.Fixed.Index (Work, Name));
                end if;
 
-               --  Pass 400: accept statement formals are executable local
+               --  accept statement formals are executable local
                --  names, not declaration-outline rows.  Retain them as
                --  bounded statement bindings so colouring/navigation can
                --  treat names in the accept body like local values without
@@ -25415,7 +25402,7 @@ package body Editor.Ada_Declaration_Parser is
             end;
          end if;
 
-         --  Pass 389: retain entry barrier expression names from protected
+         --  retain entry barrier expression names from protected
          --  body entry declarations such as "entry Start when Ready is".
          --  The entry itself remains declaration metadata; the barrier name is
          --  executable expression metadata for semantic/navigation consumers.
@@ -25452,7 +25439,7 @@ package body Editor.Ada_Declaration_Parser is
             end;
          end if;
 
-         --  Pass 386: retain bounded select-statement navigation
+         --  retain bounded select-statement navigation
          --  bindings.  A select guard such as "when Ready =>" is not a
          --  case alternative or an exception choice, and a selective entry
          --  call such as "select Start;" / "or Start;" should be kept as
@@ -25568,7 +25555,7 @@ package body Editor.Ada_Declaration_Parser is
                Ada.Strings.Fixed.Index (LWork, "terminate"));
          end if;
 
-         --  Pass 403: retain asynchronous select abort alternatives.
+         --  retain asynchronous select abort alternatives.
          --  ``then abort`` is a select-structure marker, not a callable name
          --  and not an ordinary ``then`` keyword line.  Keep it as bounded
          --  executable metadata so tasking-aware navigation/colouring can
@@ -25591,7 +25578,7 @@ package body Editor.Ada_Declaration_Parser is
             end;
          end if;
 
-         --  Pass 385: retain simple executable condition/selector names
+         --  retain simple executable condition/selector names
          --  used by if/elsif/while/case statements.  This complements call,
          --  component, and deep expression bindings without building a full
          --  expression AST: only a leading resolvable expression name is kept,
@@ -25781,7 +25768,7 @@ package body Editor.Ada_Declaration_Parser is
                         else Raw_Choices);
                      Start : Natural := Choices'First;
                   begin
-                     --  Pass 401: retain the optional exception occurrence
+                     --  retain the optional exception occurrence
                      --  identifier in handlers such as
                      --  ``when Occ : Constraint_Error =>`` as a local
                      --  executable binding distinct from the exception choice.
@@ -25834,7 +25821,7 @@ package body Editor.Ada_Declaration_Parser is
             end;
          end if;
 
-         --  Pass 376/377: retain call targets and selected component uses
+         --  /377: retain call targets and selected component uses
          --  that appear inside executable expressions, not only standalone
          --  call statements or assignment targets.  This covers conditions,
          --  return expressions, assignments, nested actuals, and component

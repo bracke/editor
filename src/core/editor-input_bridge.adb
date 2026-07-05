@@ -1,5 +1,6 @@
 with Editor.Instance;
 with Editor.Input_Bridge.Render_Access;
+with Editor.Input_Bridge.Text_Entry_Routing;
 with Editor.Commands;
 with Editor.Command_Execution;
 with Editor.Render_Model;
@@ -207,174 +208,46 @@ use type Editor.Guided_Prompts.Prompt_Kind;
      (Cmd : Editor.Commands.Command) return Boolean
    is
    begin
-      case Cmd.Kind is
-         when Editor.Commands.Insert_Text_Input
-            | Editor.Commands.Delete_Char
-            | Editor.Commands.Forward_Delete_Char
-            | Editor.Commands.Delete_Previous_Character
-            | Editor.Commands.Delete_Next_Character
-            | Editor.Commands.Delete_Previous_Word
-            | Editor.Commands.Delete_Next_Word
-            | Editor.Commands.Delete_Selection_Range
-            | Editor.Commands.Split_Current_Line_At_Caret =>
-            return True;
-         when others =>
-            return False;
-      end case;
+      return Text_Entry_Routing.Is_Text_Entry_Workflow_Event (Cmd);
    end Is_Text_Entry_Workflow_Event;
 
    function Is_Text_Entry_Workflow_Command_Id
      (Id : Editor.Commands.Command_Id) return Boolean
    is
    begin
-      case Id is
-         when Editor.Commands.Command_Insert_Newline
-            | Editor.Commands.Command_Selection_Delete
-            | Editor.Commands.Command_Char_Delete_Previous
-            | Editor.Commands.Command_Char_Delete_Next
-            | Editor.Commands.Command_Word_Delete_Previous
-            | Editor.Commands.Command_Word_Delete_Next
-            | Editor.Commands.Command_Line_Split_At_Caret =>
-            return True;
-         when others =>
-            return False;
-      end case;
+      return Text_Entry_Routing.Is_Text_Entry_Workflow_Command_Id (Id);
    end Is_Text_Entry_Workflow_Command_Id;
 
    function Resolve_Text_Entry_Focus_Target
      return Text_Entry_Focus_Target
    is
    begin
-      if Pending_Confirmation_Active then
-         return Text_Entry_No_Target;
-      elsif Editor.Guided_Prompts.Is_Active (The_Editor.State.Guided_Prompt) then
-         return Text_Entry_Guided_Prompt;
-      elsif Overlay_Or_Local_Text_Input_Active then
-         return Text_Entry_Overlay_Input;
-      elsif Editor.Focus_Management.Editor_Text_Can_Edit (The_Editor.State) then
-         return Text_Entry_Editor_Buffer;
-      else
-         return Text_Entry_No_Target;
-      end if;
+      return Text_Entry_Routing.Resolve_Text_Entry_Focus_Target
+        (The_Editor.State);
    end Resolve_Text_Entry_Focus_Target;
 
    function Preview_Text_Entry_Route
      (Cmd : Editor.Commands.Command) return Text_Entry_Route_Result
    is
-      Focus : constant Text_Entry_Focus_Target := Resolve_Text_Entry_Focus_Target;
    begin
-      if not Is_Text_Entry_Workflow_Event (Cmd) then
-         return Unsupported_Text_Entry_Event;
-      end if;
-
-      if Focus = Text_Entry_Overlay_Input then
-         return Routed_To_Overlay_Input;
-      elsif Focus = Text_Entry_Guided_Prompt then
-         return Routed_To_Guided_Prompt;
-      elsif Focus /= Text_Entry_Editor_Buffer then
-         return No_Editor_Text_Focus;
-      elsif Editor.Buffers.Global_Active_Buffer = Editor.Buffers.No_Buffer
-        and then not Editor.State.Has_Active_Buffer (The_Editor.State)
-      then
-         return No_Active_Buffer;
-      elsif The_Editor.State.Carets.Is_Empty then
-         return No_Caret_Location;
-      end if;
-
-      case Cmd.Kind is
-         when Editor.Commands.Insert_Text_Input =>
-            --  Retained 416 policy: an Enter/newline payload is a
-            --  canonical Text Insert payload. The explicit Line Split command
-            --  remains separate and is never invoked for this text payload.
-            return Routed_To_Text_Insert;
-         when Editor.Commands.Delete_Selection_Range =>
-            return Routed_To_Selection_Delete;
-         when Editor.Commands.Delete_Char
-            | Editor.Commands.Delete_Previous_Character =>
-            return Routed_To_Delete_Previous_Character;
-         when Editor.Commands.Forward_Delete_Char
-            | Editor.Commands.Delete_Next_Character =>
-            return Routed_To_Delete_Next_Character;
-         when Editor.Commands.Delete_Previous_Word =>
-            return Routed_To_Delete_Previous_Word;
-         when Editor.Commands.Delete_Next_Word =>
-            return Routed_To_Delete_Next_Word;
-         when Editor.Commands.Split_Current_Line_At_Caret =>
-            return Routed_To_Line_Split;
-         when others =>
-            return Unsupported_Text_Entry_Event;
-      end case;
+      return Text_Entry_Routing.Preview_Text_Entry_Route
+        (The_Editor.State, Cmd);
    end Preview_Text_Entry_Route;
 
    function Canonical_Text_Entry_Command
      (Cmd : Editor.Commands.Command) return Editor.Commands.Command
    is
-      Result : constant Text_Entry_Route_Result := Preview_Text_Entry_Route (Cmd);
-      Routed : Editor.Commands.Command := Cmd;
    begin
-      case Result is
-         when Routed_To_Text_Insert =>
-            Routed.Kind := Editor.Commands.Insert_Text_Input;
-            if not Routed.Has_Position
-              and then not The_Editor.State.Carets.Is_Empty
-            then
-               Routed.Pos :=
-                 The_Editor.State.Carets
-                   (The_Editor.State.Carets.First_Index).Pos;
-               Routed.Has_Position := True;
-            end if;
-            if Cmd.Code /= Wide_Wide_Character'Val (0)
-              and then
-                (Length (Routed.Text) = 0
-                 or else To_String (Routed.Text) = String'(1 => ASCII.NUL))
-            then
-               Routed.Text :=
-                 To_Unbounded_String (Editor.UTF8.Encode_UTF8 (Cmd.Code));
-            elsif Length (Routed.Text) = 0 then
-               if Cmd.Ch /= ASCII.NUL then
-                  Routed.Text := To_Unbounded_String (String'(1 => Cmd.Ch));
-               else
-                  Routed.Text := Null_Unbounded_String;
-               end if;
-            end if;
-         when Routed_To_Selection_Delete =>
-            Routed.Kind := Editor.Commands.Delete_Selection_Range;
-         when Routed_To_Delete_Previous_Character =>
-            Routed.Kind := Editor.Commands.Delete_Previous_Character;
-         when Routed_To_Delete_Next_Character =>
-            Routed.Kind := Editor.Commands.Delete_Next_Character;
-         when Routed_To_Delete_Previous_Word =>
-            Routed.Kind := Editor.Commands.Delete_Previous_Word;
-         when Routed_To_Delete_Next_Word =>
-            Routed.Kind := Editor.Commands.Delete_Next_Word;
-         when Routed_To_Line_Split =>
-            Routed.Kind := Editor.Commands.Split_Current_Line_At_Caret;
-         when others =>
-            null;
-      end case;
-      return Routed;
+      return Text_Entry_Routing.Canonical_Text_Entry_Command
+        (The_Editor.State, Cmd);
    end Canonical_Text_Entry_Command;
 
    function Preview_Text_Entry_Command_Id
      (Cmd : Editor.Commands.Command) return Editor.Commands.Command_Id
    is
    begin
-      case Preview_Text_Entry_Route (Cmd) is
-         when Routed_To_Selection_Delete =>
-            return Editor.Commands.Command_Selection_Delete;
-         when Routed_To_Delete_Previous_Character =>
-            return Editor.Commands.Command_Char_Delete_Previous;
-         when Routed_To_Delete_Next_Character =>
-            return Editor.Commands.Command_Char_Delete_Next;
-         when Routed_To_Delete_Previous_Word =>
-            return Editor.Commands.Command_Word_Delete_Previous;
-         when Routed_To_Delete_Next_Word =>
-            return Editor.Commands.Command_Word_Delete_Next;
-         when Routed_To_Line_Split =>
-            return Editor.Commands.Command_Line_Split_At_Caret;
-         when others =>
-            return Editor.Commands.No_Command;
-      end case;
+      return Text_Entry_Routing.Preview_Text_Entry_Command_Id
+        (The_Editor.State, Cmd);
    end Preview_Text_Entry_Command_Id;
 
    procedure Confirm_Guided_Prompt;
@@ -898,7 +771,7 @@ use type Editor.Guided_Prompts.Prompt_Kind;
       end if;
 
       Editor.Guided_Prompts.Mark_Confirmed (The_Editor.State.Guided_Prompt);
-      --  completeness pass: keybinding capture has its own typed
+      --  keybinding capture has its own typed
       --  transient chord and must not re-execute the prompt-start command.  It
       --  completes through Keybinding_Management, which stores only normalized
       --  chord -> stable command-name mappings after explicit success and keeps
@@ -1029,7 +902,7 @@ use type Editor.Guided_Prompts.Prompt_Kind;
             Editor.Cursor.Notify_Input (Float (Editor.View.Current_Time_Seconds));
             return;
          else
-            --  completeness pass 5: a guided prompt is modal for
+            --  a guided prompt is modal for
             --  command dispatch.  Besides Cancel and prompt-local text editing,
             --  ordinary global keybindings and palette executions must not leak
             --  through to editor/file/project mutations while prompt input is
@@ -6552,7 +6425,7 @@ use type Editor.Guided_Prompts.Prompt_Kind;
          end;
       end if;
 
-      --  pass 30: Feature Search query input and Outline filter
+      --  Feature Search query input and Outline filter
       --  input are text-input focus owners even though they are embedded in
       --  the feature panel rather than represented by Overlay_Focus.  They
       --  therefore need the same high-priority dispatch isolation as modal

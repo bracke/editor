@@ -612,7 +612,7 @@ package body Editor.Executor is
          Target_Column : constant Natural :=
            Editor.Outline.Item_Column (S.Outline, Positive (Outline_Row));
       begin
-         --  Pass 201: declaration navigation and open-selected availability
+         --  declaration navigation and open-selected availability
          --  must expose the same stale-target policy as execution.  A selected
          --  row is not enough; the retained Outline target must still map to a
          --  live buffer and an in-range source position before the command is
@@ -2913,7 +2913,7 @@ package body Editor.Executor is
          then
             S.File_Info.Dirty := True;
 
-            --  pass 179 completeness: ordinary text edits stale
+            --  completeness: ordinary text edits stale
             --  parser-owned language-analysis state just like reload/revert
             --  lifecycle operations.  Drop current path/token index rows and
             --  semantic maps before recording the edit so Outline navigation,

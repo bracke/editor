@@ -57,7 +57,7 @@ package body Editor.Executor.File_Operation_Commands is
            (S.Feature_Diagnostics, Relative_Path, Relative_Path);
       end if;
 
-      --  completeness pass 170: file lifecycle changes make
+      --  file lifecycle changes make
       --  parser-owned Outline/semantic targets stale.  Drop any indexed row
       --  for the active buffer token so Save As/rename/delete/reload/revert
       --  cannot leave the old path/revision/fingerprint available to language
@@ -241,7 +241,7 @@ package body Editor.Executor.File_Operation_Commands is
 
       if Editor.Files.Is_Success (Result) then
          Update_Association_After_Rename_Success (S, Result);
-         --  pass 182: active-buffer filesystem rename changes both
+         --  active-buffer filesystem rename changes both
          --  the old indexed source path and the adopted target association.
          --  Invalidate both path spellings plus the stable buffer token so
          --  indexed Outline/body/spec/semantic targets cannot survive the
@@ -337,7 +337,7 @@ package body Editor.Executor.File_Operation_Commands is
 
       if Editor.Files.Is_Success (Result) then
          Clear_Association_After_Delete_Success (S);
-         --  pass 182: deletion clears the active association before
+         --  deletion clears the active association before
          --  ordinary lifecycle invalidation runs, so explicitly invalidate the
          --  previous backing path as well as the active buffer token.
          if Previous_File.Has_Path and then Length (Previous_File.Path) > 0 then
@@ -496,7 +496,7 @@ package body Editor.Executor.File_Operation_Commands is
 
       if Editor.Files.Is_Success (Result) then
          Update_Association_After_Move_Success (S, Result);
-         --  pass 182: active-buffer filesystem move is a lifecycle
+         --  active-buffer filesystem move is a lifecycle
          --  mutation for language-index targets.  Drop the old source path,
          --  the new adopted path, and the buffer-token row before reporting
          --  success.

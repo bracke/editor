@@ -122,6 +122,8 @@ editor-ada_dataflow_rm_completion_closure_consumer_legality.adb
 editor-ada_dataflow_rm_completion_closure_consumer_legality.ads
 editor-ada_declaration_parser.adb
 editor-ada_declaration_parser.ads
+editor-ada_declaration_parser-lexical_helpers.adb
+editor-ada_declaration_parser-lexical_helpers.ads
 editor-ada_declarative_regions.adb
 editor-ada_declarative_regions.ads
 editor-ada_definite_initialization_flow_legality.adb
@@ -802,6 +804,8 @@ editor-ada_tasking_shared_state_final_legality.adb
 editor-ada_tasking_shared_state_final_legality.ads
 editor-ada_token_cursor-tokenization.adb
 editor-ada_token_cursor-tokenization.ads
+editor-ada_token_cursor-expressions.adb
+editor-ada_token_cursor-expressions.ads
 editor-ada_token_cursor.adb
 editor-ada_token_cursor.ads
 editor-ada_type_graph.adb
@@ -900,6 +904,8 @@ editor-command_surface.adb
 editor-command_surface.ads
 editor-commands.adb
 editor-commands.ads
+editor-commands-availability_metadata.adb
+editor-commands-availability_metadata.ads
 editor-configuration_audit.adb
 editor-configuration_audit.ads
 editor-configuration_recovery.adb
@@ -1101,6 +1107,8 @@ editor-input.adb
 editor-input.ads
 editor-input_bridge-render_access.adb
 editor-input_bridge-render_access.ads
+editor-input_bridge-text_entry_routing.adb
+editor-input_bridge-text_entry_routing.ads
 editor-input_bridge.adb
 editor-input_bridge.ads
 editor-input_field.adb

@@ -191,11 +191,11 @@ package body Editor.Executor.Project_Lifecycle_Commands is
       Rebase_Active_Retained_History_After_Project_Reset
         (S, Old_Generation, Active_Was_Retained_Outside);
       Editor.Clipboard.Clear;
-      --  completeness pass 8: project switch/open cleanup must not
+      --  project switch/open cleanup must not
       --  erase retained outside-project buffer undo/redo history.  Project-owned
       --  clean buffers are closed before switch, and project-scoped surfaces are
       --  reset here; global edit history belongs to surviving buffers.
-      --  completeness pass 9: retained outside-project buffers also
+      --  retained outside-project buffers also
       --  keep their recent-buffer ordering.  Reset_Project_Scoped_State clears
       --  the project-scoped switcher/recent-buffer projections; restore only
       --  surviving outside-project recent-buffer entries after the reset.
@@ -893,7 +893,7 @@ package body Editor.Executor.Project_Lifecycle_Commands is
          null;
       end;
       Editor.Clipboard.Clear;
-      --  completeness pass 8: closing a project retains outside-project
+      --  closing a project retains outside-project
       --  buffers under the selected policy, so their undo/redo stacks must remain
       --  intact.  Navigation history is still project-scoped and is cleared below.
       Editor.Navigation_History.Clear (S.Navigation_History);
@@ -997,7 +997,7 @@ package body Editor.Executor.Project_Lifecycle_Commands is
       end if;
 
       if Explicit_Switch then
-         --  completeness pass 10: project.switch is not project.open.
+         --  project.switch is not project.open.
          --  A structured switch payload without an active source project must
          --  not fabricate an open-project transition, update Recent Projects,
          --  or clear project-scoped state.  Use project.open for first open.
@@ -1006,7 +1006,7 @@ package body Editor.Executor.Project_Lifecycle_Commands is
             return;
          end if;
 
-         --  completeness pass 6: switching to the already-active
+         --  switching to the already-active
          --  project is a pure no-op even if the project directory has become
          --  temporarily unreadable.  It must be detected before target-open or
          --  File Tree preflight so the command cannot become a destructive

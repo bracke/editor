@@ -169,7 +169,7 @@ package body Editor.Ada_Language_Model is
       end if;
 
       if Natural (Analysis.Symbols.Length) >= Max_Analysis_Symbols then
-         --  Pass 142: overflow is part of the analysis validity state.  Make
+         --  overflow is part of the analysis validity state.  Make
          --  the bounded-truncation transition visible through the same
          --  fingerprint used by the project index and stale semantic/outline
          --  consumers, even though no extra symbol row can be appended.
@@ -184,7 +184,7 @@ package body Editor.Ada_Language_Model is
       Id := Symbol_Id (Natural (Analysis.Symbols.Length) + 1);
       H := Hash_Mix (H, (Natural (Symbol_Kind'Pos (Kind)), 1));
       H := Hash_String (H, Normalized);
-      --  Pass 149: lookup remains Ada case-insensitive, but the analysis
+      --  lookup remains Ada case-insensitive, but the analysis
       --  fingerprint also covers source spelling because Outline labels,
       --  target metadata, and cached semantic/outline rows preserve spelling.
       --  Two otherwise identical declarations that differ only by identifier
@@ -199,14 +199,14 @@ package body Editor.Ada_Language_Model is
           Declaration_Column,
           Depth,
           1));
-      --  Pass 159: symbol ownership is parser-owned metadata too.  The
+      --  symbol ownership is parser-owned metadata too.  The
       --  aggregate fingerprint must distinguish identical declarations that
       --  are retained under different lexical scopes or parent symbols,
       --  because outline hierarchy, scoped resolver lookup, and semantic
       --  colouring all consume those ownership stamps.
       H := Hash_Mix
         (H, (Natural (Enclosing_Scope), Natural (Parent_Symbol), 1));
-      --  Pass 145: the initial symbol fingerprint must cover all parser-owned
+      --  the initial symbol fingerprint must cover all parser-owned
       --  metadata that can affect outline rows, semantic classification, and
       --  stale-cache stamps.  Earlier stamps only covered the symbol kind,
       --  normalized name, start position, and depth; symbols inserted with a
@@ -286,7 +286,7 @@ package body Editor.Ada_Language_Model is
       end if;
 
       Info.Target_Name := To_Unbounded_String (Target_Name);
-      --  Pass 149: target spelling is displayed/propagated metadata.  Keep
+      --  target spelling is displayed/propagated metadata.  Keep
       --  normalized target hashing for Ada lookup equivalence, but also hash
       --  the spelling actually retained by the model.
       Info.Fingerprint := Hash_String (Info.Fingerprint, Normalize_Name (Target_Name));
@@ -316,7 +316,7 @@ package body Editor.Ada_Language_Model is
          return;
       end if;
 
-      --  Pass 143: profile updates are part of the deterministic analysis
+      --  profile updates are part of the deterministic analysis
       --  stamp only when the stored profile actually changes.  Re-applying
       --  the same parser/refinement profile must be idempotent, otherwise
       --  parse-cache and project-index fingerprints can churn even though
@@ -1677,7 +1677,7 @@ package body Editor.Ada_Language_Model is
 
       Owner := Analysis.Symbols.Element (Positive (Parent));
 
-      --  Pass 164: use the shared declaration-owner predicate so child
+      --  use the shared declaration-owner predicate so child
       --  traversal, overload scopes, resolver/index qualification, and
       --  semantic consumers do not drift apart on which symbols may own
       --  nested declarations.
@@ -1689,7 +1689,7 @@ package body Editor.Ada_Language_Model is
       Parent : Symbol_Id) return Boolean
    is
    begin
-      --  Pass 165: direct child enumeration is only valid when both ownership
+      --  direct child enumeration is only valid when both ownership
       --  stamps agree.  Parent_Symbol links the row to the displayed outline
       --  parent, while Enclosing_Scope drives overload/resolver lookup.  A
       --  malformed row with only one of those stamps set must not leak into
@@ -1707,7 +1707,7 @@ package body Editor.Ada_Language_Model is
       Count : Natural := 0;
    begin
       if not Valid_Child_Parent (Analysis, Parent) then
-         --  Pass 147/163: parent-child traversal is only valid for
+         --  /163: parent-child traversal is only valid for
          --  declaration-owning symbols owned by this analysis result.
          --  Malformed or stale ids must not expose children that happen to
          --  carry the same invalid/non-owner parent number.
@@ -1719,7 +1719,7 @@ package body Editor.Ada_Language_Model is
             Info : constant Symbol_Info := Analysis.Symbols.Element (Positive (I));
          begin
             if Is_Direct_Child (Info, Parent) then
-               --  Pass 155/165: skip self-parent edges and require matching
+               --  /165: skip self-parent edges and require matching
                --  lexical scope metadata before exposing deterministic direct
                --  children.
                Count := Count + 1;
@@ -1738,7 +1738,7 @@ package body Editor.Ada_Language_Model is
       Seen : Natural := 0;
    begin
       if not Valid_Child_Parent (Analysis, Parent) then
-         --  Pass 147/163: stale, invalid, or value-like parent ids degrade
+         --  /163: stale, invalid, or value-like parent ids degrade
          --  to No_Symbol rather than enumerating orphaned rows attached to
          --  malformed metadata.
          return No_Symbol;
@@ -1749,7 +1749,7 @@ package body Editor.Ada_Language_Model is
             Info : constant Symbol_Info := Analysis.Symbols.Element (Positive (I));
          begin
             if Is_Direct_Child (Info, Parent) then
-               --  Pass 155/165: keep Child_At consistent with Child_Count by
+               --  /165: keep Child_At consistent with Child_Count by
                --  skipping self-parent edges and mismatched parent/scope
                --  ownership stamps.
                Seen := Seen + 1;
@@ -1781,7 +1781,7 @@ package body Editor.Ada_Language_Model is
 
       Owner := Analysis.Symbols.Element (Positive (Scope));
 
-      --  Pass 164: use the shared declaration-owner predicate so child
+      --  use the shared declaration-owner predicate so child
       --  traversal, overload scopes, resolver/index qualification, and
       --  semantic consumers do not drift apart on which symbols may own
       --  nested declarations.
@@ -1797,9 +1797,9 @@ package body Editor.Ada_Language_Model is
          return Info.Enclosing_Scope = Root_Scope
            and then Info.Parent_Symbol = No_Symbol;
       else
-         --  Pass 167: overload enumeration is a direct-scope API.  The
+         --  overload enumeration is a direct-scope API.  The
          --  parser-owned lexical stamp and parent symbol stamp must agree,
-         --  matching the child traversal invariant added in pass 165.
+         --  matching the child traversal invariant added in .
          --  Malformed rows that merely carry the requested Enclosing_Scope
          --  but point at another parent must not appear as same-scope
          --  overloads for Outline/navigation or semantic consumers.
@@ -1821,7 +1821,7 @@ package body Editor.Ada_Language_Model is
       end if;
 
       if not Valid_Scope (Analysis, Scope) then
-         --  Pass 148: overload-set traversal must only operate on the root
+         --  overload-set traversal must only operate on the root
          --  scope or scopes owned by this analysis result.  Malformed rows
          --  with an impossible Enclosing_Scope must not become externally
          --  enumerable through the overload API.
@@ -1857,7 +1857,7 @@ package body Editor.Ada_Language_Model is
       end if;
 
       if not Valid_Scope (Analysis, Scope) then
-         --  Pass 148: invalid/stale scope ids degrade rather than exposing
+         --  invalid/stale scope ids degrade rather than exposing
          --  orphaned overload rows that carry malformed scope metadata.
          return No_Symbol;
       end if;
@@ -2319,7 +2319,7 @@ package body Editor.Ada_Language_Model is
 
    function Is_Subprogram (Kind : Symbol_Kind) return Boolean is
    begin
-      --  Pass 156: keep predicate classification aligned with the semantic
+      --  keep predicate classification aligned with the semantic
       --  token mapping above.  Separate body rows navigate/colour as callable
       --  body targets, so callers using this predicate must not treat them as
       --  unknown non-callable symbols.
@@ -2339,7 +2339,7 @@ package body Editor.Ada_Language_Model is
 
    function Is_Declaration_Owner (Kind : Symbol_Kind) return Boolean is
    begin
-      --  Pass 164: one canonical ownership predicate backs child traversal,
+      --  one canonical ownership predicate backs child traversal,
       --  overload scopes, and project-index selected-name construction.
       --  Value-like symbols such as objects/constants/components/literals do
       --  not own nested declarations in this retained model.
@@ -2355,7 +2355,7 @@ package body Editor.Ada_Language_Model is
 
    function Is_Separate_Body_Parent_Target (Symbol : Symbol_Info) return Boolean is
    begin
-      --  Pass 178: separate-body parent navigation may only target
+      --  separate-body parent navigation may only target
       --  declaration-owning/callable non-body symbols.  This keeps indexed
       --  Outline navigation from accepting an object/component/literal merely
       --  because it shares a retained Target_Name.
@@ -2421,14 +2421,14 @@ package body Editor.Ada_Language_Model is
       Best_Line  : Positive := 1;
       Best_Column : Positive := 1;
    begin
-      --  Pass 188: render-time semantic colouring needs a parser-owned
+      --  render-time semantic colouring needs a parser-owned
       --  lexical scope for the token being classified.  The parser currently
       --  retains declaration ownership and source starts, not a full token
       --  scope table, so this conservative bridge selects the deepest
       --  declaration-owning symbol whose declaration begins before the token.
       --  Invalid ownership metadata is ignored; callers still degrade through
       --  resolver/root lookup when no precise owner is available.
-      --  pass 189: once the parser/model retains a real source range, scope
+      --  once the parser/model retains a real source range, scope
       --  selection also respects that end boundary so a finished package/body
       --  does not keep colouring later declarations as though they were still
       --  nested inside it.

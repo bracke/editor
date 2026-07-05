@@ -374,7 +374,7 @@ package body Editor.Syntax_Semantics.Tests is
       Prefix_Name : constant String := "T" & String'(1 .. 63 => 'A');
       Overlong_Token : constant String := Prefix_Name & "B";
    begin
-      --  Pass 181 completeness: Add rejects overlong declarations, but lookup
+      --  completeness: Add rejects overlong declarations, but lookup
       --  must also reject overlong tokens.  Otherwise an overlong identifier
       --  whose first 64 characters match a retained 64-character declaration
       --  could be falsely coloured as that declaration.

@@ -2,6 +2,7 @@ with Ada.Strings;
 with Ada.Strings.Fixed;
 with Ada.Characters.Handling;
 with Ada.Strings.Unbounded; use Ada.Strings.Unbounded;
+with Editor.Commands.Availability_Metadata;
 package body Editor.Commands is
 
    use Position_Vectors;
@@ -34,7 +35,7 @@ package body Editor.Commands is
    function Available return Command_Availability
    is
    begin
-      return (Status => Command_Available, Reason => Null_Unbounded_String);
+      return Availability_Metadata.Available;
    end Available;
 
    function Normalize_Workflow_Message
@@ -1121,7 +1122,7 @@ package body Editor.Commands is
      (Availability : Command_Availability) return Boolean
    is
    begin
-      return Availability.Status = Command_Available;
+      return Availability_Metadata.Is_Available (Availability);
    end Is_Available;
 
    function Unavailable_Reason

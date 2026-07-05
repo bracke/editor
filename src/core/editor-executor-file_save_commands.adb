@@ -643,7 +643,7 @@ package body Editor.Executor.File_Save_Commands is
            (S.Feature_Diagnostics, Relative_Path, Relative_Path);
       end if;
 
-      --  completeness pass 170: file lifecycle changes make
+      --  file lifecycle changes make
       --  parser-owned Outline/semantic targets stale.  Drop any indexed row
       --  for the active buffer token so Save As/rename/delete/reload/revert
       --  cannot leave the old path/revision/fingerprint available to language

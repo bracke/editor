@@ -67,7 +67,7 @@ package body Editor.Executor.Availability is
       --  prompt while the first prompt or confirmation is pending.  Cancel stays
       --  available so the user can leave the modal prompt atomically.
       if Editor.Guided_Prompts.Is_Active (S.Guided_Prompt) then
-         --  completeness pass 5: prompt focus is modal at the
+         --  prompt focus is modal at the
          --  command-surface level, not only inside Input_Bridge dispatch.
          --  Confirmation/entry is handled by prompt-local input paths; normal
          --  command availability must not advertise unrelated mutations while

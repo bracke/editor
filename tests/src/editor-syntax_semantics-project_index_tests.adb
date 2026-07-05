@@ -279,7 +279,7 @@ package body Editor.Syntax_Semantics.Project_Index_Tests is
       Assert (Editor.Ada_Project_Index.File_Count (Index) = 0,
               "file rename/delete invalidation should remove indexed targets by path");
 
-      --  pass 183: exact lifecycle invalidation must normalize
+      --  exact lifecycle invalidation must normalize
       --  platform-native separators and trailing slashes, not only subtree
       --  invalidation.  Save-as/reload/revert hooks can carry either spelling.
       Editor.Ada_Project_Index.Put_Analysis

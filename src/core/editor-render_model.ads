@@ -253,7 +253,7 @@ package Editor.Render_Model is
       Dirty_Close_Buffer_Count   : Natural := 0;
       Dirty_Close_Buffer_Fingerprint : Natural := 0;
       Dirty_Close_Dirty_Fingerprint : Natural := 0;
-      --  completeness pass 28: render exposes the transient
+      --  render exposes the transient
       --  reviewed identity sets as inert snapshot text so UI/tests can
       --  show/debug the exact reviewed candidate set without owning close
       --  operations or persisting payloads.
@@ -268,7 +268,7 @@ package Editor.Render_Model is
       Dirty_Close_Unwritable_Count : Natural := 0;
       Dirty_Close_Missing_Count : Natural := 0;
       Dirty_Close_Save_Failure_Count : Natural := 0;
-      --  completeness pass 8: render snapshots expose the
+      --  render snapshots expose the
       --  prompt-owned action surface explicitly.  These booleans are
       --  observational only and mirror Executor availability policy; render
       --  must not interpret them as permission to mutate buffers itself.

@@ -220,7 +220,7 @@ package body Editor.Executor.Semantic_Commands is
          Registry : constant Editor.Buffers.Buffer_Registry :=
            Editor.Buffers.Global_Registry_For_UI;
       begin
-         --  pass 184: project refresh must not be limited
+         --  project refresh must not be limited
          --  to filesystem/project-list contents plus the active buffer.  Open
          --  file-backed Ada buffers may hold unsaved text for project files
          --  that were already indexed from disk, or newly opened files whose
@@ -280,7 +280,7 @@ package body Editor.Executor.Semantic_Commands is
             end if;
          end;
 
-         --  pass 185: editor-owned snapshots must have precedence
+         --  editor-owned snapshots must have precedence
          --  over filesystem snapshots during explicit project-index refresh.
          --  Index the active buffer and every other open Ada buffer before the
          --  disk/project-file scan so a large project cannot fill the bounded
@@ -2249,7 +2249,7 @@ package body Editor.Executor.Semantic_Commands is
 
       function Same_Target_Path (Left : String; Right : String) return Boolean is
       begin
-         --  Pass 202: target-key validation already normalizes retained
+         --  target-key validation already normalizes retained
          --  project-index paths, but execution still compared the active
          --  editor path with raw string equality before and after opening the
          --  target file.  Keep navigation conservative without rejecting a
@@ -2266,7 +2266,7 @@ package body Editor.Executor.Semantic_Commands is
       if not Editor.Ada_Project_Index.Contains_Key
         (S.Language_Index, Target.Key)
       then
-         --  Pass 200: command availability may have observed an indexed
+         --  command availability may have observed an indexed
          --  target earlier than execution.  Revalidate the exact parser-owned
          --  file key before opening or moving the caret so clears, project
          --  switches, file lifecycle invalidations, and refreshes cannot leave

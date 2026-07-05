@@ -4741,7 +4741,7 @@ package body Editor.Outline_Extractor is
          when Symbol_Protected =>
             return Editor.Outline.Outline_Protected;
          when Symbol_Entry | Symbol_Separate_Body =>
-            --  Pass 177: separate bodies are navigable callable Outline rows.
+            --  separate bodies are navigable callable Outline rows.
             --  They keep their explicit label and Target_Name metadata in the
             --  language model, while the Outline kind must not degrade to
             --  Unknown or goto-spec cannot use the indexed parent target.
