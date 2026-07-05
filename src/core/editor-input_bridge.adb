@@ -1,5 +1,6 @@
 with Editor.Instance;
 with Editor.Input_Bridge.Gutter_Pointer_Handlers;
+with Editor.Input_Bridge.Build_UI_Pointer_Handlers;
 with Editor.Input_Bridge.Panel_Bars_Pointer_Handlers;
 with Editor.Input_Bridge.Panel_Feature_Problems_Pointer_Handlers;
 with Editor.Input_Bridge.Panel_Tree_Search_Pointer_Handlers;
@@ -3085,6 +3086,13 @@ use type Editor.Guided_Prompts.Prompt_Kind;
       Editor.Executor.Execute_Command (The_Editor.State, Id);
    end Execute_Problems_Header_Command;
 
+   procedure Report_Build_UI_Info
+     (Message : String)
+   is
+   begin
+      Report_Info (Message);
+   end Report_Build_UI_Info;
+
    function Handle_Pending_Transition_Bar_Pointer
      (Cmd : Editor.Commands.Command) return Boolean
    is
@@ -3163,92 +3171,10 @@ use type Editor.Guided_Prompts.Prompt_Kind;
    function Handle_Build_UI_Panel_Pointer
      (Cmd : Editor.Commands.Command) return Boolean
    is
-      Projection : constant Build_UI_Panel_Input_Projection :=
-        Current_Build_UI_Panel_Input_Projection;
-      Hit : Editor.Build_UI_Panel_Layout.Build_UI_Panel_Hit;
    begin
-      if Cmd.Kind /= Editor.Commands.Move_To_Point
-        and then Cmd.Kind /= Editor.Commands.Pointer_Hover
-      then
-         return False;
-      end if;
-
-      if not Projection.Snapshot.Visible then
-         return False;
-      end if;
-
-      Hit := Editor.Build_UI_Panel_Layout.Hit_Test
-        (Projection.Geometry, Editor.Layout.Cell_H,
-         Integer (Cmd.Click_X), Integer (Cmd.Click_Y));
-
-      if Hit.Zone = Editor.Build_UI_Panel_Layout.Outside_Build_UI_Panel then
-         return False;
-      end if;
-
-      Pointer_State.Reset_All;
-      Editor.State.Clear_Gutter_Marker_Hover (The_Editor.State);
-
-      if Cmd.Kind = Editor.Commands.Pointer_Hover then
-         return True;
-      end if;
-
-      if Hit.Zone = Editor.Build_UI_Panel_Layout.Build_UI_Panel_Action_Row
-        and then Hit.Row in 1 .. Projection.Visible_Action_Rows
-      then
-         declare
-            Action_Row : constant Natural := Projection.Action_Top_Row + Hit.Row - 1;
-            Action : constant Editor.Build_UI.Build_UI_Action_Row :=
-              Projection.Snapshot.Actions.Element (Action_Row - 1);
-            Found : Boolean := False;
-            Id : Editor.Commands.Command_Id := Editor.Commands.No_Command;
-            Reason : constant String := To_String (Action.Disabled_Reason);
-         begin
-            Editor.Build_UI.Set_Selected_Action_Row
-              (The_Editor.State.Build_UI, Action_Row, Projection.Action_Count);
-
-            if not Action.Enabled then
-               if Reason'Length > 0 then
-                  Report_Info (Reason);
-               else
-                  Report_Info ("Command unavailable");
-               end if;
-            else
-               Id := Editor.Commands.Command_Id_From_Stable_Name
-                 (To_String (Action.Command_Name), Found);
-               if Found and then Id /= Editor.Commands.No_Command then
-                  if Id = Editor.Commands.Command_Diagnostic_Apply_Quick_Fix
-                    and then Action.Quick_Fix_Action_Index > 0
-                  then
-                     declare
-                        Result : constant Editor.Command_Execution.Command_Execution_Result :=
-                          Editor.Build_UI_Actions.Build_UI_Apply_Diagnostic_Quick_Fix
-                            (The_Editor.State,
-                             Action.Quick_Fix_Action_Index,
-                             Action.Diagnostic_Index);
-                        pragma Unreferenced (Result);
-                     begin
-                        null;
-                     end;
-                  else
-                     Execute_Command_Id (Id);
-                  end if;
-               end if;
-            end if;
-            Editor.Render_Cache.Invalidate_All;
-         end;
-      elsif Hit.Zone = Editor.Build_UI_Panel_Layout.Build_UI_Panel_Suppressed_Row
-        and then Hit.Row in 1 .. Projection.Displayed_Suppressed_Count
-      then
-         Editor.Feature_Diagnostics.Select_Suppressed_Diagnostic
-           (The_Editor.State.Feature_Diagnostics,
-            Projection.Suppressed_Top_Row + Hit.Row - 1);
-         Editor.Feature_Diagnostics.Ensure_Selected_Suppressed_Diagnostic_Visible
-           (The_Editor.State.Feature_Diagnostics,
-            Projection.Displayed_Suppressed_Count);
-         Editor.Render_Cache.Invalidate_All;
-      end if;
-
-      return True;
+      return Build_UI_Pointer_Handlers.Handle_Build_UI_Panel_Pointer
+        (The_Editor.State, Cmd, Execute_Pending_Bar_Command'Access,
+         Report_Build_UI_Info'Access);
    end Handle_Build_UI_Panel_Pointer;
 
 

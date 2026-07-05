@@ -1149,6 +1149,8 @@ editor-input.adb
 editor-input.ads
 editor-input_bridge-render_access.adb
 editor-input_bridge-render_access.ads
+editor-input_bridge-build_ui_pointer_handlers.adb
+editor-input_bridge-build_ui_pointer_handlers.ads
 editor-input_bridge-gutter_pointer_handlers.adb
 editor-input_bridge-gutter_pointer_handlers.ads
 editor-input_bridge-panel_bars_pointer_handlers.adb
