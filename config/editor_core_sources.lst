@@ -134,6 +134,8 @@ editor-ada_declaration_parser-pragma_helpers.adb
 editor-ada_declaration_parser-pragma_helpers.ads
 editor-ada_declaration_parser-same_line_declarations.adb
 editor-ada_declaration_parser-same_line_declarations.ads
+editor-ada_declaration_parser-target_helpers.adb
+editor-ada_declaration_parser-target_helpers.ads
 editor-ada_declarative_regions.adb
 editor-ada_declarative_regions.ads
 editor-ada_definite_initialization_flow_legality.adb
@@ -930,8 +932,18 @@ editor-commands-descriptor_navigation.adb
 editor-commands-descriptor_navigation.ads
 editor-commands-descriptor_semantic_search.adb
 editor-commands-descriptor_semantic_search.ads
+editor-commands-descriptor_config_workspace.adb
+editor-commands-descriptor_config_workspace.ads
+editor-commands-descriptor_find_project_search.adb
+editor-commands-descriptor_find_project_search.ads
+editor-commands-descriptor_semantic_panels.adb
+editor-commands-descriptor_semantic_panels.ads
 editor-commands-descriptor_ui_panels.adb
 editor-commands-descriptor_ui_panels.ads
+editor-commands-descriptor_display_panels.adb
+editor-commands-descriptor_display_panels.ads
+editor-commands-descriptor_modal_switcher.adb
+editor-commands-descriptor_modal_switcher.ads
 editor-commands-descriptor_table.adb
 editor-commands-descriptor_table.ads
 editor-commands-name_metadata.adb
