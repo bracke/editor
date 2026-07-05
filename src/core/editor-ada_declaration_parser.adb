@@ -6,6 +6,7 @@ with Ada.Strings.Unbounded; use Ada.Strings.Unbounded;
 with Editor.Ada_Declaration_Parser.Declaration_Collectors;
 with Editor.Ada_Declaration_Parser.Lexical_Helpers;
 with Editor.Ada_Declaration_Parser.Line_Dispatch;
+with Editor.Ada_Declaration_Parser.Metadata_Helpers;
 with Editor.Ada_Declaration_Parser.Name_Profile_Helpers;
 with Editor.Ada_Declaration_Parser.Pragma_Helpers;
 with Editor.Ada_Declaration_Parser.Profile_Parameter_Collectors;
@@ -188,16 +189,8 @@ package body Editor.Ada_Declaration_Parser is
 
 
    function Has_Access_Subprogram_Metadata (Line : String) return Boolean is
-      L : constant String := Lower (Line);
    begin
-      return Ada.Strings.Fixed.Index (L, " access procedure") /= 0
-        or else Ada.Strings.Fixed.Index (L, " access function") /= 0
-        or else Ada.Strings.Fixed.Index (L, " access protected procedure") /= 0
-        or else Ada.Strings.Fixed.Index (L, " access protected function") /= 0
-        or else Starts_With_Word (Trim (L), "procedure")
-        or else Starts_With_Word (Trim (L), "function")
-        or else Starts_With_Word (Trim (L), "protected procedure")
-        or else Starts_With_Word (Trim (L), "protected function");
+      return Metadata_Helpers.Has_Access_Subprogram_Metadata (Line);
    end Has_Access_Subprogram_Metadata;
 
 
@@ -249,57 +242,8 @@ package body Editor.Ada_Declaration_Parser is
 
 
    function Has_Entry_Family_Metadata (Line : String) return Boolean is
-      Code       : constant String := Lower (Editor.Ada_Syntax_Core.Sanitize_Line (Line));
-      Entry_Pos  : Natural := Ada.Strings.Fixed.Index (Code, "entry");
-      Open_Pos   : Natural := 0;
-      Close_Pos  : Natural := 0;
-      Nesting    : Natural := 0;
    begin
-      --  Ada entry families have an index subtype/discrete subtype part
-      --  before the parameter profile:
-      --     entry E (Positive) (Item : T);
-      --     entry E (Positive range <>) (...);
-      --  Retain only bounded shape metadata on the entry declaration.  The
-      --  family index subtype/choices are not declarations and must not be
-      --  learned as semantic symbols.
-      if Entry_Pos = 0
-        or else not Starts_With_Word (Trim (Code), "entry")
-      then
-         return False;
-      end if;
-
-      Open_Pos := Ada.Strings.Fixed.Index (Code, "(", Entry_Pos + 5);
-      if Open_Pos = 0 then
-         return False;
-      end if;
-
-      for I in Open_Pos .. Code'Last loop
-         if Code (I) = '(' then
-            Nesting := Nesting + 1;
-         elsif Code (I) = ')' then
-            if Nesting = 1 then
-               Close_Pos := I;
-               exit;
-            elsif Nesting > 0 then
-               Nesting := Nesting - 1;
-            end if;
-         end if;
-      end loop;
-
-      if Close_Pos = 0 or else Close_Pos <= Open_Pos + 1 then
-         return False;
-      end if;
-
-      declare
-         Family_Index : constant String := Code (Open_Pos + 1 .. Close_Pos - 1);
-         After_Group  : constant String :=
-           (if Close_Pos < Code'Last then Code (Close_Pos + 1 .. Code'Last) else "");
-      begin
-         return Ada.Strings.Fixed.Index (Family_Index, ":") = 0
-           and then (Ada.Strings.Fixed.Index (After_Group, "(") /= 0
-                     or else Has_Token (Family_Index, "range")
-                     or else Ada.Strings.Fixed.Index (Family_Index, "<>") /= 0);
-      end;
+      return Metadata_Helpers.Has_Entry_Family_Metadata (Line);
    end Has_Entry_Family_Metadata;
 
    function Has_Profile_Mode_Metadata (Line : String) return Boolean is
@@ -344,13 +288,8 @@ package body Editor.Ada_Declaration_Parser is
 
 
    function Has_Class_Wide_Metadata (Line : String) return Boolean is
-      Code : constant String := Lower (Editor.Ada_Syntax_Core.Sanitize_Line (Line));
    begin
-      --  Ada class-wide subtype marks are written as T'Class.  The sanitized
-      --  line keeps enough punctuation/token spelling for bounded declaration
-      --  metadata; this does not resolve the controlling tagged type.
-      return Ada.Strings.Fixed.Index (Code, "'class") /= 0
-        or else Ada.Strings.Fixed.Index (Code, " class") /= 0;
+      return Metadata_Helpers.Has_Class_Wide_Metadata (Line);
    end Has_Class_Wide_Metadata;
 
    function Has_Named_Number_Metadata (Line : String) return Boolean is
@@ -768,44 +707,8 @@ package body Editor.Ada_Declaration_Parser is
    function Generic_Formal_Type_Family_From_Line
      (Line : String) return Generic_Formal_Type_Family
    is
-      Code : constant String := Lower (Editor.Ada_Syntax_Core.Sanitize_Line (Line));
    begin
-      if Has_Token (Code, "new") and then not Has_Token (Code, "access") then
-         return Generic_Formal_Type_Derived;
-      elsif Has_Token (Code, "array") then
-         return Generic_Formal_Type_Array;
-      elsif Has_Token (Code, "access")
-        and then Has_Access_Subprogram_Metadata (Line)
-      then
-         return Generic_Formal_Type_Access_Subprogram;
-      elsif Has_Token (Code, "access") then
-         return Generic_Formal_Type_Access_Object;
-      elsif Has_Token (Code, "interface") then
-         return Generic_Formal_Type_Interface;
-      elsif Has_Token (Code, "mod") then
-         return Generic_Formal_Type_Modular_Integer;
-      elsif Has_Token (Code, "digits")
-        and then not Has_Token (Code, "delta")
-      then
-         return Generic_Formal_Type_Floating_Point;
-      elsif Has_Token (Code, "delta")
-        and then Has_Token (Code, "digits")
-      then
-         return Generic_Formal_Type_Decimal_Fixed_Point;
-      elsif Has_Token (Code, "delta") then
-         return Generic_Formal_Type_Ordinary_Fixed_Point;
-      elsif Has_Token (Code, "range") then
-         return Generic_Formal_Type_Signed_Integer;
-      elsif Ada.Strings.Fixed.Index (Code, "(<>)") /= 0
-        or else Ada.Strings.Fixed.Index (Code, "( <> )") /= 0
-        or else Ada.Strings.Fixed.Index (Code, "(< >)") /= 0
-      then
-         return Generic_Formal_Type_Discrete;
-      elsif Has_Token (Code, "private") then
-         return Generic_Formal_Type_Private;
-      else
-         return Generic_Formal_Type_Unknown;
-      end if;
+      return Metadata_Helpers.Generic_Formal_Type_Family_From_Line (Line);
    end Generic_Formal_Type_Family_From_Line;
 
 
@@ -906,12 +809,7 @@ package body Editor.Ada_Declaration_Parser is
 
    function First_Non_Blank_Column (Line : String) return Positive is
    begin
-      for I in Line'Range loop
-         if Line (I) /= ' ' and then Line (I) /= Ada.Characters.Latin_1.HT then
-            return Positive (I - Line'First + 1);
-         end if;
-      end loop;
-      return 1;
+      return Metadata_Helpers.First_Non_Blank_Column (Line);
    end First_Non_Blank_Column;
 
 
@@ -2524,123 +2422,28 @@ package body Editor.Ada_Declaration_Parser is
      (Line  : String;
       Start : Natural) return String
    is
-      Target : String (1 .. 256) := (others => ' ');
-      Len    : Natural := 0;
-      First  : Natural := Skip_Component_Qualifiers (Line, Start);
    begin
-      if First > Line'Last then
-         return "";
-      end if;
-
-      declare
-         Candidate       : constant String := Read_Subtype_Mark (Line, Positive (First), True);
-         Lower_Candidate : constant String := Lower (Candidate);
-      begin
-         if Candidate'Length = 0
-           or else Lower_Candidate = "with"
-           or else Lower_Candidate = "renames"
-           or else Lower_Candidate = "is"
-           or else Lower_Candidate = "separate"
-           or else Lower_Candidate = "procedure"
-           or else Lower_Candidate = "function"
-           or else Lower_Candidate = "protected"
-         then
-            return "";
-         end if;
-
-         Len := Natural'Min (Candidate'Length, Target'Length);
-         Target (1 .. Len) := Candidate (Candidate'First .. Candidate'First + Len - 1);
-         return Target (1 .. Len);
-      end;
+      return Target_Helpers.Return_Target_From_Position (Line, Start);
    end Return_Target_From_Position;
 
    function Return_Target_From_Line_Start (Line : String) return String is
-      L     : constant String := Lower (Trim (Line));
-      Start : Natural := Line'First;
    begin
-      while Start <= Line'Last
-        and then (Line (Start) = ' ' or else Line (Start) = Ada.Characters.Latin_1.HT)
-      loop
-         Start := Start + 1;
-      end loop;
-
-      if L'Length < 6 or else not Starts_With_Word (L, "return") then
-         return "";
-      end if;
-
-      return Return_Target_From_Position (Line, Start + 6);
+      return Target_Helpers.Return_Target_From_Line_Start (Line);
    end Return_Target_From_Line_Start;
 
    function Function_Return_Target (Line : String) return String is
-      L          : constant String := Lower (Line);
-      Return_Pos : constant Natural := Ada.Strings.Fixed.Index (L, " return ");
    begin
-      if Return_Pos = 0 then
-         return Return_Target_From_Line_Start (Line);
-      end if;
-
-      return Return_Target_From_Position (Line, Return_Pos + 8);
+      return Target_Helpers.Function_Return_Target (Line);
    end Function_Return_Target;
 
    function Interface_Parent_Target (Line : String) return String is
-      L       : constant String := Lower (Line);
-      And_Pos : constant Natural := Ada.Strings.Fixed.Index (L, " and ");
-      Start   : Natural;
    begin
-      if And_Pos = 0 or else not Has_Token (L, "interface") then
-         return "";
-      end if;
-
-      Start := And_Pos + 5;
-      while Start <= Line'Last
-        and then (Line (Start) = ' ' or else Line (Start) = Ada.Characters.Latin_1.HT)
-      loop
-         Start := Start + 1;
-      end loop;
-
-      if Start > Line'Last then
-         return "";
-      end if;
-
-      --  Interface declarations can name parent interfaces after "and":
-      --     type Derived is limited interface and Root;
-      --  Keep the first parent as target metadata so Outline/index consumers
-      --  can expose the relationship without treating the interface type as a
-      --  generic instantiation or record extension.
-      return Read_Subtype_Mark (Line, Positive (Start), True);
+      return Target_Helpers.Interface_Parent_Target (Line);
    end Interface_Parent_Target;
 
    function Interface_Target_From_Line_Start (Line : String) return String is
-      Start : Natural := Line'First;
    begin
-      while Start <= Line'Last
-        and then (Line (Start) = ' ' or else Line (Start) = Ada.Characters.Latin_1.HT)
-      loop
-         Start := Start + 1;
-      end loop;
-
-      if Start > Line'Last then
-         return "";
-      end if;
-
-      declare
-         Target       : constant String := Read_Subtype_Mark (Line, Positive (Start), True);
-         Target_Lower : constant String := Lower (Target);
-      begin
-         if Target'Length = 0
-           or else Target_Lower = "and"
-           or else Target_Lower = "interface"
-           or else Target_Lower = "limited"
-           or else Target_Lower = "synchronized"
-           or else Target_Lower = "private"
-           or else Target_Lower = "with"
-           or else Target_Lower = "is"
-         then
-            return "";
-         end if;
-
-         return Target;
-      end;
+      return Target_Helpers.Interface_Target_From_Line_Start (Line);
    end Interface_Target_From_Line_Start;
 
    function Object_Target_After_Colon (Line : String) return String is

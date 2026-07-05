@@ -332,4 +332,122 @@ package body Editor.Ada_Declaration_Parser.Target_Helpers is
       return Mark (1 .. Len);
    end Object_Target_After_Colon;
 
+   function Return_Target_From_Position
+     (Line  : String;
+      Start : Natural) return String
+   is
+      Target : String (1 .. 256) := (others => ' ');
+      Len    : Natural := 0;
+      First  : Natural := Skip_Component_Qualifiers (Line, Start);
+   begin
+      if First > Line'Last then
+         return "";
+      end if;
+
+      declare
+         Candidate       : constant String := Read_Subtype_Mark (Line, Positive (First), True);
+         Lower_Candidate : constant String := Lower (Candidate);
+      begin
+         if Candidate'Length = 0
+           or else Lower_Candidate = "with"
+           or else Lower_Candidate = "renames"
+           or else Lower_Candidate = "is"
+           or else Lower_Candidate = "separate"
+           or else Lower_Candidate = "procedure"
+           or else Lower_Candidate = "function"
+           or else Lower_Candidate = "protected"
+         then
+            return "";
+         end if;
+
+         Len := Natural'Min (Candidate'Length, Target'Length);
+         Target (1 .. Len) := Candidate (Candidate'First .. Candidate'First + Len - 1);
+         return Target (1 .. Len);
+      end;
+   end Return_Target_From_Position;
+
+   function Return_Target_From_Line_Start (Line : String) return String is
+      L     : constant String := Lower (Trim (Line));
+      Start : Natural := Line'First;
+   begin
+      while Start <= Line'Last
+        and then (Line (Start) = ' ' or else Line (Start) = Ada.Characters.Latin_1.HT)
+      loop
+         Start := Start + 1;
+      end loop;
+
+      if L'Length < 6 or else not Starts_With_Word (L, "return") then
+         return "";
+      end if;
+
+      return Return_Target_From_Position (Line, Start + 6);
+   end Return_Target_From_Line_Start;
+
+   function Function_Return_Target (Line : String) return String is
+      L          : constant String := Lower (Line);
+      Return_Pos : constant Natural := Ada.Strings.Fixed.Index (L, " return ");
+   begin
+      if Return_Pos = 0 then
+         return Return_Target_From_Line_Start (Line);
+      end if;
+
+      return Return_Target_From_Position (Line, Return_Pos + 8);
+   end Function_Return_Target;
+
+   function Interface_Parent_Target (Line : String) return String is
+      L       : constant String := Lower (Line);
+      And_Pos : constant Natural := Ada.Strings.Fixed.Index (L, " and ");
+      Start   : Natural;
+   begin
+      if And_Pos = 0 or else not Has_Token (L, "interface") then
+         return "";
+      end if;
+
+      Start := And_Pos + 5;
+      while Start <= Line'Last
+        and then (Line (Start) = ' ' or else Line (Start) = Ada.Characters.Latin_1.HT)
+      loop
+         Start := Start + 1;
+      end loop;
+
+      if Start > Line'Last then
+         return "";
+      end if;
+
+      return Read_Subtype_Mark (Line, Positive (Start), True);
+   end Interface_Parent_Target;
+
+   function Interface_Target_From_Line_Start (Line : String) return String is
+      Start : Natural := Line'First;
+   begin
+      while Start <= Line'Last
+        and then (Line (Start) = ' ' or else Line (Start) = Ada.Characters.Latin_1.HT)
+      loop
+         Start := Start + 1;
+      end loop;
+
+      if Start > Line'Last then
+         return "";
+      end if;
+
+      declare
+         Target       : constant String := Read_Subtype_Mark (Line, Positive (Start), True);
+         Target_Lower : constant String := Lower (Target);
+      begin
+         if Target'Length = 0
+           or else Target_Lower = "and"
+           or else Target_Lower = "interface"
+           or else Target_Lower = "limited"
+           or else Target_Lower = "synchronized"
+           or else Target_Lower = "private"
+           or else Target_Lower = "with"
+           or else Target_Lower = "is"
+         then
+            return "";
+         end if;
+
+         return Target;
+      end;
+   end Interface_Target_From_Line_Start;
+
 end Editor.Ada_Declaration_Parser.Target_Helpers;

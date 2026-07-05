@@ -128,6 +128,8 @@ editor-ada_declaration_parser-line_dispatch.adb
 editor-ada_declaration_parser-line_dispatch.ads
 editor-ada_declaration_parser-lexical_helpers.adb
 editor-ada_declaration_parser-lexical_helpers.ads
+editor-ada_declaration_parser-metadata_helpers.adb
+editor-ada_declaration_parser-metadata_helpers.ads
 editor-ada_declaration_parser-name_profile_helpers.adb
 editor-ada_declaration_parser-name_profile_helpers.ads
 editor-ada_declaration_parser-pragma_helpers.adb
@@ -1171,6 +1173,8 @@ editor-input_bridge-pointer_scroll_handlers.adb
 editor-input_bridge-pointer_scroll_handlers.ads
 editor-input_bridge-pointer_state.adb
 editor-input_bridge-pointer_state.ads
+editor-input_bridge-semantic_popup_key_handlers.adb
+editor-input_bridge-semantic_popup_key_handlers.ads
 editor-input_bridge-settings_handlers.adb
 editor-input_bridge-settings_handlers.ads
 editor-input_bridge-text_entry_routing.adb

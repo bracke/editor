@@ -10,6 +10,7 @@ with Editor.Input_Bridge.Pointer_Routing;
 with Editor.Input_Bridge.Pointer_Scroll_Handlers;
 with Editor.Input_Bridge.Pointer_State;
 with Editor.Input_Bridge.Render_Access;
+with Editor.Input_Bridge.Semantic_Popup_Key_Handlers;
 with Editor.Input_Bridge.Settings_Handlers;
 with Editor.Input_Bridge.Text_Entry_Routing;
 with Editor.Input_Bridge.Wheel_Handlers;
@@ -990,16 +991,11 @@ use type Editor.Guided_Prompts.Prompt_Kind;
          return;
       end if;
 
-      declare
-         Availability : constant Editor.Commands.Command_Availability :=
-           Editor.Executor.Command_Availability (The_Editor.State, Id);
-      begin
-         if not Editor.Commands.Is_Available (Availability) then
-            Report_Info (Editor.Commands.Unavailable_Reason (Availability));
-            Editor.Render_Cache.Invalidate_All;
-            return;
-         end if;
-      end;
+      if Editor.Input_Bridge.Command_Routing.Handle_Command_Availability_Gate
+        (The_Editor.State, Id, Report_Info'Access)
+      then
+         return;
+      end if;
 
       if Editor.Commands.Is_Text_Editing_Command (Id) then
          if Id = Editor.Commands.Command_Comment_Line
@@ -3299,6 +3295,13 @@ use type Editor.Guided_Prompts.Prompt_Kind;
    is
       Id  : Editor.Commands.Command_Id;
       Cmd : Editor.Commands.Command;
+
+      procedure Execute_Command_Id_Default
+        (Command_Id : Editor.Commands.Command_Id)
+      is
+      begin
+         Execute_Command_Id (Command_Id);
+      end Execute_Command_Id_Default;
    begin
       pragma Assert (Initialized,
          "Input_Bridge must be initialized before handling key chords");
@@ -3406,58 +3409,10 @@ use type Editor.Guided_Prompts.Prompt_Kind;
          end case;
       end if;
 
-      if The_Editor.State.Semantic_Popup.Active
-        and then Chord.Key = Editor.Keybindings.Key_Escape
+      if Editor.Input_Bridge.Semantic_Popup_Key_Handlers.Handle_Semantic_Popup_Key
+        (The_Editor.State, Chord, Execute_Command_Id_Default'Access)
       then
-         Execute_Command_Id (Editor.Commands.Command_Semantic_Popup_Dismiss);
-         Editor.Cursor.Notify_Input
-           (Float (Editor.View.Current_Time_Seconds));
          return;
-      end if;
-
-      if The_Editor.State.Semantic_Popup.Active
-        and then The_Editor.State.Semantic_Popup.Kind =
-          Editor.State.Semantic_Completion_Popup
-      then
-         case Chord.Key is
-            when Editor.Keybindings.Key_Enter =>
-               Execute_Command_Id
-                 (Editor.Commands.Command_Semantic_Completion_Accept);
-               Editor.Cursor.Notify_Input
-                 (Float (Editor.View.Current_Time_Seconds));
-               return;
-            when Editor.Keybindings.Key_Escape =>
-               Execute_Command_Id
-                 (Editor.Commands.Command_Semantic_Popup_Dismiss);
-               Editor.Cursor.Notify_Input
-                 (Float (Editor.View.Current_Time_Seconds));
-               return;
-            when Editor.Keybindings.Key_Down =>
-               Execute_Command_Id
-                 (Editor.Commands.Command_Semantic_Completion_Select_Next);
-               Editor.Cursor.Notify_Input
-                 (Float (Editor.View.Current_Time_Seconds));
-               return;
-            when Editor.Keybindings.Key_Up =>
-               Execute_Command_Id
-                 (Editor.Commands.Command_Semantic_Completion_Select_Previous);
-               Editor.Cursor.Notify_Input
-                 (Float (Editor.View.Current_Time_Seconds));
-               return;
-            when Editor.Keybindings.Key_Tab =>
-               if Chord.Modifiers.Shift then
-                  Execute_Command_Id
-                    (Editor.Commands.Command_Semantic_Completion_Select_Previous);
-               else
-                  Execute_Command_Id
-                    (Editor.Commands.Command_Semantic_Completion_Select_Next);
-               end if;
-               Editor.Cursor.Notify_Input
-                 (Float (Editor.View.Current_Time_Seconds));
-               return;
-            when others =>
-               null;
-         end case;
       end if;
 
       if The_Editor.State.Build_UI.Build_UI_Focused
