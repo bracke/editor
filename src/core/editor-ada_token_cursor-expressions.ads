@@ -27,6 +27,12 @@ package Editor.Ada_Token_Cursor.Expressions is
    function At_Declare_Expression_Body_Boundary
      (Position : Cursor) return Boolean;
 
+   function At_Digits_Or_Delta_Reserved_Boundary
+     (Position : Cursor) return Boolean;
+
+   function At_Digits_Or_Delta_Expression_Boundary
+     (Position : Cursor) return Boolean;
+
    function Parenthesized_Constraint_Has_Arrow
      (Position : Cursor) return Boolean;
 
@@ -35,5 +41,12 @@ package Editor.Ada_Token_Cursor.Expressions is
 
    function Parenthesized_Name_Suffix_Is_Slice
      (Position : Cursor) return Boolean;
+
+   function Has_Top_Level_Arrow_Before_Association_End
+     (Position : Cursor) return Boolean;
+
+   function Parenthesized_Has_Top_Level_Token
+     (Position : Cursor;
+      Text     : String) return Boolean;
 
 end Editor.Ada_Token_Cursor.Expressions;

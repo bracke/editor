@@ -124,6 +124,8 @@ editor-ada_declaration_parser.adb
 editor-ada_declaration_parser.ads
 editor-ada_declaration_parser-lexical_helpers.adb
 editor-ada_declaration_parser-lexical_helpers.ads
+editor-ada_declaration_parser-pragma_helpers.adb
+editor-ada_declaration_parser-pragma_helpers.ads
 editor-ada_declarative_regions.adb
 editor-ada_declarative_regions.ads
 editor-ada_definite_initialization_flow_legality.adb
@@ -906,6 +908,10 @@ editor-commands.adb
 editor-commands.ads
 editor-commands-availability_metadata.adb
 editor-commands-availability_metadata.ads
+editor-commands-descriptor_metadata.adb
+editor-commands-descriptor_metadata.ads
+editor-commands-name_metadata.adb
+editor-commands-name_metadata.ads
 editor-configuration_audit.adb
 editor-configuration_audit.ads
 editor-configuration_recovery.adb
@@ -1107,6 +1113,8 @@ editor-input.adb
 editor-input.ads
 editor-input_bridge-render_access.adb
 editor-input_bridge-render_access.ads
+editor-input_bridge-pointer_routing.adb
+editor-input_bridge-pointer_routing.ads
 editor-input_bridge-text_entry_routing.adb
 editor-input_bridge-text_entry_routing.ads
 editor-input_bridge.adb
