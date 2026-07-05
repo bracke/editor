@@ -6,7 +6,7 @@ with Editor.State;
 
 package Editor.Build_Command is
 
-   --  Phase 504 public build command bounded runner foundation.  Readiness is
+   --  public build command bounded runner foundation.  Readiness is
    --  side-effect-free; execution remains Executor-owned and can reach only the
    --  bounded non-shell process-runner seam after structured request, current
    --  consent, explicit transient working context, and runtime policy checks.
@@ -32,6 +32,9 @@ package Editor.Build_Command is
      (State : Editor.State.State_Type) return Build_Run_Readiness_Status;
 
    function Build_Run_Unavailable_Reason
+     (Status : Build_Run_Readiness_Status) return String;
+
+   function Build_Run_Recovery_Hint
      (Status : Build_Run_Readiness_Status) return String;
 
    function Build_Run_Availability
@@ -106,7 +109,7 @@ package Editor.Build_Command is
    function Has_Queued_Public_Build_Job
      (State : Editor.State.State_Type) return Boolean;
 
-   --  Phase 578 deterministic dogfood seam: execute the same public build.run
+   --  deterministic dogfood seam: execute the same public build.run
    --  frontdoor and state-update path as Execute_Public_Build_Run, but with a
    --  caller-supplied bounded process result.  This is for workflow fixtures
    --  that must prove Build -> Output Details -> Diagnostics integration

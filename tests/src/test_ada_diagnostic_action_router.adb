@@ -283,10 +283,10 @@ package body Test_Ada_Diagnostic_Action_Router is
    begin
       Register_Routine
         (T, Test_Empty_Router_Is_Current_And_Deterministic'Access,
-         "Pass1075 keeps empty diagnostic action routing deterministic");
+         "Case 1075 keeps empty diagnostic action routing deterministic");
       Register_Routine
         (T, Test_Absent_Diagnostic_Route_Is_Empty'Access,
-         "Pass1075 absent diagnostic route lookup returns no route");
+         "Case 1075 absent diagnostic route lookup returns no route");
       Register_Routine
         (T, Test_Router_Joins_Quick_Fixes_To_IDE_Targets'Access,
          "Diagnostic action router joins quick fixes to IDE targets");

@@ -7,9 +7,9 @@ with Editor.Ada_Syntax_Tree;
 
 package Editor.Ada_Repair_Gated_Diagnostic_Integration is
 
-   --  Pass1150 diagnostic integration for repaired coverage gates.
+   --  Case 1150 diagnostic integration for repaired coverage gates.
    --
-   --  Pass1149 feeds repair-applied coverage-gate results back into integrated
+   --  Case 1149 feeds repair-applied coverage-gate results back into integrated
    --  semantic closure.  This package carries that restored or still-blocking
    --  closure state into a deterministic diagnostic-integration model so
    --  repaired constructs regain confident non-diagnostic semantic closure,

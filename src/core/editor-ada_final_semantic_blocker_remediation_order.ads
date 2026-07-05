@@ -5,9 +5,9 @@ with Editor.Ada_Syntax_Tree;
 
 package Editor.Ada_Final_Semantic_Blocker_Remediation_Order is
 
-   --  Pass1199 final semantic blocker remediation ordering.
+   --  Case 1199 final semantic blocker remediation ordering.
    --
-   --  This package consumes Pass1198 final semantic blocker trace closure and
+   --  This package consumes Case 1198 final semantic blocker trace closure and
    --  derives a deterministic remediation order for compiler-grade semantic
    --  debugging.  It is not a UI quick-fix/projection layer: it records which
    --  semantic evidence must be repaired first so downstream legality engines

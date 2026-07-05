@@ -4,7 +4,7 @@ with Editor.Ada_Syntax_Tree;
 
 package Editor.Ada_Elaboration_Vertical_Slice_Legality is
 
-   --  Pass1301 vertical-slice elaboration legality.  This package performs
+   --  Case 1301 vertical-slice elaboration legality.  This package performs
    --  concrete RM-facing elaboration checks against source-shaped unit,
    --  pragma, body-availability, and call evidence.  It builds a bounded
    --  dependency view, rejects calls before required bodies are elaborated,

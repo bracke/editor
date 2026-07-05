@@ -436,7 +436,7 @@ package body Editor.Projection_Surface_File_Lifecycle_Audit is
    is
    begin
       --  A surface may of course read its own retained product state.  The
-      --  shared Phase 495 boundary forbids only using a different projection
+      --  shared boundary forbids only using a different projection
       --  surface's rows/candidates/results/history entries as lifecycle truth.
       return Producer /= Consumer;
    end Cross_Surface_Import_Forbidden;
@@ -1096,7 +1096,7 @@ package body Editor.Projection_Surface_File_Lifecycle_Audit is
          Add_Failure (Result, Adapter.Surface, "adapter forbidden render field count is incomplete");
       end if;
 
-      --  Phase 495 completeness: adapter catalog validation is part of the
+      --  completeness: adapter catalog validation is part of the
       --  reusable harness, not just a separate AUnit catalog smoke test.
       --  This catches a future surface that advertises a count but leaves
       --  unnamed retained sources, forbidden fields, or forbidden routes.
@@ -1460,7 +1460,7 @@ package body Editor.Projection_Surface_File_Lifecycle_Audit is
          Add_Failure (Result, Surface, Prefix & "persistence leaks projection lifecycle state");
       end if;
       if not Expectation.Behavior_Preserved then
-         Add_Failure (Result, Surface, Prefix & "prior phase behavior is not preserved");
+         Add_Failure (Result, Surface, Prefix & "prior behavior is not preserved");
       end if;
    end Validate_Surface_Reliability;
 
@@ -1540,7 +1540,7 @@ package body Editor.Projection_Surface_File_Lifecycle_Audit is
       end if;
       if not Expectation.Behavior_Preserved then
          Add_Failure
-           (Result, Surface, Prefix & "prior phase behavior is not preserved");
+           (Result, Surface, Prefix & "prior behavior is not preserved");
       end if;
    end Validate_Surface_Final_Freeze;
 
@@ -2421,7 +2421,7 @@ package body Editor.Projection_Surface_File_Lifecycle_Audit is
      (Result : in out Projection_Surface_Audit_Result)
    is
    begin
-      --  Phase 497 makes the shared harness the cleanup authority.  It runs
+      --  makes the shared harness the cleanup authority.  It runs
       --  the complete milestone/reliability surface matrix, then adds the
       --  cleanup-specific raw-adapter, pure-helper, render/audit/persistence,
       --  local-route, and cross-surface import assertions.

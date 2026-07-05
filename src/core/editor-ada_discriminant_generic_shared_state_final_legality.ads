@@ -13,7 +13,7 @@ with Editor.Ada_Tasking_Generic_Shared_State_Final_Legality;
 
 package Editor.Ada_Discriminant_Generic_Shared_State_Final_Legality is
 
-   --  Pass1234 discriminant/generic shared-state final legality.
+   --  Case 1234 discriminant/generic shared-state final legality.
    --
    --  This package connects discriminant and variant consumer evidence with the
    --  generic/shared-state final semantic chain.  Conclusions for discriminant-

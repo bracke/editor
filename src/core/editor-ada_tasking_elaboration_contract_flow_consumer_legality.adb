@@ -285,7 +285,7 @@ package body Editor.Ada_Tasking_Elaboration_Contract_Flow_Consumer_Legality is
                Caller_Name => C.Caller_Name,
                Callee_Name => C.Callee_Name,
                Message => Message_For (Status),
-               Detail => To_Unbounded_String ("Pass1158 tasking/protected effect consumed elaboration contract-flow legality"),
+               Detail => To_Unbounded_String ("Case 1158 tasking/protected effect consumed elaboration contract-flow legality"),
                Tasking_Row => C.Tasking_Row,
                Tasking_Status => C.Tasking_Status,
                Elaboration_Contract_Row => C.Elaboration_Contract_Row,

@@ -5,9 +5,9 @@ with Editor.Ada_Syntax_Tree;
 
 package Editor.Ada_Shared_State_Stabilized_Diagnostic_Integration is
 
-   --  Pass1217 shared-state stabilized diagnostic integration.
+   --  Case 1217 shared-state stabilized diagnostic integration.
    --
-   --  This package feeds Pass1216 cross-unit shared-state final closure into a
+   --  This package feeds Case 1216 cross-unit shared-state final closure into a
    --  stabilized diagnostic-boundary model.  Accepted shared-state closure rows
    --  are withheld as current semantic evidence; blockers are emitted with their
    --  original abstract-state, volatile/atomic, representation, tasking, view,

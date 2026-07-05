@@ -4,7 +4,7 @@ package Editor.Status_Bar is
 
    --  User-visible status bar configuration.
    --
-   --  The status bar is deliberately non-interactive in this phase.  This
+   --  The status bar is deliberately non-interactive.  This
    --  configuration only controls whether layout reserves the bottom row and
    --  whether render packet construction emits status bar visuals.
    type Status_Bar_Config is record
@@ -41,6 +41,24 @@ package Editor.Status_Bar is
       Recent_Projects_Status_Field,
       Startup_Status_Field,
       Undo_Redo_Status_Field);
+
+   type Status_Message_Kind is
+     (Status_Message_Other,
+      Status_Message_Quick_Open_No_Project,
+      Status_Message_Quick_Open_No_Matches,
+      Status_Message_Outline_Not_Refreshed,
+      Status_Message_Find_No_Query,
+      Status_Message_Find_No_Matches,
+      Status_Message_Build_Failed,
+      Status_Message_Build_Ready,
+      Status_Message_Diagnostics_Target_Stale,
+      Status_Message_Search_Target_Stale,
+      Status_Message_File_Tree_No_Project,
+      Status_Message_Workspace_Restored,
+      Status_Message_Workspace_Partial_Restore,
+      Status_Message_Workspace_No_Restore,
+      Status_Message_Workspace_Unsaved_Confirmation,
+      Status_Message_Recent_Projects_None);
 
    --  Immutable status data projected from the current editor state.
    --
@@ -98,20 +116,28 @@ package Editor.Status_Bar is
         Ada.Strings.Unbounded.Null_Unbounded_String;
       Outline_Status_Label : Ada.Strings.Unbounded.Unbounded_String :=
         Ada.Strings.Unbounded.Null_Unbounded_String;
+      Outline_Status_Kind : Status_Message_Kind := Status_Message_Other;
       Diagnostics_Status_Label : Ada.Strings.Unbounded.Unbounded_String :=
         Ada.Strings.Unbounded.Null_Unbounded_String;
+      Diagnostics_Status_Kind : Status_Message_Kind := Status_Message_Other;
       Build_Status_Label : Ada.Strings.Unbounded.Unbounded_String :=
         Ada.Strings.Unbounded.Null_Unbounded_String;
+      Build_Status_Kind : Status_Message_Kind := Status_Message_Other;
       Search_Status_Label : Ada.Strings.Unbounded.Unbounded_String :=
         Ada.Strings.Unbounded.Null_Unbounded_String;
+      Search_Status_Kind : Status_Message_Kind := Status_Message_Other;
       Quick_Open_Status_Label : Ada.Strings.Unbounded.Unbounded_String :=
         Ada.Strings.Unbounded.Null_Unbounded_String;
+      Quick_Open_Status_Kind : Status_Message_Kind := Status_Message_Other;
       File_Tree_Status_Label : Ada.Strings.Unbounded.Unbounded_String :=
         Ada.Strings.Unbounded.Null_Unbounded_String;
+      File_Tree_Status_Kind : Status_Message_Kind := Status_Message_Other;
       Workspace_Status_Label : Ada.Strings.Unbounded.Unbounded_String :=
         Ada.Strings.Unbounded.Null_Unbounded_String;
+      Workspace_Status_Kind : Status_Message_Kind := Status_Message_Other;
       Recent_Projects_Status_Label : Ada.Strings.Unbounded.Unbounded_String :=
         Ada.Strings.Unbounded.Null_Unbounded_String;
+      Recent_Projects_Status_Kind : Status_Message_Kind := Status_Message_Other;
       Startup_Status_Label : Ada.Strings.Unbounded.Unbounded_String :=
         Ada.Strings.Unbounded.Null_Unbounded_String;
       Has_Command_Feedback : Boolean := False;
@@ -120,6 +146,116 @@ package Editor.Status_Bar is
       Command_Feedback_Severity : Ada.Strings.Unbounded.Unbounded_String :=
         Ada.Strings.Unbounded.Null_Unbounded_String;
    end record;
+
+   type Workspace_Status_Surface is record
+      Summary_Label : Ada.Strings.Unbounded.Unbounded_String :=
+        Ada.Strings.Unbounded.Null_Unbounded_String;
+      Has_Restore_Details : Boolean := False;
+      Restore_Details_Label : Ada.Strings.Unbounded.Unbounded_String :=
+        Ada.Strings.Unbounded.Null_Unbounded_String;
+      Save_State_Command : Ada.Strings.Unbounded.Unbounded_String :=
+        Ada.Strings.Unbounded.To_Unbounded_String ("workspace.save");
+      Restore_State_Command : Ada.Strings.Unbounded.Unbounded_String :=
+        Ada.Strings.Unbounded.To_Unbounded_String ("workspace.restore");
+      Clear_State_Command : Ada.Strings.Unbounded.Unbounded_String :=
+        Ada.Strings.Unbounded.To_Unbounded_String ("workspace.clear");
+   end record;
+
+   type Quick_Open_Context_Surface is record
+      Active : Boolean := False;
+      Summary_Label : Ada.Strings.Unbounded.Unbounded_String :=
+        Ada.Strings.Unbounded.Null_Unbounded_String;
+      Open_Command : Ada.Strings.Unbounded.Unbounded_String :=
+        Ada.Strings.Unbounded.To_Unbounded_String ("quick_open.open");
+      Clear_Scope_Command : Ada.Strings.Unbounded.Unbounded_String :=
+        Ada.Strings.Unbounded.To_Unbounded_String ("quick_open.scope.clear");
+      Clear_Filter_Command : Ada.Strings.Unbounded.Unbounded_String :=
+        Ada.Strings.Unbounded.To_Unbounded_String ("quick_open.kind.clear");
+   end record;
+
+   type Outline_Status_Surface is record
+      Active : Boolean := False;
+      Summary_Label : Ada.Strings.Unbounded.Unbounded_String :=
+        Ada.Strings.Unbounded.Null_Unbounded_String;
+      Refresh_Command : Ada.Strings.Unbounded.Unbounded_String :=
+        Ada.Strings.Unbounded.To_Unbounded_String ("outline.refresh");
+      Open_Selected_Command : Ada.Strings.Unbounded.Unbounded_String :=
+        Ada.Strings.Unbounded.To_Unbounded_String ("outline.open-selected");
+      Reveal_Current_Command : Ada.Strings.Unbounded.Unbounded_String :=
+        Ada.Strings.Unbounded.To_Unbounded_String ("outline.reveal-current-symbol");
+   end record;
+
+   type Search_Replace_Status_Surface is record
+      Active : Boolean := False;
+      Summary_Label : Ada.Strings.Unbounded.Unbounded_String :=
+        Ada.Strings.Unbounded.Null_Unbounded_String;
+      Run_Command : Ada.Strings.Unbounded.Unbounded_String :=
+        Ada.Strings.Unbounded.To_Unbounded_String ("project.search.run");
+      Open_Selected_Command : Ada.Strings.Unbounded.Unbounded_String :=
+        Ada.Strings.Unbounded.To_Unbounded_String ("project.search.open-selected");
+      Clear_Query_Command : Ada.Strings.Unbounded.Unbounded_String :=
+        Ada.Strings.Unbounded.To_Unbounded_String ("project.search.query.clear");
+   end record;
+
+   type File_Tree_Status_Surface is record
+      Active : Boolean := False;
+      Summary_Label : Ada.Strings.Unbounded.Unbounded_String :=
+        Ada.Strings.Unbounded.Null_Unbounded_String;
+      Refresh_Command : Ada.Strings.Unbounded.Unbounded_String :=
+        Ada.Strings.Unbounded.To_Unbounded_String ("file-tree.refresh");
+      Open_Selected_Command : Ada.Strings.Unbounded.Unbounded_String :=
+        Ada.Strings.Unbounded.To_Unbounded_String ("file-tree.open-selected");
+      Reveal_Active_Command : Ada.Strings.Unbounded.Unbounded_String :=
+        Ada.Strings.Unbounded.To_Unbounded_String ("file-tree.reveal-active-file");
+   end record;
+
+   type Recent_Projects_Status_Surface is record
+      Active : Boolean := False;
+      Summary_Label : Ada.Strings.Unbounded.Unbounded_String :=
+        Ada.Strings.Unbounded.Null_Unbounded_String;
+      Show_Command : Ada.Strings.Unbounded.Unbounded_String :=
+        Ada.Strings.Unbounded.To_Unbounded_String ("recent-projects.show");
+      Open_Selected_Command : Ada.Strings.Unbounded.Unbounded_String :=
+        Ada.Strings.Unbounded.To_Unbounded_String ("recent-projects.open-selected");
+      Remove_Missing_Command : Ada.Strings.Unbounded.Unbounded_String :=
+        Ada.Strings.Unbounded.To_Unbounded_String ("recent-projects.remove-missing");
+   end record;
+
+   function Workspace_Surface_Action_Label
+     (Surface : Workspace_Status_Surface) return String;
+
+   function Quick_Open_Context_Action_Label
+     (Surface : Quick_Open_Context_Surface) return String;
+
+   function Outline_Surface_Action_Label
+     (Surface : Outline_Status_Surface) return String;
+
+   function Search_Replace_Surface_Action_Label
+     (Surface : Search_Replace_Status_Surface) return String;
+
+   function File_Tree_Surface_Action_Label
+     (Surface : File_Tree_Status_Surface) return String;
+
+   function Recent_Projects_Surface_Action_Label
+     (Surface : Recent_Projects_Status_Surface) return String;
+
+   function Workspace_Surface_Action_Count
+     (Surface : Workspace_Status_Surface) return Natural;
+
+   function Quick_Open_Context_Action_Count
+     (Surface : Quick_Open_Context_Surface) return Natural;
+
+   function Outline_Surface_Action_Count
+     (Surface : Outline_Status_Surface) return Natural;
+
+   function Search_Replace_Surface_Action_Count
+     (Surface : Search_Replace_Status_Surface) return Natural;
+
+   function File_Tree_Surface_Action_Count
+     (Surface : File_Tree_Status_Surface) return Natural;
+
+   function Recent_Projects_Surface_Action_Count
+     (Surface : Recent_Projects_Status_Surface) return Natural;
 
    --  Return whether the status bar is enabled.
    --
@@ -152,7 +288,7 @@ package Editor.Status_Bar is
 
    --  Individual scalar status-segment builders.  These helpers expose the
    --  same observational formatting policy used by Format_Right so tests can
-   --  verify Phase 563 coverage without depending on row/output payloads.
+   --  verify coverage without depending on row/output payloads.
    function Status_Project_File_Segment
      (Snapshot : Status_Bar_Snapshot) return String;
 
@@ -173,7 +309,7 @@ package Editor.Status_Bar is
 
    --  Return the public user-facing outcome class used in status text.
    --  This deliberately hides internal message-severity spellings such as
-   --  ``error`` or ``warn`` behind the Phase 563 classes.
+   --  ``error`` or ``warn`` behind the classes.
    function Status_Command_Outcome_Class
      (Snapshot : Status_Bar_Snapshot) return String;
 
@@ -189,6 +325,33 @@ package Editor.Status_Bar is
    function Status_Quick_Open_Segment
      (Snapshot : Status_Bar_Snapshot) return String;
 
+   function Status_Message_Kind_For
+     (Label : Ada.Strings.Unbounded.Unbounded_String) return Status_Message_Kind;
+
+   function Status_Build_Message_Kind
+     (Snapshot : Status_Bar_Snapshot) return Status_Message_Kind;
+
+   function Status_Diagnostics_Message_Kind
+     (Snapshot : Status_Bar_Snapshot) return Status_Message_Kind;
+
+   function Status_Search_Message_Kind
+     (Snapshot : Status_Bar_Snapshot) return Status_Message_Kind;
+
+   function Status_Quick_Open_Message_Kind
+     (Snapshot : Status_Bar_Snapshot) return Status_Message_Kind;
+
+   function Status_File_Tree_Message_Kind
+     (Snapshot : Status_Bar_Snapshot) return Status_Message_Kind;
+
+   function Status_Workspace_Message_Kind
+     (Snapshot : Status_Bar_Snapshot) return Status_Message_Kind;
+
+   function Status_Outline_Message_Kind
+     (Snapshot : Status_Bar_Snapshot) return Status_Message_Kind;
+
+   function Status_Recent_Projects_Message_Kind
+     (Snapshot : Status_Bar_Snapshot) return Status_Message_Kind;
+
    function Status_Outline_Segment
      (Snapshot : Status_Bar_Snapshot) return String;
 
@@ -197,6 +360,24 @@ package Editor.Status_Bar is
 
    function Status_Workspace_Recent_Segment
      (Snapshot : Status_Bar_Snapshot) return String;
+
+   function Workspace_Surface
+     (Snapshot : Status_Bar_Snapshot) return Workspace_Status_Surface;
+
+   function Quick_Open_Context_Surface_For
+     (Snapshot : Status_Bar_Snapshot) return Quick_Open_Context_Surface;
+
+   function Outline_Surface
+     (Snapshot : Status_Bar_Snapshot) return Outline_Status_Surface;
+
+   function Search_Replace_Surface
+     (Snapshot : Status_Bar_Snapshot) return Search_Replace_Status_Surface;
+
+   function File_Tree_Surface
+     (Snapshot : Status_Bar_Snapshot) return File_Tree_Status_Surface;
+
+   function Recent_Projects_Surface
+     (Snapshot : Status_Bar_Snapshot) return Recent_Projects_Status_Surface;
 
    function Status_Startup_Segment
      (Snapshot : Status_Bar_Snapshot) return String;
@@ -223,7 +404,7 @@ package Editor.Status_Bar is
      (Snapshot          : Status_Bar_Snapshot;
       Available_Columns : Natural) return Boolean;
 
-   --  Phase 563 milestone assertion for the broadened main-context status
+   --  milestone assertion for the broadened main-context status
    --  line.  The predicate is intentionally phrased over an immutable
    --  snapshot so tests can prove status remains observational and bounded.
    function Assert_Status_Line_Context_Coherent
@@ -266,7 +447,7 @@ package Editor.Status_Bar is
    function Assert_Status_Carries_No_Command_Payloads
      (Snapshot : Status_Bar_Snapshot) return Boolean;
 
-   --  Phase 544 status/feedback coherence helpers.  These are
+   --  status/feedback coherence helpers.  These are
    --  side-effect-free predicates over the immutable snapshot; they do not
    --  inspect editor state, mutate status data, or copy feature rows.
    function Assert_Status_Snapshot_Is_Observational

@@ -27,7 +27,7 @@ package body Editor.Workspace_Persistence.Tests is
    begin
       Ada.Directories.Create_Path ("/tmp/editor-tests");
       return Ada.Directories.Compose
-        ("/tmp/editor-tests", "phase89_" & Name);
+        ("/tmp/editor-tests", "" & Name);
    end Temp_Path;
 
    procedure Remove_If_Exists (Path : String) is
@@ -128,6 +128,28 @@ package body Editor.Workspace_Persistence.Tests is
               "Set_Active_File_Path should mark active file present");
       Assert (Editor.Workspace_Persistence.Expanded_File_Tree_Path_Count (Snapshot) = 1,
               "Add_Expanded_File_Tree_Path should append expansion path");
+      Editor.Workspace_Persistence.Set_Recent_Project_Path
+        (Snapshot, "/tmp/project");
+      Editor.Workspace_Persistence.Set_Quick_Open_Path_Scope
+        (Snapshot, "src");
+      Editor.Workspace_Persistence.Set_Quick_Open_File_Kind_Filter
+        (Snapshot,
+         Editor.Workspace_Persistence.Workspace_Quick_Open_Ada_Files);
+      Editor.Workspace_Persistence.Set_Feature_Panel
+        (Snapshot, True,
+         Editor.Workspace_Persistence.Workspace_Diagnostics_Feature);
+      Assert (Editor.Workspace_Persistence.Has_Recent_Project_Path (Snapshot),
+              "Set_Recent_Project_Path should mark recent project present");
+      Assert (Editor.Workspace_Persistence.Quick_Open_Path_Scope (Snapshot) = "src/",
+              "Set_Quick_Open_Path_Scope should store canonical directory scope");
+      Assert (Editor.Workspace_Persistence.Quick_Open_File_Kind_Filter (Snapshot) =
+                Editor.Workspace_Persistence.Workspace_Quick_Open_Ada_Files,
+              "Set_Quick_Open_File_Kind_Filter should store the stable filter");
+      Assert (Editor.Workspace_Persistence.Feature_Panel_Visible (Snapshot),
+              "Set_Feature_Panel should preserve feature panel visibility");
+      Assert (Editor.Workspace_Persistence.Active_Feature_Panel (Snapshot) =
+                Editor.Workspace_Persistence.Workspace_Diagnostics_Feature,
+              "Set_Feature_Panel should preserve active feature panel");
 
       Editor.Workspace_Persistence.Clear (Snapshot);
       Assert (not Editor.Workspace_Persistence.Has_Project_Root (Snapshot),
@@ -138,6 +160,18 @@ package body Editor.Workspace_Persistence.Tests is
               "Clear should remove active file path");
       Assert (Editor.Workspace_Persistence.Expanded_File_Tree_Path_Count (Snapshot) = 0,
               "Clear should remove file-tree expansion paths");
+      Assert (not Editor.Workspace_Persistence.Has_Recent_Project_Path (Snapshot),
+              "Clear should remove recent project path");
+      Assert (Editor.Workspace_Persistence.Quick_Open_Path_Scope (Snapshot) = "",
+              "Clear should remove Quick Open scope");
+      Assert (Editor.Workspace_Persistence.Quick_Open_File_Kind_Filter (Snapshot) =
+                Editor.Workspace_Persistence.Workspace_Quick_Open_All_Files,
+              "Clear should restore the default Quick Open filter");
+      Assert (not Editor.Workspace_Persistence.Feature_Panel_Visible (Snapshot),
+              "Clear should hide feature panel");
+      Assert (Editor.Workspace_Persistence.Active_Feature_Panel (Snapshot) =
+                Editor.Workspace_Persistence.Workspace_Outline_Feature,
+              "Clear should restore default active feature panel");
    end Test_Snapshot_Defaults_And_Clear;
 
    procedure Test_Save_Load_Roundtrip
@@ -173,6 +207,16 @@ package body Editor.Workspace_Persistence.Tests is
       Editor.Workspace_Persistence.Set_Bottom_Panel
         (Snapshot, True, 12,
          Editor.Workspace_Persistence.Workspace_Search_Results_Content);
+      Editor.Workspace_Persistence.Set_Recent_Project_Path
+        (Snapshot, "/tmp/project");
+      Editor.Workspace_Persistence.Set_Quick_Open_Path_Scope
+        (Snapshot, "src/editor");
+      Editor.Workspace_Persistence.Set_Quick_Open_File_Kind_Filter
+        (Snapshot,
+         Editor.Workspace_Persistence.Workspace_Quick_Open_Test_Files);
+      Editor.Workspace_Persistence.Set_Feature_Panel
+        (Snapshot, True,
+         Editor.Workspace_Persistence.Workspace_Diagnostics_Feature);
       Editor.Workspace_Persistence.Save_To_File (Snapshot, Path, Status);
       Assert (Status = Editor.Workspace_Persistence.Workspace_Persistence_Ok,
               "Save_To_File should write deterministic workspace file");
@@ -200,6 +244,20 @@ package body Editor.Workspace_Persistence.Tests is
       Assert (Editor.Workspace_Persistence.Active_Bottom_Content (Loaded) =
                 Editor.Workspace_Persistence.Workspace_Search_Results_Content,
               "roundtrip should preserve active bottom panel content");
+      Assert (Editor.Workspace_Persistence.Has_Recent_Project_Path (Loaded)
+              and then Editor.Workspace_Persistence.Recent_Project_Path (Loaded) =
+                "/tmp/project",
+              "roundtrip should preserve recent project path");
+      Assert (Editor.Workspace_Persistence.Quick_Open_Path_Scope (Loaded) =
+                "src/editor/",
+              "roundtrip should preserve Quick Open path scope");
+      Assert (Editor.Workspace_Persistence.Quick_Open_File_Kind_Filter (Loaded) =
+                Editor.Workspace_Persistence.Workspace_Quick_Open_Test_Files,
+              "roundtrip should preserve Quick Open file-kind filter");
+      Assert (Editor.Workspace_Persistence.Feature_Panel_Visible (Loaded)
+              and then Editor.Workspace_Persistence.Active_Feature_Panel (Loaded) =
+                Editor.Workspace_Persistence.Workspace_Diagnostics_Feature,
+              "roundtrip should preserve feature panel visibility and selection");
       Assert (Ada.Strings.Fixed.Index (Read_Text (Path), "[theme]") = 0,
               "workspace save must exclude settings-owned theme section");
       Assert (Ada.Strings.Fixed.Index (Read_Text (Path), "active=dark") = 0,
@@ -286,8 +344,8 @@ package body Editor.Workspace_Persistence.Tests is
      (T : in out AUnit.Test_Cases.Test_Case'Class)
    is
       pragma Unreferenced (T);
-      Path_A : constant String := Temp_Path ("phase90_a.session");
-      Path_B : constant String := Temp_Path ("phase90_b.session");
+      Path_A : constant String := Temp_Path ("a.session");
+      Path_B : constant String := Temp_Path ("b.session");
       Left   : Editor.Workspace_Persistence.Workspace_Snapshot;
       Right  : Editor.Workspace_Persistence.Workspace_Snapshot;
       Status : Editor.Workspace_Persistence.Workspace_Persistence_Status;
@@ -347,7 +405,7 @@ package body Editor.Workspace_Persistence.Tests is
      (T : in out AUnit.Test_Cases.Test_Case'Class)
    is
       pragma Unreferenced (T);
-      Path   : constant String := Temp_Path ("phase90_atomic.session");
+      Path   : constant String := Temp_Path ("atomic.session");
       Temp   : constant String := Ada.Directories.Compose
         (Ada.Directories.Containing_Directory (Path),
          "." & Ada.Directories.Simple_Name (Path) & ".tmp");
@@ -382,7 +440,7 @@ package body Editor.Workspace_Persistence.Tests is
      (T : in out AUnit.Test_Cases.Test_Case'Class)
    is
       pragma Unreferenced (T);
-      Path     : constant String := Temp_Path ("phase90_corrupt.session");
+      Path     : constant String := Temp_Path ("corrupt.session");
       Snapshot : Editor.Workspace_Persistence.Workspace_Snapshot;
       Status   : Editor.Workspace_Persistence.Workspace_Persistence_Status;
    begin
@@ -412,7 +470,7 @@ package body Editor.Workspace_Persistence.Tests is
      (T : in out AUnit.Test_Cases.Test_Case'Class)
    is
       pragma Unreferenced (T);
-      Root     : constant String := Temp_Path ("phase90_project_root");
+      Root     : constant String := Temp_Path ("project_root");
       Path     : constant String :=
         Editor.Workspace_Persistence.Session_File_Path_For_Project (Root);
       Snapshot : Editor.Workspace_Persistence.Workspace_Snapshot;
@@ -433,7 +491,7 @@ package body Editor.Workspace_Persistence.Tests is
       Editor.Workspace_Persistence.Set_Project_Root (Snapshot, Root);
       Editor.Workspace_Persistence.Save_To_File (Snapshot, Path, Status);
       Assert (Status = Editor.Workspace_Persistence.Workspace_Persistence_Ok,
-              "Save_To_File should use the Phase 90 atomic save policy");
+              "Save_To_File should use the atomic save policy");
       Assert (Ada.Directories.Exists (Path),
               "Save_To_File should create the configured .editor/session file");
 
@@ -444,7 +502,7 @@ package body Editor.Workspace_Persistence.Tests is
      (T : in out AUnit.Test_Cases.Test_Case'Class)
    is
       pragma Unreferenced (T);
-      Path     : constant String := Temp_Path ("phase90_duplicates.session");
+      Path     : constant String := Temp_Path ("duplicates.session");
       Snapshot : Editor.Workspace_Persistence.Workspace_Snapshot;
       Status   : Editor.Workspace_Persistence.Workspace_Persistence_Status;
    begin
@@ -478,7 +536,7 @@ package body Editor.Workspace_Persistence.Tests is
      (T : in out AUnit.Test_Cases.Test_Case'Class)
    is
       pragma Unreferenced (T);
-      Path     : constant String := Temp_Path ("phase90_empty.session");
+      Path     : constant String := Temp_Path ("empty.session");
       Snapshot : Editor.Workspace_Persistence.Workspace_Snapshot;
       Status   : Editor.Workspace_Persistence.Workspace_Persistence_Status;
    begin
@@ -494,11 +552,11 @@ package body Editor.Workspace_Persistence.Tests is
 
 
 
-   procedure Test_Phase544_Status_State_Is_Not_Persisted
+   procedure Test_Status_State_Is_Not_Persisted
      (T : in out AUnit.Test_Cases.Test_Case'Class)
    is
       pragma Unreferenced (T);
-      Path     : constant String := Temp_Path ("phase544_status_exclusion.ws");
+      Path     : constant String := Temp_Path ("status_exclusion.ws");
       Snapshot : Editor.Workspace_Persistence.Workspace_Snapshot;
       Status   : Editor.Workspace_Persistence.Workspace_Persistence_Status;
       Output   : Unbounded_String;
@@ -506,7 +564,7 @@ package body Editor.Workspace_Persistence.Tests is
       Remove_If_Exists (Path);
 
       Editor.Workspace_Persistence.Set_Project_Root
-        (Snapshot, "/tmp/phase544_project");
+        (Snapshot, "/tmp/project");
       Editor.Workspace_Persistence.Add_Open_File
         (Snapshot,
          (Path                => To_Unbounded_String ("src/main.adb"),
@@ -524,7 +582,7 @@ package body Editor.Workspace_Persistence.Tests is
 
       Editor.Workspace_Persistence.Save_To_File (Snapshot, Path, Status);
       Assert (Status = Editor.Workspace_Persistence.Workspace_Persistence_Ok,
-              "Phase 544 setup should save a workspace snapshot");
+              "setup should save a workspace snapshot");
 
       Output := To_Unbounded_String (Read_Text (Path));
 
@@ -537,15 +595,15 @@ package body Editor.Workspace_Persistence.Tests is
       Assert (Ada.Strings.Fixed.Index (To_String (Output), "Outline:") = 0,
               "workspace save must exclude outline status summary text");
       Assert (Ada.Strings.Fixed.Index (To_String (Output), "Current:") = 0,
-              "workspace save must exclude Phase 550 current-symbol status text");
+              "workspace save must exclude current-symbol status text");
       Assert (Ada.Strings.Fixed.Index (To_String (Output), "current-symbol") = 0,
-              "workspace save must exclude Phase 550 current-symbol state fields");
+              "workspace save must exclude current-symbol state fields");
       Assert (Ada.Strings.Fixed.Index (To_String (Output), "outline-filter") = 0,
-              "workspace save must exclude Phase 550 Outline filter state fields");
+              "workspace save must exclude Outline filter state fields");
       Assert (Ada.Strings.Fixed.Index (To_String (Output), "filtered-outline") = 0,
-              "workspace save must exclude Phase 550 filtered Outline projections");
+              "workspace save must exclude filtered Outline projections");
       Assert (Ada.Strings.Fixed.Index (To_String (Output), "last-navigated-symbol") = 0,
-              "workspace save must exclude Phase 550 symbol navigation history");
+              "workspace save must exclude symbol navigation history");
       Assert (Ada.Strings.Fixed.Index (To_String (Output), "Diagnostics:") = 0,
               "workspace save must exclude diagnostics status summary text");
       Assert (Ada.Strings.Fixed.Index (To_String (Output), "Build:") = 0,
@@ -556,15 +614,15 @@ package body Editor.Workspace_Persistence.Tests is
               "workspace save must exclude project pending status text");
 
       Remove_If_Exists (Path);
-   end Test_Phase544_Status_State_Is_Not_Persisted;
+   end Test_Status_State_Is_Not_Persisted;
 
 
-   procedure Test_Phase558_Active_File_Must_Belong_To_Open_Files
+   procedure Test_Active_File_Must_Belong_To_Open_Files
      (T : in out AUnit.Test_Cases.Test_Case'Class)
    is
       pragma Unreferenced (T);
-      Path     : constant String := Temp_Path ("phase558_active_membership.session");
-      Saved    : constant String := Temp_Path ("phase558_active_membership_saved.session");
+      Path     : constant String := Temp_Path ("active_membership.session");
+      Saved    : constant String := Temp_Path ("active_membership_saved.session");
       Snapshot : Editor.Workspace_Persistence.Workspace_Snapshot;
       Status   : Editor.Workspace_Persistence.Workspace_Persistence_Status;
       Output   : Unbounded_String;
@@ -572,7 +630,7 @@ package body Editor.Workspace_Persistence.Tests is
       Write_Text
         (Path,
          "editor-workspace-version=1" & ASCII.LF &
-         "project-root=/tmp/phase558_project" & ASCII.LF &
+         "project-root=/tmp/project" & ASCII.LF &
          "[open-files]" & ASCII.LF &
          "src/main.adb|relative=true|row=0|col=0|view=0" & ASCII.LF &
          "[active-file]" & ASCII.LF &
@@ -596,7 +654,7 @@ package body Editor.Workspace_Persistence.Tests is
               "save must retain structural open file references");
 
       Editor.Workspace_Persistence.Clear (Snapshot);
-      Editor.Workspace_Persistence.Set_Project_Root (Snapshot, "/tmp/phase558_project");
+      Editor.Workspace_Persistence.Set_Project_Root (Snapshot, "/tmp/project");
       Editor.Workspace_Persistence.Set_Active_File_Path
         (Snapshot, "src/active-only.adb", True);
       Editor.Workspace_Persistence.Save_To_File (Snapshot, Saved, Status);
@@ -608,15 +666,15 @@ package body Editor.Workspace_Persistence.Tests is
 
       Remove_If_Exists (Path);
       Remove_If_Exists (Saved);
-   end Test_Phase558_Active_File_Must_Belong_To_Open_Files;
+   end Test_Active_File_Must_Belong_To_Open_Files;
 
 
-   procedure Test_Phase558_Invalid_Project_Root_Is_Diagnostic_Only
+   procedure Test_Invalid_Project_Root_Is_Diagnostic_Only
      (T : in out AUnit.Test_Cases.Test_Case'Class)
    is
       pragma Unreferenced (T);
-      Path     : constant String := Temp_Path ("phase558_invalid_project_root.session");
-      Saved    : constant String := Temp_Path ("phase558_invalid_project_root_saved.session");
+      Path     : constant String := Temp_Path ("invalid_project_root.session");
+      Saved    : constant String := Temp_Path ("invalid_project_root_saved.session");
       Snapshot : Editor.Workspace_Persistence.Workspace_Snapshot;
       Status   : Editor.Workspace_Persistence.Workspace_Persistence_Status;
       Output   : Unbounded_String;
@@ -658,15 +716,15 @@ package body Editor.Workspace_Persistence.Tests is
 
       Remove_If_Exists (Path);
       Remove_If_Exists (Saved);
-   end Test_Phase558_Invalid_Project_Root_Is_Diagnostic_Only;
+   end Test_Invalid_Project_Root_Is_Diagnostic_Only;
 
 
-   procedure Test_Phase558_Zero_Panel_Dimensions_Are_Diagnostic_Only
+   procedure Test_Zero_Panel_Dimensions_Are_Diagnostic_Only
      (T : in out AUnit.Test_Cases.Test_Case'Class)
    is
       pragma Unreferenced (T);
-      Path     : constant String := Temp_Path ("phase558_zero_panel_dimensions.session");
-      Saved    : constant String := Temp_Path ("phase558_zero_panel_dimensions_saved.session");
+      Path     : constant String := Temp_Path ("zero_panel_dimensions.session");
+      Saved    : constant String := Temp_Path ("zero_panel_dimensions_saved.session");
       Snapshot : Editor.Workspace_Persistence.Workspace_Snapshot;
       Status   : Editor.Workspace_Persistence.Workspace_Persistence_Status;
       Output   : Unbounded_String;
@@ -675,7 +733,7 @@ package body Editor.Workspace_Persistence.Tests is
       Write_Text
         (Path,
          "editor-workspace-version=1" & ASCII.LF &
-         "project-root=/tmp/phase558_project" & ASCII.LF &
+         "project-root=/tmp/project" & ASCII.LF &
          "[open-files]" & ASCII.LF &
          "src/main.adb|relative=true|row=0|col=0|view=0" & ASCII.LF &
          "[active-file]" & ASCII.LF &
@@ -735,15 +793,15 @@ package body Editor.Workspace_Persistence.Tests is
 
       Remove_If_Exists (Path);
       Remove_If_Exists (Saved);
-   end Test_Phase558_Zero_Panel_Dimensions_Are_Diagnostic_Only;
+   end Test_Zero_Panel_Dimensions_Are_Diagnostic_Only;
 
 
 
-   procedure Test_Phase558_Path_Only_File_Rows_Are_Rejected
+   procedure Test_Path_Only_File_Rows_Are_Rejected
      (T : in out AUnit.Test_Cases.Test_Case'Class)
    is
       pragma Unreferenced (T);
-      Path     : constant String := Temp_Path ("phase558_path_only_file_rows.session");
+      Path     : constant String := Temp_Path ("path_only_file_rows.session");
       Snapshot : Editor.Workspace_Persistence.Workspace_Snapshot;
       Status   : Editor.Workspace_Persistence.Workspace_Persistence_Status;
       Saw_Malformed : Boolean := False;
@@ -751,7 +809,7 @@ package body Editor.Workspace_Persistence.Tests is
       Write_Text
         (Path,
          "editor-workspace-version=1" & ASCII.LF &
-         "project-root=/tmp/phase558_project" & ASCII.LF &
+         "project-root=/tmp/project" & ASCII.LF &
          "[open-files]" & ASCII.LF &
          "src/path_only_open.adb" & ASCII.LF &
          "src/canonical.adb|relative=true|row=0|col=0|view=0" & ASCII.LF &
@@ -780,13 +838,13 @@ package body Editor.Workspace_Persistence.Tests is
               "path-only open/active file rows should produce malformed-line diagnostics");
 
       Remove_If_Exists (Path);
-   end Test_Phase558_Path_Only_File_Rows_Are_Rejected;
+   end Test_Path_Only_File_Rows_Are_Rejected;
 
-   procedure Test_Phase558_File_Rows_Require_Full_Canonical_Metadata
+   procedure Test_File_Rows_Require_Full_Canonical_Metadata
      (T : in out AUnit.Test_Cases.Test_Case'Class)
    is
       pragma Unreferenced (T);
-      Path     : constant String := Temp_Path ("phase558_full_metadata_required.session");
+      Path     : constant String := Temp_Path ("full_metadata_required.session");
       Snapshot : Editor.Workspace_Persistence.Workspace_Snapshot;
       Status   : Editor.Workspace_Persistence.Workspace_Persistence_Status;
       Saw_Malformed : Boolean := False;
@@ -795,7 +853,7 @@ package body Editor.Workspace_Persistence.Tests is
       Write_Text
         (Path,
          "editor-workspace-version=1" & ASCII.LF &
-         "project-root=/tmp/phase558_project" & ASCII.LF &
+         "project-root=/tmp/project" & ASCII.LF &
          "[open-files]" & ASCII.LF &
          "src/missing_view.adb|relative=true|row=1|col=2" & ASCII.LF &
          "src/noncanonical_extra.adb|relative=true|row=1|col=2|view=3|extra=4" & ASCII.LF &
@@ -831,17 +889,17 @@ package body Editor.Workspace_Persistence.Tests is
               "extra noncanonical metadata keys should produce unsupported-key diagnostics");
 
       Remove_If_Exists (Path);
-   end Test_Phase558_File_Rows_Require_Full_Canonical_Metadata;
+   end Test_File_Rows_Require_Full_Canonical_Metadata;
 
 
 
 
 
-   procedure Test_Phase558_Duplicate_Canonical_Metadata_Is_Rejected
+   procedure Test_Duplicate_Canonical_Metadata_Is_Rejected
      (T : in out AUnit.Test_Cases.Test_Case'Class)
    is
       pragma Unreferenced (T);
-      Path     : constant String := Temp_Path ("phase558_duplicate_metadata.session");
+      Path     : constant String := Temp_Path ("duplicate_metadata.session");
       Snapshot : Editor.Workspace_Persistence.Workspace_Snapshot;
       Status   : Editor.Workspace_Persistence.Workspace_Persistence_Status;
       Saw_Malformed : Boolean := False;
@@ -849,7 +907,7 @@ package body Editor.Workspace_Persistence.Tests is
       Write_Text
         (Path,
          "editor-workspace-version=1" & ASCII.LF &
-         "project-root=/tmp/phase558_project" & ASCII.LF &
+         "project-root=/tmp/project" & ASCII.LF &
          "[open-files]" & ASCII.LF &
          "src/dup_row.adb|relative=true|row=1|row=2|col=0|view=0" & ASCII.LF &
          "src/dup_relative.adb|relative=true|relative=false|row=1|col=0|view=0" & ASCII.LF &
@@ -880,15 +938,15 @@ package body Editor.Workspace_Persistence.Tests is
               "duplicate or out-of-order canonical metadata should produce malformed-line diagnostics");
 
       Remove_If_Exists (Path);
-   end Test_Phase558_Duplicate_Canonical_Metadata_Is_Rejected;
+   end Test_Duplicate_Canonical_Metadata_Is_Rejected;
 
 
 
-   procedure Test_Phase558_Trailing_And_Empty_Metadata_Fields_Are_Rejected
+   procedure Test_Trailing_And_Empty_Metadata_Fields_Are_Rejected
      (T : in out AUnit.Test_Cases.Test_Case'Class)
    is
       pragma Unreferenced (T);
-      Path     : constant String := Temp_Path ("phase558_empty_metadata_fields.session");
+      Path     : constant String := Temp_Path ("empty_metadata_fields.session");
       Snapshot : Editor.Workspace_Persistence.Workspace_Snapshot;
       Status   : Editor.Workspace_Persistence.Workspace_Persistence_Status;
       Saw_Malformed : Boolean := False;
@@ -896,7 +954,7 @@ package body Editor.Workspace_Persistence.Tests is
       Write_Text
         (Path,
          "editor-workspace-version=1" & ASCII.LF &
-         "project-root=/tmp/phase558_project" & ASCII.LF &
+         "project-root=/tmp/project" & ASCII.LF &
          "[open-files]" & ASCII.LF &
          "src/trailing.adb|relative=true|row=1|col=1|view=1|" & ASCII.LF &
          "src/empty.adb||relative=true|row=1|col=1|view=1" & ASCII.LF &
@@ -933,13 +991,13 @@ package body Editor.Workspace_Persistence.Tests is
               "empty metadata fields should produce malformed-line diagnostics");
 
       Remove_If_Exists (Path);
-   end Test_Phase558_Trailing_And_Empty_Metadata_Fields_Are_Rejected;
+   end Test_Trailing_And_Empty_Metadata_Fields_Are_Rejected;
 
-   procedure Test_Phase558_Panel_Section_Requires_Canonical_Order
+   procedure Test_Panel_Section_Requires_Canonical_Order
      (T : in out AUnit.Test_Cases.Test_Case'Class)
    is
       pragma Unreferenced (T);
-      Path     : constant String := Temp_Path ("phase558_panel_order.session");
+      Path     : constant String := Temp_Path ("panel_order.session");
       Snapshot : Editor.Workspace_Persistence.Workspace_Snapshot;
       Status   : Editor.Workspace_Persistence.Workspace_Persistence_Status;
       Saw_Malformed : Boolean := False;
@@ -947,7 +1005,7 @@ package body Editor.Workspace_Persistence.Tests is
       Write_Text
         (Path,
          "editor-workspace-version=1" & ASCII.LF &
-         "project-root=/tmp/phase558_project" & ASCII.LF &
+         "project-root=/tmp/project" & ASCII.LF &
          "[open-files]" & ASCII.LF &
          "src/canonical.adb|relative=true|row=0|col=0|view=0" & ASCII.LF &
          "[panels]" & ASCII.LF &
@@ -974,15 +1032,15 @@ package body Editor.Workspace_Persistence.Tests is
               "out-of-order panel rows should produce malformed-line diagnostics");
 
       Remove_If_Exists (Path);
-   end Test_Phase558_Panel_Section_Requires_Canonical_Order;
+   end Test_Panel_Section_Requires_Canonical_Order;
 
 
 
-   procedure Test_Phase558_Sections_Require_Canonical_Order
+   procedure Test_Sections_Require_Canonical_Order
      (T : in out AUnit.Test_Cases.Test_Case'Class)
    is
       pragma Unreferenced (T);
-      Path     : constant String := Temp_Path ("phase558_section_order.session");
+      Path     : constant String := Temp_Path ("section_order.session");
       Snapshot : Editor.Workspace_Persistence.Workspace_Snapshot;
       Status   : Editor.Workspace_Persistence.Workspace_Persistence_Status;
       Saw_Malformed : Boolean := False;
@@ -990,7 +1048,7 @@ package body Editor.Workspace_Persistence.Tests is
       Write_Text
         (Path,
          "editor-workspace-version=1" & ASCII.LF &
-         "project-root=/tmp/phase558_project" & ASCII.LF &
+         "project-root=/tmp/project" & ASCII.LF &
          "[active-file]" & ASCII.LF &
          "src/main.adb|relative=true" & ASCII.LF &
          "[open-files]" & ASCII.LF &
@@ -1023,14 +1081,14 @@ package body Editor.Workspace_Persistence.Tests is
               "out-of-order sections should produce malformed-line diagnostics");
 
       Remove_If_Exists (Path);
-   end Test_Phase558_Sections_Require_Canonical_Order;
+   end Test_Sections_Require_Canonical_Order;
 
 
-   procedure Test_Phase558_Active_File_Section_Allows_At_Most_One_Row
+   procedure Test_Active_File_Section_Allows_At_Most_One_Row
      (T : in out AUnit.Test_Cases.Test_Case'Class)
    is
       pragma Unreferenced (T);
-      Path     : constant String := Temp_Path ("phase558_duplicate_active_file_rows.session");
+      Path     : constant String := Temp_Path ("duplicate_active_file_rows.session");
       Snapshot : Editor.Workspace_Persistence.Workspace_Snapshot;
       Status   : Editor.Workspace_Persistence.Workspace_Persistence_Status;
       Saw_Malformed : Boolean := False;
@@ -1038,7 +1096,7 @@ package body Editor.Workspace_Persistence.Tests is
       Write_Text
         (Path,
          "editor-workspace-version=1" & ASCII.LF &
-         "project-root=/tmp/phase558_project" & ASCII.LF &
+         "project-root=/tmp/project" & ASCII.LF &
          "[open-files]" & ASCII.LF &
          "src/first.adb|relative=true|row=0|col=0|view=0" & ASCII.LF &
          "src/second.adb|relative=true|row=0|col=0|view=0" & ASCII.LF &
@@ -1072,14 +1130,14 @@ package body Editor.Workspace_Persistence.Tests is
               "duplicate active-file rows should produce malformed-line diagnostics");
 
       Remove_If_Exists (Path);
-   end Test_Phase558_Active_File_Section_Allows_At_Most_One_Row;
+   end Test_Active_File_Section_Allows_At_Most_One_Row;
 
 
-   procedure Test_Phase558_Invalid_Panel_Section_Does_Not_Partially_Restore
+   procedure Test_Invalid_Panel_Section_Does_Not_Partially_Restore
      (T : in out AUnit.Test_Cases.Test_Case'Class)
    is
       pragma Unreferenced (T);
-      Path     : constant String := Temp_Path ("phase558_invalid_panel_no_partial.session");
+      Path     : constant String := Temp_Path ("invalid_panel_no_partial.session");
       Snapshot : Editor.Workspace_Persistence.Workspace_Snapshot;
       Status   : Editor.Workspace_Persistence.Workspace_Persistence_Status;
       Saw_Malformed : Boolean := False;
@@ -1087,7 +1145,7 @@ package body Editor.Workspace_Persistence.Tests is
       Write_Text
         (Path,
          "editor-workspace-version=1" & ASCII.LF &
-         "project-root=/tmp/phase558_project" & ASCII.LF &
+         "project-root=/tmp/project" & ASCII.LF &
          "[open-files]" & ASCII.LF &
          "src/main.adb|relative=true|row=0|col=0|view=0" & ASCII.LF &
          "[active-file]" & ASCII.LF &
@@ -1129,15 +1187,15 @@ package body Editor.Workspace_Persistence.Tests is
               "invalid panel section should produce malformed-line diagnostics");
 
       Remove_If_Exists (Path);
-   end Test_Phase558_Invalid_Panel_Section_Does_Not_Partially_Restore;
+   end Test_Invalid_Panel_Section_Does_Not_Partially_Restore;
 
 
 
-   procedure Test_Phase558_Canonical_Section_Set_Is_Required
+   procedure Test_Canonical_Section_Set_Is_Required
      (T : in out AUnit.Test_Cases.Test_Case'Class)
    is
       pragma Unreferenced (T);
-      Path     : constant String := Temp_Path ("phase558_missing_canonical_sections.session");
+      Path     : constant String := Temp_Path ("missing_canonical_sections.session");
       Snapshot : Editor.Workspace_Persistence.Workspace_Snapshot;
       Status   : Editor.Workspace_Persistence.Workspace_Persistence_Status;
       Saw_Malformed : Boolean := False;
@@ -1145,7 +1203,7 @@ package body Editor.Workspace_Persistence.Tests is
       Write_Text
         (Path,
          "editor-workspace-version=1" & ASCII.LF &
-         "project-root=/tmp/phase558_project" & ASCII.LF &
+         "project-root=/tmp/project" & ASCII.LF &
          "[open-files]" & ASCII.LF &
          "src/main.adb|relative=true|row=0|col=0|view=0" & ASCII.LF &
          "[active-file]" & ASCII.LF &
@@ -1171,14 +1229,14 @@ package body Editor.Workspace_Persistence.Tests is
               "missing canonical sections should produce malformed-line diagnostics");
 
       Remove_If_Exists (Path);
-   end Test_Phase558_Canonical_Section_Set_Is_Required;
+   end Test_Canonical_Section_Set_Is_Required;
 
 
-   procedure Test_Phase558_Workspace_Path_Metacharacters_Are_Rejected
+   procedure Test_Workspace_Path_Metacharacters_Are_Rejected
      (T : in out AUnit.Test_Cases.Test_Case'Class)
    is
       pragma Unreferenced (T);
-      Path     : constant String := Temp_Path ("phase558_path_meta.session");
+      Path     : constant String := Temp_Path ("path_meta.session");
       Snapshot : Editor.Workspace_Persistence.Workspace_Snapshot;
       Loaded   : Editor.Workspace_Persistence.Workspace_Snapshot;
       Status   : Editor.Workspace_Persistence.Workspace_Persistence_Status;
@@ -1253,15 +1311,15 @@ package body Editor.Workspace_Persistence.Tests is
               "metacharacter paths should produce invalid-path diagnostics");
 
       Remove_If_Exists (Path);
-   end Test_Phase558_Workspace_Path_Metacharacters_Are_Rejected;
+   end Test_Workspace_Path_Metacharacters_Are_Rejected;
 
 
 
-   procedure Test_Phase558_Padded_Canonical_Lines_Are_Rejected
+   procedure Test_Padded_Canonical_Lines_Are_Rejected
      (T : in out AUnit.Test_Cases.Test_Case'Class)
    is
       pragma Unreferenced (T);
-      Path     : constant String := Temp_Path ("phase558_padded_lines.session");
+      Path     : constant String := Temp_Path ("padded_lines.session");
       Loaded   : Editor.Workspace_Persistence.Workspace_Snapshot;
       Status   : Editor.Workspace_Persistence.Workspace_Persistence_Status;
       Saw_Malformed : Boolean := False;
@@ -1300,18 +1358,18 @@ package body Editor.Workspace_Persistence.Tests is
               "padded rows should produce malformed-line diagnostics");
 
       Remove_If_Exists (Path);
-   end Test_Phase558_Padded_Canonical_Lines_Are_Rejected;
+   end Test_Padded_Canonical_Lines_Are_Rejected;
 
 
 
 
 
 
-   procedure Test_Phase558_Internal_Whitespace_Is_Rejected
+   procedure Test_Internal_Whitespace_Is_Rejected
      (T : in out AUnit.Test_Cases.Test_Case'Class)
    is
       pragma Unreferenced (T);
-      Path     : constant String := Temp_Path ("phase558_internal_whitespace.session");
+      Path     : constant String := Temp_Path ("internal_whitespace.session");
       Loaded   : Editor.Workspace_Persistence.Workspace_Snapshot;
       Status   : Editor.Workspace_Persistence.Workspace_Persistence_Status;
       Saw_Malformed : Boolean := False;
@@ -1358,14 +1416,14 @@ package body Editor.Workspace_Persistence.Tests is
               "internally padded rows should produce malformed-line diagnostics");
 
       Remove_If_Exists (Path);
-   end Test_Phase558_Internal_Whitespace_Is_Rejected;
+   end Test_Internal_Whitespace_Is_Rejected;
 
 
-   procedure Test_Phase558_Blank_Lines_Are_Rejected
+   procedure Test_Blank_Lines_Are_Rejected
      (T : in out AUnit.Test_Cases.Test_Case'Class)
    is
       pragma Unreferenced (T);
-      Path     : constant String := Temp_Path ("phase558_blank_lines.session");
+      Path     : constant String := Temp_Path ("blank_lines.session");
       Loaded   : Editor.Workspace_Persistence.Workspace_Snapshot;
       Status   : Editor.Workspace_Persistence.Workspace_Persistence_Status;
       Saw_Malformed : Boolean := False;
@@ -1407,14 +1465,14 @@ package body Editor.Workspace_Persistence.Tests is
               "blank rows should produce malformed-line diagnostics");
 
       Remove_If_Exists (Path);
-   end Test_Phase558_Blank_Lines_Are_Rejected;
+   end Test_Blank_Lines_Are_Rejected;
 
 
-   procedure Test_Phase558_Header_Must_Be_First_Physical_Line
+   procedure Test_Header_Must_Be_First_Physical_Line
      (T : in out AUnit.Test_Cases.Test_Case'Class)
    is
       pragma Unreferenced (T);
-      Path     : constant String := Temp_Path ("phase558_header_first.session");
+      Path     : constant String := Temp_Path ("header_first.session");
       Loaded   : Editor.Workspace_Persistence.Workspace_Snapshot;
       Status   : Editor.Workspace_Persistence.Workspace_Persistence_Status;
    begin
@@ -1460,14 +1518,14 @@ package body Editor.Workspace_Persistence.Tests is
               "pre-header section must not retain later structural state");
 
       Remove_If_Exists (Path);
-   end Test_Phase558_Header_Must_Be_First_Physical_Line;
+   end Test_Header_Must_Be_First_Physical_Line;
 
 
-   procedure Test_Phase558_Duplicate_Project_Root_Rows_Are_Rejected
+   procedure Test_Duplicate_Project_Root_Rows_Are_Rejected
      (T : in out AUnit.Test_Cases.Test_Case'Class)
    is
       pragma Unreferenced (T);
-      Path     : constant String := Temp_Path ("phase558_duplicate_project_root.session");
+      Path     : constant String := Temp_Path ("duplicate_project_root.session");
       Loaded   : Editor.Workspace_Persistence.Workspace_Snapshot;
       Status   : Editor.Workspace_Persistence.Workspace_Persistence_Status;
       Saw_Malformed : Boolean := False;
@@ -1509,13 +1567,13 @@ package body Editor.Workspace_Persistence.Tests is
               "duplicate project-root rows should produce malformed-line diagnostics");
 
       Remove_If_Exists (Path);
-   end Test_Phase558_Duplicate_Project_Root_Rows_Are_Rejected;
+   end Test_Duplicate_Project_Root_Rows_Are_Rejected;
 
-   procedure Test_Phase558_Unsupported_Root_Row_Blocks_Project_Root_Repair
+   procedure Test_Unsupported_Root_Row_Blocks_Project_Root_Repair
      (T : in out AUnit.Test_Cases.Test_Case'Class)
    is
       pragma Unreferenced (T);
-      Path     : constant String := Temp_Path ("phase558_root_row_repair.session");
+      Path     : constant String := Temp_Path ("root_row_repair.session");
       Loaded   : Editor.Workspace_Persistence.Workspace_Snapshot;
       Status   : Editor.Workspace_Persistence.Workspace_Persistence_Status;
       Saw_Malformed : Boolean := False;
@@ -1564,14 +1622,14 @@ package body Editor.Workspace_Persistence.Tests is
               "the later project-root row should be reported as malformed duplicate root state");
 
       Remove_If_Exists (Path);
-   end Test_Phase558_Unsupported_Root_Row_Blocks_Project_Root_Repair;
+   end Test_Unsupported_Root_Row_Blocks_Project_Root_Repair;
 
 
-   procedure Test_Phase558_Relative_False_File_Rows_Are_Rejected
+   procedure Test_Relative_False_File_Rows_Are_Rejected
      (T : in out AUnit.Test_Cases.Test_Case'Class)
    is
       pragma Unreferenced (T);
-      Path     : constant String := Temp_Path ("phase558_relative_false.session");
+      Path     : constant String := Temp_Path ("relative_false.session");
       Loaded   : Editor.Workspace_Persistence.Workspace_Snapshot;
       Status   : Editor.Workspace_Persistence.Workspace_Persistence_Status;
       Saw_Malformed : Boolean := False;
@@ -1612,14 +1670,14 @@ package body Editor.Workspace_Persistence.Tests is
               "relative=false should be reported as malformed strict-schema file metadata");
 
       Remove_If_Exists (Path);
-   end Test_Phase558_Relative_False_File_Rows_Are_Rejected;
+   end Test_Relative_False_File_Rows_Are_Rejected;
 
 
-   procedure Test_Phase558_Programmatic_Padded_Structural_Paths_Are_Rejected
+   procedure Test_Programmatic_Padded_Structural_Paths_Are_Rejected
      (T : in out AUnit.Test_Cases.Test_Case'Class)
    is
       pragma Unreferenced (T);
-      Path     : constant String := Temp_Path ("phase558_programmatic_padded_paths.session");
+      Path     : constant String := Temp_Path ("programmatic_padded_paths.session");
       Snapshot : Editor.Workspace_Persistence.Workspace_Snapshot;
       Loaded   : Editor.Workspace_Persistence.Workspace_Snapshot;
       Status   : Editor.Workspace_Persistence.Workspace_Persistence_Status;
@@ -1674,14 +1732,14 @@ package body Editor.Workspace_Persistence.Tests is
               "only the valid expanded path should survive save/load");
 
       Remove_If_Exists (Path);
-   end Test_Phase558_Programmatic_Padded_Structural_Paths_Are_Rejected;
+   end Test_Programmatic_Padded_Structural_Paths_Are_Rejected;
 
 
-   procedure Test_Phase558_Leading_Zero_Numbers_Are_Rejected
+   procedure Test_Leading_Zero_Numbers_Are_Rejected
      (T : in out AUnit.Test_Cases.Test_Case'Class)
    is
       pragma Unreferenced (T);
-      Path     : constant String := Temp_Path ("phase558_leading_zero_numbers.session");
+      Path     : constant String := Temp_Path ("leading_zero_numbers.session");
       Loaded   : Editor.Workspace_Persistence.Workspace_Snapshot;
       Status   : Editor.Workspace_Persistence.Workspace_Persistence_Status;
       Saw_Invalid_Number : Boolean := False;
@@ -1743,14 +1801,14 @@ package body Editor.Workspace_Persistence.Tests is
               "leading-zero workspace version must not be accepted as canonical version 1");
 
       Remove_If_Exists (Path);
-   end Test_Phase558_Leading_Zero_Numbers_Are_Rejected;
+   end Test_Leading_Zero_Numbers_Are_Rejected;
 
 
-   procedure Test_Phase558_File_Tree_Expanded_Paths_Require_Canonical_Order
+   procedure Test_File_Tree_Expanded_Paths_Require_Canonical_Order
      (T : in out AUnit.Test_Cases.Test_Case'Class)
    is
       pragma Unreferenced (T);
-      Path     : constant String := Temp_Path ("phase558_expanded_order.session");
+      Path     : constant String := Temp_Path ("expanded_order.session");
       Loaded   : Editor.Workspace_Persistence.Workspace_Snapshot;
       Status   : Editor.Workspace_Persistence.Workspace_Persistence_Status;
       Saw_Malformed : Boolean := False;
@@ -1792,14 +1850,14 @@ package body Editor.Workspace_Persistence.Tests is
               "descending expanded path rows should be reported as malformed strict-schema input");
 
       Remove_If_Exists (Path);
-   end Test_Phase558_File_Tree_Expanded_Paths_Require_Canonical_Order;
+   end Test_File_Tree_Expanded_Paths_Require_Canonical_Order;
 
 
-   procedure Test_Phase558_Backslash_Paths_Are_Rejected
+   procedure Test_Backslash_Paths_Are_Rejected
      (T : in out AUnit.Test_Cases.Test_Case'Class)
    is
       pragma Unreferenced (T);
-      Path     : constant String := Temp_Path ("phase558_backslash_paths.session");
+      Path     : constant String := Temp_Path ("backslash_paths.session");
       Snapshot : Editor.Workspace_Persistence.Workspace_Snapshot;
       Loaded   : Editor.Workspace_Persistence.Workspace_Snapshot;
       Status   : Editor.Workspace_Persistence.Workspace_Persistence_Status;
@@ -1876,14 +1934,14 @@ package body Editor.Workspace_Persistence.Tests is
               "valid slash-separated open path should still be saved");
 
       Remove_If_Exists (Path);
-   end Test_Phase558_Backslash_Paths_Are_Rejected;
+   end Test_Backslash_Paths_Are_Rejected;
 
 
-   procedure Test_Phase558_Redundant_Slash_Paths_Are_Rejected
+   procedure Test_Redundant_Slash_Paths_Are_Rejected
      (T : in out AUnit.Test_Cases.Test_Case'Class)
    is
       pragma Unreferenced (T);
-      Path     : constant String := Temp_Path ("phase558_redundant_slash_paths.session");
+      Path     : constant String := Temp_Path ("redundant_slash_paths.session");
       Snapshot : Editor.Workspace_Persistence.Workspace_Snapshot;
       Loaded   : Editor.Workspace_Persistence.Workspace_Snapshot;
       Status   : Editor.Workspace_Persistence.Workspace_Persistence_Status;
@@ -1962,11 +2020,11 @@ package body Editor.Workspace_Persistence.Tests is
               "trailing-slash expanded path must not be normalized or saved");
 
       Remove_If_Exists (Path);
-   end Test_Phase558_Redundant_Slash_Paths_Are_Rejected;
+   end Test_Redundant_Slash_Paths_Are_Rejected;
 
 
 
-   procedure Test_Phase91_Lifecycle_Config_Defaults
+   procedure Test_Lifecycle_Config_Defaults
      (T : in out AUnit.Test_Cases.Test_Case'Class)
    is
       pragma Unreferenced (T);
@@ -1974,18 +2032,18 @@ package body Editor.Workspace_Persistence.Tests is
         Editor.Workspace_Persistence.Default_Workspace_Lifecycle_Config;
    begin
       Assert (not Config.Auto_Restore_On_Project_Open,
-              "Phase 91 default policy must keep project-open restore explicit");
+              "default policy must keep project-open restore explicit");
       Assert (Config.Report_Available_Session_On_Project_Open,
-              "Phase 91 default policy should report available workspace state");
+              "default policy should report available workspace state");
       Assert (not Config.Save_On_Project_Close,
-              "Phase 91 default policy must not save workspace state on close");
-   end Test_Phase91_Lifecycle_Config_Defaults;
+              "default policy must not save workspace state on close");
+   end Test_Lifecycle_Config_Defaults;
 
-   procedure Test_Phase91_Session_File_Status
+   procedure Test_Session_File_Status
      (T : in out AUnit.Test_Cases.Test_Case'Class)
    is
       pragma Unreferenced (T);
-      Root     : constant String := Temp_Path ("phase91_status_root");
+      Root     : constant String := Temp_Path ("status_root");
       Session  : constant String :=
         Editor.Workspace_Persistence.Session_File_Path (Root);
       Snapshot : Editor.Workspace_Persistence.Workspace_Snapshot;
@@ -2014,10 +2072,10 @@ package body Editor.Workspace_Persistence.Tests is
          "saved project session should be cheaply available");
 
       Remove_Tree_If_Exists (Root);
-   end Test_Phase91_Session_File_Status;
+   end Test_Session_File_Status;
 
 
-   procedure Test_Phase577_Workspace_Serializer_Audit_Is_Safe
+   procedure Test_Workspace_Serializer_Audit_Is_Safe
      (T : in out AUnit.Test_Cases.Test_Case'Class)
    is
       pragma Unreferenced (T);
@@ -2062,10 +2120,10 @@ package body Editor.Workspace_Persistence.Tests is
               "serialized workspace must not contain undo/redo/clipboard state");
       Assert (Ada.Strings.Fixed.Index (To_String (Text), "[open-files]") > 0,
               "serialized workspace audit should inspect actual workspace text");
-   end Test_Phase577_Workspace_Serializer_Audit_Is_Safe;
+   end Test_Workspace_Serializer_Audit_Is_Safe;
 
 
-   procedure Test_Phase577_Workspace_Serializer_Audit_Detects_Leaks
+   procedure Test_Workspace_Serializer_Audit_Detects_Leaks
      (T : in out AUnit.Test_Cases.Test_Case'Class)
    is
       pragma Unreferenced (T);
@@ -2104,11 +2162,11 @@ package body Editor.Workspace_Persistence.Tests is
               "serializer audit should detect close prompt state");
       Assert (Audit.Undo_Redo_Clipboard_Persisted,
               "serializer audit should detect undo/redo/clipboard state");
-   end Test_Phase577_Workspace_Serializer_Audit_Detects_Leaks;
+   end Test_Workspace_Serializer_Audit_Detects_Leaks;
 
 
 
-   procedure Test_Phase577_Workspace_Serializer_Audit_Is_Structural
+   procedure Test_Workspace_Serializer_Audit_Is_Structural
      (T : in out AUnit.Test_Cases.Test_Case'Class)
    is
       pragma Unreferenced (T);
@@ -2162,14 +2220,14 @@ package body Editor.Workspace_Persistence.Tests is
               "structural audit should detect Buffer List selected-row state");
       Assert (Unsafe_Audit.Undo_Redo_Clipboard_Persisted,
               "structural audit should detect clipboard state field");
-   end Test_Phase577_Workspace_Serializer_Audit_Is_Structural;
+   end Test_Workspace_Serializer_Audit_Is_Structural;
 
 
-   procedure Test_Phase577_Serialized_Text_Matches_File_Save
+   procedure Test_Serialized_Text_Matches_File_Save
      (T : in out AUnit.Test_Cases.Test_Case'Class)
    is
       pragma Unreferenced (T);
-      Path     : constant String := Temp_Path ("phase577_serializer_audit.txt");
+      Path     : constant String := Temp_Path ("serializer_audit.txt");
       Snapshot : Editor.Workspace_Persistence.Workspace_Snapshot;
       Status   : Editor.Workspace_Persistence.Workspace_Persistence_Status;
    begin
@@ -2194,7 +2252,64 @@ package body Editor.Workspace_Persistence.Tests is
                 Editor.Workspace_Persistence.Serialized_Text (Snapshot),
               "serializer audit must inspect the same canonical text emitted by save");
       Remove_If_Exists (Path);
-   end Test_Phase577_Serialized_Text_Matches_File_Save;
+   end Test_Serialized_Text_Matches_File_Save;
+
+   procedure Test_Restore_Audit_And_Details_Label
+     (T : in out AUnit.Test_Cases.Test_Case'Class)
+   is
+      pragma Unreferenced (T);
+      Before : Editor.Workspace_Persistence.Workspace_Snapshot;
+      After  : Editor.Workspace_Persistence.Workspace_Snapshot;
+      Summary : constant Editor.Workspace_Persistence.Workspace_Restore_Summary :=
+        (Files_Requested      => 1,
+         Files_Restored       => 1,
+         Files_Skipped        => 0,
+         Expansions_Requested => 1,
+         Expansions_Restored  => 1,
+         Expansions_Skipped   => 0,
+         Panel_Values_Clamped => 0);
+      Audit : Editor.Workspace_Persistence.Workspace_Restore_Audit;
+   begin
+      Editor.Workspace_Persistence.Set_Project_Root (Before, "/tmp/project");
+      Editor.Workspace_Persistence.Add_Open_File
+        (Before,
+         (Path                => To_Unbounded_String ("src/main.adb"),
+          Is_Project_Relative => True,
+          Cursor_Row          => 4,
+          Cursor_Column       => 2,
+          View_First_Row      => 1));
+      Editor.Workspace_Persistence.Set_Active_File_Path
+        (Before, "src/main.adb", True);
+      Editor.Workspace_Persistence.Add_Expanded_File_Tree_Path (Before, "src");
+      Editor.Workspace_Persistence.Set_Recent_Project_Path
+        (Before, "/tmp/project");
+      Editor.Workspace_Persistence.Set_Quick_Open_Path_Scope (Before, "src");
+      Editor.Workspace_Persistence.Set_Quick_Open_File_Kind_Filter
+        (Before,
+         Editor.Workspace_Persistence.Workspace_Quick_Open_Ada_Files);
+      Editor.Workspace_Persistence.Set_Feature_Panel
+        (Before, True,
+         Editor.Workspace_Persistence.Workspace_Diagnostics_Feature);
+
+      After := Before;
+      Audit := Editor.Workspace_Persistence.Audit_Restore_Roundtrip
+        (Before, After, Summary);
+
+      Assert (Audit.Snapshots_Equivalent,
+              "restore audit should compare normalized structural snapshots");
+      Assert (Audit.Runtime_State_Excluded,
+              "restore audit should reuse the runtime-leak persistence audit");
+      Assert (Audit.Restore_Counts_Coherent,
+              "restore audit should validate restored/skipped counts");
+      Assert (Audit.Continuity_State_Restored,
+              "restore audit should include Quick Open and feature-panel continuity");
+      Assert (Audit.Safe,
+              "restore audit should summarize all restore safety checks");
+      Assert
+        (Editor.Workspace_Persistence.Restore_Details_Label (Summary) =
+         "restore details: files 1/1, skipped files 0, expanded paths 1/1, skipped expanded paths 0, clamped panels 0",
+         "restore details should expose restored and skipped counts");
+   end Test_Restore_Audit_And_Details_Label;
 
 
    procedure Register_Tests
@@ -2204,133 +2319,136 @@ package body Editor.Workspace_Persistence.Tests is
    begin
       Register_Routine
         (T, Test_Snapshot_Defaults_And_Clear'Access,
-         "Phase 89 workspace snapshot defaults and clear semantics");
+         "workspace snapshot defaults and clear semantics");
       Register_Routine
         (T, Test_Save_Load_Roundtrip'Access,
-         "Phase 89 workspace persistence save/load roundtrip");
+         "workspace persistence save/load roundtrip");
       Register_Routine
         (T, Test_Load_Error_Statuses'Access,
-         "Phase 89 workspace persistence load error statuses");
+         "workspace persistence load error statuses");
       Register_Routine
         (T, Test_Malformed_Optional_Entry_Is_Partial'Access,
-         "Phase 89 malformed optional entries produce partial restore status");
+         "malformed optional entries produce partial restore status");
       Register_Routine
         (T, Test_Path_Safety_And_Normalization'Access,
-         "Phase 90 workspace path safety and normalization");
+         "workspace path safety and normalization");
       Register_Routine
         (T, Test_Normalize_Equivalent_And_Deterministic_Save'Access,
-         "Phase 90 normalized equivalence and deterministic serialization");
+         "normalized equivalence and deterministic serialization");
       Register_Routine
         (T, Test_Atomic_Save_Overwrites_And_Cleans_Temp'Access,
-         "Phase 90 atomic save overwrite and temp cleanup");
+         "atomic save overwrite and temp cleanup");
       Register_Routine
         (T, Test_Corrupt_And_Unsafe_Input_Diagnostics'Access,
-         "Phase 90 corrupt and unsafe input diagnostics");
+         "corrupt and unsafe input diagnostics");
       Register_Routine
         (T, Test_Save_To_File_Uses_Safe_Session_Path'Access,
-         "Phase 90 session path policy and atomic save");
+         "session path policy and atomic save");
       Register_Routine
         (T, Test_Duplicate_And_Sorted_Path_Load_Save'Access,
-         "Phase 90 duplicate path diagnostics and sorted expansions");
+         "duplicate path diagnostics and sorted expansions");
       Register_Routine
         (T, Test_Empty_File_Invalid_With_Diagnostic'Access,
-         "Phase 90 empty workspace file diagnostic");
+         "empty workspace file diagnostic");
       Register_Routine
-        (T, Test_Phase544_Status_State_Is_Not_Persisted'Access,
-         "Phase 544 status state is not persisted");
+        (T, Test_Status_State_Is_Not_Persisted'Access,
+         "status state is not persisted");
       Register_Routine
-        (T, Test_Phase558_Active_File_Must_Belong_To_Open_Files'Access,
-         "Phase 558 active file must belong to open files");
+        (T, Test_Active_File_Must_Belong_To_Open_Files'Access,
+         "active file must belong to open files");
       Register_Routine
-        (T, Test_Phase558_Invalid_Project_Root_Is_Diagnostic_Only'Access,
-         "Phase 558 invalid project root is diagnostic-only");
+        (T, Test_Invalid_Project_Root_Is_Diagnostic_Only'Access,
+         "invalid project root is diagnostic-only");
       Register_Routine
-        (T, Test_Phase558_Zero_Panel_Dimensions_Are_Diagnostic_Only'Access,
-         "Phase 558 zero panel dimensions are diagnostic-only");
+        (T, Test_Zero_Panel_Dimensions_Are_Diagnostic_Only'Access,
+         "zero panel dimensions are diagnostic-only");
       Register_Routine
-        (T, Test_Phase558_Path_Only_File_Rows_Are_Rejected'Access,
-         "Phase 558 rejects path-only file rows under strict schema");
+        (T, Test_Path_Only_File_Rows_Are_Rejected'Access,
+         "rejects path-only file rows under strict schema");
       Register_Routine
-        (T, Test_Phase558_File_Rows_Require_Full_Canonical_Metadata'Access,
-         "Phase 558 requires full canonical file row metadata");
+        (T, Test_File_Rows_Require_Full_Canonical_Metadata'Access,
+         "requires full canonical file row metadata");
       Register_Routine
-        (T, Test_Phase558_Duplicate_Canonical_Metadata_Is_Rejected'Access,
-         "Phase 558 rejects duplicate or out-of-order canonical metadata");
+        (T, Test_Duplicate_Canonical_Metadata_Is_Rejected'Access,
+         "rejects duplicate or out-of-order canonical metadata");
       Register_Routine
-        (T, Test_Phase558_Trailing_And_Empty_Metadata_Fields_Are_Rejected'Access,
-         "Phase 558 rejects empty metadata fields in canonical rows");
+        (T, Test_Trailing_And_Empty_Metadata_Fields_Are_Rejected'Access,
+         "rejects empty metadata fields in canonical rows");
       Register_Routine
-        (T, Test_Phase558_Panel_Section_Requires_Canonical_Order'Access,
-         "Phase 558 requires canonical panel row order");
+        (T, Test_Panel_Section_Requires_Canonical_Order'Access,
+         "requires canonical panel row order");
       Register_Routine
-        (T, Test_Phase558_Sections_Require_Canonical_Order'Access,
-         "Phase 558 requires canonical section order");
+        (T, Test_Sections_Require_Canonical_Order'Access,
+         "requires canonical section order");
       Register_Routine
-        (T, Test_Phase558_Active_File_Section_Allows_At_Most_One_Row'Access,
-         "Phase 558 active-file section allows at most one row");
+        (T, Test_Active_File_Section_Allows_At_Most_One_Row'Access,
+         "active-file section allows at most one row");
       Register_Routine
-        (T, Test_Phase558_Invalid_Panel_Section_Does_Not_Partially_Restore'Access,
-         "Phase 558 invalid panel section does not partially restore layout");
+        (T, Test_Invalid_Panel_Section_Does_Not_Partially_Restore'Access,
+         "invalid panel section does not partially restore layout");
       Register_Routine
-        (T, Test_Phase558_Canonical_Section_Set_Is_Required'Access,
-         "Phase 558 requires complete canonical section set");
+        (T, Test_Canonical_Section_Set_Is_Required'Access,
+         "requires complete canonical section set");
       Register_Routine
-        (T, Test_Phase558_Workspace_Path_Metacharacters_Are_Rejected'Access,
-         "Phase 558 rejects paths that cannot round-trip through strict schema");
+        (T, Test_Workspace_Path_Metacharacters_Are_Rejected'Access,
+         "rejects paths that cannot round-trip through strict schema");
       Register_Routine
-        (T, Test_Phase558_Padded_Canonical_Lines_Are_Rejected'Access,
-         "Phase 558 rejects padded canonical rows under strict schema");
+        (T, Test_Padded_Canonical_Lines_Are_Rejected'Access,
+         "rejects padded canonical rows under strict schema");
       Register_Routine
-        (T, Test_Phase558_Internal_Whitespace_Is_Rejected'Access,
-         "Phase 558 rejects internally padded canonical fields");
+        (T, Test_Internal_Whitespace_Is_Rejected'Access,
+         "rejects internally padded canonical fields");
       Register_Routine
-        (T, Test_Phase558_Blank_Lines_Are_Rejected'Access,
-         "Phase 558 rejects blank lines under strict schema");
+        (T, Test_Blank_Lines_Are_Rejected'Access,
+         "rejects blank lines under strict schema");
       Register_Routine
-        (T, Test_Phase558_Header_Must_Be_First_Physical_Line'Access,
-         "Phase 558 requires version header as first physical line");
+        (T, Test_Header_Must_Be_First_Physical_Line'Access,
+         "requires version header as first physical line");
       Register_Routine
-        (T, Test_Phase558_Duplicate_Project_Root_Rows_Are_Rejected'Access,
-         "Phase 558 rejects duplicate project-root rows under strict schema");
+        (T, Test_Duplicate_Project_Root_Rows_Are_Rejected'Access,
+         "rejects duplicate project-root rows under strict schema");
       Register_Routine
-        (T, Test_Phase558_Unsupported_Root_Row_Blocks_Project_Root_Repair'Access,
-         "Phase 558 rejects root-row repair after unsupported root state");
+        (T, Test_Unsupported_Root_Row_Blocks_Project_Root_Repair'Access,
+         "rejects root-row repair after unsupported root state");
       Register_Routine
-        (T, Test_Phase558_Relative_False_File_Rows_Are_Rejected'Access,
-         "Phase 558 rejects relative=false file rows under strict schema");
+        (T, Test_Relative_False_File_Rows_Are_Rejected'Access,
+         "rejects relative=false file rows under strict schema");
       Register_Routine
-        (T, Test_Phase558_Programmatic_Padded_Structural_Paths_Are_Rejected'Access,
-         "Phase 558 rejects padded programmatic structural paths");
+        (T, Test_Programmatic_Padded_Structural_Paths_Are_Rejected'Access,
+         "rejects padded programmatic structural paths");
       Register_Routine
-        (T, Test_Phase558_Leading_Zero_Numbers_Are_Rejected'Access,
-         "Phase 558 rejects leading-zero numeric fields");
+        (T, Test_Leading_Zero_Numbers_Are_Rejected'Access,
+         "rejects leading-zero numeric fields");
       Register_Routine
-        (T, Test_Phase558_File_Tree_Expanded_Paths_Require_Canonical_Order'Access,
-         "Phase 558 requires canonical ordering for file-tree expanded paths");
+        (T, Test_File_Tree_Expanded_Paths_Require_Canonical_Order'Access,
+         "requires canonical ordering for file-tree expanded paths");
       Register_Routine
-        (T, Test_Phase558_Backslash_Paths_Are_Rejected'Access,
-         "Phase 558 rejects backslash paths under strict schema");
+        (T, Test_Backslash_Paths_Are_Rejected'Access,
+         "rejects backslash paths under strict schema");
       Register_Routine
-        (T, Test_Phase558_Redundant_Slash_Paths_Are_Rejected'Access,
-         "Phase 558 rejects redundant slash paths under strict schema");
+        (T, Test_Redundant_Slash_Paths_Are_Rejected'Access,
+         "rejects redundant slash paths under strict schema");
       Register_Routine
-        (T, Test_Phase91_Lifecycle_Config_Defaults'Access,
-         "Phase 91 workspace lifecycle config defaults");
+        (T, Test_Lifecycle_Config_Defaults'Access,
+         "workspace lifecycle config defaults");
       Register_Routine
-        (T, Test_Phase91_Session_File_Status'Access,
-         "Phase 91 cheap session file status detection");
+        (T, Test_Session_File_Status'Access,
+         "cheap session file status detection");
       Register_Routine
-        (T, Test_Phase577_Workspace_Serializer_Audit_Is_Safe'Access,
-         "Phase 577 workspace serializer audit accepts canonical structural persistence");
+        (T, Test_Workspace_Serializer_Audit_Is_Safe'Access,
+         "workspace serializer audit accepts canonical structural persistence");
       Register_Routine
-        (T, Test_Phase577_Workspace_Serializer_Audit_Detects_Leaks'Access,
-         "Phase 577 workspace serializer audit detects forbidden buffer persistence fields");
+        (T, Test_Workspace_Serializer_Audit_Detects_Leaks'Access,
+         "workspace serializer audit detects forbidden buffer persistence fields");
       Register_Routine
-        (T, Test_Phase577_Workspace_Serializer_Audit_Is_Structural'Access,
-         "Phase 577 workspace serializer audit is structural and field-name based");
+        (T, Test_Workspace_Serializer_Audit_Is_Structural'Access,
+         "workspace serializer audit is structural and field-name based");
       Register_Routine
-        (T, Test_Phase577_Serialized_Text_Matches_File_Save'Access,
-         "Phase 577 serialized text matches actual workspace save output");
+        (T, Test_Serialized_Text_Matches_File_Save'Access,
+         "serialized text matches actual workspace save output");
+      Register_Routine
+        (T, Test_Restore_Audit_And_Details_Label'Access,
+         "restore audit and details label");
    end Register_Tests;
 
 end Editor.Workspace_Persistence.Tests;

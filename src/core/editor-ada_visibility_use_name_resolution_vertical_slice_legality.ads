@@ -4,7 +4,7 @@ with Editor.Ada_Syntax_Tree;
 
 package Editor.Ada_Visibility_Use_Name_Resolution_Vertical_Slice_Legality is
 
-   --  Pass1317 vertical-slice visibility/use-clause/name-resolution legality.
+   --  Case 1317 vertical-slice visibility/use-clause/name-resolution legality.
    --  This package models concrete Ada direct visibility, selected/expanded-name
    --  visibility, use/use type visibility, hiding, homographs, child/private-child
    --  visibility, limited/private-view barriers, and operator visibility.  It is

@@ -210,28 +210,28 @@ package body Editor.Navigation.Tests is
    begin
       AUnit.Test_Cases.Registration.Register_Routine
         (T, Test_Clamp_Position'Access,
-         "Phase 65 clamp position");
+         "clamp position");
       AUnit.Test_Cases.Registration.Register_Routine
         (T, Test_Character_Movement_Crosses_Lines'Access,
-         "Phase 65 character movement crosses lines");
+         "character movement crosses lines");
       AUnit.Test_Cases.Registration.Register_Routine
         (T, Test_Character_Movement_Within_Line_And_Boundaries'Access,
-         "Phase 65 character movement within line and boundaries");
+         "character movement within line and boundaries");
       AUnit.Test_Cases.Registration.Register_Routine
         (T, Test_Line_Boundaries'Access,
-         "Phase 65 line boundary movement");
+         "line boundary movement");
       AUnit.Test_Cases.Registration.Register_Routine
         (T, Test_Document_Boundaries'Access,
-         "Phase 65 document boundary movement");
+         "document boundary movement");
       AUnit.Test_Cases.Registration.Register_Routine
         (T, Test_Word_Movement'Access,
-         "Phase 65 word movement");
+         "word movement");
       AUnit.Test_Cases.Registration.Register_Routine
         (T, Test_Word_Movement_Whitespace_End_And_Line_Crossing'Access,
-         "Phase 65 word movement whitespace end and line crossing");
+         "word movement whitespace end and line crossing");
       AUnit.Test_Cases.Registration.Register_Routine
         (T, Test_Line_And_Page_Preserve_Virtual_Column'Access,
-         "Phase 65 line and page virtual column policy");
+         "line and page virtual column policy");
    end Register_Tests;
 
 end Editor.Navigation.Tests;

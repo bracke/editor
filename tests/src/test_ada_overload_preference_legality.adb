@@ -300,13 +300,13 @@ package body Test_Ada_Overload_Preference_Legality is
    begin
       Register_Routine
         (T, Applies_Ada_Preference_Order'Access,
-         "Pass1126 applies Ada overload preference ordering to legal overload rows");
+         "Case 1126 applies Ada overload preference ordering to legal overload rows");
       Register_Routine
         (T, Empty_Inputs_Are_Deterministic'Access,
-         "Pass1126 keeps empty overload preference models deterministic");
+         "Case 1126 keeps empty overload preference models deterministic");
       Register_Routine
         (T, Builds_Contexts_From_Overload_Legality'Access,
-         "Pass1126 derives preference contexts from overload legality");
+         "Case 1126 derives preference contexts from overload legality");
    end Register_Tests;
 
 end Test_Ada_Overload_Preference_Legality;

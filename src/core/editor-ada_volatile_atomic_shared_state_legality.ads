@@ -8,7 +8,7 @@ with Editor.Ada_Tasking_Protected_Deep_Edge_Legality;
 
 package Editor.Ada_Volatile_Atomic_Shared_State_Legality is
 
-   --  Pass1212 volatile/atomic/shared-variable legality.
+   --  Case 1212 volatile/atomic/shared-variable legality.
    --
    --  This package deepens Ada shared-state legality after abstract/refined
    --  state modelling.  It connects volatile and atomic object effects,

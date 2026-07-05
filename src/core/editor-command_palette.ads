@@ -44,6 +44,7 @@ package Editor.Command_Palette is
       Command_Palette_Command_Row,
       Command_Palette_Detail_Row,
       Command_Palette_Help_Row,
+      Command_Palette_State_Context_Row,
       Command_Palette_Empty_Row);
 
    type Related_Command_Help_Item is record
@@ -89,6 +90,8 @@ package Editor.Command_Palette is
       Unavailable_Reason    : Ada.Strings.Unbounded.Unbounded_String :=
         Ada.Strings.Unbounded.Null_Unbounded_String;
       Surface_Relevance_Label : Ada.Strings.Unbounded.Unbounded_String :=
+        Ada.Strings.Unbounded.Null_Unbounded_String;
+      State_Context_Label : Ada.Strings.Unbounded.Unbounded_String :=
         Ada.Strings.Unbounded.Null_Unbounded_String;
       Guard_Label           : Ada.Strings.Unbounded.Unbounded_String :=
         Ada.Strings.Unbounded.Null_Unbounded_String;
@@ -151,7 +154,7 @@ package Editor.Command_Palette is
    procedure Clear_Transient_Filters;
    --  Return True when query, selection, help/details visibility, and all
    --  transient filters are at their closed-palette baseline. This is a
-   --  side-effect-free persistence/audit helper for Phase 564; it does not
+   --  side-effect-free persistence/audit helper for ; it does not
    --  inspect or mutate settings/keybindings/workspace state.
    function Transient_State_Clear return Boolean;
    procedure Set_Availability_Filter
@@ -278,13 +281,19 @@ package Editor.Command_Palette is
      (Candidate : Editor.Commands.Command_Palette_Candidate)
       return Command_Help_Snapshot;
 
+   procedure Clear_Command_State_Contexts;
+
+   procedure Set_Command_State_Context
+     (Command : Editor.Commands.Command_Id;
+      Text    : String);
+
    function Related_Command_Is_Activation_Safe
      (Item : Related_Command_Help_Item) return Boolean;
 
    function Related_Command_Is_Canonical_Descriptor_Projection
      (Item : Related_Command_Help_Item) return Boolean;
 
-   function Assert_Related_Command_Help_Is_Phase570_Coherent
+   function Assert_Related_Command_Help_Is_Coherent
      (Help : Command_Help_Snapshot) return Boolean;
 
    function Descriptor_Registry_Order

@@ -345,7 +345,7 @@ package body Editor.Ada_Generic_Replay_Representation_Flow_Consumer_Legality is
                Instance_Name => C.Instance_Name,
                Target_Name => C.Target_Name,
                Message => Message_For (Status),
-               Detail => To_Unbounded_String ("Pass1160 generic replay representation-flow consumer"),
+               Detail => To_Unbounded_String ("Case 1160 generic replay representation-flow consumer"),
                Replay_Row => C.Replay_Row,
                Replay_Status => C.Replay_Status,
                Representation_Flow_Row => C.Representation_Flow_Row,

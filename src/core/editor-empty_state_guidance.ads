@@ -320,7 +320,7 @@ package Editor.Empty_State_Guidance is
      (Snapshot : Empty_State_Snapshot;
       Index    : Positive) return Boolean;
 
-   function Assert_Empty_State_Suggestion_Tail_Is_Phase570_Clean
+   function Assert_Empty_State_Suggestion_Tail_Is_Clean
      (Snapshot : Empty_State_Snapshot) return Boolean;
 
    function Assert_Unavailable_Suggested_Action_Does_Not_Execute

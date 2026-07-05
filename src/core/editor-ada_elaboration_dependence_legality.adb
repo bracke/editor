@@ -414,7 +414,7 @@ package body Editor.Ada_Elaboration_Dependence_Legality is
             Row.Target_Unit_Node := C.Target_Unit_Node;
             Row.Status := Status;
             Row.Message := To_Unbounded_String (Message_For (Status));
-            Row.Detail := To_Unbounded_String ("Pass1113 elaboration/dependence legality classification");
+            Row.Detail := To_Unbounded_String ("Case 1113 elaboration/dependence legality classification");
             Row.Cross_Unit_Status := C.Cross_Unit_Status;
             Row.Contract_Status := C.Contract_Status;
             Row.Overload_Status := C.Overload_Status;

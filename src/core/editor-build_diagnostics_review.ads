@@ -6,7 +6,7 @@ with Editor.State;
 
 package Editor.Build_Diagnostics_Review is
 
-   --  Phase 518 build diagnostics review/navigation foundation. This package
+   --  build diagnostics review/navigation foundation. This package
    --  exposes only declarative review helpers around Diagnostics-owned rows and
    --  existing Diagnostics commands. It does not execute builds, parse output
    --  from render, own Diagnostics rows, create build-local navigation routes,
@@ -92,7 +92,7 @@ package Editor.Build_Diagnostics_Review is
    function Assert_Public_Build_Diagnostics_Review_Reliability_Coherent
      (State : Editor.State.State_Type) return Boolean;
 
-   --  Phase 520 canonical cleanup assertions. These helpers are declarative
+   --  canonical cleanup assertions. These helpers are declarative
    --  guards over the retained Diagnostics-owned model; they do not normalize,
    --  repair, ingest, navigate, persist, or mutate runtime state.
    function Assert_Build_Diagnostics_No_Build_Local_Table
@@ -110,7 +110,7 @@ package Editor.Build_Diagnostics_Review is
    function Assert_Public_Build_Diagnostics_Review_Canonical_Coherent
      (State : Editor.State.State_Type) return Boolean;
 
-   --  Phase 521 final regression-freeze assertions.  These helpers close the
+   --  final regression-freeze assertions.  These helpers close the
    --  build diagnostics review line by asserting that build-produced
    --  diagnostics remain Diagnostics-owned rows created only through the
    --  retained Diagnostics ingestion seam, reviewed/rendered/navigated only by
@@ -155,7 +155,7 @@ package Editor.Build_Diagnostics_Review is
    function Assert_Public_Build_Diagnostics_Review_Final_Freeze_Coherent
      (State : Editor.State.State_Type) return Boolean;
 
-   --  Phase 529 practical Diagnostics navigation workflow assertions.  These
+   --  practical Diagnostics navigation workflow assertions.  These
    --  predicates keep build diagnostics as ordinary Diagnostics rows while
    --  asserting that review, source labels, navigation, Build UI reveal,
    --  output details, render, command routes, and persistence stay on their

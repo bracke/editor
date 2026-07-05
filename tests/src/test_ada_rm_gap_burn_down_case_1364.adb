@@ -1,11 +1,11 @@
 with AUnit.Assertions; use AUnit.Assertions;
 with AUnit.Test_Cases;
 with Ada.Strings.Unbounded; use Ada.Strings.Unbounded;
-with Editor.Ada_RM_Gap_Burn_Down_Pass1364;
+with Editor.Ada_RM_Gap_Burn_Down_Case_1364;
 
 package body Test_Ada_RM_Gap_Burn_Down_Case_1364 is
 
-   package Audit renames Editor.Ada_RM_Gap_Burn_Down_Pass1364;
+   package Audit renames Editor.Ada_RM_Gap_Burn_Down_Case_1364;
    use type Audit.RM_Family;
    use type Audit.Implementing_Slice;
    use type Audit.Coverage_Level;
@@ -60,7 +60,7 @@ package body Test_Ada_RM_Gap_Burn_Down_Case_1364 is
       Row.Blocker_Family := To_Unbounded_String ("RM.P1364.Source_Span");
       Row.Source_File := To_Unbounded_String ("src/project-root.adb");
       Row.Implementing_Package :=
-        To_Unbounded_String ("Editor.Ada_RM_Gap_Burn_Down_Pass1364");
+        To_Unbounded_String ("Editor.Ada_RM_Gap_Burn_Down_Case_1364");
       return Row;
    end Base_Row;
 
@@ -71,9 +71,9 @@ package body Test_Ada_RM_Gap_Burn_Down_Case_1364 is
       Expected : Audit.Precision_Classification) is
       Item : constant Audit.Burn_Down_Entry := Audit.Result_For (Results, Id);
    begin
-      Assert (Item.Status = Status, "unexpected pass1364 status");
+      Assert (Item.Status = Status, "unexpected case 1364 status");
       Assert (Audit.Expected_For_Status (Item.Status) = Expected,
-              "unexpected pass1364 classification");
+              "unexpected case 1364 classification");
    end Expect_Status;
 
    procedure Test_Balanced_Diagnostic_Closure

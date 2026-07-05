@@ -295,21 +295,118 @@ package body Test_Ada_Diagnostic_Command_Projection is
          "command projection should preserve explicit feed edit metadata");
    end Test_Command_Projection_Preserves_Feed_Edit_Hints;
 
+   procedure Test_Diagnostic_Surface_Actions_Are_Normalized
+     (T : in out AUnit.Test_Cases.Test_Case'Class)
+   is
+      pragma Unreferenced (T);
+      Model : constant Commands.Diagnostic_Command_Projection_Model :=
+        Edited_Command_Model;
+      Indexed : constant Index.Semantic_Diagnostic_Index_Model := Edited_Index_Model;
+      First_Index : constant Index.Semantic_Diagnostic_Index_Entry :=
+        Index.Entry_At (Indexed, 1);
+      Descriptor : constant Commands.Diagnostic_Command_Descriptor :=
+        Commands.First_For_Diagnostic (Model, First_Index.Id);
+      Missing : Commands.Diagnostic_Command_Descriptor := Descriptor;
+      Stale : Commands.Diagnostic_Command_Descriptor := Descriptor;
+   begin
+      Assert
+        (Commands.Surface_Action_Label
+           (Commands.Diagnostic_Surface_Open_Source) = "Open Source",
+         "diagnostic action label should be shared");
+      Assert
+        (Commands.Surface_Action_Label
+           (Commands.Diagnostic_Surface_Reveal_Diagnostic) = "Reveal Diagnostic",
+         "diagnostic reveal label should be shared");
+      Assert
+        (Commands.Surface_Action_Label
+           (Commands.Diagnostic_Surface_Suppress_Diagnostic) = "Suppress Diagnostic",
+         "diagnostic suppression label should be shared");
+      Assert
+        (Commands.Surface_Action_Label
+           (Commands.Diagnostic_Surface_Apply_Quick_Fix) = "Apply Quick Fix",
+         "diagnostic quick-fix label should be shared");
+      Assert
+        (Commands.Surface_Action_Command_Name
+           (Commands.Diagnostic_Surface_Open_Source) =
+         "ada.diagnostic.open-source",
+         "diagnostic open-source command name should be shared");
+      Assert
+        (Commands.Surface_Action_Command_Name
+           (Commands.Diagnostic_Surface_Reveal_Diagnostic) =
+         "ada.diagnostic.reveal",
+         "diagnostic reveal command name should be shared");
+      Assert
+        (Commands.Surface_Action_Command_Name
+           (Commands.Diagnostic_Surface_Suppress_Diagnostic) =
+         "ada.diagnostic.suppress",
+         "diagnostic suppression command name should be shared");
+      Assert
+        (Commands.Surface_Action_Command_Name
+           (Commands.Diagnostic_Surface_Apply_Quick_Fix) =
+         "ada.diagnostic.apply-quick-fix",
+         "diagnostic quick-fix command name should be shared");
+
+      Assert
+        (Commands.Descriptor_Supports_Surface_Action
+           (Descriptor, Commands.Diagnostic_Surface_Open_Source),
+         "available diagnostic descriptor should support open-source action");
+      Assert
+        (Commands.Descriptor_Supports_Surface_Action
+           (Descriptor, Commands.Diagnostic_Surface_Reveal_Diagnostic),
+         "available diagnostic descriptor should support reveal action");
+      Assert
+        (Commands.Descriptor_Supports_Surface_Action
+           (Descriptor, Commands.Diagnostic_Surface_Suppress_Diagnostic),
+         "current diagnostic descriptor should support suppression projection");
+      Assert
+        (Commands.Descriptor_Supports_Surface_Action
+           (Descriptor, Commands.Diagnostic_Surface_Apply_Quick_Fix),
+         "editable diagnostic descriptor should support quick-fix action");
+
+      Missing.Availability := Commands.Diagnostic_Command_Missing_Target;
+      Missing.Has_Edit := False;
+      Assert
+        (not Commands.Descriptor_Supports_Surface_Action
+           (Missing, Commands.Diagnostic_Surface_Open_Source),
+         "missing-target diagnostic should not support open-source action");
+      Assert
+        (not Commands.Descriptor_Supports_Surface_Action
+           (Missing, Commands.Diagnostic_Surface_Apply_Quick_Fix),
+         "missing-target diagnostic should not support quick-fix action");
+      Assert
+        (Commands.Unavailable_Target_Message (Missing.Availability) =
+         "Diagnostic target is unavailable.",
+         "missing-target diagnostic action wording should be canonical");
+
+      Stale.Availability := Commands.Diagnostic_Command_Rejected_Stale;
+      Assert
+        (not Commands.Descriptor_Supports_Surface_Action
+           (Stale, Commands.Diagnostic_Surface_Suppress_Diagnostic),
+         "stale diagnostic descriptor should not support suppression projection");
+      Assert
+        (Commands.Unavailable_Target_Message (Stale.Availability) =
+         "Diagnostic action is stale.",
+         "stale diagnostic action wording should be canonical");
+   end Test_Diagnostic_Surface_Actions_Are_Normalized;
+
    procedure Register_Tests (T : in out Test_Case) is
       use AUnit.Test_Cases.Registration;
    begin
       Register_Routine
         (T, Test_Empty_Command_Projection_Is_Current'Access,
-         "Pass1076 keeps empty diagnostic command projection deterministic");
+         "Case 1076 keeps empty diagnostic command projection deterministic");
       Register_Routine
         (T, Test_Absent_Diagnostic_Command_Is_Empty'Access,
-         "Pass1076 absent diagnostic command lookup returns no descriptor");
+         "Case 1076 absent diagnostic command lookup returns no descriptor");
       Register_Routine
         (T, Test_Command_Projection_Exposes_Available_Routed_Actions'Access,
          "Diagnostic command projection exposes available routed actions");
       Register_Routine
         (T, Test_Command_Projection_Preserves_Feed_Edit_Hints'Access,
          "Diagnostic command projection preserves feed edit hints");
+      Register_Routine
+        (T, Test_Diagnostic_Surface_Actions_Are_Normalized'Access,
+         "Diagnostic surface actions are normalized");
    end Register_Tests;
 
 end Test_Ada_Diagnostic_Command_Projection;

@@ -4,8 +4,8 @@ with Editor.Ada_Syntax_Tree;
 
 package Editor.Ada_Ada2022_Expression_Type_Resolution_Vertical_Slice_Legality is
 
-   --  Pass1305 vertical-slice expression/type resolution legality for Ada
-   --  2022 constructs that gained parser/AST coverage in Pass1304.  This
+   --  Case 1305 vertical-slice expression/type resolution legality for Ada
+   --  2022 constructs that gained parser/AST coverage in Case 1304.  This
    --  package checks concrete expression typing prerequisites instead of
    --  adding another diagnostic, provenance, or closure wrapper.
 

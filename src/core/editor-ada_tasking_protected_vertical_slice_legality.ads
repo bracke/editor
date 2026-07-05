@@ -4,7 +4,7 @@ with Editor.Ada_Syntax_Tree;
 
 package Editor.Ada_Tasking_Protected_Vertical_Slice_Legality is
 
-   --  Pass1302 vertical-slice tasking/protected legality.  This package
+   --  Case 1302 vertical-slice tasking/protected legality.  This package
    --  performs concrete RM-facing tasking checks over source-shaped task,
    --  protected-object, entry, requeue, select, abort, finalization, and
    --  shared-state evidence.  It is deliberately a semantic slice rather

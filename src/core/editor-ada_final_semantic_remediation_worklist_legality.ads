@@ -6,9 +6,9 @@ with Editor.Ada_Syntax_Tree;
 
 package Editor.Ada_Final_Semantic_Remediation_Worklist_Legality is
 
-   --  Pass1204 final semantic remediation worklist legality.
+   --  Case 1204 final semantic remediation worklist legality.
    --
-   --  This package consumes Pass1203 remediation diagnostic provenance/search
+   --  This package consumes Case 1203 remediation diagnostic provenance/search
    --  rows and turns prerequisite blocker evidence into a deterministic,
    --  bounded semantic re-analysis worklist.  It is not a UI hint layer: the
    --  worklist orders compiler-grade prerequisite repairs so downstream

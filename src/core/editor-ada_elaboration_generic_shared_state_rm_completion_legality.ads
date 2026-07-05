@@ -14,7 +14,7 @@ with Editor.Ada_Tasking_Generic_Shared_State_RM_Hard_Case_Completion_Legality;
 
 package Editor.Ada_Elaboration_Generic_Shared_State_RM_Completion_Legality is
 
-   --  Pass1251 elaboration legality over the completed generic/shared-state
+   --  Case 1251 elaboration legality over the completed generic/shared-state
    --  RM chain.
    --
    --  This package consumes the completed cross-unit RM closure together with

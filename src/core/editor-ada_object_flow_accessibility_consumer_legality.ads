@@ -5,10 +5,10 @@ with Editor.Ada_Syntax_Tree;
 
 package Editor.Ada_Object_Flow_Accessibility_Consumer_Legality is
 
-   --  Pass1163 compiler-grade object-flow accessibility consumer legality.
+   --  Case 1163 compiler-grade object-flow accessibility consumer legality.
    --
    --  This layer feeds the exact accessibility-scope consumer result from
-   --  Pass1162 into the concrete object-flow consumers that previously could
+   --  Case 1162 into the concrete object-flow consumers that previously could
    --  remain confident after a broad assignment, return, conversion, allocator,
    --  aggregate, renaming, or generic-replay conclusion.  The result is a
    --  deterministic, snapshot-owned legality row that says whether object-flow

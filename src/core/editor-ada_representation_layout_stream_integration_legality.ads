@@ -13,7 +13,7 @@ with Editor.Ada_Unit_Completion_Order_Legality;
 
 package Editor.Ada_Representation_Layout_Stream_Integration_Legality is
 
-   --  Pass1117 compiler-grade representation integration layer.  This package
+   --  Case 1117 compiler-grade representation integration layer.  This package
    --  ties representation clauses/aspects, exact record layout checks, stream
    --  attribute handler conformance, generic-instance freezing effects,
    --  accessibility/lifetime constraints, staticness/range checks,

@@ -6,7 +6,7 @@ with Editor.Ada_Tasking_Protected_Effects_Legality;
 
 package Editor.Ada_Tasking_Elaboration_Contract_Flow_Consumer_Legality is
 
-   --  Pass1158 compiler-grade tasking/protected elaboration contract-flow
+   --  Case 1158 compiler-grade tasking/protected elaboration contract-flow
    --  consumer legality.
    --
    --  This layer connects elaboration-time Global/Depends and

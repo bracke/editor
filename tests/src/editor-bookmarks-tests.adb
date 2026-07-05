@@ -10,6 +10,10 @@ with Editor.Buffers;
 with Editor.Commands;
 with Editor.Command_Execution;
 with Editor.Executor;
+with Editor.Executor.File_Save_Commands;
+with Editor.Executor.File_Target_Prompt_Commands;
+with Editor.Executor.File_Operation_Commands;
+with Editor.Executor.File_Save_Basic_Commands;
 with Editor.Messages;
 with Editor.Quick_Open;
 with Editor.Project_Search;
@@ -116,14 +120,14 @@ package body Editor.Bookmarks.Tests is
    end Assert_Bookmarks_File_Lifecycle_Observation_Coherent;
 
 
-   function Phase491_Temp_Path (Name : String) return String is
+   function Temp_Path (Name : String) return String is
    begin
       Ada.Directories.Create_Path ("/tmp/editor-tests");
       return Ada.Directories.Compose
-        ("/tmp/editor-tests", "phase491_" & Name);
-   end Phase491_Temp_Path;
+        ("/tmp/editor-tests", "" & Name);
+   end Temp_Path;
 
-   procedure Phase491_Remove_If_Exists (Path : String) is
+   procedure Remove_If_Exists (Path : String) is
    begin
       if Ada.Directories.Exists (Path) then
          Ada.Directories.Delete_File (Path);
@@ -131,12 +135,12 @@ package body Editor.Bookmarks.Tests is
    exception
       when others =>
          null;
-   end Phase491_Remove_If_Exists;
+   end Remove_If_Exists;
 
-   procedure Phase491_Write_File (Path : String; Text : String) is
+   procedure Write_File (Path : String; Text : String) is
       F : Ada.Text_IO.File_Type;
    begin
-      Phase491_Remove_If_Exists (Path);
+      Remove_If_Exists (Path);
       Ada.Text_IO.Create (F, Ada.Text_IO.Out_File, Path);
       Ada.Text_IO.Put (F, Text);
       Ada.Text_IO.Close (F);
@@ -146,9 +150,9 @@ package body Editor.Bookmarks.Tests is
             Ada.Text_IO.Close (F);
          end if;
          raise;
-   end Phase491_Write_File;
+   end Write_File;
 
-   procedure Phase491_Setup_Active_File
+   procedure Setup_Active_File
      (S     : in out Editor.State.State_Type;
       Path  : String;
       Text  : String;
@@ -165,9 +169,9 @@ package body Editor.Bookmarks.Tests is
       S.File_Info.Saved_Generation := Editor.State.Current_Buffer_Revision (S);
       Editor.Buffers.Ensure_Global_Registry (S);
       Editor.Buffers.Sync_Global_Active_From_State (S);
-   end Phase491_Setup_Active_File;
+   end Setup_Active_File;
 
-   procedure Assert_Phase491_Same_Retained_Bookmark_Rows
+   procedure Assert_Same_Retained_Bookmark_Rows
      (Before : Editor.Bookmarks.Bookmark_Snapshot;
       After  : Editor.Bookmarks.Bookmark_Snapshot;
       Note   : String) is
@@ -190,9 +194,9 @@ package body Editor.Bookmarks.Tests is
                     Note & ": retained position preserved");
          end loop;
       end if;
-   end Assert_Phase491_Same_Retained_Bookmark_Rows;
+   end Assert_Same_Retained_Bookmark_Rows;
 
-   procedure Assert_Phase493_Retained_Bookmark_Snapshot_Frozen
+   procedure Assert_Retained_Bookmark_Snapshot_Frozen
      (Before : Editor.Bookmarks.Bookmark_Snapshot;
       After  : Editor.Bookmarks.Bookmark_Snapshot;
       Note   : String) is
@@ -214,7 +218,7 @@ package body Editor.Bookmarks.Tests is
                 and then Before.Bookmark_Selected_Key_Has_Column =
                   After.Bookmark_Selected_Key_Has_Column,
               Note & ": selected key retained");
-      Assert_Phase491_Same_Retained_Bookmark_Rows (Before, After, Note);
+      Assert_Same_Retained_Bookmark_Rows (Before, After, Note);
       if After.Bookmark_Rows.Length > 0 then
          for I in After.Bookmark_Rows.First_Index .. After.Bookmark_Rows.Last_Index loop
             Assert (Before.Bookmark_Rows (I).Is_Selected = After.Bookmark_Rows (I).Is_Selected,
@@ -225,7 +229,7 @@ package body Editor.Bookmarks.Tests is
                     Note & ": Bookmark state stores no open/active/dirty cache");
          end loop;
       end if;
-   end Assert_Phase493_Retained_Bookmark_Snapshot_Frozen;
+   end Assert_Retained_Bookmark_Snapshot_Frozen;
 
 
    function Latest_Message_Text
@@ -1081,7 +1085,7 @@ package body Editor.Bookmarks.Tests is
       Assert_Optional_Bookmark_Command_Absent ("bookmark.search-bookmarks");
    end Availability_And_Command_Name_Boundaries_Are_Side_Effect_Free;
 
-   procedure Phase490_Retained_Row_Projection_Is_Observation_Only
+   procedure Retained_Row_Projection_Is_Observation_Only
      (T : in out AUnit.Test_Cases.Test_Case'Class)
    is
       pragma Unreferenced (T);
@@ -1106,7 +1110,7 @@ package body Editor.Bookmarks.Tests is
         (Editor.Bookmarks.Entry_At (State, 1), True);
 
       Assert (Natural (Snapshot.Bookmark_Rows.Length) = 1,
-              "phase 490 setup has one retained bookmark row");
+              "setup has one retained bookmark row");
       Assert (To_String (Snapshot.Bookmark_Rows (1).File_Path) = "/p/src/main.adb",
               "bookmark path comes from retained bookmark target data");
       Assert (To_String (Snapshot.Bookmark_Rows (1).File_Display_Path) = "src/main.adb",
@@ -1122,10 +1126,10 @@ package body Editor.Bookmarks.Tests is
                 and then not Snapshot.Bookmark_Rows (1).Is_Dirty,
               "base Bookmark rows do not cache open/active/dirty lifecycle observation state");
       Assert_Bookmarks_File_Lifecycle_Observation_Coherent
-        (State, "phase 490 retained row projection");
-   end Phase490_Retained_Row_Projection_Is_Observation_Only;
+        (State, "retained row projection");
+   end Retained_Row_Projection_Is_Observation_Only;
 
-   procedure Phase490_Selection_And_Target_Text_Are_Not_Lifecycle_Source
+   procedure Selection_And_Target_Text_Are_Not_Lifecycle_Source
      (T : in out AUnit.Test_Cases.Test_Case'Class)
    is
       pragma Unreferenced (T);
@@ -1154,7 +1158,7 @@ package body Editor.Bookmarks.Tests is
          Added        => Added);
       Selected := Editor.Bookmarks.Selected (S.Bookmarks, Found);
 
-      Assert (Found, "phase 490 setup has a selected bookmark row");
+      Assert (Found, "setup has a selected bookmark row");
       Assert (To_String (Selected.File_Path) /= To_String (S.File_Info.Path),
               "selected bookmark intentionally differs from canonical active buffer");
       Availability := Editor.Executor.Command_Availability
@@ -1162,7 +1166,7 @@ package body Editor.Bookmarks.Tests is
       Assert (Editor.Commands.Is_Available (Availability),
               "file lifecycle availability still follows active buffer state, not bookmark selection");
       Assert_Bookmarks_File_Lifecycle_Observation_Coherent
-        (S.Bookmarks, "phase 490 selected row source boundary");
+        (S.Bookmarks, "selected row source boundary");
 
       Assert_Optional_Bookmark_Command_Absent ("bookmark.save");
       Assert_Optional_Bookmark_Command_Absent ("bookmark.save-as");
@@ -1171,9 +1175,9 @@ package body Editor.Bookmarks.Tests is
       Assert_Optional_Bookmark_Command_Absent ("bookmark.copy-buffer-file");
       Assert_Optional_Bookmark_Command_Absent ("bookmark.move-buffer-file");
       Assert_Optional_Bookmark_Command_Absent ("bookmark.prompt-save-as");
-   end Phase490_Selection_And_Target_Text_Are_Not_Lifecycle_Source;
+   end Selection_And_Target_Text_Are_Not_Lifecycle_Source;
 
-   procedure Phase490_Copy_Move_Rename_Targets_Are_Not_Promoted
+   procedure Copy_Move_Rename_Targets_Are_Not_Promoted
      (T : in out AUnit.Test_Cases.Test_Case'Class)
    is
       pragma Unreferenced (T);
@@ -1187,7 +1191,7 @@ package body Editor.Bookmarks.Tests is
         (State, "/p/src/original.adb", "src/original.adb", 3, 1, True, Added);
       Editor.Bookmarks.Build_Snapshot (State, Before_Snapshot);
 
-      --  Phase 490 deliberately has no Bookmark API for last save-as/rename/
+      --  deliberately has no Bookmark API for last save-as/rename/
       --  copy/move/delete targets.  Rebuilding projection cannot manufacture
       --  rows from operation history, prompt text, or copied/moved paths.
       Editor.Bookmarks.Build_Snapshot (State, After_Snapshot);
@@ -1201,10 +1205,10 @@ package body Editor.Bookmarks.Tests is
                 and then Index (To_String (After_Snapshot.Bookmark_Rows (1).File_Path), "renamed") = 0,
               "row path contains no synthetic lifecycle target history");
       Assert_Bookmarks_File_Lifecycle_Observation_Coherent
-        (State, "phase 490 no target promotion");
-   end Phase490_Copy_Move_Rename_Targets_Are_Not_Promoted;
+        (State, "no target promotion");
+   end Copy_Move_Rename_Targets_Are_Not_Promoted;
 
-   procedure Phase490_Render_Snapshot_Does_Not_Mutate_Bookmark_Observation_State
+   procedure Render_Snapshot_Does_Not_Mutate_Bookmark_Observation_State
      (T : in out AUnit.Test_Cases.Test_Case'Class)
    is
       pragma Unreferenced (T);
@@ -1239,10 +1243,10 @@ package body Editor.Bookmarks.Tests is
       Assert (Editor.State.Current_Text (S) = "one" & ASCII.LF & "two",
               "render snapshot remains side-effect-free for buffer text");
       Assert_Bookmarks_File_Lifecycle_Observation_Coherent
-        (S.Bookmarks, "phase 490 render boundary");
-   end Phase490_Render_Snapshot_Does_Not_Mutate_Bookmark_Observation_State;
+        (S.Bookmarks, "render boundary");
+   end Render_Snapshot_Does_Not_Mutate_Bookmark_Observation_State;
 
-   procedure Phase490_Adjacent_Observation_Freezes_Remain_Intact
+   procedure Adjacent_Observation_Freezes_Remain_Intact
      (T : in out AUnit.Test_Cases.Test_Case'Class)
    is
       pragma Unreferenced (T);
@@ -1251,24 +1255,24 @@ package body Editor.Bookmarks.Tests is
       Editor.State.Init (S);
       Assert (Editor.Buffer_Switcher.Open_Buffer_Switcher_File_Lifecycle_Observation_Frozen
                 (S.Buffer_Switcher),
-              "phase 481 Open Buffer Switcher observation freeze remains intact");
+              "Open Buffer Switcher observation freeze remains intact");
       Assert (not Editor.Quick_Open.Is_Open (S.Quick_Open)
                 and then Editor.Quick_Open.Query_Text (S.Quick_Open) = "",
-              "phase 485 Quick Open baseline state remains unopened and query-local");
+              "Quick Open baseline state remains unopened and query-local");
       Assert (Editor.Project_Search.Project_Search_File_Lifecycle_Observation_Frozen
                 (S.Project_Search),
-              "phase 489 Project Search observation freeze remains intact");
+              "Project Search observation freeze remains intact");
       Assert_Bookmarks_File_Lifecycle_Observation_Coherent
-        (S.Bookmarks, "phase 490 adjacent freezes baseline");
-   end Phase490_Adjacent_Observation_Freezes_Remain_Intact;
+        (S.Bookmarks, "adjacent freezes baseline");
+   end Adjacent_Observation_Freezes_Remain_Intact;
 
-   procedure Phase491_Save_And_Copy_Observation_Reliability
+   procedure Save_And_Copy_Observation_Reliability
      (T : in out AUnit.Test_Cases.Test_Case'Class)
    is
       pragma Unreferenced (T);
       S : Editor.State.State_Type;
-      Path : constant String := Phase491_Temp_Path ("save_copy_source.txt");
-      Copy_Target : constant String := Phase491_Temp_Path ("save_copy_target.txt");
+      Path : constant String := Temp_Path ("save_copy_source.txt");
+      Copy_Target : constant String := Temp_Path ("save_copy_target.txt");
       Before : Editor.Bookmarks.Bookmark_Snapshot;
       After_Save_State : Editor.Bookmarks.Bookmark_Snapshot;
       After_Copy_State : Editor.Bookmarks.Bookmark_Snapshot;
@@ -1276,10 +1280,10 @@ package body Editor.Bookmarks.Tests is
       Render_After : Editor.Render_Model.Render_Snapshot;
       Added : Boolean := False;
    begin
-      Phase491_Remove_If_Exists (Path);
-      Phase491_Remove_If_Exists (Copy_Target);
-      Phase491_Write_File (Path, "before");
-      Phase491_Setup_Active_File (S, Path, "after", Dirty => True);
+      Remove_If_Exists (Path);
+      Remove_If_Exists (Copy_Target);
+      Write_File (Path, "before");
+      Setup_Active_File (S, Path, "after", Dirty => True);
       Editor.Bookmarks.Show (S.Bookmarks);
       Editor.Bookmarks.Toggle
         (S.Bookmarks, Path, Ada.Directories.Simple_Name (Path), 1, 1, True, Added);
@@ -1288,139 +1292,139 @@ package body Editor.Bookmarks.Tests is
       Assert (Render_Before.Bookmark_Rows (1).Is_Open
                 and then Render_Before.Bookmark_Rows (1).Is_Active
                 and then Render_Before.Bookmark_Rows (1).Is_Dirty,
-              "phase 491 setup exposes dirty active open marker only in render snapshot");
+              "setup exposes dirty active open marker only in render snapshot");
 
-      Editor.Executor.Execute_Save (S);
+      Editor.Executor.File_Save_Basic_Commands.Execute_Save (S);
       Editor.Bookmarks.Build_Snapshot (S.Bookmarks, After_Save_State);
       Editor.Render_Model.Build_Render_Snapshot (S, Render_After);
 
-      Assert_Phase491_Same_Retained_Bookmark_Rows
-        (Before, After_Save_State, "phase 491 save observation");
-      Assert (not S.File_Info.Dirty, "phase 491 save clears canonical dirty state");
+      Assert_Same_Retained_Bookmark_Rows
+        (Before, After_Save_State, "save observation");
+      Assert (not S.File_Info.Dirty, "save clears canonical dirty state");
       Assert (not Render_After.Bookmark_Rows (1).Is_Dirty,
-              "phase 491 render dirty hint follows canonical clean buffer after save");
+              "render dirty hint follows canonical clean buffer after save");
       Assert (not After_Save_State.Bookmark_Rows (1).Is_Dirty,
-              "phase 491 dirty hint is not cached in Bookmark state after save");
+              "dirty hint is not cached in Bookmark state after save");
 
-      Editor.Executor.Execute_Copy_Buffer_File (S, Copy_Target);
+      Editor.Executor.File_Operation_Commands.Execute_Copy_Buffer_File (S, Copy_Target);
       Editor.Bookmarks.Build_Snapshot (S.Bookmarks, After_Copy_State);
-      Assert_Phase491_Same_Retained_Bookmark_Rows
-        (After_Save_State, After_Copy_State, "phase 491 copy observation");
+      Assert_Same_Retained_Bookmark_Rows
+        (After_Save_State, After_Copy_State, "copy observation");
       Assert (Editor.Bookmarks.Count (S.Bookmarks) = 1,
-              "phase 491 copy does not add copied target as a bookmark");
+              "copy does not add copied target as a bookmark");
       Assert (To_String (After_Copy_State.Bookmark_Rows (1).File_Path) = Path,
-              "phase 491 copy preserves retained source bookmark path");
+              "copy preserves retained source bookmark path");
       Assert_Bookmarks_File_Lifecycle_Observation_Coherent
-        (S.Bookmarks, "phase 491 save/copy reliability");
+        (S.Bookmarks, "save/copy reliability");
 
-      Phase491_Remove_If_Exists (Path);
-      Phase491_Remove_If_Exists (Copy_Target);
-   end Phase491_Save_And_Copy_Observation_Reliability;
+      Remove_If_Exists (Path);
+      Remove_If_Exists (Copy_Target);
+   end Save_And_Copy_Observation_Reliability;
 
-   procedure Phase491_Rename_Move_Delete_Target_Boundary_Reliability
+   procedure Rename_Move_Delete_Target_Boundary_Reliability
      (T : in out AUnit.Test_Cases.Test_Case'Class)
    is
       pragma Unreferenced (T);
       S : Editor.State.State_Type;
-      Original : constant String := Phase491_Temp_Path ("rename_move_original.txt");
-      Renamed : constant String := Phase491_Temp_Path ("rename_move_renamed.txt");
-      Moved : constant String := Phase491_Temp_Path ("rename_move_moved.txt");
+      Original : constant String := Temp_Path ("rename_move_original.txt");
+      Renamed : constant String := Temp_Path ("rename_move_renamed.txt");
+      Moved : constant String := Temp_Path ("rename_move_moved.txt");
       Before : Editor.Bookmarks.Bookmark_Snapshot;
       After_Rename : Editor.Bookmarks.Bookmark_Snapshot;
       After_Move : Editor.Bookmarks.Bookmark_Snapshot;
       After_Delete : Editor.Bookmarks.Bookmark_Snapshot;
       Added : Boolean := False;
    begin
-      Phase491_Remove_If_Exists (Original);
-      Phase491_Remove_If_Exists (Renamed);
-      Phase491_Remove_If_Exists (Moved);
-      Phase491_Write_File (Original, "rename move delete");
-      Phase491_Setup_Active_File (S, Original, "rename move delete");
+      Remove_If_Exists (Original);
+      Remove_If_Exists (Renamed);
+      Remove_If_Exists (Moved);
+      Write_File (Original, "rename move delete");
+      Setup_Active_File (S, Original, "rename move delete");
       Editor.Bookmarks.Show (S.Bookmarks);
       Editor.Bookmarks.Toggle (S.Bookmarks, Original, "retained/original.txt", 3, 1, True, Added);
       Editor.Bookmarks.Build_Snapshot (S.Bookmarks, Before);
 
-      Editor.Executor.Execute_Rename_Buffer_File (S, Renamed);
+      Editor.Executor.File_Operation_Commands.Execute_Rename_Buffer_File (S, Renamed);
       Editor.Bookmarks.Build_Snapshot (S.Bookmarks, After_Rename);
       Assert (To_String (S.File_Info.Path) = Renamed,
-              "phase 491 rename updates canonical active buffer association");
-      Assert_Phase491_Same_Retained_Bookmark_Rows
-        (Before, After_Rename, "phase 491 rename retained target boundary");
+              "rename updates canonical active buffer association");
+      Assert_Same_Retained_Bookmark_Rows
+        (Before, After_Rename, "rename retained target boundary");
       Assert (Index (To_String (After_Rename.Bookmark_Rows (1).File_Path), "renamed") = 0,
-              "phase 491 rename target is not promoted into retained bookmark path");
+              "rename target is not promoted into retained bookmark path");
 
-      Editor.Executor.Execute_Move_Buffer_File (S, Moved);
+      Editor.Executor.File_Operation_Commands.Execute_Move_Buffer_File (S, Moved);
       Editor.Bookmarks.Build_Snapshot (S.Bookmarks, After_Move);
       Assert (To_String (S.File_Info.Path) = Moved,
-              "phase 491 move updates canonical active buffer association");
-      Assert_Phase491_Same_Retained_Bookmark_Rows
-        (After_Rename, After_Move, "phase 491 move retained target boundary");
+              "move updates canonical active buffer association");
+      Assert_Same_Retained_Bookmark_Rows
+        (After_Rename, After_Move, "move retained target boundary");
       Assert (Editor.Bookmarks.Count (S.Bookmarks) = 1,
-              "phase 491 move does not create a duplicate bookmark row");
+              "move does not create a duplicate bookmark row");
 
-      Editor.Executor.Execute_Delete_Buffer_File (S);
+      Editor.Executor.File_Operation_Commands.Execute_Delete_Buffer_File (S);
       Editor.Bookmarks.Build_Snapshot (S.Bookmarks, After_Delete);
       Assert (not S.File_Info.Has_Path,
-              "phase 491 delete clears canonical active buffer association");
-      Assert_Phase491_Same_Retained_Bookmark_Rows
-        (After_Move, After_Delete, "phase 491 delete retained target boundary");
+              "delete clears canonical active buffer association");
+      Assert_Same_Retained_Bookmark_Rows
+        (After_Move, After_Delete, "delete retained target boundary");
       Assert (Editor.Bookmarks.Count (S.Bookmarks) = 1,
-              "phase 491 delete does not create a recovery bookmark or prune retained target");
+              "delete does not create a recovery bookmark or prune retained target");
       Assert_Bookmarks_File_Lifecycle_Observation_Coherent
-        (S.Bookmarks, "phase 491 rename/move/delete reliability");
+        (S.Bookmarks, "rename/move/delete reliability");
 
-      Phase491_Remove_If_Exists (Original);
-      Phase491_Remove_If_Exists (Renamed);
-      Phase491_Remove_If_Exists (Moved);
-   end Phase491_Rename_Move_Delete_Target_Boundary_Reliability;
+      Remove_If_Exists (Original);
+      Remove_If_Exists (Renamed);
+      Remove_If_Exists (Moved);
+   end Rename_Move_Delete_Target_Boundary_Reliability;
 
-   procedure Phase491_Failed_And_Blocked_Operations_Preserve_Observation
+   procedure Failed_And_Blocked_Operations_Preserve_Observation
      (T : in out AUnit.Test_Cases.Test_Case'Class)
    is
       pragma Unreferenced (T);
       S : Editor.State.State_Type;
-      Path : constant String := Phase491_Temp_Path ("failed_blocked_source.txt");
+      Path : constant String := Temp_Path ("failed_blocked_source.txt");
       Before : Editor.Bookmarks.Bookmark_Snapshot;
       After_Invalid_Rename : Editor.Bookmarks.Bookmark_Snapshot;
       After_Dirty_Move : Editor.Bookmarks.Bookmark_Snapshot;
       Added : Boolean := False;
    begin
-      Phase491_Remove_If_Exists (Path);
-      Phase491_Write_File (Path, "blocked");
-      Phase491_Setup_Active_File (S, Path, "blocked");
+      Remove_If_Exists (Path);
+      Write_File (Path, "blocked");
+      Setup_Active_File (S, Path, "blocked");
       Editor.Bookmarks.Show (S.Bookmarks);
       Editor.Bookmarks.Toggle (S.Bookmarks, Path, "failed_blocked_source.txt", 4, 1, True, Added);
       Editor.Bookmarks.Build_Snapshot (S.Bookmarks, Before);
 
-      Editor.Executor.Execute_Rename_Buffer_File (S, "   ");
+      Editor.Executor.File_Operation_Commands.Execute_Rename_Buffer_File (S, "   ");
       Editor.Bookmarks.Build_Snapshot (S.Bookmarks, After_Invalid_Rename);
-      Assert_Phase491_Same_Retained_Bookmark_Rows
-        (Before, After_Invalid_Rename, "phase 491 invalid rename preservation");
+      Assert_Same_Retained_Bookmark_Rows
+        (Before, After_Invalid_Rename, "invalid rename preservation");
       Assert (To_String (S.File_Info.Path) = Path,
-              "phase 491 invalid rename does not adopt failed target path");
+              "invalid rename does not adopt failed target path");
 
       S.File_Info.Dirty := True;
       Editor.Buffers.Sync_Global_Active_From_State (S);
-      Editor.Executor.Execute_Move_Buffer_File (S, Phase491_Temp_Path ("dirty_move_target.txt"));
+      Editor.Executor.File_Operation_Commands.Execute_Move_Buffer_File (S, Temp_Path ("dirty_move_target.txt"));
       Editor.Bookmarks.Build_Snapshot (S.Bookmarks, After_Dirty_Move);
-      Assert_Phase491_Same_Retained_Bookmark_Rows
-        (After_Invalid_Rename, After_Dirty_Move, "phase 491 dirty move blocked preservation");
+      Assert_Same_Retained_Bookmark_Rows
+        (After_Invalid_Rename, After_Dirty_Move, "dirty move blocked preservation");
       Assert (To_String (S.File_Info.Path) = Path,
-              "phase 491 dirty move does not adopt blocked target path");
+              "dirty move does not adopt blocked target path");
       Assert_Bookmarks_File_Lifecycle_Observation_Coherent
-        (S.Bookmarks, "phase 491 failed/blocked reliability");
+        (S.Bookmarks, "failed/blocked reliability");
 
-      Phase491_Remove_If_Exists (Path);
-      Phase491_Remove_If_Exists (Phase491_Temp_Path ("dirty_move_target.txt"));
-   end Phase491_Failed_And_Blocked_Operations_Preserve_Observation;
+      Remove_If_Exists (Path);
+      Remove_If_Exists (Temp_Path ("dirty_move_target.txt"));
+   end Failed_And_Blocked_Operations_Preserve_Observation;
 
-   procedure Phase491_Selection_Prompt_Render_And_Persistence_Boundaries
+   procedure Selection_Prompt_Render_And_Persistence_Boundaries
      (T : in out AUnit.Test_Cases.Test_Case'Class)
    is
       pragma Unreferenced (T);
       S : Editor.State.State_Type;
-      Active : constant String := Phase491_Temp_Path ("selection_active.txt");
-      Explicit_Target : constant String := Phase491_Temp_Path ("selection_explicit_target.txt");
+      Active : constant String := Temp_Path ("selection_active.txt");
+      Explicit_Target : constant String := Temp_Path ("selection_explicit_target.txt");
       Before : Editor.Bookmarks.Bookmark_Snapshot;
       After : Editor.Bookmarks.Bookmark_Snapshot;
       Snap : Editor.Render_Model.Render_Snapshot;
@@ -1428,14 +1432,14 @@ package body Editor.Bookmarks.Tests is
       Summary : Unbounded_String;
       Added : Boolean := False;
    begin
-      Phase491_Remove_If_Exists (Active);
-      Phase491_Remove_If_Exists (Explicit_Target);
-      Phase491_Write_File (Active, "selection source");
-      Phase491_Setup_Active_File (S, Active, "selection source");
+      Remove_If_Exists (Active);
+      Remove_If_Exists (Explicit_Target);
+      Write_File (Active, "selection source");
+      Setup_Active_File (S, Active, "selection source");
       Editor.Bookmarks.Show (S.Bookmarks);
       Editor.Bookmarks.Toggle
         (S.Bookmarks,
-         File_Path    => Phase491_Temp_Path ("bookmark_selected_should_not_be_target.txt"),
+         File_Path    => Temp_Path ("bookmark_selected_should_not_be_target.txt"),
          Display_Path => "bookmark_selected_should_not_seed_prompt.txt",
          Line_Number  => 12,
          Column       => 1,
@@ -1443,7 +1447,7 @@ package body Editor.Bookmarks.Tests is
          Added        => Added);
       Editor.Bookmarks.Build_Snapshot (S.Bookmarks, Before);
 
-      Editor.Executor.Execute_File_Target_Command
+      Editor.Executor.File_Target_Prompt_Commands.Execute_File_Target_Command
         (S, Editor.Commands.Command_Rename_Buffer_File, Explicit_Target);
       Editor.Bookmarks.Build_Snapshot (S.Bookmarks, After);
       Editor.Render_Model.Build_Render_Snapshot (S, Snap);
@@ -1451,27 +1455,27 @@ package body Editor.Bookmarks.Tests is
       Summary := To_Unbounded_String (Editor.Workspace_Persistence.Debug_Summary (Workspace));
 
       Assert (To_String (S.File_Info.Path) = Explicit_Target,
-              "phase 491 prompted-equivalent target path comes from explicit Executor parameter");
+              "prompted-equivalent target path comes from explicit Executor parameter");
       Assert (To_String (Before.Bookmark_Rows (1).File_Path) /= Explicit_Target,
-              "phase 491 selected bookmark was intentionally not the explicit target");
-      Assert_Phase491_Same_Retained_Bookmark_Rows
-        (Before, After, "phase 491 selection and prompt boundary");
+              "selected bookmark was intentionally not the explicit target");
+      Assert_Same_Retained_Bookmark_Rows
+        (Before, After, "selection and prompt boundary");
       Assert (Natural (Snap.Bookmark_Rows.Length) = Natural (After.Bookmark_Rows.Length),
-              "phase 491 render snapshot does not add prompt-derived bookmark rows");
+              "render snapshot does not add prompt-derived bookmark rows");
       Assert (Index (To_String (Summary), "bookmark") = 0
                 and then Index (To_String (Summary), "Bookmark") = 0
                 and then Index (To_String (Summary), "selection_explicit_target") = 0,
-              "phase 491 workspace persistence excludes Bookmark lifecycle observation state");
+              "workspace persistence excludes Bookmark lifecycle observation state");
       Assert_Bookmarks_File_Lifecycle_Observation_Coherent
-        (S.Bookmarks, "phase 491 selection/prompt/render/persistence boundary");
+        (S.Bookmarks, "selection/prompt/render/persistence boundary");
 
-      Phase491_Remove_If_Exists (Active);
-      Phase491_Remove_If_Exists (Explicit_Target);
-   end Phase491_Selection_Prompt_Render_And_Persistence_Boundaries;
+      Remove_If_Exists (Active);
+      Remove_If_Exists (Explicit_Target);
+   end Selection_Prompt_Render_And_Persistence_Boundaries;
 
 
 
-   procedure Phase492_Canonical_Row_Helpers_Rebuild_From_Retained_State
+   procedure Canonical_Row_Helpers_Rebuild_From_Retained_State
      (T : in out AUnit.Test_Cases.Test_Case'Class)
    is
       pragma Unreferenced (T);
@@ -1506,35 +1510,35 @@ package body Editor.Bookmarks.Tests is
       Editor.Bookmarks.Build_Snapshot (State, Snapshot);
       Rows := Editor.Bookmarks.Build_Bookmark_Rows_From_Retained_State (State);
 
-      Assert (Natural (Rows.Length) = 2, "phase 492 retained helper returns retained rows only");
+      Assert (Natural (Rows.Length) = 2, "retained helper returns retained rows only");
       for I in Rows.First_Index .. Rows.Last_Index loop
          Item := Editor.Bookmarks.Entry_At (State, I);
          Assert (To_String (Rows (I).File_Path) = To_String (Snapshot.Bookmark_Rows (I).File_Path),
-                 "phase 492 helper and snapshot agree on retained file identity");
+                 "helper and snapshot agree on retained file identity");
          Assert (To_String (Rows (I).File_Display_Path) =
                    To_String (Editor.Bookmarks.Bookmark_Path_Label_From_Retained_Target (Item)),
-                 "phase 492 path label helper derives from retained bookmark target label");
+                 "path label helper derives from retained bookmark target label");
          Assert (Rows (I).Is_Selected = Snapshot.Bookmark_Rows (I).Is_Selected,
-                 "phase 492 selection marker remains Bookmark UI state");
+                 "selection marker remains Bookmark UI state");
          Assert (not Rows (I).Is_Open and then not Rows (I).Is_Active and then not Rows (I).Is_Dirty,
-                 "phase 492 retained helper does not cache open/active/dirty lifecycle state");
+                 "retained helper does not cache open/active/dirty lifecycle state");
          Assert (not Editor.Bookmarks.Bookmark_Dirty_Hint_From_Retained_State (Item),
-                 "phase 492 retained bookmark entry does not own dirty hint state");
+                 "retained bookmark entry does not own dirty hint state");
       end loop;
 
       Assert_Bookmarks_File_Lifecycle_Observation_Coherent
-        (State, "phase 492 canonical row helper cleanup");
-   end Phase492_Canonical_Row_Helpers_Rebuild_From_Retained_State;
+        (State, "canonical row helper cleanup");
+   end Canonical_Row_Helpers_Rebuild_From_Retained_State;
 
-   procedure Phase492_File_Lifecycle_Cleanup_Preserves_Retained_Targets
+   procedure File_Lifecycle_Cleanup_Preserves_Retained_Targets
      (T : in out AUnit.Test_Cases.Test_Case'Class)
    is
       pragma Unreferenced (T);
       S : Editor.State.State_Type;
-      Original : constant String := Phase491_Temp_Path ("phase492_original.txt");
-      Copy_Target : constant String := Phase491_Temp_Path ("phase492_copy_target.txt");
-      Renamed : constant String := Phase491_Temp_Path ("phase492_renamed.txt");
-      Moved : constant String := Phase491_Temp_Path ("phase492_moved.txt");
+      Original : constant String := Temp_Path ("original.txt");
+      Copy_Target : constant String := Temp_Path ("copy_target.txt");
+      Renamed : constant String := Temp_Path ("renamed.txt");
+      Moved : constant String := Temp_Path ("moved.txt");
       Before : Editor.Bookmarks.Bookmark_Snapshot;
       After_Save : Editor.Bookmarks.Bookmark_Snapshot;
       After_Copy : Editor.Bookmarks.Bookmark_Snapshot;
@@ -1543,80 +1547,80 @@ package body Editor.Bookmarks.Tests is
       After_Delete : Editor.Bookmarks.Bookmark_Snapshot;
       Added : Boolean := False;
    begin
-      Phase491_Remove_If_Exists (Original);
-      Phase491_Remove_If_Exists (Copy_Target);
-      Phase491_Remove_If_Exists (Renamed);
-      Phase491_Remove_If_Exists (Moved);
-      Phase491_Write_File (Original, "phase492 original");
-      Phase491_Setup_Active_File (S, Original, "phase492 changed", Dirty => True);
+      Remove_If_Exists (Original);
+      Remove_If_Exists (Copy_Target);
+      Remove_If_Exists (Renamed);
+      Remove_If_Exists (Moved);
+      Write_File (Original, "original");
+      Setup_Active_File (S, Original, "changed", Dirty => True);
       Editor.Bookmarks.Show (S.Bookmarks);
       Editor.Bookmarks.Toggle
-        (S.Bookmarks, Original, "retained/phase492_original.txt", 5, 1, True, Added);
+        (S.Bookmarks, Original, "retained/original.txt", 5, 1, True, Added);
       Editor.Bookmarks.Build_Snapshot (S.Bookmarks, Before);
 
-      Editor.Executor.Execute_Save (S);
+      Editor.Executor.File_Save_Basic_Commands.Execute_Save (S);
       Editor.Bookmarks.Build_Snapshot (S.Bookmarks, After_Save);
-      Assert_Phase491_Same_Retained_Bookmark_Rows
-        (Before, After_Save, "phase 492 save cleanup retains bookmark target");
+      Assert_Same_Retained_Bookmark_Rows
+        (Before, After_Save, "save cleanup retains bookmark target");
       Assert (not After_Save.Bookmark_Rows (1).Is_Dirty,
-              "phase 492 save cleanup leaves no dirty cache in Bookmark state");
+              "save cleanup leaves no dirty cache in Bookmark state");
 
-      Editor.Executor.Execute_Copy_Buffer_File (S, Copy_Target);
+      Editor.Executor.File_Operation_Commands.Execute_Copy_Buffer_File (S, Copy_Target);
       Editor.Bookmarks.Build_Snapshot (S.Bookmarks, After_Copy);
-      Assert_Phase491_Same_Retained_Bookmark_Rows
-        (After_Save, After_Copy, "phase 492 copy cleanup retains bookmark target");
+      Assert_Same_Retained_Bookmark_Rows
+        (After_Save, After_Copy, "copy cleanup retains bookmark target");
       Assert (Index (To_String (After_Copy.Bookmark_Rows (1).File_Path), "copy_target") = 0,
-              "phase 492 copy target is not recorded as Bookmark target history");
+              "copy target is not recorded as Bookmark target history");
 
-      Editor.Executor.Execute_Rename_Buffer_File (S, Renamed);
+      Editor.Executor.File_Operation_Commands.Execute_Rename_Buffer_File (S, Renamed);
       Editor.Bookmarks.Build_Snapshot (S.Bookmarks, After_Rename);
-      Assert_Phase491_Same_Retained_Bookmark_Rows
-        (After_Copy, After_Rename, "phase 492 rename cleanup retains bookmark target");
+      Assert_Same_Retained_Bookmark_Rows
+        (After_Copy, After_Rename, "rename cleanup retains bookmark target");
       Assert (Index (To_String (After_Rename.Bookmark_Rows (1).File_Path), "renamed") = 0,
-              "phase 492 rename target is not migrated into Bookmark state");
+              "rename target is not migrated into Bookmark state");
 
-      Editor.Executor.Execute_Move_Buffer_File (S, Moved);
+      Editor.Executor.File_Operation_Commands.Execute_Move_Buffer_File (S, Moved);
       Editor.Bookmarks.Build_Snapshot (S.Bookmarks, After_Move);
-      Assert_Phase491_Same_Retained_Bookmark_Rows
-        (After_Rename, After_Move, "phase 492 move cleanup retains bookmark target");
+      Assert_Same_Retained_Bookmark_Rows
+        (After_Rename, After_Move, "move cleanup retains bookmark target");
       Assert (Index (To_String (After_Move.Bookmark_Rows (1).File_Path), "moved") = 0,
-              "phase 492 move target is not recorded as Bookmark target history");
+              "move target is not recorded as Bookmark target history");
 
-      Editor.Executor.Execute_Delete_Buffer_File (S);
+      Editor.Executor.File_Operation_Commands.Execute_Delete_Buffer_File (S);
       Editor.Bookmarks.Build_Snapshot (S.Bookmarks, After_Delete);
-      Assert_Phase491_Same_Retained_Bookmark_Rows
-        (After_Move, After_Delete, "phase 492 delete cleanup retains bookmark target");
+      Assert_Same_Retained_Bookmark_Rows
+        (After_Move, After_Delete, "delete cleanup retains bookmark target");
       Assert (Editor.Bookmarks.Count (S.Bookmarks) = 1,
-              "phase 492 delete does not create repair, recovery, or pruning behavior");
+              "delete does not create repair, recovery, or pruning behavior");
       Assert_Bookmarks_File_Lifecycle_Observation_Coherent
-        (S.Bookmarks, "phase 492 lifecycle cleanup retained target preservation");
+        (S.Bookmarks, "lifecycle cleanup retained target preservation");
 
-      Phase491_Remove_If_Exists (Original);
-      Phase491_Remove_If_Exists (Copy_Target);
-      Phase491_Remove_If_Exists (Renamed);
-      Phase491_Remove_If_Exists (Moved);
-   end Phase492_File_Lifecycle_Cleanup_Preserves_Retained_Targets;
+      Remove_If_Exists (Original);
+      Remove_If_Exists (Copy_Target);
+      Remove_If_Exists (Renamed);
+      Remove_If_Exists (Moved);
+   end File_Lifecycle_Cleanup_Preserves_Retained_Targets;
 
-   procedure Phase492_Selection_Prompt_And_Route_Cleanup_Boundaries
+   procedure Selection_Prompt_And_Route_Cleanup_Boundaries
      (T : in out AUnit.Test_Cases.Test_Case'Class)
    is
       pragma Unreferenced (T);
       S : Editor.State.State_Type;
-      Active : constant String := Phase491_Temp_Path ("phase492_active.txt");
-      Explicit_Target : constant String := Phase491_Temp_Path ("phase492_explicit_target.txt");
+      Active : constant String := Temp_Path ("active.txt");
+      Explicit_Target : constant String := Temp_Path ("explicit_target.txt");
       Before : Editor.Bookmarks.Bookmark_Snapshot;
       After : Editor.Bookmarks.Bookmark_Snapshot;
       Availability : Editor.Commands.Command_Availability;
       Added : Boolean := False;
    begin
-      Phase491_Remove_If_Exists (Active);
-      Phase491_Remove_If_Exists (Explicit_Target);
-      Phase491_Write_File (Active, "phase492 active");
-      Phase491_Setup_Active_File (S, Active, "phase492 active");
+      Remove_If_Exists (Active);
+      Remove_If_Exists (Explicit_Target);
+      Write_File (Active, "active");
+      Setup_Active_File (S, Active, "active");
       Editor.Bookmarks.Show (S.Bookmarks);
       Editor.Bookmarks.Toggle
         (S.Bookmarks,
-         File_Path    => Phase491_Temp_Path ("phase492_bookmark_selected_not_target.txt"),
+         File_Path    => Temp_Path ("bookmark_selected_not_target.txt"),
          Display_Path => "bookmark_selected_not_target.txt",
          Line_Number  => 8,
          Column       => 1,
@@ -1627,15 +1631,15 @@ package body Editor.Bookmarks.Tests is
       Availability := Editor.Executor.Command_Availability
         (S, Editor.Commands.Command_Rename_Buffer_File);
       Assert (Editor.Commands.Is_Available (Availability),
-              "phase 492 lifecycle availability is driven by canonical active buffer, not Bookmark selection");
-      Editor.Executor.Execute_File_Target_Command
+              "lifecycle availability is driven by canonical active buffer, not Bookmark selection");
+      Editor.Executor.File_Target_Prompt_Commands.Execute_File_Target_Command
         (S, Editor.Commands.Command_Rename_Buffer_File, Explicit_Target);
       Editor.Bookmarks.Build_Snapshot (S.Bookmarks, After);
 
       Assert (To_String (S.File_Info.Path) = Explicit_Target,
-              "phase 492 explicit target command uses Executor target, not Bookmark row text");
-      Assert_Phase491_Same_Retained_Bookmark_Rows
-        (Before, After, "phase 492 prompt/source/target cleanup boundary");
+              "explicit target command uses Executor target, not Bookmark row text");
+      Assert_Same_Retained_Bookmark_Rows
+        (Before, After, "prompt/source/target cleanup boundary");
       Assert_Optional_Bookmark_Command_Absent ("bookmark.save");
       Assert_Optional_Bookmark_Command_Absent ("bookmark.save-as");
       Assert_Optional_Bookmark_Command_Absent ("bookmark.rename-buffer-file");
@@ -1646,18 +1650,18 @@ package body Editor.Bookmarks.Tests is
       Assert_Optional_Bookmark_Command_Absent ("bookmark.prompt-copy-buffer-file");
       Assert_Optional_Bookmark_Command_Absent ("bookmark.prompt-move-buffer-file");
       Assert_Bookmarks_File_Lifecycle_Observation_Coherent
-        (S.Bookmarks, "phase 492 selection prompt and route cleanup");
+        (S.Bookmarks, "selection prompt and route cleanup");
 
-      Phase491_Remove_If_Exists (Active);
-      Phase491_Remove_If_Exists (Explicit_Target);
-   end Phase492_Selection_Prompt_And_Route_Cleanup_Boundaries;
+      Remove_If_Exists (Active);
+      Remove_If_Exists (Explicit_Target);
+   end Selection_Prompt_And_Route_Cleanup_Boundaries;
 
-   procedure Phase492_Render_And_Persistence_Cleanup_Are_Side_Effect_Free
+   procedure Render_And_Persistence_Cleanup_Are_Side_Effect_Free
      (T : in out AUnit.Test_Cases.Test_Case'Class)
    is
       pragma Unreferenced (T);
       S : Editor.State.State_Type;
-      Path : constant String := Phase491_Temp_Path ("phase492_render_persist.txt");
+      Path : constant String := Temp_Path ("render_persist.txt");
       Before : Editor.Bookmarks.Bookmark_Snapshot;
       After : Editor.Bookmarks.Bookmark_Snapshot;
       Render : Editor.Render_Model.Render_Snapshot;
@@ -1665,11 +1669,11 @@ package body Editor.Bookmarks.Tests is
       Summary : Unbounded_String;
       Added : Boolean := False;
    begin
-      Phase491_Remove_If_Exists (Path);
-      Phase491_Write_File (Path, "phase492 render");
-      Phase491_Setup_Active_File (S, Path, "phase492 render dirty", Dirty => True);
+      Remove_If_Exists (Path);
+      Write_File (Path, "render");
+      Setup_Active_File (S, Path, "render dirty", Dirty => True);
       Editor.Bookmarks.Show (S.Bookmarks);
-      Editor.Bookmarks.Toggle (S.Bookmarks, Path, "phase492_render_persist.txt", 2, 1, True, Added);
+      Editor.Bookmarks.Toggle (S.Bookmarks, Path, "render_persist.txt", 2, 1, True, Added);
       Editor.Bookmarks.Build_Snapshot (S.Bookmarks, Before);
 
       Editor.Render_Model.Build_Render_Snapshot (S, Render);
@@ -1680,23 +1684,23 @@ package body Editor.Bookmarks.Tests is
       Assert (Render.Bookmark_Rows (1).Is_Open
                 and then Render.Bookmark_Rows (1).Is_Active
                 and then Render.Bookmark_Rows (1).Is_Dirty,
-              "phase 492 render enriches bookmark rows only from canonical buffer/open-buffer state");
-      Assert_Phase491_Same_Retained_Bookmark_Rows
-        (Before, After, "phase 492 render cleanup does not mutate Bookmark state");
+              "render enriches bookmark rows only from canonical buffer/open-buffer state");
+      Assert_Same_Retained_Bookmark_Rows
+        (Before, After, "render cleanup does not mutate Bookmark state");
       Assert (not After.Bookmark_Rows (1).Is_Open
                 and then not After.Bookmark_Rows (1).Is_Active
                 and then not After.Bookmark_Rows (1).Is_Dirty,
-              "phase 492 render-enriched fields are not cached in Bookmark state");
+              "render-enriched fields are not cached in Bookmark state");
       Assert (Index (To_String (Summary), "bookmark") = 0
                 and then Index (To_String (Summary), "Bookmark") = 0,
-              "phase 492 workspace persistence excludes Bookmark lifecycle cleanup state");
+              "workspace persistence excludes Bookmark lifecycle cleanup state");
       Assert_Bookmarks_File_Lifecycle_Observation_Coherent
-        (S.Bookmarks, "phase 492 render and persistence cleanup");
+        (S.Bookmarks, "render and persistence cleanup");
 
-      Phase491_Remove_If_Exists (Path);
-   end Phase492_Render_And_Persistence_Cleanup_Are_Side_Effect_Free;
+      Remove_If_Exists (Path);
+   end Render_And_Persistence_Cleanup_Are_Side_Effect_Free;
 
-   procedure Phase493_Final_Source_Row_Identity_Order_Selection_Freeze
+   procedure Final_Source_Row_Identity_Order_Selection_Freeze
      (T : in out AUnit.Test_Cases.Test_Case'Class)
    is
       pragma Unreferenced (T);
@@ -1719,44 +1723,44 @@ package body Editor.Bookmarks.Tests is
       Editor.Bookmarks.Build_Snapshot (State, Snapshot);
       Rows := Editor.Bookmarks.Build_Bookmark_Rows_From_Retained_State (State);
 
-      Assert (Snapshot.Bookmarks_Visible, "phase 493 source freeze keeps visible flag");
+      Assert (Snapshot.Bookmarks_Visible, "source freeze keeps visible flag");
       Assert (Snapshot.Bookmark_Count = 3 and then Natural (Rows.Length) = 3,
-              "phase 493 source freeze has three retained rows");
+              "source freeze has three retained rows");
       Assert (Snapshot.Bookmark_Selected_Index = 2,
-              "phase 493 selection marker follows retained Bookmark selection policy");
+              "selection marker follows retained Bookmark selection policy");
 
       for I in 1 .. 3 loop
          Item := Editor.Bookmarks.Entry_At (State, I);
          Assert (To_String (Rows (I).File_Path) = To_String (Item.File_Path),
-                 "phase 493 row identity derives from retained bookmark identity");
+                 "row identity derives from retained bookmark identity");
          Assert (To_String (Rows (I).File_Display_Path) =
                    To_String (Editor.Bookmarks.Bookmark_Path_Label_From_Retained_Target (Item)),
-                 "phase 493 row label derives from retained bookmark target label");
+                 "row label derives from retained bookmark target label");
          Assert (Rows (I).Is_Selected = (I = Snapshot.Bookmark_Selected_Index),
-                 "phase 493 row selection marker derives from Bookmark selection only");
+                 "row selection marker derives from Bookmark selection only");
          Assert (not Rows (I).Is_Open and then not Rows (I).Is_Active and then not Rows (I).Is_Dirty,
-                 "phase 493 retained rows contain no lifecycle observation cache");
+                 "retained rows contain no lifecycle observation cache");
       end loop;
 
       Assert (To_String (Rows (1).File_Path) = "/p/a.adb"
                 and then To_String (Rows (2).File_Path) = "/p/m.adb"
                 and then To_String (Rows (3).File_Path) = "/p/z.adb",
-              "phase 493 row order derives from retained Bookmark ordering only");
+              "row order derives from retained Bookmark ordering only");
       Assert_Bookmarks_File_Lifecycle_Observation_Coherent
-        (State, "phase 493 final retained source/identity/order freeze");
-   end Phase493_Final_Source_Row_Identity_Order_Selection_Freeze;
+        (State, "final retained source/identity/order freeze");
+   end Final_Source_Row_Identity_Order_Selection_Freeze;
 
-   procedure Phase493_Final_Operation_Observation_And_Prompt_Equivalence_Freeze
+   procedure Final_Operation_Observation_And_Prompt_Equivalence_Freeze
      (T : in out AUnit.Test_Cases.Test_Case'Class)
    is
       pragma Unreferenced (T);
       Direct : Editor.State.State_Type;
       Prompted : Editor.State.State_Type;
-      Direct_Source : constant String := Phase491_Temp_Path ("phase493_direct_source.txt");
-      Prompt_Source : constant String := Phase491_Temp_Path ("phase493_prompt_source.txt");
-      Direct_Copy : constant String := Phase491_Temp_Path ("phase493_direct_copy.txt");
-      Prompt_Copy : constant String := Phase491_Temp_Path ("phase493_prompt_copy.txt");
-      Direct_Rename : constant String := Phase491_Temp_Path ("phase493_direct_renamed.txt");
+      Direct_Source : constant String := Temp_Path ("direct_source.txt");
+      Prompt_Source : constant String := Temp_Path ("prompt_source.txt");
+      Direct_Copy : constant String := Temp_Path ("direct_copy.txt");
+      Prompt_Copy : constant String := Temp_Path ("prompt_copy.txt");
+      Direct_Rename : constant String := Temp_Path ("direct_renamed.txt");
       Before_Direct : Editor.Bookmarks.Bookmark_Snapshot;
       After_Direct_Copy : Editor.Bookmarks.Bookmark_Snapshot;
       Before_Prompt : Editor.Bookmarks.Bookmark_Snapshot;
@@ -1766,44 +1770,44 @@ package body Editor.Bookmarks.Tests is
       Render_After_Rename : Editor.Render_Model.Render_Snapshot;
       Added : Boolean := False;
    begin
-      Phase491_Remove_If_Exists (Direct_Source);
-      Phase491_Remove_If_Exists (Prompt_Source);
-      Phase491_Remove_If_Exists (Direct_Copy);
-      Phase491_Remove_If_Exists (Prompt_Copy);
-      Phase491_Remove_If_Exists (Direct_Rename);
-      Phase491_Write_File (Direct_Source, "phase493 direct source");
-      Phase491_Write_File (Prompt_Source, "phase493 prompt source");
+      Remove_If_Exists (Direct_Source);
+      Remove_If_Exists (Prompt_Source);
+      Remove_If_Exists (Direct_Copy);
+      Remove_If_Exists (Prompt_Copy);
+      Remove_If_Exists (Direct_Rename);
+      Write_File (Direct_Source, "direct source");
+      Write_File (Prompt_Source, "prompt source");
 
-      Phase491_Setup_Active_File (Direct, Direct_Source, "phase493 direct source");
+      Setup_Active_File (Direct, Direct_Source, "direct source");
       Editor.Bookmarks.Show (Direct.Bookmarks);
       Editor.Bookmarks.Toggle
-        (Direct.Bookmarks, Direct_Source, "phase493_direct_source.txt", 1, 1, True, Added);
+        (Direct.Bookmarks, Direct_Source, "direct_source.txt", 1, 1, True, Added);
       Editor.Bookmarks.Build_Snapshot (Direct.Bookmarks, Before_Direct);
-      Editor.Executor.Execute_File_Target_Command
+      Editor.Executor.File_Target_Prompt_Commands.Execute_File_Target_Command
         (Direct, Editor.Commands.Command_Copy_Buffer_File, Direct_Copy);
       Editor.Bookmarks.Build_Snapshot (Direct.Bookmarks, After_Direct_Copy);
-      Assert_Phase493_Retained_Bookmark_Snapshot_Frozen
-        (Before_Direct, After_Direct_Copy, "phase 493 direct copy observation");
+      Assert_Retained_Bookmark_Snapshot_Frozen
+        (Before_Direct, After_Direct_Copy, "direct copy observation");
       Assert (Direct.File_Info.Has_Path
                 and then To_String (Direct.File_Info.Path) = Direct_Source,
-              "phase 493 direct copy preserves canonical source association");
+              "direct copy preserves canonical source association");
 
-      Editor.Executor.Execute_File_Target_Command
+      Editor.Executor.File_Target_Prompt_Commands.Execute_File_Target_Command
         (Direct, Editor.Commands.Command_Rename_Buffer_File, Direct_Rename);
       Editor.Bookmarks.Build_Snapshot (Direct.Bookmarks, After_Direct_Rename);
       Editor.Render_Model.Build_Render_Snapshot (Direct, Render_After_Rename);
       Assert (To_String (Direct.File_Info.Path) = Direct_Rename,
-              "phase 493 rename updates only canonical active buffer association");
-      Assert_Phase493_Retained_Bookmark_Snapshot_Frozen
-        (After_Direct_Copy, After_Direct_Rename, "phase 493 rename retained target boundary");
+              "rename updates only canonical active buffer association");
+      Assert_Retained_Bookmark_Snapshot_Frozen
+        (After_Direct_Copy, After_Direct_Rename, "rename retained target boundary");
       Assert (not Render_After_Rename.Bookmark_Rows (1).Is_Open
                 and then not Render_After_Rename.Bookmark_Rows (1).Is_Active,
-              "phase 493 retained static old target is not repaired or migrated after rename");
+              "retained static old target is not repaired or migrated after rename");
       Assert_Bookmarks_File_Lifecycle_Observation_Coherent
-        (Direct.Bookmarks, "phase 493 direct operation final freeze");
+        (Direct.Bookmarks, "direct operation final freeze");
 
       Added := False;
-      Phase491_Setup_Active_File (Prompted, Prompt_Source, "phase493 prompt source");
+      Setup_Active_File (Prompted, Prompt_Source, "prompt source");
       Editor.Bookmarks.Show (Prompted.Bookmarks);
       Editor.Bookmarks.Toggle
         (Prompted.Bookmarks, Prompt_Source, "bookmark-label-must-not-seed-copy-target.txt",
@@ -1811,52 +1815,52 @@ package body Editor.Bookmarks.Tests is
       Editor.Bookmarks.Build_Snapshot (Prompted.Bookmarks, Before_Prompt);
       Editor.Executor.Execute_Command (Prompted, Editor.Commands.Command_Copy_Buffer_File);
       Editor.Bookmarks.Build_Snapshot (Prompted.Bookmarks, Prompt_Open);
-      Assert (Editor.Executor.File_Target_Prompt_Is_Active (Prompted),
-              "phase 493 prompted copy opens canonical target prompt");
-      Assert (Editor.Executor.File_Target_Prompt_Label (Prompted) = "Copy target",
-              "phase 493 prompt label remains descriptor-owned");
-      Assert (Editor.Executor.File_Target_Prompt_Input_Text (Prompted) = "",
-              "phase 493 prompt input is not seeded from Bookmark label or target text");
-      Assert_Phase493_Retained_Bookmark_Snapshot_Frozen
-        (Before_Prompt, Prompt_Open, "phase 493 prompt opening observation");
-      Editor.Executor.Insert_File_Target_Prompt_Text (Prompted, Prompt_Copy);
-      Editor.Executor.Confirm_File_Target_Prompt (Prompted);
+      Assert (Editor.Executor.File_Target_Prompt_Commands.File_Target_Prompt_Is_Active (Prompted),
+              "prompted copy opens canonical target prompt");
+      Assert (Editor.Executor.File_Target_Prompt_Commands.File_Target_Prompt_Label (Prompted) = "Copy target",
+              "prompt label remains descriptor-owned");
+      Assert (Editor.Executor.File_Target_Prompt_Commands.File_Target_Prompt_Input_Text (Prompted) = "",
+              "prompt input is not seeded from Bookmark label or target text");
+      Assert_Retained_Bookmark_Snapshot_Frozen
+        (Before_Prompt, Prompt_Open, "prompt opening observation");
+      Editor.Executor.File_Target_Prompt_Commands.Insert_File_Target_Prompt_Text (Prompted, Prompt_Copy);
+      Editor.Executor.File_Target_Prompt_Commands.Confirm_File_Target_Prompt (Prompted);
       Editor.Bookmarks.Build_Snapshot (Prompted.Bookmarks, After_Prompt_Copy);
-      Assert_Phase493_Retained_Bookmark_Snapshot_Frozen
-        (Before_Prompt, After_Prompt_Copy, "phase 493 prompted copy observation");
+      Assert_Retained_Bookmark_Snapshot_Frozen
+        (Before_Prompt, After_Prompt_Copy, "prompted copy observation");
       Assert (Prompted.File_Info.Has_Path
                 and then To_String (Prompted.File_Info.Path) = Prompt_Source,
-              "phase 493 prompted copy preserves canonical source association");
+              "prompted copy preserves canonical source association");
       Assert_Bookmarks_File_Lifecycle_Observation_Coherent
-        (Prompted.Bookmarks, "phase 493 prompted operation final freeze");
+        (Prompted.Bookmarks, "prompted operation final freeze");
 
-      Phase491_Remove_If_Exists (Direct_Source);
-      Phase491_Remove_If_Exists (Prompt_Source);
-      Phase491_Remove_If_Exists (Direct_Copy);
-      Phase491_Remove_If_Exists (Prompt_Copy);
-      Phase491_Remove_If_Exists (Direct_Rename);
-   end Phase493_Final_Operation_Observation_And_Prompt_Equivalence_Freeze;
+      Remove_If_Exists (Direct_Source);
+      Remove_If_Exists (Prompt_Source);
+      Remove_If_Exists (Direct_Copy);
+      Remove_If_Exists (Prompt_Copy);
+      Remove_If_Exists (Direct_Rename);
+   end Final_Operation_Observation_And_Prompt_Equivalence_Freeze;
 
-   procedure Phase493_Final_Selection_Activation_Target_Boundary_Freeze
+   procedure Final_Selection_Activation_Target_Boundary_Freeze
      (T : in out AUnit.Test_Cases.Test_Case'Class)
    is
       pragma Unreferenced (T);
       S : Editor.State.State_Type;
-      Active : constant String := Phase491_Temp_Path ("phase493_active.txt");
-      Bookmark_Target : constant String := Phase491_Temp_Path ("phase493_bookmark_target.txt");
-      Copy_Target : constant String := Phase491_Temp_Path ("phase493_selected_row_must_not_be_target.txt");
+      Active : constant String := Temp_Path ("active.txt");
+      Bookmark_Target : constant String := Temp_Path ("bookmark_target.txt");
+      Copy_Target : constant String := Temp_Path ("selected_row_must_not_be_target.txt");
       Before : Editor.Bookmarks.Bookmark_Snapshot;
       After_Select : Editor.Bookmarks.Bookmark_Snapshot;
       After_Copy : Editor.Bookmarks.Bookmark_Snapshot;
       Availability : Editor.Commands.Command_Availability;
       Added : Boolean := False;
    begin
-      Phase491_Remove_If_Exists (Active);
-      Phase491_Remove_If_Exists (Bookmark_Target);
-      Phase491_Remove_If_Exists (Copy_Target);
-      Phase491_Write_File (Active, "phase493 active");
-      Phase491_Write_File (Bookmark_Target, "phase493 bookmark target");
-      Phase491_Setup_Active_File (S, Active, "phase493 active");
+      Remove_If_Exists (Active);
+      Remove_If_Exists (Bookmark_Target);
+      Remove_If_Exists (Copy_Target);
+      Write_File (Active, "active");
+      Write_File (Bookmark_Target, "bookmark target");
+      Setup_Active_File (S, Active, "active");
       Editor.Bookmarks.Show (S.Bookmarks);
       Editor.Bookmarks.Toggle
         (S.Bookmarks, Bookmark_Target, Copy_Target, 7, 1, True, Added);
@@ -1865,39 +1869,39 @@ package body Editor.Bookmarks.Tests is
       Editor.Bookmarks.Select_Next (S.Bookmarks);
       Editor.Bookmarks.Build_Snapshot (S.Bookmarks, After_Select);
       Assert (To_String (After_Select.Bookmark_Rows (1).File_Display_Path) = Copy_Target,
-              "phase 493 selected row deliberately contains target-like text");
+              "selected row deliberately contains target-like text");
       Assert (S.File_Info.Has_Path and then To_String (S.File_Info.Path) = Active,
-              "phase 493 Bookmark selection does not override active buffer source");
+              "Bookmark selection does not override active buffer source");
       Availability := Editor.Executor.Command_Availability
         (S, Editor.Commands.Command_Copy_Buffer_File);
       Assert (Editor.Commands.Is_Available (Availability),
-              "phase 493 lifecycle availability still follows canonical active buffer");
-      Editor.Executor.Execute_File_Target_Command
+              "lifecycle availability still follows canonical active buffer");
+      Editor.Executor.File_Target_Prompt_Commands.Execute_File_Target_Command
         (S, Editor.Commands.Command_Copy_Buffer_File, Copy_Target);
       Editor.Bookmarks.Build_Snapshot (S.Bookmarks, After_Copy);
 
       Assert (Ada.Directories.Exists (Copy_Target),
-              "phase 493 explicit copy target comes from Executor argument");
+              "explicit copy target comes from Executor argument");
       Assert (S.File_Info.Has_Path and then To_String (S.File_Info.Path) = Active,
-              "phase 493 selected bookmark path did not become lifecycle source");
-      Assert_Phase493_Retained_Bookmark_Snapshot_Frozen
-        (After_Select, After_Copy, "phase 493 selection target boundary");
-      Assert_Phase493_Retained_Bookmark_Snapshot_Frozen
-        (Before, After_Copy, "phase 493 activation-free selected row boundary");
+              "selected bookmark path did not become lifecycle source");
+      Assert_Retained_Bookmark_Snapshot_Frozen
+        (After_Select, After_Copy, "selection target boundary");
+      Assert_Retained_Bookmark_Snapshot_Frozen
+        (Before, After_Copy, "activation-free selected row boundary");
       Assert_Bookmarks_File_Lifecycle_Observation_Coherent
-        (S.Bookmarks, "phase 493 selection/target/text final freeze");
+        (S.Bookmarks, "selection/target/text final freeze");
 
-      Phase491_Remove_If_Exists (Active);
-      Phase491_Remove_If_Exists (Bookmark_Target);
-      Phase491_Remove_If_Exists (Copy_Target);
-   end Phase493_Final_Selection_Activation_Target_Boundary_Freeze;
+      Remove_If_Exists (Active);
+      Remove_If_Exists (Bookmark_Target);
+      Remove_If_Exists (Copy_Target);
+   end Final_Selection_Activation_Target_Boundary_Freeze;
 
-   procedure Phase493_Final_Render_Persistence_Adjacent_Freeze
+   procedure Final_Render_Persistence_Adjacent_Freeze
      (T : in out AUnit.Test_Cases.Test_Case'Class)
    is
       pragma Unreferenced (T);
       S : Editor.State.State_Type;
-      Path : constant String := Phase491_Temp_Path ("phase493_render_persist.txt");
+      Path : constant String := Temp_Path ("render_persist.txt");
       Before : Editor.Bookmarks.Bookmark_Snapshot;
       After_Render : Editor.Bookmarks.Bookmark_Snapshot;
       After_Save : Editor.Bookmarks.Bookmark_Snapshot;
@@ -1907,11 +1911,11 @@ package body Editor.Bookmarks.Tests is
       Summary : Unbounded_String;
       Added : Boolean := False;
    begin
-      Phase491_Remove_If_Exists (Path);
-      Phase491_Write_File (Path, "phase493 render persistence");
-      Phase491_Setup_Active_File (S, Path, "phase493 render persistence dirty", Dirty => True);
+      Remove_If_Exists (Path);
+      Write_File (Path, "render persistence");
+      Setup_Active_File (S, Path, "render persistence dirty", Dirty => True);
       Editor.Bookmarks.Show (S.Bookmarks);
-      Editor.Bookmarks.Toggle (S.Bookmarks, Path, "phase493_render_persist.txt", 2, 1, True, Added);
+      Editor.Bookmarks.Toggle (S.Bookmarks, Path, "render_persist.txt", 2, 1, True, Added);
       Editor.Bookmarks.Build_Snapshot (S.Bookmarks, Before);
       Editor.Render_Model.Build_Render_Snapshot (S, Render_Before);
       Editor.Bookmarks.Build_Snapshot (S.Bookmarks, After_Render);
@@ -1919,11 +1923,11 @@ package body Editor.Bookmarks.Tests is
       Assert (Render_Before.Bookmark_Rows (1).Is_Open
                 and then Render_Before.Bookmark_Rows (1).Is_Active
                 and then Render_Before.Bookmark_Rows (1).Is_Dirty,
-              "phase 493 render derives open/active/dirty from canonical buffer state");
-      Assert_Phase493_Retained_Bookmark_Snapshot_Frozen
-        (Before, After_Render, "phase 493 render does not cache enriched Bookmark fields");
+              "render derives open/active/dirty from canonical buffer state");
+      Assert_Retained_Bookmark_Snapshot_Frozen
+        (Before, After_Render, "render does not cache enriched Bookmark fields");
 
-      Editor.Executor.Execute_Save (S);
+      Editor.Executor.File_Save_Basic_Commands.Execute_Save (S);
       Editor.Bookmarks.Build_Snapshot (S.Bookmarks, After_Save);
       Editor.Render_Model.Build_Render_Snapshot (S, Render_After_Save);
       Workspace := Editor.State.Build_Workspace_Snapshot (S);
@@ -1932,26 +1936,26 @@ package body Editor.Bookmarks.Tests is
       Assert (Render_After_Save.Bookmark_Rows (1).Is_Open
                 and then Render_After_Save.Bookmark_Rows (1).Is_Active
                 and then not Render_After_Save.Bookmark_Rows (1).Is_Dirty,
-              "phase 493 dirty hint follows canonical clean state after save");
-      Assert_Phase493_Retained_Bookmark_Snapshot_Frozen
-        (Before, After_Save, "phase 493 save does not persist dirty-hint cache");
+              "dirty hint follows canonical clean state after save");
+      Assert_Retained_Bookmark_Snapshot_Frozen
+        (Before, After_Save, "save does not persist dirty-hint cache");
       Assert (Index (To_String (Summary), "bookmark") = 0
                 and then Index (To_String (Summary), "Bookmark") = 0,
-              "phase 493 workspace persistence excludes Bookmark lifecycle observation state");
+              "workspace persistence excludes Bookmark lifecycle observation state");
       Assert (Editor.Buffer_Switcher.Open_Buffer_Switcher_File_Lifecycle_Observation_Frozen
                 (S.Buffer_Switcher),
-              "phase 493 preserves Open Buffer Switcher lifecycle freeze");
+              "preserves Open Buffer Switcher lifecycle freeze");
       Assert (Editor.Quick_Open.Quick_Open_File_Lifecycle_Observation_Frozen
                 (S.Quick_Open),
-              "phase 493 preserves Quick Open lifecycle freeze");
+              "preserves Quick Open lifecycle freeze");
       Assert (Editor.Project_Search.Project_Search_File_Lifecycle_Observation_Frozen
                 (S.Project_Search),
-              "phase 493 preserves Project Search lifecycle freeze");
+              "preserves Project Search lifecycle freeze");
       Assert_Bookmarks_File_Lifecycle_Observation_Coherent
-        (S.Bookmarks, "phase 493 render/persistence/adjacent final freeze");
+        (S.Bookmarks, "render/persistence/adjacent final freeze");
 
-      Phase491_Remove_If_Exists (Path);
-   end Phase493_Final_Render_Persistence_Adjacent_Freeze;
+      Remove_If_Exists (Path);
+   end Final_Render_Persistence_Adjacent_Freeze;
 
    procedure Stable_Command_Names
      (T : in out AUnit.Test_Cases.Test_Case'Class)
@@ -2073,57 +2077,57 @@ package body Editor.Bookmarks.Tests is
       Register_Routine (T, Goto_Target_Selection_Does_Not_Force_Visibility'Access,
                         "bookmark goto selection does not force surface visibility");
       Register_Routine (T, Coherent_Multi_Step_Workflow'Access,
-                        "phase 345 coherent toggle/remove/clear bookmark workflow");
+                        "coherent toggle/remove/clear bookmark workflow");
       Register_Routine (T, Reveal_And_Goto_Synchronize_Selected_Key'Access,
-                        "phase 345 reveal and direct goto synchronize selected key");
+                        "reveal and direct goto synchronize selected key");
       Register_Routine (T, Stale_And_Out_Of_Range_Targets_Are_Not_Pruned'Access,
-                        "phase 345 stale and out-of-range bookmarks are not pruned by navigation");
+                        "stale and out-of-range bookmarks are not pruned by navigation");
       Register_Routine (T, Editor_Surface_Markers_Are_Derived_And_Bounded'Access,
-                        "phase 345 editor-surface bookmark markers are derived and bounded");
+                        "editor-surface bookmark markers are derived and bounded");
       Register_Routine (T, Lifecycle_Reset_Clears_Bookmarks_And_Markers'Access,
-                        "phase 345 project lifecycle clears bookmark state and markers");
+                        "project lifecycle clears bookmark state and markers");
       Register_Routine (T, Workspace_Snapshot_Excludes_Bookmark_State'Access,
-                        "phase 345 workspace snapshots exclude bookmark state");
+                        "workspace snapshots exclude bookmark state");
       Register_Routine (T, Executor_Bookmark_Commands_Emit_One_Message_And_Preserve_Independence'Access,
-                        "phase 345 executor bookmark commands emit one message and preserve adjacent surfaces");
+                        "executor bookmark commands emit one message and preserve adjacent surfaces");
       Register_Routine (T, Executor_Stale_Selected_Bookmark_Failure_Preserves_State'Access,
-                        "phase 345 executor stale selected bookmark failure preserves bookmark state");
+                        "executor stale selected bookmark failure preserves bookmark state");
       Register_Routine (T, Availability_And_Command_Name_Boundaries_Are_Side_Effect_Free'Access,
-                        "phase 345 bookmark availability and absent command boundaries are side-effect-free");
-      Register_Routine (T, Phase490_Retained_Row_Projection_Is_Observation_Only'Access,
-                        "phase 490 retained bookmark row projection is observation-only");
-      Register_Routine (T, Phase490_Selection_And_Target_Text_Are_Not_Lifecycle_Source'Access,
-                        "phase 490 bookmark selection and text are not lifecycle source/target");
-      Register_Routine (T, Phase490_Copy_Move_Rename_Targets_Are_Not_Promoted'Access,
-                        "phase 490 lifecycle target paths are not promoted into bookmarks");
-      Register_Routine (T, Phase490_Render_Snapshot_Does_Not_Mutate_Bookmark_Observation_State'Access,
-                        "phase 490 render snapshot does not persist bookmark lifecycle observation state");
-      Register_Routine (T, Phase490_Adjacent_Observation_Freezes_Remain_Intact'Access,
-                        "phase 490 preserves adjacent lifecycle observation freezes");
-      Register_Routine (T, Phase491_Save_And_Copy_Observation_Reliability'Access,
-                        "phase 491 save and copy observation reliability");
-      Register_Routine (T, Phase491_Rename_Move_Delete_Target_Boundary_Reliability'Access,
-                        "phase 491 rename/move/delete retained target boundary reliability");
-      Register_Routine (T, Phase491_Failed_And_Blocked_Operations_Preserve_Observation'Access,
-                        "phase 491 failed and blocked operations preserve bookmark observation");
-      Register_Routine (T, Phase491_Selection_Prompt_Render_And_Persistence_Boundaries'Access,
-                        "phase 491 selection, prompt, render, and persistence boundaries");
-      Register_Routine (T, Phase492_Canonical_Row_Helpers_Rebuild_From_Retained_State'Access,
-                        "phase 492 canonical row helpers rebuild from retained state");
-      Register_Routine (T, Phase492_File_Lifecycle_Cleanup_Preserves_Retained_Targets'Access,
-                        "phase 492 file lifecycle cleanup preserves retained targets");
-      Register_Routine (T, Phase492_Selection_Prompt_And_Route_Cleanup_Boundaries'Access,
-                        "phase 492 selection prompt and route cleanup boundaries");
-      Register_Routine (T, Phase492_Render_And_Persistence_Cleanup_Are_Side_Effect_Free'Access,
-                        "phase 492 render and persistence cleanup are side-effect-free");
-      Register_Routine (T, Phase493_Final_Source_Row_Identity_Order_Selection_Freeze'Access,
-                        "phase 493 final source row identity order and selection freeze");
-      Register_Routine (T, Phase493_Final_Operation_Observation_And_Prompt_Equivalence_Freeze'Access,
-                        "phase 493 final operation observation and prompt equivalence freeze");
-      Register_Routine (T, Phase493_Final_Selection_Activation_Target_Boundary_Freeze'Access,
-                        "phase 493 final selection activation and target boundary freeze");
-      Register_Routine (T, Phase493_Final_Render_Persistence_Adjacent_Freeze'Access,
-                        "phase 493 final render persistence and adjacent freeze");
+                        "bookmark availability and absent command boundaries are side-effect-free");
+      Register_Routine (T, Retained_Row_Projection_Is_Observation_Only'Access,
+                        "retained bookmark row projection is observation-only");
+      Register_Routine (T, Selection_And_Target_Text_Are_Not_Lifecycle_Source'Access,
+                        "bookmark selection and text are not lifecycle source/target");
+      Register_Routine (T, Copy_Move_Rename_Targets_Are_Not_Promoted'Access,
+                        "lifecycle target paths are not promoted into bookmarks");
+      Register_Routine (T, Render_Snapshot_Does_Not_Mutate_Bookmark_Observation_State'Access,
+                        "render snapshot does not persist bookmark lifecycle observation state");
+      Register_Routine (T, Adjacent_Observation_Freezes_Remain_Intact'Access,
+                        "preserves adjacent lifecycle observation freezes");
+      Register_Routine (T, Save_And_Copy_Observation_Reliability'Access,
+                        "save and copy observation reliability");
+      Register_Routine (T, Rename_Move_Delete_Target_Boundary_Reliability'Access,
+                        "rename/move/delete retained target boundary reliability");
+      Register_Routine (T, Failed_And_Blocked_Operations_Preserve_Observation'Access,
+                        "failed and blocked operations preserve bookmark observation");
+      Register_Routine (T, Selection_Prompt_Render_And_Persistence_Boundaries'Access,
+                        "selection, prompt, render, and persistence boundaries");
+      Register_Routine (T, Canonical_Row_Helpers_Rebuild_From_Retained_State'Access,
+                        "canonical row helpers rebuild from retained state");
+      Register_Routine (T, File_Lifecycle_Cleanup_Preserves_Retained_Targets'Access,
+                        "file lifecycle cleanup preserves retained targets");
+      Register_Routine (T, Selection_Prompt_And_Route_Cleanup_Boundaries'Access,
+                        "selection prompt and route cleanup boundaries");
+      Register_Routine (T, Render_And_Persistence_Cleanup_Are_Side_Effect_Free'Access,
+                        "render and persistence cleanup are side-effect-free");
+      Register_Routine (T, Final_Source_Row_Identity_Order_Selection_Freeze'Access,
+                        "final source row identity order and selection freeze");
+      Register_Routine (T, Final_Operation_Observation_And_Prompt_Equivalence_Freeze'Access,
+                        "final operation observation and prompt equivalence freeze");
+      Register_Routine (T, Final_Selection_Activation_Target_Boundary_Freeze'Access,
+                        "final selection activation and target boundary freeze");
+      Register_Routine (T, Final_Render_Persistence_Adjacent_Freeze'Access,
+                        "final render persistence and adjacent freeze");
       Register_Routine (T, Stable_Command_Names'Access,
                         "bookmark command descriptors use stable command names");
    end Register_Tests;

@@ -9,7 +9,7 @@ with Editor.Ada_Volatile_Atomic_Shared_State_Legality;
 
 package Editor.Ada_Tasking_Shared_State_Final_Legality is
 
-   --  Pass1215 tasking/shared-state final legality.
+   --  Case 1215 tasking/shared-state final legality.
    --
    --  This package closes hard tasking/protected shared-state interactions by
    --  connecting deep tasking/protected RM edge evidence with abstract/refined

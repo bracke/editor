@@ -6,9 +6,9 @@ with Editor.Ada_Syntax_Tree;
 
 package Editor.Ada_Final_Semantic_Stabilized_Closure_Legality is
 
-   --  Pass1209 final stabilized semantic closure legality.
+   --  Case 1209 final stabilized semantic closure legality.
    --
-   --  This package consumes Pass1208 stabilization-gate rows and turns them
+   --  This package consumes Case 1208 stabilization-gate rows and turns them
    --  into first-class integrated-closure inputs.  Stable accepted rows are
    --  promoted as closure-accepted rows; stable withheld rows are preserved as
    --  closure blockers with their original prerequisite blocker family; changed

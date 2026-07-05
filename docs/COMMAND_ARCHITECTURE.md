@@ -1,6 +1,6 @@
 # Command Architecture Overview
 
-The editor command system is intentionally descriptor-driven. A command should be added in one place as a stable `Editor.Commands.Command_Id`, then wired through metadata, availability, execution, routing, keybindings, command-palette projection, side-effect tests, and message policy. Phase 112 adds audit helpers so future command drift fails with the command id and the missing contract rather than as a vague command-palette or executor regression.
+The editor command system is intentionally descriptor-driven. A command should be added in one place as a stable `Editor.Commands.Command_Id`, then wired through metadata, availability, execution, routing, keybindings, command-palette projection, side-effect tests, and message policy. adds audit helpers so future command drift fails with the command id and the missing contract rather than as a vague command-palette or executor regression.
 
 ## Registry invariants
 
@@ -15,7 +15,7 @@ The editor command system is intentionally descriptor-driven. A command should b
 Each concrete command must have:
 
 1. A descriptor whose `Id` equals the enum value.
-2. A non-empty, trimmed, non-placeholder label.
+2. A non-empty, trimmed, product-facing label.
 3. A non-empty, trimmed description.
 4. A non-empty category label.
 5. Explicit visibility and bindability.
@@ -147,11 +147,11 @@ Descriptions, command-palette details, messages, and side-effect tests should ke
 
 ## Side-effect matrix guidance
 
-Phase 112 keeps the side-effect matrix test-owned. High-risk commands should declare expected mutation domains using names such as buffers, dirty state, project, workspace file, settings file, keybindings file, recent projects, pending transition, messages, keybindings runtime, settings runtime, project-scoped UI, search state, panel state, and no domain.
+keeps the side-effect matrix test-owned. High-risk commands should declare expected mutation domains using names such as buffers, dirty state, project, workspace file, settings file, keybindings file, recent projects, pending transition, messages, keybindings runtime, settings runtime, project-scoped UI, search state, panel state, and no domain.
 
-# Phase 113 command extension readiness
+# command extension readiness
 
-Phase 113 prepares the command system for the next feature arc without reserving unfinished production commands. New functionality should be integrated through templates, test fixtures, and audit helpers first; production placeholder command ids should be avoided unless the command already has intentional descriptor, availability, executor, visibility, bindability, and message semantics.
+prepares the command system for the next feature arc without reserving unfinished production commands. New functionality should be integrated through templates, test fixtures, and audit helpers first; production command ids should be added only when the command already has intentional descriptor, availability, executor, visibility, bindability, and message semantics.
 
 ## Architecture map
 
@@ -310,7 +310,7 @@ Each template below is intentionally concrete enough to copy. Replace the exampl
 
 ### Hidden non-bindable internal command
 
-* `Command_Id`: avoid production ids unless there is an actual internal route. Prefer test fixtures for future placeholders.
+* `Command_Id`: avoid production ids unless there is an actual internal route. Prefer test fixtures for future work.
 * Descriptor: `Hidden_Command`, `Bindable => False`, `Internal_Category` only when genuinely internal.
 * Availability: if executable, still covered. If not executable, do not add it as a normal production command.
 * Executor handler: either explicit no-op/unavailable behavior with documentation, or no production id.
@@ -333,7 +333,7 @@ Use test-only fake descriptors, fake route audit results, and keybinding files c
 * configuration command routed through the wrong domain;
 * route bypasses executor.
 
-Unknown command names in keybinding files must be diagnosed/ignored, must not create placeholder commands, and must not corrupt the active runtime table. A partial file may still load valid entries.
+Unknown command names in keybinding files must be diagnosed/ignored, must not create reserved commands, and must not corrupt the active runtime table. A partial file may still load valid entries.
 
 ## New-command checklist enforcement
 
@@ -356,41 +356,41 @@ A new user command is not done until these checks pass:
 
 When the current executor section is readable enough, prefer comments and tests over mechanical churn. Refactor only when helper extraction makes side effects easier to audit.
 
-Pass1055: cross-unit selected-name expression inference added; expression metadata now preserves cross-unit selected-name target/selector identity and deterministic counters while maintaining snapshot-owned analysis invariants.
+Case 1055: cross-unit selected-name expression inference added; expression metadata now preserves cross-unit selected-name target/selector identity and deterministic counters while maintaining snapshot-owned analysis invariants.
 
-Pass1096: added final render-safe diagnostic recovery-render projection over recovery-render workspace/session state, preserving stable keys and rejected-state accounting without rendering-side semantic work.
+Case 1096: added final render-safe diagnostic recovery-render projection over recovery-render workspace/session state, preserving stable keys and rejected-state accounting without rendering-side semantic work.
 
-Pass1201: Final remediation gate results are now represented as semantic closure rows. Unresolved prerequisite gates become first-class closure blockers while legal, preserved-error, and indeterminate rows retain their semantic identity.
+Case 1201: Final remediation gate results are now represented as semantic closure rows. Unresolved prerequisite gates become first-class closure blockers while legal, preserved-error, and indeterminate rows retain their semantic identity.
 
-Pass1212: Added Editor.Ada_Volatile_Atomic_Shared_State_Legality and its AUnit regression. The pass adds compiler-grade volatile/atomic/shared-variable legality integration with abstract/refined state, flow/contract proof, tasking/protected deep-edge evidence, and stabilized closure gating.
+Case 1212: Added Editor.Ada_Volatile_Atomic_Shared_State_Legality and its AUnit regression. The pass adds compiler-grade volatile/atomic/shared-variable legality integration with abstract/refined state, flow/contract proof, tasking/protected deep-edge evidence, and stabilized closure gating.
 
-Pass1223 update: shared-state stabilization-gate rows now feed Editor.Ada_Shared_State_Stabilized_Closure_Legality. Stable accepted shared-state rows become first-class closure evidence; stable blockers remain explicit closure blockers with blocker-family identity preserved.
-
-
-Pass1237 adds Editor.Ada_Predicate_Generic_Shared_State_Final_Legality. It connects predicate/invariant use-site and propagation evidence to the generic/shared-state final semantic chain, preserving blocker-family identity across generic replay, representation/freezing, tasking/protected, accessibility, discriminant/variant, exception/finalization, renaming/alias, dispatching Global/Depends, cross-unit closure, stabilized shared-state closure, source-fingerprint, substitution-fingerprint, multiple-blocker, and indeterminate states.
+Case 1223 update: shared-state stabilization-gate rows now feed Editor.Ada_Shared_State_Stabilized_Closure_Legality. Stable accepted shared-state rows become first-class closure evidence; stable blockers remain explicit closure blockers with blocker-family identity preserved.
 
 
-Pass1238 adds Editor.Ada_Dataflow_Generic_Shared_State_Final_Legality. It integrates definite-initialization/dataflow legality with the generic/shared-state final chain, preserving blocker families for initialization, dataflow, predicates, generic replay, shared-state closure, representation/freezing, tasking/protected, accessibility, discriminants, exception/finalization, renaming, volatile/atomic representation, access escape, variant components, finalization, and fingerprint mismatches.
-
-Pass1239: Added generic/shared-state final diagnostic integration and feed support. The integration exposes only blocking rows while preserving original semantic blocker-family identity and withholds accepted rows as current semantic evidence.
+Case 1237 adds Editor.Ada_Predicate_Generic_Shared_State_Final_Legality. It connects predicate/invariant use-site and propagation evidence to the generic/shared-state final semantic chain, preserving blocker-family identity across generic replay, representation/freezing, tasking/protected, accessibility, discriminant/variant, exception/finalization, renaming/alias, dispatching Global/Depends, cross-unit closure, stabilized shared-state closure, source-fingerprint, substitution-fingerprint, multiple-blocker, and indeterminate states.
 
 
-Pass1248 adds Editor.Ada_Tasking_Generic_Shared_State_RM_Hard_Case_Completion_Legality, closing tasking/protected RM hard cases over the stabilized generic/shared-state semantic chain while preserving blocker-family identity for protected action reentrancy, callbacks, entry queues, requeue/select paths, abort/finalization, task termination, protected shared-state access, abstract-state-backed task effects, and generic task/protected bodies.
+Case 1238 adds Editor.Ada_Dataflow_Generic_Shared_State_Final_Legality. It integrates definite-initialization/dataflow legality with the generic/shared-state final chain, preserving blocker families for initialization, dataflow, predicates, generic replay, shared-state closure, representation/freezing, tasking/protected, accessibility, discriminants, exception/finalization, renaming, volatile/atomic representation, access escape, variant components, finalization, and fingerprint mismatches.
 
-Pass1254: Predicate/invariant RM completion now consumes the completed generic/shared-state RM chain and keeps prerequisite blocker families distinct for downstream semantic closure.
-
-
-Pass1256: RM-completed generic/shared-state diagnostic integration now exposes completed-chain blockers while withholding accepted rows as current semantic evidence.
+Case 1239: Added generic/shared-state final diagnostic integration and feed support. The integration exposes only blocking rows while preserving original semantic blocker-family identity and withholds accepted rows as current semantic evidence.
 
 
-Pass1258 — Coverage-proven RM-completion AST repair legality
+Case 1248 adds Editor.Ada_Tasking_Generic_Shared_State_RM_Hard_Case_Completion_Legality, closing tasking/protected RM hard cases over the stabilized generic/shared-state semantic chain while preserving blocker-family identity for protected action reentrancy, callbacks, entry queues, requeue/select paths, abort/finalization, task termination, protected shared-state access, abstract-state-backed task effects, and generic task/protected bodies.
+
+Case 1254: Predicate/invariant RM completion now consumes the completed generic/shared-state RM chain and keeps prerequisite blocker families distinct for downstream semantic closure.
+
+
+Case 1256: RM-completed generic/shared-state diagnostic integration now exposes completed-chain blockers while withholding accepted rows as current semantic evidence.
+
+
+Case 1258 — Coverage-proven RM-completion AST repair legality
 Adds coverage-proven AST repair over the RM-completed generic/shared-state chain while preserving blocker-family identity.
 
-Pass1259: RM-completion generic/shared-state recheck eligibility now preserves blocker-family identity through the bounded recheck boundary.
+Case 1259: RM-completion generic/shared-state recheck eligibility now preserves blocker-family identity through the bounded recheck boundary.
 
-Pass1260: Added generic/shared-state RM-completion recheck application legality, preserving RM-completion blocker-family identity while applying eligibility back into the semantic closure/feed boundary.
+Case 1260: Added generic/shared-state RM-completion recheck application legality, preserving RM-completion blocker-family identity while applying eligibility back into the semantic closure/feed boundary.
 
 
-Pass1262 adds Editor.Ada_Generic_Shared_State_RM_Completion_Stabilization_Gate_Legality. It consumes RM-completion recheck convergence rows and promotes only stable generic/shared-state RM-completion conclusions while preserving prerequisite blocker-family identity for withheld rows.
+Case 1262 adds Editor.Ada_Generic_Shared_State_RM_Completion_Stabilization_Gate_Legality. It consumes RM-completion recheck convergence rows and promotes only stable generic/shared-state RM-completion conclusions while preserving prerequisite blocker-family identity for withheld rows.
 
-Pass1266: Tasking/protected RM-completion closure consumer legality now consumes stabilized RM-completion closure evidence and preserves tasking/protected blocker-family identity.
+Case 1266: Tasking/protected RM-completion closure consumer legality now consumes stabilized RM-completion closure evidence and preserves tasking/protected blocker-family identity.

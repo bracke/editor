@@ -6,10 +6,10 @@ with Editor.Ada_Tasking_Contract_Predicate_Dataflow_Consumer_Legality;
 
 package Editor.Ada_Representation_Tasking_Contract_Predicate_Dataflow_Consumer_Legality is
 
-   --  Pass1170 compiler-grade representation/freezing consumer legality.
+   --  Case 1170 compiler-grade representation/freezing consumer legality.
    --
    --  This layer replaces the older Global/Depends-only tasking flow bridge for
-   --  representation/freezing with the richer Pass1169 tasking/protected
+   --  representation/freezing with the richer Case 1169 tasking/protected
    --  contract predicate/dataflow evidence.  Representation clauses,
    --  operational attributes, stream attributes, record layouts,
    --  generic-instance representation effects, private/full-view timing, and

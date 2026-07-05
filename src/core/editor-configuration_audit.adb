@@ -176,7 +176,7 @@ package body Editor.Configuration_Audit is
          return True;
       end if;
 
-      --  Phase 577: file-conflict prompts may retain runtime buffer identity
+      --  file-conflict prompts may retain runtime buffer identity
       --  and an observed disk token only as transient revalidation keys.  The
       --  destructive confirmation path must be able to re-check the same
       --  registered buffer, backing path, conflict kind, dirty flag, buffer
@@ -257,7 +257,7 @@ package body Editor.Configuration_Audit is
       Route_Audit : Editor.Command_Route_Audit.Route_Audit_Result;
       Result : Buffer_Boundary_Audit_Summary;
    begin
-      --  Inspect actual Phase 577 route surfaces instead of trusting
+      --  Inspect actual route surfaces instead of trusting
       --  representative caller-provided booleans: command descriptors, current
       --  keybinding records, Buffer List route metadata, and serialized
       --  workspace text must not carry runtime buffer identities.
@@ -589,7 +589,7 @@ package body Editor.Configuration_Audit is
       end if;
    end Audit_Buffer_Metadata_Lifecycle_Boundaries;
 
-   function Phase_577_Buffer_Metadata_Lifecycle_Complete
+   function Buffer_Metadata_Lifecycle_Complete
      (State                : Editor.State.State_Type;
       Serialized_Workspace : String := "") return Boolean
    is
@@ -649,7 +649,7 @@ package body Editor.Configuration_Audit is
         and then not Summary.Conflict_Token_Persisted
         and then not Summary.Close_Prompt_State_Persisted
         and then not Summary.Undo_Redo_Clipboard_Persisted;
-   end Phase_577_Buffer_Metadata_Lifecycle_Complete;
+   end Buffer_Metadata_Lifecycle_Complete;
 
    function Configuration_State_Summary_For
      (State : Editor.State.State_Type) return Configuration_State_Summary

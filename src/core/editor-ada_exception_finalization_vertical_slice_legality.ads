@@ -4,7 +4,7 @@ with Editor.Ada_Syntax_Tree;
 
 package Editor.Ada_Exception_Finalization_Vertical_Slice_Legality is
 
-   --  Pass1310 vertical-slice exception/finalization legality.
+   --  Case 1310 vertical-slice exception/finalization legality.
    --  This package checks concrete Ada exception propagation and finalization
    --  rules against source-shaped semantic rows.  It models language legality
    --  directly instead of adding another closure, provenance, or diagnostic

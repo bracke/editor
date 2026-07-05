@@ -466,7 +466,7 @@ package body Editor.Project_Search is
    is
       pragma Unreferenced (State);
    begin
-      --  Phase 488: Project_Search_State has no file-lifecycle-visible
+      --  Project_Search_State has no file-lifecycle-visible
       --  duplicate state: no result path cache beyond retained result rows,
       --  dirty hint cache, lifecycle status cache, target history, operation
       --  history, prompt input cache, filesystem probe cache, association
@@ -550,7 +550,7 @@ package body Editor.Project_Search is
      (State : Project_Search_State) return Boolean
    is
    begin
-      --  Phase 489 final freeze composes the canonical structural predicates.
+      --  final freeze composes the canonical structural predicates.
       --  Product truth remains in retained Project Search result/query/selection
       --  state and canonical buffer/project sources supplied to snapshot builders;
       --  there is deliberately no second Project Search lifecycle model to check.
@@ -1072,7 +1072,7 @@ package body Editor.Project_Search is
      (State : in out Project_Search_State)
    is
    begin
-      --  Phase 572 completeness: File Tree mutations can invalidate a
+      --  completeness: File Tree mutations can invalidate a
       --  retained search even when the last run produced zero rows.  Creating
       --  or renaming a file can introduce matches for the same query, so the
       --  stale marker follows the retained query/run status as well as visible
@@ -1685,7 +1685,7 @@ package body Editor.Project_Search is
                   or else State.Last_Status /= Project_Search_Idle
                   or else State.Replace_Status_Value /= Project_Replace_No_Preview);
    begin
-      --  Phase 572 completeness: File Tree mutations stale replace preview
+      --  completeness: File Tree mutations stale replace preview
       --  state even when the previous preview had no rows.  A retained
       --  zero-result preview can become applicable after a file create/rename,
       --  so the preview status must not remain fresh merely because there are
@@ -2655,7 +2655,7 @@ package body Editor.Project_Search is
       Effective_Options.Case_Sensitive := State.Case_Sensitive_Search;
 
       if Q'Length = 0 or else Contains_Newline (Q) then
-         --  Phase 533: an unavailable/no-query run is a real display state,
+         --  an unavailable/no-query run is a real display state,
          --  not permission to keep showing stale project result rows.
          Reset_Results (State, Project_Search_Empty_Query);
          State.Last_Query_Text := Null_Unbounded_String;
@@ -2745,7 +2745,7 @@ package body Editor.Project_Search is
                            end if;
 
                            if Can_Read then
-                              --  Phase 547 completeness: classify binary/decode
+                              --  completeness: classify binary/decode
                               --  failures before invoking the caller-provided
                               --  reader.  The File Tree-backed search path now
                               --  reports binary files in the same skipped-file
@@ -2949,7 +2949,7 @@ package body Editor.Project_Search is
          return Ada.Strings.Fixed.Index (Path, Filter) > 0;
       end if;
 
-      --  Phase 547 completeness: simple '*' wildcard only.  This is an
+      --  completeness: simple '*' wildcard only.  This is an
       --  in-process deterministic matcher, not shell glob expansion.  It is
       --  anchored to the project-relative path so patterns like "*.adb" and
       --  "src/*" work predictably without escaping the project root.
@@ -3110,7 +3110,7 @@ package body Editor.Project_Search is
       Effective_Options.Case_Sensitive := State.Case_Sensitive_Search;
 
       if Q'Length = 0 or else Contains_Newline (Q) then
-         --  Phase 533: invalid/no-query execution clears transient results so
+         --  invalid/no-query execution clears transient results so
          --  render can show the no-query state without stale rows.
          Reset_Results (State, Project_Search_Empty_Query);
          State.Last_Query_Text := Null_Unbounded_String;

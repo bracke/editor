@@ -238,13 +238,23 @@ package body Editor.Build_Execution_Workflow is
          declare
             Reason : constant String :=
               Editor.Build_Command.Build_Run_Unavailable_Reason (Status);
+            Hint : constant String :=
+              Editor.Build_Command.Build_Run_Recovery_Hint (Status);
          begin
             if Reason'Length = 0 then
+               return False;
+            end if;
+            if Hint'Length = 0 then
                return False;
             end if;
 
             if Status /= Editor.Build_Command.Build_Run_Readiness_Ready
               and then Reason = "Build request ready"
+            then
+               return False;
+            end if;
+            if Status /= Editor.Build_Command.Build_Run_Readiness_Ready
+              and then Hint = "Run build"
             then
                return False;
             end if;
@@ -257,6 +267,9 @@ package body Editor.Build_Execution_Workflow is
         and then Editor.Build_Command.Build_Run_Unavailable_Reason
           (Editor.Build_Command.Build_Run_Readiness_No_Candidate_Selected) =
             "No build candidate selected."
+        and then Editor.Build_Command.Build_Run_Recovery_Hint
+          (Editor.Build_Command.Build_Run_Readiness_No_Candidate_Selected) =
+            "Refresh build candidates and select one"
         and then Editor.Build_Command.Build_Run_Unavailable_Reason
           (Editor.Build_Command.Build_Run_Readiness_Selected_Candidate_Stale) =
             "Selected build candidate is stale."
@@ -268,7 +281,10 @@ package body Editor.Build_Execution_Workflow is
             "Consent required."
         and then Editor.Build_Command.Build_Run_Unavailable_Reason
           (Editor.Build_Command.Build_Run_Readiness_Consent_Stale) =
-            "Consent stale.";
+            "Consent stale."
+        and then Editor.Build_Command.Build_Run_Recovery_Hint
+          (Editor.Build_Command.Build_Run_Readiness_Job_Already_Active) =
+            "Wait for the active build or cancel it";
    end Assert_Build_Run_Unavailable_Reasons_Complete;
 
    function Assert_Build_Latest_Result_Replaces_Attempt

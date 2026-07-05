@@ -472,7 +472,7 @@ package Editor.Project_Search is
       Project : Editor.Project.Project_State;
       Options : Project_Search_Options);
 
-   --  Phase 488 canonical cleanup predicates.  These helpers intentionally
+   --  canonical cleanup predicates.  These helpers intentionally
    --  expose only structural invariants: Project Search owns query, selection,
    --  retained search results, and retained search options.  It does not own
    --  lifecycle target history, operation history, prompt state, filesystem
@@ -493,7 +493,7 @@ package Editor.Project_Search is
    function Project_Search_File_Lifecycle_Observation_Canonical
      (State : Project_Search_State) return Boolean;
 
-   --  Phase 489 final regression-freeze predicate.  This intentionally stays
+   --  final regression-freeze predicate.  This intentionally stays
    --  structural and observation-only: it freezes that Project Search derives
    --  lifecycle-visible state only from retained results/query/selection and
    --  owns no duplicate caches, prompt state, repair paths, alternate routes,

@@ -22,6 +22,30 @@ package Editor.Feature_Search_Results is
    No_Search_Result : constant Search_Result_Id := 0;
    No_Buffer        : constant Natural := 0;
 
+   type External_Result_Set_Kind is
+     (Ordinary_External_Result_Set,
+      Diagnostic_Quick_Fix_Action_List);
+
+   type External_Result_Payload_Kind is
+     (No_External_Result_Payload,
+      Quick_Fix_Action_Payload);
+
+   type External_Result_Payload
+     (Kind : External_Result_Payload_Kind := No_External_Result_Payload) is record
+      case Kind is
+         when No_External_Result_Payload =>
+            null;
+         when Quick_Fix_Action_Payload =>
+            Action_Index : Natural := 0;
+      end case;
+   end record;
+
+   No_External_Payload : constant External_Result_Payload :=
+     (Kind => No_External_Result_Payload);
+
+   function Quick_Fix_Action_Result_Payload
+     (Action_Index : Natural) return External_Result_Payload;
+
    type Search_Results_Feature_State is private;
 
    procedure Clear
@@ -91,7 +115,8 @@ package Editor.Feature_Search_Results is
       Line_Text     : String := "";
       Match_Line    : Natural := 0;
       Match_Column  : Natural := 0;
-      Match_Length  : Natural := 0);
+      Match_Length  : Natural := 0;
+      External_Payload : External_Result_Payload := No_External_Payload);
 
    procedure Run_Active_Buffer_Search
      (Results         : in out Search_Results_Feature_State;
@@ -105,7 +130,8 @@ package Editor.Feature_Search_Results is
    procedure Begin_External_Result_Set
      (Results      : in out Search_Results_Feature_State;
       Query        : String;
-      Source_Label : String := "");
+      Source_Label : String := "";
+      Kind         : External_Result_Set_Kind := Ordinary_External_Result_Set);
 
    function Best_Rerun_Selection
      (Results         : Search_Results_Feature_State;
@@ -157,6 +183,9 @@ package Editor.Feature_Search_Results is
    function Results_Stale
      (Results : Search_Results_Feature_State) return Boolean;
 
+   function External_Kind
+     (Results : Search_Results_Feature_State) return External_Result_Set_Kind;
+
    function Header_Text
      (Results : Search_Results_Feature_State) return String;
 
@@ -203,6 +232,10 @@ package Editor.Feature_Search_Results is
    function Item_Line_Text
      (Results : Search_Results_Feature_State;
       Index   : Positive) return String;
+
+   function Item_External_Payload
+     (Results : Search_Results_Feature_State;
+      Index   : Positive) return External_Result_Payload;
 
    Max_Search_Result_Context_Length : constant Natural := 80;
 
@@ -302,6 +335,7 @@ private
       Target_Buffer : Natural := No_Buffer;
       Target_Line   : Natural := 0;
       Target_Column : Natural := 0;
+      External_Payload : External_Result_Payload := No_External_Payload;
    end record;
 
    package Search_Result_Vectors is new Ada.Containers.Vectors
@@ -322,6 +356,7 @@ private
       Searched_Label   : Ada.Strings.Unbounded.Unbounded_String;
       Snapshot_Version : Natural := 0;
       Results_Stale    : Boolean := False;
+      External_Kind     : External_Result_Set_Kind := Ordinary_External_Result_Set;
       Search_Input_Active : Boolean := False;
       Search_Input        : Editor.Input_Field.Input_Field_State;
       Query_History       : Search_Query_History_Vectors.Vector;

@@ -177,8 +177,8 @@ package body Editor.Build_Working_Context is
             return Build_Working_Context_Rejected_Raw_Text;
          when Working_Context_Source_Shell_Derived =>
             return Build_Working_Context_Rejected_Shell_Derived;
-         when Working_Context_Source_Project_Metadata_Derived =>
-            return Build_Working_Context_Rejected_Project_Metadata_Derived;
+         when Working_Context_Source_Implicit_Derived =>
+            return Build_Working_Context_Rejected_Implicit_Derived;
          when Working_Context_Source_Filesystem_Discovered =>
             return Build_Working_Context_Rejected_Filesystem_Discovered;
          when Working_Context_Source_Persisted =>
@@ -249,8 +249,8 @@ package body Editor.Build_Working_Context is
          when Build_Working_Context_Rejected_Unsafe_Source => return "Build working context source rejected";
          when Build_Working_Context_Rejected_Raw_Text => return "Raw build working directory text rejected";
          when Build_Working_Context_Rejected_Shell_Derived => return "Shell-derived build working context rejected";
-         when Build_Working_Context_Rejected_Project_Metadata_Derived =>
-            return "Project metadata-derived build working context rejected";
+         when Build_Working_Context_Rejected_Implicit_Derived =>
+            return "Implicit-derived build working context rejected";
          when Build_Working_Context_Rejected_Filesystem_Discovered =>
             return "Filesystem-discovered build working context rejected";
          when Build_Working_Context_Rejected_Persisted => return "Persisted build working context rejected";

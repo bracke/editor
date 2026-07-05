@@ -24,6 +24,10 @@ package Editor.Diagnostics is
       Has_Location : Boolean := False;
       Start_Row    : Natural := 0;
       Start_Column : Natural := 0;
+      Quick_Fix_Label  : Ada.Strings.Unbounded.Unbounded_String :=
+        Ada.Strings.Unbounded.Null_Unbounded_String;
+      Quick_Fix_Detail : Ada.Strings.Unbounded.Unbounded_String :=
+        Ada.Strings.Unbounded.Null_Unbounded_String;
    end record;
 
    subtype Diagnostic is Diagnostic_Range;
@@ -44,7 +48,9 @@ package Editor.Diagnostics is
       Start_Index : Editor.Cursors.Cursor_Index;
       End_Index   : Editor.Cursors.Cursor_Index;
       Severity    : Diagnostic_Severity;
-      Message     : String := "");
+      Message     : String := "";
+      Quick_Fix_Label  : String := "";
+      Quick_Fix_Detail : String := "");
 
    procedure Add
      (Diagnostics  : in out Diagnostic_Vectors.Vector;
@@ -53,7 +59,9 @@ package Editor.Diagnostics is
       Start_Row    : Natural;
       Start_Column : Natural;
       Severity     : Diagnostic_Severity;
-      Message      : String := "");
+      Message      : String := "";
+      Quick_Fix_Label  : String := "";
+      Quick_Fix_Detail : String := "");
 
    procedure Clear
      (Diagnostics : in out Diagnostic_Vectors.Vector);

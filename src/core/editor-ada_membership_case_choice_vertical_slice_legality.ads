@@ -4,7 +4,7 @@ with Editor.Ada_Syntax_Tree;
 
 package Editor.Ada_Membership_Case_Choice_Vertical_Slice_Legality is
 
-   --  Pass1315 vertical-slice membership/case-choice legality.  This
+   --  Case 1315 vertical-slice membership/case-choice legality.  This
    --  package models concrete Ada membership tests, discrete choices,
    --  case coverage, choice overlap, and static choice validation needed by
    --  control-flow, subtype/range, predicate, aggregate, and overload

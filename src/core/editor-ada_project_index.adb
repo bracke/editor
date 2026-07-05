@@ -542,7 +542,7 @@ package body Editor.Ada_Project_Index is
    procedure Invalidate_Path (Index : in out Index_State; Path : String) is
       I : Positive := 1;
    begin
-      --  Phase 579 pass 183: exact path invalidation uses the same slash and
+      --  pass 183: exact path invalidation uses the same slash and
       --  trailing-separator normalization as subtree invalidation.  Active
       --  buffer reload/revert/save-as and file lifecycle hooks may receive
       --  platform-native path spellings, while project refresh stores the

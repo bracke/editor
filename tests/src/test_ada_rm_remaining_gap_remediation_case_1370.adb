@@ -1,11 +1,11 @@
 with AUnit.Assertions; use AUnit.Assertions;
 with AUnit.Test_Cases;
 with Ada.Strings.Unbounded; use Ada.Strings.Unbounded;
-with Editor.Ada_RM_Remaining_Gap_Remediation_Pass1370;
+with Editor.Ada_RM_Remaining_Gap_Remediation_Case_1370;
 
 package body Test_Ada_RM_Remaining_Gap_Remediation_Case_1370 is
 
-   package Audit renames Editor.Ada_RM_Remaining_Gap_Remediation_Pass1370;
+   package Audit renames Editor.Ada_RM_Remaining_Gap_Remediation_Case_1370;
    use type Audit.RM_Family;
    use type Audit.Implementing_Slice;
    use type Audit.Coverage_Level;
@@ -58,8 +58,8 @@ package body Test_Ada_RM_Remaining_Gap_Remediation_Case_1370 is
         To_Unbounded_String
           ("parallel iterator reductions must preserve tampering and shared-state effect evidence");
       Row.Candidate_Implementing_Package :=
-        To_Unbounded_String ("Editor.Ada_RM_Remaining_Gap_Remediation_Pass1370");
-      Row.Candidate_Pass := To_Unbounded_String ("Pass1370");
+        To_Unbounded_String ("Editor.Ada_RM_Remaining_Gap_Remediation_Case_1370");
+      Row.Candidate_Case := To_Unbounded_String ("Case 1370");
       Row.Blocker_Family :=
         To_Unbounded_String ("RM.Iterators.Parallel_Reduction_Tampering_Effect");
       return Row;
@@ -72,9 +72,9 @@ package body Test_Ada_RM_Remaining_Gap_Remediation_Case_1370 is
       Expected : Audit.Precision_Classification) is
       Item : constant Audit.Remediation_Entry := Audit.Result_For (Results, Id);
    begin
-      Assert (Item.Status = Status, "unexpected pass1370 status");
+      Assert (Item.Status = Status, "unexpected case 1370 status");
       Assert (Audit.Expected_For_Status (Item.Status) = Expected,
-              "unexpected pass1370 precision classification");
+              "unexpected case 1370 precision classification");
    end Expect_Status;
 
    procedure Test_Parallel_Gap_Remediated
@@ -107,7 +107,7 @@ package body Test_Ada_RM_Remaining_Gap_Remediation_Case_1370 is
       Results := Audit.Build (Input);
 
       Assert (Audit.Gap_Remediated (Results),
-              "pass1370 should close the selected parallel/tampering gap");
+              "case 1370 should close the selected parallel/tampering gap");
       Assert (Results.Remediated_Count = 1, "legal count");
       Assert (Results.Illegal_Count = 1, "illegal count");
       Assert (Results.Runtime_Check_Count = 1, "runtime-check count");
@@ -231,7 +231,7 @@ package body Test_Ada_RM_Remaining_Gap_Remediation_Case_1370 is
       Row : Audit.Remediation_Row;
    begin
       Row := Base_Row (30);
-      Row.Inventory_Row_From_Pass1366 := False;
+      Row.Inventory_Row_From_Final_Burn_Down := False;
       Audit.Add_Row (Input, Row);
 
       Row := Base_Row (31);
@@ -265,7 +265,7 @@ package body Test_Ada_RM_Remaining_Gap_Remediation_Case_1370 is
 
       Results := Audit.Build (Input);
 
-      Expect_Status (Results, 30, Audit.Status_Missing_Pass1366_Inventory_Row,
+      Expect_Status (Results, 30, Audit.Status_Missing_Final_Inventory_Row,
                      Precision.Class_Illegal);
       Expect_Status (Results, 31, Audit.Status_Missing_Concrete_Subrule_Name,
                      Precision.Class_Illegal);

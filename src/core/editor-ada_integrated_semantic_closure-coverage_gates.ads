@@ -2,7 +2,7 @@ with Editor.Ada_Semantic_Coverage_Gates;
 
 package Editor.Ada_Integrated_Semantic_Closure.Coverage_Gates is
 
-   --  Pass1135 bridge from semantic coverage gates into integrated semantic
+   --  Case 1135 bridge from semantic coverage gates into integrated semantic
    --  closure.  Gate failures become first-class closure blockers so semantic
    --  diagnostics cannot present confident legality conclusions when the
    --  required parser, AST, metadata, cross-unit, or consumer coverage is

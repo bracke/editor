@@ -6,9 +6,9 @@ with Editor.Ada_Syntax_Tree;
 
 package Editor.Ada_Elaboration_Contract_Predicate_Dataflow_Consumer_Legality is
 
-   --  Pass1168 compiler-grade elaboration consumer legality.
+   --  Case 1168 compiler-grade elaboration consumer legality.
    --
-   --  This layer feeds Pass1167 contract predicate/dataflow results into
+   --  This layer feeds Case 1167 contract predicate/dataflow results into
    --  elaboration graph closure.  Elaboration-time calls, default
    --  expressions, aspect expressions, representation items, generic
    --  instances, task activation, and policy-sensitive library-unit contexts

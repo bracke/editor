@@ -153,7 +153,7 @@ package body Editor.Dirty_Lines.Tests is
       Recompute (State, "A");
 
       Assert (Dirty_Line_Count (State) = 0,
-              "deleted baseline-only rows should not create Phase 63 visible dirty rows");
+              "deleted baseline-only rows should not create visible dirty rows");
       Assert (Kind_For_Row (State, 1) = Clean_Line,
               "row removed from current text should report as clean/out-of-range");
    end Test_Deleted_Baseline_Row_Has_No_Visible_Dirty_Row;
@@ -180,31 +180,31 @@ package body Editor.Dirty_Lines.Tests is
    begin
       AUnit.Test_Cases.Registration.Register_Routine
         (T, Test_Clear_And_Empty_Baseline'Access,
-         "Phase 63 clear and empty baseline");
+         "clear and empty baseline");
       AUnit.Test_Cases.Registration.Register_Routine
         (T, Test_Identical_Text_Is_Clean'Access,
-         "Phase 63 identical text is clean");
+         "identical text is clean");
       AUnit.Test_Cases.Registration.Register_Routine
         (T, Test_Modified_Existing_Row'Access,
-         "Phase 63 modified existing row");
+         "modified existing row");
       AUnit.Test_Cases.Registration.Register_Routine
         (T, Test_Added_Row_After_Baseline'Access,
-         "Phase 63 added row after baseline");
+         "added row after baseline");
       AUnit.Test_Cases.Registration.Register_Routine
         (T, Test_Multiple_Changed_Rows_And_Out_Of_Range'Access,
-         "Phase 63 multiple rows and out of range");
+         "multiple rows and out of range");
       AUnit.Test_Cases.Registration.Register_Routine
         (T, Test_Clear_Dirty_State_To_Current'Access,
-         "Phase 63 clear dirty state to current");
+         "clear dirty state to current");
       AUnit.Test_Cases.Registration.Register_Routine
         (T, Test_Trailing_Newline_Line_Count'Access,
-         "Phase 63 trailing newline policy");
+         "trailing newline policy");
       AUnit.Test_Cases.Registration.Register_Routine
         (T, Test_Deleted_Baseline_Row_Has_No_Visible_Dirty_Row'Access,
-         "Phase 63 deleted baseline rows have no visible marker");
+         "deleted baseline rows have no visible marker");
       AUnit.Test_Cases.Registration.Register_Routine
         (T, Test_Recompute_Without_Baseline_Uses_Empty_Baseline'Access,
-         "Phase 63 recompute without baseline uses empty baseline");
+         "recompute without baseline uses empty baseline");
    end Register_Tests;
 
 end Editor.Dirty_Lines.Tests;

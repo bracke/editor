@@ -13,7 +13,7 @@ with Editor.Ada_Tasking_Protected_Legality;
 
 package Editor.Ada_Cross_Unit_Semantic_Closure is
 
-   --  Wide compiler-grade semantic legality building block for Pass1106.
+   --  Wide compiler-grade semantic legality building block for Case 1106.
    --  This package connects cross-unit dependency and lookup state to the
    --  assignment, return, conversion/access/aggregate, control-flow,
    --  tasking/protected, tagged/derived, and generic-instance legality layers.

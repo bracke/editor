@@ -362,7 +362,7 @@ package body Editor.Ada_Overload_Type_Edge_Precision_Legality is
       Row.Target_Type_Name := Info.Target_Type_Name;
       Row.Expected_Type_Name := Info.Expected_Type_Name;
       Row.Message := To_Unbounded_String (Message_For (Status));
-      Row.Detail := To_Unbounded_String ("Pass1179 overload/type precision consumer row");
+      Row.Detail := To_Unbounded_String ("Case 1179 overload/type precision consumer row");
       Row.RM_Edge_Row := Info.RM_Edge_Row;
       Row.RM_Edge_Status := Info.RM_Edge_Status;
       Row.Expression_AST_Row := Info.Expression_AST_Row;

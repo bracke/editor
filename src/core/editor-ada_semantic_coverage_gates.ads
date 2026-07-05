@@ -5,7 +5,7 @@ with Editor.Ada_Syntax_Tree;
 
 package Editor.Ada_Semantic_Coverage_Gates is
 
-   --  Pass1134 semantic coverage gates.
+   --  Case 1134 semantic coverage gates.
    --
    --  This package turns parser/AST semantic coverage audit facts into
    --  legality-safety gates.  Downstream semantic packages can use the gate

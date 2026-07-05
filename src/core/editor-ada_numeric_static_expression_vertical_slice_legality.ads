@@ -4,7 +4,7 @@ with Editor.Ada_Syntax_Tree;
 
 package Editor.Ada_Numeric_Static_Expression_Vertical_Slice_Legality is
 
-   --  Pass1314 vertical-slice numeric/static-expression legality.  This
+   --  Case 1314 vertical-slice numeric/static-expression legality.  This
    --  package models concrete Ada staticness and universal numeric checks
    --  needed by overload, subtype/range, representation, and aggregate
    --  consumers; it is not a diagnostic/provenance/closure wrapper.

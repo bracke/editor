@@ -377,7 +377,7 @@ package body Editor.Core_Editing_Workflow is
             if not Has_Buffer then
                return "No active buffer.";
             else
-               --  Phase 575: dirty close commands are available at the
+               --  dirty close commands are available at the
                --  command-surface level.  Execution opens an explicit
                --  save/discard/cancel dirty-close review before any close that
                --  could lose text, so the audit helper must not preserve the
@@ -614,7 +614,7 @@ package body Editor.Core_Editing_Workflow is
         Editing_Availability_Reason
           (S, Editor.Commands.Command_Close_Active_Buffer);
    begin
-      --  Phase 575 moved dirty-close safety from availability-time refusal to
+      --  moved dirty-close safety from availability-time refusal to
       --  Executor-owned confirmation.  The coherent state is therefore:
       --  no active buffer still reports no active buffer, while a dirty active
       --  buffer remains command-available and is guarded only when execution
@@ -637,7 +637,7 @@ package body Editor.Core_Editing_Workflow is
       Result.Caret_State_Coherent := Carets_In_Bounds (S);
       Result.Selection_State_Coherent := Selection_In_Bounds (S);
 
-      --  Phase 532 persistence boundary audit is local and conservative: the
+      --  persistence boundary audit is local and conservative: the
       --  core editor state must not encode transient input prompts as saved
       --  file identity or saved baseline data.  Persistence tests still own
       --  serialization-specific checks.

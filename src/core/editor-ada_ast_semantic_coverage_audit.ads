@@ -4,7 +4,7 @@ with Editor.Ada_Syntax_Tree;
 
 package Editor.Ada_AST_Semantic_Coverage_Audit is
 
-   --  Pass1132 compiler-grade parser/AST-to-semantic coverage audit.
+   --  Case 1132 compiler-grade parser/AST-to-semantic coverage audit.
    --
    --  This package records whether Ada 2022 grammar constructs that feed the
    --  widened semantic legality layers have parser nodes, structural AST shape,

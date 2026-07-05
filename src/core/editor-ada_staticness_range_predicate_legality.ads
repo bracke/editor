@@ -9,7 +9,7 @@ with Editor.Ada_Syntax_Tree;
 
 package Editor.Ada_Staticness_Range_Predicate_Legality is
 
-   --  Pass1110 compiler-grade staticness/range/predicate legality layer.
+   --  Case 1110 compiler-grade staticness/range/predicate legality layer.
    --  This package consolidates Ada legality checks whose answer depends on
    --  static-expression availability, discrete range membership, subtype
    --  predicate metadata, and already-classified assignment/return/conversion/

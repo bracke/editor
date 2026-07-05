@@ -137,7 +137,7 @@ package body Editor.Empty_State_Guidance is
       Suggestion : Empty_State_Suggested_Command :=
         Command_Suggestion_From_Descriptor (S, Command);
    begin
-      --  Phase 570 keeps every surface-specific guided action on one
+      --  keeps every surface-specific guided action on one
       --  construction path: descriptor projection first, then the emitting
       --  surface label only.  No caller may attach paths, row ids, result ids,
       --  recovery domains, setting values, or other hidden payload state.
@@ -271,9 +271,27 @@ package body Editor.Empty_State_Guidance is
    begin
       return Editor.Feature_Diagnostics.Has_Selected_Diagnostic
           (S.Feature_Diagnostics, S.Feature_Panel)
-        and then not Editor.Feature_Diagnostics.Selected_Diagnostic_Has_Target
-          (S.Feature_Diagnostics, S.Feature_Panel);
+        and then Editor.Feature_Diagnostics.Selected_Diagnostic_Target_Unavailable_Label
+          (S.Feature_Diagnostics, S.Feature_Panel) = "No source target";
    end Feature_Diagnostics_Selected_Source_Less;
+
+   function Feature_Diagnostics_Selected_Unavailable_Reason
+     (S : Editor.State.State_Type) return String
+   is
+      Reason : constant String :=
+        Editor.Feature_Diagnostics.Selected_Diagnostic_Open_Unavailable_Reason
+          (S.Feature_Diagnostics, S.Feature_Panel);
+   begin
+      if not Editor.Feature_Diagnostics.Has_Selected_Diagnostic
+        (S.Feature_Diagnostics, S.Feature_Panel)
+        or else Feature_Diagnostics_Selected_Source_Less (S)
+        or else Reason'Length = 0
+      then
+         return "";
+      end if;
+
+      return Reason;
+   end Feature_Diagnostics_Selected_Unavailable_Reason;
 
 
    function Command_Suggestion_From_Descriptor
@@ -1339,13 +1357,20 @@ package body Editor.Empty_State_Guidance is
          Set_Text (Snapshot, Project_Search_Surface, No_Query_State, "Enter a query and run Project Search.");
          Add_Suggestion (Snapshot, S, Editor.Commands.Command_Open_Project_Search_Bar);
       elsif Editor.Project_Search.Is_Stale (S.Project_Search) then
-         Set_Text (Snapshot, Project_Search_Surface, Stale_State, "Search results are stale; rerun search.");
+         Set_Text (Snapshot, Project_Search_Surface, Stale_State,
+                   "Search results are stale.",
+                   "Rerun Project Search before opening or replacing matches.",
+                   Empty_Warning);
          Add_Suggestion (Snapshot, S, Editor.Commands.Command_Rerun_Project_Search);
+         Add_Suggestion (Snapshot, S, Editor.Commands.Command_Open_Project_Search_Bar);
          Add_Suggestion (Snapshot, S, Editor.Commands.Command_Clear_Project_Search);
       elsif Replace_Status = Editor.Project_Search.Project_Replace_Search_Stale
         or else Editor.Project_Search.Replace_Preview_Is_Stale (S.Project_Search)
       then
-         Set_Text (Snapshot, Project_Search_Surface, Stale_State, "Replacement preview is stale.");
+         Set_Text (Snapshot, Project_Search_Surface, Stale_State,
+                   "Replacement preview is stale.",
+                   "Regenerate the preview before applying replacements.",
+                   Empty_Warning);
          Add_Suggestion (Snapshot, S, Editor.Commands.Command_Project_Search_Replace_Preview);
          Add_Suggestion (Snapshot, S, Editor.Commands.Command_Project_Search_Replace_Clear_Preview);
       elsif Replace_Status = Editor.Project_Search.Project_Replace_No_Preview
@@ -1377,14 +1402,29 @@ package body Editor.Empty_State_Guidance is
       then
          Set_Text (Snapshot, Project_Search_Surface, Limit_Reached_State, "Search limit reached.",
                    "Refine the query or scope and run Project Search again.", Empty_Warning);
+         Add_Suggestion (Snapshot, S, Editor.Commands.Command_Open_Project_Search_Bar);
+         Add_Suggestion (Snapshot, S, Editor.Commands.Command_Project_Search_Scope_Clear);
+         Add_Suggestion (Snapshot, S, Editor.Commands.Command_Project_Search_Include_Filter_Clear);
+         Add_Suggestion (Snapshot, S, Editor.Commands.Command_Project_Search_Exclude_Filter_Clear);
          Add_Suggestion (Snapshot, S, Editor.Commands.Command_Run_Project_Search);
          Add_Suggestion (Snapshot, S, Editor.Commands.Command_Clear_Project_Search);
       elsif Editor.Project_Search.Result_Count (S.Project_Search) = 0 then
-         Set_Text (Snapshot, Project_Search_Surface, No_Results_State, "No matches found.");
+         Set_Text (Snapshot, Project_Search_Surface, No_Results_State,
+                   "No Project Search matches.",
+                   "Clear scope/filter options or adjust the query, then run Project Search again.");
+         Add_Suggestion (Snapshot, S, Editor.Commands.Command_Open_Project_Search_Bar);
+         Add_Suggestion (Snapshot, S, Editor.Commands.Command_Project_Search_Scope_Clear);
+         Add_Suggestion (Snapshot, S, Editor.Commands.Command_Project_Search_Kind_Clear);
+         Add_Suggestion (Snapshot, S, Editor.Commands.Command_Project_Search_Include_Filter_Clear);
+         Add_Suggestion (Snapshot, S, Editor.Commands.Command_Project_Search_Exclude_Filter_Clear);
          Add_Suggestion (Snapshot, S, Editor.Commands.Command_Run_Project_Search);
          Add_Suggestion (Snapshot, S, Editor.Commands.Command_Clear_Project_Search);
       else
          Set_Text (Snapshot, Project_Search_Surface, Ready_State, "Project Search ready.");
+         Add_Suggestion (Snapshot, S, Editor.Commands.Command_Open_Selected_Project_Search_Result);
+         Add_Suggestion (Snapshot, S, Editor.Commands.Command_Next_Project_Search_Result);
+         Add_Suggestion (Snapshot, S, Editor.Commands.Command_Previous_Project_Search_Result);
+         Add_Suggestion (Snapshot, S, Editor.Commands.Command_Project_Search_Replace_Preview);
       end if;
       return Snapshot;
    end Build_Project_Search_Empty_State;
@@ -1458,16 +1498,33 @@ package body Editor.Empty_State_Guidance is
                    "Selected diagnostic has no source target.",
                    "Navigation is unavailable until a diagnostic carries a source location.");
          Add_Suggestion (Snapshot, S, Editor.Commands.Command_Diagnostics_Clear_Selected);
+      elsif Feature_Diagnostics_Selected_Unavailable_Reason (S)'Length > 0 then
+         Set_Text
+           (Snapshot, Diagnostics_Surface, Selected_Unavailable_State,
+            Feature_Diagnostics_Selected_Unavailable_Reason (S),
+            "Clear the selected diagnostic or run the producer again after fixing the target.",
+            Empty_Warning);
+         Add_Suggestion (Snapshot, S, Editor.Commands.Command_Diagnostics_Clear_Selected);
+         Add_Suggestion (Snapshot, S, Editor.Commands.Command_Build_UI_Show);
       elsif Feature_Diagnostics_Has_Stale_Target (S) then
          Set_Text (Snapshot, Diagnostics_Surface, Stale_State,
                    "Some diagnostics may be stale.",
                    "Clear stale diagnostics or run the producer again explicitly.",
                    Empty_Warning);
          Add_Suggestion (Snapshot, S, Editor.Commands.Command_Diagnostics_Clear);
+      elsif S.Latest_Build_Result.Has_Diagnostics_Count
+        and then S.Latest_Build_Result.Diagnostics_Count_If_Available = 0
+      then
+         Set_Text (Snapshot, Diagnostics_Surface, No_Build_Diagnostics_State,
+                   "Build completed with no diagnostics.",
+                   "Inspect Build Output for command details or run build again after changes.");
+         Add_Suggestion (Snapshot, S, Editor.Commands.Command_Build_UI_Show);
       elsif Feature_Total = 0
         and then Editor.Diagnostics.Diagnostic_Count (S.Diagnostics) = 0
       then
-         Set_Text (Snapshot, Diagnostics_Surface, No_Diagnostics_State, "No diagnostics.");
+         Set_Text (Snapshot, Diagnostics_Surface, No_Diagnostics_State,
+                   "No diagnostics yet.",
+                   "Run build or diagnostics-producing commands to populate this panel.");
          Add_Suggestion (Snapshot, S, Editor.Commands.Command_Diagnostics_Clear_Filter);
          Add_Suggestion (Snapshot, S, Editor.Commands.Command_Build_UI_Show);
       elsif S.Active_Diagnostic.Has_Active
@@ -1481,13 +1538,6 @@ package body Editor.Empty_State_Guidance is
                    "Selected diagnostic has no source target.",
                    "Navigation is unavailable until a diagnostic carries a source location.");
          Add_Suggestion (Snapshot, S, Editor.Commands.Command_Diagnostics_Clear_Selected);
-      elsif S.Latest_Build_Result.Has_Diagnostics_Count
-        and then S.Latest_Build_Result.Diagnostics_Count_If_Available = 0
-      then
-         Set_Text (Snapshot, Diagnostics_Surface, No_Build_Diagnostics_State,
-                   "No build diagnostics.",
-                   "Run build explicitly or inspect output details when available.");
-         Add_Suggestion (Snapshot, S, Editor.Commands.Command_Build_UI_Show);
       else
          Set_Text (Snapshot, Diagnostics_Surface, Ready_State, "Diagnostics ready.");
          Add_Suggestion (Snapshot, S, Editor.Commands.Command_Diagnostics_Clear_Filter);
@@ -1510,18 +1560,22 @@ package body Editor.Empty_State_Guidance is
       then
          Set_Text (Snapshot, Build_Surface, Not_Refreshed_State, "Refresh build candidates.",
                    "Candidate discovery is explicit; this guidance does not scan or run anything.");
-         Add_Suggestion (Snapshot, S, Editor.Commands.Command_Refresh_Project_Files);
+         Add_Suggestion (Snapshot, S, Editor.Commands.Command_Build_Refresh_Candidates);
+         Add_Suggestion (Snapshot, S, Editor.Commands.Command_Build_UI_Show);
       elsif Candidate_Count = 0 then
          Set_Text (Snapshot, Build_Surface, No_Candidates_State, "No build candidates found.",
                    "Refresh build candidates explicitly; this guidance does not scan or run anything.");
-         Add_Suggestion (Snapshot, S, Editor.Commands.Command_Refresh_Project_Files);
+         Add_Suggestion (Snapshot, S, Editor.Commands.Command_Build_Refresh_Candidates);
+         Add_Suggestion (Snapshot, S, Editor.Commands.Command_Build_UI_Show);
       elsif Validation = Editor.Build_UI.Build_UI_Rejected_Selected_Candidate_Stale then
          Set_Text (Snapshot, Build_Surface, Stale_State, "Selected build candidate is stale.",
                    "Refresh candidates before running build.", Empty_Warning);
-         Add_Suggestion (Snapshot, S, Editor.Commands.Command_Refresh_Project_Files);
+         Add_Suggestion (Snapshot, S, Editor.Commands.Command_Build_Refresh_Candidates);
+         Add_Suggestion (Snapshot, S, Editor.Commands.Command_Build_UI_Show);
       elsif Validation = Editor.Build_UI.Build_UI_Rejected_No_Candidate_Selected then
          Set_Text (Snapshot, Build_Surface, No_Selected_Candidate_State, "Select a build candidate.");
-         Add_Suggestion (Snapshot, S, Editor.Commands.Command_Build_Select_Next_Candidate);
+         Add_Suggestion (Snapshot, S, Editor.Commands.Command_Build_Select_First_Candidate);
+         Add_Suggestion (Snapshot, S, Editor.Commands.Command_Build_UI_Show);
       elsif Validation = Editor.Build_UI.Build_UI_Rejected_Missing_Consent
         or else Validation = Editor.Build_UI.Build_UI_Rejected_Stale_Consent
       then
@@ -1529,11 +1583,11 @@ package body Editor.Empty_State_Guidance is
          Add_Suggestion (Snapshot, S, Editor.Commands.Command_Build_Acknowledge_Consent);
       elsif Validation /= Editor.Build_UI.Build_UI_Valid then
          Set_Text
-           (Snapshot, Build_Surface, Request_Invalid_State,
+         (Snapshot, Build_Surface, Request_Invalid_State,
             "Build request is invalid.",
             Editor.Build_UI.Validation_Message (Validation), Empty_Warning);
          Add_Suggestion (Snapshot, S, Editor.Commands.Command_Build_UI_Show);
-         Add_Suggestion (Snapshot, S, Editor.Commands.Command_Refresh_Project_Files);
+         Add_Suggestion (Snapshot, S, Editor.Commands.Command_Build_Refresh_Candidates);
       elsif S.Latest_Build_Result.Diagnostics_Ingestion_Status =
         Editor.Build_Result_Summary.Diagnostics_Ingestion_Disabled
       then
@@ -1632,7 +1686,7 @@ package body Editor.Empty_State_Guidance is
         and then Assert_Empty_State_Suggestions_Have_No_Payloads (Snapshot)
         and then Assert_Empty_State_Suggestion_Source_Labels_Are_Surface_Owned (Snapshot)
         and then Assert_Empty_State_Suggestions_Are_Unique_And_Tail_Clean (Snapshot)
-        and then Assert_Empty_State_Suggestion_Tail_Is_Phase570_Clean (Snapshot)
+        and then Assert_Empty_State_Suggestion_Tail_Is_Clean (Snapshot)
         and then Assert_Non_Ready_Empty_State_Is_Actionable (Snapshot)
         and then Assert_Ready_Empty_State_Is_Suppressed (Snapshot)
         and then Assert_Empty_State_Suggestions_Are_Visible_Descriptor_Matches (Snapshot)
@@ -1650,7 +1704,7 @@ package body Editor.Empty_State_Guidance is
    is
       Renderable : Natural := 0;
    begin
-      --  Aggregate guidance is the render-facing contract for Phase 569.  The
+      --  Aggregate guidance is the render-facing contract for .  The
       --  array must be canonical, complete, bounded, and each member must obey
       --  the same no-payload/display-only invariants as an individual card.
       if Snapshots'Length /= Max_Empty_State_Surfaces
@@ -1947,7 +2001,7 @@ package body Editor.Empty_State_Guidance is
           (Snapshot.Suggestions (Index));
    end Assert_Suggested_Action_Index_Is_Activatable;
 
-   function Assert_Empty_State_Suggestion_Tail_Is_Phase570_Clean
+   function Assert_Empty_State_Suggestion_Tail_Is_Clean
      (Snapshot : Empty_State_Snapshot) return Boolean
    is
    begin
@@ -1975,7 +2029,7 @@ package body Editor.Empty_State_Guidance is
       end loop;
 
       return True;
-   end Assert_Empty_State_Suggestion_Tail_Is_Phase570_Clean;
+   end Assert_Empty_State_Suggestion_Tail_Is_Clean;
 
    function Assert_Unavailable_Suggested_Action_Does_Not_Execute
      (Suggestion : Empty_State_Suggested_Command;

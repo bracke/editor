@@ -141,7 +141,7 @@ package body Editor.Executor.Clipboard is
          return;
       end if;
 
-      --  Phase 374 atomic policy: only publish the clipboard after the
+      --  atomic policy: only publish the clipboard after the
       --  canonical deletion path has successfully changed buffer text.  If
       --  the canonical edit path fails or reports no text change, restore the
       --  pre-command editor/history/clipboard state rather than leaving a
@@ -211,7 +211,7 @@ package body Editor.Executor.Clipboard is
          end if;
       end;
 
-      --  Phase 374 keeps paste on the canonical text edit path, but avoids
+      --  keeps paste on the canonical text edit path, but avoids
       --  manufacturing an undo record for the degenerate replacement case
       --  where the selected text already equals the clipboard text.
       declare

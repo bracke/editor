@@ -10,7 +10,7 @@ with Editor.Ada_Widened_Legality_Coverage_Gate_Enforcement;
 
 package Editor.Ada_Tasking_Protected_Effects_Legality is
 
-   --  Pass1145 compiler-grade tasking/protected effects legality.
+   --  Case 1145 compiler-grade tasking/protected effects legality.
    --
    --  This package deepens tasking/protected semantic effects beyond the
    --  precision classifier by modelling entry queue state, accept/requeue/select

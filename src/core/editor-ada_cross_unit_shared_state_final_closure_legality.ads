@@ -10,7 +10,7 @@ with Editor.Ada_Volatile_Atomic_Shared_State_Legality;
 
 package Editor.Ada_Cross_Unit_Shared_State_Final_Closure_Legality is
 
-   --  Pass1216 cross-unit shared-state final closure legality.
+   --  Case 1216 cross-unit shared-state final closure legality.
    --
    --  This package closes the cross-unit boundary for the shared-state semantic
    --  chain.  Abstract/refined state, volatile/atomic/shared-variable effects,

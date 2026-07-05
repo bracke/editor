@@ -5,9 +5,9 @@ with Editor.Ada_Syntax_Tree;
 
 package Editor.Ada_Generic_Shared_State_Final_Recheck_Convergence_Legality is
 
-   --  Pass1243 generic/shared-state final recheck convergence legality.
+   --  Case 1243 generic/shared-state final recheck convergence legality.
    --
-   --  This package consumes Pass1242 generic/shared-state final recheck
+   --  This package consumes Case 1242 generic/shared-state final recheck
    --  application rows and classifies whether the combined generic/shared-state
    --  final chain has converged as current evidence, converged as not required,
    --  stayed stably withheld by its preserved prerequisite blocker, stayed

@@ -11,7 +11,7 @@ with Editor.Ada_Volatile_Atomic_Shared_State_Legality;
 
 package Editor.Ada_Abstract_State_Refined_State_Consumer_Integration_Legality is
 
-   --  Pass1224 abstract/refined state consumer integration legality.
+   --  Case 1224 abstract/refined state consumer integration legality.
    --
    --  This package makes abstract/refined-state evidence a mandatory consumer
    --  prerequisite for the remaining hard semantic consumers that depend on

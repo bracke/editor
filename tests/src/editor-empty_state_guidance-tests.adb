@@ -1,15 +1,19 @@
 with AUnit.Assertions; use AUnit.Assertions;
 with AUnit.Test_Cases;
 with Ada.Strings.Unbounded; use Ada.Strings.Unbounded;
+with Editor.Build_Result_Summary;
+with Editor.Build_UI;
 with Editor.Commands;
 with Editor.Configuration_Recovery;
 with Editor.Command_Palette;
 with Editor.Command_Route_Audit;
 with Editor.Executor;
 with Editor.Feature_Diagnostics;
+with Editor.Feature_Panel;
 with Editor.Diagnostics;
 with Editor.Cursors;
 with Editor.Project;
+with Editor.Project_Search;
 with Editor.Recent_Projects;
 with Editor.Render_Model;
 with Editor.Messages;
@@ -30,16 +34,16 @@ package body Editor.Empty_State_Guidance.Tests is
       return AUnit.Format ("Editor.Empty_State_Guidance");
    end Name;
 
-   procedure Test_Phase_569_First_Use_Coherent
+   procedure Test_First_Use_Coherent
      (T : in out AUnit.Test_Cases.Test_Case'Class)
    is
       pragma Unreferenced (T);
    begin
       Assert (Assert_First_Use_Empty_State_Guidance_Coherent,
               "first-use empty-state guidance must be coherent and display-only");
-   end Test_Phase_569_First_Use_Coherent;
+   end Test_First_Use_Coherent;
 
-   procedure Test_Phase_569_First_Run_Main_Guidance
+   procedure Test_First_Run_Main_Guidance
      (T : in out AUnit.Test_Cases.Test_Case'Class)
    is
       pragma Unreferenced (T);
@@ -59,9 +63,9 @@ package body Editor.Empty_State_Guidance.Tests is
               "suggestion must not carry a payload");
       Assert (Assert_Empty_State_Is_Display_Only (Snapshot),
               "first-run guidance must be display-only");
-   end Test_Phase_569_First_Run_Main_Guidance;
+   end Test_First_Run_Main_Guidance;
 
-   procedure Test_Phase_569_Render_Snapshot_Carries_Guidance
+   procedure Test_Render_Snapshot_Carries_Guidance
      (T : in out AUnit.Test_Cases.Test_Case'Class)
    is
       pragma Unreferenced (T);
@@ -77,9 +81,9 @@ package body Editor.Empty_State_Guidance.Tests is
               "render snapshot must include Build no-project guidance");
       Assert (Assert_Empty_State_Suggestions_Have_No_Payloads (Render.Main_Empty_State),
               "rendered suggestions must not carry payloads");
-   end Test_Phase_569_Render_Snapshot_Carries_Guidance;
+   end Test_Render_Snapshot_Carries_Guidance;
 
-   procedure Test_Phase_569_Project_Open_No_Buffer_Guidance
+   procedure Test_Project_Open_No_Buffer_Guidance
      (T : in out AUnit.Test_Cases.Test_Case'Class)
    is
       pragma Unreferenced (T);
@@ -99,9 +103,9 @@ package body Editor.Empty_State_Guidance.Tests is
               "project-open no-buffer message must be deterministic");
       Assert (Assert_Empty_State_Is_Display_Only (Snapshot),
               "project-open no-buffer guidance must be display-only");
-   end Test_Phase_569_Project_Open_No_Buffer_Guidance;
+   end Test_Project_Open_No_Buffer_Guidance;
 
-   procedure Test_Phase_569_Major_Surface_Coverage_Is_Descriptor_Derived
+   procedure Test_Major_Surface_Coverage_Is_Descriptor_Derived
      (T : in out AUnit.Test_Cases.Test_Case'Class)
    is
       pragma Unreferenced (T);
@@ -116,9 +120,9 @@ package body Editor.Empty_State_Guidance.Tests is
               "main suggestions must use stable command names only");
       Assert (Assert_Empty_State_Suggestions_Resolve_From_Stable_Names (Snapshot),
               "main suggestions must resolve back from stable command names");
-   end Test_Phase_569_Major_Surface_Coverage_Is_Descriptor_Derived;
+   end Test_Major_Surface_Coverage_Is_Descriptor_Derived;
 
-   procedure Test_Phase_569_Project_Open_Panel_Empty_States_Are_Explicit
+   procedure Test_Project_Open_Panel_Empty_States_Are_Explicit
      (T : in out AUnit.Test_Cases.Test_Case'Class)
    is
       pragma Unreferenced (T);
@@ -143,13 +147,143 @@ package body Editor.Empty_State_Guidance.Tests is
               "project-open Project Search should request an explicit query");
       Assert (Build_State.Kind = Not_Refreshed_State,
               "project-open Build UI should request explicit candidate refresh");
+      Assert (Contains_Command_Suggestion
+                (Build_State, Editor.Commands.Command_Build_Refresh_Candidates),
+              "project-open Build UI should suggest Build candidate refresh");
+      Assert (Contains_Command_Suggestion
+                (Build_State, Editor.Commands.Command_Build_UI_Show),
+              "project-open Build UI should suggest showing the Build UI");
       Assert (Assert_Empty_State_Is_Display_Only (File_Tree_State)
               and then Assert_Empty_State_Is_Display_Only (Search_State)
               and then Assert_Empty_State_Is_Display_Only (Build_State),
               "panel empty states must stay display-only");
-   end Test_Phase_569_Project_Open_Panel_Empty_States_Are_Explicit;
+   end Test_Project_Open_Panel_Empty_States_Are_Explicit;
 
-   procedure Test_Phase_569_Recent_Projects_Does_Not_Mutate
+   procedure Test_Build_Guidance_Uses_Row_Action_Commands
+     (T : in out AUnit.Test_Cases.Test_Case'Class)
+   is
+      pragma Unreferenced (T);
+      S : Editor.State.State_Type;
+      Result : Editor.Project.Project_Open_Result :=
+        (Status       => Editor.Project.Project_Open_Ok,
+         Root_Path    => To_Unbounded_String ("/tmp/project"),
+         Display_Name => To_Unbounded_String ("project"),
+         Error_Text   => Null_Unbounded_String);
+      Snapshot : Empty_State_Snapshot;
+   begin
+      Editor.Project.Apply_Open_Result (S.Project, Result);
+
+      Snapshot := Build_Build_UI_Empty_State (S);
+      Assert (Snapshot.Kind = Not_Refreshed_State,
+              "Build guidance fixture should start in unrefreshed state");
+      Assert (Contains_Command_Suggestion
+                (Snapshot, Editor.Commands.Command_Build_Refresh_Candidates),
+              "unrefreshed Build guidance should suggest candidate refresh");
+      Assert (Contains_Command_Suggestion
+                (Snapshot, Editor.Commands.Command_Build_UI_Show),
+              "Build guidance should keep the panel action visible");
+      Assert (not Contains_Command_Suggestion
+                (Snapshot, Editor.Commands.Command_Refresh_Project_Files),
+              "Build guidance should not use project-file refresh as a proxy");
+
+      S.Build_UI.Candidate_Refresh_Status :=
+        Editor.Build_UI.Build_Candidate_Refresh_No_Candidates;
+      Snapshot := Build_Build_UI_Empty_State (S);
+      Assert (Snapshot.Kind = No_Candidates_State,
+              "Build guidance should distinguish refreshed empty candidates");
+      Assert (Contains_Command_Suggestion
+                (Snapshot, Editor.Commands.Command_Build_Refresh_Candidates),
+              "no-candidates Build guidance should suggest candidate refresh");
+      Assert (Contains_Command_Suggestion
+                (Snapshot, Editor.Commands.Command_Build_UI_Show),
+              "no-candidates Build guidance should keep the panel action visible");
+      Assert (not Contains_Command_Suggestion
+                (Snapshot, Editor.Commands.Command_Refresh_Project_Files),
+              "no-candidates Build guidance should not use project-file refresh");
+   end Test_Build_Guidance_Uses_Row_Action_Commands;
+
+   procedure Test_Project_Search_No_Results_Guidance_Offers_Filter_Recovery
+     (T : in out AUnit.Test_Cases.Test_Case'Class)
+   is
+      pragma Unreferenced (T);
+      S : Editor.State.State_Type;
+      Result : Editor.Project.Project_Open_Result :=
+        (Status       => Editor.Project.Project_Open_Ok,
+         Root_Path    => To_Unbounded_String ("/tmp/project"),
+         Display_Name => To_Unbounded_String ("project"),
+         Error_Text   => Null_Unbounded_String);
+      Snapshot : Empty_State_Snapshot;
+      Valid : Boolean := False;
+   begin
+      Editor.Project.Apply_Open_Result (S.Project, Result);
+      Editor.Project_Search.Set_Query (S.Project_Search, "absent");
+      Editor.Project_Search.Set_Status
+        (S.Project_Search, Editor.Project_Search.Project_Search_Ok);
+      Editor.Project_Search.Set_Path_Scope (S.Project_Search, "src", Valid);
+      Assert (Valid, "test scope should be valid");
+      Editor.Project_Search.Set_Include_Path_Filter (S.Project_Search, "*.adb", Valid);
+      Assert (Valid, "test include filter should be valid");
+      Editor.Project_Search.Set_Exclude_Path_Filter (S.Project_Search, "obj", Valid);
+      Assert (Valid, "test exclude filter should be valid");
+      Editor.Project_Search.Set_Status
+        (S.Project_Search, Editor.Project_Search.Project_Search_Ok);
+      Editor.Project_Search.Clear_Stale (S.Project_Search);
+
+      Snapshot := Build_Project_Search_Empty_State (S);
+      Assert (Snapshot.Kind = No_Results_State,
+              "no-result Project Search guidance should distinguish no matches");
+      Assert (To_String (Snapshot.Primary_Message) = "No Project Search matches.",
+              "no-result Project Search guidance should use product-facing copy");
+      Assert (Contains_Command_Suggestion
+                (Snapshot, Editor.Commands.Command_Open_Project_Search_Bar),
+              "no-result Project Search should offer query editing");
+      Assert (Contains_Command_Suggestion
+                (Snapshot, Editor.Commands.Command_Project_Search_Scope_Clear),
+              "no-result Project Search should offer scope clearing");
+      Assert (Contains_Command_Suggestion
+                (Snapshot, Editor.Commands.Command_Project_Search_Include_Filter_Clear),
+              "no-result Project Search should offer include-filter clearing");
+      Assert (Contains_Command_Suggestion
+                (Snapshot, Editor.Commands.Command_Project_Search_Exclude_Filter_Clear),
+              "no-result Project Search should offer exclude-filter clearing");
+      Assert (Contains_Command_Suggestion
+                (Snapshot, Editor.Commands.Command_Run_Project_Search),
+              "no-result Project Search should offer rerunning search");
+   end Test_Project_Search_No_Results_Guidance_Offers_Filter_Recovery;
+
+   procedure Test_Project_Search_Stale_Guidance_Offers_Rerun
+     (T : in out AUnit.Test_Cases.Test_Case'Class)
+   is
+      pragma Unreferenced (T);
+      S : Editor.State.State_Type;
+      Result : Editor.Project.Project_Open_Result :=
+        (Status       => Editor.Project.Project_Open_Ok,
+         Root_Path    => To_Unbounded_String ("/tmp/project"),
+         Display_Name => To_Unbounded_String ("project"),
+         Error_Text   => Null_Unbounded_String);
+      Snapshot : Empty_State_Snapshot;
+   begin
+      Editor.Project.Apply_Open_Result (S.Project, Result);
+      Editor.Project_Search.Set_Query (S.Project_Search, "needle");
+      Editor.Project_Search.Set_Status
+        (S.Project_Search, Editor.Project_Search.Project_Search_Ok);
+      Editor.Project_Search.Mark_Stale_Unconditionally (S.Project_Search);
+
+      Snapshot := Build_Project_Search_Empty_State (S);
+      Assert (Snapshot.Kind = Stale_State,
+              "stale Project Search guidance should be explicit");
+      Assert (Contains_Command_Suggestion
+                (Snapshot, Editor.Commands.Command_Rerun_Project_Search),
+              "stale Project Search should offer rerun");
+      Assert (Contains_Command_Suggestion
+                (Snapshot, Editor.Commands.Command_Open_Project_Search_Bar),
+              "stale Project Search should offer query/filter editing");
+      Assert (Contains_Command_Suggestion
+                (Snapshot, Editor.Commands.Command_Clear_Project_Search),
+              "stale Project Search should offer clearing stale results");
+   end Test_Project_Search_Stale_Guidance_Offers_Rerun;
+
+   procedure Test_Recent_Projects_Does_Not_Mutate
      (T : in out AUnit.Test_Cases.Test_Case'Class)
    is
       pragma Unreferenced (T);
@@ -165,10 +299,10 @@ package body Editor.Empty_State_Guidance.Tests is
               "recent-projects empty state must not create or remove entries");
       Assert (Assert_First_Run_Guidance_Fabricates_No_Project (Before, After),
               "guidance construction must not fabricate project or buffer state");
-   end Test_Phase_569_Recent_Projects_Does_Not_Mutate;
+   end Test_Recent_Projects_Does_Not_Mutate;
 
 
-   procedure Test_Phase_569_All_Surface_Snapshots_Are_Complete
+   procedure Test_All_Surface_Snapshots_Are_Complete
      (T : in out AUnit.Test_Cases.Test_Case'Class)
    is
       pragma Unreferenced (T);
@@ -188,9 +322,9 @@ package body Editor.Empty_State_Guidance.Tests is
          Assert (Assert_Empty_State_Suggestions_Resolve_From_Stable_Names (Snapshots (I)),
                  "every suggestion must resolve from its stable command name");
       end loop;
-   end Test_Phase_569_All_Surface_Snapshots_Are_Complete;
+   end Test_All_Surface_Snapshots_Are_Complete;
 
-   procedure Test_Phase_569_Diagnostics_Source_Less_Selected_State
+   procedure Test_Diagnostics_Source_Less_Selected_State
      (T : in out AUnit.Test_Cases.Test_Case'Class)
    is
       pragma Unreferenced (T);
@@ -214,8 +348,65 @@ package body Editor.Empty_State_Guidance.Tests is
               "source-less diagnostic guidance should suggest clearing selected diagnostic");
       Assert (Assert_Empty_State_Is_Display_Only (Snapshot),
               "diagnostics empty guidance must not navigate or clear automatically");
-   end Test_Phase_569_Diagnostics_Source_Less_Selected_State;
-   procedure Test_Phase_569_Diagnostics_Filtered_None_State
+   end Test_Diagnostics_Source_Less_Selected_State;
+
+   procedure Test_Diagnostics_Selected_Unavailable_Target_State
+     (T : in out AUnit.Test_Cases.Test_Case'Class)
+   is
+      pragma Unreferenced (T);
+      S : Editor.State.State_Type;
+      Snapshot : Empty_State_Snapshot;
+   begin
+      Editor.State.Init (S);
+      Editor.Feature_Diagnostics.Add_Diagnostic
+        (S.Feature_Diagnostics,
+         Severity      => Editor.Feature_Diagnostics.Diagnostic_Error,
+         Message       => "missing source file",
+         Source_Label  => "src/missing.adb",
+         Source_Kind   => Editor.Feature_Diagnostics.External_Diagnostic_Source,
+         Has_Target    => False);
+      Editor.Feature_Diagnostics.Project_Rows
+        (S.Feature_Diagnostics, S.Feature_Panel);
+      Editor.Feature_Panel.Select_Row (S.Feature_Panel, 1);
+
+      Snapshot := Build_Diagnostics_Empty_State (S);
+      Assert (Snapshot.Kind = Selected_Unavailable_State,
+              "selected missing Diagnostics targets need explicit recovery guidance");
+      Assert (To_String (Snapshot.Primary_Message) =
+                Editor.Commands.Reason_Target_Missing,
+              "missing Diagnostics target guidance should use canonical missing-target wording");
+      Assert (Contains_Command_Suggestion
+                (Snapshot, Editor.Commands.Command_Diagnostics_Clear_Selected),
+              "missing Diagnostics target guidance should offer clearing the selected row");
+
+      Editor.Feature_Diagnostics.Clear_Diagnostics (S.Feature_Diagnostics);
+      Editor.Feature_Diagnostics.Add_Diagnostic
+        (S.Feature_Diagnostics,
+         Severity      => Editor.Feature_Diagnostics.Diagnostic_Error,
+         Message       => "missing target line",
+         Source_Label  => "src/main.adb",
+         Source_Kind   => Editor.Feature_Diagnostics.External_Diagnostic_Source,
+         Has_Target    => True,
+         Target_Buffer => 42,
+         Target_Line   => 0,
+         Target_Column => 0);
+      Editor.Feature_Diagnostics.Project_Rows
+        (S.Feature_Diagnostics, S.Feature_Panel);
+      Editor.Feature_Panel.Select_Row (S.Feature_Panel, 1);
+
+      Snapshot := Build_Diagnostics_Empty_State (S);
+      Assert (Snapshot.Kind = Selected_Unavailable_State,
+              "selected missing-line Diagnostics targets need explicit recovery guidance");
+      Assert (Ada.Strings.Unbounded.Index
+                (Snapshot.Primary_Message,
+                 "Target line is unavailable") > 0,
+              "missing-line Diagnostics guidance should use canonical target-line wording");
+      Assert (Contains_Command_Suggestion
+                (Snapshot, Editor.Commands.Command_Build_UI_Show),
+              "selected unavailable target guidance should offer inspecting/rerunning the producer");
+   end Test_Diagnostics_Selected_Unavailable_Target_State;
+
+   procedure Test_Diagnostics_Filtered_None_State
      (T : in out AUnit.Test_Cases.Test_Case'Class)
    is
       pragma Unreferenced (T);
@@ -240,10 +431,44 @@ package body Editor.Empty_State_Guidance.Tests is
               "filtered-empty guidance must not delete diagnostic rows");
       Assert (Editor.Feature_Diagnostics.Visible_Row_Count (S.Feature_Diagnostics) = 0,
               "test fixture should remain filtered to zero visible rows");
-   end Test_Phase_569_Diagnostics_Filtered_None_State;
+   end Test_Diagnostics_Filtered_None_State;
+
+   procedure Test_Diagnostics_Zero_Build_Result_Is_Contextual
+     (T : in out AUnit.Test_Cases.Test_Case'Class)
+   is
+      pragma Unreferenced (T);
+      S : Editor.State.State_Type;
+      Snapshot : Empty_State_Snapshot;
+   begin
+      S.Latest_Build_Result := Editor.Build_Result_Summary.Build_Summary
+        (Kind           => Editor.Build_Result_Summary.Build_Result_Summary_Succeeded,
+         Invocation_Label => "gprbuild",
+         Tool_Kind      => Editor.Build_Result_Summary.Build_Result_GPRbuild_Tool,
+         Request_Mode   => Editor.Build_Result_Summary.Build_Result_Request_Manual,
+         Working_Context_Label => "/tmp/project",
+         Runner_Status_Label => "succeeded",
+         Primary_Message => "Build completed.",
+         Diagnostics_Ingestion_Status =>
+           Editor.Build_Result_Summary.Diagnostics_Ingestion_No_Diagnostics,
+         Diagnostics_Count => 0,
+         Has_Diagnostics_Count => True);
+
+      Snapshot := Build_Diagnostics_Empty_State (S);
+      Assert (Snapshot.Kind = No_Build_Diagnostics_State,
+              "zero-diagnostic build result should keep build-specific diagnostics context");
+      Assert (To_String (Snapshot.Primary_Message) =
+                "Build completed with no diagnostics.",
+              "zero-diagnostic build result should say the build completed cleanly");
+      Assert (Contains_Command_Suggestion
+                (Snapshot, Editor.Commands.Command_Build_UI_Show),
+              "zero-diagnostic build guidance should suggest inspecting Build Output");
+      Assert (Contains_Command_Suggestion
+                (Snapshot, Editor.Commands.Command_Build_Run),
+              "zero-diagnostic build guidance should keep rerun build available");
+   end Test_Diagnostics_Zero_Build_Result_Is_Contextual;
 
 
-   procedure Test_Phase_569_Render_Construction_Is_Observational
+   procedure Test_Render_Construction_Is_Observational
      (T : in out AUnit.Test_Cases.Test_Case'Class)
    is
       pragma Unreferenced (T);
@@ -257,9 +482,9 @@ package body Editor.Empty_State_Guidance.Tests is
               "render empty-state construction must not mutate project, buffers, panels, diagnostics, search, or build candidates");
       Assert (Render.Main_Empty_State.Kind = First_Run_State,
               "render still carries first-run state after observational construction");
-   end Test_Phase_569_Render_Construction_Is_Observational;
+   end Test_Render_Construction_Is_Observational;
 
-   procedure Test_Phase_569_Main_Guidance_Uses_Metadata_Titles
+   procedure Test_Main_Guidance_Uses_Metadata_Titles
      (T : in out AUnit.Test_Cases.Test_Case'Class)
    is
       pragma Unreferenced (T);
@@ -275,10 +500,10 @@ package body Editor.Empty_State_Guidance.Tests is
               "suggestions must carry only stable command names, not payloads");
       Assert (Assert_Empty_State_Suggestions_Resolve_From_Stable_Names (Snapshot),
               "suggestion activation must be able to resolve stable names without payloads");
-   end Test_Phase_569_Main_Guidance_Uses_Metadata_Titles;
+   end Test_Main_Guidance_Uses_Metadata_Titles;
 
 
-   procedure Test_Phase_569_Suggestion_Activation_Routes_Executor
+   procedure Test_Suggestion_Activation_Routes_Executor
      (T : in out AUnit.Test_Cases.Test_Case'Class)
    is
       pragma Unreferenced (T);
@@ -293,9 +518,9 @@ package body Editor.Empty_State_Guidance.Tests is
               "suggestion activation must use the stable command id through Executor");
       Assert (Assert_First_Run_Guidance_Fabricates_No_Project (Before, After),
               "unavailable suggestion activation must not fabricate project state");
-   end Test_Phase_569_Suggestion_Activation_Routes_Executor;
+   end Test_Suggestion_Activation_Routes_Executor;
 
-   procedure Test_Phase_569_Invalid_Suggestion_Activation_Is_No_Op
+   procedure Test_Invalid_Suggestion_Activation_Is_No_Op
      (T : in out AUnit.Test_Cases.Test_Case'Class)
    is
       pragma Unreferenced (T);
@@ -309,10 +534,10 @@ package body Editor.Empty_State_Guidance.Tests is
               "out-of-range suggestion activation must carry no command");
       Assert (Assert_First_Run_Guidance_Fabricates_No_Project (S, S),
               "invalid activation must be a state no-op");
-   end Test_Phase_569_Invalid_Suggestion_Activation_Is_No_Op;
+   end Test_Invalid_Suggestion_Activation_Is_No_Op;
 
 
-   procedure Test_Phase_569_Payload_Like_Stable_Name_Activation_Is_No_Op
+   procedure Test_Payload_Like_Stable_Name_Activation_Is_No_Op
      (T : in out AUnit.Test_Cases.Test_Case'Class)
    is
       pragma Unreferenced (T);
@@ -327,10 +552,10 @@ package body Editor.Empty_State_Guidance.Tests is
               "payload-like stable command names must not activate");
       Assert (Assert_First_Run_Guidance_Fabricates_No_Project (S, S),
               "payload-like activation must not mutate project or buffer state");
-   end Test_Phase_569_Payload_Like_Stable_Name_Activation_Is_No_Op;
+   end Test_Payload_Like_Stable_Name_Activation_Is_No_Op;
 
 
-   procedure Test_Phase_569_Suggestion_Safety_Rejects_Target_Strings
+   procedure Test_Suggestion_Safety_Rejects_Target_Strings
      (T : in out AUnit.Test_Cases.Test_Case'Class)
    is
       pragma Unreferenced (T);
@@ -348,9 +573,9 @@ package body Editor.Empty_State_Guidance.Tests is
       Snapshot.Suggestions (1).Stable_Name := To_Unbounded_String ("project.open");
       Assert (Suggestion_Is_Activation_Safe (Snapshot.Suggestions (1)),
               "canonical stable command name should remain activation-safe");
-   end Test_Phase_569_Suggestion_Safety_Rejects_Target_Strings;
+   end Test_Suggestion_Safety_Rejects_Target_Strings;
 
-   procedure Test_Phase_569_Suggestion_Safety_Rejects_Hidden_Or_Mismatched_Metadata
+   procedure Test_Suggestion_Safety_Rejects_Hidden_Or_Mismatched_Metadata
      (T : in out AUnit.Test_Cases.Test_Case'Class)
    is
       pragma Unreferenced (T);
@@ -374,9 +599,9 @@ package body Editor.Empty_State_Guidance.Tests is
               "suggestion titles must match descriptor titles exactly and carry no target text");
       Assert (not Suggestion_Is_Activation_Safe (Snapshot.Suggestions (1)),
               "mismatched descriptor metadata must not activate");
-   end Test_Phase_569_Suggestion_Safety_Rejects_Hidden_Or_Mismatched_Metadata;
+   end Test_Suggestion_Safety_Rejects_Hidden_Or_Mismatched_Metadata;
 
-   procedure Test_Phase_569_Guidance_State_Not_Persisted_Or_Stored
+   procedure Test_Guidance_State_Not_Persisted_Or_Stored
      (T : in out AUnit.Test_Cases.Test_Case'Class)
    is
       pragma Unreferenced (T);
@@ -389,11 +614,11 @@ package body Editor.Empty_State_Guidance.Tests is
               "guidance snapshots are returned values, not stored editor state");
       Assert (Assert_Empty_State_Not_Persisted (Before, After),
               "building guidance must not alter persistence-domain state");
-   end Test_Phase_569_Guidance_State_Not_Persisted_Or_Stored;
+   end Test_Guidance_State_Not_Persisted_Or_Stored;
 
 
 
-   procedure Test_Phase_569_Surface_Labels_Are_Explicit_And_Unique
+   procedure Test_Surface_Labels_Are_Explicit_And_Unique
      (T : in out AUnit.Test_Cases.Test_Case'Class)
    is
       pragma Unreferenced (T);
@@ -415,9 +640,9 @@ package body Editor.Empty_State_Guidance.Tests is
          Assert (Assert_Empty_State_Display_Line_Is_Labelled (Snapshots (I)),
                  "display line must include surface, kind, and severity labels");
       end loop;
-   end Test_Phase_569_Surface_Labels_Are_Explicit_And_Unique;
+   end Test_Surface_Labels_Are_Explicit_And_Unique;
 
-   procedure Test_Phase_569_Display_Lines_Are_Compact_And_Target_Free
+   procedure Test_Display_Lines_Are_Compact_And_Target_Free
      (T : in out AUnit.Test_Cases.Test_Case'Class)
    is
       pragma Unreferenced (T);
@@ -435,9 +660,9 @@ package body Editor.Empty_State_Guidance.Tests is
          Assert (Assert_Empty_State_Display_Line_Is_Labelled (Snapshots (I)),
                  "display lines must expose surface, kind, and severity labels");
       end loop;
-   end Test_Phase_569_Display_Lines_Are_Compact_And_Target_Free;
+   end Test_Display_Lines_Are_Compact_And_Target_Free;
 
-   procedure Test_Phase_569_Suggestions_Are_Unique_And_Tail_Clean
+   procedure Test_Suggestions_Are_Unique_And_Tail_Clean
      (T : in out AUnit.Test_Cases.Test_Case'Class)
    is
       pragma Unreferenced (T);
@@ -450,9 +675,9 @@ package body Editor.Empty_State_Guidance.Tests is
                    (Snapshots (I)),
                  "suggestion lists must contain no duplicate command rows and no stale tail entries");
       end loop;
-   end Test_Phase_569_Suggestions_Are_Unique_And_Tail_Clean;
+   end Test_Suggestions_Are_Unique_And_Tail_Clean;
 
-   procedure Test_Phase_569_Duplicate_Suggestion_Is_Collapsed
+   procedure Test_Duplicate_Suggestion_Is_Collapsed
      (T : in out AUnit.Test_Cases.Test_Case'Class)
    is
       pragma Unreferenced (T);
@@ -473,9 +698,9 @@ package body Editor.Empty_State_Guidance.Tests is
       Assert (not Assert_Empty_State_Suggestions_Are_Unique_And_Tail_Clean
                     (Snapshot),
               "duplicate command suggestions must be detectable as invalid guidance");
-   end Test_Phase_569_Duplicate_Suggestion_Is_Collapsed;
+   end Test_Duplicate_Suggestion_Is_Collapsed;
 
-   procedure Test_Phase_569_Suggestion_Display_Line_Shows_Unavailable_Reason
+   procedure Test_Suggestion_Display_Line_Shows_Unavailable_Reason
      (T : in out AUnit.Test_Cases.Test_Case'Class)
    is
       pragma Unreferenced (T);
@@ -495,10 +720,10 @@ package body Editor.Empty_State_Guidance.Tests is
             end if;
          end;
       end loop;
-   end Test_Phase_569_Suggestion_Display_Line_Shows_Unavailable_Reason;
+   end Test_Suggestion_Display_Line_Shows_Unavailable_Reason;
 
 
-   procedure Test_Phase_569_Non_Ready_States_Are_Actionable
+   procedure Test_Non_Ready_States_Are_Actionable
      (T : in out AUnit.Test_Cases.Test_Case'Class)
    is
       pragma Unreferenced (T);
@@ -510,9 +735,9 @@ package body Editor.Empty_State_Guidance.Tests is
          Assert (Assert_Non_Ready_Empty_State_Is_Actionable (Snapshots (I)),
                  "non-ready empty-state guidance must include at least one descriptor-derived command suggestion");
       end loop;
-   end Test_Phase_569_Non_Ready_States_Are_Actionable;
+   end Test_Non_Ready_States_Are_Actionable;
 
-   procedure Test_Phase_569_Outline_No_Buffer_Guidance_Is_Actionable
+   procedure Test_Outline_No_Buffer_Guidance_Is_Actionable
      (T : in out AUnit.Test_Cases.Test_Case'Class)
    is
       pragma Unreferenced (T);
@@ -528,9 +753,9 @@ package body Editor.Empty_State_Guidance.Tests is
               "outline no-buffer guidance must be actionable without parsing or navigation");
       Assert (Assert_Empty_State_Is_Display_Only (Snapshot),
               "outline no-buffer guidance must remain display-only");
-   end Test_Phase_569_Outline_No_Buffer_Guidance_Is_Actionable;
+   end Test_Outline_No_Buffer_Guidance_Is_Actionable;
 
-   procedure Test_Phase_569_Semantic_State_Kinds_Are_Not_Collapsed
+   procedure Test_Semantic_State_Kinds_Are_Not_Collapsed
      (T : in out AUnit.Test_Cases.Test_Case'Class)
    is
       pragma Unreferenced (T);
@@ -554,10 +779,10 @@ package body Editor.Empty_State_Guidance.Tests is
               "refresh-required state label must be deterministic");
       Assert (Empty_State_Kind_Label (Selected_Unavailable_State) = "selected unavailable",
               "selected-unavailable state label must be deterministic");
-   end Test_Phase_569_Semantic_State_Kinds_Are_Not_Collapsed;
+   end Test_Semantic_State_Kinds_Are_Not_Collapsed;
 
 
-   procedure Test_Phase_569_Ready_States_Are_Not_Rendered_As_Empty_Cards
+   procedure Test_Ready_States_Are_Not_Rendered_As_Empty_Cards
      (T : in out AUnit.Test_Cases.Test_Case'Class)
    is
       pragma Unreferenced (T);
@@ -571,7 +796,7 @@ package body Editor.Empty_State_Guidance.Tests is
    begin
       --  A ready snapshot may still be useful diagnostic/status data, but it
       --  must not be treated as an empty-state guidance card by render-facing
-      --  code.  This prevents Phase 569 from turning normal editor surfaces
+      --  code.  This prevents from turning normal editor surfaces
       --  into persistent onboarding cards.
       Editor.Project.Apply_Open_Result (S.Project, Result);
       S.Active_Buffer_Token := 1;
@@ -583,9 +808,9 @@ package body Editor.Empty_State_Guidance.Tests is
               "ready snapshots must not render as empty-state cards");
       Assert (Assert_Ready_Empty_State_Is_Suppressed (Main),
               "ready snapshot suppression must be assertion-covered");
-   end Test_Phase_569_Ready_States_Are_Not_Rendered_As_Empty_Cards;
+   end Test_Ready_States_Are_Not_Rendered_As_Empty_Cards;
 
-   procedure Test_Phase_569_Non_Ready_States_Are_Renderable_Guidance
+   procedure Test_Non_Ready_States_Are_Renderable_Guidance
      (T : in out AUnit.Test_Cases.Test_Case'Class)
    is
       pragma Unreferenced (T);
@@ -601,9 +826,9 @@ package body Editor.Empty_State_Guidance.Tests is
          Assert (Assert_Ready_Empty_State_Is_Suppressed (Snapshots (I)),
                  "render gating must agree with ready/non-ready state kind");
       end loop;
-   end Test_Phase_569_Non_Ready_States_Are_Renderable_Guidance;
+   end Test_Non_Ready_States_Are_Renderable_Guidance;
 
-   procedure Test_Phase_569_Display_Line_Target_Guard_Covers_Final_Render_Text
+   procedure Test_Display_Line_Target_Guard_Covers_Final_Render_Text
      (T : in out AUnit.Test_Cases.Test_Case'Class)
    is
       pragma Unreferenced (T);
@@ -619,10 +844,10 @@ package body Editor.Empty_State_Guidance.Tests is
          Assert (Assert_Empty_State_Is_Display_Only (Snapshots (I)),
                  "central display-only assertion must include final-line guards");
       end loop;
-   end Test_Phase_569_Display_Line_Target_Guard_Covers_Final_Render_Text;
+   end Test_Display_Line_Target_Guard_Covers_Final_Render_Text;
 
 
-   procedure Test_Phase_569_Renderable_Count_And_Severity_Are_Semantic
+   procedure Test_Renderable_Count_And_Severity_Are_Semantic
      (T : in out AUnit.Test_Cases.Test_Case'Class)
    is
       pragma Unreferenced (T);
@@ -643,10 +868,10 @@ package body Editor.Empty_State_Guidance.Tests is
                     "only non-ready snapshots may be counted as renderable guidance");
          end if;
       end loop;
-   end Test_Phase_569_Renderable_Count_And_Severity_Are_Semantic;
+   end Test_Renderable_Count_And_Severity_Are_Semantic;
 
 
-   procedure Test_Phase_569_Aggregate_Array_Is_Display_Only
+   procedure Test_Aggregate_Array_Is_Display_Only
      (T : in out AUnit.Test_Cases.Test_Case'Class)
    is
       pragma Unreferenced (T);
@@ -661,10 +886,10 @@ package body Editor.Empty_State_Guidance.Tests is
          Assert (Assert_Empty_State_Is_Display_Only (Snapshots (I)),
                  "aggregate member must preserve the central display-only invariant");
       end loop;
-   end Test_Phase_569_Aggregate_Array_Is_Display_Only;
+   end Test_Aggregate_Array_Is_Display_Only;
 
 
-   procedure Test_Phase_569_Suggestion_Display_Lines_Are_Target_Free
+   procedure Test_Suggestion_Display_Lines_Are_Target_Free
      (T : in out AUnit.Test_Cases.Test_Case'Class)
    is
       pragma Unreferenced (T);
@@ -685,10 +910,10 @@ package body Editor.Empty_State_Guidance.Tests is
               "target-like unavailable reasons must be rejected at final suggestion display line level");
       Assert (not Assert_Empty_State_Is_Display_Only (Snapshot),
               "central display-only invariant must include suggestion display-line target guards");
-   end Test_Phase_569_Suggestion_Display_Lines_Are_Target_Free;
+   end Test_Suggestion_Display_Lines_Are_Target_Free;
 
 
-   procedure Test_Phase_569_Snapshot_Equivalence_Covers_All_Rendered_Fields
+   procedure Test_Snapshot_Equivalence_Covers_All_Rendered_Fields
      (T : in out AUnit.Test_Cases.Test_Case'Class)
    is
       pragma Unreferenced (T);
@@ -728,10 +953,10 @@ package body Editor.Empty_State_Guidance.Tests is
       Right.Suggestions (1).Availability_Label := To_Unbounded_String ("changed availability");
       Assert (not Empty_State_Snapshots_Equivalent (Left, Right),
               "snapshot equivalence must include explicit availability labels");
-   end Test_Phase_569_Snapshot_Equivalence_Covers_All_Rendered_Fields;
+   end Test_Snapshot_Equivalence_Covers_All_Rendered_Fields;
 
 
-   procedure Test_Phase_569_Canonical_Surface_Slot_Map_Is_Bidirectional
+   procedure Test_Canonical_Surface_Slot_Map_Is_Bidirectional
      (T : in out AUnit.Test_Cases.Test_Case'Class)
    is
       pragma Unreferenced (T);
@@ -754,10 +979,10 @@ package body Editor.Empty_State_Guidance.Tests is
                     "canonical aggregate slot must hold the expected surface");
          end;
       end loop;
-   end Test_Phase_569_Canonical_Surface_Slot_Map_Is_Bidirectional;
+   end Test_Canonical_Surface_Slot_Map_Is_Bidirectional;
 
 
-   procedure Test_Phase_569_Surface_Model_Is_Closed_And_Bounded
+   procedure Test_Surface_Model_Is_Closed_And_Bounded
      (T : in out AUnit.Test_Cases.Test_Case'Class)
    is
       pragma Unreferenced (T);
@@ -781,10 +1006,10 @@ package body Editor.Empty_State_Guidance.Tests is
                     "each canonical slot must round-trip through its surface");
          end;
       end loop;
-   end Test_Phase_569_Surface_Model_Is_Closed_And_Bounded;
+   end Test_Surface_Model_Is_Closed_And_Bounded;
 
 
-   procedure Test_Phase_569_Render_Model_Fields_Match_Canonical_Array
+   procedure Test_Render_Model_Fields_Match_Canonical_Array
      (T : in out AUnit.Test_Cases.Test_Case'Class)
    is
       pragma Unreferenced (T);
@@ -825,10 +1050,10 @@ package body Editor.Empty_State_Guidance.Tests is
 
       Assert (Assert_Empty_State_Array_Is_Display_Only (Snapshots),
               "canonical aggregate render contract must remain display-only");
-   end Test_Phase_569_Render_Model_Fields_Match_Canonical_Array;
+   end Test_Render_Model_Fields_Match_Canonical_Array;
 
 
-   procedure Test_Phase_570_Guided_Actions_Are_Command_Name_Only
+   procedure Test_Guided_Actions_Are_Command_Name_Only
      (T : in out AUnit.Test_Cases.Test_Case'Class)
    is
       pragma Unreferenced (T);
@@ -836,7 +1061,7 @@ package body Editor.Empty_State_Guidance.Tests is
       Snapshot : constant Empty_State_Snapshot := Build_Main_Empty_State (S);
    begin
       Assert (Assert_Guided_Action_Routing_Coherent (S),
-              "phase 570 guided action routing should be coherent across empty-state surfaces");
+              "guided action routing should be coherent across empty-state surfaces");
       Assert (Snapshot.Suggestion_Count > 0,
               "main empty state should expose at least one guided action");
       Assert (Suggestion_Is_Activation_Safe (Snapshot.Suggestions (1)),
@@ -845,9 +1070,9 @@ package body Editor.Empty_State_Guidance.Tests is
               "guided action must not carry project/file/result/build payloads");
       Assert (Length (Snapshot.Suggestions (1).Availability_Label) > 0,
               "guided action must carry an availability snapshot label");
-   end Test_Phase_570_Guided_Actions_Are_Command_Name_Only;
+   end Test_Guided_Actions_Are_Command_Name_Only;
 
-   procedure Test_Phase_570_Open_Suggestion_In_Command_Palette
+   procedure Test_Open_Suggestion_In_Command_Palette
      (T : in out AUnit.Test_Cases.Test_Case'Class)
    is
       pragma Unreferenced (T);
@@ -864,9 +1089,9 @@ package body Editor.Empty_State_Guidance.Tests is
       Assert (not Editor.Command_Palette.Transient_State_Clear,
               "palette state is transient and should not be mistaken for persistence state while open");
       Editor.Command_Palette.Reset;
-   end Test_Phase_570_Open_Suggestion_In_Command_Palette;
+   end Test_Open_Suggestion_In_Command_Palette;
 
-   procedure Test_Phase_570_Execute_Suggestion_Checks_Availability_First
+   procedure Test_Execute_Suggestion_Checks_Availability_First
      (T : in out AUnit.Test_Cases.Test_Case'Class)
    is
       pragma Unreferenced (T);
@@ -883,9 +1108,9 @@ package body Editor.Empty_State_Guidance.Tests is
               "guided execution must use the normal Executor result states");
       Assert (Assert_First_Run_Guidance_Fabricates_No_Project (S, S),
               "blocked guided execution must not fabricate a project or hidden payload state");
-   end Test_Phase_570_Execute_Suggestion_Checks_Availability_First;
+   end Test_Execute_Suggestion_Checks_Availability_First;
 
-   procedure Test_Phase_570_Suggestion_Selection_Is_Transient
+   procedure Test_Suggestion_Selection_Is_Transient
      (T : in out AUnit.Test_Cases.Test_Case'Class)
    is
       pragma Unreferenced (T);
@@ -906,9 +1131,9 @@ package body Editor.Empty_State_Guidance.Tests is
       Mark_Selected_Suggestion (Snapshot, 0);
       Assert (not Snapshot.Suggestions (Next).Selected,
               "selection marker should clear without persisting state");
-   end Test_Phase_570_Suggestion_Selection_Is_Transient;
+   end Test_Suggestion_Selection_Is_Transient;
 
-   procedure Test_Phase_570_Activation_Mode_Opens_Palette_Without_Executing_Target
+   procedure Test_Activation_Mode_Opens_Palette_Without_Executing_Target
      (T : in out AUnit.Test_Cases.Test_Case'Class)
    is
       pragma Unreferenced (T);
@@ -940,9 +1165,9 @@ package body Editor.Empty_State_Guidance.Tests is
       Assert (Editor.Command_Palette.Is_Open,
               "activation mode should open the Command Palette through the safe entry point");
       Editor.Command_Palette.Reset;
-   end Test_Phase_570_Activation_Mode_Opens_Palette_Without_Executing_Target;
+   end Test_Activation_Mode_Opens_Palette_Without_Executing_Target;
 
-   procedure Test_Phase_570_Unavailable_Suggestion_Does_Not_Execute
+   procedure Test_Unavailable_Suggestion_Does_Not_Execute
      (T : in out AUnit.Test_Cases.Test_Case'Class)
    is
       pragma Unreferenced (T);
@@ -962,18 +1187,18 @@ package body Editor.Empty_State_Guidance.Tests is
       Assert (Assert_Unavailable_Suggested_Action_Does_Not_Execute
                 (Snapshot.Suggestions (1), Result),
               "unavailable guided action should be blocked before execution");
-   end Test_Phase_570_Unavailable_Suggestion_Does_Not_Execute;
+   end Test_Unavailable_Suggestion_Does_Not_Execute;
 
-   procedure Test_Phase_570_Keybindings_Cannot_Carry_Suggestion_Payloads
+   procedure Test_Keybindings_Cannot_Carry_Suggestion_Payloads
      (T : in out AUnit.Test_Cases.Test_Case'Class)
    is
       pragma Unreferenced (T);
    begin
       Assert (Assert_Keybindings_Have_No_Suggestion_Payloads,
               "keybindings must remain canonical command-name/chord routes without suggestion payloads");
-   end Test_Phase_570_Keybindings_Cannot_Carry_Suggestion_Payloads;
+   end Test_Keybindings_Cannot_Carry_Suggestion_Payloads;
 
-   procedure Test_Phase_570_Selection_Skips_Display_Only_Suggestions
+   procedure Test_Selection_Skips_Display_Only_Suggestions
      (T : in out AUnit.Test_Cases.Test_Case'Class)
    is
       pragma Unreferenced (T);
@@ -1000,9 +1225,9 @@ package body Editor.Empty_State_Guidance.Tests is
       Mark_Selected_Suggestion (Snapshot, 2);
       Assert (Snapshot.Suggestions (2).Selected,
               "actionable suggestions may receive the transient selected marker");
-   end Test_Phase_570_Selection_Skips_Display_Only_Suggestions;
+   end Test_Selection_Skips_Display_Only_Suggestions;
 
-   procedure Test_Phase_570_Render_Building_Does_Not_Open_Palette
+   procedure Test_Render_Building_Does_Not_Open_Palette
      (T : in out AUnit.Test_Cases.Test_Case'Class)
    is
       pragma Unreferenced (T);
@@ -1015,9 +1240,9 @@ package body Editor.Empty_State_Guidance.Tests is
               "render snapshot construction must not activate guided actions or open Command Palette");
       Assert (Assert_Empty_State_Suggestions_Have_No_Payloads (Render.Main_Empty_State),
               "rendered guided actions must remain no-payload command references");
-   end Test_Phase_570_Render_Building_Does_Not_Open_Palette;
+   end Test_Render_Building_Does_Not_Open_Palette;
 
-   procedure Test_Phase_570_Availability_Labels_Show_Guard_Class
+   procedure Test_Availability_Labels_Show_Guard_Class
      (T : in out AUnit.Test_Cases.Test_Case'Class)
    is
       pragma Unreferenced (T);
@@ -1039,9 +1264,9 @@ package body Editor.Empty_State_Guidance.Tests is
                    (Suggested_Action_Availability_Label (Project_Open)),
                  "Project/file safety check") > 0,
               "lifecycle guided actions should expose that normal project/file safety checks still apply");
-   end Test_Phase_570_Availability_Labels_Show_Guard_Class;
+   end Test_Availability_Labels_Show_Guard_Class;
 
-   procedure Test_Phase_570_Pending_Confirmation_Blocks_Conflicting_Suggestion
+   procedure Test_Pending_Confirmation_Blocks_Conflicting_Suggestion
      (T : in out AUnit.Test_Cases.Test_Case'Class)
    is
       pragma Unreferenced (T);
@@ -1064,9 +1289,9 @@ package body Editor.Empty_State_Guidance.Tests is
               "pending confirmations must make conflicting suggested execution unavailable");
       Assert (Assert_First_Run_Guidance_Fabricates_No_Project (S, S),
               "blocked pending-confirmation suggestion must not fabricate project state");
-   end Test_Phase_570_Pending_Confirmation_Blocks_Conflicting_Suggestion;
+   end Test_Pending_Confirmation_Blocks_Conflicting_Suggestion;
 
-   procedure Test_Phase_570_Suggested_Action_Route_Audit_Rejects_Bypass_And_Payload
+   procedure Test_Suggested_Action_Route_Audit_Rejects_Bypass_And_Payload
      (T : in out AUnit.Test_Cases.Test_Case'Class)
    is
       pragma Unreferenced (T);
@@ -1093,9 +1318,9 @@ package body Editor.Empty_State_Guidance.Tests is
          Carried_Payload          => True);
       Assert (Editor.Command_Route_Audit.Failure_Count (Audit) = 4,
               "guided-action route audit must reject Executor bypass, display-label routing, availability bypass, and payloads");
-   end Test_Phase_570_Suggested_Action_Route_Audit_Rejects_Bypass_And_Payload;
+   end Test_Suggested_Action_Route_Audit_Rejects_Bypass_And_Payload;
 
-   procedure Test_Phase_570_Suggested_Action_Route_Audit_Allows_Palette_Entry
+   procedure Test_Suggested_Action_Route_Audit_Allows_Palette_Entry
      (T : in out AUnit.Test_Cases.Test_Case'Class)
    is
       pragma Unreferenced (T);
@@ -1112,9 +1337,9 @@ package body Editor.Empty_State_Guidance.Tests is
          Routed_Through_Command_Palette_Entry => True);
       Assert (Editor.Command_Route_Audit.Failure_Count (Audit) = 0,
               "guided open-in-palette routes should pass through the canonical palette entry without being treated as Executor bypasses");
-   end Test_Phase_570_Suggested_Action_Route_Audit_Allows_Palette_Entry;
+   end Test_Suggested_Action_Route_Audit_Allows_Palette_Entry;
 
-   procedure Test_Phase_570_Suggested_Action_Route_Audit_Rejects_Mixed_Route_Mode
+   procedure Test_Suggested_Action_Route_Audit_Rejects_Mixed_Route_Mode
      (T : in out AUnit.Test_Cases.Test_Case'Class)
    is
       pragma Unreferenced (T);
@@ -1131,9 +1356,9 @@ package body Editor.Empty_State_Guidance.Tests is
          Routed_Through_Command_Palette_Entry => True);
       Assert (Editor.Command_Route_Audit.Failure_Count (Audit) = 1,
               "guided routes must not mix direct Executor dispatch and palette-entry routing in one activation");
-   end Test_Phase_570_Suggested_Action_Route_Audit_Rejects_Mixed_Route_Mode;
+   end Test_Suggested_Action_Route_Audit_Rejects_Mixed_Route_Mode;
 
-   procedure Test_Phase_570_Metadata_Currentness_Rejects_Stale_Descriptor_Copy
+   procedure Test_Metadata_Currentness_Rejects_Stale_Descriptor_Copy
      (T : in out AUnit.Test_Cases.Test_Case'Class)
    is
       pragma Unreferenced (T);
@@ -1150,9 +1375,9 @@ package body Editor.Empty_State_Guidance.Tests is
               "metadata assertion must reject stale copied command descriptions");
       Assert (not Assert_Empty_State_Is_Display_Only (Snapshot),
               "empty-state coherence must reject stale copied descriptor metadata");
-   end Test_Phase_570_Metadata_Currentness_Rejects_Stale_Descriptor_Copy;
+   end Test_Metadata_Currentness_Rejects_Stale_Descriptor_Copy;
 
-   procedure Test_Phase_570_Selection_Clears_When_Surface_Has_No_Suggestions
+   procedure Test_Selection_Clears_When_Surface_Has_No_Suggestions
      (T : in out AUnit.Test_Cases.Test_Case'Class)
    is
       pragma Unreferenced (T);
@@ -1173,9 +1398,9 @@ package body Editor.Empty_State_Guidance.Tests is
          Assert (not Ready.Suggestions (I).Selected,
                  "surface without suggestions must not retain selected guided-action state");
       end loop;
-   end Test_Phase_570_Selection_Clears_When_Surface_Has_No_Suggestions;
+   end Test_Selection_Clears_When_Surface_Has_No_Suggestions;
 
-   procedure Test_Phase_570_Palette_Open_Blocked_By_Pending_Confirmation
+   procedure Test_Palette_Open_Blocked_By_Pending_Confirmation
      (T : in out AUnit.Test_Cases.Test_Case'Class)
    is
       pragma Unreferenced (T);
@@ -1189,9 +1414,9 @@ package body Editor.Empty_State_Guidance.Tests is
       Editor.Configuration_Recovery.Clear_Reset_All_Confirmation;
       Assert (not Editor.Command_Palette.Is_Open,
               "blocked guided palette opening must not transfer focus to the Command Palette");
-   end Test_Phase_570_Palette_Open_Blocked_By_Pending_Confirmation;
+   end Test_Palette_Open_Blocked_By_Pending_Confirmation;
 
-   procedure Test_Phase_570_Execute_Respects_Activation_Mode
+   procedure Test_Execute_Respects_Activation_Mode
      (T : in out AUnit.Test_Cases.Test_Case'Class)
    is
       pragma Unreferenced (T);
@@ -1217,9 +1442,9 @@ package body Editor.Empty_State_Guidance.Tests is
       Assert (Result.Command = Editor.Commands.Command_Open_Command_Palette
               and then Result.Status = Editor.Executor.Command_No_Op,
               "direct guided execution must not execute display-only suggestions");
-   end Test_Phase_570_Execute_Respects_Activation_Mode;
+   end Test_Execute_Respects_Activation_Mode;
 
-   procedure Test_Phase_570_Unavailable_Execution_Reports_Normal_Reason
+   procedure Test_Unavailable_Execution_Reports_Normal_Reason
      (T : in out AUnit.Test_Cases.Test_Case'Class)
    is
       pragma Unreferenced (T);
@@ -1242,9 +1467,9 @@ package body Editor.Empty_State_Guidance.Tests is
               "unavailable guided execution must remain unavailable");
       Assert (Editor.Messages.Count (S.Messages) > Before_Messages,
               "unavailable guided execution must report through the normal Executor message path");
-   end Test_Phase_570_Unavailable_Execution_Reports_Normal_Reason;
+   end Test_Unavailable_Execution_Reports_Normal_Reason;
 
-   procedure Test_Phase_570_Empty_State_Assertion_Covers_Suggestion_Persistence
+   procedure Test_Empty_State_Assertion_Covers_Suggestion_Persistence
      (T : in out AUnit.Test_Cases.Test_Case'Class)
    is
       pragma Unreferenced (T);
@@ -1257,10 +1482,10 @@ package body Editor.Empty_State_Guidance.Tests is
               "test setup should prove guided-action selection can exist transiently");
       Assert (Assert_Empty_State_Not_Persisted (Before, After),
               "guided-action suggestions and selected marker must have no workspace/settings/recent persistence footprint");
-   end Test_Phase_570_Empty_State_Assertion_Covers_Suggestion_Persistence;
+   end Test_Empty_State_Assertion_Covers_Suggestion_Persistence;
 
 
-   procedure Test_Phase_570_Surface_Source_Labels_Are_Owned_By_Surface
+   procedure Test_Surface_Source_Labels_Are_Owned_By_Surface
      (T : in out AUnit.Test_Cases.Test_Case'Class)
    is
       pragma Unreferenced (T);
@@ -1283,9 +1508,9 @@ package body Editor.Empty_State_Guidance.Tests is
             end loop;
          end;
       end loop;
-   end Test_Phase_570_Surface_Source_Labels_Are_Owned_By_Surface;
+   end Test_Surface_Source_Labels_Are_Owned_By_Surface;
 
-   procedure Test_Phase_570_Display_Only_Suggestion_Cannot_Open_Palette
+   procedure Test_Display_Only_Suggestion_Cannot_Open_Palette
      (T : in out AUnit.Test_Cases.Test_Case'Class)
    is
       pragma Unreferenced (T);
@@ -1305,9 +1530,9 @@ package body Editor.Empty_State_Guidance.Tests is
               "display-only guided actions must not open the Command Palette");
       Assert (not Editor.Command_Palette.Is_Open,
               "rejected display-only suggestion must not transfer focus");
-   end Test_Phase_570_Display_Only_Suggestion_Cannot_Open_Palette;
+   end Test_Display_Only_Suggestion_Cannot_Open_Palette;
 
-   procedure Test_Phase_570_Activate_Pending_Block_Reports_Message
+   procedure Test_Activate_Pending_Block_Reports_Message
      (T : in out AUnit.Test_Cases.Test_Case'Class)
    is
       pragma Unreferenced (T);
@@ -1326,10 +1551,10 @@ package body Editor.Empty_State_Guidance.Tests is
               "conflicting guided activation must remain unavailable while confirmation is pending");
       Assert (Editor.Messages.Count (S.Messages) > Before_Messages,
               "blocked guided activation must leave a clear outcome message");
-   end Test_Phase_570_Activate_Pending_Block_Reports_Message;
+   end Test_Activate_Pending_Block_Reports_Message;
 
 
-   procedure Test_Phase_570_Selected_Index_Is_Single_And_Actionable
+   procedure Test_Selected_Index_Is_Single_And_Actionable
      (T : in out AUnit.Test_Cases.Test_Case'Class)
    is
       pragma Unreferenced (T);
@@ -1354,9 +1579,9 @@ package body Editor.Empty_State_Guidance.Tests is
          Assert (not Assert_Selected_Suggested_Action_Is_Actionable (Snapshot),
                  "assertion must reject ambiguous guided-action selection");
       end if;
-   end Test_Phase_570_Selected_Index_Is_Single_And_Actionable;
+   end Test_Selected_Index_Is_Single_And_Actionable;
 
-   procedure Test_Phase_570_Activation_Mode_Coherence_Is_Asserted
+   procedure Test_Activation_Mode_Coherence_Is_Asserted
      (T : in out AUnit.Test_Cases.Test_Case'Class)
    is
       pragma Unreferenced (T);
@@ -1377,9 +1602,9 @@ package body Editor.Empty_State_Guidance.Tests is
       Suggestion.Carries_Payload := True;
       Assert (not Assert_Suggested_Action_Activation_Mode_Is_Coherent (Suggestion),
               "activation-mode assertion must still reject payload-bearing suggestions");
-   end Test_Phase_570_Activation_Mode_Coherence_Is_Asserted;
+   end Test_Activation_Mode_Coherence_Is_Asserted;
 
-   procedure Test_Phase_570_Selected_Activation_Uses_Selected_Index
+   procedure Test_Selected_Activation_Uses_Selected_Index
      (T : in out AUnit.Test_Cases.Test_Case'Class)
    is
       pragma Unreferenced (T);
@@ -1401,9 +1626,9 @@ package body Editor.Empty_State_Guidance.Tests is
       Result := Execute_Selected_Suggested_Command (S, Snapshot);
       Assert (Result.Command = Editor.Commands.No_Command,
               "execute-selected must no-op when no guided suggestion is selected");
-   end Test_Phase_570_Selected_Activation_Uses_Selected_Index;
+   end Test_Selected_Activation_Uses_Selected_Index;
 
-   procedure Test_Phase_570_Source_And_Availability_Assertions_Reject_Stale_Snapshot
+   procedure Test_Source_And_Availability_Assertions_Reject_Stale_Snapshot
      (T : in out AUnit.Test_Cases.Test_Case'Class)
    is
       pragma Unreferenced (T);
@@ -1426,10 +1651,10 @@ package body Editor.Empty_State_Guidance.Tests is
       Assert (not Assert_Suggested_Action_Availability_Label_Is_Current
                 (S, Snapshot.Suggestions (1)),
               "availability assertion must reject stale guided-action labels");
-   end Test_Phase_570_Source_And_Availability_Assertions_Reject_Stale_Snapshot;
+   end Test_Source_And_Availability_Assertions_Reject_Stale_Snapshot;
 
 
-   procedure Test_Phase_570_Indexed_Activation_Rejects_Mismatched_Selection
+   procedure Test_Indexed_Activation_Rejects_Mismatched_Selection
      (T : in out AUnit.Test_Cases.Test_Case'Class)
    is
       pragma Unreferenced (T);
@@ -1463,9 +1688,9 @@ package body Editor.Empty_State_Guidance.Tests is
       Result := Execute_Suggested_Command (S, Snapshot, Positive (Other));
       Assert (Result.Command = Editor.Commands.No_Command,
               "mismatched indexed activation must no-op instead of executing another row");
-   end Test_Phase_570_Indexed_Activation_Rejects_Mismatched_Selection;
+   end Test_Indexed_Activation_Rejects_Mismatched_Selection;
 
-   procedure Test_Phase_570_Phase_Fields_Are_Clean_Beyond_Suggestion_Count
+   procedure Test_Phase_Fields_Are_Clean_Beyond_Suggestion_Count
      (T : in out AUnit.Test_Cases.Test_Case'Class)
    is
       pragma Unreferenced (T);
@@ -1475,26 +1700,26 @@ package body Editor.Empty_State_Guidance.Tests is
    begin
       Assert (Snapshot.Suggestion_Count < Max_Empty_State_Suggestions,
               "test setup should leave at least one unused suggestion slot");
-      Assert (Assert_Empty_State_Suggestion_Tail_Is_Phase570_Clean (Snapshot),
-              "fresh snapshots must keep all Phase 570 fields clean beyond Suggestion_Count");
+      Assert (Assert_Empty_State_Suggestion_Tail_Is_Clean (Snapshot),
+              "fresh snapshots must keep all fields clean beyond Suggestion_Count");
 
       Tail := Positive (Snapshot.Suggestion_Count + 1);
       Snapshot.Suggestions (Tail).Availability_Label :=
         To_Unbounded_String ("stale availability");
-      Assert (not Assert_Empty_State_Suggestion_Tail_Is_Phase570_Clean (Snapshot),
-              "tail-clean assertion must reject stale Phase 570 availability labels");
+      Assert (not Assert_Empty_State_Suggestion_Tail_Is_Clean (Snapshot),
+              "tail-clean assertion must reject stale availability labels");
 
       Snapshot.Suggestions (Tail).Availability_Label := Null_Unbounded_String;
       Snapshot.Suggestions (Tail).Activation_Mode := Suggestion_Open_In_Command_Palette;
-      Assert (not Assert_Empty_State_Suggestion_Tail_Is_Phase570_Clean (Snapshot),
-              "tail-clean assertion must reject stale Phase 570 activation modes");
-   end Test_Phase_570_Phase_Fields_Are_Clean_Beyond_Suggestion_Count;
+      Assert (not Assert_Empty_State_Suggestion_Tail_Is_Clean (Snapshot),
+              "tail-clean assertion must reject stale activation modes");
+   end Test_Phase_Fields_Are_Clean_Beyond_Suggestion_Count;
 
 
 
 
 
-   procedure Test_Phase_570_Suggestions_Are_Canonical_Surface_Projections
+   procedure Test_Suggestions_Are_Canonical_Surface_Projections
      (T : in out AUnit.Test_Cases.Test_Case'Class)
    is
       pragma Unreferenced (T);
@@ -1507,9 +1732,9 @@ package body Editor.Empty_State_Guidance.Tests is
                    (S, Snapshots (I)),
                  "guided suggestions must come from the canonical descriptor projection for their surface");
       end loop;
-   end Test_Phase_570_Suggestions_Are_Canonical_Surface_Projections;
+   end Test_Suggestions_Are_Canonical_Surface_Projections;
 
-   procedure Test_Phase_570_Canonical_Projection_Rejects_Hand_Rolled_State
+   procedure Test_Canonical_Projection_Rejects_Hand_Rolled_State
      (T : in out AUnit.Test_Cases.Test_Case'Class)
    is
       pragma Unreferenced (T);
@@ -1534,7 +1759,7 @@ package body Editor.Empty_State_Guidance.Tests is
       Assert (not Assert_Empty_State_Suggestions_Are_Canonical_Surface_Projections
                 (S, Snapshot),
               "canonical projection assertion must reject cross-surface copied suggestions");
-   end Test_Phase_570_Canonical_Projection_Rejects_Hand_Rolled_State;
+   end Test_Canonical_Projection_Rejects_Hand_Rolled_State;
 
 
    overriding procedure Register_Tests
@@ -1542,140 +1767,150 @@ package body Editor.Empty_State_Guidance.Tests is
    is
       use AUnit.Test_Cases.Registration;
    begin
-      Register_Routine (T, Test_Phase_570_Guided_Actions_Are_Command_Name_Only'Access,
-                        "phase 570 guided actions are stable command-name references only");
-      Register_Routine (T, Test_Phase_570_Open_Suggestion_In_Command_Palette'Access,
-                        "phase 570 guided action opens Command Palette without payloads");
-      Register_Routine (T, Test_Phase_570_Execute_Suggestion_Checks_Availability_First'Access,
-                        "phase 570 guided execution checks availability and uses Executor");
-      Register_Routine (T, Test_Phase_570_Suggestion_Selection_Is_Transient'Access,
-                        "phase 570 guided action selection is transient");
-      Register_Routine (T, Test_Phase_570_Activation_Mode_Opens_Palette_Without_Executing_Target'Access,
-                        "phase 570 activation mode opens palette without target execution");
-      Register_Routine (T, Test_Phase_570_Unavailable_Suggestion_Does_Not_Execute'Access,
-                        "phase 570 unavailable guided action is blocked before execution");
-      Register_Routine (T, Test_Phase_570_Keybindings_Cannot_Carry_Suggestion_Payloads'Access,
-                        "phase 570 keybindings cannot carry suggestion payloads");
-      Register_Routine (T, Test_Phase_570_Selection_Skips_Display_Only_Suggestions'Access,
-                        "phase 570 selection skips display-only suggestion rows");
-      Register_Routine (T, Test_Phase_570_Render_Building_Does_Not_Open_Palette'Access,
-                        "phase 570 render building does not activate suggestions");
-      Register_Routine (T, Test_Phase_570_Availability_Labels_Show_Guard_Class'Access,
-                        "phase 570 availability labels expose input confirmation consent guard classes");
-      Register_Routine (T, Test_Phase_570_Pending_Confirmation_Blocks_Conflicting_Suggestion'Access,
-                        "phase 570 pending confirmations block conflicting guided action execution");
-      Register_Routine (T, Test_Phase_570_Suggested_Action_Route_Audit_Rejects_Bypass_And_Payload'Access,
-                        "phase 570 route audit rejects guided-action bypasses and payloads");
-      Register_Routine (T, Test_Phase_570_Suggested_Action_Route_Audit_Allows_Palette_Entry'Access,
-                        "phase 570 route audit accepts canonical guided palette entry routes");
-      Register_Routine (T, Test_Phase_570_Suggested_Action_Route_Audit_Rejects_Mixed_Route_Mode'Access,
-                        "phase 570 route audit rejects mixed guided route modes");
-      Register_Routine (T, Test_Phase_570_Metadata_Currentness_Rejects_Stale_Descriptor_Copy'Access,
-                        "phase 570 metadata currentness rejects stale descriptor copies");
-      Register_Routine (T, Test_Phase_570_Selection_Clears_When_Surface_Has_No_Suggestions'Access,
-                        "phase 570 selection clears when suggestion surface disappears");
-      Register_Routine (T, Test_Phase_570_Palette_Open_Blocked_By_Pending_Confirmation'Access,
-                        "phase 570 pending confirmation blocks guided palette opening");
-      Register_Routine (T, Test_Phase_570_Execute_Respects_Activation_Mode'Access,
-                        "phase 570 direct guided execution respects activation mode");
-      Register_Routine (T, Test_Phase_570_Unavailable_Execution_Reports_Normal_Reason'Access,
-                        "phase 570 unavailable guided execution reports the normal reason");
-      Register_Routine (T, Test_Phase_570_Empty_State_Assertion_Covers_Suggestion_Persistence'Access,
-                        "phase 570 suggestion state remains excluded from persistence assertions");
-      Register_Routine (T, Test_Phase_570_Surface_Source_Labels_Are_Owned_By_Surface'Access,
-                        "phase 570 surface source labels are owned by emitting surfaces");
-      Register_Routine (T, Test_Phase_570_Display_Only_Suggestion_Cannot_Open_Palette'Access,
-                        "phase 570 display-only suggestions cannot open the Command Palette");
-      Register_Routine (T, Test_Phase_570_Activate_Pending_Block_Reports_Message'Access,
-                        "phase 570 pending-confirmation activation block reports an outcome");
-      Register_Routine (T, Test_Phase_570_Selected_Index_Is_Single_And_Actionable'Access,
-                        "phase 570 selected suggestion index is single and actionable");
-      Register_Routine (T, Test_Phase_570_Activation_Mode_Coherence_Is_Asserted'Access,
-                        "phase 570 activation-mode coherence rejects selected display-only and payload suggestions");
-      Register_Routine (T, Test_Phase_570_Selected_Activation_Uses_Selected_Index'Access,
-                        "phase 570 selected activation resolves only the selected suggestion");
-      Register_Routine (T, Test_Phase_570_Source_And_Availability_Assertions_Reject_Stale_Snapshot'Access,
-                        "phase 570 source and availability assertions reject stale suggestion state");
-      Register_Routine (T, Test_Phase_570_Indexed_Activation_Rejects_Mismatched_Selection'Access,
-                        "phase 570 indexed activation rejects rows outside the selected guided action");
-      Register_Routine (T, Test_Phase_570_Phase_Fields_Are_Clean_Beyond_Suggestion_Count'Access,
-                        "phase 570 tail-clean assertions cover availability and activation fields");
-      Register_Routine (T, Test_Phase_570_Suggestions_Are_Canonical_Surface_Projections'Access,
-                        "phase 570 suggestions are canonical surface projections");
-      Register_Routine (T, Test_Phase_570_Canonical_Projection_Rejects_Hand_Rolled_State'Access,
-                        "phase 570 canonical projection rejects hand-rolled suggestion state");
-      Register_Routine (T, Test_Phase_569_First_Use_Coherent'Access,
-                        "phase 569 first-use empty-state guidance coherent");
-      Register_Routine (T, Test_Phase_569_First_Run_Main_Guidance'Access,
-                        "phase 569 first-run main guidance is deterministic and no-payload");
-      Register_Routine (T, Test_Phase_569_Render_Snapshot_Carries_Guidance'Access,
-                        "phase 569 render snapshot carries empty-state guidance");
-      Register_Routine (T, Test_Phase_569_Project_Open_No_Buffer_Guidance'Access,
-                        "phase 569 project-open no-buffer guidance is useful");
-      Register_Routine (T, Test_Phase_569_Major_Surface_Coverage_Is_Descriptor_Derived'Access,
-                        "phase 569 major surfaces have descriptor-derived stable suggestions");
-      Register_Routine (T, Test_Phase_569_Project_Open_Panel_Empty_States_Are_Explicit'Access,
-                        "phase 569 project-open panel empty states are explicit");
-      Register_Routine (T, Test_Phase_569_Recent_Projects_Does_Not_Mutate'Access,
-                        "phase 569 recent-projects guidance is non-mutating");
-      Register_Routine (T, Test_Phase_569_All_Surface_Snapshots_Are_Complete'Access,
-                        "phase 569 all major surfaces produce complete snapshots");
-      Register_Routine (T, Test_Phase_569_Diagnostics_Source_Less_Selected_State'Access,
-                        "phase 569 source-less diagnostics have explicit empty guidance");
-      Register_Routine (T, Test_Phase_569_Diagnostics_Filtered_None_State'Access,
-                        "phase 569 filtered diagnostics have explicit empty guidance");
-      Register_Routine (T, Test_Phase_569_Render_Construction_Is_Observational'Access,
-                        "phase 569 render empty-state construction is observational");
-      Register_Routine (T, Test_Phase_569_Main_Guidance_Uses_Metadata_Titles'Access,
-                        "phase 569 suggestions use metadata titles and stable names");
-      Register_Routine (T, Test_Phase_569_Suggestion_Activation_Routes_Executor'Access,
-                        "phase 569 suggestion activation routes through Executor");
-      Register_Routine (T, Test_Phase_569_Invalid_Suggestion_Activation_Is_No_Op'Access,
-                        "phase 569 invalid suggestion activation is a no-op");
-      Register_Routine (T, Test_Phase_569_Payload_Like_Stable_Name_Activation_Is_No_Op'Access,
-                        "phase 569 payload-like stable names do not activate");
-      Register_Routine (T, Test_Phase_569_Suggestion_Safety_Rejects_Target_Strings'Access,
-                        "phase 569 suggestion safety rejects target-bearing strings");
-      Register_Routine (T, Test_Phase_569_Suggestion_Safety_Rejects_Hidden_Or_Mismatched_Metadata'Access,
-                        "phase 569 suggestion safety rejects hidden or mismatched metadata");
-      Register_Routine (T, Test_Phase_569_Guidance_State_Not_Persisted_Or_Stored'Access,
-                        "phase 569 guidance construction is not persisted or stored");
-      Register_Routine (T, Test_Phase_569_Surface_Labels_Are_Explicit_And_Unique'Access,
-                        "phase 569 aggregate guidance labels every surface exactly once");
-      Register_Routine (T, Test_Phase_569_Display_Lines_Are_Compact_And_Target_Free'Access,
-                        "phase 569 display lines are compact and target-free");
-      Register_Routine (T, Test_Phase_569_Suggestions_Are_Unique_And_Tail_Clean'Access,
-                        "phase 569 suggestions are unique and tail-clean");
-      Register_Routine (T, Test_Phase_569_Duplicate_Suggestion_Is_Collapsed'Access,
-                        "phase 569 duplicate suggestions are detected");
-      Register_Routine (T, Test_Phase_569_Suggestion_Display_Line_Shows_Unavailable_Reason'Access,
-                        "phase 569 suggestion display exposes unavailable reasons");
-      Register_Routine (T, Test_Phase_569_Non_Ready_States_Are_Actionable'Access,
-                        "phase 569 non-ready empty states are actionable");
-      Register_Routine (T, Test_Phase_569_Outline_No_Buffer_Guidance_Is_Actionable'Access,
-                        "phase 569 outline no-buffer guidance is actionable");
-      Register_Routine (T, Test_Phase_569_Semantic_State_Kinds_Are_Not_Collapsed'Access,
-                        "phase 569 semantic empty-state kinds are not collapsed");
-      Register_Routine (T, Test_Phase_569_Ready_States_Are_Not_Rendered_As_Empty_Cards'Access,
-                        "phase 569 ready states are not rendered as empty guidance cards");
-      Register_Routine (T, Test_Phase_569_Non_Ready_States_Are_Renderable_Guidance'Access,
-                        "phase 569 non-ready states remain renderable guidance cards");
-      Register_Routine (T, Test_Phase_569_Display_Line_Target_Guard_Covers_Final_Render_Text'Access,
-                        "phase 569 final render display lines remain labelled and target-free");
-      Register_Routine (T, Test_Phase_569_Renderable_Count_And_Severity_Are_Semantic'Access,
-                        "phase 569 renderable count and severity semantics are bounded");
-      Register_Routine (T, Test_Phase_569_Aggregate_Array_Is_Display_Only'Access,
-                        "phase 569 aggregate guidance array is canonical and display-only");
-      Register_Routine (T, Test_Phase_569_Suggestion_Display_Lines_Are_Target_Free'Access,
-                        "phase 569 suggestion render lines are target-free and budgeted");
-      Register_Routine (T, Test_Phase_569_Snapshot_Equivalence_Covers_All_Rendered_Fields'Access,
-                        "phase 569 snapshot equivalence covers all render-facing fields");
-      Register_Routine (T, Test_Phase_569_Canonical_Surface_Slot_Map_Is_Bidirectional'Access,
-                        "phase 569 canonical surface slot map is bidirectional");
-      Register_Routine (T, Test_Phase_569_Surface_Model_Is_Closed_And_Bounded'Access,
-                        "phase 569 surface model is closed and bounded");
-      Register_Routine (T, Test_Phase_569_Render_Model_Fields_Match_Canonical_Array'Access,
-                        "phase 569 render model empty-state fields match canonical array");
+      Register_Routine (T, Test_Guided_Actions_Are_Command_Name_Only'Access,
+                        "guided actions are stable command-name references only");
+      Register_Routine (T, Test_Open_Suggestion_In_Command_Palette'Access,
+                        "guided action opens Command Palette without payloads");
+      Register_Routine (T, Test_Execute_Suggestion_Checks_Availability_First'Access,
+                        "guided execution checks availability and uses Executor");
+      Register_Routine (T, Test_Suggestion_Selection_Is_Transient'Access,
+                        "guided action selection is transient");
+      Register_Routine (T, Test_Activation_Mode_Opens_Palette_Without_Executing_Target'Access,
+                        "activation mode opens palette without target execution");
+      Register_Routine (T, Test_Unavailable_Suggestion_Does_Not_Execute'Access,
+                        "unavailable guided action is blocked before execution");
+      Register_Routine (T, Test_Keybindings_Cannot_Carry_Suggestion_Payloads'Access,
+                        "keybindings cannot carry suggestion payloads");
+      Register_Routine (T, Test_Selection_Skips_Display_Only_Suggestions'Access,
+                        "selection skips display-only suggestion rows");
+      Register_Routine (T, Test_Render_Building_Does_Not_Open_Palette'Access,
+                        "render building does not activate suggestions");
+      Register_Routine (T, Test_Availability_Labels_Show_Guard_Class'Access,
+                        "availability labels expose input confirmation consent guard classes");
+      Register_Routine (T, Test_Pending_Confirmation_Blocks_Conflicting_Suggestion'Access,
+                        "pending confirmations block conflicting guided action execution");
+      Register_Routine (T, Test_Suggested_Action_Route_Audit_Rejects_Bypass_And_Payload'Access,
+                        "route audit rejects guided-action bypasses and payloads");
+      Register_Routine (T, Test_Suggested_Action_Route_Audit_Allows_Palette_Entry'Access,
+                        "route audit accepts canonical guided palette entry routes");
+      Register_Routine (T, Test_Suggested_Action_Route_Audit_Rejects_Mixed_Route_Mode'Access,
+                        "route audit rejects mixed guided route modes");
+      Register_Routine (T, Test_Metadata_Currentness_Rejects_Stale_Descriptor_Copy'Access,
+                        "metadata currentness rejects stale descriptor copies");
+      Register_Routine (T, Test_Selection_Clears_When_Surface_Has_No_Suggestions'Access,
+                        "selection clears when suggestion surface disappears");
+      Register_Routine (T, Test_Palette_Open_Blocked_By_Pending_Confirmation'Access,
+                        "pending confirmation blocks guided palette opening");
+      Register_Routine (T, Test_Execute_Respects_Activation_Mode'Access,
+                        "direct guided execution respects activation mode");
+      Register_Routine (T, Test_Unavailable_Execution_Reports_Normal_Reason'Access,
+                        "unavailable guided execution reports the normal reason");
+      Register_Routine (T, Test_Empty_State_Assertion_Covers_Suggestion_Persistence'Access,
+                        "suggestion state remains excluded from persistence assertions");
+      Register_Routine (T, Test_Surface_Source_Labels_Are_Owned_By_Surface'Access,
+                        "surface source labels are owned by emitting surfaces");
+      Register_Routine (T, Test_Display_Only_Suggestion_Cannot_Open_Palette'Access,
+                        "display-only suggestions cannot open the Command Palette");
+      Register_Routine (T, Test_Activate_Pending_Block_Reports_Message'Access,
+                        "pending-confirmation activation block reports an outcome");
+      Register_Routine (T, Test_Selected_Index_Is_Single_And_Actionable'Access,
+                        "selected suggestion index is single and actionable");
+      Register_Routine (T, Test_Activation_Mode_Coherence_Is_Asserted'Access,
+                        "activation-mode coherence rejects selected display-only and payload suggestions");
+      Register_Routine (T, Test_Selected_Activation_Uses_Selected_Index'Access,
+                        "selected activation resolves only the selected suggestion");
+      Register_Routine (T, Test_Source_And_Availability_Assertions_Reject_Stale_Snapshot'Access,
+                        "source and availability assertions reject stale suggestion state");
+      Register_Routine (T, Test_Indexed_Activation_Rejects_Mismatched_Selection'Access,
+                        "indexed activation rejects rows outside the selected guided action");
+      Register_Routine (T, Test_Phase_Fields_Are_Clean_Beyond_Suggestion_Count'Access,
+                        "tail-clean assertions cover availability and activation fields");
+      Register_Routine (T, Test_Suggestions_Are_Canonical_Surface_Projections'Access,
+                        "suggestions are canonical surface projections");
+      Register_Routine (T, Test_Canonical_Projection_Rejects_Hand_Rolled_State'Access,
+                        "canonical projection rejects hand-rolled suggestion state");
+      Register_Routine (T, Test_First_Use_Coherent'Access,
+                        "first-use empty-state guidance coherent");
+      Register_Routine (T, Test_First_Run_Main_Guidance'Access,
+                        "first-run main guidance is deterministic and no-payload");
+      Register_Routine (T, Test_Render_Snapshot_Carries_Guidance'Access,
+                        "render snapshot carries empty-state guidance");
+      Register_Routine (T, Test_Project_Open_No_Buffer_Guidance'Access,
+                        "project-open no-buffer guidance is useful");
+      Register_Routine (T, Test_Major_Surface_Coverage_Is_Descriptor_Derived'Access,
+                        "major surfaces have descriptor-derived stable suggestions");
+      Register_Routine (T, Test_Project_Open_Panel_Empty_States_Are_Explicit'Access,
+                        "project-open panel empty states are explicit");
+      Register_Routine (T, Test_Build_Guidance_Uses_Row_Action_Commands'Access,
+                        "Build guidance uses row action commands");
+      Register_Routine (T, Test_Project_Search_No_Results_Guidance_Offers_Filter_Recovery'Access,
+                        "Project Search no-result guidance offers filter recovery");
+      Register_Routine (T, Test_Project_Search_Stale_Guidance_Offers_Rerun'Access,
+                        "Project Search stale guidance offers rerun");
+      Register_Routine (T, Test_Recent_Projects_Does_Not_Mutate'Access,
+                        "recent-projects guidance is non-mutating");
+      Register_Routine (T, Test_All_Surface_Snapshots_Are_Complete'Access,
+                        "all major surfaces produce complete snapshots");
+      Register_Routine (T, Test_Diagnostics_Source_Less_Selected_State'Access,
+                        "source-less diagnostics have explicit empty guidance");
+      Register_Routine (T, Test_Diagnostics_Selected_Unavailable_Target_State'Access,
+                        "selected unavailable diagnostics have recovery guidance");
+      Register_Routine (T, Test_Diagnostics_Filtered_None_State'Access,
+                        "filtered diagnostics have explicit empty guidance");
+      Register_Routine (T, Test_Diagnostics_Zero_Build_Result_Is_Contextual'Access,
+                        "zero-diagnostic build result keeps build context");
+      Register_Routine (T, Test_Render_Construction_Is_Observational'Access,
+                        "render empty-state construction is observational");
+      Register_Routine (T, Test_Main_Guidance_Uses_Metadata_Titles'Access,
+                        "suggestions use metadata titles and stable names");
+      Register_Routine (T, Test_Suggestion_Activation_Routes_Executor'Access,
+                        "suggestion activation routes through Executor");
+      Register_Routine (T, Test_Invalid_Suggestion_Activation_Is_No_Op'Access,
+                        "invalid suggestion activation is a no-op");
+      Register_Routine (T, Test_Payload_Like_Stable_Name_Activation_Is_No_Op'Access,
+                        "payload-like stable names do not activate");
+      Register_Routine (T, Test_Suggestion_Safety_Rejects_Target_Strings'Access,
+                        "suggestion safety rejects target-bearing strings");
+      Register_Routine (T, Test_Suggestion_Safety_Rejects_Hidden_Or_Mismatched_Metadata'Access,
+                        "suggestion safety rejects hidden or mismatched metadata");
+      Register_Routine (T, Test_Guidance_State_Not_Persisted_Or_Stored'Access,
+                        "guidance construction is not persisted or stored");
+      Register_Routine (T, Test_Surface_Labels_Are_Explicit_And_Unique'Access,
+                        "aggregate guidance labels every surface exactly once");
+      Register_Routine (T, Test_Display_Lines_Are_Compact_And_Target_Free'Access,
+                        "display lines are compact and target-free");
+      Register_Routine (T, Test_Suggestions_Are_Unique_And_Tail_Clean'Access,
+                        "suggestions are unique and tail-clean");
+      Register_Routine (T, Test_Duplicate_Suggestion_Is_Collapsed'Access,
+                        "duplicate suggestions are detected");
+      Register_Routine (T, Test_Suggestion_Display_Line_Shows_Unavailable_Reason'Access,
+                        "suggestion display exposes unavailable reasons");
+      Register_Routine (T, Test_Non_Ready_States_Are_Actionable'Access,
+                        "non-ready empty states are actionable");
+      Register_Routine (T, Test_Outline_No_Buffer_Guidance_Is_Actionable'Access,
+                        "outline no-buffer guidance is actionable");
+      Register_Routine (T, Test_Semantic_State_Kinds_Are_Not_Collapsed'Access,
+                        "semantic empty-state kinds are not collapsed");
+      Register_Routine (T, Test_Ready_States_Are_Not_Rendered_As_Empty_Cards'Access,
+                        "ready states are not rendered as empty guidance cards");
+      Register_Routine (T, Test_Non_Ready_States_Are_Renderable_Guidance'Access,
+                        "non-ready states remain renderable guidance cards");
+      Register_Routine (T, Test_Display_Line_Target_Guard_Covers_Final_Render_Text'Access,
+                        "final render display lines remain labelled and target-free");
+      Register_Routine (T, Test_Renderable_Count_And_Severity_Are_Semantic'Access,
+                        "renderable count and severity semantics are bounded");
+      Register_Routine (T, Test_Aggregate_Array_Is_Display_Only'Access,
+                        "aggregate guidance array is canonical and display-only");
+      Register_Routine (T, Test_Suggestion_Display_Lines_Are_Target_Free'Access,
+                        "suggestion render lines are target-free and budgeted");
+      Register_Routine (T, Test_Snapshot_Equivalence_Covers_All_Rendered_Fields'Access,
+                        "snapshot equivalence covers all render-facing fields");
+      Register_Routine (T, Test_Canonical_Surface_Slot_Map_Is_Bidirectional'Access,
+                        "canonical surface slot map is bidirectional");
+      Register_Routine (T, Test_Surface_Model_Is_Closed_And_Bounded'Access,
+                        "surface model is closed and bounded");
+      Register_Routine (T, Test_Render_Model_Fields_Match_Canonical_Array'Access,
+                        "render model empty-state fields match canonical array");
    end Register_Tests;
 
 end Editor.Empty_State_Guidance.Tests;

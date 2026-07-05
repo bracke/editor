@@ -33,7 +33,7 @@ package body Editor.Panels.Tests is
       Assert
         (Editor.Panels.Current_Size
            (Panels, Editor.Panels.File_Tree_Panel) = 28,
-         "default file tree panel should preserve the Phase 58 default width");
+         "default file tree panel should preserve the default width");
       Assert
         (not Editor.Panels.Is_Visible
            (Panels, Editor.Panels.Right_Sidebar_Panel),
@@ -298,25 +298,25 @@ package body Editor.Panels.Tests is
    begin
       Register_Routine
         (T, Test_Initialize_Defaults_File_Tree_Visible'Access,
-         "Phase 59 initializes generic panel defaults");
+         "initializes generic panel defaults");
       Register_Routine
         (T, Test_Clamp_Size'Access,
-         "Phase 59 clamps panel sizes");
+         "clamps panel sizes");
       Register_Routine
         (T, Test_Set_Visible_Preserves_Size'Access,
-         "Phase 59 panel visibility preserves size");
+         "panel visibility preserves size");
       Register_Routine
         (T, Test_Left_Resize_Delta'Access,
-         "Phase 59 left panel resize delta uses cell snapping");
+         "left panel resize delta uses cell snapping");
       Register_Routine
         (T, Test_Right_And_Bottom_Resize_Deltas'Access,
-         "Phase 59 right and bottom resize deltas are deterministic");
+         "right and bottom resize deltas are deterministic");
       Register_Routine
         (T, Test_Bottom_Panel_Layout_Reserves_Height'Access,
-         "Phase 60 bottom panel layout reserves height through Editor.Layout");
+         "bottom panel layout reserves height through Editor.Layout");
       Register_Routine
         (T, Test_Bottom_Content_Switching_Preserves_Geometry'Access,
-         "Phase 73 bottom panel content switching preserves geometry and shared size");
+         "bottom panel content switching preserves geometry and shared size");
    end Register_Tests;
 
 end Editor.Panels.Tests;

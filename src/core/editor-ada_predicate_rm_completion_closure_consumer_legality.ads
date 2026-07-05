@@ -14,9 +14,9 @@ with Editor.Ada_Tasking_RM_Completion_Closure_Consumer_Legality;
 
 package Editor.Ada_Predicate_RM_Completion_Closure_Consumer_Legality is
 
-   --  Pass1272 predicate/invariant RM-completion closure consumer legality.
+   --  Case 1272 predicate/invariant RM-completion closure consumer legality.
    --
-   --  This package makes predicate/invariant legality consume the Pass1263 stabilized
+   --  This package makes predicate/invariant legality consume the Case 1263 stabilized
    --  RM-completion closure and the direct RM-completion closure consumers
    --  introduced for overload/type, representation/freezing, tasking/protected,
    --  dataflow, exception/finalization, accessibility, elaboration, and

@@ -10,7 +10,7 @@ with Editor.Ada_Unit_Completion_Order_Legality;
 
 package Editor.Ada_Exception_Finalization_Legality is
 
-   --  Pass1116 compiler-grade exception, raise, cleanup, finalization, and
+   --  Case 1116 compiler-grade exception, raise, cleanup, finalization, and
    --  No_Return legality layer.  The package consumes bounded semantic
    --  metadata from the control-flow, accessibility/lifetime, contract/aspect,
    --  elaboration, unit-completion, and renaming/visibility legality layers.

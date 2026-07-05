@@ -1,5 +1,6 @@
 with AUnit.Assertions; use AUnit.Assertions;
 with AUnit.Test_Cases;
+with Ada.Strings.Fixed;
 with Ada.Strings.Unbounded; use Ada.Strings.Unbounded;
 with Editor.Build_Result_Summary;
 with Editor.External_Producers;
@@ -127,6 +128,34 @@ package body Editor.Build_Result_Summary.Tests is
                  "render snapshot carries status label only");
       end;
    end Test_Summary_Records_Success_And_Exit_Code;
+
+   procedure Test_Summary_Records_Duration
+     (T : in out AUnit.Test_Cases.Test_Case'Class)
+   is
+      pragma Unreferenced (T);
+      S : constant Editor.Build_Result_Summary.Latest_Build_Result_Summary :=
+        Editor.Build_Result_Summary.Build_Summary
+          (Kind => Editor.Build_Result_Summary.Build_Result_Summary_Succeeded,
+           Invocation_Label => "build.run",
+           Tool_Kind => Editor.Build_Result_Summary.Build_Result_GPRbuild_Tool,
+           Request_Mode => Editor.Build_Result_Summary.Build_Result_Request_Manual,
+           Working_Context_Label => "current project root",
+           Runner_Status_Label => "succeeded",
+           Primary_Message => "Build succeeded",
+           Duration_Milliseconds => 4321,
+           Has_Duration => True);
+      Snapshot : constant Editor.Build_Result_Summary.Latest_Build_Result_Render_Snapshot :=
+        Editor.Build_Result_Summary.Render_Snapshot (S);
+   begin
+      Assert (S.Has_Duration and then S.Duration_Milliseconds = 4321,
+              "summary carries elapsed build duration");
+      Assert (Editor.Build_Result_Summary.Duration_Label (S) =
+                "duration 4.3 s",
+              "duration label is deterministic");
+      Assert (To_String (Snapshot.Latest_Build_Result_Duration_Label) =
+                "duration 4.3 s",
+              "render snapshot exposes elapsed build duration");
+   end Test_Summary_Records_Duration;
 
    procedure Test_Summary_Records_Timeout_Cancel_And_Truncation
      (T : in out AUnit.Test_Cases.Test_Case'Class)
@@ -355,7 +384,7 @@ package body Editor.Build_Result_Summary.Tests is
           ("Build unavailable: consent required.");
    begin
       Assert (Editor.Build_Result_Summary.Retain_Pre_Run_Unavailable_Summary,
-              "Phase 511 explicitly retains pre-run unavailable summaries");
+              "explicitly retains pre-run unavailable summaries");
       Assert (S.Kind = Editor.Build_Result_Summary.Build_Result_Summary_Unavailable,
               "unavailable attempts map to unavailable summary");
       Assert (not S.Has_Exit_Code,
@@ -393,7 +422,7 @@ package body Editor.Build_Result_Summary.Tests is
    end Test_Render_Snapshot_Is_Display_Only_And_Forbidden_State_Free;
 
 
-   procedure Test_Phase512_Canonicalizer_Clears_Stale_Display_Facts
+   procedure Test_Canonicalizer_Clears_Stale_Display_Facts
      (T : in out AUnit.Test_Cases.Test_Case'Class)
    is
       pragma Unreferenced (T);
@@ -426,10 +455,10 @@ package body Editor.Build_Result_Summary.Tests is
               "canonicalization clears stale diagnostics count when disabled");
       Assert (Editor.Build_Result_Summary.Assert_Latest_Build_Result_Summary_Shape_Canonical
                 (Canonical),
-              "canonicalized summary satisfies the Phase 512 shape contract");
-   end Test_Phase512_Canonicalizer_Clears_Stale_Display_Facts;
+              "canonicalized summary satisfies the shape contract");
+   end Test_Canonicalizer_Clears_Stale_Display_Facts;
 
-   procedure Test_Phase512_Rerun_Diagnostics_Output_Process_Boundaries
+   procedure Test_Rerun_Diagnostics_Output_Process_Boundaries
      (T : in out AUnit.Test_Cases.Test_Case'Class)
    is
       pragma Unreferenced (T);
@@ -455,9 +484,9 @@ package body Editor.Build_Result_Summary.Tests is
       Assert (not Editor.Build_Result_Summary.Has_Process_Handle_Field (S)
               and then not Editor.Build_Result_Summary.Has_Cancellation_Token_Field (S),
               "summary exposes no process-control state");
-   end Test_Phase512_Rerun_Diagnostics_Output_Process_Boundaries;
+   end Test_Rerun_Diagnostics_Output_Process_Boundaries;
 
-   procedure Test_Phase512_Milestone_Canonical_Coherence
+   procedure Test_Milestone_Canonical_Coherence
      (T : in out AUnit.Test_Cases.Test_Case'Class)
    is
       pragma Unreferenced (T);
@@ -484,11 +513,11 @@ package body Editor.Build_Result_Summary.Tests is
               "replacement does not retain timeout/truncation caches");
       Assert (Editor.Build_Result_Summary.Assert_Public_Build_Result_Surface_Canonical_Coherent
                 (Replaced),
-              "Phase 512 public build result surface canonical coherence holds");
-   end Test_Phase512_Milestone_Canonical_Coherence;
+              "public build result surface canonical coherence holds");
+   end Test_Milestone_Canonical_Coherence;
 
 
-   procedure Test_Phase513_Final_Mapping_Freeze_For_All_Result_Kinds
+   procedure Test_Final_Mapping_Freeze_For_All_Result_Kinds
      (T : in out AUnit.Test_Cases.Test_Case'Class)
    is
       pragma Unreferenced (T);
@@ -527,28 +556,28 @@ package body Editor.Build_Result_Summary.Tests is
    begin
       Assert (Editor.Build_Result_Summary.Assert_Latest_Build_Result_Summary_Final_Mapping_Frozen
                 (Success),
-              "Phase 513 freezes success summary mapping");
+              "freezes success summary mapping");
       Assert (Editor.Build_Result_Summary.Assert_Latest_Build_Result_Summary_Final_Mapping_Frozen
                 (Failed),
-              "Phase 513 freezes failed-exit summary mapping");
+              "freezes failed-exit summary mapping");
       Assert (Editor.Build_Result_Summary.Assert_Latest_Build_Result_Summary_Final_Mapping_Frozen
                 (Unavailable),
-              "Phase 513 freezes pre-run unavailable summary mapping");
+              "freezes pre-run unavailable summary mapping");
       Assert (Editor.Build_Result_Summary.Assert_Latest_Build_Result_Summary_Final_Mapping_Frozen
                 (Timeout),
-              "Phase 513 freezes timeout summary mapping");
+              "freezes timeout summary mapping");
       Assert (Editor.Build_Result_Summary.Assert_Latest_Build_Result_Summary_Final_Mapping_Frozen
                 (Cancelled),
-              "Phase 513 freezes cancellation summary mapping");
+              "freezes cancellation summary mapping");
       Assert (Editor.Build_Result_Summary.Assert_Latest_Build_Result_Summary_Final_Mapping_Frozen
                 (Unsupported),
-              "Phase 513 freezes cancellation-unsupported summary mapping");
+              "freezes cancellation-unsupported summary mapping");
       Assert (Unsupported.Cancellation_Unsupported
               and then not Unsupported.Has_Exit_Code,
               "cancellation unsupported remains display-only with no process state");
-   end Test_Phase513_Final_Mapping_Freeze_For_All_Result_Kinds;
+   end Test_Final_Mapping_Freeze_For_All_Result_Kinds;
 
-   procedure Test_Phase513_Final_Replace_Only_Clears_All_Prior_Facts
+   procedure Test_Final_Replace_Only_Clears_All_Prior_Facts
      (T : in out AUnit.Test_Cases.Test_Case'Class)
    is
       pragma Unreferenced (T);
@@ -577,7 +606,7 @@ package body Editor.Build_Result_Summary.Tests is
    begin
       Assert (Editor.Build_Result_Summary.Assert_Latest_Build_Result_Summary_Final_Replace_Only_Frozen
                 (Previous, Next),
-              "Phase 513 freezes latest-only replacement semantics");
+              "freezes latest-only replacement semantics");
       Assert (Replaced.Kind = Editor.Build_Result_Summary.Build_Result_Summary_Unavailable,
               "new represented result replaces previous status");
       Assert (not Replaced.Timed_Out
@@ -594,9 +623,9 @@ package body Editor.Build_Result_Summary.Tests is
               and then Replaced.Tool_Kind =
                 Editor.Build_Result_Summary.Build_Result_No_Tool,
               "manual/candidate provenance is replaced, not cached");
-   end Test_Phase513_Final_Replace_Only_Clears_All_Prior_Facts;
+   end Test_Final_Replace_Only_Clears_All_Prior_Facts;
 
-   procedure Test_Phase513_Final_Boundary_Coherence_Freeze
+   procedure Test_Final_Boundary_Coherence_Freeze
      (T : in out AUnit.Test_Cases.Test_Case'Class)
    is
       pragma Unreferenced (T);
@@ -618,7 +647,7 @@ package body Editor.Build_Result_Summary.Tests is
    begin
       Assert (Editor.Build_Result_Summary.Assert_Public_Build_Result_Surface_Final_Freeze_Coherent
                 (S),
-              "Phase 513 final result surface freeze helper is coherent");
+              "final result surface freeze helper is coherent");
       Assert (Editor.Build_Result_Summary.Assert_Latest_Build_Result_Summary_Final_Not_Rerun_State
                 (S),
               "summary cannot be converted into a rerun request");
@@ -634,9 +663,9 @@ package body Editor.Build_Result_Summary.Tests is
       Assert (Editor.Build_Result_Summary.Assert_Latest_Build_Result_Summary_Final_No_History
                 (S),
               "summary exposes no build history cache");
-   end Test_Phase513_Final_Boundary_Coherence_Freeze;
+   end Test_Final_Boundary_Coherence_Freeze;
 
-   procedure Test_Phase513_Render_And_Availability_Do_Not_Update_Summary
+   procedure Test_Render_And_Availability_Do_Not_Update_Summary
      (T : in out AUnit.Test_Cases.Test_Case'Class)
    is
       pragma Unreferenced (T);
@@ -664,9 +693,9 @@ package body Editor.Build_Result_Summary.Tests is
                  and then State.Latest_Build_Result.Kind = Before.Kind,
                  "availability/frontdoor checks do not update latest summary");
       end;
-   end Test_Phase513_Render_And_Availability_Do_Not_Update_Summary;
+   end Test_Render_And_Availability_Do_Not_Update_Summary;
 
-   procedure Test_Phase513_Executor_Path_Is_Only_Update_Path_Freeze
+   procedure Test_Executor_Path_Is_Only_Update_Path_Freeze
      (T : in out AUnit.Test_Cases.Test_Case'Class)
    is
       pragma Unreferenced (T);
@@ -687,10 +716,10 @@ package body Editor.Build_Result_Summary.Tests is
       Assert (Editor.Build_Result_Summary.Assert_Public_Build_Result_Surface_Final_Freeze_Coherent
                 (State.Latest_Build_Result),
               "Executor-created unavailable summary satisfies final freeze contract");
-   end Test_Phase513_Executor_Path_Is_Only_Update_Path_Freeze;
+   end Test_Executor_Path_Is_Only_Update_Path_Freeze;
 
 
-   procedure Test_Phase556_No_Diagnostics_Keeps_Explicit_Zero_Count
+   procedure Test_No_Diagnostics_Keeps_Explicit_Zero_Count
      (T : in out AUnit.Test_Cases.Test_Case'Class)
    is
       pragma Unreferenced (T);
@@ -713,7 +742,7 @@ package body Editor.Build_Result_Summary.Tests is
    begin
       Assert (Canonical.Has_Diagnostics_Count
               and then Canonical.Diagnostics_Count_If_Available = 0,
-              "Phase 556 keeps an explicit zero diagnostics count when ingestion ran");
+              "keeps an explicit zero diagnostics count when ingestion ran");
       Assert (not Canonical.Has_Diagnostics_Severity_Counts
               and then Canonical.Diagnostics_Error_Count = 0
               and then Canonical.Diagnostics_Warning_Count = 0
@@ -726,10 +755,10 @@ package body Editor.Build_Result_Summary.Tests is
               "zero-diagnostics result summary uses the product Diagnostics empty state");
       Assert (Editor.Build_Result_Summary.Assert_Latest_Build_Result_Summary_Final_Mapping_Frozen
                 (Canonical),
-              "Phase 556 zero-count summary satisfies final mapping invariants");
-   end Test_Phase556_No_Diagnostics_Keeps_Explicit_Zero_Count;
+              "zero-count summary satisfies final mapping invariants");
+   end Test_No_Diagnostics_Keeps_Explicit_Zero_Count;
 
-   procedure Test_Phase556_Diagnostics_Status_Canonicalization
+   procedure Test_Diagnostics_Status_Canonicalization
      (T : in out AUnit.Test_Cases.Test_Case'Class)
    is
       pragma Unreferenced (T);
@@ -792,22 +821,63 @@ package body Editor.Build_Result_Summary.Tests is
                 Editor.Build_Result_Summary.Diagnostics_Ingestion_No_Diagnostics
               and then Zero_Succeeded.Has_Diagnostics_Count
               and then Zero_Succeeded.Diagnostics_Count_If_Available = 0,
-              "Phase 556 canonicalizes succeeded zero diagnostics to no-diagnostics status");
+              "canonicalizes succeeded zero diagnostics to no-diagnostics status");
       Assert (Partial_Zero.Diagnostics_Ingestion_Status =
                 Editor.Build_Result_Summary.Diagnostics_Ingestion_Failed
               and then not Partial_Zero.Has_Diagnostics_Count,
-              "Phase 556 rejects parse-partial summaries without produced rows");
+              "rejects parse-partial summaries without produced rows");
       Assert (Partial_Unknown_Count.Diagnostics_Ingestion_Status =
                 Editor.Build_Result_Summary.Diagnostics_Ingestion_Failed
               and then not Partial_Unknown_Count.Has_Diagnostics_Count,
-              "Phase 556 rejects parse-partial summaries with unknown produced-row count");
+              "rejects parse-partial summaries with unknown produced-row count");
       Assert (Partial_With_Row.Diagnostics_Ingestion_Status =
                 Editor.Build_Result_Summary.Diagnostics_Ingestion_Parse_Partial
               and then Partial_With_Row.Has_Diagnostics_Count
               and then Partial_With_Row.Diagnostics_Count_If_Available = 1
               and then Partial_With_Row.Has_Diagnostics_Severity_Counts,
-              "Phase 556 keeps parse-partial summaries only when rows were produced");
-   end Test_Phase556_Diagnostics_Status_Canonicalization;
+              "keeps parse-partial summaries only when rows were produced");
+   end Test_Diagnostics_Status_Canonicalization;
+
+   procedure Test_Render_Snapshot_Exposes_Panel_Summary_Row
+     (T : in out AUnit.Test_Cases.Test_Case'Class)
+   is
+      pragma Unreferenced (T);
+      S : constant Editor.Build_Result_Summary.Latest_Build_Result_Summary :=
+        Editor.Build_Result_Summary.Build_Summary
+          (Kind => Editor.Build_Result_Summary.Build_Result_Summary_Failed,
+           Invocation_Label => "build.run",
+           Tool_Kind => Editor.Build_Result_Summary.Build_Result_GPRbuild_Tool,
+           Request_Mode => Editor.Build_Result_Summary.Build_Result_Request_Manual,
+           Working_Context_Label => "current project root",
+           Runner_Status_Label => "failed",
+           Primary_Message => "Build failed",
+           Exit_Code => 1,
+           Has_Exit_Code => True,
+           Diagnostics_Ingestion_Status =>
+             Editor.Build_Result_Summary.Diagnostics_Ingestion_Succeeded,
+           Diagnostics_Count => 2,
+           Has_Diagnostics_Count => True,
+           Diagnostics_Error_Count => 1,
+           Diagnostics_Warning_Count => 1,
+           Has_Diagnostics_Severity_Counts => True,
+           Duration_Milliseconds => 4_250,
+           Has_Duration => True);
+      Snapshot : constant Editor.Build_Result_Summary.Latest_Build_Result_Render_Snapshot :=
+        Editor.Build_Result_Summary.Render_Snapshot (S);
+      Row : constant String :=
+        To_String (Snapshot.Latest_Build_Result_Summary_Row_Label);
+   begin
+      Assert (Ada.Strings.Fixed.Index (Row, "Build failed") > 0,
+              "summary row must include result status");
+      Assert (Ada.Strings.Fixed.Index (Row, "build.run") > 0,
+              "summary row must include command label");
+      Assert (Ada.Strings.Fixed.Index (Row, "exit 1") > 0,
+              "summary row must include exit code");
+      Assert (Ada.Strings.Fixed.Index (Row, "duration 4.3 s") > 0,
+              "summary row must include rounded duration");
+      Assert (Ada.Strings.Fixed.Index (Row, "diagnostics 2") > 0,
+              "summary row must include diagnostics count");
+   end Test_Render_Snapshot_Exposes_Panel_Summary_Row;
 
 
    overriding procedure Register_Tests
@@ -821,6 +891,9 @@ package body Editor.Build_Result_Summary.Tests is
       Register_Routine
         (T, Test_Summary_Records_Success_And_Exit_Code'Access,
          "latest build result summary records success and exit code");
+      Register_Routine
+        (T, Test_Summary_Records_Duration'Access,
+         "latest build result summary records elapsed duration");
       Register_Routine
         (T, Test_Summary_Records_Timeout_Cancel_And_Truncation'Access,
          "latest build result summary records timeout cancel and truncation");
@@ -847,36 +920,39 @@ package body Editor.Build_Result_Summary.Tests is
         (T, Test_Render_Snapshot_Is_Display_Only_And_Forbidden_State_Free'Access,
          "latest build result render snapshot is display-only and forbidden-state free");
       Register_Routine
-        (T, Test_Phase512_Canonicalizer_Clears_Stale_Display_Facts'Access,
-         "Phase 512 canonicalizer clears stale latest-result fields");
+        (T, Test_Canonicalizer_Clears_Stale_Display_Facts'Access,
+         "canonicalizer clears stale latest-result fields");
       Register_Routine
-        (T, Test_Phase512_Rerun_Diagnostics_Output_Process_Boundaries'Access,
-         "Phase 512 latest summary boundary cleanup holds");
+        (T, Test_Rerun_Diagnostics_Output_Process_Boundaries'Access,
+         "latest summary boundary cleanup holds");
       Register_Routine
-        (T, Test_Phase512_Milestone_Canonical_Coherence'Access,
-         "Phase 512 latest result surface canonical coherence holds");
+        (T, Test_Milestone_Canonical_Coherence'Access,
+         "latest result surface canonical coherence holds");
 
       Register_Routine
-        (T, Test_Phase513_Final_Mapping_Freeze_For_All_Result_Kinds'Access,
-         "Phase 513 final latest result mapping freeze holds");
+        (T, Test_Final_Mapping_Freeze_For_All_Result_Kinds'Access,
+         "final latest result mapping freeze holds");
       Register_Routine
-        (T, Test_Phase513_Final_Replace_Only_Clears_All_Prior_Facts'Access,
-         "Phase 513 final latest result replacement freeze holds");
+        (T, Test_Final_Replace_Only_Clears_All_Prior_Facts'Access,
+         "final latest result replacement freeze holds");
       Register_Routine
-        (T, Test_Phase513_Final_Boundary_Coherence_Freeze'Access,
-         "Phase 513 final latest result boundary coherence holds");
+        (T, Test_Final_Boundary_Coherence_Freeze'Access,
+         "final latest result boundary coherence holds");
       Register_Routine
-        (T, Test_Phase556_No_Diagnostics_Keeps_Explicit_Zero_Count'Access,
-         "Phase 556 no-diagnostics summary keeps explicit zero count");
+        (T, Test_No_Diagnostics_Keeps_Explicit_Zero_Count'Access,
+         "no-diagnostics summary keeps explicit zero count");
       Register_Routine
-        (T, Test_Phase556_Diagnostics_Status_Canonicalization'Access,
-         "Phase 556 diagnostics status canonicalization is coherent");
+        (T, Test_Diagnostics_Status_Canonicalization'Access,
+         "diagnostics status canonicalization is coherent");
       Register_Routine
-        (T, Test_Phase513_Render_And_Availability_Do_Not_Update_Summary'Access,
-         "Phase 513 render/frontdoor non-ownership freeze holds");
+        (T, Test_Render_Snapshot_Exposes_Panel_Summary_Row'Access,
+         "latest build result render exposes a panel summary row");
       Register_Routine
-        (T, Test_Phase513_Executor_Path_Is_Only_Update_Path_Freeze'Access,
-         "Phase 513 Executor-only update path freeze holds");
+        (T, Test_Render_And_Availability_Do_Not_Update_Summary'Access,
+         "render/frontdoor non-ownership freeze holds");
+      Register_Routine
+        (T, Test_Executor_Path_Is_Only_Update_Path_Freeze'Access,
+         "Executor-only update path freeze holds");
 
    end Register_Tests;
 

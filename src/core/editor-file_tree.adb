@@ -578,7 +578,7 @@ package body Editor.File_Tree is
    is
       Rec : File_Tree_Node_Record;
    begin
-      --  Phase 545: collapse-all is view-state only and means every directory,
+      --  collapse-all is view-state only and means every directory,
       --  including the project root.  The root row remains visible because
       --  Rebuild_Visible_Rows always appends the root before consulting its
       --  expansion flag.
@@ -676,7 +676,7 @@ package body Editor.File_Tree is
       Target_Rec   : File_Tree_Node_Record;
       Source_Rec   : File_Tree_Node_Record;
    begin
-      --  Phase 545 completeness: refresh must preserve directory expansion
+      --  completeness: refresh must preserve directory expansion
       --  state by stable path for every directory that still exists, not only
       --  directories that happened to be visible.  This also preserves an
       --  explicitly collapsed project root and expanded descendants hidden

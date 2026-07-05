@@ -222,7 +222,7 @@ package body Editor.Guided_Prompts is
 
       Found : Boolean := False;
    begin
-      --  Phase 572 completeness: create prompts may accept explicit
+      --  completeness: create prompts may accept explicit
       --  project-relative paths such as "src/new_unit.adb", but parent
       --  traversal must still be blocked by prompt validation for every
       --  segment, including trailing "src/.." forms.
@@ -536,7 +536,7 @@ package body Editor.Guided_Prompts is
       elsif Text = ""
         and then Is_File_Tree_Name_Kind (Prompt.Kind)
       then
-         --  Phase 572 completeness: File Tree mutation prompts should use the
+         --  completeness: File Tree mutation prompts should use the
          --  operation-model validation language, not the generic guided
          --  prompt placeholder.  Empty create/rename input is a blocked File
          --  Tree target and must tell the user to enter a name while remaining
@@ -555,7 +555,7 @@ package body Editor.Guided_Prompts is
         and then Looks_Like_Absolute_Path (Text)
       then
          Prompt.Validation := Validation_Outside_Project;
-         --  Phase 572 completeness: absolute File Tree prompt text is not a
+         --  completeness: absolute File Tree prompt text is not a
          --  raw filesystem payload.  Use the same project-relative wording as
          --  Executor-time validation for absolute paths that would otherwise
          --  be accepted by the host path parser, while remaining
@@ -567,7 +567,7 @@ package body Editor.Guided_Prompts is
       elsif Prompt.Kind = File_Tree_Rename_Prompt
         and then Contains_Path_Separator (Text)
       then
-         --  Phase 572 completeness: rename is a leaf-name workflow even
+         --  completeness: rename is a leaf-name workflow even
          --  though create prompts accept project-relative paths.  Check this
          --  before the generic File Tree syntax bucket so path fragments get
          --  the rename-specific validation message shown by the prompt UI.
@@ -592,7 +592,7 @@ package body Editor.Guided_Prompts is
            or else Contains_Control_Character (Text))
       then
          Prompt.Validation := Validation_Invalid_Syntax;
-         --  Phase 572 completeness: prompt-time validation should use the
+         --  completeness: prompt-time validation should use the
          --  same operation-specific malformed-name vocabulary as direct
          --  Executor validation.  Create-file, create-directory, and rename
          --  all share the same syntax bucket, but their user-facing outcome

@@ -41,7 +41,7 @@ package body Editor.Outline_Audit is
         and then Editor.Commands.Is_Bindable_Command (Expected);
    end Canonical_Stable_Name_Routes;
 
-   function Phase550_Command_Surface_Check return Boolean is
+   function Command_Surface_Check return Boolean is
    begin
       return Canonical_Stable_Name_Routes
           ("outline.next-symbol", Editor.Commands.Command_Next_Outline_Symbol)
@@ -60,9 +60,9 @@ package body Editor.Outline_Audit is
         and then Stable_Name_Routes
           ("outline.filter.previous-match",
            Editor.Commands.Command_Select_Previous_Outline_Item);
-   end Phase550_Command_Surface_Check;
+   end Command_Surface_Check;
 
-   function Phase550_Outline_Helper_Purity_Check
+   function Outline_Helper_Purity_Check
      (Outline             : Editor.Outline.Outline_State;
       Active_Buffer_Token : Natural) return Boolean
    is
@@ -122,14 +122,14 @@ package body Editor.Outline_Audit is
                     and then Symbol_Count = 0
                     and then Filtered_Symbol_Count = 0
                   else True);
-   end Phase550_Outline_Helper_Purity_Check;
+   end Outline_Helper_Purity_Check;
 
    function Assert_Ada_Symbol_Navigation_Coherent
      (State : Editor.State.State_Type) return Boolean
    is
    begin
-      return Phase550_Command_Surface_Check
-        and then Phase550_Outline_Helper_Purity_Check
+      return Command_Surface_Check
+        and then Outline_Helper_Purity_Check
           (State.Outline, State.Registry_Token)
         and then Editor.Outline.Invariant_Holds (State.Outline);
    end Assert_Ada_Symbol_Navigation_Coherent;
@@ -331,7 +331,7 @@ package body Editor.Outline_Audit is
            and then Editor.Outline.Invariant_Holds (Copy);
       end if;
 
-      Editor.Outline.Apply_Filter (Copy, "phase204-filter-probe");
+      Editor.Outline.Apply_Filter (Copy, "filter-probe");
       return Editor.Outline.Fingerprint (Copy) = Before
         and then Editor.Outline.Invariant_Holds (Copy);
    end Filter_Projection_Check;

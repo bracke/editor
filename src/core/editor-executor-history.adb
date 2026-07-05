@@ -319,7 +319,7 @@ package body Editor.Executor.History is
                 New_Length  => Natural (Integer (Old_Span) + Step_Delta)));
             Mark_Current_File_Replace_Preview_Stale (S);
 
-            --  Phase 379: a successful text edit invalidates any active
+            --  a successful text edit invalidates any active
             --  selection that was expressed in pre-edit coordinates.  Keep
             --  caret endpoints valid, but collapse selections so later
             --  Clipboard/Find consumers cannot extract stale ranges.
@@ -382,7 +382,7 @@ package body Editor.Executor.History is
       Editor.State.Normalize_Carets (S);
 
       if Editor.Dirty_Lines.Has_Baseline (S.Dirty_Lines) then
-         --  Phase 370: dirty state is derived from the current saved baseline
+         --  dirty state is derived from the current saved baseline
          --  when one exists, not from the stale dirty flag captured when the
          --  undo entry was created. This keeps save-then-undo correct: saving
          --  updates the baseline while preserving transient undo history.
@@ -636,7 +636,7 @@ package body Editor.Executor.History is
       E.Owner_Buffer_Token := Before.Active_Buffer_Token;
       E.Owner_Lifecycle_Generation := Before.Lifecycle_Generation;
 
-      --  Phase 211: every successful concrete editing command is recorded
+      --  every successful concrete editing command is recorded
       --  as one predictable undo unit.  Older typing coalescing support is
       --  intentionally bypassed here so single insertions, newline insertion,
       --  paste, deletion, and selected replacement have direct undo/redo

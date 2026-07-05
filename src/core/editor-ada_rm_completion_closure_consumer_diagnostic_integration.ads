@@ -5,10 +5,10 @@ with Editor.Ada_Syntax_Tree;
 
 package Editor.Ada_RM_Completion_Closure_Consumer_Diagnostic_Integration is
 
-   --  Pass1273 diagnostic integration for the direct RM-completion closure
+   --  Case 1273 diagnostic integration for the direct RM-completion closure
    --  consumers.
    --
-   --  This package consumes the Pass1272 predicate/invariant direct consumer,
+   --  This package consumes the Case 1272 predicate/invariant direct consumer,
    --  which itself requires the stabilized RM-completion closure plus direct
    --  cross-unit, elaboration, accessibility, exception/finalization,
    --  overload/type, representation/freezing, tasking/protected, and dataflow

@@ -4,10 +4,10 @@ with Editor.Ada_Syntax_Tree;
 
 package Editor.Ada_RM_Completion_Closure_Consumer_Recheck_Eligibility_Legality is
 
-   --  Pass1275 recheck eligibility for the direct RM-completion closure
+   --  Case 1275 recheck eligibility for the direct RM-completion closure
    --  consumer chain.
    --
-   --  This package consumes the Pass1274 remediation worklist and turns
+   --  This package consumes the Case 1274 remediation worklist and turns
    --  ordered prerequisite work into bounded recheck eligibility rows.  A
    --  direct RM-completion closure consumer result may be rechecked only when
    --  the corresponding prerequisite family is eligible now; accepted current

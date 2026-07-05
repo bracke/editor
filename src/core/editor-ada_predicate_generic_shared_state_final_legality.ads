@@ -17,7 +17,7 @@ with Editor.Ada_Tasking_Generic_Shared_State_Final_Legality;
 
 package Editor.Ada_Predicate_Generic_Shared_State_Final_Legality is
 
-   --  Pass1237 predicate/invariant generic shared-state final legality.
+   --  Case 1237 predicate/invariant generic shared-state final legality.
    --
    --  This package connects subtype predicates and type invariants with the
    --  generic/shared-state final semantic chain.  Predicate and invariant

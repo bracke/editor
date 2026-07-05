@@ -5,7 +5,7 @@ with Editor.Ada_Syntax_Tree;
 
 package Editor.Ada_Control_Flow_Legality is
 
-   --  Wide compiler-grade semantic legality building block for Pass1102.
+   --  Wide compiler-grade semantic legality building block for Case 1102.
    --  This package covers statement/control-flow legality that sits above
    --  expression and return legality: Boolean-only conditions, case-choice
    --  coverage/staticness, exit/goto target legality, exception choices,

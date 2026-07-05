@@ -24,6 +24,12 @@ package body Editor.Feature_Search_Results is
 
    Max_Search_Query_History : constant Natural := 20;
 
+   function Quick_Fix_Action_Result_Payload
+     (Action_Index : Natural) return External_Result_Payload is
+   begin
+      return (Kind => Quick_Fix_Action_Payload, Action_Index => Action_Index);
+   end Quick_Fix_Action_Result_Payload;
+
    function Truncate_Search_Result_Context
      (Line         : String;
       Match_Column : Natural;
@@ -172,6 +178,7 @@ package body Editor.Feature_Search_Results is
       Results.Searched_Label := Null_Unbounded_String;
       Results.Snapshot_Version := 0;
       Results.Results_Stale := False;
+      Results.External_Kind := Ordinary_External_Result_Set;
    end Reset_Query_State;
 
    procedure Assert_Search_Results_State_Consistent
@@ -409,7 +416,8 @@ package body Editor.Feature_Search_Results is
       Line_Text     : String := "";
       Match_Line    : Natural := 0;
       Match_Column  : Natural := 0;
-      Match_Length  : Natural := 0)
+      Match_Length  : Natural := 0;
+      External_Payload : External_Result_Payload := No_External_Payload)
    is
       Target_Is_Valid : constant Boolean :=
         Has_Target and then Target_Buffer /= No_Buffer and then Target_Line > 0 and then Target_Column > 0;
@@ -423,6 +431,7 @@ package body Editor.Feature_Search_Results is
       Item.Match_Line := Match_Line;
       Item.Match_Column := Match_Column;
       Item.Match_Length := Match_Length;
+      Item.External_Payload := External_Payload;
       Item.Has_Target := Target_Is_Valid;
       if Target_Is_Valid then
          Item.Target_Buffer := Target_Buffer;
@@ -461,6 +470,7 @@ package body Editor.Feature_Search_Results is
       Results.Searched_Label := To_Unbounded_String (Source_Label);
       Results.Snapshot_Version := Snapshot_Version;
       Results.Results_Stale := False;
+      Results.External_Kind := Ordinary_External_Result_Set;
       Results.Case_Sensitive := Effective_Case_Sensitive;
 
       if Query'Length = 0 then
@@ -524,7 +534,8 @@ package body Editor.Feature_Search_Results is
    procedure Begin_External_Result_Set
      (Results      : in out Search_Results_Feature_State;
       Query        : String;
-      Source_Label : String := "")
+      Source_Label : String := "";
+      Kind         : External_Result_Set_Kind := Ordinary_External_Result_Set)
    is
    begin
       Results.Rows.Clear;
@@ -535,6 +546,7 @@ package body Editor.Feature_Search_Results is
       Results.Searched_Label := To_Unbounded_String (Source_Label);
       Results.Snapshot_Version := 0;
       Results.Results_Stale := False;
+      Results.External_Kind := Kind;
       Results.Search_Input_Active := False;
       Editor.Input_Field.Clear (Results.Search_Input);
       Results.History_Cursor := 0;
@@ -645,6 +657,12 @@ package body Editor.Feature_Search_Results is
       return Results.Results_Stale;
    end Results_Stale;
 
+   function External_Kind
+     (Results : Search_Results_Feature_State) return External_Result_Set_Kind is
+   begin
+      return Results.External_Kind;
+   end External_Kind;
+
    function Header_Text (Results : Search_Results_Feature_State) return String is
       Query : constant String := To_String (Results.Query_Text);
       Mode  : constant String :=
@@ -739,6 +757,13 @@ package body Editor.Feature_Search_Results is
    begin
       return To_String (Item_At (Results, Index).Line_Text);
    end Item_Line_Text;
+
+   function Item_External_Payload
+     (Results : Search_Results_Feature_State;
+      Index   : Positive) return External_Result_Payload is
+   begin
+      return Item_At (Results, Index).External_Payload;
+   end Item_External_Payload;
 
    function Format_Search_Result_For_Copy
      (Results : Search_Results_Feature_State;

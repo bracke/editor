@@ -5,7 +5,7 @@ with Editor.State;
 
 package Editor.Build_Execution_Workflow is
 
-   --  Phase 555 end-to-end Build execution workflow assertions.  This package
+   --  end-to-end Build execution workflow assertions.  This package
    --  is deliberately audit/coherence focused: it owns no runner, no terminal,
    --  no job queue, no history, no rerun payload, no Diagnostics rows, and no
    --  persistence state.  It verifies that the retained Build command path can

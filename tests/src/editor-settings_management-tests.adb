@@ -40,7 +40,7 @@ package body Editor.Settings_Management.Tests is
 
    function Temp_Path (Name : String) return String is
    begin
-      return "/tmp/editor_phase566_" & Name;
+      return "/tmp/editor_" & Name;
    end Temp_Path;
 
    procedure Delete_If_Exists (Path : String) is
@@ -338,7 +338,7 @@ package body Editor.Settings_Management.Tests is
       Editor.State.Init (S);
       Editor.Render_Model.Build_Render_Snapshot (S, Snap);
       Assert (Snap.Settings_UI.Row_Count = Editor.Settings_Management.Setting_Count,
-              "render snapshot must include Phase 566 settings surface rows");
+              "render snapshot must include settings surface rows");
       Assert (Snap.Settings_UI.Display_Row_Count > 0,
               "render snapshot must expose bounded settings display rows");
       Assert (To_String (Snap.Settings_UI.Display_Rows (1).Key)'Length > 0,
@@ -902,7 +902,7 @@ package body Editor.Settings_Management.Tests is
    pragma Unreferenced (T);
    begin
       Assert (Editor.Settings_Management.Assert_Settings_Configuration_Management_Coherent,
-              "phase 566 milestone helper should pass for default settings model");
+              "milestone helper should pass for default settings model");
    end Test_Milestone_Helper;
 
    procedure Test_Focused_Settings_Keyboard_Routes_Through_Input_Bridge
@@ -983,7 +983,7 @@ package body Editor.Settings_Management.Tests is
          "settings surface snapshot is bounded render-facing and observational");
       AUnit.Test_Cases.Registration.Register_Routine
         (T, Test_Render_Model_Includes_Settings_Surface'Access,
-         "render model includes Phase 566 settings surface snapshot");
+         "render model includes settings surface snapshot");
       AUnit.Test_Cases.Registration.Register_Routine
         (T, Test_Current_Settings_Surface_State_Feeds_Render_Snapshot'Access,
          "current transient settings surface state feeds render snapshots without persistence");

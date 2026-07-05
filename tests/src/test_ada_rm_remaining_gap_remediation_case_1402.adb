@@ -1,11 +1,11 @@
 with AUnit.Assertions; use AUnit.Assertions;
 with AUnit.Test_Cases;
 with Ada.Strings.Unbounded; use Ada.Strings.Unbounded;
-with Editor.Ada_RM_Remaining_Gap_Remediation_Pass1402;
+with Editor.Ada_RM_Remaining_Gap_Remediation_Case_1402;
 
 package body Test_Ada_RM_Remaining_Gap_Remediation_Case_1402 is
 
-   package Audit renames Editor.Ada_RM_Remaining_Gap_Remediation_Pass1402;
+   package Audit renames Editor.Ada_RM_Remaining_Gap_Remediation_Case_1402;
    use type Audit.RM_Family;
    use type Audit.Implementing_Slice;
    use type Audit.Coverage_Level;
@@ -58,8 +58,8 @@ package body Test_Ada_RM_Remaining_Gap_Remediation_Case_1402 is
         To_Unbounded_String
           ("formal package nested instances, box instances, discriminants, component instances, runtime instance checks, and diagnostic consumers must share one canonical generic/formal-package/nested-instance result");
       Row.Candidate_Implementing_Package :=
-        To_Unbounded_String ("Editor.Ada_RM_Remaining_Gap_Remediation_Pass1402");
-      Row.Candidate_Pass := To_Unbounded_String ("Pass1402");
+        To_Unbounded_String ("Editor.Ada_RM_Remaining_Gap_Remediation_Case_1402");
+      Row.Candidate_Case := To_Unbounded_String ("Case 1402");
       Row.Blocker_Family :=
         To_Unbounded_String ("RM.Generics.Formal_Package_Nested_Instance");
       return Row;
@@ -72,9 +72,9 @@ package body Test_Ada_RM_Remaining_Gap_Remediation_Case_1402 is
       Expected : Audit.Precision_Classification) is
       Item : constant Audit.Remediation_Entry := Audit.Result_For (Results, Id);
    begin
-      Assert (Item.Status = Status, "unexpected pass1402 status");
+      Assert (Item.Status = Status, "unexpected case 1402 status");
       Assert (Audit.Expected_For_Status (Item.Status) = Expected,
-              "unexpected pass1402 precision classification");
+              "unexpected case 1402 precision classification");
    end Expect_Status;
 
    procedure Test_Formal_Package_Nested_Instance_Box_Instance_Gap_Remediated
@@ -113,7 +113,7 @@ package body Test_Ada_RM_Remaining_Gap_Remediation_Case_1402 is
       Results := Audit.Build (Input);
 
       Assert (Audit.Gap_Remediated (Results),
-              "pass1402 should close the generic/formal-package/nested-instance gap");
+              "case 1402 should close the generic/formal-package/nested-instance gap");
       Assert (Results.Remediated_Count >= 1, "legal count");
       Assert (Results.Illegal_Count = 1, "illegal count");
       Assert (Results.Runtime_Check_Count = 1, "runtime-check count");
@@ -191,7 +191,7 @@ package body Test_Ada_RM_Remaining_Gap_Remediation_Case_1402 is
       Row : Audit.Remediation_Row;
    begin
       Row := Base_Row (20);
-      Row.Inventory_Row_From_Pass1366 := False;
+      Row.Inventory_Row_From_Final_Burn_Down := False;
       Audit.Add_Row (Input, Row);
 
       Row := Base_Row (21);
@@ -227,7 +227,7 @@ package body Test_Ada_RM_Remaining_Gap_Remediation_Case_1402 is
 
       Results := Audit.Build (Input);
 
-      Expect_Status (Results, 20, Audit.Status_Missing_Pass1366_Inventory_Row,
+      Expect_Status (Results, 20, Audit.Status_Missing_Final_Inventory_Row,
                      Precision.Class_Indeterminate);
       Expect_Status (Results, 21, Audit.Status_Missing_Concrete_Subrule_Name,
                      Precision.Class_Indeterminate);

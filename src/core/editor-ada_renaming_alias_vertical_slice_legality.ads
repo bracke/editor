@@ -4,7 +4,7 @@ with Editor.Ada_Syntax_Tree;
 
 package Editor.Ada_Renaming_Alias_Vertical_Slice_Legality is
 
-   --  Pass1309 vertical-slice renaming/alias legality.
+   --  Case 1309 vertical-slice renaming/alias legality.
    --  This package checks concrete Ada renaming and aliasing rules against
    --  source-shaped semantic rows.  It intentionally models language legality
    --  directly instead of adding another diagnostic/provenance/closure layer.

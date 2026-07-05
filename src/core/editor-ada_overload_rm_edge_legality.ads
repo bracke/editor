@@ -7,10 +7,10 @@ with Editor.Ada_Widened_Legality_Coverage_Gate_Enforcement;
 
 package Editor.Ada_Overload_RM_Edge_Legality is
 
-   --  Pass1141 RM-grade overload edge legality.
+   --  Case 1141 RM-grade overload edge legality.
    --
    --  This package deepens overload resolution in the remaining Ada RM edge
-   --  cases after the broad Pass1109 resolver and Pass1126 preference layer.
+   --  cases after the broad Case 1109 resolver and Case 1126 preference layer.
    --  It is snapshot-owned and deterministic: it consumes already-computed
    --  overload preference, generic replay, and coverage-gate evidence, and it
    --  never reparses, calls a compiler, or mutates editor/render/workspace state.

@@ -2,12 +2,12 @@ with Ada.Strings.Unbounded; use Ada.Strings.Unbounded;
 with AUnit.Assertions; use AUnit.Assertions;
 with AUnit.Test_Cases;
 with Editor.Ada_Syntax_Tree;
-with Editor.Ada_RM_Coverage_Gap_Remediation_Audit_Pass1339;
-with Editor.Ada_RM_Coverage_Matrix_Audit_Pass1338;
+with Editor.Ada_RM_Coverage_Gap_Remediation_Audit;
+with Editor.Ada_RM_Coverage_Matrix_Audit;
 
 package body Test_Ada_RM_Coverage_Gap_Remediation_Audit is
 
-   package Audit renames Editor.Ada_RM_Coverage_Gap_Remediation_Audit_Pass1339;
+   package Audit renames Editor.Ada_RM_Coverage_Gap_Remediation_Audit;
    use type Audit.RM_Family;
    use type Audit.Implementing_Slice;
    use type Audit.Matrix_Coverage_Level;
@@ -18,7 +18,7 @@ package body Test_Ada_RM_Coverage_Gap_Remediation_Audit is
    use type Audit.Remediation_Input;
    use type Audit.Remediation_Entry;
    use type Audit.Remediation_Model;
-   package Matrix renames Editor.Ada_RM_Coverage_Matrix_Audit_Pass1338;
+   package Matrix renames Editor.Ada_RM_Coverage_Matrix_Audit;
    use type Matrix.RM_Family;
    use type Matrix.Implementing_Slice;
    use type Matrix.Coverage_Level;
@@ -211,7 +211,7 @@ package body Test_Ada_RM_Coverage_Gap_Remediation_Audit is
                 Package_Name => "Editor.Ada_Numeric_Static_Expression_Vertical_Slice_Legality");
       Add_Item (Input, 20, Matrix.Family_Diagnostics_Consumer_Readiness,
                 Matrix.Slice_End_To_End_Scenario_Audit,
-                Package_Name => "Editor.Ada_End_To_End_Semantic_Scenario_Audit_Pass1337");
+                Package_Name => "Editor.Ada_End_To_End_Semantic_Scenario_Audit");
    end Add_All_Covered_Remediation;
 
    procedure Expect_Status

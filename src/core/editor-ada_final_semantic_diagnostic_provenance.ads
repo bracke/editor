@@ -8,10 +8,10 @@ with Editor.Ada_Syntax_Tree;
 
 package Editor.Ada_Final_Semantic_Diagnostic_Provenance is
 
-   --  Pass1196 final semantic diagnostic provenance.
+   --  Case 1196 final semantic diagnostic provenance.
    --
    --  This package preserves the semantic origin of final diagnostic rows after
-   --  Pass1194/1195 diagnostic integration and unified feed/index insertion.
+   --  Case 1194/1195 diagnostic integration and unified feed/index insertion.
    --  It is not a projection/status layer: it keeps the final blocker family,
    --  original final semantic status, source node/span/fingerprints, optional
    --  feed/index/base-provenance links, and stale/withheld decisions so semantic

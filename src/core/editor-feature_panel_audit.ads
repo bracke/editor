@@ -37,7 +37,7 @@ package Editor.Feature_Panel_Audit is
       Review_Passed                 : Boolean := False;
    end record;
 
-   --  Compact Phase 203 review of the generic Feature Panel contract.
+   --  Compact review of the generic Feature Panel contract.
    --  This helper observes state and exercises only local copies when checking
    --  clamp/token/reset/render properties. It must not repair panel state,
    --  switch features, refresh features, post messages, execute commands,

@@ -21,6 +21,7 @@ package body Editor.Workspace_Persistence is
       Active_File_Section,
       File_Tree_Expanded_Section,
       Panels_Section,
+      Continuity_Section,
       Unknown_Section);
 
    function Trim (Text : String) return String is
@@ -51,6 +52,40 @@ package body Editor.Workspace_Persistence is
             return "search-results";
       end case;
    end Content_Text;
+
+   function Feature_Panel_Text
+     (Feature : Workspace_Feature_Panel_Id) return String
+   is
+   begin
+      case Feature is
+         when Workspace_Outline_Feature =>
+            return "outline";
+         when Workspace_Messages_Feature =>
+            return "messages";
+         when Workspace_Search_Results_Feature =>
+            return "search-results";
+         when Workspace_Diagnostics_Feature =>
+            return "diagnostics";
+      end case;
+   end Feature_Panel_Text;
+
+   function Quick_Open_Filter_Text
+     (Filter : Workspace_Quick_Open_File_Kind_Filter) return String
+   is
+   begin
+      case Filter is
+         when Workspace_Quick_Open_All_Files =>
+            return "all";
+         when Workspace_Quick_Open_Ada_Files =>
+            return "ada";
+         when Workspace_Quick_Open_Test_Files =>
+            return "tests";
+         when Workspace_Quick_Open_Doc_Files =>
+            return "docs";
+         when Workspace_Quick_Open_Other_Files =>
+            return "other";
+      end case;
+   end Quick_Open_Filter_Text;
 
 
    function Is_Decimal_Natural_Text (Text : String) return Boolean is
@@ -127,6 +162,87 @@ package body Editor.Workspace_Persistence is
          return False;
       end if;
    end Parse_Content_Strict;
+
+   function Parse_Feature_Panel_Strict
+     (Text    : String;
+      Feature : out Workspace_Feature_Panel_Id) return Boolean
+   is
+   begin
+      if Text = "outline" then
+         Feature := Workspace_Outline_Feature;
+         return True;
+      elsif Text = "messages" then
+         Feature := Workspace_Messages_Feature;
+         return True;
+      elsif Text = "search-results" then
+         Feature := Workspace_Search_Results_Feature;
+         return True;
+      elsif Text = "diagnostics" then
+         Feature := Workspace_Diagnostics_Feature;
+         return True;
+      else
+         Feature := Workspace_Outline_Feature;
+         return False;
+      end if;
+   end Parse_Feature_Panel_Strict;
+
+   function Parse_Quick_Open_Filter_Strict
+     (Text   : String;
+      Filter : out Workspace_Quick_Open_File_Kind_Filter) return Boolean
+   is
+   begin
+      if Text = "all" then
+         Filter := Workspace_Quick_Open_All_Files;
+         return True;
+      elsif Text = "ada" then
+         Filter := Workspace_Quick_Open_Ada_Files;
+         return True;
+      elsif Text = "tests" then
+         Filter := Workspace_Quick_Open_Test_Files;
+         return True;
+      elsif Text = "docs" then
+         Filter := Workspace_Quick_Open_Doc_Files;
+         return True;
+      elsif Text = "other" then
+         Filter := Workspace_Quick_Open_Other_Files;
+         return True;
+      else
+         Filter := Workspace_Quick_Open_All_Files;
+         return False;
+      end if;
+   end Parse_Quick_Open_Filter_Strict;
+
+   function Normalize_Directory_Scope
+     (Scope : String;
+      Valid : out Boolean) return String
+   is
+      Clean : constant String := Trim (Scope);
+   begin
+      if Clean'Length = 0 then
+         Valid := True;
+         return "";
+      elsif Clean (Clean'Last) = '/' then
+         declare
+            Path : constant String :=
+              (if Clean'Length = 1 then "" else Clean (Clean'First .. Clean'Last - 1));
+            Normalized : constant String := Normalize_Project_Relative_Path (Path, Valid);
+         begin
+            if Valid then
+               return Normalized & "/";
+            end if;
+            return "";
+         end;
+      else
+         declare
+            Normalized : constant String := Normalize_Project_Relative_Path (Clean, Valid);
+         begin
+            if Valid then
+               return Normalized & "/";
+            end if;
+            return "";
+         end;
+      end if;
+   end Normalize_Directory_Scope;
 
    function Value_After_Strict
      (Field : String;
@@ -615,6 +731,12 @@ package body Editor.Workspace_Persistence is
       Snapshot.Bottom_Visible := False;
       Snapshot.Bottom_Height := Default_Bottom_Height;
       Snapshot.Bottom_Content := Workspace_Problems_Content;
+      Snapshot.Has_Recent_Project := False;
+      Snapshot.Recent_Project := Null_Unbounded_String;
+      Snapshot.Quick_Open_Scope := Null_Unbounded_String;
+      Snapshot.Quick_Open_Filter := Workspace_Quick_Open_All_Files;
+      Snapshot.Feature_Panel_Visible := False;
+      Snapshot.Active_Feature_Panel := Workspace_Outline_Feature;
       Snapshot.Diagnostics.Clear;
    end Clear;
 
@@ -819,6 +941,91 @@ package body Editor.Workspace_Persistence is
       return Snapshot.Bottom_Content;
    end Active_Bottom_Content;
 
+   procedure Set_Recent_Project_Path
+     (Snapshot : in out Workspace_Snapshot;
+      Path     : String)
+   is
+      Clean : constant String := Path;
+   begin
+      Snapshot.Has_Recent_Project := Clean'Length > 0
+        and then Clean = Trim (Clean)
+        and then not Has_Control_Character (Clean);
+      Snapshot.Recent_Project := To_Unbounded_String
+        ((if Snapshot.Has_Recent_Project then Clean else ""));
+   end Set_Recent_Project_Path;
+
+   function Has_Recent_Project_Path
+     (Snapshot : Workspace_Snapshot) return Boolean
+   is
+   begin
+      return Snapshot.Has_Recent_Project;
+   end Has_Recent_Project_Path;
+
+   function Recent_Project_Path
+     (Snapshot : Workspace_Snapshot) return String
+   is
+   begin
+      return To_String (Snapshot.Recent_Project);
+   end Recent_Project_Path;
+
+   procedure Set_Quick_Open_Path_Scope
+     (Snapshot : in out Workspace_Snapshot;
+      Scope    : String)
+   is
+      Valid : Boolean := False;
+      Clean : constant String := Normalize_Directory_Scope (Scope, Valid);
+   begin
+      Snapshot.Quick_Open_Scope := To_Unbounded_String
+        ((if Valid then Clean else ""));
+   end Set_Quick_Open_Path_Scope;
+
+   function Quick_Open_Path_Scope
+     (Snapshot : Workspace_Snapshot) return String
+   is
+   begin
+      return To_String (Snapshot.Quick_Open_Scope);
+   end Quick_Open_Path_Scope;
+
+   procedure Set_Quick_Open_File_Kind_Filter
+     (Snapshot : in out Workspace_Snapshot;
+      Filter   : Workspace_Quick_Open_File_Kind_Filter)
+   is
+   begin
+      Snapshot.Quick_Open_Filter := Filter;
+   end Set_Quick_Open_File_Kind_Filter;
+
+   function Quick_Open_File_Kind_Filter
+     (Snapshot : Workspace_Snapshot)
+      return Workspace_Quick_Open_File_Kind_Filter
+   is
+   begin
+      return Snapshot.Quick_Open_Filter;
+   end Quick_Open_File_Kind_Filter;
+
+   procedure Set_Feature_Panel
+     (Snapshot       : in out Workspace_Snapshot;
+      Visible        : Boolean;
+      Active_Feature : Workspace_Feature_Panel_Id)
+   is
+   begin
+      Snapshot.Feature_Panel_Visible := Visible;
+      Snapshot.Active_Feature_Panel := Active_Feature;
+   end Set_Feature_Panel;
+
+   function Feature_Panel_Visible
+     (Snapshot : Workspace_Snapshot) return Boolean
+   is
+   begin
+      return Snapshot.Feature_Panel_Visible;
+   end Feature_Panel_Visible;
+
+   function Active_Feature_Panel
+     (Snapshot : Workspace_Snapshot) return Workspace_Feature_Panel_Id
+   is
+   begin
+      return Snapshot.Active_Feature_Panel;
+   end Active_Feature_Panel;
+
 
    function Diagnostic_Count
      (Snapshot : Workspace_Snapshot) return Natural
@@ -911,6 +1118,25 @@ package body Editor.Workspace_Persistence is
          Snapshot.Bottom_Height := Default_Bottom_Height;
       end if;
 
+      if Snapshot.Has_Recent_Project
+        and then (To_String (Snapshot.Recent_Project)'Length = 0
+                  or else To_String (Snapshot.Recent_Project) /=
+                    Trim (To_String (Snapshot.Recent_Project))
+                  or else Has_Control_Character (To_String (Snapshot.Recent_Project)))
+      then
+         Snapshot.Has_Recent_Project := False;
+         Snapshot.Recent_Project := Null_Unbounded_String;
+      end if;
+
+      declare
+         Scope_Valid : Boolean := False;
+         Scope       : constant String := Normalize_Directory_Scope
+           (To_String (Snapshot.Quick_Open_Scope), Scope_Valid);
+      begin
+         Snapshot.Quick_Open_Scope := To_Unbounded_String
+           ((if Scope_Valid then Scope else ""));
+      end;
+
       Sort_Expanded_Paths (Snapshot);
    end Normalize;
 
@@ -935,6 +1161,12 @@ package body Editor.Workspace_Persistence is
         or else L.Bottom_Visible /= R.Bottom_Visible
         or else L.Bottom_Height /= R.Bottom_Height
         or else L.Bottom_Content /= R.Bottom_Content
+        or else L.Has_Recent_Project /= R.Has_Recent_Project
+        or else To_String (L.Recent_Project) /= To_String (R.Recent_Project)
+        or else To_String (L.Quick_Open_Scope) /= To_String (R.Quick_Open_Scope)
+        or else L.Quick_Open_Filter /= R.Quick_Open_Filter
+        or else L.Feature_Panel_Visible /= R.Feature_Panel_Visible
+        or else L.Active_Feature_Panel /= R.Active_Feature_Panel
         or else L.Open_Files.Length /= R.Open_Files.Length
         or else L.Expanded_Paths.Length /= R.Expanded_Paths.Length
       then
@@ -981,6 +1213,9 @@ package body Editor.Workspace_Persistence is
         & " open=" & Natural_Text (Natural (Snapshot.Open_Files.Length))
         & " active=" & (if Snapshot.Has_Active then To_String (Snapshot.Active_Path) else "<none>")
         & " expanded=" & Natural_Text (Natural (Snapshot.Expanded_Paths.Length))
+        & " quick-scope=" & (if Length (Snapshot.Quick_Open_Scope) > 0 then To_String (Snapshot.Quick_Open_Scope) else "<none>")
+        & " quick-filter=" & Quick_Open_Filter_Text (Snapshot.Quick_Open_Filter)
+        & " feature-panel=" & Feature_Panel_Text (Snapshot.Active_Feature_Panel)
         & " diagnostics=" & Natural_Text (Natural (Snapshot.Diagnostics.Length));
    end Debug_Summary;
 
@@ -1033,6 +1268,14 @@ package body Editor.Workspace_Persistence is
       Put_Line ("bottom-visible=" & Bool_Text (Copy.Bottom_Visible));
       Put_Line ("bottom-height=" & Natural_Text (Copy.Bottom_Height));
       Put_Line ("bottom-content=" & Content_Text (Copy.Bottom_Content));
+
+      Put_Line ("[continuity]");
+      Put_Line ("recent-project="
+                & (if Copy.Has_Recent_Project then To_String (Copy.Recent_Project) else ""));
+      Put_Line ("quick-open-scope=" & To_String (Copy.Quick_Open_Scope));
+      Put_Line ("quick-open-filter=" & Quick_Open_Filter_Text (Copy.Quick_Open_Filter));
+      Put_Line ("feature-panel-visible=" & Bool_Text (Copy.Feature_Panel_Visible));
+      Put_Line ("active-feature-panel=" & Feature_Panel_Text (Copy.Active_Feature_Panel));
 
       return To_String (Result);
    end Serialized_Text;
@@ -1188,6 +1431,8 @@ package body Editor.Workspace_Persistence is
                   Section := File_Tree_Expanded_Section;
                elsif Name = "panels" then
                   Section := Panels_Section;
+               elsif Name = "continuity" then
+                  Section := Continuity_Section;
                else
                   Section := Unknown_Section;
                   --  Unknown sections are not blanket failures: old/future
@@ -1201,6 +1446,12 @@ package body Editor.Workspace_Persistence is
 
          case Section is
             when Root_Section | Panels_Section | Unknown_Section =>
+               Eq := Ada.Strings.Fixed.Index (Line, "=");
+               if Eq > 0 and then Eq > Line'First then
+                  Mark_Forbidden_Field (Line (Line'First .. Eq - 1));
+               end if;
+
+            when Continuity_Section =>
                Eq := Ada.Strings.Fixed.Index (Line, "=");
                if Eq > 0 and then Eq > Line'First then
                   Mark_Forbidden_Field (Line (Line'First .. Eq - 1));
@@ -1265,6 +1516,63 @@ package body Editor.Workspace_Persistence is
    begin
       return Audit_Serialized_Buffer_Persistence (Serialized_Text (Snapshot));
    end Audit_Buffer_Persistence;
+
+   function Restore_Details_Label
+     (Summary : Workspace_Restore_Summary) return String
+   is
+   begin
+      return "restore details: files " & Natural_Text (Summary.Files_Restored)
+        & "/" & Natural_Text (Summary.Files_Requested)
+        & ", skipped files " & Natural_Text (Summary.Files_Skipped)
+        & ", expanded paths " & Natural_Text (Summary.Expansions_Restored)
+        & "/" & Natural_Text (Summary.Expansions_Requested)
+        & ", skipped expanded paths " & Natural_Text (Summary.Expansions_Skipped)
+        & ", clamped panels " & Natural_Text (Summary.Panel_Values_Clamped);
+   end Restore_Details_Label;
+
+   function Audit_Restore_Roundtrip
+     (Before  : Workspace_Snapshot;
+      After   : Workspace_Snapshot;
+      Summary : Workspace_Restore_Summary) return Workspace_Restore_Audit
+   is
+      Normalized_Before : Workspace_Snapshot := Before;
+      Normalized_After  : Workspace_Snapshot := After;
+      Buffer_Audit      : Workspace_Buffer_Persistence_Audit;
+      Result            : Workspace_Restore_Audit;
+   begin
+      Normalize (Normalized_Before);
+      Normalize (Normalized_After);
+      Buffer_Audit := Audit_Buffer_Persistence (Normalized_After);
+
+      Result.Snapshots_Equivalent := Equivalent (Normalized_Before, Normalized_After);
+      Result.Runtime_State_Excluded := Buffer_Audit.Safe;
+      Result.Restore_Counts_Coherent :=
+        Summary.Files_Restored <= Summary.Files_Requested
+        and then Summary.Files_Skipped <= Summary.Files_Requested
+        and then Summary.Files_Restored + Summary.Files_Skipped =
+          Summary.Files_Requested
+        and then Summary.Expansions_Restored <= Summary.Expansions_Requested
+        and then Summary.Expansions_Skipped <= Summary.Expansions_Requested
+        and then Summary.Expansions_Restored + Summary.Expansions_Skipped =
+          Summary.Expansions_Requested;
+      Result.Continuity_State_Restored :=
+        Normalized_Before.Has_Recent_Project = Normalized_After.Has_Recent_Project
+        and then To_String (Normalized_Before.Recent_Project) =
+          To_String (Normalized_After.Recent_Project)
+        and then To_String (Normalized_Before.Quick_Open_Scope) =
+          To_String (Normalized_After.Quick_Open_Scope)
+        and then Normalized_Before.Quick_Open_Filter =
+          Normalized_After.Quick_Open_Filter
+        and then Normalized_Before.Feature_Panel_Visible =
+          Normalized_After.Feature_Panel_Visible
+        and then Normalized_Before.Active_Feature_Panel =
+          Normalized_After.Active_Feature_Panel;
+      Result.Safe := Result.Snapshots_Equivalent
+        and then Result.Runtime_State_Excluded
+        and then Result.Restore_Counts_Coherent
+        and then Result.Continuity_State_Restored;
+      return Result;
+   end Audit_Restore_Roundtrip;
 
 
    function Session_File_Path
@@ -1445,6 +1753,7 @@ package body Editor.Workspace_Persistence is
       Active_File_Row_Seen : Boolean := False;
       Expanded_Section_Seen : Boolean := False;
       Panels_Seen          : Boolean := False;
+      Continuity_Seen      : Boolean := False;
       Panel_File_Tree_Seen : Boolean := False;
       Panel_Width_Seen     : Boolean := False;
       Panel_Bottom_Seen    : Boolean := False;
@@ -1457,6 +1766,21 @@ package body Editor.Workspace_Persistence is
       Panel_Bottom_Visible_Value    : Boolean := False;
       Panel_Bottom_Height_Value     : Natural := Default_Bottom_Height;
       Panel_Bottom_Content_Value    : Bottom_Content_Id := Workspace_Problems_Content;
+      Continuity_Recent_Seen        : Boolean := False;
+      Continuity_Quick_Open_Seen    : Boolean := False;
+      Continuity_Quick_Filter_Seen  : Boolean := False;
+      Continuity_Feature_Visible_Seen : Boolean := False;
+      Continuity_Active_Feature_Seen  : Boolean := False;
+      Continuity_Invalid            : Boolean := False;
+      Continuity_Field_No           : Natural := 0;
+      Continuity_Has_Recent_Value   : Boolean := False;
+      Continuity_Recent_Value       : Unbounded_String := Null_Unbounded_String;
+      Continuity_Quick_Open_Value   : Unbounded_String := Null_Unbounded_String;
+      Continuity_Quick_Filter_Value : Workspace_Quick_Open_File_Kind_Filter :=
+        Workspace_Quick_Open_All_Files;
+      Continuity_Feature_Visible_Value : Boolean := False;
+      Continuity_Active_Feature_Value  : Workspace_Feature_Panel_Id :=
+        Workspace_Outline_Feature;
       Last_Expanded_Path            : Unbounded_String := Null_Unbounded_String;
    begin
       Clear (Snapshot);
@@ -1526,6 +1850,10 @@ package body Editor.Workspace_Persistence is
                      Rank := 4;
                      Duplicate := Panels_Seen;
                      Target := Panels_Section;
+                  elsif Name = "continuity" then
+                     Rank := 5;
+                     Duplicate := Continuity_Seen;
+                     Target := Continuity_Section;
                   else
                      Section := Unknown_Section;
                      Add_Diagnostic (Snapshot, Unknown_Section, Line_No, Name);
@@ -1549,6 +1877,8 @@ package body Editor.Workspace_Persistence is
                               Expanded_Section_Seen := True;
                            when Panels_Section =>
                               Panels_Seen := True;
+                           when Continuity_Section =>
+                              Continuity_Seen := True;
                            when others =>
                               null;
                         end case;
@@ -1868,6 +2198,123 @@ package body Editor.Workspace_Persistence is
                            Panel_Invalid := True;
                            Mark_Partial (Partial);
                      end;
+                  when Continuity_Section =>
+                     declare
+                        Eq : constant Natural := Ada.Strings.Fixed.Index (Line, "=");
+                        B  : Boolean;
+                        F  : Workspace_Feature_Panel_Id;
+                        QF : Workspace_Quick_Open_File_Kind_Filter;
+                        Valid : Boolean := False;
+                     begin
+                        Continuity_Field_No := Continuity_Field_No + 1;
+                        if Eq = 0 then
+                           Continuity_Invalid := True;
+                           Add_Diagnostic (Snapshot, Malformed_Line, Line_No, Line);
+                           Mark_Partial (Partial);
+                        else
+                           declare
+                              Key : constant String := Line (Line'First .. Eq - 1);
+                              Val : constant String := Line (Eq + 1 .. Line'Last);
+                           begin
+                              if Key = "recent-project" then
+                                 if Continuity_Recent_Seen or else Continuity_Field_No /= 1 then
+                                    Continuity_Invalid := True;
+                                    Add_Diagnostic (Snapshot, Malformed_Line, Line_No, Line);
+                                    Mark_Partial (Partial);
+                                 elsif Val'Length = 0 then
+                                    Continuity_Has_Recent_Value := False;
+                                    Continuity_Recent_Value := Null_Unbounded_String;
+                                    Continuity_Recent_Seen := True;
+                                 elsif Val = Trim (Val)
+                                   and then not Has_Control_Character (Val)
+                                 then
+                                    Continuity_Has_Recent_Value := True;
+                                    Continuity_Recent_Value := To_Unbounded_String (Val);
+                                    Continuity_Recent_Seen := True;
+                                 else
+                                    Continuity_Invalid := True;
+                                    Add_Diagnostic (Snapshot, Invalid_Path, Line_No, Line);
+                                    Mark_Partial (Partial);
+                                 end if;
+                              elsif Key = "quick-open-scope" then
+                                 if Continuity_Quick_Open_Seen or else Continuity_Field_No /= 2 then
+                                    Continuity_Invalid := True;
+                                    Add_Diagnostic (Snapshot, Malformed_Line, Line_No, Line);
+                                    Mark_Partial (Partial);
+                                 else
+                                    declare
+                                       Scope : constant String :=
+                                         Normalize_Directory_Scope (Val, Valid);
+                                    begin
+                                       if Valid then
+                                          Continuity_Quick_Open_Value :=
+                                            To_Unbounded_String (Scope);
+                                          Continuity_Quick_Open_Seen := True;
+                                       else
+                                          Continuity_Invalid := True;
+                                          Add_Diagnostic (Snapshot, Invalid_Path, Line_No, Line);
+                                          Mark_Partial (Partial);
+                                       end if;
+                                    end;
+                                 end if;
+                              elsif Key = "quick-open-filter" then
+                                 if Continuity_Quick_Filter_Seen
+                                   or else Continuity_Field_No /= 3
+                                 then
+                                    Continuity_Invalid := True;
+                                    Add_Diagnostic (Snapshot, Malformed_Line, Line_No, Line);
+                                    Mark_Partial (Partial);
+                                 elsif Parse_Quick_Open_Filter_Strict (Val, QF) then
+                                    Continuity_Quick_Filter_Value := QF;
+                                    Continuity_Quick_Filter_Seen := True;
+                                 else
+                                    Continuity_Invalid := True;
+                                    Add_Diagnostic (Snapshot, Invalid_Panel_Value, Line_No, Line);
+                                    Mark_Partial (Partial);
+                                 end if;
+                              elsif Key = "feature-panel-visible" then
+                                 if Continuity_Feature_Visible_Seen
+                                   or else Continuity_Field_No /= 4
+                                 then
+                                    Continuity_Invalid := True;
+                                    Add_Diagnostic (Snapshot, Malformed_Line, Line_No, Line);
+                                    Mark_Partial (Partial);
+                                 elsif Parse_Boolean_Strict (Val, B) then
+                                    Continuity_Feature_Visible_Value := B;
+                                    Continuity_Feature_Visible_Seen := True;
+                                 else
+                                    Continuity_Invalid := True;
+                                    Add_Diagnostic (Snapshot, Invalid_Panel_Value, Line_No, Line);
+                                    Mark_Partial (Partial);
+                                 end if;
+                              elsif Key = "active-feature-panel" then
+                                 if Continuity_Active_Feature_Seen
+                                   or else Continuity_Field_No /= 5
+                                 then
+                                    Continuity_Invalid := True;
+                                    Add_Diagnostic (Snapshot, Malformed_Line, Line_No, Line);
+                                    Mark_Partial (Partial);
+                                 elsif Parse_Feature_Panel_Strict (Val, F) then
+                                    Continuity_Active_Feature_Value := F;
+                                    Continuity_Active_Feature_Seen := True;
+                                 else
+                                    Continuity_Invalid := True;
+                                    Add_Diagnostic (Snapshot, Invalid_Panel_Value, Line_No, Line);
+                                    Mark_Partial (Partial);
+                                 end if;
+                              else
+                                 Continuity_Invalid := True;
+                                 Add_Diagnostic
+                                   (Snapshot, Unsupported_Key, Line_No, Line);
+                                 Mark_Partial (Partial);
+                              end if;
+                           end;
+                        end if;
+                     exception
+                        when others =>
+                           Continuity_Invalid := True;
+                           Mark_Partial (Partial);
+                     end;
                   when Unknown_Section =>
                      Add_Diagnostic (Snapshot, Unknown_Section, Line_No, Line);
                      Mark_Partial (Partial);
@@ -1931,6 +2378,37 @@ package body Editor.Workspace_Persistence is
             Snapshot.Bottom_Visible := Panel_Bottom_Visible_Value;
             Snapshot.Bottom_Height := Panel_Bottom_Height_Value;
             Snapshot.Bottom_Content := Panel_Bottom_Content_Value;
+         end if;
+      end if;
+
+      if Continuity_Seen then
+         if Continuity_Invalid
+           or else not Continuity_Recent_Seen
+           or else not Continuity_Quick_Open_Seen
+           or else not Continuity_Quick_Filter_Seen
+           or else not Continuity_Feature_Visible_Seen
+           or else not Continuity_Active_Feature_Seen
+         then
+            Snapshot.Has_Recent_Project := False;
+            Snapshot.Recent_Project := Null_Unbounded_String;
+            Snapshot.Quick_Open_Scope := Null_Unbounded_String;
+            Snapshot.Quick_Open_Filter := Workspace_Quick_Open_All_Files;
+            Snapshot.Feature_Panel_Visible := False;
+            Snapshot.Active_Feature_Panel := Workspace_Outline_Feature;
+            Add_Diagnostic
+              (Snapshot, Malformed_Line, 0,
+               "continuity section is not in canonical order or is incomplete");
+            Mark_Partial (Partial);
+         else
+            Snapshot.Has_Recent_Project := Continuity_Has_Recent_Value;
+            Snapshot.Recent_Project :=
+              (if Continuity_Has_Recent_Value
+               then Continuity_Recent_Value
+               else Null_Unbounded_String);
+            Snapshot.Quick_Open_Scope := Continuity_Quick_Open_Value;
+            Snapshot.Quick_Open_Filter := Continuity_Quick_Filter_Value;
+            Snapshot.Feature_Panel_Visible := Continuity_Feature_Visible_Value;
+            Snapshot.Active_Feature_Panel := Continuity_Active_Feature_Value;
          end if;
       end if;
 

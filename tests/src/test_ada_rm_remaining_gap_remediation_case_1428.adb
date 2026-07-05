@@ -1,10 +1,10 @@
 with Ada.Strings.Unbounded; use Ada.Strings.Unbounded;
 with AUnit.Assertions; use AUnit.Assertions;
 with AUnit.Test_Cases;
-with Editor.Ada_RM_Remaining_Gap_Remediation_Pass1428;
+with Editor.Ada_RM_Remaining_Gap_Remediation_Case_1428;
 
 package body Test_Ada_RM_Remaining_Gap_Remediation_Case_1428 is
-   package Audit renames Editor.Ada_RM_Remaining_Gap_Remediation_Pass1428;
+   package Audit renames Editor.Ada_RM_Remaining_Gap_Remediation_Case_1428;
    use type Audit.RM_Family;
    use type Audit.Implementing_Slice;
    use type Audit.Coverage_Level;
@@ -75,9 +75,9 @@ package body Test_Ada_RM_Remaining_Gap_Remediation_Case_1428 is
       Expected : Audit.Precision_Classification) is
       Item : constant Audit.Closure_Entry := Audit.Result_For (Results, Id);
    begin
-      Assert (Item.Status = Status, "unexpected pass1428 status");
+      Assert (Item.Status = Status, "unexpected case 1428 status");
       Assert (Audit.Expected_For_Status (Item.Status) = Expected,
-              "unexpected pass1428 precision classification");
+              "unexpected case 1428 precision classification");
    end Expect_Status;
 
    procedure Test_Final_Closure
@@ -104,7 +104,7 @@ package body Test_Ada_RM_Remaining_Gap_Remediation_Case_1428 is
       Results := Audit.Build (Input);
 
       Assert (Audit.Final_Closure_Achieved (Results),
-              "pass1428 should close the finite remaining-gap inventory");
+              "case 1428 should close the finite remaining-gap inventory");
       Assert (Results.Total_Rows = 10, "closure row count");
       Assert (Results.Closed_Count = 9, "closed edge count");
       Assert (Results.Invalid_Count = 0, "invalid closure count");

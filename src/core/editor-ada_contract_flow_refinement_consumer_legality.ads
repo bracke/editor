@@ -6,7 +6,7 @@ with Editor.Ada_Syntax_Tree;
 
 package Editor.Ada_Contract_Flow_Refinement_Consumer_Legality is
 
-   --  Pass1156 compiler-grade contract/refined-flow consumer legality.
+   --  Case 1156 compiler-grade contract/refined-flow consumer legality.
    --
    --  This layer connects repaired and refined flow-effect conclusions back
    --  into contract/aspect legality.  A Global, Depends, Refined_Global, or

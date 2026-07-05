@@ -165,7 +165,7 @@ package body Editor.Ada_RM_Completion_Closure_Consumer_Stabilized_Diagnostic_Pro
       Row.End_Column := Source.End_Column;
       Row.Message := Source.Message;
       Row.Chain_Summary := To_Unbounded_String
-        ("Pass1282 provenance chain: stabilized diagnostic -> stabilized closure -> stabilization gate -> convergence -> recheck application -> eligibility -> remediation worklist -> original direct-consumer diagnostic.");
+        ("Case 1282 provenance chain: stabilized diagnostic -> stabilized closure -> stabilization gate -> convergence -> recheck application -> eligibility -> remediation worklist -> original direct-consumer diagnostic.");
       Row.Provenance_Fingerprint := Mix (12_820, Natural (Row.Id));
       Row.Provenance_Fingerprint := Mix (Row.Provenance_Fingerprint, Natural (Row.Stabilized_Diagnostic));
       Row.Provenance_Fingerprint := Mix (Row.Provenance_Fingerprint, Natural (Row.Closure_Id));

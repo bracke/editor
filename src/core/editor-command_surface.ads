@@ -33,7 +33,7 @@ package Editor.Command_Surface is
    function Build_Command_Surface_Review_Feedback
      (Review : Command_Surface_Review) return String;
 
-   --  Phase 534 milestone helper. Returns True only when the configuration
+   --  milestone helper. Returns True only when the configuration
    --  and command-discovery surface is coherent: descriptors are stable,
    --  palette projection hides internal/demo commands, active keybindings
    --  target bindable canonical commands only, availability can be queried

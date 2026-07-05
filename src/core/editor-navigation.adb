@@ -47,7 +47,7 @@ package body Editor.Navigation is
             end if;
          end;
       else
-         --  Phase 24 keeps word movement ASCII-class based. Non-ASCII scalar
+         --  keeps word movement ASCII-class based. Non-ASCII scalar
          --  values are deterministic single-code-point identifier/plain text.
          return Word_Char;
       end if;

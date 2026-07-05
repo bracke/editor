@@ -134,7 +134,7 @@ package body Editor.Ada_Remaining_RM_Edge_Stabilized_Closure_Diagnostic_Provenan
       Row.End_Column := Source.End_Column;
       Row.Message := Source.Message;
       Row.Chain_Summary := To_Unbounded_String
-        ("Pass1293 provenance chain: stabilized remaining-edge closure diagnostic -> stabilized closure -> stabilization gate -> convergence -> recheck application -> eligibility -> remediation worklist -> prior remaining-edge diagnostic -> original remaining-edge precision evidence.");
+        ("Case 1293 provenance chain: stabilized remaining-edge closure diagnostic -> stabilized closure -> stabilization gate -> convergence -> recheck application -> eligibility -> remediation worklist -> prior remaining-edge diagnostic -> original remaining-edge precision evidence.");
 
       Row.Provenance_Fingerprint := Mix (12_930, Natural (Row.Id));
       Row.Provenance_Fingerprint := Mix (Row.Provenance_Fingerprint, Natural (Row.Stabilized_Diagnostic));

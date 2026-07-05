@@ -144,7 +144,7 @@ package body Editor.Ada_Remaining_RM_Edge_Stabilized_Diagnostic_Integration is
       Row.Node := Source.Node;
       Row.Message := Message_For (Status, Family, Source.Remaining_Edge_Kind, Source.Remaining_Edge_Blocker);
       Row.Detail := To_Unbounded_String
-        ("Pass1285 maps remaining RM edge stabilized closure consumer rows into the diagnostic/feed boundary without losing remaining-edge or stabilized-closure blocker identity.");
+        ("Case 1285 maps remaining RM edge stabilized closure consumer rows into the diagnostic/feed boundary without losing remaining-edge or stabilized-closure blocker identity.");
       Row.Source_Fingerprint := Source.Source_Fingerprint;
       Row.Substitution_Fingerprint := Source.Substitution_Fingerprint;
       Row.Edge_Fingerprint := Source.Edge_Fingerprint;

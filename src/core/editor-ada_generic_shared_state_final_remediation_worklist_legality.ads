@@ -5,9 +5,9 @@ with Editor.Ada_Syntax_Tree;
 
 package Editor.Ada_Generic_Shared_State_Final_Remediation_Worklist_Legality is
 
-   --  Pass1240 generic/shared-state final remediation worklist legality.
+   --  Case 1240 generic/shared-state final remediation worklist legality.
    --
-   --  This package consumes the Pass1239 generic/shared-state final diagnostic
+   --  This package consumes the Case 1239 generic/shared-state final diagnostic
    --  boundary and converts accepted/blocking semantic evidence into a
    --  deterministic remediation worklist.  The worklist is a semantic
    --  prerequisite model, not a UI projection: it preserves blocker-family

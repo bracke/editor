@@ -309,7 +309,7 @@ package body Editor.Ada_Selected_Name_Attribute_Vertical_Slice_Legality is
 
             R.Status := Status_For (R, Ref);
             R.Message := To_Unbounded_String
-              ("Pass1316 selected-name/attribute/reference vertical-slice legality");
+              ("Case 1316 selected-name/attribute/reference vertical-slice legality");
             R.Detail := Ref.Source_Name;
             R.Fingerprint := Mix
               (Natural (R.Id),

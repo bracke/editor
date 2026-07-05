@@ -325,7 +325,7 @@ package body Editor.Status_Bar.Tests is
       Right := Text;
 
       Assert (Index (Text, "No project open.") > 0,
-              "No-project fallback must use the Phase 578 canonical wording");
+              "No-project fallback must use the canonical wording");
       Assert (Index (Text, "Editor") > 0,
               "Empty focus label must fall back to editor focus");
       Assert (Index (Text, "No selection") > 0,
@@ -358,7 +358,7 @@ package body Editor.Status_Bar.Tests is
 
 
 
-   procedure Test_Phase262_Format_Shows_Wrapped_Find_State
+   procedure Test_Format_Shows_Wrapped_Find_State
      (T : in out AUnit.Test_Cases.Test_Case'Class)
    is
       pragma Unreferenced (T);
@@ -374,8 +374,8 @@ package body Editor.Status_Bar.Tests is
       Text := To_Unbounded_String (Format_Right (Snapshot));
       Right := Text;
       Assert (Index (Text, "Find: 1 of 5 wrapped") > 0,
-              "Phase 262 status bar must show concise wrapped find state");
-   end Test_Phase262_Format_Shows_Wrapped_Find_State;
+              "status bar must show concise wrapped find state");
+   end Test_Format_Shows_Wrapped_Find_State;
 
    procedure Test_Render_Emits_Status_Bar_Layers
      (T : in out AUnit.Test_Cases.Test_Case'Class)
@@ -428,7 +428,7 @@ package body Editor.Status_Bar.Tests is
          "Click inside status bar must not move caret");
    end Test_Click_In_Status_Bar_Does_Not_Move_Caret;
 
-   procedure Test_Phase228_Narrow_Text_Viewport_Keeps_Caret_Visible
+   procedure Test_Narrow_Text_Viewport_Keeps_Caret_Visible
      (T : in out AUnit.Test_Cases.Test_Case'Class)
    is
       pragma Unreferenced (T);
@@ -463,9 +463,9 @@ package body Editor.Status_Bar.Tests is
               "horizontal scroll must remain bounded by caret column");
       Assert (not Editor.State.Is_Dirty (S),
               "viewport scrolling must not dirty the buffer");
-   end Test_Phase228_Narrow_Text_Viewport_Keeps_Caret_Visible;
+   end Test_Narrow_Text_Viewport_Keeps_Caret_Visible;
 
-   procedure Test_Phase228_Zero_Row_Text_Viewport_Emits_No_Text_Glyphs
+   procedure Test_Zero_Row_Text_Viewport_Emits_No_Text_Glyphs
      (T : in out AUnit.Test_Cases.Test_Case'Class)
    is
       pragma Unreferenced (T);
@@ -485,10 +485,10 @@ package body Editor.Status_Bar.Tests is
       Assert
         (Glyph_Count_On_Layer (Packet, Editor.Render_Layers.Gutter_Text_Layer) = 0,
          "zero-row text viewport must not emit gutter glyphs");
-   end Test_Phase228_Zero_Row_Text_Viewport_Emits_No_Text_Glyphs;
+   end Test_Zero_Row_Text_Viewport_Emits_No_Text_Glyphs;
 
 
-   procedure Test_Phase541_Format_Shows_Selection_Detail
+   procedure Test_Format_Shows_Selection_Detail
      (T : in out AUnit.Test_Cases.Test_Case'Class)
    is
       pragma Unreferenced (T);
@@ -510,10 +510,10 @@ package body Editor.Status_Bar.Tests is
       Right := Text;
       Assert (Index (Text, "rect selection") > 0,
               "rectangular selection status must be explicit");
-   end Test_Phase541_Format_Shows_Selection_Detail;
+   end Test_Format_Shows_Selection_Detail;
 
 
-   procedure Test_Phase544_Format_Shows_File_State_And_Feature_Summaries
+   procedure Test_Format_Shows_File_State_And_Feature_Summaries
      (T : in out AUnit.Test_Cases.Test_Case'Class)
    is
       pragma Unreferenced (T);
@@ -532,7 +532,8 @@ package body Editor.Status_Bar.Tests is
       Snapshot.Outline_Status_Label := To_Unbounded_String ("Outline: 3 symbols");
       Snapshot.Diagnostics_Status_Label :=
         To_Unbounded_String ("Diagnostics: 1 error, 2 warnings");
-      Snapshot.Build_Status_Label := To_Unbounded_String ("Build: succeeded");
+      Snapshot.Build_Status_Label :=
+        To_Unbounded_String ("Build: succeeded, duration 4.3 s");
       Snapshot.Search_Status_Label := To_Unbounded_String ("Search: 4 results");
 
       Left_Text := To_Unbounded_String (Format_Left (Snapshot));
@@ -540,27 +541,27 @@ package body Editor.Status_Bar.Tests is
       Right := Right_Text;
 
       Assert (Index (Left_Text, "src/main.adb *") > 0,
-              "Phase 544 status must display active file label and dirty marker");
+              "status must display active file label and dirty marker");
       Assert (Index (Left_Text, "File-backed") > 0,
-              "Phase 544 status must display file-backed/scratch kind");
+              "status must display file-backed/scratch kind");
       Assert (Index (Left_Text, "Modified") > 0,
-              "Phase 544 status must display known file state");
+              "status must display known file state");
       Assert (Index (Right_Text, "Undo available") > 0,
-              "Phase 544 status must display undo/redo availability label");
+              "status must display undo/redo availability label");
       Assert (Index (Right_Text, "Confirmation required") > 0,
-              "Phase 544 status must display pending confirmation state");
+              "status must display pending confirmation state");
       Assert (Index (Right_Text, "Outline: 3 symbols") > 0,
-              "Phase 544 status must display outline summary");
+              "status must display outline summary");
       Assert (Index (Right_Text, "Diagnostics: 1 error, 2 warnings") > 0,
-              "Phase 544 status must display diagnostic severity summary");
-      Assert (Index (Right_Text, "Build: succeeded") > 0,
-              "Phase 544 status must display build summary");
+              "status must display diagnostic severity summary");
+      Assert (Index (Right_Text, "Build: succeeded, duration 4.3 s") > 0,
+              "status must display build summary with duration");
       Assert (Index (Right_Text, "Search: 4 results") > 0,
-              "Phase 544 status must display project-search summary");
-   end Test_Phase544_Format_Shows_File_State_And_Feature_Summaries;
+              "status must display project-search summary");
+   end Test_Format_Shows_File_State_And_Feature_Summaries;
 
 
-   procedure Test_Phase544_No_Buffer_And_Selection_Line_Fallback
+   procedure Test_No_Buffer_And_Selection_Line_Fallback
      (T : in out AUnit.Test_Cases.Test_Case'Class)
    is
       pragma Unreferenced (T);
@@ -572,14 +573,14 @@ package body Editor.Status_Bar.Tests is
       Snapshot.File_State_Label := To_Unbounded_String ("Unavailable");
       Assert (Index (To_Unbounded_String (Format_Left (Snapshot)),
                      "No active buffer.") > 0,
-              "Phase 544 status must show an explicit no-active-buffer label");
+              "status must show an explicit no-active-buffer label");
       Assert (Index (To_Unbounded_String (Format_Right (Snapshot)),
                      "No caret") > 0,
-              "Phase 544 status must not fabricate line/column for no active buffer");
+              "status must not fabricate line/column for no active buffer");
       Assert (Status_Dirty_File_State_Segment (Snapshot) = "No active buffer.",
-              "Phase 578 no-active-buffer dirty/state segment must be canonical at source");
+              "no-active-buffer dirty/state segment must be canonical at source");
       Assert (Assert_Status_Summarizes_Main_Context (Snapshot),
-              "Phase 578 no-active-buffer status coherence must accept canonical text");
+              "no-active-buffer status coherence must accept canonical text");
 
       Snapshot.Has_Active_Buffer := True;
       Snapshot.Line_Number_Mode := To_Unbounded_String ("absolute lines");
@@ -588,10 +589,10 @@ package body Editor.Status_Bar.Tests is
       Text := To_Unbounded_String (Format_Right (Snapshot));
       Right := Text;
       Assert (Index (Text, "Selected: 5 chars, 1 line") > 0,
-              "Phase 544 selection status must not expose a zero-line selected-text summary");
-   end Test_Phase544_No_Buffer_And_Selection_Line_Fallback;
+              "selection status must not expose a zero-line selected-text summary");
+   end Test_No_Buffer_And_Selection_Line_Fallback;
 
-   procedure Test_Phase544_Status_Coherence_Assertions
+   procedure Test_Status_Coherence_Assertions
      (T : in out AUnit.Test_Cases.Test_Case'Class)
    is
       pragma Unreferenced (T);
@@ -608,25 +609,25 @@ package body Editor.Status_Bar.Tests is
       Snapshot.Command_Feedback_Severity := To_Unbounded_String ("ok");
 
       Assert (Assert_Status_Snapshot_Is_Observational (Snapshot),
-              "Phase 544 status snapshot must be observational scalar display data");
+              "status snapshot must be observational scalar display data");
       Assert (Assert_Status_Shows_Active_Buffer_And_Dirty_State (Snapshot),
-              "Phase 544 status must show active buffer label and dirty state");
+              "status must show active buffer label and dirty state");
       Assert (Assert_Status_Shows_Caret_And_Selection (Snapshot),
-              "Phase 544 status must show caret and selection context");
+              "status must show caret and selection context");
       Assert (Assert_Status_Shows_Command_Outcome (Snapshot),
-              "Phase 544 status must show latest command outcome when present");
+              "status must show latest command outcome when present");
       Assert (Assert_Status_Does_Not_Copy_Feature_Rows (Snapshot),
-              "Phase 544 status must not own copied feature rows");
+              "status must not own copied feature rows");
       Assert (Assert_Status_Shows_Feature_Summaries (Snapshot),
-              "Phase 544 status must show compact feature summaries");
+              "status must show compact feature summaries");
       Assert (Assert_Status_State_Not_Persisted (Snapshot),
-              "Phase 544 status contents must remain outside persistence domains");
+              "status contents must remain outside persistence domains");
       Assert (Assert_Editing_Status_And_Feedback_Coherent (Snapshot),
-              "Phase 544 status milestone assertion must be coherent");
-   end Test_Phase544_Status_Coherence_Assertions;
+              "status milestone assertion must be coherent");
+   end Test_Status_Coherence_Assertions;
 
 
-   procedure Test_Phase544_Project_State_Label_Overrides_Project_Fallback
+   procedure Test_Project_State_Label_Overrides_Project_Fallback
      (T : in out AUnit.Test_Cases.Test_Case'Class)
    is
       pragma Unreferenced (T);
@@ -642,13 +643,13 @@ package body Editor.Status_Bar.Tests is
       Right := Text;
 
       Assert (Index (Text, "Project switch pending") > 0,
-              "Phase 544 status must expose project switch pending state directly");
+              "status must expose project switch pending state directly");
       Assert (Index (Text, "Project: demo") = 0,
-              "Phase 544 project pending state must not be hidden behind ordinary project label");
-   end Test_Phase544_Project_State_Label_Overrides_Project_Fallback;
+              "project pending state must not be hidden behind ordinary project label");
+   end Test_Project_State_Label_Overrides_Project_Fallback;
 
 
-   procedure Test_Phase544_Coherence_Rejects_Missing_Buffer_Label
+   procedure Test_Coherence_Rejects_Missing_Buffer_Label
      (T : in out AUnit.Test_Cases.Test_Case'Class)
    is
       pragma Unreferenced (T);
@@ -658,16 +659,16 @@ package body Editor.Status_Bar.Tests is
       Snapshot.Line_Number_Mode := To_Unbounded_String ("absolute lines");
 
       Assert (not Assert_Editing_Status_And_Feedback_Coherent (Snapshot),
-              "Phase 544 milestone guard must reject active-buffer status with no visible buffer label");
+              "milestone guard must reject active-buffer status with no visible buffer label");
 
       Snapshot.File_Label := To_Unbounded_String ("src/main.adb");
       Assert (Assert_Editing_Status_And_Feedback_Coherent (Snapshot),
-              "Phase 544 milestone guard must accept a visible active-buffer label");
-   end Test_Phase544_Coherence_Rejects_Missing_Buffer_Label;
+              "milestone guard must accept a visible active-buffer label");
+   end Test_Coherence_Rejects_Missing_Buffer_Label;
 
 
 
-   procedure Test_Phase562_Format_Shows_Focus_Mode_And_Overlay_Marker
+   procedure Test_Format_Shows_Focus_Mode_And_Overlay_Marker
      (T : in out AUnit.Test_Cases.Test_Case'Class)
    is
       pragma Unreferenced (T);
@@ -685,21 +686,21 @@ package body Editor.Status_Bar.Tests is
          Text : constant String := Format_Right (Snapshot);
       begin
          Assert (Index (Text, "Project Replace") > 0,
-                 "Phase 562 status should show the effective focus owner");
+                 "status should show the effective focus owner");
          Assert (Index (Text, "Panel: Project Search") > 0,
-                 "Phase 562 status should show the active panel label");
+                 "status should show the active panel label");
          Assert (Index (Text, "Mode: Overlay Text") > 0,
-                 "Phase 562 status should show the input mode label");
+                 "status should show the input mode label");
          Assert (Index (Text, "Overlay input") > 0,
-                 "Phase 562 status should show active overlay/input ownership");
+                 "status should show active overlay/input ownership");
          Assert (Assert_Editing_Status_And_Feedback_Coherent (Snapshot),
-                 "Phase 562 status coherence should accept focus/mode projection fields");
+                 "status coherence should accept focus/mode projection fields");
       end;
-   end Test_Phase562_Format_Shows_Focus_Mode_And_Overlay_Marker;
+   end Test_Format_Shows_Focus_Mode_And_Overlay_Marker;
 
 
 
-   procedure Test_Phase563_Format_Shows_Main_Context_Summaries
+   procedure Test_Format_Shows_Main_Context_Summaries
      (T : in out AUnit.Test_Cases.Test_Case'Class)
    is
       pragma Unreferenced (T);
@@ -740,48 +741,48 @@ package body Editor.Status_Bar.Tests is
       Right := Text;
 
       Assert (Index (Format_Left (Snapshot), "src/main.adb *") > 0,
-              "Phase 563 status must show active file and dirty marker");
+              "status must show active file and dirty marker");
       Assert (Index (Format_Left (Snapshot), "Missing on disk") > 0,
-              "Phase 563 status must show known missing-file state");
+              "status must show known missing-file state");
       Assert (Index (Text, "Pending confirmation") > 0,
-              "Phase 563 status must surface pending confirmation state");
+              "status must surface pending confirmation state");
       Assert (Index (Text, "failed: Close cancelled") > 0,
-              "Phase 563 status must surface latest failed command outcome");
+              "status must surface latest failed command outcome");
       Assert (Occurrence_Count (To_String (Text), "Pending confirmation") = 1,
-              "Phase 563 status must not duplicate pending confirmation summaries");
+              "status must not duplicate pending confirmation summaries");
       Assert (Occurrence_Count (To_String (Text), "failed: Close cancelled") = 1,
-              "Phase 563 status must not duplicate latest command outcomes");
+              "status must not duplicate latest command outcomes");
       Assert (Index (Text, "Project: demo") > 0,
-              "Phase 563 status must show active project context");
+              "status must show active project context");
       Assert (Index (Text, "Quick Open") > 0,
-              "Phase 563 status must show focus owner or Quick Open summary");
+              "status must show focus owner or Quick Open summary");
       Assert (Index (Text, "Panel: File Tree") > 0,
-              "Phase 563 status must show active panel context");
+              "status must show active panel context");
       Assert (Index (Text, "Ln 12, Col 7") > 0,
-              "Phase 563 status must show one-based caret location");
+              "status must show one-based caret location");
       Assert (Index (Text, "Selected: 12 chars, 3 lines") > 0,
-              "Phase 563 status must show selection summary");
+              "status must show selection summary");
       Assert (Index (Text, "Build: failed") > 0,
-              "Phase 563 status must show Build summary");
+              "status must show Build summary");
       Assert (Index (Text, "Diagnostics: 3 errors, 2 warnings") > 0,
-              "Phase 563 status must show Diagnostics summary counts");
+              "status must show Diagnostics summary counts");
       Assert (Index (Text, "Replace: preview 8 replacements") > 0,
-              "Phase 563 status must show Project Search/replace summary");
+              "status must show Project Search/replace summary");
       Assert (Index (Text, "Quick Open: 8 matches") > 0,
-              "Phase 563 status must show Quick Open summary when relevant");
+              "status must show Quick Open summary when relevant");
       Assert (Index (Text, "Current: procedure Run") > 0,
-              "Phase 563 status must show Outline/current-symbol summary");
+              "status must show Outline/current-symbol summary");
       Assert (Index (Text, "File Tree: refresh required") > 0,
-              "Phase 563 status must show File Tree staleness/availability summary");
+              "status must show File Tree staleness/availability summary");
       Assert (Index (Text, "Workspace: restore feedback") > 0,
-              "Phase 563 status may show latest workspace summary feedback");
+              "status may show latest workspace summary feedback");
       Assert (Index (Text, "Recent Projects: 2 entries, 1 missing") > 0,
-              "Phase 563 status may show Recent Projects summary feedback");
+              "status may show Recent Projects summary feedback");
       Assert (Assert_Status_Line_Context_Coherent (Snapshot),
-              "Phase 563 milestone status line assertion must accept coherent context");
-   end Test_Phase563_Format_Shows_Main_Context_Summaries;
+              "milestone status line assertion must accept coherent context");
+   end Test_Format_Shows_Main_Context_Summaries;
 
-   procedure Test_Phase563_Status_Truncates_Long_Labels_Deterministically
+   procedure Test_Status_Truncates_Long_Labels_Deterministically
      (T : in out AUnit.Test_Cases.Test_Case'Class)
    is
       pragma Unreferenced (T);
@@ -791,9 +792,9 @@ package body Editor.Status_Bar.Tests is
       Truncated : constant String := Status_Truncate_Label (Long_Text, 12);
    begin
       Assert (Truncated'Length = 12,
-              "Phase 563 truncation helper must obey the requested bound");
+              "truncation helper must obey the requested bound");
       Assert (Truncated (Truncated'Last .. Truncated'Last) = ".",
-              "Phase 563 truncation helper must mark truncated status labels");
+              "truncation helper must mark truncated status labels");
 
       Snapshot.Has_Active_Buffer := True;
       Snapshot.File_Label := To_Unbounded_String (Long_Text);
@@ -803,14 +804,14 @@ package body Editor.Status_Bar.Tests is
       Snapshot.Command_Feedback := To_Unbounded_String (Long_Text);
 
       Assert (Index (Format_Left (Snapshot), "...") > 0,
-              "Phase 563 left status must deterministically truncate long labels");
+              "left status must deterministically truncate long labels");
       Assert (Index (Format_Right (Snapshot), "...") > 0,
-              "Phase 563 right status must deterministically truncate long labels");
-   end Test_Phase563_Status_Truncates_Long_Labels_Deterministically;
+              "right status must deterministically truncate long labels");
+   end Test_Status_Truncates_Long_Labels_Deterministically;
 
 
 
-   procedure Test_Phase563_Status_Coherence_Covers_Main_Context
+   procedure Test_Status_Coherence_Covers_Main_Context
      (T : in out AUnit.Test_Cases.Test_Case'Class)
    is
       pragma Unreferenced (T);
@@ -837,15 +838,15 @@ package body Editor.Status_Bar.Tests is
       Snapshot.Line_Number_Mode := To_Unbounded_String ("absolute lines");
 
       Assert (Assert_Status_Summarizes_Main_Context (Snapshot),
-              "Phase 563 main-context assertion must cover scalar subsystem summaries");
+              "main-context assertion must cover scalar subsystem summaries");
       Assert (Assert_Status_Does_Not_Duplicate_Priority_Segments (Snapshot),
-              "Phase 563 priority status assertion must reject duplicated pending/outcome text");
+              "priority status assertion must reject duplicated pending/outcome text");
       Assert (Assert_Status_Line_Context_Coherent (Snapshot),
-              "Phase 563 coherent status assertion must accept a full scalar context snapshot");
-   end Test_Phase563_Status_Coherence_Covers_Main_Context;
+              "coherent status assertion must accept a full scalar context snapshot");
+   end Test_Status_Coherence_Covers_Main_Context;
 
 
-   procedure Test_Phase563_Dirty_State_Label_And_Compact_Bounds
+   procedure Test_Dirty_State_Label_And_Compact_Bounds
      (T : in out AUnit.Test_Cases.Test_Case'Class)
    is
       pragma Unreferenced (T);
@@ -868,17 +869,17 @@ package body Editor.Status_Bar.Tests is
       Compact := To_Unbounded_String (Status_Layout_Compact (Snapshot, 48));
 
       Assert (Index (Format_Left (Snapshot), "Modified") > 0,
-              "Phase 563 status must be able to show explicit dirty-state label text");
+              "status must be able to show explicit dirty-state label text");
       Assert (Length (Compact) <= 48,
-              "Phase 563 compact status projection must honor the viewport column bound");
+              "compact status projection must honor the viewport column bound");
       Assert (Index (Compact, "...") > 0,
-              "Phase 563 compact status projection must deterministically mark truncation");
+              "compact status projection must deterministically mark truncation");
       Assert (Assert_Status_Layout_Is_Bounded (Snapshot, 48),
-              "Phase 563 bounded-layout assertion must accept compact status projection");
-   end Test_Phase563_Dirty_State_Label_And_Compact_Bounds;
+              "bounded-layout assertion must accept compact status projection");
+   end Test_Dirty_State_Label_And_Compact_Bounds;
 
 
-   procedure Test_Phase563_Status_Layout_Handles_Zero_Width
+   procedure Test_Status_Layout_Handles_Zero_Width
      (T : in out AUnit.Test_Cases.Test_Case'Class)
    is
       pragma Unreferenced (T);
@@ -889,13 +890,13 @@ package body Editor.Status_Bar.Tests is
       Snapshot.Line_Number_Mode := To_Unbounded_String ("absolute lines");
 
       Assert (Status_Layout_Compact (Snapshot, 0) = "",
-              "Phase 563 compact status projection must tolerate zero-column layout");
+              "compact status projection must tolerate zero-column layout");
       Assert (Assert_Status_Layout_Is_Bounded (Snapshot, 0),
-              "Phase 563 bounded-layout assertion must accept zero-column layout");
-   end Test_Phase563_Status_Layout_Handles_Zero_Width;
+              "bounded-layout assertion must accept zero-column layout");
+   end Test_Status_Layout_Handles_Zero_Width;
 
 
-   procedure Test_Phase563_File_State_Marker_Assertion_Covers_Known_States
+   procedure Test_File_State_Marker_Assertion_Covers_Known_States
      (T : in out AUnit.Test_Cases.Test_Case'Class)
    is
       pragma Unreferenced (T);
@@ -913,17 +914,17 @@ package body Editor.Status_Bar.Tests is
       Left := To_Unbounded_String (Format_Left (Snapshot));
 
       Assert (Index (To_String (Left), "File-backed, outside project") > 0,
-              "Phase 563 status must show known outside-project/file-backed marker");
+              "status must show known outside-project/file-backed marker");
       Assert (Index (To_String (Left), "Missing on disk") > 0,
-              "Phase 563 status must show known missing backing-file marker");
+              "status must show known missing backing-file marker");
       Assert (Index (To_String (Left), "Modified") > 0,
-              "Phase 563 status must show explicit dirty-state label when provided");
+              "status must show explicit dirty-state label when provided");
       Assert (Assert_Status_Shows_File_State_Markers (Snapshot),
-              "Phase 563 marker assertion must cover scalar file-state labels");
-   end Test_Phase563_File_State_Marker_Assertion_Covers_Known_States;
+              "marker assertion must cover scalar file-state labels");
+   end Test_File_State_Marker_Assertion_Covers_Known_States;
 
 
-   procedure Test_Phase563_Non_Priority_Command_Outcome_Appears_Once
+   procedure Test_Non_Priority_Command_Outcome_Appears_Once
      (T : in out AUnit.Test_Cases.Test_Case'Class)
    is
       pragma Unreferenced (T);
@@ -941,14 +942,14 @@ package body Editor.Status_Bar.Tests is
       Right := Text;
 
       Assert (Occurrence_Count (To_String (Text), "success: Saved src/main.adb") = 1,
-              "Phase 563 non-priority command outcome must appear exactly once");
+              "non-priority command outcome must appear exactly once");
       Assert (Assert_Status_Does_Not_Duplicate_Priority_Segments (Snapshot),
-              "Phase 563 duplicate guard must also cover ordinary latest outcomes");
-   end Test_Phase563_Non_Priority_Command_Outcome_Appears_Once;
+              "duplicate guard must also cover ordinary latest outcomes");
+   end Test_Non_Priority_Command_Outcome_Appears_Once;
 
 
 
-   procedure Test_Phase563_Segment_Builders_Are_Coherent_And_Scalar
+   procedure Test_Segment_Builders_Are_Coherent_And_Scalar
      (T : in out AUnit.Test_Cases.Test_Case'Class)
    is
       pragma Unreferenced (T);
@@ -980,31 +981,31 @@ package body Editor.Status_Bar.Tests is
       Right := To_Unbounded_String (Format_Right (Snapshot));
 
       Assert (Status_Project_Segment (Snapshot) = "Project: demo",
-              "Phase 563 project segment builder must be scalar and user-readable");
+              "project segment builder must be scalar and user-readable");
       Assert (Index (Status_Caret_Selection_Segment (Snapshot), "Ln 5, Col 9") > 0,
-              "Phase 563 caret/selection segment builder must use one-based display");
+              "caret/selection segment builder must use one-based display");
       Assert (Status_Diagnostics_Segment (Snapshot) = "Diagnostics: 5 total",
-              "Phase 563 diagnostics fallback must be a named total-count summary");
+              "diagnostics fallback must be a named total-count summary");
       Assert (Index (To_String (Right), Status_Build_Segment (Snapshot)) > 0,
-              "Phase 563 Build segment builder must match the rendered status surface");
+              "Build segment builder must match the rendered status surface");
       Assert (Index (To_String (Right), Status_Search_Replace_Segment (Snapshot)) > 0,
-              "Phase 563 Search segment builder must match the rendered status surface");
+              "Search segment builder must match the rendered status surface");
       Assert (Index (To_String (Right), Status_Quick_Open_Segment (Snapshot)) > 0,
-              "Phase 563 Quick Open segment builder must match the rendered status surface");
+              "Quick Open segment builder must match the rendered status surface");
       Assert (Index (To_String (Right), Status_Outline_Segment (Snapshot)) > 0,
-              "Phase 563 Outline segment builder must match the rendered status surface");
+              "Outline segment builder must match the rendered status surface");
       Assert (Index (To_String (Right), Status_File_Tree_Segment (Snapshot)) > 0,
-              "Phase 563 File Tree segment builder must match the rendered status surface");
+              "File Tree segment builder must match the rendered status surface");
       Assert (Index (Status_Workspace_Recent_Segment (Snapshot), "Workspace: restore partial") > 0,
-              "Phase 563 workspace/recent segment builder must keep summaries compact");
+              "workspace/recent segment builder must keep summaries compact");
       Assert (Assert_Status_Segment_Builders_Are_Coherent (Snapshot),
-              "Phase 563 segment-builder assertion must accept coherent scalar summaries");
+              "segment-builder assertion must accept coherent scalar summaries");
       Assert (Assert_Status_Line_Context_Coherent (Snapshot),
-              "Phase 563 milestone assertion must include segment-builder coherence");
-   end Test_Phase563_Segment_Builders_Are_Coherent_And_Scalar;
+              "milestone assertion must include segment-builder coherence");
+   end Test_Segment_Builders_Are_Coherent_And_Scalar;
 
 
-   procedure Test_Phase563_Status_Is_Explicit_Focus_And_Single_Line
+   procedure Test_Status_Is_Explicit_Focus_And_Single_Line
      (T : in out AUnit.Test_Cases.Test_Case'Class)
    is
       pragma Unreferenced (T);
@@ -1030,23 +1031,23 @@ package body Editor.Status_Bar.Tests is
       Right := To_Unbounded_String (Format_Right (Snapshot));
 
       Assert (Index (To_String (Right), "Focus: Diagnostics") > 0,
-              "Phase 563 status must label the focus owner explicitly");
+              "status must label the focus owner explicitly");
       Assert (Index (To_String (Right), "Panel: Diagnostics") > 0,
-              "Phase 563 status must keep the active panel visible even when it owns focus");
+              "status must keep the active panel visible even when it owns focus");
       Assert (Index (To_String (Left), String'(1 => ASCII.LF)) = 0,
-              "Phase 563 left status must normalize embedded newlines");
+              "left status must normalize embedded newlines");
       Assert (Index (To_String (Right), String'(1 => ASCII.LF)) = 0,
-              "Phase 563 right status must normalize embedded newlines");
+              "right status must normalize embedded newlines");
       Assert (Index (To_String (Right), String'(1 => ASCII.HT)) = 0,
-              "Phase 563 right status must normalize embedded tabs");
+              "right status must normalize embedded tabs");
       Assert (Assert_Status_Is_Single_Line (Snapshot),
-              "Phase 563 status assertion must require a single-line status surface");
+              "status assertion must require a single-line status surface");
       Assert (Assert_Status_Line_Context_Coherent (Snapshot),
-              "Phase 563 milestone assertion must include single-line status safety");
-   end Test_Phase563_Status_Is_Explicit_Focus_And_Single_Line;
+              "milestone assertion must include single-line status safety");
+   end Test_Status_Is_Explicit_Focus_And_Single_Line;
 
 
-   procedure Test_Phase563_Command_Outcome_Uses_Public_Classes
+   procedure Test_Command_Outcome_Uses_Public_Classes
      (T : in out AUnit.Test_Cases.Test_Case'Class)
    is
       pragma Unreferenced (T);
@@ -1066,13 +1067,13 @@ package body Editor.Status_Bar.Tests is
       Right := Text;
 
       Assert (Status_Command_Outcome_Class (Snapshot) = "unavailable",
-              "Phase 563 status must map internal warn severity to public unavailable class");
+              "status must map internal warn severity to public unavailable class");
       Assert (Index (To_String (Text), "unavailable: Command unavailable") > 0,
-              "Phase 563 status must render the public unavailable command outcome class");
+              "status must render the public unavailable command outcome class");
       Assert (Index (To_String (Text), "warn:") = 0,
-              "Phase 563 status must not expose internal warn severity spelling");
+              "status must not expose internal warn severity spelling");
       Assert (Assert_Status_Command_Outcome_Uses_Public_Classes (Snapshot),
-              "Phase 563 command outcome assertion must accept public status classes only");
+              "command outcome assertion must accept public status classes only");
 
       Snapshot.Command_Feedback_Severity := To_Unbounded_String ("mystery-internal-severity");
       Snapshot.Command_Feedback := To_Unbounded_String ("Informational fallback");
@@ -1080,15 +1081,15 @@ package body Editor.Status_Bar.Tests is
       Right := Text;
 
       Assert (Status_Command_Outcome_Class (Snapshot) = "info",
-              "Phase 563 status must map unknown internal message classes to public info class");
+              "status must map unknown internal message classes to public info class");
       Assert (Index (To_String (Text), "info: Informational fallback") > 0,
-              "Phase 563 status must render unknown internal classes as info");
+              "status must render unknown internal classes as info");
       Assert (Assert_Status_Line_Context_Coherent (Snapshot),
-              "Phase 563 milestone assertion must include public command-outcome classes");
-   end Test_Phase563_Command_Outcome_Uses_Public_Classes;
+              "milestone assertion must include public command-outcome classes");
+   end Test_Command_Outcome_Uses_Public_Classes;
 
 
-   procedure Test_Phase563_Status_Config_And_Payload_Boundaries
+   procedure Test_Status_Config_And_Payload_Boundaries
      (T : in out AUnit.Test_Cases.Test_Case'Class)
    is
       pragma Unreferenced (T);
@@ -1108,19 +1109,19 @@ package body Editor.Status_Bar.Tests is
       Snapshot.Command_Feedback := To_Unbounded_String ("Waiting for confirmation");
 
       Assert (Assert_Status_Config_Is_Display_Only (Enabled_Config),
-              "Phase 563 enabled status config must be display-only");
+              "enabled status config must be display-only");
       Assert (Assert_Status_Config_Is_Display_Only (Disabled_Config),
-              "Phase 563 disabled status config must also be display-only");
+              "disabled status config must also be display-only");
       Assert (Assert_Status_Carries_No_Command_Payloads (Snapshot),
-              "Phase 563 status snapshot must not carry command/keybinding/palette payloads");
+              "status snapshot must not carry command/keybinding/palette payloads");
       Assert (Assert_Status_Command_Outcome_Uses_Public_Classes (Snapshot),
-              "Phase 563 pending status outcome must use a public class");
+              "pending status outcome must use a public class");
       Assert (Assert_Status_Line_Context_Coherent (Snapshot),
-              "Phase 563 milestone assertion must include config/payload boundary coverage");
-   end Test_Phase563_Status_Config_And_Payload_Boundaries;
+              "milestone assertion must include config/payload boundary coverage");
+   end Test_Status_Config_And_Payload_Boundaries;
 
 
-   procedure Test_Phase563_Project_File_And_Row_Output_Boundary
+   procedure Test_Project_File_And_Row_Output_Boundary
      (T : in out AUnit.Test_Cases.Test_Case'Class)
    is
       pragma Unreferenced (T);
@@ -1146,23 +1147,23 @@ package body Editor.Status_Bar.Tests is
       File_State := To_Unbounded_String (Status_Dirty_File_State_Segment (Snapshot));
 
       Assert (Index (To_String (Project_File), "Project: demo") > 0,
-              "Phase 563 project/file segment must include project context");
+              "project/file segment must include project context");
       Assert (Index (To_String (Project_File), "src/main.adb") > 0,
-              "Phase 563 project/file segment must include active file context");
+              "project/file segment must include active file context");
       Assert (Index (To_String (File_State), "File-backed") > 0,
-              "Phase 563 file-state segment must include known backing kind");
+              "file-state segment must include known backing kind");
       Assert (Index (To_String (File_State), "Read-only") > 0,
-              "Phase 563 file-state segment must include known read-only marker");
+              "file-state segment must include known read-only marker");
       Assert (Index (To_String (File_State), "Modified") > 0,
-              "Phase 563 file-state segment must include dirty marker text");
+              "file-state segment must include dirty marker text");
       Assert (Assert_Status_Does_Not_Copy_Rows_Or_Output (Snapshot),
-              "Phase 563 status boundary must remain scalar and exclude rows/output bodies");
+              "status boundary must remain scalar and exclude rows/output bodies");
       Assert (Assert_Status_Line_Context_Coherent (Snapshot),
-              "Phase 563 milestone assertion must include project/file and row-output boundaries");
-   end Test_Phase563_Project_File_And_Row_Output_Boundary;
+              "milestone assertion must include project/file and row-output boundaries");
+   end Test_Project_File_And_Row_Output_Boundary;
 
 
-   procedure Test_Phase563_Compact_Layout_Preserves_Priority
+   procedure Test_Compact_Layout_Preserves_Priority
      (T : in out AUnit.Test_Cases.Test_Case'Class)
    is
       pragma Unreferenced (T);
@@ -1188,17 +1189,17 @@ package body Editor.Status_Bar.Tests is
       Compact := To_Unbounded_String (Status_Layout_Compact (Snapshot, 64));
 
       Assert (Index (To_String (Compact), "Pending confirmation") = 1,
-              "Phase 563 compact layout must put pending confirmation first");
+              "compact layout must put pending confirmation first");
       Assert (Index (To_String (Compact), "failed: Save blocked") > 0,
-              "Phase 563 compact layout must keep failed/unavailable outcomes early");
+              "compact layout must keep failed/unavailable outcomes early");
       Assert (Assert_Status_Layout_Preserves_Priority (Snapshot),
-              "Phase 563 priority assertion must protect compact status ordering");
+              "priority assertion must protect compact status ordering");
       Assert (Assert_Status_Line_Context_Coherent (Snapshot),
-              "Phase 563 milestone assertion must include priority layout coverage");
-   end Test_Phase563_Compact_Layout_Preserves_Priority;
+              "milestone assertion must include priority layout coverage");
+   end Test_Compact_Layout_Preserves_Priority;
 
 
-   procedure Test_Phase563_Render_Compact_Policy_Uses_Priority_Context
+   procedure Test_Render_Compact_Policy_Uses_Priority_Context
      (T : in out AUnit.Test_Cases.Test_Case'Class)
    is
       pragma Unreferenced (T);
@@ -1210,30 +1211,30 @@ package body Editor.Status_Bar.Tests is
       Snapshot.Project_Label := To_Unbounded_String ("demo");
 
       Assert (Status_Layout_Should_Use_Compact (Snapshot, 40),
-              "Phase 563 render policy must use compact projection for narrow status rows");
+              "render policy must use compact projection for narrow status rows");
       Assert (not Status_Layout_Should_Use_Compact (Snapshot, 120),
-              "Phase 563 render policy may keep left/right layout for wide non-priority rows");
+              "render policy may keep left/right layout for wide non-priority rows");
 
       Snapshot.Pending_Confirmation_Label :=
         To_Unbounded_String ("Pending confirmation");
       Assert (Status_Layout_Should_Use_Compact (Snapshot, 120),
-              "Phase 563 render policy must use compact projection when confirmation is pending");
+              "render policy must use compact projection when confirmation is pending");
 
       Snapshot.Pending_Confirmation_Label := Null_Unbounded_String;
       Snapshot.Has_Command_Feedback := True;
       Snapshot.Command_Feedback_Severity := To_Unbounded_String ("warning");
       Snapshot.Command_Feedback := To_Unbounded_String ("Cannot close dirty buffer");
       Assert (Status_Layout_Should_Use_Compact (Snapshot, 120),
-              "Phase 563 render policy must use compact projection for unavailable command feedback");
+              "render policy must use compact projection for unavailable command feedback");
 
       Snapshot.Command_Feedback_Severity := To_Unbounded_String ("success");
       Assert (not Status_Layout_Should_Use_Compact (Snapshot, 120),
-              "Phase 563 render policy must not force compact layout for ordinary success feedback");
-   end Test_Phase563_Render_Compact_Policy_Uses_Priority_Context;
+              "render policy must not force compact layout for ordinary success feedback");
+   end Test_Render_Compact_Policy_Uses_Priority_Context;
 
 
 
-   procedure Test_Phase578_Status_Line_Workflow_Coherence
+   procedure Test_Status_Line_Workflow_Coherence
      (T : in out AUnit.Test_Cases.Test_Case'Class)
    is
       pragma Unreferenced (T);
@@ -1266,28 +1267,28 @@ package body Editor.Status_Bar.Tests is
       Compact := To_Unbounded_String (Status_Layout_Compact (Snapshot, 220));
 
       Assert (Index (Right, "Unsaved changes require confirmation.") = 1,
-              "Phase 578 status must prioritize pending confirmations before summaries");
+              "status must prioritize pending confirmations before summaries");
       Assert (Index (Right, "failed: Target is stale; refresh required.") > 0,
-              "Phase 578 status command outcome must use canonical stale wording");
+              "status command outcome must use canonical stale wording");
       Assert (Index (Right, "No project open.") > 0,
-              "Phase 578 status must normalize no-project wording");
+              "status must normalize no-project wording");
       Assert (Index (Right, "Search: Target is stale; refresh required.") > 0,
-              "Phase 578 status search stale label must match canonical stale wording");
+              "status search stale label must match canonical stale wording");
       Assert (Index (Right, "Outline: Target is stale; refresh required.") > 0,
-              "Phase 578 status outline stale label must match canonical stale wording");
+              "status outline stale label must match canonical stale wording");
       Assert (Index (Right, "Diagnostics: Target is stale; refresh required.") > 0,
-              "Phase 578 status diagnostics stale label must match canonical stale wording");
+              "status diagnostics stale label must match canonical stale wording");
       Assert (Index (Right, "Build: Target is stale; refresh required.") > 0,
-              "Phase 578 status build stale label must match canonical stale wording");
+              "status build stale label must match canonical stale wording");
       Assert (Index (Right, "File Tree: Target is stale; refresh required.") > 0,
-              "Phase 578 status file-tree stale label must match canonical stale wording");
+              "status file-tree stale label must match canonical stale wording");
       Assert (Index (Compact, "Unsaved changes require confirmation.") = 1,
-              "Phase 578 compact status must keep pending confirmation first");
+              "compact status must keep pending confirmation first");
       Assert (Assert_Status_Line_Context_Coherent (Snapshot),
-              "Phase 578 status coherence assertion must accept normalized workflow status");
-   end Test_Phase578_Status_Line_Workflow_Coherence;
+              "status coherence assertion must accept normalized workflow status");
+   end Test_Status_Line_Workflow_Coherence;
 
-   procedure Test_Phase578_Remaining_Status_Workflow_Cases
+   procedure Test_Remaining_Status_Workflow_Cases
      (T : in out AUnit.Test_Cases.Test_Case'Class)
    is
       pragma Unreferenced (T);
@@ -1296,7 +1297,7 @@ package body Editor.Status_Bar.Tests is
       Right    : Unbounded_String;
       Compact  : Unbounded_String;
    begin
-      --  Diagnostics: none used to bypass the Phase 578 canonical "No diagnostics."
+      --  Diagnostics: none used to bypass the canonical "No diagnostics."
       --  wording when it arrived from the render snapshot rather than the empty
       --  Diagnostics_Status_Label fallback.  The status segment path now
       --  normalizes both sources identically.
@@ -1309,11 +1310,11 @@ package body Editor.Status_Bar.Tests is
       Snapshot.Diagnostics_Status_Label := To_Unbounded_String ("Diagnostics: none");
       Right := To_Unbounded_String (Format_Right (Snapshot));
       Assert (Status_Diagnostics_Segment (Snapshot) = "No diagnostics.",
-              "Phase 578 diagnostics status must canonicalize render none state");
+              "diagnostics status must canonicalize render none state");
       Assert (Index (Right, "No diagnostics.") > 0,
-              "Phase 578 formatted status must show canonical no-diagnostics text");
+              "formatted status must show canonical no-diagnostics text");
       Assert (Index (Right, "Diagnostics: none") = 0,
-              "Phase 578 formatted status must not leak old diagnostics-none text");
+              "formatted status must not leak old diagnostics-none text");
 
       --  No-active-buffer workflow labels also arrive from real feature
       --  surfaces with panel-specific wording.  The integrated status surface
@@ -1325,11 +1326,11 @@ package body Editor.Status_Bar.Tests is
         To_Unbounded_String ("Search Results: no active buffer");
       Right := To_Unbounded_String (Format_Right (Snapshot));
       Assert (Index (Right, "Outline: No active buffer.") > 0,
-              "Phase 578 status must canonicalize Outline no-active-buffer wording");
+              "status must canonicalize Outline no-active-buffer wording");
       Assert (Index (Right, "Search: No active buffer.") > 0,
-              "Phase 578 status must canonicalize Search no-active-buffer wording");
+              "status must canonicalize Search no-active-buffer wording");
       Assert (Index (Right, "Outline unavailable: no active buffer") = 0,
-              "Phase 578 status must not leak old Outline no-active-buffer text");
+              "status must not leak old Outline no-active-buffer text");
       Snapshot.Outline_Status_Label := Null_Unbounded_String;
       Snapshot.Search_Status_Label := Null_Unbounded_String;
 
@@ -1346,15 +1347,15 @@ package body Editor.Status_Bar.Tests is
         To_Unbounded_String ("Build unavailable: no project open or no build request ready.");
       Right := To_Unbounded_String (Format_Right (Snapshot));
       Assert (Index (Right, "File Tree: No project open.") > 0,
-              "Phase 578 status must canonicalize File Tree startup no-project wording");
+              "status must canonicalize File Tree startup no-project wording");
       Assert (Index (Right, "Quick Open: No project open.") > 0,
-              "Phase 578 status must canonicalize Quick Open startup no-project wording");
+              "status must canonicalize Quick Open startup no-project wording");
       Assert (Index (Right, "Search: No project open.") > 0,
-              "Phase 578 status must canonicalize Project Search startup no-project wording");
+              "status must canonicalize Project Search startup no-project wording");
       Assert (Index (Right, "Build: No project open.") > 0,
-              "Phase 578 status must canonicalize Build startup no-project wording");
+              "status must canonicalize Build startup no-project wording");
       Assert (Index (Right, "unavailable: no project open") = 0,
-              "Phase 578 status must not leak startup unavailable no-project text");
+              "status must not leak startup unavailable no-project text");
       Snapshot.File_Tree_Status_Label := Null_Unbounded_String;
       Snapshot.Quick_Open_Status_Label := Null_Unbounded_String;
       Snapshot.Search_Status_Label := Null_Unbounded_String;
@@ -1368,129 +1369,129 @@ package body Editor.Status_Bar.Tests is
         To_Unbounded_String ("Build run unavailable: no build candidate selected");
       Right := To_Unbounded_String (Format_Right (Snapshot));
       Assert (Index (Right, "Build: No build candidate selected.") > 0,
-              "Phase 578 status must canonicalize Build missing-candidate wording");
+              "status must canonicalize Build missing-candidate wording");
       Snapshot.Build_Status_Label :=
         To_Unbounded_String ("No build candidates found.");
       Right := To_Unbounded_String (Format_Right (Snapshot));
       Assert (Index (Right, "Build: No build candidates.") > 0,
-              "Phase 578 status must canonicalize Build no-candidates wording");
+              "status must canonicalize Build no-candidates wording");
       Snapshot.Build_Status_Label :=
         To_Unbounded_String ("Build run unavailable: review the request and acknowledge consent first");
       Right := To_Unbounded_String (Format_Right (Snapshot));
       Assert (Index (Right, "Build: Consent required.") > 0,
-              "Phase 578 status must canonicalize Build consent-required wording");
+              "status must canonicalize Build consent-required wording");
       Snapshot.Build_Status_Label :=
         To_Unbounded_String ("Build unavailable: consent required.");
       Right := To_Unbounded_String (Format_Right (Snapshot));
       Assert (Index (Right, "Build: Consent required.") > 0,
-              "Phase 578 status must canonicalize Build result/output consent wording");
+              "status must canonicalize Build result/output consent wording");
       Snapshot.Build_Status_Label :=
         To_Unbounded_String ("Consent missing: review and acknowledge the build request");
       Right := To_Unbounded_String (Format_Right (Snapshot));
       Assert (Index (Right, "Build: Consent required.") > 0,
-              "Phase 578 status must canonicalize Build UI consent-missing detail");
+              "status must canonicalize Build UI consent-missing detail");
       Snapshot.Build_Status_Label :=
         To_Unbounded_String ("Build candidate applied to transient request; Consent missing: review and acknowledge the build request");
       Right := To_Unbounded_String (Format_Right (Snapshot));
       Assert (Index (Right, "Build: Consent required.") > 0,
-              "Phase 578 status must canonicalize Build candidate consent detail");
+              "status must canonicalize Build candidate consent detail");
       Snapshot.Build_Status_Label :=
         To_Unbounded_String ("Build run unavailable: choose a build tool first");
       Right := To_Unbounded_String (Format_Right (Snapshot));
       Assert (Index (Right, "Build: No build tool selected.") > 0,
-              "Phase 578 status must canonicalize Build missing-tool wording");
+              "status must canonicalize Build missing-tool wording");
       Snapshot.Build_Status_Label :=
         To_Unbounded_String ("Build run unavailable: custom shell commands are not supported");
       Right := To_Unbounded_String (Format_Right (Snapshot));
       Assert (Index (Right, "Build: No build request ready.") > 0,
-              "Phase 578 status must canonicalize Build unsupported-request wording");
+              "status must canonicalize Build unsupported-request wording");
       Snapshot.Build_Status_Label :=
         To_Unbounded_String ("candidate request could not be formed");
       Right := To_Unbounded_String (Format_Right (Snapshot));
       Assert (Index (Right, "Build: No build request ready.") > 0,
-              "Phase 578 status must canonicalize Build candidate request-shape wording");
+              "status must canonicalize Build candidate request-shape wording");
       Snapshot.Build_Status_Label :=
         To_Unbounded_String ("Build request is not ready.");
       Right := To_Unbounded_String (Format_Right (Snapshot));
       Assert (Index (Right, "Build: No build request ready.") > 0,
-              "Phase 578 status must canonicalize Build request readiness wording");
+              "status must canonicalize Build request readiness wording");
       Snapshot.Build_Status_Label :=
         To_Unbounded_String ("Build run unavailable: no project working context selected");
       Right := To_Unbounded_String (Format_Right (Snapshot));
       Assert (Index (Right, "Build: No project open.") > 0,
-              "Phase 578 status must canonicalize Build missing-working-context wording");
+              "status must canonicalize Build missing-working-context wording");
       Snapshot.Build_Status_Label :=
         To_Unbounded_String ("Build run unavailable: selected project working context is unavailable");
       Right := To_Unbounded_String (Format_Right (Snapshot));
       Assert (Index (Right, "Build: Target no longer exists.") > 0,
-              "Phase 578 status must canonicalize Build missing-working-context target wording");
+              "status must canonicalize Build missing-working-context target wording");
       Snapshot.Build_Status_Label :=
         To_Unbounded_String ("Build run unavailable: working context must come from the current project/workspace");
       Right := To_Unbounded_String (Format_Right (Snapshot));
       Assert (Index (Right, "Build: Target is outside the current project.") > 0,
-              "Phase 578 status must canonicalize Build outside-working-context wording");
+              "status must canonicalize Build outside-working-context wording");
       Snapshot.Build_Status_Label :=
         To_Unbounded_String ("Build working context canonical path required");
       Right := To_Unbounded_String (Format_Right (Snapshot));
       Assert (Index (Right, "Build: Target is outside the current project.") > 0,
-              "Phase 578 status must canonicalize Build invalid canonical working-context wording");
+              "status must canonicalize Build invalid canonical working-context wording");
       Snapshot.Build_Status_Label := To_Unbounded_String ("Build working directory is required.");
       Right := To_Unbounded_String (Format_Right (Snapshot));
       Assert (Index (Right, "Build: No project open.") > 0,
-              "Phase 578 status must canonicalize Build missing working-directory wording");
+              "status must canonicalize Build missing working-directory wording");
       Snapshot.Build_Status_Label := To_Unbounded_String ("No canonical project/workspace context");
       Right := To_Unbounded_String (Format_Right (Snapshot));
       Assert (Index (Right, "Build: No project open.") > 0,
-              "Phase 578 status must canonicalize Build missing canonical working-context wording");
+              "status must canonicalize Build missing canonical working-context wording");
       Snapshot.Build_Status_Label := To_Unbounded_String ("Build: output unavailable");
       Right := To_Unbounded_String (Format_Right (Snapshot));
       Assert (Index (Right, "Build: No build output captured.") > 0,
-              "Phase 578 status must canonicalize Build output empty state");
+              "status must canonicalize Build output empty state");
       Snapshot.Build_Status_Label :=
         To_Unbounded_String ("Build: No standard output captured");
       Right := To_Unbounded_String (Format_Right (Snapshot));
       Assert (Index (Right, "Build: No stdout captured.") > 0,
-              "Phase 578 status must canonicalize Build stdout empty state");
+              "status must canonicalize Build stdout empty state");
       Snapshot.Build_Status_Label :=
         To_Unbounded_String ("Build: No standard error captured");
       Right := To_Unbounded_String (Format_Right (Snapshot));
       Assert (Index (Right, "Build: No stderr captured.") > 0,
-              "Phase 578 status must canonicalize Build stderr empty state");
+              "status must canonicalize Build stderr empty state");
       Snapshot.Build_Status_Label := To_Unbounded_String ("Project root unavailable");
       Right := To_Unbounded_String (Format_Right (Snapshot));
       Assert (Index (Right, "Build: Target no longer exists.") > 0,
-              "Phase 578 status must canonicalize Project-root unavailable wording");
+              "status must canonicalize Project-root unavailable wording");
       Snapshot.Build_Status_Label := To_Unbounded_String ("Build working directory is unavailable.");
       Right := To_Unbounded_String (Format_Right (Snapshot));
       Assert (Index (Right, "Build: Target no longer exists.") > 0,
-              "Phase 578 status must canonicalize Build unavailable working-directory wording");
+              "status must canonicalize Build unavailable working-directory wording");
       Snapshot.Build_Status_Label := To_Unbounded_String ("candidate path missing or unavailable");
       Right := To_Unbounded_String (Format_Right (Snapshot));
       Assert (Index (Right, "Build: Target no longer exists.") > 0,
-              "Phase 578 status must canonicalize Build candidate missing-path wording");
+              "status must canonicalize Build candidate missing-path wording");
       Snapshot.Build_Status_Label := To_Unbounded_String ("candidate path outside project root");
       Right := To_Unbounded_String (Format_Right (Snapshot));
       Assert (Index (Right, "Build: Target is outside the current project.") > 0,
-              "Phase 578 status must canonicalize Build candidate project-boundary wording");
+              "status must canonicalize Build candidate project-boundary wording");
       Snapshot.Build_Status_Label := To_Unbounded_String ("candidate must be refreshed");
       Right := To_Unbounded_String (Format_Right (Snapshot));
       Assert (Index (Right, "Build: Target is stale; refresh required.") > 0,
-              "Phase 578 status must canonicalize Build candidate refresh-required wording");
+              "status must canonicalize Build candidate refresh-required wording");
       Snapshot.Build_Status_Label :=
         To_Unbounded_String ("Build run unavailable: execution backend is disabled");
       Right := To_Unbounded_String (Format_Right (Snapshot));
       Assert (Index (Right, "Build: Execution unavailable.") > 0,
-              "Phase 578 status must canonicalize Build execution-backend wording");
+              "status must canonicalize Build execution-backend wording");
       Snapshot.Build_Status_Label :=
         To_Unbounded_String ("Build unavailable: execution backend disabled.");
       Right := To_Unbounded_String (Format_Right (Snapshot));
       Assert (Index (Right, "Build: Execution unavailable.") > 0,
-              "Phase 578 status must canonicalize Build output-details execution-backend wording");
+              "status must canonicalize Build output-details execution-backend wording");
       Snapshot.Build_Status_Label :=
         To_Unbounded_String ("Consent stale: review the changed build request");
       Right := To_Unbounded_String (Format_Right (Snapshot));
       Assert (Index (Right, "Build: Consent is stale.") > 0,
-              "Phase 578 status must canonicalize Build stale-consent wording");
+              "status must canonicalize Build stale-consent wording");
       Snapshot.Build_Status_Label := Null_Unbounded_String;
 
       Snapshot.Has_Command_Feedback := True;
@@ -1498,36 +1499,36 @@ package body Editor.Status_Bar.Tests is
       Snapshot.Command_Feedback_Severity := To_Unbounded_String ("unavailable");
       Right := To_Unbounded_String (Format_Right (Snapshot));
       Assert (Index (Right, "unavailable: Another prompt is active.") > 0,
-              "Phase 578 status must canonicalize prompt-concurrency wording");
+              "status must canonicalize prompt-concurrency wording");
       Snapshot.Command_Feedback := To_Unbounded_String ("Prompt canceled");
       Snapshot.Command_Feedback_Severity := To_Unbounded_String ("cancelled");
       Right := To_Unbounded_String (Format_Right (Snapshot));
       Assert (Index (Right, "cancelled: Prompt cancelled.") > 0,
-              "Phase 578 status must canonicalize prompt-cancel spelling");
+              "status must canonicalize prompt-cancel spelling");
       Snapshot.Command_Feedback := To_Unbounded_String ("Conflict prompt is stale");
       Snapshot.Command_Feedback_Severity := To_Unbounded_String ("unavailable");
       Right := To_Unbounded_String (Format_Right (Snapshot));
       Assert (Index (Right, "unavailable: Prompt is stale.") > 0,
-              "Phase 578 status must canonicalize stale prompt wording");
+              "status must canonicalize stale prompt wording");
       Snapshot.Command_Feedback := To_Unbounded_String ("No pending reset-all confirmation");
       Snapshot.Command_Feedback_Severity := To_Unbounded_String ("info");
       Right := To_Unbounded_String (Format_Right (Snapshot));
       Assert (Index (Right, "info: No pending confirmation.") > 0,
-              "Phase 578 status must canonicalize missing configuration confirmation wording");
+              "status must canonicalize missing configuration confirmation wording");
       Snapshot.Command_Feedback := To_Unbounded_String ("Reset requires confirmation");
       Snapshot.Command_Feedback_Severity := To_Unbounded_String ("unavailable");
       Right := To_Unbounded_String (Format_Right (Snapshot));
       Assert (Index (Right, "unavailable: Reset requires confirmation.") > 0,
-              "Phase 578 status must canonicalize configuration reset confirmation wording");
+              "status must canonicalize configuration reset confirmation wording");
       Snapshot.Command_Feedback := To_Unbounded_String ("Switch project canceled");
       Snapshot.Command_Feedback_Severity := To_Unbounded_String ("cancelled");
       Right := To_Unbounded_String (Format_Right (Snapshot));
       Assert (Index (Right, "cancelled: Switch project cancelled.") > 0,
-              "Phase 578 status must canonicalize project switch-cancel wording");
+              "status must canonicalize project switch-cancel wording");
       Snapshot.Command_Feedback := To_Unbounded_String ("Reload canceled");
       Right := To_Unbounded_String (Format_Right (Snapshot));
       Assert (Index (Right, "cancelled: Reload cancelled.") > 0,
-              "Phase 578 status must canonicalize file reload-cancel wording");
+              "status must canonicalize file reload-cancel wording");
       Snapshot.Command_Feedback := To_Unbounded_String ("Opened diagnostic target");
       Snapshot.Command_Feedback_Severity := To_Unbounded_String ("success");
       Snapshot.Search_Status_Label := To_Unbounded_String ("Search Results: no query");
@@ -1535,51 +1536,139 @@ package body Editor.Status_Bar.Tests is
       Snapshot.Outline_Status_Label := To_Unbounded_String ("Outline: not refreshed");
       Right := To_Unbounded_String (Format_Right (Snapshot));
       Assert (Index (Right, "Search: No search query.") > 0,
-              "Phase 578 status must canonicalize Search no-query wording");
+              "status must canonicalize Search no-query wording");
       Assert (Index (Right, "Quick Open: No matches.") > 0,
-              "Phase 578 status must canonicalize Quick Open no-matches wording");
+              "status must canonicalize Quick Open no-matches wording");
+      Assert (Status_Message_Kind_For
+                (To_Unbounded_String ("Find: No search query.")) =
+                Status_Message_Find_No_Query,
+              "Find empty-query status must classify without raw-string callers");
+      Assert (Status_Message_Kind_For
+                (To_Unbounded_String ("Find: No matches.")) =
+                Status_Message_Find_No_Matches,
+              "Find no-match status must classify without raw-string callers");
+      Assert (Status_Message_Kind_For (Snapshot.Quick_Open_Status_Label) =
+                Status_Message_Quick_Open_No_Matches,
+              "Quick Open no-matches status must classify without raw-string callers");
+      Snapshot.Quick_Open_Status_Kind := Status_Message_Quick_Open_No_Matches;
+      Assert (Status_Quick_Open_Message_Kind (Snapshot) =
+                Status_Message_Quick_Open_No_Matches,
+              "typed Quick Open status kind is readable from snapshot");
+      Snapshot.Quick_Open_Status_Kind := Status_Message_Other;
+      declare
+         Surface : constant Quick_Open_Context_Surface :=
+           Quick_Open_Context_Surface_For (Snapshot);
+      begin
+         Assert (Surface.Active,
+                 "Quick Open surface must be active when context status is visible");
+         Assert (Quick_Open_Context_Action_Count (Surface) = 3,
+                 "Quick Open surface exposes typed action count");
+         Assert (To_String (Surface.Open_Command) = "quick_open.open"
+                 and then To_String (Surface.Clear_Scope_Command) =
+                   "quick_open.scope.clear"
+                 and then To_String (Surface.Clear_Filter_Command) =
+                   "quick_open.kind.clear",
+                 "Quick Open surface must expose open and clear context actions");
+         Assert (Index (Quick_Open_Context_Action_Label (Surface),
+                        "quick_open.open") > 0
+                 and then Index (Status_Quick_Open_Segment (Snapshot),
+                                  "quick_open.scope.clear") > 0,
+                 "visible Quick Open status segment must include context actions");
+      end;
       Assert (Index (Right, "Outline: Not refreshed.") > 0,
-              "Phase 578 status must canonicalize Outline not-refreshed wording");
+              "status must canonicalize Outline not-refreshed wording");
+      Assert (Status_Outline_Message_Kind (Snapshot) =
+                Status_Message_Outline_Not_Refreshed,
+              "Outline not-refreshed status must classify through typed access");
+      Snapshot.Outline_Status_Kind := Status_Message_Outline_Not_Refreshed;
+      Assert (Status_Outline_Message_Kind (Snapshot) =
+                Status_Message_Outline_Not_Refreshed,
+              "typed Outline status kind overrides label fallback");
+      declare
+         Surface : constant Outline_Status_Surface :=
+           Outline_Surface (Snapshot);
+      begin
+         Assert (Surface.Active,
+                 "Outline surface must be active when status is visible");
+         Assert (Outline_Surface_Action_Count (Surface) = 3,
+                 "Outline surface exposes typed action count");
+         Assert (To_String (Surface.Refresh_Command) = "outline.refresh"
+                 and then To_String (Surface.Open_Selected_Command) =
+                   "outline.open-selected"
+                 and then To_String (Surface.Reveal_Current_Command) =
+                   "outline.reveal-current-symbol",
+                 "Outline surface must expose navigation actions");
+         Assert (Index (Status_Outline_Segment (Snapshot),
+                        "outline.open-selected") > 0,
+                 "visible Outline status segment must include action labels");
+      end;
+      Snapshot.Outline_Status_Kind := Status_Message_Other;
       Snapshot.Search_Status_Label := To_Unbounded_String ("Project search completed: no matches.");
       Snapshot.Quick_Open_Status_Label := Null_Unbounded_String;
       Snapshot.Outline_Status_Label := Null_Unbounded_String;
       Right := To_Unbounded_String (Format_Right (Snapshot));
       Assert (Index (Right, "Search: No search results.") > 0,
-              "Phase 578 status must canonicalize Search no-results wording");
+              "status must canonicalize Search no-results wording");
+      declare
+         Surface : constant Search_Replace_Status_Surface :=
+           Search_Replace_Surface (Snapshot);
+      begin
+         Assert (Surface.Active,
+                 "Search surface must be active when status is visible");
+         Assert (Search_Replace_Surface_Action_Count (Surface) = 3,
+                 "Search surface exposes typed action count");
+         Assert (To_String (Surface.Run_Command) = "project.search.run"
+                 and then To_String (Surface.Open_Selected_Command) =
+                   "project.search.open-selected"
+                 and then To_String (Surface.Clear_Query_Command) =
+                   "project.search.query.clear",
+                 "Search surface must expose run/open/clear actions");
+         Assert (Index (Status_Search_Replace_Segment (Snapshot),
+                        "project.search.open-selected") > 0,
+                 "visible Search status segment must include action labels");
+      end;
       Snapshot.Search_Status_Label := To_Unbounded_String ("No replacement preview");
       Right := To_Unbounded_String (Format_Right (Snapshot));
       Assert (Index (Right, "Replace: No replacement preview.") > 0,
-              "Phase 578 status must canonicalize replace-preview empty wording");
+              "status must canonicalize replace-preview empty wording");
       Snapshot.Search_Status_Label :=
         To_Unbounded_String ("Replace: Replacement target changed; rerun search");
       Right := To_Unbounded_String (Format_Right (Snapshot));
       Assert (Index (Right, "Replace: Target is stale; refresh required.") > 0,
-              "Phase 578 status must canonicalize Replace changed-target wording");
+              "status must canonicalize Replace changed-target wording");
+      Assert (Status_Message_Kind_For (Snapshot.Search_Status_Label) =
+                Status_Message_Search_Target_Stale,
+              "Replace stale-target status must classify without raw-string callers");
+      Snapshot.Search_Status_Kind := Status_Message_Search_Target_Stale;
+      Assert (Status_Search_Message_Kind (Snapshot) =
+                Status_Message_Search_Target_Stale,
+              "typed Search status kind is readable from snapshot");
+      Snapshot.Search_Status_Kind := Status_Message_Other;
       Snapshot.Search_Status_Label :=
         To_Unbounded_String ("Replace: Replacement target is unavailable");
       Right := To_Unbounded_String (Format_Right (Snapshot));
       Assert (Index (Right, "Replace: Target no longer exists.") > 0,
-              "Phase 578 status must canonicalize Replace missing-target wording");
+              "status must canonicalize Replace missing-target wording");
       Snapshot.Search_Status_Label :=
         To_Unbounded_String ("Replace: Replacement target is read-only");
       Right := To_Unbounded_String (Format_Right (Snapshot));
       Assert (Index (Right, "Replace: File is not writable.") > 0,
-              "Phase 578 status must canonicalize Replace read-only target wording");
+              "status must canonicalize Replace read-only target wording");
       Snapshot.Search_Status_Label :=
         To_Unbounded_String ("Replace: Replacement target is not a regular file");
       Right := To_Unbounded_String (Format_Right (Snapshot));
       Assert (Index (Right, "Replace: Target is not a file.") > 0,
-              "Phase 578 status must canonicalize Replace non-file target wording");
+              "status must canonicalize Replace non-file target wording");
       Snapshot.Search_Status_Label :=
         To_Unbounded_String ("Replace: Replacement target path is invalid");
       Right := To_Unbounded_String (Format_Right (Snapshot));
       Assert (Index (Right, "Replace: Invalid file path.") > 0,
-              "Phase 578 status must canonicalize Replace invalid-path wording");
+              "status must canonicalize Replace invalid-path wording");
       Snapshot.Search_Status_Label :=
         To_Unbounded_String ("Replace: Replacement text must be single-line");
       Right := To_Unbounded_String (Format_Right (Snapshot));
       Assert (Index (Right, "Replace: Replacement text must be single-line.") > 0,
-              "Phase 578 status must canonicalize Replace text validation wording");
+              "status must canonicalize Replace text validation wording");
       Snapshot.Search_Status_Label := Null_Unbounded_String;
 
       Snapshot.Build_Status_Label := Null_Unbounded_String;
@@ -1595,43 +1684,139 @@ package body Editor.Status_Bar.Tests is
       Right := To_Unbounded_String (Format_Right (Snapshot));
       Compact := To_Unbounded_String (Status_Layout_Compact (Snapshot, 220));
       Assert (Index (Right, "Build: failed") > 0,
-              "Phase 578 status must retain Build result after build.run");
+              "status must retain Build result after build.run");
+      Assert (Status_Message_Kind_For (Snapshot.Build_Status_Label) =
+                Status_Message_Build_Failed,
+              "Build failure status must classify without raw-string callers");
+      Snapshot.Build_Status_Label := To_Unbounded_String ("Build: ready");
+      Assert (Status_Message_Kind_For (Snapshot.Build_Status_Label) =
+                Status_Message_Build_Ready,
+              "Build ready status must classify without raw-string callers");
+      Snapshot.Build_Status_Kind := Status_Message_Build_Failed;
+      Assert (Status_Build_Message_Kind (Snapshot) = Status_Message_Build_Failed,
+              "typed Build status kind overrides label fallback");
+      Snapshot.Build_Status_Kind := Status_Message_Other;
+      Snapshot.Build_Status_Label := To_Unbounded_String ("Build: failed");
       Assert (Index (Right, "Diagnostics: 0 errors, 1 warning") > 0,
-              "Phase 578 status must retain Diagnostics count after parse");
+              "status must retain Diagnostics count after parse");
       Assert (Index (Right, "success: Opened diagnostic target") > 0,
-              "Phase 578 status must show diagnostic navigation outcome");
+              "status must show diagnostic navigation outcome");
       Assert (Assert_Status_Line_Context_Coherent (Snapshot),
-              "Phase 578 Build/Diagnostics status must remain coherent and scalar");
+              "Build/Diagnostics status must remain coherent and scalar");
       Assert (Index (Compact, "Build: failed") > 0
                 and then Index (Compact, "Diagnostics: 0 errors, 1 warning") > 0,
-              "Phase 578 compact status must keep Build and Diagnostics summaries together");
+              "compact status must keep Build and Diagnostics summaries together");
+
+      Snapshot.File_Tree_Status_Label := To_Unbounded_String ("File Tree: no project");
+      Right := To_Unbounded_String (Format_Right (Snapshot));
+      Assert (Index (Right, "File Tree: No project open.") > 0,
+              "status must canonicalize File Tree no-project wording");
+      Assert (Status_Message_Kind_For (Snapshot.File_Tree_Status_Label) =
+                Status_Message_File_Tree_No_Project,
+              "File Tree no-project status must classify without raw-string callers");
+      declare
+         Surface : constant File_Tree_Status_Surface :=
+           File_Tree_Surface (Snapshot);
+      begin
+         Assert (Surface.Active,
+                 "File Tree surface must be active when status is visible");
+         Assert (File_Tree_Surface_Action_Count (Surface) = 3,
+                 "File Tree surface exposes typed action count");
+         Assert (To_String (Surface.Refresh_Command) = "file-tree.refresh"
+                 and then To_String (Surface.Open_Selected_Command) =
+                   "file-tree.open-selected"
+                 and then To_String (Surface.Reveal_Active_Command) =
+                   "file-tree.reveal-active-file",
+                 "File Tree surface must expose refresh/open/reveal actions");
+         Assert (Index (Status_File_Tree_Segment (Snapshot),
+                        "file-tree.open-selected") > 0,
+                 "visible File Tree status segment must include action labels");
+      end;
+      Snapshot.File_Tree_Status_Kind := Status_Message_File_Tree_No_Project;
+      Assert (Status_File_Tree_Message_Kind (Snapshot) =
+                Status_Message_File_Tree_No_Project,
+              "typed File Tree status kind is readable from snapshot");
+      Snapshot.File_Tree_Status_Kind := Status_Message_Other;
+      Snapshot.File_Tree_Status_Label := Null_Unbounded_String;
 
       --  Workspace restore and startup recovery are workflow summaries, not
       --  persisted status payloads.  They must coexist with project/file state.
       Snapshot.Command_Feedback := To_Unbounded_String ("Workspace loaded");
       Snapshot.Workspace_Status_Label := To_Unbounded_String ("Workspace: restored");
+      Snapshot.Workspace_Status_Kind := Status_Message_Workspace_Restored;
+      declare
+         Surface : constant Workspace_Status_Surface :=
+           Workspace_Surface (Snapshot);
+      begin
+         Assert (Surface.Has_Restore_Details,
+                 "workspace surface must mark restore details as available");
+         Assert (Workspace_Surface_Action_Count (Surface) = 3,
+                 "workspace surface exposes typed action count");
+         Assert (Index (To_String (Surface.Restore_Details_Label), "Workspace") > 0,
+                 "workspace surface must expose canonical restore details");
+         Assert (To_String (Surface.Save_State_Command) =
+                   "workspace.save"
+                 and then To_String (Surface.Restore_State_Command) =
+                   "workspace.restore"
+                 and then To_String (Surface.Clear_State_Command) =
+                   "workspace.clear",
+                 "workspace surface must expose direct workspace actions");
+         Assert (Index (Workspace_Surface_Action_Label (Surface),
+                        "workspace.save") > 0
+                 and then Index (Workspace_Surface_Action_Label (Surface),
+                                  "workspace.clear") > 0,
+                 "workspace action surface must render visible action labels");
+      end;
       Snapshot.Recent_Projects_Status_Label :=
         To_Unbounded_String ("Recent Projects: 1 entries");
       Snapshot.Startup_Status_Label :=
         To_Unbounded_String ("Startup: recovered defaults");
       Right := To_Unbounded_String (Format_Right (Snapshot));
       Assert (Index (Right, "Workspace: restored") > 0,
-              "Phase 578 status must show workspace restore summary");
+              "status must show workspace restore summary");
+      Assert (Index (Status_Workspace_Recent_Segment (Snapshot),
+                     "workspace.save") > 0,
+              "visible workspace status segment must include workspace actions");
       Assert (Index (Right, "Recent Projects: 1 entries") > 0,
-              "Phase 578 status must show recent-project summary without workspace mutation");
+              "status must show recent-project summary without workspace mutation");
+      declare
+         Surface : constant Recent_Projects_Status_Surface :=
+           Recent_Projects_Surface (Snapshot);
+      begin
+         Assert (Surface.Active,
+                 "Recent Projects surface must be active when status is visible");
+         Assert (Recent_Projects_Surface_Action_Count (Surface) = 3,
+                 "Recent Projects surface exposes typed action count");
+         Assert (To_String (Surface.Show_Command) = "recent-projects.show"
+                 and then To_String (Surface.Open_Selected_Command) =
+                   "recent-projects.open-selected"
+                 and then To_String (Surface.Remove_Missing_Command) =
+                   "recent-projects.remove-missing",
+                 "Recent Projects surface must expose show/open/cleanup actions");
+         Assert (Index (Status_Workspace_Recent_Segment (Snapshot),
+                        "recent-projects.open-selected") > 0,
+                 "visible Recent Projects segment must include action labels");
+      end;
       Assert (Index (Right, "Startup: recovered defaults") > 0,
-              "Phase 578 status must show startup recovery summary");
+              "status must show startup recovery summary");
       Assert (Assert_Status_Line_Context_Coherent (Snapshot),
-              "Phase 578 workspace/startup status must remain coherent");
+              "workspace/startup status must remain coherent");
 
       Snapshot.Workspace_Status_Label :=
         To_Unbounded_String ("Workspace restored.");
       Right := To_Unbounded_String (Format_Right (Snapshot));
       Assert (Index (Right, "Workspace: Restored.") > 0,
-              "Phase 579 status must canonicalize product workspace restore wording");
+              "status must canonicalize product workspace restore wording");
+      Assert (Status_Message_Kind_For (Snapshot.Workspace_Status_Label) =
+                Status_Message_Workspace_Restored,
+              "workspace restored status must classify without raw-string callers");
+      Assert (Status_Workspace_Message_Kind (Snapshot) =
+                Status_Message_Workspace_Restored,
+              "typed Workspace status kind is readable from snapshot");
+      Snapshot.Workspace_Status_Kind := Status_Message_Other;
 
       --  Workspace, Recent Projects, and Startup recovery summaries should
-      --  retain their source surface while using the same Phase 578 wording
+      --  retain their source surface while using the same wording
       --  used by configuration recovery, first-run guidance, and command
       --  feedback.
       Snapshot.Workspace_Status_Label :=
@@ -1642,11 +1827,14 @@ package body Editor.Status_Bar.Tests is
         To_Unbounded_String ("Editor ready with configuration warnings.");
       Right := To_Unbounded_String (Format_Right (Snapshot));
       Assert (Index (Right, "Workspace: Restored with missing entries skipped.") > 0,
-              "Phase 578 status must canonicalize workspace partial-restore wording");
+              "status must canonicalize workspace partial-restore wording");
+      Assert (Status_Message_Kind_For (Snapshot.Workspace_Status_Label) =
+                Status_Message_Workspace_Partial_Restore,
+              "workspace partial restore status must classify without raw-string callers");
       Assert (Index (Right, "Recent Projects: Invalid entries ignored.") > 0,
-              "Phase 578 status must canonicalize recent-project partial-load wording");
+              "status must canonicalize recent-project partial-load wording");
       Assert (Index (Right, "Startup: Ready with configuration warnings.") > 0,
-              "Phase 578 status must canonicalize startup warning wording");
+              "status must canonicalize startup warning wording");
 
       Snapshot.Workspace_Status_Label :=
         To_Unbounded_String ("Workspace session malformed; no session restored.");
@@ -1656,13 +1844,24 @@ package body Editor.Status_Bar.Tests is
         To_Unbounded_String ("Editor ready with workspace project unavailable.");
       Right := To_Unbounded_String (Format_Right (Snapshot));
       Assert (Index (Right, "Workspace: No workspace restored.") > 0,
-              "Phase 578 status must canonicalize workspace no-restore wording");
+              "status must canonicalize workspace no-restore wording");
+      Assert (Status_Message_Kind_For (Snapshot.Workspace_Status_Label) =
+                Status_Message_Workspace_No_Restore,
+              "workspace no-restore status must classify without raw-string callers");
       Assert (Index (Right, "Recent Projects: No recent projects.") > 0,
-              "Phase 578 status must canonicalize no-recent-projects wording");
+              "status must canonicalize no-recent-projects wording");
+      Assert (Status_Recent_Projects_Message_Kind (Snapshot) =
+                Status_Message_Recent_Projects_None,
+              "typed Recent Projects status kind classifies empty state");
+      Snapshot.Recent_Projects_Status_Kind := Status_Message_Recent_Projects_None;
+      Assert (Status_Recent_Projects_Message_Kind (Snapshot) =
+                Status_Message_Recent_Projects_None,
+              "typed Recent Projects status kind overrides label fallback");
+      Snapshot.Recent_Projects_Status_Kind := Status_Message_Other;
       Assert (Index (Right, "Startup: Ready with workspace project unavailable.") > 0,
-              "Phase 578 status must canonicalize startup unavailable-project wording");
+              "status must canonicalize startup unavailable-project wording");
       Assert (Assert_Status_Line_Context_Coherent (Snapshot),
-              "Phase 578 recovery status labels remain coherent");
+              "recovery status labels remain coherent");
 
       --  Settings, keybinding, and configuration recovery messages should be
       --  actionable and surface-labelled, not raw loader/audit diagnostics.
@@ -1674,11 +1873,11 @@ package body Editor.Status_Bar.Tests is
         To_Unbounded_String ("Configuration: Reset all configuration requested. Run configuration.reset-all.confirm to confirm or configuration.reset-all.cancel to cancel; project files and dirty buffers will not be changed.");
       Right := To_Unbounded_String (Format_Right (Snapshot));
       Assert (Index (Right, "Settings: File is invalid.") > 0,
-              "Phase 578 status must canonicalize Settings invalid-file wording");
+              "status must canonicalize Settings invalid-file wording");
       Assert (Index (Right, "Keybindings: Rejected invalid bindings.") > 0,
-              "Phase 578 status must canonicalize Keybindings rejected-entry wording");
+              "status must canonicalize Keybindings rejected-entry wording");
       Assert (Index (Right, "Configuration: Reset all requires confirmation.") > 0,
-              "Phase 578 status must canonicalize configuration reset-all confirmation wording");
+              "status must canonicalize configuration reset-all confirmation wording");
 
       Snapshot.Workspace_Status_Label :=
         To_Unbounded_String ("Settings loaded with invalid values reset to defaults.");
@@ -1688,11 +1887,11 @@ package body Editor.Status_Bar.Tests is
         To_Unbounded_String ("All configuration domains reset after explicit confirmation.");
       Right := To_Unbounded_String (Format_Right (Snapshot));
       Assert (Index (Right, "Settings: Invalid values reset to defaults.") > 0,
-              "Phase 578 status must canonicalize Settings invalid-value recovery wording");
+              "status must canonicalize Settings invalid-value recovery wording");
       Assert (Index (Right, "Keybindings: Default keybindings active.") > 0,
-              "Phase 578 status must canonicalize keybinding default-fallback wording");
+              "status must canonicalize keybinding default-fallback wording");
       Assert (Index (Right, "Configuration: All domains reset.") > 0,
-              "Phase 578 status must canonicalize configuration reset completion wording");
+              "status must canonicalize configuration reset completion wording");
       --  Command Palette, Settings, and Keybindings management are part of
       --  the same dogfood command-discovery loop.  Their status text should
       --  be actionable and surface-labelled, not raw implementation wording.
@@ -1704,7 +1903,7 @@ package body Editor.Status_Bar.Tests is
         To_Unbounded_String ("Keybindings: Keybinding conflict: shortcut already assigned");
       Right := To_Unbounded_String (Format_Right (Snapshot));
       Assert (Index (Right, "Command Palette: No matching commands.") > 0,
-              "Phase 578 status must canonicalize Command Palette no-match wording");
+              "status must canonicalize Command Palette no-match wording");
 
       Snapshot.Workspace_Status_Label :=
         To_Unbounded_String ("Command Palette: No available commands match ""build""");
@@ -1714,11 +1913,11 @@ package body Editor.Status_Bar.Tests is
         To_Unbounded_String ("Command Palette: No command selected");
       Right := To_Unbounded_String (Format_Right (Snapshot));
       Assert (Index (Right, "Command Palette: No matching available commands.") > 0,
-              "Phase 578 status must preserve available-only Command Palette no-match context");
+              "status must preserve available-only Command Palette no-match context");
       Assert (Index (Right, "Command Palette: No available commands.") > 0,
-              "Phase 578 status must canonicalize available-only Command Palette empty state");
+              "status must canonicalize available-only Command Palette empty state");
       Assert (Index (Right, "Command Palette: No command selected.") > 0,
-              "Phase 578 status must canonicalize Command Palette selection wording");
+              "status must canonicalize Command Palette selection wording");
 
       Snapshot.Workspace_Status_Label :=
         To_Unbounded_String ("Command Palette: No commands match ""zzzz-no-command""");
@@ -1728,9 +1927,9 @@ package body Editor.Status_Bar.Tests is
         To_Unbounded_String ("Keybindings: Keybinding conflict: shortcut already assigned");
       Right := To_Unbounded_String (Format_Right (Snapshot));
       Assert (Index (Right, "Settings: Invalid setting value.") > 0,
-              "Phase 578 status must canonicalize Settings invalid-value wording");
+              "status must canonicalize Settings invalid-value wording");
       Assert (Index (Right, "Keybindings: Shortcut is already assigned.") > 0,
-              "Phase 578 status must canonicalize Keybinding conflict wording");
+              "status must canonicalize Keybinding conflict wording");
 
       Snapshot.Workspace_Status_Label :=
         To_Unbounded_String ("Command Palette: Command Palette is closed");
@@ -1740,13 +1939,13 @@ package body Editor.Status_Bar.Tests is
         To_Unbounded_String ("Keybindings: Command is not bindable");
       Right := To_Unbounded_String (Format_Right (Snapshot));
       Assert (Index (Right, "Command Palette: Closed.") > 0,
-              "Phase 578 status must canonicalize Command Palette closed wording");
+              "status must canonicalize Command Palette closed wording");
       Assert (Index (Right, "Settings: Selected setting is not editable.") > 0,
-              "Phase 578 status must canonicalize Settings editability wording");
+              "status must canonicalize Settings editability wording");
       Assert (Index (Right, "Keybindings: Selected command is not bindable.") > 0,
-              "Phase 578 status must canonicalize Keybinding bindability wording");
+              "status must canonicalize Keybinding bindability wording");
       Assert (Assert_Status_Line_Context_Coherent (Snapshot),
-              "Phase 578 command/settings/keybinding status labels remain coherent");
+              "command/settings/keybinding status labels remain coherent");
 
       --  Clipboard and selection command feedback should use the same concrete
       --  wording whether it comes from executor availability, command result
@@ -1759,11 +1958,11 @@ package body Editor.Status_Bar.Tests is
         To_Unbounded_String ("Clipboard: Invalid selection.");
       Right := To_Unbounded_String (Format_Right (Snapshot));
       Assert (Index (Right, "Clipboard: No selected text.") > 0,
-              "Phase 578 status must canonicalize Clipboard no-selection wording");
+              "status must canonicalize Clipboard no-selection wording");
       Assert (Index (Right, "Clipboard: Empty.") > 0,
-              "Phase 578 status must canonicalize Clipboard empty-state wording");
+              "status must canonicalize Clipboard empty-state wording");
       Assert (Index (Right, "Clipboard: Invalid selection.") > 0,
-              "Phase 578 status must canonicalize Clipboard invalid-selection wording");
+              "status must canonicalize Clipboard invalid-selection wording");
 
       --  Command discovery/help unavailable blockers arrive as command feedback.
       --  The status line must use the same canonical reason as Executor and
@@ -1778,11 +1977,11 @@ package body Editor.Status_Bar.Tests is
       Right := To_Unbounded_String (Format_Right (Snapshot));
       Compact := To_Unbounded_String (Status_Layout_Compact (Snapshot, 160));
       Assert (Index (Right, "No project open.") > 0,
-              "Phase 578 status must normalize no-project project state");
+              "status must normalize no-project project state");
       Assert (Index (Right, "unavailable: No project open.") > 0,
-              "Phase 578 status must match command discovery unavailable reason");
+              "status must match command discovery unavailable reason");
       Assert (Index (Compact, "unavailable: No project open.") = 1,
-              "Phase 578 compact status must prioritize unavailable command help blockers");
+              "compact status must prioritize unavailable command help blockers");
 
       --  Adjacent project-scoped surfaces used to leak prefix-specific
       --  variants such as "Quick Open: no project" or
@@ -1797,20 +1996,20 @@ package body Editor.Status_Bar.Tests is
       Snapshot.Diagnostics_Status_Label := To_Unbounded_String ("Diagnostics: no project");
       Right := To_Unbounded_String (Format_Right (Snapshot));
       Assert (Index (Right, "Quick Open: No project open.") > 0,
-              "Phase 578 Quick Open status must use canonical no-project wording");
+              "Quick Open status must use canonical no-project wording");
       Assert (Index (Right, "Search: No project open.") > 0,
-              "Phase 578 Project Search status must use canonical no-project wording");
+              "Project Search status must use canonical no-project wording");
       Assert (Index (Right, "Build: No project open.") > 0,
-              "Phase 578 Build status must use canonical no-project wording");
+              "Build status must use canonical no-project wording");
       Assert (Index (Right, "Outline: No project open.") > 0,
-              "Phase 578 Outline status must use canonical no-project wording");
+              "Outline status must use canonical no-project wording");
       Assert (Index (Right, "Diagnostics: No project open.") > 0,
-              "Phase 578 Diagnostics status must use canonical no-project wording");
+              "Diagnostics status must use canonical no-project wording");
       Assert (Assert_Status_Line_Context_Coherent (Snapshot),
-              "Phase 578 no-project surface status labels remain coherent");
+              "no-project surface status labels remain coherent");
 
       --  Missing-selection states should also keep their originating surface
-      --  visible while sharing the same Phase 578 corrective wording.
+      --  visible while sharing the same corrective wording.
       Snapshot.Quick_Open_Status_Label := To_Unbounded_String ("Quick Open: no result selected");
       Snapshot.Search_Status_Label := To_Unbounded_String ("Search Results: no selected result");
       Snapshot.Outline_Status_Label := To_Unbounded_String ("Outline: no item selected");
@@ -1818,17 +2017,17 @@ package body Editor.Status_Bar.Tests is
       Snapshot.File_Tree_Status_Label := To_Unbounded_String ("File Tree: no node selected");
       Right := To_Unbounded_String (Format_Right (Snapshot));
       Assert (Index (Right, "Quick Open: No file selected.") > 0,
-              "Phase 578 Quick Open missing-selection status must be canonical");
+              "Quick Open missing-selection status must be canonical");
       Assert (Index (Right, "Search: No file selected.") > 0,
-              "Phase 578 Search missing-selection status must be canonical");
+              "Search missing-selection status must be canonical");
       Assert (Index (Right, "Outline: No file selected.") > 0,
-              "Phase 578 Outline missing-selection status must be canonical");
+              "Outline missing-selection status must be canonical");
       Assert (Index (Right, "Diagnostics: No file selected.") > 0,
-              "Phase 578 Diagnostics missing-selection status must be canonical");
+              "Diagnostics missing-selection status must be canonical");
       Assert (Index (Right, "File Tree: No file selected.") > 0,
-              "Phase 578 File Tree missing-selection status must be canonical");
+              "File Tree missing-selection status must be canonical");
       Assert (Assert_Status_Line_Context_Coherent (Snapshot),
-              "Phase 578 missing-selection surface status labels remain coherent");
+              "missing-selection surface status labels remain coherent");
 
       --  File Tree prompt cancellation should keep the user at the File Tree
       --  and report the cancellation without inventing stale/file payloads.
@@ -1842,11 +2041,11 @@ package body Editor.Status_Bar.Tests is
       Snapshot.Command_Feedback := To_Unbounded_String ("File Tree rename cancelled");
       Right := To_Unbounded_String (Format_Right (Snapshot));
       Assert (Index (Right, "Focus: File Tree") > 0,
-              "Phase 578 File Tree prompt cancel must leave corrective focus visible");
+              "File Tree prompt cancel must leave corrective focus visible");
       Assert (Index (Right, "cancelled: File Tree rename cancelled") > 0,
-              "Phase 578 File Tree prompt cancel must be visible as command outcome");
+              "File Tree prompt cancel must be visible as command outcome");
       Assert (Assert_Status_Line_Context_Coherent (Snapshot),
-              "Phase 578 File Tree prompt-cancel status must remain coherent");
+              "File Tree prompt-cancel status must remain coherent");
 
       --  File lifecycle recovery messages are emitted from several command
       --  paths with slightly different wording.  The status line should show
@@ -1857,32 +2056,32 @@ package body Editor.Status_Bar.Tests is
       Snapshot.Command_Feedback := To_Unbounded_String ("Parent directory unavailable");
       Right := To_Unbounded_String (Format_Right (Snapshot));
       Assert (Index (Right, "failed: Parent directory is unavailable.") > 0,
-              "Phase 578 status must canonicalize parent-directory failures");
+              "status must canonicalize parent-directory failures");
       Snapshot.Command_Feedback :=
         To_Unbounded_String ("Parent directory does not exist: src/panels/");
       Right := To_Unbounded_String (Format_Right (Snapshot));
       Assert (Index (Right, "failed: Parent directory is unavailable.") > 0,
-              "Phase 578 status must hide path-specific parent-directory variants behind the shared label");
+              "status must hide path-specific parent-directory variants behind the shared label");
       Snapshot.Command_Feedback := To_Unbounded_String ("File is not writable");
       Right := To_Unbounded_String (Format_Right (Snapshot));
       Assert (Index (Right, "failed: File is not writable.") > 0,
-              "Phase 578 status must canonicalize unwritable file failures");
+              "status must canonicalize unwritable file failures");
       Snapshot.Command_Feedback := To_Unbounded_String ("File is not readable");
       Right := To_Unbounded_String (Format_Right (Snapshot));
       Assert (Index (Right, "failed: File is not readable.") > 0,
-              "Phase 578 status must canonicalize unreadable file failures");
+              "status must canonicalize unreadable file failures");
       Snapshot.Command_Feedback :=
         To_Unbounded_String ("Could not reload file; buffer unchanged");
       Right := To_Unbounded_String (Format_Right (Snapshot));
       Assert (Index (Right, "failed: Could not reload file.") > 0,
-              "Phase 578 status must canonicalize reload failure details");
+              "status must canonicalize reload failure details");
       Snapshot.Command_Feedback :=
         To_Unbounded_String ("Could not write file; buffer remains dirty");
       Right := To_Unbounded_String (Format_Right (Snapshot));
       Assert (Index (Right, "failed: Could not save file.") > 0,
-              "Phase 578 status must canonicalize write failure details");
+              "status must canonicalize write failure details");
       Assert (Assert_Status_Line_Context_Coherent (Snapshot),
-              "Phase 578 file lifecycle recovery status labels remain coherent");
+              "file lifecycle recovery status labels remain coherent");
 
       --  Missing-target and boundary failures also arrive with surface-specific
       --  wording.  Keep the surface context in status, but use the same
@@ -1891,27 +2090,27 @@ package body Editor.Status_Bar.Tests is
         To_Unbounded_String ("Diagnostic target file is unavailable.");
       Right := To_Unbounded_String (Format_Right (Snapshot));
       Assert (Index (Right, "failed: Target no longer exists.") > 0,
-              "Phase 578 status must canonicalize Diagnostics missing-target feedback");
+              "status must canonicalize Diagnostics missing-target feedback");
       Snapshot.Command_Feedback :=
         To_Unbounded_String ("Target file missing or unavailable");
       Right := To_Unbounded_String (Format_Right (Snapshot));
       Assert (Index (Right, "failed: Target no longer exists.") > 0,
-              "Phase 578 status must canonicalize source-labelled Diagnostics missing-target feedback");
+              "status must canonicalize source-labelled Diagnostics missing-target feedback");
       Snapshot.Command_Feedback :=
         To_Unbounded_String ("Selected diagnostic has no source target");
       Right := To_Unbounded_String (Format_Right (Snapshot));
       Assert (Index (Right, "failed: Selected diagnostic has no source target.") > 0,
-              "Phase 578 status must canonicalize source-less Diagnostics feedback");
+              "status must canonicalize source-less Diagnostics feedback");
       Snapshot.Command_Feedback :=
-        To_Unbounded_String ("Diagnostic target line is unavailable.");
+        To_Unbounded_String (Editor.Commands.Reason_Diagnostic_Target_Line_Unavailable);
       Right := To_Unbounded_String (Format_Right (Snapshot));
       Assert (Index (Right, "failed: Target line is unavailable.") > 0,
-              "Phase 578 status must canonicalize Diagnostics missing-line feedback");
+              "status must canonicalize Diagnostics missing-line feedback");
       Snapshot.Command_Feedback :=
         To_Unbounded_String ("Target path is outside the project");
       Right := To_Unbounded_String (Format_Right (Snapshot));
       Assert (Index (Right, "failed: Target is outside the current project.") > 0,
-              "Phase 578 status must canonicalize project-boundary failures");
+              "status must canonicalize project-boundary failures");
 
       Snapshot.Command_Feedback := Null_Unbounded_String;
       Snapshot.Has_Command_Feedback := False;
@@ -1925,25 +2124,25 @@ package body Editor.Status_Bar.Tests is
         To_Unbounded_String ("File Tree: Target path is outside the project");
       Right := To_Unbounded_String (Format_Right (Snapshot));
       Assert (Index (Right, "Search: Target no longer exists.") > 0,
-              "Phase 578 Search missing-target status must be canonical");
+              "Search missing-target status must be canonical");
       Assert (Index (Right, "Outline: Target no longer exists.") > 0,
-              "Phase 578 Outline missing-target status must be canonical");
+              "Outline missing-target status must be canonical");
       Assert (Index (Right, "Diagnostics: Target no longer exists.") > 0,
-              "Phase 578 Diagnostics missing-target status must be canonical");
+              "Diagnostics missing-target status must be canonical");
       Snapshot.Diagnostics_Status_Label :=
         To_Unbounded_String ("Diagnostics: Target file missing or unavailable");
       Right := To_Unbounded_String (Format_Right (Snapshot));
       Assert (Index (Right, "Diagnostics: Target no longer exists.") > 0,
-              "Phase 578 Diagnostics source-labelled missing-target status must be canonical");
+              "Diagnostics source-labelled missing-target status must be canonical");
       Snapshot.Diagnostics_Status_Label :=
         To_Unbounded_String ("Diagnostics: No source target");
       Right := To_Unbounded_String (Format_Right (Snapshot));
       Assert (Index (Right, "Diagnostics: Selected diagnostic has no source target.") > 0,
-              "Phase 578 Diagnostics source-less status must be canonical");
+              "Diagnostics source-less status must be canonical");
       Assert (Index (Right, "File Tree: Target is outside the current project.") > 0,
-              "Phase 578 File Tree boundary status must be canonical");
+              "File Tree boundary status must be canonical");
       Assert (Assert_Status_Line_Context_Coherent (Snapshot),
-              "Phase 578 missing-target and boundary status labels remain coherent");
+              "missing-target and boundary status labels remain coherent");
 
       --  Dirty close and lifecycle-transition blockers should retain their
       --  originating surface while using the same confirmation wording the
@@ -1957,34 +2156,34 @@ package body Editor.Status_Bar.Tests is
       Snapshot.Command_Feedback := To_Unbounded_String ("Dirty buffer cannot be closed");
       Right := To_Unbounded_String (Format_Right (Snapshot));
       Assert (Index (Right, "unavailable: Unsaved changes require confirmation.") > 0,
-              "Phase 578 dirty-close command feedback must use canonical confirmation wording");
+              "dirty-close command feedback must use canonical confirmation wording");
       Snapshot.Command_Feedback :=
         To_Unbounded_String ("Cannot restore workspace with unsaved changes");
       Right := To_Unbounded_String (Format_Right (Snapshot));
       Assert (Index (Right, "unavailable: Unsaved changes require confirmation.") > 0,
-              "Phase 578 workspace dirty guard feedback must use canonical confirmation wording");
+              "workspace dirty guard feedback must use canonical confirmation wording");
       Snapshot.Command_Feedback :=
         To_Unbounded_String ("Save failed; buffer remains open and dirty");
       Right := To_Unbounded_String (Format_Right (Snapshot));
       Assert (Index (Right, "unavailable: Save failed; buffer remains open.") > 0,
-              "Phase 578 save-and-close failure feedback must use one primary outcome");
+              "save-and-close failure feedback must use one primary outcome");
       Snapshot.Command_Feedback :=
         To_Unbounded_String ("Dirty buffer file cannot be renamed");
       Right := To_Unbounded_String (Format_Right (Snapshot));
       Assert (Index (Right, "unavailable: Dirty buffer preserved.") > 0,
-              "Phase 578 File Tree dirty rename feedback must use canonical preserved-dirty wording");
+              "File Tree dirty rename feedback must use canonical preserved-dirty wording");
       Snapshot.Command_Feedback := To_Unbounded_String ("No open buffers");
       Right := To_Unbounded_String (Format_Right (Snapshot));
       Assert (Index (Right, "unavailable: No buffers open.") > 0,
-              "Phase 578 Buffer List empty feedback must use canonical open-buffer wording");
+              "Buffer List empty feedback must use canonical open-buffer wording");
       Snapshot.Command_Feedback := To_Unbounded_String ("Only one buffer open");
       Right := To_Unbounded_String (Format_Right (Snapshot));
       Assert (Index (Right, "unavailable: No other buffer.") > 0,
-              "Phase 578 single-buffer navigation feedback must use canonical other-buffer wording");
+              "single-buffer navigation feedback must use canonical other-buffer wording");
       Snapshot.Command_Feedback := To_Unbounded_String ("Selected row is not a buffer");
       Right := To_Unbounded_String (Format_Right (Snapshot));
       Assert (Index (Right, "unavailable: Selected row is not a buffer.") > 0,
-              "Phase 578 Buffer List row-type feedback must be punctuated consistently");
+              "Buffer List row-type feedback must be punctuated consistently");
 
       Snapshot.Command_Feedback := Null_Unbounded_String;
       Snapshot.Has_Command_Feedback := False;
@@ -1992,13 +2191,13 @@ package body Editor.Status_Bar.Tests is
         To_Unbounded_String ("Workspace: Cannot restore workspace with unsaved changes");
       Right := To_Unbounded_String (Format_Right (Snapshot));
       Assert (Index (Right, "Workspace: Unsaved changes require confirmation.") > 0,
-              "Phase 578 Workspace status must canonicalize dirty-restore blockers");
+              "Workspace status must canonicalize dirty-restore blockers");
       Snapshot.Workspace_Status_Label := Null_Unbounded_String;
       Snapshot.File_Tree_Status_Label :=
         To_Unbounded_String ("File Tree: Dirty buffer file cannot be deleted");
       Right := To_Unbounded_String (Format_Right (Snapshot));
       Assert (Index (Right, "File Tree: Dirty buffer preserved.") > 0,
-              "Phase 579 File Tree dirty delete status must report preserved dirty text");
+              "File Tree dirty delete status must report preserved dirty text");
       Snapshot.File_Tree_Status_Label := Null_Unbounded_String;
       Snapshot.Has_Command_Feedback := True;
       Snapshot.Command_Feedback_Severity := To_Unbounded_String ("failed");
@@ -2006,19 +2205,19 @@ package body Editor.Status_Bar.Tests is
         To_Unbounded_String ("File changed on disk; choose how to proceed.");
       Right := To_Unbounded_String (Format_Right (Snapshot));
       Assert (Index (Right, "failed: File conflict requires resolution.") > 0,
-              "Phase 578 status must canonicalize external-change conflict prompts");
+              "status must canonicalize external-change conflict prompts");
       Snapshot.Command_Feedback_Severity := To_Unbounded_String ("unavailable");
       Snapshot.Command_Feedback :=
         To_Unbounded_String ("Reload will discard unsaved changes. Disk version has changed since file was opened.");
       Right := To_Unbounded_String (Format_Right (Snapshot));
       Assert (Index (Right, "unavailable: Reload will discard unsaved changes.") > 0,
-              "Phase 578 status must canonicalize reload conflict warnings");
+              "status must canonicalize reload conflict warnings");
       Snapshot.Command_Feedback_Severity := To_Unbounded_String ("info");
       Snapshot.Command_Feedback :=
         To_Unbounded_String ("Kept buffer changes; file remains conflicted");
       Right := To_Unbounded_String (Format_Right (Snapshot));
       Assert (Index (Right, "info: Kept buffer changes; file remains conflicted.") > 0,
-              "Phase 578 status must canonicalize keep-buffer conflict outcomes");
+              "status must canonicalize keep-buffer conflict outcomes");
 
       Snapshot.Command_Feedback := Null_Unbounded_String;
       Snapshot.Has_Command_Feedback := False;
@@ -2026,34 +2225,34 @@ package body Editor.Status_Bar.Tests is
         To_Unbounded_String ("File conflict requires resolution before save-and-close");
       Left := To_Unbounded_String (Format_Left (Snapshot));
       Assert (Index (Left, "File conflict requires resolution.") > 0,
-              "Phase 578 status-left must canonicalize file conflict blockers");
+              "status-left must canonicalize file conflict blockers");
       Snapshot.File_State_Label :=
         To_Unbounded_String ("Reload will discard unsaved changes. Backing file was replaced.");
       Left := To_Unbounded_String (Format_Left (Snapshot));
       Assert (Index (Left, "Reload will discard unsaved changes.") > 0,
-              "Phase 578 status-left must canonicalize reload conflict warnings");
+              "status-left must canonicalize reload conflict warnings");
 
       Snapshot.File_State_Label := To_Unbounded_String ("Bookmarks: No bookmarks");
       Left := To_Unbounded_String (Format_Left (Snapshot));
       Assert (Index (Left, "Bookmarks: No bookmarks.") > 0,
-              "Phase 578 status-left must canonicalize Bookmarks empty state");
+              "status-left must canonicalize Bookmarks empty state");
       Snapshot.File_State_Label := To_Unbounded_String ("Bookmarks: Bookmark target unavailable");
       Left := To_Unbounded_String (Format_Left (Snapshot));
       Assert (Index (Left, "Bookmarks: Target no longer exists.") > 0,
-              "Phase 578 status-left must canonicalize Bookmarks stale target state");
+              "status-left must canonicalize Bookmarks stale target state");
 
       Snapshot.File_State_Label := Null_Unbounded_String;
       Snapshot.Find_Input_Open := True;
       Snapshot.Find_Query_Present := False;
       Right := To_Unbounded_String (Format_Right (Snapshot));
       Assert (Index (Right, "Find: No search query.") > 0,
-              "Phase 578 Find empty-query status must use canonical search-query wording");
+              "Find empty-query status must use canonical search-query wording");
 
       Snapshot.Find_Query_Present := True;
       Snapshot.Active_Find_Match_Count := 0;
       Right := To_Unbounded_String (Format_Right (Snapshot));
       Assert (Index (Right, "Find: No matches.") > 0,
-              "Phase 578 Find no-match status must use canonical no-match wording");
+              "Find no-match status must use canonical no-match wording");
 
       Snapshot.Find_Input_Open := False;
       Snapshot.Find_Query_Present := False;
@@ -2064,12 +2263,12 @@ package body Editor.Status_Bar.Tests is
         To_Unbounded_String ("Navigation: No navigation history to clear");
       Right := To_Unbounded_String (Format_Right (Snapshot));
       Assert (Index (Right, "unavailable: Navigation: No navigation history.") > 0,
-              "Phase 578 Navigation empty-history status must be canonical");
+              "Navigation empty-history status must be canonical");
       Snapshot.Command_Feedback :=
         To_Unbounded_String ("Navigation: Navigation target unavailable");
       Right := To_Unbounded_String (Format_Right (Snapshot));
       Assert (Index (Right, "unavailable: Navigation: Target no longer exists.") > 0,
-              "Phase 578 Navigation stale-target status must be canonical");
+              "Navigation stale-target status must be canonical");
       Snapshot.Command_Feedback := Null_Unbounded_String;
       Snapshot.Has_Command_Feedback := False;
 
@@ -2085,11 +2284,11 @@ package body Editor.Status_Bar.Tests is
         To_Unbounded_String ("Buffer List: No dirty-prune preview targets");
       Right := To_Unbounded_String (Format_Right (Snapshot));
       Assert (Index (Right, "Buffer List: No matching open buffers.") > 0,
-              "Phase 578 status must canonicalize Buffer List filtered empty wording");
+              "status must canonicalize Buffer List filtered empty wording");
       Assert (Index (Right, "Buffer List: No pending close targets.") > 0,
-              "Phase 578 status must canonicalize Buffer List pending marked-close wording");
+              "status must canonicalize Buffer List pending marked-close wording");
       Assert (Index (Right, "Buffer List: No dirty-prune preview targets.") > 0,
-              "Phase 578 status must canonicalize Buffer List dirty-prune preview wording");
+              "status must canonicalize Buffer List dirty-prune preview wording");
 
       Snapshot.Workspace_Status_Label :=
         To_Unbounded_String ("Buffer List: No marked buffers");
@@ -2099,15 +2298,15 @@ package body Editor.Status_Bar.Tests is
         To_Unbounded_String ("Buffer List: No pruned pending close targets");
       Right := To_Unbounded_String (Format_Right (Snapshot));
       Assert (Index (Right, "Buffer List: No marked buffers.") > 0,
-              "Phase 578 status must canonicalize Buffer List marked empty wording");
+              "status must canonicalize Buffer List marked empty wording");
       Assert (Index (Right, "Buffer List: No removed dirty-prune apply targets.") > 0,
-              "Phase 578 status must canonicalize Buffer List removed apply wording");
+              "status must canonicalize Buffer List removed apply wording");
       Assert (Index (Right, "Buffer List: No pruned pending close targets.") > 0,
-              "Phase 578 status must canonicalize Buffer List pruned pending-close wording");
+              "status must canonicalize Buffer List pruned pending-close wording");
 
       Assert (Assert_Status_Line_Context_Coherent (Snapshot),
-              "Phase 578 dirty close, lifecycle, and file-conflict status labels remain coherent");
-   end Test_Phase578_Remaining_Status_Workflow_Cases;
+              "dirty close, lifecycle, and file-conflict status labels remain coherent");
+   end Test_Remaining_Status_Workflow_Cases;
 
 
    overriding procedure Register_Tests
@@ -2142,80 +2341,80 @@ package body Editor.Status_Bar.Tests is
         (T, Test_Format_Shows_Find_Empty_And_No_Matches'Access,
          "Format Shows Find Empty And No Matches");
       AUnit.Test_Cases.Registration.Register_Routine
-        (T, Test_Phase262_Format_Shows_Wrapped_Find_State'Access,
-         "Phase 262 format shows wrapped find state");
+        (T, Test_Format_Shows_Wrapped_Find_State'Access,
+         "format shows wrapped find state");
       AUnit.Test_Cases.Registration.Register_Routine
         (T, Test_Format_Uses_No_Project_Fallback'Access,
          "Format Uses No Project Fallback");
       AUnit.Test_Cases.Registration.Register_Routine
-        (T, Test_Phase541_Format_Shows_Selection_Detail'Access,
-         "Phase 541 format shows selection detail");
+        (T, Test_Format_Shows_Selection_Detail'Access,
+         "format shows selection detail");
       AUnit.Test_Cases.Registration.Register_Routine
-        (T, Test_Phase544_Format_Shows_File_State_And_Feature_Summaries'Access,
-         "Phase 544 format shows file state and feature summaries");
+        (T, Test_Format_Shows_File_State_And_Feature_Summaries'Access,
+         "format shows file state and feature summaries");
       AUnit.Test_Cases.Registration.Register_Routine
-        (T, Test_Phase544_No_Buffer_And_Selection_Line_Fallback'Access,
-         "Phase 544 no-buffer and selection fallback labels");
+        (T, Test_No_Buffer_And_Selection_Line_Fallback'Access,
+         "no-buffer and selection fallback labels");
       AUnit.Test_Cases.Registration.Register_Routine
-        (T, Test_Phase544_Status_Coherence_Assertions'Access,
-         "Phase 544 status coherence assertions");
+        (T, Test_Status_Coherence_Assertions'Access,
+         "status coherence assertions");
       AUnit.Test_Cases.Registration.Register_Routine
-        (T, Test_Phase544_Project_State_Label_Overrides_Project_Fallback'Access,
-         "Phase 544 project pending status overrides project fallback");
+        (T, Test_Project_State_Label_Overrides_Project_Fallback'Access,
+         "project pending status overrides project fallback");
       AUnit.Test_Cases.Registration.Register_Routine
-        (T, Test_Phase544_Coherence_Rejects_Missing_Buffer_Label'Access,
-         "Phase 544 coherence rejects missing active-buffer label");
+        (T, Test_Coherence_Rejects_Missing_Buffer_Label'Access,
+         "coherence rejects missing active-buffer label");
       AUnit.Test_Cases.Registration.Register_Routine
-        (T, Test_Phase562_Format_Shows_Focus_Mode_And_Overlay_Marker'Access,
-         "Phase 562 format shows focus mode and overlay marker");
+        (T, Test_Format_Shows_Focus_Mode_And_Overlay_Marker'Access,
+         "format shows focus mode and overlay marker");
       AUnit.Test_Cases.Registration.Register_Routine
-        (T, Test_Phase563_Format_Shows_Main_Context_Summaries'Access,
-         "Phase 563 format shows main context summaries");
+        (T, Test_Format_Shows_Main_Context_Summaries'Access,
+         "format shows main context summaries");
       AUnit.Test_Cases.Registration.Register_Routine
-        (T, Test_Phase563_Status_Truncates_Long_Labels_Deterministically'Access,
-         "Phase 563 status truncates long labels deterministically");
+        (T, Test_Status_Truncates_Long_Labels_Deterministically'Access,
+         "status truncates long labels deterministically");
       AUnit.Test_Cases.Registration.Register_Routine
-        (T, Test_Phase563_Status_Coherence_Covers_Main_Context'Access,
-         "Phase 563 status coherence covers main context");
+        (T, Test_Status_Coherence_Covers_Main_Context'Access,
+         "status coherence covers main context");
       AUnit.Test_Cases.Registration.Register_Routine
-        (T, Test_Phase563_Dirty_State_Label_And_Compact_Bounds'Access,
-         "Phase 563 dirty state label and compact bounds");
+        (T, Test_Dirty_State_Label_And_Compact_Bounds'Access,
+         "dirty state label and compact bounds");
       AUnit.Test_Cases.Registration.Register_Routine
-        (T, Test_Phase563_Status_Layout_Handles_Zero_Width'Access,
-         "Phase 563 status layout handles zero width");
+        (T, Test_Status_Layout_Handles_Zero_Width'Access,
+         "status layout handles zero width");
       AUnit.Test_Cases.Registration.Register_Routine
-        (T, Test_Phase563_File_State_Marker_Assertion_Covers_Known_States'Access,
-         "Phase 563 file state marker assertion covers known states");
+        (T, Test_File_State_Marker_Assertion_Covers_Known_States'Access,
+         "file state marker assertion covers known states");
       AUnit.Test_Cases.Registration.Register_Routine
-        (T, Test_Phase563_Non_Priority_Command_Outcome_Appears_Once'Access,
-         "Phase 563 non-priority command outcome appears once");
+        (T, Test_Non_Priority_Command_Outcome_Appears_Once'Access,
+         "non-priority command outcome appears once");
       AUnit.Test_Cases.Registration.Register_Routine
-        (T, Test_Phase563_Segment_Builders_Are_Coherent_And_Scalar'Access,
-         "Phase 563 segment builders are coherent and scalar");
+        (T, Test_Segment_Builders_Are_Coherent_And_Scalar'Access,
+         "segment builders are coherent and scalar");
       AUnit.Test_Cases.Registration.Register_Routine
-        (T, Test_Phase563_Status_Is_Explicit_Focus_And_Single_Line'Access,
-         "Phase 563 status is explicit focus and single-line");
+        (T, Test_Status_Is_Explicit_Focus_And_Single_Line'Access,
+         "status is explicit focus and single-line");
       AUnit.Test_Cases.Registration.Register_Routine
-        (T, Test_Phase563_Command_Outcome_Uses_Public_Classes'Access,
-         "Phase 563 command outcome uses public classes");
+        (T, Test_Command_Outcome_Uses_Public_Classes'Access,
+         "command outcome uses public classes");
       AUnit.Test_Cases.Registration.Register_Routine
-        (T, Test_Phase563_Status_Config_And_Payload_Boundaries'Access,
-         "Phase 563 status config and payload boundaries");
+        (T, Test_Status_Config_And_Payload_Boundaries'Access,
+         "status config and payload boundaries");
       AUnit.Test_Cases.Registration.Register_Routine
-        (T, Test_Phase563_Project_File_And_Row_Output_Boundary'Access,
-         "Phase 563 project file and row output boundary");
+        (T, Test_Project_File_And_Row_Output_Boundary'Access,
+         "project file and row output boundary");
       AUnit.Test_Cases.Registration.Register_Routine
-        (T, Test_Phase563_Compact_Layout_Preserves_Priority'Access,
-         "Phase 563 compact layout preserves priority");
+        (T, Test_Compact_Layout_Preserves_Priority'Access,
+         "compact layout preserves priority");
       AUnit.Test_Cases.Registration.Register_Routine
-        (T, Test_Phase563_Render_Compact_Policy_Uses_Priority_Context'Access,
-         "Phase 563 render compact policy uses priority context");
+        (T, Test_Render_Compact_Policy_Uses_Priority_Context'Access,
+         "render compact policy uses priority context");
       AUnit.Test_Cases.Registration.Register_Routine
-        (T, Test_Phase578_Status_Line_Workflow_Coherence'Access,
-         "Phase 578 status line workflow coherence");
+        (T, Test_Status_Line_Workflow_Coherence'Access,
+         "status line workflow coherence");
       AUnit.Test_Cases.Registration.Register_Routine
-        (T, Test_Phase578_Remaining_Status_Workflow_Cases'Access,
-         "Phase 578 remaining status workflow cases");
+        (T, Test_Remaining_Status_Workflow_Cases'Access,
+         "remaining status workflow cases");
       AUnit.Test_Cases.Registration.Register_Routine
         (T, Test_Render_Emits_Status_Bar_Layers'Access,
          "Render Emits Status Bar Layers");
@@ -2223,11 +2422,11 @@ package body Editor.Status_Bar.Tests is
         (T, Test_Click_In_Status_Bar_Does_Not_Move_Caret'Access,
          "Click In Status Bar Does Not Move Caret");
       AUnit.Test_Cases.Registration.Register_Routine
-        (T, Test_Phase228_Narrow_Text_Viewport_Keeps_Caret_Visible'Access,
-         "Phase 228 narrow text viewport keeps caret visible");
+        (T, Test_Narrow_Text_Viewport_Keeps_Caret_Visible'Access,
+         "narrow text viewport keeps caret visible");
       AUnit.Test_Cases.Registration.Register_Routine
-        (T, Test_Phase228_Zero_Row_Text_Viewport_Emits_No_Text_Glyphs'Access,
-         "Phase 228 zero-row text viewport emits no text glyphs");
+        (T, Test_Zero_Row_Text_Viewport_Emits_No_Text_Glyphs'Access,
+         "zero-row text viewport emits no text glyphs");
    end Register_Tests;
 
 end Editor.Status_Bar.Tests;

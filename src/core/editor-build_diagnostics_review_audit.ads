@@ -3,7 +3,7 @@ with Editor.State;
 
 package Editor.Build_Diagnostics_Review_Audit is
 
-   --  Phase 518 side-effect-free audit helper for the build diagnostics
+   --  side-effect-free audit helper for the build diagnostics
    --  review/navigation foundation. It observes state and delegates to review
    --  predicates only; it does not run builds, parse output, navigate targets,
    --  mutate Diagnostics, or write persistence/audit caches.

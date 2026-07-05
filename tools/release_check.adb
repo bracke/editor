@@ -82,6 +82,67 @@ procedure Release_Check is
          Fail (Tool, "unable to complete forbidden tooling scan under " & Dir);
    end Check_No_Glob;
 
+   procedure Check_No_Generated_Ada_Build_Artifacts
+     (Dir : String; Root_Only : Boolean)
+   is
+      Search         : Ada.Directories.Search_Type;
+      Search_Started : Boolean := False;
+      Ent            : Ada.Directories.Directory_Entry_Type;
+   begin
+      if not Ada.Directories.Exists (Dir) then
+         return;
+      end if;
+
+      Ada.Directories.Start_Search
+        (Search,
+         Dir,
+         "*",
+         (Ada.Directories.Ordinary_File => True,
+          Ada.Directories.Directory      => True,
+          others                         => False));
+      Search_Started := True;
+
+      while Ada.Directories.More_Entries (Search) loop
+         Ada.Directories.Get_Next_Entry (Search, Ent);
+         declare
+            Full : constant String := Ada.Directories.Full_Name (Ent);
+            Base : constant String := Ada.Directories.Simple_Name (Ent);
+         begin
+            if Base = "." or else Base = ".." then
+               null;
+            elsif Ada.Directories.Kind (Ent) = Ada.Directories.Directory then
+               if not Root_Only
+                 and then Base /= ".git"
+                 and then Base /= "obj"
+                 and then Base /= "bin"
+                 and then Base /= "tools"
+                 and then Base /= "tests"
+               then
+                  Check_No_Generated_Ada_Build_Artifacts (Full, False);
+               end if;
+            elsif (Base'Length >= 4 and then Base (Base'Last - 3 .. Base'Last) = ".ali")
+              or else (Base'Length >= 2 and then Base (Base'Last - 1 .. Base'Last) = ".o")
+              or else (Base'Length >= 2 and then Base (Base'Last - 1 .. Base'Last) = ".a")
+            then
+               Fail (Tool, "generated Ada build artifact must not be tracked at source root/lib: " & Full);
+            end if;
+         end;
+      end loop;
+
+      Ada.Directories.End_Search (Search);
+   exception
+      when Program_Error =>
+         if Search_Started then
+            Ada.Directories.End_Search (Search);
+         end if;
+         raise;
+      when others =>
+         if Search_Started then
+            Ada.Directories.End_Search (Search);
+         end if;
+         Fail (Tool, "unable to complete generated artifact scan under " & Dir);
+   end Check_No_Generated_Ada_Build_Artifacts;
+
    procedure Try_Build_Tools is
       Status : Integer;
    begin
@@ -142,16 +203,38 @@ procedure Release_Check is
       end if;
    end Run_Tool_Gate;
 
+   procedure Run_Tool_Gate
+     (Name : String; Description : String; Argument : String)
+   is
+      Path   : constant String := Tool_Path (Name);
+      Status : Integer;
+   begin
+      if not Ada.Directories.Exists (Path) then
+         Try_Build_Tools;
+      end if;
+
+      if not Ada.Directories.Exists (Path) then
+         Info (Tool, Description & " skipped; " & Path & " is not built");
+         return;
+      end if;
+
+      Info (Tool, "running " & Description);
+      Status := Run1 (Path, Argument);
+      if Status /= 0 then
+         Fail (Tool, Description & " failed");
+      end if;
+   end Run_Tool_Gate;
+
 begin
    Require_File (Tool, "alire.toml");
    Require_File (Tool, "editor.gpr");
    Require_File (Tool, "editor_core.gpr");
    Require_File (Tool, "README.md");
    Require_File (Tool, "docs/release/RELEASE_CHECKLIST.md");
-   if not File_Contains ("docs/release/RELEASE_CHECKLIST.md", "EDITOR_REQUIRE_PHASE579_LANGUAGE_VALIDATION=1")
-     or else not File_Contains ("docs/release/RELEASE_CHECKLIST.md", "tools/bin/phase579_language_validation_check")
+   if not File_Contains ("docs/release/RELEASE_CHECKLIST.md", "EDITOR_REQUIRE_LANGUAGE_VALIDATION=1")
+     or else not File_Contains ("docs/release/RELEASE_CHECKLIST.md", "tools/bin/language_validation_check")
    then
-      Fail (Tool, "release checklist must document the strict phase 579 GNAT/AUnit validation gate");
+      Fail (Tool, "release checklist must document the strict GNAT/AUnit validation gate");
    end if;
    Require_File (Tool, "docs/release/RUNTIME_SMOKE.md");
    Require_File (Tool, "docs/release/BUILD_PROCESS_PLATFORM_SUPPORT.md");
@@ -197,7 +280,7 @@ begin
    Require_File (Tool, "tools/product_smoke.adb");
    Require_File (Tool, "tools/real_build_runner_smoke.adb");
    Require_File (Tool, "tools/unit_tests.adb");
-   Require_File (Tool, "tools/phase579_language_validation_check.adb");
+   Require_File (Tool, "tools/language_validation_check.adb");
    Require_File (Tool, "tools/outline_static_sanity.adb");
    Require_File (Tool, "tools/outline_static_sanity.gpr");
    Require_File (Tool, "tools/ada_keyword_identifier_check.adb");
@@ -212,6 +295,8 @@ begin
    Require_File (Tool, "src/runtime/shaders/text.frag.spv");
 
    Check_No_Glob (".");
+   Check_No_Generated_Ada_Build_Artifacts (".", True);
+   Check_No_Generated_Ada_Build_Artifacts ("lib", False);
 
    if Ada.Directories.Exists ("editor_app.gpr") then
       Fail (Tool, "old editor_app.gpr must not reappear");
@@ -229,19 +314,20 @@ begin
       Fail (Tool, "render packet must consume cached syntax spans, not call Classify_Range directly");
    end if;
 
-   --  Phase 579 language-intelligence architecture is intentionally checked
-   --  by tools/phase579_language_validation_check.adb.  Keep release_check
+   --  language-intelligence architecture is intentionally checked
+   --  by tools/language_validation_check.adb.  Keep release_check
    --  as the orchestrator instead of duplicating hundreds of brittle
    --  source-string guards here.
-   if not File_Contains ("tools/editor_tools.gpr", "phase579_language_validation_check.adb")
-     or else not File_Contains ("tools/release_check.adb", "Run_Tool_Gate (""phase579_language_validation_check""")
+   if not File_Contains ("tools/editor_tools.gpr", "language_validation_check.adb")
+     or else not File_Contains ("tools/release_check.adb", "Run_Tool_Gate (""language_validation_check""")
    then
       Fail
         (Tool,
-         "release_check must delegate Phase 579 language validation to the dedicated Ada gate");
+         "release_check must delegate language validation to the dedicated Ada gate");
    end if;
 
    if not File_Contains ("tools/editor_tools.gpr", "release_check.adb")
+     or else not File_Contains ("tools/editor_tools.gpr", "release_commands.adb")
      or else not File_Contains ("tools/editor_tools.gpr", "release_check_record.adb")
      or else not File_Contains ("tools/editor_tools.gpr", "final_release_validation_check.adb")
      or else not File_Contains ("tools/editor_tools.gpr", "release_candidate_check.adb")
@@ -249,7 +335,7 @@ begin
       Fail
         (Tool,
          "Ada tool project must include release_check, release_check_record, "
-         & "final_release_validation_check, and release_candidate_check");
+         & "release_commands, final_release_validation_check, and release_candidate_check");
    end if;
 
    if not File_Contains ("tools/editor_tools.gpr", "runtime_compile_check.adb")
@@ -260,14 +346,52 @@ begin
      or else not File_Contains ("tools/editor_tools.gpr", "shader_freshness_check.adb")
      or else not File_Contains ("tools/editor_tools.gpr", "strict_runtime_preflight.adb")
      or else not File_Contains ("tools/editor_tools.gpr", "product_smoke.adb")
+     or else not File_Contains ("tools/editor_tools.gpr", "product_smoke_focus_selftest.adb")
      or else not File_Contains ("tools/editor_tools.gpr", "real_build_runner_smoke.adb")
      or else not File_Contains ("tools/editor_tools.gpr", "unit_tests.adb")
+     or else not File_Contains ("tools/editor_tools.gpr", "release_commands.adb")
+     or else not File_Contains ("tools/editor_tools.gpr", "test_slice_for.adb")
+     or else not File_Contains ("tools/editor_tools.gpr", "test_commands_for.adb")
+     or else not File_Contains ("tools/editor_tools.gpr", "check_docs.adb")
      or else not File_Contains ("tools/editor_tools.gpr", "outline_static_sanity.adb")
      or else not File_Contains ("tools/editor_tools.gpr", "record_shader_toolchain_manifest.adb")
      or else not File_Contains ("tools/editor_tools.gpr", "ada_keyword_identifier_check.adb")
-     or else not File_Contains ("tools/editor_tools.gpr", "phase579_language_validation_check.adb")
+     or else not File_Contains ("tools/editor_tools.gpr", "language_validation_check.adb")
    then
-      Fail (Tool, "Ada tool project must include all release gate tools");
+      Fail (Tool, "Ada tool project must include all release and test-selection gate tools");
+   end if;
+
+   if not File_Contains ("README.md", "docs/testing.md")
+     or else not File_Contains ("README.md", "docs/archive/")
+     or else not File_Contains ("docs/archive/README.md", "source of truth")
+     or else not File_Contains ("docs/testing.md", "Run slice builds serially")
+     or else not File_Contains ("docs/testing.md", "Release-Gate Slice Rule")
+     or else not File_Contains ("docs/testing.md", "tools/bin/release_commands")
+     or else not File_Contains ("docs/testing.md", "tools/bin/test_commands_for")
+     or else not File_Contains ("docs/testing.md", "tools/bin/unit_tests all")
+     or else not File_Contains ("docs/editor_workflow_contracts.md", "Focused Smoke")
+   then
+      Fail (Tool, "testing and archive policy must point current workflow away from archived pass logs");
+   end if;
+
+   if not File_Contains ("tools/release_commands.adb", "tools/bin/outline_static_sanity")
+     or else not File_Contains ("tools/release_commands.adb", "tools/bin/ada_keyword_identifier_check")
+     or else not File_Contains ("tools/release_commands.adb", "tools/bin/runtime_compile_check")
+     or else not File_Contains ("tools/release_commands.adb", "tools/bin/runtime_link_check")
+     or else not File_Contains ("tools/release_commands.adb", "tools/bin/runtime_smoke")
+     or else not File_Contains ("tools/release_commands.adb", "tools/bin/runtime_missing_asset_check")
+     or else not File_Contains ("tools/release_commands.adb", "tools/bin/shader_toolchain_manifest_check")
+     or else not File_Contains ("tools/release_commands.adb", "tools/bin/release_candidate_check")
+     or else not File_Contains ("tools/release_commands.adb", "tools/bin/strict_runtime_preflight")
+     or else not File_Contains ("tools/release_commands.adb", "tools/bin/shader_freshness_check")
+     or else not File_Contains ("tools/release_commands.adb", "tools/bin/unit_tests all")
+     or else not File_Contains ("tools/release_commands.adb", "tools/bin/language_validation_check")
+     or else not File_Contains ("tools/release_commands.adb", "tools/bin/product_smoke")
+     or else not File_Contains ("tools/release_commands.adb", "tools/bin/real_build_runner_smoke")
+     or else not File_Contains ("tools/release_commands.adb", "tools/bin/release_check")
+     or else not File_Contains ("tools/release_commands.adb", "tools/bin/final_release_validation_check")
+   then
+      Fail (Tool, "release_commands must print the full release-check gate surface");
    end if;
 
    if not File_Contains ("README.md", "Ada release tools") then
@@ -312,7 +436,7 @@ begin
      ("src/core/editor-outline.ads", "Populate_Feature_Panel",
       "outline API must not retain Populate_Feature_Panel projection removed-name");
    Require_Not_Contains
-     ("src/core/editor-file_tree_view.ads", "Removed Phase-56 field",
+     ("src/core/editor-file_tree_view.ads", "Removed field",
       "file tree view config must not retain removed width field");
 
    Require_Not_Contains
@@ -359,7 +483,7 @@ begin
          Fail (Tool, "obsolete command-name audit files must not be shipped");
       end if;
 
-      Require_Not_Contains ("tests/src/core_suite.adb", "Removed" & "_Command_Audit",
+      Require_Not_Contains ("tests/src/all_suites.adb", "Removed" & "_Command_Audit",
         "obsolete command-name audit suite must not be registered");
       Require_Not_Contains ("tests/src/editor-buffers-tests.adb", Old_Name_Marker,
         "obsolete command-name literals must not remain in buffer tests");
@@ -367,8 +491,6 @@ begin
         "obsolete command-name literals must not remain in file tests");
       Require_Not_Contains ("tests/src/editor-line_edit-tests.adb", Old_Name_Marker,
         "obsolete command-name literals must not remain in line-edit tests");
-      Require_Not_Contains ("tests/src/editor-executor-tests.adb", Old_Name_Marker,
-        "obsolete command-name literals must not remain in executor tests");
    end;
 
    Require_Not_Contains
@@ -743,7 +865,7 @@ begin
      or else File_Contains ("README.md", "final bounded chunk only")
      or else File_Contains ("README.md", "live separate stdout/stderr capture")
      or else File_Contains ("docs/dogfood_scenario.md", "represented unavailable result")
-     or else File_Contains ("docs/FEATURE_INTEGRATION.md", "Phase 114 intentionally")
+     or else File_Contains ("docs/FEATURE_INTEGRATION.md", "intentionally")
      or else File_Contains ("docs/FEATURE_INTEGRATION.md", "placeholder/test rows")
    then
       Fail (Tool, "build output streaming and feature/dogfood docs must describe current behavior, not stale incomplete-feature claims");
@@ -762,6 +884,7 @@ begin
    end if;
 
    Require_Program_Error_Guard ("tools/compile_shaders.adb");
+   Require_Program_Error_Guard ("tools/release_commands.adb");
    Require_Program_Error_Guard ("tools/final_release_validation_check.adb");
    Require_Program_Error_Guard ("tools/release_candidate_check.adb");
    Require_Program_Error_Guard ("tools/product_smoke.adb");
@@ -778,7 +901,7 @@ begin
    Require_Program_Error_Guard ("tools/strict_runtime_validation.adb");
    Require_Program_Error_Guard ("tools/strict_runtime_validation_record.adb");
    Require_Program_Error_Guard ("tools/unit_tests.adb");
-   Require_Program_Error_Guard ("tools/phase579_language_validation_check.adb");
+   Require_Program_Error_Guard ("tools/language_validation_check.adb");
    Require_Program_Error_Guard ("tools/ada_keyword_identifier_check.adb");
 
    --  Run the dependency-aware Ada gate tools.  Each gate preserves the old
@@ -792,12 +915,14 @@ begin
    Run_Tool_Gate ("runtime_link_check", "runtime link/build gate");
    Run_Tool_Gate ("runtime_smoke", "runtime graphical smoke gate");
    Run_Tool_Gate ("runtime_missing_asset_check", "runtime missing-shader negative gate");
+   Run_Tool_Gate ("check_docs", "documentation/tooling contract gate");
+   Run_Tool_Gate ("check_repo_hygiene", "repository hygiene gate");
    Run_Tool_Gate ("shader_toolchain_manifest_check", "shader toolchain manifest gate");
    Run_Tool_Gate ("release_candidate_check", "release-candidate state/evidence gate");
    Run_Tool_Gate ("strict_runtime_preflight", "strict runtime validation preflight gate");
    Run_Tool_Gate ("shader_freshness_check", "shader freshness gate");
-   Run_Tool_Gate ("unit_tests", "AUnit core test gate");
-   Run_Tool_Gate ("phase579_language_validation_check", "Phase 579 language-model GNAT/AUnit validation gate");
+   Run_Tool_Gate ("unit_tests", "release All_Suites AUnit gate", "all");
+   Run_Tool_Gate ("language_validation_check", "language-model GNAT/AUnit validation gate");
    Run_Tool_Gate ("product_smoke", "product workflow smoke gate");
    Run_Tool_Gate ("real_build_runner_smoke", "real build-runner smoke gate");
 
@@ -977,109 +1102,109 @@ end Release_Check;
 
 --  Pass 408 release guard tokens: Is_Statement_Starter_After_Label Test_Language_Model_Token_Cursor_Statement_Identifier_Grammar_Completeness Named_Loop Named_Block Named_If ordinary object declarations with identifier subtypes
 
---  Pass409 guard marker: Production_Iterator_Specification must remain covered
+--  Case 409 guard marker: Production_Iterator_Specification must remain covered
 --  by Test_Language_Model_Token_Cursor_Iterator_Loop_Grammar_Completeness so
 --  generalized Ada iterator loops do not regress to representation-clause skips.
 
---  Pass410 release guard tokens: quantified expression loop schemes must keep
+--  Case 410 release guard tokens: quantified expression loop schemes must keep
 --  Test_Language_Model_Token_Cursor_Quantified_Expression_Grammar_Completeness
 --  and retain Production_Quantified_Expression together with
 --  Production_Loop_Parameter_Specification / Production_Iterator_Specification.
 
---  Pass411 release guard tokens: Ada 2022 declare expressions must retain
+--  Case 411 release guard tokens: Ada 2022 declare expressions must retain
 --  Test_Language_Model_Token_Cursor_Declare_Expression_Grammar_Completeness
 --  and Production_Declare_Expression so declaration-containing expression
 --  primaries do not regress to opaque parenthesized aggregates or blocks.
 
 
---  Pass412 release guard tokens: task/protected type headers must retain
+--  Case 412 release guard tokens: task/protected type headers must retain
 --  Test_Language_Model_Token_Cursor_Task_Protected_Type_Header_Grammar_Completeness
 --  together with Production_Task_Type_Declaration and
 --  Production_Protected_Type_Declaration so discriminated concurrent type
 --  declarations do not regress to opaque single-task/protected headers.
 
---  Pass413 release guard tokens: aggregate iterated component associations
+--  Case 413 release guard tokens: aggregate iterated component associations
 --  must keep Test_Language_Model_Token_Cursor_Aggregate_Iterator_Grammar_Completeness
 --  and Production_Iterated_Component_Association so ``(for I in ... => ...)``
 --  and ``(for Element of ... => ...)`` aggregates do not regress to
 --  Production_Quantified_Expression.
 
---  Pass414 guard: unconstrained array index subtype definitions such as
+--  Case 414 guard: unconstrained array index subtype definitions such as
 --  ``array (Positive range <>) of T`` must remain distinguished from ordinary
 --  constrained index constraints by Production_Index_Subtype_Definition and
 --  Test_Language_Model_Token_Cursor_Array_Index_Subtype_Grammar_Completeness.
 
---  Pass415 guard: Ada null exclusions before access definitions and
+--  Case 415 guard: Ada null exclusions before access definitions and
 --  anonymous access subtypes, such as "not null access all T" and formal
 --  "not null access procedure", must retain Production_Null_Exclusion and
 --  Test_Language_Model_Token_Cursor_Null_Exclusion_Access_Grammar_Completeness.
 
 
---  Pass416 guard: Ada membership choices must retain range grammar for
+--  Case 416 guard: Ada membership choices must retain range grammar for
 --  explicit ranges and subtype ranges, including "Value in 1 .. 10" and
 --  "Natural range 20 .. 30", through Production_Membership_Choice,
 --  Production_Range_Expression, and
 --  Test_Language_Model_Token_Cursor_Membership_Range_Grammar_Completeness.
 
---  Pass417 grammar guard: Ada 2022 target-name expressions such as
+--  Case 417 grammar guard: Ada 2022 target-name expressions such as
 --  "Value := @ + Next;" must remain represented by Production_Target_Name
 --  and Test_Language_Model_Token_Cursor_Target_Name_Grammar_Completeness.
 
---  Pass418 grammar guard: profile items must stay structurally parsed.
+--  Case 418 grammar guard: profile items must stay structurally parsed.
 --  Test_Language_Model_Token_Cursor_Profile_Item_Grammar_Completeness covers
 --  aliased parameters, in/out modes, null-exclusion anonymous access profile
 --  items, discriminant defaults, and Production_Default_Expression.
 
 
---  Pass419 grammar guard: modified type definitions must stay structural.
+--  Case 419 grammar guard: modified type definitions must stay structural.
 --  Test_Language_Model_Token_Cursor_Type_Modifier_Grammar_Completeness and
 --  Production_Type_Modifier cover Ada forms such as "abstract tagged limited
 --  record", "tagged private", "synchronized interface", and abstract
 --  derived private extensions without falling through subtype recovery.
 
 
---  Pass420 grammar guard: delay statements must keep Ada's two grammar
+--  Case 420 grammar guard: delay statements must keep Ada's two grammar
 --  alternatives distinct.  Test_Language_Model_Token_Cursor_Delay_Statement_Grammar_Completeness
 --  and the Production_Delay_Until_Statement / Production_Delay_Relative_Statement
 --  markers cover both ``delay until`` and relative ``delay`` statements.
 
---  Pass421 guard: extended return statement grammar must retain the
+--  Case 421 guard: extended return statement grammar must retain the
 --  return-object declaration, optional aliased/constant markers, subtype
 --  indication, and initializer via Production_Return_Object_Declaration,
 --  Production_Extended_Return_Initializer, and
 --  Test_Language_Model_Token_Cursor_Extended_Return_Grammar_Completeness.
 
---  Pass422 guard: requeue statement grammar must retain structured entry-name
+--  Case 422 guard: requeue statement grammar must retain structured entry-name
 --  targets and the optional with-abort marker via Production_Requeue_Target,
 --  Production_Requeue_With_Abort, and
 --  Test_Language_Model_Token_Cursor_Requeue_Grammar_Completeness.
 
---  Pass423 guard: abort statement grammar must retain task-name target lists
+--  Case 423 guard: abort statement grammar must retain task-name target lists
 --  structurally via Production_Abort_Target and
 --  Test_Language_Model_Token_Cursor_Abort_Statement_Grammar_Completeness;
 --  abort Worker, Pool.Tasks (Index), Controller.Current.all; must not regress
 --  to opaque semicolon skipping.
 
---  Pass424 guard: exception-handler grammar must retain optional choice
+--  Case 424 guard: exception-handler grammar must retain optional choice
 --  parameters and exception choice lists via Production_Exception_Choice_Parameter,
 --  Production_Exception_Choice_List, Production_Exception_Choice, and
 --  Test_Language_Model_Token_Cursor_Exception_Handler_Grammar_Completeness;
 --  when Failure : Constraint_Error | Program_Error => must not regress to
 --  opaque alternative parsing.
 
---  Phase 579 pass425 guard: raise statements must not regress to opaque
+--  case 425 guard: raise statements must not regress to opaque
 --  semicolon skipping.  The token-cursor grammar is expected to retain bare
 --  reraises via Production_Reraise_Statement and message raises via
 --  Production_Raise_With_Message, with AUnit coverage for both forms.
 
---  Phase 579 pass426 guard: transfer statements must not regress to opaque
+--  case 426 guard: transfer statements must not regress to opaque
 --  semicolon skipping.  Exit statements retain optional loop-name targets via
 --  Production_Exit_Target and optional when conditions via
 --  Production_Exit_When_Condition; goto statements retain Production_Goto_Target
 --  with Test_Language_Model_Token_Cursor_Exit_Goto_Grammar_Completeness.
 
 
---  Phase 579 pass427 guard: select alternatives must not regress to generic
+--  case 427 guard: select alternatives must not regress to generic
 --  case/discrete-choice handling.  The token-cursor grammar retains guarded
 --  alternatives via Production_Select_Guard, conditional else alternatives via
 --  Production_Select_Else_Part, terminate alternatives via
@@ -1087,7 +1212,7 @@ end Release_Check;
 --  Production_Abortable_Part with
 --  Test_Language_Model_Token_Cursor_Select_Alternative_Grammar_Completeness.
 
---  Phase 579 pass428 guard: attribute references with argument parts must not
+--  case 428 guard: attribute references with argument parts must not
 --  regress to ordinary indexed-component suffixes.  The token-cursor grammar
 --  retains Production_Attribute_Reference together with
 --  Production_Attribute_Argument_Part for forms such as Values'First (1),
@@ -1197,20 +1322,20 @@ end Release_Check;
 --  flatten `A | B => X`, `1 .. 10 => X`, or `others => <>` back into
 --  expression-only aggregate parsing.
 
---  Pass946 guard: selected-name resolution foundation must remain parser-owned,
+--  Case 946 guard: selected-name resolution foundation must remain parser-owned,
 --  deterministic, snapshot-derived, and free of renderer-side parsing, file
 --  reloads, dirty-state mutation, compiler invocation, LSP integration, external
 --  parser generators, Python, and shell-script project hooks.
 
---  Pass947 guard: use-type primitive visibility foundation is covered by
+--  Case 947 guard: use-type primitive visibility foundation is covered by
 --  Editor.Ada_Use_Type_Operators and
---  Test_Ada_Use_Type_Operator_Visibility_Foundation_Pass947.  This remains
+--  Test_Ada_Use_Type_Operator_Visibility_Foundation_Case 947.  This remains
 --  snapshot-owned compiler-grade semantic metadata, not full overload/type
 --  legality.
 
---  Pass948 guard: call-candidate overload foundation is covered by
+--  Case 948 guard: call-candidate overload foundation is covered by
 --  Editor.Ada_Call_Candidates and
---  Test_Ada_Call_Candidate_Foundation_Pass948.  This remains a deterministic
+--  Test_Ada_Call_Candidate_Foundation_Case 948.  This remains a deterministic
 --  compiler-grade semantic building block before expected-type/profile
 --  filtering; it must not introduce compiler invocation, LSP, renderer-side
 --  parsing, file IO, background scans, or dirty-state mutation.

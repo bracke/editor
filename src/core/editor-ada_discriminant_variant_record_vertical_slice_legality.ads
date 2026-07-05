@@ -4,7 +4,7 @@ with Editor.Ada_Syntax_Tree;
 
 package Editor.Ada_Discriminant_Variant_Record_Vertical_Slice_Legality is
 
-   --  Pass1313 vertical-slice discriminant, variant, and record legality.
+   --  Case 1313 vertical-slice discriminant, variant, and record legality.
    --  This package validates concrete Ada record/discriminant/variant cases
    --  against source-shaped semantic rows.  It is a direct compiler-grade
    --  legality model for discriminant-dependent components, variant coverage,

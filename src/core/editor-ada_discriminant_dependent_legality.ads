@@ -10,7 +10,7 @@ with Editor.Ada_Widened_Legality_Coverage_Gate_Enforcement;
 
 package Editor.Ada_Discriminant_Dependent_Legality is
 
-   --  Pass1142 discriminant-dependent legality.
+   --  Case 1142 discriminant-dependent legality.
    --
    --  This package connects discriminant constraints/defaults and variant
    --  presence rules to the semantic use sites that can change or depend on a

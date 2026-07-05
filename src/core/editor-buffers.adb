@@ -1307,7 +1307,7 @@ package body Editor.Buffers is
       declare
          State_To_Free : Buffer_State_Access := Registry.Items (I).State;
       begin
-         --  Phase 432: canonical active-buffer close owns no close history or
+         --  canonical active-buffer close owns no close history or
          --  reopen stack.  Closing removes the buffer-local state and makes it
          --  unreachable through open-buffer APIs; it does not persist or cache
          --  a last-closed target, discarded text, caret, view, or path.
@@ -1355,7 +1355,7 @@ package body Editor.Buffers is
 
    function Canonical_For_Compare (Path : String) return String is
    begin
-      --  Phase 545 completeness: File Tree rename/delete buffer-registry
+      --  completeness: File Tree rename/delete buffer-registry
       --  guards must compare paths consistently even when an open buffer was
       --  created from a path spelling that uses backslashes or trailing
       --  separators.  Existing paths are canonicalized through Full_Name; all
@@ -2097,7 +2097,7 @@ package body Editor.Buffers is
       elsif not Global_Registry.Items.Is_Empty then
          return;
       elsif State.Active_Buffer_Token = 0 then
-         --  Phase 430: a deliberate close-last-buffer state must remain
+         --  a deliberate close-last-buffer state must remain
          --  bufferless.  Read/command paths may ensure the registry, but
          --  they must not resurrect the just-closed buffer from stale State.
          return;

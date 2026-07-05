@@ -10,6 +10,7 @@ with Editor.State;
 package body Editor.Search_Results_Audit is
 
    use type Editor.Feature_Panel.Feature_Id;
+   use type Editor.Feature_Search_Results.External_Result_Payload;
 
    Max_Review_Query_History : constant Natural := 20;
 
@@ -94,6 +95,10 @@ package body Editor.Search_Results_Audit is
               Editor.Feature_Search_Results.Item_Match_Column (B, I)
            or else Editor.Feature_Search_Results.Item_Target_Buffer (A, I) /=
               Editor.Feature_Search_Results.Item_Target_Buffer (B, I)
+           or else Editor.Feature_Search_Results.Item_External_Payload (A, I) /=
+              Editor.Feature_Search_Results.Item_External_Payload (B, I)
+           or else Editor.Feature_Search_Results.Item_External_Payload (A, I) /=
+              Editor.Feature_Search_Results.No_External_Payload
          then
             return False;
          end if;

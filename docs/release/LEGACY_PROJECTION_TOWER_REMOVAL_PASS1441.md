@@ -1,10 +1,10 @@
-# Phase579 Legacy Projection Tower Removal Pass1441
+# Legacy Projection Tower Removal Case 1441
 
-Pass1441 continues the finite legacy cleanup after the pass1440 scaffold inventory.
+Case 1441 continues the finite legacy cleanup after the case 1440 scaffold inventory.
 
 ## Removed active surfaces
 
-The pass removes the obsolete diagnostic command/palette/keybinding/workspace/render projection tower and the corresponding recovery/render recovery tower. These packages were historical projection scaffolds from the pre-closure diagnostic phase and are superseded by the canonical semantic diagnostic/feed consumers and the project-scale closure gates through pass1436.
+The pass removes the obsolete diagnostic command/palette/keybinding/workspace/render projection tower and the corresponding recovery/render recovery tower. These packages were historical projection scaffolds from the pre-closure diagnostic phase and are superseded by the canonical semantic diagnostic/feed consumers and the project-scale closure gates through case 1436.
 
 Removed source packages:
 
@@ -28,20 +28,20 @@ Removed source packages:
 - `Editor.Ada_Diagnostic_Recovery_Render_Keybinding_Hint_Projection`
 - `Editor.Ada_Diagnostic_Recovery_Render_Workspace_Projection`
 
-Matching obsolete AUnit packages from pass1077 through pass1095 were removed with the source tower.
+Matching obsolete AUnit packages from case 1077 through case 1095 were removed with the source tower.
 
 ## Cleanup gates
 
-`Editor.Ada_Phase579_Legacy_Projection_Tower_Removal_Pass1441` records a deterministic removal ledger. It rejects:
+`Editor.Ada_Legacy_Projection_Tower_Removal_Case 1441` records a deterministic removal ledger. It rejects:
 
 - active source files that still expose a removed projection package,
 - active test files for the removed packages,
-- lingering Core_Suite registrations,
+- lingering suite registrations,
 - dangling dependent source units,
 - noncanonical replacement projection surfaces,
-- reopened `Remaining_*` gaps after pass1428,
+- reopened `Remaining_*` gaps after case 1428,
 - stale source/test/removal fingerprints.
 
 ## Canonical replacement
 
-No new command-palette/keybinding/workspace/render semantic projection layer is introduced by this pass. Canonical production surfaces remain the semantic model, diagnostic feed, and project-scale validation/closure gates established before pass1441.
+No new command-palette/keybinding/workspace/render semantic projection layer is introduced by this pass. Canonical production surfaces remain the semantic model, diagnostic feed, and project-scale validation/closure gates established before case 1441.

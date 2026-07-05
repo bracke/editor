@@ -2,11 +2,11 @@ with Ada.Strings.Unbounded; use Ada.Strings.Unbounded;
 with AUnit.Assertions; use AUnit.Assertions;
 with AUnit.Test_Cases;
 with Editor.Ada_Syntax_Tree;
-with Editor.Ada_End_To_End_Semantic_Scenario_Audit_Pass1337;
+with Editor.Ada_End_To_End_Semantic_Scenario_Audit;
 
 package body Test_Ada_End_To_End_Semantic_Scenario_Audit is
 
-   package Audit renames Editor.Ada_End_To_End_Semantic_Scenario_Audit_Pass1337;
+   package Audit renames Editor.Ada_End_To_End_Semantic_Scenario_Audit;
    use type Audit.Scenario_Kind;
    use type Audit.Slice_Result;
    use type Audit.Audit_Status;

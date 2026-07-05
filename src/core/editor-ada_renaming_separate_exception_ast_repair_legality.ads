@@ -6,9 +6,9 @@ with Editor.Ada_Syntax_Tree;
 
 package Editor.Ada_Renaming_Separate_Exception_AST_Repair_Legality is
 
-   --  Pass1187 renaming/separate/exception construct parser-AST repair legality.
+   --  Case 1187 renaming/separate/exception construct parser-AST repair legality.
    --
-   --  This package turns the repaired-coverage facts from Pass1147 into
+   --  This package turns the repaired-coverage facts from Case 1147 into
    --  concrete renaming/separate/exception construct repair facts.
    --  Renaming declarations, separate bodies, body stubs, exception handlers,
    --  and raise expressions are not treated as restored until parser nodes,

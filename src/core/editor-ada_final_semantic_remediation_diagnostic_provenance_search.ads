@@ -12,9 +12,9 @@ with Editor.Ada_Syntax_Tree;
 
 package Editor.Ada_Final_Semantic_Remediation_Diagnostic_Provenance_Search is
 
-   --  Pass1203 final semantic remediation diagnostic provenance/search.
+   --  Case 1203 final semantic remediation diagnostic provenance/search.
    --
-   --  This package links Pass1202 remediation diagnostic rows back to their
+   --  This package links Case 1202 remediation diagnostic rows back to their
    --  remediation closure rows, remediation gate rows, blocker trace roots,
    --  final semantic blocker families, and unified feed/index entries.  It is
    --  not a UI projection layer: it preserves the prerequisite blocker family

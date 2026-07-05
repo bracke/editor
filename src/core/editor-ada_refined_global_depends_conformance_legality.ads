@@ -7,7 +7,7 @@ with Editor.Ada_Syntax_Tree;
 
 package Editor.Ada_Refined_Global_Depends_Conformance_Legality is
 
-   --  Pass1153 compiler-grade Refined_Global / Refined_Depends conformance.
+   --  Case 1153 compiler-grade Refined_Global / Refined_Depends conformance.
    --
    --  This package deepens Global / Depends legality by checking body/spec
    --  refinement conformance directly.  It consumes explicit flow-effect graph

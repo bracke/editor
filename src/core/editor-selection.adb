@@ -452,7 +452,7 @@ package body Editor.Selection is
       Editor.Navigation.Line_Column_For_Index (S, Start_Index, Start_Row, Start_Col);
       Editor.Navigation.Line_Column_For_Index (S, End_Index, End_Row, End_Col);
 
-      --  Phase 66 word/symbol selection is deliberately line-confined.  The
+      --  word/symbol selection is deliberately line-confined.  The
       --  navigation run helper already treats newlines as whitespace; keep an
       --  explicit guard here so Selection owns the public range policy.
       if Start_Row /= Pos.Row or else End_Row /= Pos.Row then
@@ -479,7 +479,7 @@ package body Editor.Selection is
    is
       Selection_Range : Active_Selection_Range;
    begin
-      --  Phase 380 canonicalization: active-buffer selected-text consumers,
+      --  canonicalization: active-buffer selected-text consumers,
       --  availability, and render projection must agree on the same primary
       --  active selection contract.  Rectangular/editor-mechanics selection
       --  remains explicitly queryable through Editor.Rectangle_Selection, but

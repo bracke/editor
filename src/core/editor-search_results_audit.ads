@@ -20,7 +20,7 @@ package Editor.Search_Results_Audit is
       Review_Passed                 : Boolean := False;
    end record;
 
-   --  Compact Phase 205 review of the active-buffer Search Results contract.
+   --  Compact review of the active-buffer Search Results contract.
    --  The helper observes editor state and exercises only local copies for
    --  matching, query input, projection, selection, target validation, and
    --  lifecycle checks. It does not run a live search command, edit query text

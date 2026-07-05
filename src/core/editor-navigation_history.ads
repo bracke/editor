@@ -79,7 +79,7 @@ package Editor.Navigation_History is
      (State    : in out Navigation_History_State;
       Location : Navigation_Location);
 
-   --  Phase 495 shared projection-surface contract predicates.  Navigation
+   --  shared projection-surface contract predicates.  Navigation
    --  History retains navigation targets only; it does not own file lifecycle
    --  commands, target prompts, filesystem probes, repair/migration caches,
    --  operation histories, or cross-surface projection truth.

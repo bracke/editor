@@ -4,7 +4,7 @@ with Editor.Ada_Syntax_Tree;
 
 package Editor.Ada_Accessibility_Lifetime_Vertical_Slice_Legality is
 
-   --  Pass1300 vertical-slice accessibility and lifetime legality.  This
+   --  Case 1300 vertical-slice accessibility and lifetime legality.  This
    --  package performs concrete RM-facing accessibility checks against
    --  source-shaped scope, entity, and access-flow evidence.  It models
    --  scope/master depth, rejects access values escaping to longer-lived

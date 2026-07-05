@@ -337,7 +337,7 @@ package body Test_Ada_Representation_Layout_Stream_Integration_Legality is
       Register_Routine
         (T,
          Builds_Wide_Representation_Integration_Legality'Access,
-         "Pass1117 representation/layout/stream integration legality");
+         "Case 1117 representation/layout/stream integration legality");
    end Register_Tests;
 
 end Test_Ada_Representation_Layout_Stream_Integration_Legality;

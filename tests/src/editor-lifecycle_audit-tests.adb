@@ -80,8 +80,8 @@ package body Editor.Lifecycle_Audit.Tests is
       S : Editor.State.State_Type;
       Target : constant Editor.Pending_Transitions.Pending_Transition_Target :=
         (Kind       => Editor.Pending_Transitions.Pending_Open_Project,
-         Path       => To_Unbounded_String ("/tmp/editor-phase100-b"),
-         Display    => To_Unbounded_String ("editor-phase100-b"),
+         Path       => To_Unbounded_String ("/tmp/editor-b"),
+         Display    => To_Unbounded_String ("editor-b"),
          Buffer_Id  => 0,
          Has_Buffer => False,
          Has_Path   => True,
@@ -93,23 +93,23 @@ package body Editor.Lifecycle_Audit.Tests is
       Editor.Buffers.Reset_Global_For_Test;
       Editor.State.Init (S);
       Editor.Recent_Projects.Clear (S.Recent_Projects);
-      Install_Project (S, "/tmp/editor-phase100-a", "editor-phase100-a");
+      Install_Project (S, "/tmp/editor-a", "editor-a");
       S.File_Info :=
         (Has_Path     => True,
-         Path         => To_Unbounded_String ("/tmp/editor-phase100-a/main.adb"),
+         Path         => To_Unbounded_String ("/tmp/editor-a/main.adb"),
          Display_Name => To_Unbounded_String ("main.adb"),
          Dirty        => True,
          others       => <>);
       Editor.Pending_Transitions.Set_Pending
         (S.Pending_Transitions, Target, Dirty);
       Editor.Recent_Projects.Add_Or_Promote
-        (S.Recent_Projects, "/tmp/editor-phase100-a", "editor-phase100-a", 100);
+        (S.Recent_Projects, "/tmp/editor-a", "editor-a", 100);
 
       Summary := Editor.Lifecycle_Audit.State_Summary (S);
 
       Assert (Summary.Has_Project,
               "lifecycle summary must report active project");
-      Assert (To_String (Summary.Project_Display) = "editor-phase100-a",
+      Assert (To_String (Summary.Project_Display) = "editor-a",
               "lifecycle summary must expose project display name");
       Assert (Summary.Buffer_Count = 1,
               "lifecycle summary must include active buffer projection");
@@ -136,7 +136,7 @@ package body Editor.Lifecycle_Audit.Tests is
    begin
       Editor.Buffers.Reset_Global_For_Test;
       Editor.State.Init (S);
-      Install_Project (S, "/tmp/editor-phase100-a", "editor-phase100-a");
+      Install_Project (S, "/tmp/editor-a", "editor-a");
       S.File_Info.Dirty := True;
 
       Before := Editor.Lifecycle_Audit.State_Summary (S);
@@ -169,7 +169,7 @@ package body Editor.Lifecycle_Audit.Tests is
    begin
       Editor.Buffers.Reset_Global_For_Test;
       Editor.State.Init (S);
-      Install_Project (S, "/tmp/editor-phase100-a", "editor-phase100-a");
+      Install_Project (S, "/tmp/editor-a", "editor-a");
       S.File_Info.Dirty := True;
       Editor.Pending_Transitions.Set_Pending
         (S.Pending_Transitions, Target, Dirty);
@@ -203,8 +203,8 @@ package body Editor.Lifecycle_Audit.Tests is
       After  : Editor.Lifecycle_Audit.Settings_Lifecycle_Summary;
       Target : constant Editor.Pending_Transitions.Pending_Transition_Target :=
         (Kind       => Editor.Pending_Transitions.Pending_Open_Project,
-         Path       => To_Unbounded_String ("/tmp/editor-phase104-b"),
-         Display    => To_Unbounded_String ("editor-phase104-b"),
+         Path       => To_Unbounded_String ("/tmp/editor-b"),
+         Display    => To_Unbounded_String ("editor-b"),
          Buffer_Id  => 0,
          Has_Buffer => False,
          Has_Path   => True,
@@ -221,12 +221,12 @@ package body Editor.Lifecycle_Audit.Tests is
       Editor.Settings.Set_Cursor_Blink (Model, False);
       Editor.Settings.Set_Minimap_Visible (Model, False);
       Editor.State.Apply_Settings (S, Model);
-      Install_Project (S, "/tmp/editor-phase104-a", "editor-phase104-a");
+      Install_Project (S, "/tmp/editor-a", "editor-a");
       S.File_Info.Dirty := True;
       Editor.Pending_Transitions.Set_Pending
         (S.Pending_Transitions, Target, Dirty);
       Editor.Recent_Projects.Add_Or_Promote
-        (S.Recent_Projects, "/tmp/editor-phase104-a", "editor-phase104-a", 104);
+        (S.Recent_Projects, "/tmp/editor-a", "editor-a", 104);
 
       Before := Editor.Lifecycle_Audit.Settings_Lifecycle_Summary_For (S);
       After := Editor.Lifecycle_Audit.Settings_Lifecycle_Summary_For (S);

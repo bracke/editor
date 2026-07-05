@@ -205,13 +205,13 @@ package Editor.Keybinding_Management is
    function Last_Load_Diagnostics_Label return String;
    function Latest_Message return String;
 
-   --  Phase 565 render/persistence guards. These helpers are observational and
+   --  render/persistence guards. These helpers are observational and
    --  verify that the management surface snapshot contains only transient UI
    --  state plus derived rows, never command payloads or persistence-domain data.
    function Assert_Keybinding_Surface_Render_Is_Observational return Boolean;
    function Assert_Keybinding_Editor_State_Not_Persisted return Boolean;
 
-   --  Phase 565 coherence guard. This helper is observational except for a
+   --  coherence guard. This helper is observational except for a
    --  local save/load model round-trip and never executes commands.
    function Assert_Keybinding_Management_Coherent return Boolean;
 

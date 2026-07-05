@@ -2428,7 +2428,7 @@ package body Editor.Ada_Language_Model is
       --  declaration-owning symbol whose declaration begins before the token.
       --  Invalid ownership metadata is ignored; callers still degrade through
       --  resolver/root lookup when no precise owner is available.
-      --  Phase 579 pass 189: once the parser/model retains a real source range, scope
+      --  pass 189: once the parser/model retains a real source range, scope
       --  selection also respects that end boundary so a finished package/body
       --  does not keep colouring later declarations as though they were still
       --  nested inside it.

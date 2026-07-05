@@ -364,8 +364,8 @@ package body Editor.Settings.Tests is
    procedure Test_Settings_Model_Round_Trip_Deterministic
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
       pragma Unreferenced (T);
-      Path    : constant String := "/tmp/editor_phase101_settings_roundtrip.txt";
-      Path_2  : constant String := "/tmp/editor_phase101_settings_roundtrip_2.txt";
+      Path    : constant String := "/tmp/editor_settings_roundtrip.txt";
+      Path_2  : constant String := "/tmp/editor_settings_roundtrip_2.txt";
       Model   : Editor.Settings.Settings_Model;
       Loaded  : Editor.Settings.Settings_Model;
       Status  : Editor.Settings.Settings_Status;
@@ -400,9 +400,9 @@ package body Editor.Settings.Tests is
    procedure Test_Settings_Load_Statuses
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
       pragma Unreferenced (T);
-      Missing : constant String := "/tmp/editor_phase101_settings_missing.txt";
-      Invalid : constant String := "/tmp/editor_phase101_settings_invalid.txt";
-      Future  : constant String := "/tmp/editor_phase101_settings_future.txt";
+      Missing : constant String := "/tmp/editor_settings_missing.txt";
+      Invalid : constant String := "/tmp/editor_settings_invalid.txt";
+      Future  : constant String := "/tmp/editor_settings_future.txt";
       Model   : Editor.Settings.Settings_Model;
       Status  : Editor.Settings.Settings_Status;
    begin
@@ -425,7 +425,7 @@ package body Editor.Settings.Tests is
    procedure Test_Settings_Partial_Load_Defaults_Invalid_Optional_Value
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
       pragma Unreferenced (T);
-      Path   : constant String := "/tmp/editor_phase101_settings_partial.txt";
+      Path   : constant String := "/tmp/editor_settings_partial.txt";
       Model  : Editor.Settings.Settings_Model;
       Status : Editor.Settings.Settings_Status;
    begin
@@ -679,7 +679,7 @@ package body Editor.Settings.Tests is
       Model  : Editor.Settings.Settings_Model;
       Loaded : Editor.Settings.Settings_Model;
       Status : Editor.Settings.Settings_Status;
-      Path   : constant String := Temp_Path ("phase103_selected_description.settings");
+      Path   : constant String := Temp_Path ("selected_description.settings");
       Text   : Unbounded_String;
    begin
       Remove_If_Exists (Path);
@@ -734,11 +734,11 @@ package body Editor.Settings.Tests is
 
 
 
-   procedure Test_Phase215_Save_Output_Is_Settings_Only
+   procedure Test_Save_Output_Is_Settings_Only
      (T : in out AUnit.Test_Cases.Test_Case'Class)
    is
       pragma Unreferenced (T);
-      Path   : constant String := "/tmp/editor_phase215_settings_only.txt";
+      Path   : constant String := "/tmp/editor_settings_only.txt";
       Model  : Editor.Settings.Settings_Model;
       Status : Editor.Settings.Settings_Status;
       Text   : Unbounded_String;
@@ -772,13 +772,13 @@ package body Editor.Settings.Tests is
       Assert (Index (Text, "outline-item") = 0,
               "settings save must not serialize Outline content");
       Assert (Index (Text, "current-symbol") = 0,
-              "settings save must not serialize Phase 550 current-symbol state");
+              "settings save must not serialize current-symbol state");
       Assert (Index (Text, "outline-filter") = 0,
-              "settings save must not serialize Phase 550 Outline filter text");
+              "settings save must not serialize Outline filter text");
       Assert (Index (Text, "filtered-outline") = 0,
-              "settings save must not serialize Phase 550 filtered Outline rows");
+              "settings save must not serialize filtered Outline rows");
       Assert (Index (Text, "last-navigated-symbol") = 0,
-              "settings save must not serialize Phase 550 symbol navigation history");
+              "settings save must not serialize symbol navigation history");
       Assert (Index (Text, "feature-row") = 0,
               "settings save must not serialize Feature Panel rows");
       Assert (Index (Text, "buffer-content") = 0,
@@ -792,14 +792,14 @@ package body Editor.Settings.Tests is
       Assert (Index (Text, "Ctrl+") = 0,
               "settings save must not serialize concrete keybinding mappings");
       Delete_If_Exists (Path);
-   end Test_Phase215_Save_Output_Is_Settings_Only;
+   end Test_Save_Output_Is_Settings_Only;
 
 
-   procedure Test_Phase576_Settings_Save_Excludes_Buffer_List_Runtime_State
+   procedure Test_Settings_Save_Excludes_Buffer_List_Runtime_State
      (T : in out AUnit.Test_Cases.Test_Case'Class)
    is
       pragma Unreferenced (T);
-      Path   : constant String := "/tmp/editor_phase576_settings_excludes_buffer_list.txt";
+      Path   : constant String := "/tmp/editor_settings_excludes_buffer_list.txt";
       S      : Editor.State.State_Type;
       Status : Editor.Settings.Settings_Status;
       Text   : Unbounded_String;
@@ -807,13 +807,13 @@ package body Editor.Settings.Tests is
       Delete_If_Exists (Path);
       Editor.State.Init (S);
 
-      --  Phase 576: seed representative Buffer List runtime-only UI state
+      --  seed representative Buffer List runtime-only UI state
       --  before saving Settings.  Settings persistence owns only global
       --  preferences and must not observe or serialize this transient panel
       --  state.
       Editor.Buffer_Switcher.Open (S.Buffer_Switcher);
       Editor.Buffer_Switcher.Set_Filter_Text
-        (S.Buffer_Switcher, "phase576-buffer-list-query-must-not-persist");
+        (S.Buffer_Switcher, "buffer-list-query-must-not-persist");
       Editor.Buffer_Switcher.Set_Dirty_Filter (S.Buffer_Switcher);
       Editor.Buffer_Switcher.Set_Sort_Mode
         (S.Buffer_Switcher, Editor.Buffer_Switcher.Name_Sort);
@@ -826,7 +826,7 @@ package body Editor.Settings.Tests is
       Text := To_Unbounded_String (Read_All (Path));
       Assert (Index (Text, "editor-settings-version=1") > 0,
               "settings save must still write the settings header");
-      Assert (Index (Text, "phase576-buffer-list-query-must-not-persist") = 0,
+      Assert (Index (Text, "buffer-list-query-must-not-persist") = 0,
               "settings save must exclude Buffer List query/filter text");
       Assert (Index (Text, "buffer-list") = 0,
               "settings save must exclude Buffer List runtime fields");
@@ -844,13 +844,13 @@ package body Editor.Settings.Tests is
               "settings save must exclude Buffer List review/mark state");
 
       Delete_If_Exists (Path);
-   end Test_Phase576_Settings_Save_Excludes_Buffer_List_Runtime_State;
+   end Test_Settings_Save_Excludes_Buffer_List_Runtime_State;
 
-   procedure Test_Phase215_Load_Missing_Fields_Uses_Defaults
+   procedure Test_Load_Missing_Fields_Uses_Defaults
      (T : in out AUnit.Test_Cases.Test_Case'Class)
    is
       pragma Unreferenced (T);
-      Path   : constant String := "/tmp/editor_phase215_missing_fields.txt";
+      Path   : constant String := "/tmp/editor_missing_fields.txt";
       Model  : Editor.Settings.Settings_Model;
       Status : Editor.Settings.Settings_Status;
    begin
@@ -877,13 +877,13 @@ package body Editor.Settings.Tests is
       Assert (Editor.Settings.Command_Palette_Show_Keybindings (Model),
               "missing palette keybinding-display setting must remain defaulted");
       Delete_If_Exists (Path);
-   end Test_Phase215_Load_Missing_Fields_Uses_Defaults;
+   end Test_Load_Missing_Fields_Uses_Defaults;
 
-   procedure Test_Phase215_Save_Failure_Does_Not_Update_State_Settings
+   procedure Test_Save_Failure_Does_Not_Update_State_Settings
      (T : in out AUnit.Test_Cases.Test_Case'Class)
    is
       pragma Unreferenced (T);
-      Blocker : constant String := "/tmp/editor_phase215_settings_blocker";
+      Blocker : constant String := "/tmp/editor_settings_blocker";
       Path    : constant String := Blocker & "/settings";
       S       : Editor.State.State_Type;
       Found   : Boolean := False;
@@ -907,13 +907,13 @@ package body Editor.Settings.Tests is
               "failed Save Settings must emit deterministic failure outcome");
       Editor.Minimap.Set_Enabled (True);
       Delete_If_Exists (Blocker);
-   end Test_Phase215_Save_Failure_Does_Not_Update_State_Settings;
+   end Test_Save_Failure_Does_Not_Update_State_Settings;
 
-   procedure Test_Phase215_Reload_Malformed_Does_Not_Mutate_Settings
+   procedure Test_Reload_Malformed_Does_Not_Mutate_Settings
      (T : in out AUnit.Test_Cases.Test_Case'Class)
    is
       pragma Unreferenced (T);
-      Path   : constant String := "/tmp/editor_phase215_malformed_reload.txt";
+      Path   : constant String := "/tmp/editor_malformed_reload.txt";
       S      : Editor.State.State_Type;
       Model  : Editor.Settings.Settings_Model;
       Found  : Boolean := False;
@@ -938,9 +938,9 @@ package body Editor.Settings.Tests is
       Editor.Minimap.Set_Enabled (True);
       Editor.Settings.Set_Show_Minimap (True);
       Delete_If_Exists (Path);
-   end Test_Phase215_Reload_Malformed_Does_Not_Mutate_Settings;
+   end Test_Reload_Malformed_Does_Not_Mutate_Settings;
 
-   procedure Install_Project_For_Phase104
+   procedure Install_Project_For_Settings
      (S    : in out Editor.State.State_Type;
       Root : String;
       Name : String)
@@ -952,13 +952,13 @@ package body Editor.Settings.Tests is
          Error_Text   => Null_Unbounded_String);
    begin
       Editor.Project.Apply_Open_Result (S.Project, Result);
-   end Install_Project_For_Phase104;
+   end Install_Project_For_Settings;
 
-   procedure Test_Phase104_Empty_Settings_File_Is_Hard_Invalid
+   procedure Test_Empty_Settings_File_Is_Hard_Invalid
      (T : in out AUnit.Test_Cases.Test_Case'Class)
    is
       pragma Unreferenced (T);
-      Path   : constant String := "/tmp/editor_phase104_empty_settings.txt";
+      Path   : constant String := "/tmp/editor_empty_settings.txt";
       Model  : Editor.Settings.Settings_Model;
       Status : Editor.Settings.Settings_Status;
    begin
@@ -972,14 +972,14 @@ package body Editor.Settings.Tests is
       Assert (Editor.Settings.Theme_Id (Model) = "dark",
               "hard-invalid settings load must leave built-in defaults");
       Delete_If_Exists (Path);
-   end Test_Phase104_Empty_Settings_File_Is_Hard_Invalid;
+   end Test_Empty_Settings_File_Is_Hard_Invalid;
 
-   procedure Test_Phase104_Normalized_Save_Is_Byte_Stable
+   procedure Test_Normalized_Save_Is_Byte_Stable
      (T : in out AUnit.Test_Cases.Test_Case'Class)
    is
       pragma Unreferenced (T);
-      Path_A : constant String := "/tmp/editor_phase104_settings_a.txt";
-      Path_B : constant String := "/tmp/editor_phase104_settings_b.txt";
+      Path_A : constant String := "/tmp/editor_settings_a.txt";
+      Path_B : constant String := "/tmp/editor_settings_b.txt";
       Model  : Editor.Settings.Settings_Model;
       Loaded : Editor.Settings.Settings_Model;
       Status : Editor.Settings.Settings_Status;
@@ -1033,21 +1033,21 @@ package body Editor.Settings.Tests is
               "duplicate keys must follow documented last-value-wins policy");
       Delete_If_Exists (Path_A);
       Delete_If_Exists (Path_B);
-   end Test_Phase104_Normalized_Save_Is_Byte_Stable;
+   end Test_Normalized_Save_Is_Byte_Stable;
 
-   procedure Test_Phase104_Settings_Commands_Preserve_Lifecycle_State
+   procedure Test_Settings_Commands_Preserve_Lifecycle_State
      (T : in out AUnit.Test_Cases.Test_Case'Class)
    is
       pragma Unreferenced (T);
       S : Editor.State.State_Type;
-      Settings_Path : constant String := "/tmp/editor_phase104_command_settings.txt";
+      Settings_Path : constant String := "/tmp/editor_command_settings.txt";
       Before : Editor.Lifecycle_Audit.Lifecycle_State_Summary;
       After  : Editor.Lifecycle_Audit.Lifecycle_State_Summary;
       Result : Editor.Lifecycle_Audit.Lifecycle_Audit_Result;
       Target : constant Editor.Pending_Transitions.Pending_Transition_Target :=
         (Kind       => Editor.Pending_Transitions.Pending_Open_Project,
-         Path       => To_Unbounded_String ("/tmp/editor-phase104-b"),
-         Display    => To_Unbounded_String ("editor-phase104-b"),
+         Path       => To_Unbounded_String ("/tmp/editor-b"),
+         Display    => To_Unbounded_String ("editor-b"),
          Buffer_Id  => 0,
          Has_Buffer => False,
          Has_Path   => True,
@@ -1059,18 +1059,18 @@ package body Editor.Settings.Tests is
       Delete_If_Exists (Settings_Path);
       Ada.Environment_Variables.Set ("EDITOR_SETTINGS_PATH", Settings_Path);
       Editor.State.Init (S);
-      Install_Project_For_Phase104 (S, "/tmp/editor-phase104-a", "editor-phase104-a");
+      Install_Project_For_Settings (S, "/tmp/editor-a", "editor-a");
       Editor.State.Load_Text (S, "dirty text");
       S.File_Info :=
         (Has_Path     => True,
-         Path         => To_Unbounded_String ("/tmp/editor-phase104-a/main.adb"),
+         Path         => To_Unbounded_String ("/tmp/editor-a/main.adb"),
          Display_Name => To_Unbounded_String ("main.adb"),
          Dirty        => True,
          others       => <>);
       Editor.Pending_Transitions.Set_Pending
         (S.Pending_Transitions, Target, Dirty);
       Editor.Recent_Projects.Add_Or_Promote
-        (S.Recent_Projects, "/tmp/editor-phase104-a", "editor-phase104-a", 104);
+        (S.Recent_Projects, "/tmp/editor-a", "editor-a", 104);
 
       Before := Editor.Lifecycle_Audit.State_Summary (S);
       Editor.Executor.Execute_Command (S, Editor.Commands.Command_Save_Settings);
@@ -1100,13 +1100,13 @@ package body Editor.Settings.Tests is
               "Reset Settings must not clear pending transitions");
       Editor.Settings_Management.Reset_Transient_State;
       Delete_If_Exists (Settings_Path);
-   end Test_Phase104_Settings_Commands_Preserve_Lifecycle_State;
+   end Test_Settings_Commands_Preserve_Lifecycle_State;
 
-   procedure Test_Phase104_Preference_Toggle_Persists_Only_After_Save
+   procedure Test_Preference_Toggle_Persists_Only_After_Save
      (T : in out AUnit.Test_Cases.Test_Case'Class)
    is
       pragma Unreferenced (T);
-      Path   : constant String := "/tmp/editor_phase104_toggle_persistence.txt";
+      Path   : constant String := "/tmp/editor_toggle_persistence.txt";
       S      : Editor.State.State_Type;
       Loaded : Editor.Settings.Settings_Model;
       Status : Editor.Settings.Settings_Status;
@@ -1150,10 +1150,10 @@ package body Editor.Settings.Tests is
       Assert (not Editor.Settings.Minimap_Visible (Loaded),
               "saved settings must persist minimap visibility toggle");
       Delete_If_Exists (Path);
-   end Test_Phase104_Preference_Toggle_Persists_Only_After_Save;
+   end Test_Preference_Toggle_Persists_Only_After_Save;
 
 
-   procedure Test_Phase534_Settings_User_Readable_Labels
+   procedure Test_Settings_User_Readable_Labels
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
       pragma Unreferenced (T);
    begin
@@ -1195,7 +1195,7 @@ package body Editor.Settings.Tests is
         (Editor.Settings.Settings_Validation_Message ("build-candidates", "1") =
            "Unknown setting.",
          "transient build fields must not validate as settings");
-   end Test_Phase534_Settings_User_Readable_Labels;
+   end Test_Settings_User_Readable_Labels;
 
    overriding function Name
      (T : Settings_Test_Case) return AUnit.Message_String
@@ -1276,35 +1276,35 @@ package body Editor.Settings.Tests is
         (T, Test_Save_Settings_Persists_Selected_Description_Preference'Access,
          "Save Settings Persists Selected Description Preference");
       AUnit.Test_Cases.Registration.Register_Routine
-        (T, Test_Phase104_Empty_Settings_File_Is_Hard_Invalid'Access,
-         "Phase104 Empty Settings File Is Hard Invalid");
+        (T, Test_Empty_Settings_File_Is_Hard_Invalid'Access,
+         "Empty Settings File Is Hard Invalid");
       AUnit.Test_Cases.Registration.Register_Routine
-        (T, Test_Phase104_Normalized_Save_Is_Byte_Stable'Access,
-         "Phase104 Normalized Save Is Byte Stable");
+        (T, Test_Normalized_Save_Is_Byte_Stable'Access,
+         "Normalized Save Is Byte Stable");
       AUnit.Test_Cases.Registration.Register_Routine
-        (T, Test_Phase104_Settings_Commands_Preserve_Lifecycle_State'Access,
-         "Phase104 Settings Commands Preserve Lifecycle State");
+        (T, Test_Settings_Commands_Preserve_Lifecycle_State'Access,
+         "Settings Commands Preserve Lifecycle State");
       AUnit.Test_Cases.Registration.Register_Routine
-        (T, Test_Phase104_Preference_Toggle_Persists_Only_After_Save'Access,
-         "Phase104 Preference Toggle Persists Only After Save");
+        (T, Test_Preference_Toggle_Persists_Only_After_Save'Access,
+         "Preference Toggle Persists Only After Save");
       AUnit.Test_Cases.Registration.Register_Routine
-        (T, Test_Phase215_Save_Output_Is_Settings_Only'Access,
-         "Phase215 Save Output Is Settings Only");
+        (T, Test_Save_Output_Is_Settings_Only'Access,
+         "Save Output Is Settings Only");
       AUnit.Test_Cases.Registration.Register_Routine
-        (T, Test_Phase576_Settings_Save_Excludes_Buffer_List_Runtime_State'Access,
-         "Phase576 Settings Save Excludes Buffer List Runtime State");
+        (T, Test_Settings_Save_Excludes_Buffer_List_Runtime_State'Access,
+         "Settings Save Excludes Buffer List Runtime State");
       AUnit.Test_Cases.Registration.Register_Routine
-        (T, Test_Phase215_Load_Missing_Fields_Uses_Defaults'Access,
-         "Phase215 Load Missing Fields Uses Defaults");
+        (T, Test_Load_Missing_Fields_Uses_Defaults'Access,
+         "Load Missing Fields Uses Defaults");
       AUnit.Test_Cases.Registration.Register_Routine
-        (T, Test_Phase215_Save_Failure_Does_Not_Update_State_Settings'Access,
-         "Phase215 Save Failure Does Not Update State Settings");
+        (T, Test_Save_Failure_Does_Not_Update_State_Settings'Access,
+         "Save Failure Does Not Update State Settings");
       AUnit.Test_Cases.Registration.Register_Routine
-        (T, Test_Phase215_Reload_Malformed_Does_Not_Mutate_Settings'Access,
-         "Phase215 Reload Malformed Does Not Mutate Settings");
+        (T, Test_Reload_Malformed_Does_Not_Mutate_Settings'Access,
+         "Reload Malformed Does Not Mutate Settings");
       AUnit.Test_Cases.Registration.Register_Routine
-        (T, Test_Phase534_Settings_User_Readable_Labels'Access,
-         "Phase534 Settings User Readable Labels");
+        (T, Test_Settings_User_Readable_Labels'Access,
+         "Settings User Readable Labels");
       AUnit.Test_Cases.Registration.Register_Routine
         (T, Test_Set_Theme_Commands_Are_Settings_Commands'Access,
          "Set Theme Commands Are Settings Commands");

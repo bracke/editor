@@ -2,8 +2,8 @@ with Editor.Ada_Generic_Replay_Representation_Contract_Predicate_Dataflow_Consum
 
 package Editor.Ada_Integrated_Semantic_Closure.Consumer_Chain is
 
-   --  Pass1172 bridge from the repaired/gated semantic consumer chain into
-   --  integrated semantic closure.  This package keeps the Pass1163-Pass1171
+   --  Case 1172 bridge from the repaired/gated semantic consumer chain into
+   --  integrated semantic closure.  This package keeps the Case 1163-Case 1171
    --  chain visible to closure consumers by preserving the direct blocker
    --  family implied by generic replay representation contract-predicate-
    --  dataflow rows, instead of flattening those rows into an anonymous

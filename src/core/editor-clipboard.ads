@@ -2,7 +2,7 @@ with Ada.Strings.Unbounded;
 
 package Editor.Clipboard is
 
-   --  Canonical editor clipboard state for Phase 376: transient,
+   --  Canonical editor clipboard state for transient,
    --  session-local, plain text only.  Clipboard contents are not persisted,
    --  not Undo/Redo state, and not Navigation History state.
 

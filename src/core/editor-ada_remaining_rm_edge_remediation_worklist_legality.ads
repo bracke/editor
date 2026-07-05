@@ -4,9 +4,9 @@ with Editor.Ada_Syntax_Tree;
 
 package Editor.Ada_Remaining_RM_Edge_Remediation_Worklist_Legality is
 
-   --  Pass1286 remediation worklist for remaining Ada RM edge blockers.
+   --  Case 1286 remediation worklist for remaining Ada RM edge blockers.
    --
-   --  This package consumes Pass1285 remaining RM edge stabilized diagnostics
+   --  This package consumes Case 1285 remaining RM edge stabilized diagnostics
    --  and converts each blocker into deterministic prerequisite work before a
    --  later bounded recheck may trust the result.  Accepted rows remain current
    --  semantic evidence.  Remaining-edge, stabilized-closure, fingerprint,

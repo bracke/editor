@@ -28541,7 +28541,7 @@ package body Editor.Ada_Declaration_Parser is
 
       --  Renaming declarations must name a renamed entity and the retained
       --  entity must not be the declaration itself.  This is intentionally
-      --  syntactic/name-based: full visibility resolution is a later phase,
+      --  syntactic/name-based: full visibility resolution is future semantic work,
       --  but these two cases are unambiguous from the structural model.
       for I in 1 .. Symbol_Count (Analysis) loop
          declare

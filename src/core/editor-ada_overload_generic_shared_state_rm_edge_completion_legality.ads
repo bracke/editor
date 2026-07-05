@@ -6,11 +6,11 @@ with Editor.Ada_Syntax_Tree;
 
 package Editor.Ada_Overload_Generic_Shared_State_RM_Edge_Completion_Legality is
 
-   --  Pass1246 overload/generic/shared-state RM edge completion legality.
+   --  Case 1246 overload/generic/shared-state RM edge completion legality.
    --
    --  This package consumes the stabilized generic/shared-state final closure
-   --  from Pass1245 together with the earlier overload/generic/shared-state
-   --  final legality from Pass1228.  It deepens the remaining Ada overload and
+   --  from Case 1245 together with the earlier overload/generic/shared-state
+   --  final legality from Case 1228.  It deepens the remaining Ada overload and
    --  type-resolution RM edge cases where accepted overload conclusions are
    --  still unsafe unless renamed primitive visibility, inherited/private
    --  extension hiding, dispatching abstract-state effects, prefixed-call

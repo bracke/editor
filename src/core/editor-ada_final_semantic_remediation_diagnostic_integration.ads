@@ -6,9 +6,9 @@ with Editor.Ada_Syntax_Tree;
 
 package Editor.Ada_Final_Semantic_Remediation_Diagnostic_Integration is
 
-   --  Pass1202 final semantic remediation diagnostic integration.
+   --  Case 1202 final semantic remediation diagnostic integration.
    --
-   --  This package consumes Pass1201 remediation-closure rows and produces
+   --  This package consumes Case 1201 remediation-closure rows and produces
    --  diagnostic-ready semantic rows without flattening prerequisite evidence.
    --  It is not a projection/status layer: each row keeps the prerequisite
    --  blocker family that caused a downstream legal conclusion to be withheld,

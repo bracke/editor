@@ -4,7 +4,7 @@ with Editor.Ada_Syntax_Tree;
 
 package Editor.Ada_Object_Initialization_Default_Vertical_Slice_Legality is
 
-   --  Pass1307 vertical-slice object initialization/default-expression
+   --  Case 1307 vertical-slice object initialization/default-expression
    --  legality.  This package checks concrete default initialization,
    --  aggregate initialization, deferred constants, controlled/finalized
    --  initialization, and definite-assignment prerequisites.  It is not a

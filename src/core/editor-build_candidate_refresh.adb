@@ -152,7 +152,7 @@ package body Editor.Build_Candidate_Refresh is
    begin
       --  Failed refresh is status-only. It is not an alternate candidate-list
       --  owner and cannot clear, repair, auto-select, or auto-consent.
-      --  Phase 554 removes the runnable manual request preservation path:
+      --  removes the runnable manual request preservation path:
       --  refresh status must not retain request config without a selected
       --  discovered candidate.
       Result.Manual_Request_Preserved := False;
@@ -189,7 +189,7 @@ package body Editor.Build_Candidate_Refresh is
       Old_Found : Boolean := False;
       New_Found : Boolean := False;
    begin
-      --  Phase 554 candidate refresh never preserves a runnable/manual
+      --  candidate refresh never preserves a runnable/manual
       --  configured request when no candidate is selected.
       Result.Manual_Request_Preserved := False;
       State.Build_Candidates := New_Candidates;
@@ -202,7 +202,7 @@ package body Editor.Build_Candidate_Refresh is
       State.Selected_Candidate_Cleared_On_Refresh := False;
 
       if not Had_Selection then
-         --  Phase 554: refresh may update the candidate list, but it must not
+         --  refresh may update the candidate list, but it must not
          --  preserve or manufacture a configured request without an explicit
          --  selected candidate.  Clear any stale/manual request shape so the
          --  UI remains in the no-candidate-selected state.
@@ -418,7 +418,7 @@ package body Editor.Build_Candidate_Refresh is
       State.Selected_Candidate_Stale := False;
       State.Selected_Candidate_Preserved_On_Refresh := False;
       State.Selected_Candidate_Cleared_On_Refresh := Had_Selection;
-      --  Phase 554 project close clears all executable request configuration,
+      --  project close clears all executable request configuration,
       --  including stale/manual tool and argv shape.  A closed project must
       --  never retain a runnable build request without candidate selection.
       State.Selected_Build_Tool := Editor.Build_UI.Build_UI_No_Tool;

@@ -2,11 +2,11 @@ with Ada.Strings.Unbounded; use Ada.Strings.Unbounded;
 with AUnit.Assertions; use AUnit.Assertions;
 with AUnit.Test_Cases;
 with Editor.Ada_Syntax_Tree;
-with Editor.Ada_Partial_Evidence_Precision_Audit_Pass1341;
+with Editor.Ada_Partial_Evidence_Precision_Audit;
 
 package body Test_Ada_Partial_Evidence_Precision_Audit is
 
-   package Audit renames Editor.Ada_Partial_Evidence_Precision_Audit_Pass1341;
+   package Audit renames Editor.Ada_Partial_Evidence_Precision_Audit;
    use type Audit.RM_Family;
    use type Audit.Implementing_Slice;
    use type Audit.Remediation_State;

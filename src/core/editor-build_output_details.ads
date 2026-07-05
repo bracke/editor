@@ -2,7 +2,7 @@ with Ada.Strings.Unbounded;
 
 package Editor.Build_Output_Details is
 
-   --  Phase 514/579 transient latest build output details.  This is a bounded
+   --  /579 transient latest build output details.  This is a bounded
    --  display projection over captured stdout/stderr and the active build-job
    --  incremental output stream.  It is not build history, not a terminal, not
    --  a rerun payload, not Diagnostics ownership, not process ownership, and
@@ -310,7 +310,7 @@ package Editor.Build_Output_Details is
      (Details : Latest_Build_Output_Details) return Boolean;
 
 
-   --  Phase 517 final regression-freeze assertions.  These helpers are
+   --  final regression-freeze assertions.  These helpers are
    --  declarative guards over the frozen latest bounded output-details
    --  contract; they do not normalize, repair, persist, spawn, parse
    --  Diagnostics, or mutate runtime state.

@@ -6,6 +6,7 @@ with Interfaces.C;
 with Editor.Buffers;
 with Editor.Commands;
 with Editor.Executor;
+with Editor.Executor.Find_Replace_Commands;
 with Editor.Gutter_Markers;
 with Editor.Input_Bridge;
 with Editor.Layout;
@@ -100,7 +101,7 @@ package body Editor.Messages.Tests is
    begin
       Ada.Directories.Create_Path ("/tmp/editor-tests");
       return Ada.Directories.Compose
-        ("/tmp/editor-tests", "phase48_" & Name);
+        ("/tmp/editor-tests", "" & Name);
    end Temp_Path;
 
    procedure Test_Push_Message_Makes_State_Non_Empty
@@ -444,8 +445,8 @@ package body Editor.Messages.Tests is
    begin
       Editor.State.Init (S);
       Editor.State.Load_Text (S, "alpha beta");
-      Editor.Executor.Execute_Find_Set_Query (S, "zzz");
-      Editor.Executor.Execute_Find_Next (S);
+      Editor.Executor.Find_Replace_Commands.Execute_Find_Set_Query (S, "zzz");
+      Editor.Executor.Find_Replace_Commands.Execute_Find_Next (S);
 
       M := Editor.Messages.Active_Message (S.Messages, Found);
       Assert (Found, "No-match search must publish a message");

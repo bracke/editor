@@ -1,4 +1,11 @@
 with Ada.Strings.Unbounded; use Ada.Strings.Unbounded;
+with Editor.Ada_Diagnostic_Action_Router;
+with Editor.Ada_Diagnostic_Navigation;
+with Editor.Ada_Diagnostic_Panel_Projection;
+with Editor.Ada_Diagnostic_Provenance;
+with Editor.Ada_Diagnostic_Quick_Fix_Skeleton;
+with Editor.Ada_Diagnostic_Status_Line;
+with Editor.Ada_Semantic_Diagnostic_Index;
 with Editor.Syntax;
 
 package body Editor.Ada_Language_Service is
@@ -972,6 +979,8 @@ package body Editor.Ada_Language_Service is
       Source_Label : String := "semantic-feed")
    is
       package Feed_Pkg renames Editor.Ada_Semantic_Diagnostic_Feed;
+      package Index_Pkg renames Editor.Ada_Semantic_Diagnostic_Index;
+      package Command_Pkg renames Editor.Ada_Diagnostic_Command_Projection;
    begin
       Clear_Semantic_Diagnostics_By_Source_Prefix
         (Service, Path, Source_Label & ":");
@@ -988,11 +997,53 @@ package body Editor.Ada_Language_Service is
       Service.Semantic_State.Fingerprint :=
         Mix (Text_Fingerprint (Path), Feed_Pkg.Fingerprint (Feed));
 
+      declare
+         Index : constant Index_Pkg.Semantic_Diagnostic_Index_Model :=
+           Index_Pkg.Build (Feed);
+         Quick_Fixes : constant
+           Editor.Ada_Diagnostic_Quick_Fix_Skeleton.Diagnostic_Quick_Fix_Model :=
+           Editor.Ada_Diagnostic_Quick_Fix_Skeleton.Build (Index);
+         Navigation : constant
+           Editor.Ada_Diagnostic_Navigation.Diagnostic_Navigation_Model :=
+           Editor.Ada_Diagnostic_Navigation.Build (Index);
+         Panel : constant
+           Editor.Ada_Diagnostic_Panel_Projection.Diagnostic_Panel_Model :=
+           Editor.Ada_Diagnostic_Panel_Projection.Build (Index, Path);
+         Provenance : constant
+           Editor.Ada_Diagnostic_Provenance.Diagnostic_Provenance_Model :=
+           Editor.Ada_Diagnostic_Provenance.Build (Index);
+         Status_Line : constant
+           Editor.Ada_Diagnostic_Status_Line.Diagnostic_Status_Line_Model :=
+           Editor.Ada_Diagnostic_Status_Line.Build (Index);
+         Routes : constant
+           Editor.Ada_Diagnostic_Action_Router.Diagnostic_Action_Router_Model :=
+           Editor.Ada_Diagnostic_Action_Router.Build
+             (Quick_Fixes, Navigation, Panel, Provenance, Status_Line);
+         Commands : constant Command_Pkg.Diagnostic_Command_Projection_Model :=
+           Command_Pkg.Build (Routes);
+      begin
       for I in 1 .. Feed_Pkg.Entry_Count (Feed) loop
          declare
             Feed_Item : constant Feed_Pkg.Semantic_Diagnostic_Feed_Entry :=
               Feed_Pkg.Entry_At (Feed, I);
+            Index_Id : Index_Pkg.Semantic_Diagnostic_Index_Id :=
+              Index_Pkg.No_Semantic_Diagnostic_Index_Entry;
+            Descriptor : Command_Pkg.Diagnostic_Command_Descriptor :=
+              Command_Pkg.First_For_Diagnostic (Commands, Index_Id);
          begin
+            for J in 1 .. Index_Pkg.Entry_Count (Index) loop
+               declare
+                  Indexed : constant Index_Pkg.Semantic_Diagnostic_Index_Entry :=
+                    Index_Pkg.Entry_At (Index, J);
+               begin
+                  if Indexed.Feed_Index = I then
+                     Index_Id := Indexed.Id;
+                     exit;
+                  end if;
+               end;
+            end loop;
+
+            Descriptor := Command_Pkg.First_For_Diagnostic (Commands, Index_Id);
             Put_Semantic_Diagnostic
               (Service,
                (Severity     => To_Service_Severity (Feed_Item.Severity),
@@ -1003,9 +1054,12 @@ package body Editor.Ada_Language_Service is
                 Column       => Feed_Item.Start_Column,
                 Source       => To_Unbounded_String (Source_Label & ":" &
                   Feed_Pkg.Semantic_Diagnostic_Feed_Source'Image
-                    (Feed_Item.Source))));
+                    (Feed_Item.Source)),
+                Has_Command_Descriptor => Command_Pkg.Has_Descriptor (Descriptor),
+                Command_Descriptor     => Descriptor));
          end;
       end loop;
+      end;
    end Put_Semantic_Diagnostic_Feed;
 
    function Semantic_Diagnostics_Status

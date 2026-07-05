@@ -12,7 +12,7 @@ with Editor.Ada_Tasking_Protected_Final_Effects_Legality;
 
 package Editor.Ada_Representation_Freezing_Final_Hard_Cases_Legality is
 
-   --  Pass1191 compiler-grade representation/freezing final hard-case legality.
+   --  Case 1191 compiler-grade representation/freezing final hard-case legality.
    --
    --  This layer closes the remaining hard representation/freezing cases that
    --  need evidence from final consumers rather than a local representation row

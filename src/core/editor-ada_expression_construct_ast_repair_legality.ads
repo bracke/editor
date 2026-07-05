@@ -6,9 +6,9 @@ with Editor.Ada_Syntax_Tree;
 
 package Editor.Ada_Expression_Construct_AST_Repair_Legality is
 
-   --  Pass1178 expression construct parser-AST repair legality.
+   --  Case 1178 expression construct parser-AST repair legality.
    --
-   --  This package turns the repaired-coverage facts from Pass1147 into
+   --  This package turns the repaired-coverage facts from Case 1147 into
    --  concrete expression construct repair facts.  Container aggregates, delta aggregates, reduction expressions, and quantified expressions are not treated as restored until parser nodes,
    --  structural AST, spans, name/type/flow/representation metadata,
    --  cross-unit metadata,

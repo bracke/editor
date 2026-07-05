@@ -5,9 +5,9 @@ with Editor.Ada_Syntax_Tree;
 
 package Editor.Ada_Generic_Shared_State_RM_Completion_Recheck_Eligibility_Legality is
 
-   --  Pass1259 RM-completed generic/shared-state recheck eligibility legality.
+   --  Case 1259 RM-completed generic/shared-state recheck eligibility legality.
    --
-   --  This package consumes the Pass1257 RM-completed generic/shared-state
+   --  This package consumes the Case 1257 RM-completed generic/shared-state
    --  remediation worklist and turns ordered prerequisite work into bounded
    --  recheck eligibility rows.  It prevents downstream generic/shared-state
    --  final consumers from trusting conclusions while prerequisite blockers

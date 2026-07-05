@@ -491,7 +491,7 @@ package body Editor.Build_Output_Details.Tests is
       Assert (Audit.Coherent,
               "output-details audit confirms transient bounded non-owner boundaries");
       Assert (Audit.Summary_Remains_Compact,
-              "audit also confirms Phase 513 compact summary remains intact");
+              "audit also confirms compact summary remains intact");
    end Test_Output_Details_Audit_Coherent;
 
 
@@ -638,7 +638,7 @@ package body Editor.Build_Output_Details.Tests is
 
 
 
-   procedure Test_Phase516_Canonical_Shape_Removes_Log_Rerun_Process_Diagnostics_State
+   procedure Test_Canonical_Shape_Removes_Log_Rerun_Process_Diagnostics_State
      (T : in out AUnit.Test_Cases.Test_Case'Class)
    is
       pragma Unreferenced (T);
@@ -652,22 +652,22 @@ package body Editor.Build_Output_Details.Tests is
    begin
       Assert (Editor.Build_Output_Details.Assert_Latest_Build_Output_Details_Shape_Canonical
                 (Details),
-              "Phase 516 output details shape is bounded display-only state");
+              "output details shape is bounded display-only state");
       Assert (Editor.Build_Output_Details.Assert_Latest_Build_Output_Details_Not_Rerun_State
                 (Details),
-              "Phase 516 output details contain no request/consent/working-context rerun payload");
+              "output details contain no request/consent/working-context rerun payload");
       Assert (Editor.Build_Output_Details.Assert_Latest_Build_Output_Details_Not_Diagnostics_Owner
                 (Details),
-              "Phase 516 output details contain no Diagnostics row copy");
+              "output details contain no Diagnostics row copy");
       Assert (Editor.Build_Output_Details.Assert_Latest_Build_Output_Details_Not_Output_Log
                 (Details),
-              "Phase 516 output details are not full logs, histories, or saved paths");
+              "output details are not full logs, histories, or saved paths");
       Assert (not Editor.Build_Output_Details.Has_Process_Handle_Field (Details)
               and then not Editor.Build_Output_Details.Has_Cancellation_Token_Field (Details),
-              "Phase 516 output details expose no process-control handles");
-   end Test_Phase516_Canonical_Shape_Removes_Log_Rerun_Process_Diagnostics_State;
+              "output details expose no process-control handles");
+   end Test_Canonical_Shape_Removes_Log_Rerun_Process_Diagnostics_State;
 
-   procedure Test_Phase516_Canonical_Replacement_Drops_All_Previous_Stream_State
+   procedure Test_Canonical_Replacement_Drops_All_Previous_Stream_State
      (T : in out AUnit.Test_Cases.Test_Case'Class)
    is
       pragma Unreferenced (T);
@@ -689,26 +689,26 @@ package body Editor.Build_Output_Details.Tests is
           (Previous, Next);
    begin
       Assert (Replaced.Has_Output_Details,
-              "Phase 516 no-output replacement keeps one latest represented record");
+              "no-output replacement keeps one latest represented record");
       Assert (not Replaced.Stdout_Available
               and then not Replaced.Stderr_Available,
-              "Phase 516 no-output replacement has no stream availability");
+              "no-output replacement has no stream availability");
       Assert (Length (Replaced.Stdout_Excerpt) = 0
               and then Length (Replaced.Stderr_Excerpt) = 0,
-              "Phase 516 no-output replacement clears both prior excerpts");
+              "no-output replacement clears both prior excerpts");
       Assert (not Replaced.Stdout_Truncated
               and then not Replaced.Stderr_Truncated
               and then not Replaced.Output_Partial,
-              "Phase 516 no-output replacement clears prior truncation and partial flags");
+              "no-output replacement clears prior truncation and partial flags");
       Assert (Editor.Build_Output_Details.Assert_Latest_Build_Output_Details_Replace_Only
                 (Previous, Next),
-              "Phase 516 replacement is deterministic and non-historical");
+              "replacement is deterministic and non-historical");
       Assert (Editor.Build_Output_Details.Assert_Latest_Build_Output_Details_No_Output_Canonical
                 (Replaced),
-              "Phase 516 no-output state is explicit and canonical");
-   end Test_Phase516_Canonical_Replacement_Drops_All_Previous_Stream_State;
+              "no-output state is explicit and canonical");
+   end Test_Canonical_Replacement_Drops_All_Previous_Stream_State;
 
-   procedure Test_Phase516_Render_And_Audit_Do_Not_Own_Runtime_Output_Details
+   procedure Test_Render_And_Audit_Do_Not_Own_Runtime_Output_Details
      (T : in out AUnit.Test_Cases.Test_Case'Class)
    is
       pragma Unreferenced (T);
@@ -729,13 +729,13 @@ package body Editor.Build_Output_Details.Tests is
         (S.Latest_Build_Output_Details);
       Assert (To_String (Snapshot.Stdout_Excerpt) = "render stdout"
               and then To_String (Snapshot.Stderr_Excerpt) = "render stderr",
-              "Phase 516 render snapshot consumes bounded fields already present");
+              "render snapshot consumes bounded fields already present");
       Assert (To_String (S.Latest_Build_Output_Details.Associated_Result_Identity) =
                 To_String (Before_Identity),
-              "Phase 516 render snapshot does not mutate output details identity");
+              "render snapshot does not mutate output details identity");
       Assert (Editor.Build_Output_Details.Assert_Latest_Build_Output_Details_Render_Cleanup
                 (S.Latest_Build_Output_Details),
-              "Phase 516 render cleanup assertion confirms snapshot-only behavior");
+              "render cleanup assertion confirms snapshot-only behavior");
 
       S.Latest_Build_Result :=
         Editor.Build_Result_Summary.Build_Summary
@@ -750,12 +750,12 @@ package body Editor.Build_Output_Details.Tests is
            Has_Exit_Code => True);
       Audit := Editor.Build_Output_Details_Audit.Run_Build_Output_Details_Audit (S);
       Assert (Audit.Output_Details_Canonical_Coherent,
-              "Phase 516 audit observes canonical output boundaries without owning runtime details");
+              "audit observes canonical output boundaries without owning runtime details");
       Assert (Audit.Coherent,
-              "Phase 516 audit remains side-effect-free and coherent");
-   end Test_Phase516_Render_And_Audit_Do_Not_Own_Runtime_Output_Details;
+              "audit remains side-effect-free and coherent");
+   end Test_Render_And_Audit_Do_Not_Own_Runtime_Output_Details;
 
-   procedure Test_Phase516_Executor_Path_Is_Only_State_Update_Surface
+   procedure Test_Executor_Path_Is_Only_State_Update_Surface
      (T : in out AUnit.Test_Cases.Test_Case'Class)
    is
       pragma Unreferenced (T);
@@ -764,19 +764,19 @@ package body Editor.Build_Output_Details.Tests is
    begin
       Result := Editor.Build_Command.Execute_Public_Build_Run (S);
       Assert (Result.Build_Result.Status = Editor.External_Producers.Build_Run_Not_Available,
-              "Phase 516 pre-run unavailable outcome is still represented through Executor path");
+              "pre-run unavailable outcome is still represented through Executor path");
       Assert (S.Latest_Build_Output_Details.Has_Output_Details,
-              "Phase 516 Executor path replaces latest output details even for unavailable outcome");
+              "Executor path replaces latest output details even for unavailable outcome");
       Assert (Editor.Build_Output_Details.Assert_Public_Build_Output_Details_Canonical_Coherent
                 (S.Latest_Build_Output_Details),
-              "Phase 516 Executor-updated output details are canonical and display-only");
+              "Executor-updated output details are canonical and display-only");
       Assert (not S.Latest_Build_Output_Details.Stdout_Available
               and then not S.Latest_Build_Output_Details.Stderr_Available,
-              "Phase 516 unavailable outcome fabricates no stdout/stderr from command messages");
-   end Test_Phase516_Executor_Path_Is_Only_State_Update_Surface;
+              "unavailable outcome fabricates no stdout/stderr from command messages");
+   end Test_Executor_Path_Is_Only_State_Update_Surface;
 
 
-   procedure Test_Phase517_Final_Freeze_Shape_And_Mapping_All_Outcomes
+   procedure Test_Final_Freeze_Shape_And_Mapping_All_Outcomes
      (T : in out AUnit.Test_Cases.Test_Case'Class)
    is
       pragma Unreferenced (T);
@@ -806,29 +806,29 @@ package body Editor.Build_Output_Details.Tests is
    begin
       Assert (Editor.Build_Output_Details.Assert_Public_Build_Output_Details_Final_Freeze_Coherent
                 (Success),
-              "Phase 517 final freeze accepts successful bounded stdout details");
+              "final freeze accepts successful bounded stdout details");
       Assert (Editor.Build_Output_Details.Assert_Public_Build_Output_Details_Final_Freeze_Coherent
                 (Failure),
-              "Phase 517 final freeze accepts failed bounded stderr details");
+              "final freeze accepts failed bounded stderr details");
       Assert (Editor.Build_Output_Details.Assert_Public_Build_Output_Details_Final_Freeze_Coherent
                 (Spawn_Failure),
-              "Phase 517 final freeze accepts retained bounded spawn-error details");
+              "final freeze accepts retained bounded spawn-error details");
       Assert (Editor.Build_Output_Details.Assert_Public_Build_Output_Details_Final_Freeze_Coherent
                 (Timeout)
               and then Timeout.Output_Partial and then Timeout.Timed_Out,
-              "Phase 517 timeout details are partial without process-control state");
+              "timeout details are partial without process-control state");
       Assert (Editor.Build_Output_Details.Assert_Public_Build_Output_Details_Final_Freeze_Coherent
                 (Cancelled)
               and then Cancelled.Output_Partial and then Cancelled.Cancelled,
-              "Phase 517 cancellation details are partial without cancellation token state");
+              "cancellation details are partial without cancellation token state");
       Assert (Editor.Build_Output_Details.Assert_Public_Build_Output_Details_Final_Freeze_Coherent
                 (Cancellation_Unsupported)
               and then not Cancellation_Unsupported.Stdout_Available
               and then not Cancellation_Unsupported.Stderr_Available,
-              "Phase 517 cancellation-unsupported details retain no process-control state");
-   end Test_Phase517_Final_Freeze_Shape_And_Mapping_All_Outcomes;
+              "cancellation-unsupported details retain no process-control state");
+   end Test_Final_Freeze_Shape_And_Mapping_All_Outcomes;
 
-   procedure Test_Phase517_Final_Freeze_No_Output_Clears_And_Fabricates_Nothing
+   procedure Test_Final_Freeze_No_Output_Clears_And_Fabricates_Nothing
      (T : in out AUnit.Test_Cases.Test_Case'Class)
    is
       pragma Unreferenced (T);
@@ -853,22 +853,22 @@ package body Editor.Build_Output_Details.Tests is
    begin
       Assert (Editor.Build_Output_Details.Assert_Latest_Build_Output_Details_Final_No_Output_Frozen
                 (Replaced),
-              "Phase 517 no-output state is explicitly frozen");
+              "no-output state is explicitly frozen");
       Assert (Length (Replaced.Stdout_Excerpt) = 0
               and then Length (Replaced.Stderr_Excerpt) = 0,
-              "Phase 517 no-output state clears prior stdout/stderr excerpts");
+              "no-output state clears prior stdout/stderr excerpts");
       Assert (not Replaced.Stdout_Truncated
               and then not Replaced.Stderr_Truncated
               and then not Replaced.Output_Partial,
-              "Phase 517 no-output state clears prior truncation/partial flags");
+              "no-output state clears prior truncation/partial flags");
       Assert (To_String (Replaced.Stdout_Excerpt) /= "Build succeeded"
               and then To_String (Replaced.Stderr_Excerpt) /= "Build succeeded",
-              "Phase 517 no-output state does not fabricate command-message output");
+              "no-output state does not fabricate command-message output");
       Assert (not Editor.Build_Output_Details.Has_Diagnostics_Rows_Field (Replaced),
-              "Phase 517 no-output state does not copy Diagnostics rows");
-   end Test_Phase517_Final_Freeze_No_Output_Clears_And_Fabricates_Nothing;
+              "no-output state does not copy Diagnostics rows");
+   end Test_Final_Freeze_No_Output_Clears_And_Fabricates_Nothing;
 
-   procedure Test_Phase517_Final_Freeze_Replace_Only_No_History_Rerun_Log_Process
+   procedure Test_Final_Freeze_Replace_Only_No_History_Rerun_Log_Process
      (T : in out AUnit.Test_Cases.Test_Case'Class)
    is
       pragma Unreferenced (T);
@@ -886,25 +886,25 @@ package body Editor.Build_Output_Details.Tests is
    begin
       Assert (Editor.Build_Output_Details.Assert_Latest_Build_Output_Details_Final_Replace_Only_Frozen
                 (Previous, Next),
-              "Phase 517 replacement is final-frozen as latest-only");
+              "replacement is final-frozen as latest-only");
       Assert (To_String (Replaced.Stdout_Excerpt) = "new success"
               and then Length (Replaced.Stderr_Excerpt) = 0,
-              "Phase 517 replacement carries only latest represented output");
+              "replacement carries only latest represented output");
       Assert (Editor.Build_Output_Details.Assert_Latest_Build_Output_Details_Final_No_History
                 (Replaced),
-              "Phase 517 details are not build or output history");
+              "details are not build or output history");
       Assert (Editor.Build_Output_Details.Assert_Latest_Build_Output_Details_Final_Not_Rerun_State
                 (Replaced),
-              "Phase 517 details cannot be converted into rerun state");
+              "details cannot be converted into rerun state");
       Assert (Editor.Build_Output_Details.Assert_Latest_Build_Output_Details_Final_Not_Process_Control
                 (Replaced),
-              "Phase 517 details expose no process handle or cancellation token");
+              "details expose no process handle or cancellation token");
       Assert (Editor.Build_Output_Details.Assert_Latest_Build_Output_Details_Final_Not_Output_Log
                 (Replaced),
-              "Phase 517 details are bounded excerpts, not output logs");
-   end Test_Phase517_Final_Freeze_Replace_Only_No_History_Rerun_Log_Process;
+              "details are bounded excerpts, not output logs");
+   end Test_Final_Freeze_Replace_Only_No_History_Rerun_Log_Process;
 
-   procedure Test_Phase517_Final_Freeze_Summary_Frontdoor_And_Executor_Ownership
+   procedure Test_Final_Freeze_Summary_Frontdoor_And_Executor_Ownership
      (T : in out AUnit.Test_Cases.Test_Case'Class)
    is
       pragma Unreferenced (T);
@@ -912,26 +912,26 @@ package body Editor.Build_Output_Details.Tests is
       Result : Editor.External_Producers.Build_Command_Result;
    begin
       Assert (Editor.Build_Command.Assert_Build_Run_Command_Palette_Boundary (S),
-              "Phase 517 Command Palette boundary remains descriptor/Executor-only");
+              "Command Palette boundary remains descriptor/Executor-only");
       Assert (Editor.Build_Command.Assert_Build_Run_Keybinding_Boundary,
-              "Phase 517 keybinding boundary remains command-name-only");
+              "keybinding boundary remains command-name-only");
       Result := Editor.Build_Command.Execute_Public_Build_Run (S);
       Assert (Result.Build_Result.Status = Editor.External_Producers.Build_Run_Not_Available,
-              "Phase 517 pre-run unavailable result is represented through Executor");
+              "pre-run unavailable result is represented through Executor");
       Assert (Editor.Build_Output_Details.Assert_Public_Build_Output_Details_Final_Freeze_Coherent
                 (S.Latest_Build_Output_Details),
-              "Phase 517 Executor-updated output details satisfy final freeze");
+              "Executor-updated output details satisfy final freeze");
       Assert (Editor.Build_Result_Summary.Assert_Public_Build_Result_Surface_Final_Freeze_Coherent
                 (S.Latest_Build_Result),
-              "Phase 517 preserves Phase 513 compact result-summary final freeze");
+              "preserves compact result-summary final freeze");
       Assert (not Editor.Build_Result_Summary.Has_Full_Stdout_Field
                 (S.Latest_Build_Result)
               and then not Editor.Build_Result_Summary.Has_Full_Stderr_Field
                 (S.Latest_Build_Result),
-              "Phase 517 summary still does not store stdout/stderr excerpts");
-   end Test_Phase517_Final_Freeze_Summary_Frontdoor_And_Executor_Ownership;
+              "summary still does not store stdout/stderr excerpts");
+   end Test_Final_Freeze_Summary_Frontdoor_And_Executor_Ownership;
 
-   procedure Test_Phase517_Final_Freeze_Render_Audit_Lifecycle_And_Persistence
+   procedure Test_Final_Freeze_Render_Audit_Lifecycle_And_Persistence
      (T : in out AUnit.Test_Cases.Test_Case'Class)
    is
       pragma Unreferenced (T);
@@ -964,19 +964,19 @@ package body Editor.Build_Output_Details.Tests is
         (S.Latest_Build_Output_Details);
       Assert (To_String (Snapshot.Stdout_Excerpt) = "bounded out"
               and then To_String (Snapshot.Stderr_Excerpt) = "bounded err",
-              "Phase 517 render consumes already-built output-details snapshot");
+              "render consumes already-built output-details snapshot");
       Assert (To_String (S.Latest_Build_Output_Details.Associated_Result_Identity) =
                 To_String (Before),
-              "Phase 517 render does not mutate latest output details");
+              "render does not mutate latest output details");
       Audit := Editor.Build_Output_Details_Audit.Run_Build_Output_Details_Audit (S);
       Assert (Audit.Output_Details_Final_Freeze_Coherent
               and then Audit.Coherent,
-              "Phase 517 audit observes final boundaries without mutating runtime state");
+              "audit observes final boundaries without mutating runtime state");
       Assert (Editor.Build_Command.Assert_Build_Run_Persistence_Excluded (S),
-              "Phase 517 build command persistence exclusion remains intact");
+              "build command persistence exclusion remains intact");
       Assert (not Restarted.Latest_Build_Output_Details.Has_Output_Details,
-              "Phase 517 fresh session/reload restores no output details");
-   end Test_Phase517_Final_Freeze_Render_Audit_Lifecycle_And_Persistence;
+              "fresh session/reload restores no output details");
+   end Test_Final_Freeze_Render_Audit_Lifecycle_And_Persistence;
 
 
 
@@ -1106,32 +1106,32 @@ package body Editor.Build_Output_Details.Tests is
         (T, Test_Reliability_Helper_Reasserts_All_Output_Boundaries'Access,
          "reliability helper reasserts output boundaries");
       Register_Routine
-        (T, Test_Phase516_Canonical_Shape_Removes_Log_Rerun_Process_Diagnostics_State'Access,
-         "Phase 516 canonical shape removes log/rerun/process/Diagnostics state");
+        (T, Test_Canonical_Shape_Removes_Log_Rerun_Process_Diagnostics_State'Access,
+         "canonical shape removes log/rerun/process/Diagnostics state");
       Register_Routine
-        (T, Test_Phase516_Canonical_Replacement_Drops_All_Previous_Stream_State'Access,
-         "Phase 516 canonical replacement drops previous stream state");
+        (T, Test_Canonical_Replacement_Drops_All_Previous_Stream_State'Access,
+         "canonical replacement drops previous stream state");
       Register_Routine
-        (T, Test_Phase516_Render_And_Audit_Do_Not_Own_Runtime_Output_Details'Access,
-         "Phase 516 render and audit do not own runtime output details");
+        (T, Test_Render_And_Audit_Do_Not_Own_Runtime_Output_Details'Access,
+         "render and audit do not own runtime output details");
       Register_Routine
-        (T, Test_Phase516_Executor_Path_Is_Only_State_Update_Surface'Access,
-         "Phase 516 Executor path is only state update surface");
+        (T, Test_Executor_Path_Is_Only_State_Update_Surface'Access,
+         "Executor path is only state update surface");
       Register_Routine
-        (T, Test_Phase517_Final_Freeze_Shape_And_Mapping_All_Outcomes'Access,
-         "Phase 517 final freeze shape and mapping all outcomes");
+        (T, Test_Final_Freeze_Shape_And_Mapping_All_Outcomes'Access,
+         "final freeze shape and mapping all outcomes");
       Register_Routine
-        (T, Test_Phase517_Final_Freeze_No_Output_Clears_And_Fabricates_Nothing'Access,
-         "Phase 517 no-output final freeze clears and fabricates nothing");
+        (T, Test_Final_Freeze_No_Output_Clears_And_Fabricates_Nothing'Access,
+         "no-output final freeze clears and fabricates nothing");
       Register_Routine
-        (T, Test_Phase517_Final_Freeze_Replace_Only_No_History_Rerun_Log_Process'Access,
-         "Phase 517 replace-only/no-history/no-rerun/no-log/no-process freeze");
+        (T, Test_Final_Freeze_Replace_Only_No_History_Rerun_Log_Process'Access,
+         "replace-only/no-history/no-rerun/no-log/no-process freeze");
       Register_Routine
-        (T, Test_Phase517_Final_Freeze_Summary_Frontdoor_And_Executor_Ownership'Access,
-         "Phase 517 summary/frontdoor/Executor ownership freeze");
+        (T, Test_Final_Freeze_Summary_Frontdoor_And_Executor_Ownership'Access,
+         "summary/frontdoor/Executor ownership freeze");
       Register_Routine
-        (T, Test_Phase517_Final_Freeze_Render_Audit_Lifecycle_And_Persistence'Access,
-         "Phase 517 render/audit/lifecycle/persistence final freeze");
+        (T, Test_Final_Freeze_Render_Audit_Lifecycle_And_Persistence'Access,
+         "render/audit/lifecycle/persistence final freeze");
       Register_Routine
         (T, Test_Incremental_Build_Output_Stream_Produces_Bounded_Partial_Details'Access,
          "incremental build output stream produces bounded partial details");

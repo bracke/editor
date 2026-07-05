@@ -10,7 +10,7 @@ with Editor.Ada_Tasking_Contract_Predicate_Dataflow_Consumer_Legality;
 
 package Editor.Ada_Elaboration_Graph_Final_Consumer_Legality is
 
-   --  Pass1184 compiler-grade elaboration graph final consumer legality.
+   --  Case 1184 compiler-grade elaboration graph final consumer legality.
    --
    --  This layer makes elaboration graph closure evidence a direct prerequisite
    --  for the remaining semantic consumers that can otherwise accept facts too

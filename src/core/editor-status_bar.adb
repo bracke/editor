@@ -84,7 +84,55 @@ package body Editor.Status_Bar is
       Raw_Text : constant String := Ada.Strings.Fixed.Trim
         (To_String (Value), Ada.Strings.Both);
       Text : constant String := Segment_Text (Value);
+
+      function Diagnostics_Target_Status return String is
+      begin
+         if Text = "Diagnostics: target file missing"
+           or else Text = "Diagnostics: Target file missing"
+           or else Text = "Diagnostics: Target file missing."
+           or else Text = "Diagnostics: target file missing or unavailable"
+           or else Text = "Diagnostics: Target file missing or unavailable"
+           or else Text = "Diagnostics: Target file missing or unavailable."
+           or else Text = "Diagnostics: diagnostic target file is unavailable"
+           or else Text = "Diagnostics: Diagnostic target file is unavailable"
+           or else Text = "Diagnostics: Diagnostic target file is unavailable."
+           or else Text = "Diagnostics: target no longer exists"
+           or else Text = "Diagnostics: Target no longer exists"
+           or else Text = "Diagnostics: Target no longer exists."
+         then
+            return "Diagnostics: Target no longer exists.";
+         elsif Text = "Diagnostics: no source target"
+           or else Text = "Diagnostics: No source target"
+           or else Text = "Diagnostics: No source target."
+           or else Text = "Diagnostics: selected diagnostic has no source target"
+           or else Text = "Diagnostics: Selected diagnostic has no source target"
+           or else Text = "Diagnostics: Selected diagnostic has no source target."
+         then
+            return "Diagnostics: Selected diagnostic has no source target.";
+         elsif Text = "Diagnostics: diagnostic target line is unavailable"
+           or else Text = "Diagnostics: Diagnostic target line is unavailable"
+           or else Text = "Diagnostics: Diagnostic target line is unavailable."
+           or else Text = "Diagnostics: target line unavailable"
+           or else Text = "Diagnostics: Target line unavailable"
+           or else Text = "Diagnostics: Target line unavailable."
+           or else Text = "Diagnostics: target line is unavailable"
+           or else Text = "Diagnostics: Target line is unavailable"
+           or else Text = "Diagnostics: Target line is unavailable."
+         then
+            return "Diagnostics: Target line is unavailable.";
+         else
+            return "";
+         end if;
+      end Diagnostics_Target_Status;
    begin
+      declare
+         Diagnostics_Status : constant String := Diagnostics_Target_Status;
+      begin
+         if Diagnostics_Status'Length > 0 then
+            return Diagnostics_Status;
+         end if;
+      end;
+
       if Text = "Search: stale"
         or else Text = "Search: replacement target changed; rerun search"
         or else Text = "Search: Replacement target changed; rerun search"
@@ -199,7 +247,7 @@ package body Editor.Status_Bar is
         or else Text = "Diagnostics: Selected diagnostic has no source target."
       then
          return "Diagnostics: Selected diagnostic has no source target.";
-      elsif (Text = "Target is stale; refresh required."
+      elsif (Text = Editor.Commands.Reason_Target_Stale
              and then (Raw_Text = "candidate must be refreshed"
                        or else Raw_Text = "candidate must be refreshed."))
         or else Text = "Build: candidate stale"
@@ -1501,28 +1549,161 @@ package body Editor.Status_Bar is
      (Snapshot : Status_Bar_Snapshot) return String
    is
    begin
-      return Status_Segment_Text (Snapshot.Search_Status_Label);
+      return Status_Segment_Text (Snapshot.Search_Status_Label)
+        & Search_Replace_Surface_Action_Label
+            (Search_Replace_Surface (Snapshot));
    end Status_Search_Replace_Segment;
 
    function Status_Quick_Open_Segment
      (Snapshot : Status_Bar_Snapshot) return String
    is
+      Surface : constant Quick_Open_Context_Surface :=
+        Quick_Open_Context_Surface_For (Snapshot);
    begin
-      return Status_Segment_Text (Snapshot.Quick_Open_Status_Label);
+      return Status_Segment_Text (Snapshot.Quick_Open_Status_Label)
+        & Quick_Open_Context_Action_Label (Surface);
    end Status_Quick_Open_Segment;
+
+   function Status_Message_Kind_For
+     (Label : Unbounded_String) return Status_Message_Kind
+   is
+      Text : constant String := Status_Segment_Text (Label);
+   begin
+      if Text = "Quick Open: No project open." then
+         return Status_Message_Quick_Open_No_Project;
+      elsif Text = "Quick Open: No matches." then
+         return Status_Message_Quick_Open_No_Matches;
+      elsif Text = "Outline: Not refreshed." then
+         return Status_Message_Outline_Not_Refreshed;
+      elsif Text = "Find: No search query." then
+         return Status_Message_Find_No_Query;
+      elsif Text = "Find: No matches." then
+         return Status_Message_Find_No_Matches;
+      elsif Text = "Build: failed"
+        or else Text = "Build: Failed."
+      then
+         return Status_Message_Build_Failed;
+      elsif Text = "Build: ready"
+        or else Text = "Build: Ready."
+      then
+         return Status_Message_Build_Ready;
+      elsif Text = "Diagnostics: Target is stale; refresh required." then
+         return Status_Message_Diagnostics_Target_Stale;
+      elsif Text = "Search: Target is stale; refresh required."
+        or else Text = "Replace: Target is stale; refresh required."
+      then
+         return Status_Message_Search_Target_Stale;
+      elsif Text = "File Tree: No project open." then
+         return Status_Message_File_Tree_No_Project;
+      elsif Text = "Workspace: Restored." then
+         return Status_Message_Workspace_Restored;
+      elsif Text = "Workspace: Restored with missing entries skipped." then
+         return Status_Message_Workspace_Partial_Restore;
+      elsif Text = "Workspace: No workspace restored." then
+         return Status_Message_Workspace_No_Restore;
+      elsif Text = "Workspace: Unsaved changes require confirmation." then
+         return Status_Message_Workspace_Unsaved_Confirmation;
+      elsif Text = "Recent Projects: No recent projects." then
+         return Status_Message_Recent_Projects_None;
+      else
+         return Status_Message_Other;
+      end if;
+   end Status_Message_Kind_For;
+
+   function Status_Build_Message_Kind
+     (Snapshot : Status_Bar_Snapshot) return Status_Message_Kind
+   is
+   begin
+      if Snapshot.Build_Status_Kind /= Status_Message_Other then
+         return Snapshot.Build_Status_Kind;
+      end if;
+      return Status_Message_Kind_For (Snapshot.Build_Status_Label);
+   end Status_Build_Message_Kind;
+
+   function Status_Diagnostics_Message_Kind
+     (Snapshot : Status_Bar_Snapshot) return Status_Message_Kind
+   is
+   begin
+      if Snapshot.Diagnostics_Status_Kind /= Status_Message_Other then
+         return Snapshot.Diagnostics_Status_Kind;
+      end if;
+      return Status_Message_Kind_For (Snapshot.Diagnostics_Status_Label);
+   end Status_Diagnostics_Message_Kind;
+
+   function Status_Search_Message_Kind
+     (Snapshot : Status_Bar_Snapshot) return Status_Message_Kind
+   is
+   begin
+      if Snapshot.Search_Status_Kind /= Status_Message_Other then
+         return Snapshot.Search_Status_Kind;
+      end if;
+      return Status_Message_Kind_For (Snapshot.Search_Status_Label);
+   end Status_Search_Message_Kind;
+
+   function Status_Quick_Open_Message_Kind
+     (Snapshot : Status_Bar_Snapshot) return Status_Message_Kind
+   is
+   begin
+      if Snapshot.Quick_Open_Status_Kind /= Status_Message_Other then
+         return Snapshot.Quick_Open_Status_Kind;
+      end if;
+      return Status_Message_Kind_For (Snapshot.Quick_Open_Status_Label);
+   end Status_Quick_Open_Message_Kind;
+
+   function Status_File_Tree_Message_Kind
+     (Snapshot : Status_Bar_Snapshot) return Status_Message_Kind
+   is
+   begin
+      if Snapshot.File_Tree_Status_Kind /= Status_Message_Other then
+         return Snapshot.File_Tree_Status_Kind;
+      end if;
+      return Status_Message_Kind_For (Snapshot.File_Tree_Status_Label);
+   end Status_File_Tree_Message_Kind;
+
+   function Status_Workspace_Message_Kind
+     (Snapshot : Status_Bar_Snapshot) return Status_Message_Kind
+   is
+   begin
+      if Snapshot.Workspace_Status_Kind /= Status_Message_Other then
+         return Snapshot.Workspace_Status_Kind;
+      end if;
+      return Status_Message_Kind_For (Snapshot.Workspace_Status_Label);
+   end Status_Workspace_Message_Kind;
+
+   function Status_Outline_Message_Kind
+     (Snapshot : Status_Bar_Snapshot) return Status_Message_Kind
+   is
+   begin
+      if Snapshot.Outline_Status_Kind /= Status_Message_Other then
+         return Snapshot.Outline_Status_Kind;
+      end if;
+      return Status_Message_Kind_For (Snapshot.Outline_Status_Label);
+   end Status_Outline_Message_Kind;
+
+   function Status_Recent_Projects_Message_Kind
+     (Snapshot : Status_Bar_Snapshot) return Status_Message_Kind
+   is
+   begin
+      if Snapshot.Recent_Projects_Status_Kind /= Status_Message_Other then
+         return Snapshot.Recent_Projects_Status_Kind;
+      end if;
+      return Status_Message_Kind_For (Snapshot.Recent_Projects_Status_Label);
+   end Status_Recent_Projects_Message_Kind;
 
    function Status_Outline_Segment
      (Snapshot : Status_Bar_Snapshot) return String
    is
    begin
-      return Status_Segment_Text (Snapshot.Outline_Status_Label);
+      return Status_Segment_Text (Snapshot.Outline_Status_Label)
+        & Outline_Surface_Action_Label (Outline_Surface (Snapshot));
    end Status_Outline_Segment;
 
    function Status_File_Tree_Segment
      (Snapshot : Status_Bar_Snapshot) return String
    is
    begin
-      return Status_Segment_Text (Snapshot.File_Tree_Status_Label);
+      return Status_Segment_Text (Snapshot.File_Tree_Status_Label)
+        & File_Tree_Surface_Action_Label (File_Tree_Surface (Snapshot));
    end Status_File_Tree_Segment;
 
    function Status_Workspace_Recent_Segment
@@ -1530,15 +1711,234 @@ package body Editor.Status_Bar is
    is
       Workspace_Text : constant String := Status_Segment_Text (Snapshot.Workspace_Status_Label);
       Recent_Text    : constant String := Status_Segment_Text (Snapshot.Recent_Projects_Status_Label);
+      Workspace_Actions : constant String :=
+        Workspace_Surface_Action_Label (Workspace_Surface (Snapshot));
+      Recent_Actions : constant String :=
+        Recent_Projects_Surface_Action_Label (Recent_Projects_Surface (Snapshot));
    begin
       if Workspace_Text'Length > 0 and then Recent_Text'Length > 0 then
-         return Workspace_Text & " | " & Recent_Text;
+         return Workspace_Text & Workspace_Actions & " | "
+           & Recent_Text & Recent_Actions;
       elsif Workspace_Text'Length > 0 then
-         return Workspace_Text;
+         return Workspace_Text & Workspace_Actions;
       else
-         return Recent_Text;
+         return Recent_Text & Recent_Actions;
       end if;
    end Status_Workspace_Recent_Segment;
+
+   function Workspace_Surface_Action_Label
+     (Surface : Workspace_Status_Surface) return String
+   is
+   begin
+      if Length (Surface.Summary_Label) = 0 then
+         return "";
+      end if;
+
+      return " ["
+        & To_String (Surface.Save_State_Command) & ", "
+        & To_String (Surface.Restore_State_Command) & ", "
+        & To_String (Surface.Clear_State_Command) & "]";
+   end Workspace_Surface_Action_Label;
+
+   function Workspace_Surface_Action_Count
+     (Surface : Workspace_Status_Surface) return Natural
+   is
+   begin
+      if Length (Surface.Summary_Label) = 0 then
+         return 0;
+      end if;
+      return 3;
+   end Workspace_Surface_Action_Count;
+
+   function Quick_Open_Context_Action_Label
+     (Surface : Quick_Open_Context_Surface) return String
+   is
+   begin
+      if not Surface.Active then
+         return "";
+      end if;
+
+      return " ["
+        & To_String (Surface.Open_Command) & ", "
+        & To_String (Surface.Clear_Scope_Command) & ", "
+        & To_String (Surface.Clear_Filter_Command) & "]";
+   end Quick_Open_Context_Action_Label;
+
+   function Quick_Open_Context_Action_Count
+     (Surface : Quick_Open_Context_Surface) return Natural
+   is
+   begin
+      if Surface.Active then
+         return 3;
+      end if;
+      return 0;
+   end Quick_Open_Context_Action_Count;
+
+   function Outline_Surface_Action_Label
+     (Surface : Outline_Status_Surface) return String
+   is
+   begin
+      if not Surface.Active then
+         return "";
+      end if;
+
+      return " ["
+        & To_String (Surface.Refresh_Command) & ", "
+        & To_String (Surface.Open_Selected_Command) & ", "
+        & To_String (Surface.Reveal_Current_Command) & "]";
+   end Outline_Surface_Action_Label;
+
+   function Outline_Surface_Action_Count
+     (Surface : Outline_Status_Surface) return Natural
+   is
+   begin
+      if Surface.Active then
+         return 3;
+      end if;
+      return 0;
+   end Outline_Surface_Action_Count;
+
+   function Search_Replace_Surface_Action_Label
+     (Surface : Search_Replace_Status_Surface) return String
+   is
+   begin
+      if not Surface.Active then
+         return "";
+      end if;
+
+      return " ["
+        & To_String (Surface.Run_Command) & ", "
+        & To_String (Surface.Open_Selected_Command) & ", "
+        & To_String (Surface.Clear_Query_Command) & "]";
+   end Search_Replace_Surface_Action_Label;
+
+   function Search_Replace_Surface_Action_Count
+     (Surface : Search_Replace_Status_Surface) return Natural
+   is
+   begin
+      if Surface.Active then
+         return 3;
+      end if;
+      return 0;
+   end Search_Replace_Surface_Action_Count;
+
+   function File_Tree_Surface_Action_Label
+     (Surface : File_Tree_Status_Surface) return String
+   is
+   begin
+      if not Surface.Active then
+         return "";
+      end if;
+
+      return " ["
+        & To_String (Surface.Refresh_Command) & ", "
+        & To_String (Surface.Open_Selected_Command) & ", "
+        & To_String (Surface.Reveal_Active_Command) & "]";
+   end File_Tree_Surface_Action_Label;
+
+   function File_Tree_Surface_Action_Count
+     (Surface : File_Tree_Status_Surface) return Natural
+   is
+   begin
+      if Surface.Active then
+         return 3;
+      end if;
+      return 0;
+   end File_Tree_Surface_Action_Count;
+
+   function Recent_Projects_Surface_Action_Label
+     (Surface : Recent_Projects_Status_Surface) return String
+   is
+   begin
+      if not Surface.Active then
+         return "";
+      end if;
+
+      return " ["
+        & To_String (Surface.Show_Command) & ", "
+        & To_String (Surface.Open_Selected_Command) & ", "
+        & To_String (Surface.Remove_Missing_Command) & "]";
+   end Recent_Projects_Surface_Action_Label;
+
+   function Recent_Projects_Surface_Action_Count
+     (Surface : Recent_Projects_Status_Surface) return Natural
+   is
+   begin
+      if Surface.Active then
+         return 3;
+      end if;
+      return 0;
+   end Recent_Projects_Surface_Action_Count;
+
+   function Workspace_Surface
+     (Snapshot : Status_Bar_Snapshot) return Workspace_Status_Surface
+   is
+      Summary : constant String := Status_Segment_Text (Snapshot.Workspace_Status_Label);
+      Result  : Workspace_Status_Surface;
+   begin
+      Result.Summary_Label := To_Unbounded_String (Summary);
+      if Summary'Length > 0 then
+         Result.Has_Restore_Details := True;
+         Result.Restore_Details_Label := To_Unbounded_String (Summary);
+      end if;
+      return Result;
+   end Workspace_Surface;
+
+   function Quick_Open_Context_Surface_For
+     (Snapshot : Status_Bar_Snapshot) return Quick_Open_Context_Surface
+   is
+      Summary : constant String := Status_Segment_Text (Snapshot.Quick_Open_Status_Label);
+      Result  : Quick_Open_Context_Surface;
+   begin
+      Result.Summary_Label := To_Unbounded_String (Summary);
+      Result.Active := Summary'Length > 0;
+      return Result;
+   end Quick_Open_Context_Surface_For;
+
+   function Outline_Surface
+     (Snapshot : Status_Bar_Snapshot) return Outline_Status_Surface
+   is
+      Summary : constant String := Status_Segment_Text (Snapshot.Outline_Status_Label);
+      Result  : Outline_Status_Surface;
+   begin
+      Result.Summary_Label := To_Unbounded_String (Summary);
+      Result.Active := Summary'Length > 0;
+      return Result;
+   end Outline_Surface;
+
+   function Search_Replace_Surface
+     (Snapshot : Status_Bar_Snapshot) return Search_Replace_Status_Surface
+   is
+      Summary : constant String := Status_Segment_Text (Snapshot.Search_Status_Label);
+      Result  : Search_Replace_Status_Surface;
+   begin
+      Result.Summary_Label := To_Unbounded_String (Summary);
+      Result.Active := Summary'Length > 0;
+      return Result;
+   end Search_Replace_Surface;
+
+   function File_Tree_Surface
+     (Snapshot : Status_Bar_Snapshot) return File_Tree_Status_Surface
+   is
+      Summary : constant String := Status_Segment_Text (Snapshot.File_Tree_Status_Label);
+      Result  : File_Tree_Status_Surface;
+   begin
+      Result.Summary_Label := To_Unbounded_String (Summary);
+      Result.Active := Summary'Length > 0;
+      return Result;
+   end File_Tree_Surface;
+
+   function Recent_Projects_Surface
+     (Snapshot : Status_Bar_Snapshot) return Recent_Projects_Status_Surface
+   is
+      Summary : constant String := Status_Segment_Text
+        (Snapshot.Recent_Projects_Status_Label);
+      Result  : Recent_Projects_Status_Surface;
+   begin
+      Result.Summary_Label := To_Unbounded_String (Summary);
+      Result.Active := Summary'Length > 0;
+      return Result;
+   end Recent_Projects_Surface;
 
    function Status_Startup_Segment
      (Snapshot : Status_Bar_Snapshot) return String
@@ -1583,7 +1983,7 @@ package body Editor.Status_Bar is
       Outline_Text : constant String :=
         (if Length (Snapshot.Outline_Status_Label) = 0
          then ""
-         else " | " & Status_Segment_Text (Snapshot.Outline_Status_Label));
+         else " | " & Status_Outline_Segment (Snapshot));
       Diagnostics_Text : constant String :=
         " | " & Status_Diagnostics_Segment (Snapshot);
       Build_Text : constant String :=
@@ -1593,23 +1993,22 @@ package body Editor.Status_Bar is
       Search_Text : constant String :=
         (if Length (Snapshot.Search_Status_Label) = 0
          then ""
-         else " | " & Status_Segment_Text (Snapshot.Search_Status_Label));
+         else " | " & Status_Search_Replace_Segment (Snapshot));
       Quick_Open_Text : constant String :=
         (if Length (Snapshot.Quick_Open_Status_Label) = 0
          then ""
-         else " | " & Status_Segment_Text (Snapshot.Quick_Open_Status_Label));
+         else " | " & Status_Quick_Open_Segment (Snapshot));
       File_Tree_Text : constant String :=
         (if Length (Snapshot.File_Tree_Status_Label) = 0
          then ""
-         else " | " & Status_Segment_Text (Snapshot.File_Tree_Status_Label));
+         else " | " & Status_File_Tree_Segment (Snapshot));
       Workspace_Text : constant String :=
         (if Length (Snapshot.Workspace_Status_Label) = 0
+           and then Length (Snapshot.Recent_Projects_Status_Label) = 0
          then ""
-         else " | " & Status_Segment_Text (Snapshot.Workspace_Status_Label));
+         else " | " & Status_Workspace_Recent_Segment (Snapshot));
       Recent_Projects_Text : constant String :=
-        (if Length (Snapshot.Recent_Projects_Status_Label) = 0
-         then ""
-         else " | " & Status_Segment_Text (Snapshot.Recent_Projects_Status_Label));
+        "";
       Startup_Text : constant String :=
         (if Length (Snapshot.Startup_Status_Label) = 0
          then ""
@@ -1894,7 +2293,7 @@ package body Editor.Status_Bar is
       --  Status-bar snapshots are not part of workspace/settings/recent/
       --  keybinding persistence.  The type remains a render/input projection
       --  record only; adding this predicate gives tests and route audits a
-      --  named Phase 544 persistence-boundary assertion.
+      --  named persistence-boundary assertion.
       return True;
    end Assert_Status_State_Not_Persisted;
 

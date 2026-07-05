@@ -1,6 +1,12 @@
+with Ada.Strings.Fixed;
 with Ada.Strings.Unbounded; use Ada.Strings.Unbounded;
 
 package body Editor.Build_Result_Summary is
+
+   function Image (Value : Natural) return String is
+   begin
+      return Ada.Strings.Fixed.Trim (Natural'Image (Value), Ada.Strings.Both);
+   end Image;
 
    function Empty_Summary return Latest_Build_Result_Summary is
    begin
@@ -43,6 +49,10 @@ package body Editor.Build_Result_Summary is
          Result.Diagnostics_Unknown_Count := 0;
       end if;
 
+      if not Result.Has_Duration then
+         Result.Duration_Milliseconds := 0;
+      end if;
+
       if Result.Diagnostics_Ingestion_Status = Diagnostics_Ingestion_Succeeded
         and then Result.Has_Diagnostics_Count
         and then Result.Diagnostics_Count_If_Available = 0
@@ -78,7 +88,7 @@ package body Editor.Build_Result_Summary is
          Result.Diagnostics_Unknown_Count := 0;
       end if;
 
-      --  Phase 527 distinction: truncation means an output stream exceeded a
+      --  distinction: truncation means an output stream exceeded a
       --  configured bound; partial means capture ended early because the
       --  invocation timed out or was cancelled.  Do not conflate them.
       Result.Output_Partial :=
@@ -132,7 +142,9 @@ package body Editor.Build_Result_Summary is
       Diagnostics_Info_Count : Natural := 0;
       Diagnostics_Note_Count : Natural := 0;
       Diagnostics_Unknown_Count : Natural := 0;
-      Has_Diagnostics_Severity_Counts : Boolean := False)
+      Has_Diagnostics_Severity_Counts : Boolean := False;
+      Duration_Milliseconds : Natural := 0;
+      Has_Duration : Boolean := False)
       return Latest_Build_Result_Summary
    is
    begin
@@ -161,6 +173,8 @@ package body Editor.Build_Result_Summary is
          Diagnostics_Note_Count => Diagnostics_Note_Count,
          Diagnostics_Unknown_Count => Diagnostics_Unknown_Count,
          Has_Diagnostics_Severity_Counts => Has_Diagnostics_Severity_Counts,
+         Duration_Milliseconds => Duration_Milliseconds,
+         Has_Duration => Has_Duration,
          Primary_Message => To_Unbounded_String (Primary_Message)));
    end Build_Summary;
 
@@ -204,6 +218,46 @@ package body Editor.Build_Result_Summary is
          when Build_Result_No_Tool => return "no tool";
       end case;
    end Tool_Label;
+
+   function Command_Label (Summary : Latest_Build_Result_Summary) return String is
+   begin
+      if Length (Summary.Invocation_Label) = 0 then
+         return "command unavailable";
+      end if;
+      return To_String (Summary.Invocation_Label);
+   end Command_Label;
+
+   function Request_Mode_Label
+     (Summary : Latest_Build_Result_Summary) return String
+   is
+   begin
+      case Summary.Request_Mode is
+         when Build_Result_Request_None => return "no request";
+         when Build_Result_Request_Manual => return "manual request";
+         when Build_Result_Request_Candidate_Derived =>
+            return "candidate-derived request";
+         when Build_Result_Request_Test_Or_Internal =>
+            return "test/internal request";
+      end case;
+   end Request_Mode_Label;
+
+   function Duration_Label (Summary : Latest_Build_Result_Summary) return String is
+   begin
+      if Summary.Has_Duration then
+         if Summary.Duration_Milliseconds < 1_000 then
+            return "duration " & Image (Summary.Duration_Milliseconds) & " ms";
+         else
+            declare
+               Tenths : constant Natural :=
+                 (Summary.Duration_Milliseconds + 50) / 100;
+            begin
+               return "duration " & Image (Tenths / 10) & "."
+                 & Image (Tenths mod 10) & " s";
+            end;
+         end if;
+      end if;
+      return "duration unavailable";
+   end Duration_Label;
 
    function Working_Context_Label
      (Summary : Latest_Build_Result_Summary) return String is
@@ -309,6 +363,86 @@ package body Editor.Build_Result_Summary is
       end case;
    end Diagnostics_Label;
 
+   function Diagnostics_Error_Count_Label
+     (Summary : Latest_Build_Result_Summary) return String
+   is
+   begin
+      if Summary.Has_Diagnostics_Severity_Counts then
+         return "errors" & Natural'Image (Summary.Diagnostics_Error_Count);
+      elsif Summary.Has_Diagnostics_Count
+        and then Summary.Diagnostics_Count_If_Available = 0
+      then
+         return "errors 0";
+      end if;
+      return "errors unavailable";
+   end Diagnostics_Error_Count_Label;
+
+   function Diagnostics_Warning_Count_Label
+     (Summary : Latest_Build_Result_Summary) return String
+   is
+   begin
+      if Summary.Has_Diagnostics_Severity_Counts then
+         return "warnings" & Natural'Image (Summary.Diagnostics_Warning_Count);
+      elsif Summary.Has_Diagnostics_Count
+        and then Summary.Diagnostics_Count_If_Available = 0
+      then
+         return "warnings 0";
+      end if;
+      return "warnings unavailable";
+   end Diagnostics_Warning_Count_Label;
+
+   function Summary_Row_Label
+     (Summary : Latest_Build_Result_Summary) return String
+   is
+      Result : Unbounded_String;
+
+      procedure Append_Part (Text : String) is
+      begin
+         if Text'Length > 0 then
+            if Length (Result) > 0 then
+               Append (Result, " | ");
+            end if;
+            Append (Result, Text);
+         end if;
+      end Append_Part;
+   begin
+      if not Summary.Has_Result then
+         return "No build result yet.";
+      end if;
+
+      Append_Part (Status_Label (Summary));
+      Append_Part (Command_Label (Summary));
+      Append_Part (Tool_Label (Summary));
+      Append_Part (Request_Mode_Label (Summary));
+
+      if Summary.Has_Exit_Code then
+         Append_Part
+           ("exit " & Ada.Strings.Fixed.Trim
+              (Integer'Image (Summary.Exit_Code_If_Available), Ada.Strings.Both));
+      end if;
+
+      if Summary.Has_Duration then
+         Append_Part (Duration_Label (Summary));
+      end if;
+
+      if Summary.Has_Diagnostics_Count then
+         Append_Part
+           ("diagnostics " & Image (Summary.Diagnostics_Count_If_Available));
+      end if;
+
+      if Summary.Stdout_Truncated or else Summary.Stderr_Truncated then
+         Append_Part ("output truncated");
+      end if;
+
+      if Summary.Timed_Out then
+         Append_Part ("timed out");
+      elsif Summary.Cancelled then
+         Append_Part ("cancelled");
+      end if;
+
+      return To_String (Result);
+   end Summary_Row_Label;
+
    function Render_Snapshot
      (Summary : Latest_Build_Result_Summary)
       return Latest_Build_Result_Render_Snapshot
@@ -320,14 +454,20 @@ package body Editor.Build_Result_Summary is
 
       return
         (Latest_Build_Result_Visible => True,
+         Latest_Build_Result_Command_Label =>
+           To_Unbounded_String (Command_Label (Summary)),
          Latest_Build_Result_Status_Label =>
            To_Unbounded_String (Status_Label (Summary)),
          Latest_Build_Result_Tool_Label =>
            To_Unbounded_String (Tool_Label (Summary)),
+         Latest_Build_Result_Request_Mode_Label =>
+           To_Unbounded_String (Request_Mode_Label (Summary)),
          Latest_Build_Result_Runner_Status_Label =>
            Summary.Runner_Status_Label,
          Latest_Build_Result_Working_Context_Label =>
            To_Unbounded_String (Working_Context_Label (Summary)),
+         Latest_Build_Result_Duration_Label =>
+           To_Unbounded_String (Duration_Label (Summary)),
          Latest_Build_Result_Exit_Code_Label =>
            To_Unbounded_String (Exit_Code_Label (Summary)),
          Latest_Build_Result_Timeout_Label =>
@@ -340,8 +480,14 @@ package body Editor.Build_Result_Summary is
            To_Unbounded_String (Partial_Output_Label (Summary)),
          Latest_Build_Result_Diagnostics_Label =>
            To_Unbounded_String (Diagnostics_Label (Summary)),
+         Latest_Build_Result_Error_Count_Label =>
+           To_Unbounded_String (Diagnostics_Error_Count_Label (Summary)),
+         Latest_Build_Result_Warning_Count_Label =>
+           To_Unbounded_String (Diagnostics_Warning_Count_Label (Summary)),
          Latest_Build_Result_Primary_Message_Label =>
-           Summary.Primary_Message);
+           Summary.Primary_Message,
+         Latest_Build_Result_Summary_Row_Label =>
+           To_Unbounded_String (Summary_Row_Label (Summary)));
    end Render_Snapshot;
 
    function Has_Process_Handle_Field
@@ -455,6 +601,8 @@ package body Editor.Build_Result_Summary is
         and then Canonical.Has_Diagnostics_Count = Summary.Has_Diagnostics_Count
         and then Canonical.Diagnostics_Count_If_Available =
           Summary.Diagnostics_Count_If_Available
+        and then Canonical.Has_Duration = Summary.Has_Duration
+        and then Canonical.Duration_Milliseconds = Summary.Duration_Milliseconds
         and then Canonical.Output_Partial = Summary.Output_Partial;
    end Assert_Latest_Build_Result_Summary_Shape_Canonical;
 

@@ -6,9 +6,9 @@ with Editor.Ada_Syntax_Tree;
 
 package Editor.Ada_Overload_RM_Completion_Closure_Consumer_Legality is
 
-   --  Pass1264 overload RM-completion closure consumer legality.
+   --  Case 1264 overload RM-completion closure consumer legality.
    --
-   --  This package consumes the Pass1263 generic/shared-state RM-completion
+   --  This package consumes the Case 1263 generic/shared-state RM-completion
    --  stabilized closure as first-class semantic evidence for overload/type
    --  RM edge consumers.  It prevents overload conclusions from bypassing
    --  stabilized closure blockers for stale/fingerprint evidence, AST/coverage

@@ -4,7 +4,7 @@ with Editor.Ada_Syntax_Tree;
 
 package Editor.Ada_Parser_AST_Coverage_Vertical_Slice_Legality is
 
-   --  Pass1304 vertical-slice parser/AST coverage legality.  This package
+   --  Case 1304 vertical-slice parser/AST coverage legality.  This package
    --  models concrete Ada 2022 constructs whose degraded/token-only parsing
    --  blocks real semantic consumers.  It is intentionally a parser/AST
    --  semantic slice, not another diagnostic, provenance, or stabilization

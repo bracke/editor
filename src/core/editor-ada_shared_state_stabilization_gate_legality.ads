@@ -5,9 +5,9 @@ with Editor.Ada_Syntax_Tree;
 
 package Editor.Ada_Shared_State_Stabilization_Gate_Legality is
 
-   --  Pass1222 shared-state stabilization gate legality.
+   --  Case 1222 shared-state stabilization gate legality.
    --
-   --  This package consumes Pass1221 shared-state recheck convergence rows and
+   --  This package consumes Case 1221 shared-state recheck convergence rows and
    --  decides whether shared-state evidence may be promoted across the
    --  shared-state semantic closure boundary.  Promotion is allowed only for
    --  stable current/not-required convergence rows.  Stable blockers retain

@@ -1,11 +1,11 @@
 with AUnit.Assertions; use AUnit.Assertions;
 with AUnit.Test_Cases;
 with Ada.Strings.Unbounded; use Ada.Strings.Unbounded;
-with Editor.Ada_RM_Gap_Burn_Down_Pass1362;
+with Editor.Ada_RM_Gap_Burn_Down_Case_1362;
 
 package body Test_Ada_RM_Gap_Burn_Down_Case_1362 is
 
-   package Audit renames Editor.Ada_RM_Gap_Burn_Down_Pass1362;
+   package Audit renames Editor.Ada_RM_Gap_Burn_Down_Case_1362;
    use type Audit.RM_Family;
    use type Audit.Implementing_Slice;
    use type Audit.Coverage_Level;
@@ -53,9 +53,9 @@ package body Test_Ada_RM_Gap_Burn_Down_Case_1362 is
       Row.Work := Work;
       Row.Phase := Phase;
       Row.Name := To_Unbounded_String
-        ("pass1362 source-shaped bounded scheduling row");
+        ("case 1362 source-shaped bounded scheduling row");
       Row.Implementing_Package :=
-        To_Unbounded_String ("Editor.Ada_RM_Gap_Burn_Down_Pass1362");
+        To_Unbounded_String ("Editor.Ada_RM_Gap_Burn_Down_Case_1362");
       Row.Per_Buffer_Budget := 100;
       Row.Request_Budget := 80;
       Row.Slice_Budget := 40;
@@ -72,9 +72,9 @@ package body Test_Ada_RM_Gap_Burn_Down_Case_1362 is
       Expected : Audit.Precision_Classification) is
       Item : constant Audit.Burn_Down_Entry := Audit.Result_For (Results, Id);
    begin
-      Assert (Item.Status = Status, "unexpected pass1362 status");
+      Assert (Item.Status = Status, "unexpected case 1362 status");
       Assert (Audit.Expected_For_Status (Item.Status) = Expected,
-              "unexpected pass1362 classification");
+              "unexpected case 1362 classification");
    end Expect_Status;
 
    procedure Test_Balanced_Bounded_Scheduling_Closes

@@ -6,7 +6,7 @@ with Editor.Ada_Syntax_Tree;
 
 package Editor.Ada_Dataflow_Global_Depends_Legality is
 
-   --  Pass1123 compiler-grade dataflow legality layer.  This package connects
+   --  Case 1123 compiler-grade dataflow legality layer.  This package connects
    --  Global/Depends contract-aspect facts with flow-sensitive object-state
    --  facts from definite-initialization analysis.  It models read/write
    --  effects, parameter-mode effects, dependency edges, initialization-before-

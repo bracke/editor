@@ -10,7 +10,7 @@ with Editor.Ada_Widened_Legality_Coverage_Gate_Enforcement;
 
 package Editor.Ada_Repaired_Coverage_Semantic_Feedback is
 
-   --  Pass1152 repaired coverage semantic feedback.
+   --  Case 1152 repaired coverage semantic feedback.
    --
    --  This package feeds repaired parser/AST/metadata/consumer coverage back
    --  into semantic consumers.  It consumes repair-gate application rows and

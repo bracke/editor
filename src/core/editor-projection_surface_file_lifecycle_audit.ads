@@ -278,7 +278,7 @@ package Editor.Projection_Surface_File_Lifecycle_Audit is
    function Default_Contract
      (Surface : Projection_Surface_Id) return Projection_Surface_Contract;
 
-   --  Build the shared Phase 495 contract from the covered surface's own
+   --  Build the shared contract from the covered surface's own
    --  exported invariant predicates.  This is the reusable adapter seam for
    --  future projection surfaces: product surfaces expose pure observation
    --  predicates; the shared audit folds them into the common contract.

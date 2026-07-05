@@ -2,7 +2,7 @@ with Editor.State;
 
 package Editor.Project_Navigation is
 
-   --  Phase 533 side-effect-free coherence predicate for the transient
+   --  side-effect-free coherence predicate for the transient
    --  project navigation surfaces.  It observes File Tree, Quick Open, and
    --  Project Search state only; it never scans the filesystem, computes
    --  matches, opens files, mutates selections, executes commands, or touches

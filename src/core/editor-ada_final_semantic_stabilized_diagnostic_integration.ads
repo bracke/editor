@@ -6,9 +6,9 @@ with Editor.Ada_Syntax_Tree;
 
 package Editor.Ada_Final_Semantic_Stabilized_Diagnostic_Integration is
 
-   --  Pass1210 final semantic stabilized diagnostic integration.
+   --  Case 1210 final semantic stabilized diagnostic integration.
    --
-   --  This package consumes Pass1209 stabilized semantic closure rows and
+   --  This package consumes Case 1209 stabilized semantic closure rows and
    --  creates diagnostic/feed-boundary rows only for stabilized closure state.
    --  Stable accepted rows are withheld as non-diagnostic current closure;
    --  stable blocker rows are emitted with their original blocker family;

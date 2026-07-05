@@ -12,8 +12,8 @@ with Editor.Ada_Tasking_Protected_Legality;
 
 package Editor.Ada_Wide_Semantic_Legality_Diagnostics is
 
-   --  Pass1107 compiler-grade semantic diagnostic bridge for the widened
-   --  legality layers introduced in Pass1099 through Pass1106.  This package
+   --  Case 1107 compiler-grade semantic diagnostic bridge for the widened
+   --  legality layers introduced in Case 1099 through Case 1106.  This package
    --  consumes already-built, snapshot-owned legality models and exposes their
    --  failing states as one deterministic diagnostic model.  It performs no
    --  parsing, file IO, buffer mutation, command/keybinding/workspace mutation,

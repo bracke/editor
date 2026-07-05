@@ -4,7 +4,7 @@ with Editor.Ada_Syntax_Tree;
 
 package Editor.Ada_Assignment_Conversion_Vertical_Slice_Legality is
 
-   --  Pass1327 vertical-slice assignment and conversion legality.
+   --  Case 1327 vertical-slice assignment and conversion legality.
    --  This package models source-shaped Ada assignment statements,
    --  qualified expressions, type conversions, view conversions,
    --  class-wide conversions, numeric conversions, and access conversions.

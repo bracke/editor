@@ -4,7 +4,7 @@ with Editor.Ada_Syntax_Tree;
 
 package Editor.Ada_Context_Clause_With_Use_Vertical_Slice_Legality is
 
-   --  Pass1330 vertical-slice context-clause and unit-visibility legality.
+   --  Case 1330 vertical-slice context-clause and unit-visibility legality.
    --  The model is source-shaped: each row represents one with/use/private
    --  with/limited with clause as seen by a snapshot-owned Ada unit context.
    --  It deliberately checks real Ada legality facts rather than projection

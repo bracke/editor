@@ -1,5 +1,7 @@
 with AUnit.Assertions; use AUnit.Assertions;
 with AUnit.Test_Cases;
+with Ada.Characters.Handling;
+with Ada.Strings.Fixed;
 with Ada.Strings.Unbounded;
 with Editor.Build_Candidates;
 with Editor.Build_UI;
@@ -20,6 +22,20 @@ package body Editor.Product_Surface_Cleanup.Tests is
 
    use type Editor.Commands.Command_Visibility;
    use type Editor.Commands.Command_Id;
+
+   function Product_Surface_Text_Is_Placeholder (Text : String) return Boolean is
+      Lower : String := Text;
+   begin
+      for C of Lower loop
+         C := Ada.Characters.Handling.To_Lower (C);
+      end loop;
+
+      return Ada.Strings.Fixed.Index (Lower, "placeholder") /= 0
+        or else Ada.Strings.Fixed.Index (Lower, "test-fixture") /= 0
+        or else Ada.Strings.Fixed.Index (Lower, "fixture") /= 0
+        or else Ada.Strings.Fixed.Index (Lower, "scaffold") /= 0
+        or else Ada.Strings.Fixed.Index (Lower, "demo") /= 0;
+   end Product_Surface_Text_Is_Placeholder;
 
    overriding function Name
      (T : Product_Surface_Cleanup_Test_Case) return AUnit.Message_String
@@ -63,6 +79,30 @@ package body Editor.Product_Surface_Cleanup.Tests is
       Assert (not Editor.Product_Surface_Cleanup.Demo_Command_Exposed_To_Product_Surface,
               "no demo command is exposed to palette or keybindings");
    end Test_Removed_Name_Demo_Command_Removed_From_Command_Surface;
+
+   procedure Test_Palette_Commands_Do_Not_Expose_Placeholder_Text
+     (T : in out AUnit.Test_Cases.Test_Case'Class)
+   is
+      pragma Unreferenced (T);
+      Commands : constant Editor.Commands.Command_Descriptor_Vectors.Vector :=
+        Editor.Commands.Palette_Commands;
+   begin
+      for D of Commands loop
+         declare
+            Stable_Name : constant String :=
+              Editor.Commands.Stable_Command_Name (D.Id);
+            Label : constant String := Ada.Strings.Unbounded.To_String (D.Name);
+            Description : constant String :=
+              Ada.Strings.Unbounded.To_String (D.Description);
+         begin
+            Assert
+              (not Product_Surface_Text_Is_Placeholder (Stable_Name)
+               and then not Product_Surface_Text_Is_Placeholder (Label)
+               and then not Product_Surface_Text_Is_Placeholder (Description),
+               "palette command exposes placeholder/test-fixture text: " & Stable_Name);
+         end;
+      end loop;
+   end Test_Palette_Commands_Do_Not_Expose_Placeholder_Text;
 
    procedure Test_Test_Fixture_Placeholders_Are_Detected
      (T : in out AUnit.Test_Cases.Test_Case'Class)
@@ -209,25 +249,28 @@ package body Editor.Product_Surface_Cleanup.Tests is
    begin
       Register_Routine
         (T, Test_Removed_Name_Demo_Command_Removed_From_Command_Surface'Access,
-         "Phase 530 removed demo command is absent from command surface");
+         "removed demo command is absent from command surface");
+      Register_Routine
+        (T, Test_Palette_Commands_Do_Not_Expose_Placeholder_Text'Access,
+         "palette commands do not expose placeholder text");
       Register_Routine
         (T, Test_Normal_Startup_Has_No_Demo_Surface'Access,
-         "Phase 530 normal startup has no demo product surface");
+         "normal startup has no demo product surface");
       Register_Routine
         (T, Test_Test_Fixture_Placeholders_Are_Detected'Access,
-         "Phase 530 audits detect explicit test fixture placeholders");
+         "audits detect explicit test fixture placeholders");
       Register_Routine
         (T, Test_Audit_Detects_Normal_Surface_Demo_Leaks'Access,
-         "Phase 530 audit detects fake data on normal surfaces");
+         "audit detects fake data on normal surfaces");
       Register_Routine
         (T, Test_Product_Empty_And_Manual_Build_State_Not_Classified_As_Demo'Access,
-         "Phase 530 manual build empty state is not classified as demo data");
+         "manual build empty state is not classified as demo data");
       Register_Routine
         (T, Test_Show_Focus_Toggle_Commands_Do_Not_Create_Demo_Data'Access,
-         "Phase 530 normal show/focus/toggle commands do not create demo data");
+         "normal show/focus/toggle commands do not create demo data");
       Register_Routine
         (T, Test_Empty_States_Remain_Display_Only'Access,
-         "Phase 530 empty states remain display-only");
+         "empty states remain display-only");
    end Register_Tests;
 
 end Editor.Product_Surface_Cleanup.Tests;

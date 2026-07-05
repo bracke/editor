@@ -323,7 +323,7 @@ package body Test_Ada_Remaining_RM_Edge_Stabilized_Diagnostic_Integration is
       Assert (D.Count_Family (Diagnostics, D.Remaining_RM_Edge_Stabilized_Diagnostic_Source_Fingerprint) = 1,
               "source fingerprint mismatch should remain a fingerprint blocker");
       Assert (D.Count_Edge_Blocker (Diagnostics, Edge.Remaining_RM_Edge_Blocker_Protected_Reentrancy) = 1,
-              "protected reentrancy blocker should be preserved from pass1277");
+              "protected reentrancy blocker should be preserved from case 1277");
       Assert (D.Error_Count (Diagnostics) = 3,
               "semantic remaining-edge and closure blockers should enter diagnostics as errors");
       Assert (D.Warning_Count (Diagnostics) = 1,

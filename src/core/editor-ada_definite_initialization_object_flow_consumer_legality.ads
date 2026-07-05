@@ -6,11 +6,11 @@ with Editor.Ada_Syntax_Tree;
 
 package Editor.Ada_Definite_Initialization_Object_Flow_Consumer_Legality is
 
-   --  Pass1164 compiler-grade definite-initialization object-flow consumer
+   --  Case 1164 compiler-grade definite-initialization object-flow consumer
    --  legality.
    --
    --  This layer feeds the exact object-flow accessibility consumer result from
-   --  Pass1163 into definite-initialization and flow-sensitive object-state
+   --  Case 1163 into definite-initialization and flow-sensitive object-state
    --  legality.  It prevents read-before-write, out-parameter, return-object,
    --  component-initialization, exception-path, finalization, aggregate, and
    --  generic replay initialization conclusions from remaining confident when

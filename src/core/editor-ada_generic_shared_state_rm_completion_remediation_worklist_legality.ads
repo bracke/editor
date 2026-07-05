@@ -4,10 +4,10 @@ with Editor.Ada_Syntax_Tree;
 
 package Editor.Ada_Generic_Shared_State_RM_Completion_Remediation_Worklist_Legality is
 
-   --  Pass1257 remediation worklist for the RM-completed generic/shared-state
+   --  Case 1257 remediation worklist for the RM-completed generic/shared-state
    --  semantic chain.
    --
-   --  The package consumes Pass1256 diagnostic-boundary rows and converts them
+   --  The package consumes Case 1256 diagnostic-boundary rows and converts them
    --  into prerequisite-ordered semantic re-analysis work.  It is part of the
    --  bounded remediation/recheck/stabilization loop for completed RM evidence:
    --  current accepted rows remain non-diagnostic evidence, while blockers keep

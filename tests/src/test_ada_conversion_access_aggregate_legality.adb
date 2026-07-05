@@ -209,13 +209,13 @@ package body Test_Ada_Conversion_Access_Aggregate_Legality is
    begin
       Register_Routine
         (T, Test_Conversion_Static_And_Universal_Numeric'Access,
-         "Pass1101 checks conversion static range and universal numerics");
+         "Case 1101 checks conversion static range and universal numerics");
       Register_Routine
         (T, Test_Access_Null_And_Accessibility'Access,
-         "Pass1101 checks access/null-exclusion/accessibility legality");
+         "Case 1101 checks access/null-exclusion/accessibility legality");
       Register_Routine
         (T, Test_Aggregate_And_Container_Structural_Legality'Access,
-         "Pass1101 checks aggregate and container aggregate legality");
+         "Case 1101 checks aggregate and container aggregate legality");
    end Register_Tests;
 
 end Test_Ada_Conversion_Access_Aggregate_Legality;

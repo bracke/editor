@@ -13,6 +13,9 @@ package body Editor.Problems is
    begin
       View.Selected_Row_Index := 0;
       View.Top_Row := 1;
+      View.Severity_Filter := Problems_Show_All;
+      View.Sort_Mode := Problems_Sort_By_Location;
+      View.Group_Mode := Problems_Group_By_Severity;
    end Clear_View;
 
    function Selected_Row_Index
@@ -45,6 +48,50 @@ package body Editor.Problems is
       View.Top_Row := Natural'Max (1, Row);
    end Set_Top_Row;
 
+   function Severity_Filter
+     (View : Problems_View_State) return Problems_Severity_Filter
+   is
+   begin
+      return View.Severity_Filter;
+   end Severity_Filter;
+
+   procedure Set_Severity_Filter
+     (View   : in out Problems_View_State;
+      Filter : Problems_Severity_Filter)
+   is
+   begin
+      View.Severity_Filter := Filter;
+      View.Top_Row := 1;
+      View.Selected_Row_Index := 0;
+   end Set_Severity_Filter;
+
+   function Severity_Filter_Label
+     (Filter : Problems_Severity_Filter) return String
+   is
+   begin
+      case Filter is
+         when Problems_Show_All =>
+            return "all";
+         when Problems_Show_Errors =>
+            return "errors";
+         when Problems_Show_Warnings =>
+            return "warnings";
+         when Problems_Show_Info =>
+            return "info";
+         when Problems_Show_Hints =>
+            return "hints";
+      end case;
+   end Severity_Filter_Label;
+
+   function Source_Group_Label (Source_File : Unbounded_String) return String is
+   begin
+      if Length (Source_File) = 0 then
+         return "current buffer";
+      else
+         return To_String (Source_File);
+      end if;
+   end Source_Group_Label;
+
    function Natural_Image
      (Value : Natural) return String
    is
@@ -68,6 +115,99 @@ package body Editor.Problems is
          when Problem_Hint    => return "Hint";
       end case;
    end Severity_Name;
+
+   function Sort_Mode_Label
+     (Sort : Problems_Sort_Mode) return String
+   is
+   begin
+      case Sort is
+         when Problems_Sort_By_Location =>
+            return "location";
+         when Problems_Sort_By_Severity =>
+            return "severity";
+         when Problems_Sort_By_Source =>
+            return "source";
+      end case;
+   end Sort_Mode_Label;
+
+   function Group_Mode_Label
+     (Group : Problems_Group_Mode) return String
+   is
+   begin
+      case Group is
+         when Problems_Group_By_Severity =>
+            return "severity";
+         when Problems_Group_By_Source =>
+            return "source";
+      end case;
+   end Group_Mode_Label;
+
+   function Header_Action_At_X
+     (Panel_Width : Natural;
+      X_Offset    : Natural) return Problems_Header_Action
+   is
+      Third : constant Natural := Natural'Max (1, Panel_Width / 3);
+   begin
+      if X_Offset < Third then
+         return Problems_Header_Filter_Action;
+      elsif X_Offset < Third * 2 then
+         return Problems_Header_Sort_Action;
+      else
+         return Problems_Header_Group_Action;
+      end if;
+   end Header_Action_At_X;
+
+   function Header_Action_Label
+     (View   : Problems_View_State;
+      Action : Problems_Header_Action) return String
+   is
+   begin
+      case Action is
+         when Problems_Header_Filter_Action =>
+            return "[filter " & Severity_Filter_Label (View.Severity_Filter) & "]";
+         when Problems_Header_Sort_Action =>
+            return "[sort " & Sort_Mode_Label (View.Sort_Mode) & "]";
+         when Problems_Header_Group_Action =>
+            return "[group " & Group_Mode_Label (View.Group_Mode) & "]";
+      end case;
+   end Header_Action_Label;
+
+   function Header_Action_Hint
+     (View : Problems_View_State) return String
+   is
+   begin
+      return "actions: "
+        & Header_Action_Label (View, Problems_Header_Filter_Action)
+        & " "
+        & Header_Action_Label (View, Problems_Header_Sort_Action)
+        & " "
+        & Header_Action_Label (View, Problems_Header_Group_Action);
+   end Header_Action_Hint;
+
+   function Group_Label
+     (Row  : Problem_Row;
+      Mode : Problems_Group_Mode) return String
+   is
+   begin
+      case Mode is
+         when Problems_Group_By_Severity =>
+            return Severity_Name (Row.Severity);
+         when Problems_Group_By_Source =>
+            return Source_Group_Label (Row.Source_File);
+      end case;
+   end Group_Label;
+
+   function Severity_Rank
+     (Severity : Problem_Row_Severity) return Natural
+   is
+   begin
+      case Severity is
+         when Problem_Error   => return 1;
+         when Problem_Warning => return 2;
+         when Problem_Info    => return 3;
+         when Problem_Hint    => return 4;
+      end case;
+   end Severity_Rank;
 
    function Map_Severity
      (Severity : Editor.Diagnostics.Diagnostic_Severity) return Problem_Row_Severity
@@ -113,7 +253,10 @@ package body Editor.Problems is
           Column           => Column,
           Message          => To_Unbounded_String
             (Default_Message (Severity, Diagnostic)),
-          Source_File      => To_Unbounded_String (Source_File)));
+          Source_File      => To_Unbounded_String (Source_File),
+          Has_Target       => Diagnostic.Has_Location,
+          Quick_Fix_Label  => Diagnostic.Quick_Fix_Label,
+          Quick_Fix_Detail => Diagnostic.Quick_Fix_Detail));
    end Append_Diagnostic;
 
    procedure Clear
@@ -137,6 +280,20 @@ package body Editor.Problems is
    begin
       return Snapshot.Rows.Element (Index);
    end Row;
+
+   function Severity_Count
+     (Snapshot : Problems_Snapshot;
+      Severity : Problem_Row_Severity) return Natural
+   is
+      Count : Natural := 0;
+   begin
+      for Problem of Snapshot.Rows loop
+         if Problem.Severity = Severity then
+            Count := Count + 1;
+         end if;
+      end loop;
+      return Count;
+   end Severity_Count;
 
    function Build_Snapshot
      (Diagnostics : Editor.Diagnostics.Diagnostic_Vectors.Vector)
@@ -168,14 +325,43 @@ package body Editor.Problems is
       return Result;
    end Build_Snapshot;
 
+   function Message_No_Problems return String is
+   begin
+      return "No diagnostics.";
+   end Message_No_Problems;
+
+   function Message_No_Visible_Problems return String is
+   begin
+      return "No diagnostics match the current filter.";
+   end Message_No_Visible_Problems;
+
+   function Empty_State_Message
+     (Visible_Count : Natural;
+      Total_Count   : Natural) return String
+   is
+   begin
+      if Visible_Count > 0 then
+         return "";
+      elsif Total_Count > 0 then
+         return Message_No_Visible_Problems;
+      else
+         return Message_No_Problems;
+      end if;
+   end Empty_State_Message;
 
    function Format_Header
      (Config : Problems_View_Config;
-      Count  : Natural) return String
+      Count  : Natural;
+      Filter : Problems_Severity_Filter := Problems_Show_All) return String
    is
       pragma Unreferenced (Config);
    begin
-      return "Problems: " & Natural_Image (Count);
+      if Filter = Problems_Show_All then
+         return "Problems: " & Natural_Image (Count);
+      else
+         return "Problems: " & Natural_Image (Count)
+           & " (" & Severity_Filter_Label (Filter) & ")";
+      end if;
    end Format_Header;
 
    function Truncate_Text
@@ -232,6 +418,14 @@ package body Editor.Problems is
          Append (Raw, ": ");
       end if;
       Append (Raw, Truncate_Text (To_String (Row.Message), Config.Maximum_Message_Columns));
+      if Length (Row.Quick_Fix_Label) > 0 then
+         Append (Raw, " | action: ");
+         Append (Raw, To_String (Row.Quick_Fix_Label));
+         if Length (Row.Quick_Fix_Detail) > 0 then
+            Append (Raw, " | ");
+            Append (Raw, To_String (Row.Quick_Fix_Detail));
+         end if;
+      end if;
 
       return Truncate_Text (To_String (Raw), Width);
    end Format_Row;
@@ -282,6 +476,27 @@ package body Editor.Problems is
       end;
       return Editor.Diagnostics.No_Diagnostic;
    end Diagnostic_For_Row;
+
+   function Row_Has_Target
+     (Row : Problem_Row) return Boolean
+   is
+   begin
+      return Row.Diagnostic_Index /= Editor.Diagnostics.No_Diagnostic
+        and then Row.Has_Target;
+   end Row_Has_Target;
+
+   function Row_Target_Unavailable_Label
+     (Row : Problem_Row) return String
+   is
+   begin
+      if Row.Diagnostic_Index = Editor.Diagnostics.No_Diagnostic then
+         return "No diagnostic selected";
+      elsif not Row.Has_Target then
+         return "Selected diagnostic has no source target.";
+      else
+         return "";
+      end if;
+   end Row_Target_Unavailable_Label;
 
    function First_Diagnostic_Row
      (Snapshot : Problems_Snapshot;
@@ -491,11 +706,14 @@ package body Editor.Problems is
       View              : Problems_View_State;
       Visible_Row_Count : Natural) return Problems_Snapshot
    is
+      Filtered : constant Problems_Snapshot := Review_Snapshot (Snapshot, View);
       Result : Problems_Snapshot;
-      Count  : constant Natural := Natural (Snapshot.Rows.Length);
+      Count  : Natural := 0;
       Start  : Natural := Natural'Max (1, View.Top_Row);
       Stop   : Natural := 0;
    begin
+      Count := Natural (Filtered.Rows.Length);
+
       if Count = 0 or else Visible_Row_Count = 0 then
          return Result;
       end if;
@@ -511,11 +729,105 @@ package body Editor.Problems is
       end if;
 
       for I in Start .. Stop loop
-         Result.Rows.Append (Snapshot.Rows.Element (Positive (I)));
+         Result.Rows.Append (Filtered.Rows.Element (Positive (I)));
       end loop;
 
       return Result;
    end Visible_Snapshot;
+
+   function Filtered_Snapshot
+     (Snapshot : Problems_Snapshot;
+      View     : Problems_View_State) return Problems_Snapshot
+   is
+      Result : Problems_Snapshot;
+
+      function Matches_Filter
+        (Problem : Problem_Row) return Boolean
+      is
+      begin
+         case View.Severity_Filter is
+            when Problems_Show_All =>
+               return True;
+            when Problems_Show_Errors =>
+               return Problem.Severity = Problem_Error;
+            when Problems_Show_Warnings =>
+               return Problem.Severity = Problem_Warning;
+            when Problems_Show_Info =>
+               return Problem.Severity = Problem_Info;
+            when Problems_Show_Hints =>
+               return Problem.Severity = Problem_Hint;
+         end case;
+      end Matches_Filter;
+   begin
+      for Problem of Snapshot.Rows loop
+         if Matches_Filter (Problem) then
+            Result.Rows.Append (Problem);
+         end if;
+      end loop;
+
+      return Result;
+   end Filtered_Snapshot;
+
+   function Problem_Less
+     (Left  : Problem_Row;
+      Right : Problem_Row;
+      Sort  : Problems_Sort_Mode) return Boolean
+   is
+      Left_Source  : constant String := Source_Group_Label (Left.Source_File);
+      Right_Source : constant String := Source_Group_Label (Right.Source_File);
+   begin
+      case Sort is
+         when Problems_Sort_By_Severity =>
+            if Severity_Rank (Left.Severity) /= Severity_Rank (Right.Severity) then
+               return Severity_Rank (Left.Severity) < Severity_Rank (Right.Severity);
+            end if;
+         when Problems_Sort_By_Source =>
+            if Left_Source /= Right_Source then
+               return Left_Source < Right_Source;
+            end if;
+         when Problems_Sort_By_Location =>
+            null;
+      end case;
+
+      if Left.Row /= Right.Row then
+         return Left.Row < Right.Row;
+      elsif Left.Column /= Right.Column then
+         return Left.Column < Right.Column;
+      else
+         return Natural (Left.Diagnostic_Index) < Natural (Right.Diagnostic_Index);
+      end if;
+   end Problem_Less;
+
+   function Sorted_Snapshot
+     (Snapshot : Problems_Snapshot;
+      Sort     : Problems_Sort_Mode) return Problems_Snapshot
+   is
+      Result : Problems_Snapshot;
+      Inserted : Boolean := False;
+   begin
+      for Problem of Snapshot.Rows loop
+         Inserted := False;
+         for I in 1 .. Natural (Result.Rows.Length) loop
+            if Problem_Less (Problem, Result.Rows.Element (Positive (I)), Sort) then
+               Result.Rows.Insert (Before => Positive (I), New_Item => Problem);
+               Inserted := True;
+               exit;
+            end if;
+         end loop;
+         if not Inserted then
+            Result.Rows.Append (Problem);
+         end if;
+      end loop;
+      return Result;
+   end Sorted_Snapshot;
+
+   function Review_Snapshot
+     (Snapshot : Problems_Snapshot;
+      View     : Problems_View_State) return Problems_Snapshot
+   is
+   begin
+      return Sorted_Snapshot (Filtered_Snapshot (Snapshot, View), View.Sort_Mode);
+   end Review_Snapshot;
 
    function Hit_Test
      (Panel_Rect  : Editor.Layout.Rect;

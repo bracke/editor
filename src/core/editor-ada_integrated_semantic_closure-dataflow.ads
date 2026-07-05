@@ -2,7 +2,7 @@ with Editor.Ada_Dataflow_Global_Depends_Legality;
 
 package Editor.Ada_Integrated_Semantic_Closure.Dataflow is
 
-   --  Pass1123 bridge from Global/Depends dataflow legality into integrated
+   --  Case 1123 bridge from Global/Depends dataflow legality into integrated
    --  semantic closure.  Dataflow rows become ordinary closure contexts so
    --  the existing closure diagnostic feed, index, and provenance paths expose
    --  read/write/Depends blockers as semantic legality blockers.

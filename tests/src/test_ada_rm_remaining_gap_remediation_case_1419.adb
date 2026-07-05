@@ -1,10 +1,10 @@
 with Ada.Strings.Unbounded; use Ada.Strings.Unbounded;
 with AUnit.Assertions; use AUnit.Assertions;
 with AUnit.Test_Cases;
-with Editor.Ada_RM_Remaining_Gap_Remediation_Pass1419;
+with Editor.Ada_RM_Remaining_Gap_Remediation_Case_1419;
 
 package body Test_Ada_RM_Remaining_Gap_Remediation_Case_1419 is
-   package Audit renames Editor.Ada_RM_Remaining_Gap_Remediation_Pass1419;
+   package Audit renames Editor.Ada_RM_Remaining_Gap_Remediation_Case_1419;
    use type Audit.RM_Family;
    use type Audit.Implementing_Slice;
    use type Audit.Coverage_Level;
@@ -60,8 +60,8 @@ package body Test_Ada_RM_Remaining_Gap_Remediation_Case_1419 is
            & "warning diagnostics, stale protected-action evidence, and"
            & "semantic consumers must share one source-shaped legality result");
       Row.Candidate_Implementing_Package :=
-        To_Unbounded_String ("Editor.Ada_RM_Remaining_Gap_Remediation_Pass1419");
-      Row.Candidate_Pass := To_Unbounded_String ("Pass1419");
+        To_Unbounded_String ("Editor.Ada_RM_Remaining_Gap_Remediation_Case_1419");
+      Row.Candidate_Case := To_Unbounded_String ("Case 1419");
       Row.Blocker_Family := To_Unbounded_String ("RM.Protected.Action.Reentrancy");
       return Row;
    end Base_Row;
@@ -73,9 +73,9 @@ package body Test_Ada_RM_Remaining_Gap_Remediation_Case_1419 is
       Expected : Audit.Precision_Classification) is
       Item : constant Audit.Remediation_Entry := Audit.Result_For (Results, Id);
    begin
-      Assert (Item.Status = Status, "unexpected pass1419 status");
+      Assert (Item.Status = Status, "unexpected case 1419 status");
       Assert (Audit.Expected_For_Status (Item.Status) = Expected,
-              "unexpected pass1419 precision classification");
+              "unexpected case 1419 precision classification");
    end Expect_Status;
 
    procedure Test_Gap_Remediated
@@ -121,7 +121,7 @@ package body Test_Ada_RM_Remaining_Gap_Remediation_Case_1419 is
       Results := Audit.Build (Input);
 
       Assert (Audit.Gap_Remediated (Results),
-              "pass1419 should close the protected action reentrancy gap");
+              "case 1419 should close the protected action reentrancy gap");
       Assert (Results.Remediated_Count >= 2, "legal count");
       Assert (Results.Illegal_Count = 1, "illegal count");
       Assert (Results.Runtime_Check_Count = 1, "runtime-check count");
@@ -242,7 +242,7 @@ package body Test_Ada_RM_Remaining_Gap_Remediation_Case_1419 is
       Row : Audit.Remediation_Row;
    begin
       Row := Base_Row (20);
-      Row.Inventory_Row_From_Pass1366 := False;
+      Row.Inventory_Row_From_Final_Burn_Down := False;
       Audit.Add_Row (Input, Row);
 
       Row := Base_Row (21);
@@ -285,7 +285,7 @@ package body Test_Ada_RM_Remaining_Gap_Remediation_Case_1419 is
 
       Expect_Status
         (Results, 20,
-         Audit.Status_Missing_Pass1366_Inventory_Row,
+         Audit.Status_Missing_Final_Inventory_Row,
          Precision.Class_Indeterminate);
       Expect_Status
         (Results, 21,

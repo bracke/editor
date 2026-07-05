@@ -3,7 +3,7 @@ with Editor.Build_UI;
 
 package Editor.Build_Candidate_Selection is
 
-   --  Phase 507 public build candidate selection UX foundation.  This package
+   --  public build candidate selection UX foundation.  This package
    --  is only a named seam around transient Build_UI state mutation.  It does
    --  not discover candidates, execute candidates, acknowledge consent,
    --  persist selection, or create shell command text.

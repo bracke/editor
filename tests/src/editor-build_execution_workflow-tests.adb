@@ -46,7 +46,7 @@ use type Editor.Build_Result_Summary.Diagnostics_Ingestion_Summary_Status;
    function Fixture_Root return String is
    begin
       Ada.Directories.Create_Path ("/tmp/editor-tests");
-      return "/tmp/editor-tests/phase555_execution_fixture";
+      return "/tmp/editor-tests/execution_fixture";
    end Fixture_Root;
 
    procedure Write_File (Path : String; Text : String := "") is
@@ -96,7 +96,7 @@ use type Editor.Build_Result_Summary.Diagnostics_Ingestion_Summary_Status;
       Project_Result :=
         (Status => Editor.Project.Project_Open_Ok,
          Root_Path => To_Unbounded_String (Root),
-         Display_Name => To_Unbounded_String ("phase555_execution_fixture"),
+         Display_Name => To_Unbounded_String ("execution_fixture"),
          Error_Text => Null_Unbounded_String);
       Candidate := Editor.Build_Candidates.Gprbuild_Candidate
         (Root, "demo.gpr");
@@ -137,7 +137,7 @@ use type Editor.Build_Result_Summary.Diagnostics_Ingestion_Summary_Status;
               "valid configured request is ready before consent is cleared");
       Assert (Editor.Build_Execution_Workflow.Assert_Build_Run_Requires_Valid_Consented_Request
                 (S),
-              "Phase 555 pre-run validation requires matching current consent");
+              "pre-run validation requires matching current consent");
       Editor.Build_UI.Clear_Consent (S.Build_UI);
       Assert (Editor.Build_Command.Validate_Build_Run_Invocation (S) =
                 Editor.Build_Command.Build_Run_Readiness_Consent_Required,
@@ -180,10 +180,10 @@ use type Editor.Build_Result_Summary.Diagnostics_Ingestion_Summary_Status;
    begin
       Assert (Editor.Build_Execution_Workflow.Assert_Build_Run_Uses_Structured_Tokens
                 (Request),
-              "Phase 555 runner request uses argv tokens rather than raw shell text");
+              "runner request uses argv tokens rather than raw shell text");
       Assert (Editor.Build_Execution_Workflow.Assert_Build_Run_Does_Not_Use_Shell_Text
                 (Request),
-              "Phase 555 request has no shell pipeline/redirection language");
+              "request has no shell pipeline/redirection language");
 
       Command_Result := Editor.External_Producers.Run_Build_Command_With_Gate
         (S, Request, Gate, Process_Result);
@@ -413,7 +413,7 @@ use type Editor.Build_Result_Summary.Diagnostics_Ingestion_Summary_Status;
               "missing candidate does not invoke the runner");
       Assert (To_String (No_Candidate_Result.Command_Message) =
                 "No build candidate selected.",
-              "missing candidate uses the clear Phase 555 failure message");
+              "missing candidate uses the clear failure message");
 
       Stale_State.Build_UI.Selected_Candidate_Stale := True;
       Assert (Editor.Build_Command.Validate_Build_Run_Invocation
@@ -427,7 +427,7 @@ use type Editor.Build_Result_Summary.Diagnostics_Ingestion_Summary_Status;
               "stale selected candidate does not invoke the runner");
       Assert (To_String (Stale_Result.Command_Message) =
                 "Selected build candidate is stale.",
-              "stale candidate uses the clear Phase 555 failure message");
+              "stale candidate uses the clear failure message");
    end Test_Preflight_Rejects_No_Candidate_And_Stale_Candidate;
 
    procedure Test_Preflight_Rejects_Missing_Candidate_File
@@ -447,7 +447,7 @@ use type Editor.Build_Result_Summary.Diagnostics_Ingestion_Summary_Status;
               "missing candidate source rejects before runner invocation");
       Assert (To_String (Result.Command_Message) =
                 "Build candidate file no longer exists.",
-              "missing candidate source uses a clear Phase 555 failure message");
+              "missing candidate source uses a clear failure message");
    end Test_Preflight_Rejects_Missing_Candidate_File;
 
 
@@ -1150,7 +1150,7 @@ use type Editor.Build_Result_Summary.Diagnostics_Ingestion_Summary_Status;
       Assert (Editor.Build_Execution_Workflow.Assert_Build_Execution_No_Transient_Persistence_Fields (S),
               "candidate selection request config consent latest result output and diagnostics scalar state remain non-persisted");
       Assert (Editor.Build_Execution_Workflow.Assert_Build_Execution_Workflow_Coherent (S),
-              "Phase 555 coherence holds even with populated transient execution surfaces");
+              "coherence holds even with populated transient execution surfaces");
    end Test_Populated_Execution_State_Is_Still_Not_Persisted;
 
    procedure Test_Disabled_Diagnostics_Result_Cannot_Request_Diagnostics_Reveal
@@ -1197,6 +1197,14 @@ use type Editor.Build_Result_Summary.Diagnostics_Ingestion_Summary_Status;
                 (Editor.Build_Command.Build_Run_Readiness_Execution_Backend_Disabled) =
               "Build execution backend is disabled.",
               "disabled backend has an explicit pre-run outcome");
+      Assert (Editor.Build_Command.Build_Run_Recovery_Hint
+                (Editor.Build_Command.Build_Run_Readiness_Job_Already_Active) =
+              "Wait for the active build or cancel it",
+              "active build preflight gives a direct next action");
+      Assert (Editor.Build_Command.Build_Run_Recovery_Hint
+                (Editor.Build_Command.Build_Run_Readiness_Consent_Stale) =
+              "Review changed request and acknowledge consent again",
+              "stale consent preflight gives a direct next action");
    end Test_Unavailable_Reasons_Are_Complete_And_Direct;
 
    procedure Test_Repeated_Preflight_Failures_Replace_Latest_Result_Not_History
@@ -1392,43 +1400,43 @@ use type Editor.Build_Result_Summary.Diagnostics_Ingestion_Summary_Status;
    begin
       Register_Routine
         (T, Test_Unavailable_Reasons_Are_Complete_And_Direct'Access,
-         "Phase 555 unavailable reasons are complete and direct");
+         "unavailable reasons are complete and direct");
       Register_Routine
         (T, Test_Repeated_Preflight_Failures_Replace_Latest_Result_Not_History'Access,
-         "Phase 555 repeated preflight failures replace latest result, not history");
+         "repeated preflight failures replace latest result, not history");
       Register_Routine
         (T, Test_Preflight_Rejections_Do_Not_Run_Diagnostics_Ingestion'Access,
-         "Phase 555 preflight rejections do not run diagnostics ingestion");
+         "preflight rejections do not run diagnostics ingestion");
       Register_Routine
         (T, Test_Preflight_Rejects_No_Project_Before_Runner'Access,
-         "Phase 555 pre-run validation rejects no-project state before runner");
+         "pre-run validation rejects no-project state before runner");
       Register_Routine
         (T, Test_Preflight_Rejects_Unconsented_Or_Invalid_Request'Access,
-         "Phase 555 pre-run validation rejects missing/stale consent before runner");
+         "pre-run validation rejects missing/stale consent before runner");
       Register_Routine
         (T, Test_Preflight_Rejects_No_Candidate_And_Stale_Candidate'Access,
-         "Phase 555 pre-run validation rejects missing and stale candidates before runner");
+         "pre-run validation rejects missing and stale candidates before runner");
       Register_Routine
         (T, Test_Preflight_Rejects_Missing_Candidate_File'Access,
-         "Phase 555 pre-run validation rejects missing candidate source files before runner");
+         "pre-run validation rejects missing candidate source files before runner");
       Register_Routine
         (T, Test_Structured_Gated_Run_Produces_Latest_Result_And_Output'Access,
-         "Phase 555 structured gated build run produces result and bounded output");
+         "structured gated build run produces result and bounded output");
       Register_Routine
         (T, Test_Preflight_Rejects_Working_Context_Failures'Access,
-         "Phase 555 pre-run validation rejects missing and unavailable working contexts before runner");
+         "pre-run validation rejects missing and unavailable working contexts before runner");
       Register_Routine
         (T, Test_Execution_Gate_Carries_Output_And_Diagnostics_Policies'Access,
-         "Phase 555 execution gate carries consent output and diagnostics request policies");
+         "execution gate carries consent output and diagnostics request policies");
       Register_Routine
         (T, Test_Execution_Gate_Consent_Follows_Preflight_Readiness'Access,
-         "Phase 555 execution gate consent follows preflight readiness");
+         "execution gate consent follows preflight readiness");
       Register_Routine
         (T, Test_Request_Mutation_Invalidates_Consent_And_Blocks_Run'Access,
-         "Phase 555 request mutation invalidates consent and blocks build.run");
+         "request mutation invalidates consent and blocks build.run");
       Register_Routine
         (T, Test_Preflight_Failure_Preserves_Request_Configuration_Surface'Access,
-         "Phase 555 preflight failures preserve request configuration and selection surface");
+         "preflight failures preserve request configuration and selection surface");
       Register_Routine
         (T, Test_Build_Cancel_Command_Uses_Active_Job_Model'Access,
          "Build cancel is advertised through the active build-job cancellation/unsupported model");
@@ -1467,56 +1475,56 @@ use type Editor.Build_Result_Summary.Diagnostics_Ingestion_Summary_Status;
          "native build process-control backend is explicitly POSIX-scoped");
       Register_Routine
         (T, Test_Runner_Failure_Statuses_Are_Represented'Access,
-         "Phase 555 runner failure statuses are represented clearly");
+         "runner failure statuses are represented clearly");
       Register_Routine
         (T, Test_Output_Truncation_And_Latest_Result_Replacement'Access,
-         "Phase 555 output truncation and latest-result replacement remain bounded");
+         "output truncation and latest-result replacement remain bounded");
       Register_Routine
         (T, Test_Output_Capture_Over_Limit_Is_Clear_Failure_Not_Unbounded_Log'Access,
-         "Phase 555 output capture over limit is a clear failure, not an unbounded log");
+         "output capture over limit is a clear failure, not an unbounded log");
       Register_Routine
         (T, Test_Output_Details_No_Output_State_Is_Clear'Access,
-         "Phase 555 output details represent no-output builds clearly");
+         "output details represent no-output builds clearly");
       Register_Routine
         (T, Test_Diagnostics_Ingestion_Is_Request_Controlled_And_Owned'Access,
-         "Phase 555 diagnostics ingestion is request controlled and Diagnostics-owned");
+         "diagnostics ingestion is request controlled and Diagnostics-owned");
       Register_Routine
         (T, Test_Diagnostics_Ingestion_Failure_Is_Scalar_And_Does_Not_Hide_Result'Access,
-         "Phase 555 diagnostics ingestion failure is scalar and does not hide build result");
+         "diagnostics ingestion failure is scalar and does not hide build result");
       Register_Routine
         (T, Test_Shell_Payloads_Are_Rejected_By_Coherence_Guards'Access,
-         "Phase 555 shell payloads are rejected by execution coherence guards");
+         "shell payloads are rejected by execution coherence guards");
       Register_Routine
         (T, Test_Gated_Runner_Rejects_Shell_Shaped_Tokens_Without_Diagnostics'Access,
-         "Phase 555 gated runner rejects shell-shaped tokens without diagnostics");
+         "gated runner rejects shell-shaped tokens without diagnostics");
       Register_Routine
         (T, Test_Executor_Route_Rejects_Build_Run_Before_Runner'Access,
-         "Phase 555 Executor route rejects build.run before runner and emits one outcome");
+         "Executor route rejects build.run before runner and emits one outcome");
       Register_Routine
         (T, Test_Result_And_Output_Surfaces_Carry_No_Rerun_Or_Process_Control'Access,
-         "Phase 555 result and output surfaces carry no rerun or process control state");
+         "result and output surfaces carry no rerun or process control state");
       Register_Routine
         (T, Test_Unavailable_Preflight_Updates_Transient_Result_And_Output'Access,
-         "Phase 555 pre-run failures update only transient result and output surfaces");
+         "pre-run failures update only transient result and output surfaces");
       Register_Routine
         (T, Test_Build_UI_Projects_Result_Output_And_Diagnostics_As_Display_Only'Access,
-         "Phase 555 Build UI projects result output and diagnostics as display-only state");
+         "Build UI projects result output and diagnostics as display-only state");
 
       Register_Routine
         (T, Test_Availability_Is_Side_Effect_Free_With_Populated_Execution_State'Access,
-         "Phase 555 availability remains side-effect-free with populated execution state");
+         "availability remains side-effect-free with populated execution state");
       Register_Routine
         (T, Test_Command_Surface_Has_No_Execution_Payloads'Access,
-         "Phase 555 command surface carries no execution payloads");
+         "command surface carries no execution payloads");
       Register_Routine
         (T, Test_Populated_Execution_State_Is_Still_Not_Persisted'Access,
-         "Phase 555 populated execution state remains excluded from persistence");
+         "populated execution state remains excluded from persistence");
       Register_Routine
         (T, Test_Disabled_Diagnostics_Result_Cannot_Request_Diagnostics_Reveal'Access,
-         "Phase 555 disabled diagnostics ingestion cannot request reveal or rows");
+         "disabled diagnostics ingestion cannot request reveal or rows");
       Register_Routine
         (T, Test_Render_Command_And_Persistence_Boundaries'Access,
-         "Phase 555 render command routing and persistence boundaries remain closed");
+         "render command routing and persistence boundaries remain closed");
       Register_Routine
         (T, Test_Async_Build_Worker_Stop_Terminates_Pool'Access,
          "async build worker stop terminates the application-exit worker pool");

@@ -9,7 +9,7 @@ with Editor.Ada_Tasking_Generic_Shared_State_RM_Hard_Case_Completion_Legality;
 
 package Editor.Ada_Coverage_Proven_Generic_Shared_State_AST_Repair_Legality is
 
-   --  Pass1249 coverage-proven AST repair legality.
+   --  Case 1249 coverage-proven AST repair legality.
    --
    --  This package is intentionally evidence driven: it only classifies parser
    --  or AST repair as a current semantic prerequisite when the coverage gates

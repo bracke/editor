@@ -114,7 +114,7 @@ package Editor.Feature_Integration is
    procedure Validate_Reference_Feature_Panel
      (Result : in out Feature_Integration_Result);
 
-   --  Validate the Phase 119 outline content-foundation integration seam.
+   --  Validate the outline content-foundation integration seam.
    procedure Validate_Outline_Content_Foundation
      (Result : in out Feature_Integration_Result);
 

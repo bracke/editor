@@ -2,11 +2,11 @@ with Ada.Strings.Unbounded; use Ada.Strings.Unbounded;
 with AUnit.Assertions; use AUnit.Assertions;
 with AUnit.Test_Cases;
 with Editor.Ada_Syntax_Tree;
-with Editor.Ada_RM_Coverage_Matrix_Audit_Pass1338;
+with Editor.Ada_RM_Coverage_Matrix_Audit;
 
 package body Test_Ada_RM_Coverage_Matrix_Audit is
 
-   package Audit renames Editor.Ada_RM_Coverage_Matrix_Audit_Pass1338;
+   package Audit renames Editor.Ada_RM_Coverage_Matrix_Audit;
    use type Audit.RM_Family;
    use type Audit.Implementing_Slice;
    use type Audit.Coverage_Level;

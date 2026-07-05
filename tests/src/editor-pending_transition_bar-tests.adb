@@ -10,6 +10,7 @@ with Editor.Commands;
 package body Editor.Pending_Transition_Bar.Tests is
 
    use type Editor.Pending_Transition_Bar.Pending_Bar_Action;
+   use type Editor.Pending_Transition_Bar.Pending_Bar_Operation;
    use type Editor.Pending_Transition_Bar.Pending_Bar_Hit_Zone;
    use type Editor.Commands.Command_Id;
    use type Editor.Pending_Transitions.Pending_Transition_Kind;
@@ -108,6 +109,15 @@ package body Editor.Pending_Transition_Bar.Tests is
               "summary must include operation kind");
       Assert (Contains (Text, "3 unsaved buffers"),
               "summary must include dirty count");
+      Assert (Contains (Editor.Pending_Transition_Bar.Guidance_Text (Snapshot),
+                        "Save changes before switching projects"),
+              "summary guidance must include the project-switch next action");
+      Assert (Contains (Editor.Pending_Transition_Bar.Display_Text (Snapshot),
+                        Text)
+              and then Contains
+                (Editor.Pending_Transition_Bar.Display_Text (Snapshot),
+                 Editor.Pending_Transition_Bar.Guidance_Text (Snapshot)),
+              "display text must carry both summary and guidance");
       Assert (Has_Action (Snapshot, Editor.Pending_Transition_Bar.Save_All_Action),
               "bar actions must include Save All");
       Assert (Has_Action (Snapshot, Editor.Pending_Transition_Bar.Retry_Pending_Transition_Action),
@@ -116,6 +126,9 @@ package body Editor.Pending_Transition_Bar.Tests is
               "bar actions must include explicit Discard");
       Assert (Has_Action (Snapshot, Editor.Pending_Transition_Bar.Cancel_Pending_Transition_Action),
               "bar actions must include Cancel");
+      Assert (Editor.Pending_Transition_Bar.Assert_Pending_Bar_Route_Audit_Passes
+                (Snapshot),
+              "bar action routes must be command-backed");
    end Test_Pending_Summary_And_Core_Actions;
 
    procedure Test_Command_Mapping
@@ -285,7 +298,7 @@ package body Editor.Pending_Transition_Bar.Tests is
               "pending bar summary must not retain the replaced target");
    end Test_Bar_Summary_Uses_Replaced_Target;
 
-   procedure Test_Phase573_Reload_And_Revert_Operations_Are_Named
+   procedure Test_Reload_And_Revert_Operations_Are_Named
      (T : in out AUnit.Test_Cases.Test_Case'Class)
    is
       pragma Unreferenced (T);
@@ -333,9 +346,19 @@ package body Editor.Pending_Transition_Bar.Tests is
            (Editor.Pending_Transition_Bar.Summary_Text (Close_All_Snapshot),
             "closing all buffers"),
          "close-all confirmation must name the close-all operation");
-   end Test_Phase573_Reload_And_Revert_Operations_Are_Named;
+      Assert
+        (Contains
+           (Editor.Pending_Transition_Bar.Guidance_Text (Reload_Snapshot),
+            "Retry reload after saving"),
+         "reload confirmation must expose a direct next action");
+      Assert
+        (Contains
+           (Editor.Pending_Transition_Bar.Guidance_Text (Revert_Snapshot),
+            "disk version"),
+         "revert confirmation must name the disk-version consequence");
+   end Test_Reload_And_Revert_Operations_Are_Named;
 
-   procedure Test_Phase573_Reload_And_Revert_Actions_Are_Lifecycle_Scoped
+   procedure Test_Reload_And_Revert_Actions_Are_Lifecycle_Scoped
      (T : in out AUnit.Test_Cases.Test_Case'Class)
    is
       pragma Unreferenced (T);
@@ -362,6 +385,12 @@ package body Editor.Pending_Transition_Bar.Tests is
               "reload confirmation must not expose Discard");
       Assert (not Has_Action (Reload_Snapshot, Editor.Pending_Transition_Bar.Close_All_Clean_Buffers_Action),
               "reload confirmation must not expose Close Clean");
+      Assert (Editor.Pending_Transition_Bar.Operation (Reload_Snapshot) =
+                Editor.Pending_Transition_Bar.Pending_Bar_Reload_Buffer_Operation,
+              "reload confirmation exposes typed operation");
+      Assert (not Editor.Pending_Transition_Bar.Requires_Destructive_Confirmation
+                (Reload_Snapshot),
+              "reload confirmation is not destructive");
       Assert (Has_Action (Revert_Snapshot, Editor.Pending_Transition_Bar.Retry_Pending_Transition_Action),
               "revert confirmation must expose Retry");
       Assert (Has_Action (Revert_Snapshot, Editor.Pending_Transition_Bar.Cancel_Pending_Transition_Action),
@@ -372,7 +401,13 @@ package body Editor.Pending_Transition_Bar.Tests is
               "revert confirmation must not expose Discard");
       Assert (not Has_Action (Revert_Snapshot, Editor.Pending_Transition_Bar.Close_All_Clean_Buffers_Action),
               "revert confirmation must not expose Close Clean");
-   end Test_Phase573_Reload_And_Revert_Actions_Are_Lifecycle_Scoped;
+      Assert (Editor.Pending_Transition_Bar.Operation (Revert_Snapshot) =
+                Editor.Pending_Transition_Bar.Pending_Bar_Revert_Buffer_Operation,
+              "revert confirmation exposes typed operation");
+      Assert (Editor.Pending_Transition_Bar.Requires_Destructive_Confirmation
+                (Revert_Snapshot),
+              "revert confirmation is destructive");
+   end Test_Reload_And_Revert_Actions_Are_Lifecycle_Scoped;
 
 
    procedure Test_Wide_Action_Order_Is_Final
@@ -399,7 +434,118 @@ package body Editor.Pending_Transition_Bar.Tests is
       Assert (Editor.Pending_Transition_Bar.Action (Snapshot, 5).Action =
                 Editor.Pending_Transition_Bar.Close_All_Clean_Buffers_Action,
               "fifth pending bar action must be Close Clean");
+      Assert (Editor.Pending_Transition_Bar.Operation (Snapshot) =
+                Editor.Pending_Transition_Bar.Pending_Bar_Project_Switch_Operation,
+              "dirty project-switch prompt exposes typed operation");
+      Assert (not Editor.Pending_Transition_Bar.Requires_Destructive_Confirmation (Snapshot),
+              "dirty project-switch prompt is guarded by dirty actions, not destructive metadata");
    end Test_Wide_Action_Order_Is_Final;
+
+   procedure Test_Clear_Workspace_Confirmation_Is_Destructive_Only
+     (T : in out AUnit.Test_Cases.Test_Case'Class)
+   is
+      pragma Unreferenced (T);
+      Snapshot : constant Editor.Pending_Transition_Bar.Pending_Bar_Snapshot :=
+        Editor.Pending_Transition_Bar.Build_Snapshot
+          (Pending
+             (Kind => Editor.Pending_Transitions.Pending_Clear_Workspace_State,
+              Display => ""),
+           (others => <>));
+      Text : constant String := Editor.Pending_Transition_Bar.Summary_Text (Snapshot);
+   begin
+      Assert (Editor.Pending_Transition_Bar.Is_Visible (Snapshot),
+              "clear-workspace confirmation must render through the pending bar");
+      Assert (Editor.Pending_Transition_Bar.Operation (Snapshot) =
+                Editor.Pending_Transition_Bar.Pending_Bar_Clear_Workspace_State_Operation,
+              "clear-workspace confirmation must expose a typed operation");
+      Assert (Editor.Pending_Transition_Bar.Requires_Destructive_Confirmation (Snapshot),
+              "clear-workspace confirmation must expose destructive confirmation metadata");
+      Assert (Contains (Text, "workspace state"),
+              "clear-workspace confirmation must name the destructive operation");
+      Assert (Has_Action (Snapshot, Editor.Pending_Transition_Bar.Retry_Pending_Transition_Action),
+              "clear-workspace confirmation must expose Retry");
+      Assert (Has_Action (Snapshot, Editor.Pending_Transition_Bar.Cancel_Pending_Transition_Action),
+              "clear-workspace confirmation must expose Cancel");
+      Assert (not Has_Action (Snapshot, Editor.Pending_Transition_Bar.Save_All_Action),
+              "clear-workspace confirmation must not offer Save All");
+      Assert (not Has_Action (Snapshot, Editor.Pending_Transition_Bar.Discard_Pending_Transition_Action),
+              "clear-workspace confirmation must not offer dirty-buffer Discard");
+      Assert (not Has_Action (Snapshot, Editor.Pending_Transition_Bar.Close_All_Clean_Buffers_Action),
+              "clear-workspace confirmation must not offer close-clean action");
+      Assert (Editor.Pending_Transition_Bar.Assert_Pending_Bar_Route_Audit_Passes
+                (Snapshot),
+              "clear-workspace confirmation must pass route audit");
+   end Test_Clear_Workspace_Confirmation_Is_Destructive_Only;
+
+   procedure Test_All_Operations_Pass_Route_Audit
+     (T : in out AUnit.Test_Cases.Test_Case'Class)
+   is
+      pragma Unreferenced (T);
+
+      procedure Check
+        (Kind        : Editor.Pending_Transitions.Pending_Transition_Kind;
+         Operation   : Editor.Pending_Transition_Bar.Pending_Bar_Operation;
+         Destructive : Boolean)
+      is
+         Snapshot : constant Editor.Pending_Transition_Bar.Pending_Bar_Snapshot :=
+           Editor.Pending_Transition_Bar.Build_Snapshot
+             (Pending (Kind => Kind, Display => "target"), (others => <>));
+      begin
+         Assert (Editor.Pending_Transition_Bar.Is_Visible (Snapshot),
+                 "operation audit fixture must be visible");
+         Assert (Editor.Pending_Transition_Bar.Operation (Snapshot) = Operation,
+                 "pending bar operation kind must be typed");
+         Assert (Editor.Pending_Transition_Bar.Requires_Destructive_Confirmation
+                   (Snapshot) = Destructive,
+                 "destructive confirmation metadata must match operation");
+         Assert (Editor.Pending_Transition_Bar.Assert_Action_Routes_Are_Command_Backed
+                   (Snapshot),
+                 "pending bar actions must route to commands");
+         Assert (Editor.Pending_Transition_Bar.Assert_Destructive_Actions_Are_Confirmed
+                   (Snapshot),
+                 "destructive pending operations must remain explicitly confirmed");
+         Assert (Editor.Pending_Transition_Bar.Assert_Pending_Bar_Route_Audit_Passes
+                   (Snapshot),
+                 "combined pending bar route audit must pass");
+      end Check;
+   begin
+      Check (Editor.Pending_Transitions.Pending_Close_Buffer,
+             Editor.Pending_Transition_Bar.Pending_Bar_Close_Buffer_Operation,
+             False);
+      Check (Editor.Pending_Transitions.Pending_Close_All_Buffers,
+             Editor.Pending_Transition_Bar.Pending_Bar_Close_All_Buffers_Operation,
+             False);
+      Check (Editor.Pending_Transitions.Pending_Close_Other_Buffers,
+             Editor.Pending_Transition_Bar.Pending_Bar_Close_Other_Buffers_Operation,
+             False);
+      Check (Editor.Pending_Transitions.Pending_Reload_Active_Buffer,
+             Editor.Pending_Transition_Bar.Pending_Bar_Reload_Buffer_Operation,
+             False);
+      Check (Editor.Pending_Transitions.Pending_Revert_Active_Buffer,
+             Editor.Pending_Transition_Bar.Pending_Bar_Revert_Buffer_Operation,
+             True);
+      Check (Editor.Pending_Transitions.Pending_Close_Project,
+             Editor.Pending_Transition_Bar.Pending_Bar_Close_Project_Operation,
+             False);
+      Check (Editor.Pending_Transitions.Pending_Clear_Project,
+             Editor.Pending_Transition_Bar.Pending_Bar_Clear_Project_Operation,
+             True);
+      Check (Editor.Pending_Transitions.Pending_Switch_Project,
+             Editor.Pending_Transition_Bar.Pending_Bar_Project_Switch_Operation,
+             False);
+      Check (Editor.Pending_Transitions.Pending_Open_Project,
+             Editor.Pending_Transition_Bar.Pending_Bar_Project_Switch_Operation,
+             False);
+      Check (Editor.Pending_Transitions.Pending_Open_Recent_Project,
+             Editor.Pending_Transition_Bar.Pending_Bar_Project_Switch_Operation,
+             False);
+      Check (Editor.Pending_Transitions.Pending_Restore_Workspace,
+             Editor.Pending_Transition_Bar.Pending_Bar_Restore_Workspace_Operation,
+             False);
+      Check (Editor.Pending_Transitions.Pending_Clear_Workspace_State,
+             Editor.Pending_Transition_Bar.Pending_Bar_Clear_Workspace_State_Operation,
+             True);
+   end Test_All_Operations_Pass_Route_Audit;
 
 
    overriding procedure Register_Tests
@@ -426,11 +572,17 @@ package body Editor.Pending_Transition_Bar.Tests is
       Register_Routine (T, Test_Wide_Action_Order_Is_Final'Access,
                         "wide bar action order is final");
       Register_Routine
-        (T, Test_Phase573_Reload_And_Revert_Operations_Are_Named'Access,
-         "phase 573 reload/revert pending bar names operation and buffer");
+        (T, Test_Reload_And_Revert_Operations_Are_Named'Access,
+         "reload/revert pending bar names operation and buffer");
       Register_Routine
-        (T, Test_Phase573_Reload_And_Revert_Actions_Are_Lifecycle_Scoped'Access,
-         "phase 573 reload/revert pending bar exposes only retry/cancel");
+        (T, Test_Reload_And_Revert_Actions_Are_Lifecycle_Scoped'Access,
+         "reload/revert pending bar exposes only retry/cancel");
+      Register_Routine
+        (T, Test_Clear_Workspace_Confirmation_Is_Destructive_Only'Access,
+         "clear-workspace confirmation uses destructive retry/cancel only");
+      Register_Routine
+        (T, Test_All_Operations_Pass_Route_Audit'Access,
+         "all pending bar operations pass route audit");
    end Register_Tests;
 
 end Editor.Pending_Transition_Bar.Tests;

@@ -5,9 +5,9 @@ with Editor.Ada_Syntax_Tree;
 
 package Editor.Ada_Overload_Preference_Legality is
 
-   --  Pass1126 Ada overload preference legality.
+   --  Case 1126 Ada overload preference legality.
    --
-   --  This package deepens overload resolution after the broad Pass1109
+   --  This package deepens overload resolution after the broad Case 1109
    --  legality layer by applying Ada-specific preference evidence in a
    --  deterministic, snapshot-owned model.  It does not parse, invoke a
    --  compiler, touch buffers, mutate editor state, or project UI state.  The

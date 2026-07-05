@@ -10,7 +10,7 @@ with Editor.Ada_Syntax_Tree;
 
 package Editor.Ada_Flow_Contract_Final_Proof_Legality is
 
-   --  Pass1192 compiler-grade flow/contract final proof legality.
+   --  Case 1192 compiler-grade flow/contract final proof legality.
    --
    --  This layer strengthens Global, Depends, Refined_Global and
    --  Refined_Depends proof obligations after the final consumer chain.  It

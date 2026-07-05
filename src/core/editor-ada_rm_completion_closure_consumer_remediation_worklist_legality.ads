@@ -4,10 +4,10 @@ with Editor.Ada_Syntax_Tree;
 
 package Editor.Ada_RM_Completion_Closure_Consumer_Remediation_Worklist_Legality is
 
-   --  Pass1274 remediation worklist for the direct RM-completion closure
+   --  Case 1274 remediation worklist for the direct RM-completion closure
    --  consumer chain.
    --
-   --  This package consumes Pass1273 diagnostic-boundary rows and converts
+   --  This package consumes Case 1273 diagnostic-boundary rows and converts
    --  blocking direct-consumer diagnostics into prerequisite-ordered semantic
    --  re-analysis work.  Accepted rows remain current semantic evidence;
    --  blockers keep their original cross-unit, elaboration, accessibility,

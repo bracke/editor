@@ -44,7 +44,7 @@ package body Editor.Configuration_Audit.Tests is
 
    function Temp_Path (Name : String) return String is
    begin
-      return "/tmp/editor_phase108_" & Name;
+      return "/tmp/editor_" & Name;
    end Temp_Path;
 
    procedure Delete_If_Exists (Path : String) is
@@ -290,11 +290,11 @@ package body Editor.Configuration_Audit.Tests is
       Editor.Settings.Set_Line_Number_Mode_Name (Model, "relative");
       Editor.Settings.Set_Command_Palette_Show_Keybindings (Model, False);
       Editor.State.Apply_Settings (S, Model);
-      Install_Project (S, "/tmp/editor-phase108-a", "editor-phase108-a");
+      Install_Project (S, "/tmp/editor-a", "editor-a");
       S.File_Info.Dirty := True;
       Editor.Recent_Projects.Clear (S.Recent_Projects);
       Editor.Recent_Projects.Add_Or_Promote
-        (S.Recent_Projects, "/tmp/editor-phase108-a", "editor-phase108-a", 108);
+        (S.Recent_Projects, "/tmp/editor-a", "editor-a", 108);
 
       Summary := Editor.Configuration_Audit.Configuration_State_Summary_For (S);
 
@@ -475,8 +475,8 @@ package body Editor.Configuration_Audit.Tests is
       After  : Editor.Configuration_Audit.Configuration_State_Summary;
       Target : constant Editor.Pending_Transitions.Pending_Transition_Target :=
         (Kind       => Editor.Pending_Transitions.Pending_Open_Project,
-         Path       => To_Unbounded_String ("/tmp/editor-phase108-b"),
-         Display    => To_Unbounded_String ("editor-phase108-b"),
+         Path       => To_Unbounded_String ("/tmp/editor-b"),
+         Display    => To_Unbounded_String ("editor-b"),
          Buffer_Id  => 0,
          Has_Buffer => False,
          Has_Path   => True,
@@ -493,11 +493,11 @@ package body Editor.Configuration_Audit.Tests is
       Ada.Environment_Variables.Set ("EDITOR_SETTINGS_PATH", Settings_Path);
       Ada.Environment_Variables.Set ("EDITOR_KEYBINDINGS_PATH", Keybindings_Path);
       Simulate_Startup_Config_Load (S, Settings_Path, Keybindings_Path);
-      Install_Project (S, "/tmp/editor-phase108-a", "editor-phase108-a");
-      Editor.State.Load_Text (S, "dirty phase 108 text");
+      Install_Project (S, "/tmp/editor-a", "editor-a");
+      Editor.State.Load_Text (S, "dirty text");
       S.File_Info :=
         (Has_Path     => True,
-         Path         => To_Unbounded_String ("/tmp/editor-phase108-a/main.adb"),
+         Path         => To_Unbounded_String ("/tmp/editor-a/main.adb"),
          Display_Name => To_Unbounded_String ("main.adb"),
          Dirty        => True,
          others       => <>);
@@ -509,7 +509,7 @@ package body Editor.Configuration_Audit.Tests is
       Editor.Executor.Execute_Command (S, Editor.Commands.Command_Reload_Keybindings);
       After := Editor.Configuration_Audit.Configuration_State_Summary_For (S);
 
-      Assert (Editor.State.Current_Text (S) = "dirty phase 108 text",
+      Assert (Editor.State.Current_Text (S) = "dirty text",
               "configuration reloads must not rewrite dirty text");
       Assert (After.Dirty_Buffer_Count = Before.Dirty_Buffer_Count,
               "configuration reloads must not clear dirty state");
@@ -541,29 +541,29 @@ package body Editor.Configuration_Audit.Tests is
 
       Assert (Ada.Strings.Fixed.Index (To_String (Settings_Text), "Ctrl+Alt+S") = 0,
               "settings file must not contain keybinding chords");
-      Assert (Ada.Strings.Fixed.Index (To_String (Settings_Text), "/tmp/editor-phase108") = 0,
+      Assert (Ada.Strings.Fixed.Index (To_String (Settings_Text), "/tmp/editor-") = 0,
               "settings file must not contain project paths");
       Assert (Ada.Strings.Fixed.Index (To_String (Keybindings_Text), "show-keybindings") = 0,
               "keybindings file must not contain settings keys");
       Assert (Ada.Strings.Fixed.Index (To_String (Keybindings_Text), "line-numbers") = 0,
               "keybindings file must not contain settings-owned keys");
-      Assert (Ada.Strings.Fixed.Index (To_String (Keybindings_Text), "/tmp/editor-phase108") = 0,
+      Assert (Ada.Strings.Fixed.Index (To_String (Keybindings_Text), "/tmp/editor-") = 0,
               "keybindings file must not contain project paths");
       Delete_If_Exists (Settings_Path);
       Delete_If_Exists (Keybindings_Path);
    end Test_Persistence_Exclusions_For_Settings_And_Keybindings;
 
-   procedure Test_Phase_567_Configuration_Recovery_Coherence
+   procedure Test_Configuration_Recovery_Coherence
      (T : in out AUnit.Test_Cases.Test_Case'Class)
    is
       pragma Unreferenced (T);
    begin
       Assert
         (Editor.Configuration_Recovery.Assert_Configuration_Recovery_Coherent,
-         "phase 567 configuration recovery contract must be coherent");
-   end Test_Phase_567_Configuration_Recovery_Coherence;
+         "configuration recovery contract must be coherent");
+   end Test_Configuration_Recovery_Coherence;
 
-   procedure Test_Phase_567_Recovery_Surface_Is_Bounded
+   procedure Test_Recovery_Surface_Is_Bounded
      (T : in out AUnit.Test_Cases.Test_Case'Class)
    is
       pragma Unreferenced (T);
@@ -591,11 +591,11 @@ package body Editor.Configuration_Audit.Tests is
       Assert
         (To_String (Surface.Rows (2).Domain_Label) = "Keybindings",
          "keybindings recovery status must be displayed");
-   end Test_Phase_567_Recovery_Surface_Is_Bounded;
+   end Test_Recovery_Surface_Is_Bounded;
 
 
 
-   procedure Test_Phase_567_Recovery_Command_Catalog
+   procedure Test_Recovery_Command_Catalog
      (T : in out AUnit.Test_Cases.Test_Case'Class)
    is
       pragma Unreferenced (T);
@@ -631,10 +631,10 @@ package body Editor.Configuration_Audit.Tests is
 
       Assert (Saw_Reset_All, "reset-all recovery command must require confirmation");
       Assert (Saw_Save_Clean_Workspace, "workspace save-clean command must be domain-local");
-   end Test_Phase_567_Recovery_Command_Catalog;
+   end Test_Recovery_Command_Catalog;
 
 
-   procedure Test_Phase_567_Recovery_Commands_Are_Registered
+   procedure Test_Recovery_Commands_Are_Registered
      (T : in out AUnit.Test_Cases.Test_Case'Class)
    is
       pragma Unreferenced (T);
@@ -707,9 +707,9 @@ package body Editor.Configuration_Audit.Tests is
       Check
         (Editor.Commands.Command_Configuration_Save_Clean_Recent_Projects,
          "configuration.save-clean-recent-projects");
-   end Test_Phase_567_Recovery_Commands_Are_Registered;
+   end Test_Recovery_Commands_Are_Registered;
 
-   procedure Test_Phase_567_Reset_All_Requires_Confirmation
+   procedure Test_Reset_All_Requires_Confirmation
      (T : in out AUnit.Test_Cases.Test_Case'Class)
    is
       pragma Unreferenced (T);
@@ -717,10 +717,10 @@ package body Editor.Configuration_Audit.Tests is
       Assert
         (Editor.Configuration_Recovery.Assert_Reset_All_Requires_Confirmation,
          "reset-all recovery must do nothing until explicitly confirmed");
-   end Test_Phase_567_Reset_All_Requires_Confirmation;
+   end Test_Reset_All_Requires_Confirmation;
 
 
-   procedure Test_Phase_567_Recovery_Availability_Is_Domain_Local
+   procedure Test_Recovery_Availability_Is_Domain_Local
      (T : in out AUnit.Test_Cases.Test_Case'Class)
    is
       pragma Unreferenced (T);
@@ -728,9 +728,9 @@ package body Editor.Configuration_Audit.Tests is
       Assert
         (Editor.Configuration_Recovery.Assert_Recovery_Command_Availability_Is_Domain_Local,
          "recovery command availability must be based on the affected domain only");
-   end Test_Phase_567_Recovery_Availability_Is_Domain_Local;
+   end Test_Recovery_Availability_Is_Domain_Local;
 
-   procedure Test_Phase_567_Recovery_Summary_Overflow_Is_Bounded
+   procedure Test_Recovery_Summary_Overflow_Is_Bounded
      (T : in out AUnit.Test_Cases.Test_Case'Class)
    is
       pragma Unreferenced (T);
@@ -738,10 +738,10 @@ package body Editor.Configuration_Audit.Tests is
       Assert
         (Editor.Configuration_Recovery.Assert_Recovery_Summary_Overflow_Is_Bounded,
          "recovery summary overflow must be explicit and render rows must stay bounded");
-   end Test_Phase_567_Recovery_Summary_Overflow_Is_Bounded;
+   end Test_Recovery_Summary_Overflow_Is_Bounded;
 
 
-   procedure Test_Phase_567_Settings_Recovery_Counts_Are_Actionable
+   procedure Test_Settings_Recovery_Counts_Are_Actionable
      (T : in out AUnit.Test_Cases.Test_Case'Class)
    is
       pragma Unreferenced (T);
@@ -749,9 +749,9 @@ package body Editor.Configuration_Audit.Tests is
       Assert
         (Editor.Configuration_Recovery.Assert_Settings_Recovery_Counts_Are_Actionable,
          "settings partial recovery must expose defaulted/ignored counts for the recovery surface");
-   end Test_Phase_567_Settings_Recovery_Counts_Are_Actionable;
+   end Test_Settings_Recovery_Counts_Are_Actionable;
 
-   procedure Test_Phase_567_Recent_Projects_Partial_Load_Is_Preserved
+   procedure Test_Recent_Projects_Partial_Load_Is_Preserved
      (T : in out AUnit.Test_Cases.Test_Case'Class)
    is
       pragma Unreferenced (T);
@@ -759,10 +759,10 @@ package body Editor.Configuration_Audit.Tests is
       Assert
         (Editor.Configuration_Recovery.Assert_Recent_Projects_Partial_Load_Is_Preserved,
          "recent-projects partial recovery must preserve valid entries and report ignored entries");
-   end Test_Phase_567_Recent_Projects_Partial_Load_Is_Preserved;
+   end Test_Recent_Projects_Partial_Load_Is_Preserved;
 
 
-   procedure Test_Phase_567_Recorded_Recovery_Summary_Is_Transient
+   procedure Test_Recorded_Recovery_Summary_Is_Transient
      (T : in out AUnit.Test_Cases.Test_Case'Class)
    is
       pragma Unreferenced (T);
@@ -770,9 +770,9 @@ package body Editor.Configuration_Audit.Tests is
       Assert
         (Editor.Configuration_Recovery.Assert_Recorded_Recovery_Summary_Is_Transient,
          "recorded recovery summary must be transient and display-oriented only");
-   end Test_Phase_567_Recorded_Recovery_Summary_Is_Transient;
+   end Test_Recorded_Recovery_Summary_Is_Transient;
 
-   procedure Test_Phase_567_Recovery_Runtime_State_Clear_Is_Local
+   procedure Test_Recovery_Runtime_State_Clear_Is_Local
      (T : in out AUnit.Test_Cases.Test_Case'Class)
    is
       pragma Unreferenced (T);
@@ -780,9 +780,9 @@ package body Editor.Configuration_Audit.Tests is
       Assert
         (Editor.Configuration_Recovery.Assert_Recovery_Runtime_State_Clear_Is_Local,
          "clearing recovery runtime state must clear only transient summary and confirmation state");
-   end Test_Phase_567_Recovery_Runtime_State_Clear_Is_Local;
+   end Test_Recovery_Runtime_State_Clear_Is_Local;
 
-   procedure Test_Phase_567_Clean_Summary_Disables_Reset_And_Save_Clean
+   procedure Test_Clean_Summary_Disables_Reset_And_Save_Clean
      (T : in out AUnit.Test_Cases.Test_Case'Class)
    is
       pragma Unreferenced (T);
@@ -790,9 +790,9 @@ package body Editor.Configuration_Audit.Tests is
       Assert
         (Editor.Configuration_Recovery.Assert_Clean_Summary_Disables_Reset_And_Save_Clean,
          "clean recovery summaries must disable reset and save-clean recovery commands");
-   end Test_Phase_567_Clean_Summary_Disables_Reset_And_Save_Clean;
+   end Test_Clean_Summary_Disables_Reset_And_Save_Clean;
 
-   procedure Test_Phase_567_Domain_Local_Status_Record_Is_Bounded
+   procedure Test_Domain_Local_Status_Record_Is_Bounded
      (T : in out AUnit.Test_Cases.Test_Case'Class)
    is
       pragma Unreferenced (T);
@@ -800,10 +800,10 @@ package body Editor.Configuration_Audit.Tests is
       Assert
         (Editor.Configuration_Recovery.Assert_Domain_Local_Status_Record_Is_Bounded,
          "domain-local command status recording must stay bounded and avoid fabricated audit rows");
-   end Test_Phase_567_Domain_Local_Status_Record_Is_Bounded;
+   end Test_Domain_Local_Status_Record_Is_Bounded;
 
 
-   procedure Test_Phase_567_Save_Clean_Failure_Status_Is_Exception_Contained
+   procedure Test_Save_Clean_Failure_Status_Is_Exception_Contained
      (T : in out AUnit.Test_Cases.Test_Case'Class)
    is
       pragma Unreferenced (T);
@@ -811,9 +811,9 @@ package body Editor.Configuration_Audit.Tests is
       Assert
         (Editor.Configuration_Recovery.Assert_Save_Clean_Failure_Status_Is_Exception_Contained,
          "save-clean failure status must stay exception-contained and domain-local");
-   end Test_Phase_567_Save_Clean_Failure_Status_Is_Exception_Contained;
+   end Test_Save_Clean_Failure_Status_Is_Exception_Contained;
 
-   procedure Test_Phase_567_Recovery_Messages_Are_Bounded
+   procedure Test_Recovery_Messages_Are_Bounded
      (T : in out AUnit.Test_Cases.Test_Case'Class)
    is
       pragma Unreferenced (T);
@@ -821,9 +821,9 @@ package body Editor.Configuration_Audit.Tests is
       Assert
         (Editor.Configuration_Recovery.Assert_Recovery_Messages_Are_Bounded,
          "recovery messages must be bounded before snapshot/recording");
-   end Test_Phase_567_Recovery_Messages_Are_Bounded;
+   end Test_Recovery_Messages_Are_Bounded;
 
-   procedure Test_Phase_567_Recovery_Availability_Blocks_Pending_Reset_All
+   procedure Test_Recovery_Availability_Blocks_Pending_Reset_All
      (T : in out AUnit.Test_Cases.Test_Case'Class)
    is
       pragma Unreferenced (T);
@@ -831,9 +831,9 @@ package body Editor.Configuration_Audit.Tests is
       Assert
         (Editor.Configuration_Recovery.Assert_Recovery_Availability_Blocks_Domain_Mutation_While_Pending,
          "pending reset-all confirmation must block domain-local reset/save-clean mutations");
-   end Test_Phase_567_Recovery_Availability_Blocks_Pending_Reset_All;
+   end Test_Recovery_Availability_Blocks_Pending_Reset_All;
 
-   procedure Test_Phase_567_Reset_All_Keybinding_Failure_Not_Fabricated
+   procedure Test_Reset_All_Keybinding_Failure_Not_Fabricated
      (T : in out AUnit.Test_Cases.Test_Case'Class)
    is
       pragma Unreferenced (T);
@@ -841,10 +841,10 @@ package body Editor.Configuration_Audit.Tests is
       Assert
         (Editor.Configuration_Recovery.Assert_Reset_All_Keybinding_Failure_Status_Is_Not_Fabricated,
          "reset-all confirmation must not report keybindings defaults when keybinding reset fails");
-   end Test_Phase_567_Reset_All_Keybinding_Failure_Not_Fabricated;
+   end Test_Reset_All_Keybinding_Failure_Not_Fabricated;
 
 
-   procedure Test_Phase_577_Buffer_Boundary_Audit_Is_Configuration_Surface
+   procedure Test_Buffer_Boundary_Audit_Is_Configuration_Surface
      (T : in out AUnit.Test_Cases.Test_Case'Class)
    is
       pragma Unreferenced (T);
@@ -881,9 +881,9 @@ package body Editor.Configuration_Audit.Tests is
         (Editor.Configuration_Audit.Status (Result) =
            Editor.Configuration_Audit.Configuration_Audit_Ok,
          Editor.Configuration_Audit.Summary (Result));
-   end Test_Phase_577_Buffer_Boundary_Audit_Is_Configuration_Surface;
+   end Test_Buffer_Boundary_Audit_Is_Configuration_Surface;
 
-   procedure Test_Phase_577_Configuration_Audit_Fails_Forbidden_Buffer_Persistence
+   procedure Test_Configuration_Audit_Fails_Forbidden_Buffer_Persistence
      (T : in out AUnit.Test_Cases.Test_Case'Class)
    is
       pragma Unreferenced (T);
@@ -914,10 +914,10 @@ package body Editor.Configuration_Audit.Tests is
         (Ada.Strings.Fixed.Index
            (Editor.Configuration_Audit.Summary (Result),
             "Configuration audit failed") > 0,
-         "failure summary must surface the Phase 577 buffer boundary audit");
-   end Test_Phase_577_Configuration_Audit_Fails_Forbidden_Buffer_Persistence;
+         "failure summary must surface the buffer boundary audit");
+   end Test_Configuration_Audit_Fails_Forbidden_Buffer_Persistence;
 
-   procedure Test_Phase_577_Configuration_Audit_Inspects_Real_Buffer_List_Selection
+   procedure Test_Configuration_Audit_Inspects_Real_Buffer_List_Selection
      (T : in out AUnit.Test_Cases.Test_Case'Class)
    is
       pragma Unreferenced (T);
@@ -930,7 +930,7 @@ package body Editor.Configuration_Audit.Tests is
    begin
       Editor.Buffers.Reset_Global_For_Test;
       Editor.Buffers.Global_Add_File_Buffer
-        ("/tmp/editor-phase577/selected.adb", "selected.adb", "procedure Selected is begin null; end;", Id);
+        ("/tmp/editor-/selected.adb", "selected.adb", "procedure Selected is begin null; end;", Id);
       Editor.Buffers.Global_Set_Active_Buffer (Id);
       Editor.Buffer_Switcher.Open (S.Buffer_Switcher);
       Editor.Buffer_Switcher.Recompute_Rows
@@ -941,7 +941,7 @@ package body Editor.Configuration_Audit.Tests is
                 and then Summary.Buffer_List_Selected_Row_Valid
                 and then Summary.Buffer_List_Selected_Runtime_Id_Registered
                 and then Summary.Buffer_List_Selection_Is_Transient,
-              "Phase 577 configuration audit inspects valid real Buffer List selection state");
+              "configuration audit inspects valid real Buffer List selection state");
 
       Editor.Buffers.Global_Force_Close_Buffer (Id, Closed);
       Assert (Closed, "test setup closes selected global buffer without recomputing Buffer List rows");
@@ -949,30 +949,30 @@ package body Editor.Configuration_Audit.Tests is
       Assert (not Summary.Selected_Buffer_Valid
                 and then not Summary.Buffer_List_Selected_Row_Valid
                 and then not Summary.Buffer_List_Selected_Runtime_Id_Registered,
-              "Phase 577 configuration audit rejects stale selected Buffer List runtime ids");
+              "configuration audit rejects stale selected Buffer List runtime ids");
 
       Editor.Configuration_Audit.Audit_Buffer_Metadata_Lifecycle_Boundaries (Result, S);
       Assert (Editor.Configuration_Audit.Status (Result) =
                 Editor.Configuration_Audit.Configuration_Audit_Failed,
-              "Phase 577 configuration audit surfaces stale Buffer List selection as an audit failure");
+              "configuration audit surfaces stale Buffer List selection as an audit failure");
 
       Editor.Buffers.Reset_Global_For_Test;
    exception
       when others =>
          Editor.Buffers.Reset_Global_For_Test;
          raise;
-   end Test_Phase_577_Configuration_Audit_Inspects_Real_Buffer_List_Selection;
+   end Test_Configuration_Audit_Inspects_Real_Buffer_List_Selection;
 
 
 
-   function Phase577_Pending_Summary
+   function Pending_Summary
       return Editor.Dirty_Guards.Dirty_Buffer_Summary
    is
    begin
       return (Dirty_Count => 1, Untitled_Count => 0, File_Backed_Count => 1);
-   end Phase577_Pending_Summary;
+   end Pending_Summary;
 
-   procedure Test_Phase_577_Pending_Transition_Runtime_Id_Is_Transient
+   procedure Test_Pending_Transition_Runtime_Id_Is_Transient
      (T : in out AUnit.Test_Cases.Test_Case'Class)
    is
       pragma Unreferenced (T);
@@ -987,7 +987,7 @@ package body Editor.Configuration_Audit.Tests is
       Target.Buffer_Id := 42;
       Target.Has_Buffer := True;
       Editor.Pending_Transitions.Set_Pending
-        (S.Pending_Transitions, Target, Phase577_Pending_Summary);
+        (S.Pending_Transitions, Target, Pending_Summary);
 
       Summary := Editor.Configuration_Audit.Buffer_Boundary_Audit_For
         (S, "workspace-format-version=1" & ASCII.LF);
@@ -1011,9 +1011,9 @@ package body Editor.Configuration_Audit.Tests is
       Assert (Editor.Configuration_Audit.Status (Result) =
                 Editor.Configuration_Audit.Configuration_Audit_Ok,
               Editor.Configuration_Audit.Summary (Result));
-   end Test_Phase_577_Pending_Transition_Runtime_Id_Is_Transient;
+   end Test_Pending_Transition_Runtime_Id_Is_Transient;
 
-   procedure Test_Phase_577_Pending_Transition_File_Token_Is_Transient
+   procedure Test_Pending_Transition_File_Token_Is_Transient
      (T : in out AUnit.Test_Cases.Test_Case'Class)
    is
       pragma Unreferenced (T);
@@ -1026,14 +1026,14 @@ package body Editor.Configuration_Audit.Tests is
       Target.Display := To_Unbounded_String ("reload.adb");
       Target.Buffer_Id := 77;
       Target.Has_Buffer := True;
-      Target.Path := To_Unbounded_String ("/tmp/editor-phase577/reload.adb");
+      Target.Path := To_Unbounded_String ("/tmp/editor-/reload.adb");
       Target.Has_Path := True;
       Target.Observed_File_Status_Code := 2;
       Target.Has_Observed_File_Status := True;
       Target.Observed_File_Token_Label := To_Unbounded_String ("opaque-file-token-77");
       Target.Has_Observed_File_Token := True;
       Editor.Pending_Transitions.Set_Pending
-        (S.Pending_Transitions, Target, Phase577_Pending_Summary);
+        (S.Pending_Transitions, Target, Pending_Summary);
 
       Summary := Editor.Configuration_Audit.Buffer_Boundary_Audit_For
         (S, "workspace-format-version=1" & ASCII.LF);
@@ -1047,9 +1047,9 @@ package body Editor.Configuration_Audit.Tests is
               "pending file conflict tokens must not be rendered to the user as opaque tokens");
       Assert (Summary.Pending_Target_Revalidated_Before_Mutation,
               "pending reload/revert tokens must have a revalidation key before mutation");
-   end Test_Phase_577_Pending_Transition_File_Token_Is_Transient;
+   end Test_Pending_Transition_File_Token_Is_Transient;
 
-   procedure Test_Phase_577_Pending_Transition_Render_Payload_Leak_Fails_Audit
+   procedure Test_Pending_Transition_Render_Payload_Leak_Fails_Audit
      (T : in out AUnit.Test_Cases.Test_Case'Class)
    is
       pragma Unreferenced (T);
@@ -1063,17 +1063,17 @@ package body Editor.Configuration_Audit.Tests is
       Target.Buffer_Id := 42;
       Target.Has_Buffer := True;
       Editor.Pending_Transitions.Set_Pending
-        (S.Pending_Transitions, Target, Phase577_Pending_Summary);
+        (S.Pending_Transitions, Target, Pending_Summary);
 
       Editor.Configuration_Audit.Audit_Buffer_Metadata_Lifecycle_Boundaries
         (Result, S, "workspace-format-version=1" & ASCII.LF);
       Assert (Editor.Configuration_Audit.Status (Result) =
                 Editor.Configuration_Audit.Configuration_Audit_Failed,
               "configuration audit must fail when pending prompt display exposes a structured runtime buffer payload");
-   end Test_Phase_577_Pending_Transition_Render_Payload_Leak_Fails_Audit;
+   end Test_Pending_Transition_Render_Payload_Leak_Fails_Audit;
 
 
-   procedure Test_Phase_577_File_Conflict_Prompt_Token_Is_Transient
+   procedure Test_File_Conflict_Prompt_Token_Is_Transient
      (T : in out AUnit.Test_Cases.Test_Case'Class)
    is
       pragma Unreferenced (T);
@@ -1084,7 +1084,7 @@ package body Editor.Configuration_Audit.Tests is
       Editor.Keybindings.Reset_To_Defaults;
       S.File_Conflict_Prompt_Active := True;
       S.File_Conflict_Prompt_Buffer := 91;
-      S.File_Conflict_Prompt_Path := To_Unbounded_String ("/tmp/editor-phase577/conflicted.adb");
+      S.File_Conflict_Prompt_Path := To_Unbounded_String ("/tmp/editor-/conflicted.adb");
       S.File_Conflict_Prompt_Display := To_Unbounded_String ("conflicted.adb");
       S.File_Conflict_Prompt_Kind := Editor.State.External_Modified_While_Dirty;
       S.File_Conflict_Prompt_Dirty := True;
@@ -1121,9 +1121,9 @@ package body Editor.Configuration_Audit.Tests is
       Assert (Editor.Configuration_Audit.Status (Result) =
                 Editor.Configuration_Audit.Configuration_Audit_Ok,
               Editor.Configuration_Audit.Summary (Result));
-   end Test_Phase_577_File_Conflict_Prompt_Token_Is_Transient;
+   end Test_File_Conflict_Prompt_Token_Is_Transient;
 
-   procedure Test_Phase_577_File_Conflict_Prompt_Missing_Revalidation_Fails
+   procedure Test_File_Conflict_Prompt_Missing_Revalidation_Fails
      (T : in out AUnit.Test_Cases.Test_Case'Class)
    is
       pragma Unreferenced (T);
@@ -1153,10 +1153,10 @@ package body Editor.Configuration_Audit.Tests is
       Assert (Editor.Configuration_Audit.Status (Result) =
                 Editor.Configuration_Audit.Configuration_Audit_Failed,
               "configuration audit must fail stale file conflict prompt state");
-   end Test_Phase_577_File_Conflict_Prompt_Missing_Revalidation_Fails;
+   end Test_File_Conflict_Prompt_Missing_Revalidation_Fails;
 
 
-   procedure Test_Phase_577_Preservation_Audit_Does_Not_Mutate_Project_Transient_State
+   procedure Test_Preservation_Audit_Does_Not_Mutate_Project_Transient_State
      (T : in out AUnit.Test_Cases.Test_Case'Class)
    is
       pragma Unreferenced (T);
@@ -1169,8 +1169,8 @@ package body Editor.Configuration_Audit.Tests is
       Result         : Editor.Configuration_Audit.Configuration_Audit_Result;
       Serialized     : constant String :=
         "workspace-format-version=1" & ASCII.LF
-        & "open-file path=/tmp/editor-phase577/runtime_buffer_id_notes.adb" & ASCII.LF
-        & "active-file path=/tmp/editor-phase577/runtime_buffer_id_notes.adb" & ASCII.LF;
+        & "open-file path=/tmp/editor-/runtime_buffer_id_notes.adb" & ASCII.LF
+        & "active-file path=/tmp/editor-/runtime_buffer_id_notes.adb" & ASCII.LF;
    begin
       Editor.Keybindings.Reset_To_Defaults;
       Editor.State.Init (S);
@@ -1179,7 +1179,7 @@ package body Editor.Configuration_Audit.Tests is
       Editor.Feature_Panel.Set_Focused (S.Feature_Panel, True);
       Editor.Feature_Panel.Fixtures.Set_Placeholder_Rows (S.Feature_Panel);
       Editor.Feature_Panel.Select_First (S.Feature_Panel);
-      Editor.Project_Search.Set_Query (S.Project_Search, "phase577 preserve");
+      Editor.Project_Search.Set_Query (S.Project_Search, "preserve");
       Editor.Project_Search.Set_Status
         (S.Project_Search, Editor.Project_Search.Project_Search_Ok);
 
@@ -1194,34 +1194,34 @@ package body Editor.Configuration_Audit.Tests is
       After_Config  := Editor.Configuration_Audit.Configuration_State_Summary_For (S);
 
       Assert (Summary.Workspace_Persistence_Safe,
-              "Phase 577 preservation audit must structurally accept path values containing forbidden-looking words");
+              "preservation audit must structurally accept path values containing forbidden-looking words");
       Assert (Editor.Configuration_Audit.Status (Result) =
                 Editor.Configuration_Audit.Configuration_Audit_Ok,
               Editor.Configuration_Audit.Summary (Result));
       Assert (After_Project.Feature_Panel_Row_Count = Before_Project.Feature_Panel_Row_Count,
-              "Phase 577 preservation audit must not clear Feature Panel rows");
+              "preservation audit must not clear Feature Panel rows");
       Assert (After_Project.Feature_Panel_Selected_Row = Before_Project.Feature_Panel_Selected_Row,
-              "Phase 577 preservation audit must not change Feature Panel selection");
+              "preservation audit must not change Feature Panel selection");
       Assert (After_Project.Feature_Panel_Visible = Before_Project.Feature_Panel_Visible,
-              "Phase 577 preservation audit must not hide Feature Panel");
+              "preservation audit must not hide Feature Panel");
       Assert (After_Project.Feature_Panel_Focused = Before_Project.Feature_Panel_Focused,
-              "Phase 577 preservation audit must not move Feature Panel focus");
+              "preservation audit must not move Feature Panel focus");
       Assert (After_Project.Has_Project_Search_Query = Before_Project.Has_Project_Search_Query,
-              "Phase 577 preservation audit must not clear Project Search query state");
+              "preservation audit must not clear Project Search query state");
       Assert (After_Config.Theme_Id = Before_Config.Theme_Id
                 and then After_Config.Line_Number_Mode = Before_Config.Line_Number_Mode
                 and then After_Config.Cursor_Blink_Enabled = Before_Config.Cursor_Blink_Enabled,
-              "Phase 577 preservation audit must not mutate settings state");
+              "preservation audit must not mutate settings state");
       Assert (After_Config.Active_Keybinding_Count = Before_Config.Active_Keybinding_Count
                 and then After_Config.Save_File_Chord = Before_Config.Save_File_Chord
                 and then After_Config.Command_Palette_Chord = Before_Config.Command_Palette_Chord,
-              "Phase 577 preservation audit must not mutate keybinding state");
+              "preservation audit must not mutate keybinding state");
       Assert (After_Config.Dirty_Buffer_Count = Before_Config.Dirty_Buffer_Count
                 and then After_Config.Has_Pending_Transition = Before_Config.Has_Pending_Transition,
-              "Phase 577 preservation audit must not mutate dirty or pending lifecycle state");
-   end Test_Phase_577_Preservation_Audit_Does_Not_Mutate_Project_Transient_State;
+              "preservation audit must not mutate dirty or pending lifecycle state");
+   end Test_Preservation_Audit_Does_Not_Mutate_Project_Transient_State;
 
-   procedure Test_Phase_577_Preservation_Workspace_Serialization_Does_Not_Persist_Runtime_UI_State
+   procedure Test_Preservation_Workspace_Serialization_Does_Not_Persist_Runtime_UI_State
      (T : in out AUnit.Test_Cases.Test_Case'Class)
    is
       pragma Unreferenced (T);
@@ -1234,7 +1234,7 @@ package body Editor.Configuration_Audit.Tests is
       Editor.Keybindings.Reset_To_Defaults;
       Editor.State.Init (S);
       S.File_Info.Has_Path := True;
-      S.File_Info.Path := To_Unbounded_String ("/tmp/editor-phase577/preserved.adb");
+      S.File_Info.Path := To_Unbounded_String ("/tmp/editor-/preserved.adb");
       S.File_Info.Display_Name := To_Unbounded_String ("preserved.adb");
       S.File_Info.Dirty := True;
       Editor.Feature_Panel.Set_Visible (S.Feature_Panel, True);
@@ -1252,24 +1252,24 @@ package body Editor.Configuration_Audit.Tests is
         (To_String (Serialized));
 
       Assert (Audit.Safe,
-              "Phase 577 preservation: workspace serializer must exclude runtime UI and close prompt state");
+              "preservation: workspace serializer must exclude runtime UI and close prompt state");
       Assert (not Audit.Runtime_Buffer_Id_Persisted
                 and then not Audit.Selected_Buffer_Id_Persisted
                 and then not Audit.Buffer_List_State_Persisted,
-              "Phase 577 preservation: workspace serializer must exclude runtime buffer/list identities");
+              "preservation: workspace serializer must exclude runtime buffer/list identities");
       Assert (not Audit.Dirty_Text_Persisted
                 and then not Audit.Scratch_Text_Persisted
                 and then not Audit.Close_Prompt_State_Persisted,
-              "Phase 577 preservation: workspace serializer must exclude dirty text, scratch text, and close prompt state");
+              "preservation: workspace serializer must exclude dirty text, scratch text, and close prompt state");
 
       Editor.Configuration_Audit.Audit_Buffer_Metadata_Lifecycle_Boundaries
         (Result, S, To_String (Serialized));
       Assert (Editor.Configuration_Audit.Status (Result) =
                 Editor.Configuration_Audit.Configuration_Audit_Ok,
               Editor.Configuration_Audit.Summary (Result));
-   end Test_Phase_577_Preservation_Workspace_Serialization_Does_Not_Persist_Runtime_UI_State;
+   end Test_Preservation_Workspace_Serialization_Does_Not_Persist_Runtime_UI_State;
 
-   procedure Test_Phase_577_Render_Boundary_Is_Deeply_Audited
+   procedure Test_Render_Boundary_Is_Deeply_Audited
      (T : in out AUnit.Test_Cases.Test_Case'Class)
    is
       pragma Unreferenced (T);
@@ -1330,9 +1330,9 @@ package body Editor.Configuration_Audit.Tests is
         (Editor.Configuration_Audit.Status (Result) =
            Editor.Configuration_Audit.Configuration_Audit_Ok,
          Editor.Configuration_Audit.Summary (Result));
-   end Test_Phase_577_Render_Boundary_Is_Deeply_Audited;
+   end Test_Render_Boundary_Is_Deeply_Audited;
 
-   procedure Test_Phase_577_Completion_Assertion_Covers_All_Boundaries
+   procedure Test_Completion_Assertion_Covers_All_Boundaries
      (T : in out AUnit.Test_Cases.Test_Case'Class)
    is
       pragma Unreferenced (T);
@@ -1342,9 +1342,9 @@ package body Editor.Configuration_Audit.Tests is
       Editor.State.Init (S);
 
       Assert
-        (Editor.Configuration_Audit.Phase_577_Buffer_Metadata_Lifecycle_Complete
+        (Editor.Configuration_Audit.Buffer_Metadata_Lifecycle_Complete
            (S, "workspace-format-version=1" & ASCII.LF),
-         "Phase 577 completion assertion must pass for a clean safe boundary");
+         "completion assertion must pass for a clean safe boundary");
 
       Editor.Configuration_Audit.Audit_Buffer_Metadata_Lifecycle_Boundaries
         (Result, S, "workspace-format-version=1" & ASCII.LF);
@@ -1354,20 +1354,20 @@ package body Editor.Configuration_Audit.Tests is
          Editor.Configuration_Audit.Summary (Result));
 
       Assert
-        (not Editor.Configuration_Audit.Phase_577_Buffer_Metadata_Lifecycle_Complete
+        (not Editor.Configuration_Audit.Buffer_Metadata_Lifecycle_Complete
            (S, "workspace-format-version=1" & ASCII.LF
              & "runtime-buffer-id=42" & ASCII.LF),
-         "Phase 577 completion assertion must fail when a runtime buffer id is serialized");
-   end Test_Phase_577_Completion_Assertion_Covers_All_Boundaries;
+         "completion assertion must fail when a runtime buffer id is serialized");
+   end Test_Completion_Assertion_Covers_All_Boundaries;
 
-   procedure Test_Phase_578_Startup_Recovery_Dogfood_Scenario
+   procedure Test_Startup_Recovery_Dogfood_Scenario
      (T : in out AUnit.Test_Cases.Test_Case'Class)
    is
       pragma Unreferenced (T);
-      Settings_Path    : constant String := Temp_Path ("phase578_missing_settings.txt");
-      Keybindings_Path : constant String := Temp_Path ("phase578_malformed_keybindings.txt");
-      Workspace_Path   : constant String := Temp_Path ("phase578_malformed_workspace.txt");
-      Recent_Path      : constant String := Temp_Path ("phase578_missing_recent.txt");
+      Settings_Path    : constant String := Temp_Path ("missing_settings.txt");
+      Keybindings_Path : constant String := Temp_Path ("malformed_keybindings.txt");
+      Workspace_Path   : constant String := Temp_Path ("malformed_workspace.txt");
+      Recent_Path      : constant String := Temp_Path ("missing_recent.txt");
       Settings         : Editor.Settings.Settings_Model;
       Keybindings      : Editor.Keybinding_Config.Keybinding_Config_Model;
       Workspace        : Editor.Workspace_Persistence.Workspace_Snapshot;
@@ -1390,8 +1390,8 @@ package body Editor.Configuration_Audit.Tests is
       Write_File
         (Workspace_Path,
          "this is not a supported workspace file" & ASCII.LF &
-         "project-root=/tmp/phase578-fabricated-project" & ASCII.LF &
-         "open-file=/tmp/phase578-fabricated-file.adb" & ASCII.LF &
+         "project-root=/tmp/fabricated-project" & ASCII.LF &
+         "open-file=/tmp/fabricated-file.adb" & ASCII.LF &
          "diagnostic=transient" & ASCII.LF);
 
       Editor.Startup_Readiness.Clear_Startup_Summary;
@@ -1408,10 +1408,10 @@ package body Editor.Configuration_Audit.Tests is
          Recent,
          Startup);
 
-      Assert (Startup.Bounded, "Phase 578 startup recovery summary must be bounded");
-      Assert (Startup.Transient, "Phase 578 startup recovery summary must be transient");
+      Assert (Startup.Bounded, "startup recovery summary must be bounded");
+      Assert (Startup.Transient, "startup recovery summary must be transient");
       Assert (Startup.Row_Count = Editor.Startup_Readiness.Max_Startup_Domain_Rows,
-              "Phase 578 startup recovery must describe all startup domains");
+              "startup recovery must describe all startup domains");
       Assert (Startup.Rows (1).Status =
                 Editor.Startup_Readiness.Startup_Missing_Optional_File,
               "missing settings must be reported without failing startup");
@@ -1496,7 +1496,7 @@ package body Editor.Configuration_Audit.Tests is
       Delete_If_Exists (Keybindings_Path);
       Delete_If_Exists (Workspace_Path);
       Delete_If_Exists (Recent_Path);
-   end Test_Phase_578_Startup_Recovery_Dogfood_Scenario;
+   end Test_Startup_Recovery_Dogfood_Scenario;
 
    overriding procedure Register_Tests
      (T : in out Configuration_Audit_Test_Case)
@@ -1528,95 +1528,95 @@ package body Editor.Configuration_Audit.Tests is
         (T, Test_Persistence_Exclusions_For_Settings_And_Keybindings'Access,
          "persistence exclusions for settings and keybindings");
       Register_Routine
-        (T, Test_Phase_567_Configuration_Recovery_Coherence'Access,
-         "phase 567 configuration recovery coherence");
+        (T, Test_Configuration_Recovery_Coherence'Access,
+         "configuration recovery coherence");
       Register_Routine
-        (T, Test_Phase_567_Recovery_Surface_Is_Bounded'Access,
-         "phase 567 recovery surface is bounded");
+        (T, Test_Recovery_Surface_Is_Bounded'Access,
+         "recovery surface is bounded");
       Register_Routine
-        (T, Test_Phase_567_Recovery_Command_Catalog'Access,
-         "phase 567 recovery command catalog is bounded and payload-free");
+        (T, Test_Recovery_Command_Catalog'Access,
+         "recovery command catalog is bounded and payload-free");
       Register_Routine
-        (T, Test_Phase_567_Recovery_Commands_Are_Registered'Access,
-         "phase 567 recovery commands are registered descriptors");
+        (T, Test_Recovery_Commands_Are_Registered'Access,
+         "recovery commands are registered descriptors");
       Register_Routine
-        (T, Test_Phase_567_Reset_All_Requires_Confirmation'Access,
-         "phase 567 reset all requires confirmation");
+        (T, Test_Reset_All_Requires_Confirmation'Access,
+         "reset all requires confirmation");
       Register_Routine
-        (T, Test_Phase_567_Recovery_Availability_Is_Domain_Local'Access,
-         "phase 567 recovery availability is domain-local");
+        (T, Test_Recovery_Availability_Is_Domain_Local'Access,
+         "recovery availability is domain-local");
       Register_Routine
-        (T, Test_Phase_567_Recovery_Summary_Overflow_Is_Bounded'Access,
-         "phase 567 recovery summary overflow is bounded");
+        (T, Test_Recovery_Summary_Overflow_Is_Bounded'Access,
+         "recovery summary overflow is bounded");
       Register_Routine
-        (T, Test_Phase_567_Settings_Recovery_Counts_Are_Actionable'Access,
-         "phase 567 settings recovery counts are actionable");
+        (T, Test_Settings_Recovery_Counts_Are_Actionable'Access,
+         "settings recovery counts are actionable");
       Register_Routine
-        (T, Test_Phase_567_Recent_Projects_Partial_Load_Is_Preserved'Access,
-         "phase 567 recent projects partial load is preserved");
+        (T, Test_Recent_Projects_Partial_Load_Is_Preserved'Access,
+         "recent projects partial load is preserved");
       Register_Routine
-        (T, Test_Phase_567_Recorded_Recovery_Summary_Is_Transient'Access,
-         "phase 567 recorded recovery summary is transient");
+        (T, Test_Recorded_Recovery_Summary_Is_Transient'Access,
+         "recorded recovery summary is transient");
       Register_Routine
-        (T, Test_Phase_567_Recovery_Runtime_State_Clear_Is_Local'Access,
-         "phase 567 recovery runtime state clear is local");
+        (T, Test_Recovery_Runtime_State_Clear_Is_Local'Access,
+         "recovery runtime state clear is local");
       Register_Routine
-        (T, Test_Phase_567_Clean_Summary_Disables_Reset_And_Save_Clean'Access,
-         "phase 567 clean summary disables reset and save clean");
+        (T, Test_Clean_Summary_Disables_Reset_And_Save_Clean'Access,
+         "clean summary disables reset and save clean");
       Register_Routine
-        (T, Test_Phase_567_Domain_Local_Status_Record_Is_Bounded'Access,
-         "phase 567 domain local status record is bounded");
+        (T, Test_Domain_Local_Status_Record_Is_Bounded'Access,
+         "domain local status record is bounded");
       Register_Routine
-        (T, Test_Phase_567_Save_Clean_Failure_Status_Is_Exception_Contained'Access,
-         "phase 567 save clean failure status is exception contained");
+        (T, Test_Save_Clean_Failure_Status_Is_Exception_Contained'Access,
+         "save clean failure status is exception contained");
       Register_Routine
-        (T, Test_Phase_567_Recovery_Messages_Are_Bounded'Access,
-         "phase 567 recovery messages are bounded");
+        (T, Test_Recovery_Messages_Are_Bounded'Access,
+         "recovery messages are bounded");
       Register_Routine
-        (T, Test_Phase_567_Recovery_Availability_Blocks_Pending_Reset_All'Access,
-         "phase 567 recovery availability blocks pending reset all");
+        (T, Test_Recovery_Availability_Blocks_Pending_Reset_All'Access,
+         "recovery availability blocks pending reset all");
       Register_Routine
-        (T, Test_Phase_567_Reset_All_Keybinding_Failure_Not_Fabricated'Access,
-         "phase 567 reset all keybinding failure is not fabricated");
+        (T, Test_Reset_All_Keybinding_Failure_Not_Fabricated'Access,
+         "reset all keybinding failure is not fabricated");
       Register_Routine
-        (T, Test_Phase_577_Buffer_Boundary_Audit_Is_Configuration_Surface'Access,
-         "phase 577 buffer boundary audit is exposed by configuration audit");
+        (T, Test_Buffer_Boundary_Audit_Is_Configuration_Surface'Access,
+         "buffer boundary audit is exposed by configuration audit");
       Register_Routine
-        (T, Test_Phase_577_Configuration_Audit_Inspects_Real_Buffer_List_Selection'Access,
-         "phase 577 configuration audit inspects real Buffer List selection");
+        (T, Test_Configuration_Audit_Inspects_Real_Buffer_List_Selection'Access,
+         "configuration audit inspects real Buffer List selection");
       Register_Routine
-        (T, Test_Phase_577_Configuration_Audit_Fails_Forbidden_Buffer_Persistence'Access,
-         "phase 577 configuration audit fails forbidden buffer persistence");
+        (T, Test_Configuration_Audit_Fails_Forbidden_Buffer_Persistence'Access,
+         "configuration audit fails forbidden buffer persistence");
       Register_Routine
-        (T, Test_Phase_577_Pending_Transition_Runtime_Id_Is_Transient'Access,
-         "phase 577 pending transition runtime buffer id is transient");
+        (T, Test_Pending_Transition_Runtime_Id_Is_Transient'Access,
+         "pending transition runtime buffer id is transient");
       Register_Routine
-        (T, Test_Phase_577_Pending_Transition_File_Token_Is_Transient'Access,
-         "phase 577 pending transition file token is transient");
+        (T, Test_Pending_Transition_File_Token_Is_Transient'Access,
+         "pending transition file token is transient");
       Register_Routine
-        (T, Test_Phase_577_Pending_Transition_Render_Payload_Leak_Fails_Audit'Access,
-         "phase 577 pending transition render payload leak fails audit");
+        (T, Test_Pending_Transition_Render_Payload_Leak_Fails_Audit'Access,
+         "pending transition render payload leak fails audit");
       Register_Routine
-        (T, Test_Phase_577_File_Conflict_Prompt_Token_Is_Transient'Access,
-         "phase 577 file conflict prompt token is transient");
+        (T, Test_File_Conflict_Prompt_Token_Is_Transient'Access,
+         "file conflict prompt token is transient");
       Register_Routine
-        (T, Test_Phase_577_File_Conflict_Prompt_Missing_Revalidation_Fails'Access,
-         "phase 577 file conflict prompt missing revalidation fails audit");
+        (T, Test_File_Conflict_Prompt_Missing_Revalidation_Fails'Access,
+         "file conflict prompt missing revalidation fails audit");
       Register_Routine
-        (T, Test_Phase_577_Preservation_Audit_Does_Not_Mutate_Project_Transient_State'Access,
-         "phase 577 preservation audit does not mutate project transient state");
+        (T, Test_Preservation_Audit_Does_Not_Mutate_Project_Transient_State'Access,
+         "preservation audit does not mutate project transient state");
       Register_Routine
-        (T, Test_Phase_577_Preservation_Workspace_Serialization_Does_Not_Persist_Runtime_UI_State'Access,
-         "phase 577 preservation workspace serialization excludes runtime UI state");
+        (T, Test_Preservation_Workspace_Serialization_Does_Not_Persist_Runtime_UI_State'Access,
+         "preservation workspace serialization excludes runtime UI state");
       Register_Routine
-        (T, Test_Phase_577_Render_Boundary_Is_Deeply_Audited'Access,
-         "phase 577 render boundary is deeply audited");
+        (T, Test_Render_Boundary_Is_Deeply_Audited'Access,
+         "render boundary is deeply audited");
       Register_Routine
-        (T, Test_Phase_577_Completion_Assertion_Covers_All_Boundaries'Access,
-         "phase 577 completion assertion covers all boundaries");
+        (T, Test_Completion_Assertion_Covers_All_Boundaries'Access,
+         "completion assertion covers all boundaries");
       Register_Routine
-        (T, Test_Phase_578_Startup_Recovery_Dogfood_Scenario'Access,
-         "phase 578 startup recovery dogfood scenario");
+        (T, Test_Startup_Recovery_Dogfood_Scenario'Access,
+         "startup recovery dogfood scenario");
    end Register_Tests;
 
 end Editor.Configuration_Audit.Tests;

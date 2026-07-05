@@ -6,9 +6,9 @@ with Editor.Build_Working_Context;
 
 package Editor.Build_Candidate_Refresh is
 
-   --  Phase 522 public build candidate refresh foundation.  Refresh is a
+   --  public build candidate refresh foundation.  Refresh is a
    --  transient UI/readiness operation over the canonical project context and
-   --  the existing Phase 506 bounded discovery seam.  It does not execute,
+   --  the existing bounded discovery seam.  It does not execute,
    --  select, consent, persist, watch, recurse beyond the project root, or
    --  mutate Diagnostics/result/output state.
 
@@ -69,7 +69,7 @@ package Editor.Build_Candidate_Refresh is
       return Build_Candidate_Refresh_Result;
 
 
-   --  Phase 528 project-lifecycle integration helpers.  These are thin
+   --  project-lifecycle integration helpers.  These are thin
    --  lifecycle adapters around the canonical refresh/reconciliation path.
    --  Failed transitions are status-only and do not discover or fabricate
    --  candidates.  Project close clears executable candidate-derived state
@@ -178,9 +178,9 @@ package Editor.Build_Candidate_Refresh is
       After  : Editor.Build_UI.Public_Build_UI_State;
       Result : Build_Candidate_Refresh_Result) return Boolean;
 
-   --  Phase 525 final regression-freeze assertions.  These keep the
+   --  final regression-freeze assertions.  These keep the
    --  frozen candidate-refresh contract named directly at the boundary while
-   --  delegating to the canonical Phase 522-524 helpers.
+   --  delegating to the canonical 524 helpers.
 
    function Assert_Build_Candidate_Refresh_Final_Canonical_Path
      (Before : Editor.Build_UI.Public_Build_UI_State;

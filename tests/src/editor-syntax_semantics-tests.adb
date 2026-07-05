@@ -949,7 +949,7 @@ package body Editor.Syntax_Semantics.Tests is
 
 
 
-   procedure Test_Phase722_Semantic_Colouring_Expanded_Grammar_Precision
+   procedure Test_Semantic_Colouring_Expanded_Grammar_Precision
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
       pragma Unreferenced (T);
       Analysis : Editor.Ada_Language_Model.Analysis_Result;
@@ -1006,7 +1006,7 @@ package body Editor.Syntax_Semantics.Tests is
         (Editor.Syntax_Semantics.Kind_For_Identifier (Map, "Loop_Label") =
            Editor.Syntax.Parameter_Identifier,
          "labels should continue to use the bounded local-value semantic bucket");
-   end Test_Phase722_Semantic_Colouring_Expanded_Grammar_Precision;
+   end Test_Semantic_Colouring_Expanded_Grammar_Precision;
 
 
    procedure Test_Language_Model_Scopes_Shadowing_And_Parents
@@ -1101,7 +1101,7 @@ package body Editor.Syntax_Semantics.Tests is
       Assert (Editor.Ada_Project_Index.File_Count (Index) = 0,
               "file rename/delete invalidation should remove indexed targets by path");
 
-      --  Phase 579 pass 183: exact lifecycle invalidation must normalize
+      --  pass 183: exact lifecycle invalidation must normalize
       --  platform-native separators and trailing slashes, not only subtree
       --  invalidation.  Save-as/reload/revert hooks can carry either spelling.
       Editor.Ada_Project_Index.Put_Analysis
@@ -14119,7 +14119,7 @@ package body Editor.Syntax_Semantics.Tests is
       Package_Id : Editor.Ada_Language_Model.Symbol_Id;
       Run_Id     : Editor.Ada_Language_Model.Symbol_Id;
    begin
-      --  Phase 579 pass 189: the scope bridge must not keep using the
+      --  pass 189: the scope bridge must not keep using the
       --  deepest owner that merely started before the token after that
       --  owner's parser-retained source range has ended.
       Package_Id := Editor.Ada_Language_Model.Add_Symbol
@@ -55641,7 +55641,7 @@ package body Editor.Syntax_Semantics.Tests is
         (T, Test_Analysis_Binding_Semantic_Colouring_Precision'Access,
          "analysis executable bindings colour precise syntax roles conservatively");
       AUnit.Test_Cases.Registration.Register_Routine
-        (T, Test_Phase722_Semantic_Colouring_Expanded_Grammar_Precision'Access,
+        (T, Test_Semantic_Colouring_Expanded_Grammar_Precision'Access,
          "semantic colouring keeps expanded grammar selectors conservative");
       AUnit.Test_Cases.Registration.Register_Routine
         (T, Test_Language_Model_Scopes_Shadowing_And_Parents'Access,

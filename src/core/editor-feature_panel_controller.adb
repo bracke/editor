@@ -67,7 +67,7 @@ package body Editor.Feature_Panel_Controller is
    is
    begin
       --  Row actions share the same active-feature row validation/open path in
-      --  Phase 158. Keep this as a named audit seam so future features must
+      --  . Keep this as a named audit seam so future features must
       --  explicitly declare action coverage instead of silently inheriting it.
       case Feature is
          when Editor.Feature_Panel.Outline_Feature =>

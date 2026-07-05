@@ -4,7 +4,7 @@ with Editor.Ada_Syntax_Tree;
 
 package Editor.Ada_Interface_Synchronized_Vertical_Slice_Legality is
 
-   --  Pass1332 vertical-slice interface/synchronized legality.
+   --  Case 1332 vertical-slice interface/synchronized legality.
    --  This package models source-shaped Ada interface evidence: ordinary,
    --  limited, task, protected, and synchronized interfaces; primitive
    --  conformance; synchronized overriding; interface dispatching; and null

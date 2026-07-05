@@ -121,7 +121,7 @@ package Editor.Buffer_Switcher is
       Path          : Ada.Strings.Unbounded.Unbounded_String := Ada.Strings.Unbounded.Null_Unbounded_String;
       Project_Ownership : Buffer_Project_Ownership_Kind := Buffer_Project_Unknown;
       Project_Ownership_Label : Ada.Strings.Unbounded.Unbounded_String := Ada.Strings.Unbounded.Null_Unbounded_String;
-      --  Phase 577 render-facing metadata labels.  These fields are copied
+      --  render-facing metadata labels.  These fields are copied
       --  from Buffer_Metadata_Snapshot during row recomputation so render can
       --  display lifecycle/persistability/close markers without deriving or
       --  mutating buffer state.
@@ -156,14 +156,14 @@ package Editor.Buffer_Switcher is
       Is_Removed_Dirty_Prune_Apply_Target : Boolean := False;
    end record;
 
-   --  Phase 480 canonical projection seam: file-lifecycle-visible row
+   --  canonical projection seam: file-lifecycle-visible row
    --  fields are copied only from the current buffer summary snapshot.  This
    --  helper intentionally has no switcher state parameter, no filesystem
    --  parameter, no prompt parameter, and no command-result parameter.
    function Build_Open_Buffer_Switcher_Row_From_Buffer_Snapshot
      (Summary : Editor.Buffer_Types.Buffer_Summary) return Buffer_Switcher_Row;
 
-   --  Phase 577 canonical Buffer List projection seam.  Buffer List rows use
+   --  canonical Buffer List projection seam.  Buffer List rows use
    --  the metadata snapshot for buffer identity, path labels, ownership,
    --  dirty/active/scratch state, and lifecycle markers.  Buffer_Summary is
    --  accepted only for existing switcher-only annotations such as pinned,
@@ -173,13 +173,13 @@ package Editor.Buffer_Switcher is
      (Metadata : Editor.Buffers.Buffer_Metadata_Snapshot;
       Summary  : Editor.Buffer_Types.Buffer_Summary) return Buffer_Switcher_Row;
 
-   --  Phase 543: compact observational marker text for render/tests.  The
+   --  compact observational marker text for render/tests.  The
    --  marker is derived only from a buffer-list row snapshot and never probes
    --  files, switches buffers, closes buffers, or mutates switcher selection.
    function Buffer_Row_State_Markers
      (Row : Buffer_Switcher_Row) return String;
 
-   --  Phase 577 render-facing bounded metadata line.  It is built only from
+   --  render-facing bounded metadata line.  It is built only from
    --  the already-snapshotted Buffer_Switcher_Row metadata projection.
    function Buffer_Row_Metadata_Render_Label
      (Row : Buffer_Switcher_Row) return String;
@@ -187,7 +187,7 @@ package Editor.Buffer_Switcher is
    function Buffer_Project_Ownership_Label
      (Kind : Buffer_Project_Ownership_Kind) return String;
 
-   --  Phase 577: row-level ownership projection helper.  It delegates to the
+   --  row-level ownership projection helper.  It delegates to the
    --  canonical Editor.Buffers.Classify_Buffer_Ownership helper rather than
    --  recomputing project membership locally.  New Buffer List recomputation
    --  paths should prefer Build_Open_Buffer_Switcher_Row_From_Metadata_Snapshot.
@@ -195,14 +195,14 @@ package Editor.Buffer_Switcher is
      (Row     : in out Buffer_Switcher_Row;
       Project : Editor.Project.Project_State);
 
-   --  Phase 543 completeness: central display-only empty/status wording for
+   --  completeness: central display-only empty/status wording for
    --  the open-buffer list.  It observes already-known row/filter counts only;
    --  callers provide the open-buffer count from their own snapshot context.
    function Buffer_List_Empty_State_Label
      (State              : Buffer_Switcher_State;
       Open_Buffer_Count  : Natural) return String;
 
-   --  Phase 480 invariant helpers.  These are structural checks over the
+   --  invariant helpers.  These are structural checks over the
    --  public/private switcher state model; they do not execute commands, do
    --  not probe the filesystem, and do not mutate editor state.
    function Open_Buffer_Switcher_No_Duplicate_Lifecycle_State
@@ -212,14 +212,14 @@ package Editor.Buffer_Switcher is
    function Open_Buffer_Switcher_No_File_Lifecycle_Source_Override
      (State : Buffer_Switcher_State) return Boolean;
 
-   --  Phase 481 final freeze helper: compact structural assertion point for
+   --  final freeze helper: compact structural assertion point for
    --  the observation-only model.  It remains an inspector over switcher
    --  state only and intentionally has no filesystem, prompt, command-result,
    --  persistence, or render mutation channel.
    function Open_Buffer_Switcher_File_Lifecycle_Observation_Frozen
      (State : Buffer_Switcher_State) return Boolean;
 
-   --  Phase 576 milestone helper: verifies the open-buffer list remains a
+   --  milestone helper: verifies the open-buffer list remains a
    --  transient runtime projection with coherent row markers/labels and no
    --  lifecycle prompt/source ownership.  It is observational only.
    function Assert_Multi_Buffer_Management_Coherent
@@ -593,7 +593,7 @@ package Editor.Buffer_Switcher is
       Found : out Boolean) return Buffer_Switcher_Row;
    function Selected_Row (State : Buffer_Switcher_State; Found : out Boolean) return Buffer_Switcher_Row;
 
-   --  Phase 577 selected-buffer validity audit over the real Buffer List
+   --  selected-buffer validity audit over the real Buffer List
    --  state.  This inspects the selected row/index currently held by the
    --  switcher, verifies that it maps to a real open buffer row in the
    --  supplied registry snapshot, and keeps the selection boundary explicit

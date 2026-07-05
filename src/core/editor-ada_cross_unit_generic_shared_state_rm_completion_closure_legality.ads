@@ -10,7 +10,7 @@ with Editor.Ada_Tasking_Generic_Shared_State_RM_Hard_Case_Completion_Legality;
 
 package Editor.Ada_Cross_Unit_Generic_Shared_State_RM_Completion_Closure_Legality is
 
-   --  Pass1250 cross-unit closure for the completed generic/shared-state RM chain.
+   --  Case 1250 cross-unit closure for the completed generic/shared-state RM chain.
    --
    --  This package consumes the earlier cross-unit generic/shared-state final
    --  closure together with the stabilized generic/shared-state closure and the

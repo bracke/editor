@@ -450,7 +450,7 @@ package body Editor.Ada_Flow_Refinement_Consumer_Legality is
             R.Caller_Name := C.Caller_Name;
             R.Callee_Name := C.Callee_Name;
             R.Message := Message_For (R.Status);
-            R.Detail := To_Unbounded_String ("Pass1155 flow/refinement consumer row");
+            R.Detail := To_Unbounded_String ("Case 1155 flow/refinement consumer row");
             R.Flow_Row := C.Flow_Row;
             R.Flow_Status := C.Flow_Status;
             R.Refined_Row := C.Refined_Row;

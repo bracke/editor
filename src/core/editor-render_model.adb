@@ -265,7 +265,7 @@ package body Editor.Render_Model is
      (S : Editor.State.State_Type) return Boolean
    is
    begin
-      --  Phase 575 completeness pass 33: render mirrors the Executor's exact
+      --  completeness pass 33: render mirrors the Executor's exact
       --  dirty-set equality guard.  Fingerprints are useful stale-review
       --  summaries but exact transient dirty-id text decides whether Save/
       --  Discard may be shown for an unchanged review.
@@ -626,7 +626,7 @@ package body Editor.Render_Model is
             end if;
          end;
 
-         --  Phase 343: project session-local bookmarks onto the active
+         --  project session-local bookmarks onto the active
          --  editor buffer as lightweight line-level markers.  The marker is
          --  derived only from bookmark state and the active buffer's stable
          --  file identity; it does not validate paths, open files, move the
@@ -693,7 +693,9 @@ package body Editor.Render_Model is
             Message     => Ada.Strings.Unbounded.Null_Unbounded_String,
             Has_Location => False,
             Start_Row    => 0,
-            Start_Column => 0));
+            Start_Column => 0,
+            Quick_Fix_Label  => Ada.Strings.Unbounded.Null_Unbounded_String,
+            Quick_Fix_Detail => Ada.Strings.Unbounded.Null_Unbounded_String));
       O.Active_Find_Match_Count := 0;
       O.Active_Find_Matches := (others => Editor.Search.No_Match);
       O.Syntax_Span_Count := 0;
@@ -896,7 +898,7 @@ package body Editor.Render_Model is
             elsif Dirty_Close_All_Buffer_Review_Current (S) then
                O.Dirty_Close_Discard_Action_Available := True;
             else
-               --  Phase 575 completeness pass 22: render mirrors Executor
+               --  completeness pass 22: render mirrors Executor
                --  discard revalidation.  An unchanged all-buffer review
                --  whose dirty buffers all became clean can still be
                --  confirmed as close-only; changed or newly dirty state
@@ -956,7 +958,7 @@ package body Editor.Render_Model is
                      Summary : constant Editor.Buffers.Buffer_Summary :=
                        Editor.Buffers.Global_Summary_For (Target);
                   begin
-                     --  Phase 575 completeness pass 26: mirror Executor
+                     --  completeness pass 26: mirror Executor
                      --  live revalidation for single-buffer prompts.  Do not
                      --  expose Save from stale prompt counts when a target
                      --  loses its path, and do expose it when the target gained
@@ -981,7 +983,7 @@ package body Editor.Render_Model is
              elsif S.Dirty_Close_Prompt_Missing_Count > 0 then
                 "Missing backing file blocks save-and-close"
              elsif S.Dirty_Close_Prompt_All_Buffers then
-                --  Phase 575 completeness pass 32: render should expose the
+                --  completeness pass 32: render should expose the
                 --  same reviewed dirty-set summary as the Executor outcome
                 --  message.  This is still an inert snapshot projection; it
                 --  does not carry a close payload or mutate/persist anything.
@@ -1110,7 +1112,7 @@ package body Editor.Render_Model is
          Build_Unwrapped_Visuals (S, O);
       end if;
 
-      --  Phase 64: dirty-line markers are derived from the active buffer's
+      --  dirty-line markers are derived from the active buffer's
       --  line-level baseline state at snapshot-build time and projected as
       --  diff-style marker kinds.  Gutter_Markers remains independent of
       --  Dirty_Lines ownership; hidden folded rows are naturally skipped
@@ -1245,7 +1247,9 @@ package body Editor.Render_Model is
                         Message     => D.Message,
                         Has_Location => D.Has_Location,
                         Start_Row    => D.Start_Row,
-                        Start_Column => D.Start_Column);
+                        Start_Column => D.Start_Column,
+                        Quick_Fix_Label  => D.Quick_Fix_Label,
+                        Quick_Fix_Detail => D.Quick_Fix_Detail);
                   end if;
                end;
             end loop;
@@ -1294,7 +1298,7 @@ package body Editor.Render_Model is
          O.Active_Find_Match_Count := Count;
       end;
 
-      --  Phase 380 canonical selection projection: render the same valid
+      --  canonical selection projection: render the same valid
       --  normalized active-buffer selection range that Clipboard and Find
       --  consume.  Rendering must not expose stale/out-of-range ranges or
       --  secondary inactive caret ranges, and it must not repair state.
@@ -1321,7 +1325,7 @@ package body Editor.Render_Model is
          end if;
       end;
 
-      --  Phase 68 rectangular-selection projection. The rectangular-selection
+      --  rectangular-selection projection. The rectangular-selection
       --  model represents the active rectangle as one grid span per
       --  selected document row; expose that explicitly so packet generation
       --  no longer has to infer rectangular geometry from linear ranges.
@@ -1711,7 +1715,7 @@ package body Editor.Render_Model is
       O.Settings_Command_Catalog_UI :=
         Editor.Settings_Management.Build_Current_Settings_Command_Catalog;
 
-      --  Phase 569: build empty-state guidance once through the canonical
+      --  build empty-state guidance once through the canonical
       --  aggregate helper, then project each slot into the render snapshot.
       --  This keeps render-model fields synchronized with the array contract
       --  used by tests and prevents future per-surface drift.

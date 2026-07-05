@@ -7,12 +7,12 @@ with Editor.Ada_Syntax_Tree;
 
 package Editor.Ada_Representation_Generic_Shared_State_RM_Hard_Case_Completion_Legality is
 
-   --  Pass1247 representation/freezing RM hard-case completion legality.
+   --  Case 1247 representation/freezing RM hard-case completion legality.
    --
    --  This package consumes the stabilized generic/shared-state final closure
-   --  from Pass1245, the representation/generic/shared-state final legality
-   --  from Pass1229, and the overload/generic/shared-state RM edge completion
-   --  from Pass1246.  It deepens remaining Ada representation and freezing
+   --  from Case 1245, the representation/generic/shared-state final legality
+   --  from Case 1229, and the overload/generic/shared-state RM edge completion
+   --  from Case 1246.  It deepens remaining Ada representation and freezing
    --  hard cases where accepted representation conclusions are still unsafe
    --  unless volatile/atomic representation clauses, independent components,
    --  limited/private stream views, inherited operational attributes, generic

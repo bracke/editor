@@ -257,13 +257,13 @@ package body Test_Ada_Generic_Contract_Body_Vertical_Slice_Legality is
    begin
       Register_Routine
         (T, Accepts_Formal_Type_Object_Subprogram_And_Package_Contracts'Access,
-         "Pass1298 accepts concrete generic formal/actual and body-replay contracts");
+         "Case 1298 accepts concrete generic formal/actual and body-replay contracts");
       Register_Routine
         (T, Reports_Concrete_Generic_Contract_Blockers'Access,
-         "Pass1298 reports concrete generic contract/body blockers");
+         "Case 1298 reports concrete generic contract/body blockers");
       Register_Routine
         (T, Empty_Inputs_Are_Deterministic'Access,
-         "Pass1298 keeps empty generic vertical-slice inputs deterministic");
+         "Case 1298 keeps empty generic vertical-slice inputs deterministic");
    end Register_Tests;
 
 end Test_Ada_Generic_Contract_Body_Vertical_Slice_Legality;

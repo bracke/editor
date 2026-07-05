@@ -2,7 +2,7 @@ with Editor.State;
 
 package Editor.Build_Milestone_Freeze is
 
-   --  Phase 508 public build command milestone freeze.  These helpers are
+   --  public build command milestone freeze.  These helpers are
    --  regression assertions only.  They do not execute external tools, spawn
    --  processes, probe PATH, discover projects, mutate render state, or persist
    --  build state.

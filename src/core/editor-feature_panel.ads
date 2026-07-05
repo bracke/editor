@@ -33,7 +33,7 @@ package Editor.Feature_Panel is
       Generation : Natural := 0;
    end record;
 
-   --  Phase 203 generic Feature Panel contract:
+   --  generic Feature Panel contract:
    --
    --  Feature-panel infrastructure owns only generic transient UI mechanics:
    --  visibility, focus, active feature identity, descriptors, projection
@@ -632,7 +632,7 @@ package Editor.Feature_Panel is
      (Snapshot : Feature_Panel_Render_Snapshot;
       Index    : Positive) return Boolean;
 
-   --  Canonical Phase 118 feature-panel command outcome messages.
+   --  Canonical feature-panel command outcome messages.
    --  These helpers centralize user-facing strings for Executor, palette,
    --  keybinding, route, and documentation alignment tests.
    function Message_Feature_Panel_Shown return String;
@@ -641,7 +641,7 @@ package Editor.Feature_Panel is
    function Message_Feature_Panel_Cleared return String;
    function Message_Feature_Panel_Row_Has_No_Target return String;
 
-   --  Canonical Phase 118 disabled reasons. Availability checks may return
+   --  Canonical disabled reasons. Availability checks may return
    --  these strings, but must never emit them as messages themselves.
    function Reason_Feature_Panel_Hidden return String;
    function Reason_Feature_Panel_Already_Shown return String;

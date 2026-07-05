@@ -5,9 +5,9 @@ with Editor.Ada_Syntax_Tree;
 
 package Editor.Ada_Generic_Shared_State_RM_Completion_Stabilization_Gate_Legality is
 
-   --  Pass1262 generic/shared-state RM-completion stabilization gate legality.
+   --  Case 1262 generic/shared-state RM-completion stabilization gate legality.
    --
-   --  This package consumes Pass1261 generic/shared-state final recheck
+   --  This package consumes Case 1261 generic/shared-state final recheck
    --  convergence rows and decides whether the combined generic/shared-state
    --  final semantic chain may cross the stable closure/feed boundary.
    --  Promotion is allowed only for stable current/not-required convergence

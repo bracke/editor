@@ -14,6 +14,7 @@ package body Editor.Quick_Open_Markers is
    use type Editor.Quick_Open.Quick_Open_Priority_Mode;
    use type Editor.Quick_Open.Quick_Open_Priority_Bucket;
    use type Editor.Quick_Open.Quick_Open_Match_Bucket;
+   use type Editor.Quick_Open.Quick_Open_File_Kind_Filter;
 
    function Normalize_For_Compare (Text : String) return String is
       Result : String (Text'Range);
@@ -507,6 +508,29 @@ package body Editor.Quick_Open_Markers is
       end case;
    end Priority_Bucket_Priority;
 
+   function Source_Root_Priority (Path : String) return Natural is
+      P : constant String := Normalize_For_Compare (Path);
+   begin
+      if Starts_With (P, "src/") then
+         return 0;
+      elsif Starts_With (P, "source/")
+        or else Starts_With (P, "include/")
+        or else Starts_With (P, "lib/")
+      then
+         return 1;
+      elsif Starts_With (P, "tests/")
+        or else Starts_With (P, "test/")
+      then
+         return 2;
+      elsif Starts_With (P, "doc/")
+        or else Starts_With (P, "docs/")
+      then
+         return 4;
+      else
+         return 3;
+      end if;
+   end Source_Root_Priority;
+
    function Candidate_Before
      (Left  : Editor.Quick_Open.Quick_Open_Candidate_Snapshot;
       Right : Editor.Quick_Open.Quick_Open_Candidate_Snapshot) return Boolean
@@ -533,6 +557,8 @@ package body Editor.Quick_Open_Markers is
         and then Left.Recent_Rank /= Right.Recent_Rank
       then
          return Left.Recent_Rank < Right.Recent_Rank;
+      elsif Source_Root_Priority (LO) /= Source_Root_Priority (RO) then
+         return Source_Root_Priority (LO) < Source_Root_Priority (RO);
       elsif Left.Match_Bucket /= Editor.Quick_Open.Path_Substring
         and then Path_Depth (LO) /= Path_Depth (RO)
       then
@@ -625,7 +651,7 @@ package body Editor.Quick_Open_Markers is
       --  annotate rows that already exist in that transient model.  Treating a
       --  missing explicit Project_State as "no project open" would erase valid
       --  rows after Recompute_Results(State, Project, ...), while adding
-      --  registry-only rows would violate Phase 546's project-file candidate
+      --  registry-only rows would violate 's project-file candidate
       --  boundary.
       if Snapshot.Candidates.Length = 0 then
          return Snapshot;
@@ -865,6 +891,24 @@ package body Editor.Quick_Open_Markers is
                  & " of " & Image (Snapshot.Known_Count)));
       end Refresh_Header_Text;
 
+      function No_Matches_Message return String is
+         Query : constant String :=
+           Ada.Strings.Fixed.Trim (To_String (Snapshot.Query), Ada.Strings.Both);
+      begin
+         if Snapshot.File_Kind_Filter = Editor.Quick_Open.All_Files
+           and then Length (Snapshot.Path_Scope) = 0
+         then
+            return "No Quick Open matches.";
+         end if;
+
+         return "No Quick Open matches for """ & Query & """"
+           & (if Length (Snapshot.Path_Scope) > 0
+              then " in " & To_String (Snapshot.Path_Scope)
+              else "")
+           & " (" & Editor.Quick_Open.File_Kind_Filter_Name (Snapshot.File_Kind_Filter)
+           & "). Clear scope/filter or adjust the query.";
+      end No_Matches_Message;
+
       procedure Recompute_Selection_After_Sort is
          Selected : constant String := To_String (Snapshot.Selected_Path);
       begin
@@ -1014,7 +1058,7 @@ package body Editor.Quick_Open_Markers is
             elsif not Snapshot.Has_Query then
                Snapshot.Empty_Message := To_Unbounded_String ("Type to open file.");
             else
-               Snapshot.Empty_Message := To_Unbounded_String ("No Quick Open matches.");
+               Snapshot.Empty_Message := To_Unbounded_String (No_Matches_Message);
             end if;
          else
             Sort_Candidates (Snapshot);

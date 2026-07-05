@@ -15,6 +15,7 @@ package Editor.Pending_Transitions is
       Pending_Switch_Project,
       Pending_Open_Recent_Project,
       Pending_Restore_Workspace,
+      Pending_Clear_Workspace_State,
       Pending_Clear_Project);
 
    type Pending_Transition_Target is record
@@ -29,7 +30,7 @@ package Editor.Pending_Transitions is
       Source_Path : Ada.Strings.Unbounded.Unbounded_String :=
         Ada.Strings.Unbounded.Null_Unbounded_String;
       Has_Source_Path : Boolean := False;
-      --  Phase 574: dirty reload/revert confirmations may be opened while
+      --  dirty reload/revert confirmations may be opened while
       --  the backing file has a known external state.  Capture that observed
       --  command-boundary state transiently so confirmation retry can reject
       --  a prompt if the backing file changes again before destructive read.

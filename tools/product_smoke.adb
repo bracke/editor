@@ -1,3 +1,4 @@
+with Ada.Command_Line;
 with Ada.Directories;
 with Ada.Environment_Variables;
 with Editor_Tool_Common; use Editor_Tool_Common;
@@ -33,6 +34,10 @@ procedure Product_Smoke is
 
    Status : Integer;
    Root   : constant String := Ada.Directories.Current_Directory;
+   Scenario : constant String :=
+     (if Ada.Command_Line.Argument_Count = 0
+      then ""
+      else Ada.Command_Line.Argument (1));
 begin
    Require_File (Tool, "tests/e2e_product_smoke.gpr");
    if not Command_Exists ("alr") and then not Command_Exists ("gprbuild") then
@@ -54,7 +59,11 @@ begin
    if Status /= 0 then
       Fail (Tool, "product smoke build failed");
    end if;
-   Status := Run0 ("tests/bin/editor_product_smoke");
+   if Scenario'Length = 0 then
+      Status := Run0 ("tests/bin/editor_product_smoke");
+   else
+      Status := Run1 ("tests/bin/editor_product_smoke", Scenario);
+   end if;
    if Status /= 0 then
       Fail (Tool, "product smoke failed");
    end if;

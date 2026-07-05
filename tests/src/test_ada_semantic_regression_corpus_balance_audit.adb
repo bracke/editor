@@ -2,11 +2,11 @@ with Ada.Strings.Unbounded; use Ada.Strings.Unbounded;
 with AUnit.Assertions; use AUnit.Assertions;
 with AUnit.Test_Cases;
 with Editor.Ada_Syntax_Tree;
-with Editor.Ada_Semantic_Regression_Corpus_Balance_Audit_Pass1342;
+with Editor.Ada_Semantic_Regression_Corpus_Balance_Audit;
 
 package body Test_Ada_Semantic_Regression_Corpus_Balance_Audit is
 
-   package Audit renames Editor.Ada_Semantic_Regression_Corpus_Balance_Audit_Pass1342;
+   package Audit renames Editor.Ada_Semantic_Regression_Corpus_Balance_Audit;
    use type Audit.RM_Family;
    use type Audit.Implementing_Slice;
    use type Audit.Remediation_State;

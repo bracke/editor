@@ -14,7 +14,7 @@ with Editor.Ada_Tasking_Generic_Shared_State_RM_Hard_Case_Completion_Legality;
 
 package Editor.Ada_Predicate_Generic_Shared_State_RM_Completion_Legality is
 
-   --  Pass1254 predicate/invariant legality over the completed
+   --  Case 1254 predicate/invariant legality over the completed
    --  generic/shared-state RM chain.
    --
    --  This package consumes the prior predicate/invariant generic/shared-state

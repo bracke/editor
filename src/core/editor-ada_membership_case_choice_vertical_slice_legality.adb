@@ -248,7 +248,7 @@ package body Editor.Ada_Membership_Case_Choice_Vertical_Slice_Legality is
 
             R.Status := Status_For (R, C);
             R.Message := To_Unbounded_String
-              ("Pass1315 membership/case-choice vertical-slice legality");
+              ("Case 1315 membership/case-choice vertical-slice legality");
             R.Detail := C.Source_Name;
             R.Fingerprint := Mix
               (Natural (R.Id),

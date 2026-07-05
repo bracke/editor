@@ -1,6 +1,6 @@
-# Pass1438 legacy code removal
+# Case 1438 legacy code removal
 
-Pass1438 removes the obsolete diagnostic recovery render final status scaffold from the active tree.
+Case 1438 removes the obsolete diagnostic recovery render final status scaffold from the active tree.
 
 ## Removed files
 
@@ -10,14 +10,14 @@ Pass1438 removes the obsolete diagnostic recovery render final status scaffold f
 
 ## Canonical replacement ownership
 
-The historical final-status leaf is superseded by the final Phase 579 release gates:
+The historical final-status leaf is superseded by the final release gates:
 
-- pass1428 finite remaining-gap closure
-- pass1429 architecture cleanup
-- pass1435 diagnostic quality validation
-- pass1436 project-scale closure
-- pass1437 legacy code removal gate
-- pass1438 second legacy code removal gate
+- case 1428 finite remaining-gap closure
+- case 1429 architecture cleanup
+- case 1435 diagnostic quality validation
+- case 1436 project-scale closure
+- case 1437 legacy code removal gate
+- case 1438 second legacy code removal gate
 
 ## Cleanup rule
 

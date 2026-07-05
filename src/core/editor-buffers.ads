@@ -190,7 +190,7 @@ package Editor.Buffers is
       Id         : Buffer_Id;
       Selected_Id : Buffer_Id := No_Buffer) return Buffer_Metadata_Snapshot;
 
-   --  Phase 577 canonical ownership classifier.  This is the single public
+   --  canonical ownership classifier.  This is the single public
    --  projection seam for deciding whether a buffer path is project-owned,
    --  outside-project, scratch/unbacked, missing-project-context, or unknown.
    --  It is derived only from the explicit Has_Path flag, the normalized path,
@@ -222,7 +222,7 @@ package Editor.Buffers is
       Project     : Editor.Project.Project_State;
       Selected_Id : Buffer_Id := No_Buffer) return Boolean;
 
-   --  Phase 577 deterministic project lifecycle sets.  The vectors preserve
+   --  deterministic project lifecycle sets.  The vectors preserve
    --  registry order and are derived from the same metadata ownership and dirty
    --  categorization used by Buffer List, dirty review, and audits.  They are
    --  transient process-local runtime handles for immediate lifecycle review
@@ -254,7 +254,7 @@ package Editor.Buffers is
      (Registry : Buffer_Registry;
       Project  : Editor.Project.Project_State) return Natural;
 
-   --  Phase 577 dirty-review bridge.  These helpers convert the canonical
+   --  dirty-review bridge.  These helpers convert the canonical
    --  metadata/audit dirty categories into the Dirty_Guards summary used by
    --  close/project/workspace prompts.  They ensure those
    --  workflows do not independently re-infer dirty file/scratch/project

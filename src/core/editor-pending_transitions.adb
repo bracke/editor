@@ -114,7 +114,7 @@ package body Editor.Pending_Transitions is
      (Target : Pending_Transition_Target) return String
    is
    begin
-      --  Phase 573 completeness: dirty reload/revert confirmations are
+      --  completeness: dirty reload/revert confirmations are
       --  file-lifecycle discard prompts for one captured buffer.  Their prompt
       --  text must not advertise the project/buffer transition clean-close
       --  escape hatch as if it completed the reload/revert operation.  The
@@ -122,7 +122,8 @@ package body Editor.Pending_Transitions is
       --  the confirmation copy names only the lifecycle choice itself.
       case Target.Kind is
          when Pending_Reload_Active_Buffer
-            | Pending_Revert_Active_Buffer =>
+            | Pending_Revert_Active_Buffer
+            | Pending_Clear_Workspace_State =>
             return "Retry or Cancel";
          when others =>
             return "Save All, Discard, Close Clean, Retry, or Cancel";
@@ -171,7 +172,8 @@ package body Editor.Pending_Transitions is
          when Pending_Open_Project
             | Pending_Switch_Project
             | Pending_Open_Recent_Project
-            | Pending_Restore_Workspace =>
+            | Pending_Restore_Workspace
+            | Pending_Clear_Workspace_State =>
             return Target.Has_Path and then Length (Target.Path) > 0;
          when Pending_Close_Project
             | Pending_Clear_Project =>
@@ -197,7 +199,7 @@ package body Editor.Pending_Transitions is
       Audit.Has_Runtime_Buffer_Id := Target.Has_Buffer;
       Audit.Has_File_Conflict_Token := Target.Has_Observed_File_Token;
 
-      --  Phase 577: pending transitions may retain a runtime buffer id or an
+      --  pending transitions may retain a runtime buffer id or an
       --  observed file token only as an in-process revalidation key.  The
       --  pending bar text is user copy only; it must not serialize or render
       --  structured runtime-buffer/file-token payload markers.
@@ -263,6 +265,16 @@ package body Editor.Pending_Transitions is
             What := To_Unbounded_String ("closing project");
          when Pending_Clear_Project =>
             What := To_Unbounded_String ("clearing project context");
+         when Pending_Clear_Workspace_State =>
+            if Length (Target.Display) > 0 then
+               return "Clear " & To_String (Target.Display)
+                 & "? Retry to confirm or Cancel";
+            elsif Target.Has_Path then
+               return "Clear workspace state: " & To_String (Target.Path)
+                 & "? Retry to confirm or Cancel";
+            else
+               return "Clear workspace state? Retry to confirm or Cancel";
+            end if;
          when Pending_Open_Project | Pending_Switch_Project | Pending_Open_Recent_Project =>
             What := To_Unbounded_String ("project switch");
          when Pending_Restore_Workspace =>

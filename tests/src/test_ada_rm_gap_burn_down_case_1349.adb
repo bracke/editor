@@ -2,11 +2,11 @@ with Ada.Strings.Unbounded; use Ada.Strings.Unbounded;
 with AUnit.Assertions; use AUnit.Assertions;
 with AUnit.Test_Cases;
 with Editor.Ada_Syntax_Tree;
-with Editor.Ada_RM_Gap_Burn_Down_Pass1349;
+with Editor.Ada_RM_Gap_Burn_Down_Case_1349;
 
 package body Test_Ada_RM_Gap_Burn_Down_Case_1349 is
 
-   package Audit renames Editor.Ada_RM_Gap_Burn_Down_Pass1349;
+   package Audit renames Editor.Ada_RM_Gap_Burn_Down_Case_1349;
    use type Audit.RM_Family;
    use type Audit.Implementing_Slice;
    use type Audit.Coverage_Level;
@@ -120,7 +120,7 @@ package body Test_Ada_RM_Gap_Burn_Down_Case_1349 is
       Row.Context := Context;
       Row.Name := To_Unbounded_String ("name visibility attribute burn-down row");
       Row.Implementing_Package :=
-        To_Unbounded_String ("Editor.Ada_RM_Gap_Burn_Down_Pass1349");
+        To_Unbounded_String ("Editor.Ada_RM_Gap_Burn_Down_Case_1349");
       Row.Node := Editor.Ada_Syntax_Tree.Node_Id (1_349_000 + Id);
       Row.Source_Shaped_Evidence := Source_Shaped;
       Row.Remediation_Entry_Present := Remediation_Present;

@@ -21,6 +21,15 @@ package Editor.Feature_Diagnostics is
    Max_Diagnostics : constant Natural := 200;
    Max_Diagnostic_Message_Text_Length : constant Natural := 256;
    Max_Diagnostic_Source_Label_Text_Length : constant Natural := 192;
+   Max_Quick_Fix_Actions_Per_Diagnostic : constant Natural := 4;
+   Diagnostic_Quick_Fix_Picker_Query_Text : constant String :=
+     "diagnostic quick fixes";
+
+   type Diagnostic_Quick_Fix_Action_Model is
+     (Quick_Fix_Action_Unavailable,
+      Quick_Fix_Action_Edit,
+      Quick_Fix_Action_Command,
+      Quick_Fix_Action_Edit_And_Command);
 
    type Diagnostic_Severity is
      (Diagnostic_Info,
@@ -67,7 +76,54 @@ package Editor.Feature_Diagnostics is
       Edit_Start_Column : Natural := 0;
       Edit_End_Line     : Natural := 0;
       Edit_End_Column   : Natural := 0;
+      Replacement_Text  : String := "";
+      Quick_Fix_Label   : String := "";
+      Quick_Fix_Detail  : String := "");
+
+   procedure Add_Diagnostic_Command_Descriptor
+     (Diagnostics : in out Diagnostics_Feature_State;
+      Descriptor  :
+        Editor.Ada_Diagnostic_Command_Projection.Diagnostic_Command_Descriptor;
+      Source_Label : String := "Ada semantic diagnostics";
+      Target_Buffer : Natural := No_Buffer);
+
+   procedure Append_Diagnostic_Quick_Fix_Command
+     (Diagnostics : in out Diagnostics_Feature_State;
+      Index       : Positive;
+      Label       : String;
+      Detail      : String := "";
+      Primary_Action_Kind :
+        Editor.Ada_Diagnostic_Command_Projection.Diagnostic_Command_Kind);
+
+   procedure Append_Diagnostic_Quick_Fix_Edit
+     (Diagnostics : in out Diagnostics_Feature_State;
+      Index       : Positive;
+      Label       : String;
+      Detail      : String := "";
+      Edit_Start_Line   : Natural;
+      Edit_Start_Column : Natural;
+      Edit_End_Line     : Natural;
+      Edit_End_Column   : Natural;
       Replacement_Text  : String := "");
+
+   procedure Append_Diagnostic_Quick_Fix_Edit_And_Command
+     (Diagnostics : in out Diagnostics_Feature_State;
+      Index       : Positive;
+      Label       : String;
+      Detail      : String := "";
+      Primary_Action_Kind :
+        Editor.Ada_Diagnostic_Command_Projection.Diagnostic_Command_Kind;
+      Edit_Start_Line   : Natural;
+      Edit_Start_Column : Natural;
+      Edit_End_Line     : Natural;
+      Edit_End_Column   : Natural;
+      Replacement_Text  : String := "");
+
+   procedure Append_Diagnostic_Quick_Fix_Unavailable
+     (Diagnostics : in out Diagnostics_Feature_State;
+      Index       : Positive;
+      Label       : String;
+      Detail      : String := "");
    --  A target is navigable when Has_Target is True, Target_Buffer is set,
    --  and Target_Line is positive. Target_Column = 0 is a line-only target
    --  and is normalized to line start by open-selected navigation. Non-navigable
@@ -110,6 +166,10 @@ package Editor.Feature_Diagnostics is
      (Diagnostics : Diagnostics_Feature_State;
       Index       : Positive) return String;
 
+   function Item_Row_State_Label
+     (Diagnostics : Diagnostics_Feature_State;
+      Index       : Positive) return String;
+
    function Item_Is_Build_Produced
      (Diagnostics : Diagnostics_Feature_State;
       Index       : Positive) return Boolean;
@@ -140,6 +200,87 @@ package Editor.Feature_Diagnostics is
       Index       : Positive) return Natural;
 
    function Item_Replacement_Text
+     (Diagnostics : Diagnostics_Feature_State;
+      Index       : Positive) return String;
+
+   function Item_Quick_Fix_Label
+     (Diagnostics : Diagnostics_Feature_State;
+      Index       : Positive) return String;
+
+   function Item_Quick_Fix_Detail
+     (Diagnostics : Diagnostics_Feature_State;
+      Index       : Positive) return String;
+
+   function Item_Quick_Fix_Action_Count
+     (Diagnostics : Diagnostics_Feature_State;
+      Index       : Positive) return Natural;
+
+   function Item_Quick_Fix_Action_Label_For_Display
+     (Diagnostics  : Diagnostics_Feature_State;
+      Index        : Positive;
+      Action_Index : Positive) return String;
+
+   function Item_Quick_Fix_Action_Detail_For_Display
+     (Diagnostics  : Diagnostics_Feature_State;
+      Index        : Positive;
+      Action_Index : Positive) return String;
+
+   function Item_Quick_Fix_Action_Kind
+     (Diagnostics  : Diagnostics_Feature_State;
+      Index        : Positive;
+      Action_Index : Positive)
+      return Editor.Ada_Diagnostic_Command_Projection.Diagnostic_Command_Kind;
+
+   function Item_Quick_Fix_Action_Model
+     (Diagnostics  : Diagnostics_Feature_State;
+      Index        : Positive;
+      Action_Index : Positive) return Diagnostic_Quick_Fix_Action_Model;
+
+   function Item_Quick_Fix_Action_Has_Edit
+     (Diagnostics  : Diagnostics_Feature_State;
+      Index        : Positive;
+      Action_Index : Positive) return Boolean;
+
+   function Item_Quick_Fix_Action_Edit_Start_Line
+     (Diagnostics  : Diagnostics_Feature_State;
+      Index        : Positive;
+      Action_Index : Positive) return Natural;
+
+   function Item_Quick_Fix_Action_Edit_Start_Column
+     (Diagnostics  : Diagnostics_Feature_State;
+      Index        : Positive;
+      Action_Index : Positive) return Natural;
+
+   function Item_Quick_Fix_Action_Edit_End_Line
+     (Diagnostics  : Diagnostics_Feature_State;
+      Index        : Positive;
+      Action_Index : Positive) return Natural;
+
+   function Item_Quick_Fix_Action_Edit_End_Column
+     (Diagnostics  : Diagnostics_Feature_State;
+      Index        : Positive;
+      Action_Index : Positive) return Natural;
+
+   function Item_Quick_Fix_Action_Replacement_Text
+     (Diagnostics  : Diagnostics_Feature_State;
+      Index        : Positive;
+      Action_Index : Positive) return String;
+
+   function Quick_Fix_Action_Is_Intrinsically_Available
+     (Diagnostics  : Diagnostics_Feature_State;
+      Index        : Positive;
+      Action_Index : Natural) return Boolean;
+
+   function Quick_Fix_Action_Intrinsic_Unavailable_Reason
+     (Diagnostics  : Diagnostics_Feature_State;
+      Index        : Positive;
+      Action_Index : Natural) return String;
+
+   function Item_Quick_Fix_Label_For_Display
+     (Diagnostics : Diagnostics_Feature_State;
+      Index       : Positive) return String;
+
+   function Item_Quick_Fix_Detail_For_Display
      (Diagnostics : Diagnostics_Feature_State;
       Index       : Positive) return String;
 
@@ -390,6 +531,57 @@ package Editor.Feature_Diagnostics is
      (Diagnostics : in out Diagnostics_Feature_State;
       Panel       : in out Editor.Feature_Panel.Feature_Panel_State) return Boolean;
 
+   function Suppress_Selected_Diagnostic
+     (Diagnostics : in out Diagnostics_Feature_State;
+      Panel       : in out Editor.Feature_Panel.Feature_Panel_State) return Boolean;
+
+   function Restore_Last_Suppressed_Diagnostic
+     (Diagnostics : in out Diagnostics_Feature_State;
+      Panel       : in out Editor.Feature_Panel.Feature_Panel_State) return Boolean;
+
+   function Restore_Selected_Suppressed_Diagnostic
+     (Diagnostics : in out Diagnostics_Feature_State;
+      Panel       : in out Editor.Feature_Panel.Feature_Panel_State) return Boolean;
+
+   function Clear_Suppressed_Diagnostics
+     (Diagnostics : in out Diagnostics_Feature_State) return Natural;
+
+   function Suppressed_Diagnostic_Count
+     (Diagnostics : Diagnostics_Feature_State) return Natural;
+
+   function Selected_Suppressed_Diagnostic
+     (Diagnostics : Diagnostics_Feature_State) return Natural;
+
+   function Suppressed_Top_Row
+     (Diagnostics    : Diagnostics_Feature_State;
+      Visible_Count  : Natural) return Natural;
+
+   procedure Ensure_Selected_Suppressed_Diagnostic_Visible
+     (Diagnostics    : in out Diagnostics_Feature_State;
+      Visible_Count  : Natural);
+
+   procedure Scroll_Suppressed_Diagnostics
+     (Diagnostics    : in out Diagnostics_Feature_State;
+      Visible_Count  : Natural;
+      Delta_Rows     : Integer);
+
+   procedure Select_Suppressed_Diagnostic
+     (Diagnostics : in out Diagnostics_Feature_State;
+      Row         : Natural);
+
+   procedure Select_Next_Suppressed_Diagnostic
+     (Diagnostics : in out Diagnostics_Feature_State);
+
+   procedure Select_Previous_Suppressed_Diagnostic
+     (Diagnostics : in out Diagnostics_Feature_State);
+
+   function Suppressed_Diagnostic_Text
+     (Diagnostics : Diagnostics_Feature_State;
+      Row         : Positive) return String;
+
+   function Last_Suppressed_Diagnostic_Text
+     (Diagnostics : Diagnostics_Feature_State) return String;
+
    function Clear_Diagnostics_By_Severity
      (Diagnostics : in out Diagnostics_Feature_State;
       Severity    : Diagnostic_Severity) return Natural;
@@ -497,6 +689,25 @@ package Editor.Feature_Diagnostics is
       Previous_Source : Natural := 0);
 
 private
+   type Diagnostic_Quick_Fix_Action is record
+      Model :
+        Diagnostic_Quick_Fix_Action_Model := Quick_Fix_Action_Unavailable;
+      Primary_Action_Kind :
+        Editor.Ada_Diagnostic_Command_Projection.Diagnostic_Command_Kind :=
+          Editor.Ada_Diagnostic_Command_Projection.Diagnostic_Command_None;
+      Has_Edit          : Boolean := False;
+      Edit_Start_Line   : Natural := 0;
+      Edit_Start_Column : Natural := 0;
+      Edit_End_Line     : Natural := 0;
+      Edit_End_Column   : Natural := 0;
+      Replacement_Text  : Ada.Strings.Unbounded.Unbounded_String;
+      Label             : Ada.Strings.Unbounded.Unbounded_String;
+      Detail            : Ada.Strings.Unbounded.Unbounded_String;
+   end record;
+
+   type Diagnostic_Quick_Fix_Action_Array is
+     array (1 .. Max_Quick_Fix_Actions_Per_Diagnostic) of Diagnostic_Quick_Fix_Action;
+
    type Diagnostic_Item is record
       Id            : Diagnostic_Id := No_Diagnostic;
       Severity      : Diagnostic_Severity := Diagnostic_Info;
@@ -518,6 +729,10 @@ private
       Edit_End_Line     : Natural := 0;
       Edit_End_Column   : Natural := 0;
       Replacement_Text  : Ada.Strings.Unbounded.Unbounded_String;
+      Quick_Fix_Label   : Ada.Strings.Unbounded.Unbounded_String;
+      Quick_Fix_Detail  : Ada.Strings.Unbounded.Unbounded_String;
+      Quick_Fix_Action_Count : Natural := 0;
+      Quick_Fix_Actions      : Diagnostic_Quick_Fix_Action_Array;
    end record;
 
    package Diagnostic_Row_Vectors is new Ada.Containers.Vectors
@@ -542,9 +757,12 @@ private
    end record;
 
    type Diagnostics_Feature_State is record
-      Rows    : Diagnostic_Row_Vectors.Vector;
-      Next_Id : Diagnostic_Id := 1;
-      Filter  : Diagnostics_Filter_State;
+      Rows            : Diagnostic_Row_Vectors.Vector;
+      Suppressed_Rows : Diagnostic_Row_Vectors.Vector;
+      Selected_Suppressed_Row : Natural := 0;
+      Suppressed_Top_Row : Natural := 1;
+      Next_Id         : Diagnostic_Id := 1;
+      Filter          : Diagnostics_Filter_State;
    end record;
 
 end Editor.Feature_Diagnostics;

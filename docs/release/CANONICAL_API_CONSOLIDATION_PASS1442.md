@@ -1,6 +1,6 @@
-# Phase579 Canonical API Consolidation Pass1442
+# Canonical API Consolidation Case 1442
 
-Pass1442 records the production-facing API boundary after the finite Remaining
+Case 1442 records the production-facing API boundary after the finite Remaining
 Gap closure and project-scale validation passes.
 
 Canonical production surfaces:
@@ -31,9 +31,9 @@ The pass rejects:
 - command aliases or compatibility spellings
 - production-facing legacy projection surfaces
 - references to already removed legacy units
-- reopened `Remaining_*` semantic gaps after pass1428
+- reopened `Remaining_*` semantic gaps after case 1428
 - missing tests or release documentation
 - stale source, test, documentation, or API fingerprints
 
-This creates the canonical API ledger needed before Core_Suite pruning and the
+This creates the canonical API ledger needed before suite pruning and the
 final documentation architecture map.

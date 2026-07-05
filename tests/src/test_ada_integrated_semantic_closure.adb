@@ -147,7 +147,7 @@ package body Test_Ada_Integrated_Semantic_Closure is
       Register_Routine
         (T,
          Builds_Integrated_Semantic_Closure'Access,
-         "Pass1118 integrated semantic closure legality");
+         "Case 1118 integrated semantic closure legality");
    end Register_Tests;
 
 end Test_Ada_Integrated_Semantic_Closure;

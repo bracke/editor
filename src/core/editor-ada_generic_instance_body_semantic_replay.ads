@@ -11,9 +11,9 @@ with Editor.Ada_Widened_Legality_Coverage_Gate_Enforcement;
 
 package Editor.Ada_Generic_Instance_Body_Semantic_Replay is
 
-   --  Pass1140 compiler-grade generic instance body semantic replay layer.
+   --  Case 1140 compiler-grade generic instance body semantic replay layer.
    --
-   --  Pass1125 projects actual/formal substitutions into widened legality
+   --  Case 1125 projects actual/formal substitutions into widened legality
    --  layers.  This package goes one step deeper: it records replay contexts for
    --  declarations, statements, expressions, calls, flow effects, predicate
    --  propagation, accessibility, and representation/freezing effects that occur

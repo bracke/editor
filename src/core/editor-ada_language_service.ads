@@ -1,5 +1,6 @@
 with Ada.Containers.Vectors;
 with Ada.Strings.Unbounded;
+with Editor.Ada_Diagnostic_Command_Projection;
 with Editor.Ada_Language_Model;
 with Editor.Ada_Project_Index;
 with Editor.Ada_Semantic_Diagnostic_Feed;
@@ -179,6 +180,9 @@ package Editor.Ada_Language_Service is
       Line         : Natural := 0;
       Column       : Natural := 0;
       Source       : Ada.Strings.Unbounded.Unbounded_String;
+      Has_Command_Descriptor : Boolean := False;
+      Command_Descriptor :
+        Editor.Ada_Diagnostic_Command_Projection.Diagnostic_Command_Descriptor;
    end record;
 
    package Semantic_Diagnostic_Vectors is new Ada.Containers.Vectors

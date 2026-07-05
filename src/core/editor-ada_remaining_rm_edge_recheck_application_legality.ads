@@ -5,9 +5,9 @@ with Editor.Ada_Syntax_Tree;
 
 package Editor.Ada_Remaining_RM_Edge_Recheck_Application_Legality is
 
-   --  Pass1288 recheck application for remaining Ada RM edge consumers.
+   --  Case 1288 recheck application for remaining Ada RM edge consumers.
    --
-   --  This package consumes Pass1287 bounded remaining-edge recheck
+   --  This package consumes Case 1287 bounded remaining-edge recheck
    --  eligibility rows and applies them back into the remaining RM edge
    --  diagnostic/closure boundary.  Remaining-edge conclusions are current
    --  only when the prerequisite recheck chain is eligible now or when the row

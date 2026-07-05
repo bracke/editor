@@ -5,9 +5,9 @@ with Editor.Ada_Syntax_Tree;
 
 package Editor.Ada_Remaining_RM_Edge_Recheck_Convergence_Legality is
 
-   --  Pass1289 convergence for remaining Ada RM edge rechecks.
+   --  Case 1289 convergence for remaining Ada RM edge rechecks.
    --
-   --  This package consumes Pass1288 remaining-edge recheck application rows
+   --  This package consumes Case 1288 remaining-edge recheck application rows
    --  and classifies whether each remaining RM edge result has converged as
    --  current evidence, converged as not-required non-diagnostic evidence,
    --  stayed stably withheld by the same prerequisite blocker, remained

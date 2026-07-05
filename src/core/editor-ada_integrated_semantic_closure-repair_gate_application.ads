@@ -2,8 +2,8 @@ with Editor.Ada_AST_Coverage_Repair_Gate_Application;
 
 package Editor.Ada_Integrated_Semantic_Closure.Repair_Gate_Application is
 
-   --  Pass1149 bridge from repair-applied coverage-gate results into
-   --  integrated semantic closure.  Pass1148 decides whether concrete parser,
+   --  Case 1149 bridge from repair-applied coverage-gate results into
+   --  integrated semantic closure.  Case 1148 decides whether concrete parser,
    --  AST, metadata, or consumer repairs clear widened legality coverage-gate
    --  enforcement rows.  This package feeds those repaired or still-blocking
    --  results back into closure so the unified diagnostic path sees restored

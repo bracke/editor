@@ -10,7 +10,7 @@ with Editor.Ada_Tasking_Protected_Effects_Legality;
 
 package Editor.Ada_Tasking_Protected_Final_Effects_Legality is
 
-   --  Pass1185 compiler-grade tasking/protected final effect legality.
+   --  Case 1185 compiler-grade tasking/protected final effect legality.
    --
    --  This layer closes hard tasking/protected effect checks after the richer
    --  elaboration, contract/predicate/dataflow, representation/freezing,

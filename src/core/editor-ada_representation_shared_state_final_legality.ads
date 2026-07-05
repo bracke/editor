@@ -8,7 +8,7 @@ with Editor.Ada_Volatile_Atomic_Shared_State_Legality;
 
 package Editor.Ada_Representation_Shared_State_Final_Legality is
 
-   --  Pass1214 representation/shared-state final legality.
+   --  Case 1214 representation/shared-state final legality.
    --
    --  This package connects final representation/freezing hard-case evidence
    --  to abstract/refined-state, volatile/atomic/shared-variable, and

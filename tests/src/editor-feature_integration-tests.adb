@@ -29,7 +29,7 @@ package body Editor.Feature_Integration.Tests is
 
    function Temp_Path (Name : String) return String is
    begin
-      return "/tmp/editor_phase114_" & Name & ".keybindings";
+      return "/tmp/editor_" & Name & ".keybindings";
    end Temp_Path;
 
    procedure Write_File (Path : String; Text : String) is
@@ -394,7 +394,7 @@ package body Editor.Feature_Integration.Tests is
 
 
 
-   procedure Test_Phase_118_Reference_Feature_Panel_Audit_Passes
+   procedure Test_Reference_Feature_Panel_Audit_Passes
      (T : in out AUnit.Test_Cases.Test_Case'Class)
    is
       pragma Unreferenced (T);
@@ -405,11 +405,11 @@ package body Editor.Feature_Integration.Tests is
       Assert (Status (Result) = Feature_Integration_Ok,
               "frozen Feature_Panel reference-module audit must pass: " &
               Summary (Result));
-   end Test_Phase_118_Reference_Feature_Panel_Audit_Passes;
+   end Test_Reference_Feature_Panel_Audit_Passes;
 
 
 
-   procedure Test_Phase_119_Outline_Content_Foundation_Audit_Passes
+   procedure Test_Outline_Content_Foundation_Audit_Passes
      (T : in out AUnit.Test_Cases.Test_Case'Class)
    is
       pragma Unreferenced (T);
@@ -419,10 +419,10 @@ package body Editor.Feature_Integration.Tests is
       Validate_Outline_Content_Foundation (Result);
       Assert (Status (Result) = Feature_Integration_Ok,
               "outline content-foundation audit must pass: " & Summary (Result));
-   end Test_Phase_119_Outline_Content_Foundation_Audit_Passes;
+   end Test_Outline_Content_Foundation_Audit_Passes;
 
 
-   procedure Test_Phase_118_Next_Feature_Readiness_Checklist_Is_Actionable
+   procedure Test_Next_Feature_Readiness_Checklist_Is_Actionable
      (T : in out AUnit.Test_Cases.Test_Case'Class)
    is
       pragma Unreferenced (T);
@@ -446,7 +446,7 @@ package body Editor.Feature_Integration.Tests is
               "readiness summary must name missing Open Selected route test");
       Assert (Contains (Summary (Result), "missing persistence exclusion check"),
               "readiness summary must name missing persistence exclusion check");
-   end Test_Phase_118_Next_Feature_Readiness_Checklist_Is_Actionable;
+   end Test_Next_Feature_Readiness_Checklist_Is_Actionable;
 
    overriding function Name
      (T : Feature_Integration_Test_Case) return AUnit.Message_String
@@ -462,44 +462,44 @@ package body Editor.Feature_Integration.Tests is
    begin
       AUnit.Test_Cases.Registration.Register_Routine
         (T, Test_Fake_Feature_Command_Failures_Are_Actionable'Access,
-         "Phase 114 Fake Feature Command Failures Are Actionable");
+         "Fake Feature Command Failures Are Actionable");
       AUnit.Test_Cases.Registration.Register_Routine
         (T, Test_Complete_Fake_Feature_Command_Contract_Passes'Access,
-         "Phase 114 Complete Fake Feature Command Contract Passes");
+         "Complete Fake Feature Command Contract Passes");
       AUnit.Test_Cases.Registration.Register_Routine
         (T, Test_Feature_Route_Contract_Catches_Bypass_And_Double_Dispatch'Access,
-         "Phase 114 Feature Route Contract Catches Bypass And Double Dispatch");
+         "Feature Route Contract Catches Bypass And Double Dispatch");
       AUnit.Test_Cases.Registration.Register_Routine
         (T, Test_Route_Audit_Feature_Summary_Is_Grouped_And_Deterministic'Access,
-         "Phase 114 Route Audit Feature Summary Is Grouped And Deterministic");
+         "Route Audit Feature Summary Is Grouped And Deterministic");
       AUnit.Test_Cases.Registration.Register_Routine
         (T, Test_Feature_Render_Projection_Contract_Is_Read_Only'Access,
-         "Phase 114 Feature Render Projection Contract Is Read Only");
+         "Feature Render Projection Contract Is Read Only");
       AUnit.Test_Cases.Registration.Register_Routine
         (T, Test_Feature_Persistence_Contract_Prevents_Leakage'Access,
-         "Phase 114 Feature Persistence Contract Prevents Leakage");
+         "Feature Persistence Contract Prevents Leakage");
       AUnit.Test_Cases.Registration.Register_Routine
         (T, Test_Feature_Side_Effect_Domains_Are_Expressible'Access,
-         "Phase 114 Feature Side Effect Domains Are Expressible");
+         "Feature Side Effect Domains Are Expressible");
       AUnit.Test_Cases.Registration.Register_Routine
         (T, Test_Feature_Keybinding_Unknown_Command_Is_Rejected'Access,
-         "Phase 114 Feature Keybinding Unknown Command Is Rejected");
+         "Feature Keybinding Unknown Command Is Rejected");
       AUnit.Test_Cases.Registration.Register_Routine
         (T, Test_Feature_Command_Palette_Projection_Uses_Generic_Metadata'Access,
-         "Phase 114 Feature Command Palette Projection Uses Generic Metadata");
+         "Feature Command Palette Projection Uses Generic Metadata");
       AUnit.Test_Cases.Registration.Register_Routine
         (T, Test_Post_Baseline_Long_Run_Feature_Readiness_Scenario'Access,
-         "Phase 114 Post Baseline Long Run Feature Readiness Scenario");
+         "Post Baseline Long Run Feature Readiness Scenario");
 
       AUnit.Test_Cases.Registration.Register_Routine
-        (T, Test_Phase_118_Reference_Feature_Panel_Audit_Passes'Access,
-         "Phase 118 Reference Feature Panel Audit Passes");
+        (T, Test_Reference_Feature_Panel_Audit_Passes'Access,
+         "Reference Feature Panel Audit Passes");
       AUnit.Test_Cases.Registration.Register_Routine
-        (T, Test_Phase_119_Outline_Content_Foundation_Audit_Passes'Access,
-         "Phase 119 Outline Content Foundation Audit Passes");
+        (T, Test_Outline_Content_Foundation_Audit_Passes'Access,
+         "Outline Content Foundation Audit Passes");
       AUnit.Test_Cases.Registration.Register_Routine
-        (T, Test_Phase_118_Next_Feature_Readiness_Checklist_Is_Actionable'Access,
-         "Phase 118 Next Feature Readiness Checklist Is Actionable");
+        (T, Test_Next_Feature_Readiness_Checklist_Is_Actionable'Access,
+         "Next Feature Readiness Checklist Is Actionable");
    end Register_Tests;
 
 end Editor.Feature_Integration.Tests;

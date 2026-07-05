@@ -148,6 +148,10 @@ package Editor.Quick_Open is
    function File_Kind_Filter_Name
      (Filter : Quick_Open_File_Kind_Filter) return String;
 
+   procedure Set_File_Kind_Filter
+     (State  : in out Quick_Open_State;
+      Filter : Quick_Open_File_Kind_Filter);
+
    procedure Cycle_File_Kind_Next
      (State : in out Quick_Open_State);
 
@@ -288,7 +292,7 @@ package Editor.Quick_Open is
    function Build_Snapshot
      (State : Quick_Open_State) return Quick_Open_Snapshot;
 
-   --  Phase 495 shared projection-surface contract predicates.  Quick Open
+   --  shared projection-surface contract predicates.  Quick Open
    --  remains an observation-only projection: query/filter/selection are local
    --  UI state, result rows are retained candidates, and no file lifecycle
    --  routes, prompt state, target history, repair cache, filesystem probe,

@@ -1,11 +1,11 @@
 with AUnit.Assertions; use AUnit.Assertions;
 with AUnit.Test_Cases;
 with Ada.Strings.Unbounded; use Ada.Strings.Unbounded;
-with Editor.Ada_RM_Remaining_Gap_Remediation_Pass1385;
+with Editor.Ada_RM_Remaining_Gap_Remediation_Case_1385;
 
 package body Test_Ada_RM_Remaining_Gap_Remediation_Case_1385 is
 
-   package Audit renames Editor.Ada_RM_Remaining_Gap_Remediation_Pass1385;
+   package Audit renames Editor.Ada_RM_Remaining_Gap_Remediation_Case_1385;
    use type Audit.RM_Family;
    use type Audit.Implementing_Slice;
    use type Audit.Coverage_Level;
@@ -58,8 +58,8 @@ package body Test_Ada_RM_Remaining_Gap_Remediation_Case_1385 is
         To_Unbounded_String
           ("diagnostic blocker families, runtime-check and warning-only classifications, smallest source spans, and consumer-visible states must agree canonically");
       Row.Candidate_Implementing_Package :=
-        To_Unbounded_String ("Editor.Ada_RM_Remaining_Gap_Remediation_Pass1385");
-      Row.Candidate_Pass := To_Unbounded_String ("Pass1385");
+        To_Unbounded_String ("Editor.Ada_RM_Remaining_Gap_Remediation_Case_1385");
+      Row.Candidate_Case := To_Unbounded_String ("Case 1385");
       Row.Blocker_Family :=
         To_Unbounded_String ("RM.Diagnostics.Blocker.Source_Span.Runtime_Warning");
       return Row;
@@ -72,9 +72,9 @@ package body Test_Ada_RM_Remaining_Gap_Remediation_Case_1385 is
       Expected : Audit.Precision_Classification) is
       Item : constant Audit.Remediation_Entry := Audit.Result_For (Results, Id);
    begin
-      Assert (Item.Status = Status, "unexpected pass1385 status");
+      Assert (Item.Status = Status, "unexpected case 1385 status");
       Assert (Audit.Expected_For_Status (Item.Status) = Expected,
-              "unexpected pass1385 precision classification");
+              "unexpected case 1385 precision classification");
    end Expect_Status;
 
    procedure Test_Diagnostic_Source_Span_Gap_Remediated
@@ -112,7 +112,7 @@ package body Test_Ada_RM_Remaining_Gap_Remediation_Case_1385 is
       Results := Audit.Build (Input);
 
       Assert (Audit.Gap_Remediated (Results),
-              "pass1385 should close the diagnostic/runtime/warning source-span gap");
+              "case 1385 should close the diagnostic/runtime/warning source-span gap");
       Assert (Results.Remediated_Count >= 1, "legal count");
       Assert (Results.Illegal_Count = 1, "illegal count");
       Assert (Results.Runtime_Check_Count = 1, "runtime-check count");
@@ -186,7 +186,7 @@ package body Test_Ada_RM_Remaining_Gap_Remediation_Case_1385 is
       Row : Audit.Remediation_Row;
    begin
       Row := Base_Row (20);
-      Row.Inventory_Row_From_Pass1366 := False;
+      Row.Inventory_Row_From_Final_Burn_Down := False;
       Audit.Add_Row (Input, Row);
 
       Row := Base_Row (21);
@@ -222,7 +222,7 @@ package body Test_Ada_RM_Remaining_Gap_Remediation_Case_1385 is
 
       Results := Audit.Build (Input);
 
-      Expect_Status (Results, 20, Audit.Status_Missing_Pass1366_Inventory_Row,
+      Expect_Status (Results, 20, Audit.Status_Missing_Final_Inventory_Row,
                      Precision.Class_Indeterminate);
       Expect_Status (Results, 21, Audit.Status_Missing_Concrete_Subrule_Name,
                      Precision.Class_Indeterminate);

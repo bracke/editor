@@ -261,17 +261,17 @@ package body Editor.Commands is
         or else Trimmed = "No replacement preview."
       then
          return "No replacement preview.";
-      elsif Trimmed = "Search result is stale; run Project Search again."
+      elsif Trimmed = Editor.Commands.Reason_Project_Search_Result_Stale
         or else Trimmed = "Search result is stale; rerun search"
-        or else Trimmed = "Search result is stale; rerun search."
+        or else Trimmed = Editor.Commands.Reason_Search_Result_Stale_Rerun
         or else Trimmed = "Replacement target changed; rerun search"
         or else Trimmed = "Replacement target changed; rerun search."
         or else Trimmed = "Search results are stale"
         or else Trimmed = "Search results are stale."
         or else Trimmed = "Search results are stale; rerun search."
-        or else Trimmed = "Replacement preview is stale"
+        or else Trimmed = Editor.Commands.Reason_Replacement_Preview_Stale
         or else Trimmed = "Replacement preview is stale."
-        or else Trimmed = "Selected replacement is stale"
+        or else Trimmed = Editor.Commands.Reason_Selected_Replacement_Stale
         or else Trimmed = "Selected replacement is stale."
         or else Trimmed = "Selected result is stale."
         or else Trimmed = "Quick Open result is stale."
@@ -291,7 +291,7 @@ package body Editor.Commands is
         or else Trimmed = "candidate must be refreshed"
         or else Trimmed = "candidate must be refreshed."
       then
-         return "Target is stale; refresh required.";
+         return Reason_Target_Stale;
       elsif Trimmed = "Selected buffer is no longer open"
         or else Trimmed = "Selected buffer is no longer open."
       then
@@ -321,7 +321,7 @@ package body Editor.Commands is
         or else Trimmed = "Replacement target no longer exists"
         or else Trimmed = "Replacement target no longer exists."
       then
-         return "Target no longer exists.";
+         return Reason_Target_Missing;
       elsif Trimmed = "Target line unavailable"
         or else Trimmed = "Target line unavailable."
         or else Trimmed = "Target line is unavailable"
@@ -330,10 +330,12 @@ package body Editor.Commands is
         or else Trimmed = "Search target line is unavailable."
         or else Trimmed = "Diagnostic target line is unavailable"
         or else Trimmed = "Diagnostic target line is unavailable."
-        or else Trimmed = "Diagnostic target column is outside the line"
+      then
+         return Reason_Target_Line_Unavailable;
+      elsif Trimmed = "Diagnostic target column is outside the line"
         or else Trimmed = "Diagnostic target column is outside the line."
       then
-         return "Target line is unavailable.";
+         return Reason_Diagnostic_Target_Column_Outside_Line;
       elsif Trimmed = "Target is outside the current project"
         or else Trimmed = "Target is outside the current project."
         or else Trimmed = "Target path is outside the project"
@@ -838,8 +840,10 @@ package body Editor.Commands is
         or else Trimmed = "Workspace state available."
         or else Trimmed = "Workspace available"
         or else Trimmed = "Workspace available."
+        or else Trimmed = "Workspace available. Run Restore Workspace."
+        or else Trimmed = "Workspace available. Run Restore Workspace State."
       then
-         return "Workspace available.";
+         return "Workspace available. Run Restore Workspace.";
       elsif Trimmed = "Workspace state cleared"
         or else Trimmed = "Workspace state cleared."
         or else Trimmed = "Workspace cleared"
@@ -1864,6 +1868,26 @@ package body Editor.Commands is
             Cmd.Kind := Problems_Page_Down;
          when Command_Problems_Open_Selected =>
             Cmd.Kind := Problems_Open_Selected;
+         when Command_Problems_Filter_All =>
+            Cmd.Kind := Problems_Filter_All;
+         when Command_Problems_Filter_Errors =>
+            Cmd.Kind := Problems_Filter_Errors;
+         when Command_Problems_Filter_Warnings =>
+            Cmd.Kind := Problems_Filter_Warnings;
+         when Command_Problems_Filter_Info =>
+            Cmd.Kind := Problems_Filter_Info;
+         when Command_Problems_Filter_Hints =>
+            Cmd.Kind := Problems_Filter_Hints;
+         when Command_Problems_Sort_By_Location =>
+            Cmd.Kind := Problems_Sort_By_Location;
+         when Command_Problems_Sort_By_Severity =>
+            Cmd.Kind := Problems_Sort_By_Severity;
+         when Command_Problems_Sort_By_Source =>
+            Cmd.Kind := Problems_Sort_By_Source;
+         when Command_Problems_Group_By_Severity =>
+            Cmd.Kind := Problems_Group_By_Severity;
+         when Command_Problems_Group_By_Source =>
+            Cmd.Kind := Problems_Group_By_Source;
          when Command_Problems_Focus_Editor =>
             Cmd.Kind := Problems_Focus_Editor;
          when Command_Focus_File_Tree =>
@@ -2008,6 +2032,10 @@ package body Editor.Commands is
             Cmd.Kind := Build_Output_Details_Select_Stderr;
          when Command_Build_Output_Details_Select_Merged =>
             Cmd.Kind := Build_Output_Details_Select_Merged;
+         when Command_Build_Refresh_Candidates =>
+            Cmd.Kind := Build_Refresh_Candidates;
+         when Command_Build_Select_First_Candidate =>
+            Cmd.Kind := Build_Select_First_Candidate;
          when Command_Build_Select_Next_Candidate =>
             Cmd.Kind := Build_Select_Next_Candidate;
          when Command_Build_Select_Previous_Candidate =>
@@ -2156,6 +2184,20 @@ package body Editor.Commands is
             Cmd.Kind := Diagnostics_Clear_Build;
          when Command_Diagnostics_Open_Selected =>
             Cmd.Kind := Diagnostics_Open_Selected;
+         when Command_Diagnostic_Open_Source =>
+            Cmd.Kind := Diagnostic_Open_Source;
+         when Command_Diagnostic_Suppress_Selected =>
+            Cmd.Kind := Diagnostic_Suppress_Selected;
+         when Command_Diagnostic_Show_Suppressed =>
+            Cmd.Kind := Diagnostic_Show_Suppressed;
+         when Command_Diagnostic_Restore_Last_Suppressed =>
+            Cmd.Kind := Diagnostic_Restore_Last_Suppressed;
+         when Command_Diagnostic_Restore_Selected_Suppressed =>
+            Cmd.Kind := Diagnostic_Restore_Selected_Suppressed;
+         when Command_Diagnostic_Clear_Suppressed =>
+            Cmd.Kind := Diagnostic_Clear_Suppressed;
+         when Command_Diagnostic_Apply_Quick_Fix =>
+            Cmd.Kind := Diagnostic_Apply_Quick_Fix;
          when Command_Diagnostics_Execute_Selected_Action =>
             Cmd.Kind := Diagnostics_Execute_Selected_Action;
          when Command_Diagnostics_Select_Next =>
@@ -2496,7 +2538,7 @@ package body Editor.Commands is
       Target_Prompt_Capable    => False,
       Target_Prompt_Label      => Null_Unbounded_String);
 
-   --  Single static source for the retained Phase 473 minimal prompt metadata.
+   --  Single static source for the retained minimal prompt metadata.
    --  Descriptors and public accessors both project this source; no product
    --  consumer owns a second prompted-command list or prompt-label table.
    function Canonical_Target_Prompt_Metadata
@@ -3383,7 +3425,7 @@ package body Editor.Commands is
                Category    => File_Category,
                Visibility  => Palette_Command);
          when Command_Save_File_As =>
-            --  Phase 469: target acquisition is canonical, so Save As is
+            --  target acquisition is canonical, so Save As is
             --  projected and bindable through the transient file-target prompt.
             return Make_Command_Descriptor
               (Id            => Id,
@@ -4971,9 +5013,9 @@ package body Editor.Commands is
             return Make_Descriptor
               (Id          => Id,
                Name        => "Clear Project Search Query",
-               Description => "Clear the Project Search query and results.",
+               Description => "Clear the Project Search query, replacement text, and retained results.",
                Category    => Search_Category,
-               Visibility  => Hidden_Command);
+               Visibility  => Palette_Command);
          when Command_Open_Selected_Project_Search_Result =>
             return Make_Descriptor
               (Id          => Id,
@@ -5057,7 +5099,7 @@ package body Editor.Commands is
                Name        => "Clear Project Search Kind Filter",
                Description => "Clear the Project Search file-kind filter.",
                Category    => Search_Category,
-               Visibility  => Hidden_Command);
+               Visibility  => Palette_Command);
          when Command_Project_Search_Scope_Set =>
             declare
                D : Command_Descriptor := Make_Descriptor
@@ -5076,7 +5118,7 @@ package body Editor.Commands is
                Name        => "Clear Project Search Scope",
                Description => "Clear the Project Search path scope.",
                Category    => Search_Category,
-               Visibility  => Hidden_Command);
+               Visibility  => Palette_Command);
          when Command_Project_Search_Case_Toggle =>
             return Make_Descriptor
               (Id          => Id,
@@ -5149,14 +5191,14 @@ package body Editor.Commands is
                Name        => "Clear Project Search Include Filter",
                Description => "Clear the Project Search include path filter.",
                Category    => Search_Category,
-               Visibility  => Hidden_Command);
+               Visibility  => Palette_Command);
          when Command_Project_Search_Exclude_Filter_Clear =>
             return Make_Descriptor
               (Id          => Id,
                Name        => "Clear Project Search Exclude Filter",
                Description => "Clear the Project Search exclude path filter.",
                Category    => Search_Category,
-               Visibility  => Hidden_Command);
+               Visibility  => Palette_Command);
          when Command_Project_Search_Replace_Preview =>
             return Make_Descriptor (Id => Id, Name => "Preview Project Search Replacements", Description => "Preview replacements for current Project Search results.", Category => Search_Category, Visibility => Palette_Command);
          when Command_Project_Search_Replace_Toggle_Selected =>
@@ -5283,6 +5325,76 @@ package body Editor.Commands is
                Name        => "Open Selected Problem",
                Description => "Open the currently selected Problems row",
                Category    => Selection_Category,
+               Visibility  => Palette_Command);
+         when Command_Problems_Filter_All =>
+            return Make_Descriptor
+              (Id          => Id,
+               Name        => "Show All Problems",
+               Description => "Clear the Problems severity filter.",
+               Category    => Diagnostics_Category,
+               Visibility  => Palette_Command);
+         when Command_Problems_Filter_Errors =>
+            return Make_Descriptor
+              (Id          => Id,
+               Name        => "Show Problem Errors",
+               Description => "Filter the Problems panel to errors.",
+               Category    => Diagnostics_Category,
+               Visibility  => Palette_Command);
+         when Command_Problems_Filter_Warnings =>
+            return Make_Descriptor
+              (Id          => Id,
+               Name        => "Show Problem Warnings",
+               Description => "Filter the Problems panel to warnings.",
+               Category    => Diagnostics_Category,
+               Visibility  => Palette_Command);
+         when Command_Problems_Filter_Info =>
+            return Make_Descriptor
+              (Id          => Id,
+               Name        => "Show Problem Info",
+               Description => "Filter the Problems panel to info diagnostics.",
+               Category    => Diagnostics_Category,
+               Visibility  => Palette_Command);
+         when Command_Problems_Filter_Hints =>
+            return Make_Descriptor
+              (Id          => Id,
+               Name        => "Show Problem Hints",
+               Description => "Filter the Problems panel to hints.",
+               Category    => Diagnostics_Category,
+               Visibility  => Palette_Command);
+         when Command_Problems_Sort_By_Location =>
+            return Make_Descriptor
+              (Id          => Id,
+               Name        => "Sort Problems by Location",
+               Description => "Sort Problems rows by source location.",
+               Category    => Diagnostics_Category,
+               Visibility  => Palette_Command);
+         when Command_Problems_Sort_By_Severity =>
+            return Make_Descriptor
+              (Id          => Id,
+               Name        => "Sort Problems by Severity",
+               Description => "Sort Problems rows by diagnostic severity.",
+               Category    => Diagnostics_Category,
+               Visibility  => Palette_Command);
+         when Command_Problems_Sort_By_Source =>
+            return Make_Descriptor
+              (Id          => Id,
+               Name        => "Sort Problems by Source",
+               Description => "Sort Problems rows by source file.",
+               Category    => Diagnostics_Category,
+               Visibility  => Palette_Command);
+         when Command_Problems_Group_By_Severity =>
+            return Make_Descriptor
+              (Id          => Id,
+               Name        => "Group Problems by Severity",
+               Description => "Group Problems review rows by diagnostic severity.",
+               Category    => Diagnostics_Category,
+               Visibility  => Palette_Command);
+         when Command_Problems_Group_By_Source =>
+            return Make_Descriptor
+              (Id          => Id,
+               Name        => "Group Problems by Source",
+               Description => "Group Problems review rows by source file.",
+               Category    => Diagnostics_Category,
                Visibility  => Palette_Command);
          when Command_Problems_Focus_Editor =>
             return Make_Descriptor
@@ -6103,6 +6215,55 @@ package body Editor.Commands is
                Description => "Open the file location for the selected Diagnostic when available.",
                Category    => Panel_Category,
                Visibility  => Palette_Command);
+         when Command_Diagnostic_Open_Source =>
+            return Make_Descriptor
+              (Id          => Id,
+               Name        => "Diagnostic: Open Source",
+               Description => "Open the source location for the selected Diagnostic row from any diagnostic surface.",
+               Category    => Panel_Category,
+               Visibility  => Palette_Command);
+         when Command_Diagnostic_Suppress_Selected =>
+            return Make_Descriptor
+              (Id          => Id,
+               Name        => "Diagnostic: Suppress Selected",
+               Description => "Request suppression for the selected Diagnostic when suppression is available.",
+               Category    => Panel_Category,
+               Visibility  => Palette_Command);
+         when Command_Diagnostic_Show_Suppressed =>
+            return Make_Descriptor
+              (Id          => Id,
+               Name        => "Diagnostic: Show Suppressed",
+               Description => "Show the session suppressed Diagnostic count and latest suppressed row.",
+               Category    => Panel_Category,
+               Visibility  => Palette_Command);
+         when Command_Diagnostic_Restore_Last_Suppressed =>
+            return Make_Descriptor
+              (Id          => Id,
+               Name        => "Diagnostic: Restore Last Suppressed",
+               Description => "Restore the most recently suppressed Diagnostic for review.",
+               Category    => Panel_Category,
+               Visibility  => Palette_Command);
+         when Command_Diagnostic_Restore_Selected_Suppressed =>
+            return Make_Descriptor
+              (Id          => Id,
+               Name        => "Diagnostic: Restore Selected Suppressed",
+               Description => "Restore the selected suppressed Diagnostic for review.",
+               Category    => Panel_Category,
+               Visibility  => Palette_Command);
+         when Command_Diagnostic_Clear_Suppressed =>
+            return Make_Descriptor
+              (Id          => Id,
+               Name        => "Diagnostic: Clear Suppressed",
+               Description => "Clear suppressed Diagnostics without restoring them.",
+               Category    => Panel_Category,
+               Visibility  => Palette_Command);
+         when Command_Diagnostic_Apply_Quick_Fix =>
+            return Make_Descriptor
+              (Id          => Id,
+               Name        => "Diagnostic: Apply Quick Fix",
+               Description => "Apply the selected Diagnostic quick fix when a fix is available.",
+               Category    => Panel_Category,
+               Visibility  => Palette_Command);
          when Command_Diagnostics_Execute_Selected_Action =>
             return Make_Descriptor
               (Id          => Id,
@@ -6455,6 +6616,20 @@ package body Editor.Commands is
               (Id          => Id,
                Name        => "Build: Select Merged Output",
                Description => "Show merged stdout/stderr as the selected latest build output stream.",
+               Category    => Project_Category,
+               Visibility  => Palette_Command);
+         when Command_Build_Refresh_Candidates =>
+            return Make_Descriptor
+              (Id          => Id,
+               Name        => "Build: Refresh Candidates",
+               Description => "Refresh build candidates for the current project without starting a build.",
+               Category    => Project_Category,
+               Visibility  => Palette_Command);
+         when Command_Build_Select_First_Candidate =>
+            return Make_Descriptor
+              (Id          => Id,
+               Name        => "Build: Select First Candidate",
+               Description => "Select the first discovered build candidate without starting a build.",
                Category    => Project_Category,
                Visibility  => Palette_Command);
          when Command_Build_Select_Next_Candidate =>
@@ -7133,6 +7308,13 @@ package body Editor.Commands is
             | Command_Diagnostics_Filter_Build
             | Command_Diagnostics_Clear_Build
             | Command_Diagnostics_Open_Selected
+            | Command_Diagnostic_Open_Source
+            | Command_Diagnostic_Suppress_Selected
+            | Command_Diagnostic_Show_Suppressed
+            | Command_Diagnostic_Restore_Last_Suppressed
+            | Command_Diagnostic_Restore_Selected_Suppressed
+            | Command_Diagnostic_Clear_Suppressed
+            | Command_Diagnostic_Apply_Quick_Fix
             | Command_Diagnostics_Execute_Selected_Action
             | Command_Diagnostics_Select_Next
             | Command_Diagnostics_Select_Previous
@@ -7180,6 +7362,8 @@ package body Editor.Commands is
         | Command_Build_Output_Details_Select_Stdout
         | Command_Build_Output_Details_Select_Stderr
         | Command_Build_Output_Details_Select_Merged
+        | Command_Build_Refresh_Candidates
+        | Command_Build_Select_First_Candidate
         | Command_Build_Select_Next_Candidate
         | Command_Build_Select_Previous_Candidate
         | Command_Build_Clear_Selected_Candidate
@@ -7690,6 +7874,16 @@ package body Editor.Commands is
             | Command_Problems_Page_Up
             | Command_Problems_Page_Down
             | Command_Problems_Open_Selected
+            | Command_Problems_Filter_All
+            | Command_Problems_Filter_Errors
+            | Command_Problems_Filter_Warnings
+            | Command_Problems_Filter_Info
+            | Command_Problems_Filter_Hints
+            | Command_Problems_Sort_By_Location
+            | Command_Problems_Sort_By_Severity
+            | Command_Problems_Sort_By_Source
+            | Command_Problems_Group_By_Severity
+            | Command_Problems_Group_By_Source
             | Command_Problems_Focus_Editor
             | Command_Focus_File_Tree
             | Command_File_Tree_Move_Up
@@ -7770,6 +7964,13 @@ package body Editor.Commands is
             | Command_Diagnostics_Filter_Build
             | Command_Diagnostics_Clear_Build
             | Command_Diagnostics_Open_Selected
+            | Command_Diagnostic_Open_Source
+            | Command_Diagnostic_Suppress_Selected
+            | Command_Diagnostic_Show_Suppressed
+            | Command_Diagnostic_Restore_Last_Suppressed
+            | Command_Diagnostic_Restore_Selected_Suppressed
+            | Command_Diagnostic_Clear_Suppressed
+            | Command_Diagnostic_Apply_Quick_Fix
             | Command_Diagnostics_Execute_Selected_Action
             | Command_Diagnostics_Select_Next
             | Command_Diagnostics_Select_Previous
@@ -7963,6 +8164,10 @@ package body Editor.Commands is
          return "build.output-details.select-stderr";
       elsif Id = Command_Build_Output_Details_Select_Merged then
          return "build.output-details.select-merged";
+      elsif Id = Command_Build_Refresh_Candidates then
+         return "build.refresh-candidates";
+      elsif Id = Command_Build_Select_First_Candidate then
+         return "build.select-first-candidate";
       elsif Id = Command_Build_Select_Next_Candidate then
          return "build.select-next-candidate";
       elsif Id = Command_Build_Select_Previous_Candidate then
@@ -8045,6 +8250,12 @@ package body Editor.Commands is
          return "keybindings.clear-filter";
       elsif Id = Command_Keybindings_Cancel_Capture then
          return "keybindings.cancel-capture";
+      elsif Id = Command_Save_Workspace_State then
+         return "workspace.save";
+      elsif Id = Command_Restore_Workspace_State then
+         return "workspace.restore";
+      elsif Id = Command_Clear_Workspace_State then
+         return "workspace.clear";
       elsif Id = Command_Switch_Project then
          return "project.switch";
       elsif Id = Command_Show_Recent_Projects then
@@ -8075,6 +8286,20 @@ package body Editor.Commands is
          return "diagnostics.clear-build";
       elsif Id = Command_Diagnostics_Open_Selected then
          return "diagnostics.open-selected";
+      elsif Id = Command_Diagnostic_Open_Source then
+         return "ada.diagnostic.open-source";
+      elsif Id = Command_Diagnostic_Suppress_Selected then
+         return "ada.diagnostic.suppress";
+      elsif Id = Command_Diagnostic_Show_Suppressed then
+         return "ada.diagnostic.show-suppressed";
+      elsif Id = Command_Diagnostic_Restore_Last_Suppressed then
+         return "ada.diagnostic.restore-suppressed";
+      elsif Id = Command_Diagnostic_Restore_Selected_Suppressed then
+         return "ada.diagnostic.restore-selected-suppressed";
+      elsif Id = Command_Diagnostic_Clear_Suppressed then
+         return "ada.diagnostic.clear-suppressed";
+      elsif Id = Command_Diagnostic_Apply_Quick_Fix then
+         return "ada.diagnostic.apply-quick-fix";
       elsif Id = Command_Diagnostics_Execute_Selected_Action then
          return "diagnostics.execute-selected-action";
       elsif Id = Command_Diagnostics_Select_Next then
@@ -8681,6 +8906,40 @@ package body Editor.Commands is
          return "buffers.switcher.mark.summary";
       elsif Id = Command_Previous_Recent_Buffer then
          return "buffers.recent.previous";
+      elsif Id = Command_Focus_Problems then
+         return "problems.focus";
+      elsif Id = Command_Problems_Move_Up then
+         return "problems.selection.previous";
+      elsif Id = Command_Problems_Move_Down then
+         return "problems.selection.next";
+      elsif Id = Command_Problems_Page_Up then
+         return "problems.page-up";
+      elsif Id = Command_Problems_Page_Down then
+         return "problems.page-down";
+      elsif Id = Command_Problems_Open_Selected then
+         return "problems.open-selected";
+      elsif Id = Command_Problems_Filter_All then
+         return "problems.filter.all";
+      elsif Id = Command_Problems_Filter_Errors then
+         return "problems.filter.errors";
+      elsif Id = Command_Problems_Filter_Warnings then
+         return "problems.filter.warnings";
+      elsif Id = Command_Problems_Filter_Info then
+         return "problems.filter.info";
+      elsif Id = Command_Problems_Filter_Hints then
+         return "problems.filter.hints";
+      elsif Id = Command_Problems_Sort_By_Location then
+         return "problems.sort.location";
+      elsif Id = Command_Problems_Sort_By_Severity then
+         return "problems.sort.severity";
+      elsif Id = Command_Problems_Sort_By_Source then
+         return "problems.sort.source";
+      elsif Id = Command_Problems_Group_By_Severity then
+         return "problems.group.severity";
+      elsif Id = Command_Problems_Group_By_Source then
+         return "problems.group.source";
+      elsif Id = Command_Problems_Focus_Editor then
+         return "problems.focus-editor";
       elsif Id = Command_Next_Outline_Symbol then
          return "outline.next-symbol";
       elsif Id = Command_Previous_Outline_Symbol then
@@ -8774,7 +9033,7 @@ package body Editor.Commands is
       N : constant String := Ada.Characters.Handling.To_Lower
         (Ada.Strings.Fixed.Trim (Name, Ada.Strings.Both));
    begin
-      --  Phase 579 product workflow names.  These are the daily-use command
+      --  product workflow names.  These are the daily-use command
       --  ids documented for the product surface.  Removed and spelling-only
       --  variants intentionally do not resolve here.
       if N = "command-palette.show-command-help"
@@ -8966,9 +9225,15 @@ package body Editor.Commands is
       then
          Found := True;
          return Command_Close_All_Clean_Buffers;
+      elsif N = "workspace.save" then
+         Found := True;
+         return Command_Save_Workspace_State;
       elsif N = "workspace.restore" then
          Found := True;
          return Command_Restore_Workspace_State;
+      elsif N = "workspace.clear" then
+         Found := True;
+         return Command_Clear_Workspace_State;
       elsif N = "project.run" then
          Found := True;
          return Command_Run_Project;
@@ -9038,6 +9303,12 @@ package body Editor.Commands is
       elsif N = "build.output-details.select-merged" then
          Found := True;
          return Command_Build_Output_Details_Select_Merged;
+      elsif N = "build.refresh-candidates" then
+         Found := True;
+         return Command_Build_Refresh_Candidates;
+      elsif N = "build.select-first-candidate" then
+         Found := True;
+         return Command_Build_Select_First_Candidate;
       elsif N = "build.select-next-candidate" then
          Found := True;
          return Command_Build_Select_Next_Candidate;
@@ -9087,7 +9358,7 @@ package body Editor.Commands is
          Found := True;
          return Command_Diagnostics_Show;
       elsif N = "diagnostics.hide" then
-         --  Phase 557 accepts the public Problems-style dot-form hide command name
+         --  accepts the public Problems-style dot-form hide command name
          --  without adding diagnostic row/source/filter payloads.  Reuse the
          --  generic feature-panel hide route so persisted command identity and
          --  panel mutation boundaries remain unchanged.
@@ -9110,6 +9381,27 @@ package body Editor.Commands is
       elsif N = "diagnostics.open-selected" then
          Found := True;
          return Command_Diagnostics_Open_Selected;
+      elsif N = "ada.diagnostic.open-source" then
+         Found := True;
+         return Command_Diagnostic_Open_Source;
+      elsif N = "ada.diagnostic.suppress" then
+         Found := True;
+         return Command_Diagnostic_Suppress_Selected;
+      elsif N = "ada.diagnostic.show-suppressed" then
+         Found := True;
+         return Command_Diagnostic_Show_Suppressed;
+      elsif N = "ada.diagnostic.restore-suppressed" then
+         Found := True;
+         return Command_Diagnostic_Restore_Last_Suppressed;
+      elsif N = "ada.diagnostic.restore-selected-suppressed" then
+         Found := True;
+         return Command_Diagnostic_Restore_Selected_Suppressed;
+      elsif N = "ada.diagnostic.clear-suppressed" then
+         Found := True;
+         return Command_Diagnostic_Clear_Suppressed;
+      elsif N = "ada.diagnostic.apply-quick-fix" then
+         Found := True;
+         return Command_Diagnostic_Apply_Quick_Fix;
       elsif N = "diagnostics.execute-selected-action"
         or else N = "diagnostics.code-action"
       then
@@ -9441,7 +9733,7 @@ package body Editor.Commands is
         or else N = "buffer-list.show" or else N = "buffer-list.focus"
         or else N = "buffer.list.toggle" or else N = "buffer-list.toggle"
         or else N = "buffers.switcher.open" then
-         --  Phase 543 canonical open-buffer list names.  Preserve the
+         --  canonical open-buffer list names.  Preserve the
          --  historical buffers.switcher.* stable names while allowing the
          --  multi-buffer navigation command surface to use buffer.list.*.
          Found := True;
@@ -9667,6 +9959,57 @@ package body Editor.Commands is
       elsif N = "project.search.replace.clear-preview" then
          Found := True;
          return Command_Project_Search_Replace_Clear_Preview;
+      elsif N = "problems.focus" then
+         Found := True;
+         return Command_Focus_Problems;
+      elsif N = "problems.selection.previous" then
+         Found := True;
+         return Command_Problems_Move_Up;
+      elsif N = "problems.selection.next" then
+         Found := True;
+         return Command_Problems_Move_Down;
+      elsif N = "problems.page-up" then
+         Found := True;
+         return Command_Problems_Page_Up;
+      elsif N = "problems.page-down" then
+         Found := True;
+         return Command_Problems_Page_Down;
+      elsif N = "problems.open-selected" then
+         Found := True;
+         return Command_Problems_Open_Selected;
+      elsif N = "problems.filter.all" then
+         Found := True;
+         return Command_Problems_Filter_All;
+      elsif N = "problems.filter.errors" then
+         Found := True;
+         return Command_Problems_Filter_Errors;
+      elsif N = "problems.filter.warnings" then
+         Found := True;
+         return Command_Problems_Filter_Warnings;
+      elsif N = "problems.filter.info" then
+         Found := True;
+         return Command_Problems_Filter_Info;
+      elsif N = "problems.filter.hints" then
+         Found := True;
+         return Command_Problems_Filter_Hints;
+      elsif N = "problems.sort.location" then
+         Found := True;
+         return Command_Problems_Sort_By_Location;
+      elsif N = "problems.sort.severity" then
+         Found := True;
+         return Command_Problems_Sort_By_Severity;
+      elsif N = "problems.sort.source" then
+         Found := True;
+         return Command_Problems_Sort_By_Source;
+      elsif N = "problems.group.severity" then
+         Found := True;
+         return Command_Problems_Group_By_Severity;
+      elsif N = "problems.group.source" then
+         Found := True;
+         return Command_Problems_Group_By_Source;
+      elsif N = "problems.focus-editor" then
+         Found := True;
+         return Command_Problems_Focus_Editor;
       elsif N = "outline.next-symbol" then
          Found := True;
          return Command_Next_Outline_Symbol;

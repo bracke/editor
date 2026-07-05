@@ -1,6 +1,7 @@
 with Ada.Directories;
 with Ada.Strings.Fixed;
 with Ada.Strings.Unbounded; use Ada.Strings.Unbounded;
+with Editor.Commands;
 
 package body Editor.Missing_Stale_Recovery is
 
@@ -120,7 +121,7 @@ package body Editor.Missing_Stale_Recovery is
          when Target_Unreadable          => return "File is not readable.";
          when Target_Unwritable          => return "File is not writable.";
          when Target_Outside_Project     => return "Target is outside the current project.";
-         when Target_Stale               => return "Target is stale; refresh required.";
+         when Target_Stale               => return Editor.Commands.Reason_Target_Stale;
          when Target_Line_Out_Of_Range   => return "Target line is unavailable.";
          when Target_Column_Out_Of_Range => return "Target column is unavailable.";
          when Target_Source_Less         => return "Selected diagnostic has no source target.";

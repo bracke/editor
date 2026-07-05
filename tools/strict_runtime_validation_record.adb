@@ -203,20 +203,20 @@ exception
       end if;
 end Strict_Runtime_Validation_Record;
 
---  Pass946 guard: selected-name resolution foundation must remain parser-owned,
+--  Case 946 guard: selected-name resolution foundation must remain parser-owned,
 --  deterministic, snapshot-derived, and free of renderer-side parsing, file
 --  reloads, dirty-state mutation, compiler invocation, LSP integration, external
 --  parser generators, Python, and shell-script project hooks.
 
---  Pass947 guard: use-type primitive visibility foundation is covered by
+--  Case 947 guard: use-type primitive visibility foundation is covered by
 --  Editor.Ada_Use_Type_Operators and
---  Test_Ada_Use_Type_Operator_Visibility_Foundation_Pass947.  This remains
+--  Test_Ada_Use_Type_Operator_Visibility_Foundation_Case 947.  This remains
 --  snapshot-owned compiler-grade semantic metadata, not full overload/type
 --  legality.
 
---  Pass948 guard: call-candidate overload foundation is covered by
+--  Case 948 guard: call-candidate overload foundation is covered by
 --  Editor.Ada_Call_Candidates and
---  Test_Ada_Call_Candidate_Foundation_Pass948.  This remains a deterministic
+--  Test_Ada_Call_Candidate_Foundation_Case 948.  This remains a deterministic
 --  compiler-grade semantic building block before expected-type/profile
 --  filtering; it must not introduce compiler invocation, LSP, renderer-side
 --  parsing, file IO, background scans, or dirty-state mutation.

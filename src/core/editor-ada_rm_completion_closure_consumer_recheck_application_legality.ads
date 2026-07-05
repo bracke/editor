@@ -5,10 +5,10 @@ with Editor.Ada_Syntax_Tree;
 
 package Editor.Ada_RM_Completion_Closure_Consumer_Recheck_Application_Legality is
 
-   --  Pass1276 recheck application for the direct RM-completion closure
+   --  Case 1276 recheck application for the direct RM-completion closure
    --  consumer chain.
    --
-   --  This package consumes Pass1275 bounded recheck eligibility rows and
+   --  This package consumes Case 1275 bounded recheck eligibility rows and
    --  applies them back into the direct RM-completion closure consumer
    --  diagnostic/closure boundary.  A direct consumer conclusion is current
    --  only when the prerequisite recheck chain is eligible now or the row is

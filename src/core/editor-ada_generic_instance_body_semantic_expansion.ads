@@ -12,7 +12,7 @@ with Editor.Ada_Syntax_Tree;
 
 package Editor.Ada_Generic_Instance_Body_Semantic_Expansion is
 
-   --  Pass1125 compiler-grade generic-instance body expansion layer.  This
+   --  Case 1125 compiler-grade generic-instance body expansion layer.  This
    --  package projects actual/formal instantiated-body substitutions into the
    --  widened semantic legality layers used by the editor: overload legality,
    --  accessibility/lifetime, contract aspects, dataflow Global/Depends,

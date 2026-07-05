@@ -1,6 +1,6 @@
-# Phase 579 Performance and Boundedness Validation Pass1434
+# Performance and Boundedness Validation Case 1434
 
-Pass1434 is the project-scale validation gate for performance, cancellation,
+Case 1434 is the project-scale validation gate for performance, cancellation,
 budgeting, deterministic replay, stale-result rejection, and multi-buffer
 cross-unit boundedness.
 
@@ -20,5 +20,5 @@ Accepted scenarios include:
 
 Rejected states include unbounded work, ignored cancellation, stale-result
 acceptance, nondeterministic replay, unbounded index traversal, semantic
-consumer disagreement, reopened Remaining_* gaps after pass1428, stale evidence,
+consumer disagreement, reopened Remaining_* gaps after case 1428, stale evidence,
 and missing evidence.

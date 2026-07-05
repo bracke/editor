@@ -216,6 +216,72 @@ package body Editor.Command_Route_Audit is
       end if;
    end Record_Buffer_Workflow_Route;
 
+   procedure Record_Command_UI_Route
+     (Result                   : in out Route_Audit_Result;
+      Source                   : Route_Source;
+      Command                  : Editor.Commands.Command_Id;
+      Dispatch_Count           : Natural;
+      Routed_Through_Executor  : Boolean;
+      Used_Stable_Command_Name : Boolean;
+      Availability_Checked     : Boolean;
+      Carried_Payload          : Boolean)
+   is
+   begin
+      Record_Route (Result, Source, Command);
+
+      if Dispatch_Count = 0 then
+         Record_Route_Failure
+           (Result  => Result,
+            Source  => Source,
+            Kind    => Route_Bypassed_Executor,
+            Actual  => Command,
+            Message => "command-like UI route did not dispatch a command");
+      elsif Dispatch_Count > 1 then
+         Record_Route_Failure
+           (Result  => Result,
+            Source  => Source,
+            Kind    => Route_Dispatched_More_Than_Once,
+            Actual  => Command,
+            Message => "command-like UI route dispatched more than once");
+      end if;
+
+      if not Routed_Through_Executor then
+         Record_Route_Failure
+           (Result  => Result,
+            Source  => Source,
+            Kind    => Route_Bypassed_Executor,
+            Actual  => Command,
+            Message => "command-like UI route did not use Executor");
+      end if;
+
+      if not Used_Stable_Command_Name then
+         Record_Route_Failure
+           (Result  => Result,
+            Source  => Source,
+            Kind    => Route_Selected_By_Display_Label,
+            Actual  => Command,
+            Message => "command-like UI route did not use stable command identity");
+      end if;
+
+      if not Availability_Checked then
+         Record_Route_Failure
+           (Result  => Result,
+            Source  => Source,
+            Kind    => Route_Bypassed_Availability,
+            Actual  => Command,
+            Message => "command-like UI route did not observe availability");
+      end if;
+
+      if Carried_Payload then
+         Record_Route_Failure
+           (Result  => Result,
+            Source  => Source,
+            Kind    => Route_Carried_Command_Payload,
+            Actual  => Command,
+            Message => "command-like UI route carried row/path/result payload data");
+      end if;
+   end Record_Command_UI_Route;
+
 
    function Lowercase (Text : String) return String
    is

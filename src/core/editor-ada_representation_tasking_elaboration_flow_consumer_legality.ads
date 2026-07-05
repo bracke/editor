@@ -6,7 +6,7 @@ with Editor.Ada_Tasking_Elaboration_Contract_Flow_Consumer_Legality;
 
 package Editor.Ada_Representation_Tasking_Elaboration_Flow_Consumer_Legality is
 
-   --  Pass1159 compiler-grade representation/freezing consumer legality.
+   --  Case 1159 compiler-grade representation/freezing consumer legality.
    --
    --  This layer connects tasking/protected elaboration contract-flow evidence
    --  into representation/freezing exact propagation.  Representation clauses,

@@ -138,9 +138,9 @@ package body Editor.Pending_Transitions.Tests is
       Assert (To_String (First) = To_String (Second),
               "pending display text must be deterministic");
       Assert (Ada.Strings.Unbounded.Index (First, "Discard") /= 0,
-              "Phase 575: pending transition display should name explicit discard action");
+              "pending transition display should name explicit discard action");
       Assert (Ada.Strings.Unbounded.Index (First, "Close Clean") /= 0,
-              "Phase 575: pending transition display should name the retained clean-close path");
+              "pending transition display should name the retained clean-close path");
    end Test_Display_Text_Is_Deterministic;
 
    procedure Test_Target_Stores_Buffer_Metadata
@@ -242,7 +242,7 @@ package body Editor.Pending_Transitions.Tests is
               "display text must not retain the replaced target");
    end Test_Display_Text_Uses_Replaced_Target;
 
-   procedure Test_Phase573_File_Lifecycle_Display_Uses_Lifecycle_Actions
+   procedure Test_File_Lifecycle_Display_Uses_Lifecycle_Actions
      (T : in out AUnit.Test_Cases.Test_Case'Class)
    is
       pragma Unreferenced (T);
@@ -276,19 +276,70 @@ package body Editor.Pending_Transitions.Tests is
         (Editor.Pending_Transitions.Display_Text (Revert_State));
 
       Assert (Ada.Strings.Unbounded.Index (Reload_Text, "reloading buffer from disk") /= 0,
-              "Phase 573 reload prompt must name the reload operation");
+              "reload prompt must name the reload operation");
       Assert (Ada.Strings.Unbounded.Index (Reload_Text, "Retry or Cancel") /= 0,
-              "Phase 573 reload prompt must advertise only retry/cancel lifecycle choices");
+              "reload prompt must advertise only retry/cancel lifecycle choices");
       Assert (Ada.Strings.Unbounded.Index (Reload_Text, "Close Clean") = 0,
-              "Phase 573 reload prompt must not advertise clean-close as reload confirmation");
+              "reload prompt must not advertise clean-close as reload confirmation");
 
       Assert (Ada.Strings.Unbounded.Index (Revert_Text, "reverting buffer") /= 0,
-              "Phase 573 revert prompt must name the revert operation");
+              "revert prompt must name the revert operation");
       Assert (Ada.Strings.Unbounded.Index (Revert_Text, "Retry or Cancel") /= 0,
-              "Phase 573 revert prompt must advertise only retry/cancel lifecycle choices");
+              "revert prompt must advertise only retry/cancel lifecycle choices");
       Assert (Ada.Strings.Unbounded.Index (Revert_Text, "Close Clean") = 0,
-              "Phase 573 revert prompt must not advertise clean-close as revert confirmation");
-   end Test_Phase573_File_Lifecycle_Display_Uses_Lifecycle_Actions;
+              "revert prompt must not advertise clean-close as revert confirmation");
+   end Test_File_Lifecycle_Display_Uses_Lifecycle_Actions;
+
+   procedure Test_Dirty_Guarded_Lifecycle_Targets_Carry_Revalidation_Metadata
+     (T : in out AUnit.Test_Cases.Test_Case'Class)
+   is
+      pragma Unreferenced (T);
+
+      procedure Check
+        (Kind           : Editor.Pending_Transitions.Pending_Transition_Kind;
+         Path_Required  : Boolean;
+         Buffer_Required : Boolean)
+      is
+         State : Editor.Pending_Transitions.Pending_Transition_State;
+         Target : constant Editor.Pending_Transitions.Pending_Transition_Target :=
+           (Kind       => Kind,
+            Path       => To_Unbounded_String ("/tmp/lifecycle-target"),
+            Display    => To_Unbounded_String ("lifecycle-target"),
+            Buffer_Id  => 42,
+            Has_Buffer => Buffer_Required,
+            Has_Path   => Path_Required,
+            others     => <>);
+         Audit : Editor.Pending_Transitions.Pending_Transition_Boundary_Audit;
+         Found : Boolean := False;
+      begin
+         Editor.Pending_Transitions.Set_Pending (State, Target, Summary);
+         Audit := Editor.Pending_Transitions.Audit_Pending_Transition_Boundary (State);
+
+         Assert (Editor.Pending_Transitions.Target_Kind (State) = Kind,
+                 "pending lifecycle target kind must round-trip");
+         Assert (Editor.Pending_Transitions.Has_Target_Path (State) = Path_Required,
+                 "path revalidation metadata must match lifecycle target kind");
+         if Path_Required then
+            Assert (Editor.Pending_Transitions.Target_Path (State, Found) =
+                    "/tmp/lifecycle-target",
+                    "path revalidation key must round-trip");
+            Assert (Found, "path target lookup must report found");
+         end if;
+         Assert (Editor.Pending_Transitions.Has_Target_Buffer (State) = Buffer_Required,
+                 "buffer revalidation metadata must match lifecycle target kind");
+         Assert (Audit.Boundary_Safe,
+                 "dirty-guarded lifecycle target must pass boundary audit");
+      end Check;
+   begin
+      Check (Editor.Pending_Transitions.Pending_Open_Project, True, False);
+      Check (Editor.Pending_Transitions.Pending_Switch_Project, True, False);
+      Check (Editor.Pending_Transitions.Pending_Open_Recent_Project, True, False);
+      Check (Editor.Pending_Transitions.Pending_Restore_Workspace, True, False);
+      Check (Editor.Pending_Transitions.Pending_Close_Project, False, False);
+      Check (Editor.Pending_Transitions.Pending_Clear_Project, False, False);
+      Check (Editor.Pending_Transitions.Pending_Reload_Active_Buffer, True, True);
+      Check (Editor.Pending_Transitions.Pending_Revert_Active_Buffer, True, True);
+   end Test_Dirty_Guarded_Lifecycle_Targets_Carry_Revalidation_Metadata;
 
 
    overriding procedure Register_Tests
@@ -321,8 +372,11 @@ package body Editor.Pending_Transitions.Tests is
         (T, Test_Display_Text_Uses_Replaced_Target'Access,
          "display text uses replacement target");
       Register_Routine
-        (T, Test_Phase573_File_Lifecycle_Display_Uses_Lifecycle_Actions'Access,
+        (T, Test_File_Lifecycle_Display_Uses_Lifecycle_Actions'Access,
          "file lifecycle pending text uses lifecycle actions");
+      Register_Routine
+        (T, Test_Dirty_Guarded_Lifecycle_Targets_Carry_Revalidation_Metadata'Access,
+         "dirty-guarded lifecycle targets carry revalidation metadata");
    end Register_Tests;
 
 end Editor.Pending_Transitions.Tests;

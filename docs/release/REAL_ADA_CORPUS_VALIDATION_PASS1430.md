@@ -1,6 +1,6 @@
-# Phase 579 Real Ada Corpus Validation — Pass1430
+# Real Ada Corpus Validation — Case 1430
 
-Pass1430 implements project-scale item 3: real Ada corpus validation.
+Case 1430 implements project-scale item 3: real Ada corpus validation.
 
 The finite RM remediation backlog remains closed.  This pass adds a validation model for source-shaped Ada 2022 corpus rows and checks that the semantic model can distinguish:
 

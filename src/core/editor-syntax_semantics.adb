@@ -110,7 +110,7 @@ package body Editor.Syntax_Semantics is
 
    function Is_Recovered_Partial_Name (Text : String) return Boolean is
    begin
-      --  Pass891: parser recovery can expose partial selected names through
+      --  Case 891: parser recovery can expose partial selected names through
       --  metadata-only semantic paths (for example Broken. or Broken.' in a
       --  malformed allocator/qualified expression).  Such names must not seed
       --  the flat semantic-colouring map, otherwise a recovered prefix can be
@@ -492,7 +492,7 @@ package body Editor.Syntax_Semantics is
          end;
       end loop;
 
-      --  Pass761: newer parser/model metadata families are now consumed by
+      --  Case 761: newer parser/model metadata families are now consumed by
       --  semantic colouring through this parser-owned seam.  These names are
       --  still bounded map entries, not render-side parsing and not legality
       --  conclusions.  Metadata-only constructs are classified conservatively:

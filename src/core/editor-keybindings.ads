@@ -107,7 +107,7 @@ package Editor.Keybindings is
    function Can_Register_Default_Keybinding
      (Chord : Key_Chord) return Boolean;
 
-   --  Register Phase 131 outline defaults without overwriting any existing
+   --  Register outline defaults without overwriting any existing
    --  chord. Conflicts are counted deterministically in candidate order;
    --  command-palette availability is independent of these optional keys.
    function Register_Outline_Keybindings

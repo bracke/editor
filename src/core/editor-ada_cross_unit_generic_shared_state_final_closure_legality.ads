@@ -11,7 +11,7 @@ with Editor.Ada_Tasking_Generic_Shared_State_Final_Legality;
 
 package Editor.Ada_Cross_Unit_Generic_Shared_State_Final_Closure_Legality is
 
-   --  Pass1231 cross-unit generic/shared-state final closure legality.
+   --  Case 1231 cross-unit generic/shared-state final closure legality.
    --
    --  This package closes the dependency boundary for the generic/shared-state
    --  final chain.  It requires cross-unit shared-state closure, generic

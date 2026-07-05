@@ -17,7 +17,7 @@ package Editor.Build_Command_Audit is
       Working_Context_Requires_Valid_Source : Boolean := False;
       Working_Context_Rejects_Raw_Text : Boolean := False;
       Working_Context_Rejects_Shell_Derived : Boolean := False;
-      Working_Context_Rejects_Project_Metadata_Derived : Boolean := False;
+      Working_Context_Rejects_Implicit_Derived : Boolean := False;
       Working_Context_Consent_Bound : Boolean := False;
       Command_Palette_Cannot_Supply_Working_Context : Boolean := False;
       Keybindings_Cannot_Supply_Working_Context : Boolean := False;

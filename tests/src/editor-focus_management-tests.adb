@@ -2083,184 +2083,184 @@ package body Editor.Focus_Management.Tests is
    begin
       Register_Routine
         (T, Test_Default_Editor_Owns_Focus'Access,
-         "Phase 562 default editor focus owner is explicit");
+         "default editor focus owner is explicit");
       Register_Routine
         (T, Test_Overlay_Beats_Editor'Access,
-         "Phase 562 overlay input owns text above editor");
+         "overlay input owns text above editor");
       Register_Routine
         (T, Test_Panel_Arrows_Beat_Caret'Access,
-         "Phase 562 panel navigation owns arrows above caret");
+         "panel navigation owns arrows above caret");
       Register_Routine
         (T, Test_Feature_Panel_Maps_To_Outline'Access,
-         "Phase 562 feature panel maps focused surface");
+         "feature panel maps focused surface");
       Register_Routine
         (T, Test_Pending_Confirmation_Is_Modal'Access,
-         "Phase 562 pending confirmation owns modal focus");
+         "pending confirmation owns modal focus");
       Register_Routine
         (T, Test_Pending_Confirmation_Blocks_File_Save_Mutations'Access,
-         "Phase 562 pending confirmation blocks file save mutations");
+         "pending confirmation blocks file save mutations");
       Register_Routine
         (T, Test_Project_Search_Replace_Field_Owns_Text'Access,
-         "Phase 562 project replace input owns text focus");
+         "project replace input owns text focus");
       Register_Routine
         (T, Test_Focus_Priority_Rank_Is_Modal_First'Access,
-         "Phase 562 focus priority rank is explicit");
+         "focus priority rank is explicit");
       Register_Routine
         (T, Test_Set_Focus_Owner_Routes_To_Structural_Surface'Access,
-         "Phase 562 set focus owner routes to structural surfaces");
+         "set focus owner routes to structural surfaces");
       Register_Routine
         (T, Test_Set_Focus_Owner_Clears_Overlay_Text_Focus'Access,
-         "Phase 562 explicit focus clears stale overlay text ownership");
+         "explicit focus clears stale overlay text ownership");
       Register_Routine
         (T, Test_Build_UI_Focus_Uses_Build_Surface_State'Access,
-         "Phase 562 Build UI focus uses retained Build surface state");
+         "Build UI focus uses retained Build surface state");
       Register_Routine
         (T, Test_Build_Output_Details_Focus_Uses_Output_Surface_State'Access,
-         "Phase 562 Build output focus uses retained output details state");
+         "Build output focus uses retained output details state");
       Register_Routine
         (T, Test_Activation_Escape_And_Persistence_Policies_Are_Explicit'Access,
-         "Phase 562 activation escape and persistence policies are explicit");
+         "activation escape and persistence policies are explicit");
       Register_Routine
         (T, Test_Build_Result_Summary_Focus_Uses_Transient_State'Access,
-         "Phase 562 Build result summary focus uses transient state");
+         "Build result summary focus uses transient state");
       Register_Routine
         (T, Test_Recent_Projects_Focus_Uses_Transient_State'Access,
-         "Phase 562 Recent Projects focus uses transient state");
+         "Recent Projects focus uses transient state");
       Register_Routine
         (T, Test_Status_Projection_Labels_Are_Explicit'Access,
-         "Phase 562 status projection labels active panel and input mode");
+         "status projection labels active panel and input mode");
       Register_Routine
         (T, Test_Buffer_List_Overlay_Owns_Text'Access,
-         "Phase 562 Buffer List overlay owns text input");
+         "Buffer List overlay owns text input");
       Register_Routine
         (T, Test_Command_Eligibility_Is_Focus_Local'Access,
-         "Phase 562 command eligibility is focus-local");
+         "command eligibility is focus-local");
       Register_Routine
         (T, Test_Surface_Command_Families_Are_Focus_Local'Access,
-         "Phase 562 surface command families are focus-local");
+         "surface command families are focus-local");
       Register_Routine
         (T, Test_Build_And_Output_Focus_Block_Stale_Editor_Or_Row_Input'Access,
-         "Phase 562 build/output focus blocks stale editor or row input");
+         "build/output focus blocks stale editor or row input");
       Register_Routine
         (T, Test_Prompt_Focus_Blocks_Stale_Surface_Activation'Access,
-         "Phase 562 prompt focus blocks stale surface activation");
+         "prompt focus blocks stale surface activation");
       Register_Routine
         (T, Test_Surface_Entry_Command_Targets_Are_Auditable'Access,
-         "Phase 562 surface-entry commands expose focus targets");
+         "surface-entry commands expose focus targets");
       Register_Routine
         (T, Test_Workspace_Prompt_Allows_Only_Prompt_Local_Commands'Access,
-         "Phase 562 workspace prompt focus allows only prompt-local commands");
+         "workspace prompt focus allows only prompt-local commands");
       Register_Routine
         (T, Test_Escape_Overlay_Close_Policy_Is_Explicit'Access,
-         "Phase 562 Escape overlay close policy is explicit");
+         "Escape overlay close policy is explicit");
       Register_Routine
         (T, Test_Command_Level_Focus_Return_Policy_Is_Auditable'Access,
-         "Phase 562 command-level activation focus-return policy is explicit");
+         "command-level activation focus-return policy is explicit");
       Register_Routine
         (T, Test_Command_Level_Dismissal_And_Navigation_Policy_Is_Auditable'Access,
-         "Phase 562 command-level dismissal and navigation policies are explicit");
+         "command-level dismissal and navigation policies are explicit");
       Register_Routine
         (T, Test_Restore_Previous_Focus_Or_Editor_Uses_Overlay_History'Access,
-         "Phase 562 overlay dismissal restores previous focus or editor fallback");
+         "overlay dismissal restores previous focus or editor fallback");
       Register_Routine
         (T, Test_Apply_Command_Focus_Result_Makes_Return_Policy_Active'Access,
-         "Phase 562 command results actively apply focus-return policy");
+         "command results actively apply focus-return policy");
       Register_Routine
         (T, Test_Apply_Command_Focus_Result_Restores_Previous_On_Dismissal'Access,
-         "Phase 562 command results actively restore previous focus on dismissal");
+         "command results actively restore previous focus on dismissal");
       Register_Routine
         (T, Test_Surface_Entry_Result_Focus_Is_Active_But_Toggles_Are_Not'Access,
-         "Phase 562 surface-entry command results actively focus deterministic surfaces");
+         "surface-entry command results actively focus deterministic surfaces");
       Register_Routine
         (T, Test_Surface_Entry_Targets_Cover_Toggle_And_Bottom_Panel_Commands'Access,
-         "Phase 562 surface-entry targets cover toggle and bottom-panel commands");
+         "surface-entry targets cover toggle and bottom-panel commands");
       Register_Routine
         (T, Test_Cancel_Focus_Result_Uses_Pre_Command_Owner'Access,
-         "Phase 562 cancel focus results use pre-command focus owner");
+         "cancel focus results use pre-command focus owner");
       Register_Routine
         (T, Test_Close_Command_Matches_Owning_Surface'Access,
-         "Phase 562 close commands match the owning focused surface");
+         "close commands match the owning focused surface");
       Register_Routine
         (T, Test_Toggle_Close_Policy_Is_Owner_Scoped'Access,
-         "Phase 562 toggle-close policy is scoped to the pre-command focus owner");
+         "toggle-close policy is scoped to the pre-command focus owner");
       Register_Routine
         (T, Test_Overlay_Focus_Blocks_Cross_Surface_Entry'Access,
-         "Phase 562 overlay focus blocks cross-surface entry commands");
+         "overlay focus blocks cross-surface entry commands");
       Register_Routine
         (T, Test_Pending_Confirmation_Allows_Only_Modal_And_Status_Commands'Access,
-         "Phase 562 pending confirmation allows only modal and status commands");
+         "pending confirmation allows only modal and status commands");
       Register_Routine
         (T, Test_Prompt_Accept_And_Local_Dismissal_Return_Focus'Access,
-         "Phase 562 prompt accept/dismiss applies focus result policy");
+         "prompt accept/dismiss applies focus result policy");
       Register_Routine
         (T, Test_Local_Navigation_Command_Ids_Are_Focus_Routed'Access,
-         "Phase 562 local navigation command ids are focus-routed");
+         "local navigation command ids are focus-routed");
       Register_Routine
         (T, Test_Feature_Panel_Local_Navigation_Is_Focus_Routed'Access,
-         "Phase 562 Feature Panel local navigation is focus-routed");
+         "Feature Panel local navigation is focus-routed");
       Register_Routine
         (T, Test_Project_Search_Bar_Enter_Command_Is_Focus_Local'Access,
-         "Phase 562 Project Search bar Enter routes through canonical command focus policy");
+         "Project Search bar Enter routes through canonical command focus policy");
       Register_Routine
         (T, Test_Project_Search_Bar_Local_Options_Are_Focus_Routed'Access,
-         "Phase 562 Project Search bar local options route through canonical focus policy");
+         "Project Search bar local options route through canonical focus policy");
       Register_Routine
         (T, Test_Quick_Open_Local_Options_Are_Focus_Routed'Access,
-         "Phase 562 Quick Open local options route through canonical focus policy");
+         "Quick Open local options route through canonical focus policy");
       Register_Routine
         (T, Test_Workspace_Prompt_Surface_Entry_Targets_Are_Auditable'Access,
-         "Phase 562 workspace prompt surface-entry commands are focus-targeted and overlay-gated");
+         "workspace prompt surface-entry commands are focus-targeted and overlay-gated");
       Register_Routine
         (T, Test_Prompt_Surface_Focus_Result_Preserves_Executor_Overlay'Access,
-         "Phase 562 prompt post-command focus preserves executor overlay identity");
+         "prompt post-command focus preserves executor overlay identity");
       Register_Routine
         (T, Test_Competing_Focus_Owner_Markers_Are_Rejected'Access,
-         "Phase 562 coherence rejects competing transient focus-owner markers");
+         "coherence rejects competing transient focus-owner markers");
       Register_Routine
         (T, Test_Diagnostics_Setting_Toggle_Does_Not_Hijack_Focus'Access,
-         "Phase 562 diagnostics settings toggle does not hijack panel focus");
+         "diagnostics settings toggle does not hijack panel focus");
       Register_Routine
         (T, Test_Status_Message_Commands_Remain_Safe_Under_Modal_And_Overlay_Focus'Access,
-         "Phase 562 modal and overlay focus allow safe status/message commands only");
+         "modal and overlay focus allow safe status/message commands only");
       Register_Routine
         (T, Test_Embedded_Text_Inputs_Outrank_Panels'Access,
-         "Phase 562 embedded feature search input outranks retained panel focus");
+         "embedded feature search input outranks retained panel focus");
       Register_Routine
         (T, Test_Outline_Filter_Input_Outranks_Retained_Panel_Focus'Access,
-         "Phase 562 outline filter input outranks retained panel focus");
+         "outline filter input outranks retained panel focus");
       Register_Routine
         (T, Test_Feature_Search_Input_Retains_Parent_Search_Focus'Access,
-         "Phase 562 embedded search input returns to parent Search Results focus");
+         "embedded search input returns to parent Search Results focus");
       Register_Routine
         (T, Test_Embedded_Search_Input_Without_Parent_Is_Incoherent'Access,
-         "Phase 562 embedded search input requires its parent panel focus");
+         "embedded search input requires its parent panel focus");
       Register_Routine
         (T, Test_Outline_Filter_Retains_Parent_Outline_Focus'Access,
-         "Phase 562 outline filter returns to parent Outline focus");
+         "outline filter returns to parent Outline focus");
       Register_Routine
         (T, Test_Embedded_Search_Query_Rejects_Project_Search_Bar_Commands'Access,
-         "Phase 562 embedded search query rejects Project Search Bar commands");
+         "embedded search query rejects Project Search Bar commands");
       Register_Routine
         (T, Test_Project_Search_Bar_Query_Keeps_Project_Search_Command_Family'Access,
-         "Phase 562 Project Search Bar query keeps its own command family");
+         "Project Search Bar query keeps its own command family");
       Register_Routine
         (T, Test_Clear_Transient_Focus_Allows_Feature_Panel_To_Take_Focus'Access,
-         "Phase 562 pointer focus clears stale transient owners before Feature Panel focus");
+         "pointer focus clears stale transient owners before Feature Panel focus");
       Register_Routine
         (T, Test_Build_UI_Actions_Use_Unified_Focus_Path'Access,
-         "Phase 562 Build UI public focus action uses unified focus owner path");
+         "Build UI public focus action uses unified focus owner path");
       Register_Routine
         (T, Test_Build_UI_Hide_Clears_Build_Focus_Family'Access,
-         "Phase 562 Build UI hide clears build focus family");
+         "Build UI hide clears build focus family");
       Register_Routine
         (T, Test_Executor_Feature_Focus_Clears_Stale_Transient_Owners'Access,
-         "Phase 562 executor feature-panel focus clears stale transient owners");
+         "executor feature-panel focus clears stale transient owners");
       Register_Routine
         (T, Test_Overlay_Dismissal_Clears_Stale_Transient_Owners'Access,
-         "Phase 562 overlay dismissal clears stale transient owners before restoring focus");
+         "overlay dismissal clears stale transient owners before restoring focus");
       Register_Routine
         (T, Test_Overlay_Activation_Clears_Lower_Priority_Focus_Owners'Access,
-         "Phase 562 overlay activation clears lower-priority transient focus owners");
+         "overlay activation clears lower-priority transient focus owners");
    end Register_Tests;
 
 end Editor.Focus_Management.Tests;

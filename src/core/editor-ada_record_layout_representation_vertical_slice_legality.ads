@@ -4,7 +4,7 @@ with Editor.Ada_Syntax_Tree;
 
 package Editor.Ada_Record_Layout_Representation_Vertical_Slice_Legality is
 
-   --  Pass1322 vertical-slice record representation/layout legality.
+   --  Case 1322 vertical-slice record representation/layout legality.
    --  This package models concrete record representation clauses, component
    --  clauses, bit ranges, storage order, alignment, discriminant/variant
    --  layout dependencies, and controlled/finalized component constraints.  It

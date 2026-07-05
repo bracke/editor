@@ -1,10 +1,10 @@
-# Phase 579 Final Dead-Code Sweep — Pass1445
+# Final Dead-Code Sweep — Case 1445
 
-Pass1445 completes project-scale cleanup item 6: final dead-code sweep.
+Case 1445 completes project-scale cleanup item 6: final dead-code sweep.
 
 ## Removed orphan tests
 
-The sweep removes off-suite legacy tests that were already pruned from Core_Suite and no longer define production or required regression coverage. The removed coverage belonged to the old repair-gated diagnostic integration, final semantic remediation worklist, and remaining-RM-edge stabilized search-index test packages.
+The sweep removes off-suite legacy tests that were already pruned from active suite and no longer define production or required regression coverage. The removed coverage belonged to the old repair-gated diagnostic integration, final semantic remediation worklist, and remaining-RM-edge stabilized search-index test packages.
 
 ## Retained regression dependencies
 
@@ -15,17 +15,17 @@ The sweep intentionally does not delete legacy source units that are still refer
 
 ## Canonical production surface
 
-Canonical production APIs remain governed by the pass1442 canonical API consolidation and the pass1444 architecture map. `Editor.Ada_Language_Model` remains a production-owned semantic model surface.
+Canonical production APIs remain governed by the case 1442 canonical API consolidation and the case 1444 architecture map. `Editor.Ada_Language_Model` remains a production-owned semantic model surface.
 
 ## Gates
 
 The pass rejects:
 
-- removing a test that is still registered in Core_Suite;
+- removing a test that is still registered in active suite;
 - active references to already removed surfaces;
 - removal without before/after evidence;
 - unowned legacy source retained without active dependents;
-- reopened `Remaining_*` gaps after pass1428;
+- reopened `Remaining_*` gaps after case 1428;
 - stale source/test/suite/cleanup fingerprints.
 
 ## Churn boundary

@@ -10,7 +10,7 @@ with Editor.Ada_Syntax_Tree;
 
 package Editor.Ada_Predicate_Invariant_Use_Site_Legality is
 
-   --  Pass1124 compiler-grade semantic building block.  This package turns
+   --  Case 1124 compiler-grade semantic building block.  This package turns
    --  predicate/invariant metadata into use-site legality instead of leaving
    --  predicates as parallel staticness facts.  Callers provide snapshot-owned
    --  use-site facts for assignments, returns, conversions, aggregates, calls,

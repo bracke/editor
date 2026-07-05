@@ -5,9 +5,9 @@ with Editor.Ada_Syntax_Tree;
 
 package Editor.Ada_RM_Completion_Closure_Consumer_Stabilization_Gate_Legality is
 
-   --  Pass1279 stabilization gate for direct RM-completion closure consumers.
+   --  Case 1279 stabilization gate for direct RM-completion closure consumers.
    --
-   --  This package consumes Pass1278 convergence rows and decides whether
+   --  This package consumes Case 1278 convergence rows and decides whether
    --  direct RM-completion closure consumer evidence may cross the stable
    --  closure/feed boundary.  Stable current and stable not-required rows are
    --  promoted as semantic evidence; stable withheld rows retain their exact

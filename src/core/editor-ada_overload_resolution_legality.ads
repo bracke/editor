@@ -7,7 +7,7 @@ with Editor.Ada_Wide_Semantic_Legality_Diagnostics;
 
 package Editor.Ada_Overload_Resolution_Legality is
 
-   --  Pass1109 compiler-grade overload/operator resolution legality layer.
+   --  Case 1109 compiler-grade overload/operator resolution legality layer.
    --  This package consumes the overload-ranking model plus the widened
    --  semantic-legality diagnostic bridge and classifies whether callable and
    --  operator choices are legally selected, rejected by Ada overload rules,

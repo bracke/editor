@@ -398,6 +398,16 @@ package Editor.Commands is
       Command_Problems_Page_Up,
       Command_Problems_Page_Down,
       Command_Problems_Open_Selected,
+      Command_Problems_Filter_All,
+      Command_Problems_Filter_Errors,
+      Command_Problems_Filter_Warnings,
+      Command_Problems_Filter_Info,
+      Command_Problems_Filter_Hints,
+      Command_Problems_Sort_By_Location,
+      Command_Problems_Sort_By_Severity,
+      Command_Problems_Sort_By_Source,
+      Command_Problems_Group_By_Severity,
+      Command_Problems_Group_By_Source,
       Command_Problems_Focus_Editor,
       Command_Focus_File_Tree,
       Command_File_Tree_Move_Up,
@@ -526,6 +536,13 @@ package Editor.Commands is
       Command_Diagnostics_Filter_Build,
       Command_Diagnostics_Clear_Build,
       Command_Diagnostics_Open_Selected,
+      Command_Diagnostic_Open_Source,
+      Command_Diagnostic_Suppress_Selected,
+      Command_Diagnostic_Show_Suppressed,
+      Command_Diagnostic_Restore_Last_Suppressed,
+      Command_Diagnostic_Restore_Selected_Suppressed,
+      Command_Diagnostic_Clear_Suppressed,
+      Command_Diagnostic_Apply_Quick_Fix,
       Command_Diagnostics_Execute_Selected_Action,
       Command_Diagnostics_Select_Next,
       Command_Diagnostics_Select_Previous,
@@ -561,6 +578,8 @@ package Editor.Commands is
       Command_Build_Output_Details_Select_Stdout,
       Command_Build_Output_Details_Select_Stderr,
       Command_Build_Output_Details_Select_Merged,
+      Command_Build_Refresh_Candidates,
+      Command_Build_Select_First_Candidate,
       Command_Build_Select_Next_Candidate,
       Command_Build_Select_Previous_Candidate,
       Command_Build_Clear_Selected_Candidate,
@@ -610,6 +629,37 @@ package Editor.Commands is
       Status : Command_Availability_Status := Command_Available;
       Reason : Unbounded_String := Null_Unbounded_String;
    end record;
+
+   Reason_Target_Stale : constant String :=
+     "Target is stale; refresh required.";
+   Reason_Target_Missing : constant String :=
+     "Target no longer exists.";
+   Reason_Close_Review_Stale : constant String :=
+     "Close review is stale";
+   Reason_Project_Search_Result_Stale : constant String :=
+     "Search result is stale; run Project Search again.";
+   Reason_Search_Result_Stale_Rerun : constant String :=
+     "Search result is stale; rerun search.";
+   Reason_Replacement_Preview_Stale : constant String :=
+     "Replacement preview is stale";
+   Reason_Replacement_Preview_Stale_Rerun : constant String :=
+     "Replacement preview is stale; rerun search.";
+   Reason_Selected_Replacement_Stale : constant String :=
+     "Selected replacement is stale";
+   Reason_Diagnostic_Edit_Stale_Target : constant String :=
+     "Diagnostic edit unavailable: stale edit target";
+   Reason_File_Tree_Item_Stale : constant String :=
+     "File Tree item is stale.";
+   Reason_Target_Line_Unavailable : constant String :=
+     "Target line is unavailable.";
+   Reason_Diagnostic_Target_Line_Unavailable : constant String :=
+     "Diagnostic target line is unavailable.";
+   Reason_Diagnostic_Target_Line_Outside_Buffer : constant String :=
+     "Diagnostic target line is outside the buffer";
+   Reason_Diagnostic_Target_Column_Unavailable : constant String :=
+     "Diagnostic target column is unavailable.";
+   Reason_Diagnostic_Target_Column_Outside_Line : constant String :=
+     "Diagnostic target column is outside the line";
 
    type Command_Family_Id is
      (No_Command_Family,
@@ -793,14 +843,14 @@ package Editor.Commands is
 
    function File_Lifecycle_Target_Prompt_Metadata_Minimal return Boolean;
 
-   --  Phase 475 cleanup guard: verifies that the retained explicit-target
+   --  cleanup guard: verifies that the retained explicit-target
    --  prompt metadata remains minimal and canonical, and that descriptor
    --  projection/accessors agree without introducing prompt-reference prose,
    --  command-name caches, settings, or persistence-adjacent metadata.
    function File_Lifecycle_Target_Prompt_Metadata_Canonical_And_Minimal
      return Boolean;
 
-   --  Phase 476 final freeze guard: verifies the exact descriptor-owned
+   --  final freeze guard: verifies the exact descriptor-owned
    --  explicit-target prompt mapping, prompted-name absence, and minimal
    --  metadata boundary after cleanup and de-duplication.
    function File_Lifecycle_Target_Prompt_Metadata_Frozen return Boolean;
@@ -895,8 +945,7 @@ package Editor.Commands is
    function Guard_Label
      (Id : Command_Id) return String;
 
-   --  Return True when a concrete command has the discovery metadata Phase 564
-   --  requires for search/help projection. This is descriptor-only: it never
+   --  Return True when a concrete command has the discovery metadata    --  requires for search/help projection. This is descriptor-only: it never
    --  consults editor state, keybindings, availability, render state, files, or
    --  the executor.
    function Has_Discoverability_Metadata
@@ -1049,7 +1098,7 @@ package Editor.Commands is
    function Is_Internal_Command
      (Id : Command_Id) return Boolean;
 
-   --  Return True when descriptor metadata satisfies the Phase 87 audit policy.
+   --  Return True when descriptor metadata satisfies the audit policy.
    --  This helper is descriptor-only: it never consults editor state,
    --  availability, keybindings, or executor routing.
    --  @param Id Command identifier.
@@ -1579,6 +1628,16 @@ package Editor.Commands is
       Problems_Page_Up,
       Problems_Page_Down,
       Problems_Open_Selected,
+      Problems_Filter_All,
+      Problems_Filter_Errors,
+      Problems_Filter_Warnings,
+      Problems_Filter_Info,
+      Problems_Filter_Hints,
+      Problems_Sort_By_Location,
+      Problems_Sort_By_Severity,
+      Problems_Sort_By_Source,
+      Problems_Group_By_Severity,
+      Problems_Group_By_Source,
       Problems_Focus_Editor,
       Focus_File_Tree,
       File_Tree_Move_Up,
@@ -1657,6 +1716,8 @@ package Editor.Commands is
       Build_Output_Details_Select_Stdout,
       Build_Output_Details_Select_Stderr,
       Build_Output_Details_Select_Merged,
+      Build_Refresh_Candidates,
+      Build_Select_First_Candidate,
       Build_Select_Next_Candidate,
       Build_Select_Previous_Candidate,
       Build_Clear_Selected_Candidate,
@@ -1741,6 +1802,13 @@ package Editor.Commands is
       Diagnostics_Filter_Build,
       Diagnostics_Clear_Build,
       Diagnostics_Open_Selected,
+      Diagnostic_Open_Source,
+      Diagnostic_Suppress_Selected,
+      Diagnostic_Show_Suppressed,
+      Diagnostic_Restore_Last_Suppressed,
+      Diagnostic_Restore_Selected_Suppressed,
+      Diagnostic_Clear_Suppressed,
+      Diagnostic_Apply_Quick_Fix,
       Diagnostics_Execute_Selected_Action,
       Diagnostics_Select_Next,
       Diagnostics_Select_Previous,

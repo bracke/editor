@@ -6,7 +6,7 @@ package body Editor.Feature_Panel is
    type Feature_Descriptor_Table is array (Positive range <>) of Feature_Descriptor;
 
    --  Single source of truth for registered feature-panel-backed features.
-   --  Keep this table explicit and small; Phase 158 freezes the four-feature
+   --  Keep this table explicit and small; freezes the four-feature
    --  built-in descriptor set, not a dynamic plugin registry.
    Feature_Descriptors : constant Feature_Descriptor_Table :=
      (1 =>

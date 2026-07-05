@@ -211,13 +211,13 @@ package body Test_Ada_Call_And_Operator_Overload_Resolution_Legality is
    begin
       Register_Routine
         (T, Resolves_Concrete_Call_And_Operator_Cases'Access,
-         "Pass1297 resolves concrete call/operator overload vertical slices");
+         "Case 1297 resolves concrete call/operator overload vertical slices");
       Register_Routine
         (T, Reports_No_Visible_Arity_Type_And_View_Blockers'Access,
-         "Pass1297 reports no-visible, arity, type, view, and cross-unit blockers");
+         "Case 1297 reports no-visible, arity, type, view, and cross-unit blockers");
       Register_Routine
         (T, Empty_Inputs_Are_Deterministic'Access,
-         "Pass1297 keeps empty overload vertical-slice inputs deterministic");
+         "Case 1297 keeps empty overload vertical-slice inputs deterministic");
    end Register_Tests;
 
 end Test_Ada_Call_And_Operator_Overload_Resolution_Legality;

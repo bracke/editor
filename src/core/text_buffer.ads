@@ -3,7 +3,7 @@ with Text_Backend.Rope_Impl;
 
 --  Public text storage facade.
 --
---  Phase 24 keeps the editor-facing indexing conventions stable while moving
+--  keeps the editor-facing indexing conventions stable while moving
 --  storage to UTF-8 text with Unicode scalar/code-point public indexing:
 --
 --  * Cursor/edit positions are zero-based scalar insertion points in

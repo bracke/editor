@@ -5,10 +5,10 @@ with Editor.Ada_Syntax_Tree;
 
 package Editor.Ada_RM_Completion_Closure_Consumer_Stabilized_Diagnostic_Provenance is
 
-   --  Pass1282 provenance for stabilized direct RM-completion closure-consumer
+   --  Case 1282 provenance for stabilized direct RM-completion closure-consumer
    --  diagnostics.
    --
-   --  This package links Pass1281 diagnostic rows back through the stabilized
+   --  This package links Case 1281 diagnostic rows back through the stabilized
    --  closure, stabilization gate, convergence, recheck application,
    --  eligibility, remediation worklist, and original direct-consumer diagnostic
    --  row.  It preserves blocker-family identity so cross-unit, elaboration,

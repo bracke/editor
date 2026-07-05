@@ -886,7 +886,7 @@ package body Editor.Gutter_Markers.Tests is
    end Test_Clear_Bookmarks_Preserves_Other_Markers;
 
 
-   procedure Test_Phase_64_Diff_Style_Marker_Priority
+   procedure Test_Diff_Style_Marker_Priority
      (T : in out AUnit.Test_Cases.Test_Case'Class)
    is
       pragma Unreferenced (T);
@@ -941,9 +941,9 @@ package body Editor.Gutter_Markers.Tests is
       Kind := Dominant_Marker_For_Row (State, 1, Found);
       Assert (Found and then Kind = Added_Line_Marker,
               "added vs modified tie must resolve deterministically to added");
-   end Test_Phase_64_Diff_Style_Marker_Priority;
+   end Test_Diff_Style_Marker_Priority;
 
-   procedure Test_Phase_64_Added_And_Modified_Render_Differently
+   procedure Test_Added_And_Modified_Render_Differently
      (T : in out AUnit.Test_Cases.Test_Case'Class)
    is
       pragma Unreferenced (T);
@@ -993,9 +993,9 @@ package body Editor.Gutter_Markers.Tests is
 
       Assert (Float (Added_H) > Float (Modified_H),
               "added marker should be full-height while modified marker is shorter");
-   end Test_Phase_64_Added_And_Modified_Render_Differently;
+   end Test_Added_And_Modified_Render_Differently;
 
-   procedure Test_Phase_64_Render_Uses_Diff_Theme_Colours
+   procedure Test_Render_Uses_Diff_Theme_Colours
      (T : in out AUnit.Test_Cases.Test_Case'Class)
    is
       pragma Unreferenced (T);
@@ -1026,9 +1026,9 @@ package body Editor.Gutter_Markers.Tests is
            (Modified_Packet, Editor.Render_Layers.Gutter_Marker_Layer,
             Editor.Theme.Gutter_Modified_Line),
          "modified-line marker must use the modified-line theme colour path");
-   end Test_Phase_64_Render_Uses_Diff_Theme_Colours;
+   end Test_Render_Uses_Diff_Theme_Colours;
 
-   procedure Test_Phase_64_Render_Dominance_Hides_Dirty_Visual
+   procedure Test_Render_Dominance_Hides_Dirty_Visual
      (T : in out AUnit.Test_Cases.Test_Case'Class)
    is
       pragma Unreferenced (T);
@@ -1061,7 +1061,7 @@ package body Editor.Gutter_Markers.Tests is
            (Bookmark_Packet, Editor.Render_Layers.Gutter_Marker_Layer,
             Editor.Theme.Gutter_Bookmark),
          "bookmark visual must dominate a modified-line dirty visual on the same row");
-   end Test_Phase_64_Render_Dominance_Hides_Dirty_Visual;
+   end Test_Render_Dominance_Hides_Dirty_Visual;
 
    procedure Test_Diff_Dirty_Markers_Derived_From_Dirty_State
      (T : in out AUnit.Test_Cases.Test_Case'Class)
@@ -1200,10 +1200,10 @@ package body Editor.Gutter_Markers.Tests is
          "Bookmark Toggle Adds And Removes");
       AUnit.Test_Cases.Registration.Register_Routine
         (T, Test_Bookmark_Count_And_Order_Helpers'Access,
-         "Phase 62 bookmark count and ordered lookup helpers");
+         "bookmark count and ordered lookup helpers");
       AUnit.Test_Cases.Registration.Register_Routine
         (T, Test_Clear_Bookmarks_Preserves_Other_Markers'Access,
-         "Phase 62 clear bookmarks preserves other markers");
+         "clear bookmarks preserves other markers");
       AUnit.Test_Cases.Registration.Register_Routine
         (T, Test_Diagnostic_Warning_Dominates_Bookmark_And_Dirty'Access,
          "Diagnostic Warning Dominates Bookmark And Dirty");
@@ -1226,32 +1226,32 @@ package body Editor.Gutter_Markers.Tests is
         (T, Test_Hidden_Folded_Row_Marker_Is_Not_Emitted'Access,
          "Hidden Folded Row Marker Not Emitted");
       AUnit.Test_Cases.Registration.Register_Routine
-        (T, Test_Phase_64_Diff_Style_Marker_Priority'Access,
-         "Phase 64 diff-style dirty marker priority");
+        (T, Test_Diff_Style_Marker_Priority'Access,
+         "diff-style dirty marker priority");
       AUnit.Test_Cases.Registration.Register_Routine
-        (T, Test_Phase_64_Added_And_Modified_Render_Differently'Access,
-         "Phase 64 added and modified markers render differently");
+        (T, Test_Added_And_Modified_Render_Differently'Access,
+         "added and modified markers render differently");
       AUnit.Test_Cases.Registration.Register_Routine
-        (T, Test_Phase_64_Render_Uses_Diff_Theme_Colours'Access,
-         "Phase 64 added and modified markers use theme colours");
+        (T, Test_Render_Uses_Diff_Theme_Colours'Access,
+         "added and modified markers use theme colours");
       AUnit.Test_Cases.Registration.Register_Routine
-        (T, Test_Phase_64_Render_Dominance_Hides_Dirty_Visual'Access,
-         "Phase 64 dominant marker hides dirty visual");
+        (T, Test_Render_Dominance_Hides_Dirty_Visual'Access,
+         "dominant marker hides dirty visual");
       AUnit.Test_Cases.Registration.Register_Routine
         (T, Test_Diff_Dirty_Markers_Derived_From_Dirty_State'Access,
-         "Phase 64 modified-line marker derived from dirty state");
+         "modified-line marker derived from dirty state");
       AUnit.Test_Cases.Registration.Register_Routine
         (T, Test_Added_Line_Marker_Derived_From_Dirty_State'Access,
-         "Phase 64 added-line marker derived from dirty state");
+         "added-line marker derived from dirty state");
       AUnit.Test_Cases.Registration.Register_Routine
         (T, Test_Dirty_Line_Derivation_Skips_Hidden_Folded_Row'Access,
-         "Phase 63 dirty-line derivation skips hidden folded row");
+         "dirty-line derivation skips hidden folded row");
       AUnit.Test_Cases.Registration.Register_Routine
         (T, Test_Derived_Dirty_Line_Below_Bookmark_In_Snapshot'Access,
-         "Phase 63 derived dirty marker remains below bookmark");
+         "derived dirty marker remains below bookmark");
       AUnit.Test_Cases.Registration.Register_Routine
         (T, Test_Reset_Baseline_Removes_Derived_Dirty_Marker'Access,
-         "Phase 63 reset baseline removes derived dirty marker");
+         "reset baseline removes derived dirty marker");
       AUnit.Test_Cases.Registration.Register_Routine
         (T, Test_Marker_Presence_Does_Not_Move_Line_Number_Glyphs'Access,
          "Marker Presence Does Not Move Line Number Glyphs");
@@ -1281,10 +1281,10 @@ package body Editor.Gutter_Markers.Tests is
          "Dirty Marker Click Does Not Move Caret Or Select");
       AUnit.Test_Cases.Registration.Register_Routine
         (T, Test_Derived_Modified_Marker_Click_Is_No_Op'Access,
-         "Phase 64 derived modified marker click is no-op");
+         "derived modified marker click is no-op");
       AUnit.Test_Cases.Registration.Register_Routine
         (T, Test_Derived_Added_Marker_Click_Is_No_Op'Access,
-         "Phase 64 derived added marker click is no-op");
+         "derived added marker click is no-op");
       AUnit.Test_Cases.Registration.Register_Routine
         (T, Test_Hover_Does_Not_Move_Line_Number_Glyphs'Access,
          "Hover Does Not Move Line Number Glyphs");

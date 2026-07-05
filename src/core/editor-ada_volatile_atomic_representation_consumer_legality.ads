@@ -8,7 +8,7 @@ with Editor.Ada_Volatile_Atomic_Shared_State_Legality;
 
 package Editor.Ada_Volatile_Atomic_Representation_Consumer_Legality is
 
-   --  Pass1225 volatile/atomic representation consumer legality.
+   --  Case 1225 volatile/atomic representation consumer legality.
    --
    --  This package connects volatile/atomic/shared-state legality to the
    --  representation consumers that depend on it: volatile full-access

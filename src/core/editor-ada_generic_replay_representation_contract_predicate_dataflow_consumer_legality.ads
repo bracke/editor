@@ -6,7 +6,7 @@ with Editor.Ada_Syntax_Tree;
 
 package Editor.Ada_Generic_Replay_Representation_Contract_Predicate_Dataflow_Consumer_Legality is
 
-   --  Pass1171 compiler-grade generic replay representation contract-predicate-dataflow consumer legality.
+   --  Case 1171 compiler-grade generic replay representation contract-predicate-dataflow consumer legality.
    --
    --  This layer feeds representation/freezing tasking/contract-predicate-dataflow
    --  evidence back into generic instance body semantic replay.  Instantiated

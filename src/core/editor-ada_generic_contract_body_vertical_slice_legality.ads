@@ -4,7 +4,7 @@ with Editor.Ada_Syntax_Tree;
 
 package Editor.Ada_Generic_Contract_Body_Vertical_Slice_Legality is
 
-   --  Pass1298 vertical-slice generic contract and body legality.  This
+   --  Case 1298 vertical-slice generic contract and body legality.  This
    --  package performs concrete generic formal/actual matching and optional
    --  generic body replay gating over source-shaped rows: formal types,
    --  formal objects, formal subprograms, formal packages, nested

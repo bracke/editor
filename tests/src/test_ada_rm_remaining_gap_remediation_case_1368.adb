@@ -1,11 +1,11 @@
 with AUnit.Assertions; use AUnit.Assertions;
 with AUnit.Test_Cases;
 with Ada.Strings.Unbounded; use Ada.Strings.Unbounded;
-with Editor.Ada_RM_Remaining_Gap_Remediation_Pass1368;
+with Editor.Ada_RM_Remaining_Gap_Remediation_Case_1368;
 
 package body Test_Ada_RM_Remaining_Gap_Remediation_Case_1368 is
 
-   package Audit renames Editor.Ada_RM_Remaining_Gap_Remediation_Pass1368;
+   package Audit renames Editor.Ada_RM_Remaining_Gap_Remediation_Case_1368;
    use type Audit.RM_Family;
    use type Audit.Implementing_Slice;
    use type Audit.Coverage_Level;
@@ -58,8 +58,8 @@ package body Test_Ada_RM_Remaining_Gap_Remediation_Case_1368 is
         To_Unbounded_String
           ("generic body replay of discriminated private aggregate uses substituted full view");
       Row.Candidate_Implementing_Package :=
-        To_Unbounded_String ("Editor.Ada_RM_Remaining_Gap_Remediation_Pass1368");
-      Row.Candidate_Pass := To_Unbounded_String ("Pass1368");
+        To_Unbounded_String ("Editor.Ada_RM_Remaining_Gap_Remediation_Case_1368");
+      Row.Candidate_Case := To_Unbounded_String ("Case 1368");
       Row.Blocker_Family :=
         To_Unbounded_String ("RM.Generic.Body_Replay.Discriminated_Private_Aggregate");
       return Row;
@@ -72,9 +72,9 @@ package body Test_Ada_RM_Remaining_Gap_Remediation_Case_1368 is
       Expected : Audit.Precision_Classification) is
       Item : constant Audit.Remediation_Entry := Audit.Result_For (Results, Id);
    begin
-      Assert (Item.Status = Status, "unexpected pass1368 status");
+      Assert (Item.Status = Status, "unexpected case 1368 status");
       Assert (Audit.Expected_For_Status (Item.Status) = Expected,
-              "unexpected pass1368 precision classification");
+              "unexpected case 1368 precision classification");
    end Expect_Status;
 
    procedure Test_Generic_Aggregate_Gap_Remediated
@@ -107,7 +107,7 @@ package body Test_Ada_RM_Remaining_Gap_Remediation_Case_1368 is
       Results := Audit.Build (Input);
 
       Assert (Audit.Gap_Remediated (Results),
-              "pass1368 should close the selected generic aggregate gap");
+              "case 1368 should close the selected generic aggregate gap");
       Assert (Results.Remediated_Count = 1, "legal count");
       Assert (Results.Illegal_Count = 1, "illegal count");
       Assert (Results.Runtime_Check_Count = 1, "runtime-check count");
@@ -231,7 +231,7 @@ package body Test_Ada_RM_Remaining_Gap_Remediation_Case_1368 is
       Row : Audit.Remediation_Row;
    begin
       Row := Base_Row (30);
-      Row.Inventory_Row_From_Pass1366 := False;
+      Row.Inventory_Row_From_Final_Burn_Down := False;
       Audit.Add_Row (Input, Row);
 
       Row := Base_Row (31);
@@ -265,7 +265,7 @@ package body Test_Ada_RM_Remaining_Gap_Remediation_Case_1368 is
 
       Results := Audit.Build (Input);
 
-      Expect_Status (Results, 30, Audit.Status_Missing_Pass1366_Inventory_Row,
+      Expect_Status (Results, 30, Audit.Status_Missing_Final_Inventory_Row,
                      Precision.Class_Illegal);
       Expect_Status (Results, 31, Audit.Status_Missing_Concrete_Subrule_Name,
                      Precision.Class_Illegal);

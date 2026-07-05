@@ -10,7 +10,7 @@ with Editor.Ada_Volatile_Atomic_Representation_Consumer_Legality;
 
 package Editor.Ada_Overload_Generic_Shared_State_Final_Legality is
 
-   --  Pass1228 overload/generic/shared-state final RM edge legality.
+   --  Case 1228 overload/generic/shared-state final RM edge legality.
    --
    --  This package consumes the final overload shared-state RM layer together
    --  with generic abstract-state replay, dispatching Global/Depends

@@ -5,10 +5,10 @@ with Editor.Ada_Syntax_Tree;
 
 package Editor.Ada_RM_Completion_Closure_Consumer_Recheck_Convergence_Legality is
 
-   --  Pass1278 convergence for the direct RM-completion closure consumer
+   --  Case 1278 convergence for the direct RM-completion closure consumer
    --  recheck chain.
    --
-   --  This package consumes Pass1276 application rows and classifies whether
+   --  This package consumes Case 1276 application rows and classifies whether
    --  each direct RM-completion closure consumer result has converged as
    --  current evidence, converged as not-required non-diagnostic evidence,
    --  stayed stably withheld by the same prerequisite blocker, preserved a

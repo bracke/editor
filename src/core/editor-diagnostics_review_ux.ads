@@ -2,7 +2,7 @@ with Editor.State;
 
 package Editor.Diagnostics_Review_UX is
 
-   --  Phase 557 Diagnostics review UX coherence helpers.  This package is
+   --  Diagnostics review UX coherence helpers.  This package is
    --  observational: it does not run builds, parse output, open files, move
    --  carets, mutate Diagnostics rows, mutate filters/selection, render, or
    --  persist anything.  It asserts that the retained Diagnostics feature is a

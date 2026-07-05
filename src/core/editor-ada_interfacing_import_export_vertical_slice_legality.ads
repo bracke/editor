@@ -4,7 +4,7 @@ with Editor.Ada_Syntax_Tree;
 
 package Editor.Ada_Interfacing_Import_Export_Vertical_Slice_Legality is
 
-   --  Pass1333 vertical-slice legality for interfacing, import, export,
+   --  Case 1333 vertical-slice legality for interfacing, import, export,
    --  convention, external names, link names, address/storage attributes,
    --  access-to-subprogram conventions, C-compatible profiles, and conflicts
    --  with stream/external representation evidence.  This package consumes

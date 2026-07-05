@@ -261,7 +261,7 @@ package body Editor.Keybinding_Config is
      (Config : in out Keybinding_Config_Model)
    is
    begin
-      --  Phase 565 completeness: default projection is now constructed from
+      --  completeness: default projection is now constructed from
       --  the built-in table directly. It never installs defaults into the
       --  process-wide runtime resolver, so keybinding-list rendering, command
       --  help, audits, save/load comparison, and tests can inspect defaults
@@ -730,7 +730,7 @@ package body Editor.Keybinding_Config is
                      elsif Lower (Val) = "none" then
                         Unbind (Config, Id);
                      elsif Keybinding_Value_Has_Unsupported_Payload (Val) then
-                        --  Phase 534: persisted keybindings are chords mapped to
+                        --  persisted keybindings are chords mapped to
                         --  canonical command names only. Payload-bearing values are
                         --  ignored rather than normalized into executable state.
                         Mark_Partial (Status, Unsupported_Payload);

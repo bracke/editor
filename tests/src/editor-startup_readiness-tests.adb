@@ -64,17 +64,17 @@ package body Editor.Startup_Readiness.Tests is
          raise;
    end Write_File;
 
-   procedure Test_Phase_568_Startup_Readiness_Coherent
+   procedure Test_Startup_Readiness_Coherent
      (T : in out AUnit.Test_Cases.Test_Case'Class)
    is
       pragma Unreferenced (T);
    begin
       Assert
         (Editor.Startup_Readiness.Assert_Startup_Readiness_Coherent,
-         "phase 568 startup readiness must be coherent");
-   end Test_Phase_568_Startup_Readiness_Coherent;
+         "startup readiness must be coherent");
+   end Test_Startup_Readiness_Coherent;
 
-   procedure Test_Phase_568_First_Run_Is_Calm_Defaulted_And_Unfabricated
+   procedure Test_First_Run_Is_Calm_Defaulted_And_Unfabricated
      (T : in out AUnit.Test_Cases.Test_Case'Class)
    is
       pragma Unreferenced (T);
@@ -94,9 +94,9 @@ package body Editor.Startup_Readiness.Tests is
       Assert (First_Run_Empty_State_Label (Summary) =
               "Ready. Default settings active. Default keybindings active. No workspace restored. No recent projects. Open a project to begin.",
               "first-run surface must be explicit and calm");
-   end Test_Phase_568_First_Run_Is_Calm_Defaulted_And_Unfabricated;
+   end Test_First_Run_Is_Calm_Defaulted_And_Unfabricated;
 
-   procedure Test_Phase_568_Partial_Workspace_Restore_Is_Count_Based
+   procedure Test_Partial_Workspace_Restore_Is_Count_Based
      (T : in out AUnit.Test_Cases.Test_Case'Class)
    is
       pragma Unreferenced (T);
@@ -122,9 +122,9 @@ package body Editor.Startup_Readiness.Tests is
               "restored active buffer must select safe editor focus");
       Assert (Status_Bar_Label (Summary) = "Workspace partial restore",
               "status bar label must expose partial startup restore");
-   end Test_Phase_568_Partial_Workspace_Restore_Is_Count_Based;
+   end Test_Partial_Workspace_Restore_Is_Count_Based;
 
-   procedure Test_Phase_568_Project_Unavailable_Does_Not_Fabricate_Context
+   procedure Test_Project_Unavailable_Does_Not_Fabricate_Context
      (T : in out AUnit.Test_Cases.Test_Case'Class)
    is
       pragma Unreferenced (T);
@@ -143,9 +143,9 @@ package body Editor.Startup_Readiness.Tests is
               "missing project reference must be counted");
       Assert (Status_Bar_Label (Summary) = "Project unavailable",
               "status must expose project-unavailable startup state");
-   end Test_Phase_568_Project_Unavailable_Does_Not_Fabricate_Context;
+   end Test_Project_Unavailable_Does_Not_Fabricate_Context;
 
-   procedure Test_Phase_568_Status_Bar_Startup_Segment_Is_Observational
+   procedure Test_Status_Bar_Startup_Segment_Is_Observational
      (T : in out AUnit.Test_Cases.Test_Case'Class)
    is
       pragma Unreferenced (T);
@@ -159,13 +159,13 @@ package body Editor.Startup_Readiness.Tests is
       Assert
         (Index (Editor.Status_Bar.Format_Right (Snapshot), "Ready with warnings") > 0,
          "formatted status must include startup readiness when present");
-   end Test_Phase_568_Status_Bar_Startup_Segment_Is_Observational;
+   end Test_Status_Bar_Startup_Segment_Is_Observational;
 
-   procedure Test_Phase_568_Startup_Run_Loads_Domains_Independently
+   procedure Test_Startup_Run_Loads_Domains_Independently
      (T : in out AUnit.Test_Cases.Test_Case'Class)
    is
       pragma Unreferenced (T);
-      Base : constant String := "/tmp/editor_phase568_startup_";
+      Base : constant String := "/tmp/editor_startup_";
       Settings_Path : constant String := Base & "settings";
       Keybindings_Path : constant String := Base & "keybindings";
       Workspace_Path : constant String := Base & "workspace";
@@ -204,10 +204,10 @@ package body Editor.Startup_Readiness.Tests is
       Delete_If_Exists (Keybindings_Path);
       Delete_If_Exists (Workspace_Path);
       Delete_If_Exists (Recent_Path);
-   end Test_Phase_568_Startup_Run_Loads_Domains_Independently;
+   end Test_Startup_Run_Loads_Domains_Independently;
 
 
-   procedure Test_Phase_568_Restore_Routing_And_Surface_Cleanup_Invariants
+   procedure Test_Restore_Routing_And_Surface_Cleanup_Invariants
      (T : in out AUnit.Test_Cases.Test_Case'Class)
    is
       pragma Unreferenced (T);
@@ -233,9 +233,9 @@ package body Editor.Startup_Readiness.Tests is
               "restore routing assertion must pass");
       Assert (Assert_Startup_Project_Surfaces_Initialized_Cleanly,
               "surface cleanup assertion must pass");
-   end Test_Phase_568_Restore_Routing_And_Surface_Cleanup_Invariants;
+   end Test_Restore_Routing_And_Surface_Cleanup_Invariants;
 
-   procedure Test_Phase_568_Startup_Restores_No_Pending_Recovery_UI
+   procedure Test_Startup_Restores_No_Pending_Recovery_UI
      (T : in out AUnit.Test_Cases.Test_Case'Class)
    is
       pragma Unreferenced (T);
@@ -260,14 +260,14 @@ package body Editor.Startup_Readiness.Tests is
               "startup recovery UI state must remain transient");
       Assert (Assert_Startup_Restores_No_Pending_Confirmation,
               "pending confirmation assertion must pass");
-   end Test_Phase_568_Startup_Restores_No_Pending_Recovery_UI;
+   end Test_Startup_Restores_No_Pending_Recovery_UI;
 
 
-   procedure Test_Phase_568_Startup_Run_Resolves_Relative_Files_And_Panels
+   procedure Test_Startup_Run_Resolves_Relative_Files_And_Panels
      (T : in out AUnit.Test_Cases.Test_Case'Class)
    is
       pragma Unreferenced (T);
-      Base : constant String := "/tmp/editor_phase568_relative_workspace";
+      Base : constant String := "/tmp/editor_relative_workspace";
       Project_Root : constant String := Base & "/project";
       Source_Dir   : constant String := Project_Root & "/src";
       Source_File  : constant String := Source_Dir & "/main.adb";
@@ -328,17 +328,17 @@ package body Editor.Startup_Readiness.Tests is
       Delete_If_Exists (Workspace_Path);
       Delete_If_Exists (Recent_Path);
       Delete_If_Exists (Source_File);
-   end Test_Phase_568_Startup_Run_Resolves_Relative_Files_And_Panels;
+   end Test_Startup_Run_Resolves_Relative_Files_And_Panels;
 
 
 
 
 
-   procedure Test_Phase_568_Active_File_Must_Be_Restored_For_Editor_Focus
+   procedure Test_Active_File_Must_Be_Restored_For_Editor_Focus
      (T : in out AUnit.Test_Cases.Test_Case'Class)
    is
       pragma Unreferenced (T);
-      Project_Root : constant String := "/tmp/editor_phase568_active_focus_project";
+      Project_Root : constant String := "/tmp/editor_active_focus_project";
       Source_Dir   : constant String := Project_Root & "/src";
       Existing_File : constant String := Source_Dir & "/main.adb";
       Snapshot : Editor.Workspace_Persistence.Workspace_Snapshot;
@@ -374,14 +374,14 @@ package body Editor.Startup_Readiness.Tests is
               "editor focus requires the saved active file itself to restore");
 
       Delete_If_Exists (Existing_File);
-   end Test_Phase_568_Active_File_Must_Be_Restored_For_Editor_Focus;
+   end Test_Active_File_Must_Be_Restored_For_Editor_Focus;
 
 
-   procedure Test_Phase_568_Active_File_Must_Belong_To_Open_Files_For_Editor_Focus
+   procedure Test_Active_File_Must_Belong_To_Open_Files_For_Editor_Focus
      (T : in out AUnit.Test_Cases.Test_Case'Class)
    is
       pragma Unreferenced (T);
-      Project_Root : constant String := "/tmp/editor_phase568_active_membership_project";
+      Project_Root : constant String := "/tmp/editor_active_membership_project";
       Source_Dir   : constant String := Project_Root & "/src";
       Open_File    : constant String := Source_Dir & "/open.adb";
       Active_File  : constant String := Source_Dir & "/active.adb";
@@ -418,10 +418,10 @@ package body Editor.Startup_Readiness.Tests is
 
       Delete_If_Exists (Open_File);
       Delete_If_Exists (Active_File);
-   end Test_Phase_568_Active_File_Must_Belong_To_Open_Files_For_Editor_Focus;
+   end Test_Active_File_Must_Belong_To_Open_Files_For_Editor_Focus;
 
 
-   procedure Test_Phase_568_Startup_Summary_Availability_Is_Observational
+   procedure Test_Startup_Summary_Availability_Is_Observational
      (T : in out AUnit.Test_Cases.Test_Case'Class)
    is
       pragma Unreferenced (T);
@@ -446,9 +446,9 @@ package body Editor.Startup_Readiness.Tests is
       Assert (Has_Recorded_Startup_Summary,
               "availability check must not clear or mutate recorded startup summary");
       Clear_Startup_Summary;
-   end Test_Phase_568_Startup_Summary_Availability_Is_Observational;
+   end Test_Startup_Summary_Availability_Is_Observational;
 
-   procedure Test_Phase_568_Startup_Display_Command_Is_No_Payload_And_Routed
+   procedure Test_Startup_Display_Command_Is_No_Payload_And_Routed
      (T : in out AUnit.Test_Cases.Test_Case'Class)
    is
       pragma Unreferenced (T);
@@ -477,10 +477,10 @@ package body Editor.Startup_Readiness.Tests is
               "startup summary command payload fields must be empty");
       Assert (Assert_Startup_Display_Commands_Route_Through_Executor,
               "startup display command route assertion must pass");
-   end Test_Phase_568_Startup_Display_Command_Is_No_Payload_And_Routed;
+   end Test_Startup_Display_Command_Is_No_Payload_And_Routed;
 
 
-   procedure Test_Phase_568_Startup_Recovery_View_Is_Bounded
+   procedure Test_Startup_Recovery_View_Is_Bounded
      (T : in out AUnit.Test_Cases.Test_Case'Class)
    is
       pragma Unreferenced (T);
@@ -510,10 +510,10 @@ package body Editor.Startup_Readiness.Tests is
               "runtime recovery row must preserve startup restore warning counts");
       Assert (Assert_Startup_Recovery_View_Is_Bounded,
               "startup recovery view bounded assertion must pass");
-   end Test_Phase_568_Startup_Recovery_View_Is_Bounded;
+   end Test_Startup_Recovery_View_Is_Bounded;
 
 
-   procedure Test_Phase_568_Recovery_Show_Projects_Startup_Warnings
+   procedure Test_Recovery_Show_Projects_Startup_Warnings
      (T : in out AUnit.Test_Cases.Test_Case'Class)
    is
       pragma Unreferenced (T);
@@ -554,14 +554,14 @@ package body Editor.Startup_Readiness.Tests is
 
       Editor.Configuration_Recovery.Clear_Recorded_Recovery_Summary;
       Clear_Startup_Summary;
-   end Test_Phase_568_Recovery_Show_Projects_Startup_Warnings;
+   end Test_Recovery_Show_Projects_Startup_Warnings;
 
 
-   procedure Test_Phase_568_Observed_Summary_Uses_Loaded_Workspace_Diagnostics
+   procedure Test_Observed_Summary_Uses_Loaded_Workspace_Diagnostics
      (T : in out AUnit.Test_Cases.Test_Case'Class)
    is
       pragma Unreferenced (T);
-      Base : constant String := "/tmp/editor_phase568_observed_workspace";
+      Base : constant String := "/tmp/editor_observed_workspace";
       Missing_Project : constant String := Base & "/missing-project";
       Snapshot : Editor.Workspace_Persistence.Workspace_Snapshot;
       Item : Editor.Workspace_Persistence.Workspace_File_Entry;
@@ -589,14 +589,14 @@ package body Editor.Startup_Readiness.Tests is
               "observed startup summary must count only the missing project target");
       Assert (Summary.Safe_Focus = Startup_Focus_None,
               "missing project/file restore must not choose an unsafe focus target");
-   end Test_Phase_568_Observed_Summary_Uses_Loaded_Workspace_Diagnostics;
+   end Test_Observed_Summary_Uses_Loaded_Workspace_Diagnostics;
 
 
-   procedure Test_Phase_568_Disabled_Workspace_Restore_Is_Not_Reported
+   procedure Test_Disabled_Workspace_Restore_Is_Not_Reported
      (T : in out AUnit.Test_Cases.Test_Case'Class)
    is
       pragma Unreferenced (T);
-      Project_Dir : constant String := "/tmp/editor_phase568_restore_disabled_project";
+      Project_Dir : constant String := "/tmp/editor_restore_disabled_project";
       Snapshot : Editor.Workspace_Persistence.Workspace_Snapshot;
       Item : Editor.Workspace_Persistence.Workspace_File_Entry;
       Summary : Startup_Summary;
@@ -628,17 +628,17 @@ package body Editor.Startup_Readiness.Tests is
               "disabled startup workspace restore must not count skipped workspace files");
       Assert (Summary.Safe_Focus = Startup_Focus_None,
               "disabled startup workspace restore must not choose a restored-buffer focus");
-   end Test_Phase_568_Disabled_Workspace_Restore_Is_Not_Reported;
+   end Test_Disabled_Workspace_Restore_Is_Not_Reported;
 
 
-   procedure Test_Phase_568_Workspace_Diagnostics_Are_Not_All_Invalid
+   procedure Test_Workspace_Diagnostics_Are_Not_All_Invalid
      (T : in out AUnit.Test_Cases.Test_Case'Class)
    is
       pragma Unreferenced (T);
-      Project_Dir : constant String := "/tmp/editor_phase568_workspace_diag_project";
+      Project_Dir : constant String := "/tmp/editor_workspace_diag_project";
       Source_Dir  : constant String := Project_Dir & "/src";
       Source_File : constant String := Source_Dir & "/main.adb";
-      Workspace_Path : constant String := "/tmp/editor_phase568_workspace_diag.session";
+      Workspace_Path : constant String := "/tmp/editor_workspace_diag.session";
       Snapshot : Editor.Workspace_Persistence.Workspace_Snapshot;
       Status : Editor.Workspace_Persistence.Workspace_Persistence_Status;
       Summary : Startup_Summary;
@@ -677,15 +677,15 @@ package body Editor.Startup_Readiness.Tests is
 
       Delete_If_Exists (Workspace_Path);
       Delete_If_Exists (Source_File);
-   end Test_Phase_568_Workspace_Diagnostics_Are_Not_All_Invalid;
+   end Test_Workspace_Diagnostics_Are_Not_All_Invalid;
 
 
-   procedure Test_Phase_568_Missing_Open_File_Is_Not_Double_Counted
+   procedure Test_Missing_Open_File_Is_Not_Double_Counted
      (T : in out AUnit.Test_Cases.Test_Case'Class)
    is
       pragma Unreferenced (T);
-      Project_Dir : constant String := "/tmp/editor_phase568_missing_count_project";
-      Workspace_Path : constant String := "/tmp/editor_phase568_missing_count.session";
+      Project_Dir : constant String := "/tmp/editor_missing_count_project";
+      Workspace_Path : constant String := "/tmp/editor_missing_count.session";
       Snapshot : Editor.Workspace_Persistence.Workspace_Snapshot;
       Status : Editor.Workspace_Persistence.Workspace_Persistence_Status;
       Summary : Startup_Summary;
@@ -722,15 +722,15 @@ package body Editor.Startup_Readiness.Tests is
               "one missing open file must not double-count aggregate warnings");
 
       Delete_If_Exists (Workspace_Path);
-   end Test_Phase_568_Missing_Open_File_Is_Not_Double_Counted;
+   end Test_Missing_Open_File_Is_Not_Double_Counted;
 
 
-   procedure Test_Phase_568_Recovery_View_Does_Not_Double_Count_Missing_Target_Warnings
+   procedure Test_Recovery_View_Does_Not_Double_Count_Missing_Target_Warnings
      (T : in out AUnit.Test_Cases.Test_Case'Class)
    is
       pragma Unreferenced (T);
-      Project_Dir : constant String := "/tmp/editor_phase568_recovery_missing_project";
-      Workspace_Path : constant String := "/tmp/editor_phase568_recovery_missing.session";
+      Project_Dir : constant String := "/tmp/editor_recovery_missing_project";
+      Workspace_Path : constant String := "/tmp/editor_recovery_missing.session";
       Snapshot : Editor.Workspace_Persistence.Workspace_Snapshot;
       Status : Editor.Workspace_Persistence.Workspace_Persistence_Status;
       Summary : Startup_Summary;
@@ -761,15 +761,15 @@ package body Editor.Startup_Readiness.Tests is
               "recovery projection must not add missing-file counts to restore warnings");
 
       Delete_If_Exists (Workspace_Path);
-   end Test_Phase_568_Recovery_View_Does_Not_Double_Count_Missing_Target_Warnings;
+   end Test_Recovery_View_Does_Not_Double_Count_Missing_Target_Warnings;
 
 
-   procedure Test_Phase_568_Missing_Project_Does_Not_Cascade_Open_File_Missing_Counts
+   procedure Test_Missing_Project_Does_Not_Cascade_Open_File_Missing_Counts
      (T : in out AUnit.Test_Cases.Test_Case'Class)
    is
       pragma Unreferenced (T);
-      Missing_Project_Dir : constant String := "/tmp/editor_phase568_missing_project_root_absent";
-      Workspace_Path : constant String := "/tmp/editor_phase568_missing_project_cascade.session";
+      Missing_Project_Dir : constant String := "/tmp/editor_missing_project_root_absent";
+      Workspace_Path : constant String := "/tmp/editor_missing_project_cascade.session";
       Snapshot : Editor.Workspace_Persistence.Workspace_Snapshot;
       Status : Editor.Workspace_Persistence.Workspace_Persistence_Status;
       Summary : Startup_Summary;
@@ -808,17 +808,17 @@ package body Editor.Startup_Readiness.Tests is
               "project unavailable must remain the primary startup readiness label");
 
       Delete_If_Exists (Workspace_Path);
-   end Test_Phase_568_Missing_Project_Does_Not_Cascade_Open_File_Missing_Counts;
+   end Test_Missing_Project_Does_Not_Cascade_Open_File_Missing_Counts;
 
 
-   procedure Test_Phase_568_Missing_Project_Rejects_Absolute_Open_Files
+   procedure Test_Missing_Project_Rejects_Absolute_Open_Files
      (T : in out AUnit.Test_Cases.Test_Case'Class)
    is
       pragma Unreferenced (T);
       Missing_Project_Dir : constant String :=
-        "/tmp/editor_phase568_abs_restore_missing_project_root";
+        "/tmp/editor_abs_restore_missing_project_root";
       Absolute_File : constant String :=
-        "/tmp/editor_phase568_absolute_workspace_file.adb";
+        "/tmp/editor_absolute_workspace_file.adb";
       Snapshot : Editor.Workspace_Persistence.Workspace_Snapshot;
       Item : Editor.Workspace_Persistence.Workspace_File_Entry;
       Summary : Startup_Summary;
@@ -874,10 +874,10 @@ package body Editor.Startup_Readiness.Tests is
               "startup command summary must not include rejected absolute file counts");
 
       Delete_If_Exists (Absolute_File);
-   end Test_Phase_568_Missing_Project_Rejects_Absolute_Open_Files;
+   end Test_Missing_Project_Rejects_Absolute_Open_Files;
 
 
-   procedure Test_Phase_568_State_Init_Records_Startup_Summary
+   procedure Test_State_Init_Records_Startup_Summary
      (T : in out AUnit.Test_Cases.Test_Case'Class)
    is
       pragma Unreferenced (T);
@@ -888,15 +888,15 @@ package body Editor.Startup_Readiness.Tests is
       Assert (Has_Recorded_Startup_Summary,
               "state initialization must record a transient startup summary");
       Assert (Current_Startup_Summary.Row_Count = 7,
-              "recorded startup summary must use the bounded phase 568 row model");
+              "recorded startup summary must use the bounded row model");
       Assert (Editor.Executor.Command_Availability
                 (S, Editor.Commands.Command_Startup_Show_Summary).Status =
               Editor.Commands.Command_Available,
               "startup summary command must be available after state initialization");
       Clear_Startup_Summary;
-   end Test_Phase_568_State_Init_Records_Startup_Summary;
+   end Test_State_Init_Records_Startup_Summary;
 
-   procedure Test_Phase_568_Startup_Command_Message_Is_Bounded_And_Actionable
+   procedure Test_Startup_Command_Message_Is_Bounded_And_Actionable
      (T : in out AUnit.Test_Cases.Test_Case'Class)
    is
       pragma Unreferenced (T);
@@ -925,9 +925,9 @@ package body Editor.Startup_Readiness.Tests is
               "startup summary command message must include the action suggestion");
       Assert (Message'Length <= Max_Startup_Label_Length,
               "startup summary command message must remain bounded");
-   end Test_Phase_568_Startup_Command_Message_Is_Bounded_And_Actionable;
+   end Test_Startup_Command_Message_Is_Bounded_And_Actionable;
 
-   procedure Test_Phase_568_Aggregate_Counts_Match_Bounded_Rows
+   procedure Test_Aggregate_Counts_Match_Bounded_Rows
      (T : in out AUnit.Test_Cases.Test_Case'Class)
    is
       pragma Unreferenced (T);
@@ -966,7 +966,7 @@ package body Editor.Startup_Readiness.Tests is
       Clear_Startup_Summary;
       Assert (Assert_Startup_Aggregate_Counts_Match_Rows,
               "aggregate consistency assertion must pass");
-   end Test_Phase_568_Aggregate_Counts_Match_Bounded_Rows;
+   end Test_Aggregate_Counts_Match_Bounded_Rows;
 
 
 
@@ -976,80 +976,80 @@ package body Editor.Startup_Readiness.Tests is
       use AUnit.Test_Cases.Registration;
    begin
       Register_Routine
-        (T, Test_Phase_568_Startup_Readiness_Coherent'Access,
-         "phase 568 startup readiness coherent");
+        (T, Test_Startup_Readiness_Coherent'Access,
+         "startup readiness coherent");
       Register_Routine
-        (T, Test_Phase_568_First_Run_Is_Calm_Defaulted_And_Unfabricated'Access,
-         "phase 568 first run is calm defaulted and unfabricated");
+        (T, Test_First_Run_Is_Calm_Defaulted_And_Unfabricated'Access,
+         "first run is calm defaulted and unfabricated");
       Register_Routine
-        (T, Test_Phase_568_Partial_Workspace_Restore_Is_Count_Based'Access,
-         "phase 568 partial workspace restore is count based");
+        (T, Test_Partial_Workspace_Restore_Is_Count_Based'Access,
+         "partial workspace restore is count based");
       Register_Routine
-        (T, Test_Phase_568_Project_Unavailable_Does_Not_Fabricate_Context'Access,
-         "phase 568 project unavailable does not fabricate context");
+        (T, Test_Project_Unavailable_Does_Not_Fabricate_Context'Access,
+         "project unavailable does not fabricate context");
       Register_Routine
-        (T, Test_Phase_568_Status_Bar_Startup_Segment_Is_Observational'Access,
-         "phase 568 status bar startup segment is observational");
+        (T, Test_Status_Bar_Startup_Segment_Is_Observational'Access,
+         "status bar startup segment is observational");
       Register_Routine
-        (T, Test_Phase_568_Startup_Run_Loads_Domains_Independently'Access,
-         "phase 568 startup run loads domains independently");
+        (T, Test_Startup_Run_Loads_Domains_Independently'Access,
+         "startup run loads domains independently");
       Register_Routine
-        (T, Test_Phase_568_Restore_Routing_And_Surface_Cleanup_Invariants'Access,
-         "phase 568 restore routing and surface cleanup invariants");
+        (T, Test_Restore_Routing_And_Surface_Cleanup_Invariants'Access,
+         "restore routing and surface cleanup invariants");
       Register_Routine
-        (T, Test_Phase_568_Startup_Restores_No_Pending_Recovery_UI'Access,
-         "phase 568 startup restores no pending recovery ui");
+        (T, Test_Startup_Restores_No_Pending_Recovery_UI'Access,
+         "startup restores no pending recovery ui");
       Register_Routine
-        (T, Test_Phase_568_Startup_Run_Resolves_Relative_Files_And_Panels'Access,
-         "phase 568 startup run resolves relative files and panels");
+        (T, Test_Startup_Run_Resolves_Relative_Files_And_Panels'Access,
+         "startup run resolves relative files and panels");
       Register_Routine
-        (T, Test_Phase_568_Active_File_Must_Be_Restored_For_Editor_Focus'Access,
-         "phase 568 active file must be restored for editor focus");
+        (T, Test_Active_File_Must_Be_Restored_For_Editor_Focus'Access,
+         "active file must be restored for editor focus");
       Register_Routine
-        (T, Test_Phase_568_Active_File_Must_Belong_To_Open_Files_For_Editor_Focus'Access,
-         "phase 568 active file must belong to open files for editor focus");
+        (T, Test_Active_File_Must_Belong_To_Open_Files_For_Editor_Focus'Access,
+         "active file must belong to open files for editor focus");
       Register_Routine
-        (T, Test_Phase_568_Startup_Summary_Availability_Is_Observational'Access,
-         "phase 568 startup summary availability is observational");
+        (T, Test_Startup_Summary_Availability_Is_Observational'Access,
+         "startup summary availability is observational");
       Register_Routine
-        (T, Test_Phase_568_Startup_Display_Command_Is_No_Payload_And_Routed'Access,
-         "phase 568 startup display command is no payload and routed");
+        (T, Test_Startup_Display_Command_Is_No_Payload_And_Routed'Access,
+         "startup display command is no payload and routed");
       Register_Routine
-        (T, Test_Phase_568_Startup_Recovery_View_Is_Bounded'Access,
-         "phase 568 startup recovery view is bounded");
+        (T, Test_Startup_Recovery_View_Is_Bounded'Access,
+         "startup recovery view is bounded");
       Register_Routine
-        (T, Test_Phase_568_Recovery_Show_Projects_Startup_Warnings'Access,
-         "phase 568 recovery show projects startup warnings");
+        (T, Test_Recovery_Show_Projects_Startup_Warnings'Access,
+         "recovery show projects startup warnings");
       Register_Routine
-        (T, Test_Phase_568_Observed_Summary_Uses_Loaded_Workspace_Diagnostics'Access,
-         "phase 568 observed startup summary uses loaded workspace diagnostics");
+        (T, Test_Observed_Summary_Uses_Loaded_Workspace_Diagnostics'Access,
+         "observed startup summary uses loaded workspace diagnostics");
       Register_Routine
-        (T, Test_Phase_568_Disabled_Workspace_Restore_Is_Not_Reported'Access,
-         "phase 568 disabled workspace restore is not reported");
+        (T, Test_Disabled_Workspace_Restore_Is_Not_Reported'Access,
+         "disabled workspace restore is not reported");
       Register_Routine
-        (T, Test_Phase_568_Workspace_Diagnostics_Are_Not_All_Invalid'Access,
-         "phase 568 workspace diagnostics are not all invalid");
+        (T, Test_Workspace_Diagnostics_Are_Not_All_Invalid'Access,
+         "workspace diagnostics are not all invalid");
       Register_Routine
-        (T, Test_Phase_568_Missing_Open_File_Is_Not_Double_Counted'Access,
-         "phase 568 missing open file is not double counted");
+        (T, Test_Missing_Open_File_Is_Not_Double_Counted'Access,
+         "missing open file is not double counted");
       Register_Routine
-        (T, Test_Phase_568_Recovery_View_Does_Not_Double_Count_Missing_Target_Warnings'Access,
-         "phase 568 recovery view does not double count missing target warnings");
+        (T, Test_Recovery_View_Does_Not_Double_Count_Missing_Target_Warnings'Access,
+         "recovery view does not double count missing target warnings");
       Register_Routine
-        (T, Test_Phase_568_Missing_Project_Does_Not_Cascade_Open_File_Missing_Counts'Access,
-         "phase 568 missing project does not cascade open-file missing counts");
+        (T, Test_Missing_Project_Does_Not_Cascade_Open_File_Missing_Counts'Access,
+         "missing project does not cascade open-file missing counts");
       Register_Routine
-        (T, Test_Phase_568_Missing_Project_Rejects_Absolute_Open_Files'Access,
-         "phase 568 missing project rejects absolute open files");
+        (T, Test_Missing_Project_Rejects_Absolute_Open_Files'Access,
+         "missing project rejects absolute open files");
       Register_Routine
-        (T, Test_Phase_568_State_Init_Records_Startup_Summary'Access,
-         "phase 568 state init records startup summary");
+        (T, Test_State_Init_Records_Startup_Summary'Access,
+         "state init records startup summary");
       Register_Routine
-        (T, Test_Phase_568_Startup_Command_Message_Is_Bounded_And_Actionable'Access,
-         "phase 568 startup command message is bounded and actionable");
+        (T, Test_Startup_Command_Message_Is_Bounded_And_Actionable'Access,
+         "startup command message is bounded and actionable");
       Register_Routine
-        (T, Test_Phase_568_Aggregate_Counts_Match_Bounded_Rows'Access,
-         "phase 568 aggregate counts match bounded rows");
+        (T, Test_Aggregate_Counts_Match_Bounded_Rows'Access,
+         "aggregate counts match bounded rows");
    end Register_Tests;
 
 end Editor.Startup_Readiness.Tests;

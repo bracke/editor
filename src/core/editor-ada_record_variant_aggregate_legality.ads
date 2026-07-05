@@ -7,7 +7,7 @@ with Editor.Ada_Syntax_Tree;
 
 package Editor.Ada_Record_Variant_Aggregate_Legality is
 
-   --  Pass1127 record/variant/discriminant aggregate semantic closure.
+   --  Case 1127 record/variant/discriminant aggregate semantic closure.
    --
    --  This package connects aggregate structural legality, discriminant and
    --  variant coverage, predicate/invariant use-site checks, and

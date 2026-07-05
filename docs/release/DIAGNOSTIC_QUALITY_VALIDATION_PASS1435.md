@@ -1,7 +1,7 @@
-# Phase 579 Diagnostic Quality Validation Pass1435
+# Diagnostic Quality Validation Case 1435
 
-Pass1435 validates the quality of already-existing diagnostics after the finite
-Remaining Gap Remediation closure in pass1428.
+Case 1435 validates the quality of already-existing diagnostics after the finite
+Remaining Gap Remediation closure in case 1428.
 
 ## Scope
 

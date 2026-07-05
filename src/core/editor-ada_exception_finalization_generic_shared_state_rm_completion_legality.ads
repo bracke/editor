@@ -12,7 +12,7 @@ with Editor.Ada_Tasking_Generic_Shared_State_RM_Hard_Case_Completion_Legality;
 
 package Editor.Ada_Exception_Finalization_Generic_Shared_State_RM_Completion_Legality is
 
-   --  Pass1253 exception/finalization legality over the completed
+   --  Case 1253 exception/finalization legality over the completed
    --  generic/shared-state RM chain.
    --
    --  This package consumes completed cross-unit RM closure, the prior

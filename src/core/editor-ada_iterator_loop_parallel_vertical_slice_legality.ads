@@ -4,7 +4,7 @@ with Editor.Ada_Syntax_Tree;
 
 package Editor.Ada_Iterator_Loop_Parallel_Vertical_Slice_Legality is
 
-   --  Pass1328 vertical-slice iterator, loop, and parallelism legality.
+   --  Case 1328 vertical-slice iterator, loop, and parallelism legality.
    --  This package models source-shaped Ada discrete loops, generalized
    --  iterators, container iterators, loop-parameter declarations, parallel
    --  loops, reductions, tampering evidence, and shared-state restrictions.

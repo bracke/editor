@@ -6,9 +6,9 @@ with Editor.Ada_Syntax_Tree;
 
 package Editor.Ada_Generic_Formal_AST_Repair_Legality is
 
-   --  Pass1174 generic formal parser-AST repair legality.
+   --  Case 1174 generic formal parser-AST repair legality.
    --
-   --  This package turns the generic repaired-coverage facts from Pass1147
+   --  This package turns the generic repaired-coverage facts from Case 1147
    --  into concrete generic-formal declaration repair facts.  Generic formal
    --  objects, types, subprograms, and packages are not treated as restored
    --  until parser nodes, structural AST, spans, name/type/staticness/contract

@@ -29,7 +29,7 @@ package body Editor.Feature_Panel_Audit.Tests is
    begin
       Assert (Result.Passed, Context & ": " & Summary (Result));
       Assert (Result.Descriptor_Count = 4,
-              Context & ": Phase 158 freezes the four-feature set");
+              Context & ": freezes the four-feature set");
    end Assert_Audit_Passed;
 
    procedure Test_Feature_Audit_Passes_For_Four_Features
@@ -76,7 +76,7 @@ package body Editor.Feature_Panel_Audit.Tests is
       Assert (Seen_Outline and then Seen_Messages and then Seen_Search and then Seen_Diagnostics,
               "descriptor table covers Outline, Messages, Search Results, and Diagnostics");
       Assert (Feature_Descriptor_Count = 4,
-              "Phase 158 freezes exactly four feature-panel features");
+              "freezes exactly four feature-panel features");
       Assert (Descriptor_Id (1) = Outline_Feature,
               "descriptor order keeps Outline first");
       Assert (Descriptor_Id (2) = Messages_Feature,
@@ -400,7 +400,7 @@ package body Editor.Feature_Panel_Audit.Tests is
          "message survives inactive clear");
       Editor.Feature_Diagnostics.Add_Diagnostic
         (S.Feature_Diagnostics, Editor.Feature_Diagnostics.Diagnostic_Warning,
-         "diagnostic cleared when active", Source_Label => "phase158");
+         "diagnostic cleared when active", Source_Label => "");
       Editor.Feature_Search_Results.Run_Active_Buffer_Search
         (S.Feature_Search_Results, Query => "alpha",
          Snapshot_Text => "alpha beta alpha", Source_Label => "buffer",
@@ -458,7 +458,7 @@ package body Editor.Feature_Panel_Audit.Tests is
    end Test_Four_Feature_Workspace_Close_Preserves_Command_Metadata;
 
 
-   procedure Test_Phase203_Feature_Panel_Contract_Review_Default_Passes
+   procedure Test_Feature_Panel_Contract_Review_Default_Passes
      (T : in out AUnit.Test_Cases.Test_Case'Class)
    is
       pragma Unreferenced (T);
@@ -470,18 +470,18 @@ package body Editor.Feature_Panel_Audit.Tests is
       Assert (Review.Review_Passed,
               Build_Feature_Panel_Contract_Review_Feedback (Review));
       Assert (Review.Generic_State_Bounded,
-              "Phase 203 generic Feature Panel state remains bounded");
+              "generic Feature Panel state remains bounded");
       Assert (Review.Active_Feature_Valid,
-              "Phase 203 active feature remains known");
+              "active feature remains known");
       Assert (Review.Rows_Transient,
-              "Phase 203 rows remain transient");
+              "rows remain transient");
       Assert (Review.Command_Surface_Intact,
-              "Phase 203 preserves Phase 202 command surface review");
+              "preserves command surface review");
       Assert (Review.Public_Build_Guardrail_Intact,
-              "Phase 203 preserves public-build regression manifest");
-   end Test_Phase203_Feature_Panel_Contract_Review_Default_Passes;
+              "preserves public-build regression manifest");
+   end Test_Feature_Panel_Contract_Review_Default_Passes;
 
-   procedure Test_Phase203_Feature_Panel_Contract_Review_Is_Side_Effect_Free
+   procedure Test_Feature_Panel_Contract_Review_Is_Side_Effect_Free
      (T : in out AUnit.Test_Cases.Test_Case'Class)
    is
       pragma Unreferenced (T);
@@ -512,16 +512,16 @@ package body Editor.Feature_Panel_Audit.Tests is
 
       After_Panel := Fingerprint (S.Feature_Panel);
       Assert (Before_Panel = After_Panel,
-              "Phase 203 contract review must not mutate panel fingerprint");
+              "contract review must not mutate panel fingerprint");
       Assert (Before_Feature = Active_Feature (S.Feature_Panel),
-              "Phase 203 contract review must not change active feature");
+              "contract review must not change active feature");
       Assert (Before_Gen = Projection_Generation (S.Feature_Panel),
-              "Phase 203 contract review must not bump projection generation");
+              "contract review must not bump projection generation");
       Assert (Before_Reveal = Requested_Reveal_Row (S.Feature_Panel),
-              "Phase 203 contract review must not clear reveal request");
-   end Test_Phase203_Feature_Panel_Contract_Review_Is_Side_Effect_Free;
+              "contract review must not clear reveal request");
+   end Test_Feature_Panel_Contract_Review_Is_Side_Effect_Free;
 
-   procedure Test_Phase203_Feature_Panel_Contract_Review_Feedback_Is_Deterministic
+   procedure Test_Feature_Panel_Contract_Review_Feedback_Is_Deterministic
      (T : in out AUnit.Test_Cases.Test_Case'Class)
    is
       pragma Unreferenced (T);
@@ -559,9 +559,9 @@ package body Editor.Feature_Panel_Audit.Tests is
       Assert (Build_Feature_Panel_Contract_Review_Feedback (Review) =
                 "Feature Panel: public build guardrail failed",
               "public-build sentinel feedback is canonical");
-   end Test_Phase203_Feature_Panel_Contract_Review_Feedback_Is_Deterministic;
+   end Test_Feature_Panel_Contract_Review_Feedback_Is_Deterministic;
 
-   procedure Test_Phase203_Feature_Panel_Row_Replacement_Selection_Stable
+   procedure Test_Feature_Panel_Row_Replacement_Selection_Stable
      (T : in out AUnit.Test_Cases.Test_Case'Class)
    is
       pragma Unreferenced (T);
@@ -603,9 +603,9 @@ package body Editor.Feature_Panel_Audit.Tests is
               "selection up at first row clamps deterministically");
       Assert (Invariant_Holds (Panel),
               "row replacement and selection mechanics preserve invariant");
-   end Test_Phase203_Feature_Panel_Row_Replacement_Selection_Stable;
+   end Test_Feature_Panel_Row_Replacement_Selection_Stable;
 
-   procedure Test_Phase203_Feature_Switches_Are_Deterministic
+   procedure Test_Feature_Switches_Are_Deterministic
      (T : in out AUnit.Test_Cases.Test_Case'Class)
    is
       pragma Unreferenced (T);
@@ -619,15 +619,15 @@ package body Editor.Feature_Panel_Audit.Tests is
       Editor.State.Init (S);
       for F of Features loop
          Assert (Editor.Feature_Panel_Controller.Show_Feature (S, F),
-                 "Phase 203 feature switch succeeds deterministically");
+                 "feature switch succeeds deterministically");
          Assert (Active_Feature (S.Feature_Panel) = F,
-                 "Phase 203 feature switch selects requested feature");
+                 "feature switch selects requested feature");
          Assert (Invariant_Holds (S.Feature_Panel),
-                 "Phase 203 feature switch leaves panel invariant intact");
+                 "feature switch leaves panel invariant intact");
          Assert (Review_Feature_Panel_Contract (S).Review_Passed,
-                 "Phase 203 feature switch preserves contract review");
+                 "feature switch preserves contract review");
       end loop;
-   end Test_Phase203_Feature_Switches_Are_Deterministic;
+   end Test_Feature_Switches_Are_Deterministic;
 
    overriding procedure Register_Tests
      (T : in out Feature_Panel_Audit_Test_Case)
@@ -659,20 +659,20 @@ package body Editor.Feature_Panel_Audit.Tests is
       Register_Routine (T, Test_Four_Feature_Workspace_Close_Preserves_Command_Metadata'Access,
                         "Four-feature workspace close preserves command metadata");
       Register_Routine
-        (T, Test_Phase203_Feature_Panel_Contract_Review_Default_Passes'Access,
-         "Phase 203 Feature Panel contract review default passes");
+        (T, Test_Feature_Panel_Contract_Review_Default_Passes'Access,
+         "Feature Panel contract review default passes");
       Register_Routine
-        (T, Test_Phase203_Feature_Panel_Contract_Review_Is_Side_Effect_Free'Access,
-         "Phase 203 Feature Panel contract review is side-effect-free");
+        (T, Test_Feature_Panel_Contract_Review_Is_Side_Effect_Free'Access,
+         "Feature Panel contract review is side-effect-free");
       Register_Routine
-        (T, Test_Phase203_Feature_Panel_Contract_Review_Feedback_Is_Deterministic'Access,
-         "Phase 203 Feature Panel contract feedback is deterministic");
+        (T, Test_Feature_Panel_Contract_Review_Feedback_Is_Deterministic'Access,
+         "Feature Panel contract feedback is deterministic");
       Register_Routine
-        (T, Test_Phase203_Feature_Panel_Row_Replacement_Selection_Stable'Access,
-         "Phase 203 Feature Panel row replacement selection stable");
+        (T, Test_Feature_Panel_Row_Replacement_Selection_Stable'Access,
+         "Feature Panel row replacement selection stable");
       Register_Routine
-        (T, Test_Phase203_Feature_Switches_Are_Deterministic'Access,
-         "Phase 203 Feature Panel switches are deterministic");
+        (T, Test_Feature_Switches_Are_Deterministic'Access,
+         "Feature Panel switches are deterministic");
    end Register_Tests;
 
 end Editor.Feature_Panel_Audit.Tests;

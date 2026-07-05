@@ -4,7 +4,7 @@ with Editor.Ada_Syntax_Tree;
 
 package Editor.Ada_Access_Type_Access_Subprogram_Vertical_Slice_Legality is
 
-   --  Pass1324 vertical-slice access type and access-to-subprogram legality.
+   --  Case 1324 vertical-slice access type and access-to-subprogram legality.
    --  This package models concrete Ada access object, anonymous access,
    --  access-to-subprogram, null-exclusion, designated-view, storage-pool,
    --  storage-size, profile-conformance, and accessibility legality.

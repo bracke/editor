@@ -8,7 +8,7 @@ with Editor.Ada_Syntax_Tree;
 
 package Editor.Ada_Discriminant_Variant_Consumer_Integration_Legality is
 
-   --  Pass1182 compiler-grade discriminant/variant consumer integration.
+   --  Case 1182 compiler-grade discriminant/variant consumer integration.
    --
    --  This layer makes discriminant and variant facts mandatory evidence for the
    --  hard consumers that still depend on discriminated type semantics: record

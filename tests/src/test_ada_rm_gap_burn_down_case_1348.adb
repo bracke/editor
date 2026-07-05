@@ -2,11 +2,11 @@ with Ada.Strings.Unbounded; use Ada.Strings.Unbounded;
 with AUnit.Assertions; use AUnit.Assertions;
 with AUnit.Test_Cases;
 with Editor.Ada_Syntax_Tree;
-with Editor.Ada_RM_Gap_Burn_Down_Pass1348;
+with Editor.Ada_RM_Gap_Burn_Down_Case_1348;
 
 package body Test_Ada_RM_Gap_Burn_Down_Case_1348 is
 
-   package Audit renames Editor.Ada_RM_Gap_Burn_Down_Pass1348;
+   package Audit renames Editor.Ada_RM_Gap_Burn_Down_Case_1348;
    use type Audit.RM_Family;
    use type Audit.Implementing_Slice;
    use type Audit.Coverage_Level;
@@ -119,7 +119,7 @@ package body Test_Ada_RM_Gap_Burn_Down_Case_1348 is
       Row.Context := Context;
       Row.Name := To_Unbounded_String ("tasking protected parallel burn-down row");
       Row.Implementing_Package :=
-        To_Unbounded_String ("Editor.Ada_RM_Gap_Burn_Down_Pass1348");
+        To_Unbounded_String ("Editor.Ada_RM_Gap_Burn_Down_Case_1348");
       Row.Node := Editor.Ada_Syntax_Tree.Node_Id (1_348_000 + Id);
       Row.Source_Shaped_Evidence := Source_Shaped;
       Row.Remediation_Entry_Present := Remediation_Present;
@@ -242,7 +242,7 @@ package body Test_Ada_RM_Gap_Burn_Down_Case_1348 is
 
       Results := Audit.Build (Input);
 
-      Assert (Audit.Count (Results) = 4, "balanced pass1348 rows counted");
+      Assert (Audit.Count (Results) = 4, "balanced case 1348 rows counted");
       Assert (Results.Legal_Count = 1, "legal row counted");
       Assert (Results.Illegal_Count = 1, "illegal row counted");
       Assert (Results.Runtime_Check_Count = 1, "runtime row counted");

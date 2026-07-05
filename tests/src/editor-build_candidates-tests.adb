@@ -42,7 +42,7 @@ package body Editor.Build_Candidates.Tests is
    function Fixture_Root return String is
    begin
       Ada.Directories.Create_Path ("/tmp/editor-tests");
-      return "/tmp/editor-tests/phase506_candidate_fixture";
+      return "/tmp/editor-tests/candidate_fixture";
    end Fixture_Root;
 
    procedure Write_File (Path : String; Text : String := "") is
@@ -94,9 +94,9 @@ package body Editor.Build_Candidates.Tests is
       C := Editor.Build_Candidates.Manual_Request_Candidate;
       Assert (Editor.Build_Candidates.Validate_Candidate (C) =
                 Editor.Build_Candidates.Build_Candidate_Rejected_Unstructured,
-              "Phase 554 rejects removed manual request candidates at the candidate model boundary");
+              "rejects removed manual request candidates at the candidate model boundary");
       Assert (not Editor.Build_Candidates.Assert_Build_Candidate_Is_Structured (C),
-              "Phase 554 manual request candidates cannot satisfy structured discovered-candidate assertions");
+              "manual request candidates cannot satisfy structured discovered-candidate assertions");
    end Test_Candidate_Model_Is_Structured_Transient;
 
    procedure Test_Discovery_Finds_Alire_And_Root_Gpr_Deterministically
@@ -207,7 +207,7 @@ package body Editor.Build_Candidates.Tests is
    end Test_Candidate_Selection_Populates_UI_And_Invalidates_Consent;
 
 
-   procedure Test_Phase_507_Alire_Candidate_Selection_Request_Preview
+   procedure Test_Alire_Candidate_Selection_Request_Preview
      (T : in out AUnit.Test_Cases.Test_Case'Class)
    is
       pragma Unreferenced (T);
@@ -259,9 +259,9 @@ package body Editor.Build_Candidates.Tests is
               "candidate-derived conversion keeps bounded Alire tool kind");
       Assert (To_String (Conversion.Request.Arguments)'Length = 0,
               "candidate-derived conversion does not emit opaque shell arguments");
-   end Test_Phase_507_Alire_Candidate_Selection_Request_Preview;
+   end Test_Alire_Candidate_Selection_Request_Preview;
 
-   procedure Test_Phase_507_Gpr_Candidate_Selection_And_Manual_Mode
+   procedure Test_Gpr_Candidate_Selection_And_Manual_Mode
      (T : in out AUnit.Test_Cases.Test_Case'Class)
    is
       pragma Unreferenced (T);
@@ -302,7 +302,7 @@ package body Editor.Build_Candidates.Tests is
               "clearing selected candidate invalidates consent");
       Assert (Editor.Build_UI.Validate_Build_UI_State (S) =
                 Editor.Build_UI.Build_UI_Rejected_No_Candidate_Selected,
-              "Phase 554 requires selecting a candidate before build.run can be consented");
+              "requires selecting a candidate before build.run can be consented");
 
       Editor.Build_UI.Select_Tool (S, Editor.Build_UI.Build_UI_GPRbuild);
       Editor.Build_UI.Append_Argument (Args, "-q");
@@ -314,10 +314,10 @@ package body Editor.Build_Candidates.Tests is
               "manual request path remains invalid until a candidate is selected");
       Assert (Editor.Build_UI.Validate_Build_UI_State (S) =
                 Editor.Build_UI.Build_UI_Rejected_No_Candidate_Selected,
-              "manual request path cannot bypass candidate-specific Phase 554 configuration");
-   end Test_Phase_507_Gpr_Candidate_Selection_And_Manual_Mode;
+              "manual request path cannot bypass candidate-specific configuration");
+   end Test_Gpr_Candidate_Selection_And_Manual_Mode;
 
-   procedure Test_Phase_507_Candidate_Selection_Audit_Coherent
+   procedure Test_Candidate_Selection_Audit_Coherent
      (T : in out AUnit.Test_Cases.Test_Case'Class)
    is
       pragma Unreferenced (T);
@@ -342,10 +342,10 @@ package body Editor.Build_Candidates.Tests is
       Assert (Editor.Build_Candidate_Selection_Audit.Assert_Build_Candidate_Selection_Does_Not_Execute (S),
               "audit sees no candidate execution field");
       Assert (Editor.Build_Candidate_Selection_Audit.Assert_Public_Build_Candidate_Selection_Foundation_Coherent (S),
-              "Phase 507 candidate selection foundation is coherent");
-   end Test_Phase_507_Candidate_Selection_Audit_Coherent;
+              "candidate selection foundation is coherent");
+   end Test_Candidate_Selection_Audit_Coherent;
 
-   procedure Test_Phase_506_Audit_Coherent
+   procedure Test_Audit_Coherent
      (T : in out AUnit.Test_Cases.Test_Case'Class)
    is
       pragma Unreferenced (T);
@@ -364,12 +364,12 @@ package body Editor.Build_Candidates.Tests is
         (S, To_String (R.Candidates.Element (0).Candidate_Id));
       Assert (Editor.Build_Candidate_Audit.Assert_Public_Build_Candidate_Discovery_Foundation_Coherent
                 (S, R),
-              "Phase 506 candidate discovery foundation is coherent");
-   end Test_Phase_506_Audit_Coherent;
+              "candidate discovery foundation is coherent");
+   end Test_Audit_Coherent;
 
 
 
-   procedure Test_Phase_522_Explicit_Refresh_Updates_Transient_Candidates
+   procedure Test_Explicit_Refresh_Updates_Transient_Candidates
      (T : in out AUnit.Test_Cases.Test_Case'Class)
    is
       pragma Unreferenced (T);
@@ -402,9 +402,9 @@ package body Editor.Build_Candidates.Tests is
               "refresh is bounded to canonical project context");
       Assert (Editor.Build_Candidate_Refresh.Assert_Build_Candidate_Refresh_Does_Not_Execute (R),
               "refresh does not execute tools or shell");
-   end Test_Phase_522_Explicit_Refresh_Updates_Transient_Candidates;
+   end Test_Explicit_Refresh_Updates_Transient_Candidates;
 
-   procedure Test_Phase_522_Refresh_No_Context_And_No_Candidates_Status
+   procedure Test_Refresh_No_Context_And_No_Candidates_Status
      (T : in out AUnit.Test_Cases.Test_Case'Class)
    is
       pragma Unreferenced (T);
@@ -430,9 +430,9 @@ package body Editor.Build_Candidates.Tests is
               "empty bounded project root yields no-candidates status");
       Assert (S.Candidate_Refresh_Status = Editor.Build_UI.Build_Candidate_Refresh_No_Candidates,
               "Build UI snapshots no-candidates refresh status");
-   end Test_Phase_522_Refresh_No_Context_And_No_Candidates_Status;
+   end Test_Refresh_No_Context_And_No_Candidates_Status;
 
-   procedure Test_Phase_522_Refresh_Preserves_Valid_Selected_Candidate_And_Consent
+   procedure Test_Refresh_Preserves_Valid_Selected_Candidate_And_Consent
      (T : in out AUnit.Test_Cases.Test_Case'Class)
    is
       pragma Unreferenced (T);
@@ -465,9 +465,9 @@ package body Editor.Build_Candidates.Tests is
       Assert (To_String (S.Selected_Build_Candidate_Id) =
                 To_String (Before.Selected_Build_Candidate_Id),
               "selected candidate identity remains stable");
-   end Test_Phase_522_Refresh_Preserves_Valid_Selected_Candidate_And_Consent;
+   end Test_Refresh_Preserves_Valid_Selected_Candidate_And_Consent;
 
-   procedure Test_Phase_522_Refresh_Clears_Stale_Selected_Candidate_And_Consent
+   procedure Test_Refresh_Clears_Stale_Selected_Candidate_And_Consent
      (T : in out AUnit.Test_Cases.Test_Case'Class)
    is
       pragma Unreferenced (T);
@@ -502,9 +502,9 @@ package body Editor.Build_Candidates.Tests is
               "stale selected candidate id is removed");
       Assert (S.Selected_Candidate_Stale,
               "Build UI snapshots stale selected candidate warning");
-   end Test_Phase_522_Refresh_Clears_Stale_Selected_Candidate_And_Consent;
+   end Test_Refresh_Clears_Stale_Selected_Candidate_And_Consent;
 
-   procedure Test_Phase_522_Refresh_Clears_Materially_Changed_Selected_Candidate
+   procedure Test_Refresh_Clears_Materially_Changed_Selected_Candidate
      (T : in out AUnit.Test_Cases.Test_Case'Class)
    is
       pragma Unreferenced (T);
@@ -545,9 +545,9 @@ package body Editor.Build_Candidates.Tests is
               "material change invalidates consent");
       Assert (not S.Consent_Acknowledged,
               "materially changed candidate cannot retain consent");
-   end Test_Phase_522_Refresh_Clears_Materially_Changed_Selected_Candidate;
+   end Test_Refresh_Clears_Materially_Changed_Selected_Candidate;
 
-   procedure Test_Phase_522_Refresh_Clears_Unselected_Request_Path
+   procedure Test_Refresh_Clears_Unselected_Request_Path
      (T : in out AUnit.Test_Cases.Test_Case'Class)
    is
       pragma Unreferenced (T);
@@ -568,19 +568,19 @@ package body Editor.Build_Candidates.Tests is
         (S, Editor.Build_Working_Context.Current_Project_Root (Root));
 
       Assert (not R.Manual_Request_Preserved,
-              "Phase 554 refresh does not preserve a runnable manual request path without a selected candidate");
+              "refresh does not preserve a runnable manual request path without a selected candidate");
       Assert (To_String (S.Selected_Build_Candidate_Id)'Length = 0,
               "refresh does not select first candidate");
       Assert (S.Selected_Build_Tool = Editor.Build_UI.Build_UI_No_Tool,
-              "Phase 554 refresh clears unselected request tool state");
+              "refresh clears unselected request tool state");
       Assert (Editor.Build_UI.Argument_Count (S.Structured_Arguments) = 0,
-              "Phase 554 refresh clears unselected request argv tokens");
+              "refresh clears unselected request argv tokens");
       Assert (Editor.Build_UI.Validate_Build_UI_State (S) =
                 Editor.Build_UI.Build_UI_Rejected_No_Candidate_Selected,
-              "Phase 554 keeps unselected manual request state invalid for build.run");
-   end Test_Phase_522_Refresh_Clears_Unselected_Request_Path;
+              "keeps unselected manual request state invalid for build.run");
+   end Test_Refresh_Clears_Unselected_Request_Path;
 
-   procedure Test_Phase_522_Candidate_Refresh_Audit_Coherent
+   procedure Test_Candidate_Refresh_Audit_Coherent
      (T : in out AUnit.Test_Cases.Test_Case'Class)
    is
       pragma Unreferenced (T);
@@ -597,11 +597,11 @@ package body Editor.Build_Candidates.Tests is
         (S, Editor.Build_Working_Context.Current_Project_Root (Root));
       Assert (Editor.Build_Candidate_Refresh_Audit.Assert_Public_Build_Candidate_Refresh_Foundation_Coherent
                 (Before, S, R),
-              "Phase 522 candidate refresh foundation is coherent");
-   end Test_Phase_522_Candidate_Refresh_Audit_Coherent;
+              "candidate refresh foundation is coherent");
+   end Test_Candidate_Refresh_Audit_Coherent;
 
 
-   procedure Test_Phase_523_Repeated_Refresh_Is_Deterministic
+   procedure Test_Repeated_Refresh_Is_Deterministic
      (T : in out AUnit.Test_Cases.Test_Case'Class)
    is
       pragma Unreferenced (T);
@@ -624,15 +624,15 @@ package body Editor.Build_Candidates.Tests is
       R2 := Editor.Build_Candidate_Refresh.Refresh_Build_Candidates (S2, Context);
 
       Assert (Editor.Build_Candidate_Refresh.Assert_Build_Candidate_Refresh_Deterministic (R1, R2),
-              "Phase 523 repeated refreshes over the same project state are deterministic");
+              "repeated refreshes over the same project state are deterministic");
       Assert (Editor.Build_Candidates.Assert_Build_Candidate_List_Is_Deterministic (S1.Build_Candidates),
-              "Phase 523 visible candidate order is stable after refresh");
+              "visible candidate order is stable after refresh");
       Assert (To_String (S1.Build_Candidates.Element (0).Candidate_Id) =
                 To_String (S2.Build_Candidates.Element (0).Candidate_Id),
-              "Phase 523 candidate identities are stable across refreshes");
-   end Test_Phase_523_Repeated_Refresh_Is_Deterministic;
+              "candidate identities are stable across refreshes");
+   end Test_Repeated_Refresh_Is_Deterministic;
 
-   procedure Test_Phase_523_No_Candidate_Refresh_Does_Not_Reuse_Cache
+   procedure Test_No_Candidate_Refresh_Does_Not_Reuse_Cache
      (T : in out AUnit.Test_Cases.Test_Case'Class)
    is
       pragma Unreferenced (T);
@@ -654,14 +654,14 @@ package body Editor.Build_Candidates.Tests is
       R := Editor.Build_Candidate_Refresh.Refresh_Build_Candidates (S, Context);
 
       Assert (R.Status = Editor.Build_Candidate_Refresh.Build_Candidate_Refresh_No_Candidates,
-              "Phase 523 unsupported metadata yields canonical no-candidates status");
+              "unsupported metadata yields canonical no-candidates status");
       Assert (Editor.Build_UI.Candidate_Count (S) = 0,
-              "Phase 523 no-candidate refresh does not reuse previous candidate cache");
+              "no-candidate refresh does not reuse previous candidate cache");
       Assert (To_String (S.Selected_Build_Candidate_Id)'Length = 0,
-              "Phase 523 no-candidate refresh does not fabricate selection");
-   end Test_Phase_523_No_Candidate_Refresh_Does_Not_Reuse_Cache;
+              "no-candidate refresh does not fabricate selection");
+   end Test_No_Candidate_Refresh_Does_Not_Reuse_Cache;
 
-   procedure Test_Phase_554_Unselected_Request_Consent_Does_Not_Survive_Refresh
+   procedure Test_Unselected_Request_Consent_Does_Not_Survive_Refresh
      (T : in out AUnit.Test_Cases.Test_Case'Class)
    is
       pragma Unreferenced (T);
@@ -687,16 +687,16 @@ package body Editor.Build_Candidates.Tests is
         (S, Editor.Build_Working_Context.Current_Project_Root (Root));
 
       Assert (not R.Manual_Request_Preserved,
-              "Phase 554 refresh records no preserved manual request without candidate selection");
+              "refresh records no preserved manual request without candidate selection");
       Assert (not S.Consent_Acknowledged,
-              "Phase 554 does not preserve consent for an unselected request");
+              "does not preserve consent for an unselected request");
       Assert (To_String (S.Consent_Request_Identity)'Length = 0,
-              "Phase 554 clears consent identity without a selected candidate");
+              "clears consent identity without a selected candidate");
       Assert (To_String (S.Selected_Build_Candidate_Id)'Length = 0,
-              "Phase 554 refresh does not auto-convert an unselected request to candidate mode");
-   end Test_Phase_554_Unselected_Request_Consent_Does_Not_Survive_Refresh;
+              "refresh does not auto-convert an unselected request to candidate mode");
+   end Test_Unselected_Request_Consent_Does_Not_Survive_Refresh;
 
-   procedure Test_Phase_523_Identity_Collision_Clears_Selection
+   procedure Test_Identity_Collision_Clears_Selection
      (T : in out AUnit.Test_Cases.Test_Case'Class)
    is
       pragma Unreferenced (T);
@@ -727,12 +727,12 @@ package body Editor.Build_Candidates.Tests is
         (S, Before, New_List, R);
 
       Assert (R.Selected_Candidate_Cleared,
-              "Phase 523 duplicate refreshed candidate identity clears stale selection deterministically");
+              "duplicate refreshed candidate identity clears stale selection deterministically");
       Assert (R.Consent_Invalidated and then not S.Consent_Acknowledged,
-              "Phase 523 identity collision invalidates stale consent");
-   end Test_Phase_523_Identity_Collision_Clears_Selection;
+              "identity collision invalidates stale consent");
+   end Test_Identity_Collision_Clears_Selection;
 
-   procedure Test_Phase_523_Display_Label_Change_Uses_Request_Identity_Policy
+   procedure Test_Display_Label_Change_Uses_Request_Identity_Policy
      (T : in out AUnit.Test_Cases.Test_Case'Class)
    is
       pragma Unreferenced (T);
@@ -764,15 +764,15 @@ package body Editor.Build_Candidates.Tests is
         (S, Before, New_List, R);
 
       Assert (R.Selected_Candidate_Preserved,
-              "Phase 523 display-only label change preserves material candidate selection");
+              "display-only label change preserves material candidate selection");
       Assert (S.Consent_Acknowledged,
-              "Phase 523 display-only label policy preserves unchanged request consent");
+              "display-only label policy preserves unchanged request consent");
       Assert (To_String (S.Build_Target_Label) = To_String (Before.Build_Target_Label),
-              "Phase 523 request label stays stable when consent identity includes it");
-   end Test_Phase_523_Display_Label_Change_Uses_Request_Identity_Policy;
+              "request label stays stable when consent identity includes it");
+   end Test_Display_Label_Change_Uses_Request_Identity_Policy;
 
 
-   procedure Test_Phase_524_Canonical_Refresh_Audit_Coherent
+   procedure Test_Canonical_Refresh_Audit_Coherent
      (T : in out AUnit.Test_Cases.Test_Case'Class)
    is
       pragma Unreferenced (T);
@@ -792,16 +792,16 @@ package body Editor.Build_Candidates.Tests is
 
       Assert (Editor.Build_Candidate_Refresh_Audit.Assert_Public_Build_Candidate_Refresh_Canonical_Coherent
                 (Before, S, R),
-              "Phase 524 canonical refresh ownership audit is coherent");
+              "canonical refresh ownership audit is coherent");
       Assert (Editor.Build_Candidate_Refresh.Assert_Build_Candidate_Refresh_Canonical_Path
                 (Before, S, R),
-              "Phase 524 explicit refresh uses the canonical bounded refresh path");
+              "explicit refresh uses the canonical bounded refresh path");
       Assert (not S.Candidate_Applied_To_Request
                 and then To_String (S.Selected_Build_Candidate_Id)'Length = 0,
-              "Phase 524 refresh does not auto-select or apply a candidate");
-   end Test_Phase_524_Canonical_Refresh_Audit_Coherent;
+              "refresh does not auto-select or apply a candidate");
+   end Test_Canonical_Refresh_Audit_Coherent;
 
-   procedure Test_Phase_524_Candidate_Material_Identity_Is_Canonical
+   procedure Test_Candidate_Material_Identity_Is_Canonical
      (T : in out AUnit.Test_Cases.Test_Case'Class)
    is
       pragma Unreferenced (T);
@@ -822,20 +822,20 @@ package body Editor.Build_Candidates.Tests is
 
       Assert (Editor.Build_Candidate_Refresh.Assert_Build_Candidate_Identity_Canonical
                 (Base),
-              "Phase 524 candidate identity helper is canonical");
+              "candidate identity helper is canonical");
       Assert (Base_Material =
                 Editor.Build_Candidate_Refresh.Build_Candidate_Material_Identity
                   (Display_Only),
-              "Phase 524 display-only fields are not material identity");
+              "display-only fields are not material identity");
       Assert (Editor.Build_Candidate_Refresh.Candidate_Material_Matches
                 (Base, Display_Only),
-              "Phase 524 material comparison ignores display-only drift");
+              "material comparison ignores display-only drift");
       Assert (not Editor.Build_Candidate_Refresh.Candidate_Material_Matches
                 (Base, Materially_Changed),
-              "Phase 524 material comparison catches structured request drift");
-   end Test_Phase_524_Candidate_Material_Identity_Is_Canonical;
+              "material comparison catches structured request drift");
+   end Test_Candidate_Material_Identity_Is_Canonical;
 
-   procedure Test_Phase_524_Failed_Refresh_Is_Status_Only
+   procedure Test_Failed_Refresh_Is_Status_Only
      (T : in out AUnit.Test_Cases.Test_Case'Class)
    is
       pragma Unreferenced (T);
@@ -863,18 +863,18 @@ package body Editor.Build_Candidates.Tests is
                "../outside"));
 
       Assert (R.Status = Editor.Build_Candidate_Refresh.Build_Candidate_Refresh_Failed,
-              "Phase 524 rejected refresh context is reported as failed refresh");
+              "rejected refresh context is reported as failed refresh");
       Assert (Editor.Build_UI.Candidate_Count (S) = Editor.Build_UI.Candidate_Count (Before),
-              "Phase 524 failed refresh does not replace candidate list");
+              "failed refresh does not replace candidate list");
       Assert (To_String (S.Selected_Build_Candidate_Id) =
                 To_String (Before.Selected_Build_Candidate_Id),
-              "Phase 524 failed refresh does not repair or clear selection");
+              "failed refresh does not repair or clear selection");
       Assert (Editor.Build_Candidate_Refresh.Assert_Build_Candidate_Refresh_Canonical_Path
                 (Before, S, R),
-              "Phase 524 failed refresh remains a canonical status-only path");
-   end Test_Phase_524_Failed_Refresh_Is_Status_Only;
+              "failed refresh remains a canonical status-only path");
+   end Test_Failed_Refresh_Is_Status_Only;
 
-   procedure Test_Phase_524_Frontdoor_And_Build_Run_Boundaries
+   procedure Test_Frontdoor_And_Build_Run_Boundaries
      (T : in out AUnit.Test_Cases.Test_Case'Class)
    is
       pragma Unreferenced (T);
@@ -892,16 +892,16 @@ package body Editor.Build_Candidates.Tests is
 
       Assert (Editor.Build_Candidate_Refresh.Assert_Build_Candidate_Refresh_Not_Frontdoor_Payload
                 (S),
-              "Phase 524 palette/keybinding frontdoors carry no candidate payload");
+              "palette/keybinding frontdoors carry no candidate payload");
       Assert (Editor.Build_Candidate_Refresh.Assert_Build_Candidate_Refresh_Not_Build_Run_Side_Effect
                 (Before, S, R),
-              "Phase 524 refresh does not become a hidden build.run side effect");
+              "refresh does not become a hidden build.run side effect");
       Assert (not S.Pending_Public_Build_Request,
-              "Phase 524 refresh does not enqueue or auto-run a build request");
-   end Test_Phase_524_Frontdoor_And_Build_Run_Boundaries;
+              "refresh does not enqueue or auto-run a build request");
+   end Test_Frontdoor_And_Build_Run_Boundaries;
 
 
-   procedure Test_Phase_525_Final_Freeze_Canonical_Path_Coherent
+   procedure Test_Final_Freeze_Canonical_Path_Coherent
      (T : in out AUnit.Test_Cases.Test_Case'Class)
    is
       pragma Unreferenced (T);
@@ -922,31 +922,31 @@ package body Editor.Build_Candidates.Tests is
         (S, Editor.Build_Working_Context.Current_Project_Root (Root));
 
       Assert (R.Status = Editor.Build_Candidate_Refresh.Build_Candidate_Refresh_Succeeded,
-              "Phase 525 final freeze refresh succeeds through canonical path");
+              "final freeze refresh succeeds through canonical path");
       Assert (R.Candidate_Count = 3,
-              "Phase 525 final freeze keeps bounded discovery including nested GPR files");
+              "final freeze keeps bounded discovery including nested GPR files");
       Assert (Editor.Build_Candidate_Refresh_Audit.Assert_Public_Build_Candidate_Refresh_Final_Freeze_Coherent
                 (Before, S, R),
-              "Phase 525 final candidate refresh freeze is coherent");
+              "final candidate refresh freeze is coherent");
       Assert (Editor.Build_Candidate_Refresh.Assert_Build_Candidate_Refresh_Final_No_Auto_Select
                 (Before, S, R),
-              "Phase 525 final freeze forbids refresh auto-selection");
+              "final freeze forbids refresh auto-selection");
       Assert (Editor.Build_Candidate_Refresh.Assert_Build_Candidate_Refresh_Final_No_Auto_Consent
                 (Before, S),
-              "Phase 525 final freeze forbids refresh auto-consent");
+              "final freeze forbids refresh auto-consent");
       Assert (Editor.Build_Candidate_Refresh.Assert_Build_Candidate_Refresh_Final_No_Auto_Run
                 (Before, S, R),
-              "Phase 525 final freeze forbids refresh auto-run");
+              "final freeze forbids refresh auto-run");
       Assert (Editor.Build_Candidate_Refresh.Assert_Build_Candidate_Refresh_Final_Not_Frontdoor_Payload
                 (S),
-              "Phase 525 final freeze forbids palette/keybinding candidate payloads");
+              "final freeze forbids palette/keybinding candidate payloads");
       Assert (not S.Pending_Public_Build_Request,
-              "Phase 525 final freeze does not create a build.run request");
+              "final freeze does not create a build.run request");
       Assert (S.Candidate_Refresh_Status = Editor.Build_UI.Build_Candidate_Refresh_Succeeded,
-              "Phase 525 final freeze snapshots refresh status only");
-   end Test_Phase_525_Final_Freeze_Canonical_Path_Coherent;
+              "final freeze snapshots refresh status only");
+   end Test_Final_Freeze_Canonical_Path_Coherent;
 
-   procedure Test_Phase_525_Final_Freeze_Identity_Stale_And_Consent
+   procedure Test_Final_Freeze_Identity_Stale_And_Consent
      (T : in out AUnit.Test_Cases.Test_Case'Class)
    is
       pragma Unreferenced (T);
@@ -986,17 +986,17 @@ package body Editor.Build_Candidates.Tests is
 
       Assert (Editor.Build_Candidate_Refresh.Assert_Build_Candidate_Identity_Final_Canonical
                 (Old_C),
-              "Phase 525 final freeze keeps candidate identity centralized");
+              "final freeze keeps candidate identity centralized");
       Assert (Editor.Build_Candidate_Refresh.Assert_Build_Candidate_Material_Identity_Final_Canonical
                 (Old_C),
-              "Phase 525 final freeze keeps material identity centralized");
+              "final freeze keeps material identity centralized");
       Assert (Editor.Build_Candidate_Refresh.Candidate_Material_Matches (Old_C, Same_C),
-              "Phase 525 final freeze ignores display-only material drift");
+              "final freeze ignores display-only material drift");
       Assert (R.Selected_Candidate_Preserved and then S.Consent_Acknowledged,
-              "Phase 525 final freeze preserves consent only for unchanged request identity");
+              "final freeze preserves consent only for unchanged request identity");
       Assert (Editor.Build_Candidate_Refresh.Assert_Build_Candidate_Stale_Reconciliation_Final_Canonical
                 (Before, S, R),
-              "Phase 525 final freeze preserves unchanged selection through canonical reconciliation");
+              "final freeze preserves unchanged selection through canonical reconciliation");
 
       Before := S;
       R.Status := Editor.Build_Candidate_Refresh.Build_Candidate_Refresh_Succeeded;
@@ -1012,16 +1012,16 @@ package body Editor.Build_Candidates.Tests is
 
       Assert (not Editor.Build_Candidate_Refresh.Candidate_Material_Matches
                 (Old_C, Changed_C),
-              "Phase 525 final freeze treats argv drift as material");
+              "final freeze treats argv drift as material");
       Assert (R.Selected_Candidate_Cleared,
-              "Phase 525 final freeze clears materially stale selected candidate");
+              "final freeze clears materially stale selected candidate");
       Assert (R.Consent_Invalidated and then not S.Consent_Acknowledged,
-              "Phase 525 final freeze invalidates consent after material identity change");
+              "final freeze invalidates consent after material identity change");
       Assert (To_String (S.Selected_Build_Candidate_Id)'Length = 0,
-              "Phase 525 final freeze leaves no executable stale candidate id");
-   end Test_Phase_525_Final_Freeze_Identity_Stale_And_Consent;
+              "final freeze leaves no executable stale candidate id");
+   end Test_Final_Freeze_Identity_Stale_And_Consent;
 
-   procedure Test_Phase_525_Final_Freeze_Manual_Request_Independent
+   procedure Test_Final_Freeze_Manual_Request_Independent
      (T : in out AUnit.Test_Cases.Test_Case'Class)
    is
       pragma Unreferenced (T);
@@ -1046,23 +1046,23 @@ package body Editor.Build_Candidates.Tests is
         (S, Editor.Build_Working_Context.Current_Project_Root (Root));
 
       Assert (R.Status = Editor.Build_Candidate_Refresh.Build_Candidate_Refresh_No_Candidates,
-              "Phase 525 final freeze reports no-candidates without replacing manual request");
+              "final freeze reports no-candidates without replacing manual request");
       Assert (not R.Manual_Request_Preserved,
-              "Phase 554 final freeze does not preserve manual request mode during refresh");
+              "final freeze does not preserve manual request mode during refresh");
       Assert (S.Selected_Build_Tool = Editor.Build_UI.Build_UI_No_Tool,
-              "Phase 554 final freeze clears unselected request tool selection");
+              "final freeze clears unselected request tool selection");
       Assert (Editor.Build_UI.Argument_Count (S.Structured_Arguments) = 0,
-              "Phase 554 final freeze clears unselected request argv tokens");
+              "final freeze clears unselected request argv tokens");
       Assert (To_String (S.Selected_Build_Candidate_Id)'Length = 0,
-              "Phase 525 final freeze does not convert manual mode to candidate mode");
+              "final freeze does not convert manual mode to candidate mode");
       Assert (not S.Consent_Acknowledged,
-              "Phase 554 final freeze clears consent without selected candidate identity");
+              "final freeze clears consent without selected candidate identity");
       Assert (Editor.Build_Candidate_Refresh.Assert_Build_Candidate_Refresh_Final_Canonical_Path
                 (Before, S, R),
-              "Phase 525 final freeze manual refresh remains canonical");
-   end Test_Phase_525_Final_Freeze_Manual_Request_Independent;
+              "final freeze manual refresh remains canonical");
+   end Test_Final_Freeze_Manual_Request_Independent;
 
-   procedure Test_Phase_525_Final_Freeze_Failed_And_Persistence_Boundaries
+   procedure Test_Final_Freeze_Failed_And_Persistence_Boundaries
      (T : in out AUnit.Test_Cases.Test_Case'Class)
    is
       pragma Unreferenced (T);
@@ -1090,32 +1090,32 @@ package body Editor.Build_Candidates.Tests is
                "../outside"));
 
       Assert (R.Status = Editor.Build_Candidate_Refresh.Build_Candidate_Refresh_Failed,
-              "Phase 525 final freeze failed refresh remains status-only");
+              "final freeze failed refresh remains status-only");
       Assert (Editor.Build_UI.Candidate_Count (S) = Editor.Build_UI.Candidate_Count (Before),
-              "Phase 525 final freeze failed refresh does not replace candidates");
+              "final freeze failed refresh does not replace candidates");
       Assert (To_String (S.Selected_Build_Candidate_Id) =
                 To_String (Before.Selected_Build_Candidate_Id),
-              "Phase 525 final freeze failed refresh does not repair stale selection");
+              "final freeze failed refresh does not repair stale selection");
       Assert (Editor.Build_Candidate_Refresh.Assert_Build_Candidate_Refresh_Final_Not_Build_Run_Side_Effect
                 (Before, S, R),
-              "Phase 525 final freeze failed refresh is not hidden build.run refresh");
+              "final freeze failed refresh is not hidden build.run refresh");
       Assert (Editor.Build_Candidate_Refresh.Assert_Build_Candidate_Refresh_Final_Not_Render_Owned
                 (Before, S, R),
-              "Phase 525 final freeze keeps render as snapshot-only consumer");
+              "final freeze keeps render as snapshot-only consumer");
       Assert (Editor.Build_Candidate_Refresh.Assert_Build_Candidate_Refresh_Final_Not_Diagnostics_Result_Output_Mutation
                 (Before, S, R),
-              "Phase 525 final freeze does not mutate diagnostics/result/output surfaces");
+              "final freeze does not mutate diagnostics/result/output surfaces");
       Assert (Editor.Build_Candidate_Refresh.Assert_Build_Candidate_Refresh_Final_Persistence_Excluded
                 (S),
-              "Phase 525 final freeze excludes refresh state from persistence domains");
-   end Test_Phase_525_Final_Freeze_Failed_And_Persistence_Boundaries;
+              "final freeze excludes refresh state from persistence domains");
+   end Test_Final_Freeze_Failed_And_Persistence_Boundaries;
 
 
 
    function Lifecycle_Root (Suffix : String) return String is
    begin
       Ada.Directories.Create_Path ("/tmp/editor-tests");
-      return "/tmp/editor-tests/phase528_lifecycle_" & Suffix;
+      return "/tmp/editor-tests/lifecycle_" & Suffix;
    end Lifecycle_Root;
 
    procedure Reset_Lifecycle_Root (Suffix : String) is
@@ -1127,7 +1127,7 @@ package body Editor.Build_Candidates.Tests is
       Ada.Directories.Create_Path (Root);
    end Reset_Lifecycle_Root;
 
-   procedure Test_Phase_528_Project_Open_Refreshes_Through_Canonical_Path
+   procedure Test_Project_Open_Refreshes_Through_Canonical_Path
      (T : in out AUnit.Test_Cases.Test_Case'Class)
    is
       pragma Unreferenced (T);
@@ -1145,21 +1145,21 @@ package body Editor.Build_Candidates.Tests is
         (S, Editor.Build_Working_Context.Current_Project_Root (Root), True);
 
       Assert (R.Status = Editor.Build_Candidate_Refresh.Build_Candidate_Refresh_Succeeded,
-              "Phase 528 project open refresh succeeds through canonical path");
+              "project open refresh succeeds through canonical path");
       Assert (Editor.Build_UI.Candidate_Count (S) = 1,
-              "Phase 528 project open installs opened-project candidates");
+              "project open installs opened-project candidates");
       Assert (To_String (S.Selected_Build_Candidate_Id)'Length = 0,
-              "Phase 528 project open does not auto-select a candidate");
+              "project open does not auto-select a candidate");
       Assert (not S.Consent_Acknowledged,
-              "Phase 528 project open does not auto-consent");
+              "project open does not auto-consent");
       Assert (not S.Pending_Public_Build_Request,
-              "Phase 528 project open does not auto-run build");
+              "project open does not auto-run build");
       Assert (Editor.Build_Candidate_Refresh.Assert_Project_Lifecycle_Build_Candidate_Integration_Coherent
                 (Before, S, R),
-              "Phase 528 project open lifecycle integration remains coherent");
-   end Test_Phase_528_Project_Open_Refreshes_Through_Canonical_Path;
+              "project open lifecycle integration remains coherent");
+   end Test_Project_Open_Refreshes_Through_Canonical_Path;
 
-   procedure Test_Phase_528_Project_Switch_Reconciles_Selection_And_Consent
+   procedure Test_Project_Switch_Reconciles_Selection_And_Consent
      (T : in out AUnit.Test_Cases.Test_Case'Class)
    is
       pragma Unreferenced (T);
@@ -1189,23 +1189,23 @@ package body Editor.Build_Candidates.Tests is
         (S, Editor.Build_Working_Context.Current_Project_Root (Root_B), True);
 
       Assert (R.Status = Editor.Build_Candidate_Refresh.Build_Candidate_Refresh_Succeeded,
-              "Phase 528 project switch refresh succeeds");
+              "project switch refresh succeeds");
       Assert (Editor.Build_UI.Candidate_Count (S) = 1,
-              "Phase 528 project switch replaces candidate list");
+              "project switch replaces candidate list");
       Assert (To_String (S.Selected_Build_Candidate_Id)'Length = 0,
-              "Phase 528 project switch clears stale selected candidate");
+              "project switch clears stale selected candidate");
       Assert (not S.Consent_Acknowledged,
-              "Phase 528 project switch invalidates stale candidate consent");
+              "project switch invalidates stale candidate consent");
       Assert (R.Selected_Candidate_Cleared,
-              "Phase 528 project switch records stale selection clear");
+              "project switch records stale selection clear");
       Assert (R.Consent_Invalidated,
-              "Phase 528 project switch records consent invalidation");
+              "project switch records consent invalidation");
       Assert (Editor.Build_Candidate_Refresh.Assert_Project_Lifecycle_Build_Candidate_Integration_Coherent
                 (Before_Switch, S, R),
-              "Phase 528 project switch lifecycle integration remains coherent");
-   end Test_Phase_528_Project_Switch_Reconciles_Selection_And_Consent;
+              "project switch lifecycle integration remains coherent");
+   end Test_Project_Switch_Reconciles_Selection_And_Consent;
 
-   procedure Test_Phase_528_Project_Close_Clears_Executable_Candidates
+   procedure Test_Project_Close_Clears_Executable_Candidates
      (T : in out AUnit.Test_Cases.Test_Case'Class)
    is
       pragma Unreferenced (T);
@@ -1227,22 +1227,22 @@ package body Editor.Build_Candidates.Tests is
       R := Editor.Build_Candidate_Refresh.Clear_Build_Candidates_After_Project_Close (S);
 
       Assert (Editor.Build_UI.Candidate_Count (S) = 0,
-              "Phase 528 project close clears candidate list");
+              "project close clears candidate list");
       Assert (To_String (S.Selected_Build_Candidate_Id)'Length = 0,
-              "Phase 528 project close clears selected candidate");
+              "project close clears selected candidate");
       Assert (not S.Consent_Acknowledged,
-              "Phase 528 project close invalidates candidate consent");
+              "project close invalidates candidate consent");
       Assert (Editor.Build_UI.Validate_Build_UI_State (S) /= Editor.Build_UI.Build_UI_Valid,
-              "Phase 528 project close leaves build.run unavailable");
+              "project close leaves build.run unavailable");
       Assert (Editor.Build_Candidate_Refresh.Assert_Project_Close_Clears_Build_Candidates
                 (Before_Close, S, R),
-              "Phase 528 project close clear policy is coherent");
+              "project close clear policy is coherent");
       Assert (Editor.Build_Candidate_Refresh.Assert_Project_Lifecycle_Build_Candidate_Integration_Coherent
                 (Before_Close, S, R),
-              "Phase 528 project close lifecycle integration remains coherent");
-   end Test_Phase_528_Project_Close_Clears_Executable_Candidates;
+              "project close lifecycle integration remains coherent");
+   end Test_Project_Close_Clears_Executable_Candidates;
 
-   procedure Test_Phase_528_Failed_Project_Transition_Does_Not_Fabricate
+   procedure Test_Failed_Project_Transition_Does_Not_Fabricate
      (T : in out AUnit.Test_Cases.Test_Case'Class)
    is
       pragma Unreferenced (T);
@@ -1269,20 +1269,20 @@ package body Editor.Build_Candidates.Tests is
         (S, Editor.Build_Working_Context.Current_Project_Root (Failed_Root), False);
 
       Assert (R.Status = Editor.Build_Candidate_Refresh.Build_Candidate_Refresh_Failed,
-              "Phase 528 failed project switch is status-only");
+              "failed project switch is status-only");
       Assert (Editor.Build_UI.Candidate_Count (S) = Editor.Build_UI.Candidate_Count (Before_Failed),
-              "Phase 528 failed project switch preserves prior candidate state");
+              "failed project switch preserves prior candidate state");
       Assert (S.Consent_Acknowledged = Before_Failed.Consent_Acknowledged,
-              "Phase 528 failed project switch does not restore or clear consent");
+              "failed project switch does not restore or clear consent");
       Assert (Editor.Build_Candidate_Refresh.Assert_Failed_Project_Transition_Does_Not_Fabricate_Candidates
                 (Before_Failed, S, R),
-              "Phase 528 failed transition does not fabricate candidates");
+              "failed transition does not fabricate candidates");
       Assert (Editor.Build_Candidate_Refresh.Assert_Project_Lifecycle_Build_Candidate_Integration_Coherent
                 (Before_Failed, S, R),
-              "Phase 528 failed transition lifecycle integration remains coherent");
-   end Test_Phase_528_Failed_Project_Transition_Does_Not_Fabricate;
+              "failed transition lifecycle integration remains coherent");
+   end Test_Failed_Project_Transition_Does_Not_Fabricate;
 
-   procedure Test_Phase_528_Project_Reset_And_Manual_Request_Boundary
+   procedure Test_Project_Reset_And_Manual_Request_Boundary
      (T : in out AUnit.Test_Cases.Test_Case'Class)
    is
       pragma Unreferenced (T);
@@ -1306,24 +1306,24 @@ package body Editor.Build_Candidates.Tests is
         (S, Editor.Build_Working_Context.Current_Project_Root (Root), True);
 
       Assert (R.Status = Editor.Build_Candidate_Refresh.Build_Candidate_Refresh_Succeeded,
-              "Phase 528 project reset refreshes retained project context");
+              "project reset refreshes retained project context");
       Assert (Editor.Build_UI.Candidate_Count (S) = 1,
-              "Phase 528 project reset updates candidates");
+              "project reset updates candidates");
       Assert (To_String (S.Selected_Build_Candidate_Id)'Length = 0,
-              "Phase 528 project reset does not auto-convert manual request to candidate request");
+              "project reset does not auto-convert manual request to candidate request");
       Assert (S.Selected_Build_Tool = Editor.Build_UI.Build_UI_No_Tool,
-              "Phase 554 project reset clears unselected request tool");
+              "project reset clears unselected request tool");
       Assert (Editor.Build_UI.Argument_Count (S.Structured_Arguments) = 0,
-              "Phase 554 project reset clears unselected structured argv");
+              "project reset clears unselected structured argv");
       Assert (not R.Manual_Request_Preserved,
-              "Phase 554 project reset records no manual request preservation");
+              "project reset records no manual request preservation");
       Assert (Editor.Build_Candidate_Refresh.Assert_Project_Lifecycle_Build_Candidate_Integration_Coherent
                 (Before_Reset, S, R),
-              "Phase 528 project reset lifecycle integration remains coherent");
-   end Test_Phase_528_Project_Reset_And_Manual_Request_Boundary;
+              "project reset lifecycle integration remains coherent");
+   end Test_Project_Reset_And_Manual_Request_Boundary;
 
 
-   procedure Test_Phase_528_Project_Close_Clears_Unselected_Request_Shape
+   procedure Test_Project_Close_Clears_Unselected_Request_Shape
      (T : in out AUnit.Test_Cases.Test_Case'Class)
    is
       pragma Unreferenced (T);
@@ -1347,24 +1347,24 @@ package body Editor.Build_Candidates.Tests is
       R := Editor.Build_Candidate_Refresh.Clear_Build_Candidates_After_Project_Close (S);
 
       Assert (not R.Manual_Request_Preserved,
-              "Phase 554 project close records no manual request preservation");
+              "project close records no manual request preservation");
       Assert (S.Selected_Build_Tool = Editor.Build_UI.Build_UI_No_Tool,
-              "Phase 554 project close clears unselected request tool selection");
+              "project close clears unselected request tool selection");
       Assert (Editor.Build_UI.Argument_Count (S.Structured_Arguments) = 0,
-              "Phase 554 project close clears unselected request structured argv");
+              "project close clears unselected request structured argv");
       Assert (S.Selected_Working_Context.Kind =
                 Editor.Build_Working_Context.Build_Working_Context_Unavailable,
-              "Phase 554 project close invalidates working context after clearing request shape");
+              "project close invalidates working context after clearing request shape");
       Assert (not S.Consent_Acknowledged,
-              "Phase 554 project close invalidates consent because request context changed");
+              "project close invalidates consent because request context changed");
       Assert (Editor.Build_UI.Validate_Build_UI_State (S) /= Editor.Build_UI.Build_UI_Valid,
-              "Phase 554 project close keeps build.run unavailable after request clear");
+              "project close keeps build.run unavailable after request clear");
       Assert (Editor.Build_Candidate_Refresh.Assert_Project_Lifecycle_Build_Candidate_Integration_Coherent
                 (Before_Close, S, R),
-              "Phase 554 project close clearing remains coherent");
-   end Test_Phase_528_Project_Close_Clears_Unselected_Request_Shape;
+              "project close clearing remains coherent");
+   end Test_Project_Close_Clears_Unselected_Request_Shape;
 
-   procedure Test_Phase_528_Project_Open_No_Candidates_Is_Lifecycle_State
+   procedure Test_Project_Open_No_Candidates_Is_Lifecycle_State
      (T : in out AUnit.Test_Cases.Test_Case'Class)
    is
       pragma Unreferenced (T);
@@ -1381,23 +1381,23 @@ package body Editor.Build_Candidates.Tests is
         (S, Editor.Build_Working_Context.Current_Project_Root (Root), True);
 
       Assert (R.Status = Editor.Build_Candidate_Refresh.Build_Candidate_Refresh_No_Candidates,
-              "Phase 528 project open reports no-candidates lifecycle state");
+              "project open reports no-candidates lifecycle state");
       Assert (Editor.Build_UI.Candidate_Count (S) = 0,
-              "Phase 528 project open with no build metadata leaves no candidates");
+              "project open with no build metadata leaves no candidates");
       Assert (S.Candidate_Refresh_Status = Editor.Build_UI.Build_Candidate_Refresh_No_Candidates,
-              "Phase 528 Build UI snapshot state records no candidates");
+              "Build UI snapshot state records no candidates");
       Assert (To_String (S.Selected_Build_Candidate_Id)'Length = 0,
-              "Phase 528 no-candidates lifecycle state does not auto-select");
+              "no-candidates lifecycle state does not auto-select");
       Assert (not S.Consent_Acknowledged,
-              "Phase 528 no-candidates lifecycle state does not auto-consent");
+              "no-candidates lifecycle state does not auto-consent");
       Assert (Editor.Build_Candidate_Refresh.Assert_Project_Lifecycle_Build_Candidate_Integration_Coherent
                 (Before, S, R),
-              "Phase 528 no-candidates lifecycle integration remains coherent");
-   end Test_Phase_528_Project_Open_No_Candidates_Is_Lifecycle_State;
+              "no-candidates lifecycle integration remains coherent");
+   end Test_Project_Open_No_Candidates_Is_Lifecycle_State;
 
 
 
-   procedure Test_Phase_553_Bounded_Nested_Gpr_Discovery_And_Ignores
+   procedure Test_Bounded_Nested_Gpr_Discovery_And_Ignores
      (T : in out AUnit.Test_Cases.Test_Case'Class)
    is
       pragma Unreferenced (T);
@@ -1428,13 +1428,13 @@ package body Editor.Build_Candidates.Tests is
       R := Editor.Build_Candidate_Discovery.Discover_Build_Candidates (Context);
 
       Assert (R.Status = Editor.Build_Candidate_Discovery.Build_Candidate_Discovery_Complete,
-              "Phase 553 nested discovery completes under project root");
+              "nested discovery completes under project root");
       Assert (R.Alire_Candidate_Count = 1,
-              "Phase 553 tracks Alire candidate count");
+              "tracks Alire candidate count");
       Assert (R.Gpr_Candidate_Count = 3,
-              "Phase 553 discovers root and bounded nested GPR candidates only");
+              "discovers root and bounded nested GPR candidates only");
       Assert (R.Skipped_Directory_Count >= 3,
-              "Phase 553 reports ignored generated directories");
+              "reports ignored generated directories");
 
       for Candidate of R.Candidates loop
          declare
@@ -1455,14 +1455,14 @@ package body Editor.Build_Candidates.Tests is
       end loop;
 
       Assert (Saw_App and then Saw_Tests,
-              "Phase 553 labels bounded nested GPR candidates by project-relative path");
+              "labels bounded nested GPR candidates by project-relative path");
       Assert (not Saw_Obj and then not Saw_Bin and then not Saw_Alire_Build,
-              "Phase 553 ignores generated build-output directories");
+              "ignores generated build-output directories");
       Assert (Editor.Build_Candidate_Discovery.Assert_Build_Candidate_Discovery_Depth_Coherent (R),
-              "Phase 553 discovery depth audit is coherent");
-   end Test_Phase_553_Bounded_Nested_Gpr_Discovery_And_Ignores;
+              "discovery depth audit is coherent");
+   end Test_Bounded_Nested_Gpr_Discovery_And_Ignores;
 
-   procedure Test_Phase_553_Ranking_Labels_And_Summary
+   procedure Test_Ranking_Labels_And_Summary
      (T : in out AUnit.Test_Cases.Test_Case'Class)
    is
       pragma Unreferenced (T);
@@ -1472,7 +1472,7 @@ package body Editor.Build_Candidates.Tests is
    begin
       Reset_Fixture;
       Write_File (Root & "/alire.toml", "name = ""demo""");
-      Write_File (Root & "/phase506_candidate_fixture.gpr", "project Demo is end Demo;");
+      Write_File (Root & "/candidate_fixture.gpr", "project Demo is end Demo;");
       Write_File (Root & "/zzz.gpr", "project Zzz is end Zzz;");
       Ada.Directories.Create_Path (Root & "/examples");
       Ada.Directories.Create_Path (Root & "/tests");
@@ -1483,27 +1483,27 @@ package body Editor.Build_Candidates.Tests is
       R := Editor.Build_Candidate_Discovery.Discover_Build_Candidates (Context);
 
       Assert (Natural (R.Candidates.Length) = 5,
-              "Phase 553 ranking test discovers every supported source");
+              "ranking test discovers every supported source");
       Assert (R.Candidates.Element (0).Candidate_Kind =
                 Editor.Build_Candidates.Build_Candidate_Alire_Project,
-              "Phase 553 ranks root Alire manifest first");
+              "ranks root Alire manifest first");
       Assert (To_String (R.Candidates.Element (1).Display_Label) =
-                "GPR: phase506_candidate_fixture.gpr",
-              "Phase 553 ranks root GPR matching root directory before other GPR files");
+                "GPR: candidate_fixture.gpr",
+              "ranks root GPR matching root directory before other GPR files");
       Assert (Ada.Strings.Fixed.Index (To_String (R.Message), "Alire") > 0
                 and then Ada.Strings.Fixed.Index (To_String (R.Message), "GPR") > 0,
-              "Phase 553 summary reports source-kind counts");
+              "summary reports source-kind counts");
       Assert (Editor.Build_Candidates.Build_Candidate_Source_Kind_Label
                 (R.Candidates.Element (0).Discovery_Source) = "Alire",
-              "Phase 553 exposes candidate source labels");
+              "exposes candidate source labels");
       Assert (Editor.Build_Candidates.Build_Candidate_Project_Relative_Label
-                (R.Candidates.Element (1)) = "phase506_candidate_fixture.gpr",
-              "Phase 553 exposes project-relative candidate label");
-   end Test_Phase_553_Ranking_Labels_And_Summary;
+                (R.Candidates.Element (1)) = "candidate_fixture.gpr",
+              "exposes project-relative candidate label");
+   end Test_Ranking_Labels_And_Summary;
 
 
 
-   procedure Test_Phase_553_Limits_Count_Alire_And_Gpr_Together
+   procedure Test_Limits_Count_Alire_And_Gpr_Together
      (T : in out AUnit.Test_Cases.Test_Case'Class)
    is
       pragma Unreferenced (T);
@@ -1524,14 +1524,14 @@ package body Editor.Build_Candidates.Tests is
       R := Editor.Build_Candidate_Discovery.Discover_Build_Candidates (Context);
 
       Assert (Natural (R.Candidates.Length) <= 64,
-              "Phase 553 candidate limit counts Alire and GPR candidates together");
+              "candidate limit counts Alire and GPR candidates together");
       Assert (R.Limit_Reached,
-              "Phase 553 reports limit reached when extra GPR candidates are dropped");
+              "reports limit reached when extra GPR candidates are dropped");
       Assert (Editor.Build_Candidate_Discovery.Assert_Build_Candidate_Discovery_Bounded (R),
-              "Phase 553 bounded audit remains true at the candidate limit");
-   end Test_Phase_553_Limits_Count_Alire_And_Gpr_Together;
+              "bounded audit remains true at the candidate limit");
+   end Test_Limits_Count_Alire_And_Gpr_Together;
 
-   procedure Test_Phase_553_Gpr_Staging_Uses_Candidate_Bound_And_File_Accounting
+   procedure Test_Gpr_Staging_Uses_Candidate_Bound_And_File_Accounting
      (T : in out AUnit.Test_Cases.Test_Case'Class)
    is
       pragma Unreferenced (T);
@@ -1547,30 +1547,30 @@ package body Editor.Build_Candidates.Tests is
             "project Bulk is end Bulk;");
       end loop;
       Write_File
-        (Root & "/phase506_candidate_fixture.gpr",
-         "project Phase506_Candidate_Fixture is end Phase506_Candidate_Fixture;");
+        (Root & "/candidate_fixture.gpr",
+         "project Candidate_Fixture is end Candidate_Fixture;");
 
       Context := Editor.Build_Working_Context.Current_Project_Root (Root);
       R := Editor.Build_Candidate_Discovery.Discover_Build_Candidates (Context);
 
       for Candidate of R.Candidates loop
-         if To_String (Candidate.Display_Label) = "GPR: phase506_candidate_fixture.gpr" then
+         if To_String (Candidate.Display_Label) = "GPR: candidate_fixture.gpr" then
             Saw_Primary := True;
          end if;
       end loop;
 
       Assert (Natural (R.Candidates.Length) <= 64,
-              "Phase 553 GPR staging is capped by the candidate-count budget");
+              "GPR staging is capped by the candidate-count budget");
       Assert (R.Files_Inspected >= 97,
-              "Phase 553 file accounting reflects observed GPR entries, not only retained candidates");
+              "file accounting reflects observed GPR entries, not only retained candidates");
       Assert (R.Limit_Reached,
-              "Phase 553 reports candidate staging overflow as a discovery limit");
+              "reports candidate staging overflow as a discovery limit");
       Assert (Saw_Primary,
-              "Phase 553 bounded staging retains the deterministic primary root GPR candidate");
-   end Test_Phase_553_Gpr_Staging_Uses_Candidate_Bound_And_File_Accounting;
+              "bounded staging retains the deterministic primary root GPR candidate");
+   end Test_Gpr_Staging_Uses_Candidate_Bound_And_File_Accounting;
 
 
-   procedure Test_Phase_553_Unsafe_Relative_Candidate_Is_Disabled
+   procedure Test_Unsafe_Relative_Candidate_Is_Disabled
      (T : in out AUnit.Test_Cases.Test_Case'Class)
    is
       pragma Unreferenced (T);
@@ -1582,14 +1582,14 @@ package body Editor.Build_Candidates.Tests is
 
       Assert (Editor.Build_Candidates.Validate_Candidate (C) =
                 Editor.Build_Candidates.Build_Candidate_Rejected_Unsafe_Source,
-              "Phase 553 rejects GPR candidate paths that would escape the project root");
+              "rejects GPR candidate paths that would escape the project root");
       Assert (Editor.Build_Candidates.Build_Candidate_Disabled_Reason (C) =
                 "candidate path outside project root",
-              "Phase 553 exposes a user-readable disabled reason for unsafe candidate paths");
-   end Test_Phase_553_Unsafe_Relative_Candidate_Is_Disabled;
+              "exposes a user-readable disabled reason for unsafe candidate paths");
+   end Test_Unsafe_Relative_Candidate_Is_Disabled;
 
 
-   procedure Test_Phase_553_Missing_Candidate_Source_Is_Unavailable
+   procedure Test_Missing_Candidate_Source_Is_Unavailable
      (T : in out AUnit.Test_Cases.Test_Case'Class)
    is
       pragma Unreferenced (T);
@@ -1601,13 +1601,13 @@ package body Editor.Build_Candidates.Tests is
 
       Assert (Editor.Build_Candidates.Validate_Candidate (C) =
                 Editor.Build_Candidates.Build_Candidate_Unavailable,
-              "Phase 553 reports missing discovered candidate sources as unavailable");
+              "reports missing discovered candidate sources as unavailable");
       Assert (Editor.Build_Candidates.Build_Candidate_Disabled_Reason (C) =
                 "candidate path missing or unavailable",
-              "Phase 553 exposes a user-readable missing-source disabled reason");
-   end Test_Phase_553_Missing_Candidate_Source_Is_Unavailable;
+              "exposes a user-readable missing-source disabled reason");
+   end Test_Missing_Candidate_Source_Is_Unavailable;
 
-   procedure Test_Phase_553_Discovery_Summary_Is_User_Readable
+   procedure Test_Discovery_Summary_Is_User_Readable
      (T : in out AUnit.Test_Cases.Test_Case'Class)
    is
       pragma Unreferenced (T);
@@ -1623,12 +1623,12 @@ package body Editor.Build_Candidates.Tests is
       R := Editor.Build_Candidate_Discovery.Discover_Build_Candidates (Context);
 
       Assert (To_String (R.Message) = "Found 2 build candidates: 1 Alire, 1 GPR.",
-              "Phase 553 discovery summary avoids Ada Image leading spaces and internal enum names; got: "
+              "discovery summary avoids Ada Image leading spaces and internal enum names; got: "
               & To_String (R.Message));
-   end Test_Phase_553_Discovery_Summary_Is_User_Readable;
+   end Test_Discovery_Summary_Is_User_Readable;
 
 
-   procedure Test_Phase_553_No_Candidate_Limit_Summary_Is_Not_Silent
+   procedure Test_No_Candidate_Limit_Summary_Is_Not_Silent
      (T : in out AUnit.Test_Cases.Test_Case'Class)
    is
       pragma Unreferenced (T);
@@ -1642,11 +1642,11 @@ package body Editor.Build_Candidates.Tests is
 
       Assert (To_String (R.Message) =
                 "No build candidates found. Build candidate discovery limit reached. Skipped 2 directories.",
-              "Phase 553 no-candidate summaries must still report discovery limits and skipped paths");
-   end Test_Phase_553_No_Candidate_Limit_Summary_Is_Not_Silent;
+              "no-candidate summaries must still report discovery limits and skipped paths");
+   end Test_No_Candidate_Limit_Summary_Is_Not_Silent;
 
 
-   procedure Test_Phase_553_Limit_Truncation_Retains_Primary_Ranked_Candidate
+   procedure Test_Limit_Truncation_Retains_Primary_Ranked_Candidate
      (T : in out AUnit.Test_Cases.Test_Case'Class)
    is
       pragma Unreferenced (T);
@@ -1662,27 +1662,27 @@ package body Editor.Build_Candidates.Tests is
             "project Extra is end Extra;");
       end loop;
       Write_File
-        (Root & "/phase506_candidate_fixture.gpr",
-         "project Phase506_Candidate_Fixture is end Phase506_Candidate_Fixture;");
+        (Root & "/candidate_fixture.gpr",
+         "project Candidate_Fixture is end Candidate_Fixture;");
 
       Context := Editor.Build_Working_Context.Current_Project_Root (Root);
       R := Editor.Build_Candidate_Discovery.Discover_Build_Candidates (Context);
 
       for Candidate of R.Candidates loop
-         if To_String (Candidate.Display_Label) = "GPR: phase506_candidate_fixture.gpr" then
+         if To_String (Candidate.Display_Label) = "GPR: candidate_fixture.gpr" then
             Saw_Primary := True;
          end if;
       end loop;
 
       Assert (R.Limit_Reached,
-              "Phase 553 reports limit reached before dropping lower-ranked candidates");
+              "reports limit reached before dropping lower-ranked candidates");
       Assert (Saw_Primary,
-              "Phase 553 applies deterministic ranking before candidate-limit truncation");
+              "applies deterministic ranking before candidate-limit truncation");
       Assert (Natural (R.Candidates.Length) <= 64,
-              "Phase 553 limit truncation still enforces maximum retained candidates");
-   end Test_Phase_553_Limit_Truncation_Retains_Primary_Ranked_Candidate;
+              "limit truncation still enforces maximum retained candidates");
+   end Test_Limit_Truncation_Retains_Primary_Ranked_Candidate;
 
-   procedure Test_Phase_553_Root_Gpr_Not_Starved_By_Directory_Limit
+   procedure Test_Root_Gpr_Not_Starved_By_Directory_Limit
      (T : in out AUnit.Test_Cases.Test_Case'Class)
    is
       pragma Unreferenced (T);
@@ -1697,25 +1697,25 @@ package body Editor.Build_Candidates.Tests is
            (Root & "/aaa_nested_" & Ada.Strings.Fixed.Trim (Natural'Image (I), Ada.Strings.Both));
       end loop;
       Write_File
-        (Root & "/phase506_candidate_fixture.gpr",
-         "project Phase506_Candidate_Fixture is end Phase506_Candidate_Fixture;");
+        (Root & "/candidate_fixture.gpr",
+         "project Candidate_Fixture is end Candidate_Fixture;");
 
       Context := Editor.Build_Working_Context.Current_Project_Root (Root);
       R := Editor.Build_Candidate_Discovery.Discover_Build_Candidates (Context);
 
       for Candidate of R.Candidates loop
-         if To_String (Candidate.Display_Label) = "GPR: phase506_candidate_fixture.gpr" then
+         if To_String (Candidate.Display_Label) = "GPR: candidate_fixture.gpr" then
             Saw_Primary := True;
          end if;
       end loop;
 
       Assert (Saw_Primary,
-              "Phase 553 inspects root candidate files before nested directories can consume scan limits");
+              "inspects root candidate files before nested directories can consume scan limits");
       Assert (R.Limit_Reached,
-              "Phase 553 still reports the directory limit after preserving root candidates");
-   end Test_Phase_553_Root_Gpr_Not_Starved_By_Directory_Limit;
+              "still reports the directory limit after preserving root candidates");
+   end Test_Root_Gpr_Not_Starved_By_Directory_Limit;
 
-   procedure Test_Phase_553_Gpr_Not_Starved_By_Non_Candidate_File_Limit
+   procedure Test_Gpr_Not_Starved_By_Non_Candidate_File_Limit
      (T : in out AUnit.Test_Cases.Test_Case'Class)
    is
       pragma Unreferenced (T);
@@ -1742,13 +1742,13 @@ package body Editor.Build_Candidates.Tests is
       end loop;
 
       Assert (Saw_Gpr,
-              "Phase 553 prioritizes .gpr files before non-candidate files consume the file limit");
+              "prioritizes .gpr files before non-candidate files consume the file limit");
       Assert (R.Limit_Reached,
-              "Phase 553 still reports the file limit after preserving candidate-bearing files");
-   end Test_Phase_553_Gpr_Not_Starved_By_Non_Candidate_File_Limit;
+              "still reports the file limit after preserving candidate-bearing files");
+   end Test_Gpr_Not_Starved_By_Non_Candidate_File_Limit;
 
 
-   procedure Test_Phase_553_File_Limit_Blocks_Nested_Traversal
+   procedure Test_File_Limit_Blocks_Nested_Traversal
      (T : in out AUnit.Test_Cases.Test_Case'Class)
    is
       pragma Unreferenced (T);
@@ -1780,17 +1780,17 @@ package body Editor.Build_Candidates.Tests is
       end loop;
 
       Assert (Saw_Root_Gpr,
-              "Phase 553 keeps current-directory .gpr candidates before ordinary files exhaust the file budget");
+              "keeps current-directory .gpr candidates before ordinary files exhaust the file budget");
       Assert (not Saw_Nested_Gpr,
-              "Phase 553 does not descend into nested directories after the parent consumes the file-inspection budget");
+              "does not descend into nested directories after the parent consumes the file-inspection budget");
       Assert (R.Files_Inspected <= 2048,
-              "Phase 553 keeps the reported file-inspection count within the fixed bound");
+              "keeps the reported file-inspection count within the fixed bound");
       Assert (R.Limit_Reached,
-              "Phase 553 reports the file limit when nested traversal is stopped");
-   end Test_Phase_553_File_Limit_Blocks_Nested_Traversal;
+              "reports the file limit when nested traversal is stopped");
+   end Test_File_Limit_Blocks_Nested_Traversal;
 
 
-   procedure Test_Phase_553_Entry_Scan_Window_Reports_Limit
+   procedure Test_Entry_Scan_Window_Reports_Limit
      (T : in out AUnit.Test_Cases.Test_Case'Class)
    is
       pragma Unreferenced (T);
@@ -1810,15 +1810,15 @@ package body Editor.Build_Candidates.Tests is
       R := Editor.Build_Candidate_Discovery.Discover_Build_Candidates (Context);
 
       Assert (Natural (R.Candidates.Length) >= 1,
-              "Phase 553 still preserves candidate discovery before the entry scan window is exhausted");
+              "still preserves candidate discovery before the entry scan window is exhausted");
       Assert (R.Limit_Reached,
-              "Phase 553 reports limit reached when a directory has entries beyond the bounded scan window");
+              "reports limit reached when a directory has entries beyond the bounded scan window");
       Assert (Ada.Strings.Fixed.Index (To_String (R.Message), "limit reached") > 0,
-              "Phase 553 user summary exposes bounded entry-scan truncation");
-   end Test_Phase_553_Entry_Scan_Window_Reports_Limit;
+              "user summary exposes bounded entry-scan truncation");
+   end Test_Entry_Scan_Window_Reports_Limit;
 
 
-   procedure Test_Phase_553_Directory_Queue_Is_Bounded_Deterministically
+   procedure Test_Directory_Queue_Is_Bounded_Deterministically
      (T : in out AUnit.Test_Cases.Test_Case'Class)
    is
       pragma Unreferenced (T);
@@ -1844,21 +1844,21 @@ package body Editor.Build_Candidates.Tests is
       end loop;
 
       Assert (Saw_Root_Gpr,
-              "Phase 553 directory queue bounding does not starve current-directory GPR candidates");
+              "directory queue bounding does not starve current-directory GPR candidates");
       Assert (R.Directories_Visited <= 128,
-              "Phase 553 retains the fixed directory visit bound even with many child directories");
+              "retains the fixed directory visit bound even with many child directories");
       Assert (R.Skipped_Directory_Count > 0,
-              "Phase 553 reports child directories skipped by the bounded queue");
+              "reports child directories skipped by the bounded queue");
       Assert (R.Limit_Reached,
-              "Phase 553 reports directory queue overflow as a discovery limit");
-   end Test_Phase_553_Directory_Queue_Is_Bounded_Deterministically;
+              "reports directory queue overflow as a discovery limit");
+   end Test_Directory_Queue_Is_Bounded_Deterministically;
 
 
-   procedure Test_Phase_553_Project_Root_Shell_Characters_Are_Not_Rejected
+   procedure Test_Project_Root_Shell_Characters_Are_Not_Rejected
      (T : in out AUnit.Test_Cases.Test_Case'Class)
    is
       pragma Unreferenced (T);
-      Root : constant String := "/tmp/editor-tests/phase553_$safe;root";
+      Root : constant String := "/tmp/editor-tests/$safe;root";
       Context : Editor.Build_Working_Context.Build_Working_Context_Record;
       R : Editor.Build_Candidate_Discovery.Build_Candidate_Discovery_Result;
    begin
@@ -1874,17 +1874,17 @@ package body Editor.Build_Candidates.Tests is
       R := Editor.Build_Candidate_Discovery.Discover_Build_Candidates (Context);
 
       Assert (R.Status = Editor.Build_Candidate_Discovery.Build_Candidate_Discovery_Complete,
-              "Phase 553 does not reject filesystem-safe project roots merely because they contain shell metacharacters");
+              "does not reject filesystem-safe project roots merely because they contain shell metacharacters");
       Assert (Natural (R.Candidates.Length) = 2,
-              "Phase 553 discovers Alire and GPR candidates under such project roots without shell interpretation");
+              "discovers Alire and GPR candidates under such project roots without shell interpretation");
       Assert (Editor.Build_Candidate_Discovery.Assert_Build_Candidate_Discovery_Does_Not_Use_Shell (R),
-              "Phase 553 still keeps discovery shell-free for roots with shell-looking characters");
+              "still keeps discovery shell-free for roots with shell-looking characters");
       Assert (Editor.Build_Candidate_Discovery.Assert_Build_Candidate_Discovery_Does_Not_Scan_Outside_Project_Root (R),
-              "Phase 553 keeps containment checks active for roots with shell-looking characters");
-   end Test_Phase_553_Project_Root_Shell_Characters_Are_Not_Rejected;
+              "keeps containment checks active for roots with shell-looking characters");
+   end Test_Project_Root_Shell_Characters_Are_Not_Rejected;
 
 
-   procedure Test_Phase_553_Structured_Gpr_Path_Shell_Characters_Are_Not_Rejected
+   procedure Test_Structured_Gpr_Path_Shell_Characters_Are_Not_Rejected
      (T : in out AUnit.Test_Cases.Test_Case'Class)
    is
       pragma Unreferenced (T);
@@ -1908,18 +1908,18 @@ package body Editor.Build_Candidates.Tests is
             Assert
               (Editor.Build_Candidates.Validate_Candidate (Candidate) =
                  Editor.Build_Candidates.Build_Candidate_Valid,
-               "Phase 553 accepts shell-looking characters inside structured argv path tokens");
+               "accepts shell-looking characters inside structured argv path tokens");
          end if;
       end loop;
 
       Assert (Saw_Structured_Path,
-              "Phase 553 discovers filesystem-safe GPR paths containing shell-looking characters");
+              "discovers filesystem-safe GPR paths containing shell-looking characters");
       Assert (Editor.Build_Candidate_Discovery.Assert_Build_Candidate_Discovery_Does_Not_Use_Shell (R),
-              "Phase 553 remains shell-free because the path is represented only as structured argv");
-   end Test_Phase_553_Structured_Gpr_Path_Shell_Characters_Are_Not_Rejected;
+              "remains shell-free because the path is represented only as structured argv");
+   end Test_Structured_Gpr_Path_Shell_Characters_Are_Not_Rejected;
 
 
-   procedure Test_Phase_553_Unreadable_Or_Non_File_Source_Is_Unavailable
+   procedure Test_Unreadable_Or_Non_File_Source_Is_Unavailable
      (T : in out AUnit.Test_Cases.Test_Case'Class)
    is
       pragma Unreferenced (T);
@@ -1934,15 +1934,15 @@ package body Editor.Build_Candidates.Tests is
       Assert
         (Editor.Build_Candidates.Validate_Candidate (C) =
            Editor.Build_Candidates.Build_Candidate_Unavailable,
-         "Phase 553 rejects represented candidate sources that are not readable ordinary files");
+         "rejects represented candidate sources that are not readable ordinary files");
       Assert
         (Editor.Build_Candidates.Build_Candidate_Disabled_Reason (C) =
            "candidate path missing or unavailable",
-         "Phase 553 reports unreadable or non-file candidate sources as unavailable");
-   end Test_Phase_553_Unreadable_Or_Non_File_Source_Is_Unavailable;
+         "reports unreadable or non-file candidate sources as unavailable");
+   end Test_Unreadable_Or_Non_File_Source_Is_Unavailable;
 
 
-   procedure Test_Phase_553_Discovery_Audit_Allows_Safe_Unavailable_Rows
+   procedure Test_Discovery_Audit_Allows_Safe_Unavailable_Rows
      (T : in out AUnit.Test_Cases.Test_Case'Class)
    is
       pragma Unreferenced (T);
@@ -1962,17 +1962,17 @@ package body Editor.Build_Candidates.Tests is
       Assert
         (Editor.Build_Candidates.Validate_Candidate (C) =
            Editor.Build_Candidates.Build_Candidate_Unavailable,
-         "Phase 553 fixture row is unavailable but still structured and safe");
+         "fixture row is unavailable but still structured and safe");
       Assert
         (Editor.Build_Candidate_Discovery.Assert_Build_Candidate_Discovery_Bounded (R),
-         "Phase 553 discovery audit allows safe unavailable rows with disabled reasons");
+         "discovery audit allows safe unavailable rows with disabled reasons");
       Assert
         (Editor.Build_Candidate_Discovery.Assert_Build_Candidate_Discovery_Depth_Coherent (R),
-         "Phase 553 depth audit does not require every displayed candidate row to be runnable");
-   end Test_Phase_553_Discovery_Audit_Allows_Safe_Unavailable_Rows;
+         "depth audit does not require every displayed candidate row to be runnable");
+   end Test_Discovery_Audit_Allows_Safe_Unavailable_Rows;
 
 
-   procedure Test_Phase_553_Render_Uses_Snapshot_Labels_And_Reasons
+   procedure Test_Render_Uses_Snapshot_Labels_And_Reasons
      (T : in out AUnit.Test_Cases.Test_Case'Class)
    is
       pragma Unreferenced (T);
@@ -1996,18 +1996,28 @@ package body Editor.Build_Candidates.Tests is
       Snapshot := Editor.Build_UI.Build_Render_Snapshot (S, Summary, Details);
 
       Assert (Snapshot.Candidate_Count = 1,
-              "Phase 553 render snapshot exposes candidate count only from state");
+              "render snapshot exposes candidate count only from state");
+      Assert (To_String (Snapshot.Candidate_Count_Label)'Length > 0,
+              "render snapshot exposes the candidate-count panel row");
+      Assert (To_String (Snapshot.Candidate_Refresh_Action_Label)'Length > 0,
+              "render snapshot exposes the candidate-refresh panel row");
+      Assert (To_String (Snapshot.Request_Status_Label)'Length > 0,
+              "render snapshot exposes the request-status panel row");
+      Assert (To_String (Snapshot.Run_Command_Status_Label)'Length > 0,
+              "render snapshot exposes the run-command panel row");
+      Assert (To_String (Snapshot.Run_Recovery_Hint)'Length > 0,
+              "render snapshot exposes the run-recovery panel row");
       Assert (Ada.Strings.Fixed.Index
                 (To_String (Snapshot.Candidates.Element (0).Source_Label), "GPR") > 0,
-              "Phase 553 render snapshot displays candidate source kind");
+              "render snapshot displays candidate source kind");
       Assert (Ada.Strings.Fixed.Index
                 (To_String (Snapshot.Candidates.Element (0).Source_Label), "demo.gpr") > 0,
-              "Phase 553 render snapshot displays project-relative candidate path");
+              "render snapshot displays project-relative candidate path");
       Assert (To_String (Snapshot.Refresh_Message) = To_String (R.Message),
-              "Phase 553 render snapshot displays transient discovery summary");
+              "render snapshot displays transient discovery summary");
       Assert (Editor.Build_UI.Assert_Build_UI_State_Is_Transient (S),
-              "Phase 553 Build UI candidate state remains transient");
-   end Test_Phase_553_Render_Uses_Snapshot_Labels_And_Reasons;
+              "Build UI candidate state remains transient");
+   end Test_Render_Uses_Snapshot_Labels_And_Reasons;
 
 
    overriding procedure Register_Tests
@@ -2028,155 +2038,155 @@ package body Editor.Build_Candidates.Tests is
         (T, Test_Candidate_Selection_Populates_UI_And_Invalidates_Consent'Access,
          "candidate selection populates UI and invalidates consent");
       Register_Routine
-        (T, Test_Phase_507_Alire_Candidate_Selection_Request_Preview'Access,
-         "Phase 507 Alire candidate selection populates preview and request");
+        (T, Test_Alire_Candidate_Selection_Request_Preview'Access,
+         "Alire candidate selection populates preview and request");
       Register_Routine
-        (T, Test_Phase_507_Gpr_Candidate_Selection_And_Manual_Mode'Access,
-         "Phase 507 GPR candidate selection preserves manual mode");
+        (T, Test_Gpr_Candidate_Selection_And_Manual_Mode'Access,
+         "GPR candidate selection preserves manual mode");
       Register_Routine
-        (T, Test_Phase_507_Candidate_Selection_Audit_Coherent'Access,
-         "Phase 507 candidate selection audit coherent");
+        (T, Test_Candidate_Selection_Audit_Coherent'Access,
+         "candidate selection audit coherent");
       Register_Routine
-        (T, Test_Phase_506_Audit_Coherent'Access,
-         "Phase 506 candidate discovery foundation coherent");
+        (T, Test_Audit_Coherent'Access,
+         "candidate discovery foundation coherent");
       Register_Routine
-        (T, Test_Phase_522_Explicit_Refresh_Updates_Transient_Candidates'Access,
-         "Phase 522 explicit refresh updates transient candidates");
+        (T, Test_Explicit_Refresh_Updates_Transient_Candidates'Access,
+         "explicit refresh updates transient candidates");
       Register_Routine
-        (T, Test_Phase_522_Refresh_No_Context_And_No_Candidates_Status'Access,
-         "Phase 522 refresh has deterministic no-context/no-candidates statuses");
+        (T, Test_Refresh_No_Context_And_No_Candidates_Status'Access,
+         "refresh has deterministic no-context/no-candidates statuses");
       Register_Routine
-        (T, Test_Phase_522_Refresh_Preserves_Valid_Selected_Candidate_And_Consent'Access,
-         "Phase 522 refresh preserves valid selected candidate and consent");
+        (T, Test_Refresh_Preserves_Valid_Selected_Candidate_And_Consent'Access,
+         "refresh preserves valid selected candidate and consent");
       Register_Routine
-        (T, Test_Phase_522_Refresh_Clears_Stale_Selected_Candidate_And_Consent'Access,
-         "Phase 522 refresh clears stale selected candidate and consent");
+        (T, Test_Refresh_Clears_Stale_Selected_Candidate_And_Consent'Access,
+         "refresh clears stale selected candidate and consent");
       Register_Routine
-        (T, Test_Phase_522_Refresh_Clears_Materially_Changed_Selected_Candidate'Access,
-         "Phase 522 refresh clears materially changed selected candidate");
+        (T, Test_Refresh_Clears_Materially_Changed_Selected_Candidate'Access,
+         "refresh clears materially changed selected candidate");
       Register_Routine
-        (T, Test_Phase_522_Refresh_Clears_Unselected_Request_Path'Access,
-         "Phase 554 refresh clears unselected request path");
+        (T, Test_Refresh_Clears_Unselected_Request_Path'Access,
+         "refresh clears unselected request path");
       Register_Routine
-        (T, Test_Phase_522_Candidate_Refresh_Audit_Coherent'Access,
-         "Phase 522 candidate refresh audit coherent");
+        (T, Test_Candidate_Refresh_Audit_Coherent'Access,
+         "candidate refresh audit coherent");
       Register_Routine
-        (T, Test_Phase_523_Repeated_Refresh_Is_Deterministic'Access,
-         "Phase 523 repeated candidate refresh is deterministic");
+        (T, Test_Repeated_Refresh_Is_Deterministic'Access,
+         "repeated candidate refresh is deterministic");
       Register_Routine
-        (T, Test_Phase_523_No_Candidate_Refresh_Does_Not_Reuse_Cache'Access,
-         "Phase 523 no-candidate refresh does not reuse cache");
+        (T, Test_No_Candidate_Refresh_Does_Not_Reuse_Cache'Access,
+         "no-candidate refresh does not reuse cache");
       Register_Routine
-        (T, Test_Phase_554_Unselected_Request_Consent_Does_Not_Survive_Refresh'Access,
-         "Phase 554 unselected request is not preserved across refresh");
+        (T, Test_Unselected_Request_Consent_Does_Not_Survive_Refresh'Access,
+         "unselected request is not preserved across refresh");
       Register_Routine
-        (T, Test_Phase_523_Identity_Collision_Clears_Selection'Access,
-         "Phase 523 identity collision clears candidate selection");
+        (T, Test_Identity_Collision_Clears_Selection'Access,
+         "identity collision clears candidate selection");
       Register_Routine
-        (T, Test_Phase_523_Display_Label_Change_Uses_Request_Identity_Policy'Access,
-         "Phase 523 display label change follows request identity policy");
+        (T, Test_Display_Label_Change_Uses_Request_Identity_Policy'Access,
+         "display label change follows request identity policy");
       Register_Routine
-        (T, Test_Phase_524_Canonical_Refresh_Audit_Coherent'Access,
-         "Phase 524 canonical candidate refresh audit coherent");
+        (T, Test_Canonical_Refresh_Audit_Coherent'Access,
+         "canonical candidate refresh audit coherent");
       Register_Routine
-        (T, Test_Phase_524_Candidate_Material_Identity_Is_Canonical'Access,
-         "Phase 524 candidate material identity is canonical");
+        (T, Test_Candidate_Material_Identity_Is_Canonical'Access,
+         "candidate material identity is canonical");
       Register_Routine
-        (T, Test_Phase_524_Failed_Refresh_Is_Status_Only'Access,
-         "Phase 524 failed refresh is status only");
+        (T, Test_Failed_Refresh_Is_Status_Only'Access,
+         "failed refresh is status only");
       Register_Routine
-        (T, Test_Phase_524_Frontdoor_And_Build_Run_Boundaries'Access,
-         "Phase 524 frontdoor and build.run boundaries are clean");
+        (T, Test_Frontdoor_And_Build_Run_Boundaries'Access,
+         "frontdoor and build.run boundaries are clean");
       Register_Routine
-        (T, Test_Phase_525_Final_Freeze_Canonical_Path_Coherent'Access,
-         "Phase 525 final freeze canonical path coherent");
+        (T, Test_Final_Freeze_Canonical_Path_Coherent'Access,
+         "final freeze canonical path coherent");
       Register_Routine
-        (T, Test_Phase_525_Final_Freeze_Identity_Stale_And_Consent'Access,
-         "Phase 525 final freeze identity stale and consent boundaries");
+        (T, Test_Final_Freeze_Identity_Stale_And_Consent'Access,
+         "final freeze identity stale and consent boundaries");
       Register_Routine
-        (T, Test_Phase_525_Final_Freeze_Manual_Request_Independent'Access,
-         "Phase 554 final freeze clears unselected request");
+        (T, Test_Final_Freeze_Manual_Request_Independent'Access,
+         "final freeze clears unselected request");
       Register_Routine
-        (T, Test_Phase_525_Final_Freeze_Failed_And_Persistence_Boundaries'Access,
-         "Phase 525 final freeze failed and persistence boundaries");
+        (T, Test_Final_Freeze_Failed_And_Persistence_Boundaries'Access,
+         "final freeze failed and persistence boundaries");
       Register_Routine
-        (T, Test_Phase_528_Project_Open_Refreshes_Through_Canonical_Path'Access,
-         "Phase 528 project open refreshes candidates through canonical path");
+        (T, Test_Project_Open_Refreshes_Through_Canonical_Path'Access,
+         "project open refreshes candidates through canonical path");
       Register_Routine
-        (T, Test_Phase_528_Project_Switch_Reconciles_Selection_And_Consent'Access,
-         "Phase 528 project switch reconciles selection and consent");
+        (T, Test_Project_Switch_Reconciles_Selection_And_Consent'Access,
+         "project switch reconciles selection and consent");
       Register_Routine
-        (T, Test_Phase_528_Project_Close_Clears_Executable_Candidates'Access,
-         "Phase 528 project close clears executable candidates");
+        (T, Test_Project_Close_Clears_Executable_Candidates'Access,
+         "project close clears executable candidates");
       Register_Routine
-        (T, Test_Phase_528_Failed_Project_Transition_Does_Not_Fabricate'Access,
-         "Phase 528 failed project transition does not fabricate candidates");
+        (T, Test_Failed_Project_Transition_Does_Not_Fabricate'Access,
+         "failed project transition does not fabricate candidates");
       Register_Routine
-        (T, Test_Phase_528_Project_Reset_And_Manual_Request_Boundary'Access,
-         "Phase 554 project reset clears unselected request boundary");
+        (T, Test_Project_Reset_And_Manual_Request_Boundary'Access,
+         "project reset clears unselected request boundary");
       Register_Routine
-        (T, Test_Phase_528_Project_Close_Clears_Unselected_Request_Shape'Access,
-         "Phase 554 project close clears unselected request shape");
+        (T, Test_Project_Close_Clears_Unselected_Request_Shape'Access,
+         "project close clears unselected request shape");
       Register_Routine
-        (T, Test_Phase_528_Project_Open_No_Candidates_Is_Lifecycle_State'Access,
-         "Phase 528 project open no-candidates lifecycle state");
+        (T, Test_Project_Open_No_Candidates_Is_Lifecycle_State'Access,
+         "project open no-candidates lifecycle state");
       Register_Routine
-        (T, Test_Phase_553_Bounded_Nested_Gpr_Discovery_And_Ignores'Access,
-         "Phase 553 bounded nested GPR discovery and ignored directories");
+        (T, Test_Bounded_Nested_Gpr_Discovery_And_Ignores'Access,
+         "bounded nested GPR discovery and ignored directories");
       Register_Routine
-        (T, Test_Phase_553_Ranking_Labels_And_Summary'Access,
-         "Phase 553 ranking labels and discovery summary");
+        (T, Test_Ranking_Labels_And_Summary'Access,
+         "ranking labels and discovery summary");
       Register_Routine
-        (T, Test_Phase_553_Limits_Count_Alire_And_Gpr_Together'Access,
-         "Phase 553 candidate limits count Alire and GPR together");
+        (T, Test_Limits_Count_Alire_And_Gpr_Together'Access,
+         "candidate limits count Alire and GPR together");
       Register_Routine
-        (T, Test_Phase_553_Gpr_Staging_Uses_Candidate_Bound_And_File_Accounting'Access,
-         "Phase 553 GPR staging uses candidate bound and file accounting");
+        (T, Test_Gpr_Staging_Uses_Candidate_Bound_And_File_Accounting'Access,
+         "GPR staging uses candidate bound and file accounting");
       Register_Routine
-        (T, Test_Phase_553_Unsafe_Relative_Candidate_Is_Disabled'Access,
-         "Phase 553 unsafe relative candidate is disabled");
+        (T, Test_Unsafe_Relative_Candidate_Is_Disabled'Access,
+         "unsafe relative candidate is disabled");
       Register_Routine
-        (T, Test_Phase_553_Discovery_Summary_Is_User_Readable'Access,
-         "Phase 553 discovery summary is user readable");
+        (T, Test_Discovery_Summary_Is_User_Readable'Access,
+         "discovery summary is user readable");
       Register_Routine
-        (T, Test_Phase_553_No_Candidate_Limit_Summary_Is_Not_Silent'Access,
-         "Phase 553 no-candidate limit summary is not silent");
+        (T, Test_No_Candidate_Limit_Summary_Is_Not_Silent'Access,
+         "no-candidate limit summary is not silent");
       Register_Routine
-        (T, Test_Phase_553_Missing_Candidate_Source_Is_Unavailable'Access,
-         "Phase 553 missing candidate source is unavailable");
+        (T, Test_Missing_Candidate_Source_Is_Unavailable'Access,
+         "missing candidate source is unavailable");
       Register_Routine
-        (T, Test_Phase_553_Unreadable_Or_Non_File_Source_Is_Unavailable'Access,
-         "Phase 553 unreadable or non-file candidate source is unavailable");
+        (T, Test_Unreadable_Or_Non_File_Source_Is_Unavailable'Access,
+         "unreadable or non-file candidate source is unavailable");
       Register_Routine
-        (T, Test_Phase_553_Discovery_Audit_Allows_Safe_Unavailable_Rows'Access,
-         "Phase 553 discovery audit allows safe unavailable rows");
+        (T, Test_Discovery_Audit_Allows_Safe_Unavailable_Rows'Access,
+         "discovery audit allows safe unavailable rows");
       Register_Routine
-        (T, Test_Phase_553_Limit_Truncation_Retains_Primary_Ranked_Candidate'Access,
-         "Phase 553 limit truncation retains primary ranked candidate");
+        (T, Test_Limit_Truncation_Retains_Primary_Ranked_Candidate'Access,
+         "limit truncation retains primary ranked candidate");
       Register_Routine
-        (T, Test_Phase_553_Directory_Queue_Is_Bounded_Deterministically'Access,
-         "Phase 553 directory queue is bounded deterministically");
+        (T, Test_Directory_Queue_Is_Bounded_Deterministically'Access,
+         "directory queue is bounded deterministically");
       Register_Routine
-        (T, Test_Phase_553_Project_Root_Shell_Characters_Are_Not_Rejected'Access,
-         "Phase 553 project root shell characters are not rejected");
+        (T, Test_Project_Root_Shell_Characters_Are_Not_Rejected'Access,
+         "project root shell characters are not rejected");
       Register_Routine
-        (T, Test_Phase_553_Structured_Gpr_Path_Shell_Characters_Are_Not_Rejected'Access,
-         "Phase 553 structured gpr path shell characters are not rejected");
+        (T, Test_Structured_Gpr_Path_Shell_Characters_Are_Not_Rejected'Access,
+         "structured gpr path shell characters are not rejected");
       Register_Routine
-        (T, Test_Phase_553_Render_Uses_Snapshot_Labels_And_Reasons'Access,
-         "Phase 553 render snapshot labels and reasons");
+        (T, Test_Render_Uses_Snapshot_Labels_And_Reasons'Access,
+         "render snapshot labels and reasons");
       Register_Routine
-        (T, Test_Phase_553_Root_Gpr_Not_Starved_By_Directory_Limit'Access,
-         "Phase 553 root gpr is not starved by directory scan limits");
+        (T, Test_Root_Gpr_Not_Starved_By_Directory_Limit'Access,
+         "root gpr is not starved by directory scan limits");
       Register_Routine
-        (T, Test_Phase_553_Gpr_Not_Starved_By_Non_Candidate_File_Limit'Access,
-         "Phase 553 gpr files are not starved by non-candidate file limits");
+        (T, Test_Gpr_Not_Starved_By_Non_Candidate_File_Limit'Access,
+         "gpr files are not starved by non-candidate file limits");
       Register_Routine
-        (T, Test_Phase_553_File_Limit_Blocks_Nested_Traversal'Access,
-         "Phase 553 file limits block nested traversal after parent accounting");
+        (T, Test_File_Limit_Blocks_Nested_Traversal'Access,
+         "file limits block nested traversal after parent accounting");
       Register_Routine
-        (T, Test_Phase_553_Entry_Scan_Window_Reports_Limit'Access,
-         "Phase 553 entry scan window reports discovery limit");
+        (T, Test_Entry_Scan_Window_Reports_Limit'Access,
+         "entry scan window reports discovery limit");
    end Register_Tests;
 
 end Editor.Build_Candidates.Tests;

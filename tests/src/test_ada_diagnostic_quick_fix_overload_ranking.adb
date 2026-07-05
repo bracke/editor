@@ -66,10 +66,10 @@ package body Test_Ada_Diagnostic_Quick_Fix_Overload_Ranking is
    begin
       Register_Routine
         (T, Test_Empty_Integration_Is_Deterministic'Access,
-         "Pass1074 keeps empty overload-ranking quick-fix integration deterministic");
+         "Case 1074 keeps empty overload-ranking quick-fix integration deterministic");
       Register_Routine
         (T, Test_Absent_Ranking_Action_Is_Empty'Access,
-         "Pass1074 absent overload-ranking quick-fix lookup returns no candidate");
+         "Case 1074 absent overload-ranking quick-fix lookup returns no candidate");
    end Register_Tests;
 
 end Test_Ada_Diagnostic_Quick_Fix_Overload_Ranking;

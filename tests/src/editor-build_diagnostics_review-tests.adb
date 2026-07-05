@@ -248,7 +248,7 @@ package body Editor.Build_Diagnostics_Review.Tests is
       Before := Editor.Feature_Diagnostics.Row_Count (S.Feature_Diagnostics);
       Audit := Editor.Build_Diagnostics_Review_Audit.Run_Build_Diagnostics_Review_Audit (S);
 
-      Assert (Audit.Coherent, "Phase 518 review audit is coherent");
+      Assert (Audit.Coherent, "review audit is coherent");
       Assert (Audit.Audit_Side_Effect_Free,
               "audit observes review boundaries without mutating state");
       Assert
@@ -264,7 +264,7 @@ package body Editor.Build_Diagnostics_Review.Tests is
    begin
       Assert
         (Assert_Public_Build_Diagnostics_Review_Foundation_Coherent (S),
-         "Phase 518 build diagnostics review foundation is coherent");
+         "build diagnostics review foundation is coherent");
    end Test_Milestone_Helper_Coherent;
 
 
@@ -530,7 +530,7 @@ package body Editor.Build_Diagnostics_Review.Tests is
          "build-owned diagnostics review state remains absent");
    end Test_Summary_Output_Render_And_Frontdoors_Do_Not_Own_Rows;
 
-   procedure Test_Phase_519_Reliability_Milestone_Coherent
+   procedure Test_Reliability_Milestone_Coherent
      (T : in out AUnit.Test_Cases.Test_Case'Class)
    is
       pragma Unreferenced (T);
@@ -538,11 +538,11 @@ package body Editor.Build_Diagnostics_Review.Tests is
    begin
       Assert
         (Assert_Public_Build_Diagnostics_Review_Reliability_Coherent (S),
-         "Phase 519 build diagnostics review reliability milestone is coherent");
-   end Test_Phase_519_Reliability_Milestone_Coherent;
+         "build diagnostics review reliability milestone is coherent");
+   end Test_Reliability_Milestone_Coherent;
 
 
-   procedure Test_Phase_520_Canonical_Cleanup_Milestone_Coherent
+   procedure Test_Canonical_Cleanup_Milestone_Coherent
      (T : in out AUnit.Test_Cases.Test_Case'Class)
    is
       pragma Unreferenced (T);
@@ -550,11 +550,11 @@ package body Editor.Build_Diagnostics_Review.Tests is
    begin
       Assert
         (Assert_Public_Build_Diagnostics_Review_Canonical_Coherent (S),
-         "Phase 520 build diagnostics review cleanup canonicalization is coherent");
-   end Test_Phase_520_Canonical_Cleanup_Milestone_Coherent;
+         "build diagnostics review cleanup canonicalization is coherent");
+   end Test_Canonical_Cleanup_Milestone_Coherent;
 
 
-   procedure Test_Phase_521_Final_Ownership_And_Ingestion_Freeze
+   procedure Test_Final_Ownership_And_Ingestion_Freeze
      (T : in out AUnit.Test_Cases.Test_Case'Class)
    is
       pragma Unreferenced (T);
@@ -568,16 +568,16 @@ package body Editor.Build_Diagnostics_Review.Tests is
          "fixture creates exactly one build diagnostic through the retained seam");
       Assert
         (Assert_Build_Diagnostics_Final_Owned_By_Diagnostics (S),
-         "Phase 521 freezes build diagnostics as Diagnostics-owned rows only");
+         "freezes build diagnostics as Diagnostics-owned rows only");
       Assert
         (Assert_Build_Diagnostics_Final_Ingestion_Only_Row_Creation (S),
-         "Phase 521 freezes Diagnostics ingestion as the only row creation path");
+         "freezes Diagnostics ingestion as the only row creation path");
       Assert
         (Assert_Build_Diagnostics_Final_No_Build_Local_Table (S),
-         "Phase 521 freezes absence of any Build-local diagnostics table");
-   end Test_Phase_521_Final_Ownership_And_Ingestion_Freeze;
+         "freezes absence of any Build-local diagnostics table");
+   end Test_Final_Ownership_And_Ingestion_Freeze;
 
-   procedure Test_Phase_521_Final_Source_Review_And_Navigation_Freeze
+   procedure Test_Final_Source_Review_And_Navigation_Freeze
      (T : in out AUnit.Test_Cases.Test_Case'Class)
    is
       pragma Unreferenced (T);
@@ -591,19 +591,19 @@ package body Editor.Build_Diagnostics_Review.Tests is
          "final freeze source/review fixture creates one Diagnostics row");
       Assert
         (Assert_Build_Diagnostics_Final_Source_Metadata_Boundary (Request),
-         "Phase 521 freezes source metadata as non-rerunnable Diagnostics metadata");
+         "freezes source metadata as non-rerunnable Diagnostics metadata");
       Assert
         (Assert_Build_Diagnostics_Final_Review_Boundary (S),
-         "Phase 521 freezes review, selection, and rendering ownership in Diagnostics");
+         "freezes review, selection, and rendering ownership in Diagnostics");
       Assert
         (Assert_Build_Diagnostics_Final_Navigation_Boundary,
-         "Phase 521 freezes navigation onto existing Diagnostics commands only");
+         "freezes navigation onto existing Diagnostics commands only");
       Assert
         (Assert_Build_Diagnostics_Final_No_Build_Specific_Navigation,
-         "Phase 521 forbids build-specific diagnostics navigation commands");
-   end Test_Phase_521_Final_Source_Review_And_Navigation_Freeze;
+         "forbids build-specific diagnostics navigation commands");
+   end Test_Final_Source_Review_And_Navigation_Freeze;
 
-   procedure Test_Phase_521_Final_Summary_Output_Render_And_Persistence_Freeze
+   procedure Test_Final_Summary_Output_Render_And_Persistence_Freeze
      (T : in out AUnit.Test_Cases.Test_Case'Class)
    is
       pragma Unreferenced (T);
@@ -636,20 +636,20 @@ package body Editor.Build_Diagnostics_Review.Tests is
       Assert
         (Assert_Build_Summary_Final_Stores_No_Diagnostics_Rows
            (S.Latest_Build_Result),
-         "Phase 521 freezes summary as scalar-only and not a Diagnostics owner");
+         "freezes summary as scalar-only and not a Diagnostics owner");
       Assert
         (Assert_Build_Output_Details_Final_Stores_No_Diagnostics_Rows
            (S.Latest_Build_Output_Details),
-         "Phase 521 freezes output details as bounded text only");
+         "freezes output details as bounded text only");
       Assert
         (Assert_Render_Final_Does_Not_Parse_Build_Diagnostics,
-         "Phase 521 freezes render-time diagnostics parsing as absent");
+         "freezes render-time diagnostics parsing as absent");
       Assert
         (Assert_Build_Diagnostics_Final_Persistence_Excluded (S),
-         "Phase 521 freezes persistence exclusion for build-local diagnostics review state");
-   end Test_Phase_521_Final_Summary_Output_Render_And_Persistence_Freeze;
+         "freezes persistence exclusion for build-local diagnostics review state");
+   end Test_Final_Summary_Output_Render_And_Persistence_Freeze;
 
-   procedure Test_Phase_521_Final_Audit_And_Lifecycle_Freeze
+   procedure Test_Final_Audit_And_Lifecycle_Freeze
      (T : in out AUnit.Test_Cases.Test_Case'Class)
    is
       pragma Unreferenced (T);
@@ -677,9 +677,9 @@ package body Editor.Build_Diagnostics_Review.Tests is
       Assert
         (Assert_Build_Diagnostics_Final_No_Build_Local_Selection (S),
          "lifecycle has no Build-local diagnostics selection to restore or clean");
-   end Test_Phase_521_Final_Audit_And_Lifecycle_Freeze;
+   end Test_Final_Audit_And_Lifecycle_Freeze;
 
-   procedure Test_Phase_521_Final_Milestone_Coherent
+   procedure Test_Final_Milestone_Coherent
      (T : in out AUnit.Test_Cases.Test_Case'Class)
    is
       pragma Unreferenced (T);
@@ -687,12 +687,12 @@ package body Editor.Build_Diagnostics_Review.Tests is
    begin
       Assert
         (Assert_Public_Build_Diagnostics_Review_Final_Freeze_Coherent (S),
-         "Phase 521 final build diagnostics review freeze is coherent");
-   end Test_Phase_521_Final_Milestone_Coherent;
+         "final build diagnostics review freeze is coherent");
+   end Test_Final_Milestone_Coherent;
 
 
 
-   procedure Test_Phase_529_Build_Diagnostics_Label_And_Surface
+   procedure Test_Build_Diagnostics_Label_And_Surface
      (T : in out AUnit.Test_Cases.Test_Case'Class)
    is
       pragma Unreferenced (T);
@@ -703,7 +703,7 @@ package body Editor.Build_Diagnostics_Review.Tests is
 
       Assert
         (Command.Ingestion.Ingestion_Result.Accepted_Count = 1,
-         "Phase 529 fixture creates one build-produced Diagnostics row");
+         "fixture creates one build-produced Diagnostics row");
       Assert
         (Contains
            (Editor.Feature_Diagnostics.Item_Source_Label (S.Feature_Diagnostics, 1),
@@ -715,9 +715,9 @@ package body Editor.Build_Diagnostics_Review.Tests is
       Assert
         (Assert_Build_Diagnostics_Reviewable_In_Diagnostics_Surface (S),
          "build-produced Diagnostics rows are reviewable in the existing surface");
-   end Test_Phase_529_Build_Diagnostics_Label_And_Surface;
+   end Test_Build_Diagnostics_Label_And_Surface;
 
-   procedure Test_Phase_529_Valid_Build_Diagnostic_Navigates
+   procedure Test_Valid_Build_Diagnostic_Navigates
      (T : in out AUnit.Test_Cases.Test_Case'Class)
    is
       pragma Unreferenced (T);
@@ -756,9 +756,9 @@ package body Editor.Build_Diagnostics_Review.Tests is
       Assert
         (Active_Caret_Line (S) = 2 and then Active_Caret_Column (S) = 3,
          "Diagnostics navigation moves to the build diagnostic line and column");
-   end Test_Phase_529_Valid_Build_Diagnostic_Navigates;
+   end Test_Valid_Build_Diagnostic_Navigates;
 
-   procedure Test_Phase_529_Invalid_Build_Diagnostic_Uses_Diagnostics_Failure
+   procedure Test_Invalid_Build_Diagnostic_Uses_Diagnostics_Failure
      (T : in out AUnit.Test_Cases.Test_Case'Class)
    is
       pragma Unreferenced (T);
@@ -791,9 +791,9 @@ package body Editor.Build_Diagnostics_Review.Tests is
       Assert
         (Assert_Build_Diagnostics_Final_No_Build_Specific_Navigation,
          "invalid target does not introduce build-specific diagnostics navigation");
-   end Test_Phase_529_Invalid_Build_Diagnostic_Uses_Diagnostics_Failure;
+   end Test_Invalid_Build_Diagnostic_Uses_Diagnostics_Failure;
 
-   procedure Test_Phase_529_Build_UI_Reveal_Uses_Diagnostics_Command
+   procedure Test_Build_UI_Reveal_Uses_Diagnostics_Command
      (T : in out AUnit.Test_Cases.Test_Case'Class)
    is
       pragma Unreferenced (T);
@@ -814,11 +814,11 @@ package body Editor.Build_Diagnostics_Review.Tests is
         (Editor.Feature_Diagnostics.Row_Count (After.Feature_Diagnostics) =
            Editor.Feature_Diagnostics.Row_Count (Before.Feature_Diagnostics),
          "Build UI reveal does not copy, select, or navigate Diagnostics rows directly");
-   end Test_Phase_529_Build_UI_Reveal_Uses_Diagnostics_Command;
+   end Test_Build_UI_Reveal_Uses_Diagnostics_Command;
 
 
 
-   procedure Test_Phase_529_Source_Label_Fallbacks_Bounded
+   procedure Test_Source_Label_Fallbacks_Bounded
      (T : in out AUnit.Test_Cases.Test_Case'Class)
    is
       pragma Unreferenced (T);
@@ -862,10 +862,10 @@ package body Editor.Build_Diagnostics_Review.Tests is
          "source labels exclude raw argv, working context, consent, shell, and rerun payloads");
       Assert
         (Assert_Build_Diagnostics_Source_Labels_Practical (S),
-         "Phase 529 source-label helper accepts only practical Diagnostics-owned labels");
-   end Test_Phase_529_Source_Label_Fallbacks_Bounded;
+         "source-label helper accepts only practical Diagnostics-owned labels");
+   end Test_Source_Label_Fallbacks_Bounded;
 
-   procedure Test_Phase_529_Mixed_Rows_Share_Diagnostics_Model
+   procedure Test_Mixed_Rows_Share_Diagnostics_Model
      (T : in out AUnit.Test_Cases.Test_Case'Class)
    is
       pragma Unreferenced (T);
@@ -904,9 +904,9 @@ package body Editor.Build_Diagnostics_Review.Tests is
       Assert
         (Assert_Build_Diagnostics_Navigate_Through_Diagnostics (S),
          "build rows in a mixed list remain navigable through existing Diagnostics routes");
-   end Test_Phase_529_Mixed_Rows_Share_Diagnostics_Model;
+   end Test_Mixed_Rows_Share_Diagnostics_Model;
 
-   procedure Test_Phase_529_Command_Frontdoors_Carry_No_Payload
+   procedure Test_Command_Frontdoors_Carry_No_Payload
      (T : in out AUnit.Test_Cases.Test_Case'Class)
    is
       pragma Unreferenced (T);
@@ -928,9 +928,9 @@ package body Editor.Build_Diagnostics_Review.Tests is
            (Editor.Commands.Stable_Command_Name (Editor.Commands.Command_Build_Run),
             "diagnostic"),
          "build.run does not become a build-specific diagnostic navigation route");
-   end Test_Phase_529_Command_Frontdoors_Carry_No_Payload;
+   end Test_Command_Frontdoors_Carry_No_Payload;
 
-   procedure Test_Phase_529_Audit_Covers_Navigation_Workflow
+   procedure Test_Audit_Covers_Navigation_Workflow
      (T : in out AUnit.Test_Cases.Test_Case'Class)
    is
       pragma Unreferenced (T);
@@ -944,19 +944,19 @@ package body Editor.Build_Diagnostics_Review.Tests is
       Audit := Editor.Build_Diagnostics_Review_Audit.Run_Build_Diagnostics_Review_Audit (S);
 
       Assert (Audit.Source_Labels_Practical,
-              "audit covers Phase 529 build diagnostic source-label boundary");
+              "audit covers build diagnostic source-label boundary");
       Assert (Audit.Command_Frontdoors_Carry_No_Payload,
               "audit covers command palette/keybinding no-payload boundary");
       Assert (Audit.Navigation_Workflow_Coherent,
-              "audit covers the coherent Phase 529 navigation workflow");
+              "audit covers the coherent navigation workflow");
       Assert
         (Audit.Coherent
          and then Audit.Audit_Side_Effect_Free
          and then Editor.Feature_Diagnostics.Row_Count (S.Feature_Diagnostics) = Before_Count,
-         "Phase 529 audit remains coherent and side-effect-free");
-   end Test_Phase_529_Audit_Covers_Navigation_Workflow;
+         "audit remains coherent and side-effect-free");
+   end Test_Audit_Covers_Navigation_Workflow;
 
-   procedure Test_Phase_529_Navigation_Workflow_Milestone_Coherent
+   procedure Test_Navigation_Workflow_Milestone_Coherent
      (T : in out AUnit.Test_Cases.Test_Case'Class)
    is
       pragma Unreferenced (T);
@@ -964,8 +964,8 @@ package body Editor.Build_Diagnostics_Review.Tests is
    begin
       Assert
         (Assert_Public_Build_Diagnostics_Navigation_Workflow_Coherent (S),
-         "Phase 529 build Diagnostics navigation workflow is coherent");
-   end Test_Phase_529_Navigation_Workflow_Milestone_Coherent;
+         "build Diagnostics navigation workflow is coherent");
+   end Test_Navigation_Workflow_Milestone_Coherent;
 
    overriding procedure Register_Tests
      (T : in out Build_Diagnostics_Review_Test_Case)
@@ -992,7 +992,7 @@ package body Editor.Build_Diagnostics_Review.Tests is
          "review audit is coherent and side-effect-free");
       Register_Routine
         (T, Test_Milestone_Helper_Coherent'Access,
-         "Phase 518 milestone helper is coherent");
+         "milestone helper is coherent");
       Register_Routine
         (T, Test_Source_Metadata_Reliable_And_Non_Executable'Access,
          "source metadata is stable and non-executable");
@@ -1015,54 +1015,54 @@ package body Editor.Build_Diagnostics_Review.Tests is
         (T, Test_Summary_Output_Render_And_Frontdoors_Do_Not_Own_Rows'Access,
          "summary output render and frontdoors do not own rows");
       Register_Routine
-        (T, Test_Phase_519_Reliability_Milestone_Coherent'Access,
-         "Phase 519 reliability milestone is coherent");
+        (T, Test_Reliability_Milestone_Coherent'Access,
+         "reliability milestone is coherent");
       Register_Routine
-        (T, Test_Phase_520_Canonical_Cleanup_Milestone_Coherent'Access,
-         "Phase 520 canonical cleanup milestone is coherent");
+        (T, Test_Canonical_Cleanup_Milestone_Coherent'Access,
+         "canonical cleanup milestone is coherent");
       Register_Routine
-        (T, Test_Phase_521_Final_Ownership_And_Ingestion_Freeze'Access,
-         "Phase 521 final ownership and ingestion freeze");
+        (T, Test_Final_Ownership_And_Ingestion_Freeze'Access,
+         "final ownership and ingestion freeze");
       Register_Routine
-        (T, Test_Phase_521_Final_Source_Review_And_Navigation_Freeze'Access,
-         "Phase 521 final source review and navigation freeze");
+        (T, Test_Final_Source_Review_And_Navigation_Freeze'Access,
+         "final source review and navigation freeze");
       Register_Routine
-        (T, Test_Phase_521_Final_Summary_Output_Render_And_Persistence_Freeze'Access,
-         "Phase 521 final summary output render and persistence freeze");
+        (T, Test_Final_Summary_Output_Render_And_Persistence_Freeze'Access,
+         "final summary output render and persistence freeze");
       Register_Routine
-        (T, Test_Phase_521_Final_Audit_And_Lifecycle_Freeze'Access,
-         "Phase 521 final audit and lifecycle freeze");
+        (T, Test_Final_Audit_And_Lifecycle_Freeze'Access,
+         "final audit and lifecycle freeze");
       Register_Routine
-        (T, Test_Phase_521_Final_Milestone_Coherent'Access,
-         "Phase 521 final milestone is coherent");
+        (T, Test_Final_Milestone_Coherent'Access,
+         "final milestone is coherent");
 
       Register_Routine
-        (T, Test_Phase_529_Build_Diagnostics_Label_And_Surface'Access,
-         "Phase 529 build diagnostics label and surface");
+        (T, Test_Build_Diagnostics_Label_And_Surface'Access,
+         "build diagnostics label and surface");
       Register_Routine
-        (T, Test_Phase_529_Valid_Build_Diagnostic_Navigates'Access,
-         "Phase 529 valid build diagnostic navigates");
+        (T, Test_Valid_Build_Diagnostic_Navigates'Access,
+         "valid build diagnostic navigates");
       Register_Routine
-        (T, Test_Phase_529_Invalid_Build_Diagnostic_Uses_Diagnostics_Failure'Access,
-         "Phase 529 invalid build diagnostic uses Diagnostics failure");
+        (T, Test_Invalid_Build_Diagnostic_Uses_Diagnostics_Failure'Access,
+         "invalid build diagnostic uses Diagnostics failure");
       Register_Routine
-        (T, Test_Phase_529_Build_UI_Reveal_Uses_Diagnostics_Command'Access,
-         "Phase 529 Build UI reveal uses Diagnostics command");
+        (T, Test_Build_UI_Reveal_Uses_Diagnostics_Command'Access,
+         "Build UI reveal uses Diagnostics command");
       Register_Routine
-        (T, Test_Phase_529_Source_Label_Fallbacks_Bounded'Access,
-         "Phase 529 source label fallbacks are bounded");
+        (T, Test_Source_Label_Fallbacks_Bounded'Access,
+         "source label fallbacks are bounded");
       Register_Routine
-        (T, Test_Phase_529_Mixed_Rows_Share_Diagnostics_Model'Access,
-         "Phase 529 mixed rows share Diagnostics model");
+        (T, Test_Mixed_Rows_Share_Diagnostics_Model'Access,
+         "mixed rows share Diagnostics model");
       Register_Routine
-        (T, Test_Phase_529_Command_Frontdoors_Carry_No_Payload'Access,
-         "Phase 529 command frontdoors carry no diagnostic payload");
+        (T, Test_Command_Frontdoors_Carry_No_Payload'Access,
+         "command frontdoors carry no diagnostic payload");
       Register_Routine
-        (T, Test_Phase_529_Audit_Covers_Navigation_Workflow'Access,
-         "Phase 529 audit covers navigation workflow");
+        (T, Test_Audit_Covers_Navigation_Workflow'Access,
+         "audit covers navigation workflow");
       Register_Routine
-        (T, Test_Phase_529_Navigation_Workflow_Milestone_Coherent'Access,
-         "Phase 529 navigation workflow milestone is coherent");
+        (T, Test_Navigation_Workflow_Milestone_Coherent'Access,
+         "navigation workflow milestone is coherent");
    end Register_Tests;
 
 end Editor.Build_Diagnostics_Review.Tests;

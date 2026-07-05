@@ -4,7 +4,7 @@ with Editor.Ada_Syntax_Tree;
 
 package Editor.Ada_Aggregate_Legality_Vertical_Slice is
 
-   --  Pass1326 vertical-slice aggregate legality.
+   --  Case 1326 vertical-slice aggregate legality.
    --  This package models source-shaped Ada aggregate legality across array,
    --  record, extension, delta, container, and null aggregate forms.  The
    --  checker intentionally consumes concrete semantic evidence rows rather

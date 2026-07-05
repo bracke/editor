@@ -47,6 +47,8 @@ package body Editor.Lifecycle_Audit is
             return "open-recent-project";
          when Editor.Pending_Transitions.Pending_Restore_Workspace =>
             return "restore-workspace";
+         when Editor.Pending_Transitions.Pending_Clear_Workspace_State =>
+            return "clear-workspace-state";
          when Editor.Pending_Transitions.Pending_Clear_Project =>
             return "clear-project";
       end case;

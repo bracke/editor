@@ -6,9 +6,9 @@ with Editor.Ada_Syntax_Tree;
 
 package Editor.Ada_Predicate_Dataflow_Initialization_Consumer_Legality is
 
-   --  Pass1166 predicate/invariant dataflow-initialization consumer legality.
+   --  Case 1166 predicate/invariant dataflow-initialization consumer legality.
    --
-   --  This layer feeds Pass1165 Global/Depends plus definite-initialization
+   --  This layer feeds Case 1165 Global/Depends plus definite-initialization
    --  evidence back into predicate and invariant propagation.  It prevents a
    --  predicate or invariant obligation from remaining confidently preserved
    --  when the object state, read/write flow, refined-flow evidence, or exact

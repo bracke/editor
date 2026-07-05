@@ -7,7 +7,7 @@ with Editor.Ada_Syntax_Tree;
 
 package Editor.Ada_Flow_Refinement_Consumer_Legality is
 
-   --  Pass1155 compiler-grade flow/refinement consumer legality.
+   --  Case 1155 compiler-grade flow/refinement consumer legality.
    --
    --  This package connects Refined_Global / Refined_Depends conformance back
    --  into flow-effect graph consumers.  A flow edge is not allowed to become a

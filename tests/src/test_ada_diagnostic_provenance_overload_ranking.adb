@@ -65,10 +65,10 @@ package body Test_Ada_Diagnostic_Provenance_Overload_Ranking is
    begin
       Register_Routine
         (T, Test_Empty_Integration_Is_Deterministic'Access,
-         "Pass1073 keeps empty overload-ranking diagnostic provenance deterministic");
+         "Case 1073 keeps empty overload-ranking diagnostic provenance deterministic");
       Register_Routine
         (T, Test_Absent_Integrated_Lookup_Is_Empty'Access,
-         "Pass1073 absent integrated provenance lookup returns no item");
+         "Case 1073 absent integrated provenance lookup returns no item");
    end Register_Tests;
 
 end Test_Ada_Diagnostic_Provenance_Overload_Ranking;

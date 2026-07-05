@@ -1,5 +1,6 @@
 with Ada.Characters.Handling;
 with Ada.Strings.Fixed;
+with Editor.Commands;
 
 package body Editor.Dogfood_Workflow is
 
@@ -111,7 +112,7 @@ package body Editor.Dogfood_Workflow is
          when Dogfood_State_Stale =>
             case Surface is
                when Dogfood_Surface_Project_Search =>
-                  return "Search result is stale; run Project Search again.";
+                  return Editor.Commands.Reason_Project_Search_Result_Stale;
                when Dogfood_Surface_Outline =>
                   return "Outline may be stale; refresh Outline before navigating.";
                when Dogfood_Surface_Build =>
@@ -637,7 +638,7 @@ package body Editor.Dogfood_Workflow is
          when Workflow_No_File_Selected =>
             return "No file selected.";
          when Workflow_Target_Stale =>
-            return "Target is stale; refresh required.";
+            return Editor.Commands.Reason_Target_Stale;
          when Workflow_Target_No_Longer_Exists =>
             return "Target no longer exists.";
          when Workflow_Backing_File_No_Longer_Exists =>
@@ -787,14 +788,14 @@ package body Editor.Dogfood_Workflow is
       end case;
    end Integrated_Surface_Disposition_Label;
 
-   function Assert_Phase578_Message_Consistency return Boolean is
+   function Assert_Message_Consistency return Boolean is
    begin
       return Integrated_Workflow_Message (Workflow_No_Project_Open) = "No project open."
         and then Integrated_Workflow_Message (Workflow_No_Active_Buffer) = "No active buffer."
         and then Integrated_Workflow_Message (Workflow_No_Buffer_Selected) = "No buffer selected."
         and then Integrated_Workflow_Message (Workflow_No_File_Selected) = "No file selected."
         and then Integrated_Workflow_Message (Workflow_Target_Stale) =
-          "Target is stale; refresh required."
+          Editor.Commands.Reason_Target_Stale
         and then Integrated_Workflow_Message (Workflow_Target_No_Longer_Exists) =
           "Target no longer exists."
         and then Integrated_Workflow_Message (Workflow_Backing_File_No_Longer_Exists) =
@@ -813,9 +814,9 @@ package body Editor.Dogfood_Workflow is
           (Integrated_Workflow_Message (Workflow_Target_Stale))
         and then Dogfood_Label_Is_User_Readable
           (Integrated_Workflow_Message (Workflow_Confirmation_Pending));
-   end Assert_Phase578_Message_Consistency;
+   end Assert_Message_Consistency;
 
-   function Assert_Phase578_Focus_Policy_Coherent return Boolean is
+   function Assert_Focus_Policy_Coherent return Boolean is
    begin
       return Integrated_Focus_After_Action (Workflow_File_Tree_File_Activated) =
           Focus_Result_Editor
@@ -838,9 +839,9 @@ package body Editor.Dogfood_Workflow is
         and then Integrated_Focus_Result_Label (Focus_Result_Outline) = "Outline"
         and then Integrated_Focus_Result_Label (Focus_Result_Build_Output) = "Build Output"
         and then Integrated_Focus_Result_Label (Focus_Result_Empty_State) = "Empty editor state";
-   end Assert_Phase578_Focus_Policy_Coherent;
+   end Assert_Focus_Policy_Coherent;
 
-   function Assert_Phase578_Surface_Dispositions_Coherent return Boolean is
+   function Assert_Surface_Dispositions_Coherent return Boolean is
    begin
       return Integrated_Surface_Disposition_After
           (Workflow_Event_Project_Switched, Dogfood_Surface_Project_Search) =
@@ -866,18 +867,18 @@ package body Editor.Dogfood_Workflow is
         and then Integrated_Surface_Disposition_Label
           (Workflow_Surface_Recomputed_By_Explicit_Command) =
             "recomputed by explicit command";
-   end Assert_Phase578_Surface_Dispositions_Coherent;
+   end Assert_Surface_Dispositions_Coherent;
 
-   function Assert_Phase578_Workflow_Polish_Coherent
+   function Assert_Workflow_Polish_Coherent
      (Workspace_Text      : String;
       Recent_Project_Text : String;
       Keybindings_Text    : String;
       Product_Text        : String) return Boolean
    is
    begin
-      return Assert_Phase578_Message_Consistency
-        and then Assert_Phase578_Focus_Policy_Coherent
-        and then Assert_Phase578_Surface_Dispositions_Coherent
+      return Assert_Message_Consistency
+        and then Assert_Focus_Policy_Coherent
+        and then Assert_Surface_Dispositions_Coherent
         and then Assert_Repeated_Local_Use_Coherent
           (Workspace_Text, Recent_Project_Text, Keybindings_Text, Product_Text)
         and then Assert_Workspace_Reload_Does_Not_Restore_Transient_State
@@ -886,7 +887,7 @@ package body Editor.Dogfood_Workflow is
           (Recent_Project_Text)
         and then Assert_Default_Keybindings_Safe (Keybindings_Text)
         and then Assert_Product_Artifacts_No_Demo_State (Product_Text);
-   end Assert_Phase578_Workflow_Polish_Coherent;
+   end Assert_Workflow_Polish_Coherent;
 
 
    function Product_Workflow_Command
@@ -1233,7 +1234,7 @@ package body Editor.Dogfood_Workflow is
         or else Contains (Lower, "route id");
    end Product_Label_Contains_Internal_Term;
 
-   function Assert_Phase579_Product_Workflow_Reference_Coherent
+   function Assert_Product_Workflow_Reference_Coherent
      return Boolean
    is
    begin
@@ -1255,9 +1256,9 @@ package body Editor.Dogfood_Workflow is
           "blocks until dirty buffers are saved, discarded, or cancellation preserves them"
         and then Product_Workflow_Success_Message (Product_Rename_File_Or_Directory) = "File or directory renamed."
         and then Product_Workflow_Success_Message (Product_Delete_File_Or_Directory) = "File or directory deleted.";
-   end Assert_Phase579_Product_Workflow_Reference_Coherent;
+   end Assert_Product_Workflow_Reference_Coherent;
 
-   function Assert_Phase579_Product_Messages_User_Readable
+   function Assert_Product_Messages_User_Readable
      return Boolean
    is
    begin
@@ -1284,9 +1285,9 @@ package body Editor.Dogfood_Workflow is
          end if;
       end loop;
       return True;
-   end Assert_Phase579_Product_Messages_User_Readable;
+   end Assert_Product_Messages_User_Readable;
 
-   function Assert_Phase579_Product_Focus_Policy_Coherent
+   function Assert_Product_Focus_Policy_Coherent
      return Boolean
    is
    begin
@@ -1301,9 +1302,9 @@ package body Editor.Dogfood_Workflow is
         and then Product_Workflow_Focus_Result (Product_Inspect_Diagnostics) = Focus_Result_Diagnostics
         and then Product_Workflow_Focus_Result (Product_Close_Active_Buffer) = Focus_Result_Editor
         and then Product_Workflow_Focus_Result (Product_Quit_Safely) = Focus_Result_Editor;
-   end Assert_Phase579_Product_Focus_Policy_Coherent;
+   end Assert_Product_Focus_Policy_Coherent;
 
-   function Assert_Phase579_Product_Prompt_Policy_Coherent
+   function Assert_Product_Prompt_Policy_Coherent
      return Boolean
    is
    begin
@@ -1328,9 +1329,9 @@ package body Editor.Dogfood_Workflow is
         and then Product_Workflow_Focus_Result (Product_Create_Directory) = Focus_Result_File_Tree
         and then Product_Workflow_Focus_Result (Product_Rename_File_Or_Directory) = Focus_Result_File_Tree
         and then Product_Workflow_Focus_Result (Product_Delete_File_Or_Directory) = Focus_Result_File_Tree;
-   end Assert_Phase579_Product_Prompt_Policy_Coherent;
+   end Assert_Product_Prompt_Policy_Coherent;
 
-   function Assert_Phase579_Product_File_Buffer_Coherent
+   function Assert_Product_File_Buffer_Coherent
      return Boolean
    is
    begin
@@ -1346,9 +1347,9 @@ package body Editor.Dogfood_Workflow is
           "closes or marks clean open targets according to file-safety policy; dirty targets require a decision"
         and then Product_Workflow_File_Buffer_Effect (Product_Close_Active_Buffer) =
           "selects the next valid buffer or empty editor state";
-   end Assert_Phase579_Product_File_Buffer_Coherent;
+   end Assert_Product_File_Buffer_Coherent;
 
-   function Assert_Phase579_Product_Navigation_Coherent
+   function Assert_Product_Navigation_Coherent
      return Boolean
    is
    begin
@@ -1361,9 +1362,9 @@ package body Editor.Dogfood_Workflow is
         and then Product_Workflow_Focus_Result (Product_Navigate_Search_Result) = Focus_Result_Editor
         and then Product_Workflow_Focus_Result (Product_View_Outline) = Focus_Result_Outline
         and then Product_Workflow_Focus_Result (Product_Search_Project) = Focus_Result_Search_Results;
-   end Assert_Phase579_Product_Navigation_Coherent;
+   end Assert_Product_Navigation_Coherent;
 
-   function Assert_Phase579_Product_Build_Diagnostics_Coherent
+   function Assert_Product_Build_Diagnostics_Coherent
      return Boolean
    is
    begin
@@ -1379,9 +1380,9 @@ package body Editor.Dogfood_Workflow is
         and then Product_Workflow_Failure_Message (Product_Inspect_Build_Output) = "No build output captured."
         and then Product_Workflow_Success_Message (Product_Inspect_Diagnostics) = "Diagnostics shown."
         and then Product_Workflow_Failure_Message (Product_Inspect_Diagnostics) = "No diagnostics.";
-   end Assert_Phase579_Product_Build_Diagnostics_Coherent;
+   end Assert_Product_Build_Diagnostics_Coherent;
 
-   function Assert_Phase579_Product_Workspace_Restore_Coherent
+   function Assert_Product_Workspace_Restore_Coherent
      return Boolean
    is
    begin
@@ -1395,20 +1396,20 @@ package body Editor.Dogfood_Workflow is
           "does not persist or recreate dirty state"
         and then Product_Workflow_Failure_Message (Product_Restore_Workspace) =
           "Workspace could not be restored.";
-   end Assert_Phase579_Product_Workspace_Restore_Coherent;
+   end Assert_Product_Workspace_Restore_Coherent;
 
-   function Assert_Phase579_Product_Surface_Coherent
+   function Assert_Product_Surface_Coherent
      (Product_Text : String) return Boolean
    is
    begin
-      return Assert_Phase579_Product_Workflow_Reference_Coherent
-        and then Assert_Phase579_Product_Messages_User_Readable
-        and then Assert_Phase579_Product_Focus_Policy_Coherent
-        and then Assert_Phase579_Product_Prompt_Policy_Coherent
-        and then Assert_Phase579_Product_File_Buffer_Coherent
-        and then Assert_Phase579_Product_Navigation_Coherent
-        and then Assert_Phase579_Product_Build_Diagnostics_Coherent
-        and then Assert_Phase579_Product_Workspace_Restore_Coherent
+      return Assert_Product_Workflow_Reference_Coherent
+        and then Assert_Product_Messages_User_Readable
+        and then Assert_Product_Focus_Policy_Coherent
+        and then Assert_Product_Prompt_Policy_Coherent
+        and then Assert_Product_File_Buffer_Coherent
+        and then Assert_Product_Navigation_Coherent
+        and then Assert_Product_Build_Diagnostics_Coherent
+        and then Assert_Product_Workspace_Restore_Coherent
         and then Contains (Product_Text, "project.open")
         and then Contains (Product_Text, "project.close")
         and then Contains (Product_Text, "project.switch")
@@ -1447,7 +1448,7 @@ package body Editor.Dogfood_Workflow is
         and then Missing_Case_Insensitive (Product_Text, "synthetic")
         and then Missing_Case_Insensitive (Product_Text, "Build UI")
         and then Missing_Case_Insensitive (Product_Text, "active-buffer");
-   end Assert_Phase579_Product_Surface_Coherent;
+   end Assert_Product_Surface_Coherent;
 
 
    function Assert_Dogfood_Transient_State_Not_Persisted

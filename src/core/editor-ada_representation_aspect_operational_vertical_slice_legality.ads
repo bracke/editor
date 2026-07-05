@@ -4,7 +4,7 @@ with Editor.Ada_Syntax_Tree;
 
 package Editor.Ada_Representation_Aspect_Operational_Vertical_Slice_Legality is
 
-   --  Pass1321 vertical-slice representation/aspect/operational-item legality.
+   --  Case 1321 vertical-slice representation/aspect/operational-item legality.
    --  This package models concrete Ada representation and operational items as
    --  either aspects or attribute-definition clauses, including target lookup,
    --  freezing order, duplicate/conflicting items, convention/import/export

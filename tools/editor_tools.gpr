@@ -6,6 +6,7 @@ project Editor_Tools is
    for Languages use ("Ada");
    for Main use
      ("release_check.adb",
+      "release_commands.adb",
       "release_check_record.adb",
       "final_release_validation_check.adb",
       "release_candidate_check.adb",
@@ -21,9 +22,31 @@ project Editor_Tools is
       "compile_shaders.adb",
       "record_shader_toolchain_manifest.adb",
       "product_smoke.adb",
+      "product_smoke_quick_open_file_tree.adb",
+      "product_smoke_edit_save.adb",
+      "product_smoke_daily_editing.adb",
+      "product_smoke_workspace_session.adb",
+      "product_smoke_dirty_lifecycle_persistence.adb",
+      "product_smoke_build_ui_interaction.adb",
+      "product_smoke_command_palette_ranking.adb",
+      "product_smoke_diagnostics_problems.adb",
+      "product_smoke_diagnostic_quick_fix.adb",
+      "product_smoke_build_diagnostics.adb",
+      "product_smoke_render_packet.adb",
+      "product_smoke_focus_selftest.adb",
+      "editor_workflow_gate.adb",
+      "editor_workflow_gate_selftest.adb",
+      "check_docs.adb",
+      "check_repo_hygiene.adb",
+      "source_status.adb",
       "real_build_runner_smoke.adb",
       "unit_tests.adb",
-      "phase579_language_validation_check.adb",
+      "unit_test_timings.adb",
+      "unit_tests_lock_selftest.adb",
+      "test_slice_for.adb",
+      "test_commands_for.adb",
+      "test_commands_for_selftest.adb",
+      "language_validation_check.adb",
       "outline_static_sanity.adb",
       "show_developer_tools.adb",
       "ada_keyword_identifier_check.adb");
@@ -32,6 +55,6 @@ project Editor_Tools is
       for Default_Switches ("Ada") use ("-gnat2022", "-gnatyM120");
       for Switches ("release_check.adb") use ("-gnat2022");
       for Switches ("release_check_record.adb") use ("-gnat2022");
-      for Switches ("phase579_language_validation_check.adb") use ("-gnat2022");
+      for Switches ("language_validation_check.adb") use ("-gnat2022");
    end Compiler;
 end Editor_Tools;

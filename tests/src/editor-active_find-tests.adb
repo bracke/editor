@@ -6,6 +6,8 @@ with Editor.Buffers;
 with Editor.Commands;
 with Editor.Cursors;
 with Editor.Executor;
+with Editor.Executor.File_Open_Commands;
+with Editor.Executor.Find_Replace_Commands;
 with Editor.Input_Field;
 with Editor.Go_To_Line;
 with Editor.Input_Bridge;
@@ -88,7 +90,7 @@ package body Editor.Active_Find.Tests is
            (Editor.Commands.Command_Find_Last) = "edit.find.last"
          and then Editor.Commands.Stable_Command_Name
            (Editor.Commands.Command_Find_Reveal_Current) = "edit.find.reveal-current",
-         "Phase 361 find first/last/reveal-current commands must have stable persisted names");
+         "find first/last/reveal-current commands must have stable persisted names");
       Id := Editor.Commands.Command_Id_From_Stable_Name ("edit.find.first", Found);
       Assert
         (Found and then Id = Editor.Commands.Command_Find_First,
@@ -110,7 +112,7 @@ package body Editor.Active_Find.Tests is
          and then Editor.Commands.Is_Navigation_Command (Editor.Commands.Command_Find_Last)
          and then not Editor.Commands.Is_Navigation_Command
            (Editor.Commands.Command_Find_Reveal_Current),
-         "Phase 361 command descriptors must classify first/last as navigation search commands and reveal-current as non-navigation search state");
+         "command descriptors must classify first/last as navigation search commands and reveal-current as non-navigation search state");
       Assert
         (D.Category = Editor.Commands.Search_Category
          and then D.Visibility = Editor.Commands.Palette_Command
@@ -122,7 +124,7 @@ package body Editor.Active_Find.Tests is
          "payload-style find query setter must not be bindable");
       Assert
         (To_String (D.Name) = "Find",
-         "visible palette Find must now be the Phase 354 active-buffer Find command");
+         "visible palette Find must now be the active-buffer Find command");
    end Test_Command_Metadata;
 
    procedure Test_Query_Set_And_Snapshot_Ranges
@@ -134,8 +136,8 @@ package body Editor.Active_Find.Tests is
    begin
       Editor.State.Init (S);
       Editor.State.Load_Text (S, "Alpha alpha" & ASCII.LF & "ALPHA");
-      Editor.Executor.Execute_Find_Show (S);
-      Editor.Executor.Execute_Find_Set_Query (S, "alpha");
+      Editor.Executor.Find_Replace_Commands.Execute_Find_Show (S);
+      Editor.Executor.Find_Replace_Commands.Execute_Find_Set_Query (S, "alpha");
 
       Assert
         (S.Active_Find_Prompt,
@@ -175,9 +177,9 @@ package body Editor.Active_Find.Tests is
    begin
       Editor.State.Init (S);
       Editor.State.Load_Text (S, "start" & ASCII.LF & "needle" & ASCII.LF & "needle");
-      Editor.Executor.Execute_Find_Show (S);
-      Editor.Executor.Execute_Find_Set_Query (S, "needle");
-      Editor.Executor.Execute_Find_Next (S);
+      Editor.Executor.Find_Replace_Commands.Execute_Find_Show (S);
+      Editor.Executor.Find_Replace_Commands.Execute_Find_Set_Query (S, "needle");
+      Editor.Executor.Find_Replace_Commands.Execute_Find_Next (S);
 
       Assert
         (S.Active_Find_Match.Start_Row = 2
@@ -190,7 +192,7 @@ package body Editor.Active_Find.Tests is
         (Editor.Navigation_History.Has_Back (S.Navigation_History),
          "successful find navigation must record the pre-find location");
 
-      Editor.Executor.Execute_Find_Previous (S);
+      Editor.Executor.Find_Replace_Commands.Execute_Find_Previous (S);
       Assert
         (S.Active_Find_Match.Start_Row = 1,
          "find previous must move back to the prior match");
@@ -204,9 +206,9 @@ package body Editor.Active_Find.Tests is
    begin
       Editor.State.Init (S);
       Editor.State.Load_Text (S, "abc abc");
-      Editor.Executor.Execute_Find_Show (S);
-      Editor.Executor.Execute_Find_Set_Query (S, "abc");
-      Editor.Executor.Execute_Find_Hide (S);
+      Editor.Executor.Find_Replace_Commands.Execute_Find_Show (S);
+      Editor.Executor.Find_Replace_Commands.Execute_Find_Set_Query (S, "abc");
+      Editor.Executor.Find_Replace_Commands.Execute_Find_Hide (S);
       Assert
         ((not S.Active_Find_Prompt)
          and then Length (S.Active_Find_Query) = 0
@@ -224,8 +226,8 @@ package body Editor.Active_Find.Tests is
    begin
       Editor.State.Init (S);
       Editor.State.Load_Text (S, "alpha beta alpha");
-      Editor.Executor.Execute_Find_Show (S);
-      Editor.Executor.Execute_Active_Find_Input_Insert_Text (S, "alpha");
+      Editor.Executor.Find_Replace_Commands.Execute_Find_Show (S);
+      Editor.Executor.Find_Replace_Commands.Execute_Active_Find_Input_Insert_Text (S, "alpha");
 
       Assert
         (To_String (S.Active_Find_Query) = "alpha"
@@ -252,8 +254,8 @@ package body Editor.Active_Find.Tests is
    begin
       Editor.State.Init (S);
       Editor.State.Load_Text (S, "alpha beta alpha");
-      Editor.Executor.Execute_Find_Show (S);
-      Editor.Executor.Execute_Active_Find_Input_Insert_Text (S, "alpha");
+      Editor.Executor.Find_Replace_Commands.Execute_Find_Show (S);
+      Editor.Executor.Find_Replace_Commands.Execute_Active_Find_Input_Insert_Text (S, "alpha");
 
       Cmd.Kind := Editor.Commands.Insert_Text_Input;
       Cmd.Ch := ASCII.CR;
@@ -288,8 +290,8 @@ package body Editor.Active_Find.Tests is
    begin
       Editor.State.Init (S);
       Editor.State.Load_Text (S, "alpha beta alpha");
-      Editor.Executor.Execute_Find_Show (S);
-      Editor.Executor.Execute_Find_Set_Query (S, "alpha");
+      Editor.Executor.Find_Replace_Commands.Execute_Find_Show (S);
+      Editor.Executor.Find_Replace_Commands.Execute_Find_Set_Query (S, "alpha");
 
       Editor.State.Rebuild_After_Buffer_Change (S);
 
@@ -317,9 +319,9 @@ package body Editor.Active_Find.Tests is
       Editor.Buffers.Ensure_Global_Registry (S);
       Original := Editor.Buffers.Global_Active_Buffer;
 
-      Editor.Executor.Execute_Find_Show (S);
-      Editor.Executor.Execute_Find_Set_Query (S, "alpha");
-      Editor.Executor.Execute_New_Buffer (S);
+      Editor.Executor.Find_Replace_Commands.Execute_Find_Show (S);
+      Editor.Executor.Find_Replace_Commands.Execute_Find_Set_Query (S, "alpha");
+      Editor.Executor.File_Open_Commands.Execute_New_Buffer (S);
 
       Assert
         (S.Active_Find_Prompt
@@ -329,7 +331,7 @@ package body Editor.Active_Find.Tests is
          and then Editor.Project_Search.Query (S.Project_Search) = "",
          "active-buffer Find query must remain visible and stale after switching to a new buffer");
 
-      Editor.Executor.Execute_Switch_Buffer (S, Original);
+      Editor.Executor.File_Open_Commands.Execute_Switch_Buffer (S, Original);
 
       Assert
         (S.Active_Find_Prompt
@@ -353,8 +355,8 @@ package body Editor.Active_Find.Tests is
       Editor.Buffers.Reset_Global_For_Test;
       Editor.State.Init (S);
       Editor.State.Load_Text (S, "alpha beta alpha");
-      Editor.Executor.Execute_Find_Show (S);
-      Editor.Executor.Execute_Find_Set_Query (S, "alpha");
+      Editor.Executor.Find_Replace_Commands.Execute_Find_Show (S);
+      Editor.Executor.Find_Replace_Commands.Execute_Find_Set_Query (S, "alpha");
 
       Editor.State.Rebuild_After_Buffer_Change (S);
       Editor.Render_Model.Build_Render_Snapshot (S, Snap);
@@ -378,8 +380,8 @@ package body Editor.Active_Find.Tests is
    begin
       Editor.State.Init (S);
       Editor.State.Load_Text (S, "alpha beta alpha");
-      Editor.Executor.Execute_Find_Show (S);
-      Editor.Executor.Execute_Find_Set_Query (S, "alpha");
+      Editor.Executor.Find_Replace_Commands.Execute_Find_Show (S);
+      Editor.Executor.Find_Replace_Commands.Execute_Find_Set_Query (S, "alpha");
 
       Cmd.Kind := Editor.Commands.Insert_Text_Input;
       Cmd.Ch := 'a';
@@ -392,7 +394,7 @@ package body Editor.Active_Find.Tests is
          and then not Editor.Search.Has_Match (S.Active_Find_Match),
          "ordinary buffer edits must clear selected active Find match and mark matches stale");
 
-      Editor.Executor.Execute_Find_Next (S);
+      Editor.Executor.Find_Replace_Commands.Execute_Find_Next (S);
       Assert
         ((not S.Active_Find_Stale)
          and then Natural (S.Active_Find_Matches.Length) = 2
@@ -408,7 +410,7 @@ package body Editor.Active_Find.Tests is
       S : Editor.State.State_Type;
    begin
       Editor.State.Init (S);
-      Editor.Executor.Execute_Find_Next (S);
+      Editor.Executor.Find_Replace_Commands.Execute_Find_Next (S);
       Assert
         (Active_Message_Text (S) = "No active buffer.",
          "find next without an active buffer must report No active buffer, not stale query state");
@@ -424,8 +426,8 @@ package body Editor.Active_Find.Tests is
    begin
       Editor.State.Init (S);
       Editor.State.Load_Text (S, "alpha beta alpha");
-      Editor.Executor.Execute_Find_Show (S);
-      Editor.Executor.Execute_Find_Set_Query (S, "alpha");
+      Editor.Executor.Find_Replace_Commands.Execute_Find_Show (S);
+      Editor.Executor.Find_Replace_Commands.Execute_Find_Set_Query (S, "alpha");
 
       S.Active_Find_Source_Buffer_Token := S.Active_Buffer_Token + 1;
       S.Active_Find_Stale := False;
@@ -446,8 +448,8 @@ package body Editor.Active_Find.Tests is
       S : Editor.State.State_Type;
    begin
       Editor.State.Init (S);
-      Editor.Executor.Execute_Find_Show (S);
-      Editor.Executor.Execute_Find_Set_Query (S, "alpha");
+      Editor.Executor.Find_Replace_Commands.Execute_Find_Show (S);
+      Editor.Executor.Find_Replace_Commands.Execute_Find_Set_Query (S, "alpha");
 
       Assert
         (To_String (S.Active_Find_Query) = "alpha"
@@ -471,8 +473,8 @@ package body Editor.Active_Find.Tests is
    begin
       Editor.State.Init (S);
       Editor.State.Load_Text (S, "alpha alpha" & ASCII.LF & " alpha ");
-      Editor.Executor.Execute_Find_Show (S);
-      Editor.Executor.Execute_Find_Set_Query (S, " alpha ");
+      Editor.Executor.Find_Replace_Commands.Execute_Find_Show (S);
+      Editor.Executor.Find_Replace_Commands.Execute_Find_Set_Query (S, " alpha ");
 
       Assert
         (To_String (S.Active_Find_Query) = " alpha "
@@ -493,8 +495,8 @@ package body Editor.Active_Find.Tests is
    begin
       Editor.State.Init (S);
       Editor.State.Load_Text (S, "alpha beta alpha");
-      Editor.Executor.Execute_Find_Show (S);
-      Editor.Executor.Execute_Find_Set_Query (S, "alpha");
+      Editor.Executor.Find_Replace_Commands.Execute_Find_Show (S);
+      Editor.Executor.Find_Replace_Commands.Execute_Find_Set_Query (S, "alpha");
 
       S.Active_Find_Match :=
         (Index        => Editor.Search.Search_Match_Index (99),
@@ -505,7 +507,7 @@ package body Editor.Active_Find.Tests is
          End_Row      => 0,
          End_Column   => 0);
 
-      Editor.Executor.Execute_Find_Previous (S);
+      Editor.Executor.Find_Replace_Commands.Execute_Find_Previous (S);
 
       Assert
         (Editor.Search.Has_Match (S.Active_Find_Match)
@@ -523,8 +525,8 @@ package body Editor.Active_Find.Tests is
    begin
       Editor.State.Init (S);
       Editor.State.Load_Text (S, "alpha beta alpha");
-      Editor.Executor.Execute_Find_Show (S);
-      Editor.Executor.Execute_Find_Set_Query (S, "alpha");
+      Editor.Executor.Find_Replace_Commands.Execute_Find_Show (S);
+      Editor.Executor.Find_Replace_Commands.Execute_Find_Set_Query (S, "alpha");
 
       --  Single-buffer editor states may use the state's registry token as
       --  the effective active Find source identity.  Snapshot/render code
@@ -610,7 +612,7 @@ package body Editor.Active_Find.Tests is
       Editor.State.Load_Text (S, "alpha beta alpha");
       Set_Primary_Caret (S, Pos => 10, Anchor => 6);
 
-      Editor.Executor.Execute_Find_From_Selection (S);
+      Editor.Executor.Find_Replace_Commands.Execute_Find_From_Selection (S);
 
       Assert
         (S.Active_Find_Prompt
@@ -647,7 +649,7 @@ package body Editor.Active_Find.Tests is
       Editor.State.Load_Text (S, "alpha" & Character'Val (10) & "beta");
       Set_Primary_Caret (S, Pos => 6, Anchor => 0);
 
-      Editor.Executor.Execute_Find_From_Selection (S);
+      Editor.Executor.Find_Replace_Commands.Execute_Find_From_Selection (S);
 
       Assert
         (To_String (S.Active_Find_Query) = "alpha"
@@ -664,10 +666,10 @@ package body Editor.Active_Find.Tests is
    begin
       Editor.State.Init (S);
       Editor.State.Load_Text (S, "alpha" & Character'Val (10) & "beta");
-      Editor.Executor.Execute_Find_Set_Query (S, "alpha");
+      Editor.Executor.Find_Replace_Commands.Execute_Find_Set_Query (S, "alpha");
       Set_Primary_Caret (S, Pos => 10, Anchor => 0);
 
-      Editor.Executor.Execute_Find_From_Selection (S);
+      Editor.Executor.Find_Replace_Commands.Execute_Find_From_Selection (S);
 
       Assert
         (To_String (S.Active_Find_Query) = "alpha"
@@ -684,10 +686,10 @@ package body Editor.Active_Find.Tests is
    begin
       Editor.State.Init (S);
       Editor.State.Load_Text (S, Long & " tail");
-      Editor.Executor.Execute_Find_Set_Query (S, "tail");
+      Editor.Executor.Find_Replace_Commands.Execute_Find_Set_Query (S, "tail");
       Set_Primary_Caret (S, Pos => 257, Anchor => 0);
 
-      Editor.Executor.Execute_Find_From_Selection (S);
+      Editor.Executor.Find_Replace_Commands.Execute_Find_From_Selection (S);
 
       Assert
         (To_String (S.Active_Find_Query) = "tail"
@@ -705,7 +707,7 @@ package body Editor.Active_Find.Tests is
       Editor.State.Load_Text (S, "Foo.Bar A_B2 Foo");
       Set_Primary_Caret (S, Pos => 5, Anchor => 5);
 
-      Editor.Executor.Execute_Find_From_Active_Word (S);
+      Editor.Executor.Find_Replace_Commands.Execute_Find_From_Active_Word (S);
 
       Assert
         (To_String (S.Active_Find_Query) = "Bar"
@@ -717,7 +719,7 @@ package body Editor.Active_Find.Tests is
          "active-word Find must not record navigation history");
 
       Set_Primary_Caret (S, Pos => 8, Anchor => 8);
-      Editor.Executor.Execute_Find_From_Active_Word (S);
+      Editor.Executor.Find_Replace_Commands.Execute_Find_From_Active_Word (S);
       Assert
         (To_String (S.Active_Find_Query) = "A_B2",
          "underscore and digits must remain part of the active-word token");
@@ -731,10 +733,10 @@ package body Editor.Active_Find.Tests is
    begin
       Editor.State.Init (S);
       Editor.State.Load_Text (S, "Foo.Bar");
-      Editor.Executor.Execute_Find_Set_Query (S, "Foo");
+      Editor.Executor.Find_Replace_Commands.Execute_Find_Set_Query (S, "Foo");
       Set_Primary_Caret (S, Pos => 3, Anchor => 3);
 
-      Editor.Executor.Execute_Find_From_Active_Word (S);
+      Editor.Executor.Find_Replace_Commands.Execute_Find_From_Active_Word (S);
 
       Assert
         (To_String (S.Active_Find_Query) = "Foo"
@@ -750,18 +752,18 @@ package body Editor.Active_Find.Tests is
    begin
       Editor.State.Init (S);
       Editor.State.Load_Text (S, "alpha beta");
-      Editor.Executor.Execute_Find_Show (S);
-      Editor.Executor.Execute_Find_Set_Query (S, "alpha");
+      Editor.Executor.Find_Replace_Commands.Execute_Find_Show (S);
+      Editor.Executor.Find_Replace_Commands.Execute_Find_Set_Query (S, "alpha");
 
       Set_Primary_Caret (S, Pos => 5, Anchor => 5);
-      Editor.Executor.Execute_Find_From_Selection (S);
+      Editor.Executor.Find_Replace_Commands.Execute_Find_From_Selection (S);
       Assert
         (To_String (S.Active_Find_Query) = "alpha"
          and then Active_Message_Text (S) = "No selected text",
          "failed find-from-selection must preserve existing Find state");
 
       Set_Primary_Caret (S, Pos => 5, Anchor => 5);
-      Editor.Executor.Execute_Find_From_Active_Word (S);
+      Editor.Executor.Find_Replace_Commands.Execute_Find_From_Active_Word (S);
       Assert
         (To_String (S.Active_Find_Query) = "alpha"
          and then Active_Message_Text (S) = "No searchable text at cursor",
@@ -818,7 +820,7 @@ package body Editor.Active_Find.Tests is
    begin
       Editor.State.Init (S);
       Editor.State.Load_Text (S, "alpha beta alpha");
-      Editor.Executor.Execute_Find_Set_Query (S, "alpha");
+      Editor.Executor.Find_Replace_Commands.Execute_Find_Set_Query (S, "alpha");
       Set_Primary_Caret (S, Pos => 5, Anchor => 5);
       Message := To_Unbounded_String (Active_Message_Text (S));
       Query := S.Active_Find_Query;
@@ -926,16 +928,16 @@ package body Editor.Active_Find.Tests is
         (S,
          "Execute_Command Input_Bridge Execute_Command" & ASCII.LF &
          "Input_Bridge");
-      Editor.Executor.Execute_Find_Show (S);
+      Editor.Executor.Find_Replace_Commands.Execute_Find_Show (S);
 
-      Editor.Executor.Execute_Find_Set_Query (S, "Execute_Command");
+      Editor.Executor.Find_Replace_Commands.Execute_Find_Set_Query (S, "Execute_Command");
       Assert
         (Natural (S.Active_Find_Matches.Length) = 2
          and then Editor.Search.Has_Match (S.Active_Find_Match),
          "initial Find query must compute Execute_Command matches and selected match");
       Assert_Find_Coherent (S, "initial query");
 
-      Editor.Executor.Execute_Find_Set_Query (S, "Input_Bridge");
+      Editor.Executor.Find_Replace_Commands.Execute_Find_Set_Query (S, "Input_Bridge");
       Assert
         (Natural (S.Active_Find_Matches.Length) = 2
          and then S.Active_Find_Match.Start_Row in 0 .. 1
@@ -943,7 +945,7 @@ package body Editor.Active_Find.Tests is
          "query change must replace old matches and selected ordinal with new query matches");
       Assert_Find_Coherent (S, "changed query");
 
-      Editor.Executor.Execute_Find_Set_Query (S, "NoSuchToken");
+      Editor.Executor.Find_Replace_Commands.Execute_Find_Set_Query (S, "NoSuchToken");
       Assert
         (S.Active_Find_Matches.Is_Empty
          and then not Editor.Search.Has_Match (S.Active_Find_Match)
@@ -951,7 +953,7 @@ package body Editor.Active_Find.Tests is
          "no-match query must clear the selected match and old ranges");
       Assert_Find_Coherent (S, "no-match query");
 
-      Editor.Executor.Execute_Find_Clear_Query (S);
+      Editor.Executor.Find_Replace_Commands.Execute_Find_Clear_Query (S);
       Assert
         (Length (S.Active_Find_Query) = 0
          and then S.Active_Find_Matches.Is_Empty
@@ -979,14 +981,14 @@ package body Editor.Active_Find.Tests is
          "needle");
       Set_Primary_Caret (S, Pos => 0, Anchor => 0);
 
-      Editor.Executor.Execute_Find_From_Active_Word (S);
+      Editor.Executor.Find_Replace_Commands.Execute_Find_From_Active_Word (S);
       Assert
         (To_String (S.Active_Find_Query) = "needle"
          and then Natural (S.Carets (S.Carets.First_Index).Pos) = 0
          and then not Editor.Navigation_History.Has_Back (S.Navigation_History),
          "context-derived Find query must not move the caret or record history");
 
-      Editor.Executor.Execute_Find_Next (S);
+      Editor.Executor.Find_Replace_Commands.Execute_Find_Next (S);
       Assert
         (S.Active_Find_Match.Start_Row = 2
          and then Editor.Navigation_History.Back_Count (S.Navigation_History) = 1,
@@ -1019,20 +1021,20 @@ package body Editor.Active_Find.Tests is
          "beta" & ASCII.LF &
          "alpha");
 
-      Editor.Executor.Execute_Find_Show (S);
-      Editor.Executor.Execute_Find_Set_Query (S, "alpha");
-      Editor.Executor.Execute_Find_Case_Toggle (S);
-      Editor.Executor.Execute_Find_Case_Clear (S);
-      Editor.Executor.Execute_Find_Whole_Word_Toggle (S);
-      Editor.Executor.Execute_Find_Whole_Word_Clear (S);
-      Editor.Executor.Execute_Find_Next (S);
+      Editor.Executor.Find_Replace_Commands.Execute_Find_Show (S);
+      Editor.Executor.Find_Replace_Commands.Execute_Find_Set_Query (S, "alpha");
+      Editor.Executor.Find_Replace_Commands.Execute_Find_Case_Toggle (S);
+      Editor.Executor.Find_Replace_Commands.Execute_Find_Case_Clear (S);
+      Editor.Executor.Find_Replace_Commands.Execute_Find_Whole_Word_Toggle (S);
+      Editor.Executor.Find_Replace_Commands.Execute_Find_Whole_Word_Clear (S);
+      Editor.Executor.Find_Replace_Commands.Execute_Find_Next (S);
       Editor.Executor.Execute_Command (S, Editor.Commands.Command_Navigation_Back);
       Assert
         (Editor.Navigation_History.Has_Forward (S.Navigation_History),
          "setup must leave a forward navigation target after back");
 
-      Editor.Executor.Execute_Find_Set_Query (S, "NoSuchToken");
-      Editor.Executor.Execute_Find_Next (S);
+      Editor.Executor.Find_Replace_Commands.Execute_Find_Set_Query (S, "NoSuchToken");
+      Editor.Executor.Find_Replace_Commands.Execute_Find_Next (S);
       Assert
         (Active_Message_Text (S) = "No matches"
          and then Editor.Navigation_History.Has_Forward (S.Navigation_History),
@@ -1054,12 +1056,12 @@ package body Editor.Active_Find.Tests is
       Editor.Buffers.Ensure_Global_Registry (S);
       Original := Editor.Buffers.Global_Active_Buffer;
 
-      Editor.Executor.Execute_Find_Show (S);
-      Editor.Executor.Execute_Find_Set_Query (S, "alpha");
+      Editor.Executor.Find_Replace_Commands.Execute_Find_Show (S);
+      Editor.Executor.Find_Replace_Commands.Execute_Find_Set_Query (S, "alpha");
       Assert_Find_Coherent (S, "buffer A before switch");
 
       S.File_Info.Dirty := False;
-      Editor.Executor.Execute_New_Buffer (S);
+      Editor.Executor.File_Open_Commands.Execute_New_Buffer (S);
       Cmd.Kind := Editor.Commands.Insert_Text_Input;
       Cmd.Ch := 'b';
       Cmd.Text := To_Unbounded_String (String'(1 => 'b'));
@@ -1071,14 +1073,14 @@ package body Editor.Active_Find.Tests is
          and then Snap.Active_Find_Match_Count = 0,
          "switching buffers must not render matches from the previous active buffer");
 
-      Editor.Executor.Execute_Find_Next (S);
+      Editor.Executor.Find_Replace_Commands.Execute_Find_Next (S);
       Assert
         (Active_Message_Text (S) = "No matches"
          and then S.Active_Find_Matches.Is_Empty
          and then not Editor.Navigation_History.Has_Back (S.Navigation_History),
          "find.next in the new buffer must recompute against that buffer only and avoid history on no matches");
 
-      Editor.Executor.Execute_Switch_Buffer (S, Original);
+      Editor.Executor.File_Open_Commands.Execute_Switch_Buffer (S, Original);
       Editor.Render_Model.Build_Render_Snapshot (S, Snap);
       Assert
         (S.Active_Find_Stale
@@ -1099,7 +1101,7 @@ package body Editor.Active_Find.Tests is
       Editor.State.Load_Text (S, "abc abc");
       Editor.Project_Search.Set_Query (S.Project_Search, "project-query");
       S.Active_Find_Query := To_Unbounded_String ("project-query");
-      Editor.Executor.Execute_Find_Show (S);
+      Editor.Executor.Find_Replace_Commands.Execute_Find_Show (S);
 
       Editor.Input_Bridge.Set_State_For_Test (S);
       Cmd.Kind := Editor.Commands.Insert_Text_Input;
@@ -1143,8 +1145,8 @@ package body Editor.Active_Find.Tests is
    begin
       Editor.State.Init (S);
       Editor.State.Load_Text (S, "alpha alpha");
-      Editor.Executor.Execute_Find_Show (S);
-      Editor.Executor.Execute_Find_Set_Query (S, "alpha");
+      Editor.Executor.Find_Replace_Commands.Execute_Find_Show (S);
+      Editor.Executor.Find_Replace_Commands.Execute_Find_Set_Query (S, "alpha");
       Editor.State.Rebuild_After_Buffer_Change (S);
 
       Editor.State.Reset_Project_Scoped_State (S);
@@ -1202,7 +1204,7 @@ package body Editor.Active_Find.Tests is
       S.File_Info.Dirty := True;
       Set_Primary_Caret (S, Pos => 2, Anchor => 2);
 
-      Editor.Executor.Execute_Find_From_Active_Word (S);
+      Editor.Executor.Find_Replace_Commands.Execute_Find_From_Active_Word (S);
       Assert
         (To_String (S.Active_Find_Query) = "UnsavedToken"
          and then Natural (S.Active_Find_Matches.Length) = 2
@@ -1210,14 +1212,14 @@ package body Editor.Active_Find.Tests is
          and then Natural (S.Carets (S.Carets.First_Index).Pos) = 2,
          "find-from-active-word must search dirty in-memory text, preserve dirty state, and not move");
 
-      Editor.Executor.Execute_Find_Next (S);
+      Editor.Executor.Find_Replace_Commands.Execute_Find_Next (S);
       Assert
         (S.File_Info.Dirty
          and then S.Active_Find_Match.Start_Row = 2
          and then Editor.Navigation_History.Back_Count (S.Navigation_History) = 1,
          "find.next in a dirty buffer must only move the caret and record successful navigation");
 
-      Editor.Executor.Execute_Find_Previous (S);
+      Editor.Executor.Find_Replace_Commands.Execute_Find_Previous (S);
       Assert
         (S.File_Info.Dirty
          and then S.Active_Find_Match.Start_Row = 0,
@@ -1239,8 +1241,8 @@ package body Editor.Active_Find.Tests is
    begin
       Editor.State.Init (S);
       Editor.State.Load_Text (S, "alpha beta alpha");
-      Editor.Executor.Execute_Find_Show (S);
-      Editor.Executor.Execute_Find_Set_Query (S, "alpha");
+      Editor.Executor.Find_Replace_Commands.Execute_Find_Show (S);
+      Editor.Executor.Find_Replace_Commands.Execute_Find_Set_Query (S, "alpha");
 
       Query_Before := S.Active_Find_Query;
       Message_Before := To_Unbounded_String (Active_Message_Text (S));
@@ -1272,8 +1274,8 @@ package body Editor.Active_Find.Tests is
    begin
       Editor.State.Init (S);
       Editor.State.Load_Text (S, "abc abc abc");
-      Editor.Executor.Execute_Find_Show (S);
-      Editor.Executor.Execute_Find_Set_Query (S, "abc");
+      Editor.Executor.Find_Replace_Commands.Execute_Find_Show (S);
+      Editor.Executor.Find_Replace_Commands.Execute_Find_Set_Query (S, "abc");
 
       Editor.Input_Bridge.Set_State_For_Test (S);
       Editor.Input_Bridge.Handle_Key_Chord (Chord (Editor.Keybindings.Key_Backspace));
@@ -1313,10 +1315,10 @@ package body Editor.Active_Find.Tests is
    begin
       Editor.State.Init (S);
       Editor.State.Load_Text (S, "abc abc");
-      Editor.Executor.Execute_Find_Show (S);
-      Editor.Executor.Execute_Find_Set_Query (S, "abc");
+      Editor.Executor.Find_Replace_Commands.Execute_Find_Show (S);
+      Editor.Executor.Find_Replace_Commands.Execute_Find_Set_Query (S, "abc");
 
-      Editor.Executor.Execute_Find_Toggle (S);
+      Editor.Executor.Find_Replace_Commands.Execute_Find_Toggle (S);
       Assert
         ((not S.Active_Find_Prompt)
          and then Length (S.Active_Find_Query) = 0
@@ -1328,7 +1330,7 @@ package body Editor.Active_Find.Tests is
          and then Active_Message_Text (S) = "Find hidden",
          "toggle from visible Find must apply the hide cleanup policy");
 
-      Editor.Executor.Execute_Find_Toggle (S);
+      Editor.Executor.Find_Replace_Commands.Execute_Find_Toggle (S);
       Assert
         (S.Active_Find_Prompt
          and then Length (S.Active_Find_Query) = 0
@@ -1347,11 +1349,11 @@ package body Editor.Active_Find.Tests is
    begin
       Editor.State.Init (S);
       Editor.State.Load_Text (S, "alpha beta alpha");
-      Editor.Executor.Execute_Find_Show (S);
-      Editor.Executor.Execute_Find_Set_Query (S, "alpha");
-      Editor.Executor.Execute_Find_Case_Toggle (S);
-      Editor.Executor.Execute_Find_Whole_Word_Toggle (S);
-      Editor.Executor.Execute_Find_Next (S);
+      Editor.Executor.Find_Replace_Commands.Execute_Find_Show (S);
+      Editor.Executor.Find_Replace_Commands.Execute_Find_Set_Query (S, "alpha");
+      Editor.Executor.Find_Replace_Commands.Execute_Find_Case_Toggle (S);
+      Editor.Executor.Find_Replace_Commands.Execute_Find_Whole_Word_Toggle (S);
+      Editor.Executor.Find_Replace_Commands.Execute_Find_Next (S);
       Editor.State.Rebuild_After_Buffer_Change (S);
 
       Snapshot := Editor.State.Build_Workspace_Snapshot (S);
@@ -1390,15 +1392,15 @@ package body Editor.Active_Find.Tests is
       Quick_Before := To_Unbounded_String (Editor.Quick_Open.Query_Text (S.Quick_Open));
       Project_Before := To_Unbounded_String (Editor.Project_Search.Query (S.Project_Search));
 
-      Editor.Executor.Execute_Find_Show (S);
-      Editor.Executor.Execute_Find_Set_Query (S, "alpha");
-      Editor.Executor.Execute_Find_Case_Toggle (S);
-      Editor.Executor.Execute_Find_Case_Clear (S);
-      Editor.Executor.Execute_Find_Whole_Word_Toggle (S);
-      Editor.Executor.Execute_Find_Whole_Word_Clear (S);
-      Editor.Executor.Execute_Find_Next (S);
-      Editor.Executor.Execute_Find_Previous (S);
-      Editor.Executor.Execute_Find_Hide (S);
+      Editor.Executor.Find_Replace_Commands.Execute_Find_Show (S);
+      Editor.Executor.Find_Replace_Commands.Execute_Find_Set_Query (S, "alpha");
+      Editor.Executor.Find_Replace_Commands.Execute_Find_Case_Toggle (S);
+      Editor.Executor.Find_Replace_Commands.Execute_Find_Case_Clear (S);
+      Editor.Executor.Find_Replace_Commands.Execute_Find_Whole_Word_Toggle (S);
+      Editor.Executor.Find_Replace_Commands.Execute_Find_Whole_Word_Clear (S);
+      Editor.Executor.Find_Replace_Commands.Execute_Find_Next (S);
+      Editor.Executor.Find_Replace_Commands.Execute_Find_Previous (S);
+      Editor.Executor.Find_Replace_Commands.Execute_Find_Hide (S);
 
       Assert
         (To_Unbounded_String (Editor.Go_To_Line.Text (S.Go_To_Line)) = Go_To_Before
@@ -1465,9 +1467,9 @@ package body Editor.Active_Find.Tests is
    begin
       Editor.State.Init (S);
       Editor.State.Load_Text (S, "Alpha alpha ALPHA");
-      Editor.Executor.Execute_Find_Show (S);
-      Editor.Executor.Execute_Find_Set_Query (S, "alpha");
-      Editor.Executor.Execute_Find_Case_Toggle (S);
+      Editor.Executor.Find_Replace_Commands.Execute_Find_Show (S);
+      Editor.Executor.Find_Replace_Commands.Execute_Find_Set_Query (S, "alpha");
+      Editor.Executor.Find_Replace_Commands.Execute_Find_Case_Toggle (S);
       Query := S.Active_Find_Query;
       Count := Natural (S.Active_Find_Matches.Length);
       Message := To_Unbounded_String (Active_Message_Text (S));
@@ -1506,8 +1508,8 @@ package body Editor.Active_Find.Tests is
       Editor.State.Init (S);
       Editor.State.Load_Text
         (S, "Execute_Command execute_command EXECUTE_COMMAND execute_command");
-      Editor.Executor.Execute_Find_Show (S);
-      Editor.Executor.Execute_Find_Set_Query (S, "execute_command");
+      Editor.Executor.Find_Replace_Commands.Execute_Find_Show (S);
+      Editor.Executor.Find_Replace_Commands.Execute_Find_Set_Query (S, "execute_command");
 
       Assert
         ((not S.Active_Find_Case_Sensitive)
@@ -1527,7 +1529,7 @@ package body Editor.Active_Find.Tests is
       Back_Before := Editor.Navigation_History.Back_Count (S.Navigation_History);
       Forward_Before := Editor.Navigation_History.Forward_Count (S.Navigation_History);
 
-      Editor.Executor.Execute_Find_Case_Toggle (S);
+      Editor.Executor.Find_Replace_Commands.Execute_Find_Case_Toggle (S);
       Assert
         (S.Active_Find_Case_Sensitive
          and then Natural (S.Active_Find_Matches.Length) = 2
@@ -1546,7 +1548,7 @@ package body Editor.Active_Find.Tests is
          and then (Snap.Find_Selected_Match_Index in 1 .. 2),
          "snapshot and rendered ranges must reflect sensitive Find mode");
 
-      Editor.Executor.Execute_Find_Case_Toggle (S);
+      Editor.Executor.Find_Replace_Commands.Execute_Find_Case_Toggle (S);
       Assert
         ((not S.Active_Find_Case_Sensitive)
          and then Natural (S.Active_Find_Matches.Length) = 4
@@ -1562,22 +1564,22 @@ package body Editor.Active_Find.Tests is
    begin
       Editor.State.Init (S);
       Editor.State.Load_Text (S, "Alpha alpha ALPHA");
-      Editor.Executor.Execute_Find_Show (S);
-      Editor.Executor.Execute_Find_Set_Query (S, "alpha");
+      Editor.Executor.Find_Replace_Commands.Execute_Find_Show (S);
+      Editor.Executor.Find_Replace_Commands.Execute_Find_Set_Query (S, "alpha");
 
-      Editor.Executor.Execute_Find_Case_Clear (S);
+      Editor.Executor.Find_Replace_Commands.Execute_Find_Case_Clear (S);
       Assert
         ((not S.Active_Find_Case_Sensitive)
          and then Active_Message_Text (S) = "Find case already insensitive",
          "case.clear when already insensitive must emit deterministic no-op");
 
-      Editor.Executor.Execute_Find_Case_Toggle (S);
+      Editor.Executor.Find_Replace_Commands.Execute_Find_Case_Toggle (S);
       Assert
         (S.Active_Find_Case_Sensitive
          and then Natural (S.Active_Find_Matches.Length) = 1,
          "case toggle setup must leave exact-case-only matches");
 
-      Editor.Executor.Execute_Find_Case_Clear (S);
+      Editor.Executor.Find_Replace_Commands.Execute_Find_Case_Clear (S);
       Assert
         ((not S.Active_Find_Case_Sensitive)
          and then Natural (S.Active_Find_Matches.Length) = 3
@@ -1595,17 +1597,17 @@ package body Editor.Active_Find.Tests is
       Editor.State.Init (S);
       Editor.State.Load_Text (S, "Execute_Command execute_command Execute_Command");
       Set_Primary_Caret (S, Pos => 0, Anchor => 0);
-      Editor.Executor.Execute_Find_Show (S);
-      Editor.Executor.Execute_Find_Case_Toggle (S);
+      Editor.Executor.Find_Replace_Commands.Execute_Find_Show (S);
+      Editor.Executor.Find_Replace_Commands.Execute_Find_Case_Toggle (S);
 
-      Editor.Executor.Execute_Find_From_Active_Word (S);
+      Editor.Executor.Find_Replace_Commands.Execute_Find_From_Active_Word (S);
       Assert
         (S.Active_Find_Case_Sensitive
          and then To_String (S.Active_Find_Query) = "Execute_Command"
          and then Natural (S.Active_Find_Matches.Length) = 2,
          "context-derived active-word Find must preserve current case mode");
 
-      Editor.Executor.Execute_Find_Set_Query (S, "execute_command");
+      Editor.Executor.Find_Replace_Commands.Execute_Find_Set_Query (S, "execute_command");
       Assert
         (S.Active_Find_Case_Sensitive
          and then Natural (S.Active_Find_Matches.Length) = 1,
@@ -1619,7 +1621,7 @@ package body Editor.Active_Find.Tests is
         (S.Active_Find_Case_Sensitive
          and then S.Active_Find_Stale,
          "buffer edit must mark matches stale without resetting case mode");
-      Editor.Executor.Execute_Find_Next (S);
+      Editor.Executor.Find_Replace_Commands.Execute_Find_Next (S);
       Assert
         (S.Active_Find_Case_Sensitive
          and then Natural (S.Active_Find_Matches.Length) = 1,
@@ -1635,8 +1637,8 @@ package body Editor.Active_Find.Tests is
    begin
       Editor.State.Init (S);
       Editor.State.Load_Text (S, "Alpha alpha");
-      Editor.Executor.Execute_Find_Show (S);
-      Editor.Executor.Execute_Find_Set_Query (S, "alpha");
+      Editor.Executor.Find_Replace_Commands.Execute_Find_Show (S);
+      Editor.Executor.Find_Replace_Commands.Execute_Find_Set_Query (S, "alpha");
 
       Editor.Input_Bridge.Set_State_For_Test (S);
       Editor.Input_Bridge.Execute_Command_Id
@@ -1656,8 +1658,8 @@ package body Editor.Active_Find.Tests is
          and then Natural (After.Active_Find_Matches.Length) = 2,
          "Input_Bridge command-id dispatch must route find-case-clear through Executor");
 
-      Editor.Executor.Execute_Find_Case_Toggle (After);
-      Editor.Executor.Execute_Find_Hide (After);
+      Editor.Executor.Find_Replace_Commands.Execute_Find_Case_Toggle (After);
+      Editor.Executor.Find_Replace_Commands.Execute_Find_Hide (After);
       Assert
         ((not After.Active_Find_Case_Sensitive)
          and then Length (After.Active_Find_Query) = 0
@@ -1723,9 +1725,9 @@ package body Editor.Active_Find.Tests is
    begin
       Editor.State.Init (S);
       Editor.State.Load_Text (S, "Run Runner PreRun Run_One Run");
-      Editor.Executor.Execute_Find_Show (S);
-      Editor.Executor.Execute_Find_Set_Query (S, "Run");
-      Editor.Executor.Execute_Find_Whole_Word_Toggle (S);
+      Editor.Executor.Find_Replace_Commands.Execute_Find_Show (S);
+      Editor.Executor.Find_Replace_Commands.Execute_Find_Set_Query (S, "Run");
+      Editor.Executor.Find_Replace_Commands.Execute_Find_Whole_Word_Toggle (S);
       Query := S.Active_Find_Query;
       Count := Natural (S.Active_Find_Matches.Length);
       Message := To_Unbounded_String (Active_Message_Text (S));
@@ -1765,8 +1767,8 @@ package body Editor.Active_Find.Tests is
       Editor.State.Init (S);
       Editor.State.Load_Text
         (S, "Run Runner PreRun Run_One Run (Run); Foo.Bar run runner");
-      Editor.Executor.Execute_Find_Show (S);
-      Editor.Executor.Execute_Find_Set_Query (S, "Run");
+      Editor.Executor.Find_Replace_Commands.Execute_Find_Show (S);
+      Editor.Executor.Find_Replace_Commands.Execute_Find_Set_Query (S, "Run");
       Assert
         ((not S.Active_Find_Whole_Word)
          and then Natural (S.Active_Find_Matches.Length) = 8,
@@ -1785,7 +1787,7 @@ package body Editor.Active_Find.Tests is
       Back_Before := Editor.Navigation_History.Back_Count (S.Navigation_History);
       Forward_Before := Editor.Navigation_History.Forward_Count (S.Navigation_History);
 
-      Editor.Executor.Execute_Find_Whole_Word_Toggle (S);
+      Editor.Executor.Find_Replace_Commands.Execute_Find_Whole_Word_Toggle (S);
       Assert
         (S.Active_Find_Whole_Word
          and then Natural (S.Active_Find_Matches.Length) = 4
@@ -1805,15 +1807,15 @@ package body Editor.Active_Find.Tests is
          "snapshot and rendered ranges must reflect whole-word mode");
 
       Editor.State.Load_Text (S, "Execute_Command Execute Execute.Command");
-      Editor.Executor.Execute_Find_Show (S);
-      Editor.Executor.Execute_Find_Whole_Word_Toggle (S);
-      Editor.Executor.Execute_Find_Set_Query (S, "Execute");
+      Editor.Executor.Find_Replace_Commands.Execute_Find_Show (S);
+      Editor.Executor.Find_Replace_Commands.Execute_Find_Whole_Word_Toggle (S);
+      Editor.Executor.Find_Replace_Commands.Execute_Find_Set_Query (S, "Execute");
       Assert
         (S.Active_Find_Whole_Word
          and then Natural (S.Active_Find_Matches.Length) = 2,
          "underscore must be a word character while punctuation remains a boundary");
 
-      Editor.Executor.Execute_Find_Whole_Word_Toggle (S);
+      Editor.Executor.Find_Replace_Commands.Execute_Find_Whole_Word_Toggle (S);
       Assert
         ((not S.Active_Find_Whole_Word)
          and then Natural (S.Active_Find_Matches.Length) = 3
@@ -1830,19 +1832,19 @@ package body Editor.Active_Find.Tests is
    begin
       Editor.State.Init (S);
       Editor.State.Load_Text (S, "run Run runner Run_One PreRun run");
-      Editor.Executor.Execute_Find_Show (S);
-      Editor.Executor.Execute_Find_Set_Query (S, "run");
+      Editor.Executor.Find_Replace_Commands.Execute_Find_Show (S);
+      Editor.Executor.Find_Replace_Commands.Execute_Find_Set_Query (S, "run");
       Assert
         (Natural (S.Active_Find_Matches.Length) = 6,
          "case-insensitive substring mode must match embedded different-case occurrences");
 
-      Editor.Executor.Execute_Find_Whole_Word_Toggle (S);
+      Editor.Executor.Find_Replace_Commands.Execute_Find_Whole_Word_Toggle (S);
       Assert
         (S.Active_Find_Whole_Word
          and then Natural (S.Active_Find_Matches.Length) = 3,
          "case-insensitive whole-word mode must filter embedded occurrences");
 
-      Editor.Executor.Execute_Find_Case_Toggle (S);
+      Editor.Executor.Find_Replace_Commands.Execute_Find_Case_Toggle (S);
       Assert
         (S.Active_Find_Case_Sensitive
          and then S.Active_Find_Whole_Word
@@ -1850,7 +1852,7 @@ package body Editor.Active_Find.Tests is
          and then Active_Message_Text (S) = "Find case: sensitive; 2 matches",
          "case-sensitive whole-word mode must compose with exact-case comparison");
 
-      Editor.Executor.Execute_Find_Whole_Word_Clear (S);
+      Editor.Executor.Find_Replace_Commands.Execute_Find_Whole_Word_Clear (S);
       Assert
         ((not S.Active_Find_Whole_Word)
          and then S.Active_Find_Case_Sensitive
@@ -1858,7 +1860,7 @@ package body Editor.Active_Find.Tests is
          and then Active_Message_Text (S) = "Find whole word: off; 3 matches",
          "whole-word clear must preserve case mode and recompute substring matches");
 
-      Editor.Executor.Execute_Find_Whole_Word_Clear (S);
+      Editor.Executor.Find_Replace_Commands.Execute_Find_Whole_Word_Clear (S);
       Assert
         ((not S.Active_Find_Whole_Word)
          and then Active_Message_Text (S) = "Find whole word already off",
@@ -1877,17 +1879,17 @@ package body Editor.Active_Find.Tests is
       Editor.State.Init (S);
       Editor.State.Load_Text (S, "Execute_Command Execute Execute.Command");
       Set_Primary_Caret (S, Pos => 0, Anchor => 0);
-      Editor.Executor.Execute_Find_Show (S);
-      Editor.Executor.Execute_Find_Whole_Word_Toggle (S);
+      Editor.Executor.Find_Replace_Commands.Execute_Find_Show (S);
+      Editor.Executor.Find_Replace_Commands.Execute_Find_Whole_Word_Toggle (S);
 
-      Editor.Executor.Execute_Find_From_Active_Word (S);
+      Editor.Executor.Find_Replace_Commands.Execute_Find_From_Active_Word (S);
       Assert
         (S.Active_Find_Whole_Word
          and then To_String (S.Active_Find_Query) = "Execute_Command"
          and then Natural (S.Active_Find_Matches.Length) = 1,
          "context-derived active word Find must preserve current whole-word option");
 
-      Editor.Executor.Execute_Find_Set_Query (S, "Execute");
+      Editor.Executor.Find_Replace_Commands.Execute_Find_Set_Query (S, "Execute");
       Assert
         (S.Active_Find_Whole_Word
          and then Natural (S.Active_Find_Matches.Length) = 2,
@@ -1901,7 +1903,7 @@ package body Editor.Active_Find.Tests is
         (S.Active_Find_Whole_Word
          and then S.Active_Find_Stale,
          "buffer edit must mark matches stale without resetting whole-word mode");
-      Editor.Executor.Execute_Find_Next (S);
+      Editor.Executor.Find_Replace_Commands.Execute_Find_Next (S);
       Assert
         (S.Active_Find_Whole_Word
          and then Natural (S.Active_Find_Matches.Length) = 2,
@@ -1916,8 +1918,8 @@ package body Editor.Active_Find.Tests is
          and then Natural (After.Active_Find_Matches.Length) >= 1,
          "Input_Bridge command-id dispatch must route whole-word clear through Executor");
 
-      Editor.Executor.Execute_Find_Whole_Word_Toggle (After);
-      Editor.Executor.Execute_Find_Hide (After);
+      Editor.Executor.Find_Replace_Commands.Execute_Find_Whole_Word_Toggle (After);
+      Editor.Executor.Find_Replace_Commands.Execute_Find_Hide (After);
       Assert
         ((not After.Active_Find_Whole_Word)
          and then Length (After.Active_Find_Query) = 0
@@ -1928,7 +1930,7 @@ package body Editor.Active_Find.Tests is
 
 
 
-   procedure Test_Phase360_Default_Options_And_Exact_Composition_Ranges
+   procedure Test_Default_Options_And_Exact_Composition_Ranges
      (T : in out AUnit.Test_Cases.Test_Case'Class)
    is
       pragma Unreferenced (T);
@@ -1947,8 +1949,8 @@ package body Editor.Active_Find.Tests is
          "Run_One" & ASCII.LF &
          "run_one" & ASCII.LF &
          "Run.Run");
-      Editor.Executor.Execute_Find_Show (S);
-      Editor.Executor.Execute_Find_Set_Query (S, "Run");
+      Editor.Executor.Find_Replace_Commands.Execute_Find_Show (S);
+      Editor.Executor.Find_Replace_Commands.Execute_Find_Set_Query (S, "Run");
 
       Assert
         ((not S.Active_Find_Case_Sensitive)
@@ -1964,7 +1966,7 @@ package body Editor.Active_Find.Tests is
          and then Snap.Active_Find_Match_Count = 10,
          "snapshot ranges must reflect default option state");
 
-      Editor.Executor.Execute_Find_Case_Toggle (S);
+      Editor.Executor.Find_Replace_Commands.Execute_Find_Case_Toggle (S);
       Editor.Render_Model.Build_Render_Snapshot (S, Snap);
       Assert
         (S.Active_Find_Case_Sensitive
@@ -1975,7 +1977,7 @@ package body Editor.Active_Find.Tests is
          and then Snap.Find_Match_Count = 7,
          "case-sensitive substring mode must filter only by text comparison");
 
-      Editor.Executor.Execute_Find_Whole_Word_Toggle (S);
+      Editor.Executor.Find_Replace_Commands.Execute_Find_Whole_Word_Toggle (S);
       Editor.Render_Model.Build_Render_Snapshot (S, Snap);
       Assert
         (S.Active_Find_Case_Sensitive
@@ -1992,7 +1994,7 @@ package body Editor.Active_Find.Tests is
          and then Snap.Active_Find_Matches (3).Start_Column = 4,
          "case-sensitive whole-word mode must keep only bounded exact-case Run ranges");
 
-      Editor.Executor.Execute_Find_Case_Clear (S);
+      Editor.Executor.Find_Replace_Commands.Execute_Find_Case_Clear (S);
       Editor.Render_Model.Build_Render_Snapshot (S, Snap);
       Assert
         ((not S.Active_Find_Case_Sensitive)
@@ -2003,7 +2005,7 @@ package body Editor.Active_Find.Tests is
          and then Snap.Find_Match_Count = 4,
          "case-insensitive whole-word mode must add bounded lower-case ranges without changing boundary policy");
 
-      Editor.Executor.Execute_Find_Whole_Word_Clear (S);
+      Editor.Executor.Find_Replace_Commands.Execute_Find_Whole_Word_Clear (S);
       Editor.Render_Model.Build_Render_Snapshot (S, Snap);
       Assert
         ((not S.Active_Find_Case_Sensitive)
@@ -2011,10 +2013,10 @@ package body Editor.Active_Find.Tests is
          and then Natural (S.Active_Find_Matches.Length) = 10
          and then Snap.Find_Match_Count = 10,
          "clearing whole-word after composition must restore substring ranges under current case mode");
-      Assert_Find_Coherent (S, "phase 360 composed options");
-   end Test_Phase360_Default_Options_And_Exact_Composition_Ranges;
+      Assert_Find_Coherent (S, "composed options");
+   end Test_Default_Options_And_Exact_Composition_Ranges;
 
-   procedure Test_Phase360_Query_Clear_Preserves_Current_Option_Policy
+   procedure Test_Query_Clear_Preserves_Current_Option_Policy
      (T : in out AUnit.Test_Cases.Test_Case'Class)
    is
       pragma Unreferenced (T);
@@ -2022,17 +2024,17 @@ package body Editor.Active_Find.Tests is
    begin
       Editor.State.Init (S);
       Editor.State.Load_Text (S, "Run run Runner Run");
-      Editor.Executor.Execute_Find_Show (S);
-      Editor.Executor.Execute_Find_Case_Toggle (S);
-      Editor.Executor.Execute_Find_Whole_Word_Toggle (S);
-      Editor.Executor.Execute_Find_Set_Query (S, "Run");
+      Editor.Executor.Find_Replace_Commands.Execute_Find_Show (S);
+      Editor.Executor.Find_Replace_Commands.Execute_Find_Case_Toggle (S);
+      Editor.Executor.Find_Replace_Commands.Execute_Find_Whole_Word_Toggle (S);
+      Editor.Executor.Find_Replace_Commands.Execute_Find_Set_Query (S, "Run");
       Assert
         (S.Active_Find_Case_Sensitive
          and then S.Active_Find_Whole_Word
          and then Natural (S.Active_Find_Matches.Length) = 2,
          "setup must leave case-sensitive whole-word Find options active");
 
-      Editor.Executor.Execute_Find_Set_Query (S, "run");
+      Editor.Executor.Find_Replace_Commands.Execute_Find_Set_Query (S, "run");
       Assert
         (S.Active_Find_Case_Sensitive
          and then S.Active_Find_Whole_Word
@@ -2040,7 +2042,7 @@ package body Editor.Active_Find.Tests is
          and then Active_Message_Text (S) = "Find query set: 1 matches",
          "query.set must use and preserve the current option combination");
 
-      Editor.Executor.Execute_Find_Clear_Query (S);
+      Editor.Executor.Find_Replace_Commands.Execute_Find_Clear_Query (S);
       Assert
         (Length (S.Active_Find_Query) = 0
          and then S.Active_Find_Matches.Is_Empty
@@ -2051,9 +2053,9 @@ package body Editor.Active_Find.Tests is
          and then S.Active_Find_Whole_Word
          and then Active_Message_Text (S) = "Find query cleared",
          "query.clear must clear query-derived state while preserving the explicit transient option policy");
-   end Test_Phase360_Query_Clear_Preserves_Current_Option_Policy;
+   end Test_Query_Clear_Preserves_Current_Option_Policy;
 
-   procedure Test_Phase360_Context_Find_Preserves_Options_And_Failures
+   procedure Test_Context_Find_Preserves_Options_And_Failures
      (T : in out AUnit.Test_Cases.Test_Case'Class)
    is
       pragma Unreferenced (T);
@@ -2067,13 +2069,13 @@ package body Editor.Active_Find.Tests is
          "Execute execute Execute_Command" & ASCII.LF &
          "plain");
       Set_Primary_Caret (S, Pos => 0, Anchor => 0);
-      Editor.Executor.Execute_Find_Show (S);
-      Editor.Executor.Execute_Find_Case_Toggle (S);
-      Editor.Executor.Execute_Find_Whole_Word_Toggle (S);
+      Editor.Executor.Find_Replace_Commands.Execute_Find_Show (S);
+      Editor.Executor.Find_Replace_Commands.Execute_Find_Case_Toggle (S);
+      Editor.Executor.Find_Replace_Commands.Execute_Find_Whole_Word_Toggle (S);
       Back_Before := Editor.Navigation_History.Back_Count (S.Navigation_History);
       Caret_Before := Natural (S.Carets (S.Carets.First_Index).Pos);
 
-      Editor.Executor.Execute_Find_From_Active_Word (S);
+      Editor.Executor.Find_Replace_Commands.Execute_Find_From_Active_Word (S);
       Assert
         (S.Active_Find_Case_Sensitive
          and then S.Active_Find_Whole_Word
@@ -2084,7 +2086,7 @@ package body Editor.Active_Find.Tests is
          "find-from-active-word must preserve options, avoid Execute_Command under whole-word, and not navigate");
 
       Set_Primary_Caret (S, Pos => 15, Anchor => 8);
-      Editor.Executor.Execute_Find_From_Selection (S);
+      Editor.Executor.Find_Replace_Commands.Execute_Find_From_Selection (S);
       Assert
         (S.Active_Find_Case_Sensitive
          and then S.Active_Find_Whole_Word
@@ -2094,7 +2096,7 @@ package body Editor.Active_Find.Tests is
          "find-from-selection must preserve active case and whole-word options");
 
       Set_Primary_Caret (S, Pos => 15, Anchor => 15);
-      Editor.Executor.Execute_Find_From_Selection (S);
+      Editor.Executor.Find_Replace_Commands.Execute_Find_From_Selection (S);
       Assert
         (S.Active_Find_Case_Sensitive
          and then S.Active_Find_Whole_Word
@@ -2103,9 +2105,9 @@ package body Editor.Active_Find.Tests is
          and then Active_Message_Text (S) = "No selected text"
          and then Editor.Navigation_History.Back_Count (S.Navigation_History) = Back_Before,
          "failed context Find must preserve query, options, matches, caret, and navigation history");
-   end Test_Phase360_Context_Find_Preserves_Options_And_Failures;
+   end Test_Context_Find_Preserves_Options_And_Failures;
 
-   procedure Test_Phase360_Option_Change_After_Context_Query_Then_Navigate
+   procedure Test_Option_Change_After_Context_Query_Then_Navigate
      (T : in out AUnit.Test_Cases.Test_Case'Class)
    is
       pragma Unreferenced (T);
@@ -2119,20 +2121,20 @@ package body Editor.Active_Find.Tests is
          "Run.Run" & ASCII.LF &
          "run");
       Set_Primary_Caret (S, Pos => 0, Anchor => 0);
-      Editor.Executor.Execute_Find_From_Active_Word (S);
+      Editor.Executor.Find_Replace_Commands.Execute_Find_From_Active_Word (S);
       Assert
         (To_String (S.Active_Find_Query) = "Run"
          and then Natural (S.Active_Find_Matches.Length) = 6,
          "context-derived query setup must use default substring options");
 
-      Editor.Executor.Execute_Find_Whole_Word_Toggle (S);
+      Editor.Executor.Find_Replace_Commands.Execute_Find_Whole_Word_Toggle (S);
       Assert
         (To_String (S.Active_Find_Query) = "Run"
          and then S.Active_Find_Whole_Word
          and then Natural (S.Active_Find_Matches.Length) = 5,
          "whole-word toggle after context query must recompute the same query");
 
-      Editor.Executor.Execute_Find_Case_Toggle (S);
+      Editor.Executor.Find_Replace_Commands.Execute_Find_Case_Toggle (S);
       Assert
         (To_String (S.Active_Find_Query) = "Run"
          and then S.Active_Find_Case_Sensitive
@@ -2141,15 +2143,15 @@ package body Editor.Active_Find.Tests is
          "case toggle after context query must compose with whole-word for the same query");
 
       Back_Before := Editor.Navigation_History.Back_Count (S.Navigation_History);
-      Editor.Executor.Execute_Find_Next (S);
+      Editor.Executor.Find_Replace_Commands.Execute_Find_Next (S);
       Assert
         (Editor.Navigation_History.Back_Count (S.Navigation_History) = Back_Before + 1
          and then S.Active_Find_Match.Start_Row = 1
          and then Active_Message_Text (S) = "Found match 2 of 3",
          "only successful next after option changes must record navigation history");
-   end Test_Phase360_Option_Change_After_Context_Query_Then_Navigate;
+   end Test_Option_Change_After_Context_Query_Then_Navigate;
 
-   procedure Test_Phase360_Buffer_Edit_And_Buffer_Switch_Use_Current_Options
+   procedure Test_Buffer_Edit_And_Buffer_Switch_Use_Current_Options
      (T : in out AUnit.Test_Cases.Test_Case'Class)
    is
       pragma Unreferenced (T);
@@ -2170,10 +2172,10 @@ package body Editor.Active_Find.Tests is
       Editor.State.Load_Text (S, "Run run Runner" & ASCII.LF & "Run");
       Editor.Buffers.Ensure_Global_Registry (S);
       Original := Editor.Buffers.Global_Active_Buffer;
-      Editor.Executor.Execute_Find_Show (S);
-      Editor.Executor.Execute_Find_Case_Toggle (S);
-      Editor.Executor.Execute_Find_Whole_Word_Toggle (S);
-      Editor.Executor.Execute_Find_Set_Query (S, "Run");
+      Editor.Executor.Find_Replace_Commands.Execute_Find_Show (S);
+      Editor.Executor.Find_Replace_Commands.Execute_Find_Case_Toggle (S);
+      Editor.Executor.Find_Replace_Commands.Execute_Find_Whole_Word_Toggle (S);
+      Editor.Executor.Find_Replace_Commands.Execute_Find_Set_Query (S, "Run");
       Assert
         (S.Active_Find_Case_Sensitive
          and then S.Active_Find_Whole_Word
@@ -2198,7 +2200,7 @@ package body Editor.Active_Find.Tests is
          and then Snap.Find_Whole_Word,
          "stale edited matches must not render, but option feedback remains current");
 
-      Editor.Executor.Execute_New_Buffer (S);
+      Editor.Executor.File_Open_Commands.Execute_New_Buffer (S);
       Editor.State.Mutate_Buffer (S, Set_Buffer_B_Text'Access);
       Editor.Render_Model.Build_Render_Snapshot (S, Snap);
       Assert
@@ -2208,7 +2210,7 @@ package body Editor.Active_Find.Tests is
          and then S.Active_Find_Whole_Word,
          "switching buffers must not render buffer-A option-derived ranges");
 
-      Editor.Executor.Execute_Find_Next (S);
+      Editor.Executor.Find_Replace_Commands.Execute_Find_Next (S);
       Assert
         ((not S.Active_Find_Stale)
          and then Natural (S.Active_Find_Matches.Length) = 1
@@ -2216,16 +2218,16 @@ package body Editor.Active_Find.Tests is
          and then S.Active_Find_Match.Start_Column = 12,
          "find.next in buffer B must recompute using current case-sensitive whole-word options");
 
-      Editor.Executor.Execute_Switch_Buffer (S, Original);
+      Editor.Executor.File_Open_Commands.Execute_Switch_Buffer (S, Original);
       Editor.Render_Model.Build_Render_Snapshot (S, Snap);
       Assert
         (S.Active_Find_Stale
          and then Snap.Find_Match_Count = 0
          and then Snap.Active_Find_Match_Count = 0,
          "returning to buffer A must not resurrect old rendered ranges without recomputation");
-   end Test_Phase360_Buffer_Edit_And_Buffer_Switch_Use_Current_Options;
+   end Test_Buffer_Edit_And_Buffer_Switch_Use_Current_Options;
 
-   procedure Test_Phase360_Input_Routes_Option_Commands_Through_Executor
+   procedure Test_Input_Routes_Option_Commands_Through_Executor
      (T : in out AUnit.Test_Cases.Test_Case'Class)
    is
       pragma Unreferenced (T);
@@ -2236,8 +2238,8 @@ package body Editor.Active_Find.Tests is
    begin
       Editor.State.Init (S);
       Editor.State.Load_Text (S, "Alpha alpha Run Runner Run");
-      Editor.Executor.Execute_Find_Show (S);
-      Editor.Executor.Execute_Find_Set_Query (S, "Run");
+      Editor.Executor.Find_Replace_Commands.Execute_Find_Show (S);
+      Editor.Executor.Find_Replace_Commands.Execute_Find_Set_Query (S, "Run");
       Caret_Before := Natural (S.Carets (S.Carets.First_Index).Pos);
       Back_Before := Editor.Navigation_History.Back_Count (S.Navigation_History);
 
@@ -2274,17 +2276,17 @@ package body Editor.Active_Find.Tests is
          and then Natural (After.Active_Find_Matches.Length) = 3
          and then Editor.Navigation_History.Back_Count (After.Navigation_History) = Back_Before,
          "Input_Bridge clear commands must also route through Executor and avoid navigation side effects");
-   end Test_Phase360_Input_Routes_Option_Commands_Through_Executor;
+   end Test_Input_Routes_Option_Commands_Through_Executor;
 
-   procedure Test_Phase360_Option_Commands_Preserve_Stale_Query_Without_Buffer
+   procedure Test_Option_Commands_Preserve_Stale_Query_Without_Buffer
      (T : in out AUnit.Test_Cases.Test_Case'Class)
    is
       pragma Unreferenced (T);
       S : Editor.State.State_Type;
    begin
       Editor.State.Init (S);
-      Editor.Executor.Execute_Find_Show (S);
-      Editor.Executor.Execute_Find_Set_Query (S, "Run");
+      Editor.Executor.Find_Replace_Commands.Execute_Find_Show (S);
+      Editor.Executor.Find_Replace_Commands.Execute_Find_Set_Query (S, "Run");
       Assert
         (S.Active_Find_Stale
          and then S.Active_Find_Source_Buffer_Token = 0
@@ -2292,7 +2294,7 @@ package body Editor.Active_Find.Tests is
          and then Active_Message_Text (S) = "No active buffer.",
          "setup must preserve a stale non-empty Find query when no active buffer is searchable");
 
-      Editor.Executor.Execute_Find_Case_Toggle (S);
+      Editor.Executor.Find_Replace_Commands.Execute_Find_Case_Toggle (S);
       Assert
         (S.Active_Find_Case_Sensitive
          and then S.Active_Find_Stale
@@ -2301,7 +2303,7 @@ package body Editor.Active_Find.Tests is
          and then Active_Message_Text (S) = "Find case: sensitive",
          "case toggle without a searchable buffer must preserve stale query state without fabricating no-match ranges");
 
-      Editor.Executor.Execute_Find_Whole_Word_Toggle (S);
+      Editor.Executor.Find_Replace_Commands.Execute_Find_Whole_Word_Toggle (S);
       Assert
         (S.Active_Find_Whole_Word
          and then S.Active_Find_Stale
@@ -2309,9 +2311,9 @@ package body Editor.Active_Find.Tests is
          and then S.Active_Find_Matches.Is_Empty
          and then Active_Message_Text (S) = "Find whole word: on",
          "whole-word toggle without a searchable buffer must preserve stale query state under current options");
-   end Test_Phase360_Option_Commands_Preserve_Stale_Query_Without_Buffer;
+   end Test_Option_Commands_Preserve_Stale_Query_Without_Buffer;
 
-   procedure Test_Phase360_Option_Commands_Do_Not_Record_History_Or_Move_Caret
+   procedure Test_Option_Commands_Do_Not_Record_History_Or_Move_Caret
      (T : in out AUnit.Test_Cases.Test_Case'Class)
    is
       pragma Unreferenced (T);
@@ -2322,12 +2324,12 @@ package body Editor.Active_Find.Tests is
       Editor.State.Init (S);
       Editor.State.Load_Text (S, "Run Run");
       Set_Primary_Caret (S, Pos => 0, Anchor => 0);
-      Editor.Executor.Execute_Find_Show (S);
-      Editor.Executor.Execute_Find_Set_Query (S, "Run");
+      Editor.Executor.Find_Replace_Commands.Execute_Find_Show (S);
+      Editor.Executor.Find_Replace_Commands.Execute_Find_Set_Query (S, "Run");
       Caret_Before := Natural (S.Carets (S.Carets.First_Index).Pos);
       Back_Before := Editor.Navigation_History.Back_Count (S.Navigation_History);
 
-      Editor.Executor.Execute_Find_Case_Toggle (S);
+      Editor.Executor.Find_Replace_Commands.Execute_Find_Case_Toggle (S);
       Assert
         (S.Active_Find_Case_Sensitive
          and then Natural (S.Carets (S.Carets.First_Index).Pos) = Caret_Before
@@ -2335,7 +2337,7 @@ package body Editor.Active_Find.Tests is
          and then Active_Message_Text (S) = "Find case: sensitive; 2 matches",
          "case toggle must recompute and message once without caret movement or navigation history");
 
-      Editor.Executor.Execute_Find_Whole_Word_Toggle (S);
+      Editor.Executor.Find_Replace_Commands.Execute_Find_Whole_Word_Toggle (S);
       Assert
         (S.Active_Find_Whole_Word
          and then Natural (S.Carets (S.Carets.First_Index).Pos) = Caret_Before
@@ -2343,7 +2345,7 @@ package body Editor.Active_Find.Tests is
          and then Active_Message_Text (S) = "Find whole word: on; 2 matches",
          "whole-word toggle must recompute and message once without caret movement or navigation history");
 
-      Editor.Executor.Execute_Find_Case_Clear (S);
+      Editor.Executor.Find_Replace_Commands.Execute_Find_Case_Clear (S);
       Assert
         ((not S.Active_Find_Case_Sensitive)
          and then S.Active_Find_Whole_Word
@@ -2352,16 +2354,16 @@ package body Editor.Active_Find.Tests is
          and then Active_Message_Text (S) = "Find case: insensitive; 2 matches",
          "case.clear must reset only case mode and preserve whole-word without history");
 
-      Editor.Executor.Execute_Find_Whole_Word_Clear (S);
+      Editor.Executor.Find_Replace_Commands.Execute_Find_Whole_Word_Clear (S);
       Assert
         ((not S.Active_Find_Whole_Word)
          and then Natural (S.Carets (S.Carets.First_Index).Pos) = Caret_Before
          and then Editor.Navigation_History.Back_Count (S.Navigation_History) = Back_Before
          and then Active_Message_Text (S) = "Find whole word: off; 2 matches",
          "whole-word.clear must reset only whole-word mode without history");
-   end Test_Phase360_Option_Commands_Do_Not_Record_History_Or_Move_Caret;
+   end Test_Option_Commands_Do_Not_Record_History_Or_Move_Caret;
 
-   procedure Test_Phase360_Dirty_Buffer_Options_Use_Unsaved_Text
+   procedure Test_Dirty_Buffer_Options_Use_Unsaved_Text
      (T : in out AUnit.Test_Cases.Test_Case'Class)
    is
       pragma Unreferenced (T);
@@ -2373,10 +2375,10 @@ package body Editor.Active_Find.Tests is
       Editor.State.Load_Text (S, "Run run Runner");
       S.File_Info.Dirty := True;
       Set_Primary_Caret (S, Pos => 0, Anchor => 0);
-      Editor.Executor.Execute_Find_Show (S);
-      Editor.Executor.Execute_Find_Case_Toggle (S);
-      Editor.Executor.Execute_Find_Whole_Word_Toggle (S);
-      Editor.Executor.Execute_Find_Set_Query (S, "Run");
+      Editor.Executor.Find_Replace_Commands.Execute_Find_Show (S);
+      Editor.Executor.Find_Replace_Commands.Execute_Find_Case_Toggle (S);
+      Editor.Executor.Find_Replace_Commands.Execute_Find_Whole_Word_Toggle (S);
+      Editor.Executor.Find_Replace_Commands.Execute_Find_Set_Query (S, "Run");
       Caret_Before := Natural (S.Carets (S.Carets.First_Index).Pos);
       Back_Before := Editor.Navigation_History.Back_Count (S.Navigation_History);
 
@@ -2388,7 +2390,7 @@ package body Editor.Active_Find.Tests is
          and then Active_Message_Text (S) = "Find query set: 1 matches",
          "case-sensitive whole-word Find must search the dirty in-memory buffer only");
 
-      Editor.Executor.Execute_Find_Case_Clear (S);
+      Editor.Executor.Find_Replace_Commands.Execute_Find_Case_Clear (S);
       Assert
         (S.File_Info.Dirty
          and then (not S.Active_Find_Case_Sensitive)
@@ -2398,7 +2400,7 @@ package body Editor.Active_Find.Tests is
          and then Editor.Navigation_History.Back_Count (S.Navigation_History) = Back_Before,
          "case clear in dirty buffer must recompute against unsaved text without saving or navigating");
 
-      Editor.Executor.Execute_Find_Whole_Word_Clear (S);
+      Editor.Executor.Find_Replace_Commands.Execute_Find_Whole_Word_Clear (S);
       Assert
         (S.File_Info.Dirty
          and then (not S.Active_Find_Whole_Word)
@@ -2406,9 +2408,9 @@ package body Editor.Active_Find.Tests is
          and then Natural (S.Carets (S.Carets.First_Index).Pos) = Caret_Before
          and then Editor.Navigation_History.Back_Count (S.Navigation_History) = Back_Before,
          "whole-word clear in dirty buffer must include embedded unsaved occurrences without dirty-state changes");
-   end Test_Phase360_Dirty_Buffer_Options_Use_Unsaved_Text;
+   end Test_Dirty_Buffer_Options_Use_Unsaved_Text;
 
-   procedure Test_Phase360_Hide_Show_Resets_All_Find_Option_State
+   procedure Test_Hide_Show_Resets_All_Find_Option_State
      (T : in out AUnit.Test_Cases.Test_Case'Class)
    is
       pragma Unreferenced (T);
@@ -2417,12 +2419,12 @@ package body Editor.Active_Find.Tests is
    begin
       Editor.State.Init (S);
       Editor.State.Load_Text (S, "Run run Runner Run");
-      Editor.Executor.Execute_Find_Show (S);
-      Editor.Executor.Execute_Find_Case_Toggle (S);
-      Editor.Executor.Execute_Find_Whole_Word_Toggle (S);
-      Editor.Executor.Execute_Find_Set_Query (S, "Run");
+      Editor.Executor.Find_Replace_Commands.Execute_Find_Show (S);
+      Editor.Executor.Find_Replace_Commands.Execute_Find_Case_Toggle (S);
+      Editor.Executor.Find_Replace_Commands.Execute_Find_Whole_Word_Toggle (S);
+      Editor.Executor.Find_Replace_Commands.Execute_Find_Set_Query (S, "Run");
 
-      Editor.Executor.Execute_Find_Hide (S);
+      Editor.Executor.Find_Replace_Commands.Execute_Find_Hide (S);
       Editor.Render_Model.Build_Render_Snapshot (S, Snap);
       Assert
         ((not S.Active_Find_Prompt)
@@ -2439,7 +2441,7 @@ package body Editor.Active_Find.Tests is
          and then Active_Message_Text (S) = "Find hidden",
          "find.hide must reset query, matches, source, stale flag, selected match, and both Find options");
 
-      Editor.Executor.Execute_Find_Show (S);
+      Editor.Executor.Find_Replace_Commands.Execute_Find_Show (S);
       Editor.Render_Model.Build_Render_Snapshot (S, Snap);
       Assert
         (S.Active_Find_Prompt
@@ -2453,9 +2455,9 @@ package body Editor.Active_Find.Tests is
          and then Snap.Active_Find_Match_Count = 0
          and then Active_Message_Text (S) = "Find shown",
          "find.show after hide must start with empty query and default transient option state");
-   end Test_Phase360_Hide_Show_Resets_All_Find_Option_State;
+   end Test_Hide_Show_Resets_All_Find_Option_State;
 
-   procedure Test_Phase360_Stale_Snapshot_Preserves_Option_Feedback_Read_Only
+   procedure Test_Stale_Snapshot_Preserves_Option_Feedback_Read_Only
      (T : in out AUnit.Test_Cases.Test_Case'Class)
    is
       pragma Unreferenced (T);
@@ -2467,10 +2469,10 @@ package body Editor.Active_Find.Tests is
    begin
       Editor.State.Init (S);
       Editor.State.Load_Text (S, "Run Run");
-      Editor.Executor.Execute_Find_Show (S);
-      Editor.Executor.Execute_Find_Case_Toggle (S);
-      Editor.Executor.Execute_Find_Whole_Word_Toggle (S);
-      Editor.Executor.Execute_Find_Set_Query (S, "Run");
+      Editor.Executor.Find_Replace_Commands.Execute_Find_Show (S);
+      Editor.Executor.Find_Replace_Commands.Execute_Find_Case_Toggle (S);
+      Editor.Executor.Find_Replace_Commands.Execute_Find_Whole_Word_Toggle (S);
+      Editor.Executor.Find_Replace_Commands.Execute_Find_Set_Query (S, "Run");
 
       Cmd.Kind := Editor.Commands.Insert_Text_Input;
       Cmd.Ch := 'x';
@@ -2495,9 +2497,9 @@ package body Editor.Active_Find.Tests is
          and then Snap.Active_Find_Match_Count = 0
          and then Active_Message_Text (S) = To_String (Message_Before),
          "stale Find snapshots must hide stale ranges/ordinals, expose current options, and avoid recompute/mutation/messages");
-   end Test_Phase360_Stale_Snapshot_Preserves_Option_Feedback_Read_Only;
+   end Test_Stale_Snapshot_Preserves_Option_Feedback_Read_Only;
 
-   procedure Test_Phase360_Workspace_Snapshot_Excludes_Option_Tokens
+   procedure Test_Workspace_Snapshot_Excludes_Option_Tokens
      (T : in out AUnit.Test_Cases.Test_Case'Class)
    is
       pragma Unreferenced (T);
@@ -2507,11 +2509,11 @@ package body Editor.Active_Find.Tests is
    begin
       Editor.State.Init (S);
       Editor.State.Load_Text (S, "Run run Runner Run");
-      Editor.Executor.Execute_Find_Show (S);
-      Editor.Executor.Execute_Find_Case_Toggle (S);
-      Editor.Executor.Execute_Find_Whole_Word_Toggle (S);
-      Editor.Executor.Execute_Find_Set_Query (S, "Run");
-      Editor.Executor.Execute_Find_Next (S);
+      Editor.Executor.Find_Replace_Commands.Execute_Find_Show (S);
+      Editor.Executor.Find_Replace_Commands.Execute_Find_Case_Toggle (S);
+      Editor.Executor.Find_Replace_Commands.Execute_Find_Whole_Word_Toggle (S);
+      Editor.Executor.Find_Replace_Commands.Execute_Find_Set_Query (S, "Run");
+      Editor.Executor.Find_Replace_Commands.Execute_Find_Next (S);
       Editor.State.Rebuild_After_Buffer_Change (S);
 
       Snapshot := Editor.State.Build_Workspace_Snapshot (S);
@@ -2526,10 +2528,10 @@ package body Editor.Active_Find.Tests is
          and then Ada.Strings.Fixed.Index (To_String (Summary), "whole") = 0
          and then Editor.Navigation_History.Has_Back (S.Navigation_History),
          "workspace persistence summary must exclude Find query, option names, matches, stale/source state, and navigation history payloads");
-   end Test_Phase360_Workspace_Snapshot_Excludes_Option_Tokens;
+   end Test_Workspace_Snapshot_Excludes_Option_Tokens;
 
 
-   procedure Test_Phase361_First_Last_And_Status
+   procedure Test_First_Last_And_Status
      (T : in out AUnit.Test_Cases.Test_Case'Class)
    is
       pragma Unreferenced (T);
@@ -2544,10 +2546,10 @@ package body Editor.Active_Find.Tests is
          "alpha" & ASCII.LF &
          "tail alpha");
       Set_Primary_Caret (S, Pos => 8, Anchor => 8);
-      Editor.Executor.Execute_Find_Show (S);
-      Editor.Executor.Execute_Find_Set_Query (S, "alpha");
+      Editor.Executor.Find_Replace_Commands.Execute_Find_Show (S);
+      Editor.Executor.Find_Replace_Commands.Execute_Find_Set_Query (S, "alpha");
 
-      Editor.Executor.Execute_Find_Last (S);
+      Editor.Executor.Find_Replace_Commands.Execute_Find_Last (S);
       Editor.Render_Model.Build_Render_Snapshot (S, Snap);
       Assert
         (S.Active_Find_Match.Start_Row = 3
@@ -2567,7 +2569,7 @@ package body Editor.Active_Find.Tests is
         (Editor.Navigation_History.Forward_Count (S.Navigation_History) = 1,
          "navigation.back after find.last must populate forward history");
 
-      Editor.Executor.Execute_Find_First (S);
+      Editor.Executor.Find_Replace_Commands.Execute_Find_First (S);
       Editor.Render_Model.Build_Render_Snapshot (S, Snap);
       Assert
         (S.Active_Find_Match.Start_Row = 0
@@ -2577,9 +2579,9 @@ package body Editor.Active_Find.Tests is
          and then Editor.Navigation_History.Forward_Count (S.Navigation_History) = 0
          and then Active_Message_Text (S) = "Found first match 1 of 3",
          "find.first after back must select first match, expose 1/3 status, and clear forward stack only through successful navigation");
-   end Test_Phase361_First_Last_And_Status;
+   end Test_First_Last_And_Status;
 
-   procedure Test_Phase361_Reveal_Current_Selects_Without_Moving_Or_History
+   procedure Test_Reveal_Current_Selects_Without_Moving_Or_History
      (T : in out AUnit.Test_Cases.Test_Case'Class)
    is
       pragma Unreferenced (T);
@@ -2596,17 +2598,17 @@ package body Editor.Active_Find.Tests is
          "plain" & ASCII.LF &
          "alpha" & ASCII.LF &
          "omega");
-      Editor.Executor.Execute_Find_Show (S);
-      Editor.Executor.Execute_Find_Set_Query (S, "alpha");
+      Editor.Executor.Find_Replace_Commands.Execute_Find_Show (S);
+      Editor.Executor.Find_Replace_Commands.Execute_Find_Set_Query (S, "alpha");
       Set_Primary_Caret (S, Pos => 8, Anchor => 8);
-      Editor.Executor.Execute_Find_Last (S);
+      Editor.Executor.Find_Replace_Commands.Execute_Find_Last (S);
       Editor.Executor.Execute_Command (S, Editor.Commands.Command_Navigation_Back);
       Back_Before := Editor.Navigation_History.Back_Count (S.Navigation_History);
       Forward_Before := Editor.Navigation_History.Forward_Count (S.Navigation_History);
 
       Set_Primary_Caret (S, Pos => 8, Anchor => 8);
       Caret_Before := Natural (S.Carets (S.Carets.First_Index).Pos);
-      Editor.Executor.Execute_Find_Reveal_Current (S);
+      Editor.Executor.Find_Replace_Commands.Execute_Find_Reveal_Current (S);
       Editor.Render_Model.Build_Render_Snapshot (S, Snap);
       Assert
         (S.Active_Find_Match.Start_Row = 2
@@ -2620,14 +2622,14 @@ package body Editor.Active_Find.Tests is
          "reveal-current must select first match at/after caret, not move caret, and preserve both history stacks");
 
       Set_Primary_Caret (S, Pos => 18, Anchor => 18);
-      Editor.Executor.Execute_Find_Reveal_Current (S);
+      Editor.Executor.Find_Replace_Commands.Execute_Find_Reveal_Current (S);
       Assert
         (Natural (S.Active_Find_Match.Index) = 1
          and then Natural (S.Carets (S.Carets.First_Index).Pos) = 18,
          "reveal-current must wrap to first match when no later match exists and still not move caret");
-   end Test_Phase361_Reveal_Current_Selects_Without_Moving_Or_History;
+   end Test_Reveal_Current_Selects_Without_Moving_Or_History;
 
-   procedure Test_Phase361_Reveal_Current_Containing_And_Stale_Recompute
+   procedure Test_Reveal_Current_Containing_And_Stale_Recompute
      (T : in out AUnit.Test_Cases.Test_Case'Class)
    is
       pragma Unreferenced (T);
@@ -2644,19 +2646,19 @@ package body Editor.Active_Find.Tests is
    begin
       Editor.State.Init (S);
       Editor.State.Load_Text (S, "abc abc" & ASCII.LF & "abc");
-      Editor.Executor.Execute_Find_Show (S);
-      Editor.Executor.Execute_Find_Set_Query (S, "abc");
+      Editor.Executor.Find_Replace_Commands.Execute_Find_Show (S);
+      Editor.Executor.Find_Replace_Commands.Execute_Find_Set_Query (S, "abc");
       Set_Primary_Caret (S, Pos => 1, Anchor => 1);
-      Editor.Executor.Execute_Find_Reveal_Current (S);
+      Editor.Executor.Find_Replace_Commands.Execute_Find_Reveal_Current (S);
       Assert
         (Natural (S.Active_Find_Match.Index) = 1
          and then Natural (S.Carets (S.Carets.First_Index).Pos) = 1,
          "reveal-current must prefer the match containing the caret");
 
       Editor.State.Mutate_Buffer (S, Replace_With_Three_Abc'Access);
-      Assert (S.Active_Find_Stale, "buffer edit must make active find stale before Phase 361 action");
+      Assert (S.Active_Find_Stale, "buffer edit must make active find stale before action");
       Set_Primary_Caret (S, Pos => 5, Anchor => 5);
-      Editor.Executor.Execute_Find_Reveal_Current (S);
+      Editor.Executor.Find_Replace_Commands.Execute_Find_Reveal_Current (S);
       Editor.Render_Model.Build_Render_Snapshot (S, Snap);
       Assert
         ((not S.Active_Find_Stale)
@@ -2666,9 +2668,9 @@ package body Editor.Active_Find.Tests is
          and then Snap.Find_Selected_Match_Ordinal = 2
          and then To_String (Snap.Find_Status_Text) = "2/3",
          "reveal-current must recompute stale matches under the current query/options before selecting current caret match");
-   end Test_Phase361_Reveal_Current_Containing_And_Stale_Recompute;
+   end Test_Reveal_Current_Containing_And_Stale_Recompute;
 
-   procedure Test_Phase361_No_Query_No_Matches_And_Availability_Are_Read_Only
+   procedure Test_No_Query_No_Matches_And_Availability_Are_Read_Only
      (T : in out AUnit.Test_Cases.Test_Case'Class)
    is
       pragma Unreferenced (T);
@@ -2681,16 +2683,16 @@ package body Editor.Active_Find.Tests is
    begin
       Editor.State.Init (S);
       Editor.State.Load_Text (S, "alpha beta");
-      Editor.Executor.Execute_Find_Show (S);
+      Editor.Executor.Find_Replace_Commands.Execute_Find_Show (S);
       Caret := Natural (S.Carets (S.Carets.First_Index).Pos);
-      Editor.Executor.Execute_Find_First (S);
+      Editor.Executor.Find_Replace_Commands.Execute_Find_First (S);
       Assert
         (Natural (S.Carets (S.Carets.First_Index).Pos) = Caret
          and then Active_Message_Text (S) = "No find query"
          and then not Editor.Navigation_History.Has_Back (S.Navigation_History),
          "find.first with no query must not move or record history");
 
-      Editor.Executor.Execute_Find_Set_Query (S, "missing");
+      Editor.Executor.Find_Replace_Commands.Execute_Find_Set_Query (S, "missing");
       Query := S.Active_Find_Query;
       Count := Natural (S.Active_Find_Matches.Length);
       Message := To_Unbounded_String (Active_Message_Text (S));
@@ -2702,16 +2704,16 @@ package body Editor.Active_Find.Tests is
          and then Active_Message_Text (S) = To_String (Message),
          "find.last availability must not recompute matches or mutate messages");
 
-      Editor.Executor.Execute_Find_Last (S);
+      Editor.Executor.Find_Replace_Commands.Execute_Find_Last (S);
       Assert
         (Natural (S.Carets (S.Carets.First_Index).Pos) = Caret
          and then Active_Message_Text (S) = "No matches"
          and then not Editor.Navigation_History.Has_Back (S.Navigation_History),
          "find.last with no matches must not move or record history");
-   end Test_Phase361_No_Query_No_Matches_And_Availability_Are_Read_Only;
+   end Test_No_Query_No_Matches_And_Availability_Are_Read_Only;
 
 
-   procedure Test_Phase361_Options_Input_Routes_And_Lifecycle_Status
+   procedure Test_Options_Input_Routes_And_Lifecycle_Status
      (T : in out AUnit.Test_Cases.Test_Case'Class)
    is
       pragma Unreferenced (T);
@@ -2724,10 +2726,10 @@ package body Editor.Active_Find.Tests is
    begin
       Editor.State.Init (S);
       Editor.State.Load_Text (S, "Run run Runner Run");
-      Editor.Executor.Execute_Find_Show (S);
-      Editor.Executor.Execute_Find_Case_Toggle (S);
-      Editor.Executor.Execute_Find_Whole_Word_Toggle (S);
-      Editor.Executor.Execute_Find_Set_Query (S, "Run");
+      Editor.Executor.Find_Replace_Commands.Execute_Find_Show (S);
+      Editor.Executor.Find_Replace_Commands.Execute_Find_Case_Toggle (S);
+      Editor.Executor.Find_Replace_Commands.Execute_Find_Whole_Word_Toggle (S);
+      Editor.Executor.Find_Replace_Commands.Execute_Find_Set_Query (S, "Run");
 
       Editor.Input_Bridge.Set_State_For_Test (S);
       Editor.Input_Bridge.Execute_Command_Id (Editor.Commands.Command_Find_Last);
@@ -2769,7 +2771,7 @@ package body Editor.Active_Find.Tests is
          and then Ada.Strings.Fixed.Index (To_String (Summary), "find") = 0
          and then Ada.Strings.Fixed.Index (To_String (Summary), "Find") = 0
          and then Ada.Strings.Fixed.Index (To_String (Summary), "2/2") = 0,
-         "workspace snapshot must not persist Phase 361 current-match query/status feedback");
+         "workspace snapshot must not persist current-match query/status feedback");
 
       Editor.State.Reset_Project_Scoped_State (After);
       Editor.Render_Model.Build_Render_Snapshot (After, Snap);
@@ -2781,12 +2783,12 @@ package body Editor.Active_Find.Tests is
          and then Length (Snap.Find_Error_Message) = 0
          and then (not After.Active_Find_Case_Sensitive)
          and then (not After.Active_Find_Whole_Word),
-         "project lifecycle reset must clear Phase 361 current-match ordinal/status feedback and transient options");
-   end Test_Phase361_Options_Input_Routes_And_Lifecycle_Status;
+         "project lifecycle reset must clear current-match ordinal/status feedback and transient options");
+   end Test_Options_Input_Routes_And_Lifecycle_Status;
 
 
 
-   procedure Test_Phase362_No_Duplicate_Prefill_Aliases
+   procedure Test_No_Duplicate_Prefill_Aliases
      (T : in out AUnit.Test_Cases.Test_Case'Class)
    is
       pragma Unreferenced (T);
@@ -2797,16 +2799,16 @@ package body Editor.Active_Find.Tests is
         ("edit.find.prefill-selection", Found);
       Assert
         ((not Found) and then Id = Editor.Commands.No_Command,
-         "Phase 362 must not expose duplicate selection-prefill aliases when find-from-selection is canonical");
+         "must not expose duplicate selection-prefill aliases when find-from-selection is canonical");
 
       Id := Editor.Commands.Command_Id_From_Stable_Name
         ("edit.find.prefill-active-word", Found);
       Assert
         ((not Found) and then Id = Editor.Commands.No_Command,
-         "Phase 362 must not expose duplicate active-word-prefill aliases when find-from-active-word is canonical");
-   end Test_Phase362_No_Duplicate_Prefill_Aliases;
+         "must not expose duplicate active-word-prefill aliases when find-from-active-word is canonical");
+   end Test_No_Duplicate_Prefill_Aliases;
 
-   procedure Test_Phase362_Show_Prefills_Selection_Without_Navigation
+   procedure Test_Show_Prefills_Selection_Without_Navigation
      (T : in out AUnit.Test_Cases.Test_Case'Class)
    is
       pragma Unreferenced (T);
@@ -2819,7 +2821,7 @@ package body Editor.Active_Find.Tests is
       Set_Primary_Caret (S, Pos => 10, Anchor => 6);
       Caret_Before := Natural (S.Carets (S.Carets.First_Index).Pos);
 
-      Editor.Executor.Execute_Find_Show (S);
+      Editor.Executor.Find_Replace_Commands.Execute_Find_Show (S);
       Editor.Render_Model.Build_Render_Snapshot (S, Snap);
 
       Assert
@@ -2837,9 +2839,9 @@ package body Editor.Active_Find.Tests is
          and then Snap.Find_Match_Count = 2
          and then Snap.Find_Selected_Match_Ordinal > 0,
          "find.show selection prefill must expose structured prompt query/count/current ordinal");
-   end Test_Phase362_Show_Prefills_Selection_Without_Navigation;
+   end Test_Show_Prefills_Selection_Without_Navigation;
 
-   procedure Test_Phase362_Show_Ignores_Invalid_Selection_Quietly
+   procedure Test_Show_Ignores_Invalid_Selection_Quietly
      (T : in out AUnit.Test_Cases.Test_Case'Class)
    is
       pragma Unreferenced (T);
@@ -2849,7 +2851,7 @@ package body Editor.Active_Find.Tests is
       Editor.State.Load_Text (S, "alpha" & ASCII.LF & "beta");
       Set_Primary_Caret (S, Pos => 10, Anchor => 0);
 
-      Editor.Executor.Execute_Find_Show (S);
+      Editor.Executor.Find_Replace_Commands.Execute_Find_Show (S);
 
       Assert
         (S.Active_Find_Prompt
@@ -2858,9 +2860,9 @@ package body Editor.Active_Find.Tests is
          and then S.Active_Find_Matches.Is_Empty
          and then Active_Message_Text (S) = "Find shown",
          "find.show must ignore invalid or multiline selections without noisy explicit-prefill failure state");
-   end Test_Phase362_Show_Ignores_Invalid_Selection_Quietly;
+   end Test_Show_Ignores_Invalid_Selection_Quietly;
 
-   procedure Test_Phase362_Prompt_Edits_Clear_Stale_Failure_Message
+   procedure Test_Prompt_Edits_Clear_Stale_Failure_Message
      (T : in out AUnit.Test_Cases.Test_Case'Class)
    is
       pragma Unreferenced (T);
@@ -2869,13 +2871,13 @@ package body Editor.Active_Find.Tests is
    begin
       Editor.State.Init (S);
       Editor.State.Load_Text (S, "alpha beta alpha");
-      Editor.Executor.Execute_Find_Show (S);
-      Editor.Executor.Execute_Find_Set_Query (S, "missing");
-      Editor.Executor.Execute_Find_Next (S);
+      Editor.Executor.Find_Replace_Commands.Execute_Find_Show (S);
+      Editor.Executor.Find_Replace_Commands.Execute_Find_Set_Query (S, "missing");
+      Editor.Executor.Find_Replace_Commands.Execute_Find_Next (S);
       Assert (Active_Message_Text (S) = "No matches", "test setup must create stale prompt failure feedback");
 
       Editor.Input_Field.Select_All (S.Active_Find_Input);
-      Editor.Executor.Execute_Active_Find_Input_Insert_Text (S, "alpha");
+      Editor.Executor.Find_Replace_Commands.Execute_Active_Find_Input_Insert_Text (S, "alpha");
       Editor.Render_Model.Build_Render_Snapshot (S, Snap);
 
       Assert
@@ -2885,9 +2887,9 @@ package body Editor.Active_Find.Tests is
          and then To_String (Snap.Find_Status_Text) = "1/2"
          and then Length (Snap.Find_Error_Message) = 0,
          "prompt typing must recompute immediately and replace stale failure feedback with current structured status");
-   end Test_Phase362_Prompt_Edits_Clear_Stale_Failure_Message;
+   end Test_Prompt_Edits_Clear_Stale_Failure_Message;
 
-   procedure Test_Phase362_Hide_Resets_Query_Options_And_Ranges
+   procedure Test_Hide_Resets_Query_Options_And_Ranges
      (T : in out AUnit.Test_Cases.Test_Case'Class)
    is
       pragma Unreferenced (T);
@@ -2896,12 +2898,12 @@ package body Editor.Active_Find.Tests is
    begin
       Editor.State.Init (S);
       Editor.State.Load_Text (S, "Run run Run");
-      Editor.Executor.Execute_Find_Show (S);
-      Editor.Executor.Execute_Find_Case_Toggle (S);
-      Editor.Executor.Execute_Find_Whole_Word_Toggle (S);
-      Editor.Executor.Execute_Find_Set_Query (S, "Run");
+      Editor.Executor.Find_Replace_Commands.Execute_Find_Show (S);
+      Editor.Executor.Find_Replace_Commands.Execute_Find_Case_Toggle (S);
+      Editor.Executor.Find_Replace_Commands.Execute_Find_Whole_Word_Toggle (S);
+      Editor.Executor.Find_Replace_Commands.Execute_Find_Set_Query (S, "Run");
 
-      Editor.Executor.Execute_Find_Hide (S);
+      Editor.Executor.Find_Replace_Commands.Execute_Find_Hide (S);
       Editor.Render_Model.Build_Render_Snapshot (S, Snap);
 
       Assert
@@ -2917,11 +2919,11 @@ package body Editor.Active_Find.Tests is
          and then Snap.Active_Find_Match_Count = 0
          and then Active_Message_Text (S) = "Find hidden",
          "find.hide must clear all transient prompt/query/range/status state and reset transient Find options");
-   end Test_Phase362_Hide_Resets_Query_Options_And_Ranges;
+   end Test_Hide_Resets_Query_Options_And_Ranges;
 
 
 
-   procedure Test_Phase363_End_To_End_Prompt_Option_Render_Coherence
+   procedure Test_End_To_End_Prompt_Option_Render_Coherence
      (T : in out AUnit.Test_Cases.Test_Case'Class)
    is
       pragma Unreferenced (T);
@@ -2937,7 +2939,7 @@ package body Editor.Active_Find.Tests is
          "Execute_Command");
       Set_Primary_Caret (S, Pos => 15, Anchor => 0);
 
-      Editor.Executor.Execute_Find_Show (S);
+      Editor.Executor.Find_Replace_Commands.Execute_Find_Show (S);
       Editor.Render_Model.Build_Render_Snapshot (S, Snap);
       Assert
         (S.Active_Find_Prompt
@@ -2946,10 +2948,10 @@ package body Editor.Active_Find.Tests is
          and then Snap.Find_Match_Count = 4
          and then Snap.Find_Selected_Match_Ordinal in 1 .. 4
          and then not Editor.Navigation_History.Has_Back (S.Navigation_History),
-         "phase 363 show must prefill selection, recompute current ranges, select a valid ordinal, and avoid history");
-      Assert_Find_Coherent (S, "phase 363 show prefill");
+         "show must prefill selection, recompute current ranges, select a valid ordinal, and avoid history");
+      Assert_Find_Coherent (S, "show prefill");
 
-      Editor.Executor.Execute_Find_Case_Toggle (S);
+      Editor.Executor.Find_Replace_Commands.Execute_Find_Case_Toggle (S);
       Editor.Render_Model.Build_Render_Snapshot (S, Snap);
       Assert
         (S.Active_Find_Case_Sensitive
@@ -2958,9 +2960,9 @@ package body Editor.Active_Find.Tests is
          and then Snap.Find_Case_Sensitive
          and then not Snap.Find_Whole_Word,
          "case toggle must replace prefill-derived ranges with current case-sensitive ranges");
-      Assert_Find_Coherent (S, "phase 363 case-sensitive prefill query");
+      Assert_Find_Coherent (S, "case-sensitive prefill query");
 
-      Editor.Executor.Execute_Find_Whole_Word_Toggle (S);
+      Editor.Executor.Find_Replace_Commands.Execute_Find_Whole_Word_Toggle (S);
       Editor.Render_Model.Build_Render_Snapshot (S, Snap);
       Assert
         (S.Active_Find_Whole_Word
@@ -2968,9 +2970,9 @@ package body Editor.Active_Find.Tests is
          and then Snap.Find_Match_Count = 2
          and then Snap.Find_Selected_Match_Ordinal in 1 .. 2,
          "whole-word toggle must remove embedded ranges and keep the selected ordinal valid");
-      Assert_Find_Coherent (S, "phase 363 whole-word composition");
+      Assert_Find_Coherent (S, "whole-word composition");
 
-      Editor.Executor.Execute_Find_Set_Query (S, "missing");
+      Editor.Executor.Find_Replace_Commands.Execute_Find_Set_Query (S, "missing");
       Editor.Render_Model.Build_Render_Snapshot (S, Snap);
       Assert
         (S.Active_Find_Matches.Is_Empty
@@ -2979,9 +2981,9 @@ package body Editor.Active_Find.Tests is
          and then Snap.Find_Selected_Match_Ordinal = 0
          and then To_String (Snap.Find_Status_Text) = "No matches",
          "query edit to no-match must clear old option-derived ranges and stale selected status");
-      Assert_Find_Coherent (S, "phase 363 no-match query edit");
+      Assert_Find_Coherent (S, "no-match query edit");
 
-      Editor.Executor.Execute_Find_Hide (S);
+      Editor.Executor.Find_Replace_Commands.Execute_Find_Hide (S);
       Editor.Render_Model.Build_Render_Snapshot (S, Snap);
       Assert
         ((not S.Active_Find_Prompt)
@@ -2996,9 +2998,9 @@ package body Editor.Active_Find.Tests is
          and then Snap.Active_Find_Match_Count = 0
          and then Snap.Find_Selected_Match_Ordinal = 0,
          "hide must fully clear prompt, query, options, ranges, selected ordinal, stale, and source state");
-   end Test_Phase363_End_To_End_Prompt_Option_Render_Coherence;
+   end Test_End_To_End_Prompt_Option_Render_Coherence;
 
-   procedure Test_Phase363_Navigation_History_Only_For_Movement
+   procedure Test_Navigation_History_Only_For_Movement
      (T : in out AUnit.Test_Cases.Test_Case'Class)
    is
       pragma Unreferenced (T);
@@ -3013,20 +3015,20 @@ package body Editor.Active_Find.Tests is
          "Run" & ASCII.LF &
          "end Run");
       Set_Primary_Caret (S, Pos => 0, Anchor => 0);
-      Editor.Executor.Execute_Find_Show (S);
-      Editor.Executor.Execute_Find_Set_Query (S, "Run");
-      Editor.Executor.Execute_Find_Case_Toggle (S);
-      Editor.Executor.Execute_Find_Whole_Word_Toggle (S);
+      Editor.Executor.Find_Replace_Commands.Execute_Find_Show (S);
+      Editor.Executor.Find_Replace_Commands.Execute_Find_Set_Query (S, "Run");
+      Editor.Executor.Find_Replace_Commands.Execute_Find_Case_Toggle (S);
+      Editor.Executor.Find_Replace_Commands.Execute_Find_Whole_Word_Toggle (S);
       Assert
         (not Editor.Navigation_History.Has_Back (S.Navigation_History),
          "show/query/options must not record navigation history");
 
-      Editor.Executor.Execute_Find_Next (S);
+      Editor.Executor.Find_Replace_Commands.Execute_Find_Next (S);
       Assert
         (S.Active_Find_Match.Start_Row = 3
          and then Editor.Navigation_History.Back_Count (S.Navigation_History) = 1,
          "successful find.next movement must record exactly one previous location");
-      Editor.Executor.Execute_Find_Last (S);
+      Editor.Executor.Find_Replace_Commands.Execute_Find_Last (S);
       Assert
         (S.Active_Find_Match.Start_Row = 4
          and then Editor.Navigation_History.Back_Count (S.Navigation_History) = 2,
@@ -3036,14 +3038,14 @@ package body Editor.Active_Find.Tests is
       Assert
         (Editor.Navigation_History.Has_Forward (S.Navigation_History),
          "navigation.back after Find movement must populate forward stack");
-      Editor.Executor.Execute_Find_Reveal_Current (S);
+      Editor.Executor.Find_Replace_Commands.Execute_Find_Reveal_Current (S);
       Assert
         (Editor.Navigation_History.Has_Forward (S.Navigation_History)
          and then Active_Message_Text (S) /= "",
          "reveal-current must select coherently without clearing forward history");
 
-      Editor.Executor.Execute_Find_Set_Query (S, "Missing");
-      Editor.Executor.Execute_Find_First (S);
+      Editor.Executor.Find_Replace_Commands.Execute_Find_Set_Query (S, "Missing");
+      Editor.Executor.Find_Replace_Commands.Execute_Find_First (S);
       Assert
         (Active_Message_Text (S) = "No matches"
          and then Editor.Navigation_History.Has_Forward (S.Navigation_History),
@@ -3053,9 +3055,9 @@ package body Editor.Active_Find.Tests is
       Assert
         (not Editor.Navigation_History.Has_Forward (S.Navigation_History),
          "preserved forward target must remain usable after a failed Find movement command");
-   end Test_Phase363_Navigation_History_Only_For_Movement;
+   end Test_Navigation_History_Only_For_Movement;
 
-   procedure Test_Phase363_Buffer_Edit_Switch_And_Reveal_Use_Current_Text
+   procedure Test_Buffer_Edit_Switch_And_Reveal_Use_Current_Text
      (T : in out AUnit.Test_Cases.Test_Case'Class)
    is
       pragma Unreferenced (T);
@@ -3070,10 +3072,10 @@ package body Editor.Active_Find.Tests is
       Editor.Buffers.Ensure_Global_Registry (S);
       Original := Editor.Buffers.Global_Active_Buffer;
 
-      Editor.Executor.Execute_Find_Show (S);
-      Editor.Executor.Execute_Find_Set_Query (S, "Run");
-      Editor.Executor.Execute_Find_Case_Toggle (S);
-      Editor.Executor.Execute_Find_Whole_Word_Toggle (S);
+      Editor.Executor.Find_Replace_Commands.Execute_Find_Show (S);
+      Editor.Executor.Find_Replace_Commands.Execute_Find_Set_Query (S, "Run");
+      Editor.Executor.Find_Replace_Commands.Execute_Find_Case_Toggle (S);
+      Editor.Executor.Find_Replace_Commands.Execute_Find_Whole_Word_Toggle (S);
       Assert
         (Natural (S.Active_Find_Matches.Length) = 2,
          "setup must have only whole-word Run matches in buffer A");
@@ -3091,7 +3093,7 @@ package body Editor.Active_Find.Tests is
          and then Snap.Find_Selected_Match_Ordinal = 0,
          "buffer edits must stale Find, suppress old ranges, and clear selected ordinal before recompute");
 
-      Editor.Executor.Execute_Find_Reveal_Current (S);
+      Editor.Executor.Find_Replace_Commands.Execute_Find_Reveal_Current (S);
       Assert
         ((not S.Active_Find_Stale)
          and then Natural (S.Active_Find_Matches.Length) = 1
@@ -3100,7 +3102,7 @@ package body Editor.Active_Find.Tests is
          "reveal-current must recompute against the current dirty in-memory text without saving or discarding edits");
 
       S.File_Info.Dirty := False;
-      Editor.Executor.Execute_New_Buffer (S);
+      Editor.Executor.File_Open_Commands.Execute_New_Buffer (S);
       Cmd.Kind := Editor.Commands.Insert_Text_Input;
       Cmd.Ch := 'x';
       Cmd.Text := To_Unbounded_String (String'(1 => 'x'));
@@ -3111,22 +3113,22 @@ package body Editor.Active_Find.Tests is
          and then Snap.Find_Match_Count = 0
          and then Snap.Active_Find_Match_Count = 0,
          "active-buffer switch must suppress ranges from the old buffer");
-      Editor.Executor.Execute_Find_Next (S);
+      Editor.Executor.Find_Replace_Commands.Execute_Find_Next (S);
       Assert
         (Active_Message_Text (S) = "No matches"
          and then not Editor.Navigation_History.Has_Back (S.Navigation_History),
          "Find movement in a different active buffer must recompute there and avoid history on no-match failure");
 
-      Editor.Executor.Execute_Switch_Buffer (S, Original);
+      Editor.Executor.File_Open_Commands.Execute_Switch_Buffer (S, Original);
       Editor.Render_Model.Build_Render_Snapshot (S, Snap);
       Assert
         (S.Active_Find_Stale
          and then Snap.Find_Match_Count = 0
          and then Snap.Active_Find_Match_Count = 0,
          "returning to the original buffer must not resurrect stale old-buffer ranges until recomputed");
-   end Test_Phase363_Buffer_Edit_Switch_And_Reveal_Use_Current_Text;
+   end Test_Buffer_Edit_Switch_And_Reveal_Use_Current_Text;
 
-   procedure Test_Phase363_Overlay_Input_And_Feature_Independence_Matrix
+   procedure Test_Overlay_Input_And_Feature_Independence_Matrix
      (T : in out AUnit.Test_Cases.Test_Case'Class)
    is
       pragma Unreferenced (T);
@@ -3152,7 +3154,7 @@ package body Editor.Active_Find.Tests is
       Project_Text := To_Unbounded_String (Editor.Project_Search.Query (S.Project_Search));
       Project_Case := Editor.Project_Search.Case_Sensitive (S.Project_Search);
 
-      Editor.Executor.Execute_Find_Show (S);
+      Editor.Executor.Find_Replace_Commands.Execute_Find_Show (S);
       Editor.Input_Bridge.Set_State_For_Test (S);
       Cmd.Kind := Editor.Commands.Insert_Text_Input;
       Cmd.Ch := 'a';
@@ -3196,9 +3198,9 @@ package body Editor.Active_Find.Tests is
          and then To_Unbounded_String (Editor.Quick_Open.Query_Text (After.Quick_Open)) = Quick_Text
          and then Active_Message_Text (After) = "Find hidden",
          "Find Escape must route hide through Executor and leave unrelated overlay query state untouched");
-   end Test_Phase363_Overlay_Input_And_Feature_Independence_Matrix;
+   end Test_Overlay_Input_And_Feature_Independence_Matrix;
 
-   procedure Test_Phase363_Availability_Snapshot_And_Lifecycle_Are_Read_Only_Or_Clean
+   procedure Test_Availability_Snapshot_And_Lifecycle_Are_Read_Only_Or_Clean
      (T : in out AUnit.Test_Cases.Test_Case'Class)
    is
       pragma Unreferenced (T);
@@ -3212,10 +3214,10 @@ package body Editor.Active_Find.Tests is
    begin
       Editor.State.Init (S);
       Editor.State.Load_Text (S, "Run" & ASCII.LF & "Runner" & ASCII.LF & "Run");
-      Editor.Executor.Execute_Find_Show (S);
-      Editor.Executor.Execute_Find_Set_Query (S, "Run");
-      Editor.Executor.Execute_Find_Case_Toggle (S);
-      Editor.Executor.Execute_Find_Whole_Word_Toggle (S);
+      Editor.Executor.Find_Replace_Commands.Execute_Find_Show (S);
+      Editor.Executor.Find_Replace_Commands.Execute_Find_Set_Query (S, "Run");
+      Editor.Executor.Find_Replace_Commands.Execute_Find_Case_Toggle (S);
+      Editor.Executor.Find_Replace_Commands.Execute_Find_Whole_Word_Toggle (S);
       Query := S.Active_Find_Query;
       Count := Natural (S.Active_Find_Matches.Length);
       Caret := Natural (S.Carets (S.Carets.First_Index).Pos);
@@ -3254,9 +3256,9 @@ package body Editor.Active_Find.Tests is
          and then Snap.Find_Match_Count = 0
          and then Snap.Active_Find_Match_Count = 0,
          "project lifecycle cleanup must restore the Find transient defaults and leave no render ranges");
-   end Test_Phase363_Availability_Snapshot_And_Lifecycle_Are_Read_Only_Or_Clean;
+   end Test_Availability_Snapshot_And_Lifecycle_Are_Read_Only_Or_Clean;
 
-   procedure Test_Phase363_Persistence_And_Absent_Command_Final_Coverage
+   procedure Test_Persistence_And_Absent_Command_Final_Coverage
      (T : in out AUnit.Test_Cases.Test_Case'Class)
    is
       pragma Unreferenced (T);
@@ -3290,11 +3292,11 @@ package body Editor.Active_Find.Tests is
          "PersistToken" & ASCII.LF &
          "PersistToken" & ASCII.LF &
          "PersistToken_Extended");
-      Editor.Executor.Execute_Find_Show (S);
-      Editor.Executor.Execute_Find_Set_Query (S, "PersistToken");
-      Editor.Executor.Execute_Find_Case_Toggle (S);
-      Editor.Executor.Execute_Find_Whole_Word_Toggle (S);
-      Editor.Executor.Execute_Find_Next (S);
+      Editor.Executor.Find_Replace_Commands.Execute_Find_Show (S);
+      Editor.Executor.Find_Replace_Commands.Execute_Find_Set_Query (S, "PersistToken");
+      Editor.Executor.Find_Replace_Commands.Execute_Find_Case_Toggle (S);
+      Editor.Executor.Find_Replace_Commands.Execute_Find_Whole_Word_Toggle (S);
+      Editor.Executor.Find_Replace_Commands.Execute_Find_Next (S);
       Editor.State.Rebuild_After_Buffer_Change (S);
 
       Snapshot := Editor.State.Build_Workspace_Snapshot (S);
@@ -3306,7 +3308,7 @@ package body Editor.Active_Find.Tests is
          and then Ada.Strings.Fixed.Index (To_String (Summary), "Find") = 0
          and then Editor.Navigation_History.Has_Back (S.Navigation_History),
          "workspace persistence must exclude Find prompt/query/options/matches/selection/source/stale/error and navigation history");
-   end Test_Phase363_Persistence_And_Absent_Command_Final_Coverage;
+   end Test_Persistence_And_Absent_Command_Final_Coverage;
 
 
 
@@ -3314,17 +3316,17 @@ package body Editor.Active_Find.Tests is
      (T : in out Active_Find_Test_Case)
    is
    begin
-      Register_Routine (T, Test_Phase363_End_To_End_Prompt_Option_Render_Coherence'Access, "phase 363 end-to-end prompt option render coherence");
-      Register_Routine (T, Test_Phase363_Navigation_History_Only_For_Movement'Access, "phase 363 navigation history only for movement");
-      Register_Routine (T, Test_Phase363_Buffer_Edit_Switch_And_Reveal_Use_Current_Text'Access, "phase 363 buffer edit switch reveal current text");
-      Register_Routine (T, Test_Phase363_Overlay_Input_And_Feature_Independence_Matrix'Access, "phase 363 overlay input and feature independence matrix");
-      Register_Routine (T, Test_Phase363_Availability_Snapshot_And_Lifecycle_Are_Read_Only_Or_Clean'Access, "phase 363 availability snapshot lifecycle read-only clean");
-      Register_Routine (T, Test_Phase363_Persistence_And_Absent_Command_Final_Coverage'Access, "phase 363 persistence and absent command final coverage");
-      Register_Routine (T, Test_Phase362_No_Duplicate_Prefill_Aliases'Access, "phase 362 no duplicate prefill aliases");
-      Register_Routine (T, Test_Phase362_Show_Prefills_Selection_Without_Navigation'Access, "phase 362 show prefill selection no navigation");
-      Register_Routine (T, Test_Phase362_Show_Ignores_Invalid_Selection_Quietly'Access, "phase 362 show ignores invalid selection quietly");
-      Register_Routine (T, Test_Phase362_Prompt_Edits_Clear_Stale_Failure_Message'Access, "phase 362 prompt edits clear stale failure message");
-      Register_Routine (T, Test_Phase362_Hide_Resets_Query_Options_And_Ranges'Access, "phase 362 hide resets query options ranges");
+      Register_Routine (T, Test_End_To_End_Prompt_Option_Render_Coherence'Access, "end-to-end prompt option render coherence");
+      Register_Routine (T, Test_Navigation_History_Only_For_Movement'Access, "navigation history only for movement");
+      Register_Routine (T, Test_Buffer_Edit_Switch_And_Reveal_Use_Current_Text'Access, "buffer edit switch reveal current text");
+      Register_Routine (T, Test_Overlay_Input_And_Feature_Independence_Matrix'Access, "overlay input and feature independence matrix");
+      Register_Routine (T, Test_Availability_Snapshot_And_Lifecycle_Are_Read_Only_Or_Clean'Access, "availability snapshot lifecycle read-only clean");
+      Register_Routine (T, Test_Persistence_And_Absent_Command_Final_Coverage'Access, "persistence and absent command final coverage");
+      Register_Routine (T, Test_No_Duplicate_Prefill_Aliases'Access, "no duplicate prefill aliases");
+      Register_Routine (T, Test_Show_Prefills_Selection_Without_Navigation'Access, "show prefill selection no navigation");
+      Register_Routine (T, Test_Show_Ignores_Invalid_Selection_Quietly'Access, "show ignores invalid selection quietly");
+      Register_Routine (T, Test_Prompt_Edits_Clear_Stale_Failure_Message'Access, "prompt edits clear stale failure message");
+      Register_Routine (T, Test_Hide_Resets_Query_Options_And_Ranges'Access, "hide resets query options ranges");
       Register_Routine (T, Test_Command_Metadata'Access, "command metadata");
       Register_Routine (T, Test_Find_Case_Command_Metadata'Access, "find case command metadata");
       Register_Routine (T, Test_Find_Case_Availability_Is_Side_Effect_Free'Access, "find case availability side-effect freedom");
@@ -3337,23 +3339,23 @@ package body Editor.Active_Find.Tests is
       Register_Routine (T, Test_Find_Whole_Word_Boundaries_Recompute_And_Render'Access, "find whole-word boundaries recompute and render");
       Register_Routine (T, Test_Find_Whole_Word_Case_Composition_And_Clear'Access, "find whole-word case composition and clear");
       Register_Routine (T, Test_Find_Whole_Word_Preserved_By_Query_Context_Edit_And_Lifecycle'Access, "find whole-word preserved by query context edit and lifecycle");
-      Register_Routine (T, Test_Phase361_First_Last_And_Status'Access, "phase 361 first last and status feedback");
-      Register_Routine (T, Test_Phase361_Reveal_Current_Selects_Without_Moving_Or_History'Access, "phase 361 reveal-current selection without movement or history");
-      Register_Routine (T, Test_Phase361_Reveal_Current_Containing_And_Stale_Recompute'Access, "phase 361 reveal-current containing and stale recompute");
-      Register_Routine (T, Test_Phase361_No_Query_No_Matches_And_Availability_Are_Read_Only'Access, "phase 361 failures and availability read-only");
-      Register_Routine (T, Test_Phase361_Options_Input_Routes_And_Lifecycle_Status'Access, "phase 361 options input routes lifecycle and persistence status");
-      Register_Routine (T, Test_Phase360_Default_Options_And_Exact_Composition_Ranges'Access, "phase 360 default options and exact composition ranges");
-      Register_Routine (T, Test_Phase360_Query_Clear_Preserves_Current_Option_Policy'Access, "phase 360 query clear preserves option policy");
-      Register_Routine (T, Test_Phase360_Context_Find_Preserves_Options_And_Failures'Access, "phase 360 context find preserves options and failures");
-      Register_Routine (T, Test_Phase360_Option_Change_After_Context_Query_Then_Navigate'Access, "phase 360 option change after context query then navigate");
-      Register_Routine (T, Test_Phase360_Buffer_Edit_And_Buffer_Switch_Use_Current_Options'Access, "phase 360 buffer edit and switch use current options");
-      Register_Routine (T, Test_Phase360_Input_Routes_Option_Commands_Through_Executor'Access, "phase 360 input routes option commands through Executor");
-      Register_Routine (T, Test_Phase360_Option_Commands_Preserve_Stale_Query_Without_Buffer'Access, "phase 360 option commands preserve stale query without buffer");
-      Register_Routine (T, Test_Phase360_Option_Commands_Do_Not_Record_History_Or_Move_Caret'Access, "phase 360 option commands no history or caret movement");
-      Register_Routine (T, Test_Phase360_Dirty_Buffer_Options_Use_Unsaved_Text'Access, "phase 360 dirty buffer options use unsaved text");
-      Register_Routine (T, Test_Phase360_Hide_Show_Resets_All_Find_Option_State'Access, "phase 360 hide/show resets option state");
-      Register_Routine (T, Test_Phase360_Stale_Snapshot_Preserves_Option_Feedback_Read_Only'Access, "phase 360 stale snapshot option feedback read-only");
-      Register_Routine (T, Test_Phase360_Workspace_Snapshot_Excludes_Option_Tokens'Access, "phase 360 workspace snapshot excludes option tokens");
+      Register_Routine (T, Test_First_Last_And_Status'Access, "first last and status feedback");
+      Register_Routine (T, Test_Reveal_Current_Selects_Without_Moving_Or_History'Access, "reveal-current selection without movement or history");
+      Register_Routine (T, Test_Reveal_Current_Containing_And_Stale_Recompute'Access, "reveal-current containing and stale recompute");
+      Register_Routine (T, Test_No_Query_No_Matches_And_Availability_Are_Read_Only'Access, "failures and availability read-only");
+      Register_Routine (T, Test_Options_Input_Routes_And_Lifecycle_Status'Access, "options input routes lifecycle and persistence status");
+      Register_Routine (T, Test_Default_Options_And_Exact_Composition_Ranges'Access, "default options and exact composition ranges");
+      Register_Routine (T, Test_Query_Clear_Preserves_Current_Option_Policy'Access, "query clear preserves option policy");
+      Register_Routine (T, Test_Context_Find_Preserves_Options_And_Failures'Access, "context find preserves options and failures");
+      Register_Routine (T, Test_Option_Change_After_Context_Query_Then_Navigate'Access, "option change after context query then navigate");
+      Register_Routine (T, Test_Buffer_Edit_And_Buffer_Switch_Use_Current_Options'Access, "buffer edit and switch use current options");
+      Register_Routine (T, Test_Input_Routes_Option_Commands_Through_Executor'Access, "input routes option commands through Executor");
+      Register_Routine (T, Test_Option_Commands_Preserve_Stale_Query_Without_Buffer'Access, "option commands preserve stale query without buffer");
+      Register_Routine (T, Test_Option_Commands_Do_Not_Record_History_Or_Move_Caret'Access, "option commands no history or caret movement");
+      Register_Routine (T, Test_Dirty_Buffer_Options_Use_Unsaved_Text'Access, "dirty buffer options use unsaved text");
+      Register_Routine (T, Test_Hide_Show_Resets_All_Find_Option_State'Access, "hide/show resets option state");
+      Register_Routine (T, Test_Stale_Snapshot_Preserves_Option_Feedback_Read_Only'Access, "stale snapshot option feedback read-only");
+      Register_Routine (T, Test_Workspace_Snapshot_Excludes_Option_Tokens'Access, "workspace snapshot excludes option tokens");
       Register_Routine (T, Test_Context_Command_Metadata'Access, "context command metadata");
       Register_Routine (T, Test_Find_Context_Input_Bridge_Dispatch'Access, "find context Input_Bridge dispatch");
       Register_Routine (T, Test_Find_Context_Availability_Is_Side_Effect_Free'Access, "find context availability side-effect freedom");

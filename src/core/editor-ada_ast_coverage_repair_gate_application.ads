@@ -9,9 +9,9 @@ with Editor.Ada_Widened_Legality_Coverage_Gate_Enforcement;
 
 package Editor.Ada_AST_Coverage_Repair_Gate_Application is
 
-   --  Pass1148 coverage-repair gate application.
+   --  Case 1148 coverage-repair gate application.
    --
-   --  Pass1147 records concrete parser/AST/metadata/consumer repairs.  This
+   --  Case 1147 records concrete parser/AST/metadata/consumer repairs.  This
    --  package applies those repair facts to widened legality coverage-gate
    --  enforcement rows so repaired constructs can regain confident semantic
    --  conclusions while still preserving unrepaired, partial, cross-unit, and

@@ -10,10 +10,10 @@ limited with Editor.State;
 package Editor.External_Producers is
 
 
-   --  Phase 192 normalized public-build guardrail contract.  This version is
+   --  normalized public-build guardrail contract.  This version is
    --  audit/test metadata only: it is not persisted and never enables or
    --  bypasses command validation.
-   Public_Build_Guardrail_Contract_Version : constant String := "phase-192";
+   Public_Build_Guardrail_Contract_Version : constant String := "";
 
    --  External-producer and build-diagnostic integration.  The package models
    --  deterministic producer identities, converts already-structured diagnostic
@@ -58,6 +58,10 @@ package Editor.External_Producers is
       Edit_End_Column   : Natural := 0;
       Replacement_Text  : Ada.Strings.Unbounded.Unbounded_String :=
         Ada.Strings.Unbounded.Null_Unbounded_String;
+      Quick_Fix_Label   : Ada.Strings.Unbounded.Unbounded_String :=
+        Ada.Strings.Unbounded.Null_Unbounded_String;
+      Quick_Fix_Detail  : Ada.Strings.Unbounded.Unbounded_String :=
+        Ada.Strings.Unbounded.Null_Unbounded_String;
    end record;
 
    package External_Diagnostic_Record_Vectors is new Ada.Containers.Vectors
@@ -68,7 +72,7 @@ package Editor.External_Producers is
      External_Diagnostic_Record_Vectors.Vector;
 
 
-   --  Phase 161 structured compiler/build diagnostic normalization scaffold.
+   --  structured compiler/build diagnostic normalization scaffold.
    --  These records are already structured test-fed inputs.  They are not raw
    --  compiler output, build logs, LSP diagnostics, file-watcher events, or
    --  async deliveries.
@@ -102,7 +106,7 @@ package Editor.External_Producers is
 
 
 
-   --  Phase 556 deterministic raw compiler/build diagnostic line parser.
+   --  deterministic raw compiler/build diagnostic line parser.
    --  The parser is line-oriented, side-effect-free, non-streaming, bounded,
    --  and produces structured compiler diagnostic records for the normalization
    --  layer below.  It recognizes common GNAT/GPRbuild file:line[:column]
@@ -208,7 +212,7 @@ package Editor.External_Producers is
    end record;
 
 
-   --  Phase 168 structured argument vector shared by build requests and
+   --  structured argument vector shared by build requests and
    --  process requests. Arguments are always caller-supplied tokens; they are
    --  never shell-split from opaque strings.
    package Process_Argument_Vectors is new Ada.Containers.Vectors
@@ -229,7 +233,7 @@ package Editor.External_Producers is
       Build_Request_From_Fixture,
       Build_Request_From_Internal_Command,
       Build_Request_From_User_Opt_In,
-      Build_Request_From_Project_Metadata,
+      Build_Request_From_Implicit_Source,
       Build_Request_Unknown);
 
    type Build_Run_Request is record
@@ -245,8 +249,8 @@ package Editor.External_Producers is
         Process_Argument_Vectors.Empty_Vector;
    end record;
 
-   --  Phase 177 explicit user-supplied build command shape. This is only a
-   --  request model: it is not project metadata, not fixture identity, not
+   --  explicit user-supplied build command shape. This is only a
+   --  request model: it is not implicit source input, not fixture identity, not
    --  persisted state, and not an opaque shell command.
    type User_Build_Command_Request is record
       Tool          : Build_Tool_Kind := No_Build_Tool;
@@ -265,10 +269,10 @@ package Editor.External_Producers is
       Build_Request_Rejected_Empty_Command,
       Build_Request_Rejected_Unknown_Provenance,
       Build_Request_Rejected_Provenance,
-      Build_Request_Rejected_Project_Metadata,
+      Build_Request_Rejected_Implicit_Source,
       Build_Request_Rejected_Consent);
 
-   --  Phase 168/579 process-runner seam. This is deliberately lower-level
+   --  /579 process-runner seam. This is deliberately lower-level
    --  than build-tool semantics and represents a completed process-like
    --  result produced by the guarded real or supplied-result runner paths.
    --  Production build.run may obtain that result from a background worker
@@ -303,7 +307,7 @@ package Editor.External_Producers is
         Ada.Strings.Unbounded.Null_Unbounded_String;
       Working_Label : Ada.Strings.Unbounded.Unbounded_String :=
         Ada.Strings.Unbounded.Null_Unbounded_String;
-      --  Opaque Phase 168 display/test metadata only. Phase 170 real execution
+      --  Opaque display/test metadata only. real execution
       --  rejects non-empty opaque arguments rather than shell-splitting them.
       Arguments     : Ada.Strings.Unbounded.Unbounded_String :=
         Ada.Strings.Unbounded.Null_Unbounded_String;
@@ -349,7 +353,7 @@ package Editor.External_Producers is
       Build_Consent_User_Confirmed);
 
 
-   --  Phase 183 minimal public-build working-context model. This is
+   --  minimal public-build working-context model. This is
    --  metadata only: it never canonicalizes directories, discovers project
    --  roots, reads files, or mutates the process working directory.
    type Build_Working_Context_Kind is
@@ -363,11 +367,11 @@ package Editor.External_Producers is
         Ada.Strings.Unbounded.Null_Unbounded_String;
    end record;
 
-   --  Phase 183 structured public-build input DTO. This is not a command
+   --  structured public-build input DTO. This is not a command
    --  descriptor, not persisted state, not shell text, and not an execution
    --  request until a pure validation/conversion helper accepts it.
 
-   --  Phase 185 public-build consent UX model. This is structured
+   --  public-build consent UX model. This is structured
    --  validation metadata only: it is not a modal prompt, command
    --  descriptor, persisted state, palette signal, or execution request.
    type Public_Build_Consent_Source is
@@ -392,7 +396,7 @@ package Editor.External_Producers is
       Public_Build_Consent_Rejected_Missing_External_Process_Acknowledgement,
       Public_Build_Consent_Rejected_Missing_Diagnostics_Acknowledgement);
 
-   --  Phase 186 public-build working-context UX scaffold. This is inert
+   --  public-build working-context UX scaffold. This is inert
    --  future-UX metadata only. It is not a directory picker, filesystem path
    --  validator, command descriptor, persisted preference, project-root
    --  discovery mechanism, or execution request.
@@ -470,7 +474,7 @@ package Editor.External_Producers is
       Public_Build_Input_Valid_But_Not_Publicly_Exposable,
       Public_Build_Input_Publicly_Exposable);
 
-   --  Phase 187 public build command-surface surface entrys are design-only
+   --  public build command-surface surface entrys are design-only
    --  metadata.  They are not command descriptors, registry entries,
    --  keybinding targets, palette rows, Executor routes, persisted state, or
    --  Public build command-surface metadata.  These entries describe actual
@@ -500,16 +504,17 @@ package Editor.External_Producers is
       Public_Build_Command_Surface_Rejected_Missing_Working_Context_Model,
       Public_Build_Command_Surface_Rejected_Missing_Executor_Route);
 
-   --  Phase 189 promotion gate. This is a pure readiness classifier for a
-   --  future deliberate promotion step; Phase 189 must never reach
-   --  Public_Build_Promotion_Command_Surface_Ready.
+   --  promotion gate. This is a pure readiness classifier for the guarded
+   --  public build surface; it may report ready only after the explicit
+   --  request policy, consent UX, working-context UX, command exposure,
+   --  executor route, and keybinding guardrails all pass.
    type Public_Build_Command_Promotion_Status is
      (Public_Build_Promotion_Blocked,
       Public_Build_Promotion_Unsafe_Exposure_Detected,
       Public_Build_Promotion_Input_Model_Incomplete,
       Public_Build_Promotion_Consent_UX_Incomplete,
       Public_Build_Promotion_Working_Context_UX_Incomplete,
-      Public_Build_Promotion_Project_Metadata_Unsupported,
+      Public_Build_Promotion_Implicit_Source_Unsupported,
       Public_Build_Promotion_Execution_Policy_Incomplete,
       Public_Build_Promotion_Public_Executor_Route_Missing,
       Public_Build_Promotion_Command_Surface_Ready);
@@ -521,7 +526,7 @@ package Editor.External_Producers is
       Public_Build_Dependency_Consent_UX,
       Public_Build_Dependency_Working_Context_Model,
       Public_Build_Dependency_Working_Context_UX,
-      Public_Build_Dependency_Project_Metadata_Policy,
+      Public_Build_Dependency_Implicit_Source_Policy,
       Public_Build_Dependency_Execution_Policy,
       Public_Build_Dependency_Executor_Route,
       Public_Build_Dependency_Diagnostics_Pipeline,
@@ -552,8 +557,8 @@ package Editor.External_Producers is
       Has_Real_Consent_UX : Boolean := False;
       Has_Working_Context_Model : Boolean := False;
       Has_Safe_Working_Context_UX : Boolean := False;
-      Has_Project_Metadata_Validation : Boolean := False;
-      Explicitly_Rejects_Project_Metadata : Boolean := False;
+      Has_Implicit_Source_Validation : Boolean := False;
+      Explicitly_Rejects_Implicit_Source : Boolean := False;
       Requires_Executor_Routed_Mutation : Boolean := False;
       Requires_One_Primary_Result : Boolean := False;
       Requires_Diagnostics_Pipeline : Boolean := False;
@@ -569,7 +574,7 @@ package Editor.External_Producers is
       Echo_Diagnostic_Fixture,
       Exit_Code_Fixture);
 
-   --  Phase 175: approved real build-tool invocation fixtures. This identity is
+   --  approved real build-tool invocation fixtures. This identity is
    --  explicit and is never inferred from command labels, program labels, argv,
    --  PATH, project files, or workspace metadata.
    type Real_Build_Tool_Fixture_Kind is
@@ -593,7 +598,7 @@ package Editor.External_Producers is
       Real_Build_Fixture_Rejected_Disabled,
       Real_Build_Fixture_Rejected_Unknown_Fixture,
       Real_Build_Fixture_Rejected_Provenance,
-      Real_Build_Fixture_Rejected_Project_Metadata,
+      Real_Build_Fixture_Rejected_Implicit_Source,
       Real_Build_Fixture_Rejected_Custom_Tool,
       Real_Build_Fixture_Rejected_Shell,
       Real_Build_Fixture_Rejected_Opaque_Arguments,
@@ -690,7 +695,7 @@ package Editor.External_Producers is
       Gate        : Build_Execution_Gate;
    end record;
 
-   --  Phase 180 command-context validation is a pure metadata classifier.
+   --  command-context validation is a pure metadata classifier.
    --  It never executes, probes PATH, reads project files, ingests Diagnostics,
    --  switches features, or persists command state.
    type User_Opt_In_Build_Command_Context_Status is
@@ -700,14 +705,14 @@ package Editor.External_Producers is
       User_Build_Context_Rejected_Missing_Gate,
       User_Build_Context_Rejected_Missing_Consent,
       User_Build_Context_Rejected_Provenance,
-      User_Build_Context_Rejected_Project_Metadata,
+      User_Build_Context_Rejected_Implicit_Source,
       User_Build_Context_Rejected_Custom_Tool,
       User_Build_Context_Rejected_Opaque_Arguments,
       User_Build_Context_Rejected_Shell,
       User_Build_Context_Rejected_Working_Context,
       User_Build_Context_Rejected_Ambiguous_Execution_Path);
 
-   --  Phase 181 post-command-surface-freeze audit result. The audit is a
+   --  post-command-surface-freeze audit result. The audit is a
    --  read-only metadata summary: it never executes commands, performs real
    --  preflight, inspects files/PATH, ingests diagnostics, mutates descriptors,
    --  or retains command state.
@@ -718,7 +723,7 @@ package Editor.External_Producers is
       Internal_Command_Requires_Provenance  : Boolean := False;
       Internal_Command_Requires_Gate        : Boolean := False;
       Internal_Command_Requires_Consent     : Boolean := False;
-      Rejects_Project_Metadata              : Boolean := False;
+      Rejects_Implicit_Source              : Boolean := False;
       Rejects_Custom_Tool                   : Boolean := False;
       Rejects_Shell                         : Boolean := False;
       Rejects_Opaque_Arguments              : Boolean := False;
@@ -726,12 +731,12 @@ package Editor.External_Producers is
       Passed                                : Boolean := False;
    end record;
 
-   --  Phase 183 pre-public build-command UX readiness audit. This is a
+   --  pre-public build-command UX readiness audit. This is a
    --  side-effect-free metadata and validation summary. It deliberately reports
-   --  not-ready even though a structured input DTO and working-context model
-   --  now exist, because public consent UX, safe real working-directory
-   --  validation, project metadata validation, and command registration remain
-   --  absent.
+   --  ready only when a structured input DTO, consent UX, safe real
+   --  working-directory validation, explicit-source policy, and guarded command
+   --  registration are all present. The audit remains side-effect-free and does
+   --  not execute or persist anything.
    type Public_Build_Command_Readiness_Audit_Result is record
       Public_Command_Surface_Exists     : Boolean := False;
       Public_Executable_Command_Exists      : Boolean := False;
@@ -749,12 +754,12 @@ package Editor.External_Producers is
         Public_Build_Dependency_Consent_UX;
       Consent_UX_Blocker_Active             : Boolean := False;
       Working_Context_UX_Blocker_Active     : Boolean := False;
-      Project_Metadata_Blocker_Active       : Boolean := False;
+      Implicit_Source_Blocker_Active       : Boolean := False;
       Public_Executor_Route_Blocker_Active  : Boolean := False;
       Public_Command_Exposure_Hard_Failure  : Boolean := False;
       Promotion_Blocked_By_Consent_UX       : Boolean := False;
       Promotion_Blocked_By_Working_Context  : Boolean := False;
-      Promotion_Blocked_By_Project_Metadata : Boolean := False;
+      Promotion_Blocked_By_Implicit_Source : Boolean := False;
       Promotion_Blocked_By_Command_Exposure : Boolean := False;
       Has_User_Command_Input_Model          : Boolean := False;
       Has_Structured_Argv_Input_Model       : Boolean := False;
@@ -781,8 +786,8 @@ package Editor.External_Producers is
       Public_Input_Does_Not_Create_Command_Descriptors : Boolean := False;
       Public_Input_Does_Not_Enable_Public_Execution : Boolean := False;
       Has_Consent_UX_Model                  : Boolean := False;
-      Has_Project_Metadata_Validation       : Boolean := False;
-      Keeps_Project_Metadata_Rejected       : Boolean := False;
+      Has_Implicit_Source_Validation       : Boolean := False;
+      Keeps_Implicit_Source_Rejected       : Boolean := False;
       Keeps_Shell_Rejected                  : Boolean := False;
       Keeps_Opaque_Arguments_Rejected       : Boolean := False;
       Routes_Through_Executor               : Boolean := False;
@@ -792,13 +797,13 @@ package Editor.External_Producers is
 
 
 
-   --  Phase 190 consolidated hard-freeze blocker summary. This is pure
+   --  consolidated hard-freeze blocker summary. This is pure
    --  audit feedback state only; it is never persisted or promoted into a
    --  command descriptor.
    type Public_Build_Blocker_Summary is record
       Consent_UX_Missing             : Boolean := False;
       Working_Context_UX_Missing     : Boolean := False;
-      Project_Metadata_Unsupported   : Boolean := False;
+      Implicit_Source_Unsupported   : Boolean := False;
       Public_Route_Missing           : Boolean := False;
       Public_Command_Not_Registered  : Boolean := False;
       Default_Execution_Disabled     : Boolean := False;
@@ -806,7 +811,7 @@ package Editor.External_Producers is
         Public_Build_Dependency_Consent_UX;
    end record;
 
-   --  Phase 190 top-level public-build hard-freeze audit. All fields are
+   --  top-level public-build hard-freeze audit. All fields are
    --  computed from existing pure audit seams and registry snapshots.
    type Public_Build_Command_Hard_Freeze_Audit_Result is record
       Readiness_Audit_Passed_As_Not_Ready : Boolean := False;
@@ -823,13 +828,13 @@ package Editor.External_Producers is
       No_Default_Execution                : Boolean := False;
       Shell_Rejected                      : Boolean := False;
       Opaque_Arguments_Rejected           : Boolean := False;
-      Project_Metadata_Rejected           : Boolean := False;
+      Implicit_Source_Rejected           : Boolean := False;
       Public_Exposure_Hard_Failure        : Boolean := False;
       Passed                              : Boolean := False;
    end record;
 
 
-   --  Phase 191 post-hard-freeze baseline. This is audit/test data only: it
+   --  post-hard-freeze baseline. This is audit/test data only: it
    --  is never persisted, never registered as command metadata, and never used
    --  to mutate descriptors, keybindings, palette rows, or routes.
    type Public_Build_Hard_Freeze_Baseline is record
@@ -843,7 +848,7 @@ package Editor.External_Producers is
       Default_Execution_Disabled        : Boolean := True;
       Consent_UX_Missing                : Boolean := True;
       Working_Context_UX_Missing        : Boolean := True;
-      Project_Metadata_Unsupported      : Boolean := True;
+      Implicit_Source_Unsupported      : Boolean := True;
       Public_Route_Missing              : Boolean := True;
    end record;
 
@@ -907,7 +912,7 @@ package Editor.External_Producers is
    end record;
 
 
-   --  Phase 194 diagnostic-only guardrail failure details.  These records are
+   --  diagnostic-only guardrail failure details.  These records are
    --  audit/test feedback only: they are never persisted and never expose raw
    --  argv, command lines, paths, environments, run ids, or projection
    --  generations.
@@ -991,7 +996,7 @@ package Editor.External_Producers is
       Healthy           : Boolean := False;
    end record;
 
-   --  Phase 197 diagnostic-only regression manifest.  This anchors the
+   --  diagnostic-only regression manifest.  This anchors the
    --  long-horizon public-build no-surface contract without creating any
    --  command, keybinding, runner, persistence, project-file, or diagnostics
    --  side effect.

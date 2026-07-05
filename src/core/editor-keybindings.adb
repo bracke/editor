@@ -265,7 +265,7 @@ package body Editor.Keybindings is
    begin
       for I in Bindings'Range loop
          if Bindings (I).Used and then Same_Chord (Bindings (I).Chord, Chord) then
-            --  Phase 404 hardening: low-level test/support Bind may still
+            --  hardening: low-level test/support Bind may still
             --  place non-bindable command ids in the table. Runtime resolution
             --  must not expose them to Input_Bridge as named user keybindings;
             --  validation reports invalid targets separately.
@@ -743,7 +743,7 @@ package body Editor.Keybindings is
       Bind (Chord (Key_X, Ctrl => True), Editor.Commands.Command_Cut);
       Bind (Chord (Key_V, Ctrl => True), Editor.Commands.Command_Paste);
 
-      --  Phase 62 bookmark workflow bindings.  Function keys are represented
+      --  bookmark workflow bindings.  Function keys are represented
       --  explicitly so the runtime, bridge, resolver, and tests share the same
       --  command path.
       Bind (Chord (Key_F2), Editor.Commands.Command_Next_Bookmark);
@@ -751,7 +751,7 @@ package body Editor.Keybindings is
       Bind (Chord (Key_F2, Ctrl => True), Editor.Commands.Command_Toggle_Bookmark);
       Bind (Chord (Key_F2, Ctrl => True, Shift => True), Editor.Commands.Command_Clear_Bookmarks);
 
-      --  Phase 70 search navigation bindings.
+      --  search navigation bindings.
       Bind (Chord (Key_F3), Editor.Commands.Command_Active_Find_Next);
       Bind (Chord (Key_F3, Shift => True), Editor.Commands.Command_Active_Find_Previous);
 
@@ -780,7 +780,7 @@ package body Editor.Keybindings is
       Bind (Chord (Key_Page_Down), Editor.Commands.Command_Page_Down);
       Bind (Chord (Key_Page_Up, Shift => True), Editor.Commands.Command_Select_Page_Up);
       Bind (Chord (Key_Page_Down, Shift => True), Editor.Commands.Command_Select_Page_Down);
-      --  Phase 408: the editor Backspace/Delete defaults target the canonical
+      --  the editor Backspace/Delete defaults target the canonical
       --  Character Delete command surface.  Overlay-local Backspace/Delete
       --  handling remains local to those overlays, but editor text deletion now
       --  enters through Executor as edit.char.delete-previous/next.

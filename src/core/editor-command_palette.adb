@@ -22,6 +22,10 @@ package body Editor.Command_Palette is
    Destructive_Filter_State : Boolean := False;
    Keybinding_Filter_State : Command_Palette_Keybinding_Filter :=
      Palette_All_Keybinding_States;
+   type Command_State_Context_Array is
+     array (Editor.Commands.Command_Id) of Unbounded_String;
+   Command_State_Contexts : Command_State_Context_Array :=
+     (others => Null_Unbounded_String);
 
    procedure Sync_Query is
    begin
@@ -38,7 +42,7 @@ package body Editor.Command_Palette is
    procedure Set_Current_Config (Config : Command_Palette_Config) is
    begin
       Config_State := Config;
-      --  Phase 564: Set_Current_Config is used by settings/application code
+      --  Set_Current_Config is used by settings/application code
       --  for persisted display preferences. Selected-command help/details is
       --  transient command-palette state, so it must not be imported through
       --  this broader configuration record. Use Set_Show_Help_Row or the
@@ -553,7 +557,7 @@ package body Editor.Command_Palette is
          return Empty_Related_Command_Help_Item;
       end if;
 
-      --  Phase 570: related-command help uses the same safe pattern as
+      --  related-command help uses the same safe pattern as
       --  guided empty-state actions: descriptor projection only, stable
       --  command name only, and no target/result/chord/recovery payload.
       return
@@ -599,17 +603,63 @@ package body Editor.Command_Palette is
          when Editor.Commands.Command_Open_Project =>
             Add_Related_Command (Help, Editor.Commands.Command_Show_Recent_Projects);
             Add_Related_Command (Help, Editor.Commands.Command_Restore_Workspace_State);
+         when Editor.Commands.Command_Restore_Workspace_State =>
+            Add_Related_Command (Help, Editor.Commands.Command_Save_Workspace_State);
+            Add_Related_Command (Help, Editor.Commands.Command_Clear_Workspace_State);
          when Editor.Commands.Command_Build_Run =>
             Add_Related_Command (Help, Editor.Commands.Command_Build_UI_Focus);
             Add_Related_Command (Help, Editor.Commands.Command_Build_Acknowledge_Consent);
             Add_Related_Command (Help, Editor.Commands.Command_Build_UI_Show);
+         when Editor.Commands.Command_Build_UI_Show |
+              Editor.Commands.Command_Build_UI_Focus =>
+            Add_Related_Command (Help, Editor.Commands.Command_Build_Refresh_Candidates);
+            Add_Related_Command (Help, Editor.Commands.Command_Build_Acknowledge_Consent);
+            Add_Related_Command (Help, Editor.Commands.Command_Build_Run);
+         when Editor.Commands.Command_Problems_Filter_All |
+              Editor.Commands.Command_Problems_Filter_Errors |
+              Editor.Commands.Command_Problems_Filter_Warnings |
+              Editor.Commands.Command_Problems_Filter_Info |
+              Editor.Commands.Command_Problems_Filter_Hints =>
+            Add_Related_Command (Help, Editor.Commands.Command_Problems_Sort_By_Severity);
+            Add_Related_Command (Help, Editor.Commands.Command_Problems_Group_By_Source);
+            Add_Related_Command (Help, Editor.Commands.Command_Problems_Open_Selected);
+         when Editor.Commands.Command_Problems_Sort_By_Location |
+              Editor.Commands.Command_Problems_Sort_By_Severity |
+              Editor.Commands.Command_Problems_Sort_By_Source |
+              Editor.Commands.Command_Problems_Group_By_Severity |
+              Editor.Commands.Command_Problems_Group_By_Source =>
+            Add_Related_Command (Help, Editor.Commands.Command_Problems_Filter_All);
+            Add_Related_Command (Help, Editor.Commands.Command_Problems_Filter_Errors);
+            Add_Related_Command (Help, Editor.Commands.Command_Problems_Open_Selected);
          when Editor.Commands.Command_Refresh_Outline =>
+            Add_Related_Command (Help, Editor.Commands.Command_Open_Selected_Outline_Item);
             Add_Related_Command (Help, Editor.Commands.Command_Reveal_Current_Outline_Symbol);
             Add_Related_Command (Help, Editor.Commands.Command_Clear_Outline_Filter);
-         when Editor.Commands.Command_Diagnostics_Open_Selected =>
+         when Editor.Commands.Command_Diagnostics_Show =>
+            Add_Related_Command (Help, Editor.Commands.Command_Diagnostics_Open_Selected);
+            Add_Related_Command (Help, Editor.Commands.Command_Diagnostic_Open_Source);
+            Add_Related_Command (Help, Editor.Commands.Command_Diagnostic_Show_Suppressed);
+            Add_Related_Command (Help, Editor.Commands.Command_Problems_Filter_Errors);
+         when Editor.Commands.Command_Diagnostics_Open_Selected |
+              Editor.Commands.Command_Diagnostic_Open_Source |
+              Editor.Commands.Command_Diagnostic_Apply_Quick_Fix |
+              Editor.Commands.Command_Diagnostic_Suppress_Selected |
+              Editor.Commands.Command_Diagnostic_Show_Suppressed |
+              Editor.Commands.Command_Diagnostic_Restore_Last_Suppressed |
+              Editor.Commands.Command_Diagnostic_Restore_Selected_Suppressed |
+              Editor.Commands.Command_Diagnostic_Clear_Suppressed =>
             Add_Related_Command (Help, Editor.Commands.Command_Next_Diagnostic);
             Add_Related_Command (Help, Editor.Commands.Command_Previous_Diagnostic);
-            Add_Related_Command (Help, Editor.Commands.Command_Diagnostics_Clear);
+            Add_Related_Command (Help, Editor.Commands.Command_Diagnostic_Apply_Quick_Fix);
+            Add_Related_Command (Help, Editor.Commands.Command_Diagnostic_Suppress_Selected);
+            Add_Related_Command (Help, Editor.Commands.Command_Diagnostic_Show_Suppressed);
+            Add_Related_Command (Help, Editor.Commands.Command_Diagnostic_Restore_Last_Suppressed);
+            Add_Related_Command (Help, Editor.Commands.Command_Diagnostic_Restore_Selected_Suppressed);
+            Add_Related_Command (Help, Editor.Commands.Command_Diagnostic_Clear_Suppressed);
+         when Editor.Commands.Command_Refresh_File_Tree =>
+            Add_Related_Command (Help, Editor.Commands.Command_Open_Quick_Open);
+            Add_Related_Command (Help, Editor.Commands.Command_File_Tree_Open_Selected);
+            Add_Related_Command (Help, Editor.Commands.Command_Open_Project);
          when Editor.Commands.Command_Keybindings_Assign_Selected =>
             Add_Related_Command (Help, Editor.Commands.Command_Keybindings_Remove_Selected);
             Add_Related_Command (Help, Editor.Commands.Command_Keybindings_Reset_To_Defaults);
@@ -671,7 +721,7 @@ package body Editor.Command_Palette is
         and then Canonical.Carries_Payload = Item.Carries_Payload;
    end Related_Command_Is_Canonical_Descriptor_Projection;
 
-   function Assert_Related_Command_Help_Is_Phase570_Coherent
+   function Assert_Related_Command_Help_Is_Coherent
      (Help : Command_Help_Snapshot) return Boolean
    is
    begin
@@ -703,7 +753,7 @@ package body Editor.Command_Palette is
       end loop;
 
       return True;
-   end Assert_Related_Command_Help_Is_Phase570_Coherent;
+   end Assert_Related_Command_Help_Is_Coherent;
 
    function Build_Command_Help
      (Candidate : Editor.Commands.Command_Palette_Candidate)
@@ -765,11 +815,27 @@ package body Editor.Command_Palette is
          else To_Unbounded_String ("Command not available here"));
       Result.Surface_Relevance_Label := To_Unbounded_String
         (Editor.Commands.Surface_Relevance_Label (Candidate.Id));
+      Result.State_Context_Label := Command_State_Contexts (Candidate.Id);
       Result.Guard_Label := To_Unbounded_String
         (Editor.Commands.Guard_Label (Candidate.Id));
       Add_Related_Commands_For (Result, Candidate.Id);
       return Result;
    end Build_Command_Help;
+
+   procedure Clear_Command_State_Contexts is
+   begin
+      Command_State_Contexts := (others => Null_Unbounded_String);
+   end Clear_Command_State_Contexts;
+
+   procedure Set_Command_State_Context
+     (Command : Editor.Commands.Command_Id;
+      Text    : String)
+   is
+   begin
+      if Command /= Editor.Commands.No_Command then
+         Command_State_Contexts (Command) := To_Unbounded_String (Text);
+      end if;
+   end Set_Command_State_Context;
 
    function Descriptor_Registry_Order
      (Id : Editor.Commands.Command_Id) return Natural
@@ -832,7 +898,7 @@ package body Editor.Command_Palette is
    end Sort_Candidates;
 
 
-   function Phase578_Common_User_Term_Score
+   function Common_User_Term_Score
      (Stable_Name    : String;
       Category_Label : String;
       Query          : String) return Natural
@@ -849,36 +915,231 @@ package body Editor.Command_Palette is
    begin
       if Q'Length = 0 then
          return 0;
+      elsif Q = "run tests" or else Q = "run test"
+        or else Q = "test project" or else Q = "project tests"
+      then
+         if Stable = "project.test" then
+            return 900;
+         elsif Stable = "build.run" then
+            return 520;
+         elsif Ada.Strings.Fixed.Index (Stable, "test") /= 0 then
+            return 260;
+         end if;
+      elsif Q = "compile" or else Q = "make" or else Q = "run build" then
+         if Stable = "build.run" then
+            return 900;
+         elsif Starts_With (Stable, "build.") then
+            return 300;
+         end if;
+      elsif Q = "open file" or else Q = "find file"
+        or else Q = "quick open" or else Q = "go to file"
+      then
+         if Stable = "quick-open.show" then
+            return 900;
+         elsif Starts_With (Stable, "quick-open.")
+           or else Starts_With (Stable, "file-tree.")
+         then
+            return 260;
+         end if;
+      elsif Q = "show diagnostics" or else Q = "show problems"
+        or else Q = "open diagnostics" or else Q = "open problems"
+        or else Q = "issues" or else Q = "show issues"
+      then
+         if Stable = "diagnostics.show" then
+            return 900;
+         elsif Stable = "problems.focus" then
+            return 700;
+         elsif Starts_With (Stable, "diagnostics.")
+           or else Starts_With (Stable, "problems.")
+         then
+            return 260;
+         end if;
+      elsif Q = "filter errors" or else Q = "only errors" then
+         if Stable = "problems.filter.errors" then
+            return 900;
+         elsif Starts_With (Stable, "problems.") then
+            return 300;
+         end if;
+      elsif Q = "sort problems" or else Q = "sort diagnostics" then
+         if Stable = "problems.sort.severity" then
+            return 900;
+         elsif Starts_With (Stable, "problems.sort.") then
+            return 300;
+         end if;
+      elsif Q = "group problems" or else Q = "group diagnostics" then
+         if Stable = "problems.group.source" then
+            return 900;
+         elsif Starts_With (Stable, "problems.group.") then
+            return 300;
+         end if;
+      elsif Q = "refresh project" or else Q = "reload project"
+        or else Q = "refresh files" or else Q = "refresh file tree"
+      then
+         if Stable = "file-tree.refresh" then
+            return 900;
+         elsif Starts_With (Stable, "file-tree.")
+         then
+            return 520;
+         elsif Ada.Strings.Fixed.Index (Stable, "refresh") /= 0 then
+            return 260;
+         end if;
+      elsif Q = "restore workspace" or else Q = "restore session"
+        or else Q = "open session" or else Q = "open workspace"
+        or else Q = "load workspace"
+      then
+         if Stable = "workspace.restore" then
+            return 900;
+         elsif Starts_With (Stable, "workspace.") then
+            return 260;
+         end if;
       elsif Q = "open" then
-         if Ada.Strings.Fixed.Index (Stable, "open") /= 0
+         if Stable = "project.open" then
+            return 700;
+         elsif Ada.Strings.Fixed.Index (Stable, "open") /= 0
            or else Starts_With (Stable, "quick-open.")
          then
             return 260;
          end if;
+      elsif Q = "command" or else Q = "palette" or else Q = "commands" then
+         if Stable = "command-palette.open"
+           or else Stable = "open-command-palette"
+           or else Starts_With (Stable, "command-palette.")
+         then
+            return 260;
+         end if;
       elsif Q = "save" then
-         if Ada.Strings.Fixed.Index (Stable, "save") /= 0 then
+         if Stable = "file.save" then
+            return 700;
+         elsif Ada.Strings.Fixed.Index (Stable, "save") /= 0 then
+            return 260;
+         end if;
+      elsif Q = "file" or else Q = "files" or else Q = "tree" then
+         if Stable = "quick-open.show" then
+            return 700;
+         elsif Starts_With (Stable, "file-tree.")
+           or else Starts_With (Stable, "quick-open.")
+           or else Cat = "file"
+         then
             return 260;
          end if;
       elsif Q = "build" then
-         if Starts_With (Stable, "build.") or else Cat = "build" then
+         if Stable = "build.run" then
+            return 700;
+         elsif Starts_With (Stable, "build.") or else Cat = "build" then
+            return 260;
+         end if;
+      elsif Q = "run" then
+         if Stable = "project.run" then
+            return 700;
+         elsif Stable = "build.run"
+           or else Stable = "terminal.run-selected-task"
+         then
+            return 520;
+         elsif Ada.Strings.Fixed.Index (Stable, "run") /= 0 then
+            return 260;
+         end if;
+      elsif Q = "test" or else Q = "tests" then
+         if Stable = "project.test" then
+            return 700;
+         elsif Ada.Strings.Fixed.Index (Stable, "test") /= 0 then
+            return 260;
+         end if;
+      elsif Q = "terminal" or else Q = "task" or else Q = "tasks" then
+         if Stable = "terminal.show" then
+            return 700;
+         elsif Stable = "terminal.run-selected-task" then
+            return 520;
+         elsif Starts_With (Stable, "terminal.") then
+            return 260;
+         end if;
+      elsif Q = "rename" or else Q = "refactor" then
+         if Stable = "semantic.rename-symbol-preview" then
+            return 700;
+         elsif Stable = "semantic.rename-symbol-apply"
+           or else Stable = "file.rename-buffer-file"
+           or else Stable = "file-tree.rename-selected"
+         then
+            return 520;
+         elsif Ada.Strings.Fixed.Index (Stable, "rename") /= 0 then
+            return 260;
+         end if;
+      elsif Q = "format" or else Q = "formatter" then
+         if Stable = "edit.format-buffer" then
+            return 700;
+         elsif Starts_With (Stable, "edit.format.")
+           or else Ada.Strings.Fixed.Index (Stable, "format") /= 0
+         then
             return 260;
          end if;
       elsif Q = "search" or else Q = "find" then
-         if Starts_With (Stable, "project-search.")
+         if Stable = "project.search.show" then
+            return 700;
+         elsif Stable = "project.search.run"
+           or else Stable = "project.search.query.clear"
+         then
+            return 520;
+         elsif Starts_With (Stable, "project-search.")
            or else Starts_With (Stable, "search-results.")
+           or else Starts_With (Stable, "project.search.")
            or else Cat = "search"
          then
             return 260;
          end if;
       elsif Q = "outline" or else Q = "symbol" or else Q = "symbols" then
-         if Starts_With (Stable, "outline.") or else Cat = "outline" then
+         if Stable = "outline.refresh" then
+            return 700;
+         elsif Starts_With (Stable, "outline.") or else Cat = "outline" then
             return 260;
          end if;
       elsif Q = "diagnostic" or else Q = "diagnostics"
         or else Q = "problem" or else Q = "problems"
       then
-         if Starts_With (Stable, "diagnostics.")
+         if Stable = "diagnostics.show" then
+            return 700;
+         elsif (Q = "problem" or else Q = "problems")
+           and then Starts_With (Stable, "problems.filter.")
+         then
+            return 520;
+         elsif Starts_With (Stable, "diagnostics.")
            or else Starts_With (Stable, "problems.")
+         then
+            return 260;
+         end if;
+      elsif Q = "error" or else Q = "errors" then
+         if Stable = "problems.filter.errors"
+           or else Stable = "diagnostics.filter-errors"
+         then
+            return 700;
+         elsif Starts_With (Stable, "problems.")
+           or else Starts_With (Stable, "diagnostics.")
+         then
+            return 260;
+         end if;
+      elsif Q = "warning" or else Q = "warnings" then
+         if Stable = "problems.filter.warnings"
+           or else Stable = "diagnostics.filter-warnings"
+         then
+            return 700;
+         elsif Starts_With (Stable, "problems.")
+           or else Starts_With (Stable, "diagnostics.")
+         then
+            return 260;
+         end if;
+      elsif Q = "info" or else Q = "information" or else Q = "notes" then
+         if Stable = "problems.filter.info"
+           or else Stable = "diagnostics.filter-info-notes"
+         then
+            return 700;
+         elsif Starts_With (Stable, "problems.")
+           or else Starts_With (Stable, "diagnostics.")
+         then
+            return 260;
+         end if;
+      elsif Q = "hint" or else Q = "hints" then
+         if Stable = "problems.filter.hints" then
+            return 700;
+         elsif Starts_With (Stable, "problems.")
+           or else Starts_With (Stable, "diagnostics.")
          then
             return 260;
          end if;
@@ -889,16 +1150,70 @@ package body Editor.Command_Palette is
          then
             return 260;
          end if;
+      elsif Q = "navigation" or else Q = "navigate"
+        or else Q = "back" or else Q = "forward"
+      then
+         if Stable = "navigation.back" then
+            return 700;
+         elsif Starts_With (Stable, "navigation.") or else Cat = "navigation" then
+            return 260;
+         end if;
+      elsif Q = "workspace" or else Q = "session" then
+         if Stable = "workspace.save"
+           or else Ada.Strings.Fixed.Index (Stable, "save-workspace-state") /= 0
+         then
+            return 700;
+         elsif Stable = "workspace.restore" then
+            return 520;
+         elsif Starts_With (Stable, "workspace.")
+           or else Ada.Strings.Fixed.Index (Stable, "workspace") /= 0
+         then
+            return 260;
+         end if;
+      elsif Q = "restore" then
+         if Stable = "workspace.restore" then
+            return 700;
+         elsif Stable = "configuration.recover-show"
+           or else Stable = "startup.show-summary"
+           or else Stable = "configuration.audit"
+         then
+            return 520;
+         elsif Ada.Strings.Fixed.Index (Stable, "restore") /= 0
+           or else Ada.Strings.Fixed.Index (Stable, "recover") /= 0
+         then
+            return 260;
+         end if;
+      elsif Q = "recovery" or else Q = "recover" then
+         if Stable = "configuration.recover-show" then
+            return 700;
+         elsif Stable = "workspace.restore"
+           or else Stable = "startup.show-summary"
+           or else Stable = "configuration.audit"
+         then
+            return 520;
+         elsif Ada.Strings.Fixed.Index (Stable, "recover") /= 0
+           or else Ada.Strings.Fixed.Index (Stable, "restore") /= 0
+         then
+            return 260;
+         end if;
       elsif Q = "setting" or else Q = "settings"
         or else Q = "preference" or else Q = "preferences"
       then
-         if Cat = "settings" or else Ada.Strings.Fixed.Index (Stable, "settings") /= 0 then
+         if Stable = "configuration.reset-settings"
+           or else Ada.Strings.Fixed.Index (Stable, "reset-settings") /= 0
+         then
+            return 700;
+         elsif Stable = "configuration.reset-keybindings"
+           or else Ada.Strings.Fixed.Index (Stable, "reset-keybindings") /= 0
+         then
+            return 520;
+         elsif Cat = "settings" or else Ada.Strings.Fixed.Index (Stable, "settings") /= 0 then
             return 260;
          end if;
       end if;
 
       return 0;
-   end Phase578_Common_User_Term_Score;
+   end Common_User_Term_Score;
 
    function Metadata_Match_Score
      (Label          : String;
@@ -918,14 +1233,14 @@ package body Editor.Command_Palette is
          then 0
          else Natural'Min
            (150, Match_Score (Keybinding, "", "", Query)));
-      Common_User_Term_Score : constant Natural :=
-        Phase578_Common_User_Term_Score
+      User_Term_Score : constant Natural :=
+        Common_User_Term_Score
           (Stable_Name, Category_Label, Query);
    begin
       return Natural'Max
         (Natural'Max
            (Natural'Max (Label_Score, Stable_Id_Score), Keybinding_Score),
-         Common_User_Term_Score);
+         User_Term_Score);
    end Metadata_Match_Score;
 
    function Descriptor_Match_Score
@@ -1070,6 +1385,7 @@ package body Editor.Command_Palette is
       State.Top_Row := 1;
       Config_State := (others => <>);
       Clear_Transient_Filters;
+      Clear_Command_State_Contexts;
    end Reset;
 
    procedure Open is
@@ -1083,6 +1399,7 @@ package body Editor.Command_Palette is
       State.Top_Row := 1;
       Config_State.Show_Help_Row := False;
       Clear_Transient_Filters;
+      Clear_Command_State_Contexts;
    end Open;
 
    procedure Open_With_Command
@@ -1311,7 +1628,7 @@ package body Editor.Command_Palette is
       Q : constant String := To_String (State.Query);
       Candidates : Editor.Commands.Command_Palette_Candidate_Vectors.Vector;
    begin
-      --  Phase 564: command-palette search includes active keybinding labels.
+      --  command-palette search includes active keybinding labels.
       --  Keybindings are intentionally not a persisted palette cache input and
       --  can change while the query text stays the same, so this projection must
       --  be rebuilt on each request instead of reusing the older query-only
@@ -1572,9 +1889,9 @@ package body Editor.Command_Palette is
                        & Surface_Text;
                      Help_Detail : constant Unbounded_String :=
                        (if Length (Help.Unavailable_Reason) > 0
-                        then Help.Description & " — " & Help.Unavailable_Reason
-                          & " — " & Help.Guard_Label
-                        else Help.Description & " — " & Help.Guard_Label);
+                        then Help.Description & " - " & Help.Unavailable_Reason
+                          & " - " & Help.Guard_Label
+                        else Help.Description & " - " & Help.Guard_Label);
                   begin
                      Result.Rows.Append
               (Command_Palette_Row'
@@ -1588,6 +1905,22 @@ package body Editor.Command_Palette is
                          Is_Selected            => False,
                          Is_Available           => C.Available,
                          Is_Detail_For_Selected => True));
+
+                     if Length (Help.State_Context_Label) > 0 then
+                        Result.Rows.Append
+              (Command_Palette_Row'
+                (Kind                   => Command_Palette_State_Context_Row,
+                         Candidate_Index        => I,
+                         Category               => C.Category,
+                                  Primary_Text           =>
+                                    To_Unbounded_String ("State"),
+                         Secondary_Text         => Help.State_Context_Label,
+                         Keybinding_Text        => Null_Unbounded_String,
+                         Has_Keybinding         => False,
+                         Is_Selected            => False,
+                         Is_Available           => C.Available,
+                         Is_Detail_For_Selected => True));
+                     end if;
                   end;
                end if;
          end;
@@ -1703,7 +2036,7 @@ package body Editor.Command_Palette is
       Row_Index : Natural := 0;
       Max_Top : Natural := 1;
    begin
-      --  Phase 564: snapshot selection may be resolved by stable command id
+      --  snapshot selection may be resolved by stable command id
       --  after transient filters hide or reorder candidates.  Viewport
       --  reconciliation must therefore follow the rendered selected row, not
       --  a stale numeric state index that might point at a different visible

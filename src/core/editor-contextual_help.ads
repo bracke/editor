@@ -3,7 +3,7 @@ with Editor.Feature_Panel;
 
 package Editor.Contextual_Help is
 
-   --  Phase 226 lightweight contextual help projection helpers.
+   --  lightweight contextual help projection helpers.
    --
    --  These helpers format transient UI text from existing command metadata,
    --  active keybindings, availability/focus facts supplied by callers, and

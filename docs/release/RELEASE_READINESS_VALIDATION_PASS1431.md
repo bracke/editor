@@ -1,14 +1,14 @@
-# Phase 579 release-readiness validation pass1431
+# release-readiness validation case 1431
 
 This pass records the release-readiness gate after the finite semantic gap
 closure and project-scale validation passes.
 
 The gate is intentionally structural and release-facing.  It verifies that each
 final validation surface has a coherent source package, AUnit package, README,
-Core_Suite registration, release documentation agreement, and fresh readiness
+suite registration, release documentation agreement, and fresh readiness
 fingerprints.
 
-This pass also preserves the pass1428 rule: no new `Remaining_*` edge may be
+This pass also preserves the case 1428 rule: no new `Remaining_*` edge may be
 introduced after closure unless a concrete source-shaped corpus failure or Ada RM
 contradiction exposes an actual defect.
 

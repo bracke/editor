@@ -268,7 +268,7 @@ package body Editor.Ada_Visibility_Use_Name_Resolution_Vertical_Slice_Legality i
             Check_Lookup (L, R);
             R.Status := Status_For (R, L);
             R.Message := To_Unbounded_String
-              ("Pass1317 visibility/use/name-resolution vertical-slice legality");
+              ("Case 1317 visibility/use/name-resolution vertical-slice legality");
             R.Detail := L.Name;
             R.Fingerprint := Mix
               (Natural (R.Id),

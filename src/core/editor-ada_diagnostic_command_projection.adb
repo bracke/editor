@@ -373,6 +373,79 @@ package body Editor.Ada_Diagnostic_Command_Projection is
       return Descriptor.Id /= No_Diagnostic_Command_Descriptor;
    end Has_Descriptor;
 
+   function Surface_Action_Label
+     (Action : Diagnostic_Command_Surface_Action) return String
+   is
+   begin
+      case Action is
+         when Diagnostic_Surface_Open_Source =>
+            return "Open Source";
+         when Diagnostic_Surface_Reveal_Diagnostic =>
+            return "Reveal Diagnostic";
+         when Diagnostic_Surface_Suppress_Diagnostic =>
+            return "Suppress Diagnostic";
+         when Diagnostic_Surface_Apply_Quick_Fix =>
+            return "Apply Quick Fix";
+      end case;
+   end Surface_Action_Label;
+
+   function Surface_Action_Command_Name
+     (Action : Diagnostic_Command_Surface_Action) return String
+   is
+   begin
+      case Action is
+         when Diagnostic_Surface_Open_Source =>
+            return "ada.diagnostic.open-source";
+         when Diagnostic_Surface_Reveal_Diagnostic =>
+            return "ada.diagnostic.reveal";
+         when Diagnostic_Surface_Suppress_Diagnostic =>
+            return "ada.diagnostic.suppress";
+         when Diagnostic_Surface_Apply_Quick_Fix =>
+            return "ada.diagnostic.apply-quick-fix";
+      end case;
+   end Surface_Action_Command_Name;
+
+   function Unavailable_Target_Message
+     (Availability : Diagnostic_Command_Availability) return String
+   is
+   begin
+      case Availability is
+         when Diagnostic_Command_Available =>
+            return "";
+         when Diagnostic_Command_Missing_Target =>
+            return "Diagnostic target is unavailable.";
+         when Diagnostic_Command_Incomplete_Target =>
+            return "Diagnostic target is incomplete.";
+         when Diagnostic_Command_Status_Only =>
+            return "Diagnostic is status-only.";
+         when Diagnostic_Command_Rejected_Stale =>
+            return "Diagnostic action is stale.";
+      end case;
+   end Unavailable_Target_Message;
+
+   function Descriptor_Supports_Surface_Action
+     (Descriptor : Diagnostic_Command_Descriptor;
+      Action     : Diagnostic_Command_Surface_Action) return Boolean
+   is
+   begin
+      if not Has_Descriptor (Descriptor) then
+         return False;
+      end if;
+
+      case Action is
+         when Diagnostic_Surface_Open_Source
+            | Diagnostic_Surface_Reveal_Diagnostic =>
+            return Descriptor.Availability = Diagnostic_Command_Available;
+         when Diagnostic_Surface_Suppress_Diagnostic =>
+            return Descriptor.Availability /= Diagnostic_Command_Rejected_Stale
+              and then Descriptor.Index_Id /=
+                Editor.Ada_Semantic_Diagnostic_Index.No_Semantic_Diagnostic_Index_Entry;
+         when Diagnostic_Surface_Apply_Quick_Fix =>
+            return Descriptor.Availability = Diagnostic_Command_Available
+              and then Descriptor.Has_Edit;
+      end case;
+   end Descriptor_Supports_Surface_Action;
+
    function Fingerprint (Model : Diagnostic_Command_Projection_Model) return Natural is
    begin
       return Model.Result_Fingerprint;

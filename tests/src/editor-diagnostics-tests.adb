@@ -140,16 +140,16 @@ package body Editor.Diagnostics.Tests is
    begin
       Register_Routine
         (T, Test_Ordering'Access,
-         "Phase 61 orders diagnostics by row, column, severity, insertion");
+         "orders diagnostics by row, column, severity, insertion");
       Register_Routine
         (T, Test_Next_Previous_Wrap'Access,
-         "Phase 61 navigates next/previous diagnostics with wrapping");
+         "navigates next/previous diagnostics with wrapping");
       Register_Routine
         (T, Test_Dominant_Row_And_Target'Access,
-         "Phase 61 chooses dominant row diagnostics and targets");
+         "chooses dominant row diagnostics and targets");
       Register_Routine
         (T, Test_Note_And_Unknown_Ordering'Access,
-         "Phase 557 core Diagnostics supports note and unknown severities");
+         "core Diagnostics supports note and unknown severities");
    end Register_Tests;
 
 end Editor.Diagnostics.Tests;

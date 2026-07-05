@@ -186,10 +186,10 @@ package body Test_Ada_Overload_Resolution_Legality is
    begin
       Register_Routine
         (T, Builds_Wide_Overload_Legality_Categories'Access,
-         "Pass1109 classifies wide overload/operator legality preferences and errors");
+         "Case 1109 classifies wide overload/operator legality preferences and errors");
       Register_Routine
         (T, Empty_Inputs_Are_Deterministic'Access,
-         "Pass1109 keeps empty overload legality models deterministic");
+         "Case 1109 keeps empty overload legality models deterministic");
    end Register_Tests;
 
 end Test_Ada_Overload_Resolution_Legality;

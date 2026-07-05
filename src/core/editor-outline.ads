@@ -5,7 +5,7 @@ with Editor.Feature_Panel;
 
 package Editor.Outline is
 
-   --  Phase 138 maintenance contract: the outline subsystem is frozen as an
+   --  maintenance contract: the outline subsystem is frozen as an
    --  active-buffer, synchronous, validated snapshot feature. Future async,
    --  project-wide, or LSP-backed symbol work must enter through the
    --  extraction-result validation seam and must not mutate outline state
@@ -115,8 +115,7 @@ package Editor.Outline is
       Source_Class : Outline_Source_Class := No_Outline;
    end record;
 
-   --  Return whether the private outline state satisfies Phase 121
-   --  structural invariants. This helper is side-effect-free and does not
+   --  Return whether the private outline state satisfies    --  structural invariants. This helper is side-effect-free and does not
    --  normalize, repair, project, parse, emit messages, or inspect editor
    --  buffers/project files.
    --  @param Outline Outline state to inspect.
@@ -468,8 +467,7 @@ package Editor.Outline is
      (Outline : Outline_State) return Natural;
 
    --  Return the number of current navigable symbol rows that remain visible
-   --  after the transient Outline filter is applied. This is for Phase 550
-   --  status/projection summaries and does not mutate filter or selection state.
+   --  after the transient Outline filter is applied. This is for    --  status/projection summaries and does not mutate filter or selection state.
    function Filtered_Navigable_Symbol_Count
      (Outline : Outline_State) return Natural;
 
@@ -489,7 +487,7 @@ package Editor.Outline is
 
    --  Return True only when the accepted Outline rows are current, not stale,
    --  and every navigable row belongs to the supplied active buffer token.
-   --  This is the active-buffer identity guard for Phase 550 navigation,
+   --  This is the active-buffer identity guard for navigation,
    --  reveal, filtering, and transient filter restore.
    function Outline_Buffer_Identity_Matches
      (Outline      : Outline_State;

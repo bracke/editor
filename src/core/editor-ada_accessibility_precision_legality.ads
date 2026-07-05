@@ -7,9 +7,9 @@ with Editor.Ada_Syntax_Tree;
 
 package Editor.Ada_Accessibility_Precision_Legality is
 
-   --  Pass1128 compiler-grade accessibility precision layer.
+   --  Case 1128 compiler-grade accessibility precision layer.
    --
-   --  This package deepens the Pass1111 accessibility/lifetime model by
+   --  This package deepens the Case 1111 accessibility/lifetime model by
    --  connecting nested accessibility levels, anonymous access parameters,
    --  allocator masters, access discriminants, return accessibility,
    --  generic-instance actual lifetime substitution, and record/variant

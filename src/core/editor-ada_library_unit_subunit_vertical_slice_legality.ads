@@ -4,7 +4,7 @@ with Editor.Ada_Syntax_Tree;
 
 package Editor.Ada_Library_Unit_Subunit_Vertical_Slice_Legality is
 
-   --  Pass1331 vertical-slice library-unit/subunit legality.
+   --  Case 1331 vertical-slice library-unit/subunit legality.
    --  This source-shaped model checks Ada unit closure facts that cross
    --  separate subunits, body stubs, child units, private children, and
    --  library-unit completions.  It is intentionally a legality engine, not a

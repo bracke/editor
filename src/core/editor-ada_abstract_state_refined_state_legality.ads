@@ -7,7 +7,7 @@ with Editor.Ada_Tasking_Protected_Deep_Edge_Legality;
 
 package Editor.Ada_Abstract_State_Refined_State_Legality is
 
-   --  Pass1211 abstract/refined state legality.
+   --  Case 1211 abstract/refined state legality.
    --
    --  This package adds a concrete semantic model for abstract state and
    --  refined state proof obligations.  It connects state declarations,

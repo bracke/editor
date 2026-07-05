@@ -32,7 +32,7 @@ package body Editor.Keybindings.Tests is
 
    function Temp_Path (Name : String) return String is
    begin
-      return "/tmp/editor_phase107_" & Name & ".keybindings";
+      return "/tmp/editor_" & Name & ".keybindings";
    end Temp_Path;
 
    procedure Write_File (Path : String; Text : String) is
@@ -432,7 +432,7 @@ package body Editor.Keybindings.Tests is
 
 
 
-   procedure Test_Phase85_Format_Chord
+   procedure Test_Format_Chord
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
       pragma Unreferenced (T);
    begin
@@ -461,9 +461,9 @@ package body Editor.Keybindings.Tests is
         (Editor.Keybindings.Format_Chord
            (Chord (Editor.Keybindings.Key_Left, Alt => True)) = "Alt+Left",
          "Format_Chord must format arrow keys with modifiers");
-   end Test_Phase85_Format_Chord;
+   end Test_Format_Chord;
 
-   procedure Test_Phase85_Primary_Binding_For_Command
+   procedure Test_Primary_Binding_For_Command
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
       pragma Unreferenced (T);
       Info : Editor.Keybindings.Command_Keybinding_Info;
@@ -482,9 +482,9 @@ package body Editor.Keybindings.Tests is
               "Unbound visible commands must report no primary binding");
       Assert (Length (Info.Display) = 0,
               "Unbound commands must not carry stale display text");
-   end Test_Phase85_Primary_Binding_For_Command;
+   end Test_Primary_Binding_For_Command;
 
-   procedure Test_Phase85_Binding_Count_And_Order
+   procedure Test_Binding_Count_And_Order
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
       pragma Unreferenced (T);
       First  : Editor.Keybindings.Key_Chord;
@@ -505,9 +505,9 @@ package body Editor.Keybindings.Tests is
               "Binding_For_Command must preserve registry order");
       Assert (Editor.Keybindings.Format_Chord (Second) = "Ctrl+Shift+Z",
               "Binding_For_Command must preserve second binding order");
-   end Test_Phase85_Binding_Count_And_Order;
+   end Test_Binding_Count_And_Order;
 
-   procedure Test_Phase85_Reverse_Lookup_Does_Not_Mutate
+   procedure Test_Reverse_Lookup_Does_Not_Mutate
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
       pragma Unreferenced (T);
       Actual : Editor.Commands.Command_Id;
@@ -531,27 +531,27 @@ package body Editor.Keybindings.Tests is
          = Editor.Keybindings.Bound_Command
          and then Actual = Editor.Commands.Command_Save_File,
          "Ctrl+S must resolve after reverse lookup without mutation");
-   end Test_Phase85_Reverse_Lookup_Does_Not_Mutate;
+   end Test_Reverse_Lookup_Does_Not_Mutate;
 
 
-   procedure Test_Phase105_Parse_Format_Chord
+   procedure Test_Parse_Format_Chord
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
       pragma Unreferenced (T);
       Found  : Boolean := False;
       Parsed : Editor.Keybindings.Key_Chord;
    begin
       Parsed := Editor.Keybindings.Parse_Chord ("Ctrl+Alt+Shift+S", Found);
-      Assert (Found, "Phase 105 chord parser must accept canonical modifiers");
+      Assert (Found, "chord parser must accept canonical modifiers");
       Assert
         (Editor.Keybindings.Format_Chord (Parsed) = "Ctrl+Alt+Shift+S",
-         "Phase 105 chord formatter must be byte-stable");
+         "chord formatter must be byte-stable");
 
       Parsed := Editor.Keybindings.Parse_Chord ("", Found);
       pragma Unreferenced (Parsed);
-      Assert (not Found, "Phase 105 chord parser must reject empty chords");
-   end Test_Phase105_Parse_Format_Chord;
+      Assert (not Found, "chord parser must reject empty chords");
+   end Test_Parse_Format_Chord;
 
-   procedure Test_Phase105_Config_Apply_Override_And_Unbind
+   procedure Test_Config_Apply_Override_And_Unbind
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
       pragma Unreferenced (T);
       Config : Editor.Keybinding_Config.Keybinding_Config_Model;
@@ -569,12 +569,12 @@ package body Editor.Keybindings.Tests is
            (Chord (Editor.Keybindings.Key_S, Ctrl => True, Alt => True), Actual)
          = Editor.Keybindings.Bound_Command
          and then Actual = Editor.Commands.Command_Save_File,
-         "Phase 105 applied override must route the new chord");
+         "applied override must route the new chord");
       Assert
         (Editor.Keybindings.Resolve
            (Chord (Editor.Keybindings.Key_S, Ctrl => True), Actual)
          = Editor.Keybindings.No_Binding,
-         "Phase 105 moved command must remove its old default chord");
+         "moved command must remove its old default chord");
 
       Editor.Keybinding_Config.Unbind (Config, Editor.Commands.Command_Save_File);
       Editor.Keybinding_Config.Apply_To_Runtime (Config);
@@ -582,12 +582,12 @@ package body Editor.Keybindings.Tests is
         (Editor.Keybindings.Resolve
            (Chord (Editor.Keybindings.Key_S, Ctrl => True), Actual)
          = Editor.Keybindings.No_Binding,
-         "Phase 105 explicit unbind must suppress the default chord");
+         "explicit unbind must suppress the default chord");
 
       Editor.Keybindings.Reset_To_Defaults;
-   end Test_Phase105_Config_Apply_Override_And_Unbind;
+   end Test_Config_Apply_Override_And_Unbind;
 
-   procedure Test_Phase105_Stable_Command_Name_Roundtrip
+   procedure Test_Stable_Command_Name_Roundtrip
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
       pragma Unreferenced (T);
       Found : Boolean := False;
@@ -596,54 +596,54 @@ package body Editor.Keybindings.Tests is
       Assert
         (Editor.Commands.Stable_Command_Name (Editor.Commands.Command_Save_File)
          = "file.save",
-         "Phase 105 stable command name must not be the user-facing label");
+         "stable command name must not be the user-facing label");
       Id := Editor.Commands.Command_Id_From_Stable_Name ("file.save", Found);
       Assert
         (Found and then Id = Editor.Commands.Command_Save_File,
-         "Phase 105 stable command name must resolve to its command id");
+         "stable command name must resolve to its command id");
       Assert
         (Editor.Commands.Stable_Command_Name (Editor.Commands.Command_Open_File)
          = "file.open",
-         "Phase 105 open-file command exports canonical stable name");
+         "open-file command exports canonical stable name");
       Id := Editor.Commands.Command_Id_From_Stable_Name ("open-file", Found);
       Assert
         (Found and then Id = Editor.Commands.Command_Open_File,
-         "Phase 105 legacy open-file keybinding name remains loadable");
+         "legacy open-file keybinding name remains loadable");
       Assert
         (Editor.Commands.Stable_Command_Name
            (Editor.Commands.Command_Diagnostics_Show) = "diagnostics.show",
-         "Phase 105 diagnostics command exports canonical stable name");
+         "diagnostics command exports canonical stable name");
       Id := Editor.Commands.Command_Id_From_Stable_Name ("diagnostics-show", Found);
       Assert
         (Found and then Id = Editor.Commands.Command_Diagnostics_Show,
-         "Phase 105 legacy diagnostics-show keybinding name remains loadable");
+         "legacy diagnostics-show keybinding name remains loadable");
       Assert
         (Editor.Commands.Stable_Command_Name
            (Editor.Commands.Command_Open_Quick_Open) = "quick-open.show",
-         "Phase 105 quick-open command exports canonical stable name");
+         "quick-open command exports canonical stable name");
       Id := Editor.Commands.Command_Id_From_Stable_Name ("project.quick-open.show", Found);
       Assert
         (Found and then Id = Editor.Commands.Command_Open_Quick_Open,
-         "Phase 105 legacy project.quick-open.show keybinding name remains loadable");
+         "legacy project.quick-open.show keybinding name remains loadable");
       Assert
         (Editor.Commands.Stable_Command_Name
            (Editor.Commands.Command_Accept_Quick_Open) = "quick-open.open-selected",
-         "Phase 105 quick-open accept command exports canonical stable name");
+         "quick-open accept command exports canonical stable name");
       Id := Editor.Commands.Command_Id_From_Stable_Name
         ("project.quick-open.open-selected", Found);
       Assert
         (Found and then Id = Editor.Commands.Command_Accept_Quick_Open,
-         "Phase 105 legacy project.quick-open.open-selected keybinding name remains loadable");
+         "legacy project.quick-open.open-selected keybinding name remains loadable");
       Assert
         (Editor.Commands.Is_Bindable_Command (Editor.Commands.Command_Save_Keybindings),
-         "Phase 105 keybinding commands must be bindable concrete commands");
+         "keybinding commands must be bindable concrete commands");
       Assert
         (not Editor.Commands.Is_Bindable_Command (Editor.Commands.No_Command),
-         "Phase 105 No_Command must not be bindable");
-   end Test_Phase105_Stable_Command_Name_Roundtrip;
+         "No_Command must not be bindable");
+   end Test_Stable_Command_Name_Roundtrip;
 
 
-   procedure Test_Phase106_Command_Name_Audit
+   procedure Test_Command_Name_Audit
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
       pragma Unreferenced (T);
       Found : Boolean := False;
@@ -651,7 +651,7 @@ package body Editor.Keybindings.Tests is
    begin
       Assert
         (not Editor.Commands.Is_Bindable_Command (Editor.Commands.No_Command),
-         "Phase 106 No_Command must remain unbindable");
+         "No_Command must remain unbindable");
 
       for Id in Editor.Commands.Command_Id loop
          if Editor.Commands.Is_Bindable_Command (Id) then
@@ -683,9 +683,9 @@ package body Editor.Keybindings.Tests is
             end;
          end if;
       end loop;
-   end Test_Phase106_Command_Name_Audit;
+   end Test_Command_Name_Audit;
 
-   procedure Test_Phase106_Parse_Chord_Hardening
+   procedure Test_Parse_Chord_Hardening
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
       pragma Unreferenced (T);
       Found  : Boolean := False;
@@ -709,9 +709,9 @@ package body Editor.Keybindings.Tests is
       Assert (not Found, "Bare text keys must not become persisted shortcuts");
       Parsed := Editor.Keybindings.Parse_Chord ("Escape", Found);
       Assert (Found, "Non-text command keys may be unmodified chords");
-   end Test_Phase106_Parse_Chord_Hardening;
+   end Test_Parse_Chord_Hardening;
 
-   procedure Test_Phase106_Runtime_Validation_Summary
+   procedure Test_Runtime_Validation_Summary
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
       pragma Unreferenced (T);
       Result : Editor.Keybindings.Keybinding_Validation_Result;
@@ -729,9 +729,9 @@ package body Editor.Keybindings.Tests is
       Assert
         (Sum.Conflict_Count = 0 and then Sum.Invalid_Count = 0,
          "Default runtime keybindings must not have conflicts or invalid targets");
-   end Test_Phase106_Runtime_Validation_Summary;
+   end Test_Runtime_Validation_Summary;
 
-   procedure Test_Phase106_Config_Load_Conflict_Last_Wins
+   procedure Test_Config_Load_Conflict_Last_Wins
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
       pragma Unreferenced (T);
       Path   : constant String := Temp_Path ("conflict_last_wins");
@@ -764,9 +764,9 @@ package body Editor.Keybindings.Tests is
       pragma Unreferenced (C);
       Assert (not Found, "Displaced command must have no explicit conflicting chord");
       Editor.Keybindings.Reset_To_Defaults;
-   end Test_Phase106_Config_Load_Conflict_Last_Wins;
+   end Test_Config_Load_Conflict_Last_Wins;
 
-   procedure Test_Phase106_Config_Unbind_Load_And_Reset
+   procedure Test_Config_Unbind_Load_And_Reset
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
       pragma Unreferenced (T);
       Path   : constant String := Temp_Path ("unbind");
@@ -796,9 +796,9 @@ package body Editor.Keybindings.Tests is
          = Editor.Keybindings.Bound_Command
          and then Actual = Editor.Commands.Command_Save_File,
          "Reset must restore the built-in default chord");
-   end Test_Phase106_Config_Unbind_Load_And_Reset;
+   end Test_Config_Unbind_Load_And_Reset;
 
-   procedure Test_Phase106_Invalid_And_Partial_Load_Statuses
+   procedure Test_Invalid_And_Partial_Load_Statuses
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
       pragma Unreferenced (T);
       Path   : constant String := Temp_Path ("invalid_status");
@@ -835,9 +835,9 @@ package body Editor.Keybindings.Tests is
       Assert
         (Found and then Editor.Keybindings.Format_Chord (C) = "Ctrl+Alt+S",
          "Partial load must preserve valid normalized bindings");
-   end Test_Phase106_Invalid_And_Partial_Load_Statuses;
+   end Test_Invalid_And_Partial_Load_Statuses;
 
-   procedure Test_Phase106_Serialization_Stable_And_Drops_Invalid
+   procedure Test_Serialization_Stable_And_Drops_Invalid
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
       pragma Unreferenced (T);
       Path   : constant String := Temp_Path ("serialization");
@@ -879,9 +879,9 @@ package body Editor.Keybindings.Tests is
         (Ada.Strings.Fixed.Index (To_String (Text), "file.save=Ctrl+Alt+S") > 0,
          "Custom chord must be serialized canonically");
       Editor.Keybindings.Reset_To_Defaults;
-   end Test_Phase106_Serialization_Stable_And_Drops_Invalid;
+   end Test_Serialization_Stable_And_Drops_Invalid;
 
-   procedure Test_Phase106_Command_Palette_Uses_Active_Bindings
+   procedure Test_Command_Palette_Uses_Active_Bindings
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
       pragma Unreferenced (T);
       S          : Editor.State.State_Type;
@@ -911,10 +911,10 @@ package body Editor.Keybindings.Tests is
       end loop;
       Assert (Seen, "Save File command must be present in palette candidates");
       Editor.Keybindings.Reset_To_Defaults;
-   end Test_Phase106_Command_Palette_Uses_Active_Bindings;
+   end Test_Command_Palette_Uses_Active_Bindings;
 
 
-   procedure Test_Phase107_Chord_Syntax_Finalization
+   procedure Test_Chord_Syntax_Finalization
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
       pragma Unreferenced (T);
       Found  : Boolean := False;
@@ -923,16 +923,16 @@ package body Editor.Keybindings.Tests is
       procedure Expect_Valid (Text : String; Canonical : String) is
       begin
          Parsed := Editor.Keybindings.Parse_Chord (Text, Found);
-         Assert (Found, "Phase 107 valid chord rejected: " & Text);
+         Assert (Found, "valid chord rejected: " & Text);
          Assert
            (Editor.Keybindings.Format_Chord (Parsed) = Canonical,
-            "Phase 107 chord did not format canonically: " & Text);
+            "chord did not format canonically: " & Text);
       end Expect_Valid;
 
       procedure Expect_Invalid (Text : String) is
       begin
          Parsed := Editor.Keybindings.Parse_Chord (Text, Found);
-         Assert (not Found, "Phase 107 invalid chord accepted: " & Text);
+         Assert (not Found, "invalid chord accepted: " & Text);
       end Expect_Invalid;
    begin
       Expect_Valid ("Ctrl+S", "Ctrl+S");
@@ -968,12 +968,12 @@ package body Editor.Keybindings.Tests is
       Expect_Invalid ("none+Ctrl");
       Expect_Invalid ("Ctrl+Shift+");
       Expect_Invalid ("Ctrl Shift S");
-   end Test_Phase107_Chord_Syntax_Finalization;
+   end Test_Chord_Syntax_Finalization;
 
-   procedure Test_Phase107_Hard_Failed_Reload_Preservation_Model
+   procedure Test_Hard_Failed_Reload_Preservation_Model
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
       pragma Unreferenced (T);
-      Path   : constant String := Temp_Path ("phase107_invalid_preserve");
+      Path   : constant String := Temp_Path ("invalid_preserve");
       Config : Editor.Keybinding_Config.Keybinding_Config_Model;
       Status : Editor.Keybinding_Config.Keybinding_Config_Status;
       Actual : Editor.Commands.Command_Id;
@@ -1007,9 +1007,9 @@ package body Editor.Keybindings.Tests is
          or else Actual /= Editor.Commands.Command_Save_File,
          "Hard-failed loads must not restore stale default routing");
       Editor.Keybindings.Reset_To_Defaults;
-   end Test_Phase107_Hard_Failed_Reload_Preservation_Model;
+   end Test_Hard_Failed_Reload_Preservation_Model;
 
-   procedure Test_Phase107_Command_Route_Audit_Helper
+   procedure Test_Command_Route_Audit_Helper
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
       pragma Unreferenced (T);
       Audit : Editor.Command_Route_Audit.Route_Audit_Result;
@@ -1035,9 +1035,9 @@ package body Editor.Keybindings.Tests is
       Assert
         (Editor.Command_Route_Audit.Failure_Count (Audit) = 1,
          "No_Command must be reported as an invalid command route");
-   end Test_Phase107_Command_Route_Audit_Helper;
+   end Test_Command_Route_Audit_Helper;
 
-   procedure Test_Phase107_Bindability_And_Default_Table_Audit
+   procedure Test_Bindability_And_Default_Table_Audit
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
       pragma Unreferenced (T);
       Result : Editor.Keybindings.Keybinding_Validation_Result;
@@ -1045,7 +1045,7 @@ package body Editor.Keybindings.Tests is
    begin
       Assert
         (not Editor.Commands.Is_Bindable_Command (Editor.Commands.No_Command),
-         "Phase 107 No_Command must never be bindable");
+         "No_Command must never be bindable");
 
       for Id in Editor.Commands.Command_Id loop
          if Editor.Commands.Is_Bindable_Command (Id) then
@@ -1063,7 +1063,7 @@ package body Editor.Keybindings.Tests is
       Assert
         (Editor.Keybindings.Status (Result) = Editor.Keybindings.Valid_Keybindings,
          "Default keybinding table must be conflict-free and bind only bindable commands");
-   end Test_Phase107_Bindability_And_Default_Table_Audit;
+   end Test_Bindability_And_Default_Table_Audit;
 
 
    procedure Test_Outline_Keybindings_Register_Defaults
@@ -1224,7 +1224,7 @@ package body Editor.Keybindings.Tests is
    end Test_Outline_Keybindings_Report_Conflicts_Deterministically;
 
 
-   procedure Test_Phase216_Display_List_Is_Deterministic_And_Scoped
+   procedure Test_Display_List_Is_Deterministic_And_Scoped
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
       pragma Unreferenced (T);
       Previous_Name : Unbounded_String := Null_Unbounded_String;
@@ -1235,28 +1235,28 @@ package body Editor.Keybindings.Tests is
       Editor.Keybindings.Reset_To_Defaults;
       Assert
         (Editor.Keybindings.Bound_Command_Count > 0,
-         "Phase 216 display list must expose active bound commands");
+         "display list must expose active bound commands");
 
       for I in 1 .. Editor.Keybindings.Bound_Command_Count loop
          Id := Editor.Keybindings.Bound_Command_At (I);
          Assert
            (Editor.Commands.Is_Bindable_Command (Id),
-            "Phase 216 bound display must only list bindable commands");
+            "bound display must only list bindable commands");
          Assert
            (not Editor.Commands.Is_Public_Build_Command (Id),
-            "Phase 216 bound display must not list public build commands");
+            "bound display must not list public build commands");
          Assert
            (not Editor.Commands.Is_Internal_Build_Test_Seam_Command (Id),
-            "Phase 216 bound display must not list internal build test seams");
+            "bound display must not list internal build test seams");
          Info := Editor.Keybindings.Primary_Binding_For_Command (Id);
          Assert
            (Info.Has_Binding and then Length (Info.Display) > 0,
-            "Phase 216 bound display rows must carry user-facing chord text");
+            "bound display rows must carry user-facing chord text");
          Current_Name := To_Unbounded_String (Editor.Commands.Stable_Command_Name (Id));
          if I > 1 then
             Assert
               (To_String (Previous_Name) < To_String (Current_Name),
-               "Phase 216 bound display rows must be stable-name sorted");
+               "bound display rows must be stable-name sorted");
          end if;
          Previous_Name := Current_Name;
       end loop;
@@ -1264,10 +1264,10 @@ package body Editor.Keybindings.Tests is
       Assert
         (not Editor.Keybindings.Is_Normal_Assignable_Command
            (Editor.Commands.Command_Build_Run_User_Opt_In_Test_Seam),
-         "Phase 216 internal build test seam must be absent from assignable keybinding UI");
-   end Test_Phase216_Display_List_Is_Deterministic_And_Scoped;
+         "internal build test seam must be absent from assignable keybinding UI");
+   end Test_Display_List_Is_Deterministic_And_Scoped;
 
-   procedure Test_Phase216_Assign_Validates_Targets_And_Replaces_Deterministically
+   procedure Test_Assign_Validates_Targets_And_Replaces_Deterministically
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
       pragma Unreferenced (T);
       Status : Editor.Keybindings.Keybinding_Change_Status;
@@ -1280,18 +1280,18 @@ package body Editor.Keybindings.Tests is
          Status);
       Assert
         (Status = Editor.Keybindings.Keybinding_Change_Ok,
-         "Phase 216 valid assignment must succeed");
+         "valid assignment must succeed");
       Assert
         (Editor.Keybindings.Resolve
            (Chord (Editor.Keybindings.Key_S, Ctrl => True, Alt => True), Actual)
          = Editor.Keybindings.Bound_Command
          and then Actual = Editor.Commands.Command_Save_File,
-         "Phase 216 assignment must resolve through active runtime table");
+         "assignment must resolve through active runtime table");
       Assert
         (Editor.Keybindings.Resolve
            (Chord (Editor.Keybindings.Key_S, Ctrl => True), Actual)
          = Editor.Keybindings.No_Binding,
-         "Phase 216 assignment must replace the command's previous chord");
+         "assignment must replace the command's previous chord");
 
       Editor.Keybindings.Assign
         (Chord (Editor.Keybindings.Key_S, Ctrl => True, Alt => True),
@@ -1299,21 +1299,21 @@ package body Editor.Keybindings.Tests is
          Status);
       Assert
         (Status = Editor.Keybindings.Keybinding_Change_Ok,
-         "Phase 216 duplicate chord replacement must be explicit and successful");
+         "duplicate chord replacement must be explicit and successful");
       Assert
         (Editor.Keybindings.Resolve
            (Chord (Editor.Keybindings.Key_S, Ctrl => True, Alt => True), Actual)
          = Editor.Keybindings.Bound_Command
          and then Actual = Editor.Commands.Command_Open_Quick_Open,
-         "Phase 216 duplicate chord policy must be last-assignment-wins");
+         "duplicate chord policy must be last-assignment-wins");
       Assert
         (Editor.Keybindings.Binding_Count_For_Command
            (Editor.Commands.Command_Save_File) = 0,
-         "Phase 216 displaced command must not retain the conflicting user chord");
+         "displaced command must not retain the conflicting user chord");
       Editor.Keybindings.Reset_To_Defaults;
-   end Test_Phase216_Assign_Validates_Targets_And_Replaces_Deterministically;
+   end Test_Assign_Validates_Targets_And_Replaces_Deterministically;
 
-   procedure Test_Phase216_Assign_Rejections_Are_Non_Mutating
+   procedure Test_Assign_Rejections_Are_Non_Mutating
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
       pragma Unreferenced (T);
       Status : Editor.Keybindings.Keybinding_Change_Status;
@@ -1325,7 +1325,7 @@ package body Editor.Keybindings.Tests is
            (Chord (Editor.Keybindings.Key_S, Ctrl => True), Actual)
          = Editor.Keybindings.Bound_Command
          and then Actual = Editor.Commands.Command_Save_File,
-         "Phase 216 baseline save binding must exist before rejected assignment");
+         "baseline save binding must exist before rejected assignment");
 
       Editor.Keybindings.Assign
         (Chord (Editor.Keybindings.Key_S, Ctrl => True, Alt => True),
@@ -1333,13 +1333,13 @@ package body Editor.Keybindings.Tests is
          Status);
       Assert
         (Status = Editor.Keybindings.Keybinding_Change_Invalid_Target,
-         "Phase 216 No_Command assignment must be rejected as invalid");
+         "No_Command assignment must be rejected as invalid");
       Assert
         (Editor.Keybindings.Resolve
            (Chord (Editor.Keybindings.Key_S, Ctrl => True), Actual)
          = Editor.Keybindings.Bound_Command
          and then Actual = Editor.Commands.Command_Save_File,
-         "Phase 216 invalid assignment must leave existing bindings unchanged");
+         "invalid assignment must leave existing bindings unchanged");
 
       Editor.Keybindings.Assign
         (Chord (Editor.Keybindings.Key_S, Ctrl => True, Alt => True),
@@ -1348,25 +1348,25 @@ package body Editor.Keybindings.Tests is
       Assert
         (Status = Editor.Keybindings.Keybinding_Change_Internal_Target
          or else Status = Editor.Keybindings.Keybinding_Change_Non_Bindable_Target,
-         "Phase 216 internal build test seam assignment must be rejected");
+         "internal build test seam assignment must be rejected");
       Assert
         (Editor.Keybindings.Resolve
            (Chord (Editor.Keybindings.Key_S, Ctrl => True), Actual)
          = Editor.Keybindings.Bound_Command
          and then Actual = Editor.Commands.Command_Save_File,
-         "Phase 216 rejected internal target must leave existing bindings unchanged");
+         "rejected internal target must leave existing bindings unchanged");
       Assert
         (Editor.Keybindings.Resolve
            (Chord (Editor.Keybindings.Key_S, Ctrl => True, Alt => True), Actual)
          = Editor.Keybindings.No_Binding,
-         "Phase 216 rejected assignment must not create the requested chord");
+         "rejected assignment must not create the requested chord");
       Editor.Keybindings.Reset_To_Defaults;
-   end Test_Phase216_Assign_Rejections_Are_Non_Mutating;
+   end Test_Assign_Rejections_Are_Non_Mutating;
 
-   procedure Test_Phase216_Load_Rejects_Internal_Target_Without_Runtime_Mutation
+   procedure Test_Load_Rejects_Internal_Target_Without_Runtime_Mutation
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
       pragma Unreferenced (T);
-      Path   : constant String := Temp_Path ("phase216_internal_target");
+      Path   : constant String := Temp_Path ("internal_target");
       Config : Editor.Keybinding_Config.Keybinding_Config_Model;
       Status : Editor.Keybinding_Config.Keybinding_Config_Status;
       Actual : Editor.Commands.Command_Id;
@@ -1380,27 +1380,27 @@ package body Editor.Keybindings.Tests is
       Editor.Keybinding_Config.Load_From_File (Path, Config, Status);
       Assert
         (Status = Editor.Keybinding_Config.Keybinding_Config_Partial_Load,
-         "Phase 216 internal build target in keybindings file must be rejected as partial");
+         "internal build target in keybindings file must be rejected as partial");
       Editor.Keybinding_Config.Apply_To_Runtime (Config);
       Assert
         (Editor.Keybindings.Resolve
            (Chord (Editor.Keybindings.Key_P, Ctrl => True, Alt => True), Actual)
          = Editor.Keybindings.No_Binding,
-         "Phase 216 rejected internal target must not become a runtime binding");
+         "rejected internal target must not become a runtime binding");
       Assert
         (Editor.Keybindings.Resolve
            (Chord (Editor.Keybindings.Key_S, Ctrl => True), Actual)
          = Editor.Keybindings.Bound_Command
          and then Actual = Editor.Commands.Command_Save_File,
-         "Phase 216 partial load with no valid entries must keep defaults after apply");
+         "partial load with no valid entries must keep defaults after apply");
       Editor.Keybindings.Reset_To_Defaults;
-   end Test_Phase216_Load_Rejects_Internal_Target_Without_Runtime_Mutation;
+   end Test_Load_Rejects_Internal_Target_Without_Runtime_Mutation;
 
 
-   procedure Test_Phase534_Keybinding_User_Readable_Errors_And_No_Payloads
+   procedure Test_Keybinding_User_Readable_Errors_And_No_Payloads
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
       pragma Unreferenced (T);
-      Path : constant String := Temp_Path ("phase534_payload_rejection");
+      Path : constant String := Temp_Path ("payload_rejection");
       Config : Editor.Keybinding_Config.Keybinding_Config_Model;
       Status : Editor.Keybinding_Config.Keybinding_Config_Status;
       Found  : Boolean := False;
@@ -1463,11 +1463,11 @@ package body Editor.Keybindings.Tests is
            (not Found,
             "payload-bearing binding must not enter persisted config model");
       end;
-   end Test_Phase534_Keybinding_User_Readable_Errors_And_No_Payloads;
+   end Test_Keybinding_User_Readable_Errors_And_No_Payloads;
 
 
 
-   procedure Test_Phase565_Keybinding_List_Search_And_Filter
+   procedure Test_Keybinding_List_Search_And_Filter
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
       pragma Unreferenced (T);
       Summary : Editor.Keybinding_Management.Keybinding_List_Summary;
@@ -1480,19 +1480,19 @@ package body Editor.Keybindings.Tests is
       Editor.Keybinding_Management.Clear_Filter;
       Summary := Editor.Keybinding_Management.Summary;
       Assert (Summary.Row_Count > 0,
-              "Phase 565 keybinding list must project command rows");
+              "keybinding list must project command rows");
       Assert (Summary.Bound_Command_Count > 0,
-              "Phase 565 keybinding list must expose active chords");
+              "keybinding list must expose active chords");
       Assert (Summary.Chord_Row_Count > 0,
-              "Phase 565 keybinding list must expose active bindings by chord");
+              "keybinding list must expose active bindings by chord");
       declare
          Chord_Row : constant Editor.Keybinding_Management.Keybinding_Chord_Row_Snapshot :=
            Editor.Keybinding_Management.Chord_Row_At (1);
       begin
          Assert (Length (Chord_Row.Chord_Label) > 0,
-                 "Phase 565 chord rows must expose normalized chord labels");
+                 "chord rows must expose normalized chord labels");
          Assert (Length (Chord_Row.Stable_Command_Name) > 0,
-                 "Phase 565 chord rows must expose stable command names only");
+                 "chord rows must expose stable command names only");
       end;
       Editor.Keybinding_Management.Set_Query ("build");
       for I in 1 .. Editor.Keybinding_Management.Row_Count loop
@@ -1504,24 +1504,24 @@ package body Editor.Keybindings.Tests is
          end if;
       end loop;
       Assert (Found_Build,
-              "Phase 565 search must match stable command names/descriptions");
+              "search must match stable command names/descriptions");
 
       Editor.Keybinding_Management.Clear_Query;
       Editor.Keybinding_Management.Set_Filter
         (Editor.Keybinding_Management.Filter_Unbound);
       Summary := Editor.Keybinding_Management.Summary;
       Assert (Summary.Row_Count = Summary.Unbound_Bindable_Count,
-              "Phase 565 unbound filter must only show unbound bindable commands");
+              "unbound filter must only show unbound bindable commands");
 
       Editor.Keybinding_Management.Set_Filter
         (Editor.Keybinding_Management.Filter_Non_Bindable);
       Summary := Editor.Keybinding_Management.Summary;
       Assert (Summary.Row_Count = Summary.Non_Bindable_Command_Count,
-              "Phase 565 non-bindable filter must only show non-bindable markers");
+              "non-bindable filter must only show non-bindable markers");
       Editor.Keybinding_Management.Clear_Filter;
-   end Test_Phase565_Keybinding_List_Search_And_Filter;
+   end Test_Keybinding_List_Search_And_Filter;
 
-   procedure Test_Phase565_Filter_Changes_Clear_Stale_Selections
+   procedure Test_Filter_Changes_Clear_Stale_Selections
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
       pragma Unreferenced (T);
       Status : Editor.Keybinding_Management.Keybinding_Action_Status;
@@ -1537,37 +1537,37 @@ package body Editor.Keybindings.Tests is
       Assert
         (Editor.Keybinding_Management.Selected_Command =
          Editor.Commands.Command_Save_File,
-         "Phase 565 selection setup must select a command");
+         "selection setup must select a command");
       Editor.Keybinding_Management.Set_Query ("theme");
       Assert
         (Editor.Keybinding_Management.Selected_Command =
          Editor.Commands.No_Command,
-         "Phase 565 query changes must clear command selections hidden by the new row projection");
+         "query changes must clear command selections hidden by the new row projection");
       Editor.Keybinding_Management.Begin_Assign_Selected (Status);
       Assert
         (Status = Editor.Keybinding_Management.Keybinding_Action_No_Command_Selected,
-         "Phase 565 assign must not operate on a stale command hidden by the current filter/query");
+         "assign must not operate on a stale command hidden by the current filter/query");
 
       Editor.Keybinding_Management.Clear_Query;
       Editor.Keybinding_Management.Select_Chord ("Ctrl+S", Status);
       Assert
         (Status = Editor.Keybinding_Management.Keybinding_Action_Ok
          and then Editor.Keybinding_Management.Has_Selected_Chord,
-         "Phase 565 chord selection setup must select a visible chord row");
+         "chord selection setup must select a visible chord row");
       Editor.Keybinding_Management.Set_Query ("build");
       Assert
         (not Editor.Keybinding_Management.Has_Selected_Chord,
-         "Phase 565 query changes must clear selected chord rows hidden by the new projection");
+         "query changes must clear selected chord rows hidden by the new projection");
       Editor.Keybinding_Management.Remove_Selected (Status);
       Assert
         (Status = Editor.Keybinding_Management.Keybinding_Action_No_Command_Selected,
-         "Phase 565 remove must not operate on stale chord rows hidden by the current filter/query");
+         "remove must not operate on stale chord rows hidden by the current filter/query");
 
       Editor.Keybinding_Management.Clear_Query;
       Editor.Keybinding_Management.Clear_Filter;
-   end Test_Phase565_Filter_Changes_Clear_Stale_Selections;
+   end Test_Filter_Changes_Clear_Stale_Selections;
 
-   procedure Test_Phase565_Assign_Conflict_Cancel_Remove_Reset
+   procedure Test_Assign_Conflict_Cancel_Remove_Reset
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
       pragma Unreferenced (T);
       Status : Editor.Keybinding_Management.Keybinding_Action_Status;
@@ -1592,54 +1592,54 @@ package body Editor.Keybindings.Tests is
            (Projection.Row_Count > 0
             and then Editor.Keybindings.Binding_Count_For_Command
               (Editor.Commands.Command_Find_Show) = Before_Count,
-            "Phase 565 default chord projection must not mutate runtime keybindings");
+            "default chord projection must not mutate runtime keybindings");
          Editor.Keybinding_Config.Set_Defaults (Defaults);
          Assert
            (Editor.Keybindings.Binding_Count_For_Command
               (Editor.Commands.Command_Find_Show) = Before_Count,
-            "Phase 565 default model construction must not install defaults into runtime bindings");
+            "default model construction must not install defaults into runtime bindings");
          Editor.Keybinding_Config.Build_From_Runtime (Snapshot);
          Assert
            (Editor.Keybindings.Binding_Count_For_Command
               (Editor.Commands.Command_Find_Show) = Before_Count,
-            "Phase 565 keybinding save snapshot construction must not mutate runtime bindings");
+            "keybinding save snapshot construction must not mutate runtime bindings");
       end;
       Editor.Keybindings.Reset_To_Defaults;
       Editor.Keybinding_Management.Select_Command
         (Editor.Commands.Command_Find_Show);
       Editor.Keybinding_Management.Begin_Assign_Selected (Status);
       Assert (Status = Editor.Keybinding_Management.Keybinding_Action_Ok,
-              "Phase 565 assign must enter explicit capture mode for selected bindable command");
+              "assign must enter explicit capture mode for selected bindable command");
       declare
          S : constant Editor.Keybinding_Management.Keybinding_List_Summary :=
            Editor.Keybinding_Management.Summary;
       begin
          Assert (S.Capture = Editor.Keybinding_Management.Capture_Active,
-                 "Phase 565 capture state must be visible in the snapshot summary");
+                 "capture state must be visible in the snapshot summary");
       end;
       Editor.Keybinding_Management.Cancel_Capture (Status);
       Assert (Status = Editor.Keybinding_Management.Keybinding_Action_Cancelled,
-              "Phase 565 cancel must leave bindings unchanged");
+              "cancel must leave bindings unchanged");
 
       Editor.Keybinding_Management.Begin_Assign_Selected (Status);
       Editor.Keybinding_Management.Assign_Selected
         (Conflicting_Chord, Confirm_Conflict => False, Status => Status);
       Assert (Status = Editor.Keybinding_Management.Keybinding_Action_Shortcut_Already_Assigned,
-              "Phase 565 conflicting chord must require explicit replacement confirmation");
+              "conflicting chord must require explicit replacement confirmation");
       Assert (Editor.Keybinding_Management.Has_Pending_Conflict,
-              "Phase 565 conflict must expose an explicit pending conflict state");
+              "conflict must expose an explicit pending conflict state");
       Assert (Editor.Keybinding_Management.Pending_Conflict_Command =
                 Editor.Commands.Command_Save_File,
-              "Phase 565 pending conflict must identify the existing command");
+              "pending conflict must identify the existing command");
       Assert (Editor.Keybinding_Management.Pending_Conflict_Chord = "Ctrl+S",
-              "Phase 565 pending conflict must expose normalized chord label");
+              "pending conflict must expose normalized chord label");
       Editor.Keybinding_Management.Confirm_Pending_Assignment (Status);
       Assert (Status = Editor.Keybinding_Management.Keybinding_Action_Ok,
-              "Phase 565 explicit conflict confirmation must apply replacement");
+              "explicit conflict confirmation must apply replacement");
       Assert (Editor.Keybindings.Resolve (Conflicting_Chord, Actual) =
                 Editor.Keybindings.Bound_Command
               and then Actual = Editor.Commands.Command_Find_Show,
-              "Phase 565 confirmed conflict must deterministically replace chord owner");
+              "confirmed conflict must deterministically replace chord owner");
       Editor.Keybindings.Reset_To_Defaults;
       Editor.Keybinding_Management.Select_Command
         (Editor.Commands.Command_Find_Show);
@@ -1648,72 +1648,72 @@ package body Editor.Keybindings.Tests is
       Editor.Keybinding_Management.Assign_Selected
         (Conflicting_Chord, Confirm_Conflict => False, Status => Status);
       Assert (Status = Editor.Keybinding_Management.Keybinding_Action_Shortcut_Already_Assigned,
-              "Phase 565 repeated conflict must again require explicit confirmation");
+              "repeated conflict must again require explicit confirmation");
       Assert (Editor.Keybindings.Resolve (Conflicting_Chord, Actual) =
                 Editor.Keybindings.Bound_Command
               and then Actual = Editor.Commands.Command_Save_File,
-              "Phase 565 unconfirmed conflict must not displace existing binding");
+              "unconfirmed conflict must not displace existing binding");
 
       Editor.Keybinding_Management.Assign_Selected
         (New_Chord, Confirm_Conflict => False, Status => Status);
       Assert
         (Status = Editor.Keybinding_Management.Keybinding_Action_Confirmation_Pending,
-         "Phase 565 pending conflict must block assigning a different shortcut");
+         "pending conflict must block assigning a different shortcut");
       Assert
         (Editor.Keybindings.Resolve (New_Chord, Actual) = Editor.Keybindings.No_Binding,
-         "Phase 565 blocked assignment must not mutate runtime lookup");
+         "blocked assignment must not mutate runtime lookup");
 
       Editor.Keybinding_Management.Cancel_Capture (Status);
       Editor.Keybinding_Management.Begin_Assign_Selected (Status);
       Editor.Keybinding_Management.Assign_Selected
         (New_Chord, Confirm_Conflict => False, Status => Status);
       Assert (Status = Editor.Keybinding_Management.Keybinding_Action_Ok,
-              "Phase 565 non-conflicting assignment must succeed after pending conflict is cancelled");
+              "non-conflicting assignment must succeed after pending conflict is cancelled");
       Assert (Editor.Keybindings.Resolve (New_Chord, Actual) =
                 Editor.Keybindings.Bound_Command
               and then Actual = Editor.Commands.Command_Find_Show,
-              "Phase 565 assignment must update runtime lookup to stable command id");
+              "assignment must update runtime lookup to stable command id");
       Assert (Editor.Keybinding_Management.Latest_Message = "Keybinding assigned.",
-              "Phase 565 assign workflow must expose a precise outcome message");
+              "assign workflow must expose a precise outcome message");
 
       Editor.Keybinding_Management.Select_Chord ("Alt+Ctrl+P", Status);
       Assert (Status = Editor.Keybinding_Management.Keybinding_Action_Ok
               and then Editor.Keybinding_Management.Has_Selected_Chord
               and then Editor.Keybinding_Management.Selected_Chord_Label = "Ctrl+Alt+P",
-              "Phase 565 chord selection must normalize and select an active binding by chord");
+              "chord selection must normalize and select an active binding by chord");
       Editor.Keybinding_Management.Remove_Selected (Status);
       Assert (Status = Editor.Keybinding_Management.Keybinding_Action_Ok,
-              "Phase 565 remove selected chord must remove the selected chord binding");
+              "remove selected chord must remove the selected chord binding");
       Assert (Editor.Keybindings.Resolve (New_Chord, Actual) = Editor.Keybindings.No_Binding,
-              "Phase 565 remove by chord must update runtime lookup");
+              "remove by chord must update runtime lookup");
       Assert (Editor.Keybinding_Management.Latest_Message = "Keybinding removed.",
-              "Phase 565 remove workflow must expose a precise outcome message");
+              "remove workflow must expose a precise outcome message");
 
       Editor.Keybinding_Management.Select_Command
         (Editor.Commands.Command_Find_Show);
       Editor.Keybinding_Management.Assign_Selected
         (New_Chord, Confirm_Conflict => False, Status => Status);
       Assert (Status = Editor.Keybinding_Management.Keybinding_Action_Ok,
-              "Phase 565 command removal setup must restore a command binding");
+              "command removal setup must restore a command binding");
 
       Editor.Keybinding_Management.Remove_Selected (Status);
       Assert (Status = Editor.Keybinding_Management.Keybinding_Action_Ok,
-              "Phase 565 remove selected must remove the selected command binding");
+              "remove selected must remove the selected command binding");
       Assert (Editor.Keybindings.Resolve (New_Chord, Actual) = Editor.Keybindings.No_Binding,
-              "Phase 565 remove must update runtime lookup");
+              "remove must update runtime lookup");
 
       Editor.Keybinding_Management.Reset_To_Defaults (Status);
       Assert (Status = Editor.Keybinding_Management.Keybinding_Action_Ok,
-              "Phase 565 reset must complete explicitly");
+              "reset must complete explicitly");
       Assert (Editor.Keybinding_Management.Latest_Message = "Keybindings reset to defaults.",
-              "Phase 565 reset workflow must expose a precise outcome message");
+              "reset workflow must expose a precise outcome message");
       Assert (Editor.Keybindings.Resolve
                 (Chord (Editor.Keybindings.Key_P, Ctrl => True, Shift => True), Actual) =
                 Editor.Keybindings.Bound_Command
               and then Actual = Editor.Commands.Command_Open_Command_Palette,
-              "Phase 565 reset must restore default keybindings only");
-   end Test_Phase565_Assign_Conflict_Cancel_Remove_Reset;
-   procedure Test_Phase565_Input_Bridge_Capture_Consumes_And_Assigns
+              "reset must restore default keybindings only");
+   end Test_Assign_Conflict_Cancel_Remove_Reset;
+   procedure Test_Input_Bridge_Capture_Consumes_And_Assigns
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
       pragma Unreferenced (T);
       Status : Editor.Keybinding_Management.Keybinding_Action_Status;
@@ -1731,26 +1731,26 @@ package body Editor.Keybindings.Tests is
         (Editor.Commands.Command_Find_Show);
       Editor.Keybinding_Management.Begin_Assign_Selected (Status);
       Assert (Status = Editor.Keybinding_Management.Keybinding_Action_Ok,
-              "Phase 565 input bridge capture setup must enter capture mode");
+              "input bridge capture setup must enter capture mode");
 
       Editor.Input_Bridge.Handle_Key_Chord (Captured);
 
       Assert
         (Editor.Keybinding_Management.Current_Capture_State =
            Editor.Keybinding_Management.Capture_Inactive,
-         "Phase 565 captured chord must close capture mode");
+         "captured chord must close capture mode");
       Assert
         (Editor.Keybindings.Resolve (Captured, Actual) =
            Editor.Keybindings.Bound_Command
          and then Actual = Editor.Commands.Command_Find_Show,
-         "Phase 565 Input_Bridge capture must assign through keybinding management "
+         "Input_Bridge capture must assign through keybinding management "
          & "instead of typing or global dispatch");
       Assert
         (Editor.Keybinding_Management.Latest_Message = "Keybinding assigned.",
-         "Phase 565 Input_Bridge capture must report the assignment outcome");
-   end Test_Phase565_Input_Bridge_Capture_Consumes_And_Assigns;
+         "Input_Bridge capture must report the assignment outcome");
+   end Test_Input_Bridge_Capture_Consumes_And_Assigns;
 
-   procedure Test_Phase565_Input_Bridge_Focused_Surface_Consumes_Local_Navigation
+   procedure Test_Input_Bridge_Focused_Surface_Consumes_Local_Navigation
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
       pragma Unreferenced (T);
    begin
@@ -1766,35 +1766,35 @@ package body Editor.Keybindings.Tests is
       Assert
         (Editor.Keybinding_Management.Selected_Command =
            Editor.Commands.Command_Save_File,
-         "Phase 565 focused keybinding surface must consume Down for row selection");
+         "focused keybinding surface must consume Down for row selection");
 
       Editor.Input_Bridge.Handle_Key_Chord
         (Chord (Editor.Keybindings.Key_Enter));
       Assert
         (Editor.Keybinding_Management.Current_Capture_State =
            Editor.Keybinding_Management.Capture_Active,
-         "Phase 565 focused keybinding surface Enter must start explicit capture");
+         "focused keybinding surface Enter must start explicit capture");
 
       Editor.Input_Bridge.Handle_Key_Chord
         (Chord (Editor.Keybindings.Key_Escape));
       Assert
         (Editor.Keybinding_Management.Current_Capture_State =
            Editor.Keybinding_Management.Capture_Inactive,
-         "Phase 565 first Escape must cancel capture while surface stays visible");
+         "first Escape must cancel capture while surface stays visible");
       Assert
         (Editor.Keybinding_Management.Is_Visible,
-         "Phase 565 capture cancellation must not hide the keybinding surface");
+         "capture cancellation must not hide the keybinding surface");
 
       Editor.Input_Bridge.Handle_Key_Chord
         (Chord (Editor.Keybindings.Key_Escape));
       Assert
         (not Editor.Keybinding_Management.Is_Visible,
-         "Phase 565 focused keybinding surface must consume Escape to hide itself");
+         "focused keybinding surface must consume Escape to hide itself");
 
       Editor.Keybindings.Reset_To_Defaults;
-   end Test_Phase565_Input_Bridge_Focused_Surface_Consumes_Local_Navigation;
+   end Test_Input_Bridge_Focused_Surface_Consumes_Local_Navigation;
 
-   procedure Test_Phase565_Input_Bridge_Focused_Surface_Reset_Confirmation_Keys
+   procedure Test_Input_Bridge_Focused_Surface_Reset_Confirmation_Keys
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
       pragma Unreferenced (T);
       Status : Editor.Keybindings.Keybinding_Change_Status;
@@ -1808,40 +1808,40 @@ package body Editor.Keybindings.Tests is
       Editor.Keybindings.Assign
         (Custom, Editor.Commands.Command_Find_Show, Status);
       Assert (Status = Editor.Keybindings.Keybinding_Change_Ok,
-              "Phase 565 reset key confirmation test must create a custom binding");
+              "reset key confirmation test must create a custom binding");
 
       Editor.Keybinding_Management.Show;
       Editor.Keybinding_Management.Focus;
       Editor.Keybinding_Management.Request_Reset_To_Defaults (Action);
       Assert (Editor.Keybinding_Management.Has_Pending_Reset,
-              "Phase 565 focused surface reset must be pending before Escape");
+              "focused surface reset must be pending before Escape");
 
       Editor.Input_Bridge.Handle_Key_Chord
         (Chord (Editor.Keybindings.Key_Escape));
       Assert (not Editor.Keybinding_Management.Has_Pending_Reset,
-              "Phase 565 focused surface Escape must cancel pending reset first");
+              "focused surface Escape must cancel pending reset first");
       Assert (Editor.Keybinding_Management.Is_Visible,
-              "Phase 565 reset cancellation must keep keybinding surface visible");
+              "reset cancellation must keep keybinding surface visible");
       Assert (Editor.Keybindings.Resolve (Custom, Actual) =
                 Editor.Keybindings.Bound_Command
               and then Actual = Editor.Commands.Command_Find_Show,
-              "Phase 565 reset cancellation must not mutate bindings");
+              "reset cancellation must not mutate bindings");
 
       Editor.Keybinding_Management.Request_Reset_To_Defaults (Action);
       Assert (Editor.Keybinding_Management.Has_Pending_Reset,
-              "Phase 565 focused surface reset must be pending before Enter");
+              "focused surface reset must be pending before Enter");
       Editor.Input_Bridge.Handle_Key_Chord
         (Chord (Editor.Keybindings.Key_Enter));
       Assert (not Editor.Keybinding_Management.Has_Pending_Reset,
-              "Phase 565 focused surface Enter must confirm pending reset");
+              "focused surface Enter must confirm pending reset");
       Assert (Editor.Keybindings.Resolve (Custom, Actual) =
                 Editor.Keybindings.No_Binding,
-              "Phase 565 confirmed reset key must restore defaults and clear custom binding");
+              "confirmed reset key must restore defaults and clear custom binding");
 
       Editor.Keybindings.Reset_To_Defaults;
-   end Test_Phase565_Input_Bridge_Focused_Surface_Reset_Confirmation_Keys;
+   end Test_Input_Bridge_Focused_Surface_Reset_Confirmation_Keys;
 
-   procedure Test_Phase565_Input_Bridge_Capture_Conflict_Requires_Enter
+   procedure Test_Input_Bridge_Capture_Conflict_Requires_Enter
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
       pragma Unreferenced (T);
       Status : Editor.Keybinding_Management.Keybinding_Action_Status;
@@ -1857,33 +1857,33 @@ package body Editor.Keybindings.Tests is
         (Editor.Commands.Command_Find_Show);
       Editor.Keybinding_Management.Begin_Assign_Selected (Status);
       Assert (Status = Editor.Keybinding_Management.Keybinding_Action_Ok,
-              "Phase 565 conflict capture setup must enter capture mode");
+              "conflict capture setup must enter capture mode");
 
       Editor.Input_Bridge.Handle_Key_Chord (Conflicting);
       Assert
         (Editor.Keybinding_Management.Has_Pending_Conflict,
-         "Phase 565 Input_Bridge capture must expose conflict instead of replacing silently");
+         "Input_Bridge capture must expose conflict instead of replacing silently");
       Assert
         (Editor.Keybindings.Resolve (Conflicting, Actual) =
            Editor.Keybindings.Bound_Command
          and then Actual = Editor.Commands.Command_Save_File,
-         "Phase 565 unconfirmed Input_Bridge conflict must preserve existing owner");
+         "unconfirmed Input_Bridge conflict must preserve existing owner");
 
       Editor.Input_Bridge.Handle_Key_Chord
         (Chord (Editor.Keybindings.Key_P, Ctrl => True, Alt => True));
       Assert
         (Editor.Keybinding_Management.Has_Pending_Conflict,
-         "Phase 565 non-confirming chord must leave conflict confirmation pending");
+         "non-confirming chord must leave conflict confirmation pending");
       Assert
         (Editor.Keybindings.Resolve
            (Chord (Editor.Keybindings.Key_P, Ctrl => True, Alt => True), Actual) =
              Editor.Keybindings.No_Binding,
-         "Phase 565 non-confirming chord during conflict must not assign a new binding");
+         "non-confirming chord during conflict must not assign a new binding");
       Assert
         (Editor.Keybindings.Resolve (Conflicting, Actual) =
            Editor.Keybindings.Bound_Command
          and then Actual = Editor.Commands.Command_Save_File,
-         "Phase 565 non-confirming chord during conflict must not replace existing owner");
+         "non-confirming chord during conflict must not replace existing owner");
 
       Editor.Input_Bridge.Handle_Key_Chord
         (Chord (Editor.Keybindings.Key_Enter));
@@ -1891,13 +1891,13 @@ package body Editor.Keybindings.Tests is
         (Editor.Keybindings.Resolve (Conflicting, Actual) =
            Editor.Keybindings.Bound_Command
          and then Actual = Editor.Commands.Command_Find_Show,
-         "Phase 565 Enter must explicitly confirm pending keybinding replacement");
+         "Enter must explicitly confirm pending keybinding replacement");
       Assert
         (not Editor.Keybinding_Management.Has_Pending_Conflict,
-         "Phase 565 confirmed conflict must clear pending conflict state");
-   end Test_Phase565_Input_Bridge_Capture_Conflict_Requires_Enter;
+         "confirmed conflict must clear pending conflict state");
+   end Test_Input_Bridge_Capture_Conflict_Requires_Enter;
 
-   procedure Test_Phase565_Conflict_Confirmation_Uses_Captured_Target
+   procedure Test_Conflict_Confirmation_Uses_Captured_Target
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
       pragma Unreferenced (T);
       Status : Editor.Keybinding_Management.Keybinding_Action_Status;
@@ -1917,37 +1917,37 @@ package body Editor.Keybindings.Tests is
       Assert
         (Status = Editor.Keybinding_Management.Keybinding_Action_Shortcut_Already_Assigned
          and then Editor.Keybinding_Management.Has_Pending_Conflict,
-         "Phase 565 setup must leave a pending conflict confirmation");
+         "setup must leave a pending conflict confirmation");
 
       --  A transient filter/query change may hide and clear the selected row,
       --  but it must not invalidate the explicit captured target/chord pair.
       Editor.Keybinding_Management.Set_Query ("definitely no matching command");
       Assert
         (Editor.Keybinding_Management.Selected_Command = Editor.Commands.No_Command,
-         "Phase 565 filter change must clear the stale visible row selection");
+         "filter change must clear the stale visible row selection");
 
       Editor.Keybinding_Management.Confirm_Pending_Assignment (Status);
       Assert
         (Status = Editor.Keybinding_Management.Keybinding_Action_Ok,
-         "Phase 565 conflict confirmation must use captured target, not live row selection");
+         "conflict confirmation must use captured target, not live row selection");
       Assert
         (Editor.Keybindings.Resolve (Conflicting, Actual) =
            Editor.Keybindings.Bound_Command
          and then Actual = Editor.Commands.Command_Find_Show,
-         "Phase 565 confirmed replacement must still update runtime lookup");
+         "confirmed replacement must still update runtime lookup");
       Assert
         (not Editor.Keybinding_Management.Has_Pending_Conflict,
-         "Phase 565 confirmed replacement must clear pending conflict state");
+         "confirmed replacement must clear pending conflict state");
 
       Editor.Keybinding_Management.Clear_Query;
       Editor.Keybindings.Reset_To_Defaults;
-   end Test_Phase565_Conflict_Confirmation_Uses_Captured_Target;
+   end Test_Conflict_Confirmation_Uses_Captured_Target;
 
 
-   procedure Test_Phase565_Save_Load_No_Payload_And_Coherence
+   procedure Test_Save_Load_No_Payload_And_Coherence
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
       pragma Unreferenced (T);
-      Path   : constant String := Temp_Path ("phase565_save_load");
+      Path   : constant String := Temp_Path ("save_load");
       Status : Editor.Keybinding_Management.Keybinding_Action_Status;
       Text   : Unbounded_String := Null_Unbounded_String;
       Actual : Editor.Commands.Command_Id := Editor.Commands.No_Command;
@@ -1960,29 +1960,29 @@ package body Editor.Keybindings.Tests is
       Editor.Keybinding_Management.Assign_Selected
         (Ch, Confirm_Conflict => False, Status => Status);
       Assert (Status = Editor.Keybinding_Management.Keybinding_Action_Ok,
-              "Phase 565 setup assignment must succeed");
+              "setup assignment must succeed");
 
       Editor.Keybinding_Management.Save (Path, Status);
       Assert (Status = Editor.Keybinding_Management.Keybinding_Action_Ok,
-              "Phase 565 save must write keybinding domain only");
+              "save must write keybinding domain only");
       Text := To_Unbounded_String (File_Contents (Path));
       Assert (Ada.Strings.Fixed.Index (To_String (Text), "edit.find.show") /= 0,
-              "Phase 565 save must contain stable command names");
+              "save must contain stable command names");
       Assert (Ada.Strings.Fixed.Index (To_String (Text), "candidate") = 0
               and then Ada.Strings.Fixed.Index (To_String (Text), "workspace") = 0
               and then Ada.Strings.Fixed.Index (To_String (Text), "[recent-projects]") = 0
               and then Ada.Strings.Fixed.Index (To_String (Text), "recent-project=") = 0,
-              "Phase 565 save must exclude payloads, workspace, and recent projects");
+              "save must exclude payloads, workspace, and recent projects");
 
       Editor.Keybindings.Reset_To_Defaults;
       Assert (Editor.Keybindings.Resolve (Ch, Actual) = Editor.Keybindings.No_Binding,
-              "Phase 565 custom chord should be absent after reset before reload");
+              "custom chord should be absent after reset before reload");
       Editor.Keybinding_Management.Load (Path, Status);
       Assert (Status = Editor.Keybinding_Management.Keybinding_Action_Ok,
-              "Phase 565 load must apply stable chord-to-command mappings without executing commands");
+              "load must apply stable chord-to-command mappings without executing commands");
       Assert (Editor.Keybindings.Resolve (Ch, Actual) = Editor.Keybindings.Bound_Command
               and then Actual = Editor.Commands.Command_Find_Show,
-              "Phase 565 load must restore normalized runtime lookup");
+              "load must restore normalized runtime lookup");
       Editor.Command_Route_Audit.Clear (Audit);
       Editor.Command_Route_Audit.Record_Keybinding_Management_Route
         (Audit, Editor.Commands.Command_Find_Show,
@@ -1990,19 +1990,19 @@ package body Editor.Keybindings.Tests is
          Used_Stable_Command_Name => True,
          Carried_Payload => False);
       Assert (Editor.Command_Route_Audit.Failure_Count (Audit) = 0,
-              "Phase 565 keybinding management route audit must accept Executor/stable/no-payload routes");
+              "keybinding management route audit must accept Executor/stable/no-payload routes");
       Editor.Command_Route_Audit.Record_Keybinding_Management_Route
         (Audit, Editor.Commands.Command_Find_Show,
          Routed_Through_Executor => True,
          Used_Stable_Command_Name => True,
          Carried_Payload => True);
       Assert (Editor.Command_Route_Audit.Failure_Count (Audit) = 1,
-              "Phase 565 keybinding management route audit must reject payload-bearing routes");
+              "keybinding management route audit must reject payload-bearing routes");
       Assert (Editor.Keybinding_Management.Assert_Keybinding_Management_Coherent,
-              "Phase 565 milestone coherence helper must pass");
-   end Test_Phase565_Save_Load_No_Payload_And_Coherence;
+              "milestone coherence helper must pass");
+   end Test_Save_Load_No_Payload_And_Coherence;
 
-   procedure Test_Phase565_Reset_Confirmation_And_Surface_Guards
+   procedure Test_Reset_Confirmation_And_Surface_Guards
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
       pragma Unreferenced (T);
       Status : Editor.Keybinding_Management.Keybinding_Action_Status;
@@ -2018,43 +2018,43 @@ package body Editor.Keybindings.Tests is
       Editor.Keybinding_Management.Assign_Selected
         (Custom, Confirm_Conflict => False, Status => Status);
       Assert (Status = Editor.Keybinding_Management.Keybinding_Action_Ok,
-              "Phase 565 reset-confirmation setup must bind a custom chord");
+              "reset-confirmation setup must bind a custom chord");
 
       Editor.Keybinding_Management.Request_Reset_To_Defaults (Status);
       Assert (Status = Editor.Keybinding_Management.Keybinding_Action_Reset_Confirmation_Pending
               and then Editor.Keybinding_Management.Has_Pending_Reset,
-              "Phase 565 reset request must create explicit pending confirmation");
+              "reset request must create explicit pending confirmation");
       Snapshot := Editor.Keybinding_Management.Build_Surface_Snapshot;
       Assert (Snapshot.Has_Pending_Reset,
-              "Phase 565 render snapshot must expose pending reset state");
+              "render snapshot must expose pending reset state");
       Assert (Editor.Keybindings.Resolve (Custom, Actual) = Editor.Keybindings.Bound_Command
               and then Actual = Editor.Commands.Command_Find_Show,
-              "Phase 565 reset request must not mutate runtime keybindings");
+              "reset request must not mutate runtime keybindings");
 
       Editor.Keybinding_Management.Cancel_Reset_To_Defaults (Status);
       Assert (Status = Editor.Keybinding_Management.Keybinding_Action_Cancelled
               and then not Editor.Keybinding_Management.Has_Pending_Reset,
-              "Phase 565 reset cancel must clear pending confirmation");
+              "reset cancel must clear pending confirmation");
       Assert (Editor.Keybindings.Resolve (Custom, Actual) = Editor.Keybindings.Bound_Command
               and then Actual = Editor.Commands.Command_Find_Show,
-              "Phase 565 reset cancel must leave bindings unchanged");
+              "reset cancel must leave bindings unchanged");
 
       Editor.Keybinding_Management.Request_Reset_To_Defaults (Status);
       Editor.Keybinding_Management.Confirm_Reset_To_Defaults (Status);
       Assert (Status = Editor.Keybinding_Management.Keybinding_Action_Ok
               and then not Editor.Keybinding_Management.Has_Pending_Reset,
-              "Phase 565 reset confirmation must apply and clear pending state");
+              "reset confirmation must apply and clear pending state");
       Assert (Editor.Keybindings.Resolve (Custom, Actual) = Editor.Keybindings.No_Binding,
-              "Phase 565 confirmed reset must remove user overrides");
+              "confirmed reset must remove user overrides");
 
       Assert (Editor.Keybinding_Management.Assert_Keybinding_Surface_Render_Is_Observational,
-              "Phase 565 surface snapshot must be render-observational");
+              "surface snapshot must be render-observational");
       Assert (Editor.Keybinding_Management.Assert_Keybinding_Editor_State_Not_Persisted,
-              "Phase 565 keybinding editor query/selection/capture state must remain non-persisted");
-   end Test_Phase565_Reset_Confirmation_And_Surface_Guards;
+              "keybinding editor query/selection/capture state must remain non-persisted");
+   end Test_Reset_Confirmation_And_Surface_Guards;
 
 
-   procedure Test_Phase565_Reset_Transient_State_Clears_UI_Only
+   procedure Test_Reset_Transient_State_Clears_UI_Only
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
       pragma Unreferenced (T);
       Status : Editor.Keybinding_Management.Keybinding_Action_Status;
@@ -2070,44 +2070,44 @@ package body Editor.Keybindings.Tests is
       Editor.Keybinding_Management.Assign_Selected
         (Custom, Confirm_Conflict => False, Status => Status);
       Assert (Status = Editor.Keybinding_Management.Keybinding_Action_Ok,
-              "Phase 565 reset transient setup must create a custom binding");
+              "reset transient setup must create a custom binding");
       Editor.Keybinding_Management.Set_Query ("build");
       Editor.Keybinding_Management.Set_Filter
         (Editor.Keybinding_Management.Filter_Unbound);
       Editor.Keybinding_Management.Request_Reset_To_Defaults (Status);
       Assert (Status = Editor.Keybinding_Management.Keybinding_Action_Reset_Confirmation_Pending,
-              "Phase 565 reset transient setup must create pending reset state");
+              "reset transient setup must create pending reset state");
 
       Editor.Keybinding_Management.Reset_Transient_State;
 
       Assert (not Editor.Keybinding_Management.Is_Visible
               and then not Editor.Keybinding_Management.Is_Focused,
-              "Phase 565 transient reset must hide and unfocus the keybinding surface");
+              "transient reset must hide and unfocus the keybinding surface");
       Assert (Editor.Keybinding_Management.Query = "",
-              "Phase 565 transient reset must clear keybinding query state");
+              "transient reset must clear keybinding query state");
       Assert (Editor.Keybinding_Management.Current_Filter =
               Editor.Keybinding_Management.Filter_All,
-              "Phase 565 transient reset must clear keybinding filter state");
+              "transient reset must clear keybinding filter state");
       Assert (Editor.Keybinding_Management.Selected_Command =
               Editor.Commands.No_Command,
-              "Phase 565 transient reset must clear selected command state");
+              "transient reset must clear selected command state");
       Assert (not Editor.Keybinding_Management.Has_Selected_Chord,
-              "Phase 565 transient reset must clear selected chord state");
+              "transient reset must clear selected chord state");
       Assert (Editor.Keybinding_Management.Current_Capture_State =
               Editor.Keybinding_Management.Capture_Inactive,
-              "Phase 565 transient reset must clear capture state");
+              "transient reset must clear capture state");
       Assert (not Editor.Keybinding_Management.Has_Pending_Reset
               and then not Editor.Keybinding_Management.Has_Pending_Conflict,
-              "Phase 565 transient reset must clear pending confirmation state");
+              "transient reset must clear pending confirmation state");
       Assert (Editor.Keybinding_Management.Latest_Message = "",
-              "Phase 565 transient reset must clear local latest-message state");
+              "transient reset must clear local latest-message state");
       Assert (Editor.Keybindings.Resolve (Custom, Actual) =
               Editor.Keybindings.Bound_Command
               and then Actual = Editor.Commands.Command_Save_File,
-              "Phase 565 transient reset must not reset or mutate runtime keybindings");
-   end Test_Phase565_Reset_Transient_State_Clears_UI_Only;
+              "transient reset must not reset or mutate runtime keybindings");
+   end Test_Reset_Transient_State_Clears_UI_Only;
 
-   procedure Test_Phase565_Pending_Confirmations_Block_Keybinding_Mutations
+   procedure Test_Pending_Confirmations_Block_Keybinding_Mutations
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
       pragma Unreferenced (T);
       S : Editor.State.State_Type;
@@ -2128,45 +2128,45 @@ package body Editor.Keybindings.Tests is
       Editor.Keybinding_Management.Assign_Selected
         (Custom, Confirm_Conflict => False, Status => Status);
       Assert (Status = Editor.Keybinding_Management.Keybinding_Action_Ok,
-              "Phase 565 pending-confirmation setup must create custom binding");
+              "pending-confirmation setup must create custom binding");
 
       Editor.Keybinding_Management.Request_Reset_To_Defaults (Status);
       Assert (Status = Editor.Keybinding_Management.Keybinding_Action_Reset_Confirmation_Pending,
-              "Phase 565 reset request must enter pending confirmation state");
+              "reset request must enter pending confirmation state");
 
       Editor.Keybinding_Management.Begin_Assign_Selected (Status);
       Assert (Status = Editor.Keybinding_Management.Keybinding_Action_Confirmation_Pending,
-              "Phase 565 assign must be blocked while reset confirmation is pending");
+              "assign must be blocked while reset confirmation is pending");
 
       Editor.Keybinding_Management.Remove_Selected (Status);
       Assert (Status = Editor.Keybinding_Management.Keybinding_Action_Confirmation_Pending,
-              "Phase 565 remove must be blocked while reset confirmation is pending");
+              "remove must be blocked while reset confirmation is pending");
 
-      Editor.Keybinding_Management.Save (Temp_Path ("phase565_pending_block"), Status);
+      Editor.Keybinding_Management.Save (Temp_Path ("pending_block"), Status);
       Assert (Status = Editor.Keybinding_Management.Keybinding_Action_Confirmation_Pending,
-              "Phase 565 save must be blocked while confirmation is pending");
+              "save must be blocked while confirmation is pending");
 
       Availability := Editor.Executor.Command_Availability
         (S, Editor.Commands.Command_Keybindings_Assign_Selected);
       Assert (Availability.Status = Editor.Commands.Command_Unavailable,
-              "Phase 565 Executor availability must block assign during pending confirmation");
+              "Executor availability must block assign during pending confirmation");
 
       Availability := Editor.Executor.Command_Availability
         (S, Editor.Commands.Command_Keybindings_Remove_Selected);
       Assert (Availability.Status = Editor.Commands.Command_Unavailable,
-              "Phase 565 Executor availability must block remove during pending confirmation");
+              "Executor availability must block remove during pending confirmation");
 
       Assert (Editor.Keybindings.Resolve (Custom, Actual) = Editor.Keybindings.Bound_Command
               and then Actual = Editor.Commands.Command_Find_Show,
-              "Phase 565 blocked operations must not mutate the existing binding");
+              "blocked operations must not mutate the existing binding");
 
       Editor.Keybinding_Management.Cancel_Reset_To_Defaults (Status);
       Assert (Status = Editor.Keybinding_Management.Keybinding_Action_Cancelled,
-              "Phase 565 pending confirmation cancel must remain available");
-   end Test_Phase565_Pending_Confirmations_Block_Keybinding_Mutations;
+              "pending confirmation cancel must remain available");
+   end Test_Pending_Confirmations_Block_Keybinding_Mutations;
 
 
-   procedure Test_Phase565_Reset_Commands_Require_Confirmation
+   procedure Test_Reset_Commands_Require_Confirmation
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
       pragma Unreferenced (T);
       S : Editor.State.State_Type;
@@ -2187,43 +2187,43 @@ package body Editor.Keybindings.Tests is
       Editor.Keybinding_Management.Assign_Selected
         (Custom, Confirm_Conflict => False, Status => Status);
       Assert (Status = Editor.Keybinding_Management.Keybinding_Action_Ok,
-              "Phase 565 reset-command setup must create custom binding");
+              "reset-command setup must create custom binding");
 
       Editor.Keybinding_Management.Begin_Assign_Selected (Status);
       Assert (Status = Editor.Keybinding_Management.Keybinding_Action_Ok,
-              "Phase 565 reset-command setup must enter capture mode");
+              "reset-command setup must enter capture mode");
 
       Availability := Editor.Executor.Command_Availability
         (S, Editor.Commands.Command_Keybindings_Reset_To_Defaults);
       Assert (Availability.Status = Editor.Commands.Command_Unavailable,
-              "Phase 565 keybinding reset must be unavailable while capture is active");
+              "keybinding reset must be unavailable while capture is active");
 
       Editor.Keybinding_Management.Request_Reset_To_Defaults (Status);
       Assert (Status = Editor.Keybinding_Management.Keybinding_Action_Confirmation_Pending,
-              "Phase 565 direct reset request must not overwrite capture confirmation state");
+              "direct reset request must not overwrite capture confirmation state");
 
       Editor.Keybinding_Management.Cancel_Capture (Status);
       Assert (Status = Editor.Keybinding_Management.Keybinding_Action_Cancelled,
-              "Phase 565 reset-command setup must cancel capture");
+              "reset-command setup must cancel capture");
 
       Editor.Executor.Execute_Command
         (S, Editor.Commands.Command_Keybindings_Reset_To_Defaults);
       Assert (Editor.Keybinding_Management.Has_Pending_Reset,
-              "Phase 565 reset command must request confirmation first");
+              "reset command must request confirmation first");
       Assert (Editor.Keybindings.Resolve (Custom, Actual) = Editor.Keybindings.Bound_Command
               and then Actual = Editor.Commands.Command_Find_Show,
-              "Phase 565 first reset invocation must not reset runtime bindings");
+              "first reset invocation must not reset runtime bindings");
 
       Editor.Executor.Execute_Command
         (S, Editor.Commands.Command_Keybindings_Reset_To_Defaults);
       Assert (not Editor.Keybinding_Management.Has_Pending_Reset,
-              "Phase 565 second reset invocation must clear confirmation");
+              "second reset invocation must clear confirmation");
       Assert (Editor.Keybindings.Resolve (Custom, Actual) = Editor.Keybindings.No_Binding,
-              "Phase 565 confirmed reset command must restore defaults");
-   end Test_Phase565_Reset_Commands_Require_Confirmation;
+              "confirmed reset command must restore defaults");
+   end Test_Reset_Commands_Require_Confirmation;
 
 
-   procedure Test_Phase565_Command_Descriptors_And_Executor_Routes
+   procedure Test_Command_Descriptors_And_Executor_Routes
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
       pragma Unreferenced (T);
       S : Editor.State.State_Type;
@@ -2236,38 +2236,38 @@ package body Editor.Keybindings.Tests is
       Assert
         (Editor.Commands.Stable_Command_Name
            (Editor.Commands.Command_Save_Keybindings) = "keybindings.save",
-         "Phase 565 save command must have keybindings.save stable name");
+         "save command must have keybindings.save stable name");
       Assert
         (Editor.Commands.Stable_Command_Name
            (Editor.Commands.Command_Reload_Keybindings) = "keybindings.load",
-         "Phase 565 load command must have keybindings.load stable name");
+         "load command must have keybindings.load stable name");
       Assert
         (Editor.Commands.Stable_Command_Name
            (Editor.Commands.Command_Keybindings_Show) = "keybindings.show",
-         "Phase 565 show command must have stable name");
+         "show command must have stable name");
       Assert
         (Editor.Commands.Stable_Command_Name
            (Editor.Commands.Command_Keybindings_Assign_Selected) =
          "keybindings.assign-selected",
-         "Phase 565 assign command must have stable name");
+         "assign command must have stable name");
       Assert
         (Editor.Commands.Stable_Command_Name
            (Editor.Commands.Command_Keybindings_Remove_Selected) =
          "keybindings.remove-selected",
-         "Phase 565 remove command must have stable name");
+         "remove command must have stable name");
       Assert
         (Editor.Commands.Stable_Command_Name
            (Editor.Commands.Command_Keybindings_Reset_To_Defaults) =
          "keybindings.reset-to-defaults",
-         "Phase 565 reset command must have stable name");
+         "reset command must have stable name");
       Assert
         (Editor.Commands.Discoverability_Category_Label
            (Editor.Commands.Command_Keybindings_Show) = "Keybindings",
-         "Phase 565 commands must group under Keybindings discoverability");
+         "commands must group under Keybindings discoverability");
       Assert
         (Editor.Commands.Discoverability_Category_Label
            (Editor.Commands.Command_Save_Keybindings) = "Keybindings",
-         "Phase 565 save/load keybinding commands must group under Keybindings discoverability");
+         "save/load keybinding commands must group under Keybindings discoverability");
 
       Availability := Editor.Executor.Command_Availability
         (S, Editor.Commands.Command_Keybindings_Assign_Selected);
@@ -2275,7 +2275,7 @@ package body Editor.Keybindings.Tests is
         (not Editor.Commands.Is_Available (Availability)
          and then Editor.Commands.Unavailable_Reason (Availability) =
            "Keybindings view is not open",
-         "Phase 565 assign availability must be precise when view is closed");
+         "assign availability must be precise when view is closed");
 
       Availability := Editor.Executor.Command_Availability
         (S, Editor.Commands.Command_Keybindings_Cancel_Capture);
@@ -2283,12 +2283,12 @@ package body Editor.Keybindings.Tests is
         (not Editor.Commands.Is_Available (Availability)
          and then Editor.Commands.Unavailable_Reason (Availability) =
            "Shortcut capture is not active",
-         "Phase 565 cancel-capture availability must be precise when idle");
+         "cancel-capture availability must be precise when idle");
 
       Editor.Executor.Execute_Command (S, Editor.Commands.Command_Keybindings_Show);
       Assert
         (Editor.Keybinding_Management.Is_Visible,
-         "Phase 565 keybindings.show must route through Executor");
+         "keybindings.show must route through Executor");
       Editor.Keybinding_Management.Clear_Selection;
 
       Availability := Editor.Executor.Command_Availability
@@ -2297,7 +2297,7 @@ package body Editor.Keybindings.Tests is
         (not Editor.Commands.Is_Available (Availability)
          and then Editor.Commands.Unavailable_Reason (Availability) =
            "No command selected.",
-         "Phase 565 assign availability must require a selected command");
+         "assign availability must require a selected command");
 
       Editor.Keybinding_Management.Select_Command (Editor.Commands.Command_Find_Show);
       Editor.Executor.Execute_Command
@@ -2305,34 +2305,34 @@ package body Editor.Keybindings.Tests is
       Assert
         (Editor.Keybinding_Management.Current_Capture_State =
          Editor.Keybinding_Management.Capture_Active,
-         "Phase 565 assign selected must enter capture through Executor");
+         "assign selected must enter capture through Executor");
 
       Availability := Editor.Executor.Command_Availability
         (S, Editor.Commands.Command_Keybindings_Cancel_Capture);
       Assert
         (Editor.Commands.Is_Available (Availability),
-         "Phase 565 cancel-capture must become available during capture");
+         "cancel-capture must become available during capture");
 
       Editor.Executor.Execute_Command
         (S, Editor.Commands.Command_Keybindings_Cancel_Capture);
       Assert
         (Editor.Keybinding_Management.Current_Capture_State =
          Editor.Keybinding_Management.Capture_Inactive,
-         "Phase 565 cancel capture must clear capture through Executor");
+         "cancel capture must clear capture through Executor");
 
       Editor.Executor.Execute_Command
         (S, Editor.Commands.Command_Keybindings_Filter_Unbound);
       Assert
         (Editor.Keybinding_Management.Current_Filter =
          Editor.Keybinding_Management.Filter_Unbound,
-         "Phase 565 filter-unbound command must update transient filter state only");
+         "filter-unbound command must update transient filter state only");
 
       Editor.Executor.Execute_Command
         (S, Editor.Commands.Command_Keybindings_Clear_Filter);
       Assert
         (Editor.Keybinding_Management.Current_Filter =
          Editor.Keybinding_Management.Filter_All,
-         "Phase 565 clear-filter command must restore all filter");
+         "clear-filter command must restore all filter");
 
       declare
          Audit : Editor.Command_Route_Audit.Route_Audit_Result;
@@ -2357,16 +2357,16 @@ package body Editor.Keybindings.Tests is
             Carried_Payload          => False);
          Assert
            (Editor.Command_Route_Audit.Failure_Count (Audit) = 0,
-            "Phase 565 keybinding management routes must be Executor-routed and no-payload");
+            "keybinding management routes must be Executor-routed and no-payload");
       end;
       Editor.Keybindings.Reset_To_Defaults;
-   end Test_Phase565_Command_Descriptors_And_Executor_Routes;
+   end Test_Command_Descriptors_And_Executor_Routes;
 
 
-   procedure Test_Phase565_Load_Diagnostics_Surface_Invalid_Entries
+   procedure Test_Load_Diagnostics_Surface_Invalid_Entries
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
       pragma Unreferenced (T);
-      Path   : constant String := Temp_Path ("phase565_load_diagnostics");
+      Path   : constant String := Temp_Path ("load_diagnostics");
       Status : Editor.Keybinding_Management.Keybinding_Action_Status;
       Sum    : Editor.Keybinding_Management.Keybinding_List_Summary;
       Surf   : Editor.Keybinding_Management.Keybinding_Surface_Snapshot;
@@ -2389,33 +2389,33 @@ package body Editor.Keybindings.Tests is
       Editor.Keybinding_Management.Load (Path, Status);
       Assert
         (Status = Editor.Keybinding_Management.Keybinding_Action_Ok,
-         "Phase 565 partial load must still apply valid mappings");
+         "partial load must still apply valid mappings");
       Sum := Editor.Keybinding_Management.Summary;
       Assert
         (Sum.Last_Load_Ignored_Count >= 4,
-         "Phase 565 keybinding surface must expose ignored invalid load entries");
+         "keybinding surface must expose ignored invalid load entries");
       Assert
         (Sum.Last_Load_Unknown_Commands = 1,
-         "Phase 565 load diagnostics must count unknown command bindings");
+         "load diagnostics must count unknown command bindings");
       Assert
         (Sum.Last_Load_Invalid_Chords = 1,
-         "Phase 565 load diagnostics must count invalid chord bindings");
+         "load diagnostics must count invalid chord bindings");
       Assert
         (Sum.Last_Load_Payloads = 1,
-         "Phase 565 load diagnostics must count payload-bearing bindings");
+         "load diagnostics must count payload-bearing bindings");
       Assert
         (Sum.Last_Load_Duplicate_Chords = 1,
-         "Phase 565 load diagnostics must count duplicate chord conflicts");
+         "load diagnostics must count duplicate chord conflicts");
       Surf := Editor.Keybinding_Management.Build_Surface_Snapshot;
       Assert
         (Surf.Last_Load_Ignored_Count = Sum.Last_Load_Ignored_Count,
-         "Phase 565 render-facing surface must expose load diagnostic summary only");
+         "render-facing surface must expose load diagnostic summary only");
       Assert
         (Ada.Strings.Fixed.Index
            (To_String (Surf.Last_Load_Diagnostic_Label), "unknown commands:") /= 0
          and then Ada.Strings.Fixed.Index
            (To_String (Surf.Last_Load_Diagnostic_Label), "payloads:") /= 0,
-         "Phase 565 render-facing surface must expose load diagnostic categories");
+         "render-facing surface must expose load diagnostic categories");
       declare
          Message : constant String := Editor.Keybinding_Management.Latest_Message;
       begin
@@ -2423,11 +2423,11 @@ package body Editor.Keybindings.Tests is
            (Message'Length > 0
             and then Ada.Strings.Fixed.Index
               (Message, "ignored invalid entries") /= 0,
-            "Phase 565 management load message must report partial invalid-entry load");
+            "management load message must report partial invalid-entry load");
       end;
       Assert
         (Editor.Keybindings.Resolve (Valid, Actual) = Editor.Keybindings.Bound_Command,
-         "Phase 565 partial load must install at least one valid normalized binding");
+         "partial load must install at least one valid normalized binding");
 
       declare
          Candidate : Editor.Commands.Command_Palette_Candidate :=
@@ -2453,12 +2453,12 @@ package body Editor.Keybindings.Tests is
             and then Help.Active_Keybinding_Count >= 1
             and then Ada.Strings.Fixed.Index
               (To_String (Help.Keybinding_Label), "Ctrl+Alt+L") /= 0,
-            "Phase 565 command help must expose active keybinding state from runtime bindings");
+            "command help must expose active keybinding state from runtime bindings");
       end;
-   end Test_Phase565_Load_Diagnostics_Surface_Invalid_Entries;
+   end Test_Load_Diagnostics_Surface_Invalid_Entries;
 
 
-   procedure Test_Phase565_Render_Model_Includes_Keybinding_Surface
+   procedure Test_Render_Model_Includes_Keybinding_Surface
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
       pragma Unreferenced (T);
       S      : Editor.State.State_Type;
@@ -2487,14 +2487,14 @@ package body Editor.Keybindings.Tests is
            Editor.Keybinding_Management.Capture_Active
          and then Snap.Keybindings_UI.Selected_Command =
            Editor.Commands.Command_Toggle_Theme,
-         "Phase 565 render model must expose keybinding surface snapshot");
+         "render model must expose keybinding surface snapshot");
 
       Editor.Keybinding_Management.Cancel_Capture (Status);
       Editor.Keybinding_Management.Hide;
-   end Test_Phase565_Render_Model_Includes_Keybinding_Surface;
+   end Test_Render_Model_Includes_Keybinding_Surface;
 
 
-   procedure Test_Phase565_Render_Surface_Rows_Are_Snapshot_Owned
+   procedure Test_Render_Surface_Rows_Are_Snapshot_Owned
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
       pragma Unreferenced (T);
       S       : Editor.State.State_Type;
@@ -2511,7 +2511,7 @@ package body Editor.Keybindings.Tests is
       Editor.Render_Model.Build_Render_Snapshot (S, Snap);
       Assert
         (Snap.Keybindings_UI.Display_Row_Count > 0,
-         "Phase 565 keybinding render snapshot must carry bounded display rows");
+         "keybinding render snapshot must carry bounded display rows");
       Before := Snap.Keybindings_UI.Display_Rows (1).Stable_Command_Name;
 
       --  Mutate live transient editor state after snapshot capture. Render packet
@@ -2524,13 +2524,13 @@ package body Editor.Keybindings.Tests is
       Assert
         (Snap.Keybindings_UI.Display_Row_Count > 0
          and then Snap.Keybindings_UI.Display_Rows (1).Stable_Command_Name = Before,
-         "Phase 565 render-facing keybinding rows must be immutable snapshot data");
+         "render-facing keybinding rows must be immutable snapshot data");
 
       Editor.Keybinding_Management.Hide;
-   end Test_Phase565_Render_Surface_Rows_Are_Snapshot_Owned;
+   end Test_Render_Surface_Rows_Are_Snapshot_Owned;
 
 
-   procedure Test_Phase565_Render_Surface_Chord_Rows_Are_Snapshot_Owned
+   procedure Test_Render_Surface_Chord_Rows_Are_Snapshot_Owned
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
       pragma Unreferenced (T);
       S       : Editor.State.State_Type;
@@ -2547,12 +2547,12 @@ package body Editor.Keybindings.Tests is
       Editor.Keybinding_Management.Select_Chord ("Ctrl+S", Status);
       Assert
         (Status = Editor.Keybinding_Management.Keybinding_Action_Ok,
-         "Phase 565 chord selection fixture must select a default chord");
+         "chord selection fixture must select a default chord");
 
       Editor.Render_Model.Build_Render_Snapshot (S, Snap);
       Assert
         (Snap.Keybindings_UI.Display_Chord_Row_Count > 0,
-         "Phase 565 keybinding render snapshot must carry bounded chord rows");
+         "keybinding render snapshot must carry bounded chord rows");
       Before := Snap.Keybindings_UI.Display_Chord_Rows (1).Chord_Label;
 
       Editor.Keybinding_Management.Set_Query ("definitely-no-such-chord");
@@ -2563,10 +2563,10 @@ package body Editor.Keybindings.Tests is
       Assert
         (Snap.Keybindings_UI.Display_Chord_Row_Count > 0
          and then Snap.Keybindings_UI.Display_Chord_Rows (1).Chord_Label = Before,
-         "Phase 565 render-facing chord rows must be immutable snapshot data");
+         "render-facing chord rows must be immutable snapshot data");
 
       Editor.Keybinding_Management.Hide;
-   end Test_Phase565_Render_Surface_Chord_Rows_Are_Snapshot_Owned;
+   end Test_Render_Surface_Chord_Rows_Are_Snapshot_Owned;
 
 
    overriding function Name
@@ -2610,79 +2610,79 @@ package body Editor.Keybindings.Tests is
          "Palette And Keybindings Share Command Id");
       AUnit.Test_Cases.Registration.Register_Routine
         (T, Test_Bookmark_Keybindings_Dispatch_Through_Executor'Access,
-         "Phase 62 Bookmark Keybindings Dispatch Through Executor");
+         "Bookmark Keybindings Dispatch Through Executor");
       AUnit.Test_Cases.Registration.Register_Routine
-        (T, Test_Phase85_Format_Chord'Access,
-         "Phase 85 Format Chord");
+        (T, Test_Format_Chord'Access,
+         "Format Chord");
       AUnit.Test_Cases.Registration.Register_Routine
-        (T, Test_Phase85_Primary_Binding_For_Command'Access,
-         "Phase 85 Primary Binding For Command");
+        (T, Test_Primary_Binding_For_Command'Access,
+         "Primary Binding For Command");
       AUnit.Test_Cases.Registration.Register_Routine
-        (T, Test_Phase85_Binding_Count_And_Order'Access,
-         "Phase 85 Binding Count And Order");
+        (T, Test_Binding_Count_And_Order'Access,
+         "Binding Count And Order");
       AUnit.Test_Cases.Registration.Register_Routine
-        (T, Test_Phase85_Reverse_Lookup_Does_Not_Mutate'Access,
-         "Phase 85 Reverse Lookup Does Not Mutate");
+        (T, Test_Reverse_Lookup_Does_Not_Mutate'Access,
+         "Reverse Lookup Does Not Mutate");
       AUnit.Test_Cases.Registration.Register_Routine
-        (T, Test_Phase105_Parse_Format_Chord'Access,
-         "Phase 105 Parse Format Chord");
+        (T, Test_Parse_Format_Chord'Access,
+         "Parse Format Chord");
       AUnit.Test_Cases.Registration.Register_Routine
-        (T, Test_Phase105_Config_Apply_Override_And_Unbind'Access,
-         "Phase 105 Config Apply Override And Unbind");
+        (T, Test_Config_Apply_Override_And_Unbind'Access,
+         "Config Apply Override And Unbind");
       AUnit.Test_Cases.Registration.Register_Routine
-        (T, Test_Phase105_Stable_Command_Name_Roundtrip'Access,
-         "Phase 105 Stable Command Name Roundtrip");
+        (T, Test_Stable_Command_Name_Roundtrip'Access,
+         "Stable Command Name Roundtrip");
       AUnit.Test_Cases.Registration.Register_Routine
-        (T, Test_Phase106_Command_Name_Audit'Access,
-         "Phase 106 Command Name Audit");
+        (T, Test_Command_Name_Audit'Access,
+         "Command Name Audit");
       AUnit.Test_Cases.Registration.Register_Routine
-        (T, Test_Phase106_Parse_Chord_Hardening'Access,
-         "Phase 106 Parse Chord Hardening");
+        (T, Test_Parse_Chord_Hardening'Access,
+         "Parse Chord Hardening");
       AUnit.Test_Cases.Registration.Register_Routine
-        (T, Test_Phase106_Runtime_Validation_Summary'Access,
-         "Phase 106 Runtime Validation Summary");
+        (T, Test_Runtime_Validation_Summary'Access,
+         "Runtime Validation Summary");
       AUnit.Test_Cases.Registration.Register_Routine
-        (T, Test_Phase106_Config_Load_Conflict_Last_Wins'Access,
-         "Phase 106 Config Load Conflict Last Wins");
+        (T, Test_Config_Load_Conflict_Last_Wins'Access,
+         "Config Load Conflict Last Wins");
       AUnit.Test_Cases.Registration.Register_Routine
-        (T, Test_Phase106_Config_Unbind_Load_And_Reset'Access,
-         "Phase 106 Config Unbind Load And Reset");
+        (T, Test_Config_Unbind_Load_And_Reset'Access,
+         "Config Unbind Load And Reset");
       AUnit.Test_Cases.Registration.Register_Routine
-        (T, Test_Phase106_Invalid_And_Partial_Load_Statuses'Access,
-         "Phase 106 Invalid And Partial Load Statuses");
+        (T, Test_Invalid_And_Partial_Load_Statuses'Access,
+         "Invalid And Partial Load Statuses");
       AUnit.Test_Cases.Registration.Register_Routine
-        (T, Test_Phase106_Serialization_Stable_And_Drops_Invalid'Access,
-         "Phase 106 Serialization Stable And Drops Invalid");
+        (T, Test_Serialization_Stable_And_Drops_Invalid'Access,
+         "Serialization Stable And Drops Invalid");
       AUnit.Test_Cases.Registration.Register_Routine
-        (T, Test_Phase106_Command_Palette_Uses_Active_Bindings'Access,
-         "Phase 106 Command Palette Uses Active Bindings");
+        (T, Test_Command_Palette_Uses_Active_Bindings'Access,
+         "Command Palette Uses Active Bindings");
       AUnit.Test_Cases.Registration.Register_Routine
-        (T, Test_Phase107_Chord_Syntax_Finalization'Access,
-         "Phase 107 Chord Syntax Finalization");
+        (T, Test_Chord_Syntax_Finalization'Access,
+         "Chord Syntax Finalization");
       AUnit.Test_Cases.Registration.Register_Routine
-        (T, Test_Phase107_Hard_Failed_Reload_Preservation_Model'Access,
-         "Phase 107 Hard Failed Reload Preservation Model");
+        (T, Test_Hard_Failed_Reload_Preservation_Model'Access,
+         "Hard Failed Reload Preservation Model");
       AUnit.Test_Cases.Registration.Register_Routine
-        (T, Test_Phase107_Command_Route_Audit_Helper'Access,
-         "Phase 107 Command Route Audit Helper");
+        (T, Test_Command_Route_Audit_Helper'Access,
+         "Command Route Audit Helper");
       AUnit.Test_Cases.Registration.Register_Routine
-        (T, Test_Phase107_Bindability_And_Default_Table_Audit'Access,
-         "Phase 107 Bindability And Default Table Audit");
+        (T, Test_Bindability_And_Default_Table_Audit'Access,
+         "Bindability And Default Table Audit");
       AUnit.Test_Cases.Registration.Register_Routine
-        (T, Test_Phase216_Display_List_Is_Deterministic_And_Scoped'Access,
-         "Phase 216 display list is deterministic and scoped");
+        (T, Test_Display_List_Is_Deterministic_And_Scoped'Access,
+         "display list is deterministic and scoped");
       AUnit.Test_Cases.Registration.Register_Routine
-        (T, Test_Phase216_Assign_Validates_Targets_And_Replaces_Deterministically'Access,
-         "Phase 216 assign validates targets and replaces deterministically");
+        (T, Test_Assign_Validates_Targets_And_Replaces_Deterministically'Access,
+         "assign validates targets and replaces deterministically");
       AUnit.Test_Cases.Registration.Register_Routine
-        (T, Test_Phase216_Assign_Rejections_Are_Non_Mutating'Access,
-         "Phase 216 assign rejections are non mutating");
+        (T, Test_Assign_Rejections_Are_Non_Mutating'Access,
+         "assign rejections are non mutating");
       AUnit.Test_Cases.Registration.Register_Routine
-        (T, Test_Phase216_Load_Rejects_Internal_Target_Without_Runtime_Mutation'Access,
-         "Phase 216 load rejects internal target without runtime mutation");
+        (T, Test_Load_Rejects_Internal_Target_Without_Runtime_Mutation'Access,
+         "load rejects internal target without runtime mutation");
       AUnit.Test_Cases.Registration.Register_Routine
         (T, Test_Outline_Keybindings_Register_Defaults'Access,
-         "Phase 131 outline keybindings register defaults");
+         "outline keybindings register defaults");
       AUnit.Test_Cases.Registration.Register_Routine
         (T, Test_Daily_Workflow_Keybindings_Register_Defaults'Access,
          "Daily workflow keybindings register defaults");
@@ -2694,67 +2694,67 @@ package body Editor.Keybindings.Tests is
          "Daily workflow keybinding config defaults match runtime defaults");
       AUnit.Test_Cases.Registration.Register_Routine
         (T, Test_Outline_Keybindings_Do_Not_Overwrite_User_Bindings'Access,
-         "Phase 131 outline keybindings do not overwrite user bindings");
+         "outline keybindings do not overwrite user bindings");
       AUnit.Test_Cases.Registration.Register_Routine
         (T, Test_Outline_Keybindings_Report_Conflicts_Deterministically'Access,
-         "Phase 131 outline keybindings report conflicts deterministically");
+         "outline keybindings report conflicts deterministically");
       AUnit.Test_Cases.Registration.Register_Routine
-        (T, Test_Phase534_Keybinding_User_Readable_Errors_And_No_Payloads'Access,
-         "Phase 534 keybinding readable errors and no payloads");
+        (T, Test_Keybinding_User_Readable_Errors_And_No_Payloads'Access,
+         "keybinding readable errors and no payloads");
       AUnit.Test_Cases.Registration.Register_Routine
-        (T, Test_Phase565_Keybinding_List_Search_And_Filter'Access,
-         "Phase 565 keybinding list search and filter");
+        (T, Test_Keybinding_List_Search_And_Filter'Access,
+         "keybinding list search and filter");
       AUnit.Test_Cases.Registration.Register_Routine
-        (T, Test_Phase565_Filter_Changes_Clear_Stale_Selections'Access,
-         "Phase 565 filter changes clear stale selections");
+        (T, Test_Filter_Changes_Clear_Stale_Selections'Access,
+         "filter changes clear stale selections");
       AUnit.Test_Cases.Registration.Register_Routine
-        (T, Test_Phase565_Assign_Conflict_Cancel_Remove_Reset'Access,
-         "Phase 565 assign conflict cancel remove reset");
+        (T, Test_Assign_Conflict_Cancel_Remove_Reset'Access,
+         "assign conflict cancel remove reset");
       AUnit.Test_Cases.Registration.Register_Routine
-        (T, Test_Phase565_Input_Bridge_Capture_Consumes_And_Assigns'Access,
-         "Phase 565 Input_Bridge capture consumes and assigns");
+        (T, Test_Input_Bridge_Capture_Consumes_And_Assigns'Access,
+         "Input_Bridge capture consumes and assigns");
       AUnit.Test_Cases.Registration.Register_Routine
-        (T, Test_Phase565_Input_Bridge_Capture_Conflict_Requires_Enter'Access,
-         "Phase 565 Input_Bridge capture conflict requires Enter");
+        (T, Test_Input_Bridge_Capture_Conflict_Requires_Enter'Access,
+         "Input_Bridge capture conflict requires Enter");
       AUnit.Test_Cases.Registration.Register_Routine
-        (T, Test_Phase565_Conflict_Confirmation_Uses_Captured_Target'Access,
-         "Phase 565 conflict confirmation uses captured target");
+        (T, Test_Conflict_Confirmation_Uses_Captured_Target'Access,
+         "conflict confirmation uses captured target");
       AUnit.Test_Cases.Registration.Register_Routine
-        (T, Test_Phase565_Input_Bridge_Focused_Surface_Consumes_Local_Navigation'Access,
-         "Phase 565 Input_Bridge focused surface consumes local navigation");
+        (T, Test_Input_Bridge_Focused_Surface_Consumes_Local_Navigation'Access,
+         "Input_Bridge focused surface consumes local navigation");
       AUnit.Test_Cases.Registration.Register_Routine
-        (T, Test_Phase565_Input_Bridge_Focused_Surface_Reset_Confirmation_Keys'Access,
-         "Phase 565 Input_Bridge focused surface reset confirmation keys");
+        (T, Test_Input_Bridge_Focused_Surface_Reset_Confirmation_Keys'Access,
+         "Input_Bridge focused surface reset confirmation keys");
       AUnit.Test_Cases.Registration.Register_Routine
-        (T, Test_Phase565_Save_Load_No_Payload_And_Coherence'Access,
-         "Phase 565 save load no payload and coherence");
+        (T, Test_Save_Load_No_Payload_And_Coherence'Access,
+         "save load no payload and coherence");
       AUnit.Test_Cases.Registration.Register_Routine
-        (T, Test_Phase565_Reset_Confirmation_And_Surface_Guards'Access,
-         "Phase 565 reset confirmation and surface guards");
+        (T, Test_Reset_Confirmation_And_Surface_Guards'Access,
+         "reset confirmation and surface guards");
       AUnit.Test_Cases.Registration.Register_Routine
-        (T, Test_Phase565_Reset_Transient_State_Clears_UI_Only'Access,
-         "Phase 565 reset transient state clears UI only");
+        (T, Test_Reset_Transient_State_Clears_UI_Only'Access,
+         "reset transient state clears UI only");
       AUnit.Test_Cases.Registration.Register_Routine
-        (T, Test_Phase565_Pending_Confirmations_Block_Keybinding_Mutations'Access,
-         "Phase 565 pending confirmations block keybinding mutations");
+        (T, Test_Pending_Confirmations_Block_Keybinding_Mutations'Access,
+         "pending confirmations block keybinding mutations");
       AUnit.Test_Cases.Registration.Register_Routine
-        (T, Test_Phase565_Reset_Commands_Require_Confirmation'Access,
-         "Phase 565 reset commands require confirmation");
+        (T, Test_Reset_Commands_Require_Confirmation'Access,
+         "reset commands require confirmation");
       AUnit.Test_Cases.Registration.Register_Routine
-        (T, Test_Phase565_Command_Descriptors_And_Executor_Routes'Access,
-         "Phase 565 command descriptors and Executor routes");
+        (T, Test_Command_Descriptors_And_Executor_Routes'Access,
+         "command descriptors and Executor routes");
       AUnit.Test_Cases.Registration.Register_Routine
-        (T, Test_Phase565_Load_Diagnostics_Surface_Invalid_Entries'Access,
-         "Phase 565 load diagnostics surface invalid entries");
+        (T, Test_Load_Diagnostics_Surface_Invalid_Entries'Access,
+         "load diagnostics surface invalid entries");
       AUnit.Test_Cases.Registration.Register_Routine
-        (T, Test_Phase565_Render_Model_Includes_Keybinding_Surface'Access,
-         "Phase 565 render model includes keybinding surface");
+        (T, Test_Render_Model_Includes_Keybinding_Surface'Access,
+         "render model includes keybinding surface");
       AUnit.Test_Cases.Registration.Register_Routine
-        (T, Test_Phase565_Render_Surface_Rows_Are_Snapshot_Owned'Access,
-         "Phase 565 render surface rows are snapshot owned");
+        (T, Test_Render_Surface_Rows_Are_Snapshot_Owned'Access,
+         "render surface rows are snapshot owned");
       AUnit.Test_Cases.Registration.Register_Routine
-        (T, Test_Phase565_Render_Surface_Chord_Rows_Are_Snapshot_Owned'Access,
-         "Phase 565 render surface chord rows are snapshot owned");
+        (T, Test_Render_Surface_Chord_Rows_Are_Snapshot_Owned'Access,
+         "render surface chord rows are snapshot owned");
    end Register_Tests;
 
 end Editor.Keybindings.Tests;

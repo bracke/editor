@@ -946,7 +946,7 @@ package body Editor.Buffer_Switcher is
      (State : Buffer_Switcher_State) return Boolean
    is
    begin
-      --  Phase 481 final freeze: the switcher retains only UI projection
+      --  final freeze: the switcher retains only UI projection
       --  state.  Lifecycle-visible row data is rebuilt from buffer summaries
       --  by Build_Open_Buffer_Switcher_Row_From_Buffer_Snapshot; the state
       --  model has no duplicated lifecycle cache, prompt ownership, source
@@ -2783,7 +2783,7 @@ package body Editor.Buffer_Switcher is
               Build_Switcher_Row_Markers
                 (State, Row_From_Candidate (Candidates (I - 1)));
          begin
-            --  Phase 577: Row ownership and display labels are already
+            --  Row ownership and display labels are already
             --  projected from Editor.Buffers.Metadata_For through
             --  Build_Open_Buffer_Switcher_Row_From_Metadata_Snapshot.  Do not
             --  reclassify here through a second project/path code path.

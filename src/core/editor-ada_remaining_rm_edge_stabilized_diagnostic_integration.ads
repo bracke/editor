@@ -5,10 +5,10 @@ with Editor.Ada_Syntax_Tree;
 
 package Editor.Ada_Remaining_RM_Edge_Stabilized_Diagnostic_Integration is
 
-   --  Pass1285 diagnostic integration for remaining RM edge stabilized
+   --  Case 1285 diagnostic integration for remaining RM edge stabilized
    --  closure consumers.
    --
-   --  This package consumes Pass1284 remaining RM edge stabilized consumer
+   --  This package consumes Case 1284 remaining RM edge stabilized consumer
    --  rows.  Accepted remaining-edge rows are withheld as current semantic
    --  evidence; blockers are emitted with their original remaining-edge or
    --  stabilized-closure blocker family preserved.  The model is deterministic,

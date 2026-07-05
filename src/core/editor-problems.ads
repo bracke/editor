@@ -22,6 +22,27 @@ package Editor.Problems is
       Problem_Info,
       Problem_Hint);
 
+   type Problems_Severity_Filter is
+     (Problems_Show_All,
+      Problems_Show_Errors,
+      Problems_Show_Warnings,
+      Problems_Show_Info,
+      Problems_Show_Hints);
+
+   type Problems_Group_Mode is
+     (Problems_Group_By_Severity,
+      Problems_Group_By_Source);
+
+   type Problems_Sort_Mode is
+     (Problems_Sort_By_Location,
+      Problems_Sort_By_Severity,
+      Problems_Sort_By_Source);
+
+   type Problems_Header_Action is
+     (Problems_Header_Filter_Action,
+      Problems_Header_Sort_Action,
+      Problems_Header_Group_Action);
+
    type Problem_Row is record
       Diagnostic_Index : Editor.Diagnostics.Diagnostic_Index :=
         Editor.Diagnostics.No_Diagnostic;
@@ -30,11 +51,17 @@ package Editor.Problems is
       Column           : Natural := 0;
       Message          : Ada.Strings.Unbounded.Unbounded_String;
       Source_File      : Ada.Strings.Unbounded.Unbounded_String;
+      Has_Target       : Boolean := False;
+      Quick_Fix_Label  : Ada.Strings.Unbounded.Unbounded_String;
+      Quick_Fix_Detail : Ada.Strings.Unbounded.Unbounded_String;
    end record;
 
    type Problems_View_State is record
       Selected_Row_Index : Natural := 0;
       Top_Row            : Natural := 1;
+      Severity_Filter    : Problems_Severity_Filter := Problems_Show_All;
+      Sort_Mode          : Problems_Sort_Mode := Problems_Sort_By_Location;
+      Group_Mode         : Problems_Group_Mode := Problems_Group_By_Severity;
    end record;
 
    type Problems_Row_Direction is
@@ -60,6 +87,40 @@ package Editor.Problems is
      (View : in out Problems_View_State;
       Row  : Natural);
 
+   function Severity_Filter
+     (View : Problems_View_State) return Problems_Severity_Filter;
+
+   procedure Set_Severity_Filter
+     (View   : in out Problems_View_State;
+      Filter : Problems_Severity_Filter);
+
+   function Severity_Filter_Label
+     (Filter : Problems_Severity_Filter) return String;
+
+   function Sort_Mode_Label
+     (Sort : Problems_Sort_Mode) return String;
+
+   function Group_Mode_Label
+     (Group : Problems_Group_Mode) return String;
+
+   function Header_Action_Hint
+     (View : Problems_View_State) return String;
+
+   function Header_Action_At_X
+     (Panel_Width : Natural;
+      X_Offset    : Natural) return Problems_Header_Action;
+
+   function Header_Action_Label
+     (View   : Problems_View_State;
+      Action : Problems_Header_Action) return String;
+
+   function Group_Label
+     (Row  : Problem_Row;
+      Mode : Problems_Group_Mode) return String;
+
+   function Severity_Count
+     (Snapshot : Problems_Snapshot;
+      Severity : Problem_Row_Severity) return Natural;
 
    procedure Clear
      (Snapshot : in out Problems_Snapshot);
@@ -74,6 +135,12 @@ package Editor.Problems is
    function Build_Snapshot
      (Diagnostics : Editor.Diagnostics.Diagnostic_Vectors.Vector)
       return Problems_Snapshot;
+
+   function Message_No_Problems return String;
+   function Message_No_Visible_Problems return String;
+   function Empty_State_Message
+     (Visible_Count : Natural;
+      Total_Count   : Natural) return String;
 
    function Format_Row
      (Config : Problems_View_Config;
@@ -90,6 +157,12 @@ package Editor.Problems is
       Row_Index : Natural;
       Found     : out Boolean)
       return Editor.Diagnostics.Diagnostic_Index;
+
+   function Row_Has_Target
+     (Row : Problem_Row) return Boolean;
+
+   function Row_Target_Unavailable_Label
+     (Row : Problem_Row) return String;
 
    function First_Diagnostic_Row
      (Snapshot : Problems_Snapshot;
@@ -130,9 +203,22 @@ package Editor.Problems is
       View              : Problems_View_State;
       Visible_Row_Count : Natural) return Problems_Snapshot;
 
+   function Filtered_Snapshot
+     (Snapshot : Problems_Snapshot;
+      View     : Problems_View_State) return Problems_Snapshot;
+
+   function Sorted_Snapshot
+     (Snapshot : Problems_Snapshot;
+      Sort     : Problems_Sort_Mode) return Problems_Snapshot;
+
+   function Review_Snapshot
+     (Snapshot : Problems_Snapshot;
+      View     : Problems_View_State) return Problems_Snapshot;
+
    function Format_Header
      (Config : Problems_View_Config;
-      Count  : Natural) return String;
+      Count  : Natural;
+      Filter : Problems_Severity_Filter := Problems_Show_All) return String;
 
    function Truncate_Text
      (Text        : String;

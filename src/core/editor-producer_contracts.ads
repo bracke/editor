@@ -1,6 +1,6 @@
 package Editor.Producer_Contracts is
 
-   --  Phase 159 synchronous producer contract:
+   --  synchronous producer contract:
    --
    --  External producers must enter through feature-owned synchronous ingestion
    --  APIs. They must not mutate feature-panel projection rows, active feature
@@ -16,7 +16,7 @@ package Editor.Producer_Contracts is
    --    * Background search must not write Search Results rows without snapshot
    --      validation.
    --
-   --  Phase 159 intentionally adds no compiler execution, build-output parser,
+   --  intentionally adds no compiler execution, build-output parser,
    --  LSP integration, file watcher, background worker, asynchronous queue,
    --  project-wide analysis, persistence, or fifth feature.
 

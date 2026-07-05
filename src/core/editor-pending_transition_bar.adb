@@ -7,6 +7,7 @@ with Editor.Pending_Transitions;
 package body Editor.Pending_Transition_Bar is
 
    use type Editor.Pending_Transitions.Pending_Transition_Kind;
+   use type Editor.Commands.Command_Id;
 
    type Pending_Bar_Action_Order is array (Positive range <>) of Pending_Bar_Action;
 
@@ -53,8 +54,82 @@ package body Editor.Pending_Transition_Bar is
             return "project switch";
          when Editor.Pending_Transitions.Pending_Restore_Workspace =>
             return "workspace restore";
+         when Editor.Pending_Transitions.Pending_Clear_Workspace_State =>
+            return "clearing workspace state";
       end case;
    end Operation_Text;
+
+   function Guidance_For_Target
+     (Target : Editor.Pending_Transitions.Pending_Transition_Target) return String
+   is
+   begin
+      case Target.Kind is
+         when Editor.Pending_Transitions.Pending_Reload_Active_Buffer =>
+            return "Retry reload after saving, or cancel to keep editing";
+         when Editor.Pending_Transitions.Pending_Revert_Active_Buffer =>
+            return "Discard editor changes only when you want the disk version";
+         when Editor.Pending_Transitions.Pending_Open_Project
+            | Editor.Pending_Transitions.Pending_Switch_Project
+            | Editor.Pending_Transitions.Pending_Open_Recent_Project =>
+            return "Save changes before switching projects";
+         when Editor.Pending_Transitions.Pending_Restore_Workspace =>
+            return "Save changes before restoring the workspace";
+         when Editor.Pending_Transitions.Pending_Close_Project
+            | Editor.Pending_Transitions.Pending_Clear_Project =>
+            return "Save or discard project changes before continuing";
+         when Editor.Pending_Transitions.Pending_Clear_Workspace_State =>
+            return "Confirm clear only after reviewing the workspace state";
+         when Editor.Pending_Transitions.Pending_Close_Buffer
+            | Editor.Pending_Transitions.Pending_Close_All_Buffers
+            | Editor.Pending_Transitions.Pending_Close_Other_Buffers =>
+            return "Save or discard buffer changes before closing";
+         when Editor.Pending_Transitions.No_Pending_Transition =>
+            return "";
+      end case;
+   end Guidance_For_Target;
+
+   function Operation_For_Target
+     (Target : Editor.Pending_Transitions.Pending_Transition_Target)
+      return Pending_Bar_Operation
+   is
+   begin
+      case Target.Kind is
+         when Editor.Pending_Transitions.No_Pending_Transition =>
+            return No_Pending_Bar_Operation;
+         when Editor.Pending_Transitions.Pending_Close_Buffer =>
+            return Pending_Bar_Close_Buffer_Operation;
+         when Editor.Pending_Transitions.Pending_Close_All_Buffers =>
+            return Pending_Bar_Close_All_Buffers_Operation;
+         when Editor.Pending_Transitions.Pending_Close_Other_Buffers =>
+            return Pending_Bar_Close_Other_Buffers_Operation;
+         when Editor.Pending_Transitions.Pending_Reload_Active_Buffer =>
+            return Pending_Bar_Reload_Buffer_Operation;
+         when Editor.Pending_Transitions.Pending_Revert_Active_Buffer =>
+            return Pending_Bar_Revert_Buffer_Operation;
+         when Editor.Pending_Transitions.Pending_Close_Project =>
+            return Pending_Bar_Close_Project_Operation;
+         when Editor.Pending_Transitions.Pending_Clear_Project =>
+            return Pending_Bar_Clear_Project_Operation;
+         when Editor.Pending_Transitions.Pending_Open_Project
+            | Editor.Pending_Transitions.Pending_Switch_Project
+            | Editor.Pending_Transitions.Pending_Open_Recent_Project =>
+            return Pending_Bar_Project_Switch_Operation;
+         when Editor.Pending_Transitions.Pending_Restore_Workspace =>
+            return Pending_Bar_Restore_Workspace_Operation;
+         when Editor.Pending_Transitions.Pending_Clear_Workspace_State =>
+            return Pending_Bar_Clear_Workspace_State_Operation;
+      end case;
+   end Operation_For_Target;
+
+   function Is_Destructive_Target
+     (Target : Editor.Pending_Transitions.Pending_Transition_Target) return Boolean
+   is
+   begin
+      return Target.Kind in
+        Editor.Pending_Transitions.Pending_Clear_Project
+          | Editor.Pending_Transitions.Pending_Revert_Active_Buffer
+          | Editor.Pending_Transitions.Pending_Clear_Workspace_State;
+   end Is_Destructive_Target;
 
    function Snapshot_Summary
      (Pending : Editor.Pending_Transitions.Pending_Transition_State) return String
@@ -65,6 +140,16 @@ package body Editor.Pending_Transition_Bar is
         Editor.Pending_Transitions.Dirty_Summary (Pending);
       Display : constant String := To_String (Target.Display);
    begin
+      if Target.Kind = Editor.Pending_Transitions.Pending_Clear_Workspace_State then
+         if Display'Length > 0 then
+            return "Clear " & Display & "?";
+         elsif Target.Has_Path then
+            return "Clear workspace state: " & To_String (Target.Path) & "?";
+         else
+            return "Clear workspace state?";
+         end if;
+      end if;
+
       if Display'Length > 0 then
          return "Unsaved changes block " & Operation_Text (Target)
            & ": " & Display
@@ -163,9 +248,14 @@ package body Editor.Pending_Transition_Bar is
          File_Lifecycle_Confirmation : constant Boolean :=
            Target.Kind in
              Editor.Pending_Transitions.Pending_Reload_Active_Buffer
-               | Editor.Pending_Transitions.Pending_Revert_Active_Buffer;
+               | Editor.Pending_Transitions.Pending_Revert_Active_Buffer
+               | Editor.Pending_Transitions.Pending_Clear_Workspace_State;
       begin
-         --  Phase 573 completeness: reload/revert confirmations are not
+         Result.Guidance := To_Unbounded_String (Guidance_For_Target (Target));
+         Result.Operation := Operation_For_Target (Target);
+         Result.Destructive := Is_Destructive_Target (Target);
+
+         --  completeness: reload/revert confirmations are not
          --  project/close transitions and must not expose unrelated cleanup
          --  actions in the pending bar.  Save All and Close Clean remain
          --  available for broader dirty-transition prompts, but a dirty
@@ -209,12 +299,100 @@ package body Editor.Pending_Transition_Bar is
       return To_String (Snapshot.Summary);
    end Summary_Text;
 
+   function Guidance_Text
+     (Snapshot : Pending_Bar_Snapshot) return String
+   is
+   begin
+      return To_String (Snapshot.Guidance);
+   end Guidance_Text;
+
+   function Display_Text
+     (Snapshot : Pending_Bar_Snapshot) return String
+   is
+      Summary  : constant String := Summary_Text (Snapshot);
+      Guidance : constant String := Guidance_Text (Snapshot);
+   begin
+      if Guidance'Length = 0 then
+         return Summary;
+      else
+         return Summary & " - " & Guidance;
+      end if;
+   end Display_Text;
+
    function Action_Count
      (Snapshot : Pending_Bar_Snapshot) return Natural
    is
    begin
       return Snapshot.Count;
    end Action_Count;
+
+   function Operation
+     (Snapshot : Pending_Bar_Snapshot) return Pending_Bar_Operation
+   is
+   begin
+      return Snapshot.Operation;
+   end Operation;
+
+   function Requires_Destructive_Confirmation
+     (Snapshot : Pending_Bar_Snapshot) return Boolean
+   is
+   begin
+      return Snapshot.Visible and then Snapshot.Destructive;
+   end Requires_Destructive_Confirmation;
+
+   function Assert_Action_Routes_Are_Command_Backed
+     (Snapshot : Pending_Bar_Snapshot) return Boolean
+   is
+   begin
+      if not Snapshot.Visible then
+         return Snapshot.Count = 0;
+      end if;
+
+      for I in 1 .. Snapshot.Count loop
+         if Snapshot.Actions (I).Action = No_Pending_Bar_Action
+           or else Snapshot.Actions (I).Command = Editor.Commands.No_Command
+           or else Snapshot.Actions (I).Command /=
+             Command_For_Action (Snapshot.Actions (I).Action)
+         then
+            return False;
+         end if;
+      end loop;
+
+      return True;
+   end Assert_Action_Routes_Are_Command_Backed;
+
+   function Assert_Destructive_Actions_Are_Confirmed
+     (Snapshot : Pending_Bar_Snapshot) return Boolean
+   is
+      Has_Retry  : Boolean := False;
+      Has_Cancel : Boolean := False;
+   begin
+      if not Snapshot.Visible then
+         return not Snapshot.Destructive;
+      end if;
+
+      for I in 1 .. Snapshot.Count loop
+         if Snapshot.Actions (I).Action = Retry_Pending_Transition_Action then
+            Has_Retry := True;
+         elsif Snapshot.Actions (I).Action = Cancel_Pending_Transition_Action then
+            Has_Cancel := True;
+         elsif Snapshot.Actions (I).Is_Destructive
+           and then Snapshot.Actions (I).Command = Editor.Commands.No_Command
+         then
+            return False;
+         end if;
+      end loop;
+
+      return (not Snapshot.Destructive) or else (Has_Retry and then Has_Cancel);
+   end Assert_Destructive_Actions_Are_Confirmed;
+
+   function Assert_Pending_Bar_Route_Audit_Passes
+     (Snapshot : Pending_Bar_Snapshot) return Boolean
+   is
+   begin
+      return Assert_Action_Routes_Are_Command_Backed (Snapshot)
+        and then Assert_Destructive_Actions_Are_Confirmed (Snapshot);
+   end Assert_Pending_Bar_Route_Audit_Passes;
 
    function Action
      (Snapshot : Pending_Bar_Snapshot;

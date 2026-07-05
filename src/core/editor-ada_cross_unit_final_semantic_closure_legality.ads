@@ -21,7 +21,7 @@ with Editor.Ada_Unit_Completion_Order_Legality;
 
 package Editor.Ada_Cross_Unit_Final_Semantic_Closure_Legality is
 
-   --  Pass1186 compiler-grade cross-unit final semantic closure legality.
+   --  Case 1186 compiler-grade cross-unit final semantic closure legality.
    --
    --  This layer extends cross-unit closure across the widened legality engines
    --  and the repaired final-consumer chain.  It preserves dependency blockers

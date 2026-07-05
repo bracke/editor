@@ -7,7 +7,7 @@ with Editor.Ada_Syntax_Tree;
 
 package Editor.Ada_Overload_Type_Final_RM_Consumer_Legality is
 
-   --  Pass1189 compiler-grade overload/type final RM consumer legality.
+   --  Case 1189 compiler-grade overload/type final RM consumer legality.
    --
    --  This package closes another hard semantic gap in overload and type
    --  resolution.  It is deliberately not a diagnostic/projection layer: it

@@ -4,7 +4,7 @@ with Editor.Ada_Syntax_Tree;
 
 package Editor.Ada_Generic_Formal_Type_Family_Vertical_Slice_Legality is
 
-   --  Pass1319 vertical-slice generic formal type/family legality.  This
+   --  Case 1319 vertical-slice generic formal type/family legality.  This
    --  package models concrete Ada generic formal type legality for source
    --  shaped formal declarations and actuals: private/limited/tagged,
    --  discrete/signed/modular/floating/fixed, array/access/interface formal

@@ -6,9 +6,9 @@ with Editor.Ada_Syntax_Tree;
 
 package Editor.Ada_Shared_State_Recheck_Eligibility_Legality is
 
-   --  Pass1219 shared-state recheck eligibility legality.
+   --  Case 1219 shared-state recheck eligibility legality.
    --
-   --  This package consumes the Pass1218 shared-state remediation worklist and
+   --  This package consumes the Case 1218 shared-state remediation worklist and
    --  converts ordered shared-state prerequisite work into bounded recheck
    --  eligibility rows.  It prevents downstream semantic consumers from
    --  accepting abstract/refined-state, volatile/atomic, overload/type,

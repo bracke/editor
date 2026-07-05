@@ -2,11 +2,11 @@ with Ada.Strings.Unbounded; use Ada.Strings.Unbounded;
 with AUnit.Assertions; use AUnit.Assertions;
 with AUnit.Test_Cases;
 with Editor.Ada_Syntax_Tree;
-with Editor.Ada_Canonical_Semantic_Model_Agreement_Audit_Pass1336;
+with Editor.Ada_Canonical_Semantic_Model_Agreement_Audit;
 
 package body Test_Ada_Canonical_Semantic_Model_Agreement_Audit is
 
-   package Audit renames Editor.Ada_Canonical_Semantic_Model_Agreement_Audit_Pass1336;
+   package Audit renames Editor.Ada_Canonical_Semantic_Model_Agreement_Audit;
    use type Audit.Slice_Family;
    use type Audit.Agreement_Dimension;
    use type Audit.View_Class;

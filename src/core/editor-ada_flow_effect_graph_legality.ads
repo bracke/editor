@@ -6,12 +6,12 @@ with Editor.Ada_Widened_Legality_Coverage_Gate_Enforcement;
 
 package Editor.Ada_Flow_Effect_Graph_Legality is
 
-   --  Pass1138 compiler-grade flow-effect graph legality layer.
+   --  Case 1138 compiler-grade flow-effect graph legality layer.
    --
    --  This package deepens Global/Depends beyond row classification by making
    --  object reads, writes, call effects, generic formal/actual substitutions,
    --  protected/task effects, and body/spec refinements explicit graph edges.
-   --  It consumes Pass1123 Global/Depends legality and Pass1137 coverage-gate
+   --  It consumes Case 1123 Global/Depends legality and Case 1137 coverage-gate
    --  enforcement so incomplete AST or semantic metadata cannot produce a
    --  confident flow conclusion.
    --

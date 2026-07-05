@@ -17,7 +17,7 @@ with Editor.Ada_Volatile_Atomic_Representation_Consumer_Legality;
 
 package Editor.Ada_Dataflow_Generic_Shared_State_Final_Legality is
 
-   --  Pass1238 definite-initialization/dataflow generic shared-state final
+   --  Case 1238 definite-initialization/dataflow generic shared-state final
    --  legality.
    --
    --  This package connects definite initialization and dataflow consumers with

@@ -350,7 +350,7 @@ package body Editor.Ada_Generic_Replay_Representation_Contract_Predicate_Dataflo
                Instance_Name => C.Instance_Name,
                Target_Name => C.Target_Name,
                Message => Message_For (Status),
-               Detail => To_Unbounded_String ("Pass1171 generic replay representation contract-predicate-dataflow consumer"),
+               Detail => To_Unbounded_String ("Case 1171 generic replay representation contract-predicate-dataflow consumer"),
                Replay_Row => C.Replay_Row,
                Replay_Status => C.Replay_Status,
                Representation_CPD_Row => C.Representation_CPD_Row,

@@ -203,13 +203,13 @@ package body Test_Ada_Return_Legality is
    begin
       Register_Routine
         (T, Test_Procedure_And_Function_Returns'Access,
-         "Pass1100 accepts legal procedure and function returns");
+         "Case 1100 accepts legal procedure and function returns");
       Register_Routine
         (T, Test_Missing_And_Illegal_Expressions'Access,
-         "Pass1100 rejects return expression-shape errors");
+         "Case 1100 rejects return expression-shape errors");
       Register_Routine
         (T, Test_Result_Errors_And_Lookups'Access,
-         "Pass1100 maps assignment legality into return result errors");
+         "Case 1100 maps assignment legality into return result errors");
    end Register_Tests;
 
 end Test_Ada_Return_Legality;

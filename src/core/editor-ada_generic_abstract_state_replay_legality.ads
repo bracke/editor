@@ -10,7 +10,7 @@ with Editor.Ada_Volatile_Atomic_Shared_State_Legality;
 
 package Editor.Ada_Generic_Abstract_State_Replay_Legality is
 
-   --  Pass1227 generic abstract/refined-state replay legality.
+   --  Case 1227 generic abstract/refined-state replay legality.
    --
    --  This package replays abstract/refined state, volatile/atomic, shared-state,
    --  dispatching Global/Depends, and stabilized shared-state evidence through

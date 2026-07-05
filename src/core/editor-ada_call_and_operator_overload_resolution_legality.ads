@@ -5,7 +5,7 @@ with Editor.Ada_Syntax_Tree;
 
 package Editor.Ada_Call_And_Operator_Overload_Resolution_Legality is
 
-   --  Pass1297 concrete vertical-slice overload resolution for call and
+   --  Case 1297 concrete vertical-slice overload resolution for call and
    --  operator contexts.  Unlike the earlier closure/projection layers, this
    --  package performs direct Ada overload mechanics over concrete candidate
    --  rows: designator matching, visibility filtering, arity/defaulted-formal

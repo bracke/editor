@@ -5,9 +5,9 @@ with Editor.Ada_Syntax_Tree;
 
 package Editor.Ada_Generic_Shared_State_RM_Completion_Recheck_Application_Legality is
 
-   --  Pass1260 RM-completed generic/shared-state recheck application legality.
+   --  Case 1260 RM-completed generic/shared-state recheck application legality.
    --
-   --  This package consumes Pass1259 RM-completed generic/shared-state recheck
+   --  This package consumes Case 1259 RM-completed generic/shared-state recheck
    --  eligibility rows and applies them back into the RM-completed generic/shared-state
    --  final diagnostic and closure boundary.  A RM-completed generic/shared-state
    --  conclusion is current only when its prerequisite recheck chain is

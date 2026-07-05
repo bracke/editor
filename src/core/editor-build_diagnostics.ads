@@ -3,7 +3,7 @@ with Editor.State;
 
 package Editor.Build_Diagnostics is
 
-   --  Phase 556 public build diagnostics ingestion and parsing seam. This
+   --  public build diagnostics ingestion and parsing seam. This
    --  package owns only the explicit build-output diagnostics ingestion policy,
    --  bounded handoff from completed build output, and coherence assertions for
    --  the retained GNAT/GPRbuild parser. It does not execute builds, stream

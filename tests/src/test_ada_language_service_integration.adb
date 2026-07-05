@@ -1504,7 +1504,8 @@ package body Test_Ada_Language_Service_Integration is
           Has_Location => True,
           Line         => 12,
           Column       => 7,
-          Source       => To_Unbounded_String ("cross-unit lookup")));
+          Source       => To_Unbounded_String ("cross-unit lookup"),
+          others       => <>));
       LS.Put_Semantic_Diagnostic
         (Service,
          (Severity     => LS.Semantic_Warning,
@@ -1513,7 +1514,8 @@ package body Test_Ada_Language_Service_Integration is
           Has_Location => True,
           Line         => 13,
           Column       => 3,
-          Source       => To_Unbounded_String ("child visibility")));
+          Source       => To_Unbounded_String ("child visibility"),
+          others       => <>));
       LS.Put_Semantic_Diagnostic
         (Service,
          (Severity     => LS.Semantic_Hint,
@@ -1522,7 +1524,8 @@ package body Test_Ada_Language_Service_Integration is
           Has_Location => False,
           Line         => 0,
           Column       => 0,
-          Source       => To_Unbounded_String ("semantic lookup")));
+          Source       => To_Unbounded_String ("semantic lookup"),
+          others       => <>));
 
       Status := LS.Semantic_Diagnostics_Status (Service);
       Backend := LS.Backend_Status (Service);
@@ -1600,7 +1603,8 @@ package body Test_Ada_Language_Service_Integration is
              Has_Location => True,
              Line         => I,
              Column       => 1,
-             Source       => To_Unbounded_String ("semantic backend")));
+             Source       => To_Unbounded_String ("semantic backend"),
+             others       => <>));
       end loop;
 
       Status := LS.Semantic_Diagnostics_Status (Service);
@@ -1652,6 +1656,10 @@ package body Test_Ada_Language_Service_Integration is
       Assert (To_String (First.Source)'Length > 0
               and then To_String (First.Message)'Length > 0,
               "service preserves feed provenance and message text");
+      Assert
+        (First.Has_Command_Descriptor
+         and then To_String (First.Command_Descriptor.Display_Label)'Length > 0,
+         "service carries descriptor-backed quick-fix metadata from live semantic feeds");
       Assert (LS.Semantic_Diagnostic_Count_For_Path
                 (Service, "src/wide.adb") = SF.Entry_Count (Feed),
               "service path queries include feed diagnostics");

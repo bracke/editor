@@ -78,54 +78,58 @@ package body Editor.Diagnostics is
      (State            : Diagnostic_Vectors.Vector;
       Ordered_Position : Positive) return Natural
    is
-      Best_Index : Natural := 0;
-      Best_Set   : Boolean := False;
+      type Natural_Array is array (Positive range <>) of Natural;
+      Count   : constant Natural := Natural (State.Length);
+      Ordered : Natural_Array (1 .. Count) := (others => 0);
    begin
-      if State.Is_Empty or else Ordered_Position > Natural (State.Length) then
+      if State.Is_Empty or else Ordered_Position > Count then
          return 0;
       end if;
 
       for Position in 1 .. Ordered_Position loop
-         Best_Set := False;
-         for Index in State.First_Index .. State.Last_Index loop
-            declare
-               Candidate : constant Diagnostic_Range := State.Element (Index);
-               Skip      : Boolean := False;
-            begin
-               if Position > 1 then
-                  for Prior_Position in 1 .. Position - 1 loop
-                     declare
-                        Prior_Index : constant Natural :=
-                          Ordered_Vector_Index_At (State, Prior_Position);
-                     begin
-                        if Index = Prior_Index then
+         declare
+            Best_Index : Natural := 0;
+            Best_Set   : Boolean := False;
+         begin
+            for Index in State.First_Index .. State.Last_Index loop
+               declare
+                  Candidate : constant Diagnostic_Range := State.Element (Index);
+                  Skip      : Boolean := False;
+               begin
+                  if Position > 1 then
+                     for Prior_Position in 1 .. Position - 1 loop
+                        if Ordered (Prior_Position) = Index then
                            Skip := True;
+                           exit;
                         end if;
-                     end;
-                  end loop;
-               end if;
+                     end loop;
+                  end if;
 
-               if not Skip
-                 and then (not Best_Set
-                   or else Comes_Before
-                     (Index, Candidate, Best_Index, State.Element (Best_Index)))
-               then
-                  Best_Index := Index;
-                  Best_Set := True;
-               end if;
-            end;
-         end loop;
+                  if not Skip
+                    and then (not Best_Set
+                      or else Comes_Before
+                        (Index, Candidate, Best_Index, State.Element (Best_Index)))
+                  then
+                     Best_Index := Index;
+                     Best_Set := True;
+                  end if;
+               end;
+            end loop;
+            Ordered (Position) := Best_Index;
+         end;
       end loop;
 
-      return Best_Index;
+      return Ordered (Ordered_Position);
    end Ordered_Vector_Index_At;
 
    procedure Add
      (Diagnostics : in out Diagnostic_Vectors.Vector;
-      Start_Index : Editor.Cursors.Cursor_Index;
-      End_Index   : Editor.Cursors.Cursor_Index;
-      Severity    : Diagnostic_Severity;
-      Message     : String := "")
+     Start_Index : Editor.Cursors.Cursor_Index;
+     End_Index   : Editor.Cursors.Cursor_Index;
+     Severity    : Diagnostic_Severity;
+      Message     : String := "";
+      Quick_Fix_Label  : String := "";
+      Quick_Fix_Detail : String := "")
    is
       Lo : constant Editor.Cursors.Cursor_Index :=
         Editor.Cursors.Cursor_Index'Min (Start_Index, End_Index);
@@ -141,7 +145,9 @@ package body Editor.Diagnostics is
              Message      => To_Unbounded_String (Message),
              Has_Location => False,
              Start_Row    => 0,
-             Start_Column => Natural (Lo)));
+             Start_Column => Natural (Lo),
+             Quick_Fix_Label  => To_Unbounded_String (Quick_Fix_Label),
+             Quick_Fix_Detail => To_Unbounded_String (Quick_Fix_Detail)));
       end if;
    end Add;
 
@@ -152,7 +158,9 @@ package body Editor.Diagnostics is
       Start_Row    : Natural;
       Start_Column : Natural;
       Severity     : Diagnostic_Severity;
-      Message      : String := "")
+      Message      : String := "";
+      Quick_Fix_Label  : String := "";
+      Quick_Fix_Detail : String := "")
    is
       Lo : constant Editor.Cursors.Cursor_Index :=
         Editor.Cursors.Cursor_Index'Min (Start_Index, End_Index);
@@ -168,7 +176,9 @@ package body Editor.Diagnostics is
              Message      => To_Unbounded_String (Message),
              Has_Location => True,
              Start_Row    => Start_Row,
-             Start_Column => Start_Column));
+             Start_Column => Start_Column,
+             Quick_Fix_Label  => To_Unbounded_String (Quick_Fix_Label),
+             Quick_Fix_Detail => To_Unbounded_String (Quick_Fix_Detail)));
       end if;
    end Add;
 

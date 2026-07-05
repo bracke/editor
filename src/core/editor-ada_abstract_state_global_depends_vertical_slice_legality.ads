@@ -4,7 +4,7 @@ with Editor.Ada_Syntax_Tree;
 
 package Editor.Ada_Abstract_State_Global_Depends_Vertical_Slice_Legality is
 
-   --  Pass1303 vertical-slice abstract/refined-state and Global/Depends
+   --  Case 1303 vertical-slice abstract/refined-state and Global/Depends
    --  legality.  This package checks concrete source-shaped state,
    --  constituent, Global, Depends, volatile/atomic, and shared-state rows.
    --  It is deliberately a semantic slice, not another diagnostic or

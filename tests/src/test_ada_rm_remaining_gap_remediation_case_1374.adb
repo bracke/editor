@@ -1,11 +1,11 @@
 with AUnit.Assertions; use AUnit.Assertions;
 with AUnit.Test_Cases;
 with Ada.Strings.Unbounded; use Ada.Strings.Unbounded;
-with Editor.Ada_RM_Remaining_Gap_Remediation_Pass1374;
+with Editor.Ada_RM_Remaining_Gap_Remediation_Case_1374;
 
 package body Test_Ada_RM_Remaining_Gap_Remediation_Case_1374 is
 
-   package Audit renames Editor.Ada_RM_Remaining_Gap_Remediation_Pass1374;
+   package Audit renames Editor.Ada_RM_Remaining_Gap_Remediation_Case_1374;
    use type Audit.RM_Family;
    use type Audit.Implementing_Slice;
    use type Audit.Coverage_Level;
@@ -58,8 +58,8 @@ package body Test_Ada_RM_Remaining_Gap_Remediation_Case_1374 is
         To_Unbounded_String
           ("static string literal slice, index, and assignment bounds must preserve canonical literal, range, subtype, and consumer evidence");
       Row.Candidate_Implementing_Package :=
-        To_Unbounded_String ("Editor.Ada_RM_Remaining_Gap_Remediation_Pass1374");
-      Row.Candidate_Pass := To_Unbounded_String ("Pass1374");
+        To_Unbounded_String ("Editor.Ada_RM_Remaining_Gap_Remediation_Case_1374");
+      Row.Candidate_Case := To_Unbounded_String ("Case 1374");
       Row.Blocker_Family :=
         To_Unbounded_String ("RM.Static_Expressions.String_Slice_Bounds");
       return Row;
@@ -72,9 +72,9 @@ package body Test_Ada_RM_Remaining_Gap_Remediation_Case_1374 is
       Expected : Audit.Precision_Classification) is
       Item : constant Audit.Remediation_Entry := Audit.Result_For (Results, Id);
    begin
-      Assert (Item.Status = Status, "unexpected pass1374 status");
+      Assert (Item.Status = Status, "unexpected case 1374 status");
       Assert (Audit.Expected_For_Status (Item.Status) = Expected,
-              "unexpected pass1374 precision classification");
+              "unexpected case 1374 precision classification");
    end Expect_Status;
 
    procedure Test_Static_String_Slice_Bounds_Gap_Remediated
@@ -107,7 +107,7 @@ package body Test_Ada_RM_Remaining_Gap_Remediation_Case_1374 is
       Results := Audit.Build (Input);
 
       Assert (Audit.Gap_Remediated (Results),
-              "pass1374 should close the selected static string slice bounds gap");
+              "case 1374 should close the selected static string slice bounds gap");
       Assert (Results.Remediated_Count = 1, "legal count");
       Assert (Results.Illegal_Count = 1, "illegal count");
       Assert (Results.Runtime_Check_Count = 1, "runtime-check count");
@@ -210,7 +210,7 @@ package body Test_Ada_RM_Remaining_Gap_Remediation_Case_1374 is
       Row : Audit.Remediation_Row;
    begin
       Row := Base_Row (30);
-      Row.Inventory_Row_From_Pass1366 := False;
+      Row.Inventory_Row_From_Final_Burn_Down := False;
       Audit.Add_Row (Input, Row);
 
       Row := Base_Row (31);
@@ -241,7 +241,7 @@ package body Test_Ada_RM_Remaining_Gap_Remediation_Case_1374 is
 
       Results := Audit.Build (Input);
 
-      Expect_Status (Results, 30, Audit.Status_Missing_Pass1366_Inventory_Row,
+      Expect_Status (Results, 30, Audit.Status_Missing_Final_Inventory_Row,
                      Precision.Class_Indeterminate);
       Expect_Status (Results, 31, Audit.Status_Missing_Concrete_Subrule_Name,
                      Precision.Class_Indeterminate);

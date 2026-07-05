@@ -11,9 +11,9 @@ with Editor.Ada_Tasking_RM_Completion_Closure_Consumer_Legality;
 
 package Editor.Ada_Elaboration_RM_Completion_Closure_Consumer_Legality is
 
-   --  Pass1269 elaboration RM-completion closure consumer legality.
+   --  Case 1269 elaboration RM-completion closure consumer legality.
    --
-   --  This package makes elaboration legality consume the Pass1263 stabilized
+   --  This package makes elaboration legality consume the Case 1263 stabilized
    --  RM-completion closure and the direct RM-completion closure consumers
    --  introduced for overload/type, representation/freezing, tasking/protected,
    --  dataflow, and cross-unit closure.  It prevents elaboration conclusions for

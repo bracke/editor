@@ -51,7 +51,7 @@ package Editor.Render_Packet is
    end record;
    pragma Convention (C_Pass_By_Copy, Render_Packet);
 
-   --  Phase 577 buffer metadata render-boundary contract.  The render packet
+   --  buffer metadata render-boundary contract.  The render packet
    --  may display already-computed buffer metadata snapshots, but it must not
    --  use rendering as a lifecycle/mutation boundary.  This audit is a static
    --  contract surface for configuration tests: it is intentionally independent
@@ -75,6 +75,13 @@ package Editor.Render_Packet is
      return Buffer_Metadata_Render_Boundary_Audit;
 
    function Assert_Buffer_Metadata_Render_Boundary_Safe return Boolean;
+
+   procedure Clear_Debug_Text_For_Test;
+
+   function Debug_Text_Contains_For_Test
+     (Text : String) return Boolean;
+
+   function Debug_Text_For_Test return String;
 
    --  Internal render-packet builder.
    --  Runtime-facing code must call Editor.Input_Bridge.Build_Render_Packet

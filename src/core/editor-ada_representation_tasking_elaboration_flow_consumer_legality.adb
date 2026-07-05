@@ -282,7 +282,7 @@ package body Editor.Ada_Representation_Tasking_Elaboration_Flow_Consumer_Legalit
                Object_Name => C.Object_Name,
                Entry_Name => C.Entry_Name,
                Message => Message_For (Status),
-               Detail => To_Unbounded_String ("Pass1159 representation/freezing consumed tasking elaboration contract-flow legality"),
+               Detail => To_Unbounded_String ("Case 1159 representation/freezing consumed tasking elaboration contract-flow legality"),
                Freezing_Row => C.Freezing_Row,
                Freezing_Status => C.Freezing_Status,
                Tasking_Flow_Row => C.Tasking_Flow_Row,

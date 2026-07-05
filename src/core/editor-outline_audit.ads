@@ -22,7 +22,7 @@ package Editor.Outline_Audit is
       Review_Passed                 : Boolean := False;
    end record;
 
-   --  Compact Phase 204 review of the active-buffer Outline contract.
+   --  Compact review of the active-buffer Outline contract.
    --  The helper observes editor state and exercises only local copies for
    --  refresh/projection/selection/lifecycle checks. It does not refresh the
    --  live outline, parse buffers, move carets, alter selection, change the
@@ -31,21 +31,21 @@ package Editor.Outline_Audit is
    function Review_Outline_Contract
      (State : Editor.State.State_Type) return Outline_Contract_Review;
 
-   --  Phase 550 milestone helper for active-file Ada symbol navigation.
+   --  milestone helper for active-file Ada symbol navigation.
    --  The helper is observational: it uses existing Outline rows, command
    --  descriptors, and projection helpers only. It does not parse, refresh,
    --  navigate, mutate Feature Panel selection, inspect files, or persist state.
    function Assert_Ada_Symbol_Navigation_Coherent
      (State : Editor.State.State_Type) return Boolean;
 
-   --  Phase 551 milestone helper for local Ada structure awareness. The helper
+   --  milestone helper for local Ada structure awareness. The helper
    --  is observational: it checks accepted Outline/range metadata through
    --  side-effect-free helpers and does not parse, refresh, compute render
    --  ranges, navigate, write files, or persist audit results.
    function Assert_Ada_Local_Structure_Awareness_Coherent
      (State : Editor.State.State_Type) return Boolean;
 
-   --  Phase 552 milestone helper for Ada comment/string/character lexical
+   --  milestone helper for Ada comment/string/character lexical
    --  safety. The helper uses side-effect-free scanner/extraction helpers on
    --  synthetic snapshots only; it does not inspect files, mutate editor state,
    --  render, navigate, or persist scanner state.

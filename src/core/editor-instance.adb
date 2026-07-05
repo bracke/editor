@@ -50,7 +50,7 @@ package body Editor.Instance is
    ------------------------------------------------------------------------
    procedure Undo (E : in out Editor_Instance) is
    begin
-      --  Phase 372: the instance helper must not restore text
+      --  the instance helper must not restore text
       --  through a private path.  Route through the canonical command id so
       --  availability, stack ownership, dirty tracking, Find/Replace
       --  invalidation, and message policy remain Executor-owned.
@@ -60,7 +60,7 @@ package body Editor.Instance is
    ------------------------------------------------------------------------
    procedure Redo (E : in out Editor_Instance) is
    begin
-      --  Phase 372: keep redo on the same canonical route as keybindings and
+      --  keep redo on the same canonical route as keybindings and
       --  the command palette; do not pop/push history stacks locally.
       Editor.Executor.Execute_Command (E.State, Editor.Commands.Command_Redo);
    end Redo;

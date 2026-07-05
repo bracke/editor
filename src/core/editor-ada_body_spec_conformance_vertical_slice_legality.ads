@@ -4,7 +4,7 @@ with Editor.Ada_Syntax_Tree;
 
 package Editor.Ada_Body_Spec_Conformance_Vertical_Slice_Legality is
 
-   --  Pass1318 vertical-slice body/spec conformance and unit-completion
+   --  Case 1318 vertical-slice body/spec conformance and unit-completion
    --  legality.  This package models concrete Ada completion matching for
    --  subprograms, packages, task/protected units, stubs/separate bodies,
    --  generic bodies, profile conformance, mode/default/null-exclusion

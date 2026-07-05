@@ -1,11 +1,11 @@
 with Ada.Strings.Unbounded; use Ada.Strings.Unbounded;
 with AUnit.Assertions; use AUnit.Assertions;
 with AUnit.Test_Cases;
-with Editor.Ada_RM_Gap_Burn_Down_Pass1360;
+with Editor.Ada_RM_Gap_Burn_Down_Case_1360;
 
 package body Test_Ada_RM_Gap_Burn_Down_Case_1360 is
 
-   package Audit renames Editor.Ada_RM_Gap_Burn_Down_Pass1360;
+   package Audit renames Editor.Ada_RM_Gap_Burn_Down_Case_1360;
    use type Audit.RM_Family;
    use type Audit.Implementing_Slice;
    use type Audit.Coverage_Level;
@@ -53,9 +53,9 @@ package body Test_Ada_RM_Gap_Burn_Down_Case_1360 is
       Row.Source_Kind := Source_Kind;
       Row.Context := Context;
       Row.Name := To_Unbounded_String
-        ("pass1360 source-shaped partial source recovery row");
+        ("case 1360 source-shaped partial source recovery row");
       Row.Implementing_Package :=
-        To_Unbounded_String ("Editor.Ada_RM_Gap_Burn_Down_Pass1360");
+        To_Unbounded_String ("Editor.Ada_RM_Gap_Burn_Down_Case_1360");
       return Row;
    end Base_Row;
 
@@ -66,9 +66,9 @@ package body Test_Ada_RM_Gap_Burn_Down_Case_1360 is
       Expected : Audit.Precision_Classification) is
       Item : constant Audit.Burn_Down_Entry := Audit.Result_For (Results, Id);
    begin
-      Assert (Item.Status = Status, "unexpected pass1360 status");
+      Assert (Item.Status = Status, "unexpected case 1360 status");
       Assert (Audit.Expected_For_Status (Item.Status) = Expected,
-              "unexpected pass1360 classification");
+              "unexpected case 1360 classification");
    end Expect_Status;
 
    procedure Test_Balanced_Partial_Source_Recovery_Closes

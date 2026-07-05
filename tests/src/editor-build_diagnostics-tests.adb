@@ -171,6 +171,79 @@ package body Editor.Build_Diagnostics.Tests is
          "Diagnostics owns the resulting row storage");
    end Test_On_Request_Ingests_Through_Diagnostics_Ownership;
 
+   procedure Test_Build_Command_Routes_Output_Through_Diagnostic_Result
+     (T : in out AUnit.Test_Cases.Test_Case'Class)
+   is
+      pragma Unreferenced (T);
+      S : Editor.State.State_Type;
+      S_Disabled : Editor.State.State_Type;
+      Command_Request : constant Editor.External_Producers.Build_Run_Request :=
+        (Tool                 => Editor.External_Producers.GPRbuild_Tool,
+         Provenance           =>
+           Editor.External_Producers.Build_Request_From_Internal_Command,
+         Working_Label        => To_Unbounded_String ("unit-test"),
+         Command_Label        => To_Unbounded_String ("gprbuild"),
+         Arguments            => Null_Unbounded_String,
+         Structured_Arguments =>
+           Editor.External_Producers.Build_Process_Argument_Vector ("-q"));
+      Captured_Output : constant Editor.External_Producers.Process_Run_Result :=
+        Editor.External_Producers.Build_Process_Run_Result
+          (Editor.External_Producers.Process_Run_Failed,
+           Exit_Code     => 1,
+           Has_Exit_Code => True,
+           Stderr_Text   =>
+             "main.adb:1:1: error: command-owned" & ASCII.LF &
+             "plain process noise");
+      Command : Editor.External_Producers.Build_Command_Result;
+      Disabled_Command : Editor.External_Producers.Build_Command_Result;
+   begin
+      Command := Editor.External_Producers.Run_Build_Command_With_Gate
+        (S, Command_Request,
+         Editor.External_Producers.Build_Test_Fixture_Execution_Gate
+           (Allow_Diagnostics_Ingestion => True,
+            Show_Diagnostics            => False),
+         Captured_Output);
+
+      Assert
+        (Command.Build_Result.Status =
+           Editor.External_Producers.Build_Run_Failed,
+         "build command returns the supplied runner status");
+      Assert
+        (Command.Diagnostic_Result.Ingestion.Parse_Input_Count = 2,
+         "build command parses captured output through Diagnostic_Result");
+      Assert
+        (Command.Diagnostic_Result.Ingestion.Parse_Accepted_Count = 1,
+         "build command accepts only parseable diagnostics");
+      Assert
+        (Command.Diagnostic_Result.Ingestion.Parse_Ignored_Unrecognized_Count = 1,
+         "build command records non-diagnostic output as ignored parse input");
+      Assert
+        (Command.Diagnostic_Result.Ingestion.Ingestion_Result.Accepted_Count = 1,
+         "Diagnostic_Result owns the accepted diagnostics count");
+      Assert
+        (Editor.Feature_Diagnostics.Row_Count (S.Feature_Diagnostics) =
+           Command.Diagnostic_Result.Ingestion.Ingestion_Result.Accepted_Count,
+         "Diagnostics row storage matches the command Diagnostic_Result");
+      Assert
+        (not Command.Diagnostic_Result.Should_Show_Diagnostics,
+         "show diagnostics remains gate metadata, not an output side effect");
+
+      Disabled_Command := Editor.External_Producers.Run_Build_Command_With_Gate
+        (S_Disabled, Command_Request,
+         Editor.External_Producers.Build_Test_Fixture_Execution_Gate
+           (Allow_Diagnostics_Ingestion => False,
+            Show_Diagnostics            => True),
+         Captured_Output);
+
+      Assert
+        (Disabled_Command.Diagnostic_Result.Ingestion.Parse_Input_Count = 0,
+         "disabled command diagnostics policy skips parsing captured output");
+      Assert
+        (Editor.Feature_Diagnostics.Row_Count
+           (S_Disabled.Feature_Diagnostics) = 0,
+         "disabled command diagnostics policy does not mutate Diagnostics");
+   end Test_Build_Command_Routes_Output_Through_Diagnostic_Result;
+
    procedure Test_Show_Diagnostics_Remains_Request_Metadata
      (T : in out AUnit.Test_Cases.Test_Case'Class)
    is
@@ -218,14 +291,14 @@ package body Editor.Build_Diagnostics.Tests is
          "public build.run forwards show request as transient metadata");
       Assert
         (Gate.Process_Policy.Max_Output_Bytes = 262_144,
-         "Phase 554 normal output capture limit reaches the execution gate");
+         "normal output capture limit reaches the execution gate");
 
       Editor.Build_UI.Cycle_Output_Capture_Limit (S.Build_UI);
       Editor.Build_UI.Acknowledge_Consent (S.Build_UI);
       Gate := Editor.Build_Command.Build_Run_Execution_Gate (S);
       Assert
         (Gate.Process_Policy.Max_Output_Bytes = 1_048_576,
-         "Phase 554 changed output capture limit changes the bounded runner policy");
+         "changed output capture limit changes the bounded runner policy");
    end Test_Public_Build_Gate_Uses_Request_Controlled_Policy;
 
    procedure Test_Foundation_Audit_Coherent
@@ -235,7 +308,7 @@ package body Editor.Build_Diagnostics.Tests is
    begin
       Assert
         (Assert_Public_Build_Diagnostics_Ingestion_Foundation_Coherent,
-         "Phase 556 diagnostics ingestion foundation audit passes");
+         "diagnostics ingestion foundation audit passes");
    end Test_Foundation_Audit_Coherent;
 
    overriding procedure Register_Tests
@@ -256,6 +329,9 @@ package body Editor.Build_Diagnostics.Tests is
         (T, Test_On_Request_Ingests_Through_Diagnostics_Ownership'Access,
          "on-request ingestion uses Diagnostics ownership");
       Register_Routine
+        (T, Test_Build_Command_Routes_Output_Through_Diagnostic_Result'Access,
+         "build command routes output through Diagnostic_Result");
+      Register_Routine
         (T, Test_Show_Diagnostics_Remains_Request_Metadata'Access,
          "show diagnostics remains transient request metadata");
       Register_Routine
@@ -263,7 +339,7 @@ package body Editor.Build_Diagnostics.Tests is
          "public build gate uses request-controlled diagnostics policy");
       Register_Routine
         (T, Test_Foundation_Audit_Coherent'Access,
-         "Phase 556 foundation audit is coherent");
+         "foundation audit is coherent");
    end Register_Tests;
 
 end Editor.Build_Diagnostics.Tests;

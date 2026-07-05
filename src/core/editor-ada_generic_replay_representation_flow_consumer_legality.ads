@@ -6,7 +6,7 @@ with Editor.Ada_Syntax_Tree;
 
 package Editor.Ada_Generic_Replay_Representation_Flow_Consumer_Legality is
 
-   --  Pass1160 compiler-grade generic replay representation-flow consumer legality.
+   --  Case 1160 compiler-grade generic replay representation-flow consumer legality.
    --
    --  This layer feeds representation/freezing tasking/elaboration/contract-flow
    --  evidence back into generic instance body semantic replay.  Instantiated

@@ -366,7 +366,7 @@ package body Test_Ada_Generic_Instance_Body_Semantic_Replay is
       Register_Routine
         (T,
          Expansion_Rows_Are_Converted_To_Replay_Contexts'Access,
-         "Pass1125 expansion rows are converted into replay contexts");
+         "Case 1125 expansion rows are converted into replay contexts");
    end Register_Tests;
 
 end Test_Ada_Generic_Instance_Body_Semantic_Replay;

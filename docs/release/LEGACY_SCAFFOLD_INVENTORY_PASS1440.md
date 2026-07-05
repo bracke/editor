@@ -1,6 +1,6 @@
-# Phase 579 Legacy Scaffold Inventory — Pass1440
+# Legacy Scaffold Inventory — Case 1440
 
-Pass1440 closes the first post-release-cleanup item: complete the legacy scaffold inventory before continuing destructive removal.
+Case 1440 closes the first post-release-cleanup item: complete the legacy scaffold inventory before continuing destructive removal.
 
 ## Classification rule
 
@@ -20,8 +20,8 @@ Production:
 
 Regression evidence:
 
-* Editor.Ada_RM_Remaining_Gap_Remediation_Pass1428
-* Editor.Ada_Phase579_Project_Scale_Closure_Pass1436
+* Editor.Ada_RM_Remaining_Gap_Remediation_Case 1428
+* Editor.Ada_Project_Scale_Closure_Case 1436
 
 Quarantine before deletion:
 
@@ -43,7 +43,7 @@ The pass rejects:
 * production-facing legacy scaffolds without quarantine/remove ownership;
 * references to already removed scaffolds;
 * command aliases or compatibility spellings introduced by cleanup;
-* any reopened Remaining_* gap after pass1428;
+* any reopened Remaining_* gap after case 1428;
 * stale inventory fingerprints;
 * missing owners or unclassified surfaces.
 

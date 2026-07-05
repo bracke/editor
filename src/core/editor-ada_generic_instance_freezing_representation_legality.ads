@@ -13,7 +13,7 @@ with Editor.Ada_Tagged_Derived_Legality;
 
 package Editor.Ada_Generic_Instance_Freezing_Representation_Legality is
 
-   --  Wide compiler-grade semantic legality building block for Pass1105.
+   --  Wide compiler-grade semantic legality building block for Case 1105.
    --  This package connects generic instance/body substitutions with freezing
    --  and representation effects.  It deliberately consumes existing semantic
    --  models instead of projecting another UI surface: callers provide

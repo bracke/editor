@@ -54,6 +54,14 @@ package Editor.Workspace_Persistence is
       Panel_Values_Clamped : Natural := 0;
    end record;
 
+   type Workspace_Restore_Audit is record
+      Snapshots_Equivalent      : Boolean := False;
+      Runtime_State_Excluded    : Boolean := False;
+      Restore_Counts_Coherent   : Boolean := False;
+      Continuity_State_Restored : Boolean := False;
+      Safe                      : Boolean := False;
+   end record;
+
    type Workspace_File_Entry is record
       Path                : Ada.Strings.Unbounded.Unbounded_String;
       Is_Project_Relative : Boolean := True;
@@ -65,6 +73,19 @@ package Editor.Workspace_Persistence is
    type Bottom_Content_Id is
      (Workspace_Problems_Content,
       Workspace_Search_Results_Content);
+
+   type Workspace_Feature_Panel_Id is
+     (Workspace_Outline_Feature,
+      Workspace_Messages_Feature,
+      Workspace_Search_Results_Feature,
+      Workspace_Diagnostics_Feature);
+
+   type Workspace_Quick_Open_File_Kind_Filter is
+     (Workspace_Quick_Open_All_Files,
+      Workspace_Quick_Open_Ada_Files,
+      Workspace_Quick_Open_Test_Files,
+      Workspace_Quick_Open_Doc_Files,
+      Workspace_Quick_Open_Other_Files);
 
    type Workspace_Snapshot is private;
 
@@ -149,6 +170,42 @@ package Editor.Workspace_Persistence is
    function Active_Bottom_Content
      (Snapshot : Workspace_Snapshot) return Bottom_Content_Id;
 
+   procedure Set_Recent_Project_Path
+     (Snapshot : in out Workspace_Snapshot;
+      Path     : String);
+
+   function Has_Recent_Project_Path
+     (Snapshot : Workspace_Snapshot) return Boolean;
+
+   function Recent_Project_Path
+     (Snapshot : Workspace_Snapshot) return String;
+
+   procedure Set_Quick_Open_Path_Scope
+     (Snapshot : in out Workspace_Snapshot;
+      Scope    : String);
+
+   function Quick_Open_Path_Scope
+     (Snapshot : Workspace_Snapshot) return String;
+
+   procedure Set_Quick_Open_File_Kind_Filter
+     (Snapshot : in out Workspace_Snapshot;
+      Filter   : Workspace_Quick_Open_File_Kind_Filter);
+
+   function Quick_Open_File_Kind_Filter
+     (Snapshot : Workspace_Snapshot)
+      return Workspace_Quick_Open_File_Kind_Filter;
+
+   procedure Set_Feature_Panel
+     (Snapshot       : in out Workspace_Snapshot;
+      Visible        : Boolean;
+      Active_Feature : Workspace_Feature_Panel_Id);
+
+   function Feature_Panel_Visible
+     (Snapshot : Workspace_Snapshot) return Boolean;
+
+   function Active_Feature_Panel
+     (Snapshot : Workspace_Snapshot) return Workspace_Feature_Panel_Id;
+
 
    function Session_File_Path
      (Project_Root : String) return String;
@@ -215,6 +272,14 @@ package Editor.Workspace_Persistence is
    function Audit_Buffer_Persistence
      (Snapshot : Workspace_Snapshot) return Workspace_Buffer_Persistence_Audit;
 
+   function Restore_Details_Label
+     (Summary : Workspace_Restore_Summary) return String;
+
+   function Audit_Restore_Roundtrip
+     (Before  : Workspace_Snapshot;
+      After   : Workspace_Snapshot;
+      Summary : Workspace_Restore_Summary) return Workspace_Restore_Audit;
+
    function Diagnostic_Count
      (Snapshot : Workspace_Snapshot) return Natural;
 
@@ -224,7 +289,7 @@ package Editor.Workspace_Persistence is
 
    --  Save Snapshot using the workspace persistence format.
    --  The implementation delegates to Save_To_File_Atomically so callers that
-   --  still use the Phase 89 API receive the Phase 90 write-safety policy.
+   --  still use the API receive the write-safety policy.
    --  @param Snapshot Snapshot to persist.
    --  @param Path Target session file path.
    --  @param Status Persistence status.
@@ -277,6 +342,14 @@ private
       Bottom_Visible    : Boolean := False;
       Bottom_Height     : Natural := 8;
       Bottom_Content    : Bottom_Content_Id := Workspace_Problems_Content;
+      Has_Recent_Project : Boolean := False;
+      Recent_Project     : Ada.Strings.Unbounded.Unbounded_String;
+      Quick_Open_Scope   : Ada.Strings.Unbounded.Unbounded_String;
+      Quick_Open_Filter  : Workspace_Quick_Open_File_Kind_Filter :=
+        Workspace_Quick_Open_All_Files;
+      Feature_Panel_Visible : Boolean := False;
+      Active_Feature_Panel  : Workspace_Feature_Panel_Id :=
+        Workspace_Outline_Feature;
       Diagnostics       : Diagnostic_Vectors.Vector;
    end record;
 end Editor.Workspace_Persistence;

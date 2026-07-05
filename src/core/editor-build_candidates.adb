@@ -125,7 +125,7 @@ package body Editor.Build_Candidates is
          return False;
       end if;
 
-      --  Phase 553 treats discovered source paths as executable build-request
+      --  treats discovered source paths as executable build-request
       --  inputs only when the represented project file can actually be opened
       --  by the editor process.  Discovery still does not parse TOML/GPR
       --  semantics; this is a bounded open/close readability check used only

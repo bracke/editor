@@ -6,9 +6,9 @@ with Editor.Ada_Syntax_Tree;
 
 package Editor.Ada_Discriminant_Variant_AST_Repair_Legality is
 
-   --  Pass1177 discriminant/variant parser-AST repair legality.
+   --  Case 1177 discriminant/variant parser-AST repair legality.
    --
-   --  This package turns the repaired-coverage facts from Pass1147 into
+   --  This package turns the repaired-coverage facts from Case 1147 into
    --  concrete discriminant/variant repair facts.  Discriminant specifications,
    --  variant parts, discriminant-dependent aggregates, and private/full-view
    --  discriminant views are not treated as restored until parser nodes,

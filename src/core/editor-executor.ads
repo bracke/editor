@@ -15,8 +15,12 @@ with Editor.Overlay_Focus;
 with Editor.Workspace_Persistence;
 with Editor.Dirty_Guards;
 with Editor.Command_Execution;
+with Editor.Executor_Edit_Status;
 with Editor.External_Producers;
-with Editor.Feature_Diagnostics;
+with Editor.Navigation_History;
+with Editor.Pending_Transitions;
+with Editor.Ada_Language_Service;
+with Editor.Ada_Project_Index;
 
 package Editor.Executor is
 
@@ -54,6 +58,9 @@ package Editor.Executor is
      (S      : in out Editor.State.State_Type;
       Reason : Editor.Overlay_Focus.Overlay_Dismissal_Reason);
 
+   procedure Recompute_Quick_Open
+     (S : in out Editor.State.State_Type);
+
    procedure Deactivate_Active_Overlay_Only
      (S      : in out Editor.State.State_Type;
       Reason : Editor.Overlay_Focus.Overlay_Dismissal_Reason);
@@ -61,6 +68,11 @@ package Editor.Executor is
    procedure Execute_No_Log
      (S   : in out Editor.State.State_Type;
       Cmd : Editor.Commands.Command);
+
+   procedure Execute_No_Log_With_Status
+     (S           : in out Editor.State.State_Type;
+      Cmd         : Editor.Commands.Command;
+      Line_Status : out Editor.Executor_Edit_Status.Line_Edit_Status);
 
    --  Return advisory availability for a stable command id. Execution still
    --  validates concrete state before mutation; this predicate exists so
@@ -73,6 +85,12 @@ package Editor.Executor is
       Id : Editor.Commands.Command_Id)
       return Editor.Commands.Command_Availability;
 
+   function Diagnostic_Quick_Fix_Action_Availability
+     (S                : Editor.State.State_Type;
+      Diagnostic_Index : Natural;
+      Action_Index     : Natural)
+      return Editor.Commands.Command_Availability;
+
    function Check_Dirty_Transition
      (State : Editor.State.State_Type;
       Kind  : Editor.Dirty_Guards.Dirty_Transition_Kind)
@@ -82,6 +100,15 @@ package Editor.Executor is
    --  live editor/project/workspace state.  This is side-effect-free.
    function Pending_Transition_Is_Still_Valid
      (State : Editor.State.State_Type) return Boolean;
+
+   function Pending_Project_Open_Command_Matches
+     (S                   : Editor.State.State_Type;
+      Path                : String;
+      Recent_Project_Open : Boolean;
+      Explicit_Switch     : Boolean) return Boolean;
+
+   function Pending_Project_Close_Command_Matches
+     (S : Editor.State.State_Type) return Boolean;
 
    function Current_Semantic_Symbol_Name
      (State : Editor.State.State_Type) return String;
@@ -140,170 +167,12 @@ package Editor.Executor is
      (S      : Editor.State.State_Type;
       Result : out Editor.Commands.Command_Palette_Candidate_Vectors.Vector);
 
-
-
-   --  Descriptor-owned minimal prompt metadata consumers.  These do not own
-   --  prompt truth tables; Editor.Commands is the canonical static source.
-   function Command_Requires_File_Target_Prompt
-     (Id : Editor.Commands.Command_Id) return Boolean;
-
    --  Descriptor-owned explicit-target query mirrored for executor callers.
    function Command_Requires_Explicit_Target
      (Id : Editor.Commands.Command_Id) return Boolean;
 
-   function File_Target_Prompt_Is_Active
-     (S : Editor.State.State_Type) return Boolean;
-
-   function File_Target_Prompt_Input_Text
-     (S : Editor.State.State_Type) return String;
-
-   function File_Target_Prompt_Label
-     (S : Editor.State.State_Type) return String;
-
-   procedure Open_File_Target_Prompt
-     (S  : in out Editor.State.State_Type;
-      Id : Editor.Commands.Command_Id);
-
-   procedure Cancel_File_Target_Prompt
-     (S : in out Editor.State.State_Type);
-
-   procedure Confirm_File_Target_Prompt
-     (S : in out Editor.State.State_Type);
-
-   procedure Insert_File_Target_Prompt_Text
-     (S    : in out Editor.State.State_Type;
-      Text : String);
-
-   procedure Select_All_File_Target_Prompt_Text
-     (S : in out Editor.State.State_Type);
-
-   procedure Backspace_File_Target_Prompt
-     (S : in out Editor.State.State_Type);
-
-   procedure Delete_Forward_File_Target_Prompt
-     (S : in out Editor.State.State_Type);
-
-   procedure Move_File_Target_Prompt_Cursor_Left
-     (S : in out Editor.State.State_Type);
-
-   procedure Move_File_Target_Prompt_Cursor_Right
-     (S : in out Editor.State.State_Type);
-
-   procedure Move_File_Target_Prompt_Cursor_Start
-     (S : in out Editor.State.State_Type);
-
-   procedure Move_File_Target_Prompt_Cursor_End
-     (S : in out Editor.State.State_Type);
-
-
-   --  Execute one canonical file lifecycle command that carries an explicit
-   --  target path.  This is the single dispatch seam used by transient
-   --  target-prompt confirmation and structured explicit-target command
-   --  execution; it performs no prompt-specific validation.
-   procedure Execute_File_Target_Command
-     (S      : in out Editor.State.State_Type;
-      Id     : Editor.Commands.Command_Id;
-      Target : String);
-
-   procedure Execute_Open_File
-     (S    : in out Editor.State.State_Type;
-      Path : String);
-
-   --  Open a project/folder root without changing buffers or file identity.
-   --  @param S editor state whose global project state receives the result
-   --  @param Path host filesystem directory path to open as the project root
-   procedure Execute_Open_Project
-     (S                        : in out Editor.State.State_Type;
-      Path                     : String;
-      Refresh_Build_Candidates : Boolean := True;
-      Apply_Workspace_Policy   : Boolean := True;
-      Recent_Project_Open      : Boolean := False;
-      Explicit_Switch          : Boolean := False);
-
-   --  Refresh the editor-global file tree from the active project root.
-   --  @param S editor state whose file tree and messages are updated
-   procedure Execute_Refresh_File_Tree
-     (S : in out Editor.State.State_Type);
-
-   procedure Execute_Refresh_Project_Files
-     (S : in out Editor.State.State_Type);
-
-   procedure Execute_Project_Files_Summary
-     (S : in out Editor.State.State_Type);
-
-   procedure Execute_Show_Recent_Projects
-     (S : in out Editor.State.State_Type);
-
-   procedure Execute_Open_Selected_Recent_Project
-     (S : in out Editor.State.State_Type);
-
-   procedure Execute_Clear_Recent_Projects
-     (S : in out Editor.State.State_Type);
-
-   procedure Execute_Remove_Selected_Recent_Project
-     (S : in out Editor.State.State_Type);
-
-   procedure Execute_Remove_Missing_Recent_Projects
-     (S : in out Editor.State.State_Type);
-
-   procedure Execute_File_Tree_Node_Action
-     (S      : in out Editor.State.State_Type;
-      Node   : Editor.File_Tree.File_Tree_Node_Id;
-      Action : Editor.File_Tree_View.File_Tree_Action);
-
-   procedure Execute_File_Tree_Action
-     (S   : in out Editor.State.State_Type;
-      Hit : Editor.File_Tree_View.File_Tree_Hit_Result);
-
-   procedure Execute_Save
-     (S : in out Editor.State.State_Type);
-
-   --  Explicitly reload the active clean associated buffer from disk.
-   --  Dirty buffers are blocked; reload never saves, discards, closes,
-   --  reopens, watches, or persists disk text.
-   procedure Execute_Reload_Active_Buffer
-     (S : in out Editor.State.State_Type);
-
-   --  Explicitly discard active dirty associated buffer changes by
-   --  rereading the associated file from disk after successful validation.
-   procedure Execute_Revert_Active_Buffer
-     (S : in out Editor.State.State_Type);
-
-   --  Explicitly rename the active clean associated buffer's backing file to
-   --  an explicit target path. The association updates only after filesystem
-   --  rename success; text and saved baseline text are preserved.
-   procedure Execute_Rename_Buffer_File
-     (S    : in out Editor.State.State_Type;
-      Path : String);
-
-   --  Explicitly delete the active clean associated buffer's backing file.
-   --  The buffer remains open as unsaved in-memory text after filesystem
-   --  delete success; dirty buffers are blocked.
-   procedure Execute_Delete_Buffer_File
-     (S : in out Editor.State.State_Type);
-
-   --  Explicitly copy the active clean associated buffer's backing file to
-   --  an explicit target path. The active buffer association, text, saved
-   --  baseline, and dirty state are preserved.
-   procedure Execute_Copy_Buffer_File
-     (S    : in out Editor.State.State_Type;
-      Path : String);
-
-   --  Explicitly move the active clean associated buffer's backing file to
-   --  an explicit target path. The active association updates only after
-   --  filesystem success; text, saved baseline, and dirty state are preserved.
-   procedure Execute_Move_Buffer_File
-     (S    : in out Editor.State.State_Type;
-      Path : String);
-
-   procedure Execute_Save_Workspace_State
-     (S : in out Editor.State.State_Type);
-
-   procedure Execute_Restore_Workspace_State
-     (S : in out Editor.State.State_Type);
-
-   procedure Execute_Clear_Workspace_State
-     (S : in out Editor.State.State_Type);
+   function File_Tree_Status_Message
+     (Result : Editor.File_Tree.File_Tree_Scan_Result) return String;
 
    --  Apply project-open workspace persistence policy after a project was
    --  opened.  This procedure may report available/invalid/restored session
@@ -327,859 +196,36 @@ package Editor.Executor is
       Status   : out Editor.Workspace_Persistence.Workspace_Persistence_Status;
       Summary  : out Editor.Workspace_Persistence.Workspace_Restore_Summary);
 
-   procedure Execute_Save_All
-     (S : in out Editor.State.State_Type);
-
-   procedure Execute_Close_Other_Buffers
-     (S : in out Editor.State.State_Type);
-
-   procedure Execute_Close_All_Clean_Buffers
-     (S : in out Editor.State.State_Type);
-
-   procedure Execute_Reopen_Closed_Buffer
-     (S : in out Editor.State.State_Type);
-
-
-   procedure Execute_Save_As
-     (S    : in out Editor.State.State_Type;
-      Path : String);
-
-
-   procedure Execute_New_Buffer
-     (S : in out Editor.State.State_Type);
-
-   procedure Execute_Switch_Buffer
-     (S                : in out Editor.State.State_Type;
-      Id               : Editor.Buffers.Buffer_Id;
-      Recent_Traversal : Boolean := False;
-      Emit_Feedback    : Boolean := True);
-
-   procedure Execute_Previous_Recent_Buffer
-     (S : in out Editor.State.State_Type);
-
-   procedure Execute_Next_Recent_Buffer
-     (S : in out Editor.State.State_Type);
-
-   procedure Execute_Close_Active_Buffer
-     (S : in out Editor.State.State_Type);
-
-   procedure Execute_Close_Buffer
-     (S  : in out Editor.State.State_Type;
-      Id : Editor.Buffers.Buffer_Id);
-
-   procedure Execute_Next_Buffer
-     (S : in out Editor.State.State_Type);
-
-   procedure Execute_Previous_Buffer
-     (S : in out Editor.State.State_Type);
-
-   procedure Execute_Toggle_Problems_Panel
-     (S : in out Editor.State.State_Type);
-
-   procedure Execute_Focus_Editor_Text
-     (S : in out Editor.State.State_Type);
-
-   procedure Execute_Focus_Search_Results
-     (S : in out Editor.State.State_Type);
-
-   procedure Execute_Focus_Problems
-     (S : in out Editor.State.State_Type);
-
-   procedure Execute_Focus_File_Tree
-     (S : in out Editor.State.State_Type);
-
-
-   --  Select a live outline row from a mouse/projection hit without moving
-   --  the editor cursor or changing current-symbol state. Expected generation
-   --  zero disables stale-projection checking for non-rendered tests.
-   function Execute_Outline_Row_Click
-     (S                         : in out Editor.State.State_Type;
-      Row                       : Natural;
-      Expected_Panel_Generation : Natural := 0) return Command_Execution_Result;
-
-   --  Activate a live outline row by first selecting it through the same row
-   --  validation path and then dispatching outline.open-selected.
-   function Execute_Outline_Row_Activation
-     (S                         : in out Editor.State.State_Type;
-      Row                       : Natural;
-      Expected_Panel_Generation : Natural := 0) return Command_Execution_Result;
-
-
-   --  Select a live Messages row without moving the editor cursor.
-   function Execute_Message_Row_Click
-     (S                         : in out Editor.State.State_Type;
-      Row                       : Natural;
-      Expected_Panel_Generation : Natural := 0) return Command_Execution_Result;
-
-   --  Activate a live Messages row with a validated target.
-   function Execute_Message_Row_Activation
-     (S                         : in out Editor.State.State_Type;
-      Row                       : Natural;
-      Expected_Panel_Generation : Natural := 0) return Command_Execution_Result;
-
-   --  Activate a live Search Results scaffold row with a validated target.
-   function Execute_Search_Result_Row_Activation
-     (S                         : in out Editor.State.State_Type;
-      Row                       : Natural;
-      Expected_Panel_Generation : Natural := 0) return Command_Execution_Result;
-
-   --  Activate a live Diagnostics row with a validated target.
-   function Execute_Diagnostic_Row_Activation
-     (S                         : in out Editor.State.State_Type;
-      Row                       : Natural;
-      Expected_Panel_Generation : Natural := 0) return Command_Execution_Result;
-
-   --  Activate a live Diagnostics item by explicit Diagnostic_Id without
-   --  relying on a projected row. The id must still be live, targeted at the
-   --  active buffer token, and in active-buffer range. This helper does not
-   --  open files, start producers, or repair stale projections.
-   function Execute_Diagnostic_Id_Activation
-     (S  : in out Editor.State.State_Type;
-      Id : Editor.Feature_Diagnostics.Diagnostic_Id)
-      return Command_Execution_Result;
-
-
-   procedure Execute_File_Tree_Move_Up
-     (S : in out Editor.State.State_Type);
-
-   procedure Execute_File_Tree_Move_Down
-     (S : in out Editor.State.State_Type);
-
-   procedure Execute_File_Tree_Page_Up
-     (S : in out Editor.State.State_Type);
-
-   procedure Execute_File_Tree_Page_Down
-     (S : in out Editor.State.State_Type);
-
-   procedure Execute_File_Tree_Open_Selected
-     (S : in out Editor.State.State_Type);
-
-   procedure Execute_File_Tree_Collapse_Selected
-     (S : in out Editor.State.State_Type);
-
-   procedure Execute_File_Tree_Expand_Selected
-     (S : in out Editor.State.State_Type);
-
-   procedure Execute_File_Tree_Toggle_Selected
-     (S : in out Editor.State.State_Type);
-
-   procedure Execute_Toggle_Bottom_Panel_Focus
-     (S : in out Editor.State.State_Type);
-
-   procedure Execute_Problems_Move_Up
-     (S : in out Editor.State.State_Type);
-
-   procedure Execute_Problems_Move_Down
-     (S : in out Editor.State.State_Type);
-
-   procedure Execute_Problems_Page_Up
-     (S : in out Editor.State.State_Type);
-
-   procedure Execute_Problems_Page_Down
-     (S : in out Editor.State.State_Type);
-
-   procedure Execute_Problems_Open_Selected
-     (S : in out Editor.State.State_Type);
-
-   procedure Execute_Problems_Focus_Editor
-     (S : in out Editor.State.State_Type);
-
-   procedure Execute_Search_Results_Move_Up
-     (S : in out Editor.State.State_Type);
-
-   procedure Execute_Search_Results_Move_Down
-     (S : in out Editor.State.State_Type);
-
-   procedure Execute_Search_Results_Page_Up
-     (S : in out Editor.State.State_Type);
-
-   procedure Execute_Search_Results_Page_Down
-     (S : in out Editor.State.State_Type);
-
-   procedure Execute_Search_Results_Open_Selected
-     (S : in out Editor.State.State_Type);
-
-   procedure Execute_Search_Results_Close_Or_Hide
-     (S : in out Editor.State.State_Type);
-
-   procedure Execute_Run_Project_Search
-     (S     : in out Editor.State.State_Type;
-      Query : String);
-
-   procedure Execute_Rerun_Project_Search
-     (S : in out Editor.State.State_Type);
-
-   procedure Execute_Open_Project_Search_Bar
-     (S : in out Editor.State.State_Type);
-
-   procedure Execute_Toggle_Project_Search_Bar
-     (S : in out Editor.State.State_Type);
-
-   procedure Execute_Close_Project_Search_Bar
-     (S : in out Editor.State.State_Type);
-
-   procedure Execute_Run_Project_Search_From_Bar
-     (S : in out Editor.State.State_Type);
-
-   procedure Execute_Project_Search_Bar_Insert_Text
-     (S    : in out Editor.State.State_Type;
-      Text : String);
-
-   procedure Execute_Project_Search_Bar_Backspace
-     (S : in out Editor.State.State_Type);
-
-   procedure Execute_Project_Search_Bar_Delete_Forward
-     (S : in out Editor.State.State_Type);
-
-   procedure Execute_Project_Search_From_Selection
-     (S : in out Editor.State.State_Type);
-
-   procedure Execute_Project_Search_From_Active_Word
-     (S : in out Editor.State.State_Type);
-
-   procedure Execute_Project_Search_Active_Directory
-     (S : in out Editor.State.State_Type);
-
-   procedure Execute_Clear_Project_Search
-     (S : in out Editor.State.State_Type);
-
-   procedure Execute_Open_Project_Search_Result
-     (S            : in out Editor.State.State_Type;
-      Result_Index : Natural);
-
-   procedure Execute_Open_Selected_Project_Search_Result
-     (S : in out Editor.State.State_Type);
-
-   procedure Execute_Move_Project_Search_Selection_Down
-     (S : in out Editor.State.State_Type);
-
-   procedure Execute_Move_Project_Search_Selection_Up
-     (S : in out Editor.State.State_Type);
-
-   procedure Execute_Next_Project_Search_Result
-     (S : in out Editor.State.State_Type);
-
-   procedure Execute_Previous_Project_Search_Result
-     (S : in out Editor.State.State_Type);
-
-   procedure Execute_First_Project_Search_Result
-     (S : in out Editor.State.State_Type);
-
-   procedure Execute_Last_Project_Search_Result
-     (S : in out Editor.State.State_Type);
-
-   procedure Execute_Reveal_Active_Project_Search_Result
-     (S : in out Editor.State.State_Type);
-
-   procedure Execute_Project_Search_Scope_Selected_Directory
-     (S : in out Editor.State.State_Type);
-
-   procedure Execute_Project_Search_Kind_Next
-     (S : in out Editor.State.State_Type);
-
-   procedure Execute_Project_Search_Kind_Previous
-     (S : in out Editor.State.State_Type);
-
-   procedure Execute_Project_Search_Kind_Clear
-     (S : in out Editor.State.State_Type);
-
-   procedure Execute_Project_Search_Scope_Set
-     (S     : in out Editor.State.State_Type;
-      Scope : String);
-
-   procedure Execute_Project_Search_Scope_Clear
-     (S : in out Editor.State.State_Type);
-
-   procedure Execute_Project_Search_Case_Toggle
-     (S : in out Editor.State.State_Type);
-
-   procedure Execute_Project_Search_Case_Clear
-     (S : in out Editor.State.State_Type);
-
-   procedure Execute_Project_Search_Whole_Word_Toggle
-     (S : in out Editor.State.State_Type);
-
-   procedure Execute_Project_Search_Whole_Word_Clear
-     (S : in out Editor.State.State_Type);
-
-   procedure Execute_Project_Search_Regex_Toggle
-     (S : in out Editor.State.State_Type);
-
-   procedure Execute_Project_Search_Regex_Clear
-     (S : in out Editor.State.State_Type);
-
-   procedure Execute_Project_Search_Include_Filter_Set
+   function Restore_Summary_Message
+     (Summary : Editor.Workspace_Persistence.Workspace_Restore_Summary;
+      Partial : Boolean) return String;
+
+   procedure Report_Workspace_Load_Status
      (S      : in out Editor.State.State_Type;
-      Filter : String);
+      Status : Editor.Workspace_Persistence.Workspace_Persistence_Status);
 
-   procedure Execute_Project_Search_Exclude_Filter_Set
-     (S      : in out Editor.State.State_Type;
-      Filter : String);
+   procedure Mark_Restore_Summary_Current
+     (S       : in out Editor.State.State_Type;
+      Summary : Editor.Workspace_Persistence.Workspace_Restore_Summary);
 
-   procedure Execute_Project_Search_Include_Filter_Clear
-     (S : in out Editor.State.State_Type);
-
-   procedure Execute_Project_Search_Exclude_Filter_Clear
-     (S : in out Editor.State.State_Type);
-
-   procedure Execute_Jump_To_Diagnostic
-     (S     : in out Editor.State.State_Type;
-      Index : Editor.Diagnostics.Diagnostic_Index);
-
-   procedure Execute_Next_Diagnostic
-     (S : in out Editor.State.State_Type);
-
-   procedure Execute_Previous_Diagnostic
-     (S : in out Editor.State.State_Type);
-
-   procedure Execute_Jump_To_Diagnostic_On_Row
-     (S   : in out Editor.State.State_Type;
-      Row : Natural);
-
-   procedure Execute_Toggle_Bookmark
-     (S : in out Editor.State.State_Type);
-
-   procedure Execute_Toggle_Bookmark_At_Row
-     (S   : in out Editor.State.State_Type;
-      Row : Natural);
-
-   procedure Execute_Next_Bookmark
-     (S : in out Editor.State.State_Type);
-
-   procedure Execute_Previous_Bookmark
-     (S : in out Editor.State.State_Type);
-
-   procedure Execute_Clear_Bookmarks
-     (S : in out Editor.State.State_Type);
-
-   procedure Execute_Clear_All_Bookmarks
-     (S : in out Editor.State.State_Type);
-
-   procedure Execute_Bookmark_Toggle_Current_Location
-     (S : in out Editor.State.State_Type);
-
-   procedure Execute_Bookmark_Clear_All
-     (S : in out Editor.State.State_Type);
-
-   procedure Execute_Bookmark_Next
-     (S : in out Editor.State.State_Type);
-
-   procedure Execute_Bookmark_Previous
-     (S : in out Editor.State.State_Type);
-
-   procedure Execute_Bookmark_Goto_Next
-     (S : in out Editor.State.State_Type);
-
-   procedure Execute_Bookmark_Goto_Previous
-     (S : in out Editor.State.State_Type);
-
-   procedure Execute_Bookmark_Open_Selected
-     (S : in out Editor.State.State_Type);
-
-   procedure Execute_Bookmark_Reveal_Current
-     (S : in out Editor.State.State_Type);
-
-   procedure Execute_Bookmark_Remove_Selected
-     (S : in out Editor.State.State_Type);
-
-   procedure Execute_Bookmark_Show
-     (S : in out Editor.State.State_Type);
-
-   procedure Execute_Bookmark_Hide
-     (S : in out Editor.State.State_Type);
-
-   procedure Execute_Bookmark_Toggle_Surface
-     (S : in out Editor.State.State_Type);
-
-   procedure Execute_Select_Line
-     (S : in out Editor.State.State_Type);
-
-   procedure Execute_Select_Line_At
-     (S   : in out Editor.State.State_Type;
-      Row : Natural);
-
-   procedure Execute_Extend_Selection_By_Line
-     (S         : in out Editor.State.State_Type;
-      Direction : Editor.Navigation.Navigation_Direction);
-
-   procedure Execute_Extend_Selection_To_Line
-     (S   : in out Editor.State.State_Type;
-      Row : Natural);
-
-   procedure Execute_Select_Word
-     (S : in out Editor.State.State_Type);
-
-   procedure Execute_Select_All_Selection_Command
-     (S : in out Editor.State.State_Type);
-
-   procedure Execute_Clear_Selection_Command
-     (S : in out Editor.State.State_Type);
-
-   procedure Execute_Select_Current_Word_Command
-     (S : in out Editor.State.State_Type);
-
-   procedure Execute_Select_Word_At
-     (S      : in out Editor.State.State_Type;
-      Row    : Natural;
-      Column : Natural);
-
-   procedure Execute_Extend_Selection_By_Word
-     (S         : in out Editor.State.State_Type;
-      Direction : Editor.Navigation.Navigation_Direction);
-
-   --  Start rectangular-selection mode at the primary caret. This command only
-   --  changes selection state; it must not mutate text, dirty-line state, or
-   --  undo history.
-   procedure Execute_Start_Rectangular_Selection
-     (S : in out Editor.State.State_Type);
-
-   --  Store a normalized grid-cell rectangle on the active buffer projection.
-   --  Rows are inclusive and columns are half-open. Secondary carets are
-   --  cleared by the Phase 68 single-rectangle policy.
-   procedure Execute_Set_Rectangular_Selection
-     (S      : in out Editor.State.State_Type;
-      Anchor : Editor.Selection.Text_Position;
-      Cursor : Editor.Selection.Text_Position);
-
-   --  Clear rectangular-selection mode and collapse to the current primary
-   --  cursor. Ordinary linear selections are left to the existing selection
-   --  commands.
-   procedure Execute_Clear_Rectangular_Selection
-     (S : in out Editor.State.State_Type);
-
-   procedure Execute_Find_Show
-     (S : in out Editor.State.State_Type);
-
-   procedure Execute_Find_Hide
-     (S : in out Editor.State.State_Type);
-
-   procedure Execute_Find_Toggle
-     (S : in out Editor.State.State_Type);
-
-   procedure Execute_Find_Set_Query
+   procedure Report_Restore_Success
      (S    : in out Editor.State.State_Type;
       Text : String);
 
-   procedure Execute_Find_Clear_Query
-     (S : in out Editor.State.State_Type);
-
-   procedure Execute_Find_Case_Toggle
-     (S : in out Editor.State.State_Type);
-
-   procedure Execute_Find_Case_Clear
-     (S : in out Editor.State.State_Type);
-
-   procedure Execute_Find_Whole_Word_Toggle
-     (S : in out Editor.State.State_Type);
-
-   procedure Execute_Find_Whole_Word_Clear
-     (S : in out Editor.State.State_Type);
-
-   procedure Execute_Find_From_Selection
-     (S : in out Editor.State.State_Type);
-
-   procedure Execute_Find_From_Active_Word
-     (S : in out Editor.State.State_Type);
-
-   procedure Execute_Find_Next
-     (S : in out Editor.State.State_Type);
-
-   procedure Execute_Find_Previous
-     (S : in out Editor.State.State_Type);
-
-   procedure Execute_Find_First
-     (S : in out Editor.State.State_Type);
-
-   procedure Execute_Find_Last
-     (S : in out Editor.State.State_Type);
-
-   procedure Execute_Find_Reveal_Current
-     (S : in out Editor.State.State_Type);
-
-   procedure Execute_Replace_Show
-     (S : in out Editor.State.State_Type);
-
-   procedure Execute_Replace_Hide
-     (S : in out Editor.State.State_Type);
-
-   procedure Execute_Replace_Toggle
-     (S : in out Editor.State.State_Type);
-
-   procedure Execute_Replace_Set_Text
+   procedure Report_Restore_Warning
      (S    : in out Editor.State.State_Type;
       Text : String);
-
-   procedure Execute_Replace_Clear_Text
-     (S : in out Editor.State.State_Type);
-
-   procedure Execute_Replace_Current
-     (S : in out Editor.State.State_Type);
-
-   procedure Execute_Replace_All
-     (S : in out Editor.State.State_Type);
-
-   procedure Execute_Open_Command_Palette
-     (S : in out Editor.State.State_Type);
-
-   procedure Execute_Close_Command_Palette
-     (S : in out Editor.State.State_Type);
-
-   procedure Execute_Open_Goto_Line
-     (S : in out Editor.State.State_Type);
-
-   procedure Execute_Toggle_Goto_Line
-     (S : in out Editor.State.State_Type);
-
-   procedure Execute_Prefill_Goto_Line_Current
-     (S : in out Editor.State.State_Type);
-
-   procedure Execute_Close_Goto_Line
-     (S : in out Editor.State.State_Type);
-
-   procedure Execute_Accept_Goto_Line
-     (S : in out Editor.State.State_Type);
-
-   procedure Execute_Goto_Line_Set_Query
-     (S    : in out Editor.State.State_Type;
-      Text : String);
-
-   procedure Execute_Goto_Line_Clear_Query
-     (S : in out Editor.State.State_Type);
-
-   procedure Execute_Goto_Line_Insert_Text
-     (S    : in out Editor.State.State_Type;
-      Text : String);
-
-   procedure Execute_Goto_Line_Backspace
-     (S : in out Editor.State.State_Type);
-
-   procedure Execute_Goto_Line_Delete_Forward
-     (S : in out Editor.State.State_Type);
-
-   procedure Execute_Open_Quick_Open
-     (S : in out Editor.State.State_Type);
-
-   procedure Execute_Close_Quick_Open
-     (S : in out Editor.State.State_Type);
-
-   procedure Execute_Toggle_Quick_Open
-     (S : in out Editor.State.State_Type);
-
-   procedure Execute_Accept_Quick_Open
-     (S : in out Editor.State.State_Type);
-
-   procedure Execute_Quick_Open_Next_Result
-     (S : in out Editor.State.State_Type);
-
-   procedure Execute_Quick_Open_Previous_Result
-     (S : in out Editor.State.State_Type);
-
-   procedure Execute_Quick_Open_Set_Query
-     (S    : in out Editor.State.State_Type;
-      Text : String);
-
-   procedure Execute_Quick_Open_Clear_Query
-     (S : in out Editor.State.State_Type);
-
-   procedure Execute_Quick_Open_Kind_Next
-     (S : in out Editor.State.State_Type);
-
-   procedure Execute_Quick_Open_Kind_Previous
-     (S : in out Editor.State.State_Type);
-
-   procedure Execute_Quick_Open_Kind_Clear
-     (S : in out Editor.State.State_Type);
-
-   procedure Execute_Quick_Open_Scope_Set
-     (S    : in out Editor.State.State_Type;
-      Text : String);
-
-   procedure Execute_Quick_Open_Scope_Clear
-     (S : in out Editor.State.State_Type);
-
-   procedure Execute_Quick_Open_Scope_From_Selected
-     (S : in out Editor.State.State_Type);
-
-   procedure Execute_Quick_Open_Scope_Parent
-     (S : in out Editor.State.State_Type);
-
-   procedure Execute_Quick_Open_Reveal_Active
-     (S : in out Editor.State.State_Type);
-
-   procedure Execute_Quick_Open_Scope_Active_Directory
-     (S : in out Editor.State.State_Type);
-
-   procedure Execute_Quick_Open_Create_From_Query
-     (S : in out Editor.State.State_Type);
-
-   procedure Execute_Quick_Open_Create_With_Parents_From_Query
-     (S : in out Editor.State.State_Type);
-
-   procedure Execute_Quick_Open_Priority_Toggle
-     (S : in out Editor.State.State_Type);
-
-   procedure Execute_Quick_Open_Priority_Clear
-     (S : in out Editor.State.State_Type);
-
-   procedure Execute_Quick_Open_Insert_Text
-     (S    : in out Editor.State.State_Type;
-      Text : String);
-
-   procedure Execute_Quick_Open_Backspace
-     (S : in out Editor.State.State_Type);
-
-   procedure Execute_Quick_Open_Delete_Forward
-     (S : in out Editor.State.State_Type);
-
-   procedure Execute_Open_Buffer_Switcher
-     (S : in out Editor.State.State_Type);
-
-   procedure Execute_Close_Buffer_Switcher
-     (S : in out Editor.State.State_Type);
-
-   procedure Execute_Accept_Buffer_Switcher
-     (S : in out Editor.State.State_Type);
-
-   procedure Execute_Buffer_Switcher_Next_Result
-     (S : in out Editor.State.State_Type);
-
-   procedure Execute_Buffer_Switcher_Previous_Result
-     (S : in out Editor.State.State_Type);
-
-   procedure Execute_Buffer_Switcher_Insert_Text
-     (S    : in out Editor.State.State_Type;
-      Text : String);
-
-   procedure Execute_Buffer_Switcher_Backspace
-     (S : in out Editor.State.State_Type);
-
-   procedure Execute_Buffer_Switcher_Delete_Forward
-     (S : in out Editor.State.State_Type);
-
-   procedure Execute_Buffer_Switcher_Filter_Clear
-     (S : in out Editor.State.State_Type);
-
-   procedure Execute_Buffer_Switcher_Filter_Pinned
-     (S : in out Editor.State.State_Type);
-
-   procedure Execute_Buffer_Switcher_Filter_Group
-     (S    : in out Editor.State.State_Type;
-      Name : String);
-
-   procedure Execute_Buffer_Switcher_Filter_Label
-     (S     : in out Editor.State.State_Type;
-      Label : String);
-
-   procedure Execute_Buffer_Switcher_Filter_Noted
-     (S : in out Editor.State.State_Type);
-
-   procedure Execute_Buffer_Switcher_Sort
-     (S    : in out Editor.State.State_Type;
-      Mode : Editor.Buffer_Switcher.Switcher_Sort_Mode);
-
-   procedure Execute_Buffer_Switcher_Sort_Next
-     (S : in out Editor.State.State_Type);
-
-   procedure Execute_Buffer_Switcher_Sort_Previous
-     (S : in out Editor.State.State_Type);
-
-   procedure Execute_Buffer_Switcher_Selected_Close
-     (S : in out Editor.State.State_Type);
-
-   procedure Execute_Buffer_Switcher_Selected_Pin
-     (S : in out Editor.State.State_Type);
-
-   procedure Execute_Buffer_Switcher_Selected_Unpin
-     (S : in out Editor.State.State_Type);
-
-   procedure Execute_Buffer_Switcher_Selected_Toggle_Pin
-     (S : in out Editor.State.State_Type);
-
-   procedure Execute_Buffer_Switcher_Selected_Group_Assign
-     (S    : in out Editor.State.State_Type;
-      Name : String);
-
-   procedure Execute_Buffer_Switcher_Selected_Group_Clear
-     (S : in out Editor.State.State_Type);
-
-   procedure Execute_Buffer_Switcher_Selected_Label_Set
-     (S     : in out Editor.State.State_Type;
-      Label : String);
-
-   procedure Execute_Buffer_Switcher_Selected_Label_Clear
-     (S : in out Editor.State.State_Type);
-
-   procedure Execute_Buffer_Switcher_Selected_Note_Set
-     (S    : in out Editor.State.State_Type;
-      Note : String);
-
-   procedure Execute_Buffer_Switcher_Selected_Note_Clear
-     (S : in out Editor.State.State_Type);
-
-   procedure Execute_Buffer_Switcher_Preview_Toggle
-     (S : in out Editor.State.State_Type);
-
-   procedure Execute_Buffer_Switcher_Preview_Show
-     (S : in out Editor.State.State_Type);
-
-   procedure Execute_Buffer_Switcher_Preview_Hide
-     (S : in out Editor.State.State_Type);
-
-   procedure Execute_Buffer_Switcher_Preview_Next_Line
-     (S : in out Editor.State.State_Type);
-
-   procedure Execute_Buffer_Switcher_Preview_Previous_Line
-     (S : in out Editor.State.State_Type);
-
-   procedure Execute_Buffer_Switcher_Preview_Center_Cursor
-     (S : in out Editor.State.State_Type);
-
-   procedure Execute_Buffer_Switcher_Mark_Toggle
-     (S : in out Editor.State.State_Type);
-
-   procedure Execute_Buffer_Switcher_Mark_Set
-     (S : in out Editor.State.State_Type);
-
-   procedure Execute_Buffer_Switcher_Mark_Clear
-     (S : in out Editor.State.State_Type);
-
-   procedure Execute_Buffer_Switcher_Mark_Clear_All
-     (S : in out Editor.State.State_Type);
-
-   procedure Execute_Buffer_Switcher_Mark_Invert_Visible
-     (S : in out Editor.State.State_Type);
-
-   procedure Execute_Buffer_Switcher_Mark_Visible
-     (S : in out Editor.State.State_Type);
-
-   procedure Execute_Buffer_Switcher_Mark_Clear_Visible
-     (S : in out Editor.State.State_Type);
-
-   procedure Execute_Buffer_Switcher_Mark_Pinned
-     (S : in out Editor.State.State_Type);
-
-   procedure Execute_Buffer_Switcher_Mark_Group
-     (S    : in out Editor.State.State_Type;
-      Name : String);
-
-   procedure Execute_Buffer_Switcher_Mark_Label
-     (S     : in out Editor.State.State_Type;
-      Label : String);
-
-   procedure Execute_Buffer_Switcher_Mark_Noted
-     (S : in out Editor.State.State_Type);
-
-   procedure Execute_Buffer_Switcher_Mark_Close_Marked
-     (S : in out Editor.State.State_Type);
-
-   procedure Execute_Buffer_Switcher_Mark_Confirm
-     (S : in out Editor.State.State_Type);
-
-   procedure Execute_Buffer_Switcher_Mark_Cancel
-     (S : in out Editor.State.State_Type);
-
-   procedure Execute_Buffer_Switcher_Mark_Pin_Marked
-     (S : in out Editor.State.State_Type);
-
-   procedure Execute_Buffer_Switcher_Mark_Unpin_Marked
-     (S : in out Editor.State.State_Type);
-
-   procedure Execute_Buffer_Switcher_Mark_Clear_Metadata
-     (S : in out Editor.State.State_Type);
-
-   procedure Execute_Buffer_Switcher_Mark_Group_Assign
-     (S    : in out Editor.State.State_Type;
-      Name : String);
-
-   procedure Execute_Buffer_Switcher_Mark_Group_Clear
-     (S : in out Editor.State.State_Type);
-
-   procedure Execute_Buffer_Switcher_Mark_Label_Set
-     (S     : in out Editor.State.State_Type;
-      Label : String);
-
-   procedure Execute_Buffer_Switcher_Mark_Label_Clear
-     (S : in out Editor.State.State_Type);
-
-   procedure Execute_Buffer_Switcher_Mark_Note_Set
-     (S    : in out Editor.State.State_Type;
-      Note : String);
-
-   procedure Execute_Buffer_Switcher_Mark_Note_Clear
-     (S : in out Editor.State.State_Type);
-
-   procedure Execute_Buffer_Switcher_Mark_Review_Toggle
-     (S : in out Editor.State.State_Type);
-
-   procedure Execute_Buffer_Switcher_Mark_Review_Show
-     (S : in out Editor.State.State_Type);
-
-   procedure Execute_Buffer_Switcher_Mark_Review_Hide
-     (S : in out Editor.State.State_Type);
-
-   procedure Execute_Buffer_Switcher_Pending_Mark_Review_Toggle
-     (S : in out Editor.State.State_Type);
-
-   procedure Execute_Buffer_Switcher_Pending_Mark_Review_Show
-     (S : in out Editor.State.State_Type);
-
-   procedure Execute_Buffer_Switcher_Pending_Mark_Review_Hide
-     (S : in out Editor.State.State_Type);
-
-   procedure Execute_Buffer_Switcher_Pending_Mark_Next
-     (S : in out Editor.State.State_Type);
-
-   procedure Execute_Buffer_Switcher_Pending_Mark_Previous
-     (S : in out Editor.State.State_Type);
-
-   procedure Execute_Buffer_Switcher_Pending_Mark_Summary
-     (S : in out Editor.State.State_Type);
-
-   procedure Execute_Buffer_Switcher_Mark_Next
-     (S : in out Editor.State.State_Type);
-
-   procedure Execute_Buffer_Switcher_Mark_Previous
-     (S : in out Editor.State.State_Type);
-
-   procedure Execute_Buffer_Switcher_Mark_Summary
-     (S : in out Editor.State.State_Type);
-
-   procedure Execute_Active_Find_Input_Insert_Text
-     (S    : in out Editor.State.State_Type;
-      Text : String);
-
-   procedure Execute_Active_Find_Input_Backspace
-     (S : in out Editor.State.State_Type);
-
-   procedure Execute_Active_Find_Input_Delete_Forward
-     (S : in out Editor.State.State_Type);
-
-   procedure Execute_Active_Find_Input_Move_Cursor_Left
-     (S : in out Editor.State.State_Type);
-
-   procedure Execute_Active_Find_Input_Move_Cursor_Right
-     (S : in out Editor.State.State_Type);
-
-   procedure Execute_Active_Find_Input_Move_Cursor_Start
-     (S : in out Editor.State.State_Type);
-
-   procedure Execute_Active_Find_Input_Move_Cursor_End
-     (S : in out Editor.State.State_Type);
-
-
-   --  Preserve the rectangular anchor and update the rectangular cursor to the
-   --  given document row/grid column. If rectangular mode is not active yet,
-   --  the primary caret becomes the anchor.
-   procedure Execute_Select_Rectangle_To
-     (S      : in out Editor.State.State_Type;
-      Row    : Natural;
-      Column : Natural);
-
 
    function Extract_Text
      (Buffer : Text_Buffer.Buffer_Type;
       Pos    : Natural;
       Count  : Natural) return Unbounded_String;
+
+   procedure Append_Replace_Op
+     (Cmd          : in out Editor.Commands.Command;
+      Pos          : Editor.Cursors.Cursor_Index;
+      Delete_Count : Natural;
+      Insert_Text  : Unbounded_String);
 
    procedure Insert_Text_At
      (Buffer : in out Text_Buffer.Buffer_Type;
@@ -1188,5 +234,215 @@ package Editor.Executor is
 
    function Safe_Caret
      (S : Editor.State.State_Type) return Cursor_Index;
+
+   function Safe_Anchor
+     (S : Editor.State.State_Type) return Cursor_Index;
+
+   procedure Set_Primary_Caret
+     (S   : in out Editor.State.State_Type;
+      Pos : Cursor_Index);
+
+   function Active_Buffer_Known_Project_File
+     (S     : Editor.State.State_Type;
+      Found : out Boolean) return String;
+
+   function Active_Feature_Buffer_Token
+     (S : Editor.State.State_Type) return Natural;
+
+   function Is_Ada_Source_Path
+     (Path : String) return Boolean;
+
+   procedure Publish_Service_Diagnostics_To_Feature
+     (S            : in out Editor.State.State_Type;
+      Path         : String;
+      Buffer_Token : Natural);
+
+   procedure Refresh_Project_Language_Index
+     (S                  : in out Editor.State.State_Type;
+      Build_Semantics    : Boolean;
+      Indexed_File_Count : out Natural;
+      Indexed_Symbols    : out Natural;
+      Skipped_File_Count : out Natural;
+      Read_Error_Count   : out Natural);
+
+   procedure Clear_Service_Semantic_Diagnostics_From_Feature
+     (S : in out Editor.State.State_Type);
+
+   function Rename_Preview_Is_Open_Buffers_Applyable
+     (S       : Editor.State.State_Type;
+      Preview : Editor.Ada_Language_Service.Rename_Preview;
+      Reason  : out Unbounded_String) return Boolean;
+
+   function Has_Selected_Outline_Activation_Target
+     (S : Editor.State.State_Type) return Boolean;
+
+   function Feature_Target_Position_Is_Valid
+     (S             : Editor.State.State_Type;
+      Target_Buffer : Natural;
+      Line          : Natural;
+      Column        : Natural) return Boolean;
+
+   function Diagnostic_Availability_Reason
+     (S             : Editor.State.State_Type;
+      Mapped        : Natural;
+      Target_Buffer : Natural;
+      Line          : Natural;
+      Column        : Natural) return String;
+
+   function Focus_Feature_Target_Buffer
+     (S             : in out Editor.State.State_Type;
+      Target_Buffer : Natural) return Boolean;
+
+   --  Internal support surface for executor child command packages.  These
+   --  preserve the public executor entry points while allowing command-family
+   --  implementations to move out of the parent body.
+   procedure Report_Info
+     (S    : in out Editor.State.State_Type;
+      Text : String);
+
+   procedure Report_Success
+     (S    : in out Editor.State.State_Type;
+      Text : String);
+
+   procedure Report_Warning
+     (S    : in out Editor.State.State_Type;
+      Text : String);
+
+   procedure Report_Error
+     (S    : in out Editor.State.State_Type;
+      Text : String);
+
+   function Current_Message_Time_Ms return Natural;
+
+   procedure Report_Info_Append
+     (S    : in out Editor.State.State_Type;
+      Text : String);
+
+   procedure Report_Success_Append
+     (S    : in out Editor.State.State_Type;
+      Text : String);
+
+   function Visible_Restore_Message_In_History
+     (S : Editor.State.State_Type) return Boolean;
+
+   procedure Rebuild_Language_Index_After_File_Lifecycle
+     (S : in out Editor.State.State_Type);
+
+   function File_Lifecycle_Confirmation_Pending
+     (S : Editor.State.State_Type) return Boolean;
+
+   function Pending_Target_Is_Valid
+     (S      : Editor.State.State_Type;
+      Target : Editor.Pending_Transitions.Pending_Transition_Target) return Boolean;
+
+   function Pending_Target_For
+     (Kind      : Editor.Pending_Transitions.Pending_Transition_Kind;
+      Path      : String := "";
+      Display   : String := "";
+      Buffer_Id : Editor.Buffers.Buffer_Id := Editor.Buffers.No_Buffer)
+      return Editor.Pending_Transitions.Pending_Transition_Target;
+
+   procedure Set_Pending_Dirty_Transition
+     (S      : in out Editor.State.State_Type;
+      Target : Editor.Pending_Transitions.Pending_Transition_Target;
+      Guard  : Editor.Dirty_Guards.Dirty_Transition_Result);
+
+   function Check_Pending_Transition
+     (S      : Editor.State.State_Type;
+      Target : Editor.Pending_Transitions.Pending_Transition_Target)
+      return Editor.Dirty_Guards.Dirty_Transition_Result;
+
+   procedure Clear_Restore_Feedback_Current
+     (S : in out Editor.State.State_Type);
+
+   procedure Clear_Reopen_Candidate
+     (S : in out Editor.State.State_Type);
+
+   function Trimmed_Command_Text (Text : String) return String;
+
+   function Valid_Buffer_Label_Text (Text : String) return Boolean;
+
+   procedure Start_Dirty_Close_Prompt
+     (S           : in out Editor.State.State_Type;
+      Scope       : Editor.State.Dirty_Close_Scope;
+      All_Buffers : Boolean;
+      Buffer_Id   : Editor.Buffers.Buffer_Id;
+      Summary     : Editor.Dirty_Guards.Dirty_Buffer_Summary);
+
+   procedure Finalize_Cleanup_Buffer_Close
+     (S          : in out Editor.State.State_Type;
+      Id         : Editor.Buffers.Buffer_Id;
+      Was_Active : Boolean);
+
+   procedure Load_Global_Active_Preserving_Language_Index
+     (S : in out Editor.State.State_Type);
+
+   procedure Populate_Project_Known_Files_From_File_Tree
+     (S : in out Editor.State.State_Type);
+
+   function File_Tree_Visible_Row_Count_For_View return Natural;
+
+   procedure Validate_File_Tree_View
+     (S : in out Editor.State.State_Type);
+
+   function Selected_File_Tree_Node
+     (S     : Editor.State.State_Type;
+      Found : out Boolean) return Editor.File_Tree.File_Tree_Node_Id;
+
+   procedure Select_File_Tree_Node
+     (S    : in out Editor.State.State_Type;
+      Node : Editor.File_Tree.File_Tree_Node_Id);
+
+   function Current_Navigation_Location
+     (S      : Editor.State.State_Type;
+      Reason : Editor.Navigation_History.Navigation_History_Reason :=
+        Editor.Navigation_History.Navigation_Reason_Unknown)
+      return Editor.Navigation_History.Navigation_Location;
+
+   procedure Record_Navigation_If_Target_Changed
+     (S        : in out Editor.State.State_Type;
+      Previous : Editor.Navigation_History.Navigation_Location;
+      Target   : Editor.Navigation_History.Navigation_Location);
+
+   procedure Record_Navigation_If_Current_Changed
+     (S        : in out Editor.State.State_Type;
+      Previous : Editor.Navigation_History.Navigation_Location);
+
+   type Navigation_Apply_Status is
+     (Navigation_Applied,
+      Navigation_Target_Missing,
+      Navigation_Target_Invalid_Location);
+
+   function Apply_Navigation_Location
+     (S        : in out Editor.State.State_Type;
+      Location : Editor.Navigation_History.Navigation_Location;
+      Status   : out Navigation_Apply_Status) return Boolean;
+
+   function Same_Navigation_Place
+     (S        : Editor.State.State_Type;
+      Location : Editor.Navigation_History.Navigation_Location) return Boolean;
+
+   function Structured_File_Navigation_Target
+     (Path   : String;
+      Line   : Natural := 1;
+      Column : Natural := 0;
+      Reason : Editor.Navigation_History.Navigation_History_Reason :=
+        Editor.Navigation_History.Navigation_Reason_Unknown)
+      return Editor.Navigation_History.Navigation_Location;
+
+   procedure Apply_Feature_Target_Handoff
+     (S             : in out Editor.State.State_Type;
+      Target_Row    : Natural;
+      Target_Column : Natural);
+
+   procedure Sync_Current_Outline_Symbol_From_Caret
+     (S : in out Editor.State.State_Type);
+
+   function Search_Results_Visible_Row_Count return Natural;
+
+   function Problems_Visible_Row_Count return Natural;
+
+   procedure Ensure_Search_Result_Visible
+     (S : in out Editor.State.State_Type);
 
 end Editor.Executor;

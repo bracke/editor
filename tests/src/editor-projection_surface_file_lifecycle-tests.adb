@@ -890,7 +890,7 @@ package body Editor.Projection_Surface_File_Lifecycle.Tests is
               "canonical prompt boundary predicate must reject any broken detailed subrule");
    end Test_Source_Target_Prompt_Boundary_Subrules_Are_Explicit;
 
-   procedure Test_Phase496_Reliability_Matrix_Covers_All_Workflows
+   procedure Test_Reliability_Matrix_Covers_All_Workflows
      (T : in out AUnit.Test_Cases.Test_Case'Class)
    is
       pragma Unreferenced (T);
@@ -899,7 +899,7 @@ package body Editor.Projection_Surface_File_Lifecycle.Tests is
       for Surface in Audit.Projection_Surface_Id loop
          for Family in Audit.Projection_Surface_Reliability_Family loop
             Assert (Audit.Reliability_Family_Name (Family) /= "",
-                    "Phase 496 reliability family must have a deterministic name");
+                    "reliability family must have a deterministic name");
 
             for Operation in Audit.File_Lifecycle_Operation loop
                for Context in Audit.Projection_Surface_Workflow_Context loop
@@ -909,15 +909,15 @@ package body Editor.Projection_Surface_File_Lifecycle.Tests is
                          (Surface, Family, Operation, Context);
                   begin
                      Assert (Audit.Workflow_Context_Name (Context) /= "",
-                             "Phase 496 workflow context must have a deterministic name");
+                             "workflow context must have a deterministic name");
                      Assert (Expectation.Surface = Surface,
-                             "Phase 496 reliability expectation must preserve surface identity");
+                             "reliability expectation must preserve surface identity");
                      Assert (Expectation.Family = Family,
-                             "Phase 496 reliability expectation must preserve family identity");
+                             "reliability expectation must preserve family identity");
                      Assert (Expectation.Operation = Operation,
-                             "Phase 496 reliability expectation must preserve operation identity");
+                             "reliability expectation must preserve operation identity");
                      Assert (Expectation.Context = Context,
-                             "Phase 496 reliability expectation must preserve workflow context identity");
+                             "reliability expectation must preserve workflow context identity");
                      Assert (Audit.Reliability_Expectation_Coherent (Expectation),
                              Audit.Surface_Name (Surface) & " must satisfy "
                              & Audit.Reliability_Family_Name (Family)
@@ -936,12 +936,12 @@ package body Editor.Projection_Surface_File_Lifecycle.Tests is
       end loop;
 
       Assert (Audit.Failure_Count (Result) = 0,
-              "Phase 496 shared reliability matrix must pass all covered surfaces: "
+              "shared reliability matrix must pass all covered surfaces: "
               & Audit.Summary (Result));
-   end Test_Phase496_Reliability_Matrix_Covers_All_Workflows;
+   end Test_Reliability_Matrix_Covers_All_Workflows;
 
 
-   procedure Test_Phase496_Reliability_Expectation_Rejects_Hazards
+   procedure Test_Reliability_Expectation_Rejects_Hazards
      (T : in out AUnit.Test_Cases.Test_Case'Class)
    is
       pragma Unreferenced (T);
@@ -953,11 +953,11 @@ package body Editor.Projection_Surface_File_Lifecycle.Tests is
            Audit.Surface_Visible_Path_Like_Selected_Row_Context);
    begin
       Assert (Audit.Reliability_Expectation_Coherent (Expectation),
-              "baseline Phase 496 reliability expectation must be coherent");
+              "baseline reliability expectation must be coherent");
 
       Expectation.Failure_Preservation := False;
       Assert (not Audit.Reliability_Expectation_Coherent (Expectation),
-              "Phase 496 reliability must reject failed target leakage or mutation");
+              "reliability must reject failed target leakage or mutation");
 
       Expectation := Audit.Reliability_Expectation
         (Audit.Project_Search_Surface,
@@ -966,7 +966,7 @@ package body Editor.Projection_Surface_File_Lifecycle.Tests is
          Audit.Surface_Visible_Query_Filter_Context);
       Expectation.Source_Target_Boundary := False;
       Assert (not Audit.Reliability_Expectation_Coherent (Expectation),
-              "Phase 496 reliability must reject query/selection source-target inference");
+              "reliability must reject query/selection source-target inference");
 
       Expectation := Audit.Reliability_Expectation
         (Audit.Bookmarks_Surface,
@@ -975,7 +975,7 @@ package body Editor.Projection_Surface_File_Lifecycle.Tests is
          Audit.All_Surfaces_Co_Visible_Context);
       Expectation.Persistence_Exclusion := False;
       Assert (not Audit.Reliability_Expectation_Coherent (Expectation),
-              "Phase 496 reliability must reject persistence leakage");
+              "reliability must reject persistence leakage");
 
       Expectation := Audit.Reliability_Expectation
         (Audit.Navigation_History_Surface,
@@ -984,11 +984,11 @@ package body Editor.Projection_Surface_File_Lifecycle.Tests is
          Audit.All_Surfaces_Co_Visible_Context);
       Expectation.Cross_Surface_Co_Visibility := False;
       Assert (not Audit.Reliability_Expectation_Coherent (Expectation),
-              "Phase 496 reliability must reject cross-surface projection imports");
-   end Test_Phase496_Reliability_Expectation_Rejects_Hazards;
+              "reliability must reject cross-surface projection imports");
+   end Test_Reliability_Expectation_Rejects_Hazards;
 
 
-   procedure Test_Phase496_Adapter_Requires_Runtime_Reliability_Metadata
+   procedure Test_Adapter_Requires_Runtime_Reliability_Metadata
      (T : in out AUnit.Test_Cases.Test_Case'Class)
    is
       pragma Unreferenced (T);
@@ -1007,14 +1007,14 @@ package body Editor.Projection_Surface_File_Lifecycle.Tests is
       Audit.Validate_Adapter (Result, Adapter);
 
       Assert (Audit.Failure_Count (Result) = 7,
-              "Phase 496 adapter validation must reject missing runtime reliability metadata: "
+              "adapter validation must reject missing runtime reliability metadata: "
               & Audit.Summary (Result));
       Assert (not Audit.Adapter_Supports_Shared_Harness (Adapter),
               "adapter support predicate must reject missing reliability metadata");
-   end Test_Phase496_Adapter_Requires_Runtime_Reliability_Metadata;
+   end Test_Adapter_Requires_Runtime_Reliability_Metadata;
 
 
-   procedure Test_Phase496_Reliability_Helper_Runs_All_Surface_Adapters
+   procedure Test_Reliability_Helper_Runs_All_Surface_Adapters
      (T : in out AUnit.Test_Cases.Test_Case'Class)
    is
       pragma Unreferenced (T);
@@ -1022,16 +1022,16 @@ package body Editor.Projection_Surface_File_Lifecycle.Tests is
    begin
       Audit.Assert_File_Lifecycle_Projection_Surface_Reliability_Coherent (Result);
       Assert (Audit.Failure_Count (Result) = 0,
-              "Phase 496 reliability helper must run all covered surfaces: "
+              "reliability helper must run all covered surfaces: "
               & Audit.Summary (Result));
       Assert (Audit.File_Lifecycle_Projection_Surface_Reliability_Coherent,
-              "Phase 496 boolean reliability helper must validate all covered surfaces");
-   end Test_Phase496_Reliability_Helper_Runs_All_Surface_Adapters;
+              "boolean reliability helper must validate all covered surfaces");
+   end Test_Reliability_Helper_Runs_All_Surface_Adapters;
 
 
 
 
-   procedure Test_Phase497_Cleanup_Adapter_Rejects_Normalization_And_Repair
+   procedure Test_Cleanup_Adapter_Rejects_Normalization_And_Repair
      (T : in out AUnit.Test_Cases.Test_Case'Class)
    is
       pragma Unreferenced (T);
@@ -1055,14 +1055,14 @@ package body Editor.Projection_Surface_File_Lifecycle.Tests is
       Audit.Validate_Adapter (Result, Adapter);
 
       Assert (Audit.Failure_Count (Result) = 12,
-              "Phase 497 adapter cleanup must reject normalization, repair, "
+              "adapter cleanup must reject normalization, repair, "
               & "command/prompt control, probes, imports, filtering, "
               & "and impure helpers: " & Audit.Summary (Result));
       Assert (not Audit.Adapter_Supports_Shared_Harness (Adapter),
               "adapter support predicate must reject cleanup hazards");
-   end Test_Phase497_Cleanup_Adapter_Rejects_Normalization_And_Repair;
+   end Test_Cleanup_Adapter_Rejects_Normalization_And_Repair;
 
-   procedure Test_Phase497_Cleanup_Contract_Rejects_Local_Models
+   procedure Test_Cleanup_Contract_Rejects_Local_Models
      (T : in out AUnit.Test_Cases.Test_Case'Class)
    is
       pragma Unreferenced (T);
@@ -1091,14 +1091,14 @@ package body Editor.Projection_Surface_File_Lifecycle.Tests is
       Audit.Assert_Removed_Projection_Lifecycle_Fields_Dropped (Result, Contract);
 
       Assert (Audit.Failure_Count (Result) = 8,
-              "Phase 497 cleanup assertions must report each consolidated cleanup boundary");
+              "cleanup assertions must report each consolidated cleanup boundary");
       Assert (not Audit.Surface_Adapter_Is_Raw_And_Nonrepairing (Contract),
               "raw adapter predicate must reject normalization/repair hazards");
       Assert (not Audit.Surface_Projection_Helper_Is_Pure (Contract),
               "pure helper predicate must reject lifecycle input dependencies");
-   end Test_Phase497_Cleanup_Contract_Rejects_Local_Models;
+   end Test_Cleanup_Contract_Rejects_Local_Models;
 
-   procedure Test_Phase497_Cleanup_Helper_Runs_Single_Shared_Authority
+   procedure Test_Cleanup_Helper_Runs_Single_Shared_Authority
      (T : in out AUnit.Test_Cases.Test_Case'Class)
    is
       pragma Unreferenced (T);
@@ -1106,13 +1106,13 @@ package body Editor.Projection_Surface_File_Lifecycle.Tests is
    begin
       Audit.Assert_File_Lifecycle_Projection_Surface_Cleanup_Coherent (Result);
       Assert (Audit.Failure_Count (Result) = 0,
-              "Phase 497 cleanup helper must preserve the milestone/reliability harness while adding cleanup checks: "
+              "cleanup helper must preserve the milestone/reliability harness while adding cleanup checks: "
               & Audit.Summary (Result));
       Assert (Audit.File_Lifecycle_Projection_Surface_Cleanup_Coherent,
-              "Phase 497 boolean cleanup helper must validate all covered surfaces");
-   end Test_Phase497_Cleanup_Helper_Runs_Single_Shared_Authority;
+              "boolean cleanup helper must validate all covered surfaces");
+   end Test_Cleanup_Helper_Runs_Single_Shared_Authority;
 
-   procedure Test_Phase498_Final_Freeze_Helper_Runs_Single_Authority
+   procedure Test_Final_Freeze_Helper_Runs_Single_Authority
      (T : in out AUnit.Test_Cases.Test_Case'Class)
    is
       pragma Unreferenced (T);
@@ -1120,14 +1120,14 @@ package body Editor.Projection_Surface_File_Lifecycle.Tests is
    begin
       Audit.Assert_File_Lifecycle_Projection_Surface_Final_Freeze_Coherent (Result);
       Assert (Audit.Failure_Count (Result) = 0,
-              "Phase 498 final freeze must preserve the shared milestone, "
+              "final freeze must preserve the shared milestone, "
               & "reliability, cleanup, and final regression boundaries: "
               & Audit.Summary (Result));
       Assert (Audit.File_Lifecycle_Projection_Surface_Final_Freeze_Coherent,
-              "Phase 498 boolean final freeze helper must validate all surfaces");
-   end Test_Phase498_Final_Freeze_Helper_Runs_Single_Authority;
+              "boolean final freeze helper must validate all surfaces");
+   end Test_Final_Freeze_Helper_Runs_Single_Authority;
 
-   procedure Test_Phase498_Final_Freeze_Expectation_Covers_All_Surfaces
+   procedure Test_Final_Freeze_Expectation_Covers_All_Surfaces
      (T : in out AUnit.Test_Cases.Test_Case'Class)
    is
       pragma Unreferenced (T);
@@ -1142,7 +1142,7 @@ package body Editor.Projection_Surface_File_Lifecycle.Tests is
                     "final freeze expectation must preserve surface identity");
             Assert (Audit.Final_Freeze_Expectation_Coherent (Expectation),
                     Audit.Surface_Name (Surface)
-                    & " must satisfy every Phase 498 final-freeze boundary");
+                    & " must satisfy every final-freeze boundary");
             Assert (Audit.Surface_Final_Freeze_Coherent (Surface),
                     Audit.Surface_Name (Surface)
                     & " final-freeze predicate must match the expectation");
@@ -1151,11 +1151,11 @@ package body Editor.Projection_Surface_File_Lifecycle.Tests is
       end loop;
 
       Assert (Audit.Failure_Count (Result) = 0,
-              "Phase 498 final freeze validation must pass every covered surface: "
+              "final freeze validation must pass every covered surface: "
               & Audit.Summary (Result));
-   end Test_Phase498_Final_Freeze_Expectation_Covers_All_Surfaces;
+   end Test_Final_Freeze_Expectation_Covers_All_Surfaces;
 
-   procedure Test_Phase498_Final_Freeze_Rejects_Reintroduced_Ownership
+   procedure Test_Final_Freeze_Rejects_Reintroduced_Ownership
      (T : in out AUnit.Test_Cases.Test_Case'Class)
    is
       pragma Unreferenced (T);
@@ -1203,10 +1203,10 @@ package body Editor.Projection_Surface_File_Lifecycle.Tests is
       Expectation.Duplicate_Ownership_Absent_Frozen := False;
       Assert (not Audit.Final_Freeze_Expectation_Coherent (Expectation),
               "final freeze must reject duplicate per-surface ownership paths");
-   end Test_Phase498_Final_Freeze_Rejects_Reintroduced_Ownership;
+   end Test_Final_Freeze_Rejects_Reintroduced_Ownership;
 
 
-   procedure Test_Phase499_Current_Surfaces_Are_Registered
+   procedure Test_Current_Surfaces_Are_Registered
      (T : in out AUnit.Test_Cases.Test_Case'Class)
    is
       pragma Unreferenced (T);
@@ -1230,11 +1230,11 @@ package body Editor.Projection_Surface_File_Lifecycle.Tests is
       end loop;
 
       Assert (Audit.Failure_Count (Result) = 0,
-              "Phase 499 registration gate must accept all covered surfaces: "
+              "registration gate must accept all covered surfaces: "
               & Audit.Summary (Result));
-   end Test_Phase499_Current_Surfaces_Are_Registered;
+   end Test_Current_Surfaces_Are_Registered;
 
-   procedure Test_Phase499_Unregistered_Surface_Audit_Rejects_Row_Fields
+   procedure Test_Unregistered_Surface_Audit_Rejects_Row_Fields
      (T : in out AUnit.Test_Cases.Test_Case'Class)
    is
       pragma Unreferenced (T);
@@ -1266,9 +1266,9 @@ package body Editor.Projection_Surface_File_Lifecycle.Tests is
       Audit.Validate_Projection_Surface_Inspection (Result, Inspection);
       Assert (Audit.Failure_Count (Result) > 0,
               "unregistered buffer associations must fail the adoption gate");
-   end Test_Phase499_Unregistered_Surface_Audit_Rejects_Row_Fields;
+   end Test_Unregistered_Surface_Audit_Rejects_Row_Fields;
 
-   procedure Test_Phase499_Unregistered_Surface_Audit_Rejects_Routes_And_Persistence
+   procedure Test_Unregistered_Surface_Audit_Rejects_Routes_And_Persistence
      (T : in out AUnit.Test_Cases.Test_Case'Class)
    is
       pragma Unreferenced (T);
@@ -1286,9 +1286,9 @@ package body Editor.Projection_Surface_File_Lifecycle.Tests is
       Audit.Validate_Projection_Surface_Inspection (Result, Inspection);
       Assert (Audit.Failure_Count (Result) > 0,
               "unregistered lifecycle persistence fields must fail the adoption gate");
-   end Test_Phase499_Unregistered_Surface_Audit_Rejects_Routes_And_Persistence;
+   end Test_Unregistered_Surface_Audit_Rejects_Routes_And_Persistence;
 
-   procedure Test_Phase499_None_Surface_Without_Lifecycle_State_Is_Allowed
+   procedure Test_None_Surface_Without_Lifecycle_State_Is_Allowed
      (T : in out AUnit.Test_Cases.Test_Case'Class)
    is
       pragma Unreferenced (T);
@@ -1318,9 +1318,9 @@ package body Editor.Projection_Surface_File_Lifecycle.Tests is
               & Audit.Summary (Result));
       Assert (Audit.Projection_Surface_Inspection_Coherent (Inspection),
               "none-classified non-lifecycle inspection should be coherent");
-   end Test_Phase499_None_Surface_Without_Lifecycle_State_Is_Allowed;
+   end Test_None_Surface_Without_Lifecycle_State_Is_Allowed;
 
-   procedure Test_Phase499_Registration_Audit_Rejects_Missing_Metadata
+   procedure Test_Registration_Audit_Rejects_Missing_Metadata
      (T : in out AUnit.Test_Cases.Test_Case'Class)
    is
       pragma Unreferenced (T);
@@ -1339,9 +1339,9 @@ package body Editor.Projection_Surface_File_Lifecycle.Tests is
               & Audit.Summary (Result));
       Assert (not Audit.Projection_Surface_Registration_Coherent (Registration),
               "registration coherence predicate must reject missing metadata");
-   end Test_Phase499_Registration_Audit_Rejects_Missing_Metadata;
+   end Test_Registration_Audit_Rejects_Missing_Metadata;
 
-   procedure Test_Phase499_Future_Surface_Template_Is_Raw_And_Nonrepairing
+   procedure Test_Future_Surface_Template_Is_Raw_And_Nonrepairing
      (T : in out AUnit.Test_Cases.Test_Case'Class)
    is
       pragma Unreferenced (T);
@@ -1369,9 +1369,9 @@ package body Editor.Projection_Surface_File_Lifecycle.Tests is
       Assert (Audit.Failure_Count (Result) = 0,
               "future surface template must support shared harness: "
               & Audit.Summary (Result));
-   end Test_Phase499_Future_Surface_Template_Is_Raw_And_Nonrepairing;
+   end Test_Future_Surface_Template_Is_Raw_And_Nonrepairing;
 
-   procedure Test_Phase499_Adoption_Gate_Helper_Preserves_Final_Freeze
+   procedure Test_Adoption_Gate_Helper_Preserves_Final_Freeze
      (T : in out AUnit.Test_Cases.Test_Case'Class)
    is
       pragma Unreferenced (T);
@@ -1379,11 +1379,11 @@ package body Editor.Projection_Surface_File_Lifecycle.Tests is
    begin
       Audit.Assert_Projection_Surface_Invariant_Adoption_Gate_Coherent (Result);
       Assert (Audit.Failure_Count (Result) = 0,
-              "Phase 499 adoption gate must preserve Phase 498 final freeze: "
+              "adoption gate must preserve final freeze: "
               & Audit.Summary (Result));
       Assert (Audit.Projection_Surface_Invariant_Adoption_Gate_Coherent,
-              "Phase 499 boolean helper must validate adoption gate");
-   end Test_Phase499_Adoption_Gate_Helper_Preserves_Final_Freeze;
+              "boolean helper must validate adoption gate");
+   end Test_Adoption_Gate_Helper_Preserves_Final_Freeze;
 
    overriding procedure Register_Tests
      (T : in out Projection_Surface_File_Lifecycle_Test_Case)
@@ -1454,56 +1454,56 @@ package body Editor.Projection_Surface_File_Lifecycle.Tests is
         (T, Test_Source_Target_Prompt_Boundary_Subrules_Are_Explicit'Access,
          "shared source/target/prompt boundary subrules are explicit");
       Register_Routine
-        (T, Test_Phase496_Reliability_Matrix_Covers_All_Workflows'Access,
-         "Phase 496 shared reliability matrix covers all workflow families");
+        (T, Test_Reliability_Matrix_Covers_All_Workflows'Access,
+         "shared reliability matrix covers all workflow families");
       Register_Routine
-        (T, Test_Phase496_Reliability_Expectation_Rejects_Hazards'Access,
-         "Phase 496 reliability expectations reject lifecycle hazards");
+        (T, Test_Reliability_Expectation_Rejects_Hazards'Access,
+         "reliability expectations reject lifecycle hazards");
       Register_Routine
-        (T, Test_Phase496_Adapter_Requires_Runtime_Reliability_Metadata'Access,
-         "Phase 496 adapters expose runtime reliability metadata");
+        (T, Test_Adapter_Requires_Runtime_Reliability_Metadata'Access,
+         "adapters expose runtime reliability metadata");
       Register_Routine
-        (T, Test_Phase496_Reliability_Helper_Runs_All_Surface_Adapters'Access,
-         "Phase 496 reliability helper runs all surface adapters");
+        (T, Test_Reliability_Helper_Runs_All_Surface_Adapters'Access,
+         "reliability helper runs all surface adapters");
       Register_Routine
-        (T, Test_Phase497_Cleanup_Adapter_Rejects_Normalization_And_Repair'Access,
-         "Phase 497 cleanup adapters reject normalization and repair");
+        (T, Test_Cleanup_Adapter_Rejects_Normalization_And_Repair'Access,
+         "cleanup adapters reject normalization and repair");
       Register_Routine
-        (T, Test_Phase497_Cleanup_Contract_Rejects_Local_Models'Access,
-         "Phase 497 cleanup contract rejects local lifecycle models");
+        (T, Test_Cleanup_Contract_Rejects_Local_Models'Access,
+         "cleanup contract rejects local lifecycle models");
       Register_Routine
-        (T, Test_Phase497_Cleanup_Helper_Runs_Single_Shared_Authority'Access,
-         "Phase 497 cleanup helper runs the single shared authority");
+        (T, Test_Cleanup_Helper_Runs_Single_Shared_Authority'Access,
+         "cleanup helper runs the single shared authority");
       Register_Routine
-        (T, Test_Phase498_Final_Freeze_Helper_Runs_Single_Authority'Access,
-         "Phase 498 final freeze helper runs the single shared authority");
+        (T, Test_Final_Freeze_Helper_Runs_Single_Authority'Access,
+         "final freeze helper runs the single shared authority");
       Register_Routine
-        (T, Test_Phase498_Final_Freeze_Expectation_Covers_All_Surfaces'Access,
-         "Phase 498 final freeze expectations cover all surfaces");
+        (T, Test_Final_Freeze_Expectation_Covers_All_Surfaces'Access,
+         "final freeze expectations cover all surfaces");
       Register_Routine
-        (T, Test_Phase498_Final_Freeze_Rejects_Reintroduced_Ownership'Access,
-         "Phase 498 final freeze rejects reintroduced ownership");
+        (T, Test_Final_Freeze_Rejects_Reintroduced_Ownership'Access,
+         "final freeze rejects reintroduced ownership");
       Register_Routine
-        (T, Test_Phase499_Current_Surfaces_Are_Registered'Access,
-         "Phase 499 current projection surfaces are registered");
+        (T, Test_Current_Surfaces_Are_Registered'Access,
+         "current projection surfaces are registered");
       Register_Routine
-        (T, Test_Phase499_Unregistered_Surface_Audit_Rejects_Row_Fields'Access,
-         "Phase 499 audit rejects unregistered lifecycle row fields");
+        (T, Test_Unregistered_Surface_Audit_Rejects_Row_Fields'Access,
+         "audit rejects unregistered lifecycle row fields");
       Register_Routine
-        (T, Test_Phase499_Unregistered_Surface_Audit_Rejects_Routes_And_Persistence'Access,
-         "Phase 499 audit rejects unregistered routes and persistence");
+        (T, Test_Unregistered_Surface_Audit_Rejects_Routes_And_Persistence'Access,
+         "audit rejects unregistered routes and persistence");
       Register_Routine
-        (T, Test_Phase499_None_Surface_Without_Lifecycle_State_Is_Allowed'Access,
-         "Phase 499 audit permits non-lifecycle none surfaces");
+        (T, Test_None_Surface_Without_Lifecycle_State_Is_Allowed'Access,
+         "audit permits non-lifecycle none surfaces");
       Register_Routine
-        (T, Test_Phase499_Registration_Audit_Rejects_Missing_Metadata'Access,
-         "Phase 499 registration audit rejects missing metadata");
+        (T, Test_Registration_Audit_Rejects_Missing_Metadata'Access,
+         "registration audit rejects missing metadata");
       Register_Routine
-        (T, Test_Phase499_Future_Surface_Template_Is_Raw_And_Nonrepairing'Access,
-         "Phase 499 future surface template is raw and nonrepairing");
+        (T, Test_Future_Surface_Template_Is_Raw_And_Nonrepairing'Access,
+         "future surface template is raw and nonrepairing");
       Register_Routine
-        (T, Test_Phase499_Adoption_Gate_Helper_Preserves_Final_Freeze'Access,
-         "Phase 499 adoption gate preserves final freeze");
+        (T, Test_Adoption_Gate_Helper_Preserves_Final_Freeze'Access,
+         "adoption gate preserves final freeze");
       Register_Routine
         (T, Test_Milestone_Assertion_Helper_Runs_All_Surface_Adapters'Access,
          "milestone assertion helper runs all surface adapters");

@@ -7,10 +7,10 @@ with Editor.Ada_Syntax_Tree;
 
 package Editor.Ada_Dataflow_Definite_Initialization_Consumer_Legality is
 
-   --  Pass1165 compiler-grade dataflow definite-initialization consumer
+   --  Case 1165 compiler-grade dataflow definite-initialization consumer
    --  legality.
    --
-   --  This layer feeds Pass1164 exact initialization/object-flow evidence back
+   --  This layer feeds Case 1164 exact initialization/object-flow evidence back
    --  into Global/Depends and flow-effect consumers.  It prevents Global,
    --  Depends, Refined_Global, Refined_Depends, call-propagation, generic,
    --  protected, and tasking flow conclusions from remaining confident when

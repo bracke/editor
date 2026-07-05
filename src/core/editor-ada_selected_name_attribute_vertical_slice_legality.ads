@@ -4,7 +4,7 @@ with Editor.Ada_Syntax_Tree;
 
 package Editor.Ada_Selected_Name_Attribute_Vertical_Slice_Legality is
 
-   --  Pass1316 vertical-slice selected-name/attribute/reference legality.
+   --  Case 1316 vertical-slice selected-name/attribute/reference legality.
    --  This package models concrete Ada selected-name resolution, attribute
    --  reference legality, dereference/index/component reference checks, and
    --  private/limited-view barriers that feed overload resolution, static

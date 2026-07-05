@@ -12,7 +12,7 @@ with Editor.Ada_Tasking_Generic_Shared_State_Final_Legality;
 
 package Editor.Ada_Accessibility_Generic_Shared_State_Final_Legality is
 
-   --  Pass1233 accessibility/generic shared-state final legality.
+   --  Case 1233 accessibility/generic shared-state final legality.
    --
    --  This package connects final accessibility/master-scope evidence with the
    --  generic/shared-state semantic chain.  Accessibility conclusions for

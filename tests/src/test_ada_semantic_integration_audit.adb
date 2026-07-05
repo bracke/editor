@@ -2,11 +2,11 @@ with Ada.Strings.Unbounded; use Ada.Strings.Unbounded;
 with AUnit.Assertions; use AUnit.Assertions;
 with AUnit.Test_Cases;
 with Editor.Ada_Syntax_Tree;
-with Editor.Ada_Semantic_Integration_Audit_Pass1335;
+with Editor.Ada_Semantic_Integration_Audit;
 
 package body Test_Ada_Semantic_Integration_Audit is
 
-   package Audit renames Editor.Ada_Semantic_Integration_Audit_Pass1335;
+   package Audit renames Editor.Ada_Semantic_Integration_Audit;
    use type Audit.Slice_Family;
    use type Audit.Scenario_Kind;
    use type Audit.Audit_Status;

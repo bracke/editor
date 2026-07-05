@@ -165,7 +165,7 @@ package Editor.Bookmarks is
      (State    : Bookmark_State;
       Snapshot : out Bookmark_Snapshot);
 
-   --  Phase 490: Bookmarks are an observation/projection surface only for
+   --  Bookmarks are an observation/projection surface only for
    --  file lifecycle effects.  These predicates intentionally expose only
    --  structural invariants owned by Bookmarks: retained bookmark entries,
    --  selection/focus state, and row projection from retained entries.
@@ -190,7 +190,7 @@ package Editor.Bookmarks is
    function Bookmarks_File_Lifecycle_Observation_Frozen
      (State : Bookmark_State) return Boolean;
 
-   --  Phase 491 reliability hardening: the retained Bookmark model remains
+   --  reliability hardening: the retained Bookmark model remains
    --  observation-only across successful, failed, blocked, prompted, render,
    --  audit, lifecycle, and persistence workflows.  This predicate is a
    --  coherence guard over the same structural state: no file lifecycle source,
@@ -199,14 +199,14 @@ package Editor.Bookmarks is
    function Bookmarks_File_Lifecycle_Observation_Reliable
      (State : Bookmark_State) return Boolean;
 
-   --  Phase 492 cleanup/canonicalization: no duplicate Bookmark lifecycle
+   --  cleanup/canonicalization: no duplicate Bookmark lifecycle
    --  observation state remains reachable.  Retained row projection is the
    --  only Bookmark-owned source; buffer/open/dirty enrichment must remain
    --  external snapshot composition and must not be stored back here.
    function Bookmarks_File_Lifecycle_Observation_Cleanup_Canonical
      (State : Bookmark_State) return Boolean;
 
-   --  Phase 493 final hardening/regression freeze: Bookmarks remain a pure
+   --  final hardening/regression freeze: Bookmarks remain a pure
    --  retained-target projection surface.  Final freeze coverage proves that
    --  no Bookmark-owned file lifecycle route, prompt ownership, target/source
    --  inference, cache, history, repair, migration, filesystem probe,

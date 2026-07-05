@@ -9,7 +9,7 @@ with Editor.Ada_Syntax_Tree;
 
 package Editor.Ada_Definite_Initialization_Flow_Legality is
 
-   --  Pass1121 compiler-grade definite-initialization and flow legality.
+   --  Case 1121 compiler-grade definite-initialization and flow legality.
    --  The model is snapshot-owned and projection-free.  It records Ada
    --  initialization, assignment-before-read, out/in out parameter, return,
    --  exception/finalization, and closure-blocker facts without parsing,

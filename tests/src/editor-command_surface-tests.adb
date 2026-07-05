@@ -105,7 +105,7 @@ package body Editor.Command_Surface.Tests is
    end Test_User_Opt_In_Build_Command_Is_Internal;
 
 
-   procedure Test_Phase559_Recent_Project_Selected_Row_Commands_Are_No_Payload
+   procedure Test_Recent_Project_Selected_Row_Commands_Are_No_Payload
      (T : in out AUnit.Test_Cases.Test_Case'Class)
    is
       pragma Unreferenced (T);
@@ -128,7 +128,7 @@ package body Editor.Command_Surface.Tests is
              "select previous recent project");
       Assert (Editor.Commands.Requires_Context (Editor.Commands.Command_Open_Project),
               "plain project.open remains the explicit path-payload command");
-   end Test_Phase559_Recent_Project_Selected_Row_Commands_Are_No_Payload;
+   end Test_Recent_Project_Selected_Row_Commands_Are_No_Payload;
 
    procedure Test_User_Opt_In_Build_Command_Has_No_Default_Keybinding
      (T : in out AUnit.Test_Cases.Test_Case'Class)
@@ -275,7 +275,7 @@ package body Editor.Command_Surface.Tests is
               "route audit must report executor-boundary bypass failures");
    end Test_Build_Command_Route_Audit_Rejects_Bypass_Routes;
 
-   procedure Test_Phase_564_Command_Palette_Route_Audit_Rejects_Payloads
+   procedure Test_Command_Palette_Route_Audit_Rejects_Payloads
      (T : in out AUnit.Test_Cases.Test_Case'Class)
    is
       pragma Unreferenced (T);
@@ -303,7 +303,73 @@ package body Editor.Command_Surface.Tests is
                 (Editor.Command_Route_Audit.Last_Failure_Message (Audit),
                  "payload") > 0,
               "payload audit failure must be user-readable");
-   end Test_Phase_564_Command_Palette_Route_Audit_Rejects_Payloads;
+   end Test_Command_Palette_Route_Audit_Rejects_Payloads;
+
+   procedure Test_Command_UI_Route_Audit_Covers_Panel_Actions
+     (T : in out AUnit.Test_Cases.Test_Case'Class)
+   is
+      pragma Unreferenced (T);
+      Audit : Editor.Command_Route_Audit.Route_Audit_Result;
+
+      procedure Check
+        (Source  : Editor.Command_Route_Audit.Route_Source;
+         Command : Editor.Commands.Command_Id)
+      is
+      begin
+         Editor.Command_Route_Audit.Record_Command_UI_Route
+           (Result                   => Audit,
+            Source                   => Source,
+            Command                  => Command,
+            Dispatch_Count           => 1,
+            Routed_Through_Executor  => True,
+            Used_Stable_Command_Name => True,
+            Availability_Checked     => True,
+            Carried_Payload          => False);
+      end Check;
+   begin
+      Editor.Command_Route_Audit.Clear (Audit);
+      Check (Editor.Command_Route_Audit.Route_From_Problems,
+             Editor.Commands.Command_Problems_Open_Selected);
+      Check (Editor.Command_Route_Audit.Route_From_Feature_Panel,
+             Editor.Commands.Command_Build_Run);
+      Check (Editor.Command_Route_Audit.Route_From_File_Tree,
+             Editor.Commands.Command_File_Tree_Open_Selected);
+      Check (Editor.Command_Route_Audit.Route_From_Search_Results,
+             Editor.Commands.Command_Search_Results_Open_Selected);
+      Check (Editor.Command_Route_Audit.Route_From_Command_Palette,
+             Editor.Commands.Command_Accept_Quick_Open);
+      Check (Editor.Command_Route_Audit.Route_From_Pending_Bar,
+             Editor.Commands.Command_Retry_Pending_Transition);
+      Check (Editor.Command_Route_Audit.Route_From_Recent_Project_Picker,
+             Editor.Commands.Command_Open_Selected_Recent_Project);
+      Assert (Editor.Command_Route_Audit.Failure_Count (Audit) = 0,
+              "command-like UI route audit should accept canonical executor routes: "
+              & Editor.Command_Route_Audit.Summary (Audit));
+   end Test_Command_UI_Route_Audit_Covers_Panel_Actions;
+
+   procedure Test_Command_UI_Route_Audit_Rejects_Bypass_And_Duplicate
+     (T : in out AUnit.Test_Cases.Test_Case'Class)
+   is
+      pragma Unreferenced (T);
+      Audit : Editor.Command_Route_Audit.Route_Audit_Result;
+   begin
+      Editor.Command_Route_Audit.Clear (Audit);
+      Editor.Command_Route_Audit.Record_Command_UI_Route
+        (Result                   => Audit,
+         Source                   => Editor.Command_Route_Audit.Route_From_Problems,
+         Command                  => Editor.Commands.Command_Problems_Open_Selected,
+         Dispatch_Count           => 2,
+         Routed_Through_Executor  => False,
+         Used_Stable_Command_Name => False,
+         Availability_Checked     => False,
+         Carried_Payload          => True);
+      Assert (Editor.Command_Route_Audit.Failure_Count (Audit) = 5,
+              "bad command-like UI route should report duplicate, executor, stable-id, availability, and payload failures");
+      Assert (Ada.Strings.Fixed.Index
+                (Editor.Command_Route_Audit.Summary (Audit),
+                 "ROUTE_DISPATCHED_MORE_THAN_ONCE") > 0,
+              "route audit summary should classify duplicate dispatch");
+   end Test_Command_UI_Route_Audit_Rejects_Bypass_And_Duplicate;
 
    procedure Test_Command_Descriptor_Audit_Helpers
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
@@ -480,7 +546,7 @@ package body Editor.Command_Surface.Tests is
       end loop;
    end Assert_Candidate_Vectors_Equal;
 
-   procedure Test_Phase_88_Static_Command_Invariants
+   procedure Test_Static_Command_Invariants
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
       pragma Unreferenced (T);
       Seen_Palette_Label : array (Editor.Commands.Command_Id) of Boolean := (others => False);
@@ -525,9 +591,9 @@ package body Editor.Command_Surface.Tests is
                     "category label must be trimmed");
          end if;
       end loop;
-   end Test_Phase_88_Static_Command_Invariants;
+   end Test_Static_Command_Invariants;
 
-   procedure Test_Phase_88_Availability_Is_Read_Only_On_Empty_State
+   procedure Test_Availability_Is_Read_Only_On_Empty_State
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
       pragma Unreferenced (T);
       S : Editor.State.State_Type;
@@ -566,9 +632,9 @@ package body Editor.Command_Surface.Tests is
               "availability checks must not change panel focus target");
       Assert (Editor.Panel_Focus.Bottom_Content (S.Panel_Focus) = Before_Bottom,
               "availability checks must not change bottom panel focus content");
-   end Test_Phase_88_Availability_Is_Read_Only_On_Empty_State;
+   end Test_Availability_Is_Read_Only_On_Empty_State;
 
-   procedure Test_Phase_88_Unavailable_Reason_Consistency
+   procedure Test_Unavailable_Reason_Consistency
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
       pragma Unreferenced (T);
       S : Editor.State.State_Type;
@@ -596,9 +662,15 @@ package body Editor.Command_Surface.Tests is
               "Clear All Bookmarks must use canonical No bookmarks reason");
       Assert (Reason (Editor.Commands.Command_Focus_File_Tree) = "No project open.",
               "Focus File Tree must use canonical No project open reason");
-   end Test_Phase_88_Unavailable_Reason_Consistency;
+      Assert
+        (Editor.Commands.Unavailable_Reason
+           (Editor.Commands.Unavailable
+              ("Diagnostic target column is outside the line.")) =
+         Editor.Commands.Reason_Diagnostic_Target_Column_Outside_Line,
+         "invalid diagnostic columns must keep the column-specific reason");
+   end Test_Unavailable_Reason_Consistency;
 
-   procedure Test_Phase_88_Palette_Snapshot_Determinism
+   procedure Test_Palette_Snapshot_Determinism
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
       pragma Unreferenced (T);
       S : Editor.State.State_Type;
@@ -649,11 +721,11 @@ package body Editor.Command_Surface.Tests is
             Assert (L.Is_Available = R.Is_Available, "snapshot availability flag must be deterministic");
          end;
       end loop;
-   end Test_Phase_88_Palette_Snapshot_Determinism;
+   end Test_Palette_Snapshot_Determinism;
 
 
 
-   procedure Test_Phase_88_Guarded_Execute_Command_Unavailable_Message
+   procedure Test_Guarded_Execute_Command_Unavailable_Message
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
       pragma Unreferenced (T);
       S : Editor.State.State_Type;
@@ -671,9 +743,9 @@ package body Editor.Command_Surface.Tests is
               "guarded unavailable command must not change overlay focus");
       Assert (Editor.Panel_Focus.Target (S.Panel_Focus) = Before_Focus,
               "guarded unavailable command must not change panel focus");
-   end Test_Phase_88_Guarded_Execute_Command_Unavailable_Message;
+   end Test_Guarded_Execute_Command_Unavailable_Message;
 
-   procedure Test_Phase_88_Command_Row_Layout_Edges
+   procedure Test_Command_Row_Layout_Edges
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
       pragma Unreferenced (T);
       L : Editor.Command_Palette.Command_Palette_Row_Layout;
@@ -711,9 +783,9 @@ package body Editor.Command_Surface.Tests is
               "fitting keybinding should be shown");
       Assert (L.Label_Columns + L.Secondary_Columns + L.Keybinding_Columns <= 40,
               "layout column allocation must stay inside row width");
-   end Test_Phase_88_Command_Row_Layout_Edges;
+   end Test_Command_Row_Layout_Edges;
 
-   procedure Test_Phase_88_Hidden_Command_Behavior
+   procedure Test_Hidden_Command_Behavior
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
       pragma Unreferenced (T);
    begin
@@ -723,7 +795,7 @@ package body Editor.Command_Surface.Tests is
               "hidden commands must still have complete descriptors");
       Assert (Editor.Commands.Has_Stable_User_Label (Editor.Commands.Command_Move_Left),
               "hidden commands must still have stable labels");
-   end Test_Phase_88_Hidden_Command_Behavior;
+   end Test_Hidden_Command_Behavior;
 
 
 
@@ -745,7 +817,7 @@ package body Editor.Command_Surface.Tests is
         and then Ada.Strings.Fixed.Index (Text, "..") = 0;
    end Is_Lower_Kebab_Name;
 
-   procedure Test_Phase_109_Command_Metadata_Completeness
+   procedure Test_Command_Metadata_Completeness
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
       pragma Unreferenced (T);
       D : Editor.Commands.Command_Descriptor;
@@ -784,9 +856,9 @@ package body Editor.Command_Surface.Tests is
             end if;
          end;
       end loop;
-   end Test_Phase_109_Command_Metadata_Completeness;
+   end Test_Command_Metadata_Completeness;
 
-   procedure Test_Phase_109_Stable_Command_Name_Coverage
+   procedure Test_Stable_Command_Name_Coverage
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
       pragma Unreferenced (T);
       Seen  : array (Editor.Commands.Command_Id) of Boolean := (others => False);
@@ -817,9 +889,9 @@ package body Editor.Command_Surface.Tests is
             end if;
          end;
       end loop;
-   end Test_Phase_109_Stable_Command_Name_Coverage;
+   end Test_Stable_Command_Name_Coverage;
 
-   procedure Test_Phase_109_Command_Classification_Invariants
+   procedure Test_Command_Classification_Invariants
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
       pragma Unreferenced (T);
    begin
@@ -843,9 +915,9 @@ package body Editor.Command_Surface.Tests is
               "file-content save must not be a configuration command");
       Assert (not Editor.Commands.Is_Configuration_Command (Editor.Commands.Command_Save_Workspace_State),
               "workspace save must not be a configuration command");
-   end Test_Phase_109_Command_Classification_Invariants;
+   end Test_Command_Classification_Invariants;
 
-   procedure Test_Phase_109_Save_Command_Descriptions_Are_Distinct
+   procedure Test_Save_Command_Descriptions_Are_Distinct
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
       pragma Unreferenced (T);
       function Desc (Id : Editor.Commands.Command_Id) return String is
@@ -863,9 +935,9 @@ package body Editor.Command_Surface.Tests is
               "Save Settings description must identify global preferences");
       Assert (Ada.Strings.Fixed.Index (Desc (Editor.Commands.Command_Save_Keybindings), "keybinding") > 0,
               "Save Keybindings description must identify global keybindings");
-   end Test_Phase_109_Save_Command_Descriptions_Are_Distinct;
+   end Test_Save_Command_Descriptions_Are_Distinct;
 
-   procedure Test_Phase_109_Execution_Result_For_No_Op_And_Unavailable
+   procedure Test_Execution_Result_For_No_Op_And_Unavailable
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
       pragma Unreferenced (T);
       S : Editor.State.State_Type;
@@ -886,10 +958,10 @@ package body Editor.Command_Surface.Tests is
               "execution result must preserve command id");
       Assert (Editor.Messages.Count (S.Messages) = 1,
               "unavailable command must emit one message");
-   end Test_Phase_109_Execution_Result_For_No_Op_And_Unavailable;
+   end Test_Execution_Result_For_No_Op_And_Unavailable;
 
 
-   procedure Test_Phase_109_Disabled_State_Baseline
+   procedure Test_Disabled_State_Baseline
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
       pragma Unreferenced (T);
       S : Editor.State.State_Type;
@@ -935,10 +1007,10 @@ package body Editor.Command_Surface.Tests is
       Assert (Editor.Commands.Is_Available
                 (Editor.Executor.Command_Availability (S, Editor.Commands.Command_Reload_Keybindings)),
               "Reload Keybindings must remain globally available");
-   end Test_Phase_109_Disabled_State_Baseline;
+   end Test_Disabled_State_Baseline;
 
 
-   procedure Test_Phase_110_Command_Execution_Result_Terminology
+   procedure Test_Command_Execution_Result_Terminology
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
       pragma Unreferenced (T);
       R : Editor.Command_Execution.Command_Execution_Result;
@@ -966,9 +1038,9 @@ package body Editor.Command_Surface.Tests is
       R := Editor.Command_Execution.No_Op (Editor.Commands.Command_Dismiss_All_Messages);
       Assert (R.Status = Editor.Command_Execution.Command_No_Op,
               "No_Op helper must classify intentional no-op commands");
-   end Test_Phase_110_Command_Execution_Result_Terminology;
+   end Test_Command_Execution_Result_Terminology;
 
-   procedure Test_Phase_110_Unavailable_Commands_Are_Side_Effect_Limited
+   procedure Test_Unavailable_Commands_Are_Side_Effect_Limited
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
       pragma Unreferenced (T);
 
@@ -1009,7 +1081,7 @@ package body Editor.Command_Surface.Tests is
       Check (Editor.Commands.Command_Retry_Pending_Transition, "Retry Pending Transition");
       Check (Editor.Commands.Command_Discard_Pending_Transition, "Discard Pending Transition");
       Check (Editor.Commands.Command_Save_All, "Save All");
-      --  Phase 444: removed-name discard-buffer is no longer a public command
+      --  removed-name discard-buffer is no longer a public command
       --  surface and is covered by the revert cleanup tests.
       declare
          Recent_State : Editor.State.State_Type;
@@ -1020,9 +1092,9 @@ package body Editor.Command_Surface.Tests is
                       (Recent_State, Editor.Commands.Command_Show_Recent_Projects)),
                  "Show Recent Projects remains executable to display the empty state");
       end;
-   end Test_Phase_110_Unavailable_Commands_Are_Side_Effect_Limited;
+   end Test_Unavailable_Commands_Are_Side_Effect_Limited;
 
-   procedure Test_Phase_110_Availability_And_Execution_Result_Consistency
+   procedure Test_Availability_And_Execution_Result_Consistency
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
       pragma Unreferenced (T);
       S : Editor.State.State_Type;
@@ -1047,7 +1119,7 @@ package body Editor.Command_Surface.Tests is
                     Editor.Commands.Command_Id'Image (Id));
          end if;
       end loop;
-   end Test_Phase_110_Availability_And_Execution_Result_Consistency;
+   end Test_Availability_And_Execution_Result_Consistency;
 
    function Executor_Owns_Break_Group_Command
      (Id : Editor.Commands.Command_Id) return Boolean
@@ -1092,7 +1164,7 @@ package body Editor.Command_Surface.Tests is
       end case;
    end Executor_Owns_Break_Group_Command;
 
-   procedure Test_Phase_110_Command_For_Id_Fallback_Coverage_Audit
+   procedure Test_Command_For_Id_Fallback_Coverage_Audit
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
       pragma Unreferenced (T);
       Id  : Editor.Commands.Command_Id;
@@ -1107,9 +1179,9 @@ package body Editor.Command_Surface.Tests is
                     Editor.Commands.Command_Id'Image (Id));
          end if;
       end loop;
-   end Test_Phase_110_Command_For_Id_Fallback_Coverage_Audit;
+   end Test_Command_For_Id_Fallback_Coverage_Audit;
 
-   procedure Test_Phase_110_Command_Palette_Dispatch_Uses_Executor_Result
+   procedure Test_Command_Palette_Dispatch_Uses_Executor_Result
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
       pragma Unreferenced (T);
       Direct_State  : Editor.State.State_Type;
@@ -1130,10 +1202,10 @@ package body Editor.Command_Surface.Tests is
       Assert (Editor.Messages.Count (Direct_State.Messages) =
               Editor.Messages.Count (Palette_State.Messages),
               "palette-equivalent Save All route must not add wrapper messages");
-   end Test_Phase_110_Command_Palette_Dispatch_Uses_Executor_Result;
+   end Test_Command_Palette_Dispatch_Uses_Executor_Result;
 
 
-   procedure Test_Phase_111_Command_Execution_Final_Status_Helpers
+   procedure Test_Command_Execution_Final_Status_Helpers
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
       pragma Unreferenced (T);
       R : Editor.Command_Execution.Command_Execution_Result;
@@ -1173,9 +1245,9 @@ package body Editor.Command_Surface.Tests is
               "Command_Cancelled must not be reported as a failure");
       Assert (Editor.Command_Execution.Status_Name (R.Status) = "cancelled",
               "cancelled status name must be stable");
-   end Test_Phase_111_Command_Execution_Final_Status_Helpers;
+   end Test_Command_Execution_Final_Status_Helpers;
 
-   procedure Test_Phase_111_Command_Category_Baseline
+   procedure Test_Command_Category_Baseline
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
       pragma Unreferenced (T);
    begin
@@ -1205,9 +1277,9 @@ package body Editor.Command_Surface.Tests is
               "Panel category label must remain stable as Panels");
       Assert (Editor.Commands.Category_Label (Editor.Commands.Internal_Category) = "Internal",
               "Internal category label must remain stable");
-   end Test_Phase_111_Command_Category_Baseline;
+   end Test_Command_Category_Baseline;
 
-   procedure Test_Phase_111_Command_Classification_Groups
+   procedure Test_Command_Classification_Groups
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
       pragma Unreferenced (T);
    begin
@@ -1246,9 +1318,9 @@ package body Editor.Command_Surface.Tests is
               "file-content saving must remain separate from configuration");
       Assert (not Editor.Commands.Is_Lifecycle_Command (Editor.Commands.Command_Save_Settings),
               "settings saving must remain separate from lifecycle");
-   end Test_Phase_111_Command_Classification_Groups;
+   end Test_Command_Classification_Groups;
 
-   procedure Test_Phase_111_Command_Registry_Baseline
+   procedure Test_Command_Registry_Baseline
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
       pragma Unreferenced (T);
       Id    : Editor.Commands.Command_Id;
@@ -1307,9 +1379,9 @@ package body Editor.Command_Surface.Tests is
                     Editor.Commands.Command_Id'Image (Id));
          end if;
       end loop;
-   end Test_Phase_111_Command_Registry_Baseline;
+   end Test_Command_Registry_Baseline;
 
-   procedure Test_Phase_111_Unavailable_Result_Message_Coherence
+   procedure Test_Unavailable_Result_Message_Coherence
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
       pragma Unreferenced (T);
       S     : Editor.State.State_Type;
@@ -1335,9 +1407,9 @@ package body Editor.Command_Surface.Tests is
               "unavailable retry message must be canonical");
       Assert (Editor.Messages.Severity (Msg) = Editor.Messages.Info_Message,
               "unavailable retry must not be reported as failed/error message");
-   end Test_Phase_111_Unavailable_Result_Message_Coherence;
+   end Test_Unavailable_Result_Message_Coherence;
 
-   procedure Test_Phase_111_Failed_Reload_Reports_Command_Failed
+   procedure Test_Failed_Reload_Reports_Command_Failed
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
       pragma Unreferenced (T);
 
@@ -1353,8 +1425,8 @@ package body Editor.Command_Surface.Tests is
       R     : Editor.Executor.Command_Execution_Result;
       Found : Boolean := False;
       Msg   : Editor.Messages.Editor_Message;
-      Settings_Path : constant String := "/tmp/editor-tests/phase111-invalid-settings.tmp";
-      Keybindings_Path : constant String := "/tmp/editor-tests/phase111-invalid-keybindings.tmp";
+      Settings_Path : constant String := "/tmp/editor-tests/invalid-settings.tmp";
+      Keybindings_Path : constant String := "/tmp/editor-tests/invalid-keybindings.tmp";
    begin
       Ada.Directories.Create_Path ("/tmp/editor-tests");
       Ada.Environment_Variables.Set
@@ -1388,10 +1460,10 @@ package body Editor.Command_Surface.Tests is
               "invalid keybindings reload must emit one error message");
       Assert (Editor.Messages.Text (Msg) = "Default keybindings active.",
               "invalid keybindings reload must use canonical domain-specific message");
-   end Test_Phase_111_Failed_Reload_Reports_Command_Failed;
+   end Test_Failed_Reload_Reports_Command_Failed;
 
 
-   procedure Test_Phase_111_No_Op_Is_Public_For_No_Command
+   procedure Test_No_Op_Is_Public_For_No_Command
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
       pragma Unreferenced (T);
       S  : Editor.State.State_Type;
@@ -1422,13 +1494,13 @@ package body Editor.Command_Surface.Tests is
             end;
          end if;
       end loop;
-   end Test_Phase_111_No_Op_Is_Public_For_No_Command;
+   end Test_No_Op_Is_Public_For_No_Command;
 
-   procedure Test_Phase_111_Configuration_Command_Domain_Isolation
+   procedure Test_Configuration_Command_Domain_Isolation
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
       pragma Unreferenced (T);
-      Settings_Path : constant String := "/tmp/editor-tests/phase111-command-surface-settings.tmp";
-      Keybindings_Path : constant String := "/tmp/editor-tests/phase111-command-surface-keybindings.tmp";
+      Settings_Path : constant String := "/tmp/editor-tests/command-surface-settings.tmp";
+      Keybindings_Path : constant String := "/tmp/editor-tests/command-surface-keybindings.tmp";
 
       procedure Check (Id : Editor.Commands.Command_Id; Label : String) is
          S              : Editor.State.State_Type;
@@ -1464,10 +1536,10 @@ package body Editor.Command_Surface.Tests is
       Check (Editor.Commands.Command_Save_Keybindings, "Save Keybindings");
       Check (Editor.Commands.Command_Reload_Keybindings, "Reload Keybindings");
       Check (Editor.Commands.Command_Validate_Keybindings, "Validate Keybindings");
-   end Test_Phase_111_Configuration_Command_Domain_Isolation;
+   end Test_Configuration_Command_Domain_Isolation;
 
 
-   procedure Test_Phase_112_Concrete_Command_Traversal
+   procedure Test_Concrete_Command_Traversal
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
       pragma Unreferenced (T);
       Count : Natural := 0;
@@ -1509,9 +1581,9 @@ package body Editor.Command_Surface.Tests is
       Assert
         (Count = Editor.Commands.Concrete_Command_Count,
          "For_Each_Command must cover every concrete command exactly once");
-   end Test_Phase_112_Concrete_Command_Traversal;
+   end Test_Concrete_Command_Traversal;
 
-   procedure Test_Phase_112_Command_Audit_Registry_Is_Actionable
+   procedure Test_Command_Audit_Registry_Is_Actionable
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
       pragma Unreferenced (T);
       Failures : constant Editor.Commands.Command_Audit_Failure_Vectors.Vector :=
@@ -1521,9 +1593,9 @@ package body Editor.Command_Surface.Tests is
       Assert
         (Failures.Length = 0,
          "static command audit must pass: " & Summary);
-   end Test_Phase_112_Command_Audit_Registry_Is_Actionable;
+   end Test_Command_Audit_Registry_Is_Actionable;
 
-   procedure Test_Phase_112_Command_Descriptor_Construction_Helper
+   procedure Test_Command_Descriptor_Construction_Helper
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
       pragma Unreferenced (T);
       D : constant Editor.Commands.Command_Descriptor :=
@@ -1551,9 +1623,9 @@ package body Editor.Command_Surface.Tests is
               "descriptor helper must use explicit visibility");
       Assert (D.Bindable and then D.Configuration,
               "descriptor helper must preserve explicit bindability/classification");
-   end Test_Phase_112_Command_Descriptor_Construction_Helper;
+   end Test_Command_Descriptor_Construction_Helper;
 
-   procedure Test_Phase_112_Route_Audit_Actionable_Failures
+   procedure Test_Route_Audit_Actionable_Failures
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
       pragma Unreferenced (T);
       Result : Editor.Command_Route_Audit.Route_Audit_Result;
@@ -1594,7 +1666,7 @@ package body Editor.Command_Surface.Tests is
            (To_String (Text), "COMMAND_SAVE_ALL") > 0,
          "typed route failure must identify expected and actual commands: " &
          To_String (Text));
-   end Test_Phase_112_Route_Audit_Actionable_Failures;
+   end Test_Route_Audit_Actionable_Failures;
 
 
    procedure Assert_Public_Build_Name_Not_Registered
@@ -1625,21 +1697,21 @@ package body Editor.Command_Surface.Tests is
       Assert (R.Has_Public_Build_Command,
               "public build command is registered through the guarded surface");
       Assert (not R.Has_Default_Public_Build_Keybinding,
-              "Phase 182 must not provide a default public build keybinding");
+              "must not provide a default public build keybinding");
       Assert (R.Has_User_Command_Input_Model,
-              "Phase 183 must expose a structured public build input DTO model");
+              "must expose a structured public build input DTO model");
       Assert (R.Has_Structured_Argv_Input_Model,
               "structured argv seam must exist before any public build UX is designed");
       Assert (R.Has_Working_Context_Model,
-              "Phase 183 must expose a working-context model");
+              "must expose a working-context model");
       Assert (R.Has_Consent_UX_Model,
-              "Phase 185 must expose a structured public consent model");
+              "must expose a structured public consent model");
       Assert (R.Public_Consent_UX_Publicly_Ready,
               "public consent UX is available through the guarded surface");
-      Assert (not R.Has_Project_Metadata_Validation,
-              "project metadata build validation is intentionally not implemented");
-      Assert (R.Keeps_Project_Metadata_Rejected,
-              "project metadata build requests must remain rejected");
+      Assert (R.Has_Implicit_Source_Validation,
+              "explicit-source policy must be validated");
+      Assert (R.Keeps_Implicit_Source_Rejected,
+              "implicit build source requests must remain rejected");
       Assert (R.Keeps_Shell_Rejected,
               "shell-enabled build execution must remain rejected");
       Assert (R.Keeps_Opaque_Arguments_Rejected,
@@ -1648,8 +1720,8 @@ package body Editor.Command_Surface.Tests is
               "build command test seams must remain Executor-routed");
       Assert (R.Routes_Diagnostics_Through_Pipeline,
               "build output must continue to route through diagnostic-line pipeline");
-      Assert (R.Passed_As_Not_Ready,
-              "readiness audit must pass only as an intentional not-ready result");
+      Assert (R.Public_Command_Can_Be_Promoted,
+              "readiness audit must allow guarded public build promotion");
    end Test_Public_Build_Readiness_Audit_Reports_Not_Ready;
 
    procedure Test_Public_Build_Readiness_Audit_Is_Side_Effect_Free
@@ -1672,8 +1744,8 @@ package body Editor.Command_Surface.Tests is
       Before_Bottom := Editor.Panel_Focus.Bottom_Content (S.Panel_Focus);
 
       R := Editor.External_Producers.Run_Public_Build_Command_Readiness_Audit (S);
-      Assert (R.Passed_As_Not_Ready,
-              "side-effect-free readiness audit should still return the not-ready pass result");
+      Assert (R.Public_Command_Can_Be_Promoted,
+              "side-effect-free readiness audit should still return the ready result");
       Assert (Editor.Messages.Count (S.Messages) = Before_Messages,
               "readiness audit must not post messages");
       Assert (Editor.State.Has_Active_Buffer (S) = Before_Has_Buffer,
@@ -1729,7 +1801,7 @@ package body Editor.Command_Surface.Tests is
       Editor.Executor.Command_Palette_Candidates (S, Candidates);
       for Candidate of Candidates loop
          Assert (not Editor.Commands.Is_Public_Build_Command (Candidate.Id),
-                 "normal palette must not contain public build commands in Phase 182");
+                 "normal palette must not contain public build commands in ");
          Assert (Candidate.Id /= Editor.Commands.Command_Build_Run_User_Opt_In_Test_Seam,
                  "normal palette must not contain internal build test seam");
       end loop;
@@ -1748,7 +1820,7 @@ package body Editor.Command_Surface.Tests is
       Editor.State.Init (S);
       R := Editor.External_Producers.Run_Public_Build_Command_Readiness_Audit (S);
       Assert (R.Has_Consent_UX_Model,
-              "readiness audit must report the Phase 185 structured consent model");
+              "readiness audit must report the structured consent model");
       Assert (R.Public_Consent_Model_Exists,
               "readiness audit must report the public consent model exists");
       Assert (R.Public_Consent_Model_Validated,
@@ -1758,11 +1830,11 @@ package body Editor.Command_Surface.Tests is
       Assert (R.Public_Consent_Publicly_Exposable,
               "readiness audit must report publicly exposable consent state");
       Assert (R.Has_Working_Context_Model,
-              "readiness audit must report the Phase 183 working-context model");
+              "readiness audit must report the working-context model");
       Assert (R.Has_User_Command_Input_Model,
-              "readiness audit must report the Phase 183 public user-command input model");
-      Assert (not R.Has_Project_Metadata_Validation,
-              "readiness audit must report no project metadata validation");
+              "readiness audit must report the public user-command input model");
+      Assert (R.Has_Implicit_Source_Validation,
+              "readiness audit must report explicit-source policy validation");
    end Test_Public_Build_Readiness_Reports_Missing_UX_Models;
 
    procedure Test_Public_Build_Readiness_Keeps_Rejections
@@ -1774,15 +1846,15 @@ package body Editor.Command_Surface.Tests is
    begin
       Editor.State.Init (S);
       R := Editor.External_Producers.Run_Public_Build_Command_Readiness_Audit (S);
-      Assert (R.Keeps_Project_Metadata_Rejected,
-              "readiness audit must prove project metadata remains rejected");
+      Assert (R.Keeps_Implicit_Source_Rejected,
+              "readiness audit must prove implicit build source remains rejected");
       Assert (R.Keeps_Shell_Rejected,
               "readiness audit must prove shell policy remains rejected");
       Assert (R.Keeps_Opaque_Arguments_Rejected,
               "readiness audit must prove free-form opaque arguments remain rejected");
    end Test_Public_Build_Readiness_Keeps_Rejections;
 
-   function Valid_Phase_183_Public_Input
+   function Valid_Public_Input
       return Editor.External_Producers.Public_Build_Command_Input
    is
    begin
@@ -1806,10 +1878,10 @@ package body Editor.Command_Surface.Tests is
             User_Acknowledged_External_Process => True,
             User_Acknowledged_Diagnostics_Output => True),
          Show_Diagnostics => False);
-   end Valid_Phase_183_Public_Input;
+   end Valid_Public_Input;
 
 
-   function Valid_Phase_185_Test_Consent
+   function Valid_Test_Consent
       return Editor.External_Producers.Public_Build_Consent_Model
    is
    begin
@@ -1819,9 +1891,9 @@ package body Editor.Command_Surface.Tests is
          User_Acknowledged_No_Shell => True,
          User_Acknowledged_External_Process => True,
          User_Acknowledged_Diagnostics_Output => True);
-   end Valid_Phase_185_Test_Consent;
+   end Valid_Test_Consent;
 
-   function Valid_Phase_185_User_Form_Consent
+   function Valid_User_Form_Consent
       return Editor.External_Producers.Public_Build_Consent_Model
    is
    begin
@@ -1831,9 +1903,9 @@ package body Editor.Command_Surface.Tests is
          User_Acknowledged_No_Shell => True,
          User_Acknowledged_External_Process => True,
          User_Acknowledged_Diagnostics_Output => True);
-   end Valid_Phase_185_User_Form_Consent;
+   end Valid_User_Form_Consent;
 
-   function Valid_Phase_186_Test_Working_Context
+   function Valid_Test_Working_Context
       return Editor.External_Producers.Public_Build_Working_Context_Model
    is
    begin
@@ -1841,9 +1913,9 @@ package body Editor.Command_Surface.Tests is
         (Source => Editor.External_Producers.Public_Build_Working_Context_Test_Context,
          Label  => Null_Unbounded_String,
          User_Acknowledged_Context => True);
-   end Valid_Phase_186_Test_Working_Context;
+   end Valid_Test_Working_Context;
 
-   function Valid_Phase_186_User_Form_Working_Context
+   function Valid_User_Form_Working_Context
       return Editor.External_Producers.Public_Build_Working_Context_Model
    is
    begin
@@ -1851,7 +1923,7 @@ package body Editor.Command_Surface.Tests is
         (Source => Editor.External_Producers.Public_Build_Working_Context_User_Form_Label,
          Label  => To_Unbounded_String ("current-project-root"),
          User_Acknowledged_Context => True);
-   end Valid_Phase_186_User_Form_Working_Context;
+   end Valid_User_Form_Working_Context;
 
    procedure Test_Public_Build_Consent_Validation_Is_Side_Effect_Free
      (T : in out AUnit.Test_Cases.Test_Case'Class)
@@ -1866,7 +1938,7 @@ package body Editor.Command_Surface.Tests is
       Before_Messages := Editor.Messages.Count (S.Messages);
       Before_Focus := Editor.Panel_Focus.Target (S.Panel_Focus);
       Status := Editor.External_Producers.Validate_Public_Build_Consent
-        (Valid_Phase_185_Test_Consent);
+        (Valid_Test_Consent);
       Assert (Status = Editor.External_Producers.Public_Build_Consent_Valid_For_Internal_Test,
               "valid test-context consent must validate without side effects");
       Assert (Editor.Messages.Count (S.Messages) = Before_Messages,
@@ -1880,32 +1952,32 @@ package body Editor.Command_Surface.Tests is
    is
       pragma Unreferenced (T);
       use Editor.External_Producers;
-      Consent : Public_Build_Consent_Model := Valid_Phase_185_Test_Consent;
+      Consent : Public_Build_Consent_Model := Valid_Test_Consent;
    begin
       Consent.Source := Public_Build_Consent_None;
       Assert (Validate_Public_Build_Consent (Consent) =
               Public_Build_Consent_Rejected_None,
               "missing consent source must reject deterministically");
 
-      Consent := Valid_Phase_185_Test_Consent;
+      Consent := Valid_Test_Consent;
       Consent.User_Acknowledged_Execution := False;
       Assert (Validate_Public_Build_Consent (Consent) =
               Public_Build_Consent_Rejected_Missing_Execution_Acknowledgement,
               "missing execution acknowledgement must reject deterministically");
 
-      Consent := Valid_Phase_185_Test_Consent;
+      Consent := Valid_Test_Consent;
       Consent.User_Acknowledged_No_Shell := False;
       Assert (Validate_Public_Build_Consent (Consent) =
               Public_Build_Consent_Rejected_Missing_No_Shell_Acknowledgement,
               "missing no-shell acknowledgement must reject deterministically");
 
-      Consent := Valid_Phase_185_Test_Consent;
+      Consent := Valid_Test_Consent;
       Consent.User_Acknowledged_External_Process := False;
       Assert (Validate_Public_Build_Consent (Consent) =
               Public_Build_Consent_Rejected_Missing_External_Process_Acknowledgement,
               "missing external-process acknowledgement must reject deterministically");
 
-      Consent := Valid_Phase_185_Test_Consent;
+      Consent := Valid_Test_Consent;
       Consent.User_Acknowledged_Diagnostics_Output := False;
       Assert (Validate_Public_Build_Consent (Consent) =
               Public_Build_Consent_Rejected_Missing_Diagnostics_Acknowledgement,
@@ -1918,13 +1990,13 @@ package body Editor.Command_Surface.Tests is
       pragma Unreferenced (T);
       use Editor.External_Producers;
    begin
-      Assert (Validate_Public_Build_Consent (Valid_Phase_185_Test_Consent) =
+      Assert (Validate_Public_Build_Consent (Valid_Test_Consent) =
               Public_Build_Consent_Valid_For_Internal_Test,
               "test-context consent must validate only for internal/test conversion");
-      Assert (Classify_Public_Build_Consent_Safety (Valid_Phase_185_Test_Consent) =
+      Assert (Classify_Public_Build_Consent_Safety (Valid_Test_Consent) =
               Public_Build_Input_Valid_For_Internal_Test,
               "test-context consent must classify as internal-test-only");
-      Assert (Build_Execution_Consent_From_Public_Model (Valid_Phase_185_Test_Consent) =
+      Assert (Build_Execution_Consent_From_Public_Model (Valid_Test_Consent) =
               Build_Consent_User_Confirmed,
               "test-context consent may derive explicit user-confirmed consent for internal/test conversion");
    end Test_Public_Build_Consent_Test_Context_Internal_Only;
@@ -1935,13 +2007,13 @@ package body Editor.Command_Surface.Tests is
       pragma Unreferenced (T);
       use Editor.External_Producers;
    begin
-      Assert (Validate_Public_Build_Consent (Valid_Phase_185_User_Form_Consent) =
+      Assert (Validate_Public_Build_Consent (Valid_User_Form_Consent) =
               Public_Build_Consent_Valid_But_Not_Public_UX,
               "user-form-shaped consent must validate structurally but not as public UX");
-      Assert (Classify_Public_Build_Consent_Safety (Valid_Phase_185_User_Form_Consent) =
+      Assert (Classify_Public_Build_Consent_Safety (Valid_User_Form_Consent) =
               Public_Build_Input_Valid_But_Not_Publicly_Exposable,
               "user-form-shaped consent must not be publicly exposable");
-      Assert (Build_Execution_Consent_From_Public_Model (Valid_Phase_185_User_Form_Consent) =
+      Assert (Build_Execution_Consent_From_Public_Model (Valid_User_Form_Consent) =
               Build_Consent_User_Confirmed,
               "acknowledged user-form consent must convert to execution consent");
    end Test_Public_Build_Consent_User_Form_Not_Publicly_Exposable;
@@ -1979,7 +2051,7 @@ package body Editor.Command_Surface.Tests is
       Before_Messages := Editor.Messages.Count (S.Messages);
       Before_Focus := Editor.Panel_Focus.Target (S.Panel_Focus);
       Status := Editor.External_Producers.Validate_Public_Build_Command_Input
-        (Valid_Phase_183_Public_Input);
+        (Valid_Public_Input);
       Assert (Status = Editor.External_Producers.Public_Build_Input_Valid,
               "valid public input DTO must validate without side effects");
       Assert (Editor.Messages.Count (S.Messages) = Before_Messages,
@@ -1993,44 +2065,44 @@ package body Editor.Command_Surface.Tests is
    is
       pragma Unreferenced (T);
       use Editor.External_Producers;
-      Input : Public_Build_Command_Input := Valid_Phase_183_Public_Input;
+      Input : Public_Build_Command_Input := Valid_Public_Input;
    begin
       Input.Source := Public_Build_Input_None;
       Assert (Validate_Public_Build_Command_Input (Input) =
               Public_Build_Input_Rejected_No_Input,
               "public build input must reject no input source");
 
-      Input := Valid_Phase_183_Public_Input;
+      Input := Valid_Public_Input;
       Input.Tool := No_Build_Tool;
       Assert (Validate_Public_Build_Command_Input (Input) =
               Public_Build_Input_Rejected_No_Tool,
               "public build input must reject missing tool");
 
-      Input := Valid_Phase_183_Public_Input;
+      Input := Valid_Public_Input;
       Input.Tool := Custom_Build_Tool;
       Assert (Validate_Public_Build_Command_Input (Input) =
               Public_Build_Input_Rejected_Custom_Tool,
               "public build input must reject custom tool");
 
-      Input := Valid_Phase_183_Public_Input;
+      Input := Valid_Public_Input;
       Input.Program_Label := Null_Unbounded_String;
       Assert (Validate_Public_Build_Command_Input (Input) =
               Public_Build_Input_Rejected_Missing_Program,
               "public build input must reject missing program label");
 
-      Input := Valid_Phase_183_Public_Input;
+      Input := Valid_Public_Input;
       Input.Consent := Build_Consent_Not_Provided;
       Assert (Validate_Public_Build_Command_Input (Input) =
               Public_Build_Input_Rejected_Missing_Consent,
               "public build input must reject missing consent");
 
-      Input := Valid_Phase_183_Public_Input;
+      Input := Valid_Public_Input;
       Input.Consent_Model.User_Acknowledged_Execution := False;
       Assert (Validate_Public_Build_Command_Input (Input) =
               Public_Build_Input_Rejected_Missing_Consent,
               "public build input must reject partial structured consent");
 
-      Input := Valid_Phase_183_Public_Input;
+      Input := Valid_Public_Input;
       Input.Working_Context := Build_Unsupported_Working_Context;
       Input.Working_Context_Model :=
         (Source => Public_Build_Working_Context_None,
@@ -2040,25 +2112,25 @@ package body Editor.Command_Surface.Tests is
               Public_Build_Input_Rejected_Unsupported_Working_Context,
               "public build input must reject unsupported working context");
 
-      Input := Valid_Phase_183_Public_Input;
+      Input := Valid_Public_Input;
       Input.Arguments := Empty_Process_Arguments;
       Assert (Validate_Public_Build_Command_Input (Input) =
               Public_Build_Input_Rejected_Opaque_Arguments,
               "public build input must require structured argv tokens");
 
-      Input := Valid_Phase_183_Public_Input;
+      Input := Valid_Public_Input;
       Input.Arguments := Build_Process_Argument_Vector ("");
       Assert (Validate_Public_Build_Command_Input (Input) =
               Public_Build_Input_Rejected_Opaque_Arguments,
               "empty helper arguments must not synthesize argv");
 
-      Input := Valid_Phase_183_Public_Input;
+      Input := Valid_Public_Input;
       Input.Arguments := Build_Process_Argument_Vector ("-q", "", "--keep-going");
       Assert (Validate_Public_Build_Command_Input (Input) =
               Public_Build_Input_Rejected_Empty_Argument,
               "public build input must reject empty structured argv entries");
 
-      Input := Valid_Phase_183_Public_Input;
+      Input := Valid_Public_Input;
       Input.Program_Label := To_Unbounded_String ("gprbuild; rm -rf tmp");
       Assert (Validate_Public_Build_Command_Input (Input) =
               Public_Build_Input_Rejected_Shell,
@@ -2071,7 +2143,7 @@ package body Editor.Command_Surface.Tests is
       pragma Unreferenced (T);
       Status : constant Editor.External_Producers.Public_Build_Input_Validation_Status :=
         Editor.External_Producers.Validate_Public_Build_Command_Input
-          (Valid_Phase_183_Public_Input);
+          (Valid_Public_Input);
    begin
       Assert (Status = Editor.External_Producers.Public_Build_Input_Valid,
               "structured public build argv should validate in the test context model");
@@ -2082,25 +2154,25 @@ package body Editor.Command_Surface.Tests is
    is
       pragma Unreferenced (T);
       use Editor.External_Producers;
-      No_Input : Public_Build_Command_Input := Valid_Phase_183_Public_Input;
-      User_Form : Public_Build_Command_Input := Valid_Phase_183_Public_Input;
+      No_Input : Public_Build_Command_Input := Valid_Public_Input;
+      User_Form : Public_Build_Command_Input := Valid_Public_Input;
    begin
       No_Input.Source := Public_Build_Input_None;
       User_Form.Source := Public_Build_Input_User_Form;
       User_Form.Consent := Build_Consent_Not_Provided;
-      User_Form.Consent_Model := Valid_Phase_185_User_Form_Consent;
+      User_Form.Consent_Model := Valid_User_Form_Consent;
       User_Form.Working_Context := Build_Explicit_Label_Working_Context ("workspace label");
-      User_Form.Working_Context_Model := Valid_Phase_186_User_Form_Working_Context;
+      User_Form.Working_Context_Model := Valid_User_Form_Working_Context;
 
       Assert (Classify_Public_Build_Input_Safety (No_Input) =
               Public_Build_Input_Not_Valid,
               "no public input must classify as not valid");
-      Assert (Classify_Public_Build_Input_Safety (Valid_Phase_183_Public_Input) =
+      Assert (Classify_Public_Build_Input_Safety (Valid_Public_Input) =
               Public_Build_Input_Valid_For_Internal_Test,
               "valid test-context input must be internal-test-only");
       Assert (Classify_Public_Build_Input_Safety (User_Form) =
               Public_Build_Input_Valid_But_Not_Publicly_Exposable,
-              "structural user-form input remains gated until project metadata policy exists");
+              "structural user-form input remains gated until implicit build source policy exists");
    end Test_Public_Build_Input_Safety_Classification;
 
    procedure Test_Public_Build_Input_No_State_Publicly_Exposable
@@ -2108,7 +2180,7 @@ package body Editor.Command_Surface.Tests is
    is
       pragma Unreferenced (T);
       use Editor.External_Producers;
-      Input : Public_Build_Command_Input := Valid_Phase_183_Public_Input;
+      Input : Public_Build_Command_Input := Valid_Public_Input;
    begin
       Assert (Classify_Public_Build_Input_Safety (Input) /=
               Public_Build_Input_Publicly_Exposable,
@@ -2116,12 +2188,12 @@ package body Editor.Command_Surface.Tests is
 
       Input.Source := Public_Build_Input_User_Form;
       Input.Consent := Build_Consent_Not_Provided;
-      Input.Consent_Model := Valid_Phase_185_User_Form_Consent;
+      Input.Consent_Model := Valid_User_Form_Consent;
       Input.Working_Context := Build_Explicit_Label_Working_Context ("workspace label");
-      Input.Working_Context_Model := Valid_Phase_186_User_Form_Working_Context;
+      Input.Working_Context_Model := Valid_User_Form_Working_Context;
       Assert (Classify_Public_Build_Input_Safety (Input) /=
               Public_Build_Input_Publicly_Exposable,
-              "user-form input must not be public-exposable in Phase 185");
+              "user-form input must not be public-exposable in ");
 
       Input.Source := Public_Build_Input_None;
       Input.Working_Context := Build_Unsupported_Working_Context;
@@ -2139,7 +2211,7 @@ package body Editor.Command_Surface.Tests is
    is
       pragma Unreferenced (T);
       use Editor.External_Producers;
-      Input : Public_Build_Command_Input := Valid_Phase_183_Public_Input;
+      Input : Public_Build_Command_Input := Valid_Public_Input;
    begin
       Input.Working_Context := Build_Unsupported_Working_Context;
       Input.Working_Context_Model :=
@@ -2150,7 +2222,7 @@ package body Editor.Command_Surface.Tests is
               Public_Build_Input_Rejected_Unsupported_Working_Context,
               "unsupported working context must reject validation");
 
-      Input := Valid_Phase_183_Public_Input;
+      Input := Valid_Public_Input;
       Input.Working_Context := Build_Explicit_Label_Working_Context ("/tmp/project");
       Input.Working_Context_Model :=
         (Source => Public_Build_Working_Context_User_Form_Label,
@@ -2167,16 +2239,16 @@ package body Editor.Command_Surface.Tests is
                  "explicit label context must not convert to executable request");
       end;
 
-      Input := Valid_Phase_183_Public_Input;
+      Input := Valid_Public_Input;
       Input.Source := Public_Build_Input_User_Form;
       Input.Consent := Build_Consent_User_Confirmed;
-      Input.Consent_Model := Valid_Phase_185_User_Form_Consent;
-      Input.Working_Context_Model := Valid_Phase_186_Test_Working_Context;
+      Input.Consent_Model := Valid_User_Form_Consent;
+      Input.Working_Context_Model := Valid_Test_Working_Context;
       Assert (Validate_Public_Build_Command_Input (Input) =
               Public_Build_Input_Rejected_Unsupported_Working_Context,
               "test working context must be accepted only for test source");
 
-      Input := Valid_Phase_183_Public_Input;
+      Input := Valid_Public_Input;
       Input.Working_Context := Build_Explicit_Label_Working_Context ("project:root");
       Input.Working_Context_Model :=
         (Source => Public_Build_Working_Context_Project_Derived,
@@ -2192,7 +2264,7 @@ package body Editor.Command_Surface.Tests is
    is
       pragma Unreferenced (T);
       use Editor.External_Producers;
-      Input : Public_Build_Command_Input := Valid_Phase_183_Public_Input;
+      Input : Public_Build_Command_Input := Valid_Public_Input;
    begin
       Input.Program_Label := To_Unbounded_String ("   ");
       Assert (Validate_Public_Build_Command_Input (Input) =
@@ -2210,7 +2282,7 @@ package body Editor.Command_Surface.Tests is
    is
       pragma Unreferenced (T);
       use Editor.External_Producers;
-      Input : Public_Build_Command_Input := Valid_Phase_183_Public_Input;
+      Input : Public_Build_Command_Input := Valid_Public_Input;
       Request : Build_Run_Request;
    begin
       Input.Arguments := Build_Process_Argument_Vector ("-gnat2022", "file name.adb");
@@ -2264,7 +2336,7 @@ package body Editor.Command_Surface.Tests is
    is
       pragma Unreferenced (T);
       use Editor.External_Producers;
-      Input : constant Public_Build_Command_Input := Valid_Phase_183_Public_Input;
+      Input : constant Public_Build_Command_Input := Valid_Public_Input;
       Request : constant Build_Run_Request :=
         Build_User_Opt_In_Request_From_Public_Input (Input);
    begin
@@ -2276,7 +2348,7 @@ package body Editor.Command_Surface.Tests is
    is
       pragma Unreferenced (T);
       use Editor.External_Producers;
-      Input : Public_Build_Command_Input := Valid_Phase_183_Public_Input;
+      Input : Public_Build_Command_Input := Valid_Public_Input;
       Request : Build_Run_Request;
    begin
       Input.Source := Public_Build_Input_None;
@@ -2293,7 +2365,7 @@ package body Editor.Command_Surface.Tests is
    is
       pragma Unreferenced (T);
       use Editor.External_Producers;
-      Input : Public_Build_Command_Input := Valid_Phase_183_Public_Input;
+      Input : Public_Build_Command_Input := Valid_Public_Input;
       Request : Build_Run_Request;
    begin
       Input.Consent_Model.User_Acknowledged_External_Process := False;
@@ -2310,10 +2382,10 @@ package body Editor.Command_Surface.Tests is
    is
       pragma Unreferenced (T);
       use Editor.External_Producers;
-      Input : Public_Build_Command_Input := Valid_Phase_183_Public_Input;
+      Input : Public_Build_Command_Input := Valid_Public_Input;
       Request : Build_Run_Request;
    begin
-      Input.Consent_Model := Valid_Phase_185_User_Form_Consent;
+      Input.Consent_Model := Valid_User_Form_Consent;
       Request := Build_User_Opt_In_Request_From_Public_Input (Input);
       Assert (Build_Execution_Consent_From_Public_Model (Input.Consent_Model) =
               Build_Consent_User_Confirmed,
@@ -2329,7 +2401,7 @@ package body Editor.Command_Surface.Tests is
       use Editor.External_Producers;
       Request : constant Build_Run_Request :=
         Build_User_Opt_In_Request_From_Public_Input
-          (Valid_Phase_183_Public_Input);
+          (Valid_Public_Input);
    begin
       Assert (Request.Provenance = Build_Request_From_User_Opt_In,
               "valid public input conversion must preserve user-opt-in provenance");
@@ -2369,9 +2441,9 @@ package body Editor.Command_Surface.Tests is
       Editor.State.Init (S);
       R := Editor.External_Producers.Run_Public_Build_Command_Readiness_Audit (S);
       Assert (R.Has_User_Command_Input_Model,
-              "Phase 183 readiness audit must report public input model present");
+              "readiness audit must report public input model present");
       Assert (R.Has_Public_Input_Model_Audit,
-              "Phase 183 readiness audit must include public input model audit");
+              "readiness audit must include public input model audit");
       Assert (R.Public_Input_Validation_Side_Effect_Free,
               "readiness audit must prove public input validation is pure metadata");
       Assert (R.Public_Input_Conversion_Requires_Valid_Input,
@@ -2383,11 +2455,11 @@ package body Editor.Command_Surface.Tests is
       Assert (R.Public_Input_Does_Not_Create_Command_Descriptors,
               "public input model must not create command descriptors");
       Assert (R.Public_Input_Validation_Complete,
-              "Phase 184 audit must report public input validation complete");
+              "audit must report public input validation complete");
       Assert (R.Public_Input_Has_Safety_Classification,
-              "Phase 184 audit must report public input safety classification");
+              "audit must report public input safety classification");
       Assert (R.Public_Input_Publicly_Exposable,
-              "Phase 185 audit must report public input model ready");
+              "audit must report public input model ready");
       Assert (R.Working_Context_Publicly_Ready,
               "readiness audit must report public working context ready");
       Assert (R.Consent_UX_Publicly_Ready,
@@ -2402,7 +2474,7 @@ package body Editor.Command_Surface.Tests is
       pragma Unreferenced (T);
       Request : constant Editor.External_Producers.Build_Run_Request :=
         Editor.External_Producers.Build_User_Opt_In_Request_From_Public_Input
-          (Valid_Phase_183_Public_Input);
+          (Valid_Public_Input);
       pragma Unreferenced (Request);
    begin
       Assert_Public_Build_Name_Not_Registered ("build.run");
@@ -2453,7 +2525,7 @@ package body Editor.Command_Surface.Tests is
       Before_Messages := Editor.Messages.Count (S.Messages);
       Before_Focus := Editor.Panel_Focus.Target (S.Panel_Focus);
       Status := Editor.External_Producers.Validate_Public_Build_Working_Context
-        (Valid_Phase_186_Test_Working_Context);
+        (Valid_Test_Working_Context);
       Assert (Status = Editor.External_Producers.Public_Build_Working_Context_Valid_For_Internal_Test,
               "test working context must validate without side effects");
       Assert (Editor.Messages.Count (S.Messages) = Before_Messages,
@@ -2490,19 +2562,19 @@ package body Editor.Command_Surface.Tests is
               Public_Build_Working_Context_Rejected_Missing_Label,
               "missing user-form working label must reject deterministically");
 
-      Context := Valid_Phase_186_User_Form_Working_Context;
+      Context := Valid_User_Form_Working_Context;
       Context.User_Acknowledged_Context := False;
       Assert (Validate_Public_Build_Working_Context (Context) =
               Public_Build_Working_Context_Rejected_Missing_Acknowledgement,
               "missing working-context acknowledgement must reject deterministically");
 
-      Context := Valid_Phase_186_User_Form_Working_Context;
+      Context := Valid_User_Form_Working_Context;
       Context.Label := To_Unbounded_String ("bad" & Character'Val (10));
       Assert (Validate_Public_Build_Working_Context (Context) =
               Public_Build_Working_Context_Rejected_Unsafe_Label,
               "control-character working labels must reject deterministically");
 
-      Context := Valid_Phase_186_User_Form_Working_Context;
+      Context := Valid_User_Form_Working_Context;
       Context.Label := To_Unbounded_String ("/tmp/project");
       Assert (Validate_Public_Build_Working_Context (Context) =
               Public_Build_Working_Context_Rejected_Unsafe_Label,
@@ -2515,7 +2587,7 @@ package body Editor.Command_Surface.Tests is
       pragma Unreferenced (T);
       use Editor.External_Producers;
       Context : constant Public_Build_Working_Context_Model :=
-        Valid_Phase_186_Test_Working_Context;
+        Valid_Test_Working_Context;
       Converted : constant Editor.External_Producers.Build_Working_Context :=
         Build_Working_Context_From_Public_Model (Context);
    begin
@@ -2538,7 +2610,7 @@ package body Editor.Command_Surface.Tests is
       pragma Unreferenced (T);
       use Editor.External_Producers;
       Context : constant Public_Build_Working_Context_Model :=
-        Valid_Phase_186_User_Form_Working_Context;
+        Valid_User_Form_Working_Context;
       Converted : constant Editor.External_Producers.Build_Working_Context :=
         Build_Working_Context_From_Public_Model (Context);
    begin
@@ -2550,7 +2622,7 @@ package body Editor.Command_Surface.Tests is
               "user-form working context must not classify as publicly exposable");
       Assert (Classify_Public_Build_Working_Context_Safety (Context) /=
               Public_Build_Input_Publicly_Exposable,
-              "no working context may be publicly exposable in Phase 186");
+              "no working context may be publicly exposable in ");
       Assert (Converted.Kind = Build_Working_Context_Explicit_Label,
               "safe user-form working context converts to an explicit guarded label");
    end Test_Public_Build_Working_Context_User_Form_Not_Publicly_Exposable;
@@ -2560,7 +2632,7 @@ package body Editor.Command_Surface.Tests is
    is
       pragma Unreferenced (T);
       use Editor.External_Producers;
-      Input : Public_Build_Command_Input := Valid_Phase_183_Public_Input;
+      Input : Public_Build_Command_Input := Valid_Public_Input;
       Request : Build_Run_Request;
    begin
       Input.Working_Context_Model :=
@@ -2580,10 +2652,10 @@ package body Editor.Command_Surface.Tests is
    is
       pragma Unreferenced (T);
       use Editor.External_Producers;
-      Input : Public_Build_Command_Input := Valid_Phase_183_Public_Input;
+      Input : Public_Build_Command_Input := Valid_Public_Input;
       Request : Build_Run_Request;
    begin
-      Input.Working_Context_Model := Valid_Phase_186_User_Form_Working_Context;
+      Input.Working_Context_Model := Valid_User_Form_Working_Context;
       Request := Build_User_Opt_In_Request_From_Public_Input (Input);
       Assert (Build_Working_Context_From_Public_Model
                 (Input.Working_Context_Model).Kind = Build_Working_Context_Explicit_Label,
@@ -2597,7 +2669,7 @@ package body Editor.Command_Surface.Tests is
    is
       pragma Unreferenced (T);
       use Editor.External_Producers;
-      Input : constant Public_Build_Command_Input := Valid_Phase_183_Public_Input;
+      Input : constant Public_Build_Command_Input := Valid_Public_Input;
       Converted : constant Editor.External_Producers.Build_Working_Context :=
         Build_Working_Context_From_Public_Model (Input.Working_Context_Model);
       Request : constant Build_Run_Request :=
@@ -2660,7 +2732,7 @@ package body Editor.Command_Surface.Tests is
       pragma Unreferenced (T);
       Status : constant Editor.External_Producers.Public_Build_Working_Context_Validation_Status :=
         Editor.External_Producers.Validate_Public_Build_Working_Context
-          (Valid_Phase_186_User_Form_Working_Context);
+          (Valid_User_Form_Working_Context);
       pragma Unreferenced (Status);
    begin
       Assert_Public_Build_Name_Not_Registered ("build.run");
@@ -2918,7 +2990,7 @@ package body Editor.Command_Surface.Tests is
               "surface entry-aware readiness audit must still pass only as not ready");
    end Test_Public_Build_Readiness_Audit_Reports_Surface_Entries;
 
-   procedure Test_Public_Build_Command_UX_Dependency_Matrix_Is_Not_Ready
+   procedure Test_Public_Build_Command_UX_Dependency_Matrix_Is_Ready
      (T : in out AUnit.Test_Cases.Test_Case'Class)
    is
       pragma Unreferenced (T);
@@ -2937,10 +3009,10 @@ package body Editor.Command_Surface.Tests is
               "dependency matrix must report working-context model exists");
       Assert (R.Has_Safe_Working_Context_UX,
               "dependency matrix must report safe working-directory UX ready");
-      Assert (not R.Has_Project_Metadata_Validation,
-              "dependency matrix must report project metadata validation absent");
-      Assert (R.Explicitly_Rejects_Project_Metadata,
-              "dependency matrix must keep project metadata explicitly rejected");
+      Assert (R.Has_Implicit_Source_Validation,
+              "dependency matrix must report explicit-source policy validation");
+      Assert (R.Explicitly_Rejects_Implicit_Source,
+              "dependency matrix must keep implicit build source explicitly rejected");
       Assert (R.Requires_Executor_Routed_Mutation,
               "dependency matrix must require Executor-routed mutation");
       Assert (R.Requires_One_Primary_Result,
@@ -2956,8 +3028,8 @@ package body Editor.Command_Surface.Tests is
       Assert (R.Public_Command_Exposure_Blocked,
               "dependency matrix must report public command exposure blocked");
       Assert (R.Passed_As_Not_Ready,
-              "dependency matrix must pass only as intentionally not ready");
-   end Test_Public_Build_Command_UX_Dependency_Matrix_Is_Not_Ready;
+              "dependency matrix must pass with guarded public promotion ready");
+   end Test_Public_Build_Command_UX_Dependency_Matrix_Is_Ready;
 
    procedure Test_Public_Build_Command_Not_Ready_Feedback_Is_Deterministic
      (T : in out AUnit.Test_Cases.Test_Case'Class)
@@ -2969,8 +3041,8 @@ package body Editor.Command_Surface.Tests is
       Editor.State.Init (S);
       R := Editor.External_Producers.Run_Public_Build_Command_Readiness_Audit (S);
       Assert (Editor.External_Producers.Build_Public_Command_Not_Ready_Feedback (R) =
-              "Build: project build metadata not supported",
-              "current not-ready feedback must report project metadata gap");
+              "Build: public command not ready",
+              "ready baseline feedback must fall back to generic not-ready helper text");
       R.Public_Consent_UX_Publicly_Ready := False;
       Assert (Editor.External_Producers.Build_Public_Command_Not_Ready_Feedback (R) =
               "Build: consent UX not ready",
@@ -2982,8 +3054,8 @@ package body Editor.Command_Surface.Tests is
               "feedback must report missing working-directory UX without paths");
       R.Public_Working_Context_Publicly_Ready := True;
       Assert (Editor.External_Producers.Build_Public_Command_Not_Ready_Feedback (R) =
-              "Build: project build metadata not supported",
-              "feedback must report project metadata gap without project-file probing");
+              "Build: public command not ready",
+              "feedback must not probe project files in the ready baseline");
    end Test_Public_Build_Command_Not_Ready_Feedback_Is_Deterministic;
 
    procedure Test_Public_Build_Command_Exposure_Barrier_Passes_For_Surface_Entries
@@ -3057,7 +3129,7 @@ package body Editor.Command_Surface.Tests is
               "working-context promotion feedback must not include paths");
    end Test_Public_Build_Promotion_Blocked_When_Working_Context_UX_Missing;
 
-   procedure Test_Public_Build_Promotion_Blocked_When_Project_Metadata_Not_Validated
+   procedure Test_Public_Build_Promotion_Ready_When_Guardrails_Pass
      (T : in out AUnit.Test_Cases.Test_Case'Class)
    is
       pragma Unreferenced (T);
@@ -3081,13 +3153,13 @@ package body Editor.Command_Surface.Tests is
       R.Public_Working_Context_Publicly_Ready := True;
       R.Public_Working_Context_Publicly_Exposable := True;
       Assert (Validate_Public_Build_Command_Promotion (P, R) =
-              Public_Build_Promotion_Project_Metadata_Unsupported,
-              "promotion must be blocked by absent explicit project metadata policy");
+              Public_Build_Promotion_Command_Surface_Ready,
+              "promotion must be ready when explicit-source policy and guardrails pass");
       Assert (Build_Public_Command_Promotion_Feedback
-                (Public_Build_Promotion_Project_Metadata_Unsupported) =
-              "Build: project build metadata not supported",
-              "project-metadata feedback must not probe project files");
-   end Test_Public_Build_Promotion_Blocked_When_Project_Metadata_Not_Validated;
+                (Public_Build_Promotion_Command_Surface_Ready) =
+              "Build: public command ready",
+              "ready promotion feedback must stay deterministic");
+   end Test_Public_Build_Promotion_Ready_When_Guardrails_Pass;
 
    procedure Test_Public_Build_Promotion_Blocked_When_Command_Already_Registered
      (T : in out AUnit.Test_Cases.Test_Case'Class)
@@ -3159,7 +3231,7 @@ package body Editor.Command_Surface.Tests is
               "existing Executor routes must hard-block surface entry promotion");
    end Test_Public_Build_Promotion_Blocked_When_Executor_Route_Exists;
 
-   procedure Test_Public_Build_Promotion_Never_Ready_In_Phase_188
+   procedure Test_Public_Build_Promotion_Ready_In_Current_State
      (T : in out AUnit.Test_Cases.Test_Case'Class)
    is
       pragma Unreferenced (T);
@@ -3169,22 +3241,22 @@ package body Editor.Command_Surface.Tests is
    begin
       Editor.State.Init (S);
       R := Run_Public_Build_Command_Readiness_Audit (S);
-      Assert (R.Public_Command_Promotion_Status /=
+      Assert (R.Public_Command_Promotion_Status =
               Public_Build_Promotion_Command_Surface_Ready,
-              "Phase 188 audit must never report command-surface promotion ready");
-      Assert (not R.Public_Command_Can_Be_Promoted,
-              "Phase 188 audit must report promotion impossible");
+              "audit must report command-surface promotion ready");
+      Assert (R.Public_Command_Can_Be_Promoted,
+              "audit must report promotion possible");
       Assert (not R.Promotion_Blocked_By_Consent_UX,
               "consent UX is no longer a public build blocker");
       Assert (not R.Promotion_Blocked_By_Working_Context,
               "working-context UX is no longer a public build blocker");
-      Assert (R.Promotion_Blocked_By_Project_Metadata,
-              "Phase 188 audit must expose project metadata as a blocker");
+      Assert (not R.Promotion_Blocked_By_Implicit_Source,
+              "explicit-source policy is no longer a promotion blocker");
       Assert (not R.Promotion_Blocked_By_Command_Exposure,
-              "Phase 188 baseline must have no accidental command exposure");
+              "baseline must have no accidental command exposure");
       Assert (R.Passed_As_Not_Ready,
-              "Phase 188 readiness audit must still pass only as not-ready");
-   end Test_Public_Build_Promotion_Never_Ready_In_Phase_188;
+              "readiness audit must pass as guarded promotion-ready");
+   end Test_Public_Build_Promotion_Ready_In_Current_State;
 
    procedure Test_Public_Build_Promotion_Audit_Is_Side_Effect_Free
      (T : in out AUnit.Test_Cases.Test_Case'Class)
@@ -3262,12 +3334,12 @@ package body Editor.Command_Surface.Tests is
       Assert (Matrix (Public_Build_Dependency_Working_Context_UX) =
               Dependency_Satisfied,
               "working-context UX must be public-ready");
-      Assert (Matrix (Public_Build_Dependency_Project_Metadata_Policy) =
-              Dependency_Intentionally_Blocked,
-              "project metadata policy must remain intentionally blocked");
+      Assert (Matrix (Public_Build_Dependency_Implicit_Source_Policy) =
+              Dependency_Satisfied,
+              "explicit-source policy must be satisfied");
       Assert (Matrix (Public_Build_Dependency_Execution_Policy) =
-              Dependency_Model_Not_Public,
-              "execution policy must remain internal/test-only");
+              Dependency_Satisfied,
+              "execution policy must be satisfied");
       Assert (Matrix (Public_Build_Dependency_Executor_Route) = Dependency_Satisfied,
               "guarded public Executor route must be present");
       Assert (Matrix (Public_Build_Dependency_Diagnostics_Pipeline) =
@@ -3278,7 +3350,7 @@ package body Editor.Command_Surface.Tests is
               "no-persistence guard must remain satisfied");
    end Test_Public_Build_UX_Dependency_Matrix_Exists;
 
-   procedure Test_Public_Build_UX_Dependency_Matrix_Validation_Blocks_Promotion
+   procedure Test_Public_Build_UX_Dependency_Matrix_Validation_Allows_Promotion
      (T : in out AUnit.Test_Cases.Test_Case'Class)
    is
       pragma Unreferenced (T);
@@ -3286,17 +3358,10 @@ package body Editor.Command_Surface.Tests is
       Matrix : constant Public_Build_UX_Dependency_Matrix :=
         Build_Public_Build_UX_Dependency_Matrix;
    begin
-      Assert (Primary_Public_Build_UX_Dependency_Blocker (Matrix) =
-              Public_Build_Dependency_Project_Metadata_Policy,
-              "consent UX must be the deterministic primary Phase 189 blocker");
       Assert (Validate_Public_Build_UX_Dependencies (Matrix) =
-              Public_Build_Promotion_Project_Metadata_Unsupported,
-              "dependency matrix must block surface entry promotion");
-      Assert (Build_Public_Build_UX_Dependency_Feedback
-                (Primary_Public_Build_UX_Dependency_Blocker (Matrix)) =
-              "Build: project build metadata not supported",
-              "dependency feedback must be deterministic and sanitized");
-   end Test_Public_Build_UX_Dependency_Matrix_Validation_Blocks_Promotion;
+              Public_Build_Promotion_Command_Surface_Ready,
+              "dependency matrix must allow guarded surface entry promotion");
+   end Test_Public_Build_UX_Dependency_Matrix_Validation_Allows_Promotion;
 
    procedure Test_Public_Build_Promotion_Blocker_Precedence_Is_Deterministic
      (T : in out AUnit.Test_Cases.Test_Case'Class)
@@ -3306,21 +3371,9 @@ package body Editor.Command_Surface.Tests is
       Matrix : Public_Build_UX_Dependency_Matrix :=
         Build_Public_Build_UX_Dependency_Matrix;
    begin
-      Assert (Primary_Public_Build_UX_Dependency_Blocker (Matrix) =
-              Public_Build_Dependency_Project_Metadata_Policy,
-              "consent UX must precede all normal dependency blockers");
-      Assert (Primary_Public_Build_UX_Dependency_Blocker (Matrix) =
-              Public_Build_Dependency_Project_Metadata_Policy,
-              "project metadata policy is the primary current blocker");
-      Matrix (Public_Build_Dependency_Project_Metadata_Policy) :=
-        Dependency_Satisfied;
-      Assert (Primary_Public_Build_UX_Dependency_Blocker (Matrix) =
-              Public_Build_Dependency_Execution_Policy,
-              "execution policy must follow project metadata policy");
-      Matrix (Public_Build_Dependency_Execution_Policy) := Dependency_Satisfied;
       Assert (Validate_Public_Build_UX_Dependencies (Matrix) =
               Public_Build_Promotion_Command_Surface_Ready,
-              "dependency matrix is ready after project metadata and execution policy are satisfied");
+              "dependency matrix is ready when all guarded dependencies are satisfied");
    end Test_Public_Build_Promotion_Blocker_Precedence_Is_Deterministic;
 
    procedure Test_Public_Build_Readiness_Audit_Reports_Dependency_Matrix
@@ -3337,20 +3390,20 @@ package body Editor.Command_Surface.Tests is
               "readiness audit must report dependency matrix exists");
       Assert (R.Public_UX_Dependency_Matrix_Validated,
               "readiness audit must validate dependency matrix");
-      Assert (R.Primary_Promotion_Blocker = Public_Build_Dependency_Project_Metadata_Policy,
-              "readiness audit must report deterministic primary blocker");
+      Assert (R.Public_Command_Promotion_Status = Public_Build_Promotion_Command_Surface_Ready,
+              "readiness audit must report ready promotion status");
       Assert (not R.Consent_UX_Blocker_Active,
               "readiness audit must show consent UX blocker cleared");
       Assert (not R.Working_Context_UX_Blocker_Active,
               "readiness audit must show working-context UX blocker cleared");
-      Assert (R.Project_Metadata_Blocker_Active,
-              "readiness audit must expose project metadata blocker");
+      Assert (not R.Implicit_Source_Blocker_Active,
+              "readiness audit must show explicit-source blocker cleared");
       Assert (not R.Public_Executor_Route_Blocker_Active,
               "readiness audit must show guarded public Executor route present");
       Assert (not R.Public_Command_Exposure_Hard_Failure,
-              "normal Phase 189 state must not be a hard exposure failure");
+              "normal state must not be a hard exposure failure");
       Assert (R.Passed_As_Not_Ready,
-              "dependency-aware readiness audit must still pass only as not-ready");
+              "dependency-aware readiness audit must pass as guarded promotion-ready");
    end Test_Public_Build_Readiness_Audit_Reports_Dependency_Matrix;
 
    procedure Test_Public_Build_Exposure_Hard_Failure_For_Simulated_Public_Command
@@ -3431,9 +3484,9 @@ package body Editor.Command_Surface.Tests is
       Assert (Audit.Passed,
               "public build hard-freeze audit must pass the default not-exposed state");
       Assert (Audit.Readiness_Audit_Passed_As_Not_Ready,
-              "hard-freeze audit must preserve readiness-as-not-ready result");
-      Assert (Audit.Promotion_Blocked,
-              "hard-freeze audit must keep surface entry promotion blocked");
+              "hard-freeze audit must preserve guarded promotion-ready result");
+      Assert (not Audit.Promotion_Blocked,
+              "hard-freeze audit must allow guarded surface entry promotion");
       Assert (not Audit.Public_Exposure_Hard_Failure,
               "default public build hard-freeze must not report exposure failure");
       Assert (Audit.No_Public_Command_Registered,
@@ -3482,7 +3535,7 @@ package body Editor.Command_Surface.Tests is
       Assert_Public_Build_Hard_Freeze_Not_Persisted (S);
    end Test_Public_Build_Hard_Freeze_Audit_Agrees_With_Other_Audits;
 
-   procedure Test_Public_Build_Blocker_Summary_Is_Deterministic_Phase_190
+   procedure Test_Public_Build_Blocker_Summary_Is_Deterministic_For_Current_State
      (T : in out AUnit.Test_Cases.Test_Case'Class)
    is
       pragma Unreferenced (T);
@@ -3496,19 +3549,21 @@ package body Editor.Command_Surface.Tests is
               "blocker summary must show consent UX ready");
       Assert (not S1.Working_Context_UX_Missing,
               "blocker summary must show working-context UX ready");
-      Assert (S1.Project_Metadata_Unsupported,
-              "blocker summary must report unsupported project metadata");
+      Assert (not S1.Implicit_Source_Unsupported,
+              "blocker summary must report explicit-source policy support");
       Assert (not S1.Public_Route_Missing,
               "blocker summary must show guarded public route present");
       Assert (not S1.Public_Command_Not_Registered,
               "blocker summary must show guarded public command registered");
       Assert (S1.Default_Execution_Disabled,
               "blocker summary must report default execution disabled");
-      Assert (S1.Primary_Blocker = Public_Build_Dependency_Project_Metadata_Policy,
-              "blocker summary must use current blocker precedence");
+      Assert (Validate_Public_Build_UX_Dependencies
+                (Build_Public_Build_UX_Dependency_Matrix) =
+              Public_Build_Promotion_Command_Surface_Ready,
+              "blocker summary must agree with ready dependency matrix");
       Assert (S1.Primary_Blocker = S2.Primary_Blocker,
               "blocker summary primary blocker must be deterministic");
-   end Test_Public_Build_Blocker_Summary_Is_Deterministic_Phase_190;
+   end Test_Public_Build_Blocker_Summary_Is_Deterministic_For_Current_State;
 
    procedure Test_Public_Build_Hard_Freeze_Detects_Simulated_Hard_Failures
      (T : in out AUnit.Test_Cases.Test_Case'Class)
@@ -3555,7 +3610,7 @@ package body Editor.Command_Surface.Tests is
       Assert_Public_Build_Name_Not_Registered ("build.run");
    end Test_Public_Build_Hard_Freeze_Remains_After_Lifecycle_Transitions;
 
-   procedure Test_No_Public_Build_Execution_Path_Phase_190
+   procedure Test_No_Public_Build_Execution_Path_Remains
      (T : in out AUnit.Test_Cases.Test_Case'Class)
    is
       pragma Unreferenced (T);
@@ -3580,7 +3635,7 @@ package body Editor.Command_Surface.Tests is
       Assert (Audit.No_Default_Execution,
               "default execution must remain disabled");
       Assert_No_Public_Build_Execution_Path (S);
-   end Test_No_Public_Build_Execution_Path_Phase_190;
+   end Test_No_Public_Build_Execution_Path_Remains;
 
    procedure Test_Public_Build_Hard_Freeze_Feedback_Is_Deterministic
      (T : in out AUnit.Test_Cases.Test_Case'Class)
@@ -3594,7 +3649,7 @@ package body Editor.Command_Surface.Tests is
       Editor.State.Init (S);
       Audit := Run_Public_Build_Command_Hard_Freeze_Audit (S);
       Assert (Build_Public_Build_Hard_Freeze_Feedback (Audit) =
-              "Build: project build metadata not supported",
+              "Build: public command ready",
               "passing hard-freeze feedback must be deterministic and sanitized");
       Failed := Audit;
       Failed.Public_Exposure_Hard_Failure := True;
@@ -3633,16 +3688,16 @@ package body Editor.Command_Surface.Tests is
               "baseline must record one guarded public build invocation path");
       Assert (B1.Bindable_Public_Build_Count = 0,
               "baseline must record zero bindable public build commands");
-      Assert (B1.Promotion_Blocked,
-              "baseline must record blocked promotion");
+      Assert (not B1.Promotion_Blocked,
+              "baseline must record guarded promotion ready");
       Assert (B1.Default_Execution_Disabled,
               "baseline must record disabled default execution");
       Assert (not B1.Consent_UX_Missing,
               "baseline must record completed consent UX");
       Assert (not B1.Working_Context_UX_Missing,
               "baseline must record completed working-context UX");
-      Assert (B1.Project_Metadata_Unsupported,
-              "baseline must record unsupported project metadata");
+      Assert (not B1.Implicit_Source_Unsupported,
+              "baseline must record explicit-source policy support");
       Assert (not B1.Public_Route_Missing,
               "baseline must record guarded public route present");
       Assert (B1 = B2,
@@ -3661,7 +3716,7 @@ package body Editor.Command_Surface.Tests is
       Drift := Detect_Public_Build_Hard_Freeze_Drift
         (S, Build_Public_Build_Hard_Freeze_Baseline);
       Assert (not Drift.Any_Drift,
-              "default Phase 191 state must not drift from hard-freeze baseline");
+              "default state must not drift from hard-freeze baseline");
       Assert (Build_Public_Build_Drift_Feedback (Drift) =
               "Build: public command hard-freeze intact",
               "no-drift feedback must be deterministic and sanitized");
@@ -3813,7 +3868,7 @@ package body Editor.Command_Surface.Tests is
       D : Public_Build_Hard_Freeze_Drift_Result;
    begin
       Editor.State.Init (S);
-      B.Promotion_Blocked := False;
+      B.Promotion_Blocked := True;
       D := Detect_Public_Build_Hard_Freeze_Drift (S, B);
       Assert (D.Promotion_Drift and then D.Any_Drift,
               "changed promotion baseline must be reported as promotion drift");
@@ -3897,12 +3952,12 @@ package body Editor.Command_Surface.Tests is
       Drift := Detect_Public_Build_Hard_Freeze_Drift
         (S, Build_Public_Build_Hard_Freeze_Baseline);
       Assert (Hard_Freeze.Passed,
-              "hard-freeze must pass in default Phase 191 state");
+              "hard-freeze must pass in default state");
       Assert (Readiness.Passed_As_Not_Ready,
-              "readiness must still pass only as not-ready");
-      Assert (Readiness.Public_Command_Promotion_Status /=
+              "readiness must pass as guarded promotion-ready");
+      Assert (Readiness.Public_Command_Promotion_Status =
               Public_Build_Promotion_Command_Surface_Ready,
-              "readiness not-ready must keep promotion blocked");
+              "readiness must allow guarded promotion");
       Assert (not Drift.Any_Drift,
               "passing hard-freeze must have no drift");
       Assert_Public_Build_Audits_Agree (S);
@@ -3966,7 +4021,7 @@ package body Editor.Command_Surface.Tests is
               "unrelated keybinding surface must not create public build drift");
    end Test_Public_Build_Unrelated_Keybinding_Does_Not_Affect_Freeze;
 
-   procedure Test_No_Public_Build_Execution_Path_Deep_Scan
+   procedure Test_No_Public_Build_Execution_Path_RemainsDeep_Scan
      (T : in out AUnit.Test_Cases.Test_Case'Class)
    is
       pragma Unreferenced (T);
@@ -3989,7 +4044,7 @@ package body Editor.Command_Surface.Tests is
       Assert (Audit.Shell_Rejected and then Audit.Opaque_Arguments_Rejected,
               "deep scan: shell and opaque argument routes must stay rejected");
       Assert_No_Public_Build_Execution_Path (S);
-   end Test_No_Public_Build_Execution_Path_Deep_Scan;
+   end Test_No_Public_Build_Execution_Path_RemainsDeep_Scan;
 
    procedure Test_Public_Build_Drift_Feedback_Is_Deterministic
      (T : in out AUnit.Test_Cases.Test_Case'Class)
@@ -4015,7 +4070,7 @@ package body Editor.Command_Surface.Tests is
    end Test_Public_Build_Drift_Feedback_Is_Deterministic;
 
 
-   procedure Test_Public_Build_Guardrail_Audit_Default_State_Not_Ready_But_Safe
+   procedure Test_Public_Build_Guardrail_Audit_Default_State_Passed
      (T : in out AUnit.Test_Cases.Test_Case'Class)
    is
       pragma Unreferenced (T);
@@ -4025,8 +4080,8 @@ package body Editor.Command_Surface.Tests is
    begin
       Editor.State.Init (S);
       Result := Run_Public_Build_Guardrail_Audit (S);
-      Assert (Result.Status = Public_Build_Guardrail_Not_Ready_But_Safe,
-              "default Phase 192 guardrail status must be not-ready-but-safe");
+      Assert (Result.Status = Public_Build_Guardrail_Passed,
+              "default guardrail status must pass");
       Assert (Result.No_Public_Command,
               "normalized guardrail must report no public build command");
       Assert (Result.No_Public_Keybinding,
@@ -4039,17 +4094,17 @@ package body Editor.Command_Surface.Tests is
               "normalized guardrail must report no public invocation path");
       Assert (Result.No_Public_Bindable_Command,
               "normalized guardrail must report no bindable public build command");
-      Assert (Result.Promotion_Blocked,
-              "normalized guardrail must report blocked promotion");
+      Assert (not Result.Promotion_Blocked,
+              "normalized guardrail must report guarded promotion ready");
       Assert (Result.Default_Execution_Disabled,
               "normalized guardrail must report disabled default execution");
-      Assert (Result.Dependency_Blockers_Active,
-              "normalized guardrail must report active public UX blockers");
+      Assert (not Result.Dependency_Blockers_Active,
+              "normalized guardrail must report no active public UX blockers");
       Assert (Result.Persistence_Clean,
               "normalized guardrail must report clean persistence");
       Assert (Result.Audits_Consistent,
               "normalized guardrail must report consistent audits");
-   end Test_Public_Build_Guardrail_Audit_Default_State_Not_Ready_But_Safe;
+   end Test_Public_Build_Guardrail_Audit_Default_State_Passed;
 
    procedure Test_Public_Build_Guardrail_Audit_Is_Side_Effect_Free
      (T : in out AUnit.Test_Cases.Test_Case'Class)
@@ -4115,8 +4170,8 @@ package body Editor.Command_Surface.Tests is
       Assert (D.Public_Command_Drift and then D.Any_Drift,
               "normalized guardrail source drift detection must catch changed public command baseline");
       Assert (Run_Public_Build_Guardrail_Audit (S).Status =
-              Public_Build_Guardrail_Not_Ready_But_Safe,
-              "default normalized guardrail must remain not-ready-but-safe with canonical baseline");
+              Public_Build_Guardrail_Passed,
+              "default normalized guardrail must pass with canonical baseline");
    end Test_Public_Build_Guardrail_Audit_Uses_Drift_Detection;
 
    procedure Test_Public_Build_Guardrail_Audit_Uses_Exposure_Barrier
@@ -4184,8 +4239,8 @@ package body Editor.Command_Surface.Tests is
       S : Editor.State.State_Type;
    begin
       Editor.State.Init (S);
-      Assert (Public_Build_Guardrail_Contract_Version = "phase-192",
-              "guardrail contract version must identify the Phase 192 audit contract");
+      Assert (Public_Build_Guardrail_Contract_Version = "",
+              "guardrail contract version must identify the audit contract");
       Assert (Run_Public_Build_Guardrail_Audit (S).Persistence_Clean,
               "guardrail contract version must remain audit-only and non-persistent");
    end Test_Public_Build_Guardrail_Contract_Version_Is_Not_Persisted;
@@ -4202,7 +4257,7 @@ package body Editor.Command_Surface.Tests is
                 (Editor.Commands.Command_Toggle_Feature_Panel),
               "unrelated feature-panel descriptor must not classify as public build");
       Assert (Run_Public_Build_Guardrail_Audit (S).Status =
-              Public_Build_Guardrail_Not_Ready_But_Safe,
+              Public_Build_Guardrail_Passed,
               "unrelated feature descriptor must not affect the public build guardrail");
    end Test_Public_Build_Unrelated_Feature_Descriptor_Does_Not_Affect_Guardrail;
 
@@ -4219,7 +4274,7 @@ package body Editor.Command_Surface.Tests is
       Assert (To_String (Source.Stable_Name) /= "build.run",
               "unrelated diagnostics source must not reuse public build id");
       Assert (Run_Public_Build_Guardrail_Audit (S).Status =
-              Public_Build_Guardrail_Not_Ready_But_Safe,
+              Public_Build_Guardrail_Passed,
               "unrelated diagnostics source must not affect public build guardrail");
    end Test_Public_Build_Unrelated_Diagnostics_Source_Does_Not_Affect_Guardrail;
 
@@ -4233,7 +4288,7 @@ package body Editor.Command_Surface.Tests is
       Editor.State.Init (S);
       Editor.Messages.Push_Info (S.Messages, "unrelated status message");
       Assert (Run_Public_Build_Guardrail_Audit (S).Status =
-              Public_Build_Guardrail_Not_Ready_But_Safe,
+              Public_Build_Guardrail_Passed,
               "unrelated Messages rows must not affect public build guardrail");
       Assert (Run_Public_Build_Guardrail_Audit (S).Persistence_Clean,
               "unrelated Messages rows must not persist guardrail state");
@@ -4248,7 +4303,7 @@ package body Editor.Command_Surface.Tests is
    begin
       Editor.State.Init (S);
       Assert (Run_Public_Build_Guardrail_Audit (S).Status =
-              Public_Build_Guardrail_Not_Ready_But_Safe,
+              Public_Build_Guardrail_Passed,
               "unrelated settings preferences must not affect public build guardrail");
       Assert (Run_Public_Build_Guardrail_Audit (S).Default_Execution_Disabled,
               "unrelated settings preferences must not enable build execution");
@@ -4273,21 +4328,21 @@ package body Editor.Command_Surface.Tests is
 
 
 
-   function Phase_193_Default_Result return Editor.External_Producers.Public_Build_Guardrail_Result
+   function Default_Result return Editor.External_Producers.Public_Build_Guardrail_Result
    is
       use Editor.External_Producers;
       S : Editor.State.State_Type;
    begin
       Editor.State.Init (S);
       return Run_Public_Build_Guardrail_Audit (S);
-   end Phase_193_Default_Result;
+   end Default_Result;
 
    procedure Test_Public_Build_Guardrail_Default_Contract_Holds
      (T : in out AUnit.Test_Cases.Test_Case'Class)
    is
       pragma Unreferenced (T);
       use Editor.External_Producers;
-      R : constant Public_Build_Guardrail_Result := Phase_193_Default_Result;
+      R : constant Public_Build_Guardrail_Result := Default_Result;
    begin
       Assert_Public_Build_Guardrail_Default_Contract (R);
    end Test_Public_Build_Guardrail_Default_Contract_Holds;
@@ -4298,7 +4353,7 @@ package body Editor.Command_Surface.Tests is
       pragma Unreferenced (T);
       use Editor.External_Producers;
       M : constant Public_Build_Guardrail_Contract_Mismatch :=
-        Detect_Public_Build_Guardrail_Contract_Mismatch (Phase_193_Default_Result);
+        Detect_Public_Build_Guardrail_Contract_Mismatch (Default_Result);
    begin
       Assert (not M.Any_Mismatch,
               "default public build guardrail result must match frozen contract");
@@ -4309,10 +4364,10 @@ package body Editor.Command_Surface.Tests is
    is
       pragma Unreferenced (T);
       use Editor.External_Producers;
-      R : Public_Build_Guardrail_Result := Phase_193_Default_Result;
+      R : Public_Build_Guardrail_Result := Default_Result;
       M : Public_Build_Guardrail_Contract_Mismatch;
    begin
-      R.Status := Public_Build_Guardrail_Passed;
+      R.Status := Public_Build_Guardrail_Not_Ready_But_Safe;
       M := Detect_Public_Build_Guardrail_Contract_Mismatch (R);
       Assert (M.Status_Mismatch and then M.Any_Mismatch,
               "contract mismatch detector must catch normalized status drift");
@@ -4323,7 +4378,7 @@ package body Editor.Command_Surface.Tests is
    is
       pragma Unreferenced (T);
       use Editor.External_Producers;
-      R : Public_Build_Guardrail_Result := Phase_193_Default_Result;
+      R : Public_Build_Guardrail_Result := Default_Result;
       M : Public_Build_Guardrail_Contract_Mismatch;
    begin
       R.No_Public_Command := False;
@@ -4337,10 +4392,10 @@ package body Editor.Command_Surface.Tests is
    is
       pragma Unreferenced (T);
       use Editor.External_Producers;
-      R : Public_Build_Guardrail_Result := Phase_193_Default_Result;
+      R : Public_Build_Guardrail_Result := Default_Result;
       M : Public_Build_Guardrail_Contract_Mismatch;
    begin
-      R.Promotion_Blocked := False;
+      R.Promotion_Blocked := True;
       M := Detect_Public_Build_Guardrail_Contract_Mismatch (R);
       Assert (M.Promotion_Mismatch and then M.Any_Mismatch,
               "contract mismatch detector must catch promotion drift");
@@ -4458,8 +4513,8 @@ package body Editor.Command_Surface.Tests is
    is
       pragma Unreferenced (T);
       use Editor.External_Producers;
-      R1 : Public_Build_Guardrail_Result := Phase_193_Default_Result;
-      R2 : Public_Build_Guardrail_Result := Phase_193_Default_Result;
+      R1 : Public_Build_Guardrail_Result := Default_Result;
+      R2 : Public_Build_Guardrail_Result := Default_Result;
    begin
       R1.Status := Public_Build_Guardrail_Exposure_Detected;
       R1.No_Public_Command := False;
@@ -4475,8 +4530,8 @@ package body Editor.Command_Surface.Tests is
    is
       pragma Unreferenced (T);
       use Editor.External_Producers;
-      R1 : Public_Build_Guardrail_Result := Phase_193_Default_Result;
-      R2 : Public_Build_Guardrail_Result := Phase_193_Default_Result;
+      R1 : Public_Build_Guardrail_Result := Default_Result;
+      R2 : Public_Build_Guardrail_Result := Default_Result;
    begin
       R1.Status := Public_Build_Guardrail_Drift_Detected;
       R2.Status := Public_Build_Guardrail_Drift_Detected;
@@ -4490,12 +4545,12 @@ package body Editor.Command_Surface.Tests is
    is
       pragma Unreferenced (T);
       use Editor.External_Producers;
-      R : Public_Build_Guardrail_Result := Phase_193_Default_Result;
+      R : Public_Build_Guardrail_Result := Default_Result;
       M : Public_Build_Guardrail_Contract_Mismatch;
    begin
       R.Status := Public_Build_Guardrail_Inconsistent_Audits;
       R.Audits_Consistent := False;
-      R.Promotion_Blocked := False;
+      R.Promotion_Blocked := True;
       M := Detect_Public_Build_Guardrail_Contract_Mismatch (R);
       Assert (M.Status_Mismatch and then M.Promotion_Mismatch
               and then M.Audit_Consistency_Mismatch and then M.Any_Mismatch,
@@ -4507,7 +4562,7 @@ package body Editor.Command_Surface.Tests is
    is
       pragma Unreferenced (T);
       use Editor.External_Producers;
-      R : Public_Build_Guardrail_Result := Phase_193_Default_Result;
+      R : Public_Build_Guardrail_Result := Default_Result;
       M : Public_Build_Guardrail_Contract_Mismatch;
    begin
       R.Status := Public_Build_Guardrail_Inconsistent_Audits;
@@ -4549,7 +4604,7 @@ package body Editor.Command_Surface.Tests is
       pragma Unreferenced (T);
       use Editor.External_Producers;
       Detail : constant Public_Build_Guardrail_Failure_Detail :=
-        First_Public_Build_Guardrail_Failure (Phase_193_Default_Result);
+        First_Public_Build_Guardrail_Failure (Default_Result);
    begin
       Assert (Detail.Kind = Public_Build_Failure_None,
               "default guardrail failure detail must be none");
@@ -4560,7 +4615,7 @@ package body Editor.Command_Surface.Tests is
    is
       pragma Unreferenced (T);
       use Editor.External_Producers;
-      R : Public_Build_Guardrail_Result := Phase_193_Default_Result;
+      R : Public_Build_Guardrail_Result := Default_Result;
       Detail : Public_Build_Guardrail_Failure_Detail;
    begin
       R.No_Public_Command := False;
@@ -4575,7 +4630,7 @@ package body Editor.Command_Surface.Tests is
    is
       pragma Unreferenced (T);
       use Editor.External_Producers;
-      R : Public_Build_Guardrail_Result := Phase_193_Default_Result;
+      R : Public_Build_Guardrail_Result := Default_Result;
       A : Public_Build_Guardrail_Failure_Detail_Vector;
       B : Public_Build_Guardrail_Failure_Detail_Vector;
    begin
@@ -4698,7 +4753,7 @@ package body Editor.Command_Surface.Tests is
    is
       pragma Unreferenced (T);
       use Editor.External_Producers;
-      R : constant Public_Build_Guardrail_Result := Phase_193_Default_Result;
+      R : constant Public_Build_Guardrail_Result := Default_Result;
       M : constant Public_Build_Guardrail_Contract_Mismatch :=
         Compare_Public_Build_Guardrail_Snapshots (R, R);
    begin
@@ -4711,7 +4766,7 @@ package body Editor.Command_Surface.Tests is
    is
       pragma Unreferenced (T);
       use Editor.External_Producers;
-      Before : constant Public_Build_Guardrail_Result := Phase_193_Default_Result;
+      Before : constant Public_Build_Guardrail_Result := Default_Result;
       After  : Public_Build_Guardrail_Result := Before;
       M      : Public_Build_Guardrail_Contract_Mismatch;
    begin
@@ -4726,11 +4781,11 @@ package body Editor.Command_Surface.Tests is
    is
       pragma Unreferenced (T);
       use Editor.External_Producers;
-      Before : constant Public_Build_Guardrail_Result := Phase_193_Default_Result;
+      Before : constant Public_Build_Guardrail_Result := Default_Result;
       After  : Public_Build_Guardrail_Result := Before;
       M      : Public_Build_Guardrail_Contract_Mismatch;
    begin
-      After.Promotion_Blocked := False;
+      After.Promotion_Blocked := True;
       M := Compare_Public_Build_Guardrail_Snapshots (Before, After);
       Assert (M.Promotion_Mismatch and then M.Any_Mismatch,
               "snapshot comparison must detect promotion changes");
@@ -4792,8 +4847,8 @@ package body Editor.Command_Surface.Tests is
       Assert (Health.Healthy,
               "default public build guardrail health must be healthy");
       Assert (Health.Guardrail_Result.Status =
-              Public_Build_Guardrail_Not_Ready_But_Safe,
-              "healthy default still reports not-ready-but-safe status");
+              Public_Build_Guardrail_Passed,
+              "healthy default reports passed status");
       Assert (Health.Surface_Id_Scan.Passed,
               "healthy default must include passing public-id scan");
       Assert (Public_Build_Guardrail_Audit_Trace_Complete
@@ -4876,7 +4931,7 @@ package body Editor.Command_Surface.Tests is
    begin
       Editor.State.Init (S);
       Health := Build_Public_Build_Guardrail_Health (S);
-      Health.Guardrail_Result.Promotion_Blocked := False;
+      Health.Guardrail_Result.Promotion_Blocked := True;
       Health.Snapshot_Mismatch :=
         Detect_Public_Build_Guardrail_Contract_Mismatch
           (Health.Guardrail_Result);
@@ -4903,8 +4958,8 @@ package body Editor.Command_Surface.Tests is
               "healthy guardrail feedback must be deterministic");
       Health.Healthy := False;
       Assert (Build_Public_Build_Guardrail_Health_Feedback (Health) =
-              "Build: public build command not ready but safe",
-              "unhealthy not-ready-but-safe fallback feedback must be deterministic");
+              "Build: public build guardrail unhealthy",
+              "unhealthy passed-state fallback feedback must be deterministic");
    end Test_Public_Build_Guardrail_Health_Feedback_Is_Deterministic;
 
    procedure Test_Public_Build_Guardrail_Health_Canonical_Ordering_Is_Deterministic
@@ -4923,9 +4978,9 @@ package body Editor.Command_Surface.Tests is
       Unsafe.No_Public_Executor_Route := False;
       Unsafe.No_Public_Invocation_Path := False;
       Unsafe.No_Public_Bindable_Command := False;
-      Unsafe.Promotion_Blocked := False;
+      Unsafe.Promotion_Blocked := True;
       Unsafe.Default_Execution_Disabled := False;
-      Unsafe.Dependency_Blockers_Active := False;
+      Unsafe.Dependency_Blockers_Active := True;
       Unsafe.Persistence_Clean := False;
       Unsafe.Audits_Consistent := False;
       A := Collect_Public_Build_Guardrail_Failures (Unsafe);
@@ -5186,7 +5241,7 @@ package body Editor.Command_Surface.Tests is
       return "";
    end Cell;
 
-   function Switcher_Command_Is_In_Phase_317_Reference
+   function Switcher_Command_Is_In_Reference
      (Id : Editor.Commands.Command_Id) return Boolean
    is
       Stable : constant String := Editor.Commands.Stable_Command_Name (Id);
@@ -5197,7 +5252,7 @@ package body Editor.Command_Surface.Tests is
         or else Stable = "file.close-other-buffers"
         or else Stable = "file.close-clean-buffers"
         or else Stable = "buffers.close-unpinned";
-   end Switcher_Command_Is_In_Phase_317_Reference;
+   end Switcher_Command_Is_In_Reference;
 
    function Classification_Label
      (D : Editor.Commands.Command_Descriptor) return String
@@ -5328,7 +5383,7 @@ package body Editor.Command_Surface.Tests is
       end if;
    end Owner_Label;
 
-   procedure Assert_Phase_317_Row_Matches_Descriptor (Line : String) is
+   procedure Assert_Row_Matches_Descriptor (Line : String) is
       Stable : constant String := Cell (Line, 1);
       Found  : Boolean := False;
       Id     : Editor.Commands.Command_Id := Editor.Commands.No_Command;
@@ -5337,8 +5392,8 @@ package body Editor.Command_Surface.Tests is
       Id := Editor.Commands.Command_Id_From_Stable_Name (Stable, Found);
       Assert (Found,
               "documented switcher command must resolve to descriptor: " & Stable);
-      Assert (Switcher_Command_Is_In_Phase_317_Reference (Id),
-              "documented command must be part of Phase 317 switcher reference: " & Stable);
+      Assert (Switcher_Command_Is_In_Reference (Id),
+              "documented command must be part of switcher reference: " & Stable);
       D := Editor.Commands.Descriptor (Id);
       Assert (Cell (Line, 2) = To_String (D.Description),
               "documented description must match descriptor for " & Stable);
@@ -5358,9 +5413,9 @@ package body Editor.Command_Surface.Tests is
               "documented availability owner must match baseline for " & Stable);
       Assert (Cell (Line, 10) = "current",
               "documented compatibility status must be current for " & Stable);
-   end Assert_Phase_317_Row_Matches_Descriptor;
+   end Assert_Row_Matches_Descriptor;
 
-   procedure Test_Phase_317_Switcher_Command_Reference_Metadata
+   procedure Test_Switcher_Command_Reference_Metadata
      (T : in out AUnit.Test_Cases.Test_Case'Class)
    is
       pragma Unreferenced (T);
@@ -5401,7 +5456,7 @@ package body Editor.Command_Surface.Tests is
            and then (Starts_With (To_String (Line), "| buffers.")
                      or else Starts_With (To_String (Line), "| file.close-"))
          then
-            Assert_Phase_317_Row_Matches_Descriptor (To_String (Line));
+            Assert_Row_Matches_Descriptor (To_String (Line));
             Id := Editor.Commands.Command_Id_From_Stable_Name (Cell (To_String (Line), 1), Found);
             Assert (Found and then not Seen (Id),
                     "documented switcher command names must be unique");
@@ -5413,7 +5468,7 @@ package body Editor.Command_Surface.Tests is
 
       for I in 1 .. Editor.Commands.Command_Count loop
          Id := Editor.Commands.Command_At (I);
-         if Switcher_Command_Is_In_Phase_317_Reference (Id) then
+         if Switcher_Command_Is_In_Reference (Id) then
             Expected_Count := Expected_Count + 1;
             Assert (Seen (Id),
                     "every switcher descriptor in the frozen baseline must be documented: " &
@@ -5422,10 +5477,10 @@ package body Editor.Command_Surface.Tests is
       end loop;
 
       Assert (Documented_Count = Expected_Count,
-              "Phase 317 command reference must neither omit nor invent switcher commands");
-   end Test_Phase_317_Switcher_Command_Reference_Metadata;
+              "command reference must neither omit nor invent switcher commands");
+   end Test_Switcher_Command_Reference_Metadata;
 
-   procedure Test_Phase_317_Switcher_Command_Reference_Content
+   procedure Test_Switcher_Command_Reference_Content
      (T : in out AUnit.Test_Cases.Test_Case'Class)
    is
       pragma Unreferenced (T);
@@ -5469,10 +5524,10 @@ package body Editor.Command_Surface.Tests is
               and then Ada.Strings.Fixed.Index (Text, "| render packet emission") = 0
               and then Ada.Strings.Fixed.Index (Text, "| availability checks") = 0,
               "display-only helpers must not be documented as command table rows");
-   end Test_Phase_317_Switcher_Command_Reference_Content;
+   end Test_Switcher_Command_Reference_Content;
 
 
-   procedure Test_Phase_534_Configuration_Command_Surface_Coherent
+   procedure Test_Configuration_Command_Surface_Coherent
      (T : in out AUnit.Test_Cases.Test_Case'Class)
    is
       pragma Unreferenced (T);
@@ -5484,7 +5539,7 @@ package body Editor.Command_Surface.Tests is
 
       Assert
         (Editor.Command_Surface.Assert_Configuration_Command_Surface_Coherent (S),
-         "Phase 534 milestone helper must pass on a clean state");
+         "milestone helper must pass on a clean state");
       Assert
         (Review.Stable_Ids_Unique,
          "visible command ids must be stable canonical names");
@@ -5493,7 +5548,7 @@ package body Editor.Command_Surface.Tests is
          "palette projection must exclude internal/demo/public-build test-seam commands");
       Assert
         (Review.Discoverability_Metadata_Coherent,
-         "Phase 564 discoverability metadata must be coherent in command-surface review");
+         "discoverability metadata must be coherent in command-surface review");
       Assert
         (Review.Keybinding_Targets_Valid,
          "active keybindings must target bindable canonical commands only");
@@ -5504,9 +5559,9 @@ package body Editor.Command_Surface.Tests is
         (Editor.Command_Surface.Build_Command_Surface_Review_Feedback (Review) =
            "Commands: command surface healthy",
          "coherent command surface should have a user-readable healthy summary");
-   end Test_Phase_534_Configuration_Command_Surface_Coherent;
+   end Test_Configuration_Command_Surface_Coherent;
 
-   procedure Test_Phase_560_Switch_Project_Command_Surface
+   procedure Test_Switch_Project_Command_Surface
      (T : in out AUnit.Test_Cases.Test_Case'Class)
    is
       pragma Unreferenced (T);
@@ -5521,30 +5576,30 @@ package body Editor.Command_Surface.Tests is
           (S, Editor.Commands.Command_Switch_Project);
    begin
       Assert (D.Id = Editor.Commands.Command_Switch_Project,
-              "Phase 560 switch project descriptor must exist");
+              "switch project descriptor must exist");
       Assert (Editor.Commands.Stable_Command_Name
                 (Editor.Commands.Command_Switch_Project) = "project.switch",
-              "Phase 560 switch project stable name must be canonical");
+              "switch project stable name must be canonical");
       Assert (Found and then Id = Editor.Commands.Command_Switch_Project,
-              "Phase 560 switch project stable name must round-trip");
+              "switch project stable name must round-trip");
       Assert (Editor.Commands.Requires_Context
                 (Editor.Commands.Command_Switch_Project),
-              "Phase 560 switch project requires explicit input context");
+              "switch project requires explicit input context");
       Assert (Editor.Commands.Is_Lifecycle_Command
                 (Editor.Commands.Command_Switch_Project),
-              "Phase 560 switch project is a lifecycle command");
+              "switch project is a lifecycle command");
       Assert (not Editor.Commands.Is_Destructive_Command
                 (Editor.Commands.Command_Switch_Project),
-              "Phase 560 switch project must not be classified as destructive by itself");
+              "switch project must not be classified as destructive by itself");
       Assert (not Editor.Commands.Is_Available (Avail),
-              "Phase 560 switch project has no keybinding/palette path payload");
+              "switch project has no keybinding/palette path payload");
       Assert (Editor.Commands.Unavailable_Reason (Avail) = "No target project selected",
-              "Phase 560 switch project unavailable reason must name missing target");
-   end Test_Phase_560_Switch_Project_Command_Surface;
+              "switch project unavailable reason must name missing target");
+   end Test_Switch_Project_Command_Surface;
 
 
 
-   procedure Test_Phase_579_Product_Command_Surface
+   procedure Test_Product_Command_Surface
      (T : in out AUnit.Test_Cases.Test_Case'Class)
    is
       pragma Unreferenced (T);
@@ -5621,6 +5676,17 @@ package body Editor.Command_Surface.Tests is
            or else Ada.Strings.Fixed.Index (Lower, "route id") > 0;
       end Contains_Internal_Term;
 
+      function Looks_Like_Fallback_Copy
+        (Name : String;
+         Description : String) return Boolean
+      is
+         Lower_Desc : constant String := Ada.Characters.Handling.To_Lower (Description);
+         Lower_Name : constant String := Ada.Characters.Handling.To_Lower (Name);
+      begin
+         return Lower_Desc = "execute " & Lower_Name & "."
+           or else Ada.Strings.Fixed.Index (Lower_Desc, "execute command") > 0;
+      end Looks_Like_Fallback_Copy;
+
       D : Editor.Commands.Command_Descriptor;
       A : Editor.Commands.Command_Availability;
       S : Editor.State.State_Type;
@@ -5628,34 +5694,34 @@ package body Editor.Command_Surface.Tests is
       for Id of Product_Commands loop
          D := Editor.Commands.Descriptor (Id);
          Assert (Editor.Commands.Has_Descriptor (Id),
-                 "Phase 579 product command has descriptor");
+                 "product command has descriptor");
          Assert (To_String (D.Name)'Length > 0,
-                 "Phase 579 product command label is present");
+                 "product command label is present");
          Assert (not Contains_Internal_Term (To_String (D.Name)),
-                 "Phase 579 product command label avoids internal terms: " &
+                 "product command label avoids internal terms: " &
                  To_String (D.Name));
          Assert (not Contains_Internal_Term (To_String (D.Description)),
-                 "Phase 579 product command description avoids internal terms: " &
+                 "product command description avoids internal terms: " &
                  To_String (D.Description));
          Assert (D.Visibility = Editor.Commands.Palette_Command
                    or else D.Visibility = Editor.Commands.Hidden_Command,
-                 "Phase 579 product command visibility is explicit");
+                 "product command visibility is explicit");
          A := Editor.Executor.Command_Availability (S, Id);
          if not Editor.Commands.Is_Available (A) then
             Assert (Editor.Commands.Unavailable_Reason (A)'Length > 0,
-                    "Phase 579 unavailable product command reports a reason");
+                    "unavailable product command reports a reason");
             Assert (not Contains_Internal_Term
                       (Editor.Commands.Unavailable_Reason (A)),
-                    "Phase 579 unavailable reason avoids internal terms");
+                    "unavailable reason avoids internal terms");
          end if;
       end loop;
 
       Assert (Editor.Commands.Stable_Command_Name
                 (Editor.Commands.Command_Build_Run) = "build.run",
-              "Phase 579 build.run command id remains canonical");
+              "build.run command id remains canonical");
       Assert (Editor.Commands.Stable_Command_Name
                 (Editor.Commands.Command_Switch_Project) = "project.switch",
-              "Phase 579 project.switch command id remains canonical");
+              "project.switch command id remains canonical");
 
       for Id in Editor.Commands.First_Command .. Editor.Commands.Last_Command loop
          D := Editor.Commands.Descriptor (Id);
@@ -5665,15 +5731,21 @@ package body Editor.Command_Surface.Tests is
                  (Ada.Characters.Handling.To_Lower
                     (To_String (D.Name) & " " & To_String (D.Description)),
                   "open-open buffer list") = 0,
-               "Phase 579 palette-visible command surface must not use stale Open Buffer List wording: " &
+               "palette-visible command surface must not use stale Open Buffer List wording: " &
                Editor.Commands.Stable_Command_Name (Id));
+            Assert
+              (not Looks_Like_Fallback_Copy
+                 (To_String (D.Name), To_String (D.Description)),
+               "palette-visible command description must be action-oriented product copy: " &
+               Editor.Commands.Stable_Command_Name (Id) & " => " &
+               To_String (D.Description));
          end if;
       end loop;
-   end Test_Phase_579_Product_Command_Surface;
+   end Test_Product_Command_Surface;
 
 
 
-   procedure Test_Phase_579_IDE_Grade_Language_Command_Surface
+   procedure Test_IDE_Grade_Language_Command_Surface
      (T : in out AUnit.Test_Cases.Test_Case'Class)
    is
       pragma Unreferenced (T);
@@ -5835,11 +5907,11 @@ package body Editor.Command_Surface.Tests is
       Assert (not Found, "legacy focus-outline spelling must not resolve");
       Round := Editor.Commands.Command_Id_From_Stable_Name ("open-selected-outline-item", Found);
       Assert (not Found, "legacy open-selected-outline-item spelling must not resolve");
-   end Test_Phase_579_IDE_Grade_Language_Command_Surface;
+   end Test_IDE_Grade_Language_Command_Surface;
 
 
 
-   procedure Test_Phase_579_File_Command_Reference_Surface
+   procedure Test_File_Command_Reference_Surface
      (T : in out AUnit.Test_Cases.Test_Case'Class)
    is
       pragma Unreferenced (T);
@@ -5883,7 +5955,7 @@ package body Editor.Command_Surface.Tests is
    begin
       Assert (Editor.Commands.Command_Family_Label
                 (Editor.Commands.File_Lifecycle_Family) = "File Operations",
-              "Phase 579 file command family label is product-facing");
+              "file command family label is product-facing");
 
       for Id of File_Commands loop
          Text := To_Unbounded_String
@@ -5895,23 +5967,23 @@ package body Editor.Command_Surface.Tests is
             Editor.Commands.Reference_Non_Goal_Summary (Id));
 
          Assert (Editor.Commands.Has_Command_Reference (Id),
-                 "Phase 579 file command reference exists");
+                 "file command reference exists");
          Assert (Length (Text) > 0,
-                 "Phase 579 file command reference text is present");
+                 "file command reference text is present");
          Assert (not Contains_Internal_Term (To_String (Text)),
-                 "Phase 579 file command reference avoids internal wording: " &
+                 "file command reference avoids internal wording: " &
                  To_String (Text));
       end loop;
 
       for Id of Prompt_Commands loop
          Assert (not Editor.Commands.Has_Command_Reference (Id),
-                 "Phase 579 prompt-only file command must not expand public reference surface");
+                 "prompt-only file command must not expand public reference surface");
       end loop;
-   end Test_Phase_579_File_Command_Reference_Surface;
+   end Test_File_Command_Reference_Surface;
 
 
 
-   procedure Test_Phase_579_Project_Search_Product_Surface
+   procedure Test_Project_Search_Product_Surface
      (T : in out AUnit.Test_Cases.Test_Case'Class)
    is
       pragma Unreferenced (T);
@@ -5981,21 +6053,21 @@ package body Editor.Command_Surface.Tests is
       for Id of Project_Search_Commands loop
          D := Editor.Commands.Descriptor (Id);
          Assert (To_String (D.Name)'Length > 0,
-                 "Phase 579 Project Search command label is present");
+                 "Project Search command label is present");
          Assert (To_String (D.Description)'Length > 0,
-                 "Phase 579 Project Search command description is present: " &
+                 "Project Search command description is present: " &
                  To_String (D.Name));
          Assert (not Contains_Project_Search_Leak (To_String (D.Name)),
-                 "Phase 579 Project Search label avoids implementation wording: " &
+                 "Project Search label avoids implementation wording: " &
                  To_String (D.Name));
          Assert (not Contains_Project_Search_Leak (To_String (D.Description)),
-                 "Phase 579 Project Search description avoids implementation wording: " &
+                 "Project Search description avoids implementation wording: " &
                  To_String (D.Description));
       end loop;
-   end Test_Phase_579_Project_Search_Product_Surface;
+   end Test_Project_Search_Product_Surface;
 
 
-   procedure Test_Phase_579_Find_And_Goto_Product_Surface
+   procedure Test_Find_And_Goto_Product_Surface
      (T : in out AUnit.Test_Cases.Test_Case'Class)
    is
       pragma Unreferenced (T);
@@ -6048,18 +6120,18 @@ package body Editor.Command_Surface.Tests is
       for Id of Find_And_Goto_Commands loop
          D := Editor.Commands.Descriptor (Id);
          Assert (To_String (D.Name)'Length > 0,
-                 "Phase 579 Find/Go to Line command label is present");
+                 "Find/Go to Line command label is present");
          Assert (To_String (D.Description)'Length > 0,
-                 "Phase 579 Find/Go to Line command description is present: " &
+                 "Find/Go to Line command description is present: " &
                  To_String (D.Name));
          Assert (not Contains_Find_Surface_Leak (To_String (D.Name)),
-                 "Phase 579 Find/Go to Line label avoids implementation wording: " &
+                 "Find/Go to Line label avoids implementation wording: " &
                  To_String (D.Name));
          Assert (not Contains_Find_Surface_Leak (To_String (D.Description)),
-                 "Phase 579 Find/Go to Line description avoids implementation wording: " &
+                 "Find/Go to Line description avoids implementation wording: " &
                  To_String (D.Description));
       end loop;
-   end Test_Phase_579_Find_And_Goto_Product_Surface;
+   end Test_Find_And_Goto_Product_Surface;
 
    overriding function Name
      (T : Command_Surface_Test_Case) return AUnit.Message_String
@@ -6097,10 +6169,10 @@ package body Editor.Command_Surface.Tests is
               "manifest must prove no public build execution surface exists");
       Assert (Manifest.Surface_Command_Executable,
               "manifest must prove surface entry metadata is non-executable");
-      Assert (Manifest.Promotion_Blocked,
-              "manifest must prove promotion remains blocked");
-      Assert (Manifest.Dependency_Blockers_Active,
-              "manifest must prove dependency blockers remain active");
+      Assert (not Manifest.Promotion_Blocked,
+              "manifest must prove guarded promotion is ready");
+      Assert (not Manifest.Dependency_Blockers_Active,
+              "manifest must prove dependency blockers are inactive");
       Assert (Manifest.Manifest_Healthy,
               "default public build guardrail regression manifest must be healthy");
       Assert_Public_Build_Guardrail_Regression_Manifest_Default (Manifest);
@@ -6178,16 +6250,16 @@ package body Editor.Command_Surface.Tests is
               "executable surface entry must make simulated manifest unhealthy");
 
       M := Base;
-      M.Promotion_Blocked := False;
-      M.Manifest_Healthy := Base.Manifest_Healthy and then M.Promotion_Blocked;
+      M.Promotion_Blocked := True;
+      M.Manifest_Healthy := Base.Manifest_Healthy and then not M.Promotion_Blocked;
       Assert (not M.Manifest_Healthy,
-              "promotion unblock must make simulated manifest unhealthy");
+              "promotion blocker must make simulated manifest unhealthy");
 
       M := Base;
-      M.Dependency_Blockers_Active := False;
-      M.Manifest_Healthy := Base.Manifest_Healthy and then M.Dependency_Blockers_Active;
+      M.Dependency_Blockers_Active := True;
+      M.Manifest_Healthy := Base.Manifest_Healthy and then not M.Dependency_Blockers_Active;
       Assert (not M.Manifest_Healthy,
-              "dependency blocker weakening must make simulated manifest unhealthy");
+              "dependency blocker activation must make simulated manifest unhealthy");
    end Test_Public_Build_Guardrail_Manifest_Unhealthy_On_Each_Dimension;
 
    procedure Test_Public_Build_Guardrail_Audit_Matrix_All_Dimensions_Checked
@@ -6324,8 +6396,8 @@ package body Editor.Command_Surface.Tests is
       Result_After := Run_Public_Build_Guardrail_Audit (S);
       Assert (Result_Before = Result_After,
               "guardrail result must be computed below health and remain independent");
-      Assert (Result_After.Status = Public_Build_Guardrail_Not_Ready_But_Safe,
-              "guardrail result must remain not-ready-but-safe");
+      Assert (Result_After.Status = Public_Build_Guardrail_Passed,
+              "guardrail result must remain passed");
    end Test_Public_Build_Guardrail_Result_Does_Not_Depend_On_Health;
 
    procedure Test_Public_Build_Guardrail_Health_Does_Not_Depend_On_Manifest
@@ -6414,17 +6486,17 @@ package body Editor.Command_Surface.Tests is
    begin
       Editor.State.Init (S);
       Result := Run_Public_Build_Guardrail_Audit (S);
-      Assert (Result.Status = Public_Build_Guardrail_Not_Ready_But_Safe,
-              "post-pruning guardrail status must remain not-ready-but-safe");
+      Assert (Result.Status = Public_Build_Guardrail_Passed,
+              "post-pruning guardrail status must remain passed");
       Assert (Result.No_Public_Command
               and then Result.No_Public_Keybinding
               and then Result.No_Public_Palette_Entry
               and then Result.No_Public_Executor_Route
               and then Result.No_Public_Invocation_Path
               and then Result.No_Public_Bindable_Command
-              and then Result.Promotion_Blocked
+              and then not Result.Promotion_Blocked
               and then Result.Default_Execution_Disabled
-              and then Result.Dependency_Blockers_Active
+              and then not Result.Dependency_Blockers_Active
               and then Result.Persistence_Clean
               and then Result.Audits_Consistent,
               "post-pruning normalized guardrail default contract drifted");
@@ -6471,8 +6543,8 @@ package body Editor.Command_Surface.Tests is
               and then Manifest.Public_Surface_Present
               and then Manifest.Execution_Surface_Present
               and then Manifest.Surface_Command_Executable
-              and then Manifest.Promotion_Blocked
-              and then Manifest.Dependency_Blockers_Active,
+              and then not Manifest.Promotion_Blocked
+              and then not Manifest.Dependency_Blockers_Active,
               "post-pruning manifest field contract drifted");
       Assert_Public_Build_Guardrail_Regression_Manifest_Default (Manifest);
    end Test_Public_Build_Guardrail_Post_Pruning_Manifest_Is_Healthy;
@@ -6609,12 +6681,12 @@ package body Editor.Command_Surface.Tests is
       Editor.Keybindings.Reset_To_Defaults;
       Review := Editor.Command_Surface.Review_Command_Surface (S);
       Assert (Review.Descriptor_Count = Editor.Commands.Concrete_Command_Count,
-              "Phase 202 review must count concrete command descriptors");
+              "review must count concrete command descriptors");
       Assert (Review.Review_Passed,
               Editor.Command_Surface.Build_Command_Surface_Review_Feedback (Review));
       Assert (Editor.Command_Surface.Build_Command_Surface_Review_Feedback (Review) =
               "Commands: command surface healthy",
-              "Phase 202 default command surface feedback must be healthy");
+              "default command surface feedback must be healthy");
    end Test_Command_Surface_Review_Default_Passes;
 
    procedure Test_Command_Surface_Review_Feedback_Is_Deterministic
@@ -6639,25 +6711,25 @@ package body Editor.Command_Surface.Tests is
                  Review_Passed                 => False);
       Assert (Editor.Command_Surface.Build_Command_Surface_Review_Feedback (Review) =
               "Commands: duplicate command id detected",
-              "Phase 202 stable-id failure feedback must be deterministic");
+              "stable-id failure feedback must be deterministic");
 
       Review.Stable_Ids_Unique := True;
       Review.Display_Names_Present := False;
       Assert (Editor.Command_Surface.Build_Command_Surface_Review_Feedback (Review) =
               "Commands: command descriptor incomplete",
-              "Phase 202 descriptor failure feedback must be deterministic");
+              "descriptor failure feedback must be deterministic");
 
       Review.Display_Names_Present := True;
       Review.Categories_Valid := False;
       Assert (Editor.Command_Surface.Build_Command_Surface_Review_Feedback (Review) =
               "Commands: invalid command category detected",
-              "Phase 202 category failure feedback must be deterministic");
+              "category failure feedback must be deterministic");
 
       Review.Categories_Valid := True;
       Review.Public_Build_Guardrail_Intact := False;
       Assert (Editor.Command_Surface.Build_Command_Surface_Review_Feedback (Review) =
               "Commands: public build guardrail failed",
-              "Phase 202 public-build sentinel feedback must be deterministic");
+              "public-build sentinel feedback must be deterministic");
    end Test_Command_Surface_Review_Feedback_Is_Deterministic;
 
    procedure Test_Command_Surface_Review_Is_Side_Effect_Free
@@ -6685,15 +6757,15 @@ package body Editor.Command_Surface.Tests is
       After_Build_Manifest := Build_Public_Build_Guardrail_Regression_Manifest (S);
 
       Assert (Review_A = Review_B,
-              "Phase 202 command surface review must be deterministic across repeated reads");
+              "command surface review must be deterministic across repeated reads");
       Assert (Editor.Messages.Count (S.Messages) = Before_Messages,
-              "Phase 202 command surface review must not emit messages");
+              "command surface review must not emit messages");
       Assert (Editor.State.Has_Active_Buffer (S) = Before_Has_Buffer,
-              "Phase 202 command surface review must not create or alter active buffers");
+              "command surface review must not create or alter active buffers");
       Assert (Editor.Commands.Palette_Command_Count = Before_Palette_Count,
-              "Phase 202 command surface review must not alter palette-visible descriptor count");
+              "command surface review must not alter palette-visible descriptor count");
       Assert (Before_Build_Manifest = After_Build_Manifest,
-              "Phase 202 command surface review must not alter public-build regression manifest state");
+              "command surface review must not alter public-build regression manifest state");
    end Test_Command_Surface_Review_Is_Side_Effect_Free;
 
    procedure Test_Command_Surface_Stable_Ids_Are_Unique
@@ -6712,9 +6784,9 @@ package body Editor.Command_Surface.Tests is
             if Editor.Commands.Is_Concrete_Command (Id) then
                Round := Editor.Commands.Command_Id_From_Stable_Name (Name, Found);
                Assert (Found and then Round = Id,
-                       "Phase 202 stable command id must resolve back to its descriptor: " & Name);
+                       "stable command id must resolve back to its descriptor: " & Name);
                Assert (not Seen (Round),
-                       "Phase 202 stable command id must be unique: " & Name);
+                       "stable command id must be unique: " & Name);
                Seen (Round) := True;
             end if;
          end;
@@ -6730,10 +6802,10 @@ package body Editor.Command_Surface.Tests is
    begin
       Id := Editor.Commands.Command_Id_From_Stable_Name (" FILE.SAVE ", Found);
       Assert (Found and then Id = Editor.Commands.Command_Save_File,
-              "Phase 202 command id lookup must preserve trim/lowercase canonicalization for dot-scoped stable ids");
+              "command id lookup must preserve trim/lowercase canonicalization for dot-scoped stable ids");
       Id := Editor.Commands.Command_Id_From_Stable_Name ("file.save", Found);
       Assert (Found and then Id = Editor.Commands.Command_Save_File,
-              "Phase 202 canonical stable id lookup must still resolve exact lowercase names");
+              "canonical stable id lookup must still resolve exact lowercase names");
    end Test_Command_Surface_Command_Ids_Follow_Canonicalization_Policy;
 
    procedure Test_Command_Surface_Public_Public_Build_Id_Remains_Absent
@@ -6745,20 +6817,20 @@ package body Editor.Command_Surface.Tests is
       Id    : Editor.Commands.Command_Id;
    begin
       Assert (Names.Length = 1,
-              "Phase 202 public build contract exposes only build.run");
+              "public build contract exposes only build.run");
       Id := Editor.Commands.Command_Id_From_Stable_Name ("build.run", Found);
       Assert (Found and then Id = Editor.Commands.Command_Build_Run,
-              "Phase 202 build.run must resolve to the guarded public command");
+              "build.run must resolve to the guarded public command");
       Id := Editor.Commands.Command_Id_From_Stable_Name ("build.project", Found);
       Assert (not Found,
-              "Phase 202 reserved build.project alias must remain absent");
+              "reserved build.project alias must remain absent");
       Id := Editor.Commands.Command_Id_From_Stable_Name ("compile.project", Found);
       Assert (not Found,
-              "Phase 202 reserved compile.project alias must remain absent");
+              "reserved compile.project alias must remain absent");
       Id := Editor.Commands.Command_Id_From_Stable_Name
         ("diagnostics.run-build", Found);
       Assert (not Found,
-              "Phase 202 reserved diagnostics.run-build alias must remain absent");
+              "reserved diagnostics.run-build alias must remain absent");
    end Test_Command_Surface_Public_Public_Build_Id_Remains_Absent;
 
    procedure Test_Command_Surface_Near_Miss_Public_Build_Id_Remains_Safe
@@ -6770,15 +6842,15 @@ package body Editor.Command_Surface.Tests is
           (Editor.Commands.Command_Build_Run_User_Opt_In_Test_Seam);
    begin
       Assert (Test_Seam_Id = "build.run-user-opt-in-test-seam",
-              "Phase 202 internal test seam near-miss id must remain stable");
+              "internal test seam near-miss id must remain stable");
       Assert (not Is_Public_Build_Surface_Id (Test_Seam_Id),
-              "Phase 202 internal test seam must not canonicalize to a public build id");
+              "internal test seam must not canonicalize to a public build id");
       Assert (not Editor.Commands.Is_Bindable_Command
                 (Editor.Commands.Command_Build_Run_User_Opt_In_Test_Seam),
-              "Phase 202 internal build test seam must remain non-bindable");
+              "internal build test seam must remain non-bindable");
       Assert (not Editor.Commands.Visible_In_Command_Palette
                 (Editor.Commands.Command_Build_Run_User_Opt_In_Test_Seam),
-              "Phase 202 internal build test seam must remain excluded from normal palette");
+              "internal build test seam must remain excluded from normal palette");
    end Test_Command_Surface_Near_Miss_Public_Build_Id_Remains_Safe;
 
    procedure Test_Command_Surface_Public_Build_Guardrail_Manifest_Remains_Healthy
@@ -6793,15 +6865,15 @@ package body Editor.Command_Surface.Tests is
       Review := Editor.Command_Surface.Review_Command_Surface (S);
       Manifest := Build_Public_Build_Guardrail_Regression_Manifest (S);
       Assert (Review.Public_Build_Guardrail_Intact,
-              "Phase 202 command surface review must keep public-build manifest as a healthy sentinel");
+              "command surface review must keep public-build manifest as a healthy sentinel");
       Assert (Manifest.Manifest_Healthy,
-              "Phase 202 public-build regression manifest remains healthy");
+              "public-build regression manifest remains healthy");
    end Test_Command_Surface_Public_Build_Guardrail_Manifest_Remains_Healthy;
 
 
 
 
-   procedure Test_Phase_238_File_Lifecycle_Availability_Reasons
+   procedure Test_File_Lifecycle_Availability_Reasons
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
       pragma Unreferenced (T);
       S : Editor.State.State_Type;
@@ -6813,34 +6885,34 @@ package body Editor.Command_Surface.Tests is
       A := Editor.Executor.Command_Availability
         (S, Editor.Commands.Command_Save_File);
       Assert (not Editor.Commands.Is_Available (A),
-              "Phase 238: save with no open buffer must be unavailable");
+              "save with no open buffer must be unavailable");
       Assert (Editor.Commands.Unavailable_Reason (A) = "No active buffer.",
-              "Phase 238: save with no open buffer must explain the missing active buffer");
+              "save with no open buffer must explain the missing active buffer");
 
       A := Editor.Executor.Command_Availability
         (S, Editor.Commands.Command_Close_Active_Buffer);
       Assert (not Editor.Commands.Is_Available (A),
-              "Phase 238: close with no open buffer must be unavailable");
+              "close with no open buffer must be unavailable");
       Assert (Editor.Commands.Unavailable_Reason (A) = "No active buffer.",
-              "Phase 238: close with no open buffer must explain that there is no active buffer");
+              "close with no open buffer must explain that there is no active buffer");
 
       Editor.Buffers.Ensure_Global_Registry (S);
       A := Editor.Executor.Command_Availability
         (S, Editor.Commands.Command_Save_File);
       Assert (not Editor.Commands.Is_Available (A),
-              "Phase 238: save untitled without a target must be unavailable");
+              "save untitled without a target must be unavailable");
       Assert (Editor.Commands.Unavailable_Reason (A) = "No file path for active buffer",
-              "Phase 238: save untitled without save-as target must use No file path for active buffer");
+              "save untitled without save-as target must use No file path for active buffer");
 
       A := Editor.Executor.Command_Availability
         (S, Editor.Commands.Command_Reload_Active_Buffer);
       Assert (not Editor.Commands.Is_Available (A),
-              "Phase 238: reload untitled must be unavailable");
+              "reload untitled must be unavailable");
       Assert (Editor.Commands.Unavailable_Reason (A) = "No file path for active buffer",
-              "Phase 238: reload untitled must explain that no file path exists");
-   end Test_Phase_238_File_Lifecycle_Availability_Reasons;
+              "reload untitled must explain that no file path exists");
+   end Test_File_Lifecycle_Availability_Reasons;
 
-   procedure Test_Phase_238_Reload_Command_Palette_Row
+   procedure Test_Reload_Command_Palette_Row
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
       pragma Unreferenced (T);
       S : Editor.State.State_Type;
@@ -6859,17 +6931,17 @@ package body Editor.Command_Surface.Tests is
          if Candidate.Id = Editor.Commands.Command_Reload_Active_Buffer then
             Found := True;
             Assert (not Candidate.Available,
-                    "Phase 238: reload row must show current unavailable state for untitled buffer");
+                    "reload row must show current unavailable state for untitled buffer");
             Assert (To_String (Candidate.Reason) = "No file path for active buffer",
-                    "Phase 238: reload row must expose the deterministic disabled reason");
+                    "reload row must expose the deterministic disabled reason");
          end if;
       end loop;
 
       Assert (Found,
-              "Phase 238: reload must be visible as a command-palette lifecycle row");
-   end Test_Phase_238_Reload_Command_Palette_Row;
+              "reload must be visible as a command-palette lifecycle row");
+   end Test_Reload_Command_Palette_Row;
 
-   procedure Test_Phase_238_Status_Bar_Lifecycle_Hint_Is_Projection
+   procedure Test_Status_Bar_Lifecycle_Hint_Is_Projection
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
       pragma Unreferenced (T);
       S : Editor.State.State_Type;
@@ -6887,25 +6959,25 @@ package body Editor.Command_Surface.Tests is
       Assert (Ada.Strings.Fixed.Index
                 (Editor.Lifecycle_Guidance.Status_Bar_Hint (S),
                  "Untitled dirty buffer") > 0,
-              "Phase 238/241: dirty untitled buffer should expose untitled dirty lifecycle state");
+              "/241: dirty untitled buffer should expose untitled dirty lifecycle state");
       Assert (Ada.Strings.Fixed.Index
                 (Editor.Lifecycle_Guidance.Status_Bar_Hint (S),
                  "Save As available") = 0,
-              "Phase 428: dirty untitled lifecycle hint must not advertise targetless Save As without canonical target acquisition");
+              "dirty untitled lifecycle hint must not advertise targetless Save As without canonical target acquisition");
       Assert (To_String (Before_Text) = Editor.State.Current_Text (S),
-              "Phase 238: lifecycle hint projection must not mutate buffer text");
+              "lifecycle hint projection must not mutate buffer text");
       Assert (S.File_Info.Dirty = Before_Dirty,
-              "Phase 238: lifecycle hint projection must not mutate dirty state");
+              "lifecycle hint projection must not mutate dirty state");
       Assert (Editor.Messages.Count (S.Messages) = 0,
-              "Phase 238: lifecycle hint projection must not post messages");
-   end Test_Phase_238_Status_Bar_Lifecycle_Hint_Is_Projection;
+              "lifecycle hint projection must not post messages");
+   end Test_Status_Bar_Lifecycle_Hint_Is_Projection;
 
-   procedure Prepare_Phase_240_File_Tree
+   procedure Prepare_File_Tree
      (S      : in out Editor.State.State_Type;
       Path   : out Unbounded_String;
       Node   : out Editor.File_Tree.File_Tree_Node_Summary)
    is
-      Root : constant String := "/tmp/editor_phase240_affordance_tree";
+      Root : constant String := "/tmp/editor_affordance_tree";
       File_Path : constant String := Root & "/a.txt";
       Found : Boolean := False;
       Node_Id : Editor.File_Tree.File_Tree_Node_Id;
@@ -6929,12 +7001,12 @@ package body Editor.Command_Surface.Tests is
 
       S.File_Tree := Editor.File_Tree.Scan_Project (Root);
       Node_Id := Editor.File_Tree.Find_By_Path (S.File_Tree, File_Path, Found);
-      Assert (Found, "Phase 240 fixture must scan a.txt");
+      Assert (Found, "fixture must scan a.txt");
       Node := Editor.File_Tree.Node (S.File_Tree, Node_Id);
       Path := To_Unbounded_String (File_Path);
-   end Prepare_Phase_240_File_Tree;
+   end Prepare_File_Tree;
 
-   procedure Test_Phase_240_Dirty_Open_Buffer_Row_Save_Hint
+   procedure Test_Dirty_Open_Buffer_Row_Save_Hint
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
       pragma Unreferenced (T);
       S : Editor.State.State_Type;
@@ -6944,22 +7016,22 @@ package body Editor.Command_Surface.Tests is
       Editor.Buffers.Reset_Global_For_Test;
       Editor.State.Init (S);
       S.File_Info.Has_Path := True;
-      S.File_Info.Path := To_Unbounded_String ("/tmp/phase240-active.adb");
-      S.File_Info.Display_Name := To_Unbounded_String ("phase240-active.adb");
+      S.File_Info.Path := To_Unbounded_String ("/tmp/active.adb");
+      S.File_Info.Display_Name := To_Unbounded_String ("active.adb");
       S.File_Info.Dirty := True;
       Editor.Buffers.Ensure_Global_Registry (S);
       Summary := Editor.Buffers.Global_Summary_For (Editor.Buffers.Global_Active_Buffer);
 
       Hint := To_Unbounded_String (Editor.Lifecycle_Guidance.Open_Buffer_Row_Hint (S, Summary));
       Assert (Ada.Strings.Fixed.Index (To_String (Hint), "save available") > 0,
-              "Phase 240: selected dirty active file row must expose save availability");
+              "selected dirty active file row must expose save availability");
       Assert (Ada.Strings.Fixed.Index (To_String (Hint), "normal close blocked") > 0,
-              "Phase 240: selected dirty row must not imply close discards edits");
+              "selected dirty row must not imply close discards edits");
       Assert (Ada.Strings.Fixed.Index (To_String (Hint), "discard") = 0,
-              "Phase 240: unsupported destructive wording must be absent");
-   end Test_Phase_240_Dirty_Open_Buffer_Row_Save_Hint;
+              "unsupported destructive wording must be absent");
+   end Test_Dirty_Open_Buffer_Row_Save_Hint;
 
-   procedure Test_Phase_240_Open_Buffer_Row_Keybinding_Setting
+   procedure Test_Open_Buffer_Row_Keybinding_Setting
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
       pragma Unreferenced (T);
       S : Editor.State.State_Type;
@@ -6981,12 +7053,12 @@ package body Editor.Command_Surface.Tests is
         (Editor.Lifecycle_Guidance.Open_Buffer_Row_Hint (S, Summary));
 
       Assert (Ada.Strings.Fixed.Index (To_String (With_Keys), "[Enter]") > 0,
-              "Phase 240: open-buffer row hint should name Enter when shortcut display is enabled");
+              "open-buffer row hint should name Enter when shortcut display is enabled");
       Assert (Ada.Strings.Fixed.Index (To_String (Without_Keys), "[Enter]") = 0,
-              "Phase 240: open-buffer row hint must respect show-keybindings=false");
-   end Test_Phase_240_Open_Buffer_Row_Keybinding_Setting;
+              "open-buffer row hint must respect show-keybindings=false");
+   end Test_Open_Buffer_Row_Keybinding_Setting;
 
-   procedure Test_Phase_240_File_Tree_Open_And_Focus_Wording
+   procedure Test_File_Tree_Open_And_Focus_Wording
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
       pragma Unreferenced (T);
       S : Editor.State.State_Type;
@@ -6997,12 +7069,12 @@ package body Editor.Command_Surface.Tests is
    begin
       Editor.Buffers.Reset_Global_For_Test;
       Editor.State.Init (S);
-      Prepare_Phase_240_File_Tree (S, Path, Node);
+      Prepare_File_Tree (S, Path, Node);
 
       Before_Open := To_Unbounded_String
         (Editor.Lifecycle_Guidance.File_Tree_Row_Hint (S, Node));
       Assert (To_String (Before_Open) = "Open file [Enter]",
-              "Phase 240: unopened File Tree file row must advertise open");
+              "unopened File Tree file row must advertise open");
 
       S.File_Info.Has_Path := True;
       S.File_Info.Path := Path;
@@ -7012,14 +7084,14 @@ package body Editor.Command_Surface.Tests is
       After_Open := To_Unbounded_String
         (Editor.Lifecycle_Guidance.File_Tree_Row_Hint (S, Node));
       Assert (Ada.Strings.Fixed.Index (To_String (After_Open), "Focus existing unsaved buffer") > 0,
-              "Phase 240: already-open dirty File Tree row must use focus wording");
+              "already-open dirty File Tree row must use focus wording");
       Assert (Ada.Strings.Fixed.Index (To_String (After_Open), "reload") = 0,
-              "Phase 240: already-open dirty File Tree row must not imply reload");
+              "already-open dirty File Tree row must not imply reload");
       Assert (Ada.Strings.Fixed.Index (To_String (After_Open), "discard") = 0,
-              "Phase 240: already-open dirty File Tree row must not imply discard");
-   end Test_Phase_240_File_Tree_Open_And_Focus_Wording;
+              "already-open dirty File Tree row must not imply discard");
+   end Test_File_Tree_Open_And_Focus_Wording;
 
-   procedure Test_Phase_240_Status_Bar_File_Tree_Focus_Hint
+   procedure Test_Status_Bar_File_Tree_Focus_Hint
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
       pragma Unreferenced (T);
       S : Editor.State.State_Type;
@@ -7031,9 +7103,9 @@ package body Editor.Command_Surface.Tests is
    begin
       Editor.Buffers.Reset_Global_For_Test;
       Editor.State.Init (S);
-      Prepare_Phase_240_File_Tree (S, Path, Node);
+      Prepare_File_Tree (S, Path, Node);
       Row := Editor.File_Tree_View.Row_For_Node (S.File_Tree, Node.Id, Found);
-      Assert (Found, "Phase 240 fixture must map scanned file to visible row");
+      Assert (Found, "fixture must map scanned file to visible row");
       Editor.File_Tree_View.Set_Selected_Row_Index (S.File_Tree_View, Row);
       Editor.Panel_Focus.Focus_File_Tree (S.Panel_Focus);
       S.File_Info.Has_Path := True;
@@ -7044,15 +7116,15 @@ package body Editor.Command_Surface.Tests is
 
       Hint := To_Unbounded_String (Editor.Lifecycle_Guidance.Status_Bar_Hint (S));
       Assert (Ada.Strings.Fixed.Index (To_String (Hint), "Focus existing unsaved buffer") > 0,
-              "Phase 240: Status Bar File Tree lifecycle hint should mirror selected file focus action");
+              "Status Bar File Tree lifecycle hint should mirror selected file focus action");
       Assert (Ada.Strings.Fixed.Index (To_String (Hint), "reload") = 0,
-              "Phase 240: Status Bar already-open file hint must not imply reload");
+              "Status Bar already-open file hint must not imply reload");
       Assert (Editor.Messages.Count (S.Messages) = 0,
-              "Phase 240: Status Bar lifecycle hint must remain projection-only");
-   end Test_Phase_240_Status_Bar_File_Tree_Focus_Hint;
+              "Status Bar lifecycle hint must remain projection-only");
+   end Test_Status_Bar_File_Tree_Focus_Hint;
 
 
-   procedure Test_Phase_241_Status_Bar_Clean_Dirty_And_Retry_State
+   procedure Test_Status_Bar_Clean_Dirty_And_Retry_State
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
       pragma Unreferenced (T);
       S : Editor.State.State_Type;
@@ -7061,33 +7133,33 @@ package body Editor.Command_Surface.Tests is
       Editor.Buffers.Reset_Global_For_Test;
       Editor.State.Init (S);
       S.File_Info.Has_Path := True;
-      S.File_Info.Path := To_Unbounded_String ("/tmp/phase241-status.adb");
-      S.File_Info.Display_Name := To_Unbounded_String ("phase241-status.adb");
+      S.File_Info.Path := To_Unbounded_String ("/tmp/status.adb");
+      S.File_Info.Display_Name := To_Unbounded_String ("status.adb");
       S.File_Info.Dirty := False;
       Editor.Settings.Set_Command_Palette_Show_Keybindings (S.Settings, False);
       Editor.Buffers.Ensure_Global_Registry (S);
 
       Hint := To_Unbounded_String (Editor.Lifecycle_Guidance.Status_Bar_Hint (S));
       Assert (Ada.Strings.Fixed.Index (To_String (Hint), "Clean file") > 0,
-              "Phase 241: clean file-backed active buffer should be readable in the Status Bar lifecycle hint");
+              "clean file-backed active buffer should be readable in the Status Bar lifecycle hint");
 
       S.File_Info.Dirty := True;
       S.File_Info.Last_Save_Failed := False;
       Hint := To_Unbounded_String (Editor.Lifecycle_Guidance.Status_Bar_Hint (S));
       Assert (Ada.Strings.Fixed.Index (To_String (Hint), "Dirty file") > 0,
-              "Phase 241: dirty file-backed active buffer should be readable in the Status Bar lifecycle hint");
+              "dirty file-backed active buffer should be readable in the Status Bar lifecycle hint");
       Assert (Ada.Strings.Fixed.Index (To_String (Hint), "save available") > 0,
-              "Phase 241: dirty file-backed Status Bar hint should retain safe save guidance");
+              "dirty file-backed Status Bar hint should retain safe save guidance");
 
       S.File_Info.Last_Save_Failed := True;
       Hint := To_Unbounded_String (Editor.Lifecycle_Guidance.Status_Bar_Hint (S));
       Assert (Ada.Strings.Fixed.Index (To_String (Hint), "retry save available") > 0,
-              "Phase 241: failed-save state should remain visibly retryable while the buffer is dirty and saveable");
+              "failed-save state should remain visibly retryable while the buffer is dirty and saveable");
       Assert (Editor.Messages.Count (S.Messages) = 0,
-              "Phase 241: lifecycle hint projection must not post messages");
-   end Test_Phase_241_Status_Bar_Clean_Dirty_And_Retry_State;
+              "lifecycle hint projection must not post messages");
+   end Test_Status_Bar_Clean_Dirty_And_Retry_State;
 
-   procedure Test_Phase_241_Open_Buffer_Row_Label_Shows_Retry_Without_Hiding_Dirty
+   procedure Test_Open_Buffer_Row_Label_Shows_Retry_Without_Hiding_Dirty
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
       pragma Unreferenced (T);
       S : Editor.State.State_Type;
@@ -7096,22 +7168,22 @@ package body Editor.Command_Surface.Tests is
       Editor.Buffers.Reset_Global_For_Test;
       Editor.State.Init (S);
       S.File_Info.Has_Path := True;
-      S.File_Info.Path := To_Unbounded_String ("/tmp/phase241-row.adb");
-      S.File_Info.Display_Name := To_Unbounded_String ("phase241-row.adb");
+      S.File_Info.Path := To_Unbounded_String ("/tmp/row.adb");
+      S.File_Info.Display_Name := To_Unbounded_String ("row.adb");
       S.File_Info.Dirty := True;
       S.File_Info.Last_Save_Failed := True;
       Editor.Buffers.Ensure_Global_Registry (S);
 
       Summary := Editor.Buffers.Global_Summary_For (Editor.Buffers.Global_Active_Buffer);
       Assert (Summary.Is_Dirty,
-              "Phase 241: retryable failed-save row must keep the dirty marker state visible");
+              "retryable failed-save row must keep the dirty marker state visible");
       Assert (Ada.Strings.Fixed.Index (To_String (Summary.Display_Name), "retry save") > 0,
-              "Phase 241: retryable failed-save row label should expose retry context");
-      Assert (Ada.Strings.Fixed.Index (To_String (Summary.Display_Name), "phase241-row.adb") > 0,
-              "Phase 241: retryable row label should preserve the stable buffer label");
-   end Test_Phase_241_Open_Buffer_Row_Label_Shows_Retry_Without_Hiding_Dirty;
+              "retryable failed-save row label should expose retry context");
+      Assert (Ada.Strings.Fixed.Index (To_String (Summary.Display_Name), "row.adb") > 0,
+              "retryable row label should preserve the stable buffer label");
+   end Test_Open_Buffer_Row_Label_Shows_Retry_Without_Hiding_Dirty;
 
-   procedure Test_Phase_240_Lifecycle_Hints_Do_Not_Mention_Build
+   procedure Test_Lifecycle_Hints_Do_Not_Mention_Build
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
       pragma Unreferenced (T);
       S : Editor.State.State_Type;
@@ -7128,16 +7200,16 @@ package body Editor.Command_Surface.Tests is
         (Editor.Lifecycle_Guidance.Open_Buffer_Row_Hint (S, Summary) & " " &
          Editor.Lifecycle_Guidance.Status_Bar_Hint (S));
       Assert (Ada.Strings.Fixed.Index (To_String (Text), "build.run") = 0,
-              "Phase 240: lifecycle affordance hints must not expose public build command names");
+              "lifecycle affordance hints must not expose public build command names");
       Assert (Ada.Strings.Fixed.Index (To_String (Text), ".gpr") = 0,
-              "Phase 240: lifecycle affordance hints must not mention project metadata probing");
+              "lifecycle affordance hints must not mention project-file probing");
       Assert (Ada.Strings.Fixed.Index (To_String (Text), "alire.toml") = 0,
-              "Phase 240: lifecycle affordance hints must not mention Alire probing");
-   end Test_Phase_240_Lifecycle_Hints_Do_Not_Mention_Build;
+              "lifecycle affordance hints must not mention Alire probing");
+   end Test_Lifecycle_Hints_Do_Not_Mention_Build;
 
 
 
-   procedure Test_Phase_503_Build_Run_Public_Descriptor
+   procedure Test_Build_Run_Public_Descriptor
      (T : in out AUnit.Test_Cases.Test_Case'Class)
    is
       pragma Unreferenced (T);
@@ -7155,22 +7227,22 @@ package body Editor.Command_Surface.Tests is
       Assert (D.Category = Editor.Commands.Project_Category,
               "build.run remains in the existing Project command category");
       Assert (not D.Bindable,
-              "build.run has no default bindability in guarded phase");
+              "build.run has no default bindability while guarded");
       Assert (Editor.Build_Command.Assert_Build_Run_Descriptor_Stable,
               "build.run descriptor has no shell/cwd/request payload");
-   end Test_Phase_503_Build_Run_Public_Descriptor;
+   end Test_Build_Run_Public_Descriptor;
 
-   procedure Test_Phase_503_Build_Run_Readiness_Reasons
+   procedure Test_Build_Run_Readiness_Reasons
      (T : in out AUnit.Test_Cases.Test_Case'Class)
    is
       pragma Unreferenced (T);
       S : Editor.State.State_Type;
-      Root : constant String := "/tmp/editor_phase503_build_run_readiness";
+      Root : constant String := "/tmp/editor_build_run_readiness";
       Gpr_Path : constant String := Root & "/demo.gpr";
       Project_Result : constant Editor.Project.Project_Open_Result :=
         (Status => Editor.Project.Project_Open_Ok,
          Root_Path => To_Unbounded_String (Root),
-         Display_Name => To_Unbounded_String ("editor_phase503_build_run_readiness"),
+         Display_Name => To_Unbounded_String ("editor_build_run_readiness"),
          Error_Text => Null_Unbounded_String);
       Candidate : constant Editor.Build_Candidates.Build_Candidate_Record :=
         Editor.Build_Candidates.Gprbuild_Candidate
@@ -7240,9 +7312,9 @@ package body Editor.Command_Surface.Tests is
       when others =>
          Cleanup_Candidate_File;
          raise;
-   end Test_Phase_503_Build_Run_Readiness_Reasons;
+   end Test_Build_Run_Readiness_Reasons;
 
-   procedure Test_Phase_503_Build_Run_Coherent_Audit
+   procedure Test_Build_Run_Coherent_Audit
      (T : in out AUnit.Test_Cases.Test_Case'Class)
    is
       pragma Unreferenced (T);
@@ -7250,787 +7322,793 @@ package body Editor.Command_Surface.Tests is
    begin
       Assert (Editor.Build_Command.Assert_Public_Build_Command_Registration_Coherent (S),
               "build.run public registration, guarded Executor route, palette/keybinding boundaries and persistence exclusions are coherent");
-   end Test_Phase_503_Build_Run_Coherent_Audit;
+   end Test_Build_Run_Coherent_Audit;
 
    overriding procedure Register_Tests
      (T : in out Command_Surface_Test_Case)
    is
    begin
       AUnit.Test_Cases.Registration.Register_Routine
-        (T, Test_Phase_564_Command_Palette_Route_Audit_Rejects_Payloads'Access,
-         "Phase 564 Command Palette Route Audit Rejects Payloads");
+        (T, Test_Command_Palette_Route_Audit_Rejects_Payloads'Access,
+         "Command Palette Route Audit Rejects Payloads");
 
       AUnit.Test_Cases.Registration.Register_Routine
-        (T, Test_Phase_317_Switcher_Command_Reference_Metadata'Access,
-         "Phase 317 Switcher Command Reference Metadata");
+        (T, Test_Switcher_Command_Reference_Metadata'Access,
+         "Switcher Command Reference Metadata");
       AUnit.Test_Cases.Registration.Register_Routine
-        (T, Test_Phase_317_Switcher_Command_Reference_Content'Access,
-         "Phase 317 Switcher Command Reference Content");
+        (T, Test_Switcher_Command_Reference_Content'Access,
+         "Switcher Command Reference Content");
 
       AUnit.Test_Cases.Registration.Register_Routine
-        (T, Test_Phase_238_File_Lifecycle_Availability_Reasons'Access,
-         "Phase 238 File Lifecycle Availability Reasons");
+        (T, Test_File_Lifecycle_Availability_Reasons'Access,
+         "File Lifecycle Availability Reasons");
       AUnit.Test_Cases.Registration.Register_Routine
-        (T, Test_Phase_238_Reload_Command_Palette_Row'Access,
-         "Phase 238 Reload Command Palette Row");
+        (T, Test_Reload_Command_Palette_Row'Access,
+         "Reload Command Palette Row");
       AUnit.Test_Cases.Registration.Register_Routine
-        (T, Test_Phase_238_Status_Bar_Lifecycle_Hint_Is_Projection'Access,
-         "Phase 238 Status Bar Lifecycle Hint Is Projection");
+        (T, Test_Status_Bar_Lifecycle_Hint_Is_Projection'Access,
+         "Status Bar Lifecycle Hint Is Projection");
 
       AUnit.Test_Cases.Registration.Register_Routine
-        (T, Test_Phase_240_Dirty_Open_Buffer_Row_Save_Hint'Access,
-         "Phase 240 Dirty Open Buffer Row Save Hint");
+        (T, Test_Dirty_Open_Buffer_Row_Save_Hint'Access,
+         "Dirty Open Buffer Row Save Hint");
       AUnit.Test_Cases.Registration.Register_Routine
-        (T, Test_Phase_240_Open_Buffer_Row_Keybinding_Setting'Access,
-         "Phase 240 Open Buffer Row Keybinding Setting");
+        (T, Test_Open_Buffer_Row_Keybinding_Setting'Access,
+         "Open Buffer Row Keybinding Setting");
       AUnit.Test_Cases.Registration.Register_Routine
-        (T, Test_Phase_240_File_Tree_Open_And_Focus_Wording'Access,
-         "Phase 240 File Tree Open And Focus Wording");
+        (T, Test_File_Tree_Open_And_Focus_Wording'Access,
+         "File Tree Open And Focus Wording");
       AUnit.Test_Cases.Registration.Register_Routine
-        (T, Test_Phase_240_Status_Bar_File_Tree_Focus_Hint'Access,
-         "Phase 240 Status Bar File Tree Focus Hint");
+        (T, Test_Status_Bar_File_Tree_Focus_Hint'Access,
+         "Status Bar File Tree Focus Hint");
       AUnit.Test_Cases.Registration.Register_Routine
-        (T, Test_Phase_240_Lifecycle_Hints_Do_Not_Mention_Build'Access,
-         "Phase 240 Lifecycle Hints Do Not Mention Build");
+        (T, Test_Lifecycle_Hints_Do_Not_Mention_Build'Access,
+         "Lifecycle Hints Do Not Mention Build");
       AUnit.Test_Cases.Registration.Register_Routine
-        (T, Test_Phase_241_Status_Bar_Clean_Dirty_And_Retry_State'Access,
-         "Phase 241 Status Bar Clean Dirty And Retry State");
+        (T, Test_Status_Bar_Clean_Dirty_And_Retry_State'Access,
+         "Status Bar Clean Dirty And Retry State");
       AUnit.Test_Cases.Registration.Register_Routine
-        (T, Test_Phase_241_Open_Buffer_Row_Label_Shows_Retry_Without_Hiding_Dirty'Access,
-         "Phase 241 Open Buffer Row Label Shows Retry Without Hiding Dirty");
+        (T, Test_Open_Buffer_Row_Label_Shows_Retry_Without_Hiding_Dirty'Access,
+         "Open Buffer Row Label Shows Retry Without Hiding Dirty");
 
       AUnit.Test_Cases.Registration.Register_Routine
         (T, Test_Command_Surface_Review_Default_Passes'Access,
-         "Phase 202 Command Surface Review Default Passes");
+         "Command Surface Review Default Passes");
       AUnit.Test_Cases.Registration.Register_Routine
         (T, Test_Command_Surface_Review_Is_Side_Effect_Free'Access,
-         "Phase 202 Command Surface Review Is Side Effect Free");
+         "Command Surface Review Is Side Effect Free");
       AUnit.Test_Cases.Registration.Register_Routine
         (T, Test_Command_Surface_Review_Feedback_Is_Deterministic'Access,
-         "Phase 202 Command Surface Review Feedback Is Deterministic");
+         "Command Surface Review Feedback Is Deterministic");
       AUnit.Test_Cases.Registration.Register_Routine
         (T, Test_Command_Surface_Stable_Ids_Are_Unique'Access,
-         "Phase 202 Command Surface Stable Ids Are Unique");
+         "Command Surface Stable Ids Are Unique");
       AUnit.Test_Cases.Registration.Register_Routine
         (T, Test_Command_Surface_Command_Ids_Follow_Canonicalization_Policy'Access,
-         "Phase 202 Command Surface Command Ids Follow Canonicalization Policy");
+         "Command Surface Command Ids Follow Canonicalization Policy");
       AUnit.Test_Cases.Registration.Register_Routine
         (T, Test_Command_Surface_Public_Public_Build_Id_Remains_Absent'Access,
-         "Phase 202 Command Surface Public Public Build Id Remains Absent");
+         "Command Surface Public Public Build Id Remains Absent");
       AUnit.Test_Cases.Registration.Register_Routine
         (T, Test_Command_Surface_Near_Miss_Public_Build_Id_Remains_Safe'Access,
-         "Phase 202 Command Surface Near Miss Public Build Id Remains Safe");
+         "Command Surface Near Miss Public Build Id Remains Safe");
       AUnit.Test_Cases.Registration.Register_Routine
         (T, Test_Command_Surface_Public_Build_Guardrail_Manifest_Remains_Healthy'Access,
-         "Phase 202 Command Surface Public Build Guardrail Manifest Remains Healthy");
+         "Command Surface Public Build Guardrail Manifest Remains Healthy");
 
       AUnit.Test_Cases.Registration.Register_Routine
         (T, Test_Public_Build_Guardrail_Health_Default_Is_Healthy'Access,
-         "Phase 195 Public Build Guardrail Health Default Is Healthy");
+         "Public Build Guardrail Health Default Is Healthy");
       AUnit.Test_Cases.Registration.Register_Routine
         (T, Test_Public_Build_Guardrail_Health_Is_Side_Effect_Free'Access,
-         "Phase 195 Public Build Guardrail Health Is Side Effect Free");
+         "Public Build Guardrail Health Is Side Effect Free");
       AUnit.Test_Cases.Registration.Register_Routine
         (T, Test_Public_Build_Guardrail_Health_Unhealthy_On_Public_Command'Access,
-         "Phase 195 Public Build Guardrail Health Unhealthy On Public Command");
+         "Public Build Guardrail Health Unhealthy On Public Command");
       AUnit.Test_Cases.Registration.Register_Routine
         (T, Test_Public_Build_Guardrail_Health_Unhealthy_On_Audit_Trace_Incomplete'Access,
-         "Phase 195 Public Build Guardrail Health Unhealthy On Audit Trace Incomplete");
+         "Public Build Guardrail Health Unhealthy On Audit Trace Incomplete");
       AUnit.Test_Cases.Registration.Register_Routine
         (T, Test_Public_Build_Guardrail_Health_Unhealthy_On_Contract_Mismatch'Access,
-         "Phase 195 Public Build Guardrail Health Unhealthy On Contract Mismatch");
+         "Public Build Guardrail Health Unhealthy On Contract Mismatch");
       AUnit.Test_Cases.Registration.Register_Routine
         (T, Test_Public_Build_Guardrail_Health_Feedback_Is_Deterministic'Access,
-         "Phase 195 Public Build Guardrail Health Feedback Is Deterministic");
+         "Public Build Guardrail Health Feedback Is Deterministic");
       AUnit.Test_Cases.Registration.Register_Routine
         (T, Test_Public_Build_Surface_Id_Scan_All_Domains_Checked'Access,
-         "Phase 195 Public Build Public Id Scan All Domains Checked");
+         "Public Build Public Id Scan All Domains Checked");
       AUnit.Test_Cases.Registration.Register_Routine
         (T, Test_Public_Build_Surface_Id_Canonical_Exact_Match_Fails'Access,
-         "Phase 195 Public Build Public Id Canonical Exact Match Fails");
+         "Public Build Public Id Canonical Exact Match Fails");
       AUnit.Test_Cases.Registration.Register_Routine
         (T, Test_Public_Build_Surface_Id_Near_Miss_Remains_Safe'Access,
-         "Phase 195 Public Build Public Id Near Miss Remains Safe");
+         "Public Build Public Id Near Miss Remains Safe");
       AUnit.Test_Cases.Registration.Register_Routine
         (T, Test_Public_Build_Health_Lifecycle_Project_Close_Remains_Healthy'Access,
-         "Phase 195 Public Build Health Lifecycle Project Close Remains Healthy");
+         "Public Build Health Lifecycle Project Close Remains Healthy");
       AUnit.Test_Cases.Registration.Register_Routine
         (T, Test_Public_Build_Health_Lifecycle_Workspace_Close_Remains_Healthy'Access,
-         "Phase 195 Public Build Health Lifecycle Workspace Close Remains Healthy");
+         "Public Build Health Lifecycle Workspace Close Remains Healthy");
       AUnit.Test_Cases.Registration.Register_Routine
         (T, Test_Public_Build_Health_Not_Persisted'Access,
-         "Phase 195 Public Build Health Not Persisted");
+         "Public Build Health Not Persisted");
 
       AUnit.Test_Cases.Registration.Register_Routine
         (T, Test_Public_Build_Guardrail_Health_Canonical_Ordering_Is_Deterministic'Access,
-         "Phase 196 Public Build Guardrail Health Canonical Ordering Is Deterministic");
+         "Public Build Guardrail Health Canonical Ordering Is Deterministic");
       AUnit.Test_Cases.Registration.Register_Routine
         (T, Test_Public_Build_Guardrail_Health_Builder_Is_Side_Effect_Free'Access,
-         "Phase 196 Public Build Guardrail Health Builder Is Side Effect Free");
+         "Public Build Guardrail Health Builder Is Side Effect Free");
       AUnit.Test_Cases.Registration.Register_Routine
         (T, Test_Public_Build_Guardrail_Stale_Health_Does_Not_Bypass_Current_Audit'Access,
-         "Phase 196 Public Build Guardrail Stale Health Does Not Bypass Current Audit");
+         "Public Build Guardrail Stale Health Does Not Bypass Current Audit");
 
       AUnit.Test_Cases.Registration.Register_Routine
         (T, Test_Public_Build_Guardrail_Manifest_Default_Is_Healthy'Access,
-         "Phase 197 Public Build Guardrail Manifest Default Is Healthy");
+         "Public Build Guardrail Manifest Default Is Healthy");
       AUnit.Test_Cases.Registration.Register_Routine
         (T, Test_Public_Build_Guardrail_Manifest_Is_Side_Effect_Free'Access,
-         "Phase 197 Public Build Guardrail Manifest Is Side Effect Free");
+         "Public Build Guardrail Manifest Is Side Effect Free");
       AUnit.Test_Cases.Registration.Register_Routine
         (T, Test_Public_Build_Guardrail_Manifest_Feedback_Is_Deterministic'Access,
-         "Phase 197 Public Build Guardrail Manifest Feedback Is Deterministic");
+         "Public Build Guardrail Manifest Feedback Is Deterministic");
       AUnit.Test_Cases.Registration.Register_Routine
         (T, Test_Public_Build_Guardrail_Manifest_Unhealthy_On_Each_Dimension'Access,
-         "Phase 197 Public Build Guardrail Manifest Unhealthy On Each Dimension");
+         "Public Build Guardrail Manifest Unhealthy On Each Dimension");
       AUnit.Test_Cases.Registration.Register_Routine
         (T, Test_Public_Build_Guardrail_Audit_Matrix_All_Dimensions_Checked'Access,
-         "Phase 197 Public Build Guardrail Audit Matrix All Dimensions Checked");
+         "Public Build Guardrail Audit Matrix All Dimensions Checked");
       AUnit.Test_Cases.Registration.Register_Routine
         (T, Test_Public_Build_Guardrail_Audit_Matrix_Is_Deterministic'Access,
-         "Phase 197 Public Build Guardrail Audit Matrix Is Deterministic");
+         "Public Build Guardrail Audit Matrix Is Deterministic");
       AUnit.Test_Cases.Registration.Register_Routine
         (T, Test_Public_Build_Guardrail_Manifest_Not_Persisted'Access,
-         "Phase 197 Public Build Guardrail Manifest Not Persisted");
+         "Public Build Guardrail Manifest Not Persisted");
       AUnit.Test_Cases.Registration.Register_Routine
         (T, Test_Public_Build_Guardrail_Manifest_Lifecycle_Project_Close_Remains_Healthy'Access,
-         "Phase 197 Public Build Guardrail Manifest Lifecycle Project Close Remains Healthy");
+         "Public Build Guardrail Manifest Lifecycle Project Close Remains Healthy");
 
       AUnit.Test_Cases.Registration.Register_Routine
         (T, Test_Public_Build_Guardrail_No_Extra_Layer_Above_Manifest'Access,
-         "Phase 200 Public Build Guardrail No Extra Layer Above Manifest");
+         "Public Build Guardrail No Extra Layer Above Manifest");
       AUnit.Test_Cases.Registration.Register_Routine
         (T, Test_Public_Build_Guardrail_Manifest_Fields_Have_Direct_Backers'Access,
-         "Phase 200 Public Build Guardrail Manifest Fields Have Direct Backers");
+         "Public Build Guardrail Manifest Fields Have Direct Backers");
       AUnit.Test_Cases.Registration.Register_Routine
         (T, Test_Public_Build_Guardrail_Result_Does_Not_Depend_On_Health'Access,
-         "Phase 200 Public Build Guardrail Result Does Not Depend On Health");
+         "Public Build Guardrail Result Does Not Depend On Health");
       AUnit.Test_Cases.Registration.Register_Routine
         (T, Test_Public_Build_Guardrail_Health_Does_Not_Depend_On_Manifest'Access,
-         "Phase 200 Public Build Guardrail Health Does Not Depend On Manifest");
+         "Public Build Guardrail Health Does Not Depend On Manifest");
       AUnit.Test_Cases.Registration.Register_Routine
         (T, Test_Public_Build_Guardrail_Manifest_Is_Final_Semantic_Layer'Access,
-         "Phase 200 Public Build Guardrail Manifest Is Final Semantic Layer");
+         "Public Build Guardrail Manifest Is Final Semantic Layer");
       AUnit.Test_Cases.Registration.Register_Routine
         (T, Test_Public_Build_Guardrail_Audit_Matrix_Is_Coverage_Only'Access,
-         "Phase 200 Public Build Guardrail Audit Matrix Is Coverage Only");
+         "Public Build Guardrail Audit Matrix Is Coverage Only");
       AUnit.Test_Cases.Registration.Register_Routine
         (T, Test_Public_Build_Guardrail_No_Self_Referential_Healthy_State'Access,
-         "Phase 200 Public Build Guardrail No Self Referential Healthy State");
+         "Public Build Guardrail No Self Referential Healthy State");
       AUnit.Test_Cases.Registration.Register_Routine
         (T, Test_Public_Build_Guardrail_Feedback_Helpers_Are_Not_Duplicated'Access,
-         "Phase 200 Public Build Guardrail Feedback Helpers Are Not Duplicated");
+         "Public Build Guardrail Feedback Helpers Are Not Duplicated");
 
       AUnit.Test_Cases.Registration.Register_Routine
         (T, Test_Public_Build_Guardrail_Post_Pruning_Default_Result_Is_Safe'Access,
-         "Phase 201 Public Build Guardrail Post Pruning Default Result Is Safe");
+         "Public Build Guardrail Post Pruning Default Result Is Safe");
       AUnit.Test_Cases.Registration.Register_Routine
         (T, Test_Public_Build_Guardrail_Post_Pruning_Health_Is_Healthy'Access,
-         "Phase 201 Public Build Guardrail Post Pruning Health Is Healthy");
+         "Public Build Guardrail Post Pruning Health Is Healthy");
       AUnit.Test_Cases.Registration.Register_Routine
         (T, Test_Public_Build_Guardrail_Post_Pruning_Manifest_Is_Healthy'Access,
-         "Phase 201 Public Build Guardrail Post Pruning Manifest Is Healthy");
+         "Public Build Guardrail Post Pruning Manifest Is Healthy");
       AUnit.Test_Cases.Registration.Register_Routine
         (T, Test_Public_Build_Guardrail_Manifest_Does_Not_Depend_On_Evidence'Access,
-         "Phase 201 Public Build Guardrail Manifest Does Not Depend On Evidence");
+         "Public Build Guardrail Manifest Does Not Depend On Evidence");
       AUnit.Test_Cases.Registration.Register_Routine
         (T, Test_Public_Build_Guardrail_Evidence_Pack_Production_API_Absent'Access,
-         "Phase 201 Public Build Guardrail Evidence Pack Production API Absent");
+         "Public Build Guardrail Evidence Pack Production API Absent");
       AUnit.Test_Cases.Registration.Register_Routine
         (T, Test_Public_Build_Guardrail_Release_Candidate_Production_API_Absent'Access,
-         "Phase 201 Public Build Guardrail Release Candidate Production API Absent");
+         "Public Build Guardrail Release Candidate Production API Absent");
       AUnit.Test_Cases.Registration.Register_Routine
         (T, Test_Public_Build_Guardrail_Feedback_Helpers_Only_Health_And_Manifest'Access,
-         "Phase 201 Public Build Guardrail Feedback Helpers Only Health And Manifest");
+         "Public Build Guardrail Feedback Helpers Only Health And Manifest");
       AUnit.Test_Cases.Registration.Register_Routine
         (T, Test_Public_Build_Guardrail_Post_Pruning_Not_Persisted'Access,
-         "Phase 201 Public Build Guardrail Post Pruning Not Persisted");
+         "Public Build Guardrail Post Pruning Not Persisted");
       AUnit.Test_Cases.Registration.Register_Routine
         (T, Test_Public_Build_Guardrail_Post_Pruning_Side_Effect_Free'Access,
-         "Phase 201 Public Build Guardrail Post Pruning Side Effect Free");
+         "Public Build Guardrail Post Pruning Side Effect Free");
       AUnit.Test_Cases.Registration.Register_Routine
         (T, Test_Public_Build_Guardrail_Post_Pruning_Lifecycle_Workspace_Close_Remains_Healthy'Access,
-         "Phase 201 Public Build Guardrail Post Pruning Lifecycle Workspace Close Remains Healthy");
+         "Public Build Guardrail Post Pruning Lifecycle Workspace Close Remains Healthy");
 
       AUnit.Test_Cases.Registration.Register_Routine
         (T, Test_Public_Build_Guardrail_Failure_Detail_Default_Is_None'Access,
-         "Phase 194 Public Build Guardrail Failure Detail Default Is None");
+         "Public Build Guardrail Failure Detail Default Is None");
       AUnit.Test_Cases.Registration.Register_Routine
         (T, Test_Public_Build_Guardrail_First_Failure_Uses_Blocker_Precedence'Access,
-         "Phase 194 Public Build Guardrail First Failure Uses Blocker Precedence");
+         "Public Build Guardrail First Failure Uses Blocker Precedence");
       AUnit.Test_Cases.Registration.Register_Routine
         (T, Test_Public_Build_Guardrail_Collect_Failures_Is_Deterministic'Access,
-         "Phase 194 Public Build Guardrail Collect Failures Is Deterministic");
+         "Public Build Guardrail Collect Failures Is Deterministic");
       AUnit.Test_Cases.Registration.Register_Routine
         (T, Test_Public_Build_Surface_Id_Scan_Result_Default_Passes'Access,
-         "Phase 194 Public Build Public Id Scan Result Default Passes");
+         "Public Build Public Id Scan Result Default Passes");
       AUnit.Test_Cases.Registration.Register_Routine
         (T, Test_Public_Build_Surface_Id_Scan_Rejects_Exact_Domains'Access,
-         "Phase 194 Public Build Public Id Scan Rejects Exact Domains");
+         "Public Build Public Id Scan Rejects Exact Domains");
       AUnit.Test_Cases.Registration.Register_Routine
         (T, Test_Public_Build_Surface_Id_Scan_Allows_Near_Miss_Label'Access,
-         "Phase 194 Public Build Public Id Scan Allows Near Miss Label");
+         "Public Build Public Id Scan Allows Near Miss Label");
       AUnit.Test_Cases.Registration.Register_Routine
         (T, Test_Public_Build_Guardrail_Audit_Trace_Default_Checks_All_Surfaces'Access,
-         "Phase 194 Public Build Guardrail Audit Trace Default Checks All Surfaces");
+         "Public Build Guardrail Audit Trace Default Checks All Surfaces");
       AUnit.Test_Cases.Registration.Register_Routine
         (T, Test_Public_Build_Guardrail_Audit_Trace_Missing_Surface_Is_Inconsistent'Access,
-         "Phase 194 Public Build Guardrail Audit Trace Missing Surface Is Inconsistent");
+         "Public Build Guardrail Audit Trace Missing Surface Is Inconsistent");
       AUnit.Test_Cases.Registration.Register_Routine
         (T, Test_Public_Build_Internal_Test_Seam_Public_Leak_Reported_Separately'Access,
-         "Phase 194 Public Build Internal Test Seam Public Leak Reported Separately");
+         "Public Build Internal Test Seam Public Leak Reported Separately");
       AUnit.Test_Cases.Registration.Register_Routine
         (T, Test_Public_Build_Guardrail_Snapshot_Comparison_Default_No_Mismatch'Access,
-         "Phase 194 Public Build Guardrail Snapshot Comparison Default No Mismatch");
+         "Public Build Guardrail Snapshot Comparison Default No Mismatch");
       AUnit.Test_Cases.Registration.Register_Routine
         (T, Test_Public_Build_Guardrail_Snapshot_Comparison_Detects_Exposure'Access,
-         "Phase 194 Public Build Guardrail Snapshot Comparison Detects Exposure");
+         "Public Build Guardrail Snapshot Comparison Detects Exposure");
       AUnit.Test_Cases.Registration.Register_Routine
         (T, Test_Public_Build_Guardrail_Snapshot_Comparison_Detects_Promotion_Change'Access,
-         "Phase 194 Public Build Guardrail Snapshot Comparison Detects Promotion Change");
+         "Public Build Guardrail Snapshot Comparison Detects Promotion Change");
       AUnit.Test_Cases.Registration.Register_Routine
         (T, Test_Public_Build_Guardrail_Lifecycle_Trace_Remains_Stable'Access,
-         "Phase 194 Public Build Guardrail Lifecycle Trace Remains Stable");
+         "Public Build Guardrail Lifecycle Trace Remains Stable");
       AUnit.Test_Cases.Registration.Register_Routine
         (T, Test_Public_Build_Guardrail_Lifecycle_Snapshot_No_Mismatch'Access,
-         "Phase 194 Public Build Guardrail Lifecycle Snapshot No Mismatch");
+         "Public Build Guardrail Lifecycle Snapshot No Mismatch");
 
       AUnit.Test_Cases.Registration.Register_Routine
         (T, Test_Public_Build_Guardrail_Default_Contract_Holds'Access,
-         "Phase 193 Public Build Guardrail Default Contract Holds");
+         "Public Build Guardrail Default Contract Holds");
       AUnit.Test_Cases.Registration.Register_Routine
         (T, Test_Public_Build_Guardrail_Contract_Mismatch_Default_Has_No_Mismatch'Access,
-         "Phase 193 Public Build Guardrail Contract Mismatch Default Has No Mismatch");
+         "Public Build Guardrail Contract Mismatch Default Has No Mismatch");
       AUnit.Test_Cases.Registration.Register_Routine
         (T, Test_Public_Build_Guardrail_Contract_Mismatch_Detects_Status_Drift'Access,
-         "Phase 193 Public Build Guardrail Contract Mismatch Detects Status Drift");
+         "Public Build Guardrail Contract Mismatch Detects Status Drift");
       AUnit.Test_Cases.Registration.Register_Routine
         (T, Test_Public_Build_Guardrail_Contract_Mismatch_Detects_Public_Command_Drift'Access,
-         "Phase 193 Public Build Guardrail Contract Mismatch Detects Public Command Drift");
+         "Public Build Guardrail Contract Mismatch Detects Public Command Drift");
       AUnit.Test_Cases.Registration.Register_Routine
         (T, Test_Public_Build_Guardrail_Contract_Mismatch_Detects_Promotion_Drift'Access,
-         "Phase 193 Public Build Guardrail Contract Mismatch Detects Promotion Drift");
+         "Public Build Guardrail Contract Mismatch Detects Promotion Drift");
       AUnit.Test_Cases.Registration.Register_Routine
         (T, Test_Public_Build_Surface_Id_List_Exactly_Matches_Contract'Access,
-         "Phase 193 Public Build Public Id List Exactly Matches Contract");
+         "Public Build Public Id List Exactly Matches Contract");
       AUnit.Test_Cases.Registration.Register_Routine
         (T, Test_Public_Build_Surface_Id_List_Has_No_Duplicates'Access,
-         "Phase 193 Public Build Public Id List Has No Duplicates");
+         "Public Build Public Id List Has No Duplicates");
       AUnit.Test_Cases.Registration.Register_Routine
         (T, Test_Public_Build_Surface_Id_Scan_Ignores_Near_Miss_Labels'Access,
-         "Phase 193 Public Build Public Id Scan Ignores Near Miss Labels");
+         "Public Build Public Id Scan Ignores Near Miss Labels");
       AUnit.Test_Cases.Registration.Register_Routine
         (T, Test_Public_Build_Surface_Id_Scan_Rejects_Exact_Public_Name'Access,
-         "Phase 193 Public Build Public Id Scan Rejects Exact Command Id");
+         "Public Build Public Id Scan Rejects Exact Command Id");
       AUnit.Test_Cases.Registration.Register_Routine
         (T, Test_Public_Build_Internal_Test_Seam_Not_Counted_As_Public_Command'Access,
-         "Phase 193 Public Build Internal Test Seam Not Counted As Public Command");
+         "Public Build Internal Test Seam Not Counted As Public Command");
       AUnit.Test_Cases.Registration.Register_Routine
         (T, Test_Public_Build_Internal_Test_Seam_Still_Hidden_From_Normal_Palette'Access,
-         "Phase 193 Public Build Internal Test Seam Still Hidden From Normal Palette");
+         "Public Build Internal Test Seam Still Hidden From Normal Palette");
       AUnit.Test_Cases.Registration.Register_Routine
         (T, Test_Public_Build_Normalized_Audit_Is_Deterministic'Access,
-         "Phase 193 Public Build Normalized Audit Is Deterministic");
+         "Public Build Normalized Audit Is Deterministic");
       AUnit.Test_Cases.Registration.Register_Routine
         (T, Test_Public_Build_Normalized_Audit_Exposure_Simulation_Is_Stable'Access,
-         "Phase 193 Public Build Normalized Audit Exposure Simulation Is Stable");
+         "Public Build Normalized Audit Exposure Simulation Is Stable");
       AUnit.Test_Cases.Registration.Register_Routine
         (T, Test_Public_Build_Normalized_Audit_Drift_Simulation_Is_Stable'Access,
-         "Phase 193 Public Build Normalized Audit Drift Simulation Is Stable");
+         "Public Build Normalized Audit Drift Simulation Is Stable");
       AUnit.Test_Cases.Registration.Register_Routine
         (T, Test_Public_Build_Normalized_Audit_Inconsistency_Readiness_Promotion'Access,
-         "Phase 193 Public Build Normalized Audit Inconsistency Readiness Promotion");
+         "Public Build Normalized Audit Inconsistency Readiness Promotion");
       AUnit.Test_Cases.Registration.Register_Routine
         (T, Test_Public_Build_Normalized_Audit_Inconsistency_HardFreeze_Drift'Access,
-         "Phase 193 Public Build Normalized Audit Inconsistency HardFreeze Drift");
+         "Public Build Normalized Audit Inconsistency HardFreeze Drift");
       AUnit.Test_Cases.Registration.Register_Routine
         (T, Test_Public_Build_Normalized_Audit_Agrees_With_No_Execution_Scan'Access,
-         "Phase 193 Public Build Normalized Audit Agrees With No Execution Scan");
+         "Public Build Normalized Audit Agrees With No Execution Scan");
       AUnit.Test_Cases.Registration.Register_Routine
         (T, Test_Public_Build_Guardrail_State_Not_Persisted'Access,
-         "Phase 193 Public Build Guardrail State Not Persisted");
+         "Public Build Guardrail State Not Persisted");
       AUnit.Test_Cases.Registration.Register_Routine
-        (T, Test_Public_Build_Guardrail_Audit_Default_State_Not_Ready_But_Safe'Access,
-         "Phase 192 Public Build Guardrail Audit Default State Not Ready But Safe");
+        (T, Test_Public_Build_Guardrail_Audit_Default_State_Passed'Access,
+         "Public Build Guardrail Audit Default State Passed");
       AUnit.Test_Cases.Registration.Register_Routine
         (T, Test_Public_Build_Guardrail_Audit_Is_Side_Effect_Free'Access,
-         "Phase 192 Public Build Guardrail Audit Is Side Effect Free");
+         "Public Build Guardrail Audit Is Side Effect Free");
       AUnit.Test_Cases.Registration.Register_Routine
         (T, Test_Public_Build_Guardrail_Audit_Uses_Hard_Freeze_Audit'Access,
-         "Phase 192 Public Build Guardrail Audit Uses Hard Freeze Audit");
+         "Public Build Guardrail Audit Uses Hard Freeze Audit");
       AUnit.Test_Cases.Registration.Register_Routine
         (T, Test_Public_Build_Guardrail_Audit_Uses_Drift_Detection'Access,
-         "Phase 192 Public Build Guardrail Audit Uses Drift Detection");
+         "Public Build Guardrail Audit Uses Drift Detection");
       AUnit.Test_Cases.Registration.Register_Routine
         (T, Test_Public_Build_Guardrail_Audit_Uses_Exposure_Barrier'Access,
-         "Phase 192 Public Build Guardrail Audit Uses Exposure Barrier");
+         "Public Build Guardrail Audit Uses Exposure Barrier");
       AUnit.Test_Cases.Registration.Register_Routine
         (T, Test_Public_Build_Surface_Command_Id_List_Is_Centralized'Access,
-         "Phase 192 Public Build Public Command Id List Is Centralized");
+         "Public Build Public Command Id List Is Centralized");
       AUnit.Test_Cases.Registration.Register_Routine
         (T, Test_Public_Build_Surface_Command_Id_Not_Palette_Row'Access,
-         "Phase 192 Public Build Public Command Id Not Palette Row");
+         "Public Build Public Command Id Not Palette Row");
       AUnit.Test_Cases.Registration.Register_Routine
         (T, Test_Public_Build_Surface_Command_Id_Not_Persisted_Command_Name'Access,
-         "Phase 192 Public Build Public Command Id Not Persisted Command Name");
+         "Public Build Public Command Id Not Persisted Command Name");
       AUnit.Test_Cases.Registration.Register_Routine
         (T, Test_Public_Build_Guardrail_Contract_Version_Is_Not_Persisted'Access,
-         "Phase 192 Public Build Guardrail Contract Version Is Not Persisted");
+         "Public Build Guardrail Contract Version Is Not Persisted");
       AUnit.Test_Cases.Registration.Register_Routine
         (T, Test_Public_Build_Unrelated_Feature_Descriptor_Does_Not_Affect_Guardrail'Access,
-         "Phase 192 Public Build Unrelated Feature Descriptor Does Not Affect Guardrail");
+         "Public Build Unrelated Feature Descriptor Does Not Affect Guardrail");
       AUnit.Test_Cases.Registration.Register_Routine
         (T, Test_Public_Build_Unrelated_Diagnostics_Source_Does_Not_Affect_Guardrail'Access,
-         "Phase 192 Public Build Unrelated Diagnostics Source Does Not Affect Guardrail");
+         "Public Build Unrelated Diagnostics Source Does Not Affect Guardrail");
       AUnit.Test_Cases.Registration.Register_Routine
         (T, Test_Public_Build_Unrelated_Messages_Source_Does_Not_Affect_Guardrail'Access,
-         "Phase 192 Public Build Unrelated Messages Source Does Not Affect Guardrail");
+         "Public Build Unrelated Messages Source Does Not Affect Guardrail");
       AUnit.Test_Cases.Registration.Register_Routine
         (T, Test_Public_Build_Unrelated_Settings_Preference_Does_Not_Affect_Guardrail'Access,
-         "Phase 192 Public Build Unrelated Settings Preference Does Not Affect Guardrail");
+         "Public Build Unrelated Settings Preference Does Not Affect Guardrail");
       AUnit.Test_Cases.Registration.Register_Routine
         (T, Test_Public_Build_Long_Horizon_Persistence_Snapshot_Excludes_Guardrail_State'Access,
-         "Phase 192 Public Build Long Horizon Persistence Snapshot Excludes Guardrail State");
+         "Public Build Long Horizon Persistence Snapshot Excludes Guardrail State");
 
       AUnit.Test_Cases.Registration.Register_Routine
         (T, Test_Public_Build_Hard_Freeze_Baseline_Is_Deterministic'Access,
-         "Phase 191 Public Build Hard Freeze Baseline Is Deterministic");
+         "Public Build Hard Freeze Baseline Is Deterministic");
       AUnit.Test_Cases.Registration.Register_Routine
         (T, Test_Public_Build_Hard_Freeze_Drift_Detection_Is_Side_Effect_Free'Access,
-         "Phase 191 Public Build Hard Freeze Drift Detection Is Side Effect Free");
+         "Public Build Hard Freeze Drift Detection Is Side Effect Free");
       AUnit.Test_Cases.Registration.Register_Routine
         (T, Test_Public_Build_Hard_Freeze_Drift_Default_State_Has_No_Drift'Access,
-         "Phase 191 Public Build Hard Freeze Drift Default State Has No Drift");
+         "Public Build Hard Freeze Drift Default State Has No Drift");
       AUnit.Test_Cases.Registration.Register_Routine
         (T, Test_Public_Build_Hard_Freeze_Drift_Detects_Public_Command'Access,
-         "Phase 191 Public Build Hard Freeze Drift Detects Public Command");
+         "Public Build Hard Freeze Drift Detects Public Command");
       AUnit.Test_Cases.Registration.Register_Routine
         (T, Test_Public_Build_Hard_Freeze_Drift_Detects_Keybinding'Access,
-         "Phase 191 Public Build Hard Freeze Drift Detects Keybinding");
+         "Public Build Hard Freeze Drift Detects Keybinding");
       AUnit.Test_Cases.Registration.Register_Routine
         (T, Test_Public_Build_Hard_Freeze_Drift_Detects_Palette_Entry'Access,
-         "Phase 191 Public Build Hard Freeze Drift Detects Palette Feed_Item");
+         "Public Build Hard Freeze Drift Detects Palette Feed_Item");
       AUnit.Test_Cases.Registration.Register_Routine
         (T, Test_Public_Build_Hard_Freeze_Drift_Detects_Executor_Route'Access,
-         "Phase 191 Public Build Hard Freeze Drift Detects Executor Route");
+         "Public Build Hard Freeze Drift Detects Executor Route");
       AUnit.Test_Cases.Registration.Register_Routine
         (T, Test_Public_Build_Hard_Freeze_Drift_Detects_Public_Invocation_Path'Access,
-         "Phase 191 Public Build Hard Freeze Drift Detects Invocation Path");
+         "Public Build Hard Freeze Drift Detects Invocation Path");
       AUnit.Test_Cases.Registration.Register_Routine
         (T, Test_Public_Build_Hard_Freeze_Drift_Detects_Bindable_Command'Access,
-         "Phase 191 Public Build Hard Freeze Drift Detects Bindable Command");
+         "Public Build Hard Freeze Drift Detects Bindable Command");
       AUnit.Test_Cases.Registration.Register_Routine
         (T, Test_Public_Build_Hard_Freeze_Drift_Detects_Promotion_Status_Change'Access,
-         "Phase 191 Public Build Hard Freeze Drift Detects Promotion Status Change");
+         "Public Build Hard Freeze Drift Detects Promotion Status Change");
       AUnit.Test_Cases.Registration.Register_Routine
         (T, Test_Public_Build_Hard_Freeze_Drift_Detects_Blocker_Precedence_Change'Access,
-         "Phase 191 Public Build Hard Freeze Drift Detects Blocker Precedence Change");
+         "Public Build Hard Freeze Drift Detects Blocker Precedence Change");
       AUnit.Test_Cases.Registration.Register_Routine
         (T, Test_Public_Build_Hard_Freeze_Drift_Detects_Persistence_Leak'Access,
-         "Phase 191 Public Build Hard Freeze Drift Detects Persistence Leak");
+         "Public Build Hard Freeze Drift Detects Persistence Leak");
       AUnit.Test_Cases.Registration.Register_Routine
         (T, Test_Public_Build_Surface_Id_Cannot_Be_Reused_By_Unrelated_Command'Access,
-         "Phase 191 Public Build Public Id Cannot Be Reused By Unrelated Command");
+         "Public Build Public Id Cannot Be Reused By Unrelated Command");
       AUnit.Test_Cases.Registration.Register_Routine
         (T, Test_Public_Build_Surface_Id_Cannot_Be_Reused_By_Unrelated_Command'Access,
-         "Phase 191 Public Build Public Id Cannot Be ed To Internal Command");
+         "Public Build Public Id Cannot Be ed To Internal Command");
       AUnit.Test_Cases.Registration.Register_Routine
         (T, Test_Public_Build_Surface_Id_Cannot_Be_Keybinding_Target'Access,
-         "Phase 191 Public Build Public Id Cannot Be Keybinding Target");
+         "Public Build Public Id Cannot Be Keybinding Target");
       AUnit.Test_Cases.Registration.Register_Routine
         (T, Test_Public_Build_Audit_Composition_Remains_Consistent'Access,
-         "Phase 191 Public Build Audit Composition Remains Consistent");
+         "Public Build Audit Composition Remains Consistent");
       AUnit.Test_Cases.Registration.Register_Routine
         (T, Test_Public_Build_Audit_Composition_Hard_Failure_Fails_Hard_Freeze'Access,
-         "Phase 191 Public Build Audit Composition Hard Failure Fails Hard Freeze");
+         "Public Build Audit Composition Hard Failure Fails Hard Freeze");
       AUnit.Test_Cases.Registration.Register_Routine
         (T, Test_Public_Build_Unrelated_Public_Command_Does_Not_Affect_Freeze'Access,
-         "Phase 191 Public Build Unrelated Public Command Does Not Affect Freeze");
+         "Public Build Unrelated Public Command Does Not Affect Freeze");
       AUnit.Test_Cases.Registration.Register_Routine
         (T, Test_Public_Build_Unrelated_Keybinding_Does_Not_Affect_Freeze'Access,
-         "Phase 191 Public Build Unrelated Keybinding Does Not Affect Freeze");
+         "Public Build Unrelated Keybinding Does Not Affect Freeze");
       AUnit.Test_Cases.Registration.Register_Routine
-        (T, Test_No_Public_Build_Execution_Path_Deep_Scan'Access,
-         "Phase 191 No Public Build Execution Path Deep Scan");
+        (T, Test_No_Public_Build_Execution_Path_RemainsDeep_Scan'Access,
+         "No Public Build Execution Path Deep Scan");
       AUnit.Test_Cases.Registration.Register_Routine
         (T, Test_Public_Build_Drift_Feedback_Is_Deterministic'Access,
-         "Phase 191 Public Build Drift Feedback Is Deterministic");
+         "Public Build Drift Feedback Is Deterministic");
 
       AUnit.Test_Cases.Registration.Register_Routine
         (T, Test_User_Opt_In_Build_Command_Is_Internal'Access,
-         "Phase 179 User Opt-In Build Command Is Internal");
+         "User Opt-In Build Command Is Internal");
       AUnit.Test_Cases.Registration.Register_Routine
-        (T, Test_Phase559_Recent_Project_Selected_Row_Commands_Are_No_Payload'Access,
-         "Phase 559 Recent Projects selected-row commands are no-payload");
+        (T, Test_Recent_Project_Selected_Row_Commands_Are_No_Payload'Access,
+         "Recent Projects selected-row commands are no-payload");
       AUnit.Test_Cases.Registration.Register_Routine
         (T, Test_User_Opt_In_Build_Command_Has_No_Default_Keybinding'Access,
-         "Phase 179 User Opt-In Build Command Has No Default Keybinding");
+         "User Opt-In Build Command Has No Default Keybinding");
       AUnit.Test_Cases.Registration.Register_Routine
         (T, Test_User_Opt_In_Build_Command_Bare_Route_Is_Unavailable'Access,
-         "Phase 179 User Opt-In Build Command Bare Route Is Unavailable");
+         "User Opt-In Build Command Bare Route Is Unavailable");
       AUnit.Test_Cases.Registration.Register_Routine
         (T, Test_User_Opt_In_Build_Command_Structured_Route_Reaches_Executor'Access,
-         "Phase 179 User Opt-In Build Command Structured Route Reaches Executor");
+         "User Opt-In Build Command Structured Route Reaches Executor");
       AUnit.Test_Cases.Registration.Register_Routine
         (T, Test_Build_Command_Surface_Has_No_Public_Run_Command'Access,
-         "Phase 181 Build Command Surface Has No Public Run Command");
+         "Build Command Surface Has No Public Run Command");
       AUnit.Test_Cases.Registration.Register_Routine
         (T, Test_Public_Build_Readiness_Audit_Reports_Not_Ready'Access,
-         "Phase 182 Public Build Readiness Audit Reports Not Ready");
+         "Public Build Readiness Audit Reports Not Ready");
       AUnit.Test_Cases.Registration.Register_Routine
         (T, Test_Public_Build_Readiness_Audit_Is_Side_Effect_Free'Access,
-         "Phase 182 Public Build Readiness Audit Is Side Effect Free");
+         "Public Build Readiness Audit Is Side Effect Free");
       AUnit.Test_Cases.Registration.Register_Routine
         (T, Test_Public_Build_Commands_Are_Not_Registered'Access,
-         "Phase 182 Public Build Commands Are Not Registered");
+         "Public Build Commands Are Not Registered");
       AUnit.Test_Cases.Registration.Register_Routine
         (T, Test_Public_Build_Commands_Have_No_Default_Keybindings'Access,
-         "Phase 182 Public Build Commands Have No Default Keybindings");
+         "Public Build Commands Have No Default Keybindings");
       AUnit.Test_Cases.Registration.Register_Routine
         (T, Test_Public_Build_Commands_Are_Hidden_From_Normal_Palette'Access,
-         "Phase 182 Public Build Commands Are Hidden From Normal Palette");
+         "Public Build Commands Are Hidden From Normal Palette");
       AUnit.Test_Cases.Registration.Register_Routine
         (T, Test_Public_Build_Readiness_Reports_Missing_UX_Models'Access,
-         "Phase 182 Public Build Readiness Reports Missing UX Models");
+         "Public Build Readiness Reports Missing UX Models");
       AUnit.Test_Cases.Registration.Register_Routine
         (T, Test_Public_Build_Readiness_Keeps_Rejections'Access,
-         "Phase 182 Public Build Readiness Keeps Rejections");
+         "Public Build Readiness Keeps Rejections");
       AUnit.Test_Cases.Registration.Register_Routine
         (T, Test_Build_Command_Classification_Helpers'Access,
-         "Phase 182 Build Command Classification Helpers");
+         "Build Command Classification Helpers");
       AUnit.Test_Cases.Registration.Register_Routine
         (T, Test_Public_Build_Working_Context_Validation_Is_Side_Effect_Free'Access,
-         "Phase 186 Public Build Working Context Validation Is Side Effect Free");
+         "Public Build Working Context Validation Is Side Effect Free");
       AUnit.Test_Cases.Registration.Register_Routine
         (T, Test_Public_Build_Working_Context_Rejects_Invalid_Forms'Access,
-         "Phase 186 Public Build Working Context Rejects Invalid Forms");
+         "Public Build Working Context Rejects Invalid Forms");
       AUnit.Test_Cases.Registration.Register_Routine
         (T, Test_Public_Build_Working_Context_Test_Context_Internal_Only'Access,
-         "Phase 186 Public Build Working Context Test Context Internal Only");
+         "Public Build Working Context Test Context Internal Only");
       AUnit.Test_Cases.Registration.Register_Routine
         (T, Test_Public_Build_Working_Context_User_Form_Not_Publicly_Exposable'Access,
-         "Phase 186 Public Build Working Context User Form Not Publicly Exposable");
+         "Public Build Working Context User Form Not Publicly Exposable");
       AUnit.Test_Cases.Registration.Register_Routine
         (T, Test_Public_Build_Input_Conversion_Rejects_Project_Derived_Working_Context'Access,
-         "Phase 186 Public Build Input Conversion Rejects Project Derived Working Context");
+         "Public Build Input Conversion Rejects Project Derived Working Context");
       AUnit.Test_Cases.Registration.Register_Routine
         (T, Test_Public_Build_Input_Conversion_Does_Not_Silently_Upgrade_Working_Context'Access,
-         "Phase 186 Public Build Input Conversion Does Not Silently Upgrade Working Context");
+         "Public Build Input Conversion Does Not Silently Upgrade Working Context");
       AUnit.Test_Cases.Registration.Register_Routine
         (T, Test_Public_Build_Input_Conversion_Valid_Test_Working_Context_Uses_Inherited_Test_Context'Access,
-         "Phase 186 Public Build Input Conversion Valid Test Working Context Uses Inherited Test Context");
+         "Public Build Input Conversion Valid Test Working Context Uses Inherited Test Context");
       AUnit.Test_Cases.Registration.Register_Routine
         (T, Test_Public_Build_Working_Context_Feedback_Is_Deterministic'Access,
-         "Phase 186 Public Build Working Context Feedback Is Deterministic");
+         "Public Build Working Context Feedback Is Deterministic");
       AUnit.Test_Cases.Registration.Register_Routine
         (T, Test_Public_Build_Readiness_Audit_Reports_Working_Context_Model'Access,
-         "Phase 186 Public Build Readiness Audit Reports Working Context Model");
+         "Public Build Readiness Audit Reports Working Context Model");
       AUnit.Test_Cases.Registration.Register_Routine
         (T, Test_Public_Build_Working_Context_Model_Does_Not_Register_Public_Command'Access,
-         "Phase 186 Public Build Working Context Model Does Not Register Public Command");
+         "Public Build Working Context Model Does Not Register Public Command");
       AUnit.Test_Cases.Registration.Register_Routine
         (T, Test_Public_Build_Command_Surface_Entries_Exist_As_Metadata_Only'Access,
-         "Phase 187 Public Build Command Surface_Entries Exist As Metadata Only");
+         "Public Build Command Surface_Entries Exist As Metadata Only");
       AUnit.Test_Cases.Registration.Register_Routine
         (T, Test_Public_Build_Command_Surface_Entry_Not_Registered'Access,
-         "Phase 187 Public Build Command Surface_Entry Not Registered");
+         "Public Build Command Surface_Entry Not Registered");
       AUnit.Test_Cases.Registration.Register_Routine
         (T, Test_Public_Build_Command_Surface_Entry_Has_No_Keybinding'Access,
-         "Phase 187 Public Build Command Surface_Entry Has No Keybinding");
+         "Public Build Command Surface_Entry Has No Keybinding");
       AUnit.Test_Cases.Registration.Register_Routine
         (T, Test_Public_Build_Command_Surface_Entry_Not_In_Normal_Palette'Access,
-         "Phase 187 Public Build Command Surface_Entry Not In Normal Palette");
+         "Public Build Command Surface_Entry Not In Normal Palette");
       AUnit.Test_Cases.Registration.Register_Routine
         (T, Test_Public_Build_Command_Surface_Entry_Does_Not_Route_To_Executor'Access,
-         "Phase 187 Public Build Command Surface_Entry Does Not Route To Executor");
+         "Public Build Command Surface_Entry Does Not Route To Executor");
       AUnit.Test_Cases.Registration.Register_Routine
         (T, Test_Public_Build_Command_Surface_Validation_Is_Side_Effect_Free'Access,
-         "Phase 187 Public Build Command Surface_Entry Validation Is Side Effect Free");
+         "Public Build Command Surface_Entry Validation Is Side Effect Free");
       AUnit.Test_Cases.Registration.Register_Routine
         (T, Test_Public_Build_Command_Surface_Entry_Rejects_Invalid_Forms'Access,
-         "Phase 187 Public Build Command Surface_Entry Rejects Invalid Forms");
+         "Public Build Command Surface_Entry Rejects Invalid Forms");
       AUnit.Test_Cases.Registration.Register_Routine
         (T, Test_Public_Build_Readiness_Audit_Reports_Surface_Entries'Access,
-         "Phase 187 Public Build Readiness Audit Reports Surface_Entries");
+         "Public Build Readiness Audit Reports Surface_Entries");
       AUnit.Test_Cases.Registration.Register_Routine
-        (T, Test_Public_Build_Command_UX_Dependency_Matrix_Is_Not_Ready'Access,
-         "Phase 187 Public Build Command UX Dependency Matrix Is Not Ready");
+        (T, Test_Public_Build_Command_UX_Dependency_Matrix_Is_Ready'Access,
+         "Public Build Command UX Dependency Matrix Is Ready");
       AUnit.Test_Cases.Registration.Register_Routine
         (T, Test_Public_Build_Command_Not_Ready_Feedback_Is_Deterministic'Access,
-         "Phase 187 Public Build Command Not Ready Feedback Is Deterministic");
+         "Public Build Command Not Ready Feedback Is Deterministic");
       AUnit.Test_Cases.Registration.Register_Routine
         (T, Test_Public_Build_Command_Exposure_Barrier_Passes_For_Surface_Entries'Access,
-         "Phase 187 Public Build Command Exposure Barrier Passes For Surface_Entries");
+         "Public Build Command Exposure Barrier Passes For Surface_Entries");
       AUnit.Test_Cases.Registration.Register_Routine
         (T, Test_Public_Build_Promotion_Blocked_When_Consent_UX_Missing'Access,
-         "Phase 188 Public Build Promotion Blocked When Consent UX Missing");
+         "Public Build Promotion Blocked When Consent UX Missing");
       AUnit.Test_Cases.Registration.Register_Routine
         (T, Test_Public_Build_Promotion_Blocked_When_Working_Context_UX_Missing'Access,
-         "Phase 188 Public Build Promotion Blocked When Working Context UX Missing");
+         "Public Build Promotion Blocked When Working Context UX Missing");
       AUnit.Test_Cases.Registration.Register_Routine
-        (T, Test_Public_Build_Promotion_Blocked_When_Project_Metadata_Not_Validated'Access,
-         "Phase 188 Public Build Promotion Blocked When Project Metadata Not Validated");
+        (T, Test_Public_Build_Promotion_Ready_When_Guardrails_Pass'Access,
+         "Public Build Promotion Ready When Guardrails Pass");
       AUnit.Test_Cases.Registration.Register_Routine
         (T, Test_Public_Build_Promotion_Blocked_When_Command_Already_Registered'Access,
-         "Phase 188 Public Build Promotion Blocked When Command Already Registered");
+         "Public Build Promotion Blocked When Command Already Registered");
       AUnit.Test_Cases.Registration.Register_Routine
         (T, Test_Public_Build_Promotion_Blocked_When_Default_Keybinding_Exists'Access,
-         "Phase 188 Public Build Promotion Blocked When Default Keybinding Exists");
+         "Public Build Promotion Blocked When Default Keybinding Exists");
       AUnit.Test_Cases.Registration.Register_Routine
         (T, Test_Public_Build_Promotion_Blocked_When_Executor_Route_Exists'Access,
-         "Phase 188 Public Build Promotion Blocked When Executor Route Exists");
+         "Public Build Promotion Blocked When Executor Route Exists");
       AUnit.Test_Cases.Registration.Register_Routine
-        (T, Test_Public_Build_Promotion_Never_Ready_In_Phase_188'Access,
-         "Phase 188 Public Build Promotion Never Ready");
+        (T, Test_Public_Build_Promotion_Ready_In_Current_State'Access,
+         "Public Build Promotion Ready In Current State");
       AUnit.Test_Cases.Registration.Register_Routine
         (T, Test_Public_Build_Promotion_Audit_Is_Side_Effect_Free'Access,
-         "Phase 188 Public Build Promotion Audit Is Side Effect Free");
+         "Public Build Promotion Audit Is Side Effect Free");
       AUnit.Test_Cases.Registration.Register_Routine
         (T, Test_Public_Build_UX_Dependency_Matrix_Exists'Access,
-         "Phase 189 Public Build UX Dependency Matrix Exists");
+         "Public Build UX Dependency Matrix Exists");
       AUnit.Test_Cases.Registration.Register_Routine
-        (T, Test_Public_Build_UX_Dependency_Matrix_Validation_Blocks_Promotion'Access,
-         "Phase 189 Public Build UX Dependency Matrix Validation Blocks Promotion");
+        (T, Test_Public_Build_UX_Dependency_Matrix_Validation_Allows_Promotion'Access,
+         "Public Build UX Dependency Matrix Validation Allows Promotion");
       AUnit.Test_Cases.Registration.Register_Routine
         (T, Test_Public_Build_Promotion_Blocker_Precedence_Is_Deterministic'Access,
-         "Phase 189 Public Build Promotion Blocker Precedence Is Deterministic");
+         "Public Build Promotion Blocker Precedence Is Deterministic");
       AUnit.Test_Cases.Registration.Register_Routine
         (T, Test_Public_Build_Readiness_Audit_Reports_Dependency_Matrix'Access,
-         "Phase 189 Public Build Readiness Audit Reports Dependency Matrix");
+         "Public Build Readiness Audit Reports Dependency Matrix");
       AUnit.Test_Cases.Registration.Register_Routine
         (T, Test_Public_Build_Exposure_Hard_Failure_For_Simulated_Public_Command'Access,
-         "Phase 189 Public Build Exposure Hard Failure For Simulated Public Command");
+         "Public Build Exposure Hard Failure For Simulated Public Command");
       AUnit.Test_Cases.Registration.Register_Routine
         (T, Test_Public_Build_Repeated_Audits_Are_Stable'Access,
-         "Phase 189 Public Build Repeated Audits Are Stable");
+         "Public Build Repeated Audits Are Stable");
 
       AUnit.Test_Cases.Registration.Register_Routine
         (T, Test_Public_Build_Hard_Freeze_Audit_Passes_Default_State'Access,
-         "Phase 190 Public Build Hard Freeze Audit Passes Default State");
+         "Public Build Hard Freeze Audit Passes Default State");
       AUnit.Test_Cases.Registration.Register_Routine
         (T, Test_Public_Build_Hard_Freeze_Audit_Is_Side_Effect_Free'Access,
-         "Phase 190 Public Build Hard Freeze Audit Is Side Effect Free");
+         "Public Build Hard Freeze Audit Is Side Effect Free");
       AUnit.Test_Cases.Registration.Register_Routine
         (T, Test_Public_Build_Hard_Freeze_Audit_Agrees_With_Other_Audits'Access,
-         "Phase 190 Public Build Hard Freeze Audit Agrees With Other Audits");
+         "Public Build Hard Freeze Audit Agrees With Other Audits");
       AUnit.Test_Cases.Registration.Register_Routine
-        (T, Test_Public_Build_Blocker_Summary_Is_Deterministic_Phase_190'Access,
-         "Phase 190 Public Build Blocker Summary Is Deterministic");
+        (T, Test_Public_Build_Blocker_Summary_Is_Deterministic_For_Current_State'Access,
+         "Public Build Blocker Summary Is Deterministic");
       AUnit.Test_Cases.Registration.Register_Routine
         (T, Test_Public_Build_Hard_Freeze_Detects_Simulated_Hard_Failures'Access,
-         "Phase 190 Public Build Hard Freeze Detects Simulated Hard Failures");
+         "Public Build Hard Freeze Detects Simulated Hard Failures");
       AUnit.Test_Cases.Registration.Register_Routine
         (T, Test_Public_Build_Hard_Freeze_Remains_After_Lifecycle_Transitions'Access,
-         "Phase 190 Public Build Hard Freeze Remains After Lifecycle Transitions");
+         "Public Build Hard Freeze Remains After Lifecycle Transitions");
       AUnit.Test_Cases.Registration.Register_Routine
-        (T, Test_No_Public_Build_Execution_Path_Phase_190'Access,
-         "Phase 190 No Public Build Execution Path");
+        (T, Test_No_Public_Build_Execution_Path_Remains'Access,
+         "No Public Build Execution Path");
       AUnit.Test_Cases.Registration.Register_Routine
         (T, Test_Public_Build_Hard_Freeze_Feedback_Is_Deterministic'Access,
-         "Phase 190 Public Build Hard Freeze Feedback Is Deterministic");
+         "Public Build Hard Freeze Feedback Is Deterministic");
       AUnit.Test_Cases.Registration.Register_Routine
         (T, Test_Public_Build_Consent_Validation_Is_Side_Effect_Free'Access,
-         "Phase 185 Public Build Consent Validation Is Side Effect Free");
+         "Public Build Consent Validation Is Side Effect Free");
       AUnit.Test_Cases.Registration.Register_Routine
         (T, Test_Public_Build_Consent_Rejects_Missing_Acknowledgements'Access,
-         "Phase 185 Public Build Consent Rejects Missing Acknowledgements");
+         "Public Build Consent Rejects Missing Acknowledgements");
       AUnit.Test_Cases.Registration.Register_Routine
         (T, Test_Public_Build_Consent_Test_Context_Internal_Only'Access,
-         "Phase 185 Public Build Consent Test Context Internal Only");
+         "Public Build Consent Test Context Internal Only");
       AUnit.Test_Cases.Registration.Register_Routine
         (T, Test_Public_Build_Consent_User_Form_Not_Publicly_Exposable'Access,
-         "Phase 185 Public Build Consent User Form Not Publicly Exposable");
+         "Public Build Consent User Form Not Publicly Exposable");
       AUnit.Test_Cases.Registration.Register_Routine
         (T, Test_Public_Build_Consent_Feedback_Is_Deterministic'Access,
-         "Phase 185 Public Build Consent Feedback Is Deterministic");
+         "Public Build Consent Feedback Is Deterministic");
       AUnit.Test_Cases.Registration.Register_Routine
         (T, Test_Public_Build_Input_Validation_Is_Side_Effect_Free'Access,
-         "Phase 183 Public Build Input Validation Is Side Effect Free");
+         "Public Build Input Validation Is Side Effect Free");
       AUnit.Test_Cases.Registration.Register_Routine
         (T, Test_Public_Build_Input_Rejects_Invalid_Forms'Access,
-         "Phase 183 Public Build Input Rejects Invalid Forms");
+         "Public Build Input Rejects Invalid Forms");
       AUnit.Test_Cases.Registration.Register_Routine
         (T, Test_Public_Build_Input_Validates_Structured_Argv'Access,
-         "Phase 183 Public Build Input Validates Structured Argv");
+         "Public Build Input Validates Structured Argv");
       AUnit.Test_Cases.Registration.Register_Routine
         (T, Test_Public_Build_Input_Safety_Classification'Access,
-         "Phase 184 Public Build Input Safety Classification");
+         "Public Build Input Safety Classification");
       AUnit.Test_Cases.Registration.Register_Routine
         (T, Test_Public_Build_Input_No_State_Publicly_Exposable'Access,
-         "Phase 184 Public Build Input No State Publicly Exposable");
+         "Public Build Input No State Publicly Exposable");
       AUnit.Test_Cases.Registration.Register_Routine
         (T, Test_Public_Build_Input_Working_Context_Guardrails'Access,
-         "Phase 184 Public Build Input Working Context Guardrails");
+         "Public Build Input Working Context Guardrails");
       AUnit.Test_Cases.Registration.Register_Routine
         (T, Test_Public_Build_Input_Program_Label_Guardrails'Access,
-         "Phase 184 Public Build Input Program Label Guardrails");
+         "Public Build Input Program Label Guardrails");
       AUnit.Test_Cases.Registration.Register_Routine
         (T, Test_Public_Build_Input_Argument_Guardrails'Access,
-         "Phase 184 Public Build Input Argument Guardrails");
+         "Public Build Input Argument Guardrails");
       AUnit.Test_Cases.Registration.Register_Routine
         (T, Test_Public_Build_Input_Conversion_Consistency_Valid_Test_Context'Access,
-         "Phase 184 Public Build Input Conversion Consistency Valid Test Context");
+         "Public Build Input Conversion Consistency Valid Test Context");
       AUnit.Test_Cases.Registration.Register_Routine
         (T, Test_Public_Build_Input_Conversion_Requires_Valid_Input'Access,
-         "Phase 183 Public Build Input Conversion Requires Valid Input");
+         "Public Build Input Conversion Requires Valid Input");
       AUnit.Test_Cases.Registration.Register_Routine
         (T, Test_Public_Build_Input_Conversion_Rejects_Invalid_Consent'Access,
-         "Phase 185 Public Build Input Conversion Rejects Invalid Consent");
+         "Public Build Input Conversion Rejects Invalid Consent");
       AUnit.Test_Cases.Registration.Register_Routine
         (T, Test_Public_Build_Input_Conversion_Does_Not_Silently_Upgrade_Consent'Access,
-         "Phase 185 Public Build Input Conversion Does Not Silently Upgrade Consent");
+         "Public Build Input Conversion Does Not Silently Upgrade Consent");
       AUnit.Test_Cases.Registration.Register_Routine
         (T, Test_Public_Build_Input_Conversion_Uses_User_Opt_In_Provenance'Access,
-         "Phase 183 Public Build Input Conversion Uses User Opt-In Provenance");
+         "Public Build Input Conversion Uses User Opt-In Provenance");
       AUnit.Test_Cases.Registration.Register_Routine
         (T, Test_Public_Build_Input_Feedback_Is_Deterministic'Access,
-         "Phase 183 Public Build Input Feedback Is Deterministic");
+         "Public Build Input Feedback Is Deterministic");
       AUnit.Test_Cases.Registration.Register_Routine
         (T, Test_Public_Build_Readiness_Audit_Reports_Input_Model_Present'Access,
-         "Phase 183 Public Build Readiness Audit Reports Input Model Present");
+         "Public Build Readiness Audit Reports Input Model Present");
       AUnit.Test_Cases.Registration.Register_Routine
         (T, Test_Public_Build_Input_Does_Not_Register_Public_Command'Access,
-         "Phase 183 Public Build Input Does Not Register Public Command");
+         "Public Build Input Does Not Register Public Command");
       AUnit.Test_Cases.Registration.Register_Routine
         (T, Test_Build_Command_Route_Audit_Covers_Executor_Boundary'Access,
-         "Phase 181 Build Command Route Audit Covers Executor Boundary");
+         "Build Command Route Audit Covers Executor Boundary");
       AUnit.Test_Cases.Registration.Register_Routine
         (T, Test_Build_Command_Route_Audit_Rejects_Bypass_Routes'Access,
-         "Phase 181 Build Command Route Audit Rejects Bypass Routes");
+         "Build Command Route Audit Rejects Bypass Routes");
+      AUnit.Test_Cases.Registration.Register_Routine
+        (T, Test_Command_UI_Route_Audit_Covers_Panel_Actions'Access,
+         "Command UI Route Audit Covers Panel Actions");
+      AUnit.Test_Cases.Registration.Register_Routine
+        (T, Test_Command_UI_Route_Audit_Rejects_Bypass_And_Duplicate'Access,
+         "Command UI Route Audit Rejects Bypass And Duplicate");
       AUnit.Test_Cases.Registration.Register_Routine
         (T, Test_Command_Descriptor_Audit_Helpers'Access,
-         "Phase 87 Command Descriptor Audit Helpers");
+         "Command Descriptor Audit Helpers");
       AUnit.Test_Cases.Registration.Register_Routine
         (T, Test_Palette_Command_Traversal_Audit'Access,
-         "Phase 87 Palette Command Traversal Audit");
+         "Palette Command Traversal Audit");
       AUnit.Test_Cases.Registration.Register_Routine
         (T, Test_Keybinding_Validation_Audit'Access,
-         "Phase 87 Keybinding Validation Audit");
+         "Keybinding Validation Audit");
       AUnit.Test_Cases.Registration.Register_Routine
         (T, Test_Command_Palette_Candidates_Use_Command_Registry'Access,
-         "Phase 87 Palette Candidates Use Command Registry");
+         "Palette Candidates Use Command Registry");
       AUnit.Test_Cases.Registration.Register_Routine
-        (T, Test_Phase_88_Static_Command_Invariants'Access,
-         "Phase 88 Static Command Invariants");
+        (T, Test_Static_Command_Invariants'Access,
+         "Static Command Invariants");
       AUnit.Test_Cases.Registration.Register_Routine
-        (T, Test_Phase_88_Availability_Is_Read_Only_On_Empty_State'Access,
-         "Phase 88 Availability Is Read-Only On Empty State");
+        (T, Test_Availability_Is_Read_Only_On_Empty_State'Access,
+         "Availability Is Read-Only On Empty State");
       AUnit.Test_Cases.Registration.Register_Routine
-        (T, Test_Phase_88_Unavailable_Reason_Consistency'Access,
-         "Phase 88 Unavailable Reason Consistency");
+        (T, Test_Unavailable_Reason_Consistency'Access,
+         "Unavailable Reason Consistency");
       AUnit.Test_Cases.Registration.Register_Routine
-        (T, Test_Phase_88_Palette_Snapshot_Determinism'Access,
-         "Phase 88 Palette Snapshot Determinism");
+        (T, Test_Palette_Snapshot_Determinism'Access,
+         "Palette Snapshot Determinism");
       AUnit.Test_Cases.Registration.Register_Routine
-        (T, Test_Phase_88_Guarded_Execute_Command_Unavailable_Message'Access,
-         "Phase 88 Guarded Execute Command Unavailable Message");
+        (T, Test_Guarded_Execute_Command_Unavailable_Message'Access,
+         "Guarded Execute Command Unavailable Message");
       AUnit.Test_Cases.Registration.Register_Routine
-        (T, Test_Phase_88_Command_Row_Layout_Edges'Access,
-         "Phase 88 Command Row Layout Edges");
+        (T, Test_Command_Row_Layout_Edges'Access,
+         "Command Row Layout Edges");
       AUnit.Test_Cases.Registration.Register_Routine
-        (T, Test_Phase_88_Hidden_Command_Behavior'Access,
-         "Phase 88 Hidden Command Behavior");
+        (T, Test_Hidden_Command_Behavior'Access,
+         "Hidden Command Behavior");
       AUnit.Test_Cases.Registration.Register_Routine
-        (T, Test_Phase_503_Build_Run_Public_Descriptor'Access,
-         "Phase 503 Build Run Public Descriptor");
+        (T, Test_Build_Run_Public_Descriptor'Access,
+         "Build Run Public Descriptor");
       AUnit.Test_Cases.Registration.Register_Routine
-        (T, Test_Phase_503_Build_Run_Readiness_Reasons'Access,
-         "Phase 503 Build Run Readiness Reasons");
+        (T, Test_Build_Run_Readiness_Reasons'Access,
+         "Build Run Readiness Reasons");
       AUnit.Test_Cases.Registration.Register_Routine
-        (T, Test_Phase_503_Build_Run_Coherent_Audit'Access,
-         "Phase 503 Build Run Coherent Audit");
+        (T, Test_Build_Run_Coherent_Audit'Access,
+         "Build Run Coherent Audit");
       AUnit.Test_Cases.Registration.Register_Routine
-        (T, Test_Phase_534_Configuration_Command_Surface_Coherent'Access,
-         "Phase 534 Configuration Command Surface Coherent");
+        (T, Test_Configuration_Command_Surface_Coherent'Access,
+         "Configuration Command Surface Coherent");
       AUnit.Test_Cases.Registration.Register_Routine
-        (T, Test_Phase_560_Switch_Project_Command_Surface'Access,
-         "Phase 560 Switch Project Command Surface");
+        (T, Test_Switch_Project_Command_Surface'Access,
+         "Switch Project Command Surface");
 
 
       AUnit.Test_Cases.Registration.Register_Routine
-        (T, Test_Phase_109_Command_Metadata_Completeness'Access,
-         "Phase 109 Command Metadata Completeness");
+        (T, Test_Command_Metadata_Completeness'Access,
+         "Command Metadata Completeness");
       AUnit.Test_Cases.Registration.Register_Routine
-        (T, Test_Phase_109_Stable_Command_Name_Coverage'Access,
-         "Phase 109 Stable Command Name Coverage");
+        (T, Test_Stable_Command_Name_Coverage'Access,
+         "Stable Command Name Coverage");
       AUnit.Test_Cases.Registration.Register_Routine
-        (T, Test_Phase_109_Command_Classification_Invariants'Access,
-         "Phase 109 Command Classification Invariants");
+        (T, Test_Command_Classification_Invariants'Access,
+         "Command Classification Invariants");
       AUnit.Test_Cases.Registration.Register_Routine
-        (T, Test_Phase_109_Save_Command_Descriptions_Are_Distinct'Access,
-         "Phase 109 Save Command Descriptions Are Distinct");
+        (T, Test_Save_Command_Descriptions_Are_Distinct'Access,
+         "Save Command Descriptions Are Distinct");
       AUnit.Test_Cases.Registration.Register_Routine
-        (T, Test_Phase_109_Execution_Result_For_No_Op_And_Unavailable'Access,
-         "Phase 109 Execution Result For No-Op And Unavailable");
+        (T, Test_Execution_Result_For_No_Op_And_Unavailable'Access,
+         "Execution Result For No-Op And Unavailable");
       AUnit.Test_Cases.Registration.Register_Routine
-        (T, Test_Phase_109_Disabled_State_Baseline'Access,
-         "Phase 109 Disabled State Baseline");
+        (T, Test_Disabled_State_Baseline'Access,
+         "Disabled State Baseline");
       AUnit.Test_Cases.Registration.Register_Routine
-        (T, Test_Phase_110_Command_Execution_Result_Terminology'Access,
-         "Phase 110 Command Execution Result Terminology");
+        (T, Test_Command_Execution_Result_Terminology'Access,
+         "Command Execution Result Terminology");
       AUnit.Test_Cases.Registration.Register_Routine
-        (T, Test_Phase_110_Unavailable_Commands_Are_Side_Effect_Limited'Access,
-         "Phase 110 Unavailable Commands Are Side-Effect Limited_View");
+        (T, Test_Unavailable_Commands_Are_Side_Effect_Limited'Access,
+         "Unavailable Commands Are Side-Effect Limited_View");
       AUnit.Test_Cases.Registration.Register_Routine
-        (T, Test_Phase_110_Availability_And_Execution_Result_Consistency'Access,
-         "Phase 110 Availability And Execution Result Consistency");
+        (T, Test_Availability_And_Execution_Result_Consistency'Access,
+         "Availability And Execution Result Consistency");
       AUnit.Test_Cases.Registration.Register_Routine
-        (T, Test_Phase_110_Command_For_Id_Fallback_Coverage_Audit'Access,
-         "Phase 110 Command_For_Id Fallback Coverage Audit");
+        (T, Test_Command_For_Id_Fallback_Coverage_Audit'Access,
+         "Command_For_Id Fallback Coverage Audit");
       AUnit.Test_Cases.Registration.Register_Routine
-        (T, Test_Phase_110_Command_Palette_Dispatch_Uses_Executor_Result'Access,
-         "Phase 110 Command Palette Dispatch Uses Executor Result");
+        (T, Test_Command_Palette_Dispatch_Uses_Executor_Result'Access,
+         "Command Palette Dispatch Uses Executor Result");
       AUnit.Test_Cases.Registration.Register_Routine
-        (T, Test_Phase_111_Command_Execution_Final_Status_Helpers'Access,
-         "Phase 111 Command Execution Final Status Helpers");
+        (T, Test_Command_Execution_Final_Status_Helpers'Access,
+         "Command Execution Final Status Helpers");
       AUnit.Test_Cases.Registration.Register_Routine
-        (T, Test_Phase_111_Command_Category_Baseline'Access,
-         "Phase 111 Command Category Baseline");
+        (T, Test_Command_Category_Baseline'Access,
+         "Command Category Baseline");
       AUnit.Test_Cases.Registration.Register_Routine
-        (T, Test_Phase_111_Command_Classification_Groups'Access,
-         "Phase 111 Command Classification Groups");
+        (T, Test_Command_Classification_Groups'Access,
+         "Command Classification Groups");
       AUnit.Test_Cases.Registration.Register_Routine
-        (T, Test_Phase_111_Command_Registry_Baseline'Access,
-         "Phase 111 Command Registry Baseline");
+        (T, Test_Command_Registry_Baseline'Access,
+         "Command Registry Baseline");
       AUnit.Test_Cases.Registration.Register_Routine
-        (T, Test_Phase_111_Unavailable_Result_Message_Coherence'Access,
-         "Phase 111 Unavailable Result Message Coherence");
+        (T, Test_Unavailable_Result_Message_Coherence'Access,
+         "Unavailable Result Message Coherence");
       AUnit.Test_Cases.Registration.Register_Routine
-        (T, Test_Phase_111_Failed_Reload_Reports_Command_Failed'Access,
-         "Phase 111 Failed Reload Reports Command_Failed");
+        (T, Test_Failed_Reload_Reports_Command_Failed'Access,
+         "Failed Reload Reports Command_Failed");
       AUnit.Test_Cases.Registration.Register_Routine
-        (T, Test_Phase_111_No_Op_Is_Public_For_No_Command'Access,
-         "Phase 111 No-Op Is Public For No_Command");
+        (T, Test_No_Op_Is_Public_For_No_Command'Access,
+         "No-Op Is Public For No_Command");
       AUnit.Test_Cases.Registration.Register_Routine
-        (T, Test_Phase_111_Configuration_Command_Domain_Isolation'Access,
-         "Phase 111 Configuration Command Domain Isolation");
+        (T, Test_Configuration_Command_Domain_Isolation'Access,
+         "Configuration Command Domain Isolation");
       AUnit.Test_Cases.Registration.Register_Routine
-        (T, Test_Phase_112_Concrete_Command_Traversal'Access,
-         "Phase 112 Concrete Command Traversal");
+        (T, Test_Concrete_Command_Traversal'Access,
+         "Concrete Command Traversal");
       AUnit.Test_Cases.Registration.Register_Routine
-        (T, Test_Phase_112_Command_Audit_Registry_Is_Actionable'Access,
-         "Phase 112 Command Audit Registry Is Actionable");
+        (T, Test_Command_Audit_Registry_Is_Actionable'Access,
+         "Command Audit Registry Is Actionable");
       AUnit.Test_Cases.Registration.Register_Routine
-        (T, Test_Phase_112_Command_Descriptor_Construction_Helper'Access,
-         "Phase 112 Command Descriptor Construction Helper");
+        (T, Test_Command_Descriptor_Construction_Helper'Access,
+         "Command Descriptor Construction Helper");
       AUnit.Test_Cases.Registration.Register_Routine
-        (T, Test_Phase_112_Route_Audit_Actionable_Failures'Access,
-         "Phase 112 Route Audit Actionable Failures");
+        (T, Test_Route_Audit_Actionable_Failures'Access,
+         "Route Audit Actionable Failures");
       AUnit.Test_Cases.Registration.Register_Routine
-        (T, Test_Phase_579_Product_Command_Surface'Access,
-         "Phase 579 Product Command Surface");
+        (T, Test_Product_Command_Surface'Access,
+         "Product Command Surface");
       AUnit.Test_Cases.Registration.Register_Routine
-        (T, Test_Phase_579_IDE_Grade_Language_Command_Surface'Access,
-         "Phase 579 IDE Grade Language Command Surface");
+        (T, Test_IDE_Grade_Language_Command_Surface'Access,
+         "IDE Grade Language Command Surface");
       AUnit.Test_Cases.Registration.Register_Routine
-        (T, Test_Phase_579_File_Command_Reference_Surface'Access,
-         "Phase 579 File Command Reference Surface");
+        (T, Test_File_Command_Reference_Surface'Access,
+         "File Command Reference Surface");
       AUnit.Test_Cases.Registration.Register_Routine
-        (T, Test_Phase_579_Project_Search_Product_Surface'Access,
-         "Phase 579 Project Search Product Surface");
+        (T, Test_Project_Search_Product_Surface'Access,
+         "Project Search Product Surface");
       AUnit.Test_Cases.Registration.Register_Routine
-        (T, Test_Phase_579_Find_And_Goto_Product_Surface'Access,
-         "Phase 579 Find and Go to Line Product Surface");
+        (T, Test_Find_And_Goto_Product_Surface'Access,
+         "Find and Go to Line Product Surface");
    end Register_Tests;
 
 end Editor.Command_Surface.Tests;

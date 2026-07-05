@@ -307,13 +307,13 @@ package body Test_Ada_Accessibility_Lifetime_Legality is
    begin
       Register_Routine
         (T, Builds_Wide_Accessibility_Lifetime_And_Aliasing_Legality'Access,
-         "Pass1111 classifies accessibility, lifetime, aliasing, and linked access legality");
+         "Case 1111 classifies accessibility, lifetime, aliasing, and linked access legality");
       Register_Routine
         (T, Empty_Inputs_Are_Deterministic'Access,
-         "Pass1111 keeps empty accessibility legality models deterministic");
+         "Case 1111 keeps empty accessibility legality models deterministic");
       Register_Routine
         (T, Builds_Contexts_From_Access_Semantic_Legality'Access,
-         "Pass1111 derives accessibility contexts from access semantic legality");
+         "Case 1111 derives accessibility contexts from access semantic legality");
    end Register_Tests;
 
 end Test_Ada_Accessibility_Lifetime_Legality;

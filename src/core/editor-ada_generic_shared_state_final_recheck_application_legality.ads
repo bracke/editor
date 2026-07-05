@@ -5,9 +5,9 @@ with Editor.Ada_Syntax_Tree;
 
 package Editor.Ada_Generic_Shared_State_Final_Recheck_Application_Legality is
 
-   --  Pass1242 generic/shared-state final recheck application legality.
+   --  Case 1242 generic/shared-state final recheck application legality.
    --
-   --  This package consumes Pass1241 generic/shared-state final recheck
+   --  This package consumes Case 1241 generic/shared-state final recheck
    --  eligibility rows and applies them back into the generic/shared-state
    --  final diagnostic and closure boundary.  A generic/shared-state
    --  conclusion is current only when its prerequisite recheck chain is

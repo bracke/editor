@@ -357,7 +357,7 @@ package body Editor.Ada_Representation_Tasking_Contract_Predicate_Dataflow_Consu
                Entry_Name => C.Entry_Name,
                Message => Message_For (Status),
                Detail => To_Unbounded_String
-                 ("Pass1170 representation/freezing consumed tasking CPD legality"),
+                 ("Case 1170 representation/freezing consumed tasking CPD legality"),
                Freezing_Row => C.Freezing_Row,
                Freezing_Status => C.Freezing_Status,
                Tasking_CPD_Row => C.Tasking_CPD_Row,

@@ -721,7 +721,7 @@ package body Editor.Build_Candidate_Discovery is
             Status : constant Editor.Build_Candidates.Build_Candidate_Validation_Status :=
               Editor.Build_Candidates.Validate_Candidate (Candidate);
          begin
-            --  Phase 553 permits safe disabled/unavailable candidates to be
+            --  permits safe disabled/unavailable candidates to be
             --  displayed when discovery can represent why they cannot form a
             --  runnable request.  The bounded-discovery audit must therefore
             --  reject unstructured/shell/persisted/process-bearing rows, but

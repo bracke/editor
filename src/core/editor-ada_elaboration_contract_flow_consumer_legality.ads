@@ -6,7 +6,7 @@ with Editor.Ada_Syntax_Tree;
 
 package Editor.Ada_Elaboration_Contract_Flow_Consumer_Legality is
 
-   --  Pass1157 compiler-grade elaboration/contract-flow consumer legality.
+   --  Case 1157 compiler-grade elaboration/contract-flow consumer legality.
    --
    --  This layer connects refined Global/Depends contract-flow conclusions
    --  into elaboration graph closure.  Elaboration-time calls, aspect

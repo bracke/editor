@@ -14,6 +14,7 @@ with Editor.Ada_Language_Service;
 with Editor.External_Producers;
 with Editor.Keybindings;
 with Editor.Project;
+with Editor.View;
 
 package body Editor.Build_Command is
 
@@ -457,7 +458,7 @@ package body Editor.Build_Command is
       case Request.Provenance is
          when Editor.External_Producers.Build_Request_From_User_Opt_In =>
             return Editor.Build_Result_Summary.Build_Result_Request_Manual;
-         when Editor.External_Producers.Build_Request_From_Project_Metadata =>
+         when Editor.External_Producers.Build_Request_From_Implicit_Source =>
             return Editor.Build_Result_Summary.Build_Result_Request_Candidate_Derived;
          when Editor.External_Producers.Build_Request_From_Test
             | Editor.External_Producers.Build_Request_From_Fixture
@@ -565,10 +566,30 @@ package body Editor.Build_Command is
                  Editor.Build_Output_Details.Build_Output_Stream_Merged));
    end Output_Details_From_Result;
 
+   function Public_Build_Duration_Milliseconds
+     (State : Editor.State.State_Type) return Natural
+   is
+      Now : constant Duration := Editor.View.Current_Time_Seconds;
+      Elapsed : Duration := 0.0;
+   begin
+      if not State.Public_Build_Job_Has_Start_Time then
+         return 0;
+      elsif Now > State.Public_Build_Job_Started_At then
+         Elapsed := Now - State.Public_Build_Job_Started_At;
+      end if;
+
+      if Elapsed >= Duration (Natural'Last / 1000) then
+         return Natural'Last;
+      end if;
+      return Natural (Elapsed * 1000.0);
+   end Public_Build_Duration_Milliseconds;
+
    function Summary_From_Result
      (Request : Editor.External_Producers.Build_Run_Request;
       Result  : Editor.External_Producers.Build_Command_Result;
-      Diagnostics_Allowed : Boolean)
+      Diagnostics_Allowed : Boolean;
+      Duration_Milliseconds : Natural := 0;
+      Has_Duration : Boolean := False)
       return Editor.Build_Result_Summary.Latest_Build_Result_Summary
    is
       Build : constant Editor.External_Producers.Build_Run_Result := Result.Build_Result;
@@ -613,7 +634,9 @@ package body Editor.Build_Command is
            Result.Diagnostic_Result.Ingestion.Parsed_Note_Count,
          Diagnostics_Unknown_Count =>
            Result.Diagnostic_Result.Ingestion.Parsed_Unknown_Count,
-         Has_Diagnostics_Severity_Counts => Count > 0);
+         Has_Diagnostics_Severity_Counts => Count > 0,
+         Duration_Milliseconds => Duration_Milliseconds,
+         Has_Duration => Has_Duration);
    end Summary_From_Result;
 
 
@@ -765,6 +788,44 @@ package body Editor.Build_Command is
       end case;
    end Build_Run_Unavailable_Reason;
 
+   function Build_Run_Recovery_Hint
+     (Status : Build_Run_Readiness_Status) return String
+   is
+   begin
+      case Status is
+         when Build_Run_Readiness_Ready =>
+            return "Run build";
+         when Build_Run_Readiness_No_Project_Open =>
+            return "Open a project first";
+         when Build_Run_Readiness_No_Candidate_Selected =>
+            return "Refresh build candidates and select one";
+         when Build_Run_Readiness_Selected_Candidate_Stale =>
+            return "Refresh build candidates";
+         when Build_Run_Readiness_Candidate_File_Missing =>
+            return "Refresh candidates or choose another project file";
+         when Build_Run_Readiness_Request_Incomplete =>
+            return "Review the Build panel request";
+         when Build_Run_Readiness_Tool_Required =>
+            return "Choose a supported build tool";
+         when Build_Run_Readiness_Arguments_Invalid =>
+            return "Use structured build arguments";
+         when Build_Run_Readiness_Working_Context_Required =>
+            return "Select a project working directory";
+         when Build_Run_Readiness_Working_Context_Unavailable =>
+            return "Refresh the project working context";
+         when Build_Run_Readiness_Working_Context_Invalid =>
+            return "Use the current project or workspace context";
+         when Build_Run_Readiness_Consent_Required =>
+            return "Review the request and acknowledge consent";
+         when Build_Run_Readiness_Consent_Stale =>
+            return "Review changed request and acknowledge consent again";
+         when Build_Run_Readiness_Execution_Backend_Disabled =>
+            return "Enable bounded build execution policy";
+         when Build_Run_Readiness_Job_Already_Active =>
+            return "Wait for the active build or cancel it";
+      end case;
+   end Build_Run_Recovery_Hint;
+
    function Build_Run_Availability
      (State : Editor.State.State_Type) return Editor.Commands.Command_Availability
    is
@@ -800,6 +861,8 @@ package body Editor.Build_Command is
    begin
       State.Public_Build_Job_Active := True;
       State.Public_Build_Job_Id := State.Public_Build_Job_Id + 1;
+      State.Public_Build_Job_Started_At := Editor.View.Current_Time_Seconds;
+      State.Public_Build_Job_Has_Start_Time := True;
       if State.Public_Build_Async_Slot_Id = 0 then
          Public_Build_Slot_Allocator.Allocate (State.Public_Build_Async_Slot_Id);
       end if;
@@ -835,6 +898,7 @@ package body Editor.Build_Command is
    is
    begin
       State.Public_Build_Job_Active := False;
+      State.Public_Build_Job_Has_Start_Time := False;
       State.Public_Build_Job_Label := Null_Unbounded_String;
       State.Public_Build_Process_Handle :=
         Editor.Build_Process_Control.No_Process_Handle;
@@ -1376,6 +1440,7 @@ package body Editor.Build_Command is
       Active_Stream_Available : Boolean := False;
       Completed_Request : Editor.External_Producers.Build_Run_Request;
       Result_Gate : Editor.External_Producers.Build_Execution_Gate;
+      Duration_MS : Natural := 0;
    begin
       if not Has_Queued_Public_Build_Job (State) then
          Result :=
@@ -1419,6 +1484,7 @@ package body Editor.Build_Command is
         (State.Public_Build_Async_Slot_Id, Worker_State, Completed_Request, Result_Gate, Result);
       State.Public_Build_Output_Stream :=
         Worker_State.Public_Build_Output_Stream;
+      Duration_MS := Public_Build_Duration_Milliseconds (State);
 
       Complete_Public_Build_Job (State);
       State.Public_Build_Async_Job_Queued := False;
@@ -1448,7 +1514,9 @@ package body Editor.Build_Command is
            Summary_From_Result
              (Completed_Request,
               Result,
-              Result_Gate.Allow_Diagnostics_Ingestion));
+              Result_Gate.Allow_Diagnostics_Ingestion,
+              Duration_MS,
+              True));
       State.Latest_Build_Output_Details :=
         Editor.Build_Output_Details.Replace_Latest_Build_Output_Details
           (State.Latest_Build_Output_Details,
@@ -1509,8 +1577,9 @@ package body Editor.Build_Command is
             Show_Diagnostics                => False);
          Ingestion : Editor.External_Producers.Diagnostic_Line_Command_Result :=
            Empty_Diagnostics;
+         Duration_MS : Natural := 0;
       begin
-         --  Phase 520 canonicalization: the public build frontdoor uses the
+         --  canonicalization: the public build frontdoor uses the
          --  bounded runner only for process execution.  Build-produced rows are
          --  then created, if requested, exclusively through the retained
          --  Editor.Build_Diagnostics seam so no runner/direct Build-local path
@@ -1520,6 +1589,7 @@ package body Editor.Build_Command is
            (State,
             Conversion.Request,
             Runner_Only_Gate);
+         Duration_MS := Public_Build_Duration_Milliseconds (State);
          Complete_Public_Build_Job (State);
 
          Ingestion := Editor.Build_Diagnostics.Ingest_Build_Diagnostics_Through_Diagnostics
@@ -1543,7 +1613,8 @@ package body Editor.Build_Command is
            Editor.Build_Result_Summary.Replace_Latest_Build_Result_Summary
              (State.Latest_Build_Result,
               Summary_From_Result
-                (Conversion.Request, Result, Gate.Allow_Diagnostics_Ingestion));
+                (Conversion.Request, Result, Gate.Allow_Diagnostics_Ingestion,
+                 Duration_MS, True));
          State.Latest_Build_Output_Details :=
            Editor.Build_Output_Details.Replace_Latest_Build_Output_Details
              (State.Latest_Build_Output_Details,
@@ -1602,12 +1673,16 @@ package body Editor.Build_Command is
                 Editor.External_Producers.Build_Consent_Test_Only);
          Ingestion : Editor.External_Producers.Diagnostic_Line_Command_Result :=
            Empty_Diagnostics;
+         Duration_MS : Natural := 0;
       begin
+         Begin_Public_Build_Job (State, To_String (Conversion.Request.Command_Label));
          Result := Editor.External_Producers.Run_Build_Command_With_Gate
            (State,
             Conversion.Request,
             Runner_Only_Gate,
             Supplied_Result);
+         Duration_MS := Public_Build_Duration_Milliseconds (State);
+         Complete_Public_Build_Job (State);
 
          Ingestion := Editor.Build_Diagnostics.Ingest_Build_Diagnostics_Through_Diagnostics
            (State,
@@ -1630,7 +1705,8 @@ package body Editor.Build_Command is
            Editor.Build_Result_Summary.Replace_Latest_Build_Result_Summary
              (State.Latest_Build_Result,
               Summary_From_Result
-                (Conversion.Request, Result, Gate.Allow_Diagnostics_Ingestion));
+                (Conversion.Request, Result, Gate.Allow_Diagnostics_Ingestion,
+                 Duration_MS, True));
          State.Latest_Build_Output_Details :=
            Editor.Build_Output_Details.Replace_Latest_Build_Output_Details
              (State.Latest_Build_Output_Details,

@@ -268,7 +268,7 @@ package body Test_Ada_Flow_Effect_Graph_Legality is
       Register_Routine
         (T,
          Dataflow_Rows_Are_Converted_To_Flow_Graph_Edges'Access,
-         "Pass1123 dataflow rows are converted into flow graph edges");
+         "Case 1123 dataflow rows are converted into flow graph edges");
    end Register_Tests;
 
 end Test_Ada_Flow_Effect_Graph_Legality;

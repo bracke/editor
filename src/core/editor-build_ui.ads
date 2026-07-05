@@ -8,7 +8,7 @@ with Editor.Build_Output_Details;
 
 package Editor.Build_UI is
 
-   --  Phase 501 public build command UX foundation.  This package owns only
+   --  public build command UX foundation.  This package owns only
    --  transient input/consent state and pure validation helpers.  It does not
    --  execute processes, probe projects/filesystems, persist state, mutate
    --  Diagnostics, or infer build metadata.
@@ -75,6 +75,25 @@ package Editor.Build_UI is
 
    subtype Build_UI_Candidate_Row_Vector is Build_UI_Candidate_Row_Vectors.Vector;
 
+   type Build_UI_Action_Row is record
+      Label : Ada.Strings.Unbounded.Unbounded_String :=
+        Ada.Strings.Unbounded.Null_Unbounded_String;
+      Command_Name : Ada.Strings.Unbounded.Unbounded_String :=
+        Ada.Strings.Unbounded.Null_Unbounded_String;
+      Enabled : Boolean := False;
+      Selected : Boolean := False;
+      Diagnostic_Index : Natural := 0;
+      Quick_Fix_Action_Index : Natural := 0;
+      Disabled_Reason : Ada.Strings.Unbounded.Unbounded_String :=
+        Ada.Strings.Unbounded.Null_Unbounded_String;
+   end record;
+
+   package Build_UI_Action_Row_Vectors is new Ada.Containers.Vectors
+     (Index_Type   => Natural,
+      Element_Type => Build_UI_Action_Row);
+
+   subtype Build_UI_Action_Row_Vector is Build_UI_Action_Row_Vectors.Vector;
+
    type Build_UI_Request_Preview is record
       Request_Mode : Build_UI_Request_Mode := Build_UI_Request_Mode_Manual;
       Request_Mode_Label : Ada.Strings.Unbounded.Unbounded_String :=
@@ -124,6 +143,52 @@ package Editor.Build_UI is
         Ada.Strings.Unbounded.Null_Unbounded_String;
       Reveal_Label : Ada.Strings.Unbounded.Unbounded_String :=
         Ada.Strings.Unbounded.Null_Unbounded_String;
+      Open_Source_Command_Name : Ada.Strings.Unbounded.Unbounded_String :=
+        Ada.Strings.Unbounded.Null_Unbounded_String;
+      Open_Source_Available : Boolean := False;
+      Open_Source_Unavailable_Reason : Ada.Strings.Unbounded.Unbounded_String :=
+        Ada.Strings.Unbounded.Null_Unbounded_String;
+      Suppress_Command_Name : Ada.Strings.Unbounded.Unbounded_String :=
+        Ada.Strings.Unbounded.Null_Unbounded_String;
+      Suppress_Available : Boolean := False;
+      Suppress_Unavailable_Reason : Ada.Strings.Unbounded.Unbounded_String :=
+        Ada.Strings.Unbounded.Null_Unbounded_String;
+      Suppressed_Count_Label : Ada.Strings.Unbounded.Unbounded_String :=
+        Ada.Strings.Unbounded.Null_Unbounded_String;
+      Show_Suppressed_Command_Name : Ada.Strings.Unbounded.Unbounded_String :=
+        Ada.Strings.Unbounded.Null_Unbounded_String;
+      Show_Suppressed_Available : Boolean := False;
+      Show_Suppressed_Unavailable_Reason : Ada.Strings.Unbounded.Unbounded_String :=
+        Ada.Strings.Unbounded.Null_Unbounded_String;
+      Restore_Suppressed_Command_Name : Ada.Strings.Unbounded.Unbounded_String :=
+        Ada.Strings.Unbounded.Null_Unbounded_String;
+      Restore_Suppressed_Available : Boolean := False;
+      Restore_Suppressed_Unavailable_Reason : Ada.Strings.Unbounded.Unbounded_String :=
+        Ada.Strings.Unbounded.Null_Unbounded_String;
+      Quick_Fix_Command_Name : Ada.Strings.Unbounded.Unbounded_String :=
+        Ada.Strings.Unbounded.Null_Unbounded_String;
+      Quick_Fix_Label : Ada.Strings.Unbounded.Unbounded_String :=
+        Ada.Strings.Unbounded.Null_Unbounded_String;
+      Quick_Fix_Detail : Ada.Strings.Unbounded.Unbounded_String :=
+        Ada.Strings.Unbounded.Null_Unbounded_String;
+      Quick_Fix_Available : Boolean := False;
+      Quick_Fix_Unavailable_Reason : Ada.Strings.Unbounded.Unbounded_String :=
+        Ada.Strings.Unbounded.Null_Unbounded_String;
+      Action_Summary_Label : Ada.Strings.Unbounded.Unbounded_String :=
+        Ada.Strings.Unbounded.Null_Unbounded_String;
+   end record;
+
+   type Build_Diagnostics_Surface is record
+      Latest_Result_Label : Ada.Strings.Unbounded.Unbounded_String :=
+        Ada.Strings.Unbounded.Null_Unbounded_String;
+      Diagnostics_Status_Label : Ada.Strings.Unbounded.Unbounded_String :=
+        Ada.Strings.Unbounded.Null_Unbounded_String;
+      Diagnostics_Count_Label : Ada.Strings.Unbounded.Unbounded_String :=
+        Ada.Strings.Unbounded.Null_Unbounded_String;
+      Reveal_Command_Name : Ada.Strings.Unbounded.Unbounded_String :=
+        Ada.Strings.Unbounded.Null_Unbounded_String;
+      Reveal_Available : Boolean := False;
+      Result_Visible : Boolean := False;
    end record;
 
    type Build_UI_Render_Snapshot is record
@@ -132,6 +197,18 @@ package Editor.Build_UI is
       No_Project : Boolean := False;
       No_Candidates : Boolean := False;
       Candidate_Count : Natural := 0;
+      Candidate_Count_Label : Ada.Strings.Unbounded.Unbounded_String :=
+        Ada.Strings.Unbounded.Null_Unbounded_String;
+      Selected_Candidate_Summary_Label : Ada.Strings.Unbounded.Unbounded_String :=
+        Ada.Strings.Unbounded.Null_Unbounded_String;
+      Candidate_Refresh_Action_Label : Ada.Strings.Unbounded.Unbounded_String :=
+        Ada.Strings.Unbounded.Null_Unbounded_String;
+      Candidate_Refresh_Action_Command_Name : Ada.Strings.Unbounded.Unbounded_String :=
+        Ada.Strings.Unbounded.Null_Unbounded_String;
+      Next_Action_Label : Ada.Strings.Unbounded.Unbounded_String :=
+        Ada.Strings.Unbounded.Null_Unbounded_String;
+      Actions : Build_UI_Action_Row_Vector :=
+        Build_UI_Action_Row_Vectors.Empty_Vector;
       Candidates : Build_UI_Candidate_Row_Vector :=
         Build_UI_Candidate_Row_Vectors.Empty_Vector;
       Refresh_Status_Label : Ada.Strings.Unbounded.Unbounded_String :=
@@ -143,8 +220,22 @@ package Editor.Build_UI is
       Consent_Required : Boolean := False;
       Consent_Stale : Boolean := False;
       Consent_Acknowledged : Boolean := False;
+      Request_Valid : Boolean := False;
+      Run_Command_Available : Boolean := False;
       Run_Available : Boolean := False;
+      Request_Status_Label : Ada.Strings.Unbounded.Unbounded_String :=
+        Ada.Strings.Unbounded.Null_Unbounded_String;
+      Request_Action_Command_Name : Ada.Strings.Unbounded.Unbounded_String :=
+        Ada.Strings.Unbounded.Null_Unbounded_String;
+      Run_Command_Status_Label : Ada.Strings.Unbounded.Unbounded_String :=
+        Ada.Strings.Unbounded.Null_Unbounded_String;
+      Run_Action_Command_Name : Ada.Strings.Unbounded.Unbounded_String :=
+        Ada.Strings.Unbounded.Null_Unbounded_String;
       Run_Availability_Label : Ada.Strings.Unbounded.Unbounded_String :=
+        Ada.Strings.Unbounded.Null_Unbounded_String;
+      Run_Recovery_Hint : Ada.Strings.Unbounded.Unbounded_String :=
+        Ada.Strings.Unbounded.Null_Unbounded_String;
+      Latest_Result_Summary_Row_Label : Ada.Strings.Unbounded.Unbounded_String :=
         Ada.Strings.Unbounded.Null_Unbounded_String;
       Latest_Result : Editor.Build_Result_Summary.Latest_Build_Result_Render_Snapshot;
       Output_Details : Editor.Build_Output_Details.Latest_Build_Output_Details_Render_Snapshot;
@@ -238,6 +329,8 @@ package Editor.Build_UI is
       Candidate_Refresh_Message : Ada.Strings.Unbounded.Unbounded_String :=
         Ada.Strings.Unbounded.Null_Unbounded_String;
       Last_Refresh_Candidate_Count : Natural := 0;
+      Selected_Action_Row : Natural := 0;
+      Action_Top_Row : Natural := 1;
       Selected_Candidate_Stale : Boolean := False;
       Selected_Candidate_Preserved_On_Refresh : Boolean := False;
       Selected_Candidate_Cleared_On_Refresh : Boolean := False;
@@ -325,6 +418,39 @@ package Editor.Build_UI is
    procedure Toggle_Force_Rebuild
      (State : in out Public_Build_UI_State);
 
+   procedure Select_Next_Action_Row
+     (State : in out Public_Build_UI_State;
+      Count : Natural);
+
+   procedure Select_Previous_Action_Row
+     (State : in out Public_Build_UI_State;
+      Count : Natural);
+
+   procedure Set_Selected_Action_Row
+     (State : in out Public_Build_UI_State;
+      Row   : Natural;
+      Count : Natural);
+
+   function Selected_Action_Row
+     (State : Public_Build_UI_State;
+      Count : Natural) return Natural;
+
+   function Action_Top_Row
+     (State         : Public_Build_UI_State;
+      Count         : Natural;
+      Visible_Count : Natural) return Natural;
+
+   procedure Ensure_Selected_Action_Row_Visible
+     (State         : in out Public_Build_UI_State;
+      Count         : Natural;
+      Visible_Count : Natural);
+
+   procedure Scroll_Action_Rows
+     (State         : in out Public_Build_UI_State;
+      Count         : Natural;
+      Visible_Count : Natural;
+      Amount        : Integer);
+
    function Build_Mode_Label (Mode : Build_UI_Build_Mode) return String;
    function Output_Capture_Limit_Label
      (Limit : Build_UI_Output_Capture_Limit) return String;
@@ -342,6 +468,9 @@ package Editor.Build_UI is
      (State : Public_Build_UI_State) return Public_Build_UI_Validation_Status;
 
    function Validation_Message
+     (Status : Public_Build_UI_Validation_Status) return String;
+
+   function Recovery_Message
      (Status : Public_Build_UI_Validation_Status) return String;
 
    function Has_Raw_Shell_Command_Field
@@ -371,8 +500,29 @@ package Editor.Build_UI is
       Details : Editor.Build_Output_Details.Latest_Build_Output_Details)
       return Build_UI_Render_Snapshot;
 
+   function Build_Diagnostics_Surface_For
+     (Snapshot : Build_UI_Render_Snapshot) return Build_Diagnostics_Surface;
+
+   function Find_Action_Row
+     (Snapshot                       : Build_UI_Render_Snapshot;
+      Command_Name                   : String;
+      Diagnostic_Index               : Natural := 0;
+      Quick_Fix_Action_Index         : Natural := 0) return Natural;
+
    function Assert_Build_UI_Render_Snapshot_Is_Operable
      (Snapshot : Build_UI_Render_Snapshot) return Boolean;
+
+   function Assert_Action_Row_Metadata
+     (Row                             : Build_UI_Action_Row;
+      Expected_Command_Name           : String;
+      Expected_Enabled                : Boolean;
+      Expected_Disabled_Reason        : String;
+      Expected_Diagnostic_Index       : Natural;
+      Expected_Quick_Fix_Action_Index : Natural;
+      Expected_Selected               : Boolean := False) return Boolean;
+
+   function Assert_Build_Diagnostics_Surface_Is_Renderable
+     (Surface : Build_Diagnostics_Surface) return Boolean;
 
    function Assert_Build_UI_State_Is_Transient
      (State : Public_Build_UI_State) return Boolean;

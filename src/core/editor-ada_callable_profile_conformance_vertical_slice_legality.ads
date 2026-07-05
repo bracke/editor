@@ -4,7 +4,7 @@ with Editor.Ada_Syntax_Tree;
 
 package Editor.Ada_Callable_Profile_Conformance_Vertical_Slice_Legality is
 
-   --  Pass1325 vertical-slice callable profile/conformance legality.
+   --  Case 1325 vertical-slice callable profile/conformance legality.
    --  This package models concrete Ada callable profile conformance for
    --  subprogram declarations/bodies, renamings, overriding declarations,
    --  access-to-subprogram conversions, generic formal subprogram actuals,

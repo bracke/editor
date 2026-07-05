@@ -7,7 +7,7 @@ with Editor.Ada_Syntax_Tree;
 
 package Editor.Ada_Generic_Replay_Source_Instance_Backmapping_Legality is
 
-   --  Pass1180 compiler-grade generic replay source/instance backmapping legality.
+   --  Case 1180 compiler-grade generic replay source/instance backmapping legality.
    --
    --  This layer preserves the two-sided location model required for generic
    --  semantic replay diagnostics and downstream closure: the generic body source

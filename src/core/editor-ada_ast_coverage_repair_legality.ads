@@ -6,9 +6,9 @@ with Editor.Ada_Syntax_Tree;
 
 package Editor.Ada_AST_Coverage_Repair_Legality is
 
-   --  Pass1147 compiler-grade parser/AST coverage repair legality.
+   --  Case 1147 compiler-grade parser/AST coverage repair legality.
    --
-   --  Pass1132 through Pass1136 made parser/AST coverage visible, gated, and
+   --  Case 1132 through Case 1136 made parser/AST coverage visible, gated, and
    --  diagnosable.  This package is the repair-side semantic model: it records
    --  concrete Ada 2022 grammar/AST/metadata/consumer repairs and proves which
    --  formerly gated constructs can now feed widened legality engines safely.

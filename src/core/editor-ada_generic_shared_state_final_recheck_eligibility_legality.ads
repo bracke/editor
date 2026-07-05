@@ -5,9 +5,9 @@ with Editor.Ada_Syntax_Tree;
 
 package Editor.Ada_Generic_Shared_State_Final_Recheck_Eligibility_Legality is
 
-   --  Pass1241 generic/shared-state final recheck eligibility legality.
+   --  Case 1241 generic/shared-state final recheck eligibility legality.
    --
-   --  This package consumes the Pass1240 generic/shared-state final
+   --  This package consumes the Case 1240 generic/shared-state final
    --  remediation worklist and turns ordered prerequisite work into bounded
    --  recheck eligibility rows.  It prevents downstream generic/shared-state
    --  final consumers from trusting conclusions while prerequisite blockers

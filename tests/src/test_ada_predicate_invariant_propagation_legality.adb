@@ -314,7 +314,7 @@ package body Test_Ada_Predicate_Invariant_Propagation_Legality is
       Register_Routine
         (T,
          Predicate_Use_Rows_Are_Converted_To_Propagation_Contexts'Access,
-         "Pass1124 predicate use-site rows are converted into propagation contexts");
+         "Case 1124 predicate use-site rows are converted into propagation contexts");
    end Register_Tests;
 
 end Test_Ada_Predicate_Invariant_Propagation_Legality;

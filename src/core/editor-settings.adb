@@ -626,7 +626,7 @@ package body Editor.Settings is
         Command_Palette_Show_Keybindings (Normalized);
       Palette.Show_Selected_Description :=
         Command_Palette_Show_Selected_Description (Normalized);
-      --  Phase 564: selected-command help/details is transient palette state,
+      --  selected-command help/details is transient palette state,
       --  not a setting. Loading or applying settings must not carry a stale
       --  help row forward through the display-preference config record.
       Palette.Show_Help_Row := False;

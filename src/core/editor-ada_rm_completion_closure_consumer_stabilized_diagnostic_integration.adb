@@ -192,7 +192,7 @@ package body Editor.Ada_RM_Completion_Closure_Consumer_Stabilized_Diagnostic_Int
       Row.Node := Source.Node;
       Row.Message := Message_For (Status, Family);
       Row.Detail := To_Unbounded_String
-        ("Pass1281 maps stabilized direct RM-completion closure consumer rows into the diagnostic/feed boundary without losing prerequisite family identity.");
+        ("Case 1281 maps stabilized direct RM-completion closure consumer rows into the diagnostic/feed boundary without losing prerequisite family identity.");
       Row.Source_Fingerprint := Source.Source_Fingerprint;
       Row.Substitution_Fingerprint := Source.Substitution_Fingerprint;
       Row.Semantic_Fingerprint := Source.Semantic_Fingerprint;

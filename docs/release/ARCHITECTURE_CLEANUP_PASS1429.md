@@ -1,8 +1,8 @@
-# Phase 579 architecture cleanup pass1429
+# architecture cleanup case 1429
 
-Pass1429 closes project-scale item 6: architecture cleanup.
+Case 1429 closes project-scale item 6: architecture cleanup.
 
-The finite RM remaining-gap campaign is treated as closed by pass1428. New work
+The finite RM remaining-gap campaign is treated as closed by case 1428. New work
 must not reopen `Remaining_*_Edge` families unless a source-shaped test, real Ada
 corpus case, or RM contradiction exposes a concrete defect.
 
@@ -30,6 +30,6 @@ churn in final comments or API names, and stale source/API/cleanup fingerprints.
 
 ## Future rule
 
-Do not add new semantic remediation passes after pass1428 unless there is a
+Do not add new semantic remediation passes after case 1428 unless there is a
 concrete failing case. Validation, corpus work, and release readiness checks may
 add tests or focused fixes, but not speculative backlog expansion.

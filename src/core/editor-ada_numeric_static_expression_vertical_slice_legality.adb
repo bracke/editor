@@ -248,7 +248,7 @@ package body Editor.Ada_Numeric_Static_Expression_Vertical_Slice_Legality is
 
             R.Status := Status_For (R, E);
             R.Message := To_Unbounded_String
-              ("Pass1314 numeric/static expression vertical-slice legality");
+              ("Case 1314 numeric/static expression vertical-slice legality");
             R.Detail := E.Source_Name;
             R.Fingerprint := Mix
               (Natural (R.Id),

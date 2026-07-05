@@ -52,7 +52,7 @@ package Editor.Command_Route_Audit is
       Source  : Route_Source;
       Command : Editor.Commands.Command_Id);
 
-   --  Phase 564 command-palette route assertion: palette execution must route
+   --  command-palette route assertion: palette execution must route
    --  by stable command id, through the Executor, and with no selected-row
    --  payload. This only records observations on the local audit object.
    procedure Record_Command_Palette_Route
@@ -62,7 +62,7 @@ package Editor.Command_Route_Audit is
       Used_Stable_Command_Name : Boolean;
       Carried_Payload          : Boolean);
 
-   --  Phase 565 keybinding-management route assertion: assign/remove/reset
+   --  keybinding-management route assertion: assign/remove/reset
    --  actions must route by selected stable command id through Executor-owned
    --  command handling and must not carry chord, row, path, result, diagnostic,
    --  or build-candidate payloads as command-route data.
@@ -73,7 +73,7 @@ package Editor.Command_Route_Audit is
       Used_Stable_Command_Name : Boolean;
       Carried_Payload          : Boolean);
 
-   --  Phase 570 suggested-action route assertion: guided actions must route by
+   --  suggested-action route assertion: guided actions must route by
    --  stable command id through the Executor or the command-palette entry point,
    --  after availability has been observed, and without target/payload data.
    procedure Record_Suggested_Action_Route
@@ -85,7 +85,7 @@ package Editor.Command_Route_Audit is
       Carried_Payload                      : Boolean;
       Routed_Through_Command_Palette_Entry : Boolean := False);
 
-   --  Phase 577 buffer workflow route assertion: buffer switch/close/list
+   --  buffer workflow route assertion: buffer switch/close/list
    --  activation routes must use stable command identity through Executor,
    --  observe availability, and must not carry runtime buffer ids as command,
    --  keybinding, palette, or render payloads.
@@ -97,8 +97,22 @@ package Editor.Command_Route_Audit is
       Availability_Checked    : Boolean;
       Carried_Buffer_Payload  : Boolean);
 
+   --  generic command-like UI route assertion: panel, list, pending,
+   --  picker, and row-action activations must dispatch one stable command id
+   --  through Executor after availability is observed, without row/path/result
+   --  payloads in the command route.
+   procedure Record_Command_UI_Route
+     (Result                   : in out Route_Audit_Result;
+      Source                   : Route_Source;
+      Command                  : Editor.Commands.Command_Id;
+      Dispatch_Count           : Natural;
+      Routed_Through_Executor  : Boolean;
+      Used_Stable_Command_Name : Boolean;
+      Availability_Checked     : Boolean;
+      Carried_Payload          : Boolean);
 
-   --  Phase 577 route-surface inspector: return True when text contains
+
+   --  route-surface inspector: return True when text contains
    --  explicit runtime buffer identity/payload field names that are forbidden
    --  in command, keybinding, palette, workspace, or render route data.
    function Text_Contains_Runtime_Buffer_Payload
@@ -147,7 +161,7 @@ package Editor.Command_Route_Audit is
       Source : Route_Source;
       Text   : String);
 
-   --  Aggregate Phase 577 route-surface inspection over descriptors, current
+   --  Aggregate route-surface inspection over descriptors, current
    --  keybindings, Buffer List state, and serialized workspace text.
    procedure Inspect_Buffer_Route_Surfaces_No_Buffer_Payload
      (Result               : in out Route_Audit_Result;

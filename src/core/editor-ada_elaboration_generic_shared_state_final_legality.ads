@@ -10,7 +10,7 @@ with Editor.Ada_Tasking_Generic_Shared_State_Final_Legality;
 
 package Editor.Ada_Elaboration_Generic_Shared_State_Final_Legality is
 
-   --  Pass1232 elaboration/generic shared-state final legality.
+   --  Case 1232 elaboration/generic shared-state final legality.
    --
    --  This package connects the final elaboration consumer with the
    --  generic/shared-state semantic chain.  Elaboration conclusions for

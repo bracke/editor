@@ -175,7 +175,7 @@ package body Editor.Lifecycle_Guidance is
          return "";
       elsif Summary.Is_Dirty then
          if Summary.Is_Active then
-            --  Phase 573 completeness: row guidance is a projection of the
+            --  completeness: row guidance is a projection of the
             --  open-buffer summary snapshot.  Even for the active row, use the
             --  supplied summary for lifecycle recovery markers so a row built
             --  from the buffer registry cannot fall back to stale active-state
@@ -220,7 +220,7 @@ package body Editor.Lifecycle_Guidance is
                return "Unsaved - normal close blocked";
             end if;
          else
-            --  Phase 573 recovery markers describe why the dirty inactive
+            --  recovery markers describe why the dirty inactive
             --  buffer needs attention.  They must take precedence over the
             --  generic retry-save hint because save failures often set both
             --  Last_Save_Failed and a more specific missing/unwritable marker.

@@ -4,7 +4,7 @@ with Editor.Ada_Syntax_Tree;
 
 package Editor.Ada_Subtype_Range_Predicate_Vertical_Slice_Legality is
 
-   --  Pass1306 vertical-slice subtype/range/predicate legality.  This
+   --  Case 1306 vertical-slice subtype/range/predicate legality.  This
    --  package checks concrete scalar, modular, fixed/real, index, and
    --  predicate constraints that expression/type resolution consumers need;
    --  it is intentionally not a diagnostic/provenance/closure wrapper.

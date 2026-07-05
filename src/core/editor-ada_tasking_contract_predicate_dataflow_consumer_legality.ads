@@ -13,7 +13,7 @@ with Editor.Ada_Tasking_Protected_Effects_Legality;
 
 package Editor.Ada_Tasking_Contract_Predicate_Dataflow_Consumer_Legality is
 
-   --  Pass1169 compiler-grade tasking/protected elaboration contract predicate/dataflow
+   --  Case 1169 compiler-grade tasking/protected elaboration contract predicate/dataflow
    --  consumer legality.
    --
    --  This layer connects elaboration-time Global/Depends and

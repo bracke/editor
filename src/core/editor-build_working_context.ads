@@ -2,9 +2,9 @@ with Ada.Strings.Unbounded;
 
 package Editor.Build_Working_Context is
 
-   --  Phase 502 public build working-context foundation.  This package is
+   --  public build working-context foundation.  This package is
    --  deliberately pure/metadata-only: it never probes the filesystem,
-   --  discovers project metadata, changes cwd, executes tools, or persists
+   --  accepts implicit build-source hints, changes cwd, executes tools, or persists
    --  state.
 
    type Build_Working_Context_Kind is
@@ -22,7 +22,7 @@ package Editor.Build_Working_Context is
       Working_Context_Source_Unavailable,
       Working_Context_Source_Raw_Text,
       Working_Context_Source_Shell_Derived,
-      Working_Context_Source_Project_Metadata_Derived,
+      Working_Context_Source_Implicit_Derived,
       Working_Context_Source_Filesystem_Discovered,
       Working_Context_Source_Persisted);
 
@@ -34,7 +34,7 @@ package Editor.Build_Working_Context is
       Build_Working_Context_Rejected_Unsafe_Source,
       Build_Working_Context_Rejected_Raw_Text,
       Build_Working_Context_Rejected_Shell_Derived,
-      Build_Working_Context_Rejected_Project_Metadata_Derived,
+      Build_Working_Context_Rejected_Implicit_Derived,
       Build_Working_Context_Rejected_Filesystem_Discovered,
       Build_Working_Context_Rejected_Persisted,
       Build_Working_Context_Rejected_Invalid_Label,

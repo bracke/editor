@@ -5,9 +5,9 @@ with Editor.Ada_Syntax_Tree;
 
 package Editor.Ada_Final_Semantic_Remediation_Closure_Legality is
 
-   --  Pass1201 final semantic remediation closure legality.
+   --  Case 1201 final semantic remediation closure legality.
    --
-   --  This package feeds Pass1200 remediation gates back into a deterministic
+   --  This package feeds Case 1200 remediation gates back into a deterministic
    --  closure model.  It is intentionally semantic rather than presentational:
    --  unresolved prerequisite gates become first-class closure blockers so a
    --  later consumer cannot accept a legal conclusion after a stale snapshot,

@@ -33,7 +33,7 @@ package body Editor.Command_Extension_Readiness.Tests is
 
    function Temp_Path (Name : String) return String is
    begin
-      return "/tmp/editor_phase113_" & Name & ".keybindings";
+      return "/tmp/editor_" & Name & ".keybindings";
    end Temp_Path;
 
    procedure Write_File (Path : String; Text : String) is
@@ -154,7 +154,7 @@ package body Editor.Command_Extension_Readiness.Tests is
         (Before, After, Allowed, "reset settings domain isolation");
    end Test_Side_Effect_Domain_Helper_Allows_Focused_Settings_Mutation;
 
-   procedure Test_Phase559_Domain_Helper_Captures_Recent_Project_Selection
+   procedure Test_Domain_Helper_Captures_Recent_Project_Selection
      (T : in out AUnit.Test_Cases.Test_Case'Class)
    is
       pragma Unreferenced (T);
@@ -167,9 +167,9 @@ package body Editor.Command_Extension_Readiness.Tests is
    begin
       Editor.State.Init (Before);
       Editor.Recent_Projects.Add_Or_Promote
-        (Before.Recent_Projects, "/tmp/phase559-domain-a", "domain-a", 1);
+        (Before.Recent_Projects, "/tmp/domain-a", "domain-a", 1);
       Editor.Recent_Projects.Add_Or_Promote
-        (Before.Recent_Projects, "/tmp/phase559-domain-b", "domain-b", 2);
+        (Before.Recent_Projects, "/tmp/domain-b", "domain-b", 2);
       Before.Recent_Project_Selected_Index := 0;
       After := Before;
 
@@ -188,7 +188,7 @@ package body Editor.Command_Extension_Readiness.Tests is
       Editor.Command_Domain.Assert_Command_Mutates_Only
         (Before, After, Allowed,
          "recent project selection domain isolation");
-   end Test_Phase559_Domain_Helper_Captures_Recent_Project_Selection;
+   end Test_Domain_Helper_Captures_Recent_Project_Selection;
 
    procedure Test_Palette_Metadata_Comes_From_Descriptor
      (T : in out AUnit.Test_Cases.Test_Case'Class)
@@ -312,31 +312,31 @@ package body Editor.Command_Extension_Readiness.Tests is
    begin
       AUnit.Test_Cases.Registration.Register_Routine
         (T, Test_Checklist_Accepts_Current_Registry'Access,
-         "Phase 113 Checklist Accepts Current Registry");
+         "Checklist Accepts Current Registry");
       AUnit.Test_Cases.Registration.Register_Routine
         (T, Test_Audit_Summary_Groups_Future_Command_Failures'Access,
-         "Phase 113 Audit Summary Groups Future Command Failures");
+         "Audit Summary Groups Future Command Failures");
       AUnit.Test_Cases.Registration.Register_Routine
         (T, Test_Domain_Fingerprints_Are_Stable_For_Metadata'Access,
-         "Phase 113 Domain Fingerprints Are Stable For Metadata");
+         "Domain Fingerprints Are Stable For Metadata");
       AUnit.Test_Cases.Registration.Register_Routine
         (T, Test_Side_Effect_Domain_Helper_Allows_Focused_Settings_Mutation'Access,
-         "Phase 113 Side Effect Domain Helper Allows Focused Settings Mutation");
+         "Side Effect Domain Helper Allows Focused Settings Mutation");
       AUnit.Test_Cases.Registration.Register_Routine
-        (T, Test_Phase559_Domain_Helper_Captures_Recent_Project_Selection'Access,
-         "Phase 559 domain helper captures Recent Projects selection");
+        (T, Test_Domain_Helper_Captures_Recent_Project_Selection'Access,
+         "domain helper captures Recent Projects selection");
       AUnit.Test_Cases.Registration.Register_Routine
         (T, Test_Palette_Metadata_Comes_From_Descriptor'Access,
-         "Phase 113 Palette Metadata Comes From Descriptor");
+         "Palette Metadata Comes From Descriptor");
       AUnit.Test_Cases.Registration.Register_Routine
         (T, Test_Future_Keybinding_Config_Is_Forward_Tolerant'Access,
-         "Phase 113 Future Keybinding Config Is Forward Tolerant");
+         "Future Keybinding Config Is Forward Tolerant");
       AUnit.Test_Cases.Registration.Register_Routine
         (T, Test_Route_Audit_Catches_Future_Bypass'Access,
-         "Phase 113 Route Audit Catches Future Bypass");
+         "Route Audit Catches Future Bypass");
       AUnit.Test_Cases.Registration.Register_Routine
         (T, Test_Hidden_Command_Policy'Access,
-         "Phase 113 Hidden Command Policy");
+         "Hidden Command Policy");
    end Register_Tests;
 
 end Editor.Command_Extension_Readiness.Tests;

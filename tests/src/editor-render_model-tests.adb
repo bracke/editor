@@ -6,8 +6,14 @@ with Editor.Font_Config;
 with Editor.State;
 with Editor.Settings;
 with Editor.Executor;
+with Editor.Executor.Selection_Commands;
 with Editor.Layout;
 with Editor.Commands;
+with Editor.Command_Palette;
+with Editor.Build_Candidates;
+with Editor.Build_UI;
+with Editor.Build_UI_Actions;
+with Editor.Build_Result_Summary;
 with Editor.Cursors; use Editor.Cursors;
 with Editor.Test_Helper;
 with Editor.Input_Bridge;
@@ -35,12 +41,16 @@ with Editor.Selection;
 with Editor.Feature_Panel;
 with Editor.Feature_Panel.Fixtures; use Editor.Feature_Panel.Fixtures;
 with Editor.Feature_Search_Results;
+with Editor.Feature_Diagnostics;
 with Editor.Outline;
 with Editor.Bookmarks;
 with Editor.Gutter_Markers;
+with Editor.Dirty_Guards;
+with Editor.Pending_Transitions;
 with Editor.Scrollbars;
 with Editor.Buffers;
 with Editor.Panels;
+with Editor.Problems;
 
 package body Editor.Render_Model.Tests is
 
@@ -48,7 +58,9 @@ package body Editor.Render_Model.Tests is
    use type Editor.Syntax.Lexical_State;
    use type Editor.Wrap.Wrap_Mode;
    use type Editor.Cursor.Cursor_Style;
+   use type Editor.Command_Palette.Command_Palette_Row_Kind;
    use type Editor.Gutter_Markers.Gutter_Marker_Kind;
+   use type Editor.Diagnostics.Diagnostic_Severity;
 
    function Default_Minimap_Config
      (Enabled : Boolean) return Editor.Minimap.Minimap_Config is
@@ -204,6 +216,116 @@ package body Editor.Render_Model.Tests is
 
       return True;
    end Packet_Layers_Are_Valid;
+
+   function Layer_Content_In_Viewport
+     (Packet : Editor.Render_Packet.Render_Packet;
+      Layer  : Editor.Render_Layers.Render_Layer;
+      Width  : Natural;
+      Height : Natural) return Boolean
+   is
+   begin
+      for I in 0 .. Packet.Rect_Count - 1 loop
+         if Packet.Rects (Natural (I)).Layer = To_C (Layer) then
+            if Float (Packet.Rects (Natural (I)).X) < 0.0
+              or else Float (Packet.Rects (Natural (I)).Y) < 0.0
+              or else Float (Packet.Rects (Natural (I)).X + Packet.Rects (Natural (I)).W) >
+                Float (Width)
+              or else Float (Packet.Rects (Natural (I)).Y + Packet.Rects (Natural (I)).H) >
+                Float (Height)
+            then
+               return False;
+            end if;
+         end if;
+      end loop;
+
+      for I in 0 .. Packet.Glyph_Count - 1 loop
+         if Packet.Glyphs (Natural (I)).Layer = To_C (Layer) then
+            if Float (Packet.Glyphs (Natural (I)).X) < 0.0
+              or else Float (Packet.Glyphs (Natural (I)).Y) < 0.0
+              or else Float (Packet.Glyphs (Natural (I)).X + Packet.Glyphs (Natural (I)).W) >
+                Float (Width)
+              or else Float (Packet.Glyphs (Natural (I)).Y) > Float (Height)
+              or else Float (Packet.Glyphs (Natural (I)).Y + Packet.Glyphs (Natural (I)).H) >
+                Float (Height + Editor.Layout.Cell_H)
+            then
+               return False;
+            end if;
+         end if;
+      end loop;
+
+      return True;
+   end Layer_Content_In_Viewport;
+
+   function Layer_Vertical_Range
+     (Packet : Editor.Render_Packet.Render_Packet;
+      Layer  : Editor.Render_Layers.Render_Layer;
+      Found  : out Boolean;
+      Top    : out Float;
+      Bottom : out Float) return Boolean
+   is
+   begin
+      Found := False;
+      Top := 0.0;
+      Bottom := 0.0;
+
+      for I in 0 .. Packet.Rect_Count - 1 loop
+         if Packet.Rects (Natural (I)).Layer = To_C (Layer) then
+            declare
+               Y1 : constant Float := Float (Packet.Rects (Natural (I)).Y);
+               Y2 : constant Float := Float
+                 (Packet.Rects (Natural (I)).Y + Packet.Rects (Natural (I)).H);
+            begin
+               if not Found then
+                  Top := Y1;
+                  Bottom := Y2;
+                  Found := True;
+               else
+                  Top := Float'Min (Top, Y1);
+                  Bottom := Float'Max (Bottom, Y2);
+               end if;
+            end;
+         end if;
+      end loop;
+
+      for I in 0 .. Packet.Glyph_Count - 1 loop
+         if Packet.Glyphs (Natural (I)).Layer = To_C (Layer) then
+            declare
+               Y1 : constant Float := Float (Packet.Glyphs (Natural (I)).Y);
+               Y2 : constant Float := Float
+                 (Packet.Glyphs (Natural (I)).Y + Packet.Glyphs (Natural (I)).H);
+            begin
+               if not Found then
+                  Top := Y1;
+                  Bottom := Y2;
+                  Found := True;
+               else
+                  Top := Float'Min (Top, Y1);
+                  Bottom := Float'Max (Bottom, Y2);
+               end if;
+            end;
+         end if;
+      end loop;
+
+      return Found;
+   end Layer_Vertical_Range;
+
+   function Layers_Do_Not_Overlap_Vertically
+     (Packet : Editor.Render_Packet.Render_Packet;
+      A      : Editor.Render_Layers.Render_Layer;
+      B      : Editor.Render_Layers.Render_Layer) return Boolean
+   is
+      A_Found, B_Found : Boolean := False;
+      A_Top, A_Bottom  : Float := 0.0;
+      B_Top, B_Bottom  : Float := 0.0;
+   begin
+      if not Layer_Vertical_Range (Packet, A, A_Found, A_Top, A_Bottom) then
+         return False;
+      end if;
+      if not Layer_Vertical_Range (Packet, B, B_Found, B_Top, B_Bottom) then
+         return False;
+      end if;
+      return A_Bottom <= B_Top or else B_Bottom <= A_Top;
+   end Layers_Do_Not_Overlap_Vertically;
 
 
    function Packets_Equal
@@ -1608,8 +1730,29 @@ package body Editor.Render_Model.Tests is
 
       Assert
       (Editor.Render_Layers.Order (Problems_Text_Layer)
+         < Editor.Render_Layers.Order (Build_UI_Background_Layer),
+         "Build UI background must draw above Problems panel text");
+
+      Assert
+      (Editor.Render_Layers.Order (Build_UI_Text_Layer)
          < Editor.Render_Layers.Order (Status_Bar_Background_Layer),
-         "Status bar background must draw above Problems panel text");
+         "Status bar background must draw above Build UI text");
+
+      Assert
+      (Editor.Render_Layers.Order (Build_UI_Background_Layer)
+         < Editor.Render_Layers.Order (Build_UI_Header_Layer)
+       and then Editor.Render_Layers.Order (Build_UI_Header_Layer)
+         < Editor.Render_Layers.Order (Build_UI_Row_Layer)
+       and then Editor.Render_Layers.Order (Build_UI_Row_Layer)
+         < Editor.Render_Layers.Order (Build_UI_Text_Layer),
+       "Build UI panel layer order must keep background, header, selection, and text stable");
+
+      Assert
+      (Editor.Render_Layers.Order (Status_Bar_Text_Layer)
+         < Editor.Render_Layers.Order (Pending_Transition_Background_Layer)
+       and then Editor.Render_Layers.Order (Pending_Transition_Action_Layer)
+         < Editor.Render_Layers.Order (Palette_Background_Layer),
+       "Pending transition overlay must draw above status bar and below command palette");
 
       Assert
       (Editor.Render_Layers.Order (Status_Bar_Text_Layer)
@@ -1701,65 +1844,73 @@ package body Editor.Render_Model.Tests is
               "Problems severity layer C ABI value must be 32");
       Assert (To_C (Problems_Text_Layer) = 33,
               "Problems text layer C ABI value must be 33");
-      Assert (To_C (Status_Bar_Background_Layer) = 34,
-              "Status bar background layer C ABI value must be 34");
-      Assert (To_C (Status_Bar_Text_Layer) = 35,
-              "Status bar text layer C ABI value must be 35");
-      Assert (To_C (Active_Find_Prompt_Background_Layer) = 36,
-              "Active Find prompt background layer C ABI value must be 36");
-      Assert (To_C (Active_Find_Prompt_Field_Layer) = 37,
-              "Active Find prompt field layer C ABI value must be 37");
-      Assert (To_C (Active_Find_Prompt_Button_Layer) = 38,
-              "Active Find prompt button layer C ABI value must be 38");
-      Assert (To_C (Active_Find_Prompt_Text_Layer) = 39,
-              "Active Find prompt text layer C ABI value must be 39");
-      Assert (To_C (Active_Find_Prompt_Caret_Layer) = 40,
-              "Active Find prompt caret layer C ABI value must be 40");
-      Assert (To_C (Semantic_Popup_Background_Layer) = 41,
-              "Semantic popup background layer C ABI value must be 41");
-      Assert (To_C (Semantic_Popup_Row_Layer) = 42,
-              "Semantic popup row layer C ABI value must be 42");
-      Assert (To_C (Semantic_Popup_Text_Layer) = 43,
-              "Semantic popup text layer C ABI value must be 43");
-      Assert (To_C (Quick_Open_Background_Layer) = 44,
-              "Quick Open background layer C ABI value must be 44");
-      Assert (To_C (Quick_Open_Field_Layer) = 45,
-              "Quick Open field layer C ABI value must be 45");
-      Assert (To_C (Quick_Open_Result_Layer) = 46,
-              "Quick Open result layer C ABI value must be 46");
-      Assert (To_C (Quick_Open_Selected_Result_Layer) = 47,
-              "Quick Open selected-result layer C ABI value must be 47");
-      Assert (To_C (Quick_Open_Text_Layer) = 48,
-              "Quick Open text layer C ABI value must be 48");
-      Assert (To_C (Quick_Open_Caret_Layer) = 49,
-              "Quick Open caret layer C ABI value must be 49");
-      Assert (To_C (Project_Search_Bar_Background_Layer) = 50,
-              "Project Search Bar background layer C ABI value must be 50");
-      Assert (To_C (Project_Search_Bar_Field_Layer) = 51,
-              "Project Search Bar field layer C ABI value must be 51");
-      Assert (To_C (Project_Search_Bar_Button_Layer) = 52,
-              "Project Search Bar button layer C ABI value must be 52");
-      Assert (To_C (Project_Search_Bar_Text_Layer) = 53,
-              "Project Search Bar text layer C ABI value must be 53");
-      Assert (To_C (Project_Search_Bar_Caret_Layer) = 54,
-              "Project Search Bar caret layer C ABI value must be 54");
-      Assert (To_C (Pending_Transition_Background_Layer) = 55,
-              "Pending transition background layer C ABI value must be 55");
-      Assert (To_C (Pending_Transition_Text_Layer) = 56,
-              "Pending transition text layer C ABI value must be 56");
-      Assert (To_C (Pending_Transition_Action_Layer) = 57,
-              "Pending transition action layer C ABI value must be 57");
-      Assert (To_C (Message_Background_Layer) = 58,
-              "Message background layer C ABI value must be 58");
-      Assert (To_C (Message_Text_Layer) = 59,
-              "Message text layer C ABI value must be 59");
-      Assert (To_C (Palette_Background_Layer) = 60,
-              "Palette background layer C ABI value must be 60");
-      Assert (To_C (Palette_Selection_Layer) = 61,
-              "Palette selection layer C ABI value must be 61");
-      Assert (To_C (Palette_Text_Layer) = 62,
-              "Palette text layer C ABI value must be 62");
-      Assert (Editor.Render_Layers.Layer_Count = 63,
+      Assert (To_C (Build_UI_Background_Layer) = 34,
+              "Build UI background layer C ABI value must be 34");
+      Assert (To_C (Build_UI_Header_Layer) = 35,
+              "Build UI header layer C ABI value must be 35");
+      Assert (To_C (Build_UI_Row_Layer) = 36,
+              "Build UI row layer C ABI value must be 36");
+      Assert (To_C (Build_UI_Text_Layer) = 37,
+              "Build UI text layer C ABI value must be 37");
+      Assert (To_C (Status_Bar_Background_Layer) = 38,
+              "Status bar background layer C ABI value must be 38");
+      Assert (To_C (Status_Bar_Text_Layer) = 39,
+              "Status bar text layer C ABI value must be 39");
+      Assert (To_C (Active_Find_Prompt_Background_Layer) = 40,
+              "Active Find prompt background layer C ABI value must be 40");
+      Assert (To_C (Active_Find_Prompt_Field_Layer) = 41,
+              "Active Find prompt field layer C ABI value must be 41");
+      Assert (To_C (Active_Find_Prompt_Button_Layer) = 42,
+              "Active Find prompt button layer C ABI value must be 42");
+      Assert (To_C (Active_Find_Prompt_Text_Layer) = 43,
+              "Active Find prompt text layer C ABI value must be 43");
+      Assert (To_C (Active_Find_Prompt_Caret_Layer) = 44,
+              "Active Find prompt caret layer C ABI value must be 44");
+      Assert (To_C (Semantic_Popup_Background_Layer) = 45,
+              "Semantic popup background layer C ABI value must be 45");
+      Assert (To_C (Semantic_Popup_Row_Layer) = 46,
+              "Semantic popup row layer C ABI value must be 46");
+      Assert (To_C (Semantic_Popup_Text_Layer) = 47,
+              "Semantic popup text layer C ABI value must be 47");
+      Assert (To_C (Quick_Open_Background_Layer) = 48,
+              "Quick Open background layer C ABI value must be 48");
+      Assert (To_C (Quick_Open_Field_Layer) = 49,
+              "Quick Open field layer C ABI value must be 49");
+      Assert (To_C (Quick_Open_Result_Layer) = 50,
+              "Quick Open result layer C ABI value must be 50");
+      Assert (To_C (Quick_Open_Selected_Result_Layer) = 51,
+              "Quick Open selected-result layer C ABI value must be 51");
+      Assert (To_C (Quick_Open_Text_Layer) = 52,
+              "Quick Open text layer C ABI value must be 52");
+      Assert (To_C (Quick_Open_Caret_Layer) = 53,
+              "Quick Open caret layer C ABI value must be 53");
+      Assert (To_C (Project_Search_Bar_Background_Layer) = 54,
+              "Project Search Bar background layer C ABI value must be 54");
+      Assert (To_C (Project_Search_Bar_Field_Layer) = 55,
+              "Project Search Bar field layer C ABI value must be 55");
+      Assert (To_C (Project_Search_Bar_Button_Layer) = 56,
+              "Project Search Bar button layer C ABI value must be 56");
+      Assert (To_C (Project_Search_Bar_Text_Layer) = 57,
+              "Project Search Bar text layer C ABI value must be 57");
+      Assert (To_C (Project_Search_Bar_Caret_Layer) = 58,
+              "Project Search Bar caret layer C ABI value must be 58");
+      Assert (To_C (Pending_Transition_Background_Layer) = 59,
+              "Pending transition background layer C ABI value must be 59");
+      Assert (To_C (Pending_Transition_Text_Layer) = 60,
+              "Pending transition text layer C ABI value must be 60");
+      Assert (To_C (Pending_Transition_Action_Layer) = 61,
+              "Pending transition action layer C ABI value must be 61");
+      Assert (To_C (Message_Background_Layer) = 62,
+              "Message background layer C ABI value must be 62");
+      Assert (To_C (Message_Text_Layer) = 63,
+              "Message text layer C ABI value must be 63");
+      Assert (To_C (Palette_Background_Layer) = 64,
+              "Palette background layer C ABI value must be 64");
+      Assert (To_C (Palette_Selection_Layer) = 65,
+              "Palette selection layer C ABI value must be 65");
+      Assert (To_C (Palette_Text_Layer) = 66,
+              "Palette text layer C ABI value must be 66");
+      Assert (Editor.Render_Layers.Layer_Count = 67,
               "Layer count must stay synchronized with the C ABI enum");
    end Test_C_ABI_Layer_Values_Are_Stable;
 
@@ -2173,12 +2324,12 @@ package body Editor.Render_Model.Tests is
    begin
       Assert
         (Config.Enabled,
-         "Default minimap config must enable the Phase 32 visual foundation");
+         "Default minimap config must enable the visual foundation");
       Assert
         (Config.Width = 96
          and then Config.Padding_Left = 8
          and then Config.Padding_Right = 8,
-         "Default minimap config must preserve the Phase 32 foundation geometry");
+         "Default minimap config must preserve the foundation geometry");
    end Test_Minimap_Default_Config_Is_Enabled;
 
    procedure Test_Minimap_Rendering_Does_Not_Change_Glyph_Count
@@ -3017,7 +3168,7 @@ package body Editor.Render_Model.Tests is
    end Test_Render_Cache_Invalidates_On_Test_State_Replacement;
 
 
-   procedure Test_Phase17_Long_Line_Horizontal_Viewport_Bounded
+   procedure Test_Long_Line_Horizontal_Viewport_Bounded
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
       pragma Unreferenced (T);
 
@@ -3054,9 +3205,9 @@ package body Editor.Render_Model.Tests is
         (Text_Glyph_Count (Packet, Layout, Editor.State.Line_Count (S)) <=
            Visible_Cols + 1,
          "Long horizontally-scrolled line must emit only viewport glyphs");
-   end Test_Phase17_Long_Line_Horizontal_Viewport_Bounded;
+   end Test_Long_Line_Horizontal_Viewport_Bounded;
 
-   procedure Test_Phase17_Bulk_Load_Line_Index_And_Empty_Undo
+   procedure Test_Bulk_Load_Line_Index_And_Empty_Undo
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
       pragma Unreferenced (T);
 
@@ -3077,9 +3228,9 @@ package body Editor.Render_Model.Tests is
       Assert
         (Editor.History.Undo_Stack.Is_Empty,
          "Bulk load must not leave undo entries");
-   end Test_Phase17_Bulk_Load_Line_Index_And_Empty_Undo;
+   end Test_Bulk_Load_Line_Index_And_Empty_Undo;
 
-   procedure Test_Phase17_Render_Snapshot_Line_Starts_Are_Windowed
+   procedure Test_Render_Snapshot_Line_Starts_Are_Windowed
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
       pragma Unreferenced (T);
 
@@ -3112,9 +3263,9 @@ package body Editor.Render_Model.Tests is
       Assert
         (Natural (Snap.Line_Starts.Length) <= Visible_Rows + 1,
          "Snapshot must not duplicate all document line starts");
-   end Test_Phase17_Render_Snapshot_Line_Starts_Are_Windowed;
+   end Test_Render_Snapshot_Line_Starts_Are_Windowed;
 
-   procedure Test_Phase17_Large_Selection_Emits_Visible_Rects_Only
+   procedure Test_Large_Selection_Emits_Visible_Rects_Only
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
       pragma Unreferenced (T);
 
@@ -3163,7 +3314,7 @@ package body Editor.Render_Model.Tests is
       Assert
         (Selection_Rects <= Visible_Rows,
          "Huge selection must emit selection rectangles only for visible rows");
-   end Test_Phase17_Large_Selection_Emits_Visible_Rects_Only;
+   end Test_Large_Selection_Emits_Visible_Rects_Only;
 
 
    procedure Configure_Wrap_Test_Viewport
@@ -4324,7 +4475,7 @@ package body Editor.Render_Model.Tests is
       Editor.Minimap.Set_Current (Old);
    end Test_Minimap_Click_Scroll_Clamped_At_Document_End;
 
-   procedure Test_Phase68_Rectangular_Selection_Projection
+   procedure Test_Rectangular_Selection_Projection
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
       pragma Unreferenced (T);
       S : Editor.State.State_Type;
@@ -4334,7 +4485,7 @@ package body Editor.Render_Model.Tests is
       Editor.State.Load_Text (S, "abcd" & ASCII.LF & "xy" & ASCII.LF & "12345");
       Editor.View.Reset_Scroll;
 
-      Editor.Executor.Execute_Set_Rectangular_Selection
+      Editor.Executor.Selection_Commands.Execute_Set_Rectangular_Selection
         (S      => S,
          Anchor => (Row => 0, Column => 1),
          Cursor => (Row => 2, Column => 4));
@@ -4342,18 +4493,18 @@ package body Editor.Render_Model.Tests is
       Editor.Render_Model.Build_Render_Snapshot (S, Snap);
 
       Assert (Snap.Rectangular_Selection_Count = 3,
-              "Phase 68 render model must project one visible rectangular span per selected row");
+              "render model must project one visible rectangular span per selected row");
       Assert (Snap.Rectangular_Selections (1).Row = 0,
-              "Phase 68 first rectangular span row");
+              "first rectangular span row");
       Assert (Snap.Rectangular_Selections (1).Start_Column = 1
               and then Snap.Rectangular_Selections (1).End_Column = 4,
-              "Phase 68 rectangular span must preserve half-open columns");
+              "rectangular span must preserve half-open columns");
       Assert (Snap.Selection_Count = 0,
-              "Phase 68 rectangular projection must not also expose linear selections");
-   end Test_Phase68_Rectangular_Selection_Projection;
+              "rectangular projection must not also expose linear selections");
+   end Test_Rectangular_Selection_Projection;
 
 
-   procedure Test_Phase219_Status_Bar_Narrow_Width_Is_Bounded
+   procedure Test_Status_Bar_Narrow_Width_Is_Bounded
    (T : in out AUnit.Test_Cases.Test_Case'Class)
    is
       pragma Unreferenced (T);
@@ -4379,10 +4530,10 @@ package body Editor.Render_Model.Tests is
 
       Assert
         (Has_Rect_On_Layer (Packet, Status_Bar_Background_Layer),
-         "Phase 219 status bar must still emit its background");
+         "status bar must still emit its background");
       Assert
         (Glyph_Count_On_Layer (Packet, Status_Bar_Text_Layer) > 0,
-         "Phase 219 status bar must emit compact text even in narrow layouts");
+         "status bar must emit compact text even in narrow layouts");
 
       for I in 0 .. Packet.Glyph_Count - 1 loop
          if Packet.Glyphs (Natural (I)).Layer = To_C (Status_Bar_Text_Layer) then
@@ -4390,13 +4541,503 @@ package body Editor.Render_Model.Tests is
               (Float (Packet.Glyphs (Natural (I)).X)
                + Float (Packet.Glyphs (Natural (I)).W)
                <= Float (Width),
-               "Phase 219 status bar text must stay inside the viewport width");
+               "status bar text must stay inside the viewport width");
          end if;
       end loop;
-   end Test_Phase219_Status_Bar_Narrow_Width_Is_Bounded;
+   end Test_Status_Bar_Narrow_Width_Is_Bounded;
+
+   procedure Test_Build_Diagnostics_Semantics_Reach_Render_Snapshot
+   (T : in out AUnit.Test_Cases.Test_Case'Class)
+   is
+      pragma Unreferenced (T);
+
+      S    : Editor.State.State_Type;
+      Snap : Editor.Render_Model.Render_Snapshot;
+   begin
+      Reset_Render_Test_Globals;
+      Editor.State.Init (S);
+      Editor.State.Load_Text (S, "one" & ASCII.LF & "two");
+      Editor.State.Add_Diagnostic (S, 0, 3, Editor.Diagnostics.Error);
+      Editor.Build_UI_Actions.Show_Build_UI (S);
+      S.Latest_Build_Result :=
+        Editor.Build_Result_Summary.Build_Summary
+          (Kind => Editor.Build_Result_Summary.Build_Result_Summary_Failed,
+           Invocation_Label => "build.run",
+           Tool_Kind => Editor.Build_Result_Summary.Build_Result_GPRbuild_Tool,
+           Request_Mode => Editor.Build_Result_Summary.Build_Result_Request_Manual,
+           Working_Context_Label => "current project root",
+           Runner_Status_Label => "failed",
+           Primary_Message => "Build failed",
+           Exit_Code => 1,
+           Has_Exit_Code => True,
+           Stdout_Truncated => False,
+           Output_Partial => False,
+           Diagnostics_Ingestion_Status =>
+             Editor.Build_Result_Summary.Diagnostics_Ingestion_Succeeded,
+           Diagnostics_Count => 1,
+           Has_Diagnostics_Count => True,
+           Diagnostics_Error_Count => 1,
+           Diagnostics_Warning_Count => 0,
+           Has_Diagnostics_Severity_Counts => True,
+           Duration_Milliseconds => 250,
+           Has_Duration => True);
+
+      Editor.Render_Model.Build_Render_Snapshot (S, Snap);
+
+      Assert (Snap.Total_Diagnostic_Count = 1,
+              "render snapshot must expose total diagnostic count");
+      Assert (Snap.Diagnostic_Count = 1,
+              "render snapshot must expose visible diagnostic range count");
+      Assert (Snap.Diagnostics (1).Severity = Editor.Diagnostics.Error,
+              "render snapshot must preserve diagnostic severity");
+      Assert (Snap.Build_UI.Visible,
+              "render snapshot must expose visible Build UI state");
+      Assert
+        (To_String (Snap.Build_UI.Latest_Result.Latest_Build_Result_Status_Label) =
+           "Build failed",
+         "render snapshot must expose latest build result status");
+      Assert
+        (To_String (Snap.Build_UI.Request_Status_Label)'Length > 0
+         and then To_String (Snap.Build_UI.Run_Command_Status_Label)'Length > 0,
+         "render snapshot must expose separate Build request and run command labels");
+      Assert
+        (To_String (Snap.Build_UI.Diagnostics_View.Count_Label) =
+           "Diagnostics produced:  1 (errors  1, warnings  0, info  0, notes  0, unknown  0)",
+         "render snapshot must expose build diagnostics count label");
+   end Test_Build_Diagnostics_Semantics_Reach_Render_Snapshot;
+
+   procedure Test_Build_Diagnostics_Render_Packet_Emits_Status_And_Panel_Layers
+   (T : in out AUnit.Test_Cases.Test_Case'Class)
+   is
+      pragma Unreferenced (T);
+
+      S      : Editor.State.State_Type;
+      Packet : Editor.Render_Packet.Render_Packet;
+   begin
+      Reset_Render_Test_Globals;
+      Editor.State.Init (S);
+      Editor.State.Load_Text (S, "one" & ASCII.LF & "two");
+      Editor.State.Add_Diagnostic (S, 0, 3, Editor.Diagnostics.Error);
+      Editor.Feature_Diagnostics.Add_Diagnostic
+        (S.Feature_Diagnostics, Editor.Feature_Diagnostics.Diagnostic_Error,
+         "render packet diagnostic", "src/main.adb", Has_Target => False);
+      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Diagnostics_Show);
+      S.Latest_Build_Result :=
+        Editor.Build_Result_Summary.Build_Summary
+          (Kind => Editor.Build_Result_Summary.Build_Result_Summary_Failed,
+           Invocation_Label => "build.run",
+           Tool_Kind => Editor.Build_Result_Summary.Build_Result_GPRbuild_Tool,
+           Request_Mode => Editor.Build_Result_Summary.Build_Result_Request_Manual,
+           Working_Context_Label => "current project root",
+           Runner_Status_Label => "failed",
+           Primary_Message => "Build failed",
+           Exit_Code => 1,
+           Has_Exit_Code => True,
+           Stdout_Truncated => False,
+           Output_Partial => False,
+           Diagnostics_Ingestion_Status =>
+             Editor.Build_Result_Summary.Diagnostics_Ingestion_Succeeded,
+           Diagnostics_Count => 1,
+           Has_Diagnostics_Count => True,
+           Diagnostics_Error_Count => 1,
+           Diagnostics_Warning_Count => 0,
+           Has_Diagnostics_Severity_Counts => True,
+           Duration_Milliseconds => 250,
+           Has_Duration => True);
+
+      Set_Render_State_For_Test (S);
+      Editor.View.Reset_Scroll;
+      Editor.View.Set_Viewport
+        (Width  => Editor.Layout.Cell_W * 96,
+         Height => Editor.Layout.Cell_H * 12);
+
+      Editor.Input_Bridge.Build_Render_Packet (Packet);
+
+      Assert
+        (Glyph_Count_On_Layer (Packet, Status_Bar_Text_Layer) > 0,
+         "build result status must emit status bar text glyphs");
+      Assert
+        (Rect_Count_On_Layer (Packet, Diagnostic_Layer) > 0,
+         "document diagnostics must emit diagnostic underline rects");
+      Assert
+        (Rect_Count_On_Layer (Packet, Problems_Background_Layer) > 0,
+         "Diagnostics feature panel must emit panel background");
+      Assert
+        (Glyph_Count_On_Layer (Packet, Problems_Text_Layer) > 0,
+         "Diagnostics feature panel must emit panel text glyphs");
+   end Test_Build_Diagnostics_Render_Packet_Emits_Status_And_Panel_Layers;
+
+   procedure Test_Build_UI_Render_Packet_Emits_Suppressed_Diagnostics_List
+   (T : in out AUnit.Test_Cases.Test_Case'Class)
+   is
+      pragma Unreferenced (T);
+
+      S              : Editor.State.State_Type;
+      Before_Packet  : Editor.Render_Packet.Render_Packet;
+      After_Packet   : Editor.Render_Packet.Render_Packet;
+      Before_Rows    : Natural := 0;
+      After_Rows     : Natural := 0;
+      Width          : constant Natural := Editor.Layout.Cell_W * 96;
+      Height         : constant Natural := Editor.Layout.Cell_H * 14;
+   begin
+      Reset_Render_Test_Globals;
+      Editor.State.Init (S);
+      Editor.State.Load_Text (S, "suppressed render list");
+      Editor.Build_UI_Actions.Show_Build_UI (S);
+
+      Set_Render_State_For_Test (S);
+      Editor.View.Reset_Scroll;
+      Editor.View.Set_Viewport (Width => Width, Height => Height);
+      Editor.Input_Bridge.Build_Render_Packet (Before_Packet);
+      Before_Rows := Rect_Count_On_Layer (Before_Packet, Build_UI_Row_Layer);
+
+      for I in 1 .. 2 loop
+         Editor.Feature_Diagnostics.Add_Diagnostic
+           (S.Feature_Diagnostics,
+            Severity     => Editor.Feature_Diagnostics.Diagnostic_Error,
+            Message      => "suppressed render" & Natural'Image (I),
+            Source_Label => "src/main.adb",
+            Source_Kind  => Editor.Feature_Diagnostics.External_Diagnostic_Source);
+      end loop;
+      Editor.Feature_Diagnostics.Project_Rows
+        (S.Feature_Diagnostics, S.Feature_Panel);
+      Editor.Feature_Panel.Select_Row (S.Feature_Panel, 1);
+      Assert
+        (Editor.Feature_Diagnostics.Suppress_Selected_Diagnostic
+           (S.Feature_Diagnostics, S.Feature_Panel),
+         "fixture can suppress first render diagnostic");
+      Editor.Feature_Panel.Select_Row (S.Feature_Panel, 1);
+      Assert
+        (Editor.Feature_Diagnostics.Suppress_Selected_Diagnostic
+           (S.Feature_Diagnostics, S.Feature_Panel),
+         "fixture can suppress second render diagnostic");
+
+      Set_Render_State_For_Test (S);
+      Editor.View.Reset_Scroll;
+      Editor.View.Set_Viewport (Width => Width, Height => Height);
+      Editor.Input_Bridge.Build_Render_Packet (After_Packet);
+      After_Rows := Rect_Count_On_Layer (After_Packet, Build_UI_Row_Layer);
+
+      Assert (Glyph_Count_On_Layer (After_Packet, Build_UI_Text_Layer) > 0,
+              "Build UI text layer must render suppressed diagnostics section text");
+      Assert
+        (After_Rows > Before_Rows,
+         "Build UI suppressed selection must emit a row highlight");
+      Assert
+        (Layer_Content_In_Viewport
+           (After_Packet, Build_UI_Text_Layer, Width, Height),
+         "Build UI suppressed diagnostics text must stay inside the viewport");
+   end Test_Build_UI_Render_Packet_Emits_Suppressed_Diagnostics_List;
+
+   procedure Test_Build_UI_Render_Packet_Emits_Quick_Fix_Detail_Text
+   (T : in out AUnit.Test_Cases.Test_Case'Class)
+   is
+      pragma Unreferenced (T);
+
+      S      : Editor.State.State_Type;
+      Packet : Editor.Render_Packet.Render_Packet;
+      Width  : constant Natural := Editor.Layout.Cell_W * 160;
+      Height : constant Natural := Editor.Layout.Cell_H * 22;
+      Label  : constant String := "Add missing context clause";
+      Detail : constant String := "Fix";
+   begin
+      Reset_Render_Test_Globals;
+      Editor.State.Init (S);
+      Editor.State.Load_Text (S, "procedure Demo is begin null; end Demo;");
+      Editor.Build_UI_Actions.Show_Build_UI (S);
+      Editor.Feature_Diagnostics.Add_Diagnostic
+        (S.Feature_Diagnostics,
+         Severity     => Editor.Feature_Diagnostics.Diagnostic_Error,
+         Message      => "missing with clause",
+         Source_Label => "semantic",
+         Source_Kind  => Editor.Feature_Diagnostics.Editor_Diagnostic_Source,
+         Has_Target   => True,
+         Target_Buffer => 1,
+         Target_Line   => 1,
+         Target_Column => 1,
+         Has_Edit          => True,
+         Edit_Start_Line   => 1,
+         Edit_Start_Column => 1,
+         Edit_End_Line     => 1,
+         Edit_End_Column   => 1,
+         Replacement_Text  => "with Ada.Text_IO;",
+         Quick_Fix_Label   => Label,
+         Quick_Fix_Detail  => Detail);
+      Editor.Feature_Diagnostics.Project_Rows
+        (S.Feature_Diagnostics, S.Feature_Panel);
+      Editor.Feature_Panel.Select_Row (S.Feature_Panel, 1);
+
+      Set_Render_State_For_Test (S);
+      Editor.View.Reset_Scroll;
+      Editor.View.Set_Viewport (Width => Width, Height => Height);
+      Editor.Render_Packet.Clear_Debug_Text_For_Test;
+      Editor.Input_Bridge.Build_Render_Packet (Packet);
+
+      Assert
+        (Editor.Render_Packet.Debug_Text_Contains_For_Test (Label)
+         and then Editor.Render_Packet.Debug_Text_Contains_For_Test (Detail),
+         "Build UI packet should push quick-fix label and detail text, got: " &
+         Editor.Render_Packet.Debug_Text_For_Test);
+      Assert
+        (Layer_Content_In_Viewport
+           (Packet, Build_UI_Text_Layer, Width, Height),
+         "Build UI quick-fix packet text must stay inside the viewport");
+   end Test_Build_UI_Render_Packet_Emits_Quick_Fix_Detail_Text;
+
+   procedure Test_Command_Palette_Render_Packet_Emits_State_Context_Row
+   (T : in out AUnit.Test_Cases.Test_Case'Class)
+   is
+      pragma Unreferenced (T);
+
+      S      : Editor.State.State_Type;
+      After_Packet  : Editor.Render_Packet.Render_Packet;
+      Manual_Candidates : Editor.Commands.Command_Palette_Candidate_Vectors.Vector;
+      Snapshot      : Editor.Command_Palette.Command_Palette_Snapshot;
+      Has_State_Context : Boolean := False;
+      Width  : constant Natural := Editor.Layout.Cell_W * 96;
+      Height : constant Natural := Editor.Layout.Cell_H * 16;
+   begin
+      Reset_Render_Test_Globals;
+      Editor.State.Init (S);
+      Editor.State.Load_Text (S, "palette state context");
+      Editor.Build_UI_Actions.Show_Build_UI (S);
+
+      Manual_Candidates.Append
+        (Editor.Commands.Command_Palette_Candidate'
+         (Id                    => Editor.Commands.Command_Build_Run,
+          Label                 => To_Unbounded_String ("Run Build"),
+          Description           => To_Unbounded_String ("Run the selected build"),
+          Category              => Editor.Commands.Project_Category,
+          Category_Label        => To_Unbounded_String ("Build"),
+          Available             => True,
+          Reason                => Null_Unbounded_String,
+          Has_Keybinding        => False,
+          Keybinding_Display    => Null_Unbounded_String,
+          Reference_Summary     => Null_Unbounded_String,
+          Family                => Editor.Commands.No_Command_Family,
+          Effect_Classification => Editor.Commands.No_Command_Effect,
+          Match_Score           => 1,
+          Registry_Order        => 1));
+      Editor.Command_Palette.Set_Command_State_Context
+        (Editor.Commands.Command_Build_Run, "Current Build UI state: visible.");
+      Editor.Command_Palette.Set_Show_Help_Row (True);
+      Editor.Command_Palette.Reconcile_Selection (Manual_Candidates);
+      Snapshot := Editor.Command_Palette.Build_Snapshot
+        (Manual_Candidates, Editor.Command_Palette.Current_Config);
+      for I in 1 .. Editor.Command_Palette.Row_Count (Snapshot) loop
+         if Editor.Command_Palette.Row (Snapshot, I).Kind =
+           Editor.Command_Palette.Command_Palette_State_Context_Row
+         then
+            Has_State_Context := True;
+            exit;
+         end if;
+      end loop;
+
+      Assert
+        (Has_State_Context,
+         "command palette snapshot must include a state-context row for Build commands");
+
+      Set_Render_State_For_Test (S);
+      Editor.View.Reset_Scroll;
+      Editor.View.Set_Viewport (Width => Width, Height => Height);
+      Editor.Command_Palette.Reset;
+      Editor.Command_Palette.Open;
+      Editor.Command_Palette.Insert_Text ("build run");
+      Editor.Command_Palette.Set_Command_State_Context
+        (Editor.Commands.Command_Build_Run, "Current Build UI state: visible.");
+      Editor.Command_Palette.Set_Show_Help_Row (True);
+      Editor.Input_Bridge.Build_Render_Packet (After_Packet);
+
+      Assert
+        (Glyph_Count_On_Layer (After_Packet, Palette_Text_Layer) > 0,
+         "command palette packet must emit palette text glyphs for detail rows");
+      Assert
+        (Layer_Content_In_Viewport
+           (After_Packet, Palette_Text_Layer, Width, Height),
+         "command palette state-context text must stay inside the viewport");
+      Editor.Command_Palette.Reset;
+   end Test_Command_Palette_Render_Packet_Emits_State_Context_Row;
+
+   procedure Test_Pending_Bar_Render_Packet_Uses_Dedicated_Layers
+   (T : in out AUnit.Test_Cases.Test_Case'Class)
+   is
+      pragma Unreferenced (T);
+
+      S      : Editor.State.State_Type;
+      Packet : Editor.Render_Packet.Render_Packet;
+      Target : constant Editor.Pending_Transitions.Pending_Transition_Target :=
+        (Kind       => Editor.Pending_Transitions.Pending_Clear_Workspace_State,
+         Path       => Null_Unbounded_String,
+         Display    => To_Unbounded_String ("workspace state"),
+         Buffer_Id  => 0,
+         Has_Buffer => False,
+         Has_Path   => False,
+         others     => <>);
+      Dirty : constant Editor.Dirty_Guards.Dirty_Buffer_Summary :=
+        (Dirty_Count => 0, Untitled_Count => 0, File_Backed_Count => 0);
+   begin
+      Editor.State.Init (S);
+      Editor.State.Load_Text (S, "pending");
+      Editor.Pending_Transitions.Set_Pending (S.Pending_Transitions, Target, Dirty);
+
+      Set_Render_State_For_Test (S);
+      Editor.View.Reset_Scroll;
+      Editor.View.Set_Viewport
+        (Width  => Editor.Layout.Cell_W * 96,
+         Height => Editor.Layout.Cell_H * 12);
+
+      Editor.Input_Bridge.Build_Render_Packet (Packet);
+
+      Assert
+        (Rect_Count_On_Layer (Packet, Pending_Transition_Background_Layer) > 0,
+         "pending bar render must emit a dedicated background layer");
+      Assert
+        (Glyph_Count_On_Layer (Packet, Pending_Transition_Text_Layer) > 0,
+         "pending bar render must emit summary text");
+      Assert
+        (Glyph_Count_On_Layer (Packet, Pending_Transition_Action_Layer) > 0,
+         "pending bar render must emit action labels");
+   end Test_Pending_Bar_Render_Packet_Uses_Dedicated_Layers;
+
+   procedure Test_Workflow_Render_Packet_Layers_Are_Bounded
+   (T : in out AUnit.Test_Cases.Test_Case'Class)
+   is
+      pragma Unreferenced (T);
+
+      S      : Editor.State.State_Type;
+      Packet : Editor.Render_Packet.Render_Packet;
+      Width  : constant Natural := Editor.Layout.Cell_W * 96;
+      Height : constant Natural := Editor.Layout.Cell_H * 12;
+      Target : constant Editor.Pending_Transitions.Pending_Transition_Target :=
+        (Kind       => Editor.Pending_Transitions.Pending_Clear_Workspace_State,
+         Path       => Null_Unbounded_String,
+         Display    => To_Unbounded_String ("workspace state"),
+         Buffer_Id  => 0,
+         Has_Buffer => False,
+         Has_Path   => False,
+         others     => <>);
+      Dirty : constant Editor.Dirty_Guards.Dirty_Buffer_Summary :=
+        (Dirty_Count => 0, Untitled_Count => 0, File_Backed_Count => 0);
+      Long_Candidate : constant Editor.Build_Candidates.Build_Candidate_Record :=
+        Editor.Build_Candidates.Gprbuild_Candidate
+          ("current-project-root",
+           "very-long-build-candidate-name-for-render-bounds-tests.gpr");
+      Candidates : Editor.Build_Candidates.Build_Candidate_Vector :=
+        Editor.Build_Candidates.Empty_Candidates;
+   begin
+      Editor.State.Init (S);
+      Editor.State.Load_Text (S, "bounded workflow packet");
+      Editor.Diagnostics.Add
+        (S.Diagnostics, Start_Index => 0, End_Index => 1,
+         Start_Row => 0, Start_Column => 0,
+         Severity => Editor.Diagnostics.Error,
+         Message => "bounded diagnostic with a long label that must stay inside render bounds");
+      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Diagnostics_Show);
+      Editor.Build_UI_Actions.Show_Build_UI (S);
+      Candidates.Append (Long_Candidate);
+      Editor.Build_UI.Set_Build_Candidates
+        (S.Build_UI, Candidates, "refresh succeeded: 1 long candidate");
+      Editor.Build_UI.Select_Build_Candidate
+        (S.Build_UI, To_String (Long_Candidate.Candidate_Id));
+      Editor.Command_Palette.Reset;
+      Editor.Command_Palette.Open;
+      Editor.Command_Palette.Append_Character ('b');
+      Editor.Command_Palette.Append_Character ('u');
+      Editor.Pending_Transitions.Set_Pending (S.Pending_Transitions, Target, Dirty);
+
+      Set_Render_State_For_Test (S);
+      Editor.View.Reset_Scroll;
+      Editor.View.Set_Viewport (Width => Width, Height => Height);
+
+      Editor.Input_Bridge.Build_Render_Packet (Packet);
+
+      Assert
+        (Layer_Content_In_Viewport
+           (Packet, Status_Bar_Text_Layer, Width, Height),
+         "status bar text must stay inside the viewport");
+      Assert
+        (Layer_Content_In_Viewport
+           (Packet, Pending_Transition_Text_Layer, Width, Height),
+         "pending transition text must stay inside the viewport");
+      Assert
+        (Layer_Content_In_Viewport
+           (Packet, Pending_Transition_Action_Layer, Width, Height),
+         "pending transition actions must stay inside the viewport");
+      Assert
+        (Layer_Content_In_Viewport
+           (Packet, Problems_Background_Layer, Width, Height),
+         "Problems background must stay inside the viewport");
+      Assert
+        (Layer_Content_In_Viewport
+           (Packet, Problems_Text_Layer, Width, Height),
+         "Problems text must stay inside the viewport");
+      Assert
+        (Layer_Content_In_Viewport
+           (Packet, Build_UI_Background_Layer, Width, Height),
+         "Build UI background must stay inside the viewport");
+      Assert
+        (Layer_Content_In_Viewport
+           (Packet, Build_UI_Text_Layer, Width, Height),
+         "Build UI text must stay inside the viewport");
+      Assert
+        (Layer_Content_In_Viewport
+           (Packet, Palette_Background_Layer, Width, Height),
+         "command palette background must stay inside the viewport");
+      Assert
+        (Layer_Content_In_Viewport
+           (Packet, Palette_Text_Layer, Width, Height),
+         "command palette text must stay inside the viewport");
+      Assert
+        (Layers_Do_Not_Overlap_Vertically
+           (Packet, Pending_Transition_Action_Layer, Problems_Text_Layer),
+         "pending transition actions must not overlap Problems text");
+   end Test_Workflow_Render_Packet_Layers_Are_Bounded;
+
+   procedure Test_Problems_Empty_State_Render_Packet_Emits_Guidance
+   (T : in out AUnit.Test_Cases.Test_Case'Class)
+   is
+      pragma Unreferenced (T);
+
+      S      : Editor.State.State_Type;
+      Packet : Editor.Render_Packet.Render_Packet;
+      Header_Glyphs : constant Natural := 11;
+   begin
+      Reset_Render_Test_Globals;
+      Editor.State.Init (S);
+      Editor.State.Load_Text (S, "empty problems panel");
+      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Diagnostics_Show);
+
+      Set_Render_State_For_Test (S);
+      Editor.View.Reset_Scroll;
+      Editor.View.Set_Viewport
+        (Width  => Editor.Layout.Cell_W * 80,
+         Height => Editor.Layout.Cell_H * 12);
+
+      Editor.Input_Bridge.Build_Render_Packet (Packet);
+
+      Assert
+        (Rect_Count_On_Layer (Packet, Problems_Background_Layer) > 0,
+         "empty Problems panel must render a background");
+      Assert
+        (Glyph_Count_On_Layer (Packet, Problems_Text_Layer) > Header_Glyphs,
+         "empty Problems panel must render guidance beyond the header");
+   end Test_Problems_Empty_State_Render_Packet_Emits_Guidance;
+
+   procedure Test_Problems_Filtered_Empty_State_Text_Is_Render_Input
+   (T : in out AUnit.Test_Cases.Test_Case'Class)
+   is
+      pragma Unreferenced (T);
+      Message : constant String :=
+        Editor.Problems.Empty_State_Message (Visible_Count => 0, Total_Count => 1);
+   begin
+      Assert (Message = Editor.Problems.Message_No_Visible_Problems,
+              "filtered Problems render input must use filtered-empty text");
+      Assert (Message /= Editor.Problems.Message_No_Problems,
+              "filtered Problems render input must not collapse to no-problems text");
+   end Test_Problems_Filtered_Empty_State_Text_Is_Render_Input;
 
 
-   procedure Test_Phase219_Feature_Panel_Text_Is_Bounded
+   procedure Test_Feature_Panel_Text_Is_Bounded
    (T : in out AUnit.Test_Cases.Test_Case'Class)
    is
       pragma Unreferenced (T);
@@ -4419,10 +5060,10 @@ package body Editor.Render_Model.Tests is
 
       Assert
         (Has_Rect_On_Layer (Packet, Problems_Background_Layer),
-         "Phase 219 feature panel must render a panel background");
+         "feature panel must render a panel background");
       Assert
         (Glyph_Count_On_Layer (Packet, Problems_Text_Layer) > 0,
-         "Phase 219 feature panel must render header or row text");
+         "feature panel must render header or row text");
 
       for I in 0 .. Packet.Glyph_Count - 1 loop
          if Packet.Glyphs (Natural (I)).Layer = To_C (Problems_Text_Layer) then
@@ -4430,18 +5071,18 @@ package body Editor.Render_Model.Tests is
               (Float (Packet.Glyphs (Natural (I)).X)
                + Float (Packet.Glyphs (Natural (I)).W)
                <= Float (Width),
-               "Phase 219 feature panel text must be truncated inside the viewport");
+               "feature panel text must be truncated inside the viewport");
             Assert
               (Float (Packet.Glyphs (Natural (I)).Y)
                + Float (Packet.Glyphs (Natural (I)).H)
                <= Float (Height),
-               "Phase 219 feature panel text must be row-bounded inside the viewport");
+               "feature panel text must be row-bounded inside the viewport");
          end if;
       end loop;
-   end Test_Phase219_Feature_Panel_Text_Is_Bounded;
+   end Test_Feature_Panel_Text_Is_Bounded;
 
 
-   procedure Test_Phase219_Render_Does_Not_Mutate_State
+   procedure Test_Render_Does_Not_Mutate_State
    (T : in out AUnit.Test_Cases.Test_Case'Class)
    is
       pragma Unreferenced (T);
@@ -4478,21 +5119,21 @@ package body Editor.Render_Model.Tests is
 
       Assert
         (To_String (Before_Text) = Editor.State.Current_Text (After),
-         "Phase 219 render must not mutate active buffer text");
+         "render must not mutate active buffer text");
       Assert
         (Before_Dirty = Editor.State.Is_Dirty (After),
-         "Phase 219 render must not mutate dirty state");
+         "render must not mutate dirty state");
       Assert
         (Before_Row_Count = Editor.Feature_Panel.Row_Count (After.Feature_Panel),
-         "Phase 219 render must not mutate feature panel rows");
+         "render must not mutate feature panel rows");
       Assert
         (Before_Selected_Row = Editor.Feature_Panel.Selected_Row (After.Feature_Panel),
-         "Phase 219 render must not mutate feature panel selection");
-   end Test_Phase219_Render_Does_Not_Mutate_State;
+         "render must not mutate feature panel selection");
+   end Test_Render_Does_Not_Mutate_State;
 
 
 
-   procedure Test_Phase220_Unchanged_State_Emits_Stable_Render_Packet
+   procedure Test_Unchanged_State_Emits_Stable_Render_Packet
      (T : in out AUnit.Test_Cases.Test_Case'Class)
    is
       pragma Unreferenced (T);
@@ -4512,10 +5153,10 @@ package body Editor.Render_Model.Tests is
       Assert
         (Packets_Equal (First, Second),
          "unchanged editor state must emit a stable render packet");
-   end Test_Phase220_Unchanged_State_Emits_Stable_Render_Packet;
+   end Test_Unchanged_State_Emits_Stable_Render_Packet;
 
 
-   procedure Test_Phase221_Input_Field_Focus_State_In_Snapshot
+   procedure Test_Input_Field_Focus_State_In_Snapshot
      (T : in out AUnit.Test_Cases.Test_Case'Class)
    is
       pragma Unreferenced (T);
@@ -4529,7 +5170,7 @@ package body Editor.Render_Model.Tests is
       Editor.Render_Model.Build_Render_Snapshot (S, Snap);
       Assert
         (Snap.Search_Query_Input_Active,
-         "Phase 221 render snapshot must expose active Search query input focus");
+         "render snapshot must expose active Search query input focus");
       Assert
         (not Snap.Outline_Filter_Input_Active,
          "Search query focus must not imply Outline filter focus");
@@ -4540,13 +5181,13 @@ package body Editor.Render_Model.Tests is
       Editor.Render_Model.Build_Render_Snapshot (S, Snap);
       Assert
         (Snap.Outline_Filter_Input_Active,
-         "Phase 221 render snapshot must expose active Outline filter input focus");
+         "render snapshot must expose active Outline filter input focus");
       Assert
         (not Snap.Search_Query_Input_Active,
          "Outline filter focus must not imply Search query focus");
-   end Test_Phase221_Input_Field_Focus_State_In_Snapshot;
+   end Test_Input_Field_Focus_State_In_Snapshot;
 
-   procedure Test_Phase343_Bookmark_Marker_Projection
+   procedure Test_Bookmark_Marker_Projection
      (T : in out AUnit.Test_Cases.Test_Case'Class)
    is
       pragma Unreferenced (T);
@@ -4576,24 +5217,24 @@ package body Editor.Render_Model.Tests is
       Assert
         (Editor.Gutter_Markers.Has_Marker
            (Snap.Gutter_Markers, 1, Editor.Gutter_Markers.Bookmark_Marker),
-         "Phase 343 render snapshot must project a session bookmark onto its open buffer line");
+         "render snapshot must project a session bookmark onto its open buffer line");
       Assert
         (not Editor.Gutter_Markers.Has_Marker
            (Snap.Gutter_Markers, 0, Editor.Gutter_Markers.Bookmark_Marker),
-         "Phase 343 bookmark marker projection must be line-specific");
+         "bookmark marker projection must be line-specific");
       Assert
         (To_String (Before) = Editor.State.Current_Text (S),
-         "Phase 343 bookmark marker projection must not mutate line text");
+         "bookmark marker projection must not mutate line text");
       Assert
         (Editor.State.Line_Count (S) = 3,
-         "Phase 343 bookmark marker projection must not mutate line count");
+         "bookmark marker projection must not mutate line count");
       Assert
         (Editor.Bookmarks.Count (S.Bookmarks) = 1,
-         "Phase 343 bookmark marker projection must not mutate bookmark state");
-   end Test_Phase343_Bookmark_Marker_Projection;
+         "bookmark marker projection must not mutate bookmark state");
+   end Test_Bookmark_Marker_Projection;
 
 
-   procedure Test_Phase343_Bookmark_Markers_Filter_By_File_And_Range
+   procedure Test_Bookmark_Markers_Filter_By_File_And_Range
      (T : in out AUnit.Test_Cases.Test_Case'Class)
    is
       pragma Unreferenced (T);
@@ -4619,22 +5260,22 @@ package body Editor.Render_Model.Tests is
       Assert
         (Editor.Gutter_Markers.Has_Marker
            (Snap.Gutter_Markers, 1, Editor.Gutter_Markers.Bookmark_Marker),
-         "Phase 343 marker should be shown for an in-range bookmark in the rendered buffer");
+         "marker should be shown for an in-range bookmark in the rendered buffer");
       Assert
         (not Editor.Gutter_Markers.Has_Marker
            (Snap.Gutter_Markers, 0, Editor.Gutter_Markers.Bookmark_Marker),
-         "Phase 343 bookmark in another file must not mark the current buffer");
+         "bookmark in another file must not mark the current buffer");
       Assert
         (not Editor.Gutter_Markers.Has_Marker
            (Snap.Gutter_Markers, 98, Editor.Gutter_Markers.Bookmark_Marker),
-         "Phase 343 out-of-range bookmark must not create an editor marker");
+         "out-of-range bookmark must not create an editor marker");
       Assert
         (Editor.Bookmarks.Count (S.Bookmarks) = 3,
-         "Phase 343 out-of-range and other-file bookmarks remain in bookmark state");
-   end Test_Phase343_Bookmark_Markers_Filter_By_File_And_Range;
+         "out-of-range and other-file bookmarks remain in bookmark state");
+   end Test_Bookmark_Markers_Filter_By_File_And_Range;
 
 
-   procedure Test_Phase343_Clear_All_Removes_Later_Markers
+   procedure Test_Clear_All_Removes_Later_Markers
      (T : in out AUnit.Test_Cases.Test_Case'Class)
    is
       pragma Unreferenced (T);
@@ -4654,18 +5295,18 @@ package body Editor.Render_Model.Tests is
       Assert
         (Editor.Gutter_Markers.Has_Marker
            (Snap.Gutter_Markers, 0, Editor.Gutter_Markers.Bookmark_Marker),
-         "Phase 343 setup should expose bookmark marker before clear");
+         "setup should expose bookmark marker before clear");
 
       Editor.Bookmarks.Clear_Bookmarks (S.Bookmarks);
       Editor.Render_Model.Build_Render_Snapshot (S, Snap);
       Assert
         (not Editor.Gutter_Markers.Has_Marker
            (Snap.Gutter_Markers, 0, Editor.Gutter_Markers.Bookmark_Marker),
-         "Phase 343 clear-all state change must remove later editor bookmark markers");
-   end Test_Phase343_Clear_All_Removes_Later_Markers;
+         "clear-all state change must remove later editor bookmark markers");
+   end Test_Clear_All_Removes_Later_Markers;
 
 
-   procedure Test_Phase343_Bookmark_Markers_Require_Buffer_Identity
+   procedure Test_Bookmark_Markers_Require_Buffer_Identity
      (T : in out AUnit.Test_Cases.Test_Case'Class)
    is
       pragma Unreferenced (T);
@@ -4684,14 +5325,14 @@ package body Editor.Render_Model.Tests is
       Assert
         (not Editor.Gutter_Markers.Has_Marker
            (Snap.Gutter_Markers, 0, Editor.Gutter_Markers.Bookmark_Marker),
-         "Phase 343 bookmark markers must not render without a stable buffer file identity");
+         "bookmark markers must not render without a stable buffer file identity");
       Assert
         (Editor.Bookmarks.Count (S.Bookmarks) = 1,
-         "Phase 343 identity filtering must not prune bookmark state");
-   end Test_Phase343_Bookmark_Markers_Require_Buffer_Identity;
+         "identity filtering must not prune bookmark state");
+   end Test_Bookmark_Markers_Require_Buffer_Identity;
 
 
-   procedure Test_Phase343_Multiple_Bookmarked_Lines_And_Existing_Markers_Compose
+   procedure Test_Multiple_Bookmarked_Lines_And_Existing_Markers_Compose
      (T : in out AUnit.Test_Cases.Test_Case'Class)
    is
       pragma Unreferenced (T);
@@ -4725,25 +5366,25 @@ package body Editor.Render_Model.Tests is
       Assert
         (Editor.Gutter_Markers.Has_Marker
            (Snap.Gutter_Markers, 0, Editor.Gutter_Markers.Bookmark_Marker),
-         "Phase 343 first bookmarked line should be marked");
+         "first bookmarked line should be marked");
       Assert
         (Editor.Gutter_Markers.Has_Marker
            (Snap.Gutter_Markers, 1, Editor.Gutter_Markers.Bookmark_Marker),
-         "Phase 343 second bookmarked line should be marked");
+         "second bookmarked line should be marked");
       Assert
         (Editor.Gutter_Markers.Has_Marker
            (Snap.Gutter_Markers, 0, Editor.Gutter_Markers.Diagnostic_Error_Marker),
-         "Phase 343 bookmark marker projection must preserve existing diagnostic markers");
+         "bookmark marker projection must preserve existing diagnostic markers");
 
       Kind := Editor.Gutter_Markers.Dominant_Marker_For_Row
         (Snap.Gutter_Markers, 0, Found);
       Assert
         (Found and then Kind = Editor.Gutter_Markers.Diagnostic_Error_Marker,
-         "Phase 343 bookmark marker must not displace a higher-priority diagnostic marker");
-   end Test_Phase343_Multiple_Bookmarked_Lines_And_Existing_Markers_Compose;
+         "bookmark marker must not displace a higher-priority diagnostic marker");
+   end Test_Multiple_Bookmarked_Lines_And_Existing_Markers_Compose;
 
 
-   procedure Test_Phase343_Selection_And_Dirty_State_Do_Not_Change_Markers
+   procedure Test_Selection_And_Dirty_State_Do_Not_Change_Markers
      (T : in out AUnit.Test_Cases.Test_Case'Class)
    is
       pragma Unreferenced (T);
@@ -4767,11 +5408,11 @@ package body Editor.Render_Model.Tests is
       Assert
         (Editor.Gutter_Markers.Has_Marker
            (Snap.Gutter_Markers, 0, Editor.Gutter_Markers.Bookmark_Marker),
-         "Phase 343 setup should expose first marker");
+         "setup should expose first marker");
       Assert
         (Editor.Gutter_Markers.Has_Marker
            (Snap.Gutter_Markers, 2, Editor.Gutter_Markers.Bookmark_Marker),
-         "Phase 343 setup should expose second marker");
+         "setup should expose second marker");
 
       Editor.Bookmarks.Select_Next (S.Bookmarks);
       S.File_Info.Dirty := True;
@@ -4780,18 +5421,18 @@ package body Editor.Render_Model.Tests is
       Assert
         (Editor.Gutter_Markers.Has_Marker
            (Snap.Gutter_Markers, 0, Editor.Gutter_Markers.Bookmark_Marker),
-         "Phase 343 bookmark selection movement must not remove first marker");
+         "bookmark selection movement must not remove first marker");
       Assert
         (Editor.Gutter_Markers.Has_Marker
            (Snap.Gutter_Markers, 2, Editor.Gutter_Markers.Bookmark_Marker),
-         "Phase 343 dirty state changes must not remove bookmark markers");
+         "dirty state changes must not remove bookmark markers");
       Assert
         (S.File_Info.Dirty,
-         "Phase 343 snapshot marker derivation must not clear dirty state");
-   end Test_Phase343_Selection_And_Dirty_State_Do_Not_Change_Markers;
+         "snapshot marker derivation must not clear dirty state");
+   end Test_Selection_And_Dirty_State_Do_Not_Change_Markers;
 
 
-   procedure Test_Phase343_Lifecycle_Clear_Removes_Later_Markers
+   procedure Test_Lifecycle_Clear_Removes_Later_Markers
      (T : in out AUnit.Test_Cases.Test_Case'Class)
    is
       pragma Unreferenced (T);
@@ -4811,18 +5452,18 @@ package body Editor.Render_Model.Tests is
       Assert
         (Editor.Gutter_Markers.Has_Marker
            (Snap.Gutter_Markers, 1, Editor.Gutter_Markers.Bookmark_Marker),
-         "Phase 343 setup should expose bookmark marker before lifecycle clear");
+         "setup should expose bookmark marker before lifecycle clear");
 
       Editor.Bookmarks.Clear (S.Bookmarks);
       Editor.Render_Model.Build_Render_Snapshot (S, Snap);
       Assert
         (not Editor.Gutter_Markers.Has_Marker
            (Snap.Gutter_Markers, 1, Editor.Gutter_Markers.Bookmark_Marker),
-         "Phase 343 lifecycle clear must remove later bookmark markers");
+         "lifecycle clear must remove later bookmark markers");
       Assert
         (not Snap.Bookmarks_Visible,
-         "Phase 343 lifecycle clear should preserve bookmark surface clearing behavior");
-   end Test_Phase343_Lifecycle_Clear_Removes_Later_Markers;
+         "lifecycle clear should preserve bookmark surface clearing behavior");
+   end Test_Lifecycle_Clear_Removes_Later_Markers;
 
 
    overriding procedure Register_Tests
@@ -4830,72 +5471,72 @@ package body Editor.Render_Model.Tests is
    begin
       AUnit.Test_Cases.Registration.Register_Routine
         (T, Test_Cursor_Default_Config_Is_Bar'Access,
-         "Phase 30 Cursor Default Config Is Bar");
+         "Cursor Default Config Is Bar");
 
       AUnit.Test_Cases.Registration.Register_Routine
         (T, Test_Bar_Cursor_Emits_Width_One'Access,
-         "Phase 30 Bar Cursor Emits Width One");
+         "Bar Cursor Emits Width One");
 
       AUnit.Test_Cases.Registration.Register_Routine
         (T, Test_Block_Cursor_Uses_Cell_Size'Access,
-         "Phase 30 Block Cursor Uses Cell Size");
+         "Block Cursor Uses Cell Size");
 
       AUnit.Test_Cases.Registration.Register_Routine
         (T, Test_Underline_Cursor_Uses_Configured_Height'Access,
-         "Phase 30 Underline Cursor Uses Configured Height");
+         "Underline Cursor Uses Configured Height");
 
       AUnit.Test_Cases.Registration.Register_Routine
         (T, Test_Cursor_Rect_Remains_On_Caret_Layer'Access,
-         "Phase 30 Cursor Rect Remains On Caret Layer");
+         "Cursor Rect Remains On Caret Layer");
 
       AUnit.Test_Cases.Registration.Register_Routine
         (T, Test_Cursor_Virtual_X_Uses_Virtual_Column'Access,
-         "Phase 30 Cursor Virtual X Uses Virtual Column");
+         "Cursor Virtual X Uses Virtual Column");
 
       AUnit.Test_Cases.Registration.Register_Routine
         (T, Test_Multi_Caret_Emits_One_Cursor_Rect_Per_Caret'Access,
-         "Phase 30 Multi Caret Emits One Cursor Rect Per Caret");
+         "Multi Caret Emits One Cursor Rect Per Caret");
 
 
       AUnit.Test_Cases.Registration.Register_Routine
         (T, Test_Cursor_Visible_Immediately_After_Input'Access,
-         "Phase 31 Cursor Visible Immediately After Input");
+         "Cursor Visible Immediately After Input");
 
       AUnit.Test_Cases.Registration.Register_Routine
         (T, Test_Cursor_Hidden_During_Off_Phase'Access,
-         "Phase 31 Cursor Hidden During Off Phase");
+         "Cursor Hidden During Off Phase");
 
       AUnit.Test_Cases.Registration.Register_Routine
         (T, Test_Cursor_Visible_After_Period_Wrap'Access,
-         "Phase 31 Cursor Visible After Period Wrap");
+         "Cursor Visible After Period Wrap");
 
       AUnit.Test_Cases.Registration.Register_Routine
         (T, Test_Cursor_Blink_Disabled_Is_Always_Visible'Access,
-         "Phase 31 Cursor Blink Disabled Is Always Visible");
+         "Cursor Blink Disabled Is Always Visible");
 
       AUnit.Test_Cases.Registration.Register_Routine
         (T, Test_Render_Packet_Omits_Caret_When_Cursor_Invisible'Access,
-         "Phase 31 Render Packet Omits Caret When Cursor Invisible");
+         "Render Packet Omits Caret When Cursor Invisible");
 
       AUnit.Test_Cases.Registration.Register_Routine
         (T, Test_Input_Bridge_Resets_Blink_To_Visible'Access,
-         "Phase 31 Input Bridge Resets Blink To Visible");
+         "Input Bridge Resets Blink To Visible");
 
       AUnit.Test_Cases.Registration.Register_Routine
-        (T, Test_Phase17_Long_Line_Horizontal_Viewport_Bounded'Access,
-         "Phase 17 Long Line Horizontal Viewport Bounded");
+        (T, Test_Long_Line_Horizontal_Viewport_Bounded'Access,
+         "Long Line Horizontal Viewport Bounded");
 
       AUnit.Test_Cases.Registration.Register_Routine
-        (T, Test_Phase17_Bulk_Load_Line_Index_And_Empty_Undo'Access,
-         "Phase 17 Bulk Load Line Index And Empty Undo");
+        (T, Test_Bulk_Load_Line_Index_And_Empty_Undo'Access,
+         "Bulk Load Line Index And Empty Undo");
 
       AUnit.Test_Cases.Registration.Register_Routine
-        (T, Test_Phase17_Render_Snapshot_Line_Starts_Are_Windowed'Access,
-         "Phase 17 Render Snapshot Line Starts Are Windowed");
+        (T, Test_Render_Snapshot_Line_Starts_Are_Windowed'Access,
+         "Render Snapshot Line Starts Are Windowed");
 
       AUnit.Test_Cases.Registration.Register_Routine
-        (T, Test_Phase17_Large_Selection_Emits_Visible_Rects_Only'Access,
-         "Phase 17 Large Selection Emits Visible Rects Only");
+        (T, Test_Large_Selection_Emits_Visible_Rects_Only'Access,
+         "Large Selection Emits Visible Rects Only");
 
       AUnit.Test_Cases.Registration.Register_Routine
         (T, Test_Theme_Colors_Are_Normalized'Access,
@@ -5129,63 +5770,63 @@ package body Editor.Render_Model.Tests is
 
       AUnit.Test_Cases.Registration.Register_Routine
         (T, Test_Minimap_Hit_Test_Disabled_Is_False'Access,
-         "Phase 33 Minimap Hit Test Disabled Is False");
+         "Minimap Hit Test Disabled Is False");
 
       AUnit.Test_Cases.Registration.Register_Routine
         (T, Test_Minimap_Hit_Test_Inside_And_Outside'Access,
-         "Phase 33 Minimap Hit Test Inside And Outside");
+         "Minimap Hit Test Inside And Outside");
 
       AUnit.Test_Cases.Registration.Register_Routine
         (T, Test_Minimap_Row_For_Y_Maps_Top_And_Bottom'Access,
-         "Phase 33 Minimap Row For Y Maps Top And Bottom");
+         "Minimap Row For Y Maps Top And Bottom");
 
       AUnit.Test_Cases.Registration.Register_Routine
         (T, Test_View_Set_Scroll_Y_Clamped'Access,
-         "Phase 33 View Set Scroll Y Clamped");
+         "View Set Scroll Y Clamped");
 
       AUnit.Test_Cases.Registration.Register_Routine
         (T, Test_View_Tick_Interpolates_Visual_Scroll'Access,
-         "Phase 40 View Tick Interpolates Visual Scroll");
+         "View Tick Interpolates Visual Scroll");
 
       AUnit.Test_Cases.Registration.Register_Routine
         (T, Test_View_Tick_Converges_To_Target'Access,
-         "Phase 40 View Tick Converges To Target");
+         "View Tick Converges To Target");
 
       AUnit.Test_Cases.Registration.Register_Routine
         (T, Test_View_Visual_Screen_Y_Uses_Visual_Scroll'Access,
-         "Phase 40 Visual Screen Y Uses Visual Scroll");
+         "Visual Screen Y Uses Visual Scroll");
 
       AUnit.Test_Cases.Registration.Register_Routine
         (T, Test_View_Visual_Screen_X_Uses_Visual_Scroll'Access,
-         "Phase 40 Visual Screen X Uses Visual Scroll");
+         "Visual Screen X Uses Visual Scroll");
 
 
       AUnit.Test_Cases.Registration.Register_Routine
         (T, Test_Render_Packet_Text_Uses_Visual_Scroll'Access,
-         "Phase 40 Render Packet Text Uses Visual Scroll");
+         "Render Packet Text Uses Visual Scroll");
 
       AUnit.Test_Cases.Registration.Register_Routine
         (T, Test_Minimap_Viewport_Uses_Logical_Scroll_During_Visual_Lag'Access,
-         "Phase 40 Minimap Viewport Uses Logical Scroll During Visual Lag");
+         "Minimap Viewport Uses Logical Scroll During Visual Lag");
       AUnit.Test_Cases.Registration.Register_Routine
         (T, Test_Minimap_Click_Updates_Scroll_Y'Access,
-         "Phase 33 Minimap Click Updates Scroll Y");
+         "Minimap Click Updates Scroll Y");
 
       AUnit.Test_Cases.Registration.Register_Routine
         (T, Test_Minimap_Click_Survives_Render_Auto_Scroll'Access,
-         "Phase 33 Minimap Click Survives Render Auto Scroll");
+         "Minimap Click Survives Render Auto Scroll");
 
       AUnit.Test_Cases.Registration.Register_Routine
         (T, Test_Minimap_Drag_Updates_Scroll_Y_Repeatedly'Access,
-         "Phase 33 Minimap Drag Updates Scroll Y Repeatedly");
+         "Minimap Drag Updates Scroll Y Repeatedly");
 
       AUnit.Test_Cases.Registration.Register_Routine
         (T, Test_Minimap_Click_Does_Not_Move_Caret'Access,
-         "Phase 33 Minimap Click Does Not Move Caret");
+         "Minimap Click Does Not Move Caret");
 
       AUnit.Test_Cases.Registration.Register_Routine
         (T, Test_Minimap_Click_Scroll_Clamped_At_Document_End'Access,
-         "Phase 33 Minimap Click Scroll Clamped At Document End");
+         "Minimap Click Scroll Clamped At Document End");
 
 
       AUnit.Test_Cases.Registration.Register_Routine
@@ -5210,7 +5851,7 @@ package body Editor.Render_Model.Tests is
 
       AUnit.Test_Cases.Registration.Register_Routine
          (T, Test_Render_Packet_Emits_File_Tree_Splitter'Access,
-            "Phase 58 Render Packet Emits File Tree Splitter");
+            "Render Packet Emits File Tree Splitter");
 
       AUnit.Test_Cases.Registration.Register_Routine
          (T, Test_Render_Packet_Emits_Only_Valid_Layers'Access,
@@ -5238,87 +5879,117 @@ package body Editor.Render_Model.Tests is
 
       AUnit.Test_Cases.Registration.Register_Routine
         (T, Test_Wrap_Primitives'Access,
-         "Phase 25 Wrap Primitives");
+         "Wrap Primitives");
 
       AUnit.Test_Cases.Registration.Register_Routine
         (T, Test_Wrapped_Snapshot_Visual_Segments'Access,
-         "Phase 25 Wrapped Snapshot Visual Segments");
+         "Wrapped Snapshot Visual Segments");
 
       AUnit.Test_Cases.Registration.Register_Routine
         (T, Test_Wrap_Mode_Ignores_Horizontal_Scroll'Access,
-         "Phase 25 Wrap Ignores Horizontal Scroll");
+         "Wrap Ignores Horizontal Scroll");
 
       AUnit.Test_Cases.Registration.Register_Routine
         (T, Test_Wrapped_Caret_Uses_Visual_Row'Access,
-         "Phase 25 Wrapped Caret Visual Row");
+         "Wrapped Caret Visual Row");
 
       AUnit.Test_Cases.Registration.Register_Routine
         (T, Test_Wrapped_Selection_Splits_Rects'Access,
-         "Phase 25 Wrapped Selection Split Rects");
+         "Wrapped Selection Split Rects");
 
       AUnit.Test_Cases.Registration.Register_Routine
         (T, Test_Wrapped_Visual_Scroll_Uses_Visual_Row_Offset'Access,
-         "Phase 25 Wrapped Visual Scroll Uses Visual Rows");
+         "Wrapped Visual Scroll Uses Visual Rows");
 
       AUnit.Test_Cases.Registration.Register_Routine
         (T, Test_Wrapped_Mouse_Hit_Clamps_To_Visual_Segment'Access,
-         "Phase 25 Wrapped Mouse Hit Clamps To Segment");
+         "Wrapped Mouse Hit Clamps To Segment");
 
       AUnit.Test_Cases.Registration.Register_Routine
         (T, Test_Wrapped_Move_Down_Uses_Visual_Row'Access,
-         "Phase 25 Wrapped Move Down Uses Visual Row");
+         "Wrapped Move Down Uses Visual Row");
 
       AUnit.Test_Cases.Registration.Register_Routine
-        (T, Test_Phase68_Rectangular_Selection_Projection'Access,
-         "Phase 68 Rectangular Selection Projection");
+        (T, Test_Rectangular_Selection_Projection'Access,
+         "Rectangular Selection Projection");
 
       AUnit.Test_Cases.Registration.Register_Routine
-        (T, Test_Phase220_Unchanged_State_Emits_Stable_Render_Packet'Access,
-         "Phase 220 unchanged state emits stable render packet");
+        (T, Test_Unchanged_State_Emits_Stable_Render_Packet'Access,
+         "unchanged state emits stable render packet");
 
       AUnit.Test_Cases.Registration.Register_Routine
-        (T, Test_Phase219_Status_Bar_Narrow_Width_Is_Bounded'Access,
-         "Phase 219 Status Bar Narrow Width Is Bounded");
+        (T, Test_Status_Bar_Narrow_Width_Is_Bounded'Access,
+         "Status Bar Narrow Width Is Bounded");
 
       AUnit.Test_Cases.Registration.Register_Routine
-        (T, Test_Phase219_Feature_Panel_Text_Is_Bounded'Access,
-         "Phase 219 Feature Panel Text Is Bounded");
+        (T, Test_Build_Diagnostics_Semantics_Reach_Render_Snapshot'Access,
+         "Build Diagnostics Semantics Reach Render Snapshot");
+      AUnit.Test_Cases.Registration.Register_Routine
+        (T, Test_Build_Diagnostics_Render_Packet_Emits_Status_And_Panel_Layers'Access,
+         "Build Diagnostics Render Packet Emits Status And Panel Layers");
+      AUnit.Test_Cases.Registration.Register_Routine
+        (T, Test_Build_UI_Render_Packet_Emits_Suppressed_Diagnostics_List'Access,
+         "Build UI Render Packet Emits Suppressed Diagnostics List");
+      AUnit.Test_Cases.Registration.Register_Routine
+        (T, Test_Build_UI_Render_Packet_Emits_Quick_Fix_Detail_Text'Access,
+         "Build UI Render Packet Emits Quick Fix Detail Text");
+      AUnit.Test_Cases.Registration.Register_Routine
+        (T, Test_Command_Palette_Render_Packet_Emits_State_Context_Row'Access,
+         "command palette render packet emits state context row");
 
       AUnit.Test_Cases.Registration.Register_Routine
-        (T, Test_Phase219_Render_Does_Not_Mutate_State'Access,
-         "Phase 219 Render Does Not Mutate State");
+        (T, Test_Pending_Bar_Render_Packet_Uses_Dedicated_Layers'Access,
+         "pending bar render packet uses dedicated layers");
+      AUnit.Test_Cases.Registration.Register_Routine
+        (T, Test_Workflow_Render_Packet_Layers_Are_Bounded'Access,
+         "workflow render packet layers are bounded");
 
       AUnit.Test_Cases.Registration.Register_Routine
-        (T, Test_Phase221_Input_Field_Focus_State_In_Snapshot'Access,
-         "Phase 221 input field focus state is represented in render snapshot");
+        (T, Test_Problems_Empty_State_Render_Packet_Emits_Guidance'Access,
+         "Problems Empty State Render Packet Emits Guidance");
+      AUnit.Test_Cases.Registration.Register_Routine
+        (T, Test_Problems_Filtered_Empty_State_Text_Is_Render_Input'Access,
+         "Problems filtered empty-state text is render input");
 
       AUnit.Test_Cases.Registration.Register_Routine
-        (T, Test_Phase343_Bookmark_Marker_Projection'Access,
-         "Phase 343 bookmark markers project into editor render snapshots");
+        (T, Test_Feature_Panel_Text_Is_Bounded'Access,
+         "Feature Panel Text Is Bounded");
 
       AUnit.Test_Cases.Registration.Register_Routine
-        (T, Test_Phase343_Bookmark_Markers_Filter_By_File_And_Range'Access,
-         "Phase 343 bookmark markers filter by file identity and line range");
+        (T, Test_Render_Does_Not_Mutate_State'Access,
+         "Render Does Not Mutate State");
 
       AUnit.Test_Cases.Registration.Register_Routine
-        (T, Test_Phase343_Clear_All_Removes_Later_Markers'Access,
-         "Phase 343 clearing bookmarks removes later editor markers");
+        (T, Test_Input_Field_Focus_State_In_Snapshot'Access,
+         "input field focus state is represented in render snapshot");
 
       AUnit.Test_Cases.Registration.Register_Routine
-        (T, Test_Phase343_Bookmark_Markers_Require_Buffer_Identity'Access,
-         "Phase 343 bookmark markers require stable buffer identity");
+        (T, Test_Bookmark_Marker_Projection'Access,
+         "bookmark markers project into editor render snapshots");
 
       AUnit.Test_Cases.Registration.Register_Routine
-        (T, Test_Phase343_Multiple_Bookmarked_Lines_And_Existing_Markers_Compose'Access,
-         "Phase 343 bookmark markers compose with existing row markers");
+        (T, Test_Bookmark_Markers_Filter_By_File_And_Range'Access,
+         "bookmark markers filter by file identity and line range");
 
       AUnit.Test_Cases.Registration.Register_Routine
-        (T, Test_Phase343_Selection_And_Dirty_State_Do_Not_Change_Markers'Access,
-         "Phase 343 bookmark marker projection is independent of selection and dirty state");
+        (T, Test_Clear_All_Removes_Later_Markers'Access,
+         "clearing bookmarks removes later editor markers");
 
       AUnit.Test_Cases.Registration.Register_Routine
-        (T, Test_Phase343_Lifecycle_Clear_Removes_Later_Markers'Access,
-         "Phase 343 lifecycle bookmark clear removes later editor markers");
+        (T, Test_Bookmark_Markers_Require_Buffer_Identity'Access,
+         "bookmark markers require stable buffer identity");
+
+      AUnit.Test_Cases.Registration.Register_Routine
+        (T, Test_Multiple_Bookmarked_Lines_And_Existing_Markers_Compose'Access,
+         "bookmark markers compose with existing row markers");
+
+      AUnit.Test_Cases.Registration.Register_Routine
+        (T, Test_Selection_And_Dirty_State_Do_Not_Change_Markers'Access,
+         "bookmark marker projection is independent of selection and dirty state");
+
+      AUnit.Test_Cases.Registration.Register_Routine
+        (T, Test_Lifecycle_Clear_Removes_Later_Markers'Access,
+         "lifecycle bookmark clear removes later editor markers");
 
    end Register_Tests;
 

@@ -7,9 +7,9 @@ with Editor.Ada_Syntax_Tree;
 
 package Editor.Ada_Overload_Type_Edge_Precision_Legality is
 
-   --  Pass1179 compiler-grade overload/type edge precision legality.
+   --  Case 1179 compiler-grade overload/type edge precision legality.
    --
-   --  This package deepens the Pass1126/1141 overload edge work with direct
+   --  This package deepens the Case 1126/1141 overload edge work with direct
    --  type-resolution evidence for the remaining Ada RM corner cases.  It is a
    --  snapshot-owned semantic consumer: access-to-subprogram overloads,
    --  universal fixed/root numeric preference, inherited primitive hiding,

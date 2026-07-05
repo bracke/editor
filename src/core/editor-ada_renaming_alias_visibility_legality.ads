@@ -8,7 +8,7 @@ with Editor.Ada_Unit_Completion_Order_Legality;
 
 package Editor.Ada_Renaming_Alias_Visibility_Legality is
 
-   --  Pass1115 compiler-grade renaming, aliasing, and visibility legality
+   --  Case 1115 compiler-grade renaming, aliasing, and visibility legality
    --  layer.  This package consumes bounded semantic metadata for Ada
    --  object/subprogram/package/exception/generic renamings, use/use type
    --  visibility, direct visibility, and aliasing hazards.  It performs no

@@ -8,7 +8,7 @@ with Editor.Ada_Syntax_Tree;
 
 package Editor.Ada_Accessibility_Lifetime_Legality is
 
-   --  Pass1111 compiler-grade accessibility/lifetime/aliasing legality layer.
+   --  Case 1111 compiler-grade accessibility/lifetime/aliasing legality layer.
    --  This package consolidates Ada access-related legality metadata for
    --  accessibility levels, anonymous access parameters, allocators, access
    --  discriminants, return accessibility, aliased-object requirements, and

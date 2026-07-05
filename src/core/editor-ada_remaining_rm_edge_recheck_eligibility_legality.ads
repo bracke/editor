@@ -4,9 +4,9 @@ with Editor.Ada_Syntax_Tree;
 
 package Editor.Ada_Remaining_RM_Edge_Recheck_Eligibility_Legality is
 
-   --  Pass1287 bounded recheck eligibility for remaining Ada RM edge blockers.
+   --  Case 1287 bounded recheck eligibility for remaining Ada RM edge blockers.
    --
-   --  This package consumes the Pass1286 remaining-edge remediation worklist
+   --  This package consumes the Case 1286 remaining-edge remediation worklist
    --  and turns prerequisite work into bounded recheck eligibility rows.  A
    --  remaining RM edge result can be trusted by later consumers only when its
    --  prerequisite work is either current evidence or eligible for a bounded

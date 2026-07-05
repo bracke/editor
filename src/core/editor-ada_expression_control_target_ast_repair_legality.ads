@@ -6,9 +6,9 @@ with Editor.Ada_Syntax_Tree;
 
 package Editor.Ada_Expression_Control_Target_AST_Repair_Legality is
 
-   --  Pass1188 expression control/target parser-AST repair legality.
+   --  Case 1188 expression control/target parser-AST repair legality.
    --
-   --  This package turns the repaired-coverage facts from Pass1147 into
+   --  This package turns the repaired-coverage facts from Case 1147 into
    --  concrete repair facts for membership tests, case/if/declare expressions,
    --  and target-name / update-expression contexts.  These constructs are not
    --  treated as restored until parser nodes, structural AST, spans,

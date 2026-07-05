@@ -4,10 +4,10 @@ with Editor.Ada_Syntax_Tree;
 
 package Editor.Ada_RM_Completion_Closure_Consumer_Stabilized_Search_Index is
 
-   --  Pass1283 blocker-family-aware search index for stabilized direct
+   --  Case 1283 blocker-family-aware search index for stabilized direct
    --  RM-completion closure-consumer diagnostics.
    --
-   --  This package indexes Pass1282 provenance rows without changing their
+   --  This package indexes Case 1282 provenance rows without changing their
    --  semantic meaning.  It is deliberately a semantic lookup structure, not a
    --  UI projection layer: blocker family, provenance status/stage, diagnostic
    --  family/status, source span, syntax node, all chain ids, and fingerprints

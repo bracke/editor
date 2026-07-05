@@ -5,9 +5,9 @@ with Editor.Ada_Syntax_Tree;
 
 package Editor.Ada_Generic_Shared_State_RM_Completion_Stabilized_Closure_Legality is
 
-   --  Pass1263 generic/shared-state RM-completion stabilized closure legality.
+   --  Case 1263 generic/shared-state RM-completion stabilized closure legality.
    --
-   --  This package consumes Pass1262 generic/shared-state RM-completion stabilization
+   --  This package consumes Case 1262 generic/shared-state RM-completion stabilization
    --  gate rows and promotes stable accepted conclusions into first-class
    --  semantic closure evidence.  Stable prerequisite blockers remain closure
    --  blockers with their original blocker-family identity.  Recheck-required

@@ -12,6 +12,19 @@ package Editor.Pending_Transition_Bar is
       Discard_Pending_Transition_Action,
       Cancel_Pending_Transition_Action);
 
+   type Pending_Bar_Operation is
+     (No_Pending_Bar_Operation,
+      Pending_Bar_Close_Buffer_Operation,
+      Pending_Bar_Close_All_Buffers_Operation,
+      Pending_Bar_Close_Other_Buffers_Operation,
+      Pending_Bar_Reload_Buffer_Operation,
+      Pending_Bar_Revert_Buffer_Operation,
+      Pending_Bar_Close_Project_Operation,
+      Pending_Bar_Clear_Project_Operation,
+      Pending_Bar_Project_Switch_Operation,
+      Pending_Bar_Restore_Workspace_Operation,
+      Pending_Bar_Clear_Workspace_State_Operation);
+
    type Pending_Bar_Action_Info is record
       Action         : Pending_Bar_Action := No_Pending_Bar_Action;
       Command        : Editor.Commands.Command_Id := Editor.Commands.No_Command;
@@ -41,8 +54,29 @@ package Editor.Pending_Transition_Bar is
    function Summary_Text
      (Snapshot : Pending_Bar_Snapshot) return String;
 
+   function Guidance_Text
+     (Snapshot : Pending_Bar_Snapshot) return String;
+
+   function Display_Text
+     (Snapshot : Pending_Bar_Snapshot) return String;
+
    function Action_Count
      (Snapshot : Pending_Bar_Snapshot) return Natural;
+
+   function Operation
+     (Snapshot : Pending_Bar_Snapshot) return Pending_Bar_Operation;
+
+   function Requires_Destructive_Confirmation
+     (Snapshot : Pending_Bar_Snapshot) return Boolean;
+
+   function Assert_Action_Routes_Are_Command_Backed
+     (Snapshot : Pending_Bar_Snapshot) return Boolean;
+
+   function Assert_Destructive_Actions_Are_Confirmed
+     (Snapshot : Pending_Bar_Snapshot) return Boolean;
+
+   function Assert_Pending_Bar_Route_Audit_Passes
+     (Snapshot : Pending_Bar_Snapshot) return Boolean;
 
    function Action
      (Snapshot : Pending_Bar_Snapshot;
@@ -114,8 +148,11 @@ private
    type Pending_Bar_Snapshot is record
       Visible     : Boolean := False;
       Summary     : Ada.Strings.Unbounded.Unbounded_String;
+      Guidance    : Ada.Strings.Unbounded.Unbounded_String;
       Height_Rows          : Natural := 1;
       Minimum_Text_Columns : Natural := 24;
+      Operation            : Pending_Bar_Operation := No_Pending_Bar_Operation;
+      Destructive          : Boolean := False;
       Count                : Natural := 0;
       Actions              : Pending_Bar_Action_Array;
    end record;

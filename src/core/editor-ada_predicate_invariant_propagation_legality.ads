@@ -7,9 +7,9 @@ with Editor.Ada_Widened_Legality_Coverage_Gate_Enforcement;
 
 package Editor.Ada_Predicate_Invariant_Propagation_Legality is
 
-   --  Pass1139 predicate/invariant propagation legality layer.
+   --  Case 1139 predicate/invariant propagation legality layer.
    --
-   --  Pass1124 checks predicates and invariants at individual use sites.  This
+   --  Case 1124 checks predicates and invariants at individual use sites.  This
    --  package propagates those obligations through calls, flow-effect graph
    --  edges, generic instances, derived/private views, and visible state
    --  updates so a dynamic predicate or invariant obligation is not lost after

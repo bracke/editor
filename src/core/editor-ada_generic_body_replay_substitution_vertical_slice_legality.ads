@@ -4,7 +4,7 @@ with Editor.Ada_Syntax_Tree;
 
 package Editor.Ada_Generic_Body_Replay_Substitution_Vertical_Slice_Legality is
 
-   --  Pass1320 vertical-slice generic body replay/substitution legality.  This
+   --  Case 1320 vertical-slice generic body replay/substitution legality.  This
    --  package models concrete Ada generic body replay after actual matching:
    --  body availability, formal-to-actual binding, nested instantiation replay,
    --  source-to-instance backmapping, private/limited view barriers, overload

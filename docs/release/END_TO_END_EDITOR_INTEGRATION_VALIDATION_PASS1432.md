@@ -1,6 +1,6 @@
-# Phase 579 End-to-End Editor Integration Validation - Pass1432
+# End-to-End Editor Integration Validation - Case 1432
 
-Pass1432 adds the project-scale integration gate after release-readiness validation.
+Case 1432 adds the project-scale integration gate after release-readiness validation.
 It validates editor workflow surfaces rather than reopening Ada RM remediation.
 
 The validated surfaces are:
@@ -16,4 +16,4 @@ The validated surfaces are:
 - workspace restore;
 - project close and project switch.
 
-The pass rejects evidence that performs rendering-side parsing, saves or reloads files during analysis, mutates dirty state, leaks analysis mutation into command, keybinding, workspace, or render surfaces, accepts stale snapshots, runs without bounded-work evidence, produces consumer disagreement, or reopens a Remaining_* edge after the pass1428 closure.
+The pass rejects evidence that performs rendering-side parsing, saves or reloads files during analysis, mutates dirty state, leaks analysis mutation into command, keybinding, workspace, or render surfaces, accepts stale snapshots, runs without bounded-work evidence, produces consumer disagreement, or reopens a Remaining_* edge after the case 1428 closure.

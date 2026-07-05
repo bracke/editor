@@ -15,8 +15,12 @@ with Editor.Render_Model;
 with Editor.Search;
 with Editor.Cursors; use Editor.Cursors;
 with Editor.Executor;
+with Editor.Executor.Buffer_Close_Commands;
+with Editor.Executor.File_Open_Commands;
+with Editor.Executor.Find_Replace_Commands;
 with Editor.Executor.History;
 with Editor.Executor.Clipboard;
+with Editor.Executor.Project_Lifecycle_Commands;
 use type Editor.Executor.Clipboard.Clipboard_Execution_Status;
 use type Editor.Commands.Command_Id;
 use type Editor.Commands.Command_Category;
@@ -137,27 +141,27 @@ package body Editor.Clipboard.Tests is
       return AUnit.Format ("Editor.Clipboard");
    end Name;
 
-   procedure Test_Phase373_Command_Metadata
+   procedure Test_Command_Metadata
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
       pragma Unreferenced (T);
    begin
       Assert
         (Editor.Commands.Stable_Command_Name (Editor.Commands.Command_Copy) =
          "edit.copy",
-         "copy must have the Phase 373 stable command name");
+         "copy must have the stable command name");
       Assert
         (Editor.Commands.Stable_Command_Name (Editor.Commands.Command_Cut) =
          "edit.cut",
-         "cut must have the Phase 373 stable command name");
+         "cut must have the stable command name");
       Assert
         (Editor.Commands.Stable_Command_Name (Editor.Commands.Command_Paste) =
          "edit.paste",
-         "paste must have the Phase 373 stable command name");
+         "paste must have the stable command name");
       Assert
         (Editor.Commands.Stable_Command_Name
            (Editor.Commands.Command_Clipboard_Clear) =
          "edit.clipboard.clear",
-         "clipboard clear must have the Phase 373 stable command name");
+         "clipboard clear must have the stable command name");
       Assert
         (Editor.Commands.Descriptor (Editor.Commands.Command_Copy).Category =
          Editor.Commands.Edit_Category,
@@ -169,9 +173,9 @@ package body Editor.Clipboard.Tests is
         (Editor.Commands.Descriptor (Editor.Commands.Command_Paste).Visibility =
          Editor.Commands.Palette_Command,
          "paste must be visible in the command palette");
-   end Test_Phase373_Command_Metadata;
+   end Test_Command_Metadata;
 
-   procedure Test_Phase373_Copy_Selected_Text_Only
+   procedure Test_Copy_Selected_Text_Only
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
       pragma Unreferenced (T);
       S : Editor.State.State_Type;
@@ -193,9 +197,9 @@ package body Editor.Clipboard.Tests is
       Assert
         (Editor.History.Undo_Stack.Is_Empty,
          "copy must not create an undo entry");
-   end Test_Phase373_Copy_Selected_Text_Only;
+   end Test_Copy_Selected_Text_Only;
 
-   procedure Test_Phase373_No_Selection_Copy_Is_Unavailable
+   procedure Test_No_Selection_Copy_Is_Unavailable
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
       pragma Unreferenced (T);
       S : Editor.State.State_Type;
@@ -214,9 +218,9 @@ package body Editor.Clipboard.Tests is
       Assert
         (Editor.Commands.Unavailable_Reason (A) = "No selected text",
          "copy without selection must report No selected text");
-   end Test_Phase373_No_Selection_Copy_Is_Unavailable;
+   end Test_No_Selection_Copy_Is_Unavailable;
 
-   procedure Test_Phase373_Cut_Undo_Redo
+   procedure Test_Cut_Undo_Redo
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
       pragma Unreferenced (T);
       S : Editor.State.State_Type;
@@ -254,9 +258,9 @@ package body Editor.Clipboard.Tests is
       Assert
         (To_String (Editor.Clipboard.Get_Text) = "bcd",
          "redo must not mutate clipboard contents");
-   end Test_Phase373_Cut_Undo_Redo;
+   end Test_Cut_Undo_Redo;
 
-   procedure Test_Phase373_Paste_At_Caret_And_Over_Selection
+   procedure Test_Paste_At_Caret_And_Over_Selection
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
       pragma Unreferenced (T);
       S : Editor.State.State_Type;
@@ -290,10 +294,10 @@ package body Editor.Clipboard.Tests is
       Assert
         (To_String (Editor.Clipboard.Get_Text) = "XY",
          "undo after paste must not mutate clipboard contents");
-   end Test_Phase373_Paste_At_Caret_And_Over_Selection;
+   end Test_Paste_At_Caret_And_Over_Selection;
 
 
-   procedure Test_Phase373_Paste_Identical_Selection_No_Edit
+   procedure Test_Paste_Identical_Selection_No_Edit
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
       pragma Unreferenced (T);
       S : Editor.State.State_Type;
@@ -316,9 +320,9 @@ package body Editor.Clipboard.Tests is
       Assert
         (To_String (Editor.Clipboard.Get_Text) = "cd",
          "degenerate paste must not clear or mutate clipboard contents");
-   end Test_Phase373_Paste_Identical_Selection_No_Edit;
+   end Test_Paste_Identical_Selection_No_Edit;
 
-   procedure Test_Phase373_Empty_Clipboard_Availability
+   procedure Test_Empty_Clipboard_Availability
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
       pragma Unreferenced (T);
       S : Editor.State.State_Type;
@@ -345,9 +349,9 @@ package body Editor.Clipboard.Tests is
       Assert
         (Editor.Commands.Unavailable_Reason (A) = "Clipboard is empty",
          "clipboard clear with empty clipboard must report Clipboard is empty");
-   end Test_Phase373_Empty_Clipboard_Availability;
+   end Test_Empty_Clipboard_Availability;
 
-   procedure Test_Phase373_Redo_Invalidation_Policies
+   procedure Test_Redo_Invalidation_Policies
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
       pragma Unreferenced (T);
       S : Editor.State.State_Type;
@@ -376,9 +380,9 @@ package body Editor.Clipboard.Tests is
       Assert
         (Editor.History.Redo_Stack.Is_Empty,
          "successful paste after undo must clear redo history");
-   end Test_Phase373_Redo_Invalidation_Policies;
+   end Test_Redo_Invalidation_Policies;
 
-   procedure Test_Phase373_Clipboard_Clear
+   procedure Test_Clipboard_Clear
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
       pragma Unreferenced (T);
       S : Editor.State.State_Type;
@@ -396,10 +400,10 @@ package body Editor.Clipboard.Tests is
       Assert
         (Editor.History.Undo_Stack.Is_Empty,
          "clipboard clear must not create undo history");
-   end Test_Phase373_Clipboard_Clear;
+   end Test_Clipboard_Clear;
 
 
-   procedure Test_Phase374_Backward_Selection_Copy_Cut
+   procedure Test_Backward_Selection_Copy_Cut
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
       pragma Unreferenced (T);
       S : Editor.State.State_Type;
@@ -426,9 +430,9 @@ package body Editor.Clipboard.Tests is
       Assert
         (Editor.State.Current_Text (S) = "aef",
          "backward cut must delete the normalized selected range");
-   end Test_Phase374_Backward_Selection_Copy_Cut;
+   end Test_Backward_Selection_Copy_Cut;
 
-   procedure Test_Phase374_Invalid_Selection_Is_Atomic
+   procedure Test_Invalid_Selection_Is_Atomic
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
       pragma Unreferenced (T);
       S : Editor.State.State_Type;
@@ -459,9 +463,9 @@ package body Editor.Clipboard.Tests is
       Assert
         (Editor.History.Undo_Stack.Is_Empty,
          "failed cut must not create undo history");
-   end Test_Phase374_Invalid_Selection_Is_Atomic;
+   end Test_Invalid_Selection_Is_Atomic;
 
-   procedure Test_Phase541_Multiline_Clipboard_Text_Is_Supported
+   procedure Test_Multiline_Clipboard_Text_Is_Supported
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
       pragma Unreferenced (T);
       S : Editor.State.State_Type;
@@ -492,9 +496,9 @@ package body Editor.Clipboard.Tests is
       Assert
         (Editor.State.Current_Text (S) = "ax" & ASCII.LF & "yb" & ASCII.LF & "cd",
          "multiline paste must insert clipboard text at the caret");
-   end Test_Phase541_Multiline_Clipboard_Text_Is_Supported;
+   end Test_Multiline_Clipboard_Text_Is_Supported;
 
-   procedure Test_Phase374_Redo_Preserved_By_Non_Text_Clipboard_Commands
+   procedure Test_Redo_Preserved_By_Non_Text_Clipboard_Commands
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
       pragma Unreferenced (T);
       S : Editor.State.State_Type;
@@ -521,9 +525,9 @@ package body Editor.Clipboard.Tests is
       Assert
         (not Editor.History.Redo_Stack.Is_Empty,
          "clipboard clear after undo must preserve redo history");
-   end Test_Phase374_Redo_Preserved_By_Non_Text_Clipboard_Commands;
+   end Test_Redo_Preserved_By_Non_Text_Clipboard_Commands;
 
-   procedure Test_Phase374_No_Op_Paste_Preserves_Redo
+   procedure Test_No_Op_Paste_Preserves_Redo
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
       pragma Unreferenced (T);
       S : Editor.State.State_Type;
@@ -549,9 +553,9 @@ package body Editor.Clipboard.Tests is
       Assert
         (not Editor.History.Redo_Stack.Is_Empty,
          "no-op paste after undo must preserve redo history");
-   end Test_Phase374_No_Op_Paste_Preserves_Redo;
+   end Test_No_Op_Paste_Preserves_Redo;
 
-   procedure Test_Phase374_Successful_Cut_Clears_Redo
+   procedure Test_Successful_Cut_Clears_Redo
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
       pragma Unreferenced (T);
       S : Editor.State.State_Type;
@@ -579,10 +583,10 @@ package body Editor.Clipboard.Tests is
       Assert
         (To_String (Editor.Clipboard.Get_Text) = "B",
          "successful cut must publish the cut text");
-   end Test_Phase374_Successful_Cut_Clears_Redo;
+   end Test_Successful_Cut_Clears_Redo;
 
 
-   procedure Test_Phase374_Failed_Paste_Preserves_Clipboard_And_Redo
+   procedure Test_Failed_Paste_Preserves_Clipboard_And_Redo
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
       pragma Unreferenced (T);
       S : Editor.State.State_Type;
@@ -619,9 +623,9 @@ package body Editor.Clipboard.Tests is
       Assert
         (Editor.History.Undo_Stack.Is_Empty,
          "failed paste must not create undo history");
-   end Test_Phase374_Failed_Paste_Preserves_Clipboard_And_Redo;
+   end Test_Failed_Paste_Preserves_Clipboard_And_Redo;
 
-   procedure Test_Phase374_Clipboard_Independent_Of_Undo_Redo_Clear
+   procedure Test_Clipboard_Independent_Of_Undo_Redo_Clear
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
       pragma Unreferenced (T);
       S : Editor.State.State_Type;
@@ -652,10 +656,10 @@ package body Editor.Clipboard.Tests is
       Assert
         (To_String (Editor.Clipboard.Get_Text) = "Z",
          "history clear must not mutate clipboard text");
-   end Test_Phase374_Clipboard_Independent_Of_Undo_Redo_Clear;
+   end Test_Clipboard_Independent_Of_Undo_Redo_Clear;
 
 
-   procedure Test_Phase375_Copy_Workflow_Is_Non_Mutating
+   procedure Test_Copy_Workflow_Is_Non_Mutating
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
       pragma Unreferenced (T);
       S             : Editor.State.State_Type;
@@ -671,8 +675,8 @@ package body Editor.Clipboard.Tests is
       Mark_Clean (S);
       Reset_Transient_State;
 
-      Editor.Executor.Execute_Find_Show (S);
-      Editor.Executor.Execute_Find_Set_Query (S, "Beta");
+      Editor.Executor.Find_Replace_Commands.Execute_Find_Show (S);
+      Editor.Executor.Find_Replace_Commands.Execute_Find_Set_Query (S, "Beta");
       Before_Find_Q := S.Active_Find_Query;
       Before_Back := Editor.Navigation_History.Back_Count (S.Navigation_History);
       Before_Fwd := Editor.Navigation_History.Forward_Count (S.Navigation_History);
@@ -697,9 +701,9 @@ package body Editor.Clipboard.Tests is
                                            "copy workflow");
       Assert (Active_Message_Text (S) = "Copied selection",
               "copy must emit one primary copied-selection message");
-   end Test_Phase375_Copy_Workflow_Is_Non_Mutating;
+   end Test_Copy_Workflow_Is_Non_Mutating;
 
-   procedure Test_Phase375_Forward_Backward_Paste_Over_Selection
+   procedure Test_Forward_Backward_Paste_Over_Selection
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
       pragma Unreferenced (T);
       Forward  : Editor.State.State_Type;
@@ -731,9 +735,9 @@ package body Editor.Clipboard.Tests is
               "backward paste-over-selection must create one undo entry");
       Assert_Clipboard_State (True, "Beta",
                               "paste-over-selection normalization");
-   end Test_Phase375_Forward_Backward_Paste_Over_Selection;
+   end Test_Forward_Backward_Paste_Over_Selection;
 
-   procedure Test_Phase375_Paste_At_Caret_Undo_Redo_And_Message
+   procedure Test_Paste_At_Caret_Undo_Redo_And_Message
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
       pragma Unreferenced (T);
       S           : Editor.State.State_Type;
@@ -776,9 +780,9 @@ package body Editor.Clipboard.Tests is
               "redo after paste must reinsert clipboard text");
       Assert_Clipboard_State (True, "Beta",
                               "redo after paste must not mutate clipboard");
-   end Test_Phase375_Paste_At_Caret_Undo_Redo_And_Message;
+   end Test_Paste_At_Caret_Undo_Redo_And_Message;
 
-   procedure Test_Phase375_Cut_Atomicity_Dirty_Find_And_Undo_Redo
+   procedure Test_Cut_Atomicity_Dirty_Find_And_Undo_Redo
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
       pragma Unreferenced (T);
       S           : Editor.State.State_Type;
@@ -791,8 +795,8 @@ package body Editor.Clipboard.Tests is
       Mark_Clean (S);
       Reset_Transient_State;
       Editor.Clipboard.Set_Text (To_Unbounded_String ("Previous"));
-      Editor.Executor.Execute_Find_Show (S);
-      Editor.Executor.Execute_Find_Set_Query (S, "Beta");
+      Editor.Executor.Find_Replace_Commands.Execute_Find_Show (S);
+      Editor.Executor.Find_Replace_Commands.Execute_Find_Set_Query (S, "Beta");
       Before_Back := Editor.Navigation_History.Back_Count (S.Navigation_History);
       Before_Fwd := Editor.Navigation_History.Forward_Count (S.Navigation_History);
 
@@ -823,9 +827,9 @@ package body Editor.Clipboard.Tests is
       Assert (Editor.State.Current_Text (S) = "Alpha  Gamma",
               "redo after cut must reapply the deletion");
       Assert_Clipboard_State (True, "Beta", "redo after cut");
-   end Test_Phase375_Cut_Atomicity_Dirty_Find_And_Undo_Redo;
+   end Test_Cut_Atomicity_Dirty_Find_And_Undo_Redo;
 
-   procedure Test_Phase375_Failed_Cut_Paste_Preserve_Redo_Clipboard_Text
+   procedure Test_Failed_Cut_Paste_Preserve_Redo_Clipboard_Text
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
       pragma Unreferenced (T);
       S : Editor.State.State_Type;
@@ -864,9 +868,9 @@ package body Editor.Clipboard.Tests is
               "failed paste must preserve buffer text");
       Assert (not Editor.History.Redo_Stack.Is_Empty,
               "failed paste must preserve redo stack");
-   end Test_Phase375_Failed_Cut_Paste_Preserve_Redo_Clipboard_Text;
+   end Test_Failed_Cut_Paste_Preserve_Redo_Clipboard_Text;
 
-   procedure Test_Phase375_Availability_Render_Snapshot_Side_Effect_Free
+   procedure Test_Availability_Render_Snapshot_Side_Effect_Free
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
       pragma Unreferenced (T);
       S              : Editor.State.State_Type;
@@ -883,8 +887,8 @@ package body Editor.Clipboard.Tests is
       Editor.Executor.Execute_No_Log (S, Paste ("Alpha Beta Gamma"));
       Reset_Transient_State;
       Editor.Clipboard.Set_Text (To_Unbounded_String ("Clip"));
-      Editor.Executor.Execute_Find_Show (S);
-      Editor.Executor.Execute_Find_Set_Query (S, "Beta");
+      Editor.Executor.Find_Replace_Commands.Execute_Find_Show (S);
+      Editor.Executor.Find_Replace_Commands.Execute_Find_Set_Query (S, "Beta");
       Set_Primary_Selection (S, 6, 10);
 
       Before_Text := To_Unbounded_String (Editor.State.Current_Text (S));
@@ -918,9 +922,9 @@ package body Editor.Clipboard.Tests is
               "render and availability checks must not mutate Find/Replace state");
       Assert (Snapshot.Find_Visible and then Snapshot.Find_Match_Count = 1,
               "render snapshot must expose current Find ranges only when not stale");
-   end Test_Phase375_Availability_Render_Snapshot_Side_Effect_Free;
+   end Test_Availability_Render_Snapshot_Side_Effect_Free;
 
-   procedure Test_Phase375_Active_Buffer_Switch_Clipboard_Shared_History_Isolated
+   procedure Test_Active_Buffer_Switch_Clipboard_Shared_History_Isolated
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
       pragma Unreferenced (T);
       S        : Editor.State.State_Type;
@@ -939,7 +943,7 @@ package body Editor.Clipboard.Tests is
       Assert (Undo_Count = 0,
               "copy in buffer A must not create an undo entry");
 
-      Editor.Executor.Execute_New_Buffer (S);
+      Editor.Executor.File_Open_Commands.Execute_New_Buffer (S);
       Editor.Executor.Execute_No_Log (S, Paste ("Beta"));
       Editor.History.Undo_Stack.Clear;
       Editor.History.Redo_Stack.Clear;
@@ -957,12 +961,12 @@ package body Editor.Clipboard.Tests is
       Assert (Editor.State.Current_Text (S) = "Beta",
               "undo in buffer B must undo only the paste");
 
-      Editor.Executor.Execute_Switch_Buffer (S, Buffer_A);
+      Editor.Executor.File_Open_Commands.Execute_Switch_Buffer (S, Buffer_A);
       Assert (Editor.State.Current_Text (S) = "Alpha",
               "buffer A must remain unchanged by buffer B paste");
-   end Test_Phase375_Active_Buffer_Switch_Clipboard_Shared_History_Isolated;
+   end Test_Active_Buffer_Switch_Clipboard_Shared_History_Isolated;
 
-   procedure Test_Phase375_Buffer_Close_Reopen_Clipboard_Survives
+   procedure Test_Buffer_Close_Reopen_Clipboard_Survives
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
       pragma Unreferenced (T);
       S        : Editor.State.State_Type;
@@ -980,11 +984,11 @@ package body Editor.Clipboard.Tests is
       Assert_Clipboard_State (True, "Alpha",
                               "clipboard populated before buffer close");
 
-      Editor.Executor.Execute_New_Buffer (S);
+      Editor.Executor.File_Open_Commands.Execute_New_Buffer (S);
       Editor.Executor.Execute_No_Log (S, Paste ("Beta"));
       Editor.History.Undo_Stack.Clear;
       Editor.History.Redo_Stack.Clear;
-      Editor.Executor.Execute_Close_Buffer (S, Buffer_A);
+      Editor.Executor.Buffer_Close_Commands.Execute_Close_Buffer (S, Buffer_A);
       Set_Primary_Caret (S, 4);
       Editor.Executor.Execute_Command (S, Editor.Commands.Command_Paste);
 
@@ -998,9 +1002,9 @@ package body Editor.Clipboard.Tests is
       null;
       Assert_Clipboard_State (True, "Alpha",
                               "buffer reopen must not restore or replace clipboard state");
-   end Test_Phase375_Buffer_Close_Reopen_Clipboard_Survives;
+   end Test_Buffer_Close_Reopen_Clipboard_Survives;
 
-   procedure Test_Phase375_Command_Palette_Route_Surface_Is_Canonical
+   procedure Test_Command_Palette_Route_Surface_Is_Canonical
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
       pragma Unreferenced (T);
       S          : Editor.State.State_Type;
@@ -1060,9 +1064,9 @@ package body Editor.Clipboard.Tests is
               "command palette projection must not mutate clipboard text");
       Assert (Undo_Count = 0 and then Redo_Count = 0,
               "command palette projection must not create or clear edit history");
-   end Test_Phase375_Command_Palette_Route_Surface_Is_Canonical;
+   end Test_Command_Palette_Route_Surface_Is_Canonical;
 
-   procedure Test_Phase375_Feature_Independence_During_Clipboard_Workflow
+   procedure Test_Feature_Independence_During_Clipboard_Workflow
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
       pragma Unreferenced (T);
       S                        : Editor.State.State_Type;
@@ -1115,16 +1119,16 @@ package body Editor.Clipboard.Tests is
               "clipboard commands must not mutate bookmarks or bookmark surface state");
       Assert (Editor.Recent_Buffers.Count (S.Recent_Buffers) = Before_Recent_Count,
               "clipboard commands must not update recent-buffer history");
-   end Test_Phase375_Feature_Independence_During_Clipboard_Workflow;
+   end Test_Feature_Independence_During_Clipboard_Workflow;
 
-   procedure Test_Phase375_Project_Lifecycle_Clears_Clipboard
+   procedure Test_Project_Lifecycle_Clears_Clipboard
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
       pragma Unreferenced (T);
       S           : Editor.State.State_Type;
       Project_Dir : constant String :=
         Ada.Directories.Compose
           (Ada.Directories.Compose ("/tmp", "editor-tests"),
-           "phase375_clipboard_project_lifecycle");
+           "clipboard_project_lifecycle");
    begin
       Reset_Transient_State;
       Editor.Buffers.Reset_Global_For_Test;
@@ -1134,7 +1138,7 @@ package body Editor.Clipboard.Tests is
       Ada.Directories.Create_Path (Project_Dir);
 
       Editor.State.Init (S);
-      Editor.Executor.Execute_Open_Project
+      Editor.Executor.Project_Lifecycle_Commands.Execute_Open_Project
         (S,
          Project_Dir,
          Refresh_Build_Candidates => False);
@@ -1144,8 +1148,8 @@ package body Editor.Clipboard.Tests is
       Editor.Buffers.Sync_Global_Active_From_State (S);
       Reset_Transient_State;
       Editor.Clipboard.Set_Text (To_Unbounded_String ("Sensitive copied text"));
-      Editor.Executor.Execute_Find_Show (S);
-      Editor.Executor.Execute_Find_Set_Query (S, "Alpha");
+      Editor.Executor.Find_Replace_Commands.Execute_Find_Show (S);
+      Editor.Executor.Find_Replace_Commands.Execute_Find_Set_Query (S, "Alpha");
       Assert (Editor.Clipboard.Has_Text,
               "setup must leave clipboard populated before lifecycle cleanup");
 
@@ -1166,9 +1170,9 @@ package body Editor.Clipboard.Tests is
             Ada.Directories.Delete_Tree (Project_Dir);
          end if;
          raise;
-   end Test_Phase375_Project_Lifecycle_Clears_Clipboard;
+   end Test_Project_Lifecycle_Clears_Clipboard;
 
-   procedure Test_Phase375_Persistence_And_Non_Goal_Command_Exclusion
+   procedure Test_Persistence_And_Non_Goal_Command_Exclusion
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
       pragma Unreferenced (T);
       S       : Editor.State.State_Type;
@@ -1193,10 +1197,10 @@ package body Editor.Clipboard.Tests is
 
       Id := Editor.Commands.Command_Id_From_Stable_Name ("edit.copy-line", Found);
       Assert (not Found and then Id = Editor.Commands.No_Command,
-              "copy-line must not be exposed as a Phase 375 command");
+              "copy-line must not be exposed as a command");
       Id := Editor.Commands.Command_Id_From_Stable_Name ("edit.cut-line", Found);
       Assert (not Found and then Id = Editor.Commands.No_Command,
-              "cut-line must not be exposed as a Phase 375 command");
+              "cut-line must not be exposed as a command");
       Id := Editor.Commands.Command_Id_From_Stable_Name ("edit.copy-rich", Found);
       Assert (not Found and then Id = Editor.Commands.No_Command,
               "rich-text copy must not be exposed");
@@ -1214,11 +1218,11 @@ package body Editor.Clipboard.Tests is
         ("edit.clipboard.persist", Found);
       Assert (not Found and then Id = Editor.Commands.No_Command,
               "persistent clipboard command must not be exposed");
-   end Test_Phase375_Persistence_And_Non_Goal_Command_Exclusion;
+   end Test_Persistence_And_Non_Goal_Command_Exclusion;
 
 
 
-   procedure Test_Phase375_Input_Bridge_Keybindings_Route_Clipboard_Commands
+   procedure Test_Input_Bridge_Keybindings_Route_Clipboard_Commands
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
       pragma Unreferenced (T);
       S     : Editor.State.State_Type;
@@ -1289,9 +1293,9 @@ package body Editor.Clipboard.Tests is
                               "Input_Bridge clipboard.clear keybinding route");
 
       Editor.Keybindings.Reset_To_Defaults;
-   end Test_Phase375_Input_Bridge_Keybindings_Route_Clipboard_Commands;
+   end Test_Input_Bridge_Keybindings_Route_Clipboard_Commands;
 
-   procedure Test_Phase375_Clipboard_Commands_Emit_One_Primary_Message
+   procedure Test_Clipboard_Commands_Emit_One_Primary_Message
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
       pragma Unreferenced (T);
       S : Editor.State.State_Type;
@@ -1330,9 +1334,9 @@ package body Editor.Clipboard.Tests is
 
       Editor.Executor.Execute_Command (S, Editor.Commands.Command_Paste);
       Assert_Message_Count ("Clipboard is empty", "failed paste");
-   end Test_Phase375_Clipboard_Commands_Emit_One_Primary_Message;
+   end Test_Clipboard_Commands_Emit_One_Primary_Message;
 
-   procedure Test_Phase375_Dirty_Matrix_Copy_Clear_And_Noop_Paste
+   procedure Test_Dirty_Matrix_Copy_Clear_And_Noop_Paste
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
       pragma Unreferenced (T);
       S : Editor.State.State_Type;
@@ -1367,9 +1371,9 @@ package body Editor.Clipboard.Tests is
               "no-op paste over identical selection must preserve edit history");
       Assert_Clipboard_State (True, "Beta",
                               "no-op paste must preserve clipboard state");
-   end Test_Phase375_Dirty_Matrix_Copy_Clear_And_Noop_Paste;
+   end Test_Dirty_Matrix_Copy_Clear_And_Noop_Paste;
 
-   procedure Test_Phase375_Paste_Invalidates_Find_And_Preserves_Replace_State
+   procedure Test_Paste_Invalidates_Find_And_Preserves_Replace_State
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
       pragma Unreferenced (T);
       S : Editor.State.State_Type;
@@ -1380,10 +1384,10 @@ package body Editor.Clipboard.Tests is
       Mark_Clean (S);
       Reset_Transient_State;
 
-      Editor.Executor.Execute_Find_Show (S);
-      Editor.Executor.Execute_Find_Set_Query (S, "Beta");
-      Editor.Executor.Execute_Replace_Show (S);
-      Editor.Executor.Execute_Replace_Set_Text (S, "Delta");
+      Editor.Executor.Find_Replace_Commands.Execute_Find_Show (S);
+      Editor.Executor.Find_Replace_Commands.Execute_Find_Set_Query (S, "Beta");
+      Editor.Executor.Find_Replace_Commands.Execute_Replace_Show (S);
+      Editor.Executor.Find_Replace_Commands.Execute_Replace_Set_Text (S, "Delta");
       Assert (not S.Active_Find_Stale
               and then S.Active_Find_Matches.Is_Empty
               and then S.Active_Replace_Prompt
@@ -1417,9 +1421,9 @@ package body Editor.Clipboard.Tests is
       Assert (S.Active_Replace_Prompt
               and then To_String (S.Active_Replace_Text) = "Delta",
               "redo after paste must not corrupt Replace text");
-   end Test_Phase375_Paste_Invalidates_Find_And_Preserves_Replace_State;
+   end Test_Paste_Invalidates_Find_And_Preserves_Replace_State;
 
-   procedure Test_Phase376_Canonical_Clipboard_State_Only
+   procedure Test_Canonical_Clipboard_State_Only
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
       pragma Unreferenced (T);
       S           : Editor.State.State_Type;
@@ -1445,9 +1449,9 @@ package body Editor.Clipboard.Tests is
               "paste availability and inserted text must come from canonical Clipboard_Has_Text/Text");
       Assert_Clipboard_State (True, "Clip",
                               "paste must not rewrite canonical clipboard state");
-   end Test_Phase376_Canonical_Clipboard_State_Only;
+   end Test_Canonical_Clipboard_State_Only;
 
-   procedure Test_Phase376_Default_Keybindings_Target_Canonical_Clipboard_Commands
+   procedure Test_Default_Keybindings_Target_Canonical_Clipboard_Commands
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
       pragma Unreferenced (T);
 
@@ -1477,9 +1481,9 @@ package body Editor.Clipboard.Tests is
    begin
       Editor.Keybindings.Reset_To_Defaults;
       Assert_Only_Canonical_Clipboard_Targets;
-   end Test_Phase376_Default_Keybindings_Target_Canonical_Clipboard_Commands;
+   end Test_Default_Keybindings_Target_Canonical_Clipboard_Commands;
 
-   procedure Test_Phase376_Copy_Cut_Availability_Uses_Canonical_Selection_Helper
+   procedure Test_Copy_Cut_Availability_Uses_Canonical_Selection_Helper
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
       pragma Unreferenced (T);
       S : Editor.State.State_Type;
@@ -1515,9 +1519,9 @@ package body Editor.Clipboard.Tests is
                               "availability checks must not mutate canonical clipboard state");
       Assert (Undo_Count = 0 and then Redo_Count = 0,
               "availability checks must not mutate edit history");
-   end Test_Phase376_Copy_Cut_Availability_Uses_Canonical_Selection_Helper;
+   end Test_Copy_Cut_Availability_Uses_Canonical_Selection_Helper;
 
-   procedure Test_Phase376_Local_Input_Paste_Reads_Canonical_Text_Only
+   procedure Test_Local_Input_Paste_Reads_Canonical_Text_Only
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
       pragma Unreferenced (T);
       Before_Status : Editor.Executor.Clipboard.Clipboard_Execution_Status;
@@ -1543,122 +1547,122 @@ package body Editor.Clipboard.Tests is
                               "local input paste helper must not mutate clipboard state");
       Assert (Undo_Count = 0 and then Redo_Count = 0,
               "local input paste helper must not mutate edit history");
-   end Test_Phase376_Local_Input_Paste_Reads_Canonical_Text_Only;
+   end Test_Local_Input_Paste_Reads_Canonical_Text_Only;
 
    overriding procedure Register_Tests
      (T : in out Clipboard_Test_Case) is
    begin
       AUnit.Test_Cases.Registration.Register_Routine
-        (T, Test_Phase373_Command_Metadata'Access,
-         "Phase 373 Clipboard Command Metadata");
+        (T, Test_Command_Metadata'Access,
+         "Clipboard Command Metadata");
       AUnit.Test_Cases.Registration.Register_Routine
-        (T, Test_Phase373_Copy_Selected_Text_Only'Access,
-         "Phase 373 Copy Selected Text Only");
+        (T, Test_Copy_Selected_Text_Only'Access,
+         "Copy Selected Text Only");
       AUnit.Test_Cases.Registration.Register_Routine
-        (T, Test_Phase373_No_Selection_Copy_Is_Unavailable'Access,
-         "Phase 373 No Selection Copy Unavailable");
+        (T, Test_No_Selection_Copy_Is_Unavailable'Access,
+         "No Selection Copy Unavailable");
       AUnit.Test_Cases.Registration.Register_Routine
-        (T, Test_Phase373_Cut_Undo_Redo'Access,
-         "Phase 373 Cut Undo Redo");
+        (T, Test_Cut_Undo_Redo'Access,
+         "Cut Undo Redo");
       AUnit.Test_Cases.Registration.Register_Routine
-        (T, Test_Phase373_Paste_At_Caret_And_Over_Selection'Access,
-         "Phase 373 Paste At Caret And Over Selection");
+        (T, Test_Paste_At_Caret_And_Over_Selection'Access,
+         "Paste At Caret And Over Selection");
       AUnit.Test_Cases.Registration.Register_Routine
-        (T, Test_Phase373_Paste_Identical_Selection_No_Edit'Access,
-         "Phase 373 Paste Identical Selection No Edit");
+        (T, Test_Paste_Identical_Selection_No_Edit'Access,
+         "Paste Identical Selection No Edit");
       AUnit.Test_Cases.Registration.Register_Routine
-        (T, Test_Phase373_Empty_Clipboard_Availability'Access,
-         "Phase 373 Empty Clipboard Availability");
+        (T, Test_Empty_Clipboard_Availability'Access,
+         "Empty Clipboard Availability");
       AUnit.Test_Cases.Registration.Register_Routine
-        (T, Test_Phase373_Redo_Invalidation_Policies'Access,
-         "Phase 373 Redo Invalidation Policies");
+        (T, Test_Redo_Invalidation_Policies'Access,
+         "Redo Invalidation Policies");
       AUnit.Test_Cases.Registration.Register_Routine
-        (T, Test_Phase373_Clipboard_Clear'Access,
-         "Phase 373 Clipboard Clear");
+        (T, Test_Clipboard_Clear'Access,
+         "Clipboard Clear");
       AUnit.Test_Cases.Registration.Register_Routine
-        (T, Test_Phase374_Backward_Selection_Copy_Cut'Access,
-         "Phase 374 Backward Selection Copy Cut");
+        (T, Test_Backward_Selection_Copy_Cut'Access,
+         "Backward Selection Copy Cut");
       AUnit.Test_Cases.Registration.Register_Routine
-        (T, Test_Phase374_Invalid_Selection_Is_Atomic'Access,
-         "Phase 374 Invalid Selection Is Atomic");
+        (T, Test_Invalid_Selection_Is_Atomic'Access,
+         "Invalid Selection Is Atomic");
       AUnit.Test_Cases.Registration.Register_Routine
-        (T, Test_Phase541_Multiline_Clipboard_Text_Is_Supported'Access,
-         "Phase 374 Multiline Clipboard Policy Is Single Line");
+        (T, Test_Multiline_Clipboard_Text_Is_Supported'Access,
+         "Multiline Clipboard Policy Is Single Line");
       AUnit.Test_Cases.Registration.Register_Routine
-        (T, Test_Phase374_Redo_Preserved_By_Non_Text_Clipboard_Commands'Access,
-         "Phase 374 Redo Preserved By Non Text Clipboard Commands");
+        (T, Test_Redo_Preserved_By_Non_Text_Clipboard_Commands'Access,
+         "Redo Preserved By Non Text Clipboard Commands");
       AUnit.Test_Cases.Registration.Register_Routine
-        (T, Test_Phase374_No_Op_Paste_Preserves_Redo'Access,
-         "Phase 374 No Op Paste Preserves Redo");
+        (T, Test_No_Op_Paste_Preserves_Redo'Access,
+         "No Op Paste Preserves Redo");
       AUnit.Test_Cases.Registration.Register_Routine
-        (T, Test_Phase374_Successful_Cut_Clears_Redo'Access,
-         "Phase 374 Successful Cut Clears Redo");
+        (T, Test_Successful_Cut_Clears_Redo'Access,
+         "Successful Cut Clears Redo");
       AUnit.Test_Cases.Registration.Register_Routine
-        (T, Test_Phase374_Failed_Paste_Preserves_Clipboard_And_Redo'Access,
-         "Phase 374 Failed Paste Preserves Clipboard And Redo");
+        (T, Test_Failed_Paste_Preserves_Clipboard_And_Redo'Access,
+         "Failed Paste Preserves Clipboard And Redo");
       AUnit.Test_Cases.Registration.Register_Routine
-        (T, Test_Phase374_Clipboard_Independent_Of_Undo_Redo_Clear'Access,
-         "Phase 374 Clipboard Independent Of Undo Redo Clear");
+        (T, Test_Clipboard_Independent_Of_Undo_Redo_Clear'Access,
+         "Clipboard Independent Of Undo Redo Clear");
       AUnit.Test_Cases.Registration.Register_Routine
-        (T, Test_Phase375_Copy_Workflow_Is_Non_Mutating'Access,
-         "Phase 375 Copy Workflow Is Non Mutating");
+        (T, Test_Copy_Workflow_Is_Non_Mutating'Access,
+         "Copy Workflow Is Non Mutating");
       AUnit.Test_Cases.Registration.Register_Routine
-        (T, Test_Phase375_Forward_Backward_Paste_Over_Selection'Access,
-         "Phase 375 Forward Backward Paste Over Selection");
+        (T, Test_Forward_Backward_Paste_Over_Selection'Access,
+         "Forward Backward Paste Over Selection");
       AUnit.Test_Cases.Registration.Register_Routine
-        (T, Test_Phase375_Paste_At_Caret_Undo_Redo_And_Message'Access,
-         "Phase 375 Paste At Caret Undo Redo And Message");
+        (T, Test_Paste_At_Caret_Undo_Redo_And_Message'Access,
+         "Paste At Caret Undo Redo And Message");
       AUnit.Test_Cases.Registration.Register_Routine
-        (T, Test_Phase375_Cut_Atomicity_Dirty_Find_And_Undo_Redo'Access,
-         "Phase 375 Cut Atomicity Dirty Find And Undo Redo");
+        (T, Test_Cut_Atomicity_Dirty_Find_And_Undo_Redo'Access,
+         "Cut Atomicity Dirty Find And Undo Redo");
       AUnit.Test_Cases.Registration.Register_Routine
-        (T, Test_Phase375_Failed_Cut_Paste_Preserve_Redo_Clipboard_Text'Access,
-         "Phase 375 Failed Cut Paste Preserve Redo Clipboard Text");
+        (T, Test_Failed_Cut_Paste_Preserve_Redo_Clipboard_Text'Access,
+         "Failed Cut Paste Preserve Redo Clipboard Text");
       AUnit.Test_Cases.Registration.Register_Routine
-        (T, Test_Phase375_Availability_Render_Snapshot_Side_Effect_Free'Access,
-         "Phase 375 Availability Render Snapshot Side Effect Free");
+        (T, Test_Availability_Render_Snapshot_Side_Effect_Free'Access,
+         "Availability Render Snapshot Side Effect Free");
       AUnit.Test_Cases.Registration.Register_Routine
-        (T, Test_Phase375_Active_Buffer_Switch_Clipboard_Shared_History_Isolated'Access,
-         "Phase 375 Active Buffer Switch Clipboard Shared History Isolated");
+        (T, Test_Active_Buffer_Switch_Clipboard_Shared_History_Isolated'Access,
+         "Active Buffer Switch Clipboard Shared History Isolated");
       AUnit.Test_Cases.Registration.Register_Routine
-        (T, Test_Phase375_Buffer_Close_Reopen_Clipboard_Survives'Access,
-         "Phase 375 Buffer Close Reopen Clipboard Survives");
+        (T, Test_Buffer_Close_Reopen_Clipboard_Survives'Access,
+         "Buffer Close Reopen Clipboard Survives");
       AUnit.Test_Cases.Registration.Register_Routine
-        (T, Test_Phase375_Command_Palette_Route_Surface_Is_Canonical'Access,
-         "Phase 375 Command Palette Route Surface Is Canonical");
+        (T, Test_Command_Palette_Route_Surface_Is_Canonical'Access,
+         "Command Palette Route Surface Is Canonical");
       AUnit.Test_Cases.Registration.Register_Routine
-        (T, Test_Phase375_Feature_Independence_During_Clipboard_Workflow'Access,
-         "Phase 375 Feature Independence During Clipboard Workflow");
+        (T, Test_Feature_Independence_During_Clipboard_Workflow'Access,
+         "Feature Independence During Clipboard Workflow");
       AUnit.Test_Cases.Registration.Register_Routine
-        (T, Test_Phase375_Input_Bridge_Keybindings_Route_Clipboard_Commands'Access,
-         "Phase 375 Input Bridge Keybindings Route Clipboard Commands");
+        (T, Test_Input_Bridge_Keybindings_Route_Clipboard_Commands'Access,
+         "Input Bridge Keybindings Route Clipboard Commands");
       AUnit.Test_Cases.Registration.Register_Routine
-        (T, Test_Phase375_Clipboard_Commands_Emit_One_Primary_Message'Access,
-         "Phase 375 Clipboard Commands Emit One Primary Message");
+        (T, Test_Clipboard_Commands_Emit_One_Primary_Message'Access,
+         "Clipboard Commands Emit One Primary Message");
       AUnit.Test_Cases.Registration.Register_Routine
-        (T, Test_Phase375_Dirty_Matrix_Copy_Clear_And_Noop_Paste'Access,
-         "Phase 375 Dirty Matrix Copy Clear And Noop Paste");
+        (T, Test_Dirty_Matrix_Copy_Clear_And_Noop_Paste'Access,
+         "Dirty Matrix Copy Clear And Noop Paste");
       AUnit.Test_Cases.Registration.Register_Routine
-        (T, Test_Phase375_Paste_Invalidates_Find_And_Preserves_Replace_State'Access,
-         "Phase 375 Paste Invalidates Find And Preserves Replace State");
+        (T, Test_Paste_Invalidates_Find_And_Preserves_Replace_State'Access,
+         "Paste Invalidates Find And Preserves Replace State");
       AUnit.Test_Cases.Registration.Register_Routine
-        (T, Test_Phase375_Project_Lifecycle_Clears_Clipboard'Access,
-         "Phase 375 Project Lifecycle Clears Clipboard");
+        (T, Test_Project_Lifecycle_Clears_Clipboard'Access,
+         "Project Lifecycle Clears Clipboard");
       AUnit.Test_Cases.Registration.Register_Routine
-        (T, Test_Phase375_Persistence_And_Non_Goal_Command_Exclusion'Access,
-         "Phase 375 Persistence And Non Goal Command Exclusion");
+        (T, Test_Persistence_And_Non_Goal_Command_Exclusion'Access,
+         "Persistence And Non Goal Command Exclusion");
       AUnit.Test_Cases.Registration.Register_Routine
-        (T, Test_Phase376_Canonical_Clipboard_State_Only'Access,
-         "Phase 376 Canonical Clipboard State Only");
+        (T, Test_Canonical_Clipboard_State_Only'Access,
+         "Canonical Clipboard State Only");
       AUnit.Test_Cases.Registration.Register_Routine
-        (T, Test_Phase376_Copy_Cut_Availability_Uses_Canonical_Selection_Helper'Access,
-         "Phase 376 Copy Cut Availability Uses Canonical Selection Helper");
+        (T, Test_Copy_Cut_Availability_Uses_Canonical_Selection_Helper'Access,
+         "Copy Cut Availability Uses Canonical Selection Helper");
       AUnit.Test_Cases.Registration.Register_Routine
-        (T, Test_Phase376_Local_Input_Paste_Reads_Canonical_Text_Only'Access,
-         "Phase 376 Local Input Paste Reads Canonical Text Only");
+        (T, Test_Local_Input_Paste_Reads_Canonical_Text_Only'Access,
+         "Local Input Paste Reads Canonical Text Only");
       AUnit.Test_Cases.Registration.Register_Routine
-        (T, Test_Phase376_Default_Keybindings_Target_Canonical_Clipboard_Commands'Access,
-         "Phase 376 Default Keybindings Target Canonical Clipboard Commands");
+        (T, Test_Default_Keybindings_Target_Canonical_Clipboard_Commands'Access,
+         "Default Keybindings Target Canonical Clipboard Commands");
    end Register_Tests;
 
 end Editor.Clipboard.Tests;

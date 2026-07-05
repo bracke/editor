@@ -6,9 +6,9 @@ with Editor.Ada_Syntax_Tree;
 
 package Editor.Ada_Cross_Unit_RM_Completion_Closure_Consumer_Legality is
 
-   --  Pass1268 cross-unit RM-completion closure consumer legality.
+   --  Case 1268 cross-unit RM-completion closure consumer legality.
    --
-   --  This package makes cross-unit semantic closure consume the Pass1263
+   --  This package makes cross-unit semantic closure consume the Case 1263
    --  generic/shared-state RM-completion stabilized closure directly, instead
    --  of accepting older intermediate cross-unit rows as sufficient evidence.
    --  It preserves dependency, view-barrier, child/private-child, separate-body,

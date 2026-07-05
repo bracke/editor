@@ -2,7 +2,7 @@ with Editor.Ada_Generic_Replay_Source_Instance_Backmapping_Legality;
 
 package Editor.Ada_Integrated_Semantic_Closure.Generic_Backmapping is
 
-   --  Pass1181 bridge from generic replay source/instance backmapping into
+   --  Case 1181 bridge from generic replay source/instance backmapping into
    --  integrated semantic closure.  This layer preserves generic body source,
    --  instantiation, formal, actual, substitution, replay-CPD, and overload/type
    --  edge blocker families as closure-visible semantic evidence.  It performs

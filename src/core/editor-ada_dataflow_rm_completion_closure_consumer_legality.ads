@@ -6,9 +6,9 @@ with Editor.Ada_Syntax_Tree;
 
 package Editor.Ada_Dataflow_RM_Completion_Closure_Consumer_Legality is
 
-   --  Pass1267 dataflow/initialization RM-completion closure consumer legality.
+   --  Case 1267 dataflow/initialization RM-completion closure consumer legality.
    --
-   --  This package consumes the Pass1263 generic/shared-state RM-completion
+   --  This package consumes the Case 1263 generic/shared-state RM-completion
    --  stabilized closure as first-class semantic evidence for dataflow/initialization
    --  RM-completion dataflow consumers.  It prevents dataflow/initialization conclusions from bypassing
    --  stabilized closure blockers for stale/fingerprint evidence, AST/coverage

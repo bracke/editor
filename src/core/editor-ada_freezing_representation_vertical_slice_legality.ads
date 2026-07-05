@@ -4,7 +4,7 @@ with Editor.Ada_Syntax_Tree;
 
 package Editor.Ada_Freezing_Representation_Vertical_Slice_Legality is
 
-   --  Pass1299 vertical-slice freezing and representation legality.  This
+   --  Case 1299 vertical-slice freezing and representation legality.  This
    --  package performs concrete RM-facing checks for representation and
    --  operational clauses against source-shaped type/freezing evidence.  It
    --  tracks real freezing points, rejects clauses that appear too late,

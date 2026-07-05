@@ -297,7 +297,7 @@ package body Editor.Ada_Overload_Type_Final_RM_Consumer_Legality is
       Row.Expected_Type_Name := Info.Expected_Type_Name;
       Row.Selected_Profile := Info.Selected_Profile;
       Row.Message := To_Unbounded_String (Message_For (Status));
-      Row.Detail := To_Unbounded_String ("Pass1189 final RM overload/type consumer row");
+      Row.Detail := To_Unbounded_String ("Case 1189 final RM overload/type consumer row");
       Row.Edge_Row := Info.Edge_Row;
       Row.Edge_Status := Info.Edge_Status;
       Row.Access_AST_Row := Info.Access_AST_Row;

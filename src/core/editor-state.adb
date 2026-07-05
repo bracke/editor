@@ -69,6 +69,7 @@ package body Editor.State is
    use type Editor.Keybinding_Config.Keybinding_Config_Status;
    use type Editor.Overlay_Focus.Overlay_Target;
    use type Editor.Panel_Focus.Bottom_Focus_Content;
+   use type Editor.Feature_Panel.Feature_Id;
 
    Next_Registry_Token : Natural := 1;
    Runtime_Keybindings_Initialized : Boolean := False;
@@ -802,7 +803,7 @@ package body Editor.State is
    begin
       Bump_Buffer_Revision (S);
 
-      --  Phase 19: row metadata is maintained by the rope itself during the
+      --  row metadata is maintained by the rope itself during the
       --  mutation. Keep only a minimal line-start marker and avoid any
       --  document-wide scan here.
       S.Line_Starts.Clear;
@@ -821,7 +822,7 @@ package body Editor.State is
       S.Active_Diagnostic := (Has_Active => False, Index => Editor.Diagnostics.No_Diagnostic);
       Editor.Feature_Diagnostics.Mark_Diagnostics_For_Buffer_Stale
         (S.Feature_Diagnostics, S.Active_Buffer_Token);
-      --  Phase 557: ordinary edits make retained feature Diagnostics for the
+      --  ordinary edits make retained feature Diagnostics for the
       --  active buffer stale instead of deleting them through the buffer-close
       --  lifecycle path.  The stale marker is transient Diagnostics-owned
       --  review state; editing still must not reproject rows, navigate
@@ -854,7 +855,7 @@ package body Editor.State is
       --  row replacement; accepted rows are retained only as stale display
       --  state and cannot be activated until refresh validates a new snapshot.
       --  Preserve explicit gutter marker state across ordinary edits.
-      --  Phase 45 markers are row-level and intentionally do not implement
+      --  markers are row-level and intentionally do not implement
       --  a line-history remapping algorithm yet; markers beyond the current
       --  document range simply do not render.
       Editor.Folding.Clear (S.Folding);
@@ -870,7 +871,7 @@ package body Editor.State is
       --  Mark visible Search Results stale, but do not rerun Search or mutate
       --  the visible Feature Panel rows from ordinary text editing.
       Editor.Project_Search.Mark_Stale (S.Project_Search);
-      --  Phase 547: a searched file edited in a buffer makes retained Project
+      --  a searched file edited in a buffer makes retained Project
       --  Search rows unsafe to activate until the user reruns the explicit,
       --  bounded project search.  This is a transient stale marker only; it
       --  does not scan, search, open files, or persist search state.
@@ -984,7 +985,7 @@ package body Editor.State is
       Editor.Syntax_Semantics.Clear (S.Syntax_Symbols);
       S.Syntax_Analysis := Analysis;
 
-      --  Phase 579 pass 180 completeness: visible-range syntax preparation
+      --  pass 180 completeness: visible-range syntax preparation
       --  now builds semantic colouring from the shared parser-owned Ada
       --  language model.  This keeps the normal render preparation path aligned
       --  with semantic.refresh-buffer and avoids re-projecting through Outline
@@ -1201,7 +1202,7 @@ package body Editor.State is
          Message       => Clean_Message,
          Source_Label  => Clean_Source,
          Source_Kind   => Editor.Feature_Diagnostics.File_Diagnostic_Source,
-         --  Phase 557 Diagnostics review must retain producer-supplied target
+         --  Diagnostics review must retain producer-supplied target
          --  metadata even when the target is only partially usable.  Do not
          --  collapse line-only, missing-line, or missing-buffer records into a
          --  source-less row by passing only Target.Valid here; Add_Diagnostic
@@ -1236,6 +1237,42 @@ package body Editor.State is
    begin
       null;
    end Post_Targeted_Diagnostic;
+
+   procedure Start_Quick_Fix_Workflow
+     (S                : in out State_Type;
+      Diagnostic_Index : Natural;
+      Action_Index     : Natural := 0)
+   is
+   begin
+      S.Pending_Quick_Fix :=
+        (Diagnostic_Index => Diagnostic_Index,
+         Action_Index     => Action_Index);
+   end Start_Quick_Fix_Workflow;
+
+   procedure Clear_Quick_Fix_Workflow
+     (S : in out State_Type)
+   is
+   begin
+      S.Pending_Quick_Fix := (others => 0);
+   end Clear_Quick_Fix_Workflow;
+
+   function Has_Pending_Quick_Fix_Workflow
+     (S : State_Type) return Boolean is
+   begin
+      return S.Pending_Quick_Fix.Diagnostic_Index > 0;
+   end Has_Pending_Quick_Fix_Workflow;
+
+   function Pending_Quick_Fix_Diagnostic_Index
+     (S : State_Type) return Natural is
+   begin
+      return S.Pending_Quick_Fix.Diagnostic_Index;
+   end Pending_Quick_Fix_Diagnostic_Index;
+
+   function Pending_Quick_Fix_Action_Index
+     (S : State_Type) return Natural is
+   begin
+      return S.Pending_Quick_Fix.Action_Index;
+   end Pending_Quick_Fix_Action_Index;
 
 
 
@@ -1329,14 +1366,14 @@ package body Editor.State is
       S.Search_Results_View.Top_Row := 1;
       Editor.Problems.Clear_View (S.Problems_View);
       Editor.Feature_Panel_Controller.Reset_All_Features_For_Project_Close (S);
-      --  Phase 579 completeness pass 170: the Ada project language index is
+      --  completeness pass 170: the Ada project language index is
       --  project-scoped transient analysis state.  Closing, clearing, or
       --  switching a project must not leave indexed Outline/semantic targets
       --  from the previous lifecycle visible to later commands.
       Editor.Ada_Project_Index.Clear (S.Language_Index);
       Editor.Ada_Language_Service.Clear (S.Language_Service);
 
-      --  Phase 538 repeated-use hardening: project close/switch/reload must
+      --  repeated-use hardening: project close/switch/reload must
       --  remove all transient public-build workflow state, not only the
       --  candidate rows.  This prevents a later session or project from
       --  reusing old selected candidates, consent, latest result, or bounded
@@ -1392,6 +1429,42 @@ package body Editor.State is
       Path     : Unbounded_String;
       Rel_Path : Unbounded_String;
       Node     : Editor.File_Tree.File_Tree_Node_Summary;
+
+      function Workspace_Feature
+        (Feature : Editor.Feature_Panel.Feature_Id)
+         return Editor.Workspace_Persistence.Workspace_Feature_Panel_Id
+      is
+      begin
+         case Feature is
+            when Editor.Feature_Panel.Messages_Feature =>
+               return Editor.Workspace_Persistence.Workspace_Messages_Feature;
+            when Editor.Feature_Panel.Search_Results_Feature =>
+               return Editor.Workspace_Persistence.Workspace_Search_Results_Feature;
+            when Editor.Feature_Panel.Diagnostics_Feature =>
+               return Editor.Workspace_Persistence.Workspace_Diagnostics_Feature;
+            when others =>
+               return Editor.Workspace_Persistence.Workspace_Outline_Feature;
+         end case;
+      end Workspace_Feature;
+
+      function Workspace_Quick_Filter
+        (Filter : Editor.Quick_Open.Quick_Open_File_Kind_Filter)
+         return Editor.Workspace_Persistence.Workspace_Quick_Open_File_Kind_Filter
+      is
+      begin
+         case Filter is
+            when Editor.Quick_Open.Ada_Files =>
+               return Editor.Workspace_Persistence.Workspace_Quick_Open_Ada_Files;
+            when Editor.Quick_Open.Test_Files =>
+               return Editor.Workspace_Persistence.Workspace_Quick_Open_Test_Files;
+            when Editor.Quick_Open.Doc_Files =>
+               return Editor.Workspace_Persistence.Workspace_Quick_Open_Doc_Files;
+            when Editor.Quick_Open.Other_Files =>
+               return Editor.Workspace_Persistence.Workspace_Quick_Open_Other_Files;
+            when Editor.Quick_Open.All_Files =>
+               return Editor.Workspace_Persistence.Workspace_Quick_Open_All_Files;
+         end case;
+      end Workspace_Quick_Filter;
    begin
       Editor.Workspace_Persistence.Clear (Snapshot);
 
@@ -1413,6 +1486,36 @@ package body Editor.State is
                Editor.Panels.Search_Results_Content
           then Editor.Workspace_Persistence.Workspace_Search_Results_Content
           else Editor.Workspace_Persistence.Workspace_Problems_Content));
+
+      if Editor.Project.Has_Project (S.Project) then
+         Editor.Workspace_Persistence.Set_Recent_Project_Path
+           (Snapshot, Editor.Project.Root_Path (S.Project));
+      elsif S.Recent_Project_Selected_Index in
+        1 .. Editor.Recent_Projects.Count (S.Recent_Projects)
+      then
+         Editor.Workspace_Persistence.Set_Recent_Project_Path
+           (Snapshot,
+            To_String
+              (Editor.Recent_Projects.Item
+                 (S.Recent_Projects,
+                  S.Recent_Project_Selected_Index).Root_Path));
+      elsif Editor.Recent_Projects.Count (S.Recent_Projects) > 0 then
+         Editor.Workspace_Persistence.Set_Recent_Project_Path
+           (Snapshot,
+            To_String
+              (Editor.Recent_Projects.Item (S.Recent_Projects, 1).Root_Path));
+      end if;
+
+      Editor.Workspace_Persistence.Set_Quick_Open_Path_Scope
+        (Snapshot, Editor.Quick_Open.Path_Scope (S.Quick_Open));
+      Editor.Workspace_Persistence.Set_Quick_Open_File_Kind_Filter
+        (Snapshot,
+         Workspace_Quick_Filter
+           (Editor.Quick_Open.File_Kind_Filter (S.Quick_Open)));
+      Editor.Workspace_Persistence.Set_Feature_Panel
+        (Snapshot,
+         Editor.Feature_Panel.Is_Visible (S.Feature_Panel),
+         Workspace_Feature (Editor.Feature_Panel.Active_Feature (S.Feature_Panel)));
 
       Registry := Editor.Buffers.Global_Registry_For_UI;
       for I in 1 .. Editor.Buffers.Count (Registry) loop

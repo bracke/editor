@@ -5,9 +5,9 @@ with Editor.Ada_Syntax_Tree;
 
 package Editor.Ada_Remaining_RM_Edge_Stabilization_Gate_Legality is
 
-   --  Pass1290 stabilization gate for remaining Ada RM edge evidence.
+   --  Case 1290 stabilization gate for remaining Ada RM edge evidence.
    --
-   --  This package consumes Pass1289 remaining RM edge convergence rows and
+   --  This package consumes Case 1289 remaining RM edge convergence rows and
    --  decides whether the remaining hard RM edge evidence may cross the stable
    --  semantic closure/feed boundary.  Stable current and stable not-required
    --  rows are promoted as semantic evidence; stable withheld rows retain their

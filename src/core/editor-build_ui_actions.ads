@@ -8,7 +8,7 @@ with Editor.State;
 
 package Editor.Build_UI_Actions is
 
-   --  Phase 526 UI operability facade.  These helpers model visible Build UI
+   --  UI operability facade.  These helpers model visible Build UI
    --  interactions while preserving the frozen architecture: refresh uses the
    --  canonical refresh path, selection/consent mutate only transient UI
    --  request state, and Run dispatches build.run through Executor.
@@ -37,6 +37,9 @@ package Editor.Build_UI_Actions is
      (S : in out Editor.State.State_Type);
 
    procedure Build_UI_Select_Next_Candidate
+     (S : in out Editor.State.State_Type);
+
+   procedure Build_UI_Select_First_Candidate
      (S : in out Editor.State.State_Type);
 
    procedure Build_UI_Select_Previous_Candidate
@@ -74,6 +77,20 @@ package Editor.Build_UI_Actions is
      (S : in out Editor.State.State_Type)
       return Editor.Command_Execution.Command_Execution_Result;
 
+   function Build_UI_Open_Diagnostic_Source
+     (S : in out Editor.State.State_Type)
+      return Editor.Command_Execution.Command_Execution_Result;
+
+   function Build_UI_Suppress_Diagnostic
+     (S : in out Editor.State.State_Type)
+      return Editor.Command_Execution.Command_Execution_Result;
+
+   function Build_UI_Apply_Diagnostic_Quick_Fix
+     (S            : in out Editor.State.State_Type;
+      Action_Index : Natural := 0;
+      Diagnostic_Index : Natural := 0)
+      return Editor.Command_Execution.Command_Execution_Result;
+
    function Build_UI_Operability_Snapshot
      (S : Editor.State.State_Type) return Editor.Build_UI.Build_UI_Render_Snapshot;
 
@@ -92,6 +109,11 @@ package Editor.Build_UI_Actions is
      (S : Editor.State.State_Type) return Boolean;
 
    function Assert_Build_UI_Reveal_Diagnostics_Uses_Existing_Command
+     (Before : Editor.State.State_Type;
+      After  : Editor.State.State_Type;
+      Result : Editor.Command_Execution.Command_Execution_Result) return Boolean;
+
+   function Assert_Build_UI_Diagnostic_Action_Is_UI_Routed
      (Before : Editor.State.State_Type;
       After  : Editor.State.State_Type;
       Result : Editor.Command_Execution.Command_Execution_Result) return Boolean;

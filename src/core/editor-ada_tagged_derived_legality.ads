@@ -7,7 +7,7 @@ with Editor.Ada_Syntax_Tree;
 
 package Editor.Ada_Tagged_Derived_Legality is
 
-   --  Wide compiler-grade semantic legality building block for Pass1104.
+   --  Wide compiler-grade semantic legality building block for Case 1104.
    --  This package covers tagged, derived, private-extension, interface,
    --  overriding, inherited primitive, class-wide conversion, and dispatching
    --  legality above the expression/assignment/return/dispatching layers.  It

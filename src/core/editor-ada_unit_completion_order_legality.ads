@@ -9,7 +9,7 @@ with Editor.Ada_Syntax_Tree;
 
 package Editor.Ada_Unit_Completion_Order_Legality is
 
-   --  Pass1114 compiler-grade unit completion and declaration-order layer.
+   --  Case 1114 compiler-grade unit completion and declaration-order layer.
    --  This package checks bounded, snapshot-owned metadata for package/body,
    --  subprogram/body, private declaration, completion, and before-use legality.
    --  It deliberately performs no parsing, file IO, command routing, rendering, or

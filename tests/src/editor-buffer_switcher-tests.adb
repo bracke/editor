@@ -11,6 +11,10 @@ with Editor.Commands;
 with Editor.Command_Palette;
 with Editor.Command_Route_Audit;
 with Editor.Executor;
+with Editor.Executor.File_Open_Commands;
+with Editor.Executor.File_Save_Commands;
+with Editor.Executor.File_Target_Prompt_Commands;
+with Editor.Executor.File_Save_Basic_Commands;
 with Editor.Input_Field;
 with Editor.Keybindings;
 with Editor.Keybinding_Config;
@@ -50,7 +54,7 @@ package body Editor.Buffer_Switcher.Tests is
       return Ada.Strings.Fixed.Index (Haystack, Needle) /= 0;
    end Contains_Text;
 
-   function Phase576_Command_Has_Payload
+   function Command_Has_Payload
      (Id : Editor.Commands.Command_Id) return Boolean
    is
       Cmd : constant Editor.Commands.Command :=
@@ -63,18 +67,18 @@ package body Editor.Buffer_Switcher.Tests is
         or else not Cmd.Positions.Is_Empty
         or else not Cmd.Delete_Counts.Is_Empty
         or else not Cmd.Insert_Texts.Is_Empty;
-   end Phase576_Command_Has_Payload;
+   end Command_Has_Payload;
 
    package Stream_IO renames Ada.Streams.Stream_IO;
 
-   function Phase576_Temp_Path (Name : String) return String is
+   function Temp_Path (Name : String) return String is
    begin
       Ada.Directories.Create_Path ("/tmp/editor-tests");
       return Ada.Directories.Compose
-        ("/tmp/editor-tests", "phase576_" & Name);
-   end Phase576_Temp_Path;
+        ("/tmp/editor-tests", "" & Name);
+   end Temp_Path;
 
-   procedure Phase576_Write_Bytes (Path : String; Bytes : String) is
+   procedure Write_Bytes (Path : String; Bytes : String) is
       F : Stream_IO.File_Type;
    begin
       Stream_IO.Create (F, Stream_IO.Out_File, Path);
@@ -91,9 +95,9 @@ package body Editor.Buffer_Switcher.Tests is
          end;
       end if;
       Stream_IO.Close (F);
-   end Phase576_Write_Bytes;
+   end Write_Bytes;
 
-   procedure Phase576_Remove_If_Exists (Path : String) is
+   procedure Remove_If_Exists (Path : String) is
    begin
       if Ada.Directories.Exists (Path) then
          if Ada.Directories.Kind (Path) = Ada.Directories.Directory then
@@ -102,9 +106,9 @@ package body Editor.Buffer_Switcher.Tests is
             Ada.Directories.Delete_File (Path);
          end if;
       end if;
-   end Phase576_Remove_If_Exists;
+   end Remove_If_Exists;
 
-   function Phase576_Read_Bytes (Path : String) return String is
+   function Read_Bytes (Path : String) return String is
       F : Stream_IO.File_Type;
    begin
       if not Ada.Directories.Exists (Path)
@@ -143,14 +147,14 @@ package body Editor.Buffer_Switcher.Tests is
             Stream_IO.Close (F);
          end if;
          raise;
-   end Phase576_Read_Bytes;
+   end Read_Bytes;
 
-   function Phase576_Buffer_Text (S : Editor.State.State_Type) return String is
+   function Buffer_Text (S : Editor.State.State_Type) return String is
    begin
       return Text_Buffer.UTF8_Text (S.Buffer);
-   end Phase576_Buffer_Text;
+   end Buffer_Text;
 
-   procedure Phase576_Insert_Text_At
+   procedure Insert_Text_At
      (S    : in out Editor.State.State_Type;
       Pos  : Natural;
       Text : String)
@@ -162,7 +166,7 @@ package body Editor.Buffer_Switcher.Tests is
            (S, Editor.Test_Helper.Insert (Pos + Offset, Ch));
          Offset := Offset + 1;
       end loop;
-   end Phase576_Insert_Text_At;
+   end Insert_Text_At;
 
    function Contains_Hint
      (Hints : Editor.Buffer_Switcher_Contextual_Hints.Switcher_Contextual_Hint_Vectors.Vector;
@@ -1073,7 +1077,7 @@ package body Editor.Buffer_Switcher.Tests is
    end Test_Pending_Marked_Review_Uses_Captured_Targets_And_Composes;
 
 
-   procedure Test_Phase287_Count_Badge_Text_Is_Derived_And_Compact
+   procedure Test_Count_Badge_Text_Is_Derived_And_Compact
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
       pragma Unreferenced (T);
       Registry : Editor.Buffers.Buffer_Registry;
@@ -1156,9 +1160,9 @@ package body Editor.Buffer_Switcher.Tests is
       Editor.Buffer_Switcher.Clear_Pending_Marked_Action (S);
       Assert (Editor.Buffer_Switcher.Count_Badge_Text (S, Registry) = "Marked: 1",
               "clearing pending action clears pending and pruned badge state without clearing marks");
-   end Test_Phase287_Count_Badge_Text_Is_Derived_And_Compact;
+   end Test_Count_Badge_Text_Is_Derived_And_Compact;
 
-   procedure Test_Phase287_Count_Badges_Compose_With_Reviews_Without_Mutation
+   procedure Test_Count_Badges_Compose_With_Reviews_Without_Mutation
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
       pragma Unreferenced (T);
       Registry : Editor.Buffers.Buffer_Registry;
@@ -1227,11 +1231,11 @@ package body Editor.Buffer_Switcher.Tests is
       Assert (Editor.Buffer_Switcher.Preview_Target (S) = Before_Preview
               and then Editor.Buffer_Switcher.Preview_Scroll_Offset (S) = Before_Scroll,
               "count badge derivation does not mutate preview target or scroll state");
-   end Test_Phase287_Count_Badges_Compose_With_Reviews_Without_Mutation;
+   end Test_Count_Badges_Compose_With_Reviews_Without_Mutation;
 
 
 
-   procedure Test_Phase288_Dirty_Pending_Badge_Is_Derived_From_Active_Targets
+   procedure Test_Dirty_Pending_Badge_Is_Derived_From_Active_Targets
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
       pragma Unreferenced (T);
       Registry : Editor.Buffers.Buffer_Registry;
@@ -1314,10 +1318,10 @@ package body Editor.Buffer_Switcher.Tests is
       Editor.Buffer_Switcher.Clear_Pending_Marked_Action (S);
       Assert (Editor.Buffer_Switcher.Count_Badge_Text (S, Registry) = "Marked: 1",
               "clearing pending marked close clears dirty pending badge without clearing marks");
-   end Test_Phase288_Dirty_Pending_Badge_Is_Derived_From_Active_Targets;
+   end Test_Dirty_Pending_Badge_Is_Derived_From_Active_Targets;
 
 
-   procedure Test_Phase289_Dirty_Pending_Navigation_Uses_Visible_Derived_Targets
+   procedure Test_Dirty_Pending_Navigation_Uses_Visible_Derived_Targets
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
       pragma Unreferenced (T);
       Registry : Editor.Buffers.Buffer_Registry;
@@ -1398,11 +1402,11 @@ package body Editor.Buffer_Switcher.Tests is
       Assert (Editor.Buffer_Switcher.Is_Marked (S, Alpha)
               and then Editor.Buffer_Switcher.Is_Marked (S, Beta),
               "dirty navigation does not mutate marks");
-   end Test_Phase289_Dirty_Pending_Navigation_Uses_Visible_Derived_Targets;
+   end Test_Dirty_Pending_Navigation_Uses_Visible_Derived_Targets;
 
 
 
-   procedure Test_Phase296_Dirty_Prune_Count_Badges_Are_Derived_And_Global
+   procedure Test_Dirty_Prune_Count_Badges_Are_Derived_And_Global
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
       pragma Unreferenced (T);
       Registry : Editor.Buffers.Buffer_Registry;
@@ -1430,14 +1434,14 @@ package body Editor.Buffer_Switcher.Tests is
       Editor.Buffer_Switcher.Prepare_Pending_Marked_Close (S, Registry, Count, Dirty_Count);
       Assert (Editor.Buffer_Switcher.Count_Badge_Text (S, Registry) =
               "Marked: 3 | Pending close: 3 | Dirty: 2",
-              "Phase 296 dirty-prune badges are absent before dirty-prune preview exists");
+              "dirty-prune badges are absent before dirty-prune preview exists");
 
       Editor.Buffer_Switcher.Prepare_Dirty_Pending_Marked_Close_Prune (S, Registry, Count);
       Assert (Count = 2,
               "test setup captures the two dirty active pending close targets");
       Assert (Editor.Buffer_Switcher.Count_Badge_Text (S, Registry) =
               "Marked: 3 | Pending close: 3 | Dirty: 2 | Dirty prune: 2 | Applicable: 2",
-              "Phase 296 badge displays captured dirty-prune targets and currently applicable subset");
+              "badge displays captured dirty-prune targets and currently applicable subset");
 
       Editor.Buffer_Switcher.Set_Label_Filter (S, "missing");
       Editor.Buffer_Switcher.Set_Filter_Text (S, "not-visible");
@@ -1447,17 +1451,17 @@ package body Editor.Buffer_Switcher.Tests is
               "test setup hides all rows through metadata filter and literal query");
       Assert (Editor.Buffer_Switcher.Count_Badge_Text (S, Registry) =
               "Marked: 3 | Pending close: 3 | Dirty: 2 | Dirty prune: 2 | Applicable: 2",
-              "Phase 296 dirty-prune badges are global and not limited by filter, query, or sort");
+              "dirty-prune badges are global and not limited by filter, query, or sort");
 
       Editor.Buffers.Buffer_Access (Registry, Beta).File_Info.Dirty := False;
       Assert (Editor.Buffer_Switcher.Count_Badge_Text (S, Registry) =
               "Marked: 3 | Pending close: 3 | Dirty: 1 | Dirty prune: 2 | Applicable: 1",
-              "Phase 296 applicable count follows current dirty state without changing captured preview count");
+              "applicable count follows current dirty state without changing captured preview count");
 
       Editor.Buffers.Buffer_Access (Registry, Untitled).File_Info.Dirty := True;
       Assert (Editor.Buffer_Switcher.Count_Badge_Text (S, Registry) =
               "Marked: 3 | Pending close: 3 | Dirty: 2 | Dirty prune: 2 | Applicable: 1",
-              "Phase 296 dirty pending and applicable remain distinct when a non-preview pending target becomes dirty");
+              "dirty pending and applicable remain distinct when a non-preview pending target becomes dirty");
 
       Editor.Buffer_Switcher.Remove_Dirty_Pending_Marked_Close_Prune_Target
         (S, Registry, Alpha, Removed, Remaining);
@@ -1465,7 +1469,7 @@ package body Editor.Buffer_Switcher.Tests is
               "test setup removes one applicable dirty-prune preview target");
       Assert (Editor.Buffer_Switcher.Count_Badge_Text (S, Registry) =
               "Marked: 3 | Pending close: 3 | Dirty: 2 | Dirty prune: 1 | Applicable: 0 | Removed: 1",
-              "Phase 296 removing an applicable preview target decreases dirty-prune and applicable counts and increases removed count");
+              "removing an applicable preview target decreases dirty-prune and applicable counts and increases removed count");
 
       Editor.Buffer_Switcher.Restore_Last_Removed_Dirty_Pending_Marked_Close_Prune_Target
         (S, Registry, Restored, Restored_Target, Restored_Name, Remaining);
@@ -1473,7 +1477,7 @@ package body Editor.Buffer_Switcher.Tests is
               "test setup restores the removed dirty-prune preview target");
       Assert (Editor.Buffer_Switcher.Count_Badge_Text (S, Registry) =
               "Marked: 3 | Pending close: 3 | Dirty: 2 | Dirty prune: 2 | Applicable: 1",
-              "Phase 296 restoring a still-applicable target updates dirty-prune, applicable, and removed badges");
+              "restoring a still-applicable target updates dirty-prune, applicable, and removed badges");
 
       Editor.Buffer_Switcher.Remove_Dirty_Pending_Marked_Close_Prune_Target
         (S, Registry, Beta, Removed, Remaining);
@@ -1481,11 +1485,11 @@ package body Editor.Buffer_Switcher.Tests is
               "test setup removes one clean dirty-prune preview target");
       Assert (Editor.Buffer_Switcher.Count_Badge_Text (S, Registry) =
               "Marked: 3 | Pending close: 3 | Dirty: 2 | Dirty prune: 1 | Applicable: 1 | Removed: 1",
-              "Phase 296 removing a clean preview target leaves applicable unchanged and increases removed count");
-   end Test_Phase296_Dirty_Prune_Count_Badges_Are_Derived_And_Global;
+              "removing a clean preview target leaves applicable unchanged and increases removed count");
+   end Test_Dirty_Prune_Count_Badges_Are_Derived_And_Global;
 
 
-   procedure Test_Phase296_Dirty_Prune_Count_Badges_Clear_And_Do_Not_Mutate_State
+   procedure Test_Dirty_Prune_Count_Badges_Clear_And_Do_Not_Mutate_State
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
       pragma Unreferenced (T);
       Registry : Editor.Buffers.Buffer_Registry;
@@ -1524,65 +1528,65 @@ package body Editor.Buffer_Switcher.Tests is
       Editor.Buffer_Switcher.Recompute_Rows (S, Registry, Config);
       Assert (Editor.Buffer_Switcher.Count_Badge_Text (S, Registry) =
               "Marked: 3 | Pending close: 3 | Dirty: 2 | Dirty prune: 1 | Applicable: 1 | Removed: 1",
-              "Phase 296 dirty-prune counts compose with marked review");
+              "dirty-prune counts compose with marked review");
       Assert (Editor.Buffer_Switcher.Has_Marked_Review (S),
-              "Phase 296 count projection does not alter marked review mode");
+              "count projection does not alter marked review mode");
 
       Editor.Buffer_Switcher.Show_Pending_Marked_Review (S);
       Editor.Buffer_Switcher.Recompute_Rows (S, Registry, Config);
       Assert (Editor.Buffer_Switcher.Count_Badge_Text (S, Registry) =
               "Marked: 3 | Pending close: 3 | Dirty: 2 | Dirty prune: 1 | Applicable: 1 | Removed: 1",
-              "Phase 296 dirty-prune counts compose with pending marked review");
+              "dirty-prune counts compose with pending marked review");
       Assert (Editor.Buffer_Switcher.Has_Pending_Marked_Review (S),
-              "Phase 296 count projection does not alter pending review mode");
+              "count projection does not alter pending review mode");
 
       Editor.Buffer_Switcher.Show_Dirty_Prune_Review (S);
       Editor.Buffer_Switcher.Recompute_Rows (S, Registry, Config);
       Assert (Editor.Buffer_Switcher.Count_Badge_Text (S, Registry) =
               "Marked: 3 | Pending close: 3 | Dirty: 2 | Dirty prune: 1 | Applicable: 1 | Removed: 1",
-              "Phase 296 dirty-prune counts compose with dirty-prune review");
+              "dirty-prune counts compose with dirty-prune review");
       Assert (Editor.Buffer_Switcher.Has_Dirty_Prune_Review (S),
-              "Phase 296 count projection does not alter dirty-prune review mode");
+              "count projection does not alter dirty-prune review mode");
 
       Assert (Editor.Buffer_Switcher.Is_Marked (S, Alpha)
               and then Editor.Buffer_Switcher.Is_Marked (S, Beta),
-              "Phase 296 count projection does not mutate marks");
+              "count projection does not mutate marks");
       Assert (Editor.Buffer_Switcher.Is_Pending_Marked_Close_Target (S, Alpha)
               and then Editor.Buffer_Switcher.Is_Pending_Marked_Close_Target (S, Beta),
-              "Phase 296 count projection does not mutate pending targets");
+              "count projection does not mutate pending targets");
       Assert (Editor.Buffer_Switcher.Is_Dirty_Pending_Marked_Close_Prune_Target (S, Alpha)
               and then not Editor.Buffer_Switcher.Is_Dirty_Pending_Marked_Close_Prune_Target (S, Beta),
-              "Phase 296 count projection does not mutate active dirty-prune preview targets");
+              "count projection does not mutate active dirty-prune preview targets");
       Assert (Editor.Buffer_Switcher.Is_Removed_Dirty_Pending_Marked_Close_Prune_Target (S, Beta),
-              "Phase 296 count projection does not mutate removed dirty-prune history");
+              "count projection does not mutate removed dirty-prune history");
       Assert (Editor.Buffer_Switcher.Preview_Target (S) = Before_Preview
               and then Editor.Buffer_Switcher.Preview_Scroll_Offset (S) = Before_Scroll,
-              "Phase 296 count projection does not mutate preview target or scroll state");
+              "count projection does not mutate preview target or scroll state");
 
       Editor.Buffer_Switcher.Cancel_Dirty_Pending_Marked_Close_Prune (S);
       Assert (Editor.Buffer_Switcher.Count_Badge_Text (S, Registry) =
               "Marked: 3 | Pending close: 3 | Dirty: 2",
-              "Phase 296 cancel clears dirty-prune, applicable, and removed badge display");
+              "cancel clears dirty-prune, applicable, and removed badge display");
 
       Editor.Buffer_Switcher.Prepare_Dirty_Pending_Marked_Close_Prune (S, Registry, Count);
       Assert (Editor.Buffer_Switcher.Count_Badge_Text (S, Registry) =
               "Marked: 3 | Pending close: 3 | Dirty: 2 | Dirty prune: 2 | Applicable: 2",
-              "Phase 296 refreshing the preview rebuilds counts and clears old removed badge display");
+              "refreshing the preview rebuilds counts and clears old removed badge display");
 
       Editor.Buffer_Switcher.Apply_Dirty_Pending_Marked_Close_Prune (S, Registry, Count, Remaining);
       Assert (Count = 2
               and then Remaining = 1
               and then Editor.Buffer_Switcher.Count_Badge_Text (S, Registry) =
                 "Marked: 3 | Pending close: 1 | Pruned: 2",
-              "Phase 296 apply clears dirty-prune badges and leaves ordinary pruned badge distinct");
+              "apply clears dirty-prune badges and leaves ordinary pruned badge distinct");
 
       Editor.Buffer_Switcher.Clear_Pending_Marked_Action (S);
       Assert (Editor.Buffer_Switcher.Count_Badge_Text (S, Registry) = "Marked: 3",
-              "Phase 296 clearing pending marked close clears all pending and dirty-prune badges");
-   end Test_Phase296_Dirty_Prune_Count_Badges_Clear_And_Do_Not_Mutate_State;
+              "clearing pending marked close clears all pending and dirty-prune badges");
+   end Test_Dirty_Prune_Count_Badges_Clear_And_Do_Not_Mutate_State;
 
 
-   procedure Test_Phase297_Dirty_Prune_Clear_Stale_Is_Targeted_And_Non_Recording
+   procedure Test_Dirty_Prune_Clear_Stale_Is_Targeted_And_Non_Recording
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
       pragma Unreferenced (T);
       Registry : Editor.Buffers.Buffer_Registry;
@@ -1616,56 +1620,56 @@ package body Editor.Buffer_Switcher.Tests is
       Editor.Buffer_Switcher.Set_Mark (S, Step_Delta);
       Editor.Buffer_Switcher.Prepare_Pending_Marked_Close (S, Registry, Count, Dirty_Count);
       Editor.Buffer_Switcher.Prepare_Dirty_Pending_Marked_Close_Prune (S, Registry, Count);
-      Assert (Count = 5, "Phase 297 setup captures all dirty pending targets");
+      Assert (Count = 5, "setup captures all dirty pending targets");
 
       Editor.Buffer_Switcher.Remove_Dirty_Pending_Marked_Close_Prune_Target
         (S, Registry, Gamma, Removed, Preview_Remaining);
       Assert (Removed and then Preview_Remaining = 4
               and then Editor.Buffer_Switcher.Removed_Dirty_Pending_Marked_Close_Prune_Target_Count (S) = 1,
-              "Phase 297 setup records one explicit removed dirty-prune target");
+              "setup records one explicit removed dirty-prune target");
 
       Editor.Buffers.Buffer_Access (Registry, Alpha).File_Info.Dirty := False;
       Editor.Buffers.Close_Buffer (Registry, Beta, Closed, Force => True);
-      Assert (Closed, "Phase 297 setup closes one captured preview target");
+      Assert (Closed, "setup closes one captured preview target");
       Editor.Buffer_Switcher.Remove_Pending_Marked_Close_Target
         (S, Registry, Untitled, Removed, Pending_Remaining);
       Assert (Removed and then Pending_Remaining = 4,
-              "Phase 297 setup prunes one captured target from active pending close");
+              "setup prunes one captured target from active pending close");
 
       Editor.Buffer_Switcher.Set_Filter_Text (S, "not-visible");
       Editor.Buffer_Switcher.Set_Label_Filter (S, "missing");
       Editor.Buffer_Switcher.Recompute_Rows (S, Registry, Config);
       Assert (Editor.Buffer_Switcher.Row_Count (S) = 0,
-              "Phase 297 setup hides stale targets from visible rows");
+              "setup hides stale targets from visible rows");
       Assert (Editor.Buffer_Switcher.Dirty_Pending_Marked_Close_Prune_Stale_Target_Count
                 (S, Registry) = 3,
-              "Phase 297 stale count includes closed, non-pending, and clean preview targets");
+              "stale count includes closed, non-pending, and clean preview targets");
 
       Editor.Buffer_Switcher.Clear_Stale_Dirty_Pending_Marked_Close_Prune_Targets
         (S, Registry, Cleared, Preview_Remaining);
       Assert (Cleared = 3 and then Preview_Remaining = 1,
-              "Phase 297 clear-stale removes all stale targets including hidden rows");
+              "clear-stale removes all stale targets including hidden rows");
       Assert (Editor.Buffer_Switcher.Is_Dirty_Pending_Marked_Close_Prune_Target (S, Step_Delta)
               and then not Editor.Buffer_Switcher.Is_Dirty_Pending_Marked_Close_Prune_Target (S, Alpha)
               and then not Editor.Buffer_Switcher.Is_Dirty_Pending_Marked_Close_Prune_Target (S, Beta)
               and then not Editor.Buffer_Switcher.Is_Dirty_Pending_Marked_Close_Prune_Target (S, Untitled),
-              "Phase 297 clear-stale preserves only open active pending dirty preview targets");
+              "clear-stale preserves only open active pending dirty preview targets");
       Assert (Editor.Buffer_Switcher.Is_Pending_Marked_Close_Target (S, Alpha)
               and then Editor.Buffer_Switcher.Is_Pending_Marked_Close_Target (S, Beta)
               and then Editor.Buffer_Switcher.Is_Pending_Marked_Close_Target (S, Step_Delta),
-              "Phase 297 clear-stale does not remove active pending close targets");
+              "clear-stale does not remove active pending close targets");
       Assert (Editor.Buffer_Switcher.Pruned_Pending_Marked_Close_Target_Count (S) = 1,
-              "Phase 297 clear-stale does not add ordinary pruned pending targets");
+              "clear-stale does not add ordinary pruned pending targets");
       Assert (Editor.Buffer_Switcher.Removed_Dirty_Pending_Marked_Close_Prune_Target_Count (S) = 1
               and then Editor.Buffer_Switcher.Is_Removed_Dirty_Pending_Marked_Close_Prune_Target (S, Gamma),
-              "Phase 297 clear-stale does not add targets to removed dirty-prune history");
+              "clear-stale does not add targets to removed dirty-prune history");
       Assert (Editor.Buffer_Switcher.Count_Badge_Text (S, Registry) =
               "Marked: 4 | Pending close: 3 | Dirty: 2 | Pruned: 1 | Dirty prune: 1 | Applicable: 1 | Removed: 1",
-              "Phase 297 clear-stale updates dirty-prune and applicable counts without increasing removed count");
-   end Test_Phase297_Dirty_Prune_Clear_Stale_Is_Targeted_And_Non_Recording;
+              "clear-stale updates dirty-prune and applicable counts without increasing removed count");
+   end Test_Dirty_Prune_Clear_Stale_Is_Targeted_And_Non_Recording;
 
 
-   procedure Test_Phase297_Dirty_Prune_Clear_Stale_Zero_Target_Clears_Preview
+   procedure Test_Dirty_Prune_Clear_Stale_Zero_Target_Clears_Preview
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
       pragma Unreferenced (T);
       Registry : Editor.Buffers.Buffer_Registry;
@@ -1686,26 +1690,26 @@ package body Editor.Buffer_Switcher.Tests is
       Editor.Buffer_Switcher.Prepare_Dirty_Pending_Marked_Close_Prune (S, Registry, Count);
       Editor.Buffer_Switcher.Show_Dirty_Prune_Review (S);
       Assert (Count = 2 and then Editor.Buffer_Switcher.Has_Dirty_Prune_Review (S),
-              "Phase 297 setup has an active dirty-prune review");
+              "setup has an active dirty-prune review");
 
       Editor.Buffers.Buffer_Access (Registry, Alpha).File_Info.Dirty := False;
       Editor.Buffers.Buffer_Access (Registry, Beta).File_Info.Dirty := False;
       Editor.Buffer_Switcher.Clear_Stale_Dirty_Pending_Marked_Close_Prune_Targets
         (S, Registry, Cleared, Remaining);
       Assert (Cleared = 2 and then Remaining = 0,
-              "Phase 297 clear-stale can remove every active preview target");
+              "clear-stale can remove every active preview target");
       Assert (not Editor.Buffer_Switcher.Has_Dirty_Pending_Marked_Close_Prune (S)
               and then not Editor.Buffer_Switcher.Has_Dirty_Prune_Review (S)
               and then not Editor.Buffer_Switcher.Has_Removed_Dirty_Pending_Marked_Close_Prune_Targets (S),
-              "Phase 297 zero-target policy clears dirty-prune preview, review, and removed-preview history");
+              "zero-target policy clears dirty-prune preview, review, and removed-preview history");
       Assert (Editor.Buffer_Switcher.Pending_Marked_Target_Count (S) = 2
               and then Editor.Buffer_Switcher.Count_Badge_Text (S, Registry) =
                 "Marked: 2 | Pending close: 2",
-              "Phase 297 zero-target clear-stale leaves pending close and mark state intact");
-   end Test_Phase297_Dirty_Prune_Clear_Stale_Zero_Target_Clears_Preview;
+              "zero-target clear-stale leaves pending close and mark state intact");
+   end Test_Dirty_Prune_Clear_Stale_Zero_Target_Clears_Preview;
 
 
-   procedure Test_Phase298_Dirty_Prune_Workflow_Reset_And_Zero_Target_Policy
+   procedure Test_Dirty_Prune_Workflow_Reset_And_Zero_Target_Policy
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
       pragma Unreferenced (T);
       Registry : Editor.Buffers.Buffer_Registry;
@@ -1727,7 +1731,7 @@ package body Editor.Buffer_Switcher.Tests is
       Editor.Buffer_Switcher.Prepare_Dirty_Pending_Marked_Close_Prune (S, Registry, Count);
       Assert (Count = 2
               and then Editor.Buffer_Switcher.Dirty_Pending_Marked_Close_Prune_Target_Count (S) = 2,
-              "Phase 298 setup captures the dirty active pending close targets");
+              "setup captures the dirty active pending close targets");
 
       Editor.Buffer_Switcher.Show_Dirty_Prune_Review (S);
       Editor.Buffer_Switcher.Remove_Dirty_Pending_Marked_Close_Prune_Target
@@ -1736,7 +1740,7 @@ package body Editor.Buffer_Switcher.Tests is
               and then Remaining = 1
               and then Editor.Buffer_Switcher.Has_Dirty_Prune_Review (S)
               and then Editor.Buffer_Switcher.Removed_Dirty_Pending_Marked_Close_Prune_Target_Count (S) = 1,
-              "Phase 298 setup creates active preview, active review, and removed-preview history");
+              "setup creates active preview, active review, and removed-preview history");
 
       Editor.Buffers.Buffer_Access (Registry, Beta).File_Info.Dirty := False;
       Editor.Buffer_Switcher.Prepare_Dirty_Pending_Marked_Close_Prune (S, Registry, Count);
@@ -1745,28 +1749,28 @@ package body Editor.Buffer_Switcher.Tests is
               and then not Editor.Buffer_Switcher.Is_Dirty_Pending_Marked_Close_Prune_Target (S, Beta)
               and then not Editor.Buffer_Switcher.Has_Dirty_Prune_Review (S)
               and then not Editor.Buffer_Switcher.Has_Removed_Dirty_Pending_Marked_Close_Prune_Targets (S),
-              "Phase 298 preview refresh clears removed history and dirty-prune review state before recapturing current targets");
+              "preview refresh clears removed history and dirty-prune review state before recapturing current targets");
 
       Editor.Buffer_Switcher.Show_Dirty_Prune_Review (S);
       Editor.Buffer_Switcher.Remove_Dirty_Pending_Marked_Close_Prune_Target
         (S, Registry, Alpha, Removed, Remaining);
       Assert (Removed and then Remaining = 0,
-              "Phase 298 removing the final active preview target reports zero remaining targets");
+              "removing the final active preview target reports zero remaining targets");
       Assert (not Editor.Buffer_Switcher.Has_Dirty_Pending_Marked_Close_Prune (S)
               and then not Editor.Buffer_Switcher.Has_Dirty_Prune_Review (S)
               and then not Editor.Buffer_Switcher.Has_Removed_Dirty_Pending_Marked_Close_Prune_Targets (S),
-              "Phase 298 zero-target removal clears the dirty-prune action, review mode, and removed-preview history");
+              "zero-target removal clears the dirty-prune action, review mode, and removed-preview history");
       Assert (Editor.Buffer_Switcher.Pending_Marked_Target_Count (S) = 2
               and then Editor.Buffer_Switcher.Pruned_Pending_Marked_Close_Target_Count (S) = 0
               and then Editor.Buffer_Switcher.Is_Pending_Marked_Close_Target (S, Alpha)
               and then Editor.Buffer_Switcher.Is_Pending_Marked_Close_Target (S, Beta)
               and then Editor.Buffer_Switcher.Count_Badge_Text (S, Registry) =
                 "Marked: 2 | Pending close: 2 | Dirty: 1",
-              "Phase 298 zero-target removal leaves pending close, ordinary pruned history, marks, and dirty state independent");
-   end Test_Phase298_Dirty_Prune_Workflow_Reset_And_Zero_Target_Policy;
+              "zero-target removal leaves pending close, ordinary pruned history, marks, and dirty state independent");
+   end Test_Dirty_Prune_Workflow_Reset_And_Zero_Target_Policy;
 
 
-   procedure Test_Phase299_Dirty_Prune_Apply_Prepare_Remove_Restore_And_Badges
+   procedure Test_Dirty_Prune_Apply_Prepare_Remove_Restore_And_Badges
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
       pragma Unreferenced (T);
       Registry : Editor.Buffers.Buffer_Registry;
@@ -1798,10 +1802,10 @@ package body Editor.Buffer_Switcher.Tests is
               and then Applicable = 2
               and then Editor.Buffer_Switcher.Dirty_Pending_Marked_Close_Prune_Target_Count (S) = 2
               and then Editor.Buffer_Switcher.Dirty_Pending_Marked_Close_Prune_Apply_Target_Count (S) = 2,
-              "Phase 299 apply preparation captures active preview targets without mutating the preview");
+              "apply preparation captures active preview targets without mutating the preview");
       Assert (Editor.Buffer_Switcher.Count_Badge_Text (S, Registry) =
                 "Marked: 2 | Pending close: 2 | Dirty: 2 | Dirty prune: 2 | Applicable: 2 | Apply: 2 | Apply applicable: 2",
-              "Phase 299 apply count badges are distinct from dirty-prune preview badges");
+              "apply count badges are distinct from dirty-prune preview badges");
 
       Editor.Buffer_Switcher.Recompute_Rows (S, Registry, Config);
       Editor.Buffer_Switcher.Select_Buffer_Or_Row (S, Alpha, 1);
@@ -1814,7 +1818,7 @@ package body Editor.Buffer_Switcher.Tests is
               and then Editor.Buffer_Switcher.Dirty_Pending_Marked_Close_Prune_Target_Count (S) = 2
               and then Editor.Buffer_Switcher.Pending_Marked_Target_Count (S) = 2
               and then Editor.Buffer_Switcher.Pruned_Pending_Marked_Close_Target_Count (S) = 0,
-              "Phase 299 apply target removal edits only apply-confirmation state");
+              "apply target removal edits only apply-confirmation state");
 
       Editor.Buffer_Switcher.Restore_Last_Removed_Dirty_Pending_Marked_Close_Prune_Apply_Target
         (S, Registry, Restored, Target, Name, Remaining);
@@ -1823,11 +1827,11 @@ package body Editor.Buffer_Switcher.Tests is
               and then Remaining = 2
               and then Editor.Buffer_Switcher.Is_Dirty_Pending_Marked_Close_Prune_Apply_Target (S, Alpha)
               and then not Editor.Buffer_Switcher.Has_Removed_Dirty_Pending_Marked_Close_Prune_Apply_Targets (S),
-              "Phase 299 restore-last-removed returns an open apply target to the captured apply set");
-   end Test_Phase299_Dirty_Prune_Apply_Prepare_Remove_Restore_And_Badges;
+              "restore-last-removed returns an open apply target to the captured apply set");
+   end Test_Dirty_Prune_Apply_Prepare_Remove_Restore_And_Badges;
 
 
-   procedure Test_Phase299_Dirty_Prune_Apply_Confirm_Revalidates_And_Consumes_Preview
+   procedure Test_Dirty_Prune_Apply_Confirm_Revalidates_And_Consumes_Preview
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
       pragma Unreferenced (T);
       Registry : Editor.Buffers.Buffer_Registry;
@@ -1854,7 +1858,7 @@ package body Editor.Buffer_Switcher.Tests is
 
       Editor.Buffers.Buffer_Access (Registry, Beta).File_Info.Dirty := False;
       Assert (Editor.Buffer_Switcher.Applicable_Dirty_Pending_Marked_Close_Prune_Apply_Target_Count (S, Registry) = 1,
-              "Phase 299 applicable apply count is derived from current dirty pending state");
+              "applicable apply count is derived from current dirty pending state");
 
       Editor.Buffer_Switcher.Confirm_Dirty_Pending_Marked_Close_Prune_Apply
         (S, Registry, Applied, Skipped, Remaining);
@@ -1866,14 +1870,14 @@ package body Editor.Buffer_Switcher.Tests is
               and then Editor.Buffer_Switcher.Is_Pruned_Pending_Marked_Close_Target (S, Alpha)
               and then Editor.Buffer_Switcher.Is_Pending_Marked_Close_Target (S, Beta)
               and then not Editor.Buffer_Switcher.Is_Pruned_Pending_Marked_Close_Target (S, Beta),
-              "Phase 299 confirm revalidates, prunes only applicable targets, records ordinary pruned history, and consumes preview/apply state");
+              "confirm revalidates, prunes only applicable targets, records ordinary pruned history, and consumes preview/apply state");
       Assert (Editor.Buffers.Contains (Registry, Alpha)
               and then Editor.Buffers.Contains (Registry, Beta),
-              "Phase 299 confirm does not close buffers");
-   end Test_Phase299_Dirty_Prune_Apply_Confirm_Revalidates_And_Consumes_Preview;
+              "confirm does not close buffers");
+   end Test_Dirty_Prune_Apply_Confirm_Revalidates_And_Consumes_Preview;
 
 
-   procedure Test_Phase300_Review_Mode_Is_Exclusive_And_Centralized
+   procedure Test_Review_Mode_Is_Exclusive_And_Centralized
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
       pragma Unreferenced (T);
       Registry : Editor.Buffers.Buffer_Registry;
@@ -1900,7 +1904,7 @@ package body Editor.Buffer_Switcher.Tests is
               and then not Editor.Buffer_Switcher.Has_Pruned_Pending_Marked_Review (S)
               and then not Editor.Buffer_Switcher.Has_Dirty_Prune_Review (S)
               and then not Editor.Buffer_Switcher.Has_Dirty_Prune_Apply_Review (S),
-              "Phase 300 marked review is the single active review mode");
+              "marked review is the single active review mode");
 
       Editor.Buffer_Switcher.Prepare_Pending_Marked_Close (S, Registry, Count, Dirty_Count);
       Editor.Buffer_Switcher.Show_Pending_Marked_Review (S);
@@ -1910,7 +1914,7 @@ package body Editor.Buffer_Switcher.Tests is
               and then not Editor.Buffer_Switcher.Has_Dirty_Pending_Marked_Review (S)
               and then not Editor.Buffer_Switcher.Has_Dirty_Prune_Review (S)
               and then not Editor.Buffer_Switcher.Has_Dirty_Prune_Apply_Review (S),
-              "Phase 300 pending review replaces marked review");
+              "pending review replaces marked review");
 
       Editor.Buffer_Switcher.Show_Dirty_Pending_Marked_Review (S);
       Assert (Editor.Buffer_Switcher.Has_Dirty_Pending_Marked_Review (S)
@@ -1919,7 +1923,7 @@ package body Editor.Buffer_Switcher.Tests is
               and then not Editor.Buffer_Switcher.Has_Pruned_Pending_Marked_Review (S)
               and then not Editor.Buffer_Switcher.Has_Dirty_Prune_Review (S)
               and then not Editor.Buffer_Switcher.Has_Dirty_Prune_Apply_Review (S),
-              "Phase 300 dirty pending review replaces pending review");
+              "dirty pending review replaces pending review");
 
       Editor.Buffer_Switcher.Remove_Pending_Marked_Close_Target
         (S, Registry, Untitled, Removed, Remaining);
@@ -1931,7 +1935,7 @@ package body Editor.Buffer_Switcher.Tests is
               and then not Editor.Buffer_Switcher.Has_Dirty_Pending_Marked_Review (S)
               and then not Editor.Buffer_Switcher.Has_Dirty_Prune_Review (S)
               and then not Editor.Buffer_Switcher.Has_Dirty_Prune_Apply_Review (S),
-              "Phase 300 pruned review replaces dirty pending review");
+              "pruned review replaces dirty pending review");
 
       Editor.Buffer_Switcher.Prepare_Dirty_Pending_Marked_Close_Prune (S, Registry, Count);
       Editor.Buffer_Switcher.Show_Dirty_Prune_Review (S);
@@ -1943,7 +1947,7 @@ package body Editor.Buffer_Switcher.Tests is
               and then not Editor.Buffer_Switcher.Has_Dirty_Pending_Marked_Review (S)
               and then not Editor.Buffer_Switcher.Has_Removed_Dirty_Prune_Review (S)
               and then not Editor.Buffer_Switcher.Has_Dirty_Prune_Apply_Review (S),
-              "Phase 300 dirty-prune preview review replaces pruned review");
+              "dirty-prune preview review replaces pruned review");
 
       Editor.Buffer_Switcher.Remove_Dirty_Pending_Marked_Close_Prune_Target
         (S, Registry, Alpha, Removed, Remaining);
@@ -1952,7 +1956,7 @@ package body Editor.Buffer_Switcher.Tests is
               and then Editor.Buffer_Switcher.Has_Removed_Dirty_Prune_Review (S)
               and then not Editor.Buffer_Switcher.Has_Dirty_Prune_Review (S)
               and then not Editor.Buffer_Switcher.Has_Dirty_Prune_Apply_Review (S),
-              "Phase 300 removed dirty-prune preview review replaces preview review");
+              "removed dirty-prune preview review replaces preview review");
 
       Editor.Buffer_Switcher.Prepare_Dirty_Pending_Marked_Close_Prune_Apply
         (S, Registry, Count, Applicable);
@@ -1965,7 +1969,7 @@ package body Editor.Buffer_Switcher.Tests is
               and then not Editor.Buffer_Switcher.Has_Pruned_Pending_Marked_Review (S)
               and then not Editor.Buffer_Switcher.Has_Dirty_Prune_Review (S)
               and then not Editor.Buffer_Switcher.Has_Removed_Dirty_Prune_Review (S),
-              "Phase 300 dirty-prune apply review replaces removed preview review");
+              "dirty-prune apply review replaces removed preview review");
 
       Editor.Buffer_Switcher.Remove_Dirty_Pending_Marked_Close_Prune_Apply_Target
         (S, Registry, Beta, Removed, Remaining);
@@ -1974,25 +1978,25 @@ package body Editor.Buffer_Switcher.Tests is
               and then Editor.Buffer_Switcher.Has_Removed_Dirty_Prune_Apply_Review (S)
               and then not Editor.Buffer_Switcher.Has_Dirty_Prune_Apply_Review (S)
               and then not Editor.Buffer_Switcher.Has_Removed_Dirty_Prune_Review (S),
-              "Phase 300 removed dirty-prune apply review replaces apply review");
+              "removed dirty-prune apply review replaces apply review");
 
       Editor.Buffer_Switcher.Toggle_Removed_Dirty_Prune_Apply_Review (S);
       Assert (not Editor.Buffer_Switcher.Has_Removed_Dirty_Prune_Apply_Review (S),
-              "Phase 300 toggling active removed apply review hides it through the shared core");
+              "toggling active removed apply review hides it through the shared core");
       Editor.Buffer_Switcher.Show_Dirty_Prune_Apply_Review (S);
       Editor.Buffer_Switcher.Toggle_Dirty_Prune_Apply_Review (S);
       Assert (not Editor.Buffer_Switcher.Has_Dirty_Prune_Apply_Review (S),
-              "Phase 300 toggling the active review hides it through the shared core");
+              "toggling the active review hides it through the shared core");
       Editor.Buffer_Switcher.Toggle_Marked_Review (S);
       Assert (Editor.Buffer_Switcher.Has_Marked_Review (S),
-              "Phase 300 toggling an inactive review activates it through the shared core");
+              "toggling an inactive review activates it through the shared core");
 
       Editor.Buffer_Switcher.Recompute_Rows (S, Registry, Config);
       Assert (Editor.Buffer_Switcher.Row_Count (S) = 3,
-              "Phase 300 review mode remains a projection constraint over open buffers only");
-   end Test_Phase300_Review_Mode_Is_Exclusive_And_Centralized;
+              "review mode remains a projection constraint over open buffers only");
+   end Test_Review_Mode_Is_Exclusive_And_Centralized;
 
-   procedure Test_Phase300_Review_Projection_Order_Is_Deterministic
+   procedure Test_Review_Projection_Order_Is_Deterministic
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
       pragma Unreferenced (T);
       Registry : Editor.Buffers.Buffer_Registry;
@@ -2003,8 +2007,8 @@ package body Editor.Buffer_Switcher.Tests is
       Dirty_Count : Natural := 0;
    begin
       Build_Registry (Registry, Alpha, Beta, Untitled);
-      Editor.Buffers.Set_Buffer_Label (Registry, Alpha, "phase300");
-      Editor.Buffers.Set_Buffer_Label (Registry, Beta, "phase300");
+      Editor.Buffers.Set_Buffer_Label (Registry, Alpha, "review-target");
+      Editor.Buffers.Set_Buffer_Label (Registry, Beta, "review-target");
       Editor.Buffers.Pin_Buffer (Registry, Beta);
       Editor.Buffer_Switcher.Open (S);
       Editor.Buffer_Switcher.Set_Mark (S, Alpha);
@@ -2012,28 +2016,28 @@ package body Editor.Buffer_Switcher.Tests is
       Editor.Buffer_Switcher.Prepare_Pending_Marked_Close (S, Registry, Count, Dirty_Count);
 
       Editor.Buffer_Switcher.Show_Pending_Marked_Review (S);
-      Editor.Buffer_Switcher.Set_Label_Filter (S, "phase300");
+      Editor.Buffer_Switcher.Set_Label_Filter (S, "review-target");
       Editor.Buffer_Switcher.Set_Filter_Text (S, "read");
       Editor.Buffer_Switcher.Set_Sort_Mode (S, Editor.Buffer_Switcher.Pinned_Sort);
       Editor.Buffer_Switcher.Recompute_Rows (S, Registry, Config);
 
       Assert (Editor.Buffer_Switcher.Has_Pending_Marked_Review (S),
-              "Phase 300 filter/query/sort changes do not clear active review mode");
+              "filter/query/sort changes do not clear active review mode");
       Assert (Editor.Buffer_Switcher.Row_Count (S) = 1
               and then Editor.Buffer_Switcher.Row_At (S, 1).Id = Beta,
-              "Phase 300 projection applies review constraint before metadata filter, literal query, and sort");
+              "projection applies review constraint before metadata filter, literal query, and sort");
       Assert (Editor.Buffer_Switcher.Selected_Row_Index (S) = 1,
-              "Phase 300 selection normalizes after reviewed projection is built");
+              "selection normalizes after reviewed projection is built");
       Assert (Editor.Buffer_Switcher.Count_Badge_Text (S, Registry) =
               "Marked: 2 | Pending close: 2",
-              "Phase 300 count badges remain global derived state, not review-local state");
+              "count badges remain global derived state, not review-local state");
       Assert (Editor.Buffer_Switcher.Is_Pending_Marked_Close_Target (S, Alpha)
               and then Editor.Buffer_Switcher.Is_Pending_Marked_Close_Target (S, Beta),
-              "Phase 300 projection does not mutate reviewed target membership");
-   end Test_Phase300_Review_Projection_Order_Is_Deterministic;
+              "projection does not mutate reviewed target membership");
+   end Test_Review_Projection_Order_Is_Deterministic;
 
 
-   procedure Test_Phase301_Batch_State_Snapshot_Centralizes_Counts_And_Badges
+   procedure Test_Batch_State_Snapshot_Centralizes_Counts_And_Badges
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
       pragma Unreferenced (T);
       Registry : Editor.Buffers.Buffer_Registry;
@@ -2060,63 +2064,63 @@ package body Editor.Buffer_Switcher.Tests is
       Editor.Buffer_Switcher.Remove_Dirty_Pending_Marked_Close_Prune_Target
         (S, Registry, Beta, Removed, Remaining);
       Assert (Removed and then Remaining = 2,
-              "Phase 301 setup records one removed dirty-prune preview target");
+              "setup records one removed dirty-prune preview target");
 
       Editor.Buffer_Switcher.Prepare_Dirty_Pending_Marked_Close_Prune_Apply
         (S, Registry, Count, Applicable);
       Editor.Buffer_Switcher.Remove_Dirty_Pending_Marked_Close_Prune_Apply_Target
         (S, Registry, Alpha, Removed, Remaining);
       Assert (Removed and then Remaining = 1,
-              "Phase 301 setup records one removed dirty-prune apply target without clearing apply confirmation");
+              "setup records one removed dirty-prune apply target without clearing apply confirmation");
 
       Snapshot := Editor.Buffer_Switcher.Build_Switcher_Batch_State_Snapshot (S, Registry);
       Assert (Snapshot.Marked_Count = 3
               and then Snapshot.Pending_Close_Count = 3
               and then Snapshot.Dirty_Pending_Close_Count = 3
               and then Snapshot.Pruned_Pending_Close_Count = 0,
-              "Phase 301 snapshot centralizes marked, pending, dirty, and ordinary-pruned counts");
+              "snapshot centralizes marked, pending, dirty, and ordinary-pruned counts");
       Assert (Snapshot.Dirty_Prune_Preview_Count = 2
               and then Snapshot.Applicable_Dirty_Prune_Preview_Count = 2
               and then Snapshot.Removed_Dirty_Prune_Preview_Count = 1
               and then Snapshot.Open_Removed_Dirty_Prune_Preview_Count = 1
               and then Snapshot.Stale_Dirty_Prune_Preview_Count = 0,
-              "Phase 301 snapshot centralizes dirty-prune preview, removed, open-removed, applicable, and stale counts");
+              "snapshot centralizes dirty-prune preview, removed, open-removed, applicable, and stale counts");
       Assert (Snapshot.Dirty_Prune_Apply_Count = 1
               and then Snapshot.Applicable_Dirty_Prune_Apply_Count = 1
               and then Snapshot.Removed_Dirty_Prune_Apply_Count = 1
               and then Snapshot.Open_Removed_Dirty_Prune_Apply_Count = 1
               and then Snapshot.Stale_Dirty_Prune_Apply_Count = 0,
-              "Phase 301 snapshot centralizes dirty-prune apply, removed, open-removed, applicable, and stale counts");
+              "snapshot centralizes dirty-prune apply, removed, open-removed, applicable, and stale counts");
       Assert (Snapshot.Has_Pending_Marked_Close
               and then Snapshot.Has_Dirty_Prune_Preview
               and then Snapshot.Has_Dirty_Prune_Apply_Confirmation,
-              "Phase 301 snapshot derives workflow presence flags from existing session state");
+              "snapshot derives workflow presence flags from existing session state");
       Assert (To_String (Snapshot.Header_Badge_Text) =
               "Marked: 3 | Pending close: 3 | Dirty: 3 | Dirty prune: 2 | Applicable: 2 | Removed: 1 | Apply: 1 | Apply applicable: 1 | Apply removed: 1",
-              "Phase 301 snapshot owns deterministic count badge text");
+              "snapshot owns deterministic count badge text");
       Assert (Editor.Buffer_Switcher.Count_Badge_Text (S, Registry) =
               To_String (Snapshot.Footer_Badge_Text),
-              "Phase 301 previous count badge helper is backed by the centralized snapshot path");
+              "previous count badge helper is backed by the centralized snapshot path");
       Assert (To_String (Snapshot.Footer_Badge_Text) =
               "Marked: 3 | Pending close: 3 | Dirty: 3 | Dirty prune: 2 | Applicable: 2 | Removed: 1 | Apply: 1 | Apply applicable: 1 | Apply removed: 1",
-              "Phase 301 footer badge text is derived as compact count-only snapshot text");
+              "footer badge text is derived as compact count-only snapshot text");
 
       Editor.Buffer_Switcher.Show_Dirty_Prune_Apply_Review (S);
       Snapshot := Editor.Buffer_Switcher.Build_Switcher_Batch_State_Snapshot (S, Registry);
       Assert (Snapshot.Active_Review_Mode = Editor.Buffer_Switcher.Dirty_Prune_Apply_Review
               and then To_String (Snapshot.Review_Display_Name) = "dirty-prune apply"
               and then To_String (Snapshot.Review_Empty_Message) = "No dirty-prune apply targets",
-              "Phase 301 snapshot derives review labels and empty messages from the unified review discriminator");
+              "snapshot derives review labels and empty messages from the unified review discriminator");
       Assert (To_String (Snapshot.Header_Badge_Text) =
               "Review: dirty-prune apply | Marked: 3 | Pending close: 3 | Dirty: 3 | Dirty prune: 2 | Applicable: 2 | Removed: 1 | Apply: 1 | Apply applicable: 1 | Apply removed: 1",
-              "Phase 301 header badge text composes the active review label with centralized counts");
+              "header badge text composes the active review label with centralized counts");
       Assert (To_String (Snapshot.Footer_Badge_Text) =
               "Marked: 3 | Pending close: 3 | Dirty: 3 | Dirty prune: 2 | Applicable: 2 | Removed: 1 | Apply: 1 | Apply applicable: 1 | Apply removed: 1",
-              "Phase 301 footer badge text remains count-only when header adds review context");
-   end Test_Phase301_Batch_State_Snapshot_Centralizes_Counts_And_Badges;
+              "footer badge text remains count-only when header adds review context");
+   end Test_Batch_State_Snapshot_Centralizes_Counts_And_Badges;
 
 
-   procedure Test_Phase301_Row_Markers_And_Global_Counts_Compose_With_Projection
+   procedure Test_Row_Markers_And_Global_Counts_Compose_With_Projection
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
       pragma Unreferenced (T);
       Registry : Editor.Buffers.Buffer_Registry;
@@ -2157,16 +2161,16 @@ package body Editor.Buffer_Switcher.Tests is
 
       Assert (Editor.Buffer_Switcher.Row_Count (S) = 1
               and then Editor.Buffer_Switcher.Row_At (S, 1).Id = Untitled,
-              "Phase 301 projection still applies review, metadata filter, literal query, and sort to candidate rows");
+              "projection still applies review, metadata filter, literal query, and sort to candidate rows");
       Assert (Editor.Buffer_Switcher.Row_At (S, 1).Is_Marked
               and then Editor.Buffer_Switcher.Row_At (S, 1).Is_Pending_Close_Target
               and then Editor.Buffer_Switcher.Row_At (S, 1).Is_Dirty
               and then Editor.Buffer_Switcher.Row_At (S, 1).Is_Dirty_Prune_Preview_Target
               and then Editor.Buffer_Switcher.Row_At (S, 1).Is_Dirty_Prune_Apply_Target,
-              "Phase 301 row marker derivation preserves overlapping marker states on projected rows");
+              "row marker derivation preserves overlapping marker states on projected rows");
       Assert (not Editor.Buffer_Switcher.Row_At (S, 1).Is_Removed_Dirty_Prune_Preview_Target
               and then not Editor.Buffer_Switcher.Row_At (S, 1).Is_Removed_Dirty_Prune_Apply_Target,
-              "Phase 301 row marker derivation does not invent removed markers for active targets");
+              "row marker derivation does not invent removed markers for active targets");
 
       Snapshot := Editor.Buffer_Switcher.Build_Switcher_Batch_State_Snapshot (S, Registry);
       Assert (Snapshot.Marked_Count = 3
@@ -2175,20 +2179,20 @@ package body Editor.Buffer_Switcher.Tests is
               and then Snapshot.Removed_Dirty_Prune_Preview_Count = 1
               and then Snapshot.Dirty_Prune_Apply_Count = 1
               and then Snapshot.Removed_Dirty_Prune_Apply_Count = 1,
-              "Phase 301 snapshot counts remain global even when review/filter/query hide counted targets");
+              "snapshot counts remain global even when review/filter/query hide counted targets");
       Assert (To_String (Snapshot.Header_Badge_Text) =
               "Review: dirty-prune apply | Filter: label shown | Query: Untitled | Sort: name | Marked: 3 | Pending close: 3 | Dirty: 3 | Dirty prune: 2 | Applicable: 2 | Removed: 1 | Apply: 1 | Apply applicable: 1 | Apply removed: 1",
-              "Phase 301 header badge text composes review, filter, query, sort, and global batch counts deterministically");
+              "header badge text composes review, filter, query, sort, and global batch counts deterministically");
       Assert (Editor.Buffer_Switcher.Is_Removed_Dirty_Pending_Marked_Close_Prune_Target (S, Beta)
               and then Editor.Buffer_Switcher.Is_Removed_Dirty_Pending_Marked_Close_Prune_Apply_Target (S, Alpha)
               and then Editor.Buffer_Switcher.Preview_Target (S) = Editor.Buffers.No_Buffer,
-              "Phase 301 snapshot/projection does not mutate removed histories or preview state");
-   end Test_Phase301_Row_Markers_And_Global_Counts_Compose_With_Projection;
+              "snapshot/projection does not mutate removed histories or preview state");
+   end Test_Row_Markers_And_Global_Counts_Compose_With_Projection;
 
 
    type Buffer_Id_Array is array (Positive range <>) of Editor.Buffers.Buffer_Id;
 
-   function Add_Phase302_Buffer
+   function Add_Buffer
      (Registry : in out Editor.Buffers.Buffer_Registry;
       Name     : String) return Editor.Buffers.Buffer_Id
    is
@@ -2198,9 +2202,9 @@ package body Editor.Buffer_Switcher.Tests is
          "/tmp/project/src/" & Name,
          Name,
          "procedure " & Name & " is begin null; end;");
-   end Add_Phase302_Buffer;
+   end Add_Buffer;
 
-   procedure Build_Phase302_Registry
+   procedure Build_Registry
      (Registry : in out Editor.Buffers.Buffer_Registry;
       A        : out Editor.Buffers.Buffer_Id;
       B        : out Editor.Buffers.Buffer_Id;
@@ -2208,12 +2212,12 @@ package body Editor.Buffer_Switcher.Tests is
       D        : out Editor.Buffers.Buffer_Id)
    is
    begin
-      A := Add_Phase302_Buffer (Registry, "A.adb");
-      B := Add_Phase302_Buffer (Registry, "B.adb");
-      C := Add_Phase302_Buffer (Registry, "C.adb");
-      D := Add_Phase302_Buffer (Registry, "D.adb");
+      A := Add_Buffer (Registry, "A.adb");
+      B := Add_Buffer (Registry, "B.adb");
+      C := Add_Buffer (Registry, "C.adb");
+      D := Add_Buffer (Registry, "D.adb");
       Editor.Buffers.Set_Active_Buffer (Registry, A);
-   end Build_Phase302_Registry;
+   end Build_Registry;
 
    procedure Make_Dirty
      (Registry : in out Editor.Buffers.Buffer_Registry;
@@ -2277,7 +2281,7 @@ package body Editor.Buffer_Switcher.Tests is
               Message);
    end Assert_No_Workflow_State;
 
-   procedure Test_Phase302_Clean_And_Dirty_Marked_Close_End_To_End
+   procedure Test_Clean_And_Dirty_Marked_Close_End_To_End
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
       pragma Unreferenced (T);
       Registry : Editor.Buffers.Buffer_Registry;
@@ -2288,7 +2292,7 @@ package body Editor.Buffer_Switcher.Tests is
       Closed_Count : Natural := 0;
       Snapshot : Editor.Buffer_Switcher.Switcher_Batch_State_Snapshot;
    begin
-      Build_Phase302_Registry (Registry, A, B, C, D);
+      Build_Registry (Registry, A, B, C, D);
       Editor.Buffer_Switcher.Open (S);
       Editor.Buffer_Switcher.Set_Mark (S, A);
       Editor.Buffer_Switcher.Set_Mark (S, B);
@@ -2301,11 +2305,11 @@ package body Editor.Buffer_Switcher.Tests is
               and then Snapshot.Dirty_Pending_Close_Count = 0
               and then Snapshot.Dirty_Prune_Preview_Count = 0
               and then Snapshot.Dirty_Prune_Apply_Count = 0,
-              "Phase 302 clean marked-close preparation captures only marked buffers and creates no dirty-prune state");
+              "clean marked-close preparation captures only marked buffers and creates no dirty-prune state");
       Assert (Editor.Buffers.Contains (Registry, A)
               and then Editor.Buffers.Contains (Registry, B)
               and then True,
-              "Phase 302 marked-close preparation does not close buffers or create reopen entries");
+              "marked-close preparation does not close buffers or create reopen entries");
 
       Confirm_Pending_Marked_Close_For_Test (S, Registry, Closed_Count);
       Assert (Closed_Count = 2
@@ -2313,16 +2317,16 @@ package body Editor.Buffer_Switcher.Tests is
               and then not Editor.Buffers.Contains (Registry, B)
               and then Editor.Buffers.Contains (Registry, C)
               and then True,
-              "Phase 436 clean marked-close confirmation must not create removed-name close-history/reopen-stack state");
+              "clean marked-close confirmation must not create removed-name close-history/reopen-stack state");
       Assert_No_Workflow_State (S, Registry,
-        "Phase 302 clean marked-close confirmation clears pending, dirty-prune, apply, and review state");
+        "clean marked-close confirmation clears pending, dirty-prune, apply, and review state");
 
       declare
          Registry_2 : Editor.Buffers.Buffer_Registry;
          S_2 : Editor.Buffer_Switcher.Buffer_Switcher_State;
          A_2, B_2, C_2, D_2 : Editor.Buffers.Buffer_Id;
       begin
-         Build_Phase302_Registry (Registry_2, A_2, B_2, C_2, D_2);
+         Build_Registry (Registry_2, A_2, B_2, C_2, D_2);
          Editor.Buffer_Switcher.Open (S_2);
          Make_Dirty (Registry_2, B_2);
          Editor.Buffer_Switcher.Set_Mark (S_2, A_2);
@@ -2331,7 +2335,7 @@ package body Editor.Buffer_Switcher.Tests is
          Snapshot := Editor.Buffer_Switcher.Build_Switcher_Batch_State_Snapshot (S_2, Registry_2);
          Assert (Snapshot.Pending_Close_Count = 2
                  and then Snapshot.Dirty_Pending_Close_Count = 1,
-                 "Phase 302 dirty pending marked-close path reports dirty pending targets before confirmation");
+                 "dirty pending marked-close path reports dirty pending targets before confirmation");
 
          Confirm_Pending_Marked_Close_For_Test (S_2, Registry_2, Closed_Count);
          Assert (Closed_Count = 1
@@ -2339,12 +2343,12 @@ package body Editor.Buffer_Switcher.Tests is
                  and then Editor.Buffers.Contains (Registry_2, B_2)
                  and then Editor.Buffers.Is_Dirty (Registry_2, B_2)
                  and then True,
-                 "Phase 436 marked-close confirmation does not force-close dirty buffers and creates no removed-name reopen stack");
+                 "marked-close confirmation does not force-close dirty buffers and creates no removed-name reopen stack");
       end;
-   end Test_Phase302_Clean_And_Dirty_Marked_Close_End_To_End;
+   end Test_Clean_And_Dirty_Marked_Close_End_To_End;
 
 
-   procedure Test_Phase302_Dirty_Prune_Apply_Does_Not_Close_Dirty_Buffers
+   procedure Test_Dirty_Prune_Apply_Does_Not_Close_Dirty_Buffers
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
       pragma Unreferenced (T);
       Registry : Editor.Buffers.Buffer_Registry;
@@ -2359,7 +2363,7 @@ package body Editor.Buffer_Switcher.Tests is
       Closed_Count : Natural := 0;
       Snapshot : Editor.Buffer_Switcher.Switcher_Batch_State_Snapshot;
    begin
-      Build_Phase302_Registry (Registry, A, B, C, D);
+      Build_Registry (Registry, A, B, C, D);
       Editor.Buffer_Switcher.Open (S);
       Make_Dirty (Registry, B);
       Make_Dirty (Registry, C);
@@ -2370,14 +2374,14 @@ package body Editor.Buffer_Switcher.Tests is
       Snapshot := Editor.Buffer_Switcher.Build_Switcher_Batch_State_Snapshot (S, Registry);
       Assert (Snapshot.Pending_Close_Count = 3
               and then Snapshot.Dirty_Pending_Close_Count = 2,
-              "Phase 302 dirty-prune workflow starts from captured pending close and dirty pending counts");
+              "dirty-prune workflow starts from captured pending close and dirty pending counts");
 
       Editor.Buffer_Switcher.Prepare_Dirty_Pending_Marked_Close_Prune (S, Registry, Count);
       Snapshot := Editor.Buffer_Switcher.Build_Switcher_Batch_State_Snapshot (S, Registry);
       Assert (Count = 2
               and then Snapshot.Dirty_Prune_Preview_Count = 2
               and then Snapshot.Applicable_Dirty_Prune_Preview_Count = 2,
-              "Phase 302 dirty-prune preview captures all dirty active pending targets");
+              "dirty-prune preview captures all dirty active pending targets");
 
       Editor.Buffer_Switcher.Prepare_Dirty_Pending_Marked_Close_Prune_Apply
         (S, Registry, Count, Applicable);
@@ -2386,7 +2390,7 @@ package body Editor.Buffer_Switcher.Tests is
               and then Applicable = 2
               and then Snapshot.Dirty_Prune_Apply_Count = 2
               and then Snapshot.Applicable_Dirty_Prune_Apply_Count = 2,
-              "Phase 302 dirty-prune apply confirmation captures applicable preview targets");
+              "dirty-prune apply confirmation captures applicable preview targets");
 
       Editor.Buffer_Switcher.Confirm_Dirty_Pending_Marked_Close_Prune_Apply
         (S, Registry, Applied, Skipped, Remaining);
@@ -2399,13 +2403,13 @@ package body Editor.Buffer_Switcher.Tests is
               and then Snapshot.Pruned_Pending_Close_Count = 2
               and then Snapshot.Dirty_Prune_Preview_Count = 0
               and then Snapshot.Dirty_Prune_Apply_Count = 0,
-              "Phase 302 dirty-prune apply prunes only pending close targets and consumes preview/apply state");
+              "dirty-prune apply prunes only pending close targets and consumes preview/apply state");
       Assert (Editor.Buffers.Contains (Registry, B)
               and then Editor.Buffers.Contains (Registry, C)
               and then Editor.Buffers.Is_Dirty (Registry, B)
               and then Editor.Buffers.Is_Dirty (Registry, C)
               and then True,
-              "Phase 302 dirty-prune apply does not close dirty buffers or create reopen entries");
+              "dirty-prune apply does not close dirty buffers or create reopen entries");
 
       Confirm_Pending_Marked_Close_For_Test (S, Registry, Closed_Count);
       Assert (Closed_Count = 1
@@ -2413,11 +2417,11 @@ package body Editor.Buffer_Switcher.Tests is
               and then Editor.Buffers.Contains (Registry, B)
               and then Editor.Buffers.Contains (Registry, C)
               and then True,
-              "Phase 436 final marked-close confirmation closes only clean pending target and creates no removed-name reopen stack");
-   end Test_Phase302_Dirty_Prune_Apply_Does_Not_Close_Dirty_Buffers;
+              "final marked-close confirmation closes only clean pending target and creates no removed-name reopen stack");
+   end Test_Dirty_Prune_Apply_Does_Not_Close_Dirty_Buffers;
 
 
-   procedure Test_Phase302_Dirty_Prune_Preview_Removal_Does_Not_Prune_Pending_Close
+   procedure Test_Dirty_Prune_Preview_Removal_Does_Not_Prune_Pending_Close
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
       pragma Unreferenced (T);
       Registry : Editor.Buffers.Buffer_Registry;
@@ -2435,7 +2439,7 @@ package body Editor.Buffer_Switcher.Tests is
       Skipped : Natural := 0;
       Snapshot : Editor.Buffer_Switcher.Switcher_Batch_State_Snapshot;
    begin
-      Build_Phase302_Registry (Registry, A, B, C, D);
+      Build_Registry (Registry, A, B, C, D);
       Editor.Buffer_Switcher.Open (S);
       Make_Dirty (Registry, B);
       Make_Dirty (Registry, C);
@@ -2455,7 +2459,7 @@ package body Editor.Buffer_Switcher.Tests is
               and then Snapshot.Pending_Close_Count = 3
               and then Snapshot.Dirty_Pending_Close_Count = 2
               and then Snapshot.Pruned_Pending_Close_Count = 0,
-              "Phase 302 dirty-prune preview removal is not ordinary pending target pruning");
+              "dirty-prune preview removal is not ordinary pending target pruning");
 
       Editor.Buffer_Switcher.Restore_Last_Removed_Dirty_Pending_Marked_Close_Prune_Target
         (S, Registry, Restored, Target, Name, Remaining);
@@ -2463,7 +2467,7 @@ package body Editor.Buffer_Switcher.Tests is
               and then Target = B
               and then Remaining = 2
               and then Editor.Buffer_Switcher.Is_Dirty_Pending_Marked_Close_Prune_Target (S, B),
-              "Phase 302 restore-last-removed restores preview targets, not ordinary pruned targets");
+              "restore-last-removed restores preview targets, not ordinary pruned targets");
 
       Editor.Buffer_Switcher.Remove_Dirty_Pending_Marked_Close_Prune_Target
         (S, Registry, B, Removed, Remaining);
@@ -2478,11 +2482,11 @@ package body Editor.Buffer_Switcher.Tests is
               and then Snapshot.Pruned_Pending_Close_Count = 1
               and then Editor.Buffer_Switcher.Is_Pending_Marked_Close_Target (S, B)
               and then Editor.Buffer_Switcher.Is_Pruned_Pending_Marked_Close_Target (S, C),
-              "Phase 302 apply after edited preview prunes only active preview targets and leaves removed dirty target pending");
-   end Test_Phase302_Dirty_Prune_Preview_Removal_Does_Not_Prune_Pending_Close;
+              "apply after edited preview prunes only active preview targets and leaves removed dirty target pending");
+   end Test_Dirty_Prune_Preview_Removal_Does_Not_Prune_Pending_Close;
 
 
-   procedure Test_Phase302_Apply_Target_Removal_Does_Not_Edit_Preview_Targets
+   procedure Test_Apply_Target_Removal_Does_Not_Edit_Preview_Targets
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
       pragma Unreferenced (T);
       Registry : Editor.Buffers.Buffer_Registry;
@@ -2500,7 +2504,7 @@ package body Editor.Buffer_Switcher.Tests is
       Skipped : Natural := 0;
       Snapshot : Editor.Buffer_Switcher.Switcher_Batch_State_Snapshot;
    begin
-      Build_Phase302_Registry (Registry, A, B, C, D);
+      Build_Registry (Registry, A, B, C, D);
       Editor.Buffer_Switcher.Open (S);
       Make_Dirty (Registry, B);
       Make_Dirty (Registry, C);
@@ -2523,12 +2527,12 @@ package body Editor.Buffer_Switcher.Tests is
               and then Snapshot.Dirty_Prune_Preview_Count = 3
               and then Snapshot.Pending_Close_Count = 4
               and then Editor.Buffer_Switcher.Is_Dirty_Pending_Marked_Close_Prune_Target (S, B),
-              "Phase 302 apply target removal edits only apply confirmation state, not preview or pending state");
+              "apply target removal edits only apply confirmation state, not preview or pending state");
 
       Editor.Buffer_Switcher.Restore_Last_Removed_Dirty_Pending_Marked_Close_Prune_Apply_Target
         (S, Registry, Restored, Target, Name, Remaining);
       Assert (Restored and then Target = B and then Remaining = 3,
-              "Phase 302 restore-last-removed apply target returns the target to apply confirmation");
+              "restore-last-removed apply target returns the target to apply confirmation");
 
       Editor.Buffer_Switcher.Remove_Dirty_Pending_Marked_Close_Prune_Apply_Target
         (S, Registry, B, Removed, Remaining);
@@ -2543,11 +2547,11 @@ package body Editor.Buffer_Switcher.Tests is
               and then Editor.Buffer_Switcher.Is_Pending_Marked_Close_Target (S, B)
               and then Editor.Buffer_Switcher.Is_Pruned_Pending_Marked_Close_Target (S, C)
               and then Editor.Buffer_Switcher.Is_Pruned_Pending_Marked_Close_Target (S, D),
-              "Phase 302 apply confirm prunes only active apply targets and consumes preview/apply state");
-   end Test_Phase302_Apply_Target_Removal_Does_Not_Edit_Preview_Targets;
+              "apply confirm prunes only active apply targets and consumes preview/apply state");
+   end Test_Apply_Target_Removal_Does_Not_Edit_Preview_Targets;
 
 
-   procedure Test_Phase302_Stale_Dirty_Prune_Targets_Are_Cleaned_And_Revalidated
+   procedure Test_Stale_Dirty_Prune_Targets_Are_Cleaned_And_Revalidated
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
       pragma Unreferenced (T);
       Registry : Editor.Buffers.Buffer_Registry;
@@ -2562,7 +2566,7 @@ package body Editor.Buffer_Switcher.Tests is
       Skipped : Natural := 0;
       Snapshot : Editor.Buffer_Switcher.Switcher_Batch_State_Snapshot;
    begin
-      Build_Phase302_Registry (Registry, A, B, C, D);
+      Build_Registry (Registry, A, B, C, D);
       Editor.Buffer_Switcher.Open (S);
       Make_Dirty (Registry, B);
       Make_Dirty (Registry, C);
@@ -2577,7 +2581,7 @@ package body Editor.Buffer_Switcher.Tests is
       Assert (Snapshot.Dirty_Prune_Preview_Count = 2
               and then Snapshot.Applicable_Dirty_Prune_Preview_Count = 1
               and then Snapshot.Stale_Dirty_Prune_Preview_Count = 1,
-              "Phase 302 saving a preview target makes it stale without mutating the preview set");
+              "saving a preview target makes it stale without mutating the preview set");
       Editor.Buffer_Switcher.Clear_Stale_Dirty_Pending_Marked_Close_Prune_Targets
         (S, Registry, Cleared, Remaining);
       Snapshot := Editor.Buffer_Switcher.Build_Switcher_Batch_State_Snapshot (S, Registry);
@@ -2587,7 +2591,7 @@ package body Editor.Buffer_Switcher.Tests is
               and then Snapshot.Applicable_Dirty_Prune_Preview_Count = 1
               and then Snapshot.Pruned_Pending_Close_Count = 0
               and then Snapshot.Removed_Dirty_Prune_Preview_Count = 0,
-              "Phase 302 stale preview cleanup is targeted and non-recording");
+              "stale preview cleanup is targeted and non-recording");
 
       Editor.Buffer_Switcher.Prepare_Dirty_Pending_Marked_Close_Prune_Apply
         (S, Registry, Count, Applicable);
@@ -2596,7 +2600,7 @@ package body Editor.Buffer_Switcher.Tests is
       Assert (Snapshot.Dirty_Prune_Apply_Count = 1
               and then Snapshot.Applicable_Dirty_Prune_Apply_Count = 0
               and then Snapshot.Stale_Dirty_Prune_Apply_Count = 1,
-              "Phase 302 saving an apply target makes it stale before confirm");
+              "saving an apply target makes it stale before confirm");
       Editor.Buffer_Switcher.Confirm_Dirty_Pending_Marked_Close_Prune_Apply
         (S, Registry, Applied, Skipped, Remaining);
       Snapshot := Editor.Buffer_Switcher.Build_Switcher_Batch_State_Snapshot (S, Registry);
@@ -2606,11 +2610,11 @@ package body Editor.Buffer_Switcher.Tests is
               and then Snapshot.Pending_Close_Count = 3
               and then Editor.Buffer_Switcher.Is_Pending_Marked_Close_Target (S, B)
               and then Editor.Buffer_Switcher.Is_Pending_Marked_Close_Target (S, C),
-              "Phase 302 apply confirm revalidates and skips stale apply targets without pruning them");
-   end Test_Phase302_Stale_Dirty_Prune_Targets_Are_Cleaned_And_Revalidated;
+              "apply confirm revalidates and skips stale apply targets without pruning them");
+   end Test_Stale_Dirty_Prune_Targets_Are_Cleaned_And_Revalidated;
 
 
-   procedure Test_Phase302_Hidden_Dirty_Targets_Are_Included_In_Global_Dirty_Prune
+   procedure Test_Hidden_Dirty_Targets_Are_Included_In_Global_Dirty_Prune
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
       pragma Unreferenced (T);
       Registry : Editor.Buffers.Buffer_Registry;
@@ -2625,7 +2629,7 @@ package body Editor.Buffer_Switcher.Tests is
       Config : constant Editor.Buffer_Switcher.Buffer_Switcher_Config := (others => <>);
       Snapshot : Editor.Buffer_Switcher.Switcher_Batch_State_Snapshot;
    begin
-      Build_Phase302_Registry (Registry, A, B, C, D);
+      Build_Registry (Registry, A, B, C, D);
       Editor.Buffer_Switcher.Open (S);
       Make_Dirty (Registry, B);
       Make_Dirty (Registry, C);
@@ -2640,7 +2644,7 @@ package body Editor.Buffer_Switcher.Tests is
       Editor.Buffer_Switcher.Recompute_Rows (S, Registry, Config);
       Assert (Editor.Buffer_Switcher.Row_Count (S) = 1
               and then Editor.Buffer_Switcher.Row_At (S, 1).Id = B,
-              "Phase 302 filter/query/sort hides unmatched pending targets from rows");
+              "filter/query/sort hides unmatched pending targets from rows");
 
       Editor.Buffer_Switcher.Prepare_Dirty_Pending_Marked_Close_Prune (S, Registry, Count);
       Editor.Buffer_Switcher.Prepare_Dirty_Pending_Marked_Close_Prune_Apply
@@ -2650,7 +2654,7 @@ package body Editor.Buffer_Switcher.Tests is
               and then Snapshot.Applicable_Dirty_Prune_Preview_Count = 2
               and then Snapshot.Dirty_Prune_Apply_Count = 2
               and then Snapshot.Applicable_Dirty_Prune_Apply_Count = 2,
-              "Phase 302 dirty-prune target membership and counts are global, not visible-row local");
+              "dirty-prune target membership and counts are global, not visible-row local");
 
       Editor.Buffer_Switcher.Confirm_Dirty_Pending_Marked_Close_Prune_Apply
         (S, Registry, Applied, Skipped, Remaining);
@@ -2660,11 +2664,11 @@ package body Editor.Buffer_Switcher.Tests is
               and then Snapshot.Pruned_Pending_Close_Count = 2
               and then Editor.Buffer_Switcher.Is_Pruned_Pending_Marked_Close_Target (S, B)
               and then Editor.Buffer_Switcher.Is_Pruned_Pending_Marked_Close_Target (S, C),
-              "Phase 302 dirty-prune apply includes hidden applicable targets");
-   end Test_Phase302_Hidden_Dirty_Targets_Are_Included_In_Global_Dirty_Prune;
+              "dirty-prune apply includes hidden applicable targets");
+   end Test_Hidden_Dirty_Targets_Are_Included_In_Global_Dirty_Prune;
 
 
-   procedure Test_Phase302_Review_Mode_Switching_Does_Not_Change_Batch_State
+   procedure Test_Review_Mode_Switching_Does_Not_Change_Batch_State
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
       pragma Unreferenced (T);
       Registry : Editor.Buffers.Buffer_Registry;
@@ -2679,7 +2683,7 @@ package body Editor.Buffer_Switcher.Tests is
       After : Editor.Buffer_Switcher.Switcher_Batch_State_Snapshot;
       Config : constant Editor.Buffer_Switcher.Buffer_Switcher_Config := (others => <>);
    begin
-      Build_Phase302_Registry (Registry, A, B, C, D);
+      Build_Registry (Registry, A, B, C, D);
       Editor.Buffer_Switcher.Open (S);
       Make_Dirty (Registry, B);
       Make_Dirty (Registry, C);
@@ -2697,19 +2701,19 @@ package body Editor.Buffer_Switcher.Tests is
       Editor.Buffer_Switcher.Show_Marked_Review (S);
       Assert (Editor.Buffer_Switcher.Build_Switcher_Batch_State_Snapshot (S, Registry).Active_Review_Mode =
               Editor.Buffer_Switcher.Marked_Review,
-              "Phase 302 marked review becomes the active review mode");
+              "marked review becomes the active review mode");
       Editor.Buffer_Switcher.Show_Pending_Marked_Review (S);
       Assert (Editor.Buffer_Switcher.Build_Switcher_Batch_State_Snapshot (S, Registry).Active_Review_Mode =
               Editor.Buffer_Switcher.Pending_Marked_Close_Review,
-              "Phase 302 pending review replaces marked review");
+              "pending review replaces marked review");
       Editor.Buffer_Switcher.Show_Dirty_Prune_Review (S);
       Assert (Editor.Buffer_Switcher.Build_Switcher_Batch_State_Snapshot (S, Registry).Active_Review_Mode =
               Editor.Buffer_Switcher.Dirty_Prune_Preview_Review,
-              "Phase 302 dirty-prune preview review replaces pending review");
+              "dirty-prune preview review replaces pending review");
       Editor.Buffer_Switcher.Show_Removed_Dirty_Prune_Review (S);
       Assert (Editor.Buffer_Switcher.Build_Switcher_Batch_State_Snapshot (S, Registry).Active_Review_Mode =
               Editor.Buffer_Switcher.Removed_Dirty_Prune_Preview_Review,
-              "Phase 302 removed preview review replaces dirty-prune preview review");
+              "removed preview review replaces dirty-prune preview review");
       Editor.Buffer_Switcher.Show_Dirty_Prune_Apply_Review (S);
       Editor.Buffer_Switcher.Recompute_Rows (S, Registry, Config);
       After := Editor.Buffer_Switcher.Build_Switcher_Batch_State_Snapshot (S, Registry);
@@ -2720,17 +2724,17 @@ package body Editor.Buffer_Switcher.Tests is
               and then After.Dirty_Prune_Preview_Count = Before.Dirty_Prune_Preview_Count
               and then After.Removed_Dirty_Prune_Preview_Count = Before.Removed_Dirty_Prune_Preview_Count
               and then After.Dirty_Prune_Apply_Count = Before.Dirty_Prune_Apply_Count,
-              "Phase 302 review switching changes only the active review discriminator and display label");
+              "review switching changes only the active review discriminator and display label");
       Editor.Buffer_Switcher.Hide_Dirty_Prune_Apply_Review (S);
       After := Editor.Buffer_Switcher.Build_Switcher_Batch_State_Snapshot (S, Registry);
       Assert (After.Active_Review_Mode = Editor.Buffer_Switcher.No_Review
               and then After.Pending_Close_Count = Before.Pending_Close_Count
               and then After.Dirty_Prune_Apply_Count = Before.Dirty_Prune_Apply_Count,
-              "Phase 302 hiding active review returns to ordinary projection without mutating batch state");
-   end Test_Phase302_Review_Mode_Switching_Does_Not_Change_Batch_State;
+              "hiding active review returns to ordinary projection without mutating batch state");
+   end Test_Review_Mode_Switching_Does_Not_Change_Batch_State;
 
 
-   procedure Test_Phase302_Selected_Close_During_Dirty_Prune_Revalidates_Apply_Targets
+   procedure Test_Selected_Close_During_Dirty_Prune_Revalidates_Apply_Targets
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
       pragma Unreferenced (T);
       Registry : Editor.Buffers.Buffer_Registry;
@@ -2745,7 +2749,7 @@ package body Editor.Buffer_Switcher.Tests is
       Closed : Boolean := False;
       Snapshot : Editor.Buffer_Switcher.Switcher_Batch_State_Snapshot;
    begin
-      Build_Phase302_Registry (Registry, A, B, C, D);
+      Build_Registry (Registry, A, B, C, D);
       Editor.Buffer_Switcher.Open (S);
       Make_Dirty (Registry, B);
       Make_Dirty (Registry, C);
@@ -2761,7 +2765,7 @@ package body Editor.Buffer_Switcher.Tests is
       Assert (not Closed
               and then Editor.Buffers.Contains (Registry, B)
               and then True,
-              "Phase 302 selected close during dirty-prune workflow obeys existing dirty close policy");
+              "selected close during dirty-prune workflow obeys existing dirty close policy");
 
       Editor.Buffer_Switcher.Confirm_Dirty_Pending_Marked_Close_Prune_Apply
         (S, Registry, Applied, Skipped, Remaining);
@@ -2773,11 +2777,11 @@ package body Editor.Buffer_Switcher.Tests is
               and then Editor.Buffers.Contains (Registry, B)
               and then Editor.Buffers.Is_Dirty (Registry, B)
               and then True,
-              "Phase 302 dirty-prune apply revalidates dirty open targets but still does not close them or create reopen entries");
-   end Test_Phase302_Selected_Close_During_Dirty_Prune_Revalidates_Apply_Targets;
+              "dirty-prune apply revalidates dirty open targets but still does not close them or create reopen entries");
+   end Test_Selected_Close_During_Dirty_Prune_Revalidates_Apply_Targets;
 
 
-   procedure Test_Phase302_Marks_Are_Independent_From_Captured_Pending_Close
+   procedure Test_Marks_Are_Independent_From_Captured_Pending_Close
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
       pragma Unreferenced (T);
       Registry : Editor.Buffers.Buffer_Registry;
@@ -2792,7 +2796,7 @@ package body Editor.Buffer_Switcher.Tests is
       Closed_Count : Natural := 0;
       Snapshot : Editor.Buffer_Switcher.Switcher_Batch_State_Snapshot;
    begin
-      Build_Phase302_Registry (Registry, A, B, C, D);
+      Build_Registry (Registry, A, B, C, D);
       Editor.Buffer_Switcher.Open (S);
       Make_Dirty (Registry, B);
       Editor.Buffer_Switcher.Set_Mark (S, A);
@@ -2803,7 +2807,7 @@ package body Editor.Buffer_Switcher.Tests is
       Assert (Snapshot.Marked_Count = 0
               and then Snapshot.Pending_Close_Count = 2
               and then Snapshot.Dirty_Pending_Close_Count = 1,
-              "Phase 302 clearing marks after capture does not clear pending close targets");
+              "clearing marks after capture does not clear pending close targets");
 
       Editor.Buffer_Switcher.Prepare_Dirty_Pending_Marked_Close_Prune (S, Registry, Count);
       Editor.Buffer_Switcher.Prepare_Dirty_Pending_Marked_Close_Prune_Apply
@@ -2816,18 +2820,18 @@ package body Editor.Buffer_Switcher.Tests is
               and then Snapshot.Pending_Close_Count = 1
               and then Snapshot.Pruned_Pending_Close_Count = 1
               and then Editor.Buffer_Switcher.Is_Pruned_Pending_Marked_Close_Target (S, B),
-              "Phase 302 dirty-prune preview derives from active pending dirty targets, not current marks");
+              "dirty-prune preview derives from active pending dirty targets, not current marks");
 
       Confirm_Pending_Marked_Close_For_Test (S, Registry, Closed_Count);
       Assert (Closed_Count = 1
               and then not Editor.Buffers.Contains (Registry, A)
               and then Editor.Buffers.Contains (Registry, B)
               and then Editor.Buffers.Is_Dirty (Registry, B),
-              "Phase 302 final close after mark clearing closes only the captured clean target left active pending");
-   end Test_Phase302_Marks_Are_Independent_From_Captured_Pending_Close;
+              "final close after mark clearing closes only the captured clean target left active pending");
+   end Test_Marks_Are_Independent_From_Captured_Pending_Close;
 
 
-   procedure Test_Phase302_Snapshot_Consistency_Across_Representative_Workflow
+   procedure Test_Snapshot_Consistency_Across_Representative_Workflow
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
       pragma Unreferenced (T);
       Registry : Editor.Buffers.Buffer_Registry;
@@ -2845,11 +2849,11 @@ package body Editor.Buffer_Switcher.Tests is
       Skipped : Natural := 0;
       Snapshot : Editor.Buffer_Switcher.Switcher_Batch_State_Snapshot;
    begin
-      Build_Phase302_Registry (Registry, A, B, C, D);
+      Build_Registry (Registry, A, B, C, D);
       Editor.Buffer_Switcher.Open (S);
       Snapshot := Editor.Buffer_Switcher.Build_Switcher_Batch_State_Snapshot (S, Registry);
       Assert (To_String (Snapshot.Header_Badge_Text) = "",
-              "Phase 302 snapshot is empty before workflow state exists");
+              "snapshot is empty before workflow state exists");
 
       Make_Dirty (Registry, B);
       Make_Dirty (Registry, C);
@@ -2861,14 +2865,14 @@ package body Editor.Buffer_Switcher.Tests is
       Snapshot := Editor.Buffer_Switcher.Build_Switcher_Batch_State_Snapshot (S, Registry);
       Assert (Snapshot.Marked_Count = 4
               and then To_String (Snapshot.Header_Badge_Text) = "Marked: 4",
-              "Phase 302 snapshot reflects mark state before pending close capture");
+              "snapshot reflects mark state before pending close capture");
 
       Editor.Buffer_Switcher.Prepare_Pending_Marked_Close (S, Registry, Count, Dirty_Count);
       Snapshot := Editor.Buffer_Switcher.Build_Switcher_Batch_State_Snapshot (S, Registry);
       Assert (Snapshot.Pending_Close_Count = 4
               and then Snapshot.Dirty_Pending_Close_Count = 3
               and then To_String (Snapshot.Footer_Badge_Text) = "Marked: 4 | Pending close: 4 | Dirty: 3",
-              "Phase 302 snapshot reflects pending close and dirty pending counts");
+              "snapshot reflects pending close and dirty pending counts");
 
       Editor.Buffer_Switcher.Prepare_Dirty_Pending_Marked_Close_Prune (S, Registry, Count);
       Editor.Buffer_Switcher.Remove_Dirty_Pending_Marked_Close_Prune_Target
@@ -2878,7 +2882,7 @@ package body Editor.Buffer_Switcher.Tests is
               and then Snapshot.Removed_Dirty_Prune_Preview_Count = 1
               and then To_String (Snapshot.Footer_Badge_Text) =
                 "Marked: 4 | Pending close: 4 | Dirty: 3 | Dirty prune: 2 | Applicable: 2 | Removed: 1",
-              "Phase 302 snapshot reflects dirty-prune preview removal through the centralized badge text");
+              "snapshot reflects dirty-prune preview removal through the centralized badge text");
 
       Editor.Buffer_Switcher.Restore_Last_Removed_Dirty_Pending_Marked_Close_Prune_Target
         (S, Registry, Restored, Target, Name, Remaining);
@@ -2888,7 +2892,7 @@ package body Editor.Buffer_Switcher.Tests is
               and then Snapshot.Dirty_Prune_Preview_Count = 3
               and then Snapshot.Applicable_Dirty_Prune_Preview_Count = 2
               and then Snapshot.Stale_Dirty_Prune_Preview_Count = 1,
-              "Phase 302 snapshot derives applicable and stale preview counts side-effect-free");
+              "snapshot derives applicable and stale preview counts side-effect-free");
 
       Editor.Buffer_Switcher.Clear_Stale_Dirty_Pending_Marked_Close_Prune_Targets
         (S, Registry, Count, Remaining);
@@ -2900,7 +2904,7 @@ package body Editor.Buffer_Switcher.Tests is
       Assert (Snapshot.Dirty_Prune_Apply_Count = 1
               and then Snapshot.Removed_Dirty_Prune_Apply_Count = 1
               and then Snapshot.Dirty_Prune_Preview_Count = 2,
-              "Phase 302 snapshot reflects apply target removal independently from preview state");
+              "snapshot reflects apply target removal independently from preview state");
 
       Editor.Buffer_Switcher.Restore_Last_Removed_Dirty_Pending_Marked_Close_Prune_Apply_Target
         (S, Registry, Restored, Target, Name, Remaining);
@@ -2913,12 +2917,12 @@ package body Editor.Buffer_Switcher.Tests is
               and then Snapshot.Dirty_Prune_Preview_Count = 0
               and then Snapshot.Dirty_Prune_Apply_Count = 0
               and then To_String (Snapshot.Footer_Badge_Text) = "Marked: 4 | Pending close: 2 | Pruned: 2",
-              "Phase 302 snapshot remains the authoritative display source after dirty-prune apply confirmation");
-   end Test_Phase302_Snapshot_Consistency_Across_Representative_Workflow;
+              "snapshot remains the authoritative display source after dirty-prune apply confirmation");
+   end Test_Snapshot_Consistency_Across_Representative_Workflow;
 
 
 
-   procedure Test_Phase304_Contextual_Hints_Are_Known_Available_And_Side_Effect_Free
+   procedure Test_Contextual_Hints_Are_Known_Available_And_Side_Effect_Free
      (T : in out AUnit.Test_Cases.Test_Case'Class)
    is
       pragma Unreferenced (T);
@@ -2935,35 +2939,35 @@ package body Editor.Buffer_Switcher.Tests is
       Hints := Editor.Buffer_Switcher_Contextual_Hints.Build_Switcher_Contextual_Hints (S);
 
       Assert (Natural (Hints.Length) <= Editor.Buffer_Switcher_Contextual_Hints.Default_Max_Hints,
-              "Phase 304: contextual hints must stay bounded");
+              "contextual hints must stay bounded");
       Assert (Natural (Hints.Length) > 0,
-              "Phase 304: ordinary switcher state should expose practical hints");
+              "ordinary switcher state should expose practical hints");
 
       for Hint of Hints loop
          Assert (Editor.Commands.Has_Descriptor (Hint.Command_Id),
-                 "Phase 304: every hint command id must resolve to a descriptor");
+                 "every hint command id must resolve to a descriptor");
          Assert (Editor.Commands.Has_Availability_Handler (Hint.Command_Id),
-                 "Phase 304: every hint command id must be covered by executor availability");
+                 "every hint command id must be covered by executor availability");
          Assert (Editor.Commands.Is_Available
                    (Editor.Executor.Command_Availability (S, Hint.Command_Id)),
-                 "Phase 304: displayed hint must be executor-available");
+                 "displayed hint must be executor-available");
          Assert (Hint.Is_Enabled,
-                 "Phase 304: default policy exposes enabled hints only");
+                 "default policy exposes enabled hints only");
       end loop;
 
       Assert (Editor.Buffer_Switcher.Selected_Row_Index (S.Buffer_Switcher) = Before_Selected,
-              "Phase 304: hint derivation must not alter selected row");
+              "hint derivation must not alter selected row");
       Assert (Editor.Buffer_Switcher.Row_Count (S.Buffer_Switcher) = Before_Rows,
-              "Phase 304: hint derivation must not alter row projection");
+              "hint derivation must not alter row projection");
       Assert (Editor.Buffer_Switcher.Filter_Text (S.Buffer_Switcher) = "",
-              "Phase 304: hint derivation must not alter query text");
+              "hint derivation must not alter query text");
       Assert (Editor.Buffer_Switcher.Marked_Count (S.Buffer_Switcher) = 0,
-              "Phase 304: hint derivation must not mutate marks");
+              "hint derivation must not mutate marks");
       Assert (Alpha /= Editor.Buffers.No_Buffer,
-              "Phase 304 setup keeps a concrete selected buffer");
-   end Test_Phase304_Contextual_Hints_Are_Known_Available_And_Side_Effect_Free;
+              "setup keeps a concrete selected buffer");
+   end Test_Contextual_Hints_Are_Known_Available_And_Side_Effect_Free;
 
-   procedure Test_Phase304_Selected_Mark_And_Pending_Close_Hints_Are_State_Based
+   procedure Test_Selected_Mark_And_Pending_Close_Hints_Are_State_Based
      (T : in out AUnit.Test_Cases.Test_Case'Class)
    is
       pragma Unreferenced (T);
@@ -2977,18 +2981,18 @@ package body Editor.Buffer_Switcher.Tests is
 
       Hints := Editor.Buffer_Switcher_Contextual_Hints.Build_Switcher_Contextual_Hints (S);
       Assert (Contains_Hint (Hints, Command_Buffer_Switcher_Mark_Set),
-              "Phase 304: selected unmarked row should expose mark-selected hint");
+              "selected unmarked row should expose mark-selected hint");
       Assert (not Contains_Hint (Hints, Command_Buffer_Switcher_Mark_Clear),
-              "Phase 304: selected unmarked row must not expose unmark-selected hint");
+              "selected unmarked row must not expose unmark-selected hint");
 
       Editor.Buffer_Switcher.Set_Mark (S.Buffer_Switcher, Alpha);
       Editor.Buffer_Switcher.Recompute_Rows
         (S.Buffer_Switcher, Editor.Buffers.Global_Registry_For_UI, (others => <>));
       Hints := Editor.Buffer_Switcher_Contextual_Hints.Build_Switcher_Contextual_Hints (S);
       Assert (Contains_Hint (Hints, Command_Buffer_Switcher_Mark_Clear),
-              "Phase 304: selected marked row should expose unmark-selected hint");
+              "selected marked row should expose unmark-selected hint");
       Assert (Contains_Hint (Hints, Command_Buffer_Switcher_Mark_Close_Marked),
-              "Phase 304: marked state should expose marked-close preparation hint");
+              "marked state should expose marked-close preparation hint");
 
       Editor.Buffer_Switcher.Prepare_Pending_Marked_Close
         (S.Buffer_Switcher, Editor.Buffers.Global_Registry_For_UI, Count, Dirty_Count);
@@ -2997,16 +3001,16 @@ package body Editor.Buffer_Switcher.Tests is
       Hints := Editor.Buffer_Switcher_Contextual_Hints.Build_Switcher_Contextual_Hints (S);
 
       Assert (Contains_Hint (Hints, Command_Buffer_Switcher_Mark_Confirm),
-              "Phase 304: pending close should expose confirm hint");
+              "pending close should expose confirm hint");
       Assert (Contains_Hint (Hints, Command_Buffer_Switcher_Mark_Cancel),
-              "Phase 304: pending close should expose cancel hint");
+              "pending close should expose cancel hint");
       Assert (Contains_Hint (Hints, Command_Buffer_Switcher_Pending_Mark_Review_Show),
-              "Phase 304: pending close should expose review hint");
+              "pending close should expose review hint");
       Assert (not Contains_Hint (Hints, Command_Buffer_Switcher_Pending_Mark_Dirty_Remove_Selected),
-              "Phase 304: clean pending target must not expose dirty-pending removal hint");
-   end Test_Phase304_Selected_Mark_And_Pending_Close_Hints_Are_State_Based;
+              "clean pending target must not expose dirty-pending removal hint");
+   end Test_Selected_Mark_And_Pending_Close_Hints_Are_State_Based;
 
-   procedure Test_Phase304_Hint_Keybinding_Text_Follows_Runtime_Display_Setting
+   procedure Test_Hint_Keybinding_Text_Follows_Runtime_Display_Setting
      (T : in out AUnit.Test_Cases.Test_Case'Class)
    is
       pragma Unreferenced (T);
@@ -3025,23 +3029,23 @@ package body Editor.Buffer_Switcher.Tests is
 
       Hints := Editor.Buffer_Switcher_Contextual_Hints.Build_Switcher_Contextual_Hints (S);
       Assert (Hint_Key_Text (Hints, Command_Buffer_Switcher_Mark_Set) = "Ctrl+M",
-              "Phase 304: hint keybinding text must follow active runtime bindings");
+              "hint keybinding text must follow active runtime bindings");
 
       Editor.Settings.Set_Command_Palette_Show_Keybindings (S.Settings, False);
       Hints := Editor.Buffer_Switcher_Contextual_Hints.Build_Switcher_Contextual_Hints (S);
       Assert (Hint_Key_Text (Hints, Command_Buffer_Switcher_Mark_Set) = "",
-              "Phase 304: hint keybinding text must be hidden when display is disabled");
+              "hint keybinding text must be hidden when display is disabled");
 
       Editor.Keybindings.Unbind (Chord);
       Editor.Settings.Set_Command_Palette_Show_Keybindings (S.Settings, True);
       Hints := Editor.Buffer_Switcher_Contextual_Hints.Build_Switcher_Contextual_Hints (S);
       Assert (Hint_Key_Text (Hints, Command_Buffer_Switcher_Mark_Set) = "",
-              "Phase 304: hint keybinding text must disappear after runtime unbind");
+              "hint keybinding text must disappear after runtime unbind");
       Editor.Keybindings.Reset_To_Defaults;
-   end Test_Phase304_Hint_Keybinding_Text_Follows_Runtime_Display_Setting;
+   end Test_Hint_Keybinding_Text_Follows_Runtime_Display_Setting;
 
 
-   procedure Test_Phase304_Dirty_Prune_Preview_And_Apply_Hints_Are_Prioritized
+   procedure Test_Dirty_Prune_Preview_And_Apply_Hints_Are_Prioritized
      (T : in out AUnit.Test_Cases.Test_Case'Class)
    is
       pragma Unreferenced (T);
@@ -3071,30 +3075,30 @@ package body Editor.Buffer_Switcher.Tests is
 
       Hints := Editor.Buffer_Switcher_Contextual_Hints.Build_Switcher_Contextual_Hints (S);
       Assert (Contains_Hint (Hints, Command_Buffer_Switcher_Pending_Mark_Dirty_Prune_Apply),
-              "Phase 304: dirty-prune preview should expose apply preparation hint");
+              "dirty-prune preview should expose apply preparation hint");
       Assert (Contains_Hint (Hints, Command_Buffer_Switcher_Pending_Mark_Dirty_Prune_Cancel),
-              "Phase 304: dirty-prune preview should expose cancel hint");
+              "dirty-prune preview should expose cancel hint");
       Assert (Contains_Hint (Hints, Command_Buffer_Switcher_Pending_Mark_Dirty_Prune_Remove_Selected),
-              "Phase 304: selected active preview target should expose remove-preview hint");
+              "selected active preview target should expose remove-preview hint");
       Assert (not Contains_Hint (Hints, Command_Buffer_Switcher_Mark_Confirm),
-              "Phase 304: preview workflow hints should outrank pending-close confirmation hints");
+              "preview workflow hints should outrank pending-close confirmation hints");
 
       Editor.Buffer_Switcher.Prepare_Dirty_Pending_Marked_Close_Prune_Apply
         (S.Buffer_Switcher, Editor.Buffers.Global_Registry_For_UI, Count, Applicable);
       Hints := Editor.Buffer_Switcher_Contextual_Hints.Build_Switcher_Contextual_Hints (S);
       Assert (Contains_Hint (Hints, Command_Buffer_Switcher_Pending_Mark_Dirty_Prune_Apply_Confirm),
-              "Phase 304: apply confirmation should expose confirm-apply hint");
+              "apply confirmation should expose confirm-apply hint");
       Assert (Contains_Hint (Hints, Command_Buffer_Switcher_Pending_Mark_Dirty_Prune_Apply_Cancel),
-              "Phase 304: apply confirmation should expose cancel-apply hint");
+              "apply confirmation should expose cancel-apply hint");
       Assert (Contains_Hint (Hints, Command_Buffer_Switcher_Pending_Mark_Dirty_Prune_Apply_Review_Show),
-              "Phase 304: apply confirmation should expose review-apply hint");
+              "apply confirmation should expose review-apply hint");
       Assert (Contains_Hint (Hints, Command_Buffer_Switcher_Pending_Mark_Dirty_Prune_Apply_Remove_Selected),
-              "Phase 304: selected captured apply target should expose remove-apply hint");
+              "selected captured apply target should expose remove-apply hint");
       Assert (not Contains_Hint (Hints, Command_Buffer_Switcher_Pending_Mark_Dirty_Prune_Apply),
-              "Phase 304: apply confirmation hints must outrank preview apply-preparation hint");
-   end Test_Phase304_Dirty_Prune_Preview_And_Apply_Hints_Are_Prioritized;
+              "apply confirmation hints must outrank preview apply-preparation hint");
+   end Test_Dirty_Prune_Preview_And_Apply_Hints_Are_Prioritized;
 
-   procedure Test_Phase304_Review_Mode_Hints_And_Filtered_Selected_Targets
+   procedure Test_Review_Mode_Hints_And_Filtered_Selected_Targets
      (T : in out AUnit.Test_Cases.Test_Case'Class)
    is
       pragma Unreferenced (T);
@@ -3124,27 +3128,27 @@ package body Editor.Buffer_Switcher.Tests is
         (S.Buffer_Switcher, Editor.Buffers.Global_Registry_For_UI, (others => <>));
       Hints := Editor.Buffer_Switcher_Contextual_Hints.Build_Switcher_Contextual_Hints (S);
       Assert (Contains_Hint (Hints, Command_Buffer_Switcher_Pending_Mark_Dirty_Prune_Review_Hide),
-              "Phase 304: dirty-prune review mode should expose its own hide-review hint");
+              "dirty-prune review mode should expose its own hide-review hint");
       Assert (Contains_Hint (Hints, Command_Buffer_Switcher_Pending_Mark_Dirty_Prune_Next)
               or else Contains_Hint (Hints, Command_Buffer_Switcher_Pending_Mark_Dirty_Prune_Previous),
-              "Phase 304: dirty-prune review mode should expose relevant review navigation");
+              "dirty-prune review mode should expose relevant review navigation");
       Assert (not Contains_Hint (Hints, Command_Buffer_Switcher_Pending_Mark_Review_Hide),
-              "Phase 304: active dirty-prune review hints must not imply pending-close review");
+              "active dirty-prune review hints must not imply pending-close review");
       Assert (Editor.Buffer_Switcher.Dirty_Pending_Marked_Close_Prune_Target_Count
                 (S.Buffer_Switcher) = Before_Targets,
-              "Phase 304: review hint derivation must not mutate reviewed target set");
+              "review hint derivation must not mutate reviewed target set");
 
       Editor.Buffer_Switcher.Set_Filter_Text (S.Buffer_Switcher, "no-visible-target");
       Editor.Buffer_Switcher.Recompute_Rows
         (S.Buffer_Switcher, Editor.Buffers.Global_Registry_For_UI, (others => <>));
       Hints := Editor.Buffer_Switcher_Contextual_Hints.Build_Switcher_Contextual_Hints (S);
       Assert (not Contains_Hint (Hints, Command_Buffer_Switcher_Pending_Mark_Dirty_Prune_Remove_Selected),
-              "Phase 304: selected-target correction hint must disappear when candidates are hidden by query");
+              "selected-target correction hint must disappear when candidates are hidden by query");
       Assert (Contains_Hint (Hints, Command_Buffer_Switcher_Pending_Mark_Dirty_Prune_Apply),
-              "Phase 304: global dirty-prune workflow hints remain while filter hides candidates");
-   end Test_Phase304_Review_Mode_Hints_And_Filtered_Selected_Targets;
+              "global dirty-prune workflow hints remain while filter hides candidates");
+   end Test_Review_Mode_Hints_And_Filtered_Selected_Targets;
 
-   procedure Test_Phase304_Hint_Text_Formatting_Is_Deterministic_And_Deduplicated
+   procedure Test_Hint_Text_Formatting_Is_Deterministic_And_Deduplicated
      (T : in out AUnit.Test_Cases.Test_Case'Class)
    is
       pragma Unreferenced (T);
@@ -3160,24 +3164,24 @@ package body Editor.Buffer_Switcher.Tests is
       Text := To_Unbounded_String (Formatted_Hints (Hints));
 
       Assert (To_String (Text) = Editor.Buffer_Switcher_Contextual_Hints.Contextual_Hint_Text (S),
-              "Phase 304: rendered hint text must be the formatted structured snapshot hints");
+              "rendered hint text must be the formatted structured snapshot hints");
       Assert (Natural (Hints.Length) <= Editor.Buffer_Switcher_Contextual_Hints.Default_Max_Hints,
-              "Phase 304: formatted hint line is derived from the bounded hint list");
+              "formatted hint line is derived from the bounded hint list");
       if Natural (Hints.Length) > 1 then
          for I in Hints.First_Index .. Hints.Last_Index loop
             for J in Hints.First_Index .. Hints.Last_Index loop
                if I < J then
                   Assert (To_String (Hints.Element (I).Label) /= To_String (Hints.Element (J).Label),
-                          "Phase 304: one hint line must not repeat duplicate hint labels");
+                          "one hint line must not repeat duplicate hint labels");
                end if;
             end loop;
          end loop;
       end if;
-   end Test_Phase304_Hint_Text_Formatting_Is_Deterministic_And_Deduplicated;
+   end Test_Hint_Text_Formatting_Is_Deterministic_And_Deduplicated;
 
 
 
-   procedure Test_Phase478_Observes_File_Lifecycle_Association_And_Dirty_State
+   procedure Test_Observes_File_Lifecycle_Association_And_Dirty_State
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
       pragma Unreferenced (T);
       Registry : Editor.Buffers.Buffer_Registry;
@@ -3193,35 +3197,35 @@ package body Editor.Buffer_Switcher.Tests is
       Set_Buffer_Dirty_For_Test (Registry, Alpha, True);
       Recompute_For_Test (S, Registry);
       Row := Row_For (S, Alpha);
-      Assert (Row.Is_Dirty, "Phase 478: switcher must observe dirty buffer state");
-      Assert (Row.Has_Path, "Phase 478: switcher must observe associated source path");
+      Assert (Row.Is_Dirty, "switcher must observe dirty buffer state");
+      Assert (Row.Has_Path, "switcher must observe associated source path");
       Assert (To_String (Row.Display_Label) = "main.adb",
-              "Phase 478: save precondition label should be current buffer association label");
+              "save precondition label should be current buffer association label");
 
       Set_Buffer_Dirty_For_Test (Registry, Alpha, False);
       Recompute_For_Test (S, Registry);
       Row := Row_For (S, Alpha);
-      Assert (not Row.Is_Dirty, "Phase 478: successful save cleanup is observed as clean");
+      Assert (not Row.Is_Dirty, "successful save cleanup is observed as clean");
       Assert (To_String (Row.Display_Label) = "main.adb",
-              "Phase 478: save must not invent a new switcher path label");
+              "save must not invent a new switcher path label");
 
       --  Save As / rename / move all update association through buffer state only.
       Set_Buffer_Association_For_Test
         (Registry, Alpha, "/tmp/project/src/saved_as.adb", "saved_as.adb");
       Recompute_For_Test (S, Registry);
       Row := Row_For (S, Alpha);
-      Assert (Row.Has_Path, "Phase 478: save-as association remains path-backed");
-      Assert (not Row.Is_Dirty, "Phase 478: save-as clean state is observed");
+      Assert (Row.Has_Path, "save-as association remains path-backed");
+      Assert (not Row.Is_Dirty, "save-as clean state is observed");
       Assert (To_String (Row.Display_Label) = "saved_as.adb",
-              "Phase 478: save-as association update is observed through buffer label");
+              "save-as association update is observed through buffer label");
 
       Set_Buffer_Association_For_Test
         (Registry, Alpha, "/tmp/project/src/renamed.adb", "renamed.adb");
       Recompute_For_Test (S, Registry);
       Row := Row_For (S, Alpha);
       Assert (To_String (Row.Display_Label) = "renamed.adb",
-              "Phase 478: rename association update is observed through buffer label");
-      Assert (not Row.Is_Dirty, "Phase 478: rename does not create switcher dirty state");
+              "rename association update is observed through buffer label");
+      Assert (not Row.Is_Dirty, "rename does not create switcher dirty state");
 
       declare
          Before_Label : constant String := To_String (Row.Display_Label);
@@ -3229,10 +3233,10 @@ package body Editor.Buffer_Switcher.Tests is
          --  Copy preserves association and must not add an opened copied-target row.
          Recompute_For_Test (S, Registry);
          Assert (Editor.Buffer_Switcher.Row_Count (S) = 3,
-                 "Phase 478: copy must not add a copied target row");
+                 "copy must not add a copied target row");
          Row := Row_For (S, Alpha);
          Assert (To_String (Row.Display_Label) = Before_Label,
-                 "Phase 478: copy preserves the observed source association label");
+                 "copy preserves the observed source association label");
       end;
 
       Set_Buffer_Association_For_Test
@@ -3240,18 +3244,18 @@ package body Editor.Buffer_Switcher.Tests is
       Recompute_For_Test (S, Registry);
       Row := Row_For (S, Alpha);
       Assert (To_String (Row.Display_Label) = "moved.adb",
-              "Phase 478: move association update is observed through buffer label");
-      Assert (not Row.Is_Dirty, "Phase 478: move does not create switcher dirty state");
+              "move association update is observed through buffer label");
+      Assert (not Row.Is_Dirty, "move does not create switcher dirty state");
 
       Clear_Buffer_Association_For_Test (Registry, Alpha);
       Recompute_For_Test (S, Registry);
       Row := Row_For (S, Alpha);
-      Assert (not Row.Has_Path, "Phase 478: delete association clear is observed");
+      Assert (not Row.Has_Path, "delete association clear is observed");
       Assert (To_String (Row.Display_Label)'Length > 0,
-              "Phase 478: delete no-associated-file state uses canonical buffer label only");
-   end Test_Phase478_Observes_File_Lifecycle_Association_And_Dirty_State;
+              "delete no-associated-file state uses canonical buffer label only");
+   end Test_Observes_File_Lifecycle_Association_And_Dirty_State;
 
-   procedure Test_Phase478_Observes_Close_And_Reopen_Collection_Only
+   procedure Test_Observes_Close_And_Reopen_Collection_Only
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
       pragma Unreferenced (T);
       Registry : Editor.Buffers.Buffer_Registry;
@@ -3263,29 +3267,29 @@ package body Editor.Buffer_Switcher.Tests is
       Editor.Buffer_Switcher.Open (S);
       Recompute_For_Test (S, Registry);
       Assert (Editor.Buffer_Switcher.Row_Count (S) = 3,
-              "Phase 478: switcher starts from canonical open-buffer collection");
+              "switcher starts from canonical open-buffer collection");
 
       Editor.Buffers.Close_Buffer (Registry, Alpha, Closed, Force => True);
-      Assert (Closed, "Phase 478 test setup should close alpha through canonical close helper");
+      Assert (Closed, "test setup should close alpha through canonical close helper");
       Recompute_For_Test (S, Registry);
       Assert (Row_Index_For (S, Alpha) = 0,
-              "Phase 478: closed buffer is no longer projected by the switcher");
+              "closed buffer is no longer projected by the switcher");
       Assert (Editor.Buffer_Switcher.Row_Count (S) = 2,
-              "Phase 478: close observation only removes collection membership");
+              "close observation only removes collection membership");
 
       Reopened := Editor.Buffers.Add_Buffer_From_File
         (Registry, "/tmp/project/src/reopened.adb", "reopened.adb", "procedure Reopened is begin null; end;");
       Editor.Buffers.Set_Active_Buffer (Registry, Reopened);
       Recompute_For_Test (S, Registry);
       Assert (Editor.Buffer_Switcher.Row_Count (S) = 3,
-              "Phase 478: reopen/open adds a row only through canonical open-buffer collection");
+              "reopen/open adds a row only through canonical open-buffer collection");
       Assert (Row_For (S, Reopened).Is_Active,
-              "Phase 478: reopened buffer active state is observed from buffer registry");
+              "reopened buffer active state is observed from buffer registry");
       Assert (To_String (Row_For (S, Reopened).Display_Label) = "reopened.adb",
-              "Phase 478: reopened row label is current buffer association label");
-   end Test_Phase478_Observes_Close_And_Reopen_Collection_Only;
+              "reopened row label is current buffer association label");
+   end Test_Observes_Close_And_Reopen_Collection_Only;
 
-   procedure Test_Phase478_Prompt_And_Selection_Boundary_Is_Observation_Only
+   procedure Test_Prompt_And_Selection_Boundary_Is_Observation_Only
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
       pragma Unreferenced (T);
       Registry : Editor.Buffers.Buffer_Registry;
@@ -3298,14 +3302,14 @@ package body Editor.Buffer_Switcher.Tests is
       Editor.Buffer_Switcher.Open (S);
       Recompute_For_Test (S, Registry);
       Assert (Editor.Buffer_Switcher.Selected_Row_Index (S) = 1,
-              "Phase 478 setup: active buffer starts selected");
+              "setup: active buffer starts selected");
 
       Editor.Buffer_Switcher.Move_Selection_Down (S);
       Assert (Editor.Buffer_Switcher.Row_At
                 (S, Editor.Buffer_Switcher.Selected_Row_Index (S)).Id = Beta,
-              "Phase 478 setup: switcher selection can differ from active buffer");
+              "setup: switcher selection can differ from active buffer");
       Assert (Editor.Buffers.Active_Buffer (Registry) = Alpha,
-              "Phase 478: moving switcher selection must not change active buffer source");
+              "moving switcher selection must not change active buffer source");
 
       Editor.State.Init (App);
       App.File_Target_Prompt_Active := True;
@@ -3315,14 +3319,14 @@ package body Editor.Buffer_Switcher.Tests is
 
       Recompute_For_Test (S, Registry);
       Assert (App.File_Target_Prompt_Active,
-              "Phase 478: recomputing switcher rows must not own or clear prompt state");
+              "recomputing switcher rows must not own or clear prompt state");
       Assert (Editor.Input_Field.Text (App.File_Target_Prompt_Input) = "/tmp/explicit-target.adb",
-              "Phase 478: switcher selection must not become target prompt input");
+              "switcher selection must not become target prompt input");
       Assert (Editor.Buffers.Active_Buffer (Registry) = Alpha,
-              "Phase 478: prompt-active switcher interaction preserves active-buffer source policy");
-   end Test_Phase478_Prompt_And_Selection_Boundary_Is_Observation_Only;
+              "prompt-active switcher interaction preserves active-buffer source policy");
+   end Test_Prompt_And_Selection_Boundary_Is_Observation_Only;
 
-   procedure Test_Phase478_Rows_Contain_No_File_Lifecycle_Operation_State
+   procedure Test_Rows_Contain_No_File_Lifecycle_Operation_State
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
       pragma Unreferenced (T);
       Registry : Editor.Buffers.Buffer_Registry;
@@ -3339,24 +3343,24 @@ package body Editor.Buffer_Switcher.Tests is
       Row := Row_For (S, Alpha);
 
       Assert (Row.Id = Alpha,
-              "Phase 478: row carries buffer identity from canonical snapshot");
+              "row carries buffer identity from canonical snapshot");
       Assert (To_String (Row.Display_Label) = "current.adb",
-              "Phase 478: row carries current display label only");
+              "row carries current display label only");
       Assert (Row.Is_Dirty,
-              "Phase 478: row carries current dirty indicator only");
+              "row carries current dirty indicator only");
       Assert (Row.Has_Path,
-              "Phase 478: row carries current path-backed flag only");
+              "row carries current path-backed flag only");
       Assert (not Row.Is_Pending_Close_Target
                 and then not Row.Is_Ordinary_Pruned_Target
                 and then not Row.Is_Dirty_Prune_Preview_Target
                 and then not Row.Is_Removed_Dirty_Prune_Preview_Target
                 and then not Row.Is_Dirty_Prune_Apply_Target
                 and then not Row.Is_Removed_Dirty_Prune_Apply_Target,
-              "Phase 478: ordinary lifecycle observation rows must not expose operation histories, prompt targets, or recovery state");
-   end Test_Phase478_Rows_Contain_No_File_Lifecycle_Operation_State;
+              "ordinary lifecycle observation rows must not expose operation histories, prompt targets, or recovery state");
+   end Test_Rows_Contain_No_File_Lifecycle_Operation_State;
 
 
-   procedure Assert_Phase479_Row_State
+   procedure Assert_Row_State
      (S            : Editor.Buffer_Switcher.Buffer_Switcher_State;
       Id           : Editor.Buffers.Buffer_Id;
       Expected_Name : String;
@@ -3372,9 +3376,9 @@ package body Editor.Buffer_Switcher.Tests is
               Message & ": path-backed flag must be canonical current association state");
       Assert (Row.Is_Dirty = Expected_Dirty,
               Message & ": dirty marker must be canonical current dirty state");
-   end Assert_Phase479_Row_State;
+   end Assert_Row_State;
 
-   procedure Test_Phase479_Successful_Observation_Reliable_Visible_And_Hidden
+   procedure Test_Successful_Observation_Reliable_Visible_And_Hidden
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
       pragma Unreferenced (T);
       Registry : Editor.Buffers.Buffer_Registry;
@@ -3390,94 +3394,94 @@ package body Editor.Buffer_Switcher.Tests is
       --  file.save: dirty state is observed as clean, association label is unchanged.
       Set_Buffer_Dirty_For_Test (Registry, Alpha, True);
       Recompute_For_Test (Visible_S, Registry);
-      Assert_Phase479_Row_State
+      Assert_Row_State
         (Visible_S, Alpha, "main.adb", True, True,
-         "Phase 479 visible save precondition");
+         "visible save precondition");
       Set_Buffer_Dirty_For_Test (Registry, Alpha, False);
       Recompute_For_Test (Visible_S, Registry);
       Recompute_For_Test (Hidden_S, Registry);
-      Assert_Phase479_Row_State
+      Assert_Row_State
         (Visible_S, Alpha, "main.adb", True, False,
-         "Phase 479 visible save observation");
-      Assert_Phase479_Row_State
+         "visible save observation");
+      Assert_Row_State
         (Hidden_S, Alpha, "main.adb", True, False,
-         "Phase 479 hidden save observation");
+         "hidden save observation");
 
       --  file.save-as / prompted file.save-as final state: same buffer identity, new association.
       Set_Buffer_Association_For_Test
-        (Registry, Alpha, "/tmp/project/src/phase479_saved_as.adb", "phase479_saved_as.adb");
+        (Registry, Alpha, "/tmp/project/src/saved_as.adb", "saved_as.adb");
       Set_Buffer_Dirty_For_Test (Registry, Alpha, False);
       Recompute_For_Test (Visible_S, Registry);
       Recompute_For_Test (Hidden_S, Registry);
       Assert (Row_For (Visible_S, Alpha).Id = Alpha,
-              "Phase 479 save-as must preserve row buffer identity");
-      Assert_Phase479_Row_State
-        (Visible_S, Alpha, "phase479_saved_as.adb", True, False,
-         "Phase 479 visible save-as observation");
-      Assert_Phase479_Row_State
-        (Hidden_S, Alpha, "phase479_saved_as.adb", True, False,
-         "Phase 479 hidden save-as observation");
+              "save-as must preserve row buffer identity");
+      Assert_Row_State
+        (Visible_S, Alpha, "saved_as.adb", True, False,
+         "visible save-as observation");
+      Assert_Row_State
+        (Hidden_S, Alpha, "saved_as.adb", True, False,
+         "hidden save-as observation");
 
       --  file.rename-buffer-file: same row identity, new association, no reordering.
       Set_Buffer_Association_For_Test
-        (Registry, Alpha, "/tmp/project/src/phase479_renamed.adb", "phase479_renamed.adb");
+        (Registry, Alpha, "/tmp/project/src/renamed.adb", "renamed.adb");
       Recompute_For_Test (Visible_S, Registry);
       Assert (Editor.Buffer_Switcher.Row_At (Visible_S, 1).Id = Alpha
                 and then Editor.Buffer_Switcher.Row_At (Visible_S, 2).Id = Beta,
-              "Phase 479 rename must not reorder open-buffer projection");
-      Assert_Phase479_Row_State
-        (Visible_S, Alpha, "phase479_renamed.adb", True, False,
-         "Phase 479 rename observation");
+              "rename must not reorder open-buffer projection");
+      Assert_Row_State
+        (Visible_S, Alpha, "renamed.adb", True, False,
+         "rename observation");
 
       --  file.copy-buffer-file: copied target does not become an open-buffer row or label.
       Recompute_For_Test (Visible_S, Registry);
       Assert (Editor.Buffer_Switcher.Row_Count (Visible_S) = 3,
-              "Phase 479 copy must not synthesize copied target rows");
+              "copy must not synthesize copied target rows");
       Assert (Row_Index_For (Visible_S, Beta) /= 0,
-              "Phase 479 copy preserves existing open-buffer membership");
-      Assert_Phase479_Row_State
-        (Visible_S, Alpha, "phase479_renamed.adb", True, False,
-         "Phase 479 copy observation");
+              "copy preserves existing open-buffer membership");
+      Assert_Row_State
+        (Visible_S, Alpha, "renamed.adb", True, False,
+         "copy observation");
 
       --  file.move-buffer-file: same row identity, moved association, no duplicate target row.
       Set_Buffer_Association_For_Test
-        (Registry, Alpha, "/tmp/project/src/phase479_moved.adb", "phase479_moved.adb");
+        (Registry, Alpha, "/tmp/project/src/moved.adb", "moved.adb");
       Recompute_For_Test (Visible_S, Registry);
       Assert (Editor.Buffer_Switcher.Row_Count (Visible_S) = 3,
-              "Phase 479 move must not synthesize moved target rows");
-      Assert_Phase479_Row_State
-        (Visible_S, Alpha, "phase479_moved.adb", True, False,
-         "Phase 479 move observation");
+              "move must not synthesize moved target rows");
+      Assert_Row_State
+        (Visible_S, Alpha, "moved.adb", True, False,
+         "move observation");
 
       --  file.delete-buffer-file: association clear is observed, buffer remains open.
       Clear_Buffer_Association_For_Test (Registry, Alpha);
       Set_Buffer_Dirty_For_Test (Registry, Alpha, False);
       Recompute_For_Test (Visible_S, Registry);
       Assert (Row_Index_For (Visible_S, Alpha) /= 0,
-              "Phase 479 delete association clear must not close the buffer");
-      Assert_Phase479_Row_State
+              "delete association clear must not close the buffer");
+      Assert_Row_State
         (Visible_S, Alpha, "Untitled", False, False,
-         "Phase 479 delete observation");
+         "delete observation");
 
       --  file.close-buffer / file.reopen-closed-buffer: membership follows canonical collection only.
       Editor.Buffers.Close_Buffer (Registry, Alpha, Closed, Force => True);
-      Assert (Closed, "Phase 479 setup must close active buffer through canonical helper");
+      Assert (Closed, "setup must close active buffer through canonical helper");
       Recompute_For_Test (Visible_S, Registry);
       Assert (Row_Index_For (Visible_S, Alpha) = 0,
-              "Phase 479 close removes only the closed buffer row");
+              "close removes only the closed buffer row");
       Assert (Editor.Buffer_Switcher.Row_Count (Visible_S) = 2,
-              "Phase 479 close leaves other open-buffer rows intact");
+              "close leaves other open-buffer rows intact");
       Reopened := Editor.Buffers.Add_Buffer_From_File
-        (Registry, "/tmp/project/src/phase479_reopened.adb", "phase479_reopened.adb", "procedure R is begin null; end;");
+        (Registry, "/tmp/project/src/reopened.adb", "reopened.adb", "procedure R is begin null; end;");
       Editor.Buffers.Set_Active_Buffer (Registry, Reopened);
       Recompute_For_Test (Visible_S, Registry);
       Assert (Row_Index_For (Visible_S, Reopened) /= 0,
-              "Phase 479 reopen is observed only through canonical open-buffer collection");
+              "reopen is observed only through canonical open-buffer collection");
       Assert (Row_For (Visible_S, Reopened).Is_Active,
-              "Phase 479 active marker follows canonical active buffer after reopen");
-   end Test_Phase479_Successful_Observation_Reliable_Visible_And_Hidden;
+              "active marker follows canonical active buffer after reopen");
+   end Test_Successful_Observation_Reliable_Visible_And_Hidden;
 
-   procedure Test_Phase479_Failed_And_Blocked_Operations_Preserve_Observation
+   procedure Test_Failed_And_Blocked_Operations_Preserve_Observation
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
       pragma Unreferenced (T);
       Registry : Editor.Buffers.Buffer_Registry;
@@ -3489,7 +3493,7 @@ package body Editor.Buffer_Switcher.Tests is
       Editor.Buffer_Switcher.Open (S);
       Editor.Buffers.Set_Active_Buffer (Registry, Alpha);
       Set_Buffer_Association_For_Test
-        (Registry, Alpha, "/tmp/project/src/phase479_source.adb", "phase479_source.adb");
+        (Registry, Alpha, "/tmp/project/src/source.adb", "source.adb");
       Set_Buffer_Dirty_For_Test (Registry, Alpha, True);
       Recompute_For_Test (S, Registry);
       Before_Count := Editor.Buffer_Switcher.Row_Count (S);
@@ -3498,23 +3502,23 @@ package body Editor.Buffer_Switcher.Tests is
       --  are represented here by the required preservation property: no canonical buffer state changed.
       Recompute_For_Test (S, Registry);
       Assert (Editor.Buffer_Switcher.Row_Count (S) = Before_Count,
-              "Phase 479 failed/blocked operations must not change projected collection");
-      Assert_Phase479_Row_State
-        (S, Alpha, "phase479_source.adb", True, True,
-         "Phase 479 failed/blocked lifecycle preservation");
+              "failed/blocked operations must not change projected collection");
+      Assert_Row_State
+        (S, Alpha, "source.adb", True, True,
+         "failed/blocked lifecycle preservation");
       Assert (Row_Index_For (S, Alpha) /= 0,
-              "Phase 479 failed close/delete must not remove the source row");
+              "failed close/delete must not remove the source row");
       Assert (Row_Index_For (S, Editor.Buffers.No_Buffer) = 0,
-              "Phase 479 failed operations must not create error/recovery rows");
+              "failed operations must not create error/recovery rows");
 
       --  A failed target must never become a row label or synthetic open-buffer member.
       for I in 1 .. Editor.Buffer_Switcher.Row_Count (S) loop
          Assert (To_String (Editor.Buffer_Switcher.Row_At (S, I).Display_Label) /= "failed_target.adb",
-                 "Phase 479 failed target paths must never be displayed by switcher rows");
+                 "failed target paths must never be displayed by switcher rows");
       end loop;
-   end Test_Phase479_Failed_And_Blocked_Operations_Preserve_Observation;
+   end Test_Failed_And_Blocked_Operations_Preserve_Observation;
 
-   procedure Test_Phase479_Selection_And_Prompt_Boundaries_Are_Reliable
+   procedure Test_Selection_And_Prompt_Boundaries_Are_Reliable
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
       pragma Unreferenced (T);
       Registry : Editor.Buffers.Buffer_Registry;
@@ -3531,32 +3535,32 @@ package body Editor.Buffer_Switcher.Tests is
       Editor.Buffer_Switcher.Move_Selection_Down (S);
       Assert (Editor.Buffer_Switcher.Row_At
                 (S, Editor.Buffer_Switcher.Selected_Row_Index (S)).Id = Beta,
-              "Phase 479 setup: switcher selection differs from active buffer");
+              "setup: switcher selection differs from active buffer");
       Assert (Editor.Buffers.Active_Buffer (Registry) = Alpha,
-              "Phase 479 switcher selection must not become file lifecycle source");
+              "switcher selection must not become file lifecycle source");
 
       Editor.State.Init (App);
-      Editor.Executor.Open_File_Target_Prompt
+      Editor.Executor.File_Target_Prompt_Commands.Open_File_Target_Prompt
         (App, Editor.Commands.Command_Rename_Buffer_File);
-      Assert (Editor.Executor.File_Target_Prompt_Is_Active (App),
-              "Phase 479 prompted command opens canonical prompt state outside switcher ownership");
-      Assert (Editor.Executor.File_Target_Prompt_Input_Text (App) = "",
-              "Phase 479 switcher row labels must not seed target prompt input");
+      Assert (Editor.Executor.File_Target_Prompt_Commands.File_Target_Prompt_Is_Active (App),
+              "prompted command opens canonical prompt state outside switcher ownership");
+      Assert (Editor.Executor.File_Target_Prompt_Commands.File_Target_Prompt_Input_Text (App) = "",
+              "switcher row labels must not seed target prompt input");
       Editor.Buffer_Switcher.Move_Selection_Up (S);
-      Assert (Editor.Executor.File_Target_Prompt_Input_Text (App) = "",
-              "Phase 479 switcher interaction must not mutate prompt input");
-      Editor.Executor.Insert_File_Target_Prompt_Text (App, "/tmp/explicit_phase479_target.adb");
+      Assert (Editor.Executor.File_Target_Prompt_Commands.File_Target_Prompt_Input_Text (App) = "",
+              "switcher interaction must not mutate prompt input");
+      Editor.Executor.File_Target_Prompt_Commands.Insert_File_Target_Prompt_Text (App, "/tmp/explicit_target.adb");
       Editor.Buffer_Switcher.Move_Selection_Down (S);
-      Assert (Editor.Executor.File_Target_Prompt_Input_Text (App) = "/tmp/explicit_phase479_target.adb",
-              "Phase 479 explicit prompt text remains owned by canonical prompt input");
-      Editor.Executor.Cancel_File_Target_Prompt (App);
-      Assert (not Editor.Executor.File_Target_Prompt_Is_Active (App),
-              "Phase 479 prompt cancellation remains canonical and non-switcher-owned");
+      Assert (Editor.Executor.File_Target_Prompt_Commands.File_Target_Prompt_Input_Text (App) = "/tmp/explicit_target.adb",
+              "explicit prompt text remains owned by canonical prompt input");
+      Editor.Executor.File_Target_Prompt_Commands.Cancel_File_Target_Prompt (App);
+      Assert (not Editor.Executor.File_Target_Prompt_Commands.File_Target_Prompt_Is_Active (App),
+              "prompt cancellation remains canonical and non-switcher-owned");
       Assert (Editor.Buffers.Active_Buffer (Registry) = Alpha,
-              "Phase 479 prompt cancellation and switcher movement preserve active-buffer source");
-   end Test_Phase479_Selection_And_Prompt_Boundaries_Are_Reliable;
+              "prompt cancellation and switcher movement preserve active-buffer source");
+   end Test_Selection_And_Prompt_Boundaries_Are_Reliable;
 
-   procedure Test_Phase479_Snapshot_Freshness_And_Stale_Snapshot_Immutability
+   procedure Test_Snapshot_Freshness_And_Stale_Snapshot_Immutability
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
       pragma Unreferenced (T);
       Registry : Editor.Buffers.Buffer_Registry;
@@ -3567,27 +3571,27 @@ package body Editor.Buffer_Switcher.Tests is
       Editor.Buffer_Switcher.Open (Stale_S);
       Editor.Buffer_Switcher.Open (Fresh_S);
       Recompute_For_Test (Stale_S, Registry);
-      Assert_Phase479_Row_State
+      Assert_Row_State
         (Stale_S, Alpha, "main.adb", True, False,
-         "Phase 479 stale snapshot setup");
+         "stale snapshot setup");
 
       Set_Buffer_Association_For_Test
         (Registry, Alpha, "/tmp/project/src/fresh_after_rename.adb", "fresh_after_rename.adb");
       Set_Buffer_Dirty_For_Test (Registry, Alpha, True);
 
       --  A retained stale snapshot is inert data; render must not repair it by probing or patching.
-      Assert_Phase479_Row_State
+      Assert_Row_State
         (Stale_S, Alpha, "main.adb", True, False,
-         "Phase 479 stale snapshot remains unmutated before rebuild");
+         "stale snapshot remains unmutated before rebuild");
       Recompute_For_Test (Fresh_S, Registry);
-      Assert_Phase479_Row_State
+      Assert_Row_State
         (Fresh_S, Alpha, "fresh_after_rename.adb", True, True,
-         "Phase 479 fresh snapshot reflects current canonical buffer state");
+         "fresh snapshot reflects current canonical buffer state");
       Assert (Row_Index_For (Fresh_S, Alpha) = Row_Index_For (Stale_S, Alpha),
-              "Phase 479 path label changes must not create new row identity or reorder non-close operations");
-   end Test_Phase479_Snapshot_Freshness_And_Stale_Snapshot_Immutability;
+              "path label changes must not create new row identity or reorder non-close operations");
+   end Test_Snapshot_Freshness_And_Stale_Snapshot_Immutability;
 
-   procedure Test_Phase479_Rows_Exclude_Lifecycle_Target_Histories_And_Operation_Logs
+   procedure Test_Rows_Exclude_Lifecycle_Target_Histories_And_Operation_Logs
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
       pragma Unreferenced (T);
       Registry : Editor.Buffers.Buffer_Registry;
@@ -3598,33 +3602,33 @@ package body Editor.Buffer_Switcher.Tests is
       Build_Registry (Registry, Alpha, Beta, Untitled);
       Editor.Buffer_Switcher.Open (S);
       Set_Buffer_Association_For_Test
-        (Registry, Alpha, "/tmp/project/src/current_phase479.adb", "current_phase479.adb");
+        (Registry, Alpha, "/tmp/project/src/current_.adb", "current_.adb");
       Set_Buffer_Dirty_For_Test (Registry, Alpha, True);
       Recompute_For_Test (S, Registry);
       Row := Row_For (S, Alpha);
 
       Assert (Row.Id = Alpha,
-              "Phase 479 row identity is canonical buffer identity only");
-      Assert (To_String (Row.Display_Label) = "current_phase479.adb",
-              "Phase 479 row label is current association label only");
+              "row identity is canonical buffer identity only");
+      Assert (To_String (Row.Display_Label) = "current_.adb",
+              "row label is current association label only");
       Assert (Row.Is_Dirty and then Row.Has_Path,
-              "Phase 479 row state is current dirty/path snapshot only");
+              "row state is current dirty/path snapshot only");
       Assert (not Row.Is_Pending_Close_Target
                 and then not Row.Is_Ordinary_Pruned_Target
                 and then not Row.Is_Dirty_Prune_Preview_Target
                 and then not Row.Is_Removed_Dirty_Prune_Preview_Target
                 and then not Row.Is_Dirty_Prune_Apply_Target
                 and then not Row.Is_Removed_Dirty_Prune_Apply_Target,
-              "Phase 479 ordinary rows expose no file lifecycle target history, prompt text, probe cache, repair cache, or operation log");
-   end Test_Phase479_Rows_Exclude_Lifecycle_Target_Histories_And_Operation_Logs;
+              "ordinary rows expose no file lifecycle target history, prompt text, probe cache, repair cache, or operation log");
+   end Test_Rows_Exclude_Lifecycle_Target_Histories_And_Operation_Logs;
 
 
-   procedure Test_Phase480_Row_Projection_Helper_Is_Canonical_Buffer_Snapshot
+   procedure Test_Row_Projection_Helper_Is_Canonical_Buffer_Snapshot
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
       pragma Unreferenced (T);
       Summary : Editor.Buffers.Buffer_Summary :=
         (Id           => 42,
-         Display_Name => To_Unbounded_String ("phase480_current.adb"),
+         Display_Name => To_Unbounded_String ("current.adb"),
          Is_Dirty     => True,
          Is_Active    => True,
          Has_Path     => True,
@@ -3649,15 +3653,15 @@ package body Editor.Buffer_Switcher.Tests is
       Row := Editor.Buffer_Switcher.Build_Open_Buffer_Switcher_Row_From_Buffer_Snapshot (Summary);
 
       Assert (Row.Id = Summary.Id,
-              "Phase 480: row identity derives from canonical buffer identity");
+              "row identity derives from canonical buffer identity");
       Assert (To_String (Row.Display_Label) = To_String (Summary.Display_Name),
-              "Phase 480: row path/display label derives from current buffer summary only");
+              "row path/display label derives from current buffer summary only");
       Assert (Row.Is_Dirty = Summary.Is_Dirty,
-              "Phase 480: row dirty indicator derives from current buffer dirty state only");
+              "row dirty indicator derives from current buffer dirty state only");
       Assert (Row.Is_Active = Summary.Is_Active,
-              "Phase 480: row active marker derives from current active-buffer summary only");
+              "row active marker derives from current active-buffer summary only");
       Assert (Row.Has_Path = Summary.Has_Path,
-              "Phase 480: row path marker derives from current buffer association only");
+              "row path marker derives from current buffer association only");
       Assert (Row.Last_Save_Failed = Summary.Last_Save_Failed
                 and then Row.Last_Reload_Failed = Summary.Last_Reload_Failed
                 and then Row.Last_Revert_Failed = Summary.Last_Revert_Failed
@@ -3666,9 +3670,9 @@ package body Editor.Buffer_Switcher.Tests is
                 and then Row.Unwritable_Target_Surfaced = Summary.Unwritable_Target_Surfaced
                 and then Row.External_Change_Surfaced = Summary.External_Change_Surfaced
                 and then Row.Blocked_Close_Surfaced = Summary.Blocked_Close_Surfaced,
-              "Phase 573: file lifecycle recovery markers derive from current buffer summary only");
+              "file lifecycle recovery markers derive from current buffer summary only");
       Assert (Row.Is_Pinned and then Row.Has_Group and then Row.Has_Label and then Row.Has_Note,
-              "Phase 480: non-file-lifecycle row metadata remains snapshot-derived");
+              "non-file-lifecycle row metadata remains snapshot-derived");
       Assert (not Row.Is_Marked
                 and then not Row.Is_Pending_Close_Target
                 and then not Row.Is_Ordinary_Pruned_Target
@@ -3676,19 +3680,19 @@ package body Editor.Buffer_Switcher.Tests is
                 and then not Row.Is_Removed_Dirty_Prune_Preview_Target
                 and then not Row.Is_Dirty_Prune_Apply_Target
                 and then not Row.Is_Removed_Dirty_Prune_Apply_Target,
-              "Phase 480: canonical row projection helper does not import switcher target/history state");
+              "canonical row projection helper does not import switcher target/history state");
 
-      Summary.Display_Name := To_Unbounded_String ("phase480_after_move.adb");
+      Summary.Display_Name := To_Unbounded_String ("after_move.adb");
       Summary.Is_Dirty := False;
       Summary.Has_Path := True;
       Row := Editor.Buffer_Switcher.Build_Open_Buffer_Switcher_Row_From_Buffer_Snapshot (Summary);
-      Assert (To_String (Row.Display_Label) = "phase480_after_move.adb"
+      Assert (To_String (Row.Display_Label) = "after_move.adb"
                 and then not Row.Is_Dirty
                 and then Row.Has_Path,
-              "Phase 480: fresh projection follows the supplied current snapshot, not old labels or dirty caches");
-   end Test_Phase480_Row_Projection_Helper_Is_Canonical_Buffer_Snapshot;
+              "fresh projection follows the supplied current snapshot, not old labels or dirty caches");
+   end Test_Row_Projection_Helper_Is_Canonical_Buffer_Snapshot;
 
-   procedure Test_Phase480_Recompute_Drops_Stale_Label_And_Dirty_Caches
+   procedure Test_Recompute_Drops_Stale_Label_And_Dirty_Caches
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
       pragma Unreferenced (T);
       Registry : Editor.Buffers.Buffer_Registry;
@@ -3700,33 +3704,33 @@ package body Editor.Buffer_Switcher.Tests is
       Editor.Buffers.Set_Active_Buffer (Registry, Alpha);
       Editor.Buffer_Switcher.Open (S);
       Set_Buffer_Association_For_Test
-        (Registry, Alpha, "/tmp/project/src/phase480_old.adb", "phase480_old.adb");
+        (Registry, Alpha, "/tmp/project/src/old.adb", "old.adb");
       Set_Buffer_Dirty_For_Test (Registry, Alpha, True);
       Recompute_For_Test (S, Registry);
-      Assert_Phase479_Row_State
-        (S, Alpha, "phase480_old.adb", True, True,
-         "Phase 480 setup: initial row reflects current association and dirty state");
+      Assert_Row_State
+        (S, Alpha, "old.adb", True, True,
+         "setup: initial row reflects current association and dirty state");
 
       --  Leave the switcher state and stale row snapshot allocated, then change
       --  only canonical buffer state.  A fresh recompute must replace visible
       --  lifecycle observation fields from the registry snapshot; no row-local
       --  label/dirty cache may participate.
       Set_Buffer_Association_For_Test
-        (Registry, Alpha, "/tmp/project/src/phase480_new.adb", "phase480_new.adb");
+        (Registry, Alpha, "/tmp/project/src/new.adb", "new.adb");
       Set_Buffer_Dirty_For_Test (Registry, Alpha, False);
       Recompute_For_Test (S, Registry);
       Row := Row_For (S, Alpha);
-      Assert (To_String (Row.Display_Label) = "phase480_new.adb",
-              "Phase 480: recompute drops stale path labels and projects current association");
+      Assert (To_String (Row.Display_Label) = "new.adb",
+              "recompute drops stale path labels and projects current association");
       Assert (not Row.Is_Dirty,
-              "Phase 480: recompute drops stale dirty indicators and projects current dirty state");
+              "recompute drops stale dirty indicators and projects current dirty state");
       Assert (Row.Is_Active,
-              "Phase 480: active marker remains canonical active-buffer identity");
+              "active marker remains canonical active-buffer identity");
       Assert (Row_Index_For (S, Alpha) = 1,
-              "Phase 480: association label changes do not alter canonical collection order");
-   end Test_Phase480_Recompute_Drops_Stale_Label_And_Dirty_Caches;
+              "association label changes do not alter canonical collection order");
+   end Test_Recompute_Drops_Stale_Label_And_Dirty_Caches;
 
-   procedure Test_Phase480_Duplicate_Lifecycle_State_And_Prompt_Boundaries_Are_Absent
+   procedure Test_Duplicate_Lifecycle_State_And_Prompt_Boundaries_Are_Absent
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
       pragma Unreferenced (T);
       Registry : Editor.Buffers.Buffer_Registry;
@@ -3741,30 +3745,30 @@ package body Editor.Buffer_Switcher.Tests is
       Editor.Buffer_Switcher.Move_Selection_Down (S);
 
       Assert (Editor.Buffer_Switcher.Open_Buffer_Switcher_No_Duplicate_Lifecycle_State (S),
-              "Phase 480: switcher state owns no path/dirty caches, target histories, operation logs, probes, or repairs");
+              "switcher state owns no path/dirty caches, target histories, operation logs, probes, or repairs");
       Assert (Editor.Buffer_Switcher.Open_Buffer_Switcher_No_Prompt_State (S),
-              "Phase 480: switcher state owns no file target prompt state");
+              "switcher state owns no file target prompt state");
       Assert (Editor.Buffer_Switcher.Open_Buffer_Switcher_No_File_Lifecycle_Source_Override (S),
-              "Phase 480: switcher state owns no file lifecycle source override");
+              "switcher state owns no file lifecycle source override");
       Assert (Editor.Buffer_Switcher.Row_At
                 (S, Editor.Buffer_Switcher.Selected_Row_Index (S)).Id = Beta,
-              "Phase 480 setup: switcher selection is intentionally different from active buffer");
+              "setup: switcher selection is intentionally different from active buffer");
       Assert (Editor.Buffers.Active_Buffer (Registry) = Alpha,
-              "Phase 480: switcher selection remains local UI state and not file lifecycle source");
+              "switcher selection remains local UI state and not file lifecycle source");
 
       Editor.State.Init (App);
-      Editor.Executor.Open_File_Target_Prompt
+      Editor.Executor.File_Target_Prompt_Commands.Open_File_Target_Prompt
         (App, Editor.Commands.Command_Move_Buffer_File);
-      Assert (Editor.Executor.File_Target_Prompt_Is_Active (App),
-              "Phase 480: prompted file lifecycle state remains canonical Executor state");
-      Assert (Editor.Executor.File_Target_Prompt_Input_Text (App) = "",
-              "Phase 480: switcher row selection and labels do not seed prompt target text");
+      Assert (Editor.Executor.File_Target_Prompt_Commands.File_Target_Prompt_Is_Active (App),
+              "prompted file lifecycle state remains canonical Executor state");
+      Assert (Editor.Executor.File_Target_Prompt_Commands.File_Target_Prompt_Input_Text (App) = "",
+              "switcher row selection and labels do not seed prompt target text");
       Editor.Buffer_Switcher.Move_Selection_Up (S);
-      Assert (Editor.Executor.File_Target_Prompt_Input_Text (App) = "",
-              "Phase 480: switcher navigation does not mutate canonical prompt input");
-   end Test_Phase480_Duplicate_Lifecycle_State_And_Prompt_Boundaries_Are_Absent;
+      Assert (Editor.Executor.File_Target_Prompt_Commands.File_Target_Prompt_Input_Text (App) = "",
+              "switcher navigation does not mutate canonical prompt input");
+   end Test_Duplicate_Lifecycle_State_And_Prompt_Boundaries_Are_Absent;
 
-   procedure Test_Phase480_Copy_Delete_Close_Reopen_Remain_Collection_Only
+   procedure Test_Copy_Delete_Close_Reopen_Remain_Collection_Only
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
       pragma Unreferenced (T);
       Registry : Editor.Buffers.Buffer_Registry;
@@ -3786,38 +3790,38 @@ package body Editor.Buffer_Switcher.Tests is
       --  collection.
       Recompute_For_Test (S, Registry);
       Assert (Editor.Buffer_Switcher.Row_Count (S) = Before_Count,
-              "Phase 480: copy observation cannot create copied-target rows or history rows");
-      Assert_Phase479_Row_State
+              "copy observation cannot create copied-target rows or history rows");
+      Assert_Row_State
         (S, Alpha, "source_for_copy.adb", True, False,
-         "Phase 480 copy observation remains source-association only");
+         "copy observation remains source-association only");
 
       Clear_Buffer_Association_For_Test (Registry, Alpha);
       Recompute_For_Test (S, Registry);
       Assert (Row_For (S, Alpha).Id = Alpha and then not Row_For (S, Alpha).Has_Path,
-              "Phase 480: delete observation is no-associated-file buffer state, not deleted-path recovery state");
+              "delete observation is no-associated-file buffer state, not deleted-path recovery state");
       for I in 1 .. Editor.Buffer_Switcher.Row_Count (S) loop
          Assert (To_String (Editor.Buffer_Switcher.Row_At (S, I).Display_Label) /= "source_for_copy.adb",
-                 "Phase 480: delete must not retain deleted path as a switcher recovery label");
+                 "delete must not retain deleted path as a switcher recovery label");
       end loop;
 
       Editor.Buffers.Close_Buffer (Registry, Alpha, Closed, Force => True);
-      Assert (Closed, "Phase 480 setup must close alpha through canonical buffer helper");
+      Assert (Closed, "setup must close alpha through canonical buffer helper");
       Recompute_For_Test (S, Registry);
       Assert (Row_Index_For (S, Alpha) = 0,
-              "Phase 480: close observation is canonical open-buffer collection removal only");
+              "close observation is canonical open-buffer collection removal only");
 
       Reopened := Editor.Buffers.Add_Buffer_From_File
-        (Registry, "/tmp/project/src/phase480_reopened.adb", "phase480_reopened.adb", "procedure R is begin null; end;");
+        (Registry, "/tmp/project/src/reopened.adb", "reopened.adb", "procedure R is begin null; end;");
       Editor.Buffers.Set_Active_Buffer (Registry, Reopened);
       Recompute_For_Test (S, Registry);
       Assert (Row_For (S, Reopened).Is_Active
-                and then To_String (Row_For (S, Reopened).Display_Label) = "phase480_reopened.adb",
-              "Phase 480: reopen observation is canonical open-buffer addition only");
-   end Test_Phase480_Copy_Delete_Close_Reopen_Remain_Collection_Only;
+                and then To_String (Row_For (S, Reopened).Display_Label) = "reopened.adb",
+              "reopen observation is canonical open-buffer addition only");
+   end Test_Copy_Delete_Close_Reopen_Remain_Collection_Only;
 
 
 
-   procedure Assert_Phase481_Row_Frozen
+   procedure Assert_Row_Frozen
      (S          : Editor.Buffer_Switcher.Buffer_Switcher_State;
       Id         : Editor.Buffers.Buffer_Id;
       Label      : String;
@@ -3840,9 +3844,9 @@ package body Editor.Buffer_Switcher.Tests is
               Context & ": active marker derives from canonical active buffer identity");
       Assert (Row_Index_For (S, Id) = Expected_Index,
               Context & ": row order derives from canonical open-buffer collection order");
-   end Assert_Phase481_Row_Frozen;
+   end Assert_Row_Frozen;
 
-   procedure Test_Phase481_Canonical_Observation_Source_Final_Freeze
+   procedure Test_Canonical_Observation_Source_Final_Freeze
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
       pragma Unreferenced (T);
       Registry : Editor.Buffers.Buffer_Registry;
@@ -3854,27 +3858,27 @@ package body Editor.Buffer_Switcher.Tests is
       Editor.Buffer_Switcher.Open (S);
       Recompute_For_Test (S, Registry);
 
-      Assert_Phase481_Row_Frozen
+      Assert_Row_Frozen
         (S, Alpha, "main.adb", True, False, False, 1,
-         "Phase 481 source freeze alpha");
-      Assert_Phase481_Row_Frozen
+         "source freeze alpha");
+      Assert_Row_Frozen
         (S, Beta, "readme.txt", True, False, True, 2,
-         "Phase 481 source freeze beta");
-      Assert_Phase481_Row_Frozen
+         "source freeze beta");
+      Assert_Row_Frozen
         (S, Untitled, "Untitled", False, False, False, 3,
-         "Phase 481 source freeze untitled");
+         "source freeze untitled");
 
       Editor.Buffer_Switcher.Move_Selection_Down (S);
       Assert (Editor.Buffer_Switcher.Row_At
                 (S, Editor.Buffer_Switcher.Selected_Row_Index (S)).Id = Untitled,
-              "Phase 481 selection marker remains switcher-local UI state");
+              "selection marker remains switcher-local UI state");
       Assert (Editor.Buffers.Active_Buffer (Registry) = Beta,
-              "Phase 481 selected row does not rewrite canonical active buffer identity");
+              "selected row does not rewrite canonical active buffer identity");
       Assert (Editor.Buffer_Switcher.Open_Buffer_Switcher_File_Lifecycle_Observation_Frozen (S),
-              "Phase 481 final helper freezes absence of duplicated lifecycle ownership");
-   end Test_Phase481_Canonical_Observation_Source_Final_Freeze;
+              "final helper freezes absence of duplicated lifecycle ownership");
+   end Test_Canonical_Observation_Source_Final_Freeze;
 
-   procedure Test_Phase481_Operation_Observation_Final_Freeze
+   procedure Test_Operation_Observation_Final_Freeze
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
       pragma Unreferenced (T);
       Registry : Editor.Buffers.Buffer_Registry;
@@ -3891,75 +3895,75 @@ package body Editor.Buffer_Switcher.Tests is
 
       Set_Buffer_Dirty_For_Test (Registry, Alpha, True);
       Recompute_For_Test (S, Registry);
-      Assert_Phase481_Row_Frozen
+      Assert_Row_Frozen
         (S, Alpha, "main.adb", True, True, True, 1,
-         "Phase 481 save-before dirty observation");
+         "save-before dirty observation");
 
       Set_Buffer_Dirty_For_Test (Registry, Alpha, False);
       Recompute_For_Test (S, Registry);
-      Assert_Phase481_Row_Frozen
+      Assert_Row_Frozen
         (S, Alpha, "main.adb", True, False, True, 1,
-         "Phase 481 successful save observation");
+         "successful save observation");
 
       Set_Buffer_Association_For_Test
-        (Registry, Alpha, "/tmp/project/src/phase481_save_as.adb", "phase481_save_as.adb");
+        (Registry, Alpha, "/tmp/project/src/save_as.adb", "save_as.adb");
       Recompute_For_Test (S, Registry);
-      Assert_Phase481_Row_Frozen
-        (S, Alpha, "phase481_save_as.adb", True, False, True, 1,
-         "Phase 481 successful save-as observation");
+      Assert_Row_Frozen
+        (S, Alpha, "save_as.adb", True, False, True, 1,
+         "successful save-as observation");
       Assert (Editor.Buffer_Switcher.Row_Count (S) = Before_Count,
-              "Phase 481 save-as preserves row membership");
+              "save-as preserves row membership");
 
       Set_Buffer_Association_For_Test
-        (Registry, Alpha, "/tmp/project/src/phase481_renamed.adb", "phase481_renamed.adb");
+        (Registry, Alpha, "/tmp/project/src/renamed.adb", "renamed.adb");
       Recompute_For_Test (S, Registry);
-      Assert_Phase481_Row_Frozen
-        (S, Alpha, "phase481_renamed.adb", True, False, True, 1,
-         "Phase 481 successful rename observation");
+      Assert_Row_Frozen
+        (S, Alpha, "renamed.adb", True, False, True, 1,
+         "successful rename observation");
 
       Recompute_For_Test (S, Registry);
       Assert (Editor.Buffer_Switcher.Row_Count (S) = Before_Count,
-              "Phase 481 copy observation does not add copied-target rows");
-      Assert_Phase481_Row_Frozen
-        (S, Alpha, "phase481_renamed.adb", True, False, True, 1,
-         "Phase 481 successful copy preserves source association observation");
+              "copy observation does not add copied-target rows");
+      Assert_Row_Frozen
+        (S, Alpha, "renamed.adb", True, False, True, 1,
+         "successful copy preserves source association observation");
 
       Set_Buffer_Association_For_Test
-        (Registry, Alpha, "/tmp/project/src/phase481_moved.adb", "phase481_moved.adb");
+        (Registry, Alpha, "/tmp/project/src/moved.adb", "moved.adb");
       Recompute_For_Test (S, Registry);
-      Assert_Phase481_Row_Frozen
-        (S, Alpha, "phase481_moved.adb", True, False, True, 1,
-         "Phase 481 successful move observation");
+      Assert_Row_Frozen
+        (S, Alpha, "moved.adb", True, False, True, 1,
+         "successful move observation");
 
       Clear_Buffer_Association_For_Test (Registry, Alpha);
       Recompute_For_Test (S, Registry);
-      Assert_Phase481_Row_Frozen
+      Assert_Row_Frozen
         (S, Alpha, "Untitled", False, False, True, 1,
-         "Phase 481 successful delete observation");
+         "successful delete observation");
 
       Set_Buffer_Dirty_For_Test (Registry, Alpha, True);
       Recompute_For_Test (S, Registry);
-      Assert_Phase481_Row_Frozen
+      Assert_Row_Frozen
         (S, Alpha, "Untitled", False, True, True, 1,
-         "Phase 481 reload/revert dirty-result observation remains canonical");
+         "reload/revert dirty-result observation remains canonical");
 
       Editor.Buffers.Close_Buffer (Registry, Alpha, Closed, Force => True);
-      Assert (Closed, "Phase 481 setup must close active buffer through canonical helper");
+      Assert (Closed, "setup must close active buffer through canonical helper");
       Recompute_For_Test (S, Registry);
       Assert (Row_Index_For (S, Alpha) = 0,
-              "Phase 481 close observation removes only the canonical closed buffer row");
+              "close observation removes only the canonical closed buffer row");
 
       Reopened := Editor.Buffers.Add_Buffer_From_File
-        (Registry, "/tmp/project/src/phase481_reopened.adb", "phase481_reopened.adb", "procedure R is begin null; end;");
+        (Registry, "/tmp/project/src/reopened.adb", "reopened.adb", "procedure R is begin null; end;");
       Editor.Buffers.Set_Active_Buffer (Registry, Reopened);
       Recompute_For_Test (S, Registry);
       Assert (Row_For (S, Reopened).Is_Active,
-              "Phase 481 reopen observation follows canonical open/reopen behavior");
+              "reopen observation follows canonical open/reopen behavior");
       Assert (Row_For (S, Beta).Id = Beta,
-              "Phase 481 close/reopen preserves unrelated row identity");
-   end Test_Phase481_Operation_Observation_Final_Freeze;
+              "close/reopen preserves unrelated row identity");
+   end Test_Operation_Observation_Final_Freeze;
 
-   procedure Test_Phase481_Failed_And_Blocked_Observation_Final_Freeze
+   procedure Test_Failed_And_Blocked_Observation_Final_Freeze
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
       pragma Unreferenced (T);
       Registry : Editor.Buffers.Buffer_Registry;
@@ -3970,7 +3974,7 @@ package body Editor.Buffer_Switcher.Tests is
       Build_Registry (Registry, Alpha, Beta, Untitled);
       Editor.Buffers.Set_Active_Buffer (Registry, Alpha);
       Set_Buffer_Association_For_Test
-        (Registry, Alpha, "/tmp/project/src/phase481_source.adb", "phase481_source.adb");
+        (Registry, Alpha, "/tmp/project/src/source.adb", "source.adb");
       Set_Buffer_Dirty_For_Test (Registry, Alpha, True);
       Editor.Buffer_Switcher.Open (S);
       Recompute_For_Test (S, Registry);
@@ -3980,20 +3984,20 @@ package body Editor.Buffer_Switcher.Tests is
       --  canonical buffer state.  The switcher must not surface the failed
       --  target path as a row label, row identity, target history, or cache.
       Recompute_For_Test (S, Registry);
-      Assert_Phase481_Row_Frozen
-        (S, Alpha, "phase481_source.adb", True, True, True, 1,
-         "Phase 481 failed save-as/rename/copy/move observation");
+      Assert_Row_Frozen
+        (S, Alpha, "source.adb", True, True, True, 1,
+         "failed save-as/rename/copy/move observation");
       Assert (Editor.Buffer_Switcher.Row_Count (S) = Before_Count,
-              "Phase 481 failed operation cannot add target/history rows");
+              "failed operation cannot add target/history rows");
       for I in 1 .. Editor.Buffer_Switcher.Row_Count (S) loop
-         Assert (To_String (Editor.Buffer_Switcher.Row_At (S, I).Display_Label) /= "failed_phase481_target.adb",
-                 "Phase 481 failed target path is not retained in switcher rows");
+         Assert (To_String (Editor.Buffer_Switcher.Row_At (S, I).Display_Label) /= "failed_target.adb",
+                 "failed target path is not retained in switcher rows");
       end loop;
       Assert (Editor.Buffer_Switcher.Open_Buffer_Switcher_File_Lifecycle_Observation_Frozen (S),
-              "Phase 481 failed operation leaves no switcher lifecycle ownership");
-   end Test_Phase481_Failed_And_Blocked_Observation_Final_Freeze;
+              "failed operation leaves no switcher lifecycle ownership");
+   end Test_Failed_And_Blocked_Observation_Final_Freeze;
 
-   procedure Test_Phase481_Direct_Prompted_Selection_And_Target_Boundaries_Final_Freeze
+   procedure Test_Direct_Prompted_Selection_And_Target_Boundaries_Final_Freeze
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
       pragma Unreferenced (T);
       Registry : Editor.Buffers.Buffer_Registry;
@@ -4011,39 +4015,39 @@ package body Editor.Buffer_Switcher.Tests is
 
       Assert (Editor.Buffer_Switcher.Row_At
                 (S, Editor.Buffer_Switcher.Selected_Row_Index (S)).Id = Beta,
-              "Phase 481 setup: selected row differs from active lifecycle source");
+              "setup: selected row differs from active lifecycle source");
       Assert (Editor.Buffers.Active_Buffer (Registry) = Alpha,
-              "Phase 481 switcher selection is not a file lifecycle source override");
+              "switcher selection is not a file lifecycle source override");
 
       Editor.State.Init (App);
-      Editor.Executor.Open_File_Target_Prompt
+      Editor.Executor.File_Target_Prompt_Commands.Open_File_Target_Prompt
         (App, Editor.Commands.Command_Rename_Buffer_File);
-      Assert (Editor.Executor.File_Target_Prompt_Is_Active (App),
-              "Phase 481 prompt ownership remains canonical Executor state");
-      Assert (Editor.Executor.File_Target_Prompt_Input_Text (App) = "",
-              "Phase 481 selected row label does not seed target prompt input");
+      Assert (Editor.Executor.File_Target_Prompt_Commands.File_Target_Prompt_Is_Active (App),
+              "prompt ownership remains canonical Executor state");
+      Assert (Editor.Executor.File_Target_Prompt_Commands.File_Target_Prompt_Input_Text (App) = "",
+              "selected row label does not seed target prompt input");
       Editor.Buffer_Switcher.Move_Selection_Up (S);
-      Assert (Editor.Executor.File_Target_Prompt_Input_Text (App) = "",
-              "Phase 481 switcher interaction does not mutate target prompt input");
+      Assert (Editor.Executor.File_Target_Prompt_Commands.File_Target_Prompt_Input_Text (App) = "",
+              "switcher interaction does not mutate target prompt input");
       Assert (Editor.Buffer_Switcher.Open_Buffer_Switcher_No_Prompt_State (S),
-              "Phase 481 switcher owns no target prompt state");
+              "switcher owns no target prompt state");
 
       Set_Buffer_Association_For_Test
-        (Registry, Alpha, "/tmp/project/src/phase481_direct.adb", "phase481_direct.adb");
+        (Registry, Alpha, "/tmp/project/src/direct.adb", "direct.adb");
       Recompute_For_Test (S, Registry);
-      Assert_Phase481_Row_Frozen
-        (S, Alpha, "phase481_direct.adb", True, False, True, 1,
-         "Phase 481 direct explicit-target observation");
+      Assert_Row_Frozen
+        (S, Alpha, "direct.adb", True, False, True, 1,
+         "direct explicit-target observation");
 
       Set_Buffer_Association_For_Test
-        (Registry, Alpha, "/tmp/project/src/phase481_prompted.adb", "phase481_prompted.adb");
+        (Registry, Alpha, "/tmp/project/src/prompted.adb", "prompted.adb");
       Recompute_For_Test (S, Registry);
-      Assert_Phase481_Row_Frozen
-        (S, Alpha, "phase481_prompted.adb", True, False, True, 1,
-         "Phase 481 prompted explicit-target observation equivalence");
-   end Test_Phase481_Direct_Prompted_Selection_And_Target_Boundaries_Final_Freeze;
+      Assert_Row_Frozen
+        (S, Alpha, "prompted.adb", True, False, True, 1,
+         "prompted explicit-target observation equivalence");
+   end Test_Direct_Prompted_Selection_And_Target_Boundaries_Final_Freeze;
 
-   procedure Test_Phase481_Snapshot_Render_Audit_Persistence_Absence_Final_Freeze
+   procedure Test_Snapshot_Render_Audit_Persistence_Absence_Final_Freeze
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
       pragma Unreferenced (T);
       Registry : Editor.Buffers.Buffer_Registry;
@@ -4055,33 +4059,33 @@ package body Editor.Buffer_Switcher.Tests is
       Build_Registry (Registry, Alpha, Beta, Untitled);
       Editor.Buffers.Set_Active_Buffer (Registry, Alpha);
       Set_Buffer_Association_For_Test
-        (Registry, Alpha, "/tmp/project/src/phase481_before.adb", "phase481_before.adb");
+        (Registry, Alpha, "/tmp/project/src/before.adb", "before.adb");
       Set_Buffer_Dirty_For_Test (Registry, Alpha, True);
       Editor.Buffer_Switcher.Open (Stale_S);
       Recompute_For_Test (Stale_S, Registry);
       Stale_Row := Row_For (Stale_S, Alpha);
 
       Set_Buffer_Association_For_Test
-        (Registry, Alpha, "/tmp/project/src/phase481_after.adb", "phase481_after.adb");
+        (Registry, Alpha, "/tmp/project/src/after.adb", "after.adb");
       Set_Buffer_Dirty_For_Test (Registry, Alpha, False);
       Fresh_S := Stale_S;
       Recompute_For_Test (Fresh_S, Registry);
       Fresh_Row := Row_For (Fresh_S, Alpha);
 
-      Assert (To_String (Stale_Row.Display_Label) = "phase481_before.adb" and then Stale_Row.Is_Dirty,
-              "Phase 481 stale snapshot remains inert and is not repaired by mutation");
-      Assert (To_String (Fresh_Row.Display_Label) = "phase481_after.adb" and then not Fresh_Row.Is_Dirty,
-              "Phase 481 fresh snapshot reflects current canonical buffer state");
+      Assert (To_String (Stale_Row.Display_Label) = "before.adb" and then Stale_Row.Is_Dirty,
+              "stale snapshot remains inert and is not repaired by mutation");
+      Assert (To_String (Fresh_Row.Display_Label) = "after.adb" and then not Fresh_Row.Is_Dirty,
+              "fresh snapshot reflects current canonical buffer state");
       Assert (Editor.Buffer_Switcher.Open_Buffer_Switcher_No_Duplicate_Lifecycle_State (Fresh_S),
-              "Phase 481 render/audit/persistence forbidden cache/history/probe/repair state remains absent");
+              "render/audit/persistence forbidden cache/history/probe/repair state remains absent");
       Assert (Editor.Buffer_Switcher.Open_Buffer_Switcher_No_File_Lifecycle_Source_Override (Fresh_S),
-              "Phase 481 switcher owns no local file lifecycle route or source override");
+              "switcher owns no local file lifecycle route or source override");
       Assert (Editor.Buffer_Switcher.Open_Buffer_Switcher_File_Lifecycle_Observation_Frozen (Fresh_S),
-              "Phase 481 render audit and persistence boundaries remain inspectors/exclusions only");
-   end Test_Phase481_Snapshot_Render_Audit_Persistence_Absence_Final_Freeze;
+              "render audit and persistence boundaries remain inspectors/exclusions only");
+   end Test_Snapshot_Render_Audit_Persistence_Absence_Final_Freeze;
 
 
-   procedure Test_Phase543_Row_State_Markers_Are_Snapshot_Only
+   procedure Test_Row_State_Markers_Are_Snapshot_Only
      (T : in out AUnit.Test_Cases.Test_Case'Class)
    is
       pragma Unreferenced (T);
@@ -4113,20 +4117,20 @@ package body Editor.Buffer_Switcher.Tests is
       Switcher_State : Editor.Buffer_Switcher.Buffer_Switcher_State;
    begin
       Assert (Row.Is_Active and then Row.Is_Dirty,
-              "phase 543 row keeps active and dirty state from the registry snapshot");
+              "row keeps active and dirty state from the registry snapshot");
       Assert (Row.Is_File_Backed and then not Row.Is_Unbacked,
-              "phase 543 file-backed marker is derived from Has_Path only");
+              "file-backed marker is derived from Has_Path only");
       Assert (Row.Last_Save_Failed
                 and then Row.Last_Reload_Failed
                 and then Row.Missing_Target_Surfaced
                 and then Row.External_Change_Surfaced
                 and then Row.Blocked_Close_Surfaced,
-              "phase 573 lifecycle warning markers are copied observation-only");
+              "lifecycle warning markers are copied observation-only");
       Assert (Markers = "active dirty file missing unreadable unwritable external-change guarded",
-              "phase 573 marker text includes reload/revert and external-change recovery state deterministically");
-   end Test_Phase543_Row_State_Markers_Are_Snapshot_Only;
+              "marker text includes reload/revert and external-change recovery state deterministically");
+   end Test_Row_State_Markers_Are_Snapshot_Only;
 
-   procedure Test_Phase543_Command_Aliases_Map_To_Executor_Routed_Commands
+   procedure Test_Command_Aliases_Map_To_Executor_Routed_Commands
      (T : in out AUnit.Test_Cases.Test_Case'Class)
    is
       pragma Unreferenced (T);
@@ -4134,25 +4138,25 @@ package body Editor.Buffer_Switcher.Tests is
    begin
       Assert (Editor.Commands.Command_Id_From_Stable_Name ("buffer.list.show", Found) =
                 Editor.Commands.Command_Open_Buffer_Switcher and then Found,
-              "phase 543 buffer.list.show maps to the open-buffer list command");
+              "buffer.list.show maps to the open-buffer list command");
       Assert (Editor.Commands.Command_Id_From_Stable_Name ("buffer.list.focus", Found) =
                 Editor.Commands.Command_Open_Buffer_Switcher and then Found,
-              "phase 543 buffer.list.focus maps to the same Executor command path");
+              "buffer.list.focus maps to the same Executor command path");
       Assert (Editor.Commands.Command_Id_From_Stable_Name ("buffer.list.hide", Found) =
                 Editor.Commands.Command_Close_Buffer_Switcher and then Found,
-              "phase 543 buffer.list.hide maps to the switcher close command");
+              "buffer.list.hide maps to the switcher close command");
       Assert (Editor.Commands.Command_Id_From_Stable_Name ("buffer.switch-selected", Found) =
                 Editor.Commands.Command_Accept_Buffer_Switcher and then Found,
-              "phase 543 buffer.switch-selected aliases selected row activation");
+              "buffer.switch-selected aliases selected row activation");
       Assert (Editor.Commands.Command_Id_From_Stable_Name ("buffer.next", Found) =
                 Editor.Commands.Command_Next_Buffer and then Found,
-              "phase 543 buffer.next aliases deterministic next-buffer navigation");
+              "buffer.next aliases deterministic next-buffer navigation");
       Assert (Editor.Commands.Command_Id_From_Stable_Name ("buffer.previous", Found) =
                 Editor.Commands.Command_Previous_Buffer and then Found,
-              "phase 543 buffer.previous aliases deterministic previous-buffer navigation");
-   end Test_Phase543_Command_Aliases_Map_To_Executor_Routed_Commands;
+              "buffer.previous aliases deterministic previous-buffer navigation");
+   end Test_Command_Aliases_Map_To_Executor_Routed_Commands;
 
-   procedure Test_Phase543_Empty_State_And_Next_Previous_Availability
+   procedure Test_Empty_State_And_Next_Previous_Availability
      (T : in out AUnit.Test_Cases.Test_Case'Class)
    is
       pragma Unreferenced (T);
@@ -4169,38 +4173,38 @@ package body Editor.Buffer_Switcher.Tests is
         (S.Buffer_Switcher, Editor.Buffers.Global_Registry_For_UI, Config);
 
       Assert (Editor.Buffer_Switcher.Row_Count (S.Buffer_Switcher) = 0,
-              "phase 543 empty buffer list has no activatable data rows");
+              "empty buffer list has no activatable data rows");
       Assert (Editor.Buffer_Switcher.Buffer_List_Empty_State_Label
                 (S.Buffer_Switcher, Editor.Buffers.Global_Count) = "No open buffers",
-              "phase 543 empty buffer list reports no open buffers");
+              "empty buffer list reports no open buffers");
 
       A := Editor.Executor.Command_Availability (S, Editor.Commands.Command_Next_Buffer);
       Assert (A.Status = Editor.Commands.Command_Unavailable
                 and then To_String (A.Reason) = "No buffers open.",
-              "phase 543 next buffer is unavailable with no open buffers");
+              "next buffer is unavailable with no open buffers");
 
       Editor.Buffers.Global_Add_File_Buffer
-        ("/tmp/phase543/alpha.adb", "alpha.adb", "procedure Alpha is begin null; end;", Alpha);
+        ("/tmp/scenario/alpha.adb", "alpha.adb", "procedure Alpha is begin null; end;", Alpha);
       Editor.Buffers.Global_Set_Active_Buffer (Alpha);
       A := Editor.Executor.Command_Availability (S, Editor.Commands.Command_Previous_Buffer);
       Assert (A.Status = Editor.Commands.Command_Unavailable
                 and then To_String (A.Reason) = "No other buffer.",
-              "phase 543 previous buffer is unavailable with one open buffer");
+              "previous buffer is unavailable with one open buffer");
 
       Editor.Buffers.Global_Add_File_Buffer
-        ("/tmp/phase543/beta.adb", "beta.adb", "procedure Beta is begin null; end;", Beta);
+        ("/tmp/scenario/beta.adb", "beta.adb", "procedure Beta is begin null; end;", Beta);
       A := Editor.Executor.Command_Availability (S, Editor.Commands.Command_Next_Buffer);
       Assert (A.Status = Editor.Commands.Command_Available,
-              "phase 543 next buffer is available with multiple open buffers");
+              "next buffer is available with multiple open buffers");
 
       Editor.Buffers.Reset_Global_For_Test;
    exception
       when others =>
          Editor.Buffers.Reset_Global_For_Test;
          raise;
-   end Test_Phase543_Empty_State_And_Next_Previous_Availability;
+   end Test_Empty_State_And_Next_Previous_Availability;
 
-   procedure Test_Phase543_Buffer_List_Descriptor_Names_Are_User_Facing
+   procedure Test_Buffer_List_Descriptor_Names_Are_User_Facing
      (T : in out AUnit.Test_Cases.Test_Case'Class)
    is
       pragma Unreferenced (T);
@@ -4208,14 +4212,14 @@ package body Editor.Buffer_Switcher.Tests is
       Assert (To_String (Editor.Commands.Descriptor
                 (Editor.Commands.Command_Open_Buffer_Switcher).Name) =
               "Show Open Buffer List",
-              "phase 543 descriptor presents the canonical buffer-list surface");
+              "descriptor presents the canonical buffer-list surface");
       Assert (To_String (Editor.Commands.Descriptor
                 (Editor.Commands.Command_Accept_Buffer_Switcher).Name) =
               "Switch To Selected Buffer",
-              "phase 543 selected activation descriptor is buffer-list oriented");
-   end Test_Phase543_Buffer_List_Descriptor_Names_Are_User_Facing;
+              "selected activation descriptor is buffer-list oriented");
+   end Test_Buffer_List_Descriptor_Names_Are_User_Facing;
 
-   procedure Test_Phase543_Stale_Selected_Buffer_Row_Is_Unavailable
+   procedure Test_Stale_Selected_Buffer_Row_Is_Unavailable
      (T : in out AUnit.Test_Cases.Test_Case'Class)
    is
       pragma Unreferenced (T);
@@ -4229,29 +4233,29 @@ package body Editor.Buffer_Switcher.Tests is
       Setup_Global_Switcher_State (S, Alpha, Beta);
 
       Assert (Editor.Buffer_Switcher.Row_Count (S.Buffer_Switcher) = 2,
-              "phase 543 stale-row test starts from visible real buffer rows");
+              "stale-row test starts from visible real buffer rows");
       Assert (Editor.Buffer_Switcher.Selected_Row_Index (S.Buffer_Switcher) = 1,
-              "phase 543 selected row starts on the active buffer");
+              "selected row starts on the active buffer");
 
       Editor.Buffers.Global_Force_Close_Buffer (Alpha, Closed);
-      Assert (Closed, "phase 543 test fixture closes selected buffer after snapshot");
+      Assert (Closed, "test fixture closes selected buffer after snapshot");
 
       A := Editor.Executor.Command_Availability
         (S, Editor.Commands.Command_Accept_Buffer_Switcher);
       Assert (A.Status = Editor.Commands.Command_Unavailable
                 and then To_String (A.Reason) = "Selected buffer is no longer open",
-              "phase 543 switch-selected rejects stale closed buffer rows before mutation");
+              "switch-selected rejects stale closed buffer rows before mutation");
 
       Editor.Buffers.Reset_Global_For_Test;
    exception
       when others =>
          Editor.Buffers.Reset_Global_For_Test;
          raise;
-   end Test_Phase543_Stale_Selected_Buffer_Row_Is_Unavailable;
+   end Test_Stale_Selected_Buffer_Row_Is_Unavailable;
 
 
 
-   procedure Test_Phase576_Project_Ownership_Markers_Are_Projection_Only
+   procedure Test_Project_Ownership_Markers_Are_Projection_Only
      (T : in out AUnit.Test_Cases.Test_Case'Class)
    is
       pragma Unreferenced (T);
@@ -4267,14 +4271,14 @@ package body Editor.Buffer_Switcher.Tests is
       Editor.Project.Apply_Open_Result
         (S.Project,
          (Status       => Editor.Project.Project_Open_Ok,
-          Root_Path    => To_Unbounded_String ("/tmp/phase576/project"),
+          Root_Path    => To_Unbounded_String ("/tmp/scenario/project"),
           Display_Name => To_Unbounded_String ("project"),
           Error_Text   => Null_Unbounded_String));
 
       Editor.Buffers.Global_Add_File_Buffer
-        ("/tmp/phase576/project/src/main.adb", "main.adb", "procedure Main is begin null; end;", Inside);
+        ("/tmp/scenario/project/src/main.adb", "main.adb", "procedure Main is begin null; end;", Inside);
       Editor.Buffers.Global_Add_File_Buffer
-        ("/tmp/phase576/outside/other.adb", "other.adb", "procedure Other is begin null; end;", Outside);
+        ("/tmp/scenario/outside/other.adb", "other.adb", "procedure Other is begin null; end;", Outside);
       Editor.Buffers.Global_Set_Active_Buffer (Inside);
       Editor.Buffer_Switcher.Open (S.Buffer_Switcher);
       Editor.Buffer_Switcher.Recompute_Rows
@@ -4284,28 +4288,28 @@ package body Editor.Buffer_Switcher.Tests is
       Assert (Found and then Row.Is_Project_Owned
                 and then Row.Project_Ownership = Editor.Buffer_Switcher.Buffer_Project_Owned
                 and then To_String (Row.Project_Ownership_Label) = "project",
-              "Phase 576 inside-project buffer rows expose project-owned display markers only");
+              "inside-project buffer rows expose project-owned display markers only");
       Assert (Editor.Buffer_Switcher.Buffer_Row_State_Markers (Row) = "active file project",
-              "Phase 576 project ownership marker composes with active/file markers deterministically");
+              "project ownership marker composes with active/file markers deterministically");
 
       Row := Editor.Buffer_Switcher.Row_For_Buffer (S.Buffer_Switcher, Outside, Found);
       Assert (Found and then Row.Is_Outside_Project
                 and then Row.Project_Ownership = Editor.Buffer_Switcher.Buffer_Project_Outside
                 and then To_String (Row.Project_Ownership_Label) = "outside project",
-              "Phase 576 outside-project buffer rows expose outside-project display markers only");
+              "outside-project buffer rows expose outside-project display markers only");
       Assert (Editor.Buffer_Switcher.Buffer_Row_State_Markers (Row) = "file outside-project",
-              "Phase 576 outside-project marker is observational and does not alter buffer state");
+              "outside-project marker is observational and does not alter buffer state");
 
       Editor.Buffers.Reset_Global_For_Test;
    exception
       when others =>
          Editor.Buffers.Reset_Global_For_Test;
          raise;
-   end Test_Phase576_Project_Ownership_Markers_Are_Projection_Only;
+   end Test_Project_Ownership_Markers_Are_Projection_Only;
 
 
 
-   procedure Test_Phase576_Labels_Scratch_And_No_Project_Are_Deterministic
+   procedure Test_Labels_Scratch_And_No_Project_Are_Deterministic
      (T : in out AUnit.Test_Cases.Test_Case'Class)
    is
       pragma Unreferenced (T);
@@ -4322,14 +4326,14 @@ package body Editor.Buffer_Switcher.Tests is
       Editor.Project.Apply_Open_Result
         (S.Project,
          (Status       => Editor.Project.Project_Open_Ok,
-          Root_Path    => To_Unbounded_String ("/tmp/phase576/labels/project"),
+          Root_Path    => To_Unbounded_String ("/tmp/scenario/labels/project"),
           Display_Name => To_Unbounded_String ("project"),
           Error_Text   => Null_Unbounded_String));
 
       Editor.Buffers.Global_Add_File_Buffer
-        ("/tmp/phase576/labels/project/src/main.adb", "main.adb", "procedure Main is begin null; end;", Inside);
+        ("/tmp/scenario/labels/project/src/main.adb", "main.adb", "procedure Main is begin null; end;", Inside);
       Editor.Buffers.Global_Add_File_Buffer
-        ("/tmp/phase576/labels/outside/main.adb", "main.adb", "procedure Outside is begin null; end;", Outside);
+        ("/tmp/scenario/labels/outside/main.adb", "main.adb", "procedure Outside is begin null; end;", Outside);
       Editor.Buffers.Global_Add_Untitled_Buffer (Scratch);
       Editor.Buffers.Global_Set_Active_Buffer (Inside);
       Editor.Buffer_Switcher.Open (S.Buffer_Switcher);
@@ -4338,14 +4342,14 @@ package body Editor.Buffer_Switcher.Tests is
 
       Row := Editor.Buffer_Switcher.Row_For_Buffer (S.Buffer_Switcher, Inside, Found);
       Assert (Found and then To_String (Row.Display_Label) = "src/main.adb",
-              "Phase 576 project-owned rows use project-relative display labels");
+              "project-owned rows use project-relative display labels");
       Row := Editor.Buffer_Switcher.Row_For_Buffer (S.Buffer_Switcher, Outside, Found);
       Assert (Found and then To_String (Row.Display_Label) = "outside/main.adb",
-              "Phase 576 outside-project duplicate basenames receive deterministic parent hints");
+              "outside-project duplicate basenames receive deterministic parent hints");
       Row := Editor.Buffer_Switcher.Row_For_Buffer (S.Buffer_Switcher, Scratch, Found);
       Assert (Found and then Row.Project_Ownership = Editor.Buffer_Switcher.Buffer_Project_Scratch
                 and then Editor.Buffer_Switcher.Buffer_Row_State_Markers (Row) = "scratch",
-              "Phase 576 unbacked rows are labelled and marked as scratch without path payloads");
+              "unbacked rows are labelled and marked as scratch without path payloads");
 
       --  Recompute against an empty project state to verify no-project ownership is explicit.
       declare
@@ -4357,16 +4361,16 @@ package body Editor.Buffer_Switcher.Tests is
       Row := Editor.Buffer_Switcher.Row_For_Buffer (S.Buffer_Switcher, Inside, Found);
       Assert (Found and then Row.Project_Ownership = Editor.Buffer_Switcher.Buffer_Project_No_Project
                 and then To_String (Row.Project_Ownership_Label) = "no project",
-              "Phase 576 file-backed rows expose no-project ownership distinctly when no project is open");
+              "file-backed rows expose no-project ownership distinctly when no project is open");
 
       Editor.Buffers.Reset_Global_For_Test;
    exception
       when others =>
          Editor.Buffers.Reset_Global_For_Test;
          raise;
-   end Test_Phase576_Labels_Scratch_And_No_Project_Are_Deterministic;
+   end Test_Labels_Scratch_And_No_Project_Are_Deterministic;
 
-   procedure Test_Phase576_Selection_Preserves_And_Clamps_On_Recompute
+   procedure Test_Selection_Preserves_And_Clamps_On_Recompute
      (T : in out AUnit.Test_Cases.Test_Case'Class)
    is
       pragma Unreferenced (T);
@@ -4381,9 +4385,9 @@ package body Editor.Buffer_Switcher.Tests is
    begin
       Editor.Buffers.Reset_Global_For_Test;
       Editor.State.Initialize (S);
-      Editor.Buffers.Global_Add_File_Buffer ("/tmp/phase576/sel/alpha.adb", "alpha.adb", "", Alpha);
-      Editor.Buffers.Global_Add_File_Buffer ("/tmp/phase576/sel/beta.adb", "beta.adb", "", Beta);
-      Editor.Buffers.Global_Add_File_Buffer ("/tmp/phase576/sel/gamma.adb", "gamma.adb", "", Gamma);
+      Editor.Buffers.Global_Add_File_Buffer ("/tmp/scenario/sel/alpha.adb", "alpha.adb", "", Alpha);
+      Editor.Buffers.Global_Add_File_Buffer ("/tmp/scenario/sel/beta.adb", "beta.adb", "", Beta);
+      Editor.Buffers.Global_Add_File_Buffer ("/tmp/scenario/sel/gamma.adb", "gamma.adb", "", Gamma);
       Editor.Buffers.Global_Set_Active_Buffer (Alpha);
       Editor.Buffer_Switcher.Open (S.Buffer_Switcher);
       Editor.Buffer_Switcher.Recompute_Rows
@@ -4392,33 +4396,33 @@ package body Editor.Buffer_Switcher.Tests is
       Editor.Buffer_Switcher.Move_Selection_Down (S.Buffer_Switcher);
       Row := Editor.Buffer_Switcher.Selected_Row (S.Buffer_Switcher, Found);
       Assert (Found and then Row.Id = Gamma,
-              "Phase 576 setup selects a non-active row before recompute");
+              "setup selects a non-active row before recompute");
 
       Editor.Buffer_Switcher.Recompute_Rows
         (S.Buffer_Switcher, Editor.Buffers.Global_Registry_For_UI, Config);
       Row := Editor.Buffer_Switcher.Selected_Row (S.Buffer_Switcher, Found);
       Assert (Found and then Row.Id = Gamma,
-              "Phase 576 recompute preserves transient selected buffer identity while it remains visible");
+              "recompute preserves transient selected buffer identity while it remains visible");
 
       Editor.Buffers.Global_Force_Close_Buffer (Gamma, Closed);
-      Assert (Closed, "Phase 576 setup closes the selected buffer");
+      Assert (Closed, "setup closes the selected buffer");
       Editor.Buffer_Switcher.Recompute_Rows
         (S.Buffer_Switcher, Editor.Buffers.Global_Registry_For_UI, Config);
       Row := Editor.Buffer_Switcher.Selected_Row (S.Buffer_Switcher, Found);
       Assert (Found and then Row.Id = Alpha,
-              "Phase 576 recompute clamps stale selection back to the active buffer row");
+              "recompute clamps stale selection back to the active buffer row");
       Assert (Editor.Buffer_Switcher.Assert_Multi_Buffer_Management_Coherent
                 (S.Buffer_Switcher),
-              "Phase 576 milestone helper confirms coherent transient buffer-list projection");
+              "milestone helper confirms coherent transient buffer-list projection");
 
       Editor.Buffers.Reset_Global_For_Test;
    exception
       when others =>
          Editor.Buffers.Reset_Global_For_Test;
          raise;
-   end Test_Phase576_Selection_Preserves_And_Clamps_On_Recompute;
+   end Test_Selection_Preserves_And_Clamps_On_Recompute;
 
-   procedure Test_Phase576_Lifecycle_Markers_And_Text_Exclusion_Are_Projection_Only
+   procedure Test_Lifecycle_Markers_And_Text_Exclusion_Are_Projection_Only
      (T : in out AUnit.Test_Cases.Test_Case'Class)
    is
       pragma Unreferenced (T);
@@ -4428,7 +4432,7 @@ package body Editor.Buffer_Switcher.Tests is
          Is_Dirty                   => False,
          Is_Active                  => False,
          Has_Path                   => True,
-         Path                       => To_Unbounded_String ("/tmp/phase576/markers/not-the-buffer-text.adb"),
+         Path                       => To_Unbounded_String ("/tmp/scenario/markers/not-the-buffer-text.adb"),
          Last_Save_Failed           => True,
          Last_Reload_Failed         => True,
          Last_Revert_Failed         => True,
@@ -4450,18 +4454,18 @@ package body Editor.Buffer_Switcher.Tests is
       Switcher_State : Editor.Buffer_Switcher.Buffer_Switcher_State;
    begin
       Assert (Markers = "file missing unreadable unwritable external-change guarded",
-              "Phase 576 lifecycle markers are rendered from snapshot state without resolving conflicts");
+              "lifecycle markers are rendered from snapshot state without resolving conflicts");
       Assert (To_String (Row.Display_Label) = "not-the-buffer-text.adb"
                 and then To_String (Row.Display_Label) /= "procedure Secret is begin null; end;",
-              "Phase 576 rows carry display labels only and never copy buffer text contents");
+              "rows carry display labels only and never copy buffer text contents");
       Assert (Editor.Buffer_Switcher.Open_Buffer_Switcher_No_Duplicate_Lifecycle_State
                 (Switcher_State),
-              "Phase 576 switcher state has no duplicated lifecycle marker cache");
-   end Test_Phase576_Lifecycle_Markers_And_Text_Exclusion_Are_Projection_Only;
+              "switcher state has no duplicated lifecycle marker cache");
+   end Test_Lifecycle_Markers_And_Text_Exclusion_Are_Projection_Only;
 
 
 
-   procedure Test_Phase576_Duplicate_Project_Labels_Are_Deterministic
+   procedure Test_Duplicate_Project_Labels_Are_Deterministic
      (T : in out AUnit.Test_Cases.Test_Case'Class)
    is
       pragma Unreferenced (T);
@@ -4477,14 +4481,14 @@ package body Editor.Buffer_Switcher.Tests is
       Editor.Project.Apply_Open_Result
         (S.Project,
          (Status       => Editor.Project.Project_Open_Ok,
-          Root_Path    => To_Unbounded_String ("/tmp/phase576/duplicate_project"),
+          Root_Path    => To_Unbounded_String ("/tmp/scenario/duplicate_project"),
           Display_Name => To_Unbounded_String ("duplicate_project"),
           Error_Text   => Null_Unbounded_String));
 
       Editor.Buffers.Global_Add_File_Buffer
-        ("/tmp/phase576/duplicate_project/src/main.adb", "main.adb", "src", Main_A);
+        ("/tmp/scenario/duplicate_project/src/main.adb", "main.adb", "src", Main_A);
       Editor.Buffers.Global_Add_File_Buffer
-        ("/tmp/phase576/duplicate_project/tests/main.adb", "main.adb", "tests", Main_B);
+        ("/tmp/scenario/duplicate_project/tests/main.adb", "main.adb", "tests", Main_B);
       Editor.Buffers.Global_Set_Active_Buffer (Main_A);
       Editor.Buffer_Switcher.Open (S.Buffer_Switcher);
       Editor.Buffer_Switcher.Recompute_Rows
@@ -4492,23 +4496,23 @@ package body Editor.Buffer_Switcher.Tests is
 
       Row := Editor.Buffer_Switcher.Row_For_Buffer (S.Buffer_Switcher, Main_A, Found);
       Assert (Found and then To_String (Row.Display_Label) = "src/main.adb",
-              "Phase 576 duplicate project basenames keep deterministic project-relative label for src/main.adb");
+              "duplicate project basenames keep deterministic project-relative label for src/main.adb");
       Row := Editor.Buffer_Switcher.Row_For_Buffer (S.Buffer_Switcher, Main_B, Found);
       Assert (Found and then To_String (Row.Display_Label) = "tests/main.adb",
-              "Phase 576 duplicate project basenames keep deterministic project-relative label for tests/main.adb");
+              "duplicate project basenames keep deterministic project-relative label for tests/main.adb");
       Assert (Editor.Buffer_Switcher.Row_At (S.Buffer_Switcher, 1).Id = Main_A
                 and then Editor.Buffer_Switcher.Row_At (S.Buffer_Switcher, 2).Id = Main_B,
-              "Phase 576 duplicate label disambiguation does not reorder buffer-list rows");
+              "duplicate label disambiguation does not reorder buffer-list rows");
 
       Editor.Buffers.Reset_Global_For_Test;
    exception
       when others =>
          Editor.Buffers.Reset_Global_For_Test;
          raise;
-   end Test_Phase576_Duplicate_Project_Labels_Are_Deterministic;
+   end Test_Duplicate_Project_Labels_Are_Deterministic;
 
 
-   procedure Test_Phase576_Label_Edge_Cases_Are_Bounded_Stable_And_Filter_Deterministic
+   procedure Test_Label_Edge_Cases_Are_Bounded_Stable_And_Filter_Deterministic
      (T : in out AUnit.Test_Cases.Test_Case'Class)
    is
       pragma Unreferenced (T);
@@ -4527,27 +4531,27 @@ package body Editor.Buffer_Switcher.Tests is
       Project_Label_Before : Unbounded_String;
       Outside_Label_Before : Unbounded_String;
       Deep_Path : constant String :=
-        "/tmp/phase576/labels/outside/a/b/c/d/e/final.adb";
+        "/tmp/scenario/labels/outside/a/b/c/d/e/final.adb";
       No_Project_Path : constant String :=
-        "/tmp/phase576/labels/no_project/parent/main.adb";
+        "/tmp/scenario/labels/no_project/parent/main.adb";
    begin
       Editor.Buffers.Reset_Global_For_Test;
       Editor.State.Initialize (S);
       Editor.Project.Apply_Open_Result
         (S.Project,
          (Status       => Editor.Project.Project_Open_Ok,
-          Root_Path    => To_Unbounded_String ("/tmp/phase576/labels/project"),
+          Root_Path    => To_Unbounded_String ("/tmp/scenario/labels/project"),
           Display_Name => To_Unbounded_String ("project"),
           Error_Text   => Null_Unbounded_String));
 
       Editor.Buffers.Global_Add_File_Buffer
-        ("/tmp/phase576/labels/project/src/main.adb",
+        ("/tmp/scenario/labels/project/src/main.adb",
          "main.adb", "project src", Project_Main);
       Editor.Buffers.Global_Add_File_Buffer
-        ("/tmp/phase576/labels/project/tests/main.adb",
+        ("/tmp/scenario/labels/project/tests/main.adb",
          "main.adb", "project tests", Project_Test);
       Editor.Buffers.Global_Add_File_Buffer
-        ("/tmp/phase576/labels/outside/src/main.adb",
+        ("/tmp/scenario/labels/outside/src/main.adb",
          "main.adb", "outside duplicate", Outside_Main);
       Editor.Buffers.Global_Add_File_Buffer
         (Deep_Path, "final.adb", "outside deep", Outside_Deep);
@@ -4566,33 +4570,33 @@ package body Editor.Buffer_Switcher.Tests is
         (S.Buffer_Switcher, Project_Main, Found);
       Assert (Found and then To_String (Row.Display_Label) = "src/main.adb"
                 and then Row.Is_Project_Owned,
-              "Phase 576 project duplicate label keeps project-relative parent context");
+              "project duplicate label keeps project-relative parent context");
       Project_Label_Before := Row.Display_Label;
 
       Row := Editor.Buffer_Switcher.Row_For_Buffer
         (S.Buffer_Switcher, Project_Test, Found);
       Assert (Found and then To_String (Row.Display_Label) = "tests/main.adb"
                 and then Row.Is_Project_Owned,
-              "Phase 576 same project basename is disambiguated by project-relative directory");
+              "same project basename is disambiguated by project-relative directory");
 
       Row := Editor.Buffer_Switcher.Row_For_Buffer
         (S.Buffer_Switcher, Outside_Main, Found);
       Assert (Found and then To_String (Row.Display_Label) = "src/main.adb"
                 and then Row.Is_Outside_Project
                 and then To_String (Row.Path) =
-                  "/tmp/phase576/labels/outside/src/main.adb",
-              "Phase 576 cross-category duplicate labels remain distinguished by ownership and path projection");
+                  "/tmp/scenario/labels/outside/src/main.adb",
+              "cross-category duplicate labels remain distinguished by ownership and path projection");
       Outside_Label_Before := Row.Display_Label;
 
       Row := Editor.Buffer_Switcher.Row_For_Buffer
         (S.Buffer_Switcher, Outside_Deep, Found);
       Assert (Found and then To_String (Row.Display_Label) = "e/final.adb"
                 and then Row.Is_Outside_Project,
-              "Phase 576 deep outside-project paths are bounded to parent/basename labels");
+              "deep outside-project paths are bounded to parent/basename labels");
       Assert (Length (Row.Display_Label) < Deep_Path'Length
                 and then not Contains_Text (To_String (Row.Display_Label),
-                                            "/tmp/phase576"),
-              "Phase 576 outside-project labels do not dump unbounded absolute paths");
+                                            "/tmp/"),
+              "outside-project labels do not dump unbounded absolute paths");
 
       Row := Editor.Buffer_Switcher.Row_For_Buffer
         (S.Buffer_Switcher, Scratch, Found);
@@ -4600,7 +4604,7 @@ package body Editor.Buffer_Switcher.Tests is
                 and then Row.Project_Ownership =
                   Editor.Buffer_Switcher.Buffer_Project_Scratch
                 and then Length (Row.Display_Label) > 0,
-              "Phase 576 scratch labels stay readable and pathless");
+              "scratch labels stay readable and pathless");
 
       Editor.Buffers.Global_Set_Active_Buffer (Outside_Main);
       Editor.Buffer_Switcher.Recompute_Rows
@@ -4612,11 +4616,11 @@ package body Editor.Buffer_Switcher.Tests is
       Row := Editor.Buffer_Switcher.Row_For_Buffer
         (S.Buffer_Switcher, Project_Main, Found);
       Assert (Found and then Row.Display_Label = Project_Label_Before,
-              "Phase 576 project labels are stable after active-buffer recompute");
+              "project labels are stable after active-buffer recompute");
       Row := Editor.Buffer_Switcher.Row_For_Buffer
         (S.Buffer_Switcher, Outside_Main, Found);
       Assert (Found and then Row.Display_Label = Outside_Label_Before,
-              "Phase 576 outside-project labels are stable after active-buffer recompute");
+              "outside-project labels are stable after active-buffer recompute");
 
       Editor.Buffer_Switcher.Set_Filter_Text (S.Buffer_Switcher, "main.adb");
       Editor.Buffer_Switcher.Set_Sort_Mode
@@ -4631,7 +4635,7 @@ package body Editor.Buffer_Switcher.Tests is
                 and then Editor.Buffer_Switcher.Row_At (S.Buffer_Switcher, 1).Id = Project_Main
                 and then Editor.Buffer_Switcher.Row_At (S.Buffer_Switcher, 2).Id = Project_Test
                 and then Editor.Buffer_Switcher.Row_At (S.Buffer_Switcher, 3).Id = Outside_Main,
-              "Phase 576 duplicate basename filter/name-sort ordering remains deterministic");
+              "duplicate basename filter/name-sort ordering remains deterministic");
 
       No_Project_Id := Editor.Buffers.Add_Buffer_From_File
         (No_Project_Registry, No_Project_Path, "main.adb", "no project");
@@ -4643,16 +4647,16 @@ package body Editor.Buffer_Switcher.Tests is
       Assert (Found and then To_String (Row.Display_Label) = "main.adb"
                 and then Row.Project_Ownership =
                   Editor.Buffer_Switcher.Buffer_Project_No_Project,
-              "Phase 576 no-project file labels use canonical buffer display text");
+              "no-project file labels use canonical buffer display text");
 
       Editor.Buffers.Reset_Global_For_Test;
    exception
       when others =>
          Editor.Buffers.Reset_Global_For_Test;
          raise;
-   end Test_Phase576_Label_Edge_Cases_Are_Bounded_Stable_And_Filter_Deterministic;
+   end Test_Label_Edge_Cases_Are_Bounded_Stable_And_Filter_Deterministic;
 
-   procedure Test_Phase576_Real_Buffer_Lifecycle_Markers_Project_From_Registry
+   procedure Test_Real_Buffer_Lifecycle_Markers_Project_From_Registry
      (T : in out AUnit.Test_Cases.Test_Case'Class)
    is
       pragma Unreferenced (T);
@@ -4666,7 +4670,7 @@ package body Editor.Buffer_Switcher.Tests is
    begin
       Id := Editor.Buffers.Add_Buffer_From_File
         (Registry,
-         "/tmp/phase576/lifecycle/conflicted.adb",
+         "/tmp/scenario/lifecycle/conflicted.adb",
          "conflicted.adb",
          "buffer text must not appear in row markers");
       Editor.Buffers.Buffer_Access (Registry, Id).File_Info.Missing_Target_Surfaced := True;
@@ -4682,25 +4686,25 @@ package body Editor.Buffer_Switcher.Tests is
       Row := Editor.Buffer_Switcher.Row_For_Buffer (S, Id, Found);
       Markers := To_Unbounded_String (Editor.Buffer_Switcher.Buffer_Row_State_Markers (Row));
 
-      Assert (Found, "Phase 576 lifecycle marker test must project the real registry buffer");
+      Assert (Found, "lifecycle marker test must project the real registry buffer");
       Assert (Row.Missing_Target_Surfaced
                 and then Row.Unreadable_Target_Surfaced
                 and then Row.Unwritable_Target_Surfaced
                 and then Row.External_Change_Surfaced
                 and then Row.Blocked_Close_Surfaced
                 and then Row.Last_Save_Failed,
-              "Phase 576 row markers are copied from the authoritative buffer lifecycle snapshot");
+              "row markers are copied from the authoritative buffer lifecycle snapshot");
       Assert (Contains_Text (To_String (Markers), "missing")
                 and then Contains_Text (To_String (Markers), "unreadable")
                 and then Contains_Text (To_String (Markers), "unwritable")
                 and then Contains_Text (To_String (Markers), "external-change")
                 and then Contains_Text (To_String (Markers), "guarded"),
-              "Phase 576 real lifecycle markers are display-only row markers");
+              "real lifecycle markers are display-only row markers");
       Assert (not Contains_Text (To_String (Markers), "buffer text"),
-              "Phase 576 marker projection never copies buffer text contents");
-   end Test_Phase576_Real_Buffer_Lifecycle_Markers_Project_From_Registry;
+              "marker projection never copies buffer text contents");
+   end Test_Real_Buffer_Lifecycle_Markers_Project_From_Registry;
 
-   procedure Test_Phase576_File_Lifecycle_Operation_Markers_Project_To_Buffer_List
+   procedure Test_File_Lifecycle_Operation_Markers_Project_To_Buffer_List
      (T : in out AUnit.Test_Cases.Test_Case'Class)
    is
       pragma Unreferenced (T);
@@ -4744,70 +4748,70 @@ package body Editor.Buffer_Switcher.Tests is
       Revert_State : Editor.State.State_Type;
       Conflict_State : Editor.State.State_Type;
       Save_State : Editor.State.State_Type;
-      Reload_Path : constant String := Phase576_Temp_Path ("lifecycle_reload_missing.txt");
-      Revert_Path : constant String := Phase576_Temp_Path ("lifecycle_revert_missing.txt");
-      Conflict_Path : constant String := Phase576_Temp_Path ("lifecycle_external_conflict.txt");
-      Save_Path : constant String := Phase576_Temp_Path ("lifecycle_save_failed_dir");
+      Reload_Path : constant String := Temp_Path ("lifecycle_reload_missing.txt");
+      Revert_Path : constant String := Temp_Path ("lifecycle_revert_missing.txt");
+      Conflict_Path : constant String := Temp_Path ("lifecycle_external_conflict.txt");
+      Save_Path : constant String := Temp_Path ("lifecycle_save_failed_dir");
    begin
       --  Missing backing file through the normal reload command path.
-      Phase576_Remove_If_Exists (Reload_Path);
-      Phase576_Write_Bytes (Reload_Path, "reload baseline");
+      Remove_If_Exists (Reload_Path);
+      Write_Bytes (Reload_Path, "reload baseline");
       Editor.Buffers.Reset_Global_For_Test;
       Editor.State.Init (Reload_State);
-      Editor.Executor.Execute_Open_File (Reload_State, Reload_Path);
-      Phase576_Remove_If_Exists (Reload_Path);
-      Editor.Executor.Execute_Reload_Active_Buffer (Reload_State);
+      Editor.Executor.File_Open_Commands.Execute_Open_File (Reload_State, Reload_Path);
+      Remove_If_Exists (Reload_Path);
+      Editor.Executor.File_Save_Basic_Commands.Execute_Reload_Active_Buffer (Reload_State);
       Assert_Active_Row_Has
         (Reload_State,
-         "Phase 576 reload-missing lifecycle path",
+         "reload-missing lifecycle path",
          Missing       => True,
          Reload_Failed => True);
-      Assert (Phase576_Buffer_Text (Reload_State) = "reload baseline",
-              "Phase 576 Buffer List marker projection must not resolve missing reload failure");
+      Assert (Buffer_Text (Reload_State) = "reload baseline",
+              "Buffer List marker projection must not resolve missing reload failure");
 
       --  Missing backing file through the normal dirty revert path.
-      Phase576_Remove_If_Exists (Revert_Path);
-      Phase576_Write_Bytes (Revert_Path, "revert baseline");
+      Remove_If_Exists (Revert_Path);
+      Write_Bytes (Revert_Path, "revert baseline");
       Editor.Buffers.Reset_Global_For_Test;
       Editor.State.Init (Revert_State);
-      Editor.Executor.Execute_Open_File (Revert_State, Revert_Path);
-      Phase576_Insert_Text_At
-        (Revert_State, Phase576_Buffer_Text (Revert_State)'Length, " dirty");
-      Phase576_Remove_If_Exists (Revert_Path);
-      Editor.Executor.Execute_Revert_Active_Buffer (Revert_State);
+      Editor.Executor.File_Open_Commands.Execute_Open_File (Revert_State, Revert_Path);
+      Insert_Text_At
+        (Revert_State, Buffer_Text (Revert_State)'Length, " dirty");
+      Remove_If_Exists (Revert_Path);
+      Editor.Executor.File_Save_Basic_Commands.Execute_Revert_Active_Buffer (Revert_State);
       Editor.Executor.Execute_Command
         (Revert_State, Editor.Commands.Command_Retry_Pending_Transition);
       Assert_Active_Row_Has
         (Revert_State,
-         "Phase 576 revert-missing lifecycle path",
+         "revert-missing lifecycle path",
          Missing       => True,
          Revert_Failed => True);
-      Assert (Phase576_Buffer_Text (Revert_State) = "revert baseline dirty"
+      Assert (Buffer_Text (Revert_State) = "revert baseline dirty"
                 and then Revert_State.File_Info.Dirty,
-              "Phase 576 Buffer List marker projection must not discard dirty text during failed revert");
+              "Buffer List marker projection must not discard dirty text during failed revert");
 
       --  External modification through the normal dirty save conflict path.
-      Phase576_Remove_If_Exists (Conflict_Path);
-      Phase576_Write_Bytes (Conflict_Path, "conflict baseline");
+      Remove_If_Exists (Conflict_Path);
+      Write_Bytes (Conflict_Path, "conflict baseline");
       Editor.Buffers.Reset_Global_For_Test;
       Editor.State.Init (Conflict_State);
-      Editor.Executor.Execute_Open_File (Conflict_State, Conflict_Path);
-      Phase576_Insert_Text_At
-        (Conflict_State, Phase576_Buffer_Text (Conflict_State)'Length, " dirty buffer");
-      Phase576_Write_Bytes (Conflict_Path, "externally changed disk content");
-      Editor.Executor.Execute_Save (Conflict_State);
+      Editor.Executor.File_Open_Commands.Execute_Open_File (Conflict_State, Conflict_Path);
+      Insert_Text_At
+        (Conflict_State, Buffer_Text (Conflict_State)'Length, " dirty buffer");
+      Write_Bytes (Conflict_Path, "externally changed disk content");
+      Editor.Executor.File_Save_Basic_Commands.Execute_Save (Conflict_State);
       Assert (Conflict_State.File_Conflict_Prompt_Active,
-              "Phase 576 setup must reach the normal external conflict prompt path");
+              "setup must reach the normal external conflict prompt path");
       Assert_Active_Row_Has
         (Conflict_State,
-         "Phase 576 external-conflict lifecycle path",
+         "external-conflict lifecycle path",
          External => True);
       Assert (Conflict_State.File_Conflict_Prompt_Active
                 and then Conflict_State.File_Info.Dirty,
-              "Phase 576 Buffer List marker projection must not resolve save conflict state");
+              "Buffer List marker projection must not resolve save conflict state");
 
       --  Save failure through the normal save command path where the target is a directory.
-      Phase576_Remove_If_Exists (Save_Path);
+      Remove_If_Exists (Save_Path);
       Ada.Directories.Create_Directory (Save_Path);
       Editor.Buffers.Reset_Global_For_Test;
       Editor.State.Init (Save_State);
@@ -4817,31 +4821,31 @@ package body Editor.Buffer_Switcher.Tests is
       Save_State.File_Info.Display_Name := To_Unbounded_String ("lifecycle_save_failed_dir");
       Save_State.File_Info.Dirty := True;
       Editor.Buffers.Ensure_Global_Registry (Save_State);
-      Editor.Executor.Execute_Save (Save_State);
+      Editor.Executor.File_Save_Basic_Commands.Execute_Save (Save_State);
       Assert_Active_Row_Has
         (Save_State,
-         "Phase 576 failed-save lifecycle path",
+         "failed-save lifecycle path",
          Unwritable  => True,
          Save_Failed => True);
       Assert (Save_State.File_Info.Dirty,
-              "Phase 576 Buffer List marker projection must not clear dirty state on save failure");
+              "Buffer List marker projection must not clear dirty state on save failure");
 
-      Phase576_Remove_If_Exists (Reload_Path);
-      Phase576_Remove_If_Exists (Revert_Path);
-      Phase576_Remove_If_Exists (Conflict_Path);
-      Phase576_Remove_If_Exists (Save_Path);
+      Remove_If_Exists (Reload_Path);
+      Remove_If_Exists (Revert_Path);
+      Remove_If_Exists (Conflict_Path);
+      Remove_If_Exists (Save_Path);
       Editor.Buffers.Reset_Global_For_Test;
    exception
       when others =>
-         Phase576_Remove_If_Exists (Reload_Path);
-         Phase576_Remove_If_Exists (Revert_Path);
-         Phase576_Remove_If_Exists (Conflict_Path);
-         Phase576_Remove_If_Exists (Save_Path);
+         Remove_If_Exists (Reload_Path);
+         Remove_If_Exists (Revert_Path);
+         Remove_If_Exists (Conflict_Path);
+         Remove_If_Exists (Save_Path);
          Editor.Buffers.Reset_Global_For_Test;
          raise;
-   end Test_Phase576_File_Lifecycle_Operation_Markers_Project_To_Buffer_List;
+   end Test_File_Lifecycle_Operation_Markers_Project_To_Buffer_List;
 
-   procedure Test_Phase576_Workspace_Persistence_Excludes_Buffer_List_State
+   procedure Test_Workspace_Persistence_Excludes_Buffer_List_State
      (T : in out AUnit.Test_Cases.Test_Case'Class)
    is
       pragma Unreferenced (T);
@@ -4854,9 +4858,9 @@ package body Editor.Buffer_Switcher.Tests is
       Summary : Unbounded_String;
    begin
       A := Editor.Buffers.Add_Buffer_From_File
-        (Registry, "/tmp/phase576/persist/alpha.adb", "alpha.adb", "alpha");
+        (Registry, "/tmp/scenario/persist/alpha.adb", "alpha.adb", "alpha");
       B := Editor.Buffers.Add_Buffer_From_File
-        (Registry, "/tmp/phase576/persist/beta.adb", "beta.adb", "beta");
+        (Registry, "/tmp/scenario/persist/beta.adb", "beta.adb", "beta");
       Editor.Buffers.Set_Active_Buffer (Registry, A);
       Editor.Buffer_Switcher.Open (Switcher);
       Editor.Buffer_Switcher.Set_Filter_Text (Switcher, "beta");
@@ -4864,7 +4868,7 @@ package body Editor.Buffer_Switcher.Tests is
       Editor.Buffer_Switcher.Move_Selection_Down (Switcher);
 
       Editor.Workspace_Persistence.Clear (Workspace);
-      Editor.Workspace_Persistence.Set_Project_Root (Workspace, "/tmp/phase576/persist");
+      Editor.Workspace_Persistence.Set_Project_Root (Workspace, "/tmp/scenario/persist");
       Item.Path := To_Unbounded_String ("alpha.adb");
       Item.Is_Project_Relative := True;
       Editor.Workspace_Persistence.Add_Open_File (Workspace, Item);
@@ -4872,19 +4876,19 @@ package body Editor.Buffer_Switcher.Tests is
       Summary := To_Unbounded_String (Editor.Workspace_Persistence.Debug_Summary (Workspace));
 
       Assert (Editor.Workspace_Persistence.Open_File_Count (Workspace) = 1,
-              "Phase 576 workspace still persists structural open-file references under existing policy");
+              "workspace still persists structural open-file references under existing policy");
       Assert (not Contains_Text (To_String (Summary), "beta")
                 and then not Contains_Text (To_String (Summary), "buffer-list")
                 and then not Contains_Text (To_String (Summary), "Buffer_Switcher")
                 and then not Contains_Text (To_String (Summary), "Selected_Row")
                 and then not Contains_Text (To_String (Summary), Editor.Buffers.Buffer_Id'Image (B)),
-              "Phase 576 workspace debug/persistence snapshot excludes buffer-list filter, selection, rows, and runtime buffer ids");
+              "workspace debug/persistence snapshot excludes buffer-list filter, selection, rows, and runtime buffer ids");
       Assert (Editor.Buffer_Switcher.Selected_Row_Index (Switcher) /= 0,
-              "Phase 576 persistence exclusion test keeps transient selection only in the runtime buffer list");
-   end Test_Phase576_Workspace_Persistence_Excludes_Buffer_List_State;
+              "persistence exclusion test keeps transient selection only in the runtime buffer list");
+   end Test_Workspace_Persistence_Excludes_Buffer_List_State;
 
 
-   procedure Test_Phase576_Workspace_Save_Load_Roundtrip_Excludes_Buffer_List_Runtime_State
+   procedure Test_Workspace_Save_Load_Roundtrip_Excludes_Buffer_List_Runtime_State
      (T : in out AUnit.Test_Cases.Test_Case'Class)
    is
       pragma Unreferenced (T);
@@ -4895,17 +4899,17 @@ package body Editor.Buffer_Switcher.Tests is
       Config : constant Editor.Buffer_Switcher.Buffer_Switcher_Config := (others => <>);
       A, B : Editor.Buffers.Buffer_Id := Editor.Buffers.No_Buffer;
       Item : Editor.Workspace_Persistence.Workspace_File_Entry;
-      Path  : constant String := Phase576_Temp_Path ("workspace_roundtrip_excludes_buffer_list.session");
+      Path  : constant String := Temp_Path ("workspace_roundtrip_excludes_buffer_list.session");
       Status : Editor.Workspace_Persistence.Workspace_Persistence_Status;
       Serialized : Unbounded_String;
       Loaded_Entry : Editor.Workspace_Persistence.Workspace_File_Entry;
    begin
-      Phase576_Remove_If_Exists (Path);
+      Remove_If_Exists (Path);
 
       A := Editor.Buffers.Add_Buffer_From_File
-        (Registry, "/tmp/phase576/persist-roundtrip/alpha.adb", "alpha.adb", "alpha structural");
+        (Registry, "/tmp/scenario/persist-roundtrip/alpha.adb", "alpha.adb", "alpha structural");
       B := Editor.Buffers.Add_Buffer_From_File
-        (Registry, "/tmp/phase576/persist-roundtrip/beta.adb", "beta.adb", "beta transient row");
+        (Registry, "/tmp/scenario/persist-roundtrip/beta.adb", "beta.adb", "beta transient row");
       Editor.Buffers.Set_Active_Buffer (Registry, A);
       Set_Buffer_Dirty_For_Test (Registry, B, True);
 
@@ -4920,11 +4924,11 @@ package body Editor.Buffer_Switcher.Tests is
                 and then Editor.Buffer_Switcher.Has_Metadata_Filter (Switcher)
                 and then Editor.Buffer_Switcher.Filter_Text (Switcher) = "beta"
                 and then Editor.Buffer_Switcher.Marked_Count (Switcher) = 1,
-              "Phase 576 setup has transient buffer-list filter, selected row, sort, and mark state before workspace save");
+              "setup has transient buffer-list filter, selected row, sort, and mark state before workspace save");
 
       Editor.Workspace_Persistence.Clear (Workspace);
       Editor.Workspace_Persistence.Set_Project_Root
-        (Workspace, "/tmp/phase576/persist-roundtrip");
+        (Workspace, "/tmp/scenario/persist-roundtrip");
       Item.Path := To_Unbounded_String ("alpha.adb");
       Item.Is_Project_Relative := True;
       Editor.Workspace_Persistence.Add_Open_File (Workspace, Item);
@@ -4932,11 +4936,11 @@ package body Editor.Buffer_Switcher.Tests is
 
       Editor.Workspace_Persistence.Save_To_File (Workspace, Path, Status);
       Assert (Status = Editor.Workspace_Persistence.Workspace_Persistence_Ok,
-              "Phase 576 workspace roundtrip test saves the structural workspace snapshot");
-      Serialized := To_Unbounded_String (Phase576_Read_Bytes (Path));
+              "workspace roundtrip test saves the structural workspace snapshot");
+      Serialized := To_Unbounded_String (Read_Bytes (Path));
 
       Assert (Contains_Text (To_String (Serialized), "alpha.adb"),
-              "Phase 576 workspace serialization still contains the structural open file reference");
+              "workspace serialization still contains the structural open file reference");
       Assert (not Contains_Text (To_String (Serialized), "beta.adb")
                 and then not Contains_Text (To_String (Serialized), "beta transient query")
                 and then not Contains_Text (To_String (Serialized), "dirty buffers")
@@ -4946,28 +4950,28 @@ package body Editor.Buffer_Switcher.Tests is
                 and then not Contains_Text (To_String (Serialized), "Selected_Row")
                 and then not Contains_Text (To_String (Serialized), "Marked_Count")
                 and then not Contains_Text (To_String (Serialized), Editor.Buffers.Buffer_Id'Image (B)),
-              "Phase 576 serialized workspace excludes buffer-list rows, query/filter/sort/selection/marks, and runtime buffer ids");
+              "serialized workspace excludes buffer-list rows, query/filter/sort/selection/marks, and runtime buffer ids");
 
       Editor.Workspace_Persistence.Load_From_File (Path, Loaded, Status);
       Assert (Status = Editor.Workspace_Persistence.Workspace_Persistence_Ok,
-              "Phase 576 workspace roundtrip reloads without buffer-list transient fields");
+              "workspace roundtrip reloads without buffer-list transient fields");
       Assert (Editor.Workspace_Persistence.Open_File_Count (Loaded) = 1,
-              "Phase 576 workspace reload restores only structural open-file entries");
+              "workspace reload restores only structural open-file entries");
       Loaded_Entry := Editor.Workspace_Persistence.Open_File (Loaded, 1);
       Assert (To_String (Loaded_Entry.Path) = "alpha.adb"
                 and then Loaded_Entry.Is_Project_Relative
                 and then Editor.Workspace_Persistence.Has_Active_File_Path (Loaded)
                 and then Editor.Workspace_Persistence.Active_File_Path (Loaded) = "alpha.adb",
-              "Phase 576 workspace reload restores structural active/open file data without Buffer List UI state");
+              "workspace reload restores structural active/open file data without Buffer List UI state");
 
-      Phase576_Remove_If_Exists (Path);
+      Remove_If_Exists (Path);
    exception
       when others =>
-         Phase576_Remove_If_Exists (Path);
+         Remove_If_Exists (Path);
          raise;
-   end Test_Phase576_Workspace_Save_Load_Roundtrip_Excludes_Buffer_List_Runtime_State;
+   end Test_Workspace_Save_Load_Roundtrip_Excludes_Buffer_List_Runtime_State;
 
-   procedure Test_Phase576_Render_Snapshot_Does_Not_Mutate_Buffer_List_Or_Buffers
+   procedure Test_Render_Snapshot_Does_Not_Mutate_Buffer_List_Or_Buffers
      (T : in out AUnit.Test_Cases.Test_Case'Class)
    is
       pragma Unreferenced (T);
@@ -4983,9 +4987,9 @@ package body Editor.Buffer_Switcher.Tests is
       Editor.Buffers.Reset_Global_For_Test;
       Editor.State.Initialize (S);
       Editor.Buffers.Global_Add_File_Buffer
-        ("/tmp/phase576/render/alpha.adb", "alpha.adb", "alpha", Alpha);
+        ("/tmp/scenario/render/alpha.adb", "alpha.adb", "alpha", Alpha);
       Editor.Buffers.Global_Add_File_Buffer
-        ("/tmp/phase576/render/beta.adb", "beta.adb", "beta", Beta);
+        ("/tmp/scenario/render/beta.adb", "beta.adb", "beta", Beta);
       Editor.Buffers.Global_Set_Active_Buffer (Alpha);
       Editor.Buffer_Switcher.Open (S.Buffer_Switcher);
       Editor.Buffer_Switcher.Set_Filter_Text (S.Buffer_Switcher, "adb");
@@ -5001,42 +5005,42 @@ package body Editor.Buffer_Switcher.Tests is
       Editor.Render_Model.Build_Render_Snapshot (S, Snap);
 
       Assert (Editor.Buffers.Global_Active_Buffer = Before_Active,
-              "Phase 576 render snapshot construction does not switch buffers");
+              "render snapshot construction does not switch buffers");
       Assert (Editor.Buffers.Global_Contains (Alpha) and then Editor.Buffers.Global_Contains (Beta),
-              "Phase 576 render snapshot construction does not close buffers");
+              "render snapshot construction does not close buffers");
       Assert (Editor.Buffer_Switcher.Row_Count (S.Buffer_Switcher) = Before_Rows
                 and then Editor.Buffer_Switcher.Selected_Row_Index (S.Buffer_Switcher) = Before_Selected
                 and then Editor.Buffer_Switcher.Filter_Text (S.Buffer_Switcher) = To_String (Before_Filter),
-              "Phase 576 render snapshot construction does not mutate buffer-list rows, selection, or filter");
+              "render snapshot construction does not mutate buffer-list rows, selection, or filter");
 
       Editor.Buffers.Reset_Global_For_Test;
    exception
       when others =>
          Editor.Buffers.Reset_Global_For_Test;
          raise;
-   end Test_Phase576_Render_Snapshot_Does_Not_Mutate_Buffer_List_Or_Buffers;
+   end Test_Render_Snapshot_Does_Not_Mutate_Buffer_List_Or_Buffers;
 
-   procedure Test_Phase576_Render_Does_Not_Save_Reload_Revert_Probe_Or_Clear_File_State
+   procedure Test_Render_Does_Not_Save_Reload_Revert_Probe_Or_Clear_File_State
      (T : in out AUnit.Test_Cases.Test_Case'Class)
    is
       pragma Unreferenced (T);
       Render_State : Editor.State.State_Type;
       Probe_State  : Editor.State.State_Type;
       Snap : Editor.Render_Model.Render_Snapshot;
-      Render_Path : constant String := Phase576_Temp_Path ("render_no_file_ops.txt");
-      Probe_Path  : constant String := Phase576_Temp_Path ("render_no_probe_missing.txt");
+      Render_Path : constant String := Temp_Path ("render_no_file_ops.txt");
+      Probe_Path  : constant String := Temp_Path ("render_no_probe_missing.txt");
       Dirty_Text  : constant String := "disk baseline dirty buffer";
    begin
       --  Dirty buffer vs. externally changed disk content: render may display
       --  state, but it must not save, reload, revert, or resolve conflicts.
-      Phase576_Remove_If_Exists (Render_Path);
-      Phase576_Write_Bytes (Render_Path, "disk baseline");
+      Remove_If_Exists (Render_Path);
+      Write_Bytes (Render_Path, "disk baseline");
       Editor.Buffers.Reset_Global_For_Test;
       Editor.State.Init (Render_State);
-      Editor.Executor.Execute_Open_File (Render_State, Render_Path);
-      Phase576_Insert_Text_At
-        (Render_State, Phase576_Buffer_Text (Render_State)'Length, " dirty buffer");
-      Phase576_Write_Bytes (Render_Path, "externally changed on disk");
+      Editor.Executor.File_Open_Commands.Execute_Open_File (Render_State, Render_Path);
+      Insert_Text_At
+        (Render_State, Buffer_Text (Render_State)'Length, " dirty buffer");
+      Write_Bytes (Render_Path, "externally changed on disk");
       Render_State.File_Info.External_Change_Surfaced := True;
       Render_State.File_Info.Unwritable_Target_Surfaced := True;
       Render_State.File_Info.Last_Save_Failed := True;
@@ -5046,52 +5050,52 @@ package body Editor.Buffer_Switcher.Tests is
       Editor.Render_Model.Build_Render_Snapshot (Render_State, Snap);
       Editor.Render_Model.Build_Render_Snapshot (Render_State, Snap);
 
-      Assert (Phase576_Buffer_Text (Render_State) = Dirty_Text,
-              "Phase 576 render must not reload or revert active dirty buffer text");
-      Assert (Phase576_Read_Bytes (Render_Path) = "externally changed on disk",
-              "Phase 576 render must not save active dirty buffer text to disk");
+      Assert (Buffer_Text (Render_State) = Dirty_Text,
+              "render must not reload or revert active dirty buffer text");
+      Assert (Read_Bytes (Render_Path) = "externally changed on disk",
+              "render must not save active dirty buffer text to disk");
       Assert (Render_State.File_Info.Dirty,
-              "Phase 576 render must not clear dirty state");
+              "render must not clear dirty state");
       Assert (Render_State.File_Info.External_Change_Surfaced
                 and then Render_State.File_Info.Unwritable_Target_Surfaced
                 and then Render_State.File_Info.Last_Save_Failed,
-              "Phase 576 render must not clear lifecycle/conflict marker state");
+              "render must not clear lifecycle/conflict marker state");
       Assert (Render_State.File_Conflict_Prompt_Active
                 and then To_String (Render_State.File_Conflict_Prompt_Path) = Render_Path,
-              "Phase 576 render must not resolve or clear active file-conflict prompt state");
+              "render must not resolve or clear active file-conflict prompt state");
 
       --  Deleted backing file: render must not probe the filesystem and surface
       --  a missing/reload/revert/save marker merely because it displays state.
-      Phase576_Remove_If_Exists (Probe_Path);
-      Phase576_Write_Bytes (Probe_Path, "probe baseline");
+      Remove_If_Exists (Probe_Path);
+      Write_Bytes (Probe_Path, "probe baseline");
       Editor.Buffers.Reset_Global_For_Test;
       Editor.State.Init (Probe_State);
-      Editor.Executor.Execute_Open_File (Probe_State, Probe_Path);
-      Phase576_Remove_If_Exists (Probe_Path);
+      Editor.Executor.File_Open_Commands.Execute_Open_File (Probe_State, Probe_Path);
+      Remove_If_Exists (Probe_Path);
 
       Editor.Render_Model.Build_Render_Snapshot (Probe_State, Snap);
       Editor.Render_Model.Build_Render_Snapshot (Probe_State, Snap);
 
-      Assert (Phase576_Buffer_Text (Probe_State) = "probe baseline",
-              "Phase 576 render must not reload/revert when a backing file disappears");
+      Assert (Buffer_Text (Probe_State) = "probe baseline",
+              "render must not reload/revert when a backing file disappears");
       Assert (not Probe_State.File_Info.Missing_Target_Surfaced
                 and then not Probe_State.File_Info.Last_Reload_Failed
                 and then not Probe_State.File_Info.Last_Revert_Failed
                 and then not Probe_State.File_Info.Last_Save_Failed,
-              "Phase 576 render must not probe filesystem or synthesize lifecycle failure markers");
+              "render must not probe filesystem or synthesize lifecycle failure markers");
 
-      Phase576_Remove_If_Exists (Render_Path);
-      Phase576_Remove_If_Exists (Probe_Path);
+      Remove_If_Exists (Render_Path);
+      Remove_If_Exists (Probe_Path);
       Editor.Buffers.Reset_Global_For_Test;
    exception
       when others =>
-         Phase576_Remove_If_Exists (Render_Path);
-         Phase576_Remove_If_Exists (Probe_Path);
+         Remove_If_Exists (Render_Path);
+         Remove_If_Exists (Probe_Path);
          Editor.Buffers.Reset_Global_For_Test;
          raise;
-   end Test_Phase576_Render_Does_Not_Save_Reload_Revert_Probe_Or_Clear_File_State;
+   end Test_Render_Does_Not_Save_Reload_Revert_Probe_Or_Clear_File_State;
 
-   procedure Test_Phase576_Canonical_Buffer_List_Aliases_Are_No_Payload_Commands
+   procedure Test_Canonical_Buffer_List_Aliases_Are_No_Payload_Commands
      (T : in out AUnit.Test_Cases.Test_Case'Class)
    is
       pragma Unreferenced (T);
@@ -5099,30 +5103,30 @@ package body Editor.Buffer_Switcher.Tests is
    begin
       Assert (Editor.Commands.Command_Id_From_Stable_Name ("buffer-list.select-next", Found) =
                 Editor.Commands.Command_Buffer_Switcher_Next_Result and then Found,
-              "Phase 576 buffer-list.select-next aliases transient row selection without payloads");
+              "buffer-list.select-next aliases transient row selection without payloads");
       Assert (Editor.Commands.Command_Id_From_Stable_Name ("buffer-list.select-previous", Found) =
                 Editor.Commands.Command_Buffer_Switcher_Previous_Result and then Found,
-              "Phase 576 buffer-list.select-previous aliases transient row selection without payloads");
+              "buffer-list.select-previous aliases transient row selection without payloads");
       Assert (Editor.Commands.Command_Id_From_Stable_Name ("buffer-list.close-selected", Found) =
                 Editor.Commands.Command_Buffer_Switcher_Selected_Close and then Found,
-              "Phase 576 buffer-list.close-selected resolves to the Executor-routed selected close command");
+              "buffer-list.close-selected resolves to the Executor-routed selected close command");
       Assert (Editor.Commands.Command_Id_From_Stable_Name ("buffer-list.switch-selected", Found) =
                 Editor.Commands.Command_Accept_Buffer_Switcher and then Found,
-              "Phase 576 buffer-list.switch-selected resolves without embedding a buffer id");
+              "buffer-list.switch-selected resolves without embedding a buffer id");
       Assert (Editor.Commands.Command_Id_From_Stable_Name ("buffer-list.close-clean", Found) =
                 Editor.Commands.Command_Close_All_Clean_Buffers and then Found,
-              "Phase 576 buffer-list.close-clean resolves to the existing safe close-clean workflow without payloads");
+              "buffer-list.close-clean resolves to the existing safe close-clean workflow without payloads");
       Assert (Editor.Commands.Command_Id_From_Stable_Name ("buffer-list.toggle", Found) =
                 Editor.Commands.Command_Open_Buffer_Switcher and then Found,
-              "Phase 576 buffer-list.toggle remains a no-payload stable command alias for the list surface");
+              "buffer-list.toggle remains a no-payload stable command alias for the list surface");
       Assert (To_String (Editor.Commands.Descriptor
                 (Editor.Commands.Command_Buffer_Switcher_Next_Result).Name) =
               "Select Next Buffer List Row",
-              "Phase 576 next-row descriptor uses buffer-list terminology");
+              "next-row descriptor uses buffer-list terminology");
       Assert (To_String (Editor.Commands.Descriptor
                 (Editor.Commands.Command_Buffer_Switcher_Previous_Result).Name) =
               "Select Previous Buffer List Row",
-              "Phase 576 previous-row descriptor uses buffer-list terminology");
+              "previous-row descriptor uses buffer-list terminology");
       declare
          Next_Cmd : constant Editor.Commands.Command :=
            Editor.Commands.Command_For_Id (Editor.Commands.Command_Buffer_Switcher_Next_Result);
@@ -5138,20 +5142,20 @@ package body Editor.Buffer_Switcher.Tests is
          Assert (Next_Cmd.Buffer_Id = 0 and then Prev_Cmd.Buffer_Id = 0
                    and then Switch_Cmd.Buffer_Id = 0 and then Close_Cmd.Buffer_Id = 0
                    and then Clean_Cmd.Buffer_Id = 0,
-                 "Phase 576 buffer-list commands carry no runtime buffer-id payloads");
+                 "buffer-list commands carry no runtime buffer-id payloads");
          Assert (Length (Next_Cmd.Text) = 0 and then Length (Prev_Cmd.Text) = 0
                    and then Length (Switch_Cmd.Text) = 0 and then Length (Close_Cmd.Text) = 0
                    and then Length (Clean_Cmd.Text) = 0,
-                 "Phase 576 buffer-list commands carry no text payloads through command palette/keybinding commands");
+                 "buffer-list commands carry no text payloads through command palette/keybinding commands");
          Assert (Length (Next_Cmd.Path) = 0 and then Length (Prev_Cmd.Path) = 0
                    and then Length (Switch_Cmd.Path) = 0 and then Length (Close_Cmd.Path) = 0
                    and then Length (Clean_Cmd.Path) = 0,
-                 "Phase 576 buffer-list commands carry no path payloads");
+                 "buffer-list commands carry no path payloads");
       end;
-   end Test_Phase576_Canonical_Buffer_List_Aliases_Are_No_Payload_Commands;
+   end Test_Canonical_Buffer_List_Aliases_Are_No_Payload_Commands;
 
 
-   procedure Test_Phase576_Buffer_List_Routes_Keybindings_And_Availability_Are_No_Payload_And_Side_Effect_Free
+   procedure Test_Buffer_List_Routes_Keybindings_And_Availability_Are_No_Payload_And_Side_Effect_Free
      (T : in out AUnit.Test_Cases.Test_Case'Class)
    is
       pragma Unreferenced (T);
@@ -5223,8 +5227,8 @@ package body Editor.Buffer_Switcher.Tests is
               Editor.Commands.Descriptor (Id);
             A  : Editor.Commands.Command_Availability;
          begin
-            Assert (not Phase576_Command_Has_Payload (Id),
-                    "Phase 576 Buffer List command template must not carry buffer ids, paths, text, query, or edit payloads");
+            Assert (not Command_Has_Payload (Id),
+                    "Buffer List command template must not carry buffer ids, paths, text, query, or edit payloads");
 
             Editor.Command_Route_Audit.Record_Command_Palette_Route
               (Result                   => Audit,
@@ -5233,21 +5237,21 @@ package body Editor.Buffer_Switcher.Tests is
                Used_Stable_Command_Name =>
                  Editor.Commands.Command_Id_From_Stable_Name
                    (Editor.Commands.Stable_Command_Name (Id), Found) = Id and then Found,
-               Carried_Payload          => Phase576_Command_Has_Payload (Id));
+               Carried_Payload          => Command_Has_Payload (Id));
 
             Editor.Command_Route_Audit.Record_Keybinding_Management_Route
               (Result                   => Audit,
                Command                  => Id,
                Routed_Through_Executor  => True,
                Used_Stable_Command_Name => True,
-               Carried_Payload          => Phase576_Command_Has_Payload (Id));
+               Carried_Payload          => Command_Has_Payload (Id));
 
             Editor.Keybindings.Bind (Chords (I), Id);
             Assert (Editor.Keybindings.Resolve (Chords (I), Resolved) = Editor.Keybindings.Bound_Command
                       and then Resolved = Id,
-                    "Phase 576 Buffer List keybinding route resolves only to a stable command id");
-            Assert (not Phase576_Command_Has_Payload (Resolved),
-                    "Phase 576 Buffer List keybinding route must not synthesize a row/buffer/path payload");
+                    "Buffer List keybinding route resolves only to a stable command id");
+            Assert (not Command_Has_Payload (Resolved),
+                    "Buffer List keybinding route must not synthesize a row/buffer/path payload");
 
             Candidates.Append
               (Editor.Commands.Command_Palette_Candidate'(Id                  => Id,
@@ -5267,17 +5271,17 @@ package body Editor.Buffer_Switcher.Tests is
 
             A := Editor.Executor.Command_Availability (S, Id);
             Assert (Natural (Editor.Buffers.Global_Active_Buffer) = Before_Active,
-                    "Phase 576 Buffer List availability must not switch buffers");
+                    "Buffer List availability must not switch buffers");
             Assert (Editor.Buffers.Global_Count = Before_Count,
-                    "Phase 576 Buffer List availability must not close buffers");
+                    "Buffer List availability must not close buffers");
             Assert (Editor.Buffer_Switcher.Row_Count (S.Buffer_Switcher) = Before_Row_Count,
-                    "Phase 576 Buffer List availability must not recompute/mutate rows");
+                    "Buffer List availability must not recompute/mutate rows");
             Assert (Editor.Buffer_Switcher.Selected_Row_Index (S.Buffer_Switcher) = Before_Selected,
-                    "Phase 576 Buffer List availability must not mutate transient selection");
+                    "Buffer List availability must not mutate transient selection");
             Assert (To_String (Before_Filter) = Editor.Buffer_Switcher.Filter_Text (S.Buffer_Switcher),
-                    "Phase 576 Buffer List availability must not mutate transient filter/query");
+                    "Buffer List availability must not mutate transient filter/query");
             Assert (Editor.Buffer_Switcher.Is_Open (S.Buffer_Switcher) = Before_Open,
-                    "Phase 576 Buffer List availability must not open/close the list surface");
+                    "Buffer List availability must not open/close the list surface");
          end;
       end loop;
 
@@ -5293,24 +5297,24 @@ package body Editor.Buffer_Switcher.Tests is
           Show_Help_Row                => False));
 
       Assert (Editor.Command_Palette.Candidate_Count (Snapshot) = Commands'Length,
-              "Phase 576 command palette projection must expose every Buffer List command as descriptor rows only");
+              "command palette projection must expose every Buffer List command as descriptor rows only");
 
       for I in 0 .. Editor.Command_Palette.Candidate_Count (Snapshot) - 1 loop
          declare
             C : constant Editor.Commands.Command_Palette_Candidate :=
               Editor.Command_Palette.Candidate (Snapshot, I);
          begin
-            Assert (not Phase576_Command_Has_Payload (C.Id),
-                    "Phase 576 command palette candidate id must resolve to a no-payload command template");
+            Assert (not Command_Has_Payload (C.Id),
+                    "command palette candidate id must resolve to a no-payload command template");
             Assert (C.Reference_Summary = To_Unbounded_String (Editor.Commands.Stable_Command_Name (C.Id)),
-                    "Phase 576 command palette candidate carries stable command identity, not row labels or buffer ids");
+                    "command palette candidate carries stable command identity, not row labels or buffer ids");
             Assert (Ada.Strings.Fixed.Index (To_String (C.Reference_Summary), "/") = 0,
-                    "Phase 576 command palette candidate reference must not carry file paths");
+                    "command palette candidate reference must not carry file paths");
          end;
       end loop;
 
       Assert (Editor.Command_Route_Audit.Failure_Count (Audit) = 0,
-              "Phase 576 Buffer List command-palette/keybinding routes must use Executor, stable ids, and no payloads: "
+              "Buffer List command-palette/keybinding routes must use Executor, stable ids, and no payloads: "
               & Editor.Command_Route_Audit.Summary (Audit));
 
       Editor.Keybindings.Reset_To_Defaults;
@@ -5322,10 +5326,10 @@ package body Editor.Buffer_Switcher.Tests is
          Editor.Command_Palette.Reset;
          Editor.Buffers.Reset_Global_For_Test;
          raise;
-   end Test_Phase576_Buffer_List_Routes_Keybindings_And_Availability_Are_No_Payload_And_Side_Effect_Free;
+   end Test_Buffer_List_Routes_Keybindings_And_Availability_Are_No_Payload_And_Side_Effect_Free;
 
 
-   procedure Test_Phase576_Settings_And_Recent_Project_Saves_Exclude_Buffer_List_Runtime_State
+   procedure Test_Settings_And_Recent_Project_Saves_Exclude_Buffer_List_Runtime_State
      (T : in out AUnit.Test_Cases.Test_Case'Class)
    is
       pragma Unreferenced (T);
@@ -5340,8 +5344,8 @@ package body Editor.Buffer_Switcher.Tests is
       Settings_Status : Editor.Settings.Settings_Status;
       Recent_List : Editor.Recent_Projects.Recent_Project_List;
       Recent_Status : Editor.Recent_Projects.Recent_Project_Status;
-      Settings_Path : constant String := Phase576_Temp_Path ("settings_excludes_buffer_list_runtime.conf");
-      Recent_Path   : constant String := Phase576_Temp_Path ("recent_projects_excludes_buffer_list_runtime.conf");
+      Settings_Path : constant String := Temp_Path ("settings_excludes_buffer_list_runtime.conf");
+      Recent_Path   : constant String := Temp_Path ("recent_projects_excludes_buffer_list_runtime.conf");
       Settings_Text : Unbounded_String;
       Recent_Text   : Unbounded_String;
 
@@ -5350,40 +5354,40 @@ package body Editor.Buffer_Switcher.Tests is
          Domain : String)
       is
       begin
-         Assert (not Contains_Text (Text, "phase576-settings-recent-query"),
-                 "Phase 576 " & Domain & " persistence must exclude Buffer List query/filter text");
+         Assert (not Contains_Text (Text, "settings-recent-query"),
+                 Domain & " persistence must exclude Buffer List query/filter text");
          Assert (not Contains_Text (Text, "buffer-list")
                    and then not Contains_Text (Text, "buffer_switcher")
                    and then not Contains_Text (Text, "buffer-switcher"),
-                 "Phase 576 " & Domain & " persistence must exclude Buffer List runtime field names");
+                 Domain & " persistence must exclude Buffer List runtime field names");
          Assert (not Contains_Text (Text, "selected-row")
                    and then not Contains_Text (Text, "Selected_Row")
                    and then not Contains_Text (Text, "marked")
                    and then not Contains_Text (Text, "review")
                    and then not Contains_Text (Text, "Dirty_Filter")
                    and then not Contains_Text (Text, "Name_Sort"),
-                 "Phase 576 " & Domain & " persistence must exclude Buffer List selection, marks, review, filters, and sort state");
+                 Domain & " persistence must exclude Buffer List selection, marks, review, filters, and sort state");
          Assert (not Contains_Text (Text, "runtime-buffer")
                    and then not Contains_Text (Text, "Buffer_Id")
-                   and then not Contains_Text (Text, "phase576-live-a.adb")
-                   and then not Contains_Text (Text, "phase576-live-b.adb")
-                   and then not Contains_Text (Text, "/tmp/phase576-live"),
-                 "Phase 576 " & Domain & " persistence must exclude runtime buffer ids, row labels, and paths");
+                   and then not Contains_Text (Text, "live-a.adb")
+                   and then not Contains_Text (Text, "live-b.adb")
+                   and then not Contains_Text (Text, "/tmp/live"),
+                 Domain & " persistence must exclude runtime buffer ids, row labels, and paths");
       end Assert_Runtime_State_Excluded;
    begin
-      Phase576_Remove_If_Exists (Settings_Path);
-      Phase576_Remove_If_Exists (Recent_Path);
+      Remove_If_Exists (Settings_Path);
+      Remove_If_Exists (Recent_Path);
       Editor.State.Init (S);
       Editor.Settings.Reset;
       Editor.Recent_Projects.Clear (Recent_List);
 
       Alpha := Editor.Buffers.Add_Buffer_From_File
-        (Registry, "/tmp/phase576-live/a/phase576-live-a.adb", "phase576-live-a.adb", "alpha text");
+        (Registry, "/tmp/live/a/live-a.adb", "live-a.adb", "alpha text");
       Beta := Editor.Buffers.Add_Buffer_From_File
-        (Registry, "/tmp/phase576-live/b/phase576-live-b.adb", "phase576-live-b.adb", "beta text");
+        (Registry, "/tmp/live/b/live-b.adb", "live-b.adb", "beta text");
       Editor.Buffers.Set_Active_Buffer (Registry, Alpha);
       Editor.Buffer_Switcher.Open (S.Buffer_Switcher);
-      Editor.Buffer_Switcher.Set_Filter_Text (S.Buffer_Switcher, "phase576-settings-recent-query");
+      Editor.Buffer_Switcher.Set_Filter_Text (S.Buffer_Switcher, "settings-recent-query");
       Editor.Buffer_Switcher.Set_Dirty_Filter (S.Buffer_Switcher);
       Editor.Buffer_Switcher.Set_Sort_Mode (S.Buffer_Switcher, Editor.Buffer_Switcher.Name_Sort);
       Editor.Buffer_Switcher.Set_Mark (S.Buffer_Switcher, Beta);
@@ -5394,33 +5398,33 @@ package body Editor.Buffer_Switcher.Tests is
       Settings_Model := Editor.Settings.Build_From_Current;
       Editor.Settings.Save_To_File (Settings_Model, Settings_Path, Settings_Status);
       Assert (Settings_Status = Editor.Settings.Settings_Ok,
-              "Phase 576 settings persistence should save successfully for exclusion audit");
-      Settings_Text := To_Unbounded_String (Phase576_Read_Bytes (Settings_Path));
+              "settings persistence should save successfully for exclusion audit");
+      Settings_Text := To_Unbounded_String (Read_Bytes (Settings_Path));
       Assert (Contains_Text (To_String (Settings_Text), "editor-settings-version=1"),
-              "Phase 576 settings persistence audit should inspect the serialized settings file");
+              "settings persistence audit should inspect the serialized settings file");
       Assert_Runtime_State_Excluded (To_String (Settings_Text), "settings");
 
       Editor.Recent_Projects.Add_Or_Promote
         (Recent_List, "/tmp/recent-domain-root", "recent-domain", 576);
       Editor.Recent_Projects.Save_To_File (Recent_List, Recent_Path, Recent_Status);
       Assert (Recent_Status = Editor.Recent_Projects.Recent_Project_Ok,
-              "Phase 576 recent-projects persistence should save successfully for exclusion audit");
-      Recent_Text := To_Unbounded_String (Phase576_Read_Bytes (Recent_Path));
+              "recent-projects persistence should save successfully for exclusion audit");
+      Recent_Text := To_Unbounded_String (Read_Bytes (Recent_Path));
       Assert (Contains_Text (To_String (Recent_Text), "editor-recent-projects-version=1"),
-              "Phase 576 recent-projects persistence audit should inspect the serialized recent-projects file");
+              "recent-projects persistence audit should inspect the serialized recent-projects file");
       Assert_Runtime_State_Excluded (To_String (Recent_Text), "recent-projects");
 
-      Phase576_Remove_If_Exists (Settings_Path);
-      Phase576_Remove_If_Exists (Recent_Path);
+      Remove_If_Exists (Settings_Path);
+      Remove_If_Exists (Recent_Path);
    exception
       when others =>
-         Phase576_Remove_If_Exists (Settings_Path);
-         Phase576_Remove_If_Exists (Recent_Path);
+         Remove_If_Exists (Settings_Path);
+         Remove_If_Exists (Recent_Path);
          raise;
-   end Test_Phase576_Settings_And_Recent_Project_Saves_Exclude_Buffer_List_Runtime_State;
+   end Test_Settings_And_Recent_Project_Saves_Exclude_Buffer_List_Runtime_State;
 
 
-   procedure Test_Phase576_Keybinding_Save_Serializes_Buffer_List_Stable_Names_Only
+   procedure Test_Keybinding_Save_Serializes_Buffer_List_Stable_Names_Only
      (T : in out AUnit.Test_Cases.Test_Case'Class)
    is
       pragma Unreferenced (T);
@@ -5461,31 +5465,31 @@ package body Editor.Buffer_Switcher.Tests is
       Config : Editor.Keybinding_Config.Keybinding_Config_Model;
       Loaded : Editor.Keybinding_Config.Keybinding_Config_Model;
       Status : Editor.Keybinding_Config.Keybinding_Config_Status;
-      Path   : constant String := Phase576_Temp_Path ("keybindings_buffer_list_stable_names_only.conf");
+      Path   : constant String := Temp_Path ("keybindings_buffer_list_stable_names_only.conf");
       Text   : Unbounded_String;
       Found  : Boolean := False;
       Round  : Editor.Commands.Command_Id := Editor.Commands.No_Command;
       Bound  : Editor.Keybindings.Key_Chord;
    begin
-      Phase576_Remove_If_Exists (Path);
+      Remove_If_Exists (Path);
       Editor.Keybindings.Reset_To_Defaults;
       Editor.Keybinding_Config.Clear (Config);
 
       for I in Commands'Range loop
          Assert (Editor.Commands.Is_Bindable_Command (Commands (I)),
-                 "Phase 576 Buffer List command must remain bindable before keybinding serialization");
-         Assert (not Phase576_Command_Has_Payload (Commands (I)),
-                 "Phase 576 Buffer List command template must be payload-free before keybinding serialization");
+                 "Buffer List command must remain bindable before keybinding serialization");
+         Assert (not Command_Has_Payload (Commands (I)),
+                 "Buffer List command template must be payload-free before keybinding serialization");
          Editor.Keybinding_Config.Bind (Config, Commands (I), Chords (I));
       end loop;
 
       Editor.Keybinding_Config.Save_To_File (Config, Path, Status);
       Assert (Status = Editor.Keybinding_Config.Keybinding_Config_Ok,
-              "Phase 576 keybinding serialization must save Buffer List bindings successfully");
-      Text := To_Unbounded_String (Phase576_Read_Bytes (Path));
+              "keybinding serialization must save Buffer List bindings successfully");
+      Text := To_Unbounded_String (Read_Bytes (Path));
 
       Assert (Contains_Text (To_String (Text), "editor-keybindings-version=1"),
-              "Phase 576 keybinding serialization keeps the versioned keybinding file format");
+              "keybinding serialization keeps the versioned keybinding file format");
 
       for I in Commands'Range loop
          declare
@@ -5493,10 +5497,10 @@ package body Editor.Buffer_Switcher.Tests is
             Chord_Text : constant String := Editor.Keybindings.Format_Chord (Chords (I));
          begin
             Assert (Contains_Text (To_String (Text), Stable & "=" & Chord_Text),
-                    "Phase 576 keybinding serialization writes only the stable command name and canonical chord for " & Stable);
+                    "keybinding serialization writes only the stable command name and canonical chord for " & Stable);
             Round := Editor.Commands.Command_Id_From_Stable_Name (Stable, Found);
             Assert (Found and then Round = Commands (I),
-                    "Phase 576 serialized Buffer List stable command name must round-trip: " & Stable);
+                    "serialized Buffer List stable command name must round-trip: " & Stable);
          end;
       end loop;
 
@@ -5507,40 +5511,40 @@ package body Editor.Buffer_Switcher.Tests is
                 and then not Contains_Text (To_String (Text), "buffer-list.select-previous")
                 and then not Contains_Text (To_String (Text), "buffer-list.close-selected")
                 and then not Contains_Text (To_String (Text), "buffer-list.close-clean"),
-              "Phase 576 keybinding persistence writes canonical stable command names, not alternate Buffer List aliases");
+              "keybinding persistence writes canonical stable command names, not alternate Buffer List aliases");
       Assert (not Contains_Text (To_String (Text), "buffer.list.")
-                and then not Contains_Text (To_String (Text), "phase576-keybinding-query")
+                and then not Contains_Text (To_String (Text), "keybinding-query")
                 and then not Contains_Text (To_String (Text), "selected-row")
                 and then not Contains_Text (To_String (Text), "Selected_Row")
                 and then not Contains_Text (To_String (Text), "runtime-buffer")
                 and then not Contains_Text (To_String (Text), "Buffer_Id")
-                and then not Contains_Text (To_String (Text), "/tmp/phase576")
+                and then not Contains_Text (To_String (Text), "/tmp/")
                 and then not Contains_Text (To_String (Text), "alpha.adb")
                 and then not Contains_Text (To_String (Text), "beta.adb"),
-              "Phase 576 keybinding persistence excludes buffer-list selection, filters, row labels, paths, and runtime buffer ids");
+              "keybinding persistence excludes buffer-list selection, filters, row labels, paths, and runtime buffer ids");
 
       Editor.Keybinding_Config.Load_From_File (Path, Loaded, Status);
       Assert (Status = Editor.Keybinding_Config.Keybinding_Config_Ok,
-              "Phase 576 serialized Buffer List keybindings must reload cleanly");
+              "serialized Buffer List keybindings must reload cleanly");
       for I in Commands'Range loop
          Bound := Editor.Keybinding_Config.Chord_For (Loaded, Commands (I), Found);
          Assert (Found and then Editor.Keybindings.Format_Chord (Bound) = Editor.Keybindings.Format_Chord (Chords (I)),
-                 "Phase 576 reloaded Buffer List keybinding must bind the same stable command without payload");
+                 "reloaded Buffer List keybinding must bind the same stable command without payload");
       end loop;
 
-      Phase576_Remove_If_Exists (Path);
+      Remove_If_Exists (Path);
       Editor.Keybindings.Reset_To_Defaults;
    exception
       when others =>
-         Phase576_Remove_If_Exists (Path);
+         Remove_If_Exists (Path);
          Editor.Keybindings.Reset_To_Defaults;
          raise;
-   end Test_Phase576_Keybinding_Save_Serializes_Buffer_List_Stable_Names_Only;
+   end Test_Keybinding_Save_Serializes_Buffer_List_Stable_Names_Only;
 
 
 
 
-   procedure Test_Phase576_State_Filters_Are_Transient_And_Non_Mutating
+   procedure Test_State_Filters_Are_Transient_And_Non_Mutating
      (T : in out AUnit.Test_Cases.Test_Case'Class)
    is
       pragma Unreferenced (T);
@@ -5586,81 +5590,81 @@ package body Editor.Buffer_Switcher.Tests is
       Original_Count := Editor.Buffers.Count (Registry);
       Original_Active := Editor.Buffers.Active_Buffer (Registry);
       Assert (Editor.Buffer_Switcher.Row_Count (S) = 5,
-              "Phase 576 setup exposes all open buffers before state filters");
+              "setup exposes all open buffers before state filters");
 
       Editor.Buffer_Switcher.Set_Dirty_Filter (S);
       Editor.Buffer_Switcher.Recompute_Rows (S, Registry, Recent, Project, Config);
       Assert (Editor.Buffer_Switcher.Metadata_Filter_Description (S) = "dirty buffers",
-              "Phase 576 dirty state filter has deterministic transient description");
+              "dirty state filter has deterministic transient description");
       Assert (Editor.Buffer_Switcher.Row_Count (S) = 1
                 and then Editor.Buffer_Switcher.Row_At (S, 1).Id = Dirty_Project,
-              "Phase 576 dirty filter shows only dirty buffers");
+              "dirty filter shows only dirty buffers");
 
       Editor.Buffer_Switcher.Set_Clean_Filter (S);
       Editor.Buffer_Switcher.Recompute_Rows (S, Registry, Recent, Project, Config);
       Assert (Editor.Buffer_Switcher.Row_Count (S) = 4,
-              "Phase 576 clean filter hides dirty buffers without closing them");
+              "clean filter hides dirty buffers without closing them");
       Row := Editor.Buffer_Switcher.Row_For_Buffer (S, Dirty_Project, Found);
-      Assert (not Found, "Phase 576 clean filter hides the dirty row only from projection");
+      Assert (not Found, "clean filter hides the dirty row only from projection");
 
       Editor.Buffer_Switcher.Set_Missing_Or_Conflict_Filter (S);
       Editor.Buffer_Switcher.Recompute_Rows (S, Registry, Recent, Project, Config);
       Assert (Editor.Buffer_Switcher.Row_Count (S) = 2,
-              "Phase 576 missing/conflict filter shows only affected lifecycle rows");
+              "missing/conflict filter shows only affected lifecycle rows");
       Row := Editor.Buffer_Switcher.Row_For_Buffer (S, Outside, Found);
       Assert (Found and then Row.External_Change_Surfaced,
-              "Phase 576 missing/conflict filter includes external-conflict rows");
+              "missing/conflict filter includes external-conflict rows");
       Row := Editor.Buffer_Switcher.Row_For_Buffer (S, Missing, Found);
       Assert (Found and then Row.Missing_Target_Surfaced,
-              "Phase 576 missing/conflict filter includes missing backing-file rows");
+              "missing/conflict filter includes missing backing-file rows");
 
       Editor.Buffer_Switcher.Set_Project_Owned_Filter (S);
       Editor.Buffer_Switcher.Recompute_Rows (S, Registry, Recent, Project, Config);
       Assert (Editor.Buffer_Switcher.Row_Count (S) = 3,
-              "Phase 576 project-owned filter shows only buffers under active project root");
+              "project-owned filter shows only buffers under active project root");
       Row := Editor.Buffer_Switcher.Row_For_Buffer (S, Outside, Found);
-      Assert (not Found, "Phase 576 project-owned filter hides outside-project buffers");
+      Assert (not Found, "project-owned filter hides outside-project buffers");
       Row := Editor.Buffer_Switcher.Row_For_Buffer (S, Scratch, Found);
-      Assert (not Found, "Phase 576 project-owned filter hides scratch buffers");
+      Assert (not Found, "project-owned filter hides scratch buffers");
 
       Editor.Buffer_Switcher.Set_Outside_Project_Filter (S);
       Editor.Buffer_Switcher.Recompute_Rows (S, Registry, Recent, Project, Config);
       Assert (Editor.Buffer_Switcher.Row_Count (S) = 1
                 and then Editor.Buffer_Switcher.Row_At (S, 1).Id = Outside,
-              "Phase 576 outside-project filter shows only outside-project buffers");
+              "outside-project filter shows only outside-project buffers");
 
       Editor.Buffer_Switcher.Set_Scratch_Filter (S);
       Editor.Buffer_Switcher.Recompute_Rows (S, Registry, Recent, Project, Config);
       Assert (Editor.Buffer_Switcher.Row_Count (S) = 1
                 and then Editor.Buffer_Switcher.Row_At (S, 1).Id = Scratch,
-              "Phase 576 scratch filter shows only unbacked scratch buffers");
+              "scratch filter shows only unbacked scratch buffers");
 
       Editor.Buffer_Switcher.Set_Filter_Text (S, "clean");
       Editor.Buffer_Switcher.Set_Project_Owned_Filter (S);
       Editor.Buffer_Switcher.Recompute_Rows (S, Registry, Recent, Project, Config);
       Assert (Editor.Buffer_Switcher.Row_Count (S) = 1
                 and then Editor.Buffer_Switcher.Row_At (S, 1).Id = Clean_Project,
-              "Phase 576 state filters compose with transient label/path query filtering");
+              "state filters compose with transient label/path query filtering");
 
       Assert (Editor.Buffers.Count (Registry) = Original_Count
                 and then Editor.Buffers.Active_Buffer (Registry) = Original_Active
                 and then Editor.Buffers.Is_Dirty (Registry, Dirty_Project),
-              "Phase 576 state filters do not close, switch, save, or clear dirty state");
+              "state filters do not close, switch, save, or clear dirty state");
       Assert (Editor.Buffers.Buffer_Access (Registry, Outside).File_Info.External_Change_Surfaced
                 and then Editor.Buffers.Buffer_Access (Registry, Missing).File_Info.Missing_Target_Surfaced,
-              "Phase 576 state filters do not clear lifecycle conflict/missing markers");
+              "state filters do not clear lifecycle conflict/missing markers");
 
       Editor.Buffer_Switcher.Clear_Metadata_Filter (S);
       Editor.Buffer_Switcher.Set_Filter_Text (S, "");
       Editor.Buffer_Switcher.Recompute_Rows (S, Registry, Recent, Project, Config);
       Assert (not Editor.Buffer_Switcher.Has_Metadata_Filter (S)
                 and then Editor.Buffer_Switcher.Row_Count (S) = 5,
-              "Phase 576 clearing state filters restores the full transient buffer-list projection");
-   end Test_Phase576_State_Filters_Are_Transient_And_Non_Mutating;
+              "clearing state filters restores the full transient buffer-list projection");
+   end Test_State_Filters_Are_Transient_And_Non_Mutating;
 
 
 
-   procedure Test_Phase576_Final_Multi_Buffer_Management_Completion_Audit
+   procedure Test_Final_Multi_Buffer_Management_Completion_Audit
      (T : in out AUnit.Test_Cases.Test_Case'Class)
    is
       pragma Unreferenced (T);
@@ -5683,36 +5687,36 @@ package body Editor.Buffer_Switcher.Tests is
            Editor.Commands.Command_Id_From_Stable_Name (Name, Alias_Found);
       begin
          Assert (Alias_Found and then Id = Expected,
-                 "Phase 576 final audit maps Buffer List alias " & Name & " to the canonical command id");
-         Assert (not Phase576_Command_Has_Payload (Id),
-                 "Phase 576 final audit keeps Buffer List alias " & Name & " payload-free");
+                 "final audit maps Buffer List alias " & Name & " to the canonical command id");
+         Assert (not Command_Has_Payload (Id),
+                 "final audit keeps Buffer List alias " & Name & " payload-free");
       end Assert_Alias_No_Payload;
    begin
       Editor.Project.Apply_Open_Result
         (Project,
          (Status       => Editor.Project.Project_Open_Ok,
-          Root_Path    => To_Unbounded_String ("/tmp/phase576/final/project"),
+          Root_Path    => To_Unbounded_String ("/tmp/scenario/final/project"),
           Display_Name => To_Unbounded_String ("project"),
           Error_Text   => Null_Unbounded_String));
 
       Clean_Project := Editor.Buffers.Add_Buffer_From_File
         (Registry,
-         "/tmp/phase576/final/project/src/clean.adb",
+         "/tmp/scenario/final/project/src/clean.adb",
          "clean.adb",
          "clean buffer text must never appear in a row");
       Dirty_Project := Editor.Buffers.Add_Buffer_From_File
         (Registry,
-         "/tmp/phase576/final/project/src/dirty.adb",
+         "/tmp/scenario/final/project/src/dirty.adb",
          "dirty.adb",
          "dirty buffer text must never appear in a row");
       Missing_Project := Editor.Buffers.Add_Buffer_From_File
         (Registry,
-         "/tmp/phase576/final/project/src/missing.adb",
+         "/tmp/scenario/final/project/src/missing.adb",
          "missing.adb",
          "missing buffer text must never appear in a row");
       Outside_Conflict := Editor.Buffers.Add_Buffer_From_File
         (Registry,
-         "/tmp/phase576/final/outside/conflict.adb",
+         "/tmp/scenario/final/outside/conflict.adb",
          "conflict.adb",
          "conflict buffer text must never appear in a row");
       Scratch := Editor.Buffers.Create_Untitled_Buffer (Registry);
@@ -5724,38 +5728,38 @@ package body Editor.Buffer_Switcher.Tests is
       Editor.Buffer_Switcher.Open (S);
       Editor.Buffer_Switcher.Recompute_Rows (S, Registry, Recent, Project, Config);
       Assert (Editor.Buffer_Switcher.Row_Count (S) = 5,
-              "Phase 576 final audit projects every open buffer into the Buffer List");
+              "final audit projects every open buffer into the Buffer List");
       Assert (Editor.Buffer_Switcher.Assert_Multi_Buffer_Management_Coherent (S),
-              "Phase 576 final audit accepts the complete multi-buffer projection as coherent");
+              "final audit accepts the complete multi-buffer projection as coherent");
 
       Row := Editor.Buffer_Switcher.Row_For_Buffer (S, Clean_Project, Found);
       Assert (Found and then Row.Is_Active and then Row.Is_Project_Owned
                 and then To_String (Row.Display_Label) = "src/clean.adb",
-              "Phase 576 final audit shows active project-owned rows with project-relative labels");
+              "final audit shows active project-owned rows with project-relative labels");
       Row := Editor.Buffer_Switcher.Row_For_Buffer (S, Dirty_Project, Found);
       Assert (Found and then Row.Is_Dirty and then Row.Is_Project_Owned
                 and then Contains_Text (Editor.Buffer_Switcher.Buffer_Row_State_Markers (Row), "dirty"),
-              "Phase 576 final audit shows dirty project-owned row markers");
+              "final audit shows dirty project-owned row markers");
       Row := Editor.Buffer_Switcher.Row_For_Buffer (S, Missing_Project, Found);
       Assert (Found and then Row.Missing_Target_Surfaced and then Row.Is_Project_Owned
                 and then Contains_Text (Editor.Buffer_Switcher.Buffer_Row_State_Markers (Row), "missing"),
-              "Phase 576 final audit shows missing backing-file markers from the buffer snapshot");
+              "final audit shows missing backing-file markers from the buffer snapshot");
       Row := Editor.Buffer_Switcher.Row_For_Buffer (S, Outside_Conflict, Found);
       Assert (Found and then Row.External_Change_Surfaced and then Row.Is_Outside_Project
                 and then Contains_Text (Editor.Buffer_Switcher.Buffer_Row_State_Markers (Row), "conflict"),
-              "Phase 576 final audit shows outside-project external-conflict markers");
+              "final audit shows outside-project external-conflict markers");
       Row := Editor.Buffer_Switcher.Row_For_Buffer (S, Scratch, Found);
       Assert (Found and then Row.Project_Ownership = Editor.Buffer_Switcher.Buffer_Project_Scratch
                 and then not Row.Has_Path
                 and then Contains_Text (Editor.Buffer_Switcher.Buffer_Row_State_Markers (Row), "scratch"),
-              "Phase 576 final audit shows scratch rows without backing path payloads");
+              "final audit shows scratch rows without backing path payloads");
 
       for I in 1 .. Editor.Buffer_Switcher.Row_Count (S) loop
          declare
             Label : constant String := To_String (Editor.Buffer_Switcher.Row_At (S, I).Display_Label);
          begin
             Assert (not Contains_Text (Label, "buffer text must never appear"),
-                    "Phase 576 final audit confirms row labels never copy buffer text");
+                    "final audit confirms row labels never copy buffer text");
          end;
       end loop;
 
@@ -5763,36 +5767,36 @@ package body Editor.Buffer_Switcher.Tests is
       Editor.Buffer_Switcher.Recompute_Rows (S, Registry, Recent, Project, Config);
       Assert (Editor.Buffer_Switcher.Row_Count (S) = 1
                 and then Editor.Buffer_Switcher.Row_At (S, 1).Id = Dirty_Project,
-              "Phase 576 final audit dirty filter is state-based and non-mutating");
+              "final audit dirty filter is state-based and non-mutating");
 
       Editor.Buffer_Switcher.Set_Missing_Or_Conflict_Filter (S);
       Editor.Buffer_Switcher.Recompute_Rows (S, Registry, Recent, Project, Config);
       Assert (Editor.Buffer_Switcher.Row_Count (S) = 2,
-              "Phase 576 final audit missing/conflict filter shows affected buffers only");
+              "final audit missing/conflict filter shows affected buffers only");
 
       Editor.Buffer_Switcher.Set_Project_Owned_Filter (S);
       Editor.Buffer_Switcher.Recompute_Rows (S, Registry, Recent, Project, Config);
       Assert (Editor.Buffer_Switcher.Row_Count (S) = 3,
-              "Phase 576 final audit project-owned filter shows only active-project buffers");
+              "final audit project-owned filter shows only active-project buffers");
 
       Editor.Buffer_Switcher.Set_Outside_Project_Filter (S);
       Editor.Buffer_Switcher.Recompute_Rows (S, Registry, Recent, Project, Config);
       Assert (Editor.Buffer_Switcher.Row_Count (S) = 1
                 and then Editor.Buffer_Switcher.Row_At (S, 1).Id = Outside_Conflict,
-              "Phase 576 final audit outside-project filter shows only outside-project buffers");
+              "final audit outside-project filter shows only outside-project buffers");
 
       Editor.Buffer_Switcher.Set_Scratch_Filter (S);
       Editor.Buffer_Switcher.Recompute_Rows (S, Registry, Recent, Project, Config);
       Assert (Editor.Buffer_Switcher.Row_Count (S) = 1
                 and then Editor.Buffer_Switcher.Row_At (S, 1).Id = Scratch,
-              "Phase 576 final audit scratch filter shows only unbacked buffers");
+              "final audit scratch filter shows only unbacked buffers");
 
       Assert (Editor.Buffers.Count (Registry) = 5
                 and then Editor.Buffers.Active_Buffer (Registry) = Clean_Project
                 and then Editor.Buffers.Is_Dirty (Registry, Dirty_Project)
                 and then Editor.Buffers.Buffer_Access (Registry, Missing_Project).File_Info.Missing_Target_Surfaced
                 and then Editor.Buffers.Buffer_Access (Registry, Outside_Conflict).File_Info.External_Change_Surfaced,
-              "Phase 576 final audit filters do not close, switch, save, clean, or clear lifecycle markers");
+              "final audit filters do not close, switch, save, clean, or clear lifecycle markers");
 
       Assert_Alias_No_Payload ("buffer-list.toggle", Editor.Commands.Command_Open_Buffer_Switcher);
       Assert_Alias_No_Payload ("buffer-list.switch-selected", Editor.Commands.Command_Accept_Buffer_Switcher);
@@ -5800,9 +5804,9 @@ package body Editor.Buffer_Switcher.Tests is
       Assert_Alias_No_Payload ("buffer-list.close-clean", Editor.Commands.Command_Close_All_Clean_Buffers);
       Assert_Alias_No_Payload ("buffer.next", Editor.Commands.Command_Next_Buffer);
       Assert_Alias_No_Payload ("buffer.previous", Editor.Commands.Command_Previous_Buffer);
-   end Test_Phase576_Final_Multi_Buffer_Management_Completion_Audit;
+   end Test_Final_Multi_Buffer_Management_Completion_Audit;
 
-   procedure Test_Phase577_Buffer_List_Rows_Use_Metadata_Snapshot_As_Canonical_Source
+   procedure Test_Buffer_List_Rows_Use_Metadata_Snapshot_As_Canonical_Source
      (T : in out AUnit.Test_Cases.Test_Case'Class)
    is
       pragma Unreferenced (T);
@@ -5822,17 +5826,17 @@ package body Editor.Buffer_Switcher.Tests is
       Editor.Project.Apply_Open_Result
         (S.Project,
          (Status       => Editor.Project.Project_Open_Ok,
-          Root_Path    => To_Unbounded_String ("/tmp/phase577/canonical/project"),
+          Root_Path    => To_Unbounded_String ("/tmp/scenario/canonical/project"),
           Display_Name => To_Unbounded_String ("project"),
           Error_Text   => Null_Unbounded_String));
 
       Editor.Buffers.Global_Add_File_Buffer
-        ("/tmp/phase577/canonical/project/./src/../src/main.adb",
+        ("/tmp/scenario/canonical/project/./src/../src/main.adb",
          "main.adb",
          "procedure Main is begin null; end;",
          Inside);
       Editor.Buffers.Global_Add_File_Buffer
-        ("/tmp/phase577/canonical/project/../outside/other.adb",
+        ("/tmp/scenario/canonical/project/../outside/other.adb",
          "other.adb",
          "procedure Other is begin null; end;",
          Outside);
@@ -5856,7 +5860,7 @@ package body Editor.Buffer_Switcher.Tests is
                 and then Row.Is_Project_Owned
                 and then To_String (Row.Path) = To_String (Metadata.File_Path)
                 and then To_String (Row.Display_Label) = To_String (Metadata.Project_Relative_Path),
-              "Phase 577 Buffer List project rows derive path/ownership/display from Buffer_Metadata_Snapshot");
+              "Buffer List project rows derive path/ownership/display from Buffer_Metadata_Snapshot");
 
       Metadata := Editor.Buffers.Metadata_For
         (Editor.Buffers.Global_Registry_For_UI, S.Project, Outside);
@@ -5866,7 +5870,7 @@ package body Editor.Buffer_Switcher.Tests is
                 and then Row.Project_Ownership = Editor.Buffer_Switcher.Buffer_Project_Outside
                 and then Row.Is_Outside_Project
                 and then To_String (Row.Path) = To_String (Metadata.File_Path),
-              "Phase 577 Buffer List outside-project rows use normalized metadata classification rather than raw path prefixes");
+              "Buffer List outside-project rows use normalized metadata classification rather than raw path prefixes");
 
       Metadata := Editor.Buffers.Metadata_For
         (Editor.Buffers.Global_Registry_For_UI, S.Project, Scratch);
@@ -5876,16 +5880,16 @@ package body Editor.Buffer_Switcher.Tests is
                 and then Row.Project_Ownership = Editor.Buffer_Switcher.Buffer_Project_Scratch
                 and then Row.Is_Unbacked
                 and then not Row.Has_Path,
-              "Phase 577 Buffer List scratch rows use metadata scratch/unbacked classification");
+              "Buffer List scratch rows use metadata scratch/unbacked classification");
 
       Editor.Buffers.Reset_Global_For_Test;
    exception
       when others =>
          Editor.Buffers.Reset_Global_For_Test;
          raise;
-   end Test_Phase577_Buffer_List_Rows_Use_Metadata_Snapshot_As_Canonical_Source;
+   end Test_Buffer_List_Rows_Use_Metadata_Snapshot_As_Canonical_Source;
 
-   procedure Test_Phase577_Row_Ownership_Wrapper_Delegates_To_Canonical_Classifier
+   procedure Test_Row_Ownership_Wrapper_Delegates_To_Canonical_Classifier
      (T : in out AUnit.Test_Cases.Test_Case'Class)
    is
       pragma Unreferenced (T);
@@ -5898,13 +5902,13 @@ package body Editor.Buffer_Switcher.Tests is
       Editor.Project.Apply_Open_Result
         (Project,
          (Status       => Editor.Project.Project_Open_Ok,
-          Root_Path    => To_Unbounded_String ("/tmp/phase577/ownership/project"),
+          Root_Path    => To_Unbounded_String ("/tmp/scenario/ownership/project"),
           Display_Name => To_Unbounded_String ("project"),
           Error_Text   => Null_Unbounded_String));
 
       Row.Has_Path := True;
       Row.Path := To_Unbounded_String
-        ("/tmp/phase577/ownership/project/../outside/not_project.adb");
+        ("/tmp/scenario/ownership/project/../outside/not_project.adb");
 
       Canonical := Editor.Buffers.Classify_Buffer_Ownership
         (Has_Path => Row.Has_Path,
@@ -5918,7 +5922,7 @@ package body Editor.Buffer_Switcher.Tests is
                 and then Row.Is_Outside_Project
                 and then not Row.Is_Project_Owned
                 and then To_String (Row.Project_Ownership_Label) = "outside project",
-              "Phase 577 row ownership wrapper delegates to canonical normalized-path classifier");
+              "row ownership wrapper delegates to canonical normalized-path classifier");
 
       Row := (others => <>);
       Row.Has_Path := False;
@@ -5933,12 +5937,12 @@ package body Editor.Buffer_Switcher.Tests is
                 and then Row.Is_Unbacked
                 and then not Row.Is_Project_Owned
                 and then not Row.Is_Outside_Project,
-              "Phase 577 scratch ownership projection is also canonical");
-   end Test_Phase577_Row_Ownership_Wrapper_Delegates_To_Canonical_Classifier;
+              "scratch ownership projection is also canonical");
+   end Test_Row_Ownership_Wrapper_Delegates_To_Canonical_Classifier;
 
 
 
-   procedure Test_Phase577_Selected_Buffer_List_State_Audit_Uses_Real_Selection
+   procedure Test_Selected_Buffer_List_State_Audit_Uses_Real_Selection
      (T : in out AUnit.Test_Cases.Test_Case'Class)
    is
       pragma Unreferenced (T);
@@ -5954,26 +5958,26 @@ package body Editor.Buffer_Switcher.Tests is
 
       Audit := Editor.Buffer_Switcher.Audit_Selected_Buffer_List_State (S, Registry);
       Assert (Audit.Selected_Row_Valid,
-              "Phase 577 selected Buffer List audit accepts a selected registered buffer row");
+              "selected Buffer List audit accepts a selected registered buffer row");
       Assert (Audit.Selected_Buffer_Id = Beta,
-              "Phase 577 selected Buffer List audit reports the real selected runtime buffer id");
+              "selected Buffer List audit reports the real selected runtime buffer id");
       Assert (Audit.Selected_Row_Is_Buffer
                 and then Audit.Selected_Runtime_Id_Registered
                 and then Audit.Selection_Index_Clamped_To_Rows
                 and then Audit.Selection_Skips_Status_Rows,
-              "Phase 577 selected Buffer List audit verifies row/index/registered-buffer invariants");
+              "selected Buffer List audit verifies row/index/registered-buffer invariants");
       Assert (Audit.Selection_Is_Transient
                 and then Audit.Selection_Not_Persisted
                 and then Audit.Selection_Not_Keybinding_Payload,
-              "Phase 577 selected Buffer List audit keeps selection runtime-only");
+              "selected Buffer List audit keeps selection runtime-only");
 
       Editor.Buffers.Close_Buffer (Registry, Beta, Closed, Force => True);
       Assert (Closed, "test setup closes the selected buffer without recomputing rows");
       Audit := Editor.Buffer_Switcher.Audit_Selected_Buffer_List_State (S, Registry);
       Assert (not Audit.Selected_Row_Valid,
-              "Phase 577 selected Buffer List audit rejects stale selected rows after the target closes");
+              "selected Buffer List audit rejects stale selected rows after the target closes");
       Assert (not Audit.Selected_Runtime_Id_Registered,
-              "Phase 577 selected Buffer List audit detects stale selected runtime ids directly from registry state");
+              "selected Buffer List audit detects stale selected runtime ids directly from registry state");
 
       Editor.Buffer_Switcher.Set_Filter_Text (S, "not-open");
       Recompute_For_Test (S, Registry);
@@ -5982,11 +5986,11 @@ package body Editor.Buffer_Switcher.Tests is
                 and then Audit.Selected_Row_Index = 0
                 and then Audit.Selected_Row_Valid
                 and then Audit.Selection_Cleared_When_No_Rows,
-              "Phase 577 selected Buffer List audit verifies selection clears when there are no rows");
-   end Test_Phase577_Selected_Buffer_List_State_Audit_Uses_Real_Selection;
+              "selected Buffer List audit verifies selection clears when there are no rows");
+   end Test_Selected_Buffer_List_State_Audit_Uses_Real_Selection;
 
 
-   procedure Test_Phase577_Render_Buffer_List_Row_Metadata_Is_Explicit
+   procedure Test_Render_Buffer_List_Row_Metadata_Is_Explicit
      (T : in out AUnit.Test_Cases.Test_Case'Class)
    is
       pragma Unreferenced (T);
@@ -5998,7 +6002,7 @@ package body Editor.Buffer_Switcher.Tests is
       Metadata.Id := 42;
       Metadata.Display_Label := To_Unbounded_String ("main.adb");
       Metadata.Has_File_Path := True;
-      Metadata.File_Path := To_Unbounded_String ("/tmp/phase577/render/project/main.adb");
+      Metadata.File_Path := To_Unbounded_String ("/tmp/scenario/render/project/main.adb");
       Metadata.Has_Project_Relative_Path := True;
       Metadata.Project_Relative_Path := To_Unbounded_String ("src/main.adb");
       Metadata.Is_Dirty := True;
@@ -6027,15 +6031,15 @@ package body Editor.Buffer_Switcher.Tests is
                   "Requires conflict resolution or discard"
                 and then To_String (Row.Workspace_Persistability_Label) =
                   "Persistable file reference",
-              "Phase 577 Buffer List rows carry explicit render-facing lifecycle/persistability/close metadata");
+              "Buffer List rows carry explicit render-facing lifecycle/persistability/close metadata");
 
       Assert (Ada.Strings.Fixed.Index (To_String (Label), "project") /= 0
                 and then Ada.Strings.Fixed.Index (To_String (Label), "Conflict pending") /= 0
                 and then Ada.Strings.Fixed.Index (To_String (Label), "Persistable file reference") /= 0
                 and then Ada.Strings.Fixed.Index (To_String (Label), "Requires conflict resolution or discard") /= 0
                 and then Ada.Strings.Fixed.Index (To_String (Label), "Stale backing state") /= 0,
-              "Phase 577 render label exposes all Buffer List row metadata from the snapshot projection");
-   end Test_Phase577_Render_Buffer_List_Row_Metadata_Is_Explicit;
+              "render label exposes all Buffer List row metadata from the snapshot projection");
+   end Test_Render_Buffer_List_Row_Metadata_Is_Explicit;
 
 
    procedure Register_Tests (T : in out Buffer_Switcher_Test_Case) is
@@ -6080,160 +6084,160 @@ package body Editor.Buffer_Switcher.Tests is
                         "marked review empty and navigation behavior is deterministic");
       Register_Routine (T, Test_Pending_Marked_Review_Uses_Captured_Targets_And_Composes'Access,
                         "pending marked review uses captured targets and composes deterministically");
-      Register_Routine (T, Test_Phase287_Count_Badge_Text_Is_Derived_And_Compact'Access,
-                        "phase 287 count badge text is derived and compact");
-      Register_Routine (T, Test_Phase287_Count_Badges_Compose_With_Reviews_Without_Mutation'Access,
-                        "phase 287 count badges compose with reviews without mutation");
-      Register_Routine (T, Test_Phase288_Dirty_Pending_Badge_Is_Derived_From_Active_Targets'Access,
-                        "phase 288 dirty pending badge is derived from active targets");
-      Register_Routine (T, Test_Phase289_Dirty_Pending_Navigation_Uses_Visible_Derived_Targets'Access,
-                        "phase 289 dirty pending navigation uses visible derived targets");
-      Register_Routine (T, Test_Phase296_Dirty_Prune_Count_Badges_Are_Derived_And_Global'Access,
-                        "phase 296 dirty-prune count badges are derived and global");
-      Register_Routine (T, Test_Phase296_Dirty_Prune_Count_Badges_Clear_And_Do_Not_Mutate_State'Access,
-                        "phase 296 dirty-prune count badges clear and do not mutate state");
-      Register_Routine (T, Test_Phase297_Dirty_Prune_Clear_Stale_Is_Targeted_And_Non_Recording'Access,
-                        "phase 297 dirty-prune clear stale is targeted and non-recording");
-      Register_Routine (T, Test_Phase297_Dirty_Prune_Clear_Stale_Zero_Target_Clears_Preview'Access,
-                        "phase 297 dirty-prune clear stale zero-target policy clears preview");
-      Register_Routine (T, Test_Phase298_Dirty_Prune_Workflow_Reset_And_Zero_Target_Policy'Access,
-                        "phase 298 dirty-prune workflow reset and zero-target policy");
-      Register_Routine (T, Test_Phase299_Dirty_Prune_Apply_Prepare_Remove_Restore_And_Badges'Access,
-                        "phase 299 dirty-prune apply prepare remove restore and badges");
-      Register_Routine (T, Test_Phase299_Dirty_Prune_Apply_Confirm_Revalidates_And_Consumes_Preview'Access,
-                        "phase 299 dirty-prune apply confirm revalidates and consumes preview");
-      Register_Routine (T, Test_Phase300_Review_Mode_Is_Exclusive_And_Centralized'Access,
-                        "phase 300 review modes are exclusive and centralized");
-      Register_Routine (T, Test_Phase300_Review_Projection_Order_Is_Deterministic'Access,
-                        "phase 300 review projection order is deterministic");
-      Register_Routine (T, Test_Phase301_Batch_State_Snapshot_Centralizes_Counts_And_Badges'Access,
-                        "phase 301 batch-state snapshot centralizes counts and badges");
-      Register_Routine (T, Test_Phase301_Row_Markers_And_Global_Counts_Compose_With_Projection'Access,
-                        "phase 301 row markers and global counts compose with projection");
-      Register_Routine (T, Test_Phase302_Clean_And_Dirty_Marked_Close_End_To_End'Access,
-                        "phase 302 clean and dirty marked close paths are safe end to end");
-      Register_Routine (T, Test_Phase302_Dirty_Prune_Apply_Does_Not_Close_Dirty_Buffers'Access,
-                        "phase 302 dirty-prune apply does not close dirty buffers");
-      Register_Routine (T, Test_Phase302_Dirty_Prune_Preview_Removal_Does_Not_Prune_Pending_Close'Access,
-                        "phase 302 dirty-prune preview removal does not prune pending close");
-      Register_Routine (T, Test_Phase302_Apply_Target_Removal_Does_Not_Edit_Preview_Targets'Access,
-                        "phase 302 apply target removal does not edit preview targets");
-      Register_Routine (T, Test_Phase302_Stale_Dirty_Prune_Targets_Are_Cleaned_And_Revalidated'Access,
-                        "phase 302 stale dirty-prune targets are cleaned and revalidated");
-      Register_Routine (T, Test_Phase302_Hidden_Dirty_Targets_Are_Included_In_Global_Dirty_Prune'Access,
-                        "phase 302 hidden dirty targets are included in global dirty-prune workflow");
-      Register_Routine (T, Test_Phase302_Review_Mode_Switching_Does_Not_Change_Batch_State'Access,
-                        "phase 302 review mode switching does not change batch state");
-      Register_Routine (T, Test_Phase302_Selected_Close_During_Dirty_Prune_Revalidates_Apply_Targets'Access,
-                        "phase 302 selected close during dirty-prune revalidates apply targets");
-      Register_Routine (T, Test_Phase302_Marks_Are_Independent_From_Captured_Pending_Close'Access,
-                        "phase 302 marks are independent from captured pending close");
-      Register_Routine (T, Test_Phase302_Snapshot_Consistency_Across_Representative_Workflow'Access,
-                        "phase 302 snapshot consistency across representative workflow");
-      Register_Routine (T, Test_Phase304_Contextual_Hints_Are_Known_Available_And_Side_Effect_Free'Access,
-                        "phase 304 contextual hints are known available and side-effect free");
-      Register_Routine (T, Test_Phase304_Selected_Mark_And_Pending_Close_Hints_Are_State_Based'Access,
-                        "phase 304 selected mark and pending close hints are state based");
-      Register_Routine (T, Test_Phase304_Hint_Keybinding_Text_Follows_Runtime_Display_Setting'Access,
-                        "phase 304 hint keybinding text follows runtime display setting");
-      Register_Routine (T, Test_Phase304_Dirty_Prune_Preview_And_Apply_Hints_Are_Prioritized'Access,
-                        "phase 304 dirty prune preview and apply hints are prioritized");
-      Register_Routine (T, Test_Phase304_Review_Mode_Hints_And_Filtered_Selected_Targets'Access,
-                        "phase 304 review mode hints and filtered selected targets");
-      Register_Routine (T, Test_Phase304_Hint_Text_Formatting_Is_Deterministic_And_Deduplicated'Access,
-                        "phase 304 hint text formatting is deterministic and deduplicated");
-      Register_Routine (T, Test_Phase478_Observes_File_Lifecycle_Association_And_Dirty_State'Access,
-                        "phase 478 switcher observes lifecycle association and dirty state");
-      Register_Routine (T, Test_Phase478_Observes_Close_And_Reopen_Collection_Only'Access,
-                        "phase 478 switcher observes close and reopen through collection only");
-      Register_Routine (T, Test_Phase478_Prompt_And_Selection_Boundary_Is_Observation_Only'Access,
-                        "phase 478 switcher selection and prompt boundary is observation-only");
-      Register_Routine (T, Test_Phase478_Rows_Contain_No_File_Lifecycle_Operation_State'Access,
-                        "phase 478 switcher rows contain no file lifecycle operation state");
-      Register_Routine (T, Test_Phase479_Successful_Observation_Reliable_Visible_And_Hidden'Access,
-                        "phase 479 successful lifecycle observations are reliable visible and hidden");
-      Register_Routine (T, Test_Phase479_Failed_And_Blocked_Operations_Preserve_Observation'Access,
-                        "phase 479 failed and blocked lifecycle operations preserve switcher observation");
-      Register_Routine (T, Test_Phase479_Selection_And_Prompt_Boundaries_Are_Reliable'Access,
-                        "phase 479 switcher selection and prompt boundaries are reliable");
-      Register_Routine (T, Test_Phase479_Snapshot_Freshness_And_Stale_Snapshot_Immutability'Access,
-                        "phase 479 fresh snapshots update and stale snapshots remain inert");
-      Register_Routine (T, Test_Phase479_Rows_Exclude_Lifecycle_Target_Histories_And_Operation_Logs'Access,
-                        "phase 479 rows exclude lifecycle target histories and operation logs");
-      Register_Routine (T, Test_Phase480_Row_Projection_Helper_Is_Canonical_Buffer_Snapshot'Access,
-                        "phase 480 row projection helper is canonical buffer snapshot only");
-      Register_Routine (T, Test_Phase480_Recompute_Drops_Stale_Label_And_Dirty_Caches'Access,
-                        "phase 480 recompute drops stale label and dirty caches");
-      Register_Routine (T, Test_Phase480_Duplicate_Lifecycle_State_And_Prompt_Boundaries_Are_Absent'Access,
-                        "phase 480 duplicate lifecycle state and prompt boundaries are absent");
-      Register_Routine (T, Test_Phase480_Copy_Delete_Close_Reopen_Remain_Collection_Only'Access,
-                        "phase 480 copy delete close reopen remain collection only");
-      Register_Routine (T, Test_Phase481_Canonical_Observation_Source_Final_Freeze'Access,
-                        "phase 481 canonical observation source final freeze");
-      Register_Routine (T, Test_Phase481_Operation_Observation_Final_Freeze'Access,
-                        "phase 481 operation observation final freeze");
-      Register_Routine (T, Test_Phase481_Failed_And_Blocked_Observation_Final_Freeze'Access,
-                        "phase 481 failed and blocked observation final freeze");
-      Register_Routine (T, Test_Phase481_Direct_Prompted_Selection_And_Target_Boundaries_Final_Freeze'Access,
-                        "phase 481 direct prompted selection and target boundaries final freeze");
-      Register_Routine (T, Test_Phase481_Snapshot_Render_Audit_Persistence_Absence_Final_Freeze'Access,
-                        "phase 481 snapshot render audit persistence absence final freeze");
-      Register_Routine (T, Test_Phase543_Row_State_Markers_Are_Snapshot_Only'Access,
-                        "phase 543 buffer list row markers are snapshot-only");
-      Register_Routine (T, Test_Phase543_Command_Aliases_Map_To_Executor_Routed_Commands'Access,
-                        "phase 543 canonical buffer navigation alternate names route to Executor commands");
-      Register_Routine (T, Test_Phase543_Empty_State_And_Next_Previous_Availability'Access,
-                        "phase 543 empty state and next/previous availability are deterministic");
-      Register_Routine (T, Test_Phase576_Project_Ownership_Markers_Are_Projection_Only'Access,
-                        "phase 576 buffer list project ownership markers are projection only");
-      Register_Routine (T, Test_Phase576_Labels_Scratch_And_No_Project_Are_Deterministic'Access,
-                        "phase 576 buffer list labels scratch and no-project ownership are deterministic");
-      Register_Routine (T, Test_Phase576_Selection_Preserves_And_Clamps_On_Recompute'Access,
-                        "phase 576 buffer list selection preserves and clamps on recompute");
-      Register_Routine (T, Test_Phase576_Lifecycle_Markers_And_Text_Exclusion_Are_Projection_Only'Access,
-                        "phase 576 lifecycle markers and text exclusion are projection-only");
-      Register_Routine (T, Test_Phase576_Duplicate_Project_Labels_Are_Deterministic'Access,
-                        "phase 576 duplicate project labels are deterministic");
+      Register_Routine (T, Test_Count_Badge_Text_Is_Derived_And_Compact'Access,
+                        "count badge text is derived and compact");
+      Register_Routine (T, Test_Count_Badges_Compose_With_Reviews_Without_Mutation'Access,
+                        "count badges compose with reviews without mutation");
+      Register_Routine (T, Test_Dirty_Pending_Badge_Is_Derived_From_Active_Targets'Access,
+                        "dirty pending badge is derived from active targets");
+      Register_Routine (T, Test_Dirty_Pending_Navigation_Uses_Visible_Derived_Targets'Access,
+                        "dirty pending navigation uses visible derived targets");
+      Register_Routine (T, Test_Dirty_Prune_Count_Badges_Are_Derived_And_Global'Access,
+                        "dirty-prune count badges are derived and global");
+      Register_Routine (T, Test_Dirty_Prune_Count_Badges_Clear_And_Do_Not_Mutate_State'Access,
+                        "dirty-prune count badges clear and do not mutate state");
+      Register_Routine (T, Test_Dirty_Prune_Clear_Stale_Is_Targeted_And_Non_Recording'Access,
+                        "dirty-prune clear stale is targeted and non-recording");
+      Register_Routine (T, Test_Dirty_Prune_Clear_Stale_Zero_Target_Clears_Preview'Access,
+                        "dirty-prune clear stale zero-target policy clears preview");
+      Register_Routine (T, Test_Dirty_Prune_Workflow_Reset_And_Zero_Target_Policy'Access,
+                        "dirty-prune workflow reset and zero-target policy");
+      Register_Routine (T, Test_Dirty_Prune_Apply_Prepare_Remove_Restore_And_Badges'Access,
+                        "dirty-prune apply prepare remove restore and badges");
+      Register_Routine (T, Test_Dirty_Prune_Apply_Confirm_Revalidates_And_Consumes_Preview'Access,
+                        "dirty-prune apply confirm revalidates and consumes preview");
+      Register_Routine (T, Test_Review_Mode_Is_Exclusive_And_Centralized'Access,
+                        "review modes are exclusive and centralized");
+      Register_Routine (T, Test_Review_Projection_Order_Is_Deterministic'Access,
+                        "review projection order is deterministic");
+      Register_Routine (T, Test_Batch_State_Snapshot_Centralizes_Counts_And_Badges'Access,
+                        "batch-state snapshot centralizes counts and badges");
+      Register_Routine (T, Test_Row_Markers_And_Global_Counts_Compose_With_Projection'Access,
+                        "row markers and global counts compose with projection");
+      Register_Routine (T, Test_Clean_And_Dirty_Marked_Close_End_To_End'Access,
+                        "clean and dirty marked close paths are safe end to end");
+      Register_Routine (T, Test_Dirty_Prune_Apply_Does_Not_Close_Dirty_Buffers'Access,
+                        "dirty-prune apply does not close dirty buffers");
+      Register_Routine (T, Test_Dirty_Prune_Preview_Removal_Does_Not_Prune_Pending_Close'Access,
+                        "dirty-prune preview removal does not prune pending close");
+      Register_Routine (T, Test_Apply_Target_Removal_Does_Not_Edit_Preview_Targets'Access,
+                        "apply target removal does not edit preview targets");
+      Register_Routine (T, Test_Stale_Dirty_Prune_Targets_Are_Cleaned_And_Revalidated'Access,
+                        "stale dirty-prune targets are cleaned and revalidated");
+      Register_Routine (T, Test_Hidden_Dirty_Targets_Are_Included_In_Global_Dirty_Prune'Access,
+                        "hidden dirty targets are included in global dirty-prune workflow");
+      Register_Routine (T, Test_Review_Mode_Switching_Does_Not_Change_Batch_State'Access,
+                        "review mode switching does not change batch state");
+      Register_Routine (T, Test_Selected_Close_During_Dirty_Prune_Revalidates_Apply_Targets'Access,
+                        "selected close during dirty-prune revalidates apply targets");
+      Register_Routine (T, Test_Marks_Are_Independent_From_Captured_Pending_Close'Access,
+                        "marks are independent from captured pending close");
+      Register_Routine (T, Test_Snapshot_Consistency_Across_Representative_Workflow'Access,
+                        "snapshot consistency across representative workflow");
+      Register_Routine (T, Test_Contextual_Hints_Are_Known_Available_And_Side_Effect_Free'Access,
+                        "contextual hints are known available and side-effect free");
+      Register_Routine (T, Test_Selected_Mark_And_Pending_Close_Hints_Are_State_Based'Access,
+                        "selected mark and pending close hints are state based");
+      Register_Routine (T, Test_Hint_Keybinding_Text_Follows_Runtime_Display_Setting'Access,
+                        "hint keybinding text follows runtime display setting");
+      Register_Routine (T, Test_Dirty_Prune_Preview_And_Apply_Hints_Are_Prioritized'Access,
+                        "dirty prune preview and apply hints are prioritized");
+      Register_Routine (T, Test_Review_Mode_Hints_And_Filtered_Selected_Targets'Access,
+                        "review mode hints and filtered selected targets");
+      Register_Routine (T, Test_Hint_Text_Formatting_Is_Deterministic_And_Deduplicated'Access,
+                        "hint text formatting is deterministic and deduplicated");
+      Register_Routine (T, Test_Observes_File_Lifecycle_Association_And_Dirty_State'Access,
+                        "switcher observes lifecycle association and dirty state");
+      Register_Routine (T, Test_Observes_Close_And_Reopen_Collection_Only'Access,
+                        "switcher observes close and reopen through collection only");
+      Register_Routine (T, Test_Prompt_And_Selection_Boundary_Is_Observation_Only'Access,
+                        "switcher selection and prompt boundary is observation-only");
+      Register_Routine (T, Test_Rows_Contain_No_File_Lifecycle_Operation_State'Access,
+                        "switcher rows contain no file lifecycle operation state");
+      Register_Routine (T, Test_Successful_Observation_Reliable_Visible_And_Hidden'Access,
+                        "successful lifecycle observations are reliable visible and hidden");
+      Register_Routine (T, Test_Failed_And_Blocked_Operations_Preserve_Observation'Access,
+                        "failed and blocked lifecycle operations preserve switcher observation");
+      Register_Routine (T, Test_Selection_And_Prompt_Boundaries_Are_Reliable'Access,
+                        "switcher selection and prompt boundaries are reliable");
+      Register_Routine (T, Test_Snapshot_Freshness_And_Stale_Snapshot_Immutability'Access,
+                        "fresh snapshots update and stale snapshots remain inert");
+      Register_Routine (T, Test_Rows_Exclude_Lifecycle_Target_Histories_And_Operation_Logs'Access,
+                        "rows exclude lifecycle target histories and operation logs");
+      Register_Routine (T, Test_Row_Projection_Helper_Is_Canonical_Buffer_Snapshot'Access,
+                        "row projection helper is canonical buffer snapshot only");
+      Register_Routine (T, Test_Recompute_Drops_Stale_Label_And_Dirty_Caches'Access,
+                        "recompute drops stale label and dirty caches");
+      Register_Routine (T, Test_Duplicate_Lifecycle_State_And_Prompt_Boundaries_Are_Absent'Access,
+                        "duplicate lifecycle state and prompt boundaries are absent");
+      Register_Routine (T, Test_Copy_Delete_Close_Reopen_Remain_Collection_Only'Access,
+                        "copy delete close reopen remain collection only");
+      Register_Routine (T, Test_Canonical_Observation_Source_Final_Freeze'Access,
+                        "canonical observation source final freeze");
+      Register_Routine (T, Test_Operation_Observation_Final_Freeze'Access,
+                        "operation observation final freeze");
+      Register_Routine (T, Test_Failed_And_Blocked_Observation_Final_Freeze'Access,
+                        "failed and blocked observation final freeze");
+      Register_Routine (T, Test_Direct_Prompted_Selection_And_Target_Boundaries_Final_Freeze'Access,
+                        "direct prompted selection and target boundaries final freeze");
+      Register_Routine (T, Test_Snapshot_Render_Audit_Persistence_Absence_Final_Freeze'Access,
+                        "snapshot render audit persistence absence final freeze");
+      Register_Routine (T, Test_Row_State_Markers_Are_Snapshot_Only'Access,
+                        "buffer list row markers are snapshot-only");
+      Register_Routine (T, Test_Command_Aliases_Map_To_Executor_Routed_Commands'Access,
+                        "canonical buffer navigation alternate names route to Executor commands");
+      Register_Routine (T, Test_Empty_State_And_Next_Previous_Availability'Access,
+                        "empty state and next/previous availability are deterministic");
+      Register_Routine (T, Test_Project_Ownership_Markers_Are_Projection_Only'Access,
+                        "buffer list project ownership markers are projection only");
+      Register_Routine (T, Test_Labels_Scratch_And_No_Project_Are_Deterministic'Access,
+                        "buffer list labels scratch and no-project ownership are deterministic");
+      Register_Routine (T, Test_Selection_Preserves_And_Clamps_On_Recompute'Access,
+                        "buffer list selection preserves and clamps on recompute");
+      Register_Routine (T, Test_Lifecycle_Markers_And_Text_Exclusion_Are_Projection_Only'Access,
+                        "lifecycle markers and text exclusion are projection-only");
+      Register_Routine (T, Test_Duplicate_Project_Labels_Are_Deterministic'Access,
+                        "duplicate project labels are deterministic");
       Register_Routine
         (T,
-         Test_Phase576_Label_Edge_Cases_Are_Bounded_Stable_And_Filter_Deterministic'Access,
-         "phase 576 label edge cases are bounded, stable, and deterministic");
-      Register_Routine (T, Test_Phase576_Real_Buffer_Lifecycle_Markers_Project_From_Registry'Access,
-                        "phase 576 real buffer lifecycle markers project from registry snapshots");
-      Register_Routine (T, Test_Phase576_File_Lifecycle_Operation_Markers_Project_To_Buffer_List'Access,
-                        "phase 576 lifecycle operation markers project to buffer list rows");
-      Register_Routine (T, Test_Phase576_Workspace_Persistence_Excludes_Buffer_List_State'Access,
-                        "phase 576 workspace persistence excludes buffer-list transient state");
-      Register_Routine (T, Test_Phase576_Workspace_Save_Load_Roundtrip_Excludes_Buffer_List_Runtime_State'Access,
-                        "phase 576 workspace save/load roundtrip excludes buffer-list runtime state");
-      Register_Routine (T, Test_Phase576_Render_Snapshot_Does_Not_Mutate_Buffer_List_Or_Buffers'Access,
-                        "phase 576 render snapshot does not mutate buffer list or buffers");
-      Register_Routine (T, Test_Phase576_Render_Does_Not_Save_Reload_Revert_Probe_Or_Clear_File_State'Access,
-                        "phase 576 render does not save reload revert probe or clear file state");
-      Register_Routine (T, Test_Phase576_Canonical_Buffer_List_Aliases_Are_No_Payload_Commands'Access,
-                        "phase 576 canonical buffer list alternate names remain no-payload commands");
-      Register_Routine (T, Test_Phase576_Buffer_List_Routes_Keybindings_And_Availability_Are_No_Payload_And_Side_Effect_Free'Access,
-                        "phase 576 buffer list command palette/keybinding routes and availability are no-payload and side-effect-free");
-      Register_Routine (T, Test_Phase576_Settings_And_Recent_Project_Saves_Exclude_Buffer_List_Runtime_State'Access,
-                        "Phase 576 settings/recent persistence excludes Buffer List runtime state");
-      Register_Routine (T, Test_Phase576_Keybinding_Save_Serializes_Buffer_List_Stable_Names_Only'Access,
-                        "phase 576 keybinding persistence serializes Buffer List stable names only");
-      Register_Routine (T, Test_Phase576_State_Filters_Are_Transient_And_Non_Mutating'Access,
-                        "phase 576 buffer list state filters are transient and non-mutating");
-      Register_Routine (T, Test_Phase576_Final_Multi_Buffer_Management_Completion_Audit'Access,
-                        "phase 576 final multi-buffer management completion audit");
-      Register_Routine (T, Test_Phase577_Buffer_List_Rows_Use_Metadata_Snapshot_As_Canonical_Source'Access,
-                        "phase 577 buffer list rows use metadata snapshot as canonical source");
-      Register_Routine (T, Test_Phase577_Row_Ownership_Wrapper_Delegates_To_Canonical_Classifier'Access,
-                        "phase 577 row ownership wrapper delegates to canonical classifier");
-      Register_Routine (T, Test_Phase577_Selected_Buffer_List_State_Audit_Uses_Real_Selection'Access,
-                        "phase 577 selected Buffer List state audit uses real selection");
-      Register_Routine (T, Test_Phase577_Render_Buffer_List_Row_Metadata_Is_Explicit'Access,
-                        "phase 577 render Buffer List rows expose explicit metadata projection");
-      Register_Routine (T, Test_Phase543_Buffer_List_Descriptor_Names_Are_User_Facing'Access,
-                        "phase 543 buffer-list descriptors are user-facing");
-      Register_Routine (T, Test_Phase543_Stale_Selected_Buffer_Row_Is_Unavailable'Access,
-                        "phase 543 stale selected buffer rows are unavailable");
+         Test_Label_Edge_Cases_Are_Bounded_Stable_And_Filter_Deterministic'Access,
+         "label edge cases are bounded, stable, and deterministic");
+      Register_Routine (T, Test_Real_Buffer_Lifecycle_Markers_Project_From_Registry'Access,
+                        "real buffer lifecycle markers project from registry snapshots");
+      Register_Routine (T, Test_File_Lifecycle_Operation_Markers_Project_To_Buffer_List'Access,
+                        "lifecycle operation markers project to buffer list rows");
+      Register_Routine (T, Test_Workspace_Persistence_Excludes_Buffer_List_State'Access,
+                        "workspace persistence excludes buffer-list transient state");
+      Register_Routine (T, Test_Workspace_Save_Load_Roundtrip_Excludes_Buffer_List_Runtime_State'Access,
+                        "workspace save/load roundtrip excludes buffer-list runtime state");
+      Register_Routine (T, Test_Render_Snapshot_Does_Not_Mutate_Buffer_List_Or_Buffers'Access,
+                        "render snapshot does not mutate buffer list or buffers");
+      Register_Routine (T, Test_Render_Does_Not_Save_Reload_Revert_Probe_Or_Clear_File_State'Access,
+                        "render does not save reload revert probe or clear file state");
+      Register_Routine (T, Test_Canonical_Buffer_List_Aliases_Are_No_Payload_Commands'Access,
+                        "canonical buffer list alternate names remain no-payload commands");
+      Register_Routine (T, Test_Buffer_List_Routes_Keybindings_And_Availability_Are_No_Payload_And_Side_Effect_Free'Access,
+                        "buffer list command palette/keybinding routes and availability are no-payload and side-effect-free");
+      Register_Routine (T, Test_Settings_And_Recent_Project_Saves_Exclude_Buffer_List_Runtime_State'Access,
+                        "settings/recent persistence excludes Buffer List runtime state");
+      Register_Routine (T, Test_Keybinding_Save_Serializes_Buffer_List_Stable_Names_Only'Access,
+                        "keybinding persistence serializes Buffer List stable names only");
+      Register_Routine (T, Test_State_Filters_Are_Transient_And_Non_Mutating'Access,
+                        "buffer list state filters are transient and non-mutating");
+      Register_Routine (T, Test_Final_Multi_Buffer_Management_Completion_Audit'Access,
+                        "final multi-buffer management completion audit");
+      Register_Routine (T, Test_Buffer_List_Rows_Use_Metadata_Snapshot_As_Canonical_Source'Access,
+                        "buffer list rows use metadata snapshot as canonical source");
+      Register_Routine (T, Test_Row_Ownership_Wrapper_Delegates_To_Canonical_Classifier'Access,
+                        "row ownership wrapper delegates to canonical classifier");
+      Register_Routine (T, Test_Selected_Buffer_List_State_Audit_Uses_Real_Selection'Access,
+                        "selected Buffer List state audit uses real selection");
+      Register_Routine (T, Test_Render_Buffer_List_Row_Metadata_Is_Explicit'Access,
+                        "render Buffer List rows expose explicit metadata projection");
+      Register_Routine (T, Test_Buffer_List_Descriptor_Names_Are_User_Facing'Access,
+                        "buffer-list descriptors are user-facing");
+      Register_Routine (T, Test_Stale_Selected_Buffer_Row_Is_Unavailable'Access,
+                        "stale selected buffer rows are unavailable");
    end Register_Tests;
 
 end Editor.Buffer_Switcher.Tests;

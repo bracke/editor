@@ -332,7 +332,7 @@ package body Editor.Ada_Tasking_Contract_Predicate_Dataflow_Consumer_Legality is
                Caller_Name => C.Caller_Name,
                Callee_Name => C.Callee_Name,
                Message => Message_For (Status),
-               Detail => To_Unbounded_String ("Pass1169 tasking/protected effect consumed elaboration contract predicate/dataflow legality"),
+               Detail => To_Unbounded_String ("Case 1169 tasking/protected effect consumed elaboration contract predicate/dataflow legality"),
                Tasking_Row => C.Tasking_Row,
                Tasking_Status => C.Tasking_Status,
                Elaboration_Predicate_Row => C.Elaboration_Predicate_Row,

@@ -14,7 +14,7 @@ with Editor.Ada_Tasking_Generic_Shared_State_Final_Legality;
 
 package Editor.Ada_Renaming_Generic_Shared_State_Final_Legality is
 
-   --  Pass1236 renaming/alias visibility generic shared-state final legality.
+   --  Case 1236 renaming/alias visibility generic shared-state final legality.
    --
    --  This package connects Ada renaming, aliasing, use-clause, selected-name, and visibility evidence with the generic/shared-state final semantic chain.
    --  Conclusions for object, exception, package, subprogram, generic renamings, selected aliases,

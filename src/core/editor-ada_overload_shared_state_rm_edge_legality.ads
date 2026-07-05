@@ -7,7 +7,7 @@ with Editor.Ada_Volatile_Atomic_Shared_State_Legality;
 
 package Editor.Ada_Overload_Shared_State_RM_Edge_Legality is
 
-   --  Pass1213 overload/type RM shared-state edge legality.
+   --  Case 1213 overload/type RM shared-state edge legality.
    --
    --  This package deepens the final overload/type RM consumer layer with
    --  abstract/refined-state and volatile/atomic/shared-state evidence.  It

@@ -6,7 +6,7 @@ with Editor.Ada_Syntax_Tree;
 
 package Editor.Ada_Discriminant_Generic_Representation_Consumer_Legality is
 
-   --  Pass1161 compiler-grade discriminant/variant consumer legality.
+   --  Case 1161 compiler-grade discriminant/variant consumer legality.
    --
    --  This layer feeds discriminant-dependent legality into the generic replay
    --  and representation/freezing consumer path.  Discriminant constraints,

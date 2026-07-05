@@ -4,7 +4,7 @@ with Editor.Ada_Syntax_Tree;
 
 package Editor.Ada_Array_Container_Indexing_Vertical_Slice_Legality is
 
-   --  Pass1312 vertical-slice array, container, and indexing legality.
+   --  Case 1312 vertical-slice array, container, and indexing legality.
    --  This package checks concrete Ada array aggregate, index constraint,
    --  slicing, generalized indexing, container aggregate, iterator, and
    --  delta-update rules against source-shaped semantic rows.  It is a

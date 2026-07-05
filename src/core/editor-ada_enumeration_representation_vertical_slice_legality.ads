@@ -4,7 +4,7 @@ with Editor.Ada_Syntax_Tree;
 
 package Editor.Ada_Enumeration_Representation_Vertical_Slice_Legality is
 
-   --  Pass1323 vertical-slice enumeration representation legality.
+   --  Case 1323 vertical-slice enumeration representation legality.
    --  This package models concrete Ada enumeration representation clauses,
    --  literal coverage, duplicate representation values, staticness, ordering,
    --  size/stream/representation interactions, freezing, and view barriers.

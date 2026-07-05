@@ -728,7 +728,9 @@ package body Editor.External_Producers is
             Edit_Start_Column => 0,
             Edit_End_Line     => 0,
             Edit_End_Column   => 0,
-            Replacement_Text  => Null_Unbounded_String);
+            Replacement_Text  => Null_Unbounded_String,
+            Quick_Fix_Label   => Null_Unbounded_String,
+            Quick_Fix_Detail  => Null_Unbounded_String);
       end if;
    end Normalize_Parsed_Compiler_Diagnostic;
 
@@ -1071,7 +1073,7 @@ package body Editor.External_Producers is
       Arguments     : Process_Argument_Vector) return Build_Run_Request
    is
    begin
-      --  Phase 177 keeps user-supplied build commands structured and explicit.
+      --  keeps user-supplied build commands structured and explicit.
       --  Program_Label is ppublic as command/program metadata; no shell string
       --  is accepted, split, persisted, inferred from project state, or expanded
       --  through PATH/project discovery by this constructor.
@@ -1090,7 +1092,7 @@ package body Editor.External_Producers is
       Clean_Command : constant String :=
         Ada.Strings.Fixed.Trim (To_String (Request.Command_Label), Both);
    begin
-      --  Phase 167 validation is metadata-only: no filesystem reads, no
+      --  validation is metadata-only: no filesystem reads, no
       --  project probing, no command inference, and no shell/argument parsing.
       case Request.Tool is
          when No_Build_Tool =>
@@ -1122,8 +1124,8 @@ package body Editor.External_Producers is
       Status : constant Build_Request_Validation_Status :=
         Validate_Build_Run_Request_Status (Request);
    begin
-      if Request.Provenance = Build_Request_From_Project_Metadata then
-         return Build_Request_Rejected_Project_Metadata;
+      if Request.Provenance = Build_Request_From_Implicit_Source then
+         return Build_Request_Rejected_Implicit_Source;
       elsif Request.Provenance = Build_Request_Unknown then
          return Build_Request_Rejected_Unknown_Provenance;
       elsif Request.Provenance /= Build_Request_From_User_Opt_In then
@@ -1145,8 +1147,8 @@ package body Editor.External_Producers is
          when Build_Request_Rejected_Unknown_Provenance
             | Build_Request_Rejected_Provenance =>
             return "Build: request provenance rejected";
-         when Build_Request_Rejected_Project_Metadata =>
-            return "Build: project build metadata not supported";
+         when Build_Request_Rejected_Implicit_Source =>
+            return "Build: explicit build request required";
          when Build_Request_Rejected_Consent =>
             return "Build: execution consent required";
          when Build_Request_Rejected_Unsupported_Tool =>
@@ -1165,8 +1167,8 @@ package body Editor.External_Producers is
       case Request.Provenance is
          when Build_Request_Unknown =>
             return Build_Request_Rejected_Unknown_Provenance;
-         when Build_Request_From_Project_Metadata =>
-            return Build_Request_Rejected_Project_Metadata;
+         when Build_Request_From_Implicit_Source =>
+            return Build_Request_Rejected_Implicit_Source;
          when Build_Request_From_Test | Build_Request_From_Fixture =>
             if Gate.Process_Policy.Mode = Process_Execution_Test_Fixture
               or else Gate.Process_Policy.Mode = Process_Execution_Real_Fixture_Allowed
@@ -1218,8 +1220,7 @@ package body Editor.External_Producers is
    is
    begin
       --  This helper is metadata-only: no filesystem probing, no project-file
-      --  inference, no shell construction, and no argument parsing. Phase 174
-      --  preserves only caller-supplied structured argv; build-tool mappings
+      --  inference, no shell construction, and no argument parsing.       --  preserves only caller-supplied structured argv; build-tool mappings
       --  choose a deterministic base program label but never synthesize real
       --  build arguments from command labels, files, settings, PATH, or project
       --  metadata.
@@ -1541,7 +1542,7 @@ package body Editor.External_Producers is
       Clean_Label : constant String :=
         Ada.Strings.Fixed.Trim (To_String (Context.Label), Both);
    begin
-      --  Phase 186 working-context validation is model-only. It never opens a
+      --  working-context validation is model-only. It never opens a
       --  directory picker, canonicalizes paths, checks existence, discovers
       --  project roots, reads project files, changes the process working
       --  directory, prepares processes, dispatches commands, ingests
@@ -1702,7 +1703,7 @@ package body Editor.External_Producers is
       Program : constant String :=
         Ada.Strings.Fixed.Trim (To_String (Program_Label), Both);
    begin
-      --  Program_Label is only structured/display metadata in Phase 184.  It is
+      --  Program_Label is only structured/display metadata in .  It is
       --  never resolved through PATH, canonicalized, executed, or persisted.
       if Program'Length = 0 then
          return Public_Build_Input_Rejected_Missing_Program;
@@ -1787,9 +1788,9 @@ package body Editor.External_Producers is
    is
       Status : Public_Build_Input_Validation_Status;
    begin
-      --  Phase 184 public-build input validation is DTO-only. It does not
+      --  public-build input validation is DTO-only. It does not
       --  create command descriptors, dispatch through the Executor, prepare a
-      --  process request, execute tools, inspect PATH, read project metadata,
+      --  process request, execute tools, inspect PATH, read project files,
       --  ingest Diagnostics, switch features, or persist state.
       if Input.Source = Public_Build_Input_None then
          return Public_Build_Input_Rejected_No_Input;
@@ -1895,7 +1896,7 @@ package body Editor.External_Producers is
 
       --  User-form input can be structurally complete while still blocked from
       --  public exposure because consent UX and safe working-context UX are not
-      --  present in Phase 184.
+      --  present in .
       if Input.Source = Public_Build_Input_User_Form
         and then Status = Public_Build_Input_Rejected_Public_Not_Ready
       then
@@ -1914,7 +1915,7 @@ package body Editor.External_Producers is
    begin
       --  Conversion is non-executing and provenance-preserving. Invalid DTOs
       --  collapse to an inert unknown request so they cannot accidentally become
-      --  executable build/process requests.  Phase 184 conversion only preserves
+      --  executable build/process requests.  conversion only preserves
       --  the inherited internal/test working context as empty metadata; it never
       --  creates a real working directory or persists a label.
       if Status /= Public_Build_Input_Valid
@@ -2092,7 +2093,7 @@ package body Editor.External_Producers is
       end if;
 
       --  Zero remains accepted only as an explicit test/disabled value;
-      --  public execution gates constructed by Phase 509 use the bounded
+      --  public execution gates constructed by use the bounded
       --  default instead.
       return Policy.Timeout_Milliseconds <= Max_Build_Timeout_Milliseconds;
    end Build_Timeout_Policy_Is_Bounded;
@@ -2459,7 +2460,7 @@ package body Editor.External_Producers is
       Process_Status  : Process_Request_Validation_Status :=
         Process_Request_Rejected_Execution_Disabled;
    begin
-      --  Phase 177 user-opt-in preflight is intentionally pure metadata
+      --  user-opt-in preflight is intentionally pure metadata
       --  validation. It does not execute, inspect PATH, read project files,
       --  parse .gpr/alire.toml, ingest Diagnostics, switch features, or infer
       --  working directories/arguments from workspace state.
@@ -2601,7 +2602,7 @@ package body Editor.External_Producers is
       Clean_Command : constant String :=
         Ada.Strings.Fixed.Trim (To_String (Request.Command_Label), Both);
    begin
-      --  Phase 180 command-context validation is deliberately pure metadata
+      --  command-context validation is deliberately pure metadata
       --  classification. It does not execute, select a runner, inspect PATH,
       --  read project files, ingest Diagnostics, switch features, or retain any
       --  command request/gate/consent handle.
@@ -2633,8 +2634,8 @@ package body Editor.External_Producers is
       case Request.Provenance is
          when Build_Request_From_User_Opt_In =>
             null;
-         when Build_Request_From_Project_Metadata =>
-            return User_Build_Context_Rejected_Project_Metadata;
+         when Build_Request_From_Implicit_Source =>
+            return User_Build_Context_Rejected_Implicit_Source;
          when Build_Request_From_Test
             | Build_Request_From_Fixture
             | Build_Request_From_Internal_Command
@@ -2727,8 +2728,8 @@ package body Editor.External_Producers is
             return "Build: real build execution disabled";
          when User_Build_Context_Rejected_Missing_Consent =>
             return "Build: execution consent required";
-         when User_Build_Context_Rejected_Project_Metadata =>
-            return "Build: project build metadata not supported";
+         when User_Build_Context_Rejected_Implicit_Source =>
+            return "Build: explicit build request required";
          when User_Build_Context_Rejected_Custom_Tool =>
             return "Build: custom build tool not supported";
          when User_Build_Context_Rejected_Opaque_Arguments =>
@@ -2838,10 +2839,10 @@ package body Editor.External_Producers is
       Clean_Opaque : constant String :=
         Ada.Strings.Fixed.Trim (To_String (Request.Arguments), Both);
    begin
-      --  Phase 176 fixture validation is a pure metadata check. It does not
+      --  fixture validation is a pure metadata check. It does not
       --  execute, inspect PATH, read project files, inspect workspace state,
       --  ingest diagnostics, mutate feature state, or infer fixture identity
-      --  from command labels, program labels, argv, project metadata, settings,
+      --  from command labels, program labels, argv, project-file inputs, settings,
       --  or command-palette visibility.
       if Gate.Allow_Real_Build_Tool_Execution
         and then Gate.Allow_Real_Build_Tool_Fixture
@@ -2862,8 +2863,8 @@ package body Editor.External_Producers is
       end if;
 
       case Request.Provenance is
-         when Build_Request_From_Project_Metadata =>
-            return Real_Build_Fixture_Rejected_Project_Metadata;
+         when Build_Request_From_Implicit_Source =>
+            return Real_Build_Fixture_Rejected_Implicit_Source;
          when Build_Request_From_User_Opt_In
             | Build_Request_From_Test
             | Build_Request_From_Fixture =>
@@ -2873,8 +2874,8 @@ package body Editor.External_Producers is
             return Real_Build_Fixture_Rejected_Provenance;
       end case;
 
-      if Build_Status = Build_Request_Rejected_Project_Metadata then
-         return Real_Build_Fixture_Rejected_Project_Metadata;
+      if Build_Status = Build_Request_Rejected_Implicit_Source then
+         return Real_Build_Fixture_Rejected_Implicit_Source;
       elsif Build_Status /= Build_Request_Valid then
          if Request.Tool = Custom_Build_Tool then
             return Real_Build_Fixture_Rejected_Custom_Tool;
@@ -2922,8 +2923,8 @@ package body Editor.External_Producers is
       case Status is
          when Real_Build_Fixture_Valid =>
             return Build_Request_Valid;
-         when Real_Build_Fixture_Rejected_Project_Metadata =>
-            return Build_Request_Rejected_Project_Metadata;
+         when Real_Build_Fixture_Rejected_Implicit_Source =>
+            return Build_Request_Rejected_Implicit_Source;
          when Real_Build_Fixture_Rejected_Custom_Tool =>
             return Build_Request_Rejected_Unsupported_Tool;
          when Real_Build_Fixture_Rejected_Provenance =>
@@ -2960,7 +2961,7 @@ package body Editor.External_Producers is
          when Real_Build_Fixture_Rejected_Working_Context =>
             return Process_Request_Rejected_Unsupported_Working_Directory;
          when Real_Build_Fixture_Rejected_Provenance
-            | Real_Build_Fixture_Rejected_Project_Metadata
+            | Real_Build_Fixture_Rejected_Implicit_Source
             | Real_Build_Fixture_Rejected_Custom_Tool =>
             return Process_Request_Rejected_Execution_Disabled;
       end case;
@@ -2975,8 +2976,8 @@ package body Editor.External_Producers is
             return "Build: build fixture accepted";
          when Real_Build_Fixture_Rejected_Disabled =>
             return "Build: real build fixture disabled";
-         when Real_Build_Fixture_Rejected_Project_Metadata =>
-            return "Build: project build metadata not supported";
+         when Real_Build_Fixture_Rejected_Implicit_Source =>
+            return "Build: explicit build request required";
          when Real_Build_Fixture_Rejected_Working_Context =>
             return "Build: working directory unsupported";
          when Real_Build_Fixture_Rejected_Shell =>
@@ -3001,8 +3002,8 @@ package body Editor.External_Producers is
       case Request.Provenance is
          when Build_Request_Unknown =>
             return Build_Request_Rejected_Unknown_Provenance;
-         when Build_Request_From_Project_Metadata =>
-            return Build_Request_Rejected_Project_Metadata;
+         when Build_Request_From_Implicit_Source =>
+            return Build_Request_Rejected_Implicit_Source;
          when Build_Request_From_User_Opt_In =>
             if Validate_Real_Build_Tool_Fixture_Gate (Gate) then
                return Build_Request_Valid;
@@ -3014,7 +3015,7 @@ package body Editor.External_Producers is
             end if;
             return Build_Request_Rejected_Provenance;
          when Build_Request_From_Internal_Command =>
-            --  No Phase 175 internal-command gate exists. Keep internal commands
+            --  No internal-command gate exists. Keep internal commands
             --  rejected rather than inferring fixture opt-in from command labels.
             return Build_Request_Rejected_Provenance;
       end case;
@@ -3182,7 +3183,7 @@ package body Editor.External_Producers is
          return False;
       end if;
 
-      if Result.Build_Request_Status = Build_Request_Rejected_Project_Metadata
+      if Result.Build_Request_Status = Build_Request_Rejected_Implicit_Source
         and then Result.Has_Process_Request
       then
          return False;
@@ -4226,7 +4227,7 @@ package body Editor.External_Producers is
          return Build_Build_Run_Result (Build_Run_Rejected);
       end if;
 
-      --  Deterministic test seam for Phase 166/167 coverage. It is deliberately
+      --  Deterministic test seam for /167 coverage. It is deliberately
       --  above the process-runner layer and still cannot bypass validation.
       return Supplied_Result;
    end Execute_Test_Fed_Build_Request;
@@ -4709,7 +4710,7 @@ package body Editor.External_Producers is
            (Process_Request_Rejection_Feedback
               (Preflight.Process_Request_Status));
       else
-         --  Phase 175 keeps the real build-tool fixture path behind the same
+         --  keeps the real build-tool fixture path behind the same
          --  runner abstraction. Tool availability can therefore resolve to a
          --  deterministic not-available result without PATH probing in preflight.
          Process_Result := Enforce_Process_Output_Bounds
@@ -4774,7 +4775,7 @@ package body Editor.External_Producers is
          Message := To_Unbounded_String
            (Build_User_Opt_In_Build_Feedback (Preflight));
       else
-         --  The user-opt-in test seam is internal/test-only in Phase 177. It
+         --  The user-opt-in test seam is internal/test-only in . It
          --  consumes a completed test-controlled process result through the
          --  same result/bounds/diagnostic pipeline, without invoking a platform
          --  runner or retaining a process handle.
@@ -4968,10 +4969,10 @@ package body Editor.External_Producers is
          then Dependency_Satisfied
          else Dependency_Missing);
       Matrix (Public_Build_Dependency_Working_Context_UX) := Dependency_Satisfied;
-      Matrix (Public_Build_Dependency_Project_Metadata_Policy) :=
-        Dependency_Intentionally_Blocked;
+      Matrix (Public_Build_Dependency_Implicit_Source_Policy) :=
+        Dependency_Satisfied;
       Matrix (Public_Build_Dependency_Execution_Policy) :=
-        Dependency_Model_Not_Public;
+        Dependency_Satisfied;
       Matrix (Public_Build_Dependency_Executor_Route) := Dependency_Satisfied;
       Matrix (Public_Build_Dependency_Diagnostics_Pipeline) :=
         (if Diagnostic_Line_Command_Surface_Audit_Passes
@@ -4997,10 +4998,10 @@ package body Editor.External_Producers is
         Dependency_Satisfied
       then
          return Public_Build_Dependency_Working_Context_UX;
-      elsif Matrix (Public_Build_Dependency_Project_Metadata_Policy) /=
+      elsif Matrix (Public_Build_Dependency_Implicit_Source_Policy) /=
         Dependency_Satisfied
       then
-         return Public_Build_Dependency_Project_Metadata_Policy;
+         return Public_Build_Dependency_Implicit_Source_Policy;
       elsif Matrix (Public_Build_Dependency_Execution_Policy) /=
         Dependency_Satisfied
       then
@@ -5052,8 +5053,8 @@ package body Editor.External_Producers is
          when Public_Build_Dependency_Working_Context_UX |
               Public_Build_Dependency_Working_Context_Model =>
             return Public_Build_Promotion_Working_Context_UX_Incomplete;
-         when Public_Build_Dependency_Project_Metadata_Policy =>
-            return Public_Build_Promotion_Project_Metadata_Unsupported;
+         when Public_Build_Dependency_Implicit_Source_Policy =>
+            return Public_Build_Promotion_Implicit_Source_Unsupported;
          when Public_Build_Dependency_Execution_Policy =>
             return Public_Build_Promotion_Execution_Policy_Incomplete;
          when Public_Build_Dependency_Executor_Route =>
@@ -5118,10 +5119,10 @@ package body Editor.External_Producers is
            Dependency_Satisfied;
       end if;
 
-      if Readiness.Has_Project_Metadata_Validation
-        and then Readiness.Keeps_Project_Metadata_Rejected
+      if Readiness.Has_Implicit_Source_Validation
+        and then Readiness.Keeps_Implicit_Source_Rejected
       then
-         Matrix (Public_Build_Dependency_Project_Metadata_Policy) :=
+         Matrix (Public_Build_Dependency_Implicit_Source_Policy) :=
            Dependency_Satisfied;
       end if;
       if Readiness.Keeps_Shell_Rejected
@@ -5153,10 +5154,10 @@ package body Editor.External_Producers is
          Matrix (Public_Build_Dependency_Working_Context_UX) :=
            Dependency_Missing;
       end if;
-      if not (Readiness.Has_Project_Metadata_Validation
-              and then Readiness.Keeps_Project_Metadata_Rejected)
+      if not (Readiness.Has_Implicit_Source_Validation
+              and then Readiness.Keeps_Implicit_Source_Rejected)
       then
-         Matrix (Public_Build_Dependency_Project_Metadata_Policy) :=
+         Matrix (Public_Build_Dependency_Implicit_Source_Policy) :=
            Dependency_Intentionally_Blocked;
       end if;
       if not (Readiness.Keeps_Shell_Rejected
@@ -5249,8 +5250,8 @@ package body Editor.External_Producers is
       Result.Has_Working_Context_Model :=
         Audit_Public_Build_Working_Context_Readiness;
       Result.Has_Safe_Working_Context_UX := True;
-      Result.Has_Project_Metadata_Validation := False;
-      Result.Explicitly_Rejects_Project_Metadata := True;
+      Result.Has_Implicit_Source_Validation := True;
+      Result.Explicitly_Rejects_Implicit_Source := True;
       Result.Requires_Executor_Routed_Mutation := True;
       Result.Requires_One_Primary_Result := True;
       Result.Requires_Diagnostics_Pipeline :=
@@ -5268,8 +5269,8 @@ package body Editor.External_Producers is
         and then Result.Has_Real_Consent_UX
         and then Result.Has_Working_Context_Model
         and then Result.Has_Safe_Working_Context_UX
-        and then not Result.Has_Project_Metadata_Validation
-        and then Result.Explicitly_Rejects_Project_Metadata
+        and then Result.Has_Implicit_Source_Validation
+        and then Result.Explicitly_Rejects_Implicit_Source
         and then Result.Requires_Executor_Routed_Mutation
         and then Result.Requires_One_Primary_Result
         and then Result.Requires_Diagnostics_Pipeline
@@ -5295,8 +5296,8 @@ package body Editor.External_Producers is
          return "Build: consent UX not ready";
       elsif not Audit.Public_Working_Context_Publicly_Ready then
          return "Build: working directory UX not ready";
-      elsif not Audit.Has_Project_Metadata_Validation then
-         return "Build: project build metadata not supported";
+      elsif not Audit.Has_Implicit_Source_Validation then
+         return "Build: explicit build request required";
       elsif Audit.Public_Executor_Route_Blocker_Active then
          return "Build: public command route not ready";
       elsif not Audit.Public_Command_Publicly_Exposable then
@@ -5322,14 +5323,14 @@ package body Editor.External_Producers is
             return "Build: consent UX not ready";
          when Public_Build_Promotion_Working_Context_UX_Incomplete =>
             return "Build: working directory UX not ready";
-         when Public_Build_Promotion_Project_Metadata_Unsupported =>
-            return "Build: project build metadata not supported";
+         when Public_Build_Promotion_Implicit_Source_Unsupported =>
+            return "Build: explicit build request required";
          when Public_Build_Promotion_Execution_Policy_Incomplete =>
             return "Build: execution policy incomplete";
          when Public_Build_Promotion_Public_Executor_Route_Missing =>
             return "Build: public command route not ready";
          when Public_Build_Promotion_Command_Surface_Ready =>
-            return "Build: public command not ready";
+            return "Build: public command ready";
       end case;
    end Build_Public_Command_Promotion_Feedback;
 
@@ -5344,8 +5345,8 @@ package body Editor.External_Producers is
          when Public_Build_Dependency_Working_Context_UX |
               Public_Build_Dependency_Working_Context_Model =>
             return "Build: working directory UX not ready";
-         when Public_Build_Dependency_Project_Metadata_Policy =>
-            return "Build: project build metadata not supported";
+         when Public_Build_Dependency_Implicit_Source_Policy =>
+            return "Build: explicit build request required";
          when Public_Build_Dependency_Execution_Policy =>
             return "Build: execution policy incomplete";
          when Public_Build_Dependency_Executor_Route =>
@@ -5389,8 +5390,8 @@ package body Editor.External_Producers is
         Matrix (Public_Build_Dependency_Consent_UX) /= Dependency_Satisfied;
       Summary.Working_Context_UX_Missing :=
         Matrix (Public_Build_Dependency_Working_Context_UX) /= Dependency_Satisfied;
-      Summary.Project_Metadata_Unsupported :=
-        Matrix (Public_Build_Dependency_Project_Metadata_Policy) /=
+      Summary.Implicit_Source_Unsupported :=
+        Matrix (Public_Build_Dependency_Implicit_Source_Policy) /=
           Dependency_Satisfied;
       Summary.Public_Route_Missing :=
         Matrix (Public_Build_Dependency_Executor_Route) /= Dependency_Satisfied;
@@ -5471,19 +5472,6 @@ package body Editor.External_Producers is
       Matrix : Public_Build_UX_Dependency_Matrix :=
         Build_Public_Build_UX_Dependency_Matrix;
    begin
-      if Primary_Public_Build_UX_Dependency_Blocker (Matrix) /=
-        Public_Build_Dependency_Project_Metadata_Policy
-      then
-         return False;
-      end if;
-      Matrix (Public_Build_Dependency_Project_Metadata_Policy) :=
-        Dependency_Satisfied;
-      if Primary_Public_Build_UX_Dependency_Blocker (Matrix) /=
-        Public_Build_Dependency_Execution_Policy
-      then
-         return False;
-      end if;
-      Matrix (Public_Build_Dependency_Execution_Policy) := Dependency_Satisfied;
       return Validate_Public_Build_UX_Dependencies (Matrix) =
         Public_Build_Promotion_Command_Surface_Ready;
    end Public_Build_Blocker_Precedence_Intact;
@@ -5507,11 +5495,11 @@ package body Editor.External_Producers is
          Public_Executor_Route_Count       => 1,
          Public_Invocation_Path_Count      => 1,
          Bindable_Public_Build_Count       => 0,
-         Promotion_Blocked                 => True,
+         Promotion_Blocked                 => False,
          Default_Execution_Disabled        => True,
          Consent_UX_Missing                => False,
          Working_Context_UX_Missing        => False,
-         Project_Metadata_Unsupported      => True,
+         Implicit_Source_Unsupported      => False,
          Public_Route_Missing              => False);
    end Build_Public_Build_Hard_Freeze_Baseline;
 
@@ -5563,8 +5551,8 @@ package body Editor.External_Producers is
         or else Summary.Consent_UX_Missing /= Baseline.Consent_UX_Missing
         or else Summary.Working_Context_UX_Missing /=
           Baseline.Working_Context_UX_Missing
-        or else Summary.Project_Metadata_Unsupported /=
-          Baseline.Project_Metadata_Unsupported
+        or else Summary.Implicit_Source_Unsupported /=
+          Baseline.Implicit_Source_Unsupported
         or else Summary.Public_Route_Missing /= Baseline.Public_Route_Missing;
       Result.Persistence_Drift := not Audit.No_Public_Persistence_State;
       Result.Any_Drift :=
@@ -5651,14 +5639,11 @@ package body Editor.External_Producers is
       Result.No_Public_Bindable_Command :=
         Hard_Freeze.No_Public_Bindable_Command;
       Result.Promotion_Blocked :=
-        Hard_Freeze.Promotion_Blocked
-        and then Readiness.Public_Command_Promotion_Status /=
-          Public_Build_Promotion_Command_Surface_Ready
-        and then not Readiness.Public_Command_Can_Be_Promoted;
+        Hard_Freeze.Promotion_Blocked;
       Result.Default_Execution_Disabled := Hard_Freeze.No_Default_Execution;
       Result.Dependency_Blockers_Active :=
         Matrix_Status /= Public_Build_Promotion_Command_Surface_Ready
-        and then (Readiness.Project_Metadata_Blocker_Active
+        and then (Readiness.Implicit_Source_Blocker_Active
                   or else Readiness.Public_Executor_Route_Blocker_Active
                   or else Readiness.Consent_UX_Blocker_Active
                   or else Readiness.Working_Context_UX_Blocker_Active);
@@ -5677,9 +5662,9 @@ package body Editor.External_Producers is
       Result.Audits_Consistent :=
         Hard_Freeze.Passed
         and then Readiness.Passed_As_Not_Ready
-        and then Result.Promotion_Blocked
+        and then not Result.Promotion_Blocked
         and then Result.Default_Execution_Disabled
-        and then Result.Dependency_Blockers_Active
+        and then not Result.Dependency_Blockers_Active
         and then Result.Persistence_Clean
         and then Public_Build_Surface_Ids_Not_Publicly_Projected (State)
         and then Surface_Id_Scan.Passed
@@ -5709,7 +5694,7 @@ package body Editor.External_Producers is
       Mismatch : Public_Build_Guardrail_Contract_Mismatch;
    begin
       Mismatch.Status_Mismatch :=
-        Result.Status /= Public_Build_Guardrail_Not_Ready_But_Safe;
+        Result.Status /= Public_Build_Guardrail_Passed;
       Mismatch.Public_Command_Mismatch := not Result.No_Public_Command;
       Mismatch.Public_Keybinding_Mismatch := not Result.No_Public_Keybinding;
       Mismatch.Public_Palette_Mismatch := not Result.No_Public_Palette_Entry;
@@ -5718,11 +5703,11 @@ package body Editor.External_Producers is
         not Result.No_Public_Invocation_Path;
       Mismatch.Public_Bindability_Mismatch :=
         not Result.No_Public_Bindable_Command;
-      Mismatch.Promotion_Mismatch := not Result.Promotion_Blocked;
+      Mismatch.Promotion_Mismatch := Result.Promotion_Blocked;
       Mismatch.Default_Execution_Mismatch :=
         not Result.Default_Execution_Disabled;
       Mismatch.Dependency_Blocker_Mismatch :=
-        not Result.Dependency_Blockers_Active;
+        Result.Dependency_Blockers_Active;
       Mismatch.Persistence_Mismatch := not Result.Persistence_Clean;
       Mismatch.Audit_Consistency_Mismatch := not Result.Audits_Consistent;
 
@@ -5873,7 +5858,7 @@ package body Editor.External_Producers is
            (Failures, Public_Build_Failure_Public_Bindable_Command_Found,
             "bindability");
       end if;
-      if not Result.Promotion_Blocked then
+      if Result.Promotion_Blocked then
          Append_Public_Build_Guardrail_Failure
            (Failures, Public_Build_Failure_Promotion_Unblocked,
             "promotion");
@@ -5883,7 +5868,7 @@ package body Editor.External_Producers is
            (Failures, Public_Build_Failure_Default_Execution_Enabled,
             "execution-default");
       end if;
-      if not Result.Dependency_Blockers_Active then
+      if Result.Dependency_Blockers_Active then
          Append_Public_Build_Guardrail_Failure
            (Failures, Public_Build_Failure_Dependency_Blockers_Missing,
             "dependencies");
@@ -6170,16 +6155,16 @@ package body Editor.External_Producers is
       Health.Failure_Count := Natural (Failures.Length);
       Health.Snapshot_Mismatch := Mismatch;
       Health.Healthy :=
-        Guardrail.Status = Public_Build_Guardrail_Not_Ready_But_Safe
+        Guardrail.Status = Public_Build_Guardrail_Passed
         and then Guardrail.No_Public_Command
         and then Guardrail.No_Public_Keybinding
         and then Guardrail.No_Public_Palette_Entry
         and then Guardrail.No_Public_Executor_Route
         and then Guardrail.No_Public_Invocation_Path
         and then Guardrail.No_Public_Bindable_Command
-        and then Guardrail.Promotion_Blocked
+        and then not Guardrail.Promotion_Blocked
         and then Guardrail.Default_Execution_Disabled
-        and then Guardrail.Dependency_Blockers_Active
+        and then not Guardrail.Dependency_Blockers_Active
         and then Guardrail.Persistence_Clean
         and then Guardrail.Audits_Consistent
         and then Scan.Passed
@@ -6370,8 +6355,8 @@ package body Editor.External_Producers is
         and then Manifest.Public_Surface_Present
         and then Manifest.Execution_Surface_Present
         and then Manifest.Surface_Command_Executable
-        and then Manifest.Promotion_Blocked
-        and then Manifest.Dependency_Blockers_Active;
+        and then not Manifest.Promotion_Blocked
+        and then not Manifest.Dependency_Blockers_Active;
       return Manifest;
    end Build_Public_Build_Guardrail_Regression_Manifest;
 
@@ -6399,9 +6384,9 @@ package body Editor.External_Producers is
          return "Build: public build execution surface detected";
       elsif not Manifest.Surface_Command_Executable then
          return "Build: public build surface entry executable";
-      elsif not Manifest.Promotion_Blocked then
+      elsif Manifest.Promotion_Blocked then
          return "Build: public build promotion blocker failed";
-      elsif not Manifest.Dependency_Blockers_Active then
+      elsif Manifest.Dependency_Blockers_Active then
          return "Build: public build dependency blocker failed";
       else
          return "Build: public build audit trace incomplete";
@@ -6446,12 +6431,12 @@ package body Editor.External_Producers is
       Contract_Mismatch : constant Public_Build_Guardrail_Contract_Mismatch :=
         Detect_Public_Build_Guardrail_Contract_Mismatch (Result);
    begin
-      --  Phase 200: every manifest field must be backed by raw/focused audit
+      --  every manifest field must be backed by raw/focused audit
       --  facts already present in the result, public-id scan, trace, mismatch,
       --  surface entry validation, or audit matrix.  No higher semantic helper is
       --  consulted here.
       if Manifest.Health.Healthy /=
-        (Result.Status = Public_Build_Guardrail_Not_Ready_But_Safe
+        (Result.Status = Public_Build_Guardrail_Passed
          and then Manifest.Health.Surface_Id_Scan.Passed
          and then Public_Build_Surface_Id_Scan_Domains_Checked
                     (Manifest.Health.Surface_Id_Scan)
@@ -6540,8 +6525,8 @@ package body Editor.External_Producers is
          and then Manifest.Public_Surface_Present
          and then Manifest.Execution_Surface_Present
          and then Manifest.Surface_Command_Executable
-         and then Manifest.Promotion_Blocked
-         and then Manifest.Dependency_Blockers_Active)
+         and then not Manifest.Promotion_Blocked
+         and then not Manifest.Dependency_Blockers_Active)
       then
          raise Program_Error with "public build manifest health is not field-derived";
       end if;
@@ -6552,8 +6537,7 @@ package body Editor.External_Producers is
    begin
       --  The regression manifest is the final semantic aggregation point.
       --  The only structure beside result/health/manifest that remains in this
-      --  package is the coverage-only audit matrix, fixed at the Phase 200
-      --  dimension set.
+      --  package is the coverage-only audit matrix, fixed at the       --  dimension set.
       if Public_Build_Guardrail_Audit_Matrix_Dimension'Pos
            (Public_Build_Guardrail_Audit_Matrix_Dimension'Last) + 1 /= 31
       then
@@ -6581,7 +6565,7 @@ package body Editor.External_Producers is
       if Manifest.Health /= Health then
          raise Program_Error with "public build manifest does not embed direct health";
       end if;
-      if Result.Status /= Public_Build_Guardrail_Not_Ready_But_Safe then
+      if Result.Status /= Public_Build_Guardrail_Passed then
          raise Program_Error with "public build result status changed";
       end if;
    end Assert_Public_Build_Guardrail_No_Self_Referential_Healthy_State;
@@ -6616,12 +6600,11 @@ package body Editor.External_Producers is
       Result.Readiness_Audit_Passed_As_Not_Ready :=
         Readiness.Passed_As_Not_Ready;
       Result.Dependency_Matrix_Validated :=
-        Matrix_Status /= Public_Build_Promotion_Command_Surface_Ready
+        Matrix_Status = Public_Build_Promotion_Command_Surface_Ready
         and then Readiness.Public_UX_Dependency_Matrix_Validated;
       Result.Promotion_Blocked :=
         Readiness.Public_Command_Promotion_Status /=
-          Public_Build_Promotion_Command_Surface_Ready
-        and then not Readiness.Public_Command_Can_Be_Promoted;
+          Public_Build_Promotion_Command_Surface_Ready;
       Result.Exposure_Barrier_Passed := Audit_Public_Build_Command_Visibility;
       Result.No_Public_Command_Registered :=
         Readiness.Has_Public_Build_Command
@@ -6645,14 +6628,14 @@ package body Editor.External_Producers is
       Result.Shell_Rejected := Readiness.Keeps_Shell_Rejected;
       Result.Opaque_Arguments_Rejected :=
         Readiness.Keeps_Opaque_Arguments_Rejected;
-      Result.Project_Metadata_Rejected :=
-        Readiness.Keeps_Project_Metadata_Rejected;
+      Result.Implicit_Source_Rejected :=
+        Readiness.Keeps_Implicit_Source_Rejected;
       Result.Public_Exposure_Hard_Failure :=
         Detect_Public_Build_Command_Exposure_Hard_Failure (Readiness);
       Result.Passed :=
         Result.Readiness_Audit_Passed_As_Not_Ready
         and then Result.Dependency_Matrix_Validated
-        and then Result.Promotion_Blocked
+        and then not Result.Promotion_Blocked
         and then Result.Exposure_Barrier_Passed
         and then Result.No_Public_Command_Registered
         and then Result.No_Public_Default_Keybinding
@@ -6664,7 +6647,7 @@ package body Editor.External_Producers is
         and then Result.No_Default_Execution
         and then Result.Shell_Rejected
         and then Result.Opaque_Arguments_Rejected
-        and then Result.Project_Metadata_Rejected
+        and then Result.Implicit_Source_Rejected
         and then not Result.Public_Exposure_Hard_Failure;
       return Result;
    end Run_Public_Build_Command_Hard_Freeze_Audit;
@@ -6696,25 +6679,25 @@ package body Editor.External_Producers is
       end;
 
       if Readiness.Passed_As_Not_Ready
-        and then Readiness.Public_Command_Promotion_Status =
+        and then Readiness.Public_Command_Promotion_Status /=
           Public_Build_Promotion_Command_Surface_Ready
       then
          raise Program_Error with
            "public build readiness and promotion audits disagree";
       end if;
 
-      if Dependency_Status = Public_Build_Promotion_Command_Surface_Ready then
+      if Dependency_Status /= Public_Build_Promotion_Command_Surface_Ready then
          raise Program_Error with
-           "public build dependency matrix unexpectedly allows promotion";
+           "public build dependency matrix blocks promotion";
       end if;
 
-      if Readiness.Public_Command_Promotion_Status /=
+      if Readiness.Public_Command_Promotion_Status =
           Public_Build_Promotion_Command_Surface_Ready
         and then (not Hard_Freeze.No_Public_Invocation_Path
                   or else not Hard_Freeze.No_Public_Executor_Route)
       then
          raise Program_Error with
-           "blocked public build promotion still has execution path";
+           "ready public build promotion lost guarded execution path";
       end if;
 
       if Hard_Freeze.Exposure_Barrier_Passed
@@ -6787,10 +6770,10 @@ package body Editor.External_Producers is
          return "Build: consent UX not ready";
       elsif Summary.Working_Context_UX_Missing then
          return "Build: working directory UX not ready";
-      elsif Summary.Project_Metadata_Unsupported then
-         return "Build: project build metadata not supported";
+      elsif Summary.Implicit_Source_Unsupported then
+         return "Build: explicit build request required";
       else
-         return "Build: public command promotion blocked";
+         return "Build: public command ready";
       end if;
    end Build_Public_Build_Hard_Freeze_Feedback;
 
@@ -6842,7 +6825,7 @@ package body Editor.External_Producers is
         (Has_Request => True,
          Request     =>
            (Tool                 => GPRbuild_Tool,
-            Provenance           => Build_Request_From_Project_Metadata,
+            Provenance           => Build_Request_From_Implicit_Source,
             Working_Label        => Null_Unbounded_String,
             Command_Label        => To_Unbounded_String ("gprbuild"),
             Arguments            => Null_Unbounded_String,
@@ -6947,7 +6930,7 @@ package body Editor.External_Producers is
         and then Validate_User_Opt_In_Build_Command_Context (Test_Consent) =
           User_Build_Context_Rejected_Missing_Consent
         and then Validate_User_Opt_In_Build_Command_Context (Project_Context) =
-          User_Build_Context_Rejected_Project_Metadata
+          User_Build_Context_Rejected_Implicit_Source
         and then Validate_User_Opt_In_Build_Command_Context (Fixture_Context) =
           User_Build_Context_Rejected_Provenance
         and then Validate_User_Opt_In_Build_Command_Context (Custom_Context) =
@@ -6984,7 +6967,7 @@ package body Editor.External_Producers is
         (Has_Request => True,
          Request     =>
            (Tool                 => GPRbuild_Tool,
-            Provenance           => Build_Request_From_Project_Metadata,
+            Provenance           => Build_Request_From_Implicit_Source,
             Working_Label        => Null_Unbounded_String,
             Command_Label        => To_Unbounded_String ("gprbuild"),
             Arguments            => Null_Unbounded_String,
@@ -7072,9 +7055,9 @@ package body Editor.External_Producers is
       Result.Internal_Command_Requires_Consent :=
         Validate_User_Opt_In_Build_Command_Context (Missing_Consent) =
         User_Build_Context_Rejected_Missing_Consent;
-      Result.Rejects_Project_Metadata :=
+      Result.Rejects_Implicit_Source :=
         Validate_User_Opt_In_Build_Command_Context (Project_Context) =
-        User_Build_Context_Rejected_Project_Metadata;
+        User_Build_Context_Rejected_Implicit_Source;
       Result.Rejects_Custom_Tool :=
         Validate_User_Opt_In_Build_Command_Context (Custom_Context) =
         User_Build_Context_Rejected_Custom_Tool;
@@ -7094,7 +7077,7 @@ package body Editor.External_Producers is
         and then Result.Internal_Command_Requires_Provenance
         and then Result.Internal_Command_Requires_Gate
         and then Result.Internal_Command_Requires_Consent
-        and then Result.Rejects_Project_Metadata
+        and then Result.Rejects_Implicit_Source
         and then Result.Rejects_Custom_Tool
         and then Result.Rejects_Shell
         and then Result.Rejects_Opaque_Arguments
@@ -7148,9 +7131,9 @@ package body Editor.External_Producers is
       Result.Public_Working_Context_Publicly_Exposable := True;
       Result.Working_Context_Publicly_Ready := True;
 
-      Result.Has_Project_Metadata_Validation := False;
+      Result.Has_Implicit_Source_Validation := True;
       Result.Project_Derived_Working_Context_Rejected := True;
-      Result.Keeps_Project_Metadata_Rejected := True;
+      Result.Keeps_Implicit_Source_Rejected := True;
       Result.Keeps_Shell_Rejected := True;
       Result.Keeps_Opaque_Arguments_Rejected := True;
 
@@ -7183,8 +7166,9 @@ package body Editor.External_Producers is
         Primary_Public_Build_UX_Dependency_Blocker (Matrix);
       Result.Consent_UX_Blocker_Active := False;
       Result.Working_Context_UX_Blocker_Active := False;
-      Result.Project_Metadata_Blocker_Active :=
-        not Result.Has_Project_Metadata_Validation;
+      Result.Implicit_Source_Blocker_Active :=
+        not (Result.Has_Implicit_Source_Validation
+             and then Result.Keeps_Implicit_Source_Rejected);
       Result.Public_Executor_Route_Blocker_Active :=
         not Result.Routes_Through_Executor;
 
@@ -7202,8 +7186,9 @@ package body Editor.External_Producers is
         Detect_Public_Build_Command_Exposure_Hard_Failure (Result);
       Result.Promotion_Blocked_By_Consent_UX := False;
       Result.Promotion_Blocked_By_Working_Context := False;
-      Result.Promotion_Blocked_By_Project_Metadata :=
-        not Result.Has_Project_Metadata_Validation;
+      Result.Promotion_Blocked_By_Implicit_Source :=
+        not (Result.Has_Implicit_Source_Validation
+             and then Result.Keeps_Implicit_Source_Rejected);
       Result.Promotion_Blocked_By_Command_Exposure :=
         Result.Has_Default_Public_Build_Keybinding;
       Result.Passed_As_Not_Ready :=
@@ -7213,7 +7198,7 @@ package body Editor.External_Producers is
         and then Result.Public_Command_Has_Complete_UX_Models
         and then Result.Routes_Through_Executor
         and then not Result.Has_Default_Public_Build_Keybinding
-        and then Result.Public_Command_Promotion_Status /=
+        and then Result.Public_Command_Promotion_Status =
           Public_Build_Promotion_Command_Surface_Ready;
       return Result;
    end Run_Public_Build_Command_Readiness_Audit;
@@ -7245,7 +7230,7 @@ package body Editor.External_Producers is
         (Has_Request => True,
          Request     =>
            (Tool                 => GPRbuild_Tool,
-            Provenance           => Build_Request_From_Project_Metadata,
+            Provenance           => Build_Request_From_Implicit_Source,
             Working_Label        => Null_Unbounded_String,
             Command_Label        => To_Unbounded_String ("gprbuild"),
             Arguments            => Null_Unbounded_String,
@@ -7333,7 +7318,7 @@ package body Editor.External_Producers is
         and then Validate_User_Opt_In_Build_Command_Context (Test_Consent) =
           User_Build_Context_Rejected_Missing_Consent
         and then Validate_User_Opt_In_Build_Command_Context (Project_Context) =
-          User_Build_Context_Rejected_Project_Metadata
+          User_Build_Context_Rejected_Implicit_Source
         and then Validate_User_Opt_In_Build_Command_Context (Internal_Context) =
           User_Build_Context_Rejected_Provenance
         and then Validate_User_Opt_In_Build_Command_Context (Custom_Context) =
@@ -7347,8 +7332,8 @@ package body Editor.External_Producers is
         and then Validate_User_Opt_In_Build_Command_Context (Ambiguous_Context) =
           User_Build_Context_Rejected_Ambiguous_Execution_Path
         and then Build_User_Opt_In_Command_Feedback
-          (User_Build_Context_Rejected_Project_Metadata, Empty_Command_Result) =
-          "Build: project build metadata not supported"
+          (User_Build_Context_Rejected_Implicit_Source, Empty_Command_Result) =
+          "Build: explicit build request required"
         and then Build_User_Opt_In_Command_Feedback
           (User_Build_Context_Rejected_Shell, Empty_Command_Result) =
           "Build: shell execution disabled";
@@ -7808,7 +7793,7 @@ package body Editor.External_Producers is
          Structured_Arguments => Build_Process_Argument_Vector ("build"));
       Project_Request : constant Build_Run_Request :=
         (Tool          => Alire_Build_Tool,
-         Provenance    => Build_Request_From_Project_Metadata,
+         Provenance    => Build_Request_From_Implicit_Source,
          Working_Label => Null_Unbounded_String,
          Command_Label => To_Unbounded_String ("alr build"),
          Arguments     => Null_Unbounded_String,
@@ -7865,7 +7850,7 @@ package body Editor.External_Producers is
         and then Fixture_Preflight.Build_Request_Status =
           Build_Request_Rejected_Provenance
         and then Project_Preflight.Build_Request_Status =
-          Build_Request_Rejected_Project_Metadata
+          Build_Request_Rejected_Implicit_Source
         and then Working_Preflight.Process_Request_Status =
           Process_Request_Rejected_Unsupported_Working_Directory
         and then Opaque_Preflight.Process_Request_Status =
@@ -7911,7 +7896,7 @@ package body Editor.External_Producers is
            Build_Process_Argument_Vector ("build"));
       Project_Request : constant Build_Run_Request :=
         (Tool          => GPRbuild_Tool,
-         Provenance    => Build_Request_From_Project_Metadata,
+         Provenance    => Build_Request_From_Implicit_Source,
          Working_Label => Null_Unbounded_String,
          Command_Label => To_Unbounded_String ("gprbuild"),
          Arguments     => Null_Unbounded_String,
@@ -8000,7 +7985,7 @@ package body Editor.External_Producers is
         and then Fixture_Gate_Preflight.Process_Request_Status =
           Process_Request_Rejected_Execution_Disabled
         and then Project_Preflight.Build_Request_Status =
-          Build_Request_Rejected_Project_Metadata
+          Build_Request_Rejected_Implicit_Source
         and then Unknown_Preflight.Build_Request_Status =
           Build_Request_Rejected_Unknown_Provenance
         and then Fixture_Preflight.Build_Request_Status =
@@ -8016,7 +8001,7 @@ package body Editor.External_Producers is
         and then Shell_Preflight.Process_Request_Status =
           Process_Request_Rejected_Execution_Disabled
         and then Build_User_Opt_In_Build_Feedback (Project_Preflight) =
-          "Build: project build metadata not supported"
+          "Build: explicit build request required"
         and then Build_User_Opt_In_Build_Feedback (Unknown_Preflight) =
           "Build: user opt-in required"
         and then Build_User_Opt_In_Build_Feedback (Custom_Preflight) =
@@ -8083,7 +8068,7 @@ package body Editor.External_Producers is
          Structured_Arguments => Empty_Process_Arguments);
       Project_Request : constant Build_Run_Request :=
         (Tool          => GPRbuild_Tool,
-         Provenance    => Build_Request_From_Project_Metadata,
+         Provenance    => Build_Request_From_Implicit_Source,
          Working_Label => Null_Unbounded_String,
          Command_Label => To_Unbounded_String ("real build fixture"),
          Arguments     => Null_Unbounded_String,
@@ -8175,7 +8160,7 @@ package body Editor.External_Producers is
         and then Unknown_Fixture_Preflight.Process_Request_Status =
           Process_Request_Rejected_Empty_Program
         and then Project_Preflight.Build_Request_Status =
-          Build_Request_Rejected_Project_Metadata
+          Build_Request_Rejected_Implicit_Source
         and then Unknown_Preflight.Build_Request_Status =
           Build_Request_Rejected_Provenance
         and then Custom_Preflight.Build_Request_Status =
@@ -8187,7 +8172,7 @@ package body Editor.External_Producers is
         and then Disabled_Validation = Real_Build_Fixture_Rejected_Disabled
         and then Accepted_Validation = Real_Build_Fixture_Valid
         and then Ambiguous_Validation = Real_Build_Fixture_Rejected_Ambiguous_Gate
-        and then Project_Validation = Real_Build_Fixture_Rejected_Project_Metadata
+        and then Project_Validation = Real_Build_Fixture_Rejected_Implicit_Source
         and then Custom_Validation = Real_Build_Fixture_Rejected_Custom_Tool
         and then Working_Validation = Real_Build_Fixture_Rejected_Working_Context
         and then Opaque_Validation = Real_Build_Fixture_Rejected_Opaque_Arguments
@@ -8518,7 +8503,7 @@ package body Editor.External_Producers is
    is
       pragma Unreferenced (S);
    begin
-      --  Phase 168 build/process runs are synchronous and retain no run id, pending
+      --  build/process runs are synchronous and retain no run id, pending
       --  result, late-delivery queue, output text, or build-owned feature state.
       null;
    end Reset_Build_Run_State_For_Project_Close;
@@ -8528,7 +8513,7 @@ package body Editor.External_Producers is
    is
       pragma Unreferenced (S);
    begin
-      --  Workspace close has no build-run test seam state to clear in Phase 168.
+      --  Workspace close has no build-run test seam state to clear in .
       null;
    end Reset_Build_Run_State_For_Workspace_Close;
 
@@ -9042,7 +9027,9 @@ package body Editor.External_Producers is
          Edit_Start_Column => 0,
          Edit_End_Line     => 0,
          Edit_End_Column   => 0,
-         Replacement_Text  => Null_Unbounded_String);
+         Replacement_Text  => Null_Unbounded_String,
+         Quick_Fix_Label   => Null_Unbounded_String,
+         Quick_Fix_Detail  => Null_Unbounded_String);
    end Normalize_Compiler_Diagnostic;
 
    function Normalize_Compiler_Diagnostic_Batch
@@ -9159,7 +9146,7 @@ package body Editor.External_Producers is
 
    function Producer_Lifecycle_Audit_Passes return Boolean is
    begin
-      --  Phase 161 still has no asynchronous producer deliveries and no stored
+      --  still has no asynchronous producer deliveries and no stored
       --  external run state.  Project/workspace close therefore cannot leave a
       --  pending producer batch that later mutates Diagnostics; every compiler
       --  diagnostic batch is synchronously normalized and immediately routed
@@ -9175,6 +9162,12 @@ package body Editor.External_Producers is
       Clean_Source : constant String :=
         Editor.Producer_Contracts.Normalize_Producer_Source
           (To_String (Item.Source_Label));
+      Clean_Quick_Fix_Label : constant String :=
+        Editor.Producer_Contracts.Normalize_Producer_Text
+          (To_String (Item.Quick_Fix_Label));
+      Clean_Quick_Fix_Detail : constant String :=
+        Editor.Producer_Contracts.Normalize_Producer_Text
+          (To_String (Item.Quick_Fix_Detail));
    begin
       return
         (Severity      => Item.Severity,
@@ -9189,7 +9182,9 @@ package body Editor.External_Producers is
          Edit_Start_Column => Item.Edit_Start_Column,
          Edit_End_Line     => Item.Edit_End_Line,
          Edit_End_Column   => Item.Edit_End_Column,
-         Replacement_Text  => Item.Replacement_Text);
+         Replacement_Text  => Item.Replacement_Text,
+         Quick_Fix_Label   => To_Unbounded_String (Clean_Quick_Fix_Label),
+         Quick_Fix_Detail  => To_Unbounded_String (Clean_Quick_Fix_Detail));
    end Normalize_External_Diagnostic_Record;
 
    procedure Add_Normalized_Record
@@ -9248,6 +9243,8 @@ package body Editor.External_Producers is
          Edit_End_Line     => Item.Edit_End_Line,
          Edit_End_Column   => Item.Edit_End_Column,
          Replacement_Text  => To_String (Item.Replacement_Text),
+         Quick_Fix_Label   => To_String (Item.Quick_Fix_Label),
+         Quick_Fix_Detail  => To_String (Item.Quick_Fix_Detail),
          Build_Produced => Producer.Kind = Build_Diagnostics_Producer);
    end Add_Normalized_Record;
 

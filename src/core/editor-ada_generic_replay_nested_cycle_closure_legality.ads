@@ -7,7 +7,7 @@ with Editor.Ada_Syntax_Tree;
 
 package Editor.Ada_Generic_Replay_Nested_Cycle_Closure_Legality is
 
-   --  Pass1190 compiler-grade nested generic replay closure legality.
+   --  Case 1190 compiler-grade nested generic replay closure legality.
    --
    --  This layer closes the remaining cross-unit generic replay gap left after
    --  source/instance backmapping and final RM overload consumers.  A nested

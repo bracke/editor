@@ -5,7 +5,7 @@ with Editor.Ada_Syntax_Tree;
 
 package Editor.Ada_Tasking_Protected_Legality is
 
-   --  Wide compiler-grade semantic legality building block for Pass1103.
+   --  Wide compiler-grade semantic legality building block for Case 1103.
    --  This package covers Ada tasking/protected declaration and body
    --  semantics above the statement-flow layer: task/protected body-to-spec
    --  matching, entry declaration/body/accept/requeue resolution, entry family

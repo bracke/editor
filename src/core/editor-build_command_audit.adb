@@ -73,14 +73,14 @@ package body Editor.Build_Command_Audit is
               Editor.Build_Working_Context.Working_Context_Source_Shell_Derived,
               "/tmp")) =
         Editor.Build_Working_Context.Build_Working_Context_Rejected_Shell_Derived;
-      Result.Working_Context_Rejects_Project_Metadata_Derived :=
+      Result.Working_Context_Rejects_Implicit_Derived :=
         Editor.Build_Working_Context.Validate_Build_Working_Context
           (Editor.Build_Working_Context.Unsafe_Context
              (Editor.Build_Working_Context.Build_Working_Context_Current_Project_Root,
               "alire.toml",
-              Editor.Build_Working_Context.Working_Context_Source_Project_Metadata_Derived,
+              Editor.Build_Working_Context.Working_Context_Source_Implicit_Derived,
               "alire.toml")) =
-        Editor.Build_Working_Context.Build_Working_Context_Rejected_Project_Metadata_Derived;
+        Editor.Build_Working_Context.Build_Working_Context_Rejected_Implicit_Derived;
       Result.Working_Context_Consent_Bound :=
         Editor.Build_UI.Current_Request_Identity (State.Build_UI)'Length > 0;
       Result.Command_Palette_Cannot_Supply_Working_Context :=
@@ -207,7 +207,7 @@ package body Editor.Build_Command_Audit is
         and then Result.Working_Context_Requires_Valid_Source
         and then Result.Working_Context_Rejects_Raw_Text
         and then Result.Working_Context_Rejects_Shell_Derived
-        and then Result.Working_Context_Rejects_Project_Metadata_Derived
+        and then Result.Working_Context_Rejects_Implicit_Derived
         and then Result.Working_Context_Consent_Bound
         and then Result.Command_Palette_Cannot_Supply_Working_Context
         and then Result.Keybindings_Cannot_Supply_Working_Context

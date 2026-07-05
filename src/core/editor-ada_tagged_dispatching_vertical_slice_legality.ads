@@ -4,7 +4,7 @@ with Editor.Ada_Syntax_Tree;
 
 package Editor.Ada_Tagged_Dispatching_Vertical_Slice_Legality is
 
-   --  Pass1311 vertical-slice tagged type and dispatching legality.
+   --  Case 1311 vertical-slice tagged type and dispatching legality.
    --  This package checks concrete Ada tagged type, type extension,
    --  primitive operation, overriding, interface, and dispatching-call
    --  rules against source-shaped semantic rows.  It is deliberately a

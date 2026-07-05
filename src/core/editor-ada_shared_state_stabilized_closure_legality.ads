@@ -5,9 +5,9 @@ with Editor.Ada_Syntax_Tree;
 
 package Editor.Ada_Shared_State_Stabilized_Closure_Legality is
 
-   --  Pass1223 shared-state stabilized closure legality.
+   --  Case 1223 shared-state stabilized closure legality.
    --
-   --  This package consumes Pass1222 shared-state stabilization-gate rows and
+   --  This package consumes Case 1222 shared-state stabilization-gate rows and
    --  turns stable shared-state conclusions into first-class closure rows.
    --  Stable accepted evidence is promoted as current semantic evidence;
    --  stable withheld evidence remains an explicit closure blocker preserving

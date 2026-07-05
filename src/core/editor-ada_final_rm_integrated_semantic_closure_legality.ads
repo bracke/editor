@@ -9,7 +9,7 @@ with Editor.Ada_Syntax_Tree;
 
 package Editor.Ada_Final_RM_Integrated_Semantic_Closure_Legality is
 
-   --  Pass1296 final RM-integrated semantic closure legality.
+   --  Case 1296 final RM-integrated semantic closure legality.
    --
    --  This package creates the first unified trusted closure boundary after the
    --  RM-completion, direct-consumer, remaining-RM-edge, and coverage-proven AST

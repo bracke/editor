@@ -1,11 +1,11 @@
 with AUnit.Assertions; use AUnit.Assertions;
 with AUnit.Test_Cases;
 with Ada.Strings.Unbounded; use Ada.Strings.Unbounded;
-with Editor.Ada_RM_Remaining_Gap_Remediation_Pass1369;
+with Editor.Ada_RM_Remaining_Gap_Remediation_Case_1369;
 
 package body Test_Ada_RM_Remaining_Gap_Remediation_Case_1369 is
 
-   package Audit renames Editor.Ada_RM_Remaining_Gap_Remediation_Pass1369;
+   package Audit renames Editor.Ada_RM_Remaining_Gap_Remediation_Case_1369;
    use type Audit.RM_Family;
    use type Audit.Implementing_Slice;
    use type Audit.Coverage_Level;
@@ -59,8 +59,8 @@ package body Test_Ada_RM_Remaining_Gap_Remediation_Case_1369 is
         To_Unbounded_String
           ("stream operational item must agree with import/export convention and freezing evidence");
       Row.Candidate_Implementing_Package :=
-        To_Unbounded_String ("Editor.Ada_RM_Remaining_Gap_Remediation_Pass1369");
-      Row.Candidate_Pass := To_Unbounded_String ("Pass1369");
+        To_Unbounded_String ("Editor.Ada_RM_Remaining_Gap_Remediation_Case_1369");
+      Row.Candidate_Case := To_Unbounded_String ("Case 1369");
       Row.Blocker_Family :=
         To_Unbounded_String ("RM.Representation.Stream_External_Import_Export");
       return Row;
@@ -73,9 +73,9 @@ package body Test_Ada_RM_Remaining_Gap_Remediation_Case_1369 is
       Expected : Audit.Precision_Classification) is
       Item : constant Audit.Remediation_Entry := Audit.Result_For (Results, Id);
    begin
-      Assert (Item.Status = Status, "unexpected pass1369 status");
+      Assert (Item.Status = Status, "unexpected case 1369 status");
       Assert (Audit.Expected_For_Status (Item.Status) = Expected,
-              "unexpected pass1369 precision classification");
+              "unexpected case 1369 precision classification");
    end Expect_Status;
 
    procedure Test_Stream_External_Gap_Remediated
@@ -108,7 +108,7 @@ package body Test_Ada_RM_Remaining_Gap_Remediation_Case_1369 is
       Results := Audit.Build (Input);
 
       Assert (Audit.Gap_Remediated (Results),
-              "pass1369 should close the selected stream/import/export gap");
+              "case 1369 should close the selected stream/import/export gap");
       Assert (Results.Remediated_Count = 1, "legal count");
       Assert (Results.Illegal_Count = 1, "illegal count");
       Assert (Results.Runtime_Check_Count = 1, "runtime-check count");
@@ -233,7 +233,7 @@ package body Test_Ada_RM_Remaining_Gap_Remediation_Case_1369 is
       Row : Audit.Remediation_Row;
    begin
       Row := Base_Row (30);
-      Row.Inventory_Row_From_Pass1366 := False;
+      Row.Inventory_Row_From_Final_Burn_Down := False;
       Audit.Add_Row (Input, Row);
 
       Row := Base_Row (31);
@@ -267,7 +267,7 @@ package body Test_Ada_RM_Remaining_Gap_Remediation_Case_1369 is
 
       Results := Audit.Build (Input);
 
-      Expect_Status (Results, 30, Audit.Status_Missing_Pass1366_Inventory_Row,
+      Expect_Status (Results, 30, Audit.Status_Missing_Final_Inventory_Row,
                      Precision.Class_Illegal);
       Expect_Status (Results, 31, Audit.Status_Missing_Concrete_Subrule_Name,
                      Precision.Class_Illegal);

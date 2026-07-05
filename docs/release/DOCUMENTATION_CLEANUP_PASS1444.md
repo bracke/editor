@@ -1,6 +1,6 @@
-# Documentation cleanup pass1444
+# Documentation cleanup case 1444
 
-This pass gates the project documentation hierarchy after Phase 579 semantic closure.
+This pass gates the project documentation hierarchy after semantic closure.
 
 Accepted document roles:
 
@@ -12,10 +12,10 @@ Accepted document roles:
 
 Rejected document states:
 
-- reopening `Remaining_*` gaps after pass1428
+- reopening `Remaining_*` gaps after case 1428
 - inventing speculative semantic edges
 - treating removed legacy projections as production APIs
-- contradicting Core_Suite pruning
+- contradicting suite pruning
 - stale documentation fingerprints
 - missing canonical owners
 

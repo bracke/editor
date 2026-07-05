@@ -1,11 +1,11 @@
 with AUnit.Assertions; use AUnit.Assertions;
 with AUnit.Test_Cases;
 with Ada.Strings.Unbounded; use Ada.Strings.Unbounded;
-with Editor.Ada_RM_Remaining_Gap_Remediation_Pass1408;
+with Editor.Ada_RM_Remaining_Gap_Remediation_Case_1408;
 
 package body Test_Ada_RM_Remaining_Gap_Remediation_Case_1408 is
 
-     package Audit renames Editor.Ada_RM_Remaining_Gap_Remediation_Pass1408;
+     package Audit renames Editor.Ada_RM_Remaining_Gap_Remediation_Case_1408;
    use type Audit.RM_Family;
    use type Audit.Implementing_Slice;
    use type Audit.Coverage_Level;
@@ -59,8 +59,8 @@ package body Test_Ada_RM_Remaining_Gap_Remediation_Case_1408 is
             ("class-wide membership tests and conversions must agree with tagged root, interface, controlling oper"
              & "and, dispatching candidates, and contract-effect evidence");
         Row.Candidate_Implementing_Package :=
-          To_Unbounded_String ("Editor.Ada_RM_Remaining_Gap_Remediation_Pass1408");
-        Row.Candidate_Pass := To_Unbounded_String ("Pass1408");
+          To_Unbounded_String ("Editor.Ada_RM_Remaining_Gap_Remediation_Case_1408");
+        Row.Candidate_Case := To_Unbounded_String ("Case 1408");
         Row.Blocker_Family := To_Unbounded_String ("RM.Tagged_Model.Class_Wide_Membership_Dispatching");
         return Row;
      end Base_Row;
@@ -72,9 +72,9 @@ package body Test_Ada_RM_Remaining_Gap_Remediation_Case_1408 is
         Expected : Audit.Precision_Classification) is
         Item : constant Audit.Remediation_Entry := Audit.Result_For (Results, Id);
      begin
-        Assert (Item.Status = Status, "unexpected pass1408 status");
+        Assert (Item.Status = Status, "unexpected case 1408 status");
         Assert (Audit.Expected_For_Status (Item.Status) = Expected,
-                "unexpected pass1408 precision classification");
+                "unexpected case 1408 precision classification");
      end Expect_Status;
 
      procedure Test_Gap_Remediated
@@ -112,7 +112,7 @@ package body Test_Ada_RM_Remaining_Gap_Remediation_Case_1408 is
 
         Results := Audit.Build (Input);
 
-        Assert (Audit.Gap_Remediated (Results), "pass1408 should close the class-wide membership dispatching gap");
+        Assert (Audit.Gap_Remediated (Results), "case 1408 should close the class-wide membership dispatching gap");
         Assert (Results.Remediated_Count >= 1, "legal count");
         Assert (Results.Illegal_Count = 1, "illegal count");
         Assert (Results.Runtime_Check_Count = 1, "runtime-check count");
@@ -187,7 +187,7 @@ end Test_Rejections;
         Row : Audit.Remediation_Row;
      begin
         Row := Base_Row (20);
-        Row.Inventory_Row_From_Pass1366 := False;
+        Row.Inventory_Row_From_Final_Burn_Down := False;
         Audit.Add_Row (Input, Row);
 
         Row := Base_Row (21);
@@ -223,7 +223,7 @@ end Test_Rejections;
 
         Results := Audit.Build (Input);
 
-        Expect_Status (Results, 20, Audit.Status_Missing_Pass1366_Inventory_Row,
+        Expect_Status (Results, 20, Audit.Status_Missing_Final_Inventory_Row,
                        Precision.Class_Indeterminate);
         Expect_Status (Results, 21, Audit.Status_Missing_Concrete_Subrule_Name,
                        Precision.Class_Indeterminate);

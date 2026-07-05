@@ -564,7 +564,9 @@ package body Editor.Ada_Live_Semantic_Diagnostics is
                    Source       => To_Unbounded_String
                      ("live-semantic-cross-unit:" &
                       Editor.Ada_Cross_Unit_Diagnostics.Cross_Unit_Diagnostic_Kind'Image
-                        (Diagnostic.Kind))));
+                        (Diagnostic.Kind)),
+                   Has_Command_Descriptor => False,
+                   Command_Descriptor     => (others => <>)));
             end if;
          end;
       end loop;

@@ -7,11 +7,11 @@ with Editor.Ada_Syntax_Tree;
 
 package Editor.Ada_Remaining_RM_Edge_Stabilized_Closure_Consumer_Legality is
 
-   --  Pass1284 remaining RM edge stabilized-closure consumer legality.
+   --  Case 1284 remaining RM edge stabilized-closure consumer legality.
    --
-   --  This package consumes Pass1277 remaining Ada RM edge precision rows,
-   --  Pass1280 stabilized direct RM-completion closure-consumer rows, and the
-   --  Pass1283 stabilized diagnostic/provenance search index.  A remaining RM
+   --  This package consumes Case 1277 remaining Ada RM edge precision rows,
+   --  Case 1280 stabilized direct RM-completion closure-consumer rows, and the
+   --  Case 1283 stabilized diagnostic/provenance search index.  A remaining RM
    --  edge is accepted only when the local RM edge evidence is accepted, the
    --  matching direct-consumer stabilized closure row is current/not-required,
    --  and source/substitution fingerprints agree.  Blocked rows preserve the

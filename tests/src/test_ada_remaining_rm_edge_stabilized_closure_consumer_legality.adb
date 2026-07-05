@@ -320,7 +320,7 @@ package body Test_Ada_Remaining_RM_Edge_Stabilized_Closure_Consumer_Legality is
       Assert
         (Consumer.Count_By_Edge_Blocker
            (Model, Edge.Remaining_RM_Edge_Blocker_Protected_Reentrancy) = 1,
-         "protected reentrancy blocker should be preserved from pass1277");
+         "protected reentrancy blocker should be preserved from case 1277");
    end Preserves_Remaining_Edge_And_Closure_Blocker_Families;
 
    procedure Provides_Deterministic_Search_Linkage_And_Fingerprints

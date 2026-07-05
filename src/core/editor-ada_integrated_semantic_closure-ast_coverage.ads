@@ -2,7 +2,7 @@ with Editor.Ada_AST_Semantic_Coverage_Audit;
 
 package Editor.Ada_Integrated_Semantic_Closure.AST_Coverage is
 
-   --  Pass1133 bridge from parser/AST semantic coverage audit rows into
+   --  Case 1133 bridge from parser/AST semantic coverage audit rows into
    --  integrated semantic closure.  Coverage gaps become closure blockers so
    --  missing Ada 2022 parser structure, metadata, or legality consumers cannot
    --  silently degrade widened semantic checking.

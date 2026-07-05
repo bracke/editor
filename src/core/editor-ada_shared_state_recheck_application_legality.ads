@@ -6,9 +6,9 @@ with Editor.Ada_Syntax_Tree;
 
 package Editor.Ada_Shared_State_Recheck_Application_Legality is
 
-   --  Pass1220 shared-state recheck application legality.
+   --  Case 1220 shared-state recheck application legality.
    --
-   --  This package consumes Pass1219 shared-state recheck eligibility rows and
+   --  This package consumes Case 1219 shared-state recheck eligibility rows and
    --  applies them back into the shared-state final closure / stabilized
    --  diagnostic boundary.  A shared-state semantic conclusion is current only
    --  when its prerequisite recheck chain is eligible now, source fingerprints

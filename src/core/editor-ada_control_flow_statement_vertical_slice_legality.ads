@@ -4,7 +4,7 @@ with Editor.Ada_Syntax_Tree;
 
 package Editor.Ada_Control_Flow_Statement_Vertical_Slice_Legality is
 
-   --  Pass1308 vertical-slice statement/expression control-flow legality.
+   --  Case 1308 vertical-slice statement/expression control-flow legality.
    --  This package checks concrete return, raise, exit, goto, if/case,
    --  loop, and no-return control-flow rules against source-shaped semantic
    --  rows.  It is intentionally not a diagnostic/provenance/closure wrapper.

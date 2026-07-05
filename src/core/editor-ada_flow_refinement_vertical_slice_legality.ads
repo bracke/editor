@@ -4,7 +4,7 @@ with Editor.Ada_Syntax_Tree;
 
 package Editor.Ada_Flow_Refinement_Vertical_Slice_Legality is
 
-   --  Pass1334 vertical-slice legality for Ada flow refinement.  This
+   --  Case 1334 vertical-slice legality for Ada flow refinement.  This
    --  package models source-shaped Refined_Global, Refined_Depends,
    --  abstract-state constituent flow, initialization flow, data dependency,
    --  dispatching effect joins, generic substitutions, and volatile/atomic

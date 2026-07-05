@@ -63,10 +63,10 @@ package body Test_Ada_Overload_Ranking_Provenance is
    begin
       Register_Routine
         (T, Test_Empty_Models_Are_Deterministic'Access,
-         "Pass1072 keeps empty overload-ranking provenance deterministic");
+         "Case 1072 keeps empty overload-ranking provenance deterministic");
       Register_Routine
         (T, Test_No_Item_Lookups_Are_Empty'Access,
-         "Pass1072 absent provenance lookups return no item");
+         "Case 1072 absent provenance lookups return no item");
    end Register_Tests;
 
 end Test_Ada_Overload_Ranking_Provenance;

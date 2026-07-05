@@ -5,7 +5,7 @@ with Editor.External_Producers;
 
 package Editor.Build_Candidates is
 
-   --  Phase 506 public build candidate discovery model. Candidates are
+   --  public build candidate discovery model. Candidates are
    --  transient, structured, read-only discovery output. They are not command
    --  descriptors, not consent, not persisted requests, and not execution
    --  handles.

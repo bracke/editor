@@ -28,6 +28,7 @@ with Editor.Feature_Panel_Controller;
 with Editor.Render_Model;
 with Editor.Render_Packet;
 with Editor.Render_Layers;
+with Editor.Status_Bar;
 with Editor.State;
 with Editor.Empty_State_Guidance;
 with Editor.Overlay_Focus;
@@ -56,6 +57,33 @@ package body Editor.Command_Palette.Tests is
 
       return False;
    end Descriptor_Exists;
+
+   function Help_Has_Related_Command
+     (Help : Editor.Command_Palette.Command_Help_Snapshot;
+      Id   : Editor.Commands.Command_Id) return Boolean
+   is
+   begin
+      for I in 1 .. Help.Related_Command_Count loop
+         if Help.Related_Commands (I).Command = Id then
+            return True;
+         end if;
+      end loop;
+      return False;
+   end Help_Has_Related_Command;
+
+   procedure Assert_Help_Has_Surface_Command
+     (Help         : Editor.Command_Palette.Command_Help_Snapshot;
+      Stable_Name  : Unbounded_String;
+      Failure_Text : String)
+   is
+      Found : Boolean := False;
+      Id    : constant Editor.Commands.Command_Id :=
+        Editor.Commands.Command_Id_From_Stable_Name
+          (To_String (Stable_Name), Found);
+   begin
+      Assert (Found, "status surface command must resolve: " & To_String (Stable_Name));
+      Assert (Help_Has_Related_Command (Help, Id), Failure_Text);
+   end Assert_Help_Has_Surface_Command;
 
    function Has_Rect_On_Layer
      (Packet : Editor.Render_Packet.Render_Packet;
@@ -331,10 +359,10 @@ package body Editor.Command_Palette.Tests is
       Assert (Descriptor_Exists (Editor.Commands.Command_Save_File),
               "Save descriptor must exist");
       Assert (Descriptor_Exists (Editor.Commands.Command_Save_File_As),
-              "Phase 469: Save As descriptor must be projected after target acquisition is canonical");
+              "Save As descriptor must be projected after target acquisition is canonical");
       Assert (Editor.Commands.Descriptor (Editor.Commands.Command_Save_File_As).Visibility =
                 Editor.Commands.Palette_Command,
-              "Phase 469: canonical Save As descriptor is palette-visible through the target prompt route");
+              "canonical Save As descriptor is palette-visible through the target prompt route");
       Assert (Descriptor_Exists (Editor.Commands.Command_Toggle_Problems_Panel),
               "Toggle Problems descriptor must exist");
       Assert (Descriptor_Exists (Editor.Commands.Command_Focus_Problems),
@@ -520,161 +548,161 @@ package body Editor.Command_Palette.Tests is
               "buffers.switcher.preview.center-cursor",
               "switcher preview center cursor stable name must be persisted-command safe");
       Assert (Descriptor_Exists (Editor.Commands.Command_Buffer_Switcher_Mark_Visible),
-              "Phase 280 mark visible descriptor must exist");
+              "mark visible descriptor must exist");
       Assert (Descriptor_Exists (Editor.Commands.Command_Buffer_Switcher_Mark_Clear_Visible),
-              "Phase 280 clear visible marks descriptor must exist");
+              "clear visible marks descriptor must exist");
       Assert (Descriptor_Exists (Editor.Commands.Command_Buffer_Switcher_Mark_Pinned),
-              "Phase 280 mark pinned descriptor must exist");
+              "mark pinned descriptor must exist");
       Assert (Descriptor_Exists (Editor.Commands.Command_Buffer_Switcher_Mark_Group),
-              "Phase 280 mark group descriptor must exist");
+              "mark group descriptor must exist");
       Assert (Descriptor_Exists (Editor.Commands.Command_Buffer_Switcher_Mark_Label),
-              "Phase 280 mark label descriptor must exist");
+              "mark label descriptor must exist");
       Assert (Descriptor_Exists (Editor.Commands.Command_Buffer_Switcher_Mark_Noted),
-              "Phase 280 mark noted descriptor must exist");
+              "mark noted descriptor must exist");
       Assert (Editor.Commands.Stable_Command_Name
                 (Editor.Commands.Command_Buffer_Switcher_Mark_Visible) =
               "buffers.switcher.mark.visible",
-              "Phase 280 mark visible stable name must be persisted-command safe");
+              "mark visible stable name must be persisted-command safe");
       Assert (Editor.Commands.Stable_Command_Name
                 (Editor.Commands.Command_Buffer_Switcher_Mark_Clear_Visible) =
               "buffers.switcher.mark.clear-visible",
-              "Phase 280 clear visible stable name must be persisted-command safe");
+              "clear visible stable name must be persisted-command safe");
       Assert (Editor.Commands.Stable_Command_Name
                 (Editor.Commands.Command_Buffer_Switcher_Mark_Pinned) =
               "buffers.switcher.mark.pinned",
-              "Phase 280 mark pinned stable name must be persisted-command safe");
+              "mark pinned stable name must be persisted-command safe");
       Assert (Editor.Commands.Stable_Command_Name
                 (Editor.Commands.Command_Buffer_Switcher_Mark_Group) =
               "buffers.switcher.mark.group",
-              "Phase 280 mark group stable name must be persisted-command safe");
+              "mark group stable name must be persisted-command safe");
       Assert (Editor.Commands.Stable_Command_Name
                 (Editor.Commands.Command_Buffer_Switcher_Mark_Label) =
               "buffers.switcher.mark.label",
-              "Phase 280 mark label stable name must be persisted-command safe");
+              "mark label stable name must be persisted-command safe");
       Assert (Editor.Commands.Stable_Command_Name
                 (Editor.Commands.Command_Buffer_Switcher_Mark_Noted) =
               "buffers.switcher.mark.noted",
-              "Phase 280 mark noted stable name must be persisted-command safe");
+              "mark noted stable name must be persisted-command safe");
       Assert (Descriptor_Exists (Editor.Commands.Command_Buffer_Switcher_Mark_Group_Assign),
-              "Phase 279 marked group assign descriptor must exist");
+              "marked group assign descriptor must exist");
       Assert (Descriptor_Exists (Editor.Commands.Command_Buffer_Switcher_Mark_Group_Clear),
-              "Phase 279 marked group clear descriptor must exist");
+              "marked group clear descriptor must exist");
       Assert (Descriptor_Exists (Editor.Commands.Command_Buffer_Switcher_Mark_Label_Set),
-              "Phase 279 marked label set descriptor must exist");
+              "marked label set descriptor must exist");
       Assert (Descriptor_Exists (Editor.Commands.Command_Buffer_Switcher_Mark_Label_Clear),
-              "Phase 279 marked label clear descriptor must exist");
+              "marked label clear descriptor must exist");
       Assert (Descriptor_Exists (Editor.Commands.Command_Buffer_Switcher_Mark_Note_Set),
-              "Phase 279 marked note set descriptor must exist");
+              "marked note set descriptor must exist");
       Assert (Descriptor_Exists (Editor.Commands.Command_Buffer_Switcher_Mark_Note_Clear),
-              "Phase 279 marked note clear descriptor must exist");
+              "marked note clear descriptor must exist");
       Assert (Editor.Commands.Stable_Command_Name
                 (Editor.Commands.Command_Buffer_Switcher_Mark_Group_Assign) =
               "buffers.switcher.mark.group.assign",
-              "Phase 279 marked group assign stable name must be persisted-command safe");
+              "marked group assign stable name must be persisted-command safe");
       Assert (Editor.Commands.Stable_Command_Name
                 (Editor.Commands.Command_Buffer_Switcher_Mark_Group_Clear) =
               "buffers.switcher.mark.group.clear",
-              "Phase 279 marked group clear stable name must be persisted-command safe");
+              "marked group clear stable name must be persisted-command safe");
       Assert (Editor.Commands.Stable_Command_Name
                 (Editor.Commands.Command_Buffer_Switcher_Mark_Label_Set) =
               "buffers.switcher.mark.label.set",
-              "Phase 279 marked label set stable name must be persisted-command safe");
+              "marked label set stable name must be persisted-command safe");
       Assert (Editor.Commands.Stable_Command_Name
                 (Editor.Commands.Command_Buffer_Switcher_Mark_Label_Clear) =
               "buffers.switcher.mark.label.clear",
-              "Phase 279 marked label clear stable name must be persisted-command safe");
+              "marked label clear stable name must be persisted-command safe");
       Assert (Editor.Commands.Stable_Command_Name
                 (Editor.Commands.Command_Buffer_Switcher_Mark_Note_Set) =
               "buffers.switcher.mark.note.set",
-              "Phase 279 marked note set stable name must be persisted-command safe");
+              "marked note set stable name must be persisted-command safe");
       Assert (Editor.Commands.Stable_Command_Name
                 (Editor.Commands.Command_Buffer_Switcher_Mark_Note_Clear) =
               "buffers.switcher.mark.note.clear",
-              "Phase 279 marked note clear stable name must be persisted-command safe");
+              "marked note clear stable name must be persisted-command safe");
       Assert (Descriptor_Exists (Editor.Commands.Command_Buffer_Switcher_Mark_Confirm),
-              "Phase 282 marked confirm descriptor must exist");
+              "marked confirm descriptor must exist");
       Assert (Descriptor_Exists (Editor.Commands.Command_Buffer_Switcher_Mark_Cancel),
-              "Phase 282 marked cancel descriptor must exist");
+              "marked cancel descriptor must exist");
       Assert (Editor.Commands.Stable_Command_Name
                 (Editor.Commands.Command_Buffer_Switcher_Mark_Confirm) =
               "buffers.switcher.mark.confirm",
-              "Phase 282 marked confirm stable name must be persisted-command safe");
+              "marked confirm stable name must be persisted-command safe");
       Assert (Editor.Commands.Stable_Command_Name
                 (Editor.Commands.Command_Buffer_Switcher_Mark_Cancel) =
               "buffers.switcher.mark.cancel",
-              "Phase 282 marked cancel stable name must be persisted-command safe");
+              "marked cancel stable name must be persisted-command safe");
       Assert (Descriptor_Exists (Editor.Commands.Command_Buffer_Switcher_Mark_Review_Toggle),
-              "Phase 281 marked review toggle descriptor must exist");
+              "marked review toggle descriptor must exist");
       Assert (Descriptor_Exists (Editor.Commands.Command_Buffer_Switcher_Mark_Review_Show),
-              "Phase 281 marked review show descriptor must exist");
+              "marked review show descriptor must exist");
       Assert (Descriptor_Exists (Editor.Commands.Command_Buffer_Switcher_Mark_Review_Hide),
-              "Phase 281 marked review hide descriptor must exist");
+              "marked review hide descriptor must exist");
       Assert (Descriptor_Exists (Editor.Commands.Command_Buffer_Switcher_Mark_Next),
-              "Phase 281 marked next descriptor must exist");
+              "marked next descriptor must exist");
       Assert (Descriptor_Exists (Editor.Commands.Command_Buffer_Switcher_Mark_Previous),
-              "Phase 281 marked previous descriptor must exist");
+              "marked previous descriptor must exist");
       Assert (Descriptor_Exists (Editor.Commands.Command_Buffer_Switcher_Mark_Summary),
-              "Phase 281 marked summary descriptor must exist");
+              "marked summary descriptor must exist");
       Assert (Editor.Commands.Stable_Command_Name
                 (Editor.Commands.Command_Buffer_Switcher_Mark_Review_Toggle) =
               "buffers.switcher.mark.review.toggle",
-              "Phase 281 marked review toggle stable name must be persisted-command safe");
+              "marked review toggle stable name must be persisted-command safe");
       Assert (Editor.Commands.Stable_Command_Name
                 (Editor.Commands.Command_Buffer_Switcher_Mark_Review_Show) =
               "buffers.switcher.mark.review.show",
-              "Phase 281 marked review show stable name must be persisted-command safe");
+              "marked review show stable name must be persisted-command safe");
       Assert (Editor.Commands.Stable_Command_Name
                 (Editor.Commands.Command_Buffer_Switcher_Mark_Review_Hide) =
               "buffers.switcher.mark.review.hide",
-              "Phase 281 marked review hide stable name must be persisted-command safe");
+              "marked review hide stable name must be persisted-command safe");
       Assert (Editor.Commands.Stable_Command_Name
                 (Editor.Commands.Command_Buffer_Switcher_Mark_Next) =
               "buffers.switcher.mark.next",
-              "Phase 281 marked next stable name must be persisted-command safe");
+              "marked next stable name must be persisted-command safe");
       Assert (Editor.Commands.Stable_Command_Name
                 (Editor.Commands.Command_Buffer_Switcher_Mark_Previous) =
               "buffers.switcher.mark.previous",
-              "Phase 281 marked previous stable name must be persisted-command safe");
+              "marked previous stable name must be persisted-command safe");
       Assert (Editor.Commands.Stable_Command_Name
                 (Editor.Commands.Command_Buffer_Switcher_Mark_Summary) =
               "buffers.switcher.mark.summary",
-              "Phase 281 marked summary stable name must be persisted-command safe");
+              "marked summary stable name must be persisted-command safe");
       Assert (Descriptor_Exists (Editor.Commands.Command_Buffer_Switcher_Pending_Mark_Review_Toggle),
-              "Phase 283 pending marked review toggle descriptor must exist");
+              "pending marked review toggle descriptor must exist");
       Assert (Descriptor_Exists (Editor.Commands.Command_Buffer_Switcher_Pending_Mark_Review_Show),
-              "Phase 283 pending marked review show descriptor must exist");
+              "pending marked review show descriptor must exist");
       Assert (Descriptor_Exists (Editor.Commands.Command_Buffer_Switcher_Pending_Mark_Review_Hide),
-              "Phase 283 pending marked review hide descriptor must exist");
+              "pending marked review hide descriptor must exist");
       Assert (Descriptor_Exists (Editor.Commands.Command_Buffer_Switcher_Pending_Mark_Next),
-              "Phase 283 pending marked next descriptor must exist");
+              "pending marked next descriptor must exist");
       Assert (Descriptor_Exists (Editor.Commands.Command_Buffer_Switcher_Pending_Mark_Previous),
-              "Phase 283 pending marked previous descriptor must exist");
+              "pending marked previous descriptor must exist");
       Assert (Descriptor_Exists (Editor.Commands.Command_Buffer_Switcher_Pending_Mark_Summary),
-              "Phase 283 pending marked summary descriptor must exist");
+              "pending marked summary descriptor must exist");
       Assert (Editor.Commands.Stable_Command_Name
                 (Editor.Commands.Command_Buffer_Switcher_Pending_Mark_Review_Toggle) =
               "buffers.switcher.pending-mark.review.toggle",
-              "Phase 283 pending marked review toggle stable name must be persisted-command safe");
+              "pending marked review toggle stable name must be persisted-command safe");
       Assert (Editor.Commands.Stable_Command_Name
                 (Editor.Commands.Command_Buffer_Switcher_Pending_Mark_Review_Show) =
               "buffers.switcher.pending-mark.review.show",
-              "Phase 283 pending marked review show stable name must be persisted-command safe");
+              "pending marked review show stable name must be persisted-command safe");
       Assert (Editor.Commands.Stable_Command_Name
                 (Editor.Commands.Command_Buffer_Switcher_Pending_Mark_Review_Hide) =
               "buffers.switcher.pending-mark.review.hide",
-              "Phase 283 pending marked review hide stable name must be persisted-command safe");
+              "pending marked review hide stable name must be persisted-command safe");
       Assert (Editor.Commands.Stable_Command_Name
                 (Editor.Commands.Command_Buffer_Switcher_Pending_Mark_Next) =
               "buffers.switcher.pending-mark.next",
-              "Phase 283 pending marked next stable name must be persisted-command safe");
+              "pending marked next stable name must be persisted-command safe");
       Assert (Editor.Commands.Stable_Command_Name
                 (Editor.Commands.Command_Buffer_Switcher_Pending_Mark_Previous) =
               "buffers.switcher.pending-mark.previous",
-              "Phase 283 pending marked previous stable name must be persisted-command safe");
+              "pending marked previous stable name must be persisted-command safe");
       Assert (Editor.Commands.Stable_Command_Name
                 (Editor.Commands.Command_Buffer_Switcher_Pending_Mark_Summary) =
               "buffers.switcher.pending-mark.summary",
-              "Phase 283 pending marked summary stable name must be persisted-command safe");
+              "pending marked summary stable name must be persisted-command safe");
    end Test_Buffer_Command_Descriptors_Exist;
 
    procedure Test_Buffer_Command_Id_Dispatch
@@ -992,7 +1020,7 @@ package body Editor.Command_Palette.Tests is
    end Test_Enter_Unavailable_Command_Keeps_Palette_Open;
 
 
-   procedure Test_Phase84_Category_Labels
+   procedure Test_Category_Labels
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
       pragma Unreferenced (T);
    begin
@@ -1002,9 +1030,9 @@ package body Editor.Command_Palette.Tests is
               "Panel category must use user-facing plural label");
       Assert (Editor.Commands.Category_Label (Editor.Commands.Internal_Category) = "Internal",
               "Internal category must have a centralized debug label");
-   end Test_Phase84_Category_Labels;
+   end Test_Category_Labels;
 
-   procedure Test_Phase84_Match_Score_Order
+   procedure Test_Match_Score_Order
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
       pragma Unreferenced (T);
       Exact     : constant Natural := Editor.Command_Palette.Match_Score
@@ -1026,9 +1054,9 @@ package body Editor.Command_Palette.Tests is
               "Label substring match must rank above category match");
       Assert (Reason = 0,
               "Unavailable reasons must not be searched as command identity");
-   end Test_Phase84_Match_Score_Order;
+   end Test_Match_Score_Order;
 
-   procedure Test_Phase84_Grouped_Snapshot_Rows
+   procedure Test_Grouped_Snapshot_Rows
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
       pragma Unreferenced (T);
       Candidates : Editor.Commands.Command_Palette_Candidate_Vectors.Vector;
@@ -1091,9 +1119,9 @@ package body Editor.Command_Palette.Tests is
       Index := Editor.Command_Palette.Row_For_Candidate (Snapshot, 1, Found);
       Assert (Found and then Index = 4,
               "Candidate-to-row mapping must account for category headers");
-   end Test_Phase84_Grouped_Snapshot_Rows;
+   end Test_Grouped_Snapshot_Rows;
 
-   procedure Test_Phase84_Empty_Query_Sort_Keeps_Category_Runs
+   procedure Test_Empty_Query_Sort_Keeps_Category_Runs
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
       pragma Unreferenced (T);
       Candidates : Editor.Commands.Command_Palette_Candidate_Vectors.Vector;
@@ -1167,9 +1195,9 @@ package body Editor.Command_Palette.Tests is
               "Available command should lead unavailable command inside the same category");
       Assert (Editor.Command_Palette.Row (Snapshot, 4).Primary_Text = To_Unbounded_String ("Search"),
               "Search header must appear once after the contiguous File group");
-   end Test_Phase84_Empty_Query_Sort_Keeps_Category_Runs;
+   end Test_Empty_Query_Sort_Keeps_Category_Runs;
 
-   procedure Test_Phase84_Nonempty_Query_Builds_Flat_Rows
+   procedure Test_Nonempty_Query_Builds_Flat_Rows
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
       pragma Unreferenced (T);
       Candidates : Editor.Commands.Command_Palette_Candidate_Vectors.Vector;
@@ -1222,9 +1250,9 @@ package body Editor.Command_Palette.Tests is
       Assert (Editor.Command_Palette.Row (Snapshot, 2).Kind =
                 Editor.Command_Palette.Command_Palette_Command_Row,
               "Filtered row 2 must be a command row, not a category header");
-   end Test_Phase84_Nonempty_Query_Builds_Flat_Rows;
+   end Test_Nonempty_Query_Builds_Flat_Rows;
 
-   procedure Test_Phase84_Ensure_Selected_Row_Visible
+   procedure Test_Ensure_Selected_Row_Visible
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
       pragma Unreferenced (T);
       Candidates : Editor.Commands.Command_Palette_Candidate_Vectors.Vector;
@@ -1275,9 +1303,9 @@ package body Editor.Command_Palette.Tests is
               "Reconcile_Selection must preserve the selected command id when present");
       Assert (Editor.Command_Palette.Current.Top_Row = 3,
               "Selected row below the visible window must advance Top_Row");
-   end Test_Phase84_Ensure_Selected_Row_Visible;
+   end Test_Ensure_Selected_Row_Visible;
 
-   procedure Test_Phase84_Reconcile_Selects_Only_Unavailable_Match
+   procedure Test_Reconcile_Selects_Only_Unavailable_Match
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
       pragma Unreferenced (T);
       Candidates : Editor.Commands.Command_Palette_Candidate_Vectors.Vector;
@@ -1304,11 +1332,11 @@ package body Editor.Command_Palette.Tests is
       Editor.Command_Palette.Reconcile_Selection (Candidates);
       Assert (Editor.Command_Palette.Current.Selected_Candidate_Index = 0,
               "Unavailable-only result sets must still select the only command candidate");
-   end Test_Phase84_Reconcile_Selects_Only_Unavailable_Match;
+   end Test_Reconcile_Selects_Only_Unavailable_Match;
 
 
 
-   procedure Test_Phase85_Candidate_Includes_Keybinding
+   procedure Test_Candidate_Includes_Keybinding
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
       pragma Unreferenced (T);
       S : Editor.State.State_Type;
@@ -1334,9 +1362,9 @@ package body Editor.Command_Palette.Tests is
       end loop;
 
       Assert (Found, "Save File candidate must be present");
-   end Test_Phase85_Candidate_Includes_Keybinding;
+   end Test_Candidate_Includes_Keybinding;
 
-   procedure Test_Phase85_Unbound_Candidate_Has_No_Keybinding
+   procedure Test_Unbound_Candidate_Has_No_Keybinding
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
       pragma Unreferenced (T);
       S : Editor.State.State_Type;
@@ -1362,9 +1390,123 @@ package body Editor.Command_Palette.Tests is
       end loop;
 
       Assert (Found, "Run Build candidate must be present");
-   end Test_Phase85_Unbound_Candidate_Has_No_Keybinding;
+   end Test_Unbound_Candidate_Has_No_Keybinding;
 
-   procedure Test_Phase85_Unavailable_Candidate_Still_Shows_Keybinding
+   procedure Test_Editor_Workflow_Command_Descriptors_Are_Discoverable
+     (T : in out AUnit.Test_Cases.Test_Case'Class)
+   is
+      pragma Unreferenced (T);
+
+      procedure Expect_Descriptor
+        (Id          : Editor.Commands.Command_Id;
+         Label       : String;
+         Description : String;
+         Category    : Editor.Commands.Command_Category)
+      is
+         D : constant Editor.Commands.Command_Descriptor :=
+           Editor.Commands.Descriptor (Id);
+      begin
+         Assert (To_String (D.Name) = Label,
+                 "workflow command label must be explicit for " &
+                 Editor.Commands.Command_Id'Image (Id));
+         Assert
+           (Ada.Strings.Fixed.Index (To_String (D.Description), Description) /= 0,
+            "workflow command description must include '" & Description & "'");
+         Assert (D.Category = Category,
+                 "workflow command category must match its palette surface");
+         Assert (D.Visibility = Editor.Commands.Palette_Command,
+                 "workflow command must be visible in the command palette");
+      end Expect_Descriptor;
+   begin
+      Expect_Descriptor
+        (Editor.Commands.Command_Build_Run,
+         "Run Build", "selected build request", Editor.Commands.Project_Category);
+      Expect_Descriptor
+        (Editor.Commands.Command_Diagnostics_Show,
+         "Show Diagnostics", "Diagnostics panel", Editor.Commands.Panel_Category);
+      Expect_Descriptor
+        (Editor.Commands.Command_Retry_Pending_Transition,
+         "Retry Pending Transition", "blocked operation", Editor.Commands.Project_Category);
+      Expect_Descriptor
+        (Editor.Commands.Command_Navigation_Back,
+         "Navigation Back", "previous editor navigation location", Editor.Commands.Navigation_Category);
+      Expect_Descriptor
+        (Editor.Commands.Command_Navigation_Forward,
+         "Navigation Forward", "next editor navigation location", Editor.Commands.Navigation_Category);
+   end Test_Editor_Workflow_Command_Descriptors_Are_Discoverable;
+
+   procedure Test_Problems_And_Build_Command_Families_Are_Audited
+     (T : in out AUnit.Test_Cases.Test_Case'Class)
+   is
+      pragma Unreferenced (T);
+
+      procedure Expect_Command
+        (Id          : Editor.Commands.Command_Id;
+         Stable_Name : String;
+         Category    : Editor.Commands.Command_Category)
+      is
+         Found     : Boolean := False;
+         Roundtrip : Editor.Commands.Command_Id := Editor.Commands.No_Command;
+         D         : constant Editor.Commands.Command_Descriptor :=
+           Editor.Commands.Descriptor (Id);
+      begin
+         Assert
+           (Editor.Commands.Stable_Command_Name (Id) = Stable_Name,
+            "audited command stable name changed: " & Stable_Name);
+         Roundtrip := Editor.Commands.Command_Id_From_Stable_Name
+           (Stable_Name, Found);
+         Assert
+           (Found and then Roundtrip = Id,
+            "audited command stable name must round-trip: " & Stable_Name);
+         Assert
+           (D.Category = Category,
+            "audited command category changed: " & Stable_Name);
+         Assert
+           (D.Visibility = Editor.Commands.Palette_Command,
+            "audited command must stay visible in the palette: " & Stable_Name);
+         Assert
+           (To_String (D.Name)'Length > 0
+            and then To_String (D.Description)'Length > 0,
+            "audited command must keep label and description: " & Stable_Name);
+      end Expect_Command;
+   begin
+      Expect_Command
+        (Editor.Commands.Command_Focus_Problems,
+         "problems.focus", Editor.Commands.Panel_Category);
+      Expect_Command
+        (Editor.Commands.Command_Problems_Open_Selected,
+         "problems.open-selected", Editor.Commands.Selection_Category);
+      Expect_Command
+        (Editor.Commands.Command_Problems_Filter_All,
+         "problems.filter.all", Editor.Commands.Diagnostics_Category);
+      Expect_Command
+        (Editor.Commands.Command_Problems_Filter_Errors,
+         "problems.filter.errors", Editor.Commands.Diagnostics_Category);
+      Expect_Command
+        (Editor.Commands.Command_Problems_Filter_Warnings,
+         "problems.filter.warnings", Editor.Commands.Diagnostics_Category);
+      Expect_Command
+        (Editor.Commands.Command_Problems_Filter_Info,
+         "problems.filter.info", Editor.Commands.Diagnostics_Category);
+      Expect_Command
+        (Editor.Commands.Command_Problems_Filter_Hints,
+         "problems.filter.hints", Editor.Commands.Diagnostics_Category);
+
+      Expect_Command
+        (Editor.Commands.Command_Build_Refresh_Candidates,
+         "build.refresh-candidates", Editor.Commands.Project_Category);
+      Expect_Command
+        (Editor.Commands.Command_Build_Select_First_Candidate,
+         "build.select-first-candidate", Editor.Commands.Project_Category);
+      Expect_Command
+        (Editor.Commands.Command_Build_Select_Next_Candidate,
+         "build.select-next-candidate", Editor.Commands.Project_Category);
+      Expect_Command
+        (Editor.Commands.Command_Build_Select_Previous_Candidate,
+         "build.select-previous-candidate", Editor.Commands.Project_Category);
+   end Test_Problems_And_Build_Command_Families_Are_Audited;
+
+   procedure Test_Unavailable_Candidate_Still_Shows_Keybinding
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
       pragma Unreferenced (T);
       S : Editor.State.State_Type;
@@ -1392,9 +1534,9 @@ package body Editor.Command_Palette.Tests is
       end loop;
 
       Assert (Found, "Quick Open candidate must be present");
-   end Test_Phase85_Unavailable_Candidate_Still_Shows_Keybinding;
+   end Test_Unavailable_Candidate_Still_Shows_Keybinding;
 
-   procedure Test_Phase564_Filter_Matches_Keybinding_Text
+   procedure Test_Filter_Matches_Keybinding_Text
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
       pragma Unreferenced (T);
       S : Editor.State.State_Type;
@@ -1419,11 +1561,11 @@ package body Editor.Command_Palette.Tests is
          end loop;
 
          Assert (Found,
-                 "Phase 564 command search must match active keybinding display text");
+                 "command search must match active keybinding display text");
       end;
-   end Test_Phase564_Filter_Matches_Keybinding_Text;
+   end Test_Filter_Matches_Keybinding_Text;
 
-   procedure Test_Phase564_Keybinding_Search_Obeys_Display_Setting
+   procedure Test_Keybinding_Search_Obeys_Display_Setting
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
       pragma Unreferenced (T);
       S : Editor.State.State_Type;
@@ -1451,7 +1593,7 @@ package body Editor.Command_Palette.Tests is
          end if;
       end loop;
       Assert (not Found_Save,
-              "Phase 564 keybinding-text search must obey hidden keybinding display setting in Executor projection");
+              "keybinding-text search must obey hidden keybinding display setting in Executor projection");
 
       Found_Save := False;
       Editor.Command_Palette.Filtered_Commands (Results);
@@ -1461,13 +1603,13 @@ package body Editor.Command_Palette.Tests is
          end if;
       end loop;
       Assert (not Found_Save,
-              "Phase 564 removed-name descriptor filtering must also ignore keybinding text when display is disabled");
+              "removed-name descriptor filtering must also ignore keybinding text when display is disabled");
 
       Editor.Command_Palette.Reset;
       Editor.Keybindings.Reset_To_Defaults;
-   end Test_Phase564_Keybinding_Search_Obeys_Display_Setting;
+   end Test_Keybinding_Search_Obeys_Display_Setting;
 
-   function Phase85_Layout_Candidate
+   function Layout_Candidate
      (Label       : String;
       Binding     : String;
       Available   : Boolean := True;
@@ -1491,14 +1633,14 @@ package body Editor.Command_Palette.Tests is
          Effect_Classification => Editor.Commands.No_Command_Effect,
          Match_Score        => 1,
          Registry_Order     => 1);
-   end Phase85_Layout_Candidate;
+   end Layout_Candidate;
 
-   procedure Test_Phase85_Row_Layout_Right_Aligns_Keybinding
+   procedure Test_Row_Layout_Right_Aligns_Keybinding
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
       pragma Unreferenced (T);
       L : constant Editor.Command_Palette.Command_Palette_Row_Layout :=
         Editor.Command_Palette.Project_Command_Row_Layout
-          (Phase85_Layout_Candidate ("Save File", "Ctrl+S"),
+          (Layout_Candidate ("Save File", "Ctrl+S"),
            Is_Selected => False,
            Row_Columns => 30);
    begin
@@ -1510,14 +1652,14 @@ package body Editor.Command_Palette.Tests is
               "Displayed keybinding text must be preserved");
       Assert (L.Keybinding_Column = 24,
               "Keybinding column must right-align within row columns");
-   end Test_Phase85_Row_Layout_Right_Aligns_Keybinding;
+   end Test_Row_Layout_Right_Aligns_Keybinding;
 
-   procedure Test_Phase85_Row_Layout_Truncates_Label_Before_Keybinding
+   procedure Test_Row_Layout_Truncates_Label_Before_Keybinding
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
       pragma Unreferenced (T);
       L : constant Editor.Command_Palette.Command_Palette_Row_Layout :=
         Editor.Command_Palette.Project_Command_Row_Layout
-          (Phase85_Layout_Candidate
+          (Layout_Candidate
              ("Save File With A Very Long Label", "Ctrl+S"),
            Is_Selected => False,
            Row_Columns => 18);
@@ -1530,14 +1672,14 @@ package body Editor.Command_Palette.Tests is
               "Main text must be truncated before the reserved keybinding area");
       Assert (To_String (L.Keybinding_Text) = "Ctrl+S",
               "Truncation must not alter the keybinding text");
-   end Test_Phase85_Row_Layout_Truncates_Label_Before_Keybinding;
+   end Test_Row_Layout_Truncates_Label_Before_Keybinding;
 
-   procedure Test_Phase85_Row_Layout_Omits_Keybinding_When_Narrow
+   procedure Test_Row_Layout_Omits_Keybinding_When_Narrow
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
       pragma Unreferenced (T);
       L : constant Editor.Command_Palette.Command_Palette_Row_Layout :=
         Editor.Command_Palette.Project_Command_Row_Layout
-          (Phase85_Layout_Candidate ("Save File", "Ctrl+S"),
+          (Layout_Candidate ("Save File", "Ctrl+S"),
            Is_Selected => False,
            Row_Columns => 8);
    begin
@@ -1547,14 +1689,14 @@ package body Editor.Command_Palette.Tests is
               "Omitted keybinding must not emit keybinding text");
       Assert (Length (L.Visible_Text) <= 8,
               "Main text must still fit inside the narrow row");
-   end Test_Phase85_Row_Layout_Omits_Keybinding_When_Narrow;
+   end Test_Row_Layout_Omits_Keybinding_When_Narrow;
 
-   procedure Test_Phase85_Row_Layout_Selected_Reason_Truncates_Before_Keybinding
+   procedure Test_Row_Layout_Selected_Reason_Truncates_Before_Keybinding
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
       pragma Unreferenced (T);
       L : constant Editor.Command_Palette.Command_Palette_Row_Layout :=
         Editor.Command_Palette.Project_Command_Row_Layout
-          (Phase85_Layout_Candidate
+          (Layout_Candidate
              (Label     => "Save File",
               Binding   => "Ctrl+S",
               Available => False,
@@ -1570,9 +1712,9 @@ package body Editor.Command_Palette.Tests is
               "Unavailable reason must truncate before keybinding text");
       Assert (To_String (L.Keybinding_Text) = "Ctrl+S",
               "Unavailable row keybinding text must be preserved");
-   end Test_Phase85_Row_Layout_Selected_Reason_Truncates_Before_Keybinding;
+   end Test_Row_Layout_Selected_Reason_Truncates_Before_Keybinding;
 
-   procedure Test_Phase86_Truncate_With_Ellipsis_Edges
+   procedure Test_Truncate_With_Ellipsis_Edges
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
       pragma Unreferenced (T);
    begin
@@ -1584,9 +1726,9 @@ package body Editor.Command_Palette.Tests is
               "Fitting text must remain unchanged");
       Assert (Editor.Command_Palette.Truncate_With_Ellipsis ("abcdef", 4) = "abc~",
               "Long text must truncate with the editor ellipsis marker");
-   end Test_Phase86_Truncate_With_Ellipsis_Edges;
+   end Test_Truncate_With_Ellipsis_Edges;
 
-   procedure Test_Phase86_Command_Row_Layout_Ranges_Do_Not_Overlap
+   procedure Test_Command_Row_Layout_Ranges_Do_Not_Overlap
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
       pragma Unreferenced (T);
       L : constant Editor.Command_Palette.Command_Palette_Row_Layout :=
@@ -1609,9 +1751,9 @@ package body Editor.Command_Palette.Tests is
                 (if L.Show_Secondary then L.Secondary_Start_Column - 3
                  else L.Keybinding_Start_Column - 2),
               "Label range must not overlap secondary or keybinding text");
-   end Test_Phase86_Command_Row_Layout_Ranges_Do_Not_Overlap;
+   end Test_Command_Row_Layout_Ranges_Do_Not_Overlap;
 
-   procedure Test_Phase86_Command_Row_Layout_Omits_Too_Wide_Keybinding
+   procedure Test_Command_Row_Layout_Omits_Too_Wide_Keybinding
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
       pragma Unreferenced (T);
       L : constant Editor.Command_Palette.Command_Palette_Row_Layout :=
@@ -1627,9 +1769,9 @@ package body Editor.Command_Palette.Tests is
               "A too-wide keybinding must be omitted deterministically");
       Assert (L.Label_Columns <= 8,
               "Label columns must remain inside the row when keybinding is omitted");
-   end Test_Phase86_Command_Row_Layout_Omits_Too_Wide_Keybinding;
+   end Test_Command_Row_Layout_Omits_Too_Wide_Keybinding;
 
-   procedure Test_Phase86_Selected_Available_Row_Includes_Description
+   procedure Test_Selected_Available_Row_Includes_Description
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
       pragma Unreferenced (T);
       Candidates : Editor.Commands.Command_Palette_Candidate_Vectors.Vector;
@@ -1640,7 +1782,7 @@ package body Editor.Command_Palette.Tests is
       Editor.Command_Palette.Reset;
       Editor.Command_Palette.Open;
       Candidates.Append
-        (Phase85_Layout_Candidate
+        (Layout_Candidate
            (Label       => "Save File",
             Binding     => "Ctrl+S",
             Available   => True,
@@ -1659,9 +1801,9 @@ package body Editor.Command_Palette.Tests is
       Assert (Editor.Command_Palette.Row (Snapshot, 1).Keybinding_Text =
                 To_Unbounded_String ("Ctrl+S"),
               "Selected command row must carry the formatted keybinding");
-   end Test_Phase86_Selected_Available_Row_Includes_Description;
+   end Test_Selected_Available_Row_Includes_Description;
 
-   procedure Test_Phase86_Selected_Unavailable_Row_Includes_Reason
+   procedure Test_Selected_Unavailable_Row_Includes_Reason
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
       pragma Unreferenced (T);
       Candidates : Editor.Commands.Command_Palette_Candidate_Vectors.Vector;
@@ -1672,7 +1814,7 @@ package body Editor.Command_Palette.Tests is
       Editor.Command_Palette.Reset;
       Editor.Command_Palette.Open;
       Candidates.Append
-        (Phase85_Layout_Candidate
+        (Layout_Candidate
            (Label     => "Save File",
             Binding   => "Ctrl+S",
             Available => False,
@@ -1687,9 +1829,9 @@ package body Editor.Command_Palette.Tests is
               "Unavailable row metadata must mark the command unavailable");
       Assert (Editor.Command_Palette.Row (Snapshot, 1).Has_Keybinding,
               "Unavailable bound command row must still expose keybinding metadata");
-   end Test_Phase86_Selected_Unavailable_Row_Includes_Reason;
+   end Test_Selected_Unavailable_Row_Includes_Reason;
 
-   procedure Test_Phase86_Unselected_Row_Omits_Secondary
+   procedure Test_Unselected_Row_Omits_Secondary
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
       pragma Unreferenced (T);
       Candidates : Editor.Commands.Command_Palette_Candidate_Vectors.Vector;
@@ -1700,9 +1842,9 @@ package body Editor.Command_Palette.Tests is
       Editor.Command_Palette.Reset;
       Editor.Command_Palette.Open;
       Candidates.Append
-        (Phase85_Layout_Candidate ("Save File", "Ctrl+S"));
+        (Layout_Candidate ("Save File", "Ctrl+S"));
       Candidates.Append
-        (Phase85_Layout_Candidate
+        (Layout_Candidate
            (Label       => "Save As",
             Binding     => "",
             Description => "Save to a path"));
@@ -1714,9 +1856,9 @@ package body Editor.Command_Palette.Tests is
               "Unselected command rows must omit selected-row detail text");
       Assert (not Editor.Command_Palette.Row (Snapshot, 2).Has_Keybinding,
               "Unbound command row must not claim a keybinding");
-   end Test_Phase86_Unselected_Row_Omits_Secondary;
+   end Test_Unselected_Row_Omits_Secondary;
 
-   procedure Test_Phase86_Header_Empty_And_Help_Rows_Are_Non_Keybinding
+   procedure Test_Header_Empty_And_Help_Rows_Are_Non_Keybinding
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
       pragma Unreferenced (T);
       Candidates : Editor.Commands.Command_Palette_Candidate_Vectors.Vector;
@@ -1735,7 +1877,7 @@ package body Editor.Command_Palette.Tests is
    begin
       Editor.Command_Palette.Reset;
       Editor.Command_Palette.Open;
-      Candidates.Append (Phase85_Layout_Candidate ("Save File", "Ctrl+S"));
+      Candidates.Append (Layout_Candidate ("Save File", "Ctrl+S"));
       Snapshot := Editor.Command_Palette.Build_Snapshot (Candidates, Config);
 
       Assert (Editor.Command_Palette.Row (Snapshot, 1).Kind =
@@ -1756,7 +1898,7 @@ package body Editor.Command_Palette.Tests is
               "Empty snapshot must project an empty row");
       Assert (not Editor.Command_Palette.Row (Empty_Snap, 1).Has_Keybinding,
               "Empty row must not expose keybinding metadata");
-   end Test_Phase86_Header_Empty_And_Help_Rows_Are_Non_Keybinding;
+   end Test_Header_Empty_And_Help_Rows_Are_Non_Keybinding;
 
    procedure Test_Input_Field_Delete_Forward_And_Snapshot
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
@@ -1780,7 +1922,7 @@ package body Editor.Command_Palette.Tests is
 
 
 
-   procedure Test_Phase214_Stable_Command_Id_Filtering
+   procedure Test_Stable_Command_Id_Filtering
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
       pragma Unreferenced (T);
       Filtered : Editor.Commands.Command_Descriptor_Vectors.Vector;
@@ -1807,9 +1949,9 @@ package body Editor.Command_Palette.Tests is
       end loop;
       Assert (Found_In_Executor,
               "Executor palette candidates must also match stable command ids");
-   end Test_Phase214_Stable_Command_Id_Filtering;
+   end Test_Stable_Command_Id_Filtering;
 
-   procedure Test_Phase214_Query_Change_Preserves_Visible_Command
+   procedure Test_Query_Change_Preserves_Visible_Command
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
       pragma Unreferenced (T);
       Initial_Selected : Editor.Commands.Command_Id;
@@ -1824,9 +1966,9 @@ package body Editor.Command_Palette.Tests is
       Editor.Command_Palette.Insert_Text (" file");
       Assert (Editor.Command_Palette.Current.Selected_Command_Id = Initial_Selected,
               "Refining a query must preserve the selected command while it remains visible");
-   end Test_Phase214_Query_Change_Preserves_Visible_Command;
+   end Test_Query_Change_Preserves_Visible_Command;
 
-   procedure Test_Phase214_Hidden_Unavailable_Rows_Produce_Empty_State
+   procedure Test_Hidden_Unavailable_Rows_Produce_Empty_State
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
       pragma Unreferenced (T);
       Candidates : Editor.Commands.Command_Palette_Candidate_Vectors.Vector;
@@ -1869,9 +2011,9 @@ package body Editor.Command_Palette.Tests is
       Assert (To_String (Editor.Command_Palette.Row (Snapshot, 1).Primary_Text) =
                 "No available commands",
               "All-hidden unavailable candidates must explain that no command is available");
-   end Test_Phase214_Hidden_Unavailable_Rows_Produce_Empty_State;
+   end Test_Hidden_Unavailable_Rows_Produce_Empty_State;
 
-   procedure Test_Phase214_Palette_Query_Does_Not_Expose_Public_Build
+   procedure Test_Palette_Query_Does_Not_Expose_Public_Build
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
       pragma Unreferenced (T);
       Filtered : Editor.Commands.Command_Descriptor_Vectors.Vector;
@@ -1894,11 +2036,11 @@ package body Editor.Command_Palette.Tests is
          Assert (Candidate.Id /= Editor.Commands.Command_Build_Run_User_Opt_In_Test_Seam,
                  "Build test-seam command must not be exposed by executor palette candidates");
       end loop;
-   end Test_Phase214_Palette_Query_Does_Not_Expose_Public_Build;
+   end Test_Palette_Query_Does_Not_Expose_Public_Build;
 
 
 
-   procedure Test_Phase225_No_Match_Row_Carries_Clear_Query_Hint
+   procedure Test_No_Match_Row_Carries_Clear_Query_Hint
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
       pragma Unreferenced (T);
       Candidates : Editor.Commands.Command_Palette_Candidate_Vectors.Vector;
@@ -1924,9 +2066,9 @@ package body Editor.Command_Palette.Tests is
               "No-match empty state should guide the user without creating a command route");
       Assert (not Editor.Command_Palette.Row (Snapshot, 1).Has_Keybinding,
               "No-match hint row must not expose a shortcut");
-   end Test_Phase225_No_Match_Row_Carries_Clear_Query_Hint;
+   end Test_No_Match_Row_Carries_Clear_Query_Hint;
 
-   procedure Test_Phase225_Hiding_Keybindings_Removes_Row_Shortcut
+   procedure Test_Hiding_Keybindings_Removes_Row_Shortcut
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
       pragma Unreferenced (T);
       Candidates : Editor.Commands.Command_Palette_Candidate_Vectors.Vector;
@@ -1944,7 +2086,7 @@ package body Editor.Command_Palette.Tests is
       Editor.Command_Palette.Reset;
       Editor.Command_Palette.Open;
       Candidates.Append
-        (Phase85_Layout_Candidate
+        (Layout_Candidate
            (Label       => "Save File",
             Binding     => "Ctrl+S",
             Available   => True,
@@ -1957,9 +2099,9 @@ package body Editor.Command_Palette.Tests is
               "Palette row must hide active shortcut metadata when display setting is disabled");
       Assert (Length (Editor.Command_Palette.Row (Snapshot, 1).Keybinding_Text) = 0,
               "Palette row must not carry shortcut display text when setting is disabled");
-   end Test_Phase225_Hiding_Keybindings_Removes_Row_Shortcut;
+   end Test_Hiding_Keybindings_Removes_Row_Shortcut;
 
-   procedure Test_Phase564_Help_Row_Hides_Keybinding_When_Display_Disabled
+   procedure Test_Help_Row_Hides_Keybinding_When_Display_Disabled
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
       pragma Unreferenced (T);
       Candidates : Editor.Commands.Command_Palette_Candidate_Vectors.Vector;
@@ -1978,7 +2120,7 @@ package body Editor.Command_Palette.Tests is
       Editor.Command_Palette.Reset;
       Editor.Command_Palette.Open;
       Candidates.Append
-        (Phase85_Layout_Candidate
+        (Layout_Candidate
            (Label       => "Save File",
             Binding     => "Ctrl+S",
             Available   => True,
@@ -1998,24 +2140,24 @@ package body Editor.Command_Palette.Tests is
                Found_Help := True;
                Assert (Ada.Strings.Fixed.Index
                          (To_String (R.Primary_Text), "Ctrl+S") = 0,
-                       "Phase 564 command help row must not display active keybinding when setting hides keybindings");
+                       "command help row must not display active keybinding when setting hides keybindings");
                Assert (Ada.Strings.Fixed.Index
                          (To_String (R.Primary_Text), "Keybindings hidden") > 0,
-                       "Phase 564 command help row must show a bounded hidden-keybindings marker");
+                       "command help row must show a bounded hidden-keybindings marker");
             end if;
          end;
       end loop;
 
       Assert (Found_Help,
-              "Phase 564 selected command help row must still render when keybindings are hidden");
-   end Test_Phase564_Help_Row_Hides_Keybinding_When_Display_Disabled;
+              "selected command help row must still render when keybindings are hidden");
+   end Test_Help_Row_Hides_Keybinding_When_Display_Disabled;
 
 
-   procedure Test_Phase564_Build_Command_Help_Obeys_Keybinding_Display_Setting
+   procedure Test_Build_Command_Help_Obeys_Keybinding_Display_Setting
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
       pragma Unreferenced (T);
       Candidate : Editor.Commands.Command_Palette_Candidate :=
-        Phase85_Layout_Candidate
+        Layout_Candidate
           (Label       => "Save File",
            Binding     => "Ctrl+S",
            Available   => True,
@@ -2045,14 +2187,14 @@ package body Editor.Command_Palette.Tests is
               "transient help state must still be controlled by the runtime help toggle");
 
       Editor.Command_Palette.Reset;
-   end Test_Phase564_Build_Command_Help_Obeys_Keybinding_Display_Setting;
+   end Test_Build_Command_Help_Obeys_Keybinding_Display_Setting;
 
-   procedure Test_Phase225_Long_Selected_Description_Truncates_Safely
+   procedure Test_Long_Selected_Description_Truncates_Safely
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
       pragma Unreferenced (T);
       L : constant Editor.Command_Palette.Command_Palette_Row_Layout :=
         Editor.Command_Palette.Project_Command_Row_Layout
-          (Phase85_Layout_Candidate
+          (Layout_Candidate
              (Label       => "Save File",
               Binding     => "Ctrl+S",
               Available   => True,
@@ -2068,9 +2210,9 @@ package body Editor.Command_Palette.Tests is
               "Projected selected row text must be truncated before the shortcut area");
       Assert (To_String (L.Keybinding_Text) = "Ctrl+S",
               "Shortcut text must remain intact while long descriptions truncate");
-   end Test_Phase225_Long_Selected_Description_Truncates_Safely;
+   end Test_Long_Selected_Description_Truncates_Safely;
 
-   procedure Test_Phase225_Assign_Remove_Reset_Update_Shortcut_Display
+   procedure Test_Assign_Remove_Reset_Update_Shortcut_Display
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
       pragma Unreferenced (T);
       S : Editor.State.State_Type;
@@ -2118,10 +2260,10 @@ package body Editor.Command_Palette.Tests is
       Editor.Keybindings.Reset_To_Defaults;
       Assert (Save_Binding = "Ctrl+S",
               "Resetting keybindings should restore default shortcut display");
-   end Test_Phase225_Assign_Remove_Reset_Update_Shortcut_Display;
+   end Test_Assign_Remove_Reset_Update_Shortcut_Display;
 
 
-   procedure Test_Phase564_Discoverability_Category_Refinements
+   procedure Test_Discoverability_Category_Refinements
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
       pragma Unreferenced (T);
    begin
@@ -2134,9 +2276,9 @@ package body Editor.Command_Palette.Tests is
       Assert (Editor.Commands.Discoverability_Category_Label
                 (Editor.Commands.Command_Open_Command_Palette) = "Command Palette",
               "Command palette commands must present a Command Palette category");
-   end Test_Phase564_Discoverability_Category_Refinements;
+   end Test_Discoverability_Category_Refinements;
 
-   procedure Test_Phase564_Build_Search_Uses_Refined_Category
+   procedure Test_Build_Search_Uses_Refined_Category
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
       pragma Unreferenced (T);
       S : Editor.State.State_Type;
@@ -2161,13 +2303,13 @@ package body Editor.Command_Palette.Tests is
 
       Assert (Found_Build_Run,
               "Searching by refined Build category must find build.run");
-   end Test_Phase564_Build_Search_Uses_Refined_Category;
+   end Test_Build_Search_Uses_Refined_Category;
 
-   procedure Test_Phase564_Command_Help_Is_Metadata_Only
+   procedure Test_Command_Help_Is_Metadata_Only
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
       pragma Unreferenced (T);
       Candidate : Editor.Commands.Command_Palette_Candidate :=
-        Phase85_Layout_Candidate
+        Layout_Candidate
           (Label       => "Run Build",
            Binding     => "",
            Available   => False,
@@ -2194,13 +2336,13 @@ package body Editor.Command_Palette.Tests is
       Assert (Ada.Strings.Fixed.Index
                 (To_String (Help.Classification_Label), "non-bindable") /= 0,
               "Help classification must include non-bindable marker");
-   end Test_Phase564_Command_Help_Is_Metadata_Only;
+   end Test_Command_Help_Is_Metadata_Only;
 
-   procedure Test_Phase570_Related_Command_Help_Is_Bounded_And_Payload_Free
+   procedure Test_Related_Command_Help_Is_Bounded_And_Payload_Free
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
       pragma Unreferenced (T);
       Candidate : Editor.Commands.Command_Palette_Candidate :=
-        Phase85_Layout_Candidate
+        Layout_Candidate
           (Label       => "Run Build",
            Binding     => "",
            Available   => False,
@@ -2225,9 +2367,76 @@ package body Editor.Command_Palette.Tests is
          Assert (not Help.Related_Commands (I).Carries_Payload,
                  "related command help must not carry payloads");
       end loop;
-   end Test_Phase570_Related_Command_Help_Is_Bounded_And_Payload_Free;
+   end Test_Related_Command_Help_Is_Bounded_And_Payload_Free;
 
-   procedure Test_Phase570_Related_Command_Help_Rejects_Target_Like_Names
+   procedure Test_Related_Command_Help_Covers_Editor_Workflow_Families
+     (T : in out AUnit.Test_Cases.Test_Case'Class) is
+      pragma Unreferenced (T);
+
+      function Help_For
+        (Command : Editor.Commands.Command_Id;
+         Label   : String) return Editor.Command_Palette.Command_Help_Snapshot
+      is
+         Candidate : Editor.Commands.Command_Palette_Candidate :=
+           Layout_Candidate
+             (Label       => Label,
+              Binding     => "",
+              Available   => True,
+              Description => "workflow command",
+              Reason      => "");
+      begin
+         Candidate.Id := Command;
+         Candidate.Category_Label := To_Unbounded_String ("Workflow");
+         return Editor.Command_Palette.Build_Command_Help (Candidate);
+      end Help_For;
+
+      Help : Editor.Command_Palette.Command_Help_Snapshot;
+   begin
+      Help := Help_For
+        (Editor.Commands.Command_Problems_Filter_Errors,
+         "Show Problem Errors");
+      Assert (Help_Has_Related_Command
+                (Help, Editor.Commands.Command_Problems_Sort_By_Severity),
+              "Problems filter help should point to sort controls");
+      Assert (Help_Has_Related_Command
+                (Help, Editor.Commands.Command_Problems_Group_By_Source),
+              "Problems filter help should point to group controls");
+
+      Help := Help_For
+        (Editor.Commands.Command_Diagnostics_Show,
+         "Show Diagnostics");
+      Assert (Help_Has_Related_Command
+                (Help, Editor.Commands.Command_Diagnostics_Open_Selected),
+              "Diagnostics help should point to open selected diagnostic");
+      Assert (Help_Has_Related_Command
+                (Help, Editor.Commands.Command_Diagnostic_Open_Source),
+              "Diagnostics help should point to diagnostic row source action");
+      Assert (Help_Has_Related_Command
+                (Help, Editor.Commands.Command_Diagnostic_Show_Suppressed),
+              "Diagnostics help should point to suppressed diagnostic review");
+      Assert (Help_Has_Related_Command
+                (Help, Editor.Commands.Command_Problems_Filter_Errors),
+              "Diagnostics help should point to Problems review controls");
+
+      Help := Help_For
+        (Editor.Commands.Command_Build_UI_Show,
+         "Show Build Output");
+      Assert (Help_Has_Related_Command
+                (Help, Editor.Commands.Command_Build_Refresh_Candidates),
+              "Build UI help should point to refresh candidates");
+      Assert (Help_Has_Related_Command
+                (Help, Editor.Commands.Command_Build_Run),
+              "Build UI help should point to run build");
+
+      Help := Help_For
+        (Editor.Commands.Command_Refresh_File_Tree,
+         "Refresh File Tree");
+      Assert (Help_Has_Related_Command
+                (Help, Editor.Commands.Command_Open_Quick_Open),
+              "File tree help should point to Quick Open");
+   end Test_Related_Command_Help_Covers_Editor_Workflow_Families;
+
+   procedure Test_Related_Command_Help_Rejects_Target_Like_Names
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
       pragma Unreferenced (T);
       Item : Editor.Command_Palette.Related_Command_Help_Item :=
@@ -2244,13 +2453,13 @@ package body Editor.Command_Palette.Tests is
       Item.Carries_Payload := True;
       Assert (not Editor.Command_Palette.Related_Command_Is_Activation_Safe (Item),
               "related command activation safety must reject explicit payload flags");
-   end Test_Phase570_Related_Command_Help_Rejects_Target_Like_Names;
+   end Test_Related_Command_Help_Rejects_Target_Like_Names;
 
-   procedure Test_Phase570_Related_Command_Help_Uses_Canonical_Projection
+   procedure Test_Related_Command_Help_Uses_Canonical_Projection
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
       pragma Unreferenced (T);
       Candidate : Editor.Commands.Command_Palette_Candidate :=
-        Phase85_Layout_Candidate
+        Layout_Candidate
           (Label       => "Project: Open",
            Binding     => "",
            Available   => True,
@@ -2262,19 +2471,19 @@ package body Editor.Command_Palette.Tests is
       Candidate.Category_Label := To_Unbounded_String ("Project");
       Help := Editor.Command_Palette.Build_Command_Help (Candidate);
 
-      Assert (Editor.Command_Palette.Assert_Related_Command_Help_Is_Phase570_Coherent (Help),
+      Assert (Editor.Command_Palette.Assert_Related_Command_Help_Is_Coherent (Help),
               "related commands must be canonical descriptor projections with clean tail state");
 
       Help.Related_Commands (1).Title := To_Unbounded_String ("Copied stale title");
-      Assert (not Editor.Command_Palette.Assert_Related_Command_Help_Is_Phase570_Coherent (Help),
+      Assert (not Editor.Command_Palette.Assert_Related_Command_Help_Is_Coherent (Help),
               "stale copied related-command metadata must be rejected");
-   end Test_Phase570_Related_Command_Help_Uses_Canonical_Projection;
+   end Test_Related_Command_Help_Uses_Canonical_Projection;
 
-   procedure Test_Phase570_Related_Command_Help_Rejects_Duplicates_And_Tail_State
+   procedure Test_Related_Command_Help_Rejects_Duplicates_And_Tail_State
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
       pragma Unreferenced (T);
       Candidate : Editor.Commands.Command_Palette_Candidate :=
-        Phase85_Layout_Candidate
+        Layout_Candidate
           (Label       => "Run Build",
            Binding     => "",
            Available   => False,
@@ -2286,12 +2495,12 @@ package body Editor.Command_Palette.Tests is
       Candidate.Category_Label := To_Unbounded_String ("Build");
       Help := Editor.Command_Palette.Build_Command_Help (Candidate);
 
-      Assert (Editor.Command_Palette.Assert_Related_Command_Help_Is_Phase570_Coherent (Help),
+      Assert (Editor.Command_Palette.Assert_Related_Command_Help_Is_Coherent (Help),
               "initial related-command help must be coherent");
 
       if Help.Related_Command_Count >= 2 then
          Help.Related_Commands (2) := Help.Related_Commands (1);
-         Assert (not Editor.Command_Palette.Assert_Related_Command_Help_Is_Phase570_Coherent (Help),
+         Assert (not Editor.Command_Palette.Assert_Related_Command_Help_Is_Coherent (Help),
                  "duplicate related commands must be rejected");
       end if;
 
@@ -2299,20 +2508,65 @@ package body Editor.Command_Palette.Tests is
       if Help.Related_Command_Count < Editor.Command_Palette.Max_Related_Command_Help_Items then
          Help.Related_Commands (Help.Related_Command_Count + 1).Stable_Name :=
            To_Unbounded_String ("build.run");
-         Assert (not Editor.Command_Palette.Assert_Related_Command_Help_Is_Phase570_Coherent (Help),
+         Assert (not Editor.Command_Palette.Assert_Related_Command_Help_Is_Coherent (Help),
                  "related-command tail state must remain clean and transient");
       end if;
-   end Test_Phase570_Related_Command_Help_Rejects_Duplicates_And_Tail_State;
+   end Test_Related_Command_Help_Rejects_Duplicates_And_Tail_State;
 
-   procedure Test_Phase564_Selected_Help_Row_Is_Display_Only
+   procedure Test_Related_Command_Help_Matches_Status_Action_Surfaces
+     (T : in out AUnit.Test_Cases.Test_Case'Class) is
+      pragma Unreferenced (T);
+      Snapshot : Editor.Status_Bar.Status_Bar_Snapshot;
+      Outline_Surface : Editor.Status_Bar.Outline_Status_Surface;
+      Workspace_Surface : Editor.Status_Bar.Workspace_Status_Surface;
+      Candidate : Editor.Commands.Command_Palette_Candidate :=
+        Layout_Candidate
+          (Label       => "Refresh Outline",
+           Binding     => "",
+           Available   => True,
+           Description => "Refresh Outline",
+           Reason      => "");
+      Help : Editor.Command_Palette.Command_Help_Snapshot;
+   begin
+      Snapshot.Outline_Status_Label := To_Unbounded_String ("Outline: stale");
+      Snapshot.Workspace_Status_Label := To_Unbounded_String ("Workspace: restored");
+      Outline_Surface := Editor.Status_Bar.Outline_Surface (Snapshot);
+      Workspace_Surface := Editor.Status_Bar.Workspace_Surface (Snapshot);
+
+      Candidate.Id := Editor.Commands.Command_Refresh_Outline;
+      Candidate.Category_Label := To_Unbounded_String ("Navigate");
+      Help := Editor.Command_Palette.Build_Command_Help (Candidate);
+
+      Assert_Help_Has_Surface_Command
+        (Help, Outline_Surface.Open_Selected_Command,
+         "outline help must include status surface open-selected action");
+      Assert_Help_Has_Surface_Command
+        (Help, Outline_Surface.Reveal_Current_Command,
+         "outline help must include status surface reveal-current action");
+
+      Candidate.Id := Editor.Commands.Command_Restore_Workspace_State;
+      Candidate.Label := To_Unbounded_String ("Restore Workspace State");
+      Candidate.Category_Label := To_Unbounded_String ("Workspace");
+      Help := Editor.Command_Palette.Build_Command_Help (Candidate);
+
+      Assert_Help_Has_Surface_Command
+        (Help, Workspace_Surface.Save_State_Command,
+         "workspace help must include status surface save action");
+      Assert_Help_Has_Surface_Command
+        (Help, Workspace_Surface.Clear_State_Command,
+         "workspace help must include status surface clear action");
+   end Test_Related_Command_Help_Matches_Status_Action_Surfaces;
+
+   procedure Test_Selected_Help_Row_Is_Display_Only
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
       pragma Unreferenced (T);
       Candidates : Editor.Commands.Command_Palette_Candidate_Vectors.Vector;
       Config : Editor.Command_Palette.Command_Palette_Config := (others => <>);
       Snapshot : Editor.Command_Palette.Command_Palette_Snapshot;
       Found_Help : Boolean := False;
+      Found_State_Context : Boolean := False;
       Candidate : Editor.Commands.Command_Palette_Candidate :=
-        Phase85_Layout_Candidate
+        Layout_Candidate
           (Label       => "Run Build",
            Binding     => "",
            Available   => False,
@@ -2326,6 +2580,8 @@ package body Editor.Command_Palette.Tests is
 
       Editor.Command_Palette.Reset;
       Editor.Command_Palette.Open;
+      Editor.Command_Palette.Set_Command_State_Context
+        (Editor.Commands.Command_Build_Run, "Current Build UI state: visible.");
       Config.Show_Help_Row := True;
       Snapshot := Editor.Command_Palette.Build_Snapshot (Candidates, Config);
 
@@ -2349,30 +2605,40 @@ package body Editor.Command_Palette.Tests is
                Assert (Ada.Strings.Fixed.Index
                          (To_String (R.Secondary_Text), "Consent required") /= 0,
                        "Selected help row must include unavailable reason");
+            elsif R.Kind = Editor.Command_Palette.Command_Palette_State_Context_Row
+              and then R.Is_Detail_For_Selected
+            then
+               Found_State_Context := True;
+               Assert (To_String (R.Primary_Text) = "State"
+                       and then Ada.Strings.Fixed.Index
+                         (To_String (R.Secondary_Text), "Current Build UI state") /= 0,
+                       "Selected state context row must be separate from descriptor help");
             end if;
          end;
       end loop;
 
       Assert (Found_Help,
               "Show_Help_Row must add display-only selected command help");
-   end Test_Phase564_Selected_Help_Row_Is_Display_Only;
+      Assert (Found_State_Context,
+              "Show_Help_Row must add separate state context when provided");
+   end Test_Selected_Help_Row_Is_Display_Only;
 
 
-   procedure Test_Phase564_Discoverability_Metadata_Audit
+   procedure Test_Discoverability_Metadata_Audit
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
       pragma Unreferenced (T);
    begin
       Assert (Editor.Commands.Command_Discoverability_Coherent,
-              "Phase 564 command discoverability metadata must be coherent");
+              "command discoverability metadata must be coherent");
       Assert (Editor.Commands.Has_Discoverability_Metadata
                 (Editor.Commands.Command_Build_Run),
               "Build Run must have complete discoverability metadata");
       Assert (not Editor.Commands.Visible_In_Command_Palette
                 (Editor.Commands.Command_Build_Run_User_Opt_In_Test_Seam),
               "Internal build test-seam commands must stay hidden from normal palette discovery");
-   end Test_Phase564_Discoverability_Metadata_Audit;
+   end Test_Discoverability_Metadata_Audit;
 
-   procedure Test_Phase564_Filter_Recomputes_Keybinding_Metadata
+   procedure Test_Filter_Recomputes_Keybinding_Metadata
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
       pragma Unreferenced (T);
       Status : Editor.Keybindings.Keybinding_Change_Status;
@@ -2410,9 +2676,9 @@ package body Editor.Command_Palette.Tests is
       Assert (Found_Save,
               "Palette metadata search must recompute keybinding matches for the same query after rebinding");
       Editor.Keybindings.Reset_To_Defaults;
-   end Test_Phase564_Filter_Recomputes_Keybinding_Metadata;
+   end Test_Filter_Recomputes_Keybinding_Metadata;
 
-   procedure Test_Phase564_Help_Row_Display_Config_Is_Transient
+   procedure Test_Help_Row_Display_Config_Is_Transient
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
       pragma Unreferenced (T);
       Config : Editor.Command_Palette.Command_Palette_Config;
@@ -2437,9 +2703,9 @@ package body Editor.Command_Palette.Tests is
       Config := Editor.Command_Palette.Current_Config;
       Assert (not Config.Show_Help_Row,
               "Reset must not preserve transient command help row state");
-   end Test_Phase564_Help_Row_Display_Config_Is_Transient;
+   end Test_Help_Row_Display_Config_Is_Transient;
 
-   procedure Test_Phase564_Close_Clears_Command_Palette_Transient_State
+   procedure Test_Close_Clears_Command_Palette_Transient_State
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
       pragma Unreferenced (T);
    begin
@@ -2470,9 +2736,9 @@ package body Editor.Command_Palette.Tests is
       Assert (Editor.Command_Palette.Current_Keybinding_Filter =
               Editor.Command_Palette.Palette_All_Keybinding_States,
               "keybinding filter must return to transient baseline on close");
-   end Test_Phase564_Close_Clears_Command_Palette_Transient_State;
+   end Test_Close_Clears_Command_Palette_Transient_State;
 
-   procedure Test_Phase564_Show_Command_Help_Command_Is_Discoverable_And_Transient
+   procedure Test_Show_Command_Help_Command_Is_Discoverable_And_Transient
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
       pragma Unreferenced (T);
       S : Editor.State.State_Type;
@@ -2513,10 +2779,10 @@ package body Editor.Command_Palette.Tests is
       Assert (After.Show_Help_Row,
               "Executing the help command must toggle only transient help display state");
       Editor.Command_Palette.Reset;
-   end Test_Phase564_Show_Command_Help_Command_Is_Discoverable_And_Transient;
+   end Test_Show_Command_Help_Command_Is_Discoverable_And_Transient;
 
 
-   procedure Test_Phase564_Show_Command_Help_Requires_Open_Palette
+   procedure Test_Show_Command_Help_Requires_Open_Palette
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
       pragma Unreferenced (T);
       S : Editor.State.State_Type;
@@ -2546,29 +2812,29 @@ package body Editor.Command_Palette.Tests is
       Assert (Editor.Commands.Is_Available (Availability),
               "Command help display should become available when the palette is open");
       Editor.Command_Palette.Reset;
-   end Test_Phase564_Show_Command_Help_Requires_Open_Palette;
+   end Test_Show_Command_Help_Requires_Open_Palette;
 
 
-   procedure Test_Phase564_Keyboard_Selection_Uses_Visible_Candidates
+   procedure Test_Keyboard_Selection_Uses_Visible_Candidates
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
       pragma Unreferenced (T);
       Candidates : Editor.Commands.Command_Palette_Candidate_Vectors.Vector;
       Hidden_Unavailable : Editor.Commands.Command_Palette_Candidate :=
-        Phase85_Layout_Candidate
+        Layout_Candidate
           (Label       => "Save File",
            Binding     => "Ctrl+S",
            Available   => False,
            Description => "Save the active buffer",
            Reason      => "No active buffer.");
       First_Visible : Editor.Commands.Command_Palette_Candidate :=
-        Phase85_Layout_Candidate
+        Layout_Candidate
           (Label       => "Open Command Palette",
            Binding     => "Ctrl+Shift+P",
            Available   => True,
            Description => "Open the Command Palette",
            Reason      => "");
       Second_Visible : Editor.Commands.Command_Palette_Candidate :=
-        Phase85_Layout_Candidate
+        Layout_Candidate
           (Label       => "Show Command Help",
            Binding     => "F1",
            Available   => True,
@@ -2596,13 +2862,13 @@ package body Editor.Command_Palette.Tests is
                 Editor.Commands.Command_Palette_Show_Command_Help,
               "Keyboard selection must move through rendered visible candidates and skip hidden unavailable commands");
       Editor.Command_Palette.Reset;
-   end Test_Phase564_Keyboard_Selection_Uses_Visible_Candidates;
+   end Test_Keyboard_Selection_Uses_Visible_Candidates;
 
-   procedure Test_Phase564_Surface_And_Guard_Help_Metadata
+   procedure Test_Surface_And_Guard_Help_Metadata
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
       pragma Unreferenced (T);
       Candidate : Editor.Commands.Command_Palette_Candidate :=
-        Phase85_Layout_Candidate
+        Layout_Candidate
           (Label       => "Delete Selected File Tree Feed_Item",
            Binding     => "",
            Available   => False,
@@ -2640,10 +2906,10 @@ package body Editor.Command_Palette.Tests is
       Assert (Ada.Strings.Fixed.Index
                 (To_String (Help.Classification_Label), "project/file safety") /= 0,
               "Help classification names project/file safety in product terms");
-   end Test_Phase564_Surface_And_Guard_Help_Metadata;
+   end Test_Surface_And_Guard_Help_Metadata;
 
 
-   procedure Test_Phase564_Visibility_Filter_Controls_Selection_And_Snapshot
+   procedure Test_Visibility_Filter_Controls_Selection_And_Snapshot
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
       pragma Unreferenced (T);
       Candidates : Editor.Commands.Command_Palette_Candidate_Vectors.Vector;
@@ -2651,14 +2917,14 @@ package body Editor.Command_Palette.Tests is
       Config : Editor.Command_Palette.Command_Palette_Config := (others => <>);
       Snapshot : Editor.Command_Palette.Command_Palette_Snapshot;
       Available_Candidate : Editor.Commands.Command_Palette_Candidate :=
-        Phase85_Layout_Candidate
+        Layout_Candidate
           (Label       => "Save File",
            Binding     => "Ctrl+S",
            Available   => True,
            Description => "Save the active file.",
            Reason      => "");
       Unavailable_Candidate : Editor.Commands.Command_Palette_Candidate :=
-        Phase85_Layout_Candidate
+        Layout_Candidate
           (Label       => "Run Build",
            Binding     => "",
            Available   => False,
@@ -2697,24 +2963,24 @@ package body Editor.Command_Palette.Tests is
                 Editor.Commands.Command_Save_File,
               "Snapshot must expose the same command that input can execute");
       Editor.Command_Palette.Reset;
-   end Test_Phase564_Visibility_Filter_Controls_Selection_And_Snapshot;
+   end Test_Visibility_Filter_Controls_Selection_And_Snapshot;
 
 
-   procedure Test_Phase564_Snapshot_Selection_Clamps_To_Visible_Candidates
+   procedure Test_Snapshot_Selection_Clamps_To_Visible_Candidates
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
       pragma Unreferenced (T);
       Candidates : Editor.Commands.Command_Palette_Candidate_Vectors.Vector;
       Config : Editor.Command_Palette.Command_Palette_Config := (others => <>);
       Snapshot : Editor.Command_Palette.Command_Palette_Snapshot;
       Save_Candidate : Editor.Commands.Command_Palette_Candidate :=
-        Phase85_Layout_Candidate
+        Layout_Candidate
           (Label       => "Save File",
            Binding     => "Ctrl+S",
            Available   => True,
            Description => "Save the active file.",
            Reason      => "");
       Build_Candidate : Editor.Commands.Command_Palette_Candidate :=
-        Phase85_Layout_Candidate
+        Layout_Candidate
           (Label       => "Run Build",
            Binding     => "",
            Available   => False,
@@ -2767,10 +3033,10 @@ package body Editor.Command_Palette.Tests is
       Assert (Found_Selected_Save,
               "Snapshot projection must clamp stale hidden selection to a rendered visible command");
       Editor.Command_Palette.Reset;
-   end Test_Phase564_Snapshot_Selection_Clamps_To_Visible_Candidates;
+   end Test_Snapshot_Selection_Clamps_To_Visible_Candidates;
 
 
-   procedure Test_Phase564_Surface_Relevance_Ranking_Uses_Previous_Focus
+   procedure Test_Surface_Relevance_Ranking_Uses_Previous_Focus
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
       pragma Unreferenced (T);
       S : Editor.State.State_Type;
@@ -2792,9 +3058,9 @@ package body Editor.Command_Palette.Tests is
                  "file-tree.") = 1,
               "File Tree previous focus must rank File Tree commands first without hiding other commands");
       Editor.Command_Palette.Reset;
-   end Test_Phase564_Surface_Relevance_Ranking_Uses_Previous_Focus;
+   end Test_Surface_Relevance_Ranking_Uses_Previous_Focus;
 
-   procedure Test_Phase564_Hidden_Minimal_Descriptors_Do_Not_Break_Discovery_Audit
+   procedure Test_Hidden_Minimal_Descriptors_Do_Not_Break_Discovery_Audit
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
       pragma Unreferenced (T);
    begin
@@ -2806,10 +3072,10 @@ package body Editor.Command_Palette.Tests is
               "Hidden command descriptors must not leak into normal palette discovery");
       Assert (Editor.Commands.Command_Discoverability_Coherent,
               "Discovery coherence must validate visible metadata and hidden exclusion together");
-   end Test_Phase564_Hidden_Minimal_Descriptors_Do_Not_Break_Discovery_Audit;
+   end Test_Hidden_Minimal_Descriptors_Do_Not_Break_Discovery_Audit;
 
 
-   procedure Test_Phase564_Command_Kind_Help_Uses_Guarded_Command_Id_Path
+   procedure Test_Command_Kind_Help_Uses_Guarded_Command_Id_Path
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
       pragma Unreferenced (T);
       S : Editor.State.State_Type;
@@ -2830,9 +3096,9 @@ package body Editor.Command_Palette.Tests is
       Assert (Editor.Command_Palette.Current_Config.Show_Help_Row,
               "Command-kind help route must still toggle through guarded command id path when available");
       Editor.Command_Palette.Reset;
-   end Test_Phase564_Command_Kind_Help_Uses_Guarded_Command_Id_Path;
+   end Test_Command_Kind_Help_Uses_Guarded_Command_Id_Path;
 
-   procedure Test_Phase578_Common_User_Terms_Discover_Core_Commands
+   procedure Test_Common_User_Terms_Discover_Core_Commands
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
       pragma Unreferenced (T);
 
@@ -2861,7 +3127,7 @@ package body Editor.Command_Palette.Tests is
          Editor.Command_Palette.Insert_Text (Query);
          Editor.Command_Palette.Filtered_Commands (Results);
          Assert (Result_Contains (Results, Id),
-                 "Phase 578 command discovery term '" & Query &
+                 "command discovery term '" & Query &
                  "' must find " & Label);
          Editor.Command_Palette.Reset;
       end Assert_Query_Finds;
@@ -2873,6 +3139,17 @@ package body Editor.Command_Palette.Tests is
       Assert_Query_Finds
         ("build", Editor.Commands.Command_Build_Run, "Run Build");
       Assert_Query_Finds
+        ("run", Editor.Commands.Command_Run_Project, "Run Project");
+      Assert_Query_Finds
+        ("tests", Editor.Commands.Command_Run_Tests, "Run Tests");
+      Assert_Query_Finds
+        ("terminal", Editor.Commands.Command_Terminal_Show, "Show Terminal");
+      Assert_Query_Finds
+        ("rename", Editor.Commands.Command_Rename_Symbol_Preview,
+         "Preview Rename Symbol");
+      Assert_Query_Finds
+        ("format", Editor.Commands.Command_Format_Buffer, "Format Buffer");
+      Assert_Query_Finds
         ("search", Editor.Commands.Command_Open_Project_Search_Bar,
          "Show Project Search");
       Assert_Query_Finds
@@ -2882,15 +3159,272 @@ package body Editor.Command_Palette.Tests is
         ("diagnostics", Editor.Commands.Command_Diagnostics_Show,
          "Show Diagnostics");
       Assert_Query_Finds
+        ("problems", Editor.Commands.Command_Problems_Filter_Errors,
+         "Show Problem Errors");
+      Assert_Query_Finds
+        ("errors", Editor.Commands.Command_Problems_Filter_Errors,
+         "Show Problem Errors");
+      Assert_Query_Finds
+        ("warnings", Editor.Commands.Command_Problems_Filter_Warnings,
+         "Show Problem Warnings");
+      Assert_Query_Finds
         ("buffer", Editor.Commands.Command_Open_Buffer_Switcher,
          "Show Open Buffer List");
       Assert_Query_Finds
+        ("command", Editor.Commands.Command_Palette_Show_Command_Help,
+         "Command Palette Help");
+      Assert_Query_Finds
+        ("file", Editor.Commands.Command_Open_Quick_Open,
+         "Quick Open");
+      Assert_Query_Finds
+        ("navigation", Editor.Commands.Command_Navigation_Back,
+         "Navigation Back");
+      Assert_Query_Finds
+        ("workspace", Editor.Commands.Command_Save_Workspace_State,
+         "Save Workspace State");
+      Assert_Query_Finds
+        ("recovery", Editor.Commands.Command_Configuration_Recover_Show,
+         "Show Configuration Recovery");
+      Assert_Query_Finds
         ("settings", Editor.Commands.Command_Reset_Settings_To_Defaults,
          "Reset Settings to Defaults");
-   end Test_Phase578_Common_User_Terms_Discover_Core_Commands;
+   end Test_Common_User_Terms_Discover_Core_Commands;
+
+   procedure Test_Common_User_Terms_Rank_Daily_Commands_First
+     (T : in out AUnit.Test_Cases.Test_Case'Class) is
+      pragma Unreferenced (T);
+
+      procedure Assert_Query_Ranks_First
+        (Query : String;
+         Id    : Editor.Commands.Command_Id;
+         Label : String)
+      is
+         S : Editor.State.State_Type;
+         Candidates : Editor.Commands.Command_Palette_Candidate_Vectors.Vector;
+         Stable : constant String := Editor.Commands.Stable_Command_Name (Id);
+         Found : Boolean := False;
+         Roundtrip : Editor.Commands.Command_Id := Editor.Commands.No_Command;
+      begin
+         Roundtrip := Editor.Commands.Command_Id_From_Stable_Name (Stable, Found);
+         Assert (Found and then Roundtrip = Id,
+                 "common-term ranking command must round-trip stable name: "
+                 & Stable);
+         Editor.State.Init (S);
+         Editor.Command_Palette.Reset;
+         Editor.Command_Palette.Open;
+         Editor.Command_Palette.Insert_Text (Query);
+         Editor.Executor.Command_Palette_Candidates (S, Candidates);
+         Assert (Candidates.Length > 0,
+                 "command palette query '" & Query & "' should produce candidates");
+         Assert (Candidates.Element (0).Id = Id,
+                 "command palette query '" & Query &
+                 "' should rank " & Label & " first");
+         Editor.Command_Palette.Reset;
+      end Assert_Query_Ranks_First;
+   begin
+      Assert_Query_Ranks_First
+        ("open", Editor.Commands.Command_Open_Project, "Open Project");
+      Assert_Query_Ranks_First
+        ("save", Editor.Commands.Command_Save_File, "Save File");
+      Assert_Query_Ranks_First
+        ("file", Editor.Commands.Command_Open_Quick_Open, "Quick Open");
+      Assert_Query_Ranks_First
+        ("build", Editor.Commands.Command_Build_Run, "Run Build");
+      Assert_Query_Ranks_First
+        ("search", Editor.Commands.Command_Open_Project_Search_Bar,
+         "Show Project Search");
+      Assert_Query_Ranks_First
+        ("outline", Editor.Commands.Command_Refresh_Outline,
+         "Refresh Outline");
+      Assert_Query_Ranks_First
+        ("diagnostics", Editor.Commands.Command_Diagnostics_Show,
+         "Show Diagnostics");
+      Assert_Query_Ranks_First
+        ("navigation", Editor.Commands.Command_Navigation_Back,
+         "Navigation Back");
+      Assert_Query_Ranks_First
+        ("workspace", Editor.Commands.Command_Save_Workspace_State,
+         "Save Workspace State");
+      Assert_Query_Ranks_First
+        ("settings", Editor.Commands.Command_Reset_Settings_To_Defaults,
+         "Reset Settings to Defaults");
+   end Test_Common_User_Terms_Rank_Daily_Commands_First;
+
+   procedure Test_Multi_Word_User_Intents_Rank_Daily_Commands_First
+     (T : in out AUnit.Test_Cases.Test_Case'Class) is
+      pragma Unreferenced (T);
+
+      procedure Assert_Query_Ranks_First
+        (Query : String;
+         Id    : Editor.Commands.Command_Id;
+         Label : String)
+      is
+         S : Editor.State.State_Type;
+         Candidates : Editor.Commands.Command_Palette_Candidate_Vectors.Vector;
+      begin
+         Editor.State.Init (S);
+         Editor.Command_Palette.Reset;
+         Editor.Command_Palette.Open;
+         Editor.Command_Palette.Insert_Text (Query);
+         Editor.Executor.Command_Palette_Candidates (S, Candidates);
+         Assert (Candidates.Length > 0,
+                 "command palette query '" & Query & "' should produce candidates");
+         Assert (Candidates.Element (0).Id = Id,
+                 "command palette query '" & Query &
+                 "' should rank " & Label & " first");
+         Editor.Command_Palette.Reset;
+      end Assert_Query_Ranks_First;
+   begin
+      Assert_Query_Ranks_First
+        ("run tests", Editor.Commands.Command_Run_Tests,
+         "Run Tests");
+      Assert_Query_Ranks_First
+        ("open file", Editor.Commands.Command_Open_Quick_Open,
+         "Quick Open");
+      Assert_Query_Ranks_First
+        ("show diagnostics", Editor.Commands.Command_Diagnostics_Show,
+         "Show Diagnostics");
+      Assert_Query_Ranks_First
+        ("issues", Editor.Commands.Command_Diagnostics_Show,
+         "Show Diagnostics");
+      Assert_Query_Ranks_First
+        ("compile", Editor.Commands.Command_Build_Run,
+         "Run Build");
+      Assert_Query_Ranks_First
+        ("make", Editor.Commands.Command_Build_Run,
+         "Run Build");
+      Assert_Query_Ranks_First
+        ("refresh project", Editor.Commands.Command_Refresh_File_Tree,
+         "Refresh File Tree");
+      Assert_Query_Ranks_First
+        ("filter errors", Editor.Commands.Command_Problems_Filter_Errors,
+         "Show Problem Errors");
+      Assert_Query_Ranks_First
+        ("sort problems", Editor.Commands.Command_Problems_Sort_By_Severity,
+         "Sort Problems by Severity");
+      Assert_Query_Ranks_First
+        ("group problems", Editor.Commands.Command_Problems_Group_By_Source,
+         "Group Problems by Source");
+      Assert_Query_Ranks_First
+        ("restore workspace", Editor.Commands.Command_Restore_Workspace_State,
+         "Restore Workspace State");
+      Assert_Query_Ranks_First
+        ("open session", Editor.Commands.Command_Restore_Workspace_State,
+         "Restore Workspace State");
+   end Test_Multi_Word_User_Intents_Rank_Daily_Commands_First;
+
+   procedure Test_Common_User_Terms_Rank_Related_Commands_In_Top_Band
+     (T : in out AUnit.Test_Cases.Test_Case'Class) is
+      pragma Unreferenced (T);
+
+      procedure Assert_Query_Top_Band_Contains
+        (Query : String;
+         Id    : Editor.Commands.Command_Id;
+         Label : String)
+      is
+         S : Editor.State.State_Type;
+         Candidates : Editor.Commands.Command_Palette_Candidate_Vectors.Vector;
+         Limit : Natural := 0;
+         Found : Boolean := False;
+      begin
+         Editor.State.Init (S);
+         Editor.Command_Palette.Reset;
+         Editor.Command_Palette.Open;
+         Editor.Command_Palette.Insert_Text (Query);
+         Editor.Executor.Command_Palette_Candidates (S, Candidates);
+         Assert (Candidates.Length > 0,
+                 "command palette query '" & Query & "' should produce candidates");
+
+         Limit := Natural'Min (5, Natural (Candidates.Length));
+         for I in 0 .. Limit - 1 loop
+            if Candidates.Element (I).Id = Id then
+               Found := True;
+            end if;
+         end loop;
+
+         Assert (Found,
+                 "command palette query '" & Query &
+                 "' should keep " & Label & " in the top band");
+         Editor.Command_Palette.Reset;
+      end Assert_Query_Top_Band_Contains;
+   begin
+      Assert_Query_Top_Band_Contains
+        ("file", Editor.Commands.Command_Open_Quick_Open, "Quick Open");
+      Assert_Query_Top_Band_Contains
+        ("file", Editor.Commands.Command_Save_File, "Save File");
+      Assert_Query_Top_Band_Contains
+        ("search", Editor.Commands.Command_Open_Project_Search_Bar,
+         "Show Project Search");
+      Assert_Query_Top_Band_Contains
+        ("search", Editor.Commands.Command_Run_Project_Search,
+         "Run Project Search");
+      Assert_Query_Top_Band_Contains
+        ("run", Editor.Commands.Command_Run_Project,
+         "Run Project");
+      Assert_Query_Top_Band_Contains
+        ("run", Editor.Commands.Command_Terminal_Run_Selected_Task,
+         "Terminal: Run Selected Task");
+      Assert_Query_Top_Band_Contains
+        ("tests", Editor.Commands.Command_Run_Tests,
+         "Run Tests");
+      Assert_Query_Top_Band_Contains
+        ("terminal", Editor.Commands.Command_Terminal_Show,
+         "Show Terminal");
+      Assert_Query_Top_Band_Contains
+        ("terminal", Editor.Commands.Command_Terminal_Run_Selected_Task,
+         "Terminal: Run Selected Task");
+      Assert_Query_Top_Band_Contains
+        ("rename", Editor.Commands.Command_Rename_Symbol_Preview,
+         "Preview Rename Symbol");
+      Assert_Query_Top_Band_Contains
+        ("rename", Editor.Commands.Command_Rename_Symbol_Apply,
+         "Apply Rename Symbol");
+      Assert_Query_Top_Band_Contains
+        ("format", Editor.Commands.Command_Format_Buffer,
+         "Format Buffer");
+      Assert_Query_Top_Band_Contains
+        ("format", Editor.Commands.Command_Format_Selected_Text,
+         "Format Selection");
+      Assert_Query_Top_Band_Contains
+        ("problems", Editor.Commands.Command_Problems_Filter_All,
+         "Show All Problems");
+      Assert_Query_Top_Band_Contains
+        ("problems", Editor.Commands.Command_Problems_Filter_Errors,
+         "Show Problem Errors");
+      Assert_Query_Top_Band_Contains
+        ("errors", Editor.Commands.Command_Problems_Filter_Errors,
+         "Show Problem Errors");
+      Assert_Query_Top_Band_Contains
+        ("warnings", Editor.Commands.Command_Problems_Filter_Warnings,
+         "Show Problem Warnings");
+      Assert_Query_Top_Band_Contains
+        ("info", Editor.Commands.Command_Problems_Filter_Info,
+         "Show Problem Info");
+      Assert_Query_Top_Band_Contains
+        ("hints", Editor.Commands.Command_Problems_Filter_Hints,
+         "Show Problem Hints");
+      Assert_Query_Top_Band_Contains
+        ("workspace", Editor.Commands.Command_Save_Workspace_State,
+         "Save Workspace State");
+      Assert_Query_Top_Band_Contains
+        ("workspace", Editor.Commands.Command_Restore_Workspace_State,
+         "Restore Workspace State");
+      Assert_Query_Top_Band_Contains
+        ("recovery", Editor.Commands.Command_Configuration_Recover_Show,
+         "Show Configuration Recovery");
+      Assert_Query_Top_Band_Contains
+        ("restore", Editor.Commands.Command_Restore_Workspace_State,
+         "Restore Workspace State");
+      Assert_Query_Top_Band_Contains
+        ("settings", Editor.Commands.Command_Reset_Settings_To_Defaults,
+         "Reset Settings to Defaults");
+      Assert_Query_Top_Band_Contains
+        ("settings", Editor.Commands.Command_Configuration_Reset_Keybindings,
+         "Reset Keybindings");
+   end Test_Common_User_Terms_Rank_Related_Commands_In_Top_Band;
 
 
-   procedure Test_Phase578_Command_Help_Uses_Real_Availability_And_Metadata
+   procedure Test_Command_Help_Uses_Real_Availability_And_Metadata
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
       pragma Unreferenced (T);
       S : Editor.State.State_Type;
@@ -2939,10 +3473,10 @@ package body Editor.Command_Palette.Tests is
       Assert (Found,
               "Test setup must project Save File through the real command palette candidate path");
       Editor.Command_Palette.Reset;
-   end Test_Phase578_Command_Help_Uses_Real_Availability_And_Metadata;
+   end Test_Command_Help_Uses_Real_Availability_And_Metadata;
 
 
-   procedure Test_Phase578_Command_Discovery_Hides_Internal_Commands
+   procedure Test_Command_Discovery_Hides_Internal_Commands
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
       pragma Unreferenced (T);
       Results : Editor.Commands.Command_Descriptor_Vectors.Vector;
@@ -2959,10 +3493,10 @@ package body Editor.Command_Palette.Tests is
                  "Hidden/internal message-dismiss commands must not leak into palette discovery");
       end loop;
       Editor.Command_Palette.Reset;
-   end Test_Phase578_Command_Discovery_Hides_Internal_Commands;
+   end Test_Command_Discovery_Hides_Internal_Commands;
 
 
-   procedure Test_Phase578_Suggested_Action_Labels_Match_Command_Palette_Titles
+   procedure Test_Suggested_Action_Labels_Match_Command_Palette_Titles
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
       pragma Unreferenced (T);
       S : Editor.State.State_Type;
@@ -2992,7 +3526,7 @@ package body Editor.Command_Palette.Tests is
       Assert (Editor.Empty_State_Guidance.Suggestion_Is_Activation_Safe
                 (Suggestion),
               "Guided suggestion must be descriptor-consistent and payload-free");
-   end Test_Phase578_Suggested_Action_Labels_Match_Command_Palette_Titles;
+   end Test_Suggested_Action_Labels_Match_Command_Palette_Titles;
 
 
    overriding function Name
@@ -3027,191 +3561,212 @@ package body Editor.Command_Palette.Tests is
         (T, Test_Input_Field_Delete_Forward_And_Snapshot'Access,
          "Palette Input Field Delete Forward And Snapshot");
       AUnit.Test_Cases.Registration.Register_Routine
-        (T, Test_Phase214_Stable_Command_Id_Filtering'Access,
-         "Phase 214 stable command id filtering");
+        (T, Test_Stable_Command_Id_Filtering'Access,
+         "stable command id filtering");
       AUnit.Test_Cases.Registration.Register_Routine
-        (T, Test_Phase214_Query_Change_Preserves_Visible_Command'Access,
-         "Phase 214 query preserves visible command");
+        (T, Test_Query_Change_Preserves_Visible_Command'Access,
+         "query preserves visible command");
       AUnit.Test_Cases.Registration.Register_Routine
-        (T, Test_Phase214_Hidden_Unavailable_Rows_Produce_Empty_State'Access,
-         "Phase 214 hidden unavailable rows produce empty state");
+        (T, Test_Hidden_Unavailable_Rows_Produce_Empty_State'Access,
+         "hidden unavailable rows produce empty state");
       AUnit.Test_Cases.Registration.Register_Routine
-        (T, Test_Phase214_Palette_Query_Does_Not_Expose_Public_Build'Access,
-         "Phase 214 palette query does not expose public build");
+        (T, Test_Palette_Query_Does_Not_Expose_Public_Build'Access,
+         "palette query does not expose public build");
       AUnit.Test_Cases.Registration.Register_Routine
-        (T, Test_Phase84_Category_Labels'Access,
-         "Phase 84 category labels");
+        (T, Test_Category_Labels'Access,
+         "category labels");
       AUnit.Test_Cases.Registration.Register_Routine
-        (T, Test_Phase84_Match_Score_Order'Access,
-         "Phase 84 match score order");
+        (T, Test_Match_Score_Order'Access,
+         "match score order");
       AUnit.Test_Cases.Registration.Register_Routine
-        (T, Test_Phase84_Grouped_Snapshot_Rows'Access,
-         "Phase 84 grouped snapshot rows");
+        (T, Test_Grouped_Snapshot_Rows'Access,
+         "grouped snapshot rows");
       AUnit.Test_Cases.Registration.Register_Routine
-        (T, Test_Phase84_Empty_Query_Sort_Keeps_Category_Runs'Access,
-         "Phase 84 empty query category sort");
+        (T, Test_Empty_Query_Sort_Keeps_Category_Runs'Access,
+         "empty query category sort");
       AUnit.Test_Cases.Registration.Register_Routine
-        (T, Test_Phase84_Nonempty_Query_Builds_Flat_Rows'Access,
-         "Phase 84 nonempty query flat rows");
+        (T, Test_Nonempty_Query_Builds_Flat_Rows'Access,
+         "nonempty query flat rows");
       AUnit.Test_Cases.Registration.Register_Routine
-        (T, Test_Phase84_Ensure_Selected_Row_Visible'Access,
-         "Phase 84 selected row visibility");
+        (T, Test_Ensure_Selected_Row_Visible'Access,
+         "selected row visibility");
       AUnit.Test_Cases.Registration.Register_Routine
-        (T, Test_Phase84_Reconcile_Selects_Only_Unavailable_Match'Access,
-         "Phase 84 unavailable-only selection");
+        (T, Test_Reconcile_Selects_Only_Unavailable_Match'Access,
+         "unavailable-only selection");
       AUnit.Test_Cases.Registration.Register_Routine
-        (T, Test_Phase85_Candidate_Includes_Keybinding'Access,
-         "Phase 85 candidate includes keybinding");
+        (T, Test_Candidate_Includes_Keybinding'Access,
+         "candidate includes keybinding");
       AUnit.Test_Cases.Registration.Register_Routine
-        (T, Test_Phase85_Unbound_Candidate_Has_No_Keybinding'Access,
-         "Phase 85 unbound candidate has no keybinding");
+        (T, Test_Unbound_Candidate_Has_No_Keybinding'Access,
+         "unbound candidate has no keybinding");
       AUnit.Test_Cases.Registration.Register_Routine
-        (T, Test_Phase85_Unavailable_Candidate_Still_Shows_Keybinding'Access,
-         "Phase 85 unavailable candidate still shows keybinding");
+        (T, Test_Editor_Workflow_Command_Descriptors_Are_Discoverable'Access,
+         "editor workflow command descriptors are discoverable");
       AUnit.Test_Cases.Registration.Register_Routine
-        (T, Test_Phase564_Filter_Matches_Keybinding_Text'Access,
-         "Phase 564 filter matches keybinding text");
+        (T, Test_Unavailable_Candidate_Still_Shows_Keybinding'Access,
+         "unavailable candidate still shows keybinding");
       AUnit.Test_Cases.Registration.Register_Routine
-        (T, Test_Phase564_Keybinding_Search_Obeys_Display_Setting'Access,
-         "Phase 564 keybinding search obeys display setting");
+        (T, Test_Filter_Matches_Keybinding_Text'Access,
+         "filter matches keybinding text");
       AUnit.Test_Cases.Registration.Register_Routine
-        (T, Test_Phase85_Row_Layout_Right_Aligns_Keybinding'Access,
-         "Phase 85 row layout right-aligns keybinding");
+        (T, Test_Keybinding_Search_Obeys_Display_Setting'Access,
+         "keybinding search obeys display setting");
       AUnit.Test_Cases.Registration.Register_Routine
-        (T, Test_Phase85_Row_Layout_Truncates_Label_Before_Keybinding'Access,
-         "Phase 85 row layout truncates label before keybinding");
+        (T, Test_Row_Layout_Right_Aligns_Keybinding'Access,
+         "row layout right-aligns keybinding");
       AUnit.Test_Cases.Registration.Register_Routine
-        (T, Test_Phase85_Row_Layout_Omits_Keybinding_When_Narrow'Access,
-         "Phase 85 row layout omits keybinding when narrow");
+        (T, Test_Row_Layout_Truncates_Label_Before_Keybinding'Access,
+         "row layout truncates label before keybinding");
       AUnit.Test_Cases.Registration.Register_Routine
-        (T, Test_Phase85_Row_Layout_Selected_Reason_Truncates_Before_Keybinding'Access,
-         "Phase 85 row layout truncates reason before keybinding");
+        (T, Test_Row_Layout_Omits_Keybinding_When_Narrow'Access,
+         "row layout omits keybinding when narrow");
       AUnit.Test_Cases.Registration.Register_Routine
-        (T, Test_Phase86_Truncate_With_Ellipsis_Edges'Access,
-         "Phase 86 truncation helper edges");
+        (T, Test_Row_Layout_Selected_Reason_Truncates_Before_Keybinding'Access,
+         "row layout truncates reason before keybinding");
       AUnit.Test_Cases.Registration.Register_Routine
-        (T, Test_Phase86_Command_Row_Layout_Ranges_Do_Not_Overlap'Access,
-         "Phase 86 row layout ranges do not overlap");
+        (T, Test_Truncate_With_Ellipsis_Edges'Access,
+         "truncation helper edges");
       AUnit.Test_Cases.Registration.Register_Routine
-        (T, Test_Phase86_Command_Row_Layout_Omits_Too_Wide_Keybinding'Access,
-         "Phase 86 row layout omits too-wide keybinding");
+        (T, Test_Command_Row_Layout_Ranges_Do_Not_Overlap'Access,
+         "row layout ranges do not overlap");
       AUnit.Test_Cases.Registration.Register_Routine
-        (T, Test_Phase86_Selected_Available_Row_Includes_Description'Access,
-         "Phase 86 selected available row includes description");
+        (T, Test_Command_Row_Layout_Omits_Too_Wide_Keybinding'Access,
+         "row layout omits too-wide keybinding");
       AUnit.Test_Cases.Registration.Register_Routine
-        (T, Test_Phase86_Selected_Unavailable_Row_Includes_Reason'Access,
-         "Phase 86 selected unavailable row includes reason");
+        (T, Test_Selected_Available_Row_Includes_Description'Access,
+         "selected available row includes description");
       AUnit.Test_Cases.Registration.Register_Routine
-        (T, Test_Phase86_Unselected_Row_Omits_Secondary'Access,
-         "Phase 86 unselected row omits secondary");
+        (T, Test_Selected_Unavailable_Row_Includes_Reason'Access,
+         "selected unavailable row includes reason");
       AUnit.Test_Cases.Registration.Register_Routine
-        (T, Test_Phase86_Header_Empty_And_Help_Rows_Are_Non_Keybinding'Access,
-         "Phase 86 non-command rows have no keybindings");
+        (T, Test_Unselected_Row_Omits_Secondary'Access,
+         "unselected row omits secondary");
+      AUnit.Test_Cases.Registration.Register_Routine
+        (T, Test_Header_Empty_And_Help_Rows_Are_Non_Keybinding'Access,
+         "non-command rows have no keybindings");
       AUnit.Test_Cases.Registration.Register_Routine
         (T, Test_Command_Availability_Result_Model'Access,
-         "Phase 83 command availability result model");
+         "command availability result model");
       AUnit.Test_Cases.Registration.Register_Routine
         (T, Test_Palette_Candidate_Includes_Unavailable_Reason'Access,
-         "Phase 83 palette candidate includes unavailable reason");
+         "palette candidate includes unavailable reason");
       AUnit.Test_Cases.Registration.Register_Routine
         (T, Test_Hidden_Command_Availability_Reasons'Access,
-         "Phase 83 hidden command availability reasons");
+         "hidden command availability reasons");
       AUnit.Test_Cases.Registration.Register_Routine
         (T, Test_Enter_Unavailable_Command_Keeps_Palette_Open'Access,
-         "Phase 83 unavailable palette accept keeps palette open");
+         "unavailable palette accept keeps palette open");
       AUnit.Test_Cases.Registration.Register_Routine
-        (T, Test_Phase225_No_Match_Row_Carries_Clear_Query_Hint'Access,
-         "Phase 225 no-match row carries clear-query hint");
+        (T, Test_No_Match_Row_Carries_Clear_Query_Hint'Access,
+         "no-match row carries clear-query hint");
       AUnit.Test_Cases.Registration.Register_Routine
-        (T, Test_Phase225_Hiding_Keybindings_Removes_Row_Shortcut'Access,
-         "Phase 225 hiding keybindings removes row shortcut");
+        (T, Test_Hiding_Keybindings_Removes_Row_Shortcut'Access,
+         "hiding keybindings removes row shortcut");
       AUnit.Test_Cases.Registration.Register_Routine
-        (T, Test_Phase564_Help_Row_Hides_Keybinding_When_Display_Disabled'Access,
-         "Phase 564 help row hides keybinding display setting");
+        (T, Test_Help_Row_Hides_Keybinding_When_Display_Disabled'Access,
+         "help row hides keybinding display setting");
       AUnit.Test_Cases.Registration.Register_Routine
-        (T, Test_Phase564_Build_Command_Help_Obeys_Keybinding_Display_Setting'Access,
-         "Phase 564 command help snapshot obeys keybinding display setting");
+        (T, Test_Build_Command_Help_Obeys_Keybinding_Display_Setting'Access,
+         "command help snapshot obeys keybinding display setting");
       AUnit.Test_Cases.Registration.Register_Routine
-        (T, Test_Phase225_Long_Selected_Description_Truncates_Safely'Access,
-         "Phase 225 long selected description truncates safely");
+        (T, Test_Long_Selected_Description_Truncates_Safely'Access,
+         "long selected description truncates safely");
       AUnit.Test_Cases.Registration.Register_Routine
-        (T, Test_Phase225_Assign_Remove_Reset_Update_Shortcut_Display'Access,
-         "Phase 225 shortcut display follows keybinding changes");
+        (T, Test_Assign_Remove_Reset_Update_Shortcut_Display'Access,
+         "shortcut display follows keybinding changes");
       AUnit.Test_Cases.Registration.Register_Routine
-        (T, Test_Phase564_Discoverability_Category_Refinements'Access,
-         "Phase 564 discoverability category refinements");
+        (T, Test_Discoverability_Category_Refinements'Access,
+         "discoverability category refinements");
       AUnit.Test_Cases.Registration.Register_Routine
-        (T, Test_Phase564_Build_Search_Uses_Refined_Category'Access,
-         "Phase 564 build search uses refined category");
+        (T, Test_Build_Search_Uses_Refined_Category'Access,
+         "build search uses refined category");
       AUnit.Test_Cases.Registration.Register_Routine
-        (T, Test_Phase564_Command_Help_Is_Metadata_Only'Access,
-         "Phase 564 command help is metadata only");
+        (T, Test_Command_Help_Is_Metadata_Only'Access,
+         "command help is metadata only");
       AUnit.Test_Cases.Registration.Register_Routine
-        (T, Test_Phase570_Related_Command_Help_Is_Bounded_And_Payload_Free'Access,
-         "Phase 570 related command help is bounded and payload-free");
+        (T, Test_Related_Command_Help_Is_Bounded_And_Payload_Free'Access,
+         "related command help is bounded and payload-free");
       AUnit.Test_Cases.Registration.Register_Routine
-        (T, Test_Phase570_Related_Command_Help_Rejects_Target_Like_Names'Access,
-         "Phase 570 related command help rejects target-like names");
+        (T, Test_Related_Command_Help_Covers_Editor_Workflow_Families'Access,
+         "related command help covers editor workflow families");
       AUnit.Test_Cases.Registration.Register_Routine
-        (T, Test_Phase570_Related_Command_Help_Uses_Canonical_Projection'Access,
-         "Phase 570 related command help uses canonical projection");
+        (T, Test_Related_Command_Help_Rejects_Target_Like_Names'Access,
+         "related command help rejects target-like names");
       AUnit.Test_Cases.Registration.Register_Routine
-        (T, Test_Phase570_Related_Command_Help_Rejects_Duplicates_And_Tail_State'Access,
-         "Phase 570 related command help rejects duplicates and tail state");
+        (T, Test_Related_Command_Help_Uses_Canonical_Projection'Access,
+         "related command help uses canonical projection");
       AUnit.Test_Cases.Registration.Register_Routine
-        (T, Test_Phase564_Selected_Help_Row_Is_Display_Only'Access,
-         "Phase 564 selected help row is display only");
+        (T, Test_Related_Command_Help_Rejects_Duplicates_And_Tail_State'Access,
+         "related command help rejects duplicates and tail state");
       AUnit.Test_Cases.Registration.Register_Routine
-        (T, Test_Phase564_Discoverability_Metadata_Audit'Access,
-         "Phase 564 discoverability metadata audit");
+        (T, Test_Related_Command_Help_Matches_Status_Action_Surfaces'Access,
+         "related command help matches status action surfaces");
       AUnit.Test_Cases.Registration.Register_Routine
-        (T, Test_Phase564_Filter_Recomputes_Keybinding_Metadata'Access,
-         "Phase 564 filter recomputes keybinding metadata");
+        (T, Test_Selected_Help_Row_Is_Display_Only'Access,
+         "selected help row is display only");
       AUnit.Test_Cases.Registration.Register_Routine
-        (T, Test_Phase564_Help_Row_Display_Config_Is_Transient'Access,
-         "Phase 564 help row display config is transient");
+        (T, Test_Discoverability_Metadata_Audit'Access,
+         "discoverability metadata audit");
       AUnit.Test_Cases.Registration.Register_Routine
-        (T, Test_Phase564_Close_Clears_Command_Palette_Transient_State'Access,
-         "Phase 564 close clears command palette transient state");
+        (T, Test_Filter_Recomputes_Keybinding_Metadata'Access,
+         "filter recomputes keybinding metadata");
       AUnit.Test_Cases.Registration.Register_Routine
-        (T, Test_Phase564_Show_Command_Help_Command_Is_Discoverable_And_Transient'Access,
-         "Phase 564 show command help command is discoverable and transient");
+        (T, Test_Help_Row_Display_Config_Is_Transient'Access,
+         "help row display config is transient");
       AUnit.Test_Cases.Registration.Register_Routine
-        (T, Test_Phase564_Show_Command_Help_Requires_Open_Palette'Access,
-         "Phase 564 show command help requires open palette");
+        (T, Test_Close_Clears_Command_Palette_Transient_State'Access,
+         "close clears command palette transient state");
       AUnit.Test_Cases.Registration.Register_Routine
-        (T, Test_Phase564_Keyboard_Selection_Uses_Visible_Candidates'Access,
-         "Phase 564 keyboard selection uses visible candidates");
+        (T, Test_Show_Command_Help_Command_Is_Discoverable_And_Transient'Access,
+         "show command help command is discoverable and transient");
       AUnit.Test_Cases.Registration.Register_Routine
-        (T, Test_Phase564_Surface_And_Guard_Help_Metadata'Access,
-         "Phase 564 help exposes surface and guard metadata");
+        (T, Test_Show_Command_Help_Requires_Open_Palette'Access,
+         "show command help requires open palette");
       AUnit.Test_Cases.Registration.Register_Routine
-        (T, Test_Phase564_Visibility_Filter_Controls_Selection_And_Snapshot'Access,
-         "Phase 564 visible candidates drive selection and snapshot");
+        (T, Test_Keyboard_Selection_Uses_Visible_Candidates'Access,
+         "keyboard selection uses visible candidates");
       AUnit.Test_Cases.Registration.Register_Routine
-        (T, Test_Phase564_Snapshot_Selection_Clamps_To_Visible_Candidates'Access,
-         "Phase 564 snapshot selection clamps to visible candidates");
+        (T, Test_Surface_And_Guard_Help_Metadata'Access,
+         "help exposes surface and guard metadata");
       AUnit.Test_Cases.Registration.Register_Routine
-        (T, Test_Phase564_Surface_Relevance_Ranking_Uses_Previous_Focus'Access,
-         "Phase 564 surface relevance ranks previous focus commands");
+        (T, Test_Visibility_Filter_Controls_Selection_And_Snapshot'Access,
+         "visible candidates drive selection and snapshot");
       AUnit.Test_Cases.Registration.Register_Routine
-        (T, Test_Phase564_Hidden_Minimal_Descriptors_Do_Not_Break_Discovery_Audit'Access,
-         "Phase 564 hidden minimal descriptors keep discovery audit coherent");
+        (T, Test_Snapshot_Selection_Clamps_To_Visible_Candidates'Access,
+         "snapshot selection clamps to visible candidates");
       AUnit.Test_Cases.Registration.Register_Routine
-        (T, Test_Phase564_Command_Kind_Help_Uses_Guarded_Command_Id_Path'Access,
-         "Phase 564 command-kind help route uses guarded command id path");
+        (T, Test_Surface_Relevance_Ranking_Uses_Previous_Focus'Access,
+         "surface relevance ranks previous focus commands");
       AUnit.Test_Cases.Registration.Register_Routine
-        (T, Test_Phase578_Common_User_Terms_Discover_Core_Commands'Access,
-         "Phase 578 common user terms discover core commands");
+        (T, Test_Hidden_Minimal_Descriptors_Do_Not_Break_Discovery_Audit'Access,
+         "hidden minimal descriptors keep discovery audit coherent");
       AUnit.Test_Cases.Registration.Register_Routine
-        (T, Test_Phase578_Command_Help_Uses_Real_Availability_And_Metadata'Access,
-         "Phase 578 command help uses real availability and metadata");
+        (T, Test_Command_Kind_Help_Uses_Guarded_Command_Id_Path'Access,
+         "command-kind help route uses guarded command id path");
       AUnit.Test_Cases.Registration.Register_Routine
-        (T, Test_Phase578_Command_Discovery_Hides_Internal_Commands'Access,
-         "Phase 578 command discovery hides internal commands");
+        (T, Test_Common_User_Terms_Discover_Core_Commands'Access,
+         "common user terms discover core commands");
       AUnit.Test_Cases.Registration.Register_Routine
-        (T, Test_Phase578_Suggested_Action_Labels_Match_Command_Palette_Titles'Access,
-         "Phase 578 suggested action labels match palette titles");
+        (T, Test_Common_User_Terms_Rank_Daily_Commands_First'Access,
+         "common user terms rank daily commands first");
+      AUnit.Test_Cases.Registration.Register_Routine
+        (T, Test_Multi_Word_User_Intents_Rank_Daily_Commands_First'Access,
+         "multi-word user intents rank daily commands first");
+      AUnit.Test_Cases.Registration.Register_Routine
+        (T, Test_Common_User_Terms_Rank_Related_Commands_In_Top_Band'Access,
+         "common user terms keep related commands in top band");
+      AUnit.Test_Cases.Registration.Register_Routine
+        (T, Test_Command_Help_Uses_Real_Availability_And_Metadata'Access,
+         "command help uses real availability and metadata");
+      AUnit.Test_Cases.Registration.Register_Routine
+        (T, Test_Problems_And_Build_Command_Families_Are_Audited'Access,
+         "Problems and Build command families are audited");
+      AUnit.Test_Cases.Registration.Register_Routine
+        (T, Test_Command_Discovery_Hides_Internal_Commands'Access,
+         "command discovery hides internal commands");
+      AUnit.Test_Cases.Registration.Register_Routine
+        (T, Test_Suggested_Action_Labels_Match_Command_Palette_Titles'Access,
+         "suggested action labels match palette titles");
       AUnit.Test_Cases.Registration.Register_Routine
         (T, Test_Command_Descriptor_Registry_Coverage'Access,
          "Command Descriptor Registry Coverage");
@@ -3235,10 +3790,10 @@ package body Editor.Command_Palette.Tests is
          "Message Command Descriptors And Dispatch");
       AUnit.Test_Cases.Registration.Register_Routine
         (T, Test_Bookmark_Command_Descriptors_Exist'Access,
-         "Phase 62 Bookmark Command Descriptors Exist");
+         "Bookmark Command Descriptors Exist");
       AUnit.Test_Cases.Registration.Register_Routine
         (T, Test_Bookmark_Command_Id_Dispatch'Access,
-         "Phase 62 Bookmark Command Id Dispatch");
+         "Bookmark Command Id Dispatch");
    end Register_Tests;
 
 end Editor.Command_Palette.Tests;

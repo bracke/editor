@@ -1,10 +1,10 @@
 with Ada.Strings.Unbounded; use Ada.Strings.Unbounded;
 with AUnit.Assertions; use AUnit.Assertions;
 with AUnit.Test_Cases;
-with Editor.Ada_RM_Remaining_Gap_Remediation_Pass1423;
+with Editor.Ada_RM_Remaining_Gap_Remediation_Case_1423;
 
 package body Test_Ada_RM_Remaining_Gap_Remediation_Case_1423 is
-   package Audit renames Editor.Ada_RM_Remaining_Gap_Remediation_Pass1423;
+   package Audit renames Editor.Ada_RM_Remaining_Gap_Remediation_Case_1423;
    use type Audit.RM_Family;
    use type Audit.Implementing_Slice;
    use type Audit.Coverage_Level;
@@ -61,8 +61,8 @@ package body Test_Ada_RM_Remaining_Gap_Remediation_Case_1423 is
            & "stale access-subprogram evidence, and semantic consumers must"
            & "share one source-shaped legality result");
       Row.Candidate_Implementing_Package :=
-        To_Unbounded_String ("Editor.Ada_RM_Remaining_Gap_Remediation_Pass1423");
-      Row.Candidate_Pass := To_Unbounded_String ("Pass1423");
+        To_Unbounded_String ("Editor.Ada_RM_Remaining_Gap_Remediation_Case_1423");
+      Row.Candidate_Case := To_Unbounded_String ("Case 1423");
       Row.Blocker_Family := To_Unbounded_String ("RM.Access_Subprogram.Effect_Profile");
       return Row;
    end Base_Row;
@@ -74,9 +74,9 @@ package body Test_Ada_RM_Remaining_Gap_Remediation_Case_1423 is
       Expected : Audit.Precision_Classification) is
       Item : constant Audit.Remediation_Entry := Audit.Result_For (Results, Id);
    begin
-      Assert (Item.Status = Status, "unexpected pass1423 status");
+      Assert (Item.Status = Status, "unexpected case 1423 status");
       Assert (Audit.Expected_For_Status (Item.Status) = Expected,
-              "unexpected pass1423 precision classification");
+              "unexpected case 1423 precision classification");
    end Expect_Status;
 
    procedure Test_Gap_Remediated
@@ -122,7 +122,7 @@ package body Test_Ada_RM_Remaining_Gap_Remediation_Case_1423 is
       Results := Audit.Build (Input);
 
       Assert (Audit.Gap_Remediated (Results),
-              "pass1423 should close the access subprogram effect profile gap");
+              "case 1423 should close the access subprogram effect profile gap");
       Assert (Results.Remediated_Count >= 2, "legal count");
       Assert (Results.Illegal_Count = 1, "illegal count");
       Assert (Results.Runtime_Check_Count = 1, "runtime-check count");
@@ -243,7 +243,7 @@ package body Test_Ada_RM_Remaining_Gap_Remediation_Case_1423 is
       Row : Audit.Remediation_Row;
    begin
       Row := Base_Row (20);
-      Row.Inventory_Row_From_Pass1366 := False;
+      Row.Inventory_Row_From_Final_Burn_Down := False;
       Audit.Add_Row (Input, Row);
 
       Row := Base_Row (21);
@@ -286,7 +286,7 @@ package body Test_Ada_RM_Remaining_Gap_Remediation_Case_1423 is
 
       Expect_Status
         (Results, 20,
-         Audit.Status_Missing_Pass1366_Inventory_Row,
+         Audit.Status_Missing_Final_Inventory_Row,
          Precision.Class_Indeterminate);
       Expect_Status
         (Results, 21,

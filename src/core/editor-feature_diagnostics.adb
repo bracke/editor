@@ -3,6 +3,8 @@ with Ada.Containers.Vectors;
 with Ada.Strings;
 with Ada.Strings.Fixed;
 with Ada.Strings.Unbounded; use Ada.Strings.Unbounded;
+with Editor.Ada_Semantic_Diagnostic_Feed;
+with Editor.Commands;
 with Editor.Contextual_Help;
 
 package body Editor.Feature_Diagnostics is
@@ -21,6 +23,7 @@ package body Editor.Feature_Diagnostics is
    --  analysis, diagnostic history, or persisted filter/group projection state.
 
    use type Editor.Feature_Panel.Feature_Id;
+   use type Editor.Ada_Diagnostic_Command_Projection.Diagnostic_Command_Kind;
 
    package Visible_Row_Index_Vectors is new Ada.Containers.Vectors
      (Index_Type   => Natural,
@@ -117,7 +120,7 @@ package body Editor.Feature_Diagnostics is
       elsif Item.Target_Buffer = No_Buffer then
          return "Target file missing";
       elsif Item.Is_Stale then
-         return "Target is stale; refresh required.";
+         return Editor.Commands.Reason_Target_Stale;
       else
          return "";
       end if;
@@ -130,7 +133,7 @@ package body Editor.Feature_Diagnostics is
          return Source;
       elsif Item.Target_Buffer /= No_Buffer then
          --  Producers are allowed to omit a source/path label while still
-         --  retaining a buffer target.  Phase 557 treats that as an unlabeled
+         --  retaining a buffer target.  treats that as an unlabeled
          --  target source, not as a true source-less diagnostic.  Keep the
          --  filter key narrow: it may include stable source identity metadata
          --  such as the retained buffer token, but never review status text.
@@ -250,6 +253,57 @@ package body Editor.Feature_Diagnostics is
         (Replacement_Text, Max_Diagnostic_Message_Text_Length, "");
    end Normalize_Replacement_Text;
 
+   function Normalize_Quick_Fix_Metadata (Text : String) return String is
+   begin
+      return Bounded_Text (Text, Max_Diagnostic_Message_Text_Length, "");
+   end Normalize_Quick_Fix_Metadata;
+
+   function Quick_Fix_Action_Model_For
+     (Primary_Action_Kind :
+        Editor.Ada_Diagnostic_Command_Projection.Diagnostic_Command_Kind;
+      Has_Edit : Boolean) return Diagnostic_Quick_Fix_Action_Model
+   is
+      Has_Command : constant Boolean :=
+        Primary_Action_Kind /=
+        Editor.Ada_Diagnostic_Command_Projection.Diagnostic_Command_None;
+   begin
+      if Has_Edit and then Has_Command then
+         return Quick_Fix_Action_Edit_And_Command;
+      elsif Has_Edit then
+         return Quick_Fix_Action_Edit;
+      elsif Has_Command then
+         return Quick_Fix_Action_Command;
+      else
+         return Quick_Fix_Action_Unavailable;
+      end if;
+   end Quick_Fix_Action_Model_For;
+
+   function Diagnostic_Action_Kind_Label
+     (Kind : Editor.Ada_Diagnostic_Command_Projection.Diagnostic_Command_Kind)
+      return String
+   is
+      package Projection renames Editor.Ada_Diagnostic_Command_Projection;
+   begin
+      case Kind is
+         when Projection.Diagnostic_Command_Navigate_To_Diagnostic =>
+            return "Navigate to diagnostic";
+         when Projection.Diagnostic_Command_Explain_Diagnostic =>
+            return "Explain diagnostic";
+         when Projection.Diagnostic_Command_Review_Expression =>
+            return "Review expression";
+         when Projection.Diagnostic_Command_Review_Overload_Ranking =>
+            return "Review overload ranking";
+         when Projection.Diagnostic_Command_Review_Generic =>
+            return "Review generic";
+         when Projection.Diagnostic_Command_Review_Cross_Unit =>
+            return "Review cross-unit context";
+         when Projection.Diagnostic_Command_Review_Representation =>
+            return "Review representation";
+         when Projection.Diagnostic_Command_None =>
+            return "Diagnostic action";
+      end case;
+   end Diagnostic_Action_Kind_Label;
+
    function Panel_Severity
      (Severity : Diagnostic_Severity) return Editor.Feature_Panel.Feature_Row_Severity
    is
@@ -294,12 +348,21 @@ package body Editor.Feature_Diagnostics is
          Max_Diagnostic_Message_Text_Length, "");
    end Label_For;
 
+   function Row_State_Label (Item : Diagnostic_Item) return String;
+
    function Detail_For (Item : Diagnostic_Item) return String is
       Target_Label : constant String := Target_Unavailable_Label (Item);
    begin
-      return Source_Display_Label (Item) &
+      return "state: " & Row_State_Label (Item) & " | " &
+        Source_Display_Label (Item) &
         " | producer: " & Producer_Label (Item) &
-        (if Item.Has_Edit then " | action: Apply edit" else "") &
+        (if Length (Item.Quick_Fix_Label) > 0
+         then " | action: " & To_String (Item.Quick_Fix_Label)
+         elsif Item.Has_Edit then " | action: Apply edit"
+         else "") &
+        (if Length (Item.Quick_Fix_Detail) > 0
+         then " | " & To_String (Item.Quick_Fix_Detail)
+         else "") &
         (if Target_Label'Length = 0 then "" else " | " & Target_Label) &
         (if Item.Is_Stale then " | stale diagnostic" else "");
    end Detail_For;
@@ -562,7 +625,7 @@ package body Editor.Feature_Diagnostics is
                --  Navigation normalizes it to the first column at activation time.
             else
                --  Non-navigable rows may still retain partial target metadata
-               --  supplied by a trusted producer.  Phase 557 uses that metadata
+               --  supplied by a trusted producer.  uses that metadata
                --  for review labels, stale marking, and buffer-close cleanup,
                --  while keeping Has_Target False so navigation remains blocked.
                --  Examples: known buffer but missing line, or known line with
@@ -581,11 +644,12 @@ package body Editor.Feature_Diagnostics is
      (Diagnostics : in out Diagnostics_Feature_State)
    is
    begin
-      --  Phase 557 treats a full clear as returning Diagnostics to the
+      --  treats a full clear as returning Diagnostics to the
       --  unfiltered no-diagnostics review state.  Keep this invariant in the
       --  Diagnostics-owned helper as well as the Executor route so direct
       --  lifecycle/test helpers cannot leave hidden filter predicates behind.
       Diagnostics.Rows.Clear;
+      Diagnostics.Suppressed_Rows.Clear;
       Diagnostics.Filter.Text := Null_Unbounded_String;
       Diagnostics.Filter.Source_Text := Null_Unbounded_String;
       Diagnostics.Filter.Show_Info := True;
@@ -622,7 +686,9 @@ package body Editor.Feature_Diagnostics is
       Edit_Start_Column : Natural := 0;
       Edit_End_Line     : Natural := 0;
       Edit_End_Column   : Natural := 0;
-      Replacement_Text  : String := "")
+      Replacement_Text  : String := "";
+      Quick_Fix_Label   : String := "";
+      Quick_Fix_Detail  : String := "")
    is
       Effective_Target : constant Boolean := Has_Target
         and then Target_Buffer /= No_Buffer
@@ -668,7 +734,35 @@ package body Editor.Feature_Diagnostics is
           Edit_End_Column   => (if Effective_Edit then Edit_End_Column else 0),
           Replacement_Text  =>
             To_Unbounded_String
-              ((if Effective_Edit then Normalize_Replacement_Text (Replacement_Text) else ""))));
+              ((if Effective_Edit then Normalize_Replacement_Text (Replacement_Text) else "")),
+          Quick_Fix_Label   =>
+            To_Unbounded_String
+              (Normalize_Quick_Fix_Metadata (Quick_Fix_Label)),
+          Quick_Fix_Detail  =>
+            To_Unbounded_String
+              (Normalize_Quick_Fix_Metadata (Quick_Fix_Detail)),
+          Quick_Fix_Action_Count => (if Effective_Edit then 1 else 0),
+          Quick_Fix_Actions =>
+            (1 =>
+               (Model =>
+                  Quick_Fix_Action_Model_For
+                    (Primary_Action_Kind, Effective_Edit),
+                Primary_Action_Kind => Primary_Action_Kind,
+                Has_Edit          => Effective_Edit,
+                Edit_Start_Line   => (if Effective_Edit then Edit_Start_Line else 0),
+                Edit_Start_Column => (if Effective_Edit then Edit_Start_Column else 0),
+                Edit_End_Line     => (if Effective_Edit then Edit_End_Line else 0),
+                Edit_End_Column   => (if Effective_Edit then Edit_End_Column else 0),
+                Replacement_Text  =>
+                  To_Unbounded_String
+                    ((if Effective_Edit then Normalize_Replacement_Text (Replacement_Text) else "")),
+                Label             =>
+                  To_Unbounded_String
+                    (Normalize_Quick_Fix_Metadata (Quick_Fix_Label)),
+                Detail            =>
+                  To_Unbounded_String
+                    (Normalize_Quick_Fix_Metadata (Quick_Fix_Detail))),
+             others => <>)));
       if Diagnostics.Next_Id = Diagnostic_Id'Last then
          Diagnostics.Next_Id := Diagnostic_Id'Last;
       else
@@ -677,6 +771,197 @@ package body Editor.Feature_Diagnostics is
       Evict_Old_Diagnostics_If_Needed (Diagnostics);
       Assert_Diagnostics_State_Consistent (Diagnostics);
    end Add_Diagnostic;
+
+   procedure Add_Diagnostic_Command_Descriptor
+     (Diagnostics : in out Diagnostics_Feature_State;
+      Descriptor  :
+        Editor.Ada_Diagnostic_Command_Projection.Diagnostic_Command_Descriptor;
+      Source_Label : String := "Ada semantic diagnostics";
+      Target_Buffer : Natural := No_Buffer)
+   is
+      function Map_Severity return Diagnostic_Severity is
+      begin
+         case Descriptor.Severity is
+            when Editor.Ada_Semantic_Diagnostic_Feed.Semantic_Diagnostic_Feed_Error =>
+               return Diagnostic_Error;
+            when Editor.Ada_Semantic_Diagnostic_Feed.Semantic_Diagnostic_Feed_Warning =>
+               return Diagnostic_Warning;
+            when Editor.Ada_Semantic_Diagnostic_Feed.Semantic_Diagnostic_Feed_Info =>
+               return Diagnostic_Info;
+         end case;
+      end Map_Severity;
+   begin
+      Add_Diagnostic
+        (Diagnostics,
+         Severity     => Map_Severity,
+         Message      => To_String (Descriptor.Diagnostic.Message),
+         Source_Label => Source_Label,
+         Source_Kind  => Editor_Diagnostic_Source,
+         Has_Target   => Target_Buffer /= No_Buffer,
+         Target_Buffer => Target_Buffer,
+         Target_Line   => Descriptor.Start_Line,
+         Target_Column => Descriptor.Start_Column,
+         Primary_Action_Kind => Descriptor.Command_Kind,
+         Has_Edit          => Descriptor.Has_Edit,
+         Edit_Start_Line   => Descriptor.Edit_Start_Line,
+         Edit_Start_Column => Descriptor.Edit_Start_Column,
+         Edit_End_Line     => Descriptor.Edit_End_Line,
+         Edit_End_Column   => Descriptor.Edit_End_Column,
+         Replacement_Text  => To_String (Descriptor.Replacement_Text),
+         Quick_Fix_Label   => To_String (Descriptor.Display_Label),
+         Quick_Fix_Detail  => To_String (Descriptor.Detail));
+   end Add_Diagnostic_Command_Descriptor;
+
+   procedure Append_Diagnostic_Quick_Fix_Internal
+     (Diagnostics : in out Diagnostics_Feature_State;
+      Index       : Positive;
+      Label       : String;
+      Detail      : String := "";
+      Primary_Action_Kind :
+        Editor.Ada_Diagnostic_Command_Projection.Diagnostic_Command_Kind :=
+          Editor.Ada_Diagnostic_Command_Projection.Diagnostic_Command_Explain_Diagnostic;
+      Has_Edit : Boolean := False;
+      Edit_Start_Line   : Natural := 0;
+      Edit_Start_Column : Natural := 0;
+      Edit_End_Line     : Natural := 0;
+      Edit_End_Column   : Natural := 0;
+      Replacement_Text  : String := "")
+   is
+      Item : Diagnostic_Item := Item_At (Diagnostics, Index);
+      Effective_Edit : constant Boolean :=
+        Has_Edit
+        and then Item.Has_Target
+        and then Edit_Start_Line > 0
+        and then Edit_Start_Column > 0
+        and then Edit_End_Line > 0
+        and then Edit_End_Column > 0
+        and then
+          (Edit_End_Line > Edit_Start_Line
+           or else
+             (Edit_End_Line = Edit_Start_Line
+              and then Edit_End_Column >= Edit_Start_Column));
+      Next : constant Natural := Item.Quick_Fix_Action_Count + 1;
+   begin
+      if Next > Max_Quick_Fix_Actions_Per_Diagnostic then
+         return;
+      end if;
+
+      Item.Quick_Fix_Actions (Next) :=
+        (Model =>
+           Quick_Fix_Action_Model_For (Primary_Action_Kind, Effective_Edit),
+         Primary_Action_Kind => Primary_Action_Kind,
+         Has_Edit          => Effective_Edit,
+         Edit_Start_Line   => (if Effective_Edit then Edit_Start_Line else 0),
+         Edit_Start_Column => (if Effective_Edit then Edit_Start_Column else 0),
+         Edit_End_Line     => (if Effective_Edit then Edit_End_Line else 0),
+         Edit_End_Column   => (if Effective_Edit then Edit_End_Column else 0),
+         Replacement_Text  =>
+           To_Unbounded_String
+             ((if Effective_Edit then Normalize_Replacement_Text (Replacement_Text) else "")),
+         Label             =>
+           To_Unbounded_String (Normalize_Quick_Fix_Metadata (Label)),
+         Detail            =>
+           To_Unbounded_String (Normalize_Quick_Fix_Metadata (Detail)));
+      Item.Quick_Fix_Action_Count := Next;
+
+      if Length (Item.Quick_Fix_Label) = 0 then
+         Item.Quick_Fix_Label := Item.Quick_Fix_Actions (Next).Label;
+      end if;
+      if Length (Item.Quick_Fix_Detail) = 0 then
+         Item.Quick_Fix_Detail := Item.Quick_Fix_Actions (Next).Detail;
+      end if;
+
+      Diagnostics.Rows.Replace_Element (Index - 1, Item);
+      Assert_Diagnostics_State_Consistent (Diagnostics);
+   end Append_Diagnostic_Quick_Fix_Internal;
+
+   procedure Append_Diagnostic_Quick_Fix_Command
+     (Diagnostics : in out Diagnostics_Feature_State;
+      Index       : Positive;
+      Label       : String;
+      Detail      : String := "";
+      Primary_Action_Kind :
+        Editor.Ada_Diagnostic_Command_Projection.Diagnostic_Command_Kind)
+   is
+   begin
+      Append_Diagnostic_Quick_Fix_Internal
+        (Diagnostics,
+         Index => Index,
+         Label => Label,
+         Detail => Detail,
+         Primary_Action_Kind => Primary_Action_Kind);
+   end Append_Diagnostic_Quick_Fix_Command;
+
+   procedure Append_Diagnostic_Quick_Fix_Edit
+     (Diagnostics : in out Diagnostics_Feature_State;
+      Index       : Positive;
+      Label       : String;
+      Detail      : String := "";
+      Edit_Start_Line   : Natural;
+      Edit_Start_Column : Natural;
+      Edit_End_Line     : Natural;
+      Edit_End_Column   : Natural;
+      Replacement_Text  : String := "")
+   is
+   begin
+      Append_Diagnostic_Quick_Fix_Internal
+        (Diagnostics,
+         Index => Index,
+         Label => Label,
+         Detail => Detail,
+         Primary_Action_Kind =>
+           Editor.Ada_Diagnostic_Command_Projection.Diagnostic_Command_None,
+         Has_Edit => True,
+         Edit_Start_Line => Edit_Start_Line,
+         Edit_Start_Column => Edit_Start_Column,
+         Edit_End_Line => Edit_End_Line,
+         Edit_End_Column => Edit_End_Column,
+         Replacement_Text => Replacement_Text);
+   end Append_Diagnostic_Quick_Fix_Edit;
+
+   procedure Append_Diagnostic_Quick_Fix_Edit_And_Command
+     (Diagnostics : in out Diagnostics_Feature_State;
+      Index       : Positive;
+      Label       : String;
+      Detail      : String := "";
+      Primary_Action_Kind :
+        Editor.Ada_Diagnostic_Command_Projection.Diagnostic_Command_Kind;
+      Edit_Start_Line   : Natural;
+      Edit_Start_Column : Natural;
+      Edit_End_Line     : Natural;
+      Edit_End_Column   : Natural;
+      Replacement_Text  : String := "")
+   is
+   begin
+      Append_Diagnostic_Quick_Fix_Internal
+        (Diagnostics,
+         Index => Index,
+         Label => Label,
+         Detail => Detail,
+         Primary_Action_Kind => Primary_Action_Kind,
+         Has_Edit => True,
+         Edit_Start_Line => Edit_Start_Line,
+         Edit_Start_Column => Edit_Start_Column,
+         Edit_End_Line => Edit_End_Line,
+         Edit_End_Column => Edit_End_Column,
+         Replacement_Text => Replacement_Text);
+   end Append_Diagnostic_Quick_Fix_Edit_And_Command;
+
+   procedure Append_Diagnostic_Quick_Fix_Unavailable
+     (Diagnostics : in out Diagnostics_Feature_State;
+      Index       : Positive;
+      Label       : String;
+      Detail      : String := "")
+   is
+   begin
+      Append_Diagnostic_Quick_Fix_Internal
+        (Diagnostics,
+         Index => Index,
+         Label => Label,
+         Detail => Detail,
+         Primary_Action_Kind =>
+           Editor.Ada_Diagnostic_Command_Projection.Diagnostic_Command_None);
+   end Append_Diagnostic_Quick_Fix_Unavailable;
 
    function Row_Count
      (Diagnostics : Diagnostics_Feature_State) return Natural
@@ -787,6 +1072,35 @@ package body Editor.Feature_Diagnostics is
       return Target_Unavailable_Label (Item_At (Diagnostics, Index));
    end Item_Target_Unavailable_Label;
 
+   function Row_State_Label (Item : Diagnostic_Item) return String is
+      Target_Label : constant String := Target_Unavailable_Label (Item);
+   begin
+      if Item.Is_Stale then
+         return "stale";
+      elsif Item.Has_Target
+        and then Item.Target_Buffer /= No_Buffer
+        and then Item.Target_Line > 0
+      then
+         return "openable";
+      elsif Target_Label = "No source target" then
+         return "no source";
+      elsif Target_Label = "Target line unavailable" then
+         return "missing line";
+      elsif Target_Label = "Target file missing" then
+         return "missing file";
+      else
+         return "unavailable";
+      end if;
+   end Row_State_Label;
+
+   function Item_Row_State_Label
+     (Diagnostics : Diagnostics_Feature_State;
+      Index       : Positive) return String
+   is
+   begin
+      return Row_State_Label (Item_At (Diagnostics, Index));
+   end Item_Row_State_Label;
+
    function Item_Is_Stale
      (Diagnostics : Diagnostics_Feature_State;
       Index       : Positive) return Boolean
@@ -868,6 +1182,258 @@ package body Editor.Feature_Diagnostics is
    begin
       return To_String (Item_At (Diagnostics, Index).Replacement_Text);
    end Item_Replacement_Text;
+
+   function Item_Quick_Fix_Label
+     (Diagnostics : Diagnostics_Feature_State;
+      Index       : Positive) return String
+   is
+   begin
+      return To_String (Item_At (Diagnostics, Index).Quick_Fix_Label);
+   end Item_Quick_Fix_Label;
+
+   function Item_Quick_Fix_Detail
+     (Diagnostics : Diagnostics_Feature_State;
+      Index       : Positive) return String
+   is
+   begin
+      return To_String (Item_At (Diagnostics, Index).Quick_Fix_Detail);
+   end Item_Quick_Fix_Detail;
+
+   function Item_Quick_Fix_Action_Count
+     (Diagnostics : Diagnostics_Feature_State;
+      Index       : Positive) return Natural
+   is
+   begin
+      return Item_At (Diagnostics, Index).Quick_Fix_Action_Count;
+   end Item_Quick_Fix_Action_Count;
+
+   function Item_Quick_Fix_Action_Label_For_Display
+     (Diagnostics  : Diagnostics_Feature_State;
+      Index        : Positive;
+      Action_Index : Positive) return String
+   is
+      Item : constant Diagnostic_Item := Item_At (Diagnostics, Index);
+   begin
+      if Action_Index > Item.Quick_Fix_Action_Count
+        or else Action_Index > Max_Quick_Fix_Actions_Per_Diagnostic
+      then
+         return "Apply quick fix";
+      end if;
+      declare
+         Action : constant Diagnostic_Quick_Fix_Action :=
+           Item.Quick_Fix_Actions (Action_Index);
+      begin
+         if Length (Action.Label) > 0 then
+            return To_String (Action.Label);
+         elsif Action.Primary_Action_Kind /=
+           Editor.Ada_Diagnostic_Command_Projection.Diagnostic_Command_None
+         then
+            return "Apply quick fix: " &
+              Diagnostic_Action_Kind_Label (Action.Primary_Action_Kind);
+         else
+            return "Apply quick fix";
+         end if;
+      end;
+   end Item_Quick_Fix_Action_Label_For_Display;
+
+   function Item_Quick_Fix_Action_Detail_For_Display
+     (Diagnostics  : Diagnostics_Feature_State;
+      Index        : Positive;
+      Action_Index : Positive) return String
+   is
+      Item : constant Diagnostic_Item := Item_At (Diagnostics, Index);
+   begin
+      if Action_Index > Item.Quick_Fix_Action_Count
+        or else Action_Index > Max_Quick_Fix_Actions_Per_Diagnostic
+      then
+         return "Selected diagnostic has no quick fix";
+      end if;
+      declare
+         Action : constant Diagnostic_Quick_Fix_Action :=
+           Item.Quick_Fix_Actions (Action_Index);
+      begin
+         if Length (Action.Detail) > 0 then
+            return To_String (Action.Detail);
+         elsif Action.Has_Edit then
+            return "Edit "
+              & Ada.Strings.Fixed.Trim (Natural'Image (Action.Edit_Start_Line), Ada.Strings.Both)
+              & ":"
+              & Ada.Strings.Fixed.Trim (Natural'Image (Action.Edit_Start_Column), Ada.Strings.Both)
+              & "-"
+              & Ada.Strings.Fixed.Trim (Natural'Image (Action.Edit_End_Line), Ada.Strings.Both)
+              & ":"
+              & Ada.Strings.Fixed.Trim (Natural'Image (Action.Edit_End_Column), Ada.Strings.Both)
+              & ", replacement "
+              & Ada.Strings.Fixed.Trim
+                (Natural'Image (Length (Action.Replacement_Text)), Ada.Strings.Both)
+              & " chars";
+         elsif Action.Primary_Action_Kind /=
+           Editor.Ada_Diagnostic_Command_Projection.Diagnostic_Command_None
+         then
+            return "Diagnostic action: "
+              & Diagnostic_Action_Kind_Label (Action.Primary_Action_Kind);
+         else
+            return "Selected diagnostic has no quick fix";
+         end if;
+      end;
+   end Item_Quick_Fix_Action_Detail_For_Display;
+
+   function Quick_Fix_Action_At
+     (Diagnostics  : Diagnostics_Feature_State;
+      Index        : Positive;
+      Action_Index : Positive) return Diagnostic_Quick_Fix_Action
+   is
+      Item : constant Diagnostic_Item := Item_At (Diagnostics, Index);
+   begin
+      if Action_Index > Item.Quick_Fix_Action_Count
+        or else Action_Index > Max_Quick_Fix_Actions_Per_Diagnostic
+      then
+         return (others => <>);
+      end if;
+      return Item.Quick_Fix_Actions (Action_Index);
+   end Quick_Fix_Action_At;
+
+   function Item_Quick_Fix_Action_Kind
+     (Diagnostics  : Diagnostics_Feature_State;
+      Index        : Positive;
+      Action_Index : Positive)
+      return Editor.Ada_Diagnostic_Command_Projection.Diagnostic_Command_Kind
+   is
+   begin
+      return Quick_Fix_Action_At
+        (Diagnostics, Index, Action_Index).Primary_Action_Kind;
+   end Item_Quick_Fix_Action_Kind;
+
+   function Item_Quick_Fix_Action_Model
+     (Diagnostics  : Diagnostics_Feature_State;
+      Index        : Positive;
+      Action_Index : Positive) return Diagnostic_Quick_Fix_Action_Model
+   is
+   begin
+      return Quick_Fix_Action_At
+        (Diagnostics, Index, Action_Index).Model;
+   end Item_Quick_Fix_Action_Model;
+
+   function Item_Quick_Fix_Action_Has_Edit
+     (Diagnostics  : Diagnostics_Feature_State;
+      Index        : Positive;
+      Action_Index : Positive) return Boolean
+   is
+   begin
+      return Quick_Fix_Action_At
+        (Diagnostics, Index, Action_Index).Has_Edit;
+   end Item_Quick_Fix_Action_Has_Edit;
+
+   function Item_Quick_Fix_Action_Edit_Start_Line
+     (Diagnostics  : Diagnostics_Feature_State;
+      Index        : Positive;
+      Action_Index : Positive) return Natural
+   is
+   begin
+      return Quick_Fix_Action_At
+        (Diagnostics, Index, Action_Index).Edit_Start_Line;
+   end Item_Quick_Fix_Action_Edit_Start_Line;
+
+   function Item_Quick_Fix_Action_Edit_Start_Column
+     (Diagnostics  : Diagnostics_Feature_State;
+      Index        : Positive;
+      Action_Index : Positive) return Natural
+   is
+   begin
+      return Quick_Fix_Action_At
+        (Diagnostics, Index, Action_Index).Edit_Start_Column;
+   end Item_Quick_Fix_Action_Edit_Start_Column;
+
+   function Item_Quick_Fix_Action_Edit_End_Line
+     (Diagnostics  : Diagnostics_Feature_State;
+      Index        : Positive;
+      Action_Index : Positive) return Natural
+   is
+   begin
+      return Quick_Fix_Action_At
+        (Diagnostics, Index, Action_Index).Edit_End_Line;
+   end Item_Quick_Fix_Action_Edit_End_Line;
+
+   function Item_Quick_Fix_Action_Edit_End_Column
+     (Diagnostics  : Diagnostics_Feature_State;
+      Index        : Positive;
+      Action_Index : Positive) return Natural
+   is
+   begin
+      return Quick_Fix_Action_At
+        (Diagnostics, Index, Action_Index).Edit_End_Column;
+   end Item_Quick_Fix_Action_Edit_End_Column;
+
+   function Item_Quick_Fix_Action_Replacement_Text
+     (Diagnostics  : Diagnostics_Feature_State;
+      Index        : Positive;
+      Action_Index : Positive) return String
+   is
+   begin
+      return To_String
+        (Quick_Fix_Action_At
+           (Diagnostics, Index, Action_Index).Replacement_Text);
+   end Item_Quick_Fix_Action_Replacement_Text;
+
+   function Quick_Fix_Action_Is_Intrinsically_Available
+     (Diagnostics  : Diagnostics_Feature_State;
+      Index        : Positive;
+      Action_Index : Natural) return Boolean
+   is
+      Count : constant Natural :=
+        Item_Quick_Fix_Action_Count (Diagnostics, Index);
+   begin
+      if Action_Index = 0 or else Action_Index > Count then
+         return False;
+      end if;
+
+      return Item_Quick_Fix_Action_Model
+          (Diagnostics, Index, Positive (Action_Index)) /=
+        Quick_Fix_Action_Unavailable;
+   end Quick_Fix_Action_Is_Intrinsically_Available;
+
+   function Quick_Fix_Action_Intrinsic_Unavailable_Reason
+     (Diagnostics  : Diagnostics_Feature_State;
+      Index        : Positive;
+      Action_Index : Natural) return String
+   is
+      Count : constant Natural :=
+        Item_Quick_Fix_Action_Count (Diagnostics, Index);
+   begin
+      if Count = 0 then
+         return "Selected diagnostic has no quick fix";
+      elsif Action_Index = 0 or else Action_Index > Count then
+         return "Quick fix action unavailable";
+      elsif not Quick_Fix_Action_Is_Intrinsically_Available
+        (Diagnostics, Index, Action_Index)
+      then
+         return "Quick fix action has no valid edit or command";
+      else
+         return "";
+      end if;
+   end Quick_Fix_Action_Intrinsic_Unavailable_Reason;
+
+   function Item_Quick_Fix_Label_For_Display
+     (Diagnostics : Diagnostics_Feature_State;
+      Index       : Positive) return String
+   is
+   begin
+      if Item_Quick_Fix_Action_Count (Diagnostics, Index) > 0 then
+         return Item_Quick_Fix_Action_Label_For_Display (Diagnostics, Index, 1);
+      end if;
+      return "Apply quick fix";
+   end Item_Quick_Fix_Label_For_Display;
+
+   function Item_Quick_Fix_Detail_For_Display
+     (Diagnostics : Diagnostics_Feature_State;
+      Index       : Positive) return String
+   is
+   begin
+      if Item_Quick_Fix_Action_Count (Diagnostics, Index) > 0 then
+         return Item_Quick_Fix_Action_Detail_For_Display (Diagnostics, Index, 1);
+      end if;
+      return "Selected diagnostic has no quick fix";
+   end Item_Quick_Fix_Detail_For_Display;
 
    function Visible_Row_Count
      (Diagnostics : Diagnostics_Feature_State) return Natural
@@ -969,7 +1535,7 @@ package body Editor.Feature_Diagnostics is
    is
       New_Visibility : constant Boolean := not Diagnostics.Filter.Show_Info;
    begin
-      --  Phase 557 treats info and notes as one informational triage bucket
+      --  treats info and notes as one informational triage bucket
       --  for review/filter/clear behavior.  Keep the toggle-info command
       --  aligned with that bucket so note rows are not left visible
       --  after users hide informational diagnostics.
@@ -1102,7 +1668,7 @@ package body Editor.Feature_Diagnostics is
       elsif Source'Length = 0 and then Item.Target_Line > 0 then
          return "Target file missing";
       elsif not Item.Has_Target then
-         --  Phase 557 distinguishes a true source-less diagnostic from a
+         --  distinguishes a true source-less diagnostic from a
          --  diagnostic that names a source but cannot currently navigate to
          --  it. File grouping is projection-only, but its labels must keep
          --  that same review distinction so users do not misread missing-file
@@ -1541,8 +2107,8 @@ package body Editor.Feature_Diagnostics is
          return "Target no longer exists.";
       elsif Label = "Target line unavailable" then
          return "Diagnostic target line is unavailable";
-      elsif Label = "Target is stale; refresh required." then
-         return "Target is stale; refresh required.";
+      elsif Label = Editor.Commands.Reason_Target_Stale then
+         return Editor.Commands.Reason_Target_Stale;
       elsif Label'Length > 0 then
          return Label;
       else
@@ -1626,7 +2192,7 @@ package body Editor.Feature_Diagnostics is
          end loop;
       end if;
 
-      --  Phase 557 next/previous diagnostics use explicit Problems-style
+      --  next/previous diagnostics use explicit Problems-style
       --  wraparound through the visible diagnostic projection.  Generic
       --  Feature_Panel selection intentionally remains non-wrapping.
       for Row in 1 .. Count loop
@@ -1880,7 +2446,7 @@ package body Editor.Feature_Diagnostics is
          return False;
       end if;
 
-      --  Phase 557 Diagnostics rows project in source/line/column/severity
+      --  Diagnostics rows project in source/line/column/severity
       --  order, which intentionally differs from storage order.  After
       --  clearing the selected row, reconcile selection by the user's visible
       --  projection position: keep the same visible slot when possible, or
@@ -1910,6 +2476,287 @@ package body Editor.Feature_Diagnostics is
       Assert_Diagnostics_State_Consistent (Diagnostics);
       return True;
    end Clear_Selected_Diagnostic;
+
+   function Suppress_Selected_Diagnostic
+     (Diagnostics : in out Diagnostics_Feature_State;
+      Panel       : in out Editor.Feature_Panel.Feature_Panel_State) return Boolean
+   is
+      Source : constant Natural := Selected_Diagnostic_Source_Index (Diagnostics, Panel);
+      Item   : Diagnostic_Item;
+   begin
+      if Source = 0 then
+         Editor.Feature_Panel.Select_Row (Panel, 0);
+         return False;
+      end if;
+
+      Item := Item_At (Diagnostics, Positive (Source));
+      if not Clear_Selected_Diagnostic (Diagnostics, Panel) then
+         return False;
+      end if;
+
+      Diagnostics.Suppressed_Rows.Append (Item);
+      Diagnostics.Selected_Suppressed_Row := Natural (Diagnostics.Suppressed_Rows.Length);
+      Diagnostics.Suppressed_Top_Row := Natural'Max (1, Diagnostics.Selected_Suppressed_Row);
+      Assert_Diagnostics_State_Consistent (Diagnostics);
+      return True;
+   end Suppress_Selected_Diagnostic;
+
+   procedure Clamp_Suppressed_Top_Row
+     (Diagnostics   : in out Diagnostics_Feature_State;
+      Visible_Count : Natural)
+   is
+      Count : constant Natural := Natural (Diagnostics.Suppressed_Rows.Length);
+      Max_Top : Natural := 1;
+   begin
+      if Count = 0 then
+         Diagnostics.Suppressed_Top_Row := 1;
+         return;
+      end if;
+
+      if Visible_Count = 0 then
+         Max_Top := Count;
+      elsif Count <= Visible_Count then
+         Max_Top := 1;
+      else
+         Max_Top := Count - Visible_Count + 1;
+      end if;
+
+      if Diagnostics.Suppressed_Top_Row < 1 then
+         Diagnostics.Suppressed_Top_Row := 1;
+      elsif Diagnostics.Suppressed_Top_Row > Max_Top then
+         Diagnostics.Suppressed_Top_Row := Max_Top;
+      end if;
+   end Clamp_Suppressed_Top_Row;
+
+   function Restore_Suppressed_Diagnostic_At
+     (Diagnostics : in out Diagnostics_Feature_State;
+      Panel       : in out Editor.Feature_Panel.Feature_Panel_State;
+      Row         : Positive) return Boolean
+   is
+      Item : Diagnostic_Item;
+   begin
+      if Diagnostics.Suppressed_Rows.Is_Empty
+        or else Row > Natural (Diagnostics.Suppressed_Rows.Length)
+      then
+         return False;
+      end if;
+
+      declare
+         Index : constant Natural := Row - 1;
+      begin
+         Item := Diagnostics.Suppressed_Rows.Element (Index);
+         Diagnostics.Suppressed_Rows.Delete (Index);
+      end;
+
+      if Diagnostics.Suppressed_Rows.Is_Empty then
+         Diagnostics.Selected_Suppressed_Row := 0;
+         Diagnostics.Suppressed_Top_Row := 1;
+      elsif Diagnostics.Selected_Suppressed_Row > Natural (Diagnostics.Suppressed_Rows.Length) then
+         Diagnostics.Selected_Suppressed_Row := Natural (Diagnostics.Suppressed_Rows.Length);
+      end if;
+      Clamp_Suppressed_Top_Row (Diagnostics, 0);
+
+      if Index_For_Id (Diagnostics, Item.Id) = 0 then
+         Diagnostics.Rows.Append (Item);
+      end if;
+
+      Reset_Exhausted_Projection_Predicates (Diagnostics);
+      Reconcile_Diagnostics_After_Row_Change
+        (Diagnostics, Panel, Previous_Id => Item.Id);
+      Assert_Diagnostics_State_Consistent (Diagnostics);
+      return True;
+   end Restore_Suppressed_Diagnostic_At;
+
+   function Restore_Last_Suppressed_Diagnostic
+     (Diagnostics : in out Diagnostics_Feature_State;
+      Panel       : in out Editor.Feature_Panel.Feature_Panel_State) return Boolean
+   is
+   begin
+      if Diagnostics.Suppressed_Rows.Is_Empty then
+         return False;
+      end if;
+
+      return Restore_Suppressed_Diagnostic_At
+        (Diagnostics, Panel, Natural (Diagnostics.Suppressed_Rows.Length));
+   end Restore_Last_Suppressed_Diagnostic;
+
+   function Restore_Selected_Suppressed_Diagnostic
+     (Diagnostics : in out Diagnostics_Feature_State;
+      Panel       : in out Editor.Feature_Panel.Feature_Panel_State) return Boolean
+   is
+      Selected : constant Natural := Selected_Suppressed_Diagnostic (Diagnostics);
+   begin
+      if Selected = 0 then
+         return False;
+      end if;
+
+      return Restore_Suppressed_Diagnostic_At (Diagnostics, Panel, Positive (Selected));
+   end Restore_Selected_Suppressed_Diagnostic;
+
+   function Clear_Suppressed_Diagnostics
+     (Diagnostics : in out Diagnostics_Feature_State) return Natural
+   is
+      Count : constant Natural := Natural (Diagnostics.Suppressed_Rows.Length);
+   begin
+      Diagnostics.Suppressed_Rows.Clear;
+      Diagnostics.Selected_Suppressed_Row := 0;
+      Diagnostics.Suppressed_Top_Row := 1;
+      Assert_Diagnostics_State_Consistent (Diagnostics);
+      return Count;
+   end Clear_Suppressed_Diagnostics;
+
+   function Suppressed_Diagnostic_Count
+     (Diagnostics : Diagnostics_Feature_State) return Natural
+   is
+   begin
+      return Natural (Diagnostics.Suppressed_Rows.Length);
+   end Suppressed_Diagnostic_Count;
+
+   function Selected_Suppressed_Diagnostic
+     (Diagnostics : Diagnostics_Feature_State) return Natural
+   is
+   begin
+      if Diagnostics.Suppressed_Rows.Is_Empty
+        or else Diagnostics.Selected_Suppressed_Row = 0
+      then
+         return 0;
+      elsif Diagnostics.Selected_Suppressed_Row > Natural (Diagnostics.Suppressed_Rows.Length) then
+         return Natural (Diagnostics.Suppressed_Rows.Length);
+      else
+         return Diagnostics.Selected_Suppressed_Row;
+      end if;
+   end Selected_Suppressed_Diagnostic;
+
+   function Suppressed_Top_Row
+     (Diagnostics    : Diagnostics_Feature_State;
+      Visible_Count  : Natural) return Natural
+   is
+      Count : constant Natural := Natural (Diagnostics.Suppressed_Rows.Length);
+   begin
+      if Count = 0 then
+         return 1;
+      elsif Visible_Count = 0 then
+         return Natural'Min (Count, Natural'Max (1, Diagnostics.Suppressed_Top_Row));
+      elsif Count <= Visible_Count then
+         return 1;
+      elsif Diagnostics.Suppressed_Top_Row > Count - Visible_Count + 1 then
+         return Count - Visible_Count + 1;
+      elsif Diagnostics.Suppressed_Top_Row < 1 then
+         return 1;
+      else
+         return Diagnostics.Suppressed_Top_Row;
+      end if;
+   end Suppressed_Top_Row;
+
+   procedure Ensure_Selected_Suppressed_Diagnostic_Visible
+     (Diagnostics    : in out Diagnostics_Feature_State;
+      Visible_Count  : Natural)
+   is
+      Selected : constant Natural := Selected_Suppressed_Diagnostic (Diagnostics);
+   begin
+      if Visible_Count = 0 or else Selected = 0 then
+         Clamp_Suppressed_Top_Row (Diagnostics, Visible_Count);
+         return;
+      end if;
+
+      if Selected < Diagnostics.Suppressed_Top_Row then
+         Diagnostics.Suppressed_Top_Row := Selected;
+      elsif Selected >= Diagnostics.Suppressed_Top_Row + Visible_Count then
+         Diagnostics.Suppressed_Top_Row := Selected - Visible_Count + 1;
+      end if;
+      Clamp_Suppressed_Top_Row (Diagnostics, Visible_Count);
+   end Ensure_Selected_Suppressed_Diagnostic_Visible;
+
+   procedure Scroll_Suppressed_Diagnostics
+     (Diagnostics    : in out Diagnostics_Feature_State;
+      Visible_Count  : Natural;
+      Delta_Rows     : Integer)
+   is
+      Current : constant Integer :=
+        Integer (Suppressed_Top_Row (Diagnostics, Visible_Count));
+      Desired : Integer := Current + Delta_Rows;
+   begin
+      if Desired < 1 then
+         Desired := 1;
+      end if;
+      Diagnostics.Suppressed_Top_Row := Natural (Desired);
+      Clamp_Suppressed_Top_Row (Diagnostics, Visible_Count);
+   end Scroll_Suppressed_Diagnostics;
+
+   procedure Select_Suppressed_Diagnostic
+     (Diagnostics : in out Diagnostics_Feature_State;
+      Row         : Natural)
+   is
+      Count : constant Natural := Natural (Diagnostics.Suppressed_Rows.Length);
+   begin
+      if Count = 0 or else Row = 0 then
+         Diagnostics.Selected_Suppressed_Row := 0;
+      elsif Row > Count then
+         Diagnostics.Selected_Suppressed_Row := Count;
+      else
+         Diagnostics.Selected_Suppressed_Row := Row;
+      end if;
+      Ensure_Selected_Suppressed_Diagnostic_Visible (Diagnostics, 0);
+   end Select_Suppressed_Diagnostic;
+
+   procedure Select_Next_Suppressed_Diagnostic
+     (Diagnostics : in out Diagnostics_Feature_State)
+   is
+      Count : constant Natural := Natural (Diagnostics.Suppressed_Rows.Length);
+      Current : constant Natural := Selected_Suppressed_Diagnostic (Diagnostics);
+   begin
+      if Count = 0 then
+         Diagnostics.Selected_Suppressed_Row := 0;
+      elsif Current = 0 or else Current >= Count then
+         Diagnostics.Selected_Suppressed_Row := 1;
+      else
+         Diagnostics.Selected_Suppressed_Row := Current + 1;
+      end if;
+      Ensure_Selected_Suppressed_Diagnostic_Visible (Diagnostics, 0);
+   end Select_Next_Suppressed_Diagnostic;
+
+   procedure Select_Previous_Suppressed_Diagnostic
+     (Diagnostics : in out Diagnostics_Feature_State)
+   is
+      Count : constant Natural := Natural (Diagnostics.Suppressed_Rows.Length);
+      Current : constant Natural := Selected_Suppressed_Diagnostic (Diagnostics);
+   begin
+      if Count = 0 then
+         Diagnostics.Selected_Suppressed_Row := 0;
+      elsif Current <= 1 then
+         Diagnostics.Selected_Suppressed_Row := Count;
+      else
+         Diagnostics.Selected_Suppressed_Row := Current - 1;
+      end if;
+      Ensure_Selected_Suppressed_Diagnostic_Visible (Diagnostics, 0);
+   end Select_Previous_Suppressed_Diagnostic;
+
+   function Suppressed_Diagnostic_Text
+     (Diagnostics : Diagnostics_Feature_State;
+      Row         : Positive) return String
+   is
+   begin
+      if Diagnostics.Suppressed_Rows.Is_Empty
+        or else Row > Natural (Diagnostics.Suppressed_Rows.Length)
+      then
+         return "";
+      else
+         return Label_For (Diagnostics.Suppressed_Rows.Element (Row - 1));
+      end if;
+   end Suppressed_Diagnostic_Text;
+
+   function Last_Suppressed_Diagnostic_Text
+     (Diagnostics : Diagnostics_Feature_State) return String
+   is
+   begin
+      if Diagnostics.Suppressed_Rows.Is_Empty then
+         return "";
+      else
+         return Label_For
+           (Diagnostics.Suppressed_Rows.Element
+              (Diagnostics.Suppressed_Rows.Last_Index));
+      end if;
+   end Last_Suppressed_Diagnostic_Text;
 
    function Map_Diagnostic_Row_To_Item
      (Diagnostics                    : Diagnostics_Feature_State;
@@ -2002,7 +2849,7 @@ package body Editor.Feature_Diagnostics is
      (Diagnostics : in out Diagnostics_Feature_State)
    is
    begin
-      --  Phase 557 severity filters are direct review modes, not stacked
+      --  severity filters are direct review modes, not stacked
       --  payloads. Reset source/text/producer predicates first so invoking
       --  "errors only" from a source or build-producer view shows all errors.
       Show_All (Diagnostics);
@@ -2085,7 +2932,7 @@ package body Editor.Feature_Diagnostics is
             Item : Diagnostic_Item := Diagnostics.Rows.Element (I - 1);
          begin
             if Item.Target_Buffer = Buffer_Token then
-               --  Phase 557 stale tracking is based on known target source,
+               --  stale tracking is based on known target source,
                --  not only fully navigable targets. Partial target rows such
                --  as known-buffer/missing-line diagnostics must also be
                --  marked stale after edits to their source buffer.
@@ -2162,7 +3009,7 @@ package body Editor.Feature_Diagnostics is
             if Same_Or_Descendant_Diagnostic_Path (Source, Old_Path)
               or else Same_Or_Descendant_Diagnostic_Path (Source, New_Path)
             then
-               --  Phase 572: File Tree rename/delete can stale diagnostics
+               --  File Tree rename/delete can stale diagnostics
                --  whose only durable association is the displayed source path
                --  rather than the active buffer token.  Mark those rows stale
                --  in the diagnostics owner; do not clear unrelated diagnostics

@@ -22,6 +22,13 @@ with Editor.Command_Execution;
 with Editor.Commands;
 with Editor.Configuration_Audit;
 with Editor.Executor;
+with Editor.Executor.File_Save_Commands;
+with Editor.Executor.File_Save_Basic_Commands;
+with Editor.Executor.File_Open_Commands;
+with Editor.Executor.Command_Surface_Commands;
+with Editor.Executor.File_Tree_Commands;
+with Editor.Executor.Project_File_Index_Commands;
+with Editor.Executor.Project_Lifecycle_Commands;
 with Editor.External_Producers;
 with Editor.Feature_Diagnostics;
 with Editor.Feature_Panel;
@@ -33,6 +40,7 @@ with Editor.Messages;
 with Editor.File_Tree;
 with Editor.File_Tree_View;
 with Editor.Files;
+with Editor.Navigation_History;
 with Editor.Outline;
 with Editor.Outline_Extractor;
 with Editor.Pending_Transitions;
@@ -76,13 +84,13 @@ package body Editor.Dogfood_Workflow.Tests is
    function Temp_Root return String is
    begin
       Ada.Directories.Create_Path ("/tmp/editor-tests");
-      return "/tmp/editor-tests/phase535_dogfood_project";
+      return "/tmp/editor-tests/dogfood_project";
    end Temp_Root;
 
    function Temp_Config_Root return String is
    begin
       Ada.Directories.Create_Path ("/tmp/editor-tests");
-      return "/tmp/editor-tests/phase535_dogfood_config";
+      return "/tmp/editor-tests/dogfood_config";
    end Temp_Config_Root;
 
    procedure Remove_Tree_If_Exists (Path : String) is
@@ -226,7 +234,7 @@ package body Editor.Dogfood_Workflow.Tests is
    is
       Snapshot : Editor.Guided_Prompts.Prompt_Snapshot;
    begin
-      --  Phase 578: drive File Tree mutations through the same user-facing
+      --  drive File Tree mutations through the same user-facing
       --  command -> guided prompt -> Executor route used by keybindings and
       --  Command Palette, rather than constructing payload-bearing commands
       --  directly in the test.  The only transient text lives in the prompt.
@@ -308,7 +316,7 @@ package body Editor.Dogfood_Workflow.Tests is
       Workspace     : Editor.Workspace_Persistence.Workspace_Snapshot;
       Loaded        : Editor.Workspace_Persistence.Workspace_Snapshot;
       Status        : Editor.Workspace_Persistence.Workspace_Persistence_Status;
-      Workspace_Path : constant String := Root & "/phase535.workspace";
+      Workspace_Path : constant String := Root & "/.workspace";
       Persisted     : Unbounded_String;
    begin
       Build_Dogfood_Fixture (Root);
@@ -316,7 +324,7 @@ package body Editor.Dogfood_Workflow.Tests is
       Editor.State.Init (S);
 
       --  Project open and project-scoped discovery.
-      Editor.Executor.Execute_Open_Project (S, Root);
+      Editor.Executor.Project_Lifecycle_Commands.Execute_Open_Project (S, Root);
       Assert (Editor.Project.Has_Project (S.Project),
               "dogfood project opens through the Executor project route");
       Assert (Editor.Project.Root_Path (S.Project) = Root,
@@ -329,7 +337,7 @@ package body Editor.Dogfood_Workflow.Tests is
               "known Ada source file is available to project-scoped surfaces");
 
       --  File Tree over real fixture files, then open through the file-tree route.
-      Editor.Executor.Execute_Refresh_File_Tree (S);
+      Editor.Executor.Project_File_Index_Commands.Execute_Refresh_File_Tree (S);
       Assert (Editor.File_Tree.Node_Count (S.File_Tree) >= 4,
               "file tree scans real dogfood fixture nodes");
       Node := Editor.File_Tree.Find_By_Path
@@ -382,12 +390,12 @@ package body Editor.Dogfood_Workflow.Tests is
       Editor.Executor.Execute_No_Log
         (S, Editor.Test_Helper.Insert (Editor.State.Current_Text (S)'Length, ' '));
       Assert (S.File_Info.Dirty, "editing marks the active source buffer dirty");
-      Editor.Executor.Execute_Save (S);
+      Editor.Executor.File_Save_Basic_Commands.Execute_Save (S);
       Assert (not S.File_Info.Dirty, "save clears dirty state");
       Assert (Ada.Strings.Fixed.Index (Read_File (Source_Path), "Dogfood_Known_Token") > 0,
               "saved file still contains the known project-search token");
 
-      --  Phase 578 file-mutation dogfood seam: create, rename, and delete
+      --  file-mutation dogfood seam: create, rename, and delete
       --  run through the real command -> guided prompt -> Executor path.
       --  The test no longer mutates the fixture directly and then merely
       --  refreshes; it proves the user workflow refreshes File Tree/project
@@ -425,7 +433,7 @@ package body Editor.Dogfood_Workflow.Tests is
 
       --  Seed adjacent project-derived surfaces before the rename so the real
       --  File Tree mutation route must mark them stale through owning state,
-      --  not just through Phase 578 policy helpers.
+      --  not just through policy helpers.
       Editor.Project_Search.Clear_Stale (S.Project_Search);
       Editor.Quick_Open.Recompute_Results
         (S.Quick_Open, S.Project, (Max_Visible_Results => 12,
@@ -486,7 +494,7 @@ package body Editor.Dogfood_Workflow.Tests is
       Assert (Editor.Commands.Unavailable_Reason
                 (Editor.Executor.Command_Availability
                    (S, Editor.Commands.Command_Diagnostics_Open_Selected)) =
-              "Target is stale; refresh required.",
+              Editor.Commands.Reason_Target_Stale,
               "Diagnostic stale-target wording matches Search stale-target wording after rename");
       Editor.Project.Refresh_Known_Files (S.Project, Project_Files);
       Assert (not Editor.Project.Has_Known_File (S.Project, "src/new_widget.adb"),
@@ -558,7 +566,7 @@ package body Editor.Dogfood_Workflow.Tests is
       Assert (Editor.Focus_Management.Effective_Focus_Owner (S) =
                 Editor.Focus_Management.Focus_File_Tree,
               "failed stale File Tree rename keeps focus on File Tree for correction");
-      Editor.Executor.Execute_Refresh_File_Tree (S);
+      Editor.Executor.Project_File_Index_Commands.Execute_Refresh_File_Tree (S);
 
       --  Dirty open-buffer protection for File Tree mutation routes.  Rename
       --  and delete can collect prompt/confirmation input, but the Executor
@@ -577,7 +585,7 @@ package body Editor.Dogfood_Workflow.Tests is
         (S.File_Tree, "src/dirty_block.adb", Found);
       Assert (Found and then Node /= Editor.File_Tree.No_File_Tree_Node,
               "dirty open-buffer setup creates a selectable file");
-      Editor.Executor.Execute_Open_File (S, Dirty_Block_Path);
+      Editor.Executor.File_Open_Commands.Execute_Open_File (S, Dirty_Block_Path);
       Editor.Executor.Execute_No_Log
         (S, Editor.Test_Helper.Insert (Editor.State.Current_Text (S)'Length,
                                        ASCII.LF));
@@ -602,7 +610,7 @@ package body Editor.Dogfood_Workflow.Tests is
               "dirty File Tree delete is blocked without deleting the file");
       Assert (S.File_Info.Dirty,
               "blocked File Tree mutations preserve dirty target buffer text");
-      Editor.Executor.Execute_Open_File (S, Source_Path);
+      Editor.Executor.File_Open_Commands.Execute_Open_File (S, Source_Path);
 
       --  Ada Outline refresh from an explicit active-buffer snapshot.
       Extracted := Editor.Outline_Extractor.Extract
@@ -801,7 +809,7 @@ package body Editor.Dogfood_Workflow.Tests is
       Assert (Editor.Focus_Management.Effective_Focus_Owner (S) =
                 Editor.Focus_Management.Focus_Editor,
               "Diagnostics target navigation returns focus to editor text");
-      Editor.Executor.Execute_Open_File (S, Source_Path);
+      Editor.Executor.File_Open_Commands.Execute_Open_File (S, Source_Path);
       Assert (S.File_Info.Has_Path
                 and then To_String (S.File_Info.Path) = Source_Path,
               "workspace fixture saves the intended active source file");
@@ -852,7 +860,7 @@ package body Editor.Dogfood_Workflow.Tests is
                 (To_String (Persisted)),
               "dogfood persistence audit helper rejects transient workflow leakage");
 
-      --  Phase 578 restart/reload seam: save through the real workspace
+      --  restart/reload seam: save through the real workspace
       --  command, then create a fresh editor state, contaminate transient
       --  surfaces, and restore through the real workspace command.  Restore
       --  must install only structural project/open-file/caret/panel state and
@@ -867,7 +875,7 @@ package body Editor.Dogfood_Workflow.Tests is
               "workspace save writes the project session file");
 
       Editor.State.Init (S2);
-      Editor.Executor.Execute_Open_Project (S2, Root);
+      Editor.Executor.Project_Lifecycle_Commands.Execute_Open_Project (S2, Root);
       Assert (Editor.Project.Has_Project (S2.Project),
               "restart opens the same project before workspace restore");
       Editor.Project.Refresh_Known_Files (S2.Project, Project_Files);
@@ -985,12 +993,12 @@ package body Editor.Dogfood_Workflow.Tests is
    end Test_Dogfood_Project_Workflow_Coherent;
 
 
-   procedure Test_Phase536_Dogfood_Usability_Fixes_Coherent
+   procedure Test_Dogfood_Usability_Fixes_Coherent
      (T : in out AUnit.Test_Cases.Test_Case'Class)
    is
       pragma Unreferenced (T);
       Persisted : constant String :=
-        "project_root=phase536" & ASCII.LF &
+        "project_root=" & ASCII.LF &
         "open_file=src/dogfood_demo.adb" & ASCII.LF;
    begin
       Assert (Editor.Dogfood_Workflow.Dogfood_Status_Label
@@ -1006,7 +1014,7 @@ package body Editor.Dogfood_Workflow.Tests is
       Assert (Editor.Dogfood_Workflow.Dogfood_Unavailable_Reason_Label
                 (Editor.Dogfood_Workflow.Dogfood_Surface_Diagnostics,
                  Editor.Dogfood_Workflow.Dogfood_State_Target_Unavailable) =
-              "Target no longer exists.",
+              Editor.Commands.Reason_Target_Missing,
               "Diagnostics target failure uses shared missing-target wording");
       Assert (Editor.Dogfood_Workflow.Dogfood_Unavailable_Reason_Label
                 (Editor.Dogfood_Workflow.Dogfood_Surface_Build,
@@ -1014,16 +1022,16 @@ package body Editor.Dogfood_Workflow.Tests is
               "Build run unavailable: review the request and acknowledge consent first.",
               "Build missing-consent reason identifies the next action");
       Assert (Editor.Dogfood_Workflow.Assert_Dogfood_Messages_User_Readable,
-              "Phase 536 dogfood messages avoid internal enum wording");
+              "dogfood messages avoid internal enum wording");
       Assert (Editor.Dogfood_Workflow.Assert_Dogfood_Focus_Transitions_Coherent,
-              "Phase 536 activation messages encode predictable buffer focus policy");
+              "activation messages encode predictable buffer focus policy");
       Assert (Editor.Dogfood_Workflow.Assert_Dogfood_Usability_Fixes_Coherent
                 (Persisted),
-              "Phase 536 usability helper preserves transient-state exclusion");
-   end Test_Phase536_Dogfood_Usability_Fixes_Coherent;
+              "usability helper preserves transient-state exclusion");
+   end Test_Dogfood_Usability_Fixes_Coherent;
 
 
-   procedure Test_Phase537_Milestone_Readiness_Coherent
+   procedure Test_Milestone_Readiness_Coherent
      (T : in out AUnit.Test_Cases.Test_Case'Class)
    is
       pragma Unreferenced (T);
@@ -1093,12 +1101,12 @@ package body Editor.Dogfood_Workflow.Tests is
               "dogfood workspace text is repeatable across runs");
       Assert (Editor.Dogfood_Workflow.Assert_Milestone_Startup_And_Dogfood_Readiness_Coherent
                 (Workspace_Text, Recent_Text, Keybindings_Text, Product_Text),
-              "Phase 537 milestone readiness helper covers startup, reload, recent projects, defaults, and dogfood repeatability");
-   end Test_Phase537_Milestone_Readiness_Coherent;
+              "milestone readiness helper covers startup, reload, recent projects, defaults, and dogfood repeatability");
+   end Test_Milestone_Readiness_Coherent;
 
 
 
-   procedure Test_Phase538_Repeated_Local_Use_Hardening_Coherent
+   procedure Test_Repeated_Local_Use_Hardening_Coherent
      (T : in out AUnit.Test_Cases.Test_Case'Class)
    is
       pragma Unreferenced (T);
@@ -1133,7 +1141,7 @@ package body Editor.Dogfood_Workflow.Tests is
               "recent-project open success message is specific");
       Assert (Editor.Dogfood_Workflow.Recent_Project_Open_Result_Label
                 (Editor.Dogfood_Workflow.Recent_Project_Path_Missing) =
-              "Target no longer exists.",
+              Editor.Commands.Reason_Target_Missing,
               "missing recent-project path message uses the shared missing-target label");
       Assert (Editor.Dogfood_Workflow.Workspace_Reload_Recovery_Label
                 (Editor.Dogfood_Workflow.Workspace_Some_Files_Not_Reopened) =
@@ -1149,7 +1157,7 @@ package body Editor.Dogfood_Workflow.Tests is
               "stale search activation fails with a deterministic message");
       Assert (Editor.Dogfood_Workflow.Stale_Target_Activation_Label
                 (Editor.Dogfood_Workflow.Stale_Target_Diagnostics) =
-              "Target no longer exists.",
+              Editor.Commands.Reason_Target_Missing,
               "stale diagnostics activation uses shared missing-target wording");
       Assert (Editor.Dogfood_Workflow.Assert_Repeated_Startup_Coherent,
               "repeated startup keeps empty transient surfaces and command discovery coherent");
@@ -1166,12 +1174,12 @@ package body Editor.Dogfood_Workflow.Tests is
               "dogfood workflow remains repeatable across reload cycles");
       Assert (Editor.Dogfood_Workflow.Assert_Repeated_Local_Use_Coherent
                 (Workspace_Text, Recent_Text, Keybindings_Text, Product_Text),
-              "Phase 538 repeated-local-use hardening helper covers startup, recent reopen, workspace reload, project close, stale activation, dogfood repeatability, and persistence boundaries");
-   end Test_Phase538_Repeated_Local_Use_Hardening_Coherent;
+              "repeated-local-use hardening helper covers startup, recent reopen, workspace reload, project close, stale activation, dogfood repeatability, and persistence boundaries");
+   end Test_Repeated_Local_Use_Hardening_Coherent;
 
 
 
-   procedure Test_Phase578_Dirty_Conflict_Dogfood_Scenario
+   procedure Test_Dirty_Conflict_Dogfood_Scenario
      (T : in out AUnit.Test_Cases.Test_Case'Class)
    is
       pragma Unreferenced (T);
@@ -1185,14 +1193,14 @@ package body Editor.Dogfood_Workflow.Tests is
       Summary     : Editor.Buffers.Buffer_Summary;
       Status      : Editor.Status_Bar.Status_Bar_Snapshot;
    begin
-      --  Phase 578 dirty/conflict dogfood path: exercise the real file
+      --  dirty/conflict dogfood path: exercise the real file
       --  lifecycle, prompt, File Tree refresh, and dirty-close routes together
       --  instead of checking conflict labels in isolated file-lifecycle tests.
       Build_Dogfood_Fixture (Root);
       Editor.Buffers.Reset_Global_For_Test;
       Editor.State.Init (S);
-      Editor.Executor.Execute_Open_Project (S, Root);
-      Editor.Executor.Execute_Open_File (S, Source_Path);
+      Editor.Executor.Project_Lifecycle_Commands.Execute_Open_Project (S, Root);
+      Editor.Executor.File_Open_Commands.Execute_Open_File (S, Source_Path);
       Target := Editor.Buffers.Global_Active_Buffer;
       Assert (S.File_Info.Has_Path and then To_String (S.File_Info.Path) = Source_Path,
               "conflict dogfood setup opens the project source file");
@@ -1204,7 +1212,7 @@ package body Editor.Dogfood_Workflow.Tests is
               "conflict dogfood setup marks the file-backed buffer dirty");
       Write_File (Source_Path, "external replacement before save" & ASCII.LF);
 
-      Editor.Executor.Execute_Save (S);
+      Editor.Executor.File_Save_Basic_Commands.Execute_Save (S);
       Assert (S.File_Conflict_Prompt_Active,
               "saving after an external replacement opens a file-conflict prompt");
       Assert (S.File_Conflict_Prompt_Kind in
@@ -1225,7 +1233,7 @@ package body Editor.Dogfood_Workflow.Tests is
       Assert (Read_File (Source_Path) = "external replacement before save" & ASCII.LF,
               "cancel leaves the external disk file unchanged");
 
-      Editor.Executor.Execute_Save (S);
+      Editor.Executor.File_Save_Basic_Commands.Execute_Save (S);
       Assert (S.File_Conflict_Prompt_Active,
               "saving again revalidates the still-conflicted backing file");
       Editor.Executor.Execute_Command
@@ -1270,7 +1278,7 @@ package body Editor.Dogfood_Workflow.Tests is
                  "Conflict pending") > 0,
               "compact status state segment agrees with Buffer List lifecycle conflict label");
 
-      Editor.Executor.Execute_Save (S);
+      Editor.Executor.File_Save_Basic_Commands.Execute_Save (S);
       Assert (S.File_Conflict_Prompt_Active,
               "overwrite path starts from a fresh validated conflict prompt");
       Editor.Executor.Execute_Command
@@ -1291,14 +1299,14 @@ package body Editor.Dogfood_Workflow.Tests is
       Editor.Buffers.Reset_Global_For_Test;
       Build_Dogfood_Fixture (Root);
       Editor.State.Init (S);
-      Editor.Executor.Execute_Open_Project (S, Root);
-      Editor.Executor.Execute_Open_File (S, Source_Path);
+      Editor.Executor.Project_Lifecycle_Commands.Execute_Open_Project (S, Root);
+      Editor.Executor.File_Open_Commands.Execute_Open_File (S, Source_Path);
       Editor.Executor.Execute_No_Log
         (S, Editor.Test_Helper.Insert (Editor.State.Current_Text (S)'Length,
                                        ASCII.LF));
       Remove_File_If_Exists (Source_Path);
 
-      Editor.Executor.Execute_Save (S);
+      Editor.Executor.File_Save_Basic_Commands.Execute_Save (S);
       Assert (S.File_Conflict_Prompt_Active,
               "saving a dirty buffer after external deletion opens a conflict prompt");
       Assert (S.File_Conflict_Prompt_Kind =
@@ -1322,7 +1330,7 @@ package body Editor.Dogfood_Workflow.Tests is
       Assert (Ada.Strings.Fixed.Index
                 (Editor.Lifecycle_Guidance.Status_Bar_Hint (S), "backing file missing") > 0,
               "status lifecycle hint agrees with Buffer List missing-file wording");
-      Editor.Executor.Execute_Refresh_File_Tree (S);
+      Editor.Executor.Project_File_Index_Commands.Execute_Refresh_File_Tree (S);
       Node := Editor.File_Tree.Find_By_Path
         (S.File_Tree, "src/dogfood_demo.adb", Found);
       Assert (not Found and then Node = Editor.File_Tree.No_File_Tree_Node,
@@ -1335,8 +1343,8 @@ package body Editor.Dogfood_Workflow.Tests is
       Editor.Buffers.Reset_Global_For_Test;
       Build_Dogfood_Fixture (Root);
       Editor.State.Init (S);
-      Editor.Executor.Execute_Open_Project (S, Root);
-      Editor.Executor.Execute_Open_File (S, Source_Path);
+      Editor.Executor.Project_Lifecycle_Commands.Execute_Open_Project (S, Root);
+      Editor.Executor.File_Open_Commands.Execute_Open_File (S, Source_Path);
       Target := Editor.Buffers.Global_Active_Buffer;
       Editor.Executor.Execute_No_Log
         (S, Editor.Test_Helper.Insert (Editor.State.Current_Text (S)'Length,
@@ -1382,17 +1390,17 @@ package body Editor.Dogfood_Workflow.Tests is
          Remove_Tree_If_Exists (Root);
          Editor.Buffers.Reset_Global_For_Test;
          raise;
-   end Test_Phase578_Dirty_Conflict_Dogfood_Scenario;
+   end Test_Dirty_Conflict_Dogfood_Scenario;
 
 
-   procedure Test_Phase578_Project_Switch_Dogfood_Scenario
+   procedure Test_Project_Switch_Dogfood_Scenario
      (T : in out AUnit.Test_Cases.Test_Case'Class)
    is
       pragma Unreferenced (T);
       Root_A             : constant String := Ada.Directories.Current_Directory &
-        "/phase578_switch_project_a";
+        "/switch_project_a";
       Root_B             : constant String := Ada.Directories.Current_Directory &
-        "/phase578_switch_project_b";
+        "/switch_project_b";
       Source_A           : constant String := Root_A & "/src/dogfood_demo.adb";
       Session_A          : constant String :=
         Editor.Workspace_Persistence.Session_File_Path (Root_A);
@@ -1416,16 +1424,16 @@ package body Editor.Dogfood_Workflow.Tests is
       Editor.Buffers.Reset_Global_For_Test;
       Editor.State.Init (S);
 
-      Editor.Executor.Execute_Open_Project (S, Root_A);
+      Editor.Executor.Project_Lifecycle_Commands.Execute_Open_Project (S, Root_A);
       Assert (Editor.Project.Has_Project (S.Project),
-              "Phase 578 switch setup opens Project A");
+              "switch setup opens Project A");
       Project_A_Root := To_Unbounded_String (Editor.Project.Root_Path (S.Project));
       Assert (Editor.Recent_Projects.Count (S.Recent_Projects) = 1,
               "Project A is promoted to Recent Projects after successful open");
       Assert (not Ada.Directories.Exists (Session_A),
               "project open setup does not fabricate a workspace session file");
 
-      Editor.Executor.Execute_Open_File (S, Source_A);
+      Editor.Executor.File_Open_Commands.Execute_Open_File (S, Source_A);
       Editor.Executor.Execute_No_Log
         (S, Editor.Test_Helper.Insert (Editor.State.Current_Text (S)'Length,
                                        ASCII.LF));
@@ -1592,10 +1600,10 @@ package body Editor.Dogfood_Workflow.Tests is
          Remove_Tree_If_Exists (Root_B);
          Editor.Buffers.Reset_Global_For_Test;
          raise;
-   end Test_Phase578_Project_Switch_Dogfood_Scenario;
+   end Test_Project_Switch_Dogfood_Scenario;
 
 
-   procedure Test_Phase578_Integrated_Workflow_Polish_Coherent
+   procedure Test_Integrated_Workflow_Polish_Coherent
      (T : in out AUnit.Test_Cases.Test_Case'Class)
    is
       pragma Unreferenced (T);
@@ -1640,7 +1648,7 @@ package body Editor.Dogfood_Workflow.Tests is
               "Build startup no-project wording uses the shared project label");
       Assert (Editor.Commands.Normalize_Workflow_Message
                 ("Search result is stale; run Project Search again.") =
-              "Target is stale; refresh required.",
+              Editor.Commands.Reason_Target_Stale,
               "real command/message normalizer canonicalizes stale target text");
       Assert (Editor.Commands.Normalize_Workflow_Message
                 ("No project open for build candidates") =
@@ -1656,7 +1664,7 @@ package body Editor.Dogfood_Workflow.Tests is
               "Search Results no-active-buffer wording uses the shared active-buffer label");
       Assert (Editor.Commands.Normalize_Workflow_Message
                 ("Build run unavailable: selected build candidate is stale") =
-              "Target is stale; refresh required.",
+              Editor.Commands.Reason_Target_Stale,
               "Build stale-candidate wording uses the shared stale-target label");
       Assert (Editor.Commands.Normalize_Workflow_Message
                 ("No open buffers") =
@@ -1768,11 +1776,11 @@ package body Editor.Dogfood_Workflow.Tests is
               "Replace preview empty-state wording is punctuated consistently");
       Assert (Editor.Commands.Normalize_Workflow_Message
                 ("Replacement target changed; rerun search") =
-              "Target is stale; refresh required.",
+              Editor.Commands.Reason_Target_Stale,
               "Replace preview changed-target wording uses the shared stale-target label");
       Assert (Editor.Commands.Normalize_Workflow_Message
                 ("Replacement target is unavailable") =
-              "Target no longer exists.",
+              Editor.Commands.Reason_Target_Missing,
               "Replace preview unavailable-target wording uses the shared missing-target label");
       Assert (Editor.Commands.Normalize_Workflow_Message
                 ("Replacement target is read-only") =
@@ -1797,7 +1805,7 @@ package body Editor.Dogfood_Workflow.Tests is
       Assert (Editor.Commands.Normalize_Workflow_Message
                 ("Build request is not ready for consent") =
               "No build request ready.",
-              "Build request readiness wording matches Phase 578 policy");
+              "Build request readiness wording matches policy");
       Assert (Editor.Commands.Normalize_Workflow_Message
                 ("Build run unavailable: no build candidate selected") =
               "No build candidate selected.",
@@ -1856,11 +1864,11 @@ package body Editor.Dogfood_Workflow.Tests is
               "Build missing canonical working-context wording uses the shared project label");
       Assert (Editor.Commands.Normalize_Workflow_Message
                 ("Project root unavailable") =
-              "Target no longer exists.",
+              Editor.Commands.Reason_Target_Missing,
               "Project-root unavailable wording uses the shared missing-target label");
       Assert (Editor.Commands.Normalize_Workflow_Message
                 ("candidate path missing or unavailable") =
-              "Target no longer exists.",
+              Editor.Commands.Reason_Target_Missing,
               "Build candidate missing-path wording uses the shared missing-target label");
       Assert (Editor.Commands.Normalize_Workflow_Message
                 ("candidate path outside project root") =
@@ -1868,15 +1876,15 @@ package body Editor.Dogfood_Workflow.Tests is
               "Build candidate boundary wording uses the shared project-boundary label");
       Assert (Editor.Commands.Normalize_Workflow_Message
                 ("candidate must be refreshed") =
-              "Target is stale; refresh required.",
+              Editor.Commands.Reason_Target_Stale,
               "Build candidate refresh wording uses the shared stale-target label");
       Assert (Editor.Commands.Normalize_Workflow_Message
                 ("Build working directory is unavailable.") =
-              "Target no longer exists.",
+              Editor.Commands.Reason_Target_Missing,
               "Build unavailable working-directory wording uses the shared missing-target label");
       Assert (Editor.Commands.Normalize_Workflow_Message
                 ("Build run unavailable: selected project working context is unavailable") =
-              "Target no longer exists.",
+              Editor.Commands.Reason_Target_Missing,
               "Build unavailable working-context wording uses the shared missing-target label");
       Assert (Editor.Commands.Normalize_Workflow_Message
                 ("Build run unavailable: working context must come from the current project/workspace") =
@@ -1912,7 +1920,7 @@ package body Editor.Dogfood_Workflow.Tests is
               "Build stale-consent wording uses the shared stale-consent label");
       Assert (Editor.Commands.Normalize_Workflow_Message
                 ("Build candidate file no longer exists") =
-              "Target no longer exists.",
+              Editor.Commands.Reason_Target_Missing,
               "Build missing-candidate-file wording uses the shared missing-target label");
       Assert (Editor.Commands.Normalize_Workflow_Message
                 ("Parent directory unavailable") =
@@ -2000,11 +2008,11 @@ package body Editor.Dogfood_Workflow.Tests is
               "file-conflict cancel spelling is normalized");
       Assert (Editor.Commands.Normalize_Workflow_Message
                 ("Diagnostic target file is unavailable.") =
-              "Target no longer exists.",
+              Editor.Commands.Reason_Target_Missing,
               "Diagnostics missing-file wording uses the shared missing-target label");
       Assert (Editor.Commands.Normalize_Workflow_Message
                 ("Target file missing or unavailable") =
-              "Target no longer exists.",
+              Editor.Commands.Reason_Target_Missing,
               "Diagnostics source-labelled missing target wording uses the shared missing-target label");
       Assert (Editor.Commands.Normalize_Workflow_Message
                 ("Selected diagnostic has no source target") =
@@ -2012,11 +2020,11 @@ package body Editor.Dogfood_Workflow.Tests is
               "source-less diagnostics navigation wording is punctuated consistently");
       Assert (Editor.Commands.Normalize_Workflow_Message
                 ("Outline target unavailable") =
-              "Target no longer exists.",
+              Editor.Commands.Reason_Target_Missing,
               "Outline target-unavailable wording uses the shared missing-target label");
       Assert (Editor.Commands.Normalize_Workflow_Message
                 ("Diagnostic target line is unavailable") =
-              "Target line is unavailable.",
+              Editor.Commands.Reason_Target_Line_Unavailable,
               "Diagnostics missing-line wording uses the shared target-line label");
       Assert (Editor.Commands.Normalize_Workflow_Message
                 ("Target path is outside the project") =
@@ -2036,7 +2044,7 @@ package body Editor.Dogfood_Workflow.Tests is
               "Recent Projects empty-list wording uses the shared empty label");
       Assert (Editor.Commands.Normalize_Workflow_Message
                 ("Recent project is unavailable.") =
-              "Target no longer exists.",
+              Editor.Commands.Reason_Target_Missing,
               "Recent Projects unavailable-entry wording uses the shared missing-target label");
       Assert (Editor.Commands.Normalize_Workflow_Message
                 ("Recent Projects loaded with invalid lightweight entries ignored.") =
@@ -2128,7 +2136,7 @@ package body Editor.Dogfood_Workflow.Tests is
               "Bookmarks in-file empty-state wording is punctuated consistently");
       Assert (Editor.Commands.Normalize_Workflow_Message
                 ("Bookmark target unavailable") =
-              "Target no longer exists.",
+              Editor.Commands.Reason_Target_Missing,
               "Bookmarks stale target wording shares the missing-target label");
       Assert (Editor.Commands.Normalize_Workflow_Message
                 ("No previous navigation location") =
@@ -2140,7 +2148,7 @@ package body Editor.Dogfood_Workflow.Tests is
               "Navigation history clear empty-state wording uses one label");
       Assert (Editor.Commands.Normalize_Workflow_Message
                 ("Navigation target unavailable.") =
-              "Target no longer exists.",
+              Editor.Commands.Reason_Target_Missing,
               "Navigation stale-target wording shares the missing-target label");
       Assert (Editor.Commands.Normalize_Workflow_Message
                 ("Another prompt is active") =
@@ -2182,15 +2190,15 @@ package body Editor.Dogfood_Workflow.Tests is
       Assert (Editor.Dogfood_Workflow.Integrated_Workflow_Message
                 (Editor.Dogfood_Workflow.Workflow_No_Project_Open) =
               "No project open.",
-              "Phase 578 canonical no-project wording is exact");
+              "canonical no-project wording is exact");
       Assert (Editor.Dogfood_Workflow.Integrated_Workflow_Message
                 (Editor.Dogfood_Workflow.Workflow_Target_Stale) =
-              "Target is stale; refresh required.",
-              "Phase 578 stale target wording is shared across surfaces");
+              Editor.Commands.Reason_Target_Stale,
+              "stale target wording is shared across surfaces");
       Assert (Editor.Dogfood_Workflow.Integrated_Workflow_Message
                 (Editor.Dogfood_Workflow.Workflow_Confirmation_Pending) =
               "Command unavailable while confirmation is pending.",
-              "Phase 578 pending-confirmation wording is shared");
+              "pending-confirmation wording is shared");
       Assert (Editor.Dogfood_Workflow.Integrated_Focus_After_Action
                 (Editor.Dogfood_Workflow.Workflow_Quick_Open_File_Activated) =
               Editor.Dogfood_Workflow.Focus_Result_Editor,
@@ -2209,19 +2217,19 @@ package body Editor.Dogfood_Workflow.Tests is
                  Editor.Dogfood_Workflow.Dogfood_Surface_Diagnostics) =
               Editor.Dogfood_Workflow.Workflow_Surface_Cleared,
               "project switch clears old Diagnostics projection");
-      Assert (Editor.Dogfood_Workflow.Assert_Phase578_Message_Consistency,
-              "Phase 578 message consistency policy is coherent");
-      Assert (Editor.Dogfood_Workflow.Assert_Phase578_Focus_Policy_Coherent,
-              "Phase 578 focus-return policy is coherent");
-      Assert (Editor.Dogfood_Workflow.Assert_Phase578_Surface_Dispositions_Coherent,
-              "Phase 578 cross-surface disposition policy is coherent");
-      Assert (Editor.Dogfood_Workflow.Assert_Phase578_Workflow_Polish_Coherent
+      Assert (Editor.Dogfood_Workflow.Assert_Message_Consistency,
+              "message consistency policy is coherent");
+      Assert (Editor.Dogfood_Workflow.Assert_Focus_Policy_Coherent,
+              "focus-return policy is coherent");
+      Assert (Editor.Dogfood_Workflow.Assert_Surface_Dispositions_Coherent,
+              "cross-surface disposition policy is coherent");
+      Assert (Editor.Dogfood_Workflow.Assert_Workflow_Polish_Coherent
                 (Workspace_Text, Recent_Text, Keybindings_Text, Product_Text),
-              "Phase 578 integrated workflow polish preserves persistence and routing boundaries");
-   end Test_Phase578_Integrated_Workflow_Polish_Coherent;
+              "integrated workflow polish preserves persistence and routing boundaries");
+   end Test_Integrated_Workflow_Polish_Coherent;
 
 
-   procedure Test_Phase579_Product_Workflow_Surface_Coherent
+   procedure Test_Product_Workflow_Surface_Coherent
      (T : in out AUnit.Test_Cases.Test_Case'Class)
    is
       pragma Unreferenced (T);
@@ -2260,201 +2268,201 @@ package body Editor.Dogfood_Workflow.Tests is
       Assert (Editor.Dogfood_Workflow.Product_Workflow_Command
                 (Editor.Dogfood_Workflow.Product_Open_Project) =
               "project.open",
-              "Phase 579 product workflow uses canonical project.open command id");
+              "product workflow uses canonical project.open command id");
       Assert (Editor.Dogfood_Workflow.Product_Workflow_Label
                 (Editor.Dogfood_Workflow.Product_Run_Build) =
               "Run Build",
-              "Phase 579 product workflow exposes product-facing build label");
+              "product workflow exposes product-facing build label");
       Assert (Editor.Dogfood_Workflow.Product_Workflow_Success_Message
                 (Editor.Dogfood_Workflow.Product_Save_Buffer) =
               "File saved.",
-              "Phase 579 product workflow uses canonical save success message");
+              "product workflow uses canonical save success message");
       Assert (Editor.Dogfood_Workflow.Product_Workflow_Failure_Message
                 (Editor.Dogfood_Workflow.Product_Close_Project) =
               "Cannot close project while dirty buffers need review.",
-              "Phase 579 product workflow keeps dirty close wording user-facing");
+              "product workflow keeps dirty close wording user-facing");
       Assert (Editor.Dogfood_Workflow.Product_Workflow_Failure_Message
                 (Editor.Dogfood_Workflow.Product_Switch_Project) =
               "Project switch cancelled.",
-              "Phase 579 product workflow uses explicit switch cancellation wording");
+              "product workflow uses explicit switch cancellation wording");
       Assert (Editor.Dogfood_Workflow.Product_Workflow_Focus_Result
                 (Editor.Dogfood_Workflow.Product_Open_File_From_Quick_Open) =
               Editor.Dogfood_Workflow.Focus_Result_Editor,
-              "Phase 579 Quick Open activation focuses editor");
+              "Quick Open activation focuses editor");
       Assert (Editor.Dogfood_Workflow.Product_Workflow_Focus_Result
                 (Editor.Dogfood_Workflow.Product_Inspect_Diagnostics) =
               Editor.Dogfood_Workflow.Focus_Result_Diagnostics,
-              "Phase 579 Diagnostics command focuses Diagnostics panel");
+              "Diagnostics command focuses Diagnostics panel");
       Assert (Editor.Dogfood_Workflow.Product_Workflow_Success_Message
                 (Editor.Dogfood_Workflow.Product_Inspect_Diagnostics) =
               "Diagnostics shown.",
-              "Phase 579 Diagnostics inspection uses panel-visible success wording");
+              "Diagnostics inspection uses panel-visible success wording");
       Assert (Editor.Dogfood_Workflow.Product_Workflow_Focus_Result
                 (Editor.Dogfood_Workflow.Product_Search_Project) =
               Editor.Dogfood_Workflow.Focus_Result_Search_Results,
-              "Phase 579 project search focuses the search results surface");
+              "project search focuses the search results surface");
       Assert (Editor.Dogfood_Workflow.Product_Workflow_Focus_Result
                 (Editor.Dogfood_Workflow.Product_View_Outline) =
               Editor.Dogfood_Workflow.Focus_Result_Outline,
-              "Phase 579 outline command focuses the Outline surface");
+              "outline command focuses the Outline surface");
       Assert (Editor.Dogfood_Workflow.Product_Workflow_Focus_Result
                 (Editor.Dogfood_Workflow.Product_Inspect_Build_Output) =
               Editor.Dogfood_Workflow.Focus_Result_Build_Output,
-              "Phase 579 build output inspection focuses Build Output");
+              "build output inspection focuses Build Output");
       Assert (Editor.Dogfood_Workflow.Product_Workflow_Focus_Result
                 (Editor.Dogfood_Workflow.Product_Close_Project) =
               Editor.Dogfood_Workflow.Focus_Result_Empty_State,
-              "Phase 579 project close lands in an empty project state");
+              "project close lands in an empty project state");
       Assert (Editor.Dogfood_Workflow.Product_Workflow_Dirty_Buffer_Behavior
                 (Editor.Dogfood_Workflow.Product_Quit_Safely) =
               "blocks until dirty buffers are saved, discarded, or cancellation preserves them",
-              "Phase 579 quit policy preserves dirty buffers on cancellation");
-      Assert (Editor.Dogfood_Workflow.Assert_Phase579_Product_Workflow_Reference_Coherent,
-              "Phase 579 product workflow reference is coherent");
-      Assert (Editor.Dogfood_Workflow.Assert_Phase579_Product_Messages_User_Readable,
-              "Phase 579 product workflow messages avoid internal terms");
-      Assert (Editor.Dogfood_Workflow.Assert_Phase579_Product_Focus_Policy_Coherent,
-              "Phase 579 product workflow focus policy is coherent");
-      Assert (Editor.Dogfood_Workflow.Assert_Phase579_Product_Prompt_Policy_Coherent,
-              "Phase 579 product prompt policy is coherent");
-      Assert (Editor.Dogfood_Workflow.Assert_Phase579_Product_File_Buffer_Coherent,
-              "Phase 579 File Tree and buffer workflow is coherent");
-      Assert (Editor.Dogfood_Workflow.Assert_Phase579_Product_Navigation_Coherent,
-              "Phase 579 navigation workflow is coherent");
-      Assert (Editor.Dogfood_Workflow.Assert_Phase579_Product_Build_Diagnostics_Coherent,
-              "Phase 579 build and diagnostics workflow is coherent");
-      Assert (Editor.Dogfood_Workflow.Assert_Phase579_Product_Workspace_Restore_Coherent,
-              "Phase 579 workspace restore workflow is coherent");
+              "quit policy preserves dirty buffers on cancellation");
+      Assert (Editor.Dogfood_Workflow.Assert_Product_Workflow_Reference_Coherent,
+              "product workflow reference is coherent");
+      Assert (Editor.Dogfood_Workflow.Assert_Product_Messages_User_Readable,
+              "product workflow messages avoid internal terms");
+      Assert (Editor.Dogfood_Workflow.Assert_Product_Focus_Policy_Coherent,
+              "product workflow focus policy is coherent");
+      Assert (Editor.Dogfood_Workflow.Assert_Product_Prompt_Policy_Coherent,
+              "product prompt policy is coherent");
+      Assert (Editor.Dogfood_Workflow.Assert_Product_File_Buffer_Coherent,
+              "File Tree and buffer workflow is coherent");
+      Assert (Editor.Dogfood_Workflow.Assert_Product_Navigation_Coherent,
+              "navigation workflow is coherent");
+      Assert (Editor.Dogfood_Workflow.Assert_Product_Build_Diagnostics_Coherent,
+              "build and diagnostics workflow is coherent");
+      Assert (Editor.Dogfood_Workflow.Assert_Product_Workspace_Restore_Coherent,
+              "workspace restore workflow is coherent");
       Assert (Editor.Dogfood_Workflow.Product_Workflow_Prompt_Title
                 (Editor.Dogfood_Workflow.Product_Delete_File_Or_Directory) =
               "Delete File or Directory",
-              "Phase 579 delete workflow has a product prompt title");
+              "delete workflow has a product prompt title");
       Assert (Editor.Dogfood_Workflow.Product_Workflow_Prompt_Title
                 (Editor.Dogfood_Workflow.Product_Rename_File_Or_Directory) =
               "Rename File or Directory",
-              "Phase 579 rename workflow uses the same prompt title as the real prompt surface");
+              "rename workflow uses the same prompt title as the real prompt surface");
       Assert (Editor.Dogfood_Workflow.Product_Workflow_Success_Message
                 (Editor.Dogfood_Workflow.Product_Rename_File_Or_Directory) =
               "File or directory renamed.",
-              "Phase 579 rename workflow does not use generic item wording");
+              "rename workflow does not use generic item wording");
       Assert (Editor.Dogfood_Workflow.Product_Workflow_Success_Message
                 (Editor.Dogfood_Workflow.Product_Delete_File_Or_Directory) =
               "File or directory deleted.",
-              "Phase 579 delete workflow does not use generic item wording");
+              "delete workflow does not use generic item wording");
       Assert (Editor.Dogfood_Workflow.Product_Workflow_Failure_Message
                 (Editor.Dogfood_Workflow.Product_Rename_File_Or_Directory) =
               "File or directory could not be renamed.",
-              "Phase 579 rename failure workflow does not use generic item wording");
+              "rename failure workflow does not use generic item wording");
       Assert (Editor.Dogfood_Workflow.Product_Workflow_Success_Message
                 (Editor.Dogfood_Workflow.Product_Inspect_Build_Output) =
               "Build Output shown.",
-              "Phase 579 build-output inspection uses the product surface status");
+              "build-output inspection uses the product surface status");
       Assert (Editor.Dogfood_Workflow.Product_Workflow_Failure_Message
                 (Editor.Dogfood_Workflow.Product_Inspect_Build_Output) =
               "No build output captured.",
-              "Phase 579 build-output empty state uses the canonical useful empty message");
+              "build-output empty state uses the canonical useful empty message");
       Assert (Editor.Dogfood_Workflow.Product_Workflow_Cancel_Status
                 (Editor.Dogfood_Workflow.Product_Reload_Buffer) =
               "Dirty buffer preserved.",
-              "Phase 579 reload cancellation preserves dirty text");
+              "reload cancellation preserves dirty text");
       Assert (Editor.Dogfood_Workflow.Product_Workflow_Cancel_Status
                 (Editor.Dogfood_Workflow.Product_Create_File) =
               "Create file cancelled.",
-              "Phase 579 create-file cancellation is specific to the workflow");
+              "create-file cancellation is specific to the workflow");
       Assert (Editor.Dogfood_Workflow.Product_Workflow_Cancel_Status
                 (Editor.Dogfood_Workflow.Product_Create_Directory) =
               "Create directory cancelled.",
-              "Phase 579 create-directory cancellation is specific to the workflow");
+              "create-directory cancellation is specific to the workflow");
       Assert (Editor.Dogfood_Workflow.Product_Workflow_Cancel_Status
                 (Editor.Dogfood_Workflow.Product_Rename_File_Or_Directory) =
               "Rename cancelled.",
-              "Phase 579 rename cancellation is specific to the workflow");
+              "rename cancellation is specific to the workflow");
       Assert (Editor.Dogfood_Workflow.Product_Workflow_File_Buffer_Effect
                 (Editor.Dogfood_Workflow.Product_Rename_File_Or_Directory) =
               "updates backing path for an open renamed file",
-              "Phase 579 rename workflow updates open buffer backing path");
+              "rename workflow updates open buffer backing path");
       Assert (Editor.Dogfood_Workflow.Product_Workflow_Panel_Effect
                 (Editor.Dogfood_Workflow.Product_Run_Build) =
               "updates build output and diagnostics from the same build result",
-              "Phase 579 build workflow keeps output and diagnostics coherent");
+              "build workflow keeps output and diagnostics coherent");
       Assert (Editor.Dogfood_Workflow.Product_Workflow_Persistence_Effect
                 (Editor.Dogfood_Workflow.Product_Restore_Workspace) =
               "restores only valid project, buffers, selection, and focus",
-              "Phase 579 workspace restore only restores valid session state");
-      Assert (Editor.Dogfood_Workflow.Assert_Phase579_Product_Surface_Coherent
+              "workspace restore only restores valid session state");
+      Assert (Editor.Dogfood_Workflow.Assert_Product_Surface_Coherent
                 (Product_Text),
-              "Phase 579 product workflow surface has expected core commands");
+              "product workflow surface has expected core commands");
       Assert (Editor.Commands.Normalize_Workflow_Message ("File renamed") =
               "File renamed.",
-              "Phase 579 normalizes file rename status punctuation");
+              "normalizes file rename status punctuation");
       Assert (Editor.Commands.Normalize_Workflow_Message ("Directory renamed") =
               "Directory renamed.",
-              "Phase 579 normalizes directory rename status punctuation");
+              "normalizes directory rename status punctuation");
       Assert (Editor.Commands.Normalize_Workflow_Message ("File deleted") =
               "File deleted.",
-              "Phase 579 normalizes file delete status punctuation");
+              "normalizes file delete status punctuation");
       Assert (Editor.Commands.Normalize_Workflow_Message ("Directory deleted") =
               "Directory deleted.",
-              "Phase 579 normalizes directory delete status punctuation");
+              "normalizes directory delete status punctuation");
       Assert (Editor.Commands.Normalize_Workflow_Message ("Create file cancelled") =
               "Create file cancelled.",
-              "Phase 579 normalizes create-file cancellation status punctuation");
+              "normalizes create-file cancellation status punctuation");
       Assert (Editor.Commands.Normalize_Workflow_Message ("Create directory cancelled") =
               "Create directory cancelled.",
-              "Phase 579 normalizes create-directory cancellation status punctuation");
+              "normalizes create-directory cancellation status punctuation");
       Assert (Editor.Commands.Normalize_Workflow_Message ("Rename cancelled") =
               "Rename cancelled.",
-              "Phase 579 normalizes rename cancellation status punctuation");
+              "normalizes rename cancellation status punctuation");
       Assert (Editor.Commands.Normalize_Workflow_Message ("Delete cancelled") =
               "Delete cancelled.",
-              "Phase 579 normalizes delete cancellation status punctuation");
+              "normalizes delete cancellation status punctuation");
       Assert (Editor.Commands.Normalize_Workflow_Message ("Build UI shown") =
               "Build Output shown.",
-              "Phase 579 normalizes removed Build UI show status wording");
+              "normalizes removed Build UI show status wording");
       Assert (Editor.Commands.Normalize_Workflow_Message ("Item could not be renamed") =
               "File or directory could not be renamed.",
-              "Phase 579 normalizes generic rename failure wording");
+              "normalizes generic rename failure wording");
       Assert (Editor.Commands.Normalize_Workflow_Message ("No build output") =
               "No build output captured.",
-              "Phase 579 normalizes build-output empty status to useful product wording");
+              "normalizes build-output empty status to useful product wording");
       Assert (Editor.Commands.Normalize_Workflow_Message ("Diagnostics shown") =
               "Diagnostics shown.",
-              "Phase 579 normalizes diagnostics panel show status punctuation");
+              "normalizes diagnostics panel show status punctuation");
       Assert (Editor.Feature_Diagnostics.Message_Diagnostics_Shown =
               "Diagnostics shown.",
-              "Phase 579 diagnostics panel show message is product-facing");
+              "diagnostics panel show message is product-facing");
       Assert (Editor.Feature_Diagnostics.Message_Diagnostics_Cleared =
               "Diagnostics cleared.",
-              "Phase 579 diagnostics clear message is product-facing");
+              "diagnostics clear message is product-facing");
       Assert (Editor.Commands.Normalize_Workflow_Message ("No diagnostics produced") =
               "No diagnostics.",
-              "Phase 579 normalizes build-produced empty diagnostics wording");
+              "normalizes build-produced empty diagnostics wording");
       Assert (Editor.Commands.Normalize_Workflow_Message ("Backing file no longer exists") =
               "Backing file missing.",
-              "Phase 579 normalizes backing-file loss to the product vocabulary");
+              "normalizes backing-file loss to the product vocabulary");
       Assert (Editor.Commands.Normalize_Workflow_Message
                 ("Rename blocked by unsaved changes") =
               "Dirty buffer preserved.",
-              "Phase 579 normalizes dirty File Tree rename blockers to preserved data wording");
+              "normalizes dirty File Tree rename blockers to preserved data wording");
       Assert (Editor.Commands.Normalize_Workflow_Message
                 ("Delete blocked by unsaved changes") =
               "Dirty buffer preserved.",
-              "Phase 579 normalizes dirty File Tree delete blockers to preserved data wording");
+              "normalizes dirty File Tree delete blockers to preserved data wording");
       Assert (Editor.Commands.Normalize_Workflow_Message
                 ("Build panel is closed; open Build before running build.run") =
               "Build Output is closed; open Build Output before running build.run.",
-              "Phase 579 normalizes removed build-surface availability wording");
+              "normalizes removed build-surface availability wording");
       Assert (Editor.Commands.Normalize_Workflow_Message
                 ("Workspace state restored") =
               "Workspace restored.",
-              "Phase 579 normalizes workspace restore success to product wording");
+              "normalizes workspace restore success to product wording");
       Assert (Editor.Commands.Normalize_Workflow_Message
                 ("Workspace state partially restored") =
               "Workspace restored with missing entries skipped.",
-              "Phase 579 normalizes partial workspace restore to product wording");
-   end Test_Phase579_Product_Workflow_Surface_Coherent;
+              "normalizes partial workspace restore to product wording");
+   end Test_Product_Workflow_Surface_Coherent;
 
-   procedure Test_Phase579_Product_Focus_And_Cancel_Behavior
+   procedure Test_Product_Focus_And_Cancel_Behavior
      (T : in out AUnit.Test_Cases.Test_Case'Class)
    is
       pragma Unreferenced (T);
@@ -2467,105 +2475,105 @@ package body Editor.Dogfood_Workflow.Tests is
    begin
       Assert (Editor.Focus_Management.Command_Returns_Focus_To_Editor
                 (Editor.Commands.Command_Open_File),
-              "Phase 579 explicit file-open command returns focus to the editor buffer");
+              "explicit file-open command returns focus to the editor buffer");
       Assert (Editor.Focus_Management.Command_Returns_Focus_To_Editor
                 (Editor.Commands.Command_File_Tree_Open_Selected),
-              "Phase 579 File Tree activation returns focus to the editor buffer");
+              "File Tree activation returns focus to the editor buffer");
       Assert (Editor.Focus_Management.Command_Returns_Focus_To_Editor
                 (Editor.Commands.Command_Search_Results_Open_Selected),
-              "Phase 579 search-result activation returns focus to the editor buffer");
+              "search-result activation returns focus to the editor buffer");
       Assert (Editor.Focus_Management.Command_Returns_Focus_To_Editor
                 (Editor.Commands.Command_Open_Selected_Outline_Item),
-              "Phase 579 outline activation returns focus to the editor buffer");
+              "outline activation returns focus to the editor buffer");
       Assert (Editor.Focus_Management.Focus_Target_For_Surface_Command
                 (Editor.Commands.Command_Show_Outline) =
               Editor.Focus_Management.Focus_Outline,
-              "Phase 579 Show Outline has a deterministic focus target");
+              "Show Outline has a deterministic focus target");
       Assert (Editor.Focus_Management.Focus_Target_For_Surface_Command
                 (Editor.Commands.Command_Diagnostics_Show) =
               Editor.Focus_Management.Focus_Diagnostics,
-              "Phase 579 Show Diagnostics has a deterministic focus target");
+              "Show Diagnostics has a deterministic focus target");
       Assert (Editor.Focus_Management.Focus_Target_For_Surface_Command
                 (Editor.Commands.Command_Build_UI_Show) =
               Editor.Focus_Management.Focus_Build_UI,
-              "Phase 579 Build Output entry uses the build surface focus target");
+              "Build Output entry uses the build surface focus target");
       Assert (Editor.Focus_Management.Focus_Owner_Label
                 (Editor.Focus_Management.Focus_Build_UI) = "Build Output",
-              "Phase 579 build focus label is product-facing Build Output");
+              "build focus label is product-facing Build Output");
       Assert (Editor.Focus_Management.Active_Panel_Label
                 (Editor.Focus_Management.Focus_Build_UI) = "Build Output",
-              "Phase 579 active panel label is product-facing Build Output");
+              "active panel label is product-facing Build Output");
 
       Editor.State.Init (S);
       Editor.Executor.Execute_Command (S, Editor.Commands.Command_Build_UI_Show);
       Assert (Active_Message_Text (S) = "Build Output shown.",
-              "Phase 579 build output show status is product-facing");
+              "build output show status is product-facing");
       Editor.Executor.Execute_Command (S, Editor.Commands.Command_Build_UI_Focus);
       Assert (Active_Message_Text (S) = "Build Output focused.",
-              "Phase 579 build output focus status is product-facing");
+              "build output focus status is product-facing");
       Editor.Executor.Execute_Command (S, Editor.Commands.Command_Build_UI_Hide);
       Assert (Active_Message_Text (S) = "Build Output hidden.",
-              "Phase 579 build output hide status is product-facing");
+              "build output hide status is product-facing");
 
       Editor.Executor.Execute_Command (S, Editor.Commands.Command_Diagnostics_Show);
       Assert (Active_Message_Text (S) = "No diagnostics.",
-              "Phase 579 diagnostics show reports the useful empty diagnostics state");
+              "diagnostics show reports the useful empty diagnostics state");
 
       Editor.Executor.Execute_Command (S, Editor.Commands.Command_Show_Outline);
       Assert (Active_Message_Text (S) = "Outline shown.",
-              "Phase 579 Outline show status is punctuated and product-facing");
+              "Outline show status is punctuated and product-facing");
       Editor.Executor.Execute_Command (S, Editor.Commands.Command_Focus_Outline);
       Assert (Active_Message_Text (S) = "Outline focused.",
-              "Phase 579 Outline focus status is punctuated and product-facing");
+              "Outline focus status is punctuated and product-facing");
       Assert (Editor.Commands.Normalize_Workflow_Message
                 ("No outline items item selected.") =
               "No file selected.",
-              "Phase 579 normalizes old duplicated Outline selection wording");
+              "normalizes old duplicated Outline selection wording");
       Assert (Editor.Commands.Normalize_Workflow_Message ("Outline shown") =
               "Outline shown.",
-              "Phase 579 normalizes old unpunctuated Outline show wording");
+              "normalizes old unpunctuated Outline show wording");
       Assert (Editor.Commands.Normalize_Workflow_Message ("Outline focused") =
               "Outline focused.",
-              "Phase 579 normalizes old unpunctuated Outline focus wording");
+              "normalizes old unpunctuated Outline focus wording");
       Assert (Editor.Commands.Descriptor
                 (Editor.Commands.Command_Refresh_Outline).Name =
               "Refresh Outline",
-              "Phase 579 Outline refresh label is product-facing");
+              "Outline refresh label is product-facing");
       Assert (Editor.Commands.Descriptor
                 (Editor.Commands.Command_Open_Selected_Outline_Item).Description =
               "Open the selected Outline item.",
-              "Phase 579 Outline activation description avoids implementation metadata wording");
+              "Outline activation description avoids implementation metadata wording");
       Assert (Editor.Commands.Descriptor
                 (Editor.Commands.Command_Select_Current_Outline_Symbol).Name =
               "Select Current Outline Symbol",
-              "Phase 579 current-symbol Outline command label is product-facing");
+              "current-symbol Outline command label is product-facing");
       Assert (Editor.Commands.Descriptor
                 (Editor.Commands.Command_Reveal_Current_Outline_Symbol).Name =
               "Reveal Current Outline Symbol",
-              "Phase 579 reveal-current Outline command label is product-facing");
+              "reveal-current Outline command label is product-facing");
       Assert (Editor.Commands.Descriptor
                 (Editor.Commands.Command_Next_Outline_Symbol).Name =
               "Next Outline Symbol",
-              "Phase 579 next-symbol Outline command label is product-facing");
+              "next-symbol Outline command label is product-facing");
       Assert (Editor.Commands.Descriptor
                 (Editor.Commands.Command_Previous_Outline_Symbol).Name =
               "Previous Outline Symbol",
-              "Phase 579 previous-symbol Outline command label is product-facing");
+              "previous-symbol Outline command label is product-facing");
       Assert (Editor.Commands.Descriptor
                 (Editor.Commands.Command_Focus_Outline_Filter).Name =
               "Focus Outline Filter",
-              "Phase 579 Outline filter focus label is product-facing");
+              "Outline filter focus label is product-facing");
       Assert (Editor.Commands.Descriptor
                 (Editor.Commands.Command_Clear_Outline_Filter).Name =
               "Clear Outline Filter",
-              "Phase 579 Outline filter clear label is product-facing");
+              "Outline filter clear label is product-facing");
 
       Build_Dogfood_Fixture (Root);
       Editor.Buffers.Reset_Global_For_Test;
       Editor.State.Init (S);
-      Editor.Executor.Execute_Open_Project (S, Root);
-      Editor.Executor.Execute_Refresh_File_Tree (S);
-      Editor.Executor.Execute_Open_File (S, Source_Path);
+      Editor.Executor.Project_Lifecycle_Commands.Execute_Open_Project (S, Root);
+      Editor.Executor.Project_File_Index_Commands.Execute_Refresh_File_Tree (S);
+      Editor.Executor.File_Open_Commands.Execute_Open_File (S, Source_Path);
       Before_Text := To_Unbounded_String (Editor.State.Current_Text (S));
 
       Editor.Focus_Management.Set_Focus_Owner
@@ -2575,25 +2583,25 @@ package body Editor.Dogfood_Workflow.Tests is
         (Editor.Commands.Command_File_Tree_Create_File);
       S := Editor.Input_Bridge.Get_State_For_Test;
       Assert (Editor.Guided_Prompts.Is_Active (S.Guided_Prompt),
-              "Phase 579 create-file prompt starts through the product command path");
+              "create-file prompt starts through the product command path");
       Editor.Guided_Prompts.Update_Input
         (S.Guided_Prompt, "src/cancelled_from_prompt.adb");
       Editor.Input_Bridge.Set_State_For_Test (S);
       Editor.Input_Bridge.Execute_Command_Id (Editor.Commands.Command_Cancel);
       S := Editor.Input_Bridge.Get_State_For_Test;
       Assert (not Editor.Guided_Prompts.Is_Active (S.Guided_Prompt),
-              "Phase 579 prompt cancellation clears transient prompt state");
+              "prompt cancellation clears transient prompt state");
       Assert (Active_Message_Text (S) = "Create file cancelled.",
-              "Phase 579 create-file cancellation reports product wording");
+              "create-file cancellation reports product wording");
       Assert (Editor.Focus_Management.Effective_Focus_Owner (S) =
                 Editor.Focus_Management.Focus_File_Tree,
-              "Phase 579 File Tree prompt cancellation restores File Tree focus");
+              "File Tree prompt cancellation restores File Tree focus");
       Assert (not Ada.Directories.Exists (Cancel_Path),
-              "Phase 579 prompt cancellation does not create a filesystem target");
+              "prompt cancellation does not create a filesystem target");
       Assert (To_Unbounded_String (Editor.State.Current_Text (S)) = Before_Text,
-              "Phase 579 prompt cancellation preserves active buffer text");
+              "prompt cancellation preserves active buffer text");
       Assert (not S.File_Info.Dirty,
-              "Phase 579 prompt cancellation does not dirty the active buffer");
+              "prompt cancellation does not dirty the active buffer");
 
       Write_File
         (Editor.Workspace_Persistence.Session_File_Path (Root),
@@ -2602,23 +2610,23 @@ package body Editor.Dogfood_Workflow.Tests is
         (S, Editor.Commands.Command_Restore_Workspace_State);
       Assert (Workspace_Command_Result.Status =
                 Editor.Command_Execution.Command_Failed,
-              "Phase 579 invalid workspace restore fails through the product command path");
+              "invalid workspace restore fails through the product command path");
       Assert (Active_Message_Text (S) = "Workspace could not be restored.",
-              "Phase 579 invalid workspace restore reports product wording");
+              "invalid workspace restore reports product wording");
       Assert (Editor.Project.Has_Project (S.Project)
                 and then Editor.Project.Root_Path (S.Project) = Root,
-              "Phase 579 invalid workspace restore preserves the active project");
+              "invalid workspace restore preserves the active project");
       Assert (S.File_Info.Has_Path
                 and then To_String (S.File_Info.Path) = Source_Path,
-              "Phase 579 invalid workspace restore preserves the active file");
+              "invalid workspace restore preserves the active file");
       Assert (To_Unbounded_String (Editor.State.Current_Text (S)) = Before_Text,
-              "Phase 579 invalid workspace restore preserves active buffer text");
+              "invalid workspace restore preserves active buffer text");
       Remove_Tree_If_Exists (Root);
-   end Test_Phase579_Product_Focus_And_Cancel_Behavior;
+   end Test_Product_Focus_And_Cancel_Behavior;
 
 
 
-   procedure Test_Phase579_File_Tree_Clean_Open_Buffer_Lifecycle
+   procedure Test_File_Tree_Clean_Open_Buffer_Lifecycle
      (T : in out AUnit.Test_Cases.Test_Case'Class)
    is
       pragma Unreferenced (T);
@@ -2639,25 +2647,25 @@ package body Editor.Dogfood_Workflow.Tests is
 
       Editor.Buffers.Reset_Global_For_Test;
       Editor.State.Init (S);
-      Editor.Executor.Execute_Open_Project (S, Root);
-      Editor.Executor.Execute_Refresh_File_Tree (S);
-      Editor.Executor.Execute_Open_File (S, Source_Path);
+      Editor.Executor.Project_Lifecycle_Commands.Execute_Open_Project (S, Root);
+      Editor.Executor.Project_File_Index_Commands.Execute_Refresh_File_Tree (S);
+      Editor.Executor.File_Open_Commands.Execute_Open_File (S, Source_Path);
 
       Assert (S.File_Info.Has_Path
                 and then To_String (S.File_Info.Path) = Source_Path,
-              "Phase 579 clean-open setup opens the selected File Tree target");
+              "clean-open setup opens the selected File Tree target");
       Assert (not S.File_Info.Dirty,
-              "Phase 579 clean-open setup starts from a clean buffer");
+              "clean-open setup starts from a clean buffer");
       Assert (Editor.Buffers.Global_Count = 1,
-              "Phase 579 clean-open setup has one open buffer");
+              "clean-open setup has one open buffer");
 
       Node := Editor.File_Tree.Find_By_Path
         (S.File_Tree, "src/clean_open.adb", Found);
       Assert (Found and then Node /= Editor.File_Tree.No_File_Tree_Node,
-              "Phase 579 clean-open source is present in the File Tree");
+              "clean-open source is present in the File Tree");
       Row := Editor.File_Tree_View.Row_For_Node (S.File_Tree, Node, Found);
       Assert (Found and then Row > 0,
-              "Phase 579 clean-open source maps to a selectable File Tree row");
+              "clean-open source maps to a selectable File Tree row");
       Editor.File_Tree_View.Set_Selected_Row_Index (S.File_Tree_View, Row);
       Editor.Focus_Management.Set_Focus_Owner
         (S, Editor.Focus_Management.Focus_File_Tree);
@@ -2671,53 +2679,53 @@ package body Editor.Dogfood_Workflow.Tests is
 
       Assert (not Ada.Directories.Exists (Source_Path)
                 and then Ada.Directories.Exists (Renamed_Path),
-              "Phase 579 clean open File Tree rename moves the backing file");
+              "clean open File Tree rename moves the backing file");
       Assert (S.File_Info.Has_Path
                 and then To_String (S.File_Info.Path) = Renamed_Path,
-              "Phase 579 clean open File Tree rename updates the active buffer path");
+              "clean open File Tree rename updates the active buffer path");
       Assert (not S.File_Info.Dirty,
-              "Phase 579 clean open File Tree rename preserves clean state");
+              "clean open File Tree rename preserves clean state");
       Assert (Ada.Strings.Fixed.Index
                 (Editor.State.Current_Text (S), "Clean_Open") > 0,
-              "Phase 579 clean open File Tree rename preserves buffer text");
+              "clean open File Tree rename preserves buffer text");
       Assert (Editor.Focus_Management.Effective_Focus_Owner (S) =
                 Editor.Focus_Management.Focus_Editor,
-              "Phase 579 clean open File Tree rename focuses the renamed buffer");
+              "clean open File Tree rename focuses the renamed buffer");
 
       Node := Editor.File_Tree.Find_By_Path
         (S.File_Tree, "src/clean_open_renamed.adb", Found);
       Assert (Found and then Node /= Editor.File_Tree.No_File_Tree_Node,
-              "Phase 579 renamed clean-open file is present in the File Tree");
+              "renamed clean-open file is present in the File Tree");
       Row := Editor.File_Tree_View.Row_For_Node (S.File_Tree, Node, Found);
       Assert (Found and then Row > 0,
-              "Phase 579 renamed clean-open file maps to a selectable row");
+              "renamed clean-open file maps to a selectable row");
       Editor.File_Tree_View.Set_Selected_Row_Index (S.File_Tree_View, Row);
 
       Run_File_Tree_Delete_Confirmation (S);
 
       Assert (not Ada.Directories.Exists (Renamed_Path),
-              "Phase 579 clean open File Tree delete removes the backing file");
+              "clean open File Tree delete removes the backing file");
       Assert (Editor.Buffers.Global_Count = 0,
-              "Phase 579 clean open File Tree delete closes the clean buffer");
+              "clean open File Tree delete closes the clean buffer");
       Assert (Editor.Buffers.Global_Active_Buffer = Editor.Buffers.No_Buffer,
-              "Phase 579 clean open File Tree delete leaves no stale active buffer id");
+              "clean open File Tree delete leaves no stale active buffer id");
       Assert (not S.File_Info.Has_Path,
-              "Phase 579 clean open File Tree delete clears the active file path");
+              "clean open File Tree delete clears the active file path");
       Assert (Editor.State.Current_Text (S)'Length = 0,
-              "Phase 579 clean open File Tree delete leaves an empty editor buffer");
+              "clean open File Tree delete leaves an empty editor buffer");
       Assert (not S.File_Info.Dirty,
-              "Phase 579 clean open File Tree delete leaves no dirty phantom buffer");
+              "clean open File Tree delete leaves no dirty phantom buffer");
       Assert (Editor.Focus_Management.Effective_Focus_Owner (S) =
                 Editor.Focus_Management.Focus_File_Tree,
-              "Phase 579 clean open File Tree delete keeps File Tree focus");
+              "clean open File Tree delete keeps File Tree focus");
       Assert (Active_Message_Text (S) = "File deleted.",
-              "Phase 579 clean open File Tree delete reports product success");
+              "clean open File Tree delete reports product success");
 
       Remove_Tree_If_Exists (Root);
-   end Test_Phase579_File_Tree_Clean_Open_Buffer_Lifecycle;
+   end Test_File_Tree_Clean_Open_Buffer_Lifecycle;
 
 
-   procedure Test_Phase579_File_Tree_Delete_Active_Buffer_Selects_Next_Buffer
+   procedure Test_File_Tree_Delete_Active_Buffer_Selects_Next_Buffer
      (T : in out AUnit.Test_Cases.Test_Case'Class)
    is
       pragma Unreferenced (T);
@@ -2743,26 +2751,26 @@ package body Editor.Dogfood_Workflow.Tests is
 
       Editor.Buffers.Reset_Global_For_Test;
       Editor.State.Init (S);
-      Editor.Executor.Execute_Open_Project (S, Root);
-      Editor.Executor.Execute_Refresh_File_Tree (S);
-      Editor.Executor.Execute_Open_File (S, First_Path);
-      Editor.Executor.Execute_Open_File (S, Second_Path);
+      Editor.Executor.Project_Lifecycle_Commands.Execute_Open_Project (S, Root);
+      Editor.Executor.Project_File_Index_Commands.Execute_Refresh_File_Tree (S);
+      Editor.Executor.File_Open_Commands.Execute_Open_File (S, First_Path);
+      Editor.Executor.File_Open_Commands.Execute_Open_File (S, Second_Path);
 
       Assert (Editor.Buffers.Global_Count = 2,
-              "Phase 579 multi-buffer delete setup has two clean file buffers");
+              "multi-buffer delete setup has two clean file buffers");
       Assert (S.File_Info.Has_Path
                 and then To_String (S.File_Info.Path) = Second_Path,
-              "Phase 579 multi-buffer delete setup makes the second file active");
+              "multi-buffer delete setup makes the second file active");
       Assert (not S.File_Info.Dirty,
-              "Phase 579 multi-buffer delete setup active file is clean");
+              "multi-buffer delete setup active file is clean");
 
       Node := Editor.File_Tree.Find_By_Path
         (S.File_Tree, "src/delete_active_second.adb", Found);
       Assert (Found and then Node /= Editor.File_Tree.No_File_Tree_Node,
-              "Phase 579 active clean delete target is present in the File Tree");
+              "active clean delete target is present in the File Tree");
       Row := Editor.File_Tree_View.Row_For_Node (S.File_Tree, Node, Found);
       Assert (Found and then Row > 0,
-              "Phase 579 active clean delete target maps to a File Tree row");
+              "active clean delete target maps to a File Tree row");
       Editor.File_Tree_View.Set_Selected_Row_Index (S.File_Tree_View, Row);
       Editor.Focus_Management.Set_Focus_Owner
         (S, Editor.Focus_Management.Focus_File_Tree);
@@ -2770,30 +2778,30 @@ package body Editor.Dogfood_Workflow.Tests is
       Run_File_Tree_Delete_Confirmation (S);
 
       Assert (not Ada.Directories.Exists (Second_Path),
-              "Phase 579 active clean File Tree delete removes the active backing file");
+              "active clean File Tree delete removes the active backing file");
       Assert (Ada.Directories.Exists (First_Path),
-              "Phase 579 active clean File Tree delete preserves the remaining backing file");
+              "active clean File Tree delete preserves the remaining backing file");
       Assert (Editor.Buffers.Global_Count = 1,
-              "Phase 579 active clean File Tree delete closes only the deleted buffer");
+              "active clean File Tree delete closes only the deleted buffer");
       Assert (S.File_Info.Has_Path
                 and then To_String (S.File_Info.Path) = First_Path,
-              "Phase 579 active clean File Tree delete switches to the remaining buffer");
+              "active clean File Tree delete switches to the remaining buffer");
       Assert (Ada.Strings.Fixed.Index
                 (Editor.State.Current_Text (S), "Delete_Keep_First") > 0,
-              "Phase 579 active clean File Tree delete loads the remaining buffer text");
+              "active clean File Tree delete loads the remaining buffer text");
       Assert (not S.File_Info.Dirty,
-              "Phase 579 active clean File Tree delete keeps the replacement buffer clean");
+              "active clean File Tree delete keeps the replacement buffer clean");
       Assert (Editor.Focus_Management.Effective_Focus_Owner (S) =
                 Editor.Focus_Management.Focus_Editor,
-              "Phase 579 active clean File Tree delete focuses the replacement editor buffer");
+              "active clean File Tree delete focuses the replacement editor buffer");
       Assert (Active_Message_Text (S) = "File deleted.",
-              "Phase 579 active clean File Tree delete reports product success");
+              "active clean File Tree delete reports product success");
 
       Remove_Tree_If_Exists (Root);
-   end Test_Phase579_File_Tree_Delete_Active_Buffer_Selects_Next_Buffer;
+   end Test_File_Tree_Delete_Active_Buffer_Selects_Next_Buffer;
 
 
-   procedure Test_Phase579_File_Tree_Rename_Directory_Rebases_Active_Child_Buffer
+   procedure Test_File_Tree_Rename_Directory_Rebases_Active_Child_Buffer
      (T : in out AUnit.Test_Cases.Test_Case'Class)
    is
       pragma Unreferenced (T);
@@ -2827,30 +2835,30 @@ package body Editor.Dogfood_Workflow.Tests is
 
       Editor.Buffers.Reset_Global_For_Test;
       Editor.State.Init (S);
-      Editor.Executor.Execute_Open_Project (S, Root);
-      Editor.Executor.Execute_Refresh_File_Tree (S);
-      Editor.Executor.Execute_Open_File (S, Other_Path);
-      Editor.Executor.Execute_Open_File (S, Old_Child_Path);
+      Editor.Executor.Project_Lifecycle_Commands.Execute_Open_Project (S, Root);
+      Editor.Executor.Project_File_Index_Commands.Execute_Refresh_File_Tree (S);
+      Editor.Executor.File_Open_Commands.Execute_Open_File (S, Other_Path);
+      Editor.Executor.File_Open_Commands.Execute_Open_File (S, Old_Child_Path);
 
       Child_Id_Before := Editor.Buffers.Global_Find_By_Path
         (Old_Child_Path, Found);
       Assert (Found and then Child_Id_Before /= Editor.Buffers.No_Buffer,
-              "Phase 579 directory rename setup has a child buffer at the old path");
+              "directory rename setup has a child buffer at the old path");
       Assert (S.File_Info.Has_Path
                 and then To_String (S.File_Info.Path) = Old_Child_Path,
-              "Phase 579 directory rename setup makes the child buffer active");
+              "directory rename setup makes the child buffer active");
       Assert (Editor.Buffers.Global_Count = 2,
-              "Phase 579 directory rename setup preserves the other clean buffer");
+              "directory rename setup preserves the other clean buffer");
       Assert (not S.File_Info.Dirty,
-              "Phase 579 directory rename setup active child is clean");
+              "directory rename setup active child is clean");
 
       Node := Editor.File_Tree.Find_By_Path
         (S.File_Tree, "src/rename_dir_active", Found);
       Assert (Found and then Node /= Editor.File_Tree.No_File_Tree_Node,
-              "Phase 579 directory rename source is present in the File Tree");
+              "directory rename source is present in the File Tree");
       Row := Editor.File_Tree_View.Row_For_Node (S.File_Tree, Node, Found);
       Assert (Found and then Row > 0,
-              "Phase 579 directory rename source maps to a selectable row");
+              "directory rename source maps to a selectable row");
       Editor.File_Tree_View.Set_Selected_Row_Index (S.File_Tree_View, Row);
       Editor.Focus_Management.Set_Focus_Owner
         (S, Editor.Focus_Management.Focus_File_Tree);
@@ -2874,33 +2882,216 @@ package body Editor.Dogfood_Workflow.Tests is
       Assert (not Ada.Directories.Exists (Old_Dir)
                 and then Ada.Directories.Exists (New_Dir)
                 and then Ada.Directories.Exists (New_Child_Path),
-              "Phase 579 File Tree directory rename moves the child file subtree");
+              "File Tree directory rename moves the child file subtree");
       Assert (not Old_Found,
-              "Phase 579 File Tree directory rename removes the old child buffer path");
+              "File Tree directory rename removes the old child buffer path");
       Assert (New_Found and then Child_Id_After = Child_Id_Before,
-              "Phase 579 File Tree directory rename rebases the existing child buffer id");
+              "File Tree directory rename rebases the existing child buffer id");
       Assert (Editor.Buffers.Global_Count = 2,
-              "Phase 579 File Tree directory rename does not create duplicate buffers");
+              "File Tree directory rename does not create duplicate buffers");
       Assert (S.File_Info.Has_Path
                 and then To_String (S.File_Info.Path) = New_Child_Path,
-              "Phase 579 File Tree directory rename updates the active child path");
+              "File Tree directory rename updates the active child path");
       Assert (Ada.Strings.Fixed.Index
                 (Editor.State.Current_Text (S), "Open_Child") > 0,
-              "Phase 579 File Tree directory rename preserves active child text");
+              "File Tree directory rename preserves active child text");
       Assert (not S.File_Info.Dirty,
-              "Phase 579 File Tree directory rename preserves clean child state");
+              "File Tree directory rename preserves clean child state");
       Assert (Editor.Focus_Management.Effective_Focus_Owner (S) =
                 Editor.Focus_Management.Focus_Editor,
-              "Phase 579 File Tree directory rename returns focus to the active child buffer");
+              "File Tree directory rename returns focus to the active child buffer");
       Assert (Active_Message_Text (S) = "Directory renamed.",
-              "Phase 579 File Tree directory rename reports product success");
+              "File Tree directory rename reports product success");
 
       Remove_Tree_If_Exists (Root);
 
-   end Test_Phase579_File_Tree_Rename_Directory_Rebases_Active_Child_Buffer;
+   end Test_File_Tree_Rename_Directory_Rebases_Active_Child_Buffer;
 
 
-   procedure Test_Phase579_Full_Daily_Editor_Loop_Dogfood_Scenario
+   procedure Test_Main_Workflow_Smoke
+     (T : in out AUnit.Test_Cases.Test_Case'Class)
+   is
+      pragma Unreferenced (T);
+      Root        : constant String := Temp_Root & "_main_workflow_smoke";
+      Source_Path : constant String := Root & "/src/dogfood_demo.adb";
+      Main_Path   : constant String := Root & "/src/main.adb";
+      S           : Editor.State.State_Type;
+      Search_Result : Editor.Project_Search.Project_Search_Result;
+      Build_Run      : Editor.Command_Execution.Command_Execution_Result;
+      Build_Refresh  : Editor.Build_Candidate_Refresh.Build_Candidate_Refresh_Result;
+      Context        : Editor.Build_Working_Context.Build_Working_Context_Record;
+      Supplied_Process : Editor.External_Producers.Process_Run_Result;
+      Build_Command_Result : Editor.External_Producers.Build_Command_Result;
+      Diagnostic_Open : Editor.Command_Execution.Command_Execution_Result;
+      Back_Result     : Editor.Command_Execution.Command_Execution_Result;
+
+      procedure Expect_Active_Message_Contains
+        (Needle : String;
+         Why    : String)
+      is
+      begin
+         Assert (Ada.Strings.Fixed.Index (Active_Message_Text (S), Needle) > 0,
+                 Why & " (active message was '" & Active_Message_Text (S) & "')");
+      end Expect_Active_Message_Contains;
+   begin
+      --  Main workflow canary: open project -> Quick Open -> Project Search
+      --  -> edit -> build -> inspect Diagnostics -> navigate back.
+      Build_Dogfood_Fixture (Root);
+      Editor.Buffers.Reset_Global_For_Test;
+      Editor.State.Init (S);
+
+      Editor.Executor.Project_Lifecycle_Commands.Execute_Open_Project (S, Root);
+      Assert (Editor.Project.Has_Project (S.Project),
+              "main workflow smoke opens a project");
+      Expect_Active_Message_Contains
+        ("Opened project",
+         "main workflow smoke reports project-open feedback");
+
+      Editor.Executor.File_Open_Commands.Execute_Open_File (S, Source_Path);
+      Assert (S.File_Info.Has_Path and then To_String (S.File_Info.Path) = Source_Path,
+              "main workflow smoke starts in the source file");
+      Expect_Active_Message_Contains
+        ("Opened dogfood_demo.adb",
+         "main workflow smoke reports file-open feedback");
+
+      Editor.Executor.Command_Surface_Commands.Execute_Open_Quick_Open (S);
+      Editor.Quick_Open.Set_Query_Text (S.Quick_Open, "main.adb");
+      Editor.Quick_Open.Recompute_Results
+        (S.Quick_Open, S.Project, (Max_Visible_Results => 12,
+                                   Max_Result_Count => 100,
+                                   Query_Field_Min_Columns => 24,
+                                   Overlay_Width_In_Columns => 72,
+                                   Row_Height_In_Rows => 1,
+                                   Header_Height_In_Rows => 1,
+                                   Field_Height_In_Rows => 1,
+                                   Result_Padding_Columns => 1));
+      Assert (Editor.Quick_Open.Result_Count (S.Quick_Open) > 0,
+              "main workflow smoke Quick Open finds the main source");
+      Editor.Focus_Management.Set_Focus_Owner
+        (S, Editor.Focus_Management.Focus_Quick_Open);
+      Editor.Executor.Execute_Command
+        (S, Editor.Commands.Command_Accept_Quick_Open);
+      Assert (S.File_Info.Has_Path and then To_String (S.File_Info.Path) = Main_Path,
+              "main workflow smoke Quick Open opens main.adb");
+      Expect_Active_Message_Contains
+        ("Opened main.adb",
+         "main workflow smoke reports Quick Open activation feedback");
+
+      Editor.Project_Search.Set_Query (S.Project_Search, "Dogfood_Known_Token");
+      Editor.Project_Search.Search_Known_Project_Files
+        (S.Project_Search, S.Project,
+         (Case_Sensitive => True,
+          Max_File_Count => 100,
+          Max_Result_Count => 20,
+          Max_Matches_Per_File => 5,
+          Max_Line_Length => Editor.Project_Search.Max_Search_Result_Preview_Length,
+          Max_File_Size_Bytes => 64 * 1024,
+          Regex_Max_Steps => 100_000));
+      Assert (Editor.Project_Search.Result_Count (S.Project_Search) = 1,
+              "main workflow smoke Project Search finds the known token");
+      Search_Result := Editor.Project_Search.Result_At (S.Project_Search, 1);
+      Assert (To_String (Search_Result.Absolute_Path) = Source_Path,
+              "main workflow smoke Project Search targets the source file");
+      Editor.Project_Search.Set_Selected_Result_Index (S.Project_Search, 1);
+      Editor.Focus_Management.Set_Focus_Owner
+        (S, Editor.Focus_Management.Focus_Project_Search_Results);
+      Editor.Executor.Execute_Command
+        (S, Editor.Commands.Command_Search_Results_Open_Selected);
+      Assert (S.File_Info.Has_Path and then To_String (S.File_Info.Path) = Source_Path,
+              "main workflow smoke Project Search opens the result target");
+      Expect_Active_Message_Contains
+        ("Activated src/dogfood_demo.adb",
+         "main workflow smoke reports Project Search activation feedback");
+
+      Editor.Executor.Execute_No_Log
+        (S, Editor.Test_Helper.Insert (Editor.State.Current_Text (S)'Length,
+                                       ASCII.LF));
+      Assert (S.File_Info.Dirty,
+              "main workflow smoke edit marks the active source dirty");
+      Editor.Executor.File_Save_Basic_Commands.Execute_Save (S);
+      Assert (not S.File_Info.Dirty,
+              "main workflow smoke saves the edit before build navigation");
+      Expect_Active_Message_Contains
+        ("Saved file",
+         "main workflow smoke reports save feedback");
+
+      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Build_UI_Show);
+      Context := Editor.Build_Working_Context.Current_Project_Root (Root);
+      Build_Refresh := Editor.Build_Candidate_Refresh.Refresh_Build_Candidates
+        (S.Build_UI, Context);
+      Assert (Build_Refresh.Status =
+                Editor.Build_Candidate_Refresh.Build_Candidate_Refresh_Succeeded,
+              "main workflow smoke discovers build candidates");
+      Build_Run := Editor.Executor.Execute_Command_With_Result
+        (S, Editor.Commands.Command_Build_Select_Next_Candidate);
+      Assert (Build_Run.Status = Editor.Command_Execution.Command_Executed,
+              "main workflow smoke selects a build candidate");
+      if not S.Build_UI.Show_Diagnostics_On_Result then
+         Build_Run := Editor.Executor.Execute_Command_With_Result
+           (S, Editor.Commands.Command_Build_Toggle_Diagnostics_Ingestion);
+         Assert (Build_Run.Status = Editor.Command_Execution.Command_Executed,
+                 "main workflow smoke enables build Diagnostics ingestion");
+      end if;
+      S.Public_Build_Execution_Policy :=
+        Editor.Build_Runner_Policy.Build_Execution_Bounded_Process;
+      Build_Run := Editor.Executor.Execute_Command_With_Result
+        (S, Editor.Commands.Command_Build_Acknowledge_Consent);
+      Assert (Build_Run.Status = Editor.Command_Execution.Command_Executed,
+              "main workflow smoke acknowledges build consent");
+      Supplied_Process := Editor.External_Producers.Build_Process_Run_Result
+        (Editor.External_Producers.Process_Run_Failed,
+         Exit_Code => 1,
+         Has_Exit_Code => True,
+         Stdout_Text => "compiling dogfood_demo.adb",
+         Stderr_Text => "src/dogfood_demo.adb:2:4: warning: smoke diagnostic");
+      Build_Command_Result :=
+        Editor.Build_Command.Execute_Public_Build_Run_With_Supplied_Result
+          (S, Supplied_Process);
+      Assert (Build_Command_Result.Build_Result.Status =
+                Editor.External_Producers.Build_Run_Failed,
+              "main workflow smoke records the build result");
+      Assert (Length (Build_Command_Result.Command_Message) > 0,
+              "main workflow smoke build result carries user-facing command feedback");
+      Assert (Editor.Feature_Diagnostics.Row_Count (S.Feature_Diagnostics) >= 1,
+              "main workflow smoke ingests build Diagnostics");
+
+      Editor.Feature_Diagnostics.Project_Rows (S.Feature_Diagnostics, S.Feature_Panel);
+      Editor.Feature_Panel.Select_Row (S.Feature_Panel, 1);
+      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Diagnostics_Show);
+      Assert (Editor.Focus_Management.Effective_Focus_Owner (S) =
+                Editor.Focus_Management.Focus_Diagnostics,
+              "main workflow smoke inspects Diagnostics");
+      Expect_Active_Message_Contains
+        ("Diagnostics shown",
+         "main workflow smoke reports Diagnostics inspection feedback");
+      Diagnostic_Open := Editor.Executor.Execute_Command_With_Result
+        (S, Editor.Commands.Command_Diagnostics_Open_Selected);
+      Assert (Diagnostic_Open.Status = Editor.Command_Execution.Command_Executed,
+              "main workflow smoke opens a Diagnostic target");
+      Assert (Editor.Navigation_History.Back_Count (S.Navigation_History) > 0,
+              "main workflow smoke records navigation history before back");
+
+      Back_Result := Editor.Executor.Execute_Command_With_Result
+        (S, Editor.Commands.Command_Navigation_Back);
+      Assert (Back_Result.Status = Editor.Command_Execution.Command_Executed,
+              "main workflow smoke navigates back");
+      Assert (S.File_Info.Has_Path,
+              "main workflow smoke keeps a file-backed editor target after back");
+      Expect_Active_Message_Contains
+        ("Navigated back",
+         "main workflow smoke reports navigation-back feedback");
+
+      Remove_Tree_If_Exists (Root);
+      Editor.Buffers.Reset_Global_For_Test;
+   exception
+      when others =>
+         Remove_Tree_If_Exists (Root);
+         Editor.Buffers.Reset_Global_For_Test;
+         raise;
+   end Test_Main_Workflow_Smoke;
+
+
+   procedure Test_Full_Daily_Editor_Loop_Dogfood_Scenario
      (T : in out AUnit.Test_Cases.Test_Case'Class)
    is
       pragma Unreferenced (T);
@@ -2925,7 +3116,7 @@ package body Editor.Dogfood_Workflow.Tests is
       Workspace_Restore : Editor.Command_Execution.Command_Execution_Result;
       Closed_Buffer : Editor.Buffers.Buffer_Id := Editor.Buffers.No_Buffer;
    begin
-      --  Phase 579 fix nr 1: a single integrated daily-use loop.  This is not
+      --  fix nr 1: a single integrated daily-use loop.  This is not
       --  a command-surface check; it walks the product path from project open
       --  through file navigation, editing, save, Quick Open, Project Search,
       --  Outline, Build/Diagnostics, buffer switching/closing, project close,
@@ -2934,10 +3125,10 @@ package body Editor.Dogfood_Workflow.Tests is
       Editor.Buffers.Reset_Global_For_Test;
       Editor.State.Init (S);
 
-      Editor.Executor.Execute_Open_Project (S, Root);
+      Editor.Executor.Project_Lifecycle_Commands.Execute_Open_Project (S, Root);
       Assert (Editor.Project.Has_Project (S.Project),
               "daily loop opens a project");
-      Editor.Executor.Execute_Refresh_File_Tree (S);
+      Editor.Executor.Project_File_Index_Commands.Execute_Refresh_File_Tree (S);
       Node := Editor.File_Tree.Find_By_Path
         (S.File_Tree, "src/dogfood_demo.adb", Found);
       Assert (Found and then Node /= Editor.File_Tree.No_File_Tree_Node,
@@ -2961,13 +3152,13 @@ package body Editor.Dogfood_Workflow.Tests is
                                        ASCII.LF));
       Assert (S.File_Info.Dirty,
               "daily loop edit marks buffer dirty");
-      Editor.Executor.Execute_Save (S);
+      Editor.Executor.File_Save_Basic_Commands.Execute_Save (S);
       Assert (not S.File_Info.Dirty,
               "daily loop save clears dirty state");
       Assert (Ada.Strings.Fixed.Index (Read_File (Source_Path), "Dogfood_Known_Token") > 0,
               "daily loop save preserves source contents on disk");
 
-      Editor.Executor.Execute_Open_Quick_Open (S);
+      Editor.Executor.Command_Surface_Commands.Execute_Open_Quick_Open (S);
       Editor.Quick_Open.Set_Query_Text (S.Quick_Open, "main.adb");
       Editor.Quick_Open.Recompute_Results
         (S.Quick_Open, S.Project, (Max_Visible_Results => 12,
@@ -3119,7 +3310,7 @@ package body Editor.Dogfood_Workflow.Tests is
               "daily loop project close removes clean project-owned buffers");
 
       Editor.State.Init (S2);
-      Editor.Executor.Execute_Open_Project (S2, Root);
+      Editor.Executor.Project_Lifecycle_Commands.Execute_Open_Project (S2, Root);
       Workspace_Restore := Editor.Executor.Execute_Command_With_Result
         (S2, Editor.Commands.Command_Restore_Workspace_State);
       Assert (Workspace_Restore.Status = Editor.Command_Execution.Command_Executed,
@@ -3146,10 +3337,10 @@ package body Editor.Dogfood_Workflow.Tests is
          Remove_Tree_If_Exists (Root);
          Editor.Buffers.Reset_Global_For_Test;
          raise;
-   end Test_Phase579_Full_Daily_Editor_Loop_Dogfood_Scenario;
+   end Test_Full_Daily_Editor_Loop_Dogfood_Scenario;
 
 
-   procedure Test_Phase579_Save_Reload_Revert_Dogfood_Scenario
+   procedure Test_Save_Reload_Revert_Dogfood_Scenario
      (T : in out AUnit.Test_Cases.Test_Case'Class)
    is
       pragma Unreferenced (T);
@@ -3176,18 +3367,18 @@ package body Editor.Dogfood_Workflow.Tests is
       Editor.Buffers.Reset_Global_For_Test;
       Editor.State.Init (S);
 
-      Editor.Executor.Execute_Open_Project (S, Root);
-      Editor.Executor.Execute_Open_File (S, Source_Path);
+      Editor.Executor.Project_Lifecycle_Commands.Execute_Open_Project (S, Root);
+      Editor.Executor.File_Open_Commands.Execute_Open_File (S, Source_Path);
       Assert (S.File_Info.Has_Path and then To_String (S.File_Info.Path) = Source_Path,
               "save/reload/revert scenario starts on a real project file");
       Assert (Editor.Focus_Management.Effective_Focus_Owner (S) =
                 Editor.Focus_Management.Focus_Editor,
               "opening the scenario file focuses the editor");
 
-      Append_Text (ASCII.LF & "-- phase579 saved edit");
+      Append_Text (ASCII.LF & "-- saved edit");
       Assert (S.File_Info.Dirty,
               "editing the scenario file marks it dirty before save");
-      Editor.Executor.Execute_Save (S);
+      Editor.Executor.File_Save_Basic_Commands.Execute_Save (S);
       Assert (not S.File_Info.Dirty,
               "save clears the dirty flag in the daily workflow");
       Assert (Read_File (Source_Path) = Editor.State.Current_Text (S),
@@ -3198,8 +3389,8 @@ package body Editor.Dogfood_Workflow.Tests is
                 Editor.Focus_Management.Focus_Editor,
               "save keeps editor focus");
 
-      Append_Text (ASCII.LF & "-- phase579 save-as edit");
-      Editor.Executor.Execute_Save_As (S, Save_As_Path);
+      Append_Text (ASCII.LF & "-- save-as edit");
+      Editor.Executor.File_Save_Basic_Commands.Execute_Save_As (S, Save_As_Path);
       Assert (not S.File_Info.Dirty,
               "save-as clears the dirty flag after writing the new target");
       Assert (S.File_Info.Has_Path and then To_String (S.File_Info.Path) = Save_As_Path,
@@ -3212,10 +3403,10 @@ package body Editor.Dogfood_Workflow.Tests is
       Assert (Ada.Directories.Exists (Source_Path),
               "save-as does not delete the previous backing file");
 
-      Append_Text (ASCII.LF & "-- phase579 failed save-as must survive");
+      Append_Text (ASCII.LF & "-- failed save-as must survive");
       Before_Text := To_Unbounded_String (Editor.State.Current_Text (S));
       Before_Path := S.File_Info.Path;
-      Editor.Executor.Execute_Save_As (S, Dir_Target);
+      Editor.Executor.File_Save_Basic_Commands.Execute_Save_As (S, Dir_Target);
       Assert (S.File_Info.Dirty,
               "failed save-as preserves dirty state");
       Assert (To_Unbounded_String (Editor.State.Current_Text (S)) = Before_Text,
@@ -3225,15 +3416,15 @@ package body Editor.Dogfood_Workflow.Tests is
       Assert (Read_File (Save_As_Path) /= Editor.State.Current_Text (S),
               "failed save-as does not write dirty text to the old target");
 
-      Editor.Executor.Execute_Save (S);
+      Editor.Executor.File_Save_Basic_Commands.Execute_Save (S);
       Assert (not S.File_Info.Dirty,
               "save after failed save-as writes the preserved dirty buffer");
       Assert (Read_File (Save_As_Path) = Editor.State.Current_Text (S),
               "save after failed save-as targets the retained backing path");
 
-      Write_File (Save_As_Path, "phase579 clean reload from disk");
-      Editor.Executor.Execute_Reload_Active_Buffer (S);
-      Assert (Editor.State.Current_Text (S) = "phase579 clean reload from disk",
+      Write_File (Save_As_Path, "clean reload from disk");
+      Editor.Executor.File_Save_Basic_Commands.Execute_Reload_Active_Buffer (S);
+      Assert (Editor.State.Current_Text (S) = "clean reload from disk",
               "reload of a clean buffer replaces text from disk");
       Assert (not S.File_Info.Dirty,
               "reload of a clean buffer remains clean");
@@ -3241,9 +3432,9 @@ package body Editor.Dogfood_Workflow.Tests is
               "reload preserves the active backing path");
 
       Append_Text (" + local dirty reload edit");
-      Write_File (Save_As_Path, "phase579 confirmed reload from disk");
+      Write_File (Save_As_Path, "confirmed reload from disk");
       Before_Text := To_Unbounded_String (Editor.State.Current_Text (S));
-      Editor.Executor.Execute_Reload_Active_Buffer (S);
+      Editor.Executor.File_Save_Basic_Commands.Execute_Reload_Active_Buffer (S);
       Assert (Editor.Pending_Transitions.Has_Pending (S.Pending_Transitions),
               "dirty reload captures a confirmation instead of mutating text");
       Assert (To_Unbounded_String (Editor.State.Current_Text (S)) = Before_Text
@@ -3256,20 +3447,20 @@ package body Editor.Dogfood_Workflow.Tests is
                 and then S.File_Info.Dirty,
               "cancelled dirty reload preserves dirty text and state");
 
-      Editor.Executor.Execute_Reload_Active_Buffer (S);
+      Editor.Executor.File_Save_Basic_Commands.Execute_Reload_Active_Buffer (S);
       Assert (Editor.Pending_Transitions.Has_Pending (S.Pending_Transitions),
               "dirty reload can be requested again after cancellation");
       Editor.Executor.Execute_Command (S, Editor.Commands.Command_Retry_Pending_Transition);
       Assert (not Editor.Pending_Transitions.Has_Pending (S.Pending_Transitions),
               "confirmed dirty reload clears the pending decision");
-      Assert (Editor.State.Current_Text (S) = "phase579 confirmed reload from disk"
+      Assert (Editor.State.Current_Text (S) = "confirmed reload from disk"
                 and then not S.File_Info.Dirty,
               "confirmed dirty reload replaces text from disk and clears dirty state");
 
       Append_Text (" + local dirty revert edit");
-      Write_File (Save_As_Path, "phase579 confirmed revert from disk");
+      Write_File (Save_As_Path, "confirmed revert from disk");
       Before_Text := To_Unbounded_String (Editor.State.Current_Text (S));
-      Editor.Executor.Execute_Revert_Active_Buffer (S);
+      Editor.Executor.File_Save_Basic_Commands.Execute_Revert_Active_Buffer (S);
       Assert (Editor.Pending_Transitions.Has_Pending (S.Pending_Transitions),
               "dirty revert captures a confirmation instead of mutating text");
       Assert (To_Unbounded_String (Editor.State.Current_Text (S)) = Before_Text
@@ -3282,19 +3473,19 @@ package body Editor.Dogfood_Workflow.Tests is
                 and then S.File_Info.Dirty,
               "cancelled dirty revert preserves dirty text and state");
 
-      Editor.Executor.Execute_Revert_Active_Buffer (S);
+      Editor.Executor.File_Save_Basic_Commands.Execute_Revert_Active_Buffer (S);
       Assert (Editor.Pending_Transitions.Has_Pending (S.Pending_Transitions),
               "dirty revert can be requested again after cancellation");
       Editor.Executor.Execute_Command (S, Editor.Commands.Command_Retry_Pending_Transition);
       Assert (not Editor.Pending_Transitions.Has_Pending (S.Pending_Transitions),
               "confirmed dirty revert clears the pending decision");
-      Assert (Editor.State.Current_Text (S) = "phase579 confirmed revert from disk"
+      Assert (Editor.State.Current_Text (S) = "confirmed revert from disk"
                 and then not S.File_Info.Dirty,
               "confirmed dirty revert replaces text from disk and clears dirty state");
 
       Before_Text := To_Unbounded_String (Editor.State.Current_Text (S));
       Remove_File_If_Exists (Save_As_Path);
-      Editor.Executor.Execute_Reload_Active_Buffer (S);
+      Editor.Executor.File_Save_Basic_Commands.Execute_Reload_Active_Buffer (S);
       Assert (To_Unbounded_String (Editor.State.Current_Text (S)) = Before_Text,
               "reload with a missing backing file preserves current text");
       Assert (S.File_Info.Has_Path and then To_String (S.File_Info.Path) = Save_As_Path,
@@ -3304,7 +3495,7 @@ package body Editor.Dogfood_Workflow.Tests is
 
       Append_Text (" + dirty missing revert edit");
       Before_Text := To_Unbounded_String (Editor.State.Current_Text (S));
-      Editor.Executor.Execute_Revert_Active_Buffer (S);
+      Editor.Executor.File_Save_Basic_Commands.Execute_Revert_Active_Buffer (S);
       Assert (Editor.Pending_Transitions.Has_Pending (S.Pending_Transitions),
               "dirty revert with a missing file still requires explicit confirmation");
       Editor.Executor.Execute_Command (S, Editor.Commands.Command_Retry_Pending_Transition);
@@ -3323,10 +3514,10 @@ package body Editor.Dogfood_Workflow.Tests is
          Remove_Tree_If_Exists (Root);
          Editor.Buffers.Reset_Global_For_Test;
          raise;
-   end Test_Phase579_Save_Reload_Revert_Dogfood_Scenario;
+   end Test_Save_Reload_Revert_Dogfood_Scenario;
 
 
-   procedure Test_Phase579_Product_Command_Names_Resolve
+   procedure Test_Product_Command_Names_Resolve
      (T : in out AUnit.Test_Cases.Test_Case'Class)
    is
       pragma Unreferenced (T);
@@ -3533,22 +3724,22 @@ package body Editor.Dogfood_Workflow.Tests is
                D  : Editor.Commands.Command_Descriptor;
             begin
                Assert (Found,
-                       "Phase 579 documented product command resolves: " & Name);
+                       "documented product command resolves: " & Name);
                Assert (Id /= Editor.Commands.No_Command,
-                       "Phase 579 documented product command has an implementation: " & Name);
+                       "documented product command has an implementation: " & Name);
                D := Editor.Commands.Descriptor (Id);
                Assert
                  (To_String (D.Name) =
                     Editor.Dogfood_Workflow.Product_Workflow_Label (Step),
-                  "Phase 579 documented workflow label matches command descriptor: " &
+                  "documented workflow label matches command descriptor: " &
                   Name);
             end;
          end if;
       end loop;
-   end Test_Phase579_Product_Command_Names_Resolve;
+   end Test_Product_Command_Names_Resolve;
 
 
-   procedure Test_Phase579_Product_Command_Surface_Is_User_Facing
+   procedure Test_Product_Command_Surface_Is_User_Facing
      (T : in out AUnit.Test_Cases.Test_Case'Class)
    is
       pragma Unreferenced (T);
@@ -3636,10 +3827,10 @@ package body Editor.Dogfood_Workflow.Tests is
             end if;
          end;
       end loop;
-   end Test_Phase579_Product_Command_Surface_Is_User_Facing;
+   end Test_Product_Command_Surface_Is_User_Facing;
 
 
-   procedure Test_Phase579_Quick_Open_Product_Surface_Coherent
+   procedure Test_Quick_Open_Product_Surface_Coherent
      (T : in out AUnit.Test_Cases.Test_Case'Class)
    is
       pragma Unreferenced (T);
@@ -3663,64 +3854,64 @@ package body Editor.Dogfood_Workflow.Tests is
    begin
       Expect_Label (Editor.Commands.Command_Close_Quick_Open,
                     "Hide Quick Open",
-                    "Phase 579 Quick Open hide label is product-facing");
+                    "Quick Open hide label is product-facing");
       Expect_Label (Editor.Commands.Command_Toggle_Quick_Open,
                     "Toggle Quick Open",
-                    "Phase 579 Quick Open toggle label is product-facing");
+                    "Quick Open toggle label is product-facing");
       Expect_Label (Editor.Commands.Command_Quick_Open_Next_Result,
                     "Next Quick Open Result",
-                    "Phase 579 Quick Open next-result label is product-facing");
+                    "Quick Open next-result label is product-facing");
       Expect_Label (Editor.Commands.Command_Quick_Open_Previous_Result,
                     "Previous Quick Open Result",
-                    "Phase 579 Quick Open previous-result label is product-facing");
+                    "Quick Open previous-result label is product-facing");
       Expect_Label (Editor.Commands.Command_Quick_Open_Query_Set,
                     "Set Quick Open Query",
-                    "Phase 579 Quick Open query-set label is product-facing");
+                    "Quick Open query-set label is product-facing");
       Expect_Label (Editor.Commands.Command_Quick_Open_Query_Clear,
                     "Clear Quick Open Query",
-                    "Phase 579 Quick Open query-clear label is product-facing");
+                    "Quick Open query-clear label is product-facing");
       Expect_Label (Editor.Commands.Command_Quick_Open_Kind_Next,
                     "Next Quick Open File Kind",
-                    "Phase 579 Quick Open next-kind label is product-facing");
+                    "Quick Open next-kind label is product-facing");
       Expect_Label (Editor.Commands.Command_Quick_Open_Kind_Previous,
                     "Previous Quick Open File Kind",
-                    "Phase 579 Quick Open previous-kind label is product-facing");
+                    "Quick Open previous-kind label is product-facing");
       Expect_Label (Editor.Commands.Command_Quick_Open_Kind_Clear,
                     "Clear Quick Open File Kind",
-                    "Phase 579 Quick Open kind-clear label is product-facing");
+                    "Quick Open kind-clear label is product-facing");
       Expect_Label (Editor.Commands.Command_Quick_Open_Scope_Set,
                     "Set Quick Open Scope",
-                    "Phase 579 Quick Open scope-set label is product-facing");
+                    "Quick Open scope-set label is product-facing");
       Expect_Label (Editor.Commands.Command_Quick_Open_Scope_Clear,
                     "Clear Quick Open Scope",
-                    "Phase 579 Quick Open scope-clear label is product-facing");
+                    "Quick Open scope-clear label is product-facing");
       Expect_Label (Editor.Commands.Command_Quick_Open_Scope_From_Selected,
                     "Scope Quick Open to Selected Directory",
-                    "Phase 579 Quick Open selected-scope label is product-facing");
+                    "Quick Open selected-scope label is product-facing");
       Expect_Label (Editor.Commands.Command_Quick_Open_Scope_Parent,
                     "Quick Open Parent Scope",
-                    "Phase 579 Quick Open parent-scope label is product-facing");
+                    "Quick Open parent-scope label is product-facing");
       Expect_Label (Editor.Commands.Command_Quick_Open_Reveal_Active,
                     "Reveal Active File in Quick Open",
-                    "Phase 579 Quick Open reveal-active label is product-facing");
+                    "Quick Open reveal-active label is product-facing");
       Expect_Label (Editor.Commands.Command_Quick_Open_Scope_Active_Directory,
                     "Scope Quick Open to Active Directory",
-                    "Phase 579 Quick Open active-directory scope label is product-facing");
+                    "Quick Open active-directory scope label is product-facing");
       Expect_Label (Editor.Commands.Command_Quick_Open_Create_From_Query,
                     "Create File from Quick Open Query",
-                    "Phase 579 Quick Open create-from-query label is product-facing");
+                    "Quick Open create-from-query label is product-facing");
       Expect_Label (Editor.Commands.Command_Quick_Open_Create_With_Parents_From_Query,
                     "Create File with Parent Directories from Quick Open Query",
-                    "Phase 579 Quick Open create-with-parents label is product-facing");
+                    "Quick Open create-with-parents label is product-facing");
       Expect_Label (Editor.Commands.Command_Quick_Open_Priority_Toggle,
                     "Toggle Quick Open Recent Priority",
-                    "Phase 579 Quick Open priority-toggle label is product-facing");
+                    "Quick Open priority-toggle label is product-facing");
       Expect_Label (Editor.Commands.Command_Quick_Open_Priority_Clear,
                     "Clear Quick Open Priority",
-                    "Phase 579 Quick Open priority-clear label is product-facing");
-   end Test_Phase579_Quick_Open_Product_Surface_Coherent;
+                    "Quick Open priority-clear label is product-facing");
+   end Test_Quick_Open_Product_Surface_Coherent;
 
-   procedure Test_Phase579_Diagnostics_Product_Surface_Coherent
+   procedure Test_Diagnostics_Product_Surface_Coherent
      (T : in out AUnit.Test_Cases.Test_Case'Class)
    is
       pragma Unreferenced (T);
@@ -3754,53 +3945,53 @@ package body Editor.Dogfood_Workflow.Tests is
    begin
       Expect_Clean (Editor.Commands.Command_Diagnostics_Toggle_Info,
                     "Toggle Info Diagnostics",
-                    "Phase 579 Diagnostics info toggle is product-facing");
+                    "Diagnostics info toggle is product-facing");
       Expect_Clean (Editor.Commands.Command_Diagnostics_Toggle_Warnings,
                     "Toggle Warning Diagnostics",
-                    "Phase 579 Diagnostics warning toggle is product-facing");
+                    "Diagnostics warning toggle is product-facing");
       Expect_Clean (Editor.Commands.Command_Diagnostics_Toggle_Errors,
                     "Toggle Error Diagnostics",
-                    "Phase 579 Diagnostics error toggle is product-facing");
+                    "Diagnostics error toggle is product-facing");
       Expect_Clean (Editor.Commands.Command_Diagnostics_Filter_Errors,
                     "Show Error Diagnostics",
-                    "Phase 579 Diagnostics error filter is product-facing");
+                    "Diagnostics error filter is product-facing");
       Expect_Clean (Editor.Commands.Command_Diagnostics_Filter_Warnings,
                     "Show Warning Diagnostics",
-                    "Phase 579 Diagnostics warning filter is product-facing");
+                    "Diagnostics warning filter is product-facing");
       Expect_Clean (Editor.Commands.Command_Diagnostics_Filter_Info_Notes,
                     "Show Info and Note Diagnostics",
-                    "Phase 579 Diagnostics info filter is product-facing");
+                    "Diagnostics info filter is product-facing");
       Expect_Clean (Editor.Commands.Command_Diagnostics_Filter_Source,
                     "Show Diagnostics from Selected Source",
-                    "Phase 579 Diagnostics source filter is product-facing");
+                    "Diagnostics source filter is product-facing");
       Expect_Clean (Editor.Commands.Command_Diagnostics_Filter_Build,
                     "Show Build Diagnostics",
-                    "Phase 579 Diagnostics build filter is product-facing");
+                    "Diagnostics build filter is product-facing");
       Expect_Clean (Editor.Commands.Command_Diagnostics_Open_Selected,
                     "Open Selected Diagnostic",
-                    "Phase 579 Diagnostics open-selected command is product-facing");
+                    "Diagnostics open-selected command is product-facing");
       Expect_Clean (Editor.Commands.Command_Diagnostics_Clear_Selected,
                     "Clear Selected Diagnostic",
-                    "Phase 579 Diagnostics clear-selected command is product-facing");
+                    "Diagnostics clear-selected command is product-facing");
       Expect_Clean (Editor.Commands.Command_Diagnostics_Toggle_Editor_Source,
                     "Toggle Editor Diagnostics",
-                    "Phase 579 Diagnostics editor-source toggle is product-facing");
+                    "Diagnostics editor-source toggle is product-facing");
       Expect_Clean (Editor.Commands.Command_Diagnostics_Toggle_File_Source,
                     "Toggle File Diagnostics",
-                    "Phase 579 Diagnostics file-source toggle is product-facing");
+                    "Diagnostics file-source toggle is product-facing");
       Expect_Clean (Editor.Commands.Command_Diagnostics_Toggle_Project_Source,
                     "Toggle Project Diagnostics",
-                    "Phase 579 Diagnostics project-source toggle is product-facing");
+                    "Diagnostics project-source toggle is product-facing");
       Expect_Clean (Editor.Commands.Command_Diagnostics_Toggle_External_Source,
                     "Toggle External Diagnostics",
-                    "Phase 579 Diagnostics external-source toggle is product-facing");
+                    "Diagnostics external-source toggle is product-facing");
       Expect_Clean (Editor.Commands.Command_Diagnostics_Toggle_Unknown_Source,
                     "Toggle Unknown Diagnostics",
-                    "Phase 579 Diagnostics unknown-source toggle is product-facing");
-   end Test_Phase579_Diagnostics_Product_Surface_Coherent;
+                    "Diagnostics unknown-source toggle is product-facing");
+   end Test_Diagnostics_Product_Surface_Coherent;
 
 
-   procedure Test_Phase579_Open_Buffer_List_Product_Surface_Coherent
+   procedure Test_Open_Buffer_List_Product_Surface_Coherent
      (T : in out AUnit.Test_Cases.Test_Case'Class)
    is
       pragma Unreferenced (T);
@@ -3826,38 +4017,38 @@ package body Editor.Dogfood_Workflow.Tests is
    begin
       Expect_Clean (Editor.Commands.Command_Open_Buffer_Switcher,
                     "Show Open Buffer List",
-                    "Phase 579 Open Buffer List show label is product-facing");
+                    "Open Buffer List show label is product-facing");
       Expect_Clean (Editor.Commands.Command_Close_Buffer_Switcher,
                     "Hide Open Buffer List",
-                    "Phase 579 Open Buffer List hide label is product-facing");
+                    "Open Buffer List hide label is product-facing");
       Expect_Clean (Editor.Commands.Command_Buffer_Switcher_Filter_Clear,
                     "Clear Open Buffer List Filter",
-                    "Phase 579 Open Buffer List filter-clear label is product-facing");
+                    "Open Buffer List filter-clear label is product-facing");
       Expect_Clean (Editor.Commands.Command_Buffer_Switcher_Filter_Pinned,
                     "Filter Open Buffer List to Pinned Buffers",
-                    "Phase 579 Open Buffer List pinned-filter label is product-facing");
+                    "Open Buffer List pinned-filter label is product-facing");
       Expect_Clean (Editor.Commands.Command_Buffer_Switcher_Sort_Default,
                     "Sort Open Buffer List Default",
-                    "Phase 579 Open Buffer List default-sort label is product-facing");
+                    "Open Buffer List default-sort label is product-facing");
       Expect_Clean (Editor.Commands.Command_Buffer_Switcher_Sort_Recent,
                     "Sort Open Buffer List by Recent",
-                    "Phase 579 Open Buffer List recent-sort label is product-facing");
+                    "Open Buffer List recent-sort label is product-facing");
       Expect_Clean (Editor.Commands.Command_Buffer_Switcher_Selected_Close,
                     "Close Selected Buffer List Row",
-                    "Phase 579 Open Buffer List selected-close label is product-facing");
+                    "Open Buffer List selected-close label is product-facing");
       Expect_Clean (Editor.Commands.Command_Buffer_Switcher_Preview_Show,
                     "Show Open Buffer List Preview",
-                    "Phase 579 Open Buffer List preview label is product-facing");
+                    "Open Buffer List preview label is product-facing");
       Expect_Clean (Editor.Commands.Command_Buffer_Switcher_Mark_Toggle,
                     "Toggle Selected Buffer Mark",
-                    "Phase 579 Open Buffer List mark label is product-facing");
+                    "Open Buffer List mark label is product-facing");
       Expect_Clean (Editor.Commands.Command_Buffer_Switcher_Mark_Summary,
                     "Summarize Buffer Marks",
-                    "Phase 579 Open Buffer List mark-summary label is product-facing");
-   end Test_Phase579_Open_Buffer_List_Product_Surface_Coherent;
+                    "Open Buffer List mark-summary label is product-facing");
+   end Test_Open_Buffer_List_Product_Surface_Coherent;
 
 
-   procedure Test_Phase579_Dirty_Close_Project_Switch_Quit_Dogfood_Scenario
+   procedure Test_Dirty_Close_Project_Switch_Quit_Dogfood_Scenario
      (T : in out AUnit.Test_Cases.Test_Case'Class)
    is
       pragma Unreferenced (T);
@@ -3887,13 +4078,13 @@ package body Editor.Dogfood_Workflow.Tests is
          Build_Dogfood_Fixture (Root_A);
          Build_Dogfood_Fixture (Root_B);
          Editor.State.Init (S);
-         Editor.Executor.Execute_Open_Project (S, Root_A);
-         Editor.Executor.Execute_Open_File (S, Dirty_Path);
+         Editor.Executor.Project_Lifecycle_Commands.Execute_Open_Project (S, Root_A);
+         Editor.Executor.File_Open_Commands.Execute_Open_File (S, Dirty_Path);
       end Reset_Project_A;
    begin
       --  Close active dirty buffer: cancel must be a non-mutating decision.
       Reset_Project_A;
-      Append_Text (ASCII.LF & "-- phase579 dirty close cancel");
+      Append_Text (ASCII.LF & "-- dirty close cancel");
       Dirty_Text := To_Unbounded_String (Editor.State.Current_Text (S));
       Dirty_Id := Editor.Buffers.Global_Active_Buffer;
       Editor.Executor.Execute_Command (S, Editor.Commands.Command_Close_Active_Buffer);
@@ -3917,13 +4108,13 @@ package body Editor.Dogfood_Workflow.Tests is
       --  Close active dirty buffer: discard must close only the selected dirty
       --  buffer and select the next valid buffer without dirtying it.
       Reset_Project_A;
-      Append_Text (ASCII.LF & "-- phase579 dirty close discard");
+      Append_Text (ASCII.LF & "-- dirty close discard");
       Dirty_Id := Editor.Buffers.Global_Active_Buffer;
-      Editor.Executor.Execute_Open_File (S, Clean_Path);
+      Editor.Executor.File_Open_Commands.Execute_Open_File (S, Clean_Path);
       Clean_Id := Editor.Buffers.Global_Active_Buffer;
       Assert (Clean_Id /= Dirty_Id,
               "discard scenario has a second clean buffer");
-      Editor.Executor.Execute_Open_File (S, Dirty_Path);
+      Editor.Executor.File_Open_Commands.Execute_Open_File (S, Dirty_Path);
       Assert (Editor.Buffers.Global_Active_Buffer = Dirty_Id,
               "discard scenario returns to dirty buffer before close");
       Editor.Executor.Execute_Command (S, Editor.Commands.Command_Close_Active_Buffer);
@@ -3949,7 +4140,7 @@ package body Editor.Dogfood_Workflow.Tests is
       --  Close project with dirty buffers: cancel must preserve project,
       --  buffers, text, dirty state, and editor focus.
       Reset_Project_A;
-      Append_Text (ASCII.LF & "-- phase579 project close cancel");
+      Append_Text (ASCII.LF & "-- project close cancel");
       Dirty_Text := To_Unbounded_String (Editor.State.Current_Text (S));
       Dirty_Id := Editor.Buffers.Global_Active_Buffer;
       Editor.Executor.Execute_Command (S, Editor.Commands.Command_Close_Project);
@@ -3975,7 +4166,7 @@ package body Editor.Dogfood_Workflow.Tests is
       --  Switch project with dirty buffers: cancel must preserve the old
       --  project and never promote/activate the target.
       Reset_Project_A;
-      Append_Text (ASCII.LF & "-- phase579 project switch cancel");
+      Append_Text (ASCII.LF & "-- project switch cancel");
       Dirty_Text := To_Unbounded_String (Editor.State.Current_Text (S));
       Dirty_Id := Editor.Buffers.Global_Active_Buffer;
       Cmd.Kind := Editor.Commands.Switch_Project;
@@ -3997,7 +4188,7 @@ package body Editor.Dogfood_Workflow.Tests is
                 and then S.File_Info.Dirty,
               "dirty project switch cancel preserves dirty text and state");
 
-      --  Quit readiness is represented by the Phase 579 product policy until
+      --  Quit readiness is represented by the product policy until
       --  the host quit lifecycle invokes it.  The product rule must distinguish
       --  clean readiness from dirty blockers without mutating state.
       Assert (Editor.Dogfood_Workflow.Product_Workflow_Success_Status
@@ -4022,11 +4213,11 @@ package body Editor.Dogfood_Workflow.Tests is
          Remove_Tree_If_Exists (Root_B);
          Editor.Buffers.Reset_Global_For_Test;
          raise;
-   end Test_Phase579_Dirty_Close_Project_Switch_Quit_Dogfood_Scenario;
+   end Test_Dirty_Close_Project_Switch_Quit_Dogfood_Scenario;
 
 
 
-   procedure Test_Phase579_Workspace_Restore_Edge_Cases_Dogfood_Scenario
+   procedure Test_Workspace_Restore_Edge_Cases_Dogfood_Scenario
      (T : in out AUnit.Test_Cases.Test_Case'Class)
    is
       pragma Unreferenced (T);
@@ -4063,7 +4254,7 @@ package body Editor.Dogfood_Workflow.Tests is
       --  skip the stale entry, select a valid restored buffer, and return the
       --  user to the editor instead of leaving focus on a stale overlay/panel.
       Editor.State.Init (S);
-      Editor.Executor.Execute_Open_Project (S, Root);
+      Editor.Executor.Project_Lifecycle_Commands.Execute_Open_Project (S, Root);
       Editor.Focus_Management.Set_Focus_Owner
         (S, Editor.Focus_Management.Focus_Quick_Open);
       Editor.Workspace_Persistence.Clear (Snapshot);
@@ -4107,7 +4298,7 @@ package body Editor.Dogfood_Workflow.Tests is
       --  surface and no missing buffer path is registered.
       Editor.Buffers.Reset_Global_For_Test;
       Editor.State.Init (S);
-      Editor.Executor.Execute_Open_Project (S, Root);
+      Editor.Executor.Project_Lifecycle_Commands.Execute_Open_Project (S, Root);
       Editor.Focus_Management.Set_Focus_Owner
         (S, Editor.Focus_Management.Focus_Quick_Open);
       Editor.Workspace_Persistence.Clear (Snapshot);
@@ -4132,8 +4323,8 @@ package body Editor.Dogfood_Workflow.Tests is
       --  active file, text, buffer identity, and editor focus are preserved.
       Editor.Buffers.Reset_Global_For_Test;
       Editor.State.Init (S);
-      Editor.Executor.Execute_Open_Project (S, Root);
-      Editor.Executor.Execute_Open_File (S, Valid_Path);
+      Editor.Executor.Project_Lifecycle_Commands.Execute_Open_Project (S, Root);
+      Editor.Executor.File_Open_Commands.Execute_Open_File (S, Valid_Path);
       Existing_Text := To_Unbounded_String (Editor.State.Current_Text (S));
       Id := Editor.Buffers.Global_Active_Buffer;
       Editor.Focus_Management.Set_Focus_Owner
@@ -4169,7 +4360,7 @@ package body Editor.Dogfood_Workflow.Tests is
          Remove_Tree_If_Exists (Mismatch_Root);
          Editor.Buffers.Reset_Global_For_Test;
          raise;
-   end Test_Phase579_Workspace_Restore_Edge_Cases_Dogfood_Scenario;
+   end Test_Workspace_Restore_Edge_Cases_Dogfood_Scenario;
 
    overriding function Name
      (T : Dogfood_Workflow_Test_Case) return AUnit.Message_String
@@ -4201,67 +4392,70 @@ package body Editor.Dogfood_Workflow.Tests is
    begin
       Register_Routine
         (T, Test_Dogfood_Project_Workflow_Coherent'Access,
-         "Phase 535 dogfood project workflow coherent");
+         "dogfood project workflow coherent");
       Register_Routine
-        (T, Test_Phase536_Dogfood_Usability_Fixes_Coherent'Access,
-         "Phase 536 dogfood usability fixes coherent");
+        (T, Test_Dogfood_Usability_Fixes_Coherent'Access,
+         "dogfood usability fixes coherent");
       Register_Routine
-        (T, Test_Phase537_Milestone_Readiness_Coherent'Access,
-         "Phase 537 milestone startup and dogfood readiness coherent");
+        (T, Test_Milestone_Readiness_Coherent'Access,
+         "milestone startup and dogfood readiness coherent");
       Register_Routine
-        (T, Test_Phase538_Repeated_Local_Use_Hardening_Coherent'Access,
-         "Phase 538 repeated local use hardening coherent");
+        (T, Test_Repeated_Local_Use_Hardening_Coherent'Access,
+         "repeated local use hardening coherent");
       Register_Routine
-        (T, Test_Phase578_Integrated_Workflow_Polish_Coherent'Access,
-         "Phase 578 integrated workflow polish coherent");
+        (T, Test_Integrated_Workflow_Polish_Coherent'Access,
+         "integrated workflow polish coherent");
       Register_Routine
-        (T, Test_Phase578_Project_Switch_Dogfood_Scenario'Access,
-         "Phase 578 project switch dogfood scenario");
+        (T, Test_Project_Switch_Dogfood_Scenario'Access,
+         "project switch dogfood scenario");
       Register_Routine
-        (T, Test_Phase578_Dirty_Conflict_Dogfood_Scenario'Access,
-         "Phase 578 dirty conflict dogfood scenario");
+        (T, Test_Dirty_Conflict_Dogfood_Scenario'Access,
+         "dirty conflict dogfood scenario");
       Register_Routine
-        (T, Test_Phase579_Product_Workflow_Surface_Coherent'Access,
-         "Phase 579 product workflow surface coherent");
+        (T, Test_Product_Workflow_Surface_Coherent'Access,
+         "product workflow surface coherent");
       Register_Routine
-        (T, Test_Phase579_Product_Focus_And_Cancel_Behavior'Access,
-         "Phase 579 product focus and cancel behavior");
+        (T, Test_Product_Focus_And_Cancel_Behavior'Access,
+         "product focus and cancel behavior");
       Register_Routine
-        (T, Test_Phase579_File_Tree_Clean_Open_Buffer_Lifecycle'Access,
-         "Phase 579 File Tree clean open-buffer lifecycle");
+        (T, Test_File_Tree_Clean_Open_Buffer_Lifecycle'Access,
+         "File Tree clean open-buffer lifecycle");
       Register_Routine
-        (T, Test_Phase579_File_Tree_Delete_Active_Buffer_Selects_Next_Buffer'Access,
-         "Phase 579 File Tree delete active buffer selects next buffer");
+        (T, Test_File_Tree_Delete_Active_Buffer_Selects_Next_Buffer'Access,
+         "File Tree delete active buffer selects next buffer");
       Register_Routine
-        (T, Test_Phase579_File_Tree_Rename_Directory_Rebases_Active_Child_Buffer'Access,
-         "Phase 579 File Tree rename directory rebases active child buffer");
+        (T, Test_File_Tree_Rename_Directory_Rebases_Active_Child_Buffer'Access,
+         "File Tree rename directory rebases active child buffer");
       Register_Routine
-        (T, Test_Phase579_Full_Daily_Editor_Loop_Dogfood_Scenario'Access,
-         "Phase 579 full daily editor loop dogfood scenario");
+        (T, Test_Main_Workflow_Smoke'Access,
+         "main workflow smoke");
       Register_Routine
-        (T, Test_Phase579_Save_Reload_Revert_Dogfood_Scenario'Access,
-         "Phase 579 save reload revert dogfood scenario");
+        (T, Test_Full_Daily_Editor_Loop_Dogfood_Scenario'Access,
+         "full daily editor loop dogfood scenario");
       Register_Routine
-        (T, Test_Phase579_Dirty_Close_Project_Switch_Quit_Dogfood_Scenario'Access,
-         "Phase 579 dirty close project switch quit dogfood scenario");
+        (T, Test_Save_Reload_Revert_Dogfood_Scenario'Access,
+         "save reload revert dogfood scenario");
       Register_Routine
-        (T, Test_Phase579_Workspace_Restore_Edge_Cases_Dogfood_Scenario'Access,
-         "Phase 579 workspace restore edge cases dogfood scenario");
+        (T, Test_Dirty_Close_Project_Switch_Quit_Dogfood_Scenario'Access,
+         "dirty close project switch quit dogfood scenario");
       Register_Routine
-        (T, Test_Phase579_Product_Command_Names_Resolve'Access,
-         "Phase 579 product command names resolve");
+        (T, Test_Workspace_Restore_Edge_Cases_Dogfood_Scenario'Access,
+         "workspace restore edge cases dogfood scenario");
       Register_Routine
-        (T, Test_Phase579_Product_Command_Surface_Is_User_Facing'Access,
-         "Phase 579 product command surface is user-facing");
+        (T, Test_Product_Command_Names_Resolve'Access,
+         "product command names resolve");
       Register_Routine
-        (T, Test_Phase579_Quick_Open_Product_Surface_Coherent'Access,
-         "Phase 579 Quick Open product surface coherent");
+        (T, Test_Product_Command_Surface_Is_User_Facing'Access,
+         "product command surface is user-facing");
       Register_Routine
-        (T, Test_Phase579_Diagnostics_Product_Surface_Coherent'Access,
-         "Phase 579 Diagnostics product surface coherent");
+        (T, Test_Quick_Open_Product_Surface_Coherent'Access,
+         "Quick Open product surface coherent");
       Register_Routine
-        (T, Test_Phase579_Open_Buffer_List_Product_Surface_Coherent'Access,
-         "Phase 579 Open Buffer List product surface coherent");
+        (T, Test_Diagnostics_Product_Surface_Coherent'Access,
+         "Diagnostics product surface coherent");
+      Register_Routine
+        (T, Test_Open_Buffer_List_Product_Surface_Coherent'Access,
+         "Open Buffer List product surface coherent");
    end Register_Tests;
 
 end Editor.Dogfood_Workflow.Tests;

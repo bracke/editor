@@ -38,7 +38,7 @@ package body Editor.Recent_Projects.Tests is
    begin
       Ada.Directories.Create_Path ("/tmp/editor-tests");
       return Ada.Directories.Compose
-        ("/tmp/editor-tests", "phase92_" & Name);
+        ("/tmp/editor-tests", "" & Name);
    end Temp_Path;
 
    procedure Remove_If_Exists (Path : String) is
@@ -212,11 +212,11 @@ package body Editor.Recent_Projects.Tests is
    end Test_Load_Error_Statuses_And_Skip_Malformed;
 
 
-   procedure Test_Phase213_Recent_Projects_Persistence_Domain
+   procedure Test_Recent_Projects_Persistence_Domain
      (T : in out AUnit.Test_Cases.Test_Case'Class)
    is
       pragma Unreferenced (T);
-      Path   : constant String := Temp_Path ("phase213-recent-projects.txt");
+      Path   : constant String := Temp_Path ("recent-projects.txt");
       List   : Editor.Recent_Projects.Recent_Project_List;
       Status : Editor.Recent_Projects.Recent_Project_Status;
       Text   : Unbounded_String;
@@ -239,14 +239,14 @@ package body Editor.Recent_Projects.Tests is
               "recent projects persistence must exclude keybinding fields");
 
       Remove_If_Exists (Path);
-   end Test_Phase213_Recent_Projects_Persistence_Domain;
+   end Test_Recent_Projects_Persistence_Domain;
 
 
-   procedure Test_Phase576_Recent_Projects_Save_Excludes_Buffer_List_Runtime_State
+   procedure Test_Recent_Projects_Save_Excludes_Buffer_List_Runtime_State
      (T : in out AUnit.Test_Cases.Test_Case'Class)
    is
       pragma Unreferenced (T);
-      Path   : constant String := Temp_Path ("phase576-recent-projects-exclude-buffer-list.txt");
+      Path   : constant String := Temp_Path ("recent-projects-exclude-buffer-list.txt");
       S      : Editor.State.State_Type;
       Status : Editor.Recent_Projects.Recent_Project_Status;
       Text   : Unbounded_String;
@@ -255,14 +255,14 @@ package body Editor.Recent_Projects.Tests is
       Editor.State.Init (S);
 
       Editor.Recent_Projects.Add_Or_Promote
-        (S.Recent_Projects, "/tmp/editor-phase576-project", "editor-phase576", 576);
+        (S.Recent_Projects, "/tmp/editor-project", "editor-", 576);
 
-      --  Phase 576: Recent Projects persistence owns only project recency
+      --  Recent Projects persistence owns only project recency
       --  entries.  It must not serialize any transient Buffer List state even
       --  when that UI state is live in the editor state at save time.
       Editor.Buffer_Switcher.Open (S.Buffer_Switcher);
       Editor.Buffer_Switcher.Set_Filter_Text
-        (S.Buffer_Switcher, "phase576-recent-buffer-list-query-must-not-persist");
+        (S.Buffer_Switcher, "recent-buffer-list-query-must-not-persist");
       Editor.Buffer_Switcher.Set_Outside_Project_Filter (S.Buffer_Switcher);
       Editor.Buffer_Switcher.Set_Sort_Mode
         (S.Buffer_Switcher, Editor.Buffer_Switcher.Name_Sort);
@@ -277,7 +277,7 @@ package body Editor.Recent_Projects.Tests is
                 "editor-recent-projects-version=1") > 0,
               "recent projects save must still write the recent-projects header");
       Assert (Ada.Strings.Fixed.Index (To_String (Text),
-                "phase576-recent-buffer-list-query-must-not-persist") = 0,
+                "recent-buffer-list-query-must-not-persist") = 0,
               "recent projects save must exclude Buffer List query/filter text");
       Assert (Ada.Strings.Fixed.Index (To_String (Text), "buffer-list") = 0,
               "recent projects save must exclude Buffer List runtime fields");
@@ -295,14 +295,14 @@ package body Editor.Recent_Projects.Tests is
               "recent projects save must exclude Buffer List review/mark state");
 
       Remove_If_Exists (Path);
-   end Test_Phase576_Recent_Projects_Save_Excludes_Buffer_List_Runtime_State;
+   end Test_Recent_Projects_Save_Excludes_Buffer_List_Runtime_State;
 
-   procedure Test_Phase559_Missing_Availability_And_Remove_Missing
+   procedure Test_Missing_Availability_And_Remove_Missing
      (T : in out AUnit.Test_Cases.Test_Case'Class)
    is
       pragma Unreferenced (T);
-      Existing : constant String := Temp_Path ("phase559-existing-project");
-      Missing  : constant String := Temp_Path ("phase559-missing-project");
+      Existing : constant String := Temp_Path ("existing-project");
+      Missing  : constant String := Temp_Path ("missing-project");
       List     : Editor.Recent_Projects.Recent_Project_List;
       Removed  : Natural := 0;
    begin
@@ -337,20 +337,20 @@ package body Editor.Recent_Projects.Tests is
               "Remove_Missing must preserve available entries");
 
       Remove_If_Exists (Existing);
-   end Test_Phase559_Missing_Availability_And_Remove_Missing;
+   end Test_Missing_Availability_And_Remove_Missing;
 
-   procedure Test_Phase559_Recent_Entry_Remains_Lightweight
+   procedure Test_Recent_Entry_Remains_Lightweight
      (T : in out AUnit.Test_Cases.Test_Case'Class)
    is
       pragma Unreferenced (T);
-      Path   : constant String := Temp_Path ("phase559-lightweight-recent.txt");
+      Path   : constant String := Temp_Path ("lightweight-recent.txt");
       List   : Editor.Recent_Projects.Recent_Project_List;
       Status : Editor.Recent_Projects.Recent_Project_Status;
       Text   : Unbounded_String;
    begin
       Remove_If_Exists (Path);
       Editor.Recent_Projects.Add_Or_Promote
-        (List, "/tmp/editor-phase559", "editor-phase559", 559);
+        (List, "/tmp/editor-", "editor-", 559);
       Editor.Recent_Projects.Save_To_File (List, Path, Status);
       Assert (Status = Editor.Recent_Projects.Recent_Project_Ok,
               "recent projects save must succeed for lightweight entries");
@@ -368,15 +368,15 @@ package body Editor.Recent_Projects.Tests is
               "recent project entries must not persist dirty buffer state");
 
       Remove_If_Exists (Path);
-   end Test_Phase559_Recent_Entry_Remains_Lightweight;
+   end Test_Recent_Entry_Remains_Lightweight;
 
 
-   procedure Test_Phase559_Deduplicate_Load_Keeps_Newest
+   procedure Test_Deduplicate_Load_Keeps_Newest
      (T : in out AUnit.Test_Cases.Test_Case'Class)
    is
       pragma Unreferenced (T);
-      Path   : constant String := Temp_Path ("phase559-duplicate-recent.txt");
-      Root   : constant String := Temp_Path ("phase559-duplicate-root");
+      Path   : constant String := Temp_Path ("duplicate-recent.txt");
+      Root   : constant String := Temp_Path ("duplicate-root");
       List   : Editor.Recent_Projects.Recent_Project_List;
       Status : Editor.Recent_Projects.Recent_Project_Status;
    begin
@@ -401,13 +401,13 @@ package body Editor.Recent_Projects.Tests is
 
       Remove_If_Exists (Path);
       Remove_If_Exists (Root);
-   end Test_Phase559_Deduplicate_Load_Keeps_Newest;
+   end Test_Deduplicate_Load_Keeps_Newest;
 
-   procedure Test_Phase559_File_Path_Is_Unavailable_Project
+   procedure Test_File_Path_Is_Unavailable_Project
      (T : in out AUnit.Test_Cases.Test_Case'Class)
    is
       pragma Unreferenced (T);
-      File_Path : constant String := Temp_Path ("phase559-not-a-directory.gpr");
+      File_Path : constant String := Temp_Path ("not-a-directory.gpr");
       List      : Editor.Recent_Projects.Recent_Project_List;
    begin
       Remove_If_Exists (File_Path);
@@ -422,14 +422,14 @@ package body Editor.Recent_Projects.Tests is
               "recent project availability must require a directory project root");
 
       Remove_If_Exists (File_Path);
-   end Test_Phase559_File_Path_Is_Unavailable_Project;
+   end Test_File_Path_Is_Unavailable_Project;
 
 
-   procedure Test_Phase559_Unsupported_Project_Reference_Is_Dropped
+   procedure Test_Unsupported_Project_Reference_Is_Dropped
      (T : in out AUnit.Test_Cases.Test_Case'Class)
    is
       pragma Unreferenced (T);
-      Path   : constant String := Temp_Path ("phase559-unsupported-reference.txt");
+      Path   : constant String := Temp_Path ("unsupported-reference.txt");
       List   : Editor.Recent_Projects.Recent_Project_List;
       Loaded : Editor.Recent_Projects.Recent_Project_List;
       Status : Editor.Recent_Projects.Recent_Project_Status;
@@ -438,7 +438,7 @@ package body Editor.Recent_Projects.Tests is
       Remove_If_Exists (Path);
 
       Editor.Recent_Projects.Add_Or_Promote
-        (List, "/tmp/phase559|bad", "bad", 1);
+        (List, "/tmp/|bad", "bad", 1);
       Assert (Editor.Recent_Projects.Count (List) = 0,
               "unsupported pipe-delimited recent project references must be ignored before save");
 
@@ -446,8 +446,8 @@ package body Editor.Recent_Projects.Tests is
         (Path,
          "editor-recent-projects-version=1" & ASCII.LF &
          "[projects]" & ASCII.LF &
-         "/tmp/phase559-ok|name=ok|opened=2" & ASCII.LF &
-         "/tmp/phase559|bad|name=bad|opened=3" & ASCII.LF);
+         "/tmp/ok|name=ok|opened=2" & ASCII.LF &
+         "/tmp/|bad|name=bad|opened=3" & ASCII.LF);
       Editor.Recent_Projects.Load_From_File (Path, Loaded, Status);
       Assert (Status = Editor.Recent_Projects.Recent_Project_Partial_Load,
               "unsupported recent project references must not invalidate the whole file and must be reported");
@@ -460,13 +460,13 @@ package body Editor.Recent_Projects.Tests is
       Assert (Status = Editor.Recent_Projects.Recent_Project_Ok,
               "saving after load cleanup must still succeed");
       Text := To_Unbounded_String (Read_Text (Path));
-      Assert (Ada.Strings.Fixed.Index (To_String (Text), "phase559|bad") = 0,
+      Assert (Ada.Strings.Fixed.Index (To_String (Text), "|bad") = 0,
               "save must not re-emit unsupported recent project references");
 
       Remove_If_Exists (Path);
-   end Test_Phase559_Unsupported_Project_Reference_Is_Dropped;
+   end Test_Unsupported_Project_Reference_Is_Dropped;
 
-   procedure Test_Phase559_Row_Label_Is_Lightweight_Projection
+   procedure Test_Row_Label_Is_Lightweight_Projection
      (T : in out AUnit.Test_Cases.Test_Case'Class)
    is
       pragma Unreferenced (T);
@@ -474,14 +474,14 @@ package body Editor.Recent_Projects.Tests is
       Label : Unbounded_String;
    begin
       Editor.Recent_Projects.Add_Or_Promote
-        (List, "/tmp/phase559-row", "phase559-row", 559);
+        (List, "/tmp/row", "row", 559);
       Label := To_Unbounded_String
         (Editor.Recent_Projects.Row_Label
            (Editor.Recent_Projects.Item (List, 1), Is_Selected => True));
 
-      Assert (Ada.Strings.Fixed.Index (To_String (Label), "> phase559-row") = 1,
+      Assert (Ada.Strings.Fixed.Index (To_String (Label), "> row") = 1,
               "row label must carry a selected marker for the projected row");
-      Assert (Ada.Strings.Fixed.Index (To_String (Label), "/tmp/phase559-row") > 0,
+      Assert (Ada.Strings.Fixed.Index (To_String (Label), "/tmp/row") > 0,
               "row label must include the project path label");
       Assert (Ada.Strings.Fixed.Index (To_String (Label), "workspace") = 0,
               "row label must not project workspace state");
@@ -489,7 +489,7 @@ package body Editor.Recent_Projects.Tests is
               "row label must not project Build state");
       Assert (Ada.Strings.Fixed.Index (To_String (Label), "Outline") = 0,
               "row label must not project Outline state");
-   end Test_Phase559_Row_Label_Is_Lightweight_Projection;
+   end Test_Row_Label_Is_Lightweight_Projection;
 
    procedure Test_Focused_Recent_Projects_Keyboard_Routes_Through_Input_Bridge
      (T : in out AUnit.Test_Cases.Test_Case'Class)
@@ -570,22 +570,22 @@ package body Editor.Recent_Projects.Tests is
                         "Save Load Roundtrip");
       Register_Routine (T, Test_Load_Error_Statuses_And_Skip_Malformed'Access,
                         "Load Error Statuses And Skip Malformed");
-      Register_Routine (T, Test_Phase213_Recent_Projects_Persistence_Domain'Access,
-                        "Phase 213 recent projects persistence domain separation");
-      Register_Routine (T, Test_Phase576_Recent_Projects_Save_Excludes_Buffer_List_Runtime_State'Access,
-                        "Phase576 Recent Projects Save Excludes Buffer List Runtime State");
-      Register_Routine (T, Test_Phase559_Missing_Availability_And_Remove_Missing'Access,
-                        "Phase 559 missing availability and remove missing");
-      Register_Routine (T, Test_Phase559_Recent_Entry_Remains_Lightweight'Access,
-                        "Phase 559 recent entry remains lightweight");
-      Register_Routine (T, Test_Phase559_Deduplicate_Load_Keeps_Newest'Access,
-                        "Phase 559 deduplicate loaded recent projects keeps newest");
-      Register_Routine (T, Test_Phase559_File_Path_Is_Unavailable_Project'Access,
-                        "Phase 559 file path is unavailable project root");
-      Register_Routine (T, Test_Phase559_Unsupported_Project_Reference_Is_Dropped'Access,
-                        "Phase 559 unsupported project reference is dropped");
-      Register_Routine (T, Test_Phase559_Row_Label_Is_Lightweight_Projection'Access,
-                        "Phase 559 row label is lightweight projection");
+      Register_Routine (T, Test_Recent_Projects_Persistence_Domain'Access,
+                        "recent projects persistence domain separation");
+      Register_Routine (T, Test_Recent_Projects_Save_Excludes_Buffer_List_Runtime_State'Access,
+                        "Recent Projects Save Excludes Buffer List Runtime State");
+      Register_Routine (T, Test_Missing_Availability_And_Remove_Missing'Access,
+                        "missing availability and remove missing");
+      Register_Routine (T, Test_Recent_Entry_Remains_Lightweight'Access,
+                        "recent entry remains lightweight");
+      Register_Routine (T, Test_Deduplicate_Load_Keeps_Newest'Access,
+                        "deduplicate loaded recent projects keeps newest");
+      Register_Routine (T, Test_File_Path_Is_Unavailable_Project'Access,
+                        "file path is unavailable project root");
+      Register_Routine (T, Test_Unsupported_Project_Reference_Is_Dropped'Access,
+                        "unsupported project reference is dropped");
+      Register_Routine (T, Test_Row_Label_Is_Lightweight_Projection'Access,
+                        "row label is lightweight projection");
       Register_Routine
         (T, Test_Focused_Recent_Projects_Keyboard_Routes_Through_Input_Bridge'Access,
          "focused recent projects keyboard routes through Input_Bridge");

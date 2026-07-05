@@ -10,7 +10,7 @@ with Editor.Ada_Syntax_Tree;
 
 package Editor.Ada_Contract_Aspect_Legality is
 
-   --  Pass1112 compiler-grade contract/aspect legality layer.
+   --  Case 1112 compiler-grade contract/aspect legality layer.
    --  This package consolidates Ada contract and semantic aspect legality for
    --  preconditions, postconditions, predicates, invariants, assertions,
    --  contract cases, Global/Depends-style data-flow aspects, and linked

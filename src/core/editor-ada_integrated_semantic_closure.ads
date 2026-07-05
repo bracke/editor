@@ -14,7 +14,7 @@ with Editor.Ada_Wide_Semantic_Legality_Diagnostics;
 
 package Editor.Ada_Integrated_Semantic_Closure is
 
-   --  Pass1118 compiler-grade semantic closure layer.  This package folds the
+   --  Case 1118 compiler-grade semantic closure layer.  This package folds the
    --  wide legality diagnostics and the newer overload, staticness,
    --  accessibility, contract, elaboration, completion, renaming, exception,
    --  and representation-integration legality layers into one bounded,

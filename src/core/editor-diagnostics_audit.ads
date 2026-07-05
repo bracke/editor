@@ -20,7 +20,7 @@ package Editor.Diagnostics_Audit is
       Review_Passed                 : Boolean := False;
    end record;
 
-   --  Compact Phase 206 review of the session-local Diagnostics contract.
+   --  Compact review of the session-local Diagnostics contract.
    --  The helper observes live editor state and exercises only local copies for
    --  retention, filtering, projection, row identity, row/Diagnostic_Id
    --  target validation, and lifecycle checks. It does not ingest diagnostics into live state, clear

@@ -4,10 +4,10 @@ with Editor.Ada_Syntax_Tree;
 
 package Editor.Ada_Remaining_RM_Edge_Stabilized_Closure_Search_Index is
 
-   --  Pass1294 blocker-family-aware search index for stabilized remaining
+   --  Case 1294 blocker-family-aware search index for stabilized remaining
    --  RM edge closure diagnostics.
    --
-   --  This package indexes Pass1293 provenance rows without changing their
+   --  This package indexes Case 1293 provenance rows without changing their
    --  semantic meaning.  It is a deterministic semantic lookup structure used
    --  by downstream compiler-grade consumers to find the exact remaining RM
    --  edge blocker, stabilized direct-consumer closure blocker, fingerprint

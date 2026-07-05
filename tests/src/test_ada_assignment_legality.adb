@@ -220,16 +220,16 @@ package body Test_Ada_Assignment_Legality is
    begin
       Register_Routine
         (T, Test_Compatible_Static_Assignment'Access,
-         "Pass1099 accepts static in-range assignment");
+         "Case 1099 accepts static in-range assignment");
       Register_Routine
         (T, Test_Static_Range_And_Null_Exclusion_Errors'Access,
-         "Pass1099 rejects range and null-exclusion assignment errors");
+         "Case 1099 rejects range and null-exclusion assignment errors");
       Register_Routine
         (T, Test_Derived_Specific_Assignment_Requires_Explicit_Conversion'Access,
          "assignment legality rejects derived specific assignments without explicit conversion");
       Register_Routine
         (T, Test_Constant_In_Formal_And_Lookups'Access,
-         "Pass1099 rejects constant and in-formal assignment targets");
+         "Case 1099 rejects constant and in-formal assignment targets");
    end Register_Tests;
 
 end Test_Ada_Assignment_Legality;

@@ -5,9 +5,9 @@ with Editor.Ada_Syntax_Tree;
 
 package Editor.Ada_Shared_State_Remediation_Worklist_Legality is
 
-   --  Pass1218 shared-state remediation worklist legality.
+   --  Case 1218 shared-state remediation worklist legality.
    --
-   --  This package consumes the Pass1217 shared-state stabilized diagnostic
+   --  This package consumes the Case 1217 shared-state stabilized diagnostic
    --  boundary and turns accepted/blocking abstract-state, volatile/atomic,
    --  overload/type, representation/freezing, tasking/protected, dependency,
    --  view, generic, and fingerprint evidence into a deterministic semantic

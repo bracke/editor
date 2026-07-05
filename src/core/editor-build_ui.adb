@@ -5,6 +5,7 @@ with Editor.Build_Working_Context;
 with Editor.Build_Candidates;
 with Editor.Build_Result_Summary;
 with Editor.Build_Output_Details;
+with Editor.Commands;
 with Editor.External_Producers;
 
 package body Editor.Build_UI is
@@ -12,6 +13,7 @@ package body Editor.Build_UI is
    use type Ada.Containers.Count_Type;
    use type Editor.Build_Candidates.Build_Candidate_Validation_Status;
    use type Editor.Build_Working_Context.Build_Working_Context_Validation_Status;
+   use type Editor.Commands.Command_Id;
 
    function Trimmed (Text : Unbounded_String) return String is
    begin
@@ -658,6 +660,131 @@ package body Editor.Build_UI is
         (State, not State.Show_Diagnostics_On_Result);
    end Toggle_Diagnostics_Ingestion;
 
+   function Selected_Action_Row
+     (State : Public_Build_UI_State;
+      Count : Natural) return Natural
+   is
+   begin
+      if Count = 0 or else State.Selected_Action_Row = 0 then
+         return 0;
+      elsif State.Selected_Action_Row > Count then
+         return Count;
+      else
+         return State.Selected_Action_Row;
+      end if;
+   end Selected_Action_Row;
+
+   function Action_Top_Row
+     (State         : Public_Build_UI_State;
+      Count         : Natural;
+      Visible_Count : Natural) return Natural
+   is
+      Max_Top : constant Natural :=
+        (if Count = 0 or else Visible_Count = 0 or else Count <= Visible_Count
+         then 1
+         else Count - Visible_Count + 1);
+   begin
+      if Count = 0 or else Visible_Count = 0 then
+         return 1;
+      elsif State.Action_Top_Row = 0 then
+         return 1;
+      elsif State.Action_Top_Row > Max_Top then
+         return Max_Top;
+      else
+         return State.Action_Top_Row;
+      end if;
+   end Action_Top_Row;
+
+   procedure Ensure_Selected_Action_Row_Visible
+     (State         : in out Public_Build_UI_State;
+      Count         : Natural;
+      Visible_Count : Natural)
+   is
+      Selected : constant Natural := Selected_Action_Row (State, Count);
+      Top      : Natural := Action_Top_Row (State, Count, Visible_Count);
+   begin
+      if Count = 0 or else Visible_Count = 0 then
+         State.Action_Top_Row := 1;
+      elsif Selected = 0 then
+         State.Action_Top_Row := Top;
+      elsif Selected < Top then
+         State.Action_Top_Row := Selected;
+      elsif Selected >= Top + Visible_Count then
+         State.Action_Top_Row := Selected - Visible_Count + 1;
+      else
+         State.Action_Top_Row := Top;
+      end if;
+   end Ensure_Selected_Action_Row_Visible;
+
+   procedure Scroll_Action_Rows
+     (State         : in out Public_Build_UI_State;
+      Count         : Natural;
+      Visible_Count : Natural;
+      Amount        : Integer)
+   is
+      Top : constant Natural := Action_Top_Row (State, Count, Visible_Count);
+      Next : Integer := Integer (Top) + Amount;
+      Max_Top : constant Natural :=
+        (if Count = 0 or else Visible_Count = 0 or else Count <= Visible_Count
+         then 1
+         else Count - Visible_Count + 1);
+   begin
+      if Next < 1 then
+         Next := 1;
+      elsif Next > Integer (Max_Top) then
+         Next := Integer (Max_Top);
+      end if;
+      State.Action_Top_Row := Natural (Next);
+   end Scroll_Action_Rows;
+
+   procedure Select_Next_Action_Row
+     (State : in out Public_Build_UI_State;
+      Count : Natural)
+   is
+      Current : constant Natural := Selected_Action_Row (State, Count);
+   begin
+      if Count = 0 then
+         State.Selected_Action_Row := 0;
+      elsif Current = 0 or else Current >= Count then
+         State.Selected_Action_Row := 1;
+      else
+         State.Selected_Action_Row := Current + 1;
+      end if;
+      Ensure_Selected_Action_Row_Visible (State, Count, Count);
+   end Select_Next_Action_Row;
+
+   procedure Select_Previous_Action_Row
+     (State : in out Public_Build_UI_State;
+      Count : Natural)
+   is
+      Current : constant Natural := Selected_Action_Row (State, Count);
+   begin
+      if Count = 0 then
+         State.Selected_Action_Row := 0;
+      elsif Current <= 1 then
+         State.Selected_Action_Row := Count;
+      else
+         State.Selected_Action_Row := Current - 1;
+      end if;
+      Ensure_Selected_Action_Row_Visible (State, Count, Count);
+   end Select_Previous_Action_Row;
+
+   procedure Set_Selected_Action_Row
+     (State : in out Public_Build_UI_State;
+      Row   : Natural;
+      Count : Natural)
+   is
+   begin
+      if Count = 0 or else Row = 0 then
+         State.Selected_Action_Row := 0;
+      elsif Row > Count then
+         State.Selected_Action_Row := Count;
+      else
+         State.Selected_Action_Row := Row;
+      end if;
+      Ensure_Selected_Action_Row_Visible (State, Count, Count);
+   end Set_Selected_Action_Row;
+
    procedure Cycle_Output_Capture_Limit
      (State : in out Public_Build_UI_State)
    is
@@ -720,7 +847,7 @@ package body Editor.Build_UI is
      (State : in out Public_Build_UI_State)
    is
    begin
-      --  Phase 554 does not expose this flag as an implemented request option:
+      --  does not expose this flag as an implemented request option:
       --  there is no retained fixed argv-token mapping here, so the command is
       --  a no-op rather than a hidden/freeform argument path.
       State.Option_Warnings_As_Errors := False;
@@ -731,7 +858,7 @@ package body Editor.Build_UI is
      (State : in out Public_Build_UI_State)
    is
    begin
-      --  Phase 554 does not expose this flag as an implemented request option:
+      --  does not expose this flag as an implemented request option:
       --  there is no retained fixed argv-token mapping here, so the command is
       --  a no-op rather than a hidden/freeform argument path.
       State.Option_Force_Rebuild := False;
@@ -869,6 +996,53 @@ package body Editor.Build_UI is
             return "Build run unavailable: execution backend is disabled";
       end case;
    end Validation_Message;
+
+   function Recovery_Message
+     (Status : Public_Build_UI_Validation_Status) return String
+   is
+   begin
+      case Status is
+         when Build_UI_Valid =>
+            return "Run build";
+         when Build_UI_Rejected_Not_Visible =>
+            return "Open Build Output";
+         when Build_UI_Rejected_No_Tool =>
+            return "Choose a supported build tool";
+         when Build_UI_Rejected_Custom_Tool =>
+            return "Choose GPRbuild or Alire";
+         when Build_UI_Rejected_No_Candidate_Selected =>
+            return "Refresh build candidates and select one";
+         when Build_UI_Rejected_Selected_Candidate_Stale =>
+            return "Refresh build candidates";
+         when Build_UI_Rejected_Missing_Consent =>
+            return "Review the request and acknowledge consent";
+         when Build_UI_Rejected_Unsafe_Arguments =>
+            return "Use structured build arguments";
+         when Build_UI_Rejected_Unsupported_Request_Option =>
+            return "Change unsupported request options";
+         when Build_UI_Rejected_Working_Context_Required =>
+            return "Select a project working directory";
+         when Build_UI_Rejected_Working_Context_Unavailable =>
+            return "Refresh the project working context";
+         when Build_UI_Rejected_Unsafe_Working_Context =>
+            return "Use the current project or workspace context";
+         when Build_UI_Rejected_Stale_Consent =>
+            return "Review changed request and acknowledge consent again";
+         when Build_UI_Rejected_Execution_Backend_Disabled =>
+            return "Enable bounded build execution policy";
+      end case;
+   end Recovery_Message;
+
+   function Candidate_Count_Label (Count : Natural) return String is
+   begin
+      if Count = 0 then
+         return "No build candidates";
+      elsif Count = 1 then
+         return "1 build candidate";
+      else
+         return Natural'Image (Count) & " build candidates";
+      end if;
+   end Candidate_Count_Label;
 
 
    function Tool_Label
@@ -1009,6 +1183,45 @@ package body Editor.Build_UI is
       return Rows;
    end Build_Candidate_Rows;
 
+   function Selected_Candidate_Summary_Label
+     (Rows : Build_UI_Candidate_Row_Vector) return String
+   is
+   begin
+      if Natural (Rows.Length) = 0 then
+         return "No build candidates. Refresh build candidates.";
+      end if;
+
+      for Row of Rows loop
+         if Row.Selected then
+            return "Selected candidate: " & To_String (Row.Display_Label)
+              & " | " & To_String (Row.Tool_Kind_Label)
+              & " | " & To_String (Row.Validation_Label);
+         end if;
+      end loop;
+
+      return "No build candidate selected. Select a build candidate.";
+   end Selected_Candidate_Summary_Label;
+
+   function Next_Action_Label
+     (State  : Public_Build_UI_State;
+      Status : Public_Build_UI_Validation_Status) return String
+   is
+   begin
+      if Natural (State.Build_Candidates.Length) = 0 then
+         return "Next: refresh build candidates";
+      elsif Length (State.Selected_Build_Candidate_Id) = 0 then
+         return "Next: select a build candidate";
+      elsif Status = Build_UI_Rejected_Missing_Consent
+        or else Status = Build_UI_Rejected_Stale_Consent
+      then
+         return "Next: review request and acknowledge consent";
+      elsif Status = Build_UI_Valid then
+         return "Next: run build";
+      else
+         return "Next: resolve " & Validation_Message (Status);
+      end if;
+   end Next_Action_Label;
+
    function Build_Request_Preview
      (State : Public_Build_UI_State) return Build_UI_Request_Preview
    is
@@ -1127,9 +1340,124 @@ package body Editor.Build_UI is
            (if Can_Reveal then To_Unbounded_String ("diagnostics.show")
             else Null_Unbounded_String),
          Reveal_Label =>
-           (if Can_Reveal then To_Unbounded_String ("Reveal Diagnostics")
-            else To_Unbounded_String ("No diagnostics to reveal yet")));
+           (if Can_Reveal then To_Unbounded_String
+              ("Show" & Natural'Image (Summary.Diagnostics_Count_If_Available)
+               & " diagnostics")
+            else To_Unbounded_String ("No diagnostics to reveal yet")),
+         Open_Source_Command_Name => To_Unbounded_String
+           (Editor.Commands.Stable_Command_Name
+              (Editor.Commands.Command_Diagnostic_Open_Source)),
+         Open_Source_Available => Can_Reveal,
+         Open_Source_Unavailable_Reason =>
+           (if Can_Reveal then Null_Unbounded_String
+            else To_Unbounded_String ("Diagnostics are not available yet")),
+         Suppress_Command_Name => To_Unbounded_String
+           (Editor.Commands.Stable_Command_Name
+              (Editor.Commands.Command_Diagnostic_Suppress_Selected)),
+         Suppress_Available => Can_Reveal,
+         Suppress_Unavailable_Reason =>
+           (if Can_Reveal then Null_Unbounded_String
+            else To_Unbounded_String ("Diagnostics are not available yet")),
+         Suppressed_Count_Label => To_Unbounded_String ("Suppressed: 0"),
+         Show_Suppressed_Command_Name => To_Unbounded_String
+           (Editor.Commands.Stable_Command_Name
+              (Editor.Commands.Command_Diagnostic_Show_Suppressed)),
+         Show_Suppressed_Available => False,
+         Show_Suppressed_Unavailable_Reason =>
+           To_Unbounded_String ("No suppressed diagnostics"),
+         Restore_Suppressed_Command_Name => To_Unbounded_String
+           (Editor.Commands.Stable_Command_Name
+              (Editor.Commands.Command_Diagnostic_Restore_Last_Suppressed)),
+         Restore_Suppressed_Available => False,
+         Restore_Suppressed_Unavailable_Reason =>
+           To_Unbounded_String ("No suppressed diagnostics"),
+         Quick_Fix_Command_Name => To_Unbounded_String
+           (Editor.Commands.Stable_Command_Name
+              (Editor.Commands.Command_Diagnostic_Apply_Quick_Fix)),
+         Quick_Fix_Label => To_Unbounded_String ("Apply quick fix"),
+         Quick_Fix_Detail => To_Unbounded_String ("Select a diagnostic with a quick fix"),
+         Quick_Fix_Available => False,
+         Quick_Fix_Unavailable_Reason =>
+           To_Unbounded_String ("Select a diagnostic with a quick fix"),
+         Action_Summary_Label => To_Unbounded_String
+           ((if Can_Reveal then "Actions: reveal, open source, suppress, quick fix"
+             else "Actions unavailable until diagnostics are produced")));
    end Build_Diagnostics_View;
+
+   function Action_Row
+     (Label           : String;
+      Command         : Editor.Commands.Command_Id;
+      Enabled         : Boolean;
+      Disabled_Reason : String := "") return Build_UI_Action_Row
+   is
+   begin
+      return
+        (Label => To_Unbounded_String (Label),
+         Command_Name => To_Unbounded_String
+           (Editor.Commands.Stable_Command_Name (Command)),
+         Enabled => Enabled,
+         Selected => False,
+         Diagnostic_Index => 0,
+         Quick_Fix_Action_Index => 0,
+         Disabled_Reason =>
+           (if Enabled then Null_Unbounded_String
+            else To_Unbounded_String (Disabled_Reason)));
+   end Action_Row;
+
+   function Build_Action_Rows
+     (State  : Public_Build_UI_State;
+      Status : Public_Build_UI_Validation_Status)
+      return Build_UI_Action_Row_Vector
+   is
+      Rows : Build_UI_Action_Row_Vector := Build_UI_Action_Row_Vectors.Empty_Vector;
+      Candidate_Command : constant Editor.Commands.Command_Id :=
+        (if Natural (State.Build_Candidates.Length) > 0
+         and then Length (State.Selected_Build_Candidate_Id) = 0
+         then Editor.Commands.Command_Build_Select_Next_Candidate
+         else Editor.Commands.Command_Build_Refresh_Candidates);
+      Candidate_Label : constant String :=
+        (if Candidate_Command = Editor.Commands.Command_Build_Select_Next_Candidate
+         then "Select a build candidate"
+         else "Refresh build candidates");
+      Consent_Ready : constant Boolean :=
+        State.Build_UI_Visible and then not State.Consent_Acknowledged;
+      Run_Ready : constant Boolean := Status = Build_UI_Valid;
+   begin
+      Rows.Append
+        (Action_Row
+           (Candidate_Label,
+            Candidate_Command,
+            State.Build_UI_Visible,
+            "Build UI is hidden"));
+      Rows.Append
+        (Action_Row
+           ("Review and acknowledge consent",
+            Editor.Commands.Command_Build_Acknowledge_Consent,
+            Consent_Ready,
+            (if State.Consent_Acknowledged
+             then "Consent already acknowledged"
+             else "Build UI is hidden")));
+      Rows.Append
+        (Action_Row
+           ("Run build",
+            Editor.Commands.Command_Build_Run,
+            Run_Ready,
+            Validation_Message (Status)));
+      declare
+         Selected : constant Natural :=
+           Selected_Action_Row (State, Natural (Rows.Length));
+      begin
+         if Selected > 0 then
+            declare
+               Row : Build_UI_Action_Row := Rows.Element (Selected - 1);
+            begin
+               Row.Selected := True;
+               Rows.Replace_Element (Selected - 1, Row);
+            end;
+         end if;
+      end;
+      return Rows;
+   end Build_Action_Rows;
 
    function Build_Render_Snapshot
      (State   : Public_Build_UI_State;
@@ -1149,6 +1477,24 @@ package body Editor.Build_UI is
            State.Candidate_Refresh_Status = Build_Candidate_Refresh_No_Project_Context,
          No_Candidates => Natural (State.Build_Candidates.Length) = 0,
          Candidate_Count => Natural (State.Build_Candidates.Length),
+         Candidate_Count_Label => To_Unbounded_String
+           (Candidate_Count_Label (Natural (State.Build_Candidates.Length))),
+         Selected_Candidate_Summary_Label => To_Unbounded_String
+           (Selected_Candidate_Summary_Label (Rows)),
+         Candidate_Refresh_Action_Label =>
+           (if Natural (State.Build_Candidates.Length) = 0 then
+              To_Unbounded_String ("Refresh build candidates")
+            elsif Length (State.Selected_Build_Candidate_Id) = 0 then
+              To_Unbounded_String ("Select a build candidate")
+            else
+              To_Unbounded_String ("Refresh build candidates")),
+         Candidate_Refresh_Action_Command_Name =>
+           (if Natural (State.Build_Candidates.Length) > 0
+            and then Length (State.Selected_Build_Candidate_Id) = 0
+            then To_Unbounded_String ("build.select-next-candidate")
+            else To_Unbounded_String ("build.refresh-candidates")),
+         Next_Action_Label => To_Unbounded_String (Next_Action_Label (State, Status)),
+         Actions => Build_Action_Rows (State, Status),
          Candidates => Rows,
          Refresh_Status_Label => To_Unbounded_String
            (Refresh_Status_Label (State.Candidate_Refresh_Status)),
@@ -1158,13 +1504,82 @@ package body Editor.Build_UI is
          Consent_Required => Consent_Text = "Consent missing: review and acknowledge the build request",
          Consent_Stale => Consent_Text = "Consent stale: review the changed build request",
          Consent_Acknowledged => Consent_Text = "Consent acknowledged for current build request",
+         Request_Valid => Status = Build_UI_Valid,
+         Run_Command_Available => Status = Build_UI_Valid,
          Run_Available => Status = Build_UI_Valid,
+         Request_Status_Label => To_Unbounded_String
+           ((if Status = Build_UI_Valid
+             then "Build request valid"
+             else "Build request invalid: " & Validation_Message (Status))),
+         Request_Action_Command_Name =>
+           To_Unbounded_String ("build.acknowledge-consent"),
+         Run_Command_Status_Label => To_Unbounded_String
+           ((if Status = Build_UI_Valid
+             then "Run command available"
+             else "Run command unavailable: " & Validation_Message (Status))),
+         Run_Action_Command_Name => To_Unbounded_String ("build.run"),
          Run_Availability_Label => To_Unbounded_String
            (Validation_Message (Status)),
+         Run_Recovery_Hint => To_Unbounded_String
+           (Recovery_Message (Status)),
+         Latest_Result_Summary_Row_Label => To_Unbounded_String
+           (Editor.Build_Result_Summary.Summary_Row_Label (Summary)),
          Latest_Result => Editor.Build_Result_Summary.Render_Snapshot (Summary),
          Output_Details => Editor.Build_Output_Details.Render_Snapshot (Details),
          Diagnostics_View => Build_Diagnostics_View (Summary));
    end Build_Render_Snapshot;
+
+   function Build_Diagnostics_Surface_For
+     (Snapshot : Build_UI_Render_Snapshot) return Build_Diagnostics_Surface
+   is
+   begin
+      return
+        (Latest_Result_Label => Snapshot.Latest_Result_Summary_Row_Label,
+         Diagnostics_Status_Label => Snapshot.Diagnostics_View.Status_Label,
+         Diagnostics_Count_Label => Snapshot.Diagnostics_View.Count_Label,
+         Reveal_Command_Name => Snapshot.Diagnostics_View.Reveal_Command_Name,
+         Reveal_Available => Snapshot.Diagnostics_View.Reveal_Available,
+         Result_Visible => Snapshot.Latest_Result.Latest_Build_Result_Visible);
+   end Build_Diagnostics_Surface_For;
+
+   function Find_Action_Row
+     (Snapshot                       : Build_UI_Render_Snapshot;
+      Command_Name                   : String;
+      Diagnostic_Index               : Natural := 0;
+      Quick_Fix_Action_Index         : Natural := 0) return Natural
+   is
+   begin
+      for I in Snapshot.Actions.First_Index .. Snapshot.Actions.Last_Index loop
+         declare
+            Row : constant Build_UI_Action_Row := Snapshot.Actions.Element (I);
+         begin
+            if To_String (Row.Command_Name) = Command_Name
+              and then
+                (Diagnostic_Index = 0
+                 or else Row.Diagnostic_Index = Diagnostic_Index)
+              and then
+                (Quick_Fix_Action_Index = 0
+                 or else Row.Quick_Fix_Action_Index = Quick_Fix_Action_Index)
+            then
+               return Natural (I) + 1;
+            end if;
+         end;
+      end loop;
+      return 0;
+   end Find_Action_Row;
+
+   function Assert_Build_Diagnostics_Surface_Is_Renderable
+     (Surface : Build_Diagnostics_Surface) return Boolean
+   is
+   begin
+      return Length (Surface.Diagnostics_Status_Label) > 0
+        and then Length (Surface.Diagnostics_Count_Label) > 0
+        and then (not Surface.Result_Visible
+                  or else Length (Surface.Latest_Result_Label) > 0)
+        and then (not Surface.Reveal_Available
+                  or else To_String (Surface.Reveal_Command_Name) =
+                    "diagnostics.show");
+   end Assert_Build_Diagnostics_Surface_Is_Renderable;
 
    function Assert_Build_UI_Render_Snapshot_Is_Operable
      (Snapshot : Build_UI_Render_Snapshot) return Boolean
@@ -1178,10 +1593,29 @@ package body Editor.Build_UI is
                   Length (Snapshot.Request_Preview.Request_Mode_Label) > 0)
                  and then Length (Snapshot.Request_Preview.Consent_Label) > 0
                  and then Length (Snapshot.Run_Availability_Label) > 0
+                 and then Natural (Snapshot.Actions.Length) >= 3
                  and then Snapshot.Candidate_Count = Natural (Snapshot.Candidates.Length)
               else
                  Snapshot.Candidate_Count = Natural (Snapshot.Candidates.Length));
    end Assert_Build_UI_Render_Snapshot_Is_Operable;
+
+   function Assert_Action_Row_Metadata
+     (Row                             : Build_UI_Action_Row;
+      Expected_Command_Name           : String;
+      Expected_Enabled                : Boolean;
+      Expected_Disabled_Reason        : String;
+      Expected_Diagnostic_Index       : Natural;
+      Expected_Quick_Fix_Action_Index : Natural;
+      Expected_Selected               : Boolean := False) return Boolean
+   is
+   begin
+      return To_String (Row.Command_Name) = Expected_Command_Name
+        and then Row.Enabled = Expected_Enabled
+        and then To_String (Row.Disabled_Reason) = Expected_Disabled_Reason
+        and then Row.Diagnostic_Index = Expected_Diagnostic_Index
+        and then Row.Quick_Fix_Action_Index = Expected_Quick_Fix_Action_Index
+        and then Row.Selected = Expected_Selected;
+   end Assert_Action_Row_Metadata;
 
    function Assert_Build_UI_Result_Output_Diagnostics_Useful
      (Snapshot : Build_UI_Render_Snapshot) return Boolean
@@ -1189,9 +1623,16 @@ package body Editor.Build_UI is
    begin
       return (if Snapshot.Latest_Result.Latest_Build_Result_Visible then
                 Length (Snapshot.Latest_Result.Latest_Build_Result_Status_Label) > 0
+                and then Length (Snapshot.Latest_Result.Latest_Build_Result_Command_Label) > 0
+                and then Length (Snapshot.Latest_Result.Latest_Build_Result_Request_Mode_Label) > 0
+                and then Length (Snapshot.Latest_Result.Latest_Build_Result_Duration_Label) > 0
                 and then Length (Snapshot.Latest_Result.Latest_Build_Result_Runner_Status_Label) > 0
                 and then Length (Snapshot.Latest_Result.Latest_Build_Result_Diagnostics_Label) > 0
+                and then Length (Snapshot.Latest_Result.Latest_Build_Result_Error_Count_Label) > 0
+                and then Length (Snapshot.Latest_Result.Latest_Build_Result_Warning_Count_Label) > 0
                 and then Length (Snapshot.Latest_Result.Latest_Build_Result_Primary_Message_Label) > 0
+                and then Length (Snapshot.Latest_Result.Latest_Build_Result_Summary_Row_Label) > 0
+                and then Length (Snapshot.Latest_Result_Summary_Row_Label) > 0
              else
                 True)
         and then (if Snapshot.Output_Details.Output_Details_Visible
@@ -1205,9 +1646,24 @@ package body Editor.Build_UI is
                      True)
         and then Length (Snapshot.Diagnostics_View.Status_Label) > 0
         and then Length (Snapshot.Diagnostics_View.Count_Label) > 0
+        and then Length (Snapshot.Diagnostics_View.Action_Summary_Label) > 0
+        and then Length (Snapshot.Diagnostics_View.Open_Source_Command_Name) > 0
+        and then Length (Snapshot.Diagnostics_View.Suppress_Command_Name) > 0
+        and then Length (Snapshot.Diagnostics_View.Quick_Fix_Command_Name) > 0
+        and then Length (Snapshot.Candidate_Count_Label) > 0
+        and then Length (Snapshot.Selected_Candidate_Summary_Label) > 0
+        and then Length (Snapshot.Candidate_Refresh_Action_Label) > 0
+        and then Length (Snapshot.Candidate_Refresh_Action_Command_Name) > 0
+        and then Length (Snapshot.Next_Action_Label) > 0
+        and then Length (Snapshot.Request_Status_Label) > 0
+        and then Length (Snapshot.Request_Action_Command_Name) > 0
+        and then Length (Snapshot.Run_Command_Status_Label) > 0
+        and then Length (Snapshot.Run_Action_Command_Name) > 0
         and then (not Snapshot.Diagnostics_View.Reveal_Available
                   or else To_String (Snapshot.Diagnostics_View.Reveal_Command_Name) =
-                    "diagnostics.show");
+                    "diagnostics.show")
+        and then Assert_Build_Diagnostics_Surface_Is_Renderable
+          (Build_Diagnostics_Surface_For (Snapshot));
    end Assert_Build_UI_Result_Output_Diagnostics_Useful;
 
    function Assert_Public_Build_Result_Output_UI_Coherent

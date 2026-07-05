@@ -239,10 +239,10 @@ package body Test_Ada_Record_Variant_Aggregate_Legality is
    begin
       Register_Routine
         (T, Classifies_Record_Variant_Discriminant_Closure'Access,
-         "Pass1127 connects record, variant, discriminant, predicate, and layout legality");
+         "Case 1127 connects record, variant, discriminant, predicate, and layout legality");
       Register_Routine
         (T, Lookups_And_Empty_Inputs_Are_Deterministic'Access,
-         "Pass1127 keeps aggregate closure lookups deterministic");
+         "Case 1127 keeps aggregate closure lookups deterministic");
    end Register_Tests;
 
 end Test_Ada_Record_Variant_Aggregate_Legality;

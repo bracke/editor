@@ -6,6 +6,7 @@ with AUnit.Test_Cases;
 with Editor.Command_Execution;
 with Editor.Commands;
 with Editor.Executor;
+with Editor.Executor.Project_Lifecycle_Commands;
 with Editor.External_Producers;
 with Editor.Input_Bridge;
 with Editor.Keybindings;
@@ -261,7 +262,7 @@ package body Editor.Terminal_Tasks.Tests is
       Test_Seen : Boolean := False;
    begin
       Ada.Directories.Create_Path (Root);
-      Editor.Executor.Execute_Open_Project
+      Editor.Executor.Project_Lifecycle_Commands.Execute_Open_Project
         (S, Root,
          Refresh_Build_Candidates => False,
          Apply_Workspace_Policy => False);

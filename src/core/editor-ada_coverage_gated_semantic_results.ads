@@ -6,7 +6,7 @@ with Editor.Ada_Syntax_Tree;
 
 package Editor.Ada_Coverage_Gated_Semantic_Results is
 
-   --  Pass1136 coverage-gated semantic conclusions.
+   --  Case 1136 coverage-gated semantic conclusions.
    --
    --  This package attaches semantic coverage gate outcomes directly to the
    --  widened semantic result family that would otherwise have produced a

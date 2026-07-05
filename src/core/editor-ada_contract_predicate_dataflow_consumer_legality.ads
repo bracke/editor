@@ -6,9 +6,9 @@ with Editor.Ada_Syntax_Tree;
 
 package Editor.Ada_Contract_Predicate_Dataflow_Consumer_Legality is
 
-   --  Pass1167 contract/aspect predicate-dataflow consumer legality.
+   --  Case 1167 contract/aspect predicate-dataflow consumer legality.
    --
-   --  This layer feeds Pass1166 predicate/invariant propagation plus
+   --  This layer feeds Case 1166 predicate/invariant propagation plus
    --  dataflow/definite-initialization evidence back into contract and aspect
    --  legality.  Contract conclusions for Pre, Post, predicates, invariants,
    --  assertions, contract cases, Global/Depends, and refined flow aspects may

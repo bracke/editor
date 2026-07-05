@@ -8,12 +8,12 @@ with Editor.Ada_Tasking_Generic_Shared_State_Final_Legality;
 
 package Editor.Ada_Tasking_Generic_Shared_State_RM_Hard_Case_Completion_Legality is
 
-   --  Pass1248 tasking/protected RM hard-case completion legality.
+   --  Case 1248 tasking/protected RM hard-case completion legality.
    --
    --  This package consumes the stabilized generic/shared-state final closure
-   --  from Pass1245, overload RM edge completion from Pass1246,
-   --  representation/freezing hard-case completion from Pass1247, and the
-   --  tasking/generic/shared-state final evidence from Pass1230. It closes
+   --  from Case 1245, overload RM edge completion from Case 1246,
+   --  representation/freezing hard-case completion from Case 1247, and the
+   --  tasking/generic/shared-state final evidence from Case 1230. It closes
    --  remaining tasking/protected RM hard cases where protected actions,
    --  callbacks, entry-family queues, requeue/select paths, accept-body
    --  effects, abort/deferred-finalization, task termination, protected

@@ -400,7 +400,7 @@ package body Editor.Ada_Elaboration_Precision_Legality is
             Row.Unit_Name := C.Unit_Name;
             Row.Target_Name := C.Target_Name;
             Row.Message := To_Unbounded_String (Message_For (Status));
-            Row.Detail := To_Unbounded_String ("Pass1129 elaboration precision closure");
+            Row.Detail := To_Unbounded_String ("Case 1129 elaboration precision closure");
             Row.Order_State := C.Order_State;
             Row.Policy_State := C.Policy_State;
             Row.Base_Elaboration_Status := C.Base_Elaboration_Status;

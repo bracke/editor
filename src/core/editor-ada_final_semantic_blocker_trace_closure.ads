@@ -7,7 +7,7 @@ with Editor.Ada_Syntax_Tree;
 
 package Editor.Ada_Final_Semantic_Blocker_Trace_Closure is
 
-   --  Pass1198 final semantic blocker trace closure.
+   --  Case 1198 final semantic blocker trace closure.
    --
    --  This package groups final semantic diagnostic provenance/search-index rows
    --  into deterministic trace chains.  It is a semantic debugging model, not a

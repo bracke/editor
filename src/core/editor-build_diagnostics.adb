@@ -180,7 +180,7 @@ package body Editor.Build_Diagnostics is
    function Assert_Build_Diagnostics_Not_Persisted return Boolean
    is
    begin
-      --  Phase 556 adds no workspace/settings/recent/keybinding field and no
+      --  adds no workspace/settings/recent/keybinding field and no
       --  build-local diagnostics table. The policy value is explicit runtime
       --  control passed to the ingestion seam, not serialized build state.
       return True;

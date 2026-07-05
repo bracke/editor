@@ -82,7 +82,7 @@ package body Editor.Build_Milestone_Freeze.Tests is
       Assert (S.Build_UI_Visible and then S.Build_UI_Focused,
               "manual workflow starts from visible focused build UI");
       Assert (S.Candidate_Applied_To_Request,
-              "Phase 554 configured workflow depends on an explicitly selected candidate");
+              "configured workflow depends on an explicitly selected candidate");
       Assert (S.Selected_Build_Tool = Editor.Build_UI.Build_UI_GPRbuild,
               "manual workflow freezes explicit tool selection");
       Assert (Editor.Build_UI.Argument_Count (S.Structured_Arguments) = 2,
@@ -293,7 +293,7 @@ package body Editor.Build_Milestone_Freeze.Tests is
               "Diagnostics-owned ingestion boundary is frozen");
       Assert (R.Persistence_Exclusion_Frozen,
               "public build transient state remains excluded from persistence");
-      Assert (R.Coherent, "Phase 508 public build milestone is coherent");
+      Assert (R.Coherent, "public build milestone is coherent");
    end Test_Milestone_Coherence_Freeze;
 
    overriding procedure Register_Tests
@@ -303,25 +303,25 @@ package body Editor.Build_Milestone_Freeze.Tests is
    begin
       Register_Routine
         (T, Test_Manual_Request_Workflow_Freeze'Access,
-         "Phase 508 manual request workflow freeze");
+         "manual request workflow freeze");
       Register_Routine
         (T, Test_Candidate_Derived_Request_Workflow_Freeze'Access,
-         "Phase 508 candidate-derived request workflow freeze");
+         "candidate-derived request workflow freeze");
       Register_Routine
         (T, Test_Request_Identity_And_Consent_Freeze'Access,
-         "Phase 508 request identity and consent freeze");
+         "request identity and consent freeze");
       Register_Routine
         (T, Test_Build_Run_Route_And_Frontdoors_Freeze'Access,
-         "Phase 508 build.run route and frontdoor boundaries freeze");
+         "build.run route and frontdoor boundaries freeze");
       Register_Routine
         (T, Test_Runner_Boundary_And_Result_Mapping_Freeze'Access,
-         "Phase 508 runner boundary and result mapping freeze");
+         "runner boundary and result mapping freeze");
       Register_Routine
         (T, Test_Diagnostics_Ownership_Freeze'Access,
-         "Phase 508 Diagnostics ownership freeze");
+         "Diagnostics ownership freeze");
       Register_Routine
         (T, Test_Milestone_Coherence_Freeze'Access,
-         "Phase 508 public build milestone coherence freeze");
+         "public build milestone coherence freeze");
    end Register_Tests;
 
 end Editor.Build_Milestone_Freeze.Tests;

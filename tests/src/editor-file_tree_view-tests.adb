@@ -38,7 +38,7 @@ package body Editor.File_Tree_View.Tests is
    begin
       Ada.Directories.Create_Path ("/tmp/editor-tests");
       return Ada.Directories.Compose
-        ("/tmp/editor-tests", "phase57_view_" & Name);
+        ("/tmp/editor-tests", "view_" & Name);
    end Temp_Path;
 
    procedure Remove_File_If_Exists (Path : String) is
@@ -549,7 +549,7 @@ package body Editor.File_Tree_View.Tests is
 
 
 
-   procedure Test_Phase78_Default_Selection_State
+   procedure Test_Default_Selection_State
      (T : in out AUnit.Test_Cases.Test_Case'Class)
    is
       pragma Unreferenced (T);
@@ -559,13 +559,13 @@ package body Editor.File_Tree_View.Tests is
               "new file tree view state must have no selected row");
       Assert (Editor.File_Tree_View.Top_Row (View) = 1,
               "new file tree view state must start at top row 1");
-   end Test_Phase78_Default_Selection_State;
+   end Test_Default_Selection_State;
 
-   procedure Test_Phase78_Selection_And_Row_Mapping
+   procedure Test_Selection_And_Row_Mapping
      (T : in out AUnit.Test_Cases.Test_Case'Class)
    is
       pragma Unreferenced (T);
-      Root : constant String := Temp_Path ("phase78_selection_root");
+      Root : constant String := Temp_Path ("selection_root");
       Tree : Editor.File_Tree.File_Tree_State;
       View : Editor.File_Tree_View.File_Tree_View_State;
       Found : Boolean := False;
@@ -599,13 +599,13 @@ package body Editor.File_Tree_View.Tests is
               "moving up at the first row must clamp");
 
       Cleanup_Fixture (Root);
-   end Test_Phase78_Selection_And_Row_Mapping;
+   end Test_Selection_And_Row_Mapping;
 
-   procedure Test_Phase78_Selected_Row_Visibility
+   procedure Test_Selected_Row_Visibility
      (T : in out AUnit.Test_Cases.Test_Case'Class)
    is
       pragma Unreferenced (T);
-      Root : constant String := Temp_Path ("phase78_visibility_root");
+      Root : constant String := Temp_Path ("visibility_root");
       Tree : Editor.File_Tree.File_Tree_State;
       View : Editor.File_Tree_View.File_Tree_View_State;
    begin
@@ -620,10 +620,10 @@ package body Editor.File_Tree_View.Tests is
       Assert (Editor.File_Tree_View.Top_Row (View) = 1,
               "selected row above the visible window should scroll up");
       Cleanup_Fixture (Root);
-   end Test_Phase78_Selected_Row_Visibility;
+   end Test_Selected_Row_Visibility;
 
 
-   procedure Test_Phase212_Safe_Display_Label_And_Empty_State
+   procedure Test_Safe_Display_Label_And_Empty_State
      (T : in out AUnit.Test_Cases.Test_Case'Class)
    is
       pragma Unreferenced (T);
@@ -652,7 +652,7 @@ package body Editor.File_Tree_View.Tests is
               "formatted empty directory row must include the safe folder fallback");
       Assert (Editor.File_Tree_View.Format_Row_Text (Config, File, 32) = "  [file] <unnamed file>",
               "formatted empty file row must include the safe file fallback");
-   end Test_Phase212_Safe_Display_Label_And_Empty_State;
+   end Test_Safe_Display_Label_And_Empty_State;
 
    overriding procedure Register_Tests
      (T : in out File_Tree_View_Test_Case)
@@ -666,10 +666,10 @@ package body Editor.File_Tree_View.Tests is
          "Width Clamping");
       AUnit.Test_Cases.Registration.Register_Routine
         (T, Test_Width_State_Clamping_And_Disabled_Effective_Width'Access,
-         "Phase 58 Width State Clamping And Disabled Effective Width");
+         "Width State Clamping And Disabled Effective Width");
       AUnit.Test_Cases.Registration.Register_Routine
         (T, Test_Resized_Format_Row_Text_Truncation'Access,
-         "Phase 58 Resized Format Row Text Truncation");
+         "Resized Format Row Text Truncation");
       AUnit.Test_Cases.Registration.Register_Routine
         (T, Test_Truncate_Label'Access,
          "Truncate Label");
@@ -684,34 +684,34 @@ package body Editor.File_Tree_View.Tests is
          "Layout Disabled Width");
       AUnit.Test_Cases.Registration.Register_Routine
         (T, Test_Layout_Splitter_Geometry'Access,
-         "Phase 58 Layout Splitter Geometry");
+         "Layout Splitter Geometry");
       AUnit.Test_Cases.Registration.Register_Routine
         (T, Test_Layout_Gutter_And_Text_Shift_With_Resize'Access,
-         "Phase 58 Layout Gutter And Text Shift With Resize");
+         "Layout Gutter And Text Shift With Resize");
       AUnit.Test_Cases.Registration.Register_Routine
         (T, Test_Hit_Test_Visible_Rows_And_Background'Access,
-         "Phase 57 Hit Test Rows And Background");
+         "Hit Test Rows And Background");
       AUnit.Test_Cases.Registration.Register_Routine
         (T, Test_Hit_Test_Zones_And_Disabled'Access,
-         "Phase 57 Hit Test Zones And Disabled");
+         "Hit Test Zones And Disabled");
       AUnit.Test_Cases.Registration.Register_Routine
         (T, Test_Hit_Test_Outside_Empty_And_Hidden_Rows'Access,
-         "Phase 57 Hit Test Outside Empty And Hidden Rows");
+         "Hit Test Outside Empty And Hidden Rows");
       AUnit.Test_Cases.Registration.Register_Routine
         (T, Test_Action_For_Hit'Access,
-         "Phase 57 Action For Hit");
+         "Action For Hit");
       AUnit.Test_Cases.Registration.Register_Routine
-        (T, Test_Phase78_Default_Selection_State'Access,
-         "Phase 78 default file tree keyboard selection state");
+        (T, Test_Default_Selection_State'Access,
+         "default file tree keyboard selection state");
       AUnit.Test_Cases.Registration.Register_Routine
-        (T, Test_Phase78_Selection_And_Row_Mapping'Access,
-         "Phase 78 file tree selection movement and row mapping");
+        (T, Test_Selection_And_Row_Mapping'Access,
+         "file tree selection movement and row mapping");
       AUnit.Test_Cases.Registration.Register_Routine
-        (T, Test_Phase78_Selected_Row_Visibility'Access,
-         "Phase 78 file tree selected row visibility");
+        (T, Test_Selected_Row_Visibility'Access,
+         "file tree selected row visibility");
       AUnit.Test_Cases.Registration.Register_Routine
-        (T, Test_Phase212_Safe_Display_Label_And_Empty_State'Access,
-         "Phase 212 safe file tree display labels and empty state");
+        (T, Test_Safe_Display_Label_And_Empty_State'Access,
+         "safe file tree display labels and empty state");
    end Register_Tests;
 
 end Editor.File_Tree_View.Tests;

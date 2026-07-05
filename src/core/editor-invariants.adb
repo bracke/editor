@@ -41,7 +41,7 @@ package body Editor.Invariants is
                S.Carets (I).Virtual_Column < S.Carets (I + 1).Virtual_Column),
                "Invariant: caret ordering must consider virtual column");
 
-            --  Phase 23 allows Shift navigation to extend selections across
+            --  allows Shift navigation to extend selections across
             --  multiple carets in normal selection mode.  Ordering and bounds
             --  remain invariant-enforced above; selection ownership is no longer
             --  restricted to rectangle mode only.

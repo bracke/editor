@@ -5,9 +5,9 @@ with Editor.Ada_Syntax_Tree;
 
 package Editor.Ada_Generic_Shared_State_RM_Completion_Recheck_Convergence_Legality is
 
-   --  Pass1261 generic/shared-state RM-completion recheck convergence legality.
+   --  Case 1261 generic/shared-state RM-completion recheck convergence legality.
    --
-   --  This package consumes Pass1260 generic/shared-state RM-completion recheck
+   --  This package consumes Case 1260 generic/shared-state RM-completion recheck
    --  application rows and classifies whether the combined generic/shared-state
    --  final chain has converged as current evidence, converged as not required,
    --  stayed stably withheld by its preserved prerequisite blocker, stayed

@@ -950,7 +950,7 @@ package body Editor.Settings_Management is
    end Persistence_Summary_Message;
 
    function Assert_Settings_Save_Writes_Global_Preferences_Only return Boolean is
-      Path     : constant String := "/tmp/editor_phase566_save_only_settings.txt";
+      Path     : constant String := "/tmp/editor_save_only_settings.txt";
       Settings : Editor.Settings.Settings_Model;
       Summary  : Settings_Persistence_Summary;
       Update   : Setting_Update_Status;
@@ -999,7 +999,7 @@ package body Editor.Settings_Management is
    end Assert_Settings_Save_Writes_Global_Preferences_Only;
 
    function Assert_Settings_Load_Does_Not_Cross_Domains return Boolean is
-      Path     : constant String := "/tmp/editor_phase566_load_cross_domain.txt";
+      Path     : constant String := "/tmp/editor_load_cross_domain.txt";
       File     : Ada.Text_IO.File_Type;
       Settings : Editor.Settings.Settings_Model;
       Summary  : Settings_Persistence_Summary;

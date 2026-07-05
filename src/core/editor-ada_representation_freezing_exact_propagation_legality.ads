@@ -13,7 +13,7 @@ with Editor.Ada_Widened_Legality_Coverage_Gate_Enforcement;
 
 package Editor.Ada_Representation_Freezing_Exact_Propagation_Legality is
 
-   --  Pass1146 compiler-grade representation/freezing exact propagation.
+   --  Case 1146 compiler-grade representation/freezing exact propagation.
    --
    --  This package deepens representation/freezing legality from precision
    --  classification into explicit propagation of implicit freezing caused by

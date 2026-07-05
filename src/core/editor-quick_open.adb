@@ -476,6 +476,29 @@ package body Editor.Quick_Open is
       end case;
    end Bucket_Priority;
 
+   function Source_Root_Priority (Path : String) return Natural is
+      P : constant String := Normalize_For_Compare (Path);
+   begin
+      if Starts_With (P, "src/") then
+         return 0;
+      elsif Starts_With (P, "source/")
+        or else Starts_With (P, "include/")
+        or else Starts_With (P, "lib/")
+      then
+         return 1;
+      elsif Starts_With (P, "tests/")
+        or else Starts_With (P, "test/")
+      then
+         return 2;
+      elsif Starts_With (P, "doc/")
+        or else Starts_With (P, "docs/")
+      then
+         return 4;
+      else
+         return 3;
+      end if;
+   end Source_Root_Priority;
+
    function Quick_Open_Match_Bucket_For
      (Query : String;
       Path  : String) return Quick_Open_Match_Bucket
@@ -529,6 +552,8 @@ package body Editor.Quick_Open is
    begin
       if Bucket_Priority (L.Match_Bucket) /= Bucket_Priority (R.Match_Bucket) then
          return Bucket_Priority (L.Match_Bucket) < Bucket_Priority (R.Match_Bucket);
+      elsif Source_Root_Priority (LO) /= Source_Root_Priority (RO) then
+         return Source_Root_Priority (LO) < Source_Root_Priority (RO);
       elsif L.Match_Bucket /= Path_Substring and then LD /= RD then
          return LD < RD;
       elsif L.Match_Bucket /= Path_Substring and then LO'Length /= RO'Length then
@@ -599,14 +624,14 @@ package body Editor.Quick_Open is
    procedure Mark_Stale
      (State : in out Quick_Open_State) is
    begin
-      --  Phase 572 completeness: File Tree filesystem mutations invalidate
+      --  completeness: File Tree filesystem mutations invalidate
       --  Quick Open's retained candidate/result projection.  Keep the prompt
       --  query, filters, scope, and open/closed state as UI state, but clear
       --  stale rows so accepting an old result cannot target a moved or
       --  deleted file before the owning Quick Open command recomputes.
       State.Results.Clear;
       State.Results_Stale := True;
-      --  Phase 572 completeness pass 34: known/filtered counts are part of
+      --  completeness pass 34: known/filtered counts are part of
       --  the retained candidate projection.  A File Tree mutation must not
       --  leave stale candidate totals visible to snapshots while result rows
       --  have been cleared; the next explicit Quick Open recompute owns
@@ -678,6 +703,14 @@ package body Editor.Quick_Open is
          when Other_Files => return "Other";
       end case;
    end File_Kind_Filter_Name;
+
+   procedure Set_File_Kind_Filter
+     (State  : in out Quick_Open_State;
+      Filter : Quick_Open_File_Kind_Filter)
+   is
+   begin
+      State.Kind_Filter := Filter;
+   end Set_File_Kind_Filter;
 
    procedure Cycle_File_Kind_Next
      (State : in out Quick_Open_State) is
@@ -1406,6 +1439,19 @@ package body Editor.Quick_Open is
       return Quick_Open_File_Lifecycle_Observation_Canonical (State);
    end Quick_Open_File_Lifecycle_Observation_Frozen;
 
+   function No_Matches_Message (State : Quick_Open_State) return String is
+      Query : constant String := Trim_Query (Query_Text (State));
+   begin
+      if State.Kind_Filter = All_Files and then Length (State.Scope) = 0 then
+         return "No Quick Open matches.";
+      end if;
+
+      return "No Quick Open matches for """ & Query & """"
+        & (if Length (State.Scope) > 0 then " in " & To_String (State.Scope) else "")
+        & " (" & File_Kind_Filter_Name (State.Kind_Filter)
+        & "). Clear scope/filter or adjust the query.";
+   end No_Matches_Message;
+
    function Build_Snapshot
      (State : Quick_Open_State) return Quick_Open_Snapshot
    is
@@ -1445,7 +1491,7 @@ package body Editor.Quick_Open is
          elsif not Snapshot.Has_Query then
             Snapshot.Empty_Message := To_Unbounded_String ("Type to open file.");
          else
-            Snapshot.Empty_Message := To_Unbounded_String ("No Quick Open matches.");
+            Snapshot.Empty_Message := To_Unbounded_String (No_Matches_Message (State));
          end if;
       end if;
 

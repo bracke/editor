@@ -260,13 +260,13 @@ package body Test_Ada_Freezing_Representation_Vertical_Slice_Legality is
    begin
       Register_Routine
         (T, Accepts_Clauses_Before_Freezing_And_Full_View_Targets'Access,
-         "Pass1299 accepts concrete pre-freeze representation clauses");
+         "Case 1299 accepts concrete pre-freeze representation clauses");
       Register_Routine
         (T, Rejects_Late_Private_Generic_And_Layout_Blockers'Access,
-         "Pass1299 rejects concrete freezing/private/generic/layout blockers");
+         "Case 1299 rejects concrete freezing/private/generic/layout blockers");
       Register_Routine
         (T, Reports_Fingerprint_Missing_Target_And_Deterministic_Empty_Input'Access,
-         "Pass1299 reports stale/missing target blockers and deterministic empty input");
+         "Case 1299 reports stale/missing target blockers and deterministic empty input");
    end Register_Tests;
 
 end Test_Ada_Freezing_Representation_Vertical_Slice_Legality;

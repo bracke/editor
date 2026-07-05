@@ -7,7 +7,7 @@ with Editor.Ada_Syntax_Tree;
 
 package Editor.Ada_Elaboration_Dependence_Legality is
 
-   --  Pass1113 compiler-grade elaboration/dependence legality layer.
+   --  Case 1113 compiler-grade elaboration/dependence legality layer.
    --  This package models Ada elaboration-order and semantic dependence
    --  legality for snapshot-owned analysis.  It is intentionally parser-free
    --  and projection-free: callers provide bounded semantic contexts derived

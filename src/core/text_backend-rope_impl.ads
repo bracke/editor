@@ -32,7 +32,7 @@ package Text_Backend.Rope_Impl is
       Index : Natural;
       Ch    : Character);
 
-   --  Phase 24 Unicode API. Public Index values are scalar/code-point
+   --  Unicode API. Public Index values are scalar/code-point
    --  indexes; storage remains UTF-8 internally.
    procedure Insert
      (B     : in out Buffer_Type;

@@ -6,9 +6,9 @@ with Editor.Ada_Syntax_Tree;
 
 package Editor.Ada_Final_Semantic_Stabilization_Gate_Legality is
 
-   --  Pass1208 final semantic stabilization gate legality.
+   --  Case 1208 final semantic stabilization gate legality.
    --
-   --  This package consumes Pass1207 final recheck convergence rows and
+   --  This package consumes Case 1207 final recheck convergence rows and
    --  decides whether a semantic result may be promoted across the final
    --  closure/feed boundary.  Promotion is allowed only for convergence rows
    --  whose current/prerequisite fingerprints and blocker family are stable.

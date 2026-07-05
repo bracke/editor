@@ -147,6 +147,11 @@ package Editor.State is
       Items : Semantic_Completion_Item_Array := (others => (others => <>));
    end record;
 
+   type Quick_Fix_Workflow_State is record
+      Diagnostic_Index : Natural := 0;
+      Action_Index     : Natural := 0;
+   end record;
+
    type State_Type is record
       Buffer             : Text_Buffer.Buffer_Type;
       Carets             : Editor.Cursors.Cursors_Vector.Vector;
@@ -158,7 +163,7 @@ package Editor.State is
       Rect_Select_Active : Boolean := False;
       Rect_Anchor_Row    : Natural := 0;
       Rect_Anchor_Col    : Natural := 0;
-      --  Phase 354 active-buffer Find state.  Active Find is transient,
+      --  active-buffer Find state.  Active Find is transient,
       --  in-memory, and never persisted.
       Active_Find_Query   : Ada.Strings.Unbounded.Unbounded_String;
       Active_Find_Matches : Editor.Search.Search_Match_Vectors.Vector;
@@ -168,7 +173,7 @@ package Editor.State is
       Active_Find_Case_Sensitive : Boolean := False;
       Active_Find_Whole_Word : Boolean := False;
       Active_Find_Source_Buffer_Token : Natural := 0;
-      --  Phase 365 active-buffer Replace state. Replace is a transient
+      --  active-buffer Replace state. Replace is a transient
       --  extension of canonical Find and is never persisted.
       Active_Replace_Text : Ada.Strings.Unbounded.Unbounded_String :=
         Ada.Strings.Unbounded.Null_Unbounded_String;
@@ -181,10 +186,10 @@ package Editor.State is
       Dirty_Lines       : Editor.Dirty_Lines.Dirty_Line_State;
       Project           : Editor.Project.Project_State;
       Recent_Projects   : Editor.Recent_Projects.Recent_Project_List;
-      --  Phase 559 transient Recent Projects list selection.  This is never
+      --  transient Recent Projects list selection.  This is never
       --  written to Recent Projects or workspace persistence.
       Recent_Project_Selected_Index : Natural := 0;
-      --  Phase 562 transient Recent Projects focus marker.  This is UI-only
+      --  transient Recent Projects focus marker.  This is UI-only
       --  focus state, not part of recent-project or workspace persistence.
       Recent_Projects_Focused : Boolean := False;
       Settings          : Editor.Settings.Settings_Model;
@@ -194,6 +199,7 @@ package Editor.State is
       Feature_Messages : Editor.Feature_Messages.Message_Feature_State;
       Feature_Search_Results : Editor.Feature_Search_Results.Search_Results_Feature_State;
       Feature_Diagnostics : Editor.Feature_Diagnostics.Diagnostics_Feature_State;
+      Pending_Quick_Fix : Quick_Fix_Workflow_State;
       --  Passive outline cursor synchronization cache.  Cursor movement may
       --  update the current-symbol marker from the latest accepted outline,
       --  but it must not trigger extraction, selection changes, or navigation.
@@ -223,7 +229,7 @@ package Editor.State is
       Semantic_Popup   : Semantic_Popup_State;
       Folding           : Editor.Folding.Folding_State;
       File_Info         : File_State;
-      --  Phase 542 transient path-only reopen stack.  This is runtime
+      --  transient path-only reopen stack.  This is runtime
       --  state only: no closed-buffer text, edit history, caret/selection,
       --  Find/Replace, Clipboard, Navigation History, render cache, or
       --  persistence data is stored here.  The single-candidate mirror fields
@@ -269,7 +275,9 @@ package Editor.State is
       --  be projected as current command feedback only until the next
       --  ordinary interaction replaces restore context with normal state.
       Post_Restore_Feedback_Current : Boolean := False;
-      --  Phase 468 transient file-lifecycle target prompt. This is UI/input
+      Last_Restore_Summary_Available : Boolean := False;
+      Last_Restore_Summary : Editor.Workspace_Persistence.Workspace_Restore_Summary;
+      --  transient file-lifecycle target prompt. This is UI/input
       --  state only and is never persisted, used for save-as/rename/copy/move
       --  parameter acquisition before canonical Executor execution.
       File_Target_Prompt_Active : Boolean := False;
@@ -278,7 +286,7 @@ package Editor.State is
       File_Target_Prompt_Label : Ada.Strings.Unbounded.Unbounded_String :=
         Ada.Strings.Unbounded.Null_Unbounded_String;
       File_Target_Prompt_Input : Editor.Input_Field.Input_Field_State;
-      --  Phase 574 transient file-conflict prompt state.  It contains only
+      --  transient file-conflict prompt state.  It contains only
       --  buffer/path identity and visible action state, never buffer text,
       --  never persisted tokens, and never keybinding/palette payloads.
       File_Conflict_Prompt_Active : Boolean := False;
@@ -295,7 +303,7 @@ package Editor.State is
       File_Conflict_Prompt_Buffer_Revision : Natural := 0;
       File_Conflict_Prompt_Token_Label : Ada.Strings.Unbounded.Unbounded_String :=
         Ada.Strings.Unbounded.Null_Unbounded_String;
-      --  Phase 575/574 interaction: when save-and-close discovers an
+      --  /574 interaction: when save-and-close discovers an
       --  external conflict, the file-conflict prompt owns the overwrite
       --  decision.  These transient fields remember only the buffer identity
       --  needed to close after an explicit overwrite succeeds; no text, path
@@ -304,7 +312,7 @@ package Editor.State is
       File_Conflict_Close_After_Overwrite_Buffer : Natural := 0;
       File_Conflict_Close_After_Overwrite_Selected : Boolean := False;
       File_Conflict_Close_After_Overwrite_All_Buffers : Boolean := False;
-      --  Phase 575 transient dirty-buffer close review.  It stores only
+      --  transient dirty-buffer close review.  It stores only
       --  buffer identities and counts while a close prompt is active; never
       --  buffer text, persisted payloads, keybinding payloads, or workspace
       --  state.
@@ -346,7 +354,7 @@ package Editor.State is
       Dirty_Close_Prompt_Unwritable_Count : Natural := 0;
       Dirty_Close_Prompt_Missing_Count : Natural := 0;
       Dirty_Close_Prompt_Save_Failure_Count : Natural := 0;
-      --  Phase 501 transient public build UX input/consent state. This is not
+      --  transient public build UX input/consent state. This is not
       --  workspace, settings, recent-project, keybinding, Diagnostics, or
       --  persistence state.
       Build_UI : Editor.Build_UI.Public_Build_UI_State;
@@ -354,22 +362,22 @@ package Editor.State is
       --  selected task, bounded output, and rerun metadata only; it is not
       --  persisted into workspace/settings files.
       Terminal_Tasks : Editor.Terminal_Tasks.Terminal_Task_State;
-      --  Phase 510 transient latest build.run result summary. It is a
+      --  transient latest build.run result summary. It is a
       --  snapshot projection only: no history, rerun payload, process handle,
       --  cancellation token, Diagnostics rows, or persistence state.
       Latest_Build_Result :
         Editor.Build_Result_Summary.Latest_Build_Result_Summary;
-      --  Phase 562 transient focus marker for the latest build result
+      --  transient focus marker for the latest build result
       --  summary surface.  The summary data remains display-only and this
       --  flag is never persisted.
       Latest_Build_Result_Focused : Boolean := False;
-      --  Phase 514 transient latest build.run bounded output details. It is a
+      --  transient latest build.run bounded output details. It is a
       --  snapshot projection over bounded stdout/stderr captures and active
       --  stream excerpts: no history, terminal emulation, rerun payload,
       --  process handle, Diagnostics rows, or persistence state.
       Latest_Build_Output_Details :
         Editor.Build_Output_Details.Latest_Build_Output_Details;
-      --  Phase 504 transient runtime execution policy for public build.run.
+      --  transient runtime execution policy for public build.run.
       --  It is deliberately outside workspace/settings/recent/keybinding
       --  persistence and is not supplied by palette/keybinding/UI payloads.
       Public_Build_Execution_Policy :
@@ -381,6 +389,8 @@ package Editor.State is
       --  keybinding payloads, and never stores rerun argv or full output logs.
       Public_Build_Job_Active : Boolean := False;
       Public_Build_Job_Id : Natural := 0;
+      Public_Build_Job_Started_At : Duration := 0.0;
+      Public_Build_Job_Has_Start_Time : Boolean := False;
       Public_Build_Job_Label : Ada.Strings.Unbounded.Unbounded_String :=
         Ada.Strings.Unbounded.Null_Unbounded_String;
       Public_Build_Job_Cancellation :
@@ -403,7 +413,7 @@ package Editor.State is
       --  rerun payload, full terminal log, or persistence state is stored here.
       Public_Build_Output_Stream :
         Editor.Build_Output_Details.Build_Output_Stream_State;
-      --  Phase 571 transient guided workflow prompt state. This state owns
+      --  transient guided workflow prompt state. This state owns
       --  modal/scoped prompt input, validation, captured chords, and pending
       --  confirmation summaries only while a multi-step workflow is active.
       --  It is deliberately excluded from workspace, settings, keybindings,
@@ -443,7 +453,7 @@ package Editor.State is
    end record;
 
 
-   --  Phase 51 active-buffer projection helpers.  During the active-buffer
+   --  active-buffer projection helpers.  During the active-buffer
    --  migration State_Type remains the active document projection while
    --  Editor.Buffers owns the registry used by executor buffer operations.
    function Has_Active_Buffer (S : State_Type) return Boolean;
@@ -617,6 +627,23 @@ package Editor.State is
       Buffer   : Natural;
       Line     : Natural;
       Column   : Natural);
+
+   procedure Start_Quick_Fix_Workflow
+     (S                : in out State_Type;
+      Diagnostic_Index : Natural;
+      Action_Index     : Natural := 0);
+
+   procedure Clear_Quick_Fix_Workflow
+     (S : in out State_Type);
+
+   function Has_Pending_Quick_Fix_Workflow
+     (S : State_Type) return Boolean;
+
+   function Pending_Quick_Fix_Diagnostic_Index
+     (S : State_Type) return Natural;
+
+   function Pending_Quick_Fix_Action_Index
+     (S : State_Type) return Natural;
 
    procedure Toggle_Bookmark
      (S   : in out State_Type;

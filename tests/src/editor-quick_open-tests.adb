@@ -17,6 +17,10 @@ with Editor.Project;
 with Editor.Recent_Buffers;
 with Editor.Input_Field;
 with Editor.Executor;
+with Editor.Executor.File_Open_Commands;
+with Editor.Executor.Command_Surface_Commands;
+with Editor.Executor.File_Save_Commands;
+with Editor.Executor.File_Target_Prompt_Commands;
 with Editor.Command_Route_Audit;
 with Editor.Workspace_Persistence;
 with Editor.Overlay_Focus;
@@ -145,7 +149,7 @@ package body Editor.Quick_Open.Tests is
    begin
       Ada.Directories.Create_Path ("/tmp/editor-tests");
       return Ada.Directories.Compose
-        ("/tmp/editor-tests", "phase72_" & Name);
+        ("/tmp/editor-tests", "" & Name);
    end Temp_Path;
 
    procedure Remove_File_If_Exists (Path : String) is
@@ -533,7 +537,7 @@ package body Editor.Quick_Open.Tests is
       Message : String)
    is
    begin
-      Assert (Editor.Executor.File_Target_Prompt_Input_Text (App) /= Editor.Quick_Open.Query_Text (S),
+      Assert (Editor.Executor.File_Target_Prompt_Commands.File_Target_Prompt_Input_Text (App) /= Editor.Quick_Open.Query_Text (S),
               Message & ": Quick Open query must not seed target prompt input");
    end Assert_Quick_Open_Query_Not_Target_Input;
 
@@ -616,9 +620,8 @@ package body Editor.Quick_Open.Tests is
       Editor.Quick_Open.Recompute_Results (S, Tree, Config);
       Assert (Editor.Quick_Open.Result_Count (S) = 2,
               "substring query must match both main paths under the max count");
-      Assert (To_String (Editor.Quick_Open.Result_At (S, 1).Display_Path) = "doc/main.txt"
-              or else To_String (Editor.Quick_Open.Result_At (S, 1).Display_Path) = "src/main.adb",
-              "basename matches must rank above unrelated path-only matches");
+      Assert (To_String (Editor.Quick_Open.Result_At (S, 1).Display_Path) = "src/main.adb",
+              "source-root basename matches must rank before docs matches");
 
       Editor.Quick_Open.Set_Query_Text (S, "OTHER");
       Editor.Quick_Open.Recompute_Results (S, Tree, Config);
@@ -686,8 +689,8 @@ package body Editor.Quick_Open.Tests is
       Assert (Editor.Quick_Open.Result_Count (S) = 3,
               "project quick-open must derive unique candidates from known project files");
       Assert (To_String (Editor.Quick_Open.Result_At (S, 1).Display_Path) =
-              "tests/test_executor.adb",
-              "project quick-open candidates must use deterministic bucket/depth order");
+              "src/editor/commands.ads",
+              "project quick-open candidates must prefer active source roots before tests");
 
       Editor.Quick_Open.Set_Query_Text (S, "EXEC");
       Editor.Quick_Open.Recompute_Results (S, Project, Config);
@@ -974,7 +977,7 @@ package body Editor.Quick_Open.Tests is
               "closed candidate must not receive open/active/dirty markers");
    end Test_Project_Quick_Open_Snapshot_Markers;
 
-   procedure Test_Phase_330_Active_Dirty_Close_Markers
+   procedure Test_Active_Dirty_Close_Markers
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
       pragma Unreferenced (T);
       Project  : Editor.Project.Project_State;
@@ -1013,7 +1016,7 @@ package body Editor.Quick_Open.Tests is
       Snapshot := Editor.Quick_Open_Markers.Build_Snapshot (S, Project, Registry, Recent);
 
       Assert (Snapshot.Priority_Mode = Editor.Quick_Open.Open_Recent,
-              "phase 330 setup must expose Open/Recent priority mode in snapshots");
+              "setup must expose Open/Recent priority mode in snapshots");
       Assert (To_String (Snapshot.Candidates (0).Project_Relative_Path) =
               "src/editor/executor.adb",
               "active known project file must rank first in Open/Recent mode");
@@ -1052,9 +1055,9 @@ package body Editor.Quick_Open.Tests is
       end loop;
       Assert (Editor.Recent_Buffers.Contains (Recent, Natural (Dirty_Id)),
               "Quick Open marker derivation must not mutate stale recent-buffer history");
-   end Test_Phase_330_Active_Dirty_Close_Markers;
+   end Test_Active_Dirty_Close_Markers;
 
-   procedure Test_Phase_330_Ignores_Old_Project_Recent_And_Open_State
+   procedure Test_Ignores_Old_Project_Recent_And_Open_State
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
       pragma Unreferenced (T);
       Project  : Editor.Project.Project_State;
@@ -1098,7 +1101,7 @@ package body Editor.Quick_Open.Tests is
               "old-project state must not affect current-project priority buckets");
       Assert (Editor.Recent_Buffers.Contains (Recent, Natural (Old_Id)),
               "stale recent entries are ignored, not cleaned or rewritten");
-   end Test_Phase_330_Ignores_Old_Project_Recent_And_Open_State;
+   end Test_Ignores_Old_Project_Recent_And_Open_State;
 
    procedure Test_Project_Quick_Open_Preserved_Selection_Stays_Visible
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
@@ -1287,7 +1290,8 @@ package body Editor.Quick_Open.Tests is
       Snapshot := Editor.Quick_Open.Build_Snapshot (S);
       Assert (Editor.Quick_Open.Selected_Result_Index (S) = 0,
               "scope excluding all candidates must clear selection");
-      Assert (To_String (Snapshot.Empty_Message) = "No Quick Open matches.",
+      Assert (To_String (Snapshot.Empty_Message) =
+              "No Quick Open matches for ""executor"" in missing/ (All). Clear scope/filter or adjust the query.",
               "scope-filtered no-match state must use the query/filter empty message");
    end Test_Project_Quick_Open_Path_Scope_Filter;
 
@@ -1417,7 +1421,8 @@ package body Editor.Quick_Open.Tests is
       Snapshot := Editor.Quick_Open.Build_Snapshot (S);
       Assert (Snapshot.Total_Filtered_Count = 0 and then Snapshot.Known_Count = 6,
               "no-match count feedback must keep known count while visible count is zero");
-      Assert (To_String (Snapshot.Empty_Message) = "No Quick Open matches.",
+      Assert (To_String (Snapshot.Empty_Message) =
+              "No Quick Open matches for ""executor"" in missing/ (All). Clear scope/filter or adjust the query.",
               "no-match count state must keep deterministic empty feedback");
 
       declare
@@ -1500,7 +1505,7 @@ package body Editor.Quick_Open.Tests is
               "Quick Open selected index must be empty or within the result list");
    end Assert_Project_Quick_Open_Coherent;
 
-   procedure Test_Phase_331_Refresh_State_Preserves_Selection_And_Filters
+   procedure Test_Refresh_State_Preserves_Selection_And_Filters
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
       pragma Unreferenced (T);
       Project : Editor.Project.Project_State;
@@ -1568,12 +1573,12 @@ package body Editor.Quick_Open.Tests is
       Assert (Natural (Snapshot.Candidates.Length) = 0,
               "scope/query combinations with no candidates must expose an empty candidate vector");
       Assert_Project_Quick_Open_Coherent (Project, S, Snapshot);
-   end Test_Phase_331_Refresh_State_Preserves_Selection_And_Filters;
+   end Test_Refresh_State_Preserves_Selection_And_Filters;
 
-   procedure Test_Phase_331_Ignore_Refresh_Removes_Selected_Candidate
+   procedure Test_Ignore_Refresh_Removes_Selected_Candidate
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
       pragma Unreferenced (T);
-      Root : constant String := Temp_Path ("phase331_ignore_root");
+      Root : constant String := Temp_Path ("ignore_root");
       Src  : constant String := Slash (Root, "src");
       Gen  : constant String := Slash (Src, "generated");
       Edit : constant String := Slash (Src, "editor");
@@ -1627,9 +1632,9 @@ package body Editor.Quick_Open.Tests is
       when others =>
          Delete_Tree_If_Exists (Root);
          raise;
-   end Test_Phase_331_Ignore_Refresh_Removes_Selected_Candidate;
+   end Test_Ignore_Refresh_Removes_Selected_Candidate;
 
-   procedure Test_Phase_331_Priority_Mode_Remains_Filtered_Ordering_Only
+   procedure Test_Priority_Mode_Remains_Filtered_Ordering_Only
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
       pragma Unreferenced (T);
       Project  : Editor.Project.Project_State;
@@ -1697,9 +1702,9 @@ package body Editor.Quick_Open.Tests is
       Assert (Editor.Recent_Buffers.Contains (Recent, Natural (Recent_Id)),
               "Quick Open priority derivation must not mutate recent-buffer history");
       Assert_Project_Quick_Open_Coherent (Project, S, Snapshot);
-   end Test_Phase_331_Priority_Mode_Remains_Filtered_Ordering_Only;
+   end Test_Priority_Mode_Remains_Filtered_Ordering_Only;
 
-   procedure Test_Phase_331_Snapshot_Header_Exposes_Priority_And_Counts
+   procedure Test_Snapshot_Header_Exposes_Priority_And_Counts
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
       pragma Unreferenced (T);
       Project : Editor.Project.Project_State;
@@ -1726,7 +1731,7 @@ package body Editor.Quick_Open.Tests is
               "Kind: All | Scope: src/editor/ | Priority: Open/Recent | Results: 1 of 2",
               "snapshot header must expose kind, scope, priority, and visible/known counts");
       Assert_Project_Quick_Open_Coherent (Project, S, Snapshot);
-   end Test_Phase_331_Snapshot_Header_Exposes_Priority_And_Counts;
+   end Test_Snapshot_Header_Exposes_Priority_And_Counts;
 
    procedure Test_Project_Quick_Open_Create_Target_Derivation
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
@@ -1803,7 +1808,7 @@ package body Editor.Quick_Open.Tests is
    end Test_Project_Quick_Open_Create_Target_Derivation;
 
 
-   procedure Test_Phase_332_Project_Quick_Open_Command_Surface_Baseline
+   procedure Test_Project_Quick_Open_Command_Surface_Baseline
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
       pragma Unreferenced (T);
    begin
@@ -1948,9 +1953,9 @@ package body Editor.Quick_Open.Tests is
          Editor.Commands.Project_Category,
          Editor.Commands.Palette_Command,
          True);
-   end Test_Phase_332_Project_Quick_Open_Command_Surface_Baseline;
+   end Test_Project_Quick_Open_Command_Surface_Baseline;
 
-   procedure Test_Phase_332_Project_Quick_Open_No_Name_Drift_Or_Extras
+   procedure Test_Project_Quick_Open_No_Name_Drift_Or_Extras
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
       pragma Unreferenced (T);
       Name_I : Unbounded_String;
@@ -1982,9 +1987,9 @@ package body Editor.Quick_Open.Tests is
       Assert_Absent_Command_Not_Exposed ("project.files.watch");
       Assert_Absent_Command_Not_Exposed ("project.files.validate");
       Assert_Absent_Command_Not_Exposed ("project.files.prune-stale");
-   end Test_Phase_332_Project_Quick_Open_No_Name_Drift_Or_Extras;
+   end Test_Project_Quick_Open_No_Name_Drift_Or_Extras;
 
-   procedure Test_Phase_332_Project_Quick_Open_Keybinding_Baseline
+   procedure Test_Project_Quick_Open_Keybinding_Baseline
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
       pragma Unreferenced (T);
       Status : Editor.Keybindings.Keybinding_Change_Status;
@@ -2024,7 +2029,7 @@ package body Editor.Quick_Open.Tests is
       Assert (Status = Editor.Keybindings.Keybinding_Change_Non_Bindable_Target,
               "payload-style scope.set must not be assignable through keybindings");
       Editor.Keybindings.Reset_To_Defaults;
-   end Test_Phase_332_Project_Quick_Open_Keybinding_Baseline;
+   end Test_Project_Quick_Open_Keybinding_Baseline;
 
    procedure Test_Project_Quick_Open_Command_Descriptors
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
@@ -2086,43 +2091,43 @@ package body Editor.Quick_Open.Tests is
       Assert (Editor.Commands.Stable_Command_Name
                 (Editor.Commands.Command_Quick_Open_Kind_Next) =
               "project.quick-open.kind.next",
-              "Project Quick Open kind-next command must have the stable Phase 324 name");
+              "Project Quick Open kind-next command must have the stable name");
       Assert (Editor.Commands.Stable_Command_Name
                 (Editor.Commands.Command_Quick_Open_Scope_Set) =
               "project.quick-open.scope.set",
-              "Project Quick Open scope-set command must have the stable Phase 324 name");
+              "Project Quick Open scope-set command must have the stable name");
       Assert (Editor.Commands.Stable_Command_Name
                 (Editor.Commands.Command_Quick_Open_Scope_From_Selected) =
               "project.quick-open.scope.from-selected",
-              "Project Quick Open scope-from-selected command must have the stable Phase 325 name");
+              "Project Quick Open scope-from-selected command must have the stable name");
       Assert (Editor.Commands.Stable_Command_Name
                 (Editor.Commands.Command_Quick_Open_Scope_Parent) =
               "project.quick-open.scope.parent",
-              "Project Quick Open scope-parent command must have the stable Phase 325 name");
+              "Project Quick Open scope-parent command must have the stable name");
       Assert (Editor.Commands.Stable_Command_Name
                 (Editor.Commands.Command_Quick_Open_Reveal_Active) =
               "project.quick-open.reveal-active",
-              "Project Quick Open reveal-active command must have the stable Phase 326 name");
+              "Project Quick Open reveal-active command must have the stable name");
       Assert (Editor.Commands.Stable_Command_Name
                 (Editor.Commands.Command_Quick_Open_Scope_Active_Directory) =
               "project.quick-open.scope.active-directory",
-              "Project Quick Open scope-active-directory command must have the stable Phase 326 name");
+              "Project Quick Open scope-active-directory command must have the stable name");
       Assert (Editor.Commands.Stable_Command_Name
                 (Editor.Commands.Command_Quick_Open_Create_From_Query) =
               "project.quick-open.create-from-query",
-              "Project Quick Open create-from-query command must have the stable Phase 327 name");
+              "Project Quick Open create-from-query command must have the stable name");
       Assert (Editor.Commands.Stable_Command_Name
                 (Editor.Commands.Command_Quick_Open_Create_With_Parents_From_Query) =
               "project.quick-open.create-with-parents-from-query",
-              "Project Quick Open create-with-parents command must have the stable Phase 328 name");
+              "Project Quick Open create-with-parents command must have the stable name");
       Assert (Editor.Commands.Stable_Command_Name
                 (Editor.Commands.Command_Quick_Open_Priority_Toggle) =
               "project.quick-open.priority.toggle",
-              "Project Quick Open priority toggle command must have the stable Phase 329 name");
+              "Project Quick Open priority toggle command must have the stable name");
       Assert (Editor.Commands.Stable_Command_Name
                 (Editor.Commands.Command_Quick_Open_Priority_Clear) =
               "project.quick-open.priority.clear",
-              "Project Quick Open priority clear command must have the stable Phase 329 name");
+              "Project Quick Open priority clear command must have the stable name");
 
       Assert (Show_D.Category = Editor.Commands.Project_Category
               and then Toggle_D.Category = Editor.Commands.Project_Category
@@ -2167,7 +2172,7 @@ package body Editor.Quick_Open.Tests is
               "text-payload commands must not be bindable, while local filter/scope commands may be bound");
    end Test_Project_Quick_Open_Command_Descriptors;
 
-   procedure Test_Phase482_Open_Buffer_Association_And_Dirty_Observation
+   procedure Test_Open_Buffer_Association_And_Dirty_Observation
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
       pragma Unreferenced (T);
       Project  : Editor.Project.Project_State;
@@ -2202,58 +2207,58 @@ package body Editor.Quick_Open.Tests is
       Snapshot := Editor.Quick_Open_Markers.Build_Snapshot (S, Project, Registry, Recent);
       Assert_Quick_Open_Observes_Association
         (Snapshot, "src/main.adb", True,
-         "Phase 482 save precondition");
+         "save precondition");
 
       Set_Buffer_Dirty_For_Test (Registry, Alpha, False);
       Snapshot := Editor.Quick_Open_Markers.Build_Snapshot (S, Project, Registry, Recent);
       Assert_Quick_Open_Observes_Association
         (Snapshot, "src/main.adb", False,
-         "Phase 482 save dirty cleanup");
+         "save dirty cleanup");
 
       Set_Buffer_Association_For_Test
         (Registry, Alpha, "/project/src/saved_as.adb", "saved_as.adb");
       Snapshot := Editor.Quick_Open_Markers.Build_Snapshot (S, Project, Registry, Recent);
       Assert_Quick_Open_Observes_Association
         (Snapshot, "src/saved_as.adb", False,
-         "Phase 482 save-as association update");
+         "save-as association update");
       Assert (not Quick_Open_Has_Candidate (Snapshot, "last-save-as-target.adb"),
-              "Phase 482 save-as target history must not create Quick Open candidates");
+              "save-as target history must not create Quick Open candidates");
 
       Set_Buffer_Association_For_Test
         (Registry, Alpha, "/project/src/renamed.adb", "renamed.adb");
       Snapshot := Editor.Quick_Open_Markers.Build_Snapshot (S, Project, Registry, Recent);
       Assert_Quick_Open_Observes_Association
         (Snapshot, "src/renamed.adb", False,
-         "Phase 482 rename association update");
+         "rename association update");
 
       Snapshot := Editor.Quick_Open_Markers.Build_Snapshot (S, Project, Registry, Recent);
       Assert_Quick_Open_Observes_Association
         (Snapshot, "src/renamed.adb", False,
-         "Phase 482 copy preserves source association");
+         "copy preserves source association");
       Assert (not Quick_Open_Has_Candidate (Snapshot, "src/copied.adb"),
-              "Phase 482 copy target must not be promoted into an open-buffer candidate");
+              "copy target must not be promoted into an open-buffer candidate");
 
       Set_Buffer_Association_For_Test
         (Registry, Alpha, "/project/src/moved.adb", "moved.adb");
       Snapshot := Editor.Quick_Open_Markers.Build_Snapshot (S, Project, Registry, Recent);
       Assert_Quick_Open_Observes_Association
         (Snapshot, "src/moved.adb", False,
-         "Phase 482 move association update");
+         "move association update");
       Assert (not Quick_Open_Has_Candidate (Snapshot, "src/renamed.adb")
               or else Quick_Open_Candidate_Index (Snapshot, "src/renamed.adb") /=
                       Quick_Open_Candidate_Index (Snapshot, "src/moved.adb"),
-              "Phase 482 move must not create a duplicate open-buffer target row");
+              "move must not create a duplicate open-buffer target row");
 
       Clear_Buffer_Association_For_Test (Registry, Alpha);
       Snapshot := Editor.Quick_Open_Markers.Build_Snapshot (S, Project, Registry, Recent);
       Assert_Quick_Open_Observes_Association
         (Snapshot, "Untitled", False,
-         "Phase 482 delete association clear");
+         "delete association clear");
       Assert (not Quick_Open_Has_Candidate (Snapshot, "src/deleted.adb"),
-              "Phase 482 delete source must not become a recovery candidate");
-   end Test_Phase482_Open_Buffer_Association_And_Dirty_Observation;
+              "delete source must not become a recovery candidate");
+   end Test_Open_Buffer_Association_And_Dirty_Observation;
 
-   procedure Test_Phase482_Close_Reopen_And_Failure_Preservation
+   procedure Test_Close_Reopen_And_Failure_Preservation
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
       pragma Unreferenced (T);
       Project  : Editor.Project.Project_State;
@@ -2283,7 +2288,7 @@ package body Editor.Quick_Open.Tests is
 
       Snapshot := Editor.Quick_Open_Markers.Build_Snapshot (S, Project, Registry, Recent);
       Assert (Quick_Open_Has_Candidate (Snapshot, "src/main.adb"),
-              "Phase 482 open buffer collection must produce an observable candidate");
+              "open buffer collection must produce an observable candidate");
 
       Set_Buffer_Association_For_Test
         (Registry, Alpha, "/project/src/main.adb", "main.adb");
@@ -2291,21 +2296,21 @@ package body Editor.Quick_Open.Tests is
       Snapshot := Editor.Quick_Open_Markers.Build_Snapshot (S, Project, Registry, Recent);
       Assert_Quick_Open_Observes_Association
         (Snapshot, "src/main.adb", True,
-         "Phase 482 failed save-as precondition");
+         "failed save-as precondition");
       Assert (not Quick_Open_Has_Candidate (Snapshot, "src/failed-save-as.adb"),
-              "Phase 482 failed save-as target must not be shown");
+              "failed save-as target must not be shown");
       Assert (not Quick_Open_Has_Candidate (Snapshot, "src/failed-rename.adb"),
-              "Phase 482 failed rename target must not be shown");
+              "failed rename target must not be shown");
       Assert (not Quick_Open_Has_Candidate (Snapshot, "src/failed-copy.adb"),
-              "Phase 482 failed copy target must not be shown");
+              "failed copy target must not be shown");
       Assert (not Quick_Open_Has_Candidate (Snapshot, "src/failed-move.adb"),
-              "Phase 482 failed move target must not be shown");
+              "failed move target must not be shown");
 
       Editor.Buffers.Close_Buffer (Registry, Alpha, Closed, Force => True);
-      Assert (Closed, "Phase 482 close setup must close the buffer");
+      Assert (Closed, "close setup must close the buffer");
       Snapshot := Editor.Quick_Open_Markers.Build_Snapshot (S, Project, Registry, Recent);
       Assert (not Quick_Open_Has_Candidate (Snapshot, "src/main.adb"),
-              "Phase 482 close removes open-buffer candidates through the collection only");
+              "close removes open-buffer candidates through the collection only");
 
       Reopened := Editor.Buffers.Add_Buffer_From_File
         (Registry, "/project/src/reopened.adb", "reopened.adb", "body");
@@ -2313,12 +2318,12 @@ package body Editor.Quick_Open.Tests is
       Snapshot := Editor.Quick_Open_Markers.Build_Snapshot (S, Project, Registry, Recent);
       Assert_Quick_Open_Observes_Association
         (Snapshot, "src/reopened.adb", False,
-         "Phase 482 reopen/open adds candidate through canonical open-buffer collection");
+         "reopen/open adds candidate through canonical open-buffer collection");
       Assert (not Quick_Open_Has_Candidate (Snapshot, "src/recovery-main.adb"),
-              "Phase 482 Quick Open must not create reopen/recovery candidates");
-   end Test_Phase482_Close_Reopen_And_Failure_Preservation;
+              "Quick Open must not create reopen/recovery candidates");
+   end Test_Close_Reopen_And_Failure_Preservation;
 
-   procedure Test_Phase482_Query_Selection_And_Prompt_Boundary
+   procedure Test_Query_Selection_And_Prompt_Boundary
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
       pragma Unreferenced (T);
       Project  : Editor.Project.Project_State;
@@ -2352,15 +2357,15 @@ package body Editor.Quick_Open.Tests is
       Editor.Quick_Open.Set_Query_Text (S, "other");
       Editor.Quick_Open.Recompute_Results (S, Project, Config);
       Editor.Quick_Open.Select_Path (S, "src/other.adb", Found);
-      Assert (Found, "Phase 482 setup must select a non-active Quick Open candidate");
+      Assert (Found, "setup must select a non-active Quick Open candidate");
       Snapshot := Editor.Quick_Open_Markers.Build_Snapshot (S, Project, Registry, Recent);
 
       Assert (Quick_Open_Has_Candidate (Snapshot, "src/other.adb"),
-              "Phase 482 selected Quick Open candidate must remain ordinary UI state");
+              "selected Quick Open candidate must remain ordinary UI state");
       Assert (Editor.Buffers.Active_Buffer (Registry) = Active,
-              "Phase 482 Quick Open selection must not replace canonical active-buffer source");
+              "Quick Open selection must not replace canonical active-buffer source");
       Assert (not Quick_Open_Has_Candidate (Snapshot, "src/target-from-query.adb"),
-              "Phase 482 Quick Open query text must not become a lifecycle target candidate");
+              "Quick Open query text must not become a lifecycle target candidate");
 
       Editor.State.Init (App);
       App.File_Target_Prompt_Active := True;
@@ -2370,17 +2375,17 @@ package body Editor.Quick_Open.Tests is
       Editor.Quick_Open.Set_Query_Text (S, "/project/src/not-the-target.adb");
       Snapshot := Editor.Quick_Open_Markers.Build_Snapshot (S, Project, Registry, Recent);
       Assert (App.File_Target_Prompt_Active,
-              "Phase 482 Quick Open snapshot construction must not own prompt state");
+              "Quick Open snapshot construction must not own prompt state");
       Assert (Editor.Input_Field.Text (App.File_Target_Prompt_Input) = "/project/src/manual.adb",
-              "Phase 482 Quick Open query/selection must not seed target prompt input");
+              "Quick Open query/selection must not seed target prompt input");
       Assert (Editor.Buffers.Active_Buffer (Registry) = Active,
-              "Phase 482 prompt-active Quick Open interaction preserves active-buffer source policy");
+              "prompt-active Quick Open interaction preserves active-buffer source policy");
       Assert (Other /= Active,
-              "Phase 482 setup must keep selected candidate distinct from active buffer");
-   end Test_Phase482_Query_Selection_And_Prompt_Boundary;
+              "setup must keep selected candidate distinct from active buffer");
+   end Test_Query_Selection_And_Prompt_Boundary;
 
 
-   procedure Test_Phase483_Successful_Operation_Observation_Reliability
+   procedure Test_Successful_Operation_Observation_Reliability
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
       pragma Unreferenced (T);
       Project  : Editor.Project.Project_State;
@@ -2418,62 +2423,62 @@ package body Editor.Quick_Open.Tests is
       Snapshot := Editor.Quick_Open_Markers.Build_Snapshot (S, Project, Registry, Recent);
       Assert_Quick_Open_Observation_Reliable
         (Snapshot, "src/main.adb", True,
-         "Phase 483 save precondition while Quick Open is visible");
+         "save precondition while Quick Open is visible");
 
       Set_Buffer_Dirty_For_Test (Registry, Active, False);
       Snapshot := Editor.Quick_Open_Markers.Build_Snapshot (S, Project, Registry, Recent);
       Assert_Quick_Open_Observation_Reliable
         (Snapshot, "src/main.adb", False,
-         "Phase 483 save observes clean dirty hint only through buffer state");
+         "save observes clean dirty hint only through buffer state");
 
       Set_Buffer_Association_For_Test
         (Registry, Active, "/project/src/saved-as.adb", "saved-as.adb");
       Snapshot := Editor.Quick_Open_Markers.Build_Snapshot (S, Project, Registry, Recent);
       Assert_Quick_Open_Observation_Reliable
         (Snapshot, "src/saved-as.adb", False,
-         "Phase 483 save-as updates open-buffer label deterministically");
+         "save-as updates open-buffer label deterministically");
       Assert_Quick_Open_Project_Candidate_Boundary
         (Snapshot, "src/main.adb", True, False,
-         "Phase 483 old save-as project candidate remains project-owned only");
+         "old save-as project candidate remains project-owned only");
 
       Set_Buffer_Association_For_Test
         (Registry, Active, "/project/src/renamed.adb", "renamed.adb");
       Snapshot := Editor.Quick_Open_Markers.Build_Snapshot (S, Project, Registry, Recent);
       Assert_Quick_Open_Observation_Reliable
         (Snapshot, "src/renamed.adb", False,
-         "Phase 483 rename updates open-buffer label deterministically");
+         "rename updates open-buffer label deterministically");
       Assert (not Quick_Open_Has_Candidate (Snapshot, "src/saved-as.adb"),
-              "Phase 483 rename must not preserve save-as target history as a candidate");
+              "rename must not preserve save-as target history as a candidate");
 
       Snapshot := Editor.Quick_Open_Markers.Build_Snapshot (S, Project, Registry, Recent);
       Assert_Quick_Open_Observation_Reliable
         (Snapshot, "src/renamed.adb", False,
-         "Phase 483 copy preserves source association");
+         "copy preserves source association");
       Assert (not Quick_Open_Has_Candidate (Snapshot, "src/copied-target.adb"),
-              "Phase 483 copy target must not be synthesized as an open-buffer candidate");
+              "copy target must not be synthesized as an open-buffer candidate");
 
       Set_Buffer_Association_For_Test
         (Registry, Active, "/project/src/moved.adb", "moved.adb");
       Snapshot := Editor.Quick_Open_Markers.Build_Snapshot (S, Project, Registry, Recent);
       Assert_Quick_Open_Observation_Reliable
         (Snapshot, "src/moved.adb", False,
-         "Phase 483 move updates the same open-buffer candidate label");
+         "move updates the same open-buffer candidate label");
       Assert (Quick_Open_Candidate_Count (Snapshot, "src/moved.adb") = 1,
-              "Phase 483 move must not create a duplicate moved-target candidate");
+              "move must not create a duplicate moved-target candidate");
 
       Clear_Buffer_Association_For_Test (Registry, Active);
       Snapshot := Editor.Quick_Open_Markers.Build_Snapshot (S, Project, Registry, Recent);
       Assert_Quick_Open_Observation_Reliable
         (Snapshot, "Untitled", False,
-         "Phase 483 delete association clear exposes no-path open-buffer label");
+         "delete association clear exposes no-path open-buffer label");
       Assert (not Quick_Open_Has_Candidate (Snapshot, "src/deleted-source.adb"),
-              "Phase 483 delete must not create deleted-file recovery candidates");
+              "delete must not create deleted-file recovery candidates");
 
       Editor.Buffers.Close_Buffer (Registry, Active, Closed, Force => True);
-      Assert (Closed, "Phase 483 close setup must close active buffer");
+      Assert (Closed, "close setup must close active buffer");
       Snapshot := Editor.Quick_Open_Markers.Build_Snapshot (S, Project, Registry, Recent);
       Assert (not Quick_Open_Has_Candidate (Snapshot, "Untitled"),
-              "Phase 483 close removes the closed open-buffer candidate through registry membership");
+              "close removes the closed open-buffer candidate through registry membership");
 
       Active := Editor.Buffers.Add_Buffer_From_File
         (Registry, "/project/src/reopened.adb", "reopened.adb", "body");
@@ -2481,13 +2486,13 @@ package body Editor.Quick_Open.Tests is
       Snapshot := Editor.Quick_Open_Markers.Build_Snapshot (S, Project, Registry, Recent);
       Assert_Quick_Open_Observation_Reliable
         (Snapshot, "src/reopened.adb", False,
-         "Phase 483 reopen observes canonical reopened buffer membership");
+         "reopen observes canonical reopened buffer membership");
       Assert_Quick_Open_Persistence_Excluded
         (Snapshot,
-         "Phase 483 successful observation must not surface persisted lifecycle state");
-   end Test_Phase483_Successful_Operation_Observation_Reliability;
+         "successful observation must not surface persisted lifecycle state");
+   end Test_Successful_Operation_Observation_Reliability;
 
-   procedure Test_Phase483_Failure_And_Blocked_Operation_Preservation
+   procedure Test_Failure_And_Blocked_Operation_Preservation
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
       pragma Unreferenced (T);
       Project  : Editor.Project.Project_State;
@@ -2523,24 +2528,24 @@ package body Editor.Quick_Open.Tests is
       After := Editor.Quick_Open_Markers.Build_Snapshot (S, Project, Registry, Recent);
       Assert_Quick_Open_Observation_Failure_Preserved
         (Before, After, "src/main.adb", "src/failed-save-as.adb",
-         "Phase 483 failed save-as preservation");
+         "failed save-as preservation");
       Assert_Quick_Open_Observation_Failure_Preserved
         (Before, After, "src/main.adb", "src/failed-rename.adb",
-         "Phase 483 failed rename preservation");
+         "failed rename preservation");
       Assert_Quick_Open_Observation_Failure_Preserved
         (Before, After, "src/main.adb", "src/failed-copy.adb",
-         "Phase 483 failed copy preservation");
+         "failed copy preservation");
       Assert_Quick_Open_Observation_Failure_Preserved
         (Before, After, "src/main.adb", "src/failed-move.adb",
-         "Phase 483 failed move preservation");
+         "failed move preservation");
       Assert_Quick_Open_Observation_Failure_Preserved
         (Before, After, "src/main.adb", "src/deleted-after-failure.adb",
-         "Phase 483 failed delete preservation");
+         "failed delete preservation");
       Assert (Quick_Open_Candidate_Count (After, "src/main.adb") = 1,
-              "Phase 483 blocked dirty operations must leave collection membership unchanged");
-   end Test_Phase483_Failure_And_Blocked_Operation_Preservation;
+              "blocked dirty operations must leave collection membership unchanged");
+   end Test_Failure_And_Blocked_Operation_Preservation;
 
-   procedure Test_Phase483_Query_Selection_And_Prompt_Boundary_Reliability
+   procedure Test_Query_Selection_And_Prompt_Boundary_Reliability
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
       pragma Unreferenced (T);
       Project  : Editor.Project.Project_State;
@@ -2577,16 +2582,16 @@ package body Editor.Quick_Open.Tests is
       Editor.Quick_Open.Set_Query_Text (S, "other-target-like");
       Editor.Quick_Open.Recompute_Results (S, Project, Config);
       Editor.Quick_Open.Select_Path (S, "src/other-target-like.adb", Found);
-      Assert (Found, "Phase 483 setup must select a non-active target-like candidate");
+      Assert (Found, "setup must select a non-active target-like candidate");
       Snapshot := Editor.Quick_Open_Markers.Build_Snapshot (S, Project, Registry, Recent);
 
       Assert (Quick_Open_Has_Candidate (Snapshot, "src/other-target-like.adb"),
-              "Phase 483 selected candidate remains Quick Open UI state");
+              "selected candidate remains Quick Open UI state");
       Assert (Other /= Active,
-              "Phase 483 selected candidate must differ from active buffer for boundary coverage");
+              "selected candidate must differ from active buffer for boundary coverage");
       Assert_Quick_Open_Selection_Not_File_Lifecycle_Source
         (Registry, Active,
-         "Phase 483 selected open-buffer candidate does not become lifecycle source");
+         "selected open-buffer candidate does not become lifecycle source");
 
       Editor.Quick_Open.Set_Query_Text
         (S, "/project/src/query-must-not-be-target.adb");
@@ -2596,30 +2601,30 @@ package body Editor.Quick_Open.Tests is
       Editor.Buffers.Global_Add_File_Buffer
         ("/project/src/active.adb", "active.adb", "body", App_Source);
       Editor.Buffers.Global_Set_Active_Buffer (App_Source);
-      Editor.Executor.Open_File_Target_Prompt
+      Editor.Executor.File_Target_Prompt_Commands.Open_File_Target_Prompt
         (App, Editor.Commands.Command_Move_Buffer_File);
-      Assert (Editor.Executor.File_Target_Prompt_Is_Active (App),
-              "Phase 483 prompted move setup must open canonical target prompt");
-      Assert (Editor.Executor.File_Target_Prompt_Input_Text (App) = "",
-              "Phase 483 canonical prompt opens with no Quick Open-seeded input");
+      Assert (Editor.Executor.File_Target_Prompt_Commands.File_Target_Prompt_Is_Active (App),
+              "prompted move setup must open canonical target prompt");
+      Assert (Editor.Executor.File_Target_Prompt_Commands.File_Target_Prompt_Input_Text (App) = "",
+              "canonical prompt opens with no Quick Open-seeded input");
       Assert_Quick_Open_Query_Not_Target_Input
         (App, S,
-         "Phase 483 path-like Quick Open query is not prompt input");
+         "path-like Quick Open query is not prompt input");
 
       Editor.Quick_Open.Move_Selection_Down (S);
-      Editor.Executor.Insert_File_Target_Prompt_Text
+      Editor.Executor.File_Target_Prompt_Commands.Insert_File_Target_Prompt_Text
         (App, "/project/src/manual-target.adb");
-      Assert (Editor.Executor.File_Target_Prompt_Input_Text (App) = "/project/src/manual-target.adb",
-              "Phase 483 prompt input remains canonical after Quick Open selection changes");
-      Editor.Executor.Cancel_File_Target_Prompt (App);
-      Assert (not Editor.Executor.File_Target_Prompt_Is_Active (App),
-              "Phase 483 prompt cancellation remains non-mutating canonical prompt cleanup");
+      Assert (Editor.Executor.File_Target_Prompt_Commands.File_Target_Prompt_Input_Text (App) = "/project/src/manual-target.adb",
+              "prompt input remains canonical after Quick Open selection changes");
+      Editor.Executor.File_Target_Prompt_Commands.Cancel_File_Target_Prompt (App);
+      Assert (not Editor.Executor.File_Target_Prompt_Commands.File_Target_Prompt_Is_Active (App),
+              "prompt cancellation remains non-mutating canonical prompt cleanup");
       Assert (Editor.Buffers.Active_Buffer (Registry) = Active,
-              "Phase 483 prompt interaction must preserve active-buffer source discipline");
+              "prompt interaction must preserve active-buffer source discipline");
       Editor.Buffers.Reset_Global_For_Test;
-   end Test_Phase483_Query_Selection_And_Prompt_Boundary_Reliability;
+   end Test_Query_Selection_And_Prompt_Boundary_Reliability;
 
-   procedure Test_Phase483_Candidate_Freshness_Order_Project_And_Audit_Boundaries
+   procedure Test_Candidate_Freshness_Order_Project_And_Audit_Boundaries
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
       pragma Unreferenced (T);
       Project  : Editor.Project.Project_State;
@@ -2652,26 +2657,26 @@ package body Editor.Quick_Open.Tests is
       Before := Editor.Quick_Open_Markers.Build_Snapshot (S, Project, Registry, Recent);
       Assert_Quick_Open_Observation_Reliable
         (Before, "src/source.adb", False,
-         "Phase 483 freshness precondition");
+         "freshness precondition");
 
       Set_Buffer_Association_For_Test
         (Registry, Active, "/project/src/fresh-target.adb", "fresh-target.adb");
       Fresh := Editor.Quick_Open_Markers.Build_Snapshot (S, Project, Registry, Recent);
       Assert_Quick_Open_Observation_Reliable
         (Fresh, "src/fresh-target.adb", False,
-         "Phase 483 fresh snapshot reflects current association");
+         "fresh snapshot reflects current association");
       Assert (Quick_Open_Has_Candidate (Before, "src/source.adb"),
-              "Phase 483 retained stale snapshot fixture remains immutable test data");
+              "retained stale snapshot fixture remains immutable test data");
       Assert_Quick_Open_Project_Candidate_Boundary
         (Fresh, "src/project-only.adb", True, False,
-         "Phase 483 project candidate remains project-owned and not lifecycle-owned");
+         "project candidate remains project-owned and not lifecycle-owned");
       Assert (not Quick_Open_Has_Candidate (Fresh, "src/copied-target.adb"),
-              "Phase 483 copied target is not added without retained project policy");
+              "copied target is not added without retained project policy");
       Assert (not Quick_Open_Has_Candidate (Fresh, "src/moved-old-path.adb"),
-              "Phase 483 moved old path is not added as lifecycle history");
+              "moved old path is not added as lifecycle history");
       Assert_Quick_Open_Persistence_Excluded
         (Fresh,
-         "Phase 483 candidate snapshot excludes target histories and operation logs");
+         "candidate snapshot excludes target histories and operation logs");
 
       Editor.Command_Route_Audit.Clear (Audit);
       Editor.Command_Route_Audit.Record_Route
@@ -2683,14 +2688,14 @@ package body Editor.Quick_Open.Tests is
          Editor.Command_Route_Audit.Route_From_Keybinding,
          Editor.Commands.Command_Move_Buffer_File);
       Assert (Editor.Command_Route_Audit.Failure_Count (Audit) = 0,
-              "Phase 483 route audit observes canonical file lifecycle routes without executing them");
+              "route audit observes canonical file lifecycle routes without executing them");
       Assert (Editor.Command_Route_Audit.Summary (Audit)'Length > 0,
-              "Phase 483 route audit summary remains transient side-effect-free data");
-   end Test_Phase483_Candidate_Freshness_Order_Project_And_Audit_Boundaries;
+              "route audit summary remains transient side-effect-free data");
+   end Test_Candidate_Freshness_Order_Project_And_Audit_Boundaries;
 
 
 
-   procedure Test_Phase484_Canonical_Open_Buffer_Identity_And_No_Caches
+   procedure Test_Canonical_Open_Buffer_Identity_And_No_Caches
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
       pragma Unreferenced (T);
       Project  : Editor.Project.Project_State;
@@ -2734,53 +2739,53 @@ package body Editor.Quick_Open.Tests is
          if To_String (C.Project_Relative_Path) = "Untitled" then
             Untitled_Count := Untitled_Count + 1;
             Assert (C.Buffer_Identity /= Editor.Buffers.No_Buffer,
-                    "Phase 484 no-path open-buffer candidate identity must be the buffer id");
+                    "no-path open-buffer candidate identity must be the buffer id");
             if C.Buffer_Identity = Alpha then
                Saw_Alpha := True;
                Assert (C.Is_Dirty,
-                       "Phase 484 dirty hint for Alpha must derive from current buffer state");
+                       "dirty hint for Alpha must derive from current buffer state");
             elsif C.Buffer_Identity = Beta then
                Saw_Beta := True;
                Assert (not C.Is_Dirty,
-                       "Phase 484 dirty hint for Beta must derive from current buffer state");
+                       "dirty hint for Beta must derive from current buffer state");
             else
                Assert (False,
-                       "Phase 484 no-path candidate must not come from a cache or target history");
+                       "no-path candidate must not come from a cache or target history");
             end if;
          end if;
       end loop;
 
       Assert (Untitled_Count = 2,
-              "Phase 484 duplicate no-path labels must remain distinct buffer-identity candidates");
+              "duplicate no-path labels must remain distinct buffer-identity candidates");
       Assert (Saw_Alpha and then Saw_Beta,
-              "Phase 484 open-buffer candidate collection must derive from canonical registry membership");
+              "open-buffer candidate collection must derive from canonical registry membership");
       Assert_Quick_Open_Project_Candidate_Boundary
         (Snapshot, "src/main.adb", True, False,
-         "Phase 484 cleared association must leave only the retained project candidate");
+         "cleared association must leave only the retained project candidate");
       Assert_Quick_Open_Persistence_Excluded
         (Snapshot,
-         "Phase 484 candidate snapshot excludes lifecycle caches and histories");
+         "candidate snapshot excludes lifecycle caches and histories");
 
       Editor.Project.Clear_Known_Files (Project);
       Editor.Project.Add_Known_File (Project, "src/fresh-project.adb", "/project/src/fresh-project.adb");
       Snapshot := Editor.Quick_Open_Markers.Build_Snapshot (S, Project, Registry, Recent);
       Assert (Quick_Open_Has_Candidate (Snapshot, "src/fresh-project.adb"),
-              "Phase 484 project/file candidates must be rebuilt from retained project source at snapshot time");
+              "project/file candidates must be rebuilt from retained project source at snapshot time");
       Assert (not Quick_Open_Has_Candidate (Snapshot, "src/main.adb"),
-              "Phase 484 stale Quick Open result cache must not remain candidate truth after project source changes");
-   end Test_Phase484_Canonical_Open_Buffer_Identity_And_No_Caches;
+              "stale Quick Open result cache must not remain candidate truth after project source changes");
+   end Test_Canonical_Open_Buffer_Identity_And_No_Caches;
 
 
 
-   procedure Test_Phase485_Final_Observation_Source_Freeze
+   procedure Test_Final_Observation_Source_Freeze
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
       pragma Unreferenced (T);
-      Root         : constant String := Temp_Path ("phase485_source_freeze");
+      Root         : constant String := Temp_Path ("source_freeze");
       Src          : constant String := Slash (Root, "src");
       Alpha_Path   : constant String := Slash (Src, "alpha.adb");
       Beta_Path    : constant String := Slash (Src, "beta.adb");
       Target_Path  : constant String := Slash (Src, "beta_saved_as.adb");
-      Session_Path : constant String := Slash (Root, "phase485.session");
+      Session_Path : constant String := Slash (Root, ".session");
       S            : Editor.State.State_Type;
       Open_Result  : Editor.Project.Project_Open_Result;
       Config       : constant Editor.Quick_Open.Quick_Open_Config :=
@@ -2805,7 +2810,7 @@ package body Editor.Quick_Open.Tests is
       Open_Result :=
         (Status       => Editor.Project.Project_Open_Ok,
          Root_Path    => To_Unbounded_String (Root),
-         Display_Name => To_Unbounded_String ("phase485"),
+         Display_Name => To_Unbounded_String (""),
          Error_Text   => Null_Unbounded_String);
       Editor.Project.Apply_Open_Result (S.Project, Open_Result);
       Editor.Project.Add_Known_File (S.Project, "src/alpha.adb", Alpha_Path);
@@ -2813,60 +2818,60 @@ package body Editor.Quick_Open.Tests is
       Editor.Project.Add_Known_File
         (S.Project, "src/project-only.adb", Slash (Src, "project-only.adb"));
 
-      Editor.Executor.Execute_Open_File (S, Alpha_Path);
+      Editor.Executor.File_Open_Commands.Execute_Open_File (S, Alpha_Path);
       Alpha := Editor.Buffers.Global_Active_Buffer;
-      Editor.Executor.Execute_Open_File (S, Beta_Path);
+      Editor.Executor.File_Open_Commands.Execute_Open_File (S, Beta_Path);
       Beta := Editor.Buffers.Global_Active_Buffer;
-      Assert (Alpha /= Beta, "Phase 485 setup must have two open buffers");
+      Assert (Alpha /= Beta, "setup must have two open buffers");
       Assert (Editor.Buffers.Global_Active_Buffer = Beta,
-              "Phase 485 setup must keep beta as canonical active buffer");
+              "setup must keep beta as canonical active buffer");
 
       Editor.Quick_Open.Open (S.Quick_Open);
       Editor.Quick_Open.Set_Query_Text (S.Quick_Open, "src/");
       Editor.Quick_Open.Recompute_Results (S.Quick_Open, S.Project, Config);
       Editor.Quick_Open.Select_Path (S.Quick_Open, "src/alpha.adb", Found);
-      Assert (Found, "Phase 485 setup must select inactive alpha candidate");
+      Assert (Found, "setup must select inactive alpha candidate");
 
       Before := Editor.Quick_Open_Markers.Build_Snapshot
         (S.Quick_Open, S.Project, Editor.Buffers.Global_Registry_For_UI,
          S.Recent_Buffers);
       Assert_Quick_Open_File_Lifecycle_Observation_Frozen
         (Before, Beta, "src/beta.adb", False, True,
-         "Phase 485 pre-save-as candidate source freeze");
+         "pre-save-as candidate source freeze");
       Assert (Before.Selected_Path = To_Unbounded_String ("src/alpha.adb"),
-              "Phase 485 selected candidate remains Quick Open UI state");
+              "selected candidate remains Quick Open UI state");
 
-      Editor.Executor.Execute_File_Target_Command
+      Editor.Executor.File_Target_Prompt_Commands.Execute_File_Target_Command
         (S, Editor.Commands.Command_Save_File_As, Target_Path);
       After := Editor.Quick_Open_Markers.Build_Snapshot
         (S.Quick_Open, S.Project, Editor.Buffers.Global_Registry_For_UI,
          S.Recent_Buffers);
 
       Assert (Editor.Quick_Open.Query_Text (S.Quick_Open) = "src/",
-              "Phase 485 query text must not become lifecycle target state");
+              "query text must not become lifecycle target state");
       Assert (Editor.Buffers.Global_Active_Buffer = Beta,
-              "Phase 485 selection must not replace active-buffer source");
+              "selection must not replace active-buffer source");
       Assert_Quick_Open_File_Lifecycle_Observation_Frozen
         (After, Beta, "src/beta_saved_as.adb", False, True,
-         "Phase 485 save-as observes only canonical candidate sources");
+         "save-as observes only canonical candidate sources");
       Assert_Quick_Open_File_Lifecycle_Observation_Frozen
         (After, Alpha, "src/alpha.adb", False, False,
-         "Phase 485 inactive candidate remains non-source open buffer");
+         "inactive candidate remains non-source open buffer");
       Old_Beta := Quick_Open_Candidate_Index (After, "src/beta.adb");
       Assert (Old_Beta /= Natural'Last and then
               not After.Candidates (Old_Beta).Is_Open,
-              "Phase 485 old beta path remains project-owned only");
+              "old beta path remains project-owned only");
       Assert (not Quick_Open_Has_Candidate (After, "src/last-save-as.adb"),
-              "Phase 485 save-as target history must not create candidates");
+              "save-as target history must not create candidates");
 
       Workspace := Editor.State.Build_Workspace_Snapshot (S);
       Editor.Workspace_Persistence.Save_To_File
         (Workspace, Session_Path, Status);
       Assert (Status = Editor.Workspace_Persistence.Workspace_Persistence_Ok,
-              "Phase 485 workspace fixture must save successfully");
+              "workspace fixture must save successfully");
       Assert_Persistence_Text_Excludes_Quick_Open_Lifecycle
         (File_Text (Session_Path),
-         "Phase 485 workspace persistence exclusion freeze");
+         "workspace persistence exclusion freeze");
 
       Delete_Tree_If_Exists (Root);
       Editor.Buffers.Reset_Global_For_Test;
@@ -2875,13 +2880,13 @@ package body Editor.Quick_Open.Tests is
          Delete_Tree_If_Exists (Root);
          Editor.Buffers.Reset_Global_For_Test;
          raise;
-   end Test_Phase485_Final_Observation_Source_Freeze;
+   end Test_Final_Observation_Source_Freeze;
 
-   procedure Test_Phase485_Direct_Prompted_And_Boundary_Freeze
+   procedure Test_Direct_Prompted_And_Boundary_Freeze
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
       pragma Unreferenced (T);
-      Root_Direct  : constant String := Temp_Path ("phase485_direct");
-      Root_Prompt  : constant String := Temp_Path ("phase485_prompt");
+      Root_Direct  : constant String := Temp_Path ("direct");
+      Root_Prompt  : constant String := Temp_Path ("prompt");
       Src_Direct   : constant String := Slash (Root_Direct, "src");
       Src_Prompt   : constant String := Slash (Root_Prompt, "src");
       Direct_File  : constant String := Slash (Src_Direct, "alpha.adb");
@@ -2916,19 +2921,19 @@ package body Editor.Quick_Open.Tests is
          Error_Text   => Null_Unbounded_String);
       Editor.Project.Apply_Open_Result (S.Project, Open_Result);
       Editor.Project.Add_Known_File (S.Project, "src/alpha.adb", Direct_File);
-      Editor.Executor.Execute_Open_File (S, Direct_File);
+      Editor.Executor.File_Open_Commands.Execute_Open_File (S, Direct_File);
       Direct_Id := Editor.Buffers.Global_Active_Buffer;
       Editor.Quick_Open.Open (S.Quick_Open);
       Editor.Quick_Open.Set_Query_Text (S.Quick_Open, "src/");
       Editor.Quick_Open.Recompute_Results (S.Quick_Open, S.Project, Config);
-      Editor.Executor.Execute_File_Target_Command
+      Editor.Executor.File_Target_Prompt_Commands.Execute_File_Target_Command
         (S, Editor.Commands.Command_Rename_Buffer_File, Direct_Target);
       Direct_Snap := Editor.Quick_Open_Markers.Build_Snapshot
         (S.Quick_Open, S.Project, Editor.Buffers.Global_Registry_For_UI,
          S.Recent_Buffers);
       Assert_Quick_Open_File_Lifecycle_Observation_Frozen
         (Direct_Snap, Direct_Id, "src/renamed.adb", False, True,
-         "Phase 485 direct rename observation freeze");
+         "direct rename observation freeze");
 
       Editor.Buffers.Reset_Global_For_Test;
       Editor.State.Init (S);
@@ -2942,7 +2947,7 @@ package body Editor.Quick_Open.Tests is
       Editor.Project.Add_Known_File
         (S.Project, "src/selected-target-like.adb",
          Slash (Src_Prompt, "selected-target-like.adb"));
-      Editor.Executor.Execute_Open_File (S, Prompt_File);
+      Editor.Executor.File_Open_Commands.Execute_Open_File (S, Prompt_File);
       Prompt_Id := Editor.Buffers.Global_Active_Buffer;
       Editor.Quick_Open.Open (S.Quick_Open);
       Editor.Quick_Open.Set_Query_Text
@@ -2953,40 +2958,40 @@ package body Editor.Quick_Open.Tests is
       Editor.Quick_Open.Select_Path
         (S.Quick_Open, "src/selected-target-like.adb", Found);
       Assert (Found,
-              "Phase 485 setup must select target-like project candidate");
+              "setup must select target-like project candidate");
 
-      Editor.Executor.Open_File_Target_Prompt
+      Editor.Executor.File_Target_Prompt_Commands.Open_File_Target_Prompt
         (S, Editor.Commands.Command_Rename_Buffer_File);
-      Assert (Editor.Executor.File_Target_Prompt_Is_Active (S),
-              "Phase 485 canonical prompt must open through Executor");
-      Assert (Editor.Executor.File_Target_Prompt_Input_Text (S) = "",
-              "Phase 485 Quick Open query/candidate must not seed prompt input");
+      Assert (Editor.Executor.File_Target_Prompt_Commands.File_Target_Prompt_Is_Active (S),
+              "canonical prompt must open through Executor");
+      Assert (Editor.Executor.File_Target_Prompt_Commands.File_Target_Prompt_Input_Text (S) = "",
+              "Quick Open query/candidate must not seed prompt input");
       Editor.Quick_Open.Move_Selection_Down (S.Quick_Open);
-      Assert (Editor.Executor.File_Target_Prompt_Input_Text (S) = "",
-              "Phase 485 Quick Open selection changes do not mutate prompt input");
-      Editor.Executor.Insert_File_Target_Prompt_Text (S, Prompt_Target);
-      Editor.Executor.Confirm_File_Target_Prompt (S);
-      Assert (not Editor.Executor.File_Target_Prompt_Is_Active (S),
-              "Phase 485 prompt confirmation leaves no Quick Open prompt state");
+      Assert (Editor.Executor.File_Target_Prompt_Commands.File_Target_Prompt_Input_Text (S) = "",
+              "Quick Open selection changes do not mutate prompt input");
+      Editor.Executor.File_Target_Prompt_Commands.Insert_File_Target_Prompt_Text (S, Prompt_Target);
+      Editor.Executor.File_Target_Prompt_Commands.Confirm_File_Target_Prompt (S);
+      Assert (not Editor.Executor.File_Target_Prompt_Commands.File_Target_Prompt_Is_Active (S),
+              "prompt confirmation leaves no Quick Open prompt state");
 
       Prompt_Snap := Editor.Quick_Open_Markers.Build_Snapshot
         (S.Quick_Open, S.Project, Editor.Buffers.Global_Registry_For_UI,
          S.Recent_Buffers);
       Assert_Quick_Open_File_Lifecycle_Observation_Frozen
         (Prompt_Snap, Prompt_Id, "src/renamed.adb", False, True,
-         "Phase 485 prompted rename observation freeze");
+         "prompted rename observation freeze");
       Assert (To_String (Direct_Snap.Candidates
                 (Quick_Open_Candidate_Index_For_Buffer
                    (Direct_Snap, Direct_Id)).Project_Relative_Path) =
               To_String (Prompt_Snap.Candidates
                 (Quick_Open_Candidate_Index_For_Buffer
                    (Prompt_Snap, Prompt_Id)).Project_Relative_Path),
-              "Phase 485 direct and prompted rename observations match");
+              "direct and prompted rename observations match");
       Assert (Editor.Buffers.Global_Active_Buffer = Prompt_Id,
-              "Phase 485 selected Quick Open candidate must not become source");
+              "selected Quick Open candidate must not become source");
       Assert (not Quick_Open_Has_Candidate
                 (Prompt_Snap, "src/query-must-not-seed-target.adb"),
-              "Phase 485 query text must not create target history");
+              "query text must not create target history");
 
       Delete_Tree_If_Exists (Root_Direct);
       Delete_Tree_If_Exists (Root_Prompt);
@@ -2997,15 +3002,15 @@ package body Editor.Quick_Open.Tests is
          Delete_Tree_If_Exists (Root_Prompt);
          Editor.Buffers.Reset_Global_For_Test;
          raise;
-   end Test_Phase485_Direct_Prompted_And_Boundary_Freeze;
+   end Test_Direct_Prompted_And_Boundary_Freeze;
 
-   procedure Test_Phase485_Route_Audit_And_Alias_Absence_Freeze
+   procedure Test_Route_Audit_And_Alias_Absence_Freeze
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
       pragma Unreferenced (T);
       Audit : Editor.Command_Route_Audit.Route_Audit_Result;
    begin
       Assert (Editor.Commands.File_Lifecycle_Target_Prompt_Metadata_Frozen,
-              "Phase 485 descriptor-owned prompt metadata freeze holds");
+              "descriptor-owned prompt metadata freeze holds");
       Assert_Absent_Command_Not_Exposed ("quick-open.file.save");
       Assert_Absent_Command_Not_Exposed ("quick-open.file.save-as");
       Assert_Absent_Command_Not_Exposed
@@ -3039,17 +3044,17 @@ package body Editor.Quick_Open.Tests is
          Editor.Command_Route_Audit.Route_From_Command_Palette,
          Editor.Commands.Command_Move_Buffer_File);
       Assert (Editor.Command_Route_Audit.Failure_Count (Audit) = 0,
-              "Phase 485 route audit inspects canonical Executor routes");
+              "route audit inspects canonical Executor routes");
       Assert (Editor.Command_Route_Audit.Summary (Audit)'Length > 0,
-              "Phase 485 route audit result remains transient data");
-   end Test_Phase485_Route_Audit_And_Alias_Absence_Freeze;
+              "route audit result remains transient data");
+   end Test_Route_Audit_And_Alias_Absence_Freeze;
 
-   procedure Test_Phase533_Quick_Open_Stale_Project_Result_Unavailable
+   procedure Test_Quick_Open_Stale_Project_Result_Unavailable
      (T : in out AUnit.Test_Cases.Test_Case'Class)
    is
       pragma Unreferenced (T);
-      Root_One : constant String := Temp_Path ("phase533_qo_stale_one");
-      Root_Two : constant String := Temp_Path ("phase533_qo_stale_two");
+      Root_One : constant String := Temp_Path ("qo_stale_one");
+      Root_Two : constant String := Temp_Path ("qo_stale_two");
       File_One : constant String := Slash (Root_One, "main.adb");
       File_Two : constant String := Slash (Root_Two, "main.adb");
       S        : Editor.State.State_Type;
@@ -3079,15 +3084,15 @@ package body Editor.Quick_Open.Tests is
       Editor.Quick_Open.Set_Query_Text (S.Quick_Open, "main");
       Editor.Quick_Open.Recompute_Results (S.Quick_Open, S.Project, Config);
       Assert (Editor.Quick_Open.Result_Count (S.Quick_Open) = 1,
-              "Phase 533 setup must produce one current-project Quick Open result");
+              "setup must produce one current-project Quick Open result");
 
       A := Editor.Executor.Command_Availability
         (S, Editor.Commands.Command_Accept_Quick_Open);
       Assert (A.Status = Editor.Commands.Command_Available,
-              "Phase 533 fresh Quick Open result remains activatable");
+              "fresh Quick Open result remains activatable");
       Assert (Editor.Project_Navigation.Assert_Project_Navigation_Workflows_Coherent
                 (S),
-              "Phase 533 fresh project navigation state should be coherent");
+              "fresh project navigation state should be coherent");
 
       Editor.Project.Clear (S.Project);
       Open_Result :=
@@ -3101,13 +3106,13 @@ package body Editor.Quick_Open.Tests is
       A := Editor.Executor.Command_Availability
         (S, Editor.Commands.Command_Accept_Quick_Open);
       Assert (A.Status = Editor.Commands.Command_Unavailable,
-              "Phase 533 Quick Open must not activate a stale project match");
+              "Quick Open must not activate a stale project match");
       Assert (Editor.Commands.Unavailable_Reason (A) =
-                "Target no longer exists.",
-              "Phase 533 Quick Open stale activation should explain current-project boundary");
+                Editor.Commands.Reason_Target_Missing,
+              "Quick Open stale activation should explain current-project boundary");
       Assert (not Editor.Project_Navigation.Assert_Project_Navigation_Workflows_Coherent
                     (S),
-              "Phase 533 coherence helper should detect stale Quick Open rows");
+              "coherence helper should detect stale Quick Open rows");
 
       Delete_Tree_If_Exists (Root_One);
       Delete_Tree_If_Exists (Root_Two);
@@ -3116,10 +3121,10 @@ package body Editor.Quick_Open.Tests is
          Delete_Tree_If_Exists (Root_One);
          Delete_Tree_If_Exists (Root_Two);
          raise;
-   end Test_Phase533_Quick_Open_Stale_Project_Result_Unavailable;
+   end Test_Quick_Open_Stale_Project_Result_Unavailable;
 
 
-   procedure Test_Phase546_Marker_Snapshot_Clears_No_Project_Stale_Rows
+   procedure Test_Marker_Snapshot_Clears_No_Project_Stale_Rows
      (T : in out AUnit.Test_Cases.Test_Case'Class)
    is
       pragma Unreferenced (T);
@@ -3144,28 +3149,28 @@ package body Editor.Quick_Open.Tests is
       Editor.Quick_Open.Set_Query_Text (S, "main");
       Editor.Quick_Open.Recompute_Results (S, Project, Config);
       Assert (Editor.Quick_Open.Result_Count (S) = 1,
-              "phase 546 setup must retain one Quick Open result before project close");
+              "setup must retain one Quick Open result before project close");
 
       Editor.Project.Clear (Project);
       Snapshot := Editor.Quick_Open_Markers.Build_Snapshot
         (S, Project, Registry, Recent);
 
       Assert (not Snapshot.Has_Project,
-              "phase 546 marker snapshot must mirror no-project authoritative state");
+              "marker snapshot must mirror no-project authoritative state");
       Assert (Natural (Snapshot.Candidates.Length) = 0,
-              "phase 546 marker snapshot must not render stale previous-project rows");
+              "marker snapshot must not render stale previous-project rows");
       Assert (Snapshot.Selected_Index = 0,
-              "phase 546 marker snapshot must clear stale rendered selection");
+              "marker snapshot must clear stale rendered selection");
       Assert (To_String (Snapshot.Selected_Path) = "",
-              "phase 546 marker snapshot must clear stale selected path");
+              "marker snapshot must clear stale selected path");
       Assert (To_String (Snapshot.Empty_Message) = "No project open.",
-              "phase 546 marker snapshot must render no-project feedback instead of stale rows");
+              "marker snapshot must render no-project feedback instead of stale rows");
 
-   end Test_Phase546_Marker_Snapshot_Clears_No_Project_Stale_Rows;
+   end Test_Marker_Snapshot_Clears_No_Project_Stale_Rows;
 
 
 
-   procedure Test_Phase546_No_Project_Selection_Commands_Report_No_Project
+   procedure Test_No_Project_Selection_Commands_Report_No_Project
      (T : in out AUnit.Test_Cases.Test_Case'Class)
    is
       pragma Unreferenced (T);
@@ -3181,20 +3186,20 @@ package body Editor.Quick_Open.Tests is
       A := Editor.Executor.Command_Availability
         (S, Editor.Commands.Command_Quick_Open_Next_Result);
       Assert (A.Status = Editor.Commands.Command_Unavailable,
-              "phase 546 next-result must be unavailable without a project");
+              "next-result must be unavailable without a project");
       Assert (Editor.Commands.Unavailable_Reason (A) = "No project open.",
-              "phase 546 next-result must not conflate no-project with no-files");
+              "next-result must not conflate no-project with no-files");
 
       A := Editor.Executor.Command_Availability
         (S, Editor.Commands.Command_Quick_Open_Previous_Result);
       Assert (A.Status = Editor.Commands.Command_Unavailable,
-              "phase 546 previous-result must be unavailable without a project");
+              "previous-result must be unavailable without a project");
       Assert (Editor.Commands.Unavailable_Reason (A) = "No project open.",
-              "phase 546 previous-result must report no-project before no-files");
-   end Test_Phase546_No_Project_Selection_Commands_Report_No_Project;
+              "previous-result must report no-project before no-files");
+   end Test_No_Project_Selection_Commands_Report_No_Project;
 
 
-   procedure Test_Phase546_Query_Set_No_Project_Reports_No_Project
+   procedure Test_Query_Set_No_Project_Reports_No_Project
      (T : in out AUnit.Test_Cases.Test_Case'Class)
    is
       pragma Unreferenced (T);
@@ -3206,18 +3211,18 @@ package body Editor.Quick_Open.Tests is
         (S.Overlay_Focus, Editor.Overlay_Focus.Quick_Open_Overlay,
          S.Panel_Focus);
 
-      Editor.Executor.Execute_Quick_Open_Set_Query (S, "main");
+      Editor.Executor.Command_Surface_Commands.Execute_Quick_Open_Set_Query (S, "main");
 
       Assert (Editor.Quick_Open.Query_Text (S.Quick_Open) = "main",
-              "phase 546 query-set should still update transient query text");
+              "query-set should still update transient query text");
       Assert (Editor.Quick_Open.Result_Count (S.Quick_Open) = 0,
-              "phase 546 query-set without project must not fabricate matches");
+              "query-set without project must not fabricate matches");
       Assert (Active_Message_Text (S) = "No project open.",
-              "phase 546 query-set must report no-project before no-files");
-   end Test_Phase546_Query_Set_No_Project_Reports_No_Project;
+              "query-set must report no-project before no-files");
+   end Test_Query_Set_No_Project_Reports_No_Project;
 
 
-   procedure Test_Phase546_Filter_And_Scope_No_Project_Report_No_Project
+   procedure Test_Filter_And_Scope_No_Project_Report_No_Project
      (T : in out AUnit.Test_Cases.Test_Case'Class)
    is
       pragma Unreferenced (T);
@@ -3230,9 +3235,9 @@ package body Editor.Quick_Open.Tests is
       begin
          A := Editor.Executor.Command_Availability (S, Command);
          Assert (A.Status = Editor.Commands.Command_Unavailable,
-                 "phase 546 " & Label & " must be unavailable without a project");
+                 "" & Label & " must be unavailable without a project");
          Assert (Editor.Commands.Unavailable_Reason (A) = "No project open.",
-                 "phase 546 " & Label & " must report no-project before local empty/filter state");
+                 "" & Label & " must report no-project before local empty/filter state");
       end Assert_No_Project_Availability;
    begin
       Editor.State.Init (S);
@@ -3255,21 +3260,64 @@ package body Editor.Quick_Open.Tests is
       Assert_No_Project_Availability
         (Editor.Commands.Command_Quick_Open_Scope_Parent, "scope-parent");
 
-      Editor.Executor.Execute_Quick_Open_Kind_Next (S);
+      Editor.Executor.Command_Surface_Commands.Execute_Quick_Open_Kind_Next (S);
       Assert (Editor.Quick_Open.File_Kind_Filter (S.Quick_Open) = Editor.Quick_Open.All_Files,
-              "phase 546 kind-next without project must not mutate transient filter state");
+              "kind-next without project must not mutate transient filter state");
       Assert (Active_Message_Text (S) = "No project open.",
-              "phase 546 kind-next runtime must report no-project");
+              "kind-next runtime must report no-project");
 
-      Editor.Executor.Execute_Quick_Open_Scope_Clear (S);
+      Editor.Executor.Command_Surface_Commands.Execute_Quick_Open_Scope_Clear (S);
       Assert (Editor.Quick_Open.Path_Scope (S.Quick_Open) = "src/editor/",
-              "phase 546 scope-clear without project must not mutate transient scope state");
+              "scope-clear without project must not mutate transient scope state");
       Assert (Active_Message_Text (S) = "No project open.",
-              "phase 546 scope-clear runtime must report no-project");
-   end Test_Phase546_Filter_And_Scope_No_Project_Report_No_Project;
+              "scope-clear runtime must report no-project");
+   end Test_Filter_And_Scope_No_Project_Report_No_Project;
 
 
-   procedure Test_Phase546_Marker_Snapshot_Excludes_Untitled_Buffers
+   procedure Test_Empty_Message_Includes_Filter_And_Scope_Context
+     (T : in out AUnit.Test_Cases.Test_Case'Class) is
+      pragma Unreferenced (T);
+      S        : Editor.Quick_Open.Quick_Open_State;
+      Project  : Editor.Project.Project_State;
+      Config   : constant Editor.Quick_Open.Quick_Open_Config := (others => <>);
+      Result   : Editor.Project.Project_Open_Result;
+      Snapshot : Editor.Quick_Open.Quick_Open_Snapshot;
+      Registry : Editor.Buffers.Buffer_Registry;
+      Recent   : Editor.Recent_Buffers.Recent_Buffer_State;
+   begin
+      Result :=
+        (Status       => Editor.Project.Project_Open_Ok,
+         Root_Path    => To_Unbounded_String ("/project"),
+         Display_Name => To_Unbounded_String ("project"),
+         Error_Text   => Null_Unbounded_String);
+      Editor.Project.Apply_Open_Result (Project, Result);
+      Editor.Project.Add_Known_File (Project, "docs/main.md", "/project/docs/main.md");
+      Editor.Project.Add_Known_File (Project, "src/main.adb", "/project/src/main.adb");
+
+      Editor.Quick_Open.Open (S);
+      Editor.Quick_Open.Set_Query_Text (S, "main");
+      Editor.Quick_Open.Set_Path_Scope (S, "docs");
+      Editor.Quick_Open.Cycle_File_Kind_Next (S);
+      Editor.Quick_Open.Recompute_Results (S, Project, Config);
+      Snapshot := Editor.Quick_Open.Build_Snapshot (S);
+
+      Assert (Natural (Snapshot.Candidates.Length) = 0,
+              "scope/filter combination should hide otherwise matching files");
+      Assert
+        (To_String (Snapshot.Empty_Message) =
+         "No Quick Open matches for ""main"" in docs/ (Ada). Clear scope/filter or adjust the query.",
+         "empty Quick Open state should expose active query, scope, and filter");
+
+      Snapshot := Editor.Quick_Open_Markers.Build_Snapshot
+        (S, Project, Registry, Recent);
+      Assert
+        (To_String (Snapshot.Empty_Message) =
+         "No Quick Open matches for ""main"" in docs/ (Ada). Clear scope/filter or adjust the query.",
+         "marker snapshot should preserve scoped/filter empty-state feedback");
+   end Test_Empty_Message_Includes_Filter_And_Scope_Context;
+
+
+   procedure Test_Marker_Snapshot_Excludes_Untitled_Buffers
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
       pragma Unreferenced (T);
       Project  : Editor.Project.Project_State;
@@ -3299,19 +3347,19 @@ package body Editor.Quick_Open.Tests is
         (S, Project, Registry, Recent);
 
       Assert (Snapshot.Has_Project,
-              "phase 546 untitled exclusion setup must retain an open project");
+              "untitled exclusion setup must retain an open project");
       Assert (Snapshot.Candidates.Length = 0,
-              "phase 546 Quick Open marker snapshot must not synthesize untitled buffer candidates");
+              "Quick Open marker snapshot must not synthesize untitled buffer candidates");
       Assert (Snapshot.Selected_Index = 0,
-              "phase 546 untitled exclusion leaves no selectable status row");
+              "untitled exclusion leaves no selectable status row");
       Assert (Quick_Open_Candidate_Index_For_Buffer (Snapshot, Untitled) = Natural'Last,
-              "phase 546 untitled buffer must not become a Quick Open candidate by buffer identity");
+              "untitled buffer must not become a Quick Open candidate by buffer identity");
       Assert (To_String (Snapshot.Empty_Message) = "No Quick Open matches.",
-              "phase 546 untitled exclusion preserves no-match feedback instead of buffer-derived rows");
-   end Test_Phase546_Marker_Snapshot_Excludes_Untitled_Buffers;
+              "untitled exclusion preserves no-match feedback instead of buffer-derived rows");
+   end Test_Marker_Snapshot_Excludes_Untitled_Buffers;
 
 
-   procedure Test_Phase546_Marker_Snapshot_Preserves_Result_Boundary
+   procedure Test_Marker_Snapshot_Preserves_Result_Boundary
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
       pragma Unreferenced (T);
       Project  : Editor.Project.Project_State;
@@ -3352,17 +3400,17 @@ package body Editor.Quick_Open.Tests is
         (S, Project, Registry, Recent);
 
       Assert (Editor.Quick_Open.Result_Count (S) = 2,
-              "phase 546 retained Quick Open result vector must be bounded by Max_Result_Count");
+              "retained Quick Open result vector must be bounded by Max_Result_Count");
       Assert (Editor.Quick_Open.Visible_Count (S) = 2,
-              "phase 546 public visible count must describe retained bounded Quick Open rows");
+              "public visible count must describe retained bounded Quick Open rows");
       Assert (Editor.Quick_Open.Total_Filtered_Count (S) = 6,
-              "phase 546 public total filtered count must remain separate from retained rows");
+              "public total filtered count must remain separate from retained rows");
       Assert (Natural (Snapshot.Candidates.Length) = 2,
-              "phase 546 marker snapshot must not expand beyond retained bounded Quick Open rows");
+              "marker snapshot must not expand beyond retained bounded Quick Open rows");
       Assert (Snapshot.Visible_Count = 2,
-              "phase 546 marker snapshot visible count must describe rendered bounded rows");
+              "marker snapshot visible count must describe rendered bounded rows");
       Assert (Snapshot.Total_Filtered_Count = 6,
-              "phase 546 marker snapshot must retain total filtered count separately from rendered rows");
+              "marker snapshot must retain total filtered count separately from rendered rows");
 
       Outside_Retained := Editor.Buffers.Add_Buffer_From_File
         (Registry, "/project/src/a_z_outside.adb", "a_z_outside.adb", "outside");
@@ -3373,11 +3421,11 @@ package body Editor.Quick_Open.Tests is
         (S, Project, Registry, Recent);
 
       Assert (Natural (Snapshot.Candidates.Length) = 2,
-              "phase 546 open/recent priority must not expand the retained bounded result set");
+              "open/recent priority must not expand the retained bounded result set");
       Assert (not Quick_Open_Has_Candidate (Snapshot, "src/a_z_outside.adb"),
-              "phase 546 active known files outside retained Quick Open rows must not enter marker snapshots");
+              "active known files outside retained Quick Open rows must not enter marker snapshots");
       Assert (Quick_Open_Candidate_Index_For_Buffer (Snapshot, Outside_Retained) = Natural'Last,
-              "phase 546 outside-retained open buffer must not become a candidate by buffer identity");
+              "outside-retained open buffer must not become a candidate by buffer identity");
 
       Hidden := Editor.Buffers.Add_Buffer_From_File
         (Registry, "/project/src/hidden.adb", "hidden.adb", "hidden");
@@ -3388,17 +3436,17 @@ package body Editor.Quick_Open.Tests is
         (S, Project, Registry, Recent);
 
       Assert (Editor.Quick_Open.Result_Count (S) = 0,
-              "phase 546 setup must leave hidden buffer outside the project candidate list");
+              "setup must leave hidden buffer outside the project candidate list");
       Assert (Natural (Snapshot.Candidates.Length) = 0,
-              "phase 546 marker snapshot must not synthesize file-backed buffer rows absent from known project files");
+              "marker snapshot must not synthesize file-backed buffer rows absent from known project files");
       Assert (Quick_Open_Candidate_Index_For_Buffer (Snapshot, Hidden) = Natural'Last,
-              "phase 546 hidden file-backed buffer must not become a Quick Open candidate by buffer identity");
+              "hidden file-backed buffer must not become a Quick Open candidate by buffer identity");
       Assert (To_String (Snapshot.Empty_Message) = "No Quick Open matches.",
-              "phase 546 absent project candidate must preserve no-match feedback");
-   end Test_Phase546_Marker_Snapshot_Preserves_Result_Boundary;
+              "absent project candidate must preserve no-match feedback");
+   end Test_Marker_Snapshot_Preserves_Result_Boundary;
 
 
-   procedure Test_Phase546_Marker_Header_Uses_Authoritative_Project_Counts
+   procedure Test_Marker_Header_Uses_Authoritative_Project_Counts
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
       pragma Unreferenced (T);
       Project  : Editor.Project.Project_State;
@@ -3422,26 +3470,26 @@ package body Editor.Quick_Open.Tests is
       Editor.Quick_Open.Recompute_Results (S, Project, Config);
 
       Assert (Editor.Quick_Open.Known_Count (S) = 1,
-              "phase 546 setup should retain the original known-file count");
+              "setup should retain the original known-file count");
       Assert (Editor.Quick_Open.Total_Filtered_Count (S) = 1,
-              "phase 546 setup should retain the original filtered count");
+              "setup should retain the original filtered count");
 
       Editor.Project.Add_Known_File (Project, "src/editor.adb", "/project/src/editor.adb");
       Snapshot := Editor.Quick_Open_Markers.Build_Snapshot
         (S, Project, Registry, Recent);
 
       Assert (Snapshot.Known_Count = 2,
-              "phase 546 marker snapshot must use the current authoritative project known-file count");
+              "marker snapshot must use the current authoritative project known-file count");
       Assert (Snapshot.Total_Filtered_Count = 2,
-              "phase 546 marker snapshot must recompute current authoritative filtered count");
+              "marker snapshot must recompute current authoritative filtered count");
       Assert (Natural (Snapshot.Candidates.Length) = 1,
-              "phase 546 marker snapshot must not add new rows outside the retained bounded result set");
+              "marker snapshot must not add new rows outside the retained bounded result set");
       Assert (Contains_Text (To_String (Snapshot.Header_Text), "Results: 2 of 2"),
-              "phase 546 marker header must reflect authoritative marker snapshot counts, not stale retained state counts");
-   end Test_Phase546_Marker_Header_Uses_Authoritative_Project_Counts;
+              "marker header must reflect authoritative marker snapshot counts, not stale retained state counts");
+   end Test_Marker_Header_Uses_Authoritative_Project_Counts;
 
 
-   procedure Test_Phase546_Project_Relative_Bounds_Reject_Invalid_Candidates
+   procedure Test_Project_Relative_Bounds_Reject_Invalid_Candidates
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
       pragma Unreferenced (T);
       Project  : Editor.Project.Project_State;
@@ -3477,9 +3525,9 @@ package body Editor.Quick_Open.Tests is
       Editor.Quick_Open.Recompute_Results (S, Project, Config);
 
       Assert (Editor.Quick_Open.Result_Count (S) = 1,
-              "phase 546 Quick Open must ignore malformed or out-of-root project-file candidates");
+              "Quick Open must ignore malformed or out-of-root project-file candidates");
       Assert (To_String (Editor.Quick_Open.Result_At (S, 1).Display_Path) = "src/good.adb",
-              "phase 546 Quick Open must retain only normalized project-relative files");
+              "Quick Open must retain only normalized project-relative files");
       Assert (Editor.Quick_Open.Known_Count (S) = 6,
               "known-file count remains a source count, not a sanitized candidate count");
       Assert (Editor.Quick_Open.Total_Filtered_Count (S) = 1,
@@ -3488,7 +3536,7 @@ package body Editor.Quick_Open.Tests is
       Snapshot := Editor.Quick_Open_Markers.Build_Snapshot
         (S, Project, Registry, Recent);
       Assert (Natural (Snapshot.Candidates.Length) = 1,
-              "phase 546 marker snapshots must preserve the same project-relative bounds");
+              "marker snapshots must preserve the same project-relative bounds");
       Assert (Quick_Open_Has_Candidate (Snapshot, "src/good.adb"),
               "valid project-relative candidate must remain visible in marker snapshot");
       Assert (not Quick_Open_Has_Candidate (Snapshot, "../escape.adb"),
@@ -3510,11 +3558,11 @@ package body Editor.Quick_Open.Tests is
               "query matching must not resurrect invalid parent-traversal candidates");
       Assert (To_String (Snapshot.Empty_Message) = "No Quick Open matches.",
               "invalid-only query must report no matches without fabricating rows");
-   end Test_Phase546_Project_Relative_Bounds_Reject_Invalid_Candidates;
+   end Test_Project_Relative_Bounds_Reject_Invalid_Candidates;
 
 
 
-   procedure Test_Phase546_No_Query_Shows_Prompt_Not_All_Files
+   procedure Test_No_Query_Shows_Prompt_Not_All_Files
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
       pragma Unreferenced (T);
       Project  : Editor.Project.Project_State;
@@ -3541,25 +3589,25 @@ package body Editor.Quick_Open.Tests is
         (S, Project, Registry, Recent);
 
       Assert (Editor.Quick_Open.Known_Count (S) = 2,
-              "phase 546 no-query state must retain project file availability feedback");
+              "no-query state must retain project file availability feedback");
       Assert (Editor.Quick_Open.Total_Filtered_Count (S) = 0,
-              "phase 546 no-query state must not count all files as matches");
+              "no-query state must not count all files as matches");
       Assert (Editor.Quick_Open.Result_Count (S) = 0,
-              "phase 546 no-query state must not project all project files as activatable rows");
+              "no-query state must not project all project files as activatable rows");
       Assert (Editor.Quick_Open.Selected_Result_Index (S) = 0,
-              "phase 546 no-query state must have no selected file target");
+              "no-query state must have no selected file target");
       Assert (Snapshot.Has_Project,
-              "phase 546 no-query snapshot must still know the project is open");
+              "no-query snapshot must still know the project is open");
       Assert (not Snapshot.Has_Query,
-              "phase 546 no-query snapshot must expose absence of query text");
+              "no-query snapshot must expose absence of query text");
       Assert (Natural (Snapshot.Candidates.Length) = 0,
-              "phase 546 no-query marker snapshot must not rebuild rows from project files");
+              "no-query marker snapshot must not rebuild rows from project files");
       Assert (To_String (Snapshot.Empty_Message) = "Type to open file.",
-              "phase 546 no-query marker snapshot must show the Quick Open prompt");
-   end Test_Phase546_No_Query_Shows_Prompt_Not_All_Files;
+              "no-query marker snapshot must show the Quick Open prompt");
+   end Test_No_Query_Shows_Prompt_Not_All_Files;
 
 
-   procedure Test_Phase546_Query_Traversal_Terms_Do_Not_Match
+   procedure Test_Query_Traversal_Terms_Do_Not_Match
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
       pragma Unreferenced (T);
       Project  : Editor.Project.Project_State;
@@ -3586,13 +3634,13 @@ package body Editor.Quick_Open.Tests is
         (S, Project, Registry, Recent);
 
       Assert (Editor.Quick_Open.Result_Count (S) = 0,
-              "phase 546 traversal query terms must not match project files");
+              "traversal query terms must not match project files");
       Assert (Editor.Quick_Open.Total_Filtered_Count (S) = 0,
-              "phase 546 traversal query terms must not be counted as matches");
+              "traversal query terms must not be counted as matches");
       Assert (Natural (Snapshot.Candidates.Length) = 0,
-              "phase 546 marker snapshot must not rebuild traversal-query rows");
+              "marker snapshot must not rebuild traversal-query rows");
       Assert (To_String (Snapshot.Empty_Message) = "No Quick Open matches.",
-              "phase 546 traversal query terms must report no matches");
+              "traversal query terms must report no matches");
 
       Editor.Quick_Open.Set_Query_Text (S, "../editor");
       Editor.Quick_Open.Recompute_Results (S, Project, Config);
@@ -3600,21 +3648,21 @@ package body Editor.Quick_Open.Tests is
         (S, Project, Registry, Recent);
 
       Assert (Editor.Quick_Open.Result_Count (S) = 0,
-              "phase 546 leading traversal query term must not match project files");
+              "leading traversal query term must not match project files");
       Assert (Natural (Snapshot.Candidates.Length) = 0,
-              "phase 546 leading traversal query term must not render candidates");
+              "leading traversal query term must not render candidates");
 
       Editor.Quick_Open.Set_Query_Text (S, "editor.adb");
       Editor.Quick_Open.Recompute_Results (S, Project, Config);
 
       Assert (Editor.Quick_Open.Result_Count (S) = 1,
-              "phase 546 ordinary dotted filenames must remain searchable");
+              "ordinary dotted filenames must remain searchable");
       Assert (To_String (Editor.Quick_Open.Result_At (S, 1).Display_Path) = "src/editor.adb",
-              "phase 546 traversal guard must not reject normal extension queries");
-   end Test_Phase546_Query_Traversal_Terms_Do_Not_Match;
+              "traversal guard must not reject normal extension queries");
+   end Test_Query_Traversal_Terms_Do_Not_Match;
 
 
-   procedure Test_Phase546_Absolute_And_Drive_Queries_Do_Not_Match
+   procedure Test_Absolute_And_Drive_Queries_Do_Not_Match
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
       pragma Unreferenced (T);
       Project  : Editor.Project.Project_State;
@@ -3641,13 +3689,13 @@ package body Editor.Quick_Open.Tests is
         (S, Project, Registry, Recent);
 
       Assert (Editor.Quick_Open.Result_Count (S) = 0,
-              "phase 546 absolute-looking queries must not match project-relative paths");
+              "absolute-looking queries must not match project-relative paths");
       Assert (Editor.Quick_Open.Total_Filtered_Count (S) = 0,
-              "phase 546 absolute-looking queries must not be counted as filtered matches");
+              "absolute-looking queries must not be counted as filtered matches");
       Assert (Natural (Snapshot.Candidates.Length) = 0,
-              "phase 546 marker snapshot must not rebuild absolute-query matches");
+              "marker snapshot must not rebuild absolute-query matches");
       Assert (To_String (Snapshot.Empty_Message) = "No Quick Open matches.",
-              "phase 546 absolute-looking query must report no matches");
+              "absolute-looking query must report no matches");
 
       Editor.Quick_Open.Set_Query_Text (S, "\main");
       Editor.Quick_Open.Recompute_Results (S, Project, Config);
@@ -3655,9 +3703,9 @@ package body Editor.Quick_Open.Tests is
         (S, Project, Registry, Recent);
 
       Assert (Editor.Quick_Open.Result_Count (S) = 0,
-              "phase 546 backslash-rooted queries must not match project-relative paths");
+              "backslash-rooted queries must not match project-relative paths");
       Assert (Natural (Snapshot.Candidates.Length) = 0,
-              "phase 546 marker snapshot must not rebuild backslash-rooted query matches");
+              "marker snapshot must not rebuild backslash-rooted query matches");
 
       Editor.Quick_Open.Set_Query_Text (S, "C:/main");
       Editor.Quick_Open.Recompute_Results (S, Project, Config);
@@ -3665,9 +3713,9 @@ package body Editor.Quick_Open.Tests is
         (S, Project, Registry, Recent);
 
       Assert (Editor.Quick_Open.Result_Count (S) = 0,
-              "phase 546 drive-qualified queries must not match project-relative paths");
+              "drive-qualified queries must not match project-relative paths");
       Assert (Natural (Snapshot.Candidates.Length) = 0,
-              "phase 546 marker snapshot must not rebuild drive-qualified query matches");
+              "marker snapshot must not rebuild drive-qualified query matches");
 
       Editor.Quick_Open.Set_Query_Text (S, "src /main");
       Editor.Quick_Open.Recompute_Results (S, Project, Config);
@@ -3675,9 +3723,9 @@ package body Editor.Quick_Open.Tests is
         (S, Project, Registry, Recent);
 
       Assert (Editor.Quick_Open.Result_Count (S) = 0,
-              "phase 546 absolute query terms must not match project-relative paths");
+              "absolute query terms must not match project-relative paths");
       Assert (Natural (Snapshot.Candidates.Length) = 0,
-              "phase 546 marker snapshot must not rebuild absolute query-term matches");
+              "marker snapshot must not rebuild absolute query-term matches");
 
       Editor.Quick_Open.Set_Query_Text (S, "src C:/main");
       Editor.Quick_Open.Recompute_Results (S, Project, Config);
@@ -3685,98 +3733,101 @@ package body Editor.Quick_Open.Tests is
         (S, Project, Registry, Recent);
 
       Assert (Editor.Quick_Open.Result_Count (S) = 0,
-              "phase 546 drive-qualified query terms must not match project-relative paths");
+              "drive-qualified query terms must not match project-relative paths");
       Assert (Natural (Snapshot.Candidates.Length) = 0,
-              "phase 546 marker snapshot must not rebuild drive-qualified query-term matches");
+              "marker snapshot must not rebuild drive-qualified query-term matches");
 
       Editor.Quick_Open.Set_Query_Text (S, "main");
       Editor.Quick_Open.Recompute_Results (S, Project, Config);
 
       Assert (Editor.Quick_Open.Result_Count (S) = 1,
-              "phase 546 project-relative basename queries must remain searchable");
+              "project-relative basename queries must remain searchable");
       Assert (To_String (Editor.Quick_Open.Result_At (S, 1).Display_Path) = "src/main.adb",
-              "phase 546 absolute-query guard must not reject normal relative queries");
-   end Test_Phase546_Absolute_And_Drive_Queries_Do_Not_Match;
+              "absolute-query guard must not reject normal relative queries");
+   end Test_Absolute_And_Drive_Queries_Do_Not_Match;
 
    procedure Register_Tests (T : in out Quick_Open_Test_Case) is
    begin
-      Register_Routine (T, Test_Phase485_Final_Observation_Source_Freeze'Access,
-                        "phase 485 quick-open final observation source freeze");
-      Register_Routine (T, Test_Phase485_Direct_Prompted_And_Boundary_Freeze'Access,
-                        "phase 485 quick-open direct prompted and boundary freeze");
-      Register_Routine (T, Test_Phase485_Route_Audit_And_Alias_Absence_Freeze'Access,
-                        "phase 485 quick-open route audit and alias absence freeze");
+      Register_Routine (T, Test_Final_Observation_Source_Freeze'Access,
+                        "quick-open final observation source freeze");
+      Register_Routine (T, Test_Direct_Prompted_And_Boundary_Freeze'Access,
+                        "quick-open direct prompted and boundary freeze");
+      Register_Routine (T, Test_Route_Audit_And_Alias_Absence_Freeze'Access,
+                        "quick-open route audit and alias absence freeze");
       Register_Routine
-        (T, Test_Phase533_Quick_Open_Stale_Project_Result_Unavailable'Access,
-         "phase 533 quick-open stale project result unavailable");
+        (T, Test_Quick_Open_Stale_Project_Result_Unavailable'Access,
+         "quick-open stale project result unavailable");
       Register_Routine
-        (T, Test_Phase546_Marker_Snapshot_Clears_No_Project_Stale_Rows'Access,
-         "phase 546 quick-open marker snapshot clears no-project stale rows");
+        (T, Test_Marker_Snapshot_Clears_No_Project_Stale_Rows'Access,
+         "quick-open marker snapshot clears no-project stale rows");
       Register_Routine
-        (T, Test_Phase546_Marker_Snapshot_Excludes_Untitled_Buffers'Access,
-         "phase 546 quick-open marker snapshot excludes untitled buffers");
+        (T, Test_Marker_Snapshot_Excludes_Untitled_Buffers'Access,
+         "quick-open marker snapshot excludes untitled buffers");
       Register_Routine
-        (T, Test_Phase546_No_Project_Selection_Commands_Report_No_Project'Access,
-         "phase 546 quick-open no-project selection commands report no-project");
+        (T, Test_No_Project_Selection_Commands_Report_No_Project'Access,
+         "quick-open no-project selection commands report no-project");
       Register_Routine
-        (T, Test_Phase546_Query_Set_No_Project_Reports_No_Project'Access,
-         "phase 546 quick-open query-set no-project feedback");
+        (T, Test_Query_Set_No_Project_Reports_No_Project'Access,
+         "quick-open query-set no-project feedback");
       Register_Routine
-        (T, Test_Phase546_Filter_And_Scope_No_Project_Report_No_Project'Access,
-         "phase 546 quick-open filter and scope no-project feedback");
+        (T, Test_Filter_And_Scope_No_Project_Report_No_Project'Access,
+         "quick-open filter and scope no-project feedback");
       Register_Routine
-        (T, Test_Phase546_Marker_Snapshot_Preserves_Result_Boundary'Access,
-         "phase 546 quick-open marker snapshot preserves result boundary");
+        (T, Test_Empty_Message_Includes_Filter_And_Scope_Context'Access,
+         "quick-open empty message includes filter and scope context");
       Register_Routine
-        (T, Test_Phase546_Marker_Header_Uses_Authoritative_Project_Counts'Access,
-         "phase 546 quick-open marker header uses authoritative project counts");
+        (T, Test_Marker_Snapshot_Preserves_Result_Boundary'Access,
+         "quick-open marker snapshot preserves result boundary");
       Register_Routine
-        (T, Test_Phase546_Project_Relative_Bounds_Reject_Invalid_Candidates'Access,
-         "phase 546 quick-open project-relative bounds reject invalid candidates");
+        (T, Test_Marker_Header_Uses_Authoritative_Project_Counts'Access,
+         "quick-open marker header uses authoritative project counts");
       Register_Routine
-        (T, Test_Phase546_No_Query_Shows_Prompt_Not_All_Files'Access,
-         "phase 546 quick-open no-query prompt does not show all files");
+        (T, Test_Project_Relative_Bounds_Reject_Invalid_Candidates'Access,
+         "quick-open project-relative bounds reject invalid candidates");
       Register_Routine
-        (T, Test_Phase546_Query_Traversal_Terms_Do_Not_Match'Access,
-         "phase 546 quick-open traversal query terms do not match");
+        (T, Test_No_Query_Shows_Prompt_Not_All_Files'Access,
+         "quick-open no-query prompt does not show all files");
       Register_Routine
-        (T, Test_Phase546_Absolute_And_Drive_Queries_Do_Not_Match'Access,
-         "phase 546 quick-open absolute and drive queries do not match");
-      Register_Routine (T, Test_Phase484_Canonical_Open_Buffer_Identity_And_No_Caches'Access,
-                        "phase 484 quick-open canonical open-buffer identity and cache cleanup");
-      Register_Routine (T, Test_Phase483_Successful_Operation_Observation_Reliability'Access,
-                        "phase 483 quick-open successful lifecycle observation reliability");
-      Register_Routine (T, Test_Phase483_Failure_And_Blocked_Operation_Preservation'Access,
-                        "phase 483 quick-open failed and blocked lifecycle preservation");
-      Register_Routine (T, Test_Phase483_Query_Selection_And_Prompt_Boundary_Reliability'Access,
-                        "phase 483 quick-open query selection and prompt boundary reliability");
-      Register_Routine (T, Test_Phase483_Candidate_Freshness_Order_Project_And_Audit_Boundaries'Access,
-                        "phase 483 quick-open freshness project audit and persistence boundaries");
-      Register_Routine (T, Test_Phase482_Open_Buffer_Association_And_Dirty_Observation'Access,
-                        "phase 482 quick-open observes file lifecycle association and dirty state");
-      Register_Routine (T, Test_Phase482_Close_Reopen_And_Failure_Preservation'Access,
-                        "phase 482 quick-open close reopen and failure preservation");
-      Register_Routine (T, Test_Phase482_Query_Selection_And_Prompt_Boundary'Access,
-                        "phase 482 quick-open query selection and prompt boundary");
+        (T, Test_Query_Traversal_Terms_Do_Not_Match'Access,
+         "quick-open traversal query terms do not match");
+      Register_Routine
+        (T, Test_Absolute_And_Drive_Queries_Do_Not_Match'Access,
+         "quick-open absolute and drive queries do not match");
+      Register_Routine (T, Test_Canonical_Open_Buffer_Identity_And_No_Caches'Access,
+                        "quick-open canonical open-buffer identity and cache cleanup");
+      Register_Routine (T, Test_Successful_Operation_Observation_Reliability'Access,
+                        "quick-open successful lifecycle observation reliability");
+      Register_Routine (T, Test_Failure_And_Blocked_Operation_Preservation'Access,
+                        "quick-open failed and blocked lifecycle preservation");
+      Register_Routine (T, Test_Query_Selection_And_Prompt_Boundary_Reliability'Access,
+                        "quick-open query selection and prompt boundary reliability");
+      Register_Routine (T, Test_Candidate_Freshness_Order_Project_And_Audit_Boundaries'Access,
+                        "quick-open freshness project audit and persistence boundaries");
+      Register_Routine (T, Test_Open_Buffer_Association_And_Dirty_Observation'Access,
+                        "quick-open observes file lifecycle association and dirty state");
+      Register_Routine (T, Test_Close_Reopen_And_Failure_Preservation'Access,
+                        "quick-open close reopen and failure preservation");
+      Register_Routine (T, Test_Query_Selection_And_Prompt_Boundary'Access,
+                        "quick-open query selection and prompt boundary");
       Register_Routine (T, Test_Open_Close_And_Query'Access, "open close and query editing");
       Register_Routine (T, Test_Recompute_And_Ranking'Access, "recompute and ranking");
       Register_Routine (T, Test_Selection_Wraps'Access, "selection wraps");
       Register_Routine (T, Test_Project_Quick_Open_Command_Descriptors'Access,
                         "project quick-open command descriptors");
-      Register_Routine (T, Test_Phase_332_Project_Quick_Open_Command_Surface_Baseline'Access,
-                        "phase 332 project quick-open command surface baseline");
-      Register_Routine (T, Test_Phase_332_Project_Quick_Open_No_Name_Drift_Or_Extras'Access,
-                        "phase 332 project quick-open no drift or extras");
-      Register_Routine (T, Test_Phase_332_Project_Quick_Open_Keybinding_Baseline'Access,
-                        "phase 332 project quick-open keybinding baseline");
-      Register_Routine (T, Test_Phase_331_Refresh_State_Preserves_Selection_And_Filters'Access,
-                        "phase 331 refresh state preserves selection and filters");
-      Register_Routine (T, Test_Phase_331_Ignore_Refresh_Removes_Selected_Candidate'Access,
-                        "phase 331 ignore refresh removes selected candidate");
-      Register_Routine (T, Test_Phase_331_Priority_Mode_Remains_Filtered_Ordering_Only'Access,
-                        "phase 331 priority mode remains filtered ordering only");
-      Register_Routine (T, Test_Phase_331_Snapshot_Header_Exposes_Priority_And_Counts'Access,
-                        "phase 331 snapshot header exposes priority and counts");
+      Register_Routine (T, Test_Project_Quick_Open_Command_Surface_Baseline'Access,
+                        "project quick-open command surface baseline");
+      Register_Routine (T, Test_Project_Quick_Open_No_Name_Drift_Or_Extras'Access,
+                        "project quick-open no drift or extras");
+      Register_Routine (T, Test_Project_Quick_Open_Keybinding_Baseline'Access,
+                        "project quick-open keybinding baseline");
+      Register_Routine (T, Test_Refresh_State_Preserves_Selection_And_Filters'Access,
+                        "refresh state preserves selection and filters");
+      Register_Routine (T, Test_Ignore_Refresh_Removes_Selected_Candidate'Access,
+                        "ignore refresh removes selected candidate");
+      Register_Routine (T, Test_Priority_Mode_Remains_Filtered_Ordering_Only'Access,
+                        "priority mode remains filtered ordering only");
+      Register_Routine (T, Test_Snapshot_Header_Exposes_Priority_And_Counts'Access,
+                        "snapshot header exposes priority and counts");
       Register_Routine (T, Test_Project_Quick_Open_Create_Target_Derivation'Access,
                         "project quick-open create target derivation");
       Register_Routine (T, Test_Project_Known_File_Literal_Filtering'Access,
@@ -3789,10 +3840,10 @@ package body Editor.Quick_Open.Tests is
                         "project quick-open snapshot");
       Register_Routine (T, Test_Project_Quick_Open_Snapshot_Markers'Access,
                         "project quick-open snapshot markers");
-      Register_Routine (T, Test_Phase_330_Active_Dirty_Close_Markers'Access,
-                        "phase 330 active dirty close marker cleanup");
-      Register_Routine (T, Test_Phase_330_Ignores_Old_Project_Recent_And_Open_State'Access,
-                        "phase 330 ignores old project open and recent state");
+      Register_Routine (T, Test_Active_Dirty_Close_Markers'Access,
+                        "active dirty close marker cleanup");
+      Register_Routine (T, Test_Ignores_Old_Project_Recent_And_Open_State'Access,
+                        "ignores old project open and recent state");
       Register_Routine (T, Test_Project_Quick_Open_File_Kind_Filters'Access,
                         "project quick-open file-kind filters");
       Register_Routine (T, Test_Project_Quick_Open_Path_Scope_Filter'Access,

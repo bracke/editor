@@ -387,7 +387,7 @@ package body Editor.Ada_Elaboration_Graph_Closure_Legality is
             Row.Target_Unit_Name := C.Target_Unit_Name;
             Row.Path_Text := C.Path_Text;
             Row.Message := To_Unbounded_String (Message_For (Status));
-            Row.Detail := To_Unbounded_String ("Pass1144 elaboration graph closure");
+            Row.Detail := To_Unbounded_String ("Case 1144 elaboration graph closure");
             Row.Edge_Depth := C.Edge_Depth;
             Row.Order_State := C.Order_State;
             Row.Policy_State := C.Policy_State;

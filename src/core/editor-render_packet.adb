@@ -21,6 +21,9 @@ with Editor.Command_Palette;
 with Editor.Contextual_Help;
 with Editor.Executor;
 with Editor.Build_UI;
+with Editor.Build_UI_Actions;
+with Editor.Build_UI_Panel_Layout;
+with Editor.Feature_Diagnostics;
 with Editor.Terminal_Tasks;
 with Editor.Commands;
 with Editor.Settings;
@@ -51,6 +54,7 @@ with Editor.Project;
 with Editor.Outline;
 with Editor.Pending_Transitions;
 with Editor.Build_Result_Summary;
+with Editor.Workspace_Persistence;
 with Editor.History;
 with Editor.Panel_Focus;
 with Editor.Pending_Transition_Bar;
@@ -94,6 +98,49 @@ package body Editor.Render_Packet is
 
    use type Editor.Search.Search_Match_Index;
    use type Editor.Wrap.Wrap_Mode;
+
+   Max_Debug_Text_For_Test : constant Natural := 4096;
+   Debug_Text_Buffer_For_Test : Unbounded_String := Null_Unbounded_String;
+
+   procedure Record_Debug_Text_For_Test (Text : String) is
+      Separator : constant Natural :=
+        (if Length (Debug_Text_Buffer_For_Test) > 0 then 1 else 0);
+      Remaining : constant Natural :=
+        (if Length (Debug_Text_Buffer_For_Test) >= Max_Debug_Text_For_Test
+         then 0
+         elsif Length (Debug_Text_Buffer_For_Test) + Separator >= Max_Debug_Text_For_Test
+         then 0
+         else Max_Debug_Text_For_Test - Length (Debug_Text_Buffer_For_Test) - Separator);
+   begin
+      if Text'Length = 0 or else Remaining = 0 then
+         return;
+      end if;
+      if Separator > 0 then
+         Append (Debug_Text_Buffer_For_Test, ASCII.LF);
+      end if;
+      if Text'Length <= Remaining then
+         Append (Debug_Text_Buffer_For_Test, Text);
+      else
+         Append (Debug_Text_Buffer_For_Test, Text (Text'First .. Text'First + Remaining - 1));
+      end if;
+   end Record_Debug_Text_For_Test;
+
+   procedure Clear_Debug_Text_For_Test is
+   begin
+      Debug_Text_Buffer_For_Test := Null_Unbounded_String;
+   end Clear_Debug_Text_For_Test;
+
+   function Debug_Text_Contains_For_Test
+     (Text : String) return Boolean
+   is
+   begin
+      return Ada.Strings.Fixed.Index (To_String (Debug_Text_Buffer_For_Test), Text) > 0;
+   end Debug_Text_Contains_For_Test;
+
+   function Debug_Text_For_Test return String is
+   begin
+      return To_String (Debug_Text_Buffer_For_Test);
+   end Debug_Text_For_Test;
 
    function Audit_Buffer_Metadata_Render_Boundary
      return Buffer_Metadata_Render_Boundary_Audit
@@ -638,7 +685,7 @@ package body Editor.Render_Packet is
 
       function Focus_Label return String is
       begin
-         --  Phase 562: status focus text is a projection of the same
+         --  status focus text is a projection of the same
          --  effective focus-owner model that input routing uses.  Render
          --  observes the snapshot/state only; it never repairs or changes
          --  focus while producing this label.
@@ -901,6 +948,11 @@ package body Editor.Render_Packet is
       is
          Label : constant String :=
            Editor.Build_Result_Summary.Status_Label (S.Latest_Build_Result);
+         Build_UI_View : constant Editor.Build_UI.Build_UI_Render_Snapshot :=
+           Editor.Build_UI.Build_Render_Snapshot
+             (S.Build_UI,
+              S.Latest_Build_Result,
+              S.Latest_Build_Output_Details);
          Validation : constant Editor.Build_UI.Public_Build_UI_Validation_Status :=
            Editor.Build_UI.Validate_Build_UI_State (S.Build_UI);
          Candidate_Stale : constant Boolean :=
@@ -919,22 +971,118 @@ package body Editor.Render_Packet is
             end if;
          end Normalized_Result_Label;
 
+         function Duration_Suffix return String
+         is
+         begin
+            if not S.Latest_Build_Result.Has_Duration then
+               return "";
+            else
+               return ", "
+                 & Editor.Build_Result_Summary.Duration_Label (S.Latest_Build_Result);
+            end if;
+         end Duration_Suffix;
+
+         function Command_Suffix return String
+         is
+            Label : constant String :=
+              Editor.Build_Result_Summary.Command_Label (S.Latest_Build_Result);
+         begin
+            if Label = "command unavailable" then
+               return "";
+            else
+               return ", " & Label;
+            end if;
+         end Command_Suffix;
+
+         function Diagnostics_Suffix return String
+         is
+         begin
+            if S.Latest_Build_Result.Has_Diagnostics_Count then
+               return ", diagnostics"
+                 & Natural'Image
+                   (S.Latest_Build_Result.Diagnostics_Count_If_Available);
+            else
+               return "";
+            end if;
+         end Diagnostics_Suffix;
+
+         function Detail_Suffix return String is
+         begin
+            return Command_Suffix & Duration_Suffix & Diagnostics_Suffix;
+         end Detail_Suffix;
+
+         function Action_Rows_Suffix return String
+         is
+            Result : Unbounded_String := Null_Unbounded_String;
+         begin
+            if Build_UI_View.Actions.Is_Empty then
+               return "";
+            end if;
+
+            for I in Build_UI_View.Actions.First_Index ..
+              Build_UI_View.Actions.Last_Index
+            loop
+               declare
+                  Row : constant Editor.Build_UI.Build_UI_Action_Row :=
+                    Build_UI_View.Actions.Element (I);
+                  Reason : constant String := To_String (Row.Disabled_Reason);
+               begin
+                  Append (Result, ASCII.LF);
+                  if Row.Selected then
+                     Append (Result, "  > ");
+                  else
+                     Append (Result, "  - ");
+                  end if;
+                  Append (Result, To_String (Row.Label));
+                  Append (Result, " [");
+                  Append (Result, To_String (Row.Command_Name));
+                  Append (Result, "]");
+                  if Row.Enabled then
+                     Append (Result, " enabled");
+                  elsif Reason'Length > 0 then
+                     Append (Result, " disabled: ");
+                     Append (Result, Reason);
+                  else
+                     Append (Result, " disabled");
+                  end if;
+               end;
+            end loop;
+            return To_String (Result);
+         end Action_Rows_Suffix;
+
       begin
+         if Build_UI_View.Visible then
+            return "Build: "
+              & To_String (Build_UI_View.Candidate_Count_Label)
+              & "; "
+              & To_String (Build_UI_View.Candidate_Refresh_Action_Label)
+              & "; "
+              & To_String (Build_UI_View.Request_Status_Label)
+              & "; "
+             & To_String (Build_UI_View.Run_Command_Status_Label)
+             & "; "
+             & To_String (Build_UI_View.Run_Recovery_Hint)
+              & ASCII.LF
+              & "Actions:"
+              & Action_Rows_Suffix;
+         end if;
+
          if S.Latest_Build_Result.Has_Result then
             if S.Latest_Build_Result.Stdout_Truncated
               or else S.Latest_Build_Result.Stderr_Truncated
             then
                if Candidate_Stale then
                   return "Build: " & Normalized_Result_Label
-                    & ", output truncated, candidate stale";
+                    & Detail_Suffix & ", output truncated, candidate stale";
                else
                   return "Build: " & Normalized_Result_Label
-                    & ", output truncated";
+                    & Detail_Suffix & ", output truncated";
                end if;
             elsif Candidate_Stale then
-               return "Build: " & Normalized_Result_Label & ", candidate stale";
+               return "Build: " & Normalized_Result_Label
+                 & Detail_Suffix & ", candidate stale";
             else
-               return "Build: " & Normalized_Result_Label;
+               return "Build: " & Normalized_Result_Label & Detail_Suffix;
             end if;
          elsif Candidate_Stale then
             return "Build: candidate stale";
@@ -945,7 +1093,8 @@ package body Editor.Render_Packet is
          elsif Validation = Editor.Build_UI.Build_UI_Valid then
             return "Build: ready";
          else
-            return "Build: not run";
+            return "Build: "
+              & Editor.Build_UI.Recovery_Message (Validation);
          end if;
       end Build_Status_Label;
 
@@ -981,9 +1130,20 @@ package body Editor.Render_Packet is
       function Quick_Open_Status_Label return String
       is
          Count : constant Natural := Editor.Quick_Open.Visible_Count (S.Quick_Open);
+         Scope : constant String := Editor.Quick_Open.Path_Scope (S.Quick_Open);
+         Filter : constant Editor.Quick_Open.Quick_Open_File_Kind_Filter :=
+           Editor.Quick_Open.File_Kind_Filter (S.Quick_Open);
       begin
          if not Editor.Quick_Open.Is_Open (S.Quick_Open) then
-            return "";
+            if Scope'Length = 0 and then Filter = Editor.Quick_Open.All_Files then
+               return "";
+            elsif Scope'Length > 0 then
+               return "Quick Open: scope " & Scope & ", "
+                 & Editor.Quick_Open.File_Kind_Filter_Name (Filter);
+            else
+               return "Quick Open: "
+                 & Editor.Quick_Open.File_Kind_Filter_Name (Filter);
+            end if;
          elsif Editor.Quick_Open.Query_Text (S.Quick_Open) = "" then
             return "Quick Open: type to open file";
          elsif Count = 0 then
@@ -1019,7 +1179,13 @@ package body Editor.Render_Packet is
       function Workspace_Status_Label return String
       is
       begin
-         if S.Post_Restore_Feedback_Current then
+         if S.Post_Restore_Feedback_Current
+           and then S.Last_Restore_Summary_Available
+         then
+            return "Workspace: "
+              & Editor.Workspace_Persistence.Restore_Details_Label
+                (S.Last_Restore_Summary);
+         elsif S.Post_Restore_Feedback_Current then
             return "Workspace: restore feedback";
          else
             return "";
@@ -1120,6 +1286,23 @@ package body Editor.Render_Packet is
            To_Unbounded_String (Workspace_Status_Label);
          Result.Recent_Projects_Status_Label :=
            To_Unbounded_String (Recent_Projects_Status_Label);
+         Result.Outline_Status_Kind :=
+           Editor.Status_Bar.Status_Message_Kind_For (Result.Outline_Status_Label);
+         Result.Diagnostics_Status_Kind :=
+           Editor.Status_Bar.Status_Message_Kind_For (Result.Diagnostics_Status_Label);
+         Result.Build_Status_Kind :=
+           Editor.Status_Bar.Status_Message_Kind_For (Result.Build_Status_Label);
+         Result.Search_Status_Kind :=
+           Editor.Status_Bar.Status_Message_Kind_For (Result.Search_Status_Label);
+         Result.Quick_Open_Status_Kind :=
+           Editor.Status_Bar.Status_Message_Kind_For (Result.Quick_Open_Status_Label);
+         Result.File_Tree_Status_Kind :=
+           Editor.Status_Bar.Status_Message_Kind_For (Result.File_Tree_Status_Label);
+         Result.Workspace_Status_Kind :=
+           Editor.Status_Bar.Status_Message_Kind_For (Result.Workspace_Status_Label);
+         Result.Recent_Projects_Status_Kind :=
+           Editor.Status_Bar.Status_Message_Kind_For
+             (Result.Recent_Projects_Status_Label);
          Result.Startup_Status_Label :=
            To_Unbounded_String (Startup_Status_Label);
          if Editor.Buffers.Global_Has_Active_Buffer_Group then
@@ -2563,7 +2746,15 @@ package body Editor.Render_Packet is
             Push_Problems_Text
               (Packet,
                Editor.Problems.Format_Header
-                 (Config, Editor.Input_Bridge.Problems_Total_Count_For_Render),
+                 (Config,
+                  Editor.Input_Bridge.Problems_Total_Count_For_Render,
+                  Editor.Problems.Severity_Filter (View))
+               & " | filter: "
+               & Editor.Problems.Severity_Filter_Label
+                   (Editor.Problems.Severity_Filter (View))
+               & " | sort: " & Editor.Problems.Sort_Mode_Label (View.Sort_Mode)
+               & " | group: " & Editor.Problems.Group_Mode_Label (View.Group_Mode)
+               & " | " & Editor.Problems.Header_Action_Hint (View),
                Float (Geometry.X + Cell_W),
                Float (Geometry.Y),
                Problems_Foreground_Color);
@@ -2579,6 +2770,21 @@ package body Editor.Render_Packet is
             Max_Rows : constant Natural := Capacity_Rows - Header_Rows;
             Emitted  : Natural := 0;
          begin
+            if Editor.Problems.Row_Count (Snapshot) = 0 and then Max_Rows > 0 then
+               Push_Problems_Text
+                 (Packet,
+                  Editor.Problems.Truncate_Text
+                    (Editor.Problems.Empty_State_Message
+                       (Visible_Count => Editor.Problems.Row_Count (Snapshot),
+                        Total_Count   =>
+                          Editor.Input_Bridge.Problems_Total_Count_For_Render),
+                     Text_Columns),
+                  Float (Geometry.X + Cell_W),
+                  First_Row_Y,
+                  Problems_Info_Color);
+               Emitted := 1;
+            end if;
+
             for I in 1 .. Editor.Problems.Row_Count (Snapshot) loop
                exit when Emitted >= Max_Rows;
                declare
@@ -4070,7 +4276,7 @@ package body Editor.Render_Packet is
             Push_Pending_Bar_Text
               (Packet,
                Truncate_To_Columns
-                 (Editor.Pending_Transition_Bar.Summary_Text (Snapshot), Max_Cols),
+                 (Editor.Pending_Transition_Bar.Display_Text (Snapshot), Max_Cols),
                Text_X, Float (Editor.Pending_Transition_Bar.Bar_Y (Bar_Layout)),
                Pending_Transition_Text_Layer, Pending_Bar_Foreground_Color);
          end;
@@ -4110,7 +4316,7 @@ package body Editor.Render_Packet is
            Build_Status_Snapshot;
          Left_Text  : constant String := Editor.Status_Bar.Format_Left (Snapshot);
          Right_Text : constant String := Editor.Status_Bar.Format_Right (Snapshot);
-         --  Phase 563 compact projection is used for constrained status-bar
+         --  compact projection is used for constrained status-bar
          --  widths so high-priority observational context is not pushed out by
          --  long file/project labels.  This remains display-only; it reads only
          --  the immutable snapshot built above.
@@ -4424,13 +4630,22 @@ package body Editor.Render_Packet is
                            Row_Y,
                            Palette_Muted_Text_Color);
 
-                     when Editor.Command_Palette.Command_Palette_Help_Row =>
-                        Push_Palette_Text
-                          (Packet,
-                           To_String (Row.Primary_Text),
-                           Text_X,
-                           Row_Y,
-                           Command_Palette_Help_Color);
+                     when Editor.Command_Palette.Command_Palette_Help_Row
+                        | Editor.Command_Palette.Command_Palette_State_Context_Row =>
+                        declare
+                           Text : constant String :=
+                             (if Length (Row.Secondary_Text) > 0
+                              then To_String (Row.Primary_Text) & " - "
+                                & To_String (Row.Secondary_Text)
+                              else To_String (Row.Primary_Text));
+                        begin
+                           Push_Palette_Text
+                             (Packet,
+                              Fit_Text (Text, Field_Cols),
+                              Text_X,
+                              Row_Y,
+                              Command_Palette_Help_Color);
+                        end;
 
                      when Editor.Command_Palette.Command_Palette_Detail_Row =>
                         Push_Palette_Text
@@ -4560,10 +4775,12 @@ package body Editor.Render_Packet is
          Text   : String;
          X      : Float;
          Y      : Float;
-         Color  : Editor.Theme.Color_RGB)
+         Color  : Editor.Theme.Color_RGB;
+         Layer  : Render_Layer := Problems_Text_Layer)
       is
          Cursor_X : Float := X;
       begin
+         Record_Debug_Text_For_Test (Text);
          for I in Text'Range loop
             declare
                M : Editor.Fonts.Glyph_Metric;
@@ -4576,7 +4793,7 @@ package body Editor.Render_Packet is
                   Editor.Fonts.Check_Glyph_Fits_Cell (M, Cell_W, Cell_H);
                   if M.W > 0.0 and then M.H > 0.0 then
                      Push_Glyph
-                       (Packet, Problems_Text_Layer,
+                       (Packet, Layer,
                         Float'Floor (Cursor_X + M.Bearing_X + 0.5),
                         Float'Floor
                           (Y
@@ -4597,6 +4814,209 @@ package body Editor.Render_Packet is
             end;
          end loop;
       end Push_Feature_Panel_Text;
+
+      procedure Push_Build_UI_Panel
+        (Packet : in out Render_Packet)
+      is
+         S : constant Editor.State.State_Type := Editor.Input_Bridge.Get_State_For_Test;
+         Snapshot : constant Editor.Build_UI.Build_UI_Render_Snapshot :=
+           Editor.Build_UI_Actions.Build_UI_Operability_Snapshot (S);
+         Row_Count : constant Natural := Natural (Snapshot.Actions.Length);
+         Suppressed_Count : constant Natural :=
+           Editor.Feature_Diagnostics.Suppressed_Diagnostic_Count
+             (S.Feature_Diagnostics);
+         Displayed_Suppressed_Count : constant Natural :=
+           Editor.Build_UI_Panel_Layout.Displayed_Suppressed_Row_Count
+             (Text_Viewport_Height => Text_Viewport_Height,
+              Cell_H               => Cell_H,
+              Action_Count         => Row_Count,
+              Suppressed_Count     => Suppressed_Count);
+         Suppressed_Top_Row : constant Natural :=
+           Editor.Feature_Diagnostics.Suppressed_Top_Row
+             (S.Feature_Diagnostics, Displayed_Suppressed_Count);
+         Selected_Suppressed : constant Natural :=
+           Editor.Feature_Diagnostics.Selected_Suppressed_Diagnostic
+             (S.Feature_Diagnostics);
+         Geometry : constant Editor.Build_UI_Panel_Layout.Build_UI_Panel_Geometry :=
+           Editor.Build_UI_Panel_Layout.Layout
+             (Viewport_Width       => Editor.View.Viewport_Width,
+              Text_Viewport_Y      => Natural (Editor.Layout.Text_Viewport_Y (Layout)),
+              Text_Viewport_Height => Text_Viewport_Height,
+              Cell_H               => Cell_H,
+              Action_Count         => Row_Count,
+              Suppressed_Count     => Displayed_Suppressed_Count);
+         Width : constant Float := Float (Geometry.W);
+         X : constant Float := Float (Geometry.X);
+         Y : constant Float := Float (Geometry.Y);
+         H : constant Float := Float (Geometry.H);
+         Text_X : constant Float := X + Float (Cell_W);
+         Text_Columns : constant Natural :=
+           (if Natural (Width) / Cell_W > 2 then Natural (Width) / Cell_W - 2 else 0);
+         Visible_Rows : constant Natural :=
+           Editor.Build_UI_Panel_Layout.Visible_Row_Count (Geometry, Cell_H);
+         Visible_Action_Rows : constant Natural :=
+           (if Visible_Rows > Geometry.Action_Start_Row
+            then Natural'Min
+              (Row_Count, Visible_Rows - Geometry.Action_Start_Row)
+            else 0);
+         Action_Top_Row : constant Natural :=
+           Editor.Build_UI.Action_Top_Row
+             (S.Build_UI, Row_Count, Visible_Action_Rows);
+      begin
+         if not Snapshot.Visible
+           or else Width <= 0.0
+           or else H <= 0.0
+         then
+            return;
+         end if;
+
+         Push_Rect
+           (Packet, Build_UI_Background_Layer,
+            X, Y, Width, H,
+            Problems_Background_Color.R,
+            Problems_Background_Color.G,
+            Problems_Background_Color.B);
+         Push_Rect
+           (Packet, Build_UI_Header_Layer,
+            X, Y, Width, Float (Cell_H),
+            Problems_Header_Background_Color.R,
+            Problems_Header_Background_Color.G,
+            Problems_Header_Background_Color.B);
+         Push_Feature_Panel_Text
+           (Packet,
+            Truncate_To_Columns
+              ("Build UI  " & To_String (Snapshot.Candidate_Count_Label),
+               Text_Columns),
+            Text_X, Y, Problems_Foreground_Color, Build_UI_Text_Layer);
+         Push_Feature_Panel_Text
+           (Packet,
+            Truncate_To_Columns
+              (To_String (Snapshot.Request_Status_Label)
+               & "  "
+               & To_String (Snapshot.Run_Command_Status_Label),
+               Text_Columns),
+            Text_X, Y + Float (Cell_H), Problems_Foreground_Color,
+            Build_UI_Text_Layer);
+
+         if Row_Count = 0 and then Suppressed_Count = 0 then
+            Push_Feature_Panel_Text
+              (Packet, "No build actions", Text_X, Y + Float (2 * Cell_H),
+               Problems_Foreground_Color, Build_UI_Text_Layer);
+         elsif Visible_Action_Rows > 0 then
+            for Visible_Offset in 0 .. Visible_Action_Rows - 1 loop
+               declare
+                  Offset : constant Natural := Action_Top_Row - 1 + Visible_Offset;
+                  Row : constant Editor.Build_UI.Build_UI_Action_Row :=
+                    Snapshot.Actions.Element (Offset);
+                  Panel_Row : constant Natural :=
+                    Geometry.Action_Start_Row + Visible_Offset;
+                  Row_Y : constant Float := Y + Float (Panel_Row * Cell_H);
+                  Reason : constant String := To_String (Row.Disabled_Reason);
+                  Base_Text : constant String :=
+                    (if Row.Enabled or else Reason'Length = 0 then To_String (Row.Label)
+                     else To_String (Row.Label) & " - " & Reason);
+                  Detail_Text : constant String :=
+                    (if To_String (Row.Command_Name) = "ada.diagnostic.apply-quick-fix"
+                       and then
+                         To_String (Snapshot.Diagnostics_View.Quick_Fix_Detail)'Length > 0
+                     then Base_Text & " - " &
+                       To_String (Snapshot.Diagnostics_View.Quick_Fix_Detail)
+                     else Base_Text);
+                  Text_Color : constant Editor.Theme.Color_RGB :=
+                    (if Row.Enabled then Problems_Foreground_Color
+                     else Pending_Bar_Disabled_Action_Color);
+               begin
+                  if Panel_Row >= Visible_Rows then
+                     exit;
+                  end if;
+
+                  if Row.Selected then
+                     declare
+                        Fill : constant Editor.Theme.Color_RGB :=
+                          (if Snapshot.Focused then Problems_Selected_Active_Background_Color
+                           else Problems_Selected_Inactive_Background_Color);
+                     begin
+                        Push_Rect
+                          (Packet, Build_UI_Row_Layer,
+                           X, Row_Y, Width, Float (Cell_H),
+                           Fill.R, Fill.G, Fill.B);
+                     end;
+                  end if;
+
+                  Push_Feature_Panel_Text
+                    (Packet,
+                     Truncate_To_Columns
+                       ((if Row.Selected then "> " else "  ") & Detail_Text,
+                        Text_Columns),
+                     Text_X, Row_Y, Text_Color, Build_UI_Text_Layer);
+               end;
+            end loop;
+         end if;
+
+         if Suppressed_Count > 0
+           and then Displayed_Suppressed_Count > 0
+           and then Geometry.Suppressed_Header_Row < Visible_Rows
+         then
+            Push_Feature_Panel_Text
+              (Packet,
+               Truncate_To_Columns
+                 ("Suppressed diagnostics"
+                  & (if Suppressed_Count > Displayed_Suppressed_Count
+                     then " "
+                       & Natural'Image (Suppressed_Top_Row)
+                       & "-"
+                       & Natural'Image
+                         (Natural'Min
+                            (Suppressed_Count,
+                             Suppressed_Top_Row + Displayed_Suppressed_Count - 1))
+                       & "/"
+                       & Natural'Image (Suppressed_Count)
+                     else ""),
+                  Text_Columns),
+               Text_X,
+               Y + Float (Geometry.Suppressed_Header_Row * Cell_H),
+               Problems_Foreground_Color,
+               Build_UI_Text_Layer);
+
+            for Visible_Row in 1 .. Displayed_Suppressed_Count loop
+               declare
+                  Row : constant Natural :=
+                    Suppressed_Top_Row + Visible_Row - 1;
+                  Panel_Row : constant Natural :=
+                    Geometry.Suppressed_Start_Row + Visible_Row - 1;
+                  Row_Y : constant Float := Y + Float (Panel_Row * Cell_H);
+                  Selected : constant Boolean := Row = Selected_Suppressed;
+                  Text : constant String :=
+                    (if Selected then "> " else "  ")
+                    & Editor.Feature_Diagnostics.Suppressed_Diagnostic_Text
+                        (S.Feature_Diagnostics, Positive (Row));
+               begin
+                  if Panel_Row >= Visible_Rows then
+                     exit;
+                  end if;
+
+                  if Selected then
+                     declare
+                        Fill : constant Editor.Theme.Color_RGB :=
+                          (if Snapshot.Focused then Problems_Selected_Active_Background_Color
+                           else Problems_Selected_Inactive_Background_Color);
+                     begin
+                        Push_Rect
+                          (Packet, Build_UI_Row_Layer,
+                           X, Row_Y, Width, Float (Cell_H),
+                           Fill.R, Fill.G, Fill.B);
+                     end;
+                  end if;
+
+                  Push_Feature_Panel_Text
+                    (Packet,
+                     Truncate_To_Columns (Text, Text_Columns),
+                     Text_X, Row_Y, Problems_Foreground_Color,
+                     Build_UI_Text_Layer);
+               end;
+            end loop;
+         end if;
+      end Push_Build_UI_Panel;
 
       procedure Push_Feature_Panel
         (Packet : in out Render_Packet)
@@ -4982,6 +5402,7 @@ package body Editor.Render_Packet is
       Push_Feature_Panel (Out_Packet);
       Push_Keybinding_Surface (Out_Packet);
       Push_Bookmark_Surface (Out_Packet);
+      Push_Build_UI_Panel (Out_Packet);
 
       if Editor.View.Viewport_Width > 0
         and then Editor.View.Viewport_Height > 0

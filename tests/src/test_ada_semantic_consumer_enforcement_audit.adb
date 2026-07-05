@@ -2,11 +2,11 @@ with Ada.Strings.Unbounded; use Ada.Strings.Unbounded;
 with AUnit.Assertions; use AUnit.Assertions;
 with AUnit.Test_Cases;
 with Editor.Ada_Syntax_Tree;
-with Editor.Ada_Semantic_Consumer_Enforcement_Audit_Pass1340;
+with Editor.Ada_Semantic_Consumer_Enforcement_Audit;
 
 package body Test_Ada_Semantic_Consumer_Enforcement_Audit is
 
-   package Audit renames Editor.Ada_Semantic_Consumer_Enforcement_Audit_Pass1340;
+   package Audit renames Editor.Ada_Semantic_Consumer_Enforcement_Audit;
    use type Audit.RM_Family;
    use type Audit.Implementing_Slice;
    use type Audit.Remediation_State;

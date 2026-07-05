@@ -5,7 +5,7 @@ with Editor.Ada_Syntax_Tree;
 
 package Editor.Ada_Generic_Shared_State_Final_Diagnostic_Integration is
 
-   --  Pass1239 generic/shared-state final diagnostic integration.
+   --  Case 1239 generic/shared-state final diagnostic integration.
    --
    --  This package feeds the completed generic/shared-state final semantic
    --  chain into a diagnostic-boundary model.  Accepted semantic rows are

@@ -2,7 +2,7 @@ with Ada.Strings.Unbounded;
 
 package Editor.Build_Result_Summary is
 
-   --  Phase 510 transient latest build result summary.  This is a small
+   --  transient latest build result summary.  This is a small
    --  snapshot/projection model for the latest build.run outcome only.  It is
    --  not build history, not a command input, not persisted state, not
    --  Diagnostics row ownership, and never carries process handles, tokens, or
@@ -69,19 +69,27 @@ package Editor.Build_Result_Summary is
       Diagnostics_Note_Count : Natural := 0;
       Diagnostics_Unknown_Count : Natural := 0;
       Has_Diagnostics_Severity_Counts : Boolean := False;
+      Duration_Milliseconds : Natural := 0;
+      Has_Duration : Boolean := False;
       Primary_Message : Ada.Strings.Unbounded.Unbounded_String :=
         Ada.Strings.Unbounded.Null_Unbounded_String;
    end record;
 
    type Latest_Build_Result_Render_Snapshot is record
       Latest_Build_Result_Visible : Boolean := False;
+      Latest_Build_Result_Command_Label : Ada.Strings.Unbounded.Unbounded_String :=
+        Ada.Strings.Unbounded.Null_Unbounded_String;
       Latest_Build_Result_Status_Label : Ada.Strings.Unbounded.Unbounded_String :=
         Ada.Strings.Unbounded.Null_Unbounded_String;
       Latest_Build_Result_Tool_Label : Ada.Strings.Unbounded.Unbounded_String :=
         Ada.Strings.Unbounded.Null_Unbounded_String;
+      Latest_Build_Result_Request_Mode_Label : Ada.Strings.Unbounded.Unbounded_String :=
+        Ada.Strings.Unbounded.Null_Unbounded_String;
       Latest_Build_Result_Runner_Status_Label : Ada.Strings.Unbounded.Unbounded_String :=
         Ada.Strings.Unbounded.Null_Unbounded_String;
       Latest_Build_Result_Working_Context_Label : Ada.Strings.Unbounded.Unbounded_String :=
+        Ada.Strings.Unbounded.Null_Unbounded_String;
+      Latest_Build_Result_Duration_Label : Ada.Strings.Unbounded.Unbounded_String :=
         Ada.Strings.Unbounded.Null_Unbounded_String;
       Latest_Build_Result_Exit_Code_Label : Ada.Strings.Unbounded.Unbounded_String :=
         Ada.Strings.Unbounded.Null_Unbounded_String;
@@ -95,20 +103,26 @@ package Editor.Build_Result_Summary is
         Ada.Strings.Unbounded.Null_Unbounded_String;
       Latest_Build_Result_Diagnostics_Label : Ada.Strings.Unbounded.Unbounded_String :=
         Ada.Strings.Unbounded.Null_Unbounded_String;
+      Latest_Build_Result_Error_Count_Label : Ada.Strings.Unbounded.Unbounded_String :=
+        Ada.Strings.Unbounded.Null_Unbounded_String;
+      Latest_Build_Result_Warning_Count_Label : Ada.Strings.Unbounded.Unbounded_String :=
+        Ada.Strings.Unbounded.Null_Unbounded_String;
       Latest_Build_Result_Primary_Message_Label : Ada.Strings.Unbounded.Unbounded_String :=
+        Ada.Strings.Unbounded.Null_Unbounded_String;
+      Latest_Build_Result_Summary_Row_Label : Ada.Strings.Unbounded.Unbounded_String :=
         Ada.Strings.Unbounded.Null_Unbounded_String;
    end record;
 
    function Empty_Summary return Latest_Build_Result_Summary;
 
-   --  Phase 511 policy: public build.run pre-run unavailable attempts are
+   --  policy: public build.run pre-run unavailable attempts are
    --  represented in the transient latest summary.  This keeps the result
    --  surface aligned with the one primary command outcome message while still
    --  guaranteeing that no runner output, Diagnostics rows, process state, or
    --  rerun payload is implied for unavailable results.
    function Retain_Pre_Run_Unavailable_Summary return Boolean;
 
-   --  Phase 512 canonical cleanup: replacement always routes through the
+   --  canonical cleanup: replacement always routes through the
    --  canonical latest-summary normalizer.  The result is display-only,
    --  bounded, non-executable, and contains no retained fields from Current.
    function Canonicalize_Latest_Build_Result_Summary
@@ -149,14 +163,20 @@ package Editor.Build_Result_Summary is
       Diagnostics_Info_Count : Natural := 0;
       Diagnostics_Note_Count : Natural := 0;
       Diagnostics_Unknown_Count : Natural := 0;
-      Has_Diagnostics_Severity_Counts : Boolean := False)
+      Has_Diagnostics_Severity_Counts : Boolean := False;
+      Duration_Milliseconds : Natural := 0;
+      Has_Duration : Boolean := False)
       return Latest_Build_Result_Summary;
 
    function Summary_From_Unavailable_Message
      (Message : String) return Latest_Build_Result_Summary;
 
    function Status_Label (Summary : Latest_Build_Result_Summary) return String;
+   function Command_Label (Summary : Latest_Build_Result_Summary) return String;
    function Tool_Label (Summary : Latest_Build_Result_Summary) return String;
+   function Request_Mode_Label
+     (Summary : Latest_Build_Result_Summary) return String;
+   function Duration_Label (Summary : Latest_Build_Result_Summary) return String;
    function Working_Context_Label
      (Summary : Latest_Build_Result_Summary) return String;
    function Exit_Code_Label (Summary : Latest_Build_Result_Summary) return String;
@@ -168,6 +188,12 @@ package Editor.Build_Result_Summary is
    function Partial_Output_Label
      (Summary : Latest_Build_Result_Summary) return String;
    function Diagnostics_Label
+     (Summary : Latest_Build_Result_Summary) return String;
+   function Diagnostics_Error_Count_Label
+     (Summary : Latest_Build_Result_Summary) return String;
+   function Diagnostics_Warning_Count_Label
+     (Summary : Latest_Build_Result_Summary) return String;
+   function Summary_Row_Label
      (Summary : Latest_Build_Result_Summary) return String;
 
    function Render_Snapshot
@@ -226,7 +252,7 @@ package Editor.Build_Result_Summary is
    function Assert_Public_Build_Result_Surface_Canonical_Coherent
      (Summary : Latest_Build_Result_Summary) return Boolean;
 
-   --  Phase 513 final regression-freeze assertions.  These helpers are
+   --  final regression-freeze assertions.  These helpers are
    --  deliberately declarative guards over the existing transient latest-result
    --  summary contract; they do not normalize, repair, persist, or mutate
    --  runtime state.
@@ -257,7 +283,7 @@ package Editor.Build_Result_Summary is
    function Assert_Public_Build_Result_Surface_Final_Freeze_Coherent
      (Summary : Latest_Build_Result_Summary) return Boolean;
 
-   --  Phase 527 result/output/diagnostics UI usability assertion.  This
+   --  result/output/diagnostics UI usability assertion.  This
    --  validates that the latest-result projection is useful in Build UI while
    --  remaining compact, scalar, transient, and non-owning.
    function Assert_Latest_Build_Result_Summary_Useful_For_Build_UI

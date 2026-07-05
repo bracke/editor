@@ -10,7 +10,7 @@ with Editor.Ada_Volatile_Atomic_Representation_Consumer_Legality;
 
 package Editor.Ada_Representation_Generic_Shared_State_Final_Legality is
 
-   --  Pass1229 representation/generic/shared-state final legality.
+   --  Case 1229 representation/generic/shared-state final legality.
    --
    --  This package consumes final representation/freezing evidence together
    --  with generic abstract-state replay, overload/generic shared-state

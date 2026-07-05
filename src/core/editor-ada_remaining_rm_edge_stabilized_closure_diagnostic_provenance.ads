@@ -5,9 +5,9 @@ with Editor.Ada_Syntax_Tree;
 
 package Editor.Ada_Remaining_RM_Edge_Stabilized_Closure_Diagnostic_Provenance is
 
-   --  Pass1293 provenance for stabilized remaining RM edge closure diagnostics.
+   --  Case 1293 provenance for stabilized remaining RM edge closure diagnostics.
    --
-   --  This package links Pass1292 stabilized remaining-edge closure diagnostic
+   --  This package links Case 1292 stabilized remaining-edge closure diagnostic
    --  rows back through the stabilized closure, stabilization gate,
    --  convergence, recheck application, eligibility, remediation worklist,
    --  earlier remaining-edge diagnostic row, and the original remaining-edge

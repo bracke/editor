@@ -222,10 +222,10 @@ package body Test_Ada_Tasking_Protected_Legality is
    begin
       Register_Routine
         (T, Test_Task_Protected_Spec_Body_And_Entries'Access,
-         "Pass1103 task/protected spec-body and entry legality");
+         "Case 1103 task/protected spec-body and entry legality");
       Register_Routine
         (T, Test_Barrier_Accept_Requeue_And_Protected_Operation_Legality'Access,
-         "Pass1103 barrier/accept/requeue/protected-operation legality");
+         "Case 1103 barrier/accept/requeue/protected-operation legality");
    end Register_Tests;
 
 end Test_Ada_Tasking_Protected_Legality;

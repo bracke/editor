@@ -13,7 +13,7 @@ with Editor.Ada_Tasking_Protected_Deep_Edge_Legality;
 
 package Editor.Ada_Final_Semantic_Diagnostic_Integration is
 
-   --  Pass1194 compiler-grade final semantic diagnostic integration.
+   --  Case 1194 compiler-grade final semantic diagnostic integration.
    --
    --  This layer converts the final semantic closure/consumer chain into
    --  diagnostic-ready rows while preserving the original blocker family.  It is

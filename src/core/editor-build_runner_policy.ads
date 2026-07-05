@@ -1,6 +1,6 @@
 package Editor.Build_Runner_Policy is
 
-   --  Phase 504 public build execution policy.  This is transient runtime
+   --  public build execution policy.  This is transient runtime
    --  configuration only: it is not supplied by the Command Palette,
    --  keybindings, persisted workspace/settings/recent-project data, or public
    --  build UI request state.
@@ -9,7 +9,7 @@ package Editor.Build_Runner_Policy is
       Build_Execution_Stub_Only,
       Build_Execution_Bounded_Process);
 
-   --  Phase 509 timeout policy classification.  Timeout values remain runtime
+   --  timeout policy classification.  Timeout values remain runtime
    --  runner policy only and are never supplied by shell text, palette query,
    --  keybinding payloads, workspace/session state, settings, or build history.
    type Build_Timeout_Policy is

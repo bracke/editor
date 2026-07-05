@@ -5,10 +5,10 @@ with Editor.Ada_Syntax_Tree;
 
 package Editor.Ada_RM_Completion_Closure_Consumer_Stabilized_Diagnostic_Integration is
 
-   --  Pass1281 diagnostic integration for stabilized direct RM-completion
+   --  Case 1281 diagnostic integration for stabilized direct RM-completion
    --  closure-consumer results.
    --
-   --  This package consumes Pass1280 stabilized closure rows.  Accepted stable
+   --  This package consumes Case 1280 stabilized closure rows.  Accepted stable
    --  rows are withheld as current semantic evidence; stable blocker rows are
    --  emitted with their original blocker family; recheck-required rows remain
    --  warnings and are not promoted as confident conclusions.  The model is

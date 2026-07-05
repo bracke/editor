@@ -25,7 +25,7 @@ package Editor.Dogfood_Workflow is
       Dogfood_State_Succeeded,
       Dogfood_State_Failed);
 
-   --  Phase 536 dogfood usability labels are pure display helpers.  They do
+   --  dogfood usability labels are pure display helpers.  They do
    --  not inspect files, refresh state, parse buffers, run builds, repair
    --  persistence, or mutate the editor.  They centralize the first layer of
    --  practical dogfood wording so command outcomes and disabled reasons can
@@ -67,7 +67,7 @@ package Editor.Dogfood_Workflow is
       Workspace_Some_Files_Not_Reopened,
       Workspace_Unsupported_Fields_Ignored);
 
-   --  Phase 537 milestone-readiness helpers.  These are pure policy and
+   --  milestone-readiness helpers.  These are pure policy and
    --  fixture-audit helpers: they do not open projects, reload workspaces,
    --  refresh project surfaces, execute commands, render, or write
    --  persistence files.
@@ -129,7 +129,7 @@ package Editor.Dogfood_Workflow is
       Project_Dirty_Guard_Blocked_Close,
       Project_Dirty_Guard_Cancelled);
 
-   --  Phase 538 repeated-local-use helpers.  These pure helpers centralize
+   --  repeated-local-use helpers.  These pure helpers centralize
    --  the user-readable labels and audit predicates used when stale recent
    --  projects, workspace reloads, project switches, and stale activation
    --  attempts are exercised repeatedly across sessions.
@@ -222,7 +222,7 @@ package Editor.Dogfood_Workflow is
       Workflow_Surface_Cleared,
       Workflow_Surface_Recomputed_By_Explicit_Command);
 
-   --  Phase 578 product workflow labels.  These helpers intentionally model
+   --  product workflow labels.  These helpers intentionally model
    --  only user-visible policy: they do not inspect files, open projects,
    --  refresh surfaces, run builds, mutate prompts, or write persistence.
    function Integrated_Workflow_Message
@@ -241,13 +241,13 @@ package Editor.Dogfood_Workflow is
    function Integrated_Surface_Disposition_Label
      (Disposition : Integrated_Surface_Disposition) return String;
 
-   function Assert_Phase578_Message_Consistency return Boolean;
+   function Assert_Message_Consistency return Boolean;
 
-   function Assert_Phase578_Focus_Policy_Coherent return Boolean;
+   function Assert_Focus_Policy_Coherent return Boolean;
 
-   function Assert_Phase578_Surface_Dispositions_Coherent return Boolean;
+   function Assert_Surface_Dispositions_Coherent return Boolean;
 
-   function Assert_Phase578_Workflow_Polish_Coherent
+   function Assert_Workflow_Polish_Coherent
      (Workspace_Text      : String;
       Recent_Project_Text : String;
       Keybindings_Text    : String;
@@ -280,7 +280,7 @@ package Editor.Dogfood_Workflow is
       Product_Restore_Workspace,
       Product_Quit_Safely);
 
-   --  Phase 579 product workflow reference.  These helpers are the small
+   --  product workflow reference.  These helpers are the small
    --  command/test reference for the daily editor loop; they do not execute
    --  commands, repair state, run build tools, or introduce new workflows.
    function Product_Workflow_Command
@@ -325,34 +325,34 @@ package Editor.Dogfood_Workflow is
    function Product_Label_Contains_Internal_Term
      (Label : String) return Boolean;
 
-   function Assert_Phase579_Product_Workflow_Reference_Coherent
+   function Assert_Product_Workflow_Reference_Coherent
      return Boolean;
 
-   function Assert_Phase579_Product_Messages_User_Readable
+   function Assert_Product_Messages_User_Readable
      return Boolean;
 
-   function Assert_Phase579_Product_Focus_Policy_Coherent
+   function Assert_Product_Focus_Policy_Coherent
      return Boolean;
 
-   function Assert_Phase579_Product_Prompt_Policy_Coherent
+   function Assert_Product_Prompt_Policy_Coherent
      return Boolean;
 
-   function Assert_Phase579_Product_File_Buffer_Coherent
+   function Assert_Product_File_Buffer_Coherent
      return Boolean;
 
-   function Assert_Phase579_Product_Navigation_Coherent
+   function Assert_Product_Navigation_Coherent
      return Boolean;
 
-   function Assert_Phase579_Product_Build_Diagnostics_Coherent
+   function Assert_Product_Build_Diagnostics_Coherent
      return Boolean;
 
-   function Assert_Phase579_Product_Workspace_Restore_Coherent
+   function Assert_Product_Workspace_Restore_Coherent
      return Boolean;
 
-   function Assert_Phase579_Product_Surface_Coherent
+   function Assert_Product_Surface_Coherent
      (Product_Text : String) return Boolean;
 
-   --  Phase 535 dogfood milestone helper.  The persisted workspace text must
+   --  dogfood milestone helper.  The persisted workspace text must
    --  contain only retained structural session data.  This predicate is
    --  side-effect-free: it does not parse project files, inspect runtime state,
    --  repair persistence, render, refresh, or execute commands.

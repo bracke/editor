@@ -6,6 +6,7 @@ with Ada.Streams.Stream_IO;
 with Ada.Strings.Fixed;
 with Ada.Strings.Unbounded; use Ada.Strings.Unbounded;
 with Editor.File_Tree;
+with Editor.Feature_Search_Results;
 with Editor.Files;
 with Editor.Layout;
 with Editor.Project;
@@ -17,6 +18,8 @@ with Editor.State;
 package body Editor.Search_Results.Tests is
 
    use type Editor.Project_Search.Project_Search_Status;
+   use type Editor.Feature_Search_Results.External_Result_Payload;
+   use type Editor.Feature_Search_Results.External_Result_Payload_Kind;
    use type Editor.Search_Results.Search_Results_Row_Kind;
    use type Editor.Search_Results.Search_Results_Zone;
 
@@ -26,7 +29,7 @@ package body Editor.Search_Results.Tests is
    begin
       Ada.Directories.Create_Path ("/tmp/editor-tests");
       return Ada.Directories.Compose
-        ("/tmp/editor-tests", "phase73_search_results_" & Name);
+        ("/tmp/editor-tests", "search_results_" & Name);
    end Temp_Path;
 
    procedure Remove_File_If_Exists (Path : String) is
@@ -136,9 +139,56 @@ package body Editor.Search_Results.Tests is
               "empty project search should produce an empty-state row");
       Assert (To_String (Header.Text) = "Search Project - No project open",
               "header should format no-project status deterministically");
+      Assert (To_String (Empty.Text) = "Open a project to search files.",
+              "empty row should carry actionable no-project guidance");
       Assert (Editor.Search_Results.Truncate_Text ("abcdef", 5) = "ab...",
               "Search Results truncation should use deterministic ASCII ellipsis");
    end Test_Empty_Snapshot_And_Formatting;
+
+   procedure Test_No_Matches_Empty_Row_Includes_Filter_Context
+     (T : in out AUnit.Test_Cases.Test_Case'Class)
+   is
+      pragma Unreferenced (T);
+      Root : constant String := Temp_Path ("no_matches_context_root");
+      Tree : Editor.File_Tree.File_Tree_State;
+      Search : Editor.Project_Search.Project_Search_State;
+      Options : constant Editor.Project_Search.Project_Search_Options := (others => <>);
+      Config : constant Editor.Search_Results.Search_Results_View_Config := (others => <>);
+      Registry : Editor.Buffers.Buffer_Registry;
+      Snapshot : Editor.Search_Results.Search_Results_Snapshot;
+      Marker_Snapshot : Editor.Search_Results.Search_Results_Snapshot;
+      Empty : Editor.Search_Results.Search_Results_Row;
+      Marker_Empty : Editor.Search_Results.Search_Results_Row;
+      Text : Unbounded_String;
+   begin
+      Build_Fixture (Root);
+      Tree := Editor.File_Tree.Scan_Project (Root);
+      Editor.Project_Search.Set_Query (Search, "absent");
+      Editor.Project_Search.Set_Case_Sensitive (Search, True);
+      Editor.Project_Search.Set_Whole_Word (Search, True);
+      Editor.Project_Search.Search_Project (Search, Tree, Read_Text'Access, Options);
+
+      Snapshot := Editor.Search_Results.Build_Snapshot (Search, Config);
+      Marker_Snapshot := Editor.Search_Results.Build_Snapshot (Search, Config, Registry);
+      Empty := Editor.Search_Results.Row (Snapshot, 2);
+      Marker_Empty := Editor.Search_Results.Row (Marker_Snapshot, 2);
+      Text := Empty.Text;
+
+      Assert (Empty.Kind = Editor.Search_Results.Search_Results_Empty_Row,
+              "no-match Project Search snapshot should include an empty row");
+      Assert (Ada.Strings.Fixed.Index (To_String (Text), """absent""") > 0
+              and then Ada.Strings.Fixed.Index (To_String (Text), "Scope: all") > 0
+              and then Ada.Strings.Fixed.Index (To_String (Text), "Kind: all") > 0
+              and then Ada.Strings.Fixed.Index (To_String (Text), "Case: sensitive") > 0
+              and then Ada.Strings.Fixed.Index (To_String (Text), "Whole word: on") > 0
+              and then Ada.Strings.Fixed.Index (To_String (Text), "Regex: off") > 0
+              and then Ada.Strings.Fixed.Index (To_String (Text), "Clear filters") > 0,
+              "no-match empty row should include query, filters, and recovery guidance");
+      Assert (To_String (Marker_Empty.Text) = To_String (Empty.Text),
+              "marker snapshot should preserve the same no-match empty row");
+
+      Cleanup_Fixture (Root);
+   end Test_No_Matches_Empty_Row_Includes_Filter_Context;
 
    procedure Test_Grouped_Snapshot_And_Selected_Row
      (T : in out AUnit.Test_Cases.Test_Case'Class)
@@ -178,16 +228,16 @@ package body Editor.Search_Results.Tests is
               and then Row_3.Preview_Match_Start = 7
               and then Row_3.Preview_Match_Length = 6
               and then To_String (Row_3.Display_Text) = To_String (Row_3.Text),
-              "Phase 338 match row should render stored preview, one-based column, and structured match range");
+              "match row should render stored preview, one-based column, and structured match range");
 
       Cleanup_Fixture (Root);
    end Test_Grouped_Snapshot_And_Selected_Row;
 
-   procedure Test_Phase547_Header_Shows_Skip_And_Limit_Details
+   procedure Test_Header_Shows_Skip_And_Limit_Details
      (T : in out AUnit.Test_Cases.Test_Case'Class)
    is
       pragma Unreferenced (T);
-      Root : constant String := Temp_Path ("phase547_skip_header_root");
+      Root : constant String := Temp_Path ("skip_header_root");
       Project : Editor.Project.Project_State;
       Search : Editor.Project_Search.Project_Search_State;
       Options : Editor.Project_Search.Project_Search_Options := (others => <>);
@@ -225,19 +275,19 @@ package body Editor.Search_Results.Tests is
               and then Ada.Strings.Fixed.Index (To_String (Header_Text), "missing=1") > 0
               and then Ada.Strings.Fixed.Index (To_String (Header_Text), "large=1") > 0
               and then Ada.Strings.Fixed.Index (To_String (Header_Text), "result limit reached") > 0,
-              "Phase 547 header should expose skipped-file categories and result-limit state clearly");
+              "header should expose skipped-file categories and result-limit state clearly");
 
       Remove_File_If_Exists (Ada.Directories.Compose (Root, "ok.txt"));
       Remove_File_If_Exists (Ada.Directories.Compose (Root, "large.txt"));
       Remove_Dir_If_Exists (Root);
-   end Test_Phase547_Header_Shows_Skip_And_Limit_Details;
+   end Test_Header_Shows_Skip_And_Limit_Details;
 
 
-   procedure Test_Phase547_Invalid_Regex_Header
+   procedure Test_Invalid_Regex_Header
      (T : in out AUnit.Test_Cases.Test_Case'Class)
    is
       pragma Unreferenced (T);
-      Root : constant String := Temp_Path ("phase547_invalid_regex_header_root");
+      Root : constant String := Temp_Path ("invalid_regex_header_root");
       Tree : Editor.File_Tree.File_Tree_State;
       Search : Editor.Project_Search.Project_Search_State;
       Options : constant Editor.Project_Search.Project_Search_Options := (others => <>);
@@ -261,12 +311,12 @@ package body Editor.Search_Results.Tests is
                 (To_String (Header.Text), "Invalid regex") > 0
               and then Ada.Strings.Fixed.Index
                 (To_String (Header.Text), "Regex: on") > 0,
-              "Phase 547 invalid regex status should render a deterministic header instead of falling through the status case");
+              "invalid regex status should render a deterministic header instead of falling through the status case");
       Assert (Empty.Kind = Editor.Search_Results.Search_Results_Empty_Row,
               "invalid regex snapshots should contain no stale match rows");
 
       Cleanup_Fixture (Root);
-   end Test_Phase547_Invalid_Regex_Header;
+   end Test_Invalid_Regex_Header;
 
    procedure Test_Hit_Test
      (T : in out AUnit.Test_Cases.Test_Case'Class)
@@ -367,7 +417,7 @@ package body Editor.Search_Results.Tests is
         (View, Search, Snapshot, Editor.Search_Results.Previous_Row);
       Assert
         (Editor.Project_Search.Selected_Result_Index (Search) = 1,
-         "Phase 76 focused Search Results Up should not wrap before the first result");
+         "focused Search Results Up should not wrap before the first result");
 
       Editor.Project_Search.Set_Selected_Result_Index
         (Search, Editor.Project_Search.Result_Count (Search));
@@ -377,17 +427,17 @@ package body Editor.Search_Results.Tests is
       Assert
         (Editor.Project_Search.Selected_Result_Index (Search) =
            Editor.Project_Search.Result_Count (Search),
-         "Phase 76 focused Search Results Down should not wrap after the last result");
+         "focused Search Results Down should not wrap after the last result");
 
       Cleanup_Fixture (Root);
    end Test_Row_Selection_Does_Not_Wrap;
 
 
-   procedure Test_Phase334_Marker_Snapshot_Uses_Buffer_State
+   procedure Test_Marker_Snapshot_Uses_Buffer_State
      (T : in out AUnit.Test_Cases.Test_Case'Class)
    is
       pragma Unreferenced (T);
-      Root : constant String := Temp_Path ("phase334_marker_root");
+      Root : constant String := Temp_Path ("marker_root");
       Search : Editor.Project_Search.Project_Search_State := Build_Search (Root);
       Config : constant Editor.Search_Results.Search_Results_View_Config := (others => <>);
       Registry : Editor.Buffers.Buffer_Registry;
@@ -405,18 +455,48 @@ package body Editor.Search_Results.Tests is
       Snapshot := Editor.Search_Results.Build_Snapshot (Search, Config, Registry);
       Row_3 := Editor.Search_Results.Row (Snapshot, 3);
       Assert (Row_3.Is_Open and then Row_3.Is_Active and then Row_3.Is_Dirty,
-              "Phase 334 Search Results snapshot should derive open/active/dirty markers from buffer state");
+              "Search Results snapshot should derive open/active/dirty markers from buffer state");
       Assert (To_String (Row_3.Project_Relative_Path) = "a.txt"
               and then Row_3.Line_Number = 1
               and then Row_3.Match_Column = 7,
-              "Phase 334 Search Results row should expose structured result location fields");
+              "Search Results row should expose structured result location fields");
       Assert (To_String (Row_3.Display_Text) = To_String (Row_3.Text)
               and then Ada.Strings.Fixed.Index (To_String (Row_3.Text), "[open]") > 0
               and then Ada.Strings.Fixed.Index (To_String (Row_3.Text), "a.txt:1:7:") > 0,
-              "Phase 338 marker-prefixed rows should keep Display_Text and Text consistent while preserving path:line:column display");
+              "marker-prefixed rows should keep Display_Text and Text consistent while preserving path:line:column display");
 
       Cleanup_Fixture (Root);
-   end Test_Phase334_Marker_Snapshot_Uses_Buffer_State;
+   end Test_Marker_Snapshot_Uses_Buffer_State;
+
+   procedure Test_Typed_External_Payload_Is_Retained
+     (T : in out AUnit.Test_Cases.Test_Case'Class)
+   is
+      pragma Unreferenced (T);
+      package Feature renames Editor.Feature_Search_Results;
+      Results : Feature.Search_Results_Feature_State;
+      Payload : Feature.External_Result_Payload;
+   begin
+      Feature.Add_Search_Result
+        (Results,
+         Label => "plain result",
+         Source_Label => "diagnostics");
+      Feature.Add_Search_Result
+        (Results,
+         Label => "quick fix",
+         Source_Label => "diagnostics",
+         External_Payload => Feature.Quick_Fix_Action_Result_Payload (7));
+
+      Assert
+        (Feature.Item_External_Payload (Results, 1) =
+           Feature.No_External_Payload,
+         "ordinary search result should retain the default external payload");
+
+      Payload := Feature.Item_External_Payload (Results, 2);
+      Assert
+        (Payload.Kind = Feature.Quick_Fix_Action_Payload
+         and then Payload.Action_Index = 7,
+         "quick-fix search result should retain its typed action payload");
+   end Test_Typed_External_Payload_Is_Retained;
 
    overriding procedure Register_Tests
      (T : in out Search_Results_Test_Case)
@@ -425,28 +505,34 @@ package body Editor.Search_Results.Tests is
    begin
       Register_Routine
         (T, Test_Empty_Snapshot_And_Formatting'Access,
-         "Phase 73 Search Results snapshot formats empty states and truncation");
+         "Search Results snapshot formats empty states and truncation");
+      Register_Routine
+        (T, Test_No_Matches_Empty_Row_Includes_Filter_Context'Access,
+         "Search Results no-match empty row includes filters and recovery guidance");
       Register_Routine
         (T, Test_Grouped_Snapshot_And_Selected_Row'Access,
-         "Phase 73 Search Results snapshot groups matches and maps selected row");
+         "Search Results snapshot groups matches and maps selected row");
       Register_Routine
-        (T, Test_Phase547_Header_Shows_Skip_And_Limit_Details'Access,
-         "Phase 547 Search Results header shows skip and limit details");
+        (T, Test_Header_Shows_Skip_And_Limit_Details'Access,
+         "Search Results header shows skip and limit details");
       Register_Routine
-        (T, Test_Phase547_Invalid_Regex_Header'Access,
-         "Phase 547 Search Results header renders invalid regex status");
+        (T, Test_Invalid_Regex_Header'Access,
+         "Search Results header renders invalid regex status");
       Register_Routine
         (T, Test_Hit_Test'Access,
-         "Phase 73 Search Results hit-testing maps rows to result indexes");
+         "Search Results hit-testing maps rows to result indexes");
       Register_Routine
         (T, Test_Row_Mapping_And_Windowing'Access,
-         "Phase 75 Search Results maps rows and keeps selected results visible");
+         "Search Results maps rows and keeps selected results visible");
       Register_Routine
         (T, Test_Row_Selection_Does_Not_Wrap'Access,
-         "Phase 76 Search Results focused row movement does not wrap");
+         "Search Results focused row movement does not wrap");
       Register_Routine
-        (T, Test_Phase334_Marker_Snapshot_Uses_Buffer_State'Access,
-         "Phase 334 Search Results snapshots include structured location and buffer markers");
+        (T, Test_Marker_Snapshot_Uses_Buffer_State'Access,
+         "Search Results snapshots include structured location and buffer markers");
+      Register_Routine
+        (T, Test_Typed_External_Payload_Is_Retained'Access,
+         "Search Results retains typed external payloads");
    end Register_Tests;
 
 end Editor.Search_Results.Tests;

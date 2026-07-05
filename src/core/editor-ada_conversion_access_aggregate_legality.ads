@@ -7,7 +7,7 @@ with Editor.Ada_View_Aware_Compatibility;
 
 package Editor.Ada_Conversion_Access_Aggregate_Legality is
 
-   --  Wide compiler-grade semantic legality building block for Pass1101.
+   --  Wide compiler-grade semantic legality building block for Case 1101.
    --  The package covers three closely related expression legality families in
    --  one pass: conversions, access/allocator/null-exclusion checks, and
    --  aggregate/container-aggregate structural legality.  It is intentionally

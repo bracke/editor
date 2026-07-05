@@ -5,6 +5,8 @@ with Ada.Containers;    use Ada.Containers;
 with Editor.Commands;   use Editor.Commands;
 with Editor.State;
 with Editor.Executor;
+with Editor.Executor.File_Open_Commands;
+with Editor.Executor.Selection_Commands;
 with Editor.Test_Helper;
 with Text_Buffer;
 with Editor.Layout;
@@ -53,7 +55,7 @@ package body Editor.Selection.Tests is
       end if;
    end Last_Message_Text;
 
-   procedure Test_Phase377_Selection_Command_Descriptors
+   procedure Test_Selection_Command_Descriptors
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
       pragma Unreferenced (T);
    begin
@@ -70,7 +72,7 @@ package body Editor.Selection.Tests is
         (Editor.Commands.Stable_Command_Name
            (Editor.Commands.Command_Select_Word) =
          "selection.select-word",
-         "select-word must have the canonical Phase 541 command name");
+         "select-word must have the canonical command name");
       Assert
         (Editor.Commands.Descriptor (Editor.Commands.Command_Select_All).Category =
          Editor.Commands.Selection_Category,
@@ -86,12 +88,12 @@ package body Editor.Selection.Tests is
         (Editor.Commands.Is_Bindable_Command
            (Editor.Commands.Command_Select_Word),
          "canonical select-word command must be bindable");
-   end Test_Phase377_Selection_Command_Descriptors;
+   end Test_Selection_Command_Descriptors;
 
 
 
 
-   procedure Test_Phase377_Default_Keybinding_Select_All
+   procedure Test_Default_Keybinding_Select_All
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
       pragma Unreferenced (T);
       Actual : Editor.Commands.Command_Id := Editor.Commands.No_Command;
@@ -105,10 +107,10 @@ package body Editor.Selection.Tests is
                (Ctrl => True, Shift => False, Alt => False, Meta => False)),
             Actual) = Editor.Keybindings.Bound_Command
          and then Actual = Editor.Commands.Command_Select_All,
-         "Phase 377 Ctrl+A must route to canonical select-all command id");
-   end Test_Phase377_Default_Keybinding_Select_All;
+         "Ctrl+A must route to canonical select-all command id");
+   end Test_Default_Keybinding_Select_All;
 
-   procedure Test_Phase377_Select_All_Command_Selects_Buffer_Without_Edit
+   procedure Test_Select_All_Command_Selects_Buffer_Without_Edit
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
       pragma Unreferenced (T);
       S : Editor.State.State_Type;
@@ -137,9 +139,9 @@ package body Editor.Selection.Tests is
               "select-all must not clear redo entries");
       Assert (Last_Message_Text (S) = "Selected all",
               "select-all must report one deterministic message");
-   end Test_Phase377_Select_All_Command_Selects_Buffer_Without_Edit;
+   end Test_Select_All_Command_Selects_Buffer_Without_Edit;
 
-   procedure Test_Phase377_Select_All_Then_Copy_Uses_Canonical_Selection
+   procedure Test_Select_All_Then_Copy_Uses_Canonical_Selection
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
       pragma Unreferenced (T);
       S : Editor.State.State_Type;
@@ -154,9 +156,9 @@ package body Editor.Selection.Tests is
       Assert (Editor.Clipboard.Has_Text, "copy after select-all must populate clipboard");
       Assert (To_String (Editor.Clipboard.Get_Text) = "abcdef",
               "copy after select-all must copy the full buffer text");
-   end Test_Phase377_Select_All_Then_Copy_Uses_Canonical_Selection;
+   end Test_Select_All_Then_Copy_Uses_Canonical_Selection;
 
-   procedure Test_Phase377_Clear_Selection_Command_Collapses_At_Caret
+   procedure Test_Clear_Selection_Command_Collapses_At_Caret
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
       pragma Unreferenced (T);
       S : Editor.State.State_Type;
@@ -184,9 +186,9 @@ package body Editor.Selection.Tests is
               "clear-selection must create no undo entry");
       Assert (Last_Message_Text (S) = "Selection cleared",
               "clear-selection must report its command outcome");
-   end Test_Phase377_Clear_Selection_Command_Collapses_At_Caret;
+   end Test_Clear_Selection_Command_Collapses_At_Caret;
 
-   procedure Test_Phase377_Current_Word_Selects_Strict_Ascii_Token
+   procedure Test_Current_Word_Selects_Strict_Ascii_Token
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
       pragma Unreferenced (T);
       S : Editor.State.State_Type;
@@ -225,9 +227,9 @@ package body Editor.Selection.Tests is
       Editor.Executor.Execute_Command (S, Editor.Commands.Command_Copy);
       Assert (To_String (Editor.Clipboard.Get_Text) = "A_B2",
               "current-word must include underscores and digits");
-   end Test_Phase377_Current_Word_Selects_Strict_Ascii_Token;
+   end Test_Current_Word_Selects_Strict_Ascii_Token;
 
-   procedure Test_Phase377_Current_Word_Failure_Preserves_Selection
+   procedure Test_Current_Word_Failure_Preserves_Selection
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
       pragma Unreferenced (T);
       S : Editor.State.State_Type;
@@ -249,11 +251,11 @@ package body Editor.Selection.Tests is
               "current-word failure on punctuation/space must preserve existing selection");
       Assert (Last_Message_Text (S) = "No selectable word at cursor",
               "current-word failure must report a deterministic no-op message");
-   end Test_Phase377_Current_Word_Failure_Preserves_Selection;
+   end Test_Current_Word_Failure_Preserves_Selection;
 
 
 
-   procedure Test_Phase378_Select_All_Empty_Buffer_Is_No_Op
+   procedure Test_Select_All_Empty_Buffer_Is_No_Op
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
       pragma Unreferenced (T);
       S : Editor.State.State_Type;
@@ -266,16 +268,16 @@ package body Editor.Selection.Tests is
 
       Assert (S.Carets (S.Carets.First_Index).Anchor = 0
               and then S.Carets (S.Carets.First_Index).Pos = 0,
-              "Phase 378 select-all on empty buffer must leave a valid empty range");
+              "select-all on empty buffer must leave a valid empty range");
       Assert (not Editor.Selection.Has_Selection (S),
-              "Phase 378 empty buffer must not expose an active selection");
+              "empty buffer must not expose an active selection");
       Assert (Last_Message_Text (S) = "Nothing to select",
-              "Phase 378 empty select-all must report deterministic no-op");
+              "empty select-all must report deterministic no-op");
       Assert (not Editor.Clipboard.Has_Text,
-              "Phase 378 select-all must not mutate clipboard text");
-   end Test_Phase378_Select_All_Empty_Buffer_Is_No_Op;
+              "select-all must not mutate clipboard text");
+   end Test_Select_All_Empty_Buffer_Is_No_Op;
 
-   procedure Test_Phase378_Current_Word_EOF_And_Punctuation_Boundaries
+   procedure Test_Current_Word_EOF_And_Punctuation_Boundaries
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
       pragma Unreferenced (T);
       S : Editor.State.State_Type;
@@ -290,7 +292,7 @@ package body Editor.Selection.Tests is
       Editor.Executor.Execute_Command
         (S, Editor.Commands.Command_Select_Word);
       Assert (Last_Message_Text (S) = "No selectable word at cursor",
-              "Phase 378 caret on punctuation must not select preceding word");
+              "caret on punctuation must not select preceding word");
 
       S.Carets.Clear;
       S.Carets.Append
@@ -299,7 +301,7 @@ package body Editor.Selection.Tests is
         (S, Editor.Commands.Command_Select_Word);
       Editor.Executor.Execute_Command (S, Editor.Commands.Command_Copy);
       Assert (To_String (Editor.Clipboard.Get_Text) = "Execute_Command",
-              "Phase 378 underscore token must be copied exactly after current-word");
+              "underscore token must be copied exactly after current-word");
 
       S.Carets.Clear;
       S.Carets.Append
@@ -308,10 +310,10 @@ package body Editor.Selection.Tests is
         (S, Editor.Commands.Command_Select_Word);
       Editor.Executor.Execute_Command (S, Editor.Commands.Command_Copy);
       Assert (To_String (Editor.Clipboard.Get_Text) = "A_B2",
-              "Phase 378 EOF caret must select the preceding token only");
-   end Test_Phase378_Current_Word_EOF_And_Punctuation_Boundaries;
+              "EOF caret must select the preceding token only");
+   end Test_Current_Word_EOF_And_Punctuation_Boundaries;
 
-   procedure Test_Phase378_Invalid_Stale_Selection_Is_Not_Consumable
+   procedure Test_Invalid_Stale_Selection_Is_Not_Consumable
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
       pragma Unreferenced (T);
       S : Editor.State.State_Type;
@@ -324,17 +326,17 @@ package body Editor.Selection.Tests is
         (Caret_State'(Pos => 99, Anchor => 1, Virtual_Column => 0, Anchor_Virtual_Column => 0));
 
       Assert (not Editor.Selection.Has_Selection (S),
-              "Phase 378 invalid stale range must not be reported as a selection");
+              "invalid stale range must not be reported as a selection");
 
       Editor.Executor.Execute_Command (S, Editor.Commands.Command_Copy);
       Assert (To_String (Editor.Clipboard.Get_Text) = "old",
-              "Phase 378 copy must not consume invalid stale selection text");
+              "copy must not consume invalid stale selection text");
       Assert (Last_Message_Text (S) = "Invalid selection"
               or else Last_Message_Text (S) = "No selected text",
-              "Phase 378 invalid stale copy must fail deterministically");
-   end Test_Phase378_Invalid_Stale_Selection_Is_Not_Consumable;
+              "invalid stale copy must fail deterministically");
+   end Test_Invalid_Stale_Selection_Is_Not_Consumable;
 
-   procedure Test_Phase378_Clear_Selection_Preserves_Redo
+   procedure Test_Clear_Selection_Preserves_Redo
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
       pragma Unreferenced (T);
       S : Editor.State.State_Type;
@@ -350,7 +352,7 @@ package body Editor.Selection.Tests is
       Editor.Executor.Execute_No_Log (S, Paste ("B"));
       Editor.Executor.Execute_Command (S, Editor.Commands.Command_Undo);
       Assert (Natural (Editor.History.Redo_Stack.Length) = 1,
-              "Phase 378 precondition: undo must leave one redo entry");
+              "precondition: undo must leave one redo entry");
 
       S.Carets.Clear;
       S.Carets.Append
@@ -358,13 +360,13 @@ package body Editor.Selection.Tests is
       Editor.Executor.Execute_Command (S, Editor.Commands.Command_Selection_Clear);
 
       Assert (Natural (Editor.History.Redo_Stack.Length) = 1,
-              "Phase 378 clear-selection must preserve redo stack");
+              "clear-selection must preserve redo stack");
       Editor.Executor.Execute_Command (S, Editor.Commands.Command_Redo);
       Assert (Editor.State.Current_Text (S) = "AB",
-              "Phase 378 redo must still work after a selection-only command");
-   end Test_Phase378_Clear_Selection_Preserves_Redo;
+              "redo must still work after a selection-only command");
+   end Test_Clear_Selection_Preserves_Redo;
 
-   procedure Test_Phase378_Select_All_Does_Not_Leak_Across_Buffers
+   procedure Test_Select_All_Does_Not_Leak_Across_Buffers
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
       pragma Unreferenced (T);
       S        : Editor.State.State_Type;
@@ -377,7 +379,7 @@ package body Editor.Selection.Tests is
       Editor.Clipboard.Clear;
 
       Editor.Executor.Execute_Command (S, Editor.Commands.Command_Select_All);
-      Editor.Executor.Execute_New_Buffer (S);
+      Editor.Executor.File_Open_Commands.Execute_New_Buffer (S);
       Editor.State.Load_Text (S, "Beta");
       S.Carets.Clear;
       S.Carets.Append
@@ -385,16 +387,16 @@ package body Editor.Selection.Tests is
 
       Editor.Executor.Execute_Command (S, Editor.Commands.Command_Copy);
       Assert (not Editor.Clipboard.Has_Text,
-              "Phase 378 copy in Buffer B must not consume Buffer A selection");
+              "copy in Buffer B must not consume Buffer A selection");
       Assert (Last_Message_Text (S) = "No selected text",
-              "Phase 378 Buffer B copy must use Buffer B selection only");
+              "Buffer B copy must use Buffer B selection only");
 
-      Editor.Executor.Execute_Switch_Buffer (S, Buffer_A);
+      Editor.Executor.File_Open_Commands.Execute_Switch_Buffer (S, Buffer_A);
       Assert (Editor.State.Current_Text (S) = "Alpha",
-              "Phase 378 Buffer A text must remain isolated after Buffer B copy");
-   end Test_Phase378_Select_All_Does_Not_Leak_Across_Buffers;
+              "Buffer A text must remain isolated after Buffer B copy");
+   end Test_Select_All_Does_Not_Leak_Across_Buffers;
 
-   procedure Test_Phase378_Current_Word_Feeds_Find_From_Selection
+   procedure Test_Current_Word_Feeds_Find_From_Selection
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
       pragma Unreferenced (T);
       S : Editor.State.State_Type;
@@ -411,8 +413,8 @@ package body Editor.Selection.Tests is
         (S, Editor.Commands.Command_Find_From_Selection);
 
       Assert (To_String (S.Active_Find_Query) = "Beta_2",
-              "Phase 378 find-from-selection must consume exact current-word selection text");
-   end Test_Phase378_Current_Word_Feeds_Find_From_Selection;
+              "find-from-selection must consume exact current-word selection text");
+   end Test_Current_Word_Feeds_Find_From_Selection;
 
 
 
@@ -481,7 +483,7 @@ package body Editor.Selection.Tests is
       end if;
    end Assert_Selection_Command_No_Edit_Effects;
 
-   procedure Test_Phase379_Select_All_Current_Text_And_Clipboard_Workflow
+   procedure Test_Select_All_Current_Text_And_Clipboard_Workflow
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
       pragma Unreferenced (T);
       S : Editor.State.State_Type;
@@ -500,32 +502,32 @@ package body Editor.Selection.Tests is
       Editor.Executor.Execute_Command (S, Editor.Commands.Command_Select_All);
 
       Assert_Primary_Range (S, 0, 16,
-                            "Phase 379 select-all must cover current in-memory text");
+                            "select-all must cover current in-memory text");
       Assert (Selected_Text_By_Copy (S) = "Alpha Beta Gamma",
-              "Phase 379 copy must consume the canonical select-all range");
+              "copy must consume the canonical select-all range");
       Assert (Natural (Editor.History.Undo_Stack.Length) = Before_Undo,
-              "Phase 379 select-all and copy must create no undo entries");
+              "select-all and copy must create no undo entries");
       Assert (Natural (Editor.History.Redo_Stack.Length) = Before_Redo,
-              "Phase 379 select-all and copy must preserve redo stack");
+              "select-all and copy must preserve redo stack");
       Assert (Editor.State.Is_Dirty (S),
-              "Phase 379 select-all/copy must not clean a dirty buffer");
+              "select-all/copy must not clean a dirty buffer");
 
       Editor.Executor.Execute_Command (S, Editor.Commands.Command_Cut);
       Assert (Editor.State.Current_Text (S) = "",
-              "Phase 379 cut after select-all must delete exactly the selected buffer text");
+              "cut after select-all must delete exactly the selected buffer text");
       Assert (To_String (Editor.Clipboard.Get_Text) = "Alpha Beta Gamma",
-              "Phase 379 cut must publish the pre-cut full selection");
+              "cut must publish the pre-cut full selection");
       Assert (Natural (Editor.History.Undo_Stack.Length) = Before_Undo + 1,
-              "Phase 379 cut must be the only undoable operation in the workflow");
+              "cut must be the only undoable operation in the workflow");
       Editor.Executor.Execute_Command (S, Editor.Commands.Command_Undo);
       Assert (Editor.State.Current_Text (S) = "Alpha Beta Gamma",
-              "Phase 379 undo must restore text removed by select-all cut");
+              "undo must restore text removed by select-all cut");
       Editor.Executor.Execute_Command (S, Editor.Commands.Command_Redo);
       Assert (Editor.State.Current_Text (S) = "",
-              "Phase 379 redo must reapply the select-all cut");
-   end Test_Phase379_Select_All_Current_Text_And_Clipboard_Workflow;
+              "redo must reapply the select-all cut");
+   end Test_Select_All_Current_Text_And_Clipboard_Workflow;
 
-   procedure Test_Phase379_Select_All_Paste_Replace_And_No_Op_Preserves_Redo
+   procedure Test_Select_All_Paste_Replace_And_No_Op_Preserves_Redo
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
       pragma Unreferenced (T);
       S : Editor.State.State_Type;
@@ -540,26 +542,26 @@ package body Editor.Selection.Tests is
       Editor.Executor.Execute_Command (S, Editor.Commands.Command_Select_All);
       Editor.Executor.Execute_Command (S, Editor.Commands.Command_Paste);
       Assert (Editor.State.Current_Text (S) = "Replacement",
-              "Phase 379 paste over select-all must replace the full active selection");
+              "paste over select-all must replace the full active selection");
       Assert (To_String (Editor.Clipboard.Get_Text) = "Replacement",
-              "Phase 379 paste must not consume or mutate clipboard text");
+              "paste must not consume or mutate clipboard text");
       Assert (Natural (Editor.History.Undo_Stack.Length) = 1,
-              "Phase 379 paste-over-selection must create exactly one undo entry");
+              "paste-over-selection must create exactly one undo entry");
       Editor.Executor.Execute_Command (S, Editor.Commands.Command_Undo);
       Assert (Editor.State.Current_Text (S) = "Alpha Beta Gamma",
-              "Phase 379 undo must restore the full pre-paste buffer");
+              "undo must restore the full pre-paste buffer");
       Redo_Count := Natural (Editor.History.Redo_Stack.Length);
 
       Editor.Executor.Execute_Command (S, Editor.Commands.Command_Select_All);
       Editor.Clipboard.Set_Text (To_Unbounded_String ("Alpha Beta Gamma"));
       Editor.Executor.Execute_Command (S, Editor.Commands.Command_Paste);
       Assert (Editor.State.Current_Text (S) = "Alpha Beta Gamma",
-              "Phase 379 no-op paste over identical select-all text must leave buffer unchanged");
+              "no-op paste over identical select-all text must leave buffer unchanged");
       Assert (Natural (Editor.History.Redo_Stack.Length) = Redo_Count,
-              "Phase 379 no-op paste must preserve redo after a selection command");
-   end Test_Phase379_Select_All_Paste_Replace_And_No_Op_Preserves_Redo;
+              "no-op paste must preserve redo after a selection command");
+   end Test_Select_All_Paste_Replace_And_No_Op_Preserves_Redo;
 
-   procedure Test_Phase379_Clear_Selection_Workflow_And_Caret_Insert
+   procedure Test_Clear_Selection_Workflow_And_Caret_Insert
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
       pragma Unreferenced (T);
       S : Editor.State.State_Type;
@@ -581,22 +583,22 @@ package body Editor.Selection.Tests is
       Editor.Executor.Execute_Command (S, Editor.Commands.Command_Selection_Clear);
 
       Assert_Primary_Range (S, 5, 5,
-                            "Phase 379 clear-selection must collapse to the caret endpoint");
+                            "clear-selection must collapse to the caret endpoint");
       Assert_Selection_Command_No_Edit_Effects
         (S, "Alpha Beta", False, Before_Undo, Before_Redo, True, "X",
-         "Phase 379 clear-selection");
+         "clear-selection");
       Editor.Executor.Execute_Command (S, Editor.Commands.Command_Copy);
       Assert (To_String (Editor.Clipboard.Get_Text) = "X",
-              "Phase 379 copy after clear-selection must not replace clipboard text");
+              "copy after clear-selection must not replace clipboard text");
       Assert (Last_Message_Text (S) = "No selected text",
-              "Phase 379 copy after clear-selection must report no selected text");
+              "copy after clear-selection must report no selected text");
 
       Editor.Executor.Execute_Command (S, Editor.Commands.Command_Paste);
       Assert (Editor.State.Current_Text (S) = "AlphaX Beta",
-              "Phase 379 paste after clear-selection must insert at caret, not replace the old selection");
-   end Test_Phase379_Clear_Selection_Workflow_And_Caret_Insert;
+              "paste after clear-selection must insert at caret, not replace the old selection");
+   end Test_Clear_Selection_Workflow_And_Caret_Insert;
 
-   procedure Test_Phase379_Current_Word_Boundary_Matrix
+   procedure Test_Current_Word_Boundary_Matrix
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
       pragma Unreferenced (T);
       S : Editor.State.State_Type;
@@ -610,40 +612,40 @@ package body Editor.Selection.Tests is
       S.Carets.Append (Caret_State'(Pos => 0, Anchor => 0, Virtual_Column => 0, Anchor_Virtual_Column => 0));
       Editor.Executor.Execute_Command (S, Editor.Commands.Command_Select_Word);
       Assert (Selected_Text_By_Copy (S) = "Execute_Command",
-              "Phase 379 current-word at token start must include underscore token");
+              "current-word at token start must include underscore token");
 
       S.Carets.Clear;
       S.Carets.Append (Caret_State'(Pos => 18, Anchor => 18, Virtual_Column => 0, Anchor_Virtual_Column => 0));
       Editor.Executor.Execute_Command (S, Editor.Commands.Command_Select_Word);
       Assert (Selected_Text_By_Copy (S) = "A_B2",
-              "Phase 379 current-word on digit/underscore token must select A_B2");
+              "current-word on digit/underscore token must select A_B2");
 
       S.Carets.Clear;
       S.Carets.Append (Caret_State'(Pos => 24, Anchor => 24, Virtual_Column => 0, Anchor_Virtual_Column => 0));
       Editor.Executor.Execute_Command (S, Editor.Commands.Command_Select_Word);
       Assert (Selected_Text_By_Copy (S) = "Foo",
-              "Phase 379 current-word before dot must select only Foo");
+              "current-word before dot must select only Foo");
 
       S.Carets.Clear;
       S.Carets.Append (Caret_State'(Pos => 28, Anchor => 28, Virtual_Column => 0, Anchor_Virtual_Column => 0));
       Editor.Executor.Execute_Command (S, Editor.Commands.Command_Select_Word);
       Assert (Selected_Text_By_Copy (S) = "Bar",
-              "Phase 379 current-word after dot must select only Bar");
+              "current-word after dot must select only Bar");
 
       S.Carets.Clear;
       S.Carets.Append (Caret_State'(Pos => 34, Anchor => 34, Virtual_Column => 0, Anchor_Virtual_Column => 0));
       Editor.Executor.Execute_Command (S, Editor.Commands.Command_Select_Word);
       Assert (Last_Message_Text (S) = "No selectable word at cursor",
-              "Phase 379 current-word on semicolon/punctuation must fail deterministically");
+              "current-word on semicolon/punctuation must fail deterministically");
 
       S.Carets.Clear;
       S.Carets.Append (Caret_State'(Pos => 56, Anchor => 56, Virtual_Column => 0, Anchor_Virtual_Column => 0));
       Editor.Executor.Execute_Command (S, Editor.Commands.Command_Select_Word);
       Assert (Selected_Text_By_Copy (S) = "snake_case_42",
-              "Phase 379 current-word must preserve full snake_case_42 token");
-   end Test_Phase379_Current_Word_Boundary_Matrix;
+              "current-word must preserve full snake_case_42 token");
+   end Test_Current_Word_Boundary_Matrix;
 
-   procedure Test_Phase379_Current_Word_Clipboard_Cut_Paste_Workflow
+   procedure Test_Current_Word_Clipboard_Cut_Paste_Workflow
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
       pragma Unreferenced (T);
       S : Editor.State.State_Type;
@@ -658,28 +660,28 @@ package body Editor.Selection.Tests is
       Editor.Executor.Execute_Command (S, Editor.Commands.Command_Select_Word);
       Editor.Executor.Execute_Command (S, Editor.Commands.Command_Copy);
       Assert (To_String (Editor.Clipboard.Get_Text) = "Execute_Command",
-              "Phase 379 copy must consume exact current-word selection");
+              "copy must consume exact current-word selection");
       Assert (Editor.State.Current_Text (S) = "call Execute_Command;",
-              "Phase 379 copy must not mutate current-word source text");
+              "copy must not mutate current-word source text");
       Assert (Natural (Editor.History.Undo_Stack.Length) = 0,
-              "Phase 379 current-word and copy must not create undo entries");
+              "current-word and copy must not create undo entries");
 
       Editor.Executor.Execute_Command (S, Editor.Commands.Command_Cut);
       Assert (Editor.State.Current_Text (S) = "call ;",
-              "Phase 379 cut must delete only the current-word token");
+              "cut must delete only the current-word token");
       Assert (To_String (Editor.Clipboard.Get_Text) = "Execute_Command",
-              "Phase 379 current-word cut must keep token in clipboard");
+              "current-word cut must keep token in clipboard");
       Assert (Natural (Editor.History.Undo_Stack.Length) = 1,
-              "Phase 379 current-word cut must create exactly one undo entry");
+              "current-word cut must create exactly one undo entry");
       Editor.Executor.Execute_Command (S, Editor.Commands.Command_Undo);
       Assert (Editor.State.Current_Text (S) = "call Execute_Command;",
-              "Phase 379 undo must restore current-word cut token");
+              "undo must restore current-word cut token");
       Editor.Executor.Execute_Command (S, Editor.Commands.Command_Redo);
       Assert (Editor.State.Current_Text (S) = "call ;",
-              "Phase 379 redo must reapply current-word cut token deletion");
-   end Test_Phase379_Current_Word_Clipboard_Cut_Paste_Workflow;
+              "redo must reapply current-word cut token deletion");
+   end Test_Current_Word_Clipboard_Cut_Paste_Workflow;
 
-   procedure Test_Phase379_Selection_Feeds_Find_And_Does_Not_Mutate_Replace
+   procedure Test_Selection_Feeds_Find_And_Does_Not_Mutate_Replace
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
       pragma Unreferenced (T);
       S : Editor.State.State_Type;
@@ -692,25 +694,25 @@ package body Editor.Selection.Tests is
 
       Editor.Executor.Execute_Command (S, Editor.Commands.Command_Select_Word);
       Assert (To_String (S.Active_Find_Query) = "",
-              "Phase 379 select-word must not mutate Find state directly");
+              "select-word must not mutate Find state directly");
       Assert (To_String (S.Active_Replace_Text) = "Gamma",
-              "Phase 379 select-word must not mutate Replace text");
+              "select-word must not mutate Replace text");
       Editor.Executor.Execute_Command (S, Editor.Commands.Command_Find_From_Selection);
       Assert (To_String (S.Active_Find_Query) = "Beta",
-              "Phase 379 find-from-selection must consume canonical current selection");
+              "find-from-selection must consume canonical current selection");
       Assert (To_String (S.Active_Replace_Text) = "Gamma",
-              "Phase 379 find-from-selection must not disturb Replace text");
+              "find-from-selection must not disturb Replace text");
 
       Editor.Executor.Execute_Command (S, Editor.Commands.Command_Selection_Clear);
       S.Active_Find_Query := To_Unbounded_String ("Beta");
       Editor.Executor.Execute_Command (S, Editor.Commands.Command_Find_From_Selection);
       Assert (To_String (S.Active_Find_Query) = "Beta",
-              "Phase 379 failed find-from-selection after clear must preserve Find query");
+              "failed find-from-selection after clear must preserve Find query");
       Assert (Last_Message_Text (S) = "No selected text",
-              "Phase 379 failed find-from-selection after clear must report no selected text");
-   end Test_Phase379_Selection_Feeds_Find_And_Does_Not_Mutate_Replace;
+              "failed find-from-selection after clear must report no selected text");
+   end Test_Selection_Feeds_Find_And_Does_Not_Mutate_Replace;
 
-   procedure Test_Phase379_Selection_With_Replace_And_Edit_Invalidation
+   procedure Test_Selection_With_Replace_And_Edit_Invalidation
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
       pragma Unreferenced (T);
       S : Editor.State.State_Type;
@@ -726,22 +728,22 @@ package body Editor.Selection.Tests is
 
       Editor.Executor.Execute_Command (S, Editor.Commands.Command_Select_All);
       Assert (To_String (S.Active_Find_Query) = "Beta",
-              "Phase 379 select-all must not mutate Find query before Replace");
+              "select-all must not mutate Find query before Replace");
       Assert (To_String (S.Active_Replace_Text) = "Delta",
-              "Phase 379 select-all must not mutate Replace text before Replace");
+              "select-all must not mutate Replace text before Replace");
       Editor.Executor.Execute_Command (S, Editor.Commands.Command_Replace_All);
       Assert (Editor.State.Current_Text (S) = "Alpha Delta Delta Gamma",
-              "Phase 379 replace-all must operate from Find state, not active selection text");
+              "replace-all must operate from Find state, not active selection text");
       Assert (not Editor.Selection.Has_Selection (S),
-              "Phase 379 selection must be validly cleared/collapsed after replace-all edit invalidation");
+              "selection must be validly cleared/collapsed after replace-all edit invalidation");
       Assert (Natural (Editor.History.Undo_Stack.Length) = 1,
-              "Phase 379 replace-all, not selection commands, must create the undo entry");
+              "replace-all, not selection commands, must create the undo entry");
       Editor.Executor.Execute_Command (S, Editor.Commands.Command_Copy);
       Assert (Last_Message_Text (S) = "No selected text",
-              "Phase 379 copy after replace invalidation must not extract stale select-all text");
-   end Test_Phase379_Selection_With_Replace_And_Edit_Invalidation;
+              "copy after replace invalidation must not extract stale select-all text");
+   end Test_Selection_With_Replace_And_Edit_Invalidation;
 
-   procedure Test_Phase379_Active_Buffer_Isolation_And_Reopen_Cleanup
+   procedure Test_Active_Buffer_Isolation_And_Reopen_Cleanup
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
       pragma Unreferenced (T);
       S        : Editor.State.State_Type;
@@ -754,22 +756,22 @@ package body Editor.Selection.Tests is
       Editor.Clipboard.Clear;
 
       Editor.Executor.Execute_Command (S, Editor.Commands.Command_Select_All);
-      Editor.Executor.Execute_New_Buffer (S);
+      Editor.Executor.File_Open_Commands.Execute_New_Buffer (S);
       Editor.State.Load_Text (S, "Beta");
       Editor.Executor.Execute_Command (S, Editor.Commands.Command_Copy);
       Assert (not Editor.Clipboard.Has_Text,
-              "Phase 379 Buffer B copy must not consume Buffer A selection");
+              "Buffer B copy must not consume Buffer A selection");
       Assert (Last_Message_Text (S) = "No selected text",
-              "Phase 379 Buffer B without selection must report no selected text");
+              "Buffer B without selection must report no selected text");
 
-      Editor.Executor.Execute_Switch_Buffer (S, Buffer_A);
+      Editor.Executor.File_Open_Commands.Execute_Switch_Buffer (S, Buffer_A);
       Editor.Executor.Execute_Command (S, Editor.Commands.Command_Selection_Clear);
       Editor.Executor.Execute_Command (S, Editor.Commands.Command_Copy);
       Assert (not Editor.Clipboard.Has_Text,
-              "Phase 379 Buffer A clear-selection must affect only Buffer A and leave no copyable stale selection");
-   end Test_Phase379_Active_Buffer_Isolation_And_Reopen_Cleanup;
+              "Buffer A clear-selection must affect only Buffer A and leave no copyable stale selection");
+   end Test_Active_Buffer_Isolation_And_Reopen_Cleanup;
 
-   procedure Test_Phase379_Selection_Commands_Preserve_Redo_And_Navigation_History
+   procedure Test_Selection_Commands_Preserve_Redo_And_Navigation_History
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
       pragma Unreferenced (T);
       S : Editor.State.State_Type;
@@ -784,7 +786,7 @@ package body Editor.Selection.Tests is
       Editor.Executor.Execute_No_Log (S, Paste ("B"));
       Editor.Executor.Execute_Command (S, Editor.Commands.Command_Undo);
       Redo_Count := Natural (Editor.History.Redo_Stack.Length);
-      Assert (Redo_Count = 1, "Phase 379 precondition: undo leaves redo entry");
+      Assert (Redo_Count = 1, "precondition: undo leaves redo entry");
 
       Editor.Executor.Execute_Command (S, Editor.Commands.Command_Select_All);
       Editor.Executor.Execute_Command (S, Editor.Commands.Command_Selection_Clear);
@@ -793,13 +795,13 @@ package body Editor.Selection.Tests is
       Editor.Executor.Execute_Command (S, Editor.Commands.Command_Select_Word);
 
       Assert (Natural (Editor.History.Redo_Stack.Length) = Redo_Count,
-              "Phase 379 selection commands must preserve redo stack");
+              "selection commands must preserve redo stack");
       Editor.Executor.Execute_Command (S, Editor.Commands.Command_Redo);
       Assert (Editor.State.Current_Text (S) = "AB",
-              "Phase 379 redo must remain available after selection-only commands");
-   end Test_Phase379_Selection_Commands_Preserve_Redo_And_Navigation_History;
+              "redo must remain available after selection-only commands");
+   end Test_Selection_Commands_Preserve_Redo_And_Navigation_History;
 
-   procedure Test_Phase379_Availability_And_Palette_Are_Side_Effect_Free
+   procedure Test_Availability_And_Palette_Are_Side_Effect_Free
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
       pragma Unreferenced (T);
       S : Editor.State.State_Type;
@@ -816,23 +818,23 @@ package body Editor.Selection.Tests is
 
       A := Editor.Executor.Command_Availability (S, Editor.Commands.Command_Copy);
       Assert (Editor.Commands.Is_Available (A),
-              "Phase 379 copy availability should see the valid active selection");
+              "copy availability should see the valid active selection");
       A := Editor.Executor.Command_Availability (S, Editor.Commands.Command_Select_Word);
       Assert (Editor.Commands.Is_Available (A),
-              "Phase 379 current-word availability may be broad but must be side-effect free");
+              "current-word availability may be broad but must be side-effect free");
       Editor.Command_Palette.Filtered_Commands (Filtered);
       Assert (Filtered.Length > 0,
-              "Phase 379 palette filter should return visible command descriptors");
+              "palette filter should return visible command descriptors");
 
       Assert_Primary_Range (S, 0, 5,
-                            "Phase 379 availability/palette must not mutate selection range");
+                            "availability/palette must not mutate selection range");
       Assert (Editor.State.Current_Text (S) = Before_Text,
-              "Phase 379 availability/palette must not mutate text");
+              "availability/palette must not mutate text");
       Assert (To_String (Editor.Clipboard.Get_Text) = Before_Clip,
-              "Phase 379 availability/palette must not mutate clipboard text");
-   end Test_Phase379_Availability_And_Palette_Are_Side_Effect_Free;
+              "availability/palette must not mutate clipboard text");
+   end Test_Availability_And_Palette_Are_Side_Effect_Free;
 
-   procedure Test_Phase379_Non_Goal_Selection_Commands_Are_Not_Exposed
+   procedure Test_Non_Goal_Selection_Commands_Are_Not_Exposed
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
       pragma Unreferenced (T);
       Found : Boolean := True;
@@ -841,27 +843,27 @@ package body Editor.Selection.Tests is
       Id := Editor.Commands.Command_Id_From_Stable_Name
         ("edit.selection.expand", Found);
       Assert ((not Found) and then Id = Editor.Commands.No_Command,
-              "Phase 379 must not expose selection expansion command");
+              "must not expose selection expansion command");
       Id := Editor.Commands.Command_Id_From_Stable_Name
         ("edit.selection.block", Found);
       Assert ((not Found) and then Id = Editor.Commands.No_Command,
-              "Phase 379 must not expose block selection command");
+              "must not expose block selection command");
       Id := Editor.Commands.Command_Id_From_Stable_Name
         ("edit.selection.multi-cursor.add", Found);
       Assert ((not Found) and then Id = Editor.Commands.No_Command,
-              "Phase 379 must not expose multi-cursor selection command");
+              "must not expose multi-cursor selection command");
       Id := Editor.Commands.Command_Id_From_Stable_Name
         ("edit.copy-line", Found);
       Assert ((not Found) and then Id = Editor.Commands.No_Command,
-              "Phase 379 must not expose copy-line without selection");
+              "must not expose copy-line without selection");
       Id := Editor.Commands.Command_Id_From_Stable_Name
         ("edit.cut-line", Found);
       Assert ((not Found) and then Id = Editor.Commands.No_Command,
-              "Phase 379 must not expose cut-line without selection");
-   end Test_Phase379_Non_Goal_Selection_Commands_Are_Not_Exposed;
+              "must not expose cut-line without selection");
+   end Test_Non_Goal_Selection_Commands_Are_Not_Exposed;
 
 
-   procedure Test_Phase380_Command_Palette_Projects_Canonical_Selection_Only
+   procedure Test_Command_Palette_Projects_Canonical_Selection_Only
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
       pragma Unreferenced (T);
       Candidates : Editor.Commands.Command_Descriptor_Vectors.Vector;
@@ -882,14 +884,14 @@ package body Editor.Selection.Tests is
       end loop;
 
       Assert (Select_All_Count = 1,
-              "Phase 380 palette must expose exactly one canonical select-all row");
+              "palette must expose exactly one canonical select-all row");
       Assert (Clear_Count = 1,
-              "Phase 380 palette must expose exactly one canonical clear-selection row");
+              "palette must expose exactly one canonical clear-selection row");
       Assert (Select_Word_Count = 1,
-              "Phase 541 palette must expose exactly one canonical select-word row");
-   end Test_Phase380_Command_Palette_Projects_Canonical_Selection_Only;
+              "palette must expose exactly one canonical select-word row");
+   end Test_Command_Palette_Projects_Canonical_Selection_Only;
 
-   procedure Test_Phase380_Canonical_Selection_Validation_And_Extraction
+   procedure Test_Canonical_Selection_Validation_And_Extraction
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
       pragma Unreferenced (T);
       S      : Editor.State.State_Type;
@@ -904,30 +906,30 @@ package body Editor.Selection.Tests is
 
       Status := Editor.Selection.Validate_Active_Selection_Range (S, Selection_Range);
       Assert (Status = Editor.Selection.Selection_Ok,
-              "Phase 380 backward selection must validate canonically");
+              "backward selection must validate canonically");
       Assert (Natural (Selection_Range.Low) = 6 and then Natural (Selection_Range.High) = 10,
-              "Phase 380 canonical validation must normalize backward ranges");
+              "canonical validation must normalize backward ranges");
       Assert (To_String (Editor.Selection.Extract_Selected_Text (S)) = "Beta",
-              "Phase 380 canonical extraction must read active-buffer text only");
+              "canonical extraction must read active-buffer text only");
 
       S.Carets.Replace_Element
         (S.Carets.First_Index,
          (Pos => 4, Anchor => 4, Virtual_Column => 0, Anchor_Virtual_Column => 0));
       Status := Editor.Selection.Validate_Active_Selection_Range (S, Selection_Range);
       Assert (Status = Editor.Selection.Selection_Empty,
-              "Phase 380 collapsed range is no selected text");
+              "collapsed range is no selected text");
 
       S.Carets.Replace_Element
         (S.Carets.First_Index,
          (Pos => 99, Anchor => 1, Virtual_Column => 0, Anchor_Virtual_Column => 0));
       Status := Editor.Selection.Validate_Active_Selection_Range (S, Selection_Range);
       Assert (Status = Editor.Selection.Selection_Invalid,
-              "Phase 380 out-of-range selection is invalid and not consumable");
+              "out-of-range selection is invalid and not consumable");
       Assert (Length (Editor.Selection.Extract_Selected_Text (S)) = 0,
-              "Phase 380 invalid selection extraction must return no text");
-   end Test_Phase380_Canonical_Selection_Validation_And_Extraction;
+              "invalid selection extraction must return no text");
+   end Test_Canonical_Selection_Validation_And_Extraction;
 
-   procedure Test_Phase380_Clipboard_And_Find_Consume_Canonical_Selection
+   procedure Test_Clipboard_And_Find_Consume_Canonical_Selection
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
       pragma Unreferenced (T);
       S : Editor.State.State_Type;
@@ -941,10 +943,10 @@ package body Editor.Selection.Tests is
 
       Editor.Executor.Execute_Command (S, Editor.Commands.Command_Copy);
       Assert (To_String (Editor.Clipboard.Get_Text) = "Beta",
-              "Phase 380 copy must consume canonical normalized active selection");
+              "copy must consume canonical normalized active selection");
       Editor.Executor.Execute_Command (S, Editor.Commands.Command_Find_From_Selection);
       Assert (To_String (S.Active_Find_Query) = "Beta",
-              "Phase 380 find-from-selection must consume canonical selected text");
+              "find-from-selection must consume canonical selected text");
 
       S.Carets.Replace_Element
         (S.Carets.First_Index,
@@ -953,13 +955,13 @@ package body Editor.Selection.Tests is
       S.Active_Find_Query := To_Unbounded_String ("old-query");
       Editor.Executor.Execute_Command (S, Editor.Commands.Command_Copy);
       Assert (To_String (Editor.Clipboard.Get_Text) = "old",
-              "Phase 380 invalid canonical selection must not replace clipboard text");
+              "invalid canonical selection must not replace clipboard text");
       Editor.Executor.Execute_Command (S, Editor.Commands.Command_Find_From_Selection);
       Assert (To_String (S.Active_Find_Query) = "old-query",
-              "Phase 380 invalid canonical selection must not replace Find query");
-   end Test_Phase380_Clipboard_And_Find_Consume_Canonical_Selection;
+              "invalid canonical selection must not replace Find query");
+   end Test_Clipboard_And_Find_Consume_Canonical_Selection;
 
-   procedure Test_Phase380_Select_All_And_Current_Word_Use_Canonical_Helpers
+   procedure Test_Select_All_And_Current_Word_Use_Canonical_Helpers
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
       pragma Unreferenced (T);
       S     : Editor.State.State_Type;
@@ -970,25 +972,25 @@ package body Editor.Selection.Tests is
       Editor.State.Load_Text (S, "Foo.Bar snake_case_42");
       Selection_Range := Editor.Selection.Select_All_Range_For_Buffer (S);
       Assert (Natural (Selection_Range.Low) = 0 and then Natural (Selection_Range.High) = 21,
-              "Phase 380 select-all helper must cover current in-memory text");
+              "select-all helper must cover current in-memory text");
 
       S.Carets.Clear;
       S.Carets.Append
         (Caret_State'(Pos => 4, Anchor => 4, Virtual_Column => 0, Anchor_Virtual_Column => 0));
       Selection_Range := Editor.Selection.Current_Word_Range_At_Caret (S, Found);
       Assert (Found and then Natural (Selection_Range.Low) = 4 and then Natural (Selection_Range.High) = 7,
-              "Phase 380 current-word helper must stop at dotted-name boundary");
+              "current-word helper must stop at dotted-name boundary");
 
       S.Carets.Replace_Element
         (S.Carets.First_Index,
          (Pos => 8, Anchor => 8, Virtual_Column => 0, Anchor_Virtual_Column => 0));
       Selection_Range := Editor.Selection.Current_Word_Range_At_Caret (S, Found);
       Assert (Found and then Natural (Selection_Range.Low) = 8 and then Natural (Selection_Range.High) = 21,
-              "Phase 380 current-word helper must use [A-Za-z0-9_] token policy");
-   end Test_Phase380_Select_All_And_Current_Word_Use_Canonical_Helpers;
+              "current-word helper must use [A-Za-z0-9_] token policy");
+   end Test_Select_All_And_Current_Word_Use_Canonical_Helpers;
 
 
-   procedure Test_Phase380_Secondary_And_Invalid_Ranges_Are_Not_Canonical
+   procedure Test_Secondary_And_Invalid_Ranges_Are_Not_Canonical
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
       pragma Unreferenced (T);
       S        : Editor.State.State_Type;
@@ -1005,23 +1007,23 @@ package body Editor.Selection.Tests is
 
       A := Editor.Executor.Command_Availability (S, Editor.Commands.Command_Copy);
       Assert (not Editor.Commands.Is_Available (A),
-              "Phase 380 copy availability must ignore secondary previous selection ranges");
+              "copy availability must ignore secondary previous selection ranges");
       Assert (not Editor.Selection.Has_Selection (S),
-              "Phase 380 canonical has-selection must use primary active selection only");
+              "canonical has-selection must use primary active selection only");
       Editor.Render_Model.Build_Render_Snapshot (S, Snapshot);
       Assert (Snapshot.Selection_Count = 0,
-              "Phase 380 render snapshot must ignore secondary previous selection ranges");
+              "render snapshot must ignore secondary previous selection ranges");
 
       S.Carets.Clear;
       S.Carets.Append
         (Caret_State'(Pos => 99, Anchor => 6, Virtual_Column => 0, Anchor_Virtual_Column => 0));
       A := Editor.Executor.Command_Availability (S, Editor.Commands.Command_Copy);
       Assert (not Editor.Commands.Is_Available (A),
-              "Phase 380 copy availability must reject invalid canonical selection ranges");
+              "copy availability must reject invalid canonical selection ranges");
       Editor.Render_Model.Build_Render_Snapshot (S, Snapshot);
       Assert (Snapshot.Selection_Count = 0,
-              "Phase 380 render snapshot must not expose invalid stale selection ranges");
-   end Test_Phase380_Secondary_And_Invalid_Ranges_Are_Not_Canonical;
+              "render snapshot must not expose invalid stale selection ranges");
+   end Test_Secondary_And_Invalid_Ranges_Are_Not_Canonical;
 
    procedure Test_Start_Selection
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
@@ -1429,7 +1431,7 @@ package body Editor.Selection.Tests is
       Editor.Executor.Execute_No_Log
       (S, Editor.Test_Helper.Insert (0, 'X'));
 
-      --  Phase 413 removed removed all-caret insertion.  The canonical text
+      --  removed removed all-caret insertion.  The canonical text
       --  insert path accepts only one active-buffer caret and rejects the
       --  former virtual-column multi-caret insertion model.
       Assert (Text_Buffer.Length (S.Buffer) = 6,
@@ -1629,7 +1631,7 @@ package body Editor.Selection.Tests is
       Assert (R.Last_Col = 9, "Last column normalized");
    end Test_Rectangle_Normalize_Up_Left;
 
-   procedure Test_Phase373_Rectangle_Copy_Uses_Primary_Plain_Text
+   procedure Test_Rectangle_Copy_Uses_Primary_Plain_Text
    (T : in out AUnit.Test_Cases.Test_Case'Class) is
       pragma Unreferenced (T);
 
@@ -1652,8 +1654,8 @@ package body Editor.Selection.Tests is
         (S, (Kind => Editor.Commands.Copy_Selection, others => <>));
 
       Assert (To_String (Editor.Clipboard.Get_Text) = "bc",
-              "Phase 373 copy command must use the primary plain selected text only");
-   end Test_Phase373_Rectangle_Copy_Uses_Primary_Plain_Text;
+              "copy command must use the primary plain selected text only");
+   end Test_Rectangle_Copy_Uses_Primary_Plain_Text;
 
    procedure Test_Rectangle_Delete_Removes_Per_Row
    (T : in out AUnit.Test_Cases.Test_Case'Class) is
@@ -1686,7 +1688,7 @@ package body Editor.Selection.Tests is
       Assert (Text_Buffer.Element (S.Buffer, 8) = 'l', "row 3 right kept");
    end Test_Rectangle_Delete_Removes_Per_Row;
 
-   procedure Test_Phase68_Normalize_Rectangular_Range_Orders_Rows_Columns
+   procedure Test_Normalize_Rectangular_Range_Orders_Rows_Columns
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
       pragma Unreferenced (T);
       R : constant Rectangular_Range :=
@@ -1694,14 +1696,14 @@ package body Editor.Selection.Tests is
           ((Row => 7, Column => 9),
            (Row => 2, Column => 3));
    begin
-      Assert (R.Start_Row = 2, "Phase 68 rectangle start row normalized");
-      Assert (R.End_Row = 7, "Phase 68 rectangle end row normalized");
-      Assert (R.Start_Column = 3, "Phase 68 rectangle start column normalized");
-      Assert (R.End_Column = 9, "Phase 68 rectangle end column normalized");
-      Assert (not R.Is_Empty, "Phase 68 reversed rectangle is non-empty");
-   end Test_Phase68_Normalize_Rectangular_Range_Orders_Rows_Columns;
+      Assert (R.Start_Row = 2, "rectangle start row normalized");
+      Assert (R.End_Row = 7, "rectangle end row normalized");
+      Assert (R.Start_Column = 3, "rectangle start column normalized");
+      Assert (R.End_Column = 9, "rectangle end column normalized");
+      Assert (not R.Is_Empty, "reversed rectangle is non-empty");
+   end Test_Normalize_Rectangular_Range_Orders_Rows_Columns;
 
-   procedure Test_Phase68_Normalize_Rectangular_Range_Zero_Width_Empty
+   procedure Test_Normalize_Rectangular_Range_Zero_Width_Empty
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
       pragma Unreferenced (T);
       R : constant Rectangular_Range :=
@@ -1710,13 +1712,13 @@ package body Editor.Selection.Tests is
            (Row => 3, Column => 4));
    begin
       Assert (R.Start_Row = 1 and then R.End_Row = 3,
-              "Phase 68 zero-width rectangle keeps row span");
+              "zero-width rectangle keeps row span");
       Assert (R.Start_Column = 4 and then R.End_Column = 4,
-              "Phase 68 zero-width rectangle has half-open equal columns");
-      Assert (R.Is_Empty, "Phase 68 zero-width rectangle is empty");
-   end Test_Phase68_Normalize_Rectangular_Range_Zero_Width_Empty;
+              "zero-width rectangle has half-open equal columns");
+      Assert (R.Is_Empty, "zero-width rectangle is empty");
+   end Test_Normalize_Rectangular_Range_Zero_Width_Empty;
 
-   procedure Test_Phase68_Normalize_Rectangular_Range_One_Column
+   procedure Test_Normalize_Rectangular_Range_One_Column
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
       pragma Unreferenced (T);
       R : constant Rectangular_Range :=
@@ -1724,13 +1726,13 @@ package body Editor.Selection.Tests is
           ((Row => 0, Column => 5),
            (Row => 2, Column => 6));
    begin
-      Assert (R.Start_Column = 5, "Phase 68 one-column start");
-      Assert (R.End_Column = 6, "Phase 68 one-column half-open end");
-      Assert (not R.Is_Empty, "Phase 68 one-column rectangle is non-empty");
-   end Test_Phase68_Normalize_Rectangular_Range_One_Column;
+      Assert (R.Start_Column = 5, "one-column start");
+      Assert (R.End_Column = 6, "one-column half-open end");
+      Assert (not R.Is_Empty, "one-column rectangle is non-empty");
+   end Test_Normalize_Rectangular_Range_One_Column;
 
 
-   procedure Test_Phase66_Normalize_Text_Range
+   procedure Test_Normalize_Text_Range
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
       pragma Unreferenced (T);
       R : Text_Range;
@@ -1756,9 +1758,9 @@ package body Editor.Selection.Tests is
       Assert
         (Is_Equal ((Row => 2, Column => 7), (Row => 2, Column => 7)),
          "Is_Equal must compare row and column");
-   end Test_Phase66_Normalize_Text_Range;
+   end Test_Normalize_Text_Range;
 
-   procedure Test_Phase66_Word_Range_At_Word_And_End_Edge
+   procedure Test_Word_Range_At_Word_And_End_Edge
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
       pragma Unreferenced (T);
       S : Editor.State.State_Type;
@@ -1786,9 +1788,9 @@ package body Editor.Selection.Tests is
         (Target.Selection_Range.Start_Position.Column = 0
          and then Target.Selection_Range.End_Position.Column = 3,
          "End-of-line word edge must select [0, 3)");
-   end Test_Phase66_Word_Range_At_Word_And_End_Edge;
+   end Test_Word_Range_At_Word_And_End_Edge;
 
-   procedure Test_Phase66_Word_Range_At_Underscore_Digits_And_Symbols
+   procedure Test_Word_Range_At_Underscore_Digits_And_Symbols
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
       pragma Unreferenced (T);
       S : Editor.State.State_Type;
@@ -1810,9 +1812,9 @@ package body Editor.Selection.Tests is
         (Target.Selection_Range.Start_Position.Column = 2
          and then Target.Selection_Range.End_Position.Column = 4,
          "Contiguous symbol run must select as [2, 4)");
-   end Test_Phase66_Word_Range_At_Underscore_Digits_And_Symbols;
+   end Test_Word_Range_At_Underscore_Digits_And_Symbols;
 
-   procedure Test_Phase66_Word_Range_Clamps_And_Stays_On_Line
+   procedure Test_Word_Range_Clamps_And_Stays_On_Line
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
       pragma Unreferenced (T);
       S : Editor.State.State_Type;
@@ -1840,10 +1842,10 @@ package body Editor.Selection.Tests is
       Editor.State.Load_Text (S, "");
       Target := Word_Range_At (S, 0, 0);
       Assert (not Target.Found, "Empty line/buffer must have no word target");
-   end Test_Phase66_Word_Range_Clamps_And_Stays_On_Line;
+   end Test_Word_Range_Clamps_And_Stays_On_Line;
 
 
-   procedure Test_Phase67_Line_Range_Non_Last_Includes_Newline
+   procedure Test_Line_Range_Non_Last_Includes_Newline
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
       pragma Unreferenced (T);
       S : Editor.State.State_Type;
@@ -1860,9 +1862,9 @@ package body Editor.Selection.Tests is
          and then Target.Selection_Range.End_Position.Row = 1
          and then Target.Selection_Range.End_Position.Column = 0,
          "Non-last line must select through next row column zero");
-   end Test_Phase67_Line_Range_Non_Last_Includes_Newline;
+   end Test_Line_Range_Non_Last_Includes_Newline;
 
-   procedure Test_Phase67_Line_Range_Last_Ends_At_Line_Length
+   procedure Test_Line_Range_Last_Ends_At_Line_Length
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
       pragma Unreferenced (T);
       S : Editor.State.State_Type;
@@ -1878,9 +1880,9 @@ package body Editor.Selection.Tests is
          and then Target.Selection_Range.End_Position.Row = 1
          and then Target.Selection_Range.End_Position.Column = 4,
          "Last line must select only through its line length");
-   end Test_Phase67_Line_Range_Last_Ends_At_Line_Length;
+   end Test_Line_Range_Last_Ends_At_Line_Length;
 
-   procedure Test_Phase67_Lines_Range_Normalizes_Reversed_Rows
+   procedure Test_Lines_Range_Normalizes_Reversed_Rows
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
       pragma Unreferenced (T);
       S : Editor.State.State_Type;
@@ -1896,9 +1898,9 @@ package body Editor.Selection.Tests is
          and then Target.Selection_Range.End_Position.Row = 2
          and then Target.Selection_Range.End_Position.Column = 3,
          "Reversed line ranges must normalize and include the final line length");
-   end Test_Phase67_Lines_Range_Normalizes_Reversed_Rows;
+   end Test_Lines_Range_Normalizes_Reversed_Rows;
 
-   procedure Test_Phase67_Executor_Select_Line_Command
+   procedure Test_Executor_Select_Line_Command
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
       pragma Unreferenced (T);
       S : Editor.State.State_Type;
@@ -1920,10 +1922,10 @@ package body Editor.Selection.Tests is
       Assert
         (Text_Buffer.Length (S.Buffer) = 8,
          "Select Line command must not mutate text");
-   end Test_Phase67_Executor_Select_Line_Command;
+   end Test_Executor_Select_Line_Command;
 
 
-   procedure Test_Phase67_Extend_Line_Selection_Preserves_Direction
+   procedure Test_Extend_Line_Selection_Preserves_Direction
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
       pragma Unreferenced (T);
       S : Editor.State.State_Type;
@@ -1932,8 +1934,8 @@ package body Editor.Selection.Tests is
       Editor.State.Load_Text
         (S, "a" & ASCII.LF & "bb" & ASCII.LF & "ccc" & ASCII.LF & "dddd");
 
-      Editor.Executor.Execute_Select_Line_At (S, 2);
-      Editor.Executor.Execute_Extend_Selection_To_Line (S, 1);
+      Editor.Executor.Selection_Commands.Execute_Select_Line_At (S, 2);
+      Editor.Executor.Selection_Commands.Execute_Extend_Selection_To_Line (S, 1);
 
       Assert
         (S.Carets (S.Carets.First_Index).Pos = Editor.State.Line_Start (S, 1),
@@ -1942,8 +1944,8 @@ package body Editor.Selection.Tests is
         (S.Carets (S.Carets.First_Index).Anchor = Editor.State.Line_Start (S, 3),
          "Upward line extension must anchor at the far line boundary");
 
-      Editor.Executor.Execute_Select_Line_At (S, 1);
-      Editor.Executor.Execute_Extend_Selection_To_Line (S, 3);
+      Editor.Executor.Selection_Commands.Execute_Select_Line_At (S, 1);
+      Editor.Executor.Selection_Commands.Execute_Extend_Selection_To_Line (S, 3);
 
       Assert
         (S.Carets (S.Carets.First_Index).Anchor = Editor.State.Line_Start (S, 1),
@@ -1951,9 +1953,9 @@ package body Editor.Selection.Tests is
       Assert
         (S.Carets (S.Carets.First_Index).Pos = Editor.State.Line_End (S, 3),
          "Downward line extension through the final line must end at final line length");
-   end Test_Phase67_Extend_Line_Selection_Preserves_Direction;
+   end Test_Extend_Line_Selection_Preserves_Direction;
 
-   procedure Test_Phase66_Executor_Select_Word_Command
+   procedure Test_Executor_Select_Word_Command
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
       pragma Unreferenced (T);
       S : Editor.State.State_Type;
@@ -1974,8 +1976,8 @@ package body Editor.Selection.Tests is
       Assert
         (Text_Buffer.Length (S.Buffer) = 10,
          "Select Word command must not mutate text");
-   end Test_Phase66_Executor_Select_Word_Command;
-   procedure Test_Phase209_Move_Left_Collapses_To_Selection_Start
+   end Test_Executor_Select_Word_Command;
+   procedure Test_Move_Left_Collapses_To_Selection_Start
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
       pragma Unreferenced (T);
       S : Editor.State.State_Type;
@@ -1989,12 +1991,12 @@ package body Editor.Selection.Tests is
       Editor.Executor.Execute_No_Log (S, Editor.Test_Helper.Move_Left);
 
       Assert (S.Carets (0).Pos = 1,
-              "Phase 209 Move_Left must collapse to selection start");
+              "Move_Left must collapse to selection start");
       Assert (S.Carets (0).Anchor = 1,
-              "Phase 209 Move_Left must clear selection after collapse");
-   end Test_Phase209_Move_Left_Collapses_To_Selection_Start;
+              "Move_Left must clear selection after collapse");
+   end Test_Move_Left_Collapses_To_Selection_Start;
 
-   procedure Test_Phase209_Move_Right_Collapses_To_Selection_End
+   procedure Test_Move_Right_Collapses_To_Selection_End
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
       pragma Unreferenced (T);
       S : Editor.State.State_Type;
@@ -2008,12 +2010,12 @@ package body Editor.Selection.Tests is
       Editor.Executor.Execute_No_Log (S, Editor.Test_Helper.Move_Right);
 
       Assert (S.Carets (0).Pos = 3,
-              "Phase 209 Move_Right must collapse to selection end");
+              "Move_Right must collapse to selection end");
       Assert (S.Carets (0).Anchor = 3,
-              "Phase 209 Move_Right must clear selection after collapse");
-   end Test_Phase209_Move_Right_Collapses_To_Selection_End;
+              "Move_Right must clear selection after collapse");
+   end Test_Move_Right_Collapses_To_Selection_End;
 
-   procedure Test_Phase209_Move_Line_End_Collapses_To_Line_End
+   procedure Test_Move_Line_End_Collapses_To_Line_End
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
       pragma Unreferenced (T);
       S   : Editor.State.State_Type;
@@ -2034,12 +2036,12 @@ package body Editor.Selection.Tests is
       Editor.Executor.Execute_No_Log (S, Cmd);
 
       Assert (S.Carets (0).Pos = 7,
-              "Phase 209 Move_Line_End must collapse to the active line end");
+              "Move_Line_End must collapse to the active line end");
       Assert (S.Carets (0).Anchor = 7,
-              "Phase 209 Move_Line_End must clear selection after collapse");
-   end Test_Phase209_Move_Line_End_Collapses_To_Line_End;
+              "Move_Line_End must clear selection after collapse");
+   end Test_Move_Line_End_Collapses_To_Line_End;
 
-   procedure Test_Phase209_Shift_Down_Extends_Selection
+   procedure Test_Shift_Down_Extends_Selection
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
       pragma Unreferenced (T);
       S   : Editor.State.State_Type;
@@ -2062,14 +2064,14 @@ package body Editor.Selection.Tests is
       Editor.Executor.Execute_No_Log (S, Cmd);
 
       Assert (S.Carets (0).Pos = 5,
-              "Phase 209 Shift-Down must move caret to matching column on next line");
+              "Shift-Down must move caret to matching column on next line");
       Assert (S.Carets (0).Anchor = 1,
-              "Phase 209 Shift-Down must preserve the original selection anchor");
-   end Test_Phase209_Shift_Down_Extends_Selection;
+              "Shift-Down must preserve the original selection anchor");
+   end Test_Shift_Down_Extends_Selection;
 
 
 
-   procedure Test_Phase541_Selection_Count_Helpers_Normalize_Range
+   procedure Test_Selection_Count_Helpers_Normalize_Range
      (T : in out AUnit.Test_Cases.Test_Case'Class)
    is
       pragma Unreferenced (T);
@@ -2086,10 +2088,10 @@ package body Editor.Selection.Tests is
 
       Assert
         (Editor.Selection.Selected_Character_Count (S) = 4,
-         "Phase 541 selected-character count must use normalized active range");
+         "selected-character count must use normalized active range");
       Assert
         (Editor.Selection.Selected_Line_Count (S) = 1,
-         "Phase 541 full first-line selection must count one logical line");
+         "full first-line selection must count one logical line");
 
       S.Carets.Replace_Element
         (S.Carets.First_Index,
@@ -2097,11 +2099,11 @@ package body Editor.Selection.Tests is
 
       Assert
         (Editor.Selection.Selected_Line_Count (S) = 2,
-         "Phase 541 partial second-line selection must count two logical lines");
-   end Test_Phase541_Selection_Count_Helpers_Normalize_Range;
+         "partial second-line selection must count two logical lines");
+   end Test_Selection_Count_Helpers_Normalize_Range;
 
 
-   procedure Test_Phase541_Selection_Count_Helpers_Ignore_Invalid_State
+   procedure Test_Selection_Count_Helpers_Ignore_Invalid_State
      (T : in out AUnit.Test_Cases.Test_Case'Class)
    is
       pragma Unreferenced (T);
@@ -2115,132 +2117,132 @@ package body Editor.Selection.Tests is
 
       Assert
         (Editor.Selection.Selected_Character_Count (S) = 0,
-         "Phase 541 invalid selection must not expose selected-character count");
+         "invalid selection must not expose selected-character count");
       Assert
         (Editor.Selection.Selected_Line_Count (S) = 0,
-         "Phase 541 invalid selection must not expose selected-line count");
-   end Test_Phase541_Selection_Count_Helpers_Ignore_Invalid_State;
+         "invalid selection must not expose selected-line count");
+   end Test_Selection_Count_Helpers_Ignore_Invalid_State;
 
 
    overriding procedure Register_Tests
      (T : in out Selection_Test_Case) is
    begin
       AUnit.Test_Cases.Registration.Register_Routine
-        (T, Test_Phase377_Selection_Command_Descriptors'Access,
-         "Phase 377 Selection Command Descriptors");
+        (T, Test_Selection_Command_Descriptors'Access,
+         "Selection Command Descriptors");
 
       AUnit.Test_Cases.Registration.Register_Routine
-        (T, Test_Phase377_Default_Keybinding_Select_All'Access,
-         "Phase 377 Default Keybinding Select All");
+        (T, Test_Default_Keybinding_Select_All'Access,
+         "Default Keybinding Select All");
 
       AUnit.Test_Cases.Registration.Register_Routine
-        (T, Test_Phase377_Select_All_Command_Selects_Buffer_Without_Edit'Access,
-         "Phase 377 Select All Command Selects Buffer Without Edit");
+        (T, Test_Select_All_Command_Selects_Buffer_Without_Edit'Access,
+         "Select All Command Selects Buffer Without Edit");
 
       AUnit.Test_Cases.Registration.Register_Routine
-        (T, Test_Phase377_Select_All_Then_Copy_Uses_Canonical_Selection'Access,
-         "Phase 377 Select All Then Copy Uses Canonical Selection");
+        (T, Test_Select_All_Then_Copy_Uses_Canonical_Selection'Access,
+         "Select All Then Copy Uses Canonical Selection");
 
       AUnit.Test_Cases.Registration.Register_Routine
-        (T, Test_Phase377_Clear_Selection_Command_Collapses_At_Caret'Access,
-         "Phase 377 Clear Selection Command Collapses At Caret");
+        (T, Test_Clear_Selection_Command_Collapses_At_Caret'Access,
+         "Clear Selection Command Collapses At Caret");
 
       AUnit.Test_Cases.Registration.Register_Routine
-        (T, Test_Phase377_Current_Word_Selects_Strict_Ascii_Token'Access,
-         "Phase 377 Current Word Selects Strict ASCII Token");
+        (T, Test_Current_Word_Selects_Strict_Ascii_Token'Access,
+         "Current Word Selects Strict ASCII Token");
 
       AUnit.Test_Cases.Registration.Register_Routine
-        (T, Test_Phase377_Current_Word_Failure_Preserves_Selection'Access,
-         "Phase 377 Current Word Failure Preserves Selection");
+        (T, Test_Current_Word_Failure_Preserves_Selection'Access,
+         "Current Word Failure Preserves Selection");
 
       AUnit.Test_Cases.Registration.Register_Routine
-        (T, Test_Phase378_Select_All_Empty_Buffer_Is_No_Op'Access,
-         "Phase 378 Select All Empty Buffer Is No Op");
+        (T, Test_Select_All_Empty_Buffer_Is_No_Op'Access,
+         "Select All Empty Buffer Is No Op");
 
       AUnit.Test_Cases.Registration.Register_Routine
-        (T, Test_Phase378_Current_Word_EOF_And_Punctuation_Boundaries'Access,
-         "Phase 378 Current Word EOF And Punctuation Boundaries");
+        (T, Test_Current_Word_EOF_And_Punctuation_Boundaries'Access,
+         "Current Word EOF And Punctuation Boundaries");
 
       AUnit.Test_Cases.Registration.Register_Routine
-        (T, Test_Phase378_Invalid_Stale_Selection_Is_Not_Consumable'Access,
-         "Phase 378 Invalid Stale Selection Is Not Consumable");
+        (T, Test_Invalid_Stale_Selection_Is_Not_Consumable'Access,
+         "Invalid Stale Selection Is Not Consumable");
 
       AUnit.Test_Cases.Registration.Register_Routine
-        (T, Test_Phase378_Clear_Selection_Preserves_Redo'Access,
-         "Phase 378 Clear Selection Preserves Redo");
+        (T, Test_Clear_Selection_Preserves_Redo'Access,
+         "Clear Selection Preserves Redo");
 
       AUnit.Test_Cases.Registration.Register_Routine
-        (T, Test_Phase378_Select_All_Does_Not_Leak_Across_Buffers'Access,
-         "Phase 378 Select All Does Not Leak Across Buffers");
+        (T, Test_Select_All_Does_Not_Leak_Across_Buffers'Access,
+         "Select All Does Not Leak Across Buffers");
 
       AUnit.Test_Cases.Registration.Register_Routine
-        (T, Test_Phase378_Current_Word_Feeds_Find_From_Selection'Access,
-         "Phase 378 Current Word Feeds Find From Selection");
+        (T, Test_Current_Word_Feeds_Find_From_Selection'Access,
+         "Current Word Feeds Find From Selection");
 
 
       AUnit.Test_Cases.Registration.Register_Routine
-        (T, Test_Phase379_Select_All_Current_Text_And_Clipboard_Workflow'Access,
-         "Phase 379 Select All Current Text And Clipboard Workflow");
+        (T, Test_Select_All_Current_Text_And_Clipboard_Workflow'Access,
+         "Select All Current Text And Clipboard Workflow");
 
       AUnit.Test_Cases.Registration.Register_Routine
-        (T, Test_Phase379_Select_All_Paste_Replace_And_No_Op_Preserves_Redo'Access,
-         "Phase 379 Select All Paste Replace And No Op Preserves Redo");
+        (T, Test_Select_All_Paste_Replace_And_No_Op_Preserves_Redo'Access,
+         "Select All Paste Replace And No Op Preserves Redo");
 
       AUnit.Test_Cases.Registration.Register_Routine
-        (T, Test_Phase379_Clear_Selection_Workflow_And_Caret_Insert'Access,
-         "Phase 379 Clear Selection Workflow And Caret Insert");
+        (T, Test_Clear_Selection_Workflow_And_Caret_Insert'Access,
+         "Clear Selection Workflow And Caret Insert");
 
       AUnit.Test_Cases.Registration.Register_Routine
-        (T, Test_Phase379_Current_Word_Boundary_Matrix'Access,
-         "Phase 379 Current Word Boundary Matrix");
+        (T, Test_Current_Word_Boundary_Matrix'Access,
+         "Current Word Boundary Matrix");
 
       AUnit.Test_Cases.Registration.Register_Routine
-        (T, Test_Phase379_Current_Word_Clipboard_Cut_Paste_Workflow'Access,
-         "Phase 379 Current Word Clipboard Cut Paste Workflow");
+        (T, Test_Current_Word_Clipboard_Cut_Paste_Workflow'Access,
+         "Current Word Clipboard Cut Paste Workflow");
 
       AUnit.Test_Cases.Registration.Register_Routine
-        (T, Test_Phase379_Selection_Feeds_Find_And_Does_Not_Mutate_Replace'Access,
-         "Phase 379 Selection Feeds Find And Does Not Mutate Replace");
+        (T, Test_Selection_Feeds_Find_And_Does_Not_Mutate_Replace'Access,
+         "Selection Feeds Find And Does Not Mutate Replace");
 
       AUnit.Test_Cases.Registration.Register_Routine
-        (T, Test_Phase379_Selection_With_Replace_And_Edit_Invalidation'Access,
-         "Phase 379 Selection With Replace And Edit Invalidation");
+        (T, Test_Selection_With_Replace_And_Edit_Invalidation'Access,
+         "Selection With Replace And Edit Invalidation");
 
       AUnit.Test_Cases.Registration.Register_Routine
-        (T, Test_Phase379_Active_Buffer_Isolation_And_Reopen_Cleanup'Access,
-         "Phase 379 Active Buffer Isolation And Reopen Cleanup");
+        (T, Test_Active_Buffer_Isolation_And_Reopen_Cleanup'Access,
+         "Active Buffer Isolation And Reopen Cleanup");
 
       AUnit.Test_Cases.Registration.Register_Routine
-        (T, Test_Phase379_Selection_Commands_Preserve_Redo_And_Navigation_History'Access,
-         "Phase 379 Selection Commands Preserve Redo And Navigation History");
+        (T, Test_Selection_Commands_Preserve_Redo_And_Navigation_History'Access,
+         "Selection Commands Preserve Redo And Navigation History");
 
       AUnit.Test_Cases.Registration.Register_Routine
-        (T, Test_Phase379_Availability_And_Palette_Are_Side_Effect_Free'Access,
-         "Phase 379 Availability And Palette Are Side Effect Free");
+        (T, Test_Availability_And_Palette_Are_Side_Effect_Free'Access,
+         "Availability And Palette Are Side Effect Free");
 
       AUnit.Test_Cases.Registration.Register_Routine
-        (T, Test_Phase379_Non_Goal_Selection_Commands_Are_Not_Exposed'Access,
-         "Phase 379 Non Goal Selection Commands Are Not Exposed");
+        (T, Test_Non_Goal_Selection_Commands_Are_Not_Exposed'Access,
+         "Non Goal Selection Commands Are Not Exposed");
 
       AUnit.Test_Cases.Registration.Register_Routine
-        (T, Test_Phase380_Command_Palette_Projects_Canonical_Selection_Only'Access,
-         "Phase 380 Command Palette Projects Canonical Selection Only");
+        (T, Test_Command_Palette_Projects_Canonical_Selection_Only'Access,
+         "Command Palette Projects Canonical Selection Only");
 
       AUnit.Test_Cases.Registration.Register_Routine
-        (T, Test_Phase380_Canonical_Selection_Validation_And_Extraction'Access,
-         "Phase 380 Canonical Selection Validation And Extraction");
+        (T, Test_Canonical_Selection_Validation_And_Extraction'Access,
+         "Canonical Selection Validation And Extraction");
 
       AUnit.Test_Cases.Registration.Register_Routine
-        (T, Test_Phase380_Clipboard_And_Find_Consume_Canonical_Selection'Access,
-         "Phase 380 Clipboard And Find Consume Canonical Selection");
+        (T, Test_Clipboard_And_Find_Consume_Canonical_Selection'Access,
+         "Clipboard And Find Consume Canonical Selection");
 
       AUnit.Test_Cases.Registration.Register_Routine
-        (T, Test_Phase380_Select_All_And_Current_Word_Use_Canonical_Helpers'Access,
-         "Phase 380 Select All And Current Word Use Canonical Helpers");
+        (T, Test_Select_All_And_Current_Word_Use_Canonical_Helpers'Access,
+         "Select All And Current Word Use Canonical Helpers");
 
       AUnit.Test_Cases.Registration.Register_Routine
-        (T, Test_Phase380_Secondary_And_Invalid_Ranges_Are_Not_Canonical'Access,
-         "Phase 380 Secondary And Invalid Ranges Are Not Canonical");
+        (T, Test_Secondary_And_Invalid_Ranges_Are_Not_Canonical'Access,
+         "Secondary And Invalid Ranges Are Not Canonical");
 
       AUnit.Test_Cases.Registration.Register_Routine
         (T, Test_Start_Selection'Access, "Start Selection");
@@ -2255,20 +2257,20 @@ package body Editor.Selection.Tests is
         (T, Test_Collapse_Selection'Access, "Collapse Selection");
 
       AUnit.Test_Cases.Registration.Register_Routine
-        (T, Test_Phase209_Move_Left_Collapses_To_Selection_Start'Access,
-         "Phase 209 Move Left Collapses To Selection Start");
+        (T, Test_Move_Left_Collapses_To_Selection_Start'Access,
+         "Move Left Collapses To Selection Start");
 
       AUnit.Test_Cases.Registration.Register_Routine
-        (T, Test_Phase209_Move_Right_Collapses_To_Selection_End'Access,
-         "Phase 209 Move Right Collapses To Selection End");
+        (T, Test_Move_Right_Collapses_To_Selection_End'Access,
+         "Move Right Collapses To Selection End");
 
       AUnit.Test_Cases.Registration.Register_Routine
-        (T, Test_Phase209_Move_Line_End_Collapses_To_Line_End'Access,
-         "Phase 209 Move Line End Collapses To Line End");
+        (T, Test_Move_Line_End_Collapses_To_Line_End'Access,
+         "Move Line End Collapses To Line End");
 
       AUnit.Test_Cases.Registration.Register_Routine
-        (T, Test_Phase209_Shift_Down_Extends_Selection'Access,
-         "Phase 209 Shift Down Extends Selection");
+        (T, Test_Shift_Down_Extends_Selection'Access,
+         "Shift Down Extends Selection");
 
       AUnit.Test_Cases.Registration.Register_Routine
         (T, Test_Replace_Selection_Insert'Access, "Replace Selection");
@@ -2332,72 +2334,72 @@ package body Editor.Selection.Tests is
         "Rectangle Normalize Up Left");
 
       AUnit.Test_Cases.Registration.Register_Routine
-         (T, Test_Phase373_Rectangle_Copy_Uses_Primary_Plain_Text'Access,
-        "Phase 373 Rectangle Copy Uses Primary Plain Text");
+         (T, Test_Rectangle_Copy_Uses_Primary_Plain_Text'Access,
+        "Rectangle Copy Uses Primary Plain Text");
 
       AUnit.Test_Cases.Registration.Register_Routine
          (T, Test_Rectangle_Delete_Removes_Per_Row'Access,
         "Rectangle Delete Removes Per Row");
 
       AUnit.Test_Cases.Registration.Register_Routine
-         (T, Test_Phase68_Normalize_Rectangular_Range_Orders_Rows_Columns'Access,
-        "Phase 68 Rectangular Source_Span Orders Rows Columns");
+         (T, Test_Normalize_Rectangular_Range_Orders_Rows_Columns'Access,
+        "Rectangular Source_Span Orders Rows Columns");
 
       AUnit.Test_Cases.Registration.Register_Routine
-         (T, Test_Phase68_Normalize_Rectangular_Range_Zero_Width_Empty'Access,
-        "Phase 68 Rectangular Source_Span Zero Width Empty");
+         (T, Test_Normalize_Rectangular_Range_Zero_Width_Empty'Access,
+        "Rectangular Source_Span Zero Width Empty");
 
       AUnit.Test_Cases.Registration.Register_Routine
-         (T, Test_Phase68_Normalize_Rectangular_Range_One_Column'Access,
-        "Phase 68 Rectangular Source_Span One Column");
+         (T, Test_Normalize_Rectangular_Range_One_Column'Access,
+        "Rectangular Source_Span One Column");
 
       AUnit.Test_Cases.Registration.Register_Routine
-         (T, Test_Phase66_Normalize_Text_Range'Access,
-        "Phase 66 Normalize Text Source_Span");
+         (T, Test_Normalize_Text_Range'Access,
+        "Normalize Text Source_Span");
 
       AUnit.Test_Cases.Registration.Register_Routine
-         (T, Test_Phase66_Word_Range_At_Word_And_End_Edge'Access,
-        "Phase 66 Word Source_Span Word And End Edge");
+         (T, Test_Word_Range_At_Word_And_End_Edge'Access,
+        "Word Source_Span Word And End Edge");
 
       AUnit.Test_Cases.Registration.Register_Routine
-         (T, Test_Phase66_Word_Range_At_Underscore_Digits_And_Symbols'Access,
-        "Phase 66 Word Source_Span Underscore Digits Symbols");
+         (T, Test_Word_Range_At_Underscore_Digits_And_Symbols'Access,
+        "Word Source_Span Underscore Digits Symbols");
 
       AUnit.Test_Cases.Registration.Register_Routine
-         (T, Test_Phase66_Word_Range_Clamps_And_Stays_On_Line'Access,
-        "Phase 66 Word Source_Span Clamps And Line Boundary");
+         (T, Test_Word_Range_Clamps_And_Stays_On_Line'Access,
+        "Word Source_Span Clamps And Line Boundary");
 
       AUnit.Test_Cases.Registration.Register_Routine
-         (T, Test_Phase66_Executor_Select_Word_Command'Access,
-        "Phase 66 Executor Select Word Command");
+         (T, Test_Executor_Select_Word_Command'Access,
+        "Executor Select Word Command");
 
       AUnit.Test_Cases.Registration.Register_Routine
-         (T, Test_Phase67_Line_Range_Non_Last_Includes_Newline'Access,
-        "Phase 67 Line Source_Span Non Last Includes Newline");
+         (T, Test_Line_Range_Non_Last_Includes_Newline'Access,
+        "Line Source_Span Non Last Includes Newline");
 
       AUnit.Test_Cases.Registration.Register_Routine
-         (T, Test_Phase67_Line_Range_Last_Ends_At_Line_Length'Access,
-        "Phase 67 Line Source_Span Last Ends At Length");
+         (T, Test_Line_Range_Last_Ends_At_Line_Length'Access,
+        "Line Source_Span Last Ends At Length");
 
       AUnit.Test_Cases.Registration.Register_Routine
-         (T, Test_Phase67_Lines_Range_Normalizes_Reversed_Rows'Access,
-        "Phase 67 Lines Source_Span Normalizes Reversed Rows");
+         (T, Test_Lines_Range_Normalizes_Reversed_Rows'Access,
+        "Lines Source_Span Normalizes Reversed Rows");
 
       AUnit.Test_Cases.Registration.Register_Routine
-         (T, Test_Phase67_Executor_Select_Line_Command'Access,
-        "Phase 67 Executor Select Line Command");
+         (T, Test_Executor_Select_Line_Command'Access,
+        "Executor Select Line Command");
 
       AUnit.Test_Cases.Registration.Register_Routine
-         (T, Test_Phase67_Extend_Line_Selection_Preserves_Direction'Access,
-        "Phase 67 Extend Line Selection Preserves Direction");
+         (T, Test_Extend_Line_Selection_Preserves_Direction'Access,
+        "Extend Line Selection Preserves Direction");
 
       AUnit.Test_Cases.Registration.Register_Routine
-         (T, Test_Phase541_Selection_Count_Helpers_Normalize_Range'Access,
-        "Phase 541 Selection Count Helpers Normalize Source_Span");
+         (T, Test_Selection_Count_Helpers_Normalize_Range'Access,
+        "Selection Count Helpers Normalize Source_Span");
 
       AUnit.Test_Cases.Registration.Register_Routine
-         (T, Test_Phase541_Selection_Count_Helpers_Ignore_Invalid_State'Access,
-        "Phase 541 Selection Count Helpers Ignore Invalid State");
+         (T, Test_Selection_Count_Helpers_Ignore_Invalid_State'Access,
+        "Selection Count Helpers Ignore Invalid State");
 
    end Register_Tests;
 

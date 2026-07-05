@@ -33,14 +33,14 @@ package Editor.Core_Editing_Workflow is
    function Buffer_File_State_Label
      (S : Editor.State.State_Type) return String;
 
-   --  Return whether the command belongs to the Phase 532 core editing/file
+   --  Return whether the command belongs to the core editing/file
    --  workflow surface.  This is descriptor classification only and never
    --  executes a command.
    function Is_Core_Editing_Command
      (Id : Editor.Commands.Command_Id) return Boolean;
 
    --  Return whether the command is a buffer lifecycle/navigation command in
-   --  the Phase 532 editing loop: open/new/close/reopen/switch.  This helper
+   --  the editing loop: open/new/close/reopen/switch.  This helper
    --  deliberately excludes project lifecycle, build, diagnostics, search,
    --  and panel-local commands.
    function Is_Buffer_Lifecycle_Command
@@ -82,7 +82,7 @@ package Editor.Core_Editing_Workflow is
      (S  : Editor.State.State_Type;
       Id : Editor.Commands.Command_Id) return String;
 
-   --  Inspect the active editing state for Phase 532 invariants: file-backed
+   --  Inspect the active editing state for invariants: file-backed
    --  identity, dirty baseline, caret/selection bounds, persistence exclusions,
    --  and command availability reason coherence.
    function Audit_Core_Editing_Workflow
@@ -91,7 +91,7 @@ package Editor.Core_Editing_Workflow is
    function Assert_Core_Editing_Workflow_Coherent
      (S : Editor.State.State_Type) return Boolean;
 
-   --  Phase 540 milestone helper: verify that everyday text-editing
+   --  milestone helper: verify that everyday text-editing
    --  primitives are coherently represented in the static command surface.
    --  This is descriptor/classification/command-name coverage only; it never mutates
    --  buffer text, caret/selection state, undo/redo history, render state, or

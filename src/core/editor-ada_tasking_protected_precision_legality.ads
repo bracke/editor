@@ -8,9 +8,9 @@ with Editor.Ada_Tasking_Protected_Legality;
 
 package Editor.Ada_Tasking_Protected_Precision_Legality is
 
-   --  Pass1130 compiler-grade tasking/protected precision layer.
+   --  Case 1130 compiler-grade tasking/protected precision layer.
    --
-   --  This package deepens Pass1103 tasking/protected legality by connecting
+   --  This package deepens Case 1103 tasking/protected legality by connecting
    --  protected-state effects, entry-barrier dataflow, accept/requeue/select
    --  flow, task activation/elaboration, and accessibility-sensitive queued
    --  entry-call facts.  Callers supply bounded semantic facts already owned by

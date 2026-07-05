@@ -72,7 +72,9 @@ package body Editor.External_Producers.Tests is
       Edit_Start_Column : Natural := 0;
       Edit_End_Line : Natural := 0;
       Edit_End_Column : Natural := 0;
-      Replacement_Text : String := "")
+      Replacement_Text : String := "";
+      Quick_Fix_Label : String := "";
+      Quick_Fix_Detail : String := "")
       return Editor.External_Producers.External_Diagnostic_Record
    is
    begin
@@ -89,7 +91,9 @@ package body Editor.External_Producers.Tests is
          Edit_Start_Column => Edit_Start_Column,
          Edit_End_Line     => Edit_End_Line,
          Edit_End_Column   => Edit_End_Column,
-         Replacement_Text  => To_Unbounded_String (Replacement_Text));
+         Replacement_Text  => To_Unbounded_String (Replacement_Text),
+         Quick_Fix_Label   => To_Unbounded_String (Quick_Fix_Label),
+         Quick_Fix_Detail  => To_Unbounded_String (Quick_Fix_Detail));
    end Rec;
 
    function CRec
@@ -210,7 +214,9 @@ package body Editor.External_Producers.Tests is
             Edit_Start_Column => 6,
             Edit_End_Line => 1,
             Edit_End_Column => 6,
-            Replacement_Text => " ; "));
+            Replacement_Text => " ; ",
+            Quick_Fix_Label => "Insert semicolon",
+            Quick_Fix_Detail => "Append a statement delimiter"));
       Items.Append
         (Rec
            ("bad target edit",
@@ -258,6 +264,12 @@ package body Editor.External_Producers.Tests is
       Assert (Editor.Feature_Diagnostics.Item_Replacement_Text
                 (S.Feature_Diagnostics, 1) = " ; ",
               "external edit replacement text preserves significant whitespace");
+      Assert (Editor.Feature_Diagnostics.Item_Quick_Fix_Label
+                (S.Feature_Diagnostics, 1) = "Insert semicolon",
+              "external edit quick-fix label is stored through Diagnostics");
+      Assert (Editor.Feature_Diagnostics.Item_Quick_Fix_Detail
+                (S.Feature_Diagnostics, 1) = "Append a statement delimiter",
+              "external edit quick-fix detail is stored through Diagnostics");
       Assert (not Editor.Feature_Diagnostics.Item_Has_Edit
                 (S.Feature_Diagnostics, 2),
               "external edit metadata is dropped for stale buffer targets");
@@ -2402,23 +2414,23 @@ package body Editor.External_Producers.Tests is
               "unknown fixture prepares no process request");
    end Test_Real_Build_Tool_Fixture_Rejects_Unknown_Fixture;
 
-   procedure Test_Real_Build_Tool_Fixture_Rejects_Project_Metadata_Provenance
+   procedure Test_Real_Build_Tool_Fixture_Rejects_Implicit_Source_Provenance
      (T : in out AUnit.Test_Cases.Test_Case'Class)
    is
       pragma Unreferenced (T);
       Preflight : constant Editor.External_Producers.Build_Preflight_Result :=
         Editor.External_Producers.Preflight_Real_Build_Tool_Fixture
           (Real_Build_Tool_Fixture_Request
-             (Provenance => Editor.External_Producers.Build_Request_From_Project_Metadata),
+             (Provenance => Editor.External_Producers.Build_Request_From_Implicit_Source),
            Editor.External_Producers.GPRbuild_Version_Fixture,
            Real_Build_Tool_Fixture_Gate);
    begin
       Assert (Preflight.Build_Request_Status =
-                Editor.External_Producers.Build_Request_Rejected_Project_Metadata,
-              "project metadata provenance remains unsupported for real build-tool fixtures");
+                Editor.External_Producers.Build_Request_Rejected_Implicit_Source,
+              "implicit build source provenance remains unsupported for real build-tool fixtures");
       Assert (not Preflight.Has_Process_Request,
-              "project metadata rejection prepares no process request");
-   end Test_Real_Build_Tool_Fixture_Rejects_Project_Metadata_Provenance;
+              "implicit build source rejection prepares no process request");
+   end Test_Real_Build_Tool_Fixture_Rejects_Implicit_Source_Provenance;
 
    procedure Test_Real_Build_Tool_Fixture_Accepts_User_Opt_In_With_Explicit_Gate
      (T : in out AUnit.Test_Cases.Test_Case'Class)
@@ -2624,7 +2636,7 @@ package body Editor.External_Producers.Tests is
       Preflight : constant Editor.External_Producers.Build_Preflight_Result :=
         Editor.External_Producers.Preflight_Real_Build_Tool_Fixture
           (Real_Build_Tool_Fixture_Request
-             (Provenance => Editor.External_Producers.Build_Request_From_Project_Metadata),
+             (Provenance => Editor.External_Producers.Build_Request_From_Implicit_Source),
            Editor.External_Producers.GPRbuild_Version_Fixture,
            Real_Build_Tool_Fixture_Gate);
    begin
@@ -3953,7 +3965,7 @@ package body Editor.External_Producers.Tests is
       Assert (Editor.External_Producers.Audit_Gated_Runner_Command_Path,
               "gated runner command audit covers disabled, invalid, fixture, no-ingest, unavailable, and opaque cases");
       Assert (Editor.External_Producers.Audit_Real_Build_Execution_Gates,
-              "real build opt-in audit covers provenance, project metadata, working context, and gate rejection cases");
+              "real build opt-in audit covers provenance, implicit source, working context, and gate rejection cases");
       After := Editor.Feature_Panel.Fingerprint (S.Feature_Panel);
       Assert (Before = After,
               "gated build audits are side-effect-free for caller state");
@@ -4125,7 +4137,7 @@ package body Editor.External_Producers.Tests is
         Editor.External_Producers.Execute_Build_Request (Build_Request);
    begin
       Assert (Result.Status = Editor.External_Producers.Build_Run_Not_Available,
-              "default Phase 167 build executor seam does not run an external tool");
+              "default build executor seam does not run an external tool");
       Assert (Result.Diagnostic_Lines.Length = 0,
               "default not-available result carries no diagnostics");
    end Test_Build_Run_Test_Seam_Does_Not_Invoke_External_Tool_By_Default;
@@ -4524,13 +4536,13 @@ package body Editor.External_Producers.Tests is
               "missing user opt-in provenance maps to compact feedback");
    end Test_User_Opt_In_Build_Requires_User_Opt_In_Provenance;
 
-   procedure Test_User_Opt_In_Build_Rejects_Project_Metadata_Provenance
+   procedure Test_User_Opt_In_Build_Rejects_Implicit_Source_Provenance
      (T : in out AUnit.Test_Cases.Test_Case'Class)
    is
       pragma Unreferenced (T);
       Request : constant Editor.External_Producers.Build_Run_Request :=
         (Tool          => Editor.External_Producers.Alire_Build_Tool,
-         Provenance    => Editor.External_Producers.Build_Request_From_Project_Metadata,
+         Provenance    => Editor.External_Producers.Build_Request_From_Implicit_Source,
          Working_Label => Null_Unbounded_String,
          Command_Label => To_Unbounded_String ("alr"),
          Arguments     => Null_Unbounded_String,
@@ -4541,12 +4553,12 @@ package body Editor.External_Producers.Tests is
           (Request, Editor.External_Producers.Build_Real_Execution_Gate (Consent => Editor.External_Producers.Build_Consent_User_Confirmed));
    begin
       Assert (Result.Build_Request_Status =
-                Editor.External_Producers.Build_Request_Rejected_Project_Metadata,
-              "project metadata provenance remains rejected");
+                Editor.External_Producers.Build_Request_Rejected_Implicit_Source,
+              "implicit build source provenance remains rejected");
       Assert (Editor.External_Producers.Build_User_Opt_In_Build_Feedback (Result) =
-                "Build: project build metadata not supported",
-              "project metadata rejection has deterministic feedback");
-   end Test_User_Opt_In_Build_Rejects_Project_Metadata_Provenance;
+                "Build: explicit build request required",
+              "implicit build source rejection has deterministic feedback");
+   end Test_User_Opt_In_Build_Rejects_Implicit_Source_Provenance;
 
    procedure Test_User_Opt_In_Build_Rejects_Unknown_Provenance
      (T : in out AUnit.Test_Cases.Test_Case'Class)
@@ -4802,7 +4814,7 @@ package body Editor.External_Producers.Tests is
       Assert (Context.Request.Structured_Arguments.Length = 1,
               "command context preserves structured argv");
       Assert (Status = Editor.External_Producers.User_Build_Context_Valid,
-              "command context validates through Phase 180 user opt-in command context classifier");
+              "command context validates through user opt-in command context classifier");
    end Test_User_Opt_In_Build_Command_Context_Constructs_Structured_Request;
 
    procedure Test_User_Opt_In_Build_Command_Rejects_Missing_Context
@@ -4869,7 +4881,7 @@ package body Editor.External_Producers.Tests is
         (Has_Request => True,
          Request     =>
            (Tool                 => Editor.External_Producers.GPRbuild_Tool,
-            Provenance           => Editor.External_Producers.Build_Request_From_Project_Metadata,
+            Provenance           => Editor.External_Producers.Build_Request_From_Implicit_Source,
             Working_Label        => Null_Unbounded_String,
             Command_Label        => To_Unbounded_String ("gprbuild"),
             Arguments            => Null_Unbounded_String,
@@ -4953,8 +4965,8 @@ package body Editor.External_Producers.Tests is
                 (Test_Only_Consent) = Editor.External_Producers.User_Build_Context_Rejected_Missing_Consent,
               "test-only consent is not user-confirmed consent");
       Assert (Editor.External_Producers.Validate_User_Opt_In_Build_Command_Context
-                (Project_Request) = Editor.External_Producers.User_Build_Context_Rejected_Project_Metadata,
-              "project metadata remains unreachable from command test seam");
+                (Project_Request) = Editor.External_Producers.User_Build_Context_Rejected_Implicit_Source,
+              "implicit build source remains unreachable from command test seam");
       Assert (Editor.External_Producers.Validate_User_Opt_In_Build_Command_Context
                 (Fixture_Request) = Editor.External_Producers.User_Build_Context_Rejected_Provenance,
               "fixture provenance cannot substitute for user opt-in provenance");
@@ -5044,7 +5056,7 @@ package body Editor.External_Producers.Tests is
       Prepare_State (S);
       Result := Editor.External_Producers.Run_Build_Execution_Consent_Audit (S);
       Assert (Result.Passed,
-              "Phase 181 build execution consent audit must pass default state");
+              "build execution consent audit must pass default state");
       Assert (Result.Has_Public_Build_Command,
               "build.run public command is exposed through the guarded public surface");
       Assert (not Result.Has_Default_Build_Keybinding,
@@ -5057,8 +5069,8 @@ package body Editor.External_Producers.Tests is
               "internal build test seam must require an explicit execution gate");
       Assert (Result.Internal_Command_Requires_Consent,
               "internal build test seam must require user-confirmed consent");
-      Assert (Result.Rejects_Project_Metadata,
-              "project metadata build requests must remain rejected");
+      Assert (Result.Rejects_Implicit_Source,
+              "implicit build source requests must remain rejected");
       Assert (Result.Rejects_Custom_Tool,
               "custom build tool requests must remain rejected");
       Assert (Result.Rejects_Shell,
@@ -5107,7 +5119,7 @@ package body Editor.External_Producers.Tests is
       pragma Unreferenced (T);
    begin
       Assert (Editor.External_Producers.Audit_Build_Command_Rejection_Matrix,
-              "Phase 181 rejection matrix audit must cover context, request, gate, consent, provenance, tool, argv, shell, working context, diagnostics policy, visibility policy, and execution ambiguity");
+              "rejection matrix audit must cover context, request, gate, consent, provenance, tool, argv, shell, working context, diagnostics policy, visibility policy, and execution ambiguity");
    end Test_Build_Command_Rejection_Matrix_Audit_Covers_Invalid_Cells;
 
    procedure Test_User_Opt_In_Build_Command_Surface_Audit
@@ -5295,8 +5307,8 @@ package body Editor.External_Producers.Tests is
                         "real build-tool fixture requires explicit gate");
       Register_Routine (T, Test_Real_Build_Tool_Fixture_Rejects_Unknown_Fixture'Access,
                         "real build-tool fixture rejects unknown fixture");
-      Register_Routine (T, Test_Real_Build_Tool_Fixture_Rejects_Project_Metadata_Provenance'Access,
-                        "real build-tool fixture rejects project metadata provenance");
+      Register_Routine (T, Test_Real_Build_Tool_Fixture_Rejects_Implicit_Source_Provenance'Access,
+                        "real build-tool fixture rejects implicit build source provenance");
       Register_Routine (T, Test_Real_Build_Tool_Fixture_Accepts_User_Opt_In_With_Explicit_Gate'Access,
                         "real build-tool fixture accepts user opt-in with explicit gate");
       Register_Routine (T, Test_Real_Build_Tool_Fixture_Prepares_Alire_Version_Argv'Access,
@@ -5457,8 +5469,8 @@ package body Editor.External_Producers.Tests is
                         "user opt-in build preflight returns process request when all gates pass");
       Register_Routine (T, Test_User_Opt_In_Build_Requires_User_Opt_In_Provenance'Access,
                         "user opt-in build requires user opt-in provenance");
-      Register_Routine (T, Test_User_Opt_In_Build_Rejects_Project_Metadata_Provenance'Access,
-                        "user opt-in build rejects project metadata provenance");
+      Register_Routine (T, Test_User_Opt_In_Build_Rejects_Implicit_Source_Provenance'Access,
+                        "user opt-in build rejects implicit build source provenance");
       Register_Routine (T, Test_User_Opt_In_Build_Rejects_Unknown_Provenance'Access,
                         "user opt-in build rejects unknown provenance");
       Register_Routine (T, Test_User_Opt_In_Build_Rejects_Fixture_Provenance_Under_Real_Gate'Access,

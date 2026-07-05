@@ -754,7 +754,7 @@ package body Editor.Bookmarks is
      (State : Bookmark_State) return Boolean
    is
    begin
-      --  Phase 490 freezes the foundation model: Bookmarks project retained
+      --  freezes the foundation model: Bookmarks project retained
       --  bookmark entries and selection only; lifecycle-visible open/active/dirty
       --  facts are read from canonical buffer state by render snapshot code and
       --  are never persisted back into Bookmark state.
@@ -765,7 +765,7 @@ package body Editor.Bookmarks is
      (State : Bookmark_State) return Boolean
    is
    begin
-      --  Phase 491 does not introduce a second model. Reliability is proven by
+      --  does not introduce a second model. Reliability is proven by
       --  preserving the frozen structural contract while workflow tests exercise
       --  successful, failed, blocked, prompted, render, audit, lifecycle, and
       --  persistence paths around it.
@@ -778,7 +778,7 @@ package body Editor.Bookmarks is
       Snapshot : Bookmark_Snapshot;
       Rows     : Bookmark_Row_Vectors.Vector;
    begin
-      --  Phase 492 cleanup: Bookmark runtime state contains no stale path-label
+      --  cleanup: Bookmark runtime state contains no stale path-label
       --  cache, dirty cache, operation/target history, prompt state, repair
       --  cache, projection import, or persistence-adjacent lifecycle field.  The
       --  only reachable projection is recomputed from retained Bookmark entries
@@ -815,7 +815,7 @@ package body Editor.Bookmarks is
       Snapshot : Bookmark_Snapshot;
       Rows     : Bookmark_Row_Vectors.Vector;
    begin
-      --  Phase 493 does not add a new observation model.  The final predicate
+      --  does not add a new observation model.  The final predicate
       --  deliberately revalidates that the only reachable Bookmark projection
       --  is rebuilt from retained bookmark entries and selection, with all
       --  lifecycle-visible buffer/open/dirty facts owned by canonical external

@@ -10,7 +10,7 @@ with Editor.Ada_Volatile_Atomic_Representation_Consumer_Legality;
 
 package Editor.Ada_Dispatching_Global_Refinement_Legality is
 
-   --  Pass1226 dispatching Global/Depends refinement legality.
+   --  Case 1226 dispatching Global/Depends refinement legality.
    --
    --  This package connects dispatching-call Global/Depends proof to the
    --  shared-state semantic chain.  Class-wide controlling calls, inherited

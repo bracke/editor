@@ -5,9 +5,9 @@ with Editor.Ada_Syntax_Tree;
 
 package Editor.Ada_Remaining_RM_Edge_Stabilized_Closure_Legality is
 
-   --  Pass1291 stabilized closure for remaining Ada RM edge evidence.
+   --  Case 1291 stabilized closure for remaining Ada RM edge evidence.
    --
-   --  This package consumes Pass1290 remaining RM edge stabilization-gate rows
+   --  This package consumes Case 1290 remaining RM edge stabilization-gate rows
    --  and turns stable remaining-edge results into first-class semantic closure
    --  evidence.  Stable promoted rows become accepted closure evidence; stable
    --  withheld rows become explicit closure blockers with their original blocker

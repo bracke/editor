@@ -210,7 +210,7 @@ package body Editor.Ada_RM_Completion_Closure_Consumer_Diagnostic_Integration is
          Severity => Severity_For (Family),
          Node => Source.Node,
          Message => Message_For (Family),
-         Detail => To_Unbounded_String ("Pass1273 preserves direct RM-completion closure consumer blocker-family identity at the diagnostic/feed boundary."),
+         Detail => To_Unbounded_String ("Case 1273 preserves direct RM-completion closure consumer blocker-family identity at the diagnostic/feed boundary."),
          Source_Fingerprint => Source.Source_Fingerprint,
          Substitution_Fingerprint => Source.Substitution_Fingerprint,
          Semantic_Fingerprint => Source.Row_Fingerprint,

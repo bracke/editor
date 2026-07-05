@@ -2,6 +2,10 @@ with Ada.Strings.Fixed;
 with Ada.Strings.Unbounded; use Ada.Strings.Unbounded;
 with AUnit.Assertions; use AUnit.Assertions;
 with AUnit.Test_Cases;
+with Editor.Ada_Diagnostic_Command_Projection;
+with Editor.Ada_Diagnostic_Action_Router;
+with Editor.Ada_Semantic_Diagnostic_Feed;
+with Editor.Ada_Semantic_Diagnostic_Index;
 with Editor.Build_Diagnostics;
 with Editor.Commands;
 with Editor.Diagnostics_Review_UX;
@@ -18,6 +22,7 @@ package body Editor.Diagnostics_Review_UX.Tests is
 
    use type Editor.Commands.Command_Id;
    use type Editor.Commands.Command_Category;
+   use type Editor.Feature_Diagnostics.Diagnostic_Quick_Fix_Action_Model;
 
    overriding function Name
      (T : Diagnostics_Review_UX_Test_Case) return AUnit.Message_String
@@ -302,7 +307,7 @@ package body Editor.Diagnostics_Review_UX.Tests is
       Assert (Editor.Commands.Stable_Command_Name
                 (Editor.Commands.Command_Diagnostics_Filter_Errors) =
               "diagnostics.filter-errors",
-              "filter-errors uses the canonical Phase 557 stable name");
+              "filter-errors uses the canonical stable name");
       Assert (Editor.Commands.Has_Descriptor
                 (Editor.Commands.Command_Diagnostics_Filter_Source),
               "filter-source command has a descriptor");
@@ -494,6 +499,199 @@ package body Editor.Diagnostics_Review_UX.Tests is
    end Test_Diagnostic_Edit_Metadata_Is_Validated_And_Bounded;
 
 
+   procedure Test_Ada_Diagnostic_Command_Descriptor_Carries_Quick_Fix_Metadata
+     (T : in out AUnit.Test_Cases.Test_Case'Class)
+   is
+      pragma Unreferenced (T);
+      D : Editor.Feature_Diagnostics.Diagnostics_Feature_State;
+      Descriptor :
+        Editor.Ada_Diagnostic_Command_Projection.Diagnostic_Command_Descriptor :=
+          (Id => 1,
+           Index_Id => Editor.Ada_Semantic_Diagnostic_Index.No_Semantic_Diagnostic_Index_Entry,
+           Feed_Index => 1,
+           Diagnostic =>
+             (Id => 1,
+              Source => <>,
+              Severity => Editor.Ada_Semantic_Diagnostic_Feed.Semantic_Diagnostic_Feed_Error,
+              Token => <>,
+              Node => <>,
+              Message => To_Unbounded_String ("missing context clause"),
+              Start_Line => 4,
+              Start_Column => 2,
+              End_Line => 4,
+              End_Column => 22,
+              Has_Edit => True,
+              Edit_Start_Line => 1,
+              Edit_Start_Column => 1,
+              Edit_End_Line => 1,
+              Edit_End_Column => 1,
+              Replacement_Text => To_Unbounded_String ("with Ada.Text_IO;"),
+              Source_Fingerprint => 0,
+              Fingerprint => 0),
+           Severity => Editor.Ada_Semantic_Diagnostic_Feed.Semantic_Diagnostic_Feed_Error,
+           Source => <>,
+           Token => <>,
+           Node => <>,
+           Route_Id => Editor.Ada_Diagnostic_Action_Router.No_Diagnostic_Action_Route,
+           Route_Kind =>
+             Editor.Ada_Diagnostic_Action_Router.Diagnostic_Action_Route_Review_Cross_Unit,
+           Command_Kind =>
+             Editor.Ada_Diagnostic_Command_Projection.Diagnostic_Command_Review_Cross_Unit,
+           Availability =>
+             Editor.Ada_Diagnostic_Command_Projection.Diagnostic_Command_Available,
+           Command_Name => To_Unbounded_String ("ada.diagnostic.review-cross-unit"),
+           Display_Label => To_Unbounded_String ("Review missing dependency"),
+           Detail => To_Unbounded_String ("Insert missing context clause"),
+           Has_Edit => True,
+           Edit_Start_Line => 1,
+           Edit_Start_Column => 1,
+           Edit_End_Line => 1,
+           Edit_End_Column => 1,
+           Replacement_Text => To_Unbounded_String ("with Ada.Text_IO;"),
+           Start_Line => 4,
+           Start_Column => 2,
+           End_Line => 4,
+           End_Column => 22,
+           Route_Fingerprint => 0,
+           Fingerprint => 0);
+   begin
+      Editor.Feature_Diagnostics.Add_Diagnostic_Command_Descriptor
+        (D, Descriptor,
+         Source_Label => "semantic",
+         Target_Buffer => 77);
+
+      Assert (Editor.Feature_Diagnostics.Item_Has_Edit (D, 1),
+              "Ada diagnostic command descriptor edit metadata is retained");
+      Assert
+        (Editor.Feature_Diagnostics.Item_Quick_Fix_Label (D, 1) =
+           "Review missing dependency"
+         and then Editor.Feature_Diagnostics.Item_Quick_Fix_Detail (D, 1) =
+           "Insert missing context clause",
+         "Ada diagnostic command descriptor label/detail become Diagnostics quick-fix metadata");
+   end Test_Ada_Diagnostic_Command_Descriptor_Carries_Quick_Fix_Metadata;
+
+   procedure Test_Quick_Fix_Action_Ingestion_Is_Normalized_And_Bounded
+     (T : in out AUnit.Test_Cases.Test_Case'Class)
+   is
+      pragma Unreferenced (T);
+      D : Editor.Feature_Diagnostics.Diagnostics_Feature_State;
+   begin
+      Editor.Feature_Diagnostics.Add_Diagnostic
+        (D,
+         Severity      => Editor.Feature_Diagnostics.Diagnostic_Error,
+         Message       => "missing semicolon",
+         Source_Label  => "semantic",
+         Source_Kind   => Editor.Feature_Diagnostics.Editor_Diagnostic_Source,
+         Has_Target    => True,
+         Target_Buffer => 77,
+         Target_Line   => 3,
+         Target_Column => 8);
+
+      Editor.Feature_Diagnostics.Append_Diagnostic_Quick_Fix_Command
+        (D, 1,
+         Label  => "",
+         Detail => "",
+         Primary_Action_Kind =>
+           Editor.Ada_Diagnostic_Command_Projection.Diagnostic_Command_Explain_Diagnostic);
+      Assert
+        (Editor.Feature_Diagnostics.Item_Quick_Fix_Action_Count (D, 1) = 1,
+         "empty-label non-edit quick-fix action is retained as a bounded action");
+      Assert
+        (Editor.Feature_Diagnostics.Item_Quick_Fix_Action_Label_For_Display (D, 1, 1) =
+         "Apply quick fix: Explain diagnostic",
+         "empty quick-fix action label falls back to action kind");
+      Assert
+        (Editor.Feature_Diagnostics.Item_Quick_Fix_Action_Detail_For_Display (D, 1, 1) =
+         "Diagnostic action: Explain diagnostic",
+         "empty quick-fix action detail falls back to action kind");
+
+      Editor.Feature_Diagnostics.Append_Diagnostic_Quick_Fix_Edit_And_Command
+        (D, 1,
+         Label  => "Invalid edit",
+         Detail => "Rejected edit metadata",
+         Primary_Action_Kind =>
+           Editor.Ada_Diagnostic_Command_Projection.Diagnostic_Command_Explain_Diagnostic,
+         Edit_Start_Line   => 3,
+         Edit_Start_Column => 8,
+         Edit_End_Line     => 3,
+         Edit_End_Column   => 7,
+         Replacement_Text  => ";");
+      Assert
+        (not Editor.Feature_Diagnostics.Item_Quick_Fix_Action_Has_Edit (D, 1, 2)
+         and then Editor.Feature_Diagnostics.Item_Quick_Fix_Action_Replacement_Text
+           (D, 1, 2) = "",
+         "invalid quick-fix edit range is dropped at ingestion");
+
+      for I in 1 .. 10 loop
+         Editor.Feature_Diagnostics.Append_Diagnostic_Quick_Fix_Command
+           (D, 1,
+            Label  => "Extra" & Natural'Image (I),
+            Detail => "bounded",
+            Primary_Action_Kind =>
+              Editor.Ada_Diagnostic_Command_Projection.Diagnostic_Command_Explain_Diagnostic);
+      end loop;
+      Assert
+        (Editor.Feature_Diagnostics.Item_Quick_Fix_Action_Count (D, 1) =
+         Editor.Feature_Diagnostics.Max_Quick_Fix_Actions_Per_Diagnostic,
+         "quick-fix action ingestion is capped per diagnostic");
+   end Test_Quick_Fix_Action_Ingestion_Is_Normalized_And_Bounded;
+
+   procedure Test_Quick_Fix_Action_Typed_Appenders_Set_Model
+     (T : in out AUnit.Test_Cases.Test_Case'Class)
+   is
+      pragma Unreferenced (T);
+      package Diagnostics renames Editor.Feature_Diagnostics;
+      package Projection renames Editor.Ada_Diagnostic_Command_Projection;
+      D : Diagnostics.Diagnostics_Feature_State;
+   begin
+      Diagnostics.Add_Diagnostic
+        (D,
+         Severity      => Diagnostics.Diagnostic_Error,
+         Message       => "missing semicolon",
+         Source_Label  => "semantic",
+         Source_Kind   => Diagnostics.Editor_Diagnostic_Source,
+         Has_Target    => True,
+         Target_Buffer => 77,
+         Target_Line   => 3,
+         Target_Column => 8);
+
+      Diagnostics.Append_Diagnostic_Quick_Fix_Command
+        (D, 1,
+         Label => "Explain",
+         Primary_Action_Kind => Projection.Diagnostic_Command_Explain_Diagnostic);
+      Diagnostics.Append_Diagnostic_Quick_Fix_Edit
+        (D, 1,
+         Label => "Insert semicolon",
+         Edit_Start_Line => 3,
+         Edit_Start_Column => 8,
+         Edit_End_Line => 3,
+         Edit_End_Column => 8,
+         Replacement_Text => ";");
+      Diagnostics.Append_Diagnostic_Quick_Fix_Edit_And_Command
+        (D, 1,
+         Label => "Insert and review",
+         Primary_Action_Kind => Projection.Diagnostic_Command_Review_Expression,
+         Edit_Start_Line => 3,
+         Edit_Start_Column => 8,
+         Edit_End_Line => 3,
+         Edit_End_Column => 8,
+         Replacement_Text => ";");
+      Diagnostics.Append_Diagnostic_Quick_Fix_Unavailable
+        (D, 1, Label => "Unavailable");
+
+      Assert
+        (Diagnostics.Item_Quick_Fix_Action_Model (D, 1, 1) =
+           Diagnostics.Quick_Fix_Action_Command
+         and then Diagnostics.Item_Quick_Fix_Action_Model (D, 1, 2) =
+           Diagnostics.Quick_Fix_Action_Edit
+         and then Diagnostics.Item_Quick_Fix_Action_Model (D, 1, 3) =
+           Diagnostics.Quick_Fix_Action_Edit_And_Command
+         and then Diagnostics.Item_Quick_Fix_Action_Model (D, 1, 4) =
+           Diagnostics.Quick_Fix_Action_Unavailable,
+         "typed quick-fix appenders should set explicit action models");
+   end Test_Quick_Fix_Action_Typed_Appenders_Set_Model;
+
+
    procedure Test_External_Producer_Preserves_Line_Only_And_Partial_Target_Metadata
      (T : in out AUnit.Test_Cases.Test_Case'Class)
    is
@@ -519,7 +717,9 @@ package body Editor.Diagnostics_Review_UX.Tests is
          Edit_Start_Column => 0,
          Edit_End_Line     => 0,
          Edit_End_Column   => 0,
-         Replacement_Text  => Null_Unbounded_String);
+         Replacement_Text  => Null_Unbounded_String,
+         Quick_Fix_Label   => Null_Unbounded_String,
+         Quick_Fix_Detail  => Null_Unbounded_String);
       Result := Editor.External_Producers.Ingest_Diagnostic_Record
         (S,
          Editor.External_Producers.Build_Compiler_Diagnostics_Producer_Source,
@@ -550,7 +750,9 @@ package body Editor.Diagnostics_Review_UX.Tests is
          Edit_Start_Column => 0,
          Edit_End_Line     => 0,
          Edit_End_Column   => 0,
-         Replacement_Text  => Null_Unbounded_String);
+         Replacement_Text  => Null_Unbounded_String,
+         Quick_Fix_Label   => Null_Unbounded_String,
+         Quick_Fix_Detail  => Null_Unbounded_String);
       Result := Editor.External_Producers.Ingest_Diagnostic_Record
         (S,
          Editor.External_Producers.Build_Compiler_Diagnostics_Producer_Source,
@@ -598,7 +800,9 @@ package body Editor.Diagnostics_Review_UX.Tests is
          Edit_Start_Column => 0,
          Edit_End_Line     => 0,
          Edit_End_Column   => 0,
-         Replacement_Text  => Null_Unbounded_String);
+         Replacement_Text  => Null_Unbounded_String,
+         Quick_Fix_Label   => Null_Unbounded_String,
+         Quick_Fix_Detail  => Null_Unbounded_String);
       Result := Editor.External_Producers.Ingest_Diagnostic_Record
         (S,
          Editor.External_Producers.Build_Compiler_Diagnostics_Producer_Source,
@@ -630,7 +834,7 @@ package body Editor.Diagnostics_Review_UX.Tests is
       Assert (not Editor.Commands.Is_Available (A),
               "open-selected is unavailable before routing for out-of-range retained targets");
       Assert (Editor.Commands.Unavailable_Reason (A) =
-              "Diagnostic target line is outside the buffer",
+              Editor.Commands.Reason_Diagnostic_Target_Line_Outside_Buffer,
               "open-selected reports the retained line as out of range, not missing/source-less");
    end Test_External_Producer_Preserves_Invalid_Target_Position_Metadata;
 
@@ -664,7 +868,7 @@ package body Editor.Diagnostics_Review_UX.Tests is
               "ordinary edits mark targeted diagnostics stale instead of clearing them");
       Assert (Editor.Diagnostics_Review_UX.
                 Assert_Diagnostics_Edit_Marks_Stale_Rather_Than_Clears (S),
-              "Phase 557 audit covers edit-to-stale diagnostics lifecycle");
+              "audit covers edit-to-stale diagnostics lifecycle");
    end Test_Edit_Marks_Targeted_Diagnostics_Stale_Not_Cleared;
 
 
@@ -730,7 +934,7 @@ package body Editor.Diagnostics_Review_UX.Tests is
       Assert (not Editor.Commands.Is_Available (A),
               "open-selected is unavailable for source-labelled missing targets");
       Assert (Editor.Commands.Unavailable_Reason (A) =
-              "Target no longer exists.",
+              Editor.Commands.Reason_Target_Missing,
               "source-labelled missing target uses shared missing-target wording");
 
       Before_Count := Editor.Messages.Count (S.Messages);
@@ -742,7 +946,7 @@ package body Editor.Diagnostics_Review_UX.Tests is
               "missing target activation emits one precise primary message");
       M := Editor.Messages.Active_Message (S.Messages, Found);
       Assert (Found and then Editor.Messages.Text (M) =
-              "Target no longer exists.",
+              Editor.Commands.Reason_Target_Missing,
               "missing target activation reports shared missing-target wording");
    end Test_Open_Selected_Missing_Target_Is_Distinct_From_Source_Less;
 
@@ -777,7 +981,7 @@ package body Editor.Diagnostics_Review_UX.Tests is
       Assert (not Editor.Commands.Is_Available (A),
               "open-selected is unavailable before routing for known missing target buffers");
       Assert (Editor.Commands.Unavailable_Reason (A) =
-              "Target no longer exists.",
+              Editor.Commands.Reason_Target_Missing,
               "availability reports the same shared missing-target reason as activation");
    end Test_Open_Selected_Known_Missing_Buffer_Is_Unavailable_Pre_Route;
 
@@ -840,7 +1044,9 @@ package body Editor.Diagnostics_Review_UX.Tests is
          Edit_Start_Column => 0,
          Edit_End_Line     => 0,
          Edit_End_Column   => 0,
-         Replacement_Text  => Null_Unbounded_String);
+         Replacement_Text  => Null_Unbounded_String,
+         Quick_Fix_Label   => Null_Unbounded_String,
+         Quick_Fix_Detail  => Null_Unbounded_String);
       Result : Editor.Producer_Contracts.Producer_Result;
    begin
       Result := Editor.External_Producers.Ingest_Diagnostic_Record
@@ -1257,7 +1463,7 @@ package body Editor.Diagnostics_Review_UX.Tests is
         (S, Editor.Commands.Command_Feature_Panel_Open_Selected);
       M := Editor.Messages.Active_Message (S.Messages, Found);
       Assert (Found and then Editor.Messages.Text (M) =
-                "Target line is unavailable.",
+                Editor.Commands.Reason_Target_Line_Unavailable,
               "missing-line Diagnostics activation uses the shared target-line sentence");
 
       Editor.Feature_Diagnostics.Clear_Diagnostics (S.Feature_Diagnostics);
@@ -1281,7 +1487,7 @@ package body Editor.Diagnostics_Review_UX.Tests is
         (S, Editor.Commands.Command_Feature_Panel_Open_Selected);
       M := Editor.Messages.Active_Message (S.Messages, Found);
       Assert (Found and then Editor.Messages.Text (M) =
-                "Target no longer exists.",
+                Editor.Commands.Reason_Target_Missing,
               "missing-file Diagnostics activation normalizes retained target labels into the shared missing-target sentence");
    end Test_Diagnostics_Open_Failure_Normalizes_Partial_Target_Messages;
 
@@ -1411,7 +1617,7 @@ package body Editor.Diagnostics_Review_UX.Tests is
               and then not Contains (To_String (Summary), "build-diagnostics"),
               "workspace snapshot summary excludes Diagnostics review filter/selection/projection/build state");
       Assert (Editor.Diagnostics_Review_UX.Assert_Diagnostics_Filter_Selection_Not_Persisted (S),
-              "Phase 557 persistence audit is non-vacuous and excludes review state");
+              "persistence audit is non-vacuous and excludes review state");
    end Test_Persistence_Audit_Excludes_Filter_Selection_Projection;
 
 
@@ -1628,7 +1834,7 @@ package body Editor.Diagnostics_Review_UX.Tests is
       P : Editor.Feature_Panel.Feature_Panel_State;
    begin
       --  Both rows name the same source but cannot currently navigate because
-      --  there is no known buffer.  Phase 557 still expects retained line
+      --  there is no known buffer.  still expects retained line
       --  metadata to be visible for triage and used by projection ordering.
       Editor.Feature_Diagnostics.Add_Diagnostic
         (D,
@@ -1723,7 +1929,7 @@ package body Editor.Diagnostics_Review_UX.Tests is
       P : Editor.Feature_Panel.Feature_Panel_State;
       Removed : Boolean;
    begin
-      --  Insert rows in a different order than the Phase 557 visible
+      --  Insert rows in a different order than the visible
       --  Problems projection.  Projection order is a.adb, b.adb, z.adb;
       --  storage order is z.adb, a.adb, b.adb.
       Editor.Feature_Diagnostics.Add_Diagnostic
@@ -1774,6 +1980,120 @@ package body Editor.Diagnostics_Review_UX.Tests is
       Assert (Contains (Editor.Feature_Panel.Row_Label (P, 2), "src/b.adb"),
               "selection reconciliation follows visible projection order, not storage order");
    end Test_Clear_Selected_Reconciles_By_Visible_Projection_Order;
+
+
+   procedure Test_Suppressed_Diagnostic_Can_Be_Restored
+     (T : in out AUnit.Test_Cases.Test_Case'Class)
+   is
+      pragma Unreferenced (T);
+      D : Editor.Feature_Diagnostics.Diagnostics_Feature_State;
+      P : Editor.Feature_Panel.Feature_Panel_State;
+   begin
+      Editor.Feature_Diagnostics.Add_Diagnostic
+        (D,
+         Severity     => Editor.Feature_Diagnostics.Diagnostic_Error,
+         Message      => "restore me",
+         Source_Label => "src/main.adb",
+         Source_Kind  => Editor.Feature_Diagnostics.External_Diagnostic_Source,
+         Has_Target   => False);
+      Editor.Feature_Diagnostics.Project_Rows (D, P);
+      Editor.Feature_Panel.Select_Row (P, 1);
+
+      Assert (Editor.Feature_Diagnostics.Suppress_Selected_Diagnostic (D, P),
+              "selected diagnostic can be suppressed");
+      Assert (Editor.Feature_Diagnostics.Row_Count (D) = 0
+              and then Editor.Feature_Diagnostics.Suppressed_Diagnostic_Count (D) = 1,
+              "suppression removes the visible row and records review state");
+
+      Assert (Editor.Feature_Diagnostics.Restore_Last_Suppressed_Diagnostic (D, P),
+              "last suppressed diagnostic can be restored");
+      Assert (Editor.Feature_Diagnostics.Row_Count (D) = 1
+              and then Editor.Feature_Diagnostics.Suppressed_Diagnostic_Count (D) = 0,
+              "restore returns the row and clears the suppression stack");
+      Assert (Editor.Feature_Panel.Selected_Row (P) = 1,
+              "restore selects the restored diagnostic for review");
+   end Test_Suppressed_Diagnostic_Can_Be_Restored;
+
+
+   procedure Test_Suppressed_Diagnostic_List_Restore_Selected_And_Clear
+     (T : in out AUnit.Test_Cases.Test_Case'Class)
+   is
+      pragma Unreferenced (T);
+      D : Editor.Feature_Diagnostics.Diagnostics_Feature_State;
+      P : Editor.Feature_Panel.Feature_Panel_State;
+   begin
+      for I in 1 .. 2 loop
+         Editor.Feature_Diagnostics.Add_Diagnostic
+           (D,
+            Severity     => Editor.Feature_Diagnostics.Diagnostic_Error,
+            Message      => "suppressed list" & Natural'Image (I),
+            Source_Label => "src/main.adb",
+            Source_Kind  => Editor.Feature_Diagnostics.External_Diagnostic_Source,
+            Has_Target   => False);
+      end loop;
+
+      Editor.Feature_Diagnostics.Project_Rows (D, P);
+      Editor.Feature_Panel.Select_Row (P, 1);
+      Assert (Editor.Feature_Diagnostics.Suppress_Selected_Diagnostic (D, P),
+              "first selected diagnostic can be suppressed");
+      Editor.Feature_Panel.Select_Row (P, 1);
+      Assert (Editor.Feature_Diagnostics.Suppress_Selected_Diagnostic (D, P),
+              "second selected diagnostic can be suppressed");
+      Assert (Editor.Feature_Diagnostics.Suppressed_Diagnostic_Count (D) = 2,
+              "suppressed diagnostics are exposed as a list");
+      Assert (Editor.Feature_Diagnostics.Selected_Suppressed_Diagnostic (D) = 2
+              and then Contains
+                (Editor.Feature_Diagnostics.Suppressed_Diagnostic_Text (D, 2),
+                 "suppressed list 2"),
+              "latest suppressed diagnostic is selected in the suppressed list");
+
+      Editor.Feature_Diagnostics.Select_Suppressed_Diagnostic (D, 1);
+      Assert (Editor.Feature_Diagnostics.Restore_Selected_Suppressed_Diagnostic (D, P),
+              "selected suppressed diagnostic can be restored");
+      Assert (Editor.Feature_Diagnostics.Row_Count (D) = 1
+              and then Editor.Feature_Diagnostics.Suppressed_Diagnostic_Count (D) = 1
+              and then Contains
+                (Editor.Feature_Diagnostics.Item_Message (D, 1), "suppressed list 1"),
+              "restore selected returns the chosen suppressed row");
+      Assert (Editor.Feature_Diagnostics.Clear_Suppressed_Diagnostics (D) = 1
+              and then Editor.Feature_Diagnostics.Suppressed_Diagnostic_Count (D) = 0
+              and then Editor.Feature_Diagnostics.Selected_Suppressed_Diagnostic (D) = 0,
+              "clear suppressed removes remaining suppressed list rows");
+   end Test_Suppressed_Diagnostic_List_Restore_Selected_And_Clear;
+
+
+   procedure Test_Show_Suppressed_Diagnostics_Command_Reports_Review_State
+     (T : in out AUnit.Test_Cases.Test_Case'Class)
+   is
+      pragma Unreferenced (T);
+      S : Editor.State.State_Type;
+      M : Editor.Messages.Editor_Message;
+      Found : Boolean := False;
+   begin
+      Editor.State.Init (S);
+      Editor.Feature_Diagnostics.Add_Diagnostic
+        (S.Feature_Diagnostics,
+         Severity     => Editor.Feature_Diagnostics.Diagnostic_Error,
+         Message      => "suppressed command diagnostic",
+         Source_Label => "src/main.adb",
+         Source_Kind  => Editor.Feature_Diagnostics.External_Diagnostic_Source,
+         Has_Target   => False);
+      Editor.Executor.Execute_Command (S, Editor.Commands.Command_Diagnostics_Show);
+      Editor.Feature_Panel.Select_Row (S.Feature_Panel, 1);
+
+      Editor.Executor.Execute_Command
+        (S, Editor.Commands.Command_Diagnostic_Suppress_Selected);
+      Editor.Executor.Execute_Command
+        (S, Editor.Commands.Command_Diagnostic_Show_Suppressed);
+
+      M := Editor.Messages.Active_Message (S.Messages, Found);
+      Assert
+        (Found
+         and then Contains (Editor.Messages.Text (M), "Suppressed diagnostics: 1")
+         and then Contains
+           (Editor.Messages.Text (M), "suppressed command diagnostic"),
+         "show suppressed command reports count and latest diagnostic text");
+   end Test_Show_Suppressed_Diagnostics_Command_Reports_Review_State;
 
 
    procedure Test_Diagnostic_Message_Text_Is_Bounded_At_Ingestion
@@ -1920,7 +2240,7 @@ package body Editor.Diagnostics_Review_UX.Tests is
    end Test_Retention_Eviction_Resets_Exhausted_Source_And_Build_Filters;
 
 
-   procedure Test_Phase_557_Coherence_Audit
+   procedure Test_Coherence_Audit
      (T : in out AUnit.Test_Cases.Test_Case'Class)
    is
       pragma Unreferenced (T);
@@ -1930,7 +2250,7 @@ package body Editor.Diagnostics_Review_UX.Tests is
       Seed_Rows (S);
       Result := Editor.Diagnostics_Review_UX.Run_Diagnostics_Review_UX_Audit (S);
       Assert (Result.Coherent,
-              "Phase 557 Diagnostics review UX audit is coherent"
+              "Diagnostics review UX audit is coherent"
               & " labels=" & Boolean'Image (Result.Rows_Have_Readable_Labels)
               & " msg_bound=" & Boolean'Image (Result.Row_Message_Text_Is_Bounded)
               & " src_bound=" & Boolean'Image (Result.Row_Source_Label_Text_Is_Bounded)
@@ -1948,7 +2268,7 @@ package body Editor.Diagnostics_Review_UX.Tests is
               & " render=" & Boolean'Image (Result.Render_Is_Observational)
               & " commands=" & Boolean'Image (Result.Command_Frontdoors_Carry_No_Payload)
               & " persistence=" & Boolean'Image (Result.Persistence_Excludes_Review_State));
-   end Test_Phase_557_Coherence_Audit;
+   end Test_Coherence_Audit;
 
    procedure Test_Partial_Target_With_Missing_Line_Is_Labelled_Clearly
      (T : in out AUnit.Test_Cases.Test_Case'Class)
@@ -2077,7 +2397,7 @@ package body Editor.Diagnostics_Review_UX.Tests is
       A := Editor.Executor.Command_Availability
         (S, Editor.Commands.Command_Diagnostics_Clear_Info);
       Assert (Editor.Commands.Is_Available (A),
-              "clear-info is available for note diagnostics because Phase 557 triages info/notes together");
+              "clear-info is available for note diagnostics because triages info/notes together");
 
       Editor.Executor.Execute_Command
         (S, Editor.Commands.Command_Diagnostics_Clear_Info);
@@ -2130,7 +2450,7 @@ package body Editor.Diagnostics_Review_UX.Tests is
       Assert (not Editor.Feature_Diagnostics.Severity_Is_Visible
                 (S.Feature_Diagnostics,
                  Editor.Feature_Diagnostics.Diagnostic_Note),
-              "toggle-info also hides note diagnostics as part of the Phase 557 info/notes triage bucket");
+              "toggle-info also hides note diagnostics as part of the info/notes triage bucket");
       Assert (Editor.Feature_Diagnostics.Visible_Row_Count
                 (S.Feature_Diagnostics) = 0,
               "notes are not left visible after informational diagnostics are hidden");
@@ -2193,7 +2513,7 @@ package body Editor.Diagnostics_Review_UX.Tests is
 
 
 
-   procedure Test_Phase578_Stale_Diagnostic_Target_Blocks_Real_Open_Route
+   procedure Test_Stale_Diagnostic_Target_Blocks_Real_Open_Route
      (T : in out AUnit.Test_Cases.Test_Case'Class)
    is
       pragma Unreferenced (T);
@@ -2229,16 +2549,16 @@ package body Editor.Diagnostics_Review_UX.Tests is
       Assert (not Editor.Commands.Is_Available (A),
               "stale diagnostic target is blocked before real navigation");
       Assert (Editor.Commands.Unavailable_Reason (A) =
-              "Target is stale; refresh required.",
+              Editor.Commands.Reason_Target_Stale,
               "Diagnostics stale-target availability uses the Search-compatible canonical wording");
 
       Editor.Executor.Execute_Command
         (S, Editor.Commands.Command_Feature_Panel_Open_Selected);
       M := Editor.Messages.Active_Message (S.Messages, Found);
       Assert (Found and then Editor.Messages.Text (M) =
-              "Target is stale; refresh required.",
+              Editor.Commands.Reason_Target_Stale,
               "Diagnostics stale-target activation uses the same canonical primary outcome");
-   end Test_Phase578_Stale_Diagnostic_Target_Blocks_Real_Open_Route;
+   end Test_Stale_Diagnostic_Target_Blocks_Real_Open_Route;
 
 
    overriding procedure Register_Tests
@@ -2248,151 +2568,169 @@ package body Editor.Diagnostics_Review_UX.Tests is
    begin
       Register_Routine
         (T, Test_Display_Labels_Counts_And_Producer'Access,
-         "Phase 557 displays readable labels, severity counts, and producer labels");
+         "displays readable labels, severity counts, and producer labels");
       Register_Routine
         (T, Test_Filters_Do_Not_Delete_And_Clear_Build_Is_Targeted'Access,
-         "Phase 557 filters are projection-only and clear-build is targeted");
+         "filters are projection-only and clear-build is targeted");
       Register_Routine
         (T, Test_Source_Less_Targets_Fail_Clearly'Access,
-         "Phase 557 source-less diagnostics fail clearly");
+         "source-less diagnostics fail clearly");
       Register_Routine
         (T, Test_Unlabelled_Targeted_Diagnostics_Are_Not_Source_Less'Access,
-         "Phase 557 unlabelled targeted diagnostics are not grouped as source-less");
+         "unlabelled targeted diagnostics are not grouped as source-less");
       Register_Routine
         (T, Test_Source_Filter_Grouping_And_Build_Filter_Are_Projection_Only'Access,
-         "Phase 557 source filtering, grouping, and build producer filtering are projection-only");
+         "source filtering, grouping, and build producer filtering are projection-only");
       Register_Routine
         (T, Test_File_Group_Labels_Distinguish_Missing_Targets_From_Source_Less'Access,
-         "Phase 557 file group labels distinguish missing targets from source-less diagnostics");
+         "file group labels distinguish missing targets from source-less diagnostics");
       Register_Routine
         (T, Test_File_Group_Source_Less_Metadata_Distinguishes_Missing_Targets'Access,
-         "Phase 557 file group metadata distinguishes missing targets from true source-less diagnostics");
+         "file group metadata distinguishes missing targets from true source-less diagnostics");
       Register_Routine
         (T, Test_Filter_And_Clear_Build_Commands_Are_Descriptor_Backed'Access,
-         "Phase 557 explicit filter and clear-build commands are descriptor-backed");
+         "explicit filter and clear-build commands are descriptor-backed");
       Register_Routine
         (T, Test_Stale_Diagnostic_Label_Is_Transient_And_User_Readable'Access,
-         "Phase 557 stale diagnostics expose transient readable labels");
+         "stale diagnostics expose transient readable labels");
       Register_Routine
         (T, Test_Line_Only_Diagnostic_Target_Is_Valid_And_Labelled'Access,
-         "Phase 557 line-only diagnostic targets navigate to line start");
+         "line-only diagnostic targets navigate to line start");
       Register_Routine
         (T, Test_Diagnostic_Edit_Metadata_Is_Validated_And_Bounded'Access,
          "Diagnostics edit metadata is validated and bounded");
       Register_Routine
+        (T, Test_Ada_Diagnostic_Command_Descriptor_Carries_Quick_Fix_Metadata'Access,
+         "Ada diagnostic command descriptor carries quick-fix metadata");
+      Register_Routine
+        (T, Test_Quick_Fix_Action_Ingestion_Is_Normalized_And_Bounded'Access,
+         "quick-fix action ingestion is normalized and bounded");
+      Register_Routine
+        (T, Test_Quick_Fix_Action_Typed_Appenders_Set_Model'Access,
+         "typed quick-fix appenders set explicit action models");
+      Register_Routine
         (T, Test_External_Producer_Preserves_Line_Only_And_Partial_Target_Metadata'Access,
-         "Phase 557 external producers preserve line-only and partial target metadata");
+         "external producers preserve line-only and partial target metadata");
       Register_Routine
         (T, Test_External_Producer_Preserves_Invalid_Target_Position_Metadata'Access,
-         "Phase 557 external producers preserve invalid target positions for review");
+         "external producers preserve invalid target positions for review");
       Register_Routine
         (T, Test_Edit_Marks_Targeted_Diagnostics_Stale_Not_Cleared'Access,
-         "Phase 557 ordinary edits mark targeted diagnostics stale instead of clearing them");
+         "ordinary edits mark targeted diagnostics stale instead of clearing them");
       Register_Routine
         (T, Test_Open_Selected_Source_Less_Is_Unavailable_But_Clear_Selected_Remains_Available'Access,
-         "Phase 557 source-less selected diagnostics are unavailable only for navigation");
+         "source-less selected diagnostics are unavailable only for navigation");
       Register_Routine
         (T, Test_Open_Selected_Missing_Target_Is_Distinct_From_Source_Less'Access,
-         "Phase 557 source-labelled missing targets are distinct from source-less diagnostics");
+         "source-labelled missing targets are distinct from source-less diagnostics");
       Register_Routine
         (T, Test_Open_Selected_Known_Missing_Buffer_Is_Unavailable_Pre_Route'Access,
-         "Phase 557 open-selected availability rejects known missing target buffers");
+         "open-selected availability rejects known missing target buffers");
       Register_Routine
         (T, Test_Partial_Target_With_Missing_Line_Is_Labelled_Clearly'Access,
-         "Phase 557 partial targets with missing lines are labelled clearly");
+         "partial targets with missing lines are labelled clearly");
       Register_Routine
         (T, Test_Partial_Targets_Stale_And_Close_By_Known_Buffer'Access,
-         "Phase 557 partial targets use known-buffer metadata for stale and close lifecycle");
+         "partial targets use known-buffer metadata for stale and close lifecycle");
       Register_Routine
         (T, Test_Clear_Build_Availability_Uses_Producer_Predicate'Access,
-         "Phase 557 clear-build availability uses explicit producer classification");
+         "clear-build availability uses explicit producer classification");
       Register_Routine
         (T, Test_External_Build_Producer_Classifies_Explicitly'Access,
-         "Phase 557 external build producer classification is explicit and label-independent");
+         "external build producer classification is explicit and label-independent");
       Register_Routine
         (T, Test_Note_And_Unknown_Severities_Are_First_Class'Access,
-         "Phase 557 note and unknown diagnostic severities are first-class");
+         "note and unknown diagnostic severities are first-class");
       Register_Routine
         (T, Test_Source_Label_Filter_Does_Not_Match_Message_Text'Access,
-         "Phase 557 source/file filtering does not match incidental message text");
+         "source/file filtering does not match incidental message text");
       Register_Routine
         (T, Test_Source_Label_Filter_Does_Not_Match_Target_Status_Text'Access,
-         "Phase 557 source/file filtering does not match target-status review text");
+         "source/file filtering does not match target-status review text");
       Register_Routine
         (T, Test_Selected_Source_Filter_Uses_Selected_Row_Without_Command_Payload'Access,
-         "Phase 557 filter-source derives source from selected row without command payload");
+         "filter-source derives source from selected row without command payload");
       Register_Routine
         (T, Test_Filter_Command_Availability_Reasons_Are_Precise'Access,
-         "Phase 557 filter commands expose precise availability reasons");
+         "filter commands expose precise availability reasons");
       Register_Routine
         (T, Test_Severity_Clear_Availability_And_Outcomes_Are_Precise'Access,
-         "Phase 557 severity clear commands expose precise matching-row availability reasons");
+         "severity clear commands expose precise matching-row availability reasons");
       Register_Routine
         (T, Test_Info_Toggle_Hides_Notes_As_Informational_Diagnostics'Access,
-         "Phase 557 info toggle hides notes as part of the info/notes triage bucket");
+         "info toggle hides notes as part of the info/notes triage bucket");
       Register_Routine
         (T, Test_Filter_Command_Execution_Guards_Mirror_Availability'Access,
-         "Phase 557 filter command execution guards mirror availability reasons");
+         "filter command execution guards mirror availability reasons");
       Register_Routine
         (T, Test_Next_Previous_Are_Unavailable_When_Filter_Hides_All'Access,
-         "Phase 557 next/previous diagnostics are unavailable when filters hide all rows");
+         "next/previous diagnostics are unavailable when filters hide all rows");
       Register_Routine
         (T, Test_Next_Previous_Execution_Distinguishes_No_Diagnostics'Access,
-         "Phase 557 next/previous execution distinguishes no diagnostics from no visible diagnostics");
+         "next/previous execution distinguishes no diagnostics from no visible diagnostics");
       Register_Routine
         (T, Test_Diagnostics_Open_Failure_Reports_One_Primary_Message'Access,
-         "Phase 557 Diagnostics activation failures emit one primary outcome");
+         "Diagnostics activation failures emit one primary outcome");
       Register_Routine
         (T, Test_Diagnostics_Open_Failure_Normalizes_Partial_Target_Messages'Access,
-         "Phase 557 Diagnostics activation failures normalize partial target messages");
+         "Diagnostics activation failures normalize partial target messages");
       Register_Routine
-        (T, Test_Phase578_Stale_Diagnostic_Target_Blocks_Real_Open_Route'Access,
-         "Phase 578 stale Diagnostics targets block the real open route with canonical wording");
+        (T, Test_Stale_Diagnostic_Target_Blocks_Real_Open_Route'Access,
+         "stale Diagnostics targets block the real open route with canonical wording");
       Register_Routine
         (T, Test_Filtered_Header_Exposes_Visible_Severity_Counts'Access,
-         "Phase 557 filtered headers expose visible severity counts separately from totals");
+         "filtered headers expose visible severity counts separately from totals");
       Register_Routine
         (T, Test_Severity_Filter_Modes_Reset_Source_And_Producer_Filters'Access,
-         "Phase 557 severity filter modes reset source and producer predicates");
+         "severity filter modes reset source and producer predicates");
       Register_Routine
         (T, Test_Persistence_Audit_Excludes_Filter_Selection_Projection'Access,
-         "Phase 557 persistence audit excludes Diagnostics review state");
+         "persistence audit excludes Diagnostics review state");
       Register_Routine
         (T, Test_Clear_Diagnostics_Resets_Transient_Filter_State'Access,
-         "Phase 557 clear diagnostics resets transient filter state");
+         "clear diagnostics resets transient filter state");
       Register_Routine
         (T, Test_Direct_Clear_Diagnostics_Resets_Filter_State'Access,
-         "Phase 557 direct clear diagnostics resets transient filter state");
+         "direct clear diagnostics resets transient filter state");
       Register_Routine
         (T, Test_Clear_Build_Resets_Exhausted_Build_Only_Filter'Access,
-         "Phase 557 clear-build resets exhausted build-only review predicate");
+         "clear-build resets exhausted build-only review predicate");
       Register_Routine
         (T, Test_Targeted_Delete_Resets_Exhausted_Source_Filter'Access,
-         "Phase 557 targeted delete resets exhausted source/file review predicate");
+         "targeted delete resets exhausted source/file review predicate");
       Register_Routine
         (T, Test_Visible_Projection_Orders_Diagnostics_By_Source_Line_Column'Access,
-         "Phase 557 visible Diagnostics projection sorts by source, line, column, and severity");
+         "visible Diagnostics projection sorts by source, line, column, and severity");
       Register_Routine
         (T, Test_Missing_Target_Line_Metadata_Is_Shown_And_Orders_Projection'Access,
-         "Phase 557 missing-target diagnostics retain line metadata for labels and ordering");
+         "missing-target diagnostics retain line metadata for labels and ordering");
       Register_Routine
         (T, Test_Next_Previous_Diagnostics_Wrap_Visible_Projection'Access,
-         "Phase 557 next/previous diagnostics wrap through visible projection rows");
+         "next/previous diagnostics wrap through visible projection rows");
       Register_Routine
         (T, Test_Clear_Selected_Reconciles_By_Visible_Projection_Order'Access,
-         "Phase 557 clear selected reconciles selection by visible projection order");
+         "clear selected reconciles selection by visible projection order");
+      Register_Routine
+        (T, Test_Suppressed_Diagnostic_Can_Be_Restored'Access,
+         "suppressed Diagnostics can be restored for review");
+      Register_Routine
+        (T, Test_Suppressed_Diagnostic_List_Restore_Selected_And_Clear'Access,
+         "suppressed Diagnostics list restores selected rows and clears remaining rows");
+      Register_Routine
+        (T, Test_Show_Suppressed_Diagnostics_Command_Reports_Review_State'Access,
+         "show suppressed Diagnostics command reports review state");
       Register_Routine
         (T, Test_Diagnostic_Message_Text_Is_Bounded_At_Ingestion'Access,
-         "Phase 557 Diagnostics message text is bounded at ingestion");
+         "Diagnostics message text is bounded at ingestion");
       Register_Routine
         (T, Test_Diagnostic_Source_Label_Text_Is_Bounded_At_Ingestion'Access,
-         "Phase 557 Diagnostics source label text is bounded at ingestion");
+         "Diagnostics source label text is bounded at ingestion");
       Register_Routine
         (T, Test_Retention_Eviction_Resets_Exhausted_Source_And_Build_Filters'Access,
-         "Phase 557 bounded retention resets exhausted source/build filters");
+         "bounded retention resets exhausted source/build filters");
       Register_Routine
-        (T, Test_Phase_557_Coherence_Audit'Access,
-         "Phase 557 coherence audit covers Problems-style Diagnostics review UX");
+        (T, Test_Coherence_Audit'Access,
+         "coherence audit covers Problems-style Diagnostics review UX");
    end Register_Tests;
 
 end Editor.Diagnostics_Review_UX.Tests;

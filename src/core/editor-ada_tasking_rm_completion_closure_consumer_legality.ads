@@ -6,9 +6,9 @@ with Editor.Ada_Syntax_Tree;
 
 package Editor.Ada_Tasking_RM_Completion_Closure_Consumer_Legality is
 
-   --  Pass1266 tasking/protected RM-completion closure consumer legality.
+   --  Case 1266 tasking/protected RM-completion closure consumer legality.
    --
-   --  This package consumes the Pass1263 generic/shared-state RM-completion
+   --  This package consumes the Case 1263 generic/shared-state RM-completion
    --  stabilized closure as first-class semantic evidence for tasking/protected
    --  RM hard-case consumers.  It prevents tasking/protected conclusions from bypassing
    --  stabilized closure blockers for stale/fingerprint evidence, AST/coverage

@@ -23,7 +23,7 @@ procedure Editor_Real_Build_Runner_Smoke is
    package Stream_IO renames Ada.Streams.Stream_IO;
 
    Root : constant String := Ada.Directories.Current_Directory
-     & "/phase579_real_build_runner_smoke_project";
+     & "/real_build_runner_smoke_project";
    Src  : constant String := Root & "/src";
    Main_Path : constant String := Src & "/main.adb";
    Project_Path : constant String := Root & "/smoke_project.gpr";

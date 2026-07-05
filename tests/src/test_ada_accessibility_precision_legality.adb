@@ -257,10 +257,10 @@ package body Test_Ada_Accessibility_Precision_Legality is
    begin
       Register_Routine
         (T, Classifies_Nested_Accessibility_Precision'Access,
-         "Pass1128 deepens accessibility/lifetime precision across access contexts");
+         "Case 1128 deepens accessibility/lifetime precision across access contexts");
       Register_Routine
         (T, Lookups_And_Empty_Inputs_Are_Deterministic'Access,
-         "Pass1128 keeps accessibility precision lookups deterministic");
+         "Case 1128 keeps accessibility precision lookups deterministic");
    end Register_Tests;
 
 end Test_Ada_Accessibility_Precision_Legality;

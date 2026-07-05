@@ -9,9 +9,9 @@ with Editor.Ada_Syntax_Tree;
 
 package Editor.Ada_Elaboration_Precision_Legality is
 
-   --  Pass1129 compiler-grade elaboration precision layer.
+   --  Case 1129 compiler-grade elaboration precision layer.
    --
-   --  This package deepens the Pass1113 elaboration/dependence model by
+   --  This package deepens the Case 1113 elaboration/dependence model by
    --  connecting elaboration-order graph closure, generic-instance
    --  elaboration, body-before-use requirements, preelaboration/purity policy,
    --  dataflow effects during elaboration, overload-selected calls, and

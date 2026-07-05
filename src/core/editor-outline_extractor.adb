@@ -1088,8 +1088,7 @@ package body Editor.Outline_Extractor is
               (Strip_Overriding_Prefix
                  (Editor.Ada_Syntax_Core.Strip_Separate_Prefix (Trimmed)))));
    begin
-      --  Phase 551 range matching is deliberately lexical, but Phase 552
-      --  requires every structure-normalization entry point to see only code.
+      --  range matching is deliberately lexical, but       --  requires every structure-normalization entry point to see only code.
       --  The current caller already supplies sanitized text, but sanitizing
       --  again here keeps this helper safe if future local structure code calls
       --  it directly with a raw lower-case line.  This remains transient and
@@ -4164,7 +4163,7 @@ package body Editor.Outline_Extractor is
          return True;
       end if;
 
-      --  Phase 551 also treats keyword endings such as "end package;",
+      --  also treats keyword endings such as "end package;",
       --  "end protected;", and "end record;" as safe lexical closures
       --  for the matching construct kind without weakening the named-end guard.
       --  If a keyword ending also carries a trailing qualifier, require the

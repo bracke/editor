@@ -32,7 +32,7 @@ package body Editor.State.Tests is
               "Caret anchor must remain valid after execution");
    end Test_Caret_Validity;
 
-   procedure Test_Phase17_Line_Helper_Queries
+   procedure Test_Line_Helper_Queries
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
       pragma Unreferenced (T);
 
@@ -59,7 +59,7 @@ package body Editor.State.Tests is
          and then Editor.State.Line_End (S, 1) = 6
          and then Editor.State.Line_End (S, 2) = 8,
          "Line_End must return LF-exclusive row ends");
-   end Test_Phase17_Line_Helper_Queries;
+   end Test_Line_Helper_Queries;
 
 
    procedure Test_Project_Scoped_Summary_And_Reset
@@ -70,16 +70,16 @@ package body Editor.State.Tests is
       Before : Editor.State.Project_Scoped_State_Summary;
       After  : Editor.State.Project_Scoped_State_Summary;
       Config_Dir : constant String := Ada.Directories.Compose
-        ("/tmp/editor-tests", "phase99_recent_config");
+        ("/tmp/editor-tests", "recent_config");
       Open_Result : constant Editor.Project.Project_Open_Result :=
         (Status       => Editor.Project.Project_Open_Ok,
-         Root_Path    => To_Unbounded_String ("/tmp/editor-phase99-a"),
-         Display_Name => To_Unbounded_String ("editor-phase99-a"),
+         Root_Path    => To_Unbounded_String ("/tmp/editor-a"),
+         Display_Name => To_Unbounded_String ("editor-a"),
          Error_Text   => Null_Unbounded_String);
       Target : constant Editor.Pending_Transitions.Pending_Transition_Target :=
         (Kind       => Editor.Pending_Transitions.Pending_Open_Project,
-         Path       => To_Unbounded_String ("/tmp/editor-phase99-b"),
-         Display    => To_Unbounded_String ("editor-phase99-b"),
+         Path       => To_Unbounded_String ("/tmp/editor-b"),
+         Display    => To_Unbounded_String ("editor-b"),
          Buffer_Id  => 0,
          Has_Buffer => False,
          Has_Path   => True,
@@ -99,7 +99,7 @@ package body Editor.State.Tests is
       Editor.Pending_Transitions.Set_Pending
         (S.Pending_Transitions, Target, Summary);
       Editor.Recent_Projects.Add_Or_Promote
-        (S.Recent_Projects, "/tmp/editor-phase99-a", "editor-phase99-a", 10);
+        (S.Recent_Projects, "/tmp/editor-a", "editor-a", 10);
       Lines.Append
         (To_Unbounded_String
            ("src/stale_project.adb:3:2: error: stale project diagnostic"));
@@ -164,8 +164,8 @@ package body Editor.State.Tests is
         (T, Test_Caret_Validity'Access, "Caret Validity");
 
       AUnit.Test_Cases.Registration.Register_Routine
-        (T, Test_Phase17_Line_Helper_Queries'Access,
-         "Phase 17 Line Helper Queries");
+        (T, Test_Line_Helper_Queries'Access,
+         "Line Helper Queries");
 
       AUnit.Test_Cases.Registration.Register_Routine
         (T, Test_Project_Scoped_Summary_And_Reset'Access,

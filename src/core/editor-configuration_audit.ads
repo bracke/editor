@@ -143,7 +143,7 @@ package Editor.Configuration_Audit is
      (Result : Configuration_Audit_Result) return String;
 
 
-   --  Phase 577 configuration-audit integration for buffer metadata and
+   --  configuration-audit integration for buffer metadata and
    --  lifecycle boundaries.  This projects the buffer-local audit, the actual
    --  serialized workspace text audit, and the no-payload route boundary into
    --  the configuration audit result surface.  It is observational only: it
@@ -158,12 +158,12 @@ package Editor.Configuration_Audit is
       State                : Editor.State.State_Type;
       Serialized_Workspace : String := "");
 
-   --  Return True only when the complete Phase 577 buffer metadata,
+   --  Return True only when the complete buffer metadata,
    --  lifecycle, persistence, route, pending-transition, prompt, render,
    --  and audit side-effect boundaries are simultaneously satisfied.  This
    --  is a single milestone assertion for tests and release verification; it
    --  is observational only and never repairs state or executes commands.
-   function Phase_577_Buffer_Metadata_Lifecycle_Complete
+   function Buffer_Metadata_Lifecycle_Complete
      (State                : Editor.State.State_Type;
       Serialized_Workspace : String := "") return Boolean;
 

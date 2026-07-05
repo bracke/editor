@@ -10,6 +10,8 @@ with Editor.Commands;
 with Editor.Buffers;
 with Editor.Cursors; use Editor.Cursors;
 with Editor.Executor;
+with Editor.Executor.File_Open_Commands;
+with Editor.Executor.Find_Replace_Commands;
 with Editor.History;
 with Editor.Input_Bridge;
 with Editor.Keybindings;
@@ -342,7 +344,7 @@ package body Editor.Line_Edit.Tests is
               Why & ": no-op word delete must not mutate clipboard");
    end Assert_Word_Delete_No_Op;
 
-   procedure Test_Phase381_Command_Descriptors
+   procedure Test_Command_Descriptors
      (T : in out AUnit.Test_Cases.Test_Case'Class)
    is
       pragma Unreferenced (T);
@@ -384,9 +386,9 @@ package body Editor.Line_Edit.Tests is
         (Editor.Commands.Is_Bindable_Command
            (Editor.Commands.Command_Line_Move_Down),
          "line move-down must be bindable");
-   end Test_Phase381_Command_Descriptors;
+   end Test_Command_Descriptors;
 
-   procedure Test_Phase381_Delete_Current_Line_Undo_Redo
+   procedure Test_Delete_Current_Line_Undo_Redo
      (T : in out AUnit.Test_Cases.Test_Case'Class)
    is
       pragma Unreferenced (T);
@@ -417,9 +419,9 @@ package body Editor.Line_Edit.Tests is
       Assert
         (Text_Buffer.UTF8_Text (S.Buffer) = "one" & ASCII.LF & "three",
          "redo after delete-line must restore exact edited text");
-   end Test_Phase381_Delete_Current_Line_Undo_Redo;
+   end Test_Delete_Current_Line_Undo_Redo;
 
-   procedure Test_Phase381_Duplicate_Current_Line
+   procedure Test_Duplicate_Current_Line
      (T : in out AUnit.Test_Cases.Test_Case'Class)
    is
       pragma Unreferenced (T);
@@ -440,9 +442,9 @@ package body Editor.Line_Edit.Tests is
       Assert (Message_Text (S) = "Duplicated line", "duplicate-line message mismatch");
       Assert (Natural (Editor.History.Undo_Stack.Length) = 1,
               "duplicate-line must create one undo entry");
-   end Test_Phase381_Duplicate_Current_Line;
+   end Test_Duplicate_Current_Line;
 
-   procedure Test_Phase381_Move_Line_Up_Down_And_Boundaries
+   procedure Test_Move_Line_Up_Down_And_Boundaries
      (T : in out AUnit.Test_Cases.Test_Case'Class)
    is
       pragma Unreferenced (T);
@@ -479,9 +481,9 @@ package body Editor.Line_Edit.Tests is
       Assert (Message_Text (S) = "Moved line down", "move-down message mismatch");
       Assert (Natural (Editor.History.Redo_Stack.Length) = 0,
               "text-changing line command after undo must clear redo stack");
-   end Test_Phase381_Move_Line_Up_Down_And_Boundaries;
+   end Test_Move_Line_Up_Down_And_Boundaries;
 
-   procedure Test_Phase381_Empty_Buffer_No_Ops
+   procedure Test_Empty_Buffer_No_Ops
      (T : in out AUnit.Test_Cases.Test_Case'Class)
    is
       pragma Unreferenced (T);
@@ -504,9 +506,9 @@ package body Editor.Line_Edit.Tests is
       Assert (Message_Text (S) = "Nothing to duplicate", "empty duplicate message mismatch");
       Assert (Natural (Editor.History.Undo_Stack.Length) = 0,
               "empty duplicate must create no undo entry");
-   end Test_Phase381_Empty_Buffer_No_Ops;
+   end Test_Empty_Buffer_No_Ops;
 
-   procedure Test_Phase381_Delete_First_Last_And_One_Line
+   procedure Test_Delete_First_Last_And_One_Line
      (T : in out AUnit.Test_Cases.Test_Case'Class)
    is
       pragma Unreferenced (T);
@@ -539,9 +541,9 @@ package body Editor.Line_Edit.Tests is
          "delete-line on one-line buffer must leave an empty buffer");
       Assert (Natural (Editor.History.Undo_Stack.Length) = 1,
               "one-line delete must create exactly one undo entry");
-   end Test_Phase381_Delete_First_Last_And_One_Line;
+   end Test_Delete_First_Last_And_One_Line;
 
-   procedure Test_Phase381_Duplicate_Last_Line_Undo_Redo
+   procedure Test_Duplicate_Last_Line_Undo_Redo
      (T : in out AUnit.Test_Cases.Test_Case'Class)
    is
       pragma Unreferenced (T);
@@ -568,9 +570,9 @@ package body Editor.Line_Edit.Tests is
       Assert
         (Text_Buffer.UTF8_Text (S.Buffer) = "one" & ASCII.LF & "two" & ASCII.LF & "two",
          "redo after duplicate last line must restore exact text");
-   end Test_Phase381_Duplicate_Last_Line_Undo_Redo;
+   end Test_Duplicate_Last_Line_Undo_Redo;
 
-   procedure Test_Phase381_Last_Line_Move_Down_No_Op_Preserves_Redo_Dirty
+   procedure Test_Last_Line_Move_Down_No_Op_Preserves_Redo_Dirty
      (T : in out AUnit.Test_Cases.Test_Case'Class)
    is
       pragma Unreferenced (T);
@@ -600,9 +602,9 @@ package body Editor.Line_Edit.Tests is
       Assert
         (Text_Buffer.UTF8_Text (S.Buffer) = "one" & ASCII.LF & "two",
          "last-line boundary no-op must not mutate text");
-   end Test_Phase381_Last_Line_Move_Down_No_Op_Preserves_Redo_Dirty;
+   end Test_Last_Line_Move_Down_No_Op_Preserves_Redo_Dirty;
 
-   procedure Test_Phase381_Clipboard_Selection_Navigation_Boundaries
+   procedure Test_Clipboard_Selection_Navigation_Boundaries
      (T : in out AUnit.Test_Cases.Test_Case'Class)
    is
       pragma Unreferenced (T);
@@ -635,11 +637,11 @@ package body Editor.Line_Edit.Tests is
         (Text_Buffer.UTF8_Text (S.Buffer) =
          "alpha" & ASCII.LF & "alpha" & ASCII.LF & "beta" & ASCII.LF & "gamma",
          "line command must operate on caret line, not selected text extraction");
-   end Test_Phase381_Clipboard_Selection_Navigation_Boundaries;
+   end Test_Clipboard_Selection_Navigation_Boundaries;
 
 
 
-   procedure Test_Phase381_Input_Bridge_Routes_Line_Commands
+   procedure Test_Input_Bridge_Routes_Line_Commands
      (T : in out AUnit.Test_Cases.Test_Case'Class)
    is
       pragma Unreferenced (T);
@@ -728,9 +730,9 @@ package body Editor.Line_Edit.Tests is
          "Input_Bridge move-line-down keybinding must route through Executor");
 
       Editor.Keybindings.Reset_To_Defaults;
-   end Test_Phase381_Input_Bridge_Routes_Line_Commands;
+   end Test_Input_Bridge_Routes_Line_Commands;
 
-   procedure Test_Phase381_Availability_Has_No_Side_Effects
+   procedure Test_Availability_Has_No_Side_Effects
      (T : in out AUnit.Test_Cases.Test_Case'Class)
    is
       pragma Unreferenced (T);
@@ -777,10 +779,10 @@ package body Editor.Line_Edit.Tests is
               "line-command availability must not mutate redo stack");
       Assert (Message_Text (S) = To_String (Before_Message),
               "line-command availability must not emit messages");
-   end Test_Phase381_Availability_Has_No_Side_Effects;
+   end Test_Availability_Has_No_Side_Effects;
 
 
-   procedure Test_Phase382_Delete_Blank_Whitespace_And_EOF_Lines
+   procedure Test_Delete_Blank_Whitespace_And_EOF_Lines
      (T : in out AUnit.Test_Cases.Test_Case'Class)
    is
       pragma Unreferenced (T);
@@ -810,9 +812,9 @@ package body Editor.Line_Edit.Tests is
         (Text_Buffer.UTF8_Text (S.Buffer) = "alpha" & ASCII.LF,
          "delete-line at EOF must delete the last logical line exactly");
       Assert_Caret_Row_Col (S, 1, 0, "delete EOF line");
-   end Test_Phase382_Delete_Blank_Whitespace_And_EOF_Lines;
+   end Test_Delete_Blank_Whitespace_And_EOF_Lines;
 
-   procedure Test_Phase382_Duplicate_Whitespace_And_Caret_Clamp
+   procedure Test_Duplicate_Whitespace_And_Caret_Clamp
      (T : in out AUnit.Test_Cases.Test_Case'Class)
    is
       pragma Unreferenced (T);
@@ -842,9 +844,9 @@ package body Editor.Line_Edit.Tests is
         (Text_Buffer.UTF8_Text (S.Buffer) =
          "longer" & ASCII.LF & "  " & ASCII.LF & "  " & ASCII.LF & "x",
          "redo after whitespace duplicate must restore exact text");
-   end Test_Phase382_Duplicate_Whitespace_And_Caret_Clamp;
+   end Test_Duplicate_Whitespace_And_Caret_Clamp;
 
-   procedure Test_Phase382_Move_Blank_Line_And_Attached_Caret
+   procedure Test_Move_Blank_Line_And_Attached_Caret
      (T : in out AUnit.Test_Cases.Test_Case'Class)
    is
       pragma Unreferenced (T);
@@ -869,9 +871,9 @@ package body Editor.Line_Edit.Tests is
         (Text_Buffer.UTF8_Text (S.Buffer) = ASCII.LF & "aa" & ASCII.LF & "cccc",
          "move-up must swap a blank current line with the previous line exactly");
       Assert_Caret_Row_Col (S, 0, 0, "move blank line up");
-   end Test_Phase382_Move_Blank_Line_And_Attached_Caret;
+   end Test_Move_Blank_Line_And_Attached_Caret;
 
-   procedure Test_Phase382_Redo_Find_And_Boundary_No_Op_Reliability
+   procedure Test_Redo_Find_And_Boundary_No_Op_Reliability
      (T : in out AUnit.Test_Cases.Test_Case'Class)
    is
       pragma Unreferenced (T);
@@ -910,9 +912,9 @@ package body Editor.Line_Edit.Tests is
       Assert
         (Text_Buffer.UTF8_Text (S.Buffer) = "two",
          "successful delete-line after boundary no-op must still mutate active text");
-   end Test_Phase382_Redo_Find_And_Boundary_No_Op_Reliability;
+   end Test_Redo_Find_And_Boundary_No_Op_Reliability;
 
-   procedure Test_Phase381_Trailing_Newline_Line_Boundaries
+   procedure Test_Trailing_Newline_Line_Boundaries
      (T : in out AUnit.Test_Cases.Test_Case'Class)
    is
       pragma Unreferenced (T);
@@ -942,7 +944,7 @@ package body Editor.Line_Edit.Tests is
         (Text_Buffer.UTF8_Text (S.Buffer) =
          "one" & ASCII.LF & "one" & ASCII.LF & "two" & ASCII.LF,
          "duplicate-line must preserve explicit trailing newline representation");
-   end Test_Phase381_Trailing_Newline_Line_Boundaries;
+   end Test_Trailing_Newline_Line_Boundaries;
 
 
 
@@ -982,7 +984,7 @@ package body Editor.Line_Edit.Tests is
          Why & ": clipboard must be unchanged by line edit");
    end Assert_Line_Edit_Coherent;
 
-   procedure Test_Phase383_Delete_Duplicate_Move_Workflow_Consistency
+   procedure Test_Delete_Duplicate_Move_Workflow_Consistency
      (T : in out AUnit.Test_Cases.Test_Case'Class)
    is
       pragma Unreferenced (T);
@@ -1035,9 +1037,9 @@ package body Editor.Line_Edit.Tests is
          "move-down workflow");
       Assert (Message_Text (S) = "Moved line down",
               "move-down must emit one primary line message");
-   end Test_Phase383_Delete_Duplicate_Move_Workflow_Consistency;
+   end Test_Delete_Duplicate_Move_Workflow_Consistency;
 
-   procedure Test_Phase383_Line_Terminator_Matrix_Undo_Redo
+   procedure Test_Line_Terminator_Matrix_Undo_Redo
      (T : in out AUnit.Test_Cases.Test_Case'Class)
    is
       pragma Unreferenced (T);
@@ -1078,9 +1080,9 @@ package body Editor.Line_Edit.Tests is
         (Text_Buffer.UTF8_Text (S.Buffer) =
          "A" & ASCII.LF & ASCII.LF & ASCII.LF & "C" & ASCII.LF,
          "delete whitespace-only line must preserve neighboring blank terminators exactly");
-   end Test_Phase383_Line_Terminator_Matrix_Undo_Redo;
+   end Test_Line_Terminator_Matrix_Undo_Redo;
 
-   procedure Test_Phase383_Selection_Clipboard_Find_Redo_Boundaries
+   procedure Test_Selection_Clipboard_Find_Redo_Boundaries
      (T : in out AUnit.Test_Cases.Test_Case'Class)
    is
       pragma Unreferenced (T);
@@ -1132,9 +1134,9 @@ package body Editor.Line_Edit.Tests is
         (Text_Buffer.UTF8_Text (S.Buffer) =
          "alpha" & ASCII.LF & "alpha" & ASCII.LF & "beta" & ASCII.LF & "gamma",
          "redo after preserved boundary no-op must restore post-edit text");
-   end Test_Phase383_Selection_Clipboard_Find_Redo_Boundaries;
+   end Test_Selection_Clipboard_Find_Redo_Boundaries;
 
-   procedure Test_Phase383_Dirty_History_Clear_And_No_Op_Policy
+   procedure Test_Dirty_History_Clear_And_No_Op_Policy
      (T : in out AUnit.Test_Cases.Test_Case'Class)
    is
       pragma Unreferenced (T);
@@ -1170,9 +1172,9 @@ package body Editor.Line_Edit.Tests is
               "history.clear after line edit must not change dirty state");
       Assert (Natural (Editor.History.Undo_Stack.Length) = 0,
               "history.clear must clear canonical undo stack");
-   end Test_Phase383_Dirty_History_Clear_And_No_Op_Policy;
+   end Test_Dirty_History_Clear_And_No_Op_Policy;
 
-   procedure Test_Phase383_Availability_Projection_And_Non_Goal_Surface
+   procedure Test_Availability_Projection_And_Non_Goal_Surface
      (T : in out AUnit.Test_Cases.Test_Case'Class)
    is
       pragma Unreferenced (T);
@@ -1238,13 +1240,13 @@ package body Editor.Line_Edit.Tests is
       Assert_Not_Exposed ("edit.line.indent");
       Assert_Not_Exposed ("edit.line.outdent");
       Assert_Not_Exposed ("edit.multi-cursor.line");
-   end Test_Phase383_Availability_Projection_And_Non_Goal_Surface;
+   end Test_Availability_Projection_And_Non_Goal_Surface;
 
-   procedure Test_Phase384_Keybinding_Config_Rejects_Removed_Name_Line_Names
+   procedure Test_Keybinding_Config_Rejects_Removed_Name_Line_Names
      (T : in out AUnit.Test_Cases.Test_Case'Class)
    is
       pragma Unreferenced (T);
-      Path   : constant String := "/tmp/editor-phase384-removed-name-line-keybindings";
+      Path   : constant String := "/tmp/editor-removed-name-line-keybindings";
       File   : Ada.Text_IO.File_Type;
       Config : Editor.Keybinding_Config.Keybinding_Config_Model;
       Status : Editor.Keybinding_Config.Keybinding_Config_Status;
@@ -1269,9 +1271,9 @@ package body Editor.Line_Edit.Tests is
       Assert
         (Found and then Editor.Keybindings.Format_Chord (Chord) = "Ctrl+Alt+S",
          "canonical line-edit keybinding must remain loadable while removed alternate names are ignored");
-   end Test_Phase384_Keybinding_Config_Rejects_Removed_Name_Line_Names;
+   end Test_Keybinding_Config_Rejects_Removed_Name_Line_Names;
 
-   procedure Test_Phase384_Default_Keybindings_And_Runtime_Routes_Are_Canonical
+   procedure Test_Default_Keybindings_And_Runtime_Routes_Are_Canonical
      (T : in out AUnit.Test_Cases.Test_Case'Class)
    is
       pragma Unreferenced (T);
@@ -1318,10 +1320,10 @@ package body Editor.Line_Edit.Tests is
          "runtime keybinding resolution must target the canonical delete-line command id");
 
       Editor.Keybindings.Reset_To_Defaults;
-   end Test_Phase384_Default_Keybindings_And_Runtime_Routes_Are_Canonical;
+   end Test_Default_Keybindings_And_Runtime_Routes_Are_Canonical;
 
 
-   procedure Test_Phase385_Indent_Command_Descriptors
+   procedure Test_Indent_Command_Descriptors
      (T : in out AUnit.Test_Cases.Test_Case'Class)
    is
       pragma Unreferenced (T);
@@ -1332,7 +1334,7 @@ package body Editor.Line_Edit.Tests is
       procedure Assert_Not_Exposed (Name : String) is
       begin
          Id := Editor.Commands.Command_Id_From_Stable_Name (Name, Found);
-         Assert (not Found, Name & " must not be exposed in Phase 385");
+         Assert (not Found, Name & " must not be exposed in ");
       end Assert_Not_Exposed;
    begin
       Assert
@@ -1385,10 +1387,10 @@ package body Editor.Line_Edit.Tests is
       Assert_Not_Exposed ("edit.indent.auto");
       Assert_Not_Exposed ("edit.tabs.convert-to-spaces");
       Assert_Not_Exposed ("edit.tabs.convert-to-tabs");
-   end Test_Phase385_Indent_Command_Descriptors;
+   end Test_Indent_Command_Descriptors;
 
 
-   procedure Test_Phase385_Indent_Increase_Undo_Redo_And_Caret
+   procedure Test_Indent_Increase_Undo_Redo_And_Caret
      (T : in out AUnit.Test_Cases.Test_Case'Class)
    is
       pragma Unreferenced (T);
@@ -1426,10 +1428,10 @@ package body Editor.Line_Edit.Tests is
         (Text_Buffer.UTF8_Text (S.Buffer) =
          "one" & ASCII.LF & "  two" & ASCII.LF & "three",
          "redo after indent increase must restore exact indented text");
-   end Test_Phase385_Indent_Increase_Undo_Redo_And_Caret;
+   end Test_Indent_Increase_Undo_Redo_And_Caret;
 
 
-   procedure Test_Phase385_Indent_Increase_Blank_Whitespace_And_Empty_Buffer
+   procedure Test_Indent_Increase_Blank_Whitespace_And_Empty_Buffer
      (T : in out AUnit.Test_Cases.Test_Case'Class)
    is
       pragma Unreferenced (T);
@@ -1482,10 +1484,10 @@ package body Editor.Line_Edit.Tests is
               "empty buffer indent increase must leave clean state unchanged");
       Assert (Natural (Editor.History.Undo_Stack.Length) = 0,
               "empty buffer indent increase must not create an undo entry");
-   end Test_Phase385_Indent_Increase_Blank_Whitespace_And_Empty_Buffer;
+   end Test_Indent_Increase_Blank_Whitespace_And_Empty_Buffer;
 
 
-   procedure Test_Phase385_Outdent_Policy_Undo_Redo_And_No_Op
+   procedure Test_Outdent_Policy_Undo_Redo_And_No_Op
      (T : in out AUnit.Test_Cases.Test_Case'Class)
    is
       pragma Unreferenced (T);
@@ -1569,10 +1571,10 @@ package body Editor.Line_Edit.Tests is
               "empty buffer outdent no-op message mismatch");
       Assert (Natural (Editor.History.Undo_Stack.Length) = 0,
               "empty buffer outdent must not create an undo entry");
-   end Test_Phase385_Outdent_Policy_Undo_Redo_And_No_Op;
+   end Test_Outdent_Policy_Undo_Redo_And_No_Op;
 
 
-   procedure Test_Phase385_Indent_Selection_Clipboard_Find_And_Navigation_Boundaries
+   procedure Test_Indent_Selection_Clipboard_Find_And_Navigation_Boundaries
      (T : in out AUnit.Test_Cases.Test_Case'Class)
    is
       pragma Unreferenced (T);
@@ -1611,10 +1613,10 @@ package body Editor.Line_Edit.Tests is
       Assert_Navigation_Counts
         (S, Before_Back, Before_Fwd,
          "indent command must not record navigation history");
-   end Test_Phase385_Indent_Selection_Clipboard_Find_And_Navigation_Boundaries;
+   end Test_Indent_Selection_Clipboard_Find_And_Navigation_Boundaries;
 
 
-   procedure Test_Phase385_Indent_Input_Bridge_And_Availability_Side_Effects
+   procedure Test_Indent_Input_Bridge_And_Availability_Side_Effects
      (T : in out AUnit.Test_Cases.Test_Case'Class)
    is
       pragma Unreferenced (T);
@@ -1679,10 +1681,10 @@ package body Editor.Line_Edit.Tests is
               "Input_Bridge indent decrease binding must route through Executor");
 
       Editor.Keybindings.Reset_To_Defaults;
-   end Test_Phase385_Indent_Input_Bridge_And_Availability_Side_Effects;
+   end Test_Indent_Input_Bridge_And_Availability_Side_Effects;
 
 
-   procedure Test_Phase386_Leading_Whitespace_Outdent_Matrix
+   procedure Test_Leading_Whitespace_Outdent_Matrix
      (T : in out AUnit.Test_Cases.Test_Case'Class)
    is
       pragma Unreferenced (T);
@@ -1745,10 +1747,10 @@ package body Editor.Line_Edit.Tests is
       Assert_Outdent (" ", "", "one-space blank line must be emptied");
       Assert_Outdent ("  ", "", "two-space blank line must remove one unit");
       Assert_Outdent ("   ", " ", "three-space blank line must remove one unit");
-   end Test_Phase386_Leading_Whitespace_Outdent_Matrix;
+   end Test_Leading_Whitespace_Outdent_Matrix;
 
 
-   procedure Test_Phase386_Indent_Exact_Unit_And_Line_Boundaries
+   procedure Test_Indent_Exact_Unit_And_Line_Boundaries
      (T : in out AUnit.Test_Cases.Test_Case'Class)
    is
       pragma Unreferenced (T);
@@ -1809,10 +1811,10 @@ package body Editor.Line_Edit.Tests is
          "one" & ASCII.LF & "  " & String'(1 => ASCII.HT) & "Two" &
          ASCII.LF & "     " & ASCII.LF & "  last",
          "redo after line-boundary indent must restore exact later text");
-   end Test_Phase386_Indent_Exact_Unit_And_Line_Boundaries;
+   end Test_Indent_Exact_Unit_And_Line_Boundaries;
 
 
-   procedure Test_Phase386_Redo_Find_Selection_Clipboard_And_Navigation_Reliability
+   procedure Test_Redo_Find_Selection_Clipboard_And_Navigation_Reliability
      (T : in out AUnit.Test_Cases.Test_Case'Class)
    is
       pragma Unreferenced (T);
@@ -1881,10 +1883,10 @@ package body Editor.Line_Edit.Tests is
       Assert_Navigation_Counts
         (S, Before_Back, Before_Fwd,
          "text-changing indent must not record navigation history");
-   end Test_Phase386_Redo_Find_Selection_Clipboard_And_Navigation_Reliability;
+   end Test_Redo_Find_Selection_Clipboard_And_Navigation_Reliability;
 
 
-   procedure Test_Phase386_Line_Edit_Coexistence_And_Current_Line_Only
+   procedure Test_Line_Edit_Coexistence_And_Current_Line_Only
      (T : in out AUnit.Test_Cases.Test_Case'Class)
    is
       pragma Unreferenced (T);
@@ -1931,10 +1933,10 @@ package body Editor.Line_Edit.Tests is
         (Text_Buffer.UTF8_Text (S.Buffer) =
          "one" & ASCII.LF & "  two" & ASCII.LF & "  two" & ASCII.LF & "three",
          "mixed line-edit and indentation undo ordering must be coherent");
-   end Test_Phase386_Line_Edit_Coexistence_And_Current_Line_Only;
+   end Test_Line_Edit_Coexistence_And_Current_Line_Only;
 
 
-   procedure Test_Phase386_No_Caret_Render_Persistence_And_Non_Goals
+   procedure Test_No_Caret_Render_Persistence_And_Non_Goals
      (T : in out AUnit.Test_Cases.Test_Case'Class)
    is
       pragma Unreferenced (T);
@@ -2017,10 +2019,10 @@ package body Editor.Line_Edit.Tests is
               "failed no-caret indent must not mutate text");
       Assert (Natural (Editor.History.Undo_Stack.Length) = 1,
               "failed no-caret indent must not create an undo entry");
-   end Test_Phase386_No_Caret_Render_Persistence_And_Non_Goals;
+   end Test_No_Caret_Render_Persistence_And_Non_Goals;
 
 
-   procedure Test_Phase387_Indent_Increase_Workflow_Matrix
+   procedure Test_Indent_Increase_Workflow_Matrix
      (T : in out AUnit.Test_Cases.Test_Case'Class)
    is
       pragma Unreferenced (T);
@@ -2149,10 +2151,10 @@ package body Editor.Line_Edit.Tests is
       Editor.Executor.Execute_Command (S, Editor.Commands.Command_Redo);
       Assert (Message_Text (S) = "No edits to redo",
               "redo after text-changing indent must report no redo entry");
-   end Test_Phase387_Indent_Increase_Workflow_Matrix;
+   end Test_Indent_Increase_Workflow_Matrix;
 
 
-   procedure Test_Phase387_Outdent_Workflow_And_Whitespace_Matrix
+   procedure Test_Outdent_Workflow_And_Whitespace_Matrix
      (T : in out AUnit.Test_Cases.Test_Case'Class)
    is
       pragma Unreferenced (T);
@@ -2246,10 +2248,10 @@ package body Editor.Line_Edit.Tests is
                       "two-space whitespace-only line outdent workflow");
       Assert_Outdent ("   ", " ", "Outdented line",
                       "three-space whitespace-only line outdent workflow");
-   end Test_Phase387_Outdent_Workflow_And_Whitespace_Matrix;
+   end Test_Outdent_Workflow_And_Whitespace_Matrix;
 
 
-   procedure Test_Phase387_Selection_Clipboard_Line_Edit_Integration
+   procedure Test_Selection_Clipboard_Line_Edit_Integration
      (T : in out AUnit.Test_Cases.Test_Case'Class)
    is
       pragma Unreferenced (T);
@@ -2315,10 +2317,10 @@ package body Editor.Line_Edit.Tests is
       Editor.Executor.Execute_Command (S, Editor.Commands.Command_Paste);
       Assert (Natural (Editor.History.Undo_Stack.Length) > 0,
               "mixed selection/clipboard/line-edit/indent workflow must remain undoable");
-   end Test_Phase387_Selection_Clipboard_Line_Edit_Integration;
+   end Test_Selection_Clipboard_Line_Edit_Integration;
 
 
-   procedure Test_Phase387_Render_Availability_And_Persistence_Are_Read_Only
+   procedure Test_Render_Availability_And_Persistence_Are_Read_Only
      (T : in out AUnit.Test_Cases.Test_Case'Class)
    is
       pragma Unreferenced (T);
@@ -2394,8 +2396,8 @@ package body Editor.Line_Edit.Tests is
               and then Index (Summary, "indentation unit") = 0
               and then Index (Summary, "tab width") = 0,
               "workspace persistence must exclude indentation transient state and settings");
-   end Test_Phase387_Render_Availability_And_Persistence_Are_Read_Only;
-procedure Test_Phase389_Line_Comment_Command_Descriptors
+   end Test_Render_Availability_And_Persistence_Are_Read_Only;
+procedure Test_Line_Comment_Command_Descriptors
      (T : in out AUnit.Test_Cases.Test_Case'Class)
    is
       pragma Unreferenced (T);
@@ -2406,7 +2408,7 @@ procedure Test_Phase389_Line_Comment_Command_Descriptors
       procedure Assert_Not_Exposed (Name : String) is
       begin
          Id := Editor.Commands.Command_Id_From_Stable_Name (Name, Found);
-         Assert (not Found, Name & " must not be exposed in Phase 389");
+         Assert (not Found, Name & " must not be exposed in ");
       end Assert_Not_Exposed;
    begin
       Assert
@@ -2482,10 +2484,10 @@ procedure Test_Phase389_Line_Comment_Command_Descriptors
       Assert_Not_Exposed ("edit.comment.document");
       Assert_Not_Exposed ("edit.comment.region");
       Assert_Not_Exposed ("edit.comment.format");
-   end Test_Phase389_Line_Comment_Command_Descriptors;
+   end Test_Line_Comment_Command_Descriptors;
 
 
-   procedure Test_Phase389_Comment_Line_Prefix_Matrix_Undo_Redo
+   procedure Test_Comment_Line_Prefix_Matrix_Undo_Redo
      (T : in out AUnit.Test_Cases.Test_Case'Class)
    is
       pragma Unreferenced (T);
@@ -2556,10 +2558,10 @@ procedure Test_Phase389_Line_Comment_Command_Descriptors
       Editor.Executor.Execute_Command (S, Editor.Commands.Command_Comment_Line);
       Assert (Message_Text (S) = "Line already commented",
               "already-commented line must report deterministic no-op");
-   end Test_Phase389_Comment_Line_Prefix_Matrix_Undo_Redo;
+   end Test_Comment_Line_Prefix_Matrix_Undo_Redo;
 
 
-   procedure Test_Phase389_Uncomment_And_Toggle_Policies
+   procedure Test_Uncomment_And_Toggle_Policies
      (T : in out AUnit.Test_Cases.Test_Case'Class)
    is
       pragma Unreferenced (T);
@@ -2629,10 +2631,10 @@ procedure Test_Phase389_Line_Comment_Command_Descriptors
          "toggle-line must uncomment a commented caret line");
       Assert (Message_Text (S) = "Uncommented line",
               "toggle uncomment operation-specific message mismatch");
-   end Test_Phase389_Uncomment_And_Toggle_Policies;
+   end Test_Uncomment_And_Toggle_Policies;
 
 
-   procedure Test_Phase389_No_Op_Redo_Empty_And_Active_Buffer_Isolation
+   procedure Test_No_Op_Redo_Empty_And_Active_Buffer_Isolation
      (T : in out AUnit.Test_Cases.Test_Case'Class)
    is
       pragma Unreferenced (T);
@@ -2680,7 +2682,7 @@ procedure Test_Phase389_Line_Comment_Command_Descriptors
       Editor.Buffers.Ensure_Global_Registry (S);
       A_Id := Editor.Buffers.Global_Active_Buffer;
 
-      Editor.Executor.Execute_New_Buffer (S);
+      Editor.Executor.File_Open_Commands.Execute_New_Buffer (S);
       B_Id := Editor.Buffers.Global_Active_Buffer;
       Assert (B_Id /= A_Id, "new buffer must be a distinct active buffer");
       Editor.State.Load_Text (S, "Beta");
@@ -2689,21 +2691,21 @@ procedure Test_Phase389_Line_Comment_Command_Descriptors
       Assert (Text_Buffer.UTF8_Text (S.Buffer) = "-- Beta",
               "comment-line must mutate the active buffer");
 
-      Editor.Executor.Execute_Switch_Buffer (S, A_Id);
+      Editor.Executor.File_Open_Commands.Execute_Switch_Buffer (S, A_Id);
       Assert (Text_Buffer.UTF8_Text (S.Buffer) = "Alpha",
               "comment-line must not mutate inactive buffers");
       Assert (Editor.History.Undo_Stack.Is_Empty,
               "inactive buffer must not inherit line-comment undo entries");
 
-      Editor.Executor.Execute_Switch_Buffer (S, B_Id);
+      Editor.Executor.File_Open_Commands.Execute_Switch_Buffer (S, B_Id);
       Assert (Text_Buffer.UTF8_Text (S.Buffer) = "-- Beta",
               "switching back must restore active buffer line-comment text");
       Assert (not Editor.History.Undo_Stack.Is_Empty,
               "active buffer must retain its own line-comment undo entry");
-   end Test_Phase389_No_Op_Redo_Empty_And_Active_Buffer_Isolation;
+   end Test_No_Op_Redo_Empty_And_Active_Buffer_Isolation;
 
 
-   procedure Test_Phase389_Indentation_And_Line_Editing_Coexistence
+   procedure Test_Indentation_And_Line_Editing_Coexistence
      (T : in out AUnit.Test_Cases.Test_Case'Class)
    is
       pragma Unreferenced (T);
@@ -2749,10 +2751,10 @@ procedure Test_Phase389_Line_Comment_Command_Descriptors
         (Text_Buffer.UTF8_Text (S.Buffer) =
          "  -- Alpha" & ASCII.LF & "  Alpha" & ASCII.LF & "Beta",
          "mixed line-comment and line-edit redo ordering must restore exact text");
-   end Test_Phase389_Indentation_And_Line_Editing_Coexistence;
+   end Test_Indentation_And_Line_Editing_Coexistence;
 
 
-   procedure Test_Phase389_Line_Comment_Edge_Matrix_And_Redo_Preservation
+   procedure Test_Line_Comment_Edge_Matrix_And_Redo_Preservation
      (T : in out AUnit.Test_Cases.Test_Case'Class)
    is
       pragma Unreferenced (T);
@@ -2818,10 +2820,10 @@ procedure Test_Phase389_Line_Comment_Command_Descriptors
               "already-commented comment-line must report no-op");
       Assert (Natural (Editor.History.Redo_Stack.Length) = Redo_Before,
               "already-commented comment-line no-op must preserve redo stack");
-   end Test_Phase389_Line_Comment_Edge_Matrix_And_Redo_Preservation;
+   end Test_Line_Comment_Edge_Matrix_And_Redo_Preservation;
 
 
-   procedure Test_Phase389_Boundaries_Availability_And_Persistence
+   procedure Test_Boundaries_Availability_And_Persistence
      (T : in out AUnit.Test_Cases.Test_Case'Class)
    is
       pragma Unreferenced (T);
@@ -2944,11 +2946,11 @@ procedure Test_Phase389_Line_Comment_Command_Descriptors
          and then Index (Summary, "line comment") = 0
          and then Index (Summary, "-- ") = 0,
          "workspace persistence must exclude line-comment transient state/settings");
-   end Test_Phase389_Boundaries_Availability_And_Persistence;
+   end Test_Boundaries_Availability_And_Persistence;
 
 
 
-   procedure Test_Phase390_Prefix_Matrix_And_Current_Line_Only
+   procedure Test_Prefix_Matrix_And_Current_Line_Only
      (T : in out AUnit.Test_Cases.Test_Case'Class)
    is
       pragma Unreferenced (T);
@@ -2981,7 +2983,7 @@ procedure Test_Phase389_Line_Comment_Command_Descriptors
               "--Alpha" & ASCII.LF &
               "Alpha -- note" & ASCII.LF &
               "  ",
-              "Phase 390 comment-line must insert exactly canonical marker at unindented prefix");
+              "comment-line must insert exactly canonical marker at unindented prefix");
 
       Set_Caret (S, Cursor_Index (Editor.Navigation.Index_For_Line_Column (S, 1, 2)));
       Editor.Executor.Execute_Command (S, Editor.Commands.Command_Comment_Line);
@@ -3002,16 +3004,16 @@ procedure Test_Phase389_Line_Comment_Command_Descriptors
               "--Alpha" & ASCII.LF &
               "-- Alpha -- note" & ASCII.LF &
               "  -- ",
-              "Phase 390 comment-line prefix matrix must preserve indentation, internal markers, and whitespace lines");
+              "comment-line prefix matrix must preserve indentation, internal markers, and whitespace lines");
 
       Set_Caret (S, Cursor_Index (Editor.Navigation.Index_For_Line_Column (S, 4, 0)));
       Editor.Executor.Execute_Command (S, Editor.Commands.Command_Comment_Line);
       Assert (Message_Text (S) = "Line already commented",
-              "Phase 390 comment-line must no-op on -- space prefix");
+              "comment-line must no-op on -- space prefix");
       Set_Caret (S, Cursor_Index (Editor.Navigation.Index_For_Line_Column (S, 5, 0)));
       Editor.Executor.Execute_Command (S, Editor.Commands.Command_Comment_Line);
       Assert (Message_Text (S) = "Line already commented",
-              "Phase 390 comment-line must no-op on bare -- prefix");
+              "comment-line must no-op on bare -- prefix");
 
       Set_Caret (S, Cursor_Index (Editor.Navigation.Index_For_Line_Column (S, 0, 0)));
       Editor.Executor.Execute_Command (S, Editor.Commands.Command_Uncomment_Line);
@@ -3034,7 +3036,7 @@ procedure Test_Phase389_Line_Comment_Command_Descriptors
               "--Alpha" & ASCII.LF &
               "Alpha -- note" & ASCII.LF &
               "  ",
-              "Phase 390 uncomment-line matrix must remove exactly one recognized prefix marker only");
+              "uncomment-line matrix must remove exactly one recognized prefix marker only");
 
       Editor.State.Init (S);
       Editor.State.Load_Text (S, "A" & ASCII.LF & "B" & ASCII.LF & "C");
@@ -3044,11 +3046,11 @@ procedure Test_Phase389_Line_Comment_Command_Descriptors
          Cursor_Index (Editor.Navigation.Index_For_Line_Column (S, 1, 0)));
       Editor.Executor.Execute_Command (S, Editor.Commands.Command_Comment_Line);
       Assert (Text_Buffer.UTF8_Text (S.Buffer) = "A" & ASCII.LF & "-- B" & ASCII.LF & "C",
-              "Phase 390 line-comment commands must operate on the caret line only, not selected-line ranges");
-   end Test_Phase390_Prefix_Matrix_And_Current_Line_Only;
+              "line-comment commands must operate on the caret line only, not selected-line ranges");
+   end Test_Prefix_Matrix_And_Current_Line_Only;
 
 
-   procedure Test_Phase390_Caret_Selection_Find_Clipboard_Navigation
+   procedure Test_Caret_Selection_Find_Clipboard_Navigation
      (T : in out AUnit.Test_Cases.Test_Case'Class)
    is
       pragma Unreferenced (T);
@@ -3075,36 +3077,36 @@ procedure Test_Phase389_Line_Comment_Command_Descriptors
 
       Editor.Executor.Execute_Command (S, Editor.Commands.Command_Comment_Line);
       Assert (Text_Buffer.UTF8_Text (S.Buffer) = "  -- Alpha" & ASCII.LF & "Beta",
-              "Phase 390 comment-line must insert after indentation regardless of caret column");
-      Assert_Caret_Row_Col (S, 0, 7, "Phase 390 comment-line caret shift after insertion");
+              "comment-line must insert after indentation regardless of caret column");
+      Assert_Caret_Row_Col (S, 0, 7, "comment-line caret shift after insertion");
       Assert (not Editor.Selection.Has_Selection (S),
-              "Phase 390 successful comment-line must clear stale active selection");
+              "successful comment-line must clear stale active selection");
       Assert (S.Active_Find_Stale,
-              "Phase 390 text-changing comment-line must invalidate active Find through edit hook");
+              "text-changing comment-line must invalidate active Find through edit hook");
       Assert (S.Active_Replace_Text = To_Unbounded_String ("Omega") and then S.Active_Replace_Prompt,
-              "Phase 390 line-comment must not mutate Replace text or visibility");
+              "line-comment must not mutate Replace text or visibility");
       Assert (Editor.Clipboard.Has_Text and then To_String (Editor.Clipboard.Get_Text) = "CLIP",
-              "Phase 390 line-comment must not mutate clipboard");
+              "line-comment must not mutate clipboard");
       Assert_Navigation_Counts (S, Before_Back, Before_Fwd,
-                                "Phase 390 line-comment must not record navigation history");
+                                "line-comment must not record navigation history");
 
       S.Active_Find_Stale := False;
       Set_Caret (S, Cursor_Index (Editor.Navigation.Index_For_Line_Column (S, 0, 3)));
       Editor.Executor.Execute_Command (S, Editor.Commands.Command_Uncomment_Line);
       Assert (Text_Buffer.UTF8_Text (S.Buffer) = "  Alpha" & ASCII.LF & "Beta",
-              "Phase 390 uncomment-line must restore exact pre-comment text");
+              "uncomment-line must restore exact pre-comment text");
       Assert_Caret_Row_Col (S, 0, 2,
-                            "Phase 390 uncomment-line caret inside marker must clamp to marker position");
+                            "uncomment-line caret inside marker must clamp to marker position");
       Assert (S.Active_Find_Stale,
-              "Phase 390 text-changing uncomment-line must invalidate active Find through edit hook");
+              "text-changing uncomment-line must invalidate active Find through edit hook");
       Assert (Editor.Clipboard.Has_Text and then To_String (Editor.Clipboard.Get_Text) = "CLIP",
-              "Phase 390 uncomment-line must preserve clipboard");
+              "uncomment-line must preserve clipboard");
       Assert_Navigation_Counts (S, Before_Back, Before_Fwd,
-                                "Phase 390 uncomment-line must not record navigation history");
-   end Test_Phase390_Caret_Selection_Find_Clipboard_Navigation;
+                                "uncomment-line must not record navigation history");
+   end Test_Caret_Selection_Find_Clipboard_Navigation;
 
 
-   procedure Test_Phase390_Redo_Dirty_And_No_Op_Policy
+   procedure Test_Redo_Dirty_And_No_Op_Policy
      (T : in out AUnit.Test_Cases.Test_Case'Class)
    is
       pragma Unreferenced (T);
@@ -3120,39 +3122,39 @@ procedure Test_Phase389_Line_Comment_Command_Descriptors
       Set_Caret (S, 0);
       Editor.Executor.Execute_Command (S, Editor.Commands.Command_Comment_Line);
       Assert (Editor.State.Is_Dirty (S),
-              "Phase 390 text-changing comment-line must dirty a clean buffer");
+              "text-changing comment-line must dirty a clean buffer");
       Assert (Natural (Editor.History.Undo_Stack.Length) = 1,
-              "Phase 390 comment-line must create one undo entry");
+              "comment-line must create one undo entry");
       Editor.Executor.Execute_Command (S, Editor.Commands.Command_Undo);
       Assert (Text_Buffer.UTF8_Text (S.Buffer) = "Alpha",
-              "Phase 390 undo after comment-line must restore exact previous text");
+              "undo after comment-line must restore exact previous text");
       Redo_Before := Natural (Editor.History.Redo_Stack.Length);
       Undo_Before := Natural (Editor.History.Undo_Stack.Length);
       Editor.Executor.Execute_Command (S, Editor.Commands.Command_Uncomment_Line);
       Assert (Message_Text (S) = "Nothing to uncomment",
-              "Phase 390 no-marker uncomment-line must report deterministic no-op");
+              "no-marker uncomment-line must report deterministic no-op");
       Assert (Natural (Editor.History.Redo_Stack.Length) = Redo_Before,
-              "Phase 390 no-op uncomment-line after undo must preserve redo stack");
+              "no-op uncomment-line after undo must preserve redo stack");
       Assert (Natural (Editor.History.Undo_Stack.Length) = Undo_Before,
-              "Phase 390 no-op uncomment-line must not create undo entries");
+              "no-op uncomment-line must not create undo entries");
       Editor.Executor.Execute_Command (S, Editor.Commands.Command_Redo);
       Assert (Text_Buffer.UTF8_Text (S.Buffer) = "-- Alpha",
-              "Phase 390 redo after no-op uncomment-line must still be available");
+              "redo after no-op uncomment-line must still be available");
 
       Editor.Executor.Execute_Command (S, Editor.Commands.Command_Undo);
       Set_Caret (S, 0);
       Editor.Executor.Execute_Command (S, Editor.Commands.Command_Comment_Line);
       Assert (Natural (Editor.History.Redo_Stack.Length) = 0,
-              "Phase 390 successful comment-line after undo must clear redo stack");
+              "successful comment-line after undo must clear redo stack");
       Redo_Before := Natural (Editor.History.Redo_Stack.Length);
       Undo_Before := Natural (Editor.History.Undo_Stack.Length);
       Editor.Executor.Execute_Command (S, Editor.Commands.Command_Comment_Line);
       Assert (Message_Text (S) = "Line already commented",
-              "Phase 390 duplicate comment-line must report already-commented no-op");
+              "duplicate comment-line must report already-commented no-op");
       Assert (Natural (Editor.History.Redo_Stack.Length) = Redo_Before,
-              "Phase 390 already-commented no-op must preserve redo stack");
+              "already-commented no-op must preserve redo stack");
       Assert (Natural (Editor.History.Undo_Stack.Length) = Undo_Before,
-              "Phase 390 already-commented no-op must not create undo entry");
+              "already-commented no-op must not create undo entry");
 
       Editor.History.Undo_Stack.Clear;
       Editor.History.Redo_Stack.Clear;
@@ -3162,17 +3164,17 @@ procedure Test_Phase389_Line_Comment_Command_Descriptors
       Set_Caret (S, 0);
       Editor.Executor.Execute_Command (S, Editor.Commands.Command_Toggle_Line_Comment);
       Assert (Text_Buffer.UTF8_Text (S.Buffer) = "",
-              "Phase 390 toggle on empty buffer must preserve empty text");
+              "toggle on empty buffer must preserve empty text");
       Assert (Message_Text (S) = "Nothing to comment",
-              "Phase 390 toggle on empty buffer must use comment no-op message");
+              "toggle on empty buffer must use comment no-op message");
       Assert (Natural (Editor.History.Undo_Stack.Length) = 0,
-              "Phase 390 empty-buffer toggle must not create undo entry");
+              "empty-buffer toggle must not create undo entry");
       Assert (not Editor.State.Is_Dirty (S),
-              "Phase 390 empty-buffer toggle must not dirty buffer");
-   end Test_Phase390_Redo_Dirty_And_No_Op_Policy;
+              "empty-buffer toggle must not dirty buffer");
+   end Test_Redo_Dirty_And_No_Op_Policy;
 
 
-   procedure Test_Phase390_Indentation_Line_Edit_And_Toggle_Sharing
+   procedure Test_Indentation_Line_Edit_And_Toggle_Sharing
      (T : in out AUnit.Test_Cases.Test_Case'Class)
    is
       pragma Unreferenced (T);
@@ -3188,33 +3190,33 @@ procedure Test_Phase389_Line_Comment_Command_Descriptors
       Editor.Executor.Execute_Command (S, Editor.Commands.Command_Indent_Increase);
       Editor.Executor.Execute_Command (S, Editor.Commands.Command_Toggle_Line_Comment);
       Assert (Text_Buffer.UTF8_Text (S.Buffer) = "Alpha" & ASCII.LF & "  -- Beta" & ASCII.LF & "Gamma",
-              "Phase 390 toggle comment path must place marker after current indentation");
+              "toggle comment path must place marker after current indentation");
       Editor.Executor.Execute_Command (S, Editor.Commands.Command_Indent_Decrease);
       Assert (Text_Buffer.UTF8_Text (S.Buffer) = "Alpha" & ASCII.LF & "-- Beta" & ASCII.LF & "Gamma",
-              "Phase 390 outdent after comment-line must treat indentation canonically before marker");
+              "outdent after comment-line must treat indentation canonically before marker");
       Editor.Executor.Execute_Command (S, Editor.Commands.Command_Toggle_Line_Comment);
       Assert (Text_Buffer.UTF8_Text (S.Buffer) = "Alpha" & ASCII.LF & "Beta" & ASCII.LF & "Gamma",
-              "Phase 390 toggle uncomment path must share canonical marker recognition");
+              "toggle uncomment path must share canonical marker recognition");
 
       Editor.Executor.Execute_Command (S, Editor.Commands.Command_Comment_Line);
       Editor.Executor.Execute_Command (S, Editor.Commands.Command_Line_Duplicate);
       Assert (Text_Buffer.UTF8_Text (S.Buffer) = "Alpha" & ASCII.LF & "-- Beta" & ASCII.LF & "-- Beta" & ASCII.LF & "Gamma",
-              "Phase 390 duplicate-line after comment-line must preserve exact current-line text");
+              "duplicate-line after comment-line must preserve exact current-line text");
       Editor.Executor.Execute_Command (S, Editor.Commands.Command_Line_Move_Down);
       Assert (Text_Buffer.UTF8_Text (S.Buffer) = "Alpha" & ASCII.LF & "-- Beta" & ASCII.LF & "Gamma" & ASCII.LF & "-- Beta",
-              "Phase 390 move-down after comment-line must preserve exact line boundaries");
+              "move-down after comment-line must preserve exact line boundaries");
       Editor.Executor.Execute_Command (S, Editor.Commands.Command_Uncomment_Line);
       Assert (Text_Buffer.UTF8_Text (S.Buffer) = "Alpha" & ASCII.LF & "-- Beta" & ASCII.LF & "Gamma" & ASCII.LF & "Beta",
-              "Phase 390 uncomment after line-edit commands must use post-edit caret line");
+              "uncomment after line-edit commands must use post-edit caret line");
       Editor.Executor.Execute_Command (S, Editor.Commands.Command_Undo);
       Editor.Executor.Execute_Command (S, Editor.Commands.Command_Undo);
       Editor.Executor.Execute_Command (S, Editor.Commands.Command_Undo);
       Assert (Text_Buffer.UTF8_Text (S.Buffer) = "Alpha" & ASCII.LF & "-- Beta" & ASCII.LF & "Gamma",
-              "Phase 390 mixed line-comment and line-edit undo sequence must restore exact text");
-   end Test_Phase390_Indentation_Line_Edit_And_Toggle_Sharing;
+              "mixed line-comment and line-edit undo sequence must restore exact text");
+   end Test_Indentation_Line_Edit_And_Toggle_Sharing;
 
 
-   procedure Test_Phase390_Completeness_Toggle_No_Op_Find_And_Persistence
+   procedure Test_Completeness_Toggle_No_Op_Find_And_Persistence
      (T : in out AUnit.Test_Cases.Test_Case'Class)
    is
       pragma Unreferenced (T);
@@ -3249,21 +3251,21 @@ procedure Test_Phase389_Line_Comment_Command_Descriptors
       Summary        : Unbounded_String;
    begin
       Run_Toggle_Case ("Alpha", "-- Alpha", "Commented line", 1,
-                       "Phase 390 completeness toggle comments plain line");
+                       "completeness toggle comments plain line");
       Run_Toggle_Case ("-- Alpha", "Alpha", "Uncommented line", 1,
-                       "Phase 390 completeness toggle uncomments spaced marker");
+                       "completeness toggle uncomments spaced marker");
       Run_Toggle_Case ("--Alpha", "Alpha", "Uncommented line", 1,
-                       "Phase 390 completeness toggle uncomments bare marker");
+                       "completeness toggle uncomments bare marker");
       Run_Toggle_Case ("  Alpha", "  -- Alpha", "Commented line", 1,
-                       "Phase 390 completeness toggle preserves leading spaces");
+                       "completeness toggle preserves leading spaces");
       Run_Toggle_Case ("  -- Alpha", "  Alpha", "Uncommented line", 1,
-                       "Phase 390 completeness toggle removes marker after leading spaces");
+                       "completeness toggle removes marker after leading spaces");
       Run_Toggle_Case ("Alpha -- x", "-- Alpha -- x", "Commented line", 1,
-                       "Phase 390 completeness toggle treats internal marker as ordinary text");
+                       "completeness toggle treats internal marker as ordinary text");
       Run_Toggle_Case ("  ", "  -- ", "Commented line", 1,
-                       "Phase 390 completeness toggle comments whitespace-only line");
+                       "completeness toggle comments whitespace-only line");
       Run_Toggle_Case ("", "", "Nothing to comment", 0,
-                       "Phase 390 completeness toggle empty-buffer no-op");
+                       "completeness toggle empty-buffer no-op");
 
       Editor.History.Undo_Stack.Clear;
       Editor.History.Redo_Stack.Clear;
@@ -3277,18 +3279,18 @@ procedure Test_Phase389_Line_Comment_Command_Descriptors
       Set_Caret (S, 0);
       Editor.Executor.Execute_Command (S, Editor.Commands.Command_Comment_Line);
       Assert (Text_Buffer.UTF8_Text (S.Buffer) = "-- Alpha",
-              "Phase 390 no-op comment-line must preserve text exactly");
+              "no-op comment-line must preserve text exactly");
       Assert (Message_Text (S) = "Line already commented",
-              "Phase 390 no-op comment-line must report already-commented status");
+              "no-op comment-line must report already-commented status");
       Assert (not S.Active_Find_Stale,
-              "Phase 390 no-op comment-line must not invalidate Find/Replace");
+              "no-op comment-line must not invalidate Find/Replace");
       Assert (S.Active_Find_Query = To_Unbounded_String ("Alpha"),
-              "Phase 390 no-op comment-line must not mutate Find query");
+              "no-op comment-line must not mutate Find query");
       Assert (S.Active_Replace_Text = To_Unbounded_String ("Beta")
               and then S.Active_Replace_Prompt,
-              "Phase 390 no-op comment-line must not mutate Replace state");
+              "no-op comment-line must not mutate Replace state");
       Assert (Natural (Editor.History.Undo_Stack.Length) = 0,
-              "Phase 390 no-op comment-line must not create an undo entry");
+              "no-op comment-line must not create an undo entry");
 
       Editor.State.Init (S);
       Editor.State.Load_Text (S, "Alpha -- note");
@@ -3298,11 +3300,11 @@ procedure Test_Phase389_Line_Comment_Command_Descriptors
       Set_Caret (S, 0);
       Editor.Executor.Execute_Command (S, Editor.Commands.Command_Uncomment_Line);
       Assert (Text_Buffer.UTF8_Text (S.Buffer) = "Alpha -- note",
-              "Phase 390 no-op uncomment-line must not remove an internal marker");
+              "no-op uncomment-line must not remove an internal marker");
       Assert (Message_Text (S) = "Nothing to uncomment",
-              "Phase 390 no-op uncomment-line must report deterministic no-op");
+              "no-op uncomment-line must report deterministic no-op");
       Assert (not S.Active_Find_Stale,
-              "Phase 390 no-op uncomment-line must not invalidate Find/Replace");
+              "no-op uncomment-line must not invalidate Find/Replace");
 
       Workspace_Snap := Editor.State.Build_Workspace_Snapshot (S);
       Summary := To_Unbounded_String
@@ -3312,11 +3314,11 @@ procedure Test_Phase389_Line_Comment_Command_Descriptors
          and then Index (Summary, "last commented") = 0
          and then Index (Summary, "last uncommented") = 0
          and then Index (Summary, "line comment") = 0,
-         "Phase 390 workspace snapshot must not persist line-comment transient state");
-   end Test_Phase390_Completeness_Toggle_No_Op_Find_And_Persistence;
+         "workspace snapshot must not persist line-comment transient state");
+   end Test_Completeness_Toggle_No_Op_Find_And_Persistence;
 
 
-   procedure Test_Phase390_Completeness_Read_Only_Routes_And_No_Active_Buffer
+   procedure Test_Completeness_Read_Only_Routes_And_No_Active_Buffer
      (T : in out AUnit.Test_Cases.Test_Case'Class)
    is
       pragma Unreferenced (T);
@@ -3386,37 +3388,37 @@ procedure Test_Phase389_Line_Comment_Command_Descriptors
       Assert_Stable_Name
         ("edit.comment.line",
          Editor.Commands.Command_Comment_Line,
-         "Phase 390 completeness comment-line");
+         "completeness comment-line");
       Assert_Stable_Name
         ("edit.uncomment.line",
          Editor.Commands.Command_Uncomment_Line,
-         "Phase 390 completeness uncomment-line");
+         "completeness uncomment-line");
       Assert_Stable_Name
         ("edit.comment.toggle-line",
          Editor.Commands.Command_Toggle_Line_Comment,
-         "Phase 390 completeness toggle-line-comment");
+         "completeness toggle-line-comment");
       Assert_Removed_Name_Absent
         ("edit.comment.current-line",
-         "Phase 390 completeness removed current-line comment alias");
+         "completeness removed current-line comment alias");
       Assert_Removed_Name_Absent
         ("edit.line.comment",
-         "Phase 390 completeness removed line-comment alias");
+         "completeness removed line-comment alias");
       Assert_Removed_Name_Absent
         ("edit.toggle-comment.line",
-         "Phase 390 completeness removed toggle-comment alias");
+         "completeness removed toggle-comment alias");
 
       Assert_No_Buffer_Command
         (Editor.Commands.Command_Comment_Line,
          "No active buffer.",
-         "Phase 390 completeness comment-line no active buffer");
+         "completeness comment-line no active buffer");
       Assert_No_Buffer_Command
         (Editor.Commands.Command_Uncomment_Line,
          "No active buffer.",
-         "Phase 390 completeness uncomment-line no active buffer");
+         "completeness uncomment-line no active buffer");
       Assert_No_Buffer_Command
         (Editor.Commands.Command_Toggle_Line_Comment,
          "No active buffer.",
-         "Phase 390 completeness toggle-line-comment no active buffer");
+         "completeness toggle-line-comment no active buffer");
 
       Editor.History.Undo_Stack.Clear;
       Editor.History.Redo_Stack.Clear;
@@ -3446,65 +3448,65 @@ procedure Test_Phase389_Line_Comment_Command_Descriptors
       Avail := Editor.Executor.Command_Availability
         (S, Editor.Commands.Command_Comment_Line);
       Assert (Editor.Commands.Is_Available (Avail),
-              "Phase 390 completeness comment-line availability should be available");
+              "completeness comment-line availability should be available");
       Avail := Editor.Executor.Command_Availability
         (S, Editor.Commands.Command_Uncomment_Line);
       Assert (Editor.Commands.Is_Available (Avail),
-              "Phase 390 completeness uncomment-line availability should be available");
+              "completeness uncomment-line availability should be available");
       Avail := Editor.Executor.Command_Availability
         (S, Editor.Commands.Command_Toggle_Line_Comment);
       Assert (Editor.Commands.Is_Available (Avail),
-              "Phase 390 completeness toggle availability should be available");
+              "completeness toggle availability should be available");
       Snap := Editor.Render_Model.Build_Snapshot (S);
       Assert (Snap.Length = Text_Buffer.Length (S.Buffer),
-              "Phase 390 completeness render snapshot must observe text length only");
+              "completeness render snapshot must observe text length only");
 
       Assert (Text_Buffer.UTF8_Text (S.Buffer) = To_String (Before_Text),
-              "Phase 390 completeness read-only paths must not mutate buffer text");
+              "completeness read-only paths must not mutate buffer text");
       Assert (S.Active_Find_Query = Before_Find
               and then not S.Active_Find_Stale,
-              "Phase 390 completeness read-only paths must not mutate Find state");
+              "completeness read-only paths must not mutate Find state");
       Assert (S.Active_Replace_Text = Before_Replace
               and then S.Active_Replace_Prompt,
-              "Phase 390 completeness read-only paths must not mutate Replace state");
+              "completeness read-only paths must not mutate Replace state");
       Assert (Editor.Selection.Has_Selection (S),
-              "Phase 390 completeness read-only paths must not normalize selection");
+              "completeness read-only paths must not normalize selection");
       Assert (Editor.State.Is_Dirty (S) = Before_Dirty,
-              "Phase 390 completeness read-only paths must not mutate dirty state");
+              "completeness read-only paths must not mutate dirty state");
       Assert (Natural (Editor.History.Undo_Stack.Length) = Before_Undo
               and then Natural (Editor.History.Redo_Stack.Length) = Before_Redo,
-              "Phase 390 completeness read-only paths must not mutate history stacks");
+              "completeness read-only paths must not mutate history stacks");
       Assert (S.Carets (S.Carets.First_Index).Pos = Before_Caret,
-              "Phase 390 completeness read-only paths must not move caret");
+              "completeness read-only paths must not move caret");
       Assert (Editor.Clipboard.Has_Text
               and then To_String (Editor.Clipboard.Get_Text) = "CLIP",
-              "Phase 390 completeness read-only paths must not mutate clipboard");
+              "completeness read-only paths must not mutate clipboard");
       Assert_Navigation_Counts
         (S, Before_Back, Before_Fwd,
-         "Phase 390 completeness read-only paths must not mutate navigation history");
+         "completeness read-only paths must not mutate navigation history");
 
       Editor.Executor.Execute_Command (S, Editor.Commands.Command_Uncomment_Line);
       Assert (Text_Buffer.UTF8_Text (S.Buffer) = "  Alpha" & ASCII.LF & "Beta -- internal",
-              "Phase 390 completeness uncomment-line must remove only the active-line canonical marker");
+              "completeness uncomment-line must remove only the active-line canonical marker");
       Assert (S.Active_Find_Query = Before_Find
               and then S.Active_Replace_Text = Before_Replace
               and then S.Active_Replace_Prompt,
-              "Phase 390 completeness text-changing comment command must not rewrite Find/Replace payloads");
+              "completeness text-changing comment command must not rewrite Find/Replace payloads");
       Assert (S.Active_Find_Stale,
-              "Phase 390 completeness text-changing comment command must invalidate Find matches");
+              "completeness text-changing comment command must invalidate Find matches");
       Assert (Editor.Clipboard.Has_Text
               and then To_String (Editor.Clipboard.Get_Text) = "CLIP",
-              "Phase 390 completeness text-changing command must preserve clipboard");
+              "completeness text-changing command must preserve clipboard");
       Assert_Navigation_Counts
         (S, Before_Back, Before_Fwd,
-         "Phase 390 completeness text-changing command must not mutate navigation history");
+         "completeness text-changing command must not mutate navigation history");
       Assert (not Editor.Selection.Has_Selection (S),
-              "Phase 390 completeness text-changing command must clear/collapse selection");
-   end Test_Phase390_Completeness_Read_Only_Routes_And_No_Active_Buffer;
+              "completeness text-changing command must clear/collapse selection");
+   end Test_Completeness_Read_Only_Routes_And_No_Active_Buffer;
 
 
 
-   procedure Test_Phase390_Completeness_Line_Boundaries_And_No_Caret
+   procedure Test_Completeness_Line_Boundaries_And_No_Caret
      (T : in out AUnit.Test_Cases.Test_Case'Class)
    is
       pragma Unreferenced (T);
@@ -3540,9 +3542,9 @@ procedure Test_Phase389_Line_Comment_Command_Descriptors
          "-- " & ASCII.LF &
          "  -- " & ASCII.LF &
          "-- Last" & ASCII.LF,
-         "Phase 390 completeness must comment first, blank, whitespace-only, and trailing-newline last lines exactly");
+         "completeness must comment first, blank, whitespace-only, and trailing-newline last lines exactly");
       Assert (Natural (Editor.History.Undo_Stack.Length) = 4,
-              "Phase 390 completeness line-boundary mutations must create one undo entry per text change");
+              "completeness line-boundary mutations must create one undo entry per text change");
 
       Editor.Executor.Execute_Command (S, Editor.Commands.Command_Undo);
       Editor.Executor.Execute_Command (S, Editor.Commands.Command_Undo);
@@ -3551,17 +3553,17 @@ procedure Test_Phase389_Line_Comment_Command_Descriptors
       Assert
         (Text_Buffer.UTF8_Text (S.Buffer) =
          "First" & ASCII.LF & ASCII.LF & "  " & ASCII.LF & "Last" & ASCII.LF,
-         "Phase 390 completeness undo chain must restore exact line terminators and blank lines");
+         "completeness undo chain must restore exact line terminators and blank lines");
       Assert (not Editor.State.Is_Dirty (S),
-              "Phase 390 completeness undo to clean baseline must restore clean dirty state");
+              "completeness undo to clean baseline must restore clean dirty state");
 
       Editor.Executor.Execute_Command (S, Editor.Commands.Command_Redo);
       Assert
         (Text_Buffer.UTF8_Text (S.Buffer) =
          "-- First" & ASCII.LF & ASCII.LF & "  " & ASCII.LF & "Last" & ASCII.LF,
-         "Phase 390 completeness redo must replay line-comment text mutation without re-running classification on later lines");
+         "completeness redo must replay line-comment text mutation without re-running classification on later lines");
       Assert_Caret_Row_Col (S, 0, 5,
-                            "Phase 390 completeness redo after comment-line must restore canonical caret position");
+                            "completeness redo after comment-line must restore canonical caret position");
 
       Before_Text := To_Unbounded_String (Text_Buffer.UTF8_Text (S.Buffer));
       Before_Undo := Natural (Editor.History.Undo_Stack.Length);
@@ -3570,30 +3572,30 @@ procedure Test_Phase389_Line_Comment_Command_Descriptors
       S.Carets.Clear;
       Editor.Executor.Execute_Command (S, Editor.Commands.Command_Comment_Line);
       Assert (Message_Text (S) = "No caret location",
-              "Phase 390 completeness comment-line without a caret must report no caret location");
+              "completeness comment-line without a caret must report no caret location");
       Assert (Text_Buffer.UTF8_Text (S.Buffer) = To_String (Before_Text),
-              "Phase 390 completeness no-caret comment-line must not mutate buffer text");
+              "completeness no-caret comment-line must not mutate buffer text");
       Assert (Natural (Editor.History.Undo_Stack.Length) = Before_Undo
               and then Natural (Editor.History.Redo_Stack.Length) = Before_Redo,
-              "Phase 390 completeness no-caret comment-line must preserve undo and redo stacks");
+              "completeness no-caret comment-line must preserve undo and redo stacks");
       Assert (Editor.State.Is_Dirty (S) = Before_Dirty,
-              "Phase 390 completeness no-caret comment-line must preserve dirty state");
+              "completeness no-caret comment-line must preserve dirty state");
 
       Editor.Executor.Execute_Command (S, Editor.Commands.Command_Uncomment_Line);
       Assert (Message_Text (S) = "No caret location",
-              "Phase 390 completeness uncomment-line without a caret must report no caret location");
+              "completeness uncomment-line without a caret must report no caret location");
       Editor.Executor.Execute_Command (S, Editor.Commands.Command_Toggle_Line_Comment);
       Assert (Message_Text (S) = "No caret location",
-              "Phase 390 completeness toggle-line-comment without a caret must report no caret location");
+              "completeness toggle-line-comment without a caret must report no caret location");
       Assert (Text_Buffer.UTF8_Text (S.Buffer) = To_String (Before_Text),
-              "Phase 390 completeness no-caret uncomment/toggle must not mutate buffer text");
+              "completeness no-caret uncomment/toggle must not mutate buffer text");
       Assert (Natural (Editor.History.Undo_Stack.Length) = Before_Undo
               and then Natural (Editor.History.Redo_Stack.Length) = Before_Redo,
-              "Phase 390 completeness no-caret uncomment/toggle must preserve undo and redo stacks");
-   end Test_Phase390_Completeness_Line_Boundaries_And_No_Caret;
+              "completeness no-caret uncomment/toggle must preserve undo and redo stacks");
+   end Test_Completeness_Line_Boundaries_And_No_Caret;
 
 
-   procedure Test_Phase390_Completeness_Active_Buffer_Isolation
+   procedure Test_Completeness_Active_Buffer_Isolation
      (T : in out AUnit.Test_Cases.Test_Case'Class)
    is
       pragma Unreferenced (T);
@@ -3609,49 +3611,49 @@ procedure Test_Phase389_Line_Comment_Command_Descriptors
       Buffer_A := Editor.Buffers.Global_Active_Buffer;
       Editor.Buffers.Sync_Global_Active_From_State (S);
 
-      Editor.Executor.Execute_New_Buffer (S);
+      Editor.Executor.File_Open_Commands.Execute_New_Buffer (S);
       Buffer_B := Editor.Buffers.Global_Active_Buffer;
       Editor.State.Load_Text (S, "Gamma" & ASCII.LF & "Delta");
       Set_Caret (S, Cursor_Index (Editor.Navigation.Index_For_Line_Column (S, 1, 0)));
       Editor.Executor.Execute_Command (S, Editor.Commands.Command_Comment_Line);
       Assert (Text_Buffer.UTF8_Text (S.Buffer) = "Gamma" & ASCII.LF & "-- Delta",
-              "Phase 390 completeness active-buffer command must mutate only current buffer text");
+              "completeness active-buffer command must mutate only current buffer text");
       Assert (Natural (Editor.History.Undo_Stack.Length) = 1,
-              "Phase 390 completeness active-buffer command must create active-buffer undo only");
+              "completeness active-buffer command must create active-buffer undo only");
       Editor.Buffers.Sync_Global_Active_From_State (S);
 
-      Editor.Executor.Execute_Switch_Buffer (S, Buffer_A);
+      Editor.Executor.File_Open_Commands.Execute_Switch_Buffer (S, Buffer_A);
       Assert (Text_Buffer.UTF8_Text (S.Buffer) = "Alpha" & ASCII.LF & "Beta",
-              "Phase 390 completeness inactive buffer A text must remain unchanged by buffer B comment command");
+              "completeness inactive buffer A text must remain unchanged by buffer B comment command");
       Assert (Natural (Editor.History.Undo_Stack.Length) = 0,
-              "Phase 390 completeness inactive buffer A undo stack must remain unchanged");
+              "completeness inactive buffer A undo stack must remain unchanged");
       Editor.Executor.Execute_Command (S, Editor.Commands.Command_Uncomment_Line);
       Assert (Message_Text (S) = "Nothing to uncomment",
-              "Phase 390 completeness active buffer A must independently classify its current line");
+              "completeness active buffer A must independently classify its current line");
       Assert (Natural (Editor.History.Redo_Stack.Length) = 0,
-              "Phase 390 completeness no-op on buffer A must not synthesize redo history");
+              "completeness no-op on buffer A must not synthesize redo history");
       Editor.Buffers.Sync_Global_Active_From_State (S);
 
-      Editor.Executor.Execute_Switch_Buffer (S, Buffer_B);
+      Editor.Executor.File_Open_Commands.Execute_Switch_Buffer (S, Buffer_B);
       Assert (Text_Buffer.UTF8_Text (S.Buffer) = "Gamma" & ASCII.LF & "-- Delta",
-              "Phase 390 completeness buffer B comment text must persist across active-buffer switch");
+              "completeness buffer B comment text must persist across active-buffer switch");
       Assert (Natural (Editor.History.Undo_Stack.Length) = 1,
-              "Phase 390 completeness buffer B undo stack must remain isolated and available");
+              "completeness buffer B undo stack must remain isolated and available");
       Editor.Executor.Execute_Command (S, Editor.Commands.Command_Undo);
       Assert (Text_Buffer.UTF8_Text (S.Buffer) = "Gamma" & ASCII.LF & "Delta",
-              "Phase 390 completeness undo after switching back to buffer B must affect only buffer B");
+              "completeness undo after switching back to buffer B must affect only buffer B");
       Editor.Buffers.Sync_Global_Active_From_State (S);
 
-      Editor.Executor.Execute_Switch_Buffer (S, Buffer_A);
+      Editor.Executor.File_Open_Commands.Execute_Switch_Buffer (S, Buffer_A);
       Assert (Text_Buffer.UTF8_Text (S.Buffer) = "Alpha" & ASCII.LF & "Beta",
-              "Phase 390 completeness buffer B undo must not mutate buffer A text");
+              "completeness buffer B undo must not mutate buffer A text");
       Assert (Editor.Buffers.Global_Active_Buffer = Buffer_A,
-              "Phase 390 completeness line-comment commands must not activate another buffer");
-   end Test_Phase390_Completeness_Active_Buffer_Isolation;
+              "completeness line-comment commands must not activate another buffer");
+   end Test_Completeness_Active_Buffer_Isolation;
 
 
 
-   procedure Test_Phase391_Line_Comment_Workflow_Matrices
+   procedure Test_Line_Comment_Workflow_Matrices
      (T : in out AUnit.Test_Cases.Test_Case'Class)
    is
       pragma Unreferenced (T);
@@ -3756,82 +3758,82 @@ procedure Test_Phase389_Line_Comment_Command_Descriptors
    begin
       Run_Case (Editor.Commands.Command_Comment_Line,
                 "Alpha", "-- Alpha", "Commented line", 1,
-                "Phase 391 comment plain line");
+                "comment plain line");
       Run_Case (Editor.Commands.Command_Comment_Line,
                 "  Alpha", "  -- Alpha", "Commented line", 1,
-                "Phase 391 comment leading spaces");
+                "comment leading spaces");
       Run_Case (Editor.Commands.Command_Comment_Line,
                 String'(1 => ASCII.HT) & "Alpha",
                 String'(1 => ASCII.HT) & "-- Alpha",
                 "Commented line", 1,
-                "Phase 391 comment leading tab");
+                "comment leading tab");
       Run_Case (Editor.Commands.Command_Comment_Line,
                 " " & String'(1 => ASCII.HT) & "Alpha",
                 " " & String'(1 => ASCII.HT) & "-- Alpha",
                 "Commented line", 1,
-                "Phase 391 comment mixed whitespace prefix");
+                "comment mixed whitespace prefix");
       Run_Case (Editor.Commands.Command_Comment_Line,
                 "-- Alpha", "-- Alpha", "Line already commented", 0,
-                "Phase 391 comment spaced prefix no-op");
+                "comment spaced prefix no-op");
       Run_Case (Editor.Commands.Command_Comment_Line,
                 "--Alpha", "--Alpha", "Line already commented", 0,
-                "Phase 391 comment bare prefix no-op");
+                "comment bare prefix no-op");
       Run_Case (Editor.Commands.Command_Comment_Line,
                 "Alpha -- note", "-- Alpha -- note", "Commented line", 1,
-                "Phase 391 comment internal marker as text");
+                "comment internal marker as text");
       Run_Case (Editor.Commands.Command_Comment_Line,
                 "  ", "  -- ", "Commented line", 1,
-                "Phase 391 comment whitespace-only line");
+                "comment whitespace-only line");
       Run_Case (Editor.Commands.Command_Comment_Line,
                 "", "", "Nothing to comment", 0,
-                "Phase 391 comment empty buffer");
+                "comment empty buffer");
 
       Run_Case (Editor.Commands.Command_Uncomment_Line,
                 "-- Alpha", "Alpha", "Uncommented line", 1,
-                "Phase 391 uncomment spaced marker");
+                "uncomment spaced marker");
       Run_Case (Editor.Commands.Command_Uncomment_Line,
                 "--Alpha", "Alpha", "Uncommented line", 1,
-                "Phase 391 uncomment bare marker");
+                "uncomment bare marker");
       Run_Case (Editor.Commands.Command_Uncomment_Line,
                 "  -- Alpha", "  Alpha", "Uncommented line", 1,
-                "Phase 391 uncomment spaces before marker");
+                "uncomment spaces before marker");
       Run_Case (Editor.Commands.Command_Uncomment_Line,
                 String'(1 => ASCII.HT) & "-- Alpha",
                 String'(1 => ASCII.HT) & "Alpha",
                 "Uncommented line", 1,
-                "Phase 391 uncomment tab before marker");
+                "uncomment tab before marker");
       Run_Case (Editor.Commands.Command_Uncomment_Line,
                 "Alpha -- note", "Alpha -- note", "Nothing to uncomment", 0,
-                "Phase 391 uncomment internal marker no-op");
+                "uncomment internal marker no-op");
       Run_Case (Editor.Commands.Command_Uncomment_Line,
                 "  -- ", "  ", "Uncommented line", 1,
-                "Phase 391 uncomment comment-only indented line");
+                "uncomment comment-only indented line");
       Run_Case (Editor.Commands.Command_Uncomment_Line,
                 "--", "", "Uncommented line", 1,
-                "Phase 391 uncomment bare marker-only line");
+                "uncomment bare marker-only line");
 
       Run_Case (Editor.Commands.Command_Toggle_Line_Comment,
                 "Alpha", "-- Alpha", "Commented line", 1,
-                "Phase 391 toggle comments absent marker");
+                "toggle comments absent marker");
       Run_Case (Editor.Commands.Command_Toggle_Line_Comment,
                 "-- Alpha", "Alpha", "Uncommented line", 1,
-                "Phase 391 toggle uncomments spaced marker");
+                "toggle uncomments spaced marker");
       Run_Case (Editor.Commands.Command_Toggle_Line_Comment,
                 "Alpha -- x", "-- Alpha -- x", "Commented line", 1,
-                "Phase 391 toggle treats internal marker as ordinary text");
+                "toggle treats internal marker as ordinary text");
 
       Run_Redo_Preservation
         (Editor.Commands.Command_Comment_Line, "-- Alpha",
          "Line already commented",
-         "Phase 391 already-commented command preserves redo");
+         "already-commented command preserves redo");
       Run_Redo_Preservation
         (Editor.Commands.Command_Uncomment_Line, "Alpha -- note",
          "Nothing to uncomment",
-         "Phase 391 no-marker uncomment preserves redo");
-   end Test_Phase391_Line_Comment_Workflow_Matrices;
+         "no-marker uncomment preserves redo");
+   end Test_Line_Comment_Workflow_Matrices;
 
 
-   procedure Test_Phase391_Line_Boundaries_Caret_Selection_And_Find
+   procedure Test_Line_Boundaries_Caret_Selection_And_Find
      (T : in out AUnit.Test_Cases.Test_Case'Class)
    is
       pragma Unreferenced (T);
@@ -3873,23 +3875,23 @@ procedure Test_Phase389_Line_Comment_Command_Descriptors
          ASCII.LF &
          "   " & ASCII.LF &
          String'(1 => ASCII.HT) & "D",
-         "Phase 391 comment must mutate only the caret logical line");
+         "comment must mutate only the caret logical line");
       Assert_Caret_Row_Col (S, 1, 4,
-                            "Phase 391 comment must keep caret valid on same logical line");
+                            "comment must keep caret valid on same logical line");
       Assert (not Editor.Selection.Has_Selection (S),
-              "Phase 391 text-changing comment must clear/collapse active selection");
+              "text-changing comment must clear/collapse active selection");
       Assert (S.Active_Find_Stale,
-              "Phase 391 text-changing comment must invalidate Find ranges");
+              "text-changing comment must invalidate Find ranges");
       Assert (S.Active_Find_Query = To_Unbounded_String ("B")
               and then S.Active_Replace_Text = To_Unbounded_String ("Bee")
               and then S.Active_Replace_Prompt,
-              "Phase 391 line comment must not mutate Find query or Replace text");
+              "line comment must not mutate Find query or Replace text");
       Assert (Editor.Clipboard.Has_Text
               and then To_String (Editor.Clipboard.Get_Text) = "CLIP",
-              "Phase 391 line comment must not consume clipboard while selection is present");
+              "line comment must not consume clipboard while selection is present");
       Assert_Navigation_Counts
         (S, Before_Back, Before_Fwd,
-         "Phase 391 line comment caret normalization must not record navigation");
+         "line comment caret normalization must not record navigation");
 
       Set_Caret (S, Cursor_Index (Editor.Navigation.Index_For_Line_Column (S, 3, 0)));
       Editor.Executor.Execute_Command (S, Editor.Commands.Command_Toggle_Line_Comment);
@@ -3905,9 +3907,9 @@ procedure Test_Phase389_Line_Comment_Command_Descriptors
          "-- " & ASCII.LF &
          "   -- " & ASCII.LF &
          String'(1 => ASCII.HT) & "-- D",
-         "Phase 391 blank, whitespace-only, and tab-leading lines must follow exact marker policy");
+         "blank, whitespace-only, and tab-leading lines must follow exact marker policy");
       Assert (Natural (Editor.History.Undo_Stack.Length) = 4,
-              "Phase 391 each text-changing line-comment command must create exactly one undo entry");
+              "each text-changing line-comment command must create exactly one undo entry");
 
       Editor.Executor.Execute_Command (S, Editor.Commands.Command_Undo);
       Editor.Executor.Execute_Command (S, Editor.Commands.Command_Undo);
@@ -3921,17 +3923,17 @@ procedure Test_Phase389_Line_Comment_Command_Descriptors
          ASCII.LF &
          "   " & ASCII.LF &
          String'(1 => ASCII.HT) & "D",
-         "Phase 391 undo chain must restore exact line boundaries and terminators");
+         "undo chain must restore exact line boundaries and terminators");
       Assert (not Editor.State.Is_Dirty (S),
-              "Phase 391 undo to saved baseline must restore clean dirty state");
+              "undo to saved baseline must restore clean dirty state");
 
       Snap := Editor.Render_Model.Build_Snapshot (S);
       Assert (Snap.Length = Text_Buffer.Length (S.Buffer),
-              "Phase 391 render snapshot must observe current buffer length after undo");
-   end Test_Phase391_Line_Boundaries_Caret_Selection_And_Find;
+              "render snapshot must observe current buffer length after undo");
+   end Test_Line_Boundaries_Caret_Selection_And_Find;
 
 
-   procedure Test_Phase391_Indent_Line_Edit_Clipboard_And_Redo_Integration
+   procedure Test_Indent_Line_Edit_Clipboard_And_Redo_Integration
      (T : in out AUnit.Test_Cases.Test_Case'Class)
    is
       pragma Unreferenced (T);
@@ -3948,53 +3950,53 @@ procedure Test_Phase389_Line_Comment_Command_Descriptors
       Editor.Executor.Execute_Command (S, Editor.Commands.Command_Indent_Increase);
       Assert (Text_Buffer.UTF8_Text (S.Buffer) =
               "Alpha" & ASCII.LF & "  Beta" & ASCII.LF & "Gamma",
-              "Phase 391 setup indent must adjust leading whitespace before comment marker");
+              "setup indent must adjust leading whitespace before comment marker");
       Editor.Executor.Execute_Command (S, Editor.Commands.Command_Comment_Line);
       Assert (Text_Buffer.UTF8_Text (S.Buffer) =
               "Alpha" & ASCII.LF & "  -- Beta" & ASCII.LF & "Gamma",
-              "Phase 391 comment after indent must insert marker after current leading whitespace");
+              "comment after indent must insert marker after current leading whitespace");
       Editor.Executor.Execute_Command (S, Editor.Commands.Command_Indent_Decrease);
       Assert (Text_Buffer.UTF8_Text (S.Buffer) =
               "Alpha" & ASCII.LF & "-- Beta" & ASCII.LF & "Gamma",
-              "Phase 391 outdent after comment must treat indentation before marker canonically");
+              "outdent after comment must treat indentation before marker canonically");
       Editor.Executor.Execute_Command (S, Editor.Commands.Command_Uncomment_Line);
       Assert (Text_Buffer.UTF8_Text (S.Buffer) =
               "Alpha" & ASCII.LF & "Beta" & ASCII.LF & "Gamma",
-              "Phase 391 uncomment after outdent must remove only canonical active-line marker");
+              "uncomment after outdent must remove only canonical active-line marker");
 
       Editor.Executor.Execute_Command (S, Editor.Commands.Command_Comment_Line);
       Editor.Executor.Execute_Command (S, Editor.Commands.Command_Line_Duplicate);
       Assert (Text_Buffer.UTF8_Text (S.Buffer) =
               "Alpha" & ASCII.LF & "-- Beta" & ASCII.LF &
               "-- Beta" & ASCII.LF & "Gamma",
-              "Phase 391 duplicate-line after comment must preserve exact commented text");
+              "duplicate-line after comment must preserve exact commented text");
       Editor.Executor.Execute_Command (S, Editor.Commands.Command_Line_Move_Down);
       Assert (Text_Buffer.UTF8_Text (S.Buffer) =
               "Alpha" & ASCII.LF & "-- Beta" & ASCII.LF &
               "Gamma" & ASCII.LF & "-- Beta",
-              "Phase 391 move-down after duplicate/comment must preserve logical line boundaries");
+              "move-down after duplicate/comment must preserve logical line boundaries");
       Editor.Executor.Execute_Command (S, Editor.Commands.Command_Toggle_Line_Comment);
       Assert (Text_Buffer.UTF8_Text (S.Buffer) =
               "Alpha" & ASCII.LF & "-- Beta" & ASCII.LF &
               "Gamma" & ASCII.LF & "Beta",
-              "Phase 391 toggle after line move must classify post-edit current line");
+              "toggle after line move must classify post-edit current line");
       Assert (Editor.Clipboard.Has_Text
               and then To_String (Editor.Clipboard.Get_Text) = "CLIP",
-              "Phase 391 indentation/line-edit/comment integration must not mutate clipboard");
+              "indentation/line-edit/comment integration must not mutate clipboard");
 
       Editor.Executor.Execute_Command (S, Editor.Commands.Command_Undo);
       Assert (Natural (Editor.History.Redo_Stack.Length) = 1,
-              "Phase 391 undo after mixed workflow must expose redo");
+              "undo after mixed workflow must expose redo");
       Editor.Executor.Execute_Command (S, Editor.Commands.Command_Uncomment_Line);
       Assert (Natural (Editor.History.Redo_Stack.Length) = 0,
-              "Phase 391 successful line-comment command after undo must clear redo");
+              "successful line-comment command after undo must clear redo");
       Editor.Executor.Execute_Command (S, Editor.Commands.Command_Redo);
       Assert (Message_Text (S) = "No edits to redo",
-              "Phase 391 redo after successful line-comment invalidation must report no redo");
-   end Test_Phase391_Indent_Line_Edit_Clipboard_And_Redo_Integration;
+              "redo after successful line-comment invalidation must report no redo");
+   end Test_Indent_Line_Edit_Clipboard_And_Redo_Integration;
 
 
-   procedure Test_Phase391_Read_Only_Routes_Feature_Independence_And_Persistence
+   procedure Test_Read_Only_Routes_Feature_Independence_And_Persistence
      (T : in out AUnit.Test_Cases.Test_Case'Class)
    is
       pragma Unreferenced (T);
@@ -4057,18 +4059,18 @@ procedure Test_Phase389_Line_Comment_Command_Descriptors
       Avail := Editor.Executor.Command_Availability
         (S, Editor.Commands.Command_Comment_Line);
       Assert (Editor.Commands.Is_Available (Avail),
-              "Phase 391 comment availability must be side-effect-free and available");
+              "comment availability must be side-effect-free and available");
       Avail := Editor.Executor.Command_Availability
         (S, Editor.Commands.Command_Uncomment_Line);
       Assert (Editor.Commands.Is_Available (Avail),
-              "Phase 391 uncomment availability must be side-effect-free and available");
+              "uncomment availability must be side-effect-free and available");
       Avail := Editor.Executor.Command_Availability
         (S, Editor.Commands.Command_Toggle_Line_Comment);
       Assert (Editor.Commands.Is_Available (Avail),
-              "Phase 391 toggle availability must be side-effect-free and available");
+              "toggle availability must be side-effect-free and available");
       Snap := Editor.Render_Model.Build_Snapshot (S);
       Assert (Snap.Length = Text_Buffer.Length (S.Buffer),
-              "Phase 391 render snapshot must derive from canonical buffer text");
+              "render snapshot must derive from canonical buffer text");
       Assert (Text_Buffer.UTF8_Text (S.Buffer) = To_String (Before_Text)
               and then S.Active_Find_Query = Before_Find
               and then S.Active_Replace_Text = Before_Replace
@@ -4077,24 +4079,24 @@ procedure Test_Phase389_Line_Comment_Command_Descriptors
               and then Natural (Editor.History.Undo_Stack.Length) = Before_Undo
               and then Natural (Editor.History.Redo_Stack.Length) = Before_Redo
               and then S.Carets (S.Carets.First_Index).Pos = Before_Caret,
-              "Phase 391 render/availability paths must not mutate editor state");
+              "render/availability paths must not mutate editor state");
 
       Editor.State.Init (No_Buffer);
       Editor.Executor.Execute_Command (No_Buffer, Editor.Commands.Command_Comment_Line);
       Assert (Message_Text (No_Buffer) = "No active buffer.",
-              "Phase 391 comment-line without active buffer must report canonical message");
+              "comment-line without active buffer must report canonical message");
       Editor.Executor.Execute_Command (No_Buffer, Editor.Commands.Command_Uncomment_Line);
       Assert (Message_Text (No_Buffer) = "No active buffer.",
-              "Phase 391 uncomment-line without active buffer must report canonical message");
+              "uncomment-line without active buffer must report canonical message");
       Editor.Executor.Execute_Command (No_Buffer, Editor.Commands.Command_Toggle_Line_Comment);
       Assert (Message_Text (No_Buffer) = "No active buffer.",
-              "Phase 391 toggle-line-comment without active buffer must report canonical message");
+              "toggle-line-comment without active buffer must report canonical message");
 
       Editor.Keybindings.Bind (Ctrl_Slash, Editor.Commands.Command_Toggle_Line_Comment);
       Binding := Editor.Keybindings.Resolve (Ctrl_Slash, Resolved);
       Assert (Binding = Editor.Keybindings.Bound_Command
               and then Resolved = Editor.Commands.Command_Toggle_Line_Comment,
-              "Phase 391 runtime keybinding must resolve to canonical toggle-line-comment id");
+              "runtime keybinding must resolve to canonical toggle-line-comment id");
 
       Workspace_Snap := Editor.State.Build_Workspace_Snapshot (S);
       Summary := To_Unbounded_String
@@ -4106,33 +4108,33 @@ procedure Test_Phase389_Line_Comment_Command_Descriptors
          and then Index (Summary, "line comment") = 0
          and then Index (Summary, "language comment") = 0
          and then Index (Summary, "-- ") = 0,
-         "Phase 391 workspace persistence must exclude line-comment transient state/settings");
+         "workspace persistence must exclude line-comment transient state/settings");
 
       Assert_Not_Exposed ("edit.comment.selection",
-                          "Phase 391 selected-line comment command must remain absent");
+                          "selected-line comment command must remain absent");
       Assert_Not_Exposed ("edit.uncomment.selection",
-                          "Phase 391 selected-line uncomment command must remain absent");
+                          "selected-line uncomment command must remain absent");
       Assert_Not_Exposed ("edit.comment.block",
-                          "Phase 391 block comment command must remain absent");
+                          "block comment command must remain absent");
       Assert_Not_Exposed ("edit.comment.toggle-block",
-                          "Phase 391 toggle block comment command must remain absent");
+                          "toggle block comment command must remain absent");
       Assert_Not_Exposed ("edit.comment.smart",
-                          "Phase 391 smart comment command must remain absent");
+                          "smart comment command must remain absent");
       Assert_Not_Exposed ("edit.comment.language-aware",
-                          "Phase 391 language-aware comment command must remain absent");
+                          "language-aware comment command must remain absent");
       Assert_Not_Exposed ("edit.comment.document",
-                          "Phase 391 document comment command must remain absent");
+                          "document comment command must remain absent");
       Assert_Not_Exposed ("edit.comment.region",
-                          "Phase 391 region comment command must remain absent");
+                          "region comment command must remain absent");
       Assert
         (Editor.Commands.Command_Id_From_Stable_Name
            ("edit.format.on-save", Found) =
          Editor.Commands.Command_Toggle_Format_On_Save
          and then Found,
          "format-on-save alias should resolve to the persisted save formatter command");
-   end Test_Phase391_Read_Only_Routes_Feature_Independence_And_Persistence;
+   end Test_Read_Only_Routes_Feature_Independence_And_Persistence;
 
-procedure Test_Phase392_Canonical_Line_Comment_Path_And_Persistence_Exclusion
+procedure Test_Canonical_Line_Comment_Path_And_Persistence_Exclusion
      (T : in out AUnit.Test_Cases.Test_Case'Class)
    is
       pragma Unreferenced (T);
@@ -4167,20 +4169,20 @@ procedure Test_Phase392_Canonical_Line_Comment_Path_And_Persistence_Exclusion
       Assert
         (Text_Buffer.UTF8_Text (S.Buffer) =
          "Alpha" & ASCII.LF & "  -- Beta -- internal" & ASCII.LF & "--Gamma",
-         "Phase 392 comment-line must use the canonical marker and leading-prefix helper");
+         "comment-line must use the canonical marker and leading-prefix helper");
       Assert (Natural (Editor.History.Undo_Stack.Length) = 1,
-              "Phase 392 comment-line must create exactly one canonical undo entry");
+              "comment-line must create exactly one canonical undo entry");
       Assert (Editor.State.Is_Dirty (S),
-              "Phase 392 comment-line must dirty through canonical policy");
+              "comment-line must dirty through canonical policy");
       Assert (S.Active_Find_Stale,
-              "Phase 392 comment-line must invalidate Find through canonical edit hook");
+              "comment-line must invalidate Find through canonical edit hook");
       Assert (S.Active_Replace_Text = Before_Replace,
-              "Phase 392 comment-line must not mutate Replace text");
+              "comment-line must not mutate Replace text");
       Assert (Editor.Clipboard.Has_Text and then Editor.Clipboard.Get_Text = Before_Clip,
-              "Phase 392 comment-line must not mutate Clipboard");
+              "comment-line must not mutate Clipboard");
       Assert_Navigation_Counts
         (S, Before_Back, Before_Fwd,
-         "Phase 392 comment-line must not record Navigation History");
+         "comment-line must not record Navigation History");
 
       S.Active_Find_Stale := False;
       Set_Caret (S, Cursor_Index (Editor.Navigation.Index_For_Line_Column (S, 2, 1)));
@@ -4188,13 +4190,13 @@ procedure Test_Phase392_Canonical_Line_Comment_Path_And_Persistence_Exclusion
       Assert
         (Text_Buffer.UTF8_Text (S.Buffer) =
          "Alpha" & ASCII.LF & "  -- Beta -- internal" & ASCII.LF & "Gamma",
-         "Phase 392 toggle-line must use the same canonical removable-marker path as uncomment-line");
+         "toggle-line must use the same canonical removable-marker path as uncomment-line");
       Assert (Message_Text (S) = "Uncommented line",
-              "Phase 392 toggle-line must emit one operation-specific primary message");
+              "toggle-line must emit one operation-specific primary message");
       Assert (Natural (Editor.History.Undo_Stack.Length) = 2,
-              "Phase 392 toggle-line must create one undo entry, not two");
+              "toggle-line must create one undo entry, not two");
       Assert (S.Active_Find_Stale,
-              "Phase 392 toggle-line must invalidate Find through canonical edit hook");
+              "toggle-line must invalidate Find through canonical edit hook");
 
       S.Active_Find_Stale := False;
       Set_Caret (S, Cursor_Index (Editor.Navigation.Index_For_Line_Column (S, 1, 10)));
@@ -4202,25 +4204,25 @@ procedure Test_Phase392_Canonical_Line_Comment_Path_And_Persistence_Exclusion
       Assert
         (Text_Buffer.UTF8_Text (S.Buffer) =
          "Alpha" & ASCII.LF & "  Beta -- internal" & ASCII.LF & "Gamma",
-         "Phase 392 uncomment-line must remove only one canonical prefix marker");
+         "uncomment-line must remove only one canonical prefix marker");
       Editor.Executor.Execute_Command (S, Editor.Commands.Command_Uncomment_Line);
       Assert (Text_Buffer.UTF8_Text (S.Buffer) =
               "Alpha" & ASCII.LF & "  Beta -- internal" & ASCII.LF & "Gamma",
-              "Phase 392 no-op uncomment-line must not remove internal markers");
+              "no-op uncomment-line must not remove internal markers");
       Assert (Message_Text (S) = "Nothing to uncomment",
-              "Phase 392 no-op uncomment-line must report deterministic no-op");
+              "no-op uncomment-line must report deterministic no-op");
       Assert (Natural (Editor.History.Undo_Stack.Length) = 3,
-              "Phase 392 no-op uncomment-line must not create an undo entry");
+              "no-op uncomment-line must not create an undo entry");
       Assert (S.Active_Find_Stale,
-              "Phase 392 no-op after prior edit must not repair stale state");
+              "no-op after prior edit must not repair stale state");
 
       Snap := Editor.Render_Model.Build_Snapshot (S);
       Assert (Snap.Length = Text_Buffer.Length (S.Buffer),
-              "Phase 392 render snapshot must derive from canonical buffer text only");
+              "render snapshot must derive from canonical buffer text only");
       Avail := Editor.Executor.Command_Availability
         (S, Editor.Commands.Command_Toggle_Line_Comment);
       Assert (Editor.Commands.Is_Available (Avail),
-              "Phase 392 toggle availability must remain side-effect-free and available");
+              "toggle availability must remain side-effect-free and available");
 
       Workspace_Snap := Editor.State.Build_Workspace_Snapshot (S);
       Summary := To_Unbounded_String
@@ -4234,11 +4236,11 @@ procedure Test_Phase392_Canonical_Line_Comment_Path_And_Persistence_Exclusion
          and then Index (Summary, "language comment") = 0
          and then Index (Summary, "file-extension comment") = 0
          and then Index (Summary, "-- ") = 0,
-         "Phase 392 workspace persistence must exclude canonical and removed line-comment state/settings");
-   end Test_Phase392_Canonical_Line_Comment_Path_And_Persistence_Exclusion;
+         "workspace persistence must exclude canonical and removed line-comment state/settings");
+   end Test_Canonical_Line_Comment_Path_And_Persistence_Exclusion;
 
 
-   procedure Test_Phase393_Line_Join_Command_Descriptors
+   procedure Test_Line_Join_Command_Descriptors
      (T : in out AUnit.Test_Cases.Test_Case'Class)
    is
       pragma Unreferenced (T);
@@ -4266,10 +4268,10 @@ procedure Test_Phase392_Canonical_Line_Comment_Path_And_Persistence_Exclusion
         ("edit.line.join-next", Found);
       Assert (Found and then Id = Editor.Commands.Command_Line_Join_Next,
               "join-next stable name must resolve to canonical command id");
-   end Test_Phase393_Line_Join_Command_Descriptors;
+   end Test_Line_Join_Command_Descriptors;
 
 
-   procedure Test_Phase393_Join_Next_Separator_Matrix_Undo_Redo
+   procedure Test_Join_Next_Separator_Matrix_Undo_Redo
      (T : in out AUnit.Test_Cases.Test_Case'Class)
    is
       pragma Unreferenced (T);
@@ -4323,10 +4325,10 @@ procedure Test_Phase392_Canonical_Line_Comment_Path_And_Persistence_Exclusion
       Check ("Alpha" & ASCII.LF & ASCII.HT & "Beta", 0,
              "Alpha " & ASCII.HT & "Beta",
              "tab-leading second line preserved");
-   end Test_Phase393_Join_Next_Separator_Matrix_Undo_Redo;
+   end Test_Join_Next_Separator_Matrix_Undo_Redo;
 
 
-   procedure Test_Phase393_Join_Next_Boundaries_Redo_And_Caret
+   procedure Test_Join_Next_Boundaries_Redo_And_Caret
      (T : in out AUnit.Test_Cases.Test_Case'Class)
    is
       pragma Unreferenced (T);
@@ -4384,10 +4386,10 @@ procedure Test_Phase392_Canonical_Line_Comment_Path_And_Persistence_Exclusion
               "empty-buffer join no-op message mismatch");
       Assert (Natural (Editor.History.Undo_Stack.Length) = 0,
               "empty-buffer no-op must not create undo entry");
-   end Test_Phase393_Join_Next_Boundaries_Redo_And_Caret;
+   end Test_Join_Next_Boundaries_Redo_And_Caret;
 
 
-   procedure Test_Phase393_Join_Next_Boundaries_Selection_Find_Clipboard_Navigation
+   procedure Test_Join_Next_Boundaries_Selection_Find_Clipboard_Navigation
      (T : in out AUnit.Test_Cases.Test_Case'Class)
    is
       pragma Unreferenced (T);
@@ -4450,10 +4452,10 @@ procedure Test_Phase392_Canonical_Line_Comment_Path_And_Persistence_Exclusion
          and then Index (Summary, "line join") = 0
          and then Index (Summary, "join-next") = 0,
          "workspace persistence must exclude line-join transient state/settings");
-   end Test_Phase393_Join_Next_Boundaries_Selection_Find_Clipboard_Navigation;
+   end Test_Join_Next_Boundaries_Selection_Find_Clipboard_Navigation;
 
 
-   procedure Test_Phase393_Join_Next_Coexists_With_Line_Edit_Indent_And_Comment
+   procedure Test_Join_Next_Coexists_With_Line_Edit_Indent_And_Comment
      (T : in out AUnit.Test_Cases.Test_Case'Class)
    is
       pragma Unreferenced (T);
@@ -4498,10 +4500,10 @@ procedure Test_Phase392_Canonical_Line_Comment_Path_And_Persistence_Exclusion
       Assert (Text_Buffer.UTF8_Text (S.Buffer) =
               "Alpha Beta" & ASCII.LF & "  Alpha Beta" & ASCII.LF & "Gamma",
               "mixed command redo ordering must remain coherent after join");
-   end Test_Phase393_Join_Next_Coexists_With_Line_Edit_Indent_And_Comment;
+   end Test_Join_Next_Coexists_With_Line_Edit_Indent_And_Comment;
 
 
-   procedure Test_Phase393_Join_Next_Does_Not_Add_Forbidden_Aliases_Or_State
+   procedure Test_Join_Next_Does_Not_Add_Forbidden_Aliases_Or_State
      (T : in out AUnit.Test_Cases.Test_Case'Class)
    is
       pragma Unreferenced (T);
@@ -4514,17 +4516,17 @@ procedure Test_Phase392_Canonical_Line_Comment_Path_And_Persistence_Exclusion
       Id := Editor.Commands.Command_Id_From_Stable_Name
         ("edit.line.join-selection", Found);
       Assert (not Found and then Id = Editor.Commands.No_Command,
-              "Phase 393 must not add selected-line join command aliases");
+              "must not add selected-line join command aliases");
 
       Id := Editor.Commands.Command_Id_From_Stable_Name
         ("edit.join.smart", Found);
       Assert (not Found and then Id = Editor.Commands.No_Command,
-              "Phase 393 must not add smart/language-aware join aliases");
+              "must not add smart/language-aware join aliases");
 
       Id := Editor.Commands.Command_Id_From_Stable_Name
         ("edit.paragraph.reflow", Found);
       Assert (not Found and then Id = Editor.Commands.No_Command,
-              "Phase 393 must not add paragraph reflow aliases");
+              "must not add paragraph reflow aliases");
 
       Editor.State.Init (S);
       Editor.State.Load_Text (S, "left" & ASCII.LF & "right");
@@ -4539,11 +4541,11 @@ procedure Test_Phase392_Canonical_Line_Comment_Path_And_Persistence_Exclusion
          and then Index (Text, "join-next") = 0
          and then Index (Text, "reflow") = 0
          and then Index (Text, "smart join") = 0,
-         "Phase 393 must persist no Line Join transient state or settings");
-   end Test_Phase393_Join_Next_Does_Not_Add_Forbidden_Aliases_Or_State;
+         "must persist no Line Join transient state or settings");
+   end Test_Join_Next_Does_Not_Add_Forbidden_Aliases_Or_State;
 
 
-   procedure Test_Phase393_Join_Next_Input_Bridge_Route
+   procedure Test_Join_Next_Input_Bridge_Route
      (T : in out AUnit.Test_Cases.Test_Case'Class)
    is
       pragma Unreferenced (T);
@@ -4576,10 +4578,10 @@ procedure Test_Phase392_Canonical_Line_Comment_Path_And_Persistence_Exclusion
               "Input_Bridge join-next route must create one undo entry");
 
       Editor.Keybindings.Reset_To_Defaults;
-   end Test_Phase393_Join_Next_Input_Bridge_Route;
+   end Test_Join_Next_Input_Bridge_Route;
 
 
-   procedure Test_Phase394_Join_Next_Separator_And_Boundary_Reliability
+   procedure Test_Join_Next_Separator_And_Boundary_Reliability
      (T : in out AUnit.Test_Cases.Test_Case'Class)
    is
       pragma Unreferenced (T);
@@ -4644,10 +4646,10 @@ procedure Test_Phase392_Canonical_Line_Comment_Path_And_Persistence_Exclusion
       Check ("Alpha" & ASCII.LF & ASCII.HT & "Beta", 0,
              "Alpha " & ASCII.HT & "Beta",
              "tab-leading next line is preserved");
-   end Test_Phase394_Join_Next_Separator_And_Boundary_Reliability;
+   end Test_Join_Next_Separator_And_Boundary_Reliability;
 
 
-   procedure Test_Phase394_Join_Next_No_Op_Redo_Dirty_And_Find_Policy
+   procedure Test_Join_Next_No_Op_Redo_Dirty_And_Find_Policy
      (T : in out AUnit.Test_Cases.Test_Case'Class)
    is
       pragma Unreferenced (T);
@@ -4691,10 +4693,10 @@ procedure Test_Phase392_Canonical_Line_Comment_Path_And_Persistence_Exclusion
               "join must not mutate Find query");
       Assert (S.Active_Replace_Text = To_Unbounded_String ("ONE TWO"),
               "join must not mutate Replace text");
-   end Test_Phase394_Join_Next_No_Op_Redo_Dirty_And_Find_Policy;
+   end Test_Join_Next_No_Op_Redo_Dirty_And_Find_Policy;
 
 
-   procedure Test_Phase394_Join_Next_Caret_Selection_Clipboard_Navigation_And_Render
+   procedure Test_Join_Next_Caret_Selection_Clipboard_Navigation_And_Render
      (T : in out AUnit.Test_Cases.Test_Case'Class)
    is
       pragma Unreferenced (T);
@@ -4762,10 +4764,10 @@ procedure Test_Phase392_Canonical_Line_Comment_Path_And_Persistence_Exclusion
       Assert_Navigation_Counts
         (S, Before_Back, Before_Forward,
          "render snapshot must not mutate navigation history");
-   end Test_Phase394_Join_Next_Caret_Selection_Clipboard_Navigation_And_Render;
+   end Test_Join_Next_Caret_Selection_Clipboard_Navigation_And_Render;
 
 
-   procedure Test_Phase394_Join_Next_Mixed_Current_Line_Command_Workflows
+   procedure Test_Join_Next_Mixed_Current_Line_Command_Workflows
      (T : in out AUnit.Test_Cases.Test_Case'Class)
    is
       pragma Unreferenced (T);
@@ -4813,10 +4815,10 @@ procedure Test_Phase392_Canonical_Line_Comment_Path_And_Persistence_Exclusion
       Assert (Text_Buffer.UTF8_Text (S.Buffer) =
               "  Alpha   Beta" & ASCII.LF & "Gamma",
               "redo must restore exact post-join mixed workflow text");
-   end Test_Phase394_Join_Next_Mixed_Current_Line_Command_Workflows;
+   end Test_Join_Next_Mixed_Current_Line_Command_Workflows;
 
 
-   procedure Test_Phase395_Join_Next_End_To_End_And_Separator_Workflows
+   procedure Test_Join_Next_End_To_End_And_Separator_Workflows
      (T : in out AUnit.Test_Cases.Test_Case'Class)
    is
       pragma Unreferenced (T);
@@ -4924,10 +4926,10 @@ procedure Test_Phase392_Canonical_Line_Comment_Path_And_Persistence_Exclusion
       Check_No_Op ("single", 0, "Already at last line", "single-line buffer");
       Check_No_Op ("A" & ASCII.LF & "B", 2, "Already at last line",
                    "last logical line");
-   end Test_Phase395_Join_Next_End_To_End_And_Separator_Workflows;
+   end Test_Join_Next_End_To_End_And_Separator_Workflows;
 
 
-   procedure Test_Phase395_Join_Next_Caret_Selection_Find_Clipboard_And_Render_Workflow
+   procedure Test_Join_Next_Caret_Selection_Find_Clipboard_And_Render_Workflow
      (T : in out AUnit.Test_Cases.Test_Case'Class)
    is
       pragma Unreferenced (T);
@@ -4959,19 +4961,19 @@ procedure Test_Phase392_Canonical_Line_Comment_Path_And_Persistence_Exclusion
 
       Snap := Editor.Render_Model.Build_Snapshot (S);
       Assert (To_Unbounded_String (Buffer_Text (S)) = Before_Text,
-              "Phase 395 render snapshot must not join or repair text");
+              "render snapshot must not join or repair text");
       Assert (Snap.Selection_Count = 1,
-              "Phase 395 render snapshot must expose the pre-join selection without consuming it");
+              "render snapshot must expose the pre-join selection without consuming it");
       Avail := Editor.Executor.Command_Availability
         (S, Editor.Commands.Command_Line_Join_Next);
       Assert (To_Unbounded_String (Buffer_Text (S)) = Before_Text,
-              "Phase 395 availability must not mutate text");
+              "availability must not mutate text");
       Assert (Editor.Selection.Has_Selection (S),
-              "Phase 395 availability must not collapse selection");
+              "availability must not collapse selection");
       Assert (S.Active_Find_Query = Before_Query
               and then S.Active_Replace_Text = Before_Replace
               and then S.Active_Replace_Prompt,
-              "Phase 395 availability must not mutate Find/Replace state");
+              "availability must not mutate Find/Replace state");
 
       Set_Primary_Selection
         (S, 0, Cursor_Index (Editor.Navigation.Index_For_Line_Column (S, 1, 2)));
@@ -4981,36 +4983,36 @@ procedure Test_Phase392_Canonical_Line_Comment_Path_And_Persistence_Exclusion
         (S, "Alpha" & ASCII.LF & "Beta Gamma", 2, 1, 2,
          1, 0, "Joined line", True, False, Before_Clip,
          Before_Back, Before_Forward,
-         "Phase 395 selected text is not consumed; caret line joins only next line");
+         "selected text is not consumed; caret line joins only next line");
       Assert (S.Active_Find_Stale and then S.Active_Find_Matches.Is_Empty,
-              "Phase 395 text-changing join must invalidate Find ranges");
+              "text-changing join must invalidate Find ranges");
       Assert (S.Active_Find_Query = Before_Query,
-              "Phase 395 Line Join must not mutate Find query");
+              "Line Join must not mutate Find query");
       Assert (S.Active_Replace_Text = Before_Replace and then S.Active_Replace_Prompt,
-              "Phase 395 Line Join must not mutate Replace prompt/text");
+              "Line Join must not mutate Replace prompt/text");
 
       Snap := Editor.Render_Model.Build_Snapshot (S);
       Assert (Snap.Primary_Caret_Row = 1 and then Snap.Primary_Caret_Col = 2,
-              "Phase 395 render snapshot must derive caret from canonical post-join state");
+              "render snapshot must derive caret from canonical post-join state");
       Assert (Snap.Selection_Count = 0,
-              "Phase 395 render snapshot must not render stale pre-join selection");
+              "render snapshot must not render stale pre-join selection");
       Assert (Snap.Active_Find_Match_Count = 0,
-              "Phase 395 render snapshot must not render stale pre-join Find ranges");
+              "render snapshot must not render stale pre-join Find ranges");
 
       Editor.Executor.Execute_Command (S, Editor.Commands.Command_Undo);
       Assert_Buffer_Text (S, "Alpha" & ASCII.LF & "Beta" & ASCII.LF & "Gamma",
-                          "Phase 395 undo restores exact pre-join text");
+                          "undo restores exact pre-join text");
       Editor.Executor.Execute_Command (S, Editor.Commands.Command_Redo);
       Assert_Buffer_Text (S, "Alpha" & ASCII.LF & "Beta Gamma",
-                          "Phase 395 redo restores exact post-join text");
+                          "redo restores exact post-join text");
       Assert (Editor.Clipboard.Get_Text = Before_Clip,
-              "Phase 395 Undo/Redo around Line Join must not mutate Clipboard");
+              "Undo/Redo around Line Join must not mutate Clipboard");
       Assert_Navigation_Counts (S, Before_Back, Before_Forward,
-                                "Phase 395 Undo/Redo around Line Join must not record Navigation History");
-   end Test_Phase395_Join_Next_Caret_Selection_Find_Clipboard_And_Render_Workflow;
+                                "Undo/Redo around Line Join must not record Navigation History");
+   end Test_Join_Next_Caret_Selection_Find_Clipboard_And_Render_Workflow;
 
 
-   procedure Test_Phase395_Join_Next_Redo_Dirty_And_Mixed_Command_Coexistence
+   procedure Test_Join_Next_Redo_Dirty_And_Mixed_Command_Coexistence
      (T : in out AUnit.Test_Cases.Test_Case'Class)
    is
       pragma Unreferenced (T);
@@ -5026,23 +5028,23 @@ procedure Test_Phase392_Canonical_Line_Comment_Path_And_Persistence_Exclusion
 
       Set_Caret (S, 0);
       Editor.Executor.Execute_Command (S, Editor.Commands.Command_Line_Join_Next);
-      Assert_Buffer_Text (S, "one two", "Phase 395 initial join for redo invalidation");
+      Assert_Buffer_Text (S, "one two", "initial join for redo invalidation");
       Editor.Executor.Execute_Command (S, Editor.Commands.Command_Undo);
       Assert_Buffer_Text (S, "one" & ASCII.LF & "two",
-                          "Phase 395 undo before redo invalidation restores baseline");
+                          "undo before redo invalidation restores baseline");
       Set_Caret (S, 0);
       Editor.Executor.Execute_Command (S, Editor.Commands.Command_Indent_Increase);
       Assert (Natural (Editor.History.Redo_Stack.Length) = 0,
-              "Phase 395 ordinary successful edit after undo clears redo stack");
+              "ordinary successful edit after undo clears redo stack");
 
       Editor.Executor.Execute_Command (S, Editor.Commands.Command_Undo);
       Set_Caret (S, Cursor_Index (Editor.Navigation.Index_For_Line_Column (S, 1, 0)));
       Editor.Executor.Execute_Command (S, Editor.Commands.Command_Line_Join_Next);
       Assert (Natural (Editor.History.Redo_Stack.Length) = 1,
-              "Phase 395 no-op last-line join must preserve redo stack");
+              "no-op last-line join must preserve redo stack");
       Editor.Executor.Execute_Command (S, Editor.Commands.Command_Redo);
       Assert_Buffer_Text (S, "  one" & ASCII.LF & "two",
-                          "Phase 395 redo after no-op join restores preserved redo edit");
+                          "redo after no-op join restores preserved redo edit");
 
       Editor.State.Init (S);
       Editor.State.Load_Text
@@ -5056,35 +5058,35 @@ procedure Test_Phase392_Canonical_Line_Comment_Path_And_Persistence_Exclusion
       Editor.Executor.Execute_Command (S, Editor.Commands.Command_Line_Duplicate);
       Assert_Buffer_Text (S, "Alpha" & ASCII.LF & "Alpha" & ASCII.LF &
                           "  Beta" & ASCII.LF & "Gamma",
-                          "Phase 395 duplicate-line precondition");
+                          "duplicate-line precondition");
       Editor.Executor.Execute_Command (S, Editor.Commands.Command_Line_Join_Next);
       Assert_Buffer_Text (S, "Alpha" & ASCII.LF & "Alpha   Beta" & ASCII.LF & "Gamma",
-                          "Phase 395 duplicate-line then join uses canonical logical boundary");
+                          "duplicate-line then join uses canonical logical boundary");
       Editor.Executor.Execute_Command (S, Editor.Commands.Command_Comment_Line);
       Assert_Buffer_Text (S, "Alpha" & ASCII.LF & "-- Alpha   Beta" & ASCII.LF & "Gamma",
-                          "Phase 395 comment-line after join treats joined line as plain text");
+                          "comment-line after join treats joined line as plain text");
       Editor.Executor.Execute_Command (S, Editor.Commands.Command_Uncomment_Line);
       Assert_Buffer_Text (S, "Alpha" & ASCII.LF & "Alpha   Beta" & ASCII.LF & "Gamma",
-                          "Phase 395 uncomment-line after join removes only canonical prefix marker");
+                          "uncomment-line after join removes only canonical prefix marker");
       Editor.Executor.Execute_Command (S, Editor.Commands.Command_Indent_Increase);
       Assert_Buffer_Text (S, "Alpha" & ASCII.LF & "  Alpha   Beta" & ASCII.LF & "Gamma",
-                          "Phase 395 indent after join operates on joined logical line");
+                          "indent after join operates on joined logical line");
       Editor.Executor.Execute_Command (S, Editor.Commands.Command_Indent_Decrease);
       Assert_Buffer_Text (S, "Alpha" & ASCII.LF & "Alpha   Beta" & ASCII.LF & "Gamma",
-                          "Phase 395 outdent after join operates on joined logical line");
+                          "outdent after join operates on joined logical line");
       Editor.Executor.Execute_Command (S, Editor.Commands.Command_Line_Move_Down);
       Assert_Buffer_Text (S, "Alpha" & ASCII.LF & "Gamma" & ASCII.LF & "Alpha   Beta",
-                          "Phase 395 move-down after join keeps line boundaries deterministic");
+                          "move-down after join keeps line boundaries deterministic");
       Set_Caret (S, Cursor_Index (Editor.Navigation.Index_For_Line_Column (S, 1, 0)));
       Editor.Executor.Execute_Command (S, Editor.Commands.Command_Line_Delete);
       Assert_Buffer_Text (S, "Alpha" & ASCII.LF & "Alpha   Beta",
-                          "Phase 395 delete-line after join deletes the selected current logical line only");
+                          "delete-line after join deletes the selected current logical line only");
       Assert (Editor.Clipboard.Get_Text = Before_Clip,
-              "Phase 395 mixed current-line commands must not attribute Clipboard changes to Line Join");
-   end Test_Phase395_Join_Next_Redo_Dirty_And_Mixed_Command_Coexistence;
+              "mixed current-line commands must not attribute Clipboard changes to Line Join");
+   end Test_Join_Next_Redo_Dirty_And_Mixed_Command_Coexistence;
 
 
-   procedure Test_Phase395_Join_Next_Active_Buffer_Routes_Features_And_Persistence
+   procedure Test_Join_Next_Active_Buffer_Routes_Features_And_Persistence
      (T : in out AUnit.Test_Cases.Test_Case'Class)
    is
       pragma Unreferenced (T);
@@ -5105,7 +5107,7 @@ procedure Test_Phase392_Canonical_Line_Comment_Path_And_Persistence_Exclusion
       begin
          Id := Editor.Commands.Command_Id_From_Stable_Name (Name, Found);
          Assert ((not Found) and then Id = Editor.Commands.No_Command,
-                 "Phase 395 non-goal command must not be exposed: " & Name);
+                 "non-goal command must not be exposed: " & Name);
       end Assert_Not_Exposed;
    begin
       Editor.Buffers.Reset_Global_For_Test;
@@ -5113,41 +5115,41 @@ procedure Test_Phase392_Canonical_Line_Comment_Path_And_Persistence_Exclusion
       Editor.State.Load_Text (S, "Alpha" & ASCII.LF & "Beta" & ASCII.LF & "Gamma");
       Editor.Buffers.Ensure_Global_Registry (S);
       A_Id := Editor.Buffers.Global_Active_Buffer;
-      Editor.Executor.Execute_New_Buffer (S);
+      Editor.Executor.File_Open_Commands.Execute_New_Buffer (S);
       B_Id := Editor.Buffers.Global_Active_Buffer;
       Editor.State.Load_Text (S, "Delta" & ASCII.LF & "Epsilon" & ASCII.LF & "Zeta");
       Editor.Buffers.Sync_Global_Active_From_State (S);
 
-      Editor.Executor.Execute_Switch_Buffer (S, A_Id);
+      Editor.Executor.File_Open_Commands.Execute_Switch_Buffer (S, A_Id);
       Set_Caret (S, 0);
       Editor.History.Undo_Stack.Clear;
       Editor.History.Redo_Stack.Clear;
       Editor.Executor.Execute_Command (S, Editor.Commands.Command_Line_Join_Next);
       Assert_Buffer_Text (S, "Alpha Beta" & ASCII.LF & "Gamma",
-                          "Phase 395 join in buffer A changes only buffer A");
+                          "join in buffer A changes only buffer A");
       Assert (Natural (Editor.History.Undo_Stack.Length) = 1,
-              "Phase 395 buffer A join creates one active-buffer undo entry");
+              "buffer A join creates one active-buffer undo entry");
       Editor.Buffers.Sync_Global_Active_From_State (S);
 
-      Editor.Executor.Execute_Switch_Buffer (S, B_Id);
+      Editor.Executor.File_Open_Commands.Execute_Switch_Buffer (S, B_Id);
       Assert_Buffer_Text (S, "Delta" & ASCII.LF & "Epsilon" & ASCII.LF & "Zeta",
-                          "Phase 395 buffer B text remains unchanged after buffer A join");
+                          "buffer B text remains unchanged after buffer A join");
       Assert (Natural (Editor.History.Undo_Stack.Length) = 0,
-              "Phase 395 buffer B undo stack remains unchanged after buffer A join");
+              "buffer B undo stack remains unchanged after buffer A join");
       Set_Caret (S, 0);
       Editor.Executor.Execute_Command (S, Editor.Commands.Command_Line_Join_Next);
       Assert_Buffer_Text (S, "Delta Epsilon" & ASCII.LF & "Zeta",
-                          "Phase 395 buffer B joins independently");
+                          "buffer B joins independently");
       Editor.Executor.Execute_Command (S, Editor.Commands.Command_Undo);
       Assert_Buffer_Text (S, "Delta" & ASCII.LF & "Epsilon" & ASCII.LF & "Zeta",
-                          "Phase 395 undo in buffer B affects only buffer B");
+                          "undo in buffer B affects only buffer B");
 
-      Editor.Executor.Execute_Switch_Buffer (S, A_Id);
+      Editor.Executor.File_Open_Commands.Execute_Switch_Buffer (S, A_Id);
       Assert_Buffer_Text (S, "Alpha Beta" & ASCII.LF & "Gamma",
-                          "Phase 395 switching back preserves buffer A joined text");
+                          "switching back preserves buffer A joined text");
       Editor.Executor.Execute_Command (S, Editor.Commands.Command_Undo);
       Assert_Buffer_Text (S, "Alpha" & ASCII.LF & "Beta" & ASCII.LF & "Gamma",
-                          "Phase 395 undo in buffer A affects only buffer A");
+                          "undo in buffer A affects only buffer A");
 
       Editor.State.Init (S);
       Editor.State.Load_Text (S, "Quick" & ASCII.LF & "Open" & ASCII.LF & "Search");
@@ -5169,18 +5171,18 @@ procedure Test_Phase392_Canonical_Line_Comment_Path_And_Persistence_Exclusion
          end if;
       end loop;
       Assert (Join_Count = 1,
-              "Phase 395 command palette must project exactly one canonical join-next command");
+              "command palette must project exactly one canonical join-next command");
       Assert_Buffer_Text (S, "Quick" & ASCII.LF & "Open" & ASCII.LF & "Search",
-                          "Phase 395 command palette projection must not join text");
+                          "command palette projection must not join text");
 
       Set_Caret (S, 0);
       Editor.Executor.Execute_Command (S, Editor.Commands.Command_Line_Join_Next);
       Assert_Buffer_Text (S, "Quick Open" & ASCII.LF & "Search",
-                          "Phase 395 route coverage command id must execute canonical join");
+                          "route coverage command id must execute canonical join");
       Assert (Editor.Clipboard.Get_Text = Before_Clip,
-              "Phase 395 route coverage join must not mutate Clipboard");
+              "route coverage join must not mutate Clipboard");
       Assert_Navigation_Counts (S, Before_Back, Before_Fwd,
-                                "Phase 395 route coverage join must not mutate Navigation History");
+                                "route coverage join must not mutate Navigation History");
 
       Workspace_Snap := Editor.State.Build_Workspace_Snapshot (S);
       Summary := To_Unbounded_String
@@ -5193,7 +5195,7 @@ procedure Test_Phase392_Canonical_Line_Comment_Path_And_Persistence_Exclusion
          and then Index (Summary, "join-next") = 0
          and then Index (Summary, "language-aware join") = 0
          and then Index (Summary, "Quick Open") = 0,
-         "Phase 395 workspace persistence must exclude Line Join transient/settings state");
+         "workspace persistence must exclude Line Join transient/settings state");
 
       Assert_Not_Exposed ("edit.line.join-selection");
       Assert_Not_Exposed ("edit.line.join-all");
@@ -5202,8 +5204,8 @@ procedure Test_Phase392_Canonical_Line_Comment_Path_And_Persistence_Exclusion
       Assert_Not_Exposed ("edit.paragraph.reflow");
       Assert_Not_Exposed ("edit.join.smart");
       Assert_Not_Exposed ("edit.join.language-aware");
-   end Test_Phase395_Join_Next_Active_Buffer_Routes_Features_And_Persistence;
-procedure Test_Phase396_Line_Join_Canonical_Behavior_And_Persistence
+   end Test_Join_Next_Active_Buffer_Routes_Features_And_Persistence;
+procedure Test_Line_Join_Canonical_Behavior_And_Persistence
      (T : in out AUnit.Test_Cases.Test_Case'Class)
    is
       pragma Unreferenced (T);
@@ -5235,28 +5237,28 @@ procedure Test_Phase396_Line_Join_Canonical_Behavior_And_Persistence
          "Alpha  " & ASCII.HT & "Beta" & ASCII.LF & "Gamma",
          2, 0, 6, 1, 0, "Joined line", True, False,
          Before_Clip, Before_Back, Before_Fwd,
-         "Phase 396 canonical Line Join behavior preservation");
+         "canonical Line Join behavior preservation");
       Assert (S.Active_Find_Query = To_Unbounded_String ("Beta"),
-              "Phase 396 Line Join must not mutate Find query");
+              "Line Join must not mutate Find query");
       Assert (S.Active_Replace_Text = To_Unbounded_String ("BETA"),
-              "Phase 396 Line Join must not mutate Replace text");
+              "Line Join must not mutate Replace text");
       Assert (S.Active_Find_Stale,
-              "Phase 396 Line Join must use canonical Find/Replace invalidation hook");
+              "Line Join must use canonical Find/Replace invalidation hook");
 
       Editor.Render_Model.Build_Render_Snapshot (S, R);
       Assert_Buffer_Text (S, "Alpha  " & ASCII.HT & "Beta" & ASCII.LF & "Gamma",
-                          "Phase 396 render snapshot must not perform Line Join repairs");
+                          "render snapshot must not perform Line Join repairs");
       Assert (R.Primary_Caret_Row = 0,
-              "Phase 396 render caret row must derive from canonical caret state");
+              "render caret row must derive from canonical caret state");
       Assert (R.Selection_Count = 0,
-              "Phase 396 render snapshot must not expose stale Line Join selection state");
+              "render snapshot must not expose stale Line Join selection state");
 
       Editor.Executor.Execute_Command (S, Editor.Commands.Command_Undo);
       Assert_Buffer_Text (S, "Alpha " & ASCII.LF & ASCII.HT & "Beta" & ASCII.LF & "Gamma",
-                          "Phase 396 undo must restore captured pre-join text");
+                          "undo must restore captured pre-join text");
       Editor.Executor.Execute_Command (S, Editor.Commands.Command_Redo);
       Assert_Buffer_Text (S, "Alpha  " & ASCII.HT & "Beta" & ASCII.LF & "Gamma",
-                          "Phase 396 redo must restore captured post-join text without re-running join logic");
+                          "redo must restore captured post-join text without re-running join logic");
 
       Workspace_Snap := Editor.State.Build_Workspace_Snapshot (S);
       Summary := To_Unbounded_String
@@ -5270,12 +5272,12 @@ procedure Test_Phase396_Line_Join_Canonical_Behavior_And_Persistence
          and then Index (Summary, "language-aware join") = 0
          and then Index (Summary, "paragraph reflow") = 0
          and then Index (Summary, "format selection") = 0,
-         "Phase 396 workspace persistence must exclude canonical and removed Line Join state/settings");
-   end Test_Phase396_Line_Join_Canonical_Behavior_And_Persistence;
+         "workspace persistence must exclude canonical and removed Line Join state/settings");
+   end Test_Line_Join_Canonical_Behavior_And_Persistence;
 
 
 
-   procedure Test_Phase397_Line_Split_Command_Descriptors_And_Routes
+   procedure Test_Line_Split_Command_Descriptors_And_Routes
      (T : in out AUnit.Test_Cases.Test_Case'Class)
    is
       pragma Unreferenced (T);
@@ -5303,23 +5305,23 @@ procedure Test_Phase396_Line_Join_Canonical_Behavior_And_Persistence
         (Editor.Commands.Stable_Command_Name
            (Editor.Commands.Command_Line_Split_At_Caret) =
          "edit.line.split-at-caret",
-         "Phase 397 split stable command name mismatch");
+         "split stable command name mismatch");
       Assert (Desc.Category = Editor.Commands.Edit_Category,
-              "Phase 397 split must be an Edit command");
+              "split must be an Edit command");
       Assert (Desc.Visibility = Editor.Commands.Palette_Command,
-              "Phase 397 split must be visible in the Command Palette");
+              "split must be visible in the Command Palette");
       Assert
         (Editor.Commands.Is_Bindable_Command
            (Editor.Commands.Command_Line_Split_At_Caret),
-         "Phase 397 split must be bindable");
+         "split must be bindable");
       Cmd := Editor.Commands.Command_For_Id
         (Editor.Commands.Command_Line_Split_At_Caret);
       Assert (Cmd.Kind = Editor.Commands.Split_Current_Line_At_Caret,
-              "Phase 397 split command must map to canonical edit kind");
+              "split command must map to canonical edit kind");
       Id := Editor.Commands.Command_Id_From_Stable_Name
         ("edit.line.split-at-caret", Found);
       Assert (Found and then Id = Editor.Commands.Command_Line_Split_At_Caret,
-              "Phase 397 split stable name must resolve back to command id");
+              "split stable name must resolve back to command id");
       Assert_Not_Exposed ("edit.line.split");
       Assert_Not_Exposed ("edit.line.split-selection");
       Assert_Not_Exposed ("edit.line.split-all");
@@ -5339,17 +5341,17 @@ procedure Test_Phase396_Line_Join_Canonical_Behavior_And_Persistence
       Availability := Editor.Executor.Command_Availability
         (S, Editor.Commands.Command_Line_Split_At_Caret);
       Assert (Text_Buffer.UTF8_Text (S.Buffer) = To_String (Before_Text),
-              "Phase 397 split availability must not mutate text");
+              "split availability must not mutate text");
       Assert (S.Carets (S.Carets.First_Index).Pos = Before_Caret,
-              "Phase 397 split availability must not move caret");
+              "split availability must not move caret");
       Assert (Natural (Editor.History.Undo_Stack.Length) = Before_Undo,
-              "Phase 397 split availability must not mutate undo stack");
+              "split availability must not mutate undo stack");
       Assert (Natural (Editor.History.Redo_Stack.Length) = Before_Redo,
-              "Phase 397 split availability must not mutate redo stack");
-   end Test_Phase397_Line_Split_Command_Descriptors_And_Routes;
+              "split availability must not mutate redo stack");
+   end Test_Line_Split_Command_Descriptors_And_Routes;
 
 
-   procedure Test_Phase397_Line_Split_Boundary_Matrix_Undo_Redo
+   procedure Test_Line_Split_Boundary_Matrix_Undo_Redo
      (T : in out AUnit.Test_Cases.Test_Case'Class)
    is
       pragma Unreferenced (T);
@@ -5392,29 +5394,29 @@ procedure Test_Phase396_Line_Join_Canonical_Behavior_And_Persistence
    begin
       Check ("AlphaBeta", 5,
              "Alpha" & ASCII.LF & "Beta", 1,
-             "Phase 397 split in middle of one-line buffer");
+             "split in middle of one-line buffer");
       Check ("Alpha", 0,
              ASCII.LF & "Alpha", 1,
-             "Phase 397 split at beginning of line");
+             "split at beginning of line");
       Check ("Alpha", 5,
              "Alpha" & ASCII.LF, 1,
-             "Phase 397 split at end of line");
+             "split at end of line");
       Check ("", 0,
              String'(1 => ASCII.LF), 1,
-             "Phase 397 split empty buffer as boundary insertion");
+             "split empty buffer as boundary insertion");
       Check ("  AlphaBeta", 2,
              "  " & ASCII.LF & "AlphaBeta", 1,
-             "Phase 397 split preserves leading whitespace before caret");
+             "split preserves leading whitespace before caret");
       Check ("Alpha  Beta", 5,
              "Alpha" & ASCII.LF & "  Beta", 1,
-             "Phase 397 split preserves whitespace after caret");
+             "split preserves whitespace after caret");
       Check ("one" & ASCII.LF & "twoThree" & ASCII.LF & "four", 7,
              "one" & ASCII.LF & "two" & ASCII.LF & "Three" & ASCII.LF & "four", 2,
-             "Phase 397 split middle line only");
-   end Test_Phase397_Line_Split_Boundary_Matrix_Undo_Redo;
+             "split middle line only");
+   end Test_Line_Split_Boundary_Matrix_Undo_Redo;
 
 
-   procedure Test_Phase397_Line_Split_State_Boundaries_And_Persistence
+   procedure Test_Line_Split_State_Boundaries_And_Persistence
      (T : in out AUnit.Test_Cases.Test_Case'Class)
    is
       pragma Unreferenced (T);
@@ -5456,31 +5458,31 @@ procedure Test_Phase396_Line_Join_Canonical_Behavior_And_Persistence
          "Alpha" & ASCII.LF & "Beta" & ASCII.LF & "Gamma",
          3, 1, 0, 1, 0, "Split line", True, False,
          Before_Clip, Before_Back, Before_Fwd,
-         "Phase 397 split state boundaries");
+         "split state boundaries");
       Assert (S.Active_Find_Query = To_Unbounded_String ("Beta"),
-              "Phase 397 split must not mutate Find query");
+              "split must not mutate Find query");
       Assert (S.Active_Replace_Text = To_Unbounded_String ("BETA"),
-              "Phase 397 split must not mutate Replace text");
+              "split must not mutate Replace text");
       Assert (S.Active_Find_Stale,
-              "Phase 397 split must use canonical Find/Replace invalidation hook");
+              "split must use canonical Find/Replace invalidation hook");
 
       Editor.Render_Model.Build_Render_Snapshot (S, R);
       Assert_Buffer_Text
         (S, "Alpha" & ASCII.LF & "Beta" & ASCII.LF & "Gamma",
-         "Phase 397 render snapshot must not perform line splitting");
+         "render snapshot must not perform line splitting");
       Assert (R.Primary_Caret_Row = 1,
-              "Phase 397 render caret row must derive from split caret state");
+              "render caret row must derive from split caret state");
       Assert (R.Selection_Count = 0,
-              "Phase 397 render snapshot must not expose stale split selection state");
+              "render snapshot must not expose stale split selection state");
 
       Editor.Executor.Execute_Command (S, Editor.Commands.Command_Line_Join_Next);
       Assert_Buffer_Text
         (S, "Alpha" & ASCII.LF & "Beta Gamma",
-         "Phase 397 split must coexist with canonical Line Join policy");
+         "split must coexist with canonical Line Join policy");
       Editor.Executor.Execute_Command (S, Editor.Commands.Command_Undo);
       Assert_Buffer_Text
         (S, "Alpha" & ASCII.LF & "Beta" & ASCII.LF & "Gamma",
-         "Phase 397 undo after mixed split/join must restore split text");
+         "undo after mixed split/join must restore split text");
 
       Workspace_Snap := Editor.State.Build_Workspace_Snapshot (S);
       Summary := To_Unbounded_String
@@ -5492,7 +5494,7 @@ procedure Test_Phase396_Line_Join_Canonical_Behavior_And_Persistence
          and then Index (Summary, "split policy") = 0
          and then Index (Summary, "auto-indent") = 0
          and then Index (Summary, "language-aware split") = 0,
-         "Phase 397 workspace persistence must exclude Line Split transient state/settings");
+         "workspace persistence must exclude Line Split transient state/settings");
 
       Editor.Keybindings.Bind
         (Chord, Editor.Commands.Command_Line_Split_At_Caret);
@@ -5506,14 +5508,14 @@ procedure Test_Phase396_Line_Join_Canonical_Behavior_And_Persistence
       After := Editor.Input_Bridge.Get_State_For_Test;
       Assert (Text_Buffer.UTF8_Text (After.Buffer) =
               "one" & ASCII.LF & "Two",
-              "Phase 397 Input_Bridge split keybinding must route through Executor");
+              "Input_Bridge split keybinding must route through Executor");
       Assert (Natural (Editor.History.Undo_Stack.Length) = 1,
-              "Phase 397 Input_Bridge split route must create one undo entry");
+              "Input_Bridge split route must create one undo entry");
       Editor.Keybindings.Reset_To_Defaults;
-   end Test_Phase397_Line_Split_State_Boundaries_And_Persistence;
+   end Test_Line_Split_State_Boundaries_And_Persistence;
 
 
-   procedure Test_Phase397_Completeness_No_Op_Redo_And_Boundaries
+   procedure Test_Completeness_No_Op_Redo_And_Boundaries
      (T : in out AUnit.Test_Cases.Test_Case'Class)
    is
       pragma Unreferenced (T);
@@ -5530,14 +5532,14 @@ procedure Test_Phase396_Line_Join_Canonical_Behavior_And_Persistence
          Assert
            (not Editor.Commands.Is_Available (Avail)
             and then Editor.Commands.Unavailable_Reason (Avail) = "No active buffer.",
-            "Phase 397 split availability without active buffer must report no active buffer");
+            "split availability without active buffer must report no active buffer");
          Editor.Executor.Execute_Command
            (S, Editor.Commands.Command_Line_Split_At_Caret);
          Assert (Message_Text (S) = "No active buffer.",
-                 "Phase 397 split execution without active buffer must report no active buffer");
+                 "split execution without active buffer must report no active buffer");
          Assert (Natural (Editor.History.Undo_Stack.Length) = 0
                  and then Natural (Editor.History.Redo_Stack.Length) = 0,
-                 "Phase 397 no-active-buffer split must not mutate history");
+                 "no-active-buffer split must not mutate history");
       end Assert_No_Buffer_Command;
 
       procedure Assert_No_Caret_Command is
@@ -5557,16 +5559,16 @@ procedure Test_Phase396_Line_Join_Canonical_Behavior_And_Persistence
          Assert
            (not Editor.Commands.Is_Available (Avail)
             and then Editor.Commands.Unavailable_Reason (Avail) = "No caret location",
-            "Phase 397 split availability without caret must report no caret location");
+            "split availability without caret must report no caret location");
          Editor.Executor.Execute_Command
            (S, Editor.Commands.Command_Line_Split_At_Caret);
          Assert (Message_Text (S) = "No caret location",
-                 "Phase 397 split execution without caret must report no caret location");
+                 "split execution without caret must report no caret location");
          Assert (Text_Buffer.UTF8_Text (S.Buffer) = To_String (Before_Text),
-                 "Phase 397 no-caret split must not mutate text");
+                 "no-caret split must not mutate text");
          Assert (Natural (Editor.History.Undo_Stack.Length) = 0
                  and then Natural (Editor.History.Redo_Stack.Length) = 0,
-                 "Phase 397 no-caret split must not mutate history");
+                 "no-caret split must not mutate history");
       end Assert_No_Caret_Command;
 
       S              : Editor.State.State_Type;
@@ -5598,20 +5600,20 @@ procedure Test_Phase396_Line_Join_Canonical_Behavior_And_Persistence
          ASCII.LF & ASCII.LF & ASCII.HT & "Tabbed" & ASCII.LF & "Tail",
          4, 2, 0, 1, 0, "Split line", True, False,
          Before_Clip, Before_Back, Before_Fwd,
-         "Phase 397 split blank line before tab-leading line");
+         "split blank line before tab-leading line");
 
       Editor.Executor.Execute_Command (S, Editor.Commands.Command_Undo);
       Assert_Buffer_Text
         (S, ASCII.LF & ASCII.HT & "Tabbed" & ASCII.LF & "Tail",
-         "Phase 397 undo restores blank/tab-leading split source exactly");
+         "undo restores blank/tab-leading split source exactly");
       Editor.Executor.Execute_Command (S, Editor.Commands.Command_Redo);
       Assert_Buffer_Text
         (S, ASCII.LF & ASCII.LF & ASCII.HT & "Tabbed" & ASCII.LF & "Tail",
-         "Phase 397 redo restores blank/tab-leading split result exactly");
+         "redo restores blank/tab-leading split result exactly");
 
       Editor.Executor.Execute_Command (S, Editor.Commands.Command_Undo);
       Assert (Natural (Editor.History.Redo_Stack.Length) = 1,
-              "Phase 397 undo before failed split must leave one redo entry");
+              "undo before failed split must leave one redo entry");
       Before_Text := To_Unbounded_String (Text_Buffer.UTF8_Text (S.Buffer));
       Before_Dirty := Editor.State.Is_Dirty (S);
       Before_Undo := Natural (Editor.History.Undo_Stack.Length);
@@ -5620,32 +5622,32 @@ procedure Test_Phase396_Line_Join_Canonical_Behavior_And_Persistence
       Editor.Executor.Execute_Command
         (S, Editor.Commands.Command_Line_Split_At_Caret);
       Assert (Message_Text (S) = "Could not split line",
-              "Phase 397 invalid-caret split must report deterministic failure");
+              "invalid-caret split must report deterministic failure");
       Assert (Text_Buffer.UTF8_Text (S.Buffer) = To_String (Before_Text),
-              "Phase 397 failed split after undo must not mutate text");
+              "failed split after undo must not mutate text");
       Assert (Editor.State.Is_Dirty (S) = Before_Dirty,
-              "Phase 397 failed split after undo must preserve dirty state");
+              "failed split after undo must preserve dirty state");
       Assert (Natural (Editor.History.Undo_Stack.Length) = Before_Undo,
-              "Phase 397 failed split after undo must preserve undo stack");
+              "failed split after undo must preserve undo stack");
       Assert (Natural (Editor.History.Redo_Stack.Length) = Before_Redo,
-              "Phase 397 failed split after undo must preserve redo stack");
+              "failed split after undo must preserve redo stack");
       Assert (Editor.Clipboard.Get_Text = Before_Clip,
-              "Phase 397 failed split must not mutate clipboard");
+              "failed split must not mutate clipboard");
       Assert_Navigation_Counts
         (S, Before_Back, Before_Fwd,
-         "Phase 397 failed split must not mutate navigation history");
+         "failed split must not mutate navigation history");
 
       Set_Caret (S, Cursor_Index (Text_Buffer.Length (S.Buffer)));
       Editor.Executor.Execute_Command
         (S, Editor.Commands.Command_Line_Split_At_Caret);
       Assert_Buffer_Text
         (S, To_String (Before_Text) & ASCII.LF,
-         "Phase 397 successful split after undo must clear redo and append one boundary at EOF");
+         "successful split after undo must clear redo and append one boundary at EOF");
       Assert (Natural (Editor.History.Redo_Stack.Length) = 0,
-              "Phase 397 successful split after undo must clear redo stack");
-   end Test_Phase397_Completeness_No_Op_Redo_And_Boundaries;
+              "successful split after undo must clear redo stack");
+   end Test_Completeness_No_Op_Redo_And_Boundaries;
 
-   procedure Test_Phase398_Line_Split_Exact_Position_Matrix
+   procedure Test_Line_Split_Exact_Position_Matrix
      (T : in out AUnit.Test_Cases.Test_Case'Class)
    is
       pragma Unreferenced (T);
@@ -5692,53 +5694,53 @@ procedure Test_Phase396_Line_Join_Canonical_Behavior_And_Persistence
    begin
       Check ("Alpha", 0,
              ASCII.LF & "Alpha", 1,
-             "Phase 398 split at line start");
+             "split at line start");
       Check ("AlphaBeta", 5,
              "Alpha" & ASCII.LF & "Beta", 1,
-             "Phase 398 split in middle of line");
+             "split in middle of line");
       Check ("Alpha", 5,
              "Alpha" & ASCII.LF, 1,
-             "Phase 398 split at line end");
+             "split at line end");
       Check ("  Alpha", 2,
              "  " & ASCII.LF & "Alpha", 1,
-             "Phase 398 split inside leading whitespace");
+             "split inside leading whitespace");
       Check ("  AlphaBeta", 7,
              "  Alpha" & ASCII.LF & "Beta", 1,
-             "Phase 398 split after leading whitespace text");
+             "split after leading whitespace text");
       Check ("Alpha  Beta", 5,
              "Alpha" & ASCII.LF & "  Beta", 1,
-             "Phase 398 split before trailing whitespace segment");
+             "split before trailing whitespace segment");
       Check ("Alpha  Beta", 7,
              "Alpha  " & ASCII.LF & "Beta", 1,
-             "Phase 398 split after trailing whitespace segment");
+             "split after trailing whitespace segment");
       Check (ASCII.HT & "Alpha", 1,
              ASCII.HT & ASCII.LF & "Alpha", 1,
-             "Phase 398 split after tab prefix");
+             "split after tab prefix");
       Check (ASCII.HT & "AlphaBeta", 6,
              ASCII.HT & "Alpha" & ASCII.LF & "Beta", 1,
-             "Phase 398 split tab-leading text");
+             "split tab-leading text");
       Check ("   ", 3,
              "   " & ASCII.LF, 1,
-             "Phase 398 split whitespace-only line end");
+             "split whitespace-only line end");
       Check ("", 0,
              String'(1 => ASCII.LF), 1,
-             "Phase 398 empty buffer split uses canonical two-empty-lines representation");
+             "empty buffer split uses canonical two-empty-lines representation");
       Check ("A" & ASCII.LF & "BC" & ASCII.LF & "D", 4,
              "A" & ASCII.LF & "B" & ASCII.LF & "C" & ASCII.LF & "D", 2,
-             "Phase 398 split middle logical line in multiline buffer");
+             "split middle logical line in multiline buffer");
       Check ("A" & ASCII.LF & "B" & ASCII.LF & "C", 2,
              "A" & ASCII.LF & ASCII.LF & "B" & ASCII.LF & "C", 2,
-             "Phase 398 split at start of middle logical line");
+             "split at start of middle logical line");
       Check ("A" & ASCII.LF & "B" & ASCII.LF & "C", 3,
              "A" & ASCII.LF & "B" & ASCII.LF & ASCII.LF & "C", 2,
-             "Phase 398 split at end of middle logical line before terminator");
+             "split at end of middle logical line before terminator");
       Check ("A" & ASCII.LF & "B", 3,
              "A" & ASCII.LF & "B" & ASCII.LF, 2,
-             "Phase 398 split at EOF appends exactly one canonical boundary");
-   end Test_Phase398_Line_Split_Exact_Position_Matrix;
+             "split at EOF appends exactly one canonical boundary");
+   end Test_Line_Split_Exact_Position_Matrix;
 
 
-   procedure Test_Phase398_Line_Split_Selection_Find_Clipboard_Navigation_And_Render
+   procedure Test_Line_Split_Selection_Find_Clipboard_Navigation_And_Render
      (T : in out AUnit.Test_Cases.Test_Case'Class)
    is
       pragma Unreferenced (T);
@@ -5773,36 +5775,36 @@ procedure Test_Phase396_Line_Join_Canonical_Behavior_And_Persistence
          "Alpha" & ASCII.LF & "Beta" & ASCII.LF & "Gamma",
          3, 1, 0, 1, 0, "Split line", True, False,
          Before_Clip, Before_Back, Before_Fwd,
-         "Phase 398 split selection/find/clipboard/navigation boundaries");
+         "split selection/find/clipboard/navigation boundaries");
       Assert (S.Active_Find_Query = To_Unbounded_String ("AlphaBeta"),
-              "Phase 398 split must not mutate Find query text");
+              "split must not mutate Find query text");
       Assert (S.Active_Replace_Text = To_Unbounded_String ("A-B"),
-              "Phase 398 split must not mutate Replace text");
+              "split must not mutate Replace text");
       Assert (S.Active_Find_Stale,
-              "Phase 398 split must invalidate active Find ranges through canonical text-edit hook");
+              "split must invalidate active Find ranges through canonical text-edit hook");
 
       Editor.Executor.Execute_Command (S, Editor.Commands.Command_Copy);
       Assert (Editor.Clipboard.Get_Text = Before_Clip,
-              "Phase 398 copy after split must observe cleared selection and preserve clipboard text");
+              "copy after split must observe cleared selection and preserve clipboard text");
 
       Editor.Render_Model.Build_Render_Snapshot (S, R);
       Assert_Buffer_Text
         (S, "Alpha" & ASCII.LF & "Beta" & ASCII.LF & "Gamma",
-         "Phase 398 render snapshot must not mutate split text");
+         "render snapshot must not mutate split text");
       Assert (R.Primary_Caret_Row = 1 and then R.Primary_Caret_Col = 0,
-              "Phase 398 render snapshot caret must reflect normalized split caret");
+              "render snapshot caret must reflect normalized split caret");
       Assert (R.Selection_Count = 0,
-              "Phase 398 render snapshot must not expose stale cleared split selection");
+              "render snapshot must not expose stale cleared split selection");
       Assert_Navigation_Counts
         (S, Before_Back, Before_Fwd,
-         "Phase 398 render/copy after split must not mutate navigation history");
+         "render/copy after split must not mutate navigation history");
 
       Editor.Executor.Execute_Command (S, Editor.Commands.Command_Undo);
       Assert_Buffer_Text
         (S, "AlphaBeta" & ASCII.LF & "Gamma",
-         "Phase 398 undo after split restores exact text before selection split");
+         "undo after split restores exact text before selection split");
       Assert (Natural (Editor.History.Redo_Stack.Length) = 1,
-              "Phase 398 undo after split leaves redo available");
+              "undo after split leaves redo available");
       Before_Text := To_Unbounded_String (Text_Buffer.UTF8_Text (S.Buffer));
       Before_Dirty := Editor.State.Is_Dirty (S);
       Before_Undo := Natural (Editor.History.Undo_Stack.Length);
@@ -5811,28 +5813,28 @@ procedure Test_Phase396_Line_Join_Canonical_Behavior_And_Persistence
       Editor.Executor.Execute_Command
         (S, Editor.Commands.Command_Line_Split_At_Caret);
       Assert (Message_Text (S) = "Could not split line",
-              "Phase 398 invalid injected caret split must fail deterministically");
+              "invalid injected caret split must fail deterministically");
       Assert_Buffer_Text
         (S, To_String (Before_Text),
-         "Phase 398 failed invalid-caret split must not mutate text");
+         "failed invalid-caret split must not mutate text");
       Assert_Caret_Row_Col
         (S, 1, 5,
-         "Phase 398 failed invalid-caret split clamps caret to canonical EOF");
+         "failed invalid-caret split clamps caret to canonical EOF");
       Assert (Editor.State.Is_Dirty (S) = Before_Dirty,
-              "Phase 398 failed invalid-caret split must preserve dirty state");
+              "failed invalid-caret split must preserve dirty state");
       Assert (Natural (Editor.History.Undo_Stack.Length) = Before_Undo,
-              "Phase 398 failed invalid-caret split must preserve undo stack");
+              "failed invalid-caret split must preserve undo stack");
       Assert (Natural (Editor.History.Redo_Stack.Length) = Before_Redo,
-              "Phase 398 failed invalid-caret split must preserve redo stack");
+              "failed invalid-caret split must preserve redo stack");
       Assert (Editor.Clipboard.Get_Text = Before_Clip,
-              "Phase 398 failed invalid-caret split must preserve clipboard text");
+              "failed invalid-caret split must preserve clipboard text");
       Assert_Navigation_Counts
         (S, Before_Back, Before_Fwd,
-         "Phase 398 failed invalid-caret split must preserve navigation history");
-   end Test_Phase398_Line_Split_Selection_Find_Clipboard_Navigation_And_Render;
+         "failed invalid-caret split must preserve navigation history");
+   end Test_Line_Split_Selection_Find_Clipboard_Navigation_And_Render;
 
 
-   procedure Test_Phase398_Line_Split_Mixed_Current_Line_Command_Workflows
+   procedure Test_Line_Split_Mixed_Current_Line_Command_Workflows
      (T : in out AUnit.Test_Cases.Test_Case'Class)
    is
       pragma Unreferenced (T);
@@ -5848,19 +5850,19 @@ procedure Test_Phase396_Line_Join_Canonical_Behavior_And_Persistence
         (S, Editor.Commands.Command_Line_Split_At_Caret);
       Assert_Buffer_Text
         (S, "Alpha" & ASCII.LF & "Beta" & ASCII.LF & "Gamma",
-         "Phase 398 split creates one canonical logical boundary before join");
+         "split creates one canonical logical boundary before join");
       Editor.Executor.Execute_Command (S, Editor.Commands.Command_Line_Join_Next);
       Assert_Buffer_Text
         (S, "Alpha" & ASCII.LF & "Beta Gamma",
-         "Phase 398 split then join follows join separator policy and is not a semantic inverse");
+         "split then join follows join separator policy and is not a semantic inverse");
       Editor.Executor.Execute_Command (S, Editor.Commands.Command_Undo);
       Assert_Buffer_Text
         (S, "Alpha" & ASCII.LF & "Beta" & ASCII.LF & "Gamma",
-         "Phase 398 undo mixed split/join restores exact pre-join split text");
+         "undo mixed split/join restores exact pre-join split text");
       Editor.Executor.Execute_Command (S, Editor.Commands.Command_Redo);
       Assert_Buffer_Text
         (S, "Alpha" & ASCII.LF & "Beta Gamma",
-         "Phase 398 redo mixed split/join restores exact joined text");
+         "redo mixed split/join restores exact joined text");
 
       Editor.State.Init (S);
       Editor.State.Load_Text (S, "  AlphaBeta");
@@ -5872,15 +5874,15 @@ procedure Test_Phase396_Line_Join_Canonical_Behavior_And_Persistence
         (S, Editor.Commands.Command_Line_Split_At_Caret);
       Assert_Buffer_Text
         (S, "  " & ASCII.LF & "AlphaBeta",
-         "Phase 398 split inside leading whitespace does not auto-indent or copy indentation");
+         "split inside leading whitespace does not auto-indent or copy indentation");
       Editor.Executor.Execute_Command (S, Editor.Commands.Command_Indent_Increase);
       Assert_Buffer_Text
         (S, "  " & ASCII.LF & "  AlphaBeta",
-         "Phase 398 indent after split affects caret's new logical line only");
+         "indent after split affects caret's new logical line only");
       Editor.Executor.Execute_Command (S, Editor.Commands.Command_Undo);
       Assert_Buffer_Text
         (S, "  " & ASCII.LF & "AlphaBeta",
-         "Phase 398 undo indent after split restores exact split text");
+         "undo indent after split restores exact split text");
 
       Editor.State.Init (S);
       Editor.State.Load_Text (S, "-- AlphaBeta");
@@ -5892,15 +5894,15 @@ procedure Test_Phase396_Line_Join_Canonical_Behavior_And_Persistence
         (S, Editor.Commands.Command_Line_Split_At_Caret);
       Assert_Buffer_Text
         (S, "-- " & ASCII.LF & "AlphaBeta",
-         "Phase 398 split treats comment markers as plain text");
+         "split treats comment markers as plain text");
       Editor.Executor.Execute_Command (S, Editor.Commands.Command_Toggle_Line_Comment);
       Assert_Buffer_Text
         (S, "-- " & ASCII.LF & "-- AlphaBeta",
-         "Phase 398 toggle comment after split operates on caret's new logical line only");
+         "toggle comment after split operates on caret's new logical line only");
       Editor.Executor.Execute_Command (S, Editor.Commands.Command_Undo);
       Assert_Buffer_Text
         (S, "-- " & ASCII.LF & "AlphaBeta",
-         "Phase 398 undo comment after split restores exact split text");
+         "undo comment after split restores exact split text");
 
       Editor.State.Init (S);
       Editor.State.Load_Text (S, "Top" & ASCII.LF & "MidTail" & ASCII.LF & "Bottom");
@@ -5912,20 +5914,20 @@ procedure Test_Phase396_Line_Join_Canonical_Behavior_And_Persistence
         (S, Editor.Commands.Command_Line_Split_At_Caret);
       Assert_Buffer_Text
         (S, "Top" & ASCII.LF & "Mid" & ASCII.LF & "Tail" & ASCII.LF & "Bottom",
-         "Phase 398 split after line editing setup uses logical line text only");
+         "split after line editing setup uses logical line text only");
       Editor.Executor.Execute_Command (S, Editor.Commands.Command_Line_Duplicate);
       Assert_Buffer_Text
         (S, "Top" & ASCII.LF & "Mid" & ASCII.LF & "Tail" & ASCII.LF & "Tail" & ASCII.LF & "Bottom",
-         "Phase 398 duplicate-line after split uses post-split current logical line");
+         "duplicate-line after split uses post-split current logical line");
       Editor.Executor.Execute_Command (S, Editor.Commands.Command_Undo);
       Editor.Executor.Execute_Command (S, Editor.Commands.Command_Undo);
       Assert_Buffer_Text
         (S, "Top" & ASCII.LF & "MidTail" & ASCII.LF & "Bottom",
-         "Phase 398 mixed line-edit undo chain restores exact original text");
-   end Test_Phase398_Line_Split_Mixed_Current_Line_Command_Workflows;
+         "mixed line-edit undo chain restores exact original text");
+   end Test_Line_Split_Mixed_Current_Line_Command_Workflows;
 
 
-   procedure Test_Phase398_Line_Split_Active_Buffer_And_Persistence_Boundaries
+   procedure Test_Line_Split_Active_Buffer_And_Persistence_Boundaries
      (T : in out AUnit.Test_Cases.Test_Case'Class)
    is
       pragma Unreferenced (T);
@@ -5947,7 +5949,7 @@ procedure Test_Phase396_Line_Join_Canonical_Behavior_And_Persistence
       A_Id := Editor.Buffers.Global_Active_Buffer;
       Editor.Buffers.Sync_Global_Active_From_State (S);
 
-      Editor.Executor.Execute_New_Buffer (S);
+      Editor.Executor.File_Open_Commands.Execute_New_Buffer (S);
       B_Id := Editor.Buffers.Global_Active_Buffer;
       Editor.State.Load_Text (S, "GammaDelta");
       Set_Caret (S, 5);
@@ -5957,41 +5959,41 @@ procedure Test_Phase396_Line_Join_Canonical_Behavior_And_Persistence
         (S, Editor.Commands.Command_Line_Split_At_Caret);
       Assert_Buffer_Text
         (S, "Gamma" & ASCII.LF & "Delta",
-         "Phase 398 split mutates only active buffer B");
+         "split mutates only active buffer B");
       Assert (Natural (Editor.History.Undo_Stack.Length) = 1,
-              "Phase 398 active buffer split creates one active-buffer undo entry");
+              "active buffer split creates one active-buffer undo entry");
       Editor.Buffers.Sync_Global_Active_From_State (S);
 
-      Editor.Executor.Execute_Switch_Buffer (S, A_Id);
+      Editor.Executor.File_Open_Commands.Execute_Switch_Buffer (S, A_Id);
       Assert_Buffer_Text
         (S, "AlphaBeta",
-         "Phase 398 inactive buffer A remains unchanged by buffer B split");
+         "inactive buffer A remains unchanged by buffer B split");
       Assert (Natural (Editor.History.Undo_Stack.Length) = 0,
-              "Phase 398 inactive buffer A does not inherit buffer B split undo entry");
+              "inactive buffer A does not inherit buffer B split undo entry");
       Set_Caret (S, 5);
       Editor.Executor.Execute_Command
         (S, Editor.Commands.Command_Line_Split_At_Caret);
       Assert_Buffer_Text
         (S, "Alpha" & ASCII.LF & "Beta",
-         "Phase 398 buffer A split operates independently after switch");
+         "buffer A split operates independently after switch");
       Editor.Buffers.Sync_Global_Active_From_State (S);
 
-      Editor.Executor.Execute_Switch_Buffer (S, B_Id);
+      Editor.Executor.File_Open_Commands.Execute_Switch_Buffer (S, B_Id);
       Assert_Buffer_Text
         (S, "Gamma" & ASCII.LF & "Delta",
-         "Phase 398 switching back preserves buffer B split text");
+         "switching back preserves buffer B split text");
       Editor.Executor.Execute_Command (S, Editor.Commands.Command_Undo);
       Assert_Buffer_Text
         (S, "GammaDelta",
-         "Phase 398 undo in buffer B affects only buffer B split entry");
+         "undo in buffer B affects only buffer B split entry");
       Editor.Buffers.Sync_Global_Active_From_State (S);
 
-      Editor.Executor.Execute_Switch_Buffer (S, A_Id);
+      Editor.Executor.File_Open_Commands.Execute_Switch_Buffer (S, A_Id);
       Assert_Buffer_Text
         (S, "Alpha" & ASCII.LF & "Beta",
-         "Phase 398 buffer B undo must not mutate buffer A split text");
+         "buffer B undo must not mutate buffer A split text");
       Assert (Editor.Buffers.Global_Active_Buffer = A_Id,
-              "Phase 398 split and undo must not activate another buffer");
+              "split and undo must not activate another buffer");
 
       Before_Text := To_Unbounded_String (Text_Buffer.UTF8_Text (S.Buffer));
       Before_Caret := S.Carets (S.Carets.First_Index).Pos;
@@ -6000,14 +6002,14 @@ procedure Test_Phase396_Line_Join_Canonical_Behavior_And_Persistence
       Availability := Editor.Executor.Command_Availability
         (S, Editor.Commands.Command_Line_Split_At_Caret);
       Assert (Editor.Commands.Is_Available (Availability),
-              "Phase 398 split availability should be available with active buffer and caret");
+              "split availability should be available with active buffer and caret");
       Assert (Text_Buffer.UTF8_Text (S.Buffer) = To_String (Before_Text),
-              "Phase 398 availability must not mutate buffer text");
+              "availability must not mutate buffer text");
       Assert (S.Carets (S.Carets.First_Index).Pos = Before_Caret,
-              "Phase 398 availability must not move caret");
+              "availability must not move caret");
       Assert (Natural (Editor.History.Undo_Stack.Length) = Before_Undo
               and then Natural (Editor.History.Redo_Stack.Length) = Before_Redo,
-              "Phase 398 availability must not mutate undo/redo stacks");
+              "availability must not mutate undo/redo stacks");
 
       Workspace_Snap := Editor.State.Build_Workspace_Snapshot (S);
       Summary := To_Unbounded_String
@@ -6020,11 +6022,11 @@ procedure Test_Phase396_Line_Join_Canonical_Behavior_And_Persistence
          and then Index (Summary, "smart newline") = 0
          and then Index (Summary, "auto-indent") = 0
          and then Index (Summary, "language-aware split") = 0,
-         "Phase 398 workspace persistence must exclude Line Split transient state/settings");
-   end Test_Phase398_Line_Split_Active_Buffer_And_Persistence_Boundaries;
+         "workspace persistence must exclude Line Split transient state/settings");
+   end Test_Line_Split_Active_Buffer_And_Persistence_Boundaries;
 
 
-   procedure Test_Phase399_Line_Split_Workflow_Position_And_Boundary_Matrices
+   procedure Test_Line_Split_Workflow_Position_And_Boundary_Matrices
      (T : in out AUnit.Test_Cases.Test_Case'Class)
    is
       pragma Unreferenced (T);
@@ -6074,38 +6076,38 @@ procedure Test_Phase396_Line_Join_Canonical_Behavior_And_Persistence
       end Check;
    begin
       Check ("Alpha", 0, ASCII.LF & "Alpha", 1,
-             "Phase 399 position matrix line start");
+             "position matrix line start");
       Check ("AlphaBeta", 5, "Alpha" & ASCII.LF & "Beta", 1,
-             "Phase 399 position matrix middle");
+             "position matrix middle");
       Check ("Alpha", 5, "Alpha" & ASCII.LF, 1,
-             "Phase 399 position matrix line end");
+             "position matrix line end");
       Check ("  Alpha", 2, "  " & ASCII.LF & "Alpha", 1,
-             "Phase 399 position matrix inside leading spaces");
+             "position matrix inside leading spaces");
       Check ("Alpha  Beta", 7, "Alpha  " & ASCII.LF & "Beta", 1,
-             "Phase 399 position matrix trailing spaces before suffix");
+             "position matrix trailing spaces before suffix");
       Check (ASCII.HT & "AlphaBeta", 6,
              ASCII.HT & "Alpha" & ASCII.LF & "Beta", 1,
-             "Phase 399 position matrix tab-leading text");
+             "position matrix tab-leading text");
       Check ("   ", 3, "   " & ASCII.LF, 1,
-             "Phase 399 whitespace-only line end");
+             "whitespace-only line end");
       Check ("", 0, String'(1 => ASCII.LF), 1,
-             "Phase 399 empty buffer frozen as two-empty-lines boundary");
+             "empty buffer frozen as two-empty-lines boundary");
       Check ("A" & ASCII.LF & "BC" & ASCII.LF & "D", 4,
              "A" & ASCII.LF & "B" & ASCII.LF & "C" & ASCII.LF & "D", 2,
-             "Phase 399 middle logical line split only");
+             "middle logical line split only");
       Check ("A" & ASCII.LF & "B" & ASCII.LF & "C", 2,
              "A" & ASCII.LF & ASCII.LF & "B" & ASCII.LF & "C", 2,
-             "Phase 399 middle line start split");
+             "middle line start split");
       Check ("A" & ASCII.LF & "B" & ASCII.LF & "C", 3,
              "A" & ASCII.LF & "B" & ASCII.LF & ASCII.LF & "C", 2,
-             "Phase 399 middle line end split before boundary");
+             "middle line end split before boundary");
       Check ("A" & ASCII.LF & "B", 3,
              "A" & ASCII.LF & "B" & ASCII.LF, 2,
-             "Phase 399 EOF split appends one canonical boundary");
-   end Test_Phase399_Line_Split_Workflow_Position_And_Boundary_Matrices;
+             "EOF split appends one canonical boundary");
+   end Test_Line_Split_Workflow_Position_And_Boundary_Matrices;
 
 
-   procedure Test_Phase399_Line_Split_Undo_Redo_Dirty_Find_Clipboard_Navigation_Render
+   procedure Test_Line_Split_Undo_Redo_Dirty_Find_Clipboard_Navigation_Render
      (T : in out AUnit.Test_Cases.Test_Case'Class)
    is
       pragma Unreferenced (T);
@@ -6140,37 +6142,37 @@ procedure Test_Phase396_Line_Join_Canonical_Behavior_And_Persistence
          "Alpha" & ASCII.LF & "Beta" & ASCII.LF & "Gamma",
          3, 1, 0, 1, 0, "Split line", True, False,
          Before_Clip, Before_Back, Before_Fwd,
-         "Phase 399 split selection/find/clipboard/navigation coherent result");
+         "split selection/find/clipboard/navigation coherent result");
       Assert (S.Active_Find_Query = To_Unbounded_String ("AlphaBeta"),
-              "Phase 399 split must not mutate Find query");
+              "split must not mutate Find query");
       Assert (S.Active_Replace_Text = To_Unbounded_String ("Alpha-Beta"),
-              "Phase 399 split must not mutate Replace text");
+              "split must not mutate Replace text");
       Assert (S.Active_Find_Stale,
-              "Phase 399 split must stale active Find ranges through text edit hook");
+              "split must stale active Find ranges through text edit hook");
 
       Editor.Render_Model.Build_Render_Snapshot (S, R);
       Assert_Buffer_Text
         (S, "Alpha" & ASCII.LF & "Beta" & ASCII.LF & "Gamma",
-         "Phase 399 render snapshot must be side-effect-free after split");
+         "render snapshot must be side-effect-free after split");
       Assert (R.Primary_Caret_Row = 1 and then R.Primary_Caret_Col = 0,
-              "Phase 399 render snapshot exposes normalized post-split caret");
+              "render snapshot exposes normalized post-split caret");
       Assert (R.Selection_Count = 0,
-              "Phase 399 render snapshot must not expose stale selection");
+              "render snapshot must not expose stale selection");
 
       Editor.Executor.Execute_Command (S, Editor.Commands.Command_Copy);
       Assert (Editor.Clipboard.Get_Text = Before_Clip,
-              "Phase 399 copy after cleared split selection must preserve clipboard");
+              "copy after cleared split selection must preserve clipboard");
 
       Editor.Executor.Execute_Command (S, Editor.Commands.Command_Undo);
       Assert_Buffer_Text
         (S, "AlphaBeta" & ASCII.LF & "Gamma",
-         "Phase 399 undo restores exact pre-split text");
+         "undo restores exact pre-split text");
       Assert (Natural (Editor.History.Redo_Stack.Length) = 1,
-              "Phase 399 undo exposes one redo entry");
+              "undo exposes one redo entry");
       Editor.Executor.Execute_Command (S, Editor.Commands.Command_Redo);
       Assert_Buffer_Text
         (S, "Alpha" & ASCII.LF & "Beta" & ASCII.LF & "Gamma",
-         "Phase 399 redo restores exact post-split text");
+         "redo restores exact post-split text");
 
       Editor.Executor.Execute_Command (S, Editor.Commands.Command_Undo);
       Before_Text := To_Unbounded_String (Text_Buffer.UTF8_Text (S.Buffer));
@@ -6181,33 +6183,33 @@ procedure Test_Phase396_Line_Join_Canonical_Behavior_And_Persistence
       Editor.Executor.Execute_Command
         (S, Editor.Commands.Command_Line_Split_At_Caret);
       Assert (Message_Text (S) = "Could not split line",
-              "Phase 399 failed injected-caret split must report deterministic failure");
+              "failed injected-caret split must report deterministic failure");
       Assert_Buffer_Text (S, To_String (Before_Text),
-                          "Phase 399 failed split preserves text");
+                          "failed split preserves text");
       Assert (Editor.State.Is_Dirty (S) = Before_Dirty,
-              "Phase 399 failed split preserves dirty state");
+              "failed split preserves dirty state");
       Assert (Natural (Editor.History.Undo_Stack.Length) = Before_Undo,
-              "Phase 399 failed split preserves undo stack");
+              "failed split preserves undo stack");
       Assert (Natural (Editor.History.Redo_Stack.Length) = Before_Redo,
-              "Phase 399 failed split preserves redo stack");
+              "failed split preserves redo stack");
       Assert (Editor.Clipboard.Get_Text = Before_Clip,
-              "Phase 399 failed split preserves clipboard");
+              "failed split preserves clipboard");
       Assert_Navigation_Counts
         (S, Before_Back, Before_Fwd,
-         "Phase 399 failed split preserves navigation history");
+         "failed split preserves navigation history");
 
       Set_Caret (S, Cursor_Index (Text_Buffer.Length (S.Buffer)));
       Editor.Executor.Execute_Command
         (S, Editor.Commands.Command_Line_Split_At_Caret);
       Assert (Natural (Editor.History.Redo_Stack.Length) = 0,
-              "Phase 399 successful split after undo clears redo stack");
+              "successful split after undo clears redo stack");
       Editor.Executor.Execute_Command (S, Editor.Commands.Command_Redo);
       Assert (Message_Text (S) = "No edits to redo",
-              "Phase 399 redo after successful split reports empty redo stack");
-   end Test_Phase399_Line_Split_Undo_Redo_Dirty_Find_Clipboard_Navigation_Render;
+              "redo after successful split reports empty redo stack");
+   end Test_Line_Split_Undo_Redo_Dirty_Find_Clipboard_Navigation_Render;
 
 
-   procedure Test_Phase399_Line_Split_Mixed_Command_Coexistence_Workflows
+   procedure Test_Line_Split_Mixed_Command_Coexistence_Workflows
      (T : in out AUnit.Test_Cases.Test_Case'Class)
    is
       pragma Unreferenced (T);
@@ -6221,16 +6223,16 @@ procedure Test_Phase396_Line_Join_Canonical_Behavior_And_Persistence
       Set_Caret (S, 5);
       Editor.Executor.Execute_Command (S, Editor.Commands.Command_Line_Split_At_Caret);
       Assert_Buffer_Text (S, "Alpha" & ASCII.LF & "Beta" & ASCII.LF & "Gamma",
-                          "Phase 399 split before join exact text");
+                          "split before join exact text");
       Editor.Executor.Execute_Command (S, Editor.Commands.Command_Line_Join_Next);
       Assert_Buffer_Text (S, "Alpha" & ASCII.LF & "Beta Gamma",
-                          "Phase 399 join after split follows separate join separator policy");
+                          "join after split follows separate join separator policy");
       Editor.Executor.Execute_Command (S, Editor.Commands.Command_Undo);
       Assert_Buffer_Text (S, "Alpha" & ASCII.LF & "Beta" & ASCII.LF & "Gamma",
-                          "Phase 399 undo join restores split text");
+                          "undo join restores split text");
       Editor.Executor.Execute_Command (S, Editor.Commands.Command_Undo);
       Assert_Buffer_Text (S, "AlphaBeta" & ASCII.LF & "Gamma",
-                          "Phase 399 undo split restores original text");
+                          "undo split restores original text");
 
       Editor.State.Init (S);
       Editor.State.Load_Text (S, "Top" & ASCII.LF & "MidTail" & ASCII.LF & "Bottom");
@@ -6241,21 +6243,21 @@ procedure Test_Phase396_Line_Join_Canonical_Behavior_And_Persistence
       Editor.Executor.Execute_Command (S, Editor.Commands.Command_Line_Duplicate);
       Assert_Buffer_Text
         (S, "Top" & ASCII.LF & "MidTail" & ASCII.LF & "MidTail" & ASCII.LF & "Bottom",
-         "Phase 399 duplicate-line setup exact text");
+         "duplicate-line setup exact text");
       Set_Caret (S, Cursor_Index (Editor.Navigation.Index_For_Line_Column (S, 1, 3)));
       Editor.Executor.Execute_Command (S, Editor.Commands.Command_Line_Split_At_Caret);
       Assert_Buffer_Text
         (S, "Top" & ASCII.LF & "Mid" & ASCII.LF & "Tail" & ASCII.LF & "MidTail" & ASCII.LF & "Bottom",
-         "Phase 399 split after duplicate uses current logical line only");
+         "split after duplicate uses current logical line only");
       Editor.Executor.Execute_Command (S, Editor.Commands.Command_Line_Move_Down);
       Assert_Buffer_Text
         (S, "Top" & ASCII.LF & "Mid" & ASCII.LF & "MidTail" & ASCII.LF & "Tail" & ASCII.LF & "Bottom",
-         "Phase 399 move-down after split uses post-split current line");
+         "move-down after split uses post-split current line");
       Editor.Executor.Execute_Command (S, Editor.Commands.Command_Undo);
       Editor.Executor.Execute_Command (S, Editor.Commands.Command_Undo);
       Assert_Buffer_Text
         (S, "Top" & ASCII.LF & "MidTail" & ASCII.LF & "MidTail" & ASCII.LF & "Bottom",
-         "Phase 399 undo mixed line-edit/split chain exact text");
+         "undo mixed line-edit/split chain exact text");
 
       Editor.State.Init (S);
       Editor.State.Load_Text (S, "  AlphaBeta");
@@ -6265,14 +6267,14 @@ procedure Test_Phase396_Line_Join_Canonical_Behavior_And_Persistence
       Set_Caret (S, 2);
       Editor.Executor.Execute_Command (S, Editor.Commands.Command_Line_Split_At_Caret);
       Assert_Buffer_Text (S, "  " & ASCII.LF & "AlphaBeta",
-                          "Phase 399 split inside indentation preserves sides exactly");
+                          "split inside indentation preserves sides exactly");
       Editor.Executor.Execute_Command (S, Editor.Commands.Command_Indent_Increase);
       Assert_Buffer_Text (S, "  " & ASCII.LF & "  AlphaBeta",
-                          "Phase 399 indent after split affects caret line only");
+                          "indent after split affects caret line only");
       Editor.Executor.Execute_Command (S, Editor.Commands.Command_Undo);
       Editor.Executor.Execute_Command (S, Editor.Commands.Command_Indent_Decrease);
       Assert_Buffer_Text (S, "  " & ASCII.LF & "AlphaBeta",
-                          "Phase 399 outdent after split leaves unindented caret line unchanged");
+                          "outdent after split leaves unindented caret line unchanged");
 
       Editor.State.Init (S);
       Editor.State.Load_Text (S, "-- AlphaBeta");
@@ -6282,18 +6284,18 @@ procedure Test_Phase396_Line_Join_Canonical_Behavior_And_Persistence
       Set_Caret (S, 3);
       Editor.Executor.Execute_Command (S, Editor.Commands.Command_Line_Split_At_Caret);
       Assert_Buffer_Text (S, "-- " & ASCII.LF & "AlphaBeta",
-                          "Phase 399 split treats comment marker as plain text");
+                          "split treats comment marker as plain text");
       Editor.Executor.Execute_Command (S, Editor.Commands.Command_Toggle_Line_Comment);
       Assert_Buffer_Text (S, "-- " & ASCII.LF & "-- AlphaBeta",
-                          "Phase 399 toggle comment after split owns comment marker behavior");
+                          "toggle comment after split owns comment marker behavior");
       Editor.Executor.Execute_Command (S, Editor.Commands.Command_Undo);
       Editor.Executor.Execute_Command (S, Editor.Commands.Command_Uncomment_Line);
       Assert_Buffer_Text (S, "-- " & ASCII.LF & "AlphaBeta",
-                          "Phase 399 uncomment after split does not infer marker across boundary");
-   end Test_Phase399_Line_Split_Mixed_Command_Coexistence_Workflows;
+                          "uncomment after split does not infer marker across boundary");
+   end Test_Line_Split_Mixed_Command_Coexistence_Workflows;
 
 
-   procedure Test_Phase399_Line_Split_Active_Buffer_Routes_Features_And_Persistence
+   procedure Test_Line_Split_Active_Buffer_Routes_Features_And_Persistence
      (T : in out AUnit.Test_Cases.Test_Case'Class)
    is
       pragma Unreferenced (T);
@@ -6316,7 +6318,7 @@ procedure Test_Phase396_Line_Join_Canonical_Behavior_And_Persistence
       begin
          Id := Editor.Commands.Command_Id_From_Stable_Name (Name, Found);
          Assert ((not Found) and then Id = Editor.Commands.No_Command,
-                 "Phase 399 non-goal Line Split command must not be exposed: " & Name);
+                 "non-goal Line Split command must not be exposed: " & Name);
       end Assert_Not_Exposed;
    begin
       Editor.Buffers.Reset_Global_For_Test;
@@ -6326,7 +6328,7 @@ procedure Test_Phase396_Line_Join_Canonical_Behavior_And_Persistence
       A_Id := Editor.Buffers.Global_Active_Buffer;
       Editor.Buffers.Sync_Global_Active_From_State (S);
 
-      Editor.Executor.Execute_New_Buffer (S);
+      Editor.Executor.File_Open_Commands.Execute_New_Buffer (S);
       B_Id := Editor.Buffers.Global_Active_Buffer;
       Editor.State.Load_Text (S, "GammaDelta");
       Set_Caret (S, 5);
@@ -6334,26 +6336,26 @@ procedure Test_Phase396_Line_Join_Canonical_Behavior_And_Persistence
       Editor.History.Redo_Stack.Clear;
       Editor.Executor.Execute_Command (S, Editor.Commands.Command_Line_Split_At_Caret);
       Assert_Buffer_Text (S, "Gamma" & ASCII.LF & "Delta",
-                          "Phase 399 split mutates active buffer B only");
+                          "split mutates active buffer B only");
       Editor.Buffers.Sync_Global_Active_From_State (S);
 
-      Editor.Executor.Execute_Switch_Buffer (S, A_Id);
+      Editor.Executor.File_Open_Commands.Execute_Switch_Buffer (S, A_Id);
       Assert_Buffer_Text (S, "AlphaBeta",
-                          "Phase 399 inactive buffer A stays unchanged after B split");
+                          "inactive buffer A stays unchanged after B split");
       Assert (Natural (Editor.History.Undo_Stack.Length) = 0,
-              "Phase 399 inactive buffer A has no inherited split undo entry");
+              "inactive buffer A has no inherited split undo entry");
       Set_Caret (S, 5);
       Editor.Executor.Execute_Command (S, Editor.Commands.Command_Line_Split_At_Caret);
       Assert_Buffer_Text (S, "Alpha" & ASCII.LF & "Beta",
-                          "Phase 399 buffer A split is independent");
+                          "buffer A split is independent");
       Editor.Buffers.Sync_Global_Active_From_State (S);
 
-      Editor.Executor.Execute_Switch_Buffer (S, B_Id);
+      Editor.Executor.File_Open_Commands.Execute_Switch_Buffer (S, B_Id);
       Assert_Buffer_Text (S, "Gamma" & ASCII.LF & "Delta",
-                          "Phase 399 buffer B retains its own split text");
+                          "buffer B retains its own split text");
       Editor.Executor.Execute_Command (S, Editor.Commands.Command_Undo);
       Assert_Buffer_Text (S, "GammaDelta",
-                          "Phase 399 undo in buffer B affects only buffer B");
+                          "undo in buffer B affects only buffer B");
 
       Editor.State.Init (S);
       Editor.State.Load_Text (S, "FeatureAlphaBeta" & ASCII.LF & "Tail");
@@ -6377,31 +6379,31 @@ procedure Test_Phase396_Line_Join_Canonical_Behavior_And_Persistence
          end if;
       end loop;
       Assert (Split_Count = 1,
-              "Phase 399 command palette projects exactly one split-at-caret command");
+              "command palette projects exactly one split-at-caret command");
       Assert (Text_Buffer.UTF8_Text (S.Buffer) = To_String (Before_Text),
-              "Phase 399 command palette projection must not split text");
+              "command palette projection must not split text");
 
       Availability := Editor.Executor.Command_Availability
         (S, Editor.Commands.Command_Line_Split_At_Caret);
       Assert (Editor.Commands.Is_Available (Availability),
-              "Phase 399 split availability available with active buffer/caret");
+              "split availability available with active buffer/caret");
       Assert (Text_Buffer.UTF8_Text (S.Buffer) = To_String (Before_Text),
-              "Phase 399 availability must not mutate text");
+              "availability must not mutate text");
       Assert (S.Carets (S.Carets.First_Index).Pos = Before_Caret,
-              "Phase 399 availability must not move caret");
+              "availability must not move caret");
       Assert (Natural (Editor.History.Undo_Stack.Length) = Before_Undo
               and then Natural (Editor.History.Redo_Stack.Length) = Before_Redo,
-              "Phase 399 availability must not mutate history");
+              "availability must not mutate history");
 
       Editor.Executor.Execute_Command (S, Editor.Commands.Command_Line_Split_At_Caret);
       Assert_Buffer_Text (S, "Feature" & ASCII.LF & "AlphaBeta" & ASCII.LF & "Tail",
-                          "Phase 399 feature-populated split exact text");
+                          "feature-populated split exact text");
       Assert (S.Active_Find_Query = To_Unbounded_String ("Feature"),
-              "Phase 399 split does not mutate Find query in feature-populated state");
+              "split does not mutate Find query in feature-populated state");
       Assert (S.Active_Replace_Text = To_Unbounded_String ("ReplaceSeed"),
-              "Phase 399 split does not mutate Replace text in feature-populated state");
+              "split does not mutate Replace text in feature-populated state");
       Assert (Editor.Clipboard.Get_Text = To_Unbounded_String ("FEATURE-CLIP"),
-              "Phase 399 split does not mutate clipboard in feature-populated state");
+              "split does not mutate clipboard in feature-populated state");
 
       Workspace_Snap := Editor.State.Build_Workspace_Snapshot (S);
       Summary := To_Unbounded_String
@@ -6416,7 +6418,7 @@ procedure Test_Phase396_Line_Join_Canonical_Behavior_And_Persistence
          and then Index (Summary, "auto-indent") = 0
          and then Index (Summary, "language-aware split") = 0
          and then Index (Summary, "formatting split") = 0,
-         "Phase 399 workspace persistence must exclude Line Split transient state/settings");
+         "workspace persistence must exclude Line Split transient state/settings");
 
       Assert_Not_Exposed ("edit.line.split-selection");
       Assert_Not_Exposed ("edit.line.split-all");
@@ -6426,10 +6428,10 @@ procedure Test_Phase396_Line_Join_Canonical_Behavior_And_Persistence
       Assert_Not_Exposed ("edit.split.language-aware");
       Assert_Not_Exposed ("edit.newline.auto-indent");
       Assert_Not_Exposed ("edit.newline.smart");
-   end Test_Phase399_Line_Split_Active_Buffer_Routes_Features_And_Persistence;
+   end Test_Line_Split_Active_Buffer_Routes_Features_And_Persistence;
 
 
-   procedure Test_Phase399_Completeness_Selection_Caret_Only_And_Followups
+   procedure Test_Completeness_Selection_Caret_Only_And_Followups
      (T : in out AUnit.Test_Cases.Test_Case'Class)
    is
       pragma Unreferenced (T);
@@ -6479,21 +6481,21 @@ procedure Test_Phase396_Line_Join_Canonical_Behavior_And_Persistence
    begin
       Check ("AlphaBeta", 0, 5,
              "Alpha" & ASCII.LF & "Beta",
-             "Phase 399 selection before caret");
+             "selection before caret");
       Check ("AlphaBeta", 9, 5,
              "Alpha" & ASCII.LF & "Beta",
-             "Phase 399 reversed selection after caret");
+             "reversed selection after caret");
       Check ("AlphaBeta", 2, 8,
              "AlphaBet" & ASCII.LF & "a",
-             "Phase 399 forward selection ending at caret");
+             "forward selection ending at caret");
       Check ("AlphaBeta", 8, 2,
              "Al" & ASCII.LF & "phaBeta",
-             "Phase 399 backward selection ending at caret");
+             "backward selection ending at caret");
       Check ("One" & ASCII.LF & "AlphaBeta" & ASCII.LF & "Two",
              0,
              9,
              "One" & ASCII.LF & "Alpha" & ASCII.LF & "Beta" & ASCII.LF & "Two",
-             "Phase 399 multi-line selection still splits caret line only");
+             "multi-line selection still splits caret line only");
 
       Editor.State.Init (S);
       Editor.State.Load_Text (S, "WordAlphaBeta");
@@ -6505,13 +6507,13 @@ procedure Test_Phase396_Line_Join_Canonical_Behavior_And_Persistence
       Set_Primary_Selection (S, 0, 4);
       Editor.Executor.Execute_Command (S, Editor.Commands.Command_Line_Split_At_Caret);
       Assert_Buffer_Text (S, "Word" & ASCII.LF & "AlphaBeta",
-                          "Phase 399 current-word selection does not replace selected word");
+                          "current-word selection does not replace selected word");
       Assert (not Editor.Selection.Has_Selection (S),
-              "Phase 399 current-word selection is cleared by successful split mutation");
-   end Test_Phase399_Completeness_Selection_Caret_Only_And_Followups;
+              "current-word selection is cleared by successful split mutation");
+   end Test_Completeness_Selection_Caret_Only_And_Followups;
 
 
-   procedure Test_Phase399_Completeness_No_Buffer_No_Caret_And_Routed_Input
+   procedure Test_Completeness_No_Buffer_No_Caret_And_Routed_Input
      (T : in out AUnit.Test_Cases.Test_Case'Class)
    is
       pragma Unreferenced (T);
@@ -6536,15 +6538,15 @@ procedure Test_Phase396_Line_Join_Canonical_Behavior_And_Persistence
         (S, Editor.Commands.Command_Line_Split_At_Caret);
       Assert (not Editor.Commands.Is_Available (Avail)
               and then Editor.Commands.Unavailable_Reason (Avail) = "No active buffer.",
-              "Phase 399 no-active-buffer availability is deterministic");
+              "no-active-buffer availability is deterministic");
       Editor.Executor.Execute_Command (S, Editor.Commands.Command_Line_Split_At_Caret);
       Assert (Message_Text (S) = "No active buffer.",
-              "Phase 399 no-active-buffer split reports one canonical message");
+              "no-active-buffer split reports one canonical message");
       Assert (Natural (Editor.History.Undo_Stack.Length) = 0
               and then Natural (Editor.History.Redo_Stack.Length) = 0,
-              "Phase 399 no-active-buffer split mutates no history");
+              "no-active-buffer split mutates no history");
       Assert (Editor.Clipboard.Get_Text = Before_Clip,
-              "Phase 399 no-active-buffer split does not touch clipboard");
+              "no-active-buffer split does not touch clipboard");
 
       Editor.State.Init (S);
       Editor.State.Load_Text (S, "AlphaBeta");
@@ -6554,17 +6556,17 @@ procedure Test_Phase396_Line_Join_Canonical_Behavior_And_Persistence
         (S, Editor.Commands.Command_Line_Split_At_Caret);
       Assert (not Editor.Commands.Is_Available (Avail)
               and then Editor.Commands.Unavailable_Reason (Avail) = "No caret location",
-              "Phase 399 no-caret availability is deterministic");
+              "no-caret availability is deterministic");
       Editor.Executor.Execute_Command (S, Editor.Commands.Command_Line_Split_At_Caret);
       Assert_Buffer_Text (S, "AlphaBeta",
-                          "Phase 399 no-caret split preserves buffer text");
+                          "no-caret split preserves buffer text");
       Assert (Message_Text (S) = "No caret location",
-              "Phase 399 no-caret split reports one canonical message");
+              "no-caret split reports one canonical message");
       Assert (Natural (Editor.History.Undo_Stack.Length) = 0
               and then Natural (Editor.History.Redo_Stack.Length) = 0,
-              "Phase 399 no-caret split mutates no history");
+              "no-caret split mutates no history");
       Assert (not Editor.State.Is_Dirty (S),
-              "Phase 399 no-caret split does not mark buffer dirty");
+              "no-caret split does not mark buffer dirty");
 
       Editor.Keybindings.Bind (Chord, Editor.Commands.Command_Line_Split_At_Caret);
       Editor.State.Init (S);
@@ -6578,16 +6580,16 @@ procedure Test_Phase396_Line_Join_Canonical_Behavior_And_Persistence
       After := Editor.Input_Bridge.Get_State_For_Test;
       Assert (Text_Buffer.UTF8_Text (After.Buffer) =
               "Route" & ASCII.LF & "AlphaBeta",
-              "Phase 399 routed keybinding must use canonical Executor split path");
+              "routed keybinding must use canonical Executor split path");
       Assert (Natural (Editor.History.Undo_Stack.Length) = 1,
-              "Phase 399 routed keybinding split creates one undo entry");
+              "routed keybinding split creates one undo entry");
       Assert (Message_Text (After) = "Split line",
-              "Phase 399 routed keybinding emits canonical split message");
+              "routed keybinding emits canonical split message");
       Editor.Keybindings.Reset_To_Defaults;
-   end Test_Phase399_Completeness_No_Buffer_No_Caret_And_Routed_Input;
+   end Test_Completeness_No_Buffer_No_Caret_And_Routed_Input;
 
 
-   procedure Test_Phase399_Completeness_Read_Only_And_Persistence_Surfaces
+   procedure Test_Completeness_Read_Only_And_Persistence_Surfaces
      (T : in out AUnit.Test_Cases.Test_Case'Class)
    is
       pragma Unreferenced (T);
@@ -6622,41 +6624,41 @@ procedure Test_Phase396_Line_Join_Canonical_Behavior_And_Persistence
 
       Editor.Render_Model.Build_Render_Snapshot (S, R);
       Assert_Buffer_Text (S, Before_Text,
-                          "Phase 399 render snapshot must not repair stale caret by splitting");
+                          "render snapshot must not repair stale caret by splitting");
       Assert (R.Length = Text_Buffer.Length (S.Buffer),
-              "Phase 399 render snapshot length derives from unchanged canonical buffer");
+              "render snapshot length derives from unchanged canonical buffer");
       Assert
         (S.Carets (S.Carets.First_Index).Anchor = 0
          and then Natural (S.Carets (S.Carets.First_Index).Pos) =
            Text_Buffer.Length (S.Buffer) + 25,
-         "Phase 399 render snapshot must not repair stale selection endpoints before split command");
+         "render snapshot must not repair stale selection endpoints before split command");
       Assert (Editor.Clipboard.Get_Text = Before_Clip,
-              "Phase 399 render snapshot must not mutate clipboard");
+              "render snapshot must not mutate clipboard");
       Assert (Natural (Editor.History.Undo_Stack.Length) = Before_Undo
               and then Natural (Editor.History.Redo_Stack.Length) = Before_Redo,
-              "Phase 399 render snapshot must not mutate history");
+              "render snapshot must not mutate history");
 
       Editor.Command_Palette.Reset;
       Editor.Command_Palette.Filtered_Commands (Candidates);
       Assert (Candidates.Length > 0,
-              "Phase 399 command palette projection returns command candidates");
+              "command palette projection returns command candidates");
       Assert_Buffer_Text (S, Before_Text,
-                          "Phase 399 command palette projection must not split or repair text");
+                          "command palette projection must not split or repair text");
       Assert (S.Active_Find_Query = To_Unbounded_String ("Alpha")
               and then S.Active_Replace_Text = To_Unbounded_String ("Omega")
               and then not S.Active_Find_Stale,
-              "Phase 399 read-only projections must not mutate Find/Replace state");
+              "read-only projections must not mutate Find/Replace state");
 
       Editor.Executor.Execute_Command (S, Editor.Commands.Command_Line_Split_At_Caret);
       Assert_Buffer_Text (S, Before_Text,
-                          "Phase 399 stale-caret split failure preserves text");
+                          "stale-caret split failure preserves text");
       Assert (Message_Text (S) = "Could not split line",
-              "Phase 399 stale-caret split failure emits deterministic one-message failure");
+              "stale-caret split failure emits deterministic one-message failure");
       Assert (Natural (Editor.History.Undo_Stack.Length) = Before_Undo
               and then Natural (Editor.History.Redo_Stack.Length) = Before_Redo,
-              "Phase 399 stale-caret split failure preserves history");
+              "stale-caret split failure preserves history");
       Assert (Editor.Clipboard.Get_Text = Before_Clip,
-              "Phase 399 stale-caret split failure preserves clipboard");
+              "stale-caret split failure preserves clipboard");
 
       Workspace_Snap := Editor.State.Build_Workspace_Snapshot (S);
       Summary := To_Unbounded_String
@@ -6669,11 +6671,11 @@ procedure Test_Phase396_Line_Join_Canonical_Behavior_And_Persistence
          and then Index (Summary, "smart newline") = 0
          and then Index (Summary, "auto-indent") = 0
          and then Index (Summary, "language-aware split") = 0,
-         "Phase 399 persistence summary excludes split transient state after failure");
-   end Test_Phase399_Completeness_Read_Only_And_Persistence_Surfaces;
+         "persistence summary excludes split transient state after failure");
+   end Test_Completeness_Read_Only_And_Persistence_Surfaces;
 
 
-procedure Test_Phase400_Line_Split_Canonical_Behavior_And_State_Boundaries
+procedure Test_Line_Split_Canonical_Behavior_And_State_Boundaries
      (T : in out AUnit.Test_Cases.Test_Case'Class)
    is
       pragma Unreferenced (T);
@@ -6683,7 +6685,7 @@ procedure Test_Phase400_Line_Split_Canonical_Behavior_And_State_Boundaries
       Summary        : Unbounded_String;
       Before_Back    : Natural := 0;
       Before_Fwd     : Natural := 0;
-      Before_Clip    : constant Unbounded_String := To_Unbounded_String ("PHASE400-CLIP");
+      Before_Clip    : constant Unbounded_String := To_Unbounded_String ("CLIP");
       Before_Redo    : Natural := 0;
    begin
       Editor.State.Init (S);
@@ -6705,39 +6707,39 @@ procedure Test_Phase400_Line_Split_Canonical_Behavior_And_State_Boundaries
       Assert_Buffer_Text
         (S,
          "  -- Alph" & ASCII.LF & "aBeta" & ASCII.LF & "Tail",
-         "Phase 400 split must insert exactly one canonical boundary at the caret");
+         "split must insert exactly one canonical boundary at the caret");
       Assert_Caret_Row_Col (S, 1, 0,
-                            "Phase 400 split caret must normalize to new line start");
+                            "split caret must normalize to new line start");
       Assert (not Editor.Selection.Has_Selection (S),
-              "Phase 400 successful split must clear the stale active selection");
+              "successful split must clear the stale active selection");
       Assert (Natural (Editor.History.Undo_Stack.Length) = 1,
-              "Phase 400 split must create exactly one canonical undo entry");
+              "split must create exactly one canonical undo entry");
       Assert (Natural (Editor.History.Redo_Stack.Length) = Before_Redo,
-              "Phase 400 split must not create custom redo state");
+              "split must not create custom redo state");
       Assert (Editor.State.Is_Dirty (S),
-              "Phase 400 split must update dirty state through canonical edit policy");
+              "split must update dirty state through canonical edit policy");
       Assert (S.Active_Find_Query = To_Unbounded_String ("Alpha"),
-              "Phase 400 split must not mutate Find query");
+              "split must not mutate Find query");
       Assert (S.Active_Replace_Text = To_Unbounded_String ("Omega"),
-              "Phase 400 split must not mutate Replace text");
+              "split must not mutate Replace text");
       Assert (S.Active_Find_Stale,
-              "Phase 400 split must use canonical Find/Replace invalidation");
+              "split must use canonical Find/Replace invalidation");
       Assert (Editor.Clipboard.Get_Text = Before_Clip,
-              "Phase 400 split must not read or mutate Clipboard state");
+              "split must not read or mutate Clipboard state");
       Assert_Navigation_Counts (S, Before_Back, Before_Fwd,
-                                "Phase 400 split must not record Navigation History");
+                                "split must not record Navigation History");
       Assert (Message_Text (S) = "Split line",
-              "Phase 400 split must emit the canonical one primary message");
+              "split must emit the canonical one primary message");
 
       Editor.Render_Model.Build_Render_Snapshot (S, R);
       Assert_Buffer_Text
         (S,
          "  -- Alph" & ASCII.LF & "aBeta" & ASCII.LF & "Tail",
-         "Phase 400 render snapshot must be read-only over canonical buffer text");
+         "render snapshot must be read-only over canonical buffer text");
       Assert (R.Primary_Caret_Row = 1 and then R.Primary_Caret_Col = 0,
-              "Phase 400 render caret must derive from canonical caret state only");
+              "render caret must derive from canonical caret state only");
       Assert (R.Selection_Count = 0,
-              "Phase 400 render snapshot must not expose stale split selection state");
+              "render snapshot must not expose stale split selection state");
 
       Workspace_Snap := Editor.State.Build_Workspace_Snapshot (S);
       Summary := To_Unbounded_String
@@ -6753,20 +6755,20 @@ procedure Test_Phase400_Line_Split_Canonical_Behavior_And_State_Boundaries
          and then Index (Summary, "auto-indent") = 0
          and then Index (Summary, "language-aware split") = 0
          and then Index (Summary, "formatting split") = 0,
-         "Phase 400 workspace persistence must exclude canonical and removed Line Split state");
+         "workspace persistence must exclude canonical and removed Line Split state");
 
       Editor.Executor.Execute_Command (S, Editor.Commands.Command_Undo);
       Assert_Buffer_Text (S, "  -- AlphaBeta" & ASCII.LF & "Tail",
-                          "Phase 400 undo restores captured before text without replaying split");
+                          "undo restores captured before text without replaying split");
       Editor.Executor.Execute_Command (S, Editor.Commands.Command_Redo);
       Assert_Buffer_Text
         (S,
          "  -- Alph" & ASCII.LF & "aBeta" & ASCII.LF & "Tail",
-         "Phase 400 redo restores captured after text without recomputing split policy");
-   end Test_Phase400_Line_Split_Canonical_Behavior_And_State_Boundaries;
+         "redo restores captured after text without recomputing split policy");
+   end Test_Line_Split_Canonical_Behavior_And_State_Boundaries;
 
 
-   procedure Test_Phase400_Line_Split_Failure_Read_Only_And_Ordinary_Newline_Separation
+   procedure Test_Line_Split_Failure_Read_Only_And_Ordinary_Newline_Separation
      (T : in out AUnit.Test_Cases.Test_Case'Class)
    is
       pragma Unreferenced (T);
@@ -6791,20 +6793,20 @@ procedure Test_Phase400_Line_Split_Canonical_Behavior_And_State_Boundaries
       Availability := Editor.Executor.Command_Availability
         (S, Editor.Commands.Command_Line_Split_At_Caret);
       Assert (Editor.Commands.Is_Available (Availability),
-              "Phase 400 canonical Line Split availability should be available before split");
+              "canonical Line Split availability should be available before split");
       Assert_Buffer_Text (S, To_String (Before_Text),
-                          "Phase 400 availability must not mutate text");
+                          "availability must not mutate text");
       Assert (Natural (Editor.History.Undo_Stack.Length) = Before_Undo
               and then Natural (Editor.History.Redo_Stack.Length) = Before_Redo,
-              "Phase 400 availability must not mutate Undo/Redo stacks");
+              "availability must not mutate Undo/Redo stacks");
 
       Editor.Executor.Execute_Command (S, Editor.Commands.Command_Insert_Newline);
       Assert_Buffer_Text (S, "Alpha" & ASCII.LF & "Beta",
-                          "Phase 400 ordinary Insert Newline remains separate but uses canonical text edit semantics");
+                          "ordinary Insert Newline remains separate but uses canonical text edit semantics");
       Assert (Message_Text (S) /= "Split line",
-              "Phase 400 ordinary newline insertion must not report the Line Split command message");
+              "ordinary newline insertion must not report the Line Split command message");
       Assert (Natural (Editor.History.Undo_Stack.Length) = 1,
-              "Phase 400 ordinary newline insertion is one normal edit entry");
+              "ordinary newline insertion is one normal edit entry");
 
       Editor.State.Init (S);
       Editor.State.Load_Text (S, "StaleAlphaBeta");
@@ -6824,25 +6826,25 @@ procedure Test_Phase400_Line_Split_Canonical_Behavior_And_State_Boundaries
 
       Editor.Executor.Execute_Command (S, Editor.Commands.Command_Line_Split_At_Caret);
       Assert_Buffer_Text (S, "StaleAlphaBeta",
-                          "Phase 400 failed split must preserve buffer text");
+                          "failed split must preserve buffer text");
       Assert (Message_Text (S) = "Could not split line",
-              "Phase 400 failed split must emit canonical failure message");
+              "failed split must emit canonical failure message");
       Assert (Natural (Editor.History.Undo_Stack.Length) = Before_Undo
               and then Natural (Editor.History.Redo_Stack.Length) = Before_Redo,
-              "Phase 400 failed split must not mutate history stacks");
+              "failed split must not mutate history stacks");
       Assert (Editor.Clipboard.Get_Text = Before_Clip,
-              "Phase 400 failed split must not mutate Clipboard state");
+              "failed split must not mutate Clipboard state");
       Assert (not Editor.State.Is_Dirty (S),
-              "Phase 400 failed split must not dirty the buffer");
+              "failed split must not dirty the buffer");
       Assert (S.Active_Find_Query = Null_Unbounded_String
               and then S.Active_Replace_Text = Null_Unbounded_String,
-              "Phase 400 failed split must not synthesize Find/Replace state");
-   end Test_Phase400_Line_Split_Failure_Read_Only_And_Ordinary_Newline_Separation;
+              "failed split must not synthesize Find/Replace state");
+   end Test_Line_Split_Failure_Read_Only_And_Ordinary_Newline_Separation;
 
 
 
 
-   procedure Test_Phase401_Word_Delete_Command_Descriptors_And_Routes
+   procedure Test_Word_Delete_Command_Descriptors_And_Routes
      (T : in out AUnit.Test_Cases.Test_Case'Class)
    is
       pragma Unreferenced (T);
@@ -6863,37 +6865,37 @@ procedure Test_Phase400_Line_Split_Canonical_Behavior_And_State_Boundaries
         (Editor.Commands.Stable_Command_Name
            (Editor.Commands.Command_Word_Delete_Previous) =
          "edit.word.delete-previous",
-         "Phase 401 previous-word delete stable name mismatch");
+         "previous-word delete stable name mismatch");
       Assert
         (Editor.Commands.Stable_Command_Name
            (Editor.Commands.Command_Word_Delete_Next) =
          "edit.word.delete-next",
-         "Phase 401 next-word delete stable name mismatch");
+         "next-word delete stable name mismatch");
       Assert
         (Editor.Commands.Descriptor
            (Editor.Commands.Command_Word_Delete_Previous).Category =
          Editor.Commands.Edit_Category,
-         "Phase 401 previous-word delete must be an Edit command");
+         "previous-word delete must be an Edit command");
       Assert
         (Editor.Commands.Descriptor
            (Editor.Commands.Command_Word_Delete_Next).Visibility =
          Editor.Commands.Palette_Command,
-         "Phase 401 next-word delete must be palette visible");
+         "next-word delete must be palette visible");
       Assert
         (Editor.Commands.Is_Bindable_Command
            (Editor.Commands.Command_Word_Delete_Previous)
          and then Editor.Commands.Is_Bindable_Command
            (Editor.Commands.Command_Word_Delete_Next),
-         "Phase 401 word delete commands must be bindable");
+         "word delete commands must be bindable");
 
       Id := Editor.Commands.Command_Id_From_Stable_Name
         ("edit.word.delete-previous", Found);
       Assert (Found and then Id = Editor.Commands.Command_Word_Delete_Previous,
-              "Phase 401 previous-word stable name lookup mismatch");
+              "previous-word stable name lookup mismatch");
       Id := Editor.Commands.Command_Id_From_Stable_Name
         ("edit.word.delete-next", Found);
       Assert (Found and then Id = Editor.Commands.Command_Word_Delete_Next,
-              "Phase 401 next-word stable name lookup mismatch");
+              "next-word stable name lookup mismatch");
 
       Editor.Keybindings.Bind (Chord, Editor.Commands.Command_Word_Delete_Previous);
       Editor.State.Init (S);
@@ -6905,13 +6907,13 @@ procedure Test_Phase400_Line_Split_Canonical_Behavior_And_State_Boundaries
       Editor.Input_Bridge.Handle_Key_Chord (Chord);
       After := Editor.Input_Bridge.Get_State_For_Test;
       Assert_Buffer_Text (After, "Route ",
-                          "Phase 401 Input_Bridge word delete must route through Executor");
+                          "Input_Bridge word delete must route through Executor");
       Assert (Natural (Editor.History.Undo_Stack.Length) = 1,
-              "Phase 401 routed word delete must create one undo entry");
+              "routed word delete must create one undo entry");
       Editor.Keybindings.Reset_To_Defaults;
-   end Test_Phase401_Word_Delete_Command_Descriptors_And_Routes;
+   end Test_Word_Delete_Command_Descriptors_And_Routes;
 
-   procedure Test_Phase401_Delete_Previous_Word_Boundaries_Selection_And_Undo
+   procedure Test_Delete_Previous_Word_Boundaries_Selection_And_Undo
      (T : in out AUnit.Test_Cases.Test_Case'Class)
    is
       pragma Unreferenced (T);
@@ -6929,27 +6931,27 @@ procedure Test_Phase400_Line_Split_Canonical_Behavior_And_State_Boundaries
       Editor.Executor.Execute_Command
         (S, Editor.Commands.Command_Word_Delete_Previous);
       Assert_Buffer_Text (S, "Alpha   ",
-                          "Phase 401 delete-previous must delete the preceding word span");
+                          "delete-previous must delete the preceding word span");
       Assert (Natural (S.Carets (S.Carets.First_Index).Pos) = 8,
-              "Phase 401 delete-previous caret must move to deleted range start");
+              "delete-previous caret must move to deleted range start");
       Assert (Message_Text (S) = "Deleted previous word",
-              "Phase 401 delete-previous success message mismatch");
+              "delete-previous success message mismatch");
       Assert (Editor.State.Is_Dirty (S),
-              "Phase 401 delete-previous must dirty changed clean buffer");
+              "delete-previous must dirty changed clean buffer");
       Assert (Natural (Editor.History.Undo_Stack.Length) = 1,
-              "Phase 401 delete-previous must create one undo entry");
+              "delete-previous must create one undo entry");
       Assert (Editor.Clipboard.Has_Text
               and then To_String (Editor.Clipboard.Get_Text) = "CLIP",
-              "Phase 401 delete-previous must not mutate clipboard");
+              "delete-previous must not mutate clipboard");
       Assert_Navigation_Counts (S, 0, 0,
-                                "Phase 401 delete-previous must not record navigation");
+                                "delete-previous must not record navigation");
 
       Editor.Executor.Execute_Command (S, Editor.Commands.Command_Undo);
       Assert_Buffer_Text (S, "Alpha   Beta",
-                          "Phase 401 undo after delete-previous must restore exact text");
+                          "undo after delete-previous must restore exact text");
       Editor.Executor.Execute_Command (S, Editor.Commands.Command_Redo);
       Assert_Buffer_Text (S, "Alpha   ",
-                          "Phase 401 redo after delete-previous must restore edited text");
+                          "redo after delete-previous must restore edited text");
 
       Editor.State.Load_Text (S, "Alpha   Beta");
       Set_Caret (S, 8);
@@ -6958,7 +6960,7 @@ procedure Test_Phase400_Line_Split_Canonical_Behavior_And_State_Boundaries
       Editor.Executor.Execute_Command
         (S, Editor.Commands.Command_Word_Delete_Previous);
       Assert_Buffer_Text (S, "Beta",
-                          "Phase 401 delete-previous after whitespace must delete whitespace plus prior word");
+                          "delete-previous after whitespace must delete whitespace plus prior word");
 
       Editor.State.Load_Text (S, "Alpha...Beta");
       Set_Caret (S, 8);
@@ -6967,7 +6969,7 @@ procedure Test_Phase400_Line_Split_Canonical_Behavior_And_State_Boundaries
       Editor.Executor.Execute_Command
         (S, Editor.Commands.Command_Word_Delete_Previous);
       Assert_Buffer_Text (S, "AlphaBeta",
-                          "Phase 401 delete-previous must delete punctuation spans as plain text");
+                          "delete-previous must delete punctuation spans as plain text");
 
       Editor.State.Load_Text (S, "Alpha_Beta123");
       Set_Caret (S, 13);
@@ -6976,7 +6978,7 @@ procedure Test_Phase400_Line_Split_Canonical_Behavior_And_State_Boundaries
       Editor.Executor.Execute_Command
         (S, Editor.Commands.Command_Word_Delete_Previous);
       Assert_Buffer_Text (S, "",
-                          "Phase 401 delete-previous word class must include underscore and digits");
+                          "delete-previous word class must include underscore and digits");
 
       Editor.State.Load_Text (S, "One" & ASCII.LF & "Two");
       Set_Caret (S, 4);
@@ -6985,7 +6987,7 @@ procedure Test_Phase400_Line_Split_Canonical_Behavior_And_State_Boundaries
       Editor.Executor.Execute_Command
         (S, Editor.Commands.Command_Word_Delete_Previous);
       Assert_Buffer_Text (S, "Two",
-                          "Phase 401 delete-previous must treat line boundary as whitespace");
+                          "delete-previous must treat line boundary as whitespace");
 
       Editor.State.Load_Text (S, "Alpha Beta");
       Set_Primary_Selection (S, 0, 5);
@@ -6994,9 +6996,9 @@ procedure Test_Phase400_Line_Split_Canonical_Behavior_And_State_Boundaries
       Editor.Executor.Execute_Command
         (S, Editor.Commands.Command_Word_Delete_Previous);
       Assert_Buffer_Text (S, " Beta",
-                          "Phase 401 delete-previous must operate at caret, not consume selection");
+                          "delete-previous must operate at caret, not consume selection");
       Assert (not Editor.Selection.Has_Selection (S),
-              "Phase 401 successful delete-previous must collapse selection");
+              "successful delete-previous must collapse selection");
 
       Editor.Executor.Execute_Command (S, Editor.Commands.Command_Undo);
       Redo_Count := Natural (Editor.History.Redo_Stack.Length);
@@ -7004,12 +7006,12 @@ procedure Test_Phase400_Line_Split_Canonical_Behavior_And_State_Boundaries
       Editor.Executor.Execute_Command
         (S, Editor.Commands.Command_Word_Delete_Previous);
       Assert (Message_Text (S) = "Nothing to delete",
-              "Phase 401 delete-previous buffer-start no-op message mismatch");
+              "delete-previous buffer-start no-op message mismatch");
       Assert (Natural (Editor.History.Redo_Stack.Length) = Redo_Count,
-              "Phase 401 delete-previous no-op must preserve redo stack");
-   end Test_Phase401_Delete_Previous_Word_Boundaries_Selection_And_Undo;
+              "delete-previous no-op must preserve redo stack");
+   end Test_Delete_Previous_Word_Boundaries_Selection_And_Undo;
 
-   procedure Test_Phase401_Delete_Next_Word_Boundaries_No_Ops_And_Persistence
+   procedure Test_Delete_Next_Word_Boundaries_No_Ops_And_Persistence
      (T : in out AUnit.Test_Cases.Test_Case'Class)
    is
       pragma Unreferenced (T);
@@ -7031,16 +7033,16 @@ procedure Test_Phase400_Line_Split_Canonical_Behavior_And_State_Boundaries
       Editor.Executor.Execute_Command
         (S, Editor.Commands.Command_Word_Delete_Next);
       Assert_Buffer_Text (S, "   Beta",
-                          "Phase 401 delete-next must delete the following word span");
+                          "delete-next must delete the following word span");
       Assert (Natural (S.Carets (S.Carets.First_Index).Pos) = 0,
-              "Phase 401 delete-next caret must remain at deletion start");
+              "delete-next caret must remain at deletion start");
       Assert (Message_Text (S) = "Deleted next word",
-              "Phase 401 delete-next success message mismatch");
+              "delete-next success message mismatch");
       Assert (Natural (Editor.History.Undo_Stack.Length) = 1,
-              "Phase 401 delete-next must create one undo entry");
+              "delete-next must create one undo entry");
       Assert (Editor.Clipboard.Has_Text
               and then To_String (Editor.Clipboard.Get_Text) = "CLIP",
-              "Phase 401 delete-next must not mutate clipboard");
+              "delete-next must not mutate clipboard");
 
       Editor.State.Load_Text (S, "Alpha   Beta");
       Set_Caret (S, 5);
@@ -7049,7 +7051,7 @@ procedure Test_Phase400_Line_Split_Canonical_Behavior_And_State_Boundaries
       Editor.Executor.Execute_Command
         (S, Editor.Commands.Command_Word_Delete_Next);
       Assert_Buffer_Text (S, "Alpha",
-                          "Phase 401 delete-next after whitespace must delete whitespace plus next word");
+                          "delete-next after whitespace must delete whitespace plus next word");
 
       Editor.State.Load_Text (S, "...Alpha");
       Set_Caret (S, 0);
@@ -7058,7 +7060,7 @@ procedure Test_Phase400_Line_Split_Canonical_Behavior_And_State_Boundaries
       Editor.Executor.Execute_Command
         (S, Editor.Commands.Command_Word_Delete_Next);
       Assert_Buffer_Text (S, "Alpha",
-                          "Phase 401 delete-next must delete punctuation spans as plain text");
+                          "delete-next must delete punctuation spans as plain text");
 
       Editor.State.Load_Text (S, "Alpha_Beta123");
       Set_Caret (S, 0);
@@ -7067,7 +7069,7 @@ procedure Test_Phase400_Line_Split_Canonical_Behavior_And_State_Boundaries
       Editor.Executor.Execute_Command
         (S, Editor.Commands.Command_Word_Delete_Next);
       Assert_Buffer_Text (S, "",
-                          "Phase 401 delete-next word class must include underscore and digits");
+                          "delete-next word class must include underscore and digits");
 
       Editor.State.Load_Text (S, "One" & ASCII.LF & "Two");
       Set_Caret (S, 3);
@@ -7076,7 +7078,7 @@ procedure Test_Phase400_Line_Split_Canonical_Behavior_And_State_Boundaries
       Editor.Executor.Execute_Command
         (S, Editor.Commands.Command_Word_Delete_Next);
       Assert_Buffer_Text (S, "One",
-                          "Phase 401 delete-next must treat line boundary as whitespace");
+                          "delete-next must treat line boundary as whitespace");
 
       Editor.Executor.Execute_Command (S, Editor.Commands.Command_Undo);
       Redo_Count := Natural (Editor.History.Redo_Stack.Length);
@@ -7084,31 +7086,31 @@ procedure Test_Phase400_Line_Split_Canonical_Behavior_And_State_Boundaries
       Editor.Executor.Execute_Command
         (S, Editor.Commands.Command_Word_Delete_Next);
       Assert (Message_Text (S) = "Nothing to delete",
-              "Phase 401 delete-next buffer-end no-op message mismatch");
+              "delete-next buffer-end no-op message mismatch");
       Assert (Natural (Editor.History.Redo_Stack.Length) = Redo_Count,
-              "Phase 401 delete-next no-op must preserve redo stack");
+              "delete-next no-op must preserve redo stack");
 
       S.Carets.Clear;
       Avail := Editor.Executor.Command_Availability
         (S, Editor.Commands.Command_Word_Delete_Next);
       Assert (not Editor.Commands.Is_Available (Avail)
               and then Editor.Commands.Unavailable_Reason (Avail) = "No caret location",
-              "Phase 401 no-caret availability must be deterministic");
+              "no-caret availability must be deterministic");
       Editor.Executor.Execute_Command
         (S, Editor.Commands.Command_Word_Delete_Next);
       Assert (Message_Text (S) = "No caret location",
-              "Phase 401 no-caret execution message mismatch");
+              "no-caret execution message mismatch");
 
       Editor.State.Init (No_Buffer);
       Avail := Editor.Executor.Command_Availability
         (No_Buffer, Editor.Commands.Command_Word_Delete_Previous);
       Assert (not Editor.Commands.Is_Available (Avail)
               and then Editor.Commands.Unavailable_Reason (Avail) = "No active buffer.",
-              "Phase 401 no-active-buffer availability must be deterministic");
+              "no-active-buffer availability must be deterministic");
       Editor.Executor.Execute_Command
         (No_Buffer, Editor.Commands.Command_Word_Delete_Previous);
       Assert (Message_Text (No_Buffer) = "No active buffer.",
-              "Phase 401 no-active-buffer execution message mismatch");
+              "no-active-buffer execution message mismatch");
 
       Editor.State.Load_Text (S, "Persist Word");
       Set_Caret (S, 7);
@@ -7122,11 +7124,11 @@ procedure Test_Phase400_Line_Split_Canonical_Behavior_And_State_Boundaries
          and then Index (Summary, "deleted word") = 0
          and then Index (Summary, "word-boundary") = 0
          and then Index (Summary, "last word") = 0,
-         "Phase 401 workspace persistence must exclude Word Delete transient state");
-   end Test_Phase401_Delete_Next_Word_Boundaries_No_Ops_And_Persistence;
+         "workspace persistence must exclude Word Delete transient state");
+   end Test_Delete_Next_Word_Boundaries_No_Ops_And_Persistence;
 
 
-   procedure Test_Phase402_Delete_Previous_Word_Reliability_Matrix
+   procedure Test_Delete_Previous_Word_Reliability_Matrix
      (T : in out AUnit.Test_Cases.Test_Case'Class)
    is
       pragma Unreferenced (T);
@@ -7165,37 +7167,37 @@ procedure Test_Phase400_Line_Split_Canonical_Behavior_And_State_Boundaries
       Editor.Clipboard.Set_Text (To_Unbounded_String ("CLIP"));
 
       Expect_Previous ("Alpha", 5, "", 0,
-                       "Phase 402 previous deletes simple trailing word");
+                       "previous deletes simple trailing word");
       Expect_Previous ("Alpha Beta", 10, "Alpha ", 6,
-                       "Phase 402 previous deletes trailing word after one space");
+                       "previous deletes trailing word after one space");
       Expect_Previous ("Alpha   Beta", 13, "Alpha   ", 8,
-                       "Phase 402 previous preserves multiple spaces before trailing word");
+                       "previous preserves multiple spaces before trailing word");
       Expect_Previous ("Alpha   Beta", 8, "Beta", 0,
-                       "Phase 402 previous deletes whitespace run plus prior word");
+                       "previous deletes whitespace run plus prior word");
       Expect_Previous ("Alpha_Beta", 10, "", 0,
-                       "Phase 402 previous treats underscore as word");
+                       "previous treats underscore as word");
       Expect_Previous ("Alpha123", 8, "", 0,
-                       "Phase 402 previous treats digits as word");
+                       "previous treats digits as word");
       Expect_Previous ("Alpha.", 6, "Alpha", 5,
-                       "Phase 402 previous deletes single punctuation");
+                       "previous deletes single punctuation");
       Expect_Previous ("Alpha...", 8, "Alpha", 5,
-                       "Phase 402 previous deletes punctuation run");
+                       "previous deletes punctuation run");
       Expect_Previous ("Al" & String'(1 => ASCII.HT) & "pha", 3,
                        "pha", 0,
-                       "Phase 402 previous treats tab as whitespace plus prior word");
+                       "previous treats tab as whitespace plus prior word");
       Expect_Previous ("Al" & Character'Val (16#C3#) & Character'Val (16#A9#) & "pha", 3,
                        "Alpha", 2,
-                       "Phase 402 previous treats non-ASCII bytes as other text");
+                       "previous treats non-ASCII bytes as other text");
       Expect_Previous ("Alpha", 2, "pha", 0,
-                       "Phase 402 previous inside word deletes prefix span");
+                       "previous inside word deletes prefix span");
       Expect_Previous ("Alpha  " & "  Beta", 7, "  Beta", 0,
-                       "Phase 402 previous inside whitespace run is deterministic");
+                       "previous inside whitespace run is deterministic");
       Expect_Previous ("Alpha.." & "..Beta", 7, "Alpha..Beta", 5,
-                       "Phase 402 previous inside punctuation run is deterministic");
+                       "previous inside punctuation run is deterministic");
       Expect_Previous ("Alpha" & ASCII.LF & "Beta", 6, "Beta", 0,
-                       "Phase 402 previous crosses canonical line boundary as whitespace");
+                       "previous crosses canonical line boundary as whitespace");
       Expect_Previous ("Alpha" & ASCII.LF & ASCII.LF & "Beta", 7, "Beta", 0,
-                       "Phase 402 previous crosses blank line boundary run as whitespace");
+                       "previous crosses blank line boundary run as whitespace");
 
       Editor.State.Load_Text (S, "Alpha");
       Set_Caret (S, 0);
@@ -7204,17 +7206,17 @@ procedure Test_Phase400_Line_Split_Canonical_Behavior_And_State_Boundaries
       Editor.Executor.Execute_Command
         (S, Editor.Commands.Command_Word_Delete_Previous);
       Assert_Buffer_Text (S, "Alpha",
-                          "Phase 402 previous at buffer start must no-op");
+                          "previous at buffer start must no-op");
       Assert (Message_Text (S) = "Nothing to delete",
-              "Phase 402 previous no-op message mismatch");
+              "previous no-op message mismatch");
       Assert (Natural (Editor.History.Undo_Stack.Length) = 0,
-              "Phase 402 previous no-op must not create undo");
+              "previous no-op must not create undo");
       Assert (Editor.Clipboard.Has_Text
               and then To_String (Editor.Clipboard.Get_Text) = "CLIP",
-              "Phase 402 previous matrix must not mutate clipboard");
-   end Test_Phase402_Delete_Previous_Word_Reliability_Matrix;
+              "previous matrix must not mutate clipboard");
+   end Test_Delete_Previous_Word_Reliability_Matrix;
 
-   procedure Test_Phase402_Delete_Next_Word_Reliability_Matrix
+   procedure Test_Delete_Next_Word_Reliability_Matrix
      (T : in out AUnit.Test_Cases.Test_Case'Class)
    is
       pragma Unreferenced (T);
@@ -7251,31 +7253,31 @@ procedure Test_Phase400_Line_Split_Canonical_Behavior_And_State_Boundaries
       Editor.Clipboard.Set_Text (To_Unbounded_String ("CLIP"));
 
       Expect_Next ("Alpha", 0, "", 0,
-                   "Phase 402 next deletes simple leading word");
+                   "next deletes simple leading word");
       Expect_Next ("Alpha Beta", 0, " Beta", 0,
-                   "Phase 402 next preserves following separator after first word");
+                   "next preserves following separator after first word");
       Expect_Next ("Alpha   Beta", 5, "Alpha", 5,
-                   "Phase 402 next deletes whitespace run plus following word");
+                   "next deletes whitespace run plus following word");
       Expect_Next ("Alpha_Beta", 0, "", 0,
-                   "Phase 402 next treats underscore as word");
+                   "next treats underscore as word");
       Expect_Next ("Alpha123", 0, "", 0,
-                   "Phase 402 next treats digits as word");
+                   "next treats digits as word");
       Expect_Next ("...Alpha", 0, "Alpha", 0,
-                   "Phase 402 next deletes punctuation run");
+                   "next deletes punctuation run");
       Expect_Next (", Alpha", 0, " Alpha", 0,
-                   "Phase 402 next deletes single punctuation");
+                   "next deletes single punctuation");
       Expect_Next ("Al" & String'(1 => ASCII.HT) & "pha", 2, "Al", 2,
-                   "Phase 402 next treats tab as whitespace plus following word");
+                   "next treats tab as whitespace plus following word");
       Expect_Next ("Alpha", 2, "Al", 2,
-                   "Phase 402 next inside word deletes suffix span");
+                   "next inside word deletes suffix span");
       Expect_Next ("Alpha  " & "  Beta", 7, "Alpha  ", 7,
-                   "Phase 402 next inside whitespace run is deterministic");
+                   "next inside whitespace run is deterministic");
       Expect_Next ("Alpha.." & "..Beta", 7, "Alpha..Beta", 7,
-                   "Phase 402 next inside punctuation run is deterministic");
+                   "next inside punctuation run is deterministic");
       Expect_Next ("Alpha" & ASCII.LF & "Beta", 5, "Alpha", 5,
-                   "Phase 402 next crosses canonical line boundary as whitespace");
+                   "next crosses canonical line boundary as whitespace");
       Expect_Next ("Alpha" & ASCII.LF & ASCII.LF & "Beta", 5, "Alpha", 5,
-                   "Phase 402 next crosses blank line boundary run as whitespace");
+                   "next crosses blank line boundary run as whitespace");
 
       Editor.State.Load_Text (S, "Alpha");
       Set_Caret (S, 5);
@@ -7284,17 +7286,17 @@ procedure Test_Phase400_Line_Split_Canonical_Behavior_And_State_Boundaries
       Editor.Executor.Execute_Command
         (S, Editor.Commands.Command_Word_Delete_Next);
       Assert_Buffer_Text (S, "Alpha",
-                          "Phase 402 next at buffer end must no-op");
+                          "next at buffer end must no-op");
       Assert (Message_Text (S) = "Nothing to delete",
-              "Phase 402 next no-op message mismatch");
+              "next no-op message mismatch");
       Assert (Natural (Editor.History.Undo_Stack.Length) = 0,
-              "Phase 402 next no-op must not create undo");
+              "next no-op must not create undo");
       Assert (Editor.Clipboard.Has_Text
               and then To_String (Editor.Clipboard.Get_Text) = "CLIP",
-              "Phase 402 next matrix must not mutate clipboard");
-   end Test_Phase402_Delete_Next_Word_Reliability_Matrix;
+              "next matrix must not mutate clipboard");
+   end Test_Delete_Next_Word_Reliability_Matrix;
 
-   procedure Test_Phase402_Word_Delete_State_Integration_And_Read_Only_Boundaries
+   procedure Test_Word_Delete_State_Integration_And_Read_Only_Boundaries
      (T : in out AUnit.Test_Cases.Test_Case'Class)
    is
       pragma Unreferenced (T);
@@ -7316,8 +7318,8 @@ procedure Test_Phase400_Line_Split_Canonical_Behavior_And_State_Boundaries
       Editor.State.Load_Text (S, "Alpha Beta");
       Editor.State.Set_Dirty (S, False);
       Editor.Clipboard.Set_Text (To_Unbounded_String ("CLIP"));
-      Editor.Executor.Execute_Find_Show (S);
-      Editor.Executor.Execute_Find_Set_Query (S, "Beta");
+      Editor.Executor.Find_Replace_Commands.Execute_Find_Show (S);
+      Editor.Executor.Find_Replace_Commands.Execute_Find_Set_Query (S, "Beta");
       S.Active_Replace_Prompt := True;
       S.Active_Replace_Text := To_Unbounded_String ("REPL");
       Set_Primary_Selection (S, 0, 5);
@@ -7335,67 +7337,67 @@ procedure Test_Phase400_Line_Split_Canonical_Behavior_And_State_Boundaries
       Avail := Editor.Executor.Command_Availability
         (S, Editor.Commands.Command_Word_Delete_Previous);
       Assert (Editor.Commands.Is_Available (Avail),
-              "Phase 402 word delete availability must remain available with buffer and caret");
+              "word delete availability must remain available with buffer and caret");
       Avail := Editor.Executor.Command_Availability
         (S, Editor.Commands.Command_Word_Delete_Next);
       Assert (Editor.Commands.Is_Available (Avail),
-              "Phase 402 next word delete availability must remain available with buffer and caret");
+              "next word delete availability must remain available with buffer and caret");
       Assert (Snap.Length = Text_Buffer.Length (S.Buffer),
-              "Phase 402 render snapshot length must derive from canonical buffer text");
+              "render snapshot length must derive from canonical buffer text");
       Assert (Text_Buffer.UTF8_Text (S.Buffer) = To_String (Before_Text),
-              "Phase 402 render/availability must not mutate buffer text");
+              "render/availability must not mutate buffer text");
       Assert (S.Carets (S.Carets.First_Index).Pos = Before_Caret,
-              "Phase 402 render/availability must not move caret");
+              "render/availability must not move caret");
       Assert (Natural (Editor.History.Undo_Stack.Length) = Before_Undo
               and then Natural (Editor.History.Redo_Stack.Length) = Before_Redo,
-              "Phase 402 render/availability must not mutate undo/redo stacks");
+              "render/availability must not mutate undo/redo stacks");
       Assert (Editor.State.Is_Dirty (S) = Before_Dirty,
-              "Phase 402 render/availability must not mutate dirty state");
+              "render/availability must not mutate dirty state");
       Assert (S.Active_Find_Stale = Before_Stale
               and then To_String (S.Active_Find_Query) = "Beta"
               and then To_String (S.Active_Replace_Text) = "REPL",
-              "Phase 402 render/availability must not mutate Find/Replace state");
+              "render/availability must not mutate Find/Replace state");
       Assert_Navigation_Counts
         (S, Before_Back, Before_Fwd,
-         "Phase 402 render/availability must not mutate navigation history");
+         "render/availability must not mutate navigation history");
 
       Set_Caret (S, 6);
       Editor.Executor.Execute_Command
         (S, Editor.Commands.Command_Word_Delete_Next);
       Assert_Buffer_Text (S, "Alpha ",
-                          "Phase 402 delete-next must remove exact active Find match text");
+                          "delete-next must remove exact active Find match text");
       Assert (S.Active_Find_Stale and then S.Active_Find_Matches.Is_Empty,
-              "Phase 402 text-changing word delete must invalidate Find ranges");
+              "text-changing word delete must invalidate Find ranges");
       Assert (To_String (S.Active_Find_Query) = "Beta"
               and then To_String (S.Active_Replace_Text) = "REPL"
               and then S.Active_Replace_Prompt,
-              "Phase 402 word delete must preserve Find query and Replace text");
+              "word delete must preserve Find query and Replace text");
       Assert (Editor.Clipboard.Has_Text
               and then To_String (Editor.Clipboard.Get_Text) = "CLIP",
-              "Phase 402 word delete must not mutate clipboard");
+              "word delete must not mutate clipboard");
       Assert_Navigation_Counts (S, 0, 0,
-                                "Phase 402 word delete must not record navigation");
+                                "word delete must not record navigation");
 
       Editor.Executor.Execute_Command (S, Editor.Commands.Command_Undo);
       Assert_Buffer_Text (S, "Alpha Beta",
-                          "Phase 402 undo must restore exact pre-delete text");
+                          "undo must restore exact pre-delete text");
       Assert (Natural (Editor.History.Redo_Stack.Length) = 1,
-              "Phase 402 undo after word delete must make redo available");
+              "undo after word delete must make redo available");
       Set_Caret (S, 0);
       Editor.Executor.Execute_Command
         (S, Editor.Commands.Command_Word_Delete_Previous);
       Assert (Message_Text (S) = "Nothing to delete",
-              "Phase 402 no-op after undo must report Nothing to delete");
+              "no-op after undo must report Nothing to delete");
       Assert (Natural (Editor.History.Redo_Stack.Length) = 1,
-              "Phase 402 no-op after undo must preserve redo stack");
+              "no-op after undo must preserve redo stack");
       Set_Caret (S, Cursor_Index (Text_Buffer.Length (S.Buffer)));
       Editor.Executor.Execute_Command
         (S, Editor.Commands.Command_Word_Delete_Previous);
       Assert (Natural (Editor.History.Redo_Stack.Length) = 0,
-              "Phase 402 successful word delete after undo must clear redo stack");
-   end Test_Phase402_Word_Delete_State_Integration_And_Read_Only_Boundaries;
+              "successful word delete after undo must clear redo stack");
+   end Test_Word_Delete_State_Integration_And_Read_Only_Boundaries;
 
-   procedure Test_Phase402_Word_Delete_Current_Line_Coexistence_And_Persistence
+   procedure Test_Word_Delete_Current_Line_Coexistence_And_Persistence
      (T : in out AUnit.Test_Cases.Test_Case'Class)
    is
       pragma Unreferenced (T);
@@ -7411,19 +7413,19 @@ procedure Test_Phase400_Line_Split_Canonical_Behavior_And_State_Boundaries
       Editor.Executor.Execute_Command
         (S, Editor.Commands.Command_Line_Split_At_Caret);
       Assert_Buffer_Text (S, "Alpha" & ASCII.LF & "Beta",
-                          "Phase 402 split precondition must produce canonical line boundary");
+                          "split precondition must produce canonical line boundary");
       Editor.Executor.Execute_Command
         (S, Editor.Commands.Command_Word_Delete_Previous);
       Assert_Buffer_Text (S, "Beta",
-                          "Phase 402 word delete after split must use buffer text, not Line Join");
+                          "word delete after split must use buffer text, not Line Join");
       Assert (Message_Text (S) = "Deleted previous word",
-              "Phase 402 word delete after split message mismatch");
+              "word delete after split message mismatch");
       Editor.Executor.Execute_Command (S, Editor.Commands.Command_Undo);
       Assert_Buffer_Text (S, "Alpha" & ASCII.LF & "Beta",
-                          "Phase 402 undo after mixed split/delete must restore split text");
+                          "undo after mixed split/delete must restore split text");
       Editor.Executor.Execute_Command (S, Editor.Commands.Command_Redo);
       Assert_Buffer_Text (S, "Beta",
-                          "Phase 402 redo after mixed split/delete must restore delete result");
+                          "redo after mixed split/delete must restore delete result");
 
       Editor.State.Load_Text (S, "Alpha" & ASCII.LF & "Beta");
       Set_Caret (S, 5);
@@ -7435,9 +7437,9 @@ procedure Test_Phase400_Line_Split_Canonical_Behavior_And_State_Boundaries
       Editor.Executor.Execute_Command
         (S, Editor.Commands.Command_Word_Delete_Previous);
       Assert (Message_Text (S) = "Deleted previous word",
-              "Phase 402 word delete after join must still be a word-delete command");
+              "word delete after join must still be a word-delete command");
       Assert (Natural (Editor.History.Undo_Stack.Length) = 2,
-              "Phase 402 mixed join/delete sequence must keep one undo entry per mutation");
+              "mixed join/delete sequence must keep one undo entry per mutation");
 
       Snap := Editor.State.Build_Workspace_Snapshot (S);
       Summary := To_Unbounded_String
@@ -7447,93 +7449,93 @@ procedure Test_Phase400_Line_Split_Canonical_Behavior_And_State_Boundaries
          and then Index (Summary, "deleted word") = 0
          and then Index (Summary, "last word") = 0
          and then Index (Summary, "word-boundary") = 0,
-         "Phase 402 workspace persistence must exclude Word Delete transient state");
-   end Test_Phase402_Word_Delete_Current_Line_Coexistence_And_Persistence;
+         "workspace persistence must exclude Word Delete transient state");
+   end Test_Word_Delete_Current_Line_Coexistence_And_Persistence;
 
 
 
-   procedure Test_Phase403_Word_Delete_Boundary_Transform_Workflows
+   procedure Test_Word_Delete_Boundary_Transform_Workflows
      (T : in out AUnit.Test_Cases.Test_Case'Class)
    is
       pragma Unreferenced (T);
    begin
       Assert_Word_Delete_Transform
         (Word_Delete_Test_Previous, "Alpha|", "|", "Alpha",
-         "Phase 403 previous boundary simple word");
+         "previous boundary simple word");
       Assert_Word_Delete_Transform
         (Word_Delete_Test_Previous, "Alpha Beta|", "Alpha |", "Beta",
-         "Phase 403 previous boundary trailing word");
+         "previous boundary trailing word");
       Assert_Word_Delete_Transform
         (Word_Delete_Test_Previous, "Alpha   Beta|", "Alpha   |", "Beta",
-         "Phase 403 previous boundary preserves whitespace before word");
+         "previous boundary preserves whitespace before word");
       Assert_Word_Delete_Transform
         (Word_Delete_Test_Previous, "Alpha   |Beta", "|Beta", "Alpha   ",
-         "Phase 403 previous boundary deletes whitespace plus prior word");
+         "previous boundary deletes whitespace plus prior word");
       Assert_Word_Delete_Transform
         (Word_Delete_Test_Previous, "Alpha_Beta|", "|", "Alpha_Beta",
-         "Phase 403 previous boundary underscore word");
+         "previous boundary underscore word");
       Assert_Word_Delete_Transform
         (Word_Delete_Test_Previous, "Alpha123|", "|", "Alpha123",
-         "Phase 403 previous boundary digit word");
+         "previous boundary digit word");
       Assert_Word_Delete_Transform
         (Word_Delete_Test_Previous, "Alpha.|", "Alpha|", ".",
-         "Phase 403 previous boundary punctuation");
+         "previous boundary punctuation");
       Assert_Word_Delete_Transform
         (Word_Delete_Test_Previous, "Alpha...|", "Alpha|", "...",
-         "Phase 403 previous boundary punctuation run");
+         "previous boundary punctuation run");
       Assert_Word_Delete_Transform
         (Word_Delete_Test_Previous, "Alpha, Beta|", "Alpha, |", "Beta",
-         "Phase 403 previous boundary mixed punctuation and word");
+         "previous boundary mixed punctuation and word");
       Assert_Word_Delete_Transform
         (Word_Delete_Test_Previous, "Al|pha", "|pha", "Al",
-         "Phase 403 previous boundary inside word");
+         "previous boundary inside word");
       Assert_Word_Delete_Transform
         (Word_Delete_Test_Previous, "Alpha  |  Beta", "|  Beta", "Alpha  ",
-         "Phase 403 previous boundary inside whitespace run");
+         "previous boundary inside whitespace run");
       Assert_Word_Delete_Transform
         (Word_Delete_Test_Previous, "Alpha..|..Beta", "Alpha|..Beta", "..",
-         "Phase 403 previous boundary inside punctuation run");
+         "previous boundary inside punctuation run");
 
       Assert_Word_Delete_Transform
         (Word_Delete_Test_Next, "|Alpha", "|", "Alpha",
-         "Phase 403 next boundary simple word");
+         "next boundary simple word");
       Assert_Word_Delete_Transform
         (Word_Delete_Test_Next, "|Alpha Beta", "| Beta", "Alpha",
-         "Phase 403 next boundary leading word");
+         "next boundary leading word");
       Assert_Word_Delete_Transform
         (Word_Delete_Test_Next, "Alpha |  Beta", "Alpha |", "  Beta",
-         "Phase 403 next boundary whitespace plus word");
+         "next boundary whitespace plus word");
       Assert_Word_Delete_Transform
         (Word_Delete_Test_Next, "|Alpha_Beta", "|", "Alpha_Beta",
-         "Phase 403 next boundary underscore word");
+         "next boundary underscore word");
       Assert_Word_Delete_Transform
         (Word_Delete_Test_Next, "|Alpha123", "|", "Alpha123",
-         "Phase 403 next boundary digit word");
+         "next boundary digit word");
       Assert_Word_Delete_Transform
         (Word_Delete_Test_Next, "|...Alpha", "|Alpha", "...",
-         "Phase 403 next boundary punctuation run");
+         "next boundary punctuation run");
       Assert_Word_Delete_Transform
         (Word_Delete_Test_Next, "|, Alpha", "| Alpha", ",",
-         "Phase 403 next boundary punctuation");
+         "next boundary punctuation");
       Assert_Word_Delete_Transform
         (Word_Delete_Test_Next, "Al|pha", "Al|", "pha",
-         "Phase 403 next boundary inside word");
+         "next boundary inside word");
       Assert_Word_Delete_Transform
         (Word_Delete_Test_Next, "Alpha  |  Beta", "Alpha  |", "  Beta",
-         "Phase 403 next boundary inside whitespace run");
+         "next boundary inside whitespace run");
       Assert_Word_Delete_Transform
         (Word_Delete_Test_Next, "Alpha..|..Beta", "Alpha..|Beta", "..",
-         "Phase 403 next boundary inside punctuation run");
+         "next boundary inside punctuation run");
 
       Assert_Word_Delete_No_Op
         (Word_Delete_Test_Previous, "|Alpha",
-         "Phase 403 previous no-op at buffer start");
+         "previous no-op at buffer start");
       Assert_Word_Delete_No_Op
         (Word_Delete_Test_Next, "Alpha|",
-         "Phase 403 next no-op at buffer end");
-   end Test_Phase403_Word_Delete_Boundary_Transform_Workflows;
+         "next no-op at buffer end");
+   end Test_Word_Delete_Boundary_Transform_Workflows;
 
-   procedure Test_Phase403_Word_Delete_Cross_Line_Selection_Find_Clipboard
+   procedure Test_Word_Delete_Cross_Line_Selection_Find_Clipboard
      (T : in out AUnit.Test_Cases.Test_Case'Class)
    is
       pragma Unreferenced (T);
@@ -7546,27 +7548,27 @@ procedure Test_Phase400_Line_Split_Canonical_Behavior_And_State_Boundaries
       Assert_Word_Delete_Transform
         (Word_Delete_Test_Previous, "Alpha" & ASCII.LF & "|Beta", "|Beta",
          "Alpha" & ASCII.LF,
-         "Phase 403 previous crosses one line boundary as whitespace");
+         "previous crosses one line boundary as whitespace");
       Assert_Word_Delete_Transform
         (Word_Delete_Test_Next, "Alpha|" & ASCII.LF & "Beta", "Alpha|",
          String'(1 => ASCII.LF) & "Beta",
-         "Phase 403 next crosses one line boundary as whitespace");
+         "next crosses one line boundary as whitespace");
       Assert_Word_Delete_Transform
         (Word_Delete_Test_Previous, "Alpha" & ASCII.LF & ASCII.LF & "|Beta", "|Beta",
          "Alpha" & ASCII.LF & ASCII.LF,
-         "Phase 403 previous crosses blank line boundary run");
+         "previous crosses blank line boundary run");
       Assert_Word_Delete_Transform
         (Word_Delete_Test_Next, "Alpha|" & ASCII.LF & ASCII.LF & "Beta", "Alpha|",
          String'(1 => ASCII.LF) & ASCII.LF & "Beta",
-         "Phase 403 next crosses blank line boundary run");
+         "next crosses blank line boundary run");
       Assert_Word_Delete_Transform
         (Word_Delete_Test_Previous, "Alpha" & ASCII.LF & "  |Beta", "|Beta",
          "Alpha" & ASCII.LF & "  ",
-         "Phase 403 previous treats indentation as plain whitespace");
+         "previous treats indentation as plain whitespace");
       Assert_Word_Delete_Transform
         (Word_Delete_Test_Next, "Alpha|" & ASCII.LF & "  Beta", "Alpha|",
          String'(1 => ASCII.LF) & "  Beta",
-         "Phase 403 next treats indentation as plain whitespace");
+         "next treats indentation as plain whitespace");
 
       Editor.History.Undo_Stack.Clear;
       Editor.History.Redo_Stack.Clear;
@@ -7574,10 +7576,10 @@ procedure Test_Phase400_Line_Split_Canonical_Behavior_And_State_Boundaries
       Editor.State.Init (S);
       Editor.State.Load_Text (S, "Alpha Beta Gamma");
       Editor.State.Set_Dirty (S, False);
-      Editor.Executor.Execute_Find_Show (S);
-      Editor.Executor.Execute_Find_Set_Query (S, "Beta");
-      Editor.Executor.Execute_Replace_Show (S);
-      Editor.Executor.Execute_Replace_Set_Text (S, "REPL");
+      Editor.Executor.Find_Replace_Commands.Execute_Find_Show (S);
+      Editor.Executor.Find_Replace_Commands.Execute_Find_Set_Query (S, "Beta");
+      Editor.Executor.Find_Replace_Commands.Execute_Replace_Show (S);
+      Editor.Executor.Find_Replace_Commands.Execute_Replace_Set_Text (S, "REPL");
       Set_Primary_Selection (S, 0, 5);
       Before_Back := Editor.Navigation_History.Back_Count (S.Navigation_History);
       Before_Fwd := Editor.Navigation_History.Forward_Count (S.Navigation_History);
@@ -7586,44 +7588,44 @@ procedure Test_Phase400_Line_Split_Canonical_Behavior_And_State_Boundaries
       Editor.Executor.Execute_Command
         (S, Editor.Commands.Command_Word_Delete_Next);
       Assert_Buffer_Text (S, "Alpha  Gamma",
-                          "Phase 403 delete-next removes exact Find match word");
+                          "delete-next removes exact Find match word");
       Assert (S.Active_Find_Stale and then S.Active_Find_Matches.Is_Empty,
-              "Phase 403 text-changing Word Delete must invalidate computed Find ranges");
+              "text-changing Word Delete must invalidate computed Find ranges");
       Assert (To_String (S.Active_Find_Query) = "Beta"
               and then To_String (S.Active_Replace_Text) = "REPL"
               and then S.Active_Replace_Prompt,
-              "Phase 403 Word Delete must preserve Find query and Replace text");
+              "Word Delete must preserve Find query and Replace text");
       Assert (not Editor.Selection.Has_Selection (S),
-              "Phase 403 successful Word Delete must collapse active selection");
+              "successful Word Delete must collapse active selection");
       Assert (Editor.Clipboard.Has_Text
               and then Editor.Clipboard.Get_Text = Before_Clip,
-              "Phase 403 Word Delete must not copy deleted word into Clipboard");
+              "Word Delete must not copy deleted word into Clipboard");
       Assert_Navigation_Counts
         (S, Before_Back, Before_Fwd,
-         "Phase 403 Word Delete must not record navigation history");
+         "Word Delete must not record navigation history");
       Editor.Render_Model.Build_Render_Snapshot (S, R);
       Assert (R.Length = Text_Buffer.Length (S.Buffer),
-              "Phase 403 render snapshot after Word Delete must match canonical buffer length");
+              "render snapshot after Word Delete must match canonical buffer length");
 
       Editor.Executor.Execute_Command (S, Editor.Commands.Command_Undo);
       Assert_Buffer_Text (S, "Alpha Beta Gamma",
-                          "Phase 403 undo restores exact Find workflow text");
+                          "undo restores exact Find workflow text");
       Editor.Render_Model.Build_Render_Snapshot (S, R);
       Assert (R.Length = Text_Buffer.Length (S.Buffer),
-              "Phase 403 render snapshot after undo must match canonical buffer length");
+              "render snapshot after undo must match canonical buffer length");
       Editor.Executor.Execute_Command (S, Editor.Commands.Command_Redo);
       Assert_Buffer_Text (S, "Alpha  Gamma",
-                          "Phase 403 redo restores exact Find workflow text");
+                          "redo restores exact Find workflow text");
 
       Set_Caret (S, 0);
       S.Active_Find_Stale := False;
       Editor.Executor.Execute_Command
         (S, Editor.Commands.Command_Word_Delete_Previous);
       Assert (not S.Active_Find_Stale,
-              "Phase 403 no-op Word Delete must not invalidate Find/Replace state");
-   end Test_Phase403_Word_Delete_Cross_Line_Selection_Find_Clipboard;
+              "no-op Word Delete must not invalidate Find/Replace state");
+   end Test_Word_Delete_Cross_Line_Selection_Find_Clipboard;
 
-   procedure Test_Phase403_Word_Delete_Undo_Redo_Dirty_And_Current_Line_Coexistence
+   procedure Test_Word_Delete_Undo_Redo_Dirty_And_Current_Line_Coexistence
      (T : in out AUnit.Test_Cases.Test_Case'Class)
    is
       pragma Unreferenced (T);
@@ -7638,36 +7640,36 @@ procedure Test_Phase400_Line_Split_Canonical_Behavior_And_State_Boundaries
       Editor.Executor.Execute_Command
         (S, Editor.Commands.Command_Word_Delete_Previous);
       Assert_Buffer_Text (S, "Alpha ",
-                          "Phase 403 dirty matrix delete-previous text");
+                          "dirty matrix delete-previous text");
       Assert (Editor.State.Is_Dirty (S),
-              "Phase 403 text-changing delete-previous must dirty clean buffer");
+              "text-changing delete-previous must dirty clean buffer");
       Assert (Natural (Editor.History.Undo_Stack.Length) = 1,
-              "Phase 403 delete-previous must create one undo entry");
+              "delete-previous must create one undo entry");
       Editor.Executor.Execute_Command (S, Editor.Commands.Command_Undo);
       Assert_Buffer_Text (S, "Alpha Beta",
-                          "Phase 403 undo after delete-previous restores baseline text");
+                          "undo after delete-previous restores baseline text");
       Assert (not Editor.State.Is_Dirty (S),
-              "Phase 403 undo to saved baseline must clear dirty state");
+              "undo to saved baseline must clear dirty state");
       Editor.Executor.Execute_Command (S, Editor.Commands.Command_Redo);
       Assert_Buffer_Text (S, "Alpha ",
-                          "Phase 403 redo after delete-previous restores edited text");
+                          "redo after delete-previous restores edited text");
       Assert (Editor.State.Is_Dirty (S),
-              "Phase 403 redo to edited text must restore dirty state");
+              "redo to edited text must restore dirty state");
 
       Editor.Executor.Execute_Command (S, Editor.Commands.Command_Undo);
       Set_Caret (S, 0);
       Editor.Executor.Execute_Command
         (S, Editor.Commands.Command_Word_Delete_Previous);
       Assert (Natural (Editor.History.Redo_Stack.Length) = 1,
-              "Phase 403 no-op delete-previous after undo preserves redo stack");
+              "no-op delete-previous after undo preserves redo stack");
       Set_Caret (S, Cursor_Index (Text_Buffer.Length (S.Buffer)));
       Editor.Executor.Execute_Command
         (S, Editor.Commands.Command_Word_Delete_Previous);
       Assert (Natural (Editor.History.Redo_Stack.Length) = 0,
-              "Phase 403 successful delete-previous after undo clears redo stack");
+              "successful delete-previous after undo clears redo stack");
       Editor.Executor.Execute_Command (S, Editor.Commands.Command_Redo);
       Assert (Message_Text (S) = "No edits to redo",
-              "Phase 403 redo after successful Word Delete invalidation must be unavailable");
+              "redo after successful Word Delete invalidation must be unavailable");
 
       Editor.History.Undo_Stack.Clear;
       Editor.History.Redo_Stack.Clear;
@@ -7678,10 +7680,10 @@ procedure Test_Phase400_Line_Split_Canonical_Behavior_And_State_Boundaries
       Editor.Executor.Execute_Command
         (S, Editor.Commands.Command_Word_Delete_Previous);
       Assert_Buffer_Text (S, "Beta",
-                          "Phase 403 split then delete-previous must delete by canonical text only");
+                          "split then delete-previous must delete by canonical text only");
       Editor.Executor.Execute_Command (S, Editor.Commands.Command_Undo);
       Assert_Buffer_Text (S, "Alpha" & ASCII.LF & "Beta",
-                          "Phase 403 undo mixed split/delete restores split text");
+                          "undo mixed split/delete restores split text");
 
       Editor.State.Load_Text (S, "Alpha" & ASCII.LF & "Beta");
       Editor.History.Undo_Stack.Clear;
@@ -7693,7 +7695,7 @@ procedure Test_Phase400_Line_Split_Canonical_Behavior_And_State_Boundaries
       Editor.Executor.Execute_Command
         (S, Editor.Commands.Command_Word_Delete_Previous);
       Assert (Natural (Editor.History.Undo_Stack.Length) = 2,
-              "Phase 403 join/delete sequence must keep one undo entry per mutation");
+              "join/delete sequence must keep one undo entry per mutation");
 
       Editor.State.Load_Text (S, "  Alpha" & ASCII.LF & "Beta");
       Editor.History.Undo_Stack.Clear;
@@ -7705,7 +7707,7 @@ procedure Test_Phase400_Line_Split_Canonical_Behavior_And_State_Boundaries
       Editor.Executor.Execute_Command
         (S, Editor.Commands.Command_Word_Delete_Previous);
       Assert (Message_Text (S) = "Deleted previous word",
-              "Phase 403 indent/delete mixed workflow must stay in Word Delete command path");
+              "indent/delete mixed workflow must stay in Word Delete command path");
 
       Editor.State.Load_Text (S, "Alpha");
       Editor.History.Undo_Stack.Clear;
@@ -7717,10 +7719,10 @@ procedure Test_Phase400_Line_Split_Canonical_Behavior_And_State_Boundaries
       Editor.Executor.Execute_Command
         (S, Editor.Commands.Command_Word_Delete_Previous);
       Assert (Message_Text (S) = "Deleted previous word",
-              "Phase 403 comment/delete mixed workflow must stay in Word Delete command path");
-   end Test_Phase403_Word_Delete_Undo_Redo_Dirty_And_Current_Line_Coexistence;
+              "comment/delete mixed workflow must stay in Word Delete command path");
+   end Test_Word_Delete_Undo_Redo_Dirty_And_Current_Line_Coexistence;
 
-   procedure Test_Phase403_Word_Delete_Active_Buffer_Routes_Features_And_Persistence
+   procedure Test_Word_Delete_Active_Buffer_Routes_Features_And_Persistence
      (T : in out AUnit.Test_Cases.Test_Case'Class)
    is
       pragma Unreferenced (T);
@@ -7769,29 +7771,29 @@ procedure Test_Phase400_Line_Split_Canonical_Behavior_And_State_Boundaries
       Editor.Executor.Execute_Command
         (S, Editor.Commands.Command_Word_Delete_Previous);
       Assert_Buffer_Text (S, "Alpha ",
-                          "Phase 403 active-buffer A delete text");
+                          "active-buffer A delete text");
       Editor.Buffers.Sync_Global_Active_From_State (S);
 
       Editor.Buffers.Global_Set_Active_Buffer (B);
       Editor.Buffers.Load_Global_Active_Into_State (S);
       Assert_Buffer_Text (S, "Gamma Delta",
-                          "Phase 403 active-buffer B must be isolated from A delete");
+                          "active-buffer B must be isolated from A delete");
       Editor.Executor.Execute_Command
         (S, Editor.Commands.Command_Word_Delete_Previous);
       Assert_Buffer_Text (S, "Gamma ",
-                          "Phase 403 active-buffer B independent delete text");
+                          "active-buffer B independent delete text");
       Editor.Executor.Execute_Command (S, Editor.Commands.Command_Undo);
       Assert_Buffer_Text (S, "Gamma Delta",
-                          "Phase 403 undo in B affects only B");
+                          "undo in B affects only B");
       Editor.Buffers.Sync_Global_Active_From_State (S);
 
       Editor.Buffers.Global_Set_Active_Buffer (A);
       Editor.Buffers.Load_Global_Active_Into_State (S);
       Assert_Buffer_Text (S, "Alpha ",
-                          "Phase 403 returning to A preserves A delete result");
+                          "returning to A preserves A delete result");
       Editor.Executor.Execute_Command (S, Editor.Commands.Command_Undo);
       Assert_Buffer_Text (S, "Alpha Beta",
-                          "Phase 403 undo in A affects only A");
+                          "undo in A affects only A");
 
       Before_Text := To_Unbounded_String (Text_Buffer.UTF8_Text (S.Buffer));
       Before_Caret := S.Carets (S.Carets.First_Index).Pos;
@@ -7803,24 +7805,24 @@ procedure Test_Phase400_Line_Split_Canonical_Behavior_And_State_Boundaries
       Avail := Editor.Executor.Command_Availability
         (S, Editor.Commands.Command_Word_Delete_Previous);
       Assert (Editor.Commands.Is_Available (Avail),
-              "Phase 403 availability check must expose Word Delete with active buffer/caret");
+              "availability check must expose Word Delete with active buffer/caret");
       declare
          Candidates : Editor.Commands.Command_Descriptor_Vectors.Vector;
       begin
          Editor.Command_Palette.Reset;
          Editor.Command_Palette.Filtered_Commands (Candidates);
          Assert (Candidates.Length > 0,
-                 "Phase 403 Command Palette projection must return candidates");
+                 "Command Palette projection must return candidates");
       end;
       Assert (Text_Buffer.UTF8_Text (S.Buffer) = To_String (Before_Text)
               and then S.Carets (S.Carets.First_Index).Pos = Before_Caret
               and then Natural (Editor.History.Undo_Stack.Length) = Before_Undo
               and then Natural (Editor.History.Redo_Stack.Length) = Before_Redo
               and then Editor.State.Is_Dirty (S) = Before_Dirty,
-              "Phase 403 availability/palette projection must be side-effect-free");
+              "availability/palette projection must be side-effect-free");
       Assert_Navigation_Counts
         (S, Before_Back, Before_Fwd,
-         "Phase 403 availability/palette must not mutate navigation history");
+         "availability/palette must not mutate navigation history");
 
       Editor.Keybindings.Bind (Chord, Editor.Commands.Command_Word_Delete_Next);
       Set_Caret (S, 0);
@@ -7831,9 +7833,9 @@ procedure Test_Phase400_Line_Split_Canonical_Behavior_And_State_Boundaries
            Editor.Input_Bridge.Get_State_For_Test;
       begin
          Assert_Buffer_Text (After, " Beta",
-                             "Phase 403 Input_Bridge keybinding must route delete-next through Executor");
+                             "Input_Bridge keybinding must route delete-next through Executor");
          Assert (Message_Text (After) = "Deleted next word",
-                 "Phase 403 routed delete-next message mismatch");
+                 "routed delete-next message mismatch");
       end;
       Editor.Keybindings.Reset_To_Defaults;
 
@@ -7847,11 +7849,11 @@ procedure Test_Phase400_Line_Split_Canonical_Behavior_And_State_Boundaries
          and then Index (Summary, "last deleted") = 0
          and then Index (Summary, "word-boundary") = 0
          and then Index (Summary, "semantic word") = 0,
-         "Phase 403 workspace persistence must exclude Word Delete transient state and policy");
-   end Test_Phase403_Word_Delete_Active_Buffer_Routes_Features_And_Persistence;
+         "workspace persistence must exclude Word Delete transient state and policy");
+   end Test_Word_Delete_Active_Buffer_Routes_Features_And_Persistence;
 
 
-   procedure Test_Phase404_Word_Delete_Canonical_Surface_Cleanup
+   procedure Test_Word_Delete_Canonical_Surface_Cleanup
      (T : in out AUnit.Test_Cases.Test_Case'Class)
    is
       pragma Unreferenced (T);
@@ -7862,7 +7864,7 @@ procedure Test_Phase400_Line_Split_Canonical_Behavior_And_State_Boundaries
       Palette_Prev   : Natural := 0;
       Palette_Next   : Natural := 0;
       Candidates     : Editor.Commands.Command_Descriptor_Vectors.Vector;
-      Path           : constant String := "/tmp/editor-phase404-canonical-word-delete-keybindings";
+      Path           : constant String := "/tmp/editor-canonical-word-delete-keybindings";
       File           : Ada.Text_IO.File_Type;
       Config         : Editor.Keybinding_Config.Keybinding_Config_Model;
       Status         : Editor.Keybinding_Config.Keybinding_Config_Status;
@@ -7872,12 +7874,12 @@ procedure Test_Phase400_Line_Split_Canonical_Behavior_And_State_Boundaries
         ("edit.word.delete-previous", Found);
       Assert
         (Found and then Id = Editor.Commands.Command_Word_Delete_Previous,
-         "Phase 404 previous Word Delete command must resolve through canonical stable name");
+         "previous Word Delete command must resolve through canonical stable name");
       Id := Editor.Commands.Command_Id_From_Stable_Name
         ("edit.word.delete-next", Found);
       Assert
         (Found and then Id = Editor.Commands.Command_Word_Delete_Next,
-         "Phase 404 next Word Delete command must resolve through canonical stable name");
+         "next Word Delete command must resolve through canonical stable name");
 
       for I in 1 .. Editor.Commands.Command_Count loop
          declare
@@ -7887,21 +7889,21 @@ procedure Test_Phase400_Line_Split_Canonical_Behavior_And_State_Boundaries
             if C = Editor.Commands.Command_Word_Delete_Previous then
                Previous_Count := Previous_Count + 1;
                Assert (Name = "edit.word.delete-previous",
-                       "Phase 404 previous Word Delete registry stable name mismatch");
+                       "previous Word Delete registry stable name mismatch");
             elsif C = Editor.Commands.Command_Word_Delete_Next then
                Next_Count := Next_Count + 1;
                Assert (Name = "edit.word.delete-next",
-                       "Phase 404 next Word Delete registry stable name mismatch");
+                       "next Word Delete registry stable name mismatch");
             else
                Assert
                  (Name /= "edit.word.delete-previous"
                   and then Name /= "edit.word.delete-next",
-                  "Phase 404 registry must not expose duplicate Word Delete command names");
+                  "registry must not expose duplicate Word Delete command names");
             end if;
          end;
       end loop;
       Assert (Previous_Count = 1 and then Next_Count = 1,
-              "Phase 404 registry must contain exactly the canonical Word Delete descriptor pair");
+              "registry must contain exactly the canonical Word Delete descriptor pair");
 
       Editor.Command_Palette.Reset;
       Editor.Command_Palette.Filtered_Commands (Candidates);
@@ -7909,15 +7911,15 @@ procedure Test_Phase400_Line_Split_Canonical_Behavior_And_State_Boundaries
          if C.Id = Editor.Commands.Command_Word_Delete_Previous then
             Palette_Prev := Palette_Prev + 1;
             Assert (To_String (C.Name) = "Delete Previous Word",
-                    "Phase 404 palette previous Word Delete label mismatch");
+                    "palette previous Word Delete label mismatch");
          elsif C.Id = Editor.Commands.Command_Word_Delete_Next then
             Palette_Next := Palette_Next + 1;
             Assert (To_String (C.Name) = "Delete Next Word",
-                    "Phase 404 palette next Word Delete label mismatch");
+                    "palette next Word Delete label mismatch");
          end if;
       end loop;
       Assert (Palette_Prev = 1 and then Palette_Next = 1,
-              "Phase 404 Command Palette must expose exactly the canonical Word Delete pair");
+              "Command Palette must expose exactly the canonical Word Delete pair");
 
       Editor.Keybindings.Reset_To_Defaults;
       Editor.Keybinding_Config.Build_From_Runtime (Config);
@@ -7929,10 +7931,10 @@ procedure Test_Phase400_Line_Split_Canonical_Behavior_And_State_Boundaries
          begin
             if Command = Editor.Commands.Command_Word_Delete_Previous then
                Assert (Name = "edit.word.delete-previous",
-                       "Phase 404 default previous Word Delete keybinding must target canonical name");
+                       "default previous Word Delete keybinding must target canonical name");
             elsif Command = Editor.Commands.Command_Word_Delete_Next then
                Assert (Name = "edit.word.delete-next",
-                       "Phase 404 default next Word Delete keybinding must target canonical name");
+                       "default next Word Delete keybinding must target canonical name");
             end if;
          end;
       end loop;
@@ -7946,17 +7948,17 @@ procedure Test_Phase400_Line_Split_Canonical_Behavior_And_State_Boundaries
 
       Editor.Keybinding_Config.Load_From_File (Path, Config, Status);
       Assert (Status = Editor.Keybinding_Config.Keybinding_Config_Ok,
-              "Phase 404 canonical Word Delete keybinding names must load cleanly");
+              "canonical Word Delete keybinding names must load cleanly");
       Chord := Editor.Keybinding_Config.Chord_For
         (Config, Editor.Commands.Command_Word_Delete_Previous, Found);
       Assert
         (Found and then Editor.Keybindings.Format_Chord (Chord) = "Ctrl+Alt+Backspace",
-         "Phase 404 canonical previous Word Delete keybinding must remain loadable");
+         "canonical previous Word Delete keybinding must remain loadable");
       Chord := Editor.Keybinding_Config.Chord_For
         (Config, Editor.Commands.Command_Word_Delete_Next, Found);
       Assert
         (Found and then Editor.Keybindings.Format_Chord (Chord) = "Ctrl+Alt+Delete",
-         "Phase 404 canonical next Word Delete keybinding must remain loadable");
+         "canonical next Word Delete keybinding must remain loadable");
 
       Ada.Directories.Delete_File (Path);
       Editor.Keybindings.Reset_To_Defaults;
@@ -7970,10 +7972,10 @@ procedure Test_Phase400_Line_Split_Canonical_Behavior_And_State_Boundaries
          end if;
          Editor.Keybindings.Reset_To_Defaults;
          raise;
-   end Test_Phase404_Word_Delete_Canonical_Surface_Cleanup;
+   end Test_Word_Delete_Canonical_Surface_Cleanup;
 
 
-   procedure Test_Phase404_Word_Delete_Canonical_Routes_And_State_Boundaries
+   procedure Test_Word_Delete_Canonical_Routes_And_State_Boundaries
      (T : in out AUnit.Test_Cases.Test_Case'Class)
    is
       pragma Unreferenced (T);
@@ -8004,29 +8006,29 @@ procedure Test_Phase400_Line_Split_Canonical_Behavior_And_State_Boundaries
       Editor.Executor.Execute_Command
         (S, Editor.Commands.Command_Word_Delete_Previous);
       Assert_Buffer_Text (S, "Alpha ",
-                          "Phase 404 canonical previous Word Delete id must use the only previous-word delete implementation path");
+                          "canonical previous Word Delete id must use the only previous-word delete implementation path");
       Assert (Message_Text (S) = "Deleted previous word",
-              "Phase 404 canonical previous Word Delete id must emit canonical Word Delete message");
+              "canonical previous Word Delete id must emit canonical Word Delete message");
       Assert (Natural (Editor.History.Undo_Stack.Length) = 1
               and then Natural (Editor.History.Redo_Stack.Length) = 0,
-              "Phase 404 canonical previous Word Delete id must use canonical undo capture");
+              "canonical previous Word Delete id must use canonical undo capture");
       Assert (Editor.State.Is_Dirty (S),
-              "Phase 404 canonical previous Word Delete id must use canonical dirty policy");
+              "canonical previous Word Delete id must use canonical dirty policy");
       Assert (Editor.Clipboard.Get_Text = Before_Clip,
-              "Phase 404 Word Delete must not mutate Clipboard text");
+              "Word Delete must not mutate Clipboard text");
       Assert_Navigation_Counts
         (S, Before_Back, Before_Fwd,
-         "Phase 404 Word Delete must not record Navigation History");
+         "Word Delete must not record Navigation History");
       Editor.Render_Model.Build_Render_Snapshot (S, Snap);
       Assert (Snap.Length = Text_Buffer.Length (S.Buffer),
-              "Phase 404 render snapshot must derive from canonical post-delete buffer text");
+              "render snapshot must derive from canonical post-delete buffer text");
 
       Editor.Executor.Execute_Command (S, Editor.Commands.Command_Undo);
       Assert_Buffer_Text (S, "Alpha Beta",
-                          "Phase 404 undo for canonical Word Delete must restore captured Before_Text");
+                          "undo for canonical Word Delete must restore captured Before_Text");
       Editor.Executor.Execute_Command (S, Editor.Commands.Command_Redo);
       Assert_Buffer_Text (S, "Alpha ",
-                          "Phase 404 redo for canonical Word Delete must restore captured After_Text without re-running word logic");
+                          "redo for canonical Word Delete must restore captured After_Text without re-running word logic");
 
       Editor.History.Undo_Stack.Clear;
       Editor.History.Redo_Stack.Clear;
@@ -8036,14 +8038,14 @@ procedure Test_Phase400_Line_Split_Canonical_Behavior_And_State_Boundaries
       Editor.Executor.Execute_Command
         (S, Editor.Commands.Command_Word_Delete_Next);
       Assert_Buffer_Text (S, " Beta",
-                          "Phase 404 canonical next Word Delete id must use the only next-word delete implementation path");
+                          "canonical next Word Delete id must use the only next-word delete implementation path");
       Assert (Message_Text (S) = "Deleted next word",
-              "Phase 404 canonical next Word Delete id must emit canonical Word Delete message");
+              "canonical next Word Delete id must emit canonical Word Delete message");
       Assert (Natural (Editor.History.Undo_Stack.Length) = 1
               and then Natural (Editor.History.Redo_Stack.Length) = 0,
-              "Phase 404 canonical next Word Delete id must use canonical undo capture");
+              "canonical next Word Delete id must use canonical undo capture");
       Assert (Editor.Clipboard.Get_Text = Before_Clip,
-              "Phase 404 canonical next Word Delete id must not mutate Clipboard text");
+              "canonical next Word Delete id must not mutate Clipboard text");
 
       Editor.History.Undo_Stack.Clear;
       Editor.History.Redo_Stack.Clear;
@@ -8058,19 +8060,19 @@ procedure Test_Phase400_Line_Split_Canonical_Behavior_And_State_Boundaries
       Assert
         (Editor.Keybindings.Status (Editor.Keybindings.Validate) =
          Editor.Keybindings.Valid_Keybindings,
-         "Phase 404 canonical Word Delete id must remain a valid keybinding target");
+         "canonical Word Delete id must remain a valid keybinding target");
       Assert
         (Editor.Keybindings.Resolve (Chord, Resolved_Id) = Editor.Keybindings.Bound_Command
          and then Resolved_Id = Editor.Commands.Command_Word_Delete_Previous,
-         "Phase 404 runtime keybinding resolution must expose only canonical Word Delete ids");
+         "runtime keybinding resolution must expose only canonical Word Delete ids");
       Editor.Input_Bridge.Set_State_For_Test (S);
       Editor.Input_Bridge.Handle_Key_Chord (Chord);
       After := Editor.Input_Bridge.Get_State_For_Test;
       Assert_Buffer_Text
         (After, " ",
-         "Phase 404 Input_Bridge must dispatch canonical Word Delete keybindings through Executor");
+         "Input_Bridge must dispatch canonical Word Delete keybindings through Executor");
       Assert (Message_Text (After) = "Deleted previous word",
-              "Phase 404 canonical keybinding must emit one Word Delete message");
+              "canonical keybinding must emit one Word Delete message");
       Editor.Keybindings.Reset_To_Defaults;
 
       Workspace := Editor.State.Build_Workspace_Snapshot (After);
@@ -8083,15 +8085,15 @@ procedure Test_Phase400_Line_Split_Canonical_Behavior_And_State_Boundaries
          and then Index (Summary, "word-boundary") = 0
          and then Index (Summary, "semantic word") = 0
          and then Index (Summary, "kill-ring") = 0,
-         "Phase 404 workspace persistence must exclude canonical and removed Word Delete state");
+         "workspace persistence must exclude canonical and removed Word Delete state");
    exception
       when others =>
          Editor.Keybindings.Reset_To_Defaults;
          raise;
-   end Test_Phase404_Word_Delete_Canonical_Routes_And_State_Boundaries;
+   end Test_Word_Delete_Canonical_Routes_And_State_Boundaries;
 
 
-   procedure Test_Phase404_Word_Delete_Behavior_Preservation_Smoke
+   procedure Test_Word_Delete_Behavior_Preservation_Smoke
      (T : in out AUnit.Test_Cases.Test_Case'Class)
    is
       pragma Unreferenced (T);
@@ -8104,30 +8106,30 @@ procedure Test_Phase400_Line_Split_Canonical_Behavior_And_State_Boundaries
    begin
       Assert_Word_Delete_Transform
         (Word_Delete_Test_Previous, "Alpha   |Beta", "|Beta", "Alpha   ",
-         "Phase 404 preservation previous whitespace plus prior word");
+         "preservation previous whitespace plus prior word");
       Assert_Word_Delete_Transform
         (Word_Delete_Test_Previous, "Alpha...|", "Alpha|", "...",
-         "Phase 404 preservation previous punctuation run");
+         "preservation previous punctuation run");
       Assert_Word_Delete_Transform
         (Word_Delete_Test_Next, "Alpha |  Beta", "Alpha |", "  Beta",
-         "Phase 404 preservation next whitespace plus following word");
+         "preservation next whitespace plus following word");
       Assert_Word_Delete_Transform
         (Word_Delete_Test_Next, "|Alpha_Beta123", "|", "Alpha_Beta123",
-         "Phase 404 preservation next underscore and digit word");
+         "preservation next underscore and digit word");
       Assert_Word_Delete_Transform
         (Word_Delete_Test_Previous, "Alpha" & ASCII.LF & "  |Beta", "|Beta",
          "Alpha" & ASCII.LF & "  ",
-         "Phase 404 preservation previous cross-line whitespace policy");
+         "preservation previous cross-line whitespace policy");
       Assert_Word_Delete_Transform
         (Word_Delete_Test_Next, "Alpha|" & ASCII.LF & "  Beta", "Alpha|",
          ASCII.LF & "  Beta",
-         "Phase 404 preservation next cross-line whitespace policy");
+         "preservation next cross-line whitespace policy");
       Assert_Word_Delete_No_Op
         (Word_Delete_Test_Previous, "|Alpha",
-         "Phase 404 preservation previous start no-op");
+         "preservation previous start no-op");
       Assert_Word_Delete_No_Op
         (Word_Delete_Test_Next, "Alpha|",
-         "Phase 404 preservation next end no-op");
+         "preservation next end no-op");
 
       Editor.History.Undo_Stack.Clear;
       Editor.History.Redo_Stack.Clear;
@@ -8138,33 +8140,33 @@ procedure Test_Phase400_Line_Split_Canonical_Behavior_And_State_Boundaries
       Before_Clip := Editor.Clipboard.Get_Text;
       Before_Back := Editor.Navigation_History.Back_Count (S.Navigation_History);
       Before_Fwd := Editor.Navigation_History.Forward_Count (S.Navigation_History);
-      Editor.Executor.Execute_Find_Show (S);
-      Editor.Executor.Execute_Find_Set_Query (S, "Beta");
+      Editor.Executor.Find_Replace_Commands.Execute_Find_Show (S);
+      Editor.Executor.Find_Replace_Commands.Execute_Find_Set_Query (S, "Beta");
 
       Avail := Editor.Executor.Command_Availability
         (S, Editor.Commands.Command_Word_Delete_Next);
       Assert (Editor.Commands.Is_Available (Avail),
-              "Phase 404 canonical next Word Delete availability must remain available");
+              "canonical next Word Delete availability must remain available");
       Editor.Render_Model.Build_Render_Snapshot (S, Snap);
       Assert (Snap.Length = Text_Buffer.Length (S.Buffer),
-              "Phase 404 pre-delete render snapshot must be side-effect-free");
+              "pre-delete render snapshot must be side-effect-free");
 
       Editor.Executor.Execute_Command (S, Editor.Commands.Command_Word_Delete_Next);
       Assert_Buffer_Text (S, "Alpha  Gamma",
-                          "Phase 404 canonical delete-next smoke text mismatch");
+                          "canonical delete-next smoke text mismatch");
       Assert (not Editor.Selection.Has_Selection (S),
-              "Phase 404 successful Word Delete must collapse stale active selection");
+              "successful Word Delete must collapse stale active selection");
       Assert (S.Active_Find_Stale and then S.Active_Find_Matches.Is_Empty,
-              "Phase 404 text-changing Word Delete must use canonical Find invalidation");
+              "text-changing Word Delete must use canonical Find invalidation");
       Assert (Editor.Clipboard.Get_Text = Before_Clip,
-              "Phase 404 canonical Word Delete must preserve Clipboard text");
+              "canonical Word Delete must preserve Clipboard text");
       Assert_Navigation_Counts
         (S, Before_Back, Before_Fwd,
-         "Phase 404 canonical Word Delete must preserve Navigation History stacks");
+         "canonical Word Delete must preserve Navigation History stacks");
       Editor.Render_Model.Build_Render_Snapshot (S, Snap);
       Assert (Snap.Length = Text_Buffer.Length (S.Buffer),
-              "Phase 404 post-delete render snapshot must come from canonical buffer text");
-   end Test_Phase404_Word_Delete_Behavior_Preservation_Smoke;
+              "post-delete render snapshot must come from canonical buffer text");
+   end Test_Word_Delete_Behavior_Preservation_Smoke;
 
 
    type Character_Delete_Test_Direction is
@@ -8272,7 +8274,7 @@ procedure Test_Phase400_Line_Split_Canonical_Behavior_And_State_Boundaries
               Why & ": no-op character delete must not mutate clipboard");
    end Assert_Character_Delete_No_Op;
 
-   procedure Test_Phase405_Character_Delete_Command_Descriptors_And_Routes
+   procedure Test_Character_Delete_Command_Descriptors_And_Routes
      (T : in out AUnit.Test_Cases.Test_Case'Class)
    is
       pragma Unreferenced (T);
@@ -8283,35 +8285,35 @@ procedure Test_Phase400_Line_Split_Canonical_Behavior_And_State_Boundaries
         (Editor.Commands.Stable_Command_Name
            (Editor.Commands.Command_Char_Delete_Previous) =
          "edit.char.delete-previous",
-         "Phase 405 previous-character delete stable name mismatch");
+         "previous-character delete stable name mismatch");
       Assert
         (Editor.Commands.Stable_Command_Name
            (Editor.Commands.Command_Char_Delete_Next) =
          "edit.char.delete-next",
-         "Phase 405 next-character delete stable name mismatch");
+         "next-character delete stable name mismatch");
       Assert
         (Editor.Commands.Descriptor
            (Editor.Commands.Command_Char_Delete_Previous).Category =
          Editor.Commands.Edit_Category,
-         "Phase 405 previous-character delete must be an Edit command");
+         "previous-character delete must be an Edit command");
       Assert
         (Editor.Commands.Visible_In_Command_Palette
            (Editor.Commands.Command_Char_Delete_Next),
-         "Phase 405 next-character delete must be palette visible");
+         "next-character delete must be palette visible");
       Assert
         (Editor.Commands.Is_Bindable_Command (Editor.Commands.Command_Char_Delete_Previous)
          and then Editor.Commands.Is_Bindable_Command (Editor.Commands.Command_Char_Delete_Next),
-         "Phase 405 Character Delete commands must be bindable");
+         "Character Delete commands must be bindable");
       Assert
         (Editor.Commands.Command_Id_From_Stable_Name
            ("edit.char.delete-previous", Found) =
          Editor.Commands.Command_Char_Delete_Previous and then Found,
-         "Phase 405 previous-character stable name must resolve");
+         "previous-character stable name must resolve");
       Assert
         (Editor.Commands.Command_Id_From_Stable_Name
            ("edit.char.delete-next", Found) =
          Editor.Commands.Command_Char_Delete_Next and then Found,
-         "Phase 405 next-character stable name must resolve");
+         "next-character stable name must resolve");
 
       Editor.History.Undo_Stack.Clear;
       Editor.History.Redo_Stack.Clear;
@@ -8319,12 +8321,12 @@ procedure Test_Phase400_Line_Split_Canonical_Behavior_And_State_Boundaries
       Editor.State.Load_Text (S, "AB");
       Set_Caret (S, 1);
       Editor.Executor.Execute_Command (S, Editor.Commands.Command_Char_Delete_Next);
-      Assert_Buffer_Text (S, "A", "Phase 405 next-character command must route through Executor");
+      Assert_Buffer_Text (S, "A", "next-character command must route through Executor");
       Assert (Message_Text (S) = "Deleted next character",
-              "Phase 405 next-character routed message mismatch");
-   end Test_Phase405_Character_Delete_Command_Descriptors_And_Routes;
+              "next-character routed message mismatch");
+   end Test_Character_Delete_Command_Descriptors_And_Routes;
 
-   procedure Test_Phase405_Delete_Previous_Character_Boundaries_Selection_And_Undo
+   procedure Test_Delete_Previous_Character_Boundaries_Selection_And_Undo
      (T : in out AUnit.Test_Cases.Test_Case'Class)
    is
       pragma Unreferenced (T);
@@ -8332,22 +8334,22 @@ procedure Test_Phase400_Line_Split_Canonical_Behavior_And_State_Boundaries
    begin
       Assert_Character_Delete_Transform
         (Character_Delete_Test_Previous, "Alpha|", "Alph|",
-         "Phase 405 delete previous at line end");
+         "delete previous at line end");
       Assert_Character_Delete_Transform
         (Character_Delete_Test_Previous, "A|lpha", "|lpha",
-         "Phase 405 delete previous in middle of line");
+         "delete previous in middle of line");
       Assert_Character_Delete_Transform
         (Character_Delete_Test_Previous, "Alpha | Beta", "Alpha| Beta",
-         "Phase 405 delete previous whitespace");
+         "delete previous whitespace");
       Assert_Character_Delete_Transform
         (Character_Delete_Test_Previous, "Alpha.|", "Alpha|",
-         "Phase 405 delete previous punctuation");
+         "delete previous punctuation");
       Assert_Character_Delete_Transform
         (Character_Delete_Test_Previous, "Alpha" & ASCII.LF & "|Beta", "Alpha|Beta",
-         "Phase 405 delete previous line boundary");
+         "delete previous line boundary");
       Assert_Character_Delete_No_Op
         (Character_Delete_Test_Previous, "|Alpha",
-         "Phase 405 delete previous at buffer start no-op");
+         "delete previous at buffer start no-op");
 
       Editor.History.Undo_Stack.Clear;
       Editor.History.Redo_Stack.Clear;
@@ -8356,14 +8358,14 @@ procedure Test_Phase400_Line_Split_Canonical_Behavior_And_State_Boundaries
       Editor.State.Load_Text (S, "ABCD");
       Set_Primary_Selection (S, 0, 4);
       Editor.Executor.Execute_Command (S, Editor.Commands.Command_Char_Delete_Previous);
-      Assert_Buffer_Text (S, "ABC", "Phase 405 character delete must operate at caret only");
+      Assert_Buffer_Text (S, "ABC", "character delete must operate at caret only");
       Assert (not Editor.Selection.Has_Selection (S),
-              "Phase 405 successful character delete must collapse selection");
+              "successful character delete must collapse selection");
       Assert (Editor.Clipboard.Get_Text = To_Unbounded_String ("CLIP"),
-              "Phase 405 character delete must not consume/copy selection");
-   end Test_Phase405_Delete_Previous_Character_Boundaries_Selection_And_Undo;
+              "character delete must not consume/copy selection");
+   end Test_Delete_Previous_Character_Boundaries_Selection_And_Undo;
 
-   procedure Test_Phase405_Delete_Next_Character_Boundaries_No_Ops_And_State
+   procedure Test_Delete_Next_Character_Boundaries_No_Ops_And_State
      (T : in out AUnit.Test_Cases.Test_Case'Class)
    is
       pragma Unreferenced (T);
@@ -8373,22 +8375,22 @@ procedure Test_Phase400_Line_Split_Canonical_Behavior_And_State_Boundaries
    begin
       Assert_Character_Delete_Transform
         (Character_Delete_Test_Next, "|Alpha", "|lpha",
-         "Phase 405 delete next at line start");
+         "delete next at line start");
       Assert_Character_Delete_Transform
         (Character_Delete_Test_Next, "Al|pha", "Al|ha",
-         "Phase 405 delete next in middle of line");
+         "delete next in middle of line");
       Assert_Character_Delete_Transform
         (Character_Delete_Test_Next, "Alpha | Beta", "Alpha |Beta",
-         "Phase 405 delete next whitespace");
+         "delete next whitespace");
       Assert_Character_Delete_Transform
         (Character_Delete_Test_Next, "|.Alpha", "|Alpha",
-         "Phase 405 delete next punctuation");
+         "delete next punctuation");
       Assert_Character_Delete_Transform
         (Character_Delete_Test_Next, "Alpha|" & ASCII.LF & "Beta", "Alpha|Beta",
-         "Phase 405 delete next line boundary");
+         "delete next line boundary");
       Assert_Character_Delete_No_Op
         (Character_Delete_Test_Next, "Alpha|",
-         "Phase 405 delete next at buffer end no-op");
+         "delete next at buffer end no-op");
 
       Editor.History.Undo_Stack.Clear;
       Editor.History.Redo_Stack.Clear;
@@ -8419,14 +8421,14 @@ procedure Test_Phase400_Line_Split_Canonical_Behavior_And_State_Boundaries
       Before_Back := Editor.Navigation_History.Back_Count (S.Navigation_History);
       Before_Fwd := Editor.Navigation_History.Forward_Count (S.Navigation_History);
       Editor.Executor.Execute_Command (S, Editor.Commands.Command_Char_Delete_Next);
-      Assert_Buffer_Text (S, "ACD", "Phase 405 character delete after navigation must edit active text");
+      Assert_Buffer_Text (S, "ACD", "character delete after navigation must edit active text");
       Assert_Navigation_Counts
         (S, Before_Back, Before_Fwd,
-         "Phase 405 character delete must preserve Navigation History stacks");
-   end Test_Phase405_Delete_Next_Character_Boundaries_No_Ops_And_State;
+         "character delete must preserve Navigation History stacks");
+   end Test_Delete_Next_Character_Boundaries_No_Ops_And_State;
 
 
-   procedure Test_Phase405_Character_Delete_Completeness_Routes_State_And_Persistence
+   procedure Test_Character_Delete_Completeness_Routes_State_And_Persistence
      (T : in out AUnit.Test_Cases.Test_Case'Class)
    is
       pragma Unreferenced (T);
@@ -8461,11 +8463,11 @@ procedure Test_Phase400_Line_Split_Canonical_Behavior_And_State_Boundaries
         (No_Buffer, Editor.Commands.Command_Char_Delete_Previous);
       Assert (not Editor.Commands.Is_Available (Avail)
               and then Editor.Commands.Unavailable_Reason (Avail) = "No active buffer.",
-              "Phase 405 previous-character no-active-buffer availability must be deterministic");
+              "previous-character no-active-buffer availability must be deterministic");
       Editor.Executor.Execute_Command
         (No_Buffer, Editor.Commands.Command_Char_Delete_Previous);
       Assert (Message_Text (No_Buffer) = "No active buffer.",
-              "Phase 405 previous-character no-active-buffer execution message mismatch");
+              "previous-character no-active-buffer execution message mismatch");
 
       Editor.State.Init (S);
       Editor.State.Load_Text (S, "AB");
@@ -8474,12 +8476,12 @@ procedure Test_Phase400_Line_Split_Canonical_Behavior_And_State_Boundaries
         (S, Editor.Commands.Command_Char_Delete_Next);
       Assert (not Editor.Commands.Is_Available (Avail)
               and then Editor.Commands.Unavailable_Reason (Avail) = "No caret location",
-              "Phase 405 next-character no-caret availability must be deterministic");
+              "next-character no-caret availability must be deterministic");
       Editor.Executor.Execute_Command (S, Editor.Commands.Command_Char_Delete_Next);
       Assert (Message_Text (S) = "No caret location",
-              "Phase 405 next-character no-caret execution message mismatch");
+              "next-character no-caret execution message mismatch");
       Assert_Buffer_Text (S, "AB",
-                          "Phase 405 no-caret character delete must not mutate text");
+                          "no-caret character delete must not mutate text");
 
       Editor.State.Load_Text (S, "ABCD");
       Set_Caret (S, 2);
@@ -8492,14 +8494,14 @@ procedure Test_Phase400_Line_Split_Canonical_Behavior_And_State_Boundaries
       Avail := Editor.Executor.Command_Availability
         (S, Editor.Commands.Command_Char_Delete_Previous);
       Assert (Editor.Commands.Is_Available (Avail),
-              "Phase 405 character delete must be available for active buffer and caret");
+              "character delete must be available for active buffer and caret");
       Assert (To_Unbounded_String (Text_Buffer.UTF8_Text (S.Buffer)) = Before_Text
               and then S.Carets (S.Carets.First_Index).Pos = Before_Caret
               and then Editor.State.Is_Dirty (S) = Before_Dirty
               and then Natural (Editor.History.Undo_Stack.Length) = Before_Undo
               and then Natural (Editor.History.Redo_Stack.Length) = Before_Redo
               and then Editor.Clipboard.Get_Text = Before_Clip,
-              "Phase 405 character delete availability must be side-effect-free");
+              "character delete availability must be side-effect-free");
 
       Editor.Keybindings.Bind (Chord, Editor.Commands.Command_Char_Delete_Previous);
       Editor.Input_Bridge.Set_State_For_Test (S);
@@ -8507,17 +8509,17 @@ procedure Test_Phase400_Line_Split_Canonical_Behavior_And_State_Boundaries
       After := Editor.Input_Bridge.Get_State_For_Test;
       Assert_Buffer_Text
         (After, "ACD",
-         "Phase 405 Input_Bridge must dispatch previous-character delete through Executor");
+         "Input_Bridge must dispatch previous-character delete through Executor");
       Assert (Message_Text (After) = "Deleted previous character",
-              "Phase 405 Input_Bridge previous-character route message mismatch");
+              "Input_Bridge previous-character route message mismatch");
       Assert (Natural (Editor.History.Undo_Stack.Length) = Before_Undo + 1,
-              "Phase 405 Input_Bridge previous-character route must create one undo entry");
+              "Input_Bridge previous-character route must create one undo entry");
       Assert (Editor.Clipboard.Get_Text = Before_Clip,
-              "Phase 405 routed character delete must not mutate Clipboard");
+              "routed character delete must not mutate Clipboard");
 
       Editor.Render_Model.Build_Render_Snapshot (After, Snap);
       Assert (Snap.Length = Text_Buffer.Length (After.Buffer),
-              "Phase 405 render snapshot must derive from post-character-delete buffer text");
+              "render snapshot must derive from post-character-delete buffer text");
 
       Workspace := Editor.State.Build_Workspace_Snapshot (After);
       Summary := To_Unbounded_String
@@ -8529,17 +8531,17 @@ procedure Test_Phase400_Line_Split_Canonical_Behavior_And_State_Boundaries
          and then Index (Summary, "char-delete") = 0
          and then Index (Summary, "character-boundary") = 0
          and then Index (Summary, "kill-ring") = 0,
-         "Phase 405 workspace persistence must exclude Character Delete transient state");
+         "workspace persistence must exclude Character Delete transient state");
 
       Editor.Keybindings.Reset_To_Defaults;
    exception
       when others =>
          Editor.Keybindings.Reset_To_Defaults;
          raise;
-   end Test_Phase405_Character_Delete_Completeness_Routes_State_And_Persistence;
+   end Test_Character_Delete_Completeness_Routes_State_And_Persistence;
 
 
-   procedure Test_Phase406_Character_Delete_Previous_Reliability_Matrix
+   procedure Test_Character_Delete_Previous_Reliability_Matrix
      (T : in out AUnit.Test_Cases.Test_Case'Class)
    is
       pragma Unreferenced (T);
@@ -8548,41 +8550,41 @@ procedure Test_Phase400_Line_Split_Canonical_Behavior_And_State_Boundaries
    begin
       Assert_Character_Delete_Transform
         (Character_Delete_Test_Previous, "Alpha|", "Alph|",
-         "Phase 406 delete-previous ordinary end character");
+         "delete-previous ordinary end character");
       Assert_Character_Delete_Transform
         (Character_Delete_Test_Previous, "A|lpha", "|lpha",
-         "Phase 406 delete-previous ordinary middle character");
+         "delete-previous ordinary middle character");
       Assert_Character_Delete_Transform
         (Character_Delete_Test_Previous, "Alpha | Beta", "Alpha| Beta",
-         "Phase 406 delete-previous treats space as one text unit");
+         "delete-previous treats space as one text unit");
       Assert_Character_Delete_Transform
         (Character_Delete_Test_Previous, "Alpha" & ASCII.HT & "|Beta", "Alpha|Beta",
-         "Phase 406 delete-previous treats tab as one text unit");
+         "delete-previous treats tab as one text unit");
       Assert_Character_Delete_Transform
         (Character_Delete_Test_Previous, "Alpha.|", "Alpha|",
-         "Phase 406 delete-previous treats punctuation as one text unit");
+         "delete-previous treats punctuation as one text unit");
       Assert_Character_Delete_Transform
         (Character_Delete_Test_Previous, "Alpha" & ASCII.LF & "|Beta", "Alpha|Beta",
-         "Phase 406 delete-previous removes exactly the previous line boundary");
+         "delete-previous removes exactly the previous line boundary");
       Assert_Character_Delete_Transform
         (Character_Delete_Test_Previous, ASCII.LF & "|Beta", "|Beta",
-         "Phase 406 delete-previous removes leading line boundary only");
+         "delete-previous removes leading line boundary only");
       Assert_Character_Delete_Transform
         (Character_Delete_Test_Previous, "Alpha|" & ASCII.LF & "Beta", "Alph|" & ASCII.LF & "Beta",
-         "Phase 406 delete-previous at line end deletes preceding character not next boundary");
+         "delete-previous at line end deletes preceding character not next boundary");
       Assert_Character_Delete_Transform
         (Character_Delete_Test_Previous, "Alpha" & ASCII.LF & ASCII.LF & "|Beta", "Alpha" & ASCII.LF & "|Beta",
-         "Phase 406 delete-previous before blank line removes one boundary only");
+         "delete-previous before blank line removes one boundary only");
       Assert_Character_Delete_Transform
         (Character_Delete_Test_Previous, "Alpha" & ASCII.LF & "  |Beta", "Alpha" & ASCII.LF & " |Beta",
-         "Phase 406 delete-previous before indented text deletes one space only");
+         "delete-previous before indented text deletes one space only");
 
       Assert_Character_Delete_No_Op
         (Character_Delete_Test_Previous, "|Alpha",
-         "Phase 406 delete-previous at buffer start no-ops");
+         "delete-previous at buffer start no-ops");
       Assert_Character_Delete_No_Op
         (Character_Delete_Test_Previous, "|",
-         "Phase 406 delete-previous in empty buffer no-ops");
+         "delete-previous in empty buffer no-ops");
 
       Editor.History.Undo_Stack.Clear;
       Editor.History.Redo_Stack.Clear;
@@ -8594,7 +8596,7 @@ procedure Test_Phase400_Line_Split_Canonical_Behavior_And_State_Boundaries
       Redo_Count := Natural (Editor.History.Redo_Stack.Length);
       Editor.Executor.Execute_Command (S, Editor.Commands.Command_Char_Delete_Previous);
       Assert (Natural (Editor.History.Redo_Stack.Length) = 0,
-              "Phase 406 successful delete-previous after undo must clear redo stack");
+              "successful delete-previous after undo must clear redo stack");
 
       Editor.History.Undo_Stack.Clear;
       Editor.History.Redo_Stack.Clear;
@@ -8607,10 +8609,10 @@ procedure Test_Phase400_Line_Split_Canonical_Behavior_And_State_Boundaries
       Set_Caret (S, 0);
       Editor.Executor.Execute_Command (S, Editor.Commands.Command_Char_Delete_Previous);
       Assert (Natural (Editor.History.Redo_Stack.Length) = Redo_Count,
-              "Phase 406 no-op delete-previous after undo must preserve redo stack");
-   end Test_Phase406_Character_Delete_Previous_Reliability_Matrix;
+              "no-op delete-previous after undo must preserve redo stack");
+   end Test_Character_Delete_Previous_Reliability_Matrix;
 
-   procedure Test_Phase406_Character_Delete_Next_Reliability_Matrix
+   procedure Test_Character_Delete_Next_Reliability_Matrix
      (T : in out AUnit.Test_Cases.Test_Case'Class)
    is
       pragma Unreferenced (T);
@@ -8619,41 +8621,41 @@ procedure Test_Phase400_Line_Split_Canonical_Behavior_And_State_Boundaries
    begin
       Assert_Character_Delete_Transform
         (Character_Delete_Test_Next, "|Alpha", "|lpha",
-         "Phase 406 delete-next ordinary first character");
+         "delete-next ordinary first character");
       Assert_Character_Delete_Transform
         (Character_Delete_Test_Next, "Al|pha", "Al|ha",
-         "Phase 406 delete-next ordinary middle character");
+         "delete-next ordinary middle character");
       Assert_Character_Delete_Transform
         (Character_Delete_Test_Next, "Alpha | Beta", "Alpha |Beta",
-         "Phase 406 delete-next treats space as one text unit");
+         "delete-next treats space as one text unit");
       Assert_Character_Delete_Transform
         (Character_Delete_Test_Next, "Alpha|" & ASCII.HT & "Beta", "Alpha|Beta",
-         "Phase 406 delete-next treats tab as one text unit");
+         "delete-next treats tab as one text unit");
       Assert_Character_Delete_Transform
         (Character_Delete_Test_Next, "|.Alpha", "|Alpha",
-         "Phase 406 delete-next treats punctuation as one text unit");
+         "delete-next treats punctuation as one text unit");
       Assert_Character_Delete_Transform
         (Character_Delete_Test_Next, "Alpha|" & ASCII.LF & "Beta", "Alpha|Beta",
-         "Phase 406 delete-next removes exactly the following line boundary");
+         "delete-next removes exactly the following line boundary");
       Assert_Character_Delete_Transform
         (Character_Delete_Test_Next, "Alpha" & ASCII.LF & "|Beta", "Alpha" & ASCII.LF & "|eta",
-         "Phase 406 delete-next at line start deletes following text character");
+         "delete-next at line start deletes following text character");
       Assert_Character_Delete_Transform
         (Character_Delete_Test_Next, "Alpha|" & ASCII.LF, "Alpha|",
-         "Phase 406 delete-next removes trailing newline boundary only");
+         "delete-next removes trailing newline boundary only");
       Assert_Character_Delete_Transform
         (Character_Delete_Test_Next, "Alpha|" & ASCII.LF & ASCII.LF & "Beta", "Alpha|" & ASCII.LF & "Beta",
-         "Phase 406 delete-next before blank line removes one boundary only");
+         "delete-next before blank line removes one boundary only");
       Assert_Character_Delete_Transform
         (Character_Delete_Test_Next, "Alpha|" & ASCII.LF & "  Beta", "Alpha|  Beta",
-         "Phase 406 delete-next before whitespace-only prefix removes boundary only");
+         "delete-next before whitespace-only prefix removes boundary only");
 
       Assert_Character_Delete_No_Op
         (Character_Delete_Test_Next, "Alpha|",
-         "Phase 406 delete-next at buffer end no-ops");
+         "delete-next at buffer end no-ops");
       Assert_Character_Delete_No_Op
         (Character_Delete_Test_Next, "|",
-         "Phase 406 delete-next in empty buffer no-ops");
+         "delete-next in empty buffer no-ops");
 
       Editor.History.Undo_Stack.Clear;
       Editor.History.Redo_Stack.Clear;
@@ -8665,7 +8667,7 @@ procedure Test_Phase400_Line_Split_Canonical_Behavior_And_State_Boundaries
       Redo_Count := Natural (Editor.History.Redo_Stack.Length);
       Editor.Executor.Execute_Command (S, Editor.Commands.Command_Char_Delete_Next);
       Assert (Natural (Editor.History.Redo_Stack.Length) = 0,
-              "Phase 406 successful delete-next after undo must clear redo stack");
+              "successful delete-next after undo must clear redo stack");
 
       Editor.History.Undo_Stack.Clear;
       Editor.History.Redo_Stack.Clear;
@@ -8678,10 +8680,10 @@ procedure Test_Phase400_Line_Split_Canonical_Behavior_And_State_Boundaries
       Set_Caret (S, Cursor_Index (Text_Buffer.Length (S.Buffer)));
       Editor.Executor.Execute_Command (S, Editor.Commands.Command_Char_Delete_Next);
       Assert (Natural (Editor.History.Redo_Stack.Length) = Redo_Count,
-              "Phase 406 no-op delete-next after undo must preserve redo stack");
-   end Test_Phase406_Character_Delete_Next_Reliability_Matrix;
+              "no-op delete-next after undo must preserve redo stack");
+   end Test_Character_Delete_Next_Reliability_Matrix;
 
-   procedure Test_Phase406_Character_Delete_State_Integration_And_Read_Only_Boundaries
+   procedure Test_Character_Delete_State_Integration_And_Read_Only_Boundaries
      (T : in out AUnit.Test_Cases.Test_Case'Class)
    is
       pragma Unreferenced (T);
@@ -8704,8 +8706,8 @@ procedure Test_Phase400_Line_Split_Canonical_Behavior_And_State_Boundaries
       Editor.State.Load_Text (S, "Alpha Beta Gamma");
       Editor.State.Set_Dirty (S, False);
       Set_Primary_Selection (S, 0, 6);
-      Editor.Executor.Execute_Find_Show (S);
-      Editor.Executor.Execute_Find_Set_Query (S, "Beta");
+      Editor.Executor.Find_Replace_Commands.Execute_Find_Show (S);
+      Editor.Executor.Find_Replace_Commands.Execute_Find_Set_Query (S, "Beta");
       Editor.Navigation_History.Record_Explicit_Navigation
         (S.Navigation_History,
          (Buffer_Id => 1, Has_File_Path => False,
@@ -8726,26 +8728,26 @@ procedure Test_Phase400_Line_Split_Canonical_Behavior_And_State_Boundaries
       Editor.Executor.Execute_Command (S, Editor.Commands.Command_Char_Delete_Next);
       Assert_Buffer_Text
         (S, "Alpha eta Gamma",
-         "Phase 406 delete-next must operate at caret, not consume selection");
+         "delete-next must operate at caret, not consume selection");
       Assert (S.Carets (S.Carets.First_Index).Pos = 6,
-              "Phase 406 delete-next caret must remain at deletion start");
+              "delete-next caret must remain at deletion start");
       Assert (not Editor.Selection.Has_Selection (S),
-              "Phase 406 successful Character Delete must clear selection");
+              "successful Character Delete must clear selection");
       Assert (Editor.Clipboard.Has_Text and then Editor.Clipboard.Get_Text = Before_Clip,
-              "Phase 406 Character Delete must preserve Clipboard text");
+              "Character Delete must preserve Clipboard text");
       Assert_Navigation_Counts
         (S, Before_Back, Before_Fwd,
-         "Phase 406 Character Delete must not record or clear Navigation History");
+         "Character Delete must not record or clear Navigation History");
       Assert (S.Active_Find_Stale and then S.Active_Find_Matches.Is_Empty,
-              "Phase 406 text-changing Character Delete must use canonical Find invalidation");
+              "text-changing Character Delete must use canonical Find invalidation");
       Assert (To_String (S.Active_Find_Query) = "Beta",
-              "Phase 406 Character Delete must not mutate Find query text");
+              "Character Delete must not mutate Find query text");
 
       Editor.Render_Model.Build_Render_Snapshot (S, Snap);
       Assert (Snap.Length = Text_Buffer.Length (S.Buffer),
-              "Phase 406 render snapshot must reflect post-delete active-buffer text");
+              "render snapshot must reflect post-delete active-buffer text");
       Assert (Natural (Editor.History.Undo_Stack.Length) = 1,
-              "Phase 406 text-changing Character Delete must create exactly one undo entry");
+              "text-changing Character Delete must create exactly one undo entry");
 
       Editor.History.Undo_Stack.Clear;
       Editor.History.Redo_Stack.Clear;
@@ -8760,23 +8762,23 @@ procedure Test_Phase400_Line_Split_Canonical_Behavior_And_State_Boundaries
       Avail := Editor.Executor.Command_Availability
         (S, Editor.Commands.Command_Char_Delete_Previous);
       Assert (Editor.Commands.Is_Available (Avail),
-              "Phase 406 Character Delete availability must remain available with active buffer and caret");
+              "Character Delete availability must remain available with active buffer and caret");
       Assert (To_Unbounded_String (Text_Buffer.UTF8_Text (S.Buffer)) = Before_Text
               and then S.Carets (S.Carets.First_Index).Pos = Before_Caret
               and then Editor.State.Is_Dirty (S) = Before_Dirty
               and then Natural (Editor.History.Undo_Stack.Length) = Before_Undo
               and then Natural (Editor.History.Redo_Stack.Length) = Before_Redo
               and then Editor.Clipboard.Get_Text = Before_Clip,
-              "Phase 406 Character Delete availability must be side-effect-free");
+              "Character Delete availability must be side-effect-free");
       Editor.Render_Model.Build_Render_Snapshot (S, Snap);
       Assert (To_Unbounded_String (Text_Buffer.UTF8_Text (S.Buffer)) = Before_Text
               and then S.Carets (S.Carets.First_Index).Pos = Before_Caret
               and then Natural (Editor.History.Undo_Stack.Length) = Before_Undo
               and then Natural (Editor.History.Redo_Stack.Length) = Before_Redo,
-              "Phase 406 render snapshot must not repair or perform Character Delete");
-   end Test_Phase406_Character_Delete_State_Integration_And_Read_Only_Boundaries;
+              "render snapshot must not repair or perform Character Delete");
+   end Test_Character_Delete_State_Integration_And_Read_Only_Boundaries;
 
-   procedure Test_Phase406_Character_Delete_Mixed_Command_Coexistence_And_Persistence
+   procedure Test_Character_Delete_Mixed_Command_Coexistence_And_Persistence
      (T : in out AUnit.Test_Cases.Test_Case'Class)
    is
       pragma Unreferenced (T);
@@ -8786,10 +8788,10 @@ procedure Test_Phase400_Line_Split_Canonical_Behavior_And_State_Boundaries
    begin
       Assert_Character_Delete_Transform
         (Character_Delete_Test_Previous, "Alpha Beta|", "Alpha Bet|",
-         "Phase 406 delete-previous remains one text unit after word-delete-capable text");
+         "delete-previous remains one text unit after word-delete-capable text");
       Assert_Character_Delete_Transform
         (Character_Delete_Test_Next, "Alpha |Beta", "Alpha |eta",
-         "Phase 406 delete-next remains one text unit before word-delete-capable text");
+         "delete-next remains one text unit before word-delete-capable text");
 
       Editor.History.Undo_Stack.Clear;
       Editor.History.Redo_Stack.Clear;
@@ -8800,17 +8802,17 @@ procedure Test_Phase400_Line_Split_Canonical_Behavior_And_State_Boundaries
       Editor.Executor.Execute_Command (S, Editor.Commands.Command_Char_Delete_Previous);
       Assert_Buffer_Text
         (S, "AlphaBeta",
-         "Phase 406 split then delete-previous must remove canonical boundary without invoking Line Join");
+         "split then delete-previous must remove canonical boundary without invoking Line Join");
       Assert (Natural (Editor.History.Undo_Stack.Length) = 2,
-              "Phase 406 mixed split/delete workflow must preserve undo ordering");
+              "mixed split/delete workflow must preserve undo ordering");
       Editor.Executor.Execute_Command (S, Editor.Commands.Command_Undo);
       Assert_Buffer_Text
         (S, "Alpha" & ASCII.LF & "Beta",
-         "Phase 406 undo after split/delete must restore split text exactly");
+         "undo after split/delete must restore split text exactly");
       Editor.Executor.Execute_Command (S, Editor.Commands.Command_Redo);
       Assert_Buffer_Text
         (S, "AlphaBeta",
-         "Phase 406 redo after split/delete must restore post-delete text exactly");
+         "redo after split/delete must restore post-delete text exactly");
 
       Editor.History.Undo_Stack.Clear;
       Editor.History.Redo_Stack.Clear;
@@ -8821,7 +8823,7 @@ procedure Test_Phase400_Line_Split_Canonical_Behavior_And_State_Boundaries
       Editor.Executor.Execute_Command (S, Editor.Commands.Command_Char_Delete_Next);
       Assert_Buffer_Text
         (S, "AlphaBeta",
-         "Phase 406 join then delete-next must use resulting active-buffer text only");
+         "join then delete-next must use resulting active-buffer text only");
 
       Editor.History.Undo_Stack.Clear;
       Editor.History.Redo_Stack.Clear;
@@ -8832,7 +8834,7 @@ procedure Test_Phase400_Line_Split_Canonical_Behavior_And_State_Boundaries
       Editor.Executor.Execute_Command (S, Editor.Commands.Command_Char_Delete_Next);
       Assert_Buffer_Text
         (S, "Alpha",
-         "Phase 406 indentation then delete-next must not share corruptible transient state");
+         "indentation then delete-next must not share corruptible transient state");
 
       Editor.History.Undo_Stack.Clear;
       Editor.History.Redo_Stack.Clear;
@@ -8843,7 +8845,7 @@ procedure Test_Phase400_Line_Split_Canonical_Behavior_And_State_Boundaries
       Editor.Executor.Execute_Command (S, Editor.Commands.Command_Char_Delete_Next);
       Assert_Buffer_Text
         (S, "- Alpha",
-         "Phase 406 comment then delete-next treats comment marker as plain text");
+         "comment then delete-next treats comment marker as plain text");
 
       Workspace := Editor.State.Build_Workspace_Snapshot (S);
       Summary := To_Unbounded_String
@@ -8856,8 +8858,8 @@ procedure Test_Phase400_Line_Split_Canonical_Behavior_And_State_Boundaries
          and then Index (Summary, "character-boundary") = 0
          and then Index (Summary, "grapheme") = 0
          and then Index (Summary, "kill-ring") = 0,
-         "Phase 406 workspace persistence must exclude Character Delete reliability state");
-   end Test_Phase406_Character_Delete_Mixed_Command_Coexistence_And_Persistence;
+         "workspace persistence must exclude Character Delete reliability state");
+   end Test_Character_Delete_Mixed_Command_Coexistence_And_Persistence;
 
    procedure Assert_Character_Delete_Transform_Exact
      (Direction    : Character_Delete_Test_Direction;
@@ -8936,75 +8938,75 @@ procedure Test_Phase400_Line_Split_Canonical_Behavior_And_State_Boundaries
                           Why & ": redo must restore exact post-delete text");
    end Assert_Character_Delete_Transform_Exact;
 
-   procedure Test_Phase407_Character_Delete_Boundary_Transform_Workflows
+   procedure Test_Character_Delete_Boundary_Transform_Workflows
      (T : in out AUnit.Test_Cases.Test_Case'Class)
    is
       pragma Unreferenced (T);
    begin
       Assert_Character_Delete_Transform_Exact
         (Character_Delete_Test_Previous, "Alpha|", "Alph|", "a",
-         "Phase 407 previous ordinary end transform");
+         "previous ordinary end transform");
       Assert_Character_Delete_Transform_Exact
         (Character_Delete_Test_Previous, "A|lpha", "|lpha", "A",
-         "Phase 407 previous ordinary middle transform");
+         "previous ordinary middle transform");
       Assert_Character_Delete_No_Op
         (Character_Delete_Test_Previous, "|Alpha",
-         "Phase 407 previous buffer-start no-op");
+         "previous buffer-start no-op");
       Assert_Character_Delete_Transform_Exact
         (Character_Delete_Test_Previous, "Alpha | Beta", "Alpha| Beta", " ",
-         "Phase 407 previous deletes exactly one space");
+         "previous deletes exactly one space");
       Assert_Character_Delete_Transform_Exact
         (Character_Delete_Test_Previous, "Alpha" & ASCII.HT & "|Beta", "Alpha|Beta", "" & ASCII.HT,
-         "Phase 407 previous deletes exactly one tab");
+         "previous deletes exactly one tab");
       Assert_Character_Delete_Transform_Exact
         (Character_Delete_Test_Previous, "Alpha.|", "Alpha|", ".",
-         "Phase 407 previous deletes exactly one punctuation unit");
+         "previous deletes exactly one punctuation unit");
       Assert_Character_Delete_Transform_Exact
         (Character_Delete_Test_Previous, "Alpha" & ASCII.LF & "|Beta", "Alpha|Beta", "" & ASCII.LF,
-         "Phase 407 previous deletes exactly previous line boundary");
+         "previous deletes exactly previous line boundary");
       Assert_Character_Delete_Transform_Exact
         (Character_Delete_Test_Previous, "Alpha|" & ASCII.LF & "Beta", "Alph|" & ASCII.LF & "Beta", "a",
-         "Phase 407 previous at line end deletes preceding character");
+         "previous at line end deletes preceding character");
       Assert_Character_Delete_Transform_Exact
         (Character_Delete_Test_Previous, ASCII.LF & "|Beta", "|Beta", "" & ASCII.LF,
-         "Phase 407 previous removes leading boundary only");
+         "previous removes leading boundary only");
       Assert_Character_Delete_Transform_Exact
         (Character_Delete_Test_Previous, "Alpha" & ASCII.LF & ASCII.LF & "|Beta", "Alpha" & ASCII.LF & "|Beta", "" & ASCII.LF,
-         "Phase 407 previous before blank line removes one boundary");
+         "previous before blank line removes one boundary");
 
       Assert_Character_Delete_Transform_Exact
         (Character_Delete_Test_Next, "|Alpha", "|lpha", "A",
-         "Phase 407 next ordinary first transform");
+         "next ordinary first transform");
       Assert_Character_Delete_Transform_Exact
         (Character_Delete_Test_Next, "Al|pha", "Al|ha", "p",
-         "Phase 407 next ordinary middle transform");
+         "next ordinary middle transform");
       Assert_Character_Delete_No_Op
         (Character_Delete_Test_Next, "Alpha|",
-         "Phase 407 next buffer-end no-op");
+         "next buffer-end no-op");
       Assert_Character_Delete_Transform_Exact
         (Character_Delete_Test_Next, "Alpha | Beta", "Alpha |Beta", " ",
-         "Phase 407 next deletes exactly one space");
+         "next deletes exactly one space");
       Assert_Character_Delete_Transform_Exact
         (Character_Delete_Test_Next, "Alpha|" & ASCII.HT & "Beta", "Alpha|Beta", "" & ASCII.HT,
-         "Phase 407 next deletes exactly one tab");
+         "next deletes exactly one tab");
       Assert_Character_Delete_Transform_Exact
         (Character_Delete_Test_Next, "|.Alpha", "|Alpha", ".",
-         "Phase 407 next deletes exactly one punctuation unit");
+         "next deletes exactly one punctuation unit");
       Assert_Character_Delete_Transform_Exact
         (Character_Delete_Test_Next, "Alpha|" & ASCII.LF & "Beta", "Alpha|Beta", "" & ASCII.LF,
-         "Phase 407 next deletes exactly following line boundary");
+         "next deletes exactly following line boundary");
       Assert_Character_Delete_Transform_Exact
         (Character_Delete_Test_Next, "Alpha" & ASCII.LF & "|Beta", "Alpha" & ASCII.LF & "|eta", "B",
-         "Phase 407 next at line start deletes following character");
+         "next at line start deletes following character");
       Assert_Character_Delete_Transform_Exact
         (Character_Delete_Test_Next, "Alpha|" & ASCII.LF, "Alpha|", "" & ASCII.LF,
-         "Phase 407 next removes trailing newline boundary only");
+         "next removes trailing newline boundary only");
       Assert_Character_Delete_Transform_Exact
         (Character_Delete_Test_Next, "Alpha|" & ASCII.LF & ASCII.LF & "Beta", "Alpha|" & ASCII.LF & "Beta", "" & ASCII.LF,
-         "Phase 407 next before blank line removes one boundary");
-   end Test_Phase407_Character_Delete_Boundary_Transform_Workflows;
+         "next before blank line removes one boundary");
+   end Test_Character_Delete_Boundary_Transform_Workflows;
 
-   procedure Test_Phase407_Character_Delete_State_Find_Clipboard_Navigation_Render
+   procedure Test_Character_Delete_State_Find_Clipboard_Navigation_Render
      (T : in out AUnit.Test_Cases.Test_Case'Class)
    is
       pragma Unreferenced (T);
@@ -9030,8 +9032,8 @@ procedure Test_Phase400_Line_Split_Canonical_Behavior_And_State_Boundaries
       Set_Primary_Selection (S, 0, 11);
       S.Active_Replace_Prompt := True;
       S.Active_Replace_Text := To_Unbounded_String ("BETA");
-      Editor.Executor.Execute_Find_Show (S);
-      Editor.Executor.Execute_Find_Set_Query (S, "Beta");
+      Editor.Executor.Find_Replace_Commands.Execute_Find_Show (S);
+      Editor.Executor.Find_Replace_Commands.Execute_Find_Set_Query (S, "Beta");
       Editor.Navigation_History.Record_Explicit_Navigation
         (S.Navigation_History,
          (Buffer_Id => 1, Has_File_Path => False,
@@ -9053,36 +9055,36 @@ procedure Test_Phase400_Line_Split_Canonical_Behavior_And_State_Boundaries
       Editor.Executor.Execute_Command (S, Editor.Commands.Command_Char_Delete_Previous);
       Assert_Buffer_Text
         (S, "Alpha Bet Gamma",
-         "Phase 407 previous delete must remove exact adjacent character after selection/find setup");
+         "previous delete must remove exact adjacent character after selection/find setup");
       Assert (S.Carets (S.Carets.First_Index).Pos = 9,
-              "Phase 407 previous delete caret must move to deleted range start");
+              "previous delete caret must move to deleted range start");
       Assert (not Editor.Selection.Has_Selection (S),
-              "Phase 407 successful Character Delete must clear active selection");
+              "successful Character Delete must clear active selection");
       Assert (S.Active_Find_Stale and then S.Active_Find_Matches.Is_Empty,
-              "Phase 407 text-changing Character Delete must invalidate Find matches");
+              "text-changing Character Delete must invalidate Find matches");
       Assert (To_String (S.Active_Find_Query) = "Beta",
-              "Phase 407 Character Delete must not mutate Find query");
+              "Character Delete must not mutate Find query");
       Assert (S.Active_Replace_Text = To_Unbounded_String ("BETA")
               and then S.Active_Replace_Prompt,
-              "Phase 407 Character Delete must not mutate Replace text or visibility");
+              "Character Delete must not mutate Replace text or visibility");
       Assert (Editor.Clipboard.Has_Text and then Editor.Clipboard.Get_Text = Before_Clip,
-              "Phase 407 Character Delete must not mutate Clipboard");
+              "Character Delete must not mutate Clipboard");
       Assert_Navigation_Counts
         (S, Before_Back, Before_Fwd,
-         "Phase 407 Character Delete must preserve Navigation History stacks");
+         "Character Delete must preserve Navigation History stacks");
       Assert (Natural (Editor.History.Undo_Stack.Length) = 1
               and then Natural (Editor.History.Redo_Stack.Length) = 0,
-              "Phase 407 text-changing Character Delete must create exactly one undo entry and clear redo");
+              "text-changing Character Delete must create exactly one undo entry and clear redo");
       Editor.Render_Model.Build_Render_Snapshot (S, Snap);
       Assert (Snap.Length = Text_Buffer.Length (S.Buffer),
-              "Phase 407 render snapshot must derive from post-delete buffer text");
+              "render snapshot must derive from post-delete buffer text");
 
       Editor.Executor.Execute_Command (S, Editor.Commands.Command_Undo);
       Assert_Buffer_Text (S, "Alpha Beta Gamma",
-                          "Phase 407 undo restores pre-delete text");
+                          "undo restores pre-delete text");
       Editor.Executor.Execute_Command (S, Editor.Commands.Command_Redo);
       Assert_Buffer_Text (S, "Alpha Bet Gamma",
-                          "Phase 407 redo restores post-delete text");
+                          "redo restores post-delete text");
 
       Editor.History.Undo_Stack.Clear;
       Editor.History.Redo_Stack.Clear;
@@ -9094,10 +9096,10 @@ procedure Test_Phase400_Line_Split_Canonical_Behavior_And_State_Boundaries
       Set_Caret (S, 0);
       Editor.Executor.Execute_Command (S, Editor.Commands.Command_Char_Delete_Previous);
       Assert (Natural (Editor.History.Redo_Stack.Length) = Redo_Count,
-              "Phase 407 no-op previous delete after undo must preserve redo stack");
+              "no-op previous delete after undo must preserve redo stack");
       Editor.Executor.Execute_Command (S, Editor.Commands.Command_Redo);
       Assert_Buffer_Text (S, "See",
-                          "Phase 407 redo after no-op previous delete must remain available");
+                          "redo after no-op previous delete must remain available");
 
       Editor.History.Undo_Stack.Clear;
       Editor.History.Redo_Stack.Clear;
@@ -9112,14 +9114,14 @@ procedure Test_Phase400_Line_Split_Canonical_Behavior_And_State_Boundaries
       Avail := Editor.Executor.Command_Availability
         (S, Editor.Commands.Command_Char_Delete_Next);
       Assert (Editor.Commands.Is_Available (Avail),
-              "Phase 407 Character Delete availability must be available with active buffer and caret");
+              "Character Delete availability must be available with active buffer and caret");
       declare
          Candidates : Editor.Commands.Command_Descriptor_Vectors.Vector;
       begin
          Editor.Command_Palette.Reset;
          Editor.Command_Palette.Filtered_Commands (Candidates);
          Assert (Candidates.Length > 0,
-                 "Phase 407 Command Palette projection must produce candidates");
+                 "Command Palette projection must produce candidates");
       end;
       Editor.Render_Model.Build_Render_Snapshot (S, Snap);
       Assert (To_Unbounded_String (Text_Buffer.UTF8_Text (S.Buffer)) = Before_Text
@@ -9127,10 +9129,10 @@ procedure Test_Phase400_Line_Split_Canonical_Behavior_And_State_Boundaries
               and then Natural (Editor.History.Undo_Stack.Length) = Before_Undo
               and then Natural (Editor.History.Redo_Stack.Length) = Before_Redo
               and then Editor.State.Is_Dirty (S) = Before_Dirty,
-              "Phase 407 availability/palette/render paths must be side-effect-free");
-   end Test_Phase407_Character_Delete_State_Find_Clipboard_Navigation_Render;
+              "availability/palette/render paths must be side-effect-free");
+   end Test_Character_Delete_State_Find_Clipboard_Navigation_Render;
 
-   procedure Test_Phase407_Character_Delete_Mixed_Command_Coexistence_Workflows
+   procedure Test_Character_Delete_Mixed_Command_Coexistence_Workflows
      (T : in out AUnit.Test_Cases.Test_Case'Class)
    is
       pragma Unreferenced (T);
@@ -9146,7 +9148,7 @@ procedure Test_Phase400_Line_Split_Canonical_Behavior_And_State_Boundaries
       Editor.Executor.Execute_Command (S, Editor.Commands.Command_Char_Delete_Previous);
       Assert_Buffer_Text
         (S, "Alpha",
-         "Phase 407 word-delete then char-delete-previous must use resulting canonical text");
+         "word-delete then char-delete-previous must use resulting canonical text");
 
       Editor.History.Undo_Stack.Clear;
       Editor.History.Redo_Stack.Clear;
@@ -9156,7 +9158,7 @@ procedure Test_Phase400_Line_Split_Canonical_Behavior_And_State_Boundaries
       Editor.Executor.Execute_Command (S, Editor.Commands.Command_Char_Delete_Next);
       Assert_Buffer_Text
         (S, "Beta",
-         "Phase 407 word-delete-next then char-delete-next must use resulting canonical text");
+         "word-delete-next then char-delete-next must use resulting canonical text");
 
       Editor.History.Undo_Stack.Clear;
       Editor.History.Redo_Stack.Clear;
@@ -9166,15 +9168,15 @@ procedure Test_Phase400_Line_Split_Canonical_Behavior_And_State_Boundaries
       Editor.Executor.Execute_Command (S, Editor.Commands.Command_Char_Delete_Previous);
       Assert_Buffer_Text
         (S, "AlphaBeta",
-         "Phase 407 split then delete-previous must delete boundary without invoking Line Join");
+         "split then delete-previous must delete boundary without invoking Line Join");
       Editor.Executor.Execute_Command (S, Editor.Commands.Command_Undo);
       Assert_Buffer_Text
         (S, "Alpha" & ASCII.LF & "Beta",
-         "Phase 407 undo in split/delete workflow restores exact split text");
+         "undo in split/delete workflow restores exact split text");
       Editor.Executor.Execute_Command (S, Editor.Commands.Command_Redo);
       Assert_Buffer_Text
         (S, "AlphaBeta",
-         "Phase 407 redo in split/delete workflow restores exact post-delete text");
+         "redo in split/delete workflow restores exact post-delete text");
 
       Editor.History.Undo_Stack.Clear;
       Editor.History.Redo_Stack.Clear;
@@ -9185,7 +9187,7 @@ procedure Test_Phase400_Line_Split_Canonical_Behavior_And_State_Boundaries
       Editor.Executor.Execute_Command (S, Editor.Commands.Command_Char_Delete_Next);
       Assert_Buffer_Text
         (S, "AlphaBeta",
-         "Phase 407 join then delete-next must use resulting canonical text only");
+         "join then delete-next must use resulting canonical text only");
 
       Editor.History.Undo_Stack.Clear;
       Editor.History.Redo_Stack.Clear;
@@ -9196,7 +9198,7 @@ procedure Test_Phase400_Line_Split_Canonical_Behavior_And_State_Boundaries
       Editor.Executor.Execute_Command (S, Editor.Commands.Command_Char_Delete_Next);
       Assert_Buffer_Text
         (S, "eta" & ASCII.LF & "Beta",
-         "Phase 407 duplicate-line then delete-next remains ordinary adjacent deletion");
+         "duplicate-line then delete-next remains ordinary adjacent deletion");
 
       Editor.History.Undo_Stack.Clear;
       Editor.History.Redo_Stack.Clear;
@@ -9207,7 +9209,7 @@ procedure Test_Phase400_Line_Split_Canonical_Behavior_And_State_Boundaries
       Editor.Executor.Execute_Command (S, Editor.Commands.Command_Char_Delete_Next);
       Assert_Buffer_Text
         (S, "Alpha",
-         "Phase 407 indentation then delete-next must not share transient state");
+         "indentation then delete-next must not share transient state");
 
       Editor.History.Undo_Stack.Clear;
       Editor.History.Redo_Stack.Clear;
@@ -9218,12 +9220,12 @@ procedure Test_Phase400_Line_Split_Canonical_Behavior_And_State_Boundaries
       Editor.Executor.Execute_Command (S, Editor.Commands.Command_Char_Delete_Next);
       Assert_Buffer_Text
         (S, "- Alpha",
-         "Phase 407 line-comment then delete-next treats comment marker as plain text");
+         "line-comment then delete-next treats comment marker as plain text");
       Assert (Editor.Clipboard.Get_Text = To_Unbounded_String ("CLIP"),
-              "Phase 407 mixed workflows must not let Character Delete mutate Clipboard");
-   end Test_Phase407_Character_Delete_Mixed_Command_Coexistence_Workflows;
+              "mixed workflows must not let Character Delete mutate Clipboard");
+   end Test_Character_Delete_Mixed_Command_Coexistence_Workflows;
 
-   procedure Test_Phase407_Character_Delete_Active_Buffer_Routes_And_Persistence
+   procedure Test_Character_Delete_Active_Buffer_Routes_And_Persistence
      (T : in out AUnit.Test_Cases.Test_Case'Class)
    is
       pragma Unreferenced (T);
@@ -9266,38 +9268,38 @@ procedure Test_Phase400_Line_Split_Canonical_Behavior_And_State_Boundaries
       Editor.Buffers.Load_Global_Active_Into_State (S);
       Editor.Executor.Execute_Command (S, Editor.Commands.Command_Char_Delete_Previous);
       Assert_Buffer_Text (S, "Alph",
-                          "Phase 407 active-buffer A Character Delete text");
+                          "active-buffer A Character Delete text");
       Editor.Buffers.Sync_Global_Active_From_State (S);
 
       Editor.Buffers.Global_Set_Active_Buffer (B);
       Editor.Buffers.Load_Global_Active_Into_State (S);
       Assert_Buffer_Text (S, "Gamma",
-                          "Phase 407 active-buffer B must be isolated from A Character Delete");
+                          "active-buffer B must be isolated from A Character Delete");
       Editor.Executor.Execute_Command (S, Editor.Commands.Command_Char_Delete_Next);
       Assert_Buffer_Text (S, "amma",
-                          "Phase 407 active-buffer B independent Character Delete text");
+                          "active-buffer B independent Character Delete text");
       Editor.Executor.Execute_Command (S, Editor.Commands.Command_Undo);
       Assert_Buffer_Text (S, "Gamma",
-                          "Phase 407 undo in B affects only B");
+                          "undo in B affects only B");
       Editor.Buffers.Sync_Global_Active_From_State (S);
 
       Editor.Buffers.Global_Set_Active_Buffer (A);
       Editor.Buffers.Load_Global_Active_Into_State (S);
       Assert_Buffer_Text (S, "Alph",
-                          "Phase 407 returning to A preserves A Character Delete result");
+                          "returning to A preserves A Character Delete result");
       Editor.Executor.Execute_Command (S, Editor.Commands.Command_Undo);
       Assert_Buffer_Text (S, "Alpha",
-                          "Phase 407 undo in A affects only A");
+                          "undo in A affects only A");
 
       Editor.State.Init (No_Buffer);
       Editor.Executor.Execute_Command
         (No_Buffer, Editor.Commands.Command_Char_Delete_Previous);
       Assert (Message_Text (No_Buffer) = "No active buffer.",
-              "Phase 407 no-active-buffer previous delete message mismatch");
+              "no-active-buffer previous delete message mismatch");
       Editor.Executor.Execute_Command
         (No_Buffer, Editor.Commands.Command_Char_Delete_Next);
       Assert (Message_Text (No_Buffer) = "No active buffer.",
-              "Phase 407 no-active-buffer next delete message mismatch");
+              "no-active-buffer next delete message mismatch");
 
       Editor.Keybindings.Bind (Chord, Editor.Commands.Command_Char_Delete_Next);
       Set_Caret (S, 0);
@@ -9306,9 +9308,9 @@ procedure Test_Phase400_Line_Split_Canonical_Behavior_And_State_Boundaries
       After := Editor.Input_Bridge.Get_State_For_Test;
       Assert_Buffer_Text
         (After, "lpha",
-         "Phase 407 Input_Bridge keybinding must route char-delete-next through Executor");
+         "Input_Bridge keybinding must route char-delete-next through Executor");
       Assert (Message_Text (After) = "Deleted next character",
-              "Phase 407 routed char-delete-next message mismatch");
+              "routed char-delete-next message mismatch");
       Editor.Keybindings.Reset_To_Defaults;
 
       declare
@@ -9317,15 +9319,15 @@ procedure Test_Phase400_Line_Split_Canonical_Behavior_And_State_Boundaries
          Dummy := Editor.Commands.Command_Id_From_Stable_Name
            ("edit.char.delete-current", Found);
          Assert (Dummy = Editor.Commands.No_Command and then not Found,
-                 "Phase 407 non-goal delete-current command must not resolve");
+                 "non-goal delete-current command must not resolve");
          Dummy := Editor.Commands.Command_Id_From_Stable_Name
            ("edit.char.kill", Found);
          Assert (Dummy = Editor.Commands.No_Command and then not Found,
-                 "Phase 407 non-goal char-kill command must not resolve");
+                 "non-goal char-kill command must not resolve");
          Dummy := Editor.Commands.Command_Id_From_Stable_Name
            ("selection.delete", Found);
          Assert (Found and then Dummy = Editor.Commands.Command_Selection_Delete,
-                 "Phase 541 selection-delete command must resolve through canonical selection namespace");
+                 "selection-delete command must resolve through canonical selection namespace");
       end;
 
       Workspace := Editor.State.Build_Workspace_Snapshot (After);
@@ -9341,15 +9343,15 @@ procedure Test_Phase400_Line_Split_Canonical_Behavior_And_State_Boundaries
          and then Index (Summary, "grapheme") = 0
          and then Index (Summary, "text-shaping") = 0
          and then Index (Summary, "kill-ring") = 0,
-         "Phase 407 workspace persistence must exclude Character Delete workflow state");
+         "workspace persistence must exclude Character Delete workflow state");
    exception
       when others =>
          Editor.Keybindings.Reset_To_Defaults;
          raise;
-   end Test_Phase407_Character_Delete_Active_Buffer_Routes_And_Persistence;
+   end Test_Character_Delete_Active_Buffer_Routes_And_Persistence;
 
 
-procedure Test_Phase408_Character_Delete_Canonical_Routes_State_And_Persistence
+procedure Test_Character_Delete_Canonical_Routes_State_And_Persistence
      (T : in out AUnit.Test_Cases.Test_Case'Class)
    is
       pragma Unreferenced (T);
@@ -9375,12 +9377,12 @@ procedure Test_Phase408_Character_Delete_Canonical_Routes_State_And_Persistence
       Assert
         (Bind_Status = Editor.Keybindings.Bound_Command
          and then Resolved_Id = Editor.Commands.Command_Char_Delete_Previous,
-         "Phase 408 default Backspace binding must route to canonical previous-character delete");
+         "default Backspace binding must route to canonical previous-character delete");
       Bind_Status := Editor.Keybindings.Resolve (Next_Chord, Resolved_Id);
       Assert
         (Bind_Status = Editor.Keybindings.Bound_Command
          and then Resolved_Id = Editor.Commands.Command_Char_Delete_Next,
-         "Phase 408 default Delete binding must route to canonical next-character delete");
+         "default Delete binding must route to canonical next-character delete");
 
       Editor.History.Undo_Stack.Clear;
       Editor.History.Redo_Stack.Clear;
@@ -9395,26 +9397,26 @@ procedure Test_Phase408_Character_Delete_Canonical_Routes_State_And_Persistence
       After := Editor.Input_Bridge.Get_State_For_Test;
       Assert_Buffer_Text
         (After, "AC",
-         "Phase 408 routed default Backspace must use canonical adjacent previous-character delete");
+         "routed default Backspace must use canonical adjacent previous-character delete");
       Assert
         (Message_Text (After) = "Deleted previous character",
-         "Phase 408 routed default Backspace message mismatch");
+         "routed default Backspace message mismatch");
       Assert
         (Natural (Editor.History.Undo_Stack.Length) = 1
          and then Natural (Editor.History.Redo_Stack.Length) = 0,
-         "Phase 408 routed default Backspace must create exactly one canonical undo entry");
+         "routed default Backspace must create exactly one canonical undo entry");
       Assert
         (Editor.State.Is_Dirty (After),
-         "Phase 408 routed default Backspace must dirty through canonical policy");
+         "routed default Backspace must dirty through canonical policy");
       Assert
         (not Editor.Selection.Has_Selection (After),
-         "Phase 408 routed default Backspace must collapse selection through canonical mutation policy");
+         "routed default Backspace must collapse selection through canonical mutation policy");
       Assert
         (Editor.Clipboard.Get_Text = Before_Clip,
-         "Phase 408 routed default Backspace must not mutate Clipboard");
+         "routed default Backspace must not mutate Clipboard");
       Assert_Navigation_Counts
         (After, 0, 0,
-         "Phase 408 routed default Backspace must not record Navigation History");
+         "routed default Backspace must not record Navigation History");
 
       Editor.History.Undo_Stack.Clear;
       Editor.History.Redo_Stack.Clear;
@@ -9427,31 +9429,31 @@ procedure Test_Phase408_Character_Delete_Canonical_Routes_State_And_Persistence
       After := Editor.Input_Bridge.Get_State_For_Test;
       Assert_Buffer_Text
         (After, "BC",
-         "Phase 408 routed default Delete must use canonical adjacent next-character delete");
+         "routed default Delete must use canonical adjacent next-character delete");
       Assert
         (Message_Text (After) = "Deleted next character",
-         "Phase 408 routed default Delete message mismatch");
+         "routed default Delete message mismatch");
       Assert
         (Natural (Editor.History.Undo_Stack.Length) = 1
          and then Natural (Editor.History.Redo_Stack.Length) = 0,
-         "Phase 408 routed default Delete must create exactly one canonical undo entry");
+         "routed default Delete must create exactly one canonical undo entry");
       Assert
         (Editor.Clipboard.Get_Text = Before_Clip,
-         "Phase 408 routed default Delete must not mutate Clipboard");
+         "routed default Delete must not mutate Clipboard");
 
       Editor.Executor.Execute_Command (After, Editor.Commands.Command_Undo);
       Assert_Buffer_Text
         (After, "ABC",
-         "Phase 408 undo after canonical Character Delete must restore captured Before_Text");
+         "undo after canonical Character Delete must restore captured Before_Text");
       Editor.Executor.Execute_Command (After, Editor.Commands.Command_Redo);
       Assert_Buffer_Text
         (After, "BC",
-         "Phase 408 redo after canonical Character Delete must restore captured After_Text without rerunning range logic");
+         "redo after canonical Character Delete must restore captured After_Text without rerunning range logic");
 
       Editor.Render_Model.Build_Render_Snapshot (After, Snap);
       Assert
         (Snap.Length = Text_Buffer.Length (After.Buffer),
-         "Phase 408 render snapshot length must derive from canonical buffer text only");
+         "render snapshot length must derive from canonical buffer text only");
 
       Workspace := Editor.State.Build_Workspace_Snapshot (After);
       Summary := To_Unbounded_String
@@ -9466,19 +9468,19 @@ procedure Test_Phase408_Character_Delete_Canonical_Routes_State_And_Persistence
          and then Index (Summary, "grapheme") = 0
          and then Index (Summary, "text-shaping") = 0
          and then Index (Summary, "kill-ring") = 0,
-         "Phase 408 workspace persistence must exclude canonical and removed Character Delete transient state");
+         "workspace persistence must exclude canonical and removed Character Delete transient state");
       Editor.Keybindings.Reset_To_Defaults;
    exception
       when others =>
          Editor.Keybindings.Reset_To_Defaults;
          raise;
-   end Test_Phase408_Character_Delete_Canonical_Routes_State_And_Persistence;
+   end Test_Character_Delete_Canonical_Routes_State_And_Persistence;
 
 
 
 
 
-   procedure Test_Phase409_Selection_Delete_Command_Descriptors_And_Routes
+   procedure Test_Selection_Delete_Command_Descriptors_And_Routes
 
 
 
@@ -9529,9 +9531,9 @@ procedure Test_Phase408_Character_Delete_Canonical_Routes_State_And_Persistence
       Assert
         (Message_Text (S) = "Deleted selection",
          "selection delete must report one success message");
-   end Test_Phase409_Selection_Delete_Command_Descriptors_And_Routes;
+   end Test_Selection_Delete_Command_Descriptors_And_Routes;
 
-   procedure Test_Phase409_Selection_Delete_Range_Matrix_And_Backward_Selection
+   procedure Test_Selection_Delete_Range_Matrix_And_Backward_Selection
 
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
       pragma Unreferenced (T);
@@ -9584,9 +9586,9 @@ procedure Test_Phase408_Character_Delete_Canonical_Routes_State_And_Persistence
       Check
         ("Alpha" & ASCII.LF & "Beta", 6, 0,
          "Beta", "backward selection normalizes to same range");
-   end Test_Phase409_Selection_Delete_Range_Matrix_And_Backward_Selection;
+   end Test_Selection_Delete_Range_Matrix_And_Backward_Selection;
 
-   procedure Test_Phase409_Selection_Delete_Undo_Redo_Clipboard_Navigation_And_No_Op
+   procedure Test_Selection_Delete_Undo_Redo_Clipboard_Navigation_And_No_Op
 
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
       pragma Unreferenced (T);
@@ -9649,10 +9651,10 @@ procedure Test_Phase408_Character_Delete_Canonical_Routes_State_And_Persistence
       Assert_Buffer_Text
         (S, "Alpha" & ASCII.LF & ASCII.LF & "Gamma",
          "redo must restore exact post-delete text");
-   end Test_Phase409_Selection_Delete_Undo_Redo_Clipboard_Navigation_And_No_Op;
+   end Test_Selection_Delete_Undo_Redo_Clipboard_Navigation_And_No_Op;
 
 
-   procedure Test_Phase410_Selection_Delete_Transform_Matrix_And_Caret
+   procedure Test_Selection_Delete_Transform_Matrix_And_Caret
 
 
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
@@ -9719,9 +9721,9 @@ procedure Test_Phase408_Character_Delete_Canonical_Routes_State_And_Persistence
       Check ("Alpha" & ASCII.LF & "Beta", 6, 0,
              "Beta", "Alpha" & ASCII.LF,
              "backward selection matches forward selection");
-   end Test_Phase410_Selection_Delete_Transform_Matrix_And_Caret;
+   end Test_Selection_Delete_Transform_Matrix_And_Caret;
 
-   procedure Test_Phase410_Selection_Delete_No_Op_Invalid_And_Redo_Preservation
+   procedure Test_Selection_Delete_No_Op_Invalid_And_Redo_Preservation
 
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
       pragma Unreferenced (T);
@@ -9783,9 +9785,9 @@ procedure Test_Phase408_Character_Delete_Canonical_Routes_State_And_Persistence
          Assert (Message_Text (No_Buffer) = "No active buffer.",
                  "no active buffer message mismatch");
       end;
-   end Test_Phase410_Selection_Delete_No_Op_Invalid_And_Redo_Preservation;
+   end Test_Selection_Delete_No_Op_Invalid_And_Redo_Preservation;
 
-   procedure Test_Phase410_Selection_Delete_Find_Dirty_Clipboard_And_Navigation
+   procedure Test_Selection_Delete_Find_Dirty_Clipboard_And_Navigation
 
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
       pragma Unreferenced (T);
@@ -9838,9 +9840,9 @@ procedure Test_Phase408_Character_Delete_Canonical_Routes_State_And_Persistence
       Editor.Executor.Execute_Command (S, Editor.Commands.Command_Selection_Delete);
       Assert (not S.Active_Find_Stale,
               "no-op selection delete must not invalidate Find state");
-   end Test_Phase410_Selection_Delete_Find_Dirty_Clipboard_And_Navigation;
+   end Test_Selection_Delete_Find_Dirty_Clipboard_And_Navigation;
 
-   procedure Test_Phase410_Selection_Delete_Availability_Render_And_Persistence_Boundaries
+   procedure Test_Selection_Delete_Availability_Render_And_Persistence_Boundaries
 
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
       pragma Unreferenced (T);
@@ -9902,9 +9904,9 @@ procedure Test_Phase408_Character_Delete_Canonical_Routes_State_And_Persistence
          and then Index (Summary, "selection-delete") = 0
          and then Index (Summary, "kill-ring") = 0,
          "workspace persistence must exclude Selection Delete transient state");
-   end Test_Phase410_Selection_Delete_Availability_Render_And_Persistence_Boundaries;
+   end Test_Selection_Delete_Availability_Render_And_Persistence_Boundaries;
 
-   procedure Test_Phase410_Selection_Delete_Active_Buffer_Isolation
+   procedure Test_Selection_Delete_Active_Buffer_Isolation
 
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
       pragma Unreferenced (T);
@@ -9959,9 +9961,9 @@ procedure Test_Phase408_Character_Delete_Canonical_Routes_State_And_Persistence
       Editor.Executor.Execute_Command (S, Editor.Commands.Command_Undo);
       Assert_Buffer_Text (S, "Alpha Beta",
                           "undo in A must restore only A text");
-   end Test_Phase410_Selection_Delete_Active_Buffer_Isolation;
+   end Test_Selection_Delete_Active_Buffer_Isolation;
 
-   procedure Test_Phase410_Selection_Delete_Selection_Command_And_Edit_Coexistence
+   procedure Test_Selection_Delete_Selection_Command_And_Edit_Coexistence
 
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
       pragma Unreferenced (T);
@@ -10004,10 +10006,10 @@ procedure Test_Phase408_Character_Delete_Canonical_Routes_State_And_Persistence
       Editor.Executor.Execute_Command (S, Editor.Commands.Command_Undo);
       Assert_Buffer_Text (S, "Alpha Beta",
                           "mixed command second undo restores original text");
-   end Test_Phase410_Selection_Delete_Selection_Command_And_Edit_Coexistence;
+   end Test_Selection_Delete_Selection_Command_And_Edit_Coexistence;
 
 
-   function Phase411_Stripped_Selected_Text
+   function Stripped_Selected_Text
      (Marked : String) return String
    is
       Result   : String (1 .. Marked'Length) := (others => ASCII.NUL);
@@ -10030,9 +10032,9 @@ procedure Test_Phase408_Character_Delete_Canonical_Routes_State_And_Persistence
       else
          return Result (1 .. Last);
       end if;
-   end Phase411_Stripped_Selected_Text;
+   end Stripped_Selected_Text;
 
-   function Phase411_Anchor_From_Marked
+   function Anchor_From_Marked
      (Marked  : String;
       Is_Reverse : Boolean) return Cursor_Index
    is
@@ -10055,9 +10057,9 @@ procedure Test_Phase408_Character_Delete_Canonical_Routes_State_And_Persistence
       else
          return Cursor_Index (Start);
       end if;
-   end Phase411_Anchor_From_Marked;
+   end Anchor_From_Marked;
 
-   function Phase411_Pos_From_Marked
+   function Pos_From_Marked
      (Marked  : String;
       Is_Reverse : Boolean) return Cursor_Index
    is
@@ -10080,9 +10082,9 @@ procedure Test_Phase408_Character_Delete_Canonical_Routes_State_And_Persistence
       else
          return Cursor_Index (Stop);
       end if;
-   end Phase411_Pos_From_Marked;
+   end Pos_From_Marked;
 
-   function Phase411_Selected_Text_From_Marked
+   function Selected_Text_From_Marked
      (Marked : String) return String
    is
       Result   : String (1 .. Marked'Length) := (others => ASCII.NUL);
@@ -10105,19 +10107,19 @@ procedure Test_Phase408_Character_Delete_Canonical_Routes_State_And_Persistence
       else
          return Result (1 .. Last);
       end if;
-   end Phase411_Selected_Text_From_Marked;
+   end Selected_Text_From_Marked;
 
-   procedure Phase411_Run_Marked_Delete
+   procedure Run_Marked_Delete
      (Marked   : String;
       Expected : String;
       Is_Reverse  : Boolean;
       Why      : String)
    is
       S              : Editor.State.State_Type;
-      Plain          : constant String := Phase411_Stripped_Selected_Text (Marked);
-      Selected       : constant String := Phase411_Selected_Text_From_Marked (Marked);
-      Anchor         : constant Cursor_Index := Phase411_Anchor_From_Marked (Marked, Is_Reverse);
-      Pos            : constant Cursor_Index := Phase411_Pos_From_Marked (Marked, Is_Reverse);
+      Plain          : constant String := Stripped_Selected_Text (Marked);
+      Selected       : constant String := Selected_Text_From_Marked (Marked);
+      Anchor         : constant Cursor_Index := Anchor_From_Marked (Marked, Is_Reverse);
+      Pos            : constant Cursor_Index := Pos_From_Marked (Marked, Is_Reverse);
       Before_Clip    : constant Unbounded_String := To_Unbounded_String ("CLIP");
       Before_Back    : Natural := 0;
       Before_Fwd     : Natural := 0;
@@ -10167,42 +10169,42 @@ procedure Test_Phase408_Character_Delete_Canonical_Routes_State_And_Persistence
       Assert_Buffer_Text (S, Plain, Why & " undo");
       Editor.Executor.Execute_Command (S, Editor.Commands.Command_Redo);
       Assert_Buffer_Text (S, Expected, Why & " redo");
-   end Phase411_Run_Marked_Delete;
+   end Run_Marked_Delete;
 
-   procedure Test_Phase411_Selection_Delete_Workflow_Transform_Matrix
+   procedure Test_Selection_Delete_Workflow_Transform_Matrix
 
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
    pragma Unreferenced (T);
    begin
-      Phase411_Run_Marked_Delete ("[Alpha]", "", False, "Phase 411 whole buffer");
-      Phase411_Run_Marked_Delete ("Alpha [Beta]", "Alpha ", False, "Phase 411 suffix word");
-      Phase411_Run_Marked_Delete ("Al[pha Be]ta", "Alta", False, "Phase 411 middle span");
-      Phase411_Run_Marked_Delete ("Alpha[ ]Beta", "AlphaBeta", False, "Phase 411 single space");
-      Phase411_Run_Marked_Delete ("Alpha[" & ASCII.HT & "]Beta", "AlphaBeta", False, "Phase 411 tab");
-      Phase411_Run_Marked_Delete ("Alpha[, ]Beta", "AlphaBeta", False, "Phase 411 punctuation space");
-      Phase411_Run_Marked_Delete ("[Alpha]" & ASCII.LF & "Beta", ASCII.LF & "Beta", False, "Phase 411 prefix before line boundary");
-      Phase411_Run_Marked_Delete ("Alpha" & ASCII.LF & "[Beta]", "Alpha" & ASCII.LF, False, "Phase 411 second line");
-      Phase411_Run_Marked_Delete ("Alpha[" & ASCII.LF & "]Beta", "AlphaBeta", False, "Phase 411 boundary only");
-      Phase411_Run_Marked_Delete ("Alpha[" & ASCII.LF & "Beta]", "Alpha", False, "Phase 411 boundary and text");
-      Phase411_Run_Marked_Delete ("[Alpha" & ASCII.LF & "]Beta", "Beta", False, "Phase 411 first line including boundary");
-      Phase411_Run_Marked_Delete ("Alpha[" & ASCII.LF & ASCII.LF & "]Beta", "AlphaBeta", False, "Phase 411 blank line boundary pair");
-      Phase411_Run_Marked_Delete ("Alpha" & ASCII.LF & "[  " & ASCII.LF & "]Beta", "Alpha" & ASCII.LF & "Beta", False, "Phase 411 whitespace line");
-      Phase411_Run_Marked_Delete ("[Alpha" & ASCII.LF & "Beta" & ASCII.LF & "]", "", False, "Phase 411 trailing newline full buffer");
-      Phase411_Run_Marked_Delete ("Alpha" & ASCII.LF & "[Beta" & ASCII.LF & "]", "Alpha" & ASCII.LF, False, "Phase 411 trailing newline suffix");
-   end Test_Phase411_Selection_Delete_Workflow_Transform_Matrix;
+      Run_Marked_Delete ("[Alpha]", "", False, "whole buffer");
+      Run_Marked_Delete ("Alpha [Beta]", "Alpha ", False, "suffix word");
+      Run_Marked_Delete ("Al[pha Be]ta", "Alta", False, "middle span");
+      Run_Marked_Delete ("Alpha[ ]Beta", "AlphaBeta", False, "single space");
+      Run_Marked_Delete ("Alpha[" & ASCII.HT & "]Beta", "AlphaBeta", False, "tab");
+      Run_Marked_Delete ("Alpha[, ]Beta", "AlphaBeta", False, "punctuation space");
+      Run_Marked_Delete ("[Alpha]" & ASCII.LF & "Beta", ASCII.LF & "Beta", False, "prefix before line boundary");
+      Run_Marked_Delete ("Alpha" & ASCII.LF & "[Beta]", "Alpha" & ASCII.LF, False, "second line");
+      Run_Marked_Delete ("Alpha[" & ASCII.LF & "]Beta", "AlphaBeta", False, "boundary only");
+      Run_Marked_Delete ("Alpha[" & ASCII.LF & "Beta]", "Alpha", False, "boundary and text");
+      Run_Marked_Delete ("[Alpha" & ASCII.LF & "]Beta", "Beta", False, "first line including boundary");
+      Run_Marked_Delete ("Alpha[" & ASCII.LF & ASCII.LF & "]Beta", "AlphaBeta", False, "blank line boundary pair");
+      Run_Marked_Delete ("Alpha" & ASCII.LF & "[  " & ASCII.LF & "]Beta", "Alpha" & ASCII.LF & "Beta", False, "whitespace line");
+      Run_Marked_Delete ("[Alpha" & ASCII.LF & "Beta" & ASCII.LF & "]", "", False, "trailing newline full buffer");
+      Run_Marked_Delete ("Alpha" & ASCII.LF & "[Beta" & ASCII.LF & "]", "Alpha" & ASCII.LF, False, "trailing newline suffix");
+   end Test_Selection_Delete_Workflow_Transform_Matrix;
 
-   procedure Test_Phase411_Forward_Backward_Equivalence_And_Invalid_Noops
+   procedure Test_Forward_Backward_Equivalence_And_Invalid_Noops
 
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
       pragma Unreferenced (T);
       procedure Check_Equivalence (Marked : String; Expected : String; Why : String) is
          F : Editor.State.State_Type;
          B : Editor.State.State_Type;
-         Plain    : constant String := Phase411_Stripped_Selected_Text (Marked);
-         F_Anchor : constant Cursor_Index := Phase411_Anchor_From_Marked (Marked, False);
-         F_Pos    : constant Cursor_Index := Phase411_Pos_From_Marked (Marked, False);
-         B_Anchor : constant Cursor_Index := Phase411_Anchor_From_Marked (Marked, True);
-         B_Pos    : constant Cursor_Index := Phase411_Pos_From_Marked (Marked, True);
+         Plain    : constant String := Stripped_Selected_Text (Marked);
+         F_Anchor : constant Cursor_Index := Anchor_From_Marked (Marked, False);
+         F_Pos    : constant Cursor_Index := Pos_From_Marked (Marked, False);
+         B_Anchor : constant Cursor_Index := Anchor_From_Marked (Marked, True);
+         B_Pos    : constant Cursor_Index := Pos_From_Marked (Marked, True);
       begin
          Editor.History.Undo_Stack.Clear;
          Editor.History.Redo_Stack.Clear;
@@ -10231,12 +10233,12 @@ procedure Test_Phase408_Character_Delete_Canonical_Routes_State_And_Persistence
       Before_Redo : Natural := 0;
       Before_Undo : Natural := 0;
    begin
-      Check_Equivalence ("Alpha [Beta]", "Alpha ", "Phase 411 word equivalence");
-      Check_Equivalence ("Al[pha Be]ta", "Alta", "Phase 411 middle equivalence");
-      Check_Equivalence ("Alpha[  ]Beta", "AlphaBeta", "Phase 411 whitespace equivalence");
-      Check_Equivalence ("Alpha[,] Beta", "Alpha Beta", "Phase 411 punctuation equivalence");
-      Check_Equivalence ("Alpha[" & ASCII.LF & "]Beta", "AlphaBeta", "Phase 411 boundary equivalence");
-      Check_Equivalence ("[Alpha" & ASCII.LF & "Beta]", "", "Phase 411 cross-line equivalence");
+      Check_Equivalence ("Alpha [Beta]", "Alpha ", "word equivalence");
+      Check_Equivalence ("Al[pha Be]ta", "Alta", "middle equivalence");
+      Check_Equivalence ("Alpha[  ]Beta", "AlphaBeta", "whitespace equivalence");
+      Check_Equivalence ("Alpha[,] Beta", "Alpha Beta", "punctuation equivalence");
+      Check_Equivalence ("Alpha[" & ASCII.LF & "]Beta", "AlphaBeta", "boundary equivalence");
+      Check_Equivalence ("[Alpha" & ASCII.LF & "Beta]", "", "cross-line equivalence");
 
       Editor.History.Undo_Stack.Clear;
       Editor.History.Redo_Stack.Clear;
@@ -10249,28 +10251,28 @@ procedure Test_Phase408_Character_Delete_Canonical_Routes_State_And_Persistence
 
       Set_Caret (S, 0);
       Editor.Executor.Execute_Command (S, Editor.Commands.Command_Selection_Delete);
-      Assert_Buffer_Text (S, "Alpha Beta", "Phase 411 no selection no-op text");
+      Assert_Buffer_Text (S, "Alpha Beta", "no selection no-op text");
       Assert (Natural (Editor.History.Redo_Stack.Length) = Before_Redo,
-              "Phase 411 no selection must preserve redo");
+              "no selection must preserve redo");
       Assert (Natural (Editor.History.Undo_Stack.Length) = Before_Undo,
-              "Phase 411 no selection must not create undo");
+              "no selection must not create undo");
 
       Set_Primary_Selection (S, 3, 3);
       Editor.Executor.Execute_Command (S, Editor.Commands.Command_Selection_Delete);
-      Assert_Buffer_Text (S, "Alpha Beta", "Phase 411 empty selection no-op text");
+      Assert_Buffer_Text (S, "Alpha Beta", "empty selection no-op text");
       Assert (Natural (Editor.History.Redo_Stack.Length) = Before_Redo,
-              "Phase 411 empty selection must preserve redo");
+              "empty selection must preserve redo");
 
       Set_Primary_Selection (S, 0, 999);
       Editor.Executor.Execute_Command (S, Editor.Commands.Command_Selection_Delete);
-      Assert_Buffer_Text (S, "Alpha Beta", "Phase 411 invalid selection no-op text");
+      Assert_Buffer_Text (S, "Alpha Beta", "invalid selection no-op text");
       Assert (Message_Text (S) = "Invalid selection",
-              "Phase 411 invalid selection message");
+              "invalid selection message");
       Assert (Natural (Editor.History.Redo_Stack.Length) = Before_Redo,
-              "Phase 411 invalid selection must preserve redo");
-   end Test_Phase411_Forward_Backward_Equivalence_And_Invalid_Noops;
+              "invalid selection must preserve redo");
+   end Test_Forward_Backward_Equivalence_And_Invalid_Noops;
 
-   procedure Test_Phase411_Undo_Redo_Dirty_Find_Clipboard_And_Navigation_Workflow
+   procedure Test_Undo_Redo_Dirty_Find_Clipboard_And_Navigation_Workflow
 
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
       pragma Unreferenced (T);
@@ -10296,42 +10298,42 @@ procedure Test_Phase408_Character_Delete_Canonical_Routes_State_And_Persistence
       Before_Fwd := Editor.Navigation_History.Forward_Count (S.Navigation_History);
 
       Editor.Executor.Execute_Command (S, Editor.Commands.Command_Selection_Delete);
-      Assert_Buffer_Text (S, "Alpha  Gamma", "Phase 411 find workflow delete");
-      Assert (Editor.State.Is_Dirty (S), "Phase 411 delete must dirty clean buffer");
-      Assert (S.Active_Find_Stale, "Phase 411 delete must stale active Find");
+      Assert_Buffer_Text (S, "Alpha  Gamma", "find workflow delete");
+      Assert (Editor.State.Is_Dirty (S), "delete must dirty clean buffer");
+      Assert (S.Active_Find_Stale, "delete must stale active Find");
       Assert (S.Active_Find_Query = To_Unbounded_String ("Beta"),
-              "Phase 411 delete must not mutate Find query");
+              "delete must not mutate Find query");
       Assert (S.Active_Replace_Text = To_Unbounded_String ("DELTA"),
-              "Phase 411 delete must not mutate Replace text");
+              "delete must not mutate Replace text");
       Assert (Editor.Clipboard.Get_Text = Before_Clip,
-              "Phase 411 delete must not mutate Clipboard");
+              "delete must not mutate Clipboard");
       Assert_Navigation_Counts (S, Before_Back, Before_Fwd,
-                                "Phase 411 delete navigation boundary");
+                                "delete navigation boundary");
       Editor.Render_Model.Build_Render_Snapshot (S, Snapshot);
       Assert (Snapshot.Find_Matches_Stale,
-              "Phase 411 render must expose stale/current Find policy after edit");
+              "render must expose stale/current Find policy after edit");
 
       Editor.Executor.Execute_Command (S, Editor.Commands.Command_Undo);
-      Assert_Buffer_Text (S, "Alpha Beta Gamma", "Phase 411 undo restores text");
+      Assert_Buffer_Text (S, "Alpha Beta Gamma", "undo restores text");
       Assert (Natural (Editor.History.Redo_Stack.Length) = 1,
-              "Phase 411 undo creates redo");
+              "undo creates redo");
       Before_Redo := Natural (Editor.History.Redo_Stack.Length);
 
       Set_Caret (S, 0);
       S.Active_Find_Stale := False;
       Editor.Executor.Execute_Command (S, Editor.Commands.Command_Selection_Delete);
       Assert (Natural (Editor.History.Redo_Stack.Length) = Before_Redo,
-              "Phase 411 no-op delete preserves redo after undo");
+              "no-op delete preserves redo after undo");
       Assert (not S.Active_Find_Stale,
-              "Phase 411 no-op delete must not stale Find");
+              "no-op delete must not stale Find");
 
       Editor.Executor.Execute_Command (S, Editor.Commands.Command_Redo);
-      Assert_Buffer_Text (S, "Alpha  Gamma", "Phase 411 redo restores delete");
+      Assert_Buffer_Text (S, "Alpha  Gamma", "redo restores delete");
       Assert (Editor.Clipboard.Get_Text = Before_Clip,
-              "Phase 411 redo path still not clipboard-owned");
-   end Test_Phase411_Undo_Redo_Dirty_Find_Clipboard_And_Navigation_Workflow;
+              "redo path still not clipboard-owned");
+   end Test_Undo_Redo_Dirty_Find_Clipboard_And_Navigation_Workflow;
 
-   procedure Test_Phase411_Command_Coexistence_And_Cut_Contrast
+   procedure Test_Command_Coexistence_And_Cut_Contrast
 
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
       pragma Unreferenced (T);
@@ -10344,32 +10346,32 @@ procedure Test_Phase408_Character_Delete_Canonical_Routes_State_And_Persistence
 
       Editor.Executor.Execute_Command (S, Editor.Commands.Command_Select_All);
       Editor.Executor.Execute_Command (S, Editor.Commands.Command_Selection_Delete);
-      Assert_Buffer_Text (S, "", "Phase 411 select-all delete");
+      Assert_Buffer_Text (S, "", "select-all delete");
       Assert (Editor.Clipboard.Get_Text = To_Unbounded_String ("CLIP"),
-              "Phase 411 select-all delete must not copy deleted text");
+              "select-all delete must not copy deleted text");
       Editor.Executor.Execute_Command (S, Editor.Commands.Command_Undo);
 
       Set_Caret (S, 7);
       Editor.Executor.Execute_Command (S, Editor.Commands.Command_Select_Word);
       Editor.Executor.Execute_Command (S, Editor.Commands.Command_Copy);
       Editor.Executor.Execute_Command (S, Editor.Commands.Command_Selection_Delete);
-      Assert_Buffer_Text (S, "Alpha  Gamma", "Phase 411 current-word delete");
+      Assert_Buffer_Text (S, "Alpha  Gamma", "current-word delete");
       Assert (Editor.Clipboard.Get_Text = To_Unbounded_String ("Beta"),
-              "Phase 411 copy before delete owns clipboard mutation");
+              "copy before delete owns clipboard mutation");
       Editor.Executor.Execute_Command (S, Editor.Commands.Command_Undo);
 
       Set_Primary_Selection (S, 6, 10);
       Editor.Executor.Execute_Command (S, Editor.Commands.Command_Cut);
-      Assert_Buffer_Text (S, "Alpha  Gamma", "Phase 411 cut text effect");
+      Assert_Buffer_Text (S, "Alpha  Gamma", "cut text effect");
       Assert (Editor.Clipboard.Get_Text = To_Unbounded_String ("Beta"),
-              "Phase 411 cut owns clipboard mutation");
+              "cut owns clipboard mutation");
       Editor.Executor.Execute_Command (S, Editor.Commands.Command_Undo);
 
       Set_Caret (S, 6);
       Editor.Executor.Execute_Command (S, Editor.Commands.Command_Char_Delete_Next);
       Set_Primary_Selection (S, 6, 10);
       Editor.Executor.Execute_Command (S, Editor.Commands.Command_Selection_Delete);
-      Assert_Buffer_Text (S, "Alpha Gamma", "Phase 411 after char delete");
+      Assert_Buffer_Text (S, "Alpha Gamma", "after char delete");
       Editor.Executor.Execute_Command (S, Editor.Commands.Command_Undo);
       Editor.Executor.Execute_Command (S, Editor.Commands.Command_Undo);
 
@@ -10377,7 +10379,7 @@ procedure Test_Phase408_Character_Delete_Canonical_Routes_State_And_Persistence
       Editor.Executor.Execute_Command (S, Editor.Commands.Command_Word_Delete_Next);
       Editor.Executor.Execute_Command (S, Editor.Commands.Command_Select_All);
       Editor.Executor.Execute_Command (S, Editor.Commands.Command_Selection_Delete);
-      Assert_Buffer_Text (S, "", "Phase 411 after word delete select-all");
+      Assert_Buffer_Text (S, "", "after word delete select-all");
       Editor.Executor.Execute_Command (S, Editor.Commands.Command_Undo);
       Editor.Executor.Execute_Command (S, Editor.Commands.Command_Undo);
 
@@ -10385,7 +10387,7 @@ procedure Test_Phase408_Character_Delete_Canonical_Routes_State_And_Persistence
       Editor.Executor.Execute_Command (S, Editor.Commands.Command_Line_Split_At_Caret);
       Set_Primary_Selection (S, 5, 6);
       Editor.Executor.Execute_Command (S, Editor.Commands.Command_Selection_Delete);
-      Assert_Buffer_Text (S, "Alpha Beta Gamma", "Phase 411 after line split boundary delete");
+      Assert_Buffer_Text (S, "Alpha Beta Gamma", "after line split boundary delete");
       Editor.Executor.Execute_Command (S, Editor.Commands.Command_Undo);
       Editor.Executor.Execute_Command (S, Editor.Commands.Command_Undo);
 
@@ -10394,10 +10396,10 @@ procedure Test_Phase408_Character_Delete_Canonical_Routes_State_And_Persistence
       Editor.Executor.Execute_Command (S, Editor.Commands.Command_Line_Join_Next);
       Set_Primary_Selection (S, 5, 6);
       Editor.Executor.Execute_Command (S, Editor.Commands.Command_Selection_Delete);
-      Assert_Buffer_Text (S, "Alpha Beta Gamma", "Phase 411 after line join");
-   end Test_Phase411_Command_Coexistence_And_Cut_Contrast;
+      Assert_Buffer_Text (S, "Alpha Beta Gamma", "after line join");
+   end Test_Command_Coexistence_And_Cut_Contrast;
 
-   procedure Test_Phase411_Read_Only_Routes_Feature_And_Persistence_Boundaries
+   procedure Test_Read_Only_Routes_Feature_And_Persistence_Boundaries
 
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
       pragma Unreferenced (T);
@@ -10417,7 +10419,7 @@ procedure Test_Phase408_Character_Delete_Canonical_Routes_State_And_Persistence
       procedure Assert_Not_Exposed (Name : String) is
       begin
          Dummy := Editor.Commands.Command_Id_From_Stable_Name (Name, Found);
-         Assert (not Found, "Phase 411 non-goal command exposed: " & Name);
+         Assert (not Found, "non-goal command exposed: " & Name);
       end Assert_Not_Exposed;
    begin
       Editor.History.Undo_Stack.Clear;
@@ -10441,19 +10443,19 @@ procedure Test_Phase408_Character_Delete_Canonical_Routes_State_And_Persistence
       Editor.Command_Palette.Reset;
       Editor.Command_Palette.Open;
 
-      Assert_Buffer_Text (S, To_String (Before_Text), "Phase 411 read-only routes text");
+      Assert_Buffer_Text (S, To_String (Before_Text), "read-only routes text");
       Assert (S.Carets (S.Carets.First_Index).Pos = Before_Caret,
-              "Phase 411 read-only routes moved caret");
+              "read-only routes moved caret");
       Assert (S.Carets (S.Carets.First_Index).Anchor = Before_Anchor,
-              "Phase 411 read-only routes normalized selection by mutation");
+              "read-only routes normalized selection by mutation");
       Assert (Natural (Editor.History.Undo_Stack.Length) = Before_Undo,
-              "Phase 411 read-only routes mutated undo");
+              "read-only routes mutated undo");
       Assert (Natural (Editor.History.Redo_Stack.Length) = Before_Redo,
-              "Phase 411 read-only routes mutated redo");
+              "read-only routes mutated redo");
       Assert (Editor.Clipboard.Get_Text = Before_Clip,
-              "Phase 411 read-only routes mutated clipboard");
+              "read-only routes mutated clipboard");
       Assert (Snapshot.Selection_Count = 1,
-              "Phase 411 render should project, not consume, canonical selection");
+              "render should project, not consume, canonical selection");
 
       Editor.Executor.Execute_Command (S, Editor.Commands.Command_Selection_Delete);
       Workspace := Editor.State.Build_Workspace_Snapshot (S);
@@ -10466,11 +10468,11 @@ procedure Test_Phase408_Character_Delete_Canonical_Routes_State_And_Persistence
          and then Index (Summary, "selection-delete") = 0
          and then Index (Summary, "kill-ring") = 0
          and then Index (Summary, "clipboard mirror") = 0,
-         "Phase 411 workspace persistence must exclude Selection Delete transient state");
+         "workspace persistence must exclude Selection Delete transient state");
       Assert (S.Active_Find_Query = To_Unbounded_String ("Alpha"),
-              "Phase 411 delete must not mutate Find query");
+              "delete must not mutate Find query");
       Assert (S.Active_Replace_Text = To_Unbounded_String ("Omega"),
-              "Phase 411 delete must not mutate Replace text");
+              "delete must not mutate Replace text");
 
       Assert_Not_Exposed ("edit.selection.cut");
       Assert_Not_Exposed ("edit.selection.kill");
@@ -10480,10 +10482,10 @@ procedure Test_Phase408_Character_Delete_Canonical_Routes_State_And_Persistence
       Assert_Not_Exposed ("edit.selection.delete-semantic-node");
       Assert_Not_Exposed ("edit.text.delete-range");
       Assert_Not_Exposed ("edit.multi-cursor.delete-selection");
-   end Test_Phase411_Read_Only_Routes_Feature_And_Persistence_Boundaries;
+   end Test_Read_Only_Routes_Feature_And_Persistence_Boundaries;
 
 
-procedure Test_Phase412_Selection_Delete_Canonical_State_Only_Workflow
+procedure Test_Selection_Delete_Canonical_State_Only_Workflow
      (T : in out AUnit.Test_Cases.Test_Case'Class)
    is
       pragma Unreferenced (T);
@@ -10509,7 +10511,7 @@ procedure Test_Phase412_Selection_Delete_Canonical_State_Only_Workflow
       Before_Fwd := Editor.Navigation_History.Forward_Count (S.Navigation_History);
 
       Chord := Editor.Keybindings.Parse_Chord ("Ctrl+Alt+M", Found_Chord);
-      Assert (Found_Chord, "Phase 412 test chord must parse");
+      Assert (Found_Chord, "test chord must parse");
       Editor.Keybindings.Bind (Chord, Editor.Commands.Command_Selection_Delete);
       Editor.Input_Bridge.Set_State_For_Test (S);
       Editor.Input_Bridge.Handle_Key_Chord (Chord);
@@ -10517,35 +10519,35 @@ procedure Test_Phase412_Selection_Delete_Canonical_State_Only_Workflow
 
       Assert_Buffer_Text
         (After, "Alpha  Gamma",
-         "Phase 412 Input_Bridge must route canonical Selection Delete through Executor");
+         "Input_Bridge must route canonical Selection Delete through Executor");
       Assert (Message_Text (After) = "Deleted selection",
-              "Phase 412 Selection Delete message mismatch");
+              "Selection Delete message mismatch");
       Assert (Natural (Editor.History.Undo_Stack.Length) = 1,
-              "Phase 412 Selection Delete must create one undo entry");
+              "Selection Delete must create one undo entry");
       Assert (Natural (Editor.History.Redo_Stack.Length) = 0,
-              "Phase 412 text-changing Selection Delete must clear redo only after success");
+              "text-changing Selection Delete must clear redo only after success");
       Assert (Editor.Clipboard.Get_Text = Before_Clip,
-              "Phase 412 Selection Delete must not mutate Clipboard text");
+              "Selection Delete must not mutate Clipboard text");
       Assert (Editor.Clipboard.Has_Text,
-              "Phase 412 Selection Delete must not clear Clipboard state");
+              "Selection Delete must not clear Clipboard state");
       Assert (After.Active_Find_Query = To_Unbounded_String ("Beta"),
-              "Phase 412 Selection Delete must not mutate Find query");
+              "Selection Delete must not mutate Find query");
       Assert (After.Active_Replace_Text = To_Unbounded_String ("Delta"),
-              "Phase 412 Selection Delete must not mutate Replace text");
+              "Selection Delete must not mutate Replace text");
       Assert_Navigation_Counts
         (After, Before_Back, Before_Fwd,
-         "Phase 412 Selection Delete must not record navigation history");
+         "Selection Delete must not record navigation history");
       Assert (not Editor.Selection.Has_Selection (After),
-              "Phase 412 successful Selection Delete must clear/collapse selection");
+              "successful Selection Delete must clear/collapse selection");
 
       Editor.Executor.Execute_Command (After, Editor.Commands.Command_Undo);
       Assert_Buffer_Text
         (After, "Alpha Beta Gamma",
-         "Phase 412 undo must restore captured Selection Delete Before_Text");
+         "undo must restore captured Selection Delete Before_Text");
       Editor.Executor.Execute_Command (After, Editor.Commands.Command_Redo);
       Assert_Buffer_Text
         (After, "Alpha  Gamma",
-         "Phase 412 redo must restore captured Selection Delete After_Text");
+         "redo must restore captured Selection Delete After_Text");
 
       Workspace := Editor.State.Build_Workspace_Snapshot (After);
       Summary := To_Unbounded_String
@@ -10558,14 +10560,14 @@ procedure Test_Phase412_Selection_Delete_Canonical_State_Only_Workflow
          and then Index (Summary, "selected-range cache") = 0
          and then Index (Summary, "clipboard mirror") = 0
          and then Index (Summary, "kill-ring") = 0,
-         "Phase 412 persistence must exclude canonical and removed Selection Delete state");
+         "persistence must exclude canonical and removed Selection Delete state");
 
       Editor.Keybindings.Reset_To_Defaults;
    exception
       when others =>
          Editor.Keybindings.Reset_To_Defaults;
          raise;
-   end Test_Phase412_Selection_Delete_Canonical_State_Only_Workflow;
+   end Test_Selection_Delete_Canonical_State_Only_Workflow;
 
 
 
@@ -10580,7 +10582,7 @@ procedure Test_Phase412_Selection_Delete_Canonical_State_Only_Workflow
       Editor.Executor.Execute_No_Log (S, Cmd);
    end Execute_Text_Input;
 
-   procedure Test_Phase413_Text_Insert_Basic_Caret_And_Undo
+   procedure Test_Text_Insert_Basic_Caret_And_Undo
 
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
       pragma Unreferenced (T);
@@ -10595,25 +10597,25 @@ procedure Test_Phase412_Selection_Delete_Canonical_State_Only_Workflow
 
       Execute_Text_Input (S, "X");
 
-      Assert_Buffer_Text (S, "AlXpha", "Phase 413 insert in middle");
+      Assert_Buffer_Text (S, "AlXpha", "insert in middle");
       Assert (S.Carets (S.Carets.First_Index).Pos = 3,
-              "Phase 413 insert moves caret to payload end");
+              "insert moves caret to payload end");
       Assert (not Editor.Selection.Has_Selection (S),
-              "Phase 413 insert leaves no selection");
+              "insert leaves no selection");
       Assert (Natural (Editor.History.Undo_Stack.Length) = 1,
-              "Phase 413 insert creates one undo entry");
+              "insert creates one undo entry");
       Assert (Natural (Editor.History.Redo_Stack.Length) = 0,
-              "Phase 413 insert leaves redo empty");
+              "insert leaves redo empty");
       Assert (Editor.State.Is_Dirty (S),
-              "Phase 413 insert dirties clean buffer");
+              "insert dirties clean buffer");
 
       Editor.Executor.Execute_Command (S, Editor.Commands.Command_Undo);
-      Assert_Buffer_Text (S, "Alpha", "Phase 413 undo restores text");
+      Assert_Buffer_Text (S, "Alpha", "undo restores text");
       Editor.Executor.Execute_Command (S, Editor.Commands.Command_Redo);
-      Assert_Buffer_Text (S, "AlXpha", "Phase 413 redo restores inserted text");
-   end Test_Phase413_Text_Insert_Basic_Caret_And_Undo;
+      Assert_Buffer_Text (S, "AlXpha", "redo restores inserted text");
+   end Test_Text_Insert_Basic_Caret_And_Undo;
 
-   procedure Test_Phase413_Text_Insert_Replaces_Selection_Without_Clipboard
+   procedure Test_Text_Insert_Replaces_Selection_Without_Clipboard
 
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
       pragma Unreferenced (T);
@@ -10629,18 +10631,18 @@ procedure Test_Phase412_Selection_Delete_Canonical_State_Only_Workflow
 
       Execute_Text_Input (S, "Gamma");
 
-      Assert_Buffer_Text (S, "Alpha Gamma", "Phase 413 selection replacement");
+      Assert_Buffer_Text (S, "Alpha Gamma", "selection replacement");
       Assert (S.Carets (S.Carets.First_Index).Pos = 11,
-              "Phase 413 replacement caret at insert end");
+              "replacement caret at insert end");
       Assert (not Editor.Selection.Has_Selection (S),
-              "Phase 413 replacement clears selection");
+              "replacement clears selection");
       Assert (Editor.Clipboard.Get_Text = To_Unbounded_String ("CLIP"),
-              "Phase 413 replacement leaves clipboard untouched");
+              "replacement leaves clipboard untouched");
       Assert (Natural (Editor.History.Undo_Stack.Length) = 1,
-              "Phase 413 replacement creates one undo entry");
-   end Test_Phase413_Text_Insert_Replaces_Selection_Without_Clipboard;
+              "replacement creates one undo entry");
+   end Test_Text_Insert_Replaces_Selection_Without_Clipboard;
 
-   procedure Test_Phase413_Input_Bridge_Routes_Editor_Text_And_Protects_Overlays
+   procedure Test_Input_Bridge_Routes_Editor_Text_And_Protects_Overlays
 
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
       pragma Unreferenced (T);
@@ -10660,9 +10662,9 @@ procedure Test_Phase412_Selection_Delete_Canonical_State_Only_Workflow
       Cmd.Code := Wide_Wide_Character'Val (Character'Pos ('A'));
       Editor.Input_Bridge.Handle (Cmd);
       S := Editor.Input_Bridge.Get_State_For_Test;
-      Assert_Buffer_Text (S, "ABeta", "Phase 413 bridge routes editor text input");
+      Assert_Buffer_Text (S, "ABeta", "bridge routes editor text input");
       Assert (Natural (Editor.History.Undo_Stack.Length) = 1,
-              "Phase 413 bridge insertion uses undoable mutation");
+              "bridge insertion uses undoable mutation");
 
       Editor.Input_Bridge.Set_State_For_Test (S);
       Editor.Input_Bridge.Execute_Command_Id (Editor.Commands.Command_Open_Quick_Open);
@@ -10673,11 +10675,11 @@ procedure Test_Phase412_Selection_Delete_Canonical_State_Only_Workflow
       Cmd.Code := Wide_Wide_Character'Val (Character'Pos ('Z'));
       Editor.Input_Bridge.Handle (Cmd);
       S := Editor.Input_Bridge.Get_State_For_Test;
-      Assert_Buffer_Text (S, "ABeta", "Phase 413 overlay text input does not edit buffer");
-   end Test_Phase413_Input_Bridge_Routes_Editor_Text_And_Protects_Overlays;
+      Assert_Buffer_Text (S, "ABeta", "overlay text input does not edit buffer");
+   end Test_Input_Bridge_Routes_Editor_Text_And_Protects_Overlays;
 
 
-   procedure Test_Phase413_Completeness_Noop_Invalid_And_Redo_Boundaries
+   procedure Test_Completeness_Noop_Invalid_And_Redo_Boundaries
 
 
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
@@ -10692,42 +10694,42 @@ procedure Test_Phase412_Selection_Delete_Canonical_State_Only_Workflow
       Set_Primary_Selection (S, 0, 5);
 
       Execute_Text_Input (S, "");
-      Assert_Buffer_Text (S, "Alpha", "Phase 413 empty payload no-op preserves text");
+      Assert_Buffer_Text (S, "Alpha", "empty payload no-op preserves text");
       Assert (Editor.Selection.Has_Selection (S),
-              "Phase 413 empty payload no-op preserves valid selection");
+              "empty payload no-op preserves valid selection");
       Assert (Natural (Editor.History.Undo_Stack.Length) = 0,
-              "Phase 413 empty payload creates no undo entry");
+              "empty payload creates no undo entry");
       Assert (not Editor.State.Is_Dirty (S),
-              "Phase 413 empty payload leaves clean buffer clean");
+              "empty payload leaves clean buffer clean");
 
       Execute_Text_Input (S, String'(1 => ASCII.NUL));
-      Assert_Buffer_Text (S, "Alpha", "Phase 413 invalid NUL payload preserves text");
+      Assert_Buffer_Text (S, "Alpha", "invalid NUL payload preserves text");
       Assert (Natural (Editor.History.Undo_Stack.Length) = 0,
-              "Phase 413 invalid payload creates no undo entry");
+              "invalid payload creates no undo entry");
       Assert (not Editor.State.Is_Dirty (S),
-              "Phase 413 invalid payload leaves dirty state unchanged");
+              "invalid payload leaves dirty state unchanged");
 
       Set_Caret (S, 5);
       Execute_Text_Input (S, "!");
       Editor.Executor.Execute_Command (S, Editor.Commands.Command_Undo);
-      Assert_Buffer_Text (S, "Alpha", "Phase 413 undo before redo preservation setup");
+      Assert_Buffer_Text (S, "Alpha", "undo before redo preservation setup");
       Assert (Natural (Editor.History.Redo_Stack.Length) = 1,
-              "Phase 413 undo leaves one redo entry before no-op");
+              "undo leaves one redo entry before no-op");
 
       Execute_Text_Input (S, "");
       Assert (Natural (Editor.History.Redo_Stack.Length) = 1,
-              "Phase 413 no-op after undo preserves redo stack");
+              "no-op after undo preserves redo stack");
       Execute_Text_Input (S, String'(1 => ASCII.NUL));
       Assert (Natural (Editor.History.Redo_Stack.Length) = 1,
-              "Phase 413 invalid input after undo preserves redo stack");
+              "invalid input after undo preserves redo stack");
 
       Execute_Text_Input (S, "?");
-      Assert_Buffer_Text (S, "Alpha?", "Phase 413 successful insert after undo applies text");
+      Assert_Buffer_Text (S, "Alpha?", "successful insert after undo applies text");
       Assert (Natural (Editor.History.Redo_Stack.Length) = 0,
-              "Phase 413 successful insert after undo clears redo stack");
-   end Test_Phase413_Completeness_Noop_Invalid_And_Redo_Boundaries;
+              "successful insert after undo clears redo stack");
+   end Test_Completeness_Noop_Invalid_And_Redo_Boundaries;
 
-   procedure Test_Phase413_Completeness_Backward_Cross_Line_Replacement_And_Persistence
+   procedure Test_Completeness_Backward_Cross_Line_Replacement_And_Persistence
 
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
       pragma Unreferenced (T);
@@ -10752,33 +10754,33 @@ procedure Test_Phase412_Selection_Delete_Canonical_State_Only_Workflow
 
       Assert_Buffer_Text
         (S, "AlX" & ASCII.LF & "Gamma",
-         "Phase 413 backward cross-line selection replacement");
+         "backward cross-line selection replacement");
       Assert (S.Carets (S.Carets.First_Index).Pos = 3,
-              "Phase 413 cross-line replacement caret ends after payload");
+              "cross-line replacement caret ends after payload");
       Assert (not Editor.Selection.Has_Selection (S),
-              "Phase 413 cross-line replacement clears selection");
+              "cross-line replacement clears selection");
       Assert (Editor.Clipboard.Get_Text = To_Unbounded_String ("CLIP"),
-              "Phase 413 replacement does not read or mutate Clipboard text");
+              "replacement does not read or mutate Clipboard text");
       Assert (Editor.Clipboard.Has_Text,
-              "Phase 413 replacement does not clear Clipboard presence");
+              "replacement does not clear Clipboard presence");
       Assert (S.Active_Find_Query = To_Unbounded_String ("Beta"),
-              "Phase 413 Text Insert must not mutate Find query");
+              "Text Insert must not mutate Find query");
       Assert (S.Active_Replace_Text = To_Unbounded_String ("Delta"),
-              "Phase 413 Text Insert must not mutate Replace text");
+              "Text Insert must not mutate Replace text");
       Assert_Navigation_Counts
         (S, Before_Back, Before_Fwd,
-         "Phase 413 Text Insert must not record Navigation History");
+         "Text Insert must not record Navigation History");
       Assert (Natural (Editor.History.Undo_Stack.Length) = 1,
-              "Phase 413 selection replacement creates one undo entry");
+              "selection replacement creates one undo entry");
 
       Editor.Executor.Execute_Command (S, Editor.Commands.Command_Undo);
       Assert_Buffer_Text
         (S, "Alpha" & ASCII.LF & "Beta" & ASCII.LF & "Gamma",
-         "Phase 413 undo restores cross-line replacement text");
+         "undo restores cross-line replacement text");
       Editor.Executor.Execute_Command (S, Editor.Commands.Command_Redo);
       Assert_Buffer_Text
         (S, "AlX" & ASCII.LF & "Gamma",
-         "Phase 413 redo restores cross-line replacement text");
+         "redo restores cross-line replacement text");
 
       Workspace := Editor.State.Build_Workspace_Snapshot (S);
       Summary := To_Unbounded_String
@@ -10790,10 +10792,10 @@ procedure Test_Phase412_Selection_Delete_Canonical_State_Only_Workflow
          and then Index (Summary, "input payload history") = 0
          and then Index (Summary, "typed text history") = 0
          and then Index (Summary, "internal.text.insert") = 0,
-         "Phase 413 persistence must exclude Text Insert transient state");
-   end Test_Phase413_Completeness_Backward_Cross_Line_Replacement_And_Persistence;
+         "persistence must exclude Text Insert transient state");
+   end Test_Completeness_Backward_Cross_Line_Replacement_And_Persistence;
 
-   procedure Test_Phase413_Completeness_Unicode_Routing_Internal_Surface_And_Isolation
+   procedure Test_Completeness_Unicode_Routing_Internal_Surface_And_Isolation
 
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
       pragma Unreferenced (T);
@@ -10823,16 +10825,16 @@ procedure Test_Phase412_Selection_Delete_Canonical_State_Only_Workflow
 
       Assert_Buffer_Text
         (S, "A" & Editor.UTF8.Encode_UTF8 (Lambda),
-         "Phase 413 bridge must route non-Latin text through canonical Text Insert");
+         "bridge must route non-Latin text through canonical Text Insert");
       Assert (Natural (Editor.History.Undo_Stack.Length) = 1,
-              "Phase 413 unicode text entry creates one undo entry");
+              "unicode text entry creates one undo entry");
       Assert (Natural (Editor.History.Redo_Stack.Length) = 0,
-              "Phase 413 unicode text entry does not create redo entries");
+              "unicode text entry does not create redo entries");
 
       Resolved :=
         Editor.Commands.Command_Id_From_Stable_Name ("internal.text.insert", Found);
       Assert (not Found and then Resolved = Editor.Commands.No_Command,
-              "Phase 413 arbitrary parameterized Text Insert must not be a public stable command");
+              "arbitrary parameterized Text Insert must not be a public stable command");
 
       Editor.History.Undo_Stack.Clear;
       Editor.History.Redo_Stack.Clear;
@@ -10841,38 +10843,38 @@ procedure Test_Phase412_Selection_Delete_Canonical_State_Only_Workflow
       Editor.Buffers.Ensure_Global_Registry (S);
       A_Id := Editor.Buffers.Global_Active_Buffer;
 
-      Editor.Executor.Execute_New_Buffer (S);
+      Editor.Executor.File_Open_Commands.Execute_New_Buffer (S);
       B_Id := Editor.Buffers.Global_Active_Buffer;
       Editor.State.Load_Text (S, "Beta");
       Set_Caret (S, 4);
       Execute_Text_Input (S, "!");
       Assert_Buffer_Text (S, "Beta!",
-                          "Phase 413 insert mutates the active buffer");
+                          "insert mutates the active buffer");
 
-      Editor.Executor.Execute_Switch_Buffer (S, A_Id);
+      Editor.Executor.File_Open_Commands.Execute_Switch_Buffer (S, A_Id);
       Assert_Buffer_Text (S, "Alpha",
-                          "Phase 413 insert must not mutate inactive buffers");
+                          "insert must not mutate inactive buffers");
       Assert (Editor.History.Undo_Stack.Is_Empty,
-              "Phase 413 inactive buffer must not inherit text-insert undo entries");
+              "inactive buffer must not inherit text-insert undo entries");
 
-      Editor.Executor.Execute_Switch_Buffer (S, B_Id);
+      Editor.Executor.File_Open_Commands.Execute_Switch_Buffer (S, B_Id);
       Assert_Buffer_Text (S, "Beta!",
-                          "Phase 413 switched active buffer preserves inserted text");
+                          "switched active buffer preserves inserted text");
       Assert (not Editor.History.Undo_Stack.Is_Empty,
-              "Phase 413 active buffer retains its own text-insert undo entry");
+              "active buffer retains its own text-insert undo entry");
 
       Editor.History.Undo_Stack.Clear;
       Editor.History.Redo_Stack.Clear;
       S.Carets.Clear;
       Execute_Text_Input (S, "X");
       Assert_Buffer_Text (S, "Beta!",
-                          "Phase 413 no-caret text insert must not mutate text");
+                          "no-caret text insert must not mutate text");
       Assert (Natural (Editor.History.Undo_Stack.Length) = 0,
-              "Phase 413 no-caret text insert creates no undo entry");
-   end Test_Phase413_Completeness_Unicode_Routing_Internal_Surface_And_Isolation;
+              "no-caret text insert creates no undo entry");
+   end Test_Completeness_Unicode_Routing_Internal_Surface_And_Isolation;
 
 
-   procedure Test_Phase413_Remove_Removed_Name_Text_Input_Uses_Canonical_Path
+   procedure Test_Remove_Removed_Name_Text_Input_Uses_Canonical_Path
 
 
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
@@ -10901,25 +10903,25 @@ procedure Test_Phase412_Selection_Delete_Canonical_State_Only_Workflow
 
       Assert_Buffer_Text
         (S, "Alpha X",
-         "Phase 413 canonical Text Insert must use canonical selection replacement");
+         "canonical Text Insert must use canonical selection replacement");
       Assert (S.Carets (S.Carets.First_Index).Pos = 7,
-              "Phase 413 canonical Text Insert replacement moves caret to payload end");
+              "canonical Text Insert replacement moves caret to payload end");
       Assert (not Editor.Selection.Has_Selection (S),
-              "Phase 413 canonical Text Insert replacement clears selection");
+              "canonical Text Insert replacement clears selection");
       Assert (Editor.Clipboard.Get_Text = To_Unbounded_String ("CLIP"),
-              "Phase 413 canonical Text Insert canonical path does not touch Clipboard");
+              "canonical Text Insert canonical path does not touch Clipboard");
       Assert (S.Active_Find_Query = To_Unbounded_String ("Beta"),
-              "Phase 413 canonical Text Insert must not mutate Find query text");
+              "canonical Text Insert must not mutate Find query text");
       Assert (S.Active_Find_Stale and then S.Active_Find_Matches.Is_Empty,
-              "Phase 413 canonical Text Insert must invalidate Find through text-edit hook");
+              "canonical Text Insert must invalidate Find through text-edit hook");
       Assert_Navigation_Counts
         (S, Before_Back, Before_Fwd,
-         "Phase 413 canonical Text Insert must not record Navigation History");
+         "canonical Text Insert must not record Navigation History");
       Assert (Natural (Editor.History.Undo_Stack.Length) = 1,
-              "Phase 413 canonical Text Insert creates exactly one undo entry");
-   end Test_Phase413_Remove_Removed_Name_Text_Input_Uses_Canonical_Path;
+              "canonical Text Insert creates exactly one undo entry");
+   end Test_Remove_Removed_Name_Text_Input_Uses_Canonical_Path;
 
-   procedure Test_Phase413_Completeness_Line_Boundary_Command_Is_Canonical_Insert
+   procedure Test_Completeness_Line_Boundary_Command_Is_Canonical_Insert
 
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
       pragma Unreferenced (T);
@@ -10937,25 +10939,25 @@ procedure Test_Phase412_Selection_Delete_Canonical_State_Only_Workflow
 
       Assert_Buffer_Text
         (S, "Alpha" & ASCII.LF & "Beta",
-         "Phase 413 Insert Newline command must normalize through canonical Text Insert");
+         "Insert Newline command must normalize through canonical Text Insert");
       Assert (S.Carets (S.Carets.First_Index).Pos = 6,
-              "Phase 413 line-boundary payload moves caret after canonical boundary");
+              "line-boundary payload moves caret after canonical boundary");
       Assert (Natural (Editor.History.Undo_Stack.Length) = 1,
-              "Phase 413 line-boundary insertion creates one undo entry");
+              "line-boundary insertion creates one undo entry");
       Assert (S.Active_Find_Stale,
-              "Phase 413 line-boundary insertion invalidates Find through text-edit hook");
+              "line-boundary insertion invalidates Find through text-edit hook");
 
       Editor.Executor.Execute_Command (S, Editor.Commands.Command_Undo);
       Assert_Buffer_Text
         (S, "AlphaBeta",
-         "Phase 413 undo restores text before line-boundary insertion");
+         "undo restores text before line-boundary insertion");
       Editor.Executor.Execute_Command (S, Editor.Commands.Command_Redo);
       Assert_Buffer_Text
         (S, "Alpha" & ASCII.LF & "Beta",
-         "Phase 413 redo restores exact line-boundary payload");
-   end Test_Phase413_Completeness_Line_Boundary_Command_Is_Canonical_Insert;
+         "redo restores exact line-boundary payload");
+   end Test_Completeness_Line_Boundary_Command_Is_Canonical_Insert;
 
-   procedure Test_Phase413_Completeness_Multi_Caret_Insert_Is_Not_Second_Model
+   procedure Test_Completeness_Multi_Caret_Insert_Is_Not_Second_Model
 
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
       pragma Unreferenced (T);
@@ -10982,14 +10984,14 @@ procedure Test_Phase412_Selection_Delete_Canonical_State_Only_Workflow
 
       Assert_Buffer_Text
         (S, "Alpha Beta",
-         "Phase 413 direct multi-caret Insert_Text_Input must be rejected by the canonical single-caret path");
+         "direct multi-caret Insert_Text_Input must be rejected by the canonical single-caret path");
       Assert (Natural (Editor.History.Undo_Stack.Length) = 0,
-              "Phase 413 rejected multi-caret insertion creates no undo entry");
+              "rejected multi-caret insertion creates no undo entry");
       Assert (Natural (Editor.History.Redo_Stack.Length) = 0,
-              "Phase 413 rejected multi-caret insertion creates no redo entry");
-   end Test_Phase413_Completeness_Multi_Caret_Insert_Is_Not_Second_Model;
+              "rejected multi-caret insertion creates no redo entry");
+   end Test_Completeness_Multi_Caret_Insert_Is_Not_Second_Model;
 
-   procedure Test_Phase414_Text_Insert_Caret_Transform_Matrix
+   procedure Test_Text_Insert_Caret_Transform_Matrix
 
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
       pragma Unreferenced (T);
@@ -11031,31 +11033,31 @@ procedure Test_Phase412_Selection_Delete_Canonical_State_Only_Workflow
       end Case_Insert;
    begin
       Case_Insert ("Beta", 0, "A", "ABeta", 1,
-                   "Phase 414 insert at buffer start");
+                   "insert at buffer start");
       Case_Insert ("Alpha", 5, "!", "Alpha!", 6,
-                   "Phase 414 insert at buffer end");
+                   "insert at buffer end");
       Case_Insert ("Alpha", 2, "X", "AlXpha", 3,
-                   "Phase 414 insert in middle of ordinary text");
+                   "insert in middle of ordinary text");
       Case_Insert ("Alpha Beta", 6, "_", "Alpha _Beta", 7,
-                   "Phase 414 insert adjacent to whitespace");
+                   "insert adjacent to whitespace");
       Case_Insert ("Alpha.Beta", 5, ".", "Alpha..Beta", 6,
-                   "Phase 414 insert adjacent to punctuation");
+                   "insert adjacent to punctuation");
       Case_Insert ("", 0, "A", "A", 1,
-                   "Phase 414 insert into empty buffer");
+                   "insert into empty buffer");
       Case_Insert ("AlphaBeta", 5, "123", "Alpha123Beta", 8,
-                   "Phase 414 insert multi-character payload");
+                   "insert multi-character payload");
       Case_Insert ("AlphaBeta", 5, " ", "Alpha Beta", 6,
-                   "Phase 414 insert literal space payload");
+                   "insert literal space payload");
       Case_Insert ("AlphaBeta", 5, String'(1 => ASCII.HT),
                    "Alpha" & ASCII.HT & "Beta", 6,
-                   "Phase 414 insert literal tab payload");
+                   "insert literal tab payload");
       Case_Insert ("AlphaBeta", 5, String'(1 => ASCII.LF),
                    "Alpha" & ASCII.LF & "Beta", 6,
-                   "Phase 414 insert canonical line-boundary payload");
-   end Test_Phase414_Text_Insert_Caret_Transform_Matrix;
+                   "insert canonical line-boundary payload");
+   end Test_Text_Insert_Caret_Transform_Matrix;
 
 
-   procedure Test_Phase414_Text_Insert_Replacement_Transform_Matrix
+   procedure Test_Text_Insert_Replacement_Transform_Matrix
 
 
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
@@ -11102,34 +11104,34 @@ procedure Test_Phase412_Selection_Delete_Canonical_State_Only_Workflow
       end Case_Replace;
    begin
       Case_Replace ("Alpha", 0, 5, "Beta", "Beta", 4,
-                    "Phase 414 replace select-all");
+                    "replace select-all");
       Case_Replace ("Alpha Beta", 6, 10, "Gamma", "Alpha Gamma", 11,
-                    "Phase 414 replace single-line selection");
+                    "replace single-line selection");
       Case_Replace ("Alpha Beta", 8, 3, "X", "AlpXta", 4,
-                    "Phase 414 replace backward selection equivalently");
+                    "replace backward selection equivalently");
       Case_Replace ("Alpha Beta", 5, 6, "_", "Alpha_Beta", 6,
-                    "Phase 414 replace whitespace selection");
+                    "replace whitespace selection");
       Case_Replace ("Alpha.Beta", 5, 6, "!", "Alpha!Beta", 6,
-                    "Phase 414 replace punctuation selection");
+                    "replace punctuation selection");
       Case_Replace ("Alpha" & ASCII.HT & "Beta", 5, 6, " ",
                     "Alpha Beta", 6,
-                    "Phase 414 replace tab selection");
+                    "replace tab selection");
       Case_Replace ("Alpha" & ASCII.LF & "Beta", 5, 6, " ",
                     "Alpha Beta", 6,
-                    "Phase 414 replace line-boundary-only selection");
+                    "replace line-boundary-only selection");
       Case_Replace ("Alpha" & ASCII.LF & "Beta", 0, 6, "X",
                     "XBeta", 1,
-                    "Phase 414 replace through first line boundary");
+                    "replace through first line boundary");
       Case_Replace ("Alpha" & ASCII.LF & "Beta", 5, 10, "X",
                     "AlphaX", 6,
-                    "Phase 414 replace through trailing selected text");
+                    "replace through trailing selected text");
       Case_Replace ("Alpha" & ASCII.LF & "Beta", 0, 10, "X",
                     "X", 1,
-                    "Phase 414 replace cross-line select-all");
-   end Test_Phase414_Text_Insert_Replacement_Transform_Matrix;
+                    "replace cross-line select-all");
+   end Test_Text_Insert_Replacement_Transform_Matrix;
 
 
-   procedure Test_Phase414_Text_Insert_Noop_Invalid_And_Redo_Are_NonMutating
+   procedure Test_Text_Insert_Noop_Invalid_And_Redo_Are_NonMutating
 
 
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
@@ -11154,48 +11156,48 @@ procedure Test_Phase412_Selection_Delete_Canonical_State_Only_Workflow
       Before_Fwd := Editor.Navigation_History.Forward_Count (S.Navigation_History);
 
       Execute_Text_Input (S, "");
-      Assert_Buffer_Text (S, "Alpha", "Phase 414 empty payload preserves text");
+      Assert_Buffer_Text (S, "Alpha", "empty payload preserves text");
       Assert (Editor.Selection.Has_Selection (S),
-              "Phase 414 empty payload preserves valid selection");
+              "empty payload preserves valid selection");
       Assert (Natural (Editor.History.Undo_Stack.Length) = 0,
-              "Phase 414 empty payload creates no undo entry");
+              "empty payload creates no undo entry");
       Assert (Natural (Editor.History.Redo_Stack.Length) = 1,
-              "Phase 414 empty payload preserves redo stack");
+              "empty payload preserves redo stack");
       Assert (not Editor.State.Is_Dirty (S),
-              "Phase 414 empty payload preserves dirty state");
+              "empty payload preserves dirty state");
       Assert (not S.Active_Find_Stale,
-              "Phase 414 empty payload must not invalidate Find state");
+              "empty payload must not invalidate Find state");
       Assert (Editor.Clipboard.Get_Text = To_Unbounded_String ("CLIP"),
-              "Phase 414 empty payload leaves Clipboard text untouched");
+              "empty payload leaves Clipboard text untouched");
       Assert_Navigation_Counts (S, Before_Back, Before_Fwd,
-                                "Phase 414 empty payload records no navigation");
+                                "empty payload records no navigation");
 
       Execute_Text_Input (S, String'(1 => ASCII.NUL));
-      Assert_Buffer_Text (S, "Alpha", "Phase 414 NUL payload preserves text");
+      Assert_Buffer_Text (S, "Alpha", "NUL payload preserves text");
       Assert (Editor.Selection.Has_Selection (S),
-              "Phase 414 NUL payload preserves selection");
+              "NUL payload preserves selection");
       Assert (Natural (Editor.History.Redo_Stack.Length) = 1,
-              "Phase 414 NUL payload preserves redo stack");
+              "NUL payload preserves redo stack");
       Assert (not S.Active_Find_Stale,
-              "Phase 414 NUL payload must not invalidate Find state");
+              "NUL payload must not invalidate Find state");
 
       Execute_Text_Input (S, String'(1 => ASCII.CR));
-      Assert_Buffer_Text (S, "Alpha", "Phase 414 CR payload preserves text");
+      Assert_Buffer_Text (S, "Alpha", "CR payload preserves text");
       Assert (Editor.Selection.Has_Selection (S),
-              "Phase 414 CR payload preserves selection");
+              "CR payload preserves selection");
       Assert (Natural (Editor.History.Redo_Stack.Length) = 1,
-              "Phase 414 CR payload preserves redo stack");
+              "CR payload preserves redo stack");
 
       Execute_Text_Input (S, String'(1 => ASCII.ESC));
-      Assert_Buffer_Text (S, "Alpha", "Phase 414 ESC payload preserves text");
+      Assert_Buffer_Text (S, "Alpha", "ESC payload preserves text");
       Assert (Editor.Selection.Has_Selection (S),
-              "Phase 414 ESC payload preserves selection");
+              "ESC payload preserves selection");
       Assert (Natural (Editor.History.Redo_Stack.Length) = 1,
-              "Phase 414 ESC payload preserves redo stack");
-   end Test_Phase414_Text_Insert_Noop_Invalid_And_Redo_Are_NonMutating;
+              "ESC payload preserves redo stack");
+   end Test_Text_Insert_Noop_Invalid_And_Redo_Are_NonMutating;
 
 
-   procedure Test_Phase414_Text_Insert_Invalid_Selection_Does_Not_Repair_State
+   procedure Test_Text_Insert_Invalid_Selection_Does_Not_Repair_State
 
 
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
@@ -11218,27 +11220,27 @@ procedure Test_Phase412_Selection_Delete_Canonical_State_Only_Workflow
 
       Assert_Buffer_Text
         (S, "Alpha Beta",
-         "Phase 414 invalid multi-caret Text Insert must not mutate text");
+         "invalid multi-caret Text Insert must not mutate text");
       Assert (Natural (S.Carets.Length) = 2,
-              "Phase 414 invalid multi-caret Text Insert must not collapse carets");
+              "invalid multi-caret Text Insert must not collapse carets");
       Assert (Natural (Editor.History.Undo_Stack.Length) = 0,
-              "Phase 414 invalid multi-caret Text Insert creates no undo entry");
+              "invalid multi-caret Text Insert creates no undo entry");
       Assert (Natural (Editor.History.Redo_Stack.Length) = 0,
-              "Phase 414 invalid multi-caret Text Insert creates no redo entry");
+              "invalid multi-caret Text Insert creates no redo entry");
 
       S.Rect_Select_Active := True;
       Execute_Text_Input (S, "Y");
       Assert_Buffer_Text
         (S, "Alpha Beta",
-         "Phase 414 rectangular Text Insert failure must not mutate text");
+         "rectangular Text Insert failure must not mutate text");
       Assert (Natural (S.Carets.Length) = 2,
-              "Phase 414 rectangular Text Insert failure must not repair carets");
+              "rectangular Text Insert failure must not repair carets");
       Assert (Natural (Editor.History.Undo_Stack.Length) = 0,
-              "Phase 414 rectangular Text Insert failure creates no undo entry");
-   end Test_Phase414_Text_Insert_Invalid_Selection_Does_Not_Repair_State;
+              "rectangular Text Insert failure creates no undo entry");
+   end Test_Text_Insert_Invalid_Selection_Does_Not_Repair_State;
 
 
-   procedure Test_Phase414_Text_Insert_Find_Clipboard_Navigation_And_Persistence
+   procedure Test_Text_Insert_Find_Clipboard_Navigation_And_Persistence
 
 
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
@@ -11264,20 +11266,20 @@ procedure Test_Phase412_Selection_Delete_Canonical_State_Only_Workflow
 
       Execute_Text_Input (S, "X");
 
-      Assert_Buffer_Text (S, "Alpha XBeta", "Phase 414 insert before find match");
+      Assert_Buffer_Text (S, "Alpha XBeta", "insert before find match");
       Assert (S.Active_Find_Query = To_Unbounded_String ("Beta"),
-              "Phase 414 Text Insert does not mutate Find query");
+              "Text Insert does not mutate Find query");
       Assert (S.Active_Replace_Text = To_Unbounded_String ("Gamma"),
-              "Phase 414 Text Insert does not mutate Replace text");
+              "Text Insert does not mutate Replace text");
       Assert (S.Active_Find_Stale and then S.Active_Find_Matches.Is_Empty,
-              "Phase 414 Text Insert invalidates Find through canonical text-edit hook");
+              "Text Insert invalidates Find through canonical text-edit hook");
       Assert (Editor.Clipboard.Get_Text = To_Unbounded_String ("CLIP"),
-              "Phase 414 Text Insert does not mutate Clipboard text");
+              "Text Insert does not mutate Clipboard text");
       Assert (Editor.Clipboard.Has_Text,
-              "Phase 414 Text Insert does not clear Clipboard presence");
+              "Text Insert does not clear Clipboard presence");
       Assert_Navigation_Counts
         (S, Before_Back, Before_Fwd,
-         "Phase 414 Text Insert records no Navigation History");
+         "Text Insert records no Navigation History");
 
       Workspace := Editor.State.Build_Workspace_Snapshot (S);
       Summary := To_Unbounded_String
@@ -11289,11 +11291,11 @@ procedure Test_Phase412_Selection_Delete_Canonical_State_Only_Workflow
          and then Index (Summary, "last replacement range") = 0
          and then Index (Summary, "typed text history") = 0
          and then Index (Summary, "input payload history") = 0,
-         "Phase 414 persistence must exclude Text Insert transient state");
-   end Test_Phase414_Text_Insert_Find_Clipboard_Navigation_And_Persistence;
+         "persistence must exclude Text Insert transient state");
+   end Test_Text_Insert_Find_Clipboard_Navigation_And_Persistence;
 
 
-   procedure Test_Phase414_Completeness_Active_Buffer_Render_And_Overlay_Routing
+   procedure Test_Completeness_Active_Buffer_Render_And_Overlay_Routing
 
 
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
@@ -11317,48 +11319,48 @@ procedure Test_Phase412_Selection_Delete_Canonical_State_Only_Workflow
       A_Id := Editor.Buffers.Global_Active_Buffer;
       Editor.Buffers.Sync_Global_Active_From_State (S);
 
-      Editor.Executor.Execute_New_Buffer (S);
+      Editor.Executor.File_Open_Commands.Execute_New_Buffer (S);
       B_Id := Editor.Buffers.Global_Active_Buffer;
       Editor.State.Load_Text (S, "Beta");
       Set_Caret (S, 4);
       Execute_Text_Input (S, "!");
       Assert_Buffer_Text
         (S, "Beta!",
-         "Phase 414 completeness Text Insert mutates only active buffer B");
+         "completeness Text Insert mutates only active buffer B");
       Assert (Natural (Editor.History.Undo_Stack.Length) = 1,
-              "Phase 414 completeness active buffer B receives one undo entry");
+              "completeness active buffer B receives one undo entry");
 
       Editor.Buffers.Sync_Global_Active_From_State (S);
-      Editor.Executor.Execute_Switch_Buffer (S, A_Id);
+      Editor.Executor.File_Open_Commands.Execute_Switch_Buffer (S, A_Id);
       Assert_Buffer_Text
         (S, "Alpha",
-         "Phase 414 completeness inactive buffer A remains unchanged");
+         "completeness inactive buffer A remains unchanged");
       Assert (Editor.History.Undo_Stack.Is_Empty,
-              "Phase 414 completeness inactive buffer A has no Text Insert undo entry");
+              "completeness inactive buffer A has no Text Insert undo entry");
 
       Set_Caret (S, 0);
       Execute_Text_Input (S, "A");
       Assert_Buffer_Text
         (S, "AAlpha",
-         "Phase 414 completeness buffer A can be edited independently after switch");
+         "completeness buffer A can be edited independently after switch");
       Assert (Natural (Editor.History.Undo_Stack.Length) = 1,
-              "Phase 414 completeness buffer A has its own undo entry");
+              "completeness buffer A has its own undo entry");
 
       Editor.Buffers.Sync_Global_Active_From_State (S);
-      Editor.Executor.Execute_Switch_Buffer (S, B_Id);
+      Editor.Executor.File_Open_Commands.Execute_Switch_Buffer (S, B_Id);
       Assert_Buffer_Text
         (S, "Beta!",
-         "Phase 414 completeness buffer B retains independent inserted text");
+         "completeness buffer B retains independent inserted text");
       Editor.Executor.Execute_Command (S, Editor.Commands.Command_Undo);
       Assert_Buffer_Text
         (S, "Beta",
-         "Phase 414 completeness undo in buffer B affects only buffer B");
+         "completeness undo in buffer B affects only buffer B");
 
       Editor.Buffers.Sync_Global_Active_From_State (S);
-      Editor.Executor.Execute_Switch_Buffer (S, A_Id);
+      Editor.Executor.File_Open_Commands.Execute_Switch_Buffer (S, A_Id);
       Assert_Buffer_Text
         (S, "AAlpha",
-         "Phase 414 completeness undo in B does not change buffer A");
+         "completeness undo in B does not change buffer A");
 
       --  Rendering observes current text/caret state only.  It must not repair,
       --  insert, clear redo, mutate dirty state, or produce editor text-entry
@@ -11368,16 +11370,16 @@ procedure Test_Phase412_Selection_Delete_Canonical_State_Only_Workflow
       Dirty_Before := Editor.State.Is_Dirty (S);
       Editor.Render_Model.Build_Render_Snapshot (S, Snap);
       Assert (Snap.Length = Text_Buffer.Length (S.Buffer),
-              "Phase 414 completeness render snapshot reflects buffer length");
+              "completeness render snapshot reflects buffer length");
       Assert_Buffer_Text
         (S, "AAlpha",
-         "Phase 414 completeness render snapshot must not insert text");
+         "completeness render snapshot must not insert text");
       Assert (Natural (Editor.History.Undo_Stack.Length) = Undo_Before,
-              "Phase 414 completeness render snapshot must not mutate undo stack");
+              "completeness render snapshot must not mutate undo stack");
       Assert (Natural (Editor.History.Redo_Stack.Length) = Redo_Before,
-              "Phase 414 completeness render snapshot must not mutate redo stack");
+              "completeness render snapshot must not mutate redo stack");
       Assert (Editor.State.Is_Dirty (S) = Dirty_Before,
-              "Phase 414 completeness render snapshot must not mutate dirty state");
+              "completeness render snapshot must not mutate dirty state");
 
       --  Input_Bridge editor focus routes to canonical Text Insert, while an
       --  overlay/input owner consumes text locally before the active buffer can
@@ -11396,9 +11398,9 @@ procedure Test_Phase412_Selection_Delete_Canonical_State_Only_Workflow
       S := Editor.Input_Bridge.Get_State_For_Test;
       Assert_Buffer_Text
         (S, "CoXre",
-         "Phase 414 completeness bridge editor focus routes through Text Insert");
+         "completeness bridge editor focus routes through Text Insert");
       Assert (Natural (Editor.History.Undo_Stack.Length) = 1,
-              "Phase 414 completeness bridge editor text creates one undo entry");
+              "completeness bridge editor text creates one undo entry");
 
       Undo_Before := Natural (Editor.History.Undo_Stack.Length);
       Redo_Before := Natural (Editor.History.Redo_Stack.Length);
@@ -11414,16 +11416,16 @@ procedure Test_Phase412_Selection_Delete_Canonical_State_Only_Workflow
       S := Editor.Input_Bridge.Get_State_For_Test;
       Assert_Buffer_Text
         (S, "CoXre",
-         "Phase 414 completeness Quick Open text input must not leak into buffer");
+         "completeness Quick Open text input must not leak into buffer");
       Assert (Natural (Editor.History.Undo_Stack.Length) = Undo_Before,
-              "Phase 414 completeness overlay text input must not create buffer undo entries");
+              "completeness overlay text input must not create buffer undo entries");
       Assert (Natural (Editor.History.Redo_Stack.Length) = Redo_Before,
-              "Phase 414 completeness overlay text input must not mutate buffer redo entries");
+              "completeness overlay text input must not mutate buffer redo entries");
       Assert (Editor.State.Is_Dirty (S) = Dirty_Before,
-              "Phase 414 completeness overlay text input must not mutate buffer dirty state");
+              "completeness overlay text input must not mutate buffer dirty state");
 
       Editor.Buffers.Reset_Global_For_Test;
-   end Test_Phase414_Completeness_Active_Buffer_Render_And_Overlay_Routing;
+   end Test_Completeness_Active_Buffer_Render_And_Overlay_Routing;
 
 
    procedure Assert_Text_Insert_Coherent
@@ -11457,7 +11459,7 @@ procedure Test_Phase412_Selection_Delete_Canonical_State_Only_Workflow
    end Assert_Text_Insert_Coherent;
 
 
-   procedure Test_Phase415_Text_Insert_Workflow_Transform_And_Replacement
+   procedure Test_Text_Insert_Workflow_Transform_And_Replacement
 
 
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
@@ -11549,45 +11551,45 @@ procedure Test_Phase412_Selection_Delete_Canonical_State_Only_Workflow
       end Case_Replace;
    begin
       Case_Insert ("Beta", 0, "A", "ABeta", 1,
-                   "Phase 415 insert at buffer start end-to-end");
+                   "insert at buffer start end-to-end");
       Case_Insert ("Alpha", 5, "!", "Alpha!", 6,
-                   "Phase 415 insert at buffer end end-to-end");
+                   "insert at buffer end end-to-end");
       Case_Insert ("Alphabeta", 5, "123", "Alpha123beta", 8,
-                   "Phase 415 multi-character insert at caret");
+                   "multi-character insert at caret");
       Case_Insert ("AlphaBeta", 5, " ", "Alpha Beta", 6,
-                   "Phase 415 space payload insert policy");
+                   "space payload insert policy");
       Case_Insert ("AlphaBeta", 5, String'(1 => ASCII.HT),
                    "Alpha" & ASCII.HT & "Beta", 6,
-                   "Phase 415 tab payload insert policy");
+                   "tab payload insert policy");
       Case_Insert ("AlphaBeta", 5, String'(1 => ASCII.LF),
                    "Alpha" & ASCII.LF & "Beta", 6,
-                   "Phase 415 line-boundary payload insert policy");
+                   "line-boundary payload insert policy");
       Case_Insert ("", 0, "A", "A", 1,
-                   "Phase 415 empty buffer insert policy");
+                   "empty buffer insert policy");
 
       Case_Replace ("Alpha", 0, 5, "Beta", "Beta", 4, "Alpha",
-                    "Phase 415 select-all replacement");
+                    "select-all replacement");
       Case_Replace ("Alpha Beta", 6, 10, "Gamma", "Alpha Gamma", 11, "Beta",
-                    "Phase 415 forward single-line replacement");
+                    "forward single-line replacement");
       Case_Replace ("Alpha Beta", 10, 6, "Gamma", "Alpha Gamma", 11, "Beta",
-                    "Phase 415 backward single-line replacement equivalence");
+                    "backward single-line replacement equivalence");
       Case_Replace ("Alpha Beta", 5, 6, "_", "Alpha_Beta", 6, " ",
-                    "Phase 415 whitespace replacement");
+                    "whitespace replacement");
       Case_Replace ("Alpha.Beta", 5, 6, "!", "Alpha!Beta", 6, ".",
-                    "Phase 415 punctuation replacement");
+                    "punctuation replacement");
       Case_Replace ("Alpha" & ASCII.HT & "Beta", 5, 6, " ", "Alpha Beta", 6,
                     String'(1 => ASCII.HT),
-                    "Phase 415 tab replacement");
+                    "tab replacement");
       Case_Replace ("Alpha" & ASCII.LF & "Beta", 5, 6, " ", "Alpha Beta", 6,
                     String'(1 => ASCII.LF),
-                    "Phase 415 line-boundary replacement");
+                    "line-boundary replacement");
       Case_Replace ("Alpha" & ASCII.LF & "Beta", 0, 11, "X", "X", 1,
                     "Alpha" & ASCII.LF & "Beta",
-                    "Phase 415 cross-line select-all replacement");
-   end Test_Phase415_Text_Insert_Workflow_Transform_And_Replacement;
+                    "cross-line select-all replacement");
+   end Test_Text_Insert_Workflow_Transform_And_Replacement;
 
 
-   procedure Test_Phase415_Text_Insert_Noops_Redo_Dirty_And_Find
+   procedure Test_Text_Insert_Noops_Redo_Dirty_And_Find
 
 
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
@@ -11610,70 +11612,70 @@ procedure Test_Phase412_Selection_Delete_Canonical_State_Only_Workflow
       Before_Fwd := Editor.Navigation_History.Forward_Count (S.Navigation_History);
 
       Execute_Text_Input (S, "");
-      Assert_Buffer_Text (S, "Alpha", "Phase 415 empty payload must not delete selection");
+      Assert_Buffer_Text (S, "Alpha", "empty payload must not delete selection");
       Assert (Editor.Selection.Has_Selection (S),
-              "Phase 415 empty payload preserves valid selection");
+              "empty payload preserves valid selection");
       Assert (Natural (Editor.History.Undo_Stack.Length) = 0,
-              "Phase 415 empty payload creates no undo entry");
+              "empty payload creates no undo entry");
       Assert (Natural (Editor.History.Redo_Stack.Length) = 0,
-              "Phase 415 empty payload creates no redo entry");
+              "empty payload creates no redo entry");
       Assert (not Editor.State.Is_Dirty (S),
-              "Phase 415 empty payload preserves dirty state");
+              "empty payload preserves dirty state");
       Assert (not S.Active_Find_Stale,
-              "Phase 415 empty payload does not invalidate Find");
+              "empty payload does not invalidate Find");
       Assert (Editor.Clipboard.Get_Text = To_Unbounded_String ("CLIP"),
-              "Phase 415 empty payload leaves Clipboard text unchanged");
+              "empty payload leaves Clipboard text unchanged");
       Assert_Navigation_Counts (S, Before_Back, Before_Fwd,
-                                "Phase 415 empty payload records no Navigation History");
+                                "empty payload records no Navigation History");
 
       Execute_Text_Input (S, String'(1 => ASCII.NUL));
-      Assert_Buffer_Text (S, "Alpha", "Phase 415 NUL payload must not mutate text");
+      Assert_Buffer_Text (S, "Alpha", "NUL payload must not mutate text");
       Assert (Editor.Selection.Has_Selection (S),
-              "Phase 415 NUL payload preserves selection");
+              "NUL payload preserves selection");
       Assert (Natural (Editor.History.Undo_Stack.Length) = 0,
-              "Phase 415 NUL payload creates no undo entry");
+              "NUL payload creates no undo entry");
       Assert (Natural (Editor.History.Redo_Stack.Length) = 0,
-              "Phase 415 NUL payload preserves redo stack");
+              "NUL payload preserves redo stack");
       Assert (not Editor.State.Is_Dirty (S),
-              "Phase 415 NUL payload preserves dirty state");
+              "NUL payload preserves dirty state");
       Assert (S.Carets (S.Carets.First_Index).Anchor = 0
               and then S.Carets (S.Carets.First_Index).Pos = 5,
-              "Phase 415 NUL payload preserves selection anchor/focus");
+              "NUL payload preserves selection anchor/focus");
       Assert (not S.Active_Find_Stale,
-              "Phase 415 NUL payload does not invalidate Find");
+              "NUL payload does not invalidate Find");
       Assert (Editor.Clipboard.Get_Text = To_Unbounded_String ("CLIP"),
-              "Phase 415 NUL payload leaves Clipboard text unchanged");
+              "NUL payload leaves Clipboard text unchanged");
       Assert_Navigation_Counts (S, Before_Back, Before_Fwd,
-                                "Phase 415 NUL payload records no Navigation History");
+                                "NUL payload records no Navigation History");
 
       Set_Caret (S, 5);
       Execute_Text_Input (S, "!");
       Editor.Executor.Execute_Command (S, Editor.Commands.Command_Undo);
-      Assert_Buffer_Text (S, "Alpha", "Phase 415 redo preservation setup undo restores clean text");
+      Assert_Buffer_Text (S, "Alpha", "redo preservation setup undo restores clean text");
       Assert (Natural (Editor.History.Redo_Stack.Length) = 1,
-              "Phase 415 undo leaves redo available before no-op/failure");
+              "undo leaves redo available before no-op/failure");
 
       Execute_Text_Input (S, "");
       Assert (Natural (Editor.History.Redo_Stack.Length) = 1,
-              "Phase 415 empty payload preserves redo stack after undo");
+              "empty payload preserves redo stack after undo");
       Execute_Text_Input (S, String'(1 => ASCII.ESC));
       Assert (Natural (Editor.History.Redo_Stack.Length) = 1,
-              "Phase 415 invalid payload preserves redo stack after undo");
+              "invalid payload preserves redo stack after undo");
       Editor.Executor.Execute_Command (S, Editor.Commands.Command_Redo);
-      Assert_Buffer_Text (S, "Alpha!", "Phase 415 redo still restores prior edit after failed Text Insert");
+      Assert_Buffer_Text (S, "Alpha!", "redo still restores prior edit after failed Text Insert");
 
       Editor.Executor.Execute_Command (S, Editor.Commands.Command_Undo);
       Set_Primary_Selection (S, 0, 5);
       Execute_Text_Input (S, "Q");
-      Assert_Buffer_Text (S, "Q", "Phase 415 successful replacement after undo applies new text");
+      Assert_Buffer_Text (S, "Q", "successful replacement after undo applies new text");
       Assert (Natural (Editor.History.Redo_Stack.Length) = 0,
-              "Phase 415 successful replacement after undo clears redo stack");
+              "successful replacement after undo clears redo stack");
       Editor.Executor.Execute_Command (S, Editor.Commands.Command_Redo);
-      Assert_Buffer_Text (S, "Q", "Phase 415 redo after invalidation leaves replacement text unchanged");
-   end Test_Phase415_Text_Insert_Noops_Redo_Dirty_And_Find;
+      Assert_Buffer_Text (S, "Q", "redo after invalidation leaves replacement text unchanged");
+   end Test_Text_Insert_Noops_Redo_Dirty_And_Find;
 
 
-   procedure Test_Phase415_Text_Insert_Clipboard_Navigation_Active_Buffer_And_Overlay_Workflow
+   procedure Test_Text_Insert_Clipboard_Navigation_Active_Buffer_And_Overlay_Workflow
 
 
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
@@ -11705,34 +11707,34 @@ procedure Test_Phase412_Selection_Delete_Canonical_State_Only_Workflow
       Assert_Text_Insert_Coherent
         (S, "AlphaX", 6, 1, 0, True, To_Unbounded_String ("CLIP"),
          Before_Back, Before_Fwd,
-         "Phase 415 Text Insert ignores Clipboard and Navigation History");
+         "Text Insert ignores Clipboard and Navigation History");
 
       Editor.Executor.Execute_Command (S, Editor.Commands.Command_Paste);
       Assert_Buffer_Text
         (S, "AlphaXCLIP",
-         "Phase 415 Paste still uses original Clipboard after Text Insert");
+         "Paste still uses original Clipboard after Text Insert");
       Assert (Editor.Clipboard.Get_Text = To_Unbounded_String ("CLIP"),
-              "Phase 415 Text Insert did not consume Clipboard before Paste");
+              "Text Insert did not consume Clipboard before Paste");
 
       Editor.Buffers.Sync_Global_Active_From_State (S);
-      Editor.Executor.Execute_New_Buffer (S);
+      Editor.Executor.File_Open_Commands.Execute_New_Buffer (S);
       B_Id := Editor.Buffers.Global_Active_Buffer;
       Editor.State.Load_Text (S, "Beta");
       Set_Caret (S, 4);
       Execute_Text_Input (S, "!");
-      Assert_Buffer_Text (S, "Beta!", "Phase 415 active buffer B receives Text Insert");
+      Assert_Buffer_Text (S, "Beta!", "active buffer B receives Text Insert");
 
       Editor.Buffers.Sync_Global_Active_From_State (S);
-      Editor.Executor.Execute_Switch_Buffer (S, A_Id);
-      Assert_Buffer_Text (S, "AlphaXCLIP", "Phase 415 inactive buffer A retained its own text");
+      Editor.Executor.File_Open_Commands.Execute_Switch_Buffer (S, A_Id);
+      Assert_Buffer_Text (S, "AlphaXCLIP", "inactive buffer A retained its own text");
       Editor.Executor.Execute_Command (S, Editor.Commands.Command_Undo);
-      Assert_Buffer_Text (S, "AlphaX", "Phase 415 undo in A affects only A");
+      Assert_Buffer_Text (S, "AlphaX", "undo in A affects only A");
 
       Editor.Buffers.Sync_Global_Active_From_State (S);
-      Editor.Executor.Execute_Switch_Buffer (S, B_Id);
-      Assert_Buffer_Text (S, "Beta!", "Phase 415 switch back to B preserves B inserted text");
+      Editor.Executor.File_Open_Commands.Execute_Switch_Buffer (S, B_Id);
+      Assert_Buffer_Text (S, "Beta!", "switch back to B preserves B inserted text");
       Editor.Executor.Execute_Command (S, Editor.Commands.Command_Undo);
-      Assert_Buffer_Text (S, "Beta", "Phase 415 undo in B affects only B");
+      Assert_Buffer_Text (S, "Beta", "undo in B affects only B");
 
       Editor.State.Load_Text (S, "Core");
       Editor.State.Set_Dirty (S, False);
@@ -11746,9 +11748,9 @@ procedure Test_Phase412_Selection_Delete_Canonical_State_Only_Workflow
       Cmd.Code := Wide_Wide_Character'Val (Character'Pos ('Y'));
       Editor.Input_Bridge.Handle (Cmd);
       S := Editor.Input_Bridge.Get_State_For_Test;
-      Assert_Buffer_Text (S, "CoYre", "Phase 415 editor focus text-entry routes to canonical insertion");
+      Assert_Buffer_Text (S, "CoYre", "editor focus text-entry routes to canonical insertion");
       Assert (Natural (Editor.History.Undo_Stack.Length) = 1,
-              "Phase 415 Input_Bridge editor insertion creates canonical undo entry");
+              "Input_Bridge editor insertion creates canonical undo entry");
 
       Undo_Before := Natural (Editor.History.Undo_Stack.Length);
       Redo_Before := Natural (Editor.History.Redo_Stack.Length);
@@ -11762,19 +11764,19 @@ procedure Test_Phase412_Selection_Delete_Canonical_State_Only_Workflow
       Cmd.Code := Wide_Wide_Character'Val (Character'Pos ('Z'));
       Editor.Input_Bridge.Handle (Cmd);
       S := Editor.Input_Bridge.Get_State_For_Test;
-      Assert_Buffer_Text (S, "CoYre", "Phase 415 Quick Open field consumes text before editor buffer");
+      Assert_Buffer_Text (S, "CoYre", "Quick Open field consumes text before editor buffer");
       Assert (Natural (Editor.History.Undo_Stack.Length) = Undo_Before,
-              "Phase 415 overlay input creates no buffer undo entry");
+              "overlay input creates no buffer undo entry");
       Assert (Natural (Editor.History.Redo_Stack.Length) = Redo_Before,
-              "Phase 415 overlay input preserves buffer redo stack");
+              "overlay input preserves buffer redo stack");
       Assert (Editor.State.Is_Dirty (S) = Dirty_Before,
-              "Phase 415 overlay input preserves dirty state");
+              "overlay input preserves dirty state");
 
       Editor.Buffers.Reset_Global_For_Test;
-   end Test_Phase415_Text_Insert_Clipboard_Navigation_Active_Buffer_And_Overlay_Workflow;
+   end Test_Text_Insert_Clipboard_Navigation_Active_Buffer_And_Overlay_Workflow;
 
 
-   procedure Test_Phase415_Text_Insert_Mixed_Editing_Features_Render_And_Persistence
+   procedure Test_Text_Insert_Mixed_Editing_Features_Render_And_Persistence
 
 
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
@@ -11800,37 +11802,37 @@ procedure Test_Phase412_Selection_Delete_Canonical_State_Only_Workflow
 
       Execute_Text_Input (S, "X");
       Assert_Buffer_Text (S, "AlphaX Beta" & ASCII.LF & "Gamma",
-                          "Phase 415 mixed workflow starts with Text Insert");
+                          "mixed workflow starts with Text Insert");
       Editor.Executor.Execute_Command (S, Editor.Commands.Command_Char_Delete_Previous);
       Assert_Buffer_Text (S, "Alpha Beta" & ASCII.LF & "Gamma",
-                          "Phase 415 Character Delete consumes canonical post-insert text");
+                          "Character Delete consumes canonical post-insert text");
       Execute_Text_Input (S, "Y");
       Assert_Buffer_Text (S, "AlphaY Beta" & ASCII.LF & "Gamma",
-                          "Phase 415 Text Insert works after Character Delete");
+                          "Text Insert works after Character Delete");
       Editor.Executor.Execute_Command (S, Editor.Commands.Command_Word_Delete_Previous);
       Assert_Buffer_Text (S, " Beta" & ASCII.LF & "Gamma",
-                          "Phase 415 Word Delete consumes canonical post-insert text");
+                          "Word Delete consumes canonical post-insert text");
       Execute_Text_Input (S, "Alpha");
       Assert_Buffer_Text (S, "Alpha Beta" & ASCII.LF & "Gamma",
-                          "Phase 415 Text Insert works after Word Delete");
+                          "Text Insert works after Word Delete");
       Editor.Executor.Execute_Command (S, Editor.Commands.Command_Line_Split_At_Caret);
       Execute_Text_Input (S, "T");
       Assert_Buffer_Text (S, "Alpha" & ASCII.LF & "T Beta" & ASCII.LF & "Gamma",
-                          "Phase 415 Text Insert works after Line Split");
+                          "Text Insert works after Line Split");
       Editor.Executor.Execute_Command (S, Editor.Commands.Command_Line_Join_Next);
       Execute_Text_Input (S, "U");
       Assert (Index (To_Unbounded_String (Buffer_Text (S)), "U") > 0,
-              "Phase 415 Text Insert works after Line Join");
+              "Text Insert works after Line Join");
       Editor.Executor.Execute_Command (S, Editor.Commands.Command_Indent_Increase);
       Execute_Text_Input (S, "V");
       Assert (Index (To_Unbounded_String (Buffer_Text (S)), "V") > 0,
-              "Phase 415 Text Insert works after Indentation");
+              "Text Insert works after Indentation");
       Editor.Executor.Execute_Command (S, Editor.Commands.Command_Toggle_Line_Comment);
       Execute_Text_Input (S, "W");
       Assert (Index (To_Unbounded_String (Buffer_Text (S)), "W") > 0,
-              "Phase 415 Text Insert works after Line Comment toggle");
+              "Text Insert works after Line Comment toggle");
       Assert (Editor.Clipboard.Get_Text = To_Unbounded_String ("CLIP"),
-              "Phase 415 mixed editing workflow leaves Clipboard owned by Clipboard commands only");
+              "mixed editing workflow leaves Clipboard owned by Clipboard commands only");
 
       Undo_Before := Natural (Editor.History.Undo_Stack.Length);
       Redo_Before := Natural (Editor.History.Redo_Stack.Length);
@@ -11840,17 +11842,17 @@ procedure Test_Phase412_Selection_Delete_Canonical_State_Only_Workflow
       Fwd_Before := Editor.Navigation_History.Forward_Count (S.Navigation_History);
       Editor.Render_Model.Build_Render_Snapshot (S, Snap);
       Assert (Snap.Length = Text_Buffer.Length (S.Buffer),
-              "Phase 415 render snapshot reflects current text length");
+              "render snapshot reflects current text length");
       Assert (To_Unbounded_String (Buffer_Text (S)) = Text_Before,
-              "Phase 415 render snapshot must not mutate text");
+              "render snapshot must not mutate text");
       Assert (Natural (Editor.History.Undo_Stack.Length) = Undo_Before,
-              "Phase 415 render snapshot must not mutate undo stack");
+              "render snapshot must not mutate undo stack");
       Assert (Natural (Editor.History.Redo_Stack.Length) = Redo_Before,
-              "Phase 415 render snapshot must not mutate redo stack");
+              "render snapshot must not mutate redo stack");
       Assert (Editor.State.Is_Dirty (S) = Dirty_Before,
-              "Phase 415 render snapshot must not mutate dirty state");
+              "render snapshot must not mutate dirty state");
       Assert_Navigation_Counts (S, Back_Before, Fwd_Before,
-                                "Phase 415 render snapshot records no Navigation History");
+                                "render snapshot records no Navigation History");
 
       Workspace := Editor.State.Build_Workspace_Snapshot (S);
       Summary := To_Unbounded_String
@@ -11866,11 +11868,11 @@ procedure Test_Phase412_Selection_Delete_Canonical_State_Only_Workflow
          and then Index (Summary, "ime") = 0
          and then Index (Summary, "autocomplete") = 0
          and then Index (Summary, "snippet") = 0,
-         "Phase 415 persistence excludes Text Insert transient/policy/history state");
-   end Test_Phase415_Text_Insert_Mixed_Editing_Features_Render_And_Persistence;
+         "persistence excludes Text Insert transient/policy/history state");
+   end Test_Text_Insert_Mixed_Editing_Features_Render_And_Persistence;
 
 
-   procedure Test_Phase415_Text_Insert_Overlay_Owner_Matrix_And_Command_Surface
+   procedure Test_Text_Insert_Overlay_Owner_Matrix_And_Command_Surface
 
 
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
@@ -11896,7 +11898,7 @@ procedure Test_Phase412_Selection_Delete_Canonical_State_Only_Workflow
       begin
          Resolved := Editor.Commands.Command_Id_From_Stable_Name (Name, Found);
          Assert (not Found and then Resolved = Editor.Commands.No_Command,
-                 "Phase 415 non-goal command exposed: " & Name);
+                 "non-goal command exposed: " & Name);
       end Assert_Non_Goal_Command_Absent;
 
       S             : Editor.State.State_Type;
@@ -11912,7 +11914,7 @@ procedure Test_Phase412_Selection_Delete_Canonical_State_Only_Workflow
       --  text-entry route, not a public command-palette/keybinding surface.
       Desc := Editor.Commands.Descriptor (Editor.Commands.Command_Insert_Newline);
       Assert (Desc.Visibility = Editor.Commands.Hidden_Command,
-              "Phase 415 newline text input command remains hidden from the palette");
+              "newline text input command remains hidden from the palette");
       Assert_Non_Goal_Command_Absent ("edit.text.insert-snippet");
       Assert_Non_Goal_Command_Absent ("edit.text.insert-template");
       Assert_Non_Goal_Command_Absent ("edit.text.insert-pair");
@@ -11940,18 +11942,18 @@ procedure Test_Phase412_Selection_Delete_Canonical_State_Only_Workflow
       Editor.Executor.Execute_Command (S, Editor.Commands.Command_Insert_Newline);
       Assert_Buffer_Text
         (S, "Alpha" & ASCII.LF & "Beta",
-         "Phase 415 explicit newline route inserts canonical line boundary");
+         "explicit newline route inserts canonical line boundary");
       Assert (Message_Text (S) = "Inserted text",
-              "Phase 415 explicit newline route reports Text Insert only");
+              "explicit newline route reports Text Insert only");
       Assert (Message_Text (S) /= "Split line",
-              "Phase 415 newline route must not report Line Split participation");
+              "newline route must not report Line Split participation");
       Assert (Natural (Editor.History.Undo_Stack.Length) = 1,
-              "Phase 415 explicit newline creates exactly one undo entry");
+              "explicit newline creates exactly one undo entry");
       Assert (Editor.Clipboard.Get_Text = To_Unbounded_String ("CLIP"),
-              "Phase 415 explicit newline does not touch Clipboard");
+              "explicit newline does not touch Clipboard");
       Assert_Navigation_Counts
         (S, Back_Before, Fwd_Before,
-         "Phase 415 explicit newline records no Navigation History");
+         "explicit newline records no Navigation History");
 
       --  Go To Line prompt owns printable input before the editor buffer.
       Editor.History.Undo_Stack.Clear;
@@ -11971,16 +11973,16 @@ procedure Test_Phase412_Selection_Delete_Canonical_State_Only_Workflow
       Editor.Render_Model.Build_Render_Snapshot (S, Snap);
       Assert_Buffer_Text
         (S, "Alpha",
-         "Phase 415 Go To Line prompt consumes text before buffer insertion");
+         "Go To Line prompt consumes text before buffer insertion");
       Assert (Snap.Goto_Line_Visible
               and then To_String (Snap.Goto_Line_Query) = "3",
-              "Phase 415 Go To Line query receives overlay text");
+              "Go To Line query receives overlay text");
       Assert (Natural (Editor.History.Undo_Stack.Length) = Undo_Before,
-              "Phase 415 Go To Line input creates no buffer undo entry");
+              "Go To Line input creates no buffer undo entry");
       Assert (Natural (Editor.History.Redo_Stack.Length) = Redo_Before,
-              "Phase 415 Go To Line input preserves buffer redo stack");
+              "Go To Line input preserves buffer redo stack");
       Assert (Editor.State.Is_Dirty (S) = Dirty_Before,
-              "Phase 415 Go To Line input preserves buffer dirty state");
+              "Go To Line input preserves buffer dirty state");
 
       --  Find prompt owns printable input before the editor buffer.
       Editor.History.Undo_Stack.Clear;
@@ -11999,13 +12001,13 @@ procedure Test_Phase412_Selection_Delete_Canonical_State_Only_Workflow
       Editor.Render_Model.Build_Render_Snapshot (S, Snap);
       Assert_Buffer_Text
         (S, "Alpha Beta Alpha",
-         "Phase 415 Find prompt consumes text before buffer insertion");
+         "Find prompt consumes text before buffer insertion");
       Assert (Snap.Find_Visible and then To_String (Snap.Find_Query) = "B",
-              "Phase 415 Find query receives overlay text");
+              "Find query receives overlay text");
       Assert (Natural (Editor.History.Undo_Stack.Length) = Undo_Before,
-              "Phase 415 Find prompt input creates no buffer undo entry");
+              "Find prompt input creates no buffer undo entry");
       Assert (Editor.State.Is_Dirty (S) = Dirty_Before,
-              "Phase 415 Find prompt input preserves dirty state");
+              "Find prompt input preserves dirty state");
 
       --  Replace prompt state is independent from Text Insert.  Text Insert
       --  may stale Find ranges through the canonical edit hook, but it must
@@ -12016,21 +12018,21 @@ procedure Test_Phase412_Selection_Delete_Canonical_State_Only_Workflow
       Editor.State.Load_Text (S, "Run Run");
       Editor.State.Set_Dirty (S, False);
       Set_Caret (S, 3);
-      Editor.Executor.Execute_Find_Set_Query (S, "Run");
-      Editor.Executor.Execute_Replace_Show (S);
-      Editor.Executor.Execute_Replace_Set_Text (S, "Execute");
+      Editor.Executor.Find_Replace_Commands.Execute_Find_Set_Query (S, "Run");
+      Editor.Executor.Find_Replace_Commands.Execute_Replace_Show (S);
+      Editor.Executor.Find_Replace_Commands.Execute_Replace_Set_Text (S, "Execute");
       Execute_Text_Input (S, "!");
       Assert_Buffer_Text
         (S, "Run! Run",
-         "Phase 415 Text Insert mutates only buffer text under Replace state");
+         "Text Insert mutates only buffer text under Replace state");
       Assert (S.Active_Replace_Prompt
               and then To_String (S.Active_Replace_Text) = "Execute",
-              "Phase 415 Text Insert preserves Replace prompt text/state");
+              "Text Insert preserves Replace prompt text/state");
       Assert (S.Active_Find_Query = To_Unbounded_String ("Run"),
-              "Phase 415 Text Insert preserves Find query while invalidating ranges");
+              "Text Insert preserves Find query while invalidating ranges");
       Assert (S.Active_Find_Stale and then S.Active_Find_Matches.Is_Empty,
-              "Phase 415 Text Insert invalidates Find ranges through edit hook only");
-   end Test_Phase415_Text_Insert_Overlay_Owner_Matrix_And_Command_Surface;
+              "Text Insert invalidates Find ranges through edit hook only");
+   end Test_Text_Insert_Overlay_Owner_Matrix_And_Command_Surface;
 
 
 
@@ -12039,7 +12041,7 @@ procedure Test_Phase412_Selection_Delete_Canonical_State_Only_Workflow
 
 
 
-   procedure Test_Phase416_Text_Insert_Canonical_Route_State_And_Persistence
+   procedure Test_Text_Insert_Canonical_Route_State_And_Persistence
 
 
 
@@ -12077,24 +12079,24 @@ procedure Test_Phase412_Selection_Delete_Canonical_State_Only_Workflow
 
       Assert_Buffer_Text
         (S, "Alpha Delta",
-         "Phase 416 canonical Text Insert replacement mutates active buffer only once");
+         "canonical Text Insert replacement mutates active buffer only once");
       Assert (Natural (Editor.History.Undo_Stack.Length) = 1,
-              "Phase 416 replacement remains one canonical undoable edit");
+              "replacement remains one canonical undoable edit");
       Assert (Natural (Editor.History.Redo_Stack.Length) = 0,
-              "Phase 416 replacement creates no redo entry");
+              "replacement creates no redo entry");
       Assert (Editor.State.Is_Dirty (S),
-              "Phase 416 replacement uses canonical dirty policy");
+              "replacement uses canonical dirty policy");
       Assert (S.Active_Find_Query = To_Unbounded_String ("Beta"),
-              "Phase 416 Text Insert does not mutate Find query");
+              "Text Insert does not mutate Find query");
       Assert (S.Active_Replace_Text = To_Unbounded_String ("Gamma"),
-              "Phase 416 Text Insert does not mutate Replace text");
+              "Text Insert does not mutate Replace text");
       Assert (S.Active_Find_Stale and then S.Active_Find_Matches.Is_Empty,
-              "Phase 416 Text Insert invalidates Find through canonical hook");
+              "Text Insert invalidates Find through canonical hook");
       Assert (Editor.Clipboard.Get_Text = To_Unbounded_String ("CLIP"),
-              "Phase 416 Text Insert never reads or mutates Clipboard text");
+              "Text Insert never reads or mutates Clipboard text");
       Assert_Navigation_Counts
         (S, Back_Before, Fwd_Before,
-         "Phase 416 Text Insert records no Navigation History");
+         "Text Insert records no Navigation History");
 
       Workspace := Editor.State.Build_Workspace_Snapshot (S);
       Summary := To_Unbounded_String
@@ -12117,7 +12119,7 @@ procedure Test_Phase412_Selection_Delete_Canonical_State_Only_Workflow
          and then Index (Summary, "ime") = 0
          and then Index (Summary, "formatting insertion") = 0
          and then Index (Summary, "clipboard mirror") = 0,
-         "Phase 416 persistence excludes canonical and removed Text Insert transient state");
+         "persistence excludes canonical and removed Text Insert transient state");
 
       --  Overlay focus remains a hard gate before the canonical active-buffer
       --  insertion route.  The focused Quick Open field receives text, while
@@ -12145,15 +12147,15 @@ procedure Test_Phase412_Selection_Delete_Canonical_State_Only_Workflow
 
       Assert_Buffer_Text
         (S, "Buffer",
-         "Phase 416 overlay text-entry must not leak into active-buffer insertion");
+         "overlay text-entry must not leak into active-buffer insertion");
       Assert (Natural (Editor.History.Undo_Stack.Length) = Undo_Before,
-              "Phase 416 overlay text-entry creates no active-buffer undo entry");
+              "overlay text-entry creates no active-buffer undo entry");
       Assert (Editor.State.Is_Dirty (S) = Dirty_Before,
-              "Phase 416 overlay text-entry preserves active-buffer dirty state");
-   end Test_Phase416_Text_Insert_Canonical_Route_State_And_Persistence;
+              "overlay text-entry preserves active-buffer dirty state");
+   end Test_Text_Insert_Canonical_Route_State_And_Persistence;
 
 
-   procedure Test_Phase416_Text_Insert_Behavior_Preservation_Smoke
+   procedure Test_Text_Insert_Behavior_Preservation_Smoke
 
 
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
@@ -12171,46 +12173,46 @@ procedure Test_Phase412_Selection_Delete_Canonical_State_Only_Workflow
       Execute_Text_Input (S, " " & ASCII.HT & ".");
       Assert_Buffer_Text
         (S, "A " & ASCII.HT & ".B",
-         "Phase 416 accepted whitespace/tab/punctuation payload inserts exactly");
+         "accepted whitespace/tab/punctuation payload inserts exactly");
       Assert (S.Carets (S.Carets.First_Index).Pos = 4,
-              "Phase 416 insert-at-caret moves caret to payload end");
+              "insert-at-caret moves caret to payload end");
 
       Set_Primary_Selection (S, 4, 1);
       Execute_Text_Input (S, "X" & ASCII.LF & "Y");
       Assert_Buffer_Text
         (S, "AX" & ASCII.LF & "YB",
-         "Phase 416 backward replacement keeps canonical line-boundary payload policy");
+         "backward replacement keeps canonical line-boundary payload policy");
       Assert (S.Carets (S.Carets.First_Index).Pos = 4,
-              "Phase 416 replacement moves caret to payload end");
+              "replacement moves caret to payload end");
       Assert (not Editor.Selection.Has_Selection (S),
-              "Phase 416 replacement clears active selection");
+              "replacement clears active selection");
       Assert (Natural (Editor.History.Undo_Stack.Length) = 2,
-              "Phase 416 insert plus replacement are two canonical undo entries");
+              "insert plus replacement are two canonical undo entries");
 
       Editor.Executor.Execute_Command (S, Editor.Commands.Command_Undo);
       Assert_Buffer_Text
         (S, "A " & ASCII.HT & ".B",
-         "Phase 416 undo restores replacement Before_Text");
+         "undo restores replacement Before_Text");
       Editor.Executor.Execute_Command (S, Editor.Commands.Command_Redo);
       Assert_Buffer_Text
         (S, "AX" & ASCII.LF & "YB",
-         "Phase 416 redo restores replacement After_Text without replaying Text Insert");
+         "redo restores replacement After_Text without replaying Text Insert");
 
       Execute_Text_Input (S, "");
       Assert_Buffer_Text
         (S, "AX" & ASCII.LF & "YB",
-         "Phase 416 empty payload remains a non-mutating no-op");
+         "empty payload remains a non-mutating no-op");
       Execute_Text_Input (S, String'(1 => ASCII.CR));
       Assert_Buffer_Text
         (S, "AX" & ASCII.LF & "YB",
-         "Phase 416 invalid payload remains non-mutating");
+         "invalid payload remains non-mutating");
       Assert (Editor.Clipboard.Get_Text = To_Unbounded_String ("CLIP"),
-              "Phase 416 behavior smoke preserves Clipboard boundary");
-   end Test_Phase416_Text_Insert_Behavior_Preservation_Smoke;
+              "behavior smoke preserves Clipboard boundary");
+   end Test_Text_Insert_Behavior_Preservation_Smoke;
 
 
 
-   procedure Test_Phase540_Trim_Trailing_Whitespace_Command_Surface
+   procedure Test_Trim_Trailing_Whitespace_Command_Surface
      (T : in out AUnit.Test_Cases.Test_Case'Class)
    is
       pragma Unreferenced (T);
@@ -12289,9 +12291,9 @@ procedure Test_Phase412_Selection_Delete_Canonical_State_Only_Workflow
       Assert
         (Id = Editor.Commands.Command_Format_Selected_Text,
          "format selection stable name resolves wrong command");
-   end Test_Phase540_Trim_Trailing_Whitespace_Command_Surface;
+   end Test_Trim_Trailing_Whitespace_Command_Surface;
 
-   procedure Test_Phase540_Expected_Command_Names_Resolve
+   procedure Test_Expected_Command_Names_Resolve
      (T : in out AUnit.Test_Cases.Test_Case'Class)
    is
       pragma Unreferenced (T);
@@ -12304,10 +12306,10 @@ procedure Test_Phase412_Selection_Delete_Canonical_State_Only_Workflow
          Id    : constant Editor.Commands.Command_Id :=
            Editor.Commands.Command_Id_From_Stable_Name (Name, Found);
       begin
-         Assert (Found, "Phase 540 expected command name did not resolve: " & Name);
+         Assert (Found, "expected command name did not resolve: " & Name);
          Assert
            (Id = Expected,
-            "Phase 540 expected command name resolved to wrong command: " & Name);
+            "expected command name resolved to wrong command: " & Name);
       end Assert_Resolves;
    begin
       Assert_Resolves ("cursor.word-left", Editor.Commands.Command_Move_Word_Left);
@@ -12339,7 +12341,7 @@ procedure Test_Phase412_Selection_Delete_Canonical_State_Only_Workflow
       Assert_Resolves ("edit.format-buffer", Editor.Commands.Command_Format_Buffer);
       Assert_Resolves ("edit.format.document", Editor.Commands.Command_Format_Buffer);
       Assert_Resolves ("edit.format.selection", Editor.Commands.Command_Format_Selected_Text);
-   end Test_Phase540_Expected_Command_Names_Resolve;
+   end Test_Expected_Command_Names_Resolve;
 
    procedure Test_Format_Buffer_Uses_Explicit_Whitespace_Formatter
      (T : in out AUnit.Test_Cases.Test_Case'Class)
@@ -12444,7 +12446,7 @@ procedure Test_Phase412_Selection_Delete_Canonical_State_Only_Workflow
          "format selection undo should restore original selected-line text");
    end Test_Format_Selection_Uses_Selected_Line_Formatter;
 
-   procedure Test_Phase540_Trim_Trailing_Whitespace_Edit_Group
+   procedure Test_Trim_Trailing_Whitespace_Edit_Group
      (T : in out AUnit.Test_Cases.Test_Case'Class)
    is
       pragma Unreferenced (T);
@@ -12463,28 +12465,28 @@ procedure Test_Phase412_Selection_Delete_Canonical_State_Only_Workflow
 
       Assert_Buffer_Text
         (S, "alpha" & ASCII.LF & "be" & ASCII.LF & "ta",
-         "Phase 540 trim must remove only line-end spaces and tabs");
+         "trim must remove only line-end spaces and tabs");
       Assert (Message_Text (S) = "Trimmed trailing whitespace",
-              "Phase 540 trim message mismatch");
+              "trim message mismatch");
       Assert (Editor.State.Is_Dirty (S),
-              "Phase 540 trim must dirty the active buffer when text changes");
+              "trim must dirty the active buffer when text changes");
       Assert (Natural (Editor.History.Undo_Stack.Length) = 1,
-              "Phase 540 trim must create one grouped undo step");
+              "trim must create one grouped undo step");
       Assert (Natural (Editor.History.Redo_Stack.Length) = 0,
-              "Phase 540 trim must not create redo entries");
+              "trim must not create redo entries");
 
       Editor.Executor.Execute_Command (S, Editor.Commands.Command_Undo);
       Assert_Buffer_Text
         (S, "alpha  " & ASCII.LF & "be" & ASCII.HT & ASCII.HT & ASCII.LF & "ta",
-         "Phase 540 trim undo must restore original whitespace");
+         "trim undo must restore original whitespace");
 
       Editor.Executor.Execute_Command (S, Editor.Commands.Command_Redo);
       Assert_Buffer_Text
         (S, "alpha" & ASCII.LF & "be" & ASCII.LF & "ta",
-         "Phase 540 trim redo must reapply grouped trim");
-   end Test_Phase540_Trim_Trailing_Whitespace_Edit_Group;
+         "trim redo must reapply grouped trim");
+   end Test_Trim_Trailing_Whitespace_Edit_Group;
 
-   procedure Test_Phase540_Trim_Trailing_Whitespace_Noop_Is_Nonmutating
+   procedure Test_Trim_Trailing_Whitespace_Noop_Is_Nonmutating
      (T : in out AUnit.Test_Cases.Test_Case'Class)
    is
       pragma Unreferenced (T);
@@ -12502,17 +12504,17 @@ procedure Test_Phase412_Selection_Delete_Canonical_State_Only_Workflow
 
       Assert_Buffer_Text
         (S, "alpha" & ASCII.LF & "beta",
-         "Phase 540 trim no-op must preserve text");
+         "trim no-op must preserve text");
       Assert (Message_Text (S) = "No trailing whitespace",
-              "Phase 540 trim unavailable/no-op message mismatch");
+              "trim unavailable/no-op message mismatch");
       Assert (not Editor.State.Is_Dirty (S),
-              "Phase 540 trim no-op must not dirty the buffer");
+              "trim no-op must not dirty the buffer");
       Assert (Natural (Editor.History.Undo_Stack.Length) = 0,
-              "Phase 540 trim no-op must not create an undo entry");
-   end Test_Phase540_Trim_Trailing_Whitespace_Noop_Is_Nonmutating;
+              "trim no-op must not create an undo entry");
+   end Test_Trim_Trailing_Whitespace_Noop_Is_Nonmutating;
 
 
-   procedure Test_Phase540_Trim_Trailing_Whitespace_Selected_Lines_Only
+   procedure Test_Trim_Trailing_Whitespace_Selected_Lines_Only
      (T : in out AUnit.Test_Cases.Test_Case'Class)
    is
       pragma Unreferenced (T);
@@ -12534,19 +12536,19 @@ procedure Test_Phase412_Selection_Delete_Canonical_State_Only_Workflow
 
       Assert_Buffer_Text
         (S, "one  " & ASCII.LF & "two" & ASCII.LF & "three" & ASCII.HT,
-         "Phase 540 selected-line trim must leave unselected trailing whitespace intact");
+         "selected-line trim must leave unselected trailing whitespace intact");
       Assert (Editor.State.Is_Dirty (S),
-              "Phase 540 selected-line trim must dirty when text changes");
+              "selected-line trim must dirty when text changes");
       Assert (Natural (Editor.History.Undo_Stack.Length) = 1,
-              "Phase 540 selected-line trim must create one grouped undo step");
+              "selected-line trim must create one grouped undo step");
 
       Editor.Executor.Execute_Command (S, Editor.Commands.Command_Undo);
       Assert_Buffer_Text
         (S, "one  " & ASCII.LF & "two  " & ASCII.LF & "three" & ASCII.HT,
-         "Phase 540 selected-line trim undo must restore only the grouped trim");
-   end Test_Phase540_Trim_Trailing_Whitespace_Selected_Lines_Only;
+         "selected-line trim undo must restore only the grouped trim");
+   end Test_Trim_Trailing_Whitespace_Selected_Lines_Only;
 
-   procedure Test_Phase540_Selected_Line_Trim_Noop_Does_Not_Clean_Other_Lines
+   procedure Test_Selected_Line_Trim_Noop_Does_Not_Clean_Other_Lines
      (T : in out AUnit.Test_Cases.Test_Case'Class)
    is
       pragma Unreferenced (T);
@@ -12569,17 +12571,17 @@ procedure Test_Phase412_Selection_Delete_Canonical_State_Only_Workflow
 
       Assert_Buffer_Text
         (S, "one  " & ASCII.LF & "two" & ASCII.LF & "three  ",
-         "Phase 540 selected clean line trim must not trim unselected lines");
+         "selected clean line trim must not trim unselected lines");
       Assert (Message_Text (S) = "No trailing whitespace",
-              "Phase 540 selected clean line trim unavailable/no-op message mismatch");
+              "selected clean line trim unavailable/no-op message mismatch");
       Assert (not Editor.State.Is_Dirty (S),
-              "Phase 540 selected clean line trim no-op must not dirty");
+              "selected clean line trim no-op must not dirty");
       Assert (Natural (Editor.History.Undo_Stack.Length) = 0,
-              "Phase 540 selected clean line trim no-op must not create undo");
-   end Test_Phase540_Selected_Line_Trim_Noop_Does_Not_Clean_Other_Lines;
+              "selected clean line trim no-op must not create undo");
+   end Test_Selected_Line_Trim_Noop_Does_Not_Clean_Other_Lines;
 
 
-   procedure Test_Phase540_Trim_Availability_Is_Precise_And_Side_Effect_Free
+   procedure Test_Trim_Availability_Is_Precise_And_Side_Effect_Free
      (T : in out AUnit.Test_Cases.Test_Case'Class)
    is
       pragma Unreferenced (T);
@@ -12598,20 +12600,20 @@ procedure Test_Phase412_Selection_Delete_Canonical_State_Only_Workflow
 
       Assert
         (A.Status = Editor.Commands.Command_Unavailable,
-         "Phase 540 clean-buffer trim availability must be unavailable");
+         "clean-buffer trim availability must be unavailable");
       Assert
         (Editor.Commands.Unavailable_Reason (A) = "No trailing whitespace",
-         "Phase 540 clean-buffer trim availability reason mismatch");
+         "clean-buffer trim availability reason mismatch");
       Assert_Buffer_Text
         (S, "alpha" & ASCII.LF & "beta",
-         "Phase 540 trim availability must not mutate text");
+         "trim availability must not mutate text");
       Assert (not Editor.State.Is_Dirty (S),
-              "Phase 540 trim availability must not dirty the buffer");
+              "trim availability must not dirty the buffer");
       Assert (Natural (Editor.History.Undo_Stack.Length) = 0,
-              "Phase 540 trim availability must not create undo history");
-   end Test_Phase540_Trim_Availability_Is_Precise_And_Side_Effect_Free;
+              "trim availability must not create undo history");
+   end Test_Trim_Availability_Is_Precise_And_Side_Effect_Free;
 
-   procedure Test_Phase540_Selected_Trim_Availability_Uses_Selected_Lines
+   procedure Test_Selected_Trim_Availability_Uses_Selected_Lines
      (T : in out AUnit.Test_Cases.Test_Case'Class)
    is
       pragma Unreferenced (T);
@@ -12631,77 +12633,77 @@ procedure Test_Phase412_Selection_Delete_Canonical_State_Only_Workflow
 
       Assert
         (A.Status = Editor.Commands.Command_Unavailable,
-         "Phase 540 selected clean line trim availability must be unavailable");
+         "selected clean line trim availability must be unavailable");
       Assert
         (Editor.Commands.Unavailable_Reason (A) = "No trailing whitespace",
-         "Phase 540 selected clean line trim availability reason mismatch");
+         "selected clean line trim availability reason mismatch");
       Assert_Buffer_Text
         (S, "one  " & ASCII.LF & "two" & ASCII.LF & "three  ",
-         "Phase 540 selected-line trim availability must not trim other lines");
+         "selected-line trim availability must not trim other lines");
       Assert (not Editor.State.Is_Dirty (S),
-              "Phase 540 selected-line trim availability must not dirty");
+              "selected-line trim availability must not dirty");
       Assert (Natural (Editor.History.Undo_Stack.Length) = 0,
-              "Phase 540 selected-line trim availability must not create undo");
-   end Test_Phase540_Selected_Trim_Availability_Uses_Selected_Lines;
+              "selected-line trim availability must not create undo");
+   end Test_Selected_Trim_Availability_Uses_Selected_Lines;
 
 
 
-   procedure Test_Phase388_Command_Palette_Projects_Canonical_Indentation_Only
+   procedure Test_Command_Palette_Projects_Canonical_Indentation_Only
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
    begin
-      Test_Phase385_Indent_Command_Descriptors (T);
-   end Test_Phase388_Command_Palette_Projects_Canonical_Indentation_Only;
+      Test_Indent_Command_Descriptors (T);
+   end Test_Command_Palette_Projects_Canonical_Indentation_Only;
 
-   procedure Test_Phase388_Keybindings_Reject_Removed_Name_Indentation_Names
+   procedure Test_Keybindings_Reject_Removed_Name_Indentation_Names
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
    begin
-      Test_Phase385_Indent_Input_Bridge_And_Availability_Side_Effects (T);
-   end Test_Phase388_Keybindings_Reject_Removed_Name_Indentation_Names;
+      Test_Indent_Input_Bridge_And_Availability_Side_Effects (T);
+   end Test_Keybindings_Reject_Removed_Name_Indentation_Names;
 
-   procedure Test_Phase388_Canonical_Indentation_Path_And_Persistence_Exclusion
+   procedure Test_Canonical_Indentation_Path_And_Persistence_Exclusion
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
    begin
-      Test_Phase387_Indent_Increase_Workflow_Matrix (T);
-   end Test_Phase388_Canonical_Indentation_Path_And_Persistence_Exclusion;
+      Test_Indent_Increase_Workflow_Matrix (T);
+   end Test_Canonical_Indentation_Path_And_Persistence_Exclusion;
 
-   procedure Test_Phase392_Keybindings_Reject_Removed_Name_Line_Comment_Names
+   procedure Test_Keybindings_Reject_Removed_Name_Line_Comment_Names
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
    begin
-      Test_Phase392_Canonical_Line_Comment_Path_And_Persistence_Exclusion (T);
-   end Test_Phase392_Keybindings_Reject_Removed_Name_Line_Comment_Names;
+      Test_Canonical_Line_Comment_Path_And_Persistence_Exclusion (T);
+   end Test_Keybindings_Reject_Removed_Name_Line_Comment_Names;
 
-   procedure Test_Phase396_Line_Join_Canonical_Cleanup_Surface
+   procedure Test_Line_Join_Canonical_Cleanup_Surface
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
    begin
-      Test_Phase396_Line_Join_Canonical_Behavior_And_Persistence (T);
-   end Test_Phase396_Line_Join_Canonical_Cleanup_Surface;
+      Test_Line_Join_Canonical_Behavior_And_Persistence (T);
+   end Test_Line_Join_Canonical_Cleanup_Surface;
 
-   procedure Test_Phase400_Line_Split_Canonical_Surface_Cleanup
+   procedure Test_Line_Split_Canonical_Surface_Cleanup
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
    begin
-      Test_Phase400_Line_Split_Canonical_Behavior_And_State_Boundaries (T);
-   end Test_Phase400_Line_Split_Canonical_Surface_Cleanup;
+      Test_Line_Split_Canonical_Behavior_And_State_Boundaries (T);
+   end Test_Line_Split_Canonical_Surface_Cleanup;
 
-   procedure Test_Phase408_Character_Delete_Canonical_Surface_Cleanup
+   procedure Test_Character_Delete_Canonical_Surface_Cleanup
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
    begin
-      Test_Phase408_Character_Delete_Canonical_Routes_State_And_Persistence (T);
-   end Test_Phase408_Character_Delete_Canonical_Surface_Cleanup;
+      Test_Character_Delete_Canonical_Routes_State_And_Persistence (T);
+   end Test_Character_Delete_Canonical_Surface_Cleanup;
 
-   procedure Test_Phase412_Selection_Delete_Canonical_Surface_Cleanup
+   procedure Test_Selection_Delete_Canonical_Surface_Cleanup
      (T : in out AUnit.Test_Cases.Test_Case'Class) is
    begin
-      Test_Phase412_Selection_Delete_Canonical_State_Only_Workflow (T);
-   end Test_Phase412_Selection_Delete_Canonical_Surface_Cleanup;
+      Test_Selection_Delete_Canonical_State_Only_Workflow (T);
+   end Test_Selection_Delete_Canonical_Surface_Cleanup;
 
    overriding procedure Register_Tests (T : in out Line_Edit_Test_Case) is
    begin
       AUnit.Test_Cases.Registration.Register_Routine
-        (T, Test_Phase540_Trim_Trailing_Whitespace_Command_Surface'Access,
-         "Phase 540 Trim Trailing Whitespace Command Surface");
+        (T, Test_Trim_Trailing_Whitespace_Command_Surface'Access,
+         "Trim Trailing Whitespace Command Surface");
       AUnit.Test_Cases.Registration.Register_Routine
-        (T, Test_Phase540_Expected_Command_Names_Resolve'Access,
-         "Phase 540 Expected Command Names Resolve");
+        (T, Test_Expected_Command_Names_Resolve'Access,
+         "Expected Command Names Resolve");
       AUnit.Test_Cases.Registration.Register_Routine
         (T, Test_Format_Buffer_Uses_Explicit_Whitespace_Formatter'Access,
          "Format Buffer Uses Explicit Whitespace Formatter");
@@ -12709,521 +12711,521 @@ procedure Test_Phase412_Selection_Delete_Canonical_State_Only_Workflow
         (T, Test_Format_Selection_Uses_Selected_Line_Formatter'Access,
          "Format Selection Uses Selected Line Formatter");
       AUnit.Test_Cases.Registration.Register_Routine
-        (T, Test_Phase540_Trim_Trailing_Whitespace_Edit_Group'Access,
-         "Phase 540 Trim Trailing Whitespace Edit Group");
+        (T, Test_Trim_Trailing_Whitespace_Edit_Group'Access,
+         "Trim Trailing Whitespace Edit Group");
       AUnit.Test_Cases.Registration.Register_Routine
-        (T, Test_Phase540_Trim_Trailing_Whitespace_Noop_Is_Nonmutating'Access,
-         "Phase 540 Trim Trailing Whitespace Noop Is Nonmutating");
+        (T, Test_Trim_Trailing_Whitespace_Noop_Is_Nonmutating'Access,
+         "Trim Trailing Whitespace Noop Is Nonmutating");
       AUnit.Test_Cases.Registration.Register_Routine
-        (T, Test_Phase540_Trim_Trailing_Whitespace_Selected_Lines_Only'Access,
-         "Phase 540 Trim Trailing Whitespace Selected Lines Only");
+        (T, Test_Trim_Trailing_Whitespace_Selected_Lines_Only'Access,
+         "Trim Trailing Whitespace Selected Lines Only");
       AUnit.Test_Cases.Registration.Register_Routine
-        (T, Test_Phase540_Selected_Line_Trim_Noop_Does_Not_Clean_Other_Lines'Access,
-         "Phase 540 Selected Line Trim Noop Does Not Clean Other Lines");
+        (T, Test_Selected_Line_Trim_Noop_Does_Not_Clean_Other_Lines'Access,
+         "Selected Line Trim Noop Does Not Clean Other Lines");
       AUnit.Test_Cases.Registration.Register_Routine
-        (T, Test_Phase540_Trim_Availability_Is_Precise_And_Side_Effect_Free'Access,
-         "Phase 540 Trim Availability Is Precise And Side Effect Free");
+        (T, Test_Trim_Availability_Is_Precise_And_Side_Effect_Free'Access,
+         "Trim Availability Is Precise And Side Effect Free");
       AUnit.Test_Cases.Registration.Register_Routine
-        (T, Test_Phase540_Selected_Trim_Availability_Uses_Selected_Lines'Access,
-         "Phase 540 Selected Trim Availability Uses Selected Lines");
+        (T, Test_Selected_Trim_Availability_Uses_Selected_Lines'Access,
+         "Selected Trim Availability Uses Selected Lines");
       AUnit.Test_Cases.Registration.Register_Routine
-        (T, Test_Phase381_Command_Descriptors'Access,
-         "Phase 381 Line Edit Command Descriptors");
+        (T, Test_Command_Descriptors'Access,
+         "Line Edit Command Descriptors");
       AUnit.Test_Cases.Registration.Register_Routine
-        (T, Test_Phase381_Delete_Current_Line_Undo_Redo'Access,
-         "Phase 381 Delete Current Line Undo Redo");
+        (T, Test_Delete_Current_Line_Undo_Redo'Access,
+         "Delete Current Line Undo Redo");
       AUnit.Test_Cases.Registration.Register_Routine
-        (T, Test_Phase381_Duplicate_Current_Line'Access,
-         "Phase 381 Duplicate Current Line");
+        (T, Test_Duplicate_Current_Line'Access,
+         "Duplicate Current Line");
       AUnit.Test_Cases.Registration.Register_Routine
-        (T, Test_Phase381_Move_Line_Up_Down_And_Boundaries'Access,
-         "Phase 381 Move Line Up Down Boundaries");
+        (T, Test_Move_Line_Up_Down_And_Boundaries'Access,
+         "Move Line Up Down Boundaries");
       AUnit.Test_Cases.Registration.Register_Routine
-        (T, Test_Phase381_Empty_Buffer_No_Ops'Access,
-         "Phase 381 Empty Buffer No Ops");
+        (T, Test_Empty_Buffer_No_Ops'Access,
+         "Empty Buffer No Ops");
       AUnit.Test_Cases.Registration.Register_Routine
-        (T, Test_Phase381_Delete_First_Last_And_One_Line'Access,
-         "Phase 381 Delete First Last And One Line");
+        (T, Test_Delete_First_Last_And_One_Line'Access,
+         "Delete First Last And One Line");
       AUnit.Test_Cases.Registration.Register_Routine
-        (T, Test_Phase381_Duplicate_Last_Line_Undo_Redo'Access,
-         "Phase 381 Duplicate Last Line Undo Redo");
+        (T, Test_Duplicate_Last_Line_Undo_Redo'Access,
+         "Duplicate Last Line Undo Redo");
       AUnit.Test_Cases.Registration.Register_Routine
-        (T, Test_Phase381_Last_Line_Move_Down_No_Op_Preserves_Redo_Dirty'Access,
-         "Phase 381 Last Line Move Down No Op Preserves Redo Dirty");
+        (T, Test_Last_Line_Move_Down_No_Op_Preserves_Redo_Dirty'Access,
+         "Last Line Move Down No Op Preserves Redo Dirty");
       AUnit.Test_Cases.Registration.Register_Routine
-        (T, Test_Phase381_Clipboard_Selection_Navigation_Boundaries'Access,
-         "Phase 381 Clipboard Selection Navigation Boundaries");
+        (T, Test_Clipboard_Selection_Navigation_Boundaries'Access,
+         "Clipboard Selection Navigation Boundaries");
       AUnit.Test_Cases.Registration.Register_Routine
-        (T, Test_Phase381_Input_Bridge_Routes_Line_Commands'Access,
-         "Phase 381 Input Bridge Routes Line Commands");
+        (T, Test_Input_Bridge_Routes_Line_Commands'Access,
+         "Input Bridge Routes Line Commands");
       AUnit.Test_Cases.Registration.Register_Routine
-        (T, Test_Phase381_Availability_Has_No_Side_Effects'Access,
-         "Phase 381 Availability Has No Side Effects");
+        (T, Test_Availability_Has_No_Side_Effects'Access,
+         "Availability Has No Side Effects");
       AUnit.Test_Cases.Registration.Register_Routine
-        (T, Test_Phase381_Trailing_Newline_Line_Boundaries'Access,
-         "Phase 381 Trailing Newline Line Boundaries");
+        (T, Test_Trailing_Newline_Line_Boundaries'Access,
+         "Trailing Newline Line Boundaries");
       AUnit.Test_Cases.Registration.Register_Routine
-        (T, Test_Phase382_Delete_Blank_Whitespace_And_EOF_Lines'Access,
-         "Phase 382 Delete Blank Whitespace And EOF Lines");
+        (T, Test_Delete_Blank_Whitespace_And_EOF_Lines'Access,
+         "Delete Blank Whitespace And EOF Lines");
       AUnit.Test_Cases.Registration.Register_Routine
-        (T, Test_Phase382_Duplicate_Whitespace_And_Caret_Clamp'Access,
-         "Phase 382 Duplicate Whitespace And Caret Clamp");
+        (T, Test_Duplicate_Whitespace_And_Caret_Clamp'Access,
+         "Duplicate Whitespace And Caret Clamp");
       AUnit.Test_Cases.Registration.Register_Routine
-        (T, Test_Phase382_Move_Blank_Line_And_Attached_Caret'Access,
-         "Phase 382 Move Blank Line And Attached Caret");
+        (T, Test_Move_Blank_Line_And_Attached_Caret'Access,
+         "Move Blank Line And Attached Caret");
       AUnit.Test_Cases.Registration.Register_Routine
-        (T, Test_Phase382_Redo_Find_And_Boundary_No_Op_Reliability'Access,
-         "Phase 382 Redo Find And Boundary No Op Reliability");
+        (T, Test_Redo_Find_And_Boundary_No_Op_Reliability'Access,
+         "Redo Find And Boundary No Op Reliability");
 
       AUnit.Test_Cases.Registration.Register_Routine
-        (T, Test_Phase383_Delete_Duplicate_Move_Workflow_Consistency'Access,
-         "Phase 383 Delete Duplicate Move Workflow Consistency");
+        (T, Test_Delete_Duplicate_Move_Workflow_Consistency'Access,
+         "Delete Duplicate Move Workflow Consistency");
       AUnit.Test_Cases.Registration.Register_Routine
-        (T, Test_Phase383_Line_Terminator_Matrix_Undo_Redo'Access,
-         "Phase 383 Line Terminator Matrix Undo Redo");
+        (T, Test_Line_Terminator_Matrix_Undo_Redo'Access,
+         "Line Terminator Matrix Undo Redo");
       AUnit.Test_Cases.Registration.Register_Routine
-        (T, Test_Phase383_Selection_Clipboard_Find_Redo_Boundaries'Access,
-         "Phase 383 Selection Clipboard Find Redo Boundaries");
+        (T, Test_Selection_Clipboard_Find_Redo_Boundaries'Access,
+         "Selection Clipboard Find Redo Boundaries");
       AUnit.Test_Cases.Registration.Register_Routine
-        (T, Test_Phase383_Dirty_History_Clear_And_No_Op_Policy'Access,
-         "Phase 383 Dirty History Clear And No Op Policy");
+        (T, Test_Dirty_History_Clear_And_No_Op_Policy'Access,
+         "Dirty History Clear And No Op Policy");
       AUnit.Test_Cases.Registration.Register_Routine
-        (T, Test_Phase383_Availability_Projection_And_Non_Goal_Surface'Access,
-         "Phase 383 Availability Projection And Non Goal Surface");
+        (T, Test_Availability_Projection_And_Non_Goal_Surface'Access,
+         "Availability Projection And Non Goal Surface");
       AUnit.Test_Cases.Registration.Register_Routine
-        (T, Test_Phase384_Keybinding_Config_Rejects_Removed_Name_Line_Names'Access,
-         "Phase 384 Keybinding Config Rejects Removed_Name Line Names");
+        (T, Test_Keybinding_Config_Rejects_Removed_Name_Line_Names'Access,
+         "Keybinding Config Rejects Removed_Name Line Names");
       AUnit.Test_Cases.Registration.Register_Routine
-        (T, Test_Phase384_Default_Keybindings_And_Runtime_Routes_Are_Canonical'Access,
-         "Phase 384 Default Keybindings And Runtime Routes Are Canonical");
+        (T, Test_Default_Keybindings_And_Runtime_Routes_Are_Canonical'Access,
+         "Default Keybindings And Runtime Routes Are Canonical");
       AUnit.Test_Cases.Registration.Register_Routine
-        (T, Test_Phase385_Indent_Command_Descriptors'Access,
-         "Phase 385 Indent Command Descriptors");
+        (T, Test_Indent_Command_Descriptors'Access,
+         "Indent Command Descriptors");
       AUnit.Test_Cases.Registration.Register_Routine
-        (T, Test_Phase385_Indent_Increase_Undo_Redo_And_Caret'Access,
-         "Phase 385 Indent Increase Undo Redo And Caret");
+        (T, Test_Indent_Increase_Undo_Redo_And_Caret'Access,
+         "Indent Increase Undo Redo And Caret");
       AUnit.Test_Cases.Registration.Register_Routine
-        (T, Test_Phase385_Indent_Increase_Blank_Whitespace_And_Empty_Buffer'Access,
-         "Phase 385 Indent Increase Blank Whitespace And Empty Buffer");
+        (T, Test_Indent_Increase_Blank_Whitespace_And_Empty_Buffer'Access,
+         "Indent Increase Blank Whitespace And Empty Buffer");
       AUnit.Test_Cases.Registration.Register_Routine
-        (T, Test_Phase385_Outdent_Policy_Undo_Redo_And_No_Op'Access,
-         "Phase 385 Outdent Policy Undo Redo And No Op");
+        (T, Test_Outdent_Policy_Undo_Redo_And_No_Op'Access,
+         "Outdent Policy Undo Redo And No Op");
       AUnit.Test_Cases.Registration.Register_Routine
-        (T, Test_Phase385_Indent_Selection_Clipboard_Find_And_Navigation_Boundaries'Access,
-         "Phase 385 Indent Selection Clipboard Find And Navigation Boundaries");
+        (T, Test_Indent_Selection_Clipboard_Find_And_Navigation_Boundaries'Access,
+         "Indent Selection Clipboard Find And Navigation Boundaries");
       AUnit.Test_Cases.Registration.Register_Routine
-        (T, Test_Phase385_Indent_Input_Bridge_And_Availability_Side_Effects'Access,
-         "Phase 385 Indent Input Bridge And Availability Side Effects");
+        (T, Test_Indent_Input_Bridge_And_Availability_Side_Effects'Access,
+         "Indent Input Bridge And Availability Side Effects");
 
       AUnit.Test_Cases.Registration.Register_Routine
-        (T, Test_Phase386_Leading_Whitespace_Outdent_Matrix'Access,
-         "Phase 386 Leading Whitespace Outdent Matrix");
+        (T, Test_Leading_Whitespace_Outdent_Matrix'Access,
+         "Leading Whitespace Outdent Matrix");
       AUnit.Test_Cases.Registration.Register_Routine
-        (T, Test_Phase386_Indent_Exact_Unit_And_Line_Boundaries'Access,
-         "Phase 386 Indent Exact Unit And Line Boundaries");
+        (T, Test_Indent_Exact_Unit_And_Line_Boundaries'Access,
+         "Indent Exact Unit And Line Boundaries");
       AUnit.Test_Cases.Registration.Register_Routine
-        (T, Test_Phase386_Redo_Find_Selection_Clipboard_And_Navigation_Reliability'Access,
-         "Phase 386 Redo Find Selection Clipboard And Navigation Reliability");
+        (T, Test_Redo_Find_Selection_Clipboard_And_Navigation_Reliability'Access,
+         "Redo Find Selection Clipboard And Navigation Reliability");
       AUnit.Test_Cases.Registration.Register_Routine
-        (T, Test_Phase386_Line_Edit_Coexistence_And_Current_Line_Only'Access,
-         "Phase 386 Line Edit Coexistence And Current Line Only");
+        (T, Test_Line_Edit_Coexistence_And_Current_Line_Only'Access,
+         "Line Edit Coexistence And Current Line Only");
       AUnit.Test_Cases.Registration.Register_Routine
-        (T, Test_Phase386_No_Caret_Render_Persistence_And_Non_Goals'Access,
-         "Phase 386 No Caret Render Persistence And Non Goals");
+        (T, Test_No_Caret_Render_Persistence_And_Non_Goals'Access,
+         "No Caret Render Persistence And Non Goals");
       AUnit.Test_Cases.Registration.Register_Routine
-        (T, Test_Phase387_Indent_Increase_Workflow_Matrix'Access,
-         "Phase 387 Indent Increase Workflow Matrix");
+        (T, Test_Indent_Increase_Workflow_Matrix'Access,
+         "Indent Increase Workflow Matrix");
       AUnit.Test_Cases.Registration.Register_Routine
-        (T, Test_Phase387_Outdent_Workflow_And_Whitespace_Matrix'Access,
-         "Phase 387 Outdent Workflow And Whitespace Matrix");
+        (T, Test_Outdent_Workflow_And_Whitespace_Matrix'Access,
+         "Outdent Workflow And Whitespace Matrix");
       AUnit.Test_Cases.Registration.Register_Routine
-        (T, Test_Phase387_Selection_Clipboard_Line_Edit_Integration'Access,
-         "Phase 387 Selection Clipboard Line Edit Integration");
+        (T, Test_Selection_Clipboard_Line_Edit_Integration'Access,
+         "Selection Clipboard Line Edit Integration");
       AUnit.Test_Cases.Registration.Register_Routine
-        (T, Test_Phase387_Render_Availability_And_Persistence_Are_Read_Only'Access,
-         "Phase 387 Render Availability And Persistence Are Read Only");
+        (T, Test_Render_Availability_And_Persistence_Are_Read_Only'Access,
+         "Render Availability And Persistence Are Read Only");
       AUnit.Test_Cases.Registration.Register_Routine
-        (T, Test_Phase388_Command_Palette_Projects_Canonical_Indentation_Only'Access,
-         "Phase 388 Command Palette Projects Canonical Indentation Only");
+        (T, Test_Command_Palette_Projects_Canonical_Indentation_Only'Access,
+         "Command Palette Projects Canonical Indentation Only");
       AUnit.Test_Cases.Registration.Register_Routine
-        (T, Test_Phase388_Keybindings_Reject_Removed_Name_Indentation_Names'Access,
-         "Phase 388 Keybindings Reject Removed_Name Indentation Names");
+        (T, Test_Keybindings_Reject_Removed_Name_Indentation_Names'Access,
+         "Keybindings Reject Removed_Name Indentation Names");
       AUnit.Test_Cases.Registration.Register_Routine
-        (T, Test_Phase388_Canonical_Indentation_Path_And_Persistence_Exclusion'Access,
-         "Phase 388 Canonical Indentation Path And Persistence Exclusion");
+        (T, Test_Canonical_Indentation_Path_And_Persistence_Exclusion'Access,
+         "Canonical Indentation Path And Persistence Exclusion");
       AUnit.Test_Cases.Registration.Register_Routine
-        (T, Test_Phase389_Line_Comment_Command_Descriptors'Access,
-         "Phase 389 Line Comment Command Descriptors");
+        (T, Test_Line_Comment_Command_Descriptors'Access,
+         "Line Comment Command Descriptors");
       AUnit.Test_Cases.Registration.Register_Routine
-        (T, Test_Phase389_Comment_Line_Prefix_Matrix_Undo_Redo'Access,
-         "Phase 389 Comment Line Prefix Matrix Undo Redo");
+        (T, Test_Comment_Line_Prefix_Matrix_Undo_Redo'Access,
+         "Comment Line Prefix Matrix Undo Redo");
       AUnit.Test_Cases.Registration.Register_Routine
-        (T, Test_Phase389_Uncomment_And_Toggle_Policies'Access,
-         "Phase 389 Uncomment And Toggle Policies");
+        (T, Test_Uncomment_And_Toggle_Policies'Access,
+         "Uncomment And Toggle Policies");
       AUnit.Test_Cases.Registration.Register_Routine
-        (T, Test_Phase389_No_Op_Redo_Empty_And_Active_Buffer_Isolation'Access,
-         "Phase 389 No Op Redo Empty And Active Buffer Isolation");
+        (T, Test_No_Op_Redo_Empty_And_Active_Buffer_Isolation'Access,
+         "No Op Redo Empty And Active Buffer Isolation");
       AUnit.Test_Cases.Registration.Register_Routine
-        (T, Test_Phase389_Indentation_And_Line_Editing_Coexistence'Access,
-         "Phase 389 Indentation And Line Editing Coexistence");
+        (T, Test_Indentation_And_Line_Editing_Coexistence'Access,
+         "Indentation And Line Editing Coexistence");
       AUnit.Test_Cases.Registration.Register_Routine
-        (T, Test_Phase389_Line_Comment_Edge_Matrix_And_Redo_Preservation'Access,
-         "Phase 389 Line Comment Edge Matrix And Redo Preservation");
+        (T, Test_Line_Comment_Edge_Matrix_And_Redo_Preservation'Access,
+         "Line Comment Edge Matrix And Redo Preservation");
       AUnit.Test_Cases.Registration.Register_Routine
-        (T, Test_Phase389_Boundaries_Availability_And_Persistence'Access,
-         "Phase 389 Boundaries Availability And Persistence");
+        (T, Test_Boundaries_Availability_And_Persistence'Access,
+         "Boundaries Availability And Persistence");
       AUnit.Test_Cases.Registration.Register_Routine
-        (T, Test_Phase390_Prefix_Matrix_And_Current_Line_Only'Access,
-         "Phase 390 Prefix Matrix And Current Line Only");
+        (T, Test_Prefix_Matrix_And_Current_Line_Only'Access,
+         "Prefix Matrix And Current Line Only");
       AUnit.Test_Cases.Registration.Register_Routine
-        (T, Test_Phase390_Caret_Selection_Find_Clipboard_Navigation'Access,
-         "Phase 390 Caret Selection Find Clipboard Navigation");
+        (T, Test_Caret_Selection_Find_Clipboard_Navigation'Access,
+         "Caret Selection Find Clipboard Navigation");
       AUnit.Test_Cases.Registration.Register_Routine
-        (T, Test_Phase390_Redo_Dirty_And_No_Op_Policy'Access,
-         "Phase 390 Redo Dirty And No Op Policy");
+        (T, Test_Redo_Dirty_And_No_Op_Policy'Access,
+         "Redo Dirty And No Op Policy");
       AUnit.Test_Cases.Registration.Register_Routine
-        (T, Test_Phase390_Indentation_Line_Edit_And_Toggle_Sharing'Access,
-         "Phase 390 Indentation Line Edit And Toggle Sharing");
+        (T, Test_Indentation_Line_Edit_And_Toggle_Sharing'Access,
+         "Indentation Line Edit And Toggle Sharing");
       AUnit.Test_Cases.Registration.Register_Routine
-        (T, Test_Phase390_Completeness_Toggle_No_Op_Find_And_Persistence'Access,
-         "Phase 390 Completeness Toggle No Op Find And Persistence");
+        (T, Test_Completeness_Toggle_No_Op_Find_And_Persistence'Access,
+         "Completeness Toggle No Op Find And Persistence");
       AUnit.Test_Cases.Registration.Register_Routine
-        (T, Test_Phase390_Completeness_Read_Only_Routes_And_No_Active_Buffer'Access,
-         "Phase 390 Completeness Read Only Routes And No Active Buffer");
+        (T, Test_Completeness_Read_Only_Routes_And_No_Active_Buffer'Access,
+         "Completeness Read Only Routes And No Active Buffer");
       AUnit.Test_Cases.Registration.Register_Routine
-        (T, Test_Phase390_Completeness_Line_Boundaries_And_No_Caret'Access,
-         "Phase 390 Completeness Line Boundaries And No Caret");
+        (T, Test_Completeness_Line_Boundaries_And_No_Caret'Access,
+         "Completeness Line Boundaries And No Caret");
       AUnit.Test_Cases.Registration.Register_Routine
-        (T, Test_Phase390_Completeness_Active_Buffer_Isolation'Access,
-         "Phase 390 Completeness Active Buffer Isolation");
+        (T, Test_Completeness_Active_Buffer_Isolation'Access,
+         "Completeness Active Buffer Isolation");
       AUnit.Test_Cases.Registration.Register_Routine
-        (T, Test_Phase391_Line_Comment_Workflow_Matrices'Access,
-         "Phase 391 Line Comment Workflow Matrices");
+        (T, Test_Line_Comment_Workflow_Matrices'Access,
+         "Line Comment Workflow Matrices");
       AUnit.Test_Cases.Registration.Register_Routine
-        (T, Test_Phase391_Line_Boundaries_Caret_Selection_And_Find'Access,
-         "Phase 391 Line Boundaries Caret Selection And Find");
+        (T, Test_Line_Boundaries_Caret_Selection_And_Find'Access,
+         "Line Boundaries Caret Selection And Find");
       AUnit.Test_Cases.Registration.Register_Routine
-        (T, Test_Phase391_Indent_Line_Edit_Clipboard_And_Redo_Integration'Access,
-         "Phase 391 Indent Line Edit Clipboard And Redo Integration");
+        (T, Test_Indent_Line_Edit_Clipboard_And_Redo_Integration'Access,
+         "Indent Line Edit Clipboard And Redo Integration");
       AUnit.Test_Cases.Registration.Register_Routine
-        (T, Test_Phase391_Read_Only_Routes_Feature_Independence_And_Persistence'Access,
-         "Phase 391 Read Only Routes Feature Independence And Persistence");
+        (T, Test_Read_Only_Routes_Feature_Independence_And_Persistence'Access,
+         "Read Only Routes Feature Independence And Persistence");
       AUnit.Test_Cases.Registration.Register_Routine
-        (T, Test_Phase392_Keybindings_Reject_Removed_Name_Line_Comment_Names'Access,
-         "Phase 392 Keybindings Reject Removed_Name Line Comment Names");
+        (T, Test_Keybindings_Reject_Removed_Name_Line_Comment_Names'Access,
+         "Keybindings Reject Removed_Name Line Comment Names");
       AUnit.Test_Cases.Registration.Register_Routine
-        (T, Test_Phase392_Canonical_Line_Comment_Path_And_Persistence_Exclusion'Access,
-         "Phase 392 Canonical Line Comment Path And Persistence Exclusion");
+        (T, Test_Canonical_Line_Comment_Path_And_Persistence_Exclusion'Access,
+         "Canonical Line Comment Path And Persistence Exclusion");
       AUnit.Test_Cases.Registration.Register_Routine
-        (T, Test_Phase393_Line_Join_Command_Descriptors'Access,
-         "Phase 393 Line Join Command Descriptors");
+        (T, Test_Line_Join_Command_Descriptors'Access,
+         "Line Join Command Descriptors");
       AUnit.Test_Cases.Registration.Register_Routine
-        (T, Test_Phase393_Join_Next_Separator_Matrix_Undo_Redo'Access,
-         "Phase 393 Join Next Separator Matrix Undo Redo");
+        (T, Test_Join_Next_Separator_Matrix_Undo_Redo'Access,
+         "Join Next Separator Matrix Undo Redo");
       AUnit.Test_Cases.Registration.Register_Routine
-        (T, Test_Phase393_Join_Next_Boundaries_Redo_And_Caret'Access,
-         "Phase 393 Join Next Boundaries Redo And Caret");
+        (T, Test_Join_Next_Boundaries_Redo_And_Caret'Access,
+         "Join Next Boundaries Redo And Caret");
       AUnit.Test_Cases.Registration.Register_Routine
-        (T, Test_Phase393_Join_Next_Boundaries_Selection_Find_Clipboard_Navigation'Access,
-         "Phase 393 Join Next Boundaries Selection Find Clipboard Navigation");
+        (T, Test_Join_Next_Boundaries_Selection_Find_Clipboard_Navigation'Access,
+         "Join Next Boundaries Selection Find Clipboard Navigation");
       AUnit.Test_Cases.Registration.Register_Routine
-        (T, Test_Phase393_Join_Next_Coexists_With_Line_Edit_Indent_And_Comment'Access,
-         "Phase 393 Join Next Coexists With Line Edit Indent And Comment");
+        (T, Test_Join_Next_Coexists_With_Line_Edit_Indent_And_Comment'Access,
+         "Join Next Coexists With Line Edit Indent And Comment");
       AUnit.Test_Cases.Registration.Register_Routine
-        (T, Test_Phase393_Join_Next_Does_Not_Add_Forbidden_Aliases_Or_State'Access,
-         "Phase 393 Join Next Does Not Add Forbidden Aliases Or State");
+        (T, Test_Join_Next_Does_Not_Add_Forbidden_Aliases_Or_State'Access,
+         "Join Next Does Not Add Forbidden Aliases Or State");
       AUnit.Test_Cases.Registration.Register_Routine
-        (T, Test_Phase393_Join_Next_Input_Bridge_Route'Access,
-         "Phase 393 Join Next Input Bridge Route");
+        (T, Test_Join_Next_Input_Bridge_Route'Access,
+         "Join Next Input Bridge Route");
       AUnit.Test_Cases.Registration.Register_Routine
-        (T, Test_Phase394_Join_Next_Separator_And_Boundary_Reliability'Access,
-         "Phase 394 Join Next Separator And Boundary Reliability");
+        (T, Test_Join_Next_Separator_And_Boundary_Reliability'Access,
+         "Join Next Separator And Boundary Reliability");
       AUnit.Test_Cases.Registration.Register_Routine
-        (T, Test_Phase394_Join_Next_No_Op_Redo_Dirty_And_Find_Policy'Access,
-         "Phase 394 Join Next No Op Redo Dirty And Find Policy");
+        (T, Test_Join_Next_No_Op_Redo_Dirty_And_Find_Policy'Access,
+         "Join Next No Op Redo Dirty And Find Policy");
       AUnit.Test_Cases.Registration.Register_Routine
-        (T, Test_Phase394_Join_Next_Caret_Selection_Clipboard_Navigation_And_Render'Access,
-         "Phase 394 Join Next Caret Selection Clipboard Navigation And Render");
+        (T, Test_Join_Next_Caret_Selection_Clipboard_Navigation_And_Render'Access,
+         "Join Next Caret Selection Clipboard Navigation And Render");
       AUnit.Test_Cases.Registration.Register_Routine
-        (T, Test_Phase394_Join_Next_Mixed_Current_Line_Command_Workflows'Access,
-         "Phase 394 Join Next Mixed Current Line Command Workflows");
+        (T, Test_Join_Next_Mixed_Current_Line_Command_Workflows'Access,
+         "Join Next Mixed Current Line Command Workflows");
       AUnit.Test_Cases.Registration.Register_Routine
-        (T, Test_Phase395_Join_Next_End_To_End_And_Separator_Workflows'Access,
-         "Phase 395 Join Next End To End And Separator Workflows");
+        (T, Test_Join_Next_End_To_End_And_Separator_Workflows'Access,
+         "Join Next End To End And Separator Workflows");
       AUnit.Test_Cases.Registration.Register_Routine
-        (T, Test_Phase395_Join_Next_Caret_Selection_Find_Clipboard_And_Render_Workflow'Access,
-         "Phase 395 Join Next Caret Selection Find Clipboard And Render Workflow");
+        (T, Test_Join_Next_Caret_Selection_Find_Clipboard_And_Render_Workflow'Access,
+         "Join Next Caret Selection Find Clipboard And Render Workflow");
       AUnit.Test_Cases.Registration.Register_Routine
-        (T, Test_Phase395_Join_Next_Redo_Dirty_And_Mixed_Command_Coexistence'Access,
-         "Phase 395 Join Next Redo Dirty And Mixed Command Coexistence");
+        (T, Test_Join_Next_Redo_Dirty_And_Mixed_Command_Coexistence'Access,
+         "Join Next Redo Dirty And Mixed Command Coexistence");
       AUnit.Test_Cases.Registration.Register_Routine
-        (T, Test_Phase395_Join_Next_Active_Buffer_Routes_Features_And_Persistence'Access,
-         "Phase 395 Join Next Active Buffer Routes Features And Persistence");
+        (T, Test_Join_Next_Active_Buffer_Routes_Features_And_Persistence'Access,
+         "Join Next Active Buffer Routes Features And Persistence");
       AUnit.Test_Cases.Registration.Register_Routine
-        (T, Test_Phase396_Line_Join_Canonical_Cleanup_Surface'Access,
-         "Phase 396 Line Join Canonical Cleanup Surface");
+        (T, Test_Line_Join_Canonical_Cleanup_Surface'Access,
+         "Line Join Canonical Cleanup Surface");
       AUnit.Test_Cases.Registration.Register_Routine
-        (T, Test_Phase396_Line_Join_Canonical_Behavior_And_Persistence'Access,
-         "Phase 396 Line Join Canonical Behavior And Persistence");
+        (T, Test_Line_Join_Canonical_Behavior_And_Persistence'Access,
+         "Line Join Canonical Behavior And Persistence");
       AUnit.Test_Cases.Registration.Register_Routine
-        (T, Test_Phase397_Line_Split_Command_Descriptors_And_Routes'Access,
-         "Phase 397 Line Split Command Descriptors And Routes");
+        (T, Test_Line_Split_Command_Descriptors_And_Routes'Access,
+         "Line Split Command Descriptors And Routes");
       AUnit.Test_Cases.Registration.Register_Routine
-        (T, Test_Phase397_Line_Split_Boundary_Matrix_Undo_Redo'Access,
-         "Phase 397 Line Split Boundary Matrix Undo Redo");
+        (T, Test_Line_Split_Boundary_Matrix_Undo_Redo'Access,
+         "Line Split Boundary Matrix Undo Redo");
       AUnit.Test_Cases.Registration.Register_Routine
-        (T, Test_Phase397_Line_Split_State_Boundaries_And_Persistence'Access,
-         "Phase 397 Line Split State Boundaries And Persistence");
+        (T, Test_Line_Split_State_Boundaries_And_Persistence'Access,
+         "Line Split State Boundaries And Persistence");
       AUnit.Test_Cases.Registration.Register_Routine
-        (T, Test_Phase397_Completeness_No_Op_Redo_And_Boundaries'Access,
-         "Phase 397 Completeness No Op Redo And Boundaries");
+        (T, Test_Completeness_No_Op_Redo_And_Boundaries'Access,
+         "Completeness No Op Redo And Boundaries");
       AUnit.Test_Cases.Registration.Register_Routine
-        (T, Test_Phase398_Line_Split_Exact_Position_Matrix'Access,
-         "Phase 398 Line Split Exact Position Matrix");
+        (T, Test_Line_Split_Exact_Position_Matrix'Access,
+         "Line Split Exact Position Matrix");
       AUnit.Test_Cases.Registration.Register_Routine
-        (T, Test_Phase398_Line_Split_Selection_Find_Clipboard_Navigation_And_Render'Access,
-         "Phase 398 Line Split Selection Find Clipboard Navigation And Render");
+        (T, Test_Line_Split_Selection_Find_Clipboard_Navigation_And_Render'Access,
+         "Line Split Selection Find Clipboard Navigation And Render");
       AUnit.Test_Cases.Registration.Register_Routine
-        (T, Test_Phase398_Line_Split_Mixed_Current_Line_Command_Workflows'Access,
-         "Phase 398 Line Split Mixed Current Line Command Workflows");
+        (T, Test_Line_Split_Mixed_Current_Line_Command_Workflows'Access,
+         "Line Split Mixed Current Line Command Workflows");
       AUnit.Test_Cases.Registration.Register_Routine
-        (T, Test_Phase398_Line_Split_Active_Buffer_And_Persistence_Boundaries'Access,
-         "Phase 398 Line Split Active Buffer And Persistence Boundaries");
+        (T, Test_Line_Split_Active_Buffer_And_Persistence_Boundaries'Access,
+         "Line Split Active Buffer And Persistence Boundaries");
       AUnit.Test_Cases.Registration.Register_Routine
-        (T, Test_Phase399_Line_Split_Workflow_Position_And_Boundary_Matrices'Access,
-         "Phase 399 Line Split Workflow Position And Boundary Matrices");
+        (T, Test_Line_Split_Workflow_Position_And_Boundary_Matrices'Access,
+         "Line Split Workflow Position And Boundary Matrices");
       AUnit.Test_Cases.Registration.Register_Routine
-        (T, Test_Phase399_Line_Split_Undo_Redo_Dirty_Find_Clipboard_Navigation_Render'Access,
-         "Phase 399 Line Split Undo Redo Dirty Find Clipboard Navigation Render");
+        (T, Test_Line_Split_Undo_Redo_Dirty_Find_Clipboard_Navigation_Render'Access,
+         "Line Split Undo Redo Dirty Find Clipboard Navigation Render");
       AUnit.Test_Cases.Registration.Register_Routine
-        (T, Test_Phase399_Line_Split_Mixed_Command_Coexistence_Workflows'Access,
-         "Phase 399 Line Split Mixed Command Coexistence Workflows");
+        (T, Test_Line_Split_Mixed_Command_Coexistence_Workflows'Access,
+         "Line Split Mixed Command Coexistence Workflows");
       AUnit.Test_Cases.Registration.Register_Routine
-        (T, Test_Phase399_Line_Split_Active_Buffer_Routes_Features_And_Persistence'Access,
-         "Phase 399 Line Split Active Buffer Routes Features And Persistence");
+        (T, Test_Line_Split_Active_Buffer_Routes_Features_And_Persistence'Access,
+         "Line Split Active Buffer Routes Features And Persistence");
       AUnit.Test_Cases.Registration.Register_Routine
-        (T, Test_Phase399_Completeness_Selection_Caret_Only_And_Followups'Access,
-         "Phase 399 Completeness Selection Caret Only And Followups");
+        (T, Test_Completeness_Selection_Caret_Only_And_Followups'Access,
+         "Completeness Selection Caret Only And Followups");
       AUnit.Test_Cases.Registration.Register_Routine
-        (T, Test_Phase399_Completeness_No_Buffer_No_Caret_And_Routed_Input'Access,
-         "Phase 399 Completeness No Buffer No Caret And Routed Input");
+        (T, Test_Completeness_No_Buffer_No_Caret_And_Routed_Input'Access,
+         "Completeness No Buffer No Caret And Routed Input");
       AUnit.Test_Cases.Registration.Register_Routine
-        (T, Test_Phase399_Completeness_Read_Only_And_Persistence_Surfaces'Access,
-         "Phase 399 Completeness Read Only And Persistence Surfaces");
+        (T, Test_Completeness_Read_Only_And_Persistence_Surfaces'Access,
+         "Completeness Read Only And Persistence Surfaces");
       AUnit.Test_Cases.Registration.Register_Routine
-        (T, Test_Phase400_Line_Split_Canonical_Surface_Cleanup'Access,
-         "Phase 400 Line Split Canonical Surface Cleanup");
+        (T, Test_Line_Split_Canonical_Surface_Cleanup'Access,
+         "Line Split Canonical Surface Cleanup");
       AUnit.Test_Cases.Registration.Register_Routine
-        (T, Test_Phase400_Line_Split_Canonical_Behavior_And_State_Boundaries'Access,
-         "Phase 400 Line Split Canonical Behavior And State Boundaries");
+        (T, Test_Line_Split_Canonical_Behavior_And_State_Boundaries'Access,
+         "Line Split Canonical Behavior And State Boundaries");
       AUnit.Test_Cases.Registration.Register_Routine
-        (T, Test_Phase400_Line_Split_Failure_Read_Only_And_Ordinary_Newline_Separation'Access,
-         "Phase 400 Line Split Failure Read Only And Ordinary Newline Separation");
+        (T, Test_Line_Split_Failure_Read_Only_And_Ordinary_Newline_Separation'Access,
+         "Line Split Failure Read Only And Ordinary Newline Separation");
       AUnit.Test_Cases.Registration.Register_Routine
-        (T, Test_Phase401_Word_Delete_Command_Descriptors_And_Routes'Access,
-         "Phase 401 Word Delete Command Descriptors And Routes");
+        (T, Test_Word_Delete_Command_Descriptors_And_Routes'Access,
+         "Word Delete Command Descriptors And Routes");
       AUnit.Test_Cases.Registration.Register_Routine
-        (T, Test_Phase401_Delete_Previous_Word_Boundaries_Selection_And_Undo'Access,
-         "Phase 401 Delete Previous Word Boundaries Selection And Undo");
+        (T, Test_Delete_Previous_Word_Boundaries_Selection_And_Undo'Access,
+         "Delete Previous Word Boundaries Selection And Undo");
       AUnit.Test_Cases.Registration.Register_Routine
-        (T, Test_Phase401_Delete_Next_Word_Boundaries_No_Ops_And_Persistence'Access,
-         "Phase 401 Delete Next Word Boundaries No Ops And Persistence");
+        (T, Test_Delete_Next_Word_Boundaries_No_Ops_And_Persistence'Access,
+         "Delete Next Word Boundaries No Ops And Persistence");
       AUnit.Test_Cases.Registration.Register_Routine
-        (T, Test_Phase402_Delete_Previous_Word_Reliability_Matrix'Access,
-         "Phase 402 Delete Previous Word Reliability Matrix");
+        (T, Test_Delete_Previous_Word_Reliability_Matrix'Access,
+         "Delete Previous Word Reliability Matrix");
       AUnit.Test_Cases.Registration.Register_Routine
-        (T, Test_Phase402_Delete_Next_Word_Reliability_Matrix'Access,
-         "Phase 402 Delete Next Word Reliability Matrix");
+        (T, Test_Delete_Next_Word_Reliability_Matrix'Access,
+         "Delete Next Word Reliability Matrix");
       AUnit.Test_Cases.Registration.Register_Routine
-        (T, Test_Phase402_Word_Delete_State_Integration_And_Read_Only_Boundaries'Access,
-         "Phase 402 Word Delete State Integration And Read Only Boundaries");
+        (T, Test_Word_Delete_State_Integration_And_Read_Only_Boundaries'Access,
+         "Word Delete State Integration And Read Only Boundaries");
       AUnit.Test_Cases.Registration.Register_Routine
-        (T, Test_Phase402_Word_Delete_Current_Line_Coexistence_And_Persistence'Access,
-         "Phase 402 Word Delete Current Line Coexistence And Persistence");
+        (T, Test_Word_Delete_Current_Line_Coexistence_And_Persistence'Access,
+         "Word Delete Current Line Coexistence And Persistence");
       AUnit.Test_Cases.Registration.Register_Routine
-        (T, Test_Phase403_Word_Delete_Boundary_Transform_Workflows'Access,
-         "Phase 403 Word Delete Boundary Transform Workflows");
+        (T, Test_Word_Delete_Boundary_Transform_Workflows'Access,
+         "Word Delete Boundary Transform Workflows");
       AUnit.Test_Cases.Registration.Register_Routine
-        (T, Test_Phase403_Word_Delete_Cross_Line_Selection_Find_Clipboard'Access,
-         "Phase 403 Word Delete Cross Line Selection Find Clipboard");
+        (T, Test_Word_Delete_Cross_Line_Selection_Find_Clipboard'Access,
+         "Word Delete Cross Line Selection Find Clipboard");
       AUnit.Test_Cases.Registration.Register_Routine
-        (T, Test_Phase403_Word_Delete_Undo_Redo_Dirty_And_Current_Line_Coexistence'Access,
-         "Phase 403 Word Delete Undo Redo Dirty And Current Line Coexistence");
+        (T, Test_Word_Delete_Undo_Redo_Dirty_And_Current_Line_Coexistence'Access,
+         "Word Delete Undo Redo Dirty And Current Line Coexistence");
       AUnit.Test_Cases.Registration.Register_Routine
-        (T, Test_Phase403_Word_Delete_Active_Buffer_Routes_Features_And_Persistence'Access,
-         "Phase 403 Word Delete Active Buffer Routes Features And Persistence");
+        (T, Test_Word_Delete_Active_Buffer_Routes_Features_And_Persistence'Access,
+         "Word Delete Active Buffer Routes Features And Persistence");
       AUnit.Test_Cases.Registration.Register_Routine
-        (T, Test_Phase404_Word_Delete_Canonical_Surface_Cleanup'Access,
-         "Phase 404 Word Delete Canonical Surface Cleanup");
+        (T, Test_Word_Delete_Canonical_Surface_Cleanup'Access,
+         "Word Delete Canonical Surface Cleanup");
       AUnit.Test_Cases.Registration.Register_Routine
-        (T, Test_Phase404_Word_Delete_Canonical_Routes_And_State_Boundaries'Access,
-         "Phase 404 Word Delete Canonical Routes And State Boundaries");
+        (T, Test_Word_Delete_Canonical_Routes_And_State_Boundaries'Access,
+         "Word Delete Canonical Routes And State Boundaries");
       AUnit.Test_Cases.Registration.Register_Routine
-        (T, Test_Phase404_Word_Delete_Behavior_Preservation_Smoke'Access,
-         "Phase 404 Word Delete Behavior Preservation Smoke");
+        (T, Test_Word_Delete_Behavior_Preservation_Smoke'Access,
+         "Word Delete Behavior Preservation Smoke");
       AUnit.Test_Cases.Registration.Register_Routine
-        (T, Test_Phase405_Character_Delete_Command_Descriptors_And_Routes'Access,
-         "Phase 405 Character Delete Command Descriptors And Routes");
+        (T, Test_Character_Delete_Command_Descriptors_And_Routes'Access,
+         "Character Delete Command Descriptors And Routes");
       AUnit.Test_Cases.Registration.Register_Routine
-        (T, Test_Phase405_Delete_Previous_Character_Boundaries_Selection_And_Undo'Access,
-         "Phase 405 Delete Previous Character Boundaries Selection And Undo");
+        (T, Test_Delete_Previous_Character_Boundaries_Selection_And_Undo'Access,
+         "Delete Previous Character Boundaries Selection And Undo");
       AUnit.Test_Cases.Registration.Register_Routine
-        (T, Test_Phase405_Delete_Next_Character_Boundaries_No_Ops_And_State'Access,
-         "Phase 405 Delete Next Character Boundaries No Ops And State");
+        (T, Test_Delete_Next_Character_Boundaries_No_Ops_And_State'Access,
+         "Delete Next Character Boundaries No Ops And State");
       AUnit.Test_Cases.Registration.Register_Routine
-        (T, Test_Phase405_Character_Delete_Completeness_Routes_State_And_Persistence'Access,
-         "Phase 405 Character Delete Completeness Routes State And Persistence");
+        (T, Test_Character_Delete_Completeness_Routes_State_And_Persistence'Access,
+         "Character Delete Completeness Routes State And Persistence");
 
       AUnit.Test_Cases.Registration.Register_Routine
-        (T, Test_Phase406_Character_Delete_Previous_Reliability_Matrix'Access,
-         "Phase 406 Character Delete Previous Reliability Matrix");
+        (T, Test_Character_Delete_Previous_Reliability_Matrix'Access,
+         "Character Delete Previous Reliability Matrix");
       AUnit.Test_Cases.Registration.Register_Routine
-        (T, Test_Phase406_Character_Delete_Next_Reliability_Matrix'Access,
-         "Phase 406 Character Delete Next Reliability Matrix");
+        (T, Test_Character_Delete_Next_Reliability_Matrix'Access,
+         "Character Delete Next Reliability Matrix");
       AUnit.Test_Cases.Registration.Register_Routine
-        (T, Test_Phase406_Character_Delete_State_Integration_And_Read_Only_Boundaries'Access,
-         "Phase 406 Character Delete State Integration And Read Only Boundaries");
+        (T, Test_Character_Delete_State_Integration_And_Read_Only_Boundaries'Access,
+         "Character Delete State Integration And Read Only Boundaries");
       AUnit.Test_Cases.Registration.Register_Routine
-        (T, Test_Phase406_Character_Delete_Mixed_Command_Coexistence_And_Persistence'Access,
-         "Phase 406 Character Delete Mixed Command Coexistence And Persistence");
+        (T, Test_Character_Delete_Mixed_Command_Coexistence_And_Persistence'Access,
+         "Character Delete Mixed Command Coexistence And Persistence");
       AUnit.Test_Cases.Registration.Register_Routine
-        (T, Test_Phase407_Character_Delete_Boundary_Transform_Workflows'Access,
-         "Phase 407 Character Delete Boundary Transform Workflows");
+        (T, Test_Character_Delete_Boundary_Transform_Workflows'Access,
+         "Character Delete Boundary Transform Workflows");
       AUnit.Test_Cases.Registration.Register_Routine
-        (T, Test_Phase407_Character_Delete_State_Find_Clipboard_Navigation_Render'Access,
-         "Phase 407 Character Delete State Find Clipboard Navigation Render");
+        (T, Test_Character_Delete_State_Find_Clipboard_Navigation_Render'Access,
+         "Character Delete State Find Clipboard Navigation Render");
       AUnit.Test_Cases.Registration.Register_Routine
-        (T, Test_Phase407_Character_Delete_Mixed_Command_Coexistence_Workflows'Access,
-         "Phase 407 Character Delete Mixed Command Coexistence Workflows");
+        (T, Test_Character_Delete_Mixed_Command_Coexistence_Workflows'Access,
+         "Character Delete Mixed Command Coexistence Workflows");
       AUnit.Test_Cases.Registration.Register_Routine
-        (T, Test_Phase407_Character_Delete_Active_Buffer_Routes_And_Persistence'Access,
-         "Phase 407 Character Delete Active Buffer Routes And Persistence");
+        (T, Test_Character_Delete_Active_Buffer_Routes_And_Persistence'Access,
+         "Character Delete Active Buffer Routes And Persistence");
       AUnit.Test_Cases.Registration.Register_Routine
-        (T, Test_Phase408_Character_Delete_Canonical_Surface_Cleanup'Access,
-         "Phase 408 Character Delete Canonical Surface Cleanup");
+        (T, Test_Character_Delete_Canonical_Surface_Cleanup'Access,
+         "Character Delete Canonical Surface Cleanup");
       AUnit.Test_Cases.Registration.Register_Routine
-        (T, Test_Phase408_Character_Delete_Canonical_Routes_State_And_Persistence'Access,
-         "Phase 408 Character Delete Canonical Routes State And Persistence");
+        (T, Test_Character_Delete_Canonical_Routes_State_And_Persistence'Access,
+         "Character Delete Canonical Routes State And Persistence");
       AUnit.Test_Cases.Registration.Register_Routine
-        (T, Test_Phase409_Selection_Delete_Command_Descriptors_And_Routes'Access,
-         "Phase 409 Selection Delete Command Descriptors And Routes");
+        (T, Test_Selection_Delete_Command_Descriptors_And_Routes'Access,
+         "Selection Delete Command Descriptors And Routes");
       AUnit.Test_Cases.Registration.Register_Routine
-        (T, Test_Phase409_Selection_Delete_Range_Matrix_And_Backward_Selection'Access,
-         "Phase 409 Selection Delete Source_Span Matrix And Backward Selection");
+        (T, Test_Selection_Delete_Range_Matrix_And_Backward_Selection'Access,
+         "Selection Delete Source_Span Matrix And Backward Selection");
       AUnit.Test_Cases.Registration.Register_Routine
-        (T, Test_Phase409_Selection_Delete_Undo_Redo_Clipboard_Navigation_And_No_Op'Access,
-         "Phase 409 Selection Delete Undo Redo Clipboard Navigation And No Op");
+        (T, Test_Selection_Delete_Undo_Redo_Clipboard_Navigation_And_No_Op'Access,
+         "Selection Delete Undo Redo Clipboard Navigation And No Op");
       AUnit.Test_Cases.Registration.Register_Routine
-        (T, Test_Phase410_Selection_Delete_Transform_Matrix_And_Caret'Access,
-         "Phase 410 Selection Delete Transform Matrix And Caret");
+        (T, Test_Selection_Delete_Transform_Matrix_And_Caret'Access,
+         "Selection Delete Transform Matrix And Caret");
       AUnit.Test_Cases.Registration.Register_Routine
-        (T, Test_Phase410_Selection_Delete_No_Op_Invalid_And_Redo_Preservation'Access,
-         "Phase 410 Selection Delete No Op Invalid And Redo Preservation");
+        (T, Test_Selection_Delete_No_Op_Invalid_And_Redo_Preservation'Access,
+         "Selection Delete No Op Invalid And Redo Preservation");
       AUnit.Test_Cases.Registration.Register_Routine
-        (T, Test_Phase410_Selection_Delete_Find_Dirty_Clipboard_And_Navigation'Access,
-         "Phase 410 Selection Delete Find Dirty Clipboard And Navigation");
+        (T, Test_Selection_Delete_Find_Dirty_Clipboard_And_Navigation'Access,
+         "Selection Delete Find Dirty Clipboard And Navigation");
       AUnit.Test_Cases.Registration.Register_Routine
-        (T, Test_Phase410_Selection_Delete_Availability_Render_And_Persistence_Boundaries'Access,
-         "Phase 410 Selection Delete Availability Render And Persistence Boundaries");
+        (T, Test_Selection_Delete_Availability_Render_And_Persistence_Boundaries'Access,
+         "Selection Delete Availability Render And Persistence Boundaries");
       AUnit.Test_Cases.Registration.Register_Routine
-        (T, Test_Phase410_Selection_Delete_Active_Buffer_Isolation'Access,
-         "Phase 410 Selection Delete Active Buffer Isolation");
+        (T, Test_Selection_Delete_Active_Buffer_Isolation'Access,
+         "Selection Delete Active Buffer Isolation");
       AUnit.Test_Cases.Registration.Register_Routine
-        (T, Test_Phase410_Selection_Delete_Selection_Command_And_Edit_Coexistence'Access,
-         "Phase 410 Selection Delete Selection Command And Edit Coexistence");
+        (T, Test_Selection_Delete_Selection_Command_And_Edit_Coexistence'Access,
+         "Selection Delete Selection Command And Edit Coexistence");
 
       AUnit.Test_Cases.Registration.Register_Routine
-        (T, Test_Phase411_Selection_Delete_Workflow_Transform_Matrix'Access,
-         "Phase 411 Selection Delete Workflow Transform Matrix");
+        (T, Test_Selection_Delete_Workflow_Transform_Matrix'Access,
+         "Selection Delete Workflow Transform Matrix");
 
       AUnit.Test_Cases.Registration.Register_Routine
-        (T, Test_Phase411_Forward_Backward_Equivalence_And_Invalid_Noops'Access,
-         "Phase 411 Forward Backward Equivalence And Invalid Noops");
+        (T, Test_Forward_Backward_Equivalence_And_Invalid_Noops'Access,
+         "Forward Backward Equivalence And Invalid Noops");
 
       AUnit.Test_Cases.Registration.Register_Routine
-        (T, Test_Phase411_Undo_Redo_Dirty_Find_Clipboard_And_Navigation_Workflow'Access,
-         "Phase 411 Undo Redo Dirty Find Clipboard And Navigation Workflow");
+        (T, Test_Undo_Redo_Dirty_Find_Clipboard_And_Navigation_Workflow'Access,
+         "Undo Redo Dirty Find Clipboard And Navigation Workflow");
 
       AUnit.Test_Cases.Registration.Register_Routine
-        (T, Test_Phase411_Command_Coexistence_And_Cut_Contrast'Access,
-         "Phase 411 Command Coexistence And Cut Contrast");
+        (T, Test_Command_Coexistence_And_Cut_Contrast'Access,
+         "Command Coexistence And Cut Contrast");
 
       AUnit.Test_Cases.Registration.Register_Routine
-        (T, Test_Phase411_Read_Only_Routes_Feature_And_Persistence_Boundaries'Access,
-         "Phase 411 Read Only Routes Feature And Persistence Boundaries");
+        (T, Test_Read_Only_Routes_Feature_And_Persistence_Boundaries'Access,
+         "Read Only Routes Feature And Persistence Boundaries");
       AUnit.Test_Cases.Registration.Register_Routine
-        (T, Test_Phase412_Selection_Delete_Canonical_Surface_Cleanup'Access,
-         "Phase 412 Selection Delete Canonical Surface Cleanup");
+        (T, Test_Selection_Delete_Canonical_Surface_Cleanup'Access,
+         "Selection Delete Canonical Surface Cleanup");
       AUnit.Test_Cases.Registration.Register_Routine
-        (T, Test_Phase412_Selection_Delete_Canonical_State_Only_Workflow'Access,
-         "Phase 412 Selection Delete Canonical State Only Workflow");
+        (T, Test_Selection_Delete_Canonical_State_Only_Workflow'Access,
+         "Selection Delete Canonical State Only Workflow");
       AUnit.Test_Cases.Registration.Register_Routine
-        (T, Test_Phase413_Text_Insert_Basic_Caret_And_Undo'Access,
-         "Phase 413 Text Insert Basic Caret And Undo");
+        (T, Test_Text_Insert_Basic_Caret_And_Undo'Access,
+         "Text Insert Basic Caret And Undo");
       AUnit.Test_Cases.Registration.Register_Routine
-        (T, Test_Phase413_Text_Insert_Replaces_Selection_Without_Clipboard'Access,
-         "Phase 413 Text Insert Replaces Selection Without Clipboard");
+        (T, Test_Text_Insert_Replaces_Selection_Without_Clipboard'Access,
+         "Text Insert Replaces Selection Without Clipboard");
       AUnit.Test_Cases.Registration.Register_Routine
-        (T, Test_Phase413_Input_Bridge_Routes_Editor_Text_And_Protects_Overlays'Access,
-         "Phase 413 Input Bridge Routes Editor Text And Protects Overlays");
+        (T, Test_Input_Bridge_Routes_Editor_Text_And_Protects_Overlays'Access,
+         "Input Bridge Routes Editor Text And Protects Overlays");
       AUnit.Test_Cases.Registration.Register_Routine
-        (T, Test_Phase413_Completeness_Noop_Invalid_And_Redo_Boundaries'Access,
-         "Phase 413 Completeness Noop Invalid And Redo Boundaries");
+        (T, Test_Completeness_Noop_Invalid_And_Redo_Boundaries'Access,
+         "Completeness Noop Invalid And Redo Boundaries");
       AUnit.Test_Cases.Registration.Register_Routine
-        (T, Test_Phase413_Completeness_Backward_Cross_Line_Replacement_And_Persistence'Access,
-         "Phase 413 Completeness Backward Cross Line Replacement And Persistence");
+        (T, Test_Completeness_Backward_Cross_Line_Replacement_And_Persistence'Access,
+         "Completeness Backward Cross Line Replacement And Persistence");
       AUnit.Test_Cases.Registration.Register_Routine
-        (T, Test_Phase413_Completeness_Unicode_Routing_Internal_Surface_And_Isolation'Access,
-         "Phase 413 Completeness Unicode Routing Internal Surface And Isolation");
+        (T, Test_Completeness_Unicode_Routing_Internal_Surface_And_Isolation'Access,
+         "Completeness Unicode Routing Internal Surface And Isolation");
       AUnit.Test_Cases.Registration.Register_Routine
-        (T, Test_Phase413_Remove_Removed_Name_Text_Input_Uses_Canonical_Path'Access,
-         "Phase 413 Completeness Text Insert Uses Canonical Path");
+        (T, Test_Remove_Removed_Name_Text_Input_Uses_Canonical_Path'Access,
+         "Completeness Text Insert Uses Canonical Path");
       AUnit.Test_Cases.Registration.Register_Routine
-        (T, Test_Phase413_Completeness_Line_Boundary_Command_Is_Canonical_Insert'Access,
-         "Phase 413 Completeness Line Boundary Command Is Canonical Insert");
+        (T, Test_Completeness_Line_Boundary_Command_Is_Canonical_Insert'Access,
+         "Completeness Line Boundary Command Is Canonical Insert");
       AUnit.Test_Cases.Registration.Register_Routine
-        (T, Test_Phase413_Completeness_Multi_Caret_Insert_Is_Not_Second_Model'Access,
-         "Phase 413 Completeness Multi Caret Insert Is Not Second Model");
+        (T, Test_Completeness_Multi_Caret_Insert_Is_Not_Second_Model'Access,
+         "Completeness Multi Caret Insert Is Not Second Model");
       AUnit.Test_Cases.Registration.Register_Routine
-        (T, Test_Phase414_Text_Insert_Caret_Transform_Matrix'Access,
-         "Phase 414 Text Insert Caret Transform Matrix");
+        (T, Test_Text_Insert_Caret_Transform_Matrix'Access,
+         "Text Insert Caret Transform Matrix");
       AUnit.Test_Cases.Registration.Register_Routine
-        (T, Test_Phase414_Text_Insert_Replacement_Transform_Matrix'Access,
-         "Phase 414 Text Insert Replacement Transform Matrix");
+        (T, Test_Text_Insert_Replacement_Transform_Matrix'Access,
+         "Text Insert Replacement Transform Matrix");
       AUnit.Test_Cases.Registration.Register_Routine
-        (T, Test_Phase414_Text_Insert_Noop_Invalid_And_Redo_Are_NonMutating'Access,
-         "Phase 414 Text Insert Noop Invalid And Redo Are NonMutating");
+        (T, Test_Text_Insert_Noop_Invalid_And_Redo_Are_NonMutating'Access,
+         "Text Insert Noop Invalid And Redo Are NonMutating");
       AUnit.Test_Cases.Registration.Register_Routine
-        (T, Test_Phase414_Text_Insert_Invalid_Selection_Does_Not_Repair_State'Access,
-         "Phase 414 Text Insert Invalid Selection Does Not Repair State");
+        (T, Test_Text_Insert_Invalid_Selection_Does_Not_Repair_State'Access,
+         "Text Insert Invalid Selection Does Not Repair State");
       AUnit.Test_Cases.Registration.Register_Routine
-        (T, Test_Phase414_Text_Insert_Find_Clipboard_Navigation_And_Persistence'Access,
-         "Phase 414 Text Insert Find Clipboard Navigation And Persistence");
+        (T, Test_Text_Insert_Find_Clipboard_Navigation_And_Persistence'Access,
+         "Text Insert Find Clipboard Navigation And Persistence");
       AUnit.Test_Cases.Registration.Register_Routine
-        (T, Test_Phase414_Completeness_Active_Buffer_Render_And_Overlay_Routing'Access,
-         "Phase 414 Completeness Active Buffer Render And Overlay Routing");
+        (T, Test_Completeness_Active_Buffer_Render_And_Overlay_Routing'Access,
+         "Completeness Active Buffer Render And Overlay Routing");
 
       AUnit.Test_Cases.Registration.Register_Routine
-        (T, Test_Phase415_Text_Insert_Workflow_Transform_And_Replacement'Access,
-         "Phase 415 Text Insert Workflow Transform And Replacement");
+        (T, Test_Text_Insert_Workflow_Transform_And_Replacement'Access,
+         "Text Insert Workflow Transform And Replacement");
       AUnit.Test_Cases.Registration.Register_Routine
-        (T, Test_Phase415_Text_Insert_Noops_Redo_Dirty_And_Find'Access,
-         "Phase 415 Text Insert Noops Redo Dirty And Find");
+        (T, Test_Text_Insert_Noops_Redo_Dirty_And_Find'Access,
+         "Text Insert Noops Redo Dirty And Find");
       AUnit.Test_Cases.Registration.Register_Routine
-        (T, Test_Phase415_Text_Insert_Clipboard_Navigation_Active_Buffer_And_Overlay_Workflow'Access,
-         "Phase 415 Text Insert Clipboard Navigation Active Buffer And Overlay Workflow");
+        (T, Test_Text_Insert_Clipboard_Navigation_Active_Buffer_And_Overlay_Workflow'Access,
+         "Text Insert Clipboard Navigation Active Buffer And Overlay Workflow");
       AUnit.Test_Cases.Registration.Register_Routine
-        (T, Test_Phase415_Text_Insert_Mixed_Editing_Features_Render_And_Persistence'Access,
-         "Phase 415 Text Insert Mixed Editing Features Render And Persistence");
+        (T, Test_Text_Insert_Mixed_Editing_Features_Render_And_Persistence'Access,
+         "Text Insert Mixed Editing Features Render And Persistence");
       AUnit.Test_Cases.Registration.Register_Routine
-        (T, Test_Phase415_Text_Insert_Overlay_Owner_Matrix_And_Command_Surface'Access,
-         "Phase 415 Text Insert Overlay Owner Matrix And Command Surface");
+        (T, Test_Text_Insert_Overlay_Owner_Matrix_And_Command_Surface'Access,
+         "Text Insert Overlay Owner Matrix And Command Surface");
       AUnit.Test_Cases.Registration.Register_Routine
-        (T, Test_Phase416_Text_Insert_Canonical_Route_State_And_Persistence'Access,
-         "Phase 416 Text Insert Canonical Route State And Persistence");
+        (T, Test_Text_Insert_Canonical_Route_State_And_Persistence'Access,
+         "Text Insert Canonical Route State And Persistence");
       AUnit.Test_Cases.Registration.Register_Routine
-        (T, Test_Phase416_Text_Insert_Behavior_Preservation_Smoke'Access,
-         "Phase 416 Text Insert Behavior Preservation Smoke");
+        (T, Test_Text_Insert_Behavior_Preservation_Smoke'Access,
+         "Text Insert Behavior Preservation Smoke");
    end Register_Tests;
 
 end Editor.Line_Edit.Tests;

@@ -5,9 +5,9 @@ with Editor.Ada_Syntax_Tree;
 
 package Editor.Ada_Remaining_RM_Edge_Precision_Legality is
 
-   --  Pass1277 remaining Ada RM edge precision legality.
+   --  Case 1277 remaining Ada RM edge precision legality.
    --
-   --  This package consumes the Pass1276 applied direct RM-completion
+   --  This package consumes the Case 1276 applied direct RM-completion
    --  closure-consumer boundary and models the remaining hard Ada RM edge
    --  cases that still require direct legality evidence before downstream
    --  semantic consumers may treat them as accepted: dispatching calls with

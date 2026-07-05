@@ -6,7 +6,7 @@ with Editor.Ada_Syntax_Tree;
 
 package Editor.Ada_Accessibility_Scope_Consumer_Legality is
 
-   --  Pass1162 compiler-grade accessibility scope consumer legality.
+   --  Case 1162 compiler-grade accessibility scope consumer legality.
    --
    --  This layer feeds the exact master/scope graph into assignment, return,
    --  conversion/access, allocator, access-discriminant, renaming, generic

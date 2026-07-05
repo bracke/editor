@@ -157,7 +157,7 @@ package body Editor.Ada_Generic_Shared_State_RM_Completion_Diagnostic_Integratio
          Severity => Severity_For (Family),
          Node => Source.Node,
          Message => Message_For (Family),
-         Detail => To_Unbounded_String ("Pass1256 preserves RM-completion blocker-family identity at the diagnostic/feed boundary."),
+         Detail => To_Unbounded_String ("Case 1256 preserves RM-completion blocker-family identity at the diagnostic/feed boundary."),
          Source_Fingerprint => Source.Source_Fingerprint,
          Substitution_Fingerprint => Source.Substitution_Fingerprint,
          Semantic_Fingerprint => Source.Stable_Row_Fingerprint,

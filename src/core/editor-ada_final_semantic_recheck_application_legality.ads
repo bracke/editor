@@ -6,9 +6,9 @@ with Editor.Ada_Syntax_Tree;
 
 package Editor.Ada_Final_Semantic_Recheck_Application_Legality is
 
-   --  Pass1206 final semantic recheck application legality.
+   --  Case 1206 final semantic recheck application legality.
    --
-   --  This package consumes Pass1205 recheck eligibility rows and applies
+   --  This package consumes Case 1205 recheck eligibility rows and applies
    --  them back into the final semantic closure/feed boundary.  A semantic
    --  result becomes current only when its recheck prerequisite chain is
    --  eligible now.  Stale snapshots, AST/coverage gaps, cross-unit closure

@@ -7,9 +7,9 @@ with Editor.Ada_Syntax_Tree;
 
 package Editor.Ada_Widened_Legality_Coverage_Gate_Enforcement is
 
-   --  Pass1137 coverage-gate enforcement for widened Ada legality engines.
+   --  Case 1137 coverage-gate enforcement for widened Ada legality engines.
    --
-   --  Pass1136 preserved coverage-gated semantic results.  This package is the
+   --  Case 1136 preserved coverage-gated semantic results.  This package is the
    --  enforcing consumer used by widened legality engines before a row is
    --  allowed to remain a confident semantic conclusion.  It maps every gated
    --  semantic conclusion family to the corresponding widened legality engine

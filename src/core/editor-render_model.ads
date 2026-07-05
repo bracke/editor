@@ -140,6 +140,8 @@ package Editor.Render_Model is
             End_Index   => 0,
             Severity    => Editor.Diagnostics.Hint,
             Message     => Ada.Strings.Unbounded.Null_Unbounded_String,
+            Quick_Fix_Label  => Ada.Strings.Unbounded.Null_Unbounded_String,
+            Quick_Fix_Detail => Ada.Strings.Unbounded.Null_Unbounded_String,
             Has_Location => False,
             Start_Row    => 0,
             Start_Column => 0));
@@ -167,7 +169,7 @@ package Editor.Render_Model is
       Project_Label           : Ada.Strings.Unbounded.Unbounded_String :=
         Ada.Strings.Unbounded.Null_Unbounded_String;
 
-      --  Phase 577 active-buffer metadata projection. These labels are
+      --  active-buffer metadata projection. These labels are
       --  copied from Editor.Buffers.Metadata_For for display only. Render
       --  must not derive, repair, switch, close, save, reload, or persist
       --  buffer state from them.
@@ -240,7 +242,7 @@ package Editor.Render_Model is
         Ada.Strings.Unbounded.Null_Unbounded_String;
       File_Target_Prompt_Field   : Editor.Input_Field.Field_Snapshot;
 
-      --  Phase 575 dirty-buffer close review projection. These fields are
+      --  dirty-buffer close review projection. These fields are
       --  derived from transient Executor-owned prompt state only; render must
       --  never use them to close, save, discard, or persist buffers.
       Dirty_Close_Prompt_Visible : Boolean := False;
@@ -251,7 +253,7 @@ package Editor.Render_Model is
       Dirty_Close_Buffer_Count   : Natural := 0;
       Dirty_Close_Buffer_Fingerprint : Natural := 0;
       Dirty_Close_Dirty_Fingerprint : Natural := 0;
-      --  Phase 575 completeness pass 28: render exposes the transient
+      --  completeness pass 28: render exposes the transient
       --  reviewed identity sets as inert snapshot text so UI/tests can
       --  show/debug the exact reviewed candidate set without owning close
       --  operations or persisting payloads.
@@ -266,7 +268,7 @@ package Editor.Render_Model is
       Dirty_Close_Unwritable_Count : Natural := 0;
       Dirty_Close_Missing_Count : Natural := 0;
       Dirty_Close_Save_Failure_Count : Natural := 0;
-      --  Phase 575 completeness pass 8: render snapshots expose the
+      --  completeness pass 8: render snapshots expose the
       --  prompt-owned action surface explicitly.  These booleans are
       --  observational only and mirror Executor availability policy; render
       --  must not interpret them as permission to mutate buffers itself.
@@ -279,14 +281,14 @@ package Editor.Render_Model is
       Build_UI : Editor.Build_UI.Build_UI_Render_Snapshot;
       Terminal_Tasks : Editor.Terminal_Tasks.Terminal_Task_Render_Snapshot;
 
-      --  Phase 565 keybinding-management projection.  This is a derived,
+      --  keybinding-management projection.  This is a derived,
       --  render-facing snapshot only: it carries visibility, filter, capture,
       --  conflict/reset, selection, and load-diagnostic summary state.  It is
       --  never persisted and never used by rendering to assign/remove/reset
       --  keybindings.
       Keybindings_UI : Editor.Keybinding_Management.Keybinding_Surface_Snapshot;
 
-      --  Phase 566 settings/configuration management projection.  This is a
+      --  settings/configuration management projection.  This is a
       --  bounded render-facing snapshot of supported global preferences and
       --  audit summaries only. It carries no keybinding maps, workspace
       --  session data, recent projects, command payloads, or persisted
@@ -302,7 +304,7 @@ package Editor.Render_Model is
       Settings_Command_Catalog_UI :
         Editor.Settings_Management.Settings_Command_Catalog_Snapshot;
 
-      --  Phase 570 guided empty-state action projection.  This is a
+      --  guided empty-state action projection.  This is a
       --  render-facing snapshot projection only: messages, availability labels,
       --  activation modes, selected markers, and command suggestions are
       --  derived from current runtime state and descriptors, carry no command
@@ -318,7 +320,7 @@ package Editor.Render_Model is
       Recent_Projects_Empty_State : Editor.Empty_State_Guidance.Empty_State_Snapshot;
       Configuration_Recovery_Empty_State : Editor.Empty_State_Guidance.Empty_State_Snapshot;
 
-      --  Phase 571 guided workflow prompt projection. This render-facing
+      --  guided workflow prompt projection. This render-facing
       --  snapshot is observational only: it displays current prompt purpose,
       --  input/capture state, validation, and confirmation labels, and never
       --  starts, confirms, cancels, validates by side effect, or persists any

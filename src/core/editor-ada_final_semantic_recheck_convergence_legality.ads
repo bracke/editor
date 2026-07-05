@@ -6,9 +6,9 @@ with Editor.Ada_Syntax_Tree;
 
 package Editor.Ada_Final_Semantic_Recheck_Convergence_Legality is
 
-   --  Pass1207 final semantic recheck convergence legality.
+   --  Case 1207 final semantic recheck convergence legality.
    --
-   --  This package consumes Pass1206 final recheck application rows and
+   --  This package consumes Case 1206 final recheck application rows and
    --  classifies whether the current recheck boundary has converged, is
    --  stably withheld by a prerequisite blocker, preserved a real semantic
    --  error, remains indeterminate, or changed relative to a caller supplied

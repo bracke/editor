@@ -175,6 +175,52 @@ package body Editor.Search_Results is
       end case;
    end Format_Header;
 
+   function Format_Empty_Message
+     (Search : Editor.Project_Search.Project_Search_State) return String
+   is
+      Query : constant String := Editor.Project_Search.Last_Run_Query (Search);
+      Effective_Query : constant String :=
+        (if Query'Length > 0 then Query else Editor.Project_Search.Query (Search));
+      Text : Unbounded_String;
+   begin
+      case Editor.Project_Search.Status (Search) is
+         when Editor.Project_Search.Project_Search_No_Project =>
+            return "Open a project to search files.";
+         when Editor.Project_Search.Project_Search_No_Files =>
+            return "No project files are available for Project Search.";
+         when Editor.Project_Search.Project_Search_Empty_Query =>
+            return "Enter a search query to search project files - " & Format_Options (Search);
+         when Editor.Project_Search.Project_Search_Read_Error =>
+            return "Project Search could not read every file for """ & Effective_Query
+              & """ - " & Format_Options (Search);
+         when Editor.Project_Search.Project_Search_Invalid_Regex =>
+            return "Fix the regex for """ & Effective_Query
+              & """ - " & Format_Options (Search);
+         when Editor.Project_Search.Project_Search_Cancelled =>
+            return "Project Search was cancelled for """ & Effective_Query
+              & """ - " & Format_Options (Search);
+         when Editor.Project_Search.Project_Search_Idle =>
+            return "Run Project Search - " & Format_Options (Search);
+         when Editor.Project_Search.Project_Search_Ok =>
+            if Effective_Query'Length = 0 then
+               return "Enter a search query to search project files - " & Format_Options (Search);
+            elsif Editor.Project_Search.Eligible_File_Count (Search) = 0 then
+               return "No project files match the current search scope for """
+                 & Effective_Query & """ - " & Format_Options (Search)
+                 & ". Clear scope/filter or adjust the query.";
+            else
+               Text := To_Unbounded_String
+                 ("No Project Search matches for """ & Effective_Query
+                  & """ - " & Format_Options (Search)
+                  & ". Clear filters or adjust the query.");
+               if Editor.Project_Search.Replace_Mode_Active (Search) then
+                  Append (Text, " Replace preview needs search results.");
+               end if;
+               return To_String (Text);
+            end if;
+      end case;
+   end Format_Empty_Message;
+
    function Format_File_Row
      (Group : Editor.Project_Search.Project_Search_File_Group) return String
    is
@@ -319,13 +365,14 @@ package body Editor.Search_Results is
       end if;
 
       if Editor.Project_Search.Result_Count (Search) = 0 then
-         Snapshot.Project_Search_Empty_Message := To_Unbounded_String (Format_Header (Search));
+         Snapshot.Project_Search_Empty_Message :=
+           To_Unbounded_String (Format_Empty_Message (Search));
          Snapshot.Rows.Append
            (Search_Results_Row'
              (Kind         => Search_Results_Empty_Row,
              Result_Index => 0,
              File_Index   => 0,
-             Text         => To_Unbounded_String (Format_Header (Search)),
+             Text         => To_Unbounded_String (Format_Empty_Message (Search)),
              Project_Relative_Path => Null_Unbounded_String,
              Line_Number  => 0,
              Line_Preview => Null_Unbounded_String,

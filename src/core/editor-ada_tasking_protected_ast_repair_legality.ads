@@ -6,9 +6,9 @@ with Editor.Ada_Syntax_Tree;
 
 package Editor.Ada_Tasking_Protected_AST_Repair_Legality is
 
-   --  Pass1173 task/protected/select parser-AST repair legality.
+   --  Case 1173 task/protected/select parser-AST repair legality.
    --
-   --  This package turns the generic repaired-coverage facts from Pass1147
+   --  This package turns the generic repaired-coverage facts from Case 1147
    --  into concrete tasking/protected/select construct repair facts.  It is a
    --  semantic gate-clearance model for task types and bodies, protected types
    --  and bodies, entry declarations and bodies, accept/requeue statements, and

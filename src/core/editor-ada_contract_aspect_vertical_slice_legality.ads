@@ -4,7 +4,7 @@ with Editor.Ada_Syntax_Tree;
 
 package Editor.Ada_Contract_Aspect_Vertical_Slice_Legality is
 
-   --  Pass1329 vertical-slice contract and aspect legality.
+   --  Case 1329 vertical-slice contract and aspect legality.
    --  This package models source-shaped Ada contract/aspect specifications:
    --  Pre/Post, type invariants, predicates, default/initial conditions,
    --  Global/Depends and refined variants, abstract/refined state,

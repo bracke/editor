@@ -7,7 +7,7 @@ with Editor.Ada_Tasking_Protected_Final_Effects_Legality;
 
 package Editor.Ada_Tasking_Protected_Deep_Edge_Legality is
 
-   --  Pass1193 compiler-grade tasking/protected deep edge legality.
+   --  Case 1193 compiler-grade tasking/protected deep edge legality.
    --
    --  This layer strengthens the final tasking/protected effect model for hard
    --  Ada RM edge cases that require more than one local final-effect row:

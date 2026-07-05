@@ -5,9 +5,9 @@ with Editor.Ada_Syntax_Tree;
 
 package Editor.Ada_Remaining_RM_Edge_Stabilized_Closure_Diagnostic_Integration is
 
-   --  Pass1292 diagnostic integration for stabilized remaining RM edge closure.
+   --  Case 1292 diagnostic integration for stabilized remaining RM edge closure.
    --
-   --  This package consumes Pass1291 remaining RM edge stabilized closure rows.
+   --  This package consumes Case 1291 remaining RM edge stabilized closure rows.
    --  Accepted closure evidence is withheld as current non-diagnostic semantic
    --  evidence.  Stable closure blockers are emitted with their original
    --  blocker family preserved.  Recheck-required rows remain outside trusted

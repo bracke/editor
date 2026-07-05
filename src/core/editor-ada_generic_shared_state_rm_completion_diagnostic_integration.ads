@@ -5,10 +5,10 @@ with Editor.Ada_Syntax_Tree;
 
 package Editor.Ada_Generic_Shared_State_RM_Completion_Diagnostic_Integration is
 
-   --  Pass1256 diagnostic integration for the RM-completed
+   --  Case 1256 diagnostic integration for the RM-completed
    --  generic/shared-state semantic chain.
    --
-   --  This package consumes Pass1255 dataflow/initialization RM-completion
+   --  This package consumes Case 1255 dataflow/initialization RM-completion
    --  rows and exposes diagnostic-boundary rows only for blocking semantic
    --  conclusions.  Accepted RM-completed rows are retained as current
    --  non-diagnostic evidence, while blockers keep their original family:

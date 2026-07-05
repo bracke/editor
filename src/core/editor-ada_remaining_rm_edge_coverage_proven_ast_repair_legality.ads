@@ -5,7 +5,7 @@ with Editor.Ada_Syntax_Tree;
 
 package Editor.Ada_Remaining_RM_Edge_Coverage_Proven_AST_Repair_Legality is
 
-   --  Pass1295 coverage-proven AST repair for remaining RM edge blockers.
+   --  Case 1295 coverage-proven AST repair for remaining RM edge blockers.
    --
    --  This package is deliberately evidence-driven.  It does not speculate
    --  about parser gaps.  A repair row may be accepted only when a stabilized

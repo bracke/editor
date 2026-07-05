@@ -3,6 +3,7 @@ with Ada.Text_IO;
 with Ada.Strings.Unbounded;
 with AUnit.Assertions; use AUnit.Assertions;
 with AUnit.Test_Cases; use AUnit.Test_Cases.Registration;
+with Editor.Commands;
 with Editor.Missing_Stale_Recovery;
 
 package body Editor.Missing_Stale_Recovery.Tests is
@@ -34,7 +35,7 @@ package body Editor.Missing_Stale_Recovery.Tests is
    function Fixture_Root return String is
    begin
       Ada.Directories.Create_Path ("/tmp/editor-tests");
-      return "/tmp/editor-tests/phase561_missing_stale_fixture";
+      return "/tmp/editor-tests/missing_stale_fixture";
    end Fixture_Root;
 
    procedure Write_File (Path : String; Text : String := "demo") is
@@ -79,8 +80,8 @@ package body Editor.Missing_Stale_Recovery.Tests is
               "unwritable reason is distinct");
       Assert (Editor.Missing_Stale_Recovery.Availability_Reason
                 (Editor.Missing_Stale_Recovery.Target_Stale) =
-                "Target is stale; refresh required.",
-              "stale target reason uses the Phase 578 canonical wording");
+                Editor.Commands.Reason_Target_Stale,
+              "stale target reason uses the canonical wording");
       Assert (Editor.Missing_Stale_Recovery.Outcome_Label
                 ((State   => Editor.Missing_Stale_Recovery.Target_Stale,
                   Surface => Editor.Missing_Stale_Recovery.Project_Search_Surface,
@@ -162,7 +163,7 @@ package body Editor.Missing_Stale_Recovery.Tests is
       Root : constant String := Fixture_Root;
       Existing : constant String := Root & "/src/main.adb";
       Missing  : constant String := Root & "/src/missing.adb";
-      Outside  : constant String := "/tmp/editor-tests/phase561_outside.adb";
+      Outside  : constant String := "/tmp/editor-tests/outside.adb";
    begin
       Reset_Fixture;
       Write_File (Outside, "outside");
@@ -720,7 +721,7 @@ package body Editor.Missing_Stale_Recovery.Tests is
       pragma Unreferenced (T);
    begin
       Assert (Editor.Missing_Stale_Recovery.Assert_Missing_Stale_Target_Recovery_Coherent,
-              "Phase 561 coherence helper covers labels, stale validation, " &
+              "coherence helper covers labels, stale validation, " &
               "command-boundary invariants, render boundary and persistence exclusion");
    end Test_Milestone_Coherence_Helper;
 
@@ -732,7 +733,7 @@ package body Editor.Missing_Stale_Recovery.Tests is
       pragma Unreferenced (T);
       Root : constant String := Fixture_Root;
       Source : constant String := Root & "/src/main.adb";
-      Outside : constant String := "/tmp/editor-tests/phase561_outside_search.adb";
+      Outside : constant String := "/tmp/editor-tests/outside_search.adb";
    begin
       Reset_Fixture;
       Write_File (Outside, "outside");
@@ -858,7 +859,7 @@ package body Editor.Missing_Stale_Recovery.Tests is
       pragma Unreferenced (T);
       Root : constant String := Fixture_Root;
       Source : constant String := Root & "/src/main.adb";
-      Outside : constant String := "/tmp/editor-tests/phase561_recent_outside.adb";
+      Outside : constant String := "/tmp/editor-tests/recent_outside.adb";
       Summary : constant Editor.Missing_Stale_Recovery.Replace_Apply_Validation_Summary :=
         (Applied_Targets => 2, Missing_Targets => 1, Stale_Targets => 1,
          Out_Of_Range_Targets => 1);
@@ -1115,7 +1116,7 @@ package body Editor.Missing_Stale_Recovery.Tests is
               "availability checks cannot repair stale targets");
       Assert (not Editor.Missing_Stale_Recovery.Recovery_Trigger_May_Auto_Refresh
                 (Editor.Missing_Stale_Recovery.Trigger_Background_Watcher),
-              "Phase 561 has no filesystem watcher or background refresh recovery path");
+              "has no filesystem watcher or background refresh recovery path");
       Assert (not Editor.Missing_Stale_Recovery.Recovery_Trigger_May_Persist_Recovery_State
                 (Editor.Missing_Stale_Recovery.Trigger_Workspace_Save),
               "workspace save cannot persist transient recovery state");
@@ -1174,10 +1175,10 @@ package body Editor.Missing_Stale_Recovery.Tests is
                 (Editor.Missing_Stale_Recovery.Staleness_Project_Identity_Mismatch),
               "project identity mismatch requires explicit recovery");
       Assert (Editor.Missing_Stale_Recovery.Project_Scope_Identity_Matches
-                ("/tmp/editor-phase561", "/tmp/editor-phase561"),
+                ("/tmp/editor-", "/tmp/editor-"),
               "matching project identity is accepted");
       Assert (not Editor.Missing_Stale_Recovery.Project_Scope_Identity_Matches
-                ("/tmp/editor-phase561", "/tmp/other-phase561"),
+                ("/tmp/editor-", "/tmp/other-"),
               "previous-project identity cannot be reused for stale rows");
       Assert (not Editor.Missing_Stale_Recovery.Stale_Target_May_Be_Opened_From_Previous_Project,
               "stale previous-project target cannot be opened");
@@ -1323,7 +1324,7 @@ package body Editor.Missing_Stale_Recovery.Tests is
               "Diagnostics transient filter/selection state is not persisted");
       Assert (not Editor.Missing_Stale_Recovery.Transient_Surface_Field_May_Be_Persisted
                 (Editor.Missing_Stale_Recovery.Transient_Build_Output),
-              "Build output remains transient for Phase 561 recovery");
+              "Build output remains transient for recovery");
       Assert (Editor.Missing_Stale_Recovery.Project_Transition_Clears_Build_Transient
                 (Editor.Missing_Stale_Recovery.Transient_Build_Consent),
               "project transition clears stale Build consent");
@@ -1752,60 +1753,60 @@ package body Editor.Missing_Stale_Recovery.Tests is
    begin
       Register_Routine
         (T, Test_User_Readable_Labels_Are_Stable'Access,
-         "Phase 561 missing/stale labels are user-readable and distinct");
+         "missing/stale labels are user-readable and distinct");
       Register_Routine
         (T, Test_Workspace_And_Recent_Recovery_Messages'Access,
-         "Phase 561 reports workspace and recent-project missing references");
+         "reports workspace and recent-project missing references");
       Register_Routine
         (T, Test_File_Project_And_Project_Boundary_Validation'Access,
-         "Phase 561 validates missing workspace/file targets and project boundary");
+         "validates missing workspace/file targets and project boundary");
       Register_Routine
         (T, Test_File_Lifecycle_Missing_Backing_File_Recovery'Access,
-         "Phase 561 preserves dirty buffers and validates save/reveal recovery");
+         "preserves dirty buffers and validates save/reveal recovery");
       Register_Routine
         (T, Test_Surface_Specific_Stale_Target_Validation'Access,
-         "Phase 561 validates stale File Tree/Quick Open/Search/replace targets");
+         "validates stale File Tree/Quick Open/Search/replace targets");
       Register_Routine
         (T, Test_Outline_Diagnostics_And_Build_Validation'Access,
-         "Phase 561 validates stale Outline/Diagnostics/Build targets");
+         "validates stale Outline/Diagnostics/Build targets");
       Register_Routine
         (T, Test_Render_Persistence_And_Command_Payload_Boundaries'Access,
-         "Phase 561 preserves render, persistence and no-payload boundaries");
+         "preserves render, persistence and no-payload boundaries");
       Register_Routine
         (T, Test_Project_Transition_And_Explicit_Recovery_Boundaries'Access,
-         "Phase 561 clears project-scoped stale surfaces and bounds recovery commands");
+         "clears project-scoped stale surfaces and bounds recovery commands");
       Register_Routine
         (T, Test_Stale_Targets_Block_Actions_Until_Recovery'Access,
-         "Phase 561 stale targets block navigation, replace apply and build run");
+         "stale targets block navigation, replace apply and build run");
       Register_Routine
         (T, Test_Surface_Specific_Outcome_Messages'Access,
-         "Phase 561 emits surface-specific stale/missing target messages");
+         "emits surface-specific stale/missing target messages");
       Register_Routine
         (T, Test_Render_Availability_And_Persistence_Exclusion_Depth'Access,
-         "Phase 561 excludes automatic repair and transient recovery persistence");
+         "excludes automatic repair and transient recovery persistence");
       Register_Routine
         (T, Test_Workspace_Action_Caret_And_Selection_Policies'Access,
-         "Phase 561 makes workspace fallback, caret and no-selection policies explicit");
+         "makes workspace fallback, caret and no-selection policies explicit");
       Register_Routine
         (T, Test_Dirty_Guards_And_Parent_Directory_Messages'Access,
-         "Phase 561 preserves dirty guards and distinguishes missing parent directories");
+         "preserves dirty guards and distinguishes missing parent directories");
 
       Register_Routine
         (T, Test_Access_Distinctions_And_Line_Only_Diagnostics'Access,
-         "Phase 561 distinguishes unreadable/unwritable and line-only diagnostics");
+         "distinguishes unreadable/unwritable and line-only diagnostics");
       Register_Routine
         (T, Test_Search_Content_Replace_Summary_And_Stale_Boost_Gates'Access,
-         "Phase 561 gates search content staleness, replace summary and Quick Open boosts");
+         "gates search content staleness, replace summary and Quick Open boosts");
       Register_Routine
         (T, Test_Build_Consent_File_Tree_Restore_And_No_Op_Outcomes'Access,
-         "Phase 561 invalidates stale build consent and reports recovery no-ops");
+         "invalidates stale build consent and reports recovery no-ops");
 
       Register_Routine
         (T, Test_Selection_Marker_Fabrication_And_Reconsent_Gates'Access,
-         "Phase 561 gates stale selections, snapshot markers, replace-all and build reconsent");
+         "gates stale selections, snapshot markers, replace-all and build reconsent");
       Register_Routine
         (T, Test_Command_Route_Payload_Outcome_And_Snapshot_Label_Gates'Access,
-         "Phase 561 enforces Executor routing, payload-free invocations and one outcome");
+         "enforces Executor routing, payload-free invocations and one outcome");
 
       Register_Routine
         (T, Test_File_Tree_Preflight_Workspace_Fallback_And_Replace_Report_Gates'Access,
@@ -1865,7 +1866,7 @@ package body Editor.Missing_Stale_Recovery.Tests is
          "Stale surface lifecycle is bounded, transient and explicit");
       Register_Routine
         (T, Test_Milestone_Coherence_Helper'Access,
-         "Phase 561 milestone coherence helper is satisfied");
+         "milestone coherence helper is satisfied");
    end Register_Tests;
 
 end Editor.Missing_Stale_Recovery.Tests;

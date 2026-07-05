@@ -452,7 +452,7 @@ package body Editor.Keybinding_Management is
 
    procedure Reset_Transient_State is
    begin
-      --  Phase 565: reset all keybinding-management UI state without touching
+      --  reset all keybinding-management UI state without touching
       --  runtime keybindings or keybinding persistence diagnostics. This is
       --  used by lifecycle/input resets where filter/query/selection/capture
       --  state must not survive as workspace, settings, or project state.
@@ -1185,7 +1185,7 @@ package body Editor.Keybinding_Management is
    begin
       --  The editor state handled by this package is intentionally transient:
       --  rows, query, filters, selections, capture, conflict/reset prompts, and
-      --  messages are derived or UI-local. The only Phase 565 persisted data is
+      --  messages are derived or UI-local. The only persisted data is
       --  still owned by Editor.Keybinding_Config: normalized chord -> stable
       --  command name plus supported unbind markers. This predicate gives tests
       --  and audits a named invariant without writing any file.

@@ -10,7 +10,7 @@ with Editor.Ada_Tasking_Protected_Precision_Legality;
 
 package Editor.Ada_Representation_Freezing_Precision_Legality is
 
-   --  Pass1131 compiler-grade representation/freezing precision layer.
+   --  Case 1131 compiler-grade representation/freezing precision layer.
    --
    --  This package deepens representation/freezing legality by connecting
    --  explicit representation clauses/aspects, implicit semantic-use freezing,

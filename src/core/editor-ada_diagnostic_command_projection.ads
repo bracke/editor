@@ -47,6 +47,12 @@ package Editor.Ada_Diagnostic_Command_Projection is
       Diagnostic_Command_Status_Only,
       Diagnostic_Command_Rejected_Stale);
 
+   type Diagnostic_Command_Surface_Action is
+     (Diagnostic_Surface_Open_Source,
+      Diagnostic_Surface_Reveal_Diagnostic,
+      Diagnostic_Surface_Suppress_Diagnostic,
+      Diagnostic_Surface_Apply_Quick_Fix);
+
    type Diagnostic_Command_Descriptor is record
       Id       : Diagnostic_Command_Descriptor_Id := No_Diagnostic_Command_Descriptor;
       Index_Id : Editor.Ada_Semantic_Diagnostic_Index.Semantic_Diagnostic_Index_Id :=
@@ -139,6 +145,15 @@ package Editor.Ada_Diagnostic_Command_Projection is
       Index       : Positive) return Diagnostic_Command_Descriptor;
 
    function Has_Descriptor (Descriptor : Diagnostic_Command_Descriptor) return Boolean;
+   function Surface_Action_Label
+     (Action : Diagnostic_Command_Surface_Action) return String;
+   function Surface_Action_Command_Name
+     (Action : Diagnostic_Command_Surface_Action) return String;
+   function Unavailable_Target_Message
+     (Availability : Diagnostic_Command_Availability) return String;
+   function Descriptor_Supports_Surface_Action
+     (Descriptor : Diagnostic_Command_Descriptor;
+      Action     : Diagnostic_Command_Surface_Action) return Boolean;
    function Fingerprint (Model : Diagnostic_Command_Projection_Model) return Natural;
 
 private

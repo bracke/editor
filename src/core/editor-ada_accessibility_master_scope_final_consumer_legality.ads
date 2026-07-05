@@ -8,7 +8,7 @@ with Editor.Ada_Syntax_Tree;
 
 package Editor.Ada_Accessibility_Master_Scope_Final_Consumer_Legality is
 
-   --  Pass1183 compiler-grade accessibility master/scope final consumer legality.
+   --  Case 1183 compiler-grade accessibility master/scope final consumer legality.
    --
    --  This layer closes the remaining hard accessibility consumer gaps by making
    --  exact master/scope, object-flow, discriminant/variant, and generic replay

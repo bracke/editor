@@ -5,9 +5,9 @@ with Editor.Ada_Syntax_Tree;
 
 package Editor.Ada_Shared_State_Recheck_Convergence_Legality is
 
-   --  Pass1221 shared-state recheck convergence legality.
+   --  Case 1221 shared-state recheck convergence legality.
    --
-   --  This package consumes Pass1220 shared-state recheck application rows and
+   --  This package consumes Case 1220 shared-state recheck application rows and
    --  classifies whether shared-state recheck evidence has converged as
    --  current, converged as not required, stayed stably withheld by a preserved
    --  prerequisite blocker, stayed indeterminate, or changed relative to a

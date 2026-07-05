@@ -5,9 +5,9 @@ with Editor.Ada_Syntax_Tree;
 
 package Editor.Ada_Final_Semantic_Remediation_Gate_Legality is
 
-   --  Pass1200 final semantic remediation gate legality.
+   --  Case 1200 final semantic remediation gate legality.
    --
-   --  This package consumes Pass1199 final semantic blocker remediation order
+   --  This package consumes Case 1199 final semantic blocker remediation order
    --  and turns it into a deterministic semantic gate model.  The gate model is
    --  deliberately not a projection layer: it decides whether downstream
    --  semantic conclusions may remain confident, must be withheld until a

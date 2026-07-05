@@ -8,7 +8,7 @@ with Editor.Ada_Widened_Legality_Coverage_Gate_Enforcement;
 
 package Editor.Ada_Accessibility_Scope_Graph_Legality is
 
-   --  Pass1143 accessibility/lifetime full scope graph legality.
+   --  Case 1143 accessibility/lifetime full scope graph legality.
    --
    --  This package deepens the accessibility precision layer into an explicit
    --  master/scope graph.  It connects nested masters, anonymous access

@@ -7,9 +7,9 @@ with Editor.Ada_Syntax_Tree;
 
 package Editor.Ada_Final_Semantic_Diagnostic_Search_Index is
 
-   --  Pass1197 blocker-family-aware final semantic diagnostic search index.
+   --  Case 1197 blocker-family-aware final semantic diagnostic search index.
    --
-   --  This package indexes Pass1196 final semantic diagnostic provenance for
+   --  This package indexes Case 1196 final semantic diagnostic provenance for
    --  semantic debugging.  It is deliberately not a UI projection layer: it
    --  preserves final blocker family, final semantic status, provenance stage,
    --  source span, syntax node, feed/index links, stale/withheld decisions, and

@@ -6,9 +6,9 @@ with Editor.Ada_Syntax_Tree;
 
 package Editor.Ada_Final_Semantic_Recheck_Eligibility_Legality is
 
-   --  Pass1205 final semantic recheck eligibility legality.
+   --  Case 1205 final semantic recheck eligibility legality.
    --
-   --  This package consumes the Pass1204 remediation worklist and converts
+   --  This package consumes the Case 1204 remediation worklist and converts
    --  dependency-ordered prerequisite work into bounded recheck eligibility
    --  rows.  It prevents downstream semantic consumers from treating a row as
    --  ready for re-analysis while stale evidence, parser/AST coverage gaps,

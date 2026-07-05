@@ -237,7 +237,7 @@ package body Editor.Search is
       elsif AV <= 255 and then BV <= 255 then
          return Fold_ASCII (Character'Val (AV)) = Fold_ASCII (Character'Val (BV));
       else
-         --  Phase 24 deliberately keeps case-insensitive search ASCII-only.
+         --  deliberately keeps case-insensitive search ASCII-only.
          return A = B;
       end if;
    end Same_Code;

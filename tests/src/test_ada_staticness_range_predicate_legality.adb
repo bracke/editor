@@ -238,10 +238,10 @@ package body Test_Ada_Staticness_Range_Predicate_Legality is
    begin
       Register_Routine
         (T, Builds_Wide_Static_Range_And_Predicate_Legality'Access,
-         "Pass1110 classifies staticness, range, predicate, and linked semantic legality");
+         "Case 1110 classifies staticness, range, predicate, and linked semantic legality");
       Register_Routine
         (T, Empty_Inputs_Are_Deterministic'Access,
-         "Pass1110 keeps empty static/range/predicate legality models deterministic");
+         "Case 1110 keeps empty static/range/predicate legality models deterministic");
    end Register_Tests;
 
 end Test_Ada_Staticness_Range_Predicate_Legality;

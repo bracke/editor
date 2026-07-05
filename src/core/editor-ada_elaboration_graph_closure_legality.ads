@@ -10,7 +10,7 @@ with Editor.Ada_Widened_Legality_Coverage_Gate_Enforcement;
 
 package Editor.Ada_Elaboration_Graph_Closure_Legality is
 
-   --  Pass1144 compiler-grade elaboration graph closure legality.
+   --  Case 1144 compiler-grade elaboration graph closure legality.
    --
    --  This package deepens elaboration/dependence precision into an explicit
    --  library-unit elaboration graph closure.  It connects transitive

@@ -11,7 +11,7 @@ package Editor.Folding is
       Collapsed : Boolean := False;
    end record;
 
-   --  Fold range storage.  Phase 42 keeps the representation intentionally
+   --  Fold range storage.  keeps the representation intentionally
    --  simple because folding is independent of the text buffer and no parser
    --  or persistence layer owns ranges yet.
    package Fold_Range_Vectors is new Ada.Containers.Vectors

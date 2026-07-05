@@ -176,10 +176,10 @@ package body Test_Ada_Control_Flow_Legality is
    begin
       Register_Routine
         (T, Test_Boolean_Case_And_Target_Legality'Access,
-         "Pass1102 control-flow Boolean/case/target legality");
+         "Case 1102 control-flow Boolean/case/target legality");
       Register_Routine
         (T, Test_Exception_Tasking_And_Return_Path_Legality'Access,
-         "Pass1102 exception/tasking/return-path legality");
+         "Case 1102 exception/tasking/return-path legality");
    end Register_Tests;
 
 end Test_Ada_Control_Flow_Legality;
