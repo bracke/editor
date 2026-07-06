@@ -453,4 +453,112 @@ package body Editor.Ada_Declaration_Parser.Representation_Metadata is
       end if;
    end Representation_Kind_For;
 
+   function Representation_Property_Is_Boolean
+     (Kind : Representation_Clause_Kind) return Boolean
+   is
+   begin
+      return Kind in Representation_Import_Clause |
+           Representation_Export_Clause |
+           Representation_Pack_Clause |
+           Representation_Atomic_Clause |
+           Representation_Volatile_Clause |
+           Representation_Independent_Clause |
+           Representation_Atomic_Components_Clause |
+           Representation_Volatile_Components_Clause |
+           Representation_Independent_Components_Clause |
+           Representation_Unchecked_Union_Clause |
+           Representation_Suppress_Initialization_Clause |
+           Representation_No_Controlled_Parts_Clause |
+           Representation_Preelaborable_Initialization_Clause |
+           Representation_No_Task_Parts_Clause |
+           Representation_Exclusive_Functions_Clause |
+           Representation_Simple_Storage_Pool_Type_Clause |
+           Representation_Discard_Names_Clause |
+           Representation_Volatile_Function_Clause |
+           Representation_Interrupt_Handler_Clause |
+           Representation_Async_Readers_Clause |
+           Representation_Async_Writers_Clause |
+           Representation_Effective_Reads_Clause |
+           Representation_Effective_Writes_Clause |
+           Representation_Ghost_Clause |
+           Representation_Relaxed_Initialization_Clause |
+           Representation_Nonblocking_Clause |
+           Representation_Nonblocking_Class_Clause |
+           Representation_Always_Terminates_Clause |
+           Representation_Inline_Clause |
+           Representation_Inline_Always_Clause |
+           Representation_No_Return_Clause |
+           Representation_Elaborate_Body_Clause |
+           Representation_Preelaborate_Clause |
+           Representation_Pure_Clause |
+           Representation_Remote_Types_Clause |
+           Representation_Remote_Call_Interface_Clause |
+           Representation_All_Calls_Remote_Clause |
+           Representation_No_Tagged_Streams_Clause |
+           Representation_Extensions_Visible_Clause |
+           Representation_Remote_Access_Type_Clause |
+           Representation_Shared_Passive_Clause |
+           Representation_Side_Effects_Clause |
+           Representation_No_Caching_Clause |
+           Representation_Warnings_Clause |
+           Representation_Weak_External_Clause |
+           Representation_Unreferenced_Clause |
+           Representation_Unmodified_Clause |
+           Representation_No_Elaboration_Code_Clause |
+           Representation_Persistent_BSS_Clause |
+           Representation_Universal_Aliasing_Clause |
+           Representation_Volatile_Full_Access_Clause |
+           Representation_Atomic_Always_Lock_Free_Clause |
+           Representation_No_Inline_Clause |
+           Representation_No_Strict_Aliasing_Clause |
+           Representation_Obsolescent_Clause |
+           Representation_Reviewable_Clause |
+           Representation_No_Heap_Finalization_Clause |
+           Representation_Suppress_Debug_Info_Clause;
+   end Representation_Property_Is_Boolean;
+
+   function Representation_Property_Has_Static_Natural_Value
+     (Kind  : Representation_Clause_Kind;
+      Value : String) return Boolean
+   is
+      Valid : Boolean := False;
+      N : Natural := 0;
+   begin
+      if Kind in Representation_Size_Clause |
+           Representation_Alignment_Clause |
+           Representation_Record_Mod_Clause |
+           Representation_Component_Size_Clause |
+           Representation_Object_Size_Clause |
+           Representation_Value_Size_Clause |
+           Representation_Storage_Size_Clause |
+           Representation_Stream_Size_Clause |
+           Representation_Max_Entry_Queue_Length_Clause |
+           Representation_Priority_Clause |
+           Representation_Interrupt_Priority_Clause |
+           Representation_CPU_Clause |
+           Representation_Max_Size_In_Storage_Elements_Clause |
+           Representation_Machine_Radix_Clause |
+           Representation_Aft_Clause
+      then
+         Parse_Static_Natural (Value, Valid, N);
+         return Valid;
+      else
+         return False;
+      end if;
+   end Representation_Property_Has_Static_Natural_Value;
+
+   function Representation_Property_Static_Natural_Value
+     (Kind  : Representation_Clause_Kind;
+      Value : String) return Natural
+   is
+      Valid : Boolean := False;
+      N : Natural := 0;
+   begin
+      if Representation_Property_Has_Static_Natural_Value (Kind, Value) then
+         Parse_Static_Natural (Value, Valid, N);
+         return N;
+      end if;
+      return 0;
+   end Representation_Property_Static_Natural_Value;
+
 end Editor.Ada_Declaration_Parser.Representation_Metadata;

@@ -16,6 +16,20 @@ package Editor.Ada_Declaration_Parser.Representation_Metadata is
       Clause_Text : String := "")
       return Editor.Ada_Language_Model.Representation_Clause_Kind;
 
+   function Representation_Property_Is_Boolean
+     (Kind : Editor.Ada_Language_Model.Representation_Clause_Kind)
+      return Boolean;
+
+   function Representation_Property_Has_Static_Natural_Value
+     (Kind  : Editor.Ada_Language_Model.Representation_Clause_Kind;
+      Value : String)
+      return Boolean;
+
+   function Representation_Property_Static_Natural_Value
+     (Kind  : Editor.Ada_Language_Model.Representation_Clause_Kind;
+      Value : String)
+      return Natural;
+
    procedure Add_Interfacing_Pragma_Representation
      (Analysis      : in out Editor.Ada_Language_Model.Analysis_Result;
       Target_Symbol : Editor.Ada_Language_Model.Symbol_Id;

@@ -1,12 +1,15 @@
 with Editor.Instance;
 with Editor.Input_Bridge.Active_Find_Key_Handlers;
+with Editor.Input_Bridge.Command_Palette_Handlers;
 with Editor.Input_Bridge.Command_Routing;
 with Editor.Input_Bridge.Command_Prompt_Routing;
 with Editor.Input_Bridge.Diagnostics_Focus_Key_Handlers;
 with Editor.Input_Bridge.Feature_Panel_Key_Handlers;
 with Editor.Input_Bridge.File_Target_Key_Handlers;
+with Editor.Input_Bridge.File_Target_Handlers;
 with Editor.Input_Bridge.File_Tree_Key_Handlers;
 with Editor.Input_Bridge.Goto_Line_Key_Handlers;
+with Editor.Input_Bridge.Goto_Line_Handlers;
 with Editor.Input_Bridge.Guided_Prompt_Key_Handlers;
 with Editor.Input_Bridge.Gutter_Pointer_Handlers;
 with Editor.Input_Bridge.Build_UI_Pointer_Handlers;
@@ -15,6 +18,7 @@ with Editor.Input_Bridge.Buffer_Switcher_Key_Handlers;
 with Editor.Input_Bridge.Keybinding_Handlers;
 with Editor.Input_Bridge.Panel_Bars_Pointer_Handlers;
 with Editor.Input_Bridge.Panel_Feature_Problems_Pointer_Handlers;
+with Editor.Input_Bridge.Panel_Focus_Key_Handlers;
 with Editor.Input_Bridge.Panel_Tree_Search_Pointer_Handlers;
 with Editor.Input_Bridge.Pending_Transition_Key_Handlers;
 with Editor.Input_Bridge.Pointer_Routing;
@@ -22,6 +26,7 @@ with Editor.Input_Bridge.Project_Search_Key_Handlers;
 with Editor.Input_Bridge.Pointer_Scroll_Handlers;
 with Editor.Input_Bridge.Pointer_State;
 with Editor.Input_Bridge.Quick_Open_Key_Handlers;
+with Editor.Input_Bridge.Quick_Open_Handlers;
 with Editor.Input_Bridge.Render_Access;
 with Editor.Input_Bridge.Semantic_Popup_Key_Handlers;
 with Editor.Input_Bridge.Settings_Handlers;
@@ -1238,479 +1243,37 @@ use type Editor.Guided_Prompts.Prompt_Kind;
         (The_Editor.State, Id, Owner_Before);
    end Execute_Command_Id;
 
+   procedure Execute_Command_Id_No_Shift
+     (Id : Editor.Commands.Command_Id)
+   is
+   begin
+      Execute_Command_Id (Id);
+   end Execute_Command_Id_No_Shift;
+
+   procedure Execute_Instance_Command
+     (Command : Editor.Commands.Command)
+   is
+   begin
+      Editor.Instance.Execute (The_Editor, Command);
+   end Execute_Instance_Command;
+
    function Handle_Command_Palette
      (Cmd : Editor.Commands.Command) return Boolean
    is
-      procedure Accept_Selected_Palette_Command
-      is
-         Candidates : Editor.Commands.Command_Palette_Candidate_Vectors.Vector;
-         Visible_Candidates : Editor.Commands.Command_Palette_Candidate_Vectors.Vector;
-         Preferred  : constant Editor.Commands.Command_Id :=
-           Editor.Command_Palette.Current.Selected_Command_Id;
-         Still_Visible : Boolean := Preferred = Editor.Commands.No_Command;
-      begin
-         Editor.Executor.Command_Palette_Projection.Command_Palette_Candidates
-           (The_Editor.State, Candidates);
-         Editor.Command_Palette.Visible_Candidates (Candidates, Visible_Candidates);
-
-         if Preferred /= Editor.Commands.No_Command then
-            for Candidate of Visible_Candidates loop
-               if Candidate.Id = Preferred then
-                  Still_Visible := True;
-                  exit;
-               end if;
-            end loop;
-         end if;
-
-         if not Still_Visible then
-            Report_Warning ("Selected command is no longer visible");
-            Editor.Command_Palette.Reconcile_Selection (Visible_Candidates);
-            Editor.Render_Cache.Invalidate_All;
-            return;
-         end if;
-
-         Editor.Command_Palette.Reconcile_Selection (Visible_Candidates);
-
-         declare
-            Selected_Index : constant Natural :=
-              Editor.Command_Palette.Current.Selected_Item;
-         begin
-            if Visible_Candidates.Length = 0
-              or else Selected_Index >= Natural (Visible_Candidates.Length)
-            then
-               Report_Warning ("No command selected");
-               Editor.Render_Cache.Invalidate_All;
-               return;
-            end if;
-
-            declare
-               Candidate : constant Editor.Commands.Command_Palette_Candidate :=
-                 Visible_Candidates.Element (Selected_Index);
-            begin
-               if not Candidate.Available then
-                  declare
-                     Reason : constant String :=
-                       (if Length (Candidate.Reason) > 0
-                        then To_String (Candidate.Reason)
-                        else "Command not available here");
-                  begin
-                     Report_Info (Reason);
-                  end;
-                  Editor.Render_Cache.Invalidate_All;
-                  return;
-               end if;
-
-               if Candidate.Id = Editor.Commands.Command_Palette_Show_Command_Help then
-                  Execute_Command_Id (Candidate.Id);
-                  Editor.Executor.Command_Palette_Projection.Command_Palette_Candidates
-                    (The_Editor.State, Candidates);
-                  Editor.Command_Palette.Visible_Candidates
-                    (Candidates, Visible_Candidates);
-                  Editor.Command_Palette.Reconcile_Selection
-                    (Visible_Candidates, Preferred_Command => Candidate.Id);
-                  Editor.Render_Cache.Invalidate_All;
-               else
-                  Editor.Executor.Dismiss_Active_Overlay
-                    (The_Editor.State, Editor.Overlay_Focus.Dismiss_Accept);
-                  Execute_Command_Id (Candidate.Id);
-               end if;
-            end;
-         end;
-      end Accept_Selected_Palette_Command;
    begin
-      if Cmd.Kind = Editor.Commands.Open_Command_Palette then
-         Execute_Command_Id (Editor.Commands.Command_Open_Command_Palette);
-         return True;
-      end if;
-
-      if not Editor.Overlay_Focus.Is_Active
-        (The_Editor.State.Overlay_Focus,
-         Editor.Overlay_Focus.Command_Palette_Overlay)
-      then
-         return False;
-      end if;
-
-      case Cmd.Kind is
-         when Editor.Commands.Insert_Text_Input =>
-            if Cmd.Ctrl and then (Cmd.Ch = 'a' or else Cmd.Ch = 'A') then
-               Editor.Command_Palette.Select_All;
-            elsif Cmd.Ch = ASCII.LF or else Cmd.Ch = ASCII.CR then
-               Accept_Selected_Palette_Command;
-            elsif Length (Cmd.Text) > 0 then
-               Editor.Command_Palette.Insert_Text (To_String (Cmd.Text));
-            else
-               Editor.Command_Palette.Append_Character (Cmd.Ch);
-            end if;
-
-         when Editor.Commands.Delete_Char
-            | Editor.Commands.Delete_Previous_Character =>
-            Editor.Command_Palette.Backspace;
-
-         when Editor.Commands.Forward_Delete_Char
-            | Editor.Commands.Delete_Next_Character =>
-            Editor.Command_Palette.Delete_Forward;
-
-         when Editor.Commands.Paste_Text =>
-            Editor.Command_Palette.Insert_Text (To_String (Cmd.Text));
-
-         when Editor.Commands.Paste_Clipboard =>
-            Editor.Command_Palette.Insert_Text
-              (To_String (Editor.Executor.Clipboard.Text_For_Local_Input));
-
-         when Editor.Commands.Move_Left =>
-            Editor.Command_Palette.Move_Cursor_Left;
-
-         when Editor.Commands.Move_Right =>
-            Editor.Command_Palette.Move_Cursor_Right;
-
-         when Editor.Commands.Move_Home | Editor.Commands.Move_Line_Start =>
-            Editor.Command_Palette.Move_Cursor_Start;
-
-         when Editor.Commands.Move_End | Editor.Commands.Move_Line_End =>
-            Editor.Command_Palette.Move_Cursor_End;
-
-         when Editor.Commands.Move_Up =>
-            declare
-               Candidates : Editor.Commands.Command_Palette_Candidate_Vectors.Vector;
-            begin
-               Editor.Executor.Command_Palette_Projection.Command_Palette_Candidates
-                 (The_Editor.State, Candidates);
-               Editor.Command_Palette.Move_Selection_By_Candidates
-                 (Candidates, -1);
-            end;
-
-         when Editor.Commands.Move_Down =>
-            declare
-               Candidates : Editor.Commands.Command_Palette_Candidate_Vectors.Vector;
-            begin
-               Editor.Executor.Command_Palette_Projection.Command_Palette_Candidates
-                 (The_Editor.State, Candidates);
-               Editor.Command_Palette.Move_Selection_By_Candidates
-                 (Candidates, 1);
-            end;
-
-         when Editor.Commands.Palette_Accept =>
-            Accept_Selected_Palette_Command;
-
-         when Editor.Commands.Palette_Show_Command_Help =>
-            Execute_Command_Id (Editor.Commands.Command_Palette_Show_Command_Help);
-
-         when Editor.Commands.Palette_Cancel
-            | Editor.Commands.Clear_Extra_Carets =>
-            declare
-               Owner_Before : constant Editor.Focus_Management.Focus_Owner :=
-                 Editor.Focus_Management.Effective_Focus_Owner
-                   (The_Editor.State);
-            begin
-               Editor.Executor.Dismiss_Active_Overlay
-                 (The_Editor.State, Editor.Overlay_Focus.Dismiss_Escape);
-               Editor.Focus_Management.Apply_Command_Focus_Result
-                 (The_Editor.State, Editor.Commands.Command_Cancel, Owner_Before);
-            end;
-
-         when Editor.Commands.Move_To_Point =>
-            declare
-               Layout : constant Editor.Layout.Layout_Config := Editor.Layout.Current;
-               Margin : constant Natural := Editor.Theme.Palette_Margin;
-               Max_W  : constant Natural := Editor.Theme.Palette_Max_Width;
-               Width  : Natural := Max_W;
-               X      : Integer := 0;
-               Y      : Integer := 0;
-               Text_X : Integer := 0;
-               Field_Cols : Natural := 1;
-               Click_X : constant Integer := Integer (Cmd.Click_X);
-               Click_Y : constant Integer := Integer (Cmd.Click_Y);
-            begin
-               if Editor.View.Viewport_Width <= Margin * 2 then
-                  Width := Editor.View.Viewport_Width;
-               else
-                  Width := Natural'Min (Max_W, Editor.View.Viewport_Width - Margin * 2);
-               end if;
-
-               X := Layout.Origin_X
-                 + Integer ((Editor.View.Viewport_Width - Width) / 2);
-               Y := Layout.Origin_Y
-                 + Integer
-                     (Float'Max
-                        (Editor.Theme.Palette_Top_Min_Offset,
-                         Float (Editor.View.Viewport_Height)
-                         * Editor.Theme.Palette_Top_Fraction));
-               Text_X := X + Integer (Editor.Theme.Palette_Text_Padding_X);
-               Field_Cols :=
-                 (if Width > Natural (2.0 * Editor.Theme.Palette_Text_Padding_X)
-                              + 2 * Editor.Layout.Cell_W
-                  then (Width - Natural (2.0 * Editor.Theme.Palette_Text_Padding_X))
-                       / Editor.Layout.Cell_W - 2
-                  else 1);
-
-               if Click_X >= Text_X + Integer (2 * Editor.Layout.Cell_W)
-                 and then Click_X < X + Integer (Width)
-                 and then Click_Y >= Y + Integer (Editor.Theme.Palette_Text_Padding_Y)
-                 and then Click_Y < Y + Integer (Editor.Theme.Palette_Text_Padding_Y)
-                                      + Integer (Editor.Layout.Cell_H)
-               then
-                  Editor.Command_Palette.Set_Cursor_From_Visible_Column
-                    (Natural ((Click_X - Text_X
-                               - Integer (2 * Editor.Layout.Cell_W))
-                              / Integer (Editor.Layout.Cell_W)),
-                     Field_Cols);
-               else
-                  Editor.Executor.Dismiss_Active_Overlay
-                    (The_Editor.State, Editor.Overlay_Focus.Dismiss_Outside_Click);
-               end if;
-            end;
-
-         when Editor.Commands.Pointer_Hover =>
-            null;
-
-         when others =>
-            null;
-      end case;
-
-      Editor.Render_Cache.Invalidate_All;
-      return True;
+      return Editor.Input_Bridge.Command_Palette_Handlers.Handle_Command_Palette
+        (The_Editor.State, Cmd, Execute_Command_Id_No_Shift'Access,
+         Report_Info'Access, Report_Warning'Access);
    end Handle_Command_Palette;
 
 
    function Handle_Quick_Open
      (Cmd : Editor.Commands.Command) return Boolean
    is
-      Layout : constant Editor.Layout.Layout_Config := Editor.Layout.Current;
-      Message_Body   : constant Editor.Layout.Rect :=
-        Editor.Layout.Editor_Body_Rect
-          (Layout, Editor.View.Viewport_Width, Editor.View.Viewport_Height);
-      Config : constant Editor.Quick_Open.Quick_Open_Config := (others => <>);
-      Hit    : Editor.Quick_Open.Quick_Open_Hit_Result;
-      Cmd2   : Editor.Commands.Command;
    begin
-      if Cmd.Kind = Editor.Commands.Open_Quick_Open then
-         Execute_Command_Id (Editor.Commands.Command_Open_Quick_Open);
-         return True;
-      elsif Cmd.Kind = Editor.Commands.Toggle_Quick_Open then
-         Execute_Command_Id (Editor.Commands.Command_Toggle_Quick_Open);
-         return True;
-      end if;
-
-      if not Editor.Overlay_Focus.Is_Active
-        (The_Editor.State.Overlay_Focus,
-         Editor.Overlay_Focus.Quick_Open_Overlay)
-      then
-         return False;
-      end if;
-
-      case Cmd.Kind is
-         when Editor.Commands.Insert_Text_Input =>
-            if Cmd.Ctrl and then (Cmd.Ch = 'a' or else Cmd.Ch = 'A') then
-               Editor.Quick_Open.Select_All (The_Editor.State.Quick_Open);
-               Editor.Render_Cache.Invalidate_All;
-            elsif Cmd.Ch = ASCII.LF or else Cmd.Ch = ASCII.CR then
-               Execute_Command_Id (Editor.Commands.Command_Accept_Quick_Open);
-            elsif Cmd.Ch = ASCII.HT then
-               if Cmd.Shift then
-                  Execute_Command_Id (Editor.Commands.Command_Quick_Open_Previous_Result);
-               else
-                  Execute_Command_Id (Editor.Commands.Command_Quick_Open_Next_Result);
-               end if;
-            elsif Length (Cmd.Text) > 0 then
-               Cmd2.Kind := Editor.Commands.Quick_Open_Insert_Text;
-               Cmd2.Text := Cmd.Text;
-               Editor.Instance.Execute (The_Editor, Cmd2);
-            elsif Cmd.Ch /= ASCII.NUL then
-               Cmd2.Kind := Editor.Commands.Quick_Open_Insert_Text;
-               Cmd2.Text := To_Unbounded_String (String'(1 => Cmd.Ch));
-               Editor.Instance.Execute (The_Editor, Cmd2);
-            end if;
-            return True;
-
-         when Editor.Commands.Delete_Char
-            | Editor.Commands.Delete_Previous_Character =>
-            Cmd2.Kind := Editor.Commands.Quick_Open_Backspace;
-            Editor.Instance.Execute (The_Editor, Cmd2);
-            return True;
-
-         when Editor.Commands.Forward_Delete_Char
-            | Editor.Commands.Delete_Next_Character =>
-            Cmd2.Kind := Editor.Commands.Quick_Open_Delete_Forward;
-            Editor.Instance.Execute (The_Editor, Cmd2);
-            return True;
-
-         when Editor.Commands.Paste_Text =>
-            Cmd2.Kind := Editor.Commands.Quick_Open_Insert_Text;
-            Cmd2.Text := Cmd.Text;
-            Editor.Instance.Execute (The_Editor, Cmd2);
-            return True;
-
-         when Editor.Commands.Paste_Clipboard =>
-            Cmd2.Kind := Editor.Commands.Quick_Open_Insert_Text;
-            Cmd2.Text :=
-              Editor.Executor.Clipboard.Text_For_Local_Input;
-            Editor.Instance.Execute (The_Editor, Cmd2);
-            return True;
-
-         when Editor.Commands.Move_Left =>
-            Editor.Quick_Open.Move_Cursor_Left (The_Editor.State.Quick_Open);
-            Editor.Render_Cache.Invalidate_All;
-            return True;
-
-         when Editor.Commands.Move_Right =>
-            Editor.Quick_Open.Move_Cursor_Right (The_Editor.State.Quick_Open);
-            Editor.Render_Cache.Invalidate_All;
-            return True;
-
-         when Editor.Commands.Move_Home | Editor.Commands.Move_Line_Start =>
-            Editor.Quick_Open.Move_Cursor_Start (The_Editor.State.Quick_Open);
-            Editor.Render_Cache.Invalidate_All;
-            return True;
-
-         when Editor.Commands.Move_End | Editor.Commands.Move_Line_End =>
-            Editor.Quick_Open.Move_Cursor_End (The_Editor.State.Quick_Open);
-            Editor.Render_Cache.Invalidate_All;
-            return True;
-
-         when Editor.Commands.Move_Down | Editor.Commands.Quick_Open_Next_Result =>
-            Execute_Command_Id (Editor.Commands.Command_Quick_Open_Next_Result);
-            return True;
-
-         when Editor.Commands.Move_Up | Editor.Commands.Quick_Open_Previous_Result =>
-            Execute_Command_Id (Editor.Commands.Command_Quick_Open_Previous_Result);
-            return True;
-
-         when Editor.Commands.Palette_Accept | Editor.Commands.Accept_Quick_Open =>
-            Execute_Command_Id (Editor.Commands.Command_Accept_Quick_Open);
-            return True;
-
-         when Editor.Commands.Quick_Open_Query_Set =>
-            Editor.Executor.Command_Surface_Commands.Execute_Quick_Open_Set_Query
-              (The_Editor.State, To_String (Cmd.Text));
-            return True;
-
-         when Editor.Commands.Quick_Open_Query_Clear =>
-            Execute_Command_Id (Editor.Commands.Command_Quick_Open_Query_Clear);
-            return True;
-
-         when Editor.Commands.Quick_Open_Kind_Next =>
-            Execute_Command_Id (Editor.Commands.Command_Quick_Open_Kind_Next);
-            return True;
-
-         when Editor.Commands.Quick_Open_Kind_Previous =>
-            Execute_Command_Id (Editor.Commands.Command_Quick_Open_Kind_Previous);
-            return True;
-
-         when Editor.Commands.Quick_Open_Kind_Clear =>
-            Execute_Command_Id (Editor.Commands.Command_Quick_Open_Kind_Clear);
-            return True;
-
-         when Editor.Commands.Quick_Open_Scope_Set =>
-            Editor.Executor.Command_Surface_Commands.Execute_Quick_Open_Scope_Set
-              (The_Editor.State, To_String (Cmd.Text));
-            return True;
-
-         when Editor.Commands.Quick_Open_Scope_Clear =>
-            Execute_Command_Id (Editor.Commands.Command_Quick_Open_Scope_Clear);
-            return True;
-
-         when Editor.Commands.Quick_Open_Scope_From_Selected =>
-            Execute_Command_Id (Editor.Commands.Command_Quick_Open_Scope_From_Selected);
-            return True;
-
-         when Editor.Commands.Quick_Open_Scope_Parent =>
-            Execute_Command_Id (Editor.Commands.Command_Quick_Open_Scope_Parent);
-            return True;
-
-         when Editor.Commands.Quick_Open_Reveal_Active =>
-            Execute_Command_Id (Editor.Commands.Command_Quick_Open_Reveal_Active);
-            return True;
-
-         when Editor.Commands.Quick_Open_Scope_Active_Directory =>
-            Execute_Command_Id (Editor.Commands.Command_Quick_Open_Scope_Active_Directory);
-            return True;
-
-         when Editor.Commands.Quick_Open_Create_From_Query =>
-            Execute_Command_Id (Editor.Commands.Command_Quick_Open_Create_From_Query);
-            return True;
-
-         when Editor.Commands.Quick_Open_Create_With_Parents_From_Query =>
-            Execute_Command_Id (Editor.Commands.Command_Quick_Open_Create_With_Parents_From_Query);
-            return True;
-
-         when Editor.Commands.Quick_Open_Priority_Toggle =>
-            Execute_Command_Id (Editor.Commands.Command_Quick_Open_Priority_Toggle);
-            return True;
-
-         when Editor.Commands.Quick_Open_Priority_Clear =>
-            Execute_Command_Id (Editor.Commands.Command_Quick_Open_Priority_Clear);
-            return True;
-
-         when Editor.Commands.First_Project_Search_Result =>
-            Execute_Command_Id (Editor.Commands.Command_First_Project_Search_Result);
-            return True;
-
-         when Editor.Commands.Last_Project_Search_Result =>
-            Execute_Command_Id (Editor.Commands.Command_Last_Project_Search_Result);
-            return True;
-
-         when Editor.Commands.Reveal_Active_Project_Search_Result =>
-            Execute_Command_Id (Editor.Commands.Command_Reveal_Active_Project_Search_Result);
-            return True;
-
-         when Editor.Commands.Project_Search_Scope_Selected_Directory =>
-            Execute_Command_Id (Editor.Commands.Command_Project_Search_Scope_Selected_Directory);
-            return True;
-
-         when Editor.Commands.Clear_Extra_Carets
-            | Editor.Commands.Palette_Cancel
-            | Editor.Commands.Close_Quick_Open =>
-            Execute_Command_Id (Editor.Commands.Command_Close_Quick_Open);
-            return True;
-
-         when Editor.Commands.Move_To_Point =>
-            Hit := Editor.Quick_Open.Hit_Test
-              (Message_Body, Config, The_Editor.State.Quick_Open,
-               Integer (Cmd.Click_X), Integer (Cmd.Click_Y),
-               Editor.Layout.Cell_W, Editor.Layout.Cell_H);
-            case Hit.Zone is
-               when Editor.Quick_Open.Outside_Quick_Open =>
-                  Execute_Command_Id (Editor.Commands.Command_Close_Quick_Open);
-               when Editor.Quick_Open.Quick_Open_Query_Field_Zone =>
-                  declare
-                     G : constant Editor.Layout.Rect :=
-                       Editor.Quick_Open.Geometry
-                         (Message_Body, Config, Editor.Layout.Cell_W, Editor.Layout.Cell_H);
-                     Text_Start : constant Integer :=
-                       G.X + Integer ((Config.Result_Padding_Columns + 1)
-                                      * Editor.Layout.Cell_W);
-                     Text_Cols : constant Natural :=
-                       (if G.Width / Editor.Layout.Cell_W > 2
-                        then G.Width / Editor.Layout.Cell_W - 2 else 1);
-                     Visible_Column : constant Natural :=
-                       (if Integer (Cmd.Click_X) <= Text_Start then 0
-                        else Natural ((Integer (Cmd.Click_X) - Text_Start)
-                                      / Integer (Editor.Layout.Cell_W)));
-                  begin
-                     Editor.Quick_Open.Set_Cursor_From_Visible_Column
-                       (The_Editor.State.Quick_Open, Visible_Column, Text_Cols);
-                  end;
-               when Editor.Quick_Open.Quick_Open_Result_Row_Zone =>
-                  while Editor.Quick_Open.Selected_Result_Index (The_Editor.State.Quick_Open) /= Hit.Result_Index loop
-                     Execute_Command_Id (Editor.Commands.Command_Quick_Open_Next_Result);
-                     exit when Editor.Quick_Open.Result_Count (The_Editor.State.Quick_Open) = 0;
-                  end loop;
-               when others =>
-                  null;
-            end case;
-            Editor.Render_Cache.Invalidate_All;
-            return True;
-
-         when Editor.Commands.Pointer_Hover =>
-            Hit := Editor.Quick_Open.Hit_Test
-              (Message_Body, Config, The_Editor.State.Quick_Open,
-               Integer (Cmd.Click_X), Integer (Cmd.Click_Y),
-               Editor.Layout.Cell_W, Editor.Layout.Cell_H);
-            return Hit.Zone /= Editor.Quick_Open.Outside_Quick_Open;
-
-         when others =>
-            return True;
-      end case;
+      return Editor.Input_Bridge.Quick_Open_Handlers.Handle_Quick_Open
+        (The_Editor.State, Cmd, Execute_Command_Id_No_Shift'Access,
+         Execute_Instance_Command'Access);
    end Handle_Quick_Open;
 
 
@@ -2085,110 +1648,10 @@ use type Editor.Guided_Prompts.Prompt_Kind;
    function Handle_Goto_Line
      (Cmd : Editor.Commands.Command) return Boolean
    is
-      Cmd2 : Editor.Commands.Command;
    begin
-      if Cmd.Kind = Editor.Commands.Open_Goto_Line then
-         Execute_Command_Id (Editor.Commands.Command_Goto_Line);
-         return True;
-      elsif Cmd.Kind = Editor.Commands.Prefill_Goto_Line_Current then
-         Execute_Command_Id (Editor.Commands.Command_Goto_Line_Prefill_Current);
-         return True;
-      end if;
-
-      if not Editor.Overlay_Focus.Is_Active
-        (The_Editor.State.Overlay_Focus,
-         Editor.Overlay_Focus.Go_To_Line_Overlay)
-      then
-         return False;
-      end if;
-
-      case Cmd.Kind is
-         when Editor.Commands.Insert_Text_Input =>
-            if Cmd.Ctrl and then (Cmd.Ch = 'a' or else Cmd.Ch = 'A') then
-               Editor.Go_To_Line.Select_All (The_Editor.State.Go_To_Line);
-               Editor.Render_Cache.Invalidate_All;
-            elsif Cmd.Ch = ASCII.LF or else Cmd.Ch = ASCII.CR then
-               Execute_Command_Id (Editor.Commands.Command_Accept_Goto_Line);
-            elsif Length (Cmd.Text) > 0 then
-               Cmd2.Kind := Editor.Commands.Goto_Line_Insert_Text;
-               Cmd2.Text := Cmd.Text;
-               Editor.Instance.Execute (The_Editor, Cmd2);
-            elsif Cmd.Ch /= ASCII.NUL and then Cmd.Ch /= ASCII.HT then
-               Cmd2.Kind := Editor.Commands.Goto_Line_Insert_Text;
-               Cmd2.Text := To_Unbounded_String (String'(1 => Cmd.Ch));
-               Editor.Instance.Execute (The_Editor, Cmd2);
-            end if;
-            return True;
-
-         when Editor.Commands.Delete_Char
-            | Editor.Commands.Delete_Previous_Character =>
-            Cmd2.Kind := Editor.Commands.Goto_Line_Backspace;
-            Editor.Instance.Execute (The_Editor, Cmd2);
-            return True;
-
-         when Editor.Commands.Forward_Delete_Char
-            | Editor.Commands.Delete_Next_Character =>
-            Cmd2.Kind := Editor.Commands.Goto_Line_Delete_Forward;
-            Editor.Instance.Execute (The_Editor, Cmd2);
-            return True;
-
-         when Editor.Commands.Paste_Text =>
-            Cmd2.Kind := Editor.Commands.Goto_Line_Insert_Text;
-            Cmd2.Text := Cmd.Text;
-            Editor.Instance.Execute (The_Editor, Cmd2);
-            return True;
-
-         when Editor.Commands.Paste_Clipboard =>
-            Cmd2.Kind := Editor.Commands.Goto_Line_Insert_Text;
-            Cmd2.Text :=
-              Editor.Executor.Clipboard.Text_For_Local_Input;
-            Editor.Instance.Execute (The_Editor, Cmd2);
-            return True;
-
-         when Editor.Commands.Move_Left =>
-            Editor.Go_To_Line.Move_Cursor_Left (The_Editor.State.Go_To_Line);
-            Editor.Render_Cache.Invalidate_All;
-            return True;
-
-         when Editor.Commands.Move_Right =>
-            Editor.Go_To_Line.Move_Cursor_Right (The_Editor.State.Go_To_Line);
-            Editor.Render_Cache.Invalidate_All;
-            return True;
-
-         when Editor.Commands.Move_Line_Start =>
-            Editor.Go_To_Line.Move_Cursor_Start (The_Editor.State.Go_To_Line);
-            Editor.Render_Cache.Invalidate_All;
-            return True;
-
-         when Editor.Commands.Move_Line_End =>
-            Editor.Go_To_Line.Move_Cursor_End (The_Editor.State.Go_To_Line);
-            Editor.Render_Cache.Invalidate_All;
-            return True;
-
-         when Editor.Commands.Prefill_Goto_Line_Current =>
-            Execute_Command_Id (Editor.Commands.Command_Goto_Line_Prefill_Current);
-            return True;
-
-         when Editor.Commands.Close_Goto_Line =>
-            Execute_Command_Id (Editor.Commands.Command_Close_Goto_Line);
-            return True;
-
-         when Editor.Commands.Accept_Goto_Line =>
-            Execute_Command_Id (Editor.Commands.Command_Accept_Goto_Line);
-            return True;
-
-         when Editor.Commands.Goto_Line_Query_Set =>
-            Editor.Executor.Command_Surface_Commands.Execute_Goto_Line_Set_Query
-              (The_Editor.State, To_String (Cmd.Text));
-            return True;
-
-         when Editor.Commands.Goto_Line_Query_Clear =>
-            Editor.Executor.Command_Surface_Commands.Execute_Goto_Line_Clear_Query (The_Editor.State);
-            return True;
-
-         when others =>
-            return False;
-      end case;
+      return Editor.Input_Bridge.Goto_Line_Handlers.Handle_Goto_Line
+        (The_Editor.State, Cmd, Execute_Command_Id_No_Shift'Access,
+         Execute_Instance_Command'Access);
    end Handle_Goto_Line;
 
    function Handle_Active_Find_Input
@@ -2454,81 +1917,8 @@ use type Editor.Guided_Prompts.Prompt_Kind;
      (Cmd : Editor.Commands.Command) return Boolean
    is
    begin
-      if not Editor.Executor.File_Target_Prompt_Commands.File_Target_Prompt_Is_Active (The_Editor.State) then
-         return False;
-      end if;
-
-      if not Editor.Overlay_Focus.Is_Active
-        (The_Editor.State.Overlay_Focus,
-         Editor.Overlay_Focus.File_Target_Prompt_Overlay)
-      then
-         return False;
-      end if;
-
-      case Cmd.Kind is
-         when Editor.Commands.Insert_Text_Input =>
-            if Cmd.Ctrl and then (Cmd.Ch = 'a' or else Cmd.Ch = 'A') then
-               Editor.Executor.File_Target_Prompt_Commands.Select_All_File_Target_Prompt_Text
-                 (The_Editor.State);
-            elsif Cmd.Ch = ASCII.LF or else Cmd.Ch = ASCII.CR then
-               Editor.Executor.File_Target_Prompt_Commands.Confirm_File_Target_Prompt (The_Editor.State);
-               Editor.Focus_Management.Restore_Focus_To_Editor (The_Editor.State);
-            elsif Cmd.Ch = ASCII.HT then
-               null;
-            elsif Length (Cmd.Text) > 0 then
-               Editor.Executor.File_Target_Prompt_Commands.Insert_File_Target_Prompt_Text
-                 (The_Editor.State, To_String (Cmd.Text));
-            elsif Cmd.Ch /= ASCII.NUL then
-               Editor.Executor.File_Target_Prompt_Commands.Insert_File_Target_Prompt_Text
-                 (The_Editor.State, String'(1 => Cmd.Ch));
-            end if;
-            return True;
-
-         when Editor.Commands.Delete_Char
-            | Editor.Commands.Delete_Previous_Character =>
-            Editor.Executor.File_Target_Prompt_Commands.Backspace_File_Target_Prompt (The_Editor.State);
-            return True;
-
-         when Editor.Commands.Forward_Delete_Char
-            | Editor.Commands.Delete_Next_Character =>
-            Editor.Executor.File_Target_Prompt_Commands.Delete_Forward_File_Target_Prompt (The_Editor.State);
-            return True;
-
-         when Editor.Commands.Paste_Text =>
-            Editor.Executor.File_Target_Prompt_Commands.Insert_File_Target_Prompt_Text
-              (The_Editor.State, To_String (Cmd.Text));
-            return True;
-
-         when Editor.Commands.Paste_Clipboard =>
-            Editor.Executor.File_Target_Prompt_Commands.Insert_File_Target_Prompt_Text
-              (The_Editor.State,
-               To_String (Editor.Executor.Clipboard.Text_For_Local_Input));
-            return True;
-
-         when Editor.Commands.Move_Left =>
-            Editor.Executor.File_Target_Prompt_Commands.Move_File_Target_Prompt_Cursor_Left (The_Editor.State);
-            return True;
-
-         when Editor.Commands.Move_Right =>
-            Editor.Executor.File_Target_Prompt_Commands.Move_File_Target_Prompt_Cursor_Right (The_Editor.State);
-            return True;
-
-         when Editor.Commands.Move_Home | Editor.Commands.Move_Line_Start =>
-            Editor.Executor.File_Target_Prompt_Commands.Move_File_Target_Prompt_Cursor_Start (The_Editor.State);
-            return True;
-
-         when Editor.Commands.Move_End | Editor.Commands.Move_Line_End =>
-            Editor.Executor.File_Target_Prompt_Commands.Move_File_Target_Prompt_Cursor_End (The_Editor.State);
-            return True;
-
-         when Editor.Commands.Palette_Cancel =>
-            Editor.Executor.File_Target_Prompt_Commands.Cancel_File_Target_Prompt (The_Editor.State);
-            Editor.Focus_Management.Restore_Previous_Focus_Or_Editor (The_Editor.State);
-            return True;
-
-         when others =>
-            return True;
-      end case;
+      return Editor.Input_Bridge.File_Target_Handlers.Handle_File_Target_Prompt
+        (The_Editor.State, Cmd);
    end Handle_File_Target_Prompt;
 
 
@@ -3054,98 +2444,11 @@ use type Editor.Guided_Prompts.Prompt_Kind;
                      null;
                end case;
             end;
-         elsif Editor.Terminal_Tasks.Build_Render_Snapshot
-             (The_Editor.State.Terminal_Tasks).Focused
+         elsif Editor.Input_Bridge.Panel_Focus_Key_Handlers
+           .Handle_Focused_Surface_Key
+             (The_Editor.State, Chord, Execute_Command_Id_Default'Access)
          then
-            case Chord.Key is
-               when Editor.Keybindings.Key_Up =>
-                  Execute_Command_Id
-                    (Editor.Commands.Command_Terminal_Select_Previous_Task);
-               when Editor.Keybindings.Key_Down =>
-                  Execute_Command_Id
-                    (Editor.Commands.Command_Terminal_Select_Next_Task);
-               when Editor.Keybindings.Key_Enter =>
-                  Execute_Command_Id
-                    (Editor.Commands.Command_Terminal_Run_Selected_Task);
-               when Editor.Keybindings.Key_Escape =>
-                  Execute_Command_Id (Editor.Commands.Command_Focus_Editor_Text);
-               when Editor.Keybindings.Key_Delete =>
-                  Execute_Command_Id
-                    (Editor.Commands.Command_Terminal_Clear_Output);
-               when others =>
-                  goto Focused_Surface_Not_Handled;
-            end case;
-            Editor.Cursor.Notify_Input
-              (Float (Editor.View.Current_Time_Seconds));
             return;
-         elsif The_Editor.State.Recent_Projects_Focused then
-            case Chord.Key is
-               when Editor.Keybindings.Key_Up =>
-                  Execute_Command_Id
-                    (Editor.Commands.Command_Select_Previous_Recent_Project);
-               when Editor.Keybindings.Key_Down =>
-                  Execute_Command_Id
-                    (Editor.Commands.Command_Select_Next_Recent_Project);
-               when Editor.Keybindings.Key_Enter =>
-                  Execute_Command_Id
-                    (Editor.Commands.Command_Open_Selected_Recent_Project);
-               when Editor.Keybindings.Key_Escape =>
-                  Execute_Command_Id (Editor.Commands.Command_Focus_Editor_Text);
-               when Editor.Keybindings.Key_Delete =>
-                  Execute_Command_Id
-                    (Editor.Commands.Command_Remove_Selected_Recent_Project);
-               when others =>
-                  goto Focused_Surface_Not_Handled;
-            end case;
-            Editor.Cursor.Notify_Input
-              (Float (Editor.View.Current_Time_Seconds));
-            return;
-         elsif Editor.Panel_Focus.Bottom_Panel_Has_Focus (The_Editor.State.Panel_Focus) then
-            if Editor.Panel_Focus.Bottom_Content (The_Editor.State.Panel_Focus) =
-              Editor.Panel_Focus.Search_Results_Focus
-            then
-               case Chord.Key is
-                  when Editor.Keybindings.Key_Up =>
-                     Execute_Command_Id (Editor.Commands.Command_Search_Results_Move_Up);
-                  when Editor.Keybindings.Key_Down =>
-                     Execute_Command_Id (Editor.Commands.Command_Search_Results_Move_Down);
-                  when Editor.Keybindings.Key_Page_Up =>
-                     Execute_Command_Id (Editor.Commands.Command_Search_Results_Page_Up);
-                  when Editor.Keybindings.Key_Page_Down =>
-                     Execute_Command_Id (Editor.Commands.Command_Search_Results_Page_Down);
-                  when Editor.Keybindings.Key_Enter =>
-                     Execute_Command_Id (Editor.Commands.Command_Search_Results_Open_Selected);
-                  when Editor.Keybindings.Key_Escape =>
-                     Execute_Command_Id (Editor.Commands.Command_Focus_Editor_Text);
-                  when others =>
-                     goto Focused_Surface_Not_Handled;
-               end case;
-               Editor.Cursor.Notify_Input
-                 (Float (Editor.View.Current_Time_Seconds));
-               return;
-            elsif Editor.Panel_Focus.Bottom_Content (The_Editor.State.Panel_Focus) =
-              Editor.Panel_Focus.Problems_Focus
-            then
-               case Chord.Key is
-                  when Editor.Keybindings.Key_Up =>
-                     Execute_Command_Id (Editor.Commands.Command_Problems_Move_Up);
-                  when Editor.Keybindings.Key_Down =>
-                     Execute_Command_Id (Editor.Commands.Command_Problems_Move_Down);
-                  when Editor.Keybindings.Key_Page_Up =>
-                     Execute_Command_Id (Editor.Commands.Command_Problems_Page_Up);
-                  when Editor.Keybindings.Key_Page_Down =>
-                     Execute_Command_Id (Editor.Commands.Command_Problems_Page_Down);
-                  when Editor.Keybindings.Key_Enter =>
-                     Execute_Command_Id (Editor.Commands.Command_Problems_Open_Selected);
-                  when Editor.Keybindings.Key_Escape =>
-                     Execute_Command_Id (Editor.Commands.Command_Problems_Focus_Editor);
-                  when others =>
-                     goto Focused_Surface_Not_Handled;
-               end case;
-               Editor.Cursor.Notify_Input
-                 (Float (Editor.View.Current_Time_Seconds));
-               return;
-            end if;
          end if;
       end if;
 
@@ -3280,92 +2583,11 @@ use type Editor.Guided_Prompts.Prompt_Kind;
             Report_Info'Access)
          then
             null;
-         elsif Editor.Terminal_Tasks.Build_Render_Snapshot
-             (The_Editor.State.Terminal_Tasks).Focused
+         elsif Editor.Input_Bridge.Panel_Focus_Key_Handlers
+           .Handle_Focused_Surface_Key
+             (The_Editor.State, Chord, Execute_Command_Id_Default'Access)
          then
-            case Chord.Key is
-               when Editor.Keybindings.Key_Up =>
-                  Execute_Command_Id
-                    (Editor.Commands.Command_Terminal_Select_Previous_Task);
-               when Editor.Keybindings.Key_Down =>
-                  Execute_Command_Id
-                    (Editor.Commands.Command_Terminal_Select_Next_Task);
-               when Editor.Keybindings.Key_Enter =>
-                  Execute_Command_Id
-                    (Editor.Commands.Command_Terminal_Run_Selected_Task);
-               when Editor.Keybindings.Key_Escape =>
-                  Execute_Command_Id (Editor.Commands.Command_Focus_Editor_Text);
-               when Editor.Keybindings.Key_Delete =>
-                  Execute_Command_Id
-                    (Editor.Commands.Command_Terminal_Clear_Output);
-               when others =>
-                  null;
-            end case;
-            Editor.Cursor.Notify_Input
-              (Float (Editor.View.Current_Time_Seconds));
-         elsif The_Editor.State.Recent_Projects_Focused then
-            case Chord.Key is
-               when Editor.Keybindings.Key_Up =>
-                  Execute_Command_Id
-                    (Editor.Commands.Command_Select_Previous_Recent_Project);
-               when Editor.Keybindings.Key_Down =>
-                  Execute_Command_Id
-                    (Editor.Commands.Command_Select_Next_Recent_Project);
-               when Editor.Keybindings.Key_Enter =>
-                  Execute_Command_Id
-                    (Editor.Commands.Command_Open_Selected_Recent_Project);
-               when Editor.Keybindings.Key_Escape =>
-                  Execute_Command_Id (Editor.Commands.Command_Focus_Editor_Text);
-               when Editor.Keybindings.Key_Delete =>
-                  Execute_Command_Id
-                    (Editor.Commands.Command_Remove_Selected_Recent_Project);
-               when others =>
-                  null;
-            end case;
-            Editor.Cursor.Notify_Input
-              (Float (Editor.View.Current_Time_Seconds));
-         elsif Editor.Panel_Focus.Bottom_Panel_Has_Focus (The_Editor.State.Panel_Focus) then
-            if Editor.Panel_Focus.Bottom_Content (The_Editor.State.Panel_Focus) =
-              Editor.Panel_Focus.Search_Results_Focus
-            then
-               case Chord.Key is
-                  when Editor.Keybindings.Key_Up =>
-                     Execute_Command_Id (Editor.Commands.Command_Search_Results_Move_Up);
-                  when Editor.Keybindings.Key_Down =>
-                     Execute_Command_Id (Editor.Commands.Command_Search_Results_Move_Down);
-                  when Editor.Keybindings.Key_Page_Up =>
-                     Execute_Command_Id (Editor.Commands.Command_Search_Results_Page_Up);
-                  when Editor.Keybindings.Key_Page_Down =>
-                     Execute_Command_Id (Editor.Commands.Command_Search_Results_Page_Down);
-                  when Editor.Keybindings.Key_Enter =>
-                     Execute_Command_Id (Editor.Commands.Command_Search_Results_Open_Selected);
-                  when Editor.Keybindings.Key_Escape =>
-                     Execute_Command_Id (Editor.Commands.Command_Focus_Editor_Text);
-                  when others =>
-                     null;
-               end case;
-            elsif Editor.Panel_Focus.Bottom_Content (The_Editor.State.Panel_Focus) =
-              Editor.Panel_Focus.Problems_Focus
-            then
-               case Chord.Key is
-                  when Editor.Keybindings.Key_Up =>
-                     Execute_Command_Id (Editor.Commands.Command_Problems_Move_Up);
-                  when Editor.Keybindings.Key_Down =>
-                     Execute_Command_Id (Editor.Commands.Command_Problems_Move_Down);
-                  when Editor.Keybindings.Key_Page_Up =>
-                     Execute_Command_Id (Editor.Commands.Command_Problems_Page_Up);
-                  when Editor.Keybindings.Key_Page_Down =>
-                     Execute_Command_Id (Editor.Commands.Command_Problems_Page_Down);
-                  when Editor.Keybindings.Key_Enter =>
-                     Execute_Command_Id (Editor.Commands.Command_Problems_Open_Selected);
-                  when Editor.Keybindings.Key_Escape =>
-                     Execute_Command_Id (Editor.Commands.Command_Problems_Focus_Editor);
-                  when others =>
-                     null;
-               end case;
-            end if;
-            Editor.Cursor.Notify_Input
-              (Float (Editor.View.Current_Time_Seconds));
+            null;
          else
             Execute_Command_Id (Id, Shift => Chord.Modifiers.Shift);
             Editor.Cursor.Notify_Input
