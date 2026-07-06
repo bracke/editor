@@ -16,6 +16,19 @@ package Editor.Ada_Declaration_Parser.Representation_Metadata is
       Clause_Text : String := "")
       return Editor.Ada_Language_Model.Representation_Clause_Kind;
 
+   function Attribute_Representation_Kind_For
+     (Target_Text : String;
+      Item_Text   : String;
+      Clause_Text : String := "")
+      return Editor.Ada_Language_Model.Representation_Clause_Kind;
+
+   function Is_Attribute_Definition_Aspect_Name
+     (Name : String) return Boolean;
+
+   function Aspect_Default_Value
+     (Name  : String;
+      Value : String) return String;
+
    function Representation_Property_Is_Boolean
      (Kind : Editor.Ada_Language_Model.Representation_Clause_Kind)
       return Boolean;

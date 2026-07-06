@@ -1157,6 +1157,8 @@ editor-input.adb
 editor-input.ads
 editor-input_bridge-render_access.adb
 editor-input_bridge-render_access.ads
+editor-input_bridge-active_find_handlers.adb
+editor-input_bridge-active_find_handlers.ads
 editor-input_bridge-active_find_key_handlers.adb
 editor-input_bridge-active_find_key_handlers.ads
 editor-input_bridge-build_ui_pointer_handlers.adb
@@ -1165,6 +1167,8 @@ editor-input_bridge-build_ui_key_handlers.adb
 editor-input_bridge-build_ui_key_handlers.ads
 editor-input_bridge-build_ui_projection.adb
 editor-input_bridge-build_ui_projection.ads
+editor-input_bridge-buffer_switcher_handlers.adb
+editor-input_bridge-buffer_switcher_handlers.ads
 editor-input_bridge-buffer_switcher_key_handlers.adb
 editor-input_bridge-buffer_switcher_key_handlers.ads
 editor-input_bridge-command_palette_handlers.adb
@@ -1193,6 +1197,8 @@ editor-input_bridge-gutter_pointer_handlers.adb
 editor-input_bridge-gutter_pointer_handlers.ads
 editor-input_bridge-keybinding_handlers.adb
 editor-input_bridge-keybinding_handlers.ads
+editor-input_bridge-outline_filter_handlers.adb
+editor-input_bridge-outline_filter_handlers.ads
 editor-input_bridge-panel_bars_pointer_handlers.adb
 editor-input_bridge-panel_bars_pointer_handlers.ads
 editor-input_bridge-panel_feature_problems_pointer_handlers.adb
@@ -1203,12 +1209,16 @@ editor-input_bridge-panel_tree_search_pointer_handlers.adb
 editor-input_bridge-panel_tree_search_pointer_handlers.ads
 editor-input_bridge-pending_transition_key_handlers.adb
 editor-input_bridge-pending_transition_key_handlers.ads
+editor-input_bridge-project_search_bar_handlers.adb
+editor-input_bridge-project_search_bar_handlers.ads
 editor-input_bridge-project_search_key_handlers.adb
 editor-input_bridge-project_search_key_handlers.ads
 editor-input_bridge-quick_open_key_handlers.adb
 editor-input_bridge-quick_open_key_handlers.ads
 editor-input_bridge-quick_open_handlers.adb
 editor-input_bridge-quick_open_handlers.ads
+editor-input_bridge-search_query_handlers.adb
+editor-input_bridge-search_query_handlers.ads
 editor-input_bridge-pointer_routing.adb
 editor-input_bridge-pointer_routing.ads
 editor-input_bridge-pointer_scroll_handlers.adb
